@@ -444,6 +444,9 @@ Defer skip? ' false IS skip?
     ghost dup >magic @ <fwd> =
     IF  >link @ 0<>  ELSE  drop false  THEN ;
 
+: doer? ( -- flag ) \ name
+    ghost >magic @ <do:> = ;
+
 : skip-defs ( -- )
     BEGIN  refill  WHILE  source -trailing nip 0= UNTIL  THEN ;
 
@@ -760,12 +763,16 @@ Build: T 0 au, , H ;
 by User
 Builder AUser
 
-Build:  ( n -- ) T , H ;
+Build:  ( n -- ) ;
 by: :docon ( ghost -- n ) T @ H ;DO
+Builder (Constant)
+
+Build:  ( n -- ) T , H ;
+by (Constant)
 Builder Constant
 
 Build:  ( n -- ) T A, H ;
-by Constant
+by (Constant)
 Builder AConstant
 
 Build:  ( d -- ) T , , H ;
@@ -773,11 +780,11 @@ DO: ( ghost -- d ) T dup cell+ @ swap @ H ;DO
 Builder 2Constant
 
 Build: T 0 , H ;
-by Constant
+by (Constant)
 Builder Value
 
 Build: T 0 A, H ;
-by Constant
+by (Constant)
 Builder AValue
 
 Build:  ( -- ) compile noop ;
@@ -796,9 +803,13 @@ Builder interpret/compile:
  1- tuck +  swap invert and ;
 >TARGET
 
+Build: ;
+by: :dofield T @ H + ;DO
+Builder (Field)
+
 Build: 	>r rot r@ nalign  dup T , H  ( align1 size offset )
 	+ swap r> nalign ;
-by: :dofield T @ H + ;DO
+by (Field)
 Builder Field
 
 : struct  T 0 1 chars H ;
@@ -920,6 +931,8 @@ also minimal
 \ define new [IFDEF] and [IFUNDEF]                      20may93jaw
 
 : defined? defined? ;
+: needed? needed? ;
+: doer? doer? ;
 
 : [IFDEF] defined? postpone [IF] ;
 : [IFUNDEF] defined? 0= postpone [IF] ;

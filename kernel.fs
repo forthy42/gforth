@@ -24,29 +24,45 @@ HEX
 
 \ labels for some code addresses
 
+doer? :docon [IF]
 : docon: ( -- addr )	\ gforth
     \G the code address of a @code{CONSTANT}
     ['] bl >code-address ;
+[THEN]
 
 : docol: ( -- addr )	\ gforth
     \G the code address of a colon definition
-    ['] docon: >code-address ;
+    ['] docol: >code-address ;
 
+doer? :dovar [IF]
 : dovar: ( -- addr )	\ gforth
     \G the code address of a @code{CREATE}d word
     ['] udp >code-address ;
+[THEN]
 
+doer? :douser [IF]
 : douser: ( -- addr )	\ gforth
     \G the code address of a @code{USER} variable
     ['] s0 >code-address ;
+[THEN]
 
+doer? :dodefer [IF]
 : dodefer: ( -- addr )	\ gforth
     \G the code address of a @code{defer}ed word
     ['] source >code-address ;
+[THEN]
 
+doer? :dofield [IF]
 : dofield: ( -- addr )	\ gforth
     \G the code address of a @code{field}
     ['] reveal-method >code-address ;
+[THEN]
+
+has-prims 0= [IF]
+: dodoes: ( -- addr )	\ gforth
+    \G the code address of a @code{field}
+    ['] spaces >code-address ;
+[THEN]
 
 NIL AConstant NIL \ gforth
 
@@ -735,8 +751,13 @@ Create ???  0 , 3 c, char ? c, char ? c, char ? c,
 : dodoes,  ( -- )
   here /does-handler allot does-handler! ;
 
+doer? :dovar [IF]
 : Create ( "name" -- ) \ core
     Header reveal dovar: cfa, ;
+[ELSE]
+: Create ( "name" -- ) \ core
+    Header reveal here lastcfa ! 0 A, 0 , DOES> ;
+[THEN]
 
 \ Create Variable User Constant                        17mar93py
 
@@ -744,15 +765,26 @@ Create ???  0 , 3 c, char ? c, char ? c, char ? c,
     Create 0 , ;
 : AVariable ( "name" -- ) \ gforth
     Create 0 A, ;
-: 2VARIABLE ( "name" -- ) \ double
+: 2Variable ( "name" -- ) \ double
     create 0 , 0 , ;
-    
-: User ( "name" -- ) \ gforth
-    Variable ;
-: AUser ( "name" -- ) \ gforth
-    AVariable ;
 
-: (Constant)  Header reveal docon: cfa, ;
+: uallot ( n -- )  udp @ swap udp +! ;
+
+doer? :douser [IF]
+: User ( "name" -- ) \ gforth
+    Header reveal douser: cfa, cell uallot , ;
+: AUser ( "name" -- ) \ gforth
+    User ;
+[ELSE]
+: User Create uallot , DOES> @ up @ + ;
+: AUser User ;
+[THEN]
+
+doer? :docon [IF]
+    : (Constant)  Header reveal docon: cfa, ;
+[ELSE]
+    : (Constant)  Create DOES> @ ;
+[THEN]
 : Constant ( w "name" -- ) \ core
     \G Defines constant @var{name}
     \G  
@@ -760,6 +792,8 @@ Create ???  0 , 3 c, char ? c, char ? c, char ? c,
     (Constant) , ;
 : AConstant ( addr "name" -- ) \ gforth
     (Constant) A, ;
+: Value ( w "name" -- ) \ core-ext
+    (Constant) , ;
 
 : 2Constant ( w1 w2 "name" -- ) \ double
     Create ( w1 w2 "name" -- )
@@ -767,16 +801,23 @@ Create ???  0 , 3 c, char ? c, char ? c, char ? c,
     DOES> ( -- w1 w2 )
         2@ ;
     
+doer? :dofield [IF]
+    : (Field)  Header reveal dofield: cfa, ;
+[ELSE]
+    : (Field)  Create DOES> @ + ;
+[THEN]
 \ IS Defer What's Defers TO                            24feb93py
 
+doer? :dodefer [IF]
 : Defer ( "name" -- ) \ gforth
     \ !! shouldn't it be initialized with abort or something similar?
     Header Reveal dodefer: cfa,
     ['] noop A, ;
-\     Create ( -- ) 
-\ 	['] noop A,
-\     DOES> ( ??? )
-\ 	perform ;
+[ELSE]
+: Defer ( "name" -- ) \ gforth
+    Create ['] noop A,
+DOES> @ execute ;
+[THEN]
 
 : Defers ( "name" -- ) \ gforth
     ' >body @ compile, ; immediate
@@ -1263,9 +1304,6 @@ DEFER DOERROR
 Defer 'cold ' noop IS 'cold
 
 : cold ( -- ) \ gforth
-[ has-os [IF] ]
-    stdout TO outfile-id
-[ [THEN] ]
 [ has-files [IF] ]
     pathstring 2@ process-path pathdirs 2!
     init-included-files
@@ -1305,10 +1343,13 @@ Defer 'cold ' noop IS 'cold
  ." Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA." cr ;
 
 : boot ( path **argv argc -- )
+    main-task up!
+[ has-os [IF] ]
+    stdout TO outfile-id
+[ [THEN] ]
 [ has-files [IF] ]
     argc ! argv ! pathstring 2!
 [ [THEN] ]
-    main-task up!
     sp@ s0 !
 [ has-locals [IF] ]
     lp@ forthstart 7 cells + @ - 

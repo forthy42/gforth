@@ -92,6 +92,7 @@ KERN_SRC = \
 	files.fs \
 	kernel.fs \
 	main.fs \
+	primitives0.fs \
 	search-order.fs \
 	special.fs \
 	tools.fs \
@@ -403,8 +404,8 @@ aliases.fs:	primitives.b prims2x.fs aliases0.fs
 		$(CP) aliases0.fs aliases.fs
 		$(FORTHK) prims2x.fs -e "s\" primitives.b\" ' output-alias process-file bye" >>$@
 
-primitives.fs:	primitives.b prims2x.fs aliases0.fs
-		$(CP) aliases0.fs primitives.fs
+primitives.fs:	primitives.b prims2x.fs primitives0.fs
+		$(CP) primitives0.fs primitives.fs
 		$(FORTHK) prims2x.fs -e "s\" primitives.b\" ' output-forth process-file bye" >>$@
 
 primitives.TAGS: primitives.b prims2x.fs

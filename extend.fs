@@ -30,8 +30,6 @@ decimal
 
 \ VALUE 2>R 2R> 2R@                                     17may93jaw
 
-: value ( w "name" -- ) \ core-ext
-  (constant) , ;
 \ !! 2value
 
 : 2Literal ( compilation w1 w2 -- ; run-time  -- w1 w2 ) \ double two-literal
