@@ -195,9 +195,19 @@ Defer parse-line
     over c@ '% = over 0> and IF  do-size on  1 /string  THEN
     over c@ '\ = over 0> and IF  do-icon off 1 /string  THEN ;
 
+s" Gforth" environment? [IF] s" 0.5.0" compare 0= [IF] 
+: parse-string ( c-addr u -- ) \ core,block
+    loadfilename# @ >r
+    1 loadfilename# ! \ "*evaluated string*"
+    push-file #tib ! >tib !
+    >in off blk off loadfile off -1 loadline !
+    ['] parse-line catch
+    pop-file r> loadfilename# ! throw ;
+[ELSE]
 : parse-string ( addr u -- )
     evaluate-input cell new-tib #tib ! tib !
     ['] parse-line catch pop-file throw ;
+[THEN] [THEN]
 
 : .link ( addr u -- ) dup >r '| -$split  dup r> = IF  2swap  THEN 
     link-options link $!
