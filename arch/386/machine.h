@@ -62,9 +62,17 @@
 #define PFA(cfa)	(((Cell *)cfa)+2)
 /* PFA1 is a special version for use just after a NEXT1 */
 #define PFA1(cfa)	PFA(cfa)
+/* a special version of CODE_ADDRESS for DOES_CODE1 and DOES_CODE */
+#define CODE_ADDRESS1(cfa) \
+    ({long _cfa1 = (long)(cfa); (Label)(_cfa1+*((long *)(_cfa1+1))+5);})
+
 /* CODE_ADDRESS is the address of the code jumped to through the code field */
 #define CODE_ADDRESS(cfa) \
-    ({long _cfa = (long)(cfa); (Label)(_cfa+*((long *)(_cfa+1))+5);})
+    ({long _cfa = (long)(cfa); \
+       (((*(unsigned char *)_cfa)==CALL) ? \
+       CODE_ADDRESS1(_cfa) : \
+       (Label)(_cfa));})
+
 /* MAKE_CF creates an appropriate code field at the cfa; ca is the code address */
 #define MAKE_CF(cfa,ca)	({long _cfa = (long)(cfa); \
                           long _ca  = (long)(ca); \
@@ -78,11 +86,11 @@
    long _ca = (long)(CODE_ADDRESS(_xt)); \
    ((((*(unsigned char *)_xt) == CALL) \
      && ((*(unsigned char *)_ca) == JMP) \
-     && ((long)(CODE_ADDRESS(_ca)) == (long)&&dodoes)) \
+     && ((long)(CODE_ADDRESS1(_ca)) == (long)&&dodoes)) \
     ? _ca+DOES_HANDLER_SIZE : 0L); })
 
 /* this is a special version of DOES_CODE for use in dodoes */
-#define DOES_CODE1(label)      (CODE_ADDRESS(label)+DOES_HANDLER_SIZE)
+#define DOES_CODE1(label)      (CODE_ADDRESS1(label)+DOES_HANDLER_SIZE)
 
 /* this stores a jump dodoes at addr */
 #define MAKE_DOES_CF(addr,doesp)	({long _addr = (long)(addr); \

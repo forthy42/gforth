@@ -39,6 +39,7 @@
 #include <unistd.h>
 #include <pwd.h>
 #include <dirent.h>
+#include <fnmatch.h>
 #else
 #include "systypes.h"
 #endif

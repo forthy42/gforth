@@ -54,6 +54,7 @@ require savesys.fs
 require table.fs
 require ekey.fs
 require backtrace.fs
+require code.fs
 
 \ define the environmental queries for all the loaded wordsets
 \ since the blocks wordset is loaded in a single file, its queries

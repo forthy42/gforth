@@ -514,12 +514,38 @@ Defer xt-see-xt ( xt -- )
     then
     space ;
 
-Defer discode ( addr -- )
-\  hook for the disassembler: disassemble code at addr (as far as the
-\  disassembler thinks is sensible)
-:noname ( addr -- )
-    drop ." ..." ;
-IS discode
+Defer discode ( addr u -- )
+\  hook for the disassembler: disassemble code at addr of length u
+' dump IS discode
+
+: next-head ( addr1 -- addr2 ) \ gforth
+    \G find the next header starting after addr1, up to here (unreliable).
+    here swap u+do
+	i head?
+	if
+	    i unloop exit
+	then
+    cell +loop
+    here ;
+
+: umin ( u1 u2 -- u )
+    2dup u>
+    if
+	swap
+    then
+    drop ;
+	
+: next-prim ( addr1 -- addr2 )
+    \G find the next primitive after addr1
+    1+ >r -1 primstart
+    begin ( umin head R: boundary )
+	@ dup
+    while
+	tuck name>int >code-address ( head1 umin c-addr )
+	r@ - umin
+	swap
+    repeat
+    drop r> + ;
 
 : seecode ( xt -- )
     dup s" Code" .defname
@@ -527,8 +553,14 @@ IS discode
     if
 	>code-address
     then
-    discode
-    ."  end-code" cr ;
+    dup in-dictionary? \ user-defined code word?
+    if
+	dup next-head
+    else
+	dup next-prim
+    then
+    over - discode
+    ." end-code" cr ;
 : seevar ( xt -- )
     s" Variable" .defname cr ;
 : seeuser ( xt -- )
@@ -590,7 +622,8 @@ IS discode
 [ [IFDEF] dofield: ]
 	dofield: of seefield endof
 [ [THEN] ]
-	over >body of seecode endof
+	over       of seecode endof \ direct threaded code words
+	over >body of seecode endof \ indirect threaded code words
 	2drop abort" unknown word type"
     ENDCASE ;
 

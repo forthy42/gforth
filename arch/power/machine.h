@@ -60,10 +60,18 @@ extern void _sync_cache_range (caddr_t eaddr, size_t count);
 #define JUMP_TARGET_BITS 0
 /* assuming the code is in the lower 32M; if it is in the upper 32M,
    define JUMP_TARGET_BITS as ~0x3ffffff */
-#define JUMP_MASK	0x3fffffc
+#define JUMP_MASK	0x03fffffc
+#define JUMP_OPCODE	0x48000002
 
 /* CODE_ADDRESS is the address of the code jumped to through the code field */
-#define CODE_ADDRESS(cfa)	((Label)(((*(unsigned *)(cfa))&JUMP_MASK)|JUMP_TARGET_BITS))
+/* If the instruction at cfa is no jump, it's a code word and the code
+   address is the cfa */
+#define CODE_ADDRESS(cfa) ((Label) \
+			   {unsigned *_cfa=(unsigned *)(cfa); \
+			    unsigned _inst=*_cfa; \
+			    ((((_inst ^ JUMP_OPCODE) & (~JUMP_MASK)) == 0) ? \
+			     ((_inst ^ JUMP_OPCODE) | JUMP_TARGET_BITS) : \
+			     _cfa );})
 
 /* MAKE_CF creates an appropriate code field at the cfa; ca is the
    code address. For those familiar with assembly, this is a `ba'
