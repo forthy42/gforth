@@ -125,7 +125,7 @@ end-struct type%
 s" sp" save-mem s" (Cell)" make-stack data-stack 
 s" fp" save-mem s" "       make-stack fp-stack
 s" rp" save-mem s" (Cell)" make-stack return-stack
-s" ip" save-mem s" error don't use # on results" make-stack inst-stream
+s" IP" save-mem s" error don't use # on results" make-stack inst-stream
 ' inst-in-index inst-stream stack-in-index-xt !
 \ !! initialize stack-in and stack-out
 
