@@ -153,7 +153,8 @@ KERN_SRC = \
 	kernel/nio.fs \
 	kernel/saccept.fs \
 	kernel/doers.fs \
-	kernel/getdoers.fs
+	kernel/getdoers.fs \
+	kernel/pass.fs
 
 EC_SRC = \
 	asm/README \
