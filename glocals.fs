@@ -498,14 +498,14 @@ forth definitions
      OF POSTPONE laddr# >body @ lp-offset, POSTPONE d! ENDOF
      [ ' flocal >definer ] literal
      OF POSTPONE laddr# >body @ lp-offset, POSTPONE f! ENDOF
-     abort" can only store TO value or local value"
+     -&32 throw
    endcase
  else
    [ ' locals-wordlist >definer ] literal =
    if
      >body !
    else
-     abort" can only store TO value"
+     -&32 throw
    endif
  endif ; immediate
 

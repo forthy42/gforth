@@ -120,7 +120,11 @@ decimal
 variable span
 
 : expect ( c-addr +len -- )
-  0 rot over
-  BEGIN  key decode >r 2over = r> or  UNTIL
-  2drop nip span ! ;
+    0 rot over
+    BEGIN ( maxlen span c-addr pos1 )
+	key decode ( maxlen span c-addr pos2 flag )
+	>r 2over = r> or
+    UNTIL
+    type-rest drop
+    2drop nip span ! ;
 

@@ -36,7 +36,7 @@ variable buffer-dirty buffer-dirty off
     buffer-dirty on ;
 
 : save-buffers ( -- )
-    buffer-dirty @
+    buffer-dirty @ buffer-block @ 0<> and
     if
 	buffer-block @ block-position
 	block-buffer chars/block get-block-fid write-file throw
@@ -78,7 +78,7 @@ User scr 0 scr !
     ." Screen " u. cr
     16 0
     ?do
-	scr @ block i 64 * chars + 64 type cr
+	i 2 .r space scr @ block i 64 * chars + 64 type cr
     loop ;
 
 : (source)  ( -- addr len )
@@ -101,3 +101,8 @@ User scr 0 scr !
 
 : +thru ( i*x n1 n2 -- j*x )
   1+ swap 0 ?DO  I +load  LOOP ;
+
+get-current environment-wordlist set-current
+true constant block
+true constant block-ext
+set-current

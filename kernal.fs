@@ -153,14 +153,14 @@ Defer source
 \ word parse                                           23feb93py
 
 : parse-word  ( char -- addr len )
-  source 2dup >r >r >in @ /string
+  source 2dup >r >r >in @ over min /string
   rot dup bl = IF  drop (parse-white)  ELSE  (word)  THEN
   2dup + r> - 1+ r> min >in ! ;
 : word   ( char -- addr )
   parse-word here place  bl here count + c!  here ;
 
 : parse    ( char -- addr len )
-  >r  source  >in @ /string  over  swap r>  scan >r
+  >r  source  >in @ over min /string  over  swap r>  scan >r
   over - dup r> IF 1+ THEN  >in +! ;
 
 \ name                                                 13feb93py
@@ -172,6 +172,12 @@ Defer source
     source 2dup >r >r >in @ /string (parse-white)
     2dup + r> - 1+ r> min >in ! ;
 \    name count ;
+
+: name-too-short? ( c-addr u -- c-addr u )
+    dup 0= -&16 and throw ;
+
+: name-too-long? ( c-addr u -- c-addr u )
+    dup $1F u> -&19 and throw ;
 
 \ Literal                                              17dec92py
 
@@ -781,7 +787,16 @@ Avariable leave-sp  leave-stack 3 cells + leave-sp !
 : (S")     "lit count ;                                restrict
 : SLiteral postpone (S") here over char+ allot  place align ;
                                              immediate restrict
-: S"       [char] " parse  state @ IF  postpone SLiteral  THEN ;
+create s"-buffer /line chars allot
+: S" ( run-time: -- c-addr u )
+    [char] " parse
+    state @
+    IF
+	postpone SLiteral
+    ELSE
+	/line min >r s"-buffer r@ cmove
+	s"-buffer r>
+    THEN ;
                                              immediate
 : ."       state @  IF    postpone (.") ,"  align
                     ELSE  [char] " parse type  THEN  ;  immediate
@@ -827,8 +842,7 @@ defer header     ' (header) IS header
     dup c, here swap chars dup allot move ;
 
 : name,  ( "name" -- )
-    name
-    dup $1F u> -&19 and throw ( is name too long? )
+    name name-too-short? name-too-long?
     string, cfalign ;
 : input-stream-header ( "name" -- )
     \ !! this is f83-implementation-dependent
@@ -854,7 +868,7 @@ create nextname-buffer 32 chars allot
 
 \ the next name is given in the string
 : nextname ( c-addr u -- ) \ general
-    dup $1F u> -&19 and throw ( is name too long? )
+    name-too-long?
     nextname-buffer c! ( c-addr )
     nextname-buffer count move
     ['] nextname-header IS (header) ;
@@ -1161,7 +1175,7 @@ Defer key
 \ : bin           dup 1 chars - c@
 \                 r/o 4 chars + over - dup >r swap move r> ;
 
-: bin  1+ ;
+: bin  1 or ;
 
 create nl$ 1 c, A c, 0 c, \ gnu includes usually a cr in dos
                            \ or not unix environments if
@@ -1471,7 +1485,7 @@ Variable argc
     ?DO
 	I arg over c@ [char] - <>
 	IF
-	    included 1
+	    required 1
 	ELSE
 	    I 1+ arg  do-option
 	THEN

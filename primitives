@@ -1009,6 +1009,30 @@ write-file	c_addr u1 wfileid -- wior	file	write_file
 flush-file	wfileid -- wior		file-ext	flush_file
 wior = IOR(fflush((FILE *) wfileid)==EOF);
 
+file-status	c_addr u -- ntype wior	file-ext	file_status
+char *filename=cstr(c_addr, u, 1);
+if (access (filename, F_OK) != 0) {
+  ntype=0;
+  wior=IOR(1);
+}
+else if (access (filename, R_OK | W_OK) == 0) {
+  ntype=2; /* r/w */
+  wior=0;
+}
+else if (access (filename, R_OK) == 0) {
+  ntype=0; /* r/o */
+  wior=0;
+}
+else if (access (filename, W_OK) == 0) {
+  ntype=4; /* w/o */
+  wior=0;
+}
+else {
+  ntype=1; /* well, we cannot access the file, but better deliver a legal
+	    access mode (r/o bin), so we get a decent error later upon open. */
+  wior=0;
+}
+
 comparisons(f, r1 r2, f_, r1, r2, new, new, float, new)
 comparisons(f0, r, f_zero_, r, 0., float, new, float, new)
 

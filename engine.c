@@ -166,7 +166,7 @@ char *cstr(Char *from, UCell size, int clear)
 #define rint(x)	floor((x)+0.5)
 #endif
 
-static char* fileattr[6]={"r","rb","r+","r+b","w+","w+b"};
+static char* fileattr[6]={"r","rb","r+","r+b","w","wb"};
 
 static Address up0=NULL;
 

@@ -24,7 +24,7 @@ MAX-CHAR constant /COUNTED-STRING
 ADDRESS-UNIT-BITS cells 2* 2 + constant /HOLD
 &84 constant /PAD
 true constant CORE
-\ CORE-EXT?
+true constant CORE-EXT?
 1 -3 mod 0< constant FLOORED
 
 1 ADDRESS-UNIT-BITS cells 1- lshift 1- constant MAX-N
@@ -33,10 +33,14 @@ true constant CORE
 -1 MAX-N 2constant MAX-D
 -1. 2constant MAX-UD
 
-0 1 2constant gforth \ minor mayor version
+0 1 2constant gforth \ minor major version
 
 \ !! RETURN-STACK-CELLS
 \ !! STACK-CELLS
+\ !! floating-stack
+\ !! max-float
+\ !! #locals
+maxvp constant wordlists
 
 forth definitions
 previous

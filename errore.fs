@@ -74,7 +74,7 @@ ErrLink @ unlock reloff lock \ make sure that the terminating 0 is not relocated
 	IF 2 cells + count type drop exit THEN
     REPEAT
     drop
-    dup -512 <= over -2048 > and
+    dup -2047 -511 within
     IF
 	512 + negate strerror type exit
     THEN

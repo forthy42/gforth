@@ -16,3 +16,12 @@ buffer. anton 27jan95
 Conditional compilation continues after the file ends. This is allowed
 by the standard (through an ambiguous condition), but the compiler
 should at least produce a warning.  anton 27jan95
+
+accept and expect: the result string can be exceeded with tab
+(completion). anton 16apr95
+
+gforth should terminate when the input file ends. Also, C-d from the
+terminal should terminate gforth. anton 16apr95
+
+W/O currently means "w+", i.e. r/w. Maybe we should use "w" or
+"a". anton 18 apr95

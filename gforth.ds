@@ -286,7 +286,7 @@ that has become a de-facto standard for Forth texts, i.e.
 @table @var
 @item word
 The name of the word. BTW, GNU Forth is case insensitive, so you can
-type the words in in lower case.
+type the words in in lower case (However, @pxref{core-idef}).
 
 @item Stack effect
 The stack effect is written in the notation @code{@var{before} --
@@ -1050,7 +1050,7 @@ poses the following questions:
 
 @menu
 * Where are locals visible by name?::  
-* How long do locals live? ::   
+* How long do locals live?::    
 * Programming Style::           
 * Implementation::              
 @end menu
@@ -1487,6 +1487,10 @@ locals wordset.
 @node Defining Words, Wordlists, Locals, Words
 @section Defining Words
 
+@menu
+* Values::                      
+@end menu
+
 @node Values,  , Defining Words, Defining Words
 @subsection Values
 
@@ -1619,9 +1623,1094 @@ doc-does-code!
 doc-does-handler!
 doc-/does-handler
 
+
+
 @node ANS conformance, Model, Words, Top
 @chapter ANS conformance
 
+ANS Forth systems are required to document certain implementation
+choices. This chapter tries to meet these requirements. In many cases it
+gives a way to ask the system for the information instead of providing
+the information directly, in particular, if the information depends on
+the processor, the operating system or the installation options chosen,
+or if they are likely to change during the maintenance of gforth.
+
+@comment The framework for the rest has been taken from pfe.
+
+@menu
+* The Core Words::              
+* The optional Block word set::  
+* The optional Double Number word set::  
+* The optional Exception word set::  
+* The optional Facility word set::  
+* The optional File-Access word set::  
+* The optional Floating-Point word set::  
+* The optional Locals word set::  
+* The optional Memory-Allocation word set::  
+* The optional Programming-Tools word set::  
+* The optional Search-Order word set::  
+* The optional String word set::  
+@end menu
+
+
+@c =====================================================================
+@node The Core Words, The optional Block word set, ANS conformance, ANS conformance
+@comment  node-name,  next,  previous,  up
+@section The Core Words
+@c =====================================================================
+
+@menu
+* core-idef::                   
+* core-ambcond::                
+* core-other::                  
+@end menu
+
+@c ---------------------------------------------------------------------
+@node core-idef, core-ambcond, The Core Words, The Core Words
+@comment  node-name,  next,  previous,  up
+@subsection Implementation Defined Options
+@c ---------------------------------------------------------------------
+
+@table @i
+
+@item (Cell) aligned addresses:
+processor-dependent. Gforths alignment words perform natural alignment
+(e.g., an address aligned for a datum of size 8 is divisible by
+8). Unaligned accesses usually result in a @code{-23 THROW}.
+
+@item @code{EMIT} and non-graphic characters:
+The character is output using the C library function (actually, macro)
+@code{putchar}.
+
+@item character editing of @code{ACCEPT} and @code{EXPECT}:
+This is modeled on the GNU readline library (@pxref{Readline
+Interaction, , Command Line Editing, readline, The GNU Readline
+Library}) with Emacs-like key bindings. @kbd{Tab} deviates a little by
+producing a full word completion every time you type it (instead of
+producing the common prefix of all completions).
+
+@item character set:
+The character set of your computer and display device. Gforth is
+8-bit-clean (but some other component in your system may make trouble).
+
+@item Character-aligned address requirements:
+installation-dependent. Currently a character is represented by a C
+@code{unsigned char}; in the future we might switch to @code{wchar_t}
+(Comments on that requested).
+
+@item character-set extensions and matching of names:
+Any character except 0 can be used in a name. Matching is
+case-insensitive. The matching is performed using the C function
+@code{strncasecmp}, whose function is probably influenced by the
+locale. E.g., the @code{C} locale does not know about accents and
+umlauts, so they are matched case-sensitively in that locale. For
+portability reasons it is best to write programs such that they work in
+the @code{C} locale. Then one can use libraries written by a Polish
+programmer (who might use words containing ISO Latin-2 encoded
+characters) and by a French programmer (ISO Latin-1) in the same program
+(of course, @code{WORDS} will produce funny results for some of the
+words (which ones, depends on the font you are using)). Also, the locale
+you prefer may not be available in other operating systems. Hopefully,
+Unicode will solve these problems one day.
+
+@item conditions under which control characters match a space delimiter:
+If @code{WORD} is called with the space character as a delimiter, all
+white-space characters (as identified by the C macro @code{isspace()})
+are delimiters. @code{PARSE}, on the other hand, treats space like other
+delimiters. @code{PARSE-WORD} treats space like @code{WORD}, but behaves
+like @code{PARSE} otherwise. @code{(NAME)}, which is used by the outer
+interpreter (aka text interpreter) by default, treats all white-space
+characters as delimiters.
+
+@item format of the control flow stack:
+The data stack is used as control flow stack. The size of a control flow
+stack item in cells is given by the constant @code{cs-item-size}. At the
+time of this writing, an item consists of a (pointer to a) locals list
+(third), an address in the code (second), and a tag for identifying the
+item (TOS). The following tags are used: @code{defstart},
+@code{live-orig}, @code{dead-orig}, @code{dest}, @code{do-dest},
+@code{scopestart}.
+
+@item conversion of digits > 35
+The characters @code{[\]^_'} are the digits with the decimal value
+36@minus{}41. There is no way to input many of the larger digits.
+
+@item display after input terminates in @code{ACCEPT} and @code{EXPECT}:
+The cursor is moved to the end of the entered string. If the input is
+terminated using the @kbd{Return} key, a space is typed.
+
+@item exception abort sequence of @code{ABORT"}:
+The error string is stored into the variable @code{"error} and a
+@code{-2 throw} is performed.
+
+@item input line terminator:
+For interactive input, @kbd{C-m} and @kbd{C-j} terminate lines. One of
+these characters is typically produced when you type the @kbd{Enter} or
+@kbd{Return} key.
+
+@item maximum size of a counted string:
+@code{s" /counted-string" environment? drop .}. Currently 255 characters
+on all ports, but this may change.
+
+@item maximum size of a parsed string:
+Given by the constant @code{/line}. Currently 255 characters.
+
+@item maximum size of a definition name, in characters:
+31
+
+@item maximum string length for @code{ENVIRONMENT?}, in characters:
+31
+
+@item method of selecting the user input device:
+The user input device is the standard input. There is current no way to
+change it from within gforth. However, the input can typically be
+redirected in the command line that starts gforth.
+
+@item method of selecting the user output device:
+The user output device is the standard output. It cannot be redirected
+from within gforth, but typically from the command line that starts
+gforth. Gforth uses buffered output, so output on a terminal does not
+become visible before the next newline or buffer overflow. Output on
+non-terminals is invisible until the buffer overflows.
+
+@item methods of dictionary compilation:
+Waht are we expected to document here?
+
+@item number of bits in one address unit:
+@code{s" address-units-bits" environment? drop .}. 8 in all current
+ports.
+
+@item number representation and arithmetic:
+Processor-dependent. Binary two's complement on all current ports.
+
+@item ranges for integer types:
+Installation-dependent. Make environmental queries for @code{MAX-N},
+@code{MAX-U}, @code{MAX-D} and @code{MAX-UD}. The lower bounds for
+unsigned (and positive) types is 0. The lower bound for signed types on
+two's complement and one's complement machines machines can be computed
+by adding 1 to the upper bound.
+
+@item read-only data space regions:
+The whole Forth data space is writable.
+
+@item size of buffer at @code{WORD}:
+@code{PAD HERE - .}. 104 characters on 32-bit machines. The buffer is
+shared with the pictured numeric output string. If overwriting
+@code{PAD} is acceptable, it is as large as the remaining dictionary
+space, although only as much can be sensibly used as fits in a counted
+string.
+
+@item size of one cell in address units:
+@code{1 cells .}.
+
+@item size of one character in address units:
+@code{1 chars .}. 1 on all current ports.
+
+@item size of the keyboard terminal buffer:
+Varies. You can determine the size at a specific time using @code{lp@
+tib - .}. It is shared with the locals stack and TIBs of files that
+include the current file. You can change the amount of space for TIBs
+and locals stack at gforth startup with the command line option
+@code{-l}.
+
+@item size of the pictured numeric output buffer:
+@code{PAD HERE - .}. 104 characters on 32-bit machines. The buffer is
+shared with @code{WORD}.
+
+@item size of the scratch area returned by @code{PAD}:
+The remainder of dictionary space. You can even use the unused part of
+the data stack space. The current size can be computed with @code{sp@
+pad - .}.
+
+@item system case-sensitivity characteristics:
+Dictionary searches are case insensitive. However, as explained above
+under @i{character-set extensions}, the matching for non-ASCII
+characters is determined by the locale you are using. In the default
+@code{C} locale all non-ASCII characters are matched case-sensitively.
+
+@item system prompt:
+@code{ ok} in interpret state, @code{ compiled} in compile state.
+
+@item division rounding:
+installation dependent. @code{s" floored" environment? drop .}. We leave
+the choice to gcc (what to use for @code{/}) and to you (whether to use
+@code{fm/mod}, @code{sm/rem} or simply @code{/}).
+
+@item values of @code{STATE} when true:
+-1.
+
+@item values returned after arithmetic overflow:
+On two's complement machines, arithmetic is performed modulo
+2**bits-per-cell for single arithmetic and 4**bits-per-cell for double
+arithmetic (with appropriate mapping for signed types). Division by zero
+typically results in a @code{-55 throw} (floatingpoint unidentified
+fault), although a @code{-10 throw} (divide by zero) would be more
+appropriate.
+
+@item whether the current definition can be found after @t{DOES>}:
+No.
+
+@end table
+
+@c ---------------------------------------------------------------------
+@node core-ambcond, core-other, core-idef, The Core Words
+@comment  node-name,  next,  previous,  up
+@subsection Ambiguous conditions
+@c ---------------------------------------------------------------------
+
+@table @i
+
+@item a name is neither a word nor a number:
+@code{-13 throw} (Undefined word)
+
+@item a definition name exceeds the maximum length allowed:
+@code{-19 throw} (Word name too long)
+
+@item addressing a region not inside the various data spaces of the forth system:
+The stacks, code space and name space are accessible. Machine code space is
+typically readable. Accessing other addresses gives results dependent on
+the operating system. On decent systems: @code{-9 throw} (Invalid memory
+address).
+
+@item argument type incompatible with parameter:
+This is usually not caught. Some words perform checks, e.g., the control
+flow words, and issue a @code{ABORT"} or @code{-12 THROW} (Argument type
+mismatch).
+
+@item attempting to obtain the execution token of a word with undefined execution semantics:
+You get an execution token representing the compilation semantics
+instead.
+
+@item dividing by zero:
+typically results in a @code{-55 throw} (floating point unidentified
+fault), although a @code{-10 throw} (divide by zero) would be more
+appropriate.
+
+@item insufficient data stack or return stack space:
+Not checked. This typically results in mysterious illegal memory
+accesses, producing @code{-9 throw} (Invalid memory address) or
+@code{-23 throw} (Address alignment exception).
+
+@item insufficient space for loop control parameters:
+like other return stack overflows.
+
+@item insufficient space in the dictionary:
+Not checked. Similar results as stack overflows. However, typically the
+error appears at a different place when one inserts or removes code.
+
+@item interpreting a word with undefined interpretation semantics:
+For some words, we defined interpretation semantics. For the others:
+@code{-14 throw} (Interpreting a compile-only word). Note that this is
+checked only by the outer (aka text) interpreter; if the word is
+@code{execute}d in some other way, it will typically perform it's
+compilation semantics even in interpret state. (We could change @code{'}
+and relatives not to give the xt of such words, but we think that would
+be too restrictive).
+
+@item modifying the contents of the input buffer or a string literal:
+These are located in writable memory and can be modified.
+
+@item overflow of the pictured numeric output string:
+Not checked.
+
+@item parsed string overflow:
+@code{PARSE} cannot overflow. @code{WORD} does not check for overflow.
+
+@item producing a result out of range:
+On two's complement machines, arithmetic is performed modulo
+2**bits-per-cell for single arithmetic and 4**bits-per-cell for double
+arithmetic (with appropriate mapping for signed types). Division by zero
+typically results in a @code{-55 throw} (floatingpoint unidentified
+fault), although a @code{-10 throw} (divide by zero) would be more
+appropriate. @code{convert} and @code{>number} currently overflow
+silently.
+
+@item reading from an empty data or return stack:
+The data stack is checked by the outer (aka text) interpreter after
+every word executed. If it has underflowed, a @code{-4 throw} (Stack
+underflow) is performed. Apart from that, the stacks are not checked and
+underflows can result in similar behaviour as overflows (of adjacent
+stacks).
+
+@item unexepected end of the input buffer, resulting in an attempt to use a zero-length string as a name:
+@code{Create} and its descendants perform a @code{-16 throw} (Attempt to
+use zero-length string as a name). Words like @code{'} probably will not
+find what they search. Note that it is possible to create zero-length
+names with @code{nextname} (should it not?).
+
+@item @code{>IN} greater than input buffer:
+The next invocation of a parsing word returns a string wih length 0.
+
+@item @code{RECURSE} appears after @code{DOES>}:
+Compiles a recursive call to the defining word not to the defined word.
+
+@item argument input source different than current input source for @code{RESTORE-INPUT}:
+!!???If the argument input source is a valid input source then it gets
+restored. Otherwise causes @code{-12 THROW} which unless caught issues
+the message "argument type mismatch" and aborts.
+
+@item data space containing definitions gets de-allocated:
+Deallocation with @code{allot} is not checked. This typically resuls in
+memory access faults or execution of illegal instructions.
+
+@item data space read/write with incorrect alignment:
+Processor-dependent. Typically results in a @code{-23 throw} (Address
+alignment exception). Under Linux on a 486 or later processor with
+alignment turned on, incorrect alignment results in a @code{-9 throw}
+(Invalid memory address). There are reportedly some processors with
+alignment restrictions that do not report them.
+
+@item data space pointer not properly aligned, @code{,}, @code{C,}:
+Like other alignment errors.
+
+@item less than u+2 stack items (@code{PICK} and @code{ROLL}):
+Not checked. May cause an illegal memory access.
+
+@item loop control parameters not available:
+Not checked. The counted loop words simply assume that the top of return
+stack items are loop control parameters and behave accordingly.
+
+@item most recent definition does not have a name (@code{IMMEDIATE}):
+@code{abort" last word was headerless"}.
+
+@item name not defined by @code{VALUE} used by @code{TO}:
+@code{-32 throw} (Invalid name argument)
+
+@item name not found (@code{'}, @code{POSTPONE}, @code{[']}, @code{[COMPILE]}:
+@code{-13 throw} (Undefined word)
+
+@item parameters are not of the same type (@code{DO}, @code{?DO}, @code{WITHIN}):
+Gforth behaves as if they were of the same type. I.e., you can predict
+the behaviour by interpreting all parameters as, e.g., signed.
+
+@item @code{POSTPONE} or @code{[COMPILE]} applied to @code{TO}:
+Assume @code{: X POSTPONE TO ; IMMEDIATE}. @code{X} is equivalent to
+@code{TO}.
+
+@item String longer than a counted string returned by @code{WORD}:
+Not checked. The string will be ok, but the count will, of course,
+contain only the least significant bits of the length.
+
+@item u greater than or equal to the number of bits in a cell (@code{LSHIFT}, @code{RSHIFT}:
+Processor-dependent. Typical behaviours are returning 0 and using only
+the low bits of the shift count.
+
+@item word not defined via @code{CREATE}:
+@code{>BODY} produces the PFA of the word no matter how it was defined.
+
+@code{DOES>} changes the execution semantics of the last defined word no
+matter how it was defined. E.g., @code{CONSTANT DOES>} is equivalent to
+@code{CREATE , DOES>}.
+
+@item words improperly used outside @code{<#} and @code{#>}:
+Not checked. As usual, you can expect memory faults.
+
+@end table
+
+
+@c ---------------------------------------------------------------------
+@node core-other,  , core-ambcond, The Core Words
+@comment  node-name,  next,  previous,  up
+@subsection Other system documentation
+@c ---------------------------------------------------------------------
+
+@table @i
+
+@item nonstandard words using @code{PAD}:
+None.
+
+@item operator's terminal facilities available:
+!!??
+
+@item program data space available:
+@code{sp@ here - .} gives the space remaining for dictionary and data
+stack together.
+
+@item return stack space available:
+!!??
+
+@item stack space available:
+@code{sp@ here - .} gives the space remaining for dictionary and data
+stack together.
+
+@item system dictionary space required, in address units:
+Type @code{here forthstart - .} after startup. At the time of this
+writing, this gives 70108 (bytes) on a 32-bit system.
+@end table
+
+
+@c =====================================================================
+@node The optional Block word set, The optional Double Number word set, The Core Words, ANS conformance
+@comment  node-name,  next,  previous,  up
+@section The optional Block word set
+@c =====================================================================
+
+@menu
+* block-idef::                  
+* block-ambcond::               
+* block-other::                 
+@end menu
+
+
+@c ---------------------------------------------------------------------
+@node block-idef, block-ambcond, The optional Block word set, The optional Block word set
+@comment  node-name,  next,  previous,  up
+@subsection Implementation Defined Options
+@c ---------------------------------------------------------------------
+
+@table @i
+
+@item the format for display by @code{LIST}:
+First the screen number is displayed, then 16 lines of 64 characters,
+each line preceded by the line number.
+
+@item the length of a line affected by @code{\}:
+64 characters.
+@end table
+
+
+@c ---------------------------------------------------------------------
+@node block-ambcond, block-other, block-idef, The optional Block word set
+@comment  node-name,  next,  previous,  up
+@subsection Ambiguous conditions
+@c ---------------------------------------------------------------------
+
+@table @i
+
+@item correct block read was not possible:
+Typically results in a @code{throw} of some OS-derived value (between
+-512 and -2048). If the blocks file was just not long enough, blanks are
+supplied for the missing portion.
+
+@item I/O exception in block transfer:
+Typically results in a @code{throw} of some OS-derived value (between
+-512 and -2048).
+
+@item invalid block number:
+@code{-35 throw} (Invalid block number)
+
+@item a program directly alters the contents of @code{BLK}:
+The input stream is switched to that other block, at the same
+position. If the storing to @code{BLK} happens when interpreting
+non-block input, the system will get quite confused when the block ends.
+
+@item no current block buffer for @code{UPDATE}:
+@code{UPDATE} has no effect.
+
+@end table
+
+
+@c ---------------------------------------------------------------------
+@node block-other,  , block-ambcond, The optional Block word set
+@comment  node-name,  next,  previous,  up
+@subsection Other system documentation
+@c ---------------------------------------------------------------------
+
+@table @i
+
+@item any restrictions a multiprogramming system places on the use of buffer addresses:
+No restrictions (yet).
+
+@item the number of blocks available for source and data:
+depends on your disk space.
+
+@end table
+
+
+@c =====================================================================
+@node The optional Double Number word set, The optional Exception word set, The optional Block word set, ANS conformance
+@comment  node-name,  next,  previous,  up
+@section The optional Double Number word set
+@c =====================================================================
+
+@menu
+* double-idef::                 
+* double-ambcond::              
+* double-other::                
+@end menu
+
+
+@c ---------------------------------------------------------------------
+@node double-idef, double-ambcond, The optional Double Number word set, The optional Double Number word set
+@comment  node-name,  next,  previous,  up
+@subsection Implementation Defined Options
+@c ---------------------------------------------------------------------
+
+No additional documentation requirements.
+
+
+@c ---------------------------------------------------------------------
+@node double-ambcond, double-other, double-idef, The optional Double Number word set
+@comment  node-name,  next,  previous,  up
+@subsection Ambiguous conditions
+@c ---------------------------------------------------------------------
+
+@table @i
+
+@item @var{d} outside of range on @var{n} in @code{D>S}:
+The least significant cell of @var{d} is produced.
+
+@end table
+
+
+@c ---------------------------------------------------------------------
+@node double-other,  , double-ambcond, The optional Double Number word set
+@comment  node-name,  next,  previous,  up
+@subsection Other system documentation
+@c ---------------------------------------------------------------------
+
+No additional documentation requirements.
+
+
+@c =====================================================================
+@node The optional Exception word set, The optional Facility word set, The optional Double Number word set, ANS conformance
+@comment  node-name,  next,  previous,  up
+@section The optional Exception word set
+@c =====================================================================
+
+@menu
+* exception-idef::              
+* exception-ambcond::           
+* exception-other::             
+@end menu
+
+
+@c ---------------------------------------------------------------------
+@node exception-idef, exception-ambcond, The optional Exception word set, The optional Exception word set
+@comment  node-name,  next,  previous,  up
+@subsection Implementation Defined Options
+@c ---------------------------------------------------------------------
+
+@table @i
+@item @code{THROW}-codes used in the system:
+The codes -256@minus{}-511 are used for reporting signals (see
+@file{errore.fs}). The codes -512@minus{}-2047 are used for OS errors
+(for file and memory allocation operations). The mapping from OS error
+numbers to throw code is -512@minus{}@var{errno}. One side effect of
+this mapping is that undefined OS errors produce a message with a
+strange number; e.g., @code{-1000 THROW} results in @code{Unknown error
+488} on my system.
+@end table
+
+
+@c ---------------------------------------------------------------------
+@node exception-ambcond, exception-other, exception-idef, The optional Exception word set
+@comment  node-name,  next,  previous,  up
+@subsection Ambiguous conditions
+@c ---------------------------------------------------------------------
+
+No additional documentation requirements.
+
+
+@c ---------------------------------------------------------------------
+@node exception-other,  , exception-ambcond, The optional Exception word set
+@comment  node-name,  next,  previous,  up
+@subsection Other system documentation
+@c ---------------------------------------------------------------------
+
+No additional documentation requirements.
+
+
+@c =====================================================================
+@node The optional Facility word set, The optional File-Access word set, The optional Exception word set, ANS conformance
+@comment  node-name,  next,  previous,  up
+@section The optional Facility word set
+@c =====================================================================
+
+@menu
+* facility-idef::               
+* facility-ambcond::            
+* facility-other::              
+@end menu
+
+
+@c ---------------------------------------------------------------------
+@node facility-idef, facility-ambcond, The optional Facility word set, The optional Facility word set
+@comment  node-name,  next,  previous,  up
+@subsection Implementation Defined Options
+@c ---------------------------------------------------------------------
+
+@table @i
+
+@item encoding of keyboard events (@code{EKEY}):
+Not yet implemeted.
+
+@item duration of a system clock tick
+System dependent. With respect to @code{MS}, the time is specified in
+microseconds. How well the OS and the hardware implement this, is
+another question.
+
+@item repeatability to be expected from the execution of @code{MS}:
+System dependent. On Unix, a lot depends on load. If the system is
+lightly loaded, and the delay is short enough that gforth does not get
+swapped out, the performance should be acceptable. Under MS-DOS and
+other single-tasking systems, it should be good.
+
+@end table
+
+
+@c ---------------------------------------------------------------------
+@node facility-ambcond, facility-other, facility-idef, The optional Facility word set
+@comment  node-name,  next,  previous,  up
+@subsection Ambiguous conditions
+@c ---------------------------------------------------------------------
+
+@table @i
+
+@item @code{AT-XY} can't be performed on user output device:
+Largely terminal dependant. No range checks are done on the arguments.
+No errors are reported. You may see some garbage appearing, you may see
+simply nothing happen.
+
+@end table
+
+
+@c ---------------------------------------------------------------------
+@node facility-other,  , facility-ambcond, The optional Facility word set
+@comment  node-name,  next,  previous,  up
+@subsection Other system documentation
+@c ---------------------------------------------------------------------
+
+No additional documentation requirements.
+
+
+@c =====================================================================
+@node The optional File-Access word set, The optional Floating-Point word set, The optional Facility word set, ANS conformance
+@comment  node-name,  next,  previous,  up
+@section The optional File-Access word set
+@c =====================================================================
+
+@menu
+* file-idef::                   
+* file-ambcond::                
+* file-other::                  
+@end menu
+
+
+@c ---------------------------------------------------------------------
+@node file-idef, file-ambcond, The optional File-Access word set, The optional File-Access word set
+@comment  node-name,  next,  previous,  up
+@subsection Implementation Defined Options
+@c ---------------------------------------------------------------------
+
+@table @i
+
+@item File access methods used:
+@code{R/O}, @code{R/W} and @code{BIN} work as you would
+expect. @code{W/O} translates into the C file opening mode @code{w} (or
+@code{wb}): The file is cleared, if it exists, and created, if it does
+not (both with @code{open-file} and @code{create-file}.  Under Unix
+@code{create-file} creates a file with 666 permissions modified by your
+umask.
+
+@item file exceptions:
+The file words do not raise exceptions (except, perhaps, memory access
+faults when you pass illegal addresses or file-ids).
+
+@item file line terminator:
+System-dependent. Gforth uses C's newline character as line
+terminator. What the actual character code(s) of this are is
+system-dependent.
+
+@item file name format
+System dependent. Gforth just uses the file name format of your OS.
+
+@item information returned by @code{FILE-STATUS}:
+@code{FILE-STATUS} returns the most powerful file access mode allowed
+for the file: Either @code{R/O}, @code{W/O} or @code{R/W}. If the file
+cannot be accessed, @code{R/O BIN} is returned. @code{BIN} is applicable
+along with the retured mode.
+
+@item input file state after an exception when including source:
+All files that are left via the exception are closed.
+
+@item @var{ior} values and meaning:
+The @var{ior}s returned by the file words are intended as throw
+codes. They typically are in the range -512@minus{}-2047 of OS errors.
+The mapping from OS error numbers to @var{ior}s is
+-512@minus{}@var{errno}.
+
+@item maximum depth of file input nesting:
+limited by the amount of return stack, locals/TIB stack, and the number
+of open files available. This should not give you troubles.
+
+@item maximum size of input line:
+@code{/line}. Currently 255.
+
+@item methods of mapping block ranges to files:
+Currently, the block words automatically access the file
+@file{blocks.fb} in the currend working directory. More sophisticated
+methods could be implemented if there is demand (and a volunteer).
+
+@item number of string buffers provided by @code{S"}:
+1
+
+@item size of string buffer used by @code{S"}:
+@code{/line}. currently 255.
+
+@end table
+
+@c ---------------------------------------------------------------------
+@node file-ambcond, file-other, file-idef, The optional File-Access word set
+@comment  node-name,  next,  previous,  up
+@subsection Ambiguous conditions
+@c ---------------------------------------------------------------------
+
+@table @i
+
+@item attempting to position a file outside it's boundaries:
+@code{REPOSITION-FILE} is performed as usual: Afterwards,
+@code{FILE-POSITION} returns the value given to @code{REPOSITION-FILE}.
+
+@item attempting to read from file positions not yet written:
+End-of-file, i.e., zero characters are read and no error is reported.
+
+@item @var{file-id} is invalid (@code{INCLUDE-FILE}):
+An appropriate exception may be thrown, but a memory fault or other
+problem is more probable.
+
+@item I/O exception reading or closing @var{file-id} (@code{include-file}, @code{included}):
+The @var{ior} produced by the operation, that discovered the problem, is
+thrown.
+
+@item named file cannot be opened (@code{included}):
+The @var{ior} produced by @code{open-file} is thrown.
+
+@item requesting an unmapped block number:
+There are no unmapped legal block numbers. On some operating systems,
+writing a block with a large number may overflow the file system and
+have an error message as consequence.
+
+@item using @code{source-id} when @code{blk} is non-zero:
+@code{source-id} performs its function. Typically it will give the id of
+the source which loaded the block. (Better ideas?)
+
+@end table
+
+
+@c ---------------------------------------------------------------------
+@node file-other,  , file-ambcond, The optional File-Access word set
+@comment  node-name,  next,  previous,  up
+@subsection Other system documentation
+@c ---------------------------------------------------------------------
+
+@table @i
+
+@item
+
+@end table
+
+
+@c =====================================================================
+@node  The optional Floating-Point word set, The optional Locals word set, The optional File-Access word set, ANS conformance
+@comment  node-name,  next,  previous,  up
+@section
+@c =====================================================================
+
+@menu
+* floating-idef::               floating-ambcond:: floating-other::
+* floating-ambcond::            
+* floating-other::              
+@end menu
+
+
+@c ---------------------------------------------------------------------
+@node floating-idef, floating-ambcond, The optional Floating-Point word set, The optional Floating-Point word set
+@comment  node-name,  next,  previous,  up
+@subsection Implementation Defined Options
+@c ---------------------------------------------------------------------
+
+@table @i
+
+@item
+
+@end table
+
+
+@c ---------------------------------------------------------------------
+@node floating-ambcond, floating-other, floating-idef, The optional Floating-Point word set
+@comment  node-name,  next,  previous,  up
+@subsection Ambiguous conditions
+@c ---------------------------------------------------------------------
+
+@table @i
+
+@item
+
+@end table
+
+
+@c ---------------------------------------------------------------------
+@node floating-other,  , floating-ambcond, The optional Floating-Point word set
+@comment  node-name,  next,  previous,  up
+@subsection Other system documentation
+@c ---------------------------------------------------------------------
+
+@table @i
+
+@item
+
+@end table
+
+
+@c =====================================================================
+@node  The optional Locals word set, The optional Memory-Allocation word set, The optional Floating-Point word set, ANS conformance
+@comment  node-name,  next,  previous,  up
+@section
+@c =====================================================================
+
+@menu
+* locals-idef::                 
+* locals-ambcond::              
+* locals-other::                
+@end menu
+
+
+@c ---------------------------------------------------------------------
+@node locals-idef, locals-ambcond, The optional Locals word set, The optional Locals word set
+@comment  node-name,  next,  previous,  up
+@subsection Implementation Defined Options
+@c ---------------------------------------------------------------------
+
+@table @i
+
+@item
+
+@end table
+
+
+@c ---------------------------------------------------------------------
+@node locals-ambcond, locals-other, locals-idef, The optional Locals word set
+@comment  node-name,  next,  previous,  up
+@subsection Ambiguous conditions
+@c ---------------------------------------------------------------------
+
+@table @i
+
+@item
+
+@end table
+
+
+@c ---------------------------------------------------------------------
+@node locals-other,  , locals-ambcond, The optional Locals word set
+@comment  node-name,  next,  previous,  up
+@subsection Other system documentation
+@c ---------------------------------------------------------------------
+
+@table @i
+
+@item
+
+@end table
+
+
+@c =====================================================================
+@node  The optional Memory-Allocation word set, The optional Programming-Tools word set, The optional Locals word set, ANS conformance
+@comment  node-name,  next,  previous,  up
+@section
+@c =====================================================================
+
+@menu
+* memory-idef::                 
+* memory-ambcond::              
+* memory-other::                
+@end menu
+
+
+@c ---------------------------------------------------------------------
+@node memory-idef, memory-ambcond, The optional Memory-Allocation word set, The optional Memory-Allocation word set
+@comment  node-name,  next,  previous,  up
+@subsection Implementation Defined Options
+@c ---------------------------------------------------------------------
+
+@table @i
+
+@item
+
+@end table
+
+
+@c ---------------------------------------------------------------------
+@node memory-ambcond, memory-other, memory-idef, The optional Memory-Allocation word set
+@comment  node-name,  next,  previous,  up
+@subsection Ambiguous conditions
+@c ---------------------------------------------------------------------
+
+@table @i
+
+@item
+
+@end table
+
+
+@c ---------------------------------------------------------------------
+@node memory-other,  , memory-ambcond, The optional Memory-Allocation word set
+@comment  node-name,  next,  previous,  up
+@subsection Other system documentation
+@c ---------------------------------------------------------------------
+
+@table @i
+
+@item
+
+@end table
+
+
+@c =====================================================================
+@node  The optional Programming-Tools word set, The optional Search-Order word set, The optional Memory-Allocation word set, ANS conformance
+@comment  node-name,  next,  previous,  up
+@section
+@c =====================================================================
+
+@menu
+* programming-idef::            
+* programming-ambcond::         
+* programming-other::           
+@end menu
+
+
+@c ---------------------------------------------------------------------
+@node programming-idef, programming-ambcond, The optional Programming-Tools word set, The optional Programming-Tools word set
+@comment  node-name,  next,  previous,  up
+@subsection Implementation Defined Options
+@c ---------------------------------------------------------------------
+
+@table @i
+
+@item
+
+@end table
+
+
+@c ---------------------------------------------------------------------
+@node programming-ambcond, programming-other, programming-idef, The optional Programming-Tools word set
+@comment  node-name,  next,  previous,  up
+@subsection Ambiguous conditions
+@c ---------------------------------------------------------------------
+
+@table @i
+
+@item
+
+@end table
+
+
+@c ---------------------------------------------------------------------
+@node programming-other,  , programming-ambcond, The optional Programming-Tools word set
+@comment  node-name,  next,  previous,  up
+@subsection Other system documentation
+@c ---------------------------------------------------------------------
+
+@table @i
+
+@item
+
+@end table
+
+
+@c =====================================================================
+@node  The optional Search-Order word set, The optional String word set, The optional Programming-Tools word set, ANS conformance
+@comment  node-name,  next,  previous,  up
+@section
+@c =====================================================================
+
+@menu
+* search-idef::                 
+* search-ambcond::              
+* search-other::                
+@end menu
+
+
+@c ---------------------------------------------------------------------
+@node search-idef, search-ambcond, The optional Search-Order word set, The optional Search-Order word set
+@comment  node-name,  next,  previous,  up
+@subsection Implementation Defined Options
+@c ---------------------------------------------------------------------
+
+@table @i
+
+@item
+
+@end table
+
+
+@c ---------------------------------------------------------------------
+@node search-ambcond, search-other, search-idef, The optional Search-Order word set
+@comment  node-name,  next,  previous,  up
+@subsection Ambiguous conditions
+@c ---------------------------------------------------------------------
+
+@table @i
+
+@item
+
+@end table
+
+
+@c ---------------------------------------------------------------------
+@node search-other,  , search-ambcond, The optional Search-Order word set
+@comment  node-name,  next,  previous,  up
+@subsection Other system documentation
+@c ---------------------------------------------------------------------
+
+@table @i
+
+@item
+
+@end table
+
+
+@c =====================================================================
+@node  The optional String word set,  , The optional Search-Order word set, ANS conformance
+@comment  node-name,  next,  previous,  up
+@section
+@c =====================================================================
+
+@menu
+* string-idef::                 
+* string-ambcond::              
+* string-other::                
+@end menu
+
+
+@c ---------------------------------------------------------------------
+@node string-idef, string-ambcond, The optional String word set, The optional String word set
+@comment  node-name,  next,  previous,  up
+@subsection Implementation Defined Options
+@c ---------------------------------------------------------------------
+
+@table @i
+
+@item
+
+@end table
+
+
+@c ---------------------------------------------------------------------
+@node string-ambcond, string-other, string-idef, The optional String word set
+@comment  node-name,  next,  previous,  up
+@subsection Ambiguous conditions
+@c ---------------------------------------------------------------------
+
+@table @i
+
+@item
+
+@end table
+
+
+@c ---------------------------------------------------------------------
+@node string-other,  , string-ambcond, The optional String word set
+@comment  node-name,  next,  previous,  up
+@subsection Other system documentation
+@c ---------------------------------------------------------------------
+
+@table @i
+
+@item
+
+@end table
 
 
 
