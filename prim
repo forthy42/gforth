@@ -72,7 +72,6 @@
 \ df_.*		DFloat *
 \ sf_.*		SFloat *
 \ xt.*		XT
-\ wid.*		WID
 \ f83name.*	F83Name *
 
 \E get-current prefixes set-current
@@ -91,7 +90,6 @@
 \E s" DFloat *"		single data-stack type-prefix df_
 \E s" SFloat *"		single data-stack type-prefix sf_
 \E s" Xt"		single data-stack type-prefix xt
-\E s" WID"		single data-stack type-prefix wid
 \E s" struct F83Name *"	single data-stack type-prefix f83name
 \E s" struct Longname *" single data-stack type-prefix longname
 \E 

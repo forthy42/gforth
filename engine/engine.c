@@ -210,6 +210,40 @@ static int ufileattr[6]= {
   O_WRONLY|O_BINARY, O_WRONLY|O_BINARY };
 #endif
 
+/* conversion on fetch */
+
+#define vm_Cell2f(x)		((Bool)(x))
+#define vm_Cell2c(x)		((Char)(x))
+#define vm_Cell2n(x)		((Cell)x)
+#define vm_Cell2w(x)		((Cell)x)
+#define vm_Cell2u(x)		((UCell)(x))
+#define vm_Cell2a_(x)		((Cell *)(x))
+#define vm_Cell2c_(x)		((Char *)(x))
+#define vm_Cell2f_(x)		((Float *)(x))
+#define vm_Cell2df_(x)		((DFloat *)(x))
+#define vm_Cell2sf_(x)		((SFloat *)(x))
+#define vm_Cell2xt(x)		((Xt)(x))
+#define vm_Cell2f83name(x)	((struct F83Name *)(x))
+#define vm_Cell2longname(x)	((struct Longname *)(x))
+#define vm_Float2r(x)	(x)
+
+/* conversion on store */
+
+#define vm_f2Cell(x)		((Cell)(x))
+#define vm_c2Cell(x)		((Cell)(x))
+#define vm_n2Cell(x)		((Cell)(x))
+#define vm_w2Cell(x)		((Cell)(x))
+#define vm_u2Cell(x)		((Cell)(x))
+#define vm_a_2Cell(x)		((Cell)(x))
+#define vm_c_2Cell(x)		((Cell)(x))
+#define vm_f_2Cell(x)		((Cell)(x))
+#define vm_df_2Cell(x)		((Cell)(x))
+#define vm_sf_2Cell(x)		((Cell)(x))
+#define vm_xt2Cell(x)		((Cell)(x))
+#define vm_f83name2Cell(x)	((Cell)(x))
+#define vm_longname2Cell(x)	((Cell)(x))
+#define vm_r2Float(x)	(x)
+
 /* if machine.h has not defined explicit registers, define them as implicit */
 #ifndef IPREG
 #define IPREG

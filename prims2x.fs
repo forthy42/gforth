@@ -179,6 +179,11 @@ create stacks max-stacks cells allot \ array of stacks
 	i xt execute
     item% %size +loop ;
 
+\ types
+
+: print-type-prefix ( type -- )
+    body> >head name>string type ;
+
 \ various variables for storing stuff of one primitive
 
 struct%
@@ -258,10 +263,10 @@ Variable function-number 0 function-number !
  \ fetch a single stack item from its stack
  >r
  r@ item-name 2@ type
- ."  = (" 
- r@ item-type @ type-c-name 2@ type ." ) "
+ ."  = vm_" r@ item-stack @ stack-type @ type-c-name 2@ type
+ ." 2" r@ item-type @ print-type-prefix ." ("
  r@ item-in-index r@ item-stack @ stack-access
- ." ;" cr
+ ." );" cr
  rdrop ; 
 
 : fetch-double ( item -- )
@@ -297,9 +302,10 @@ Variable function-number 0 function-number !
 
 : really-store-single ( item -- )
  >r
- r@ item-out-index r@ item-stack @ stack-access ."  = "
- r@ item-stack @ stack-cast 2@ type
- r@ item-name 2@ type ." ;"
+ r@ item-out-index r@ item-stack @ stack-access ."  = vm_"
+ r@ item-type @ print-type-prefix ." 2"
+ r@ item-stack @ stack-type @ type-c-name 2@ type ." ("
+ r@ item-name 2@ type ." );"
  rdrop ;
 
 : store-single ( item -- )
@@ -423,8 +429,8 @@ s" Cell"  single 0 create-type cell-type
 s" Float" single 0 create-type float-type
 
 s" sp" save-mem cell-type  s" (Cell)" make-stack data-stack 
-s" fp" save-mem cell-type  s" "       make-stack fp-stack
-s" rp" save-mem float-type s" (Cell)" make-stack return-stack
+s" fp" save-mem float-type s" "       make-stack fp-stack
+s" rp" save-mem cell-type  s" (Cell)" make-stack return-stack
 s" IP" save-mem cell-type  s" error don't use # on results" make-stack inst-stream
 ' inst-in-index inst-stream stack-in-index-xt !
 \ !! initialize stack-in and stack-out
@@ -530,9 +536,6 @@ s" IP" save-mem cell-type  s" error don't use # on results" make-stack inst-stre
 	\ !! resync #line missing
     repeat
     2drop type ;
-
-: print-type-prefix ( type -- )
-    body> >head .name ;
 
 : print-debug-arg { item -- }
     ." fputs(" quote space item item-name 2@ type ." =" quote ." , vm_out); "
