@@ -40,10 +40,6 @@
 jmp_buf throw_jmp_buf;
 #endif
 
-#ifndef FUZZ
-#  define FUZZ 0x4000
-#endif
-
 #ifndef DEFAULTPATH
 #  define DEFAULTPATH "/usr/local/lib/gforth:."
 #endif
@@ -226,15 +222,14 @@ Address loader(FILE *imagefile, char* filename)
   wholesize = preamblesize+dictsize+dsize+rsize+fsize+lsize;
   imagesize = preamblesize+header.image_size+((header.image_size-1)/sizeof(Cell))/8+1;
   image=malloc((wholesize>imagesize?wholesize:imagesize)
-#ifndef __unix__
+#ifdef FUZZ
 	       +FUZZ
 #endif
 	       );
   /*image = maxaligned(image);*/
   /* memset(image,0,wholesize); */
 
-#ifndef __unix__
-#warning Non-Unix machine, trying to help relocate with FUZZ
+#ifdef FUZZ
   if(header.base==0) image += FUZZ/2;
   else if((UCell)(header.base - (Cell)image + preamblesize) < FUZZ)
     image = header.base - preamblesize;

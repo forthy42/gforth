@@ -194,6 +194,14 @@ meantime, start gforth with
 
 gforth -i kernel.fi startup.fs
 
+If the addresses changes by only a small amount (e.g. by one or two
+pages), you can fix it by defining FUZZ (in config.h) to a number at
+least two times the changes you observe (0x4000 is a good idea, this
+is four 4k pages) and recompile. We do this for the DJGPP port for
+DOS, because the start address there changes by one or two pages, and
+it helps us to keep the DOS people happy without investing too much
+work in a braindead environment.
+
 
 2) "%s: Checksum of image ($13579b) does not match the executable ($2468a)
 The Gforth installer should look into the INSTALL file"

@@ -5,11 +5,17 @@ features of the 80386, but on the other hand it requires at least a
 required if you don't have a DPMI host yourself (Windows/OS/2/Linux
 DOS-box, Quemm or others).
 
-Gforth hasn't been tested with EMX, using EMX will require some changes in
-the console IO part. If you don't want to install the DJGPP package (quite
-large), look for a binary distribution of Gforth for DOS. You must have a
-version of GNU make, because DOS make programs are likely to have problems
-with the Makefile. If you want to change Gforth, you may need GNU m4, too.
+Gforth hasn't been tested with EMX, using EMX will require some
+changes in the console IO part. For OS/2 EMX supports POSIX-style tty,
+so it might just compile out of the box. If you don't want to install
+the DJGPP package (quite large), look for a binary distribution of
+Gforth for DOS. You also must have a version of GNU make, because DOS
+make programs are likely to have problems with the Makefile. If you
+want to change Gforth, you may need GNU m4, too. Because DJGPP
+provides use of long filenames under Windows 95, you should unpack the
+gforth package with a Windows-95-aware archiver (those from DJGPP come
+in mind), because otherwise gforth will not find the necessary
+files. There is no such problem when using MS-DOS prior 7.x.
 
 If you don't bother and want to make it yourself, type
 
@@ -22,10 +28,10 @@ configure has the following useful parameters:
                           some processors (default disabled).
   --enable-direct-threaded      Force direct threading. This may not work on
                                 some machines and may cause slowdown on others.
-                                (default processor-dependent)
+                                (default disabled)
   --enable-indirect-threaded    Force indirect threading. This can cause a
                                 slowdown on some machines.
-                                (default processor-dependent)
+                                (default enabled)
 
 After covering all inconveniences, type
 
@@ -50,8 +56,8 @@ Add the following entry to your Autoexec.bat:
 SET GFORTHPATH=<your gforth source directory>;.
 
 Use / instead of \ in your gforth source directory. Gforth now uses
-';' as path separator, so you won't have problems DOS pathes that may
-contain ':', which is the default path separator in Unix.
+';' as path separator, so you won't have problems with DOS pathes that
+may contain ':', which is the default path separator in Unix.
 
 For paper documentation, print gforth.ps (a Postscript file (300dpi
 fonts, i.e., it works, but does not produce best quality on better
