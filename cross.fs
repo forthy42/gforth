@@ -2442,6 +2442,13 @@ Cond: compile ( -- ) restrict? \ name
                IF   gexecute
                ELSE compile (compile) addr, THEN THEN ;Cond
 
+Cond: [compile] ( -- ) restrict? \ name
+      bl word gfind dup 0= ABORT" CROSS: Can't compile"
+      0> IF    gexecute
+         ELSE  dup >magic @ <imm> =
+               IF   gexecute
+               ELSE compile (compile) addr, THEN THEN ;Cond
+
 Cond: postpone ( -- ) restrict? \ name
       bl word gfind dup 0= ABORT" CROSS: Can't compile"
       0> IF    gexecute
@@ -2719,8 +2726,8 @@ previous
 : unlock previous forth also cross ;
 
 \ also minimal
-: [[ also unlock ;
-: ]] previous previous also also ;
+: [[+++ also unlock ;
+: +++]] previous previous also also ;
 
 unlock definitions also minimal
 : lock   lock ;
