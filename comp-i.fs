@@ -43,7 +43,8 @@ s" address-unit-bits" environment? drop constant bits/au
     if
 	." : images have the same base address; producing only a data-relocatable image" cr
     else
-	offset abs expected-offset <> abort" images produced by different engines"
+	\ the following sanity check produces false positices with exec-shield
+	\ offset abs expected-offset <> abort" images produced by different engines"
 	."  offset=" offset . cr
 	0 image1 i-field + ! 0 image2 i-field + !
     endif
