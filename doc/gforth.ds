@@ -111,6 +111,7 @@ personal machines. This manual corresponds to version @value{VERSION}.
 * Goals::                       About the Gforth Project
 * Invoking Gforth::             Starting (and exiting) Gforth
 * Words::                       Forth words available in Gforth
+* Error messages::              How to interpret them
 * Tools::                       Programming tools
 * ANS conformance::             Implementation-defined options etc.
 * Model::                       The abstract machine of Gforth
@@ -118,6 +119,7 @@ personal machines. This manual corresponds to version @value{VERSION}.
 * Emacs and Gforth::            The Gforth Mode
 * Image Files::                 @code{.fi} files contain compiled code
 * Engine::                      The inner interpreter and the primitives
+* Binding to System Library::   
 * Cross Compiler::              The Cross Compiler
 * Bugs::                        How to report them
 * Origin::                      Authors and ancestors of Gforth
@@ -125,9 +127,19 @@ personal machines. This manual corresponds to version @value{VERSION}.
 * Word Index::                  An item for each Forth word
 * Concept Index::               A menu covering many topics
 
- --- The Detailed Node Listing ---
+@detailmenu --- The Detailed Node Listing ---
 
-Goals
+An Introduction to ANS Forth
+
+* Introducing the Text Interpreter::
+* Stacks and Postfix notation::
+* Your first definition::
+* How does that work?::
+* Forth is written in Forth::
+* Review - elements of a Forth system::
+* Exercises::
+
+Goals of Gforth
 
 * Gforth Extensions Sinful?::
 
@@ -227,14 +239,14 @@ Structures
 
 Object-oriented Forth
 
-* Why object-oriented programming?::  
-* Object-Oriented Terminology::  
-* Objects::                     
-* OOF::                         
-* Mini-OOF::                    
+* Why object-oriented programming?::
+* Object-Oriented Terminology::
+* Objects::
+* OOF::
+* Mini-OOF::
 * Comparison with other object models::  
 
-Objects
+The @file{objects.fs} model
 
 * Properties of the Objects model::  
 * Basic Objects Usage::         
@@ -248,7 +260,7 @@ Objects
 * Objects Implementation::      
 * Objects Glossary::            
 
-OOF
+The @file{oof.fs} model
 
 * Properties of the OOF model::
 * Basic OOF Usage::
@@ -256,7 +268,7 @@ OOF
 * Class Declaration::
 * Class Implementation::
 
-Mini-OOF
+The @file{mini-oof.fs} model
 
 * Basic Mini-OOF Usage::
 * Mini-OOF Example::
@@ -276,11 +288,11 @@ Including Files
 
 Other I/O
 
-* Simple numeric output::
-* Formatted numeric output::
-* String Formats::
-* Displaying characters and strings::
-* Input::
+* Simple numeric output::       Predefined formats
+* Formatted numeric output::    Formatted (pictured) output
+* String Formats::              How Forth stores strings in memory
+* Displaying characters and strings:: Other stuff
+* Input::                       Input
 
 Programming Tools
 
@@ -362,17 +374,18 @@ The optional Search-Order word set
 
 Image Files
 
-* Image File Background::          Why have image files?
-* Non-Relocatable Image Files::    don't always work.
-* Data-Relocatable Image Files::   are better.
+* Image Licensing Issues::      Distribution terms for images.
+* Image File Background::       Why have image files?
+* Non-Relocatable Image Files::  don't always work.
+* Data-Relocatable Image Files::  are better.
 * Fully Relocatable Image Files::  better yet.
-* Stack and Dictionary Sizes::     Setting the default sizes for an image.
-* Running Image Files::            @code{gforth -i @var{file}} or @var{file}.
-* Modifying the Startup Sequence:: and turnkey applications.
+* Stack and Dictionary Sizes::  Setting the default sizes for an image.
+* Running Image Files::         @code{gforth -i @var{file}} or @var{file}.
+* Modifying the Startup Sequence::  and turnkey applications.
 
 Fully Relocatable Image Files
 
-* gforthmi::                    The normal way
+* gforthmi::            The normal way
 * cross.fs::                    The hard way
 
 Engine
@@ -394,24 +407,19 @@ Primitives
 * TOS Optimization::            
 * Produced code::               
 
-System Libraries
-
-* Binding to System Library::
-
 Cross Compiler
 
 * Using the Cross Compiler::
 * How the Cross Compiler Works::
 
-Forth-related information
+Other Forth-related information
 
 * Internet resources::
 * Books::
 * The Forth Interest Group::
 * Conferences::
 
-
-
+@end detailmenu
 @end menu
 
 @node License, Introduction, Top, Top
@@ -1892,7 +1900,7 @@ doc-bye
 @comment some are in .c files.
 
 
-@node Words, Tools, Invoking Gforth, Top
+@node Words, Error messages, Invoking Gforth, Top
 @chapter Forth Words
 @cindex Words
 
@@ -7131,9 +7139,54 @@ The following ANS Standard Forth words are not currently supported by Gforth
 @code{EMIT?} 
 @code{FORGET} 
 
+@c ******************************************************************
+@node Error messages, Tools, Words, Top
+@chapter Error messages
+@cindex error messages
+@cindex backtrace
+
+A typical Gforth error message looks like this:
+
+@example
+in file included from :-1
+in file included from ./yyy.fs:1
+./xxx.fs:4: Invalid memory address
+bar
+^^^
+$400E664C @ 
+$400E6664 foo 
+@end example
+
+The message identifying the error is @code{Invalid memory address}.  The
+error happened when text-interpreting line 4 of the file
+@file{./xxx.fs}. This line is given (it contains @code{bar}), and the
+word on the line where the error happened, is pointed out (with
+@code{^^^}).
+
+The file containing the error was included in line 1 of @file{./yyy.fs},
+and @file{yyy.fs} was included from a non-file (in this case, by giving
+@file{yyy.fs} as command-line parameter to Gforth).
+
+At the end of the error message you find a return stack dump that can be
+interpreted as a backtrace (possibly empty). On top you find the top of
+the return stack when the @code{throw} happened, and at the bottom you
+find the return stack entry just above the return stack of the topmost
+text interpreter.
+
+To the right of most return stack entries you see a guess for the word
+that pushed that return stack entry as its return address. This gives a
+backtrace. In our case we see that @code{bar} called @code{foo}, and
+@code{foo} called @code{@@} (and @code{@@} had an @emph{Invalid memory
+address} exception).
+
+Note that the backtrace is not perfect: We don't know which return stack
+entries are return addresses (so we may get false positives); and in
+some cases (e.g., for @code{abort"}) we cannot determine from the return
+address the word that pushed the return address, so for some return
+addresses you see no names in the return stack dump.
 
 @c ******************************************************************
-@node Tools, ANS conformance, Words, Top
+@node Tools, ANS conformance, Error messages, Top
 @chapter Tools
 
 @menu
@@ -7548,9 +7601,9 @@ get an execution token for @code{compile-only-error} (which performs a
 @cindex dividing by zero
 @cindex floating point unidentified fault, integer division
 @cindex divide by zero
-typically results in a @code{-55 throw} (floating point unidentified
-fault), although a @code{-10 throw} (divide by zero) would be more
-appropriate.
+On better platforms, this produces a @code{-10 throw} (Division by
+zero); on other systems, this typically results in a @code{-55 throw}
+(Floating-point unidentified fault).
 
 @item insufficient data stack or return stack space:
 @cindex insufficient data stack or return stack space
@@ -7559,13 +7612,15 @@ appropriate.
 @cindex Invalid memory address, stack overflow
 Depending on the operating system, the installation, and the invocation
 of Gforth, this is either checked by the memory management hardware, or
-it is not checked. If it is checked, you typically get a @code{-9 throw}
-(Invalid memory address) as soon as the overflow happens. If it is not
-checked, overflows typically result in mysterious illegal memory accesses,
-producing @code{-9 throw} (Invalid memory address) or @code{-23 throw}
-(Address alignment exception); they might also destroy the internal data
-structure of @code{ALLOCATE} and friends, resulting in various errors in
-these words.
+it is not checked. If it is checked, you typically get a @code{-3 throw}
+(Stack overflow), @code{-5 throw} (Return stack overflow), or @code{-9
+throw} (Invalid memory address) (depending on the platform and how you
+achieved the overflow) as soon as the overflow happens. If it is not
+checked, overflows typically result in mysterious illegal memory
+accesses, producing @code{-9 throw} (Invalid memory address) or
+@code{-23 throw} (Address alignment exception); they might also destroy
+the internal data structure of @code{ALLOCATE} and friends, resulting in
+various errors in these words.
 
 @item insufficient space for loop control parameters:
 @cindex insufficient space for loop control parameters
@@ -7593,8 +7648,7 @@ These are located in writable memory and can be modified.
 @item overflow of the pictured numeric output string:
 @cindex overflow of the pictured numeric output string
 @cindex pictured numeric output string, overflow
-Not checked. Runs into the dictionary and destroys it (at least,
-partially).
+@code{-17 throw} (Pictured numeric ouput string overflow).
 
 @item parsed string overflow:
 @cindex parsed string overflow
@@ -7605,23 +7659,30 @@ partially).
 On two's complement machines, arithmetic is performed modulo
 2**bits-per-cell for single arithmetic and 4**bits-per-cell for double
 arithmetic (with appropriate mapping for signed types). Division by zero
-typically results in a @code{-55 throw} (floatingpoint unidentified
-fault), although a @code{-10 throw} (divide by zero) would be more
-appropriate. @code{convert} and @code{>number} currently overflow
-silently.
+typically results in a @code{-10 throw} (divide by zero) or @code{-55
+throw} (floating point unidentified fault). @code{convert} and
+@code{>number} currently overflow silently.
 
 @item reading from an empty data or return stack:
 @cindex stack empty
 @cindex stack underflow
+@cindex return stack underflow
 The data stack is checked by the outer (aka text) interpreter after
 every word executed. If it has underflowed, a @code{-4 throw} (Stack
 underflow) is performed. Apart from that, stacks may be checked or not,
-depending on operating system, installation, and invocation. The
-consequences of stack underflows are similar to the consequences of
-stack overflows. Note that even if the system uses checking (through the
-MMU), your program may have to underflow by a significant number of
-stack items to trigger the reaction (the reason for this is that the
-MMU, and therefore the checking, works with a page-size granularity).
+depending on operating system, installation, and invocation. If they are
+caught by a check, they typically result in @code{-4 throw} (Stack
+underflow), @code{-6 throw} (Return stack underflow) or @code{-9 throw}
+(Invalid memory address), depending on the platform and which stack
+underflows and by how much. Note that even if the system uses checking
+(through the MMU), your program may have to underflow by a significant
+number of stack items to trigger the reaction (the reason for this is
+that the MMU, and therefore the checking, works with a page-size
+granularity).  If there is no checking, the symptoms resulting from an
+underflow are similar to those from an overflow.  Unbalanced return
+stack errors result in a variaty of symptoms, including @code{-9 throw}
+(Invalid memory address) and Illegal Instruction (typically @code{-260
+throw}).
 
 @item unexpected end of the input buffer, resulting in an attempt to use a zero-length string as a name:
 @cindex unexpected end of the input buffer

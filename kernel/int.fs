@@ -616,7 +616,7 @@ Defer dobacktrace ( -- )
     cell +LOOP
     .error-frame
   LOOP
-  dobacktrace
+  drop dobacktrace
   normal-dp dpp ! ;
 
 ' (DoError) IS DoError
