@@ -181,7 +181,7 @@ FORTH_GEN =  $(FORTH_GEN0) @KERNEL@ gforth.fi
 FORTH_GEN1 = $(FORTH_GEN0) @kernel_fi@ 
 
 #distributed documentation
-DOCDIST = gforth.info* gforth.ps
+DOCDIST = gforth.info gforth.info-* gforth.ps
 
 #stuff in a binonly distribution 
 BINONLYDIST = config.status Makefile gforth gforth-ditc \
@@ -204,7 +204,7 @@ all:	version.fs more
 
 #this rule avoids remaking everything after minor changes in Makefile.in
 version-stamp:	Makefile.in
-		(test -r $@ && test x'$(VERSION)' = x`cat $@`) || echo $(VERSION) >$@
+		if test -r $@ && test x'$(VERSION)' = x`cat $@` ; then true ; else echo $(VERSION) > $@ ; fi
 
 version.h:	version-stamp
 		echo "static char gforth_version[]=\"$(VERSION)\" ;" >$@
@@ -327,7 +327,7 @@ install:	gforth $(FORTH_SRC) kernel.fi gforth.fi gforth.1 primitives gforth.TAGS
 		$(INSTALL_DATA) kernel.fi $(libdir)/gforth/$(VERSION)
 		$(RM) gforth.fi; $(MAKE) gforth.fi #gforth.fi contains some path names
 		$(INSTALL_DATA) gforth.fi $(libdir)/gforth/$(VERSION)
-		sed s:^$(srcdir)/:$(datadir)/gforth/$(VERSION)/: gforth.TAGS >TAGS; $(INSTALL_DATA) TAGS $(datadir)/gforth/$(VERSION)
+		sed 's:^$(srcdir)/:$(datadir)/gforth/$(VERSION)/:' gforth.TAGS >TAGS; $(INSTALL_DATA) TAGS $(datadir)/gforth/$(VERSION)
 		if test -d $(emacssitelispdir); then \
 			$(INSTALL_DATA) $(srcdir)/gforth.el $(emacssitelispdir); \
 		else \
@@ -505,7 +505,7 @@ gforth.ps:	gforth.dvi
 
 info:		gforth.info
 
-gforth.info:	gforth.texi
+gforth.info gforth.info-*:	gforth.texi
 		-$(MAKEINFO) gforth.texi
 
 html:		gforth.texi
