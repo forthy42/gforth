@@ -82,7 +82,7 @@ case "$ac_cv_sizeof_char_p" in
 esac
 
 AC_CHECK_INT_TYPE(sizeof(char *),cell,long)
-if test $ac_cv_int_type_cell != int; then
+if test "$ac_cv_int_type_cell" != int; then
 	echo "So, sizeof(pointer)!=sizeof(int); looks like a DOS C compiler to me."
 	echo "Since you don't have a proper C on this machine, that's one more reason"
 	echo "to use Forth;-)"

@@ -961,7 +961,13 @@ create s"-buffer /line chars allot
     state @  IF    postpone (.") ,"  align
                     ELSE  [char] " parse type  THEN  ;  immediate
 : ( ( compilation 'ccc<close-paren>' -- ; run-time -- ) \ core,file	paren
-    [char] ) parse 2drop ;                       immediate
+    BEGIN
+	>in @ [char] ) parse nip >in @ rot - =
+    WHILE
+	loadfile @ IF
+	    refill 0= abort" missing ')' in paren comment"
+	THEN
+    REPEAT ;                       immediate
 : \ ( -- ) \ core-ext backslash
     blk @
     IF

@@ -267,7 +267,7 @@ install:	gforth $(FORTH_SRC) kernal.fi gforth.fi gforth.1 gforth.info* primitive
 		sed s:$(srcdir)/:$(datadir)/gforth/$(VERSION): gforth.TAGS >TAGS; $(INSTALL_DATA) TAGS $(datadir)/gforth/$(VERSION)
 		if test -d $(emacssitelispdir); then \
 			$(INSTALL_DATA) gforth.el $(emacssitelispdir); \
-		else ; \
+		else \
 			echo "please install gforth.el in your .../emacs/site-lisp directory"; \
 		fi
 
