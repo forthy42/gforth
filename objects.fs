@@ -96,7 +96,7 @@ end-struct interface%
 interface%
     cell%    field class-parent
     cell%    field class-wordlist \ inst-vars and other protected words
-    cell% 2* field class-inst-size ( class -- addr ) \ objects
+    cell% 2* field class-inst-size ( class -- addr ) \ objects- objects
     \g used as @code{class-inst-size 2@ ( class -- align size )},
     \g gives the size specification for an instance (i.e. an object)
     \g of @code{class}.
@@ -118,7 +118,7 @@ end-struct selector%
 
 \ selectors and methods
 
-variable current-interface ( -- addr ) \ objects
+variable current-interface ( -- addr ) \ objects- objects
 \g this variable contains the class or interface currently being
 \g defined.
 
@@ -139,7 +139,7 @@ does> ( ... object -- ... )
     swap object-map @ + @ ( object selector-body map )
     swap selector-offset @ + perform ;
 
-: method ( xt "name" -- ) \ objects
+: method ( xt "name" -- ) \ objects- objects
     \g @code{name} execution: @code{... object -- ...}@*
     \g creates selector @code{name} and makes @code{xt} its method in
     \g the current class.
@@ -154,7 +154,7 @@ does> ( ... object -- ... )
 	do-class-method
     then ;
 
-: selector ( "name" -- ) \ objects
+: selector ( "name" -- ) \ objects- objects
     \g @code{name} execution: @code{... object -- ...}@*
     \g creates selector @code{name} for the current class and its
     \g descendents; you can set a method for the selector in the
@@ -166,7 +166,7 @@ does> ( ... object -- ... )
     swap >body ( xt map selector-body )
     selector-offset @ + ! ;
 
-: class->map ( class -- map ) \ objects
+: class->map ( class -- map ) \ objects- objects
     \g @code{map} is the pointer to @code{class}'s method map; it
     \g points to the place in the map to which the selector offsets
     \g refer (i.e., where @code{object-map}s point to).
@@ -186,7 +186,7 @@ does> ( ... object -- ... )
 	2drop
     then ;
 
-: class-override! ( xt sel-xt class-map -- ) \ objects
+: class-override! ( xt sel-xt class-map -- ) \ objects- objects
     \g @code{xt} is the new method for the selector @code{sel-xt} in
     \g @code{class-map}.
     over >body ( xt sel-xt class-map selector-body )
@@ -197,7 +197,7 @@ does> ( ... object -- ... )
     then
     interface-override! ;
 
-: overrides ( xt "selector" -- ) \ objects
+: overrides ( xt "selector" -- ) \ objects- objects
     \g replace default method for @code{selector} in the current class
     \g with @code{xt}. @code{overrides} must not be used during an
     \g interface definition.
@@ -208,7 +208,7 @@ does> ( ... object -- ... )
 \ every interface gets a different offset; the latest one is stored here
 variable last-interface-offset 0 last-interface-offset !
 
-: interface ( -- ) \ objects
+: interface ( -- ) \ objects- objects
     \g starts an interface definition.
     interface% %allot >r
     r@ current-interface !
@@ -217,12 +217,12 @@ variable last-interface-offset 0 last-interface-offset !
     last-interface-offset @ r@ interface-offset !
     0 r> interface-map-offset ! ;
 
-: end-interface-noname ( -- interface ) \ objects
+: end-interface-noname ( -- interface ) \ objects- objects
     \g ends an interface definition. The resulting interface is
     \g @code{interface}.
     current-interface @ ;
 
-: end-interface ( "name" -- ) \ objects
+: end-interface ( "name" -- ) \ objects- objects
     \g @code{name} execution: @code{-- interface}@*
     \g ends an interface definition. The resulting interface is
     \g @code{interface}.
@@ -237,11 +237,11 @@ variable last-interface-offset 0 last-interface-offset !
     then
     r> class-wordlist @ swap 1+ ;
 
-: push-order ( class -- ) \ objects
+: push-order ( class -- ) \ objects- objects
     \g add @code{class}'s wordlists to the search-order (in front)
     >r get-order r> add-class-order set-order ;
 
-: class ( parent-class -- align offset ) \ objects
+: class ( parent-class -- align offset ) \ objects- objects
     \g start a new class definition as a child of
     \g @code{parent-class}. @code{align offset} are for use by
     \g @code{field} etc.
@@ -264,18 +264,18 @@ variable last-interface-offset 0 last-interface-offset !
     until
     drop ;
 
-: drop-order ( class -- ) \ objects
+: drop-order ( class -- ) \ objects- objects
     \g drops @code{class}'s wordlists from the search order. No
     \g checking is made whether @code{class}'s wordlists are actually
     \g on the search order.
     >r get-order r> remove-class-order set-order ;
 
-: end-class-noname ( align offset -- class ) \ objects
+: end-class-noname ( align offset -- class ) \ objects- objects
     \g ends a class definition. The resulting class is @code{class}.
     current-interface @ dup drop-order class-inst-size 2!
     end-interface-noname ;
 
-: end-class ( align offset "name" -- ) \ objects
+: end-class ( align offset "name" -- ) \ objects- objects
     \g @code{name} execution: @code{-- class}@*
     \g ends a class definition. The resulting class is @code{class}.
     \ name execution: ( -- class )
@@ -285,7 +285,7 @@ variable last-interface-offset 0 last-interface-offset !
 
 variable public-wordlist
 
-: protected ( -- ) \ objects
+: protected ( -- ) \ objects- objects
     \g set the compilation wordlist to the current class's wordlist
     current-interface @ class-wordlist @
     dup get-current <>
@@ -294,7 +294,7 @@ variable public-wordlist
     then
     set-current ;
 
-: public ( -- ) \ objects
+: public ( -- ) \ objects- objects
     \g restore the compilation wordlist that was in effect before the
     \g last @code{protected} that actually changed the compilation
     \g wordlist.
@@ -310,7 +310,7 @@ variable public-wordlist
     free throw
     r> dup r> ;
     
-: implementation ( interface -- ) \ objects
+: implementation ( interface -- ) \ objects- objects
     \g the current class implements @code{interface}. I.e., you can
     \g use all selectors of the interface in the current class and its
     \g descendents.
@@ -332,9 +332,9 @@ variable public-wordlist
 \ this/self, instance variables etc.
 
 \ rename "this" into "self" if you are a Smalltalk fiend
-0 value this ( -- object ) \ objects
+0 value this ( -- object ) \ objects- objects
 \g the receiving object of the current method (aka active object).
-: to-this ( object -- ) \ objects
+: to-this ( object -- ) \ objects- objects
     \g sets @code{this} (used internally, but useful when debugging).
     TO this ;
 
@@ -345,20 +345,20 @@ variable public-wordlist
 \ : to-this ( object -- )
 \     thisp ! ;
 
-: m: ( -- xt colon-sys; run-time: object -- ) \ objects
+: m: ( -- xt colon-sys; run-time: object -- ) \ objects- objects
     \g start a method definition; @code{object} becomes new @code{this}.
     :noname 
     POSTPONE this
     POSTPONE >r
     POSTPONE to-this ;
 
-: exitm ( -- ) \ objects
+: exitm ( -- ) \ objects- objects
     \g @code{exit} from a method; restore old @code{this}.
     POSTPONE r>
     POSTPONE to-this
     POSTPONE exit ; immediate
 
-: ;m ( colon-sys --; run-time: -- ) \ objects
+: ;m ( colon-sys --; run-time: -- ) \ objects- objects
     \g end a method definition; restore old @code{this}.
     POSTPONE r>
     POSTPONE to-this
@@ -384,7 +384,7 @@ variable public-wordlist
 does> \ name execution: ( -- addr )
     ( addr1 ) @ this + ;
 
-: inst-var ( align1 offset1 align size "name" -- align2 offset2 ) \ objects
+: inst-var ( align1 offset1 align size "name" -- align2 offset2 ) \ objects- objects
     \g @code{name} execution: @code{-- addr}@*
     \g @code{addr} is the address of the field @code{name} in
     \g @code{this} object.
@@ -394,17 +394,17 @@ does> \ name execution: ( -- addr )
 does> \ name execution: ( -- w )
     ( addr1 ) @ this + @ ;
 
-: inst-value ( align1 offset1 "name" -- align2 offset2 ) \ objects
+: inst-value ( align1 offset1 "name" -- align2 offset2 ) \ objects- objects
     \g @code{name} execution: @code{-- w}@*
     \g @code{w} is the value of the field @code{name} in @code{this}
     \g object.
     cell% ['] do-inst-value inst-something ;
 
-: <to-inst> ( w xt -- ) \ objects
+: <to-inst> ( w xt -- ) \ objects- objects
     \g store @code{w} into the field @code{xt} in @code{this} object.
     >body @ this + ! ;
 
-: [to-inst] ( compile-time: "name" -- ; run-time: w -- ) \ objects
+: [to-inst] ( compile-time: "name" -- ; run-time: w -- ) \ objects- objects
     \g store @code{w} into field @code{name} in @code{this} object.
     ' >body @ POSTPONE literal
     POSTPONE this
@@ -413,7 +413,7 @@ does> \ name execution: ( -- w )
 
 \ class binding stuff
 
-: <bind> ( class selector-xt -- xt ) \ objects
+: <bind> ( class selector-xt -- xt ) \ objects- objects
     \g @code{xt} is the method for the selector @code{selector-xt} in
     \g @code{class}.
     >body swap class->map over selector-interface @
@@ -422,27 +422,27 @@ does> \ name execution: ( -- w )
     then
     swap selector-offset @ + @ ;
 
-: bind' ( "class" "selector" -- xt ) \ objects
+: bind' ( "class" "selector" -- xt ) \ objects- objects
     \g @code{xt} is the method for @code{selector} in @code{class}.
     ' execute ' <bind> ;
 
-: bind ( ... "class" "selector" -- ... ) \ objects
+: bind ( ... "class" "selector" -- ... ) \ objects- objects
     \g execute the method for @code{selector} in @code{class}.
     bind' execute ;
 
-: [bind] ( compile-time: "class" "selector" -- ; run-time: ... object -- ... ) \ objects
+: [bind] ( compile-time: "class" "selector" -- ; run-time: ... object -- ... ) \ objects- objects
     \g compile the method for @code{selector} in @code{class}.
     bind' compile, ; immediate
 
-: current' ( "selector" -- xt ) \ objects
+: current' ( "selector" -- xt ) \ objects- objects
     \g @code{xt} is the method for @code{selector} in the current class.
     current-interface @ ' <bind> ;
 
-: [current] ( compile-time: "selector" -- ; run-time: ... object -- ... ) \ objects
+: [current] ( compile-time: "selector" -- ; run-time: ... object -- ... ) \ objects- objects
     \g compile the method for @code{selector} in the current class.
     current' compile, ; immediate
 
-: [parent] ( compile-time: "selector" -- ; run-time: ... object -- ... ) \ objects
+: [parent] ( compile-time: "selector" -- ; run-time: ... object -- ... ) \ objects- objects
     \g compile the method for @code{selector} in the parent of the
     \g current class.
     current-interface @ class-parent @ ' <bind> compile, ; immediate
@@ -462,38 +462,38 @@ object%
 current-interface @ push-order
 
 ' drop ( object -- )
-method construct ( ... object -- ) \ objects
+method construct ( ... object -- ) \ objects- objects
 \g initializes the data fields of @code{object}. The method for the
 \g class @code{object} just does nothing @code{( object -- )}.
 
 :noname ( object -- )
     ." object:" dup . ." class:" object-map @ @ . ;
-method print ( object -- ) \ objects
+method print ( object -- ) \ objects- objects
 \g prints the object. The method for the class @code{object} prints
 \g the address of the object and the address of its class.
 
-end-class object ( -- class ) \ objects
+end-class object ( -- class ) \ objects- objects
 \g the ancestor of all classes.
 
 \ constructing objects
 
-: init-object ( ... class object -- ) \ objects
+: init-object ( ... class object -- ) \ objects- objects
     \g initializes a chunk of memory (@code{object}) to an object of
     \g class @code{class}; then performs @code{construct}.
     swap class->map over object-map ! ( ... object )
     construct ;
 
-: xt-new ( ... class xt -- object ) \ objects
+: xt-new ( ... class xt -- object ) \ objects- objects
     \g makes a new object, using @code{xt ( align size -- addr )} to
     \g get memory.
     over class-inst-size 2@ rot execute
     dup >r init-object r> ;
 
-: dict-new ( ... class -- object ) \ objects
+: dict-new ( ... class -- object ) \ objects- objects
     \g @code{allot} and initialize an object of class @code{class} in
     \g the dictionary.
     ['] %allot xt-new ;
 
-: heap-new ( ... class -- object ) \ objects
+: heap-new ( ... class -- object ) \ objects- objects
     \g @code{allocate} and initialize an object of class @code{class}.
     ['] %alloc xt-new ;

@@ -543,7 +543,7 @@ defer process-args
 
 ' (bootmessage) IS bootmessage
 
-Defer 'cold 
+Defer 'cold \ gforth	tick-cold
 \ hook (deferred word) for things to do right before interpreting the
 \ command-line arguments
 ' noop IS 'cold

@@ -141,7 +141,7 @@ create nextname-buffer 32 chars allot
 : (compile) ( -- ) \ gforth
     r> dup cell+ >r @ compile, ;
 
-: postpone, ( w xt -- )
+: postpone, ( w xt -- ) \ gforth	postpone-comma
     \g Compiles the compilation semantics represented by @var{w xt}.
     dup ['] execute =
     if
