@@ -21,7 +21,10 @@
 
 #include "mini.h"
 
-void vm_disassemble(Inst *ip, Inst *endp, Inst prim[])
+#define IP (ip+1)
+#define IPTOS IP[0]
+
+void vm_disassemble(Inst *ip, Inst *endp, Inst vm_prim[])
 {
   while (ip<endp) {
     fprintf(vm_out,"%p: ",ip);

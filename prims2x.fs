@@ -673,12 +673,11 @@ stack inst-stream IP Cell
 
 : disasm-arg { item -- }
     item item-stack @ inst-stream = if
-	."   fputc(' ', vm_out); "
-	\ !! change this to first convert args to the right type and
-	\ then print them
-	." /* printarg_" item item-type @ print-type-prefix
-	." ((" item item-type @ type-c-name 2@ type ." )"
-	." ip[" item item-offset @ 1+ 0 .r ." ]); */" cr
+	." {" cr
+	item print-declaration
+	item fetch
+	item print-debug-arg
+	." }" cr
     endif ;
 
 : disasm-args ( -- )

@@ -50,6 +50,17 @@ void vm_disassemble(Inst *ip, Inst *endp, Inst prim[]);
 void vm_count_block(Inst *ip);
 struct block_count *block_insert(Inst *ip);
 void vm_print_profile(FILE *file);
+
+/* type change macros; these are specific to the types you use, so you
+   have to change this part */
+#define vm_Cell2i(_cell,x)	((x)=(long)(_cell))
+#define vm_Cell2target(_cell,x)	((x)=(Inst *)(_cell))
+#define vm_Cell2a(_cell,x)	((x)=(char *)(_cell))
+#define vm_i2Cell(x,_cell)	((_cell)=(Cell)(x))
+#define vm_target2Cell(x,_cell)	((_cell)=(Cell)(x))
+#define vm_a2Cell(x,_cell)	((_cell)=(Cell)(x))
+#define vm_Cell2Cell(_x,_y) ((_y)=(Cell)(_x))
+
 #define VM_IS_INST(inst, n) ((inst) == vm_prim[n])
 
 /* mini type-specific support functions */

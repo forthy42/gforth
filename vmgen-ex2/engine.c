@@ -21,8 +21,6 @@
 
 #include "mini.h"
 
-#define vm_Cell2Cell(_x,_y) ((_y)=(_x))
-
 #define USE_spTOS 1
 
 #ifdef USE_spTOS

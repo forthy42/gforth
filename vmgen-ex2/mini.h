@@ -40,6 +40,7 @@ typedef union Cell {
 #define vm_target2Cell(_x,_cell) ((_cell).target=(_x))	
 #define vm_Cell2a(_cell,_x)	((_x)=(_cell).a)
 #define vm_a2Cell(_x,_cell)	((_cell).a=(_x))	
+#define vm_Cell2Cell(_x,_y) ((_y)=(_x))
 
 #define VM_IS_INST(_inst, n) ((_inst).inst == vm_prim[n])
 
