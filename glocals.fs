@@ -633,9 +633,10 @@ forth definitions
     endif ;
 
 : >definer ( xt -- definer )
-    \ this gives a unique identifier for the way the xt was defined
-    \ words defined with different does>-codes have different definers
-    \ the definer can be used for comparison and in definer!
+    \G @var{Definer} is a unique identifier for the way the @var{xt}
+    \G was defined.  Words defined with different @code{does>}-codes
+    \G have different definers.  The definer can be used for
+    \G comparison and in @code{definer!}.
     dup >does-code
     ?dup-if
 	nip 1 or
@@ -644,7 +645,8 @@ forth definitions
     then ;
 
 : definer! ( definer xt -- )
-    \ gives the word represented by xt the behaviour associated with definer
+    \G The word represented by @var{xt} changes its behaviour to the
+    \G behaviour associated with @var{definer}.
     over 1 and if
 	swap [ 1 invert ] literal and does-code!
     else

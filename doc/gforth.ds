@@ -12129,6 +12129,13 @@ doc-douser:
 doc-dodefer:
 doc-dofield:
 
+@cindex definer
+The following two words generalize @code{>code-address},
+@code{>does-code}, @code{code-address!}, and @code{does-code!}:
+
+doc->definer
+doc-definer!
+
 @c -------------------------------------------------------------
 @node Passing Commands to the OS, Keeping track of Time, Threading Words, Words
 @section Passing Commands to the Operating System

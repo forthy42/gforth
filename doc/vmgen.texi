@@ -3,7 +3,7 @@
 @c @ifnottex
 This file documents vmgen (Gforth @value{VERSION}).
 
-@section Introduction
+@chapter Introduction
 
 Vmgen is a tool for writing efficient interpreters.  It takes a simple
 virtual machine description and generates efficient C code for dealing
@@ -84,14 +84,94 @@ Replicating VM (super)instructions for better BTB prediction accuracy
 As a result, vmgen-based interpreters are only about an order of
 magintude slower than native code from an optimizing C compiler on small
 benchmarks; on large benchmarks, which spend more time in the run-time
-system, the slowdown is often less (e.g., the slowdown over the best JVM
-JIT compiler we measured is only a factor of 2-3 for large benchmarks
-(and some other JITs were slower than our interpreter).
+system, the slowdown is often less (e.g., the slowdown of a
+Vmgen-generated JVM interpreter over the best JVM JIT compiler we
+measured is only a factor of 2-3 for large benchmarks; some other JITs
+and all other interpreters we looked at were slower than our
+interpreter).
 
 VMs are usually designed as stack machines (passing data between VM
 instructions on a stack), and vmgen supports such designs especially
 well; however, you can also use vmgen for implementing a register VM and
 still benefit from most of the advantages offered by vmgen.
 
-@section Why interpreters?
+There are many potential uses of the instruction descriptions that are
+not implemented at the moment, but we are open for feature requests, and
+we will implement new features if someone asks for them; so the feature
+list above is not exhaustive.
 
+@c *********************************************************************
+@chapter Why interpreters?
+
+Interpreters are a popular language implementation technique because
+they combine all three of the following advantages:
+
+@itemize
+
+@item Ease of implementation
+
+@item Portability
+
+@item Fast edit-compile-run cycle
+
+@end itemize
+
+The main disadvantage of interpreters is their run-time speed.  However,
+there are huge differences between different interpreters in this area:
+the slowdown over optimized C code on programs consisting of simple
+operations is typically a factor of 10 for the more efficient
+interpreters, and a factor of 1000 for the less efficient ones (the
+slowdown for programs executing complex operations is less, because the
+time spent in libraries for executing complex operations is the same in
+all implementation strategies).
+
+Vmgen makes it even easier to implement interpreters.  It also supports
+techniques for building efficient interpreters.
+
+@c ********************************************************************
+
+@chapter Concepts
+
+@c --------------------------------------------------------------------
+@section Front-end and virtual machine interpreter
+
+@cindex front-end
+Interpretive systems are typically divided into a @emph{front end} that
+parses the input language and produces an intermediate representation
+for the program, and an interpreter that executes the intermediate
+representation of the program.
+
+@cindex virtual machine
+@cindex VM
+@cindex instruction, VM
+For efficient interpreters the intermediate representation of choice is
+virtual machine code (rather than, e.g., an abstract syntax tree).
+@emph{Virtual machine} (VM) code consists of VM instructions arranged
+sequentially in memory; they are executed in sequence by the VM
+interpreter, except for VM branch instructions, which implement control
+structures.  The conceptual similarity to real machine code results in
+the name @emph{virtual machine}.
+
+In this framework, vmgen supports building the VM interpreter and any
+other component dealing with VM instructions.  It does not have any
+support for the front end, apart from VM code generation support.  The
+front end can be implemented with classical compiler front-end
+techniques, which are supported by tools like @command{flex} and
+@command{bison}.
+
+The intermediate representation is usually just internal to the
+interpreter, but some systems also support saving it to a file, either
+as an image file, or in a full-blown linkable file format (e.g., JVM).
+Vmgen currently has no special support for such features, but the
+information in the instruction descriptions can be helpful, and we are
+open for feature requests and suggestions.
+
+
+
+Invocation
+
+Input Syntax
+
+Concepts: Front end, VM, Stacks,  Types, input stream
+
+Contact
