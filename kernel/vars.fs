@@ -165,7 +165,7 @@ User dpl ( -- a-addr ) \ gforth
 \G @code{User} variable -- @i{a-addr} is the address of a cell that stores the 		
 \G position of the decimal point in the most recent numeric conversion.
 \G Initialised to -1. After the conversion of a number containing no
-\G decimal point, @code{@ dpl} is -1. After the conversion of @code{2.} it holds
+\G decimal point, @code{dpl} is -1. After the conversion of @code{2.} it holds
 \G 0. After the conversion of 234123.9 it contains 1, and so forth.
 -1 dpl !
 
@@ -191,11 +191,6 @@ AUser dpp		normal-dp dpp !
                         \  (i.e. any throw caught by quit)
 AUser LastCFA
 AUser Last
-
-AUser last-compiled \ last compile,d xt
-                    \ 0 if last xt was dyn-compiled already (basic-block-end)
-0 last-compiled !
-AUser last-compiled-here \ where LAST-COMPILED should be stored
 
 User max-name-length \ maximum length of all names defined yet
 32 max-name-length !

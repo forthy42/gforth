@@ -222,7 +222,7 @@ defer compile, ( xt -- )	\ core-ext	compile-comma
 defer basic-block-end ( -- )
 
 :noname ( -- )
-    0 last-compiled ! ;
+    ;
 is basic-block-end
 
 has? peephole [IF]
@@ -232,42 +232,6 @@ has? peephole [IF]
     \ compile xt, appending its code to the current dynamic superinstruction
     here swap , compile-prim1 ;
     
-\ static only
-\  : peephole-compile, ( xt -- )
-\      \ compile xt, possibly combining it with the previous compiled xt
-\      \ into a superinstruction (static superinstructions)
-\      last-compiled @ ?dup if
-\  	@ over peeptable peephole-opt ?dup if
-\  	    last-compiled @ ! drop EXIT
-\  	then
-\      then
-\      here last-compiled !
-\      dyn-compile, ;
-
-\ combine greedy static with dynamic
-\  : dyn-compile! ( xt -- )
-\      \ compile xt, appending its code to the current dynamic superinstruction
-\      last-compiled-here @ tuck ! compile-prim1 ;
-
-\  :noname ( -- )
-\      last-compiled @ if
-\  	last-compiled @ dyn-compile!
-\  	0 last-compiled !
-\      then ;
-\  is basic-block-end
-
-\  : peephole-compile, ( xt -- )
-\      \ compile xt, possibly combining it with the previous compiled xt
-\      \ into a superinstruction (static superinstructions)
-\      last-compiled @ ?dup if
-\  	over peeptable peephole-opt ?dup if ( xt comb-xt )
-\  	    last-compiled ! drop EXIT
-\  	then ( xt )
-\  	last-compiled @ dyn-compile!
-\      then ( xt )
-\      last-compiled !
-\      here last-compiled-here ! 0 , ;
-
 : compile-to-prims, ( xt -- )
     \G compile xt to use primitives (and their peephole optimization)
     \G instead of ","-ing the xt.
