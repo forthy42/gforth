@@ -115,6 +115,9 @@
 ; todo:
 ;
 
+; screen-height existiert nicht in XEmacs, frame-height ersetzen?
+; 
+
 ; Wörter ordentlich hilighten, die nicht auf Whitespace beginnen ( ..)IF
 ; -- mit aktueller Konzeption nicht möglich??
 ;
@@ -1104,8 +1107,7 @@ exceeds 64 characters."
   (unless (memq forth-info-lookup info-lookup-alist)
     (setq info-lookup-alist (cons forth-info-lookup info-lookup-alist)))
   ;; in X-Emacs C-h C-i is by default bound to Info-query
-  (define-key forth-mode-map "\C-h\C-i" 'info-lookup-symbol))
-
+  (define-key forth-mode-map [?\C-h ?\C-i] 'info-lookup-symbol))
 
 ;;   (info-lookup-add-help
 ;;    :topic 'symbol
