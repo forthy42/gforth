@@ -104,6 +104,7 @@ GFORTH_FI_SRC = \
 	glocals.fs \
 	hash.fs \
 	history.fs \
+	intcomp.fs \
 	look.fs \
 	search-order.fs \
 	see.fs \

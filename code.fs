@@ -29,18 +29,23 @@ vocabulary assembler ( -- ) \ tools-ext
 
 : code ( -- colon-sys )	\ tools-ext
     \ start a native code definition
-    header here >body cfa, defstart init-asm ;
+    header
+    threading-method
+    if
+	here >body cfa,
+    then
+    defstart init-asm ;
 
 : (;code) ( -- ) \ gforth
     \ execution semantics of @code{;code}
     r> lastxt code-address! ;
 
+:noname ( -- colon-sys )
+    align here lastxt code-address!
+    defstart init-asm ;
 :noname ( colon-sys1 -- colon-sys2 )	\ tools-ext	semicolon-code
     ( create the [;code] part of a low level defining word )
     ;-hook postpone (;code) ?struc postpone [
-    defstart init-asm ;
-:noname ( -- colon-sys )
-    align here lastxt code-address!
     defstart init-asm ;
 interpret/compile: ;code
 

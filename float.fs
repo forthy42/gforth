@@ -55,7 +55,7 @@ dofield: lastxt code-address! \ change the constant into a field
 
 : f, ( f -- )  here 1 floats allot f! ;
 
-: fconstant  ( r -- ) \ float
+: fconstant  ( r "name" -- ) \ float
     Create f,
 DOES> ( -- r )
     f@ ;
@@ -131,7 +131,7 @@ IS compiler-notfound
     ENDIF ;
 IS interpreter-notfound
 
-: fvariable ( -- )
+: fvariable ( "name" -- ) \ float
     Create 0.0E0 f, ;
     \ does> ( -- f-addr )
 

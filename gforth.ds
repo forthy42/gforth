@@ -849,7 +849,7 @@ The format of floating point numbers recognized by the outer (aka text)
 interpreter is: a signed decimal number, possibly containing a decimal
 point (@code{.}), followed by @code{E} or @code{e}, optionally followed
 by a signed integer (the exponent). E.g., @code{1e} ist the same as
-@code{+1.0e+1}. Note that a number without @code{e}
+@code{+1.0e+0}. Note that a number without @code{e}
 is not interpreted as floating-point number, but as double (if the
 number contains a @code{.}) or single precision integer. Also,
 conversions between string and floating point numbers always use base
@@ -1931,8 +1931,8 @@ stack easier.
 The whole definition must be in one line.
 @end itemize
 
-Locals defined in this way behave like @code{VALUE}s
-(@xref{Values}). I.e., they are initialized from the stack. Using their
+Locals defined in this way behave like @code{VALUE}s (@xref{Simple
+Defining Words}). I.e., they are initialized from the stack. Using their
 name produces their value. Their value can be changed using @code{TO}.
 
 Since this syntax is supported by Gforth directly, you need not do
@@ -1961,11 +1961,247 @@ locals wordset.
 @section Defining Words
 
 @menu
-* Values::                      
+* Simple Defining Words::       
+* Colon Definitions::           
+* User-defined Defining Words::  
+* Supplying names::             
+* Interpretation and Compilation Semantics::  
 @end menu
 
-@node Values,  , Defining Words, Defining Words
-@subsection Values
+@node Simple Defining Words, Colon Definitions, Defining Words, Defining Words
+@subsection Simple Defining Words
+
+doc-constant
+doc-2constant
+doc-fconstant
+doc-variable
+doc-2variable
+doc-fvariable
+doc-create
+doc-user
+doc-value
+doc-to
+doc-defer
+doc-is
+
+@node Colon Definitions, User-defined Defining Words, Simple Defining Words, Defining Words
+@subsection Colon Definitions
+
+@example
+: name ( ... -- ... )
+    word1 word2 word3 ;
+@end example
+
+creates a word called @code{name}, that, upon execution, executes
+@code{word1 word2 word3}. @code{name} is a @dfn{(colon) definition}.
+
+The explanation above is somewhat superficial. @xref{Interpretation and
+Compilation Semantics} for an in-depth discussion of some of the issues
+involved.
+
+doc-:
+doc-;
+
+@node User-defined Defining Words, Supplying names, Colon Definitions, Defining Words
+@subsection User-defined Defining Words
+
+You can create new defining words simply by wrapping defining-time code
+around existing defining words and putting the sequence in a colon
+definition.
+
+If you want the words defined by your defining words to behave
+differently than words defined with standard defining words, you can
+write your defining word like this:
+
+@example
+: def-word ( "name" -- )
+    Create @var{code1}
+DOES> ( ... -- ... )
+    @var{code2} ;
+
+def-word name
+@end example
+
+Technically, this fragment defines a defining word @code{def-word}, and
+a word @code{name}; when you execute @code{name}, the address of the
+body of @code{name} is put on the data stack and @var{code2} is executed
+(the address of the body of @code{name} is the address @code{HERE}
+returns immediately after the @code{CREATE}). E.g., you can implement
+@code{Constant} in this way:
+
+@example
+: constant ( w "name" -- )
+    create ,
+DOES> ( -- w )
+    @ ;
+@end example
+
+When you create a constant with @code{5 constant five}, first a new word
+@code{five} is created, then the value 5 is laid down in the body of
+@code{five} with @code{,}. When @code{five} is invoked, the address of
+the body is put on the stack, and @code{@@} retrieves the value 5.
+
+In the example above the stack comment after the @code{DOES>} specifies
+the stack effect of the defined words, not the stack effect of the
+following code (the following code expects the address of the body on
+the top of stack, which is not reflected in the stack comment). This is
+the convention that I use and recommend (it clashes a bit with using
+locals declarations for stack effect specification, though).
+
+@subsubsection Applications of @code{CREATE..DOES>}
+
+You may not be sure how to use this feature. Here are some usage
+patterns:
+
+When you see a sequence of code occurring several times, and you can
+identify a meaning, you will factor it out as a colon definition. When
+you see similar colon definitions, you can factor them using
+@code{CREATE..DOES>}. E.g., an assembler usually defines several words
+that look very similar:
+@example
+: ori, ( reg-taget reg-source n -- )
+    0 asm-reg-reg-imm ;
+: andi, ( reg-taget reg-source n -- )
+    1 asm-reg-reg-imm ;
+@end example
+
+This could be factored with:
+@example
+: reg-reg-imm ( op-code -- )
+    create ,
+DOES> ( reg-taget reg-source n -- )
+    @ asm-reg-reg-imm ;
+
+0 reg-reg-imm ori,
+1 reg-reg-imm andi,
+@end example
+
+Another view of @code{CREATE..DOES>} is to consider it as a crude way to
+supply a part of the parameters for a word (known as @dfn{currying} in
+the functional language community). E.g., @code{+} needs two
+parameters. Creating versions of @code{+} with one parameter fixed can
+be done like this:
+@example
+: curry+ ( n1 -- )
+    create ,
+DOES> ( n2 -- n1+n2 )
+    @ + ;
+
+ 3 curry+ 3+
+-2 curry+ 2-
+@end example
+
+@subsubsection The gory details of @code{CREATE..DOES>}
+
+doc-does>
+
+This means that you need not use @code{CREATE} and @code{DOES>} in the
+same definition; E.g., you can put the @code{DOES>}-part in a separate
+definition. This allows us to, e.g., select among different DOES>-parts:
+@example
+: does1 
+DOES> ( ... -- ... )
+    ... ;
+
+: does2
+DOES> ( ... -- ... )
+    ... ;
+
+: def-word ( ... -- ... )
+    create ...
+    IF
+       does1
+    ELSE
+       does2
+    ENDIF ;
+@end example
+
+In a standard program you can apply a @code{DOES>}-part only if the last
+word was defined with @code{CREATE}. In Gforth, the @code{DOES>}-part
+will override the behaviour of the last word defined in any case. In a
+standard program, you can use @code{DOES>} only in a colon
+definition. In Gforth, you can also use it in interpretation state, in a
+kind of one-shot mode:
+@example
+CREATE name ( ... -- ... )
+  @var{initialization}
+DOES>
+  @var{code} ;
+@end example
+This is equivalwent to the standard
+@example
+:noname
+DOES>
+    @var{code} ;
+CREATE name EXECUTE ( ... -- ... )
+    @var{initialization}
+@end example
+
+You can get the address of the body of a word with
+
+doc->body
+
+@node Supplying names, Interpretation and Compilation Semantics, User-defined Defining Words, Defining Words
+@subsection Supplying names for the defined words
+
+By default, defining words take the names for the defined words from the
+input stream. Sometimes you want to supply the name from a string. You
+can do this with
+
+doc-nextname
+
+E.g.,
+
+@example
+s" foo" nextname create
+@end example
+is equivalent to
+@example
+create foo
+@end example
+
+Sometimes you want to define a word without a name. You can do this with
+
+doc-noname
+
+To make any use of the newly defined word, you need its execution
+token. You can get it with
+
+doc-lastxt
+
+E.g., you can initialize a deferred word with an anonymous colon
+definition:
+@example
+Defer deferred
+noname : ( ... -- ... )
+  ... ;
+lastxt IS deferred
+@end example
+
+@code{lastxt} also works when the last word was not defined as
+@code{noname}. 
+
+The standard has also recognized the need for anonymous words and
+provides
+
+doc-:noname
+
+This leaves the execution token for the word on the stack after the
+closing @code{;}. You can rewrite the last example with @code{:noname}:
+@example
+Defer deferred
+:noname ( ... -- ... )
+  ... ;
+IS deferred
+@end example
+
+@node Interpretation and Compilation Semantics,  , Supplying names, Defining Words
+@subsection Interpretation and Compilation Semantics
+
+doc-immediate
+doc-interpret/compile:
+
+
 
 @node Wordlists, Files, Defining Words, Words
 @section Wordlists
@@ -2141,9 +2377,10 @@ and use that in your assembly code.
 
 Another option for implementing normal and defining words efficiently
 is: adding the wanted functionality to the source of Gforth. For normal
-words you just have to edit @file{primitives}, defining words (for fast
-defined words) may require changes in @file{engine.c},
-@file{kernal.fs}, @file{prims2x.fs}, and possibly @file{cross.fs}.
+words you just have to edit @file{primitives} (@pxref{Automatic
+Generation}), defining words (equivalent to @code{;CODE} words, for fast
+defined words) may require changes in @file{engine.c}, @file{kernal.fs},
+@file{prims2x.fs}, and possibly @file{cross.fs}.
 
 
 @node Threading Words,  , Assembler and Code words, Words
@@ -2174,10 +2411,10 @@ doc-douser:
 doc-dodefer:
 doc-dofield:
 
-Currently there is no installation-independent way for recogizing words
-defined by a @code{CREATE}...@code{DOES>} word; however, once you know
-that a word is defined by a @code{CREATE}...@code{DOES>} word, you can
-use @code{>DOES-CODE}.
+You can recognize words defined by a @code{CREATE}...@code{DOES>} word
+with @code{>DOES-CODE}. If the word was defined in that way, the value
+returned is different from 0 and identifies the @code{DOES>} used by the
+defining word.
 
 @node ANS conformance, Model, Words, Top
 @chapter ANS conformance

@@ -34,20 +34,20 @@ constant no-interpretation-does-code
 
 : create-interpret/compile ( -- )
     0 0 interpret/compile:
-    here lastxt interpret/compile-int !
-    no-interpretation-does-code here does-code!
-    0 >body allot
     here lastxt interpret/compile-comp !
     no-compilation-does-code here does-code!
-    0 >body allot ; \ restrict?
+    [ 0 >body ] literal allot
+    here lastxt interpret/compile-int !
+    no-interpretation-does-code here does-code!
+    [ 0 >body ] literal allot ; \ restrict?
 
 : fix-does-code ( addr ret-addr -- )
     lastxt [ interpret/compile-struct drop ] literal + >r
     lastxt interpret/compile?
-    lastxt interpret/compile-int @ r@ = and
-    lastxt interpret/compile-comp @ r> >body = and
+    lastxt interpret/compile-int @ r@ >body = and
+    lastxt interpret/compile-comp @ r> = and
     0= abort" not created with create-interpret/compile"
-    cell+ cell+ /does-handler + \ to does-code
+    [ /does-handler cell+ cell+ ] literal + \ to does-code
     swap @ does-code! ;
 
 : (interpretation>) ( -- )
@@ -55,7 +55,7 @@ constant no-interpretation-does-code
 
 : interpretation> ( -- orig colon-sys )
     POSTPONE (interpretation>) POSTPONE ahead
-    dodoes, defstart dead-code off 0 set-locals-size-list POSTPONE >body ; immediate restrict
+    dodoes, defstart dead-code off 0 set-locals-size-list ; immediate restrict
 
 : <interpretation ( orig colon-sys -- )
     ?struc POSTPONE exit
@@ -66,7 +66,7 @@ constant no-interpretation-does-code
 
 : compilation> ( -- orig colon-sys )
     POSTPONE (compilation>) POSTPONE ahead
-    dodoes, defstart dead-code off 0 set-locals-size-list ; immediate restrict
+    dodoes, defstart dead-code off 0 set-locals-size-list POSTPONE >body ; immediate restrict
 
 comp' <interpretation drop Alias <compilation immediate restrict
 

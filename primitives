@@ -1588,6 +1588,14 @@ CACHE_FLUSH(a_addr,DOES_HANDLER_SIZE);
 /* !! a constant or environmental query might be better */
 n = DOES_HANDLER_SIZE;
 
+threading-method	-- n	gforth	threading_method
+""0 if the engine is direct threaded.""
+#if defined(DIRECT_THREADED)
+n=0;
+#else
+n=1;
+#endif
+
 flush-icache	c_addr u --	gforth	flush_icache
 ""Make sure that the instruction cache of the processor (if there is
 one) does not contain stale data at @var{c_addr} and @var{u} bytes

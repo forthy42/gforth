@@ -1102,30 +1102,30 @@ Create ???  0 , 3 c, char ? c, char ? c, char ? c,
 : dodoes,  ( -- )
   here /does-handler allot does-handler! ;
 
-: Create ( -- ) \ core
+: Create ( "name" -- ) \ core
     Header reveal dovar: cfa, ;
 
 \ Create Variable User Constant                        17mar93py
 
-: Variable ( -- ) \ core
+: Variable ( "name" -- ) \ core
     Create 0 , ;
-: AVariable ( -- ) \ gforth
+: AVariable ( "name" -- ) \ gforth
     Create 0 A, ;
 : 2VARIABLE ( "name" -- ) \ double
     create 0 , 0 , ;
     
-: User
+: User ( "name" -- ) \ gforth
     Variable ;
-: AUser
+: AUser ( "name" -- ) \ gforth
     AVariable ;
 
 : (Constant)  Header reveal docon: cfa, ;
-: Constant ( w -- ) \ core
+: Constant ( w "name" -- ) \ core
     (Constant) , ;
-: AConstant ( addr -- ) \ gforth
+: AConstant ( addr "name" -- ) \ gforth
     (Constant) A, ;
 
-: 2Constant ( d -- ) \ double
+: 2Constant ( w1 w2 "name" -- ) \ double
     Create ( w1 w2 "name" -- )
         2,
     DOES> ( -- w1 w2 )
@@ -1133,7 +1133,7 @@ Create ???  0 , 3 c, char ? c, char ? c, char ? c,
     
 \ IS Defer What's Defers TO                            24feb93py
 
-: Defer ( -- ) \ gforth
+: Defer ( "name" -- ) \ gforth
     \ !! shouldn't it be initialized with abort or something similar?
     Header Reveal dodefer: cfa,
     ['] noop A, ;
@@ -1150,7 +1150,7 @@ Create ???  0 , 3 c, char ? c, char ? c, char ? c,
 defer :-hook ( sys1 -- sys2 )
 defer ;-hook ( sys2 -- sys1 )
 
-: : ( -- colon-sys ) \ core	colon
+: : ( "name" -- colon-sys ) \ core	colon
     Header docol: cfa, defstart ] :-hook ;
 : ; ( compilation colon-sys -- ; run-time nest-sys ) \ core	semicolon
     ;-hook ?struc postpone exit reveal postpone [ ; immediate restrict

@@ -30,7 +30,7 @@ decimal
 
 \ VALUE 2>R 2R> 2R@                                     17may93jaw
 
-: value ( w -- ) \ core-ext
+: value ( w "name" -- ) \ core-ext
   (constant) , ;
 \ !! 2value
 
