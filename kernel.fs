@@ -276,9 +276,23 @@ Defer source ( -- addr count ) \ core
 : (compile) ( -- ) \ gforth
     r> dup cell+ >r @ compile, ;
 
-\ not the most efficient implementation of POSTPONE, but simple
-: POSTPONE ( -- ) \ core
-    COMP' swap POSTPONE aliteral compile, ; immediate restrict
+: postpone, ( w xt -- )
+    \g Compiles the compilation semantics represented by @var{w xt}.
+    dup ['] execute =
+    if
+	drop compile,
+    else
+	dup ['] compile, =
+	if
+	    drop POSTPONE (compile) compile,
+	else
+	    swap POSTPONE aliteral compile,
+	then
+    then ;
+
+: POSTPONE ( "name" -- ) \ core
+    \g Compiles the compilation semantics of @var{name}.
+    COMP' postpone, ; immediate restrict
 
 : interpret/compile: ( interp-xt comp-xt "name" -- ) \ gforth
     Create immediate swap A, A,

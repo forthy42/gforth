@@ -2414,6 +2414,12 @@ by the represented compilation semantics.
 doc-[comp']
 doc-comp'
 
+You can compile the compilation semantics with @code{postpone,}. I.e.,
+@code{COMP' @var{word} POSTPONE,} is equivalent to @code{POSTPONE
+@var{word}}.
+
+doc-postpone,
+
 At present, the @var{w} part of a compilation token is an execution
 token, and the @var{xt} part represents either @code{execute} or
 @code{compile,}. However, don't rely on that kowledge, unless necessary;
@@ -4207,8 +4213,8 @@ relative      Win32-    NT       eforth       This-
   time  Gforth Forth Forth eforth  +opt   PFE Forth  TILE
 sieve     1.00  1.39  1.14   1.39  0.85  1.58  3.18  8.58
 bubble    1.00  1.31  1.41   1.48  0.88  1.50        3.88
-matmul    1.00  1.47  1.35   1.46  1.16  1.58        4.09
-fib       1.00  1.52  1.34   1.22  1.13  1.74  2.99  4.30
+matmul    1.00  1.47  1.35   1.46  0.74  1.58        4.09
+fib       1.00  1.52  1.34   1.22  0.86  1.74  2.99  4.30
 @end example
 
 You may find the good performance of Gforth compared with the systems
