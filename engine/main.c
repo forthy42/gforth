@@ -126,14 +126,16 @@ int gforth_memcmp(const char * s1, const char * s2, size_t n)
  * If the word is <CF(DOESJUMP), it's a primitive
  */
 
-void relocate(Cell *image, const char *bitstring, int size, Label symbols[])
+void relocate(Cell *image, const char *bitstring, int size, int base, Label symbols[])
 {
   int i=0, j, k, steps=(size/sizeof(Cell))/RELINFOBITS;
   Cell token;
   char bits;
   Cell max_symbols;
+  /** A virtial start address that's the real start address minus the one in the image */
+  Cell *start = (Cell * ) (((void *) image) - ((void *) base));
 
-/*  printf("relocating %x[%x]\n", image, size); */
+  /* printf("relocating to %x[%x] start=%x base=%x\n", image, size, start, base); */
   
   for (max_symbols=DOESJUMP+1; symbols[max_symbols]!=0; max_symbols++)
     ;
@@ -144,7 +146,8 @@ void relocate(Cell *image, const char *bitstring, int size, Label symbols[])
       /*      fprintf(stderr,"relocate: image[%d]\n", i);*/
       if((i < size) && (bits & (1U << (RELINFOBITS-1)))) {
 	/* fprintf(stderr,"relocate: image[%d]=%d of %d\n", i, image[i], size/sizeof(Cell)); */
-	if((token=image[i])<0)
+        token=image[i];
+	if(token<0)
 	  switch(token)
 	    {
 	    case CF_NIL      : image[i]=0; break;
@@ -158,7 +161,7 @@ void relocate(Cell *image, const char *bitstring, int size, Label symbols[])
 	    case CF(DOESJUMP): MAKE_DOES_HANDLER(image+i); break;
 #endif /* !defined(DOUBLY_INDIRECT) */
 	    case CF(DODOES)  :
-	      MAKE_DOES_CF(image+i,(Xt *)(image[i+1]+((Cell)image)));
+	      MAKE_DOES_CF(image+i,(Xt *)(image[i+1]+((Cell)start)));
 	      break;
 	    default          :
 /*	      printf("Code field generation image[%x]:=CA(%x)\n",
@@ -169,7 +172,10 @@ void relocate(Cell *image, const char *bitstring, int size, Label symbols[])
 		fprintf(stderr,"Primitive %d used in this image at $%lx is not implemented by this\n engine (%s); executing this code will crash.\n",CF(token),(long)&image[i],VERSION);
 	    }
 	else
-	  image[i]+=(Cell)image;
+          // if base is > 0: 0 is a null reference so don't adjust
+          if (token>=base) {
+            image[i]+=(Cell)start;
+          }
       }
     }
   }
@@ -493,12 +499,12 @@ Address loader(FILE *imagefile, char* filename)
   imp=image+preamblesize;
   if (clear_dictionary)
     memset(imp+header.image_size, 0, dictsize-header.image_size);
-  if(header.base==0) {
+  {
     Cell reloc_size=((header.image_size-1)/sizeof(Cell))/8+1;
     char reloc_bits[reloc_size];
     fseek(imagefile, preamblesize+header.image_size, SEEK_SET);
     fread(reloc_bits, 1, reloc_size, imagefile);
-    relocate((Cell *)imp, reloc_bits, header.image_size, vm_prims);
+    relocate((Cell *)imp, reloc_bits, header.image_size, header.base, vm_prims);
 #if 0
     { /* let's see what the relocator did */
       FILE *snapshot=fopen("snapshot.fi","wb");
@@ -506,11 +512,6 @@ Address loader(FILE *imagefile, char* filename)
       fclose(snapshot);
     }
 #endif
-  }
-  else if(header.base!=imp) {
-    fprintf(stderr,"%s: Cannot load nonrelocatable image (compiled for address $%lx) at address $%lx\n",
-	    progname, (unsigned long)header.base, (unsigned long)imp);
-    exit(1);
   }
   if (header.checksum==0)
     ((ImageHeader *)imp)->checksum=check_sum;

@@ -57,13 +57,15 @@ include ./../cross.fs              \ cross-compiler
 
 decimal
 
-has? kernel-size makekernel ( size )
+has? kernel-size makekernel
 \ create image-header
 has? header [IF]
-    0 A,                \ base address
+here dup 
+    A,                  \ base address
     0 ,                 \ checksum
     0 ,                 \ image size (without tags)
-    >address ,          \ dict size
+has? kernel-size
+    ,                   \ dict size
     has? stack-size ,   \ data stack size
     has? fstack-size ,  \ FP stack size
     has? rstack-size ,  \ return stack size
@@ -76,6 +78,8 @@ has? header [IF]
     0 ,                 \ fp stack base
     0 ,                 \ return stack base
     0 ,                 \ locals stack base
+AConstant image-header
+: forthstart image-header @ ;
 [THEN]
 
 UNLOCK ghost - drop \ need a ghost otherwise "-" would be treated as a number
@@ -92,7 +96,7 @@ has? prims [IF]
 [THEN]
 doc-on
 
-0 AConstant forthstart
+\ 0 AConstant forthstart
 
 \ include ./vars.fs                  \ variables and other stuff
 \ include kernel/version.fs          \ is in $(build)/kernel
@@ -126,8 +130,8 @@ include ./getdoers.fs
 
 has? header [IF]
     \    UNLOCK
-    here >address 2 cells  !         \ image size
-    ' boot >body  8 cells A!         \ image entry point
+    here image-header 2 cells + !         \ image size
+    ' boot >body  image-header 8 cells + A!         \ image entry point
     \    LOCK
 [ELSE]
     >boot

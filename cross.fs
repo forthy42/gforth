@@ -1142,8 +1142,11 @@ true DefaultValue standardthreading
 s" relocate" T environment? H 
 \ JAW why set NIL to this?!
 [IF]	drop \ SetValue NIL
-[ELSE]	>ENVIRON T NIL H SetValue relocate
+[ELSE]	>ENVIRON X NIL SetValue relocate
 [THEN]
+>TARGET
+
+0 Constant NIL
 
 >CROSS
 
@@ -1224,6 +1227,10 @@ Variable mirrored-link          \ linked list for mirrored regions
 : >rlen cell+ ;
 : >rstart ;
 
+: (region) ( addr len region -- )
+\G change startaddress and length of an existing region
+  >r r@ last-defined-region !
+  r@ >rlen ! dup r@ >rstart ! r> >rdp ! ;
 
 : region ( addr len -- )                
 \G create a new region
@@ -1237,8 +1244,7 @@ Variable mirrored-link          \ linked list for mirrored regions
 	region-link linked 0 , 0 , 0 , bl word count string,
   ELSE	\ store new parameters in region
         bl word drop
-	>body >r r@ last-defined-region !
-	r@ >rlen ! dup r@ >rstart ! r> >rdp !
+	>body (region)
   THEN ;
 
 : borders ( region -- startaddr endaddr ) 
@@ -1356,8 +1362,11 @@ T has? rom H
 
 \ MakeKernel                                           		22feb99jaw
 
-: makekernel ( targetsize -- targetsize )
-  dup dictionary >rlen ! setup-target ;
+: makekernel ( targetsize -- )
+\G convenience word to setup the memory of the target
+\G used by main.fs of the c-engine based systems
+  100 swap dictionary (region)
+  setup-target ;
 
 >MINIMAL
 : makekernel makekernel ;
@@ -3004,7 +3013,7 @@ magic 7 + c!
 : save-cross ( "image-name" "binary-name" -- )
   bl parse ." Saving to " 2dup type cr
   w/o bin create-file throw >r
-  TNIL IF
+  s" header" X $has? IF
       s" #! "           r@ write-file throw
       bl parse          r@ write-file throw
       s"  --image-file" r@ write-file throw
@@ -3020,7 +3029,7 @@ magic 7 + c!
   THEN
   image @ there 
   r@ write-file throw \ write image
-  TNIL IF
+  s" relocate" X $has? IF
       bit$  @ there 1- tcell>bit rshift 1+
                 r@ write-file throw \ write tags
   THEN
