@@ -1,4 +1,4 @@
-/* preliminary machine file for DEC Alpha
+/* DEC Alpha
 
   Copyright (C) 1995,1996,1997,1998 Free Software Foundation, Inc.
 
@@ -20,7 +20,10 @@
 */
 
 /* Be careful: long long on Alpha are 64 bit :-(( */
-#define LONG_LATENCY
+
+#ifndef THREADING_SCHEME
+#define THREADING_SCHEME 5
+#endif
 
 #if !defined(USE_TOS) && !defined(USE_NO_TOS)
 #define USE_TOS
@@ -166,5 +169,6 @@ typedef short Int16;
 #define RPREG asm("$12")
 #define LPREG asm("$13")
 #define TOSREG asm("$14")
-/* #define CFAREG asm("$22") */
+/* #define CFAREG asm("$22") egcs-1.0.3 crashes with any caller-saved
+   register decl */
 #endif /* FORCE_REG */

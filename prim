@@ -141,8 +141,7 @@ goto branch;
 
 branch	--		gforth
 branch:
-ip = (Xt *)(((Cell)IP)+(Cell)NEXT_INST);
-NEXT_P0;
+SET_IP((Xt *)(((Cell)IP)+(Cell)NEXT_INST));
 :
  r> dup @ + >r ;
 
@@ -150,8 +149,7 @@ NEXT_P0;
 \ this is non-syntactical: code must open a brace that is closed by the macro
 define(condbranch,
 $1	$2
-$3	ip = (Xt *)(((Cell)IP)+(Cell)NEXT_INST);
-        NEXT_P0;
+$3	SET_IP((Xt *)(((Cell)IP)+(Cell)NEXT_INST));
 	NEXT;
 }
 else
@@ -189,8 +187,7 @@ if (f==0) {
 if (f==0) {
   sp++;
   IF_TOS(TOS = sp[0]);
-  ip = (Xt *)(((Cell)IP)+(Cell)NEXT_INST);
-  NEXT_P0;
+  SET_IP((Xt *)(((Cell)IP)+(Cell)NEXT_INST));
   NEXT;
 }
 else
@@ -204,8 +201,7 @@ few cycles in that case, but is easy to convert to a CONDBRANCH
 invocation */
 if (f!=0) {
   sp--;
-  ip = (Xt *)(((Cell)IP)+(Cell)NEXT_INST);
-  NEXT_P0;
+  SET_IP((Xt *)(((Cell)IP)+(Cell)NEXT_INST));
   NEXT;
 }
 else
@@ -955,8 +951,7 @@ fp = f_addr;
 
 ;s	--		gforth	semis
 ""The primitive compiled by @code{EXIT}.""
-ip = (Xt *)(*rp++);
-NEXT_P0;
+SET_IP((Xt *)(*rp++));
 
 >r	w --		core	to_r
 *--rp = w;

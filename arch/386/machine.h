@@ -28,8 +28,12 @@
 
 #include "../generic/machine.h"
 
-/* indirect threading is faster on the 486, on the 386 direct
-   threading is probably faster. Therefore we leave defining
+#ifndef THREADING_SCHEME
+#define THREADING_SCHEME 8
+#endif
+
+/* indirect threading is faster on the Pentium, on the 486 direct
+   threading is faster. Therefore we leave defining
    DIRECT_THREADED to configure */
 
 /* define this if the processor cannot exploit instruction-level

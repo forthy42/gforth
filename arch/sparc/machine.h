@@ -19,7 +19,9 @@
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-#include "../generic/machine.h"
+#ifndef THREADING_SCHEME
+#define THREADING_SCHEME 5
+#endif
 
 #if !defined(USE_TOS) && !defined(USE_NO_TOS)
 #define USE_TOS
@@ -28,6 +30,8 @@
 #if !defined(INDIRECT_THREADED) && !defined(DIRECT_THREADED)
 #define DIRECT_THREADED
 #endif
+
+#include "../generic/machine.h"
 
 #define FLUSH_ICACHE(addr,size) \
   ({void *_addr=(addr); void *_end=_addr+((Cell)(size)); \

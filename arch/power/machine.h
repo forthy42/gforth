@@ -29,6 +29,14 @@
 #endif
 #endif
 
+#ifndef THREADING_SCHEME
+#ifdef DIRECT_THREADING
+#define THREADING_SCHEME 9
+#else
+#define THREADING_SCHEME 6
+#endif
+#endif
+
 #include "../generic/machine.h"
 #include <sys/types.h>
 

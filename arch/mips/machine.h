@@ -19,6 +19,10 @@
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
+#ifndef THREADING_SCHEME
+#define THREADING_SCHEME 5
+#endif
+
 #if !defined(USE_TOS) && !defined(USE_NO_TOS)
 /* on the mips this is a mixed blessing, since defining this spills
    the rp with some gcc versions. This machine has 31 regs, yet that's

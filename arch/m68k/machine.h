@@ -19,6 +19,10 @@
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
+#ifndef THREADING_SCHEME
+#define THREADING_SCHEME 3
+#endif
+
 /* direct threading is faster at least on 68030 */
 #if !defined INDIRECT_THREADED && !defined DIRECT_THREADED
 #define DIRECT_THREADED
@@ -31,9 +35,6 @@
 #if !defined USE_NO_TOS && !defined USE_TOS
 #define USE_TOS
 #endif
-
-#define AUTO_INCREMENT
-
 
 #include "../generic/machine.h"
 

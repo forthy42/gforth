@@ -242,6 +242,9 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
 #ifdef CFA_NEXT
   register Xt cfa CFAREG;
 #endif
+#ifdef MORE_VARS
+  MORE_VARS
+#endif
   register Address up UPREG = UP;
   IF_TOS(register Cell TOS TOSREG;)
   IF_FTOS(register Float FTOS FTOSREG;)
@@ -300,8 +303,9 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
   IF_TOS(TOS = sp[0]);
   IF_FTOS(FTOS = fp[0]);
 /*  prep_terminal(); */
-  NEXT_P0;
+  SET_IP(ip);
   NEXT;
+
 
 #ifdef CPU_DEP3
   CPU_DEP3
@@ -316,22 +320,17 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
 #ifdef CISC_NEXT
     /* this is the simple version */
     *--rp = (Cell)ip;
-    ip = (Xt *)PFA1(cfa);
-    NEXT_P0;
+    SET_IP((Xt *)PFA1(cfa));
     NEXT;
 #else
-    /* this one is important, so we help the compiler optimizing
-       The following version may be better (for scheduling), but probably has
-       problems with code fields employing calls and delay slots
-       */
+    /* this one is important, so we help the compiler optimizing */
     {
       DEF_CA
-      Xt *current_ip = (Xt *)PFA1(cfa);
-      cfa = *current_ip;
-      NEXT1_P1;
-      *--rp = (Cell)ip;
-      ip = current_ip+1;
-      NEXT1_P2;
+      rp[-1] = (Cell)ip;
+      SET_IP((Xt *)PFA1(cfa));
+      NEXT_P1;
+      rp--;
+      NEXT_P2;
     }
 #endif
   }
@@ -399,7 +398,7 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
 #ifdef DEBUG
     fprintf(stderr,"%08lx: field: %08lx\n",(Cell)ip,(Cell)PFA1(cfa));
 #endif
-    TOS += *(Cell*)PFA1(cfa); 
+    TOS += *(Cell*)PFA1(cfa);
   }
   NEXT_P0;
   NEXT;
@@ -432,16 +431,15 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
 #endif
     *--rp = (Cell)ip;
     /* PFA1 might collide with DOES_CODE1 here, so we use PFA */
-    ip = DOES_CODE1(cfa);
 #ifdef USE_TOS
     *sp-- = TOS;
     TOS = (Cell)PFA(cfa);
 #else
     *--sp = (Cell)PFA(cfa);
 #endif
+    SET_IP(DOES_CODE1(cfa));
     /*    fprintf(stderr,"TOS = %08lx, IP=%08lx\n", TOS, IP);*/
   }
-  NEXT_P0;
   NEXT;
 
 #include "prim.i"

@@ -19,6 +19,10 @@
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
+#ifndef THREADING_SCHEME
+#define THREADING_SCHEME 1
+#endif
+
 #if !defined(USE_TOS) && !defined(USE_NO_TOS)
 #define USE_TOS
 #endif
@@ -28,8 +32,6 @@
 #define DIRECT_THREADED
 #endif
 #endif
-
-#define LONG_LATENCY
 
 /* cache flush stuff */
 extern void cacheflush(void *, int, int);

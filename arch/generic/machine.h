@@ -21,6 +21,10 @@
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
+#ifndef THREADING_SCHEME
+#define THREADING_SCHEME 6
+#endif
+
 /* define SYSCALL */
 
 #ifndef SYSCALL

@@ -93,11 +93,13 @@
 
 #ifndef GETCFA
 #  define CFA_NEXT
+/* a more appropriate name would be CFA_LIVE, i.e., cfa is live after NEXT */
 #endif
 
 #ifdef DOUBLY_INDIRECT
 #  define NEXT_P0	({cfa=*ip;})
 #  define IP		(ip)
+#  define SET_IP(p)	({ip=(p); NEXT_P0;})
 #  define NEXT_INST	(cfa)
 #  define INC_IP(const_inc)	({cfa=IP[const_inc]; ip+=(const_inc);})
 #  define DEF_CA	Label ca;
@@ -109,11 +111,15 @@
 
 #else /* !defined(DOUBLY_INDIRECT) */
 
-#if defined(DIRECT_THREADED) && defined(AUTO_INCREMENT)\
-    && defined(LONG_LATENCY) && defined(CFA_NEXT)
-#warning scheme 1
+#if defined(DIRECT_THREADED)
+
+/* note that the "cfa dead" versions only work if GETCFA exists and works */
+
+#if THREADING_SCHEME==1
+#warning direct threading scheme 1: autoinc, long latency, cfa live
 #  define NEXT_P0	({cfa=*ip++;})
 #  define IP		(ip-1)
+#  define SET_IP(p)	({ip=(p); NEXT_P0;})
 #  define NEXT_INST	(cfa)
 #  define INC_IP(const_inc)	({cfa=IP[const_inc]; ip+=(const_inc);})
 #  define DEF_CA
@@ -122,11 +128,11 @@
 #  define EXEC(XT)	({cfa=(XT); goto *cfa;})
 #endif
 
-#if defined(DIRECT_THREADED) && defined(AUTO_INCREMENT)\
-    && defined(LONG_LATENCY) && !defined(CFA_NEXT)
-#warning scheme 2
+#if THREADING_SCHEME==2
+#warning direct threading scheme 2: autoinc, long latency, cfa dead
 #  define NEXT_P0	(ip++)
 #  define IP		(ip-1)
+#  define SET_IP(p)	({ip=(p); NEXT_P0;})
 #  define NEXT_INST	(*(ip-1))
 #  define INC_IP(const_inc)	({ ip+=(const_inc);})
 #  define DEF_CA
@@ -136,11 +142,11 @@
 #endif
 
 
-#if defined(DIRECT_THREADED) && defined(AUTO_INCREMENT)\
-    && !defined(LONG_LATENCY) && defined(CFA_NEXT)
-#warning scheme 3
+#if THREADING_SCHEME==3
+#warning direct threading scheme 3: autoinc, low latency, cfa live
 #  define NEXT_P0
 #  define IP		(ip)
+#  define SET_IP(p)	({ip=(p); NEXT_P0;})
 #  define NEXT_INST	(*ip)
 #  define INC_IP(const_inc)	({ip+=(const_inc);})
 #  define DEF_CA
@@ -149,11 +155,11 @@
 #  define EXEC(XT)	({cfa=(XT); goto *cfa;})
 #endif
 
-#if defined(DIRECT_THREADED) && defined(AUTO_INCREMENT)\
-    && !defined(LONG_LATENCY) && !defined(CFA_NEXT)
-#warning scheme 4
+#if THREADING_SCHEME==4
+#warning direct threading scheme 4: autoinc, low latency, cfa dead
 #  define NEXT_P0
 #  define IP		(ip)
+#  define SET_IP(p)	({ip=(p); NEXT_P0;})
 #  define NEXT_INST	(*ip)
 #  define INC_IP(const_inc)	({ ip+=(const_inc);})
 #  define DEF_CA
@@ -162,13 +168,11 @@
 #  define EXEC(XT)	({goto *(XT);})
 #endif
 
-/* without autoincrement */
-
-#if defined(DIRECT_THREADED) && !defined(AUTO_INCREMENT)\
-    && defined(LONG_LATENCY) && defined(CFA_NEXT)
-#warning scheme 5
+#if THREADING_SCHEME==5
+#warning direct threading scheme 5: long latency, cfa live
 #  define NEXT_P0	({cfa=*ip;})
 #  define IP		(ip)
+#  define SET_IP(p)	({ip=(p); NEXT_P0;})
 #  define NEXT_INST	(cfa)
 #  define INC_IP(const_inc)	({cfa=IP[const_inc]; ip+=(const_inc);})
 #  define DEF_CA
@@ -177,11 +181,11 @@
 #  define EXEC(XT)	({cfa=(XT); goto *cfa;})
 #endif
 
-#if defined(DIRECT_THREADED) && !defined(AUTO_INCREMENT)\
-    && defined(LONG_LATENCY) && !defined(CFA_NEXT)
-#warning scheme 6
+#if THREADING_SCHEME==6
+#warning direct threading scheme 6: long latency, cfa dead
 #  define NEXT_P0
 #  define IP		(ip)
+#  define SET_IP(p)	({ip=(p); NEXT_P0;})
 #  define NEXT_INST	(*ip)
 #  define INC_IP(const_inc)	({ip+=(const_inc);})
 #  define DEF_CA
@@ -191,11 +195,11 @@
 #endif
 
 
-#if defined(DIRECT_THREADED) && !defined(AUTO_INCREMENT)\
-    && !defined(LONG_LATENCY) && defined(CFA_NEXT)
-#warning scheme 7
+#if THREADING_SCHEME==7
+#warning direct threading scheme 7: low latency, cfa live
 #  define NEXT_P0
 #  define IP		(ip)
+#  define SET_IP(p)	({ip=(p); NEXT_P0;})
 #  define NEXT_INST	(*ip)
 #  define INC_IP(const_inc)	({ip+=(const_inc);})
 #  define DEF_CA
@@ -204,11 +208,11 @@
 #  define EXEC(XT)	({cfa=(XT); goto *cfa;})
 #endif
 
-#if defined(DIRECT_THREADED) && !defined(AUTO_INCREMENT)\
-    && !defined(LONG_LATENCY) && !defined(CFA_NEXT)
-#warning scheme 8
+#if THREADING_SCHEME==8
+#warning direct threading scheme 8: cfa dead, i386 hack
 #  define NEXT_P0
 #  define IP		(ip)
+#  define SET_IP(p)	({ip=(p); NEXT_P0;})
 #  define NEXT_INST	(*IP)
 #  define INC_IP(const_inc)	({ ip+=(const_inc);})
 #  define DEF_CA
@@ -217,15 +221,45 @@
 #  define EXEC(XT)	({goto *(XT);})
 #endif
 
-/* common settings for direct THREADED */
+#if THREADING_SCHEME==9
+#warning direct threading scheme 9: Power/PPC hack, long latency
+/* Power uses a prepare-to-branch instruction, and the latency between
+   this inst and the branch is 5 cycles on a PPC604; so we utilize this
+   to do some prefetching in between */
+#  define NEXT_P0
+#  define IP		ip
+#  define SET_IP(p)	({ip=(p); next_cfa=*ip; NEXT_P0;})
+#  define NEXT_INST	(next_cfa)
+#  define INC_IP(const_inc)	({next_cfa=IP[const_inc]; ip+=(const_inc);})
+#  define DEF_CA	Label ca;
+#  define NEXT_P1	({ca=next_cfa; cfa=next_cfa; ip++; next_cfa=*ip;})
+#  define NEXT_P2	({goto *ca;})
+#  define EXEC(XT)	({cfa=(XT); goto *cfa;})
+#  define MORE_VARS	Xt next_cfa;
+#endif
 
+#if THREADING_SCHEME==10
+#warning direct threading scheme 10: plain (no attempt at scheduling)
+#  define NEXT_P0
+#  define IP		(ip)
+#  define SET_IP(p)	({ip=(p); NEXT_P0;})
+#  define NEXT_INST	(*ip)
+#  define INC_IP(const_inc)	({ip+=(const_inc);})
+#  define DEF_CA
+#  define NEXT_P1
+#  define NEXT_P2	({cfa=*ip++; goto *cfa;})
+#  define EXEC(XT)	({cfa=(XT); goto *cfa;})
+#endif
 
+/* direct threaded */
+#else
 /* indirect THREADED  */
 
-#if !defined(DIRECT_THREADED) && defined(AUTO_INCREMENT)\
-    && defined(LONG_LATENCY) && defined(CISC_NEXT)
+#if THREADING_SCHEME==1
+#warning indirect threading scheme 1: autoinc, long latency, cisc
 #  define NEXT_P0	({cfa=*ip++;})
 #  define IP		(ip-1)
+#  define SET_IP(p)	({ip=(p); NEXT_P0;})
 #  define NEXT_INST	(cfa)
 #  define INC_IP(const_inc)	({cfa=IP[const_inc]; ip+=(const_inc);})
 #  define DEF_CA
@@ -234,10 +268,11 @@
 #  define EXEC(XT)	({cfa=(XT); goto **cfa;})
 #endif
 
-#if !defined(DIRECT_THREADED) && defined(AUTO_INCREMENT)\
-    && defined(LONG_LATENCY) && !defined(CISC_NEXT)
+#if THREADING_SCHEME==2
+#warning indirect threading scheme 2: autoinc, long latency
 #  define NEXT_P0	({cfa=*ip++;})
 #  define IP		(ip-1)
+#  define SET_IP(p)	({ip=(p); NEXT_P0;})
 #  define NEXT_INST	(cfa)
 #  define INC_IP(const_inc)	({cfa=IP[const_inc]; ip+=(const_inc);})
 #  define DEF_CA	Label ca;
@@ -247,10 +282,11 @@
 #endif
 
 
-#if !defined(DIRECT_THREADED) && defined(AUTO_INCREMENT)\
-    && !defined(LONG_LATENCY) && defined(CISC_NEXT)
+#if THREADING_SCHEME==3
+#warning indirect threading scheme 3: autoinc, low latency, cisc
 #  define NEXT_P0
 #  define IP		(ip)
+#  define SET_IP(p)	({ip=(p); NEXT_P0;})
 #  define NEXT_INST	(*ip)
 #  define INC_IP(const_inc)	({ip+=(const_inc);})
 #  define DEF_CA
@@ -259,10 +295,11 @@
 #  define EXEC(XT)	({cfa=(XT); goto **cfa;})
 #endif
 
-#if !defined(DIRECT_THREADED) && defined(AUTO_INCREMENT)\
-    && !defined(LONG_LATENCY) && !defined(CISC_NEXT)
+#if THREADING_SCHEME==4
+#warning indirect threading scheme 4: autoinc, low latency
 #  define NEXT_P0	({cfa=*ip++;})
 #  define IP		(ip-1)
+#  define SET_IP(p)	({ip=(p); NEXT_P0;})
 #  define NEXT_INST	(cfa)
 #  define INC_IP(const_inc)	({cfa=IP[const_inc]; ip+=(const_inc);})
 #  define DEF_CA	Label ca;
@@ -272,12 +309,11 @@
 #endif
 
 
-/* without autoincrement */
-
-#if !defined(DIRECT_THREADED) && !defined(AUTO_INCREMENT)\
-    && defined(LONG_LATENCY) && defined(CISC_NEXT)
+#if THREADING_SCHEME==5
+#warning indirect threading scheme 5: long latency, cisc
 #  define NEXT_P0	({cfa=*ip;})
 #  define IP		(ip)
+#  define SET_IP(p)	({ip=(p); NEXT_P0;})
 #  define NEXT_INST	(cfa)
 #  define INC_IP(const_inc)	({cfa=IP[const_inc]; ip+=(const_inc);})
 #  define DEF_CA
@@ -286,10 +322,11 @@
 #  define EXEC(XT)	({cfa=(XT); goto **cfa;})
 #endif
 
-#if !defined(DIRECT_THREADED) && !defined(AUTO_INCREMENT)\
-    && defined(LONG_LATENCY) && !defined(CISC_NEXT)
+#if THREADING_SCHEME==6
+#warning indirect threading scheme 6: long latency
 #  define NEXT_P0	({cfa=*ip;})
 #  define IP		(ip)
+#  define SET_IP(p)	({ip=(p); NEXT_P0;})
 #  define NEXT_INST	(cfa)
 #  define INC_IP(const_inc)	({cfa=IP[const_inc]; ip+=(const_inc);})
 #  define DEF_CA	Label ca;
@@ -298,11 +335,24 @@
 #  define EXEC(XT)	({DEF_CA cfa=(XT); ca=*cfa; goto *ca;})
 #endif
 
+#if THREADING_SCHEME==7
+#warning indirect threading scheme 7: low latency
+#  define NEXT_P0	({cfa=*ip;})
+#  define IP		(ip)
+#  define SET_IP(p)	({ip=(p); NEXT_P0;})
+#  define NEXT_INST	(cfa)
+#  define INC_IP(const_inc)	({cfa=IP[const_inc]; ip+=(const_inc);})
+#  define DEF_CA	Label ca;
+#  define NEXT_P1	({ip++; ca=*cfa;})
+#  define NEXT_P2	({goto *ca;})
+#  define EXEC(XT)	({DEF_CA cfa=(XT); ca=*cfa; goto *ca;})
+#endif
 
-#if !defined(DIRECT_THREADED) && !defined(AUTO_INCREMENT)\
-    && !defined(LONG_LATENCY) && defined(CISC_NEXT)
+#if THREADING_SCHEME==8
+#warning indirect threading scheme 8: low latency,cisc
 #  define NEXT_P0
 #  define IP		(ip)
+#  define SET_IP(p)	({ip=(p); NEXT_P0;})
 #  define NEXT_INST	(*ip)
 #  define INC_IP(const_inc)	({ip+=(const_inc);})
 #  define DEF_CA
@@ -311,34 +361,8 @@
 #  define EXEC(XT)	({cfa=(XT); goto **cfa;})
 #endif
 
-#if !defined(DIRECT_THREADED) && !defined(AUTO_INCREMENT)\
-    && !defined(LONG_LATENCY) && !defined(CISC_NEXT)
-#  define NEXT_P0	({cfa=*ip;})
-#  define IP		(ip)
-#  define NEXT_INST	(cfa)
-#  define INC_IP(const_inc)	({cfa=IP[const_inc]; ip+=(const_inc);})
-#  define DEF_CA	Label ca;
-#  define NEXT_P1	({ip++; ca=*cfa;})
-#  define NEXT_P2	({goto *ca;})
-#  define EXEC(XT)	({DEF_CA cfa=(XT); ca=*cfa; goto *ca;})
+/* indirect threaded */
 #endif
-
-#if defined(CISC_NEXT) && !defined(LONG_LATENCY)
-# define NEXT1_P1
-# ifdef DIRECT_THREADED
-#  define NEXT1_P2 ({goto *cfa;})
-# else
-#  define NEXT1_P2 ({goto **cfa;})
-# endif /* DIRECT_THREADED */
-#else /* !defined(CISC_NEXT) || defined(LONG_LATENCY) */
-# ifdef DIRECT_THREADED
-#  define NEXT1_P1
-#  define NEXT1_P2 ({goto *cfa;})
-# else /* !DIRECT_THREADED */
-#  define NEXT1_P1 ({ca = *cfa;})
-#  define NEXT1_P2 ({goto *ca;})
-# endif /* !DIRECT_THREADED */
-#endif /* !defined(CISC_NEXT) || defined(LONG_LATENCY) */
 
 #endif /* !defined(DOUBLY_INDIRECT) */
 
