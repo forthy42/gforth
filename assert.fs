@@ -51,7 +51,7 @@ variable assert-level ( -- a-addr ) \ gforth
 : (endassert) ( flag -- ) \ gforth-internal
     \ inline argument sourcepos
     if
-	r> sourcepos drop + >r EXIT
+	r> sourcepos %size + >r EXIT
     else
 	r> print-sourcepos ." : failed assertion"
 	true abort" assertion failed" \ !! or use a new throw code?

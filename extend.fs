@@ -94,20 +94,18 @@ decimal
 
 \ SEARCH                                                02sep94py
 
-: search   ( buf buflen text textlen -- restbuf restlen flag ) \ string
-    2over  2 pick - 1+ 3 pick c@ >r
-    BEGIN
-	r@ scan dup
-    WHILE
-	>r >r  2dup r@ -text
-	0=
-	IF
-	    >r drop 2drop r> r> r> rot + 1- rdrop true
-	    EXIT
-	THEN
-	r> r>  1 /string
-    REPEAT
-    2drop 2drop  rdrop false ;
+: search ( c-addr1 u1 c-addr2 u2 -- c-addr3 u3 flag ) \ string
+    \ not very efficient; but if we want efficiency, we'll do it as primitive
+    2>r 2dup
+    begin
+	dup r@ >=
+    while
+	over 2r@ swap -text 0= if
+	    2swap 2drop 2r> 2drop true exit
+	endif
+	1 /string
+    repeat
+    2drop 2r> 2drop false ;
 
 \ SOURCE-ID SAVE-INPUT RESTORE-INPUT                    11jun93jaw
 

@@ -42,7 +42,7 @@ constant no-interpretation-does-code
     [ 0 >body ] literal allot ; \ restrict?
 
 : fix-does-code ( addr ret-addr -- )
-    lastxt [ interpret/compile-struct drop ] literal + >r
+    lastxt [ interpret/compile-struct %size ] literal + >r
     lastxt interpret/compile?
     lastxt interpret/compile-int @ r@ >body = and
     lastxt interpret/compile-comp @ r> = and

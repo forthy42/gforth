@@ -977,7 +977,7 @@ void install_signal_handlers (void)
     signal (sigs_to_ignore [i], SIG_IGN);
 */
   for (i = 0; i < DIM (sigs_to_throw); i++)
-    signal (sigs_to_throw [i], signal_throw);
+    signal (sigs_to_throw [i], die_on_signal ? graceful_exit : signal_throw);
   for (i = 0; i < DIM (sigs_to_quit); i++)
     signal (sigs_to_quit [i], graceful_exit);
 #ifdef SIGCONT

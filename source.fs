@@ -26,8 +26,8 @@
 require struct.fs
 
 struct
-    1 cells: field sourcepos-name#
-    1 cells: field sourcepos-line#
+    cell% field sourcepos-name#
+    cell% field sourcepos-line#
 end-struct sourcepos
     
 : sourcepos, ( -- )

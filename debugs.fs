@@ -51,7 +51,7 @@ defer printdebugline ( addr -- ) \ gforth
 
 : (~~) ( -- )
     r@ printdebugline
-    r> sourcepos drop + >r ;
+    r> sourcepos %size + >r ;
 
 : ~~ ( compilation  -- ; run-time  -- ) \ gforth tilde-tilde
     POSTPONE (~~) sourcepos, ; immediate

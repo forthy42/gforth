@@ -69,6 +69,11 @@ s" a     " 2 /string -trailing throw drop
 
 0. s" 123  " drop convert drop 23. d<> throw
 
+\ search
+
+name abc 2dup name xyza search throw d<> throw
+name b 2dup name abc search throw d<> throw
+
 \ comments across several lines
 
 ( fjklfjlas;d

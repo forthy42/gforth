@@ -16,7 +16,7 @@
 @comment %**end of header (This is for running Texinfo on a region.)
 
 @ifinfo
-This file documents Gforth 0.3
+This file documents Gforth 0.4
 
 Copyright @copyright{} 1995-1997 Free Software Foundation, Inc.
 
@@ -50,11 +50,11 @@ Copyright @copyright{} 1995-1997 Free Software Foundation, Inc.
 @sp 10
 @center @titlefont{Gforth Manual}
 @sp 2
-@center for version 0.3
+@center for version 0.4
 @sp 2
 @center Anton Ertl
-@center Bernd Paysan
 @center Jens Wilke
+@center Bernd Paysan
 @sp 3
 @center This manual is under construction
 
@@ -87,7 +87,7 @@ Copyright @copyright{} 1995--1997 Free Software Foundation, Inc.
 @node Top, License, (dir), (dir)
 @ifinfo
 Gforth is a free implementation of ANS Forth available on many
-personal machines. This manual corresponds to version 0.3.
+personal machines. This manual corresponds to version 0.4.
 @end ifinfo
 
 @menu
@@ -696,10 +696,23 @@ Start the dictionary at a slightly different position than would be used
 otherwise (useful for creating data-relocatable images,
 @pxref{Data-Relocatable Image Files}).
 
+@cindex --no-offset-im, command-line option
+@item --no-offset-im
+Start the dictionary at the normal position.
+
 @cindex --clear-dictionary, command-line option
 @item --clear-dictionary
 Initialize all bytes in the dictionary to 0 before loading the image
 (@pxref{Data-Relocatable Image Files}).
+
+@cindex --die-on-signal, command-line-option
+@item --die-on-signal
+Normally Gforth handles most signals (e.g., the user interrupt SIGINT,
+or the segmentation violation SIGSEGV) by translating it into a Forth
+@code{THROW}. With this option, Gforth exits if it receives such a
+signal. This option is useful when the engine and/or the image might be
+severely broken (such that it causes another signal before recovering
+from the first); this option avoids endless loops in such cases.
 @end table
 
 @cindex loading files at startup
@@ -738,10 +751,12 @@ then in @file{~}, then in the normal path (see above).
 * Notation::                    
 * Arithmetic::                  
 * Stack Manipulation::          
-* Memory::               
+* Memory::                      
 * Control Structures::          
 * Locals::                      
 * Defining Words::              
+* Structures::                  
+* Objects::                     
 * Tokens for Words::            
 * Wordlists::                   
 * Files::                       
@@ -750,6 +765,7 @@ then in @file{~}, then in the normal path (see above).
 * Programming Tools::           
 * Assembler and Code words::    
 * Threading Words::             
+* Including Files::             
 @end menu
 
 @node Notation, Arithmetic, Words, Words
@@ -2188,7 +2204,7 @@ programs harder to read, and easier to misread and miswrite. The only
 merit of this syntax is that it is easy to implement using the ANS Forth
 locals wordset.
 
-@node Defining Words, Tokens for Words, Locals, Words
+@node Defining Words, Structures, Locals, Words
 @section Defining Words
 @cindex defining words
 
@@ -2621,7 +2637,1128 @@ accessing the header structure usually know how to deal with this; e.g.,
 @code{' word >body} also gives you the body of a word created with
 @code{create-interpret/compile}.
 
-@node Tokens for Words, Wordlists, Defining Words, Words
+@c ----------------------------------------------------------
+@node Structures, Objects, Defining Words, Words
+@section  Structures
+@cindex structures
+@cindex records
+
+This section presents the structure package that comes with Gforth. A
+version of the package implemented in plain ANS Forth is available in
+@file{compat/struct.fs}. This package was inspired by a posting on
+comp.lang.forth in 1989 (unfortunately I don't remember, by whom;
+possibly John Hayes). A version of this section has been published in
+???. Marcel Hendrix provided helpful comments.
+
+@menu
+* Why explicit structure support?::  
+* Structure Usage::             
+* Structure Naming Convention::  
+* Structure Implementation::    
+* Structure Glossary::          
+@end menu
+
+@node Why explicit structure support?, Structure Usage, Structures, Structures
+@subsection Why explicit structure support?
+
+@cindex address arithmetic for structures
+@cindex structures using address arithmetic
+If we want to use a structure containing several fields, we could simply
+reserve memory for it, and access the fields using address arithmetic
+(@pxref{Address arithmetic}). As an example, consider a structure with
+the following fields
+
+@table @code
+@item a
+is a float
+@item b
+is a cell
+@item c
+is a float
+@end table
+
+Given the (float-aligned) base address of the structure we get the
+address of the field
+
+@table @code
+@item a
+without doing anything further.
+@item b
+with @code{float+}
+@item c
+with @code{float+ cell+ faligned}
+@end table
+
+It is easy to see that this can become quite tiring. 
+
+Moreover, it is not very readable, because seeing a
+@code{cell+} tells us neither which kind of structure is
+accessed nor what field is accessed; we have to somehow infer the kind
+of structure, and then look up in the documentation, which field of
+that structure corresponds to that offset.
+
+Finally, this kind of address arithmetic also causes maintenance
+troubles: If you add or delete a field somewhere in the middle of the
+structure, you have to find and change all computations for the fields
+afterwards.
+
+So, instead of using @code{cell+} and friends directly, how
+about storing the offsets in constants:
+
+@example
+0 constant a-offset
+0 float+ constant b-offset
+0 float+ cell+ faligned c-offset
+@end example
+
+Now we can get the address of field @code{x} with @code{x-offset
++}. This is much better in all respects. Of course, you still
+have to change all later offset definitions if you add a field. You can
+fix this by declaring the offsets in the following way:
+
+@example
+0 constant a-offset
+a-offset float+ constant b-offset
+b-offset cell+ faligned constant c-offset
+@end example
+
+Since we always use the offsets with @code{+}, using a defining
+word @code{cfield} that includes the @code{+} in the
+action of the defined word offers itself:
+
+@example
+: cfield ( n "name" -- )
+    create ,
+does> ( name execution: addr1 -- addr2 )
+    @@ + ;
+
+0 cfield a
+0 a float+ cfield b
+0 b cell+ faligned cfield c
+@end example
+
+Instead of @code{x-offset +}, we now simply write @code{x}.
+
+The structure field words now can be used quite nicely. However,
+their definition is still a bit cumbersome: We have to repeat the
+name, the information about size and alignment is distributed before
+and after the field definitions etc.  The structure package presented
+here addresses these problems.
+
+@node Structure Usage, Structure Naming Convention, Why explicit structure support?, Structures
+@subsection Structure Usage
+@cindex structure usage
+
+@cindex @code{field} usage
+@cindex @code{struct} usage
+@cindex @code{end-struct} usage
+You can define a structure for a (data-less) linked list with
+@example
+struct
+    cell% field list-next
+end-struct list%
+@end example
+
+With the address of the list node on the stack, you can compute the
+address of the field that contains the address of the next node with
+@code{list-next}. E.g., you can determine the length of a list
+with:
+
+@example
+: list-length ( list -- n )
+\ "list" is a pointer to the first element of a linked list
+\ "n" is the length of the list
+    0 begin ( list1 n1 )
+        over
+    while ( list1 n1 )
+        1+ swap list-next @@ swap
+    repeat
+    nip ;
+@end example
+
+You can reserve memory for a list node in the dictionary with
+@code{list% %allot}, which leaves the address of the list node on the
+stack. For the equivalent allocation on the heap you can use @code{list%
+%alloc} (or, for an @code{allocate}-like stack effect (i.e., with ior),
+use @code{list% %allocate}). You can also get the the size of a list
+node with @code{list% %size} and it's alignment with @code{list%
+%alignment}.
+
+Note that in ANS Forth the body of a @code{create}d word is
+@code{aligned} but not necessarily @code{faligned};
+therefore, if you do a
+@example
+create @emph{name} foo% %allot
+@end example
+
+then the memory alloted for @code{foo%} is
+guaranteed to start at the body of @code{@emph{name}} only if
+@code{foo%} contains only character, cell and double fields.
+
+@cindex strcutures containing structures
+You can also include a structure @code{foo%} as field of
+another structure, with:
+@example
+struct
+...
+    foo% field ...
+...
+end-struct ...
+@end example
+
+@cindex structure extension
+@cindex extended records
+Instead of starting with an empty structure, you can also extend an
+existing structure. E.g., a plain linked list without data, as defined
+above, is hardly useful; You can extend it to a linked list of integers,
+like this:@footnote{This feature is also known as @emph{extended
+records}. It is the main innovation in the Oberon language; in other
+words, adding this feature to Modula-2 led Wirth to create a new
+language, write a new compiler etc.  Adding this feature to Forth just
+requires a few lines of code.}
+
+@example
+list%
+    cell% field intlist-int
+end-struct intlist%
+@end example
+
+@code{intlist%} is a structure with two fields:
+@code{list-next} and @code{intlist-int}.
+
+@cindex structures containing arrays
+You can specify an array type containing @emph{n} elements of
+type @code{foo%} like this:
+
+@example
+foo% @emph{n} *
+@end example
+
+You can use this array type in any place where you can use a normal
+type, e.g., when defining a @code{field}, or with
+@code{%allot}.
+
+@cindex first field optimization
+The first field is at the base address of a structure and the word
+for this field (e.g., @code{list-next}) actually does not change
+the address on the stack. You may be tempted to leave it away in the
+interest of run-time and space efficiency. This is not necessary,
+because the structure package optimizes this case and compiling such
+words does not generate any code. So, in the interest of readability
+and maintainability you should include the word for the field when
+accessing the field.
+
+@node Structure Naming Convention, Structure Implementation, Structure Usage, Structures
+@subsection Structure Naming Convention
+@cindex structure naming conventions
+
+The field names that come to (my) mind are often quite generic, and,
+if used, would cause frequent name clashes. E.g., many structures
+probably contain a @code{counter} field. The structure names
+that come to (my) mind are often also the logical choice for the names
+of words that create such a structure.
+
+Therefore, I have adopted the following naming conventions: 
+
+@itemize @bullet
+@cindex field naming convention
+@item
+The names of fields are of the form
+@code{@emph{struct}-@emph{field}}, where
+@code{@emph{struct}} is the basic name of the structure, and
+@code{@emph{field}} is the basic name of the field. You can
+think about field words as converting converts the (address of the)
+structure into the (address of the) field.
+
+@cindex structure naming convention
+@item
+The names of structures are of the form
+@code{@emph{struct}%}, where
+@code{@emph{struct}} is the basic name of the structure.
+@end itemize
+
+This naming convention does not work that well for fields of extended
+structures; e.g., the integer list structure has a field
+@code{intlist-int}, but has @code{list-next}, not
+@code{intlist-next}.
+
+@node Structure Implementation, Structure Glossary, Structure Naming Convention, Structures
+@subsection Structure Implementation
+@cindex structure implementation
+@cindex implementation of structures
+
+The central idea in the implementation is to pass the data about the
+structure being built on the stack, not in some global
+variable. Everything else falls into place naturally once this design
+decision is made.
+
+The type description on the stack is of the form @emph{align
+size}. Keeping the size on the top-of-stack makes dealing with arrays
+very simple.
+
+@code{field} is a defining word that uses @code{create}
+and @code{does>}. The body of the field contains the offset
+of the field, and the normal @code{does>} action is
+
+@example
+@ +
+@end example
+
+i.e., add the offset to the address, giving the stack effect
+@code{addr1 -- addr2} for a field.
+
+@cindex first field optimization, implementation
+This simple structure is slightly complicated by the optimization
+for fields with offset 0, which requires a different
+@code{does>}-part (because we cannot rely on there being
+something on the stack if such a field is invoked during
+compilation). Therefore, we put the different @code{does>}-parts
+in separate words, and decide which one to invoke based on the
+offset. For a zero offset, the field is basically a noop; it is
+immediate, and therefore no code is generated when it is compiled.
+
+@node Structure Glossary,  , Structure Implementation, Structures
+@subsection Structure Glossary
+@cindex structure glossary
+
+doc-%align
+doc-%alignment
+doc-%alloc
+doc-%allocate
+doc-%allot
+doc-cell%
+doc-char%
+doc-dfloat%
+doc-double%
+doc-end-struct
+doc-field
+doc-float%
+doc-nalign
+doc-sfloat%
+doc-%size
+doc-struct
+
+@c -------------------------------------------------------------
+@node Objects, Tokens for Words, Structures, Words
+@section Objects
+@cindex objects
+@cindex object-oriented programming
+
+@cindex @file{objects.fs}
+@cindex @file{oof.fs}
+Gforth comes with two packets for object-oriented programming,
+@file{objects.fs} and @file{oof.fs}; none of them is preloaded, so you
+have to @code{include} them before use. This section describes the
+@file{objects.fs} packet. You can find a description (in German) of
+@file{oof.fs} in @cite{Object oriented bigFORTH} by Bernd Paysan,
+published in @cite{Vierte Dimension} 10(2), 1994. Both packets are
+written in ANS Forth and can be used with any other standard Forth.
+@c McKewan's and Zsoter's packages
+@c this section is a variant of ...
+
+This section assumes (in some places) that you have read @ref{Structures}.
+
+@menu
+* Properties of the Objects model::  
+* Why object-oriented programming?::  
+* Object-Oriented Terminology::  
+* Basic Objects Usage::         
+* The class Object::            
+* Creating objects::            
+* Object-Oriented Programming Style::  
+* Class Binding::               
+* Method conveniences::         
+* Classes and Scoping::         
+* Object Interfaces::           
+* Objects Implementation::      
+* Comparison with other object models::  
+* Objects Glossary::            
+@end menu
+
+Marcel Hendrix provided helpful comments on this section. Andras Zsoter
+and Bernd Paysan helped me with the related works section.
+
+@node Properties of the Objects model, Why object-oriented programming?, Objects, Objects
+@subsection Properties of the @file{objects.fs} model
+@cindex @file{objects.fs} properties
+
+@itemize @bullet
+@item
+It is straightforward to pass objects on the stack. Passing
+selectors on the stack is a little less convenient, but possible.
+
+@item
+Objects are just data structures in memory, and are referenced by
+their address. You can create words for objects with normal defining
+words like @code{constant}. Likewise, there is no difference
+between instance variables that contain objects and those
+that contain other data.
+
+@item
+Late binding is efficient and easy to use.
+
+@item
+It avoids parsing, and thus avoids problems with state-smartness
+and reduced extensibility; for convenience there are a few parsing
+words, but they have non-parsing counterparts. There are also a few
+defining words that parse. This is hard to avoid, because all standard
+defining words parse (except @code{:noname}); however, such
+words are not as bad as many other parsing words, because they are not
+state-smart.
+
+@item
+It does not try to incorporate everything. It does a few things
+and does them well (IMO). In particular, I did not intend to support
+information hiding with this model (although it has features that may
+help); you can use a separate package for achieving this.
+
+@item
+It is layered; you don't have to learn and use all features to use this
+model. Only a few features are necessary (@xref{Basic Objects Usage},
+@xref{The class Object}, @xref{Creating objects}.), the others
+are optional and independent of each other.
+
+@item
+An implementation in ANS Forth is available.
+
+@end itemize
+
+I have used the technique, on which this model is based, for
+implementing the parser generator Gray; we have also used this technique
+in Gforth for implementing the various flavours of wordlists (hashed or
+not, case-sensitive or not, special-purpose wordlists for locals etc.).
+
+@node Why object-oriented programming?, Object-Oriented Terminology, Properties of the Objects model, Objects
+@subsection Why object-oriented programming?
+@cindex object-oriented programming motivation
+@cindex motivation for object-oriented programming
+
+Often we have to deal with several data structures (@emph{objects}),
+that have to be treated similarly in some respects, but differ in
+others. Graphical objects are the textbook example: circles,
+triangles, dinosaurs, icons, and others, and we may want to add more
+during program development. We want to apply some operations to any
+graphical object, e.g., @code{draw} for displaying it on the
+screen. However, @code{draw} has to do something different for
+every kind of object.
+
+We could implement @code{draw} as a big @code{CASE}
+control structure that executes the appropriate code depending on the
+kind of object to be drawn. This would be not be very elegant, and,
+moreover, we would have to change @code{draw} every time we add
+a new kind of graphical object (say, a spaceship).
+
+What we would rather do is: When defining spaceships, we would tell
+the system: "Here's how you @code{draw} a spaceship; you figure
+out the rest."
+
+This is the problem that all systems solve that (rightfully) call
+themselves object-oriented, and the object-oriented package I present
+here also solves this problem (and not much else).
+
+@node Object-Oriented Terminology, Basic Objects Usage, Why object-oriented programming?, Objects
+@subsection Object-Oriented Terminology
+@cindex object-oriented terminology
+@cindex terminology for object-oriented programming
+
+This section is mainly for reference, so you don't have to understand
+all of it right away.  The terminology is mainly Smalltalk-inspired.  In
+short:
+
+@table @emph
+@cindex class
+@item class
+a data structure definition with some extras.
+
+@cindex object
+@item object
+an instance of the data structure described by the class definition.
+
+@cindex instance variables
+@item instance variables
+fields of the data structure.
+
+@cindex selector
+@cindex method selector
+@cindex virtual function
+@item selector
+(or @emph{method selector}) a word (e.g.,
+@code{draw}) for performing an operation on a variety of data
+structures (classes). A selector describes @emph{what} operation to
+perform. In C++ terminology: a (pure) virtual function.
+
+@cindex method
+@item method
+the concrete definition that performs the operation
+described by the selector for a specific class. A method specifies
+@emph{how} the operation is performed for a specific class.
+
+@cindex selector invocation
+@cindex message send
+@cindex invoking a selector
+@item selector invocation
+a call of a selector. One argument of the call (the TOS (top-of-stack))
+is used for determining which method is used. In Smalltalk terminology:
+a message (consisting of the selector and the other arguments) is sent
+to the object.
+
+@cindex receiving object
+@item receiving object
+the object used for determining the method executed by a selector
+invocation. In our model it is the object that is on the TOS when the
+selector is invoked. (@emph{Receiving} comes from Smalltalks
+@emph{message} terminology.)
+
+@cindex child class
+@cindex parent class
+@cindex inheritance
+@item child class
+a class that has (@emph{inherits}) all properties (instance variables,
+selectors, methods) from a @emph{parent class}. In Smalltalk
+terminology: The subclass inherits from the superclass. In C++
+terminology: The derived class inherits from the base class.
+
+@end table
+
+@c If you wonder about the message sending terminology, it comes from
+@c a time when each object had it's own task and objects communicated via
+@c message passing; eventually the Smalltalk developers realized that
+@c they can do most things through simple (indirect) calls. They kept the
+@c terminology.
+
+@node Basic Objects Usage, The class Object, Object-Oriented Terminology, Objects
+@subsection Basic Objects Usage
+@cindex basic objects usage
+@cindex objects, basic usage
+
+You can define a class for graphical objects like this:
+
+@cindex @code{class} usage
+@cindex @code{end-class} usage
+@cindex @code{selector} usage
+@example
+object class \ "object" is the parent class
+  selector draw ( x y graphical -- )
+end-class graphical
+@end example
+
+This code defines a class @code{graphical} with an
+operation @code{draw}.  We can perform the operation
+@code{draw} on any @code{graphical} object, e.g.:
+
+@example
+100 100 t-rex draw
+@end example
+
+where @code{t-rex} is a word (say, a constant) that produces a
+graphical object.
+
+@cindex abstract class
+How do we create a graphical object? With the present definitions,
+we cannot create a useful graphical object. The class
+@code{graphical} describes graphical objects in general, but not
+any concrete graphical object type (C++ users would call it an
+@emph{abstract class}); e.g., there is no method for the selector
+@code{draw} in the class @code{graphical}.
+
+For concrete graphical objects, we define child classes of the
+class @code{graphical}, e.g.:
+
+@cindex @code{overrides} usage
+@cindex @code{field} usage in class definition
+@example
+graphical class \ "graphical" is the parent class
+  cell% field circle-radius
+
+:noname ( x y circle -- )
+  circle-radius @@ draw-circle ;
+overrides draw
+
+:noname ( n-radius circle -- )
+  circle-radius ! ;
+overrides construct
+
+end-class circle
+@end example
+
+Here we define a class @code{circle} as a child of @code{graphical},
+with a field @code{circle-radius} (which behaves just like a field in
+@pxref{Structures}); it defines new methods for the selectors
+@code{draw} and @code{construct} (@code{construct} is defined in
+@code{object}, the parent class of @code{graphical}).
+
+Now we can create a circle on the heap (i.e.,
+@code{allocate}d memory) with
+
+@cindex @code{heap-new} usage
+@example
+50 circle heap-new constant my-circle
+@end example
+
+@code{heap-new} invokes @code{construct}, thus
+initializing the field @code{circle-radius} with 50. We can draw
+this new circle at (100,100) with
+
+@example
+100 100 my-circle draw
+@end example
+
+@cindex selector invocation, restrictions
+@cindex class definition, restrictions
+Note: You can invoke a selector only if the object on the TOS
+(the receiving object) belongs to the class where the selector was
+defined or one of its descendents; e.g., you can invoke
+@code{draw} only for objects belonging to @code{graphical}
+or its descendents (e.g., @code{circle}).  Immediately before
+@code{end-class}, the search order has to be the same as
+immediately after @code{class}.
+
+@node The class Object, Creating objects, Basic Objects Usage, Objects
+@subsection The class @code{object}
+@cindex @code{object} class
+
+When you define a class, you have to specify a parent class.  So how do
+you start defining classes? There is one class available from the start:
+@code{object}. You can use it as ancestor for all classes. It is the
+only class that has no parent. It has two selectors: @code{construct}
+and @code{print}.
+
+@node Creating objects, Object-Oriented Programming Style, The class Object, Objects
+@subsection Creating objects
+@cindex creating objects
+@cindex object creation
+@cindex object allocation options
+
+@cindex @code{heap-new} discussion
+@cindex @code{dict-new} discussion
+@cindex @code{construct} discussion
+You can create and initialize an object of a class on the heap with
+@code{heap-new} ( ... class -- object ) and in the dictionary
+(allocation with @code{allot}) with @code{dict-new} (
+... class -- object ). Both words invoke @code{construct}, which
+consumes the stack items indicated by "..." above.
+
+@cindex @code{init-object} discussion
+@cindex @code{class-inst-size} discussion
+If you want to allocate memory for an object yourself, you can get its
+alignment and size with @code{class-inst-size 2@@} ( class --
+align size ). Once you have memory for an object, you can initialize
+it with @code{init-object} ( ... class object -- );
+@code{construct} does only a part of the necessary work.
+
+@node Object-Oriented Programming Style, Class Binding, Creating objects, Objects
+@subsection Object-Oriented Programming Style
+@cindex object-oriented programming style
+
+This section is not exhaustive.
+
+@cindex stack effects of selectors
+@cindex selectors and stack effects
+In general, it is a good idea to ensure that all methods for the
+same selector have the same stack effect: when you invoke a selector,
+you often have no idea which method will be invoked, so, unless all
+methods have the same stack effect, you will not know the stack effect
+of the selector invocation.
+
+One exception to this rule is methods for the selector
+@code{construct}. We know which method is invoked, because we
+specify the class to be constructed at the same place. Actually, I
+defined @code{construct} as a selector only to give the users a
+convenient way to specify initialization. The way it is used, a
+mechanism different from selector invocation would be more natural
+(but probably would take more code and more space to explain).
+
+@node Class Binding, Method conveniences, Object-Oriented Programming Style, Objects
+@subsection Class Binding
+@cindex class binding
+@cindex early binding
+
+@cindex late binding
+Normal selector invocations determine the method at run-time depending
+on the class of the receiving object (late binding).
+
+Sometimes we want to invoke a different method. E.g., assume that
+you want to use the simple method for @code{print}ing
+@code{object}s instead of the possibly long-winded
+@code{print} method of the receiver class. You can achieve this
+by replacing the invocation of @code{print} with
+
+@cindex @code{[bind]} usage
+@example
+[bind] object print
+@end example
+
+in compiled code or
+
+@cindex @code{bind} usage
+@example
+bind object print
+@end example
+
+@cindex class binding, alternative to
+in interpreted code. Alternatively, you can define the method with a
+name (e.g., @code{print-object}), and then invoke it through the
+name. Class binding is just a (often more convenient) way to achieve
+the same effect; it avoids name clutter and allows you to invoke
+methods directly without naming them first.
+
+@cindex superclass binding
+@cindex parent class binding
+A frequent use of class binding is this: When we define a method
+for a selector, we often want the method to do what the selector does
+in the parent class, and a little more. There is a special word for
+this purpose: @code{[parent]}; @code{[parent]
+@emph{selector}} is equivalent to @code{[bind] @emph{parent
+selector}}, where @code{@emph{parent}} is the parent
+class of the current class. E.g., a method definition might look like:
+
+@cindex @code{[parent]} usage
+@example
+:noname
+  dup [parent] foo \ do parent's foo on the receiving object
+  ... \ do some more
+; overrides foo
+@end example
+
+@cindex class binding as optimization
+In @cite{Object-oriented programming in ANS Forth} (Forth Dimensions,
+March 1997), Andrew McKewan presents class binding as an optimization
+technique. I recommend not using it for this purpose unless you are in
+an emergency. Late binding is pretty fast with this model anyway, so the
+benefit of using class binding is small; the cost of using class binding
+where it is not appropriate is reduced maintainability.
+
+While we are at programming style questions: You should bind
+selectors only to ancestor classes of the receiving object. E.g., say,
+you know that the receiving object is of class @code{foo} or its
+descendents; then you should bind only to @code{foo} and its
+ancestors.
+
+@node Method conveniences, Classes and Scoping, Class Binding, Objects
+@subsection Method conveniences
+@cindex method conveniences
+
+In a method you usually access the receiving object pretty often.  If
+you define the method as a plain colon definition (e.g., with
+@code{:noname}), you may have to do a lot of stack
+gymnastics. To avoid this, you can define the method with @code{m:
+... ;m}. E.g., you could define the method for
+@code{draw}ing a @code{circle} with
+
+@cindex @code{this} usage
+@cindex @code{m:} usage
+@cindex @code{;m} usage
+@example
+m: ( x y circle -- )
+  ( x y ) this circle-radius @@ draw-circle ;m
+@end example
+
+@cindex @code{exit} in @code{m: ... ;m}
+@cindex @code{exitm} discussion
+@cindex @code{catch} in @code{m: ... ;m}
+When this method is executed, the receiver object is removed from the
+stack; you can access it with @code{this} (admittedly, in this
+example the use of @code{m: ... ;m} offers no advantage). Note
+that I specify the stack effect for the whole method (i.e. including
+the receiver object), not just for the code between @code{m:}
+and @code{;m}. You cannot use @code{exit} in
+@code{m:...;m}; instead, use
+@code{exitm}.@footnote{Moreover, for any word that calls
+@code{catch} and was defined before loading
+@code{objects.fs}, you have to redefine it like I redefined
+@code{catch}: @code{: catch this >r catch r> to-this ;}}
+
+@cindex @code{inst-var} usage
+You will frequently use sequences of the form @code{this
+@emph{field}} (in the example above: @code{this
+circle-radius}). If you use the field only in this way, you can
+define it with @code{inst-var} and eliminate the
+@code{this} before the field name. E.g., the @code{circle}
+class above could also be defined with:
+
+@example
+graphical class
+  cell% inst-var radius
+
+m: ( x y circle -- )
+  radius @@ draw-circle ;m
+overrides draw
+
+m: ( n-radius circle -- )
+  radius ! ;m
+overrides construct
+
+end-class circle
+@end example
+
+@code{radius} can only be used in @code{circle} and its
+descendent classes and inside @code{m:...;m}.
+
+@cindex @code{inst-value} usage
+You can also define fields with @code{inst-value}, which is
+to @code{inst-var} what @code{value} is to
+@code{variable}.  You can change the value of such a field with
+@code{[to-inst]}.  E.g., we could also define the class
+@code{circle} like this:
+
+@example
+graphical class
+  inst-value radius
+
+m: ( x y circle -- )
+  radius draw-circle ;m
+overrides draw
+
+m: ( n-radius circle -- )
+  [to-inst] radius ;m
+overrides construct
+
+end-class circle
+@end example
+
+
+@node Classes and Scoping, Object Interfaces, Method conveniences, Objects
+@subsection Classes and Scoping
+@cindex classes and scoping
+@cindex scoping and classes
+
+Inheritance is frequent, unlike structure extension. This exacerbates
+the problem with the field name convention (@pxref{Structure Naming
+Convention}): One always has to remember in which class the field was
+originally defined; changing a part of the class structure would require
+changes for renaming in otherwise unaffected code.
+
+@cindex @code{inst-var} visibility
+@cindex @code{inst-value} visibility
+To solve this problem, I added a scoping mechanism (which was not in my
+original charter): A field defined with @code{inst-var} (or
+@code{inst-value}) is visible only in the class where it is defined and in
+the descendent classes of this class.  Using such fields only makes
+sense in @code{m:}-defined methods in these classes anyway.
+
+This scoping mechanism allows us to use the unadorned field name,
+because name clashes with unrelated words become much less likely.
+
+@cindex @code{protected} discussion
+@cindex @code{private} discussion
+Once we have this mechanism, we can also use it for controlling the
+visibility of other words: All words defined after
+@code{protected} are visible only in the current class and its
+descendents. @code{public} restores the compilation
+(i.e. @code{current}) wordlist that was in effect before. If you
+have several @code{protected}s without an intervening
+@code{public} or @code{set-current}, @code{public}
+will restore the compilation wordlist in effect before the first of
+these @code{protected}s.
+
+@node Object Interfaces, Objects Implementation, Classes and Scoping, Objects
+@subsection Object Interfaces
+@cindex object interfaces
+@cindex interfaces for objects
+
+In this model you can only call selectors defined in the class of the
+receiving objects or in one of its ancestors. If you call a selector
+with a receiving object that is not in one of these classes, the
+result is undefined; if you are lucky, the program crashes
+immediately.
+
+@cindex selectors common to hardly-related classes
+Now consider the case when you want to have a selector (or several)
+available in two classes: You would have to add the selector to a
+common ancestor class, in the worst case to @code{object}. You
+may not want to do this, e.g., because someone else is responsible for
+this ancestor class.
+
+The solution for this problem is interfaces. An interface is a
+collection of selectors. If a class implements an interface, the
+selectors become available to the class and its descendents. A class
+can implement an unlimited number of interfaces. For the problem
+discussed above, we would define an interface for the selector(s), and
+both classes would implement the interface.
+
+As an example, consider an interface @code{storage} for
+writing objects to disk and getting them back, and a class
+@code{foo} foo that implements it. The code for this would look
+like this:
+
+@cindex @code{interface} usage
+@cindex @code{end-interface} usage
+@cindex @code{implementation} usage
+@example
+interface
+  selector write ( file object -- )
+  selector read1 ( file object -- )
+end-interface storage
+
+bar class
+  storage implementation
+
+... overrides write
+... overrides read
+...
+end-class foo
+@end example
+
+(I would add a word @code{read} ( file -- object ) that uses
+@code{read1} internally, but that's beyond the point illustrated
+here.)
+
+Note that you cannot use @code{protected} in an interface; and
+of course you cannot define fields.
+
+In the Neon model, all selectors are available for all classes;
+therefore it does not need interfaces. The price you pay in this model
+is slower late binding, and therefore, added complexity to avoid late
+binding.
+
+@node Objects Implementation, Comparison with other object models, Object Interfaces, Objects
+@subsection @file{objects.fs} Implementation
+@cindex @file{objects.fs} implementation
+
+@cindex @code{object-map} discussion
+An object is a piece of memory, like one of the data structures
+described with @code{struct...end-struct}. It has a field
+@code{object-map} that points to the method map for the object's
+class.
+
+@cindex method map
+@cindex virtual function table
+The @emph{method map}@footnote{This is Self terminology; in C++
+terminology: virtual function table.} is an array that contains the
+execution tokens (XTs) of the methods for the object's class. Each
+selector contains an offset into the method maps.
+
+@cindex @code{selector} implementation, class
+@code{selector} is a defining word that uses
+@code{create} and @code{does>}. The body of the
+selector contains the offset; the @code{does>} action for a
+class selector is, basically:
+
+@example
+( object addr ) @@ over object-map @@ + @@ execute
+@end example
+
+Since @code{object-map} is the first field of the object, it
+does not generate any code. As you can see, calling a selector has a
+small, constant cost.
+
+@cindex @code{current-interface} discussion
+@cindex class implementation and representation
+A class is basically a @code{struct} combined with a method
+map. During the class definition the alignment and size of the class
+are passed on the stack, just as with @code{struct}s, so
+@code{field} can also be used for defining class
+fields. However, passing more items on the stack would be
+inconvenient, so @code{class} builds a data structure in memory,
+which is accessed through the variable
+@code{current-interface}. After its definition is complete, the
+class is represented on the stack by a pointer (e.g., as parameter for
+a child class definition).
+
+At the start, a new class has the alignment and size of its parent,
+and a copy of the parent's method map. Defining new fields extends the
+size and alignment; likewise, defining new selectors extends the
+method map. @code{overrides} just stores a new XT in the method
+map at the offset given by the selector.
+
+@cindex class binding, implementation
+Class binding just gets the XT at the offset given by the selector
+from the class's method map and @code{compile,}s (in the case of
+@code{[bind]}) it.
+
+@cindex @code{this} implementation
+@cindex @code{catch} and @code{this}
+@cindex @code{this} and @code{catch}
+I implemented @code{this} as a @code{value}. At the
+start of an @code{m:...;m} method the old @code{this} is
+stored to the return stack and restored at the end; and the object on
+the TOS is stored @code{TO this}. This technique has one
+disadvantage: If the user does not leave the method via
+@code{;m}, but via @code{throw} or @code{exit},
+@code{this} is not restored (and @code{exit} may
+crash). To deal with the @code{throw} problem, I have redefined
+@code{catch} to save and restore @code{this}; the same
+should be done with any word that can catch an exception. As for
+@code{exit}, I simply forbid it (as a replacement, there is
+@code{exitm}).
+
+@cindex @code{inst-var} implementation
+@code{inst-var} is just the same as @code{field}, with
+a different @code{does>} action:
+@example
+@@ this +
+@end example
+Similar for @code{inst-value}.
+
+@cindex class scoping implementation
+Each class also has a wordlist that contains the words defined with
+@code{inst-var} and @code{inst-value}, and its protected
+words. It also has a pointer to its parent. @code{class} pushes
+the wordlists of the class an all its ancestors on the search order,
+and @code{end-class} drops them.
+
+@cindex interface implementation
+An interface is like a class without fields, parent and protected
+words; i.e., it just has a method map. If a class implements an
+interface, its method map contains a pointer to the method map of the
+interface. The positive offsets in the map are reserved for class
+methods, therefore interface map pointers have negative
+offsets. Interfaces have offsets that are unique throughout the
+system, unlike class selectors, whose offsets are only unique for the
+classes where the selector is available (invokable).
+
+This structure means that interface selectors have to perform one
+indirection more than class selectors to find their method. Their body
+contains the interface map pointer offset in the class method map, and
+the method offset in the interface method map. The
+@code{does>} action for an interface selector is, basically:
+
+@example
+( object selector-body )
+2dup selector-interface @@ ( object selector-body object interface-offset )
+swap object-map @@ + @@ ( object selector-body map )
+swap selector-offset @@ + @@ execute
+@end example
+
+where @code{object-map} and @code{selector-offset} are
+first fields and generate no code.
+
+As a concrete example, consider the following code:
+
+@example
+interface
+  selector if1sel1
+  selector if1sel2
+end-interface if1
+
+object class
+  if1 implementation
+  selector cl1sel1
+  cell% inst-var cl1iv1
+
+' m1 overrides construct
+' m2 overrides if1sel1
+' m3 overrides if1sel2
+' m4 overrides cl1sel2
+end-class cl1
+
+create obj1 object dict-new drop
+create obj2 cl1    dict-new drop
+@end example
+
+The data structure created by this code (including the data structure
+for @code{object}) is shown in the <a
+href="objects-implementation.eps">figure</a>, assuming a cell size of 4.
+
+@node Comparison with other object models, Objects Glossary, Objects Implementation, Objects
+@subsection Comparison with other object models
+@cindex comparison of object models
+@cindex object models, comparison
+
+Many object-oriented Forth extensions have been proposed (@cite{A survey
+of object-oriented Forths} (SIGPLAN Notices, April 1996) by Bradford
+J. Rodriguez and W. F. S. Poehlman lists 17). Here I'll discuss the
+relation of @file{objects.fs} to two well-known and two closely-related
+(by the use of method maps) models.
+
+@cindex Neon model
+The most popular model currently seems to be the Neon model (see
+@cite{Object-oriented programming in ANS Forth} (Forth Dimensions, March
+1997) by Andrew McKewan). The Neon model uses a @code{@emph{selector
+object}} syntax, which makes it unnatural to pass objects on the
+stack. It also requires that the selector parses the input stream (at
+compile time); this leads to reduced extensibility and to bugs that are
+hard to find. Finally, it allows using every selector to every object;
+this eliminates the need for classes, but makes it harder to create
+efficient implementations. A longer version of this critique can be
+found in @cite{On Standardizing Object-Oriented Forth Extensions} (Forth
+Dimensions, May 1997) by Anton Ertl.
+
+@cindex Pountain's object-oriented model
+Another well-known publication is @cite{Object-Oriented Forth} (Academic
+Press, London, 1987) by Dick Pountain. However, it is not really about
+object-oriented programming, because it hardly deals with late
+binding. Instead, it focuses on features like information hiding and
+overloading that are characteristic of modular languages like Ada (83).
+
+@cindex Zsoter's object-oriented model
+In @cite{Does late binding have to be slow?} (Forth Dimensions ??? 1996)
+Andras Zsoter describes a model that makes heavy use of an active object
+(like @code{this} in @file{objects.fs}): The active object is not only
+used for accessing all fields, but also specifies the receiving object
+of every selector invocation; you have to change the active object
+explicitly with @code{@{ ... @}}, whereas in @file{objects.fs} it
+changes more or less implicitly at @code{m: ... ;m}. Such a change at
+the method entry point is unnecessary with the Zsoter's model, because
+the receiving object is the active object already; OTOH, the explicit
+change is absolutely necessary in that model, because otherwise no one
+could ever change the active object. An ANS Forth implementation of this
+model is available at @url{http://www.forth.org/fig/oopf.html}.
+
+@cindex @file{oof.fs} object model
+The @file{oof.fs} model combines information hiding and overloading
+resolution (by keeping names in various wordlists) with object-oriented
+programming. It sets the active object implicitly on method entry, but
+also allows explicit changing (with @code{>o...o>} or with
+@code{with...endwith}). It uses parsing and state-smart objects and
+classes for resolving overloading and for early binding: the object or
+class parses the selector and determines the method from this. If the
+selector is not parsed by an object or class, it performs a call to the
+selector for the active object (late binding), like Zsoter's model.
+Fields are always accessed through the active object. The big
+disadvantage of this model is the parsing and the state-smartness, which
+reduces extensibility and increases the opportunities for subtle bugs;
+essentially, you are only safe if you never tick or @code{postpone} an
+object or class.
+
+@node Objects Glossary,  , Comparison with other object models, Objects
+@subsection @file{objects.fs} Glossary
+@cindex @file{objects.fs} Glossary
+
+doc-bind
+doc-<bind>
+doc-bind'
+doc-[bind]
+doc-class
+doc-class->map
+doc-class-inst-size
+doc-class-override!
+doc-construct
+doc-current'
+doc-[current]
+doc-current-interface
+doc-dict-new
+doc-drop-order
+doc-end-class
+doc-end-class-noname
+doc-end-interface
+doc-end-interface-noname
+doc-exitm
+doc-heap-new
+doc-implementation
+doc-init-object
+doc-inst-value
+doc-inst-var
+doc-interface
+doc-;m
+doc-m:
+doc-method
+doc-object
+doc-overrides
+doc-[parent]
+doc-print
+doc-protected
+doc-public
+doc-push-order
+doc-selector
+doc-this
+doc-<to-inst>
+doc-[to-inst]
+doc-to-this
+doc-xt-new
+
+@c -------------------------------------------------------------
+@node Tokens for Words, Wordlists, Objects, Words
 @section Tokens for Words
 @cindex tokens for words
 
@@ -2820,7 +3957,7 @@ probably more appropriate than an assertion).
 @cindex @code{BREAK"}
 
 When a new word is created there's often the need to check whether it behaves
-alright or not. You can do this by typing @code{dbg badword}. This might
+correctly or not. You can do this by typing @code{dbg badword}. This might
 look like:
 @example
 : badword 0 DO i . LOOP ;  ok
@@ -2841,28 +3978,28 @@ Nesting debugger ready!
 400D4758  804B384 ;              ->  ok
 @end example
 
-Each line displayed is one step. You always have to hit return to execute the next
-word that is displayed. If you don't want to execute the next word in a
-whole, you have to type 'n' for @code{nest}. Here is an overview what keys
-are available:
+Each line displayed is one step. You always have to hit return to
+execute the next word that is displayed. If you don't want to execute
+the next word in a whole, you have to type @kbd{n} for @code{nest}. Here is
+an overview what keys are available:
 
 @table @i
 
 @item <return>
-Next; Execute the next word
+Next; Execute the next word.
 
 @item n
-Nest; Single step through next word
+Nest; Single step through next word.
 
 @item u
-Unnest; Stop debugging and execute rest of word. When we got to this word
-with nest, continue debugging with the upper word
+Unnest; Stop debugging and execute rest of word. If we got to this word
+with nest, continue debugging with the calling word.
 
 @item d
-Done; Stop debugging and execute rest
+Done; Stop debugging and execute rest.
 
 @item s
-Stopp; Abort immediately
+Stopp; Abort immediately.
 
 @end table
 
@@ -2988,7 +4125,7 @@ returned is different from 0 and identifies the @code{DOES>} used by the
 defining word.
 
 @node Including Files, , Threading Words, Words
-@section Threading Words
+@section Including Files
 @cindex including files
 
 @node Include and Require, Path handling, Including Files, Words
@@ -3004,9 +4141,9 @@ doc-require
 @cindex path handling
 
 In larger program projects it is often neccassary to build up a structured
-directory tree. Standard forth programs are somewhere more central because
+directory tree. Standard Forth programs are somewhere more central because
 they must be accessed from some more other programs. To achieve this it is
-possible to manipulate the search path in which gforth trys to find the
+possible to manipulate the search path in which Gforth tries to find the
 source file.
 
 doc-fpath+
@@ -3028,14 +4165,14 @@ require timer.fs
 @cindex ~+
 There is another nice feature which is similar to C's @code{include <...>}
 and @code{include "..."}. For example: You have a program seperated into
-several files in an subdirectory and you want to include some other files
-in this subdirectory from within the program. You have to tell gforth that
-you are now looking relative from the directory the current file comes from.
-You can tell this gforth by using the prefix @code{~+/} in front of the
+several files in a subdirectory and you want to include some other files
+in this subdirectory from within the program. You have to tell Gforth that
+you are now looking relative to the directory the current file comes from.
+You can tell this Gforth by using the prefix @code{~+/} in front of the
 filename. It is also possible to add it to the search path.
 
-If you have the need to look for a file in the forth search path, you could
-use this gforth feature in your application.
+If you have the need to look for a file in the Forth search path, you could
+use this Gforth feature in your application.
 
 doc-open-fpath-file
 
@@ -3059,6 +4196,7 @@ doc-path=
 doc-.path
 doc-open-path-file
 
+@c ******************************************************************
 @node Tools, ANS conformance, Words, Top
 @chapter Tools
 

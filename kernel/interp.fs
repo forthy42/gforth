@@ -562,18 +562,18 @@ defer ;-hook ( sys2 -- sys1 )
 \ word list structure:
 
 struct
-  1 cells: field find-method   \ xt: ( c_addr u wid -- nt )
-  1 cells: field reveal-method \ xt: ( nt wid -- ) \ used by dofield:, must be field
-  1 cells: field rehash-method \ xt: ( wid -- )	   \ re-initializes a "search-data" (hashtables)
-  1 cells: field hash-method   \ xt: ( wid -- )    \ initializes ""
+  cell% field find-method   \ xt: ( c_addr u wid -- nt )
+  cell% field reveal-method \ xt: ( nt wid -- ) \ used by dofield:, must be field
+  cell% field rehash-method \ xt: ( wid -- )	   \ re-initializes a "search-data" (hashtables)
+  cell% field hash-method   \ xt: ( wid -- )    \ initializes ""
 \   \ !! what else
 end-struct wordlist-map-struct
 
 struct
-  1 cells: field wordlist-id \ not the same as wid; representation depends on implementation
-  1 cells: field wordlist-map \ pointer to a wordlist-map-struct
-  1 cells: field wordlist-link \ link field to other wordlists
-  1 cells: field wordlist-extend \ points to wordlist extensions (eg hashtables)
+  cell% field wordlist-id \ not the same as wid; representation depends on implementation
+  cell% field wordlist-map \ pointer to a wordlist-map-struct
+  cell% field wordlist-link \ link field to other wordlists
+  cell% field wordlist-extend \ points to wordlist extensions (eg hashtables)
 end-struct wordlist-struct
 
 : f83find      ( addr len wordlist -- nt / false )
@@ -599,10 +599,10 @@ forth-wordlist current !
 
 \ higher level parts of find
 
-( struct )
-0 >body cell
-  1 cells: field interpret/compile-int
-  1 cells: field interpret/compile-comp
+struct
+    >body
+    cell% field interpret/compile-int
+    cell% field interpret/compile-comp
 end-struct interpret/compile-struct
 
 : interpret/compile? ( xt -- flag )

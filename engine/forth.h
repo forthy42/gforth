@@ -227,6 +227,7 @@ DCell fmdiv (DCell num, Cell denom);
 int memcasecmp(const char *s1, const char *s2, long n);
 
 extern int offset_image;
+extern int die_on_signal;
 
 /* declare all the functions that are missing */
 #ifndef HAVE_ATANH

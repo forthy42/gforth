@@ -38,11 +38,11 @@ script? [IF]
 wordlist constant documentation
 
 struct
-    2 cells: field doc-name
-    2 cells: field doc-stack-effect
-    2 cells: field doc-wordset
-    2 cells: field doc-pronounciation
-    2 cells: field doc-description
+    cell% 2* field doc-name
+    cell% 2* field doc-stack-effect
+    cell% 2* field doc-wordset
+    cell% 2* field doc-pronounciation
+    cell% 2* field doc-description
 end-struct doc-entry
 
 create description-buffer 4096 chars allot

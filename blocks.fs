@@ -32,11 +32,11 @@
 require struct.fs
 
 struct
-    1           cells: field buffer-block   \ the block number
-    1           cells: field buffer-fid     \ the block's fid
-    1           cells: field buffer-dirty   \ the block dirty flag
-    chars/block chars: field block-buffer   \ the data
-    0           cells: field next-buffer
+    cell%		field buffer-block   \ the block number
+    cell%		field buffer-fid     \ the block's fid
+    cell%		field buffer-dirty   \ the block dirty flag
+    char% chars/block * field block-buffer   \ the data
+    cell% 0 *		field next-buffer
 end-struct buffer-struct
 
 Variable block-buffers
@@ -46,10 +46,10 @@ $20 Value buffers
 
 User block-fid
 
-: block-cold
+: block-cold ( -- )
     block-fid off  last-block off
-    buffers buffer-struct drop * allocate throw dup block-buffers !
-    buffers buffer-struct drop * erase ;
+    buffer-struct buffers * %alloc dup block-buffers ! ( addr )
+    buffer-struct %size buffers * erase ;
 
 ' block-cold INIT8 chained
 
@@ -114,7 +114,7 @@ Defer flush-blocks
 ' flush IS flush-blocks
 
 : get-buffer ( n -- a-addr )
-    buffers mod buffer-struct drop * block-buffers @ + ;
+    buffers mod buffer-struct %size * block-buffers @ + ;
 
 : block ( u -- a-addr )
     dup 0= -35 and throw

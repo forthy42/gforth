@@ -64,6 +64,7 @@ static UCell rsize=0;
 static UCell fsize=0;
 static UCell lsize=0;
 int offset_image=0;
+int die_on_signal=0;
 static int clear_dictionary=0;
 static int debug=0;
 static size_t pagesize=0;
@@ -507,6 +508,7 @@ int main(int argc, char **argv, char **env)
       {"offset-image", no_argument, &offset_image, 1},
       {"no-offset-im", no_argument, &offset_image, 0},
       {"clear-dictionary", no_argument, &clear_dictionary, 1},
+      {"die-on-signal", no_argument, &die_on_signal, 1},
       {"debug", no_argument, &debug, 1},
       {0,0,0,0}
       /* no-init-file, no-rc? */
@@ -535,11 +537,13 @@ Engine Options:\n\
  -c, --clear-dictionary		    Initialize the dictionary with 0 bytes\n\
  -d SIZE, --data-stack-size=SIZE    Specify data stack size\n\
  --debug			    Print debugging information during startup\n\
+ --die-on-signal		    exit instead of CATCHing some signals\n\
  -f SIZE, --fp-stack-size=SIZE	    Specify floating point stack size\n\
  -h, --help			    Print this message and exit\n\
  -i FILE, --image-file=FILE	    Use image FILE instead of `gforth.fi'\n\
  -l SIZE, --locals-stack-size=SIZE  Specify locals stack size\n\
  -m SIZE, --dictionary-size=SIZE    Specify Forth dictionary size\n\
+ --no-offset-im			    Load image at normal position\n\
  --offset-image			    Load image at a different position\n\
  -p PATH, --path=PATH		    Search path for finding image and sources\n\
  -r SIZE, --return-stack-size=SIZE  Specify return stack size\n\

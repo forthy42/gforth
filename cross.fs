@@ -840,16 +840,17 @@ Build: ;
 by: :dofield T @ H + ;DO
 Builder (Field)
 
-Build: 	>r rot r@ nalign  dup T , H  ( align1 size offset )
-	+ swap r> nalign ;
+Build: ( align1 offset1 align size "name" --  align2 offset2 )
+    rot dup T , H ( align1 align size offset1 )
+    + >r nalign r> ;
 by (Field)
 Builder Field
 
-: struct  T 0 1 chars H ;
+: struct  T 1 chars 0 H ;
 : end-struct  T 2Constant H ;
 
-: cells: ( n -- size align )
-    T cells 1 cells H ;
+: cell% ( -- align size )
+    T 1 cells H dup ;
 
 \ ' 2Constant Alias2 end-struct
 \ 0 1 T Chars H 2Constant struct

@@ -66,6 +66,12 @@ does> ( name execution: -- )
 cell% 2*              2constant double%
 
 \ memory allocation words
+: %alignment ( align size -- align )
+    drop ;
+
+: %size ( align size -- size )
+    nip ;
+
 : %align ( align size -- )
     drop here swap nalign here - allot ;
 
