@@ -8729,8 +8729,7 @@ doc-span
 @cindex debugging
 
 Languages with a slow edit/compile/link/test development loop tend to
-require sophisticated tracing/stepping debuggers to facilate
-productive debugging.
+require sophisticated tracing/stepping debuggers to facilate debugging.
 
 A much better (faster) way in fast-compiling languages is to add
 printing code at well-selected places, let the program run, look at

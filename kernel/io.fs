@@ -72,7 +72,7 @@ Defer key? ( -- flag ) \ facility key-question
 \G Determine whether a character is available. If a character is
 \G available, @var{flag} is true; the next call to @code{key} will
 \G yield the character. Once @code{key?} returns true, subsequent
-\G calls to @code{key?} without calling @code{key} or @code{ekey} will
+\G calls to @code{key?} before calling @code{key} or @code{ekey} will
 \G also return true.
 
 [IFDEF] (key?) ' (key?) IS key? [THEN]
