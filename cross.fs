@@ -678,6 +678,8 @@ Defer branchfrom, ( -- )		\ ?!
 Defer branchtomark, ( -- target-addr )	\ marks a branch destination
 
 Defer colon, ( tcfa -- )		\ compiles call to tcfa at current position
+Defer prim, ( tcfa -- )                 \ compiles a primitive invocation
+					\ at current position
 Defer colonmark, ( -- addr )		\ marks a colon call
 Defer colon-resolve ( tcfa addr -- )
 
@@ -806,7 +808,7 @@ ghost (next)                                    drop
 ghost unloop    ghost ;S                        2drop
 ghost lit       ghost (compile) ghost !         2drop drop
 ghost (does>)   ghost noop                      2drop
-ghost (.")      ghost (S")      ghost (ABORT")  2drop drop
+ghost (.")      ghost (S")      ghost (ABORT")  2drop drop ( " )
 ghost '                                         drop
 ghost :docol    ghost :doesjump ghost :dodoes   2drop drop
 ghost :dovar	ghost :dodefer  ghost :dofield  2drop drop
@@ -1350,9 +1352,9 @@ DEFER dodoes,
 DEFER ]comp     \ starts compilation
 DEFER comp[     \ ends compilation
 
-: (cc) T a, H ;					' (cc) IS colon,
+: (prim) T a, H ;				' (prim) IS prim,
 
-: (cr) >tempdp ]comp colon, comp[ tempdp> ; 	' (cr) IS colon-resolve
+: (cr) >tempdp ]comp prim, comp[ tempdp> ; 	' (cr) IS colon-resolve
 : (ar) T ! H ;					' (ar) IS addr-resolve
 : (dr)  ( ghost res-pnt target-addr addr )
 	>tempdp drop over 
@@ -1364,10 +1366,10 @@ DEFER comp[     \ ends compilation
 
 : (cm) ( -- addr )
     T here align H
-    -1 colon, ;					' (cm) IS colonmark,
+    -1 prim, ;					' (cm) IS colonmark,
 
 >TARGET
-: compile, colon, ;
+: compile, prim, ;
 >CROSS
 
 : refered ( ghost tag -- )
@@ -1439,8 +1441,10 @@ Exists-Warnings on
   ELSE  true abort" CROSS: Ghostnames inconsistent "
   THEN ;
 
-: is-resolved   ( ghost -- )
-  >link @ colon, ; \ compile-call
+: colon-resolved   ( ghost -- )
+    >link @ colon, ; \ compile-call
+: prim-resolved  ( ghost -- )
+    >link @ prim, ;
 
 : resolve  ( ghost tcfa -- )
 \G resolve referencies to ghost with tcfa
@@ -1451,7 +1455,8 @@ Exists-Warnings on
     swap >r r@ >link @ swap \ ( list tcfa R: ghost )
     \ mark ghost as resolved
     dup r@ >link ! <res> r@ >magic !
-    r@ >comp @ ['] is-forward = IF  ['] is-resolved r@ >comp !  THEN
+    r@ >comp @ ['] is-forward = IF
+	['] prim-resolved  r@ >comp !  THEN
     \ loop through forward referencies
     r> -rot 
     comp-state @ >r Resolving comp-state !
@@ -1772,6 +1777,8 @@ Comment (       Comment \
   ELSE  postpone literal postpone gexecute  THEN ;
                                         immediate
 
+: (cc) compile call T a, H ;		' (cc) IS colon,
+
 : [G'] 
 \G ticks a ghost and returns its address
   bl word gfind 0= ABORT" CROSS: Ghost don't exists"
@@ -1805,7 +1812,7 @@ Cond: [']  T ' H alit, ;Cond
 
 : (>body)   ( cfa -- pfa ) xt>body + ;		' (>body) T IS >body H
 
-: (doer,)   ( ghost -- ) ]comp gexecute comp[ 1 fillcfa ;   ' (doer,) IS doer,
+: (doer,)   ( ghost -- ) ]comp addr, comp[ 1 fillcfa ;   ' (doer,) IS doer,
 
 : (docol,)  ( -- ) [G'] :docol doer, ;		' (docol,) IS docol,
 
@@ -1968,7 +1975,8 @@ Cond: ; ( -- ) restrict?
                comp[
                state off
                ;Resolve @
-               IF ;Resolve @ ;Resolve cell+ @ resolve THEN
+	       IF ;Resolve @ ;Resolve cell+ @ resolve
+	          ['] prim-resolved ;Resolve @ >comp ! THEN
 		Interpreting comp-state !
                ;Cond
 Cond: [  restrict? state off Interpreting comp-state ! ;Cond
@@ -1999,14 +2007,14 @@ Cond: DOES> restrict?
 
 \ Builder                                               11may93jaw
 
-: Builder    ( Create-xt do:-xt "name" -- )
+: Builder    ( Create-xt do-ghost "name" -- )
 \ builds up a builder in current vocabulary
 \ create-xt is executed when word is interpreted
 \ do:-xt is executet when the created word from builder is executed
 \ for do:-xt an additional entry after the normal ghost-enrys is used
 
-  Make-Ghost 		( Create-xt do:-xt ghost )
-  rot swap		( do:-xt Create-xt ghost )
+  Make-Ghost 		( Create-xt do-ghost ghost )
+  rot swap		( do-ghost Create-xt ghost )
   >exec ! , ;
 
 : gdoes,  ( ghost -- )
@@ -2092,7 +2100,7 @@ Cond: DOES> restrict?
 : compile: ( ghost -- ghost [xt] [colon-sys] )
     :noname  postpone g>body ;
 : ;compile ( ghost [xt] [colon-sys] -- ghost )
-    postpone ;  over >comp ! ;
+    postpone ;  over >comp ! ; immediate
 
 : by      ( -- ghost ) \ Name
   ghost >end @ ;
@@ -2102,7 +2110,7 @@ Cond: DOES> restrict?
 
 Build:  ( n -- ) ;
 by: :docon ( ghost -- n ) T @ H ;DO
-\ compile: alit, compile @ ;compile
+compile: alit, compile @ ;compile
 Builder (Constant)
 
 Build:  ( n -- ) T , H ;
@@ -2119,7 +2127,7 @@ Builder 2Constant
 
 BuildSmart: ;
 by: :dovar ( ghost -- addr ) ;DO
-\ compile: alit, ;compile
+compile: alit, ;compile
 Builder Create
 
 T has? rom H [IF]
@@ -2171,7 +2179,7 @@ Variable tudp 0 tudp !
 
 Build: 0 u, X , ;
 by: :douser ( ghost -- up-addr )  X @ tup @ + ;DO
-\ compile: compile useraddr @ , ;compile
+compile: compile useraddr T @ , H ;compile
 Builder User
 
 Build: 0 u, X , 0 u, drop ;
@@ -2192,7 +2200,7 @@ Builder AValue
 
 BuildSmart:  ( -- ) [T'] noop T A, H ;
 by: :dodefer ( ghost -- ) ABORT" CROSS: Don't execute" ;DO
-\ compile: alit, compile @ compile execute ;compile
+compile: alit, compile @ compile execute ;compile
 Builder Defer
 
 Build: ( inter comp -- ) swap T immediate A, A, H ;
@@ -2209,7 +2217,7 @@ Builder interpret/compile:
 
 Build: ;
 by: :dofield T @ H + ;DO
-\ compile: T @ H lit, compile + ;compile
+compile: T @ H lit, compile + ;compile
 Builder (Field)
 
 Build: ( align1 offset1 align size "name" --  align2 offset2 )
@@ -2380,9 +2388,9 @@ Cond: NEXT	restrict? sys? next, ;Cond
 
 : ,"            [char] " parse T string, align H ;
 
-Cond: ."        restrict? compile (.")     T ," H ;Cond
-Cond: S"        restrict? compile (S")     T ," H ;Cond
-Cond: ABORT"    restrict? compile (ABORT") T ," H ;Cond
+Cond: ."        restrict? compile (.")     T ," H ;Cond ( " )
+Cond: S"        restrict? compile (S")     T ," H ;Cond ( " )
+Cond: ABORT"    restrict? compile (ABORT") T ," H ;Cond ( " )
 
 Cond: IS        T ' >body H compile ALiteral compile ! ;Cond
 : IS            T >address ' >body ! H ;

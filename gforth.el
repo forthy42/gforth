@@ -112,7 +112,7 @@ OBS! All words in forth-negatives must be surrounded by spaces.")
 (defvar forth-mode-syntax-table nil
   "Syntax table in use in Forth-mode buffers.")
 
-(if (not forth-mode-syntax-table)
+(if t;; (not forth-mode-syntax-table)
     (progn
       (setq forth-mode-syntax-table (make-syntax-table))
       (let ((char 0))
@@ -123,8 +123,6 @@ OBS! All words in forth-negatives must be surrounded by spaces.")
 	  (modify-syntax-entry char "w" forth-mode-syntax-table)
 	  (setq char (1+ char))))
       (modify-syntax-entry ?\" "\"" forth-mode-syntax-table)
-      (modify-syntax-entry ?\\ "<" forth-mode-syntax-table)
-      (modify-syntax-entry ?\n ">" forth-mode-syntax-table)
       ))
 ;I do not define '(' and ')' as comment delimiters, because emacs
 ;only supports one comment syntax (and a hack to accomodate C++); I
@@ -137,6 +135,8 @@ OBS! All words in forth-negatives must be surrounded by spaces.")
 ;can have different comment styles, if both comments start with the
 ;same character. we could use ' ' as first and '(' and '\' as second
 ;character. However this would fail for G\ comments.
+
+;comment handling has been moved to syntactic font lock (david)
 
 (defconst forth-indent-level 4
   "Indentation of Forth statements.")
@@ -160,13 +160,17 @@ OBS! All words in forth-negatives must be surrounded by spaces.")
   (setq comment-column 40)
   (make-local-variable 'comment-start-skip)
   (setq comment-start-skip "\\ ")
-; this is obsolete (according to 20.5 docs) and replace with comment-indent-function
-;  (make-local-hook 'comment-indent-hook)
-;  (add-hook 'comment-indent-hook 'forth-comment-indent nil t)
-  (make-local-variable 'comment-indent-function)
-  (setq comment-indent-function 'forth-comment-indent)
+  (make-local-variable 'comment-indent-hook)
+  (setq comment-indent-hook 'forth-comment-indent)
   (make-local-variable 'parse-sexp-ignore-comments)
-  (setq parse-sexp-ignore-comments t))
+  (setq parse-sexp-ignore-comments t)
+  (make-local-variable 'font-lock-defaults)
+  (setq font-lock-defaults '(forth-font-lock-keywords nil t nil nil
+      (font-lock-syntactic-keywords . forth-font-lock-syntactic-keywords)))
+;  (make-local-variable 'font-lock-syntactic-keywords)
+;  (setq font-lock-syntactic-keywords 'forth-font-lock-syntactic-keywords)
+)
+
   
 ;;;###autoload
 (defun forth-mode ()
@@ -993,29 +997,96 @@ The region is sent terminated by a newline."
 ;       (define-key global-map '(shift button3) 'mouse-function-menu)
 ))
 
-;;; Highlighting
+;;; Font lock code				(david <dvdkhlng@gmx.de>)
+;;;
+;;; note that words which contain a closing paren, which have the comment-ender
+;;; syntactic class, won't be matched by `\w+' and `\<' and `\>' won't work
+;;; either; solution: use of `\S-' and `\s-' where necessary
+;;;
+(defvar forth-bracket-keyword nil)
+(defvar forth-syntactic-keywords nil)
+(defvar forth-variable-defining-words nil)
+(defvar forth-function-defining-words nil)
+(defvar forth-function-parsing-words nil)
+(defvar forth-variable-parsing-words nil)
+(defvar forth-word-string-parsing-words nil)
+(defvar forth-type-defining-words nil)
+(defvar forth-font-lock-keywords nil)
 
-; (cond ((featurep 'hilit19)
-;  (if (not (file-exists-p "/usr/share/emacs/site-lisp/hl319.el"))
-;      (require 'hilit19)
-;    (require 'hl319))
+(setq forth-bracket-keywords 
+      '("[if]" "[ifdef]" "[ifundef]" "[else]" "[then]" "[?do]" "[do]" "[for]" 
+	"[loop]" "[+loop]" "[next]" "[begin]" "[until]" "[again]" "[while]" 
+	"[repeat]"))
+(setq forth-syntactic-keywords
+      '("if" "else" "then" "case" "endcase" "of" "endof" "begin" "while"
+	"repeat" "until" "again" "does>" "?do" "do" "+loop" "unloop" "loop"
+	"exit" "u+do" "-do" "u-do" "-loop" "u+do" "for" "next" "cs-roll"
+	"cs-pick" "recurse" "?dup-if" "?dup-0=-if" "leave" "?leave" "done"
+	";" ":noname" "immediate" "restrict" "compile-only" "interpretation>"
+	"<interpretation" "compilation>" "<compilation" ";code" "end-code"
+	"ahead" "struct"))
+(setq forth-variable-defining-words
+      '("variable" "constant" "value" "2variable" "2constant" "2value"
+	"fvariable" "fconstant" "field" "w:" "d:" "c:" "f:"))
+(setq forth-function-defining-words
+      '(":" "defer" "alias" "interpret/compile" "code"))
+(setq forth-function-parsing-words
+      '("postpone" "'" "[']" "[IS]" "IS" "<IS>"))
+(setq forth-variable-parsing-words
+      '("[TO]" "TO" "<TO>"))
+(setq forth-word-string-parsing-words
+      '("[CHAR]" "CHAR" "include" "require" "needs"))
+(setq forth-type-defining-words
+      '("end-struct"))
 
-;  (hilit-set-mode-patterns
-;   '(forth-mode)
-;   (append
-;    '(("\\\\ \\(.*\\)$" nil comment))    ; comments
-;    '(("\\\\[gG] \\(.*\\)$" nil comment)) ; comments
-;    '(("(\\( [^)\n]* \\| \\)--\\( [^)\n]* \\| \\))" nil decl))
-;    '(("( " ")" comment))
-;    '(("\" [^\"\n]*\"" nil string))
-;    '(("\\(\\[IF]\\|\\[IFDEF]\\|\\[IFUNDEF]\\|\\[ELSE]\\|\\[THEN]\\|IF\\|ELSE\\|THEN\\|CASE\\|ENDCASE\\|OF\\|ENDOF\\|BEGIN\\|WHILE\\|REPEAT\\|UNTIL\\|AGAIN\\|DOES>\\|?DO\\|DO\\|\+LOOP\\|UNLOOP\\|LOOP\\|EXIT\\)" nil keyword))
-;    '(("\\(\\[if]\\|\\[ifdef]\\|\\[ifundef]\\|\\[else]\\|\\[then]\\|if\\|else\\|then\\|case\\|endcase\\|of\\|endof\\|begin\\|while\\|repeat\\|until\\|again\\|does>\\|?do\\|do\\|\+loop\\|unloop\\|loop\\|exit\\)" nil keyword))
-;    '((": *[^ \n]*" nil defun))
-;    '(("Defer *[^ \n]*" nil defun))
-;    '(("\\(Variable\\|Constant\\|Value\\|Create\\) *[^ \n]*" nil define))
-;    '(("\\(include\\|require\\) *[^ \n]*" nil include))
-;    '(("[\n 	]\\(\\$[0-9A-Fa-f]+[\n 	]\\|&[0-9]+[\n 	]\\|[0-9]+[\n 	]\\|%[01]+[\n 	]\\|'[^ \n]+\\)+" nil formula))
-;    '((":noname" nil defun))))))
+(defun forth-make-words-regexp (word-list)
+  (concat "\\<" (regexp-opt word-list t) "\\>"))
+(defun forth-make-parsing-words-regexp (word-list)
+  (concat "\\<" (regexp-opt word-list t) "\\s-+\\(\\S-+\\)"))
+(defun forth-make-parsing-words-matcher (word-list word-face parsed-face)
+  (let ((regexp (forth-make-parsing-words-regexp word-list)))
+    (list regexp (list 1 word-face)
+	  (list (regexp-opt-depth regexp) parsed-face))
+    ))
+      
+(setq forth-font-lock-keywords 
+      (list 
+       (forth-make-parsing-words-matcher forth-function-defining-words
+	     font-lock-keyword-face font-lock-function-name-face)
+       (forth-make-parsing-words-matcher forth-variable-defining-words
+	     font-lock-type-face font-lock-variable-name-face)
+       (forth-make-parsing-words-matcher forth-type-defining-words
+	     font-lock-keyword-face font-lock-type-face)
+       (forth-make-parsing-words-matcher forth-function-parsing-words
+	     font-lock-keyword-face font-lock-function-name-face)
+       (forth-make-parsing-words-matcher forth-variable-parsing-words
+	     font-lock-keyword-face font-lock-variable-name-face)
+       (forth-make-parsing-words-matcher forth-word-string-parsing-words
+	     font-lock-keyword-face font-lock-string-face)
+       (list (forth-make-words-regexp forth-bracket-keywords)
+	     0 font-lock-keyword-face)
+       (list (forth-make-words-regexp forth-syntactic-keywords)
+	     0 font-lock-keyword-face)
+;       '("\\<\\({\\)\\(\\([ \t]+-?[^- \t}\n]*\\>\\)*\\)\\([^}\n]*\\)\\(}\\)?"
+;	 (1 font-lock-keyword-face) (2 font-lock-variable-name-face)
+;	 (4 font-lock-comment-face) (5 font-lock-keyword-face nil t))
+       '("\\<-?[0-9][0-9a-f]*\\>" . font-lock-constant-face)
+       '("\\<[^ \t\n%]+%" . font-lock-type-face)
+       ))
 
-;; end
+;; Syntactic highlighting is used for getting Forth comments highlighted
+;; properly: `\' and `\g' comments are handled with a single regular 
+;; expression that parses from `\' to end of line and assigns the 
+;; "comment-fence" generic comment delimiter to the backslash and end-of-line 
+;; characters.
+;; `( ... )' comments are handled by the usual comment-starter/comment-ender
+;; syntax classes, with the extension that `(' must be a single word.
+;; 
+(defvar forth-font-lock-syntactic-keywords nil)
+(setq forth-font-lock-syntactic-keywords
+  '(("\\<\\(\\(\\\\\\)g?\\)\\>.*\\(\n\\)" (2 (14 . nil)) (3 (14 . nil)))
+    ("\\<(\\>" 0 (11 . nil))
+    (")" 0 (12 . nil))))
+
+;;; End font lock code
 
