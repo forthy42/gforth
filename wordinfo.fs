@@ -33,7 +33,7 @@ require look.fs
 : alias? ( nfa1 -- nfa2|0 )
     \ if nfa1 is an alias, nfa2 is the name of the original word.
     \ if the original word has no name, return 0.
-    dup cell+ c@ alias-mask and 0=
+    dup cell+ @ alias-mask and 0=
     IF ( nfa1 )
 	((name>)) @ >name
     ELSE

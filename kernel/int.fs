@@ -600,6 +600,17 @@ has? os [IF]
     dup allocate throw
     swap 2dup r> -rot move ;
 
+: free-mem-var ( addr -- )
+    \ addr is the address of a 2variable containing address and size
+    \ of a memory range; frees memory and clears the 2variable.
+    dup 2@ drop dup
+    if ( addr mem-start )
+	free throw
+	0 0 rot 2!
+    else
+	2drop
+    then ;
+
 : extend-mem	( addr1 u1 u -- addr addr2 u2 )
     \ extend memory block allocated from the heap by u aus
     \ the (possibly reallocated piece is addr2 u2, the extension is at addr

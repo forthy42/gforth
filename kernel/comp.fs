@@ -128,11 +128,11 @@ defer header ( -- ) \ gforth
 
 ' input-stream-header IS (header)
 
-\ !! make that a 2variable
-create nextname-buffer 32 chars allot
+2variable nextname-string
 
 : nextname-header ( -- )
-    nextname-buffer count header,
+    nextname-string 2@ header,
+    nextname-string free-mem-var
     input-stream ;
 
 \ the next name is given in the string
@@ -140,10 +140,9 @@ create nextname-buffer 32 chars allot
 : nextname ( c-addr u -- ) \ gforth
     \g The next defined word will have the name @var{c-addr u}; the
     \g defining word will leave the input stream alone.
-    dup &31 u> -&19 and throw \ !! make buffer variable-sized
     name-too-long?
-    nextname-buffer c! ( c-addr )
-    nextname-buffer count move
+    nextname-string free-mem-var
+    save-mem nextname-string 2!
     ['] nextname-header IS (header) ;
 
 : noname-header ( -- )

@@ -654,9 +654,10 @@ gforth.TAGS:	@kernel_fi@ gforth$(EXE) $(GFORTH_FI_SRC) prim.TAGS kernel.TAGS
 		rm TAGS
 
 prim.TAGS: 	prim.b prims2x.fs
-		echo '2c\' >prim.TAGS.sed
-		echo $(srcdir)/prim >>prim.TAGS.sed
-		$(FORTH) -m 1000000 prims2x.fs -e "s\" $(srcdir)/prim.b\" ' output-tag dup process-file bye" | sed -f prim.TAGS.sed >$@-
+		#echo '2c\' >prim.TAGS.sed
+		#echo $(srcdir)/prim >>prim.TAGS.sed
+		#$(FORTH) -m 1000000 prims2x.fs -e "s\" $(srcdir)/prim.b\" ' output-tag dup process-file bye" | sed -f prim.TAGS.sed >$@-
+		$(FORTH) -m 1000000 prims2x.fs -e "s\" $(srcdir)/prim.b\" ' output-tag dup process-file bye" >$@-
 		$(CP) $@- $@
 		$(RM) $@-
 
