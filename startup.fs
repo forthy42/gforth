@@ -46,7 +46,7 @@ include wordinfo.fs
 include vt100.fs
 \ include colorize.fs
 include bufio.fs
-\ require utf-8.fs
+require utf-8.fs
 include history.fs
 s" os-class" environment? dup [IF] drop s" unix" str= [THEN]
 [IF]
