@@ -1,7 +1,7 @@
 Begin3
 Title:          Gforth
-Version:        0.3.0
-Entered-date:   09APR97
+Version:        0.4.0
+Entered-date:   28DEC98
 Description:	Gforth is a fast and portable implementation of the ANS
 		Forth language. It works nicely with the Emacs editor,
 		offers some nice features such as input completion and
@@ -10,14 +10,13 @@ Description:	Gforth is a fast and portable implementation of the ANS
 		traditional implementation techniques: its inner
 		innerpreter is indirect or direct threaded.
 Keywords:       Forth, interpreter, 
-Author:         paysan@informatik.tu-muenchen.de (Bernd Paysan)
+Author:         bernd.paysan@gmx.de (Bernd Paysan)
 		anton@mips.complang.tuwien.ac.at (Anton Ertl)
 Maintained-by:  bug-gforth@gnu.ai.mit.edu
 Primary-site:   ftp.complang.tuwien.ac.at /pub/forth/gforth
-			761 kb gforth-0.3.0-i486-unknown-linuxaout.tar.gz
-			771 kb gforth-0.3.0-i586-unknown-linux.tar.gz
-Alternate-site: sunsite.unc.edu /pub/Linux/devel/lang/forth
-Original-site:  prep.ai.mit.edu /pub/gnu
-			692 kb gforth-0.3.0.tar.gz
+			1.1 M gforth-0.4.0-i386-pc-linux-gnulibc1.tar.gz
+Alternate-site: metalab.unc.edu /pub/Linux/devel/lang/forth
+Original-site:  prep.ai.mit.edu /pub/gnu/gforth
+			986 kB gforth-0.4.0.tar.gz
 Copying-policy: GPL
 End

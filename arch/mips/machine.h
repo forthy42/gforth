@@ -35,6 +35,11 @@
 #endif
 #endif
 
+#if defined(INDIRECT_THREADED)
+#undef DIRECT_THREADED
+/* configure may define both on the MIPS */
+#endif
+
 #ifdef ultrix
 #include <mips/cachectl.h>
 #else

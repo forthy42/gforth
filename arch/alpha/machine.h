@@ -159,3 +159,12 @@ typedef short Int16;
 				    _cfa[1] = (doesp); })
 #endif
 
+#ifdef FORCE_REG
+/* $9-$14 are callee-saved, $1-$8 and $22-$25 are caller-saved */
+#define IPREG asm("$10")
+#define SPREG asm("$11")
+#define RPREG asm("$12")
+#define LPREG asm("$13")
+#define TOSREG asm("$14")
+/* #define CFAREG asm("$22") */
+#endif /* FORCE_REG */
