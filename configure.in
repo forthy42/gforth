@@ -52,6 +52,16 @@ AC_ARG_WITH(peephole,
 			but slower images.],
 PEEPHOLE="$withval")
 
+#set up feature test macros, so the tests get them right:
+# turn on all POSIX, SUSv3, and GNU features if available
+AC_DEFINE_UNQUOTED([_GNU_SOURCE],1,[feature test macro])
+AC_DEFINE_UNQUOTED([_POSIX_SOURCE],1,[feature test macro])
+AC_DEFINE_UNQUOTED([_POSIX_C_SOURCE],199506L,[feature test macro])
+AC_DEFINE_UNQUOTED([_XOPEN_SOURCE],600,[feature test macro])
+# turn on large file support with 64-bit off_t where available
+AC_DEFINE_UNQUOTED([_LARGEFILE_SOURCE],1,[feature test macro])
+AC_DEFINE_UNQUOTED([_FILE_OFFSET_BITS],64,[feature test macro])
+
 #currently we force direct threading this way.  Eventually we should
 #setup in the arch and engine files right
 
@@ -139,6 +149,12 @@ if test "$ac_cv_int_type_double_cell" = none; then
 else
 	AC_DEFINE_UNQUOTED(DOUBLE_CELL_TYPE,$ac_cv_int_type_double_cell,[an integer type that is twice as long as a pointer])
 fi
+
+AC_TYPE_OFF_T
+AC_CHECK_SIZEOF(off_t)
+test $ac_cv_sizeof_off_t -gt $ac_cv_sizeof_char_p
+ac_small_off_t=$?
+AC_DEFINE_UNQUOTED(SMALL_OFF_T,$ac_small_off_t,[1 if off_t fits in a Cell])
 
 AC_MSG_CHECKING([whether the linker accepts -export-dynamic])
 OLDLDFLAGS=$LDFLAGS
@@ -363,7 +379,6 @@ then
 fi
 AC_REPLACE_FUNCS(memmove strtoul pow10 strerror strsignal atanh)
 AC_CHECK_FUNCS(dlopen sys_siglist getrusage fseeko ftello)
-AC_TYPE_OFF_T
 AC_DECL_SYS_SIGLIST
 AC_CHECK_FUNC(getopt_long,true,AC_LIBOBJ(getopt); AC_LIBOBJ(getopt1))
 AC_CHECK_FUNCS(expm1 log1p)

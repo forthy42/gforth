@@ -19,16 +19,6 @@
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
 */
 
-/* turn on all POSIX, SUSv3, and GNU features if available */
-#define _GNU_SOURCE
-#define _POSIX_SOURCE
-#define _POSIX_C_SOURCE 199506L
-#define _XOPEN_SOURCE 600
-
-/* turn on large file support with 64-bit off_t where available */
-#define _LARGEFILE_SOURCE
-#define _FILE_OFFSET_BITS 64
-
 #include "config.h"
 #include <stdio.h>
 #include <sys/time.h>
