@@ -53,15 +53,18 @@
 \ your code does not fall through, the results are not stored into the
 \ stack. Use different names on both sides of the '--', if you change a
 \ value (some stores to the stack are optimized away).
-\ 
-\ 
+\
+\ For superinstructions the syntax is:
+\
+\ forth-name [/ c-name] = forth-name forth-name ...
+\
 \ 
 \ The stack variables have the following types:
 \ 
 \ name matches	type
 \ f.*		Bool
 \ c.*		Char
-\ [nw].*		Cell
+\ [nw].*	Cell
 \ u.*		UCell
 \ d.*		DCell
 \ ud.*		UDCell

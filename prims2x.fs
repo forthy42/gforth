@@ -423,7 +423,7 @@ wordlist constant prefixes
     stack r@ type-stack !
     rdrop ;
 
-: type-prefix ( xt1 xt2 n stack "prefix" -- )
+: type-prefix ( addr u xt1 xt2 n stack "prefix" -- )
     get-current >r prefixes set-current
     create-type r> set-current
 does> ( item -- )

@@ -120,13 +120,14 @@ create ekey-buffer 8 chars allot
 27 constant #esc
 
 : esc-prefix ( -- u )
-    key ekey-buffered char-append-buffer
-    ekey-buffered 2@ esc-sequences search-wordlist
-    if
-	execute exit
-    else
-	ekey-buffered 2@ unkeys #esc
-    then ;
+    key? if
+	key ekey-buffered char-append-buffer
+	ekey-buffered 2@ esc-sequences search-wordlist
+	if
+	    execute exit
+	endif
+    endif
+    ekey-buffered 2@ unkeys #esc ;
 
 : esc-sequence ( xt addr u -- ; name execution: -- u ) recursive
     \ define key "name" and all prefixes

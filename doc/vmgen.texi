@@ -156,8 +156,7 @@ In this framework, vmgen supports building the VM interpreter and any
 other component dealing with VM instructions.  It does not have any
 support for the front end, apart from VM code generation support.  The
 front end can be implemented with classical compiler front-end
-techniques, which are supported by tools like @command{flex} and
-@command{bison}.
+techniques, supported by tools like @command{flex} and @command{bison}.
 
 The intermediate representation is usually just internal to the
 interpreter, but some systems also support saving it to a file, either
@@ -165,6 +164,239 @@ as an image file, or in a full-blown linkable file format (e.g., JVM).
 Vmgen currently has no special support for such features, but the
 information in the instruction descriptions can be helpful, and we are
 open for feature requests and suggestions.
+
+@section Data handling
+
+@cindex stack machine
+@cindex register machine
+Most VMs use one or more stacks for passing temporary data between VM
+instructions.  Another option is to use a register machine architecture
+for the virtual machine; however, this option is either slower or
+significantly more complex to implement than a stack machine architecture.
+
+Vmgen has special support and optimizations for stack VMs, making their
+implementation easy and efficient.
+
+You can also implement a register VM with vmgen (@pxref{Register
+Machines}), and you will still profit from most vmgen features.
+
+@cindex stack item size
+@cindex size, stack items
+Stack items all have the same size, so they typically will be as wide as
+an integer, pointer, or floating-point value.  Vmgen supports treating
+two consecutive stack items as a single value, but anything larger is
+best kept in some other memory area (e.g., the heap), with pointers to
+the data on the stack.
+
+@cindex instruction stream
+@cindex immediate arguments
+Another source of data is immediate arguments VM instructions (in the VM
+instruction stream).  The VM instruction stream is handled similar to a
+stack in vmgen.
+
+@cindex garbage collection
+@cindex reference counting
+Vmgen has no built-in support for nor restrictions against @emph{garbage
+collection}.  If you need garbage collection, you need to provide it in
+your run-time libraries.  Using @emph{reference counting} is probably
+harder, but might be possible (contact us if you are interested).
+@c reference counting might be possible by including counting code in 
+@c the conversion macros.
+
+@c *************************************************************
+@chapter Invoking vmgen
+
+The usual way to invoke vmgen is as follows:
+
+@example
+vmgen @var{infile}
+@end example
+
+Here @var{infile} is the VM instruction description file, which usually
+ends in @file{.vmg}.  The output filenames are made by taking the
+basename of @file{infile} (i.e., the output files will be created in the
+current working directory) and replacing @file{.vmg} with @file{-vm.i},
+@file{-disasm.i}, @file{-gen.i}, @file{-labels.i}, @file{-profile.i},
+and @file{-peephole.i}.  E.g., @command{bison hack/foo.vmg} will create
+@file{foo-vm.i} etc.
+
+The command-line options supported by vmgen are
+
+@table @option
+
+@cindex -h, command-line option
+@cindex --help, command-line option
+@item --help
+@itemx -h
+Print a message about the command-line options
+
+@cindex -v, command-line option
+@cindex --version, command-line option
+@item --version
+@itemx -v
+Print version and exit
+@end table
+
+@c env vars GFORTHDIR GFORTHDATADIR
+
+@c ***************************************************************
+@chapter Input File Format
+
+Vmgen takes as input a file containing specifications of virtual machine
+instructions.  This file usually has a name ending in @file{.vmg}.
+
+The examples are taken from the example in @file{vmgen-ex}.
+
+@section Input File Grammar
+
+The grammar is in EBNF format, with @code{@var{a}|@var{b}} meaning
+``@var{a} or @var{b}'', @code{@{@var{c}@}} meaning 0 or more repetitions
+of @var{c} and @code{[@var{d}]} meaning 0 or 1 repetitions of @var{d}.
+
+Vmgen input is not free-format, so you have to take care where you put
+spaces and especially newlines; it's not as bad as makefiles, though:
+any sequence of spaces and tabs is equivalent to a single space.
+
+@example
+description: {instruction|comment|eval-escape}
+
+instruction: simple-inst|superinst
+
+simple-inst: ident " (" stack-effect " )" newline c-code newline newline
+
+stack-effect: {ident} " --" {ident}
+
+super-inst: ident " =" ident {ident}  
+
+comment:      "\ "  text newline
+
+eval-escape:  "\e " text newline
+@end example
+@c \+ \- \g \f \c
+
+Note that the @code{\}s in this grammar are meant literally, not as
+C-style encodings for no-printable characters.
+
+The C code in @code{simple-inst} must not contain empty lines (because
+vmgen would mistake that as the end of the simple-inst.  The text in
+@code{comment} and @code{eval-escape} must not contain a newline.
+@code{Ident} must conform to the usual conventions of C identifiers
+(otherwise the C compiler would choke on the vmgen output).
+
+Vmgen understands a few extensions beyond the grammar given here, but
+these extensions are only useful for building Gforth.  You can find a
+description of the format used for Gforth in @file{prim}.
+
+@subsection
+@c woanders?
+The text in @code{eval-escape} is Forth code that is evaluated when
+vmgen reads the line.  If you do not know (and do not want to learn)
+Forth, you can build the text according to the following grammar; these
+rules are normally all Forth you need for using vmgen:
+
+@example
+text: stack-decl|type-prefix-decl|stack-prefix-decl
+
+stack-decl: "stack " ident ident ident
+type-prefix-decl: 
+    's" ' string '" ' ("single"|"double") ident "type-prefix" ident
+stack-prefix-decl:  ident "stack-prefix" string
+@end example
+
+Note that the syntax of this code is not checked thoroughly (there are
+many other Forth program fragments that could be written there).
+
+If you know Forth, the stack effects of the non-standard words involved
+are:
+
+@example
+stack        ( "name" "pointer" "type" -- )
+             ( name execution: -- stack )
+type-prefix  ( addr u xt1 xt2 n stack "prefix" -- )
+single       ( -- xt1 xt2 n )
+double       ( -- xt1 xt2 n )
+stack-prefix ( stack "prefix" -- )
+@end example
+
+@section Simple instructions
+
+We will use the following simple VM instruction description as example:
+
+@example
+sub ( i1 i2 -- i )
+i = i1-i2;
+@end example
+
+The first line specifies the name of the VM instruction (@code{sub}) and
+its stack effect (@code{i1 i2 -- i}).  The rest of the description is
+just plain C code.
+
+@cindex stack effect
+The stack effect specifies that @code{sub} pulls two integers from the
+data stack and puts them in the C variable @code{i1} and @code{i2} (with
+the rightmost item (@code{i2}) taken from the top of stack) and later
+pushes one integer (@code{i)) on the data stack (the rightmost item is
+on the top afterwards).
+
+How do we know the type and stack of the stack items?  Vmgen uses
+prefixes, similar to Fortran; in contrast to Fortran, you have to
+define the prefix first:
+
+@example
+\E s" Cell"   single data-stack type-prefix i
+@end example
+
+This defines the prefix @code{i} to refer to the type @code{Cell}
+(defined as @code{long} in @file{mini.h}) and, by default, to the
+@code{data-stack}.  It also specifies that this type takes one stack
+item (@code{single}).  The type prefix is part of the variable name.
+
+Before we can use @code{data-stack} in this way, we have to define it:
+
+@example
+\E stack data-stack sp Cell
+@end example
+@c !! use something other than Cell
+
+This line defines the stack @code{data-stack}, which uses the stack
+pointer @code{sp}, and each item has the basic type @code{Cell}; other
+types have to fit into one or two @code{Cell}s (depending on whether the
+type is @code{single} or @code{double} wide), and are converted from and
+to Cells on accessing the @code{data-stack) with conversion macros
+(@pxref{Conversion macros}).  Stacks grow towards lower addresses in
+vmgen.
+
+We can override the default stack of a stack item by using a stack
+prefix.  E.g., consider the following instruction:
+
+@example
+lit ( #i -- i )
+@end example
+
+The VM instruction @code{lit} takes the item @code{i} from the
+instruction stream (indicated by the prefix @code{#}, and pushes it on
+the (default) data stack.  The stack prefix is not part of the variable
+name.  Stack prefixes are defined like this:
+
+@example
+\E inst-stream stack-prefix #
+@end example
+
+This definition defines that the stack prefix @code{#} to specifies the
+``stack'' @code{inst-stream}.  Since the instruction stream behaves a
+little differently than an ordinary stack, it is predefined, and you do
+not need to define it.
+
+The instruction stream contains instructions and their immediate
+arguments, so specifying that an argument comes from the instruction
+stream indicates an immediate argument.  Of course, instruction stream
+arguments can only appear to the left of @code{--} in the stack effect.
+If there are multiple instruction stream arguments, the leftmost is the
+first one (just as the intuition suggests).
+
+@section Superinstructions
+
+@section Stacks, types, and prefixes
 
 
 
