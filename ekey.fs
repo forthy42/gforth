@@ -211,37 +211,39 @@ set-current
 : ekey>char ( u -- u false | c true ) \ facility-ext e-key-to-char
     dup 256 u< ;
 
-: esc? ( -- flag ) recursive
-    key? 0=
-    if
-	false exit
-    then
-    key ekey-buffered char-append-buffer
-    ekey-buffered 2@ esc-sequences search-wordlist
-    if
-	['] esc-prefix =
-	if
-	    esc? exit
-	then
-    then
-    true ;
+' key? alias ekey? ( -- flag )
 
-: ekey? ( -- flag ) \ facility-ext e-key-question
-    \G Return @code{true} if a keyboard event is available (use
-    \G @code{ekey} to receive the event), @code{false} otherwise.
-    key?
-    if
-	key dup #esc =
-	if
-	    clear-ekey-buffer esc?
-	    ekey-buffered 2@ unkeys
-	else
-	    true
-	then
-	swap unkey
-    else
-	false
-    then ;
+\  : esc? ( -- flag ) recursive
+\      key? 0=
+\      if
+\  	false exit
+\      then
+\      key ekey-buffered char-append-buffer
+\      ekey-buffered 2@ esc-sequences search-wordlist
+\      if
+\  	['] esc-prefix =
+\  	if
+\  	    esc? exit
+\  	then
+\      then
+\      true ;
+
+\  : ekey? ( -- flag ) \ facility-ext e-key-question
+\      \G Return @code{true} if a keyboard event is available (use
+\      \G @code{ekey} to receive the event), @code{false} otherwise.
+\      key?
+\      if
+\  	key dup #esc =
+\  	if
+\  	    clear-ekey-buffer esc?
+\  	    ekey-buffered 2@ unkeys
+\  	else
+\  	    true
+\  	then
+\  	swap unkey
+\      else
+\  	false
+\      then ;
 
 \ : test-ekey?
 \     begin
