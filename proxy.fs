@@ -67,6 +67,7 @@ Forth definitions
 
 response: Allow:
 response: Age:
+response: Accept-Ranges:
 response: Cache-Control:
 response: Connection:
 response: Proxy-Connection:
@@ -81,10 +82,11 @@ response: Content-Type:
 response: Date:
 response: ETag:
 response: Expires:
-response: Last-modified:
+response: Last-Modified:
 response: Location:
 response: Mime-Version:
 response: Proxy-Authenticate:
+response: Proxy-Connection:
 response: Public:
 response: Retry-After:
 response: Server:
