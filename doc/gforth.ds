@@ -71,7 +71,7 @@ Copyright @copyright{} 1995-1999 Free Software Foundation, Inc.
 @center Jens Wilke
 @center Neal Crook
 @sp 3
-@center This manual is permanently under construction and was last updated on 23-Mar-1999
+@center This manual is permanently under construction and was last updated on 26-Mar-1999
 
 @comment  The following two commands start the copyright page.
 @page
@@ -188,9 +188,11 @@ Stack Manipulation
 
 Memory
 
+* Reserving Data Space::
 * Memory Access::      
-* Address arithmetic::          
-* Memory Blocks::         
+* Address Arithmetic::          
+* Memory Blocks::
+* Dynamic Allocation::        
 
 Control Structures
 
@@ -215,6 +217,7 @@ The Text Interpreter
 * Interpret/Compile states::
 * Literals::
 * Interpreter Directives::
+* Input Sources::
 
 Word Lists
 
@@ -385,7 +388,7 @@ Image Files
 
 Fully Relocatable Image Files
 
-* gforthmi::            The normal way
+* gforthmi::                    The normal way
 * cross.fs::                    The hard way
 
 Engine
@@ -999,7 +1002,7 @@ your system, but the effect is the same; when the text interpreter
 detects an error, it discards any remaining text on a line, resets
 certain internal state and prints an error message.
 
-The text interpreter waits for you to press carrage-return, and then
+The text interpreter waits for you to press carriage-return, and then
 processes your input line. Starting at the beginning of the line, it
 breaks the line into groups of characters separated by spaces. For each
 group of characters in turn, it makes two attempts to do something:
@@ -1560,7 +1563,7 @@ non-immediate word:
 
 The word @code{immediate} after the definition of @code{show-state-now}
 makes that word an immediate word. These definitions introduce a new
-word: @code{@@} (pronounced ''at''). This word fetches the value of a
+word: @code{@@} (pronounced ``fetch''). This word fetches the value of a
 variable, and leaves it on the stack. Therefore, the behaviour of
 @code{show-state} is to print a number that represents the current value
 of @code{state}.
@@ -2151,6 +2154,7 @@ doc-abs
 doc-min
 doc-max
 doc-d>s
+doc-floored
 
 @node Bitwise operations, Double precision, Single precision, Arithmetic
 @subsection Bitwise operations
@@ -2452,13 +2456,204 @@ doc-lp!
 @section Memory
 @cindex memory words
 
+@cindex dictionary
+Forth definitions are organised in memory structures that are
+collectively called the @var{dictionary}. The dictionary can be
+considered as three logical memory regions:
+
+@itemize @bullet
+@item
+@cindex code space
+@cindex code dictionary
+Code space, also known as the @var{code dictionary}.
+@item
+@cindex name space
+@cindex name dictionary
+Name space, also known as the @var{name dictionary}@footnote{Sometimes,
+people use the term @var{dictionary} to simply refer to the name
+dictionary, because it is the one region that is used for looking up
+names, just as you would in a conventional dictionary.}.
+@item
+@cindex data space
+Data space
+@end itemize
+
+When you create a colon definition, the text interpreter compiles
+the definition itself into the code dictionary and compiles the name
+of the definition into the name dictionary, together with other
+information about the definition (such as its execution token).
+
+When you create a variable, the execution of @code{variable} will
+compile some code, assign once cell in data space, and compile the name
+of the variable into the name dictionary.
+
+@cindex memory regions - relationship between them
+ANS Forth does not specify the relationship between the three memory
+regions, and specifies that a Standard program must not access code or
+data space directly -- it may only access data space directly. In
+addition, the Standard defines what relationships you may and may not
+rely on when allocating regions in data space. These constraints are
+simply a reflection of the many diverse techniques that are used to
+implement Forth systems; understanding and following the requirements of
+the Standard allows you to write portable programs -- programs that run
+in the same way on any of these diverse systems. Another way of looking
+at this is to say that ANS Forth was designed to permit compliant Forth
+systems to be implemented in many diverse ways.
+
+@cindex memory regions - how they are assigned
+Here are some examples of the way in which name, code and data spaces
+are assigned:
+
+@itemize @bullet
+@item
+For a Forth system that runs from RAM under a general-purpose operating
+system, it can be convenient to interleave name, code and data spaces in
+a single contiguous memory region. This organisation can be
+memory-efficient (for example, because the relationship between the name
+dictionary entry and the associated code dictionary entry can be
+implicit, rather than requiring an explicit memory pointer to reference
+from the name dictionary and the code dictionary). This is the
+organisation used by Gforth, as this example@footnote{The addresses
+in the example have been truncated to fit it onto the page, and the
+addresses and data shown will not match the output from your system} shows:
+@example
+hex
+variable fred 123456 fred !
+variable jim abcd jim !
+: foo + / - ;
+' fred 10 - 50 dump 
+..80: 5C 46 0E 40  84 66 72 65 - 64 20 20 20  20 20 20 20  \F.@.fred       
+..90: D0 9B 04 08  00 00 00 00 - 56 34 12 00  80 46 0E 40  ........V4...F.@
+..A0: 83 6A 69 6D  20 20 20 20 - D0 9B 04 08  00 00 00 00  .jim    ........
+..B0: CD AB 00 00  9C 46 0E 40 - 83 66 6F 6F  20 20 20 20  .....F.@.foo    
+..C0: 80 9B 04 08  00 00 00 00 - E4 2E 05 08  0C 2F 05 08  ............./..
+@end example
+
+@item
+For a high-performance system running on a modern RISC processor with a
+modified Harvard architecture (one that has a unified main memory but
+separate instruction and data caches), it is desirable to separate
+processor instructions from processor data. This encourages a high cache
+density and therefore a high cache hit rate. The Forth code dictionary
+is not necessarily made up entirely of processor instructions; its
+nature is dependent upon the Forth implementation. 
+
+@item
+A Forth compiler that runs on a segmented 8086 processor could be
+designed to interleave the name, code and data spaces within a single
+64Kbyte segment. A more common implementation choice is to use a
+separate 64Kbyte segment for each region, which provides more memory
+overall but provides an address map in which only the data space is
+accessible.
+
+@item
+Microprocessors exist that run Forth (or many of the primitives required
+to implement the Forth virtual machine efficiently) directly. On these
+processors, the relationship between name, code and data spaces may be
+imposed as a side-effect of the microarchitecture of the processor.
+
+@item
+A Forth compiler that executes from ROM on an embedded system needs its
+data space separated from the name and code spaces so that the data
+space can be mapped to a RAM area.
+
+@item 
+A Forth compiler that runs on an embedded system may have a requirement
+for a small memory footprint. On such a system it can be useful to
+separate the name space from the data and code spaces; once the
+application has been compiled, the name dictionary is no longer
+required@footnote{more strictly speaking, most applications can be
+designed so that this is the case}. The name dictionary can be deleted
+entirely, or could be stored in memory on a remote @var{host} system for
+debug and development purposes. In the latter case, the compiler running
+on the @var{target} system could implement a protocol across a
+communication link that would allow it to interrogate the name dictionary.
+@end itemize
+
 @menu
-* Memory Access::      
-* Address arithmetic::          
-* Memory Blocks::         
+* Reserving Data Space::
+* Memory Access::
+* Address Arithmetic::
+* Memory Blocks::
+* Dynamic Allocation::
 @end menu
 
-@node Memory Access, Address arithmetic, Memory, Memory
+
+@node Reserving Data Space, Memory Access, Memory, Memory
+@subsection Reserving Data Space
+@cindex reserving data space
+@cindex data space - reserving some
+
+@cindex data space pointer - alignment
+These factors affect the alignment of @code{here}, the data
+space pointer:
+
+@itemize @bullet
+@item
+If the data-space pointer is aligned@footnote{In ANS Forth-speak,
+@var{aligned} implictly means @code{CELL}-aligned} before an
+@code{allot}, and a whole number of characters are reserved or released, it
+will remain aligned after the @code{allot}.
+
+@item
+If the data-space pointer is character-aligned before an @code{allot},
+and a whole number of cells are reserved or released, it will remain
+character-aligned after the @code{allot}.
+
+@item
+The initial contents of data space reserved using @code{allot} is
+undefined.
+
+@item
+Definitions created by @code{create}, @code{variable}, @code{2variable}
+return aligned addresses.
+
+@item
+After a definition is compiled or @code{align} is executed, the data
+space pointer is guaranteed to be aligned.
+@end itemize
+
+@cindex data space pointer - contiguous regions
+Contiguous regions may be created in data space under these conditions:
+@itemize @bullet
+@item
+The value of the data-space pointer, @code{here}, always defines the
+beginning of a contiguous region of data space.
+
+@item
+@code{CREATE} establishes the beginning of a contiguous region of data
+space (the @code{CREATE}d definition returns the initial address of the
+region).
+
+@item
+@code{variable} does @var{not} establish the beginning of a contiguous
+region in data space; @code{variable} followed by @code{allot} is not
+guaranteed to allocate data space region that is contiguous with the
+storage allocated by @code{variable}. Instead, use @code{create} --
+@xref{Simple Defining Words} for examples.
+
+@item
+Successive calls to @code{allot}, @code{,} (comma), @code{2,} (2-comma),
+@code{c,} (c-comma) and @code{align} reserve a single contiguous region
+in data space. The contiguity of the region is interrupted by compiling
+(or removing) definitions from the dictionary.
+
+@item
+The most recently reserved contiguous region may be released by calling
+@code{allot} with a negative argument, provided that the region has not
+been interrupted by compiling (or removing) definitions from the
+dictionary.
+@end itemize
+
+doc-here
+doc-unused
+doc-allot
+doc-c,
+doc-,
+doc-2,
+
+
+@node Memory Access, Address Arithmetic, Reserving Data Space, Memory
 @subsection Memory Access
 @cindex memory access words
 
@@ -2476,8 +2671,8 @@ doc-sf!
 doc-df@
 doc-df!
 
-@node Address arithmetic, Memory Blocks, Memory Access, Memory
-@subsection Address arithmetic
+@node Address Arithmetic, Memory Blocks, Memory Access, Memory
+@subsection Address Arithmetic
 @cindex address arithmetic words
 
 ANS Forth does not specify the sizes of the data types. Instead, it
@@ -2537,9 +2732,14 @@ doc-cfalign
 doc-cfaligned
 doc-address-unit-bits
 
-@node Memory Blocks,  , Address arithmetic, Memory
+@node Memory Blocks, Dynamic Allocation, Address Arithmetic, Memory
 @subsection Memory Blocks
 @cindex memory block words
+@cindex character strings - moving and copying
+
+Memory blocks often represent character strings; @xref{String Formats}
+for ways of storing character strings in memory. @xref{Displaying
+characters and strings} for other string-processing words.
 
 Some of these words work on address units (increments of @code{CELL}),
 and expect a @code{CELL}-aligned address. Others work on character units
@@ -2557,19 +2757,36 @@ carefully between @code{cmove} and @code{cmove>}.
 
 You can only use any of these words @var{portably} to access data space.
 
-@comment - think the naming of the arguments is wrong for move
+@comment TODO - think the naming of the arguments is wrong for move
 doc-move
 doc-erase
-
-@comment - think the naming of the arguments is wrong for cmove
+@comment TODO - think the naming of the arguments is wrong for cmove
 doc-cmove
-@comment - think the naming of the arguments is wrong for cmove>
+@comment TODO - think the naming of the arguments is wrong for cmove>
 doc-cmove>
 doc-fill
-@comment - think the naming of the arguments is wrong for blank
 doc-blank
 doc-compare
 doc-search
+doc--trailing
+doc-/string
+
+@comment TODO examples
+
+@node Dynamic Allocation, ,Memory Blocks, Memory
+@subsection Dynamic Allocation of Memory
+@cindex dynamic allocation of memory
+@cindex memory-allocation word set
+
+The ANS Forth memory-allocation word set allows memory regions to be
+dynamically assigned, resized and released without affecting the data
+space pointer. In Gforth, these words are implemented using
+the standard C library calls malloc(), free() and resize().
+
+doc-allocate
+doc-free
+doc-resize
+
 
 @node Control Structures, Defining Words, Memory, Words
 @section Control Structures
@@ -3149,7 +3366,6 @@ co-exist in memory without any clash of @code{throw} codes. A definition
 of @code{exception} in ANS Forth is provided in
 @file{compat/exception.fs}.
 
-
 doc-quit
 doc-abort
 doc-abort"
@@ -3168,17 +3384,21 @@ doc---exception-exception
 @comment values, user-defined defining words.
 
 @menu
-* Simple Defining Words::       
-* Colon Definitions::           
-* User-defined Defining Words::  
-* Supplying names::             
-* Interpretation and Compilation Semantics::  
+* Simple Defining Words::
+* Colon Definitions::
+* User-defined Defining Words::
+* Supplying names::
+* Interpretation and Compilation Semantics::
 @end menu
 
 @node Simple Defining Words, Colon Definitions, Defining Words, Defining Words
 @subsection Simple Defining Words
 @cindex simple defining words
 @cindex defining words, simple
+
+@comment TODO include examples of reserving data space for buffers
+@comment etc. using variable, allot, create and build up to the point
+@comment where it is appropriate to x-ref to the "structures" section.
 
 doc-constant
 doc-2constant
@@ -3616,6 +3836,10 @@ accessing the header structure usually know how to deal with this; e.g.,
 @code{' word >body} also gives you the body of a word created with
 @code{create-interpret/compile}.
 
+doc-postpone
+
+
+
 @c ----------------------------------------------------------
 @node The Text Interpreter, Tokens for Words, Defining Words, Words
 @section  The Text Interpreter
@@ -3623,54 +3847,44 @@ accessing the header structure usually know how to deal with this; e.g.,
 @cindex text interpreter
 @cindex outer interpreter
 
-Intro blah.
+@comment index..
 
-@comment TODO
+When a Forth system starts up, the final stages of initialisation are to
+set @code{state} to 0 (interperetation state) and execute @code{quit},
+to start the text interpreter.
 
-doc->in
-doc-tib
-doc-#tib
-doc-span
-doc-restore-input
-doc-save-input
-doc-source
-doc-source-id
+The text interpreter is an endless loop that accepts input from various
+devices (by default the user input device -- the keyboard). A popular
+implementation technique for Forth is to implement a @var{forth virtual
+machine} using a loop called the @var{inner interpreter}. Because of
+this naming, the text interpreter is also known as the @var{outer
+interpreter}.
 
+The text interpreter works on input one line at a time. Starting at the
+beginning of the line, it skips leading spaces (called @var{delimiters})
+then parses a string (a sequence of non-space characters) until it
+either reaches a space character or it reaches the end of the
+line. Having parsed a string, it then makes two attempts to do something
+with it:
 
-@menu
-* Number Conversion::
-* Interpret/Compile states::
-* Literals::
-* Interpreter Directives::
-@end menu
-
-@comment TODO
-
-The text interpreter works on input one line at a time. Starting at
-the beginning of the line, it skips leading spaces (called
-@var{delimiters}) then parses a string (a sequence of non-space
-characters) until it either reaches a space character or it
-reaches the end of the line. Having parsed a string, it then makes two
-attempts to do something with it:
-
-* It looks the string up in a dictionary of definitions. If the string
-  is found in the dictionary, the string names a @var{definition} (also
-  known as a @var{word}) and the dictionary search will return an
-  @var{Execution token} (xt) for the definition and some flags that show
-  when the definition can be used legally. If the definition can be
-  legally executed in @var{Interpret} mode then the text interpreter will
-  use the xt to execute it, otherwise it will issue an error
-  message. The dictionary is described in more detail in <blah>.
-
-* If the string is not found in the dictionary, the text interpreter
-  attempts to treat it as a number in the current radix (base 10 after
-  initial startup). If the string represents a legal number in the
-  current radix, the number is pushed onto the appropriate parameter
-  stack. Stacks are discussed in more detail in <blah>. Number
-  conversion is described in more detail in <section about +, -
-  numbers and different number formats>.
-
-If both of these attempts fail, the remainer of the input line is
+@itemize @bullet
+@item
+It looks the string up in a dictionary of definitions. If the string is
+found in the dictionary, the string names a @var{definition} (also known
+as a @var{word}) and the dictionary search will return an @var{execution
+token} (xt) for the definition and some flags that show when the
+definition can be used legally. If the definition can be legally
+executed in @var{interpret} mode then the text interpreter will use the
+xt to execute it, otherwise it will issue an error message. The
+dictionary is described in more detail in <TODO>.
+@item
+If the string is not found in the dictionary, the text interpreter
+attempts to treat it as a number in the current radix (base 10 after
+initial startup). If the string represents a legal number in the current
+radix, the number is pushed onto the appropriate parameter stack.
+See @ref{Number Conversion} for details.
+@end itemize
+If both of these attempts fail, the remainder of the input line is
 discarded and the text interpreter isses an error message. If one of
 these attempts succeeds, the text interpreter repeats the parsing
 process until the end of the line has been reached. At this point, 
@@ -3679,15 +3893,32 @@ it prints the status message ``  ok'' and waits for more input.
 There are two important things to note about the behaviour of the text
 interpreter:
 
-* it processes each input string to completion before parsing
-  additional characters from the input line.
+@itemize @bullet
+@item
+It processes each input string to completion before parsing additional
+characters from the input line.
+@item
+It keeps track of its position in the input line using a variable
+(called @code{>IN}, pronounced ``to-in''). The value of @code{>IN} can
+be modified by the execution of definitions in the input line. This
+means that definitions can ``trick'' the text interpreter either into
+skipping sections of the input line or into parsing a section of the
+input line more than once.
+@end itemize
 
-* it keeps track of its position in the input line using a variable
-  (called >IN, pronounced ``to-in''). The value of >IN can be modified
-  by the execution of definitions in the input line. This means that
-  definitions can ``trick'' the text interpreter either into skipping
-  sections of the input line or into parsing a section of the
-  input line more than once.
+doc->in
+doc-source
+
+doc-tib
+doc-#tib
+
+@menu
+* Number Conversion::
+* Interpret/Compile states::
+* Literals::
+* Interpreter Directives::
+* Input Sources::
+@end menu
 
 
 @node Number Conversion, Interpret/Compile states, The Text Interpreter, The Text Interpreter
@@ -3835,7 +4066,7 @@ doc-]L
 doc-2literal
 doc-fliteral
 
-@node Interpreter Directives, ,Literals, The Text Interpreter
+@node Interpreter Directives, Input Sources, Literals, The Text Interpreter
 @subsection Interpreter Directives
 @cindex interpreter directives
 
@@ -3866,6 +4097,38 @@ doc-[UNTIL]
 doc-[AGAIN]
 doc-[WHILE]
 doc-[REPEAT]
+
+
+@node Input Sources, , Interpreter Directives, The Text Interpreter
+@subsection Input Sources
+@cindex input sources
+@cindex text interpreter - input sources
+
+The text interpreter can process input from these sources:
+
+@itemize @bullet
+@item
+The user input device -- the keyboard. This is the default input for the
+text interpreter when Forth is started up.
+@item
+A file, using the words described in @ref{Forth source files}.
+@item
+A block, using the words described in @ref{Blocks}.
+@item
+A text string, using @code{evaluate}.
+@end itemize
+
+A program can determine the current input device by checking the values
+of @code{source-id} and @code{blk}.
+
+doc-source-id
+doc-blk
+
+doc-save-input
+doc-restore-input
+
+doc-evaluate
+
 
 @c -------------------------------------------------------------
 @node Tokens for Words, Word Lists, The Text Interpreter, Words
@@ -3983,26 +4246,22 @@ implemented. Gforth provides @code{vocabulary}, a traditional Forth
 word.  @file{compat/vocabulary.fs} provides an implementation in ANS
 Standard Forth.
 
-TODO: locals section refers to here, saying that every word list (aka
-vocabulary) has its own methods for searching etc. Need to document that.
+@comment TODO: locals section refers to here, saying that every word list (aka
+@comment vocabulary) has its own methods for searching etc. Need to document that.
 
+@comment the thisone- prefix is used to pick out the true definition of a
+@comment word from the source files, rather than some alias.
 doc-forth-wordlist
 doc-definitions
 doc-get-current
 doc-set-current
-
-@comment TODO when a defn (like set-order) is instanced twice, the second instance gets documented.
-@comment In general that might be fine, but in this example (search.fs) the second instance is an
-@comment alias, so it would not naturally have documentation
-@comment .. the fix to that is to add a specific prefix, like the object-orientation stuff does.
-
 doc-get-order
-doc-set-order
+doc---thisone-set-order
 doc-wordlist
 doc-also
-doc-forth
+doc---thisone-forth
 doc-only
-doc-order
+doc---thisone-order
 doc-previous
 
 doc-find
@@ -4105,7 +4364,6 @@ my-new-words definitions
 @node Environmental Queries, Files, Word Lists, Words
 @section Environmental Queries
 @cindex environmental queries
-@comment TODO more index entries
 
 ANS Forth introduced the idea of ``environmental queries'' as a way
 for a program running on a system to determine certain characteristics of the system.
@@ -4379,7 +4637,6 @@ standard requires blocks to be available when files are.
 doc-open-blocks
 doc-use
 doc-scr
-doc-blk
 doc-get-block-fid
 doc-block-position
 doc-update
@@ -4560,11 +4817,13 @@ hex -1 my-u. decimal FFFFFFFF
 
 @node String Formats, Displaying characters and strings, Formatted numeric output, Other I/O
 @subsection String Formats
-@cindex string formats
+@cindex strings - see character strings
+@cindex character strings - formats
 
 @comment TODO more index entries
 
-Forth commonly uses two different methods for representing a string:
+Forth commonly uses two different methods for representing character
+strings:
 
 @itemize @bullet
 @item
@@ -4592,9 +4851,8 @@ display characters and strings.
 
 @node Displaying characters and strings, Input, String Formats, Other I/O
 @subsection Displaying characters and strings
-@cindex displaying characters and strings
-@cindex compiling characters and strings
-@cindex cursor control
+@cindex characters - compiling and displaying
+@cindex character strings - compiling and displaying
 
 @comment TODO more index entries
 
@@ -4610,6 +4868,7 @@ doc-."
 doc-.(
 doc-type
 doc-cr
+@cindex cursor control
 doc-at-xy
 doc-page
 doc-s"
@@ -4688,23 +4947,26 @@ definition of @code{my-char}.
 @cindex input
 @comment TODO more index entries
 
-Blah on traditional and recommended string formats.
+@xref{String Formats} for ways of storing character strings in memory.
 
-doc--trailing
-doc-/string
-doc-convert
+@comment TODO examples for >number >float accept key key? pad parse word refill
+
+doc-key
+doc-key?
 doc->number
 doc->float
 doc-accept
+doc-pad
+doc-parse
+doc-word
+doc-sword
+doc-refill
+@comment obsolescent words..
+doc-convert
 doc-query
 doc-expect
-doc-evaluate
-doc-key
-doc-key?
+doc-span
 
-TODO reference the block move stuff elsewhere
-
-TODO convert and >number might be better in the numeric input section.
 
 TODO maybe some of these shouldn't be here but should be in a ``parsing'' section
 
@@ -5621,7 +5883,7 @@ possibly John Hayes). A version of this section has been published in
 @cindex structures using address arithmetic
 If we want to use a structure containing several fields, we could simply
 reserve memory for it, and access the fields using address arithmetic
-(@pxref{Address arithmetic}). As an example, consider a structure with
+(@pxref{Address Arithmetic}). As an example, consider a structure with
 the following fields
 
 @table @code
@@ -7283,27 +7545,14 @@ doc-getenv
 These section lists the ANS Forth words that are not documented
 elsewhere in this manual. Ultimately, they all need proper homes.
 
-doc-,
-doc-allocate
-doc-allot
-doc-c,
-doc-here
 doc-ms
-doc-pad
-doc-parse
-doc-postpone
-doc-resize
 doc-time&date
-doc-unused
-doc-word
-doc-[compile]
-doc-refill
 
-These ANS Forth words are not currently implemented in Gforth
-(see TODO section on dependencies)
+doc-[compile]
+
 
 The following ANS Forth words are not currently supported by Gforth 
-(@pxref{ANS conformance})
+(@pxref{ANS conformance}):
 
 @code{EDITOR} 
 @code{EKEY} 
@@ -9096,7 +9345,7 @@ There are two ways to create a fully relocatable image file:
 
 You will usually use @file{gforthmi}. If you want to create an
 image @var{file} that contains everything you would load by invoking
-Gforth with @code{gforth @var{options}}, you simply say
+Gforth with @code{gforth @var{options}}, you simply say:
 @example
 gforthmi @var{file} @var{options}
 @end example
@@ -9109,12 +9358,12 @@ like this:
 gforthmi asm.fi asm.fs
 @end example
 
-@file{gforthmi} works like this: It produces two non-relocatable
-images for different addresses and then compares them. Its output
-reflects this: first you see the output (if any) of the two Gforth
-invocations that produce the nonrelocatable image files, then you see
-the output of the comparing program: It displays the offset used for
-data addresses and the offset used for code addresses;
+@file{gforthmi} is implemented as a sh script and works like this: It
+produces two non-relocatable images for different addresses and then
+compares them. Its output reflects this: first you see the output (if
+any) of the two Gforth invocations that produce the nonrelocatable image
+files, then you see the output of the comparing program: It displays the
+offset used for data addresses and the offset used for code addresses;
 moreover, for each cell that cannot be represented correctly in the
 image files, it displays a line like the following one:
 
@@ -9127,6 +9376,9 @@ contains $bffffa50, and the other contains $bffffa40. Since these cells
 cannot be represented correctly in the output image, you should examine
 these places in the dictionary and verify that these cells are dead
 (i.e., not read before they are written).
+
+If you type @file{gforthmi} with no arguments, it prints some usage
+instructions.
 
 @cindex @code{savesystem} during @file{gforthmi}
 @cindex @code{bye} during @file{gforthmi}
@@ -9141,7 +9393,10 @@ creating the nonrelocatable images; you can pass the exact filename of
 this executable through the environment variable @code{GFORTHD}
 (default: @file{gforth-ditc}); if you pass a version that is not doubly
 indirect threaded, you will not get a fully relocatable image, but a
-data-relocatable image (because there is no code address offset).
+data-relocatable image (because there is no code address offset). The
+normal @file{gforth} executable is used for creating the relocatable
+image; you can pass the exact filename of this executable through the
+environment variable @code{GFORTH}.
 
 @node cross.fs,  , gforthmi, Fully Relocatable Image Files
 @subsection @file{cross.fs}
@@ -9211,24 +9466,40 @@ form @code{#! ...}, you just have to type the image file name to start
 Gforth with this image file (note that the file extension @code{.fi} is
 just a convention). I.e., to run Gforth with the image file @var{image},
 you can just type @var{image} instead of @code{gforth -i @var{image}}.
+This works because every @code{.fi} file starts with a line of this
+format:
 
-For example, if you place this text in a file:
+@example
+#! /usr/local/bin/gforth-0.4.0 -i
+@end example
+
+The file and pathname for the Gforth engine specified on this line is
+the specific Gforth executable that it was built against; i.e. the value
+of the environment variable @code{GFORTH} at the time that
+@file{gforthmi} was executed.
+
+You can make use of the same shell capability to make a Forth source
+file into an executable. For example, if you place this text in a file:
 
 @example
 #! /usr/local/bin/gforth
 
 ." Hello, world" CR
 bye
-
 @end example
 
 @noindent
-And then make the file executable (chmod +x in Unix), you can run it
+and then make the file executable (chmod +x in Unix), you can run it
 directly from the command line. The sequence @code{#!} is used in two
 ways; firstly, it is recognised as a ``magic sequence'' by the operating
 system, secondly it is treated as a comment character by Gforth. Because
 of the second usage, a space is required between @code{#!} and the path
 to the executable.
+
+The disadvantage of this latter technique, compared with using
+@file{gforthmi}, is that it is slower; the Forth source code is compiled
+on-the-fly, each time the program is invoked.
+
 @comment TODO describe the #! magic with reference to the Power Tools book.
 
 doc-#!

@@ -112,7 +112,7 @@ AUser "error            0 "error !
  User >in ( -- a-addr ) \ core
  \G USER VARIABLE: @var{a-addr} is the address of a cell containing the
  \G char offset from the start of the terminal input buffer to the
- \G start of the parse area
+ \G start of the parse area.
                         0 >in ! \ char number currently processed in tib
 [THEN]
 has? file [IF]

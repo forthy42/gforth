@@ -532,6 +532,8 @@ else if (n>0)
  ELSE  c@ toupper I c@ toupper - unloop  THEN  -text-flag ;
 
 -trailing	c_addr u1 -- c_addr u2		string	dash_trailing
+""Adjust the string specified by @var{c-addr, u1} to remove all trailing
+spaces. @var{u2} is the length of the modified string.""
 u2 = u1;
 while (u2>0 && c_addr[u2-1] == ' ')
   u2--;
@@ -540,6 +542,8 @@ while (u2>0 && c_addr[u2-1] == ' ')
         dup  0= UNTIL  ELSE  1+  THEN ;
 
 /string		c_addr1 u1 n -- c_addr2 u2	string	slash_string
+""Adjust the string specified by @var{c-addr1, u1} to remove @var{n}
+characters from the start of the string.""
 c_addr2 = c_addr1+n;
 u2 = u1-n;
 :
@@ -1479,19 +1483,31 @@ timeout.tv_usec=1000*(n%1000);
 (void)select(0,0,0,0,&timeout);
 
 allocate	u -- a_addr wior	memory
+""Allocate @var{u} address units of contiguous data space. The initial
+contents of the data space is undefined. If the allocation is successful,
+@var{a-addr} is the start address of the allocated region and @var{wior}
+is 0. If the allocation fails, @var{a-addr} is undefined and @var{wior}
+is an implementation-defined I/O result code.""
 a_addr = (Cell *)malloc(u?u:1);
 wior = IOR(a_addr==NULL);
 
 free		a_addr -- wior		memory
+""Return the region of data space starting at @var{a-addr} to the system.
+The regon must originally have been obtained using @code{allocate} or
+@code{resize}. If the operational is successful, @var{wior} is 0.
+If the operation fails, @var{wior} is an implementation-defined
+I/O result code.""
 free(a_addr);
 wior = 0;
 
 resize		a_addr1 u -- a_addr2 wior	memory
 ""Change the size of the allocated area at @i{a-addr1} to @i{u}
 address units, possibly moving the contents to a different
-area. @i{a-addr2} is the address of the resulting area. If
-@i{a-addr1} is 0, Gforth's (but not the standard) @code{resize}
-@code{allocate}s @i{u} address units.""
+area. @i{a-addr2} is the address of the resulting area.
+If the operational is successful, @var{wior} is 0.
+If the operation fails, @var{wior} is an implementation-defined
+I/O result code. If @i{a-addr1} is 0, Gforth's (but not the standard)
+@code{resize} @code{allocate}s @i{u} address units.""
 /* the following check is not necessary on most OSs, but it is needed
    on SunOS 4.1.2. */
 if (a_addr1==NULL)
@@ -1798,6 +1814,12 @@ f2=FLAG(isdigit((unsigned)(sig[0]))!=0);
 memmove(c_addr,sig,u);
 
 >float	c_addr u -- flag	float	to_float
+""Attempt to convert the character string @var{c-addr u} to
+internal floating-point representation. If the string
+represents a valid floating-point number @var{r} is placed
+on the floating-point stack and @var{flag} is true. Otherwise,
+@var{flag} is false. A string of blanks is a special case
+and represents the flotaing-point number 0.""
 /* real signature: c_addr u -- r t / f */
 Float r;
 char *number=cstr(c_addr, u, 1);

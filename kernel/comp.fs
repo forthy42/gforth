@@ -25,16 +25,23 @@
 \ \ here allot , c, A,						17dec92py
 
 : allot ( n -- ) \ core
+    \G Reserve or release @var{n} address units of data space; @var{n}
+    \G is a signed number. There are restrictions on releasing data
+    \G space.
     dup unused u> -8 and throw
     dp +! ;
 
 : c,    ( c -- ) \ core
+    \G Reserve data space for one char and store @var{c} in the space.
     here 1 chars allot c! ;
 
-: ,     ( x -- ) \ core
+: ,     ( w -- ) \ core
+    \G Reserve data space for one cell and store @var{w} in the space.
     here cell allot  ! ;
 
 : 2,	( w1 w2 -- ) \ gforth
+    \G Reserve data space for two cells and store the double @var{w1
+    \G w2} in the space.
     here 2 cells allot 2! ;
 
 \ : aligned ( addr -- addr' ) \ core

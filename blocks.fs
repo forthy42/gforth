@@ -58,7 +58,7 @@ block-cold
 Defer flush-blocks
 
 : open-blocks ( addr u -- ) \ gforth
-    \g use the file, whose name is given by @var{addr u}, as blocks file 
+    \g Use the file, whose name is given by @var{addr u}, as the blocks file.
     2dup open-fpath-file 0<>
     if
 	r/w bin create-file throw
@@ -70,7 +70,7 @@ Defer flush-blocks
     block-fid ! ;
 
 : use ( "file" -- ) \ gforth
-    \g use @var{file} as blocks file
+    \g Use @var{file} as the blocks file.
     name open-blocks ;
 
 \ the file is opened as binary file, since it either will contain text
@@ -165,13 +165,15 @@ User scr ( -- a-addr ) \ block-ext
 	i 2 .r space scr @ block i 64 * chars + 64 type cr
     loop ;
 
-: (source)  ( -- addr len )
+: (source)  ( -- c-addr u )
   blk @ ?dup
   IF    block chars/block
   ELSE  tib #tib @
   THEN ;
 
-' (source) IS source
+' (source) IS source ( -- c-addr u ) \ core
+\G @var{c-addr} is the address of the input buffer and @var{u} is the
+\G number of characters in it.
 
 : load ( i*x n -- j*x ) \ block
   push-file

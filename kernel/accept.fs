@@ -44,10 +44,16 @@ defer everychar
   >r 2over = IF  rdrop bell 0 EXIT  THEN
   r> insert-char 0 ;
 
-: accept   ( addr len -- len ) \ core
-  dup 0< IF    abs over dup 1 chars - c@ tuck type 
-\ this allows to edit given strings
-  ELSE  0  THEN rot over
-  BEGIN  key decode  UNTIL
-  2drop nip ;
+: accept   ( c-addr +n1 -- +n2 ) \ core
+    \G Receive a string of at most @var{+n2} characters, and store it
+    \G in memory starting at @var{c-addr}. The string is
+    \G displayed. Input terminates when the <return> key is pressed or
+    \G @var{n1} characters have been received. The normal Gforth line
+    \G editing capabilites are available. @var{+n2} is the length of
+    \G the string; it does not include the <return> character.
+    dup 0< IF abs over dup 1 chars - c@ tuck type
+	\ this allows to edit given strings
+    ELSE 0 THEN rot over
+    BEGIN key decode UNTIL
+    2drop nip ;
 

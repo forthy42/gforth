@@ -25,13 +25,16 @@
 \ \ input stream primitives                       	23feb93py
 
 : tib ( -- c-addr ) \ core-ext
-    \ obsolescent
+    \G @var{c-addr} is the address of the Terminal Input Buffer.
+    \G OBSOLESCENT: @code{source} superceeds the function of this word.
     >tib @ ;
 
-Defer source ( -- addr count ) \ core
+Defer source ( -- c-addr u ) \ core
 \ used by dodefer:, must be defer
+\G @var{c-addr} is the address of the input buffer and @var{u} is the
+\G number of characters in it.
 
-: (source) ( -- addr count )
+: (source) ( -- c-addr u )
     tib #tib @ ;
 ' (source) IS source
 
@@ -43,8 +46,8 @@ Defer source ( -- addr count ) \ core
 
 \ word parse                                           23feb93py
 
-: sword  ( char -- addr len ) \ gforth
-  \G parses like @code{word}, but the output is like @code{parse} output
+: sword  ( char -- addr len ) \ gforth s-word
+  \G Parses like @code{word}, but the output is like @code{parse} output
   \ this word was called PARSE-WORD until 0.3.0, but Open Firmware and
   \ dpANS6 A.6.2.2008 have a word with that name that behaves
   \ differently (like NAME).
@@ -52,11 +55,22 @@ Defer source ( -- addr count ) \ core
   rot dup bl = IF  drop (parse-white)  ELSE  (word)  THEN
   2dup + r> - 1+ r> min >in ! ;
 
-: word   ( char -- addr ) \ core
-  sword here place  bl here count + c!  here ;
+: word   ( char "<chars>ccc<char>-- c-addr ) \ core
+    \G Skip leading delimiters. Parse @var{ccc}, delimited by
+    \G @var{char}, in the parse area. @var{c-addr} is the addres of a
+    \G transient region containing the parsed string in
+    \G counted-strinng format. If the parse area was empty or
+    \G contained no characters other than delimiters, the resulting
+    \G string has zero length. A program may replace characters within
+    \G the counted string. OBSOLESCENT: the counted string has a
+    \G trailing space that is not included in its length.
+    sword here place  bl here count + c!  here ;
 
-: parse    ( char -- addr len ) \ core-ext
-  >r  source  >in @ over min /string  over  swap r>  scan >r
+: parse    ( char "ccc<char>" -- c-addr u ) \ core-ext
+    \G Parse @var{ccc}, delimited by @var{char}, in the parse
+    \G area. @var{c-addr u} specifies the parsed string within the
+    \G parse area. If the parse area was empty, @var{u} is 0.
+    >r  source  >in @ over min /string  over  swap r>  scan >r
   over - dup r> IF 1+ THEN  >in +! ;
 
 \ name                                                 13feb93py
@@ -162,12 +176,16 @@ const Create bases   10 ,   2 ,   A , 100 ,
 
 \ \ Comments ( \ \G
 
-: ( ( compilation 'ccc<close-paren>' -- ; run-time -- ) \ core,file	paren
+: ( ( compilation 'ccc<close-paren>' -- ; run-time -- ) \ thisone- core,file	paren
     \G ** this will not get annotated. The alias in glocals.fs will instead **
+    \G It does not work to use "wordset-" prefix since this file is glossed
+    \G by cross.fs which doesn't have the same functionalty as makedoc.fs
     [char] ) parse 2drop ; immediate
 
-: \ ( -- ) \ core-ext,block-ext backslash
-    \G ** this will not get annotated. The alias in glocals.fs will instead **
+: \ ( -- ) \ thisone- core-ext,block-ext backslash
+    \G ** this will not get annotated. The alias in glocals.fs will instead ** 
+    \G It does not work to use "wordset-" prefix since this file is glossed
+    \G by cross.fs which doesn't have the same functionalty as makedoc.fs
     [ has? file [IF] ]
     blk @
     IF
@@ -451,6 +469,19 @@ has? file 0= [IF]
 [THEN]
 
 : refill ( -- flag ) \ core-ext,block-ext,file-ext
+    \G Attempt to fill the input buffer from the input source.  When
+    \G the input source is the user input device, attempt to receive
+    \G input into the terminal input device. If successful, make the
+    \G result the input buffer, set @code{>IN} to 0 and return true;
+    \G otherwise return false. When the input source is a block, add 1
+    \G to the value of @code{BLK} to make the next block the input
+    \G source and current input buffer, and set @code{>IN} to 0;
+    \G return true if the new value of @code{BLK} is a valid block
+    \G number, false otherwise. When the input source is a text file,
+    \G attempt to read the next line from the file. If successful,
+    \G make the result the current input buffer, set @code{>IN} to 0
+    \G and return true; otherwise, return false.  A successful result
+    \G includes receipt of a line containing 0 characters.
     [ has? file [IF] ]
 	blk @  IF  1 blk +!  true  0 >in !  EXIT  THEN
 	[ [THEN] ]
@@ -469,7 +500,9 @@ has? file 0= [IF]
     swap #tib ! 0 >in ! ;
 
 : query   ( -- ) \ core-ext
-    \G OBSOLESCENT.
+    \G Make the user input device the input source. Receive input into
+    \G the Terminal Input Buffer. Set @code{>IN} to zero. OBSOLESCENT:
+    \G superceeded by @code{accept}.
     [ has? file [IF] ]
 	blk off loadfile off
 	[ [THEN] ]
@@ -504,14 +537,19 @@ has? file 0= [IF]
   r> >in !  r> #tib !  r> >tib !  r> tibstack !  >r ;
 [THEN]
 
-: evaluate ( c-addr len -- ) \ core,block
-  push-file  #tib ! >tib !
-  >in off
-  [ has? file [IF] ]
-      blk off loadfile off -1 loadline !
-      [ [THEN] ]
-  ['] interpret catch
-  pop-file throw ;
+: evaluate ( c-addr u -- ) \ core,block
+    \G Save the current input source specification. Store -1 in
+    \G @code{source-id} and 0 in @code{blk}. Set @code{>IN} to 0 and
+    \G make the string @var{c-addr u} the input source and input
+    \G buffer. Interpret. When the parse area is empty, restore the
+    \G input source specification.
+    push-file  #tib ! >tib !
+    >in off
+    [ has? file [IF] ]
+	blk off loadfile off -1 loadline !
+	[ [THEN] ]
+    ['] interpret catch
+    pop-file throw ;
 
 \ \ Quit                                            	13feb93py
 

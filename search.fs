@@ -120,15 +120,17 @@ slowvoc off
 
 \ Only root                                            14may93py
 
-Vocabulary Forth
-  \G ** this will not get annotated. See other defn below.. **
+Vocabulary Forth ( -- ) \ thisone- search-ext
+  \G Push the @var{wid} associated with @code{forth-wordlist} onto the
+  \G search order stack.
+
 Vocabulary Root ( -- ) \ gforth
   \G Add the vocabulary @code{Root} to the search order stack.
   \G This vocabulary makes up the minimum search order and
   \G contains these words: @code{order} @code{set-order}
   \G @code{forth-wordlist} @code{Forth} @code{words}
 
-: Only ( -- ) \ search ext
+: Only ( -- ) \ search-ext
   \G Set the search order to the implementation-defined minimum search
   \G order (for Gforth, this is the word list @code{Root}).
   1 vp! Root also ;
@@ -153,13 +155,12 @@ lookup ! \ our dictionary search order becomes the law ( -- )
   \G @var{widn} represents the word order that is searched last.
   vp @ 0 ?DO  vp cell+ I cells + @  LOOP  vp @ ;
 
-: set-order  ( widn .. wid1 n -- ) \ search
-  \G ** this will not get annotated. See other defn below.. **
-  \G If n=0, empty the search order.
-  \G If n=-1, set the search order to the implementation-defined minimum search
-  \G order (for Gforth, this is the word list Root). Otherwise, replace the
-  \G existing search order with the n wid entries such that wid1 represents the
-  \G word list that will be searched first and widn represents the word list that
+: set-order  ( widn .. wid1 n -- ) \ thisone- search
+  \G If @var{n}=0, empty the search order.
+  \G If @var{n}=-1, set the search order to the implementation-defined minimum search
+  \G order (for Gforth, this is the word list @code{Root}). Otherwise, replace the
+  \G existing search order with the @var{n} wid entries such that @var{wid1} represents the
+  \G word list that will be searched first and @var{widn} represents the word list that
   \G will be searched last.
   dup -1 = IF  drop Only exit  THEN  dup vp!
   ?dup IF  1- FOR  vp cell+ I cells + !  NEXT  THEN ;
@@ -172,15 +173,14 @@ lookup ! \ our dictionary search order becomes the law ( -- )
 : .voc
     body> >head name>string type space ;
 
-: order ( -- )  \  search-ext
-    \G ** this will not get annotated. See other defn below.. **
-    \G Print the search order and the compilation word list.  The
-    \G word lists are printed in the order in which they are searched.
-    \G (which is reversed with respect to the conventional way of
-    \G displaying stacks). The compilation word list is displayed last.
-    \ The standard requires that the word lists are printed in the order
-    \ in which they are searched. Therefore, the output is reversed
-    \ with respect to the conventional way of displaying stacks.
+: order ( -- )  \  thisone- search-ext
+  \G Print the search order and the compilation word list.  The
+  \G word lists are printed in the order in which they are searched
+  \G (which is reversed with respect to the conventional way of
+  \G displaying stacks). The compilation word list is displayed last.
+  \ The standard requires that the word lists are printed in the order
+  \ in which they are searched. Therefore, the output is reversed
+  \ with respect to the conventional way of displaying stacks.
     get-order 0
     ?DO
 	.voc
@@ -199,27 +199,16 @@ lookup ! \ our dictionary search order becomes the law ( -- )
 
 Root definitions
 
-' words Alias words ( -- ) \ tools
-  \G Display a list of all of the definitions in the word list at the top
-  \G of the search order.
-' Forth Alias Forth ( -- ) \ search-ext
-  \G Push the @var{wid} associated with @code{forth-wordlist} onto the search order stack.
+' words Alias words  ( -- ) \ tools
+\G Display a list of all of the definitions in the word list at the top
+\G of the search order.
+' Forth Alias Forth
 ' forth-wordlist alias forth-wordlist ( -- wid ) \ search
   \G CONSTANT: @var{wid} identifies the word list that includes all of the standard words
   \G provided by Gforth. When Gforth is invoked, this word list is the compilation word
   \G list and is at the top of the word list stack.
-' set-order alias set-order ( widn .. wid1 n -- ) \ search
-  \G If @var{n}=0, empty the search order.
-  \G If @var{n}=-1, set the search order to the implementation-defined minimum search
-  \G order (for Gforth, this is the word list @code{Root}). Otherwise, replace the
-  \G existing search order with the @var{n} wid entries such that @var{wid1} represents the
-  \G word list that will be searched first and @var{widn} represents the word list that
-  \G will be searched last.
-' order alias order ( -- ) \ search-ext
-  \G Print the search order and the compilation word list.  The
-  \G word lists are printed in the order in which they are searched.
-  \G (which is reversed with respect to the conventional way of
-  \G displaying stacks). The compilation word list is displayed last.
+' set-order alias set-order
+' order alias order
 
 Forth definitions
 

@@ -62,13 +62,16 @@ Constant dictionary-end
 [THEN]
 
 : unused ( -- u ) \ core-ext
+    \G Return the amount of free space remaining (in address units) in
+    \G the region addressed by @code{here}.
     dictionary-end here - [ word-pno-size pad-minsize + ] Literal - ;
 
 \ here is used for pad calculation!
 
 : dp    ( -- addr ) \ gforth
     dpp @ ;
-: here  ( -- here ) \ core
+: here  ( -- addr ) \ core
+    \G Return the address of the next free location in data space.
     dp @ ;
 
 \ on off                                               23feb93py
@@ -141,7 +144,19 @@ Constant dictionary-end
 : accumulate ( +d0 addr digit - +d1 addr )
   swap >r swap  base @  um* drop rot  base @  um* d+ r> ;
 
-: >number ( d1 addr1 count1 -- d2 addr2 count2 ) \ core
+: >number ( ud1 c-addr1 u1 -- ud2 c-addr2 u2 ) \ core
+    \G Attempt to convert the character string @var{c-addr1, u1} to an
+    \G unsigned number in the current number base. The double
+    \G @var{ud1} accumulates the result of the conversion to form
+    \G @var{ud2}. Conversion continues, left-to-right, until the whole
+    \G string is converted or a character that is not convertable in
+    \G the current number base is encountered (including + or -). For
+    \G each convertable character, @var{ud1} is first multiplied by
+    \G the value in @code{BASE} and then incremented by the value
+    \G represented by the character. @var{c-addr2} is the location of
+    \G the first unconverted character (past the end of the string if
+    \G the whole string was converted). @var{u2} is the number of
+    \G unconverted characters in the string. Overflow is not detected.
     0
     ?DO
 	count digit?

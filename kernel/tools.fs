@@ -77,8 +77,10 @@ Variable /dump
 
 include  ../termsize.fs
 
-: words ( -- ) \ tools
+: words
     \G ** this will not get annotated. See other defn in search.fs .. **
+    \G It does not work to use "wordset-" prefix since this file is glossed
+    \G by cross.fs which doesn't have the same functionalty as makedoc.fs
     cr 0 context @ wordlist-id
     BEGIN
 	@ dup

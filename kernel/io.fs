@@ -57,13 +57,19 @@ Defer emit ( c -- ) \ core
 
 [IFDEF] (emit) ' (emit) IS emit [THEN]
 
-Defer key ( -- c ) \ core
+Defer key ( -- char ) \ core
+\G Receive (but do not display) one character, @var{char}.
 : (key) ( -- c ) \ gforth
     0 key-file ;
 
 [IFDEF] (key) ' (key) IS key [THEN]
 
-Defer key? ( -- flag ) \ core
+Defer key? ( -- flag ) \ facility
+\G Determine whether a character is available. If a character is
+\G available, @var{flag} is true; the next call to @code{key} will
+\G yield the character. Once @code{key?} returns true, subsequent
+\G calls to @code{key?} without calling @code{key} or @code{ekey} will
+\G also return true.
 : (key?) ( -- flag ) \ gforth
     0 key?-file ;
 

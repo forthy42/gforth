@@ -90,7 +90,7 @@ decimal
 \ CONVERT                                               17may93jaw
 
 : convert ( ud1 c-addr1 -- ud2 c-addr2 ) \ core-ext
-    \G OBSOLESCENT; superseded by @code{>number}.
+    \G OBSOLESCENT: superseded by @code{>number}.
     char+ true >number drop ;
 
 \ ERASE                                                 17may93jaw
@@ -100,10 +100,10 @@ decimal
     \G of @var{len} address units starting at address @var{addr}.
     \ !! dependence on "1 chars 1 ="
     ( 0 1 chars um/mod nip )  0 fill ;
-: blank ( addr len -- ) \ string
-    \G If @var{len}>0, store the character value for a space in each
+: blank ( c-addr u -- ) \ string
+    \G If @var{u}>0, store the character value for a space in each
     \G location of a memory region
-    \G of @var{len} character units starting at address @var{addr}.
+    \G of @var{u} character units starting at address @var{c-addr}.
     bl fill ;
 
 \ SEARCH                                                02sep94py
@@ -128,9 +128,16 @@ decimal
 \ SOURCE-ID SAVE-INPUT RESTORE-INPUT                    11jun93jaw
 
 : source-id ( -- 0 | -1 | fileid ) \ core-ext,file source-i-d
-  loadfile @ dup 0= IF  drop sourceline# 0 min  THEN ;
+    \G Return 0 (the input source is the user input device), -1 (the
+    \G input source is a string being processed by @code{evaluate}) or
+    \G a @var{fileid} (the input source is the file specified by
+    \G @var{fileid}).
+    loadfile @ dup 0= IF  drop sourceline# 0 min  THEN ;
 
-: save-input ( -- x1 .. xn n ) \ core-ext
+: save-input ( -- xn .. x1 n ) \ core-ext
+    \G The @var{n} entries @var{xn - x1} describe the current state of the
+    \G input source specification, in some platform-dependent way that can
+    \G be used by @code{restore-input}.
     >in @
     loadfile @
     if
@@ -144,7 +151,10 @@ decimal
     source-id
     6 ;
 
-: restore-input ( x1 .. xn n -- flag ) \ core-ext
+: restore-input ( xn .. x1 n -- flag ) \ core-ext
+    \G Attempt to restore the input source specification to the state
+    \G described by the @var{n} entries @var{xn - x1}. @var{flag} is
+    \G true if the restore fails.
     6 <> -12 and throw
     source-id <> -12 and throw
     >tib !
@@ -168,11 +178,18 @@ decimal
 
 \ EXPECT SPAN                                           17may93jaw
 
-variable span ( -- a-addr ) \ core-ext
-\ obsolescent
+variable span ( -- c-addr ) \ core-ext
+\ VARIABLE: @var{c-addr} is the address of a cell that stores the
+\ length of the last string received by @code{expect}. OBSOLESCENT.
 
-: expect ( c-addr +len -- ) \ core-ext
-    \ obsolescent; use accept
+: expect ( c-addr +n -- ) \ core-ext
+    \G Receive a string of at most @var{+n} characters, and store it
+    \G in memory starting at @var{c-addr}. The string is
+    \G displayed. Input terminates when the <return> key is pressed or
+    \G @var{+n} characters have been received. The normal Gforth line
+    \G editing capabilites are available. The length of the string is
+    \G stored in @code{span}; it does not include the <return>
+    \G character. OBSOLESCENT: superceeded by @code{accept}.
     0 rot over
     BEGIN ( maxlen span c-addr pos1 )
 	key decode ( maxlen span c-addr pos2 flag )

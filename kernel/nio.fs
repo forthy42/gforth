@@ -18,14 +18,17 @@
 \ along with this program; if not, write to the Free Software
 \ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-: pad    ( -- addr ) \ core-ext
+: pad    ( -- c-addr ) \ core-ext
+    \G @var{c-addr} is the address of a transient region that can be
+    \G used as temporary data storage. At least 84 characters of space
+    \G is available.
     here word-pno-size + aligned ;
 
 \ hold <# #> sign # #s                                 25jan92py
 
 : hold    ( char -- ) \ core
-    \G Used within @code{<#} and @code{#>}. Append the character char
-    \G to the pictured numeric output string.
+    \G Used within @code{<#} and @code{#>}. Append the character
+    \G @var{char} to the pictured numeric output string.
     -1 chars holdptr +!
     holdptr @ dup holdbuf u< -&17 and throw
     c! ;
