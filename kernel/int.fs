@@ -31,6 +31,7 @@ require ./errore.fs	\ .error ...
 require kernel/version.fs	\ version-string
 require ./../chains.fs
 
+has? new-input 0= [IF]
 : tib ( -- c-addr ) \ core-ext t-i-b
     \G @i{c-addr} is the address of the Terminal Input Buffer.
     \G OBSOLESCENT: @code{source} superceeds the function of this word.
@@ -44,6 +45,7 @@ Defer source ( -- c-addr u ) \ core
 : (source) ( -- c-addr u )
     tib #tib @ ;
 ' (source) IS source
+[THEN]
 
 : (word) ( addr1 n1 char -- addr2 n2 )
   dup >r skip 2dup r> scan  nip - ;
@@ -518,10 +520,13 @@ Defer interpreter-notfound ( c-addr count -- )
 has? file 0= [IF]
 : sourceline# ( -- n )  1 ;
 [ELSE]
+has? new-input 0= [IF]
 Variable #fill-bytes
 \G number of bytes read via (read-line) by the last refill
 [THEN]
+[THEN]
 
+has? new-input 0= [IF]
 : refill ( -- flag ) \ core-ext,block-ext,file-ext
     \G Attempt to fill the input buffer from the input source.  When
     \G the input source is the user input device, attempt to receive
@@ -560,7 +565,8 @@ Variable #fill-bytes
     [ has? file [IF] ]
 	blk off loadfile off
 	[ [THEN] ]
-    tib /line accept #tib ! 0 >in ! ;
+    refill drop ;
+[THEN]
 
 \ save-mem extend-mem
 
@@ -580,7 +586,7 @@ has? os [IF]
 
 \ EVALUATE                                              17may93jaw
 
-has? file 0= [IF]
+has? file 0= has? new-input 0= and [IF]
 : push-file  ( -- )  r>
   tibstack @ >r  >tib @ >r  #tib @ >r
   >tib @ tibstack @ = IF  r@ tibstack +!  THEN
@@ -591,14 +597,17 @@ has? file 0= [IF]
   r> >in !  r> #tib !  r> >tib !  r> tibstack !  >r ;
 [THEN]
 
+has? new-input 0= [IF]
 : evaluate ( c-addr u -- ) \ core,block
     \G Save the current input source specification. Store @code{-1} in
     \G @code{source-id} and @code{0} in @code{blk}. Set @code{>IN} to
     \G @code{0} and make the string @i{c-addr u} the input source
     \G and input buffer. Interpret. When the parse area is empty,
     \G restore the input source specification.
+[ has? file [IF] ]
     loadfilename# @ >r
     1 loadfilename# ! \ "*evaluated string*"
+[ [THEN] ]
     push-file #tib ! >tib !
     >in off
     [ has? file [IF] ]
@@ -606,8 +615,11 @@ has? file 0= [IF]
 	[ [THEN] ]
     ['] interpret catch
     pop-file
+[ has? file [IF] ]
     r> loadfilename# !
+[ [THEN] ]
     throw ;
+[THEN]
 
 \ \ Quit                                            	13feb93py
 
@@ -617,12 +629,6 @@ Defer .status
 
 : prompt        state @ IF ."  compiled" EXIT THEN ."  ok" ;
 
-: (Query)  ( -- )
-    [ has? file [IF] ]
-	loadfile off  blk off loadline off
-	[ [THEN] ]
-    refill drop ;
-
 : (quit) ( -- )
     \ exits only through THROW etc.
 \    sp0 @ cell - handler @ &12 + ! \ !! kludge: fix the stack pointer
@@ -630,7 +636,7 @@ Defer .status
     \ after the next THROW it catches (it may be off due to BOUNCEs or
     \ because process-args left something on the stack)
     BEGIN
-	.status cr (query) interpret prompt
+	.status cr query interpret prompt
     AGAIN ;
 
 ' (quit) IS 'quit
@@ -639,12 +645,27 @@ Defer .status
 
 8 Constant max-errors
 Variable error-stack  0 error-stack !
-max-errors 6 * cells allot
+max-errors has? file [IF] 6 [ELSE] 4 [THEN] * cells allot
 \ format of one cell:
 \ source ( addr u )
 \ >in
 \ line-number
 \ Loadfilename ( addr u )
+
+: error> ( -- addr u >in line# [addr u] )
+    -1 error-stack +!
+    error-stack dup @
+    [ has? file [IF] 6 [ELSE] 4 [THEN] ] Literal * cells + cell+
+    [ has? file [IF] 6 [ELSE] 4 [THEN] ] Literal cells bounds DO
+	I @
+	cell +LOOP ;
+: >error ( addr u >in line# [addr u] -- )
+    error-stack dup @ dup 1+
+    max-errors 1- min error-stack !
+    [ has? file [IF] 6 [ELSE] 4 [THEN] ] Literal * cells + cell+
+    [ has? file [IF] 6 [ELSE] 4 [THEN] 1- ] Literal cells bounds swap DO
+	I !
+	-1 cells +LOOP ;
 
 : dec. ( n -- ) \ gforth
     \G Display @i{n} as a signed decimal number, followed by a space.
@@ -685,17 +706,23 @@ Defer dobacktrace ( -- )
   ELSE	.error
   THEN ;
 
-: .error-frame ( throwcode addr1 u1 n1 n2 addr2 u2 -- throwcode )
-\ addr2 u2: 	filename of included file
+: .error-frame ( throwcode addr1 u1 n1 n2 [addr2 u2] -- throwcode )
+\ addr2 u2: 	filename of included file - optional
 \ n2:		line number
 \ n1:		error position in input line
 \ addr1 u1:	input line
   cr error-stack @
   IF
-     ." in file included from "
-     type ." :" dec.r  drop 2drop
+[ has? file [IF] ]
+    ." in file included from "
+    type ." :"
+[ [THEN] ]
+    dec.r  drop 2drop
   ELSE
-      type ." :" dup >r dec.r ." : " 3 pick .error-string
+[ has? file [IF] ]
+      type ." :"
+[ [THEN] ]
+      dup >r dec.r ." : " 3 pick .error-string
       r> IF \ if line# non-zero, there is a line
 	  cr dup 2over type cr drop
 	  nip -trailing 1- ( line-start index2 )
@@ -716,13 +743,11 @@ Defer dobacktrace ( -- )
   [ has? os [IF] ]
       >stderr
   [ [THEN] ] 
-  source >in @ sourceline# sourcefilename .error-frame
+  source >in @ sourceline# [ has? file [IF] ]
+      sourcefilename
+  [ [THEN] ] .error-frame
   error-stack @ 0 ?DO
-    -1 error-stack +!
-    error-stack dup @ 6 * cells + cell+
-    6 cells bounds DO
-      I @
-    cell +LOOP
+    error>
     .error-frame
   LOOP
   drop 
@@ -737,7 +762,8 @@ Defer dobacktrace ( -- )
     \G Empty the return stack, make the user input device
     \G the input source, enter interpret state and start
     \G the text interpreter.
-    rp0 @ rp! handler off clear-tibstack >tib @ >r
+    rp0 @ rp! handler off clear-tibstack
+    [ has? new-input 0= [IF] ] >tib @ >r [ [THEN] ]
     BEGIN
 	[ has? compiler [IF] ]
 	postpone [
@@ -745,9 +771,14 @@ Defer dobacktrace ( -- )
 	['] 'quit CATCH dup
     WHILE
 	<# \ reset hold area, or we may get another error
-	DoError r@ >tib ! r@ tibstack !
+	DoError
+	[ has? new-input [IF] ] clear-tibstack
+	[ [ELSE] ] r@ >tib ! r@ tibstack !
+	[ [THEN] ]
     REPEAT
-    drop r> >tib ! ;
+    drop [ has? new-input [IF] ] clear-tibstack
+    [ [ELSE] ] r> >tib !
+    [ [THEN] ] ;
 
 \ \ Cold Boot                                    	13feb93py
 
@@ -790,6 +821,7 @@ Variable init8
     bootmessage
     quit ;
 
+has? new-input 0= [IF]
 : clear-tibstack ( -- )
 [ has? glocals [IF] ]
     lp@ forthstart 7 cells + @ - 
@@ -801,8 +833,9 @@ Variable init8
     [ [THEN] ]
 [ [THEN] ]
     dup >tib ! tibstack ! #tib off >in off ;
+[THEN]
 
-: boot ( path **argv argc -- )
+: boot ( path n **argv argc -- )
     main-task up!
 [ has? os [IF] ]
     stdout TO outfile-id
@@ -812,6 +845,9 @@ Variable init8
     argc ! argv ! pathstring 2!
 [ [THEN] ]
     sp@ sp0 !
+[ has? new-input [IF] ]
+    current-input off
+[ [THEN] ]
     clear-tibstack
     rp@ rp0 !
 [ has? floating [IF] ]

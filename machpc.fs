@@ -28,20 +28,22 @@ true DefaultValue OS		\ flag to indicate a operating system
 
 true DefaultValue prims		\ true: primitives are c-code
 
-true DefaultValue floating		\ floating point wordset is present
+true DefaultValue floating	\ floating point wordset is present
 
-true DefaultValue glocals		\ gforth locals are present
+true DefaultValue glocals	\ gforth locals are present
 				\ will be loaded
-true DefaultValue dcomps		\ double number comparisons
+true DefaultValue dcomps	\ double number comparisons
 
 true DefaultValue hash		\ hashing primitives are loaded/present
 
-true DefaultValue xconds		\ used together with glocals,
+true DefaultValue xconds	\ used together with glocals,
 				\ special conditionals supporting gforths'
 				\ local variables
-true DefaultValue header		\ save a header information
+true DefaultValue header	\ save a header information
 
-true DefaultValue backtrace		\ enables backtrace code
+true DefaultValue backtrace	\ enables backtrace code
+
+true DefaultValue new-input	\ enables object oriented input
 
 false DefaultValue ec
 false DefaultValue crlf

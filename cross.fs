@@ -802,6 +802,7 @@ false DefaultValue dcomps
 false DefaultValue hash
 false DefaultValue xconds
 false DefaultValue header
+false DefaultValue new-input
 [THEN]
 
 true DefaultValue interpreter
@@ -2201,6 +2202,14 @@ Builder Field
 
 : cell% ( n -- size align )
     T 1 cells H dup ;
+
+Build: ( m v -- m' v )  dup T , H cell+ ;
+DO:  abort" Not in cross mode" ;DO
+Builder input-method
+
+Build: ( m v size -- m v' )  over T , H + ;
+DO:  abort" Not in cross mode" ;DO
+Builder input-var
 
 \ structural conditionals                              17dec92py
 

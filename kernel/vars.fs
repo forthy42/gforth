@@ -37,8 +37,10 @@ hex \ everything now hex!                               11may93jaw
 \G @code{Constant} -- @code{1 cells}
 [THEN]
 
+has? floating [IF]
 1 floats Constant float ( -- u ) \ gforth
 \G @code{Constant} -- the number of address units corresponding to a floating-point number.
+[THEN]
 
 20 Constant bl ( -- c-char ) \ core b-l
 \G @i{c-char} is the character value for a space.
@@ -58,6 +60,8 @@ avariable holdend holdbuf-end holdend a!
 
 84 constant pad-minsize ( -- u )
 
+$400 Value def#tib
+\G default size of terminal input buffer. Default size is 1K
 
 \ that's enough so long
 
@@ -88,14 +92,18 @@ AUser rp0 ( -- a-addr ) \ gforth
     ' rp0 Alias r0 ( -- a-addr ) \ gforth
 \G OBSOLETE alias of @code{rp0}
 
+has? floating [IF]
 AUser fp0 ( -- a-addr ) \ gforth
 \G @code{User} variable -- initial value of the floating-point stack pointer.
 \ no f0, because this leads to unexpected results when using hex
+[THEN]
 
+has? glocals [IF]
 AUser lp0 ( -- a-addr ) \ gforth
 \G @code{User} variable -- initial value of the locals stack pointer.
     ' lp0 Alias l0 ( -- a-addr ) \ gforth
 \G OBSOLETE alias of @code{lp0}
+[THEN]
 
 AUser handler	\ pointer to last throw frame
 has? backtrace [IF]
@@ -109,20 +117,24 @@ AUser errorhandler
 
 AUser "error            0 "error !
 
-[IFUNDEF] #tib		\ in ec-Version we may define this ourself
- User tibstack		\ saves >tib in execute
- User >tib		\ pointer to terminal input buffer
- User #tib ( -- a-addr ) \ core-ext number-t-i-b
- \G @code{User} variable -- @i{a-addr} is the address of a cell containing
- \G the number of characters in the terminal input buffer.
- \G OBSOLESCENT: @code{source} superceeds the function of this word.
+has? new-input [IF]
+    User current-input
+[ELSE]
+    [IFUNDEF] #tib		\ in ec-Version we may define this ourself
+	User tibstack		\ saves >tib in execute
+	User >tib		\ pointer to terminal input buffer
+	User #tib ( -- a-addr ) \ core-ext number-t-i-b
+	\G @code{User} variable -- @i{a-addr} is the address of a cell containing
+	\G the number of characters in the terminal input buffer.
+	\G OBSOLESCENT: @code{source} superceeds the function of this word.
+	
+	User >in ( -- a-addr ) \ core to-in
+	\G @code{User} variable -- @i{a-addr} is the address of a cell containing the
+	\G char offset from the start of the input buffer to the start of the
+	\G parse area.
+	0 >in ! \ char number currently processed in tib
+    [THEN]
 
- User >in ( -- a-addr ) \ core to-in
- \G @code{User} variable -- @i{a-addr} is the address of a cell containing the
- \G char offset from the start of the input buffer to the start of the
- \G parse area.
-                        0 >in ! \ char number currently processed in tib
-[THEN]
 has? file [IF]
  User blk ( -- a-addr ) \ block b-l-k
  \G @code{User} variable -- @i{a-addr} is the address of a cell containing zero
@@ -142,6 +154,7 @@ has? file [IF]
 
 2User linestart         \ starting file postition of
                         \ the current interpreted line (in TIB)
+[THEN]
 [THEN]
 
  User base ( -- a-addr ) \ core

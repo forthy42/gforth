@@ -75,6 +75,13 @@ create image-included-files 4 , A, ( pointer to and count of included files )
     2/ cell / included-files 2!
     2! ;
 
+has? new-input [IF]
+: included1 ( i*x file-id c-addr u -- j*x ) \ gforth
+    \G Include the file file-id with the name given by @var{c-addr u}.
+    save-mem add-included-file ( file-id )
+    included-files @ 1- ['] include-file2 catch
+    throw ;
+[ELSE]
 : included1 ( i*x file-id c-addr u -- j*x ) \ gforth
     \G Include the file file-id with the name given by @var{c-addr u}.
     loadfilename# @ >r
@@ -83,7 +90,8 @@ create image-included-files 4 , A, ( pointer to and count of included files )
     ['] include-file2 catch
     r> loadfilename# !
     throw ;
-    
+[THEN]
+
 : included ( i*x c-addr u -- j*x ) \ file
     \G @code{include-file} the file whose name is given by the string
     \G @var{c-addr u}.
@@ -156,5 +164,5 @@ create image-included-files 4 , A, ( pointer to and count of included files )
     included-files 2@ .strings ;
     
 \ contains tools/newrequire.fs
-\ \I $Id: require.fs,v 1.18 2000-09-23 15:47:12 anton Exp $
+\ \I $Id: require.fs,v 1.19 2000-10-29 20:27:03 pazsan Exp $
 

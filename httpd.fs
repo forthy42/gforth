@@ -20,7 +20,7 @@
 
 warnings off
 
-include string.fs
+require string.fs
 
 Variable url
 Variable posted

@@ -36,6 +36,7 @@
 
 \ include-file                                         07apr93py
 
+has? new-input 0= [IF]
 : push-file  ( -- )  r>
     #fill-bytes @ >r
     loadline @    >r
@@ -50,13 +51,7 @@
 
 : pop-file   ( throw-code -- throw-code )
   dup IF
-         source >in @ sourceline# sourcefilename
-	 error-stack dup @ dup 1+
-	 max-errors 1- min error-stack !
-	 6 * cells + cell+
-	 5 cells bounds swap DO
-	                    I !
-	 -1 cells +LOOP
+         source >in @ sourceline# sourcefilename >error
   THEN
   r>
   r> >in         !
@@ -85,10 +80,11 @@
 
 : include-file ( i*x wfileid -- j*x ) \ file
     loadfilename# @ >r
-    3 loadfilename# ! \ "\a file/"
+    3 loadfilename# ! \ "*a file*"
     include-file1
     r> loadfilename# !
     throw throw ;
+[THEN]
     
 \ additional words only needed if there is file support
 

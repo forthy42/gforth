@@ -44,8 +44,8 @@ Variable argc ( -- addr ) \ gforth
     2swap
     2dup s" -e"         compare  0= >r
     2dup s" --evaluate" compare  0= r> or
-    IF  2drop dup >r evaluate
-	r> >tib +!  2 EXIT  THEN
+    IF  2drop ( dup >r ) evaluate
+	( r> >tib +! )  2 EXIT  THEN
     2dup s" -h"         compare  0= >r
     2dup s" --help"     compare  0= r> or
     IF  ." Image Options:" cr
@@ -58,19 +58,19 @@ Variable argc ( -- addr ) \ gforth
 
 : (process-args) ( -- )
     true to script?
-    >tib @ >r #tib @ >r >in @ >r
+\    >tib @ >r #tib @ >r >in @ >r
     argc @ 1
     ?DO
 	I arg over c@ [char] - <>
 	IF
-	    2dup dup #tib ! >in ! >tib !
+\ 	    2dup dup #tib ! >in ! >tib !
 	    required 1
 	ELSE
 	    I 1+ argc @ =  IF  s" "  ELSE  I 1+ arg  THEN
 	    do-option
 	THEN
     +LOOP
-    r> >in ! r> #tib ! r> >tib !
+\    r> >in ! r> #tib ! r> >tib !
     false to script?
 ;
 

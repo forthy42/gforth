@@ -27,5 +27,8 @@ include ./comp.fs
 [THEN]
 [THEN]
 include ./accept.fs
+has? new-input [IF]
+include ./input.fs
+[THEN]
 include ./license.fs
 \ include ./nio.fs

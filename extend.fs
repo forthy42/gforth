@@ -132,6 +132,7 @@ decimal
 
 \ SOURCE-ID SAVE-INPUT RESTORE-INPUT                    11jun93jaw
 
+[IFUNDEF] source-id
 : source-id ( -- 0 | -1 | fileid ) \ core-ext,file source-i-d
     \G Return 0 (the input source is the user input device), -1 (the
     \G input source is a string being processed by @code{evaluate}) or
@@ -181,7 +182,7 @@ decimal
     r> loadline !
     >in !
     false ;
-
+[THEN]
 \ This things we don't need, but for being complete... jaw
 
 \ EXPECT SPAN                                           17may93jaw

@@ -202,6 +202,23 @@ User scr ( -- a-addr ) \ block-ext s-c-r
 	i 2 .r space scr @ block i 64 * chars + 64 type cr
     loop ;
 
+[IFDEF] current-input
+:noname  2 <> -12 and throw >in ! blk ! ;
+                              \ restore-input
+:noname  blk @ >in @ 2 ;      \ save-input
+:noname  2 ;                  \ source-id "*a block*"
+:noname  1 blk +! 1 loadline +! true ;      \ refill
+:noname  blk @ block chars/block ;  \ source
+
+Create block-input   A, A, A, A, A,
+
+: load  ( i*x n -- j*x ) \ block
+    \G Save the current input source specification. Store @i{n} in
+    \G @code{BLK}, set @code{>IN} to 0 and interpret. When the parse
+    \G area is exhausted, restore the input source specification.
+    block-input 0 new-tib dup loadline ! blk !  2 loadfilename# !
+    ['] interpret catch pop-file throw ;
+[ELSE]
 : (source)  ( -- c-addr u )
   blk @ ?dup
   IF    block chars/block
@@ -217,12 +234,13 @@ User scr ( -- a-addr ) \ block-ext s-c-r
     \G @code{BLK}, set @code{>IN} to 0 and interpret. When the parse
     \G area is exhausted, restore the input source specification.
     loadfilename# @ >r
-    2 loadfilename# ! \ "\a block/"
+    2 loadfilename# ! \ "*a block*"
     push-file
     dup loadline ! blk ! >in off ['] interpret catch
     pop-file
     r> loadfilename# !
     throw ;
+[THEN]
 
 : thru ( i*x n1 n2 -- j*x ) \ block-ext
     \G @code{load} the blocks @i{n1} through @i{n2} in sequence.
