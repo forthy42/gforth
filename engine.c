@@ -196,6 +196,14 @@ static Address up0=NULL;
 #define FTOSREG
 #endif
 
+/* declare and compute cfa for certain threading variants */
+/* warning: this is nonsyntactical; it will not work in place of a statement */
+#ifdef CFA_NEXT
+#define DOCFA
+#else
+#define DOCFA	Xt cfa; GETCFA(cfa)
+#endif
+
 Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
 /* executes code at ip, if ip!=NULL
    returns array of machine code labels (for use in a loader), if ip==NULL
@@ -220,11 +228,17 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
     &&dodefer,
     &&dofield,
     &&dodoes,
-    &&dodoes,  /* dummy for does handler address */
+    /* the following entry is normally unused;
+       it's there because its index indicates a does-handler */
+#ifdef CPU_DEP1
+    CPU_DEP1,
+#else
+    (Label)0,
+#endif
 #include "prim_labels.i"
   };
-#ifdef CPU_DEP
-  CPU_DEP;
+#ifdef CPU_DEP2
+  CPU_DEP2
 #endif
 
 #ifdef DEBUG
@@ -241,125 +255,105 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
 /*  prep_terminal(); */
   NEXT_P0;
   NEXT;
+
+#ifdef CPU_DEP3
+  CPU_DEP3
+#endif
   
  docol:
-#ifndef CFA_NEXT
   {
-    Xt cfa; GETCFA(cfa);
-#endif
+    DOCFA;
 #ifdef DEBUG
-  fprintf(stderr,"%08lx: col: %08lx\n",(Cell)ip,(Cell)PFA1(cfa));
+    fprintf(stderr,"%08lx: col: %08lx\n",(Cell)ip,(Cell)PFA1(cfa));
 #endif
 #ifdef CISC_NEXT
-  /* this is the simple version */
-  *--rp = (Cell)ip;
-  ip = (Xt *)PFA1(cfa);
-  NEXT_P0;
-  NEXT;
-#else
-  /* this one is important, so we help the compiler optimizing
-     The following version may be better (for scheduling), but probably has
-     problems with code fields employing calls and delay slots
-  */
-  {
-    DEF_CA
-    Xt *current_ip = (Xt *)PFA1(cfa);
-    cfa = *current_ip;
-    NEXT1_P1;
+    /* this is the simple version */
     *--rp = (Cell)ip;
-    ip = current_ip+1;
-    NEXT1_P2;
-  }
+    ip = (Xt *)PFA1(cfa);
+    NEXT_P0;
+    NEXT;
+#else
+    /* this one is important, so we help the compiler optimizing
+       The following version may be better (for scheduling), but probably has
+       problems with code fields employing calls and delay slots
+       */
+    {
+      DEF_CA
+      Xt *current_ip = (Xt *)PFA1(cfa);
+      cfa = *current_ip;
+      NEXT1_P1;
+      *--rp = (Cell)ip;
+      ip = current_ip+1;
+      NEXT1_P2;
+    }
 #endif
-#ifndef CFA_NEXT
   }
-#endif
 
  docon:
-#ifndef CFA_NEXT
   {
-    Xt cfa; GETCFA(cfa);
-#endif
+    DOCFA;
 #ifdef DEBUG
-  fprintf(stderr,"%08lx: con: %08lx\n",(Cell)ip,*(Cell*)PFA1(cfa));
+    fprintf(stderr,"%08lx: con: %08lx\n",(Cell)ip,*(Cell*)PFA1(cfa));
 #endif
 #ifdef USE_TOS
-  *sp-- = TOS;
-  TOS = *(Cell *)PFA1(cfa);
+    *sp-- = TOS;
+    TOS = *(Cell *)PFA1(cfa);
 #else
-  *--sp = *(Cell *)PFA1(cfa);
+    *--sp = *(Cell *)PFA1(cfa);
 #endif
-#ifndef CFA_NEXT
   }
-#endif
   NEXT_P0;
   NEXT;
   
  dovar:
-#ifndef CFA_NEXT
   {
-    Xt cfa; GETCFA(cfa);
-#endif
+    DOCFA;
 #ifdef DEBUG
-  fprintf(stderr,"%08lx: var: %08lx\n",(Cell)ip,(Cell)PFA1(cfa));
+    fprintf(stderr,"%08lx: var: %08lx\n",(Cell)ip,(Cell)PFA1(cfa));
 #endif
 #ifdef USE_TOS
-  *sp-- = TOS;
-  TOS = (Cell)PFA1(cfa);
+    *sp-- = TOS;
+    TOS = (Cell)PFA1(cfa);
 #else
-  *--sp = (Cell)PFA1(cfa);
+    *--sp = (Cell)PFA1(cfa);
 #endif
-#ifndef CFA_NEXT
   }
-#endif
   NEXT_P0;
   NEXT;
   
  douser:
-#ifndef CFA_NEXT
   {
-    Xt cfa; GETCFA(cfa);
-#endif
+    DOCFA;
 #ifdef DEBUG
-  fprintf(stderr,"%08lx: user: %08lx\n",(Cell)ip,(Cell)PFA1(cfa));
+    fprintf(stderr,"%08lx: user: %08lx\n",(Cell)ip,(Cell)PFA1(cfa));
 #endif
 #ifdef USE_TOS
-  *sp-- = TOS;
-  TOS = (Cell)(up+*(Cell*)PFA1(cfa));
+    *sp-- = TOS;
+    TOS = (Cell)(up+*(Cell*)PFA1(cfa));
 #else
-  *--sp = (Cell)(up+*(Cell*)PFA1(cfa));
+    *--sp = (Cell)(up+*(Cell*)PFA1(cfa));
 #endif
-#ifndef CFA_NEXT
   }
-#endif
   NEXT_P0;
   NEXT;
   
  dodefer:
-#ifndef CFA_NEXT
   {
-    Xt cfa; GETCFA(cfa);
-#endif
+    DOCFA;
 #ifdef DEBUG
-  fprintf(stderr,"%08lx: defer: %08lx\n",(Cell)ip,*(Cell*)PFA1(cfa));
+    fprintf(stderr,"%08lx: defer: %08lx\n",(Cell)ip,*(Cell*)PFA1(cfa));
 #endif
-  EXEC(*(Xt *)PFA1(cfa));
-#ifndef CFA_NEXT
+    EXEC(*(Xt *)PFA1(cfa));
   }
-#endif
 
  dofield:
-#ifndef CFA_NEXT
   {
-    Xt cfa; GETCFA(cfa);
-#endif
+    DOCFA;
 #ifdef DEBUG
-  fprintf(stderr,"%08lx: field: %08lx\n",(Cell)ip,(Cell)PFA1(cfa));
+    fprintf(stderr,"%08lx: field: %08lx\n",(Cell)ip,(Cell)PFA1(cfa));
 #endif
-  TOS += *(Cell*)PFA1(cfa); 
-#ifndef CFA_NEXT
+    TOS += *(Cell*)PFA1(cfa); 
   }
-#endif
   NEXT_P0;
   NEXT;
 
@@ -381,29 +375,25 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
      pfa:
      
      */
-#ifndef CFA_NEXT
   {
-    Xt cfa; GETCFA(cfa);
+    DOCFA;
 
-/*    fprintf(stderr, "Got CFA %08lx at doescode %08lx/%08lx: does: %08lx\n",cfa,(Cell)ip,(Cell)PFA(cfa),(Cell)DOES_CODE1(cfa));*/
-#endif
+    /*    fprintf(stderr, "Got CFA %08lx at doescode %08lx/%08lx: does: %08lx\n",cfa,(Cell)ip,(Cell)PFA(cfa),(Cell)DOES_CODE1(cfa));*/
 #ifdef DEBUG
-  fprintf(stderr,"%08lx/%08lx: does: %08lx\n",(Cell)ip,(Cell)PFA(cfa),(Cell)DOES_CODE1(cfa));
-  fflush(stderr);
+    fprintf(stderr,"%08lx/%08lx: does: %08lx\n",(Cell)ip,(Cell)PFA(cfa),(Cell)DOES_CODE1(cfa));
+    fflush(stderr);
 #endif
-  *--rp = (Cell)ip;
-  /* PFA1 might collide with DOES_CODE1 here, so we use PFA */
-  ip = DOES_CODE1(cfa);
+    *--rp = (Cell)ip;
+    /* PFA1 might collide with DOES_CODE1 here, so we use PFA */
+    ip = DOES_CODE1(cfa);
 #ifdef USE_TOS
-  *sp-- = TOS;
-  TOS = (Cell)PFA(cfa);
+    *sp-- = TOS;
+    TOS = (Cell)PFA(cfa);
 #else
-  *--sp = (Cell)PFA(cfa);
+    *--sp = (Cell)PFA(cfa);
 #endif
-#ifndef CFA_NEXT
-/*    fprintf(stderr,"TOS = %08lx, IP=%08lx\n", TOS, IP);*/
+    /*    fprintf(stderr,"TOS = %08lx, IP=%08lx\n", TOS, IP);*/
   }
-#endif
   NEXT_P0;
   NEXT;
 
