@@ -519,6 +519,9 @@ has? file 0= [IF]
 : sourceline# ( -- n )  1 ;
 [THEN]
 
+Variable #fill-bytes
+\G number of bytes read via (read-line) by the last refill
+
 : refill ( -- flag ) \ core-ext,block-ext,file-ext
     \G Attempt to fill the input buffer from the input source.  When
     \G the input source is the user input device, attempt to receive
@@ -539,7 +542,7 @@ has? file 0= [IF]
     tib /line
     [ has? file [IF] ]
 	loadfile @ ?dup
-	IF    read-line throw
+	IF    (read-line) #fill-bytes ! throw
 	ELSE
 	    [ [THEN] ]
 	sourceline# 0< IF 2drop false EXIT THEN

@@ -1646,17 +1646,21 @@ wior = FILEIO(u2<u1 && ferror((FILE *)wfileid));
 if (wior)
   clearerr((FILE *)wfileid);
 
-read-line	( c_addr u1 wfileid -- u2 flag wior )	file	read_line
+(read-line)	( c_addr u1 wfileid -- u2 flag wior u3 )	file	read_line
 #if 1
 Cell c;
 flag=-1;
+u3=0;
 for(u2=0; u2<u1; u2++)
 {
    c = getc((FILE *)wfileid);
+   u3++;
    if (c=='\n') break;
    if (c=='\r') {
      if ((c = getc((FILE *)wfileid))!='\n')
        ungetc(c,(FILE *)wfileid);
+     else
+       u3++;
      break;
    }
    if (c==EOF) {
