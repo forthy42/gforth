@@ -112,7 +112,7 @@ Defer flush-blocks ( -- ) \ gforth
 
 : save-buffer ( buffer -- ) \ gforth
     >r
-    r@ buffer-dirty @ r@ buffer-block @ 0<> and
+    r@ buffer-dirty @
     if
 	r@ buffer-block @ block-position
 	r@ block-buffer chars/block  r@ buffer-fid @  write-file throw
@@ -216,7 +216,7 @@ User scr ( -- a-addr ) \ block-ext s-c-r
                               \ restore-input
 :noname  blk @ >in @ 2 ;      \ save-input
 :noname  2 ;                  \ source-id "*a block*"
-:noname  1 blk +! 1 loadline +! true ;      \ refill
+:noname  1 blk +! 1 loadline +! >in off true ;      \ refill
 :noname  blk @ block chars/block ;  \ source
 
 Create block-input   A, A, A, A, A,
