@@ -1215,6 +1215,19 @@ create nl$ 1 c, A c, 0 c, \ gnu includes usually a cr in dos
 
 create pathfilenamebuf 256 chars allot \ !! make this grow on demand
 
+: check-file-prefix  ( addr len -- addr' len' flag )
+  dup 0=                    IF  true EXIT  THEN 
+  over c@ '/ =              IF  true EXIT  THEN 
+  over 2 S" ./" compare 0=  IF  true EXIT  THEN 
+  over 3 S" ../" compare 0= IF  true EXIT  THEN
+  over 2 S" ~/" compare 0=
+  IF     1 /string
+         S" HOME" getenv tuck pathfilenamebuf swap move
+         2dup + >r pathfilenamebuf + swap move
+         pathfilenamebuf r> true
+  ELSE   false
+  THEN ;
+
 : open-path-file ( c-addr1 u1 -- file-id c-addr2 u2 )
     \ opens a file for reading, searching in the path for it; c-addr2
     \ u2 is the full filename (valid until the next call); if the file
@@ -1223,16 +1236,18 @@ create pathfilenamebuf 256 chars allot \ !! make this grow on demand
     \ makes little sense, as the path will usually contain dirs that
     \ are only readable for the user
     \ !! check for "/", "./", "../" in original filename; check for "~/"?
-    pathdirs 2@ 0
+    check-file-prefix 0= 
+    IF  pathdirs 2@ 0
     ?DO ( c-addr1 u1 dirnamep )
 	dup >r 2@ dup >r pathfilenamebuf swap cmove ( addr u )
 	2dup pathfilenamebuf r@ chars + swap cmove ( addr u )
 	pathfilenamebuf over r> + dup >r r/o open-file 0=
-	if ( addr u file-id )
+	IF ( addr u file-id )
 	    nip nip r> rdrop 0 leave
-	then
+	THEN
 	rdrop drop r> cell+ cell+
     LOOP
+    ELSE   2dup open-file throw -rot  THEN 
     0<> -&38 and throw ( file-id u2 )
     pathfilenamebuf swap ;
 
