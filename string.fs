@@ -22,9 +22,11 @@
   over min >r  r@ - ( left over )  dup 0>
   IF  2dup swap dup  r@ +  -rot swap move  THEN  + r> bl fill ;
 
+[IFUNDEF] insert
 : insert   ( string length buffer size -- )
   rot over min >r  r@ - ( left over )
   over dup r@ +  rot move   r> move  ;
+[THEN]
 
 : $padding ( n -- n' )
   [ 6 cells ] Literal + [ -4 cells ] Literal and ;
