@@ -32,7 +32,9 @@ hex \ everything now hex!                               11may93jaw
   0 Constant false ( -- f ) \ core-ext
 \G CONSTANT: @var{f} is a cell with all bits clear.
 
+[IFUNDEF] cell 
 1 cells Constant cell ( -- u ) \ gforth
+[THEN]
 1 floats Constant float ( -- u ) \ gforth
 
 20 Constant bl ( -- c-char ) \ core
