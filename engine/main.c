@@ -927,20 +927,11 @@ void finish_code(void)
   flush_to_here();
 }
 
+#if 0
 /* compile *start into a dynamic superinstruction, updating *start */
 void compile_prim_dyn(Cell *start)
 {
-#if defined(DOUBLY_INDIRECT)
-  Label prim=(Label)*start;
-  if (prim<((Label)(xts+DOESJUMP)) || prim>((Label)(xts+npriminfos))) {
-    fprintf(stderr,"compile_prim encountered xt %p\n", prim);
-    *start=(Cell)prim;
-    return;
-  } else {
-    *start = (Cell)(prim-((Label)xts)+((Label)vm_prims));
-    return;
-  }
-#elif defined(NO_IP)
+#if defined(NO_IP)
   static Cell *last_start=NULL;
   static Xt last_prim=NULL;
   /* delay work by one call in order to get relocated immargs */
@@ -1025,6 +1016,28 @@ void compile_prim_dyn(Cell *start)
   return;
 #endif /* !defined(DOUBLY_INDIRECT) */
 }
+#endif /* 0 */
+
+Cell compile_prim_dyn(unsigned p)
+{
+  Cell static_prim = (Cell)vm_prims[p+DOESJUMP+1];
+#if defined(NO_DYNAMIC)
+  return static_prim;
+#else /* !defined(NO_DYNAMIC) */
+  Address old_code_here;
+
+  if (no_dynamic)
+    return static_prim;
+  p += DOESJUMP+1;
+  if (p>=npriminfos || priminfos[p].start == 0) { /* not a relocatable prim */
+    append_jump();
+    return static_prim;
+  }
+  old_code_here = append_prim(p);
+  last_jump = (priminfos[p].superend) ? 0 : p;
+  return (Cell)old_code_here;
+#endif  /* !defined(NO_DYNAMIC) */
+}
 
 #define MAX_BB 128 /* maximum number of instructions in BB */
 
@@ -1061,13 +1074,16 @@ void optimize_bb(short origs[], short optimals[], int ninsts)
 void rewrite_bb(Cell *instps[], short *optimals, int ninsts)
 {
   int i, nextdyn;
+  Cell inst;
 
   for (i=0, nextdyn=0; i<ninsts; i++) {
-    *(instps[i]) = vm_prims[optimals[i]+DOESJUMP+1];
-    if (i==nextdyn) {
+    if (i==nextdyn) { /* compile dynamically */
       nextdyn += super_costs[optimals[i]].length;
-      /* !! *(p->instp) = compile_prim_dyn(p->superinst); */
+      inst = compile_prim_dyn(optimals[i]);
+    } else { /* compile statically */
+      inst = vm_prims[optimals[i]+DOESJUMP+1];
     }
+    *(instps[i]) = inst;
   }
 }
 
@@ -1075,9 +1091,19 @@ void rewrite_bb(Cell *instps[], short *optimals, int ninsts)
    superinstruction */
 void compile_prim1(Cell *start)
 {
-#if defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED)
-  compile_prim_dyn(start);
-#else
+#if defined(DOUBLY_INDIRECT)
+  Label prim=(Label)*start;
+  if (prim<((Label)(xts+DOESJUMP)) || prim>((Label)(xts+npriminfos))) {
+    fprintf(stderr,"compile_prim encountered xt %p\n", prim);
+    *start=(Cell)prim;
+    return;
+  } else {
+    *start = (Cell)(prim-((Label)xts)+((Label)vm_prims));
+    return;
+  }
+#elif defined(INDIRECT_THREADED)
+  return;
+#else /* defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED) */
   static Cell *instps[MAX_BB];
   static short origs[MAX_BB];
   static short optimals[MAX_BB];
