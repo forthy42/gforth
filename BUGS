@@ -15,3 +15,7 @@ see does not leave a space after two-digit literals:
 gives
   : xxx  
   50;
+
+QUERY and TIB may behave differently than some may expect. TIB always
+points to the current SOURCE, and QUERY puts its result there.  anton
+28nov96
