@@ -90,7 +90,7 @@ typedef void **Label;
 typedef void *Label;
 #endif /* !defined(DOUBLY_INDIRECT) */
 
-/* feature defines */
+/* feature defines, these setting should be identical to the ones in machpc.fs */
 
 #define HAS_DCOMPS
 #define HAS_FILE
@@ -101,5 +101,6 @@ typedef void *Label;
 #define HAS_XCONDS
 #define HAS_STANDARDTHREADING
 #define HAS_DEBUG
+#define HAS_PEEPHOLE
 
 #define RELINFOBITS	8
