@@ -459,11 +459,11 @@ CREATE C-Table
 	' f@local# A,       ' c-f@local# A,
 	' laddr# A,         ' c-laddr# A,
 	' lp+!# A,          ' c-lp+!# A,
-        ' (s") A,           ' c-s" A,
-        ' (.") A,           ' c-." A,
+	' (s") A,	    ' c-s" A,
+        ' (.") A,	    ' c-." A,
         ' "lit A,           ' c-c" A,
-        ' leave A,          ' c-leave A,
-        ' ?leave A,         ' c-?leave A,
+        comp' leave drop A, ' c-leave A,
+        comp' ?leave drop A, ' c-?leave A,
         ' (do) A,           ' c-do A,
         ' (?do) A,          ' c-?do A,
         ' (for) A,          ' c-for A,
@@ -535,84 +535,126 @@ CREATE C-Table
         Branches on ;
 
 : makepass ( a-addr -- )
-        c-stop off
-        BEGIN
-                analyse
-                c-stop @
-        UNTIL drop ;
+    c-stop off
+    BEGIN
+	analyse
+	c-stop @
+    UNTIL drop ;
 
-DEFER dosee
+Defer xt-see-xt ( xt -- )
+\ this one is just a forward declaration for indirect recursion
 
-: dopri .name ." is primitive" cr ;
-: dovar ." Variable " .name cr ;
-: douse ." User " .name cr ;
-: docon  dup ((name>)) >body @ . ." Constant " .name cr ;
-: doval  dup ((name>)) >body @ . ." Value " .name cr ;
-: dodef ." Defer " dup >r .name cr
-    r@ ((name>)) >body @ look
-    0= ABORT" SEE: No valid xt in deferred word"
-    dup dosee cr
-    ." ' " .name r> ." IS " .name cr ;
-: dodoe ." Create " dup .name cr
-        S" DOES> " Com# .string XPos @ Level ! name>int
-        >does-code dup C-Pass @ DebugMode = IF ScanMode c-pass ! EXIT THEN
-        ScanMode c-pass ! dup makepass
-        DisplayMode c-pass ! makepass ;
-: doali here @ .name ." Alias " .name cr
-        here @ dosee ;
-: docol
-    S" : " Com# .string
-    dup name>string 2 pick wordinfo .string bl cemit bl cemit
-    ( XPos @ ) 2 Level !
-    name>int >body
-    C-Pass @ DebugMode =
-    IF
-	ScanMode c-pass ! EXIT
+: .defname ( xt c-addr u -- )
+    rot look
+    if ( c-addr u nfa )
+	-rot type space .name
+    else
+	drop ." noname " type
+    then
+    space ;
+
+Defer discode ( addr -- )
+\  hook for the disassembler: disassemble code at addr (as far as the
+\  disassembler thinks is sensible)
+:noname ( addr -- )
+    drop ." ..." ;
+IS discode
+
+: seecode ( xt -- )
+    dup s" Code" .defname
+    >body discode
+    ."  end-code" cr ;
+: seevar ( xt -- )
+    s" Variable" .defname cr ;
+: seeuser ( xt -- )
+    s" User" .defname cr ;
+: seecon ( xt -- )
+    dup >body ?
+    s" Constant" .defname cr ;
+: seevalue ( xt -- )
+    dup >body ?
+    s" Value" .defname cr ;
+: seedefer ( xt -- )
+    dup >body @ xt-see-xt cr
+    dup s" Defer" .defname cr
+    >name dup ??? = if
+	drop ." lastxt >body !"
+    else
+	." IS " .name cr
+    then ;
+: see-threaded ( addr -- )
+    C-Pass @ DebugMode = IF
+	ScanMode c-pass !
+	EXIT
     THEN
     ScanMode c-pass ! dup makepass
     DisplayMode c-pass ! makepass ;
+: seedoes ( xt -- )
+    dup s" create" .defname cr
+    S" DOES> " Com# .string XPos @ Level !
+    >does-code see-threaded ;
+: seecol ( xt -- )
+    dup s" :" .defname cr
+    2 Level !
+    >body see-threaded ;
+: seefield ( xt -- )
+    dup >body ." 0 " ? ." 0 0 "
+    s" Field" .defname cr ;
 
-create wordtypes
-        Pri# ,   ' dopri A,
-        Var# ,   ' dovar A,
-        Con# ,   ' docon A,
-        Val# ,   ' doval A,
-        Def# ,   ' dodef A,
-        Doe# ,   ' dodoe A,
-        Ali# ,   ' doali A,
-        Col# ,   ' docol A,
-	Use# ,   ' douse A,
-        0 ,
+: xt-see ( xt -- )
+    cr c-init
+    dup >does-code
+    if
+	seedoes EXIT
+    then
+    dup forthstart u<
+    if
+	seecode EXIT
+    then
+    dup >code-address
+    CASE
+	docon: of seecon endof
+	docol: of seecol endof
+	dovar: of seevar endof
+	douser: of seeuser endof
+	dodefer: of seedefer endof
+	dofield: of seefield endof
+	over >body of seecode endof
+	2drop abort" unknown word type"
+    ENDCASE ;
 
-: (dosee) ( lfa -- )
-        dup dup cell+ c@ >r
-        wordinfo
-        wordtypes
-        BEGIN dup @ dup
-        WHILE 2 pick = IF cell+ @ nip EXECUTE
-	                  r> dup immediate-mask and IF ."  immediate" THEN
-			  restrict-mask  and IF ."  restrict" THEN
-			  EXIT THEN
-              2 cells +
-        REPEAT
-        2drop rdrop
-        .name ." Don't know how to handle" cr ;
+: (xt-see-xt) ( xt -- )
+    xt-see cr ." lastxt" ;
+' (xt-see-xt) is xt-see-xt
 
-' (dosee) IS dosee
+: (.immediate) ( xt -- )
+    ['] execute = if
+	."  immediate"
+    then ;
 
-: xtc ( xt -- )       \ do see at xt
-        Look 0= ABORT" SEE: No valid XT"
-        cr c-init
-        dosee ;
+: name-see ( nfa -- )
+    dup name>int >r
+    dup name>comp 
+    over r@ =
+    if \ normal or immediate word
+	swap xt-see (.immediate)
+    else
+	r@ ['] compile-only-error =
+	if \ compile-only word
+	    swap xt-see (.immediate) ."  compile-only"
+	else \ interpret/compile word
+	    r@ xt-see-xt cr
+	    swap xt-see-xt cr
+	    ." interpret/compile " over .name (.immediate)
+	then
+    then
+    rdrop drop ;
 
 : see ( "name" -- ) \ tools
     name find-name dup 0=
     IF
 	drop -&13 bounce
     THEN
-    name>int xtc ;
-
-: lfc   cr c-init cell+ dosee ;
-: nfc   cr c-init dosee ;
+    name-see ;
 
 

@@ -518,13 +518,13 @@ forth definitions
     case
 	[ ' locals-wordlist >definer ] literal \ value
 	OF >body POSTPONE Aliteral POSTPONE ! ENDOF
-	[ ' clocal >definer ] literal
+	[ comp' clocal drop >definer ] literal
 	OF POSTPONE laddr# >body @ lp-offset, POSTPONE c! ENDOF
-	[ ' wlocal >definer ] literal
+	[ comp' wlocal drop >definer ] literal
 	OF POSTPONE laddr# >body @ lp-offset, POSTPONE ! ENDOF
-	[ ' dlocal >definer ] literal
+	[ comp' dlocal drop >definer ] literal
 	OF POSTPONE laddr# >body @ lp-offset, POSTPONE 2! ENDOF
-	[ ' flocal >definer ] literal
+	[ comp' flocal drop >definer ] literal
 	OF POSTPONE laddr# >body @ lp-offset, POSTPONE f! ENDOF
 	-&32 throw
     endcase ;

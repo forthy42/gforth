@@ -49,9 +49,8 @@ INCLUDE look.fs
     ((name>)) >code-address douser: = ;
 
 : does? ( nfa -- flag )
-    \ !! does not work on all installations
     ((name>))
-    >code-address ['] spaces >code-address = ;
+    >does-code 0<> ;
 
 : defered? ( nfa -- flag )
     ((name>)) >code-address dodefer: = ;

@@ -39,6 +39,7 @@ include vt100key.fs
 require debugging.fs
 require assert.fs
 require blocks.fs
+require intcomp.fs
 require dumpimage.fs
 
 \ define the environmental queries for all the loaded wordsets

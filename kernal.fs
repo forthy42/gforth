@@ -517,8 +517,6 @@ Defer interpreter-notfound ( c-addr count -- )
 
 : compile-only-error ( ... -- )
     -&14 throw ;
-Defer interpret-special ( c-addr u xt -- ) \ !! use nfa instead of xt?
-' compile-only-error IS interpret-special
 
 : interpret ( ?? -- ?? ) \ gforth
     \ interpret/compile the (rest of the) input buffer
@@ -605,7 +603,7 @@ variable backedge-locals
     0 backedge-locals ! ; immediate
 
 : ASSUME-LIVE ( orig -- orig ) \ gforth
-    \ used immediateliy before a BEGIN that is not reachable from
+    \ used immediatly before a BEGIN that is not reachable from
     \ above.  causes the BEGIN to assume that the same locals are live
     \ as at the orig point
     dup orig?
@@ -962,9 +960,9 @@ Avariable leave-sp  leave-stack 3 cells + leave-sp !
 : ," ( "string"<"> -- ) [char] " parse
   here over char+ allot  place align ;
 : "lit ( -- addr )
-  r> r> dup count + aligned >r swap >r ;               restrict
-: (.")     "lit count type ;                           restrict
-: (S")     "lit count ;                                restrict
+  r> r> dup count + aligned >r swap >r ;
+: (.")     "lit count type ;
+: (S")     "lit count ;
 : SLiteral ( Compilation c-addr1 u ; run-time -- c-addr2 u ) \ string
     postpone (S") here over char+ allot  place align ;
                                              immediate restrict
@@ -1205,12 +1203,18 @@ G forth-wordlist current T !
 
 ( struct )
 0 >body cell
-  1 cells: field special-interpretation
-  1 cells: field special-compilation
-end-struct special-struct
+  1 cells: field interpret/compile-int
+  1 cells: field interpret/compile-comp
+end-struct interpret/compile-struct
 
 : interpret/compile? ( xt -- flag )
     >does-code ['] S" >does-code = ;
+
+: (cfa>int) ( cfa -- xt )
+    dup interpret/compile?
+    if
+	interpret/compile-int @
+    then ;
 
 : (x>int) ( cfa b -- xt )
     \ get interpretation semantics of name
@@ -1218,20 +1222,25 @@ end-struct special-struct
     if
 	drop ['] compile-only-error
     else
-	dup interpret/compile?
-	if
-	    special-interpretation @
-	then
+	(cfa>int)
     then ;
 
 : name>int ( nfa -- xt ) \ gforth
     (name>x) (x>int) ;
 
+: name?int ( nfa -- xt ) \ gforth
+    \ like name>int, but throws an error if compile-only
+    (name>x) restrict-mask and
+    if
+	compile-only-error \ does not return
+    then
+    (cfa>int) ;
+
 : name>comp ( nfa -- w xt ) \ gforth
     \ get compilation semantics of name
     (name>x) >r dup interpret/compile?
     if
-	special-compilation @
+	interpret/compile-comp @
     then
     r> immediate-mask and if
 	['] execute
@@ -1246,11 +1255,14 @@ end-struct special-struct
     \ true becomes 1, false -1
     0= 2* 1+ ;
 
+: (name>intn) ( nfa -- xt +-1 )
+    (name>x) tuck (x>int) ( b xt )
+    swap immediate-mask and flag-sign ;
+
 : search-wordlist ( addr count wid -- 0 / xt +-1 ) \ search
-   \ xt is the interpretation semantics
+    \ xt is the interpretation semantics
     (search-wordlist) dup if
-	(name>x) tuck (x>int) ( b xt )
-	swap immediate-mask and flag-sign
+	(name>intn)
     then ;
 
 : find-name ( c-addr u -- nfa/0 )
@@ -1261,12 +1273,10 @@ end-struct special-struct
     if ( nfa )
 	state @
 	if
-	    name>comp ['] execute =
+	    name>comp ['] execute = flag-sign
 	else
-	    (name>x) tuck (x>int)
-	    swap immediate-mask and
+	    (name>intn)
 	then
-	flag-sign
     then ;
 
 : find ( c-addr -- xt +-1 / c-addr 0 ) \ core
@@ -1285,7 +1295,7 @@ end-struct special-struct
     (') postpone ALiteral ; immediate restrict
 
 : '    ( "name" -- xt ) \ core	tick
-    (') name>int ;
+    (') name?int ;
 : [']  ( compilation "name" -- ; run-time -- xt ) \ core	bracket-tick
     ' postpone ALiteral ; immediate restrict
 

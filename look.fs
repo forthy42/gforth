@@ -28,13 +28,6 @@
 
 decimal
 
-\ >NAME PRIMSTART                                       22may93jaw
-
-\ : >name ( xt -- nfa )
-\         BEGIN   1 chars -
-\                 dup c@ alias-mask and
-\         UNTIL ;
-
 : PrimStart ['] true >name ;
 
 \ look                                                  17may93jaw
@@ -50,6 +43,9 @@ decimal
 
 : look ( cfa -- lfa flag )
         dup forthstart <
-        IF PrimStart (look)
-        ELSE >name true THEN ;
+	IF
+	    PrimStart (look)
+	ELSE
+	    >name dup ??? <>
+	THEN ;
 

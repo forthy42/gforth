@@ -224,7 +224,7 @@ VARIABLE Body
 
 : NestXT        ( xt -- true | body false )
                 DebugMode c-pass ! C-Output off
-                xtc C-Output on
+                xt-see C-Output on
                 c-pass @ DebugMode = dup
                 IF      ." Cannot debug" cr
                 THEN ;         
