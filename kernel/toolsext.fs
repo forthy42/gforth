@@ -54,7 +54,7 @@ UNLOCK  Tlast @ TNIL Tlast !  LOCK
 ' [THEN] Alias [+LOOP]               immediate
 : [REPEAT]  postpone [AGAIN] postpone [THEN] ;
                                      immediate
-' ( Alias (                          immediate
+' ( Alias (                          immediate ( keep fontify happy)
 ' \ Alias \                          immediate
 
 UNLOCK Tlast @ swap Tlast ! LOCK
@@ -63,9 +63,12 @@ UNLOCK Tlast @ swap Tlast ! LOCK
 
 \ Interpretative Structuren                            30apr92py
 
-: defined   bl word find nip 0<> ; immediate
+: [defined] ( "<spaces>name" -- flag )   bl word find nip 0<> ; immediate
+  \G returns true if name is found in current search order
+: [undefined] ( "<spaces>name" -- flag ) postpone [defined] 0= ; immediate
+  \G returns false if name is found in current search order
 
-: [IF] ( flag | flag "<spaces>name ..." -- ) \ tools-ext bracket-if
+: [IF] ( flag -- ) \ tools-ext bracket-if
   \G If flag is @code{TRUE} do nothing (and therefore
   \G execute subsequent words as normal). If flag is @code{FALSE},
   \G parse and discard words from the parse
@@ -83,15 +86,15 @@ UNLOCK Tlast @ swap Tlast ! LOCK
   \G If name is found in the current search-order, behave like
   \G @code{[IF]} with a @code{TRUE} flag, otherwise behave like
   \G @code{[IF]} with a @code{FALSE} flag. Immediate word.
-  postpone defined    postpone [IF] ;                 immediate
+  postpone [defined]    postpone [IF] ;                 immediate
 
 : [IFUNDEF] ( "<spaces>name" -- ) \ gforth bracket-if-un-def
   \G If name is not found in the current search-order, behave like
   \G @code{[IF]} with a @code{TRUE} flag, otherwise behave like
   \G @code{[IF]} with a @code{FALSE} flag. Immediate word.
-  postpone defined 0= postpone [IF] ;                 immediate
+  postpone [defined] 0= postpone [IF] ;                 immediate
 
-: [ELSE]  ( "<spaces>name ..." -- ) \ tools-ext bracket-else
+: [ELSE]  ( -- ) \ tools-ext bracket-else
   \G Parse and discard words from the parse
   \G area (refilling it if necessary using
   \G @code{REFILL}) including nested instances of @code{[IF]}..
