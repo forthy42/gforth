@@ -315,6 +315,7 @@ false DefaultValue header
 true DefaultValue interpreter
 true DefaultValue ITC
 false DefaultValue rom
+true DefaultValue standardthreading
 
 >TARGET
 s" relocate" T environment? H 

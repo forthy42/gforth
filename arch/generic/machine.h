@@ -99,5 +99,6 @@ typedef void *Label;
 #define HAS_HASH
 #define HAS_OS
 #define HAS_XCONDS
+#define HAS_STANDARDTHREADING
 
 #define RELINFOBITS	8

@@ -1325,6 +1325,8 @@ a_addr = PFA(xt);
 :
     2 cells + ;
 
+\+standardthreading
+
 >code-address		xt -- c_addr		gforth	to_code_address
 ""@var{c-addr} is the code address of the word @var{xt}.""
 /* !! This behaves installation-dependently for DOES-words */
@@ -1384,6 +1386,8 @@ n=1;
 #endif
 :
  1 ;
+
+\+
 
 key-file	wfileid -- n		gforth	paren_key_file
 #ifdef HAS_FILE
