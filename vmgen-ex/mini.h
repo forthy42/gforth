@@ -21,14 +21,16 @@
 
 #include <stdio.h>
 
+typedef long Cell;
 #ifdef __GNUC__
 typedef void *Label;
-typedef void *Inst; /* for direct threading, the same as Label */
+typedef Label Inst; /* we could "typedef Cell Inst", removing the need
+                       for casts in a few places, but requiring a few
+                       casts etc. in other places */
 #else
 typedef long Label;
 typedef long Inst;
 #endif
-typedef long Cell;
 
 extern Inst *vm_prim;
 extern int locals;
@@ -60,6 +62,8 @@ void vm_print_profile(FILE *file);
 #define vm_target2Cell(x,_cell)	((_cell)=(Cell)(x))
 #define vm_a2Cell(x,_cell)	((_cell)=(Cell)(x))
 #define vm_Cell2Cell(_x,_y) ((_y)=(Cell)(_x))
+/* the cast in vm_Cell2Cell is needed because the base type for
+   inst-stream is Cell, but *IP is an Inst */
 
 #define VM_IS_INST(inst, n) ((inst) == vm_prim[n])
 

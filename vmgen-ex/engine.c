@@ -21,15 +21,6 @@
 
 #include "mini.h"
 
-/* type change macros; these are specific to the types you use, so you
-   have to change this part */
-#define vm_Cell2i(_cell,x)	((x)=(long)(_cell))
-#define vm_Cell2target(_cell,x)	((x)=(Inst *)(_cell))
-#define vm_Cell2a(_cell,x)	((x)=(char *)(_cell))
-#define vm_i2Cell(x,_cell)	((_cell)=(Cell)(x))
-#define vm_target2Cell(x,_cell)	((_cell)=(Cell)(x))
-#define vm_a2Cell(x,_cell)	((_cell)=(Cell)(x))
-
 #define USE_spTOS 1
 
 #ifdef USE_spTOS
@@ -184,7 +175,7 @@ Cell engine(Inst *ip0, Cell *sp, char *fp)
 #else
 #define spTOS (sp[0])
 #endif
-  static Inst   labels[] = {
+  static Label labels[] = {
 #include "mini-labels.i"
   };
 #ifdef MORE_VARS
