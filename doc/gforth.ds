@@ -7422,7 +7422,10 @@ terminology: The derived class inherits from the base class.
 @cindex @file{objects.fs}
 @cindex @file{oof.fs}
 
-This section describes the @file{objects.fs} package. This material also has been published in @cite{Yet Another Forth Objects Package} by Anton Ertl and appeared in Forth Dimensions 19(2), pages 37--43 (@url{http://www.complang.tuwien.ac.at/forth/objects/objects.html}).
+This section describes the @file{objects.fs} package. This material also
+has been published in @cite{Yet Another Forth Objects Package} by Anton
+Ertl and appeared in Forth Dimensions 19(2), pages 37--43
+(@url{http://www.complang.tuwien.ac.at/forth/objects/objects.html}).
 @c McKewan's and Zsoter's packages
 
 This section assumes that you have read @ref{Structures}.
@@ -7436,12 +7439,13 @@ case-sensitive or not, special-purpose word lists for locals etc.).
 @menu
 * Properties of the Objects model::  
 * Basic Objects Usage::         
-* The Objects base class::            
+* The Objects base class::      
 * Creating objects::            
 * Object-Oriented Programming Style::  
 * Class Binding::               
 * Method conveniences::         
 * Classes and Scoping::         
+* Dividing classes::            
 * Object Interfaces::           
 * Objects Implementation::      
 * Objects Glossary::            
@@ -7794,7 +7798,7 @@ end-class circle
 @end example
 
 
-@node Classes and Scoping, Object Interfaces, Method conveniences, Objects
+@node Classes and Scoping, Dividing classes, Method conveniences, Objects
 @subsubsection Classes and Scoping
 @cindex classes and scoping
 @cindex scoping and classes
@@ -7828,7 +7832,48 @@ have several @code{protected}s without an intervening
 will restore the compilation word list in effect before the first of
 these @code{protected}s.
 
-@node Object Interfaces, Objects Implementation, Classes and Scoping, Objects
+@node Dividing classes, Object Interfaces, Classes and Scoping, Objects
+@subsubsection Dividing classes
+@cindex Dividing classes
+@cindex @code{methods}...@code{end-methods}
+
+You may want to do the definition of methods separate from the
+definition of the class, its selectors, fields, and instance variables,
+i.e., separate the implementation from the definition.  You can do this
+in the following way:
+
+@example
+graphical class
+  inst-value radius
+end-class circle
+
+... \ do some other stuff
+
+circle methods \ now we are ready
+
+m: ( x y circle -- )
+  radius draw-circle ;m
+overrides draw
+
+m: ( n-radius circle -- )
+  [to-inst] radius ;m
+overrides construct
+
+end-methods
+@end example
+
+You can use several @code{methods}...@code{end-methods} sections.  The
+only things you can do to the class in these sections are: defining
+methods, and overriding the class's selectors.  You must not define new
+selectors or fields.
+
+Note that you often have to override a selector before using it.  In
+particular, you usually have to override @code{construct} with a new
+method before you can invoke @code{heap-new} and friends.  E.g., you
+must not create a circle before the @code{overrides construct} sequence
+in the example above.
+
+@node Object Interfaces, Objects Implementation, Dividing classes, Objects
 @subsubsection Object Interfaces
 @cindex object interfaces
 @cindex interfaces for objects
@@ -7870,7 +7915,7 @@ bar class
   storage implementation
 
 ... overrides write
-... overrides read
+... overrides read1
 ...
 end-class foo
 @end example
@@ -8050,6 +8095,7 @@ doc---objects-end-class
 doc---objects-end-class-noname
 doc---objects-end-interface
 doc---objects-end-interface-noname
+doc---objects-end-methods
 doc---objects-exitm
 doc---objects-heap-new
 doc---objects-implementation
@@ -8060,6 +8106,7 @@ doc---objects-interface
 doc---objects-;m
 doc---objects-m:
 doc---objects-method
+doc---objects-methods
 doc---objects-object
 doc---objects-overrides
 doc---objects-[parent]

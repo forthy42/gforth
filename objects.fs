@@ -263,7 +263,7 @@ variable public-wordlist
     \g Add @var{class}'s wordlists to the head of the search-order.
     >r get-order r> add-class-order set-order ;
 
-: methods ( class -- )
+: methods ( class -- ) \ objects- objects
     \g Makes @var{class} the current class. This is intended to be
     \g used for defining methods to override selectors; you cannot
     \g define new fields or selectors.
@@ -297,7 +297,7 @@ variable public-wordlist
     \g on the search order.
     >r get-order r> remove-class-order set-order ;
 
-: end-methods ( -- )
+: end-methods ( -- ) \ objects- objects
     \g Switch back from defining methods of a class to normal mode
     \g (currently this just restores the old search order).
     current-interface @ drop-order ;
