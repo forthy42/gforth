@@ -45,17 +45,17 @@ VARIABLE dbg-ip     \ instruction pointer for debugger
         MakePass
         restore-see-flags ;
 
-: .n    0 <# # # # # #S #> ctype bl cemit ;
+: .n ( n -- )    0 <# # # # # #S #> ctype bl cemit ;
 
-: d.s   ." [ " depth . ." ] "
-        depth 4 min dup 0 ?DO dup i - pick .n LOOP drop ;
+: d.s   ( .. -- .. )  ." [ " depth . ." ] "
+    depth 4 min dup 0 ?DO dup i - pick .n LOOP drop ;
 
-: NoFine        XPos off YPos off
-                NLFlag off Level off
-                C-Formated off
-                ;
-
-: Leave-D ;
+: NoFine ( -- )
+    XPos off YPos off
+    NLFlag off Level off
+    C-Formated off ;
+		
+: Leave-D ( -- ) ;
 
 : disp-step ( -- )
 \ display step at current dbg-ip
@@ -75,17 +75,20 @@ VARIABLE dbg-ip     \ instruction pointer for debugger
         dbg-ip @ Analyse ;
 
 : jump          ( addr -- )
-                r> drop \ discard last ip
-                >r ;
+    r> drop \ discard last ip
+    >r ;
 
 AVARIABLE DebugLoop
 
-: breaker      r> 1 cells - dbg-ip ! DebugLoop @ jump ;
+1 cells Constant breaker-size \ !!! dependency: ITC
+
+: breaker ( R:body -- )
+    r> breaker-size - dbg-ip ! DebugLoop @ jump ;
 
 CREATE BP 0 , 0 ,
 CREATE DT 0 , 0 ,
 
-: set-bp        ( 0 n | 0 n n -- )
+: set-bp        ( 0 n | 0 n n -- ) \ !!! dependency: ITC
                 0. BP 2!
                 ?dup IF dup BP ! dup @ DT !
                         ['] Breaker swap !
@@ -93,33 +96,36 @@ CREATE DT 0 , 0 ,
                                 ['] Breaker swap ! drop THEN
                      THEN ;
 
-: restore-bp    ( -- )
-                BP @ ?dup IF DT @ swap ! THEN
-                BP cell+ @ ?dup IF DT cell+ @ swap ! THEN ;
+: restore-bp    ( -- ) \ !!! dependency: ITC
+    BP @ ?dup IF DT @ swap ! THEN
+    BP cell+ @ ?dup IF DT cell+ @ swap ! THEN ;
 
 VARIABLE Body
 
-: nestXT-checkSpecial ( xt -- xt2 | cfa xt2 ) 
-  dup >does-code IF
-    \ if nest into a does> we must leave
-    \ the body address on stack as does> does...
-    dup >body swap EXIT
-  THEN
-  dup ['] EXECUTE = IF   
-    \ xt to EXECUTE is next stack item...
-    drop EXIT 
-  THEN
-  dup ['] PERFORM = IF
-    \ xt to EXECUTE is addressed by next stack item
-    drop @ EXIT 
-  THEN
-  BEGIN
-    dup >code-address dodefer: =
+: nestXT-checkSpecial ( xt -- xt2 | cfa xt2 )
+    dup ['] call = IF
+	drop dbg-ip @ cell+ @ body>  EXIT
+    THEN
+    dup >does-code IF
+	\ if nest into a does> we must leave
+	\ the body address on stack as does> does...
+	dup >body swap EXIT
+    THEN
+    dup ['] EXECUTE = IF   
+	\ xt to EXECUTE is next stack item...
+	drop EXIT 
+    THEN
+    dup ['] PERFORM = IF
+	\ xt to EXECUTE is addressed by next stack item
+	drop @ EXIT 
+    THEN
+    BEGIN
+	dup >code-address dodefer: =
     WHILE
-      \ load xt of DEFERed word
-      cr ." nesting defered..." 
-      >body @    
-  REPEAT ;
+	    \ load xt of DEFERed word
+	    cr ." nesting defered..." 
+	    >body @    
+    REPEAT ;
 
 : nestXT ( xt -- true | body false )
 \G return true if we are not able to debug this, 
@@ -172,7 +178,7 @@ VARIABLE Unnest
                 Nesting @ 0= IF EXIT THEN
                 -1 Nesting +! r>
                 ELSE
-                dbg-ip @ 1 cells + >r 1 Nesting +!
+                get-next >r 1 Nesting +!
                 THEN
                 dup
         AGAIN ;

@@ -454,13 +454,13 @@ VARIABLE C-Pass
                 THEN
         THEN
         Debug?
-        IF      dup @ +
+        IF      @ \ !!! cross-interacts with debugger !!!
         ELSE    cell+
         THEN ;
 
 : DebugBranch
         Debug?
-        IF      dup @ over + swap THEN ; \ return 2 different addresses
+        IF      dup @ swap THEN ; \ return 2 different addresses
 
 : c-?branch
         Scan?
@@ -494,7 +494,7 @@ VARIABLE C-Pass
         Display? IF nl S" FOR" .struc level+ THEN ;
 
 : c-loop
-        Display? IF level- nl .name-without bl cemit nl THEN
+        Display? IF level- nl .name-without nl bl cemit THEN
         DebugBranch cell+ 
 	Scan? 
 	IF 	dup BranchAddr? 
@@ -513,13 +513,16 @@ VARIABLE C-Pass
     THEN
     DebugBranch cell+ ;
 
-: c-exit  dup 1 cells -
-        CheckEnd
-        IF      Display? IF nlflag off S" ;" Com# .string THEN
-                C-Stop on
-        ELSE    Display? IF S" EXIT " .struc THEN
-        THEN
-        Debug? IF drop THEN ;
+: c-exit ( addr1 -- addr2 )
+    dup 1 cells -
+    CheckEnd
+    IF
+	Display? IF nlflag off S" ;" Com# .string THEN
+	C-Stop on
+    ELSE
+	Display? IF S" EXIT " .struc THEN
+    THEN
+    Debug? IF drop THEN ; \ !!! cross-interacts with debugger !!!
 
 : c-abort"
         count 2dup + aligned -rot
