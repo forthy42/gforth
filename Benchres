@@ -26,7 +26,6 @@ siev	bubble	matrix	fib	machine and configuration
 11.81	14.39	13.61	15.07	IBM/Cyrix-6x86 133MHz (P166+) 512K PB cache; gcc-2.7.2.1 -DFORCE_REG -DDIRECT_THREADED; gforth-0.3.0; ELF
 12.08	11.90	11.06	12.09	Cyrix-6x86MX 166MHz (PR200) 512K PB Cache; gcc-2.7.2.1 -DFORCE_REG -DDIRECT_THREADED; gforth-0.3.0; ELF
 29.89	35.42	26.96	34.59	i486 66MHz 256K cache; gcc-2.6.3 -DFORCE_REG -DDIRECT_THREADED; gforth-0.1beta; a.out
-26.19	29.92	23.80	30.18	i486 66MHz 256K cache; gcc-2.95.1 -DFORCE_REG; gforth-0.4.9; ELF
 25.87	29.96	23.25	29.98	i486 66MHz 256K cache; gcc-2.95.1 -DFORCE_REG; gforth-0.4.9-20000726; ELF
 39.50	45.91	36.73	44.90	i486 50MHz 256K cache; gcc-2.7.0 -DFORCE_REG -DDIRECT_THREADED; gforth-0.1beta
 42.82	46.74	38.69	48.30	i486 50MHz 256K cache; gcc-2.7.0 -DFORCE_REG; gforth-0.1beta

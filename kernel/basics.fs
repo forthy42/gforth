@@ -109,7 +109,11 @@ Constant dictionary-end
 
 : place  ( addr len to -- ) \ gforth
     over >r  rot over 1+  r> move c! ;
-: bounds ( beg count -- end beg ) \ gforth
+: bounds ( addr u -- addr+u addr ) \ gforth
+    \G Given a memory block represented by starting address @i{addr}
+    \G and length @i{u} in aus, produce the end address @i{addr+u} and
+    \G the start address in the right order for @code{u+do} or
+    \G @code{?do}.
     over + swap ;
 
 \ (word)                                               22feb93py

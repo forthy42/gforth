@@ -117,33 +117,31 @@ create image-included-files  1 , A, ( pointer to and count of included files )
     \G @code{include-file} @var{file} only if it is not included already.
     name required ;
 
-0 [IF]
-: \I
-  here 
-  0 word count
-  string,
-  needsrcs^ @ ! ;
+\ : \I
+\   here 
+\   0 word count
+\   string,
+\   needsrcs^ @ ! ;
 
-: .included ( -- ) \ gforth
-    \G list the names of the files that have been @code{included}
-  cr
-  needs^ @
-  BEGIN		dup 
-  WHILE		dup cell+ count type cr
-		5 spaces
-		dup cell+ count + aligned
-		@ dup IF count type ELSE drop THEN cr
-		@
-  REPEAT
-  drop ;
+\ : .included ( -- ) \ gforth
+\     \G list the names of the files that have been @code{included}
+\   cr
+\   needs^ @
+\   BEGIN		dup 
+\   WHILE		dup cell+ count type cr
+\ 		5 spaces
+\ 		dup cell+ count + aligned
+\ 		@ dup IF count type ELSE drop THEN cr
+\ 		@
+\   REPEAT
+\   drop ;
 
-: loadfilename#>str ( n -- adr len )
-\ this converts the filenumber into the string
-  loadfilenamecount @ swap -
-  needs^ @
-  swap 0 ?DO dup 0= IF LEAVE THEN @ LOOP 
-  dup IF cell+ count ELSE drop s" NOT FOUND" THEN ;
-[THEN]
+\ : loadfilename#>str ( n -- adr len )
+\ \ this converts the filenumber into the string
+\   loadfilenamecount @ swap -
+\   needs^ @
+\   swap 0 ?DO dup 0= IF LEAVE THEN @ LOOP 
+\   dup IF cell+ count ELSE drop s" NOT FOUND" THEN ;
 
 : loadfilename#>str ( n -- adr len )
     included-files 2@ drop swap 2* cells + 2@ ;
@@ -154,5 +152,5 @@ create image-included-files  1 , A, ( pointer to and count of included files )
 	cr I 2@ type  2 cells +LOOP ;  
 
 \ contains tools/newrequire.fs
-\ \I $Id: require.fs,v 1.11 2000-08-17 12:46:59 anton Exp $
+\ \I $Id: require.fs,v 1.12 2000-08-26 13:29:49 anton Exp $
 

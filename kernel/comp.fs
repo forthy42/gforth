@@ -159,12 +159,13 @@ create nextname-buffer 32 chars allot
 \ \ literals							17dec92py
 
 : Literal  ( compilation n -- ; run-time -- n ) \ core
-    \G Compile appropriate code such that, at run-time, @i{n} is placed
-    \G on the stack. Interpretation semantics are undefined.
+    \G Compilation semantics: compile the run-time semantics.@*
+    \G Run-time Semantics: push @i{n}.@*
+    \G Interpretation semantics: undefined.
 [ [IFDEF] lit, ]
     lit,
 [ [ELSE] ]
-    postpone lit , 
+    postpone lit ,
 [ [THEN] ] ; immediate restrict
 
 : ALiteral ( compilation addr -- ; run-time -- addr ) \ gforth
