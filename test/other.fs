@@ -52,6 +52,20 @@ foo1
 
 5 fac 120 <> throw
 
+\ TO and locals
+
+: locals-test2 ( -- )
+    true dup dup dup { addr1 u1 addr2 u2 -- n }
+    false TO addr1
+    addr1 false <> abort" TO does not work on locals" ;
+locals-test2
+
+\ multiple reveals (recursive)
+
+0
+: xxx recursive ;
+throw \ if the TOS is not 0, throw an error
+
 \ look for primitives
 
 ' + look 0= throw ( nt )
@@ -73,6 +87,17 @@ s" a     " 2 /string -trailing throw drop
 
 name abc 2dup name xyza search throw d<> throw
 name b 2dup name abc search throw d<> throw
+
+\ only
+
+: test-only ( -- )
+    get-order get-current
+    0 set-current
+    only
+    get-current >r
+    set-current set-order
+    r> abort" ONLY sets current" ;
+test-only
 
 \ comments across several lines
 

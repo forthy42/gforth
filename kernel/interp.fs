@@ -694,6 +694,8 @@ G -1 warnings T !
 	    dup ( name>link ) @ 1 xor		( nt wid )
 	    2dup >r name>string r> check-shadow ( nt wid )
 	    dup wordlist-map @ reveal-method perform
+	else
+	    drop
 	then
     then ;
 

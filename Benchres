@@ -17,8 +17,9 @@ siev	bubble	matrix	fib	machine and configuration
 39.50	45.91	36.73	44.90	i486 50MHz 256K cache; gcc-2.7.0 -DFORCE_REG -DDIRECT_THREADED; gforth-0.1beta
 42.82	46.74	38.69	48.30	i486 50MHz 256K cache; gcc-2.7.0 -DFORCE_REG; gforth-0.1beta
 
- 3.7	 3.8	 2.8	 4.1	21164A (Alpha) 500MHz 2M cache; gcc-2.7.2.1; gforth-0.3.0
- 7.0	 7.6	 6.2	 7.7	21064A (Alpha) 300MHz 2M cache; gcc-2.7.2; gforth-0.2.0
+ 3.09	 3.24	 2.39	 3.42	21164A (Alpha,164LX) 600MHz 2M cache; gcc-2.7.2.1+gas; gforth-0.3.0
+ 3.7	 3.8	 2.8	 4.1	21164A (Alpha,PC164) 500MHz 2M cache; gcc-2.7.2.1+as (Digital Unix); gforth-0.3.0
+ 7.0	 7.6	 6.2	 7.7	21064A (Alpha,Cabriolet) 300MHz 2M cache; gcc-2.7.2; gforth-0.2.0
 
  8.17	 9.01	 6.24	 9.35	R10000 (SGI PowerChallenge XL) 195MHz 2M cache; gcc-2.7.2 -DFORCE_REG; gforth-0.3.0
 17.3	19.0	14.1	18.3	R4000 (DecStation 5000/150) 100MHz 1M cache; gcc-2.4.5; gforth-0.1beta
