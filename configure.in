@@ -44,11 +44,17 @@ AC_ARG_ENABLE(force-reg,
 AC_DEFINE(FORCE_REG,,[Define if you want to use explicit register declarations for better performance or for more convenient CODE words (does not work with all GCC versions on all machines)]))
 
 AC_ARG_WITH(debug,
-[  --with-debug    specifies option -g to compile with debug info
-  --without-debug  omits the -g switch and creates smaller images on
-                   machines where "strip" has problems with gcc style
-                   debugging informations.],
+[  --with-debug		  specifies option -g to compile with debug info
+  --without-debug	  omits the -g switch and creates smaller images on
+			  machines where "strip" has problems with gcc style
+			  debugging informations.],
 if test "$withval" = "yes"; then DEBUGFLAG=-g; fi)
+
+AC_ARG_WITH(dynamic,
+[  --with-dynamic	  Gforth defaults to dynamic super instructions,
+  --without-dynamic	  this may cause problems with newer GCCs and global
+			  CSE, so if you see troubles, turn it off.],
+if test "$withval" = "no"; then no_dynamic_default=1; fi)
 
 dnl PEEPHOLE="yes"
 dnl AC_ARG_WITH(peephole,
