@@ -2162,6 +2162,146 @@ r = fp[u+1]; /* +1, because update of fp happens before this fragment */
 
 \g syslib
 
+open-lib	( c_addr1 u1 -- u2 )	gforth	open_lib
+#if defined(HAVE_LIBDL) || defined(HAVE_DLOPEN)
+#ifndef RTLD_GLOBAL
+#define RTLD_GLOBAL 0
+#endif
+u2=(UCell) dlopen(cstr(c_addr1, u1, 1), RTLD_GLOBAL | RTLD_LAZY);
+#else
+#  ifdef _WIN32
+u2 = (Cell) GetModuleHandle(cstr(c_addr1, u1, 1));
+#  else
+#warning Define open-lib!
+u2 = 0;
+#  endif
+#endif
+
+lib-sym	( c_addr1 u1 u2 -- u3 )	gforth	lib_sym
+#if defined(HAVE_LIBDL) || defined(HAVE_DLOPEN)
+u3 = (UCell) dlsym((void*)u2,cstr(c_addr1, u1, 1));
+#else
+#  ifdef _WIN32
+u3 = (Cell) GetProcAddress((HMODULE)u2, cstr(c_addr1, u1, 1));
+#  else
+#warning Define lib-sym!
+u3 = 0;
+#  endif
+#endif
+
+\+FFCALL
+
+av-start-void   ( c_addr -- )    gforth  av_start_void
+av_start_void(alist, c_addr);
+
+av-start-int    ( c_addr -- )    gforth  av_start_int
+av_start_int(alist, c_addr, &irv);
+
+av-start-float    ( c_addr -- )    gforth  av_start_float
+av_start_float(alist, c_addr, &frv);
+
+av-start-double    ( c_addr -- )    gforth  av_start_double
+av_start_double(alist, c_addr, &drv);
+
+av-start-longlong    ( c_addr -- )    gforth  av_start_longlong
+av_start_longlong(alist, c_addr, &llrv);
+
+av-start-ptr    ( c_addr -- )    gforth  av_start_ptr
+av_start_ptr(alist, c_addr, void*, &prv);
+
+av-int  ( w -- )  gforth  av_int
+av_int(alist, w);
+
+av-float        ( r -- )        gforth  av_float
+av_float(alist, r);
+
+av-double        ( r -- )        gforth  av_double
+av_double(alist, r);
+
+av-longlong        ( d -- )        gforth  av_longlong
+av_longlong(alist, d);
+
+av-ptr        ( c_addr -- )        gforth  av_ptr
+av_ptr(alist, void*, c_addr);
+
+av-call-void    ( -- )          gforth  av_call_void
+SAVE_REGS
+av_call(alist);
+REST_REGS
+
+av-call-int    ( -- w )        gforth  av_call_int
+SAVE_REGS
+av_call(alist);
+w = irv;
+
+av-call-float   ( -- r )        gforth  av_call_float
+SAVE_REGS
+av_call(alist);
+REST_REGS
+r = frv;
+
+av-call-double   ( -- r )        gforth  av_call_double
+SAVE_REGS
+av_call(alist);
+REST_REGS
+r = drv;
+
+av-call-longlong   ( -- d )        gforth  av_call_longlong
+SAVE_REGS
+av_call(alist);
+REST_REGS
+d = llrv;
+
+av-call-ptr   ( -- c_addr )        gforth  av_call_ptr
+SAVE_REGS
+av_call(alist);
+REST_REGS
+c_addr = prv;
+
+alloc-callback	( xt -- c_addr )	gforth	alloc_callback
+c_addr = (char *)alloc_callback(engine_callback, (void *)xt);
+
+va-start-int	( -- w )	gforth	va_start_int
+w = va_start_int(clist);
+
+va-start-longlong	( -- d )	gforth	va_start_longlong
+d = va_start_longlong(clist);
+
+va-start-ptr	( -- c_addr )	gforth	va_start_ptr
+c_addr = (char *)va_start_ptr(clist, (char *));
+
+va-start-float	( -- r )	gforth	va_start_float
+r = va_start_float(clist);
+
+va-start-double	( -- r )	gforth	va_start_double
+r = va_start_double(clist);
+
+va-return-void ( -- )	gforth va_return_void
+va_return_void(clist);
+return 0;
+
+va-return-int ( w -- )	gforth va_return_int
+va_return_int(clist, w);
+return 0;
+
+va-return-ptr ( c_addr -- )	gforth va_return_ptr
+va_return_ptr(clist, void *, c_addr);
+return 0;
+
+va-return-longlong ( d -- )	gforth va_return_longlong
+va_return_longlong(clist, d);
+return 0;
+
+va-return-float ( r -- )	gforth va_return_float
+va_return_float(clist, r);
+return 0;
+
+va-return-double ( r -- )	gforth va_return_double
+va_return_double(clist, r);
+return 0;
+
+\-
+
 define(`uploop',
        `pushdef(`$1', `$2')_uploop(`$1', `$2', `$3', `$4', `$5')`'popdef(`$1')')
 define(`_uploop',
@@ -2193,38 +2333,12 @@ rret = (SYSCALL(Float(*)(argdlist($1)))u)(argclist($1));
 
 \ close ' to keep fontify happy
 
-open-lib	( c_addr1 u1 -- u2 )	gforth	open_lib
-#if defined(HAVE_LIBDL) || defined(HAVE_DLOPEN)
-#ifndef RTLD_GLOBAL
-#define RTLD_GLOBAL 0
-#endif
-u2=(UCell) dlopen(cstr(c_addr1, u1, 1), RTLD_GLOBAL | RTLD_LAZY);
-#else
-#  ifdef _WIN32
-u2 = (Cell) GetModuleHandle(cstr(c_addr1, u1, 1));
-#  else
-#warning Define open-lib!
-u2 = 0;
-#  endif
-#endif
-
-lib-sym	( c_addr1 u1 u2 -- u3 )	gforth	lib_sym
-#if defined(HAVE_LIBDL) || defined(HAVE_DLOPEN)
-u3 = (UCell) dlsym((void*)u2,cstr(c_addr1, u1, 1));
-#else
-#  ifdef _WIN32
-u3 = (Cell) GetProcAddress((HMODULE)u2, cstr(c_addr1, u1, 1));
-#  else
-#warning Define lib-sym!
-u3 = 0;
-#  endif
-#endif
-
 uploop(i, 0, 7, `icall(i)')
 icall(20)
 uploop(i, 0, 7, `fcall(i)')
 fcall(20)
 
+\+
 \+
 
 wcall	( u -- )	gforth
@@ -2272,6 +2386,10 @@ JUMP(a_callee);
 #else
 assert(0);
 #endif
+
+tag-offsets ( -- a_addr ) gforth tag_offsets
+extern Cell groups[32];
+a_addr = groups;
 
 \+
 

@@ -78,19 +78,20 @@ done) | sed \
 "{app}\gforth.exe", "{app}\fixpath.fs {app} gforth-itc.exe",
 "{app}\gforth-fast.exe", "{app}\fixpath.fs {app} gforth.exe",
 
-[Registry]
+;[Registry]
+;registry commented out
 ; Parameter quick reference:
 ;   "Root key", "Subkey", "Value name", Data type, "Data", Flags
-HKCR, ".fs", "", STRING, "forthstream",
-HKCR, ".fs", "Content Type", STRING, "application/forth",
-HKCR, ".fb", "", STRING, "forthblock",
-HKCR, ".fb", "Content Type", STRING, "application/forth-block",
-HKCR, "forthstream", "", STRING, "Forth Source",
-HKCR, "forthstream", "EditFlags", DWORD, "00000000",
-HKCR, "forthstream\DefaultIcon", "", STRING, "{sys}\System32\shell32.dll,61"
-HKCR, "forthstream\Shell", "", STRING, ""
-HKCR, "forthstream\Shell\Open\command", "", STRING, "{app}\gforth.exe %1"
-HKCR, "forthblock", "", STRING, "Forth Block",
-HKCR, "forthblock", "EditFlags", DWORD, "00000000",
-HKCR, "forthblock\DefaultIcon", "", STRING, "{sys}\System32\shell32.dll,61"
+;HKCR, ".fs", "", STRING, "forthstream",
+;HKCR, ".fs", "Content Type", STRING, "application/forth",
+;HKCR, ".fb", "", STRING, "forthblock",
+;HKCR, ".fb", "Content Type", STRING, "application/forth-block",
+;HKCR, "forthstream", "", STRING, "Forth Source",
+;HKCR, "forthstream", "EditFlags", DWORD, "00000000",
+;HKCR, "forthstream\DefaultIcon", "", STRING, "{sys}\System32\shell32.dll,61"
+;HKCR, "forthstream\Shell", "", STRING, ""
+;HKCR, "forthstream\Shell\Open\command", "", STRING, "{app}\gforth.exe %1"
+;HKCR, "forthblock", "", STRING, "Forth Block",
+;HKCR, "forthblock", "EditFlags", DWORD, "00000000",
+;HKCR, "forthblock\DefaultIcon", "", STRING, "{sys}\System32\shell32.dll,61"
 EOT

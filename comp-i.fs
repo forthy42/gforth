@@ -49,16 +49,11 @@ s" address-unit-bits" environment? drop constant bits/au
     endif
     base offset ;
 
-Create tag-offsets
-include kernel/groups.fs
-tag-offsets $20 cells + here tuck - dup allot erase
-
 : >tag ( index -- tag )
-    dup dodoes-tag 2 + > IF  dodoes-tag 2 + -
+    dup dodoes-tag 2 + > IF
 	$21 1 DO  dup tag-offsets I cells + @ < IF
-		tag-offsets I 1- cells + @ - I 9 lshift + negate
+		tag-offsets I 1- cells + @ - I 1- 9 lshift + negate
 		UNLOOP  EXIT  THEN  LOOP
-	dodoes-tag 2 + +
     THEN  -2 swap - ;
 
 : compare-images { image1 image2 reloc-bits size file-id -- }

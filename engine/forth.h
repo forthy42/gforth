@@ -317,6 +317,12 @@ extern Cell *SP;
 extern Float *FP;
 extern Address UP;
 
+#ifdef HAS_FFCALL
+extern Cell *RP;
+extern Address LP;
+extern void engine_callback(Xt fcall, void * alist);
+#endif
+
 #ifdef GFORTH_DEBUGGING
 extern Xt *saved_ip;
 extern Cell *rp;
@@ -364,3 +370,4 @@ extern unsigned long int strtoul(const char *nptr, char **endptr, int base);
 
 
 #define GROUP(x, n)
+#define GROUPADD(n)

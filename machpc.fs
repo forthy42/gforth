@@ -27,6 +27,8 @@ true DefaultValue file		\ controls the presence of the
 				\ file access wordset
 true DefaultValue OS		\ flag to indicate a operating system
 
+true DefaultValue FFCALL \ Foreign Function Calls
+
 true DefaultValue prims		\ true: primitives are c-code
 
 true DefaultValue floating	\ floating point wordset is present
@@ -47,6 +49,7 @@ true DefaultValue backtrace	\ enables backtrace code
 true DefaultValue new-input	\ enables object oriented input
 
 true DefaultValue peephole      \ enables peephole optimizer
+
 
 true DefaultValue abranch       \ enables absolute branches
 

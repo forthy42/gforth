@@ -59,6 +59,11 @@
 #include <dl.h>
 #endif
 
+#ifdef HAS_FFCALL
+#include <avcall.h>
+#include <callback.h>
+#endif
+
 #ifndef SEEK_SET
 /* should be defined in stdio.h, but some systems don't have it */
 #define SEEK_SET 0
@@ -184,6 +189,11 @@ extern int gforth_memcmp(const char * s1, const char * s2, size_t n);
       }
 #endif
 
+#ifdef HAS_FFCALL
+#define SAVE_REGS IF_spTOS(sp[0]=spTOS); IF_fpTOS(fp[0]=fpTOS); SP=sp; FP=fp; RP=rp; LP=lp;
+#define REST_REGS sp=SP; fp=FP; rp=RP; lp=LP; IF_spTOS(spTOS=sp[0]); IF_fpTOS(fpTOS=fp[0]);
+#endif
+
 #if !defined(ENGINE)
 /* normal engine */
 #define VARIANT(v)	(v)
@@ -212,7 +222,6 @@ extern int gforth_memcmp(const char * s1, const char * s2, size_t n);
 
 #define LABEL2(name) K_##name:
 
-
 Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
 /* executes code at ip, if ip!=NULL
    returns array of machine code labels (for use in a loader), if ip==NULL
@@ -230,6 +239,15 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
   register Xt cfa CFAREG;
 #ifdef MORE_VARS
   MORE_VARS
+#endif
+#ifdef HAS_FFCALL
+  av_alist alist;
+  extern va_alist clist;
+  float frv;
+  int irv;
+  double drv;
+  long long llrv;
+  void * prv;
 #endif
   register Address up UPREG = UP;
   IF_spTOS(register Cell spTOS TOSREG;)

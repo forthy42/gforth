@@ -54,6 +54,21 @@ Cell *SP;
 Float *FP;
 Address UP=NULL;
 
+#ifdef HAS_FFCALL
+Cell *RP;
+Address LP;
+
+#include <callback.h>
+
+va_alist clist;
+
+void engine_callback(Xt fcall, void * alist)
+{
+  engine(fcall, SP, RP, FP, LP);
+  clist = (va_alist)alist;
+}
+#endif
+
 #ifdef GFORTH_DEBUGGING
 /* define some VM registers as global variables, so they survive exceptions;
    global register variables are not up to the task (according to the 
@@ -186,16 +201,21 @@ int gforth_memcmp(const char * s1, const char * s2, size_t n)
  * bits 8..0 of a primitive token index into the group
  */
 
-static Cell groups[32] = {
+Cell groups[32] = {
   0,
+DOESJUMP+1
 #undef GROUP
-#define GROUP(x, n) DOESJUMP+1+n,
+#undef GROUPADD
+#define GROUPADD(n) +n
+#define GROUP(x, n) , 0
 #include "prim_grp.i"
 #undef GROUP
+#undef GROUPADD
 #define GROUP(x, n)
+#define GROUPADD(n)
 };
 
-void relocate(Cell *image, const char *bitstring, 
+void relocate(Cell *image, const unsigned char *bitstring, 
               int size, Cell base, Label symbols[])
 {
   int i=0, j, k, steps=(size/sizeof(Cell))/RELINFOBITS;
@@ -209,6 +229,15 @@ void relocate(Cell *image, const char *bitstring,
   Cell *start = (Cell * ) (((void *) image) - ((void *) base));
 
   /* group index into table */
+  if(groups[31]==0) {
+    int groupsum=0;
+    for(i=0; i<32; i++) {
+      groupsum += groups[i];
+      groups[i] = groupsum;
+      /* printf("group[%d]=%d\n",i,groupsum); */
+    }
+    i=0;
+  }
   
 /* printf("relocating to %x[%x] start=%x base=%x\n", image, size, start, base); */
   
@@ -250,7 +279,7 @@ void relocate(Cell *image, const char *bitstring,
 		  compile_prim1(&image[i]);
 #endif
 	      } else
-		fprintf(stderr,"Primitive %ld used in this image at $%lx is not implemented by this\n engine (%s); executing this code will crash.\n",(long)CF(token),(long)&image[i],PACKAGE_VERSION);
+		fprintf(stderr,"Primitive %ld used in this image at $%lx (offset $%x) is not implemented by this\n engine (%s); executing this code will crash.\n",(long)CF(token),(long)&image[i], i, PACKAGE_VERSION);
 	    }
 	  } else {
 	    int tok = -token & 0x1FF;
@@ -265,7 +294,7 @@ void relocate(Cell *image, const char *bitstring,
 		compile_prim1(&image[i]);
 #endif
 	    } else
-	      fprintf(stderr,"Primitive %lx, %d of group %d used in this image at $%lx is not implemented by this\n engine (%s); executing this code will crash.\n", (long)-token, tok, group, (long)&image[i],PACKAGE_VERSION);
+	      fprintf(stderr,"Primitive %lx, %d of group %d used in this image at $%lx (offset $%x) is not implemented by this\n engine (%s); executing this code will crash.\n", (long)-token, tok, group, (long)&image[i],i,PACKAGE_VERSION);
 	  }
 	} else {
           /* if base is > 0: 0 is a null reference so don't adjust*/

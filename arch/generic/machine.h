@@ -88,5 +88,8 @@ typedef void *Label;
 #ifndef HAS_PEEPHOLE
 #define HAS_PEEPHOLE
 #endif
+#if(defined(HAVE_LIBAVCALL) && defined(HAVE_LIBCALLBACK) && defined(HAVE_LIBVACALL) && defined(HAVE_LIBTRAMPOLINE))
+#define HAS_FFCALL
+#endif
 
 #define RELINFOBITS	8

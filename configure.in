@@ -311,7 +311,7 @@ CFLAGS_1="$CFLAGS"
 CFLAGS="$CFLAGS -fno-crossjumping"
 AC_TRY_COMPILE(,,ac_nocrossjump=yes;ENGINE_FLAGS="$ENGINE_FLAGS -fno-crossjumping",ac_nocrossjump=no)
 CFLAGS="$CFLAGS_1"
-AC_MSG_RESULT($ac_nocrossjump)
+AC_MSG_RESULT($ac_nocrossjumping)
 
 AC_CHECK_PROG(asm_fs,asm.fs,arch/$machine/asm.fs,,$srcdir/arch/$machine)
 AC_SUBST(asm_fs)
@@ -431,6 +431,17 @@ dnl This check is just for making later checks link with libm.
 dnl using sin here is no good idea since it is built-into gcc and typechecked
 AC_CHECK_LIB(m,asin)
 AC_CHECK_LIB(dl,dlopen)
+dnl check for ffcall libraries
+dnl unfortunately, these four calls are separated out into a library each.
+AC_CHECK_LIB(avcall,__builtin_avcall)
+AC_CHECK_LIB(callback,__vacall_r)
+AC_CHECK_LIB(vacall,vacall)
+AC_CHECK_LIB(trampoline,alloc_trampoline)
+if test $ac_cv_lib_avcall___builtin_avcall = yes
+then
+    FFCALLFLAG="true"
+    AC_SUBST(FFCALLFLAG)
+fi
 if test "$host_os" != "nextstep3"
 then
 	AC_FUNC_MEMCMP

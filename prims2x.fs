@@ -329,6 +329,13 @@ variable name-line
 2variable name-filename
 2variable last-name-filename
 Variable function-number 0 function-number !
+Variable function-old 0 function-old !
+: function-diff ( n -- )
+    ." GROUPADD(" function-number @ function-old @ - 0 .r ." )" cr
+    function-number @ function-old ! ;
+: forth-fdiff ( -- )
+    function-number @ function-old @ - 0 .r ."  groupadd" cr
+    function-number @ function-old ! ;
 
 \ a few more set ops
 
@@ -1441,27 +1448,33 @@ Variable c-flag
 )) <- c-comment ( -- )
 
 (( ` - nonl ** {{ 
-	forth-flag @ IF ." [ELSE]" cr THEN
-	c-flag @ IF ." #else" cr THEN }}
+	forth-flag @ IF forth-fdiff ." [ELSE]" cr THEN
+	c-flag @ IF
+	    function-diff
+	    ." #else /* " function-number @ 0 .r ."  */" cr THEN }}
 )) <- else-comment
 
 (( ` + {{ start }} nonl ** {{ end
 	dup
 	IF	c-flag @
-		IF    ." #ifdef HAS_" bounds ?DO  I c@ toupper emit  LOOP cr
+	    IF
+		function-diff
+		." #ifdef HAS_" bounds ?DO  I c@ toupper emit  LOOP cr
 		THEN
 		forth-flag @
-		IF  ." has? " type ."  [IF]"  cr THEN
+		IF  forth-fdiff  ." has? " type ."  [IF]"  cr THEN
 	ELSE	2drop
-	    c-flag @      IF  ." #endif"  cr THEN
-	    forth-flag @  IF  ." [THEN]"  cr THEN
+	    c-flag @      IF
+		function-diff  ." #endif" cr THEN
+	    forth-flag @  IF  forth-fdiff  ." [THEN]"  cr THEN
 	THEN }}
 )) <- if-comment
 
 (( (( ` g || ` G )) {{ start }} nonl **
    {{ end
-      forth-flag @ IF  ." group " type cr  THEN
-      c-flag @     IF  ." GROUP(" type ." , " function-number @ 0 .r ." )" cr  THEN }}
+      forth-flag @ IF  forth-fdiff  ." group " type cr  THEN
+      c-flag @     IF  function-diff
+	  ." GROUP(" type ." , " function-number @ 0 .r ." )" cr  THEN }}
 )) <- group-comment
 
 (( (( eval-comment || forth-comment || c-comment || else-comment || if-comment || group-comment )) ?? nonl ** )) <- comment-body
