@@ -47,6 +47,33 @@
 UCell cols=DEFAULTCOLS;
 UCell rows=DEFAULTROWS;
 
+#ifdef SA_SIGINFO
+void install_signal_handler(int sig, void (*handler)(int, siginfo_t *, void *))
+     /* installs three-argument signal handler for sig */
+{
+  struct sigaction action;
+
+  action.sa_sigaction=handler;
+  sigemptyset(&action.sa_mask);
+  action.sa_flags=SA_RESTART|SA_SIGINFO; /* pass siginfo */
+  sigaction(sig, &action, NULL);
+}
+#endif
+
+typedef void Sigfunc(int);
+
+Sigfunc *bsd_signal(int signo, Sigfunc *func)
+{
+  struct sigaction act, oact;
+
+  act.sa_handler=func;
+  sigemptyset(&act.sa_mask);
+  act.sa_flags=SA_NODEFER;
+  if (sigaction(signo,&act,&oact) < 0)
+    return SIG_ERR;
+  else
+    return oact.sa_handler;
+}
 
 static void
 graceful_exit (int sig)
@@ -133,7 +160,7 @@ static void segv_handler(int sig, siginfo_t *info, void *_)
 #ifdef SIGCONT
 static void termprep (int sig)
 {
-  signal(sig,termprep);
+  bsd_signal(sig,termprep);
   terminal_prepped=0;
 }
 #endif
@@ -165,24 +192,10 @@ void get_winsize()
 #ifdef SIGWINCH
 static void change_winsize(int sig)
 {
-  signal(sig,change_winsize);
+  /* signal(sig,change_winsize); should not be necessary with bsd_signal */
 #ifdef TIOCGWINSZ
   get_winsize();
 #endif
-}
-#endif
-
-
-#ifdef SA_SIGINFO
-void install_signal_handler(int sig, void (*handler)(int, siginfo_t *, void *))
-     /* installs three-argument signal handler for sig */
-{
-  struct sigaction action;
-
-  action.sa_sigaction=handler;
-  sigemptyset(&action.sa_mask);
-  action.sa_flags=SA_RESTART|SA_SIGINFO; /* pass siginfo */
-  sigaction(sig, &action, NULL);
 }
 #endif
 
@@ -344,17 +357,17 @@ void install_signal_handlers(void)
     signal (sigs_to_ignore [i], SIG_IGN);
 */
   for (i = 0; i < DIM (sigs_to_throw); i++)
-    signal(sigs_to_throw[i], throw_handler);
+    bsd_signal(sigs_to_throw[i], throw_handler);
   for (i = 0; i < DIM (sigs_to_quit); i++)
-    signal (sigs_to_quit [i], graceful_exit);
+    bsd_signal(sigs_to_quit [i], graceful_exit);
 #ifdef SA_SIGINFO
   install_signal_handler(SIGFPE, fpe_handler);
   install_signal_handler(SIGSEGV, segv_handler);
 #endif
 #ifdef SIGCONT
-    signal (SIGCONT, termprep);
+    bsd_signal(SIGCONT, termprep);
 #endif
 #ifdef SIGWINCH
-    signal (SIGWINCH, change_winsize);
+    bsd_signal(SIGWINCH, change_winsize);
 #endif
 }
