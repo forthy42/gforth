@@ -647,13 +647,16 @@ forth definitions
     case
 	[ ' locals-wordlist ] literal >definer \ value
 	OF >body POSTPONE Aliteral POSTPONE ! ENDOF
-	[ comp' clocal drop ] literal >definer
+	\ !! dependent on c: etc. being does>-defining words
+	\ this works, because >definer uses >does-code in this case,
+	\ which produces a relocatable address
+	[ comp' clocal drop >definer ] literal
 	OF POSTPONE laddr# >body @ lp-offset, POSTPONE c! ENDOF
-	[ comp' wlocal drop ] literal >definer
+	[ comp' wlocal drop >definer ] literal
 	OF POSTPONE laddr# >body @ lp-offset, POSTPONE ! ENDOF
-	[ comp' dlocal drop ] literal >definer
+	[ comp' dlocal drop >definer ] literal
 	OF POSTPONE laddr# >body @ lp-offset, POSTPONE 2! ENDOF
-	[ comp' flocal drop ] literal >definer
+	[ comp' flocal drop >definer ] literal
 	OF POSTPONE laddr# >body @ lp-offset, POSTPONE f! ENDOF
 	-&32 throw
     endcase ;

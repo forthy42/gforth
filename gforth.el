@@ -76,10 +76,6 @@ OBS! All words in forth-negatives must be surrounded by spaces.")
 (if (not forth-mode-map)
     (setq forth-mode-map (make-sparse-keymap)))
 
-(global-set-key "\e\C-m" 'forth-send-paragraph)
-(global-set-key "\C-x\C-m" 'forth-split)
-(global-set-key "\e " 'forth-reload)
-
 ;(define-key forth-mode-map "\M-\C-x" 'compile)
 (define-key forth-mode-map "\C-x\\" 'comment-region)
 (define-key forth-mode-map "\C-x~" 'forth-remove-tracers)

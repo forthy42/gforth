@@ -1,5 +1,5 @@
 require glocals.fs
-require debugging.fs
+require debugs.fs
 
 : localsinfo \ !! only debugging
  ." stack: " .s ." locals-size: " locals-size ? ." locals-list"

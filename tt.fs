@@ -345,7 +345,7 @@ create brick-val 1 c, 2 c, 3 c, 3 c, 4 c, 5 c, 5 c,
 		    begin  4 0
 			do  35 13 at-xy
 			    delay @ ms key?
-			    if  interaction 0=
+			    if interaction 0=
 				if  unloop exit  then
 			    then
 			loop
