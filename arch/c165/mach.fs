@@ -2,6 +2,7 @@
     2 Constant cell
     1 Constant cell<<
     4 Constant cell>bit
+    8 Constant bits/char
     8 Constant bits/byte
     8 Constant float
     2 Constant /maxalign

@@ -944,7 +944,7 @@ Variable user-vars 0 user-vars !
 : target>bitmask-size ( u1 -- u2 )
   1- tcell>bit rshift 1+ ;
 
-: allocatetarget ( size --- adr )
+: allocatetarget ( size -- adr )
   dup allocate ABORT" CROSS: No memory for target"
   swap over swap erase ;
 
@@ -1050,7 +1050,7 @@ T has? rom H
 ' dictionary ALIAS rom-dictionary
 
 
-: setup-target ( -- )   \G initialize targets memory space
+: setup-target ( -- )   \G initialize target's memory space
   s" rom" T $has? H
   IF  \ check for ram and rom...
       \ address-space area nip 0<>
@@ -1087,7 +1087,7 @@ T has? rom H
         ELSE    r> drop THEN
    REPEAT drop ;
 
-\ MakeKernal                                           		22feb99jaw
+\ MakeKernel                                           		22feb99jaw
 
 : makekernel ( targetsize -- targetsize )
   dup dictionary >rlen ! setup-target ;
