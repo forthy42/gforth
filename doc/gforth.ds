@@ -2119,7 +2119,7 @@ An @code{if}-structure looks like this:
 
 @code{if} takes a flag from the stack.  If the flag is non-zero (true),
 the following code is performed, otherwise execution continues after the
-@code{endif} (or @code{else}).  @code{<} combares the top two stack
+@code{endif} (or @code{else}).  @code{<} compares the top two stack
 elements and prioduces a flag:
 
 @example
@@ -2261,7 +2261,7 @@ A loop with one exit at any place looks like this:
 @end example
 
 At run-time @code{while} consumes a flag; if it is 0, execution
-continues behind the @code{repeat}; if the falg is non-zero, execution
+continues behind the @code{repeat}; if the flag is non-zero, execution
 continues behind the @code{while}.  @code{Repeat} jumps back to
 @code{begin}, just like @code{again}.
 
@@ -2782,8 +2782,8 @@ more than they produce.  In theory you can also use it with other XTs,
 but the stack effect then depends on the size of the array, which is
 hard to understand.
 
-Since arrays are cell-sized, you can store them in memory and manipulate
-them on the stack like other cells.  You can also compile the xt into a
+Since XTs are cell-sized, you can store them in memory and manipulate
+them on the stack like other cells.  You can also compile the XT into a
 word with @code{compile,}:
 
 @example
@@ -2837,10 +2837,10 @@ usually resulted in even worse pitfalls, see
 @uref{http://www.complang.tuwien.ac.at/papers/ertl98.ps.gz}).
 
 Note that the state of the interpreter does not come into play when
-creating and executing xts.  I.e., even when you execute @code{'} in
+creating and executing XTs.  I.e., even when you execute @code{'} in
 compile state, it still gives you the interpretation semantics.  And
 whatever that state is, @code{execute} performs the semantics
-represented by the xt (i.e., the interpretation semantics).
+represented by the XT (i.e., the interpretation semantics).
 
 
 @node Exceptions Tutorial, Defining Words Tutorial, Execution Tokens Tutorial, Tutorial
@@ -2875,7 +2875,7 @@ this:
 @example
 : foo 100 throw ;
 : foo1 foo ." after foo" ;
-: bar ' foo1 catch ;
+: bar ['] foo1 catch ;
 bar
 @end example
 
@@ -2886,7 +2886,7 @@ like this:
 @example
 : ...
    save-x
-   ' word-changing-x catch ( ... n )
+   ['] word-changing-x catch ( ... n )
    restore-x
    ( ... n ) throw ;
 @end example
@@ -3061,7 +3061,7 @@ interpretation semantics) of a word with @code{POSTPONE}:
 
 @example
 : MY-+ ( Compilation: -- ; Run-time of compiled code: n1 n2 -- n )
- POSTPONE + ; immediate compile-only
+ POSTPONE + ; immediate
 : foo ( n1 n2 -- n )
  MY-+ ;
 1 2 foo .
@@ -3191,14 +3191,14 @@ example where the code is generated in a loop:
   POSTPONE swap POSTPONE cell+ ;
 
 : compile-vmul ( compilation: addr1 u -- ; run-time: addr2 -- n )
-\ n=v1*v2 (inneres Produkt), wobei die v_i als addr_i u repräsentiert sind
+\ n=v1*v2 (inner product), where the v_i are represented as addr_i u
   0 postpone literal postpone swap
   [ ' compile-vmul-step compile-map-array ]
   postpone drop ;
 see compile-vmul
 
 : a-vmul ( addr -- n )
-\ n=a*v, wobei v ein Vektor ist, der so lang ist wie a und bei addr anfängt
+\ n=a*v, where v is a vector that's as long as a and starts at addr
  [ a 5 compile-vmul ] ;
 see a-vmul
 a a-vmul .
@@ -3244,7 +3244,7 @@ You can compile the compilation semantics represented by a CT with
 see foo3
 @end example
 
-@code{[ comp' wort postpone, ]} is equivalent to @code{POSTPONE word}.
+@code{[ comp' word postpone, ]} is equivalent to @code{POSTPONE word}.
 @code{comp'} is particularly useful for words that have no
 interpretation semantics:
 

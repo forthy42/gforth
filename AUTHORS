@@ -1,5 +1,22 @@
-Authors of Gforth:
+Authors of Gforth (alphabetically listed, format as Linux CREDITS):
 
-Anton Ertl 	anton@mips.complang.tuwien.ac.at
-Bernd Paysan 	bernd.paysan@gmx.de
-Jens Wilke	wilke@jwdt.com
+N: Anton Ertl
+E: anton@mips.complang.tuwien.ac.at
+D: Project initiator, C based primitives, locals, gray, manual
+D: Release manager
+
+N: Neal Crook
+E: neal@pinga.free-online.co.uk
+D: manual, glossary entries
+
+N: Bernd Paysan
+E: bernd.paysan@gmx.de
+D: Project leader, kernel, cross compiler, non-Unix ports based on GCC
+S: Stockmannstr. 14
+S: D-81477 München
+S: Germany
+P: 1024/382CA8ED 1C 0D 4D 0C 69 00 40 1E  04 BD 96 A3 7B DF 05 B1
+
+N: Jens Wilke
+E: wilke@jwdt.com
+D: Embedded Control versions (non-gcc), cross compiler refinement
