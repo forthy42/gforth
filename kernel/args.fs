@@ -20,9 +20,16 @@
 
 : cstring>sstring  ( cstring -- addr n ) \ gforth	cstring-to-sstring
     -1 0 scan 0 swap 1+ /string ;
-: arg ( n -- addr count ) \ gforth
-    \g Return the string for the @i{n}th command-line argument.
-    cells argv @ + @ cstring>sstring ;
+
+: arg ( u -- addr count ) \ gforth
+\g Return the string for the @i{u}th command-line argument; returns
+\g @code{0 0} if the access is beyond the last argument.
+    dup argc @ u< if
+	cells argv @ + @ cstring>sstring
+    else
+	drop 0 0
+    endif ;
+
 : #! ( -- ) \ gforth   hash-bang
     \g An alias for @code{\}
     postpone \ ;  immediate
@@ -34,55 +41,49 @@ Variable argv ( -- addr ) \ gforth
 \g @code{Variable} -- a pointer to a vector of pointers to the command-line
 \g arguments (including the command-name). Each argument is
 \g represented as a C-style string.
-
+    
 Variable argc ( -- addr ) \ gforth
 \g @code{Variable} -- the number of command-line arguments (including the command name).
-
-0 Value arg# ( -- addr ) \ gforth
-\g While processing the OS command line arguments, this points to the
-\g argument counter (otherwise @code{arg#} produces 0); @code{arg# @
-\g arg} produces the current argument, @code{1 arg# +!} will result in
-\g one argument being skipped, and @code{argc @ 1- arg# !} will skip
-\g all further arguments.  Don't increase @code{arg# @} above
-\g @code{argc @ 1-} (undefined behaviour)!
     
 0 Value script? ( -- flag )
+    
+: shift-args ( -- ) \ gforth
+\g @code{1 arg} is deleted, shifting all following OS command line
+\g parameters to the left by 1, and reducing @code{argc @}.  This word
+\g can change @code{argv @}.
+    argc @ 1 > if
+	argv @ @ ( arg0 )
+	-1 argc +!
+	cell argv +!
+	argv @ !
+    endif ;
 
-: do-option ( addr1 len1 addr2 len2 -- n )
-    2swap
+: process-option ( addr u -- )
+    \ process option, possibly consuming further arguments
     2dup s" -e"         str= >r
-    2dup s" --evaluate" str= r> or
-    IF  2drop ( dup >r ) evaluate
-	( r> >tib +! )  2 EXIT  THEN
+    2dup s" --evaluate" str= r> or if
+	2drop 1 arg shift-args evaluate exit endif
     2dup s" -h"         str= >r
-    2dup s" --help"     str= r> or
-    IF  ." Image Options:" cr
+    2dup s" --help"     str= r> or if
+	." Image Options:" cr
 	."   FILE				    load FILE (with `require')" cr
 	."   -e STRING, --evaluate STRING      interpret STRING (with `EVALUATE')" cr
 	." Report bugs on <https://savannah.gnu.org/bugs/?func=addbug&group=gforth>" cr
 	bye
     THEN
-    ." Unknown option: " type cr 2drop 1 ;
+    ." Unknown option: " type cr ;
 
 : (process-args) ( -- )
     true to script?
-\    >tib @ >r #tib @ >r >in @ >r
-    argc @ 1
-    ?DO
-	rp@ to arg#
-	I arg over c@ [char] - <>
-	IF
-\ 	    2dup dup #tib ! >in ! >tib !
-	    required 1
-	ELSE
-	    I 1+ argc @ =  IF  s" "  ELSE  I 1+ arg  THEN
-	    do-option
-	THEN
-    +LOOP
-\    r> >in ! r> #tib ! r> >tib !
-    0 to arg#
-    false to script?
-;
+    BEGIN
+	argc @ 1 > WHILE
+	    1 arg shift-args over c@ [char] - <> IF
+		required
+	    else
+		process-option
+	    then
+    repeat
+    false to script? ;
 
 : os-boot ( path n **argv argc -- )
     stdout TO outfile-id

@@ -8906,22 +8906,23 @@ doc-argc
 doc-argv
 doc-arg
 
-If you are using these words from @code{'cold}, the (image-specific)
-arguments start at index 1.  If you are using these words during
-Gforth's argument processing (e.g., while including a file on the
-command line), you can use @code{arg#} to get the current index and for
-skipping arguments.
+@code{0 arg} is the program name with which you started Gforth.  The
+next unprocessed argument is always @code{1 arg}, the one after that is
+@code{2 arg} etc.  All arguments already processed by the system are
+deleted.  After you have processed an argument, you can delete it with
+@code{shift-args}.
 
-doc-arg#
+doc-shift-args
 
-Here's an example program using @code{arg#}:
+Here's an example program @file{echo.fs} using @code{arg} etc.:
 
 @example
 : echo ( -- )
-    argc @ arg# @ 1+ +do
-	i arg type space
-	1 arg# +!
-    loop ;
+    begin
+	argc @ 1 > while
+	    1 arg type space
+	    shift-args
+    repeat ;
 
 echo cr bye
 @end example
