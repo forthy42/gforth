@@ -54,8 +54,12 @@ UNLOCK  Tlast @ TNIL Tlast !  LOCK
 ' [THEN] Alias [+LOOP]               immediate
 : [REPEAT]  postpone [AGAIN] postpone [THEN] ;
                                      immediate
-' ( Alias (                          immediate ( keep fontify happy)
-' \ Alias \                          immediate
+\ The following was too smart for its own good; consider "postpone (".
+\ Moreover, ANS Forth specifies that the next [THEN] ends an [IF]
+\ (even if its in a '( ... )').
+
+\ ' ( Alias (                          immediate ( keep fontify happy)
+\ ' \ Alias \                          immediate
 
 UNLOCK Tlast @ swap Tlast ! LOCK
 \ last @ swap last !
