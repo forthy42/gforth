@@ -74,6 +74,7 @@ test/checkans.fs
 test/checkans.out
 test/coretest.fs
 test/coretest.out
+test/deferred.fs
 test/postpone.fs
 test/tester.fs
 vmgen-ex/fib.mini

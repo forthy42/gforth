@@ -304,21 +304,8 @@ ARCHS =	\
 	arch/misc/sim.fs \
 	arch/misc/sokoban.fs \
 	arch/misc/tt.fs \
-	arch/6502/asm.fs \
 	arch/6502/prim.fs \
 	arch/6502/mach.fs \
-	arch/6502/zero.fs \
-	arch/6502/softuart.fs \
-	arch/6502/cold.fs \
-	arch/8086/asm.fs \
-	arch/8086/mach.fs \
-	arch/8086/mach.sh \
-	arch/8086/prim.fs \
-	arch/avr/asm.fs \
-	arch/c165/asm.fs \
-	arch/c165/mach.fs \
-	arch/c165/prim.fs \
-	arch/h8/asm.fs \
 	arch/shboom/asm.fs \
 	arch/shboom/compiler.fs \
 	arch/shboom/dis.fs \
@@ -330,10 +317,26 @@ ARCHS =	\
 	arch/sharc/mach.fs \
 	arch/sharc/machine.h \
 	arch/sharc/compile.sharc \
-	arch/sharc/unistd.h \
 	arch/sharc/systypes.h \
 	arch/sharc/types.h \
 	arch/sharc/g21k-3.3.4-bp1.diff
+
+#not included in distribution until distribution terms are included:
+ARCHS_NO_DIST = \
+	arch/6502/asm.fs \
+	arch/6502/cold.fs \
+	arch/6502/softuart.fs \
+	arch/6502/zero.fs \
+	arch/8086/asm.fs \
+	arch/8086/mach.fs \
+	arch/8086/mach.sh \
+	arch/8086/prim.fs \
+	arch/avr/asm.fs \
+	arch/c165/asm.fs \
+	arch/c165/mach.fs \
+	arch/c165/prim.fs \
+	arch/h8/asm.fs \
+	arch/sharc/unistd.h
 
 VMGEN_EX = vmgen-ex/CVS vmgen-ex/Makefile vmgen-ex/README vmgen-ex/disasm.c \
 	vmgen-ex/engine.c vmgen-ex/fib.mini \
