@@ -84,7 +84,7 @@ XLDFLAGS = @LDFLAGS@
 LDFLAGS =  $(DEBUGFLAG) $(XLDFLAGS)
 LDLIBS  = @LIBS@
 
-AOBJECTS = io.o signals.o memcmpc.o peephole.o @LIBOBJS@
+AOBJECTS = io.o signals.o support.o memcmpc.o peephole.o @LIBOBJS@
 
 OBJECTS = engine.o main.o
 OBJECTS_NATIVE = engine-native.o main-native.o

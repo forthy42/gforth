@@ -1696,10 +1696,10 @@ While working at the Forth command line is convenient for one-line
 examples and short one-off code, you probably want to store your source
 code in files for convenient editing and persistence.  You can use your
 favourite editor (Gforth includes Emacs support, @pxref{Emacs and
-Gforth}) to create @var{file} and use
+Gforth}) to create @var{file.fs} and use
 
 @example
-s" @var{file}" included
+s" @var{file.fs}" included
 @end example
 
 to load it into your Forth system.  The file name extension I use for
@@ -1708,7 +1708,7 @@ Forth files is @samp{.fs}.
 You can easily start Gforth with some files loaded like this:
 
 @example
-gforth @var{file1} @var{file2}
+gforth @var{file1.fs} @var{file2.fs}
 @end example
 
 If an error occurs during loading these files, Gforth terminates,
@@ -1721,7 +1721,7 @@ I often put all the tests in a file, then load the code and run the
 tests with
 
 @example
-gforth @var{code} @var{tests} -e bye
+gforth @var{code.fs} @var{tests.fs} -e bye
 @end example
 
 (often by performing this command with @kbd{C-x C-e} in Emacs).  The
