@@ -11197,7 +11197,7 @@ doc---oof-class;
 Gforth's third object oriented Forth package is a 12-liner. It uses a
 mixture of the @file{object.fs} and the @file{oof.fs} syntax,
 and reduces to the bare minimum of features. This is based on a posting
-of Bernd Paysan in comp.arch.
+of Bernd Paysan in comp.lang.forth.
 
 @menu
 * Basic Mini-OOF Usage::        

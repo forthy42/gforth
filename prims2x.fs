@@ -216,8 +216,11 @@ char a char z ..  char A char Z ..  union char _ singleton union  charclass lett
 char 0 char 9 ..					charclass digit
 bl singleton tab-char over add-member			charclass white
 nl-char singleton eof-char over add-member complement	charclass nonl
-nl-char singleton eof-char over add-member char : over add-member complement  charclass nocolonnl
-bl 1+ maxchar ..					charclass nowhite
+nl-char singleton eof-char over add-member
+    char : over add-member complement                   charclass nocolonnl
+bl 1+ maxchar .. char \ singleton complement intersection
+                                                        charclass nowhitebq
+bl 1+ maxchar ..                                        charclass nowhite
 char " singleton eof-char over add-member complement	charclass noquote
 nl-char singleton					charclass nl
 eof-char singleton					charclass eof
@@ -226,7 +229,7 @@ eof-char singleton					charclass eof
 (( letter (( letter || digit )) **
 )) <- c-name ( -- )
 
-nowhite ++
+(( nowhitebq nowhite ** ))
 <- name ( -- )
 
 Variable forth-flag
@@ -253,10 +256,8 @@ Variable c-flag
 		forth-flag @
 		IF  ." has? " type ."  [IF]"  cr THEN
 	ELSE	2drop
-		c-flag @
-		IF  ." #endif"  cr THEN
-		forth-flag @
-		IF  ." [THEN]"  cr THEN
+	    c-flag @      IF  ." #endif"  cr THEN
+	    forth-flag @  IF  ." [THEN]"  cr THEN
 	THEN }}
 )) <- if-comment
 
@@ -270,7 +271,6 @@ Variable c-flag
 )) <- stack-effect ( -- )
 
 (( {{ s" " doc 2! s" " forth-code 2! }}
-   (( comment || nl )) **
    (( {{ line @ name-line ! filename 2@ name-filename 2! }}
       {{ start }} name {{ end 2dup forth-name 2! c-name 2! }}  white ++
       ` ( white ** {{ start }} stack-effect {{ end stack-string 2! }} ` ) white **
@@ -281,11 +281,11 @@ Variable c-flag
    {{ skipsynclines off line @ c-line ! filename 2@ c-filename 2! start }} (( nocolonnl nonl **  nl )) ** {{ end c-code 2! skipsynclines on }}
    (( ` :  nl
       {{ start }} (( nonl ++  nl )) ++ {{ end forth-code 2! }}
-   )) ??
+   )) ?? {{ printprim }}
    (( nl || eof ))
 )) <- primitive ( -- )
 
-(( (( primitive {{ printprim }} )) ** eof ))
+(( (( comment || primitive || nl )) ** eof ))
 parser primitives2something
 warnings @ [IF]
 .( parser generated ok ) cr
