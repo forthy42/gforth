@@ -51,9 +51,8 @@
 
 : #>> ( -- ) \ gforth	number-sign-greater-greater
     \G releases the hold area started with @code{<<#}.
-    holdend @ count
-    over holdptr !
-    chars + holdend ! ;
+    holdend @ dup holdbuf-end u>= -&11 and throw
+    count chars bounds holdptr ! holdend ! ;
 
 : sign    ( n -- ) \ core
     \G Used within @code{<#} and @code{#>}. If n (a @var{single} number)
