@@ -661,7 +661,6 @@ set-current
 
 : output-label ( -- )  1 flush-comment !
     ?flush-comment
-    ." [" -2 primitive-number @ - 0 .r ." ] "
     ." (Label)&&I_" c-name 2@ type ." ," cr
     -1 primitive-number +! ;
 
