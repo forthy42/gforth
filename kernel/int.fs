@@ -104,12 +104,12 @@ Defer source ( -- c-addr u ) \ core
 \ number? number                                       23feb93py
 
 hex
-const Create bases   10 ,   2 ,   A , 100 ,
-\                     16     2    10   character
+const Create bases   0A , 10 ,   2 ,   0A , 100 ,
+\                    10   16     2     10   character
 
 \ !! protect BASE saving wrapper against exceptions
 : getbase ( addr u -- addr' u' )
-    over c@ [char] $ - dup 4 u<
+    over c@ [char] # - dup 5 u<
     IF
 	cells bases + @ base ! 1 /string
     ELSE

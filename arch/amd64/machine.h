@@ -46,8 +46,11 @@
 #if defined(FORCE_REG) && !defined(DOUBLY_INDIRECT) && !defined(VM_PROFILING)
 #define RPREG asm("%r13")
 #define FPREG asm("%r12")
+#define TOSREG asm("%r14")
+#define SPREG asm("%r15")
+#define IPREG asm("%rbx")
 #if 0
-#define LPREG asm("%r14") /* this spills TOS */
+#define LPREG asm("%rbp") /* doesn't work now */
 #endif
 #define FTOSREG asm("%xmm8")
 #endif
