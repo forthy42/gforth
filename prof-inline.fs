@@ -58,13 +58,12 @@ end-struct list%
 list%
     cell% 2* field profile-count
     cell% 2* field profile-sourcepos
-    cell%    field profile-char \ character position in line
-    count-calls? [if]
-	cell% field profile-colondef? \ is this a colon definition start
-	cell% field profile-calls \ static calls to the colon def (calls%)
-	cell% field profile-straight-line \ may contain calls, but no other CF
-	cell% field profile-calls-from \ static calls in the colon def
-    [endif]
+    cell% field profile-char \ character position in line
+    cell% field profile-bblen \ number of primitives in BB
+    cell% field profile-colondef? \ is this a colon definition start
+    cell% field profile-calls \ static calls to the colon def (calls%)
+    cell% field profile-straight-line \ may contain calls, but no other CF
+    cell% field profile-calls-from \ static calls in the colon def
 end-struct profile% \ profile point
 
 list%
@@ -79,6 +78,7 @@ variable last-colondef-profile \ pointer to the pp of last colon definition
 variable current-profile-point
 variable library-calls 0 library-calls ! \ list of calls to library colon defs
 variable in-compile,? in-compile,? off
+variable all-bbs 0 all-bbs ! \ list of all basic blocks
 
 \ list stuff
 
@@ -118,14 +118,14 @@ variable in-compile,? in-compile,? off
     0. r@ profile-count 2!
     current-sourcepos r@ profile-sourcepos 2!
     >in @ r@ profile-char !
-    [ count-calls? ] [if]
-	r@ profile-colondef? off
-	0 r@ profile-calls !
-	r@ profile-straight-line on
-	0 r@ profile-calls-from !
-    [endif]
+    r@ profile-colondef? off
+    0 r@ profile-bblen !
+    0 r@ profile-calls !
+    r@ profile-straight-line on
+    0 r@ profile-calls-from !
     r@ next-profile-point-p insert-list-end
     r@ current-profile-point !
+    r@ new-call all-bbs insert-list
     r> ;
 
 : print-profile ( -- )
@@ -202,6 +202,19 @@ variable in-compile,? in-compile,? off
     library-calls @ count-dyncalls 12 ud.r \ dynamic callers
     13 spaces ;
 
+: bblen+ ( u1 callp -- u2 )
+    calls-call @ profile-bblen @ + ;
+
+: dyn-bblen+ ( ud1 callp -- ud2 )
+    calls-call @ dup profile-count 2@ rot profile-bblen @ 1 m*/ d+ ;
+    
+: print-bb-statistics ( -- )
+    ." static     dynamic" cr
+    all-bbs @ list-length 6 u.r all-bbs @ count-dyncalls 12 ud.r ."  basic blocks" cr
+    0 all-bbs @ ['] bblen+ map-list 6 u.r
+    0. all-bbs @ ['] dyn-bblen+ map-list 12 ud.r ."  primitives" cr
+    ;
+
 : print-statistics ( -- )
     ." callee exec'd static  dyn-caller  dyn-callee   condition" cr
     ['] 0=  print-stat-line ." calls to coldefs with 0 callers" cr
@@ -210,6 +223,7 @@ variable in-compile,? in-compile,? off
     ['] 3=  print-stat-line ." calls to coldefs with 3 callers" cr
     ['] 1u> print-stat-line ." calls to coldefs with >1 callers" cr
     print-library-stats     ." library calls" cr
+    print-bb-statistics
     ;
 
 : dinc ( profilep -- )
@@ -246,32 +260,32 @@ variable in-compile,? in-compile,? off
 \ better if we had a way of knowing whether we are in a colon def or
 \ not (and used that knowledge instead of STATE).
 
-\ Defer before-word-profile ( -- )
-\ ' noop IS before-word-profile
+Defer before-word-profile ( -- )
+' noop IS before-word-profile
 
-\ : before-word1 ( -- )
-\     before-word-profile defers before-word ;
+: before-word1 ( -- )
+    before-word-profile defers before-word ;
 
-\ ' before-word1 IS before-word
+' before-word1 IS before-word
 
-\ : profile-this-compiling ( -- )
-\     state @ if
-\ 	profile-this
-\ 	['] noop IS before-word-profile
-\     endif ;
+: profile-this-compiling ( -- )
+    state @ if
+	profile-this
+	['] noop IS before-word-profile
+    endif ;
 
-\ : cock-profiler ( -- )
-\     \ as in cock the gun - pull the trigger
-\     ['] profile-this-compiling IS before-word-profile
-\     [ count-calls? ] [if] \ we are at a non-colondef profile point
-\ 	last-colondef-profile @ profile-straight-line off
-\     [endif]
-\ ;
+: cock-profiler ( -- )
+    \ as in cock the gun - pull the trigger
+    ['] profile-this-compiling IS before-word-profile
+    [ count-calls? ] [if] \ we are at a non-colondef profile point
+	last-colondef-profile @ profile-straight-line off
+    [endif]
+;
 
 : hook-profiling-into ( "name" -- )
     \ make (deferred word) "name" call cock-profiler, too
     ' >body >r :noname
-    POSTPONE profile-this
+    POSTPONE cock-profiler
     r@ @ compile, \ old hook behaviour
     POSTPONE ;
     r> ! ; \ change hook behaviour
@@ -297,6 +311,7 @@ variable in-compile,? in-compile,? off
     in-compile,? @ if
 	DEFERS compile, EXIT
     endif
+    1 current-profile-point @ profile-bblen +!
     dup >does-code if
 	dup >does-code note-call
     then
@@ -315,12 +330,12 @@ variable in-compile,? in-compile,? off
     @ dup last-colondef-profile !
     profile-colondef? on ;
 
-\ hook-profiling-into then-like
-\ \ hook-profiling-into if-like    \ subsumed by other-control-flow
-\ \ hook-profiling-into ahead-like \ subsumed by other-control-flow
-\ hook-profiling-into other-control-flow
-\ hook-profiling-into begin-like
-\ hook-profiling-into again-like
-\ hook-profiling-into until-like
+hook-profiling-into then-like
+\ hook-profiling-into if-like    \ subsumed by other-control-flow
+\ hook-profiling-into ahead-like \ subsumed by other-control-flow
+hook-profiling-into other-control-flow
+hook-profiling-into begin-like
+hook-profiling-into again-like
+hook-profiling-into until-like
 ' :-hook-profile IS :-hook
 ' prof-compile, IS compile,
