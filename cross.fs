@@ -3085,6 +3085,7 @@ Create name-buf 200 chars allot
   THEN
   @nb ;
 
+\ FIXME why disabled?!
 : label-from-ghostnameXX ( ghost -- addr len )
 \ same as (label-from-ghostname) but caches generated names
   dup >asm-name @ ?dup IF nip count EXIT THEN
