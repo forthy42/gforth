@@ -1,5 +1,5 @@
 /*
-  $Id: 386.h,v 1.1 1994-02-11 16:30:45 anton Exp $
+  $Id: 386.h,v 1.2 1994-05-18 17:32:59 pazsan Exp $
   Copyright 1992 by the ANSI figForth Development Group
 
   This is the machine-specific part for Intel 386 compatible processors
@@ -32,22 +32,29 @@ typedef float SFloat;
 /* PFA1 is a special version for use just after a NEXT1 */
 #define PFA1(cfa)	PFA(cfa)
 /* CODE_ADDRESS is the address of the code jumped to through the code field */
-#define CODE_ADDRESS(cfa)	({long _cfa = (char *)(cfa); (Label)(_cfa+*((long *)(_cfa+1))-5);})
+#define CODE_ADDRESS(cfa) \
+    ({long _cfa = (char *)(cfa); (Label)(_cfa+*((long *)(_cfa+1))+5);})
 /* MAKE_CF creates an appropriate code field at the cfa; ca is the code address */
-#define MAKE_CF(cfa,ca)	({long _cfa = (long *)(cfa); \
+#define MAKE_CF(cfa,ca)	({long _cfa = (long)(cfa); \
+                          long _ca  = (long)(ca); \
 			  *(char *)_cfa = 0xe9; /* jmp */ \
-			  *(long *)(_cfa+1) = ((long)(ca))-(_cfa+5);})
+			  *(long *)(_cfa+1) = _ca-(_cfa+5);})
 
 /* this is the point where the does code starts if label points to the
  * jump dodoes */
-#define DOES_CODE(label)	((Xt *)(((char *)label)+8))
+#define DOES_HANDLER_SIZE       8
+#define DOES_CODE(label)	((Xt *)(CODE_ADDRESS(label)+DOES_HANDLER_SIZE))
 
 /* this is a special version of DOES_CODE for use in dodoes */
 #define DOES_CODE1(label)	DOES_CODE(label)
 
 /* this stores a jump dodoes at addr */
-#define MAKE_DOESJUMP(addr)	({long _addr = (long *)(addr); \
-				  *(char *)_addr = 0xe9; /* jmp */ \
-				  *(long *)(_addr+1) = ((long)(&&dodoes))-(_addr+5);})
+#define MAKE_DOES_HANDLER(addr) MAKE_CF(addr,symbols[DODOES])
+
+#define MAKE_DOES_CF(addr,doesp) MAKE_CF(addr,((int)(doesp)-8))
 #endif
 
+#define rint(x)	floor((x)+0.5)
+/*
+#define CISC_NEXT
+*/
