@@ -103,6 +103,7 @@ end-struct stack%
 
 s" sp" save-mem s" (Cell)" make-stack data-stack 
 s" fp" save-mem s" "       make-stack fp-stack
+s" rp" save-mem s" (Cell)" make-stack return-stack
 \ !! initialize stack-in and stack-out
 
 \ stack items
@@ -245,10 +246,13 @@ eof-char singleton					charclass eof
 
 
 (( letter (( letter || digit )) **
-)) <- c-name ( -- )
+)) <- c-ident ( -- )
+
+(( ` # ?? (( letter || digit || ` : )) **
+)) <- stack-ident ( -- )
 
 (( nowhitebq nowhite ** ))
-<- name ( -- )
+<- forth-ident ( -- )
 
 Variable forth-flag
 Variable c-flag
@@ -283,17 +287,20 @@ Variable c-flag
 
 (( ` \ comment-body nl )) <- comment ( -- )
 
-(( {{ effect-in }} (( {{ start }} c-name {{ end 2 pick init-item item% %size + }} white ** )) ** {{ effect-in-end ! }}
+(( {{ start }} stack-ident {{ end 2 pick init-item item% %size + }} white ** )) **
+<- stack-items
+
+(( {{ effect-in }}  stack-items {{ effect-in-end ! }}
    ` - ` - white **
-   {{ effect-out }} (( {{ start }} c-name {{ end 2 pick init-item item% %size + }} white ** )) ** {{ effect-out-end ! }}
+   {{ effect-out }} stack-items {{ effect-out-end ! }}
 )) <- stack-effect ( -- )
 
 (( {{ s" " doc 2! s" " forth-code 2! }}
    (( {{ line @ name-line ! filename 2@ name-filename 2! }}
-      {{ start }} name {{ end 2dup forth-name 2! c-name 2! }}  white ++
+      {{ start }} forth-ident {{ end 2dup forth-name 2! c-name 2! }}  white ++
       ` ( white ** {{ start }} stack-effect {{ end stack-string 2! }} ` ) white **
-        {{ start }} name {{ end wordset 2! }} white **
-        (( {{ start }}  c-name {{ end c-name 2! }} )) ??  nl
+        {{ start }} forth-ident {{ end wordset 2! }} white **
+        (( {{ start }}  c-ident {{ end c-name 2! }} )) ??  nl
    ))
    (( ` " ` "  {{ start }} (( noquote ++ ` " )) ++ {{ end 1- doc 2! }} ` " nl )) ??
    {{ skipsynclines off line @ c-line ! filename 2@ c-filename 2! start }} (( nocolonnl nonl **  nl )) ** {{ end c-code 2! skipsynclines on }}
@@ -485,6 +492,14 @@ does> ( item -- )
 : declaration ( item -- )
     dup item-name 2@ execute-prefix ;
 
+: stack-prefix ( stack "prefix" -- )
+    name tuck nextname create ( stack length ) 2,
+does> ( item -- )
+    2@ { item stack prefix-length }
+    item item-name 2@ prefix-length /string item item-name 2!
+    stack item item-stack !
+    item declaration ;
+    
 : declaration-list ( addr1 addr2 -- )
  swap ?do
   i declaration
@@ -515,6 +530,8 @@ s" Xt"		single-type type-prefix xt
 s" WID"		single-type type-prefix wid
 s" struct F83Name *"	single-type type-prefix f83name
 
+return-stack stack-prefix R:
+
 set-current
 
 \ offset computation
@@ -538,7 +555,7 @@ set-current
 
 
 : compute-offsets ( -- )
-    data-stack clear-stack  fp-stack clear-stack
+    data-stack clear-stack  fp-stack clear-stack return-stack clear-stack
     effect-in  effect-in-end  @ ['] stack-in  compute-list
     effect-out effect-out-end @ ['] stack-out compute-list ;
 
@@ -550,8 +567,9 @@ set-current
     endif ;
 
 : flush-tos ( -- )
-    data-stack flush-a-tos
-    fp-stack   flush-a-tos ;
+    data-stack   flush-a-tos
+    fp-stack     flush-a-tos
+    return-stack flush-a-tos ;
 
 : fill-a-tos { stack -- }
     stack stack-out @ 0= stack stack-in @ 0<> and
@@ -561,8 +579,9 @@ set-current
     endif ;
 
 : fill-tos ( -- )
-    fp-stack   fill-a-tos
-    data-stack fill-a-tos ;
+    fp-stack     fill-a-tos
+    data-stack   fill-a-tos
+    return-stack fill-a-tos ;
 
 : fetch ( addr -- )
  dup item-type @ type-fetch @ execute ;
@@ -580,8 +599,9 @@ set-current
     endif ;
 
 : stack-pointer-updates ( -- )
-    data-stack stack-pointer-update
-    fp-stack   stack-pointer-update ;
+    data-stack   stack-pointer-update
+    fp-stack     stack-pointer-update
+    return-stack stack-pointer-update ;
 
 : store ( item -- )
 \ f is true if the item should be stored
@@ -639,8 +659,9 @@ set-current
     ." {" cr
     declarations
     compute-offsets \ for everything else
-    data-stack stack-used? IF ." Cell *sp=SP;" cr THEN
-    fp-stack   stack-used? IF ." Cell *fp=*FP;" cr THEN
+    data-stack   stack-used? IF ." Cell *sp=SP;" cr THEN
+    fp-stack     stack-used? IF ." Cell *fp=*FP;" cr THEN
+    return-stack stack-used? IF ." Cell *rp=*RP;" cr THEN
     flush-tos
     fetches
     stack-pointer-updates

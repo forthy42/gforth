@@ -201,6 +201,9 @@ typedef Label *Xt;
 #define fpTOS (fp[0])
 #endif
 
+#define IF_rpTOS(x)
+#define rpTOS (rp[0])
+
 typedef struct {
   Address base;		/* base address of image (0 if relocatable) */
   UCell checksum;	/* checksum of ca's to protect against some

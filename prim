@@ -134,7 +134,6 @@ EXEC(*(Xt *)a_addr);
 
 branch-lp+!#	( -- )	gforth	branch_lp_plus_store_number
 /* this will probably not be used */
-branch_adjust_lp:
 lp += (Cell)(IP[1]);
 goto branch;
 
@@ -151,7 +150,6 @@ SET_IP((Xt *)(((Cell)IP)+(Cell)NEXT_INST));
 define(condbranch,
 $1	$2
 $3	SET_IP((Xt *)(((Cell)IP)+(Cell)NEXT_INST));
-	NEXT;
 }
 else
     INC_IP(1);
@@ -160,7 +158,8 @@ $4
 \+glocals
 
 $1-lp+!#	$2_lp_plus_store_number
-$3    goto branch_adjust_lp;
+$3    lp += (Cell)(IP[1]);
+SET_IP((Xt *)(((Cell)IP)+(Cell)NEXT_INST));
 }
 else
     INC_IP(2);
@@ -212,36 +211,29 @@ else
 \f[THEN]
 \fhas? skiploopprims 0= [IF]
 
-condbranch((next),( -- )		cmFORTH	paren_next,
-if ((*rp)--) {
+condbranch((next),( R:n1 -- R:n2 )		cmFORTH	paren_next,
+n2=n1-1;
+if (n1) {
 ,:
  r> r> dup 1- >r
  IF dup @ + >r ELSE cell+ >r THEN ;)
 
-condbranch((loop),( -- )		gforth	paren_loop,
-Cell index = *rp+1;
-Cell limit = rp[1];
-if (index != limit) {
-    *rp = index;
+condbranch((loop),( R:nlimit R:n1 -- R:nlimit R:n2 )	gforth	paren_loop,
+n2=n1+1;
+if (n2 != nlimit) {
 ,:
  r> r> 1+ r> 2dup =
  IF >r 1- >r cell+ >r
  ELSE >r >r dup @ + >r THEN ;)
 
-condbranch((+loop),( n -- )		gforth	paren_plus_loop,
+condbranch((+loop),( n R:nlimit R:n1 -- R:nlimit R:n2 )	gforth paren_plus_loop,
 /* !! check this thoroughly */
-Cell index = *rp;
 /* sign bit manipulation and test: (x^y)<0 is equivalent to (x<0) != (y<0) */
 /* dependent upon two's complement arithmetic */
-Cell olddiff = index-rp[1];
+Cell olddiff = n1-nlimit;
+n2=n1+n;	
 if ((olddiff^(olddiff+n))>=0   /* the limit is not crossed */
     || (olddiff^n)>=0          /* it is a wrap-around effect */) {
-#ifdef i386
-    *rp += n;
-#else
-    *rp = index + n;
-#endif
-    IF_spTOS(spTOS = sp[0]);
 ,:
  r> swap
  r> r> 2dup - >r
@@ -252,64 +244,45 @@ if ((olddiff^(olddiff+n))>=0   /* the limit is not crossed */
 
 \+xconds
 
-condbranch((-loop),( u -- )		gforth	paren_minus_loop,
-/* !! check this thoroughly */
-Cell index = *rp;
-UCell olddiff = index-rp[1];
+condbranch((-loop),( u R:nlimit R:n1 -- R:nlimit R:n2 )	gforth	paren_minus_loop,
+UCell olddiff = n1-nlimit;
+n2=n1-u;
 if (olddiff>u) {
-#ifdef i386
-    *rp -= u;
-#else
-    *rp = index - u;
-#endif
-    IF_spTOS(spTOS = sp[0]);
 ,)
 
-condbranch((s+loop),( n -- )		gforth	paren_symmetric_plus_loop,
+condbranch((s+loop),( n R:nlimit R:n1 -- R:nlimit R:n2 )		gforth	paren_symmetric_plus_loop,
 ""The run-time procedure compiled by S+LOOP. It loops until the index
 crosses the boundary between limit and limit-sign(n). I.e. a symmetric
 version of (+LOOP).""
 /* !! check this thoroughly */
-Cell index = *rp;
-Cell diff = index-rp[1];
+Cell diff = n1-nlimit;
 Cell newdiff = diff+n;
 if (n<0) {
     diff = -diff;
     newdiff = -newdiff;
 }
+n2=n1+n;
 if (diff>=0 || newdiff<0) {
-#ifdef i386
-    *rp += n;
-#else
-    *rp = index + n;
-#endif
-    IF_spTOS(spTOS = sp[0]);
 ,)
 
 \+
 
-unloop	( -- )	core
-rp += 2;
+unloop	( R:w1 R:w2 -- )	core
+/* !! alias for 2rdrop */
 :
  r> rdrop rdrop >r ;
 
-(for)	( ncount -- )		cmFORTH		paren_for
+(for)	( ncount -- R:nlimit R:ncount )		cmFORTH		paren_for
 /* or (for) = >r -- collides with unloop! */
-*--rp = 0;
-*--rp = ncount;
+nlimit=0;
 :
  r> swap 0 >r >r >r ;
 
-(do)	( nlimit nstart -- )		gforth		paren_do
-/* or do it in high-level? 0.09/0.23% */
-*--rp = nlimit;
-*--rp = nstart;
+(do)	( nlimit nstart -- R:nlimit R:nstart )	gforth		paren_do
 :
  r> swap rot >r >r >r ;
 
-(?do)	( nlimit nstart -- )	gforth	paren_question_do
-*--rp = nlimit;
-*--rp = nstart;
+(?do)	( nlimit nstart -- R:nlimit R:nstart )	gforth	paren_question_do
 if (nstart == nlimit) {
     IF_spTOS(spTOS = sp[0]);
     goto branch;
@@ -327,9 +300,7 @@ else {
 
 \+xconds
 
-(+do)	( nlimit nstart -- )	gforth	paren_plus_do
-*--rp = nlimit;
-*--rp = nstart;
+(+do)	( nlimit nstart -- R:nlimit R:nstart )	gforth	paren_plus_do
 if (nstart >= nlimit) {
     IF_spTOS(spTOS = sp[0]);
     goto branch;
@@ -347,9 +318,7 @@ else {
      cell+
  THEN  >r ;
 
-(u+do)	( ulimit ustart -- )	gforth	paren_u_plus_do
-*--rp = ulimit;
-*--rp = ustart;
+(u+do)	( ulimit ustart -- R:ulimit R:ustart )	gforth	paren_u_plus_do
 if (ustart >= ulimit) {
     IF_spTOS(spTOS = sp[0]);
     goto branch;
@@ -367,9 +336,7 @@ else {
      cell+
  THEN  >r ;
 
-(-do)	( nlimit nstart -- )	gforth	paren_minus_do
-*--rp = nlimit;
-*--rp = nstart;
+(-do)	( nlimit nstart -- R:nlimit R:nstart )	gforth	paren_minus_do
 if (nstart <= nlimit) {
     IF_spTOS(spTOS = sp[0]);
     goto branch;
@@ -387,9 +354,7 @@ else {
      cell+
  THEN  >r ;
 
-(u-do)	( ulimit ustart -- )	gforth	paren_u_minus_do
-*--rp = ulimit;
-*--rp = ustart;
+(u-do)	( ulimit ustart -- R:ulimit R:ustart )	gforth	paren_u_minus_do
 if (ustart <= ulimit) {
     IF_spTOS(spTOS = sp[0]);
     goto branch;
@@ -412,29 +377,24 @@ else {
 \ don't make any assumptions where the return stack is!!
 \ implement this in machine code if it should run quickly!
 
-i	( -- n )		core
-n = *rp;
+i	( R:n -- R:n n )		core
 :
 \ rp@ cell+ @ ;
   r> r> tuck >r >r ;
 
-i'	( -- w )		gforth		i_tick
-""loop end value""
-w = rp[1];
+i'	( R:w R:w2 -- R:w R:w2 w )		gforth		i_tick
 :
 \ rp@ cell+ cell+ @ ;
   r> r> r> dup itmp ! >r >r >r itmp @ ;
 variable itmp
 
-j	( -- n )		core
-n = rp[2];
+j	( R:n R:d1 -- n R:n R:d1 )		core
 :
 \ rp@ cell+ cell+ cell+ @ ;
   r> r> r> r> dup itmp ! >r >r >r >r itmp @ ;
 [IFUNDEF] itmp variable itmp [THEN]
 
-k	( -- n )		gforth
-n = rp[4];
+k	( R:n R:d1 R:d2 -- n R:n R:d1 R:d2 )		gforth
 :
 \ rp@ [ 5 cells ] Literal + @ ;
   r> r> r> r> r> r> dup itmp ! >r >r >r >r >r >r itmp @ ;
@@ -973,54 +933,37 @@ fp = f_addr;
 
 \+
 
-;s	( -- )		gforth	semis
+;s	( R:w -- )		gforth	semis
 ""The primitive compiled by @code{EXIT}.""
-SET_IP((Xt *)(*rp++));
+SET_IP((Xt *)w);
 
->r	( w -- )		core	to_r
-""@code{( R: -- w )}""
-*--rp = w;
+>r	( w -- R:w )		core	to_r
 :
  (>r) ;
 : (>r)  rp@ cell+ @ rp@ ! rp@ cell+ ! ;
 
-r>	( -- w )		core	r_from
-""@code{( R: w -- )}""
-w = *rp++;
+r>	( R:w -- w )		core	r_from
 :
  rp@ cell+ @ rp@ @ rp@ cell+ ! (rdrop) rp@ ! ;
 Create (rdrop) ' ;s A,
 
-rdrop	( -- )		gforth
-""@code{( R: w -- )}""
-rp++;
+rdrop	( R:w -- )		gforth
 :
  r> r> drop >r ;
 
-2>r	( w1 w2 -- )	core-ext	two_to_r
-""@code{( R: -- w1 w2 )}""
-*--rp = w1;
-*--rp = w2;
+2>r	( w1 w2 -- R:w1 R:w2 )	core-ext	two_to_r
 :
  swap r> swap >r swap >r >r ;
 
-2r>	( -- w1 w2 )	core-ext	two_r_from
-""@code{( R: w1 w2 -- )}""
-w2 = *rp++;
-w1 = *rp++;
+2r>	( R:w1 R:w2 -- w1 w2 )	core-ext	two_r_from
 :
  r> r> swap r> swap >r swap ;
 
-2r@	( -- w1 w2 )	core-ext	two_r_fetch
-""@code{( R: w1 w2 -- w1 w2 )}""
-w2 = rp[0];
-w1 = rp[1];
+2r@	( R:w1 R:w2 -- R:w1 R:w2 w1 w2 )	core-ext	two_r_fetch
 :
  i' j ;
 
-2rdrop	( -- )		gforth	two_r_drop
-""@code{( R: w1 w2 -- )}""
-rp+=2;
+2rdrop	(  R:w1 R:w2 -- )		gforth	two_r_drop
 :
  r> r> drop r> drop >r ;
 
