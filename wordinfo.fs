@@ -63,10 +63,11 @@
 
 [IFDEF] forthstart
 : xtprim? ( xt -- flag )
-	forthstart u< ;
+    forthstart dictionary-end within ; \ !! does not work for CODE words
 [ELSE]
 : xtprim? ( xt -- flag )
-	dup >body swap >code-address = ;		
+    dup >body swap >code-address = ; \ !! works only for indirect threaded code
+				     \ !! does not work for primitives
 [THEN]
 : prim? ( nfa -- flag )
         name>int xtprim? ;

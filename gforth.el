@@ -951,10 +951,10 @@ The region is sent terminated by a newline."
    (setq outline-level 'f-outline-level)
 
    (outline-minor-mode)
-(define-key outline-minor-mode-map '(shift up) 'hide-sublevels)
-(define-key outline-minor-mode-map '(shift right) 'show-children)
-(define-key outline-minor-mode-map '(shift left) 'hide-subtree)
-(define-key outline-minor-mode-map '(shift down) 'show-subtree)
+   (define-key outline-minor-mode-map '(shift up) 'hide-sublevels)
+   (define-key outline-minor-mode-map '(shift right) 'show-children)
+   (define-key outline-minor-mode-map '(shift left) 'hide-subtree)
+   (define-key outline-minor-mode-map '(shift down) 'show-subtree)
 
 )
 
@@ -972,8 +972,8 @@ The region is sent terminated by a newline."
        (require 'func-menu)
 ;;       (define-key global-map 'f8 'function-menu)
        (add-hook 'find-fible-hooks 'fume-add-menubar-entry)
-       (define-key global-map "\C-cg" 'fume-prompt-function-goto)
-       (define-key global-map '(shift button3) 'mouse-function-menu)
+;       (define-key global-map "\C-cg" 'fume-prompt-function-goto)
+;       (define-key global-map '(shift button3) 'mouse-function-menu)
 ))
 
 ;; end

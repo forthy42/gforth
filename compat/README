@@ -1,3 +1,5 @@
 This directory contains ANS Forth programs that provide some of
 Gforth's features to other ANS Forth systems. They are mostly in the
-public domain.
+public domain. Documentation for these files is usually contained in
+the files themselves; you can find more documentation in Gforth's
+documentation.

@@ -518,7 +518,11 @@ IS discode
 
 : seecode ( xt -- )
     dup s" Code" .defname
-    >body discode
+    threading-method
+    if
+	>code-address
+    then
+    discode
     ."  end-code" cr ;
 : seevar ( xt -- )
     s" Variable" .defname cr ;

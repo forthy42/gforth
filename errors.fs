@@ -22,69 +22,78 @@
 : linked        here over @ a, swap ! ;
 [THEN]
 
-: ERR" ( n -- )
-       ErrLink linked
-       ,
-       [char] " parse
-       string, align ;
+: errstring ( addr u n -- )
+    ErrLink linked
+    ,
+    string, align ;
+
+variable next-exception -2048 next-exception !
+
+: exception ( addr u -- n )
+    \G @var{n} is a previously unused THROW value in the range
+    \G {-4095...-256}. Consecutive calls to EXCEPTION return
+    \G consecutive decreasing numbers. Gforth uses the string
+    \G @var{addr u} as error message.
+    next-exception @ errstring
+    next-exception @
+    -1 next-exception +! ;
 
 decimal
 
--1 ERR" Aborted"
--3 ERR" Stack overflow"
--4 ERR" Stack underflow"
--5 ERR" Return stack overflow"
--6 ERR" Return stack undeflow"
--7 ERR" Do-loops nested too deeply"
--8 ERR" Dictionary overflow"
--9 ERR" Invalid memory address"
--10 ERR" Division by zero"
--11 ERR" Result out of range"
--12 ERR" Argument type mismatch"
--13 ERR" Undefined word"
--14 ERR" Interpreting a compile-only word"
--15 ERR" Invalid FORGET"
--16 ERR" Attempt to use zero-length string as a name"
--17 ERR" Pictured numeric ouput string overflow"
--18 ERR" Parsed string overflow"
--19 ERR" Word name too long"
--20 ERR" Write to a read-only location"
--21 ERR" Unsupported operation"
--22 ERR" Control structure mismatch"
--23 ERR" Address alignment exception"
--24 ERR" Invalid numeric argument"
--25 ERR" Return stack imbalance"
--26 ERR" Loop parameters unavailable"
--27 ERR" Invalid recursion"
--28 ERR" User interrupt"
--29 ERR" Compiler nesting"
--30 ERR" Obsolescent feature"
--31 ERR" >BODY used on non-CREATEd definition"
--32 ERR" Invalid name argument"
--33 ERR" Block read exception"
--34 ERR" Block write exception"
--35 ERR" Invalid block number"
--36 ERR" Invalid file position"
--37 ERR" File I/O exception"
--38 ERR" Non-existent file"
--39 ERR" Unexpected end of file"
--40 ERR" Invalid BASE for floating point conversion"
--41 ERR" Loss of precision"
--42 ERR" Floating-point divide by zero"
--43 ERR" Floating-point result out of range"
--44 ERR" Floating-point stack overflow"
--45 ERR" Floating-point stack underflow"
--46 ERR" Floating-point invalid argument"
--47 ERR" Compilation word list deleted"
--48 ERR" invalid POSTPONE"
--49 ERR" Search-order overflow"
--50 ERR" Search-order underflow"
--51 ERR" Compilation word list changed"
--52 ERR" Control-flow stack overflow"
--53 ERR" Exception stack overflow"
--54 ERR" Floating-point underflow"
--55 ERR" Floating-point unidentified fault"
--56 ERR" QUIT"
--57 ERR" Error in sending or receiving a character"
--58 ERR" [IF], [ELSE], [THEN] error"
- 
+-1 s" Aborted" rot errstring
+-3 s" Stack overflow" rot errstring
+-4 s" Stack underflow" rot errstring
+-5 s" Return stack overflow" rot errstring
+-6 s" Return stack undeflow" rot errstring
+-7 s" Do-loops nested too deeply" rot errstring
+-8 s" Dictionary overflow" rot errstring
+-9 s" Invalid memory address" rot errstring
+-10 s" Division by zero" rot errstring
+-11 s" Result out of range" rot errstring
+-12 s" Argument type mismatch" rot errstring
+-13 s" Undefined word" rot errstring
+-14 s" Interpreting a compile-only word" rot errstring
+-15 s" Invalid FORGET" rot errstring
+-16 s" Attempt to use zero-length string as a name" rot errstring
+-17 s" Pictured numeric ouput string overflow" rot errstring
+-18 s" Parsed string overflow" rot errstring
+-19 s" Word name too long" rot errstring
+-20 s" Write to a read-only location" rot errstring
+-21 s" Unsupported operation" rot errstring
+-22 s" Control structure mismatch" rot errstring
+-23 s" Address alignment exception" rot errstring
+-24 s" Invalid numeric argument" rot errstring
+-25 s" Return stack imbalance" rot errstring
+-26 s" Loop parameters unavailable" rot errstring
+-27 s" Invalid recursion" rot errstring
+-28 s" User interrupt" rot errstring
+-29 s" Compiler nesting" rot errstring
+-30 s" Obsolescent feature" rot errstring
+-31 s" >BODY used on non-CREATEd definition" rot errstring
+-32 s" Invalid name argument" rot errstring
+-33 s" Block read exception" rot errstring
+-34 s" Block write exception" rot errstring
+-35 s" Invalid block number" rot errstring
+-36 s" Invalid file position" rot errstring
+-37 s" File I/O exception" rot errstring
+-38 s" Non-existent file" rot errstring
+-39 s" Unexpected end of file" rot errstring
+-40 s" Invalid BASE for floating point conversion" rot errstring
+-41 s" Loss of precision" rot errstring
+-42 s" Floating-point divide by zero" rot errstring
+-43 s" Floating-point result out of range" rot errstring
+-44 s" Floating-point stack overflow" rot errstring
+-45 s" Floating-point stack underflow" rot errstring
+-46 s" Floating-point invalid argument" rot errstring
+-47 s" Compilation word list deleted" rot errstring
+-48 s" invalid POSTPONE" rot errstring
+-49 s" Search-order overflow" rot errstring
+-50 s" Search-order underflow" rot errstring
+-51 s" Compilation word list changed" rot errstring
+-52 s" Control-flow stack overflow" rot errstring
+-53 s" Exception stack overflow" rot errstring
+-54 s" Floating-point underflow" rot errstring
+-55 s" Floating-point unidentified fault" rot errstring
+-56 s" QUIT" rot errstring
+-57 s" Error in sending or receiving a character" rot errstring
+-58 s" [IF], [ELSE], [THEN] error" rot errstring

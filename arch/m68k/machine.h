@@ -52,6 +52,13 @@
 extern int cacheflush(void *, int, int, size_t);
 #define FLUSH_ICACHE(addr,size) \
   cacheflush(addr, FLUSH_SCOPE_LINE, FLUSH_CACHE_INSN, (size_t)(size) + 15)
+#elif defined(amigaos)
+#  define FLUSH_ICACHE(addr,size) \
+  asm(" move.l a6,-(sp); \
+        move.l _SysBase,a6; \
+        jsr -636(a6); \
+        move.l (sp)+,a6; \
+  ")
 #else
 #  warning no FLUSH_ICACHE defined. If your machine has an I-cache (68020+),
 #  warning direct threading and CODE words will not work.
@@ -91,7 +98,11 @@ extern int cacheflush(void *, int, int, size_t);
 #endif
 
 #ifdef FORCE_REG /* highly recommended */
-#define IPREG asm("%a5")
+#if defined(amigaos)
+#  define IPREG asm("a6")
+#else
+#  define IPREG asm("a5")
+#endif
 #define SPREG asm("%a4")
 #define RPREG asm("%a3")
 #define CFAREG asm("%a2")
