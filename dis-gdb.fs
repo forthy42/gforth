@@ -25,11 +25,11 @@
 
 : disasm-gdb { addr u -- }
     base @ >r hex
-    s\" file=`mktemp -t gforthdis.XXXXXXXXXX`\nfile2=`mktemp -t gforthdis.XXXXXXXXXX`\necho \"set verbose off\nset logging file $file\nset logging on\ndisas " save-mem ( addr u addr1 u1 )
+    s\" file=`mktemp -t gforthdis.XXXXXXXXXX` && file2=`mktemp -t gforthdis.XXXXXXXXXX` && echo \"set verbose off\nset logging file $file\nset logging on\ndisas " save-mem ( addr u addr1 u1 )
     addr 0 <<# bl hold # #s 'x hold # #> append-extend-string #>>
     addr u + 0 <<# # #s 'x hold # #> append-extend-string #>>
     r> base ! cr
-    s\" \nset logging off\nquit\n\" >$file2; gdb -nx -q -p $PPID -x $file2 2>/dev/null >/dev/null; rm $file2; grep -v \"of assembler\" $file; rm $file" append-extend-string
+    s\" \nset logging off\nquit\n\" >$file2 && gdb -nx -q -p $PPID -x $file2 2>/dev/null >/dev/null && rm $file2 && grep -v \"of assembler\" $file && rm $file" append-extend-string
     2dup (system) 2swap drop free throw throw if
 	addr u dump
     endif ;
