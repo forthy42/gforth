@@ -86,8 +86,8 @@ decimal
 \ CONVERT                                               17may93jaw
 
 : convert ( ud1 c-addr1 -- ud2 c-addr2 ) \ core-ext
-    \ obsolescent; superseded by @code{>number}.
-    true >number drop ;
+    \G obsolescent; superseded by @code{>number}.
+    char+ true >number drop ;
 
 \ ERASE                                                 17may93jaw
 

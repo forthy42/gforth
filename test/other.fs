@@ -65,6 +65,10 @@ s" +" find-name <> throw
 
 s" a     " 2 /string -trailing throw drop
 
+\ convert (has to skip first char)
+
+0. s" 123  " drop convert drop 23. d<> throw
+
 \ comments across several lines
 
 ( fjklfjlas;d
