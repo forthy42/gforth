@@ -101,5 +101,6 @@ typedef void *Label;
 #define HAS_XCONDS
 #define HAS_STANDARDTHREADING
 #define HAS_DEBUG
+#define HAS_PEEPHOLE
 
 #define RELINFOBITS	8

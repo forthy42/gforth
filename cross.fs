@@ -1777,7 +1777,11 @@ Comment (       Comment \
   ELSE  postpone literal postpone gexecute  THEN ;
                                         immediate
 
+T has? peephole H [IF]
 : (cc) compile call T >body a, H ;		' (cc) IS colon,
+[ELSE]
+    ' (prim) IS colon,
+[THEN]
 
 : [G'] 
 \G ticks a ghost and returns its address
@@ -2043,7 +2047,7 @@ Cond: DOES> restrict?
   executed-ghost @
   create-forward-warn
   IF ['] reswarn-forward IS resolve-warning THEN
-  Theader >r dup gdoes,
+  Theader >r dup , dup gdoes,
 \ stores execution semantic in the built word
 \ if the word already has a semantic (concerns S", IS, .", DOES>)
 \ then keep it
@@ -2101,10 +2105,16 @@ Cond: DOES> restrict?
   postpone ;    ( S addr xt )
   over >exec ! ; immediate
 
+T has? peephole H [IF]
 : compile: ( ghost -- ghost [xt] [colon-sys] )
     :noname  postpone g>body ;
 : ;compile ( ghost [xt] [colon-sys] -- ghost )
     postpone ;  over >comp ! ; immediate
+[ELSE]
+: compile:  ( ghost -- ghost xt colon-sys )  :noname ;
+: ;compile ( ghost xt colon-sys -- ghost )
+    postpone ; drop ; immediate
+[THEN]
 
 : by      ( -- ghost ) \ Name
   ghost >end @ ;
@@ -2141,6 +2151,7 @@ Builder Variable
 [ELSE]
 Build: T 0 , H ;
 by Create
+\ compile: alit, ;compile
 Builder Variable
 [THEN]
 
@@ -2151,6 +2162,7 @@ Builder 2Variable
 [ELSE]
 Build: T 0 , 0 , H ;
 by Create
+\ compile: alit, ;compile
 Builder 2Variable
 [THEN]
 
@@ -2161,6 +2173,7 @@ Builder AVariable
 [ELSE]
 Build: T 0 A, H ;
 by Create
+\ compile: alit, ;compile
 Builder AVariable
 [THEN]
 

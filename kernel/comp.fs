@@ -210,6 +210,7 @@ defer compile, ( xt -- )	\ core-ext	compile-comma
 ' , is compile,
 [THEN]
 
+has? peephole [IF]
 : peephole-compile, ( xt -- )
     last-compiled @ ?dup if
 	@ over peeptable peephole-opt ?dup if
@@ -239,6 +240,9 @@ defer compile, ( xt -- )	\ core-ext	compile-comma
     peephole-compile, ;
 
 ' compile-to-prims, IS compile,
+[ELSE]
+' , is compile,
+[THEN]
 
 : !does    ( addr -- ) \ gforth	store-does
     lastxt does-code! ;

@@ -196,7 +196,9 @@ AUser last-compiled \ address of the last compiled xt
                     \ 0 if last xt cannot be combined (basic block boundary)
 0 last-compiled !
 
+has? peephole  [IF]
 0 value peeptable \ initialized in boot
+[THEN]
 
 has? glocals [IF]
 User locals-size \ this is the current size of the locals stack

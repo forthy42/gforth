@@ -2351,6 +2351,8 @@ while(a_addr != NULL)
 
 \+
 
+\+peephole
+
 primtable	( -- wprimtable )	new
 ""wprimtable is a table containing the xts of the primitives indexed
 by sequence-number in prim (for use in prepare-peephole-table).""
@@ -2377,5 +2379,4 @@ SET_IP((Xt *)a_callee);
 useraddr	( #u -- a_addr )
 a_addr = (Cell *)(up+u);
 
-
-
+\+

@@ -45,6 +45,8 @@ true DefaultValue backtrace	\ enables backtrace code
 
 true DefaultValue new-input	\ enables object oriented input
 
+true DefaultValue peephole      \ enables peephole optimizer
+
 false DefaultValue ec
 false DefaultValue crlf
 
