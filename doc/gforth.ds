@@ -335,6 +335,7 @@ Word Lists
 
 * Why use word lists?::         
 * Word list examples::          
+* Vocabularies::                
 
 Files
 
@@ -7704,7 +7705,7 @@ from session to session.
 
 The ANS Forth ``Search order'' word set is intended to provide a set of
 low-level tools that allow various different schemes to be
-implemented. Gforth provides @code{vocabulary}, a traditional Forth
+implemented. Gforth also provides @code{vocabulary}, a traditional Forth
 word.  @file{compat/vocabulary.fs} provides an implementation in ANS
 Forth.
 
@@ -7738,7 +7739,7 @@ doc-words
 doc-vlist
 @c doc-words-deferred
 
-doc-mappedwordlist
+@c doc-mappedwordlist @c map-structure undefined, implemantation-specific
 doc-root
 doc-vocabulary
 doc-seal
@@ -7750,26 +7751,34 @@ doc-context
 @menu
 * Why use word lists?::         
 * Word list examples::          
+* Vocabularies::                
 @end menu
 
 @node Why use word lists?, Word list examples, Word Lists, Word Lists
 @subsection Why use word lists?
 @cindex word lists - why use them?
 
-Here are some reasons for using multiple word lists:
+Here are some reasons why people use wordlists:
 
 @itemize @bullet
-@item
-To improve compilation speed by reducing the number of header space
-entries that must be searched. This is achieved by creating a new
-word list that contains all of the definitions that are used in the
-definition of a Forth system but which would not usually be used by
-programs running on that system. That word list would be on the search
-list when the Forth system was compiled but would be removed from the
-search list for normal operation. This can be a useful technique for
-low-performance systems (for example, 8-bit processors in embedded
-systems) but is unlikely to be necessary in high-performance desktop
-systems.
+
+@c anton: Gforth's hashing implementation makes the search speed
+@c independent from the number of words.  But it is linear with the number
+@c of wordlists that have to be searched, so in effect using more wordlists
+@c actually slows down compilation.
+
+@c @item
+@c To improve compilation speed by reducing the number of header space
+@c entries that must be searched. This is achieved by creating a new
+@c word list that contains all of the definitions that are used in the
+@c definition of a Forth system but which would not usually be used by
+@c programs running on that system. That word list would be on the search
+@c list when the Forth system was compiled but would be removed from the
+@c search list for normal operation. This can be a useful technique for
+@c low-performance systems (for example, 8-bit processors in embedded
+@c systems) but is unlikely to be necessary in high-performance desktop
+@c systems.
+
 @item
 To prevent a set of words from being used outside the context in which
 they are valid. Two classic examples of this are an integrated editor
@@ -7778,6 +7787,15 @@ search order is set to the editor word list when the editor is invoked;
 the old search order is restored when the editor is terminated) and an
 integrated assembler (the op-codes for the machine are defined in a
 separate word list which is used when a @code{CODE} word is defined).
+
+@item
+To organize the words of an application or library into a user-visible
+set (in @code{forth-wordlist} or some other common wordlist) and a set
+of helper words used just for the implementation (hidden in a separate
+wordlist).  This keeps the @code{words} output cleaner, provides a
+separation of implementation and interface, and reduces the chance of
+name conflicts within the common wordlist.
+
 @item
 To prevent a name-space clash between multiple definitions with the same
 name. For example, when building a cross-compiler you might have a word
@@ -7786,14 +7804,57 @@ placing this definition in a different word list you can control whether
 the host system's @code{IF} or the target system's @code{IF} get used in
 any particular context by controlling the order of the word lists on the
 search order stack.
+
 @end itemize
 
-@node Word list examples,  , Why use word lists?, Word Lists
+The downsides of using wordlists are:
+
+@itemize
+
+@item
+Debugging becomes more cumbersome.
+
+@item
+Name conflicts worked around with wordlists are still there, and you
+have to arrange the search order carefully to get the desired results;
+if you forget to do that, you get hard-to-find errors (as in any case
+where you read the code differently from the compiler; @code{see} can
+help in such cases).  Using unique names is a better approach to avoid
+name conflicts.
+
+@item
+You have to explicitly undo any changes to the search order.  In many
+cases it would be more convenient if this happened implicitly.  Gforth
+currently does not provide such a feature, but it may do so in the
+future.
+@end itemize
+
+
+@node Word list examples, Vocabularies, Why use word lists?, Word Lists
 @subsection Word list examples
 @cindex word lists - examples
 
+The following example is from the
+@uref{http://www.complang.tuwien.ac.at/forth/garbage-collection.zip,
+garbage collector} and uses wordlists to separate public words from
+helper words:
+
+@example
+get-current ( wid )
+vocabulary garbage-collector also garbage-collector definitions
+... \ define helper words
+( wid ) set-current \ restore original (i.e., public) compilation wordlist
+... \ define the public (i.e., API) words
+    \ they can refer to the helper words
+previous \ restore original search order (helper words become invisible)
+@end example
+
+@node Vocabularies,  , Word list examples, Word Lists
+@subsection Vocabularies
+@cindex Vocabularies, detailed explanation
+
 Here is an example of creating and using a new wordlist using ANS
-Forth Standard words:
+Forth words:
 
 @example
 wordlist constant my-new-words-wordlist

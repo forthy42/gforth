@@ -395,12 +395,13 @@ const Create ???  0 , 3 c, char ? c, char ? c, char ? c,
     dup wordlist-map @ find-method perform ;
 
 : search-wordlist ( c-addr count wid -- 0 | xt +-1 ) \ search
-    \G Search the word list identified by @i{wid}
-    \G for the definition named by the string at @i{c-addr count}.
-    \G If the definition is not found, return 0. If the definition
-    \G is found return 1 (if the definition is immediate) or -1
-    \G (if the definition is not immediate) together with the @i{xt}.
-    \G The @i{xt} returned represents the interpretation semantics.
+    \G Search the word list identified by @i{wid} for the definition
+    \G named by the string at @i{c-addr count}.  If the definition is
+    \G not found, return 0. If the definition is found return 1 (if
+    \G the definition is immediate) or -1 (if the definition is not
+    \G immediate) together with the @i{xt}.  In Gforth, the @i{xt}
+    \G returned represents the interpretation semantics.  ANS Forth
+    \G does not specify clearly what @i{xt} represents.
     (search-wordlist) dup if
 	(name>intn)
     then ;
@@ -422,11 +423,22 @@ const Create ???  0 , 3 c, char ? c, char ? c, char ? c,
    then ;
 
 : find ( c-addr -- xt +-1 | c-addr 0 ) \ core,search
-    \G Search all word lists in the current search order
-    \G for the definition named by the counted string at @i{c-addr}.
-    \G If the definition is not found, return 0. If the definition
-    \G is found return 1 (if the definition is immediate) or -1
-    \G (if the definition is not immediate) together with the @i{xt}.
+    \G Search all word lists in the current search order for the
+    \G definition named by the counted string at @i{c-addr}.  If the
+    \G definition is not found, return 0. If the definition is found
+    \G return 1 (if the definition has non-default compilation
+    \G semantics) or -1 (if the definition has default compilation
+    \G semantics).  The @i{xt} returned in interpret state represents
+    \G the interpretation semantics.  The @i{xt} returned in compile
+    \G state represented either the compilation semantics (for
+    \G non-default compilation semantics) or the run-time semantics
+    \G that the compilation semantics would @code{compile,} (for
+    \G default compilation semantics).  The ANS Forth standard does
+    \G not specify clearly what the returned @i{xt} represents (and
+    \G also talks about immediacy instead of non-default compilation
+    \G semantics), so this word is questionable in portable programs.
+    \G If non-portability is ok, @code{find-name} and friends are
+    \G better (@pxref{Name token}).
     dup count sfind dup
     if
 	rot drop

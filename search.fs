@@ -78,13 +78,13 @@ Variable slowvoc   0 slowvoc !
     vp @ 1+ dup check-maxvp vp! context ! ;
 
 : also  ( -- ) \ search-ext
-  \G Perform a @code{DUP} on the @var{wid} at the top of the search
-  \G order. Usually used prior to @code{Forth} etc.
+  \G Like @code{DUP} for the search order. Usually used before a
+  \G vocabulary (e.g., @code{also Forth}); the combined effect is to push
+  \G the wordlist represented by the vocabulary on the search order.
   context @ push-order ;
 
 : previous ( -- ) \ search-ext
-  \G Perform a @code{DROP} on the @i{wid} at the top of the search
-  \G order, thereby removing the @i{wid} from the search order.
+  \G Drop the wordlist at the top of the search order.
   vp @ 1- dup 0= -50 and throw vp! ;
 
 \ vocabulary find                                      14may93py
@@ -137,10 +137,9 @@ Vocabulary Forth ( -- ) \ gforthman- search-ext
 
 
 Vocabulary Root ( -- ) \ gforth
-  \G Add the vocabulary @code{Root} to the search order stack.
-  \G This vocabulary makes up the minimum search order and
-  \G contains these words: @code{order} @code{set-order}
-  \G @code{forth-wordlist} @code{Forth} @code{words}
+  \G Add the root wordlist to the search order stack.  This vocabulary
+  \G makes up the minimum search order and contains only a
+  \G search-order words.
 
 : Only ( -- ) \ search-ext
   \G Set the search order to the implementation-defined minimum search
@@ -162,9 +161,9 @@ lookup ! \ our dictionary search order becomes the law ( -- )
 
 : get-order  ( -- widn .. wid1 n ) \ search
   \G Copy the search order to the data stack. The current search order
-  \G has @i{n} entries, of which @i{wid1} represents the word list
+  \G has @i{n} entries, of which @i{wid1} represents the wordlist
   \G that is searched first (the word list at the top of the search
-  \G order) and @i{widn} represents the word order that is searched
+  \G order) and @i{widn} represents the wordlist that is searched
   \G last.
   vp @ 0 ?DO vp cell+ I cells + @ LOOP vp @ ;
 
