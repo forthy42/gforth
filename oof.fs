@@ -9,7 +9,11 @@
 \
 \ The program uses the following words
 \ from CORE :
-\ decimal : bl word 0= ; = cells Constant Variable ! Create , allot @ IF POSTPONE >r ELSE +! dup + THEN immediate r> * >body cell+ Literal drop align here aligned DOES> execute ['] 2@ recurse swap 1+ over LOOP and EXIT ?dup 0< rot r@ - i negate +LOOP 2drop BEGIN WHILE 2dup REPEAT 1- rshift > / ' move UNTIL or count 
+\ decimal : bl word 0= ; = cells Constant Variable ! Create , allot @ IF
+\ POSTPONE >r ELSE +! dup + THEN immediate r> * >body cell+ Literal drop
+\ align here aligned DOES> execute ['] 2@ recurse swap 1+ over LOOP and
+\ EXIT ?dup 0< rot r@ - i negate +LOOP 2drop BEGIN WHILE 2dup REPEAT 1-
+\ rshift > / ' move UNTIL or count 
 \ from CORE-EXT :
 \ nip tuck true ?DO compile, false Value erase pick :noname 0<> 
 \ from BLOCK-EXT :
@@ -27,7 +31,8 @@
 \ from MEMORY :
 \ allocate free 
 \ from SEARCH :
-\ find definitions get-order set-order get-current wordlist set-current search-wordlist 
+\ find definitions get-order set-order get-current wordlist set-current
+\ search-wordlist 
 \ from SEARCH-EXT :
 \ also Forth previous 
 \ from STRING :
