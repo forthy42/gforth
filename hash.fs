@@ -45,24 +45,40 @@ Variable HashIndex
 \   (hashkey)
 \   Hashlen 1- and ;
 
+: bucket ( addr len wordlist -- bucket-addr )
+    \ @var{bucket-addr} is the address of a cell that points to the first
+    \ element in the list of the bucket for the string @var{addr len}
+    wordlist-extend @ -rot hash xor ( bucket# )
+    cells HashTable @ + ;
 
 : hash-find ( addr len wordlist -- nfa / false )
-    [ 3 cells ] Literal + @ >r
-    2dup hash r> xor cells HashTable @ + @ (hashfind) ;
+    >r 2dup r> bucket @ (hashfind) ;
 
 \ hash vocabularies                                    16jul94py
 
 : lastlink! ( addr link -- )
   BEGIN  dup @ dup  WHILE  nip  REPEAT  drop ! ;
 
-: (reveal ( addr voc -- )  [ 3 cells ] Literal + dup @ 0< IF  2drop EXIT  THEN
-  @ over name>string Hash xor cells >r
-  HashPointer 2 Cells $400 NewFix
-  tuck cell+ ! r> HashTable @ + insRule @
-  IF  dup @ 2 pick ! !  ELSE  lastlink!  THEN  revealed on ;
+: (reveal ( addr voc -- )
+    dup wordlist-extend @ 0<
+    IF
+	2drop EXIT
+    THEN
+    over name>string rot bucket >r
+    HashPointer 2 Cells $400 NewFix
+    tuck cell+ ! r> insRule @
+    IF
+	dup @ 2 pick ! !
+    ELSE
+	lastlink!
+    THEN
+    revealed on ;
 
-: hash-reveal ( -- )  (reveal) last?  IF
-  current @ (reveal  THEN ;
+: hash-reveal ( -- )
+    (reveal) last?
+    IF
+	current @ (reveal
+    THEN ;
 
 : addall  ( -- )
     voclink
@@ -80,7 +96,8 @@ Variable HashIndex
 : (rehash) ( addr -- )
   drop revealed @ IF  re-hash revealed off  THEN ;
 
-Create hashsearch  ' hash-find A, ' hash-reveal A, ' (rehash) A,
+Create hashsearch-map ( -- wordlist-map )
+    ' hash-find A, ' hash-reveal A, ' (rehash) A,
 
 \ hash allocate and vocabulary initialization          10oct94py
 
@@ -98,7 +115,7 @@ Create hashsearch  ' hash-find A, ' hash-reveal A, ' (rehash) A,
 : (initvoc) ( addr -- )
     cell+ dup @ 0< IF  drop EXIT  THEN
     insRule @ >r  insRule off  hash-alloc
-    3 cells - hashsearch over cell+ ! dup
+    3 cells - hashsearch-map over cell+ ! dup
     BEGIN  @ dup  WHILE  2dup swap (reveal  REPEAT
     2drop  r> insRule ! ;
 

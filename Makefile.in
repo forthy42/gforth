@@ -211,7 +211,7 @@ distclean:	clean
 #mostlyclean, but also remove some of the stuff that is distributed
 virtualclean:	mostlyclean
 		-$(RM) -rf gforth.fns gforth.texi gforth.ps gforth.info* \
-		gforth-$(VERSION).tar.gz config.cache *~ *TAGS
+		gforth-$(VERSION).tar.gz config.cache *~ */*~
 
 dist:		$(SOURCES) $(FORTH_GEN) $(DOCDIST)
 		-rm -rf gforth-$(VERSION)

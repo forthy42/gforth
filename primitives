@@ -1065,6 +1065,29 @@ while(a_addr != NULL)
 	rdrop r>
  REPEAT nip nip ;
 
+(tablefind)	c_addr u a_addr -- f83name2	new	paren_tablefind
+""A case-sensitive variant of @code{(hashfind)}""
+F83Name *f83name1;
+f83name2=NULL;
+while(a_addr != NULL)
+{
+   f83name1=(F83Name *)(a_addr[1]);
+   a_addr=(Cell *)(a_addr[0]);
+   if (F83NAME_COUNT(f83name1)==u &&
+       memcmp(c_addr, f83name1->name, u)== 0 /* or inline? */)
+     {
+	f83name2=f83name1;
+	break;
+     }
+}
+:
+ BEGIN  dup  WHILE
+        2@ >r >r dup r@ cell+ c@ $1F and =
+        IF  2dup r@ cell+ char+ -text 0=
+	    IF  2drop r> rdrop  EXIT  THEN  THEN
+	rdrop r>
+ REPEAT nip nip ;
+
 (hashkey)	c_addr u1 -- u2		gforth	paren_hashkey
 u2=0;
 while(u1--)

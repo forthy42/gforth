@@ -177,6 +177,19 @@ Forth definitions
 
 include hash.fs
 
+\ table (case-sensitive wordlist)
+
+: table-find ( addr len wordlist -- nfa / false )
+    >r 2dup r> bucket @ (tablefind) ;
+
+Create tablesearch-map ( -- wordlist-map )
+    ' table-find A, ' hash-reveal A, ' (rehash) A,
+
+: table ( -- wid )
+    \g create a case-sensitive wordlist
+    wordlist
+    tablesearch-map over wordlist-map ! ;
+
 \ marker                                               18dec94py
 
 \ Marker creates a mark that is removed (including everything 

@@ -492,6 +492,11 @@ Defer notfound ( c-addr count -- )
     2drop -&13 bounce ;
 ' no.extensions IS notfound
 
+: compile-only ( ... -- )
+    -&14 throw ;
+Defer interpret-special ( c-addr u xt -- ) \ !! use nfa instead of xt?
+' compile-only IS interpret-special
+
 : interpret ( ?? -- ?? ) \ gforth
     \ interpret/compile the (rest of the) input buffer
     BEGIN
@@ -511,7 +516,7 @@ Defer notfound ( c-addr count -- )
 	IF \ not restricted to compile state?
 	    nip nip execute EXIT
 	THEN
-	-&14 throw
+	interpret-special exit
     THEN
     drop
     2dup 2>r snumber?
