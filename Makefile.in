@@ -350,7 +350,8 @@ SOURCES	= $(CVSDIRS) compat Makefile.in Makedist.in engine/Makefile.in \
 	doc/gforth.ds doc/texinfo.tex doc/gforth.1 doc/version.texi.in \
 	doc/vmgen.texi doc/fdl.texi doc/gpl.texi \
 	gforth.el \
-	prim peeprules.vmg engine/engine.c engine/main.c \
+	prim cache0.vmg cache1.vmg peeprules.vmg \
+	engine/engine.c engine/main.c \
 	engine/io.c engine/support.c engine/signals.c \
 	$(ARCHS) \
 	engine/profile.c \
@@ -703,12 +704,13 @@ gforth.fi:	$(kernel_fi) gforthmi gforth$(EXE) gforth-ditc$(EXE) $(GFORTH_FI_SRC)
 
 # -------------	Make c-engine
 
-prim.b:		prim peeprules.vmg
+prim.b:		prim cache0.vmg
 		m4 -s $(srcdir)/prim >$@
 		sleep 1 #should make hpux-workaround unnecessary
 
-prim-fast.b:    prim.b
-		cp prim.b prim-fast.b
+prim-fast.b:	prim cache1.vmg peeprules.vmg
+		m4 -DM4_ENGINE_FAST -s $(srcdir)/prim >$@
+		sleep 1 #should make hpux-workaround unnecessary
 
 $(FORTH_GEN_ENGINE_FAST): prim-fast.b prims2x.fs
 		GFORTH="$(FORTHP)" gfgen -fast
@@ -757,7 +759,7 @@ gforths: $(ENGINES) $(ENGINES_FAST)
 engines:	FORCE $(FORTH_GEN_ENGINE) engine/Makefile
 		cd engine && $(MAKE) $(ENGINES)
 
-engines-fast:	FORCE $(FORTH_GEN_ENGINES_FAST) engine/Makefile
+engines-fast:	FORCE $(FORTH_GEN_ENGINE_FAST) engine/Makefile
 		cd engine && $(MAKE) $(ENGINES_FAST)
 
 # ------------- additional C primitives

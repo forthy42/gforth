@@ -96,7 +96,7 @@ void postprocess_block(block_count *b)
   block_count *next_block;
 
   do {
-#include PROFILE_I
+#include "profile.i"
     /* else */
     {
       add_inst(b,"unknown");

@@ -46,11 +46,11 @@
 #define PRIM_LAB_I "prim_lab.i"
 #define PRIM_NAMES_I "prim_names.i"
 #define PRIM_SUPEREND_I "prim_superend.i"
-#define PROFILE_I "profile.i"
 #define PRIM_NUM_I "prim_num.i"
 #define PRIM_GRP_I "prim_grp.i"
 #define COSTS_I "costs.i"
 #define SUPER2_I "super2.i"
+/* #define PROFILE_I "profile.i" */
 
 #else
 /* gforth-fast or gforth-native */
@@ -59,11 +59,12 @@
 #define PRIM_LAB_I "prim_lab-fast.i"
 #define PRIM_NAMES_I "prim_names-fast.i"
 #define PRIM_SUPEREND_I "prim_superend-fast.i"
-#define PROFILE_I "profile-fast.i"
 #define PRIM_NUM_I "prim_num-fast.i"
 #define PRIM_GRP_I "prim_grp-fast.i"
 #define COSTS_I "costs-fast.i"
 #define SUPER2_I "super2-fast.i"
+/* profile.c uses profile.i but does not define VM_PROFILING */
+/* #define PROFILE_I "profile-fast.i" */
 
 #endif
 

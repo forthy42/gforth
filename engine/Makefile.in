@@ -100,6 +100,8 @@ OBJECTS_FI =  engine.o main-fi.o
 DEPS =  config.h *.h $(srcdir)/../arch/$(machine)/*.[h]
 ENGINE_DEPS = engine.c $(DEPS) prim_lab.i prim.i
 MAIN_DEPS = main.c $(DEPS) prim_superend.i prim_num.i prim_grp.i costs.i super2.i
+ENGINE_FAST_DEPS = engine.c $(DEPS) prim_lab-fast.i prim-fast.i
+MAIN_FAST_DEPS = main.c $(DEPS) prim_superend-fast.i prim_num-fast.i prim_grp-fast.i costs-fast.i super2-fast.i
 
 #some makes don't do the -o $@ correctly, so we help them
 .c.o:
@@ -128,7 +130,7 @@ gforth-prof$(EXE): $(OBJECTS_PROF) $(AOBJECTS) profile.o
 gforth-fi$(EXE):	$(OBJECTS_FI) $(AOBJECTS)
 	$(GCC) $(LDFLAGS) $(OBJECTS_FI) $(AOBJECTS) $(LDLIBS) -o $@
 
-engine.s:	$(ENGINE_DEPS)
+engine.s:	$(ENGINE_FAST_DEPS)
 		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -S $(srcdir)/engine.c
 
 engine.o:	$(ENGINE_DEPS)
@@ -137,19 +139,19 @@ engine.o:	$(ENGINE_DEPS)
 engine2.o:	$(ENGINE_DEPS)
 		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -DGFORTH_DEBUGGING -DENGINE=2 -o $@ -c $(srcdir)/engine.c
 
-engine-native.o:$(ENGINE_DEPS)
+engine-native.o:$(ENGINE_FAST_DEPS)
 		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -DNO_IP -o $@ -c $(srcdir)/engine.c
 
-engine-native2.o:$(ENGINE_DEPS)
+engine-native2.o:$(ENGINE_FAST_DEPS)
 		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -DNO_IP -DENGINE=2 -o $@ -c $(srcdir)/engine.c
 
-engine-native3.o:$(ENGINE_DEPS)
+engine-native3.o:$(ENGINE_FAST_DEPS)
 		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -DNO_IP -DENGINE=3 -o $@ -c $(srcdir)/engine.c
 
-engine-fast.o:	$(ENGINE_DEPS)
+engine-fast.o:	$(ENGINE_FAST_DEPS)
 		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -o $@ -c $(srcdir)/engine.c
 
-engine-fast2.o:	$(ENGINE_DEPS)
+engine-fast2.o:	$(ENGINE_FAST_DEPS)
 		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -DENGINE=2 -o $@ -c $(srcdir)/engine.c
 
 engine-itc.o:	$(ENGINE_DEPS)
@@ -164,10 +166,10 @@ engine-prof.o:	$(ENGINE_DEPS)
 main.o:		$(MAIN_DEPS) 
 		$(GCC) $(CFLAGS) -DGFORTH_DEBUGGING -o $@ -c $(srcdir)/main.c
 
-main-native.o:	$(MAIN_DEPS) 
+main-native.o:	$(MAIN_FAST_DEPS) 
 		$(GCC) $(CFLAGS) -DNO_IP -o $@ -c $(srcdir)/main.c
 
-main-fast.o:	$(MAIN_DEPS) 
+main-fast.o:	$(MAIN_FAST_DEPS) 
 		$(GCC) $(CFLAGS) -o $@ -c $(srcdir)/main.c
 
 main-itc.o:	$(MAIN_DEPS) 
