@@ -40,15 +40,13 @@
 
 /* here you select the threading scheme; I have only set this up for
    386 and generic, because I don't know what preprocessor macros to
-   test for (Gforth uses config.guess instead).
-   Anyway, it's probably best to build them all and select the fastest
-   instead of hardwiring a specific scheme for an architecture. */
+   test for (Gforth uses config.guess instead).  Anyway, it's probably
+   best to build them all and select the fastest instead of hardwiring
+   a specific scheme for an architecture.  E.g., scheme 8 is fastest
+   for Gforth "make bench" on a 486, whereas scheme 5 is fastest for
+   "mini fib.mini" on an Athlon */
 #ifndef THREADING_SCHEME
-#ifdef i386
-#define THREADING_SCHEME 8
-#else
 #define THREADING_SCHEME 5
-#endif
 #endif /* defined(THREADING_SCHEME) */
 
 #ifdef __GNUC__
@@ -61,7 +59,7 @@
 #  define INC_IP(const_inc)	({cfa=IP[const_inc]; ip+=(const_inc);})
 #  define DEF_CA
 #  define NEXT_P1
-#  define NEXT_P2	({goto *cfa;})
+#  define NEXT_P2	({goto *(cfa.inst);})
 #endif
 
 #if THREADING_SCHEME==3
@@ -73,20 +71,20 @@
 #  define INC_IP(const_inc)	({ip+=(const_inc);})
 #  define DEF_CA
 #  define NEXT_P1	({cfa=*ip++;})
-#  define NEXT_P2	({goto *cfa;})
+#  define NEXT_P2	({goto *(cfa.inst);})
 #endif
 
 #if THREADING_SCHEME==5
 /* direct threading scheme 5: early fetching (Alpha, MIPS) */
 #  define CFA_NEXT
 #  define NEXT_P0	({cfa=*ip;})
-#  define IP		((Cell *)ip)
+#  define IP		(ip)
 #  define SET_IP(p)	({ip=(Inst *)(p); NEXT_P0;})
-#  define NEXT_INST	((Cell)cfa)
+#  define NEXT_INST	(cfa)
 #  define INC_IP(const_inc)	({cfa=ip[const_inc]; ip+=(const_inc);})
 #  define DEF_CA
 #  define NEXT_P1	(ip++)
-#  define NEXT_P2	({goto *cfa;})
+#  define NEXT_P2	({goto *(cfa.inst);})
 #endif
 
 #if THREADING_SCHEME==8
@@ -113,8 +111,8 @@
 #  define INC_IP(const_inc)	({next_cfa=IP[const_inc]; ip+=(const_inc);})
 #  define DEF_CA	
 #  define NEXT_P1	({cfa=next_cfa; ip++; next_cfa=*ip;})
-#  define NEXT_P2	({goto *cfa;})
-#  define MORE_VARS	Inst next_cfa;
+#  define NEXT_P2	({goto *(cfa.inst);})
+#  define MORE_VARS	Cell next_cfa;
 #endif
 
 #if THREADING_SCHEME==10
@@ -126,12 +124,12 @@
 #  define INC_IP(const_inc)	({ip+=(const_inc);})
 #  define DEF_CA
 #  define NEXT_P1
-#  define NEXT_P2	({cfa=*ip++; goto *cfa;})
+#  define NEXT_P2	({cfa=*ip++; goto *(cfa.inst);})
 #endif
 
 
 #define NEXT ({DEF_CA NEXT_P1; NEXT_P2;})
-#define IPTOS ((Cell)(NEXT_INST))
+#define IPTOS ((NEXT_INST))
 
 #define INST_ADDR(name) (Label)&&I_##name
 #define LABEL(name) I_##name:
@@ -170,7 +168,7 @@ long engine(Cell *ip0, Cell *sp, char *fp)
 {
   /* VM registers (you may want to use gcc's "Explicit Reg Vars" here) */
   Cell * ip;
-  Cell * cfa;
+  Cell cfa;
 #ifdef USE_spTOS
   Cell   spTOS;
 #else

@@ -40,15 +40,13 @@
 
 /* here you select the threading scheme; I have only set this up for
    386 and generic, because I don't know what preprocessor macros to
-   test for (Gforth uses config.guess instead).
-   Anyway, it's probably best to build them all and select the fastest
-   instead of hardwiring a specific scheme for an architecture. */
+   test for (Gforth uses config.guess instead).  Anyway, it's probably
+   best to build them all and select the fastest instead of hardwiring
+   a specific scheme for an architecture.  E.g., scheme 8 is fastest
+   for Gforth "make bench" on a 486, whereas scheme 5 is fastest for
+   "mini fib.mini" on an Athlon */
 #ifndef THREADING_SCHEME
-#ifdef i386
-#define THREADING_SCHEME 8
-#else
 #define THREADING_SCHEME 5
-#endif
 #endif /* defined(THREADING_SCHEME) */
 
 #ifdef __GNUC__
@@ -80,9 +78,9 @@
 /* direct threading scheme 5: early fetching (Alpha, MIPS) */
 #  define CFA_NEXT
 #  define NEXT_P0	({cfa=*ip;})
-#  define IP		((Cell *)ip)
-#  define SET_IP(p)	({ip=(Inst *)(p); NEXT_P0;})
-#  define NEXT_INST	((Cell)cfa)
+#  define IP		(ip)
+#  define SET_IP(p)	({ip=(p); NEXT_P0;})
+#  define NEXT_INST	(cfa)
 #  define INC_IP(const_inc)	({cfa=ip[const_inc]; ip+=(const_inc);})
 #  define DEF_CA
 #  define NEXT_P1	(ip++)
