@@ -18,37 +18,37 @@
 \ along with this program; if not, write to the Free Software
 \ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-true Constant NIL  \ relocating
+true DefaultValue NIL  \ relocating
 
 >ENVIRON
 
-true Constant file		\ controls the presence of the
+true DefaultValue file		\ controls the presence of the
 				\ file access wordset
-true Constant OS		\ flag to indicate a operating system
+true DefaultValue OS		\ flag to indicate a operating system
 
-true Constant prims		\ true: primitives are c-code
+true DefaultValue prims		\ true: primitives are c-code
 
-true Constant floating		\ floating point wordset is present
+true DefaultValue floating		\ floating point wordset is present
 
-true Constant glocals		\ gforth locals are present
+true DefaultValue glocals		\ gforth locals are present
 				\ will be loaded
-true Constant dcomps		\ double number comparisons
+true DefaultValue dcomps		\ double number comparisons
 
-true Constant hash		\ hashing primitives are loaded/present
+true DefaultValue hash		\ hashing primitives are loaded/present
 
-true Constant xconds		\ used together with glocals,
+true DefaultValue xconds		\ used together with glocals,
 				\ special conditionals supporting gforths'
 				\ local variables
-true Constant header		\ save a header information
+true DefaultValue header		\ save a header information
 
-true Constant backtrace		\ enables backtrace code
+true DefaultValue backtrace		\ enables backtrace code
 
-false Constant ec
-false Constant crlf
+false DefaultValue ec
+false DefaultValue crlf
 
-cell 2 = [IF] &32 [ELSE] &256 [THEN] KB Constant kernel-size
+cell 2 = [IF] &32 [ELSE] &256 [THEN] KB DefaultValue kernel-size
 
-&16 KB		Constant stack-size
-&15 KB &512 +	Constant fstack-size
-&15 KB		Constant rstack-size
-&14 KB &512 +	Constant lstack-size
+&16 KB		DefaultValue stack-size
+&15 KB &512 +	DefaultValue fstack-size
+&15 KB		DefaultValue rstack-size
+&14 KB &512 +	DefaultValue lstack-size

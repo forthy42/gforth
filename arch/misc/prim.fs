@@ -740,11 +740,11 @@ SP 2* Constant SP
 UP 2* Constant UP
 IP 2* Constant IP
 
-c: sp! 2/ sp ! ;
-c: sp@ sp @ 1+ 2* ;
-c: rp@ rp @ 2* ;
-c: rp! r> swap 2/ rp ! >r ;
-c: up@ up @ ;
-c: up! up ! ;
+\ c: sp! 2/ sp ! ;
+\ c: sp@ sp @ 1+ 2* ;
+\ c: rp@ rp @ 2* ;
+\ c: rp! r> swap 2/ rp ! >r ;
+: up@ up @ ;
+: up! up ! ;
 
 include ./key.fs

@@ -95,7 +95,7 @@ Copyright @copyright{} 1995-1999 Free Software Foundation, Inc.
 @center Bernd Paysan
 @center Jens Wilke
 @sp 3
-@center This manual is permanently under construction and was last updated on 05-Jun-1999
+@center This manual is permanently under construction and was last updated on 31-Dec-1999
 
 @comment  The following two commands start the copyright page.
 @page
@@ -287,7 +287,7 @@ Programming Tools
 
 * Debugging::                   Simple and quick.
 * Assertions::                  Making your programs self-checking.
-* Singlestep Debugger::		Executing your program word by word.
+* Singlestep Debugger::         Executing your program word by word.
 
 Locals
 
@@ -6319,7 +6319,7 @@ doc-span
 @menu
 * Debugging::                   Simple and quick.
 * Assertions::                  Making your programs self-checking.
-* Singlestep Debugger::		Executing your program word by word.
+* Singlestep Debugger::         Executing your program word by word.
 @end menu
 
 @node Debugging, Assertions, Programming Tools, Programming Tools
@@ -11335,7 +11335,7 @@ has the following form:
 
 @cindex primitive source format
 @format
-@i{Forth-name}	@i{stack-effect}	@i{category}	[@i{pronounc.}]
+@i{Forth-name}  @i{stack-effect}        @i{category}    [@i{pronounc.}]
 [@code{""}@i{glossary entry}@code{""}]
 @i{C code}
 [@code{:}
@@ -11362,7 +11362,7 @@ prelude and postlude for each primitive. The final C code for @code{+}
 looks like this:
 
 @example
-I_plus:	/* + ( n1 n2 -- n ) */  /* label, stack effect */
+I_plus: /* + ( n1 n2 -- n ) */  /* label, stack effect */
 /*  */                          /* documentation */
 @{
 DEF_CA                          /* definition of variable ca (indirect threading) */
@@ -11586,7 +11586,11 @@ find numbers for Gforth on various machines in @file{Benchres}.
 @node Cross Compiler, Bugs, Binding to System Library, Top
 @chapter Cross Compiler
 
-Cross Compiler
+The cross compiler is used to bootstrap a Forth kernel. Since Gforth is
+mostly written in Forth, including crucial parts like the outer
+interpreter and compiler, it needs compiled Forth code to get
+started. The cross compiler allows to create new images for other
+architectures, even running under another Forth system.
 
 @menu
 * Using the Cross Compiler::
@@ -11595,6 +11599,119 @@ Cross Compiler
 
 @node Using the Cross Compiler, How the Cross Compiler Works, Cross Compiler, Cross Compiler
 @section Using the Cross Compiler
+
+The cross compiler uses a language that resembles Forth, but isn't. The
+main difference is that you can execute Forth code after definition,
+while you usually can't execute the code compiled by cross, because the
+code you are compiling is typically for a different computer than the
+one you are compiling on.
+
+The Makefile is already set up to allow you to create kernels for new
+architectures with a simple make command. The generic kernels using the
+GCC compiled virtual machine are created in the normal build process
+with @code{make}. To create a embedded Gforth executable for e.g. the
+8086 processor (running on a DOS machine), type
+
+@example
+make kernl-8086.fi
+@end example
+
+This will use the machine description from the @file{arch/8086}
+directory to create a new kernel. A machine file may look like that:
+
+@example
+\ Parameter for target systems                         06oct92py
+
+    4 Constant cell             \ cell size in bytes
+    2 Constant cell<<           \ cell shift to bytes
+    5 Constant cell>bit         \ cell shift to bits
+    8 Constant bits/char        \ bits per character
+    8 Constant bits/byte        \ bits per byte [default: 8]
+    8 Constant float            \ bytes per float
+    8 Constant /maxalign        \ maximum alignment in bytes
+false Constant bigendian        \ byte order
+( true=big, false=little )
+
+include machpc.fs               \ feature list
+@end example
+
+This part is obligatory for the cross compiler itself, the feature list
+is used by the kernel to conditionally compile some features in and out,
+depending on whether the target supports these features.
+
+There are some optional features, if you define your own primitives,
+have an assembler, or need special, nonstandard preparation to make the
+boot process work. @code{asm-include} include an assembler,
+@code{prims-include} includes primitives, and @code{>boot} prepares for
+booting.
+
+@example
+: asm-include    ." Include assembler" cr
+  s" arch/8086/asm.fs" included ;
+
+: prims-include  ." Include primitives" cr
+  s" arch/8086/prim.fs" included ;
+
+: >boot          ." Prepare booting" cr
+  s" ' boot >body into-forth 1+ !" evaluate ;
+@end example
+
+These words are used as sort of macro during the cross compilation in
+the file @file{kernel/main.fs}. Instead of using this macros, it would
+be possible --- but more complicated --- to write a new kernel project
+file, too.
+
+@file{kernel/main.fs} expects the machine description file name on the
+stack; the cross compiler itself (@file{cross.fs}) assumes that either
+@code{mach-file} leaves a counted string on the stack, or
+@code{machine-file} leaves an address, count pair of the filename on the
+stack.
+
+The feature list is typically controlled using @code{SetValue}, generic
+files that are used by several projects can use @code{DefaultValue}
+instead. Both functions work like @code{Value}, when the value isn't
+defined, but @code{SetValue} works like @code{to} if the value is
+defined, and @code{DefaultValue} doesn't set anything, if the value is
+defined.
+
+@example
+\ generic mach file for pc gforth                       03sep97jaw
+
+true DefaultValue NIL  \ relocating
+
+>ENVIRON
+
+true DefaultValue file          \ controls the presence of the
+                                \ file access wordset
+true DefaultValue OS            \ flag to indicate a operating system
+
+true DefaultValue prims         \ true: primitives are c-code
+
+true DefaultValue floating      \ floating point wordset is present
+
+true DefaultValue glocals       \ gforth locals are present
+                                \ will be loaded
+true DefaultValue dcomps        \ double number comparisons
+
+true DefaultValue hash          \ hashing primitives are loaded/present
+
+true DefaultValue xconds        \ used together with glocals,
+                                \ special conditionals supporting gforths'
+                                \ local variables
+true DefaultValue header        \ save a header information
+
+true DefaultValue backtrace     \ enables backtrace code
+
+false DefaultValue ec
+false DefaultValue crlf
+
+cell 2 = [IF] &32 [ELSE] &256 [THEN] KB DefaultValue kernel-size
+
+&16 KB          DefaultValue stack-size
+&15 KB &512 +   DefaultValue fstack-size
+&15 KB          DefaultValue rstack-size
+&14 KB &512 +   DefaultValue lstack-size
+@end example
 
 @node How the Cross Compiler Works, , Using the Cross Compiler, Cross Compiler
 @section How the Cross Compiler Works

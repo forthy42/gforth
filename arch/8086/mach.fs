@@ -16,26 +16,15 @@ false Constant bigendian
 
 : prims-include  ." Include primitives" cr s" arch/8086/prim.fs" included ;
 : asm-include    ." Include assembler" cr s" arch/8086/asm.fs" included ;
-: >boot s" ' boot >body into-forth 1+ !" evaluate ;
+: >boot          ." Prepare booting" cr
+    s" ' boot >body into-forth 1+ !" evaluate ;
 
 false Constant NIL
 
 >ENVIRON
 
-false Constant relocate
 true  Constant ec
-false Constant file
-false Constant OS
-false Constant prims
-false Constant floating
-false Constant glocals
-false Constant dcomps
-false Constant hash
-false Constant xconds
-false Constant header
-true  Constant interpreter
 true  Constant crlf
-true  Constant ITC
 \ true Constant has-rom
 
 cell 2 = [IF] 32 [ELSE] 256 [THEN] KB Constant kernel-size

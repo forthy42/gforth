@@ -47,6 +47,7 @@ variable nesting 0 nesting !
 		\ $15 ram> ." IP: " .#### .hs
 		\ dup CASE [char] : OF 1 nesting +! ENDOF 
 		\ [char] ; OF -1 nesting +! ENDOF ENDCASE
+		[IFDEF] curoff curoff [THEN]
 		dup bl < IF
 		    CASE
 			#cr OF  ENDOF
@@ -54,10 +55,11 @@ variable nesting 0 nesting !
 			[IFDEF] del #bs OF  del  ENDOF [THEN]
 			dup emit  ENDCASE
 		    ELSE  emit  THEN
-		[IFDEF] tflush tflush [ELSE] key? drop [THEN] ;
+		[IFDEF] tflush tflush [ELSE] key? drop [THEN]
+		[IFDEF] curon curon [THEN] [IFDEF] pause pause [THEN] ;
 : tx?>		1 ;
 : rxd>		key [IFDEF] curon curon [THEN] ;
-: rx?>		key? 1 and ;
+: rx?>		key? 1 and [IFDEF] pause pause [THEN] ;
 
 \ Arithmetic
 

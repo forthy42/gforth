@@ -35,7 +35,7 @@ false Constant NIL  \ relocating
 : asm-include    ." Include assembler" cr s" ~+/arch/misc/asm.fs" included ;
 : >boot
     hex
-    S" $6FF0 SP ! $7FF0 RP ! $7000 2* UP ! ' boot >body IP !" evaluate    
+    S" $6FF0 SP 2* ! $7FF0 RP 2* ! $7000 2* UP 2* ! ' boot >body IP 2* !" evaluate    
     decimal ;
 
 >ENVIRON

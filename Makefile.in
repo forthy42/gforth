@@ -528,17 +528,14 @@ kernl64l.fi-:	$(KERN_SRC) kernel/version.fs mach64l.fs $(FORTH_GEN0)
 kernl64b.fi-:	$(KERN_SRC) kernel/version.fs mach64b.fs $(FORTH_GEN0)
 		$(FORTHK) -e 's" mach64b.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl64b.fi- $(bindir)/gforth-$(VERSION) bye"
 
-kernl-%.fi:	arch/%/mach.fs \
-		$(KERN_SRC) kernel/version.fs $(FORTH_GEN0)
+kernl-%.fi:	arch/%/mach.fs $(KERN_SRC) kernel/version.fs $(FORTH_GEN0)
 		$(FORTHK) -e 's" $<"' $(srcdir)/kernel/main.fs -e "save-cross $@- $(bindir)/gforth-$(VERSION) bye"
 		if [ -f `echo $< | sed s/fs/sh/` ]; \
 		then sh `echo $< | sed s/fs/sh/` $@; \
 		else $(CP) $@- $@; \
 		fi
 
-arch/%/mach.fs:	arch/%/prim.fs
-
-arch/%/prim.fs:	arch/%/asm.fs
+arch/%/mach.fs:	arch/%/prim.fs arch/%/asm.fs
 
 kernl16b.fi:	$(KERNLS)
 		-$(CP) kernl16b.fi kernl16b.fi~

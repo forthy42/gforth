@@ -787,7 +787,7 @@ VARIABLE env-current \ save information of current dictionary to restore with en
 
 >ENVIRON get-order get-current swap 1+ set-order
 true SetValue compiler
-true  SetValue cross
+true SetValue cross
 true SetValue standard-threading
 >TARGET previous
 
