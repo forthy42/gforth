@@ -1,5 +1,5 @@
 /*
-  $Id: main.c,v 1.27 1995-09-06 21:00:22 pazsan Exp $
+  $Id: main.c,v 1.28 1995-10-11 19:39:35 anton Exp $
   Copyright 1993 by the ANSI figForth Development Group
 */
 
@@ -83,7 +83,7 @@ void relocate(Cell *image, char *bitstring, int size, Label symbols[])
 	    case CF(DOCON)   :
 	    case CF(DOUSER)  : 
 	    case CF(DODEFER) : 
-	    case CF(DOSTRUC) : MAKE_CF(image+i,symbols[CF(image[i])]); break;
+	    case CF(DOFIELD) : MAKE_CF(image+i,symbols[CF(image[i])]); break;
 	    case CF(DODOES)  : MAKE_DOES_CF(image+i,image[i+1]+((Cell)image));
 	      break;
 	    case CF(DOESJUMP): MAKE_DOES_HANDLER(image+i); break;
@@ -176,7 +176,7 @@ Cell *loader(FILE *imagefile)
     relocate(image,(char *)image+header[1],header[1],engine(0,0,0,0,0));
   }
   else if(image[5]!=(Cell)image) {
-    fprintf(stderr,"Corrupted image address, please recompile image\n");
+    fprintf(stderr,"%s: Cannot load nonrelocatable image (compiled for address 0x%lx) at address 0x%lx\nThe Gforth installer should look into the INSTALL file\n", progname, image[5], (Cell)image);
     exit(1);
   }
 

@@ -14,6 +14,11 @@
    parallelism (no pipelining or too few registers) */
 #define CISC_NEXT
 
+/* 386 and below have no cache, 486 has a shared cache, and the
+   Pentium probably employs hardware cache consistency, so
+   flush-icache is a noop */
+#define FLUSH_ICACHE(addr,size) 0
+
 #ifdef DIRECT_THREADED
 /* PFA gives the parameter field address corresponding to a cfa */
 #define PFA(cfa)	(((Cell *)cfa)+2)

@@ -89,7 +89,7 @@ lit	-- w		fig
 w = (Cell)NEXT_INST;
 INC_IP(1);
 
-execute		xt --		core,fig
+execute		xt --		core
 ip=IP;
 cfa = xt;
 IF_TOS(TOS = sp[0]);
@@ -143,7 +143,7 @@ if (index != limit) {
     *rp = index;
 )
 
-condbranch((+loop),n --		fig	paren_plus_loop,
+condbranch((+loop),n --		gforth	paren_plus_loop,
 /* !! check this thoroughly */
 Cell index = *rp;
 /* sign bit manipulation and test: (x^y)<0 is equivalent to (x<0) != (y<0) */
@@ -166,7 +166,7 @@ if(((olddiff^MAXINT) >= n) ^ ((olddiff+n) < 0)) {
     IF_TOS(TOS = sp[0]);
 )
 
-condbranch((-loop),u --		new	paren_minus_loop,
+condbranch((-loop),u --		gforth	paren_minus_loop,
 /* !! check this thoroughly */
 Cell index = *rp;
 /* sign bit manipulation and test: (x^y)<0 is equivalent to (x<0) != (y<0) */
@@ -177,7 +177,7 @@ if (olddiff>u) {
     IF_TOS(TOS = sp[0]);
 )
 
-condbranch((s+loop),n --		new	paren_symmetric_plus_loop,
+condbranch((s+loop),n --		gforth	paren_symmetric_plus_loop,
 ""The run-time procedure compiled by S+LOOP. It loops until the index
 crosses the boundary between limit and limit-sign(n). I.e. a symmetric
 version of (+LOOP).""
@@ -272,7 +272,7 @@ else {
     INC_IP(1);
 }
 
-i	-- n		core,fig
+i	-- n		core
 n = *rp;
 
 j	-- n		core
@@ -284,7 +284,7 @@ n = rp[2];
 putchar(c);
 emitcounter++;
 
-(type)	c_addr n --	fig	paren_type
+(type)	c_addr n --	gforth	paren_type
 fwrite(c_addr,sizeof(Char),n,stdout);
 emitcounter += n;
 
@@ -293,11 +293,11 @@ fflush(stdout);
 /* !! noecho */
 n = key();
 
-key?	-- n		fig	key_q
+key?	-- n		facility	key_q
 fflush(stdout);
 n = key_query;
 
-cr	--		fig
+cr	--		core
 puts("");
 :
  $0A emit ;
@@ -399,15 +399,15 @@ u2 = u1-n;
 :
  tuck - >r + r> dup 0< IF  - 0  THEN ;
 
-+	n1 n2 -- n		core,fig	plus
++	n1 n2 -- n		core	plus
 n = n1+n2;
 
--	n1 n2 -- n		core,fig	minus
+-	n1 n2 -- n		core	minus
 n = n1-n2;
 :
  negate + ;
 
-negate	n1 -- n2		core,fig
+negate	n1 -- n2		core
 /* use minus as alias */
 n2 = -n1;
 :
@@ -447,12 +447,12 @@ else
 :
  dup 0< IF negate THEN ;
 
-*	n1 n2 -- n		core,fig	star
+*	n1 n2 -- n		core	star
 n = n1*n2;
 :
  um* drop ;
 
-/	n1 n2 -- n		core,fig	slash
+/	n1 n2 -- n		core	slash
 n = n1/n2;
 :
  /mod nip ;
@@ -533,7 +533,7 @@ d2 = d1+n;
 :
  s>d d+ ;
 
-d+	d1 d2 -- d		double,fig	d_plus
+d+	d1 d2 -- d		double	d_plus
 d = d1+d2;
 :
  >r swap >r over 2/ over 2/ + >r over 1 and over 1 and + 2/
@@ -592,13 +592,13 @@ n = d;
 :
  drop ;
 
-and	w1 w2 -- w		core,fig
+and	w1 w2 -- w		core
 w = w1&w2;
 
-or	w1 w2 -- w		core,fig
+or	w1 w2 -- w		core
 w = w1|w2;
 
-xor	w1 w2 -- w		core,fig
+xor	w1 w2 -- w		core
 w = w1^w2;
 
 invert	w1 -- w2		core
@@ -670,21 +670,21 @@ fp = f_addr;
 ip = (Xt *)(*rp++);
 NEXT_P0;
 
->r	w --		core,fig	to_r
+>r	w --		core	to_r
 *--rp = w;
 
-r>	-- w		core,fig	r_from
+r>	-- w		core	r_from
 w = *rp++;
 
-r@	-- w		core,fig	r_fetch
+r@	-- w		core	r_fetch
 /* use r as alias */
 /* make r@ an alias for i */
 w = *rp;
 
-rdrop	--		fig
+rdrop	--		gforth
 rp++;
 
-i'	-- w		fig		i_tick
+i'	-- w		gforth		i_tick
 w=rp[1];
 
 2>r	w1 w2 --	core-ext	two_to_r
@@ -699,20 +699,20 @@ w1 = *rp++;
 w2 = rp[0];
 w1 = rp[1];
 
-2rdrop	--		new	two_r_drop
+2rdrop	--		gforth	two_r_drop
 rp+=2;
 
-over	w1 w2 -- w1 w2 w1		core,fig
+over	w1 w2 -- w1 w2 w1		core
 
-drop	w --		core,fig
+drop	w --		core
 
-swap	w1 w2 -- w2 w1		core,fig
+swap	w1 w2 -- w2 w1		core
 
-dup	w -- w w		core,fig
+dup	w -- w w		core
 
 rot	w1 w2 w3 -- w2 w3 w1	core	rote
 
--rot	w1 w2 w3 -- w3 w1 w2	fig	not_rote
+-rot	w1 w2 w3 -- w3 w1 w2	gforth	not_rote
 :
  rot rot ;
 
@@ -759,21 +759,29 @@ w = sp[u+1];
 :
  >r >r 2swap r> r> 2swap ;
 
+2nip	w1 w2 w3 w4 -- w3 w4	gforth	two_nip
+:
+ 2swap 2drop ;
+
+2tuck	w1 w2 w3 w4 -- w3 w4 w1 w2 w3 w4	gforth	two_tuck
+:
+ 2swap 2over ;
+
 \ toggle is high-level: 0.11/0.42%
 
-@	a_addr -- w		fig	fetch
+@	a_addr -- w		core	fetch
 w = *a_addr;
 
-!	w a_addr --		core,fig	store
+!	w a_addr --		core	store
 *a_addr = w;
 
-+!	n a_addr --		core,fig	plus_store
++!	n a_addr --		core	plus_store
 *a_addr += n;
 
-c@	c_addr -- c		fig	cfetch
+c@	c_addr -- c		core	cfetch
 c = *c_addr;
 
-c!	c c_addr --		fig	cstore
+c!	c c_addr --		core	cstore
 *c_addr = c;
 
 2!	w1 w2 a_addr --		core	two_store
@@ -826,13 +834,13 @@ c_addr2 = c_addr1+1;
 :
  dup 1+ swap c@ ;
 
-(bye)	n --	toolkit-ext	paren_bye
+(bye)	n --	gforth	paren_bye
 return (Label *)n;
 
-system	c_addr u -- n	own
+system	c_addr u -- n	gforth
 n=system(cstr(c_addr,u,1)); /* ~ expansion on first part of string? */
 
-getenv	c_addr1 u1 -- c_addr2 u2	new
+getenv	c_addr1 u1 -- c_addr2 u2	gforth
 c_addr2 = getenv(cstr(c_addr1,u1,1));
 u2 = (c_addr2 == NULL ? 0 : strlen(c_addr2));
 
@@ -1161,6 +1169,10 @@ fover		r1 r2 -- r1 r2 r1	float
 
 frot		r1 r2 r3 -- r2 r3 r1	float
 
+fnip		r1 r2 -- r2	gforth
+
+ftuck		r1 r2 -- r2 r1 r2	gforth
+
 float+		f_addr1 -- f_addr2	float	float_plus
 f_addr2 = f_addr1+1;
 
@@ -1475,4 +1487,8 @@ IF_FTOS(FTOS=fp[0]);
 
 strerror	n -- c_addr u	new
 c_addr = strerror(n);
+u = strlen(c_addr);
+
+strsignal	n -- c_addr u	new
+c_addr = strsignal(n);
 u = strlen(c_addr);

@@ -114,7 +114,7 @@ LINK_KERNL64B=""
 #then
 #  echo Configuring for DOS!!!
 #  MAKE_EXE="coff2exe gforth"
-#  LINK_KERNL32L='$(CP) kernl32l.fi gforth.fi'
+#  LINK_KERNL32L='$(CP) kernl32l.fi kernal.fi'
 #fi
 
 dnl the following macro produces a warning with autoconf-2.1
@@ -138,7 +138,7 @@ dnl This check is just for making later checks link with libm.
 dnl using sin here is no good idea since it is built-into gcc and typechecked
 AC_CHECK_LIB(m,asin)
 AC_FUNC_MEMCMP
-AC_REPLACE_FUNCS(memmove strtoul pow10 strerror)
+AC_REPLACE_FUNCS(memmove strtoul pow10 strerror strsignal)
 AC_CHECK_FUNC(getopt_long,getopt_long="",getopt_long="getopt.o getopt1.o")
 AC_SUBST(getopt_long)
 AC_CHECK_FUNCS(rint expm1 log1p)
@@ -146,9 +146,9 @@ AC_REPLACE_FUNCS(ecvt)
 dnl No check for select, because our replacement is no good under
 dnl anything but DOS
 
-gforth_fi=kernl${wordsize}${bytesex}.fi
-AC_SUBST(gforth_fi)
+kernal_fi=kernl${wordsize}${bytesex}.fi
+AC_SUBST(kernal_fi)
 
-AC_LINK_FILES(${mach_h}.h $gforth_fi,machine.h gforth.fi)
+AC_LINK_FILES(${mach_h}.h $kernal_fi,machine.h kernal.fi)
 AC_OUTPUT(Makefile)
 

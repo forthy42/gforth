@@ -13,7 +13,7 @@ typedef void *Label;
 #define DOVAR	2
 #define DOUSER	3
 #define DODEFER	4
-#define DOSTRUC	5
+#define DOFIELD	5
 #define DODOES	6
 #define DOESJUMP	7
 
@@ -75,6 +75,7 @@ Label *engine(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp);
 #define CF_NIL	-1
 
 #ifndef FLUSH_ICACHE
+#warning flush-icache probably will not work (see manual)
 #	define FLUSH_ICACHE(addr,size) 0
 #endif
 

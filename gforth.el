@@ -20,7 +20,7 @@
 ;; file named COPYING.  Among other things, the copyright notice
 ;; and this notice must be preserved on all copies.
 
-;;; $Header: /usr/local/lib/cvs-repository/src-master/gforth/gforth.el,v 1.14 1995-10-07 17:38:15 anton Exp $
+;;; $Header: /usr/local/lib/cvs-repository/src-master/gforth/gforth.el,v 1.15 1995-10-11 19:39:34 anton Exp $
 
 ;;-------------------------------------------------------------------
 ;; A Forth indentation, documentation search and interaction library
@@ -37,13 +37,13 @@
 
 
 (defvar forth-positives
-  " : :noname code does> begin do ?do while if ?dup-if ?dup-not-if else case struct [if] [else] "
+  " : :noname code ;code does> begin do ?do +do -do u+do u-do while if ?dup-if ?dup-not-if else case struct [if] [else] "
   "Contains all words which will cause the indent-level to be incremented
 on the next line.
 OBS! All words in forth-positives must be surrounded by spaces.")
 
 (defvar forth-negatives
-  " ; end-code does> until repeat while +loop loop s+loop else then endif again endcase end-struct [then] [else] [endif]"
+  " ; end-code ;code does> until repeat while +loop loop -loop s+loop else then endif again endcase end-struct [then] [else] [endif]"
   "Contains all words which will cause the indent-level to be decremented
 on the current line.
 OBS! All words in forth-negatives must be surrounded by spaces.")

@@ -71,58 +71,71 @@ DOES> ( n -- )  + c@ ;
 
 \ here allot , c, A,                                   17dec92py
 
-: dp	( -- addr )  dpp @ ;
-: here  ( -- here )  dp @ ;
-: allot ( n -- )     dp +! ;
-: c,    ( c -- )     here 1 chars allot c! ;
-: ,     ( x -- )     here cell allot  ! ;
-: 2,    ( w1 w2 -- ) \ general
+: dp	( -- addr ) \ gforth
+    dpp @ ;
+: here  ( -- here ) \ core
+    dp @ ;
+: allot ( n -- ) \ core
+    dp +! ;
+: c,    ( c -- ) \ core
+    here 1 chars allot c! ;
+: ,     ( x -- ) \ core
+    here cell allot  ! ;
+: 2,	( w1 w2 -- ) \ gforth
     here 2 cells allot 2! ;
 
-: aligned ( addr -- addr' )
+: aligned ( addr -- addr' ) \ core
   [ cell 1- ] Literal + [ -1 cells ] Literal and ;
-: align ( -- )          here dup aligned swap ?DO  bl c,  LOOP ;
+: align ( -- ) \ core
+    here dup aligned swap ?DO  bl c,  LOOP ;
 
-: faligned ( addr -- f-addr )
-  [ 1 floats 1- ] Literal + [ -1 floats ] Literal and ;
+: faligned ( addr -- f-addr ) \ float
+    [ 1 floats 1- ] Literal + [ -1 floats ] Literal and ;
 
-: falign ( -- )
-  here dup faligned swap
-  ?DO
-      bl c,
-  LOOP ;
+: falign ( -- ) \ float
+    here dup faligned swap
+    ?DO
+	bl c,
+    LOOP ;
 
 \ !! this is machine-dependent, but works on all but the strangest machines
-' faligned Alias maxaligned
-' falign Alias maxalign
+' faligned Alias maxaligned ( addr1 -- addr2 ) \ gforth
+' falign Alias maxalign ( -- ) \ gforth
 
-\ the code field is aligned if its body is maxaligned
 \ !! machine-dependent and won't work if "0 >body" <> "0 >body maxaligned"
-' maxaligned Alias cfaligned
-' maxalign Alias cfalign
+' maxaligned Alias cfaligned ( addr1 -- addr2 ) \ gforth
+\ the code field is aligned if its body is maxaligned
+' maxalign Alias cfalign ( -- ) \ gforth
 
-: chars ; immediate
+: chars ( n1 -- n2 ) \ core
+; immediate
 
-: A!    ( addr1 addr2 -- )  dup relon ! ;
-: A,    ( addr -- )     here cell allot A! ;
+
+: A!    ( addr1 addr2 -- ) \ gforth
+    dup relon ! ;
+: A,    ( addr -- ) \ gforth
+    here cell allot A! ;
 
 \ on off                                               23feb93py
 
-: on  ( addr -- )  true  swap ! ;
-: off ( addr -- )  false swap ! ;
+: on  ( addr -- ) \ gforth
+    true  swap ! ;
+: off ( addr -- ) \ gforth
+    false swap ! ;
 
 \ name> found                                          17dec92py
 
 : (name>)  ( nfa -- cfa )
     count  $1F and  +  cfaligned ;
-: name>    ( nfa -- cfa )
+: name>    ( nfa -- cfa ) \ gforth
     cell+
     dup  (name>) swap  c@ $80 and 0= IF  @ THEN ;
 
-: found ( nfa -- cfa n )  cell+
-  dup c@ >r  (name>) r@ $80 and  0= IF  @       THEN
-                  -1 r@ $40 and     IF  1-      THEN
-                     r> $20 and     IF  negate  THEN  ;
+: found ( nfa -- cfa n ) \ gforth
+    cell+
+    dup c@ >r  (name>) r@ $80 and  0= IF  @       THEN
+                    -1 r@ $40 and     IF  1-      THEN
+                       r> $20 and     IF  negate  THEN  ;
 
 \ (find)                                               17dec92py
 
@@ -135,19 +148,25 @@ DOES> ( n -- )  + c@ ;
 
 \ place bounds                                         13feb93py
 
-: place  ( addr len to -- ) over >r  rot over 1+  r> move c! ;
-: bounds ( beg count -- end beg )  over + swap ;
+: place  ( addr len to -- ) \ gforth
+    over >r  rot over 1+  r> move c! ;
+: bounds ( beg count -- end beg ) \ gforth
+    over + swap ;
 
 \ input stream primitives                              23feb93py
 
-: tib   >tib @ ;
-Defer source \ used by dodefer:, must be defer
-: (source) ( -- addr count ) tib #tib @ ;
+: tib ( -- c-addr ) \ core-ext
+    \ obsolescent
+    >tib @ ;
+Defer source ( -- addr count ) \ core
+\ used by dodefer:, must be defer
+: (source) ( -- addr count )
+    tib #tib @ ;
 ' (source) IS source
 
 \ (word)                                               22feb93py
 
-: scan   ( addr1 n1 char -- addr2 n2 )
+: scan   ( addr1 n1 char -- addr2 n2 ) \ gforth
     \ skip all characters not equal to char
     >r
     BEGIN
@@ -158,7 +177,7 @@ Defer source \ used by dodefer:, must be defer
 	1 /string
     REPEAT  THEN
     rdrop ;
-: skip   ( addr1 n1 char -- addr2 n2 )
+: skip   ( addr1 n1 char -- addr2 n2 ) \ gforth
     \ skip all characters equal to char
     >r
     BEGIN
@@ -178,20 +197,20 @@ Defer source \ used by dodefer:, must be defer
 
 \ word parse                                           23feb93py
 
-: parse-word  ( char -- addr len )
+: parse-word  ( char -- addr len ) \ gforth
   source 2dup >r >r >in @ over min /string
   rot dup bl = IF  drop (parse-white)  ELSE  (word)  THEN
   2dup + r> - 1+ r> min >in ! ;
-: word   ( char -- addr )
+: word   ( char -- addr ) \ core
   parse-word here place  bl here count + c!  here ;
 
-: parse    ( char -- addr len )
+: parse    ( char -- addr len ) \ core-ext
   >r  source  >in @ over min /string  over  swap r>  scan >r
   over - dup r> IF 1+ THEN  >in +! ;
 
 \ name                                                 13feb93py
 
-: capitalize ( addr len -- addr len )
+: capitalize ( addr len -- addr len ) \ gforth
   2dup chars chars bounds
   ?DO  I c@ toupper I c! 1 chars +LOOP ;
 : (name) ( -- c-addr count )
@@ -207,17 +226,21 @@ Defer source \ used by dodefer:, must be defer
 
 \ Literal                                              17dec92py
 
-: Literal  ( n -- )  state @ IF postpone lit  , THEN ;
-                                                      immediate
-: ALiteral ( n -- )  state @ IF postpone lit A, THEN ;
+: Literal  ( compilation: n -- ; run-time: -- n ) \ core
+    state @ IF postpone lit  , THEN ; immediate
+: ALiteral ( compilation: addr -- ; run-time: -- addr ) \ gforth
+    state @ IF postpone lit A, THEN ;
                                                       immediate
 
-: char   ( 'char' -- n )  bl word char+ c@ ;
-: [char] ( 'char' -- n )  char postpone Literal ; immediate
+: char   ( 'char' -- n ) \ core
+    bl word char+ c@ ;
+: [char] ( compilation: 'char' -- ; run-time: -- n )
+    char postpone Literal ; immediate
 ' [char] Alias Ascii immediate
 
-: (compile) ( -- )  r> dup cell+ >r @ compile, ;
-: postpone ( "name" -- )
+: (compile) ( -- ) \ gforth
+    r> dup cell+ >r @ compile, ;
+: postpone ( "name" -- ) \ core
   name sfind dup 0= abort" Can't compile "
   0> IF  compile,  ELSE  postpone (compile) A,  THEN ;
                                              immediate restrict
@@ -226,7 +249,7 @@ Defer source \ used by dodefer:, must be defer
 
 \ digit?                                               17dec92py
 
-: digit?   ( char -- digit true/ false )
+: digit?   ( char -- digit true/ false ) \ gforth
   base @ $100 =
   IF
     true EXIT
@@ -244,26 +267,57 @@ Defer source \ used by dodefer:, must be defer
 
 : accumulate ( +d0 addr digit - +d1 addr )
   swap >r swap  base @  um* drop rot  base @  um* d+ r> ;
-: >number ( d addr count -- d addr count )
-  0 ?DO  count digit? WHILE  accumulate  LOOP 0
-  ELSE  1- I' I - UNLOOP  THEN ;
+
+: >number ( d addr count -- d addr count ) \ core
+    0
+    ?DO
+	count digit?
+    WHILE
+	accumulate
+    LOOP
+        0
+    ELSE
+	1- I' I -
+	UNLOOP
+    THEN ;
 
 \ number? number                                       23feb93py
 
 Create bases   10 ,   2 ,   A , 100 ,
 \              16     2    10   Zeichen
 \ !! this saving and restoring base is an abomination! - anton
-: getbase ( addr u -- addr' u' )  over c@ [char] $ - dup 4 u<
-  IF  cells bases + @ base ! 1 /string  ELSE  drop  THEN ;
-: s>number ( addr len -- d )  base @ >r  dpl on
-  over c@ '- =  dup >r  IF  1 /string  THEN
-  getbase  dpl on  0 0 2swap
-  BEGIN  dup >r >number dup  WHILE  dup r> -  WHILE
-         dup dpl ! over c@ [char] . =  WHILE
-         1 /string
-  REPEAT  THEN  2drop rdrop dpl off  ELSE
-  2drop rdrop r> IF  dnegate  THEN
-  THEN r> base ! ;
+: getbase ( addr u -- addr' u' )
+    over c@ [char] $ - dup 4 u<
+    IF
+	cells bases + @ base ! 1 /string
+    ELSE
+	drop
+    THEN ;
+: s>number ( addr len -- d )
+    base @ >r  dpl on
+    over c@ '- =  dup >r
+    IF
+	1 /string
+    THEN
+    getbase  dpl on  0 0 2swap
+    BEGIN
+	dup >r >number dup
+    WHILE
+	dup r> -
+    WHILE
+	dup dpl ! over c@ [char] . =
+    WHILE
+	1 /string
+    REPEAT  THEN
+        2drop rdrop dpl off
+    ELSE
+	2drop rdrop r>
+	IF
+	    dnegate
+	THEN
+    THEN
+    r> base ! ;
+
 : snumber? ( c-addr u -- 0 / n -1 / d 0> )
     s>number dpl @ 0=
     IF
@@ -278,57 +332,86 @@ Create bases   10 ,   2 ,   A , 100 ,
     else
 	r> swap
     then ;
-: s>d ( n -- d ) dup 0< ;
+: s>d ( n -- d ) \ core		s-to-d
+    dup 0< ;
 : number ( string -- d )
-  number? ?dup 0= abort" ?"  0< IF s>d THEN ;
+    number? ?dup 0= abort" ?"  0<
+    IF
+	s>d
+    THEN ;
 
 \ space spaces ud/mod                                  21mar93py
 decimal
-Create spaces  bl 80 times \ times from target compiler! 11may93jaw
-DOES>   ( u -- )  swap
-        0 max 0 ?DO  I' I - &80 min 2dup type  +LOOP  drop ;
-Create backspaces  08 80 times \ times from target compiler! 11may93jaw
-DOES>   ( u -- )  swap
-        0 max 0 ?DO  I' I - &80 min 2dup type  +LOOP  drop ;
+Create spaces ( u -- ) \ core
+bl 80 times \ times from target compiler! 11may93jaw
+DOES>   ( u -- )
+    swap
+    0 max 0 ?DO  I' I - &80 min 2dup type  +LOOP  drop ;
+Create backspaces
+08 80 times \ times from target compiler! 11may93jaw
+DOES>   ( u -- )
+    swap
+    0 max 0 ?DO  I' I - &80 min 2dup type  +LOOP  drop ;
 hex
-: space   1 spaces ;
+: space ( -- ) \ core
+    1 spaces ;
 
-: ud/mod ( ud1 u2 -- urem udquot )  >r 0 r@ um/mod r> swap >r
-                                    um/mod r> ;
+: ud/mod ( ud1 u2 -- urem udquot ) \ gforth
+    >r 0 r@ um/mod r> swap >r
+    um/mod r> ;
 
-: pad    ( -- addr )
+: pad    ( -- addr ) \ core
   here [ $20 8 2* cells + 2 + cell+ ] Literal + aligned ;
 
 \ hold <# #> sign # #s                                 25jan92py
 
-: hold    ( char -- )         pad cell - -1 chars over +! @ c! ;
+: hold    ( char -- ) \ core
+    pad cell - -1 chars over +! @ c! ;
 
-: <#                          pad cell - dup ! ;
+: <# ( -- ) \ core	less-number-sign
+    pad cell - dup ! ;
 
-: #>      ( 64b -- addr +n )  2drop pad cell - dup @ tuck - ;
+: #>      ( xd -- addr u ) \ core	number-sign-greater
+    2drop pad cell - dup @ tuck - ;
 
-: sign    ( n -- )            0< IF  [char] - hold  THEN ;
+: sign    ( n -- ) \ core
+    0< IF  [char] - hold  THEN ;
 
-: #       ( +d1 -- +d2 )    base @ 2 max ud/mod rot 9 over <
-  IF [ char A char 9 - 1- ] Literal +  THEN  [char] 0 + hold ;
+: #       ( ud1 -- ud2 ) \ core		number-sign
+    base @ 2 max ud/mod rot 9 over <
+    IF
+	[ char A char 9 - 1- ] Literal +
+    THEN
+    [char] 0 + hold ;
 
-: #s      ( +d -- 0 0 )         BEGIN  # 2dup d0=  UNTIL ;
+: #s      ( +d -- 0 0 ) \ core	number-sign-s
+    BEGIN
+	# 2dup d0=
+    UNTIL ;
 
 \ print numbers                                        07jun92py
 
-: d.r      >r tuck  dabs  <# #s  rot sign #>
-           r> over - spaces  type ;
+: d.r ( d n -- ) \ double	d-dot-r
+    >r tuck  dabs  <# #s  rot sign #>
+    r> over - spaces  type ;
 
-: ud.r     >r <# #s #> r> over - spaces type ;
+: ud.r ( ud n -- ) \ gforth	u-d-dot-r
+    >r <# #s #> r> over - spaces type ;
 
-: .r       >r s>d r> d.r ;
-: u.r      0 swap ud.r ;
+: .r ( n1 n2 -- ) \ core-ext	dot-r
+    >r s>d r> d.r ;
+: u.r ( u n -- )  \ core-ext	u-dot-r
+    0 swap ud.r ;
 
-: d.       0 d.r space ;
-: ud.      0 ud.r space ;
+: d. ( d -- ) \ double	d-dot
+    0 d.r space ;
+: ud. ( ud -- ) \ gforth	u-d-dot
+    0 ud.r space ;
 
-: .        s>d d. ;
-: u.       0 ud. ;
+: . ( n -- ) \ core	dot
+    s>d d. ;
+: u. ( u -- ) \ core	u-dot
+    0 ud. ;
 
 \ catch throw                                          23feb93py
 \ bounce                                                08jun93jaw
@@ -336,10 +419,10 @@ hex
 \ !! allow the user to add rollback actions    anton
 \ !! use a separate exception stack?           anton
 
-: lp@ ( -- addr )
+: lp@ ( -- addr ) \ gforth	l-p-fetch
  laddr# [ 0 , ] ;
 
-: catch ( x1 .. xn xt -- y1 .. ym 0 / z1 .. zn error )
+: catch ( x1 .. xn xt -- y1 .. ym 0 / z1 .. zn error ) \ exception
   >r sp@ r> swap >r       \ don't count xt! jaw
   fp@ >r
   lp@ >r
@@ -348,7 +431,7 @@ hex
   execute
   r> handler ! rdrop rdrop rdrop 0 ;
 
-: throw ( y1 .. ym error/0 -- y1 .. ym / z1 .. zn error )
+: throw ( y1 .. ym error/0 -- y1 .. ym / z1 .. zn error ) \ exception
     ?DUP IF
 	[ here 4 cells ! ]
 	handler @ rp!
@@ -360,7 +443,7 @@ hex
 
 \ Bouncing is very fine,
 \ programming without wasting time...   jaw
-: bounce ( y1 .. ym error/0 -- y1 .. ym error / y1 .. ym )
+: bounce ( y1 .. ym error/0 -- y1 .. ym error / y1 .. ym ) \ gforth
 \ a throw without data or fp stack restauration
   ?DUP IF
     handler @ rp!
@@ -372,7 +455,7 @@ hex
 
 \ ?stack                                               23feb93py
 
-: ?stack ( ?? -- ?? )
+: ?stack ( ?? -- ?? ) \ gforth
     sp@ s0 @ > IF    -4 throw  THEN
     fp@ f0 @ > IF  -&45 throw  THEN  ;
 \ ?stack should be code -- it touches an empty stack!
@@ -380,14 +463,17 @@ hex
 \ interpret                                            10mar92py
 
 Defer parser
-Defer name      ' (name) IS name
+Defer name ( -- c-addr count ) \ gforth
+\ get the next word from the input buffer
+' (name) IS name
 Defer notfound ( c-addr count -- )
 
-: no.extensions  ( addr u -- )  2drop -&13 bounce ;
-
+: no.extensions  ( addr u -- )
+    2drop -&13 bounce ;
 ' no.extensions IS notfound
 
-: interpret
+: interpret ( ?? -- ?? ) \ gforth
+    \ interpret/compile the (rest of the) input buffer
     BEGIN
 	?stack name dup
     WHILE
@@ -397,7 +483,7 @@ Defer notfound ( c-addr count -- )
 
 \ interpreter compiler                                 30apr92py
 
-: interpreter  ( c-addr u -- ) 
+: interpreter  ( c-addr u -- ) \ gforth
     \ interpretation semantics for the name/number c-addr u
     2dup sfind dup
     IF
@@ -417,7 +503,7 @@ Defer notfound ( c-addr count -- )
 
 ' interpreter  IS  parser
 
-: compiler     ( c-addr u -- )
+: compiler     ( c-addr u -- ) \ gforth
     \ compilation semantics for the name/number c-addr u
     2dup sfind dup
     IF
@@ -440,12 +526,14 @@ Defer notfound ( c-addr count -- )
 	drop notfound
     THEN ;
 
-: [     ['] interpreter  IS parser state off ; immediate
-: ]     ['] compiler     IS parser state on  ;
+: [ ( -- ) \ core	left-bracket
+    ['] interpreter  IS parser state off ; immediate
+: ] ( -- ) \ core	right-bracket
+    ['] compiler     IS parser state on  ;
 
 \ locals stuff needed for control structures
 
-: compile-lp+! ( n -- )
+: compile-lp+! ( n -- ) \ gforth	compile-l-p-plus-store
     dup negate locals-size +!
     0 over = if
     else -1 cells  over = if postpone lp-
@@ -454,7 +542,7 @@ Defer notfound ( c-addr count -- )
     else postpone lp+!# dup ,
     then then then then drop ;
 
-: adjust-locals-size ( n -- )
+: adjust-locals-size ( n -- ) \ gforth
     \ sets locals-size to n and generates an appropriate lp+!
     locals-size @ swap - compile-lp+! ;
 
@@ -470,12 +558,12 @@ variable backedge-locals
     \ the back edge if the BEGIN is unreachable from above. Set by
     \ ASSUME-LIVE, reset by UNREACHABLE.
 
-: UNREACHABLE ( -- )
+: UNREACHABLE ( -- ) \ gforth
     \ declares the current point of execution as unreachable
     dead-code on
     0 backedge-locals ! ; immediate
 
-: ASSUME-LIVE ( orig -- orig )
+: ASSUME-LIVE ( orig -- orig ) \ gforth
     \ used immediateliy before a BEGIN that is not reachable from
     \ above.  causes the BEGIN to assume that the same locals are live
     \ as at the orig point
@@ -568,13 +656,13 @@ variable backedge-locals
 
 3 constant cs-item-size
 
-: CS-PICK ( ... u -- ... destu )
+: CS-PICK ( ... u -- ... destu ) \ tools-ext
  1+ cs-item-size * 1- >r
  r@ pick  r@ pick  r@ pick
  rdrop
  dup non-orig? ;
 
-: CS-ROLL ( destu/origu .. dest0/orig0 u -- .. dest0/orig0 destu/origu )
+: CS-ROLL ( destu/origu .. dest0/orig0 u -- .. dest0/orig0 destu/origu ) \ tools-ext
  1+ cs-item-size * 1- >r
  r@ roll r@ roll r@ roll
  rdrop
@@ -600,25 +688,27 @@ variable backedge-locals
 : >resolve    ( addr -- )        here over - swap ! ;
 : <resolve    ( addr -- )        here - , ;
 
-: BUT       1 cs-roll ;                      immediate restrict
-: YET       0 cs-pick ;                       immediate restrict
+: BUT
+    1 cs-roll ;                      immediate restrict
+: YET
+    0 cs-pick ;                       immediate restrict
 
 \ Structural Conditionals                              12dec92py
 
-: AHEAD ( -- orig )
- POSTPONE branch >mark POSTPONE unreachable ; immediate restrict
+: AHEAD ( compilation: -- orig ; run-time: -- ) \ tools-ext
+    POSTPONE branch  >mark  POSTPONE unreachable ; immediate restrict
 
-: IF ( -- orig )
+: IF ( compilation: -- orig ; run-time: f -- ) \ core
  POSTPONE ?branch >mark ; immediate restrict
 
-: ?DUP-IF \ general
+: ?DUP-IF ( compilation: -- orig ; run-time: n -- n| ) \ gforth	question-dupe-if
 \ This is the preferred alternative to the idiom "?DUP IF", since it can be
 \ better handled by tools like stack checkers
     POSTPONE ?dup POSTPONE if ;       immediate restrict
-: ?DUP-0=-IF \ general
+: ?DUP-0=-IF ( compilation: -- orig ; run-time: n -- n| ) \ gforth	question-dupe-zero-equals-if
     POSTPONE ?dup POSTPONE 0= POSTPONE if ; immediate restrict
 
-: THEN ( orig -- )
+: THEN ( compilation: orig -- ; run-time: -- ) \ core
     dup orig?
     dead-orig =
     if
@@ -635,18 +725,19 @@ variable backedge-locals
 	then
     then ; immediate restrict
 
-' THEN alias ENDIF immediate restrict \ general
+' THEN alias ENDIF ( compilation: orig -- ; run-time: -- ) \ gforth
+immediate restrict
 \ Same as "THEN". This is what you use if your program will be seen by
 \ people who have not been brought up with Forth (or who have been
 \ brought up with fig-Forth).
 
-: ELSE ( orig1 -- orig2 )
+: ELSE ( compilation: orig1 -- orig2 ; run-time: f -- ) \ core
     POSTPONE ahead
     1 cs-roll
     POSTPONE then ; immediate restrict
 
 
-: BEGIN ( -- dest )
+: BEGIN ( compilation: -- dest ; run-time: -- ) \ core
     dead-code @ if
 	\ set up an assumption of the locals visible here.  if the
 	\ users want something to be visible, they have to declare
@@ -661,7 +752,7 @@ variable backedge-locals
 \ issue a warning (see below). The following code is generated:
 \ lp+!# (current-local-size - dest-locals-size)
 \ branch <begin>
-: AGAIN ( dest -- )
+: AGAIN ( compilation: dest -- ; run-time: -- ) \ core-ext
     dest?
     over list-size adjust-locals-size
     POSTPONE branch
@@ -687,14 +778,14 @@ variable backedge-locals
     then ( list )
     check-begin ;
 
-: UNTIL ( dest -- )
+: UNTIL ( compilation: dest -- ; run-time: f -- ) \ core
     dest? ['] ?branch ['] ?branch-lp+!# until-like ; immediate restrict
 
-: WHILE ( dest -- orig dest )
+: WHILE ( compilation: dest -- orig dest ; run-time: f -- ) \ core
     POSTPONE if
     1 cs-roll ; immediate restrict
 
-: REPEAT ( orig dest -- )
+: REPEAT ( compilation: orig dest -- ; run-time: -- ) \ core
     POSTPONE again
     POSTPONE then ; immediate restrict
 
@@ -738,7 +829,7 @@ Avariable leave-sp  leave-stack 3 cells + leave-sp !
     cell - dup @ swap
     leave-sp ! ;
 
-: DONE ( orig -- )
+: DONE ( compilation: orig -- ; run-time: -- ) \ gforth
     \ !! the original done had ( addr -- )
     drop >r drop
     begin
@@ -749,15 +840,15 @@ Avariable leave-sp  leave-stack 3 cells + leave-sp !
     repeat
     >leave rdrop ; immediate restrict
 
-: LEAVE ( -- )
+: LEAVE ( compilation: -- ; run-time: loop-sys -- ) \ core
     POSTPONE ahead
     >leave ; immediate restrict
 
-: ?LEAVE ( -- )
+: ?LEAVE ( compilation: -- ; run-time: f | f loop-sys -- ) \ gforth	question-leave
     POSTPONE 0= POSTPONE if
     >leave ; immediate restrict
 
-: DO ( -- do-sys )
+: DO ( compilation: -- do-sys ; run-time: w1 w2 -- loop-sys )
     POSTPONE (do)
     POSTPONE begin drop do-dest
     ( 0 0 0 >leave ) ; immediate restrict
@@ -767,22 +858,22 @@ Avariable leave-sp  leave-stack 3 cells + leave-sp !
     >mark >leave
     POSTPONE begin drop do-dest ;
 
-: ?DO ( -- do-sys )	\ core-ext	question-do
+: ?DO ( compilation: -- do-sys ; run-time: w1 w2 -- | loop-sys )	\ core-ext	question-do
     POSTPONE (?do) ?do-like ; immediate restrict
 
-: +DO ( -- do-sys )	\ gforth	plus-do
+: +DO ( compilation: -- do-sys ; run-time: w1 w2 -- | loop-sys )	\ gforth	plus-do
     POSTPONE (+do) ?do-like ; immediate restrict
 
-: U+DO ( -- do-sys )	\ gforth	u-plus-do
+: U+DO ( compilation: -- do-sys ; run-time: w1 w2 -- | loop-sys )	\ gforth	u-plus-do
     POSTPONE (u+do) ?do-like ; immediate restrict
 
-: -DO ( -- do-sys )	\ gforth	minus-do
+: -DO ( compilation: -- do-sys ; run-time: w1 w2 -- | loop-sys )	\ gforth	minus-do
     POSTPONE (-do) ?do-like ; immediate restrict
 
-: U-DO ( -- do-sys )	\ gforth	u-minus-do
+: U-DO ( compilation: -- do-sys ; run-time: w1 w2 -- | loop-sys )	\ gforth	u-minus-do
     POSTPONE (u-do) ?do-like ; immediate restrict
 
-: FOR ( -- do-sys )
+: FOR ( compilation: -- do-sys ; run-time: w -- loop-sys )	\ gforth
     POSTPONE (for)
     POSTPONE begin drop do-dest
     ( 0 0 0 >leave ) ; immediate restrict
@@ -793,34 +884,34 @@ Avariable leave-sp  leave-stack 3 cells + leave-sp !
     >r >r 0 cs-pick swap cell - swap 1 cs-roll r> r> rot do-dest?
     until-like  POSTPONE done  POSTPONE unloop ;
 
-: LOOP ( do-sys -- )	\ core
+: LOOP ( compilation: do-sys -- ; run-time: loop-sys1 -- | loop-sys2 )	\ core
  ['] (loop) ['] (loop)-lp+!# loop-like ; immediate restrict
 
-: +LOOP ( do-sys -- )	\ core	plus-loop
+: +LOOP ( compilation: do-sys -- ; run-time: loop-sys1 n -- | loop-sys2 )	\ core	plus-loop
  ['] (+loop) ['] (+loop)-lp+!# loop-like ; immediate restrict
 
 \ !! should the compiler warn about +DO..-LOOP?
-: -LOOP ( do-sys -- )	\ gforth	minus-loop
+: -LOOP ( compilation: do-sys -- ; run-time: loop-sys1 u -- | loop-sys2 )	\ gforth	minus-loop
  ['] (-loop) ['] (-loop)-lp+!# loop-like ; immediate restrict
 
 \ A symmetric version of "+LOOP". I.e., "-high -low ?DO -inc S+LOOP"
 \ will iterate as often as "high low ?DO inc S+LOOP". For positive
 \ increments it behaves like "+LOOP". Use S+LOOP instead of +LOOP for
 \ negative increments.
-: S+LOOP ( do-sys -- )	\ gforth	s-plus-loop
+: S+LOOP ( compilation: do-sys -- ; run-time: loop-sys1 n -- | loop-sys2 )	\ gforth	s-plus-loop
  ['] (s+loop) ['] (s+loop)-lp+!# loop-like ; immediate restrict
 
-: NEXT ( do-sys -- )
+: NEXT ( compilation: do-sys -- ; run-time: loop-sys1 -- | loop-sys2 ) \ gforth
  ['] (next) ['] (next)-lp+!# loop-like ; immediate restrict
 
 \ Structural Conditionals                              12dec92py
 
-: EXIT ( -- )
+: EXIT ( compilation: -- ; run-time: nest-sys -- ) \ core
     0 adjust-locals-size
     POSTPONE ;s
     POSTPONE unreachable ; immediate restrict
 
-: ?EXIT ( -- )
+: ?EXIT ( -- ) ( compilation: -- ; run-time: nest-sys f -- | nest-sys ) \ gforth
      POSTPONE if POSTPONE exit POSTPONE then ; immediate restrict
 
 \ Strings                                              22feb93py
@@ -831,10 +922,11 @@ Avariable leave-sp  leave-stack 3 cells + leave-sp !
   r> r> dup count + aligned >r swap >r ;               restrict
 : (.")     "lit count type ;                           restrict
 : (S")     "lit count ;                                restrict
-: SLiteral postpone (S") here over char+ allot  place align ;
+: SLiteral ( Compilation: c-addr1 u ; run-time: -- c-addr2 u ) \ string
+    postpone (S") here over char+ allot  place align ;
                                              immediate restrict
 create s"-buffer /line chars allot
-: S" ( run-time: -- c-addr u )
+: S" ( compilation: 'ccc"' -- ; run-time: -- c-addr u )	\ core,file	s-quote
     [char] " parse
     state @
     IF
@@ -842,11 +934,13 @@ create s"-buffer /line chars allot
     ELSE
 	/line min >r s"-buffer r@ cmove
 	s"-buffer r>
-    THEN ;
-                                             immediate
-: ."       state @  IF    postpone (.") ,"  align
+    THEN ; immediate
+
+: ." ( compilation: 'ccc"' -- ; run-time: -- )  \ core	dot-quote
+    state @  IF    postpone (.") ,"  align
                     ELSE  [char] " parse type  THEN  ;  immediate
-: (        [char] ) parse 2drop ;                       immediate
+: ( ( compilation: 'ccc<close-paren>' -- ; run-time: -- ) \ core,file	paren
+    [char] ) parse 2drop ;                       immediate
 : \ ( -- ) \ core-ext backslash
     blk @
     IF
@@ -855,15 +949,20 @@ create s"-buffer /line chars allot
     THEN
     source >in ! drop ; immediate
 
-: \G ( -- ) \ new backslash
+: \G ( -- ) \ gforth backslash
     POSTPONE \ ; immediate
 
 \ error handling                                       22feb93py
 \ 'abort thrown out!                                   11may93jaw
 
-: (abort")      "lit >r IF  r> "error ! -2 throw  THEN
-                rdrop ;
-: abort"        postpone (abort") ," ;        immediate restrict
+: (abort")
+    "lit >r
+    IF
+	r> "error ! -2 throw
+    THEN
+    rdrop ;
+: abort" ( compilation: 'ccc"' -- ; run-time: f -- ) \ core,exception-ext	abort-quote
+    postpone (abort") ," ;        immediate restrict
 
 \ Header states                                        23feb93py
 
@@ -881,13 +980,14 @@ create s"-buffer /line chars allot
 \ with existing/independent defining words
 
 defer (header)
-defer header     ' (header) IS header
+defer header ( -- ) \ gforth
+' (header) IS header
 
-: string, ( c-addr u -- )
+: string, ( c-addr u -- ) \ gforth
     \ puts down string as cstring
     dup c, here swap chars dup allot move ;
 
-: name,  ( "name" -- )
+: name,  ( "name" -- ) \ gforth
     name name-too-short? name-too-long?
     string, cfalign ;
 : input-stream-header ( "name" -- )
@@ -913,7 +1013,7 @@ create nextname-buffer 32 chars allot
     input-stream ;
 
 \ the next name is given in the string
-: nextname ( c-addr u -- ) \ general
+: nextname ( c-addr u -- ) \ gforth
     name-too-long?
     nextname-buffer c! ( c-addr )
     nextname-buffer count move
@@ -923,22 +1023,22 @@ create nextname-buffer 32 chars allot
     0 last ! cfalign
     input-stream ;
 
-: noname ( -- ) \ general
+: noname ( -- ) \ gforth
 \ the next defined word remains anonymous. The xt of that word is given by lastxt
     ['] noname-header IS (header) ;
 
-: lastxt ( -- xt ) \ general
+: lastxt ( -- xt ) \ gforth
 \ xt is the execution token of the last word defined. The main purpose of this word is to get the xt of words defined using noname
     lastcfa @ ;
 
-: Alias    ( cfa "name" -- )
+: Alias    ( cfa "name" -- ) \ gforth
   Header reveal , $80 flag! ;
 
-: name>string ( nfa -- addr count )
+: name>string ( nfa -- addr count ) \ gforth	name-to-string
  cell+ count $1F and ;
 
 Create ???  0 , 3 c, char ? c, char ? c, char ? c,
-: >name ( cfa -- nfa )
+: >name ( cfa -- nfa ) \ gforth	to-name
  $21 cell do
    dup i - count $9F and + cfaligned over $80 + = if
      i - cell - unloop exit
@@ -948,22 +1048,25 @@ Create ???  0 , 3 c, char ? c, char ? c, char ? c,
 
 \ threading                                   17mar93py
 
-: cfa,     ( code-address -- )  \ gforth
+: cfa,     ( code-address -- )  \ gforth	cfa-comma
     here
     dup lastcfa !
     0 A, 0 ,  code-address! ;
-: compile, ( xt -- ) \ core-ext
+: compile, ( xt -- )	\ core-ext	compile-comma
     A, ;
-: !does    ( addr -- )		lastxt does-code! ;
-: (does>)  ( R: addr -- )	r> /does-handler + !does ;
+: !does    ( addr -- ) \ gforth	store-does
+    lastxt does-code! ;
+: (does>)  ( R: addr -- )
+    r> /does-handler + !does ;
 : dodoes,  ( -- )
   here /does-handler allot does-handler! ;
 
-: Create    Header reveal dovar: cfa, ;
+: Create ( -- ) \ core
+    Header reveal dovar: cfa, ;
 
 \ DOES>                                                17mar93py
 
-: DOES>  ( compilation: -- ) \ core
+: DOES>  ( compilation: colon-sys1 -- colon-sys2 ; run-time: nest-sys -- ) \ core	does
     state @
     IF
 	;-hook postpone (does>) ?struc dodoes,
@@ -974,19 +1077,25 @@ Create ???  0 , 3 c, char ? c, char ? c, char ? c,
 
 \ Create Variable User Constant                        17mar93py
 
-: Variable  Create 0 , ;
-: AVariable Create 0 A, ;
+: Variable ( -- ) \ core
+    Create 0 , ;
+: AVariable ( -- ) \ gforth
+    Create 0 A, ;
 : 2VARIABLE ( "name" -- ) \ double
     create 0 , 0 , ;
     
-: User      Variable ;
-: AUser     AVariable ;
+: User
+    Variable ;
+: AUser
+    AVariable ;
 
 : (Constant)  Header reveal docon: cfa, ;
-: Constant  (Constant) , ;
-: AConstant (Constant) A, ;
+: Constant ( w -- ) \ core
+    (Constant) , ;
+: AConstant ( addr -- ) \ gforth
+    (Constant) A, ;
 
-: 2Constant
+: 2Constant ( d -- ) \ double
     Create ( w1 w2 "name" -- )
         2,
     DOES> ( -- w1 w2 )
@@ -994,7 +1103,7 @@ Create ???  0 , 3 c, char ? c, char ? c, char ? c,
     
 \ IS Defer What's Defers TO                            24feb93py
 
-: Defer ( -- )
+: Defer ( -- ) \ gforth
     \ !! shouldn't it be initialized with abort or something similar?
     Header Reveal dodefer: cfa,
     ['] noop A, ;
@@ -1003,38 +1112,46 @@ Create ???  0 , 3 c, char ? c, char ? c, char ? c,
 \     DOES> ( ??? )
 \ 	@ execute ;
 
-: IS ( addr "name" -- )
+: IS ( addr "name" -- ) \ gforth
     ' >body
     state @
     IF    postpone ALiteral postpone !  
     ELSE  !
     THEN ;  immediate
-' IS Alias TO immediate
+' IS Alias TO ( addr "name" -- ) \ core-ext
+immediate
 
-: What's ( "name" -- addr )  ' >body
-  state @ IF  postpone ALiteral postpone @  ELSE  @  THEN ;
-                                             immediate
-: Defers ( "name" -- )  ' >body @ compile, ;
-                                             immediate
+: What's ( "name" -- addr ) \ gforth
+    ' >body
+    state @
+    IF
+	postpone ALiteral postpone @
+    ELSE
+	@
+    THEN ; immediate
+: Defers ( "name" -- ) \ gforth
+    ' >body @ compile, ; immediate
 
 \ : ;                                                  24feb93py
 
 defer :-hook ( sys1 -- sys2 )
 defer ;-hook ( sys2 -- sys1 )
 
-: : ( -- colon-sys )  Header docol: cfa, defstart ] :-hook ;
-: ; ( colon-sys -- )  ;-hook ?struc postpone exit reveal postpone [ ;
-  immediate restrict
+: : ( -- colon-sys ) \ core	colon
+    Header docol: cfa, defstart ] :-hook ;
+: ; ( compilation: colon-sys -- ; run-time: nest-sys ) \ core	semicolon
+    ;-hook ?struc postpone exit reveal postpone [ ; immediate restrict
 
-: :noname ( -- xt colon-sys )
+: :noname ( -- xt colon-sys ) \ core-ext	colon-no-name
     0 last !
     here docol: cfa, 0 ] :-hook ;
 
 \ Search list handling                                 23feb93py
 
-AVariable current
+AVariable current ( -- addr ) \ gforth
 
-: last?   ( -- false / nfa nfa )    last @ ?dup ;
+: last?   ( -- false / nfa nfa )
+    last @ ?dup ;
 : (reveal) ( -- )
     last?
     IF
@@ -1076,10 +1193,11 @@ G forth-wordlist current T !
 : (search-wordlist)  ( addr count wid -- nfa / false )
   dup wordlist-map @ find-method @ execute ;
 
-: search-wordlist  ( addr count wid -- 0 / xt +-1 )
+: search-wordlist  ( addr count wid -- 0 / xt +-1 ) \ search
     (search-wordlist) dup  IF  found  THEN ;
 
-Variable warnings  G -1 warnings T !
+Variable warnings ( -- addr ) \ gforth
+G -1 warnings T !
 
 : check-shadow  ( addr count wid -- )
 \ prints a warning if the string is already present in the wordlist
@@ -1095,34 +1213,38 @@ Variable warnings  G -1 warnings T !
  then
  2drop 2drop ;
 
-: sfind ( c-addr u -- xt n / 0 )
+: sfind ( c-addr u -- xt n / 0 ) \ gforth
     lookup @ search-wordlist ;
 
-: find   ( addr -- cfa +-1 / string false )
+: find   ( addr -- cfa +-1 / string false ) \ core,search
     \ !! not ANS conformant: returns +-2 for restricted words
     dup count sfind dup if
 	rot drop
     then ;
 
-: reveal ( -- )
+: reveal ( -- ) \ gforth
  last? if
    name>string current @ check-shadow
  then
  current @ wordlist-map @ reveal-method @ execute ;
 
-: rehash  ( wid -- )  dup wordlist-map @ rehash-method @ execute ;
+: rehash  ( wid -- )
+    dup wordlist-map @ rehash-method @ execute ;
 
-: '    ( "name" -- addr )  name sfind 0= if -&13 bounce then ;
-: [']  ( "name" -- addr )  ' postpone ALiteral ; immediate
+: '    ( "name" -- addr ) \ core	tick
+    name sfind 0= if -&13 bounce then ;
+: [']  ( compilation: "name" -- ; run-time: --addr ) \ core	bracket-tick
+    ' postpone ALiteral ; immediate
 \ Input                                                13feb93py
 
-07 constant #bell
-08 constant #bs
-09 constant #tab
-7F constant #del
-0D constant #cr                \ the newline key code
-0C constant #ff
-0A constant #lf
+07 constant #bell ( -- c ) \ gforth
+08 constant #bs ( -- c ) \ gforth
+09 constant #tab ( -- c ) \ gforth
+7F constant #del ( -- c ) \ gforth
+0D constant #cr   ( -- c ) \ gforth
+\ the newline key code
+0C constant #ff ( -- c ) \ gforth
+0A constant #lf ( -- c ) \ gforth
 
 : bell  #bell emit ;
 
@@ -1163,7 +1285,7 @@ defer everychar
 \ decode should better use a table for control key actions
 \ to define keyboard bindings later
 
-: accept   ( addr len -- len )
+: accept   ( addr len -- len ) \ core
   dup 0< IF    abs over dup 1 chars - c@ tuck type 
 \ this allows to edit given strings
          ELSE  0  THEN rot over
@@ -1172,19 +1294,19 @@ defer everychar
 
 \ Output                                               13feb93py
 
-Defer type      \ defer type for a output buffer or fast
-                \ screen write
+Defer type ( c-addr u -- ) \ core
+\ defer type for a output buffer or fast
+\ screen write
 
 \ : (type) ( addr len -- )
 \   bounds ?DO  I c@ emit  LOOP ;
 
 ' (type) IS Type
 
-Defer emit
-
+Defer emit ( c -- ) \ core
 ' (Emit) IS Emit
 
-Defer key
+Defer key ( -- c ) \ core
 ' (key) IS key
 
 \ : form  ( -- rows cols )  &24 &80 ;
@@ -1194,7 +1316,7 @@ Defer key
 
 \ Query                                                07apr93py
 
-: refill ( -- flag )
+: refill ( -- flag ) \ core-ext,block-ext,file-ext
   blk @  IF  1 blk +!  true  0 >in !  EXIT  THEN
   tib /line
   loadfile @ ?dup
@@ -1205,7 +1327,9 @@ Defer key
   1 loadline +!
   swap #tib ! 0 >in ! ;
 
-: Query  ( -- )  loadfile off  blk off  refill drop ;
+: Query  ( -- ) \ core-ext
+    \ obsolescent
+    loadfile off  blk off  refill drop ;
 
 \ File specifiers                                       11jun93jaw
 
@@ -1213,23 +1337,28 @@ Defer key
 \ 1 c, here char r c, 0 c,                0 c, 0 c, char b c, 0 c,
 \ 2 c, here char r c, char + c, 0 c,
 \ 2 c, here char w c, char + c, 0 c, align
-4 Constant w/o
-2 Constant r/w
-0 Constant r/o
+4 Constant w/o ( -- fam ) \ file	w-o
+2 Constant r/w ( -- fam ) \ file	r-o
+0 Constant r/o ( -- fam ) \ file	r-w
 
 \ BIN WRITE-LINE                                        11jun93jaw
 
 \ : bin           dup 1 chars - c@
 \                 r/o 4 chars + over - dup >r swap move r> ;
 
-: bin  1 or ;
+: bin ( fam1 -- fam2 ) \ file
+    1 or ;
 
 create nl$ 1 c, A c, 0 c, \ gnu includes usually a cr in dos
                            \ or not unix environments if
                            \ bin is not selected
 
-: write-line    dup >r write-file ?dup IF r> drop EXIT THEN
-                nl$ count r> write-file ;
+: write-line ( c-addr u fileid -- ior ) \ file
+    dup >r write-file
+    ?dup IF
+	r> drop EXIT
+    THEN
+    nl$ count r> write-file ;
 
 \ include-file                                         07apr93py
 
@@ -1254,7 +1383,7 @@ create nl$ 1 c, A c, 0 c, \ gnu includes usually a cr in dos
 : read-loop ( i*x -- j*x )
   BEGIN  refill  WHILE  interpret  REPEAT ;
 
-: include-file ( i*x fid -- j*x )
+: include-file ( i*x fid -- j*x ) \ file
   push-file  loadfile !
   0 loadline ! blk off  ['] read-loop catch
   loadfile @ close-file swap 2dup or
@@ -1275,7 +1404,7 @@ create pathfilenamebuf 256 chars allot \ !! make this grow on demand
 \   ELSE   false
 \   THEN ;
 
-: open-path-file ( c-addr1 u1 -- file-id c-addr2 u2 )
+: open-path-file ( c-addr1 u1 -- file-id c-addr2 u2 ) \ gforth
     \ opens a file for reading, searching in the path for it (unless
     \ the filename contains a slash); c-addr2 u2 is the full filename
     \ (valid until the next call); if the file is not found (or in
@@ -1307,8 +1436,15 @@ create pathfilenamebuf 256 chars allot \ !! make this grow on demand
     pathfilenamebuf swap ;
 
 create included-files 0 , 0 , ( pointer to and count of included files )
+create image-included-files 0 , 0 , ( pointer to and count of included files )
+\ included-files points to ALLOCATEd space, while image-included-files
+\ points to ALLOTed objects, so it survives a save-system
 
-: included? ( c-addr u -- f )
+: init-included-files ( -- )
+    image-included-files 2@ 2* cells save-string drop ( addr )
+    image-included-files 2@ nip included-files 2! ;
+
+: included? ( c-addr u -- f ) \ gforth
     \ true, iff filename c-addr u is in included-files
     included-files 2@ 0
     ?do ( c-addr u addr )
@@ -1321,28 +1457,29 @@ create included-files 0 , 0 , ( pointer to and count of included files )
     loop
     2drop drop false ;
 
-: add-included-file ( c-addr u -- )
+: add-included-file ( c-addr u -- ) \ gforth
     \ add name c-addr u to included-files
     included-files 2@ tuck 1+ 2* cells resize throw
     swap 2dup 1+ included-files 2!
     2* cells + 2! ;
 
-: save-string		( addr1 u -- addr2 u )
+: save-string		( addr1 u -- addr2 u ) \ gforth
+    \ !! not a string, but a memblock word
     swap >r
     dup allocate throw
     swap 2dup r> -rot move ;
 
-: included1 ( i*x file-id c-addr u -- j*x )
+: included1 ( i*x file-id c-addr u -- j*x ) \ gforth
     \ include the file file-id with the name given by c-addr u
     loadfilename 2@ >r >r
     save-string 2dup loadfilename 2! add-included-file ( file-id )
     ['] include-file catch
     r> r> loadfilename 2!  throw ;
     
-: included ( i*x addr u -- j*x )
+: included ( i*x addr u -- j*x ) \ gforth
     open-path-file included1 ;
 
-: required ( i*x addr u -- j*x )
+: required ( i*x addr u -- j*x ) \ gforth
     \ include the file with the name given by addr u, if it is not
     \ included already. Currently this works by comparing the name of
     \ the file (with path) against the names of earlier included
@@ -1360,48 +1497,53 @@ create included-files 0 , 0 , ( pointer to and count of included files )
 
 \ HEX DECIMAL                                           2may93jaw
 
-: decimal a base ! ;
-: hex     10 base ! ;
+: decimal ( -- ) \ core
+    a base ! ;
+: hex ( -- ) \ core-ext
+    10 base ! ;
 
 \ DEPTH                                                 9may93jaw
 
-: depth ( -- +n )  sp@ s0 @ swap - cell / ;
-: clearstack ( ... -- )  s0 @ sp! ;
+: depth ( -- +n ) \ core
+    sp@ s0 @ swap - cell / ;
+: clearstack ( ... -- )
+    s0 @ sp! ;
 
 \ INCLUDE                                               9may93jaw
 
-: include  ( "file" -- )
+: include  ( "file" -- ) \ gforth
   name included ;
 
-: require  ( "file" -- )
+: require  ( "file" -- ) \ gforth
   name required ;
 
 \ RECURSE                                               17may93jaw
 
-: recurse ( -- )
+: recurse ( compilation: -- ; run-time: ?? -- ?? ) \ core
     lastxt compile, ; immediate restrict
-: recursive ( -- )
+: recursive ( -- ) \ gforth
     reveal last off ; immediate
 
 \ */MOD */                                              17may93jaw
 
 \ !! I think */mod should have the same rounding behaviour as / - anton
-: */mod >r m* r> sm/rem ;
+: */mod ( n1 n2 n3 -- n4 n5 ) \ core	star-slash-mod
+    >r m* r> sm/rem ;
 
-: */ */mod nip ;
+: */ ( n1 n2 n3 -- n4 ) \ core	star-slash
+    */mod nip ;
 
 \ EVALUATE                                              17may93jaw
 
-: evaluate ( c-addr len -- )
+: evaluate ( c-addr len -- ) \ core,block
   push-file  dup #tib ! >tib @ swap move
   >in off blk off loadfile off -1 loadline !
-
 \  BEGIN  interpret  >in @ #tib @ u>= UNTIL
   ['] interpret catch
   pop-file throw ;
 
-
-: abort -1 throw ;
+: abort ( ?? -- ?? ) \ core,exception-ext
+    -1 throw ;
 
 \+ environment? true ENV" CORE"
 \ core wordset is now complete!
@@ -1425,11 +1567,11 @@ max-errors 6 * cells allot
 \ line-number
 \ Loadfilename ( addr u )
 
-: dec. ( n -- )
+: dec. ( n -- ) \ gforth
     \ print value in decimal representation
     base @ decimal swap . base ! ;
 
-: typewhite ( addr u -- )
+: typewhite ( addr u -- ) \ gforth
     \ like type, but white space is printed instead of the characters
     bounds ?do
 	i c@ 9 = if \ check for tab
@@ -1438,8 +1580,7 @@ max-errors 6 * cells allot
 	    bl
 	then
 	emit
-    loop
-;
+    loop ;
 
 DEFER DOERROR
 
@@ -1489,14 +1630,15 @@ DEFER DOERROR
 
 ' (DoError) IS DoError
 
-: quit   r0 @ rp! handler off >tib @ >r
-  BEGIN
-    postpone [
-    ['] 'quit CATCH dup
-  WHILE
-    DoError r@ >tib !
-  REPEAT
-  drop r> >tib ! ;
+: quit ( ?? -- ?? ) \ core
+    r0 @ rp! handler off >tib @ >r
+    BEGIN
+	postpone [
+	['] 'quit CATCH dup
+    WHILE
+	DoError r@ >tib !
+    REPEAT
+    drop r> >tib ! ;
 
 \ Cold                                                 13feb93py
 
@@ -1504,8 +1646,10 @@ DEFER DOERROR
 \ : words  listwords @
 \          BEGIN  @ dup  WHILE  dup .name  REPEAT drop ;
 
-: cstring>sstring  ( cstring -- addr n )  -1 0 scan 0 swap 1+ /string ;
-: arg ( n -- addr count )  cells argv @ + @ cstring>sstring ;
+: cstring>sstring  ( cstring -- addr n ) \ gforth	cstring-to-sstring
+    -1 0 scan 0 swap 1+ /string ;
+: arg ( n -- addr count ) \ gforth
+    cells argv @ + @ cstring>sstring ;
 : #!       postpone \ ;  immediate
 
 Create pathstring 2 cells allot \ string
@@ -1564,9 +1708,9 @@ Variable argc
 
 Defer 'cold ' noop IS 'cold
 
-: cold ( -- )
+: cold ( -- ) \ gforth
     pathstring 2@ process-path pathdirs 2!
-    0 0 included-files 2!
+    init-included-files
     'cold
     argc @ 1 >
     IF
@@ -1583,7 +1727,8 @@ Defer 'cold ' noop IS 'cold
     ." Type `bye' to exit"
     loadline off quit ;
 
-: license ( -- ) cr
+: license ( -- ) \ gforth
+ cr
  ." This program is free software; you can redistribute it and/or modify" cr
  ." it under the terms of the GNU General Public License as published by" cr
  ." the Free Software Foundation; either version 2 of the License, or" cr
@@ -1603,7 +1748,8 @@ Defer 'cold ' noop IS 'cold
   sp@ dup s0 ! $10 + >tib ! #tib off >in off
   rp@ r0 !  fp@ f0 !  cold ;
 
-: bye  script? 0= IF  cr  THEN  0 (bye) ;
+: bye ( -- ) \ tools-ext
+    script? 0= IF  cr  THEN  0 (bye) ;
 
 \ **argv may be scanned by the C starter to get some important
 \ information, as -display and -geometry for an X client FORTH
