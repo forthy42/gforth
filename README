@@ -1,7 +1,5 @@
-This snapshot is mainly intended as a Vmgen release.  The Gforth part
-has known bugs, and likely has portability problems (which Vmgen
-inherits, of course) on anything but 386 and Alpha platforms.  A
-full-blown and portable release will be released Real Soon Now:-).
+This snapshot has been tested quite well for portability.  The main
+thing missing before the release is an update to the documentation.
 
 Gforth is a fast and portable implementation of the ANS Forth
 language. It works nicely with the Emacs editor, offers some nice
@@ -15,7 +13,18 @@ Gforth runs under Unix, Win95, OS/2, and DOS and should not be hard to
 port to other systems supported by GCC. This version has been tested
 successfully on the following platforms:
 
+alpha-dec-osf4.0d
+alpha-unknown-linux-gnu
+hppa1.1-unknown-linux-gnu
+hppa2.0w-hp-hpux11.11
+i386-unknown-freebsd4.7
+i486-pc-linux-gnulibc1
 i686-pc-linux-gnu
+mips-dec-ultrix4.3
+mipsel-pc-linux-gnu
+mips-sgi-irix6.5
+powerpc-apple-darwin5.4
+powerpc-unknown-linux-gnu
 
 Read INSTALL for installation instructions, or INSTALL.DOS for DOS,
 Windows 95, and OS/2.  To start the system, just say `gforth' (after

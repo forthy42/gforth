@@ -115,6 +115,12 @@ signal_throw(int sig)
 }
 
 #ifdef SA_SIGINFO
+static void
+sigaction_throw(int sig, siginfo_t *info, void *_)
+{
+  signal_throw(sig);
+}
+
 static void fpe_handler(int sig, siginfo_t *info, void *_)
      /* handler for SIGFPE */
 {
@@ -398,10 +404,25 @@ void install_signal_handlers(void)
     bsd_signal(sigs_to_quit [i], graceful_exit);
 #ifdef SA_SIGINFO
   if (!die_on_signal) {
+#ifdef SIGFPE
     install_signal_handler(SIGFPE, fpe_handler);
-    install_signal_handler(SIGSEGV, segv_handler);
-  }
 #endif
+#ifdef SIGSEGV
+    install_signal_handler(SIGSEGV, segv_handler);
+#endif
+    /* use SA_ONSTACK for all signals that could come from executing
+       wrong code */
+#ifdef SIGILL
+    install_signal_handler(SIGILL, sigaction_throw);
+#endif
+#ifdef SIGBUS
+    install_signal_handler(SIGBUS, sigaction_throw);
+#endif
+#ifdef SIGTRAP
+    install_signal_handler(SIGTRAP, sigaction_throw);
+#endif
+  }
+#endif /* defined(SA_SIGINFO) */
 #ifdef SIGCONT
     bsd_signal(SIGCONT, termprep);
 #endif

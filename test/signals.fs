@@ -23,3 +23,5 @@
 : down 1- ;
 ' down 1- ' execute catch 2drop
 
+\ test if SIGSEGV handler really works (in particular sigaltstack)
+0 ' @ catch 2drop

@@ -156,9 +156,9 @@ int main(int argc, char **argv)
   int disassembling = 0;
   int profiling = 0;
   int c;
-  Inst vm_code[CODE_SIZE];
+  Inst *vm_code=(Inst *)calloc(CODE_SIZE,sizeof(Inst));
   Inst *start;
-  Cell stack[STACK_SIZE];
+  Cell *stack=(Cell *)calloc(STACK_SIZE,sizeof(Cell));
   engine_t runvm=engine;
 
   while ((c = getopt(argc, argv, "hdpt")) != -1) {
