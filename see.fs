@@ -629,7 +629,7 @@ IS discode
     \G etc.) is lost.
     name find-name dup 0=
     IF
-	drop -&13 bounce
+	drop -&13 throw
     THEN
     name-see ;
 

@@ -182,6 +182,7 @@ GFORTH_FI_SRC = \
 	savesys.fs \
 	environ.fs \
 	errors.fs \
+	exceptions.fs \
 	extend.fs \
 	float.fs \
 	glocals.fs \

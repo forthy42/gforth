@@ -40,13 +40,13 @@
 
 
 (defvar forth-positives
-  " : :noname m: :m code interpretation: ;code does> begin do ?do +do -do u+do u-do while if ?dup-if ?dup-0=-if else case of struct [if] [ifdef] [ifundef] [else] with public: private: class "
+  " : :noname m: :m code interpretation: ;code does> begin do ?do +do -do u+do u-do while if ?dup-if ?dup-0=-if else case of struct [if] [ifdef] [ifundef] [else] with public: private: class try recover "
   "*Contains all words which will cause the indent-level to be incremented
 on the next line.
 OBS! All words in forth-positives must be surrounded by spaces.")
 
 (defvar forth-negatives
-  " ; ;m end-code ;code does> until repeat while +loop loop -loop s+loop else then endif again endcase endof end-struct [then] [else] [endif] endwith end-class class; how: "
+  " ; ;m end-code ;code does> until repeat while +loop loop -loop s+loop else then endif again endcase endof end-struct [then] [else] [endif] endwith end-class class; how: recover endtry "
   "*Contains all words which will cause the indent-level to be decremented
 on the current line.
 OBS! All words in forth-negatives must be surrounded by spaces.")

@@ -199,88 +199,13 @@ has? glocals [IF]
  laddr# [ 0 , ] ;
 [THEN]
 
-\- 'catch Defer 'catch
-\- 'throw Defer 'throw
+defer catch ( x1 .. xn xt -- y1 .. ym 0 / z1 .. zn error ) \ exception
+:noname ( ... xt -- ... 0 )
+    execute 0 ;
+is catch
 
-' noop IS 'catch
-' noop IS 'throw
-
-has? backtrace [IF]
-Defer store-backtrace
-' noop IS store-backtrace
-[THEN]
-
-: catch ( x1 .. xn xt -- y1 .. ym 0 / z1 .. zn error ) \ exception
-    'catch
-    sp@ >r
-[ has? floating [IF] ]
-    fp@ >r
-[ [THEN] ]
-[ has? glocals [IF] ]
-    lp@ >r
-[ [THEN] ]
-    handler @ >r
-    rp@ handler !
-[ has? backtrace [IF] ]
-    backtrace-empty on
-[ [THEN] ]
-    execute
-    r> handler ! rdrop 
-[ has? floating [IF] ]
-    rdrop
-[ [THEN] ]
-[ has? glocals [IF] ]
-    rdrop
-[ [THEN] ]
-    0 ;
-
-: throw ( y1 .. ym error/0 -- y1 .. ym / z1 .. zn error ) \ exception
-    ?DUP IF
-	[ has? header [IF] here 9 cells ! [THEN] ] \ entry point for signal handler
-[ has? backtrace [IF] ]
-	store-backtrace
-[ [THEN] ]
-[ has? interpreter [IF] ]
-	handler @ dup 0= IF
-[ has? os [IF] ]
-	    2 (bye)
-[ [ELSE] ]
-	    quit
-[ [THEN] ]
-	THEN
-[ [THEN] ]
-	rp!
-	r> handler !
-[ has? glocals [IF] ]
-        r> lp!
-[ [THEN] ]
-[ has? floating [IF] ]
-	r> fp!
-[ [THEN] ]
-	r> swap >r sp! drop r>
-	'throw
-    THEN ;
-
-\ Bouncing is very fine,
-\ programming without wasting time...   jaw
-: bounce ( y1 .. ym error/0 -- y1 .. ym error / y1 .. ym ) \ gforth
-\ a throw without data or fp stack restauration
-  ?DUP IF
-[ has? backtrace [IF] ]
-      store-backtrace
-[ [THEN] ]
-      handler @ rp!
-      r> handler !
-[ has? glocals [IF] ]
-      r> lp!
-[ [THEN] ]
-[ has? floating [IF] ]
-      rdrop
-[ [THEN] ]
-      rdrop
-      'throw
-  THEN ;
-
+defer throw ( y1 .. ym error/0 -- y1 .. ym / z1 .. zn error ) \ exception
+' drop is throw
 \ (abort")
 
 : (abort")

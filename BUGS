@@ -18,7 +18,7 @@ determine what "./" should expand to. anton 16jun98
 TAGS contains references to development (not install, not build)
 directories (for prim).  Probably a Makefile bug.  anton 20oct99
 
-I/O in DOS is unbuffered since 0.4.0.  Bruce Hoyt, early 1999.
+All I/O in DOS is unbuffered since 0.4.0.  Bruce Hoyt, early 1999.
 
 FILE-SIZE, FILE-POSITION, and REPOSITION-FILE don't work correctly on
 text files under DOS and Windows.  anton 31oct99

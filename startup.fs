@@ -20,6 +20,7 @@
 
 warnings off
 include search.fs
+require exceptions.fs
 include environ.fs
 include envos.fs
 include errors.fs

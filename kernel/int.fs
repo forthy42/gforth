@@ -440,7 +440,7 @@ const Create ???  0 , 3 c, char ? c, char ? c, char ? c,
     name name-too-short?
     find-name dup 0=
     IF
-	drop -&13 bounce
+	drop -&13 throw
     THEN  ;
 
 : '    ( "name" -- xt ) \ core	tick
@@ -468,7 +468,7 @@ Defer compiler-notfound ( c-addr count -- )
 Defer interpreter-notfound ( c-addr count -- )
 
 : no.extensions  ( addr u -- )
-    2drop -&13 bounce ;
+    2drop -&13 throw ;
 ' no.extensions IS compiler-notfound
 ' no.extensions IS interpreter-notfound
 
@@ -608,7 +608,7 @@ Defer .status
 
 : (quit) ( -- )
     \ exits only through THROW etc.
-    sp0 @ cell - handler @ &12 + ! \ !! kludge: fix the stack pointer
+\    sp0 @ cell - handler @ &12 + ! \ !! kludge: fix the stack pointer
     \ stored in the system's CATCH frame, so the stack depth will be 0
     \ after the next THROW it catches (it may be off due to BOUNCEs or
     \ because process-args left something on the stack)
