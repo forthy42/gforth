@@ -268,7 +268,7 @@ Defer parser
 Defer name      ' (name) IS name
 Defer notfound
 
-: no.extensions  ( string -- )   IF &-13 bounce THEN ;
+: no.extensions  ( string -- )  IF  &-13 bounce  THEN ;
 
 ' no.extensions IS notfound
 
@@ -286,7 +286,7 @@ Defer notfound
 : compiler     ( name -- ) find  ?dup
   IF  0> IF  execute EXIT THEN compile, EXIT THEN number? dup
   IF  0> IF  swap postpone Literal  THEN  postpone Literal
-  ELSE  notfound  THEN ;
+  ELSE  drop notfound  THEN ;
 
 : [     ['] interpreter  IS parser state off ; immediate
 : ]     ['] compiler     IS parser state on  ;
@@ -486,8 +486,8 @@ Create ???  ," ???"
 : (Constant)  Header reveal [ :docon ] ALiteral cfa, ;
 : Constant  (Constant) , ;
 : AConstant (Constant) A, ;
-: 2CONSTANT ( w1 w2 "name" -- ) \ double
-    (constant) 2, ;
+: 2Constant ( w1 w2 "name" -- ) \ double
+  Create 2, DOES> 2@ ;
     
 \ IS Defer What's Defers TO                            24feb93py
 

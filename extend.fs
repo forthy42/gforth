@@ -16,6 +16,9 @@ decimal
 : 2r>   postpone r> postpone r> ; immediate restrict
 : 2r@   postpone 2r> postpone 2dup postpone 2>r ; immediate restrict
 
+: 2Literal  swap postpone Literal  postpone Literal ;
+  immediate restrict
+
 \ CASE OF ENDOF ENDCASE                                 17may93jaw
 
 \ just as described in dpANS5
@@ -64,7 +67,8 @@ decimal
 
 \ ERASE                                                 17may93jaw
 
-: erase 0 1 chars um/mod nip 0 fill ;
+: erase ( 0 1 chars um/mod nip )  0 fill ;
+: blank ( 0 1 chars um/mod nip ) bl fill ;
 
 \ ROLL                                                  17may93jaw
 

@@ -7,6 +7,7 @@ include float.fs
 include search-order.fs
 \ include toolsext.fs
 include wordinfo.fs
+include vt100.fs
 \ include colorize.fs
 include see.fs
 include bufio.fs

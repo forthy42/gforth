@@ -6,18 +6,33 @@ Variable locals  here locals !  100 ( some) cells allot
   postpone Literal postpone + ;
 : delocal, ( offset -- ) local, postpone rp! ;
 : (local  DOES>  @ local, postpone @ ;
+: f>r  r> rp@ 1 floats - dup rp! f! >r ;
+: (flocal DOES>  @ local, postpone f@ ;
 
-: <local ( -- sys1 )  current @ @ loffset @ locals @ ;  immediate
+: do-nothing ;
+: ralign  r>
+  BEGIN  rp@ [ 1 floats 1- ] Literal and
+         WHILE  [ ' do-nothing >body ] ALiteral >r
+  REPEAT  >r ;
+
+: <local ( -- sys1 )  current @ @ loffset @ locals @
+  over 0= IF  postpone  ralign  THEN  ;                 immediate
 : local: ( -- )  postpone >r  last @ lastcfa @ here locals @ dp !
   cell loffset +! Create  loffset @ , immediate (local
+  here locals !  dp !  lastcfa ! last ! ;               immediate
+: flocal: ( -- )  last @ lastcfa @ here locals @ dp !
+  BEGIN  loffset @ 0 1 floats fm/mod drop  WHILE
+         0 postpone Literal postpone >r  1 cells  loffset +!  REPEAT
+  postpone f>r  Create  loffset @ , immediate (flocal
   here locals !  dp !  lastcfa ! last ! ;               immediate
 : local> ( sys1 -- sys2 ) ;                             immediate
 : local; ( sys2 -- ) locals ! dup delocal,
   loffset ! current @ ! ;                               immediate
 : TO  >in @ ' dup @ [ ' (local >body cell+ ] ALiteral =
   IF    >body @ local, postpone ! drop
-  ELSE  drop >in ! postpone to  THEN  ;                 immediate
-: EXIT  loffset @ IF  0 delocal,  THEN  postpone EXIT ; immediate
+  ELSE  dup @ [ ' (flocal >body cell+ ] ALiteral =
+        IF    >body @ local, postpone f!  drop
+        ELSE  drop >in ! postpone to  THEN THEN ;       immediate
 
 : DO      2 cells loffset +!  postpone DO     ; immediate restrict
 : ?DO     2 cells loffset +!  postpone ?DO    ; immediate restrict
@@ -34,6 +49,12 @@ Variable locals  here locals !  100 ( some) cells allot
   BEGIN  >in @ name dup c@ 1 = swap 1+ c@ '| = and  UNTIL
   drop >in @ >r
   BEGIN  dup 0< 0= WHILE  >in ! postpone local:  REPEAT  drop
+  r> >in ! postpone local> ;                  immediate restrict
+
+: F{ postpone <local  -1
+  BEGIN  >in @ name dup c@ 1 = swap 1+ c@ '| = and  UNTIL
+  drop >in @ >r
+  BEGIN  dup 0< 0= WHILE  >in ! postpone Flocal:  REPEAT  drop
   r> >in ! postpone local> ;                  immediate restrict
 
 ' local; alias } immediate restrict
@@ -64,6 +85,7 @@ Create inlocal  5 cells allot  inlocal off
 
 : ;      ?local; postpone ; ;                 immediate restrict
 : DOES>  ?local; postpone DOES> ;             immediate
+: EXIT  inlocal @ IF  0 delocal,  THEN  postpone EXIT ; immediate
 
 : locals|
   BEGIN  name dup c@ 1 = over 1+ c@ '| = and 0=  WHILE
