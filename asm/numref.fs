@@ -1,4 +1,4 @@
-\ refs.fs
+\ numref.fs
 
 \ Copyright (C) 1998 Free Software Foundation, Inc.
 
@@ -23,7 +23,8 @@
 This is a generic solution for doing labels (forward and backward
 references) in an assembler program.
 
-- Who to use local labels:
+How to use local labels
+=======================
 
 Example:
 
@@ -37,47 +38,56 @@ End-Label
 "n $:" defines an address reference. "n $" returns the address of the
 reference defined with "n $:".
 
-- How to embed local labels in your assembler:
 
-At the moment all references are forward references, meaning,
-all references are resolved at the end of the definition.
+How to embed local labels in your assembler
+===========================================
+
+At the moment all references are forward references, meaning all
+references are resolved at the end of the definition.
 
 The Simple Resolver
+-------------------
 
-The only special thing is how a label is resolved. Numref executes
-therefor a resolver-word, example for a two byte opcode with the second
-byte as branch-offset:
+The only special thing is how a label is resolved. Numref does this by
+executing a resolver-word. For example, consider a two byte opcode
+with the second byte as branch-offset. The resolver-word would look
+like this:
 
-: doresovle ( iaddr -- )
+: doresolve ( iaddr -- )
   dup ref-addr @ - swap 1+ X c! ;
 
 iaddr is the address of the instruction with the reference that must
 be resolved. The destination address of the reference is stored at ref-addr.
 
-The resolver must be registered bye "' doresolve TO std-resolve". This is 
-not a defered word!
+The resolver-word must be registered like this:
+
+ "' doresolve TO std-resolver"
+
+This is not a deferred word!
 
 Complex Resolving
+-----------------
 
-To support different cpu-instruction with different operand formats it is
-possible to find out the type of opcode bye accessing the targets' memory
-in doresolve. This works for very simple processors, e.g. for 6502 it is
-very easy to find out whether we have a 2-byte absolute address or a 1-byte
-relative address.
+To support different cpu-instruction with different operand formats it
+is possible to find out the type of opcode by accessing the target's
+memory in doresolve. This works for very simple processors, e.g. for
+6502 it is very easy to find out whether we have a 2-byte absolute
+address or a 1-byte relative address.
 
-If this method is to difficult, it is possible to store additional
+If this method is too difficult, it is possible to store additional
 information in the resolve structure.
 
 When assembling an opcode you should find out whether the address is a
-reference and then  store the xt of a special
-resolver word in the resolve structure by "ref-resolver !", or store some
-additional data in the resolve structure by "ref-data !", if one data field
-is not enough allocate memory and use ref-data as pointer to it.
+reference and then store the xt of a special resolver word in the
+resolve structure by "ref-resolver !", or store some additional data
+in the resolve structure by "ref-data !", if one data field is not
+enough, allocate memory and use ref-data as pointer to it.
 
-- Internal strucutre:
+Internal structure
+==================
 
-There is a heap buffer to store the references.
-The structure of one entry is:
+There is a heap buffer to store the references.  The structure of one
+entry is:
 
  1 cell		ref-link
  1 cell		ref-flag	\ mixture of tag-number
@@ -87,7 +97,6 @@ The structure of one entry is:
 				\ instruction
 				\ (start of the instruction)
  1 cell		ref-data	\ additional information for resolver
-
 
 [THEN]
 
