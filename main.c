@@ -43,9 +43,6 @@
 jmp_buf throw_jmp_buf;
 #endif
 
-/* Define FUZZ for better image positioning */
-#define FUZZ 0x4000
-
 #ifndef DEFAULTPATH
 #  define DEFAULTPATH "/usr/local/lib/gforth:."
 #endif
@@ -271,12 +268,7 @@ Address loader(FILE *imagefile, char* filename)
   if (debug)
     fprintf(stderr,"pagesize=%d\n",pagesize);
 
-  image = my_alloc(preamblesize+dictsize+image_offset+FUZZ)+image_offset;
-  if(header.base==0)
-    image += FUZZ/2;
-  else
-    if((UCell)(header.base - (Cell)image + preamblesize) < FUZZ)
-      image = header.base - preamblesize;
+  image = my_alloc(preamblesize+dictsize+image_offset)+image_offset;
   rewind(imagefile);  /* fseek(imagefile,0L,SEEK_SET); */
   if (clear_dictionary)
     memset(image,0,dictsize);
@@ -296,7 +288,7 @@ Address loader(FILE *imagefile, char* filename)
 #endif
   }
   else if(header.base!=imp) {
-    fprintf(stderr,"%s: Cannot load nonrelocatable image (compiled for address $%lx) at address $%lx\nThe Gforth installer should look into the INSTALL file\n",
+    fprintf(stderr,"%s: Cannot load nonrelocatable image (compiled for address $%lx) at address $%lx\n",
 	    progname, (unsigned long)header.base, (unsigned long)imp);
     exit(1);
   }

@@ -20,32 +20,6 @@
 
 \ Idea and implementation: Bernd Paysan (py)
 
-\ Log:  ', '- usw. durch [char] ... ersetzt
-\       man sollte die unterschiedlichen zahlensysteme
-\       mit $ und & zumindest im interpreter weglassen
-\       schon erledigt!
-\       11may93jaw
-\ name>         0= nicht vorhanden              17may93jaw
-\               nfa can be lfa or nfa!
-\ find          splited into find and (find)
-\               (find) for later use            17may93jaw
-\ search        replaced by lookup because
-\               it is a word of the string wordset
-\                                               20may93jaw
-\ postpone      added immediate                 21may93jaw
-\ to            added immediate                 07jun93jaw
-\ cfa, header   put "here lastcfa !" in
-\               cfa, this is more logical
-\               and noname: works wothout
-\               extra "here lastcfa !"          08jun93jaw
-\ (parse-white) thrown out
-\ refill        added outer trick
-\               to show there is something
-\               going on                        09jun93jaw
-\ leave ?leave  somebody forgot UNLOOP!!!       09jun93jaw
-\ leave ?leave  unloop thrown out
-\               unloop after loop is used       10jun93jaw
-
 HEX
 
 \ labels for some code addresses
@@ -1164,7 +1138,7 @@ end-struct interpret/compile-struct
     (cfa>int) ;
 
 : name>comp ( nt -- w xt ) \ gforth
-    \G @var{w xt} is the compilation token wor the word @var{nt}.
+    \G @var{w xt} is the compilation token for the word @var{nt}.
     (name>x) >r dup interpret/compile?
     if
 	interpret/compile-comp @
@@ -1381,16 +1355,12 @@ Defer key ( -- c ) \ core
 : bin ( fam1 -- fam2 ) \ file
     1 or ;
 
-create nl$ 1 c, A c, 0 c, \ gnu includes usually a cr in dos
-                           \ or not unix environments if
-                           \ bin is not selected
-
 : write-line ( c-addr u fileid -- ior ) \ file
     dup >r write-file
     ?dup IF
 	r> drop EXIT
     THEN
-    nl$ count r> write-file ;
+    #lf r> emit-file ;
 
 \ include-file                                         07apr93py
 
@@ -1642,8 +1612,8 @@ max-errors 6 * cells allot
 : typewhite ( addr u -- ) \ gforth
     \ like type, but white space is printed instead of the characters
     bounds ?do
-	i c@ 9 = if \ check for tab
-	    9
+	i c@ #tab = if \ check for tab
+	    #tab
 	else
 	    bl
 	then

@@ -78,8 +78,7 @@ decimal
 \ UNUSED                                                17may93jaw
 
 : unused ( -- u ) \ core-ext
-    s0 @ 512 -        \ for stack
-    here - ;
+    forthstart dup 3 cells + @ + here - ;
 
 \ [COMPILE]                                             17may93jaw
 
@@ -94,7 +93,7 @@ decimal
 \ CONVERT                                               17may93jaw
 
 : convert ( ud1 c-addr1 -- ud2 c-addr2 ) \ core-ext
-    \ obsolescent; supersedet by @code{>number}.
+    \ obsolescent; superseded by @code{>number}.
     true >number drop ;
 
 \ ERASE                                                 17may93jaw
