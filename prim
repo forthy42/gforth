@@ -121,7 +121,7 @@ IF_TOS(TOS = sp[0]);
 EXEC(xt);
 
 perform	( a_addr -- )	gforth
-""Equivalent to @code{@ execute}.""
+""@code{@@ execute}.""
 /* and pfe */
 ip=IP;
 IF_TOS(TOS = sp[0]);

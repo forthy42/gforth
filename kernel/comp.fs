@@ -195,7 +195,7 @@ create nextname-buffer 32 chars allot
 
 [IFUNDEF] compile,
 : compile, ( xt -- )	\ core-ext	compile-comma
-    \G  Compile the word represented by the execution token, @i{xt},
+    \G  Compile the word represented by the execution token @i{xt}
     \G  into the current definition.
     A, ;
 [THEN]
@@ -241,7 +241,8 @@ create nextname-buffer 32 chars allot
     COMP' swap POSTPONE Aliteral POSTPONE ALiteral ; immediate restrict
 
 : postpone, ( w xt -- ) \ gforth	postpone-comma
-    \g Compile the compilation semantics represented by @i{w xt}.
+    \g Compile the compilation semantics represented by the
+    \g compilation token @i{w xt}.
     dup ['] execute =
     if
 	drop compile,

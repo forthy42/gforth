@@ -302,7 +302,7 @@ Defining Words
 * Values::                      Initialised variables
 * Colon Definitions::           
 * Anonymous Definitions::       Definitions without names
-* Supplying names::             
+* Supplying names::             Passing definition names as strings
 * User-defined Defining Words::  
 * Deferred words::              Allow forward references
 * Aliases::                     
@@ -316,6 +316,12 @@ User-defined Defining Words
 Interpretation and Compilation Semantics
 
 * Combined words::              
+
+Tokens for Words
+
+* Execution token::             represents execution/interpretation semantics
+* Compilation token::           represents compilation semantics
+* Name token::                  represents named words
 
 The Text Interpreter
 
@@ -6150,8 +6156,9 @@ lastxt IS deferred
 @code{noname} works with any defining word, not just @code{:}.
 
 @code{lastxt} also works when the last word was not defined as
-@code{noname}. It also has the useful property that is is valid as soon
-as the header for a definition has been built. Thus:
+@code{noname}.  It does not work for combined words, though.  It also has
+the useful property that is is valid as soon as the header for a
+definition has been built. Thus:
 
 @example
 lastxt . : foo [ lastxt . ] ; ' foo .
@@ -6616,6 +6623,12 @@ the following way:
 ' @var{disasm-operands} ' @var{table} define-format @var{inst-format}
 @end example
 
+As shown above, the defined instruction format is then used like this:
+
+@example
+@var{entry-num} @var{inst-format} @var{inst-name}
+@end example
+
 In terms of currying, this kind of two-level defining word provides the
 parameters in three stages: first @var{disasm-operands} and @var{table},
 then @var{entry-num} and @var{inst-name}, finally @code{addr w}, i.e.,
@@ -6785,20 +6798,23 @@ doc-alias
 @section Interpretation and Compilation Semantics
 @cindex semantics, interpretation and compilation
 
+@c !! state and ' are used without explanation
+@c example for immediate/compile-only? or is the tutorial enough
+
 @cindex interpretation semantics
-The @dfn{interpretation semantics} of a word are what the text
+The @dfn{interpretation semantics} of a (named) word are what the text
 interpreter does when it encounters the word in interpret state. It also
 appears in some other contexts, e.g., the execution token returned by
-@code{' @i{word}} identifies the interpretation semantics of
-@i{word} (in other words, @code{' @i{word} execute} is equivalent to
+@code{' @i{word}} identifies the interpretation semantics of @i{word}
+(in other words, @code{' @i{word} execute} is equivalent to
 interpret-state text interpretation of @code{@i{word}}).
 
 @cindex compilation semantics
-The @dfn{compilation semantics} of a word are what the text interpreter
-does when it encounters the word in compile state. It also appears in
-other contexts, e.g, @code{POSTPONE @i{word}} compiles@footnote{In
-standard terminology, ``appends to the current definition''.} the
-compilation semantics of @i{word}.
+The @dfn{compilation semantics} of a (named) word are what the text
+interpreter does when it encounters the word in compile state. It also
+appears in other contexts, e.g, @code{POSTPONE @i{word}}
+compiles@footnote{In standard terminology, ``appends to the current
+definition''.} the compilation semantics of @i{word}.
 
 @cindex execution semantics
 The standard also talks about @dfn{execution semantics}. They are used
@@ -6810,6 +6826,12 @@ standard terminology: The default interpretation semantics are its
 execution semantics; the default compilation semantics are to append its
 execution semantics to the execution semantics of the current
 definition.}
+
+Unnamed words (@pxref{Anonymous Definitions}) cannot be encountered by
+the text interpreter, ticked, or @code{postpone}d, so they have no
+interpretation or compilation semantics.  Their behaviour is represented
+by their XT (@pxref{Tokens for Words}), and we call it execution
+semantics, too.
 
 @comment TODO expand, make it co-operate with new sections on text interpreter.
 
@@ -6830,6 +6852,7 @@ Note that ticking (@code{'}) a compile-only word gives an error
 * Combined words::              
 @end menu
 
+
 @node Combined words,  , Interpretation and Compilation Semantics, Interpretation and Compilation Semantics
 @subsection Combined Words
 @cindex combined words
@@ -6837,9 +6860,7 @@ Note that ticking (@code{'}) a compile-only word gives an error
 Gforth allows you to define @dfn{combined words} -- words that have an
 arbitrary combination of interpretation and compilation semantics.
 
-
 doc-interpret/compile:
-
 
 This feature was introduced for implementing @code{TO} and @code{S"}. I
 recommend that you do not define such words, as cute as they may be:
@@ -6970,56 +6991,82 @@ doc-postpone
 This section describes the creation and use of tokens that represent
 words.
 
-Named words have information stored in their header space entries to
-indicate any non-default semantics (@pxref{Interpretation and
-Compilation Semantics}). The semantics can be modified, using
-@code{immediate} and/or @code{compile-only}, at the time that the words
-are defined. Unnamed words have (by definition) no header space
-entry, and therefore must have default semantics.
+@menu
+* Execution token::             represents execution/interpretation semantics
+* Compilation token::           represents compilation semantics
+* Name token::                  represents named words
+@end menu
 
-Named words have interpretation and compilation semantics. Unnamed words
-just have execution semantics.
+@node Execution token, Compilation token, Tokens for Words, Tokens for Words
+@subsection Execution token
 
 @cindex xt
 @cindex execution token
-The execution semantics of an unnamed word are represented by an
-@dfn{execution token} (@i{xt}). As explained in @ref{Supplying names},
-the execution token of the last word defined can be produced with
-@code{lastxt}.
+An @dfn{execution token} (@i{XT}) represents some behaviour of a word.
+You can use @code{execute} to invoke this behaviour.
 
-The interpretation semantics of a named word are also represented by an
-execution token. You can produce the execution token using @code{'} or
-@code{[']}. A simple example shows the difference between the two:
+@cindex tick (')
+You can use @code{'} to get an execution token that represents the
+interpretation semantics of a named word:
 
 @example
-: greet ( -- )   ." Hello" ;
-: foo ( -- xt )  ['] greet execute ; \ ['] parses greet at compile-time
-: bar ( -- )     ' execute ; \  '  parses at run-time
-
-\ the next four lines all do the same thing
-foo
-bar greet
-greet
-' greet EXECUTE
+5 ' .
+execute
 @end example
 
-An execution token occupies one cell.
+doc-'
+
+@code{'} parses at run-time; there is also a word @code{[']} that parses
+when it is compiled, and compiles the resulting XT:
+
+@example
+: foo ['] . execute ;
+5 foo
+: bar ' execute ; \ by contrast,
+5 bar .           \ ' parses "." when bar executes
+@end example
+
+doc-[']
+
+If you want the execution token of @i{word}, write @code{['] @i{word}}
+in compiled code and @code{' @i{word}} in interpreted code.  Gforth's
+@code{'} and @code{[']} behave somewhat unusually by complaining about
+compile-only words (because these words have no interpretation
+semantics).  You might get what you want by using @code{COMP' @i{word}
+DROP} or @code{[COMP'] @i{word} DROP} (for details @pxref{Compilation
+token}).
+
+Another way to get an XT is @code{:noname} or @code{lastxt}
+(@pxref{Anonymous Definitions}).  For anonymous words this gives an xt
+for the only behaviour the word has (the execution semantics).  For
+named words, @code{lastxt} produces an XT for the same behaviour it
+would produce if the word was defined anonymously.
+
+@example
+:noname ." hello" ;
+execute
+@end example
+
+An XT occupies one cell and can be manipulated like any other cell.
+
 @cindex code field address
 @cindex CFA
-In Gforth, the abstract data type @i{execution token} is implemented
-as a code field address (CFA).
-@comment TODO note that the standard does not say what it represents..
-@comment and you cannot necessarily compile it in all Forths (eg native
-@comment compilers?).
+In ANS Forth the XT is just an abstract data type (i.e., defined by the
+operations that produce or consume it).  For old hands: In Gforth, the
+XT is implemented as a code field address (CFA).
 
-For literals, use @code{'} in interpreted code and @code{[']} in
-compiled code. Gforth's @code{'} and @code{[']} behave somewhat
-unusually by complaining about compile-only words. To get the execution
-token for a compile-only word @i{name}, use @code{COMP' @i{name} DROP}
-or @code{[COMP'] @i{name} DROP}.
+@c !! discuss "compile," some more (or in Macros).
+
+doc-execute
+doc-perform
+doc-compile,
+
+@node Compilation token, Name token, Execution token, Tokens for Words
+@subsection Compilation token
 
 @cindex compilation token
-The compilation semantics of a named word are represented by a
+@cindex CT (compilation token)
+Gforth represents the compilation semantics of a named word by a
 @dfn{compilation token} consisting of two cells: @i{w xt}. The top cell
 @i{xt} is an execution token. The compilation semantics represented by
 the compilation token can be performed with @code{execute}, which
@@ -7036,26 +7083,24 @@ knowledge, unless necessary; future versions of Gforth may introduce
 unusual compilation tokens (e.g., a compilation token that represents
 the compilation semantics of a literal).
 
-You can compile the compilation semantics with @code{postpone,}. I.e.,
-@code{COMP' @i{word} postpone,} is equivalent to @code{postpone
-@i{word}}.
+You can perform the compilation semantics represented by the compilation
+token with @code{execute}.  You can compile the compilation semantics
+with @code{postpone,}. I.e., @code{COMP' @i{word} postpone,} is
+equivalent to @code{postpone @i{word}}.
+
+doc-[comp']
+doc-comp'
+doc-postpone,
+
+@node Name token,  , Compilation token, Tokens for Words
+@subsection Name token
 
 @cindex name token
 @cindex name field address
 @cindex NFA
-Named words are also represented by the @dfn{name token}, (@i{nt}). In
+Gforth represents named words by the @dfn{name token}, (@i{nt}). In
 Gforth, the abstract data type @emph{name token} is implemented as a
 name field address (NFA).
-
-
-doc-execute
-doc-perform
-doc-compile,
-doc-[']
-doc-'
-doc-[comp']
-doc-comp'
-doc-postpone,
 
 doc-find-name
 doc-name>int
@@ -7081,6 +7126,12 @@ doc-name>string
 @c seems to positively avoid going into too much detail for some of
 @c the internals.
 
+@c anton: ok.  I wonder, though, if this is the right place; for some stuff
+@c it is; for the ugly details, I would prefer another place.  I wonder
+@c whether we should have a chapter before "Words" that describes some
+@c basic concepts referred to in words, and a chapter after "Words" that
+@c describes implementation details.
+
 The text interpreter@footnote{This is an expanded version of the
 material in @ref{Introducing the Text Interpreter}.} is an endless loop
 that processes input from the current input device. It is also called
@@ -7092,7 +7143,7 @@ implementations.
 @cindex compile state
 The text interpreter operates in one of two states: @dfn{interpret
 state} and @dfn{compile state}. The current state is defined by the
-aptly-named variable, @code{state}.
+aptly-named variable @code{state}.
 
 This section starts by describing how the text interpreter behaves when
 it is in interpret state, processing input from the user input device --
@@ -7139,6 +7190,8 @@ repeats the parsing process until the whole of the input buffer has been
 processed, at which point it prints the status message ``@code{ ok}''
 and waits for more input.
 
+@c anton: this should be in the input stream subsection (or below it)
+
 @cindex parse area
 The text interpreter keeps track of its position in the input buffer by
 updating a variable called @code{>IN} (pronounced ``to-in''). The value
@@ -7178,8 +7231,8 @@ input buffer@footnote{This is how parsing words work.} or into parsing a
 section twice. For example:
 
 @example
-: lat ." <<lat>>" ;
-: flat ." <<flat>>" >IN DUP @@ 3 - SWAP ! ;
+: lat ." <<foo>>" ;
+: flat ." <<bar>>" >IN DUP @@ 3 - SWAP ! ;
 @end example
 
 @noindent
@@ -7188,8 +7241,12 @@ for the reader: what would happen if the @code{3} were replaced with
 @code{4}?}:
 
 @example
-<<flat>><<lat>>
+<<bar>><<foo>>
 @end example
+
+This technique can be used to work around some of the interoperability
+problems of parsing words.  Of course, it's better to avoid parsing
+words where possible.
 
 @noindent
 Two important notes about the behaviour of the text interpreter:
@@ -7231,7 +7288,7 @@ keyboard, its behaviour changes in these ways:
 @item
 When the parse area is empty, the text interpreter attempts to refill
 the input buffer from the input source. When the input source is
-exhausted, the input source is set back to the user input device.
+exhausted, the input source is set back to the previous input source.
 @item
 It doesn't print out ``@code{ ok}'' or ``@code{ compiled}'' messages each
 time the parse area is emptied.
