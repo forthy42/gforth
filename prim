@@ -817,19 +817,66 @@ n = n1*n2;
 
 /	( n1 n2 -- n )		core	slash
 n = n1/n2;
+if(FLOORED_DIV && (n1 < 0) != (n2 < 0) && (n1%n2 != 0)) n--;
 :
  /mod nip ;
 
 mod	( n1 n2 -- n )		core
 n = n1%n2;
+if(FLOORED_DIV && (n1 < 0) != (n2 < 0) && n!=0) n += n2;
 :
  /mod drop ;
 
 /mod	( n1 n2 -- n3 n4 )		core		slash_mod
 n4 = n1/n2;
 n3 = n1%n2; /* !! is this correct? look into C standard! */
+if (FLOORED_DIV && (n1<0) != (n2<0) && n3!=0) {
+  n4--;
+  n3+=n2;
+}
 :
  >r s>d r> fm/mod ;
+
+*/mod	( n1 n2 n3 -- n4 n5 )	core	star_slash_mod
+""n1*n2=n3*n5+n4, with the intermediate result (n1*n2) being double.""
+#ifdef BUGGY_LL_MUL
+DCell d = mmul(n1,n2);
+#else
+DCell d = (DCell)n1 * (DCell)n2;
+#endif
+#ifdef BUGGY_LL_DIV
+DCell r = fmdiv(d,n3);
+n4=DHI(r);
+n5=DLO(r);
+#else
+/* assumes that the processor uses either floored or symmetric division */
+n5 = d/n3;
+n4 = d%n3;
+if (FLOORED_DIV && (d<0) != (n3<0) && n4!=0) {
+  n5--;
+  n4+=n3;
+}
+#endif
+:
+ >r m* r> fm/mod ;
+
+*/	( n1 n2 n3 -- n4 )	core	star_slash
+""n4=(n1*n2)/n3, with the intermediate result being double.""
+#ifdef BUGGY_LL_MUL
+DCell d = mmul(n1,n2);
+#else
+DCell d = (DCell)n1 * (DCell)n2;
+#endif
+#ifdef BUGGY_LL_DIV
+DCell r = fmdiv(d,n3);
+n4=DHI(r);
+#else
+/* assumes that the processor uses either floored or symmetric division */
+n4 = d/n3;
+if (FLOORED_DIV && (d<0) != (n3<0) && (d%n3)!=0) n4--;
+#endif
+:
+ */mod nip ;
 
 2*	( n1 -- n2 )		core		two_star
 ""Shift left by 1; also works on unsigned numbers""
@@ -852,8 +899,8 @@ fm/mod	( d1 n1 -- n2 n3 )		core		f_m_slash_mod
 ""Floored division: @i{d1} = @i{n3}*@i{n1}+@i{n2}, @i{n1}>@i{n2}>=0 or 0>=@i{n2}>@i{n1}.""
 #ifdef BUGGY_LL_DIV
 DCell r = fmdiv(d1,n1);
-n2=r.hi;
-n3=r.lo;
+n2=DHI(r);
+n3=DLO(r);
 #else
 /* assumes that the processor uses either floored or symmetric division */
 n3 = d1/n1;
@@ -874,8 +921,8 @@ sm/rem	( d1 n1 -- n2 n3 )		core		s_m_slash_rem
 ""Symmetric division: @i{d1} = @i{n3}*@i{n1}+@i{n2}, sign(@i{n2})=sign(@i{d1}) or 0.""
 #ifdef BUGGY_LL_DIV
 DCell r = smdiv(d1,n1);
-n2=r.hi;
-n3=r.lo;
+n2=DHI(r);
+n3=DLO(r);
 #else
 /* assumes that the processor uses either floored or symmetric division */
 n3 = d1/n1;
@@ -923,8 +970,8 @@ um/mod	( ud u1 -- u2 u3 )		core	u_m_slash_mod
 ""ud=u3*u1+u2, u1>u2>=0""
 #ifdef BUGGY_LL_DIV
 UDCell r = umdiv(ud,u1);
-u2=r.hi;
-u3=r.lo;
+u2=DHI(r);
+u3=DLO(r);
 #else
 u3 = ud/u1;
 u2 = ud%u1;

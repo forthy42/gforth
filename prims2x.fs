@@ -964,9 +964,15 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
 
 : print-entry ( -- )
     ." LABEL(" prim prim-c-name 2@ type ." )" ;
-    
+
+: prim-type ( addr u -- )
+    \ print out a primitive, but avoid "*/"
+    2dup s" */" search  nip nip  IF
+	bounds ?DO  I c@ dup '* = IF  drop 'x  THEN  emit  LOOP
+    ELSE  type  THEN ;
+
 : output-c ( -- ) 
-    print-entry ."  /* " prim prim-name 2@ type
+    print-entry ."  /* " prim prim-name 2@ prim-type
     ."  ( " prim prim-stack-string 2@ type ." ) "
     state-in .state ." -- " state-out .state ."  */" cr
     ." /* " prim prim-doc 2@ type ."  */" cr
@@ -1046,7 +1052,7 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
     prim prim-branch?
     prim prim-c-code 2@  s" SUPER_END" search nip nip 0<> or
     prim prim-c-code 2@  s" SUPER_CONTINUE" search nip nip 0= and
-    negate 0 .r ." , /* " prim prim-name 2@ type ."  */" cr ;
+    negate 0 .r ." , /* " prim prim-name 2@ prim-type ."  */" cr ;
 
 : gen-arg-parm { item -- }
     item item-stack @ inst-stream = if
@@ -1452,7 +1458,7 @@ variable reprocessed-num 0 reprocessed-num !
 
 : output-part ( p -- )
     to prim
-    ." /* " prim prim-name 2@ type ."  ( " prim prim-stack-string 2@ type ." ) */" cr
+    ." /* " prim prim-name 2@ prim-type ."  ( " prim prim-stack-string 2@ type ." ) */" cr
     ." NAME(" quote prim prim-name 2@ type quote ." )" cr \ debugging
     ." {" cr
     print-declarations
@@ -1560,7 +1566,7 @@ variable reprocessed-num 0 reprocessed-num !
     \ prim-num @ 4 .r ." ," ;
 
 : output-name-comment ( -- )
-    ."  /* " prim prim-name 2@ type ."  */" ;
+    ."  /* " prim prim-name 2@ prim-type ."  */" ;
 
 variable offset-super2  0 offset-super2 ! \ offset into the super2 table
 

@@ -284,17 +284,6 @@ is throw
 : "lit ( -- addr )
   r> r> dup count + aligned >r swap >r ;
 
-\ */MOD */                                              17may93jaw
-
-\ !! I think */mod should have the same rounding behaviour as / - anton
-: */mod ( n1 n2 n3 -- n4 n5 ) \ core	star-slash-mod
-    \G n1*n2=n3*n5+n4, with the intermediate result (n1*n2) being double.
-    >r m* r> sm/rem ;
-
-: */ ( n1 n2 n3 -- n4 ) \ core	star-slash
-    \G n4=(n1*n2)/n3, with the intermediate result being double.
-    */mod nip ;
-
 \ HEX DECIMAL                                           2may93jaw
 
 : decimal ( -- ) \ core

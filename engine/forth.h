@@ -108,6 +108,9 @@
 #define F_TRUE (FLAG(0==0))
 #define F_FALSE (FLAG(0!=0))
 
+/* define this false if you want native division */
+#define FLOORED_DIV ((1%-3)>0)
+
 #ifdef BUGGY_LONG_LONG
 
 #define BUGGY_LL_CMP    /* compares not possible */
