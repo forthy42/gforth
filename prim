@@ -2232,6 +2232,7 @@ REST_REGS
 av-call-int    ( -- w )        gforth  av_call_int
 SAVE_REGS
 av_call(alist);
+REST_REGS
 w = irv;
 
 av-call-float   ( -- r )        gforth  av_call_float
