@@ -1,6 +1,6 @@
 \ yet another Forth objects extension
 
-\ written by Anton Ertl 1996-1999
+\ written by Anton Ertl 1996-2000
 \ public domain; NO WARRANTY
 
 \ This (in combination with compat/struct.fs) is in ANS Forth (with an

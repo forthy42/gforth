@@ -1,6 +1,6 @@
 \ require.fs
 
-\ Copyright (C) 1995,1996,1997,1998 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,2000 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -156,5 +156,5 @@ create image-included-files 4 , A, ( pointer to and count of included files )
     included-files 2@ .strings ;
     
 \ contains tools/newrequire.fs
-\ \I $Id: require.fs,v 1.16 2000-09-11 21:09:39 anton Exp $
+\ \I $Id: require.fs,v 1.17 2000-09-23 15:06:10 anton Exp $
 

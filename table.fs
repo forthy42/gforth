@@ -1,6 +1,6 @@
 \ table fomerly in search.fs
 
-\ Copyright (C) 1996,1997 Free Software Foundation, Inc.
+\ Copyright (C) 1996,1997,1999 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

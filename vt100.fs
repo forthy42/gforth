@@ -1,6 +1,6 @@
 \ VT100.STR     VT100 excape sequences                  20may93jaw
 
-\ Copyright (C) 1995 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1999 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

@@ -1,7 +1,7 @@
 /* command line interpretation, image loading etc. for Gforth
 
 
-  Copyright (C) 1995,1996,1997,1998 Free Software Foundation, Inc.
+  Copyright (C) 1995,1996,1997,1998,2000 Free Software Foundation, Inc.
 
   This file is part of Gforth.
 
@@ -50,7 +50,7 @@
 /* increment this whenever the primitives change in an incompatible way */
 
 #ifndef DEFAULTPATH
-#  define DEFAULTPATH "~+"
+#  define DEFAULTPATH "."
 #endif
 
 #ifdef MSDOS
