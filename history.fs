@@ -48,14 +48,6 @@ interpret/compile: ctrl  ( "<char>" -- ctrl-code )
 
 : bindkey ( xt key -- )  cells ctrlkeys + ! ;
 
-' forw  ctrl F bindkey
-' back  ctrl B bindkey
-' ?del  ctrl H bindkey
-' eof   ctrl D bindkey
-' <del> ctrl X bindkey
-
-' (ins) IS insert-char
-
 \ history support                                       16oct94py
 
 0 Value history \ history file fid
@@ -226,16 +218,37 @@ Create prefix-found  0 , 0 ,
 : kill-prefix  ( key -- key )
   dup #tab <> IF  0 0 prefix-found 2!  THEN ;
 
-' kill-prefix IS everychar
+: 8-bit-io ( -- )
+    ['] forw        ctrl F bindkey
+    ['] back        ctrl B bindkey
+    ['] ?del        ctrl H bindkey
+    ['] eof         ctrl D bindkey
+    ['] <del>       ctrl X bindkey
+    ['] next-line   ctrl N bindkey
+    ['] prev-line   ctrl P bindkey
+    ['] clear-tib   ctrl K bindkey
+    ['] first-pos   ctrl A bindkey
+    ['] end-pos     ctrl E bindkey
+    ['] (enter)     #lf    bindkey
+    ['] (enter)     #cr    bindkey
+    ['] tab-expand  #tab   bindkey
+    ['] (ins)       IS insert-char
+    ['] kill-prefix IS everychar
+    ['] noop        IS everyline
+    [ action-of key ] Literal IS key
+    [ action-of emit ] Literal IS emit ;
 
-' next-line  ctrl N bindkey
-' prev-line  ctrl P bindkey
-' clear-tib  ctrl K bindkey
-' first-pos  ctrl A bindkey
-' end-pos    ctrl E bindkey
-' (enter)    #lf    bindkey
-' (enter)    #cr    bindkey
-' tab-expand #tab   bindkey
+\ UTF-8 support
+
+include utf-8.fs
+
+: utf-8-cold ( -- )
+    s" LANG" getenv s" .UTF-8" search nip nip
+    IF  utf-8-io  ELSE  8-bit-io  THEN ;
+
+' utf-8-cold INIT8 chained
+
+utf-8-cold
 
 \ initializing history
 

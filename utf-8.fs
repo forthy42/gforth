@@ -20,7 +20,7 @@
 
 \ short: u8 means utf-8 encoded address
 
-: u8len ( u -- n )
+: u8len ( u8 -- n )
     dup      $80 u< IF  drop 1  EXIT  THEN \ special case ASCII
     $800  2 >r
     BEGIN  2dup u>=  WHILE  5 lshift r> 1+ >r  REPEAT
@@ -137,18 +137,20 @@
     THEN
     prefix-found @ IF  bl (u8ins)  THEN  0 ;
 
-' u8forw       ctrl F bindkey
-' u8back       ctrl B bindkey
-' ?u8del       ctrl H bindkey
-' u8eof        ctrl D bindkey
-' <u8del>      ctrl X bindkey
-' u8clear-tib  ctrl K bindkey
-' u8first-pos  ctrl A bindkey
-' u8end-pos    ctrl E bindkey
-' (u8enter)    #lf    bindkey
-' (u8enter)    #cr    bindkey
-' u8tab-expand #tab   bindkey
-' (u8ins) IS insert-char
-' save-cursor IS everyline
-' u8key IS key
-' u8emit IS emit
+: utf-8-io ( -- )
+    ['] u8forw       ctrl F bindkey
+    ['] u8back       ctrl B bindkey
+    ['] ?u8del       ctrl H bindkey
+    ['] u8eof        ctrl D bindkey
+    ['] <u8del>      ctrl X bindkey
+    ['] u8clear-tib  ctrl K bindkey
+    ['] u8first-pos  ctrl A bindkey
+    ['] u8end-pos    ctrl E bindkey
+    ['] (u8enter)    #lf    bindkey
+    ['] (u8enter)    #cr    bindkey
+    ['] u8tab-expand #tab   bindkey
+    ['] (u8ins)      IS insert-char
+    ['] save-cursor  IS everyline
+    ['] u8key        IS key
+    ['] u8emit       IS emit ;
+
