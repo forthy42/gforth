@@ -170,7 +170,8 @@ personal machines. This manual corresponds to version @value{VERSION}.
 * Name Index::                  Forth words, only names listed
 * Concept Index::               A menu covering many topics
 
-@detailmenu --- The Detailed Node Listing ---
+@detailmenu
+ --- The Detailed Node Listing ---
 
 Gforth Environment
 
@@ -358,6 +359,8 @@ Other I/O
 
 Programming Tools
 
+* Examining::                   
+* Forgetting words::            
 * Debugging::                   Simple and quick.
 * Assertions::                  Making your programs self-checking.
 * Singlestep Debugger::         Executing your program word by word.
@@ -8719,66 +8722,62 @@ doc-span
 @cindex programming tools
 
 @menu
+* Examining::                   
+* Forgetting words::            
 * Debugging::                   Simple and quick.
 * Assertions::                  Making your programs self-checking.
 * Singlestep Debugger::         Executing your program word by word.
 @end menu
 
-@node Debugging, Assertions, Programming Tools, Programming Tools
-@subsection Debugging
-@cindex debugging
+@node Examining, Forgetting words, Programming Tools, Programming Tools
+@subsection Examining data and code
+@cindex examining data and code
+@cindex data examination
+@cindex code examination
 
-Languages with a slow edit/compile/link/test development loop tend to
-require sophisticated tracing/stepping debuggers to facilate debugging.
-
-A much better (faster) way in fast-compiling languages is to add
-printing code at well-selected places, let the program run, look at
-the output, see where things went wrong, add more printing code, etc.,
-until the bug is found.
-
-The simple debugging aids provided in @file{debugs.fs}
-are meant to support this style of debugging. In addition, there are
-words for non-destructively inspecting the stack and memory:
-
+The following words inspect the stack non-destructively:
 
 doc-.s
 doc-f.s
 
-
-There is a word @code{.r} but it does @i{not} display the return
-stack! It is used for formatted numeric output.
-
+There is a word @code{.r} but it does @i{not} display the return stack!
+It is used for formatted numeric output (@pxref{Simple numeric output}).
 
 doc-depth
 doc-fdepth
 doc-clearstack
+
+The following words inspect memory.
+
 doc-?
 doc-dump
 
-
-The word @code{~~} prints debugging information (by default the source
-location and the stack contents). It is easy to insert. If you use Emacs
-it is also easy to remove (@kbd{C-x ~} in the Emacs Forth mode to
-query-replace them with nothing). The deferred words
-@code{printdebugdata} and @code{printdebugline} control the output of
-@code{~~}. The default source location output format works well with
-Emacs' compilation mode, so you can step through the program at the
-source level using @kbd{C-x `} (the advantage over a stepping debugger
-is that you can step in any direction and you know where the crash has
-happened or where the strange data has occurred).
-
-The default actions of @code{~~} clobber the contents of the pictured
-numeric output string, so you should not use @code{~~}, e.g., between
-@code{<#} and @code{#>}.
-
-
-doc-~~
-doc-printdebugdata
-doc-printdebugline
+And finally, @code{see} allows to inspect code:
 
 doc-see
+doc-xt-see
+
+@node Forgetting words, Debugging, Examining, Programming Tools
+@subsection Forgetting words
+@cindex words, forgetting
+@cindex forgeting words
+
+@c  anton: other, maybe better places for this subsection: Defining Words;
+@c  Dictionary allocation.  At least a reference should be there.
+
+Forth allows you to forget words (and everything that was alloted in the
+dictonary after them) in a LIFO manner.
+
 doc-marker
 
+The most common use of this feature is during progam development: when
+you change a source file, forget all the words it defined and load it
+again (since you also forget everything defined after the source file
+was loaded, you have to reload that, too).  Note that effects like
+storing to variables and destroyed system words are not undone when you
+forget words.  With a system like Gforth, that is fast enough at
+starting up and compiling, I find it more convenient to exit and restart
+Gforth, as this gives me a clean slate.
 
 Here's an example of using @code{marker} at the start of a source file
 that you are debugging; it ensures that you only ever have one copy of
@@ -8799,6 +8798,35 @@ init-included-files
 @end example
 
 
+@node Debugging, Assertions, Forgetting words, Programming Tools
+@subsection Debugging
+@cindex debugging
+
+Languages with a slow edit/compile/link/test development loop tend to
+require sophisticated tracing/stepping debuggers to facilate debugging.
+
+A much better (faster) way in fast-compiling languages is to add
+printing code at well-selected places, let the program run, look at
+the output, see where things went wrong, add more printing code, etc.,
+until the bug is found.
+
+The simple debugging aids provided in @file{debugs.fs}
+are meant to support this style of debugging.
+
+The word @code{~~} prints debugging information (by default the source
+location and the stack contents). It is easy to insert. If you use Emacs
+it is also easy to remove (@kbd{C-x ~} in the Emacs Forth mode to
+query-replace them with nothing). The deferred words
+@code{printdebugdata} and @code{printdebugline} control the output of
+@code{~~}. The default source location output format works well with
+Emacs' compilation mode, so you can step through the program at the
+source level using @kbd{C-x `} (the advantage over a stepping debugger
+is that you can step in any direction and you know where the crash has
+happened or where the strange data has occurred).
+
+doc-~~
+doc-printdebugdata
+doc-printdebugline
 
 @node Assertions, Singlestep Debugger, Debugging, Programming Tools
 @subsection Assertions
@@ -9004,9 +9032,7 @@ analogy to the equivalent high-level defining words:
 ;                                  end-code
 @end example
 
-@code{flush-icache} is always present. The other words are rarely used
-and reside in @code{code.fs}, which is usually not loaded. You can load
-it with @code{require code.fs}.
+@c anton: the following stuff is also in "Common Assembler", in less detail.
 
 @cindex registers of the inner interpreter
 In the assembly code you will want to refer to the inner interpreter's
@@ -9014,21 +9040,28 @@ registers (e.g., the data stack pointer) and you may want to use other
 registers for temporary storage. Unfortunately, the register allocation
 is installation-dependent.
 
-The easiest solution is to use explicit register declarations
-(@pxref{Explicit Reg Vars, , Variables in Specified Registers, gcc.info,
-GNU C Manual}) for all of the inner interpreter's registers: You have to
-compile Gforth with @code{-DFORCE_REG} (configure option
-@code{--enable-force-reg}) and the appropriate declarations must be
-present in the @code{machine.h} file (see @code{mips.h} for an example;
-you can find a full list of all declarable register symbols with
-@code{grep register engine.c}). If you give explicit registers to all
-variables that are declared at the beginning of @code{engine()}, you
-should be able to use the other caller-saved registers for temporary
-storage. Alternatively, you can use the @code{gcc} option
-@code{-ffixed-REG} (@pxref{Code Gen Options, , Options for Code
-Generation Conventions, gcc.info, GNU C Manual}) to reserve a register
-(however, this restriction on register allocation may slow Gforth
-significantly).
+In particular, @code{ip} (Forth instruction pointer) and @code{rp}
+(return stack pointer) are in different places in @code{gforth} and
+@code{gforth-fast}.  This means that you cannot write a @code{NEXT}
+routine that works on both versions; so for doing @code{NEXT}, I
+recomment jumping to @code{' noop >code-address}, which contains nothing
+but a @code{NEXT}.
+
+For general accesses to the inner interpreter's registers, the easiest
+solution is to use explicit register declarations (@pxref{Explicit Reg
+Vars, , Variables in Specified Registers, gcc.info, GNU C Manual}) for
+all of the inner interpreter's registers: You have to compile Gforth
+with @code{-DFORCE_REG} (configure option @code{--enable-force-reg}) and
+the appropriate declarations must be present in the @code{machine.h}
+file (see @code{mips.h} for an example; you can find a full list of all
+declarable register symbols with @code{grep register engine.c}). If you
+give explicit registers to all variables that are declared at the
+beginning of @code{engine()}, you should be able to use the other
+caller-saved registers for temporary storage. Alternatively, you can use
+the @code{gcc} option @code{-ffixed-REG} (@pxref{Code Gen Options, ,
+Options for Code Generation Conventions, gcc.info, GNU C Manual}) to
+reserve a register (however, this restriction on register allocation may
+slow Gforth significantly).
 
 If this solution is not viable (e.g., because @code{gcc} does not allow
 you to explicitly declare all the registers you need), you have to find
@@ -9084,7 +9117,7 @@ registers, and using them later on; then you can easily adapt to a
 changed register assignment.  The stability of the register assignment
 is usually better if you build Gforth with @code{--enable-force-reg}.
 
-In particular, the resturn stack pointer and the instruction pointer are
+In particular, the return stack pointer and the instruction pointer are
 in memory in @code{gforth}, and usually in registers in
 @code{gforth-fast}.  The most common use of these registers is to
 dispatch to the next word (the @code{next} routine).  A portable way to

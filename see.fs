@@ -603,7 +603,8 @@ Defer discode ( addr u -- ) \ gforth
     dup >body ." 0 " ? ." 0 0 "
     s" Field" .defname cr ;
 
-: xt-see ( xt -- )
+: xt-see ( xt -- ) \ gforth
+    \G Decompile the definition represented by @i{xt}.
     cr c-init
     dup >does-code
     if

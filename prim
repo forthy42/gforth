@@ -2286,7 +2286,11 @@ dsystem = timeval2us(&usage.ru_stime);
 struct timeval time1;
 gettimeofday(&time1,NULL);
 duser = timeval2us(&time1);
+#ifndef BUGGY_LONG_LONG
 dsystem = (DCell)0;
+#else
+dsystem=(DCell){0,0};
+#endif
 #endif
 
 \+
