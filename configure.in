@@ -258,7 +258,10 @@ case "$host_cpu" in
 		AC_TRY_LINK(,,ac_link_script=yes,ac_link_script=no)
 		test $ac_link_script = yes||LDFLAGS=$OLDLDFLAGS
 		AC_MSG_RESULT($ac_link_script)
-		#AC_DEFINE(INDIRECT_THREADED))
+		AC_MSG_CHECKING([whether the code is in the first 32MB])
+		AC_TRY_RUN([main(){label: exit(((unsigned long)&&label)>32000000UL);}],ac_code_under_32=yes,ac_code_under_32=no,ac_code_under_32=no)
+                AC_MSG_RESULT($ac_code_under_32)
+		test $ac_code_under_32 = yes||(AC_MSG_WARN([Using indirect threading; please contact us (bug-gforth@gnu.org)]); AC_DEFINE(INDIRECT_THREADED))
 		;;
 	*)
 		echo "No direct threading support for $host_cpu, using indirect threading."
