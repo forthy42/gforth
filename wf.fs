@@ -19,6 +19,7 @@ s" " tag-option $!
     tag-option $+! s' ="' tag-option $+! tag-option $+!
     s' "' tag-option $+! ;
 : href= ( addr u -- )  s" href" opt ;
+: name= ( addr u -- )  s" name" opt ;
 : src=  ( addr u -- )  s" src" opt ;
 : alt=  ( addr u -- )  s" alt" opt ;
 : width=  ( addr u -- )  s" width" opt ;
@@ -30,7 +31,7 @@ s" " tag-option $!
 \ environment handling
 
 Variable oldenv
-Variable envs 10 0 [DO] 0 , [LOOP]
+Variable envs 30 0 [DO] 0 , [LOOP]
 
 : env$ ( -- addr ) envs dup @ 1+ cells + ;
 : env ( addr u -- ) env$ $! ;
@@ -55,6 +56,12 @@ Variable envs 10 0 [DO] 0 , [LOOP]
 	'| OF  s" center" align=  ENDOF
     ENDCASE ;
 
+: >border ( c -- )
+    case
+	'- of  s" 0" s" border" opt endof
+	'+ of  s" 1" s" border" opt endof
+    endcase ;
+
 \ image handling
 
 Create imgbuf $20 allot
@@ -70,13 +77,13 @@ Create jfif   $FF c, $D8 c, $FF c, $E0 c, $00 c, $10 c, $4A c, $46 c,
     s" GIF89a" imgbuf over compare 0=
     s" GIF87a" imgbuf over compare 0= or ;
 : gif-size ( -- w h )
-    imgbuf 6 + c@ imgbuf 7 + c@ 8 lshift +
-    imgbuf 8 + c@ imgbuf 9 + c@ 8 lshift + ;
+    imgbuf 8 + c@ imgbuf 9 + c@ 8 lshift +
+    imgbuf 6 + c@ imgbuf 7 + c@ 8 lshift + ;
 
 : png? ( -- flag )
     pngsig 8 imgbuf over compare 0= ;
 : png-size ( -- w h )
-    imgbuf $10 + b@ imgbuf $14 + b@ ;
+    imgbuf $14 + b@ imgbuf $10 + b@ ;
 
 : jpg? ( -- flag )
     jfif 10 imgbuf over compare 0= ;
@@ -95,7 +102,7 @@ Create jfif   $FF c, $D8 c, $FF c, $E0 c, $00 c, $10 c, $4A c, $46 c,
     0 0 ;
 
 : .img-size ( addr u -- )
-    r/o open-file throw >r
+    r/o open-file IF  drop  EXIT  THEN  >r
     imgbuf $20 r@ read-file throw drop
     r@ img-size
     r> close-file throw
@@ -105,6 +112,7 @@ Create jfif   $FF c, $D8 c, $FF c, $E0 c, $00 c, $10 c, $4A c, $46 c,
 \ link creation
 
 Variable link
+Variable link-sig
 Variable link-suffix
 Variable iconpath
 
@@ -126,7 +134,7 @@ Defer parse-line
 	pad $100 r@ read-dir throw  WHILE
 	pad swap 2dup link-suffix $@ filename-match
 	IF  s" icons/" iconpath $! iconpath $+!
-	    iconpath $@ 2dup .img-size src=
+	    iconpath $@ 2dup .img-size src= '- >border
 	    alt-suffix  s" img" tag true
 	ELSE  2drop  false  THEN
     UNTIL  ELSE  drop  THEN
@@ -143,6 +151,13 @@ Defer parse-line
     r@ file-size throw $400 um/mod nip ."  (" 0 u.r ." k)"
     r> close-file throw ;
 
+: link-sig? ( -- )
+    link $@ link-sig $! s" .sig" link-sig $+!
+    link-sig $@ r/o open-file IF  drop  EXIT  THEN
+    close-file throw
+    ."  (" link-sig $@ href= s" a" tag
+    s" icons/sig.gif" '- >border src= s" img" tag ." sig" s" /a" tag ." )" ;
+
 : link-options ( addr u -- addr' u' )
     do-size off  do-icon on
     over c@ '% = over 0> and IF  do-size on  1 /string  THEN
@@ -155,13 +170,14 @@ Defer parse-line
 : .link ( addr u -- ) '| $split 
     link-options link $!
     link $@len 0= IF  2dup link $! s" .html" link $+!  THEN
-    link-icon? link $@ href= s" a" tag
-    parse-string s" a" /tag link-size? ;
+    link $@ href= s" a" tag link-icon?
+    parse-string s" a" /tag link-size? link-sig? ;
 : >link ( -- )  '[ parse type '] parse .link ;
 
 : .img ( addr u -- ) '| $split 
     dup IF  2swap alt=  ELSE  2drop  THEN
-    tag-option $@len >r over c@ >align tag-option $@len r> = 1+ /string
+    tag-option $@len >r over c@ >align  tag-option $@len r> = 1+ /string
+    tag-option $@len >r over c@ >border tag-option $@len r> = 1+ /string
     2dup .img-size src= s" img" tag ;
 : >img ( -- )   '{ parse type '} parse .img ;
 
@@ -238,14 +254,69 @@ wordlist Constant autoreplacements
 : par ( addr u -- ) env? 2dup tag parse-par /tag cr cr ;
 : line ( addr u -- ) env? 2dup tag parse-line+ /tag cr cr ;
 
+\ scan strings
+
+: get-rest ( addr -- ) 0 parse -trailing rot $! ;
+Create $lf 1 c, #lf c,
+: get-par ( addr -- )  >r  s" " r@ $+!
+    BEGIN  0 parse 2dup s" ." compare  WHILE
+	r@ $@len IF  $lf count r@ $+!  THEN  r@ $+!
+	refill 0= UNTIL  ELSE  2drop  THEN
+    rdrop ;
+
+\ toc handling
+
+Variable toc-link
+
+: >last ( addr link -- link' )
+    BEGIN  dup @  WHILE  @  REPEAT  ! 0 ;
+
+: toc, ( n -- ) , '| parse here 0 , $! here 0 , get-rest ;
+: up-toc   align here toc-link >last , 0 toc, ;
+: top-toc  align here toc-link >last , 1 toc, ;
+: this-toc align here toc-link >last , 2 toc, ;
+: sub-toc  align here toc-link >last , 3 toc, ;
+
+Variable toc-name
+
+: .toc-entry ( toc flag -- )
+    swap cell+ dup @ swap cell+ dup cell+ $@ 2dup href= s" a" tag
+    1 /string toc-name $@ compare >r
+    $@ .img swap
+    IF
+	case
+	    2 of  s" -icons/arrow_up.jpg" .img  endof
+	    3 of
+		r@ 0= IF s" -icons/circle.jpg"
+		    ELSE s" -icons/arrow_down.jpg"  THEN  .img  endof
+	endcase
+    ELSE
+	case
+	    0 of  s" -icons/arrow_up.jpg" .img  endof
+	    1 of  s" -icons/arrow_right.jpg" .img  endof
+	    2 of  s" -icons/circle.jpg" .img  endof
+	    3 of  s" -icons/arrow_down.jpg" .img  endof
+	endcase
+    THEN
+    s" a" /tag rdrop
+    ;
+: print-toc ( -- ) cr 0 parse
+    dup 0= IF  toc-name $! 0  ELSE
+	toc-name $! toc-name $@ name= s" " s" a" tagged  2
+    THEN  >r
+    toc-link  BEGIN  @ dup  WHILE
+	dup cell+ @ 3 = r@ 0= and IF  rdrop 1 >r s" br" tag  THEN
+	dup cell+ @ r@ >= IF  dup r@ 2 = .toc-entry  THEN
+	dup cell+ @ 2 = r@ 2 = and IF  s" br" tag  THEN
+    REPEAT  drop rdrop  cr ;
+
 \ handle global tags
 
 Variable indentlevel
-: indent ( n -- )  indentlevel @
-    2dup < IF  2dup swap DO  -env -env  LOOP  THEN
-    2dup > IF  2dup      DO  s" dl" >env  LOOP  THEN
-    2dup = IF  -env  THEN
-    drop indentlevel ! s" dt" >env ;
+: indent ( n -- )  indentlevel @ over indentlevel !
+    2dup < IF swap DO  -env -env  LOOP  EXIT THEN
+    2dup > IF      DO  s" dl" >env s" dt" >env  LOOP EXIT THEN
+    2dup = IF drop IF  -env  s" dt" >env  THEN THEN ;
 : +indent ( -- )  -env s" dd" >env ;
 
 wordlist constant longtags
@@ -254,14 +325,17 @@ Variable end-sec
 
 longtags set-current
 
-: --- 1 indent cr s" hr" tag cr +indent ;
+: --- 0 indent cr s" hr" tag cr +indent ;
 : *   1 indent s" h1" line +indent ;
 : **  1 indent s" h2" line +indent ;
 : *** 2 indent s" h3" line +indent ;
+: -- 0 indent cr print-toc ;
 : - s" ul" env s" li" par ;
 : + s" ol" env s" li" par ;
 : << +env ;
 : <* s" center" >env ;
+: <red  s" #ff0000" s" color" opt s" font" >env ;
+: red> -env ;
 : >> -env ;
 : *> -env ;
 : :: interpret ;
@@ -332,7 +406,7 @@ Variable mail-name
     ." Last modified: " time&date rot 0 u.r swap 1-
     s" janfebmaraprmayjunjulaugsepoctnovdec" rot 3 * /string 3 min type
     0 u.r ."  by "
-    mail $@ mailto: mail-name $@ s" a" tagged
+    s" Mail|icons/mail.gif" .img mail $@ mailto: mail-name $@ s" a" tagged
     -envs ;
 
 \ top word
@@ -375,14 +449,6 @@ Variable style$
   s" wf-temp.wf" delete-file throw ;
 
 \ simple text data base
-
-: get-rest ( addr -- ) 0 parse -trailing rot $! ;
-Create $lf 1 c, #lf c,
-: get-par ( addr -- )  >r  s" " r@ $+!
-    BEGIN  0 parse 2dup s" ." compare  WHILE
-	r@ $@len IF  $lf count r@ $+!  THEN  r@ $+!
-	refill 0= UNTIL  ELSE  2drop  THEN
-    rdrop ;
 
 Variable last-entry
 Variable field#

@@ -41,12 +41,8 @@
 \ frame. Since this is system and CPU dependent, the code for the generation
 \ of that is in ncexcpu1.fs . 
 : generate-wrapper ( xt -- )
-  asm-here \ xt code-addr
-  over code-address! \ xt
-  load-rp&sp,
-  >body call-nc, \
-  save-rp&sp,
-  next,
+  wrapper \ xt code-addr
+  swap code-address! \ xt
   ;
 
 \ --------------------------- threaded code compiler ---------------------------
