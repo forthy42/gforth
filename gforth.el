@@ -92,7 +92,7 @@ OBS! All words in forth-negatives must be surrounded by spaces.")
 (define-key forth-mode-map "\M-q" 'forth-fill-paragraph)
 (define-key forth-mode-map "\e." 'forth-find-tag)
 
-(load "etags.el")
+(load "etags")
 
 (defun forth-find-tag (tagname &optional next-p regexp-p)
   (interactive (find-tag-interactive "Find tag: "))
