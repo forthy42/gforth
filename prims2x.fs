@@ -646,6 +646,31 @@ does> ( item -- )
  cr
 ;
 
+: print-type-prefix ( type -- )
+    body> >head .name ;
+
+: disasm-arg { item -- }
+    item item-stack @ inst-stream = if
+	."   printarg_" item item-type @ print-type-prefix
+	." (ip[" item item-offset @ 1+ 0 .r ." ]);" cr
+    endif ;
+
+: disasm-args ( -- )
+ effect-in-end @ effect-in ?do
+   i disasm-arg
+ item% %size +loop ; 
+
+: output-disasm ( -- )
+    \ generate code for disassembling VM instructions
+    ." if (ip[0] == prim[" function-number @ 0 .r ." ]) {" cr
+    ."   fputs(" [char] " emit forth-name 2@ type [char] " emit ." ,stdout);" cr
+    ." /* " declarations ." */" cr
+    compute-offsets
+    disasm-args
+    ."   ip += " inst-stream stack-in @ 1+ 0 .r ." ;" cr
+    ." } else "
+    1 function-number +! ;
+
 : stack-used? { stack -- f }
     stack stack-in @ stack stack-out @ or 0<> ;
 
