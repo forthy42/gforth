@@ -1,6 +1,6 @@
 
-include asm/generic.fs
-include asm/bitmask.fs
+include ../../asm/generic.fs
+include ../../asm/bitmask.fs
 
 hex
 
@@ -28,9 +28,9 @@ hex
 
 : r,r r5! d5! ;
 : rdl,k k6! &24 - d2! ;
-: rd,k k8! d4! ;
+: r,k k8! d4! ; \ ?!
 : r, d5! ;
-: s, s4! ;
+: s, s3! ; \ ?!
 : rd,b t3! d5! ;
 : s,k k7! t3! ;
 : p,b t3! p5! ;
@@ -82,7 +82,7 @@ hex
 	R0 , R0		' r,r	Alone( 	add,  	%00001100 00
 	R0 , 0		' rdl,k Alone( 	adiw, 	%10010110 00
 	R0 , R0		' r,r	Alone( 	and,  	%00100000 00
-	R0 , 0		' rd,k  Alone( 	andi, 	%01110000 00
+	R0 , 0		' r,k  Alone( 	andi, 	%01110000 00
 	R0		' r,	Alone( 	asr,  	%10010100 %0101
 	/c		' s,	Alone( 	bclr, 	%10010100 %10001000
 	R0 , 0		' rd,b	Alone( 	bld,  	%11111000 00
@@ -91,10 +91,10 @@ hex
 	/c		' s,	Alone( 	bset, 	%10010100 %00001000
 	R0 , 0		' rd,b	Alone( 	bst,  	%11111010 00
 	0		' k,	Alone( 	call,	%10010100 %00001110 00 00
-	R0		' rd,	Alone( 	com,  	%10010100 00
+	R0		' r,	Alone( 	com,  	%10010100 00
 	R0 , R0		' r,r	Alone( 	cp,   	%00010100 00
 	R0 , R0		' r,r	Alone( 	cpc,  	%00000100 00
-	R0 , 0		' rd,k	Alone( 	cpi,  	%00110000 00
+	R0 , 0		' r,k	Alone( 	cpi,  	%00110000 00
 	R0 , R0		' r,r	Alone( 	cpse, 	%00010000 00
 	R0		' r, 	Alone( 	dec,  	%10010100 %00001010
 	R0 , R0		' r,r	Alone( 	eor,  	%00100100 00
@@ -103,7 +103,7 @@ hex
 	R0 , 0		' rd,p	Alone( 	in,	%10110000 00
 	R0		' r,	Alone( 	inc,	%10010100 %00000011
 	0		' k,	Alone( 	jmp,	%10010100 %00001100 00 00
-	R0 , 0 		' rd,k	Alone(	ldi,	%11100000 00
+	R0 , 0 		' r,k	Alone(	ldi,	%11100000 00
 	R0 , 0		' rd,k16 Alone(	lds,	%10010000 00 00 00
 				Alone	lpm,	%10010101 %11001000
 				\	lsl,	Macro
@@ -114,6 +114,8 @@ hex
 				Alone	nop,	00 00
 	R0 , R0		' r,r	Alone(	or,	%00101000 %00000000
 	R0 , 0		' r,k	Alone(	ori,	%01100000 00
+\ ?!
+	R0 , R0		' r,r	Alone(	xor,	%00101000 %00000000
 
 	
 	
