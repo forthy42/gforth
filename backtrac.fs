@@ -80,7 +80,7 @@ IS store-backtrace
 : print-bt-entry ( return-stack-item -- )
     cell - dup in-dictionary? over dup aligned = and
     if
-	@ dup threaded>name if
+	@ dup threaded>name dup if
 	    .name drop
 	else
 	    drop dup look if

@@ -41,7 +41,7 @@ decimal
 	@
     then ;
 
-: (look)  ( xt startlfa -- lfa flag )
+: search-name  ( xt startlfa -- nt|0 )
     \ look up name of primitive with code at xt
     swap
     >r false swap
@@ -53,8 +53,7 @@ decimal
 		nip dup
 	    THEN
     REPEAT
-    drop rdrop
-    dup 0<> ;
+    drop rdrop ;
 
 : threaded>xt ( ca -- xt|0 )
 \G For the code address ca of a primitive, find the xt (or 0).
@@ -77,16 +76,16 @@ has? ec [IF]
 
 has? rom 
 [IF]
-: prim>name ( xt -- nt flag )
-    forth-wordlist @ (look) ;
+: prim>name ( xt -- nt|0 )
+    forth-wordlist @ search-name ;
 
-: look
+: look ( xt -- lfa flag )
     dup [ unlock rom-dictionary area lock ] 
     literal literal within
     IF
 	>head-noprim dup ?? <>
     ELSE
-	xt>threaded threaded>name
+	prim>name dup 0<>
     THEN ;
 [ELSE]
 : look ( cfa -- lfa flag )
@@ -97,21 +96,21 @@ has? rom
 
 : PrimStart ['] true >head-noprim ;
 
-: prim>name ( xt -- lfa flag )
-    PrimStart (look) ;
+: prim>name ( xt -- nt|0 )
+    PrimStart search-name ;
 
-: look ( cfa -- lfa flag )
+: look ( xt -- lfa flag )
     dup in-dictionary?
     IF
 	>head-noprim dup ??? <>
     ELSE
-	prim>name
+	prim>name dup 0<>
     THEN ;
 
 [THEN]
 [THEN]
 
-: threaded>name ( ca -- lfa flag )
+: threaded>name ( ca -- nt|0 )
     threaded>xt prim>name ;
 
 : >head ( cfa -- nt|0 ) \ gforth to-head

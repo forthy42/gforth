@@ -278,7 +278,7 @@ VARIABLE C-Pass
 : .word ( addr x -- addr )
     \ print x as a word if possible
     dup look 0= IF
-	drop dup threaded>name 0= if
+	drop dup threaded>name dup 0= if
 	    2drop dup 1 cells - @ dup body> look
 	    IF
 		nip dup ." <" name>string rot wordinfo .string ." > "
@@ -331,8 +331,9 @@ VARIABLE C-Pass
     cell+ ;
 
 : .name-without ( addr -- addr )
-\ prints a name without a() e.g. a(+LOOP) or (s")
-    dup 1 cells - @ threaded>name IF
+    \ !! the stack effect cannot be correct
+    \ prints a name without a() e.g. a(+LOOP) or (s")
+    dup 1 cells - @ threaded>name dup IF
 	name>string over c@ 'a = IF
 	    1 /string
 	THEN
