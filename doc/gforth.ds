@@ -801,9 +801,10 @@ on many machines.
 @cindex books on Forth
 
 As the standard is relatively new, there are not many books out yet. It
-is not recommended to learn Forth by using Gforth and a book that is
-not written for ANS Forth, as you will not know your mistakes from the
-deviations of the book.
+is not recommended to learn Forth by using Gforth and a book that is not
+written for ANS Forth, as you will not know your mistakes from the
+deviations of the book. However, books based on the Forth-83 standard
+should be ok, because ANS Forth is primarily an extension of Forth-83.
 
 @cindex standard document for ANS Forth
 @cindex ANS Forth document
@@ -816,9 +817,11 @@ can also get it from Global Engineering Documents (Tel.: USA (800)
 
 @cite{dpANS6}, the last draft of the standard, which was then submitted
 to ANSI for publication is available electronically and for free in some
-MS Word format, and it has been converted to HTML (this is my favourite
-format !!url). Some pointers to these versions can be found through
-@*@url{http://www.complang.tuwien.ac.at/projects/forth.html}.
+MS Word format, and it has been converted to HTML
+(@url{http://www.taygeta.com/forth/dpans.html}; this is my favourite
+format); this HTML version also includes the answers to Requests for
+Interpretation (RFIs). Some pointers to these versions can be found
+through @*@url{http://www.complang.tuwien.ac.at/projects/forth.html}.
 
 @cindex introductory book
 @cindex book, introductory
@@ -831,7 +834,21 @@ information (Jack Woehr was in the ANS Forth Technical Committee). It is
 not appropriate for complete newbies, but programmers experienced in
 other languages should find it ok.
 
-!!Conklin, Forth programmer's handbook
+@cindex Conklin, Edward K., and Elizabeth Rather: @cite{Forth Programmer's Handbook}
+@cindex Rather, Elizabeth and Edward K. Conklin: @cite{Forth Programmer's Handbook}
+@cindex @cite{Forth Programmer's Handbook} (book)
+@cite{Forth Programmer's Handbook} by Edward K. Conklin, Elizabeth
+D. Rather and the technical staff of Forth, Inc. (Forth, Inc., 1997;
+ISBN 0-9662156-0-5) contains little introductory material. The majority
+of the book is similar to @ref{Words}, but the book covers most of the
+standard words and some non-standard words (whereas this manual is
+quite incomplete). In addition, the book contains a chapter on
+programming style. The major drawback of this book is that it usually
+does not identify what is standard and what is specific to the Forth
+system described in the book (probably one of Forth, Inc.'s systems).
+Fortunately, many of the non-standard programming practices described in
+the book work in Gforth, too.  Still, this drawback makes the book
+hardly more useful than a pre-ANS book.
 
 @node Invoking Gforth, Words, Other Books, Top
 @chapter Invoking Gforth
