@@ -450,8 +450,11 @@ AC_CHECK_LIB(callback,__vacall_r)
 AC_CHECK_LIB(vacall,vacall)
 AC_CHECK_LIB(trampoline,alloc_trampoline)
 FFCALLFLAG="false"
-test $ac_cv_lib_avcall___builtin_avcall = yes && FFCALLFLAG="true" && AC_DEFINE(HAS_FFCALL,,[define this if you want to use the ffcall libraries])
+OLDCALLFLAG="true"
+test $ac_cv_lib_avcall___builtin_avcall = yes && FFCALLFLAG="true" && OLDCALLFLAG="false" && AC_DEFINE(HAS_FFCALL,,[define this if you want to use the ffcall libraries])
+test $ac_cv_lib_avcall___builtin_avcall = no && AC_DEFINE(HAS_OLDCALL,,[define this if you want to use the old call libraries])
 AC_SUBST(FFCALLFLAG)
+AC_SUBST(OLDCALLFLAG)
 if test "$host_os" != "nextstep3"
 then
 	AC_FUNC_MEMCMP

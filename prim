@@ -2267,6 +2267,14 @@ u3 = 0;
 #  endif
 #endif
 
+wcall	( u -- )	gforth
+IF_fpTOS(fp[0]=fpTOS);
+FP=fp;
+sp=(Cell*)(SYSCALL(Cell*(*)(Cell *, void *))u)(sp, &FP);
+fp=FP;
+IF_spTOS(spTOS=sp[0];)
+IF_fpTOS(fpTOS=fp[0]);
+
 \+FFCALL
 
 av-start-void	( c_addr -- )	gforth  av_start_void
@@ -2416,7 +2424,9 @@ va-return-double ( r -- )	gforth va_return_double
 va_return_double(clist, r);
 return 0;
 
-\-
+\+
+
+\+OLDCALL
 
 define(`uploop',
        `pushdef(`$1', `$2')_uploop(`$1', `$2', `$3', `$4', `$5')`'popdef(`$1')')
@@ -2457,17 +2467,9 @@ fcall(20)
 \+
 \+
 
-wcall	( u -- )	gforth
-IF_fpTOS(fp[0]=fpTOS);
-FP=fp;
-sp=(Cell*)(SYSCALL(Cell*(*)(Cell *, void *))u)(sp, &FP);
-fp=FP;
-IF_spTOS(spTOS=sp[0];)
-IF_fpTOS(fpTOS=fp[0]);
+\g peephole
 
 \+peephole
-
-\g peephole
 
 compile-prim1 ( a_prim -- ) gforth compile_prim1
 ""compile prim (incl. immargs) at @var{a_prim}""

@@ -27,7 +27,9 @@ true DefaultValue file		\ controls the presence of the
 				\ file access wordset
 true DefaultValue OS		\ flag to indicate a operating system
 
-true DefaultValue FFCALL \ Foreign Function Calls
+true DefaultValue ffcall \ Foreign Function Calls
+
+false DefaultValue oldcall \ old Foreign Function Calls
 
 true DefaultValue prims		\ true: primitives are c-code
 

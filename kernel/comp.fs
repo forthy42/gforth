@@ -611,7 +611,9 @@ defer ;-hook ( sys2 -- sys1 )
     ;-hook ?struc fini, comp[ reveal postpone [ ; immediate restrict
 [ELSE]
 : ; ( compilation colon-sys -- ; run-time nest-sys ) \ core	semicolon
-    ;-hook ?struc [compile] exit finish-code reveal postpone [ ; immediate restrict
+    ;-hook ?struc [compile] exit
+    [ has? peephole [IF] ] finish-code [ [THEN] ]
+    reveal postpone [ ; immediate restrict
 [THEN]
 
 \ \ Search list handling: reveal words, recursive		23feb93py

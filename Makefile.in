@@ -470,11 +470,16 @@ virtualclean:	mostlyclean
 #Some makes (Ultrix, SunOS, IRIX) are so broken, they cannot read the
 #Makefile if it contains our dist rules.  Therefore we have put these
 #rules in Makedist (you can use them with GNU make on these systems).
-dist:		Makedist FORCE
-		$(MAKE) -f Makedist d$@
 
-dosdist:	Makedist FORCE
+dist:		Makedist machpc.fs FORCE
+		-sed -e 's/@[^ ]*CALLFLAG@/false/g' -e 's/@[P]EEPHOLEFLAG@/true/g' <machpc.fs.in >machpc.fs
 		$(MAKE) -f Makedist d$@
+		-$(RM) machpc.fs
+
+dosdist:	Makedist machpc.fs FORCE
+		-sed -e 's/@[^ ]*CALLFLAG@/false/g' -e 's/@[P]EEPHOLEFLAG@/true/g' <machpc.fs.in >machpc.fs
+		$(MAKE) -f Makedist d$@
+		-$(RM) machpc.fs
 
 srcdist:	Makedist FORCE
 		$(MAKE) -f Makedist d$@
@@ -488,11 +493,15 @@ docdist:	Makedist FORCE
 htmldist:	Makedist FORCE
 		$(MAKE) -f Makedist d$@
 
-bindist:	Makedist FORCE
+bindist:	Makedist machpc.fs FORCE
+		-sed -e 's/@[^ ]*CALLFLAG@/false/g' -e 's/@[P]EEPHOLEFLAG@/true/g' <machpc.fs.in >machpc.fs
 		$(MAKE) -f Makedist d$@
+		-$(RM) machpc.fs
 
-binonlydist:	Makedist FORCE
+binonlydist:	Makedist machpc.fs FORCE
+		-sed -e 's/@[^ ]*CALLFLAG@/false/g' -e 's/@[P]EEPHOLEFLAG@/true/g' <machpc.fs.in >machpc.fs
 		$(MAKE) -f Makedist d$@
+		-$(RM) machpc.fs
 
 
 #strip gforth, because the debugging stuff is hardly useful once
@@ -868,7 +877,7 @@ doc/gforth.txt:	$(GFORTH_TEXI)
 doc/vmgen.txt:	$(VMGEN_TEXI)
 		-cd doc; $(MAKEINFO) --no-headers --no-split vmgen.texi >vmgen.txt
 
-doc:		info doc/gforth doc/vmgen doc/gforth.ps doc/vmgen.ps doc/gforth.txt doc/vmgen.txt TAGS
+doc:		gforth.fi info doc/gforth doc/vmgen doc/gforth.ps doc/vmgen.ps doc/gforth.txt doc/vmgen.txt TAGS
 
 # For an explanation of the following Makefile rules, see node
 # `Automatic Remaking' in GNU Autoconf documentation.
