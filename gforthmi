@@ -1,0 +1,37 @@
+#! /bin/sh
+#Copyright (C) 1997 Free Software Foundation, Inc.
+
+#This file is part of Gforth.
+
+#Gforth is free software; you can redistribute it and/or
+#modify it under the terms of the GNU General Public License
+#as published by the Free Software Foundation; either version 2
+#of the License, or (at your option) any later version.
+
+#This program is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.#See the
+#GNU General Public License for more details.
+
+#You should have received a copy of the GNU General Public License
+#along with this program; if not, write to the Free Software
+#Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+if test $# = 0 || test $1 = --help || test $1 = -h; then
+  echo "usage: `basename $0` target-name [gforth-options]"
+  echo "creates a relocatable image 'target-name'"
+  echo "environment:"
+  echo " \$GFORTHD (default: gforth-ditc): System used for creating the fixed images"
+  echo " \$GFORTH (default: gforth): System used for computing the relocatable image"
+  exit 1
+fi
+outfile=$1; shift
+tmpfile=./temp-image.fi
+test "x$GFORTHD" != x || GFORTHD=gforth-ditc
+test "x$GFORTH" != x || GFORTH=gforth
+$GFORTHD --clear-dictionary --no-offset-im $* -e "savesystem $tmpfile"1" bye"
+$GFORTHD --clear-dictionary --offset-image $* -e "savesystem $tmpfile"2" bye"
+$GFORTH comp-i.fs -e "comp-image $tmpfile"1" $tmpfile"2" $outfile bye"
+chmod +x $outfile
+#gforth-0.2.1 -m 100000  comp-i.fs -e "comp-image $tmpfile"1" $tmpfile"2" $outfile bye"
+rm $tmpfile"1" $tmpfile"2"

@@ -1,6 +1,6 @@
-\ source location handling
+\ a very simple accept approach
 
-\ Copyright (C) 1995 Free Software Foundation, Inc.
+\ Copyright (C) 1995-1997 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -18,28 +18,15 @@
 \ along with this program; if not, write to the Free Software
 \ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-
-\ related stuff can be found in kernel.fs
-
-\ this stuff is used by (at least) assert.fs and debugging.fs
-
-require struct.fs
-
-struct
-    1 cells: field sourcepos-name#
-    1 cells: field sourcepos-line#
-end-struct sourcepos
-    
-: sourcepos, ( -- )
-    \ record the current source position HERE
-    loadfilename# @ , sourceline# , ;
-
-: get-sourcepos ( a-addr -- c-addr u n )
-    \ c-addr u is the filename, n is the line number
-    dup sourcepos-name# @ loadfilename#>str
-    rot sourcepos-line# @ ;
-
-: print-sourcepos ( a-addr -- )
-    get-sourcepos
-    >r type ." :"
-    base @ decimal r> 0 .r base ! ;
+: accept
+  over + over ( start end pnt )
+  BEGIN
+   key	dup #del = IF drop #bs THEN
+   dup bl u<
+   IF    dup #cr = over #lf = or IF space drop nip swap - EXIT THEN
+ 	#bs = IF 3 pick over <> 
+         IF 1 chars - #bs emit bl emit #bs emit ELSE bell THEN THEN
+   ELSE	 >r 2dup <> IF r> dup emit over c! char+ ELSE r> drop bell THEN
+   THEN 
+  AGAIN ;
+  

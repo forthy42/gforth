@@ -468,7 +468,10 @@ c-extender !
         dup >r DoTable r> swap IF drop EXIT THEN
         Display?
         IF look 0= IF  drop dup 1 cells - @ .  \ ABORT" SEE: Bua!"
-           ELSE  dup cell+ count 31 and rot wordinfo .string  THEN  bl cemit
+	ELSE
+	    dup cell+ count dup immediate-mask and
+	    IF  bl cemit  ." POSTPONE " THEN
+	    31 and rot wordinfo .string  THEN  bl cemit
         ELSE drop
         THEN ;
 

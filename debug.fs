@@ -276,10 +276,20 @@ VARIABLE Unnest
                 Nesting @ 0= ?EXIT
                 -1 Nesting +! r>
                 ELSE
-                IP @ >r 1 Nesting +!
+                IP @ 1 cells + >r 1 Nesting +!
                 THEN
         AGAIN ;
 
 : dbg   ' NestXT ?EXIT (debug) Leave-D ;
 
-\ : test 1 2 4 swap dup . ;
+: TRACE:
+        r> (debug) ;
+
+: (TRACE")
+        cr
+        ." BREAK AT: " type cr
+        r> (debug) ;
+
+: TRACE"
+        postpone s"
+        postpone (TRACE") ; immediate

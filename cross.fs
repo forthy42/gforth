@@ -37,6 +37,11 @@
 \             targets                         09jun93jaw
 \       added: 2user and value                11jun93jaw
 
+\ 	needed? works better now!!!		01mar97jaw
+\	mach file is only loaded into target
+\	cell corrected
+
+
 \ include other.fs       \ ansforth extentions for cross
 
 : string, ( c-addr u -- )
@@ -93,7 +98,10 @@ H
 
 \ Parameter for target systems                         06oct92py
 
+>TARGET
 mach-file count included
+
+[IFUNDEF] has-interpreter true CONSTANT has-interpreter [THEN]
 
 also Forth definitions
 
@@ -104,19 +112,10 @@ hex
 
 >CROSS
 
-\ Variables                                            06oct92py
-
-Variable image
-Variable tlast    NIL tlast !  \ Last name field
-Variable tlastcfa \ Last code field
-Variable tdoes    \ Resolve does> calls
-Variable bit$
-Variable tdp
-: there  tdp @ ;
-
 \ Create additional parameters                         19jan95py
 
 T
+NIL		   Constant TNIL
 cell               Constant tcell
 cell<<             Constant tcell<<
 cell>bit           Constant tcell>bit
@@ -125,6 +124,17 @@ float              Constant tfloat
 1 bits/byte lshift Constant maxbyte
 H
 
+\ Variables                                            06oct92py
+
+Variable image
+Variable tlast    TNIL tlast !  \ Last name field
+Variable tlastcfa \ Last code field
+Variable tdoes    \ Resolve does> calls
+Variable bit$
+Variable tdp
+: there  tdp @ ;
+
+
 >TARGET
 
 \ Byte ordering and cell size                          06oct92py
@@ -132,13 +142,14 @@ H
 : cell+         tcell + ;
 : cells         tcell<< lshift ;
 : chars         ;
+: char+		1 + ;
 : floats	tfloat * ;
     
 >CROSS
 : cell/         tcell<< rshift ;
 >TARGET
 20 CONSTANT bl
--1 Constant NIL
+TNIL Constant NIL
 
 >CROSS
 
@@ -174,7 +185,7 @@ bigendian
 
 >MINIMAL
 : makekernel ( targetsize -- targetsize )
-  bit$  over 1- cell>bit rshift 1+ initmem
+  bit$  over 1- tcell>bit rshift 1+ initmem
   image over initmem tdp off ;
 
 >CROSS
@@ -192,7 +203,7 @@ CREATE Bittable 80 c, 40 c, 20 c, 10 c, 8 c, 4 c, 2 c, 1 c,
 \ Target memory access                                 06oct92py
 
 : align+  ( taddr -- rest )
-    cell tuck 1- and - [ cell 1- ] Literal and ;
+    tcell tuck 1- and - [ tcell 1- ] Literal and ;
 : cfalign+  ( taddr -- rest )
     \ see kernel.fs:cfaligned
     /maxalign tuck 1- and - [ /maxalign 1- ] Literal and ;
@@ -220,7 +231,7 @@ CREATE Bittable 80 c, 40 c, 20 c, 10 c, 8 c, 4 c, 2 c, 1 c,
 
 : here  ( -- there )    there ;
 : allot ( n -- )        tdp +! ;
-: ,     ( w -- )        T here H cell T allot  ! H ;
+: ,     ( w -- )        T here H tcell T allot  ! H ;
 : c,    ( char -- )     T here    1 allot c! H ;
 : align ( -- )          T here H align+ 0 ?DO  bl T c, H LOOP ;
 : cfalign ( -- )
@@ -270,6 +281,11 @@ Variable last-ghost
   <T Create atonce @ IF immediate atonce off THEN
   here tuck swap ! ghostheader T>
   DOES> dup last-ghost ! >exec @ execute ;
+
+variable cfalist 0 cfalist !
+
+: markcfa
+  cfalist here over @ , swap ! , ;
 
 \ ghost words                                          14oct92py
 \                                          changed:    10may93py/jaw
@@ -340,7 +356,7 @@ variable ResolveFlag
   WHILE dup ?resolved
   REPEAT drop ResolveFlag @
   IF
-      abort" Unresolved words!"
+      -1 abort" Unresolved words!"
   ELSE
       ." Nothing!"
   THEN
@@ -376,7 +392,7 @@ VARIABLE ^imm
 
 \ Target Document Creation (goes to crossdoc.fd)       05jul95py
 
-s" crossdoc.fd" r/w create-file throw value doc-file-id
+s" doc/crossdoc.fd" r/w create-file throw value doc-file-id
 \ contains the file-id of the documentation file
 
 : T-\G ( -- )
@@ -443,8 +459,16 @@ Defer skip? ' false IS skip?
     ghost >magic @ <fwd> <> ;
 
 : needed? ( -- flag ) \ name
-    ghost dup >magic @ <fwd> =
-    IF  >link @ 0<>  ELSE  drop false  THEN ;
+\G returns a false flag when
+\G a word is not defined
+\G a forward reference exists
+\G so the definition is not skipped!
+    bl word gfind
+    IF dup >magic @ <fwd> = 
+	\ swap >link @ 0<> and 
+	nip
+	0=
+    ELSE  drop true  THEN ;
 
 : doer? ( -- flag ) \ name
     ghost >magic @ <do:> = ;
@@ -552,16 +576,20 @@ Defer (code)
 Defer (end-code)
 [THEN]
 
+[IFUNDEF] ca>native
+defer ca>native
+[THEN]
+
 >TARGET
 : Code
-    (THeader there resolve
-    [ has-prims 0= [IF] ITC [ELSE] true [THEN] ] [IF]
-	there 2 T cells H + T a, 0 , H
-    [THEN]
-    depth (code) ;
+  (THeader there resolve
+  [ has-prims 0= [IF] ITC [ELSE] true [THEN] ] [IF]
+  there 2 T cells H + ca>native T a, 0 , H
+  [THEN]
+  depth (code) ;
 
 : Code:
-    ghost dup there resolve  <do:> swap >magic !
+    ghost dup there ca>native resolve  <do:> swap >magic !
     depth (code) ;
 
 : end-code
@@ -673,7 +701,7 @@ Cond: [  restrict? state off ;Cond
 
 >TARGET
 Cond: DOES> restrict?
-	compile (does>) dodoes, tdoes @ ?dup IF  @ T here H resolve THEN
+        compile (does>) dodoes, tdoes @ ?dup IF  @ T here H resolve THEN
         ;Cond
 : DOES> dodoes, T here H !does depth T ] H ;
 
@@ -878,11 +906,11 @@ Cond: ENDCASE   restrict? compile drop 0 ?DO  compile THEN  LOOP ;Cond
 \ Structural Conditionals                              12dec92py
 
 Cond: DO        restrict? compile (do)   T here H ;Cond
-Cond: ?DO       restrict? compile (?do)  (leave T here H ;Cond
+Cond: ?DO       restrict? compile (?do)  T (leave here H ;Cond
 Cond: FOR       restrict? compile (for)  T here H ;Cond
 
 >CROSS
-: loop]   dup <resolve cell - compile DONE compile unloop ;
+: loop]   dup <resolve tcell - compile DONE compile unloop ;
 >TARGET
 
 Cond: LOOP      restrict? sys? compile (loop)  loop] ;Cond
@@ -962,8 +990,20 @@ also minimal
 
 also minimal
 
+\G interprets the line if word is not defined
 : \- defined? IF postpone \ THEN ;
+
+\G interprets the line if word is defined
 : \+ defined? 0= IF postpone \ THEN ;
+
+Cond: \- \- ;Cond
+Cond: \+ \+ ;Cond
+
+: ?? bl word find IF execute ELSE drop 0 THEN ;
+
+: needed:
+\G defines ghost for words that we want to be compiled
+  BEGIN >in @ bl word c@ WHILE >in ! ghost drop REPEAT drop ;
 
 : [IF]   postpone [IF] ;
 : [THEN] postpone [THEN] ;
@@ -975,24 +1015,19 @@ Cond: [IFUNDEF] [IFUNDEF] ;Cond
 Cond: [THEN]    [THEN] ;Cond
 Cond: [ELSE]    [ELSE] ;Cond
 
+previous
+
 \ save-cross                                           17mar93py
 
-\ i'm not interested in bigforth features this time    10may93jaw
-\ [IFDEF] file
-\ also file
-\ [THEN]
-\ included throw after create-file                     11may93jaw
-
-bigendian Constant bigendian
-
+>CROSS
 Create magic  s" Gforth10" here over allot swap move
 
-char 1 bigendian + cell + magic 7 + c!
+char 1 bigendian + tcell + magic 7 + c!
 
 : save-cross ( "image-name" "binary-name" -- )
   bl parse ." Saving to " 2dup type cr
   w/o bin create-file throw >r
-  NIL IF
+  TNIL IF
       s" #! "   r@ write-file throw
       bl parse  r@ write-file throw
       s"  -i"   r@ write-file throw
@@ -1007,16 +1042,24 @@ char 1 bigendian + cell + magic 7 + c!
       bl parse 2drop
   THEN
   image @ there r@ write-file throw \ write image
-  NIL IF
-      bit$  @ there 1- cell>bit rshift 1+
+  TNIL IF
+      bit$  @ there 1- tcell>bit rshift 1+
                 r@ write-file throw \ write tags
   THEN
   r> close-file throw ;
 
 \ words that should be in minimal
+>MINIMAL
+also minimal
 
+bigendian Constant bigendian
+: save-cross save-cross ;
 : here there ;
-also forth [IFDEF] Label : Label Label ; [THEN] previous
+also forth 
+[IFDEF] Label : Label Label ; [THEN] 
+[IFDEF] start-macros : start-macros start-macros ; [THEN]
+previous
+
 : + + ;
 : or or ;
 : 1- 1- ;
@@ -1035,7 +1078,7 @@ also forth [IFDEF] Label : Label Label ; [THEN] previous
 : 2/ 2/ ;
 : . . ;
 
-mach-file count included
+\ mach-file count included
 
 : all-words    ['] false    IS skip? ;
 : needed-words ['] needed?  IS skip? ;

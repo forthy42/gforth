@@ -49,15 +49,15 @@ s%@LN_S@%ln -s%g
 s%@INSTALL@%install-sh -c%g
 s%@INSTALL_PROGRAM@%${INSTALL}%g
 s%@INSTALL_DATA@%${INSTALL} -m 644%g
-s%@LIBOBJS@% pow10.o strsignal.o ecvt.o atanh.o%g
+s%@LIBOBJS@% pow10.o strsig.o ecvt.o atanh.o%g
 s%@getopt_long@%getopt.o getopt1.o%g
 s%@kernel_fi@%kernl32l.fi%g
 s%@PATHSEP@%;%g
 s%-fforce-mem -fforce-addr %%g
-s%echo "static char gforth_version.*;" >$@%$(CP) version.h1 version.h%g
-s%echo ": version-string.*;" >$@%$(CP) version.fs1 version.fs%g
+s%echo "static char gforth_version.*;" >$@%$(CP) version.h1 engine\version.h%g
+s%echo ": version-string.*;" >$@%$(CP) version.fs1 kernel\version.fs%g
 s%$(srcdir)/config.h.in:	stamp-h.in%#$(srcdir)/config.h.in:	stamp-h.in%g
-s%config.h:	stamp-h%#config.h:	stamp-h%g
+s%engine/config.h:	stamp-h%#engine/config.h:	stamp-h%g
 s%$(FORTHPATH)$(PATHSEP)%%g
 s%@FORTHSIZES@%%g
 s%$(PATHSEP)$(srcdir)%%g

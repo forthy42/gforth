@@ -59,7 +59,7 @@ Defer flush-blocks
 
 : open-blocks ( addr u -- ) \ gforth
     \g use the file, whose name is given by @var{addr u}, as blocks file 
-    2dup ['] open-path-file catch 0<>
+    2dup ['] open-fpath-file catch 0<>
     if
 	2drop r/w bin create-file throw
     else

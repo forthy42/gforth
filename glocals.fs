@@ -85,7 +85,7 @@
 \ Currently locals may only be
 \ defined at the outer level and TO is not supported.
 
-require search-order.fs
+require search.fs
 require float.fs
 
 : compile-@local ( n -- ) \ gforth compile-fetch-local

@@ -27,7 +27,7 @@ include extend.fs              \ load core-extended
 
 \ require interpretation.fs
 \ include float.fs
-\ include search-order.fs
+\ include search.fs
 include glocals.fs
 include environ.fs
 \ include toolsext.fs
@@ -42,11 +42,11 @@ require stuff.fs
 include history.fs
 \ include doskey.fs
 include vt100key.fs
-require debugging.fs
+require debugs.fs
 require assert.fs
 require blocks.fs
 require intcomp.fs
-require dumpimage.fs
+require savesys.fs
 
 \ define the environmental queries for all the loaded wordsets
 \ since the blocks wordset is loaded in a single file, its queries
@@ -80,4 +80,4 @@ set-current
 
 warnings on
 
-require site-init.fs
+require siteinit.fs

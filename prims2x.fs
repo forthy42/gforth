@@ -45,8 +45,8 @@ warnings off
 include extend.fs
 
 \ require interpretation.fs
-require debugging.fs
-[IFUNDEF] vocabulary    include search-order.fs [THEN]
+\ require debugs.fs
+[IFUNDEF] vocabulary    include search.fs [THEN]
 [IFUNDEF] environment?  include environ.fs      [THEN]
 include gray.fs
 

@@ -28,11 +28,11 @@
 script? [IF]
     warnings off
     require extend.fs
-    require search-order.fs
+    require search.fs
     require glocals.fs
     require float.fs
     require struct.fs
-    require debugging.fs
+    require debugs.fs
 [THEN]
 
 wordlist constant documentation

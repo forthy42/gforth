@@ -80,6 +80,5 @@ create c-extend1
 	0 ,		here 0 ,
 
 \ extend see-table
-c-extender @
-c-extend1 over a!
+c-extend1 c-extender @ a!
 c-extender !
