@@ -37,8 +37,16 @@ documentation in HTML format by typing
 
 make html
 
-If you prefer plain ASCII documentation, just concatenate the files
-gforth.info-* ('cat gforth.info-*' under Unix).
+If you prefer plain ASCII documentation, you can 
+
+make doc/gforth.txt
+
+or just concatenate the files gforth.info-* ('cat gforth.info-*' under
+Unix); the result of the latter option is a little worse.
+
+You can find binary distributions, documentation in HTML and plain
+text format and information on known installation problems at
+http://www.complang.tuwien.ac.at/forth/gforth/.
 
 
 		Configuration Options
@@ -127,20 +135,20 @@ ac_cv_c_bigendian variable gives the byte order.
 
 If you want to have some installation-specific files loaded when
 Gforth starts (e.g., an assembler for your processor), put commands
-for loading them into /usr/local/share/gforth/site-forth/site-init.fs
+for loading them into /usr/local/share/gforth/site-forth/siteinit.fs
 (if the commands work for all architectures) or
-/usr/local/lib/gforth/site-forth/site-init.fs (for
+/usr/local/lib/gforth/site-forth/siteinit.fs (for
 architecture-specific commands);
-/usr/local/lib/gforth/site-forth/site-init.fs takes precedence if both
+/usr/local/lib/gforth/site-forth/siteinit.fs takes precedence if both
 files are present (unless you change the search path). The file names
 given above are the defaults; if you have changed the prefix, you have
 to replace "/usr/local" in these names with your prefix.
 
 By default, the installation procedure creates an empty
-/usr/local/share/gforth/site-forth/site-init.fs if there is no such
+/usr/local/share/gforth/site-forth/siteinit.fs if there is no such
 file.
 
-If you change the site-init.fs file, you should run "make install"
+If you change the siteinit.fs file, you should run "make install"
 again for the changes to take effect (Actually, the part of "make
 install" starting with "rm gforth.fi" is sufficient).
 

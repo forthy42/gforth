@@ -62,7 +62,7 @@ INSTALL_DATA = @INSTALL_DATA@
 LN_S	= @LN_S@
 GCC	= @CC@
 CC	= $(GCC)
-FORTHPATH = .$(PATHSEP)$(libdir)/gforth/site-forth$(PATHSEP)$(datadir)/gforth/site-forth$(PATHSEP)$(libdir)/gforth/$(VERSION)$(PATHSEP)$(datadir)/gforth/$(VERSION)
+FORTHPATH = .$(PATHSEP)$(libdir)/gforth/site-forth$(PATHSEP)$(siteforthdir)$(PATHSEP)$(libdir)/gforth/$(VERSION)$(PATHSEP)$(datadir)/gforth/$(VERSION)
 FORTHSIZES = @FORTHSIZES@
 FORTH	= ./gforth --die-on-signal -p $(FORTHPATH)$(PATHSEP)$(srcdir)
 FORTHKFLAGS= --die-on-signal -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)" -i $(kernel_fi)
@@ -106,6 +106,7 @@ man1dir= $(mandir)/man1
 man1ext= .1
 #older emacses have their site-lisp in $(libdir)/emacs/
 emacssitelispdir=@lispdir@
+siteforthdir=$(datadir)/gforth/site-forth
 
 CVSDIRS = CVS engine/CVS kernel/CVS doc/CVS asm/CVS ec/CVS test/CVS \
 	compat/CVS \
@@ -207,7 +208,7 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_SRC) $(EC_SRC) \
 	doc/makedoc.fs \
 	mach16b.fs mach16l.fs mach32b.fs mach32l.fs mach64b.fs mach64l.fs \
 	machpc.fs more.fs other.fs prims2x.fs random.fs \
-	siteinit.fs table.fs \
+	table.fs \
 	tt.fs sokoban.fs \
 	unbuffered.fs wordsets.fs \
 	test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs \
@@ -293,7 +294,7 @@ SOURCES	= $(CVSDIRS) compat Makefile.in Makedist.in engine/Makefile.in gforthmi.
 	engine/pow10.c engine/atanh.c engine/cleanalign.c \
 	engine/strerror.c engine/strsignal.c engine/dblsub.c \
 	INSTALL.DOS makefile.dos engine/makefile.dos mkdosmf.sed config.bat \
-	dosconf.h gforthmi.bat mkinstalldirs \
+	dosconf.h gforthmi.bat mkinstalldirs siteinit.fs \
 	versions.bsh \
 	configure.cmd mkos2mf.sed os2conf.h makefile.os2 engine/makefile.os2 \
 	gforthmi.cmd glosgen.glo doc/glossaries.doc \
@@ -419,7 +420,7 @@ binonlydist:	Makedist FORCE
 #supplying a lot of files that can be easily generated (only info is
 #hard to generate)
 install:	gforth$(EXE) $(FORTH_SRC) $(kernel_fi) gforth.fi gforthmi doc/gforth.1 prim install.TAGS installdirs
-		touch $(datadir)/gforth/site-forth/siteinit.fs
+		touch $(siteforthdir)/siteinit.fs
 		-$(RM) $(bindir)/gforth$(EXE) $(bindir)/gforth-$(VERSION)$(EXE) $(bindir)/gforthmi
 		$(INSTALL_PROGRAM) -s gforth$(EXE) $(bindir)/gforth-$(VERSION)$(EXE)
 		$(LN_S) $(bindir)/gforth-$(VERSION)$(EXE) $(bindir)/gforth$(EXE)
@@ -432,7 +433,7 @@ install:	gforth$(EXE) $(FORTH_SRC) $(kernel_fi) gforth.fi gforthmi doc/gforth.1 
 		done
 		$(INSTALL_DATA) $(kernel_fi) $(datadir)/gforth/$(VERSION)
 		$(RM) gforth.fi
-		GFORTHD="./gforth-ditc -p$(datadir)/gforth/$(VERSION) -i $(kernel_fi)" GFORTH="./gforth-ditc --die-on-signal -i $(kernel_fi) startup.fs" ./gforthmi gforth.fi $(FORTHSIZES) startup.fs #gforth.fi contains some path names
+		GFORTHD="./gforth-ditc -p$(libdir)/gforth/site-forth$(PATHSEP)$(siteforthdir)$(PATHSEP)$(datadir)/gforth/$(VERSION) -i $(kernel_fi)" GFORTH="./gforth-ditc --die-on-signal -i $(kernel_fi) startup.fs" ./gforthmi gforth.fi $(FORTHSIZES) startup.fs #gforth.fi contains some path names
 		$(INSTALL_DATA) gforth.fi $(libdir)/gforth/$(VERSION)
 		$(INSTALL_DATA) install.TAGS $(datadir)/gforth/$(VERSION)/TAGS
 		@if test -d "$(emacssitelispdir)"; then \
@@ -446,7 +447,9 @@ install:	gforth$(EXE) $(FORTH_SRC) $(kernel_fi) gforth.fi gforthmi doc/gforth.1 
 install-strip:	install
 
 installdirs:	mkinstalldirs
-		$(srcdir)/mkinstalldirs $(bindir) $(man1dir) $(infodir) $(libdir)/gforth/$(VERSION) $(datadir)/gforth/$(VERSION) $(libdir)/gforth/site-forth $(datadir)/gforth/site-forth
+		for i in $(bindir) $(man1dir) $(infodir) $(libdir)/gforth/$(VERSION) $(datadir)/gforth/$(VERSION) $(libdir)/gforth/site-forth $(siteforthdir); do \
+			$(srcdir)/mkinstalldirs $$i; \
+		done
 		for i in $(CVSDIRS); do \
 			$(srcdir)/mkinstalldirs $(datadir)/gforth/$(VERSION)/`dirname $$i`; \
 		done
