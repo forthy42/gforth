@@ -75,7 +75,7 @@ Variable /dump
 
 \ words visible in roots                               14may93py
 
-include  ../termsize.fs
+include  ./../termsize.fs
 
 : words
     \G ** this will not get annotated. See other defn in search.fs .. **
