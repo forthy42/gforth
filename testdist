@@ -5,6 +5,7 @@
 MACHINE=`hostname`
 GFORTH=`basename $1 .tar.gz`
 DIR=`pwd`
+chmod -R +w $GFORTH
 rm -rf $GFORTH
 gunzip -cd $1 | tar xf -
 if make --version|grep -q GNU
@@ -19,13 +20,16 @@ else
 	cd $GFORTH
 	./configure --prefix=$DIR/install
 fi
-make
-make check
+make &&
+make check &&
 #gforth locals-test.fs
 #gforth test-counted-loops.fs
-make install
+make install &&
 #make bench
-cd ..
+cd vmgen-ex &&
+PATH=$DIR/install/bin:$PATH make check &&
+cd .. &&
+cd .. &&
 install/bin/gforth test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs -e bye && echo test ok
 chmod -R +w $GFORTH
 cd ..

@@ -375,10 +375,12 @@ AC_OUTPUT([
 Makefile
 Makedist
 gforthmi
+vmgen
 machpc.fs
 engine/Makefile
 doc/version.texi ],
 echo timestamp > stamp-h
 chmod +x gforthmi
+chmod +x vmgen
 test -d kernel||mkdir kernel)
 

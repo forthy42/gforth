@@ -71,11 +71,13 @@ FORTH	= $(ENGINE) $(FORTH_ARGS)
 BUILDFORTH = $(FORTHK)
 # the forth system plus flags we use to build
 FORTHB = $(BUILDFORTH) -m 1000000 -e 'fpath= .|~+|$(srcdir)'
+# the Forth system for running prims2x.fs
+FORTHP = $(FORTH) -m 1000000
 ENGINE_FAST = $(ENGINE)-fast
 FORTH_FAST	= $(ENGINE_FAST) $(FORTH_ARGS)
 FORTHKFLAGS= --die-on-signal -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)" -m 1000000 -i $(kernel_fi)
 FORTHK	= $(ENGINE) $(FORTHKFLAGS)
-FORTHP	= $(ENGINE) --die-on-signal -i ./$(kernel_fi)
+#FORTHP	= $(ENGINE) --die-on-signal -i ./$(kernel_fi)
 #the "-2 image-included-files +!" undoes the change to image-included-files
 # in exboot.fs
 STARTUP	= -e 3 exboot.fs startup.fs @asm_fs@ @disasm_fs@
@@ -308,15 +310,24 @@ ARCHS =	\
 	arch/sharc/types.h \
 	arch/sharc/g21k-3.3.4-bp1.diff
 
-SOURCES	= $(CVSDIRS) compat Makefile.in Makedist.in engine/Makefile.in gforthmi.in \
+VMGEN_EX = vmgen-ex/CVS vmgen-ex/Makefile vmgen-ex/README vmgen-ex/disasm.c \
+	vmgen-ex/engine.c vmgen-ex/fib.mini \
+	vmgen-ex/mini-inst.vmg vmgen-ex/mini-super.vmg vmgen-ex/mini.h \
+	vmgen-ex/mini.l vmgen-ex/mini.y vmgen-ex/peephole-blacklist \
+	vmgen-ex/peephole.c vmgen-ex/profile.c vmgen-ex/seq2rule.awk \
+	vmgen-ex/simple.mini vmgen-ex/stat.awk vmgen-ex/support.c \
+	vmgen-ex/test.mini vmgen-ex/test.out
+
+SOURCES	= $(CVSDIRS) compat Makefile.in Makedist.in engine/Makefile.in \
+	gforthmi.in vmgen.in README.vmgen \
 	configure.in configure config.sub config.guess elisp-comp missing \
 	acconfig.h acinclude.m4 engine/config.h.in stamp-h.in \
 	iss.sh install-sh INSTALL INSTALL.BINDIST NEWS README ToDo BUGS model \
 	COPYING AUTHORS ChangeLog Benchres aclocal.m4 \
 	doc/gforth.ds doc/texinfo.tex doc/gforth.1 doc/version.texi.in \
 	gforth.el \
-	prim engine/engine.c engine/main.c engine/io.c engine/memcmpc.c \
-	engine/signals.c $(ARCHS) \
+	prim peeprules.vmg engine/engine.c engine/main.c
+	engine/io.c engine/memcmpc.c engine/signals.c $(ARCHS) \
 	engine/getopt.c engine/getopt1.c engine/getopt.h engine/select.c \
 	engine/ecvt.c engine/memcmp.c engine/strtol.c engine/strtoul.c \
 	engine/ansidecl.h engine/memmove.c \
@@ -328,7 +339,7 @@ SOURCES	= $(CVSDIRS) compat Makefile.in Makedist.in engine/Makefile.in gforthmi.
 	versions.bsh \
 	configure.cmd mkos2mf.sed os2conf.h makefile.os2 engine/makefile.os2 \
 	gforthmi.cmd glosgen.glo doc/glossaries.doc \
-	$(INCLUDES) $(FORTH_SRC) $(COMPAT) \
+	$(INCLUDES) $(FORTH_SRC) $(COMPAT) $(VMGEN_EX) \
 	timings.sc \
 	test/coretest.out test/checkans.out
 
@@ -414,7 +425,7 @@ distclean:	clean
 		-$(RM) config.cache config.log config.status \
 		engine/config.h Makefile Makedist engine/Makefile \
 		stamp-h engine/stamp-h \
-		doc/version.texi gforthmi
+		doc/version.texi gforthmi vmgen
 
 #realclean is useless, but dangerous, so it's commented out
 realclean:	distclean
@@ -461,17 +472,19 @@ binonlydist:	Makedist FORCE
 #hard to generate).
 #we rebuild gforth.fi, because it contains some path names.
 #we delete $build/gforth.fi and $build/install.TAGS after installation because of ownership.
-install:	gforth$(EXE) $(FORTH_SRC) $(kernel_fi) gforth.fi gforthmi doc/gforth.1 prim install.TAGS installdirs
+install:	gforth$(EXE) $(FORTH_SRC) $(kernel_fi) gforth.fi gforthmi vmgen doc/gforth.1 prim install.TAGS installdirs
 		touch $(siteforthdir)/siteinit.fs
-		-$(RM) $(bindir)/gforth$(EXE) $(bindir)/gforth-$(VERSION)$(EXE) $(bindir)/gforthmi
+		-$(RM) $(bindir)/gforth$(EXE) $(bindir)/gforth-$(VERSION)$(EXE) $(bindir)/gforthmi $(bindir)/vmgen
 		-$(RM) $(bindir)/gforth-fast$(EXE) $(bindir)/gforth-fast-$(VERSION)$(EXE)
 		$(INSTALL_PROGRAM) -s gforth$(EXE) $(bindir)/gforth-$(VERSION)$(EXE)
 		(cd $(bindir) && $(LN_S) gforth-$(VERSION)$(EXE) gforth$(EXE))
 		$(INSTALL_PROGRAM) -s gforth-fast$(EXE) $(bindir)/gforth-fast-$(VERSION)$(EXE)
 		(cd $(bindir) && $(LN_S) gforth-fast-$(VERSION)$(EXE) gforth-fast$(EXE))
 		$(INSTALL_PROGRAM) gforthmi $(bindir)/gforthmi-$(VERSION)
+		$(INSTALL_PROGRAM) vmgen $(bindir)/vmgen-$(VERSION)
 		$(INSTALL_PROGRAM) gforth-ditc $(libdir)/gforth/$(VERSION)
 		(cd $(bindir) && $(LN_S) gforthmi-$(VERSION) gforthmi)
+		(cd $(bindir) && $(LN_S) vmgen-$(VERSION) vmgen)
 		-$(INSTALL_DATA) $(srcdir)/doc/gforth.1 $(man1dir)
 		-for i in $(srcdir)/doc/gforth.info*; do $(INSTALL_DATA) $$i $(infodir); done
 		for i in $(FORTH_SRC) $(COMPAT) prim; do \
@@ -505,8 +518,8 @@ installdirs:	mkinstalldirs
 #deinstall all files specific to this version of gforth
 #to uninstall version foo, type `make uninstall VERSION=foo'
 uninstall:	FORCE
-		-$(RM) -rf $(libdir)/gforth/$(VERSION) $(datadir)/gforth/$(VERSION) $(bindir)/gforth-$(VERSION)$(EXE) $(bindir)/gforth-fast-$(VERSION)$(EXE) $(bindir)/gforthmi-$(VERSION)
-		@echo -e "To remove Gforth completely, type\n$(RM) -rf $(bindir)/gforth$(EXE) $(bindir)/gforth-fast$(EXE) $(bindir)/gforthmi $(man1dir)/gforth.1 $(infodir)/gforth.info* $(datadir)/gforth $(libdir)/gforth"
+		-$(RM) -rf $(libdir)/gforth/$(VERSION) $(datadir)/gforth/$(VERSION) $(bindir)/gforth-$(VERSION)$(EXE) $(bindir)/gforth-fast-$(VERSION)$(EXE) $(bindir)/gforthmi-$(VERSION) (bindir)/vmgen-$(VERSION)
+		@echo -e "To remove Gforth completely, type\n$(RM) -rf $(bindir)/gforth$(EXE) $(bindir)/gforth-fast$(EXE) $(bindir)/gforthmi $(bindir)/vmgen $(man1dir)/gforth.1 $(infodir)/gforth.info* $(datadir)/gforth $(libdir)/gforth"
 
 check test:	gforth$(EXE) gforth.fi
 		$(FORTH) test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs test/string.fs -e bye | diff -c - $(srcdir)/test/coretest.out
@@ -520,7 +533,7 @@ bench:		gforth-fast$(EXE) gforth.fi
 		@echo 'Each benchmark takes about 30s on a 486-66 (gcc-2.6.3 -DFORCE_REG)'
 		time $(FORTH_FAST) siev.fs -e "main bye"
 		time $(FORTH_FAST) bubble.fs -e "main bye"
-		time $(FORTH_FAST) -m 200000 matrix.fs -e "main bye"
+		time $(FORTH_FAST) --dictionary-size 1M matrix.fs -e "main bye"
 		time $(FORTH_FAST) fib.fs -e "main bye"
 
 # -------------	Make forth images
@@ -594,43 +607,43 @@ gforth.fi:	$(kernel_fi) gforthmi gforth$(EXE) gforth-ditc$(EXE) $(GFORTH_FI_SRC)
 
 # -------------	Make c-engine
 
-prim.b:		prim
+prim.b:		prim peeprules.vmg
 		m4 -s $(srcdir)/prim >$@ 
 
 engine/prim.i:		prim.b prims2x.fs
-		$(FORTHB) prims2x.fs -e "c-flag on s\" prim.b\" ' output-c ' output-c-combined process-file bye" >$@-
+		$(FORTHP) prims2x.fs -e "c-flag on s\" prim.b\" ' output-c ' output-c-combined process-file bye" >$@-
 		$(CP) $@- $@
 		$(RM) $@-
 
 engine/prim_lab.i:	prim.b prims2x.fs
-		$(FORTHB) prims2x.fs -e "c-flag on s\" prim.b\" ' output-label dup process-file bye" >$@-
+		$(FORTHP) prims2x.fs -e "c-flag on s\" prim.b\" ' output-label dup process-file bye" >$@-
 		$(CP) $@- $@
 		$(RM) $@-
 
 engine/peephole.i:	prim.b prims2x.fs
-		$(FORTHB) prims2x.fs -e "c-flag on s\" prim.b\" ' noop ' output-peephole process-file bye" >$@-
+		$(FORTHP) prims2x.fs -e "c-flag on s\" prim.b\" ' noop ' output-peephole process-file bye" >$@-
 		$(CP) $@- $@
 		$(RM) $@-
 
 engine/profile.i:	prim.b prims2x.fs
-		$(FORTHB) prims2x.fs -e "c-flag on s\" prim.b\" ' output-profile ' output-profile process-file bye" >$@-
+		$(FORTHP) prims2x.fs -e "c-flag on s\" prim.b\" ' output-profile ' output-profile process-file bye" >$@-
 		$(CP) $@- $@
 		$(RM) $@-
 
 kernel/aliases.fs:	prim.b prims2x.fs kernel/aliases0.fs
 		$(CP) kernel/aliases0.fs $@-
-		$(FORTHB) prims2x.fs -e "forth-flag on s\" prim.b\" ' output-alias dup process-file bye" >>$@-
+		$(FORTHP) prims2x.fs -e "forth-flag on s\" prim.b\" ' output-alias dup process-file bye" >>$@-
 		$(CP) $@- $@
 		$(RM) $@-
 
 kernel/prim.fs:	prim.b prims2x.fs kernel/prim0.fs
 		$(CP) kernel/prim0.fs kernel/prim.fs-
-		$(FORTHB) prims2x.fs -e "forth-flag on s\" prim.b\" ' output-forth ' output-forth-combined process-file bye" >>$@-
+		$(FORTHP) prims2x.fs -e "forth-flag on s\" prim.b\" ' output-forth ' output-forth-combined process-file bye" >>$@-
 		$(CP) $@- $@
 		$(RM) $@-
 
 kernel/peephole.fs:	prim.b prims2x.fs
-		$(FORTHB) prims2x.fs -e "forth-flag on s\" prim.b\" ' noop ' output-forth-peephole process-file bye" >$@-
+		$(FORTHP) prims2x.fs -e "forth-flag on s\" prim.b\" ' noop ' output-forth-peephole process-file bye" >$@-
 		$(CP) $@- $@
 		$(RM) $@-
 
@@ -678,8 +691,8 @@ gforth.TAGS:	@kernel_fi@ gforth$(EXE) $(GFORTH_FI_SRC) prim.TAGS kernel.TAGS
 prim.TAGS: 	prim.b prims2x.fs
 		#echo '2c\' >prim.TAGS.sed
 		#echo $(srcdir)/prim >>prim.TAGS.sed
-		#$(FORTHB) prims2x.fs -e "s\" $(srcdir)/prim.b\" ' output-tag dup process-file bye" | sed -f prim.TAGS.sed >$@-
-		$(FORTHB) prims2x.fs -e "s\" $(srcdir)/prim.b\" ' output-tag dup process-file bye" >$@-
+		#$(FORTHP) prims2x.fs -e "s\" $(srcdir)/prim.b\" ' output-tag dup process-file bye" | sed -f prim.TAGS.sed >$@-
+		$(FORTHP) prims2x.fs -e "s\" $(srcdir)/prim.b\" ' output-tag dup process-file bye" >$@-
 		$(CP) $@- $@
 		$(RM) $@-
 
@@ -694,7 +707,7 @@ doc/crossdoc.fd:	$(KERN_SRC) kernel/version.fs $(FORTH_GEN0)
 
 doc/gforth.texi:	doc/gforth.ds prim.b ds2texi.fs prims2x.fs \
 		doc/doc.fd doc/crossdoc.fd
-		$(FORTHB) ds2texi.fs prims2x.fs -e "s\" $(srcdir)/prim.b\" ' register-doc ' noop process-file" doc/crossdoc.fd doc/doc.fd -e "s\" $(srcdir)/doc/gforth.ds\" r/o open-file throw ds2texi bye" >$@-
+		$(FORTHP) ds2texi.fs prims2x.fs -e "s\" $(srcdir)/prim.b\" ' register-doc ' noop process-file" doc/crossdoc.fd doc/doc.fd -e "s\" $(srcdir)/doc/gforth.ds\" r/o open-file throw ds2texi bye" >$@-
 		$(CP) $@- $@
 		$(RM) $@-
 
@@ -749,7 +762,7 @@ stamp-h:	engine/config.h.in config.status
 		CONFIG_FILES=$@ CONFIG_HEADERS=engine/config.h ./config.status
 		echo timestamp > stamp-h
 
-Makefile Makedist engine/Makefile gforthmi machpc.fs:	Makefile.in Makedist.in engine/Makefile.in gforthmi.in machpc.fs.in config.status
+Makefile Makedist engine/Makefile gforthmi vmgen machpc.fs:	Makefile.in Makedist.in engine/Makefile.in gforthmi.in vmgen.in machpc.fs.in config.status
 		CONFIG_FILES="$@" CONFIG_HEADERS=engine/config.h ./config.status
 
 config.status:	configure

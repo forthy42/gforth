@@ -2369,8 +2369,6 @@ peephole-opt	( xt1 xt2 wpeeptable -- xt )	new	peephole_opt
 they cannot be combined, xt is 0.""
 xt = peephole_opt(xt1, xt2, wpeeptable);
 
-lit_plus = lit +
-
 call	( #a_callee -- R:a_retaddr )
 ""Call callee (a variant of docol with inline argument).""
 a_retaddr = (Cell *)IP;
@@ -2378,5 +2376,7 @@ SET_IP((Xt *)a_callee);
 
 useraddr	( #u -- a_addr )
 a_addr = (Cell *)(up+u);
+
+include(peeprules.vmg)
 
 \+
