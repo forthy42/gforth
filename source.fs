@@ -23,7 +23,7 @@
 \ this stuff is used by (at least) assert.fs and debugs.fs
 
 : loadfilename#>str ( n -- addr u )
-    included-files 2@ drop swap 2* cells + 2@ ;
+    included-files 2@ rot min 2* cells + 2@ ;
 
 : str>loadfilename# ( addr u -- n )
     included-files 2@ 0 ?do ( addr u included-files )

@@ -11536,6 +11536,13 @@ doc-~~
 doc-printdebugdata
 doc-.debugline
 
+@cindex filenames in @code{~~} output
+@code{~~} (and assertions) will usually print the wrong file name if a
+marker is executed in the same file after their occurance.  They will
+print @samp{*somewhere*} as file name if a marker is executed in the
+same file before their occurance.
+
+
 @node Assertions, Singlestep Debugger, Debugging, Programming Tools
 @subsection Assertions
 @cindex assertions
@@ -11598,6 +11605,12 @@ is produced and the execution is aborted (currently with @code{ABORT"}.
 If there is interest, we will introduce a special throw code. But if you
 intend to @code{catch} a specific condition, using @code{throw} is
 probably more appropriate than an assertion).
+
+@cindex filenames in assertion output
+Assertions (and @code{~~}) will usually print the wrong file name if a
+marker is executed in the same file after their occurance.  They will
+print @samp{*somewhere*} as file name if a marker is executed in the
+same file before their occurance.
 
 Definitions in ANS Forth for these assertion words are provided
 in @file{compat/assert.fs}.
