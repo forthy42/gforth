@@ -2205,7 +2205,7 @@ NoHeaderFlag off
 	ENDCASE
     LOOP ;
 
-Defer setup-execution-semantics
+Defer setup-execution-semantics  ' noop IS setup-execution-semantics
 0 Value lastghost
 
 : (THeader ( "name" -- ghost )
@@ -2615,7 +2615,7 @@ Cond: [ ( -- ) interpreting-state ;Cond
     r@ created >do:ghost ! r@ swap resolve
     r> tlastcfa @ >tempdp dodoes, tempdp> ;
 
-Defer instant-interpret-does>-hook
+Defer instant-interpret-does>-hook  ' noop IS instant-interpret-does>-hook
 
 T has? peephole H [IF]
 : does-resolved ( ghost -- )

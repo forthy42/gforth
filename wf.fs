@@ -161,7 +161,7 @@ Create jfif   $FF c, $D8 c, $FF c, $E0 c, $00 c, $10 c, $4A c, $46 c,
     gif? IF  gif-size  rdrop EXIT  THEN
     jpg? IF  r> jpg-size  EXIT  THEN
     png? IF  png-size  rdrop EXIT  THEN
-    0 0 ;
+    0 0 rdrop ;
 
 : .img-size ( addr u -- )
     r/o open-file IF  drop  EXIT  THEN  >r

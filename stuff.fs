@@ -289,6 +289,8 @@ AUser CSP
 
 \ defer stuff
 
+[ifundef] defer@ : defer@ >body @ ; [then]
+
 :noname    ' defer@ ;
 :noname    postpone ['] postpone defer@ ;
 interpret/compile: action-of ( interpretation "name" -- xt; compilation "name" -- ; run-time -- xt ) \ gforth
