@@ -66,7 +66,7 @@ create s-buf MAXSTRING allot
                 s-buf off ;
 
 : sspaces       ( n1 -- )
-                spcs swap s-buf +place ;
+                0 max spcs swap s-buf +place ;
 
 : sspace        ( -- )
                 1 sspaces ;
@@ -514,7 +514,7 @@ inh ud1 ud1
         r> 3 and ?dup
         if      1 =
                 if      imm16/32
-                else    .# count sext 0 .r>s sspace
+                else   .# count sext 0 .r>s sspace
                 then
         else    imm8
         then ;
@@ -1479,10 +1479,10 @@ ops  lok ??? rpz rep  hlt cmc F6. F6.  clc stc cli sti  cld std FE. FF.  \ F
                 s-buf count type
         else    dup dis-op
                 over base-addr - hex. ( 6 h.r ) space
-                dup rot
+                comment-col col s-buf count type ."  \ "
+		dup rot
                 2dup - $10 u> abort" decompiler error"
                 do i c@ hex. ( 2 h.n ) loop
-                comment-col col s-buf count type
         then    dup to next-inst ;
 
 forth definitions
@@ -1494,7 +1494,7 @@ forth definitions
     while
 	cr inst
     repeat
-    rdrop ;
+    cr rdrop ;
     
 ' disasm is discode
 
