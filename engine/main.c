@@ -859,7 +859,7 @@ void check_prims(Label symbols1[])
 	fprintf(stderr,"\n   non_reloc: K label before I label (length<0)\n");
       continue;
     }
-    assert(prim_len>=0); /* !! wrong if pi->superend */
+    assert(pi->length>=0);
     assert(pi->restlength >=0);
     while (j<(pi->length+pi->restlength)) {
       if (s1[j]==s3[j]) {
