@@ -93,7 +93,6 @@ End-Code
 
 Code execute	( xt -- ) \ execute colon definition
     'E dout,
-    rp -] , ip mov,             \ store IP on return stack
     temp1 , tos mov,
     tos , sp ]+ mov,
     Next1,
