@@ -346,6 +346,19 @@ int go_forth(Address image, int stack, Cell *entries)
   return((int)engine(ip0,sp0,rp0,fp0,lp0));
 }
 
+
+void print_sizes(Cell sizebyte)
+     /* print size information */
+{
+  static char* endianstring[]= { "   big","little" };
+  
+  fprintf(stderr,"%s endian, cell=%d bytes, char=%d bytes, au=%d bytes\n",
+	  endianstring[sizebyte & 1],
+	  1 << ((sizebyte >> 1) & 3),
+	  1 << ((sizebyte >> 3) & 3),
+	  1 << ((sizebyte >> 5) & 3));
+}
+
 #ifndef INCLUDE_IMAGE
 Address loader(FILE *imagefile, char* filename)
 /* returns the address of the image proper (after the preamble) */
@@ -359,7 +372,6 @@ Address loader(FILE *imagefile, char* filename)
   Label *symbols = engine(0,0,0,0,0);
   Cell data_offset = offset_image ? 56*sizeof(Cell) : 0;
   UCell check_sum;
-  static char* endianstring[]= { "big","little" };
   Cell ausize = ((RELINFOBITS ==  8) ? 0 :
 		 (RELINFOBITS == 16) ? 1 :
 		 (RELINFOBITS == 32) ? 2 : 3);
@@ -369,7 +381,13 @@ Address loader(FILE *imagefile, char* filename)
   Cell cellsize = ((sizeof(Cell) == 1) ? 0 :
 		   (sizeof(Cell) == 2) ? 1 :
 		   (sizeof(Cell) == 4) ? 2 : 3) + ausize;
-  
+  Cell sizebyte = (ausize << 5) + (charsize << 3) + (cellsize << 1) +
+#ifdef WORDS_BIGENDIAN
+       0
+#else
+       1
+#endif
+    ;
 
 #ifndef DOUBLY_INDIRECT
   check_sum = checksum(symbols);
@@ -388,37 +406,16 @@ Address loader(FILE *imagefile, char* filename)
   magic7 = magic[7];
   if (debug) {
     magic[7]='\0';
-    fprintf(stderr,"Magic found: %s %s endian, cell=%d bytes, char=%d bytes, au=%d bytes\n",
-	    magic,
-	    endianstring[magic7 & 1],
-	    1 << ((magic7 >> 1) & 3),
-	    1 << ((magic7 >> 3) & 3),
-	    1 << ((magic7 >> 5) & 3));
+    fprintf(stderr,"Magic found: %s ", magic);
+    print_sizes(magic7);
   }
 
-  if(magic7 != (ausize << 5) + (charsize << 3) + (cellsize << 1) +
-#ifdef WORDS_BIGENDIAN
-       0
-#else
-       1
-#endif
-       )
-    { fprintf(stderr,"This image is %d bit cell, %d bit char, %d bit address unit %s-endian,\n"
-	      "whereas the machine is %d bit cell, %d bit char, %d bit address unit, %s-endian.\n", 
-	      (1<<((magic7>>1)&3))*8,
-	      (1<<((magic7>>3)&3))*8,
-	      (1<<((magic7>>5)&3))*8,
-	      endianstring[magic7&1],
-	      (1<<cellsize)*8,
-	      (1<<charsize)*8,
-	      (1<<ausize)*8,
-	      endianstring[
-#ifdef WORDS_BIGENDIAN
-		      0
-#else
-		      1
-#endif
-		      ]);
+  if (magic7 != sizebyte)
+    {
+      fprintf(stderr,"This image is:         ");
+      print_sizes(magic7);
+      fprintf(stderr,"whereas the machine is ");
+      print_sizes(sizebyte);
       exit(-2);
     };
 
