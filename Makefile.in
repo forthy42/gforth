@@ -115,6 +115,8 @@ CVSDIRS = CVS engine/CVS kernel/CVS doc/CVS asm/CVS ec/CVS test/CVS \
 	arch/8086/CVS arch/avr/CVS arch/c165/CVS arch/h8/CVS \
 	arch/shboom/CVS \
 
+INCLUDES = engine/forth.h engine/threaded.h engine/io.h
+
 KERN_SRC = \
 	kernel/aliases0.fs \
 	kernel/aliases.fs \
@@ -228,6 +230,76 @@ GFORTH_TEXI =  doc/gforth.texi doc/version.texi
 
 ALLSUBDIRS = engine
 
+ARCHS =	\
+	arch/generic/machine.h \
+	arch/m68k/machine.h \
+	arch/mips/machine.h \
+	arch/386/machine.h \
+	arch/hppa/machine.h \
+	arch/hppa/cache.c \
+	arch/sparc/machine.h \
+	arch/power/machine.h \
+	arch/power/_sync_cache_range.c \
+	arch/alpha/machine.h \
+	arch/4stack/README \
+	arch/4stack/asm.fs \
+	arch/4stack/mach.fs \
+	arch/4stack/prim.fs \
+	arch/4stack/mach.sh \
+	arch/4stack/relocate.fs \
+	arch/misc/README \
+	arch/misc/asm.fs \
+	arch/misc/mach.fs \
+	arch/misc/prim.fs \
+	arch/misc/sim.fs \
+	arch/misc/sokoban.fs \
+	arch/misc/tt.fs \
+	arch/6502/asm.fs \
+	arch/6502/prim.fs \
+	arch/6502/mach.fs \
+	arch/6502/zero.fs \
+	arch/6502/softuart.fs \
+	arch/6502/cold.fs \
+	arch/8086/asm.fs \
+	arch/8086/mach.fs \
+	arch/8086/mach.sh \
+	arch/8086/prim.fs \
+	arch/avr/asm.fs \
+	arch/c165/asm.fs \
+	arch/c165/mach.fs \
+	arch/c165/prim.fs \
+	arch/h8/asm.fs \
+	arch/shboom/asm.fs \
+	arch/shboom/compiler.fs \
+	arch/shboom/dis.fs \
+	arch/shboom/mach.fs \
+	arch/shboom/prim.fs \
+	arch/shboom/dis2.fs \
+	arch/shboom/sh.p \
+	arch/shboom/doers.fs
+
+SOURCES	= $(CVSDIRS) compat Makefile.in Makedist.in engine/Makefile.in gforthmi.in \
+	configure.in configure config.sub config.guess elisp-comp missing \
+	acconfig.h acinclude.m4 engine/config.h.in stamp-h.in \
+	install-sh INSTALL INSTALL.BINDIST NEWS README ToDo BUGS model \
+	COPYING AUTHORS ChangeLog Benchres aclocal.m4 \
+	doc/gforth.ds doc/texinfo.tex doc/gforth.1 doc/version.texi.in \
+	gforth.el \
+	prim engine/engine.c engine/main.c engine/io.c engine/memcmpc.c \
+	$(ARCHS) \
+	engine/getopt.c engine/getopt1.c engine/getopt.h engine/select.c \
+	engine/ecvt.c engine/memcmp.c engine/strtol.c engine/strtoul.c \
+	engine/ansidecl.h engine/memmove.c \
+	engine/pow10.c engine/atanh.c engine/cleanalign.c \
+	engine/strerror.c engine/strsignal.c engine/dblsub.c \
+	INSTALL.DOS makefile.dos engine/makefile.dos mkdosmf.sed config.bat \
+	dosconf.h gforthmi.bat mkinstalldirs \
+	versions.bsh \
+	configure.cmd mkos2mf.sed os2conf.h makefile.os2 engine/makefile.os2 \
+	gforthmi.cmd glosgen.glo doc/glossaries.doc \
+	$(INCLUDES) $(FORTH_SRC) $(COMPAT) \
+	timings.sc
+
 RCS_FILES =  ToDo model high-level
 
 GEN = gforth$(EXE) gforth-ditc$(EXE) kernel/version.fs version-stamp
@@ -242,7 +314,7 @@ FORTH_GEN1 = $(FORTH_GEN0) @kernel_fi@
 DOCDIST = doc/gforth.info doc/gforth.info-* doc/gforth.txt doc/gforth.ps
 
 #stuff in a binonly distribution 
-BINONLYDIST = config.status Makefile gforth$(EXE) gforth-ditc$(EXE) \
+BINONLYDIST = config.status Makefile Makedist gforth$(EXE) gforth-ditc$(EXE) \
 	$(OBJECTS0) $(OBJECTS) $(OBJECTS_DITC)\
 	arch/$(machine)/machine.h engine/config.h engine/Makefile \
 	stamp-h kernel/version.fs version-stamp \
@@ -319,29 +391,33 @@ virtualclean:	mostlyclean
 		-$(RM) -rf gforth.fns gforth.texi gforth.ps gforth.info* \
 		gforth-$(VERSION).tar.gz config.cache *~ */*~
 
-dist:		
-		$(MAKE) -f Makedist $@
+#Some makes (Ultrix, SunOS, IRIX) are so broken, they cannot read the
+#Makefile if it contains our dist rules.  Therefore we have put these
+#rules in Makedist (you can use them with GNU make on these systems).
+dist:		Makedist 
+		$(MAKE) -f Makedist d$@
 
-dosdist:	
-		$(MAKE) -f Makedist $@
+dosdist:	Makedist 
+		$(MAKE) -f Makedist d$@
 
-srcdist:	
-		$(MAKE) -f Makedist $@
+srcdist:	Makedist 
+		$(MAKE) -f Makedist d$@
 
-srconlydist:	
-		$(MAKE) -f Makedist $@
+srconlydist:	Makedist 
+		$(MAKE) -f Makedist d$@
 
-docdist:	
-		$(MAKE) -f Makedist $@
+docdist:	Makedist 
+		$(MAKE) -f Makedist d$@
 
-htmldist:	
-		$(MAKE) -f Makedist $@
+htmldist:	Makedist 
+		$(MAKE) -f Makedist d$@
 
-bindist:	
-		$(MAKE) -f Makedist $@
+bindist:	Makedist 
+		$(MAKE) -f Makedist d$@
 
-binonlydist:
-		$(MAKE) -f Makedist $@
+binonlydist:	Makedist
+		$(MAKE) -f Makedist d$@
+
 
 #strip gforth, because the debugging stuff is hardly useful once
 # gforth manages to execute more than a few primitives
@@ -600,10 +676,7 @@ stamp-h:	engine/config.h.in config.status
 		CONFIG_FILES=$@ CONFIG_HEADERS=engine/config.h ./config.status
 		echo timestamp > stamp-h
 
-Makefile:	Makefile.in engine/Makefile.in config.status
-		CONFIG_FILES="$@ Makedist engine/$@" CONFIG_HEADERS=engine/config.h ./config.status
-
-gforthmi:	gforthmi.in config.status
+Makefile Makedist engine/Makefile gforthmi:	Makefile.in Makedist.in engine/Makefile.in gforthmi.in config.status
 		CONFIG_FILES="$@" CONFIG_HEADERS=engine/config.h ./config.status
 
 config.status:	configure

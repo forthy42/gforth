@@ -1,209 +1,28 @@
-# Makefile for distribution
+#make dist targets (workaround for broken makes)
+#use GNU make if your make does not grok this.
 
-ARCHS =	arch/generic/machine.h \
-	arch/m68k/machine.h \
-	arch/mips/machine.h \
-	arch/386/machine.h \
-	arch/hppa/machine.h \
-	arch/hppa/cache.c \
-	arch/sparc/machine.h \
-	arch/power/machine.h \
-	arch/power/_sync_cache_range.c \
-	arch/alpha/machine.h \
-	arch/4stack/README \
-	arch/4stack/asm.fs \
-	arch/4stack/mach.fs \
-	arch/4stack/prim.fs \
-	arch/4stack/mach.sh \
-	arch/4stack/relocate.fs \
-	arch/misc/README \
-	arch/misc/asm.fs \
-	arch/misc/mach.fs \
-	arch/misc/prim.fs \
-	arch/misc/sim.fs \
-	arch/misc/sokoban.fs \
-	arch/misc/tt.fs \
-	arch/6502/asm.fs \
-	arch/6502/prim.fs \
-	arch/6502/mach.fs \
-	arch/6502/zero.fs \
-	arch/6502/softuart.fs \
-	arch/6502/cold.fs \
-	arch/8086/asm.fs \
-	arch/8086/mach.fs \
-	arch/8086/mach.sh \
-	arch/8086/prim.fs \
-	arch/avr/asm.fs \
-	arch/c165/asm.fs \
-	arch/c165/mach.fs \
-	arch/c165/prim.fs \
-	arch/h8/asm.fs \
-	arch/shboom/asm.fs \
-	arch/shboom/compiler.fs \
-	arch/shboom/dis.fs \
-	arch/shboom/mach.fs \
-	arch/shboom/prim.fs \
-	arch/shboom/dis2.fs \
-	arch/shboom/sh.p \
-	arch/shboom/doers.fs
+#Copyright (C) 1995,1996,1997,1998 Free Software Foundation, Inc.
 
-SOURCES_REST	= compat Makefile.in Makedist.in engine/Makefile.in gforthmi.in \
-	configure.in configure config.sub config.guess elisp-comp missing \
-	acconfig.h acinclude.m4 engine/config.h.in stamp-h.in \
-	install-sh INSTALL INSTALL.BINDIST NEWS README ToDo BUGS model \
-	COPYING AUTHORS ChangeLog Benchres aclocal.m4 \
-	doc/gforth.ds doc/texinfo.tex doc/gforth.1 doc/version.texi.in \
-	gforth.el \
-	prim engine/engine.c engine/main.c engine/io.c engine/memcmpc.c \
-	engine/getopt.c engine/getopt1.c engine/getopt.h engine/select.c \
-	engine/ecvt.c engine/memcmp.c engine/strtol.c engine/strtoul.c \
-	engine/ansidecl.h engine/memmove.c \
-	engine/pow10.c engine/atanh.c engine/cleanalign.c \
-	engine/strerror.c engine/strsignal.c engine/dblsub.c \
-	INSTALL.DOS makefile.dos engine/makefile.dos mkdosmf.sed config.bat \
-	dosconf.h gforthmi.bat mkinstalldirs \
-	versions.bsh \
-	configure.cmd mkos2mf.sed os2conf.h makefile.os2 engine/makefile.os2 \
-	gforthmi.cmd glosgen.glo doc/glossaries.doc \
-	timings.sc
+#This file is part of Gforth.
 
-CVSDIRS = CVS engine/CVS kernel/CVS doc/CVS asm/CVS ec/CVS test/CVS \
-	compat/CVS \
-	arch/CVS arch/generic/CVS arch/m68k/CVS arch/mips/CVS \
-	arch/386/CVS arch/hppa/CVS arch/sparc/CVS arch/power/CVS \
-	arch/alpha/CVS arch/4stack/CVS arch/misc/CVS arch/6502/CVS \
-	arch/8086/CVS arch/avr/CVS arch/c165/CVS arch/h8/CVS \
-	arch/shboom/CVS \
+#Gforth is free software; you can redistribute it and/or
+#modify it under the terms of the GNU General Public License
+#as published by the Free Software Foundation; either version 2
+#of the License, or (at your option) any later version.
 
-INCLUDES = engine/forth.h engine/threaded.h engine/io.h
+#This program is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.#See the
+#GNU General Public License for more details.
 
-KERN_SRC = \
-	kernel/aliases0.fs \
-	kernel/aliases.fs \
-	kernel/args.fs \
-	chains.fs \
-	kernel/cond.fs \
-	kernel/cond-old.fs \
-	cross.fs \
-	kernel/errore.fs \
-	kernel/files.fs \
-	kernel/require.fs \
-	kernel/paths.fs \
-	kernel/kernel.fs \
-	kernel/main.fs \
-	kernel/prim0.fs \
-	search.fs \
-	kernel/special.fs \
-	kernel/tools.fs \
-	kernel/toolsext.fs \
-	kernel/vars.fs \
-	kernel/accept.fs \
-	kernel/basics.fs \
-	kernel/int.fs \
-	kernel/comp.fs \
-	kernel/io.fs \
-	kernel/license.fs \
-	kernel/nio.fs \
-	kernel/saccept.fs \
-	kernel/doers.fs \
-	kernel/getdoers.fs
+#You should have received a copy of the GNU General Public License
+#along with this program; if not, write to the Free Software
+#Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-EC_SRC = \
-	asm/README \
-	asm/bitmask.fs \
-	asm/numref.fs \
-	asm/basic.fs \
-	asm/generic.fs \
-	asm/target.fs \
-	ec/README \
-	ec/mirror.fs \
-	ec/mirrors.fs \
-	ec/shex.fs \
-	ec/builttag.fs \
-	ec/dotx.fs \
-	ec/mirrored.fs \
-	ec/nesting.fs
-
-GFORTH_FI_SRC = \
-	assert.fs \
-	blocked.fb \
-	blocks.fs \
-	bufio.fs \
-	debug.fs \
-	debugs.fs \
-	savesys.fs \
-	environ.fs \
-	errors.fs \
-	extend.fs \
-	float.fs \
-	glocals.fs \
-	hash.fs \
-	history.fs \
-	intcomp.fs \
-	locals.fs \
-	look.fs \
-	search.fs \
-	see.fs \
-	see-ext.fs \
-	source.fs \
-	startup.fs \
-	struct.fs \
-	stuff.fs \
-	tasker.fs \
-	termsize.fs \
-	vt100.fs \
-	vt100key.fs \
-	wordinfo.fs \
-	lib.fs \
-	sieve.fs \
-	add.fs
-
-FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_SRC) $(EC_SRC) \
-	ans-report.fs ansi.fs answords.fs \
-	code.fs colorize.fs comp-i.fs \
-	doskey.fs ds2texi.fs \
-	envos.fs envos.dos envos.os2 etags.fs filedump.fs fi2c.fs \
-	glosgen.fs gray.fs \
-	doc/makedoc.fs \
-	mach16b.fs mach16l.fs mach32b.fs mach32l.fs mach64b.fs mach64l.fs \
-	machpc.fs more.fs other.fs prims2x.fs random.fs \
-	siteinit.fs table.fs \
-	tt.fs sokoban.fs \
-	unbuffered.fs wordsets.fs \
-	test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs \
-	test/other.fs test/checkans.fs \
-	bubble.fs siev.fs matrix.fs fib.fs \
-	oof.fs oofsampl.fs objects.fs objexamp.fs mini-oof.fs moof-exm.fs
-
-COMPAT = compat/README \
-	compat/anslocal.fs \
-	compat/assert.fs \
-	compat/control.fs \
-	compat/defer.fs \
-	compat/exception.fs \
-	compat/loops.fs \
-	compat/required.fs \
-	compat/struct.fs \
-	compat/vocabulary.fs
-
-SOURCES = $(CVSDIRS) $(SOURCES_REST) $(ARCHS) $(INCLUDES) $(FORTH_SRC) $(COMPAT)
-
-cvsdirs:	$(CVSDIRS)
-
-sources-rest:	$(SOURCES_REST)
-
-archs:		$(ARCHS)
-
-includes:	$(INCLUDES)
-
-forth-src:	$(FORTH_SRC)
-
-compat:		$(COMPAT)
-
-sources:	cvsdirs sources-rest archs includes forth-src compat
+include Makefile
 
 #use dist targets only when srcdir=.
-dist:		sources $(FORTH_GEN0) @KERNEL@ $(DOCDIST)
+ddist:		$(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST)
 		-$(RMTREE) gforth-$(VERSION)
 		mkdir gforth-$(VERSION)
 		$(TAR) $(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST) | \
@@ -212,7 +31,7 @@ dist:		sources $(FORTH_GEN0) @KERNEL@ $(DOCDIST)
 		-$(RMTREE) gforth-$(VERSION)
 
 #use dist targets only when srcdir=.
-dosdist:	sources $(FORTH_GEN0) @KERNEL@ $(DOCDIST)
+ddosdist:	$(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST)
 		-$(RMTREE) gforth.$(DOSVERSION)
 		mkdir gforth.$(DOSVERSION)
 		$(TAR) $(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST) | \
@@ -226,7 +45,7 @@ dosdist:	sources $(FORTH_GEN0) @KERNEL@ $(DOCDIST)
 
 #A source distribution contains only the things needed to install gforth,
 #without the documents.
-srcdist:	sources $(FORTH_GEN0) @KERNEL@
+dsrcdist:	$(SOURCES) $(FORTH_GEN0) @KERNEL@
 		-$(RMTREE) gforth-$(VERSION)
 		mkdir gforth-$(VERSION)
 		$(TAR) $(SOURCES) $(FORTH_GEN0) @KERNEL@ | \
@@ -234,7 +53,7 @@ srcdist:	sources $(FORTH_GEN0) @KERNEL@
 		$(TAR) gforth-$(VERSION)|gzip -9 >gforth-src-$(VERSION).tar.gz
 		-$(RMTREE) gforth-$(VERSION)
 
-srconlydist:	sources
+dsrconlydist:	$(SOURCES)
 		-$(RMTREE) gforth-$(VERSION)
 		mkdir gforth-$(VERSION)
 		$(TAR) $(SOURCES) | \
@@ -244,20 +63,20 @@ srconlydist:	sources
 
 #A document distribution contains only the documents, which can be created
 #with MAKE.
-docdist:	$(DOCDIST)
+ddocdist:	$(DOCDIST)
 		-$(RMTREE) gforth-$(VERSION)
 		mkdir gforth-$(VERSION)
 		$(TAR) $(DOCDIST) | (cd gforth-$(VERSION); tar xf -)
 		$(TAR) gforth-$(VERSION)|gzip -9 >gforth-doc-$(VERSION).tar.gz
 		-$(RMTREE) gforth-$(VERSION)
 
-htmldist:	html
+dhtmldist:	html
 		$(TAR) html|gzip -9 >gforth-html-$(VERSION).tar.gz
 
 #a binary distribution contains the complete source distribution,
 # the objects, the executable and the links. the objects are there for making
 # make happy.
-bindist:	sources $(FORTH_GEN0) @KERNEL@ $(DOCDIST) $(BINONLYDIST)
+dbindist:	$(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST) $(BINONLYDIST)
 		-$(RMTREE) gforth-$(VERSION)
 		mkdir gforth-$(VERSION)
 		$(TAR) $(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST) $(BINONLYDIST) | (cd gforth-$(VERSION); tar xf -)
@@ -271,11 +90,9 @@ bindist:	sources $(FORTH_GEN0) @KERNEL@ $(DOCDIST) $(BINONLYDIST)
 #all the binonly packages you are interested in on the disk. The user
 #then just has to unpack the source and his favourite binonly into the
 #same directory and has a full binary distribution.
-binonlydist:	sources $(FORTH_GEN0) @KERNEL@ $(DOCDIST) $(BINONLYDIST)
+dbinonlydist:	$(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST) $(BINONLYDIST)
 		-$(RMTREE) gforth-$(VERSION)
 		mkdir gforth-$(VERSION)
 		$(TAR) $(BINONLYDIST) | (cd gforth-$(VERSION); tar xf -)
 		strip gforth-$(VERSION)/gforth
 		$(TAR) gforth-$(VERSION)|gzip -9 >gforth-$(VERSION)-binonly-@host@.tar.gz
-
-

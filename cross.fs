@@ -1956,8 +1956,8 @@ previous
 >CROSS
 Create magic  s" Gforth2x" here over allot swap move
 
-bigendian
-tcell 1 = 0 and
+bigendian 1+ \ strangely, in magic big=0, little=1
+tcell 1 = 0 and or
 tcell 2 = 2 and or
 tcell 4 = 4 and or
 tcell 8 = 6 and or
