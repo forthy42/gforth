@@ -678,7 +678,10 @@ doc:		doc/gforth.ps html doc/gforth.txt
 
 # For an explanation of the following Makefile rules, see node
 # `Automatic Remaking' in GNU Autoconf documentation.
-$(srcdir)/configure:	configure.in aclocal.m4
+
+#Note: no target "$(srcdir)/configure", because that does not trigger 
+#unless $(srcdir)!="."
+configure:	configure.in aclocal.m4
 		cd $(srcdir) && autoconf
 
 aclocal.m4:	acinclude.m4 configure.in
