@@ -1,49 +1,5 @@
 \ definitions needed for interpreter / compiler only
 
-doer? :docon [IF]
-: docon: ( -- addr )	\ gforth
-    \G the code address of a @code{CONSTANT}
-    ['] bl >code-address ;
-[THEN]
-
-: docol: ( -- addr )	\ gforth
-    \G the code address of a colon definition
-    ['] docol: >code-address ;
-
-doer? :dovar [IF]
-: dovar: ( -- addr )	\ gforth
-    \G the code address of a @code{CREATE}d word
-    \ in rom-applications variable might be implemented with constant
-    \ use really a created word!
-    ['] ??? >code-address ;
-[THEN]
-
-doer? :douser [IF]
-: douser: ( -- addr )	\ gforth
-    \G the code address of a @code{USER} variable
-    ['] sp0 >code-address ;
-[THEN]
-
-doer? :dodefer [IF]
-: dodefer: ( -- addr )	\ gforth
-    \G the code address of a @code{defer}ed word
-    ['] source >code-address ;
-[THEN]
-
-doer? :dofield [IF]
-: dofield: ( -- addr )	\ gforth
-    \G the code address of a @code{field}
-    ['] reveal-method >code-address ;
-[THEN]
-
-.( test1 )
-has-prims 0= [IF]
-: dodoes: ( -- addr )	\ gforth
-    \G the code address of a @code{field}
-    ['] spaces >code-address ;
-.( test2 )
-[THEN]
-
 \ here allot , c, A,                                   17dec92py
 
 : allot ( n -- ) \ core
@@ -160,6 +116,21 @@ Defer source ( -- addr count ) \ core
     bl word char+ c@ ;
 : [char] ( compilation 'char' -- ; run-time -- n )
     char postpone Literal ; immediate restrict
+
+\ threading                                   17mar93py
+
+: cfa,     ( code-address -- )  \ gforth	cfa-comma
+    here
+    dup lastcfa !
+    0 A, 0 ,  code-address! ;
+: compile, ( xt -- )	\ core-ext	compile-comma
+    A, ;
+: !does    ( addr -- ) \ gforth	store-does
+    lastxt does-code! ;
+: (does>)  ( R: addr -- )
+    r> cfaligned /does-handler + !does ;
+: dodoes,  ( -- )
+  cfalign here /does-handler allot does-handler! ;
 
 : (compile) ( -- ) \ gforth
     r> dup cell+ >r @ compile, ;
@@ -448,21 +419,6 @@ const Create ???  0 , 3 c, char ? c, char ? c, char ? c,
 
 : body> 0 >body - ;
 
-\ threading                                   17mar93py
-
-: cfa,     ( code-address -- )  \ gforth	cfa-comma
-    here
-    dup lastcfa !
-    0 A, 0 ,  code-address! ;
-: compile, ( xt -- )	\ core-ext	compile-comma
-    A, ;
-: !does    ( addr -- ) \ gforth	store-does
-    lastxt does-code! ;
-: (does>)  ( R: addr -- )
-    r> cfaligned /does-handler + !does ;
-: dodoes,  ( -- )
-  cfalign here /does-handler allot does-handler! ;
-
 doer? :dovar [IF]
 : Create ( "name" -- ) \ core
     Header reveal dovar: cfa, ;
@@ -604,9 +560,6 @@ struct
     cell% field interpret/compile-int
     cell% field interpret/compile-comp
 end-struct interpret/compile-struct
-
-: interpret/compile? ( xt -- flag )
-    >does-code ['] S" >does-code = ;
 
 : (cfa>int) ( cfa -- xt )
     dup interpret/compile?
@@ -944,6 +897,7 @@ DEFER DOERROR
 [ [THEN] ] ;
 
 defer bootmessage
+defer process-args
 
 ' (bootmessage) IS bootmessage
 

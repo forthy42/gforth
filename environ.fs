@@ -31,6 +31,10 @@ Create environment-wordlist  wordlist drop
 
 : e? name environment? ; immediate
 
+: has? name environment? IF ELSE false THEN ;
+
+: $has? environment? IF ELSE false THEN ;
+
 environment-wordlist set-current
 get-order environment-wordlist swap 1+ set-order
 

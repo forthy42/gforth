@@ -28,8 +28,10 @@ HEX
 
 \ Aliases
 
+[IFUNDEF] r@
 ' i Alias r@ ( -- w ; R: w -- w ) \ core r-fetch
 \G copy w from the return stack to the data stack
+[THEN]
 
 \ !! this is machine-dependent, but works on all but the strangest machines
 
@@ -50,8 +52,14 @@ HEX
 
 \ UNUSED                                                17may93jaw
 
+has? ec 
+[IF]
+unlock ram-dictionary area nip lock
+Constant dictionary-end
+[ELSE]
 : dictionary-end ( -- addr )
     forthstart [ 3 cells ] Aliteral @ + ;
+[THEN]
 
 : unused ( -- u ) \ core-ext
     dictionary-end here - [ word-pno-size pad-minsize + ] Literal - ;
@@ -65,6 +73,7 @@ HEX
 
 \ on off                                               23feb93py
 
+\ on is used by docol:
 : on  ( addr -- ) \ gforth
     true  swap ! ;
 : off ( addr -- ) \ gforth

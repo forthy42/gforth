@@ -47,7 +47,7 @@ Variable argc ( -- addr ) \ gforth
 	r> >tib +!  2 EXIT  THEN
     ." Unknown option: " type cr 2drop 1 ;
 
-: process-args ( -- )
+: (process-args) ( -- )
     true to script?
     >tib @ >r
     argc @ 1
@@ -64,3 +64,4 @@ Variable argc ( -- addr ) \ gforth
     false to script?
 ;
 
+' (process-args) IS process-args

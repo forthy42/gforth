@@ -44,23 +44,34 @@ decimal
 
 \ !!! nicht optimal!
 [IFUNDEF] look
-[IFUNDEF] dictionary-end  has-rom [ELSE] false [THEN]
-[IF]
+has? ec [IF]
 
+has-rom 
+[IF]
+: look
+    dup [ unlock rom-dictionary area lock ] 
+    literal literal within
+    IF
+	>name dup ?? <>
+    ELSE
+	forth-wordlist @ (look)
+    THEN ;
+[ELSE]
 : look ( cfa -- lfa flag )
-  forth-wordlist @ (look) ;
+    >name dup ??? <> ;
+[THEN]
 
 [ELSE]
 
 : PrimStart ['] true >name ;
 
 : look ( cfa -- lfa flag )
-        dup dictionary-end forthstart within
-	IF
-	    PrimStart (look)
-	ELSE
-	    >name dup ??? <>
-	THEN ;
+    dup dictionary-end forthstart within
+    IF
+	PrimStart (look)
+    ELSE
+	>name dup ??? <>
+    THEN ;
 
 [THEN]
 [THEN]

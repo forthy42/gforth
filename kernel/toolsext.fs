@@ -1,5 +1,3 @@
-\ Interpretative Structuren                            16feb92py
-
 \ Copyright (C) 1995 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -18,6 +16,7 @@
 \ along with this program; if not, write to the Free Software
 \ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+Warnings off
 
 Variable countif
 
@@ -95,3 +94,4 @@ User (i)
   0= IF   postpone [ELSE] true rdrop rdrop 1 countif +!  THEN ;
                                                       immediate
 
+Warnings on

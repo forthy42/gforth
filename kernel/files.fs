@@ -67,6 +67,8 @@
 
 \ additional words only needed if there is file support
 
+Warnings off
+
 : ( ( compilation 'ccc<close-paren>' -- ; run-time -- ) \ core,file	paren
     loadfile @ 0= IF  postpone (  EXIT  THEN
     BEGIN
@@ -84,3 +86,4 @@
 	THEN
     REPEAT ; immediate
 
+Warnings on
