@@ -922,8 +922,8 @@ stack inst-stream IP Cell
 : output-alias ( -- ) 
     ( primitive-number @ . ." alias " ) ." Primitive " prim prim-name 2@ type cr ;
 
-: output-prim-num ( -- )
-    prim prim-num @ 8 + 4 .r space prim prim-name 2@ type cr ;
+: output-c-prim-num ( -- )
+    ." #define N_" prim prim-c-name 2@ type prim prim-num @ 8 + 4 .r cr ;
 
 : output-forth ( -- )  
     prim prim-forth-code @ 0=

@@ -81,7 +81,9 @@ char *progname = "gforth";
 int optind = 1;
 #endif
 
+#define CODE_BLOCK_SIZE (1024*1024)
 Address code_area=0;
+Cell code_area_size = CODE_BLOCK_SIZE;
 Address code_here=0; /* does for code-area what HERE does for the dictionary */
 Address start_flush=0; /* start of unflushed code */
 
@@ -370,7 +372,7 @@ void alloc_stacks(ImageHeader * header)
   header->fp_stack_base=my_alloc(fsize);
   header->return_stack_base=my_alloc(rsize);
   header->locals_stack_base=my_alloc(lsize);
-  code_here = start_flush = code_area = my_alloc(dictsize);
+  code_here = start_flush = code_area = my_alloc(code_area_size);
 }
 
 #warning You can ignore the warnings about clobbered variables in go_forth
@@ -563,15 +565,8 @@ struct doesexecinfo {
   Cell *xt; /* cfa of word whose does-code needs calling */
 } doesexecinfos[10000];
 
-#define N_EXECUTE 10
-#define N_PERFORM 11
-#define N_LIT_PERFORM 337
-#define N_CALL 333
-#define N_DOES_EXEC 339
-#define N_LIT 9
-#define N_CALL2 362
-#define N_ABRANCH 341
-#define N_SET_NEXT_CODE 361
+/* definitions of N_execute etc. */
+#include "prim_num.i"
 
 void set_rel_target(Cell *source, Label target)
 {
@@ -599,7 +594,7 @@ Cell *compile_prim1arg(Cell p)
 Cell *compile_call2(Cell targetptr)
 {
   Cell *next_code_target;
-  PrimInfo *pi = &priminfos[N_CALL2];
+  PrimInfo *pi = &priminfos[N_call2];
 
   memcpy(code_here, pi->start, pi->length);
   next_code_target = (Cell *)(code_here + pi->immargs[0].offset);
@@ -653,14 +648,14 @@ void compile_prim1(Cell *start)
     Cell *next_code_target=NULL;
 
     assert(i<npriminfos);
-    if (i==N_EXECUTE||i==N_PERFORM||i==N_LIT_PERFORM) {
-      next_code_target = compile_prim1arg(N_SET_NEXT_CODE);
+    if (i==N_execute||i==N_perform||i==N_lit_perform) {
+      next_code_target = compile_prim1arg(N_set_next_code);
     }
-    if (i==N_CALL) {
+    if (i==N_call) {
       next_code_target = compile_call2(last_start[1]);
-    } else if (i==N_DOES_EXEC) {
+    } else if (i==N_does_exec) {
       struct doesexecinfo *dei = &doesexecinfos[ndoesexecinfos++];
-      *compile_prim1arg(N_LIT) = (Cell)PFA(last_start[1]);
+      *compile_prim1arg(N_lit) = (Cell)PFA(last_start[1]);
       /* we cannot determine the callee now (last_start[1] may be a
          forward reference), so just register an arbitrary target, and
          register in dei that we need to fix this before resolving
@@ -669,8 +664,8 @@ void compile_prim1(Cell *start)
       dei->xt = (Cell *)(last_start[1]);
       next_code_target = compile_call2(NULL);
     } else if (pi->start == NULL) { /* non-reloc */
-      next_code_target = compile_prim1arg(N_SET_NEXT_CODE);
-      set_rel_target(compile_prim1arg(N_ABRANCH),*(Xt)last_prim);
+      next_code_target = compile_prim1arg(N_set_next_code);
+      set_rel_target(compile_prim1arg(N_abranch),*(Xt)last_prim);
     } else {
       unsigned j;
 

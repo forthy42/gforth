@@ -98,7 +98,7 @@ OBJECTS_FI =  engine.o main-fi.o
 # our engine, so we can make life easy
 DEPS =  config.h *.h $(srcdir)/../arch/$(machine)/*.[h]
 ENGINE_DEPS = engine.b.c $(DEPS) prim_lab.i prim.i
-MAIN_DEPS = main.c $(DEPS) prim_superend.i
+MAIN_DEPS = main.c $(DEPS) prim_superend.i prim_num.i
 
 #some makes don't do the -o $@ correctly, so we help them
 .c.o:
