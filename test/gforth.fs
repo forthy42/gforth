@@ -31,3 +31,12 @@ require ./coretest.fs
 {    999.9994e 7 3 1 f>str-rdp s" 999.999" str= -> true }
 {    999.9996e 7 3 1 f>str-rdp s" 1.000E3" str= -> true }
 {       -1e-20 5 2 1 f>str-rdp s" *****"   str= -> true }
+
+\ 0x hex number conversion, or not
+
+decimal
+{ 0x10 -> 16 }
+{ 0X10 -> 16 }
+36 base !
+{ 0x10 -> x10 }
+decimal

@@ -109,6 +109,11 @@ const Create bases   0A , 10 ,   2 ,   0A , 100 ,
 
 \ !! protect BASE saving wrapper against exceptions
 : getbase ( addr u -- addr' u' )
+    2dup s" 0x" string-prefix? >r
+    2dup s" 0X" string-prefix? r> or
+    base @ #33 < and if
+	hex 2 /string
+    endif
     over c@ [char] # - dup 5 u<
     IF
 	cells bases + @ base ! 1 /string
