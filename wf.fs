@@ -37,11 +37,20 @@ Variable indentlevel
 Variable tag-option
 s" " tag-option $!
 
+: .type ( addr u -- )
+    bounds ?DO  I c@
+	case
+	    '& of  ." &amp;"  endof
+	    '< of  ." &lt;"   endof
+	    dup emit
+	endcase
+    LOOP ;
+
 : tag ( addr u -- ) '< emit type tag-option $@ type '> emit
     s" " tag-option $! ;
 : tag/ ( addr u -- )  s"  /" tag-option $+! tag ;
 : /tag ( addr u -- ) '< emit '/ emit type '> emit ;
-: tagged ( addr1 u1 addr2 u2 -- )  2dup 2>r tag type 2r> /tag ;
+: tagged ( addr1 u1 addr2 u2 -- )  2dup 2>r tag .type 2r> /tag ;
 
 : opt ( addr u opt u -- )  s"  " tag-option $+!
     tag-option $+! s' ="' tag-option $+! tag-option $+!
@@ -243,19 +252,13 @@ s" Gforth" environment? [IF] s" 0.5.0" str= [IF]
 \ line handling
 
 : char? ( -- c )  >in @ char swap >in ! ;
+
 : parse-tag ( addr u char -- )
-    >r r@ parse type
+    >r r@ parse .type
     r> parse 2swap tagged ;
 
 : .text ( -- ) 	>in @ >r char drop
-    source r@ /string >in @ r> - nip
-    bounds ?DO  I c@
-	case
-	    '& of  ." &amp;"  endof
-	    '< of  ." &lt;"   endof
-	    dup emit
-	endcase
-    LOOP ;
+    source r@ /string >in @ r> - nip .type ;
 
 Create do-words  $100 0 [DO] ' .text , [LOOP]
 
@@ -502,11 +505,11 @@ Variable css-file
     s" Content-Type" s" http-equiv" opt
     s" text/xhtml; charset=iso-8859-1" s" content" opt
     s" meta" tag/
-    css-file @ IF css-file $@len IF
+    css-file @ IF  css-file $@len IF
 	s" StyleSheet" s" rel" opt
 	css-file $@ href=
 	s" text/css" s" type" opt s" link" tag/
-    THEN THEN
+    THEN  THEN
     s" title" tagged cr
     -env ;
 
