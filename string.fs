@@ -28,7 +28,8 @@
 \ dynamic string handling                              12dec99py
 
 : $split ( addr u char -- addr1 u1 addr2 u2 )
-  >r 2dup r> scan dup >r 1 /string 2swap r> - 2swap ;
+  >r 2dup r> scan dup >r dup IF  1 /string  THEN
+  2swap r> - 2swap ;
 
 : $iter ( .. $addr char xt -- .. ) { char xt }
   $@ BEGIN  dup  WHILE  char $split >r >r xt execute r> r>

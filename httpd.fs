@@ -35,10 +35,10 @@ wordlist constant commands
     r> 1+ +LOOP  url $!len
     r> base ! ;
 
-: rework-? ( addr -- ) { url }
-    url $@ tuck '? scan tuck dup 0<> - url-args $! - url $!len ;
+: rework-? ( addr -- )
+    dup >r $@ '? $split url-args $! nip r> $!len ;
 
-: get-url  url get protocol get-rest
+: get-url ( -- ) url get protocol get-rest
     url rework-? url rework-% >values ;
 
 commands set-current
@@ -84,23 +84,6 @@ Variable maxnum
       posted $!len  posted $@ infile-id read-file throw drop
   THEN  only forth also  pop-file ;
 
-\ Keep-Alive handling                                  26mar00py
-
-: .connection ( -- )
-  ." Connection: "
-  connection $@ s" Keep-Alive" compare 0= maxnum @ 0> and
-  IF  connection $@ type cr
-      ." Keep-Alive: timeout=15, max=" maxnum @ 0 .r cr
-      -1 maxnum +!  ELSE  ." close" cr maxnum off  THEN ;
-
-\ Use Forth as server-side script language             26mar00py
-
-: $> ( -- )
-    BEGIN  source >in @ /string s" <$" search  0= WHILE
-        type cr refill  0= UNTIL  EXIT  THEN
-    nip source >in @ /string rot - dup 2 + >in +! type ;
-: <HTML> ( -- )  ." <HTML>" $> ;
-
 \ Rework HTML directory                                26mar00py
 
 Variable htmldir
@@ -131,6 +114,15 @@ Variable htmldir
 	2dup over swap $4000 min fd read-file throw type
 	$4000 - $4000 +LOOP  drop
     free fd close-file throw throw ;
+
+\ Keep-Alive handling                                  26mar00py
+
+: .connection ( -- )
+  ." Connection: "
+  connection $@ s" Keep-Alive" compare 0= maxnum @ 0> and
+  IF  connection $@ type cr
+      ." Keep-Alive: timeout=15, max=" maxnum @ 0 .r cr
+      -1 maxnum +!  ELSE  ." close" cr maxnum off  THEN ;
 
 : transparent: ( addr u -- ) Create  here over 1+ allot place
   DOES>  >r  >file
@@ -169,29 +161,33 @@ s" text/plain" transparent: txt
 
 \ http errors                                          26mar00py
 
-: .server ." Server: Gforth httpd/0.1 ("
+: .server ( -- )  ." Server: Gforth httpd/0.1 ("
     s" os-class" environment? IF  type  THEN  ." )" cr ;
-: .ok   ." HTTP/1.1 200 OK" cr .server ;
+: .ok  ( -- ) ." HTTP/1.1 200 OK" cr .server ;
 : html-error ( n addr u -- )
     ." HTTP/1.1 " 2 pick . 2dup type cr .server
-    2 pick &405 = IF ." Allow: GET, HEAD, POST" cr  THEN  lastrequest
-    ." <HTML><HEAD><TITLE>" 2 pick . 2dup type ." </TITLE></HEAD>" cr
+    2 pick &405 = IF ." Allow: GET, HEAD, POST" cr  THEN
+    lastrequest
+    ." <HTML><HEAD><TITLE>" 2 pick . 2dup type
+    ." </TITLE></HEAD>" cr
     ." <BODY><H1>" type drop ." </H1>" cr ;
 : .trailer ( -- )
     ." <HR><ADDRESS>Gforth httpd 0.1</ADDRESS>" cr
     ." </BODY></HTML>" cr ;
-: .nok  command? @ IF  &405 s" Method Not Allowed"
+: .nok ( -- ) command? @ IF  &405 s" Method Not Allowed"
     ELSE  &400 s" Bad Request"  THEN  html-error
-    ." <P>Your browser sent a request that this server could not understand.</P>" cr
-    ." <P>Invalid request in: <CODE>" error-stack cell+ 2@ swap type
+    ." <P>Your browser sent a request that this server "
+    ." could not understand.</P>" cr
+    ." <P>Invalid request in: <CODE>"
+    error-stack cell+ 2@ swap type
     ." </CODE></P>" cr .trailer ;
-: .nofile  &404 s" Not Found" html-error
+: .nofile ( -- ) &404 s" Not Found" html-error
     ." <P>The requested URL <CODE>" url $@ type
     ." </CODE> was not found on this server</P>" cr .trailer ;
 
 \ http server                                          26mar00py
 
-: http  get-input  IF  .nok  ELSE
+: http ( -- )  get-input  IF  .nok  ELSE
     IF  url $@ 1 /string rework-htmldir
 	dup 0< IF  drop .nofile
 	ELSE  .ok  2dup >mime mime search-wordlist
@@ -202,3 +198,11 @@ s" text/plain" transparent: txt
   BEGIN  ['] http catch  maxnum @ 0= or  UNTIL ;
 
 script? [IF]  :noname &100 httpd bye ; is bootmessage  [THEN]
+
+\ Use Forth as server-side script language             26mar00py
+
+: $> ( -- )
+    BEGIN  source >in @ /string s" <$" search  0= WHILE
+        type cr refill  0= UNTIL  EXIT  THEN
+    nip source >in @ /string rot - dup 2 + >in +! type ;
+: <HTML> ( -- )  ." <HTML>" $> ;

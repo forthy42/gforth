@@ -1,0 +1,9 @@
+cd ../../engine
+INCS='-I../arch/sharc -I.'
+if [ ! -d sharc ]; then mkdir sharc; fi
+g21k -O4 -S engine.c -o sharc/engine.s -DSTANDALONE -Wall $INCS
+g21k -O4 -S main.c -o sharc/main.s -DSTANDALONE -DINCLUDE_IMAGE -Wall $INCS
+g21k -O4 -S strsignal.c -o sharc/strsig.s -DSTANDALONE -Wall $INCS
+g21k -O4 -S image.c -o sharc/image.s -DSTANDALONE -Wall $INCS
+g21k -O4 -S dblsub.c -o sharc/dblsub.s -DSTANDALONE -Wall $INCS
+g21k -O4 -S memcmpc.c -o sharc/memcmpc.c -DSTANDALONE -Wall $INCS

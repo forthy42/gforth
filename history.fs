@@ -230,7 +230,8 @@ Create prefix-found  0 , 0 ,
     ['] force-open catch
     ?dup-if
 	\ !! >stderr
-	history-file type ." : " .error cr 2drop
+        \ history-file type ." : " .error cr
+	drop 2drop
 	['] false ['] false ['] (ret)
     else
 	to history

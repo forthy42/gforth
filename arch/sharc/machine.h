@@ -52,6 +52,7 @@
 /* If you want direct threading, write a .h file for your processor! */
 /* We could put some stuff here that causes a compile error, but then
    we could not use this file in the other machine.h files */
+#undef DIRECT_THREADED
 #endif
 
 /* Types: these types are used as Forth's internal types */

@@ -1,0 +1,186 @@
+diff -r -u g21k-3.3.4/adiach/gcc_ach.c g21k-3.3.4-bp1/adiach/gcc_ach.c
+--- g21k-3.3.4/adiach/gcc_ach.c	Wed Apr 12 14:39:56 2000
++++ g21k-3.3.4-bp1/adiach/gcc_ach.c	Wed Sep 17 19:50:15 1997
+@@ -4,7 +4,7 @@
+ #include <string.h>
+ #include <ctype.h>
+ 
+-#if defined(MSDOS) || defined(_WIN32)
++#ifdef MSDOS
+ #include <io.h>
+ #ifdef __GNUC__
+ #ifndef __EMX__
+diff -r -u g21k-3.3.4/gcc/cccp.c g21k-3.3.4-bp1/gcc/cccp.c
+--- g21k-3.3.4/gcc/cccp.c	Wed Apr 12 14:39:56 2000
++++ g21k-3.3.4-bp1/gcc/cccp.c	Wed Apr 12 14:50:14 2000
+@@ -193,7 +193,10 @@
+ extern char *version_string;
+ extern struct tm *localtime ();
+ extern int sys_nerr;
++#if defined(linux)
++#else
+ extern char *sys_errlist[];
++#endif
+ 
+ #ifndef errno
+ extern int errno;
+diff -r -u g21k-3.3.4/gcc/config/21k/21k.md g21k-3.3.4-bp1/gcc/config/21k/21k.md
+--- g21k-3.3.4/gcc/config/21k/21k.md	Wed Apr 12 14:39:56 2000
++++ g21k-3.3.4-bp1/gcc/config/21k/21k.md	Sun Nov 15 20:51:26 1998
+@@ -3173,11 +3173,18 @@
+ 
+ (define_insn ""
+   [(set (pc) 
+-	(mem:PM 
++	(mem:PM (match_operand:PM 0 "register_operand" "y")))
++   (use (label_ref:PM (match_operand:PM 2 "" "")))]
++  ""
++  "jump (m13,%0); %&"
++  [(set_attr "type" "tablejump")
++   (set_attr "length" "3")])
+ 
++(define_insn ""
++  [(set (pc) 
++	(mem:PM 
+ 	 (plus:PM (match_operand:PM 0 "register_operand" "d")
+ 		  (match_operand:PM 1 "register_operand" "&y"))))
+-
+    (use (label_ref:PM (match_operand:PM 2 "" "")))
+    (clobber (match_operand:PM 3  "register_operand" "z"))
+    (clobber (match_operand:PM 4  "register_operand" "y"))
+@@ -3214,15 +3221,6 @@
+ 
+ (define_insn ""
+   [(set (pc) 
+-	(mem:PM (match_operand:PM 0 "register_operand" "y")))
+-   (use (label_ref:PM (match_operand:PM 1 "" "")))]
+-  ""
+-  "jump (m13,%0); %&"
+-  [(set_attr "type" "tablejump")
+-   (set_attr "length" "3")])
+-
+-(define_insn ""
+-  [(set (pc) 
+ 	(mem:PM (match_operand:PM 0 "register_operand" "d")))
+    (use (label_ref:PM (match_operand:PM 1 "" "")))
+    (clobber (match_operand:PM 2  "register_operand" "z"))
+@@ -3268,6 +3266,12 @@
+   "jump (m13,%0) %!;"
+   [(set_attr "type" "branch")])
+ 
++(define_insn ""
++  [(set (pc) 
++	(subreg:DM (match_operand:PM 0 "register_operand" "y") 0))]
++  ""
++  "jump (m13,%0) %!;"
++  [(set_attr "type" "branch")])
+ 
+ (define_insn ""
+   [(set (pc) 
+@@ -3303,7 +3307,6 @@
+ 	     DONE;
+ 	}
+    }")
+-
+ 
+ ;; Subroutine calls (without return value)
+ 
+diff -r -u g21k-3.3.4/gcc/expr.c g21k-3.3.4-bp1/gcc/expr.c
+--- g21k-3.3.4/gcc/expr.c	Wed Sep 17 19:50:36 1997
++++ g21k-3.3.4-bp1/gcc/expr.c	Mon Nov  2 00:19:46 1998
+@@ -4248,12 +4248,14 @@
+ 	    pop_obstacks ();
+ 	  }
+ 	else if (modifier == EXPAND_INITIALIZER)
+-	  forced_labels = gen_rtx (EXPR_LIST, VOIDmode,
+-				   label_rtx (exp), forced_labels);
++	  {
++	    forced_labels = gen_rtx (EXPR_LIST, VOIDmode,
++				     label_rtx (exp), forced_labels);
++	  }
+ 	temp = gen_rtx (MEM, FUNCTION_MODE,
+ 			gen_rtx (LABEL_REF, Pmode1 (DEFAULT_CODE_Pmode), 
+ 				 label_rtx (exp)));
+-
++	
+ 	if (function != current_function_decl && function != 0)
+ 	  LABEL_REF_NONLOCAL_P (XEXP (temp, 0)) = 1;
+ 	return temp;
+diff -r -u g21k-3.3.4/gcc/flow.c g21k-3.3.4-bp1/gcc/flow.c
+--- g21k-3.3.4/gcc/flow.c	Wed Sep 17 19:50:37 1997
++++ g21k-3.3.4-bp1/gcc/flow.c	Sat Nov  7 18:01:53 1998
+@@ -531,6 +531,7 @@
+ 	    && GET_CODE (PATTERN (insn)) == SET
+ 	    && SET_DEST (PATTERN (insn)) == pc_rtx
+ 	    && (GET_CODE (SET_SRC (PATTERN (insn))) == REG
++		|| GET_CODE (SET_SRC (PATTERN (insn))) == SUBREG
+ 		|| GET_CODE (SET_SRC (PATTERN (insn))) == MEM))
+ 	  {
+ 	    rtx x;
+diff -r -u g21k-3.3.4/gcc/gcc.c g21k-3.3.4-bp1/gcc/gcc.c
+--- g21k-3.3.4/gcc/gcc.c	Wed Apr 12 14:39:56 2000
++++ g21k-3.3.4-bp1/gcc/gcc.c	Wed Apr 12 14:48:29 2000
+@@ -54,7 +54,7 @@
+ #include <memory.h>	/* stupid SunOS */
+ #include <strings.h>
+ #ifndef __GO32__
+-#if !defined(SVR4) && !defined(sun)
++#if !defined(SVR4) && !defined(sun) && !defined(linux)
+ #include <vfork.h>
+ #endif
+ #include <sys/wait.h>
+@@ -166,7 +166,7 @@
+ extern int sys_nerr;
+ #endif
+ #ifndef HAVE_STRERROR
+-#if defined(bsd4_4)
++#if defined(bsd4_4) || defined(linux)
+ extern const char *const sys_errlist[];
+ #else
+ extern char *sys_errlist[];
+@@ -1894,7 +1894,7 @@
+ 
+ #if !defined(__MSDOS__) && !defined(OS2) && !defined(_WIN32)
+ 
+-#if !defined(sun) && !defined (SVR4) /* Who is this for? */
++#if !defined(sun) && !defined (SVR4) && !defined(linux) /* Who is this for? */
+ extern int execv (const char *a, const char **b), execvp (const char *a, const char **b);
+ #endif
+ 
+diff -r -u g21k-3.3.4/gcc/loop.c g21k-3.3.4-bp1/gcc/loop.c
+--- g21k-3.3.4/gcc/loop.c	Wed Sep 17 19:50:46 1997
++++ g21k-3.3.4-bp1/gcc/loop.c	Sun Nov  1 21:31:07 1998
+@@ -2625,8 +2625,13 @@
+ 	mark_loop_jump (XVECEXP (x, 1, i), loop_num);
+       return;
+ 
++    case SUBREG:
++      mark_loop_jump (SUBREG_REG(x), loop_num);
++      return;
+     default:
+       /* Nothing else should occur in a JUMP_INSN.  */
++      debug_rtx(x);
++      return;
+       abort ();
+     }
+ }
+diff -r -u g21k-3.3.4/gcc/sdbout.c g21k-3.3.4-bp1/gcc/sdbout.c
+--- g21k-3.3.4/gcc/sdbout.c	Wed Apr 12 14:39:56 2000
++++ g21k-3.3.4-bp1/gcc/sdbout.c	Sun Oct 25 22:52:42 1998
+@@ -58,7 +58,7 @@
+ 
+ /* Mips systems use the SDB functions to dump out symbols, but
+    do not supply usable syms.h include files.  */
+-#if defined(USG) && !defined(MIPS) && !defined (hpux) && !defined(NO_SYMS_H)
++#if defined(USG) && !defined(MIPS) && !defined (hpux) && !defined(NO_SYMS_H) && !defined(linux)
+ #include <syms.h>
+ /* Use T_INT if we don't have T_VOID.  */
+ #ifndef T_VOID
+diff -r -u g21k-3.3.4/gcc/version.c g21k-3.3.4-bp1/gcc/version.c
+--- g21k-3.3.4/gcc/version.c	Wed Sep 17 19:51:01 1997
++++ g21k-3.3.4-bp1/gcc/version.c	Sun Oct 25 22:41:50 1998
+@@ -1 +1,3 @@
+-char *version_string = "rel 3.3 <2.3.3 snapshot 930305>";
++/* The format of this file is important sed script in use */
++char *version_string = 
++     "rel3.3.4 21k/SHARC 3.3.4";

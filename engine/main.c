@@ -28,7 +28,9 @@
 #include <string.h>
 #include <math.h>
 #include <sys/types.h>
+#ifndef STANDALONE
 #include <sys/stat.h>
+#endif
 #include <fcntl.h>
 #include <assert.h>
 #include <stdlib.h>
