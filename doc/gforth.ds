@@ -302,10 +302,10 @@ Defining Words
 * Values::                      Initialised variables
 * Colon Definitions::           
 * Anonymous Definitions::       Definitions without names
+* Supplying names::             
 * User-defined Defining Words::  
 * Deferred words::              Allow forward references
 * Aliases::                     
-* Supplying names::             
 
 User-defined Defining Words
 
@@ -5233,19 +5233,6 @@ yet, although many schemes have been proposed.
 @cindex selection control structures
 @cindex control structures for selection
 
-@c what's the purpose of all these @i? Maybe we should define a macro
-@c so we can produce logical markup.  - anton
-
-@c nac-> When I started working on the manual, a mixture of @i and @var
-@c were used inconsistently in code examples and \Glossary entries. These
-@c two behave differently in info format so I decided to standardize on @i.
-@c Logical markup would be better but texi isn't really upto it, and
-@c texi2html just ignores macros.
-@c nac02dec1999-> update: the latest texinfo release can spit out html
-@c and it handles macros, so we could do some logical markup. Unfortunately
-@c texinfo will not split html output, which would be a big pain if you
-@c wanted to put the document on the web, which would be nice.
-
 @cindex @code{IF} control structure
 @example
 @i{flag}
@@ -5312,6 +5299,11 @@ default case can be added by simply writing the code after the last
 @code{ENDOF}. It may use @i{n}, which is on top of the stack, but must
 not consume it.
 
+@progstyle
+To keep the code understandable, you should ensure that on all paths
+through a selection construct the stack is changed in the same way
+(wrt. number and types of stack items consumed and pushed).
+
 @node Simple Loops, Counted Loops, Selection, Control Structures
 @subsection Simple Loops
 @cindex simple loops
@@ -5340,6 +5332,10 @@ UNTIL
 @end example
 
 @i{code} is executed. The loop is restarted if @code{flag} is false.
+
+@progstyle
+To keep the code understandable, a complete iteration of the loop should
+not change the number and types of the items on the stacks.
 
 @cindex endless loop
 @cindex loops, endless
@@ -5714,33 +5710,40 @@ your program, and report an appropriate error.
 
 doc-throw
 
-@code{Throw} consumes a cell-sized error number on the stack; there are
-some predefined error numbers (see @file{errors.fs}).  In Gforth (and
-most other systems) you can use the iors produced by various words as
-error numbers (e.g., a typical use of @code{allocate} is @code{allocate
-throw}).  Gforth also provides the word @code{exception} to define your
-own error numbers (with decent error reporting); an ANS Forth version of
-this word (but without the error messages) is available in
-@code{compat/except.fs}.  And finally, you can use your own error
+@code{Throw} consumes a cell-sized error number on the stack. There are
+some predefined error numbers in ANS Forth (see @file{errors.fs}).  In
+Gforth (and most other systems) you can use the iors produced by various
+words as error numbers (e.g., a typical use of @code{allocate} is
+@code{allocate throw}).  Gforth also provides the word @code{exception}
+to define your own error numbers (with decent error reporting); an ANS
+Forth version of this word (but without the error messages) is available
+in @code{compat/except.fs}.  And finally, you can use your own error
 numbers (anything outside the range -4095..0), but won't get nice error
 messages, only numbers.  For example, try:
 
 @example
--10 throw
--267 throw
-s" my error" exception throw
-7 throw
+-10 throw                    \ ANS defined
+-267 throw                   \ system defined
+s" my error" exception throw \ user defined
+7 throw                      \ arbitrary number
 @end example
 
 doc---exception-exception
 
-Your program can catch exceptions and then either correct the problem,
-or clean up some data structures and just throw the exception to the
-next exception handler.  Note that @code{throw} always executes the
-dynamically innermost exception handler; the system's exception handler
-is outermost, and just prints an error and restarts command-line
-interpretation (or, in batch mode (i.e., while processing the shell
-command line), leaves Gforth).
+A common idiom to @code{THROW} a specific error if a flag is true is
+this:
+
+@example
+@code{( flag ) 0<> @i{errno} and throw}
+@end example
+
+Your program can provide exception handlers to catch exceptions.  An
+exception handler can be used to correct the problem, or to clean up
+some data structures and just throw the exception to the next exception
+handler.  Note that @code{throw} jumps to the dynamically innermost
+exception handler.  The system's exception handler is outermost, and just
+prints an error and restarts command-line interpretation (or, in batch
+mode (i.e., while processing the shell command line), leaves Gforth).
 
 The ANS Forth way to catch exceptions is @code{catch}:
 
@@ -5753,29 +5756,29 @@ an error happens.  E.g.,
 base @ >r hex \ actually the hex should be inside foo, or we h
 ['] foo catch ( nerror|0 )
 r> base !
-( nerror|0 ) throw \ throw on
+( nerror|0 ) throw \ pass it on
 @end example
 
-A use of @code{catch} for handling an error might look like this:
+A use of @code{catch} for handling the error @code{myerror} might look
+like this:
 
 @example
-['] foo catch 
-dup myerror = if \ an error we can do something about?
-  ... \ do something about it
-else
-    throw \ if there is an error, throw it on
-endif
+['] foo catch
+CASE
+  myerror OF ... ( do something about it ) ENDOF
+  dup throw \ default: pass other errors on, do nothing on non-errors
+ENDCASE
 @end example
 
 Having to wrap the code into a separate word is often cumbersome,
 therefore Gforth provides an alternative syntax:
 
 @example
-try
+TRY
   @i{code1}
-recover     \ optional
+RECOVER     \ optional
   @i{code2} \ optional
-endtry
+ENDTRY
 @end example
 
 This performs @i{Code1}.  If @i{code1} completes normally, execution
@@ -5789,29 +5792,34 @@ doc-try
 doc-recover
 doc-endtry
 
-The cleanup example above in this syntax:
+The cleanup example from above in this syntax:
 
 @example
-base @ >r try
+base @ >r TRY
   hex foo \ now the hex is placed correctly
-  0 \ value for throw
-endtry
+  0       \ value for throw
+ENDTRY
 r> base ! throw
 @end example
 
-And here's the error handling example
+And here's the error handling example:
 
 @example
-try
+TRY
   foo
-recover
-  dup myerror = if
-    ... \ do something about it
-  else
-    throw
-  endif
-endtry
+RECOVER
+  CASE
+    myerror OF ... ( do something about it ) ENDOF
+    throw \ pass other errors on
+  ENDCASE
+ENDTRY
 @end example
+
+@progstyle
+As usual, you should ensure that the stack depth is statically known at
+the end: either after the @code{throw} for passing on errors, or after
+the @code{ENDTRY} (or, if you use @code{catch}, after the end of the
+selection construct for handling the error).
 
 There are two alternatives to @code{throw}: @code{Abort"} is conditional
 and you can provide an error message.  @code{Abort} just produces an
@@ -5842,10 +5850,10 @@ Defining words are used to extend Forth by creating new entries in the dictionar
 * Values::                      Initialised variables
 * Colon Definitions::           
 * Anonymous Definitions::       Definitions without names
+* Supplying names::             Passing definition names as strings
 * User-defined Defining Words::  
 * Deferred words::              Allow forward references
 * Aliases::                     
-* Supplying names::             
 @end menu
 
 @node CREATE, Variables, Defining Words, Defining Words
@@ -5861,17 +5869,26 @@ this:
 CREATE new-word1
 @end example
 
-@code{CREATE} is a parsing word that generates a dictionary entry for
-@code{new-word1}. When @code{new-word1} is executed, all that it does is
-leave an address on the stack. The address represents the value of
-the data space pointer (@code{HERE}) at the time that @code{new-word1}
-was defined. Therefore, @code{CREATE} is a way of associating a name
-with the address of a region of memory.
+@code{CREATE} is a parsing word, i.e., it takes an argument from the
+input stream (@code{new-word1} in our example).  It generates a
+dictionary entry for @code{new-word1}. When @code{new-word1} is
+executed, all that it does is leave an address on the stack. The address
+represents the value of the data space pointer (@code{HERE}) at the time
+that @code{new-word1} was defined. Therefore, @code{CREATE} is a way of
+associating a name with the address of a region of memory.
 
 doc-create
 
+Note that in ANS Forth guarantees only for @code{create} that its body
+is in dictionary data space (i.e., where @code{here}, @code{allot}
+etc. work, @pxref{Dictionary allocation}).  Also, in ANS Forth only
+@code{create}d words can be modified with @code{does>}
+(@pxref{User-defined Defining Words}).  And in ANS Forth @code{>body}
+can only be applied to @code{create}d words.
+
 By extending this example to reserve some memory in data space, we end
-up with a @i{variable}. Here are two different ways to do it:
+up with something like a @i{variable}. Here are two different ways to do
+it:
 
 @example
 CREATE new-word2 1 cells allot  \ reserve 1 cell - initial value undefined
@@ -5926,12 +5943,12 @@ myvariable0 joe \ whilst joe is initialised to 0
 
 Not surprisingly, there is no need to define @code{myvariable}, since
 Forth already has a definition @code{Variable}. ANS Forth does not
-require a @code{Variable} to be initialised when it is created (i.e., it
-behaves like @code{myvariableX}). In contrast, Gforth's @code{Variable}
-initialises the variable to 0 (i.e., it behaves exactly like
-@code{myvariable0}). Forth also provides @code{2Variable} and
+guarantee that a @code{Variable} is initialised when it is created
+(i.e., it may behave like @code{myvariableX}). In contrast, Gforth's
+@code{Variable} initialises the variable to 0 (i.e., it behaves exactly
+like @code{myvariable0}). Forth also provides @code{2Variable} and
 @code{fvariable} for double and floating-point variables, respectively
--- both are initialised to 0 in Gforth. If you use a @code{Variable} to
+-- they are initialised to 0. and 0e in Gforth. If you use a @code{Variable} to
 store a boolean, you can use @code{on} and @code{off} to toggle its
 state.
 
@@ -5978,7 +5995,7 @@ what happens; the run-time effect of a constant is to put its value on
 the top of the stack (You can find one
 way of implementing @code{Constant} in @ref{User-defined Defining Words}).
 
-Gforth also provides @code{2Constant} and @code{fconstant} for defining
+Forth also provides @code{2Constant} and @code{fconstant} for defining
 double and floating-point constants, respectively.
 
 doc-constant
@@ -5988,9 +6005,19 @@ doc-fconstant
 @c that's too deep, and it's not necessarily true for all ANS Forths. - anton
 @c nac-> How could that not be true in an ANS Forth? You can't define a
 @c constant, use it and then delete the definition of the constant..
+
+@c anton->An ANS Forth system can compile a constant to a literal; On
+@c decompilation you would see only the number, just as if it had been used
+@c in the first place.  The word will stay, of course, but it will only be
+@c used by the text interpreter (no run-time duties, except when it is 
+@c POSTPONEd or somesuch).
+
+@c nac:
 @c I agree that it's rather deep, but IMO it is an important difference
 @c relative to other programming languages.. often it's annoying: it
 @c certainly changes my programming style relative to C.
+
+@c anton: In what way?
 
 Constants in Forth behave differently from their equivalents in other
 programming languages. In other languages, a constant (such as an EQU in
@@ -6037,29 +6064,24 @@ space. However, there is no standard way of doing this.
 @subsection Values
 @cindex values
 
-A @code{Value} is like a @code{Variable} but with two important
-differences:
+A @code{Value} behaves like a @code{Constant}, but it can be changed.
+@code{TO} is a parsing word that changes a @code{Values}.  In Gforth
+(not in ANS Forth) you can access (and change) a @code{value} also with
+@code{>body}.
 
-@itemize @bullet
-@item
-A @code{Value} is initialised when it is declared; like a
-@code{Constant} but unlike a @code{Variable}.
-@item
-A @code{Value} returns its value rather than its address when it is
-executed; i.e., it has the same run-time behaviour as @code{Constant}.
-@end itemize
-
-A @code{Value} needs an additional word, @code{TO} to allow its value to
-be changed. Here are some examples:
+Here are some
+examples:
 
 @example
-12 Value APPLES \ Define APPLES with an initial value of 12
-34 TO APPLES    \ Change the value of APPLES. TO is a parsing word
-APPLES          \ puts 34 on the top of the stack.
+12 Value APPLES     \ Define APPLES with an initial value of 12
+34 TO APPLES        \ Change the value of APPLES. TO is a parsing word
+1 ' APPLES >body +! \ Increment APPLES.  Non-standard usage.
+APPLES              \ puts 35 on the top of the stack.
 @end example
 
 doc-value
 doc-to
+
 
 
 @node Colon Definitions, Anonymous Definitions, Values, Defining Words
@@ -6084,7 +6106,7 @@ doc-:
 doc-;
 
 
-@node Anonymous Definitions, User-defined Defining Words, Colon Definitions, Defining Words
+@node Anonymous Definitions, Supplying names, Colon Definitions, Defining Words
 @subsection Anonymous Definitions
 @cindex colon definitions
 @cindex defining words without name
@@ -6138,15 +6160,49 @@ lastxt . : foo [ lastxt . ] ; ' foo .
 @noindent
 prints 3 numbers; the last two are the same.
 
+@node Supplying names, User-defined Defining Words, Anonymous Definitions, Defining Words
+@subsection Supplying the name of a defined word
+@cindex names for defined words
+@cindex defining words, name given in a string
 
-@node User-defined Defining Words, Deferred words, Anonymous Definitions, Defining Words
+By default, a defining word takes the name for the defined word from the
+input stream. Sometimes you want to supply the name from a string. You
+can do this with:
+
+doc-nextname
+
+For example:
+
+@example
+s" foo" nextname create
+@end example
+
+@noindent
+is equivalent to:
+
+@example
+create foo
+@end example
+
+@noindent
+@code{nextname} works with any defining word.
+
+
+@node User-defined Defining Words, Deferred words, Supplying names, Defining Words
 @subsection User-defined Defining Words
 @cindex user-defined defining words
 @cindex defining words, user-defined
 
 You can create a new defining word by wrapping defining-time code around
 an existing defining word and putting the sequence in a colon
-definition. For example, suppose that you have a word @code{stats} that
+definition. 
+
+@c anton: This example is very complex and leads in a quite different
+@c direction from the CREATE-DOES> stuff that follows.  It should probably
+@c be done elsewhere, or as a subsubsection of this subsection (or as a
+@c subsection of Defining Words)
+
+For example, suppose that you have a word @code{stats} that
 gathers statistics about colon definitions given the @i{xt} of the
 definition, and you want every colon definition in your application to
 make a call to @code{stats}. You can define and use a new version of
@@ -6239,18 +6295,29 @@ is not executed at this time. The word @code{name} is sometimes called a
 When you execute @code{name}, the address of the body of @code{name} is
 put on the data stack and @i{code2} is executed (the address of the body
 of @code{name} is the address @code{HERE} returns immediately after the
-@code{CREATE}).
+@code{CREATE}, i.e., the address a @code{create}d word returns by
+default).
 
-@cindex atavism in child words
+@c anton:
+@c www.dictionary.com says:
+@c at·a·vism: 1.The reappearance of a characteristic in an organism after
+@c several generations of absence, usually caused by the chance
+@c recombination of genes.  2.An individual or a part that exhibits
+@c atavism. Also called throwback.  3.The return of a trait or recurrence
+@c of previous behavior after a period of absence.
+@c
+@c Doesn't seem to fit.
+
+@c @cindex atavism in child words
 You can use @code{def-word} to define a set of child words that behave
-differently, though atavistically; they all have a common run-time
-behaviour determined by @i{code2}. Typically, the @i{code1} sequence
-builds a data area in the body of the child word. The structure of the
-data is common to all children of @code{def-word}, but the data values
-are specific -- and private -- to each child word. When a child word is
-executed, the address of its private data area is passed as a parameter
-on TOS to be used and manipulated@footnote{It is legitimate both to read
-and write to this data area.} by @i{code2}.
+similarly; they all have a common run-time behaviour determined by
+@i{code2}. Typically, the @i{code1} sequence builds a data area in the
+body of the child word. The structure of the data is common to all
+children of @code{def-word}, but the data values are specific -- and
+private -- to each child word. When a child word is executed, the
+address of its private data area is passed as a parameter on TOS to be
+used and manipulated@footnote{It is legitimate both to read and write to
+this data area.} by @i{code2}.
 
 The two fragments of code that make up the defining words act (are
 executed) at two completely separate times:
@@ -6421,7 +6488,7 @@ DOES> ( ... -- ... )
 @end example
 
 In this example, the selection of whether to use @code{does1} or
-@code{does2} is made at compile-time; at the time that the child word is
+@code{does2} is made at definition-time; at the time that the child word is
 @code{CREATE}d.
 
 @cindex @code{DOES>} in interpretation state
@@ -6469,8 +6536,8 @@ allow a definition like
 @end example
 
 The parameters @var{disasm-operands} and @var{table} are usually
-correlated.  Moreover, there existed code defining instructions like
-this:
+correlated.  Moreover, before I wrote the disassembler, there already
+existed code that defines instructions like this:
 
 @example
 @var{entry-num} @var{inst-format} @var{inst-name}
@@ -6604,13 +6671,18 @@ redefined at any time by using @code{IS} to associate the xt of a
 previously-defined word with it. The previous example becomes:
 
 @example
-Defer greet
+Defer greet ( -- )
 : foo ... greet ... ;
 : bar ... greet ... ;
-: greet1 ." Good morning" ;
-: greet2 ." Hello" ;
+: greet1 ( -- ) ." Good morning" ;
+: greet2 ( -- ) ." Hello" ;
 ' greet2 <IS> greet  \ make greet behave like greet2
 @end example
+
+@progstyle
+You should write a stack comment for every deferred word, and put only
+XTs into deferred words that conform to this stack effect.  Otherwise
+it's too difficult to use the deferred word.
 
 A deferred word can be used to improve the statistics-gathering example
 from @ref{User-defined Defining Words}; rather than edit the
@@ -6620,11 +6692,11 @@ this:
 @example
 : real: : ;     \ retain access to the original
 defer :         \ redefine as a deferred word
-' my: IS :      \ use special version of :
+' my: <IS> :      \ use special version of :
 \
 \ load application here
 \
-' real: IS :    \ go back to the original
+' real: <IS> :    \ go back to the original
 @end example
 
 
@@ -6639,10 +6711,12 @@ executed.  If you want to specify the name at compile time, use
 ' greet1 set-greet
 @end example
 
-A deferred word can only inherit default semantics from the xt (because
-that is all that an xt can represent -- for more discussion of this
-@pxref{Tokens for Words}). However, the semantics of the deferred word
-itself can be modified at the time that it is defined. For example:
+A deferred word can only inherit execution semantics from the xt
+(because that is all that an xt can represent -- for more discussion of
+this @pxref{Tokens for Words}); by default it will have default
+interpretation and compilation semantics deriving from this execution
+semantics.  However, you can change the interpretation and compilation
+semantics of the deferred word in the usual ways:
 
 @example
 : bar .... ; compile-only
@@ -6667,7 +6741,7 @@ Definitions in ANS Forth for @code{defer}, @code{<is>} and @code{[is]}
 are provided in @file{compat/defer.fs}.
 
 
-@node Aliases, Supplying names, Deferred words, Defining Words
+@node Aliases,  , Deferred words, Defining Words
 @subsection Aliases
 @cindex aliases
 
@@ -6686,10 +6760,10 @@ either of two names (for example, @code{THEN} and @code{ENDIF} are
 aliases).
 @end itemize
 
-The word whose behaviour the alias is to inherit is represented by an
-xt. Therefore, the alias only inherits default semantics from its
-ancestor. The semantics of the alias itself can be modified at the time
-that it is defined. For example:
+Like deferred words, an alias has default compilation and interpretation
+semantics at the beginning (not the modifications of the other word),
+but you can change them in the usual ways (@code{immediate},
+@code{compile-only}). For example:
 
 @example
 : foo ... ; immediate
@@ -6705,34 +6779,6 @@ default or immediate compilation semantics; you can define aliases for
 combined words with @code{interpret/compile:} -- see @ref{Combined words}.
 
 doc-alias
-
-
-@node Supplying names,  , Aliases, Defining Words
-@subsection Supplying the name of a defined word
-@cindex names for defined words
-@cindex defining words, name given in a string
-
-By default, a defining word takes the name for the defined word from the
-input stream. Sometimes you want to supply the name from a string. You
-can do this with:
-
-doc-nextname
-
-For example:
-
-@example
-s" foo" nextname create
-@end example
-
-@noindent
-is equivalent to:
-
-@example
-create foo
-@end example
-
-@noindent
-@code{nextname} works with any defining word, not just @code{:}.
 
 
 @node Interpretation and Compilation Semantics, Tokens for Words, Defining Words, Words

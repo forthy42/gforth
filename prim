@@ -819,6 +819,7 @@ w2 = ~w1;
  MAXU xor ;
 
 rshift	( u1 n -- u2 )		core	r_shift
+""Logical shift right by @i{n} bits.""
   u2 = u1>>n;
 :
     0 ?DO 2/ MAXI and LOOP ;

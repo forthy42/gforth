@@ -431,7 +431,10 @@ DOES> @ execute ;
 
 [THEN]
 
-: Defers ( "name" -- ) \ gforth
+: Defers ( compilation "name" -- ; run-time ... -- ... ) \ gforth
+    \G Compiles the present contents of the deferred word @i{name}
+    \G into the current definition.  I.e., this produces static
+    \G binding as if @i{name} was not deferred.
     ' >body @ compile, ; immediate
 
 :noname
@@ -464,7 +467,8 @@ interpret/compile: TO ( w "name" -- ) \ core-ext
 
 :noname    ' >body @ ;
 :noname    ' >body postpone ALiteral postpone @ ;
-interpret/compile: What's ( "name" -- addr ) \ gforth
+interpret/compile: What's ( interpretation "name" -- xt; compilation "name" -- ; run-time -- xt ) \ gforth
+\G @i{Xt} is the XT that is currently assigned to @i{name}.
 
 \ \ interpret/compile:
 

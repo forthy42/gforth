@@ -234,8 +234,6 @@ is throw
     rdrop ;
 
 : abort ( ?? -- ?? ) \ core,exception-ext
-    \G Empty the data stack and perform the functions of @code{quit}.
-    \G Since the exception word set is present, this is performed by
     \G @code{-1 throw}.
     -1 throw ;
 
