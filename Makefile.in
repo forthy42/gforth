@@ -222,13 +222,13 @@ uninstall:
 check:		test
 		touch test
 
-test:		gforth
+test:		gforth gforth.fi
 		$(FORTH) tester.fs coretest.fs -e bye
 		$(FORTH) code.fs checkans.fs -e bye
 		@echo 'Expect no differences'
 		$(FORTH) prims2x.fs -e "s\" primitives.b\" ' output-c process-file bye"| diff -c - primitives.i
 
-bench:		gforth
+bench:		gforth gforth.fi
 		@echo 'Each benchmark takes about 30s on a 486-66 (gcc-2.6.3 -DFORCE_REG)'
 		time $(FORTH) siev.fs -e "main bye"
 		time $(FORTH) bubble.fs -e "main bye"
