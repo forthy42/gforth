@@ -20,14 +20,13 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl We use some automake macros here,
 dnl but don't use automake for creating Makefile.in
-AC_INIT(gforth,0.5.9-20021227,https://savannah.gnu.org/bugs/?func=addbug&group=gforth)
+AC_INIT([gforth],[0.5.9-20021227],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
 #snapshots have numbers major.minor.release-YYYYMMDD
 #note that lexicographic ordering must be heeded.
 #I.e., 0.4.1-YYYYMMDD must not exist before 0.4.1!
 UPDATED="27 December 2002"
 AC_SUBST(UPDATED)
 AC_CONFIG_HEADERS(engine/config.h)
-dnl AM_CYGWIN32
 
 #default setting that may be changed later:
 no_dynamic_default=0
@@ -351,7 +350,7 @@ AC_DEFINE_UNQUOTED(NO_DYNAMIC_DEFAULT,$no_dynamic_default,default value for no_d
 
 dnl Checks for programs.
 AC_PROG_LN_S
-dnl AM_PROG_INSTALL #performed by AM_INIT_AUTOMAKE
+AC_PROG_INSTALL
 
 dnl Checks for library functions
 dnl This check is just for making later checks link with libm.
@@ -386,17 +385,17 @@ AC_SUBST(kernel_fi)
 #fi
 
 AC_SUBST(machine)
-dnl AC_LINK_FILES(arch/$machine,arch/machine) #no longer needed
-AC_OUTPUT([
+AC_CONFIG_FILES([
 Makefile
 Makedist
 gforthmi
 vmgen
 machpc.fs
 engine/Makefile
-doc/version.texi ],
-echo timestamp > stamp-h
+doc/version.texi ])
+AC_CONFIG_COMMANDS([stamp-h],[[echo timestamp > stamp-h
 chmod +x gforthmi
 chmod +x vmgen
-test -d kernel||mkdir kernel)
+test -d kernel||mkdir kernel]],[[]])
+AC_OUTPUT
 
