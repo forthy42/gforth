@@ -448,6 +448,9 @@ doer? :docon [IF]
 : Value ( w "name" -- ) \ core-ext
     (Constant) , ;
 
+: AValue ( w "name" -- ) \ core-ext
+    (Constant) A, ;
+
 : 2Constant ( w1 w2 "name" -- ) \ double two-constant
     Create ( w1 w2 "name" -- )
         2,
@@ -563,7 +566,7 @@ defer ;-hook ( sys2 -- sys1 )
     ;-hook ?struc fini, comp[ reveal postpone [ ; immediate restrict
 [ELSE]
 : ; ( compilation colon-sys -- ; run-time nest-sys ) \ core	semicolon
-    ;-hook ?struc postpone exit reveal postpone [ ; immediate restrict
+    ;-hook ?struc [compile] exit reveal postpone [ ; immediate restrict
 [THEN]
 
 \ \ Search list handling: reveal words, recursive		23feb93py

@@ -814,7 +814,7 @@ Defer dobacktrace ( -- )
     [ has? new-input 0= [IF] ] >tib @ >r [ [THEN] ]
     BEGIN
 	[ has? compiler [IF] ]
-	postpone [
+	[compile] [
 	[ [THEN] ]
 	['] 'quit CATCH dup
     WHILE
@@ -849,7 +849,7 @@ Defer 'cold ( -- ) \ gforth  tick-cold
 ' noop IS 'cold
 
 
-Variable init8
+AVariable init8 NIL init8 !
 
 : cold ( -- ) \ gforth
 [ has? backtrace [IF] ]
