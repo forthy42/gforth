@@ -1470,6 +1470,7 @@ Defer 'cold ' noop IS 'cold
 
 : cold ( -- )
     pathstring 2@ process-path pathdirs 2!
+    0 0 included-files 2!
     'cold
     argc @ 1 >
     IF
