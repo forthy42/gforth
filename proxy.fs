@@ -210,6 +210,6 @@ Vocabulary systems
 
 also systems definitions
 
-redirect: bigforth www.paysan.nom"http://www.jwdt.com/~paysan/"
+redirect: bigforth www.jwdt.com"http://www.jwdt.com/~paysan/"
 
 previous previous definitions
