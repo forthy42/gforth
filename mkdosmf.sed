@@ -3,7 +3,6 @@ s%SHELL%# SHELL%g
 # s% rm% del%g
 # s% cp% copy%g
 s% ln -s% cp%g
-
 s%@mach_h@%386%g
 s%-pipe %%g
 s% ./gforth% gforth%g
@@ -49,3 +48,4 @@ s%gforth-ditc%gforth-d%g
 s%engine-ditc%engine-d%g
 s%main-ditc%main-d%g
 s%@OSCLASS@%dos%g
+s%$(MAKE) -C%bash makein.bsh%g

@@ -7,15 +7,6 @@ Conditional compilation continues after the file ends. This is allowed
 by the standard (through an ambiguous condition), but the compiler
 should at least produce a warning.  anton 27jan95
 
-DOS and OS/2 don't like . at begin of a file (.gforth-history). bernd 6sep95py
-
-see does not leave a space after two-digit literals:
-  : xxx 50 ;
-  see xxx
-gives
-  : xxx  
-  50;
-
 QUERY and TIB may behave differently than some may expect. TIB always
 points to the current SOURCE, and QUERY puts its result there.  anton
 28nov96

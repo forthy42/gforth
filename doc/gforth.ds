@@ -18,7 +18,7 @@ Programming style note:
 @ifinfo
 This file documents Gforth @value{VERSION}
 
-Copyright @copyright{} 1995-1997 Free Software Foundation, Inc.
+Copyright @copyright{} 1995-1998 Free Software Foundation, Inc.
 
      Permission is granted to make and distribute verbatim copies of
      this manual provided the copyright notice and this permission notice
@@ -61,7 +61,7 @@ Copyright @copyright{} 1995-1997 Free Software Foundation, Inc.
 @comment  The following two commands start the copyright page.
 @page
 @vskip 0pt plus 1filll
-Copyright @copyright{} 1995--1997 Free Software Foundation, Inc.
+Copyright @copyright{} 1995--1998 Free Software Foundation, Inc.
 
 @comment !! Published by ... or You can get a copy of this manual ...
 
@@ -103,6 +103,7 @@ personal machines. This manual corresponds to version @value{VERSION}.
 * Emacs and Gforth::            The Gforth Mode
 * Image Files::                 @code{.fi} files contain compiled code
 * Engine::                      The inner interpreter and the primitives
+* Cross Compiler::              The Cross Compiler
 * Bugs::                        How to report them
 * Origin::                      Authors and ancestors of Gforth
 * Word Index::                  An item for each Forth word
@@ -339,6 +340,16 @@ Primitives
 * Automatic Generation::        
 * TOS Optimization::            
 * Produced code::               
+
+System Libraries
+
+* Binding to System Library::
+
+Cross Compiler
+
+* Using the Cross Compiler::
+* How the Cross Compiler Works::
+
 @end menu
 
 @node License, Goals, Top, Top
@@ -4098,7 +4109,7 @@ operation @code{draw}.  We can perform the operation
 @end example
 
 where @code{t-rex} is an object or object pointer, created with e.g.
-@code{graphical : trex}.
+@code{graphical : t-rex}.
 
 @cindex abstract class
 How do we create a graphical object? With the present definitions,
@@ -4265,31 +4276,130 @@ doc---oof-class;
 
 @end itemize
 
+@c -------------------------------------------------------------
 @node Class Implementation,  , Class Declaration, OOF
 @subsubsection Class Implementation
 @cindex class implementation
 
-@node Mini-OOF,  , OOF, Object-oriented Forth
+@c -------------------------------------------------------------
+@node Mini-OOF, , OOF, Object-oriented Forth
 @subsection Mini-OOF
 @cindex mini-oof
 
 Gforth's third object oriented Forth package is a 12-liner. It uses a
 bit of a mixture of the @file{object.fs} and the @file{oof.fs} syntax,
-and reduces to the bare minimum of features.
+and reduces to the bare minimum of features. This is based on a posting
+of Bernd Paysan in comp.arch.
+
+@menu
+* Mini-OOF Usage::
+* Mini-OOF Example::
+@end menu
+
+@c -------------------------------------------------------------
+@node Mini-OOF Usage, Mini-OOF Example, , Mini-OOF
+@subsubsection Usage
+@cindex mini-oof usage
+
+Basically, there are seven words, to define a method, a variable, a
+class; to end a class, to define a method, to allocate an object, to
+resolve binding, and the base class (which allocates one cell for the
+object pointer).
+
+doc-method
+
+Defines a method
+
+doc-var
+
+Defines a variable with size bytes
+
+doc-class
+
+Starts the definition of a sub-class
+
+doc-end-class
+
+Ends the definition of a class
+
+doc-defines
+
+Binds the xt to the method name in the class
+
+doc-new
+
+Creates a new incarnation of the class
+
+doc-::
+
+Compiles the method name of the class (not immediate!)
+
+doc-object
+
+Is the base class of all objects
+
+@c -------------------------------------------------------------
+@node Mini-OOF Example, , Mini-OOF Usage, Mini-OOF
+@subsubsection Mini-OOF Example
+@cindex mini-oof example
+
+A short example shows how to use this package.
 
 @example
-: method ( m v -- m' v ) Create  over , swap cell+ swap
-  DOES> ( ... o -- ... ) @ over @ + @ execute ;
-: var ( m v size -- m v' ) Create  over , +
-  DOES> ( o -- addr ) @ + ;
-: class ( class -- class methods vars ) dup 2@ ;
-: end-class  ( class methods vars -- )
-  Create  here >r , dup , 2 cells ?DO ['] noop , cell +LOOP
-  cell+ dup cell+ swap @ 2 - cells r> 2 cells + swap move ;
-: defines ( xt class -- ) ' >body @ + ! ;
-: new ( class -- o )  here over @ allot swap over ! ;
-: :: ( class "name" -- ) ' >body @ + @ compile, ;
-Create object  1 cells , 2 cells ,
+object class
+  method init
+  method draw
+end-class graphical
+@end example
+
+This code defines a class @code{graphical} with an
+operation @code{draw}.  We can perform the operation
+@code{draw} on any @code{graphical} object, e.g.:
+
+@example
+100 100 t-rex draw
+@end example
+
+where @code{t-rex} is an object or object pointer, created with e.g.
+@code{graphical new Constant t-rex}.
+
+For concrete graphical objects, we define child classes of the
+class @code{graphical}, e.g.:
+
+@example
+graphical class
+  cell var circle-radius
+end-class circle \ "graphical" is the parent class
+
+:noname ( x y -- )
+  circle-radius @@ draw-circle ; circle defines draw
+:noname ( r -- )
+  circle-radius ! ; circle defines init
+@end example
+
+There is no implicit init method, so we have to define one. The creation
+code of the object now has to call init explicitely.
+
+@example
+circle new Constant my-circle
+50 my-circle init
+@end example
+
+It is also possible to add a function to create named objects with
+automatic call of @code{init}, given that all objects have @code{init}
+on the same place
+
+@example
+: new: ( .. o "name" -- )
+    new dup Constant init ;
+80 circle new: large-circle
+@end example
+
+We can draw this new circle at (100,100)
+with
+
+@example
+100 100 my-circle draw
 @end example
 
 @c -------------------------------------------------------------
@@ -6613,7 +6723,7 @@ arguments as files to be loaded and strings to be evaluated.  Therefore,
 @code{'cold} should remove the arguments it has used in this case.
 
 @c ******************************************************************
-@node Engine, Bugs, Image Files, Top
+@node Engine, Binding to System Library, Image Files, Top
 @chapter Engine
 @cindex engine
 @cindex virtual machine
@@ -7113,7 +7223,26 @@ newer version of these measurements at
 @url{http://www.complang.tuwien.ac.at/forth/performance.html}. You can
 find numbers for Gforth on various machines in @file{Benchres}.
 
-@node Bugs, Origin, Engine, Top
+@node Binding to System Library, Cross Compiler, Engine, Top
+@section Binding to System Library
+
+@node Cross Compiler, Bugs, Binding to System Library, Top
+@section Cross Compiler
+
+Cross Compiler
+
+@menu
+* Using the Cross Compiler::
+* How the Cross Compiler Works::
+@end menu
+
+@node Using the Cross Compiler, , How the Cross Compiler Works, Cross Compiler
+@subsection Using the Cross Compiler
+
+@node How the Cross Compiler Works, Using the Cross Compiler, , Cross Compiler
+@subsection How the Cross Compiler Works
+
+@node Bugs, Origin, Cross Compiler, Top
 @chapter Bugs
 @cindex bug reporting
 

@@ -16,6 +16,13 @@ You can add a word to the list with "' my-init foo8 chained". You can
 execute all the code with "foo8 chainperform".
 [THEN]
 
+has? cross 
+[IF]   e? compiler
+[ELSE] true
+[THEN]
+
+[IF] \ only needed with compiler
+
 [IFUNDEF] linked
 : linked        here over @ a, swap ! ;
 [THEN]
@@ -24,6 +31,8 @@ execute all the code with "foo8 chainperform".
 
 : chained 	( xt list -- ) \ gforth
   linked , ;
+
+[THEN]
 
 : chainperform	( list -- ) \ gforth
   BEGIN @ dup WHILE dup cell+ perform REPEAT drop ;

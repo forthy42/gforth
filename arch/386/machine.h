@@ -20,6 +20,12 @@
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
+#ifdef HAVE_LIBKERNEL32
+#ifdef i386
+#define SYSCALL     __attribute__ ((stdcall))
+#endif
+#endif
+
 #include "../generic/machine.h"
 
 /* indirect threading is faster on the 486, on the 386 direct

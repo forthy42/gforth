@@ -30,6 +30,12 @@ typedef double DFloat;
 /* the IEEE single precision type */
 typedef float SFloat;
 
+/* define SYSCALL */
+
+#ifndef SYSCALL
+#define SYSCALL
+#endif
+
 #ifndef USE_FTOS
 #ifndef USE_NO_FTOS
 /* keep top of FP stack in register. Since most processors have FP

@@ -68,14 +68,14 @@ Warnings off
 \G SetValue searches in the current vocabulary
  save-input bl word >r restore-input throw r> count
  get-current search-wordlist
- IF bl word drop >body ! ELSE Value THEN ;
+ IF ['] to execute ELSE Value THEN ;
 
 : DefaultValue ( n -- <name> )
 \G Same behaviour as "Value" if the <name> is not defined
 \G DefaultValue searches in the current vocabulary
  save-input bl word >r restore-input throw r> count
  get-current search-wordlist
- IF bl word drop drop drop ELSE Value THEN ;
+ IF bl word drop 2drop ELSE Value THEN ;
 
 hex
 

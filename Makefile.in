@@ -147,7 +147,6 @@ EC_SRC = \
 	asm/generic.fs \
 	asm/target.fs \
 	ec/00-readme \
-	ec/crossdoc.fd \
 	ec/mirror.fs \
 	ec/mirrors.fs \
 	ec/shex.fs \
@@ -296,7 +295,7 @@ DOCDIST = doc/gforth.info doc/gforth.info-* doc/gforth.ps
 #stuff in a binonly distribution 
 BINONLYDIST = config.status Makefile gforth gforth-ditc \
 	$(OBJECTS0) $(OBJECTS) $(OBJECTS_DITC)\
-	arch/$(machine)/machine.h engine/config.h engione/Makefile \
+	arch/$(machine)/machine.h engine/config.h engine/Makefile \
 	stamp-h kernel/version.fs version-stamp \
 	INSTALL.BINDIST
 
@@ -619,8 +618,8 @@ prim.TAGS: 	prim.b prims2x.fs
 		$(CP) $@- $@
 		$(RM) $@-
 
-doc/doc.fd:	doc/makedoc.fs $(GFORTH_FI_SRC) code.fs objects.fs oof.fs
-		$(FORTHK) -e "s\" doc/doc.fd\"" doc/makedoc.fs startup.fs code.fs objects.fs oof.fs -e bye
+doc/doc.fd:	doc/makedoc.fs $(GFORTH_FI_SRC) code.fs objects.fs oof.fs mini-oof.fs
+		$(FORTHK) -e "s\" doc/doc.fd\"" doc/makedoc.fs startup.fs code.fs objects.fs oof.fs mini-oof.fs -e bye
 
 doc/crossdoc.fd:	$(KERN_SRC) kernel/version.fs $(FORTH_GEN0)
 		$(FORTHK) -e 's" mach32l.fs"' kernel/main.fs -e bye

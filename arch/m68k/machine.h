@@ -99,9 +99,9 @@ extern int cacheflush(void *, int, int, size_t);
 
 #ifdef FORCE_REG /* highly recommended */
 #if defined(amigaos)
-#  define IPREG asm("a6")
+#  define IPREG asm("%a6")
 #else
-#  define IPREG asm("a5")
+#  define IPREG asm("%a5")
 #endif
 #define SPREG asm("%a4")
 #define RPREG asm("%a3")

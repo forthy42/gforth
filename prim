@@ -2004,12 +2004,12 @@ define(argclist,
 \ icall(argnum)
 define(icall,
 `icall$1	argflist($1)u -- uret	gforth
-uret = ((Cell(*)(argdlist($1)))u)(argclist($1));
+uret = (SYSCALL(Cell(*)(argdlist($1)))u)(argclist($1));
 
 ')
 define(fcall,
 `fcall$1	argflist($1)u -- rret	gforth
-rret = ((Float(*)(argdlist($1)))u)(argclist($1));
+rret = (SYSCALL(Float(*)(argdlist($1)))u)(argclist($1));
 
 ')
 

@@ -260,7 +260,7 @@ create brick-val 1 c, 2 c, 3 c, 3 c, 4 c, 5 c, 5 c,
 		else  false  then ;
 
 : drop-brick	\ --- ; move brick down fast
-		begin  1 0 move-brick 0=  until ;
+		begin  1 0 move-brick key? drop 0=  until ;
 
 : move-line	\ from to ---
 		over 0 pit  over 0 pit  wide 2*  cmove  draw-line
