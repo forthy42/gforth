@@ -84,14 +84,6 @@ struct Longname {
 
 #define LONGNAME_COUNT(np)	((np)->countetc & (((~((UCell)0))<<3)>>3))
 
-Cell *SP;
-Float *FP;
-Address UP=NULL;
-
-#if 0
-/* not used currently */
-int emitcounter;
-#endif
 #define NULLC '\0'
 
 #ifdef MEMCMP_AS_SUBROUTINE
@@ -100,23 +92,6 @@ extern int gforth_memcmp(const char * s1, const char * s2, size_t n);
 #endif
 
 #define NEWLINE	'\n'
-
-#ifdef HAS_FILE
-static char* fileattr[6]={"rb","rb","r+b","r+b","wb","wb"};
-static char* pfileattr[6]={"r","r","r+","r+","w","w"};
-
-#ifndef O_BINARY
-#define O_BINARY 0
-#endif
-#ifndef O_TEXT
-#define O_TEXT 0
-#endif
-
-static int ufileattr[6]= {
-  O_RDONLY|O_BINARY, O_RDONLY|O_BINARY,
-  O_RDWR  |O_BINARY, O_RDWR  |O_BINARY,
-  O_WRONLY|O_BINARY, O_WRONLY|O_BINARY };
-#endif
 
 /* conversion on fetch */
 
@@ -206,18 +181,6 @@ static int ufileattr[6]= {
 #define SUPER_END
 #endif
 #define SUPER_CONTINUE
-
-#ifdef GFORTH_DEBUGGING
-/* define some VM registers as global variables, so they survive exceptions;
-   global register variables are not up to the task (according to the 
-   GNU C manual) */
-Xt *saved_ip;
-Cell *rp;
-#endif
-
-#ifdef NO_IP
-static Label next_code;
-#endif
 
 #ifdef DEBUG
 #define CFA_TO_NAME(__cfa) \

@@ -23,6 +23,8 @@
 
 #include "config.h"
 #include <stdio.h>
+#include <sys/time.h>
+#include <unistd.h>
 
 #if defined(DOUBLY_INDIRECT)||defined(INDIRECT_THREADED)||defined(VM_PROFILING)
 #define NO_DYNAMIC
@@ -232,7 +234,9 @@ typedef struct {
 
 Label *engine(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp);
 Address my_alloc(Cell size);
+char *cstr(Char *from, UCell size, int clear);
 char *tilde_cstr(Char *from, UCell size, int clear);
+DCell timeval2us(struct timeval *tvp);
 
 /* dblsub routines */
 DCell dnegate(DCell d1);
@@ -273,9 +277,23 @@ extern int debug;
 # define debug 0
 #endif
 
+extern Cell *SP;
+extern Float *FP;
+extern Address UP;
+
 #ifdef GFORTH_DEBUGGING
 extern Xt *saved_ip;
 extern Cell *rp;
+#endif
+
+#ifdef NO_IP
+extern Label next_code;
+#endif
+
+#ifdef HAS_FILE
+extern char* fileattr[6];
+extern char* pfileattr[6];
+extern int ufileattr[6];
 #endif
 
 #ifdef PRINT_SUPER_LENGTHS

@@ -46,6 +46,43 @@
 #include <systypes.h>
 #endif
 
+/* global variables for engine.c 
+   We put them here because engine.c is compiled several times in
+   different ways for the same engine. */
+Cell *SP;
+Float *FP;
+Address UP=NULL;
+
+#ifdef GFORTH_DEBUGGING
+/* define some VM registers as global variables, so they survive exceptions;
+   global register variables are not up to the task (according to the 
+   GNU C manual) */
+Xt *saved_ip;
+Cell *rp;
+#endif
+
+#ifdef NO_IP
+Label next_code;
+#endif
+
+#ifdef HAS_FILE
+char* fileattr[6]={"rb","rb","r+b","r+b","wb","wb"};
+char* pfileattr[6]={"r","r","r+","r+","w","w"};
+
+#ifndef O_BINARY
+#define O_BINARY 0
+#endif
+#ifndef O_TEXT
+#define O_TEXT 0
+#endif
+
+int ufileattr[6]= {
+  O_RDONLY|O_BINARY, O_RDONLY|O_BINARY,
+  O_RDWR  |O_BINARY, O_RDWR  |O_BINARY,
+  O_WRONLY|O_BINARY, O_WRONLY|O_BINARY };
+#endif
+/* end global vars for engine.c */
+
 #define PRIM_VERSION 1
 /* increment this whenever the primitives change in an incompatible way */
 
