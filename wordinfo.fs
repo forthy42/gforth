@@ -27,6 +27,10 @@ INCLUDE look.fs
         cell+ (name>)
         >code-address ['] bl >code-address = ;
 
+: user?  ( nfa -- flag )
+        cell+ (name>)
+        >code-address ['] s0 >code-address = ;
+
 : does? ( nfa -- flag )
         cell+ dup (name>)
         >code-address ['] source >code-address =
@@ -66,24 +70,26 @@ INCLUDE look.fs
 5 CONSTANT Doe#         \ Does part
 6 CONSTANT Def#         \ Defer
 7 CONSTANT Col#         \ Colon def
+8 CONSTANT Use#         \ User variable
 
 \ Nobody knows:
 
-8 CONSTANT Ali#         \ Alias
+9 CONSTANT Ali#         \ Alias
 
-9 CONSTANT Str#         \ Structure words
+10 CONSTANT Str#         \ Structure words
 
-10 CONSTANT Com#        \ Compiler directives : ; POSTPONE
+11 CONSTANT Com#        \ Compiler directives : ; POSTPONE
 
 CREATE InfoTable
-        ' Prim? A, Pri# ,
-        ' Alias? A, Ali# ,
-        ' Con?   A, Con# ,
-        ' Var?   A, Var# ,
-\        ' Value? A, Val# ,
+        ' Prim?    A, Pri# ,
+        ' Alias?   A, Ali# ,
+        ' Con?     A, Con# ,
+        ' Var?     A, Var# ,
+\        ' Value?  A, Val# ,
         ' Defered? A, Def# ,
-        ' Does? A, Doe# ,
-        ' Colon? A, Col# ,
+        ' Does?    A, Doe# ,
+        ' Colon?   A, Col# ,
+	' User?    A, Use# ,
         0 ,
 
 : WordInfo ( nfa --- code )

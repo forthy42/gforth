@@ -449,20 +449,20 @@ CREATE C-Table
 DEFER dosee
 
 : dopri .name ." is primitive" cr ;
-: dovar .name ." is variable" cr ;
-: docon  dup .name ." is constant, value: "
-         cell+ (name>) >body @ . cr ;
-: doval .name ." is value" cr ;
-: dodef .name ." is defered word, is: "
+: dovar ." Variable " .name cr ;
+: douse ." User " .name cr ;
+: docon  dup cell+ (name>) >body @ . ." Constant " .name cr ;
+: doval  dup cell+ (name>) >body @ . ." Value " .name cr ;
+: dodef ." Defer " dup >r .name cr
          here @ look 0= ABORT" SEE: No valid xt in defered word"
-        .name cr here @ look drop dosee ;
-: dodoe .name ." is created word" cr
+	 here @ look drop dosee cr
+        ." ' " .name r> ." IS " .name cr ;
+: dodoe ." Create " .name cr
         S" DOES> " Com# .string XPos @ Level !
         here @ dup C-Pass @ DebugMode = IF ScanMode c-pass ! EXIT THEN
         ScanMode c-pass ! dup makepass
         DisplayMode c-pass ! makepass ;
-: doali .name ." is alias of "
-        here @ .name cr
+: doali here @ .name ." Alias " .name cr
         here @ dosee ;
 : docol S" : " Com# .string
         dup cell+ count $1F and 2 pick wordinfo .string bl cemit bl cemit
@@ -481,17 +481,20 @@ create wordtypes
         Doe# ,   ' dodoe A,
         Ali# ,   ' doali A,
         Col# ,   ' docol A,
+	Use# ,   ' douse A,
         0 ,
 
 : (dosee) ( lfa -- )
-        dup dup cell+ c@ 32 and IF over .name ." is an immediate word" cr THEN
+        dup dup cell+ c@ >r
         wordinfo
         wordtypes
         BEGIN dup @ dup
-        WHILE 2 pick = IF cell+ @ nip EXECUTE EXIT THEN
+        WHILE 2 pick = IF cell+ @ nip EXECUTE
+	                  r> dup 32 and IF ."  immediate" THEN
+			         64 and IF ."  restrict" THEN EXIT THEN
               2 cells +
         REPEAT
-        2drop
+        2drop rdrop
         .name ." Don't know how to handle" cr ;
 
 ' (dosee) IS dosee
@@ -501,7 +504,7 @@ create wordtypes
         cr c-init
         dosee ;
 
-: see   name find 0= IF ." Word unknown" cr drop exit THEN
+: see   name sfind 0= IF ." Word unknown" cr exit THEN
         xtc ;
 
 : lfc   cr c-init cell+ dosee ;

@@ -32,12 +32,6 @@ Variable HashPointer
 : hash-find ( addr len wordlist -- nfa / false )
     $C + @ >r
     2dup hash cells r> + @ (hashfind) ;
-\  BEGIN  dup  WHILE
-\         2@ >r >r dup r@ cell+ c@ $1F and =
-\         IF  2dup r@ cell+ char+ capscomp 0=
-\	     IF  2drop r> rdrop  EXIT  THEN  THEN
-\	 rdrop r>
-\  REPEAT nip nip ;
 
 \ hash vocabularies                                    16jul94py
 

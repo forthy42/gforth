@@ -15,6 +15,7 @@
 \ 5) Words that call NEXT themselves have to be done very carefully.
 \
 \ To do:
+\ add the store optimization for doubles
 \ regarding problem 1 above: It would be better (for over) to implement
 \ 	the alternative
 
@@ -36,7 +37,7 @@ maxchar 1+ constant eof-char
   begin ( c-addr file-id )
     2dup batch-size swap read-file 
     if
-      abort" I/O error"
+      true abort" I/O error"
     endif
     ( c-addr file-id actual-size ) rot over + -rot
     batch-size <>
@@ -240,22 +241,25 @@ constant type-description
 
 : fetch-single ( item -- )
  >r
- r@ item-name 2@ type ."  = (" 
+ r@ item-name 2@ type
+ ."  = (" 
  r@ item-type @ type-c-name 2@ type ." ) "
  r@ item-d-offset @ effect-in-size 2@ data-stack-access ." ;" cr
  rdrop ; 
 
 : fetch-double ( item -- )
  >r
- ." {Double_Store _d; _d.cells.low = "
+ r@ item-name 2@ type 
+ ." = ({Double_Store _d; _d.cells.low = "
  r@ item-d-offset @ dup    effect-in-size 2@ data-stack-access
- ." ; _d.cells.high = " 1+ effect-in-size 2@ data-stack-access ." ; "
- r@ item-name 2@ type ."  = _d.dcell;}" cr
+ ." ; _d.cells.high = " 1+ effect-in-size 2@ data-stack-access
+ ." ; _d.dcell;});" cr
  rdrop ;
 
 : fetch-float ( item -- )
  >r
- r@ item-name 2@ type ."  = "
+ r@ item-name 2@ type
+ ."  = "
  \ ." (" r@ item-type @ type-c-name 2@ type ." ) "
  r@ item-f-offset @ effect-in-size 2@ fp-stack-access ." ;" cr
  rdrop ;
@@ -264,9 +268,7 @@ constant type-description
 \ f is true iff the offset of item is the same as on input
  >r
  r@ item-name 2@ items @ search-wordlist 0=
- if
-   ." bug" cr abort
- endif
+ abort" bug"
  execute @
  dup r@ =
  if \ item first appeared in output
@@ -312,9 +314,7 @@ constant type-description
 \ f is true iff the offset of item is the same as on input
  >r
  r@ item-name 2@ items @ search-wordlist 0=
- if
-   ." bug" cr abort
- endif
+ abort" bug"
  execute @
  dup r@ =
  if \ item first appeared in output
@@ -404,9 +404,9 @@ set-current
      execute nip
      UNLOOP EXIT
    endif
- -1 s+loop
+ -1 +loop
  \ we did not find a type, abort
- ." unknown type prefix" cr ABORT ;
+ true abort" unknown type prefix" ;
 
 : declare ( addr "name" -- )
 \ remember that there is a stack item at addr called name
@@ -427,6 +427,9 @@ set-current
  swap ?do
   i declaration
  item-descr +loop ;
+
+: fetch ( addr -- )
+ dup item-type @ type-fetch-handler execute ;
 
 : declarations ( -- )
  wordlist dup items ! set-current
@@ -479,16 +482,13 @@ set-current
    ." IF_TOS(TOS = sp[0]);" cr
  endif ;
 
-: fetch ( addr -- )
- dup item-type @ type-fetch-handler execute ;
-
 : fetches ( -- )
  effect-in-end @ effect-in ?do
    i fetch
  item-descr +loop ; 
 
 : stack-pointer-updates ( -- )
-\ we do not check if an update is a noop; gcc does this for us
+\ we need not check if an update is a noop; gcc does this for us
  effect-in-size 2@
  effect-out-size 2@
  rot swap - ( d-in d-out f-diff )
@@ -504,6 +504,11 @@ set-current
 : stores ( -- )
  effect-out-end @ effect-out ?do
    i store
+ item-descr +loop ; 
+
+: .stack-list ( start end -- )
+ swap ?do
+   i item-name 2@ type space
  item-descr +loop ; 
 
 : output-c ( -- )
@@ -523,7 +528,7 @@ set-current
  ." NEXT_P1;" cr
  stores
  fill-tos
- ." NEXT_P2;" cr
+ ." NEXT1_P2;" cr
  ." }" cr
  cr
 ;
@@ -535,11 +540,19 @@ set-current
  primitive-number @ . ." alias " forth-name 2@ type cr
  -1 primitive-number +! ;
 
+: output-forth ( -- )
+ forth-code @ 0=
+ IF    output-alias
+ ELSE  ." : " forth-name 2@ type ."   ( "
+       effect-in effect-in-end @ .stack-list ." -- "
+       effect-out effect-out-end @ .stack-list ." )" cr
+       forth-code 2@ type cr
+       -1 primitive-number +!
+ THEN
+;
+
 : process-file ( addr u xt -- )
- >r r/o open-file
- if
-   ." cannot open file" cr abort
- endif
+ >r r/o open-file abort" cannot open file"
  warnings @ if
  ." ------------ CUT HERE -------------" cr  endif
  r> primfilter ;

@@ -5,9 +5,9 @@ GCC	= gcc
 FORTH	= gforth
 CC	= gcc
 SWITCHES = \
-	-fno-defer-pop -fcaller-saves -m486 \
-	-D_POSIX_VERSION -DUSE_FTOS \
-	#-DDIRECT_THREADED #-DFORCE_REG #-DNDEBUG #turn off assertions
+	-fno-defer-pop -fcaller-saves \
+	-DUSE_TOS -DUSE_FTOS -DDEFAULTBIN='"'`pwd`'"' \
+	-DDIRECT_THREADED #-DNDEBUG #turn off assertions
 CFLAGS	= -O4 -Wall -g $(SWITCHES)
 
 #-Xlinker -n puts text and data into the same 256M region
@@ -72,13 +72,13 @@ kernl32l.fi:	main.fs search-order.fs cross.fs aliases.fs vars.fs add.fs \
 		errore.fs kernal.fs extend.fs tools.fs toolsext.fs \
 		mach32l.fs $(FORTH_GEN)
 		-cp kernl32l.fi kernl32l.fi~
-		$(FORTH) -e 's" mach32l.fs" r/o open-file throw' main.fs
+		$(FORTH) -e 's" mach32l.fs"' main.fs
 
 kernl32b.fi:	main.fs search-order.fs cross.fs aliases.fs vars.fs add.fs \
 		errore.fs kernal.fs extend.fs tools.fs toolsext.fs \
 		mach32b.fs $(FORTH_GEN)
 		-cp kernl32b.fi kernl32b.fi~
-		$(FORTH) -e 's" mach32b.fs" r/o open-file throw' main.fs
+		$(FORTH) -e 's" mach32b.fs"' main.fs
 
 engine.s:	engine.c primitives.i prim_labels.i machine.h $(INCLUDES)
 		$(GCC) $(CFLAGS) -S engine.c
@@ -97,12 +97,19 @@ prim_labels.i :	primitives.b prims2x.fs
 aliases.fs:	primitives.b prims2x.fs
 		$(FORTH) prims2x.fs -e "s\" primitives.b\" ' output-alias process-file bye" >$@
 
+primitives.fs:	primitives.b prims2x.fs
+		$(FORTH) prims2x.fs -e "s\" primitives.b\" ' output-forth process-file bye" >$@
+
 #primitives.4th:	primitives.b primitives2c.el
 #		$(EMACS) -batch -load primitives2c.el -funcall make-forth
 
 #GNU make default rules
 #% ::		RCS/%,v
 #		co $@
-#%.o :		%.c $(INCLUDES)
-#		$(CC) $(CFLAGS) -c $< -o $@
+
+%.s :		%.c $(INCLUDES)
+		$(CC) $(CFLAGS) -S $< -o $@
+
+%.o :		%.s
+		$(CC) $(CFLAGS) -c $< -o $@
 

@@ -1,5 +1,5 @@
 /*
-  $Id: main.c,v 1.11 1994-09-08 17:20:09 anton Exp $
+  $Id: main.c,v 1.12 1994-09-12 19:00:34 pazsan Exp $
   Copyright 1993 by the ANSI figForth Development Group
 */
 
@@ -14,7 +14,14 @@
 #include <stdlib.h>
 #include "forth.h"
 #include "io.h"
-#include "getopt.h"
+#ifdef USE_GETOPT
+#  include "getopt.h"
+#else
+     extern int getopt (argc, argv, optstring);
+
+     extern char *optarg;
+     extern int optind, opterr;
+#endif
 
 #ifndef DEFAULTPATH
 #	define DEFAULTPATH "/usr/local/lib/gforth:."
@@ -184,7 +191,7 @@ int main(int argc, char **argv, char **env)
 	char *path, *path1;
 	char *imagename="gforth.fi";
 	FILE *image_file;
-	int c;
+	int c, retvalue;
 	  
 #if defined(i386) && defined(ALIGNMENT_CHECK)
 	/* turn on alignment checks on the 486.
@@ -198,6 +205,7 @@ int main(int argc, char **argv, char **env)
 	opterr=0;
 	while (1) {
 	  int option_index=0;
+#ifdef USE_GETOPT
 	  static struct option opts[] = {
 	    {"image-file", required_argument, NULL, 'i'},
 	    {"dictionary-size", required_argument, NULL, 'm'},
@@ -211,6 +219,10 @@ int main(int argc, char **argv, char **env)
 	  };
 
 	  c = getopt_long(argc, argv, "+drfl", opts, &option_index);
+#else
+	  c = getopt(argc, argv, "imdrflp");
+#endif
+
 	  if (c==EOF)
 	    break;
 	  if (c=='?') {
@@ -255,6 +267,8 @@ int main(int argc, char **argv, char **env)
 	  for (i=0; i<environ[0]; i++)
 	    printf("%s\n", ((char **)(environ[1]))[i]);
 */
-	  exit(go_forth(loader(image_file),3, environ));
+     retvalue=go_forth(loader(image_file),3,environ);
+     deprep_terminal();
+     exit(retvalue);
 	}
 }

@@ -3,8 +3,9 @@
 
 warnings off
 
-include float.fs
-include search-order.fs
+\ include float.fs
+\ include search-order.fs
+include glocals.fs
 include environ.fs
 \ include toolsext.fs
 include wordinfo.fs

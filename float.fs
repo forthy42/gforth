@@ -6,7 +6,7 @@
 ' align   Alias sfalign
 ' aligned Alias sfaligned
 [ELSE]
-: sfloats  4 * ;
+: sfloats  2* 2* ;
 : sfloat+  4 + ;
 : sfaligned ( addr -- addr' )  3 + -4 and ;
 : sfalign ( -- )  here dup sfaligned swap ?DO  bl c,  LOOP ;
@@ -18,7 +18,7 @@
 ' falign   Alias dfalign
 ' faligned Alias dfaligned
 [ELSE]
-: dfloats  8 * ;
+: dfloats  2* 2* 2* ;
 : dfloat+  8 + ;
 : dfaligned ( addr -- addr' )  7 + -8 and ;
 : dfalign ( -- )  here dup dfaligned swap ?DO  bl c,  LOOP ;

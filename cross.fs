@@ -1,5 +1,5 @@
 \ CROSS.FS     The Cross-Compiler                      06oct92py
-\ $Id: cross.fs,v 1.12 1994-09-09 16:27:17 anton Exp $
+\ $Id: cross.fs,v 1.13 1994-09-12 19:00:27 pazsan Exp $
 \ Idea and implementation: Bernd Paysan (py)
 \ Copyright 1992 by the ANSI figForth Development Group
 
@@ -40,7 +40,7 @@ VARIABLE GhostNames
 0 GhostNames !
 : GhostName ( -- addr )
         here GhostNames @ , GhostNames ! here 0 ,
-        name count
+        bl word count
 \        2dup type space
         dup c, here over chars allot swap move align ;
 
@@ -84,7 +84,7 @@ Variable tdp
 
 \ Parameter for target systems                         06oct92py
 
-include-file
+included
 
 >TARGET
 
@@ -234,15 +234,13 @@ Variable last-ghost
 \ searches for string in word-list ghosts
 \ !! wouldn't it be simpler to just use search-wordlist ? ae
   dup count [ ' ghosts >body ] ALiteral search-wordlist
-\ >r get-order  0 set-order also ghosts  r> find >r >r
-  >r r@ IF  >body nip  THEN  r> ;
-\ set-order  r> r@  IF  >body  THEN  r> ;
+  dup IF  >r >body nip r>  THEN ;
 
 VARIABLE Already
 
 : ghost   ( "name" -- ghost )
   Already off
-  >in @  name gfind   IF  Already on nip EXIT  THEN
+  >in @  bl word gfind   IF  Already on nip EXIT  THEN
   drop  >in !  Make-Ghost ;
 
 \ resolve                                              14oct92py
@@ -330,7 +328,7 @@ VARIABLE ^imm
 
 : string,  ( addr count -- )
   dup T c, H bounds  DO  I c@ T c, H  LOOP ; 
-: name,  ( "name" -- )  name count string, T align H ;
+: name,  ( "name" -- )  bl word count string, T align H ;
 : view,   ( -- ) ( dummy ) ;
 
 VARIABLE CreateFlag CreateFlag off
@@ -398,14 +396,14 @@ ghost '
 
 : compile  ( -- ) \ name
   restrict?
-  name gfind dup 0= ABORT" CROSS: Can't compile "
+  bl word gfind dup 0= ABORT" CROSS: Can't compile "
   0> ( immediate? )
   IF    >exec @ compile,
   ELSE  postpone literal postpone gexecute  THEN ;
                                         immediate
 
 >TARGET
-: '  ( -- cfa ) name gfind 0= ABORT" CROSS: undefined "
+: '  ( -- cfa ) bl word gfind 0= ABORT" CROSS: undefined "
   dup >magic @ <fwd> = ABORT" CROSS: forward " >link @ ;
 
 Cond: [']  compile lit ghost gexecute ;Cond
@@ -442,7 +440,7 @@ Cond: [Char]   ( "<char>" -- )  restrict? Char  lit, ;Cond
 
 : ] state on
     BEGIN
-        BEGIN >in @ name
+        BEGIN >in @ bl word
               dup c@ 0= WHILE 2drop refill 0=
               ABORT" CROSS: End of file while target compiling"
         REPEAT
@@ -672,14 +670,14 @@ Cond: TO        T ' >body H compile ALiteral compile ! ;Cond
 \ compile must be last                                 22feb93py
 
 Cond: compile ( -- ) restrict? \ name
-      name gfind dup 0= ABORT" CROSS: Can't compile"
+      bl word gfind dup 0= ABORT" CROSS: Can't compile"
       0> IF    gexecute
          ELSE  dup >magic @ <imm> =
                IF   gexecute
                ELSE compile (compile) gexecute THEN THEN ;Cond
 
 Cond: postpone ( -- ) restrict? \ name
-      name gfind dup 0= ABORT" CROSS: Can't compile"
+      bl word gfind dup 0= ABORT" CROSS: Can't compile"
       0> IF    gexecute
          ELSE  dup >magic @ <imm> =
                IF   gexecute
@@ -693,7 +691,7 @@ also minimal
 
 \ define new [IFDEF] and [IFUNDEF]                      20may93jaw
 
-: there? name gfind IF >magic @ <fwd> <> ELSE drop false THEN ;
+: there? bl word gfind IF >magic @ <fwd> <> ELSE drop false THEN ;
 
 : [IFDEF] there? postpone [IF] ;
 : [IFUNDEF] there? 0= postpone [IF] ;
@@ -749,6 +747,9 @@ bigendian Constant bigendian
 : * * ;         : / / ;
 : dup dup ;     : over over ;
 : swap swap ;   : rot rot ;
+: drop drop ;
+: lshift lshift ; : 2/ 2/ ;
+cell constant cell
 
 \ include bug5.fs
 \ only forth also minimal definitions

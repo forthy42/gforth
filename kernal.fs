@@ -154,11 +154,10 @@ Defer source
 
 \ name                                                 13feb93py
 
-: capitalize ( addr -- addr )
-  dup count chars bounds
+: capitalize ( addr len -- addr len )
+  2dup chars chars bounds
   ?DO  I c@ toupper I c! 1 chars +LOOP ;
-: (name)  ( -- addr )  bl word ;
-: sname ( -- c-addr count )
+: (name) ( -- c-addr count )
     source 2dup >r >r >in @ /string (parse-white)
     2dup + r> - 1+ r> min >in ! ;
 \    name count ;
@@ -176,7 +175,7 @@ Defer source
 
 : (compile) ( -- )  r> dup cell+ >r @ A, ;
 : postpone ( "name" -- )
-  name find dup 0= abort" Can't compile "
+  name sfind dup 0= abort" Can't compile "
   0> IF  A,  ELSE  postpone (compile) A,  THEN ;
                                              immediate restrict
 
@@ -342,15 +341,15 @@ Defer notfound ( c-addr count -- )
 
 : interpret
     BEGIN
-	?stack sname dup
+	?stack name dup
     WHILE
 	parser
     REPEAT
     2drop ;
 
-\ sinterpreter scompiler                                 30apr92py
+\ interpreter compiler                                 30apr92py
 
-: sinterpreter  ( c-addr u -- ) 
+: interpreter  ( c-addr u -- ) 
     \ interpretation semantics for the name/number c-addr u
     2dup sfind dup
     IF
@@ -368,9 +367,9 @@ Defer notfound ( c-addr count -- )
 	2r> notfound
     THEN ;
 
-' sinterpreter  IS  parser
+' interpreter  IS  parser
 
-: scompiler     ( c-addr u -- )
+: compiler     ( c-addr u -- )
     \ compilation semantics for the name/number c-addr u
     2dup sfind dup
     IF
@@ -393,17 +392,17 @@ Defer notfound ( c-addr count -- )
 	drop notfound
     THEN ;
 
-: [     ['] sinterpreter  IS parser state off ; immediate
-: ]     ['] scompiler     IS parser state on  ;
+: [     ['] interpreter  IS parser state off ; immediate
+: ]     ['] compiler     IS parser state on  ;
 
 \ locals stuff needed for control structures
 
 : compile-lp+! ( n -- )
     dup negate locals-size +!
     0 over = if
-    else -4 over = if postpone -4lp+!
-    else  8 over = if postpone  8lp+!
-    else 16 over = if postpone 16lp+!
+    else -1 cells  over = if postpone lp-
+    else  1 floats over = if postpone lp+
+    else  2 floats over = if postpone lp+2
     else postpone lp+!# dup ,
     then then then then drop ;
 
@@ -561,18 +560,13 @@ variable dead-code \ true if normal code at "here" would be dead
 
 : THEN ( orig -- )
     dup orig?
-    dead-code @
+    dead-orig =
     if
-	dead-orig =
-	if
-	    >resolve drop
-	else
-	    >resolve set-locals-size-list dead-code off
-	then
+        >resolve drop
     else
-	dead-orig =
-	if
-	    >resolve drop
+        dead-code @
+        if
+	    >resolve set-locals-size-list dead-code off
 	else \ both live
 	    over list-size adjust-locals-size
 	    >resolve
@@ -797,12 +791,13 @@ Avariable leave-sp  leave-stack 3 cells + leave-sp !
 \ information through global variables), but they are useful for dealing
 \ with existing/independent defining words
 
-defer header
+defer (header)
+defer header     ' (header) IS header
 
 : name,  ( "name" -- )
-    name c@
+    name
     dup $1F u> -&19 and throw ( is name too long? )
-    1+ chars allot align ;
+    dup c,  here swap chars  dup allot  move  align ;
 : input-stream-header ( "name" -- )
     \ !! this is f83-implementation-dependent
     align here last !  -1 A,
@@ -810,9 +805,9 @@ defer header
 
 : input-stream ( -- )  \ general
 \ switches back to getting the name from the input stream ;
-    ['] input-stream-header IS header ;
+    ['] input-stream-header IS (header) ;
 
-' input-stream-header IS header
+' input-stream-header IS (header)
 
 \ !! make that a 2variable
 create nextname-buffer 32 chars allot
@@ -830,7 +825,7 @@ create nextname-buffer 32 chars allot
     dup $1F u> -&19 and throw ( is name too long? )
     nextname-buffer c! ( c-addr )
     nextname-buffer count move
-    ['] nextname-header IS header ;
+    ['] nextname-header IS (header) ;
 
 : noname-header ( -- )
     0 last !
@@ -838,7 +833,7 @@ create nextname-buffer 32 chars allot
 
 : noname ( -- ) \ general
 \ the next defined word remains anonymous. The xt of that word is given by lastxt
-    ['] noname-header IS header ;
+    ['] noname-header IS (header) ;
 
 : lastxt ( -- xt ) \ general
 \ xt is the execution token of the last word defined. The main purpose of this word is to get the xt of words defined using noname
@@ -1024,7 +1019,7 @@ Variable warnings  G -1 warnings T !
 
 : rehash  ( wid -- )  dup cell+ @ cell+ cell+ @ execute ;
 
-: '    ( "name" -- addr )  name find 0= if drop -&13 bounce then ;
+: '    ( "name" -- addr )  name sfind 0= if -&13 bounce then ;
 : [']  ( "name" -- addr )  ' postpone ALiteral ; immediate
 \ Input                                                13feb93py
 
@@ -1164,8 +1159,8 @@ create nl$ 1 c, A c, 0 c, \ gnu includes usually a cr in dos
 : include-file ( i*x fid -- j*x )
   push-file  loadfile !
   0 loadline ! blk off  ['] read-loop catch
-  loadfile @ close-file swap
-  pop-file  throw throw ;
+  loadfile @ close-file swap 2dup or
+  pop-file  drop throw throw ;
 
 create pathfilenamebuf 256 chars allot \ !! make this grow on demand
 
@@ -1195,10 +1190,10 @@ create pathfilenamebuf 256 chars allot \ !! make this grow on demand
     open-path-file ( file-id c-addr2 u2 )
     dup allocate throw over loadfilename 2! ( file-id c-addr2 u2 )
     drop loadfilename 2@ move
-    include-file
+    ['] include-file catch
     \ don't free filenames; they don't take much space
     \ and are used for debugging
-    r> r> loadfilename 2! ;
+    r> r> loadfilename 2!  throw ;
 
 \ HEX DECIMAL                                           2may93jaw
 
@@ -1212,7 +1207,7 @@ create pathfilenamebuf 256 chars allot \ !! make this grow on demand
 \ INCLUDE                                               9may93jaw
 
 : include  ( "file" -- )
-  bl word count included ;
+  name included ;
 
 \ RECURSE                                               17may93jaw
 
@@ -1289,10 +1284,10 @@ DEFER DOERROR
   ELSE
      type ." :" dec.
      cr dup 2over type cr drop
-     nip -trailing ( line-start index2 )
+     nip -trailing 1- ( line-start index2 )
      0 >r  BEGIN
-                  1- 2dup + c@ bl >  WHILE
-		  r> 1+ >r  dup 0<  UNTIL  THEN  1+
+                  2dup + c@ bl >  WHILE
+		  r> 1+ >r  1- dup 0<  UNTIL  THEN  1+
      ( line-start index1 )
      typewhite
      r> 1 max 0 ?do \ we want at least one "^", even if the length is 0

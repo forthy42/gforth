@@ -14,7 +14,7 @@ CREATE Closenest 7 chars allot
 
 : SKIPNEST
       1 BEGIN
-          BEGIN name count dup WHILE
+          BEGIN name dup WHILE
                 2dup Opennest count compare 0=
                 IF   2drop 1+
                 ELSE    Closenest count compare 0= IF 1- THEN
@@ -36,7 +36,7 @@ CREATE Closenest 7 chars allot
 
 : [ELSE]
       1 BEGIN
-          BEGIN name count dup WHILE
+          BEGIN name dup WHILE
                 comment?
                 2dup s" [IF]" compare 0=
                 IF   2drop 1+
@@ -58,9 +58,9 @@ CREATE Closenest 7 chars allot
 \ [IFUNDEF] [IFDEF]                                     9may93jaw
 
 : [IFUNDEF]
-        name find nip 0= postpone [IF] ; immediate
+        bl word find nip 0= postpone [IF] ; immediate
 : [IFDEF]
-        name find nip 0<> postpone [IF] ; immediate
+        bl word find nip 0<> postpone [IF] ; immediate
 
 
 \ [IF]?                                                 9jun93jaw

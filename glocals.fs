@@ -61,22 +61,22 @@
 \ Currently locals may only be
 \ defined at the outer level and TO is not supported.
 
-include float.fs
 include search-order.fs
+include float.fs
 
 : compile-@local ( n -- )
  case
-    0 of postpone @local0 endof
-    4 of postpone @local4 endof
-    8 of postpone @local8 endof
-   12 of postpone @local12 endof
+    0       of postpone @local0 endof
+    1 cells of postpone @local1 endof
+    2 cells of postpone @local2 endof
+    3 cells of postpone @local3 endof
    ( otherwise ) dup postpone @local# ,
  endcase ;
 
 : compile-f@local ( n -- )
  case
-    0 of postpone f@local0 endof
-    8 of postpone f@local8 endof
+    0        of postpone f@local0 endof
+    1 floats of postpone f@local1 endof
    ( otherwise ) dup postpone f@local# ,
  endcase ;
 
@@ -509,5 +509,5 @@ forth definitions
  endif ; immediate
 
 : locals|
-  BEGIN  sname 2dup s" |" compare 0=  WHILE
+  BEGIN  name 2dup s" |" compare 0=  WHILE
          (local)  REPEAT  drop 0 (local) ;  immediate restrict
