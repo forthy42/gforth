@@ -364,7 +364,7 @@ variable public-wordlist
     POSTPONE to-this
     POSTPONE ; ; immediate
 
-: catch ( ... xt -- ... n )
+: catch ( ... xt -- ... n ) \ exception
     \ make it safe to call CATCH within a method.
     \ should also be done with all words containing CATCH.
     this >r catch r> to-this ;
