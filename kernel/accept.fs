@@ -46,19 +46,20 @@ defer everychar
 ' noop IS everychar
 
 : decode ( max span addr pos1 key -- max span addr pos2 flag )
-  everychar
-  dup #del = IF  drop #bs  THEN  \ del is rubout
-  dup bl u<  IF  cells ctrlkeys + perform  EXIT  THEN
-  \ check for end reached
-  >r 2over = IF  rdrop bell 0 EXIT  THEN
-  r> insert-char 0 ;
+    everychar
+    dup -1 =   IF  drop 4  THEN  \ -1 is EOF
+    dup #del = IF  drop #bs  THEN  \ del is rubout
+    dup bl u<  IF  cells ctrlkeys + perform  EXIT  THEN
+    \ check for end reached
+    >r 2over = IF  rdrop bell 0 EXIT  THEN
+    r> insert-char 0 ;
 
 : edit-line ( c-addr n1 n2 -- n3 ) \ gforth
     \G edit the string with length @var{n2} in the buffer @var{c-addr
     \G n1}, like @code{accept}.
     rot over
     2dup type
-    BEGIN key decode UNTIL
+    BEGIN  key decode  UNTIL
     2drop nip ;
     
 : accept   ( c-addr +n1 -- +n2 ) \ core

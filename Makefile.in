@@ -574,6 +574,26 @@ bench:		gforth-fast$(EXE) gforth.fi
 		time $(FORTH_FAST) matrix.fs -e "main bye"
 		time $(FORTH_FAST) fib.fs -e "main bye"
 
+onebench:
+		@\time -f "siev   %U" $(FORTH_FAST) siev.fs -e "main bye"
+		@\time -f "bubble %U" $(FORTH_FAST) -e "warnings off" bubble.fs -e "main bye"
+		@\time -f "matrix %U" $(FORTH_FAST) matrix.fs -e "main bye"
+		@\time -f "fib    %U" $(FORTH_FAST) fib.fs -e "main bye"
+
+all-bench:	gforth-fast$(EXE) gforth$(EXE) gforth-itc$(EXE) gforth-ditc$(EXE) gforth.fi
+		@echo "*** gforth-fast dynamic:"
+		@make onebench ENGINE_FAST="gforth-fast --dynamic"
+		@echo "*** gforth-fast not dynamic:"
+		@make onebench ENGINE_FAST="gforth-fast --no-dynamic"
+		@echo "*** gforth dynamic:"
+		@make onebench ENGINE_FAST="gforth --dynamic"
+		@echo "*** gforth not dynamic:"
+		@make onebench ENGINE_FAST="gforth --no-dynamic"
+		@echo "*** gforth-itc:"
+		@make onebench ENGINE_FAST=gforth-itc
+		@echo "*** gforth-ditc:"
+		@make onebench ENGINE_FAST=gforth-ditc
+
 # -------------	Make forth images
 
 # How to make new images:

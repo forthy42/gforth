@@ -46,16 +46,16 @@ decimal
     [IFDEF] decompile-prim
     decompile-prim
     [THEN]
-    false rot
+    >r false swap
     BEGIN
 	@ dup
     WHILE
 	    dup name>int xt>threaded
-	    3 pick = IF
+	    r@ = IF
 		nip dup
 	    THEN
     REPEAT
-    drop nip
+    drop rdrop
     dup 0<> ;
 
 
