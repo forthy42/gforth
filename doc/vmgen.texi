@@ -1023,6 +1023,17 @@ VM instruction table.
 @end table
 
 
+@section VM profiler
+
+The VM profiler is designed for getting execution and occurence counts
+for VM instruction sequences, and these counts can then be used for
+selecting sequences as superinstructions.  The VM profiler is probably
+not useful as profiling tool for the interpretive system (i.e., the VM
+profiler is useful for the developers, but not the users of the
+interpretive system).
+
+
+
 
 
 
