@@ -487,7 +487,10 @@ library.  If this is what you want to do, use the GNU Library General
 Public License instead of this License.
 
 @iftex
+@node    Preface
+@comment node-name,     next,           previous, up
 @unnumbered Preface
+@cindex Preface
 This manual documents Gforth. The reader is expected to know
 Forth. This manual is primarily a reference manual. @xref{Other Books}
 for introductory material.
@@ -3669,9 +3672,14 @@ to Report Bugs, gcc.info, GNU C Manual}.
 Gforth descends from BigForth (1993) and fig-Forth. Gforth and PFE (by
 Dirk Zoller) will cross-fertilize each other. Of course, a significant part of the design of Gforth was prescribed by ANS Forth.
 
-Bernd Paysan wrote BigForth, a child of VolksForth.
+Bernd Paysan wrote BigForth, a descendent from TurboForth, an unreleased
+32 bit native code version of VolksForth for the Atari ST, written
+mostly by Dietrich Weineck.
 
-VolksForth descends from F83. !! Authors? When?
+VolksForth descends from F83. It was written by Klaus Schleisiek, Bernd
+Pennemann, Georg Rehfeld and Dietrich Weineck for the C64 (called
+UltraForth there) in the midth of the 80th and ported to Atari ST in
+1986.
 
 Laxen and Perry wrote F83 as a model implementation of the
 Forth-83 standard. !! Pedigree? When?
@@ -3680,7 +3688,8 @@ A team led by Bill Ragsdale implemented fig-Forth on many processors in
 1979. Dean Sanderson and Bill Ragsdale developed the original
 implementation of fig-Forth based on microForth.
 
-!! microForth pedigree
+microForth appears to be a downsized version of polyForth from Forth
+Inc. for the 8080 written in the midth of the 70th.
 
 A part of the information in this section comes from @cite{The Evolution
 of Forth} by Elizabeth D. Rather, Donald R. Colburn and Charles
