@@ -1,5 +1,5 @@
 #usage: invoke this in the gforth directory
-GFORTH=gforth-0.4.9-20000715
+GFORTH=gforth-0.5.0
 make dist >/dev/null 2>/dev/null
 mkdir xxxtest
 cd xxxtest

@@ -1,8 +1,12 @@
 #! /usr/local/bin/bash
 #test dist on all MACHINES given in MACHINES
 #usage: MACHINES="..." testall dirs/gforth-version.tar.gz
-test "x$MACHINES" != x || MACHINES="jupiter pcs d0 mips aertl@fpr.zserv.tuwien.ac.at aertl@fbma.tuwien.ac.at aertl@stat.zserv.tuwien.ac.at a5 w4.infosys.tuwien.ac.at samhain.ifs.tuwien.ac.at a9"
-#taken out: hpws03.infosys.tuwien.ac.at calis
+if test $# = 0; then
+  echo "usage: `basename $0` gforth-xxx.tar.gz"
+  exit 1
+fi
+test "x$MACHINES" != x || MACHINES="jupiter pcs d0 mips aertl@fpr.zserv.tuwien.ac.at aertl@stat.zserv.tuwien.ac.at a5 w4.infosys.tuwien.ac.at samhain.ifs.tuwien.ac.at calis a9"
+#taken out: hpws03.infosys.tuwien.ac.at aertl@fbma.tuwien.ac.at
 for i in $MACHINES
 do
 	( ssh $i "test -d xxxgforthtest||mkdir xxxgforthtest; cd xxxgforthtest; test -d $i||mkdir $i; rm -rf $i/*"; \
