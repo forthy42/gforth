@@ -129,6 +129,7 @@ EXEC(*(Xt *)a_addr);
 :
  @ execute ;
 
+\fhas? skipbranchprims 0= [IF]
 \+glocals
 
 branch-lp+!#	--	gforth	branch_lp_plus_store_number
@@ -208,6 +209,8 @@ else
   INC_IP(1);
 
 \+
+\f[THEN]
+\fhas? skiploopprims 0= [IF]
 
 condbranch((next),--		cmFORTH	paren_next,
 if ((*rp)--) {
@@ -436,6 +439,8 @@ n = rp[4];
 \ rp@ [ 5 cells ] Literal + @ ;
   r> r> r> r> r> r> dup itmp ! >r >r >r >r >r >r itmp @ ;
 [IFUNDEF] itmp variable itmp [THEN]
+
+\f[THEN]
 
 \ digit is high-level: 0/0%
 
