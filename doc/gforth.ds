@@ -10336,7 +10336,9 @@ message is only a few keystrokes away (@kbd{C-x `} for the next error,
 @cindex @file{TAGS} file
 @cindex @file{etags.fs}
 @cindex viewing the source of a word in Emacs
-Also, if you @code{include} @file{etags.fs}, a new @file{TAGS} file will
+@cindex @code{require}, placement in files
+@cindex @code{include}, placement in files
+Also, if you @code{require} @file{etags.fs}, a new @file{TAGS} file will
 be produced (@pxref{Tags, , Tags Tables, emacs, Emacs Manual}) that
 contains the definitions of all words defined afterwards. You can then
 find the source for a word using @kbd{M-.}. Note that emacs can use
@@ -10344,7 +10346,10 @@ several tags files at the same time (e.g., one for the Gforth sources
 and one for your program, @pxref{Select Tags Table,,Selecting a Tags
 Table,emacs, Emacs Manual}). The TAGS file for the preloaded words is
 @file{$(datadir)/gforth/$(VERSION)/TAGS} (e.g.,
-@file{/usr/local/share/gforth/0.2.0/TAGS}).
+@file{/usr/local/share/gforth/0.2.0/TAGS}).  To get the best behaviour
+with @file{etags.fs}, you should avoid putting definitions both before
+and after @code{require} etc., otherwise you will see the same file
+visited several times by commands like @code{tags-search}.
 
 @cindex viewing the documentation of a word in Emacs
 @cindex context-sensitive help

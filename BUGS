@@ -22,3 +22,8 @@ I/O in DOS is unbuffered since 0.4.0.  Bruce Hoyt, early 1999.
 
 >HEAD and HEAD? crashes on machines with alignment restrictions if an
 assumed link field contains an unaligned address.  anton 20oct99
+
+FILE-SIZE, FILE-POSITION, and REPOSITION-FILE don't work correctly on
+text files under DOS and Windows.  anton 31oct99
+
+On Irix 6.2 the second signal kills gforth. anton 31oct99

@@ -602,8 +602,15 @@ Defer .status
 	[ [THEN] ]
     refill drop ;
 
-: (quit)  
-  BEGIN  .status cr (query) interpret prompt  AGAIN ;
+: (quit) ( -- )
+    \ exits only through THROW etc.
+    sp0 @ cell - handler @ &12 + ! \ !! kludge: fix the stack pointer
+    \ stored in the system's CATCH frame, so the stack depth will be 0
+    \ after the next THROW it catches (it may be off due to BOUNCEs or
+    \ because process-args left something on the stack)
+    BEGIN
+	.status cr (query) interpret prompt
+    AGAIN ;
 
 ' (quit) IS 'quit
 
