@@ -87,6 +87,7 @@ LDLIBS  = @LIBS@
 AOBJECTS = io.o memcmpc.o @LIBOBJS@
 
 OBJECTS = engine.o main.o
+OBJECTS_FAST = engine-fast.o main-fast.o
 OBJECTS_DITC =  engine-ditc.o main-ditc.o
 OBJECTS_FI =  engine.o main-fi.o
 
@@ -102,6 +103,9 @@ ENGINE_DEPS = engine.c $(DEPS) prim_lab.i prim.i
 gforth$(EXE):	$(OBJECTS) $(AOBJECTS)
 	$(GCC) $(LDFLAGS) $(OBJECTS) $(AOBJECTS) $(LDLIBS) -o $@
 
+gforth-fast$(EXE):	$(OBJECTS_FAST) $(AOBJECTS)
+	$(GCC) $(LDFLAGS) $(OBJECTS_FAST) $(AOBJECTS) $(LDLIBS) -o $@
+
 gforth-ditc$(EXE): $(OBJECTS_DITC) $(AOBJECTS)
 	$(GCC) $(LDFLAGS) $(OBJECTS_DITC) $(AOBJECTS) $(LDLIBS) -o $@
 
@@ -112,12 +116,18 @@ engine.s:	$(ENGINE_DEPS)
 		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -S $(srcdir)/engine.c
 
 engine.o:	$(ENGINE_DEPS)
+		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -DGFORTH_DEBUGGING -o $@ -c $(srcdir)/engine.c
+
+engine-fast.o:	$(ENGINE_DEPS)
 		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -o $@ -c $(srcdir)/engine.c
 
 engine-ditc.o:	$(ENGINE_DEPS)
 		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -DDOUBLY_INDIRECT -o $@ -c $(srcdir)/engine.c
 
 main.o:		main.c $(DEPS) 
+		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -DGFORTH_DEBUGGING -o $@ -c $(srcdir)/main.c
+
+main-fast.o:	main.c $(DEPS) 
 		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -o $@ -c $(srcdir)/main.c
 
 main-ditc.o:	main.c $(DEPS)

@@ -64,7 +64,11 @@ GCC	= @CC@
 CC	= $(GCC)
 FORTHPATH = .$(PATHSEP)$(libdir)/gforth/site-forth$(PATHSEP)$(siteforthdir)$(PATHSEP)$(libdir)/gforth/$(VERSION)$(PATHSEP)$(datadir)/gforth/$(VERSION)
 FORTHSIZES = @FORTHSIZES@
-FORTH	= ./gforth --die-on-signal -p $(FORTHPATH)$(PATHSEP)$(srcdir)
+FORTH_ARGS = --die-on-signal -p $(FORTHPATH)$(PATHSEP)$(srcdir)
+ENGINE = ./gforth
+FORTH	= $(ENGINE) $(FORTH_ARGS)
+ENGINE_FAST = $(ENGINE)-fast
+FORTH_FAST	= $(ENGINE_FAST) $(FORTH_ARGS)
 FORTHKFLAGS= --die-on-signal -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)" -i $(kernel_fi)
 FORTHK	= ./gforth $(FORTHKFLAGS)
 FORTHP	= ./gforth --die-on-signal -i ./$(kernel_fi)
@@ -303,7 +307,7 @@ SOURCES	= $(CVSDIRS) compat Makefile.in Makedist.in engine/Makefile.in gforthmi.
 
 RCS_FILES =  ToDo model high-level
 
-GEN = gforth$(EXE) gforth-ditc$(EXE) kernel/version.fs
+GEN = gforth$(EXE) gforth-ditc$(EXE) gforth-fast$(EXE) kernel/version.fs
 
 # things that need a working forth system to be generated
 FORTH_GEN0 = prim.b engine/prim.i engine/prim_lab.i kernel/aliases.fs kernel/prim.fs
@@ -367,7 +371,8 @@ mostlyclean:	FORCE
 		gforth-$(VERSION).tar.gz
 
 clean:		mostlyclean
-		-$(RM) -rf $(GEN) engine/gforth$(EXE) engine/gforth-ditc$(EXE) \
+		-$(RM) -rf $(GEN) engine/gforth$(EXE) \
+		engine/gforth-fast$(EXE) engine/gforth-ditc$(EXE) \
 		*.o engine/*.o arch/*/*.o version
 
 distclean:	clean
@@ -424,6 +429,8 @@ install:	gforth$(EXE) $(FORTH_SRC) $(kernel_fi) gforth.fi gforthmi doc/gforth.1 
 		-$(RM) $(bindir)/gforth$(EXE) $(bindir)/gforth-$(VERSION)$(EXE) $(bindir)/gforthmi
 		$(INSTALL_PROGRAM) -s gforth$(EXE) $(bindir)/gforth-$(VERSION)$(EXE)
 		$(LN_S) $(bindir)/gforth-$(VERSION)$(EXE) $(bindir)/gforth$(EXE)
+		$(INSTALL_PROGRAM) -s gforth-fast$(EXE) $(bindir)/gforth-fast-$(VERSION)$(EXE)
+		$(LN_S) $(bindir)/gforth-fast-$(VERSION)$(EXE) $(bindir)/gforth-fast$(EXE)
 		$(INSTALL_PROGRAM) gforthmi $(bindir)/gforthmi-$(VERSION)
 		$(LN_S) $(bindir)/gforthmi-$(VERSION) $(bindir)/gforthmi
 		-$(INSTALL_DATA) $(srcdir)/doc/gforth.1 $(man1dir)
@@ -470,12 +477,12 @@ check test:	gforth$(EXE) gforth.fi
 		@echo 'Expect no differences'
 		$(FORTHK) -m 100000 prims2x.fs -e "s\" $(srcdir)/prim.b\"' output-c process-file bye"| diff -c - $(srcdir)/engine/prim.i
 
-bench:		gforth$(EXE) gforth.fi
+bench:		gforth-fast$(EXE) gforth.fi
 		@echo 'Each benchmark takes about 30s on a 486-66 (gcc-2.6.3 -DFORCE_REG)'
-		time $(FORTH) siev.fs -e "main bye"
-		time $(FORTH) bubble.fs -e "main bye"
-		time $(FORTH) -m 160000 matrix.fs -e "main bye"
-		time $(FORTH) fib.fs -e "main bye"
+		time $(FORTH_FAST) siev.fs -e "main bye"
+		time $(FORTH_FAST) bubble.fs -e "main bye"
+		time $(FORTH_FAST) -m 160000 matrix.fs -e "main bye"
+		time $(FORTH_FAST) fib.fs -e "main bye"
 
 # -------------	Make forth images
 
@@ -580,12 +587,16 @@ gforth$(EXE):		engines
 		$(CP) engine/$@ $@
 		@GFORTH_EXE@
 
+gforth-fast$(EXE):	engines
+		$(CP) engine/$@ $@
+		@GFORTHFAST_EXE@
+
 gforth-ditc$(EXE):	engines
 		$(CP) engine/$@ $@
 		@GFORTHDITC_EXE@
 
 engines:	FORCE engine/Makefile
-		cd engine && $(MAKE) gforth$(EXE) gforth-ditc$(EXE)
+		cd engine && $(MAKE) gforth$(EXE) gforth-fast$(EXE) gforth-ditc$(EXE)
 
 # ------------- additional C primitives
 

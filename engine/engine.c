@@ -219,14 +219,24 @@ static int ufileattr[6]= {
 #define DOCFA	Xt cfa; GETCFA(cfa)
 #endif
 
+#ifdef GFORTH_DEBUGGING
+/* define some VM registers as global variables, so they survive exceptions;
+   global register variables are not up to the task (according to the 
+   GNU C manual) */
+Xt *ip;
+Cell *rp;
+#endif
+
 Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
 /* executes code at ip, if ip!=NULL
    returns array of machine code labels (for use in a loader), if ip==NULL
 */
 {
-  register Xt *ip IPREG = ip0;
+#ifndef GFORTH_DEBUGGING
+  register Xt *ip IPREG;
+  register Cell *rp RPREG;
+#endif
   register Cell *sp SPREG = sp0;
-  register Cell *rp RPREG = rp0;
   register Float *fp FPREG = fp0;
   register Address lp LPREG = lp0;
 #ifdef CFA_NEXT
@@ -258,6 +268,8 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
   CPU_DEP2
 #endif
 
+  ip = ip0;
+  rp = rp0;
 #ifdef DEBUG
   fprintf(stderr,"ip=%x, sp=%x, rp=%x, fp=%x, lp=%x, up=%x\n",
           (unsigned)ip,(unsigned)sp,(unsigned)rp,

@@ -297,21 +297,22 @@ void alloc_stacks(ImageHeader * header)
 
 int go_forth(Address image, int stack, Cell *entries)
 {
-  Cell *sp=(Cell*)(((ImageHeader *)image)->data_stack_base + dsize);
-  Float *fp=(Float *)(((ImageHeader *)image)->fp_stack_base + fsize);
-  Cell *rp=(Cell *)(((ImageHeader *)image)->return_stack_base + rsize);
-  Address lp=((ImageHeader *)image)->locals_stack_base + lsize;
-  Xt *ip=(Xt *)(((ImageHeader *)image)->boot_entry);
+  ImageHeader *image_header = (ImageHeader *)image;
+  Cell *sp0=(Cell*)(image_header->data_stack_base + dsize);
+  Float *fp0=(Float *)(image_header->fp_stack_base + fsize);
+  Cell *rp0=(Cell *)(image_header->return_stack_base + rsize);
+  Address lp0=image_header->locals_stack_base + lsize;
+  Xt *ip0=(Xt *)(image_header->boot_entry);
 #ifdef SYSSIGNALS
   int throw_code;
 #endif
 
   /* ensure that the cached elements (if any) are accessible */
-  IF_TOS(sp--);
-  IF_FTOS(fp--);
+  IF_TOS(sp0--);
+  IF_FTOS(fp0--);
   
   for(;stack>0;stack--)
-    *--sp=entries[stack-1];
+    *--sp0=entries[stack-1];
 
 #if !defined(MSDOS) && !defined(SHARC) && !defined(_WIN32) && !defined(__EMX__)
   get_winsize();
@@ -326,13 +327,23 @@ int go_forth(Address image, int stack, Cell *entries)
     static Float signal_fp_stack[1];
 
     signal_data_stack[7]=throw_code;
+
+#ifdef GFORTH_DEBUGGING
+    if (rp <= rp0 && rp > (Cell *)(image_header->return_stack_base+5)) {
+      /* no rstack overflow or underflow */
+      rp0 = rp;
+      *--rp0 = ip;
+    }
+    else /* I love non-syntactic ifdefs :-) */
+#endif
+    rp0 = signal_return_stack+8;
     
-    return((int)engine(((ImageHeader *)image)->throw_entry,signal_data_stack+7,
-		       signal_return_stack+8,signal_fp_stack,0));
+    return((int)engine(image_header->throw_entry, signal_data_stack+7,
+		       rp0, signal_fp_stack, 0));
   }
 #endif
 
-  return((int)engine(ip,sp,rp,fp,lp));
+  return((int)engine(ip0,sp0,rp0,fp0,lp0));
 }
 
 #ifndef INCLUDE_IMAGE

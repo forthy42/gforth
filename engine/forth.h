@@ -216,6 +216,12 @@ Cell memcasecmp(const Char *s1, const Char *s2, Cell n);
 extern int offset_image;
 extern int die_on_signal;
 
+#ifdef GFORTH_DEBUGGING
+extern Xt *ip;
+extern Cell *rp;
+#endif
+
+
 /* declare all the functions that are missing */
 #ifndef HAVE_ATANH
 extern double atanh(double r1);
