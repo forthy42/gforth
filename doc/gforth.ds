@@ -7153,8 +7153,8 @@ in file included from ./yyy.fs:1
 ./xxx.fs:4: Invalid memory address
 bar
 ^^^
-$400E664C @ 
-$400E6664 foo 
+$400E664C @@
+$400E6664 foo
 @end example
 
 The message identifying the error is @code{Invalid memory address}.  The
@@ -7184,6 +7184,32 @@ entries are return addresses (so we may get false positives); and in
 some cases (e.g., for @code{abort"}) we cannot determine from the return
 address the word that pushed the return address, so for some return
 addresses you see no names in the return stack dump.
+
+@cindex @code{catch} and backtraces
+The return stack dump represents the return stack at the time when a
+specific @code{throw} was executed.  In programs that make use of
+@code{catch}, it is not necessarily clear which @code{throw} should be
+used for the return stack dump (e.g., consider one @code{throw} that
+indicates an error, which is caught, and during recovery another error
+happens; which @code{throw} should be used for the stack dump).  Gforth
+presents the return stack dump for the first @code{throw} after the last
+executed (not returned-to) @code{catch}; this works well in the usual
+case.
+
+@cindex @code{gforth-fast} and backtraces
+@cindex @code{gforth-fast}, difference from @code{gforth}
+@cindex backtraces with @code{gforth-fast}
+@cindex return stack dump with @code{gforth-fast}
+@code{gforth} is able to do a return stack dump for throws generated
+from primitives (e.g., invalid memory address, stack empty etc.);
+@code{gforth-fast} is only able to do a return stack dump from a
+directly called @code{throw} (including @code{abort} etc.).  This is the
+only difference (apart from a speed difference of about 30%) between
+@code{gforth} and @code{gforth-fast}.  Given an exception caused by a
+primitive in @code{gforth-fast}, you will typically see no return stack
+dump at all; however, if the exception is caught by @code{catch} (e.g.,
+for restoring some state), and then @code{throw}n again, the return
+stack dump will be for the first such @code{throw}.
 
 @c ******************************************************************
 @node Tools, ANS conformance, Error messages, Top
