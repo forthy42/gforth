@@ -1164,11 +1164,11 @@ r2 = exp(r1);
 
 fexpm1		r1 -- r2	float-ext
 ""@i{r2}=@i{e}**@i{r1}@minus{}1""
-r2 =
 #ifdef HAVE_EXPM1
-	expm1(r1);
+extern double expm1(double);
+r2 = expm1(r1);
 #else
-	exp(r1)-1.;
+r2 = exp(r1)-1.;
 #endif
 
 fln		r1 -- r2	float-ext
@@ -1176,21 +1176,34 @@ r2 = log(r1);
 
 flnp1		r1 -- r2	float-ext
 ""@i{r2}=ln(@i{r1}+1)""
-r2 =
 #ifdef HAVE_LOG1P
-	log1p(r1);
+extern double log1p(double);
+r2 = log1p(r1);
 #else
-log(r1+1.);
+r2 = log(r1+1.);
 #endif
 
 flog		r1 -- r2	float-ext
 ""the decimal logarithm""
 r2 = log10(r1);
 
+falog		r1 -- r2	float-ext
+""@i{r2}=10**@i{r1}""
+#ifdef HAVE_POW10
+extern double pow10(double);
+r2 = pow10(r1);
+#else
+#ifndef M_LN10
+#define M_LN10      2.30258509299404568402
+#endif
+r2 = exp(r1*M_LN10);
+#endif
+
 fsin		r1 -- r2	float-ext
 r2 = sin(r1);
 
 fsincos		r1 -- r2 r3	float-ext
+""@i{r2}=sin(@i{r1}), @i{r3}=cos(@i{r1})""
 r2 = sin(r1);
 r3 = cos(r1);
 
@@ -1199,6 +1212,24 @@ r2 = sqrt(r1);
 
 ftan		r1 -- r2	float-ext
 r2 = tan(r1);
+
+fsinh		r1 -- r2	float-ext
+r2 = sinh(r1);
+
+fcosh		r1 -- r2	float-ext
+r2 = cosh(r1);
+
+ftanh		r1 -- r2	float-ext
+r2 = tanh(r1);
+
+fasinh		r1 -- r2	float-ext
+r2 = asinh(r1);
+
+facosh		r1 -- r2	float-ext
+r2 = acosh(r1);
+
+fatanh		r1 -- r2	float-ext
+r2 = atanh(r1);
 
 \ The following words access machine/OS/installation-dependent ANSI
 \   figForth internals

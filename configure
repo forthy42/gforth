@@ -835,7 +835,7 @@ getopt_long="getopt.o getopt1.o"
 fi
 
 
-for ac_func in rint expm1 log1p
+for ac_func in rint expm1 log1p pow10
 do
 echo $ac_n "checking for $ac_func""... $ac_c" 1>&4
 if eval "test \"`echo '${'ac_cv_func_$ac_func'+set}'`\" = set"; then

@@ -23,13 +23,12 @@ DVI2PS	= dvips
 MAKEINFO = makeinfo
 XCFLAGS	= @CFLAGS@
 XDEFINES = @DEFS@
-SWITCHES = $(XCFLAGS) $(XDEFINES) -D_POSIX_VERSION#-DNDEBUG #turn off assertions
+SWITCHES = $(XCFLAGS) $(XDEFINES) #-DNDEBUG #turn off assertions
 ENGINE_FLAGS =  -fforce-mem -fforce-addr -fomit-frame-pointer -fno-defer-pop -fcaller-saves
 CFLAGS	= -g -O4 -Wall $(SWITCHES)
 
-#-Xlinker -n puts text and data into the same 256M region
 #John Wavrik should use -Xlinker -N to get a writable text (executable)
-LDFLAGS	= -Xlinker -N @LDFLAGS@
+LDFLAGS	=  @LDFLAGS@
 LDLIBS	= @LIBS@
 
 prefix = @prefix@

@@ -11,3 +11,12 @@ read-file from it. Only if the file-id has been created with
 open-file, not create-file, read-file works. - anton 6aug94
 
 etags.fs crashes one of my applications (gs.fs). anton 12jan95
+
+f. suppresses all digits when it prints 0:
+0e0 f. .  ok
+There's also one other problem with f.:
+1e-20			 f. 0.00000000000000000001000000000000001  ok
+-20e0 falog		 f. 0.00000000000000000001000000000000001  ok
+0.00000000000000000001e0 f. 0.00000000000000000001000000000000001  ok
+All this happens under Slackware Linux. Maybe the ecvt in the library
+is not so good?  anton 17jan95

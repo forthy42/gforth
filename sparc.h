@@ -1,5 +1,5 @@
 /*
-  $Id: sparc.h,v 1.9 1995-01-10 18:46:05 anton Exp $
+  $Id: sparc.h,v 1.10 1995-01-18 18:41:44 anton Exp $
   Copyright 1992 by the ANSI figForth Development Group
 
   This is the machine-specific part for a SPARC
@@ -17,14 +17,12 @@
 
 #ifdef DIRECT_THREADED
 #ifndef WORDS_BIGENDIAN
-#error Direct threading only supported for big-endian machines.
+#error Direct threading only supported for big-endian SPARCs.
 /* little endian SPARCs still store instructions in big-endian format,
    so you would have to reverse the instructions stores in the following
 */
 #endif
 
-/* according to the SPARC V9 architecture manual, we have to use flush,
-   but as V2.20 does not recognize the opcode */
 /* assuming size = 8 */
 #define CACHE_FLUSH(addr,size) \
   asm("iflush %0; iflush %0+4"::"r"(addr))

@@ -7,6 +7,8 @@
    Use -D_POSIX_VERSION for POSIX systems.
 */
 
+#include <unistd.h>
+
 #ifdef DOMAINOS
 #define _POSIX_VERSION
 #endif
@@ -29,10 +31,6 @@
 #  if defined (sparc) || defined (HAVE_ALLOCA_H)
 #    include <alloca.h>
 #  endif
-#endif
-
-#if defined (HAVE_UNISTD_H)
-#  include <unistd.h>
 #endif
 
 #define NEW_TTY_DRIVER

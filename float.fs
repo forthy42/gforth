@@ -89,16 +89,19 @@
 : f2/  2e0 f/ ;
 : 1/f  1e0 fswap f/ ;
 
-: falog ( f -- 10^f )  [ 10e0 fln ] FLiteral f* fexp ;
 
-: fsinh    fexpm1 fdup fdup 1e0 f+ f/ f+ f2/ ;
-: fcosh    fexp fdup 1/f f+ f2/ ;
-: ftanh    f2* fexpm1 fdup 2e0 f+ f/ ;
+\ We now have primitives for these, so we need not define them
 
-: fatanh   fdup f0< >r fabs 1e0 fover f- f/  f2* flnp1 f2/
-           r> IF  fnegate  THEN ;
-: facosh   fdup fdup f* 1e0 f- fsqrt f+ fln ;
-: fasinh   fdup fdup f* 1e0 f+ fsqrt f/ fatanh ;
+\ : falog ( f -- 10^f )  [ 10e0 fln ] FLiteral f* fexp ;
+
+\ : fsinh    fexpm1 fdup fdup 1e0 f+ f/ f+ f2/ ;
+\ : fcosh    fexp fdup 1/f f+ f2/ ;
+\ : ftanh    f2* fexpm1 fdup 2e0 f+ f/ ;
+
+\ : fatanh   fdup f0< >r fabs 1e0 fover f- f/  f2* flnp1 f2/
+\            r> IF  fnegate  THEN ;
+\ : facosh   fdup fdup f* 1e0 f- fsqrt f+ fln ;
+\ : fasinh   fdup fdup f* 1e0 f+ fsqrt f/ fatanh ;
 
 : f.s  ." <" fdepth 0 .r ." > " fdepth 0 max maxdepth-.s @ min dup 0 
   ?DO  dup i - 1- floats fp@ + f@ f.  LOOP  drop ; 
