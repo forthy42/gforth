@@ -228,7 +228,7 @@ Defer redirect ( addr u -- )
 	THEN  THEN  THEN  THEN  outfile-id flush-file throw ;
 
 : httpd  ( n -- )  dup maxnum ! 0 <# #S #> Keep-Alive $!
-  BEGIN  ['] http catch  maxnum @ 0= or  UNTIL ;
+  maxnum @ 0 DO  ['] http catch  maxnum @ 0= or  ?LEAVE  LOOP ;
 
 script? [IF]  :noname &100 httpd bye ; is bootmessage  [THEN]
 

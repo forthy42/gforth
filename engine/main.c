@@ -70,8 +70,21 @@ va_alist clist;
 
 void engine_callback(Xt* fcall, void * alist)
 {
+  /* save global valiables */
+  Cell *rp = RP;
+  Cell *sp = SP;
+  Float *fp = FP;
+  Address lp = LP;
+
   clist = (va_alist)alist;
-  engine(fcall, SP, RP, FP, LP);
+
+  engine(fcall, sp, rp, fp, lp);
+
+  /* restore global variables */
+  RP = rp;
+  SP = sp;
+  FP = fp;
+  LP = lp;
 }
 #endif
 
