@@ -137,7 +137,7 @@ is catch
 \ [ has? interpreter [IF] ]
 	handler @ ?dup-0=-IF
 \ [ has? os [IF] ]
-	    cr ." error " dec. cr
+	    cr .error cr
 	    2 (bye)
 \ [ [ELSE] ]
 	    quit

@@ -63,9 +63,12 @@ interpret/compile: ctrl  ( "<char>" -- ctrl-code )
 2Variable end^
 
 : force-open ( addr len -- fid )
-  2dup r/w open-file 0<
-  IF  drop r/w create-file
-      throw ELSE  nip nip  THEN ;
+    2dup r/w open-file
+    IF
+	drop r/w create-file throw
+    ELSE
+	nip nip
+    THEN ;
 
 s" os-class" environment? [IF] s" unix" compare 0= [ELSE] true [THEN] 
 [IF]
@@ -86,19 +89,6 @@ s" os-class" environment? [IF] s" unix" compare 0= [ELSE] true [THEN]
   history-dir pad place
   s" /ghist.fs" pad +place pad count ;
 [THEN]
-
-: get-history ( addr len -- )
-    ['] force-open catch
-    dup 0< IF  ." can't open " history-file type cr throw  THEN  drop
-    to history
-    history file-size throw
-    2dup forward^ 2! 2dup backward^ 2! end^ 2! ;
-
-: history-cold ( -- )
-    history-file get-history ;
-
-' history-cold INIT8 chained
-history-cold
 
 \ moving in history file                               16oct94py
 
@@ -231,3 +221,31 @@ Create prefix-found  0 , 0 ,
 ' (enter)    #lf    cells ctrlkeys + !
 ' (enter)    #cr    cells ctrlkeys + !
 ' tab-expand #tab   cells ctrlkeys + !
+
+\ initializing history
+
+: get-history ( addr len -- )
+    ['] force-open catch
+    ?dup-if
+	\ !! >stderr
+	history-file type ." : " .error cr 2drop
+	['] false ['] false ['] (ret)
+    else
+	to history
+	history file-size throw
+	2dup forward^ 2! 2dup backward^ 2! end^ 2!
+	['] next-line ['] prev-line ['] (enter)
+    endif
+    dup
+    [ #lf    cells ctrlkeys + ]L !
+    [ #cr    cells ctrlkeys + ]L !
+    [ ctrl P cells ctrlkeys + ]L !
+    [ ctrl N cells ctrlkeys + ]L !
+;
+
+: history-cold ( -- )
+    history-file get-history ;
+
+' history-cold INIT8 chained
+history-cold
+

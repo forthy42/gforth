@@ -65,4 +65,4 @@ has? OS [IF]
 	512 + negate strerror type EXIT
     THEN
 [ [THEN] ]
-    . ;
+    ." error " dec. ;

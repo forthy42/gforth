@@ -22,9 +22,10 @@
     >r 2dup + r@ swap c! r> emit 1+ rot 1+ -rot ;
 : (bs) ( max span addr pos1 -- max span addr pos2 flag )
     dup IF
-	#bs emit bl emit #bs emit 1- rot 1- -rot
+	#bs emit space #bs emit 1- rot 1- -rot
     THEN false ;
-: (ret)  true bl emit ;
+: (ret) ( max span addr pos1 -- max span addr pos2 flag )
+    true space ;
 
 Create ctrlkeys
   ] false false false false  false false false false
