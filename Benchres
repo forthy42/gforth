@@ -34,5 +34,6 @@ siev	bubble	matrix	fib	machine and configuration
 11.6	12.1	10.8	15.6	PA8000 (HP C160) 160MHz 64M RAM; gcc-2.7.2; gforth-0.3.0
 30.0	34.1	20.5	33.0	PA-RISC 1.1 (HP 720) 50MHz 64K cache; gcc-2.6.3 -DDIRECT_THREADED; gforth-0.1beta
 
- 8.25	10.09	 6.45	10.34	PPC604e (PowerMax) 200MHz; Linux; gcc-2.7.2.1; gforth-0.3.0
+ 6.81	 7.53	 5.10	 8.12	PPC604e (PowerMac) 200MHz; Linux; gcc-2.7.2.1; gforth-0.4.0
+ 8.25	10.09	 6.45	10.34	PPC604e (PowerMac) 200MHz; Linux; gcc-2.7.2.1; gforth-0.3.0 (indirect threaded)
 14.05	16.96	11.14	17.51	PPC604 (PowerMac) 132MHz 256K L2 cache; MkLinux 2.1; gcc-2.7.2.1; gforth-0.3.0

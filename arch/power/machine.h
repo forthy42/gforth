@@ -32,16 +32,22 @@
 #include "../generic/machine.h"
 
 /* cache flush stuff */
-#warning If you get assembly errors, here is the reason why
-#define FLUSH_ICACHE(addr,size)   asm("dcbst 0,%0; sync; icbi 0,%0; isync"::"r"(addr))
+static inline void flush_icache(void *addr, size_t size)
+{
+  void *end = addr+size;
+
+  /* this works for a single-processor PPC 604e, but may have
+     portability problems for other machines; the ultimate solution is
+     a system call, because the architecture is pretty shoddy in this
+     area */
+  for (; addr<end; addr+=32/*cache block size*/)
+    asm("dcbst 0,%0; sync; icbi 0,%0; isync"::"r"(addr));
+}
+
+#define FLUSH_ICACHE(addr,size)   flush_icache(addr,size)
 /* this assumes size=4 */
-/* the mnemonics are for the PPC and the syntax is a wild guess; for
-   Power the mnemonic for the isync instruction is "ics" and I have
-   not found an equivalent for the icbi instruction in my reference.
-*/
 
 #ifdef DIRECT_THREADED
-#warning Direct threading for Power has not been tested
 
 /* PFA gives the parameter field address corresponding to a cfa */
 #define PFA(cfa)	(((Cell *)cfa)+2)
