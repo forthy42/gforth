@@ -286,10 +286,15 @@ create min-depth     max-stacks cells allot
 create sp-update-in max-stacks cells allot
 \ where max-depth occured the first time
 create max-depths max-stacks max-combined 1+ * cells allot
-\ maximum depth at start of each component: array[components] of array[stack]
+\ maximum depth at start of each part: array[parts] of array[stack]
+create max-back-depths max-stacks max-combined 1+ * cells allot
+\ maximun depth from end of the combination to the start of the each part
 
 : s-c-max-depth ( nstack ncomponent -- addr )
     max-stacks * + cells max-depths + ;
+
+: s-c-max-back-depth ( nstack ncomponent -- addr )
+    max-stacks * + cells max-back-depths + ;
 
 wordlist constant primitives
 
@@ -361,8 +366,19 @@ defer inst-stream-f ( -- stack )
 	drop n stack part-stack-access
     endif ;
 
-: part-stack-write ( n stack -- )
-    part-stack-access ;
+: stack-diff ( stack -- n )
+    \ in-out
+    dup stack-in @ swap stack-out @ - ;
+
+: part-stack-write { n stack -- }
+    stack stack-depth n +
+    stack stack-number @ part-num @ s-c-max-back-depth @
+    over <= if ( ndepth )
+	stack combined ['] stack-diff prim-context -
+	stack normal-stack-access
+    else
+	drop n stack part-stack-access
+    endif ;
 
 : stack-read ( n stack -- )
     \ print a stack access at index n of stack
@@ -648,7 +664,7 @@ stack inst-stream IP Cell
 
 : stack-pointer-update { stack -- }
     \ stack grow downwards
-    stack stack-in @ stack stack-out @ -
+    stack stack-diff
     ?dup-if \ this check is not necessary, gcc would do this for us
 	stack inst-stream = if
 	    inst-pointer-update
@@ -703,21 +719,36 @@ stack inst-stream IP Cell
     2drop ;
 
 : output-c-tail1 ( -- )
-    \ the final part of the generated C code except LABEL2 and NEXT_P2
+    \ the final part of the generated C code before stores
     output-super-end
     print-debug-results
-    ." NEXT_P1;" cr
-    stores
-    fill-tos ;
+    ." NEXT_P1;" cr ;
 
 : output-c-tail ( -- )
     \ the final part of the generated C code, without LABEL2
     output-c-tail1
+    stores
+    fill-tos 
+    ." NEXT_P2;" ;
+
+: output-c-tail-no-stores ( -- )
+    \ the final part of the generated C code, without LABEL2
+    output-c-tail1
+    fill-tos 
     ." NEXT_P2;" ;
 
 : output-c-tail2 ( -- )
     \ the final part of the generated C code, including LABEL2
     output-c-tail1
+    stores
+    fill-tos 
+    ." LABEL2(" prim prim-c-name 2@ type ." )" cr
+    ." NEXT_P2;" cr ;
+
+: output-c-tail2-no-stores ( -- )
+    \ the final part of the generated C code, including LABEL2
+    output-c-tail1
+    fill-tos 
     ." LABEL2(" prim prim-c-name 2@ type ." )" cr
     ." NEXT_P2;" cr ;
 
@@ -1013,16 +1044,15 @@ stack inst-stream IP Cell
 : min! ( n addr -- )
     tuck @ min swap ! ;
 
-: inst-stream-correction ( nin1 nstack -- nin2 )
-    0= if
-	include-skipped-insts @ -
-    endif ;
+: inst-stream-adjustment ( nstack -- n )
+    \ number of stack items to add for each part
+    0= include-skipped-insts @ and negate ;
 
 : add-depths { p -- }
     \ combine stack effect of p with *-depths
     max-stacks 0 ?do
 	current-depth i th @
-	p prim-stacks-in  i th @ + i inst-stream-correction
+	p prim-stacks-in  i th @ + i inst-stream-adjustment +
 	dup max-depth i th max!
 	p prim-stacks-out i th @ -
 	dup min-depth i th min!
@@ -1073,6 +1103,27 @@ stack inst-stream IP Cell
 	i q prim-stacks-out i th @ q prim-effect-out-end make-effect-items
     loop ;
 
+: compute-stack-max-back-depths ( stack -- )
+    stack-number @ { stack# }
+    current-depth stack# th @ dup
+    dup stack# num-combined @ s-c-max-back-depth !
+    -1 num-combined @ 1- -do ( max-depth current-depth )
+	combined-prims i th @ { p }
+	p prim-stacks-out stack# th @ +
+	dup >r max r>
+	over stack# i s-c-max-back-depth !
+	p prim-stacks-in stack# th @ -
+	stack# inst-stream-adjustment -
+    1 -loop
+    assert( dup stack# inst-stream-adjustment negate = )
+    assert( over max-depth stack# th @ = )
+    2drop ;
+
+: compute-max-back-depths ( -- )
+    \ compute max-back-depths.
+    \ assumes that current-depths is correct for the end of the combination
+    ['] compute-stack-max-back-depths map-stacks ;
+
 : process-combined ( -- )
     combined combined-prims num-combined @ cells
     combinations ['] constant insert-wordlist
@@ -1080,6 +1131,7 @@ stack inst-stream IP Cell
     @ prim-c-code 2@ prim prim-c-code 2! \ used by output-super-end
     prim compute-effects
     prim init-effects
+    compute-max-back-depths
     output-combined perform ;
 
 \ C output
@@ -1106,7 +1158,7 @@ stack inst-stream IP Cell
 : output-combined-tail ( -- )
     part-output-c-tail
     in-part @ >r in-part off
-    combined ['] output-c-tail prim-context
+    combined ['] output-c-tail-no-stores prim-context
     r> in-part ! ;
 
 : part-stack-pointer-updates ( -- )
@@ -1155,7 +1207,7 @@ stack inst-stream IP Cell
     \ print-debug-args
     \ stack-pointer-updates now in parts
     output-parts
-    output-c-tail2
+    output-c-tail2-no-stores
     ." }" cr
     cr ;
 
