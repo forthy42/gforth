@@ -91,8 +91,6 @@
 
 */
 
-
-
 #ifdef DOUBLY_INDIRECT
 #  define NEXT_P0	({cfa=*ip;})
 #  define IP		(ip)
@@ -125,6 +123,27 @@
 
 #if defined(DIRECT_THREADED)
 
+/* This lets the compiler know that cfa is dead before; we place it at
+   "goto *"s that perform direct threaded dispatch (i.e., not EXECUTE
+   etc.), and thus do not reach doers, which would use cfa; the only
+   way to a doer is through EXECUTE etc., which set the cfa
+   themselves.
+
+   Some of these direct threaded schemes use "cfa" to hold the code
+   address in normal direct threaded code.  Of course we cannot use
+   KILLS there.
+
+   KILLS works by having an empty asm instruction, and claiming to the
+   compiler that it writes to cfa.
+
+   KILLS is optional.  You can write
+
+#define KILLS
+
+   and lose just a little performance.
+*/
+#define KILLS asm("":"=X"(cfa));
+
 #if THREADING_SCHEME==1
 #warning direct threading scheme 1: autoinc, long latency, cfa live
 #  define NEXT_P0	({cfa=*ip++;})
@@ -147,7 +166,7 @@
 #  define INC_IP(const_inc)	({ ip+=(const_inc);})
 #  define DEF_CA
 #  define NEXT_P1
-#  define NEXT_P2	({goto **(ip-1);})
+#  define NEXT_P2	({KILLS goto **(ip-1);})
 #  define EXEC(XT)	({cfa=(XT); goto **cfa;})
 #endif
 
@@ -174,7 +193,7 @@
 #  define INC_IP(const_inc)	({ ip+=(const_inc);})
 #  define DEF_CA
 #  define NEXT_P1
-#  define NEXT_P2	({goto **(ip++);})
+#  define NEXT_P2	({KILLS goto **(ip++);})
 #  define EXEC(XT)	({cfa=(XT); goto **cfa;})
 #endif
 
@@ -200,7 +219,7 @@
 #  define INC_IP(const_inc)	({ip+=(const_inc);})
 #  define DEF_CA
 #  define NEXT_P1	(ip++)
-#  define NEXT_P2	({goto **(ip-1);})
+#  define NEXT_P2	({KILLS goto **(ip-1);})
 #  define EXEC(XT)	({cfa=(XT); goto **cfa;})
 #endif
 
@@ -227,7 +246,7 @@
 #  define INC_IP(const_inc)	({ ip+=(const_inc);})
 #  define DEF_CA
 #  define NEXT_P1	(ip++)
-#  define NEXT_P2	({goto **(ip-1);})
+#  define NEXT_P2	({KILLS goto **(ip-1);})
 #  define EXEC(XT)	({cfa=(XT); goto **cfa;})
 #endif
 
