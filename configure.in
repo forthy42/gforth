@@ -190,14 +190,24 @@ case "$host_cpu" in
 			AC_DEFINE(DIRECT_THREADED)
 		fi
 		;;
-	i586|i686)
+	i586)
 		machine=386
-		CFLAGS="$CFLAGS -fomit-frame-pointer -fforce-addr -fforce-mem -m486"
+		CFLAGS="$CFLAGS -fomit-frame-pointer -fforce-addr -fforce-mem -mpentium"
 		if test "${enable_direct_threaded+set}" = "" \
 			-a "${enable_indirect_threaded+set}" = ""
 		then
-			echo "Using indirect threaded code on Pentium and up"
+			echo "Using indirect threaded code on Pentium/K5/K6"
 			AC_DEFINE(INDIRECT_THREADED)
+		fi
+		;;
+	i686)
+		machine=386
+		CFLAGS="$CFLAGS -fomit-frame-pointer -fforce-addr -fforce-mem -mpentium"
+		if test "${enable_direct_threaded+set}" = "" \
+			-a "${enable_indirect_threaded+set}" = ""
+		then
+			echo "Using direct threaded code on PPro/Pentium II"
+			AC_DEFINE(DIRECT_THREADED)
 		fi
 		;;
         m68k)

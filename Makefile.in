@@ -86,7 +86,7 @@ XDEFINES = @DEFS@
 SWITCHES = $(XCFLAGS) $(XDEFINES) #-DNDEBUG #turn off assertions
 ENGINE_FLAGS = @ENGINE_FLAGS@ -fno-defer-pop -fcaller-saves
 DEBUGFLAG = @DEBUGFLAG@
-CFLAGS	= $(DEBUGFLAG) -I$(srcdir)/engine -I$(srcdir)/arch/$(machine) -O4 -Wall $(SWITCHES) -DDEFAULTPATH=\"$(FORTHPATH)\"
+CFLAGS	= $(DEBUGFLAG) -I$(srcdir)/engine -I$(srcdir)/arch/$(machine) -O3 -Wall $(SWITCHES) -DDEFAULTPATH=\"$(FORTHPATH)\"
 
 #John Wavrik should use -Xlinker -N to get a writable text (executable)
 XLDFLAGS = @LDFLAGS@
