@@ -3901,7 +3901,18 @@ Defer greet
 : bar ... greet ... ;
 : greet1 ." Good morning" ;
 : greet2 ." Hello" ;
-' greet2 IS greet  \ make greet behave like greet2
+' greet2 <IS> greet  \ make greet behave like greet2
+@end example
+
+One thing to note is that @code{<IS>} consumes it's name when it is
+executed.  If you want to specify the name at compile time, use
+@code{[IS]}:
+
+@example
+: set-greet ( xt -- )
+  [IS] greet ;
+
+' greet1 set-greet
 @end example
 
 A deferred word can only inherit default semantics from the xt (because
@@ -3914,13 +3925,14 @@ itself can be modified at the time that it is defined. For example:
 Defer fred immediate
 Defer jim
 
-' bar IS jim  \ jim has default semantics
-' bar IS fred \ fred is immediate
+' bar <IS> jim  \ jim has default semantics
+' bar <IS> fred \ fred is immediate
 @end example
 
 doc-defer
-doc-is
-@comment TODO document these: what's defers <is> [is]
+doc-<is>
+doc-[is]
+@comment TODO document these: what's defers [is]
 doc-what's
 doc-defers
 
@@ -4819,13 +4831,16 @@ represented using 2's-complement arithmetic. Examples are -3465. -3.465
 @item
 A string of the form @{+ -@}<decimal digit>@{.@}<decimal digit>*@{e
 E@}@{+ -@}<decimal digit><decimal digit>* is treated as a floating-point
-number. Examples are 1e0 1.e 1.e0 +1e+0 (which all represent the same
+number. Examples are 1e 1e0 1.e 1.e0 +1e+0 (which all represent the same
 number) +12.E-4
 @end itemize
 
 By default, the number base used for integer number conversion is given
-by the contents of the variable @code{BASE}. Base 10 (decimal) is
-always used for floating-point number conversion.
+by the contents of the variable @code{base}.  Note that a lot of
+confusion can result from unexpected values of @code{base}.  If you
+change @code{base} anywhere, make sure to save the old value and restore
+it afterwards.  In general I recommend keeping @code{base} decimal, and
+using the prefixes described below for the popular non-decimal bases.
 
 doc-dpl
 doc-base
@@ -4836,7 +4851,7 @@ doc-decimal
 @cindex &-prefix for decimal numbers
 @cindex %-prefix for binary numbers
 @cindex $-prefix for hexadecimal numbers
-Gforth allows you to override the value of @code{BASE} by using a
+Gforth allows you to override the value of @code{base} by using a
 prefix@footnote{Some Forth implementations provide a similar scheme by
 implementing @code{$} etc. as parsing words that process the subsequent
 number in the input stream and push it onto the stack. For example, see
@@ -4847,13 +4862,13 @@ of an (integer) number. Four prefixes are supported:
 
 @itemize @bullet
 @item
-@code{&} -- decimal number
+@code{&} -- decimal
 @item
-@code{%} -- binary number
+@code{%} -- binary
 @item
-@code{$} -- hexadecimal number
+@code{$} -- hexadecimal
 @item
-@code{'} -- base 256 number
+@code{'} -- base @code{max-char+1}
 @end itemize
 
 Here are some examples, with the equivalent decimal number shown after
@@ -4871,8 +4886,8 @@ Number conversion has a number of traps for the unwary:
 @itemize @bullet
 @item
 You cannot determine the current number base using the code sequence
-@code{BASE @@ .} -- the number base is always 10 in the current number
-base. Instead, use something like @code{BASE @@ DECIMAL DUP . BASE !}
+@code{base @@ .} -- the number base is always 10 in the current number
+base. Instead, use something like @code{base @@ dec.}
 @item
 If the number base is set to a value greater than 14 (for example,
 hexadecimal), the number 123E4 is ambiguous; the conversion rules allow
@@ -4893,9 +4908,9 @@ anywhere after the first digit is a Gforth extension.
 The number conversion process does not check for overflow.
 @item
 In Gforth, number conversion to floating-point numbers always use base
-10, irrespective of the value of @code{BASE}. In ANS Forth,
+10, irrespective of the value of @code{base}. In ANS Forth,
 conversion to floating-point numbers whilst the value of
-@code{BASE} is not 10 is an ambiguous condition.
+@code{base} is not 10 is an ambiguous condition.
 @end itemize
 
 @ref{Input} describes words that you can use to read numbers into your
@@ -4913,7 +4928,15 @@ starts interpreting. When @code{]} is executed it switches @code{state}
 to compile state and therefore the text interpreter starts
 compiling. The most common usage for these words is to compile literals,
 as shown in @ref{Literals}. However, they give you the freedom to switch
-modes at will. Here is an example of building a jump-table of execution
+modes at will.
+
+@c This is a bad example: It's non-standard, and it's not necessary.
+@c However, I can't think of a good example for switching into compile
+@c state when there is no current word (@code{state}-smart words are not a
+@c good reason).  So maybe we should use an example for switching into
+@c interpret @code{state} in a colon def. - anton
+
+Here is an example of building a jump-table of execution
 tokens:
 
 @example
@@ -5653,7 +5676,7 @@ The assignment of a block to a block buffer is performed by @code{block}
 or @code{buffer}. Use @code{block} when you wish to modify the existing
 contents of a block. Use @code{buffer} when you don't care about the
 existing contents of the block@footnote{The ANS Forth definition of
-@code{block} is intended not to cause disk I/O; if the data associated
+@code{buffer} is intended not to cause disk I/O; if the data associated
 with the particular block is already stored in a block buffer due to an
 earlier @code{block} command, @code{buffer} will return that block
 buffer and the existing contents of the block will be
@@ -5722,9 +5745,6 @@ mechanism to toggle between code and comments.
 @item
 Load blocks; a single block (typically block 1) contains a number of
 @code{thru} commands which @code{load} the whole of the application.
-@item
-Chaining blocks; a block terminates with a @code{-->} so that a whole
-application can be @code{load}ed by @code{load}ing a single block.
 @end itemize
 
 See Frank Sergeant's Pygmy Forth to see just how well blocks can be
@@ -5753,7 +5773,7 @@ doc-load
 doc-thru
 doc-+load
 doc-+thru
-doc---block--->
+xdoc--gforth--->
 doc-block-included
 
 @c -------------------------------------------------------------
@@ -9830,8 +9850,8 @@ Infinity.
 System-dependent. Typically results in an alignment fault like other
 alignment violations.
 
-@item @code{BASE} is not decimal (@code{REPRESENT}, @code{F.}, @code{FE.}, @code{FS.}):
-@cindex @code{BASE} is not decimal (@code{REPRESENT}, @code{F.}, @code{FE.}, @code{FS.})
+@item @code{base} is not decimal (@code{REPRESENT}, @code{F.}, @code{FE.}, @code{FS.}):
+@cindex @code{base} is not decimal (@code{REPRESENT}, @code{F.}, @code{FE.}, @code{FS.})
 The floating-point number is converted into decimal nonetheless.
 
 @item Both arguments are equal to zero (@code{FATAN2}):

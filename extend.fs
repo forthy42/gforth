@@ -154,7 +154,8 @@ decimal
 : restore-input ( xn .. x1 n -- flag ) \ core-ext
     \G Attempt to restore the input source specification to the state
     \G described by the @var{n} entries @var{xn - x1}. @var{flag} is
-    \G true if the restore fails.
+    \G true if the restore fails.  In Gforth it fails pretty often
+    \G (and sometimes with a @code{throw}).
     6 <> -12 and throw
     source-id <> -12 and throw
     >tib !

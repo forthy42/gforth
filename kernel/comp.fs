@@ -439,15 +439,22 @@ DOES> @ execute ;
     defstart :-hook ;
 interpret/compile: DOES>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ core        does
 
-: [IS] ( compilation "name" -- ; run-time xt -- ) \ possibly-gforth bracket-is
+: <IS> ( "name" xt -- ) \ gforth
+    \g Changes the @code{defer}red word @var{name} to execute @var{xt}.
+    ' >body ! ;
+
+: [IS] ( compilation "name" -- ; run-time xt -- ) \ gforth bracket-is
+    \g At run-time, changes the @code{defer}red word @var{name} to
+    \g execute @var{xt}.
     ' >body postpone ALiteral postpone ! ; immediate restrict
 
-:noname    ' >body ! ;
+' <IS>
 ' [IS]
 interpret/compile: IS ( xt "name" -- ) \ gforth
 
-' IS Alias TO ( w "name" -- ) \ core-ext
-immediate
+' <IS>
+' [IS]
+interpret/compile: TO ( w "name" -- ) \ core-ext
 
 :noname    ' >body @ ;
 :noname    ' >body postpone ALiteral postpone @ ;

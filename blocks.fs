@@ -224,10 +224,13 @@ User scr ( -- a-addr ) \ block-ext
     \G current block + @i{n1} thru the current block + @i{n2}.
     1+ swap ?DO  I +load  LOOP ;
 
-: --> ( -- ) \ block- block chain
+: --> ( -- ) \ gforth- gforth chain
     \G If this symbol is encountered whilst loading block @i{n},
     \G discard the remainder of the block and load block @i{n+1}. Used
-    \G for chaining multiple blocks together as a single loadable unit.
+    \G for chaining multiple blocks together as a single loadable
+    \G unit.  Not recommended, because it destroys the independence of
+    \G loading.  Use @code{thru} (which is standard) or @code{+thru}
+    \G instead.
     refill drop ; immediate
 
 : block-included ( a-addr u -- ) \ gforth
