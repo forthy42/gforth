@@ -26,6 +26,10 @@
 \ test this with
 \ gforth arch/mips/disasm.fs -e "here" arch/mips/testdisasm.fs -e "here over - disasm-dump bye" |sed 's/([^)]*) //'|diff -u - arch/mips/testasm.fs
 
+get-current
+vocabulary disassembler
+also disassembler definitions
+
 \ instruction fields
 
 : disasm-op ( w -- u )
@@ -83,6 +87,8 @@ $40 disasm-table cp0-tab-entry     \ COP0 CO instructions funct table
 
 \ disassembler central decode cascade
 
+dup set-current
+
 : disasm-inst ( addr w -- )
     \G disassemble instruction w at addr (addr is used for computing
     \G branch targets)
@@ -93,6 +99,8 @@ $40 disasm-table cp0-tab-entry     \ COP0 CO instructions funct table
     bounds u+do
 	cr ." ( " i hex. ." ) " i i @ disasm-inst
 	1 cells +loop ;
+
+definitions
 
 : disasm-special ( addr w -- )
     \ disassemble inst with opcode special
@@ -269,3 +277,5 @@ does> ( addr w -- )
     drop nip asm-copz-imm1 ;
 
 include ./insts.fs
+
+previous set-current
