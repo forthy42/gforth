@@ -85,15 +85,12 @@
 #endif /* !_POSIX_VERSION */
 
 /* Posix systems use termios and the Posix signal functions. */
-#if defined (_POSIX_VERSION) || defined (NeXT)
+#if defined (_POSIX_VERSION)
 #  if !defined (TERMIOS_MISSING)
 #    undef NEW_TTY_DRIVER
 #    define TERMIOS_TTY_DRIVER
 #    include <termios.h>
 #  endif /* !TERMIOS_MISSING */
-#endif /* _POSIX_VERSION || NeXT */
-
-#if defined (_POSIX_VERSION)
 #  define HAVE_POSIX_SIGNALS
 #  if !defined (O_NDELAY)
 #    define O_NDELAY O_NONBLOCK	/* Posix-style non-blocking i/o */
@@ -110,7 +107,7 @@
    special character is disabled and to disable certain special
    characters.  Posix systems should set to 0, USG systems to -1. */
 #if !defined (NEW_TTY_DRIVER) && !defined (_POSIX_VDISABLE)
-#  if defined (_POSIX_VERSION) || defined (NeXT)
+#  if defined (_POSIX_VERSION)
 #    define _POSIX_VDISABLE 0
 #  else /* !_POSIX_VERSION */
 #    define _POSIX_VDISABLE -1
@@ -616,7 +613,7 @@ long key_avail (stream)
 	FILE *stream;
 {
   int tty = fileno (stream);
-  long chars_avail = pending;
+  int chars_avail = pending;
   int result;
 
   if(!terminal_prepped)  prep_terminal();
@@ -977,7 +974,7 @@ void install_signal_handlers (void)
     signal (sigs_to_ignore [i], SIG_IGN);
 */
   for (i = 0; i < DIM (sigs_to_throw); i++)
-    signal (sigs_to_throw [i], die_on_signal ? graceful_exit : signal_throw);
+    signal (sigs_to_throw [i], signal_throw);
   for (i = 0; i < DIM (sigs_to_quit); i++)
     signal (sigs_to_quit [i], graceful_exit);
 #ifdef SIGCONT
