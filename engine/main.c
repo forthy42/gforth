@@ -1087,7 +1087,7 @@ void finish_code(void)
   compile_prim1(NULL);
   for (i=0; i<ndoesexecinfos; i++) {
     struct doesexecinfo *dei = &doesexecinfos[i];
-    branchinfos[dei->branchinfo].targetptr = DOES_CODE1((dei->xt));
+    branchinfos[dei->branchinfo].targetptr = (Label *)DOES_CODE1((dei->xt));
   }
   ndoesexecinfos = 0;
   for (i=0; i<nbranchinfos; i++) {
