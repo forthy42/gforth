@@ -1,10 +1,8 @@
 \ netlib.fs include netlib.so and forth utilities		08mar98jaw
 
-require +~wordlib.fs
+require ./../wordlib.fs
 
-WordLibrary netlib.fs ~+/netlib.so
-
-fpath+ /devel/src/forth
+WordLibrary netlib.fs ./netlib.so
 
 \ ------        Address structures
 

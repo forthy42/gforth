@@ -1,0 +1,11 @@
+
+GFORTHHOME = ..
+
+LIBS = @LIBS@
+
+include $(GFORTHHOME)/engine/Makefile
+include $(GFORTHHOME)/wordlib.mk
+
+distclean: clean
+	rm -rf config.log config.status config.cache Makefile
+

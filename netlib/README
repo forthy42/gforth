@@ -1,0 +1,5 @@
+
+netlib provides TCP/IP socket stuff for forth.
+It is extra because we need a configure script for it.
+Currently untested.
+
