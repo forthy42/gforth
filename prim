@@ -857,7 +857,7 @@ DCell d = (DCell)n1 * (DCell)n2;
 #endif
 #ifdef BUGGY_LL_DIV
 DCell r = fmdiv(d,n3);
-n4=DHI(r);
+n4=DLO(r);
 #else
 /* assumes that the processor uses either floored or symmetric division */
 n4 = d/n3;
