@@ -36,20 +36,30 @@
 
 
 (defvar forth-positives
-  " : :noname code interpretation: ;code does> begin do ?do +do -do u+do u-do while if ?dup-if ?dup-0=-if else case of struct [if] [else] "
+  " : :noname code interpretation: ;code does> begin do ?do +do -do u+do u-do while if ?dup-if ?dup-0=-if else case of struct [if] [else] with public: private: class "
   "Contains all words which will cause the indent-level to be incremented
 on the next line.
 OBS! All words in forth-positives must be surrounded by spaces.")
 
 (defvar forth-negatives
-  " ; end-code ;code does> until repeat while +loop loop -loop s+loop else then endif again endcase endof end-struct [then] [else] [endif] "
+  " ; end-code ;code does> until repeat while +loop loop -loop s+loop else then endif again endcase endof end-struct [then] [else] [endif] endwith class; how: "
   "Contains all words which will cause the indent-level to be decremented
 on the current line.
 OBS! All words in forth-negatives must be surrounded by spaces.")
 
 (defvar forth-zeroes
-  " : :noname code interpretation: "
+  " : :noname code interpretation: public: private: how: class class; "
   "Contains all words which causes the indent to go to zero")
+
+(setq forth-zero 0)
+
+(defvar forth-zup
+  " how: "
+  "Contains all words which causes zero indent level to change")
+
+(defvar forth-zdown
+  " class; how: class public: private: "
+  "Contains all words which causes zero indent level to change")
 
 (defvar forth-prefixes
   " postpone [compile] ['] [char] "
@@ -318,8 +328,12 @@ programmers who tend to fill code won't use emacs anyway:-)."
 			 (regexp-quote (concat " " w1 " "))
 			 forth-negatives)
 			forth-indent-level 0)))
+    (if (string-match (regexp-quote (concat " " w1 " ")) forth-zdown)
+	(setq forth-zero 0))
     (if (string-match (regexp-quote (concat " " w1 " ")) forth-zeroes)
-	(setq indent 0))
+	(setq indent forth-zero))
+    (if (string-match (regexp-quote (concat " " w1 " ")) forth-zup)
+	(setq forth-zero 4))
     indent))
 
 (defun forth-sum-line-indentation ()

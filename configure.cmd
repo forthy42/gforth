@@ -1,5 +1,5 @@
 /*
-Copyright 1995 Free Software Foundation, Inc.
+Copyright 1996-1997 Free Software Foundation, Inc.
 
 This file is part of Gforth.
 
@@ -77,3 +77,4 @@ IF FREGS="y" THEN do
 end
 call lineout version.h1, 'static char gforth_version[]="0.3.0";'
 call lineout version.fs1, ': version-string s" 0.3.0" ;'
+call lineout 'version-stamp', '0.3.0'

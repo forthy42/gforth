@@ -35,9 +35,12 @@ s%@host_vendor@%%g
 s%@host_os@%os2%g
 s%@ENGINE_FLAGS@%%g
 s%gforth:%gforth.exe:%g
+s%gforth-ditc:%gforth-ditc.exe:%g
 s%-$(CP) gforth gforth~%-$(CP) gforth.exe gforth.exe~%g
-s%@MAKE_EXE@%\
+s%@GFORTH_EXE@%\
 gforth:		gforth.exe%g
+s%@GFORTHDITC_EXE@%\
+gforth-ditc:		gforth-ditc.exe%g
 s%@PATHSEP@%;%g
 s%@LINK_KERNL@%%g
 s%-DDEFAULTPATH=\\".*"%-DDEFAULTPATH=\\".\\"%g
@@ -59,4 +62,6 @@ s%$(FORTHPATH)$(PATHSEP)%%g
 s%@FORTHSIZES@%%g
 s%$(PATHSEP)$(srcdir)%%g
 s%test x'$(VERSION)' = x`cat $@` || %%g
-s%--clear-dictionary%-c%g
+s%GFORTHD="./gforth-ditc -p ." $(srcdir)/%%g
+s%'s"%"s\\"%g
+s%"'%\\""%g

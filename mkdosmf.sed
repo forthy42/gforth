@@ -12,7 +12,8 @@ s%@LIBOBJS@%ecvt.o io.o strsignal.o%g
 s%@getopt_long@%getopt.o getopt1.o%g
 s%@host@%dos%g
 s%@CC@%gcc%g
-s%@MAKE_EXE@%coff2exe $@%g
+s%@GFORTH_EXE@%coff2exe $@%g
+s%@GFORTHDITC_EXE@%coff2exe $@%g
 s%@INSTALL@%install-sh%g
 s%@INSTALL_PROGRAM@%install-sh%g
 s%@INSTALL_DATA@%install-sh%g
@@ -40,4 +41,4 @@ s%test x'$(VERSION)' = x`cat $@` || %%g
 s%--clear-dictionary%-c%g
 s%.$(PATHSEP)$(srcdir)%.%g
 s% -I$(srcdir)%%g
-s%GFORTHD="./gforth-ditc -p .$(PATHSEP)$(srcdir)" $(srcdir)/%%g
+s%GFORTHD="./gforth-ditc -p ." $(srcdir)/%%g

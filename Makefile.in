@@ -162,7 +162,7 @@ SOURCES	= CVS compat Makefile.in gforth-makeimage \
 	strerror.c strsignal.c dblsub.c \
 	INSTALL.DOS makefile.dos mkdosmf.sed configure.bat dosconf.h \
 	gforth-makeimage.bat startup.dos history.dos mkinstalldirs \
-	configure.cmd mkos2mf.sed os2conf.h makefile.os2 \
+	configure.cmd mkos2mf.sed os2conf.h makefile.os2 gforth-makeimage.cmd \
 	glosgen.glo glossaries.doc \
 	$(INCLUDES) $(FORTH_SRC)
 
@@ -352,7 +352,7 @@ check test:	gforth gforth.fi
 		$(FORTH) other-tests.fs -e bye
 		$(FORTH) code.fs checkans.fs -e bye
 		@echo 'Expect no differences'
-		$(FORTH) -m 100000 prims2x.fs -e "s\" $(srcdir)/primitives.b\" ' output-c process-file bye"| diff -c - $(srcdir)/primitives.i
+		$(FORTH) -m 100000 prims2x.fs -e "s\" $(srcdir)/primitives.b\"' output-c process-file bye"| diff -c - $(srcdir)/primitives.i
 
 bench:		gforth gforth.fi
 		@echo 'Each benchmark takes about 30s on a 486-66 (gcc-2.6.3 -DFORCE_REG)'
@@ -366,11 +366,11 @@ dvi:		gforth.dvi
 gforth:		$(OBJECTS) $(OBJECTS0)
 		-$(CP) gforth gforth~
 		$(GCC) $(LDFLAGS) $(OBJECTS) $(OBJECTS0) $(LDLIBS) -o $@
-		@MAKE_EXE@
+		@GFORTH_EXE@
 
 gforth-ditc:	$(OBJECTS_DITC) $(OBJECTS0)
 		$(GCC) $(LDFLAGS) $(OBJECTS_DITC) $(OBJECTS0) $(LDLIBS) -o $@
-		@MAKE_EXE@
+		@GFORTHDITC_EXE@
 
 kernl16l.fi-:	$(KERN_SRC) version.fs mach16l.fs $(FORTH_GEN0)
 		$(FORTHK) -e 's" mach16l.fs"' main.fs -e "save-cross kernl16l.fi- $(bindir)/gforth-$(VERSION) bye"
@@ -394,16 +394,16 @@ kernl%.fi-:	mach%.fs $(KERN_SRC) version.fs $(FORTH_GEN0)
 		$(FORTHK) -e 's" $<"' main.fs -e "save-cross $@ $(bindir)/gforth-$(VERSION) bye"
 
 kernl16b.fi:	$(KERNLS)
-		-$(CP) kernl16b.fi kernl16b.fi~
-		-$(CP) kernl16b.fi- kernl16b.fi
+		-$(CP) $@ $@~
+		-$(CP) $@- $@
 
 kernl16l.fi:	$(KERNLS)
-		-$(CP) kernl16l.fi kernl16l.fi~
-		-$(CP) kernl16l.fi- kernl16l.fi
+		-$(CP) $@ $@~
+		-$(CP) $@- $@
 
-kernl32b.fi:	$(KERNLS)
-		-$(CP) kernl32b.fi kernl32b.fi~
-		-$(CP) kernl32b.fi- kernl32b.fi
+kernl32b:	$(KERNLS)
+		-$(CP) $@ $@~
+		-$(CP) $@- $@
 
 kernl32l.fi:	$(KERNLS)
 		-$(CP) kernl32l.fi kernl32l.fi~
