@@ -24,13 +24,14 @@
 #define _GNU_SOURCE
 
 #include <stdio.h>
-#include <signal.h>
 #include <setjmp.h>
 #include <string.h>
 #include <stdlib.h>
 #if !defined(apollo) && !defined(MSDOS)
 #include <sys/ioctl.h>
 #endif
+/* #include <asm/signal.h> */
+#include <signal.h>
 #include "config.h"
 #include "forth.h"
 #include "io.h"
@@ -123,7 +124,26 @@ static void change_winsize(int sig)
 }
 #endif
 
-void install_signal_handlers (void)
+void install_signal_handler(int sig, void (*simple_handler)(), void (*complex_handler)())
+     /* installs signal handler for sig. If the system has the
+        necessary support, complex_handler will be invoked upon
+        receipt of a signal, otherwise simple_handler. */
+{
+#ifdef SA_SIGINFO
+  struct sigaction action;
+
+  action.sa_handler=simple_handler;
+  action.sa_sigaction=complex_handler;
+  sigemptyset(&action.sa_mask);
+  action.sa_flags=SA_SIGINFO; /* use complex_handler */
+  sigaction(sig, action, NULL);
+#else
+  /* ANSI C */
+  signal(sig,simple_handler);
+#endif
+}
+
+void install_signal_handlers(void)
 {
 
 #if 0
@@ -273,6 +293,7 @@ void install_signal_handlers (void)
 #endif
   };
   int i;
+  void (*throw_handler)() = die_on_signal ? graceful_exit : signal_throw;
 
 #define DIM(X)		(sizeof (X) / sizeof *(X))
 /*
@@ -280,7 +301,7 @@ void install_signal_handlers (void)
     signal (sigs_to_ignore [i], SIG_IGN);
 */
   for (i = 0; i < DIM (sigs_to_throw); i++)
-    signal (sigs_to_throw [i], die_on_signal ? graceful_exit : signal_throw);
+    install_signal_handler(sigs_to_throw [i], throw_handler, throw_handler);
   for (i = 0; i < DIM (sigs_to_quit); i++)
     signal (sigs_to_quit [i], graceful_exit);
 #ifdef SIGCONT
