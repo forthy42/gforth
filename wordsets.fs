@@ -40,7 +40,11 @@ WS DOUBLE
 
 ^ 2CONSTANT ^ 2LITERAL ^ 2VARIABLE ^ D+ ^ D- ^ D. ^ D.R ^ D0<
 ^ D0= ^ D2* ^ D2/ ^ D< ^ D= ^ D>S ^ DABS ^ DMAX ^ DMIN ^ DNEGATE
-^ M*/ ^ M+ ^ 2ROT ^ DU<
+^ M*/ ^ M+
+
+WS DOUBLE-EXT
+
+^ 2ROT ^ DU<
 
 WS EXEPTION
 

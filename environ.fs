@@ -39,7 +39,8 @@ true constant CORE-EXT?
 \ !! STACK-CELLS
 \ !! floating-stack
 \ !! max-float
-\ !! #locals
+15 constant #locals \ 1000 64 /
+    \ One local can take up to 64 bytes, the size of locals-buffer is 1000
 maxvp constant wordlists
 
 forth definitions

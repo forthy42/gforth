@@ -25,3 +25,5 @@ terminal should terminate gforth. anton 16apr95
 
 W/O currently means "w+", i.e. r/w. Maybe we should use "w" or
 "a". anton 18 apr95
+
+floating-point stack not checked.  anton 23apr95

@@ -115,6 +115,9 @@ Root definitions
 
 ' words Alias words
 ' Forth Alias Forth
+' forth-wordlist alias forth-wordlist
+' set-order alias set-order
+' order alias order
 
 Forth definitions
 

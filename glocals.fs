@@ -137,7 +137,7 @@ variable locals-dp \ so here's the special dp for locals.
     \ defines the local "name"; the offset of the local shall be
     \ stored in a-addr
     create
-	immediate
+	immediate restrict
 	here 0 , ( place for the offset ) ;
 
 : lp-offset ( n1 -- n2 )
