@@ -689,27 +689,27 @@ There are several variations on the counted loop:
 index by @var{n} instead of by 1. The loop is terminated when the border
 between @var{limit-1} and @var{limit} is crossed. E.g.:
 
-4 0 ?DO  i .  2 +LOOP   prints 0 2
+@code{4 0 ?DO  i .  2 +LOOP}   prints @code{0 2}
 
-4 1 ?DO  i .  2 +LOOP   prints 1 3
+@code{4 1 ?DO  i .  2 +LOOP}   prints @code{1 3}
 
 The behaviour of @code{@var{n} +LOOP} is peculiar when @var{n} is negative:
 
--1 0 ?DO  i .  -1 +LOOP  prints 0 -1
+@code{-1 0 ?DO  i .  -1 +LOOP}  prints @code{0 -1}
 
- 0 0 ?DO  i .  -1 +LOOP  prints nothing
+@code{ 0 0 ?DO  i .  -1 +LOOP}  prints nothing
 
 Therefore we recommend avoiding using @code{@var{n} +LOOP} with negative
 @var{n}. One alternative is @code{@var{n} S+LOOP}, where the negative
 case behaves symmetrical to the positive case:
 
--2 0 ?DO  i .  -1 +LOOP  prints 0 -1
+@code{-2 0 ?DO  i .  -1 +LOOP}  prints @code{0 -1}
 
--1 0 ?DO  i .  -1 +LOOP  prints 0
+@code{-1 0 ?DO  i .  -1 +LOOP}  prints @code{0}
 
- 0 0 ?DO  i .  -1 +LOOP  prints nothing
+@code{ 0 0 ?DO  i .  -1 +LOOP}  prints nothing
 
-The loop is terminated when the border between @var{limit-sgn(n)} and
+The loop is terminated when the border between @var{limit@minus{}sgn(n)} and
 @var{limit} is crossed. However, @code{S+LOOP} is not part of the ANS
 Forth standard.
 
@@ -734,10 +734,570 @@ iterates @var{n+1} times; @code{i} produces values starting with @var{n}
 and ending with 0. Other Forth systems may behave differently, even if
 they support @code{FOR} loops.
 
+@subsection Arbitrary control structures
+
+ANS Forth permits and supports using control structures in a non-nested
+way. Information about incomplete control structures is stored on the
+control-flow stack. This stack may be implemented on the Forth data
+stack, and this is what we have done in gforth.
+
+An @i{orig} entry represents an unresolved forward branch, a @i{dest}
+entry represents a backward branch target. A few words are the basis for
+building any control structure possible (except control structures that
+need storage, like calls, coroutines, and backtracking).
+
+if
+ahead
+then
+begin
+until
+again
+cs-pick
+cs-roll
+
+On many systems control-flow stack items take one word, in gforth they
+currently take three (this may change in the future). Therefore it is a
+really good idea to manipulate the control flow stack with
+@code{cs-pick} and @code{cs-roll}, not with data stack manipulation
+words.
+
+Some standard control structure words are built from these words:
+
+else
+while
+repeat
+
+Counted loop words constitute a separate group of words:
+
+?do
+do
+for
+loop
+s+loop
++loop
+next
+leave
+?leave
+unloop
+undo
+
+The standard does not allow using @code{cs-pick} and @code{cs-roll} on
+@i{do-sys}. Our system allows it, but it's your job to ensure that for
+every @code{?DO} etc. there is exactly one @code{UNLOOP} on any path
+through the program (@code{LOOP} etc. compile an @code{UNLOOP}). Also,
+you have to ensure that all @code{LEAVE}s are resolved (by using one of
+the loop-ending words or @code{UNDO}).
+
+Another group of control structure words are
+
+case
+endcase
+of
+endof
+
+@i{case-sys} and @i{of-sys} cannot be processed using @code{cs-pick} and
+@code{cs-roll}.
+
 @node Locals
 @section Locals
 
+Local variables can make Forth programming more enjoyable and Forth
+programs easier to read. Unfortunately, the locals of ANS Forth are
+laden with restrictions. Therefore, we provide not only the ANS Forth
+locals wordset, but also our own, more powerful locals wordset (we
+implemented the ANS Forth locals wordset through our locals wordset).
 
+@menu
+@end menu
+
+@subsection gforth locals
+
+Locals can be defined with
+
+@example
+@{ local1 local2 ... -- comment @}
+@end example
+or
+@example
+@{ local1 local2 ... @}
+@end example
+
+E.g.,
+@example
+: max @{ n1 n2 -- n3 @}
+ n1 n2 > if
+   n1
+ else
+   n2
+ endif ;
+@end example
+
+The similarity of locals definitions with stack comments is intended. A
+locals definition often replaces the stack comment of a word. The order
+of the locals corresponds to the order in a stack comment and everything
+after the @code{--} is really a comment.
+
+This similarity has one disadvantage: It is too easy to confuse locals
+declarations with stack comments, causing bugs and making them hard to
+find. However, this problem can be avoided by appropriate coding
+conventions: Do not use both notations in the same program. If you do,
+they should be distinguished using additional means, e.g. by position.
+
+The name of the local may be preceded by a type specifier, e.g.,
+@code{F:} for a floating point value:
+
+@example
+: CX* @{ F: Ar F: Ai F: Br F: Bi -- Cr Ci @}
+\ complex multiplication
+ Ar Br f* Ai Bi f* f-
+ Ar Bi f* Ai Br f* f+ ;
+@end example
+
+GNU Forth currently supports cells (@code{W:}, @code{W^}), doubles
+(@code{D:}, @code{D^}), floats (@code{F:}, @code{F^}) and characters
+(@code{C:}, @code{C^}) in two flavours: a value-flavoured local (defined
+with @code{W:}, @code{D:} etc.) produces its value and can be changed
+with @code{TO}. A variable-flavoured local (defined with @code{W^} etc.)
+produces its address (which becomes invalid when the variable's scope is
+left). E.g., the standard word @code{emit} can be defined in therms of
+@code{type} like this:
+
+@example
+: emit @{ C^ char* -- @}
+    char* 1 type ;
+@end example
+
+A local without type specifier is a @code{W:} local. Both flavours of
+locals are initialized with values from the data or FP stack.
+
+Currently there is no way to define locals with user-defined data
+structures, but we are working on it.
+
+GNU Forth allows defining locals everywhere in a colon definition. This poses the following questions:
+
+@subsubsection Where are locals visible by name?
+
+Basically, the answer is that locals are visible where you would expect
+it in block-structured languages, and sometimes a little longer. If you
+want to restrict the scope of a local, enclose its definition in
+@code{SCOPE}...@code{ENDSCOPE}.
+
+doc-scope
+doc-endscope
+
+These words behave like control structure words, so you can use them
+with @code{CS-PICK} and @code{CS-ROLL} to restrict the scope in
+arbitrary ways.
+
+If you want a more exact answer to the visibility question, here's the
+basic principle: A local is visible in all places that can only be
+reached through the definition of the local@footnote{In compiler
+construction terminology, all places dominated by the definition of the
+local.}. In other words, it is not visible in places that can be reached
+without going through the definition of the local. E.g., locals defined
+in @code{IF}...@code{ENDIF} are visible until the @code{ENDIF}, locals
+defined in @code{BEGIN}...@code{UNTIL} are visible after the
+@code{UNTIL} (until, e.g., a subsequent @code{ENDSCOPE}).
+
+The reasoning behind this solution is: We want to have the locals
+visible as long as it is meaningful. The user can always make the
+visibility shorter by using explicit scoping. In a place that can
+only be reached through the definition of a local, the meaning of a
+local name is clear. In other places it is not: How is the local
+initialized at the control flow path that does not contain the
+definition? Which local is meant, if the same name is defined twice in
+two independent control flow paths?
+
+This should be enough detail for nearly all users, so you can skip the
+rest of this section. If you relly must know all the gory details and
+options, read on.
+
+In order to implement this rule, the compiler has to know which places
+are unreachable. It knows this automatically after @code{AHEAD},
+@code{AGAIN}, @code{EXIT} and @code{LEAVE}; in other cases (e.g., after
+most @code{THROW}s), you can use the word @code{UNREACHABLE} to tell the
+compiler that the control flow never reaches that place. If
+@code{UNREACHABLE} is not used where it could, the only consequence is
+that the visibility of some locals is more limited than the rule above
+says. If @code{UNREACHABLE} is used where it should not (i.e., if you
+lie to the compiler), buggy code will be produced.
+
+Another problem with this rule is that at @code{BEGIN}, the compiler
+does not know which locals will be visible on the incoming back-edge
+. All problems discussed in the following are due to this ignorance of
+the compiler (we discuss the problems using @code{BEGIN} loops as
+examples; the discussion also applies to @code{?DO} and other
+loops). Perhaps the most insidious example is:
+@example
+AHEAD
+BEGIN
+  x
+[ 1 CS-ROLL ] THEN
+  { x }
+  ...
+UNTIL
+@end example
+
+This should be legal according to the visibility rule. The use of
+@code{x} can only be reached through the definition; but that appears
+textually below the use.
+
+From this example it is clear that the visibility rules cannot be fully
+implemented without major headaches. Our implementation treats common
+cases as advertised and the exceptions are treated in a safe way: The
+compiler makes a reasonable guess about the locals visible after a
+@code{BEGIN}; if it is too pessimistic, the
+user will get a spurious error about the local not being defined; if the
+compiler is too optimistic, it will notice this later and issue a
+warning. In the case above the compiler would complain about @code{x}
+being undefined at its use. You can see from the obscure examples in
+this section that it takes quite unusual control structures to get the
+compiler into trouble, and even then it will often do fine.
+
+If the @code{BEGIN} is reachable from above, the most optimistic guess
+is that all locals visible before the @code{BEGIN} will also be
+visible after the @code{BEGIN}. This guess is valid for all loops that
+are entered only through the @code{BEGIN}, in particular, for normal
+@code{BEGIN}...@code{WHILE}...@code{REPEAT} and
+@code{BEGIN}...@code{UNTIL} loops and it is implemented in our
+compiler. When the branch to the @code{BEGIN} is finally generated by
+@code{AGAIN} or @code{UNTIL}, the compiler checks the guess and
+warns the user if it was too optimisitic:
+@example
+IF
+  { x }
+BEGIN
+  \ x ? 
+[ 1 cs-roll ] THEN
+  ...
+UNTIL
+@end example
+
+Here, @code{x} lives only until the @code{BEGIN}, but the compiler
+optimistically assumes that it lives until the @code{THEN}. It notices
+this difference when it compiles the @code{UNTIL} and issues a
+warning. The user can avoid the warning, and make sure that @code{x}
+is not used in the wrong area by using explicit scoping:
+@example
+IF
+  SCOPE
+  { x }
+  ENDSCOPE
+BEGIN
+[ 1 cs-roll ] THEN
+  ...
+UNTIL
+@end example
+
+Since the guess is optimistic, there will be no spurious error messages
+about undefined locals.
+
+If the @code{BEGIN} is not reachable from above (e.g., after
+@code{AHEAD} or @code{EXIT}), the compiler cannot even make an
+optimistic guess, as the locals visible after the @code{BEGIN} may be
+defined later. Therefore, the compiler assumes that no locals are
+visible after the @code{BEGIN}. However, the useer can use
+@code{ASSUME-LIVE} to make the compiler assume that the same locals are
+visible at the BEGIN as at the point where the item was created.
+
+doc-assume-live
+
+E.g.,
+@example
+{ x }
+AHEAD
+ASSUME-LIVE
+BEGIN
+  x
+[ 1 CS-ROLL ] THEN
+  ...
+UNTIL
+@end example
+
+Other cases where the locals are defined before the @code{BEGIN} can be
+handled by inserting an appropriate @code{CS-ROLL} before the
+@code{ASSUME-LIVE} (and changing the control-flow stack manipulation
+behind the @code{ASSUME-LIVE}).
+
+Cases where locals are defined after the @code{BEGIN} (but should be
+visible immediately after the @code{BEGIN}) can only be handled by
+rearranging the loop. E.g., the ``most insidious'' example above can be
+arranged into:
+@example
+BEGIN
+  { x }
+  ... 0=
+WHILE
+  x
+REPEAT
+@end example
+
+@subsubsection How long do locals live?
+
+The right answer for the lifetime question would be: A local lives at
+least as long as it can be accessed. For a value-flavoured local this
+means: until the end of its visibility. However, a variable-flavoured
+local could be accessed through its address far beyond its visibility
+scope. Ultimately, this would mean that such locals would have to be
+garbage collected. Since this entails un-Forth-like implementation
+complexities, I adopted the same cowardly solution as some other
+languages (e.g., C): The local lives only as long as it is visible;
+afterwards its address is invalid (and programs that access it
+afterwards are erroneous).
+
+@subsubsection Programming Style
+
+The freedom to define locals anywhere has the potential to change
+programming styles dramatically. In particular, the need to use the
+return stack for intermediate storage vanishes. Moreover, all stack
+manipulations (except @code{PICK}s and @code{ROLL}s with run-time
+determined arguments) can be eliminated: If the stack items are in the
+wrong order, just write a locals definition for all of them; then
+write the items in the order you want.
+
+This seems a little far-fetched and eliminating stack manipulations is
+unlikely to become a conscious programming objective. Still, the
+number of stack manipulations will be reduced dramatically if local
+variables are used liberally (e.g., compare @code{max} in \sect{misc}
+with a traditional implementation of @code{max}).
+
+This shows one potential benefit of locals: making Forth programs more
+readable. Of course, this benefit will only be realized if the
+programmers continue to honour the principle of factoring instead of
+using the added latitude to make the words longer.
+
+Using @code{TO} can and should be avoided.  Without @code{TO},
+every value-flavoured local has only a single assignment and many
+advantages of functional languages apply to Forth. I.e., programs are
+easier to analyse, to optimize and to read: It is clear from the
+definition what the local stands for, it does not turn into something
+different later.
+
+E.g., a definition using @code{TO} might look like this:
+@example
+: strcmp @{ addr1 u1 addr2 u2 -- n @}
+ u1 u2 min 0
+ ?do
+   addr1 c@ addr2 c@ - ?dup
+   if
+     unloop exit
+   then
+   addr1 char+ TO addr1
+   addr2 char+ TO addr2
+ loop
+ u1 u2 - ;
+@end example
+Here, @code{TO} is used to update @code{addr1} and @code{addr2} at
+every loop iteration. @code{strcmp} is a typical example of the
+readability problems of using @code{TO}. When you start reading
+@code{strcmp}, you think that @code{addr1} refers to the start of the
+string. Only near the end of the loop you realize that it is something
+else.
+
+This can be avoided by defining two locals at the start of the loop that
+are initialized with the right value for the current iteration.
+@example
+: strcmp @{ addr1 u1 addr2 u2 -- n @}
+ addr1 addr2
+ u1 u2 min 0 
+ ?do @{ s1 s2 @}
+   s1 c@ s2 c@ - ?dup 
+   if
+     unloop exit
+   then
+   s1 char+ s2 char+
+ loop
+ 2drop
+ u1 u2 - ;
+@end example
+Here it is clear from the start that @code{s1} has a different value
+in every loop iteration.
+
+@subsubsection Implementation
+
+GNU Forth uses an extra locals stack. The most compelling reason for
+this is that the return stack is not float-aligned; using an extra stack
+also eliminates the problems and restrictions of using the return stack
+as locals stack. Like the other stacks, the locals stack grows toward
+lower addresses. A few primitives allow an efficient implementation:
+
+doc-@local#
+doc-f@local#
+doc-laddr#
+doc-lp+!#
+doc-lp!
+doc->l
+doc-f>l
+
+In addition to these primitives, some specializations of these
+primitives for commonly occurring inline arguments are provided for
+efficiency reasons, e.g., @code{@@local0} as specialization of
+@code{@@local#} for the inline argument 0. The following compiling words
+compile the right specialized version, or the general version, as
+appropriate:
+
+doc-compile-@@local
+doc-compile-f@@local
+doc-compile-lp+!
+
+Combinations of conditional branches and @code{lp+!#} like
+@code{?branch-lp+!#} (the locals pointer is only changed if the branch
+is taken) are provided for efficiency and correctness in loops.
+
+A special area in the dictionary space is reserved for keeping the
+local variable names. @code{@{} switches the dictionary pointer to this
+area and @code{@}} switches it back and generates the locals
+initializing code. @code{W:} etc.@ are normal defining words. This
+special area is cleared at the start of every colon definition.
+
+A special feature of GNU Forths dictionary is used to implement the
+definition of locals without type specifiers: every wordlist (aka
+vocabulary) has its own methods for searching
+etc. (@xref{dictionary}). For the present purpose we defined a wordlist
+with a special search method: When it is searched for a word, it
+actually creates that word using @code{W:}. @code{@{} changes the search
+order to first search the wordlist containing @code{@}}, @code{W:} etc.,
+and then the wordlist for defining locals without type specifiers.
+
+The lifetime rules support a stack discipline within a colon
+definition: The lifetime of a local is either nested with other locals
+lifetimes or it does not overlap them.
+
+At @code{BEGIN}, @code{IF}, and @code{AHEAD} no code for locals stack
+pointer manipulation is generated. Between control structure words
+locals definitions can push locals onto the locals stack. @code{AGAIN}
+is the simplest of the other three control flow words. It has to
+restore the locals stack depth of the corresponding @code{BEGIN}
+before branching. The code looks like this:
+@format
+@code{lp+!#} current-locals-size @minus{} dest-locals-size
+@code{branch} <begin>
+@end format
+
+@code{UNTIL} is a little more complicated: If it branches back, it
+must adjust the stack just like @code{AGAIN}. But if it falls through,
+the locals stack must not be changed. The compiler generates the
+following code:
+@format
+@code{?branch-lp+!#} <begin> current-locals-size @minus{} dest-locals-size
+@end format
+The locals stack pointer is only adjusted if the branch is taken.
+
+@code{THEN} can produce somewhat inefficient code:
+@format
+@code{lp+!#} current-locals-size @minus{} orig-locals-size
+<orig target>:
+@code{lp+!#} orig-locals-size @minus{} new-locals-size
+@end format
+The second @code{lp+!#} adjusts the locals stack pointer from the
+level at the {\em orig} point to the level after the @code{THEN}. The
+first @code{lp+!#} adjusts the locals stack pointer from the current
+level to the level at the orig point, so the complete effect is an
+adjustment from the current level to the right level after the
+@code{THEN}.
+
+In a conventional Forth implementation a dest control-flow stack entry
+is just the target address and an orig entry is just the address to be
+patched. Our locals implementation adds a wordlist to every orig or dest
+item. It is the list of locals visible (or assumed visible) at the point
+described by the entry. Our implementation also adds a tag to identify
+the kind of entry, in particular to differentiate between live and dead
+(reachable and unreachable) orig entries.
+
+A few unusual operations have to be performed on locals wordlists:
+
+doc-common-list
+doc-sub-list?
+doc-list-size
+
+Several features of our locals wordlist implementation make these
+operations easy to implement: The locals wordlists are organised as
+linked lists; the tails of these lists are shared, if the lists
+contain some of the same locals; and the address of a name is greater
+than the address of the names behind it in the list.
+
+Another important implementation detail is the variable
+@code{dead-code}. It is used by @code{BEGIN} and @code{THEN} to
+determine if they can be reached directly or only through the branch
+that they resolve. @code{dead-code} is set by @code{UNREACHABLE},
+@code{AHEAD}, @code{EXIT} etc., and cleared at the start of a colon
+definition, by @code{BEGIN} and usually by @code{THEN}.
+
+Counted loops are similar to other loops in most respects, but
+@code{LEAVE} requires special attention: It performs basically the same
+service as @code{AHEAD}, but it does not create a control-flow stack
+entry. Therefore the information has to be stored elsewhere;
+traditionally, the information was stored in the target fields of the
+branches created by the @code{LEAVE}s, by organizing these fields into a
+linked list. Unfortunately, this clever trick does not provide enough
+space for storing our extended control flow information. Therefore, we
+introduce another stack, the leave stack. It contains the control-flow
+stack entries for all unresolved @code{LEAVE}s.
+
+Local names are kept until the end of the colon definition, even if
+they are no longer visible in any control-flow path. In a few cases
+this may lead to increased space needs for the locals name area, but
+usually less than reclaiming this space would cost in code size.
+
+
+@subsection ANS Forth locals
+
+The ANS Forth locals wordset does not define a syntax for locals, but
+words that make it possible to define various syntaxes. One of the
+possible syntaxes is a subset of the syntax we used in the gforth locals
+wordset, i.e.:
+
+@example
+@{ local1 local2 ... -- comment @}
+@end example
+or
+@example
+@{ local1 local2 ... @}
+@end example
+
+The order of the locals corresponds to the order in a stack comment. The
+restrictions are:
+
+@itemize @bullet
+@item
+Locals can only be cell-sized values (no type specifers are allowed).
+@item
+Locals can be defined only outside control structures.
+@item
+Locals can interfere with explicit usage of the return stack. For the
+exact (and long) rules, see the standard. If you don't use return stack
+accessing words in a definition using locals, you will we all right. The
+purpose of this rule is to make locals implementation on the return
+stack easier.
+@item
+The whole definition must be in one line.
+@end itemize
+
+Locals defined in this way behave like @code{VALUE}s
+(@xref{values}). I.e., they are initialized from the stack. Using their
+name produces their value. Their value can be changed using @code{TO}.
+
+Since this syntax is supported by gforth directly, you need not do
+anything to use it. If you want to port a program using this syntax to
+another ANS Forth system, use @file{anslocal.fs} to implement the syntax
+on the other system.
+
+Note that a syntax shown in the standard, section A.13 looks
+similar, but is quite different in having the order of locals
+reversed. Beware!
+
+The ANS Forth locals wordset itself consists of the following word
+
+doc-(local)
+
+The ANS Forth locals extension wordset defines a syntax, but it is so
+awful that we strongly recommend not to use it. We have implemented this
+syntax to make porting to gforth easy, but do not document it here. The
+problem with this syntax is that the locals are defined in an order
+reversed with respect to the standard stack comment notation, making
+programs harder to read, and easier to misread and miswrite. The only
+merit of this syntax is that it is easy to implement using the ANS Forth
+locals wordset.
 
 @contents
 @bye
