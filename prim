@@ -2427,9 +2427,14 @@ does-exec ( #a_cfa -- R:nest a_pfa )	new	does_exec
 a_pfa = PFA(a_cfa);
 nest = (Cell)ip;
 IF_spTOS(spTOS = sp[0]);
-SUPER_END;
+#ifdef DEBUG
+    {
+      CFA_TO_NAME(a_cfa);
+      fprintf(stderr,"%08lx: does %08lx %.*s\n",
+	      (Cell)ip,(Cell)a_cfa,len,name);
+    }
+#endif
 SET_IP(DOES_CODE1(a_cfa));
-SUPER_END;
 
 include(peeprules.vmg)
 

@@ -902,7 +902,9 @@ Defer is-forward
 Defer do-refered
 
 : prim-forward   ( ghost -- )
-  colonmark, 1 do-refered ; \ compile space for call
+  colonmark, 0 do-refered ; \ compile space for call
+: doer-forward   ( ghost -- )
+  colonmark, 2 do-refered ; \ compile space for doer
 ' prim-forward IS is-forward
 
 : (ghostheader) ( -- )
@@ -1068,8 +1070,6 @@ Ghost branch    Ghost ?branch                   2drop
 Ghost unloop    Ghost ;S                        2drop
 Ghost lit       Ghost !                         2drop
 Ghost noop                                      drop
-Ghost :docol    Ghost :doesjump Ghost :dodoes   2drop drop
-Ghost :dovar					drop
 Ghost over      Ghost =         Ghost drop      2drop drop
 Ghost 2drop drop
 Ghost 2dup drop
@@ -1084,6 +1084,13 @@ Ghost lit@ drop
 Ghost lit-perform drop
 Ghost lit+ drop
 Ghost does-exec drop
+
+' doer-forward IS is-forward
+
+Ghost :docol    Ghost :doesjump Ghost :dodoes   2drop drop
+Ghost :dovar					drop
+
+' prim-forward IS is-forward
 
 \ \ Parameter for target systems                         06oct92py
 
@@ -2183,13 +2190,14 @@ Defer setup-prim-semantics
   Ghost tuck swap resolve <do:> swap tuck >magic !
   asmprimname, ;
 
-: Alias:   ( cfa -- ) \ name
+: Doer:   ( cfa -- ) \ name
   >in @ skip? IF  2drop  EXIT  THEN  >in !
   dup 0< s" prims" T $has? H 0= and
   IF
       .sourcepos ." needs doer: " >in @ bl word count type >in ! cr
   THEN
-  Ghost tuck swap resolve <do:> swap >magic ! ;
+  Ghost
+  tuck swap resolve <do:> swap >magic ! ;
 
 Variable prim#
 : first-primitive ( n -- )  prim# ! ;
@@ -2199,11 +2207,9 @@ Variable prim#
   IF
      .sourcepos ." needs prim: " >in @ bl word count type >in ! cr
   THEN
-\  ['] prim-forward IS is-forward
   prim# @ (THeader ( S xt ghost )
   dup >ghost-flags <primitive> set-flag
   over resolve T A, H alias-mask flag!
-\  ['] call-forward IS is-forward
   -1 prim# +! ;
 >CROSS
 
@@ -2287,10 +2293,10 @@ T 2 cells H Value xt>body
   there xt>body + ca>native T a, H 1 fillcfa ;		' (doprim,) plugin-of doprim,
 
 : (doeshandler,) ( -- ) 
-  T cfalign H compile :doesjump T 0 , H ; 		' (doeshandler,) plugin-of doeshandler,
+  T cfalign H [G'] :doesjump addr, T 0 , H ; 		' (doeshandler,) plugin-of doeshandler,
 
 : (dodoes,) ( does-action-ghost -- )
-  ]comp [G'] :dodoes gexecute comp[
+  ]comp [G'] :dodoes addr, comp[
   addr,
   \ the relocator in the c engine, does not like the
   \ does-address to marked for relocation
@@ -2505,7 +2511,6 @@ Defer instant-interpret-does>-hook
 
 : does-resolved ( ghost -- )
     compile does-exec g>xt T a, H ;
-\    dup g>body alit, >do:ghost @ g>xt 0 t>body - colon, ;
 
 : resolve-does>-part ( -- )
 \ resolve words made by builders
@@ -2796,7 +2801,7 @@ T has? peephole H [IF]
 : (callc) compile call T >body a, H ;		' (callc) plugin-of colon,
 : (call-res) >tempdp resolved gexecute tempdp> drop ;
                                                 ' (call-res) plugin-of colon-resolve
-: (prim) dup 0< IF  ( $4000 - ) ELSE
+: (prim) dup 0< IF  $4000 -  ELSE
     ." wrong usage of (prim) "
     dup gdiscover IF  .ghost  ELSE  .  THEN  cr -2 throw  THEN
     T a, H ;					' (prim) plugin-of prim,

@@ -18,13 +18,9 @@
 \ along with this program; if not, write to the Free Software
 \ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
 
-$10 value maxvp			\ current size of search order stack
-$400 constant maxvp-limit	\ upper limit for resizing search order stack
-Variable static-vp
-  0 A, 0 A,  0 A, 0 A,   0 A, 0 A,   0 A, 0 A, 
-  0 A, 0 A,  0 A, 0 A,   0 A, 0 A,   0 A, 0 A,
-0 Value vp
-static-vp ' vp >body A!
+$10 Value maxvp		\ current size of search order stack
+$400 Value maxvp-limit	\ upper limit for resizing search order stack
+0 AValue vp		\ will be initialized later (dynamic)
 
 : get-current  ( -- wid ) \ search
   \G @i{wid} is the identifier of the current compilation word list.
@@ -76,20 +72,9 @@ Variable slowvoc   0 slowvoc !
 : check-maxvp ( n -- )
    dup maxvp-limit > -49 and throw
    dup maxvp > IF
-      vp static-vp = -49 and throw
-      BEGIN  dup  maxvp 2* dup TO maxvp  > 0= UNTIL
+      BEGIN  dup  maxvp 2* dup TO maxvp  <= UNTIL
       vp  maxvp 1+ cells resize throw TO vp
    THEN drop ;
-
-: init-vp  ( n -- )
-   $10 TO maxvp
-   maxvp 1+ cells allocate throw TO vp
-   static-vp dup @ 1+ cells  vp swap move ;
-
-:noname
-   DEFERS 'cold
-   init-vp ;
-IS 'cold
 
 : >order ( wid -- ) \ gforth to-order
     \g Push @var{wid} on the search order.
@@ -164,12 +149,21 @@ Vocabulary Root ( -- ) \ gforth
   \G order (for Gforth, this is the word list @code{Root}).
   1 vp! Root also ;
 
+: init-vp  ( -- )
+   $10 TO maxvp
+   maxvp 1+ cells allocate throw TO vp
+   Only Forth also definitions ;
+
+:noname
+   init-vp DEFERS 'cold ;
+IS 'cold
+
+init-vp
+
 \ set initial search order                             14may93py
 
 Forth-wordlist wordlist-id @ ' Forth >body wordlist-id !
 
-0 vp! also Root also definitions
-Only Forth also definitions
 lookup ! \ our dictionary search order becomes the law ( -- )
 
 ' Forth >body to Forth-wordlist \ "forth definitions get-current" and "forth-wordlist" should produce the same wid

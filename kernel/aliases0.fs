@@ -18,12 +18,12 @@
 \ along with this program; if not, write to the Free Software
 \ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
 
--2 Alias: :docol
--3 Alias: :docon
--4 Alias: :dovar
--5 Alias: :douser
--6 Alias: :dodefer
--7 Alias: :dofield
--8 Alias: :dodoes
--9 Alias: :doesjump
+-2 Doer: :docol
+-3 Doer: :docon
+-4 Doer: :dovar
+-5 Doer: :douser
+-6 Doer: :dodefer
+-7 Doer: :dofield
+-8 Doer: :dodoes
+-9 Doer: :doesjump
 -&10 first-primitive

@@ -177,6 +177,10 @@ void relocate(Cell *image, const char *bitstring,
 	    default          :
 /*	      printf("Code field generation image[%x]:=CA(%x)\n",
 		     i, CF(image[i])); */
+#if !defined(DOUBLY_INDIRECT)
+	      if (((token | 0x4000) >= CF(DODOES)) && (token < -0x4000))
+		fprintf(stderr,"Doer %d used in this image at $%lx is marked as Xt; executing this code will crash.\n",CF((token | 0x4000)),(long)&image[i],VERSION);
+#endif
 	      token |= 0x4000; /* only meaningful for hybrid engines */
 	      if (CF(token)<max_symbols)
 		image[i]=(Cell)CA(CF(token));
