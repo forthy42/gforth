@@ -16,6 +16,7 @@ siev	bubble	matrix	fib	machine and configuration
  1.31    1.67    2.16    1.97   Athlon 800 (Thunderbird); gcc-3.0.2; gforth-0.5.9-20011202 -DFORCE_REG -DUSE_TOS; ELF
  1.36    1.80    2.18    1.86   Athlon 800 (Thunderbird); gcc-3.0.2; gforth-0.5.9-20011202 -DFORCE_REG; ELF
  1.10    1.46    1.91    1.77   Athlon 800 (Thunderbird); gcc-2.95.1; gforth-0.5.9-20011202 -DFORCE_REG; ELF
+ 0.60    0.79    1.00    0.92   Pentium 4 2.26 (Northwood); gcc-2.95.3; gforth-0.5.0 -DFORCE_REG; ELF
  1.21	 1.64	 2.06	 2.03	Athlon 750 (Thunderbird); gcc-2.95.1; gforth-0.5.0 -DFORCE_REG; ELF
  1.27	 1.67	 1.95	 1.94	Pentium-III 750; gcc-2.95.2; gforth-0.5.0 -DFORCE_REG; ELF
  0.81	 1.09	 0.51	 1.23	Athlon 600; gcc-2.95.2; gforth-0.5.9-20011224 -DFORCE_REG; ELF with dynamic superinstructions

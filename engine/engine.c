@@ -562,6 +562,7 @@ define(enginerest,
 #else
 #define LABEL(name) J_##name: asm(".skip 16"); I_##name
 #endif
+#define LABEL2(name)
 #include "prim.i"
 #undef LABEL
   after_last: return (Label *)0;

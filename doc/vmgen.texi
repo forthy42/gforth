@@ -749,6 +749,10 @@ threaded-code dispatch this should just expand to @samp{case
 @var{label}}.  In either case @var{label} is usually the @var{inst_name}
 with some prefix or suffix to avoid naming conflicts.
 
+@item LABEL2(@var{inst_name})
+This will be used for dynamic superinstructions; at the moment, this
+should expand to nothing.
+
 @item NAME(@var{inst_name_string})
 Called on entering a VM instruction with a string containing the name of
 the VM instruction as parameter.  In normal execution this should be a

@@ -625,14 +625,24 @@ stack inst-stream IP Cell
     endif
     2drop ;
 
-: output-c-tail ( -- )
-    \ the final part of the generated C code
+: output-c-tail1 ( -- )
+    \ the final part of the generated C code except LABEL2 and NEXT_P2
     output-super-end
     print-debug-results
     ." NEXT_P1;" cr
     stores
-    fill-tos
+    fill-tos ;
+
+: output-c-tail ( -- )
+    \ the final part of the generated C code, without LABEL2
+    output-c-tail1
     ." NEXT_P2;" ;
+
+: output-c-tail2 ( -- )
+    \ the final part of the generated C code, including LABEL2
+    output-c-tail1
+    ." LABEL2(" prim prim-c-name 2@ type ." )" cr
+    ." NEXT_P2;" cr ;
 
 : type-c-code ( c-addr u xt -- )
     \ like TYPE, but replaces "TAIL;" with tail code produced by xt
@@ -666,7 +676,7 @@ stack inst-stream IP Cell
  ." #line " c-line @ . quote c-filename 2@ type quote cr
  prim prim-c-code 2@ ['] output-c-tail type-c-code
  ." }" cr
- output-c-tail
+ output-c-tail2
  ." }" cr
  cr
 ;
@@ -899,9 +909,7 @@ stack inst-stream IP Cell
 \  #line 516 "./prim"
 \  n = n1+n2;
 \  }
-\  NEXT_P1;
 \  _x_sp0 = (Cell)n;
-\  NEXT_P2;
 \  }
 \  NEXT_P1;
 \  spTOS = (Cell)_x_sp0;
@@ -1046,7 +1054,7 @@ stack inst-stream IP Cell
     \ print-debug-args
     stack-pointer-updates
     output-parts
-    output-c-tail
+    output-c-tail2
     ." }" cr
     cr ;
 
