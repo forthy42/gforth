@@ -72,13 +72,6 @@ typedef struct {
   UCell lo;
 } UDCell;
 
-#define FETCH_DCELL(d,lo,hi)	((d)=(typeof(d)){(hi),(lo)})
-#define STORE_DCELL(d,low,high)	({ \
-				     typeof(d) _d = (d); \
-				     (low) = _d.lo; \
-				     (high)= _d.hi; \
-				 })
-
 #define LONG2UD(l)	({UDCell _ud; _ud.hi=0; _ud.lo=(Cell)(l); _ud;})
 #define UD2LONG(ud)	((long)(ud.lo))
 #define DZERO		((DCell){0,0})
@@ -89,9 +82,15 @@ typedef struct {
 typedef DOUBLE_CELL_TYPE DCell;
 typedef unsigned DOUBLE_CELL_TYPE UDCell;
 
+#define LONG2UD(l)	((UDCell)(l))
+#define UD2LONG(ud)	((long)(ud))
+#define DZERO		((DCell)0)
+
+#endif /* ! defined(BUGGY_LONG_LONG) */
+
 typedef union {
   struct {
-#ifdef WORDS_BIGENDIAN
+#if defined(WORDS_BIGENDIAN)||defined(BUGGY_LONG_LONG)
     Cell high;
     UCell low;
 #else
@@ -99,28 +98,29 @@ typedef union {
     Cell high;
 #endif;
   } cells;
-  DCell dcell;
+  DCell d;
+  UDCell ud;
 } Double_Store;
 
-#define FETCH_DCELL(d,lo,hi)	({ \
+#define FETCH_DCELL_T(d_,lo,hi,t_)	({ \
 				     Double_Store _d; \
 				     _d.cells.low = (lo); \
 				     _d.cells.high = (hi); \
-				     (d) = _d.dcell; \
+				     (d_) = _d.t_; \
 				 })
 
-#define STORE_DCELL(d,lo,hi)	({ \
+#define STORE_DCELL_T(d_,lo,hi,t_)	({ \
 				     Double_Store _d; \
-				     _d.dcell = (d); \
+				     _d.t_ = (d_); \
 				     (lo) = _d.cells.low; \
 				     (hi) = _d.cells.high; \
 				 })
 
-#define LONG2UD(l)	((UDCell)(l))
-#define UD2LONG(ud)	((long)(ud))
-#define DZERO		((DCell)0)
+#define vm_twoCell2d(d_,lo,hi)  FETCH_DCELL_T(d_,lo,hi,d)
+#define vm_twoCell2ud(d_,lo,hi) FETCH_DCELL_T(d_,lo,hi,ud)
 
-#endif /* ! defined(BUGGY_LONG_LONG) */
+#define vm_d2twoCell(d_,lo,hi)  STORE_DCELL_T(d_,lo,hi,d)
+#define vm_ud2twoCell(d_,lo,hi) STORE_DCELL_T(d_,lo,hi,ud)
 
 #ifdef DIRECT_THREADED
 typedef Label Xt;

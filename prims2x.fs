@@ -259,11 +259,14 @@ Variable function-number 0 function-number !
     item item-stack @ dup >r stack-in @ ( in-size r:stack )
     item r> stack-in-index-xt @ execute ;
 
+: item-stack-type-name ( item -- addr u )
+    item-stack @ stack-type @ type-c-name 2@ ;
+
 : fetch-single ( item -- )
  \ fetch a single stack item from its stack
  >r
  r@ item-name 2@ type
- ."  = vm_" r@ item-stack @ stack-type @ type-c-name 2@ type
+ ."  = vm_" r@ item-stack-type-name type
  ." 2" r@ item-type @ print-type-prefix ." ("
  r@ item-in-index r@ item-stack @ stack-access
  ." );" cr
@@ -272,7 +275,9 @@ Variable function-number 0 function-number !
 : fetch-double ( item -- )
  \ fetch a double stack item from its stack
  >r
- ." FETCH_DCELL("
+ ." vm_two"
+ r@ item-stack-type-name type ." 2"
+ r@ item-type @ print-type-prefix ." ("
  r@ item-name 2@ type ." , "
  r@ item-in-index r@ item-stack @ 2dup ." (Cell)" stack-access
  ." , "                      -1 under+ ." (Cell)" stack-access
@@ -304,7 +309,7 @@ Variable function-number 0 function-number !
  >r
  r@ item-out-index r@ item-stack @ stack-access ."  = vm_"
  r@ item-type @ print-type-prefix ." 2"
- r@ item-stack @ stack-type @ type-c-name 2@ type ." ("
+ r@ item-stack-type-name type ." ("
  r@ item-name 2@ type ." );"
  rdrop ;
 
@@ -325,7 +330,10 @@ Variable function-number 0 function-number !
 : store-double ( item -- )
 \ !! store optimization is not performed, because it is not yet needed
  >r
- ." STORE_DCELL(" r@ item-name 2@ type ." , "
+ ." vm_"
+ r@ item-type @ print-type-prefix ." 2two"
+ r@ item-stack-type-name type ." ("
+ r@ item-name 2@ type ." , "
  r@ item-out-index r@ item-stack @ 2dup stack-access
  ." , "                       -1 under+ stack-access
  ." );" cr
