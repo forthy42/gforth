@@ -1288,7 +1288,8 @@ while(u1--)
    ASCII strings (larger if ubits is large), and should share no
    divisors with ubits.
 */
-unsigned rot = ((char []){5,0,1,2,3,4,5,5,5,5,3,5,5,5,5,7,5,5,5,5,7,5,5,5,5,6,5,5,5,5,7,5,5})[ubits];
+static char rot_values[] = {5,0,1,2,3,4,5,5,5,5,3,5,5,5,5,7,5,5,5,5,7,5,5,5,5,6,5,5,5,5,7,5,5};
+unsigned rot = rot_values[ubits];
 Char *cp = c_addr;
 for (ukey=0; cp<c_addr+u; cp++)
     ukey = ((((ukey<<rot) | (ukey>>(ubits-rot))) 
