@@ -50,7 +50,7 @@ FORTHP	= ./gforth -i ./kernel.fi
 STRIP	= strip
 TEXI2DVI = texi2dvi
 DVI2PS	= dvips -D300
-#you can get texi2html from http://asis01.cern.ch/infohtml/texi2html.html
+#you can get texi2html from http://wwwcn.cern.ch/dci/texi2html/
 TEXI2HTML = texi2html
 MAKEINFO = makeinfo
 XCFLAGS	= @CFLAGS@
