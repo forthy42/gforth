@@ -455,7 +455,6 @@ binonlydist:	Makedist FORCE
 #install does not depend on gforth.info, because that would require
 #supplying a lot of files that can be easily generated (only info is
 #hard to generate)
-#gforth.fi and install.TAGS is rm'ed after installing because of ownership
 install:	gforth$(EXE) $(FORTH_SRC) $(kernel_fi) gforth.fi gforthmi doc/gforth.1 prim install.TAGS installdirs
 		touch $(siteforthdir)/siteinit.fs
 		-$(RM) $(bindir)/gforth$(EXE) $(bindir)/gforth-$(VERSION)$(EXE) $(bindir)/gforthmi
@@ -473,16 +472,16 @@ install:	gforth$(EXE) $(FORTH_SRC) $(kernel_fi) gforth.fi gforthmi doc/gforth.1 
 			$(INSTALL_DATA) $(srcdir)/$$i $(datadir)/gforth/$(VERSION)/$$i; \
 		done
 		$(INSTALL_DATA) $(kernel_fi) $(datadir)/gforth/$(VERSION)
-		$(RM) gforth.fi
-		GFORTHD="./gforth-ditc -p$(libdir)/gforth/site-forth$(PATHSEP)$(siteforthdir)$(PATHSEP)$(datadir)/gforth/$(VERSION) -i $(kernel_fi)" GFORTH="./gforth-ditc --die-on-signal -i $(kernel_fi) $(STARTUP)" ./gforthmi gforth.fi $(FORTHSIZES) $(STARTUP) #gforth.fi contains some path names
-		$(INSTALL_DATA) gforth.fi $(libdir)/gforth/$(VERSION)
-		$(INSTALL_DATA) install.TAGS $(datadir)/gforth/$(VERSION)/TAGS
-		$(RM) gforth.fi install.TAGS
 		@if test -d "$(emacssitelispdir)"; then \
 			$(INSTALL_DATA) $(srcdir)/gforth.el $(emacssitelispdir); \
 		else \
 			echo ">>>>>Please install $(srcdir)/gforth.el in your .../emacs/site-lisp directory"; \
 		fi
+		$(RM) gforth.fi
+		GFORTHD="./gforth-ditc -p$(libdir)/gforth/site-forth$(PATHSEP)$(siteforthdir)$(PATHSEP)$(datadir)/gforth/$(VERSION) -i $(kernel_fi)" GFORTH="./gforth-ditc --die-on-signal -i $(kernel_fi) $(STARTUP)" ./gforthmi gforth.fi $(FORTHSIZES) $(STARTUP) #gforth.fi contains some path names
+		$(INSTALL_DATA) gforth.fi $(libdir)/gforth/$(VERSION)
+		$(INSTALL_DATA) install.TAGS $(datadir)/gforth/$(VERSION)/TAGS
+		$(RM) gforth.fi install.TAGS #delete because of ownership
 		@echo ">>>>> Please make an entry for Gforth in your info dir file; e.g.:"; \
 		echo "* Gforth: (gforth).	A fast interpreter for the Forth language."
 
@@ -653,7 +652,9 @@ gforth.TAGS:	@kernel_fi@ gforth$(EXE) $(GFORTH_FI_SRC) prim.TAGS
 		rm TAGS
 
 prim.TAGS: 	prim.b prims2x.fs
-		$(FORTHK) prims2x.fs -e "s\" $(srcdir)/prim.b\" ' output-tag process-file bye" >$@-
+		echo '2c\' >prim.TAGS.sed
+		echo $(srcdir)/prim >>prim.TAGS.sed
+		$(FORTHK) prims2x.fs -e "s\" $(srcdir)/prim.b\" ' output-tag process-file bye" | sed -f prim.TAGS.sed >$@-
 		$(CP) $@- $@
 		$(RM) $@-
 

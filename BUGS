@@ -13,9 +13,6 @@ open-path-file expands "./" into the sourcefilename. It should either
 not expand "./" or provide a mechanism that allows the application to
 determine what "./" should expand to. anton 16jun98
 
-TAGS contains references to development (not install, not build)
-directories (for prim).  Probably a Makefile bug.  anton 20oct99
-
 gforth.el: Typing <ret> does not work when tabs separate words in a
 line, and there is a \-comment at the end of the line.  anton 19feb00
 
