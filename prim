@@ -793,11 +793,10 @@ ud = ummul(u1,u2);
 ud = (UDCell)u1 * (UDCell)u2;
 #endif
 :
-   >r >r 0 0 r> r> [ 8 cells ] literal 0
+   0 -rot dup [ 8 cells ] literal -
    DO
-       over >r dup >r 0< and d2*+ drop
-       r> 2* r> swap
-   LOOP 2drop ;
+	dup 0< I' and d2*+ drop
+   LOOP ;
 : d2*+ ( ud n -- ud+n c )
    over MINI
    and >r >r 2dup d+ swap r> + swap r> ;

@@ -412,6 +412,21 @@ end-code
 : does-handler! ( a_addr -- )  >r $810 2@ r> 2! ;
 
 : bye  0 execute ;
+: (bye) 0 execute ;
+: float+ 8 + ;
+: sgn ( n -- -1/0/1 )
+  dup 0= IF EXIT THEN  0< 2* 1+ ;
+: -text
+  swap bounds
+  ?DO  dup c@ I c@ = WHILE  1+  LOOP  drop 0
+  ELSE  c@ I c@ - unloop  THEN  sgn ;
+: finish-code ;
+: capscomp  ( c_addr1 u c_addr2 -- n )
+  swap bounds
+  ?DO  dup c@ I c@ <>
+      IF  dup c@ toupper I c@ toupper =
+      ELSE  true  THEN  WHILE  1+  LOOP  drop 0
+  ELSE  c@ toupper I c@ toupper - unloop  THEN  sgn ;
 
 \ division a/b
 \ x:=a, y:=b, r:=est; iterate(x:=x*r, y:=y*r, r:=2-y*r);

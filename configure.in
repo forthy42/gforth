@@ -97,6 +97,16 @@ test "$GCC" = "yes" || AC_MSG_ERROR(Gforth uses GNU C extensions and requires GC
 AC_SUBST(CC)
 AC_SUBST(DEBUGFLAG)
 
+AC_MSG_CHECKING(make type)
+make_type=`make -v 2>&1|grep 'ake version'|sed 's/ version .*//'`
+
+GNUMAKE='#'
+test "$make_type" = "GNU Make" && GNUMAKE=''
+
+AC_MSG_RESULT($make_type)
+
+AC_SUBST(GNUMAKE)
+
 dnl gcc-3.2 seems to work fine now
 dnl AC_MSG_CHECKING(gcc version)
 dnl gcc_version=`$CC -v 2>&1|grep 'gcc version'|sed 's/.*gcc version //'`

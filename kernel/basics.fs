@@ -66,6 +66,7 @@ has? ec
 [IF]
 unlock ram-dictionary borders nip lock
 AConstant dictionary-end
+: forthstart 0 ;
 [ELSE]
     has? header [IF]
 	: dictionary-end ( -- addr )
@@ -170,7 +171,8 @@ AConstant dictionary-end
   true ;
 
 : accumulate ( +d0 addr digit - +d1 addr )
-  swap >r swap  base @  um* drop rot  base @  um* d+ r> ;
+    swap >r swap  base @
+    um* drop rot  base @  um* d+ r> ;
 
 : >number ( ud1 c-addr1 u1 -- ud2 c-addr2 u2 ) \ core to-number
     \G Attempt to convert the character string @var{c-addr1 u1} to an

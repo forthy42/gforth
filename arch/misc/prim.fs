@@ -76,9 +76,9 @@ Label return-stack-top 2 cells allot
 
 End-Label
 
-UNLOCK
-( saved-region ) activate
-LOCK
+\ UNLOCK
+\ ( saved-region ) activate
+\ LOCK
 
 \ Up to here it's self modified
 Label IntoForth 
@@ -320,10 +320,11 @@ Code (loop)
                 'l dout
 		#0 , add ,
 		IP , shr ,
-		*accu , t0 ,
+		accu , t0 ,
 		#1 , add ,
 		accu , add ,
-		accu , IP ,
+                accu , IP ,
+    
 		RP , accu ,
 		*accu , t2 ,
 		#1 , add ,
@@ -826,3 +827,19 @@ UP 2* Constant UP
 
 \ include ./key.fs
 include ./optcmove.fs
+
+: (bye) 0 execute ;
+: float+ 8 + ;
+: sgn ( n -- -1/0/1 )
+  dup 0= IF EXIT THEN  0< 2* 1+ ;
+: -text
+  swap bounds
+  ?DO  dup c@ I c@ = WHILE  1+  LOOP  drop 0
+  ELSE  c@ I c@ - unloop  THEN  sgn ;
+: finish-code ;
+: capscomp  ( c_addr1 u c_addr2 -- n )
+  swap bounds
+  ?DO  dup c@ I c@ <>
+      IF  dup c@ toupper I c@ toupper =
+      ELSE  true  THEN  WHILE  1+  LOOP  drop 0
+  ELSE  c@ toupper I c@ toupper - unloop  THEN  sgn ;

@@ -629,12 +629,12 @@ kernl64b.fi-:	$(KERN_DEPS) mach64b.fs
 		$(FORTHB) -e 's" mach64b.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl64b.fi- $(bindir)/gforth-$(VERSION) bye"
 
 #Solaris make does not like that:
-#kernl-%.fi:	arch/%/mach.fs arch/%/prim.fs arch/%/asm.fs $(KERN_SRC) kernel/version.fs $(FORTH_GEN0)
-#		$(FORTHB) -e 's" $<"' $(srcdir)/kernel/main.fs -e "save-cross $@- $(bindir)/gforth-$(VERSION) bye"
-#		if [ -f `echo $< | sed s/fs/sh/` ]; \
-#		then sh `echo $< | sed s/fs/sh/` $@; \
-#		else $(CP) $@- $@; \
-#		fi
+@GNUMAKE@kernl-%.fi:	arch/%/mach.fs arch/%/prim.fs arch/%/asm.fs $(KERN_SRC) kernel/version.fs $(FORTH_GEN0)
+@GNUMAKE@		$(FORTHB) -e 's" $<"' $(srcdir)/kernel/main.fs -e "save-cross $@- $(bindir)/gforth-$(VERSION) bye"
+@GNUMAKE@		if [ -f `echo $< | sed s/fs/sh/` ]; \
+@GNUMAKE@		then sh `echo $< | sed s/fs/sh/` $@; \
+@GNUMAKE@		else $(CP) $@- $@; \
+@GNUMAKE@		fi
 
 #SunOS make does not like that
 #arch/%/mach.fs:	arch/%/prim.fs arch/%/asm.fs
