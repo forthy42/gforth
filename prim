@@ -2166,7 +2166,7 @@ Variable UP
 wcall	( u -- )	gforth
 IF_fpTOS(fp[0]=fpTOS);
 FP=fp;
-sp=(Cell*)(SYSCALL(Cell(*)(Cell *, void *))u)(sp, &FP);
+sp=(Cell*)(SYSCALL(Cell*(*)(Cell *, void *))u)(sp, &FP);
 fp=FP;
 IF_spTOS(spTOS=sp[0];)
 IF_fpTOS(fpTOS=fp[0]);

@@ -9,6 +9,7 @@ http://www.complang.tuwien.ac.at/papers/ertl&maierhofer95.ps.gz.
 All times are given in seconds of user time.
 
 siev	bubble	matrix	fib	machine and configuration
+ 0.31    0.42    0.19    0.46   Athlon 1800+ (Palomino, 1.533GHz); gcc-2.95.3;  gforth-0.5.9-20011224 -DFORCE_REG; ELF with dynamic superinstructions
  0.37	 0.52	 0.24	 0.61	Athlon 1200 (Thunderbird); gcc-2.95.1; gforth-0.5.9-20011224 -DFORCE_REG; ELF with dynamic superinstructions
  0.75	 1.00    1.29    1.20   Athlon 1200 (Thunderbird); gcc-2.95.1; gforth-0.5.9-20011224 -DFORCE_REG; ELF before dynamic superinstructions
  1.18    1.53    1.94    1.83   Athlon 800 (Thunderbird); gcc-3.0.2; gforth-0.5.9-20011202 -DFORCE_REG -DUSE_TOS; ELF
