@@ -249,7 +249,6 @@ execute	( xt -- )		core
 #ifndef NO_IP
 ip=IP;
 #endif
-/* IF_spTOS(spTOS = sp[0]); /* inst_tail would produce a NEXT_P1 */
 SUPER_END;
 VM_JUMP(EXEC1(xt));
 
@@ -259,7 +258,6 @@ perform	( a_addr -- )	gforth
 #ifndef NO_IP
 ip=IP;
 #endif
-/* IF_spTOS(spTOS = sp[0]); /* inst_tail would produce a NEXT_P1 */
 SUPER_END;
 VM_JUMP(EXEC1(*(Xt *)a_addr));
 :
@@ -521,10 +519,8 @@ if (nstart == nlimit) {
     JUMP(a_target);
 #else
     SET_IP((Xt *)a_target);
-    INST_TAIL; NEXT_P2;
 #endif
 }
-SUPER_CONTINUE;
 :
   2dup =
   IF   r> swap rot >r >r
@@ -544,10 +540,8 @@ if (nstart >= nlimit) {
     JUMP(a_target);
 #else
     SET_IP((Xt *)a_target);
-    INST_TAIL; NEXT_P2;
 #endif
 }
-SUPER_CONTINUE;
 :
  swap 2dup
  r> swap >r swap >r
@@ -567,10 +561,8 @@ if (ustart >= ulimit) {
 JUMP(a_target);
 #else
 SET_IP((Xt *)a_target);
-INST_TAIL; NEXT_P2;
 #endif
 }
-SUPER_CONTINUE;
 :
  swap 2dup
  r> swap >r swap >r
@@ -590,10 +582,8 @@ if (nstart <= nlimit) {
 JUMP(a_target);
 #else
 SET_IP((Xt *)a_target);
-INST_TAIL; NEXT_P2;
 #endif
 }
-SUPER_CONTINUE;
 :
  swap 2dup
  r> swap >r swap >r
@@ -613,10 +603,8 @@ if (ustart <= ulimit) {
 JUMP(a_target);
 #else
 SET_IP((Xt *)a_target);
-INST_TAIL; NEXT_P2;
 #endif
 }
-SUPER_CONTINUE;
 :
  swap 2dup
  r> swap >r swap >r
