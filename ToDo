@@ -7,6 +7,10 @@ the topic. If you have completed the work, remove the topic.
 
 This an emacs outline. Use '*' to create topics.
 
+* "DOS" Distribution
+eventually convert all text files LF -> CR LF
+check on 8.3 filenames?!
+
 *The Engine
 **measure the effect of some variations on different machines:
 direct/indirect, NEXT splitting, keeping the TOSses in variables
@@ -75,6 +79,7 @@ search order tricks etc. EVALUATE is a problem.
 
 *Documentation (Neal Crook, nac@forth.org is working on this)
 A texinfo file
+add more about internals (c primitives, creation of engine, etc.)
 **glossaries of all wordsets.
 *** Inclusion of stack comments, glossary comments, and wordset comments
 in all source files.
