@@ -12,3 +12,4 @@ siev	bubble	matrix	fib	machine and configuration
 31.90	35.60	28.30	36.70	i486 66MHz 256K cache; gcc-2.6.3 -DFORCE_REG; gforth-0.1alpha
  9.0	 9.6	 7.7	 9.6	21064A (Alpha) 289MHz 2M cache; gcc-2.7.0; gforth-0.1beta
 17.3	19.0	14.1	18.3	R4000 100MHz 1M cache; gcc-2.4.5; gforth-0.1beta
+63.0	73.3	74.6	65.7	FJMB86903 (SPARC ELC) 33MHz; gcc-2.5.8; gforth-0.1beta
