@@ -2,14 +2,14 @@
 @comment The source is gforth.ds, from which gforth.texi is generated
 @comment %**start of header (This is for running Texinfo on a region.)
 @setfilename gforth.info
-@settitle GNU Forth Manual
+@settitle Gforth Manual
 @comment @setchapternewpage odd
 @comment %**end of header (This is for running Texinfo on a region.)
 
 @ifinfo
-This file documents GNU Forth 0.0
+This file documents Gforth 0.1
 
-Copyright @copyright{} 1994 GNU Forth Development Group
+Copyright @copyright{} 1994 Gforth Development Group
 
      Permission is granted to make and distribute verbatim copies of
      this manual provided the copyright notice and this permission notice
@@ -38,16 +38,18 @@ Copyright @copyright{} 1994 GNU Forth Development Group
 
 @titlepage
 @sp 10
-@center @titlefont{GNU Forth Manual}
+@center @titlefont{Gforth Manual}
 @sp 2
-@center for version 0.0
+@center for version 0.1
 @sp 2
 @center Anton Ertl
+@sp 3
+@center This manual is under construction
 
 @comment  The following two commands start the copyright page.
 @page
 @vskip 0pt plus 1filll
-Copyright @copyright{} 1994 GNU Forth Development Group
+Copyright @copyright{} 1994 Gforth Development Group
 
 @comment !! Published by ... or You can get a copy of this manual ...
 
@@ -72,22 +74,22 @@ Copyright @copyright{} 1994 GNU Forth Development Group
 
 @node Top, License, (dir), (dir)
 @ifinfo
-GNU Forth is a free implementation of ANS Forth available on many
+Gforth is a free implementation of ANS Forth available on many
 personal machines. This manual corresponds to version 0.0.
 @end ifinfo
 
 @menu
 * License::                     
-* Goals::                       About the GNU Forth Project
+* Goals::                       About the Gforth Project
 * Other Books::                 Things you might want to read
-* Invocation::                  Starting GNU Forth
-* Words::                       Forth words available in GNU Forth
+* Invocation::                  Starting Gforth
+* Words::                       Forth words available in Gforth
 * ANS conformance::             Implementation-defined options etc.
-* Model::                       The abstract machine of GNU Forth
-* Emacs and GForth::            The GForth Mode
+* Model::                       The abstract machine of Gforth
+* Emacs and Gforth::            The Gforth Mode
 * Internals::                   Implementation details
 * Bugs::                        How to report them
-* Pedigree::                    Ancestors of GNU Forth
+* Pedigree::                    Ancestors of Gforth
 * Word Index::                  An item for each Forth word
 * Node Index::                  An item for each node
 @end menu
@@ -98,21 +100,21 @@ personal machines. This manual corresponds to version 0.0.
 
 @iftex
 @unnumbered Preface
-This manual documents GNU Forth. The reader is expected to know
+This manual documents Gforth. The reader is expected to know
 Forth. This manual is primarily a reference manual. @xref{Other Books}
 for introductory material.
 @end iftex
 
 @node    Goals, Other Books, License, Top
 @comment node-name,     next,           previous, up
-@chapter Goals of GNU Forth
+@chapter Goals of Gforth
 @cindex Goals
-The goal of the GNU Forth Project is to develop a standard model for
+The goal of the Gforth Project is to develop a standard model for
 ANSI Forth. This can be split into several subgoals:
 
 @itemize @bullet
 @item
-GNU Forth should conform to the ANSI Forth standard.
+Gforth should conform to the ANSI Forth standard.
 @item
 It should be a model, i.e. it should define all the
 implementation-dependent things.
@@ -121,7 +123,7 @@ It should become standard, i.e. widely accepted and used. This goal
 is the most difficult one.
 @end itemize
 
-To achieve these goals GNU Forth should be
+To achieve these goals Gforth should be
 @itemize @bullet
 @item
 Similar to previous models (fig-Forth, F83)
@@ -137,22 +139,20 @@ Free.
 Available on many machines/easy to port.
 @end itemize
 
-Have we achieved these goals? GNU Forth conforms to the ANS Forth
-standard; it may be considered a model, but we have not yet documented
+Have we achieved these goals? Gforth conforms to the ANS Forth
+standard. It may be considered a model, but we have not yet documented
 which parts of the model are stable and which parts we are likely to
-change; it certainly has not yet become a de facto standard. It has some
-similarities and some differences to previous models; It has some
-powerful features, but not yet everything that we envisioned; on RISCs
-it is as fast as interpreters programmed in assembly, on
-register-starved machines it is not so fast, but still faster than any
-other C-based interpretive implementation; it is free and available on
-many machines.
+change. It certainly has not yet become a de facto standard. It has some
+similarities and some differences to previous models. It has some
+powerful features, but not yet everything that we envisioned. We
+certainly have achieved our execution speed goals (@pxref{Performance}).
+It is free and available on many machines.
 
 @node Other Books, Invocation, Goals, Top
 @chapter Other books on ANS Forth
 
 As the standard is relatively new, there are not many books out yet. It
-is not recommended to learn Forth by using GNU Forth and a book that is
+is not recommended to learn Forth by using Gforth and a book that is
 not written for ANS Forth, as you will not know your mistakes from the
 deviations of the book.
 
@@ -173,7 +173,7 @@ other languages should find it ok.
 @chapter Invocation
 
 You will usually just say @code{gforth}. In many other cases the default
-GNU Forth image will be invoked like this:
+Gforth image will be invoked like this:
 
 @example
 gforth [files] [-e forth-code]
@@ -285,7 +285,7 @@ that has become a de-facto standard for Forth texts, i.e.
 
 @table @var
 @item word
-The name of the word. BTW, GNU Forth is case insensitive, so you can
+The name of the word. BTW, Gforth is case insensitive, so you can
 type the words in in lower case (However, @pxref{core-idef}).
 
 @item Stack effect
@@ -293,7 +293,7 @@ The stack effect is written in the notation @code{@var{before} --
 @var{after}}, where @var{before} and @var{after} describe the top of
 stack entries before and after the execution of the word. The rest of
 the stack is not touched by the word. The top of stack is rightmost,
-i.e., a stack sequence is written as it is typed in. Note that GNU Forth
+i.e., a stack sequence is written as it is typed in. Note that Gforth
 uses a separate floating point stack, but a unified stack
 notation. Also, return stack effects are not shown in @var{stack
 effect}, but in @var{Description}. The name of a stack item describes
@@ -438,7 +438,7 @@ number will be interpreted as integer, unless it has a signed exponent
 (both @code{+} and @code{-} are allowed as signs).
 
 Angles in floating point operations are given in radians (a full circle
-has 2 pi radians). Note, that gforth has a separate floating point
+has 2 pi radians). Note, that Gforth has a separate floating point
 stack, but we use the unified notation.
 
 Floating point numbers have a number of unpleasant surprises for the
@@ -486,7 +486,7 @@ doc-fatanh
 @node Stack Manipulation, Memory access, Arithmetic, Words
 @section Stack Manipulation
 
-gforth has a data stack (aka parameter stack) for characters, cells,
+Gforth has a data stack (aka parameter stack) for characters, cells,
 addresses, and double cells, a floating point stack for floating point
 numbers, a return stack for storing the return addresses of colon
 definitions and other data, and a locals stack for storing local
@@ -612,7 +612,7 @@ must only occur at specific addresses; e.g., that cells may only be
 accessed at addresses divisible by 4. Even if a machine allows unaligned
 accesses, it can usually perform aligned accesses faster. 
 
-For the performance-concious: alignment operations are usually only
+For the performance-conscious: alignment operations are usually only
 necessary during the definition of a data structure, not during the
 (more frequent) accesses to it.
 
@@ -622,7 +622,7 @@ char-aligned have no use in the standard and therefore will not be
 created.
 
 The standard guarantees that addresses returned by @code{CREATE}d words
-are cell-aligned; in addition, gforth guarantees that these addresses
+are cell-aligned; in addition, Gforth guarantees that these addresses
 are aligned for all purposes.
 
 Note that the standard defines a word @code{char}, which has nothing to
@@ -852,7 +852,7 @@ FOR
 NEXT
 @end example
 This is the preferred loop of native code compiler writers who are too
-lazy to optimize @code{?DO} loops properly. In GNU Forth, this loop
+lazy to optimize @code{?DO} loops properly. In Gforth, this loop
 iterates @var{n+1} times; @code{i} produces values starting with @var{n}
 and ending with 0. Other Forth systems may behave differently, even if
 they support @code{FOR} loops.
@@ -863,7 +863,7 @@ they support @code{FOR} loops.
 ANS Forth permits and supports using control structures in a non-nested
 way. Information about incomplete control structures is stored on the
 control-flow stack. This stack may be implemented on the Forth data
-stack, and this is what we have done in gforth.
+stack, and this is what we have done in Gforth.
 
 An @i{orig} entry represents an unresolved forward branch, a @i{dest}
 entry represents a backward branch target. A few words are the basis for
@@ -879,7 +879,7 @@ doc-again
 doc-cs-pick
 doc-cs-roll
 
-On many systems control-flow stack items take one word, in gforth they
+On many systems control-flow stack items take one word, in Gforth they
 currently take three (this may change in the future). Therefore it is a
 really good idea to manipulate the control flow stack with
 @code{cs-pick} and @code{cs-roll}, not with data stack manipulation
@@ -969,7 +969,8 @@ necessary to define them.
 @subsection Calls and returns
 
 A definition can be called simply be writing the name of the
-definition. When the end of the definition is reached, it returns. An earlier return can be forced using
+definition. When the end of the definition is reached, it returns. An
+earlier return can be forced using
 
 doc-exit
 
@@ -995,12 +996,12 @@ locals wordset, but also our own, more powerful locals wordset (we
 implemented the ANS Forth locals wordset through our locals wordset).
 
 @menu
-* gforth locals::               
+* Gforth locals::               
 * ANS Forth locals::            
 @end menu
 
-@node gforth locals, ANS Forth locals, Locals, Locals
-@subsection gforth locals
+@node Gforth locals, ANS Forth locals, Locals, Locals
+@subsection Gforth locals
 
 Locals can be defined with
 
@@ -1043,7 +1044,7 @@ The name of the local may be preceded by a type specifier, e.g.,
  Ar Bi f* Ai Br f* f+ ;
 @end example
 
-GNU Forth currently supports cells (@code{W:}, @code{W^}), doubles
+Gforth currently supports cells (@code{W:}, @code{W^}), doubles
 (@code{D:}, @code{D^}), floats (@code{F:}, @code{F^}) and characters
 (@code{C:}, @code{C^}) in two flavours: a value-flavoured local (defined
 with @code{W:}, @code{D:} etc.) produces its value and can be changed
@@ -1063,7 +1064,7 @@ locals are initialized with values from the data or FP stack.
 Currently there is no way to define locals with user-defined data
 structures, but we are working on it.
 
-GNU Forth allows defining locals everywhere in a colon definition. This
+Gforth allows defining locals everywhere in a colon definition. This
 poses the following questions:
 
 @menu
@@ -1073,7 +1074,7 @@ poses the following questions:
 * Implementation::              
 @end menu
 
-@node Where are locals visible by name?, How long do locals live?, gforth locals, gforth locals
+@node Where are locals visible by name?, How long do locals live?, Gforth locals, Gforth locals
 @subsubsection Where are locals visible by name?
 
 Basically, the answer is that locals are visible where you would expect
@@ -1195,9 +1196,10 @@ If the @code{BEGIN} is not reachable from above (e.g., after
 @code{AHEAD} or @code{EXIT}), the compiler cannot even make an
 optimistic guess, as the locals visible after the @code{BEGIN} may be
 defined later. Therefore, the compiler assumes that no locals are
-visible after the @code{BEGIN}. However, the useer can use
+visible after the @code{BEGIN}. However, the user can use
 @code{ASSUME-LIVE} to make the compiler assume that the same locals are
-visible at the BEGIN as at the point where the item was created.
+visible at the BEGIN as at the point where the top control-flow stack
+item was created.
 
 doc-assume-live
 
@@ -1231,7 +1233,7 @@ WHILE
 REPEAT
 @end example
 
-@node How long do locals live?, Programming Style, Where are locals visible by name?, gforth locals
+@node How long do locals live?, Programming Style, Where are locals visible by name?, Gforth locals
 @subsubsection How long do locals live?
 
 The right answer for the lifetime question would be: A local lives at
@@ -1245,7 +1247,7 @@ languages (e.g., C): The local lives only as long as it is visible;
 afterwards its address is invalid (and programs that access it
 afterwards are erroneous).
 
-@node Programming Style, Implementation, How long do locals live?, gforth locals
+@node Programming Style, Implementation, How long do locals live?, Gforth locals
 @subsubsection Programming Style
 
 The freedom to define locals anywhere has the potential to change
@@ -1259,7 +1261,7 @@ write the items in the order you want.
 This seems a little far-fetched and eliminating stack manipulations is
 unlikely to become a conscious programming objective. Still, the number
 of stack manipulations will be reduced dramatically if local variables
-are used liberally (e.g., compare @code{max} in @ref{gforth locals} with
+are used liberally (e.g., compare @code{max} in @ref{Gforth locals} with
 a traditional implementation of @code{max}).
 
 This shows one potential benefit of locals: making Forth programs more
@@ -1314,10 +1316,10 @@ are initialized with the right value for the current iteration.
 Here it is clear from the start that @code{s1} has a different value
 in every loop iteration.
 
-@node Implementation,  , Programming Style, gforth locals
+@node Implementation,  , Programming Style, Gforth locals
 @subsubsection Implementation
 
-GNU Forth uses an extra locals stack. The most compelling reason for
+Gforth uses an extra locals stack. The most compelling reason for
 this is that the return stack is not float-aligned; using an extra stack
 also eliminates the problems and restrictions of using the return stack
 as locals stack. Like the other stacks, the locals stack grows toward
@@ -1352,7 +1354,7 @@ area and @code{@}} switches it back and generates the locals
 initializing code. @code{W:} etc.@ are normal defining words. This
 special area is cleared at the start of every colon definition.
 
-A special feature of GNU Forths dictionary is used to implement the
+A special feature of Gforth's dictionary is used to implement the
 definition of locals without type specifiers: every wordlist (aka
 vocabulary) has its own methods for searching
 etc. (@pxref{Wordlists}). For the present purpose we defined a wordlist
@@ -1442,12 +1444,12 @@ this may lead to increased space needs for the locals name area, but
 usually less than reclaiming this space would cost in code size.
 
 
-@node ANS Forth locals,  , gforth locals, Locals
+@node ANS Forth locals,  , Gforth locals, Locals
 @subsection ANS Forth locals
 
 The ANS Forth locals wordset does not define a syntax for locals, but
 words that make it possible to define various syntaxes. One of the
-possible syntaxes is a subset of the syntax we used in the gforth locals
+possible syntaxes is a subset of the syntax we used in the Gforth locals
 wordset, i.e.:
 
 @example
@@ -1463,13 +1465,13 @@ restrictions are:
 
 @itemize @bullet
 @item
-Locals can only be cell-sized values (no type specifers are allowed).
+Locals can only be cell-sized values (no type specifiers are allowed).
 @item
 Locals can be defined only outside control structures.
 @item
 Locals can interfere with explicit usage of the return stack. For the
 exact (and long) rules, see the standard. If you don't use return stack
-accessing words in a definition using locals, you will we all right. The
+accessing words in a definition using locals, you will be all right. The
 purpose of this rule is to make locals implementation on the return
 stack easier.
 @item
@@ -1480,7 +1482,7 @@ Locals defined in this way behave like @code{VALUE}s
 (@xref{Values}). I.e., they are initialized from the stack. Using their
 name produces their value. Their value can be changed using @code{TO}.
 
-Since this syntax is supported by gforth directly, you need not do
+Since this syntax is supported by Gforth directly, you need not do
 anything to use it. If you want to port a program using this syntax to
 another ANS Forth system, use @file{anslocal.fs} to implement the syntax
 on the other system.
@@ -1495,7 +1497,7 @@ doc-(local)
 
 The ANS Forth locals extension wordset defines a syntax, but it is so
 awful that we strongly recommend not to use it. We have implemented this
-syntax to make porting to gforth easy, but do not document it here. The
+syntax to make porting to Gforth easy, but do not document it here. The
 problem with this syntax is that the locals are defined in an order
 reversed with respect to the standard stack comment notation, making
 programs harder to read, and easier to misread and miswrite. The only
@@ -1569,7 +1571,7 @@ doc-printdebugline
 
 It is a good idea to make your programs self-checking, in particular, if
 you use an assumption (e.g., that a certain field of a data structure is
-never zero) that may become wrong during maintenance. GForth supports
+never zero) that may become wrong during maintenance. Gforth supports
 assertions for this purpose. They are used like this:
 
 @example
@@ -1592,7 +1594,7 @@ debugging, we want more checking, in production we sometimes care more
 for speed. Therefore, assertions can be turned off, i.e., the assertion
 becomes a comment. Depending on the importance of an assertion and the
 time it takes to check it, you may want to turn off some assertions and
-keep others turned on. GForth provides several levels of assertions for
+keep others turned on. Gforth provides several levels of assertions for
 this purpose:
 
 doc-assert0(
@@ -1627,7 +1629,7 @@ probably more appropriate than an assertion).
 @section Threading Words
 
 These words provide access to code addresses and other threading stuff
-in gforth (and, possibly, other interpretive Forths). It more or less
+in Gforth (and, possibly, other interpretive Forths). It more or less
 abstracts away the differences between direct and indirect threading
 (and, for direct threading, the machine dependences). However, at
 present this wordset is still inclomplete. It is also pretty low-level;
@@ -1646,7 +1648,7 @@ doc-/does-handler
 @node ANS conformance, Model, Words, Top
 @chapter ANS conformance
 
-To the best of our knowledge, gforth is an
+To the best of our knowledge, Gforth is an
 
 ANS Forth System
 @itemize
@@ -1681,7 +1683,7 @@ requirements. In many cases it gives a way to ask the system for the
 information instead of providing the information directly, in
 particular, if the information depends on the processor, the operating
 system or the installation options chosen, or if they are likely to
-change during the maintenance of gforth.
+change during the maintenance of Gforth.
 
 @comment The framework for the rest has been taken from pfe.
 
@@ -1720,7 +1722,7 @@ change during the maintenance of gforth.
 @table @i
 
 @item (Cell) aligned addresses:
-processor-dependent. Gforths alignment words perform natural alignment
+processor-dependent. Gforth's alignment words perform natural alignment
 (e.g., an address aligned for a datum of size 8 is divisible by
 8). Unaligned accesses usually result in a @code{-23 THROW}.
 
@@ -1745,10 +1747,10 @@ installation-dependent. Currently a character is represented by a C
 (Comments on that requested).
 
 @item character-set extensions and matching of names:
-Any character except 0 can be used in a name. Matching is
-case-insensitive. The matching is performed using the C function
-@code{strncasecmp}, whose function is probably influenced by the
-locale. E.g., the @code{C} locale does not know about accents and
+Any character except the ASCII NUL charcter can be used in a
+name. Matching is case-insensitive. The matching is performed using the
+C function @code{strncasecmp}, whose function is probably influenced by
+the locale. E.g., the @code{C} locale does not know about accents and
 umlauts, so they are matched case-sensitively in that locale. For
 portability reasons it is best to write programs such that they work in
 the @code{C} locale. Then one can use libraries written by a Polish
@@ -1808,19 +1810,19 @@ Given by the constant @code{/line}. Currently 255 characters.
 31
 
 @item method of selecting the user input device:
-The user input device is the standard input. There is current no way to
-change it from within gforth. However, the input can typically be
-redirected in the command line that starts gforth.
+The user input device is the standard input. There is currently no way to
+change it from within Gforth. However, the input can typically be
+redirected in the command line that starts Gforth.
 
 @item method of selecting the user output device:
 The user output device is the standard output. It cannot be redirected
-from within gforth, but typically from the command line that starts
-gforth. Gforth uses buffered output, so output on a terminal does not
+from within Gforth, but typically from the command line that starts
+Gforth. Gforth uses buffered output, so output on a terminal does not
 become visible before the next newline or buffer overflow. Output on
 non-terminals is invisible until the buffer overflows.
 
 @item methods of dictionary compilation:
-Waht are we expected to document here?
+What are we expected to document here?
 
 @item number of bits in one address unit:
 @code{s" address-units-bits" environment? drop .}. 8 in all current
@@ -1856,7 +1858,7 @@ string.
 Varies. You can determine the size at a specific time using @code{lp@
 tib - .}. It is shared with the locals stack and TIBs of files that
 include the current file. You can change the amount of space for TIBs
-and locals stack at gforth startup with the command line option
+and locals stack at Gforth startup with the command line option
 @code{-l}.
 
 @item size of the pictured numeric output buffer:
@@ -2234,7 +2236,7 @@ another question.
 
 @item repeatability to be expected from the execution of @code{MS}:
 System dependent. On Unix, a lot depends on load. If the system is
-lightly loaded, and the delay is short enough that gforth does not get
+lightly loaded, and the delay is short enough that Gforth does not get
 swapped out, the performance should be acceptable. Under MS-DOS and
 other single-tasking systems, it should be good.
 
@@ -2665,13 +2667,13 @@ when @code{REVEAL} is executed (by @code{;}, @code{DOES>},
 @end table
 
 
-@node Model, Emacs and GForth, ANS conformance, Top
+@node Model, Emacs and Gforth, ANS conformance, Top
 @chapter Model
 
-@node Emacs and GForth, Internals, Model, Top
-@chapter Emacs and GForth
+@node Emacs and Gforth, Internals, Model, Top
+@chapter Emacs and Gforth
 
-GForth comes with @file{gforth.el}, an improved version of
+Gforth comes with @file{gforth.el}, an improved version of
 @file{forth.el} by Goran Rydqvist (icluded in the TILE package). The
 improvements are a better (but still not perfect) handling of
 indentation. I have also added comment paragraph filling (@kbd{M-q}),
@@ -2681,7 +2683,7 @@ stuff I do not use alone, even though some of it only makes sense for
 TILE. To get a description of these features, enter Forth mode and type
 @kbd{C-h m}.
 
-In addition, GForth supports Emacs quite well: The source code locations
+In addition, Gforth supports Emacs quite well: The source code locations
 given in error messages, debugging output (from @code{~~}) and failed
 assertion messages are in the right format for Emacs' compilation mode
 (@pxref{Compilation, , Running Compilations under Emacs, emacs, Emacs
@@ -2693,7 +2695,7 @@ Also, if you @code{include} @file{etags.fs}, a new @file{TAGS} file
 (@pxref{Tags, , Tags Tables, emacs, Emacs Manual}) will be produced that
 contains the definitions of all words defined afterwards. You can then
 find the source for a word using @kbd{M-.}. Note that emacs can use
-several tags files at the same time (e.g., one for the gforth sources
+several tags files at the same time (e.g., one for the Gforth sources
 and one for your program).
 
 To get all these benefits, add the following lines to your @file{.emacs}
@@ -2704,17 +2706,18 @@ file:
 (setq auto-mode-alist (cons '("\\.fs\\'" . forth-mode) auto-mode-alist))
 @end example
 
-@node Internals, Bugs, Emacs and GForth, Top
+@node Internals, Bugs, Emacs and Gforth, Top
 @chapter Internals
 
-Reading this section is not necessary for programming with gforth. It
-should be helpful for finding your way in the gforth sources.
+Reading this section is not necessary for programming with Gforth. It
+should be helpful for finding your way in the Gforth sources.
 
 @menu
 * Portability::                 
 * Threading::                   
 * Primitives::                  
 * System Architecture::         
+* Performance::                 
 @end menu
 
 @node Portability, Threading, Internals, Internals
@@ -2746,9 +2749,7 @@ Double-Word Integers, gcc.info, GNU C Manual}) corresponds to Forths
 double numbers. GNU C is available for free on all important (and many
 unimportant) UNIX machines, VMS, 80386s running MS-DOS, the Amiga, and
 the Atari ST, so a Forth written in GNU C can run on all these
-machines@footnote{Due to Apple's look-and-feel lawsuit it is not
-available on the Mac (@pxref{Boycott, , Protect Your Freedom---Fight
-``Look And Feel'', gcc.info, GNU C Manual}).}.
+machines.
 
 Writing in a portable language has the reputation of producing code that
 is slower than assembly. For our Forth engine we repeatedly looked at
@@ -3039,7 +3040,7 @@ To see what assembly code is produced for the primitives on your machine
 with your compiler and your flag settings, type @code{make engine.s} and
 look at the resulting file @file{engine.s}.
 
-@node System Architecture,  , Primitives, Internals
+@node System Architecture, Performance, Primitives, Internals
 @section System Architecture
 
 Our Forth system consists not only of primitives, but also of
@@ -3062,7 +3063,7 @@ possible, because we do not want to distribute many versions of the
 same image file, and to make it easy for the users to use their image
 files on many machines. We currently need to create a different image
 file for machines with different cell sizes and different byte order
-(little- or big-endian)@footnote{We consider adding information to the
+(little- or big-endian)@footnote{We are considering adding information to the
 image file that enables the loader to change the byte order.}.
 
 Forth code that is going to end up in a portable image file has to
@@ -3082,17 +3083,128 @@ at run-time. The loader also has to replace tokens standing for
 primitive calls with the appropriate code-field addresses (or code
 addresses in the case of direct threading).
 
+@node  Performance,  , System Architecture, Internals
+@section Performance
+
+On RISCs the Gforth engine is very close to optimal; i.e., it is usually
+impossible to write a significantly faster engine.
+
+On register-starved machines like the 386 architecture processors
+improvements are possible, because @code{gcc} does not utilize the
+registers as well as a human, even with explicit register declarations;
+e.g., Bernd Beuster wrote a Forth system fragment in assembly language
+and hand-tuned it for the 486; this system is 1.19 times faster on the
+Sieve benchmark on a 486DX2/66 than Gforth compiled with
+@code{gcc-2.6.3} with @code{-DFORCE_REG}.
+
+However, this potential advantage of assembly language implementations
+is not necessarily realized in complete Forth systems: We compared
+Gforth (compiled with @code{gcc-2.6.3} and @code{-DFORCE_REG}) with
+Win32Forth and LMI's NT Forth, two systems written in assembly, and with
+two systems written in C: PFE-0.9.11 (compiled with @code{gcc-2.6.3}
+with the default configuration for Linux: @code{-O2 -fomit-frame-pointer
+-DUSE_REGS}) and ThisForth Beta (compiled with gcc-2.6.3 -O3
+-fomit-frame-pointer). We benchmarked Gforth, PFE and ThisForth on a
+486DX2/66 under Linux. Kenneth O'Heskin kindly provided the results for
+Win32Forth and NT Forth on a 486DX2/66 with similar memory performance
+under Windows NT.
+ 
+We used four small benchmarks: the ubiquitous Sieve; bubble-sorting and
+matrix multiplication come from the Stanford integer benchmarks and have
+been translated into Forth by Martin Fraeman; we used the versions
+included in the TILE Forth package; and a recursive Fibonacci number
+computation for benchmark calling performance. The following table shows
+the time taken for the benchmarks scaled by the time taken by Gforth (in
+other words, it shows the speedup factor that Gforth achieved over the
+other systems).
+
+@example
+relative             Win32-        NT               This-
+  time     Gforth     Forth     Forth       PFE     Forth
+sieve        1.00      1.30      1.07      1.67      2.98
+bubble       1.00      1.30      1.40      1.66
+matmul       1.00      1.40      1.29      2.24
+fib          1.00      1.44      1.26      1.82      2.82
+@end example
+
+You may find the good performance of Gforth compared with the systems
+written in assembly language quite surprising. One important reason for
+the disappointing performance of these systems is probably that they are
+not written optimally for the 486 (e.g., they use the @code{lods}
+instruction). In addition, Win32Forth uses a comfortable, but costly
+method for relocating the Forth image: like @code{cforth}, it computes
+the actual addresses at run time, resulting in two address computations
+per NEXT (@pxref{System Architecture}).
+
+The speedup of Gforth over PFE and ThisForth can be easily explained
+with the self-imposed restriction to standard C (although the measured
+implementation of PFE uses a GNU C extension: global register
+variables), which makes efficient threading impossible.  Moreover,
+current C compilers have a hard time optimizing other aspects of the
+ThisForth source.
+
+Note that the performance of Gforth on 386 architecture processors
+varies widely with the version of @code{gcc} used. E.g., @code{gcc-2.5.8}
+failed to allocate any of the virtual machine registers into real
+machine registers by itself and would not work correctly with explicit
+register declarations, giving a 1.3 times slower engine (on a 486DX2/66
+running the Sieve) than the one measured above.
+
 @node Bugs, Pedigree, Internals, Top
 @chapter Bugs
+
+Known bugs are described in the file BUGS in the Gforth distribution.
+
+If you find a bug, please send a bug report to !!. A bug report should
+describe the Gforth version used (it is announced at the start of an
+interactive Gforth session), the machine and operating system (on Unix
+systems you can use @code{uname -a} to produce this information), the
+installation options (!! a way to find them out), and a complete list of
+changes you (or your installer) have made to the Gforth sources (if
+any); it should contain a program (or a sequence of keyboard commands)
+that reproduces the bug and a description of what you think constitutes
+the buggy behaviour.
+
+For a thorough guide on reporting bugs read @ref{Bug Reporting, , How
+to Report Bugs, gcc.info, GNU C Manual}.
+
 
 @node Pedigree, Word Index, Bugs, Top
 @chapter Pedigree
 
+Gforth descends from BigForth (1993) and fig-Forth. Gforth and PFE (by
+Dirk Zoller) will cross-fertilize each other. Of course, a significant part of the design of Gforth was prescribed by ANS Forth.
+
+Bernd Paysan wrote BigForth, a child of VolksForth.
+
+VolksForth descends from F83. !! Authors? When?
+
+Laxen and Perry wrote F83 as a model implementation of the
+Forth-83 standard. !! Pedigree? When?
+
+A team led by Bill Ragsdale implemented fig-Forth on many processors in
+1979. Dean Sanderson and Bill Ragsdale developed the original
+implementation of fig-Forth based on microForth.
+
+!! microForth pedigree
+
+A part of the information in this section comes from @cite{The Evolution
+of Forth} by Elizabeth D. Rather, Donald R. Colburn and Charles
+H. Moore, presented at the HOPL-II conference and preprinted in SIGPLAN
+Notices 28(3), 1993.  You can find more historical and genealogical
+information about Forth there.
+
 @node Word Index, Node Index, Pedigree, Top
 @chapter Word Index
 
+This index is as incomplete as the manual.
+
+@printindex fn
+
 @node Node Index,  , Word Index, Top
 @chapter Node Index
+
+This index is even less complete than the manual.
 
 @contents
 @bye

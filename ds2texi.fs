@@ -77,6 +77,7 @@ create description-buffer 4096 chars allot
     ." @i{" r@ doc-stack-effect 2@ type ." }       "
     r@ doc-wordset 2@ type ."        ``"
     r@ doc-pronounciation 2@ type ." ''" cr ." @end format" cr
+    ." @findex " r@ doc-name 2@ typetexi cr
     rdrop ;
 
 : print-doc ( doc-entry -- )

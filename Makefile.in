@@ -19,7 +19,7 @@ GCC	= gcc
 CC	= $(GCC)
 FORTH	= ./gforth
 STRIP	= strip
-TEXI2DVI = tex
+TEXI2DVI = texi2dvi
 DVI2PS	= dvips
 #you can get texi2html from http://asis01.cern.ch/infohtml/texi2html.html
 TEXI2HTML = texi2html
