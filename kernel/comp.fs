@@ -108,7 +108,7 @@ defer header ( -- ) \ gforth
     dup c, here swap chars dup allot move ;
 
 : longstring, ( c-addr u -- ) \ gforth
-    \G puts down string as cstring
+    \G puts down string as longcstring
     dup , here swap chars dup allot move ;
 
 : header, ( c-addr u -- ) \ gforth
