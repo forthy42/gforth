@@ -91,12 +91,10 @@
 
 */
 
-#ifndef GETCFA
-#  define CFA_NEXT
-/* a more appropriate name would be CFA_LIVE, i.e., cfa is live after NEXT */
-#endif
+/* CFA_NEXT: a more appropriate name would be CFA_LIVE, i.e., cfa is live after NEXT */
 
 #ifdef DOUBLY_INDIRECT
+#  define CFA_NEXT
 #  define NEXT_P0	({cfa=*ip;})
 #  define IP		(ip)
 #  define SET_IP(p)	({ip=(p); NEXT_P0;})
@@ -117,6 +115,7 @@
 
 #if THREADING_SCHEME==1
 #warning direct threading scheme 1: autoinc, long latency, cfa live
+#  define CFA_NEXT
 #  define NEXT_P0	({cfa=*ip++;})
 #  define IP		(ip-1)
 #  define SET_IP(p)	({ip=(p); NEXT_P0;})
@@ -130,6 +129,9 @@
 
 #if THREADING_SCHEME==2
 #warning direct threading scheme 2: autoinc, long latency, cfa dead
+#ifndef GETCFA
+#error GETCFA must be defined for cfa dead threading
+#endif
 #  define NEXT_P0	(ip++)
 #  define IP		(ip-1)
 #  define SET_IP(p)	({ip=(p); NEXT_P0;})
@@ -144,6 +146,7 @@
 
 #if THREADING_SCHEME==3
 #warning direct threading scheme 3: autoinc, low latency, cfa live
+#  define CFA_NEXT
 #  define NEXT_P0
 #  define IP		(ip)
 #  define SET_IP(p)	({ip=(p); NEXT_P0;})
@@ -157,6 +160,9 @@
 
 #if THREADING_SCHEME==4
 #warning direct threading scheme 4: autoinc, low latency, cfa dead
+#ifndef GETCFA
+#error GETCFA must be defined for cfa dead threading
+#endif
 #  define NEXT_P0
 #  define IP		(ip)
 #  define SET_IP(p)	({ip=(p); NEXT_P0;})
@@ -170,6 +176,7 @@
 
 #if THREADING_SCHEME==5
 #warning direct threading scheme 5: long latency, cfa live
+#  define CFA_NEXT
 #  define NEXT_P0	({cfa=*ip;})
 #  define IP		(ip)
 #  define SET_IP(p)	({ip=(p); NEXT_P0;})
@@ -183,6 +190,9 @@
 
 #if THREADING_SCHEME==6
 #warning direct threading scheme 6: long latency, cfa dead
+#ifndef GETCFA
+#error GETCFA must be defined for cfa dead threading
+#endif
 #  define NEXT_P0
 #  define IP		(ip)
 #  define SET_IP(p)	({ip=(p); NEXT_P0;})
@@ -197,6 +207,7 @@
 
 #if THREADING_SCHEME==7
 #warning direct threading scheme 7: low latency, cfa live
+#  define CFA_NEXT
 #  define NEXT_P0
 #  define IP		(ip)
 #  define SET_IP(p)	({ip=(p); NEXT_P0;})
@@ -210,6 +221,9 @@
 
 #if THREADING_SCHEME==8
 #warning direct threading scheme 8: cfa dead, i386 hack
+#ifndef GETCFA
+#error GETCFA must be defined for cfa dead threading
+#endif
 #  define NEXT_P0
 #  define IP		(ip)
 #  define SET_IP(p)	({ip=(p); NEXT_P0;})
@@ -226,6 +240,7 @@
 /* Power uses a prepare-to-branch instruction, and the latency between
    this inst and the branch is 5 cycles on a PPC604; so we utilize this
    to do some prefetching in between */
+#  define CFA_NEXT
 #  define NEXT_P0
 #  define IP		ip
 #  define SET_IP(p)	({ip=(p); next_cfa=*ip; NEXT_P0;})
@@ -240,6 +255,7 @@
 
 #if THREADING_SCHEME==10
 #warning direct threading scheme 10: plain (no attempt at scheduling)
+#  define CFA_NEXT
 #  define NEXT_P0
 #  define IP		(ip)
 #  define SET_IP(p)	({ip=(p); NEXT_P0;})
@@ -257,6 +273,7 @@
 
 #if THREADING_SCHEME==1
 #warning indirect threading scheme 1: autoinc, long latency, cisc
+#  define CFA_NEXT
 #  define NEXT_P0	({cfa=*ip++;})
 #  define IP		(ip-1)
 #  define SET_IP(p)	({ip=(p); NEXT_P0;})
@@ -270,6 +287,7 @@
 
 #if THREADING_SCHEME==2
 #warning indirect threading scheme 2: autoinc, long latency
+#  define CFA_NEXT
 #  define NEXT_P0	({cfa=*ip++;})
 #  define IP		(ip-1)
 #  define SET_IP(p)	({ip=(p); NEXT_P0;})
@@ -284,6 +302,7 @@
 
 #if THREADING_SCHEME==3
 #warning indirect threading scheme 3: autoinc, low latency, cisc
+#  define CFA_NEXT
 #  define NEXT_P0
 #  define IP		(ip)
 #  define SET_IP(p)	({ip=(p); NEXT_P0;})
@@ -297,6 +316,7 @@
 
 #if THREADING_SCHEME==4
 #warning indirect threading scheme 4: autoinc, low latency
+#  define CFA_NEXT
 #  define NEXT_P0	({cfa=*ip++;})
 #  define IP		(ip-1)
 #  define SET_IP(p)	({ip=(p); NEXT_P0;})
@@ -311,6 +331,7 @@
 
 #if THREADING_SCHEME==5
 #warning indirect threading scheme 5: long latency, cisc
+#  define CFA_NEXT
 #  define NEXT_P0	({cfa=*ip;})
 #  define IP		(ip)
 #  define SET_IP(p)	({ip=(p); NEXT_P0;})
@@ -324,6 +345,7 @@
 
 #if THREADING_SCHEME==6
 #warning indirect threading scheme 6: long latency
+#  define CFA_NEXT
 #  define NEXT_P0	({cfa=*ip;})
 #  define IP		(ip)
 #  define SET_IP(p)	({ip=(p); NEXT_P0;})
@@ -337,6 +359,7 @@
 
 #if THREADING_SCHEME==7
 #warning indirect threading scheme 7: low latency
+#  define CFA_NEXT
 #  define NEXT_P0	({cfa=*ip;})
 #  define IP		(ip)
 #  define SET_IP(p)	({ip=(p); NEXT_P0;})
@@ -350,6 +373,7 @@
 
 #if THREADING_SCHEME==8
 #warning indirect threading scheme 8: low latency,cisc
+#  define CFA_NEXT
 #  define NEXT_P0
 #  define IP		(ip)
 #  define SET_IP(p)	({ip=(p); NEXT_P0;})
