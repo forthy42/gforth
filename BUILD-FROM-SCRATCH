@@ -1,5 +1,7 @@
 # Procedures to build gforth from the CVS sources
 
+#use this with parameters and env variables like "configure"
+
 #Copyright (C) 2000 Free Software Foundation, Inc.
 
 #This file is part of Gforth.
@@ -66,8 +68,8 @@ rm gforth.fi
 echo xz
 if [ "$GFORTH"xx != "xx" ]
 then
- echo Running: make BUILDFORTH="$GFORTH" gforth...
+ echo Running: make BUILDFORTH="$GFORTH" FORTHP="$GFORTH" gforth...
  make BUILDFORTH="$GFORTH" FORTHP="$GFORTH" gforth
- echo Running: make BUILDFORTH="$GFORTH" all...
+ echo Running: make BUILDFORTH="$GFORTH" FORTHP="$GFORTH" all...
  make BUILDFORTH="$GFORTH" FORTHP="$GFORTH" all
 fi
