@@ -1722,7 +1722,8 @@ Ghost (do)      Ghost (?do)                     2drop
 Ghost (for)                                     drop
 Ghost (loop)    Ghost (+loop)                   2drop
 Ghost (next)                                    drop
-Ghost (does>)   Ghost (does>1)  Ghost compile,  2drop drop
+Ghost (does>)   Ghost (does>1)  Ghost (does>2)  2drop drop
+Ghost compile,                                  drop
 Ghost (.")      Ghost (S")      Ghost (ABORT")  2drop drop
 Ghost (C")      Ghost c(abort") Ghost type      2drop drop
 Ghost '                                         drop
@@ -2631,7 +2632,7 @@ T has? peephole H [IF]
 
 >TARGET
 Cond: DOES>
-        T here 4 cells H + alit, compile (does>1)
+        T here 5 cells H + alit, compile (does>2) compile ;s
         doeshandler, resolve-does>-part
         ;Cond
 
