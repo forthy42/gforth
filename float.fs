@@ -222,7 +222,7 @@ set-current
 	fnegate f~rel
     THEN ;
 
-2e 53e f** fconstant fround-offset \ !! does f** work correctly?
+1e 53 0 [do] f2* [loop] fconstant fround-offset \ 2^53
 
 : fround ( r1 -- r2 ) \ float f-round
 \G Round to nearest integral value.  Break ties with round-to-even.

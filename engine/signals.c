@@ -77,7 +77,7 @@ Sigfunc *bsd_signal(int signo, Sigfunc *func)
 
   act.sa_handler=func;
   sigemptyset(&act.sa_mask);
-  act.sa_flags=SA_NODEFER|SA_ONSTACK;
+  act.sa_flags=SA_NODEFER; /* SA_ONSTACK does not work for graceful_exit */
   if (sigaction(signo,&act,&oact) < 0)
     return SIG_ERR;
   else
