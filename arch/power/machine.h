@@ -30,7 +30,7 @@
 #endif
 
 #ifndef THREADING_SCHEME
-#ifdef DIRECT_THREADING
+#ifdef DIRECT_THREADED
 #define THREADING_SCHEME 9
 #else
 #define THREADING_SCHEME 6

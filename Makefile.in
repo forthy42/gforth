@@ -292,7 +292,7 @@ SOURCES	= $(CVSDIRS) compat Makefile.in Makedist.in engine/Makefile.in gforthmi.
 	doc/gforth.ds doc/texinfo.tex doc/gforth.1 doc/version.texi.in \
 	gforth.el \
 	prim engine/engine.c engine/main.c engine/io.c engine/memcmpc.c \
-	engine/signal.c $(ARCHS) \
+	engine/signals.c $(ARCHS) \
 	engine/getopt.c engine/getopt1.c engine/getopt.h engine/select.c \
 	engine/ecvt.c engine/memcmp.c engine/strtol.c engine/strtoul.c \
 	engine/ansidecl.h engine/memmove.c \
@@ -348,7 +348,7 @@ kernel/version.fs:	version
 	$(MAKE) gforth$(EXE)
 	echo ": version-string s\" $(VERSION)\" ;" > kernel/version.fs
 
-more:	engine $(FORTH_GEN) gforth$(EXE)
+more:	engine $(FORTH_GEN) $(GEN)
 
 #from the gcc Makefile: 
 #"Deletion of files made during compilation.
