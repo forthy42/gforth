@@ -6619,7 +6619,7 @@ Defer greet ( -- )
 : bar ... greet ... ;
 : greet1 ( -- ) ." Good morning" ;
 : greet2 ( -- ) ." Hello" ;
-' greet2 <IS> greet  \ make greet behave like greet2
+' greet2 IS greet  \ make greet behave like greet2
 @end example
 
 @progstyle
@@ -6635,24 +6635,25 @@ this:
 @example
 : real: : ;     \ retain access to the original
 defer :         \ redefine as a deferred word
-' my: <IS> :      \ use special version of :
+' my: IS :      \ use special version of :
 \
 \ load application here
 \
-' real: <IS> :    \ go back to the original
+' real: IS :    \ go back to the original
 @end example
 
 
-One thing to note is that @code{<IS>} consumes its name when it is
-executed.  If you want to specify the name at compile time, use
-@code{[IS]}:
+One thing to note is that @code{IS} has special compilation semantics,
+such that it parses the name at compile time (like @code{TO}):
 
 @example
 : set-greet ( xt -- )
-  [IS] greet ;
+  IS greet ;
 
 ' greet1 set-greet
 @end example
+
+In situations where @code{IS} does not fit, use @code{defer!} instead.
 
 A deferred word can only inherit execution semantics from the xt
 (because that is all that an xt can represent -- for more discussion of
@@ -6662,26 +6663,26 @@ semantics.  However, you can change the interpretation and compilation
 semantics of the deferred word in the usual ways:
 
 @example
-: bar .... ; compile-only
+: bar .... ; immediate
 Defer fred immediate
 Defer jim
 
-' bar <IS> jim  \ jim has default semantics
-' bar <IS> fred \ fred is immediate
+' bar IS jim  \ jim has default semantics
+' bar IS fred \ fred is immediate
 @end example
 
 doc-defer
-doc-<is>
-doc-[is]
+doc-defer!
 doc-is
+doc-defer@
+doc-action-of
 @comment TODO document these: what's defers [is]
-doc-what's
 doc-defers
 
 @c Use @code{words-deferred} to see a list of deferred words.
 
-Definitions in ANS Forth for @code{defer}, @code{<is>} and @code{[is]}
-are provided in @file{compat/defer.fs}.
+Definitions of these words (except @code{defers}) in ANS Forth are
+provided in @file{compat/defer.fs}.
 
 
 @node Aliases,  , Deferred words, Defining Words

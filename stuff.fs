@@ -286,3 +286,15 @@ AUser CSP
     \G followed by a list of the items; TOS is the right-most item.
     ." <" fdepth 0 .r ." > " fdepth 0 max maxdepth-.s @ min dup 0 
     ?DO  dup i - 1- floats fp@ + f@ 16 5 11 f.rdp space LOOP  drop ; 
+
+\ defer stuff
+
+:noname    ' defer@ ;
+:noname    postpone ['] postpone defer@ ;
+interpret/compile: action-of ( interpretation "name" -- xt; compilation "name" -- ; run-time -- xt ) \ gforth
+\G @i{Xt} is the XT that is currently assigned to @i{name}.
+
+' action-of
+comp' action-of drop
+interpret/compile: what's ( interpretation "name" -- xt; compilation "name" -- ; run-time -- xt ) \ gforth-obsolete
+\G Old name of @code{action-of}

@@ -486,26 +486,37 @@ DOES>
 
 \ IS Defer What's Defers TO                            24feb93py
 
+: defer-default ( -- ) \ gforth
+    \ might change into a THROW in the future
+    ; \ >stderr ." uninitialized deferred word" ;
+    
 doer? :dodefer [IF]
 
 : Defer ( "name" -- ) \ gforth
-    \ !! shouldn't it be initialized with abort or something similar?
+\G Define a deferred word @i{name}; its execution semantics can be
+\G set with @code{defer!} or @code{is} (and they have to, before first
+\G executing @i{name}.
     Header Reveal dodefer: cfa,
-    ['] noop A, ;
+    ['] defer-default A, ;
 
 [ELSE]
 
 : Defer ( "name" -- ) \ gforth
-    Create ['] noop A,
+    Create ['] defer-default A,
 DOES> @ execute ;
 
 [THEN]
+
+: defer@ ( xt-deferred -- xt ) \ gforth defer-fetch
+\G @i{xt} represents the word currently associated with the deferred
+\G word @i{xt-deferred}.
+    >body @ ;
 
 : Defers ( compilation "name" -- ; run-time ... -- ... ) \ gforth
     \G Compiles the present contents of the deferred word @i{name}
     \G into the current definition.  I.e., this produces static
     \G binding as if @i{name} was not deferred.
-    ' >body @ compile, ; immediate
+    ' defer@ compile, ; immediate
 
 :noname
     dodoes, here !does ]
@@ -518,28 +529,28 @@ DOES> @ execute ;
     defstart :-hook ;
 interpret/compile: DOES>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ core        does
 
+: defer! ( xt xt-deferred -- )
+\G Changes the @code{defer}red word @var{xt-deferred} to execute @var{xt}.
+    >body ! ;
+    
 : <IS> ( "name" xt -- ) \ gforth
     \g Changes the @code{defer}red word @var{name} to execute @var{xt}.
-    ' >body ! ;
+    ' defer! ;
 
 : [IS] ( compilation "name" -- ; run-time xt -- ) \ gforth bracket-is
     \g At run-time, changes the @code{defer}red word @var{name} to
     \g execute @var{xt}.
-    ' >body postpone ALiteral postpone ! ; immediate restrict
+    ' postpone ALiteral postpone defer! ; immediate restrict
 
 ' <IS>
 ' [IS]
-interpret/compile: IS ( xt "name" -- ) \ gforth
-\G A combined word made up from @code{<IS>} and @code{[IS]}.
+interpret/compile: IS ( compilation/interpretation "name-deferred" -- ; run-time xt -- ) \ gforth
+\G Changes the @code{defer}red word @var{name} to execute @var{xt}.
+\G Its compilation semantics parses at compile time.
 
 ' <IS>
 ' [IS]
 interpret/compile: TO ( w "name" -- ) \ core-ext
-
-:noname    ' >body @ ;
-:noname    ' >body postpone ALiteral postpone @ ;
-interpret/compile: What's ( interpretation "name" -- xt; compilation "name" -- ; run-time -- xt ) \ gforth
-\G @i{Xt} is the XT that is currently assigned to @i{name}.
 
 : interpret/compile? ( xt -- flag )
     >does-code ['] DOES> >does-code = ;
