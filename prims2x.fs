@@ -251,7 +251,20 @@ eof-char singleton					charclass eof
 nowhite ++
 <- name ( -- )
 
-(( {{ ?flush-comment start }} ` \ nonl ** nl {{ end
+Variable forth-flag
+Variable c-flag
+
+(( (( ` f || ` F )) {{ start }} nonl ** 
+   {{ end forth-flag @ IF type cr ELSE 2drop THEN }}
+)) <- forth-comment ( -- )
+
+(( (( ` c || ` C )) {{ start }} nonl ** 
+   {{ end c-flag @ IF type cr ELSE 2drop THEN }}
+)) <- c-comment ( -- )
+
+(( (( forth-comment || c-comment )) ?? nonl ** )) <- comment-body
+
+(( {{ ?flush-comment start }} ` \ comment-body nl {{ end
       2dup 2 min s" \+" compare 0= IF  f-comment 2!  ELSE  2drop  THEN }}
 )) <- comment ( -- )
 
