@@ -2436,11 +2436,11 @@ there (thus its name).  Programmers can also use this stack:
 : foo ( n1 n2 -- )
  .s
  >r .s
- r@ .
+ r@@ .
  >r .s
- r@ .
+ r@@ .
  r> .
- r@ .
+ r@@ .
  r> . ;
 1 2 foo
 @end example
@@ -2501,7 +2501,7 @@ stack into memory:
 @example
 v .
 5 v ! .s
-v @ .
+v @@ .
 @end example
 
 You can also reserve more memory:
@@ -2523,9 +2523,9 @@ You can reserve and initialize memory with @code{,}:
 @example
 create v3
   5 , 4 , 3 , 2 , 1 ,
-v3 @ .
-v3 cell+ @ .
-v3 2 cells + @ .
+v3 @@ .
+v3 cell+ @@ .
+v3 2 cells + @@ .
 @end example
 
 @assignment
@@ -2585,7 +2585,7 @@ require their own words for memory access:
 @example
 create v4 
   104 c, 97 c, 108 c, 108 c, 111 c,
-v4 4 chars + c@ .
+v4 4 chars + c@@ .
 @end example
 
 The preferred representation of strings on the stack is @code{addr
@@ -2651,8 +2651,8 @@ create an address that is not cell-aligned.  @code{Aligned ( addr --
 a-addr )} produces the next aligned address:
 
 @example
-v3 char+ aligned .s @ .
-v3 char+ .s @ .
+v3 char+ aligned .s @@ .
+v3 char+ .s @@ .
 @end example
 
 Similarly, @code{align} advances @code{here} to the next aligned
@@ -2763,11 +2763,11 @@ passing through the stack makes it a little more flexible:
 
 @example
 : map-array ( ... addr u xt -- ... )
-\ führt xt ( ... x -- ... ) für jedes Element des Arrays aus,
-\ das bei addr beginnt und u Elemente enthält
+\ executes xt ( ... x -- ... ) for every element of the array starting
+\ at addr and containing u elements
   @{ xt @}
   cells over + swap ?do
-    i @ xt execute
+    i @@ xt execute
   1 cells +loop ;
 
 create a 3 , 4 , 2 , -1 , 4 ,
@@ -2950,7 +2950,7 @@ other than just producing their address:
 : constant ( n "name" -- )
   create ,
 does> ( -- n )
-  ( addr ) @ ;
+  ( addr ) @@ ;
 
 5 constant foo
 foo .
@@ -2992,7 +2992,7 @@ you can define a definition word
 : simple-field ( n "name" -- )
   create ,
 does> ( n1 -- n1+n )
-  ( addr ) @ + ;
+  ( addr ) @@ + ;
 @end example
 
 Definition and use of field offsets now look like this:
@@ -3010,7 +3010,7 @@ with @code{>body ( xt -- addr )}:
 : value ( n "name" -- )
   create ,
 does> ( -- n1 )
-  @ ;
+  @@ ;
 : to ( n "name" -- )
   ' >body ! ;
 
@@ -3171,7 +3171,7 @@ and produce a word that contains the word to be performed directly:
 \ array beginning at addr and containing u elements
   @{ xt @}
   POSTPONE cells POSTPONE over POSTPONE + POSTPONE swap POSTPONE ?do
-    POSTPONE i POSTPONE @ xt compile,
+    POSTPONE i POSTPONE @@ xt compile,
   1 cells POSTPONE literal POSTPONE +loop ;
 
 : sum-array ( addr u -- n )
@@ -3186,7 +3186,7 @@ example where the code is generated in a loop:
 @example
 : compile-vmul-step ( compilation: n --; run-time: n1 addr1 -- n2 addr2 )
 \ n2=n1+(addr1)*n, addr2=addr1+cell
-  POSTPONE tuck POSTPONE @
+  POSTPONE tuck POSTPONE @@
   POSTPONE literal POSTPONE * POSTPONE +
   POSTPONE swap POSTPONE cell+ ;
 
@@ -4891,7 +4891,7 @@ variable jim abcd jim !
 : foo + / - ;
 ' fred 10 - 50 dump 
 ..80: 5C 46 0E 40  84 66 72 65 - 64 20 20 20  20 20 20 20  \F.@.fred       
-..90: D0 9B 04 08  00 00 00 00 - 56 34 12 00  80 46 0E 40  ........V4...F.@
+..90: D0 9B 04 08  00 00 00 00 - 56 34 12 00  80 46 0E 40  ........V4...F.@@
 ..A0: 83 6A 69 6D  20 20 20 20 - D0 9B 04 08  00 00 00 00  .jim    ........
 ..B0: CD AB 00 00  9C 46 0E 40 - 83 66 6F 6F  20 20 20 20  .....F.@.foo    
 ..C0: 80 9B 04 08  00 00 00 00 - E4 2E 05 08  0C 2F 05 08  ............./..
