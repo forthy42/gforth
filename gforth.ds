@@ -7,7 +7,7 @@
 @comment %**end of header (This is for running Texinfo on a region.)
 
 @ifinfo
-This file documents Gforth 0.1
+This file documents Gforth 0.2
 
 Copyright @copyright{} 1995 Free Software Foundation, Inc.
 
@@ -41,7 +41,7 @@ Copyright @copyright{} 1995 Free Software Foundation, Inc.
 @sp 10
 @center @titlefont{Gforth Manual}
 @sp 2
-@center for version 0.1
+@center for version 0.2
 @sp 2
 @center Anton Ertl
 @center Bernd Paysan
@@ -77,7 +77,7 @@ Copyright @copyright{} 1995 Free Software Foundation, Inc.
 @node Top, License, (dir), (dir)
 @ifinfo
 Gforth is a free implementation of ANS Forth available on many
-personal machines. This manual corresponds to version 0.1.
+personal machines. This manual corresponds to version 0.2.
 @end ifinfo
 
 @menu
@@ -1234,13 +1234,7 @@ arithmetic). This behaviour is usually not what you want. Therefore,
 Gforth offers @code{+DO} and @code{U+DO} (as replacements for
 @code{?DO}), which do not enter the loop if @var{start} is greater than
 @var{limit}; @code{+DO} is for signed loop parameters, @code{U+DO} for
-unsigned loop parameters. These words can be implemented easily on
-standard systems, so using them does not make your programs hard to
-port; e.g.:
-@example
-: +DO ( compile-time: -- do-sys; run-time: n1 n2 -- )
-    POSTPONE over POSTPONE min POSTPONE ?DO ; immediate
-@end example
+unsigned loop parameters.
 
 @code{LOOP} can be replaced with @code{@var{n} +LOOP}; this updates the
 index by @var{n} instead of by 1. The loop is terminated when the border
@@ -1268,16 +1262,10 @@ between @var{limit+1} and @var{limit} is crossed. Gforth also provides
 
 @code{ 0 0 -DO  i .  1 -LOOP}  prints nothing
 
-Another alternative is @code{@var{n} S+LOOP}, where the negative
-case behaves symmetrical to the positive case:
-
-@code{-2 0 -DO  i .  -1 S+LOOP}  prints @code{0 -1}
-
-The loop is terminated when the border between @var{limit@minus{}sgn(n)}
-and @var{limit} is crossed. Unfortunately, neither @code{-LOOP} nor
-@code{S+LOOP} are part of the ANS Forth standard, and they are not easy
-to implement using standard words. If you want to write standard
-programs, just avoid counting down.
+Unfortunately, @code{+DO}, @code{U+DO}, @code{-DO}, @code{U-DO} and
+@code{-LOOP} are not in the ANS Forth standard. However, an
+implementation for these words that uses only standard words is provided
+in @file{compat/loops.fs}.
 
 @code{?DO} can also be replaced by @code{DO}. @code{DO} always enters
 the loop, independent of the loop parameters. Do not use @code{DO}, even
@@ -1300,7 +1288,8 @@ This is the preferred loop of native code compiler writers who are too
 lazy to optimize @code{?DO} loops properly. In Gforth, this loop
 iterates @var{n+1} times; @code{i} produces values starting with @var{n}
 and ending with 0. Other Forth systems may behave differently, even if
-they support @code{FOR} loops.
+they support @code{FOR} loops. To avoid problems, don't use @code{FOR}
+loops.
 
 @node Arbitrary control structures, Calls and returns, Counted Loops, Control Structures
 @subsection Arbitrary control structures
@@ -1346,7 +1335,6 @@ doc-u-do
 doc-do
 doc-for
 doc-loop
-doc-s+loop
 doc-+loop
 doc--loop
 doc-next
@@ -1411,7 +1399,7 @@ while
 repeat
 @end example
 
-That's much easier to read, isn't it? Of course, @code{BEGIN} and
+That's much easier to read, isn't it? Of course, @code{REPEAT} and
 @code{WHILE} are predefined, so in this example it would not be
 necessary to define them.
 
@@ -1939,8 +1927,8 @@ name produces their value. Their value can be changed using @code{TO}.
 
 Since this syntax is supported by Gforth directly, you need not do
 anything to use it. If you want to port a program using this syntax to
-another ANS Forth system, use @file{anslocal.fs} to implement the syntax
-on the other system.
+another ANS Forth system, use @file{compat/anslocal.fs} to implement the
+syntax on the other system.
 
 Note that a syntax shown in the standard, section A.13 looks
 similar, but is quite different in having the order of locals
@@ -3659,34 +3647,34 @@ Gforth (direct threaded, compiled with @code{gcc-2.6.3} and
 @code{-DFORCE_REG}) with Win32Forth 1.2093, LMI's NT Forth (Beta, May
 1994) and Eforth (with and without peephole (aka pinhole) optimization
 of the threaded code); all these systems were written in assembly
-language. We also compared Gforth with two systems written in C:
+language. We also compared Gforth with three systems written in C:
 PFE-0.9.11 (compiled with @code{gcc-2.6.3} with the default
-configuration for Linux: @code{-O2 -fomit-frame-pointer -DUSE_REGS}) and
+configuration for Linux: @code{-O2 -fomit-frame-pointer -DUSE_REGS}),
 ThisForth Beta (compiled with gcc-2.6.3 -O3 -fomit-frame-pointer;
-ThisForth employs peephole optimization of the threaded code). We
-benchmarked Gforth, PFE and ThisForth on a 486DX2/66 under
-Linux. Kenneth O'Heskin kindly provided the results for Win32Forth and
-NT Forth on a 486DX2/66 with similar memory performance under Windows
-NT. Marcel Hendrix ported Eforth to Linux, then extended it to run the
-benchmarks, added the peephole optimizer, ran the benchmarks and
-reported the results.
+ThisForth employs peephole optimization of the threaded code) and TILE
+(compiled with @code{make opt}). We benchmarked Gforth, PFE, ThisForth
+and TILE on a 486DX2/66 under Linux. Kenneth O'Heskin kindly provided
+the results for Win32Forth and NT Forth on a 486DX2/66 with similar
+memory performance under Windows NT. Marcel Hendrix ported Eforth to
+Linux, then extended it to run the benchmarks, added the peephole
+optimizer, ran the benchmarks and reported the results.
  
 We used four small benchmarks: the ubiquitous Sieve; bubble-sorting and
 matrix multiplication come from the Stanford integer benchmarks and have
 been translated into Forth by Martin Fraeman; we used the versions
-included in the TILE Forth package; and a recursive Fibonacci number
-computation for benchmarking calling performance. The following table shows
-the time taken for the benchmarks scaled by the time taken by Gforth (in
-other words, it shows the speedup factor that Gforth achieved over the
-other systems).
+included in the TILE Forth package, but with bigger data set sizes; and
+a recursive Fibonacci number computation for benchmarking calling
+performance. The following table shows the time taken for the benchmarks
+scaled by the time taken by Gforth (in other words, it shows the speedup
+factor that Gforth achieved over the other systems).
 
 @example
-relative        Win32-    NT       eforth       This-
-time      Gforth Forth Forth eforth  +opt   PFE Forth
-sieve       1.00  1.39  1.14   1.39  0.85  1.78  3.18
-bubble      1.00  1.33  1.43   1.51  0.89  1.70
-matmul      1.00  1.43  1.31   1.42  1.12  2.28
-fib         1.00  1.55  1.36   1.24  1.15  1.97  3.04
+relative      Win32-    NT       eforth       This-
+  time  Gforth Forth Forth eforth  +opt   PFE Forth  TILE
+sieve     1.00  1.39  1.14   1.39  0.85  1.78  3.18  8.58
+bubble    1.00  1.31  1.41   1.48  0.88  1.67        3.88
+matmul    1.00  1.47  1.35   1.46  1.16  2.36        4.09
+fib       1.00  1.52  1.34   1.22  1.13  1.93  2.99  4.30
 @end example
 
 You may find the good performance of Gforth compared with the systems
@@ -3703,12 +3691,13 @@ Gforth. The speedups achieved with peephole optimization of threaded
 code are quite remarkable. Adding a peephole optimizer to Gforth should
 cause similar speedups.
 
-The speedup of Gforth over PFE and ThisForth can be easily explained
-with the self-imposed restriction to standard C (although the measured
-implementation of PFE uses a GNU C extension: global register
-variables), which makes efficient threading impossible.  Moreover,
-current C compilers have a hard time optimizing other aspects of the
-ThisForth source.
+The speedup of Gforth over PFE, ThisForth and TILE can be easily
+explained with the self-imposed restriction to standard C, which makes
+efficient threading impossible (however, the measured implementation of
+PFE uses a GNU C extension: @ref{Global Reg Vars, , Defining Global
+Register Variables, gcc.info, GNU C Manual}).  Moreover, current C
+compilers have a hard time optimizing other aspects of the ThisForth
+and the TILE source.
 
 Note that the performance of Gforth on 386 architecture processors
 varies widely with the version of @code{gcc} used. E.g., @code{gcc-2.5.8}
@@ -3752,12 +3741,17 @@ to Report Bugs, gcc.info, GNU C Manual}.
 @section Authors and Contributors
 
 The Gforth project was started in mid-1992 by Bernd Paysan and Anton
-Ertl. The third major author was Jens Wilke. Lennart Benschop (who also
-was one of Gforth's first users, in mid-1993) and Stuart Ramsden
-inspired us with their continuous feedback. Lennart Benshop contributed
+Ertl. The third major author was Jens Wilke.  Lennart Benschop (who was
+one of Gforth's first users, in mid-1993) and Stuart Ramsden inspired us
+with their continuous feedback. Lennart Benshop contributed
 @file{glosgen.fs}, while Stuart Ramsden has been working on automatic
 support for calling C libraries. Helpful comments also came from Paul
 Kleinrubatscher, Christian Pirker, Dirk Zoller and Marcel Hendrix.
+
+Gforth also owes a lot to the authors of the tools we used (GCC, CVS,
+and autoconf, among others), and to the creators of the Internet: Gforth
+was developed across the Internet, and its authors have not met
+physically yet.
 
 @section Pedigree
 
@@ -3786,7 +3780,8 @@ the 1802, and subsequently implemented on the 8080, the 6800 and the
 Z80.
 
 All earlier Forth systems were custom-made, usually by Charles Moore,
-who discovered (as he puts it) Forth in the late 60s.
+who discovered (as he puts it) Forth during the late 60s. The first full
+Forth existed in 1971.
 
 A part of the information in this section comes from @cite{The Evolution
 of Forth} by Elizabeth D. Rather, Donald R. Colburn and Charles

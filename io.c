@@ -729,15 +729,49 @@ signal_throw(int sig)
   longjmp(throw_jmp_buf,code); /* or use siglongjmp ? */
 }
 
-static void
-termprep (int sig)
+static void termprep (int sig)
 {
-  terminal_prepped=0;
   signal(sig,termprep);
+  terminal_prepped=0;
 }
 
-void
-install_signal_handlers (void)
+UCell rows=24;
+UCell cols=80;
+
+void get_winsize()
+{
+#ifdef TIOCGWINSZ
+  struct winsize size;
+  
+  if (ioctl (1, TIOCGWINSZ, (char *) &size) >= 0) {
+    rows = size.ws_row;
+    cols = size.ws_col;
+  }
+#else
+  char *s, *ends;
+  unsigned long ul;
+  if (s=getenv("LINES")) {
+    rows=atoi(s);
+    if (rows==0)
+      rows=24;
+  }
+  if (s=getenv("COLUMNS")) {
+    rows=atoi(s);
+    if (rows==0)
+      cols=80;
+  }
+#endif
+}
+
+static void change_winsize(int sig)
+{
+  signal(sig,change_winsize);
+#ifdef TIOCGWINSZ
+  get_winsize();
+#endif
+}
+
+void install_signal_handlers (void)
 {
 
 #if 0
@@ -801,9 +835,6 @@ install_signal_handlers (void)
 #ifdef SIGTTOU
     SIGTTOU,
 #endif
-#ifdef SIGWINCH
-    SIGWINCH,
-#endif
 #ifdef SIGSTKFLT
     SIGSTKFLT,
 #endif
@@ -837,6 +868,9 @@ install_signal_handlers (void)
 #endif
 #ifdef SIGALRM
     SIGALRM,
+#endif
+#ifdef SIGPIPE
+    SIGPIPE,
 #endif
 #ifdef SIGPOLL
     SIGPOLL,
@@ -879,19 +913,11 @@ install_signal_handlers (void)
 #ifdef SIGABRT
     SIGABRT,
 #endif
-#ifdef SIGPIPE
-    SIGPIPE,
-#endif
 #ifdef SIGTERM
     SIGTERM,
 #endif
 #ifdef SIGXCPU
     SIGXCPU,
-#endif
-  };
-  static short sigs_to_termprep [] = {
-#ifdef SIGCONT
-    SIGCONT,
 #endif
   };
   int i;
@@ -905,7 +931,11 @@ install_signal_handlers (void)
     signal (sigs_to_throw [i], signal_throw);
   for (i = 0; i < DIM (sigs_to_quit); i++)
     signal (sigs_to_quit [i], graceful_exit);
-  for (i = 0; i < DIM (sigs_to_termprep); i++)
-    signal (sigs_to_termprep [i], termprep);
+#ifdef SIGCONT
+    signal (SIGCONT, termprep);
+#endif
+#ifdef SIGWINCH
+    signal (SIGWINCH, change_winsize);
+#endif
 }
 /* end signal handling */

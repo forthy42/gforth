@@ -204,8 +204,9 @@ clean:		mostlyclean
 distclean:	clean
 		-$(RM) machine.h kernal.fi config.cache config.log config.status config.h Makefile
 
-realclean:	distclean
-		-$(RM) $(GEN_PRECIOUS)
+#realclean is useless, but dangerous, so it's commented out
+#realclean:	distclean
+#		-$(RM) $(GEN_PRECIOUS)
 
 #mostlyclean, but also remove some of the stuff that is distributed
 virtualclean:	mostlyclean

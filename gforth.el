@@ -42,7 +42,7 @@ on the next line.
 OBS! All words in forth-positives must be surrounded by spaces.")
 
 (defvar forth-negatives
-  " ; end-code ;code does> until repeat while +loop loop -loop s+loop else then endif again endcase end-struct [then] [else] [endif]"
+  " ; end-code ;code does> until repeat while +loop loop -loop s+loop else then endif again endcase end-struct [then] [else] [endif] "
   "Contains all words which will cause the indent-level to be decremented
 on the current line.
 OBS! All words in forth-negatives must be surrounded by spaces.")

@@ -327,6 +327,14 @@ key?	-- n		facility	key_q
 fflush(stdout);
 n = key_query;
 
+form	-- urows ucols	gforth
+""The number of lines and columns in the terminal. These numbers may change
+with the window size.""
+/* we could block SIGWINCH here to get a consistent size, but I don't
+ think this is necessary or always beneficial */
+urows=rows;
+ucols=cols;
+
 move	c_from c_to ucount --		core
 memmove(c_to,c_from,ucount);
 /* make an Ifdef for bsd and others? */
@@ -873,12 +881,12 @@ getenv	c_addr1 u1 -- c_addr2 u2	gforth
 c_addr2 = getenv(cstr(c_addr1,u1,1));
 u2 = (c_addr2 == NULL ? 0 : strlen(c_addr2));
 
-popen	c_addr u n -- wfileid	own
-static char* mode[2]={"r","w"}; /* !! should we use FAM here? */
-wfileid=(Cell)popen(cstr(c_addr,u,1),mode[n]); /* ~ expansion of 1st arg? */
+open-pipe	c_addr u ntype -- wfileid wior	gforth	open_pipe
+wfileid=(Cell)popen(cstr(c_addr,u,1),fileattr[ntype]); /* ~ expansion of 1st arg? */
+wior = IOR(wfileid==0); /* !! the man page says that errno is not set reliably */
 
-pclose	wfileid -- wior		own
-wior=pclose((FILE *)wfileid); /* !! what to do with the result */
+close-pipe	wfileid -- wior		gforth	close_pipe
+wior = IOR(pclose((FILE *)wfileid)==-1);
 
 time&date	-- nsec nmin nhour nday nmonth nyear	facility-ext	time_and_date
 struct timeval time1;

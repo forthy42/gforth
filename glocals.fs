@@ -488,7 +488,7 @@ forth definitions
     \ this gives a unique identifier for the way the xt was defined
     \ words defined with different does>-codes have different definers
     \ the definer can be used for comparison and in definer!
-    dup >code-address [ ' bits >code-address ] Literal =
+    dup >code-address [ ' spaces >code-address ] Literal =
     \ !! this definition will not work on some implementations for `bits'
     if  \ if >code-address delivers the same value for all does>-def'd words
 	>does-code 1 or \ bit 0 marks special treatment for does codes

@@ -76,15 +76,15 @@ HEX
 
 \ Bit string manipulation                              06oct92py
 
-Create bits  80 c, 40 c, 20 c, 10 c, 8 c, 4 c, 2 c, 1 c,
-DOES> ( n -- )  + c@ ;
+\ Create bits  80 c, 40 c, 20 c, 10 c, 8 c, 4 c, 2 c, 1 c,
+\ DOES> ( n -- )  + c@ ;
 
-: >bit  ( addr n -- c-addr mask )  8 /mod rot + swap bits ;
-: +bit  ( addr n -- )  >bit over c@ or swap c! ;
+\ : >bit  ( addr n -- c-addr mask )  8 /mod rot + swap bits ;
+\ : +bit  ( addr n -- )  >bit over c@ or swap c! ;
 
-: relinfo ( -- addr )  forthstart dup @ + ;
-: >rel  ( addr -- n )  forthstart - ;
-: relon ( addr -- )  relinfo swap >rel cell / +bit ;
+\ : relinfo ( -- addr )  forthstart dup @ + !!bug!! ;
+\ : >rel  ( addr -- n )  forthstart - ;
+\ : relon ( addr -- )  relinfo swap >rel cell / +bit ;
 
 \ here allot , c, A,                                   17dec92py
 
@@ -128,10 +128,13 @@ DOES> ( n -- )  + c@ ;
 ; immediate
 
 
-: A!    ( addr1 addr2 -- ) \ gforth
-    dup relon ! ;
-: A,    ( addr -- ) \ gforth
-    here cell allot A! ;
+\ : A!    ( addr1 addr2 -- ) \ gforth
+\    dup relon ! ;
+\ : A,    ( addr -- ) \ gforth
+\    here cell allot A! ;
+' ! alias A! ( addr1 addr2 -- ) \ gforth
+' , alias A, ( addr -- ) \ gforth 
+
 
 \ on off                                               23feb93py
 
@@ -878,19 +881,19 @@ Avariable leave-sp  leave-stack 3 cells + leave-sp !
 : ?DO ( compilation -- do-sys ; run-time w1 w2 -- | loop-sys )	\ core-ext	question-do
     POSTPONE (?do) ?do-like ; immediate restrict
 
-: +DO ( compilation -- do-sys ; run-time w1 w2 -- | loop-sys )	\ gforth	plus-do
+: +DO ( compilation -- do-sys ; run-time n1 n2 -- | loop-sys )	\ gforth	plus-do
     POSTPONE (+do) ?do-like ; immediate restrict
 
-: U+DO ( compilation -- do-sys ; run-time w1 w2 -- | loop-sys )	\ gforth	u-plus-do
+: U+DO ( compilation -- do-sys ; run-time u1 u2 -- | loop-sys )	\ gforth	u-plus-do
     POSTPONE (u+do) ?do-like ; immediate restrict
 
-: -DO ( compilation -- do-sys ; run-time w1 w2 -- | loop-sys )	\ gforth	minus-do
+: -DO ( compilation -- do-sys ; run-time n1 n2 -- | loop-sys )	\ gforth	minus-do
     POSTPONE (-do) ?do-like ; immediate restrict
 
-: U-DO ( compilation -- do-sys ; run-time w1 w2 -- | loop-sys )	\ gforth	u-minus-do
+: U-DO ( compilation -- do-sys ; run-time u1 u2 -- | loop-sys )	\ gforth	u-minus-do
     POSTPONE (u-do) ?do-like ; immediate restrict
 
-: FOR ( compilation -- do-sys ; run-time w -- loop-sys )	\ gforth
+: FOR ( compilation -- do-sys ; run-time u -- loop-sys )	\ gforth
     POSTPONE (for)
     POSTPONE begin drop do-dest
     ( 0 0 0 >leave ) ; immediate restrict
@@ -1353,8 +1356,8 @@ Defer key ( -- c ) \ core
 \ 2 c, here char r c, char + c, 0 c,
 \ 2 c, here char w c, char + c, 0 c, align
 4 Constant w/o ( -- fam ) \ file	w-o
-2 Constant r/w ( -- fam ) \ file	r-o
-0 Constant r/o ( -- fam ) \ file	r-w
+2 Constant r/w ( -- fam ) \ file	r-w
+0 Constant r/o ( -- fam ) \ file	r-o
 
 \ BIN WRITE-LINE                                        11jun93jaw
 

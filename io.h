@@ -38,8 +38,10 @@ long key_avail(FILE *);
 void prep_terminal();
 void deprep_terminal();
 void install_signal_handlers(void);
+void get_winsize(void);
 
 extern int terminal_prepped;
+extern UCell rows, cols;
 
 #  define key()		getkey(stdin)
 #  define key_query	-(!!key_avail(stdin)) /* !! FLAG(...)? - anton */

@@ -215,6 +215,7 @@ int go_forth(Cell *image, int stack, Cell *entries)
   for(;stack>0;stack--)
     *--sp=entries[stack-1];
   
+  get_winsize();
   install_signal_handlers(); /* right place? */
   
   if ((throw_code=setjmp(throw_jmp_buf))) {

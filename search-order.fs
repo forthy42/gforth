@@ -52,7 +52,7 @@ Variable slowvoc   slowvoc off
 
 \ vocabulary find                                      14may93py
 
-: (vocfind)  ( addr count nfa1 -- nfa2|false )
+: (vocfind)  ( addr count wid -- nfa|false )
     \ !! generalize this to be independent of vp
     drop vp dup @ 1- cells over +
     DO  2dup I 2@ over <>
@@ -65,7 +65,7 @@ Variable slowvoc   slowvoc off
 
 0 value locals-wordlist
 
-: (localsvocfind)  ( addr count nfa1 -- nfa2|false )
+: (localsvocfind)  ( addr count wid -- nfa|false )
     \ !! use generalized (vocfind)
     drop locals-wordlist
     IF 2dup locals-wordlist (search-wordlist) dup

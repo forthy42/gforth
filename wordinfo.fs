@@ -51,7 +51,7 @@ INCLUDE look.fs
 : does? ( nfa -- flag )
     \ !! does not work on all installations
     cell+ (name>)
-    >code-address ['] bits >code-address = ;
+    >code-address ['] spaces >code-address = ;
 
 : defered? ( nfa -- flag )
     cell+ (name>) >code-address dodefer: = ;
