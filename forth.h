@@ -76,11 +76,11 @@ Label *engine(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp);
 
 #ifndef FLUSH_ICACHE
 #warning flush-icache probably will not work (see manual)
-#	define FLUSH_ICACHE(addr,size) 0
+#	define FLUSH_ICACHE(addr,size)
 #endif
 
 #ifdef DIRECT_THREADED
 #define CACHE_FLUSH(addr,size) FLUSH_ICACHE(addr,size)
 #else
-#define CACHE_FLUSH(addr,size) 0
+#define CACHE_FLUSH(addr,size)
 #endif

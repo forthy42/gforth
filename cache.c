@@ -1,15 +1,12 @@
-void *cacheflush(void * address, int size, int linewidth)
+void cacheflush(void * address, int size, int linewidth)
 {
-	int i;
+  int i;
 
-	address=(void *)((int)address & (-linewidth));
+  address=(void *)((int)address & (-linewidth));
 
-	for(i=4-linewidth; i<size; i+=linewidth)
-		asm("\
-		fdc (%r28)\n\
-		sync\n\
-		fic,m %r24(%r28)\n\
-		sync");
-
-	return address;
+  for(i=1-linewidth; i<size; i+=linewidth)
+    asm volatile("fdc (%0)\n\t"
+		 "sync\n\t"
+		 "fic,m %1(%0)\n\t"
+		 "sync" : : "r" (address), "r" (linewidth) : "memory" );
 }
