@@ -717,7 +717,6 @@ Plugin branchtoresolve, ( branch-addr -- ) \ resolves a forward reference from b
 Plugin branchtomark, ( -- target-addr )	\ marks a branch destination
 
 Plugin colon, ( tcfa -- )		\ compiles call to tcfa at current position
-Plugin xt, ( tcfa -- )			\ compiles xt
 Plugin prim, ( tcfa -- )		\ compiles primitive invocation
 Plugin colonmark, ( -- addr )		\ marks a colon call
 Plugin colon-resolve ( tcfa addr -- )
@@ -751,9 +750,14 @@ Plugin next,	( for-token )
 Plugin leave,	( -- )
 Plugin ?leave, 	( -- )
 
-[IFUNDEF] ca>native
-Plugin ca>native	
-[THEN]
+Plugin ca>native  \ Convert a code address to the processors
+                  \ native address. This is used in doprim, and
+                  \ code/code: primitive definitions word to
+                  \ convert the addresses.
+                  \ The only target where we need this is the misc
+                  \ which is a 16 Bit processor with word addresses
+                  \ but the forth system we build has a normal byte
+                  \ addressed memory model    
 
 Plugin doprim,	\ compiles start of a primitive
 Plugin docol,   	\ compiles start of a colon definition
@@ -904,18 +908,9 @@ Variable cross-space-dp-orig
   THEN ;
 
 Defer is-forward
-Defer do-refered
-
-: prim-forward   ( ghost -- )
-\  ." PF" .sourcepos
-  colonmark, 0 do-refered ; \ compile space for call
-: doer-forward   ( ghost -- )
-\  ." DF" .sourcepos
-  colonmark, 2 do-refered ; \ compile space for doer
-' prim-forward IS is-forward
 
 : (ghostheader) ( -- )
-    ghost-list linked <fwd> , 0 , ['] NoExec , what's is-forward ,
+    ghost-list linked <fwd> , 0 , ['] NoExec , ['] is-forward ,
     0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , ;
 
 : ghostheader ( -- ) (ghostheader) 0 , ;
@@ -1092,13 +1087,8 @@ Ghost lit-perform drop
 Ghost lit+ drop
 Ghost does-exec drop
 
-' doer-forward IS is-forward
-
 Ghost :docol    Ghost :doesjump Ghost :dodoes   2drop drop
 Ghost :dovar					drop
-
-
-' prim-forward IS is-forward
 
 \ \ Parameter for target systems                         06oct92py
 
@@ -1658,11 +1648,6 @@ T has? relocate H
 
 >CROSS
 
-: call-forward ( ghost -- )
-\    ." CF" .sourcepos
-    there 0 colon, 0 do-refered ;
-' call-forward IS is-forward
-
 Ghost (do)      Ghost (?do)                     2drop
 Ghost (for)                                     drop
 Ghost (loop)    Ghost (+loop)                   2drop
@@ -1671,8 +1656,6 @@ Ghost (does>)   Ghost (compile)                 2drop
 Ghost (.")      Ghost (S")      Ghost (ABORT")  2drop drop
 Ghost (C")                                      drop
 Ghost '                                         drop
-
-\ ' prim-forward IS is-forward
 
 \ user ghosts
 
@@ -1735,7 +1718,6 @@ previous
 >CROSS
 
 : (cc) T a, H ;					' (cc) plugin-of colon,
-: (xt) T a, H ;					' (xt) plugin-of xt,
 : (prim) T a, H ;				' (prim) plugin-of prim,
 
 : (cr) >tempdp colon, tempdp> ;                 ' (cr) plugin-of colon-resolve
@@ -1749,8 +1731,7 @@ previous
 	tempdp> ;				' (dr) plugin-of doer-resolve
 
 : (cm) ( -- addr )
-    T here align H
-    -1 xt, ;					' (cm) plugin-of colonmark,
+    there -1 colon, ;				' (cm) plugin-of colonmark,
 
 >TARGET
 : compile, ( xt -- )
@@ -1777,8 +1758,6 @@ previous
     sourceline# , 
     space>
 ;
-
-' (refered) IS do-refered
 
 : refered ( ghost tag -- )
 \G creates a resolve structure
@@ -1837,10 +1816,17 @@ Defer resolve-warning
   >link ! ;
 
 : colon-resolved   ( ghost -- )
-    >link @ colon, ; \ compile-call
+\ compiles a call to a colon definition,
+\ compile action for >comp field
+    >link @ colon, ; 
 
 : prim-resolved  ( ghost -- )
+\ compiles a call to a primitive
     >link @ prim, ;
+
+: (is-forward)   ( ghost -- )
+    colonmark, 0 (refered) ; \ compile space for call
+' (is-forward) IS is-forward
 
 0 Value resolved
 
@@ -1864,10 +1850,16 @@ Defer resolve-warning
     \ mark ghost as resolved
     dup r@ >link ! <res> r@ >magic !
     r@ to resolved
-    r@ >comp @ ['] prim-forward = IF
-	['] prim-resolved  r@ >comp !  THEN
-    r@ >comp @ what's is-forward = IF
-	['] prim-resolved  r@ >comp !  THEN
+
+\    r@ >comp @ ['] is-forward =
+\    ABORT" >comp action not set on a resolved ghost"
+
+    \ copmile action defaults to colon-resolved
+    \ if this is not right something must be set before
+    \ calling resolve
+    r@ >comp @ ['] is-forward = IF
+        ['] colon-resolved r@ >comp !
+    THEN
     \ loop through forward referencies
     r> -rot 
     comp-state @ >r Resolving comp-state !
@@ -2217,6 +2209,7 @@ Variable prim#
      .sourcepos ." needs prim: " >in @ bl word count type >in ! cr
   THEN
   prim# @ (THeader ( S xt ghost )
+  ['] prim-resolved over >comp !
   dup >ghost-flags <primitive> set-flag
   over resolve T A, H alias-mask flag!
   -1 prim# +! ;
@@ -2298,6 +2291,8 @@ T 2 cells H Value xt>body
 
 : (docol,)  ( -- ) [G'] :docol (doer,) ;		' (docol,) plugin-of docol,
 
+                                                        ' NOOP plugin-of ca>native
+
 : (doprim,) ( -- )
   there xt>body + ca>native T a, H 1 fillcfa ;		' (doprim,) plugin-of doprim,
 
@@ -2336,15 +2331,23 @@ Defer (end-code)
 >TARGET
 : Code
   defempty?
-  (THeader there resolve
+  (THeader ( ghost )
+  ['] prim-resolved over >comp !
+  there resolve
+  
   [ T e? prims H 0= [IF] T e? ITC H [ELSE] true [THEN] ] [IF]
   doprim, 
   [THEN]
   depth (code) ;
 
+\ FIXME : no-compile -1 ABORT" this ghost is not for compilation" ;
+
 : Code:
   defempty?
-    Ghost dup there ca>native resolve  <do:> swap >magic !
+    Ghost >r 
+    r@ there ca>native resolve  
+    <do:> r@ >magic !
+    r> drop
     depth (code) ;
 
 : end-code
@@ -2513,6 +2516,7 @@ Cond: [ ( -- ) interpreting-state ;Cond
 : !does ( does-action -- )
     tlastcfa @ [G'] :dovar killref
     >space here >r ghostheader space>
+    ['] colon-resolved r@ >comp !
     r@ created >do:ghost ! r@ swap resolve
     r> tlastcfa @ >tempdp dodoes, tempdp> ;
 
@@ -2796,7 +2800,7 @@ DO:  abort" Not in cross mode" ;DO
 \ this section defines different compilation
 \ actions for created words
 \ this will help the peephole optimizer
-\ I (jaw) took this from bernds lates cross-compiler
+\ I (jaw) took this from bernds latest cross-compiler
 \ changes but seperated it from the original
 \ Builder words. The final plan is to put this
 \ into a seperate file, together with the peephole
@@ -2808,12 +2812,13 @@ T has? peephole H [IF]
 >CROSS
 
 : (callc) compile call T >body a, H ;		' (callc) plugin-of colon,
+: (callcm) T here 0 a, 0 a, H ;                 ' (callcm) plugin-of colonmark,
 : (call-res) >tempdp resolved gexecute tempdp> drop ;
                                                 ' (call-res) plugin-of colon-resolve
-: (prim) dup 0< IF  $4000 -  ELSE
-    ." wrong usage of (prim) "
-    dup gdiscover IF  .ghost  ELSE  .  THEN  cr -2 throw  THEN
-    T a, H ;					' (prim) plugin-of prim,
+: (pprim) dup 0< IF  $4000 -  ELSE
+    cr ." wrong usage of (prim) "
+    dup gdiscover IF  .ghost  ELSE  .  THEN  cr -1 throw  THEN
+    T a, H ;					' (pprim) plugin-of prim,
 
 \ if we want this, we have to spilt aconstant
 \ and constant!!
