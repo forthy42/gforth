@@ -1013,6 +1013,15 @@ s" IP" save-mem w s" error don't use # on results" make-stack inst-stream
     combined prim-c-name 2@ type ."  */"
     cr ;
 
+: output-forth-peephole ( -- )
+    combined-prims num-combined @ 1- cells combinations search-wordlist
+    s" the prefix for this combination must be defined earlier" ?print-error
+    execute prim-num @ 5 .r
+    combined-prims num-combined @ 1- th @ prim-num @ 5 .r
+    combined prim-num @ 5 .r ."  prim, \ "
+    combined prim-c-name 2@ type
+    cr ;
+
 
 \ the parser
 

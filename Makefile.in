@@ -516,7 +516,7 @@ bench:		gforth-fast$(EXE) gforth.fi
 		@echo 'Each benchmark takes about 30s on a 486-66 (gcc-2.6.3 -DFORCE_REG)'
 		time $(FORTH_FAST) siev.fs -e "main bye"
 		time $(FORTH_FAST) bubble.fs -e "main bye"
-		time $(FORTH_FAST) -m 160000 matrix.fs -e "main bye"
+		time $(FORTH_FAST) -m 200000 matrix.fs -e "main bye"
 		time $(FORTH_FAST) fib.fs -e "main bye"
 
 # -------------	Make forth images
@@ -622,6 +622,11 @@ kernel/aliases.fs:	prim.b prims2x.fs kernel/aliases0.fs
 kernel/prim.fs:	prim.b prims2x.fs kernel/prim0.fs
 		$(CP) kernel/prim0.fs kernel/prim.fs-
 		$(FORTH) -m 1000000 prims2x.fs -e "forth-flag on s\" prim.b\" ' output-forth ' output-forth-combined process-file bye" >>$@-
+		$(CP) $@- $@
+		$(RM) $@-
+
+kernel/peephole.fs:	prim.b prims2x.fs
+		$(FORTH) -m 1000000 prims2x.fs -e "forth-flag on s\" prim.b\" ' noop ' output-forth-peephole process-file bye" >$@-
 		$(CP) $@- $@
 		$(RM) $@-
 

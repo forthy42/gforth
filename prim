@@ -126,6 +126,7 @@
 \ these m4 macros would collide with identifiers
 undefine(`index')
 undefine(`shift')
+undefine(`symbols')
 
 noop	( -- )		gforth
 :
