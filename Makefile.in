@@ -295,8 +295,8 @@ SOURCES	= CVS engine/CVS compat Makefile.in engine/Makefile.in gforthmi \
 	engine/ansidecl.h engine/memmove.c \
 	engine/pow10.c engine/atanh.c engine/cleanalign.c \
 	engine/strerror.c engine/strsignal.c engine/strsig.c engine/dblsub.c \
-	INSTALL.DOS makefile.dos engine/makefile.dos mkdosmf.sed config.bat \
-	dosconf.h gforthmi.bat startup.dos history.dos mkinstalldirs \
+	INSTALL.DOS makefile.dos engine/makefile.dos mkdosmf.sed configure.bat \
+	dosconf.h gforthmi.bat mkinstalldirs \
 	versions.bsh \
 	configure.cmd mkos2mf.sed os2conf.h makefile.os2 engine/makefile.os2 \
 	gforthmi.cmd glosgen.glo doc/glossaries.doc \
@@ -613,12 +613,12 @@ kernel/prim.fs:	prim.b prims2x.fs kernel/prim0.fs
 
 gforth:		FORCE
 		-$(CP) gforth gforth~
-		cd engine && make gforth && cd ..
+		$(MAKE) -C engine gforth
 		$(CP) engine/$@ $@
 		@GFORTH_EXE@
 
 gforth-ditc:	FORCE
-		cd engine; make gforth-ditc; cd ..
+		$(MAKE) -C engine gforth-ditc
 		$(CP) engine/$@ $@
 		@GFORTHDITC_EXE@
 
@@ -726,14 +726,3 @@ makefile.os2: mkos2mf.sed Makefile.in engine/Makefile.in
 	echo '		$$(GCC) $$(CFLAGS) -c $$<' >>makefile.os2
 	echo '%.o:	%.c' >>engine/makefile.os2
 	echo '		$$(GCC) $$(CFLAGS) -c $$<' >>engine/makefile.os2
-
-# Garbage:
-# to be deleted!
-
-# history is a little bit different now! JAW
-# history.dos: history.fs Makefile.in
-#	sed -e "s,~/\.gforth-history,/gforth.his,g" <history.fs >history.dos
-
-# startup.dos: startup.fs Makefile.in
-# 	sed -e "s/\\\\ include doskey/include doskey/g" \
-#	    -e "s/include vt100key/\\\\ include vt100key/g" <startup.fs >startup.dos

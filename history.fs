@@ -201,7 +201,7 @@ Create prefix-found  0 , 0 ,
 : search-prefix  ( addr1 len1 -- addr2 len2 )
     0 vp dup @ 1- cells over +
     DO  I 2@ <>
-        IF  I cell+ @ @ swap  search-voc  THEN
+        IF  I cell+ @ wordlist-id @ swap  search-voc  THEN
 	[ -1 cells ] Literal +LOOP
     prefix-string ;
 

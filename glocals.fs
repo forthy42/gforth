@@ -129,7 +129,7 @@ require float.fs
 slowvoc @
 slowvoc on \ we want a linked list for the vocabulary locals
 vocabulary locals \ this contains the local variables
-' locals >body ' locals-list >body !
+' locals >body wordlist-id ' locals-list >body !
 slowvoc !
 
 create locals-buffer 1000 allot \ !! limited and unsafe
@@ -195,12 +195,12 @@ variable locals-dp \ so here's the special dp for locals.
     faligned nip ;
 
 : set-locals-size-list ( list -- )
-    dup locals-list wordlist-id !
+    dup locals-list !
     list-size locals-size ! ;
 
 : check-begin ( list -- )
 \ warn if list is not a sublist of locals-list
- locals-list wordlist-id @ sub-list? 0= if
+ locals-list @ sub-list? 0= if
    \ !! print current position
    ." compiler was overly optimistic about locals at a BEGIN" cr
    \ !! print assumption and reality
@@ -356,7 +356,7 @@ locals-types definitions
     locals-size @ alignlp-f locals-size ! \ the strictest alignment
     previous previous
     set-current lastcfa !
-    locals-list TO locals-wordlist ;
+    locals-list 0 wordlist-id - TO locals-wordlist ;
 
 : -- ( addr wid 0 ... -- ) \ gforth dash-dash
     }
@@ -460,9 +460,9 @@ forth definitions
     cs-push-part scopestart ; immediate
 
 : adjust-locals-list ( wid -- )
-    locals-list wordlist-id @ common-list
+    locals-list @ common-list
     dup list-size adjust-locals-size
-    locals-list wordlist-id ! ;
+    locals-list ! ;
 
 : endscope ( compilation scope -- ; run-time  -- ) \ gforth
     scope?
@@ -477,7 +477,7 @@ forth definitions
     clear-leave-stack
     0 locals-size !
     locals-buffer locals-dp !
-    0 locals-list wordlist-id !
+    0 locals-list !
     dead-code off
     defstart ;
 
