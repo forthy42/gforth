@@ -39,6 +39,10 @@
 jmp_buf throw_jmp_buf;
 #endif
 
+#ifndef FUZZ
+#  define FUZZ 0x4000
+#endif
+
 #ifndef DEFAULTPATH
 #  define DEFAULTPATH "/usr/local/lib/gforth:."
 #endif
@@ -220,9 +224,19 @@ Address loader(FILE *imagefile, char* filename)
   
   wholesize = preamblesize+dictsize+dsize+rsize+fsize+lsize;
   imagesize = preamblesize+header.image_size+((header.image_size-1)/sizeof(Cell))/8+1;
-  image=malloc((wholesize>imagesize?wholesize:imagesize)/*+sizeof(Float)*/);
+  image=malloc((wholesize>imagesize?wholesize:imagesize)
+#ifndef __unix__
+	       +FUZZ
+#endif
+	       );
   /*image = maxaligned(image);*/
-  memset(image,0,wholesize); /* why? - anton */
+  /* memset(image,0,wholesize); */
+
+#ifndef __unix__
+  if(header.base==0) image += FUZZ/2;
+  else if((UCell)(header.base - (Cell)image + preamblesize) < FUZZ)
+    image = header.base - preamblesize;
+#endif  
   rewind(imagefile);  /* fseek(imagefile,0L,SEEK_SET); */
   fread(image,1,imagesize,imagefile);
   fclose(imagefile);
@@ -312,10 +326,15 @@ int convsize(char *s, int elemsize)
 
 int main(int argc, char **argv, char **env)
 {
-  char *path, *path1;
+  char *path, *path1, *p;
   char *imagename="gforth.fi";
   FILE *image_file;
   int c, retvalue;
+#ifdef __unix__
+  char pathsep=':';
+#else
+  char pathsep=';';
+#endif
 	  
 #if defined(i386) && defined(ALIGNMENT_CHECK) && !defined(DIRECT_THREADED)
   /* turn on alignment checks on the 486.
@@ -367,7 +386,7 @@ int main(int argc, char **argv, char **env)
   if(strchr(imagename, '/')==NULL)
     {
       do {
-	char *pend=strchr(path, ':');
+	char *pend=strchr(path, pathsep);
 	if (pend==NULL)
 	  pend=path+strlen(path);
 	if (strlen(path)==0) {
@@ -384,7 +403,7 @@ int main(int argc, char **argv, char **env)
 	  strcpy(fullfilename+dirlen,imagename);
 	  image_file=fopen(fullfilename,"rb");
 	}
-	path=pend+(*pend==':');
+	path=pend+(*pend==pathsep);
       } while (image_file==NULL);
     }
   else
@@ -400,13 +419,18 @@ int main(int argc, char **argv, char **env)
     Cell environ[]= {
       (Cell)argc-(optind-1),
       (Cell)(argv+(optind-1)),
+      (Cell)strlen(path1),
       (Cell)path1};
     argv[optind-1] = progname;
     /*
        for (i=0; i<environ[0]; i++)
        printf("%s\n", ((char **)(environ[1]))[i]);
        */
-    retvalue=go_forth(loader(image_file, imagename),3,environ);
+    /* make path OS-independent by replacing path separators with NUL */
+    for (p=path1; *p!='\0'; p++)
+      if (*p==pathsep)
+	*p='\0';
+    retvalue=go_forth(loader(image_file, imagename),4,environ);
     deprep_terminal();
     exit(retvalue);
   }

@@ -37,9 +37,10 @@ INSTALL_DIR = $(srcdir)/install-sh -d
 LN_S	= @LN_S@
 GCC	= @CC@
 CC	= $(GCC)
-FORTHPATH = $(libdir)/gforth/site-forth:$(datadir)/gforth/site-forth:$(libdir)/gforth/$(VERSION):$(datadir)/gforth/$(VERSION):.
-FORTH	= ./gforth -p $(FORTHPATH):$(srcdir)
-FORTHK	= $(FORTH) -p .:$(srcdir) -i ./kernel.fi
+PATHSEP = :
+FORTHPATH = $(libdir)/gforth/site-forth$(PATHSEP)$(datadir)/gforth/site-forth$(PATHSEP)$(libdir)/gforth/$(VERSION)$(PATHSEP)$(datadir)/gforth/$(VERSION)$(PATHSEP).
+FORTH	= ./gforth -p $(FORTHPATH)$(PATHSEP)$(srcdir)
+FORTHK	= $(FORTH) -p .$(PATHSEP)$(srcdir) -i ./kernel.fi
 FORTHP	= ./gforth -i ./kernel.fi
 STRIP	= strip
 TEXI2DVI = texi2dvi
@@ -286,10 +287,7 @@ uninstall:
 		-$(RM) -rf $(libdir)/gforth/$(VERSION) $(datadir)/gforth/$(VERSION) $(bindir)/gforth-$(VERSION)
 		@echo -e "Type\n$(RM) -rf $(bindir)/gforth $(mandir)/gforth.1 $(infodir)/gforth.info* $(datadir)/gforth $(libdir)/gforth\nto remove Gforth completely"
 
-check:		test
-		touch test
-
-test:		gforth gforth.fi
+check test:	gforth gforth.fi
 		$(FORTH) tester.fs coretest.fs postponetest.fs dbltest.fs -e bye
 		$(FORTH) code.fs checkans.fs -e bye
 		@echo 'Expect no differences'
@@ -360,9 +358,14 @@ kernl64l.fi:	$(KERNLS)
 gforth.fi:	@kernel_fi@ gforth $(GFORTH_FI_SRC)
 		$(FORTHK) startup.fs -e "savesystem gforth.fi bye"
 
+#TAGS is a GNU standard target
+TAGS:		gforth.TAGS
+		$(CP) gforth.TAGS $@
+
 gforth.TAGS:	@kernel_fi@ gforth $(GFORTH_FI_SRC) primitives.TAGS
 		$(FORTHK) etags.fs startup.fs -e bye
 		cat TAGS primitives.TAGS kernel.TAGS >gforth.TAGS
+		rm TAGS
 
 engine.s:	engine.c primitives.i prim_labels.i machine.h threading.h $(INCLUDES) config.h
 		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -S $(srcdir)/engine.c

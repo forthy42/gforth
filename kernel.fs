@@ -1729,7 +1729,7 @@ Variable argc
     \ addr1 u1 is a path string, addr2 u2 is an array of dir strings
     align here >r
     BEGIN
-	over >r [char] : scan
+	over >r 0 scan
 	over r> tuck - ( rest-str this-str )
 	dup
 	IF
@@ -1811,7 +1811,7 @@ Defer 'cold ' noop IS 'cold
  ." Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA." cr ;
 
 : boot ( path **argv argc -- )
-  argc ! argv ! cstring>sstring save-mem pathstring 2!  main-task up!
+  argc ! argv ! save-mem pathstring 2!  main-task up!
   sp@ dup s0 ! $10 + dup >tib ! tibstack ! #tib off >in off
   rp@ r0 !  fp@ f0 !  ['] cold catch DoError bye ;
 

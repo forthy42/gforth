@@ -600,11 +600,11 @@ Loads the Forth image @var{file} instead of the default
 
 @item --path @var{path}
 @item -p @var{path}
-Uses @var{path} for searching the image file and Forth source code
-files instead of the default in the environment variable
-@code{GFORTHPATH} or the path specified at installation time (typically
-@file{/usr/local/lib/gforth:.}). A path is given as a @code{:}-separated
-list.
+Uses @var{path} for searching the image file and Forth source code files
+instead of the default in the environment variable @code{GFORTHPATH} or
+the path specified at installation time (e.g.,
+@file{/usr/local/share/gforth/0.2.0:.}). A path is given as a list of
+directories, separated by @samp{:} (on Unix) or @samp{;} (on other OSs).
 
 @item --dictionary-size @var{size}
 @item -m @var{size}
@@ -4287,7 +4287,7 @@ with their continuous feedback. Lennart Benshop contributed
 @file{glosgen.fs}, while Stuart Ramsden has been working on automatic
 support for calling C libraries. Helpful comments also came from Paul
 Kleinrubatscher, Christian Pirker, Dirk Zoller, Marcel Hendrix, John
-Wavrik, Stott Bolton and Marc de Groot.
+Wavrik, Barrie Stott and Marc de Groot.
 
 Gforth also owes a lot to the authors of the tools we used (GCC, CVS,
 and autoconf, among others), and to the creators of the Internet: Gforth

@@ -57,7 +57,7 @@ block-cold
 
 Defer flush-file
 
-: use-file ( addr u -- ) \ gforth
+: open-blocks ( addr u -- ) \ gforth
     \g use the file, whose name is given by @var{addr u}, as blocks file 
     2dup ['] open-path-file catch 0<>
     if
@@ -71,14 +71,14 @@ Defer flush-file
 
 : use ( "file" -- ) \ gforth
     \g use @var{file} as blocks file
-    name use-file ;
+    name open-blocks ;
 
 \ the file is opened as binary file, since it either will contain text
 \ without newlines or binary data
 : get-block-fid ( -- fid )
     block-fid @ 0=
     if
-	s" blocks.fb" use-file
+	s" blocks.fb" open-blocks
     then
     block-fid @ ;
 
@@ -178,7 +178,7 @@ User scr 0 scr !
 : --> ( -- )  refill drop ; immediate
 
 : block-included ( addr u -- )
-    block-fid @ >r block-fid off use-file
+    block-fid @ >r block-fid off open-blocks
     1 load block-fid @ close-file throw flush
     r> block-fid ! ;
 

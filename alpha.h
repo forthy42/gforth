@@ -55,13 +55,14 @@
 #endif
 
 #warning Direct threading for Alpha may not work with all gcc versions
-#warning CODE does not (yet) work on the Alpha with direct threading
-/* Currently CODE tries to put a jump to the PFA into the code field.
-   Since the PFA is far away from docol, the present code generated
-   for the jump does not work. The solution would be, of course, to do
-   away with this foolish jump.  ";CODE" is harder to get right,
-   however.
-*/
+#warning ;CODE does not work on the Alpha with direct threading
+/* ;CODE puts a jump to the code after ;CODE into the defined
+   word. The code generated for the jump can only jump to targets near
+   docol (near means: within 32KB). Because the code is far from
+   docol, this does not work.
+
+   Solution: let the code be: x=cfa[1]; goto *x;
+   */
 
 typedef int Int32;
 typedef short Int16;

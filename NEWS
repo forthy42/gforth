@@ -21,3 +21,4 @@ Added the ability to combine arbitrary interpretation and compilation
 semantics; state-smart words were generally rewritten to use that
 mechanism.
 ' and ['] now give an error for compile-only words.
+added POSTPONE,.
