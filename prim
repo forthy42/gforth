@@ -718,6 +718,7 @@ ud = (UDCell)u1 * (UDCell)u2;
    and >r >r 2dup d+ swap r> + swap r> ;
 
 um/mod	ud u1 -- u2 u3		core	u_m_slash_mod
+""ud=u3*u1+u2, u1>u2>=0""
 #ifdef BUGGY_LONG_LONG
 UDCell r = umdiv(ud,u1);
 u2=r.hi;
@@ -933,6 +934,13 @@ dcomparisons(du, ud1 ud2, d_u_, ud1, ud2, gforth, gforth, double-ext, gforth)
 \+
 
 within	u1 u2 u3 -- f		core-ext
+""u2=<u1<u3 or: u3=<u2 and u1 is not in [u3,u2).  This works for
+unsigned and signed numbers (but not a mixture).  Another way to think
+about this word is to consider the numbers as a circle (wrapping
+around from @code{max-u} to 0 for unsigned, and from @code{max-n} to
+min-n for signed numbers); now consider the range from u2 towards
+increasing numbers up to and excluding u3 (giving an empty range if
+u2=u3; if u1 is in this range, @code{within} returns true.""
 f = FLAG(u1-u2 < u3-u2);
 :
  over - >r - r> u< ;

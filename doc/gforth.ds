@@ -2439,11 +2439,11 @@ doc-d2/
 recognising double-precision integers.
 
 A double precision number is represented by a cell pair, with the most
-significant digit at the TOS. It is trivial to convert an unsigned
+significant cell at the TOS. It is trivial to convert an unsigned
 single to an (unsigned) double; simply push a @code{0} onto the
 TOS. Since numbers are represented by Gforth using 2's complement
 arithmetic, converting a signed single to a (signed) double requires
-sign-extension across the most significant digit. This can be achieved
+sign-extension across the most significant cell. This can be achieved
 using @code{s>d}. The moral of the story is that you cannot convert a
 number without knowing whether it represents an unsigned or a
 signed number.
@@ -2476,9 +2476,10 @@ doc-0>=
 
 doc-u<
 doc-u<=
-@comment TODO why u<> and u= ... they are the same as <> and =
-doc-u<>
-doc-u=
+@c TODO why u<> and u= ... they are the same as <> and =
+@c commented them out because they are unnecessary
+@c doc-u<>
+@c doc-u=
 doc-u>
 doc-u>=
 
@@ -2500,8 +2501,8 @@ doc-d0>=
 
 doc-du<
 doc-du<=
-doc-du<>
-doc-du=
+@c doc-du<>
+@c doc-du=
 doc-du>
 doc-du>=
 
@@ -2579,6 +2580,28 @@ doc-facosh
 doc-fatanh
 doc-pi
 
+doc-f2*
+doc-f2/
+doc-1/f
+doc-precision
+doc-set-precision
+
+One particular problem with floating-point arithmetic is that comparison
+for equality often fails when you would expect it to succeed.  For this
+reason approximate equality is often preferred (but you still have to
+know what you are doing).  The comparison words are:
+
+doc-f~rel
+doc-f~abs
+doc-f=
+doc-f~
+doc-f<>
+
+doc-f<
+doc-f<=
+doc-f>
+doc-f>=
+
 doc-f0<
 doc-f0<=
 doc-f0<>
@@ -2586,19 +2609,6 @@ doc-f0=
 doc-f0>
 doc-f0>=
 
-doc-f<
-doc-f<=
-doc-f<>
-doc-f=
-doc-f>
-doc-f>=
-
-doc-f2*
-doc-f2/
-doc-1/f
-doc-f~
-doc-precision
-doc-set-precision
 
 @node Stack Manipulation, Memory, Arithmetic, Words
 @section Stack Manipulation

@@ -193,20 +193,30 @@ IS interpreter-notfound
 \ : facosh   fdup fdup f* 1.0e0 f- fsqrt f+ fln ;
 \ : fasinh   fdup fdup f* 1.0e0 f+ fsqrt f/ fatanh ;
 
-\ !! factor out parts
-: f~ ( f1 f2 f3 -- flag ) \ float-ext
+: f~abs ( r1 r2 r3 -- flag ) \ gforth
+    \G Approximate equality with absolute error: |r1-r2|<r3.
+    frot frot f- fabs fswap f< ;
+
+: f~rel ( r1 r2 r3 -- flag ) \ gforth
+    \G Approximate equality with relative error: |r1-r2|<r3*|r1+r2|.
+	frot frot fover fabs fover fabs f+ frot frot
+	f- fabs frot frot f* f< ;
+
+: f~ ( r1 r2 r3 -- flag ) \ float-ext
+    \G ANS Forth medley: r3>0: @code{f~abs}; r3=0: r1=r2; r3<0: @code{fnegate f~abs}.
     fdup f0=
     IF
-	fdrop f= EXIT
+	fdrop f=  \ !! this does not work, because 0=-0 with f= on Linux-Intel
+	          \ the standard says they should compare unequal
+		  \ the comparison should be done with COMPARE
+	EXIT
     THEN
     fdup f0>
     IF
-	frot frot f- fabs fswap
+	f~abs
     ELSE
-	fnegate frot frot fover fabs fover fabs f+ frot frot
-	f- fabs frot frot f*
-    THEN
-    f< ;
+	fnegate f~rel
+    THEN ;
 
 : f.s ( -- ) \ gforth f-dot-s
     \G Display the number of items on the floating-point stack,
