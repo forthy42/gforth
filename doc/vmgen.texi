@@ -1809,7 +1809,13 @@ please let us know.
 @chapter Changes
 @cindex Changes from old versions
 
-Use-visible changes between 0.5.9-20010501 and 0.5.9-20020822:
+User-visible changes between 0.5.9-20020822 and 0.5.9-20020901:
+
+The store optimization is now disabled by default, but can be enabled by
+the user (@pxref{Store Optimization}).  Documentation for this
+optimization is also new.
+
+User-visible changes between 0.5.9-20010501 and 0.5.9-20020822:
 
 There is now a manual (in info, HTML, Postscript, or plain text format).
 

@@ -85,7 +85,7 @@ Address code_area=0;
 Address code_here=0; /* does for code-area what HERE does for the dictionary */
 
 static int no_super=0;   /* true if compile_prim should not fuse prims */
-static int no_dynamic=0; /* true if compile_prim should not generate code */
+static int no_dynamic=1; /* true if compile_prim should not generate code */
 
 #ifdef HAS_DEBUG
 static int debug=0;
@@ -457,7 +457,7 @@ void check_prims(Label symbols1[])
     ;
   npriminfos = i;
 
-#if defined(IS_NEXT_JUMP) && !defined(DOUBLY_INDIRECT)
+#if 0 && defined(IS_NEXT_JUMP) && !defined(DOUBLY_INDIRECT)
   symbols2=engine2(0,0,0,0,0);
   priminfos = calloc(i,sizeof(PrimInfo));
   for (i=DOESJUMP+1; symbols1[i+1]!=0; i++) {
@@ -504,7 +504,7 @@ Label compile_prim(Label prim)
     return prim;
   } else
     return prim-((Label)xts)+((Label)vm_prims);
-#elif defined(IND_JUMP_LENGTH) && !defined(VM_PROFILING) && !defined(INDIRECT_THREADED)
+#elif 0 && defined(IND_JUMP_LENGTH) && !defined(VM_PROFILING) && !defined(INDIRECT_THREADED)
   unsigned i;
   Address old_code_here=code_here;
   static Address last_jump=0;

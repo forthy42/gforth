@@ -22,11 +22,11 @@ AC_INIT(engine/engine.c)
 
 dnl We use some automake macros here,
 dnl but don't use automake for creating Makefile.in
-AM_INIT_AUTOMAKE(gforth,0.5.9-20020822)
+AM_INIT_AUTOMAKE(gforth,0.5.9-20020901)
 #snapshots have numbers major.minor.release-YYYYMMDD
 #note that lexicographic ordering bust be heeded.
 #I.e., 0.4.1-YYYYMMDD must not exist before 0.4.1!
-UPDATED="22 August 2002"
+UPDATED="1 September 2002"
 AC_SUBST(UPDATED)
 AM_CONFIG_HEADER(engine/config.h)
 #AM_CYGWIN32
