@@ -1,3 +1,6 @@
+You can find more recent bug reports at
+http://savannah.gnu.org/bugs/?group=gforth
+
 gforth.el: indentation does not work right on the first line of a
 buffer. anton 27jan95
 
@@ -35,10 +38,6 @@ Hendrix 3oct00 <8rdcmd$j96$1@news.IAEhv.nl>
 Newline has only LF (instead of CRLF) in DOS.  Bruce Hoyt 25oct2000
 <39f7b14b$2@clear.net.nz>
 
-SIGPIPE can make Gforth hard to stop (e.g., 
-gforth -m 2M wordfreq.fs -e bye|head
-anton 30may01
-
 F. does not print trailing zeroes (e.g., "10 SET-PRECISION 125e f.")
 anton 31may01
 
@@ -58,3 +57,22 @@ strace $FORTH 'fpath= .|~+/gforth s" /home/anton/threading-variations/gforth/mac
 tries to open gforth/kernel/gforth/kernel/aliases.fs, then
 gforth/gforth/kernel/aliases.fs, but not gforth/kernel/aliases.fs.
 anton 3 sep 2001
+
+-----
+Copyright (C) 1995,1996,1997,1998,2000 Free Software Foundation, Inc.
+
+This file is part of Gforth.
+
+Gforth is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.#See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.

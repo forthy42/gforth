@@ -1,3 +1,7 @@
+Copyright (C) 2003 Free Software Foundation, Inc.
+This file is free documentation; the Free Software Foundation gives
+unlimited permission to copy, distribute and modify it.
+
 This file discribes how to install Gforth from a binary distribution
 (i.e., a distribution, where the package file name contains a
 machine/OS name).

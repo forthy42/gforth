@@ -1,3 +1,7 @@
+Copyright (C) 2003 Free Software Foundation, Inc.
+This file is free documentation; the Free Software Foundation gives
+unlimited permission to copy, distribute and modify it.
+
 You need gcc version 2.0 or later to compile gforth.
 
 First, type

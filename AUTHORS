@@ -20,3 +20,22 @@ P: 1024/382CA8ED 1C 0D 4D 0C 69 00 40 1E  04 BD 96 A3 7B DF 05 B1
 N: Jens Wilke
 E: wilke@jwdt.com
 D: Embedded Control versions (non-gcc), cross compiler refinement
+
+-----
+Copyright (C) 1998,2000 Free Software Foundation, Inc.
+
+This file is part of Gforth.
+
+Gforth is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.#See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
