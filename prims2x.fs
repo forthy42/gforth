@@ -1110,8 +1110,11 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
 : output-alias ( -- ) 
     ( primitive-number @ . ." alias " ) ." Primitive " prim prim-name 2@ type cr ;
 
-: output-c-prim-num ( -- )
+defer output-c-prim-num ( -- )
+
+:noname ( -- )
     ." N_" prim prim-c-name 2@ type ." ," cr ;
+is output-c-prim-num
 
 : output-forth ( -- )  
     prim prim-forth-code @ 0=
