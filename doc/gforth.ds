@@ -53,10 +53,10 @@ Copyright @copyright{} 1995-1997 Free Software Foundation, Inc.
 @center for version 0.4
 @sp 2
 @center Anton Ertl
-@center Jens Wilke
 @center Bernd Paysan
+@center Jens Wilke
 @sp 3
-@center This manual is under construction
+@center This manual is permanently under construction
 
 @comment  The following two commands start the copyright page.
 @page
@@ -756,7 +756,8 @@ then in @file{~}, then in the normal path (see above).
 * Locals::                      
 * Defining Words::              
 * Structures::                  
-* Objects::                     
+* Objects::
+* Object Oriented Forth::                     
 * Tokens for Words::            
 * Wordlists::                   
 * Files::                       
@@ -2939,7 +2940,7 @@ doc-%size
 doc-struct
 
 @c -------------------------------------------------------------
-@node Objects, Tokens for Words, Structures, Words
+@node Objects, Object Oriented Forth, Structures, Words
 @section Objects
 @cindex objects
 @cindex object-oriented programming
@@ -3758,7 +3759,202 @@ doc-to-this
 doc-xt-new
 
 @c -------------------------------------------------------------
-@node Tokens for Words, Wordlists, Objects, Words
+@node Object Oriented Forth, Objects, Tokens for Words, Words
+@section Object oriented Forth
+@cindex oof
+@cindex object-oriented programming
+
+@cindex @file{objects.fs}
+@cindex @file{oof.fs}
+Gforth comes with two packets for object-oriented programming,
+@file{objects.fs} and @file{oof.fs}; none of them is preloaded, so you
+have to @code{include} them before use. This section describes the
+@file{oof.fs} packet. Both packets are written in ANS Forth and can be
+used with any other standard Forth (@exref{Objects}). This section uses
+the same rationale why using object-oriented programming, and the same
+terminology.
+
+The packet described in this section is used in bigFORTH since 1991, and
+used for two large applications: a chromatographic system used to
+create new medicaments, and a graphic user interface library (MINOS).
+
+@menu
+* Properties of the OOF model::
+* Basic OOF Usage::
+* The base class object::
+@end menu
+
+@node Properties of the OOF model, Object Oriented Forth, Basic OOF Usage, Object Oriented Forth
+@subsection Properties of the OOF model
+@cindex @file{oof.fs} properties
+
+@itemize @bullet
+@item
+This model combines object oriented programming with information
+hiding. It helps you writing large application, where scoping is
+necessary, because it provides class-oriented scoping.
+
+@item
+Named objects, object pointers, and object arrays can be created,
+selector invocation uses the "object selector" syntax. Selector invocation
+to objects and/or selectors on the stack is a bit less convenient, but
+possible.
+
+@item
+Selector invocation and instance variable usage of the active object is
+straight forward, since both make use of the active object.
+
+@item
+Late binding is efficient and easy to use.
+
+@item
+State-smart objects parse selectors. However, extensibility is provided
+using a (parsing) selector @code{postpone} and a selector @code{'}.
+
+@item
+An implementation in ANS Forth is available.
+
+@end itemize
+
+
+@node Basic OOF Usage, Properties of the OOF model, The base class object, Object Oriented Forth
+@subsection Basic OOF Usage
+@cindex @file{oof.fs} usage
+
+Here, I use the same example as for @code{objects} (@pxref{Basic Objects Usage}).
+
+You can define a class for graphical objects like this:
+
+@cindex @code{class} usage
+@cindex @code{class;} usage
+@cindex @code{method} usage
+@example
+object class graphical \ "object" is the parent class
+  method draw ( x y graphical -- )
+class;
+@end example
+
+This code defines a class @code{graphical} with an
+operation @code{draw}.  We can perform the operation
+@code{draw} on any @code{graphical} object, e.g.:
+
+@example
+100 100 t-rex draw
+@end example
+
+where @code{t-rex} is an object or object pointer, created with e.g.
+@code{graphical : trex}.
+
+@cindex abstract class
+How do we create a graphical object? With the present definitions,
+we cannot create a useful graphical object. The class
+@code{graphical} describes graphical objects in general, but not
+any concrete graphical object type (C++ users would call it an
+@emph{abstract class}); e.g., there is no method for the selector
+@code{draw} in the class @code{graphical}.
+
+For concrete graphical objects, we define child classes of the
+class @code{graphical}, e.g.:
+
+@example
+graphical class circle \ "graphical" is the parent class
+  cell var circle-radius
+how:
+  : draw ( x y -- )
+    circle-radius @@ draw-circle ;
+
+  : init ( n-radius -- (
+    circle-radius ! ;
+class;
+@end example
+
+Here we define a class @code{circle} as a child of @code{graphical},
+with a field @code{circle-radius}; it defines new methods for the
+selectors @code{draw} and @code{init} (@code{init} is defined in
+@code{object}, the parent class of @code{graphical}).
+
+Now we can create a circle in the dictionary with
+
+@example
+50 circle : my-circle
+@end example
+
+@code{:} invokes @code{init}, thus initializing the field
+@code{circle-radius} with 50. We can draw this new circle at (100,100)
+with
+
+@example
+100 100 my-circle draw
+@end example
+
+@cindex selector invocation, restrictions
+@cindex class definition, restrictions
+Note: You can invoke a selector only if the receiving object belongs to
+the class where the selector was defined or one of its descendents;
+e.g., you can invoke @code{draw} only for objects belonging to
+@code{graphical} or its descendents (e.g., @code{circle}). The scoping
+mechanism will check if you try to invocate a selector that is not
+defined in this class hierarchy, so you'll get an error at compilation
+time.
+
+
+@node The base class object, Basic OOF Usage, Tokes for Words, Object Oriented Forth
+@subsection The base class @file{object}
+@cindex @file{oof.fs} base class
+
+When you define a class, you have to specify a parent class.  So how do
+you start defining classes? There is one class available from the start:
+@code{object}. You have to use it as ancestor for all classes. It is the
+only class that has no parent. Classes are also objects, except that
+they don't have instance variables; class manipulation such as
+inheritance or changing definitions of a class is handled through
+selectors of the class @code{object}.
+
+@code{object} provides a number of selectors:
+
+@itemize @bullet
+@item
+@code{class} for subclassing, @code{definitions} to add definitions
+later on, and @code{class?} to get type informations (is the class a
+subclass of the class passed on the stack?).
+
+@item
+@code{init} and @code{dispose} as constructor and destroctor of the
+object. @code{init} is invocated after the object's memory is allocated,
+while @code{dispose} also handles deallocation. Thus if you redefine
+@code{dispose}, you have to call the parent's dispose with @code{super
+dispose}, too.
+
+@item
+@code{new}, @code{new[]}, @code{:}, @code{ptr}, and @code{[]} to create
+named and unnamed objects and object arrays or object pointers.
+
+@item
+@code{::} and @code{super} for expicit scoping. You should use expicit
+scoping only for super classes or classes with the same set of instance
+variables. Explicit scoped selectors use early binding.
+
+@item
+@code{self} to get the address of the object
+
+@item
+@code{bind}, @code{bound}, @code{link}, and @code{is} to assign object
+pointers and instance defers.
+
+@item
+@code{'} to obtain selector tokens, @code{send} to invocate selectors
+form the stack, and @code{postpone} to generate selector invocation code.
+
+@item
+@code{with} and @code{endwith} to select the active object from the
+stack, and enabling it's scope. Using @code{with} and @code{endwith}
+also allows to create code using selector @code{postpone} without being
+trapped bye the state-smart objects.
+
+@end itemize
+
+@c -------------------------------------------------------------
+@node Tokens for Words, Wordlists, Object Oriented Forth, Words
 @section Tokens for Words
 @cindex tokens for words
 
@@ -3852,7 +4048,7 @@ doc-name>string
 @menu
 * Debugging::                   Simple and quick.
 * Assertions::                  Making your programs self-checking.
-* Singlestep debugger::		Executing your program word by word.
+* Singlestep Debugger::		Executing your program word by word.
 @end menu
 
 @node Debugging, Assertions, Programming Tools, Programming Tools
