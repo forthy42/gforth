@@ -1,6 +1,6 @@
 /* This is the machine-specific part for MIPS R[2346810]000 processors
 
-  Copyright (C) 1995,1996,1997,1998,2000 Free Software Foundation, Inc.
+  Copyright (C) 1995-2003 Free Software Foundation, Inc.
 
   This file is part of Gforth.
 

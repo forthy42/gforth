@@ -26,11 +26,9 @@ DOES> ( ... -- ... ) @ current-input @ @ + perform ;
 DOES> ( -- addr ) @ current-input @ + ;
 
 0
-input-method source ( -- 0 | -1 | fileid ) \ core-ext,file source-i-d
-    \G Return 0 (the input source is the user input device), -1 (the
-    \G input source is a string being processed by @code{evaluate}) or
-    \G a @i{fileid} (the input source is the file specified by
-    \G @i{fileid}).
+input-method source ( -- addr u ) \ core-ext,file source
+    \G Return address @i{addr} and length @i{u} of the current input
+    \G buffer
 input-method refill ( -- flag ) \ core-ext,block-ext,file-ext
     \G Attempt to fill the input buffer from the input source.  When
     \G the input source is the user input device, attempt to receive
@@ -93,18 +91,18 @@ Constant tib+
 
 \ terminal input implementation
 
-:noname  1 <> -12 and throw >in ! ;
+:noname ( in 1 -- ) 1 <> -12 and throw >in ! ;
                        \ restore-input
-:noname  >in @ 1 ;     \ save-input
+:noname ( -- in 1 ) >in @ 1 ;     \ save-input
 ' false                \ source-id
-:noname [ has? file [IF] ] 
+:noname ( -- flag ) [ has? file [IF] ] 
     stdin file-eof?  IF  false  EXIT  THEN [ [THEN] ]
     tib max#tib @ accept #tib !
     >in off true 1 loadline +! ;     \ refill
-:noname  tib #tib @ ;  \ source
+:noname ( -- addr u ) tib #tib @ ;   \ source
 
 | Create terminal-input   A, A, A, A, A,
-:noname  tib @ #tib @ ; \ source
+:noname ( -- addr u ) tib @ #tib @ ; \ source
 | Create evaluate-input
     A,                  \ source
     ' false A,          \ refill
@@ -117,15 +115,16 @@ Constant tib+
 has? file [IF]
 : read-line ( c_addr u1 wfileid -- u2 flag wior ) (read-line) nip ;
 
-:noname  4 <> -12 and throw
+:noname  ( in line# udpos 4 -- ) 4 <> -12 and throw
     loadfile @ reposition-file throw
     refill 0= -36 and throw \ should never throw
     loadline ! >in ! ; \ restore-input
-:noname  >in @ sourceline#
+:noname  ( -- in line# udpos 4 ) >in @ sourceline#
     loadfile @ file-position throw #fill-bytes @ 0 d-
     4 ;                \ save-input
-:noname  loadfile @ ;  \ source-id
-:noname  #tib off #fill-bytes off >in off
+:noname  ( -- file ) loadfile @ ;  \ source-id
+:noname  ( -- flag )
+    #tib off #fill-bytes off >in off
     BEGIN
 	tib max#tib @ #tib @ /string
 	loadfile @ (read-line) throw #fill-bytes +!

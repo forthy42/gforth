@@ -46,7 +46,7 @@ true DefaultValue backtrace	\ enables backtrace code
 
 true DefaultValue new-input	\ enables object oriented input
 
-@PEEPHOLEFLAG@ DefaultValue peephole      \ enables peephole optimizer
+true DefaultValue peephole      \ enables peephole optimizer
 
 true DefaultValue abranch       \ enables absolute branches
 
