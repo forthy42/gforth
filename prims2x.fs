@@ -68,7 +68,8 @@ variable rawinput \ pointer to next character to be scanned
 variable endrawinput \ pointer to the end of the input (the char after the last)
 variable cookedinput \ pointer to the next char to be parsed
 variable line \ line number of char pointed to by input
-1 line !
+variable line-start \ pointer to start of current line (for error messages)
+0 line !
 2variable filename \ filename of original input file
 0 0 filename 2!
 2variable f-comment
@@ -225,11 +226,22 @@ print-token !
     endif
     drop ;
 
+: print-error-line ( -- )
+    \ print the current line and position
+    line-start @ endrawinput @ over - 2dup nl-char scan drop nip ( start end )
+    over - type cr
+    line-start @ rawinput @ over - typewhite ." ^" cr ;
+    
 : ?nextchar ( f -- )
     ?not? if
-	filename 2@ type ." :" line @ 0 .r ." : syntax error, wrong char:"
-	getinput . cr
-	rawinput @ endrawinput @ over - 100 min type cr
+	outfile-id >r try
+	    stderr to outfile-id
+	    filename 2@ type ." :" line @ 0 .r ." : syntax error, wrong char:"
+	    getinput . cr
+	    print-error-line
+	    0
+	recover endtry
+	r> to outfile-id throw
 	abort
     endif
     rawinput @ endrawinput @ <> if
@@ -238,6 +250,7 @@ print-token !
 	1 chars cookedinput +!
 	nl-char = if
 	    checksyncline
+	    rawinput @ line-start !
 	endif
 	rawinput @ c@ cookedinput @ c!
     endif ;
@@ -349,7 +362,7 @@ warnings @ [IF]
 : primfilter ( file-id xt -- )
 \ fileid is for the input file, xt ( -- ) is for the output word
  output !
- here dup rawinput ! cookedinput !
+ here dup rawinput ! dup line-start ! cookedinput !
  here unused rot read-file throw
  dup here + endrawinput !
  allot

@@ -3111,13 +3111,15 @@ The equivalent to the restoration code above is
 : ...
   save-x
   try
-    word-changing-x
-  end-try
+    word-changing-x 0
+  recover endtry
   restore-x
   throw ;
 @end example
 
-As you can see, the @code{recover} part is optional.
+This works if @code{word-changing-x} does not change the stack depth,
+otherwise you should add some code between @code{recover} and
+@code{endtry} to balance the stack.
 
 Reference: @ref{Exception Handling}.
 
@@ -5941,8 +5943,7 @@ This performs @i{Code1}.  If @i{code1} completes normally, execution
 continues after the @code{endtry}.  If @i{Code1} throws, the stacks are
 reset to the state during @code{try}, the throw value is pushed on the
 data stack, and execution constinues at @i{code2}, and finally falls
-through the @code{endtry} into the following code. If there is no
-@code{recover} clause, this works like an empty recover clause.
+through the @code{endtry} into the following code.
 
 doc-try
 doc-recover
@@ -5954,7 +5955,7 @@ The cleanup example from above in this syntax:
 base @ >r TRY
   hex foo \ now the hex is placed correctly
   0       \ value for throw
-ENDTRY
+RECOVER ENDTRY
 r> base ! throw
 @end example
 
