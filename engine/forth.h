@@ -257,6 +257,10 @@ extern Xt *ip;
 extern Cell *rp;
 #endif
 
+#ifdef PRINT_SUPER_LENGTHS
+Cell prim_length(Cell prim);
+void print_super_lengths();
+#endif
 
 /* declare all the functions that are missing */
 #ifndef HAVE_ATANH

@@ -2409,16 +2409,14 @@ a_addr = (Cell *)(up+u);
 compile-prim ( xt1 -- xt2 )	new	compile_prim
 xt2 = (Xt)compile_prim((Label)xt1);
 
-lit@	( #a_addr -- w )	new	lit_fetch
-w = *a_addr;
+lit@ / lit_fetch = lit @
 
 lit-perform	( #a_addr -- )	new	lit_perform
 ip=IP;
 SUPER_END;
 EXEC(*(Xt *)a_addr);
 
-lit+	( #n1 n2 -- n3 )	new	lit_plus
-n3 = n1 + n2;
+lit+ / lit_plus = lit +
 
 does-exec ( #a_cfa -- R:nest a_pfa )	new	does_exec
 a_pfa = PFA(a_cfa);

@@ -693,10 +693,27 @@ stack inst-stream IP Cell
 : output-profile ( -- )
     \ generate code for postprocessing the VM block profile stuff
     ." if (VM_IS_INST(*ip, " function-number @ 0 .r ." )) {" cr
-    ."   add_inst(b, " quote  prim prim-name 2@ type quote ." );" cr
+    ."   add_inst(b, " quote prim prim-name 2@ type quote ." );" cr
     ."   ip += " inst-stream stack-in @ 1+ 0 .r ." ;" cr
     prim prim-c-code 2@  s" SET_IP"    search nip nip
     prim prim-c-code 2@  s" SUPER_END" search nip nip or if
+	."   return;" cr
+    else
+	."   goto _endif_;" cr
+    endif
+    ." }" cr ;
+
+: output-profile-combined ( -- )
+    \ generate code for postprocessing the VM block profile stuff
+    ." if (VM_IS_INST(*ip, " function-number @ 0 .r ." )) {" cr
+    num-combined @ 0 +do
+	."   add_inst(b, " quote
+	combined-prims i th @ prim-name 2@ type
+	quote ." );" cr
+    loop
+    ."   ip += " inst-stream stack-in @ 1+ 0 .r ." ;" cr
+    combined-prims num-combined @ 1- th @ prim-c-code 2@  s" SET_IP"    search nip nip
+    combined-prims num-combined @ 1- th @ prim-c-code 2@  s" SUPER_END" search nip nip or if
 	."   return;" cr
     else
 	."   goto _endif_;" cr
@@ -1228,6 +1245,7 @@ Variable c-flag
       line @ name-line ! filename 2@ name-filename 2!
       function-number @ prim prim-num !
       start }} forth-ident {{ end 2dup prim prim-name 2! prim prim-c-name 2! }}  white ++
+   (( ` / white ** {{ start }} c-ident {{ end prim prim-c-name 2! }} white ** )) ??
    (( simple-primitive || combined-primitive )) {{ 1 function-number +! }}
 )) <- primitive ( -- )
 

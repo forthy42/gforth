@@ -36,6 +36,66 @@ Combination peephole_table[] = {
 #include "peephole.i"
 };
 
+#ifdef PRINT_SUPER_LENGTHS
+char *prim_names[] = {
+#include "prim_names.i"
+};
+
+Combination *find_super(Cell prim)
+{
+  Cell i;
+
+  for (i=0; i<sizeof(peephole_table)/sizeof(peephole_table[0]); i++) {
+    if (peephole_table[i].combination_prim == prim)
+      return &peephole_table[i];
+  }
+  return NULL;
+}
+
+Cell sum_length(Cell prim)
+{
+  Combination *super=find_super(prim);
+
+  if (super)
+    return sum_length(super->prefix)+prim_length(super->lastprim);
+  else
+    return prim_length(prim);
+}
+
+void print_prim(Cell prim)
+{
+  fprintf(stderr, "%s", prim_names[prim]);
+}  
+
+void print_super(Cell prim)
+{
+  Combination *super=find_super(prim);
+  
+  if (super) {
+    print_super(super->prefix);
+    fprintf(stderr, " ");
+    print_prim(super->lastprim);
+  } else {
+    print_prim(prim);
+  }
+}
+
+void print_super_lengths()
+{
+  Cell i;
+
+  for (i=0; i<sizeof(peephole_table)/sizeof(peephole_table[0]); i++) {
+    Cell super_length = prim_length(peephole_table[i].combination_prim);
+    Cell sum_super_length = sum_length(peephole_table[i].combination_prim);
+
+    fprintf(stderr, "%6.4f %3d %3d ", ((double)super_length)/sum_super_length,
+	    super_length, sum_super_length);
+    print_super(peephole_table[i].combination_prim);
+    fprintf(stderr,"\n");
+  }
+}
+#endif
+
 int use_super = 1;
 
 typedef Xt Inst;

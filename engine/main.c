@@ -476,6 +476,7 @@ void check_prims(Label symbols1[])
 	break;
       }
     }
+    pi->length = prim_len;
     /* fprintf(stderr,"checking primitive %d: memcmp(%p, %p, %d)\n",
        i, symbols1[i], symbols2[i], prim_len);*/
     if (memcmp(symbols1[i],symbols2[i],prim_len)!=0) {
@@ -484,7 +485,6 @@ void check_prims(Label symbols1[])
 		i, symbols1[i], symbols2[i], prim_len);
     } else {
       pi->start = symbols1[i];
-      pi->length = prim_len;
       if (debug)
 	fprintf(stderr,"Primitive %d relocatable: start %p, length %ld, super_end %d\n",
 		i, pi->start, pi->length, pi->super_end);
@@ -502,7 +502,7 @@ Label compile_prim(Label prim)
   } else
     return prim-((Label)xts)+((Label)vm_prims);
 #else /* !defined(DOUBLY_INDIRECT) */
-#ifdef IND_JUMP_LENGTH
+#if defined(IND_JUMP_LENGTH) && !defined(VM_PROFILING)
   unsigned i;
   Address old_code_here=code_here;
   static Address last_jump=0;
@@ -531,6 +531,13 @@ Label compile_prim(Label prim)
 #endif
 #endif /* !defined(DOUBLY_INDIRECT) */
 }
+
+#ifdef PRINT_SUPER_LENGTHS
+Cell prim_length(Cell prim)
+{
+  return priminfos[prim+DOESJUMP+1].length;
+}
+#endif
 
 Address loader(FILE *imagefile, char* filename)
 /* returns the address of the image proper (after the preamble) */
@@ -563,6 +570,9 @@ Address loader(FILE *imagefile, char* filename)
   vm_prims = engine(0,0,0,0,0);
   check_prims(vm_prims);
 #ifndef DOUBLY_INDIRECT
+#ifdef PRINT_SUPER_LENGTHS
+  print_super_lengths();
+#endif
   check_sum = checksum(vm_prims);
 #else /* defined(DOUBLY_INDIRECT) */
   check_sum = (UCell)vm_prims;

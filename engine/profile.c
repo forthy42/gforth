@@ -129,6 +129,7 @@ void postprocess(void)
 }
 
 #if 0
+/* full basic blocks only */
 void print_block(FILE *file, block_count *b)
 {
   size_t i;
@@ -138,8 +139,21 @@ void print_block(FILE *file, block_count *b)
     fprintf(file, "%s ", b->insts[i]);
   putc('\n', file);
 }
-#endif
+#elif 0
+/* full basic blocks and all their prefixes */
+void print_block(FILE *file, block_count *b)
+{
+  size_t i,j;
 
+  for (j=1; j<=b->ninsts; j++) {
+    fprintf(file,"%14lld\t",b->count);
+    for (i=0; i<j; i++)
+      fprintf(file, "%s ", b->insts[i]);
+    putc('\n', file);
+  }
+}
+#else
+/* all subsequences up to length 12 */
 void print_block(FILE *file, block_count *b)
 {
   size_t i,j,k;
@@ -152,6 +166,7 @@ void print_block(FILE *file, block_count *b)
       putc('\n', file);
     }
 }
+#endif
 
 void vm_print_profile(FILE *file)
 {
