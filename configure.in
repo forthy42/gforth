@@ -1,4 +1,23 @@
 dnl Process this file with autoconf to produce a configure script.
+
+#Copyright (C) 1995,1996 Free Software Foundation, Inc.
+
+#This file is part of Gforth.
+
+#Gforth is free software; you can redistribute it and/or
+#modify it under the terms of the GNU General Public License
+#as published by the Free Software Foundation; either version 2
+#of the License, or (at your option) any later version.
+
+#This program is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.#See the
+#GNU General Public License for more details.
+
+#You should have received a copy of the GNU General Public License
+#along with this program; if not, write to the Free Software
+#Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
 AC_INIT(engine.c)
 AC_CONFIG_HEADER(config.h)
 
@@ -59,14 +78,24 @@ case "$ac_cv_sizeof_char_p" in
     ;;
   8)
     wordsize=64
-dnl    AC_CHECK_SIZEOF(long long)
-dnl    if [ $ac_cv_sizeof_long_long != 16 ]
-dnl    then
-dnl       try the whole thing with -mlonglong128
-dnl complain about C compiler and OS vendor
-dnl    fi
     ;;
 esac
+
+AC_CHECK_INT_TYPE(sizeof(char *),cell,long)
+if test $ac_cv_int_type_cell != int; then
+	echo "So, sizeof(pointer)!=sizeof(int); looks like a DOS C compiler to me."
+	echo "Since you don't have a proper C on this machine, that's one more reason"
+	echo "to use Forth;-)"
+fi
+AC_CHECK_INT_TYPE(2*sizeof(char *),double cell,long long)
+if test $ac_cv_int_type_double_cell = none; then
+	echo "Emulating double-cell arithmetic. This may be slow."
+	echo "If you find this unacceptable, ask the GCC maintainers to provide proper"
+	echo 'long longs for your machine (the GCC manual states that they \"are twice as'
+	echo "long as \`long int\'\")."
+	LIBOBJS="$LIBOBJS dblsub.o"
+	AC_DEFINE(BUGGY_LONG_LONG)
+fi
 
 #terminology is a bit unusual here: The host is the system on which
 #gforth will run; the system on which configure will run is the `build'
@@ -94,12 +123,10 @@ case "$host_cpu" in
 		;;
 	alpha*)
 		mach_h=alpha
-		echo Very Preliminary Support for Alpha!!!
 		;;
 	*)
 		echo "No direct threading support for $host_cpu, using indirect threading."
-		echo "Using a generic machine description. It will only work if char * AND"
-		echo "long values have the same size and long long is twice as long."
+		echo "Using a generic machine description."
 		echo "I'll assume that C floats and doubles are represented by IEEE single and"
 		echo "double numbers. If this is not so, SF@ etc. will not work correctly."
 		echo "FLUSH-ICACHE will do nothing, so END-CODE may not work properly!"

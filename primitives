@@ -528,6 +528,11 @@ n2 = n1>>1;
 
 fm/mod	d1 n1 -- n2 n3		core		f_m_slash_mod
 ""floored division: d1 = n3*n1+n2, n1>n2>=0 or 0>=n2>n1""
+#ifdef BUGGY_LONG_LONG
+DCell r = fmdiv(d1,n1);
+n2=r.hi;
+n3=r.lo;
+#else
 /* assumes that the processor uses either floored or symmetric division */
 n3 = d1/n1;
 n2 = d1%n1;
@@ -536,9 +541,15 @@ if (1%-3>0 && (d1<0) != (n1<0) && n2!=0) {
   n3--;
   n2+=n1;
 }
+#endif
 
 sm/rem	d1 n1 -- n2 n3		core		s_m_slash_rem
 ""symmetric division: d1 = n3*n1+n2, sign(n2)=sign(d1) or 0""
+#ifdef BUGGY_LONG_LONG
+DCell r = smdiv(d1,n1);
+n2=r.hi;
+n3=r.lo;
+#else
 /* assumes that the processor uses either floored or symmetric division */
 n3 = d1/n1;
 n2 = d1%n1;
@@ -547,6 +558,7 @@ if (1%-3<0 && (d1<0) != (n1<0) && n2!=0) {
   n3++;
   n2-=n1;
 }
+#endif
 :
  over >r dup >r abs -rot
  dabs rot um/mod
@@ -554,7 +566,11 @@ if (1%-3<0 && (d1<0) != (n1<0) && n2!=0) {
  r> 0< IF  swap negate swap  THEN ;
 
 m*	n1 n2 -- d		core	m_star
+#ifdef BUGGY_LONG_LONG
+d = mmul(n1,n2);
+#else
 d = (DCell)n1 * (DCell)n2;
+#endif
 :
  2dup      0< and >r
  2dup swap 0< and >r
@@ -562,11 +578,21 @@ d = (DCell)n1 * (DCell)n2;
 
 um*	u1 u2 -- ud		core	u_m_star
 /* use u* as alias */
+#ifdef BUGGY_LONG_LONG
+ud = ummul(u1,u2);
+#else
 ud = (UDCell)u1 * (UDCell)u2;
+#endif
 
 um/mod	ud u1 -- u2 u3		core	u_m_slash_mod
+#ifdef BUGGY_LONG_LONG
+UDCell r = umdiv(ud,u1);
+u2=r.hi;
+u3=r.lo;
+#else
 u3 = ud/u1;
 u2 = ud%u1;
+#endif
 :
   dup IF  0 (um/mod)  THEN  nip ; 
 : (um/mod)  ( ud ud--ud u)
@@ -579,8 +605,8 @@ u2 = ud%u1;
 
 m+	d1 n -- d2		double		m_plus
 #ifdef BUGGY_LONG_LONG
-d2.low = d1.low+n;
-d2.high = d1.high - (n<0) + (d2.low<d1.low)
+d2.lo = d1.lo+n;
+d2.hi = d1.hi - (n<0) + (d2.lo<d1.lo);
 #else
 d2 = d1+n;
 #endif
@@ -589,8 +615,8 @@ d2 = d1+n;
 
 d+	d1 d2 -- d		double	d_plus
 #ifdef BUGGY_LONG_LONG
-d.low = d1.low+d2.low;
-d.high = d1.high + d2.high + (d.low<d1.low)
+d.lo = d1.lo+d2.lo;
+d.hi = d1.hi + d2.hi + (d.lo<d1.lo);
 #else
 d = d1+d2;
 #endif
@@ -600,8 +626,8 @@ d = d1+d2;
 
 d-	d1 d2 -- d		double		d_minus
 #ifdef BUGGY_LONG_LONG
-d.low = d1.low - d2.low;
-d.high = d1.high-d2.high-(d1.low<d2.low)
+d.lo = d1.lo - d2.lo;
+d.hi = d1.hi-d2.hi-(d1.lo<d2.lo);
 #else
 d = d1-d2;
 #endif
@@ -611,8 +637,7 @@ d = d1-d2;
 dnegate	d1 -- d2		double
 /* use dminus as alias */
 #ifdef BUGGY_LONG_LONG
-d2.high = ~d1.high + (d1.low==0);
-d2.low = -d1.low;
+d2 = dnegate(d1);
 #else
 d2 = -d1;
 #endif
@@ -621,8 +646,8 @@ d2 = -d1;
 
 d2*	d1 -- d2		double		d_two_star
 #ifdef BUGGY_LONG_LONG
-d2.low = d1.low<<1;
-d2.high = (d1.high<<1) | (d1.low>>(CELL_BITS-1));
+d2.lo = d1.lo<<1;
+d2.hi = (d1.hi<<1) | (d1.lo>>(CELL_BITS-1));
 #else
 d2 = 2*d1;
 #endif
@@ -631,8 +656,8 @@ d2 = 2*d1;
 
 d2/	d1 -- d2		double		d_two_slash
 #ifdef BUGGY_LONG_LONG
-d2.high = d1.high>>1;
-d2.low= (d1.low>>1) | (d1.high<<(CELL_BITS-1));
+d2.hi = d1.hi>>1;
+d2.lo= (d1.lo>>1) | (d1.hi<<(CELL_BITS-1));
 #else
 d2 = d1>>1;
 #endif
@@ -666,7 +691,6 @@ $1=	$2 -- f		$6	$3equals
 f = FLAG($4==$5);
 
 $1<>	$2 -- f		$7	$3different
-/* use != as alias ? */
 f = FLAG($4!=$5);
 
 $1<	$2 -- f		$8	$3less
@@ -686,9 +710,56 @@ f = FLAG($4>=$5);
 comparisons(0, n, zero_, n, 0, core, core-ext, core, core-ext)
 comparisons(, n1 n2, , n1, n2, core, core-ext, core, core)
 comparisons(u, u1 u2, u_, u1, u2, gforth, gforth, core, core-ext)
-comparisons(d, d1 d2, d_, d1, d2, double, gforth, double, gforth)
-comparisons(d0, d, d_zero_, d, 0, double, gforth, double, gforth)
-comparisons(du, ud1 ud2, d_u_, ud1, ud2, gforth, gforth, double-ext, gforth)
+
+\ dcomparisons(prefix, args, prefix, arg1, arg2, wordsets...)
+define(dcomparisons,
+$1=	$2 -- f		$6	$3equals
+#ifdef BUGGY_LONG_LONG
+f = FLAG($4.lo==$5.lo && $4.hi==$5.hi);
+#else
+f = FLAG($4==$5);
+#endif
+
+$1<>	$2 -- f		$7	$3different
+#ifdef BUGGY_LONG_LONG
+f = FLAG($4.lo!=$5.lo || $4.hi!=$5.hi);
+#else
+f = FLAG($4!=$5);
+#endif
+
+$1<	$2 -- f		$8	$3less
+#ifdef BUGGY_LONG_LONG
+f = FLAG($4.hi==$5.hi ? $4.lo<$5.lo : $4.hi<$5.hi);
+#else
+f = FLAG($4<$5);
+#endif
+
+$1>	$2 -- f		$9	$3greater
+#ifdef BUGGY_LONG_LONG
+f = FLAG($4.hi==$5.hi ? $4.lo>$5.lo : $4.hi>$5.hi);
+#else
+f = FLAG($4>$5);
+#endif
+
+$1<=	$2 -- f		gforth	$3less_or_equal
+#ifdef BUGGY_LONG_LONG
+f = FLAG($4.hi==$5.hi ? $4.lo<=$5.lo : $4.hi<=$5.hi);
+#else
+f = FLAG($4<=$5);
+#endif
+
+$1>=	$2 -- f		gforth	$3greater_or_equal
+#ifdef BUGGY_LONG_LONG
+f = FLAG($4.hi==$5.hi ? $4.lo>=$5.lo : $4.hi>=$5.hi);
+#else
+f = FLAG($4>=$5);
+#endif
+
+)
+
+dcomparisons(d, d1 d2, d_, d1, d2, double, gforth, double, gforth)
+dcomparisons(d0, d, d_zero_, d, DZERO, double, gforth, double, gforth)
+dcomparisons(du, ud1 ud2, d_u_, ud1, ud2, gforth, gforth, double-ext, gforth)
 
 within	u1 u2 u3 -- f		core-ext
 f = FLAG(u1-u2 < u3-u2);
@@ -1054,19 +1125,19 @@ wior = IOR(rename(tilde_cstr(c_addr1, u1, 0), s1)==-1);
 
 file-position	wfileid -- ud wior	file	file_position
 /* !! use tell and lseek? */
-ud = ftell((FILE *)wfileid);
-wior = IOR(ud==-1);
+ud = LONG2UD(ftell((FILE *)wfileid));
+wior = IOR(UD2LONG(ud)==-1);
 
 reposition-file	ud wfileid -- wior	file	reposition_file
-wior = IOR(fseek((FILE *)wfileid, (long)ud, SEEK_SET)==-1);
+wior = IOR(fseek((FILE *)wfileid, UD2LONG(ud), SEEK_SET)==-1);
 
 file-size	wfileid -- ud wior	file	file_size
 struct stat buf;
 wior = IOR(fstat(fileno((FILE *)wfileid), &buf)==-1);
-ud = buf.st_size;
+ud = LONG2UD(buf.st_size);
 
 resize-file	ud wfileid -- wior	file	resize_file
-wior = IOR(ftruncate(fileno((FILE *)wfileid), (Cell)ud)==-1);
+wior = IOR(ftruncate(fileno((FILE *)wfileid), UD2LONG(ud))==-1);
 
 read-file	c_addr u1 wfileid -- u2 wior	file	read_file
 /* !! fread does not guarantee enough */
@@ -1156,11 +1227,20 @@ comparisons(f, r1 r2, f_, r1, r2, gforth, gforth, float, gforth)
 comparisons(f0, r, f_zero_, r, 0., float, gforth, float, gforth)
 
 d>f		d -- r		float	d_to_f
+#ifdef BUGGY_LONG_LONG
+extern double ldexp(double x, int exp);
+r = ldexp((Float)d.hi,CELL_BITS) + (Float)d.lo;
+#else
 r = d;
+#endif
 
 f>d		r -- d		float	f_to_d
-/* !! basis 15 is not very specific */
+#ifdef BUGGY_LONG_LONG
+d.hi = ldexp(r,-CELL_BITS) - (r<0);
+d.lo = r-ldexp((Float)d.hi,CELL_BITS);
+#else
 d = r;
+#endif
 
 f!		r f_addr --	float	f_store
 *f_addr = r;

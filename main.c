@@ -194,7 +194,7 @@ Cell *loader(FILE *imagefile)
     relocate(image,(char *)image+header[1],header[1],engine(0,0,0,0,0));
   }
   else if(image[5]!=(Cell)image) {
-    fprintf(stderr,"%s: Cannot load nonrelocatable image (compiled for address 0x%lx) at address 0x%lx\nThe Gforth installer should look into the INSTALL file\n", progname, image[5], (Cell)image);
+    fprintf(stderr,"%s: Cannot load nonrelocatable image (compiled for address 0x%lx) at address 0x%lx\nThe Gforth installer should look into the INSTALL file\n", progname, (unsigned long)image[5], (unsigned long)image);
     exit(1);
   }
 

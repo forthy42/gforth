@@ -37,5 +37,3 @@ AUser CSP
 
 : dmax ( d1 d2 -- d ) \ double
     2over 2over d> IF  2swap  THEN 2drop ;
-
-' drop alias d>s ( d -- n ) \ double		d_to_s

@@ -305,11 +305,11 @@ constant type-description
 
 : fetch-double ( item -- )
  >r
- r@ item-name 2@ type 
- ." = ({Double_Store _d; _d.cells.low = "
+ ." FETCH_DCELL("
+ r@ item-name 2@ type ." , "
  r@ item-d-offset @ dup    effect-in-size 2@ data-stack-access
- ." ; _d.cells.high = " 1+ effect-in-size 2@ data-stack-access
- ." ; _d.dcell;});" cr
+ ." , "			1+ effect-in-size 2@ data-stack-access
+ ." );" cr
  rdrop ;
 
 : fetch-float ( item -- )
@@ -360,10 +360,10 @@ constant type-description
 : store-double ( item -- )
 \ !! store optimization is not performed, because it is not yet needed
  >r
- ." {Double_Store _d; _d.dcell = " r@ item-name 2@ type ." ; "
- r@ item-d-offset @ dup    effect-out-size 2@ data-stack-access 
- ."  = _d.cells.low; " 1+ effect-out-size 2@ data-stack-access
- ." = _d.cells.high;}" cr
+ ." STORE_DCELL(" r@ item-name 2@ type ." , "
+ r@ item-d-offset @ dup    effect-out-size 2@ data-stack-access
+ ." , "			1+ effect-out-size 2@ data-stack-access
+ ." );" cr
  rdrop ;
 
 : f-same-as-in? ( item -- f )

@@ -39,5 +39,14 @@
 #undef FORCE_REG
 #endif
 
+/* an integer type that is as long as a pointer */
+#define CELL_TYPE long
+
+/* an integer type that is twice as long as a pointer */
+#define DOUBLE_CELL_TYPE none
+
+/* define this if there is no working DOUBLE_CELL_TYPE on your machine */
+#undef BUGGY_LONG_LONG
+
 @BOTTOM@
 /* Of course, sys_siglist is a variable, not a function */

@@ -45,19 +45,6 @@
 
 #define IOR(flag)	((flag)? -512-errno : 0)
 
-typedef union {
-  struct {
-#ifdef WORDS_BIGENDIAN
-    Cell high;
-    UCell low;
-#else
-    UCell low;
-    Cell high;
-#endif;
-  } cells;
-  DCell dcell;
-} Double_Store;
-
 typedef struct F83Name {
   struct F83Name	*next;  /* the link field for old hands */
   char			countetc;

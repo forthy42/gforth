@@ -19,6 +19,9 @@
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
+#include "config.h"
+#include <limits.h>
+
 typedef void *Label;
 
 /* symbol indexed constants */
@@ -35,6 +38,10 @@ typedef void *Label;
 #include "machine.h"
 
 /* Forth data types */
+/* Cell and UCell must be the same size as a pointer */
+typedef CELL_TYPE Cell;
+typedef unsigned CELL_TYPE UCell;
+#define CELL_BITS	(sizeof(Cell) * CHAR_BIT)
 typedef Cell Bool;
 #define FLAG(b) (-(b))
 #define FILEIO(error)	(FLAG(error) & -37)
@@ -47,13 +54,72 @@ typedef unsigned char Char;
 typedef double Float;
 typedef char *Address;
 
+#ifdef BUGGY_LONG_LONG
+typedef struct {
+  Cell hi;
+  UCell lo;
+} DCell;
+
+typedef struct {
+  UCell hi;
+  UCell lo;
+} UDCell;
+
+#define FETCH_DCELL(d,lo,hi)	((d)=(typeof(d)){(hi),(lo)})
+#define STORE_DCELL(d,low,high)	({ \
+				     typeof(d) _d = (d); \
+				     (low) = _d.lo; \
+				     (high)= _d.hi; \
+				 })
+
+#define LONG2UD(l)	({UDCell _ud; _ud.hi=0; _ud.lo=(Cell)(l); _ud;})
+#define UD2LONG(ud)	((long)(ud.lo))
+#define DZERO		((DCell){0,0})
+
+#else /* ! defined(BUGGY_LONG_LONG) */
+
+/* DCell and UDCell must be twice as large as Cell */
+typedef DOUBLE_CELL_TYPE DCell;
+typedef unsigned DOUBLE_CELL_TYPE UDCell;
+
+typedef union {
+  struct {
+#ifdef WORDS_BIGENDIAN
+    Cell high;
+    UCell low;
+#else
+    UCell low;
+    Cell high;
+#endif;
+  } cells;
+  DCell dcell;
+} Double_Store;
+
+#define FETCH_DCELL(d,lo,hi)	({ \
+				     Double_Store _d; \
+				     _d.cells.low = (lo); \
+				     _d.cells.high = (hi); \
+				     (d) = _d.dcell; \
+				 })
+
+#define STORE_DCELL(d,lo,hi)	({ \
+				     Double_Store _d; \
+				     _d.dcell = (d); \
+				     (lo) = _d.cells.low; \
+				     (hi) = _d.cells.high; \
+				 })
+
+#define LONG2UD(l)	((UDCell)(l))
+#define UD2LONG(ud)	((long)(ud))
+#define DZERO		((DCell)0)
+
+#endif /* ! defined(BUGGY_LONG_LONG) */
+
 #ifdef DIRECT_THREADED
 typedef Label Xt;
 #else
 typedef Label *Xt;
 #endif
-
-Label *engine(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp);
 
 #ifndef DIRECT_THREADED
 /* i.e. indirect threaded */
@@ -77,7 +143,7 @@ Label *engine(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp);
 /* the does handler resides between DOES> and the following Forth code */
 #define DOES_HANDLER_SIZE	(2*sizeof(Cell))
 #define MAKE_DOES_HANDLER(addr)	0 /* do nothing */
-#endif
+#endif /* !defined(DIRECT_THREADED) */
 
 #ifdef DEBUG
 #	define	NAME(string)	fprintf(stderr,"%08lx: "string"\n",(Cell)ip);
@@ -99,3 +165,14 @@ Label *engine(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp);
 #else
 #define CACHE_FLUSH(addr,size)
 #endif
+
+Label *engine(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp);
+
+/* dblsub routines */
+DCell dnegate(DCell d1);
+UDCell ummul (UCell a, UCell b);
+DCell mmul (Cell a, Cell b);
+UDCell umdiv (UDCell u, UCell v);
+DCell smdiv (DCell num, Cell denom);
+DCell fmdiv (DCell num, Cell denom);
+

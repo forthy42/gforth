@@ -21,14 +21,6 @@
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-/* Cell and UCell must be the same size as a pointer */
-typedef long Cell;
-typedef unsigned long UCell;
-
-/* DCell and UDCell must be twice as large as Cell */
-typedef long long DCell;
-typedef unsigned long long UDCell;
-
 /* define this if IEEE singles and doubles are available as C data types */
 #define IEEE_FP
 

@@ -37,6 +37,8 @@ decimal
 : 2Literal ( compilation w1 w2 -- ; run-time  -- w1 w2 ) \ double two-literal
     swap postpone Literal  postpone Literal ; immediate restrict
 
+' drop alias d>s ( d -- n ) \ double		d_to_s
+
 : dabs ( d1 -- d2 ) \ double
     dup 0< IF dnegate THEN ;
 
