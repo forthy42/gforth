@@ -174,6 +174,7 @@ int main(int argc, char **argv)
       break;
     case 'p':
       profiling=1;
+      use_super=0; /* we don't want superinstructions in the profile */
       runvm = engine_debug;
       break;
     case 't':

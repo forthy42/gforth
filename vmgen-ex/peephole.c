@@ -36,7 +36,7 @@ Combination peephole_table[] = {
 #endif
 };
 
-int use_super = 1;
+int use_super = 1; /* turned off by option -p */
 
 typedef struct Peeptable_entry {
   struct Peeptable_entry *next;

@@ -30,7 +30,7 @@
 #define vm_target2Cell(x,_cell)	((_cell)=(Cell)(x))
 #define vm_a2Cell(x,_cell)	((_cell)=(Cell)(x))
 
-#define vm_Cell2Cell(x) ((Cell)(x))
+#define vm_Cell2Cell(_x,_y) ((_y)=(Cell)(_x))
 
 #define USE_spTOS 1
 

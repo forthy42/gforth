@@ -54,6 +54,7 @@ extern FILE *vm_out;
 extern Inst *vmcodep;
 extern Inst *last_compiled;
 extern Inst *vmcode_end;
+extern int use_super;
 
 /* generic vmgen support functions (e.g., wrappers) */
 void gen_inst(Inst **vmcodepp, Label i);
