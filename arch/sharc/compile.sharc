@@ -1,9 +1,11 @@
-cd ../../engine
+cd ../..
+make kernl-sharc.fi
+./gforth -i ./gforth.fi fi2c.fs -e 's" kernl-sharc.fi" fi2c bye' >arch/sharc/image.c
+cd engine
 INCS='-I../arch/sharc -I.'
-if [ ! -d sharc ]; then mkdir sharc; fi
-g21k -O4 -S engine.c -o sharc/engine.s -DSTANDALONE -Wall $INCS
-g21k -O4 -S main.c -o sharc/main.s -DSTANDALONE -DINCLUDE_IMAGE -Wall $INCS
-g21k -O4 -S strsignal.c -o sharc/strsig.s -DSTANDALONE -Wall $INCS
-g21k -O4 -S image.c -o sharc/image.s -DSTANDALONE -Wall $INCS
-g21k -O4 -S dblsub.c -o sharc/dblsub.s -DSTANDALONE -Wall $INCS
-g21k -O4 -S memcmpc.c -o sharc/memcmpc.c -DSTANDALONE -Wall $INCS
+g21k -O4 -S engine.c -o ../arch/sharc/engine.s -DSTANDALONE -Wall $INCS
+g21k -O4 -S main.c -o ../arch/sharc/main.s -DSTANDALONE -DINCLUDE_IMAGE -Wall $INCS
+g21k -O4 -S strsignal.c -o ../arch/sharc/strsig.s -DSTANDALONE -Wall $INCS
+g21k -O4 -S ../arch/../arch/sharc/image.c -o ../arch/sharc/image.s -DSTANDALONE -Wall $INCS
+g21k -O4 -S dblsub.c -o ../arch/sharc/dblsub.s -DSTANDALONE -Wall $INCS
+g21k -O4 -S memcmpc.c -o ../arch/sharc/memcmpc.s -DSTANDALONE -Wall $INCS

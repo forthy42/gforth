@@ -119,7 +119,7 @@ CVSDIRS = CVS engine/CVS kernel/CVS doc/CVS asm/CVS ec/CVS test/CVS \
 	arch/386/CVS arch/hppa/CVS arch/sparc/CVS arch/power/CVS \
 	arch/alpha/CVS arch/4stack/CVS arch/misc/CVS arch/6502/CVS \
 	arch/8086/CVS arch/avr/CVS arch/c165/CVS arch/h8/CVS \
-	arch/shboom/CVS \
+	arch/shboom/CVS arch/sharc/CVS \
 
 INCLUDES = engine/forth.h engine/threaded.h engine/io.h
 
@@ -130,6 +130,8 @@ KERN_SRC = \
 	kernel/aliases.fs \
 	kernel/args.fs \
 	chains.fs \
+	kernel/cbr.fs \
+	kernel/cloop.fs \
 	kernel/cond.fs \
 	kernel/cond-old.fs \
 	cross.fs \
@@ -287,7 +289,14 @@ ARCHS =	\
 	arch/shboom/prim.fs \
 	arch/shboom/dis2.fs \
 	arch/shboom/sh.p \
-	arch/shboom/doers.fs
+	arch/shboom/doers.fs \
+	arch/sharc/mach.fs \
+	arch/sharc/machine.h \
+	arch/sharc/compile.sharc \
+	arch/sharc/unistd.h \
+	arch/sharc/systypes.h \
+	arch/sharc/types.h \
+	arch/sharc/g21k-3.3.4-bp1.diff
 
 SOURCES	= $(CVSDIRS) compat Makefile.in Makedist.in engine/Makefile.in gforthmi.in \
 	configure.in configure config.sub config.guess elisp-comp missing \
