@@ -184,7 +184,7 @@ void relocate(Cell *image, const char *bitstring,
 		image[i]=(Cell)CFA(CF(token));
 #ifdef DIRECT_THREADED
 		if ((token & 0x4000) == 0) /* threade code, no CFA */
-		  image[i] = *(Cell *)image[i];
+		  image[i] = (Cell)compile_prim((Label)image[i]);
 #endif
 	      } else
 		fprintf(stderr,"Primitive %d used in this image at $%lx is not implemented by this\n engine (%s); executing this code will crash.\n",CF(token),(long)&image[i],VERSION);
@@ -611,6 +611,7 @@ Address loader(FILE *imagefile, char* filename)
   image = dict_alloc_read(imagefile, preamblesize+header.image_size,
 			  preamblesize+dictsize, data_offset);
   imp=image+preamblesize;
+  alloc_stacks((ImageHeader *)imp);
   if (clear_dictionary)
     memset(imp+header.image_size, 0, dictsize-header.image_size);
   if(header.base==0 || header.base  == 0x100) {
@@ -643,8 +644,6 @@ Address loader(FILE *imagefile, char* filename)
   ((ImageHeader *)imp)->xt_base = xts;
 #endif
   fclose(imagefile);
-
-  alloc_stacks((ImageHeader *)imp);
 
   /* unnecessary, except maybe for CODE words */
   /* FLUSH_ICACHE(imp, header.image_size);*/

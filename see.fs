@@ -584,10 +584,7 @@ Defer discode ( addr u -- ) \ gforth
 
 : seecode ( xt -- )
     dup s" Code" .defname
-    threading-method
-    if
-	>code-address
-    then
+    >code-address
     dup in-dictionary? \ user-defined code word?
     if
 	dup next-head
