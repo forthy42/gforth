@@ -26,4 +26,5 @@
 -7 Doer: :dofield
 -8 Doer: :dodoes
 -9 Doer: :doesjump
--&10 first-primitive
+-&2 first-primitive \ this does not work for (at least) (DODOES),
+                    \ so these routines are commented out

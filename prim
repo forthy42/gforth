@@ -141,6 +141,8 @@ undefine(`index')
 undefine(`shift')
 undefine(`symbols')
 
+\F 0 [if]
+
 \ run-time routines for non-primitives.  They are defined as
 \ primitives, because that simplifies things.
 
@@ -179,6 +181,8 @@ SET_IP(DOES_CODE1(CFA));
 (does-handler) ( -- )	gforth-internal	paren_does_handler
 ""just a slot to have an encoding for the DOESJUMP, 
 which is no longer used anyway (!! eliminate this)""
+
+\F [endif]
 
 \g control
 

@@ -12105,6 +12105,22 @@ ANS Forth System
 @item providing the String Extensions word set (another easy one)
 @end itemize
 
+Gforth has the following environmental restrictions:
+
+@cindex environmental restrictions
+@itemize @bullet
+@item
+While processing the OS command line, if an exception is not caught,
+Gforth exits with a non-zero exit code instyead of performing QUIT.
+
+@item
+When an @code{throw} is performed after a @code{query}, Gforth does not
+allways restore the input source specification in effect at the
+corresponding catch.
+
+@end itemize
+
+
 @cindex system documentation
 In addition, ANS Forth systems are required to document certain
 implementation choices. This chapter tries to meet these
