@@ -118,7 +118,7 @@ char *progname = "gforth";
 int optind = 1;
 #endif
 
-#define CODE_BLOCK_SIZE (64*1024)
+#define CODE_BLOCK_SIZE (256*1024)
 Address code_area=0;
 Cell code_area_size = CODE_BLOCK_SIZE;
 Address code_here=NULL+CODE_BLOCK_SIZE; /* does for code-area what HERE
@@ -476,15 +476,21 @@ int go_forth(Address image, int stack, Cell *entries)
     signal_data_stack[7]=throw_code;
 
 #ifdef GFORTH_DEBUGGING
-    /* fprintf(stderr,"\nrp=%ld\n",(long)rp); */
+    if (debug)
+      fprintf(stderr,"\ncaught signal, throwing exception %d, ip=%p rp=%p\n",
+	      throw_code, saved_ip, rp);
     if (rp <= orig_rp0 && rp > (Cell *)(image_header->return_stack_base+5)) {
       /* no rstack overflow or underflow */
       rp0 = rp;
       *--rp0 = (Cell)saved_ip;
     }
     else /* I love non-syntactic ifdefs :-) */
-#endif
-    rp0 = signal_return_stack+8;
+      rp0 = signal_return_stack+8;
+#else  /* !defined(GFORTH_DEBUGGING) */
+    if (debug)
+      fprintf(stderr,"\ncaught signal, throwing exception %d\n", throw_code);
+      rp0 = signal_return_stack+8;
+#endif /* !defined(GFORTH_DEBUGGING) */
     /* fprintf(stderr, "rp=$%x\n",rp0);*/
     
     return((int)(Cell)engine(image_header->throw_entry, signal_data_stack+7,

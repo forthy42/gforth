@@ -240,7 +240,7 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_SRC) $(EC_SRC) \
 	tt.fs sokoban.fs \
 	unbuffer.fs wordsets.fs \
 	test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs \
-	test/string.fs test/float.fs \
+	test/string.fs test/float.fs test/gforth.fs \
 	test/other.fs test/signals.fs test/checkans.fs \
 	bubble.fs siev.fs matrix.fs fib.fs \
 	oof.fs oofsampl.fs objects.fs objexamp.fs mini-oof.fs moof-exm.fs \
