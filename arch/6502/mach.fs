@@ -21,7 +21,7 @@
     2 Constant cell
     1 Constant cell<<
     4 Constant cell>bit
-    8 Constant bits/byte
+    8 Constant bits/char
     8 Constant float
     2 Constant /maxalign
 false Constant bigendian
@@ -29,30 +29,11 @@ false Constant bigendian
 
 \ feature list
 
-0 Constant NIL  \ relocating
-
-false Constant has-files 
-false Constant has-OS
-false Constant has-prims
-false Constant has-floats
-false Constant has-locals
-false Constant has-dcomps
-true Constant has-hash
-false Constant has-xconds
-false Constant has-header
-true Constant has-rom
-true Constant has-interpreter
-true Constant has-crlf
-: prims-include  ." Include primitives" cr s" arch/6502/prims.fs" included ;
+: prims-include  ." Include primitives" cr s" arch/6502/prim.fs" included ;
 : asm-include    ." Include assembler" cr s" arch/6502/asm.fs" included ;
 
 >ENVIRON
 
-true Value ec
-
-cell 2 = [IF] 32 [ELSE] 256 [THEN] KB Constant kernel-size
-
-16 KB		Constant stack-size
-15 KB 512 +	Constant fstack-size
-15 KB		Constant rstack-size
-14 KB 512 +	Constant lstack-size
+true SetValue ec
+true SetValue crlf
+true SetValue rom

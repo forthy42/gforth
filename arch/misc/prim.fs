@@ -172,6 +172,9 @@ Code: :dodoes	sym dodoes
 		"Next" , jmp ,
 end-code
 
+Code: :doesjump
+end-code
+
 Code !		sym !
 \		"A" , tx ,
 		SP , accu ,

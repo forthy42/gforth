@@ -23,7 +23,7 @@ label a-out
                       \ Avoid crossing page-boundaries
                       \ destroys N , N 1+, Y
  	N   STA,
-TXD .s BIT0 #. LDA,
+TXD  BIT0 #. LDA,
     WPSHD AND,
        WP STA,        \ 1
     24 #. LDY,        \ DELAY1  208 - 25 = 182
@@ -104,3 +104,24 @@ label  a-in                   \ (   --- C )
 5 $:                CLC,      \ 3
 6 $                 BCC,      \ 6
 end-label
+
+Code (emit)	\
+	'# dout
+	BOT- ,X 	LDA,
+			INX, INX,
+	a-out		JSR,
+			Next,
+end-code
+
+Code (key)
+	'K dout
+	a-in		JSR,
+			DEX, DEX,
+	BOT- ,X		STA,
+	0 #.		LDA,
+	BOT- 1+ ,X	STA,
+			Next,
+end-code
+
+: (key?) -1 ;
+	

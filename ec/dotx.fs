@@ -1,4 +1,4 @@
-\ ???
+\ dotx.fs a always (simple) hexadecimal .s
 
 \ Copyright (C) 1998 Free Software Foundation, Inc.
 
@@ -18,7 +18,11 @@
 \ along with this program; if not, write to the Free Software
 \ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-\ for 16 bit machines only
+
+
+\ this is much simpler than the things needed for . and .s
+\ so if you are debugging primitives and you don't get .s
+\ to work use this version.
 
 [IFUNDEF] 8>>
 : 8>> 8 rshift ;
@@ -30,7 +34,7 @@
    IF   
         [ char A char 9 - 1- ] Literal +
    THEN 
-  '0 + (emit) ;
+  [char] 0 + (emit) ;
 
 : .w
 	dup 8>> 2/ 2/ 2/ 2/ .digit
@@ -41,10 +45,7 @@
 : .x 	
 	dup 8>> 8>> .w .w $20 (emit) ;
 
-\ !! depth reibauen
-
 : .sx
-  \ SP@ SP0 @ swap - 2/ 
   depth
-  dup '< emit .x '> emit dup
+  dup [char] < emit .x [char] > emit dup
   0 ?DO dup pick .x 1- LOOP drop ;

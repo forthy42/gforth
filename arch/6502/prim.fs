@@ -7,6 +7,10 @@ dup EQU W 2 +
 dup EQU N 8 +
 drop
 
+\ Debugging stuff
+
+\ uncomment this if you want to see want primitives are executed
+
 : dout	drop
 \	#. 	LDA,
 \	a-out 	JSR, 
@@ -59,7 +63,7 @@ END-LABEL
 start-macros
 : next, "Next" JMP, ;
 end-macros
-order
+
 Code: :docol	\
 	': dout
 	IP 1+		LDA,	\ save IP
@@ -158,6 +162,9 @@ code: :douser
 	UP 1+		ADC,
 	BOT- 1+ ,X	STA,
 			Next,
+end-code
+
+code: :doesjump
 end-code
 
 require ./softuart.fs
@@ -402,24 +409,6 @@ Code 2/
 		A.	ROL,	
 	BOT- 1+	,X	ROR,
 	BOT- ,X		ROR,
-			Next,
-end-code
-	
-Code (emit)	\
-	'# dout
-	BOT- ,X 	LDA,
-			INX, INX,
-	a-out		JSR,
-			Next,
-end-code
-
-Code (key)
-	'K dout
-	a-in		JSR,
-			DEX, DEX,
-	BOT- ,X		STA,
-	0 #.		LDA,
-	BOT- 1+ ,X	STA,
 			Next,
 end-code
 	
@@ -718,6 +707,7 @@ code (f83find) ( addr len f83name -- f83name|0 )
 	3 $		JMP,	\ don't make case insensitive ->
 end-code
 
+has? hash [IF]
 code (hashfind) ( addr len a_addr -- f83name|0 )
 	BOT- ,X		LDA,	\ setup search pointer
 	W		STA,
@@ -793,6 +783,7 @@ code (hashfind) ( addr len a_addr -- f83name|0 )
 13 $:	1 #.		LDY,
 	3 $		JMP,	\ don't make case insensitive ->
 end-code
+[THEN]
 
 code toupper
 	BOT- ,X		LDA,
@@ -1054,3 +1045,7 @@ code (name) ( -- adr len )
 			Next,
 end-code
 	
+\ load high level primitives
+UNDEF-WORDS	include kernel/prim.fs	ALL-WORDS
+\ fill doers
+include kernel/doers.fs
