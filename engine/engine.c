@@ -308,6 +308,20 @@ Xt *ip;
 Cell *rp;
 #endif
 
+Xt *primtable(Label symbols[], Cell size)
+{
+#ifdef DIRECT_THREADED
+  return symbols;
+#else /* !defined(DIRECT_THREADED) */
+  Xt *xts = (Xt *)malloc(size*sizeof(Xt));
+  Cell i;
+
+  for (i=0; i<size; i++)
+    xts[i] = &symbols[i];
+  return xts;
+#endif /* !defined(DIRECT_THREADED) */
+}
+
 Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
 /* executes code at ip, if ip!=NULL
    returns array of machine code labels (for use in a loader), if ip==NULL

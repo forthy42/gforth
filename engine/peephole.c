@@ -34,37 +34,50 @@ Combination peephole_table[] = {
 #include "peephole.i"
 };
 
-Xt *primtable(Label symbols[], Cell size)
+int use_super = 1;
+
+typedef Xt Inst;
+
+typedef struct Peeptable_entry {
+  struct Peeptable_entry *next;
+  Inst prefix;
+  Inst lastprim;
+  Inst combination_prim;
+} Peeptable_entry;
+
+#define HASH_SIZE 1024
+#define hash(_i1,_i2) (((((Cell)(_i1))^((Cell)(_i2)))>>4)&(HASH_SIZE-1))
+
+Cell peeptable;
+
+Cell prepare_peephole_table(Inst insts[])
 {
-#ifdef DIRECT_THREADED
-  return symbols;
-#else /* !defined(DIRECT_THREADED) */
-  Xt *xts = (Xt *)malloc(size*sizeof(Xt));
   Cell i;
+  Peeptable_entry **pt = (Peeptable_entry **)calloc(HASH_SIZE,sizeof(Peeptable_entry *));
 
-  for (i=0; i<size; i++)
-    xts[i] = &symbols[i];
-  return xts;
-#endif /* !defined(DIRECT_THREADED) */
-}
-
-/* we are currently using a simple linear search; we can refine this
-   once the interface has settled and this works */
-
-Cell prepare_peephole_table(Xt xts[])
-{
-  return (Cell)xts;
-}
-
-Xt peephole_opt(Xt xt1, Xt xt2, Cell peeptable)
-{
-  Xt *xts = (Xt *)peeptable;
-  Cell i;
-
-  for (i=0; i<(sizeof(peephole_table)/sizeof(Combination)); i++) {
+  for (i=0; i<sizeof(peephole_table)/sizeof(peephole_table[0]); i++) {
     Combination *c = &peephole_table[i];
-    if (xt1 == xts[c->prefix] && xt2 == xts[c->lastprim])
-      return xts[c->combination_prim];
+    Peeptable_entry *p = (Peeptable_entry *)malloc(sizeof(Peeptable_entry));
+    Cell h;
+    p->prefix =           insts[c->prefix];
+    p->lastprim =         insts[c->lastprim];
+    p->combination_prim = insts[c->combination_prim];
+    h = hash(p->prefix,p->lastprim);
+    p->next = pt[h];
+    pt[h] = p;
   }
-  return 0;
+  return (Cell)pt;
+}
+
+Inst peephole_opt(Inst inst1, Inst inst2, Cell peeptable)
+{
+  Peeptable_entry **pt = (Peeptable_entry **)peeptable;
+  Peeptable_entry *p;
+
+  if (use_super == 0)
+      return 0;
+  for (p = pt[hash(inst1,inst2)]; p != NULL; p = p->next)
+    if (inst1 == p->prefix && inst2 == p->lastprim)
+      return p->combination_prim;
+  return NULL;
 }
