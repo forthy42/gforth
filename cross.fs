@@ -1579,8 +1579,7 @@ Variable to-doc  to-doc on
     IF
 	s" " doc-file-id write-line throw
 	s" make-doc " doc-file-id write-file throw
-
-	tlast @ >image count 1F and doc-file-id write-file throw
+        Last-Header-Ghost @ >ghostname doc-file-id write-file throw
 	>in @
 	[char] ( parse 2drop
 	[char] ) parse doc-file-id write-file throw
