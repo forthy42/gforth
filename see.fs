@@ -28,7 +28,19 @@
 require look.fs
 require termsize.fs
 require wordinfo.fs
-[IFUNDEF] .name : .name name>string type space ; [THEN]
+[IFUNDEF] .name
+: id. ( nt -- ) \ gforth
+    \G Print the name of the word represented by @var{nt}.
+    \ this name comes from fig-Forth
+    name>string type space ;
+
+' id. alias .id ( nt -- )
+\G F83 name for @code{id.}.
+
+' id. alias .name ( nt -- )
+\G Gforth <=0.5.0 name for @code{id.}.
+
+[THEN]
 
 decimal
 
