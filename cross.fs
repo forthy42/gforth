@@ -1,5 +1,5 @@
 \ CROSS.FS     The Cross-Compiler                      06oct92py
-\ $Id: cross.fs,v 1.23 1995-02-08 13:38:50 pazsan Exp $
+\ $Id: cross.fs,v 1.24 1995-02-23 20:17:16 pazsan Exp $
 \ Idea and implementation: Bernd Paysan (py)
 \ Copyright 1992-94 by the GNU Forth Development Group
 
@@ -120,8 +120,9 @@ H
 -4 Constant :dovar
 -5 Constant :douser
 -6 Constant :dodefer
--7 Constant :dodoes
--8 Constant :doesjump
+-7 Constant :dostruc
+-8 Constant :dodoes
+-9 Constant :doesjump
 
 >CROSS
 
@@ -287,7 +288,7 @@ VARIABLE Already
   UNTIL
         2 cells + count cr ." CROSS: Exists: " type 4 spaces drop
         swap cell+ !
-  ELSE true ABORT" CROSS: Ghostnames inconsistent"
+  ELSE  true abort" CROSS: Ghostnames inconsistent "
   THEN ;
 
 : resolve  ( ghost tcfa -- )
@@ -604,6 +605,10 @@ Build:  ( n -- ) T A, H ;
 by Constant
 Builder AConstant
 
+Build:  ( d -- ) T , , H ;
+DO: ( ghost -- d ) T dup cell+ @ swap @ H ;DO
+Builder 2Constant
+
 Build: T 0 , H ;
 by Constant
 Builder Value
@@ -612,6 +617,29 @@ Build:  ( -- ) compile noop ;
 DO: ( ghost -- ) ABORT" CROSS: Don't execute" ;DO
 Builder Defer
 by Defer :dodefer resolve
+
+\ Sturctures                                           23feb95py
+
+>CROSS
+: nalign ( addr1 n -- addr2 )
+\ addr2 is the aligned version of addr1 wrt the alignment size n
+ 1- tuck +  swap invert and ;
+>TARGET
+
+Build: 	>r rot r@ nalign  dup T , H  ( align1 size offset )
+	+ swap r> nalign ;
+DO: T @ H + ;DO
+Builder Field
+by Field :dostruc resolve
+
+: struct  T 0 1 chars H ;
+: end-struct  T 2Constant H ;
+
+: cells: ( n -- size align )
+    T cells 1 cells H ;
+
+\ ' 2Constant Alias2 end-struct
+\ 0 1 T Chars H 2Constant struct
 
 \ structural conditionals                              17dec92py
 

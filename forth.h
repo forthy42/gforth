@@ -13,8 +13,9 @@ typedef void *Label;
 #define DOVAR	2
 #define DOUSER	3
 #define DODEFER	4
-#define DODOES	5
-#define DOESJUMP	6
+#define DOSTRUC	5
+#define DODOES	6
+#define DOESJUMP	7
 
 #include "machine.h"
 

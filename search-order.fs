@@ -21,8 +21,8 @@ Defer 'initvoc
 Variable slowvoc   slowvoc off
 
 : wordlist  ( -- wid )
-  here  0 A, Forth-wordlist cell+ @ A, voclink @ A, slowvoc @ A,
-  dup 2 cells + dup voclink ! 'initvoc ;
+  here  0 A, Forth-wordlist wordlist-map @ A, voclink @ A, slowvoc @ A,
+  dup wordlist-link dup voclink ! 'initvoc ;
 
 : Vocabulary ( -- ) Create wordlist drop  DOES> context ! ;
 
@@ -36,12 +36,13 @@ Variable slowvoc   slowvoc off
 
 : (vocfind)  ( addr count nfa1 -- nfa2|false )
     \ !! generalize this to be independent of vp
-    drop 1 vp @
-    DO  2dup vp I cells + @ (search-wordlist) dup
-	IF  nip nip
-	    UNLOOP EXIT
-	THEN  drop
-    -1 +LOOP
+    drop vp dup @ 1- cells over +
+    DO  2dup I 2@ over <>
+        IF  (search-wordlist) dup
+	    IF  nip nip  UNLOOP EXIT
+	    THEN  drop
+        ELSE  drop 2drop  THEN
+    [ -1 cells ] Literal +LOOP
     2drop false ;
 
 0 value locals-wordlist
@@ -67,7 +68,7 @@ Create vocsearch       ' (localsvocfind) A, ' (reveal) A,  ' drop A,
 \ Only root                                            14may93py
 
 wordlist \ the wordlist structure
-vocsearch over cell+ A! \ patch the map into it
+vocsearch over wordlist-map A! \ patch the map into it
 
 Vocabulary Forth
 Vocabulary Root
@@ -107,7 +108,8 @@ lookup A! \ our dictionary search order becomes the law
 : .voc  body> >name .name ;
 : order  1 vp @  DO  vp I cells + @ .voc  -1 +LOOP  2 spaces
   current @ .voc ;
-: vocs   voclink  BEGIN  @ dup @  WHILE  dup 2 cells - .voc  REPEAT  drop ;
+: vocs   voclink  BEGIN  @ dup @  WHILE  dup 0 wordlist-link - .voc  REPEAT
+  drop ;
 
 Root definitions
 
@@ -125,16 +127,16 @@ include hash.fs
 
 : marker, ( -- mark )  here dup A,
   voclink @ A, voclink
-  BEGIN  @ dup @  WHILE  dup 2 cells - @ A,  REPEAT  drop
+  BEGIN  @ dup @  WHILE  dup 0 wordlist-link - @ A,  REPEAT  drop
   udp @ , ;
 
 : marker! ( mark -- )  dup @ swap cell+
   dup @ voclink ! cell+
   voclink
-  BEGIN  @ dup @  WHILE  over @ over 2 cells - !
+  BEGIN  @ dup @  WHILE  over @ over 0 wordlist-link - !
 	 swap cell+ swap
   REPEAT  drop  voclink
-  BEGIN  @ dup @  WHILE  dup 2 cells - rehash  REPEAT  drop
+  BEGIN  @ dup @  WHILE  dup 0 wordlist-link - rehash  REPEAT  drop
   @ udp !  dp ! ;
 
 : marker ( "mark" -- )

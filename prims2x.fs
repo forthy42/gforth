@@ -90,7 +90,7 @@ variable effect-out-end ( pointer )
 2variable effect-in-size
 2variable effect-out-size
 
-variable primitive-number -9 primitive-number !
+variable primitive-number -10 primitive-number !
 
 \ for several reasons stack items of a word are stored in a wordlist
 \ since neither forget nor marker are implemented yet, we make a new

@@ -918,10 +918,10 @@ Create ???  0 , 3 c, char ? c, char ? c, char ? c,
 : Constant  (Constant) , ;
 : AConstant (Constant) A, ;
 
-: 2CONSTANT
-    create ( w1 w2 "name" -- )
+: 2Constant
+    Create ( w1 w2 "name" -- )
         2,
-    does> ( -- w1 w2 )
+    DOES> ( -- w1 w2 )
         2@ ;
     
 \ IS Defer What's Defers TO                            24feb93py
@@ -981,19 +981,20 @@ AVariable current
 \ object oriented search list                          17mar93py
 
 \ word list structure:
-\ struct
-\   1 cells: field find-method   \ xt: ( c_addr u wid -- name-id )
-\   1 cells: field reveal-method \ xt: ( -- )
-\   1 cells: field rehash-method \ xt: ( wid -- )
-\   \ !! what else
-\ end-struct wordlist-map-struct
 
-\ struct
-\   1 cells: field wordlist-id \ not the same as wid; representation depends on implementation
-\   1 cells: field wordlist-map \ pointer to a wordlist-map-struct
-\   1 cells: field wordlist-link \ link field to other wordlists
-\   1 cells: field wordlist-extend \ points to wordlist extensions (eg hash)
-\ end-struct wordlist-struct
+struct
+  1 cells: field find-method   \ xt: ( c_addr u wid -- name-id )
+  1 cells: field reveal-method \ xt: ( -- )
+  1 cells: field rehash-method \ xt: ( wid -- )
+\   \ !! what else
+end-struct wordlist-map-struct
+
+struct
+  1 cells: field wordlist-id \ not the same as wid; representation depends on implementation
+  1 cells: field wordlist-map \ pointer to a wordlist-map-struct
+  1 cells: field wordlist-link \ link field to other wordlists
+  1 cells: field wordlist-extend \ points to wordlist extensions (eg hash)
+end-struct wordlist-struct
 
 : f83find      ( addr len wordlist -- nfa / false )  @ (f83find) ;
 
@@ -1005,7 +1006,7 @@ AVariable lookup       G forth-wordlist lookup T !
 G forth-wordlist current T !
 
 : (search-wordlist)  ( addr count wid -- nfa / false )
-  dup cell+ @ @ execute ;
+  dup wordlist-map @ find-method @ execute ;
 
 : search-wordlist  ( addr count wid -- 0 / xt +-1 )
     (search-wordlist) dup  IF  found  THEN ;
@@ -1039,9 +1040,9 @@ Variable warnings  G -1 warnings T !
  last? if
    name>string current @ check-shadow
  then
- current @ cell+ @ cell+ @ execute ;
+ current @ wordlist-map @ reveal-method @ execute ;
 
-: rehash  ( wid -- )  dup cell+ @ cell+ cell+ @ execute ;
+: rehash  ( wid -- )  dup wordlist-map @ rehash-method @ execute ;
 
 : '    ( "name" -- addr )  name sfind 0= if -&13 bounce then ;
 : [']  ( "name" -- addr )  ' postpone ALiteral ; immediate

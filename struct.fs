@@ -1,4 +1,4 @@
-\ $Id: struct.fs,v 1.2 1994-07-29 11:16:26 anton Exp $
+\ $Id: struct.fs,v 1.3 1995-02-23 20:17:25 pazsan Exp $
 
 \ Usage example:
 \
@@ -16,9 +16,9 @@
 \ addr2 is the aligned version of addr1 wrt the alignment size n
  1- tuck +  swap invert and ;
 
-: create-field ( offset1 align1 size align -- offset2 align2 )
+: field ( offset1 align1 size align -- offset2 align2 )
 \ note: this version uses local variables
-     create
+     Header reveal -7 ( [ :dostruc ] Literal ) cfa,
 	>r rot r@ nalign  dup ,  ( align1 size offset )
 	+ swap r> nalign ;
 
@@ -27,10 +27,10 @@
 
 0 1 chars end-struct struct
 
-: field  ( offset1 align1 size align -- offset2 align2 )
-    create-field
-    does> ( addr1 -- addr2 )
-	@ + ;
+\ : field  ( offset1 align1 size align -- offset2 align2 )
+\    create-field
+\    does> ( addr1 -- addr2 )
+\	@ + ;
 
 \ I don't really like the "type:" syntax. Any other ideas? - anton
 \ Also, this seems to be somewhat general. It probably belongs to some

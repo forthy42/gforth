@@ -1,5 +1,5 @@
 /*
-  $Id: main.c,v 1.23 1995-02-14 18:18:36 pazsan Exp $
+  $Id: main.c,v 1.24 1995-02-23 20:17:22 pazsan Exp $
   Copyright 1993 by the ANSI figForth Development Group
 */
 
@@ -57,9 +57,9 @@ char *progname;
  * addresses within the image are given relative to the start of the image.
  * If the word is =-1, the address is NIL,
  * If the word is between -2 and -5, it's a CFA (:, Create, Constant, User)
- * If the word is -6, it's a DOES> CFA
- * If the word is -7, it's a DOES JUMP
- * If the word is <-7, it's a primitive
+ * If the word is -7, it's a DOES> CFA
+ * If the word is -8, it's a DOES JUMP
+ * If the word is <-9, it's a primitive
  */
 
 void relocate(Cell *image, char *bitstring, int size, Label symbols[])
@@ -79,7 +79,8 @@ void relocate(Cell *image, char *bitstring, int size, Label symbols[])
 	    case CF(DOVAR)   :
 	    case CF(DOCON)   :
 	    case CF(DOUSER)  : 
-	    case CF(DODEFER) : MAKE_CF(image+i,symbols[CF(image[i])]); break;
+	    case CF(DODEFER) : 
+	    case CF(DOSTRUC) : MAKE_CF(image+i,symbols[CF(image[i])]); break;
 	    case CF(DODOES)  : MAKE_DOES_CF(image+i,image[i+1]+((Cell)image));
 	      break;
 	    case CF(DOESJUMP): MAKE_DOES_HANDLER(image+i); break;
