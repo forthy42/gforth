@@ -32,8 +32,10 @@
 
 : fdepth  ( -- n )  f0 @ fp@ - [ 1 floats ] Literal / ;
 
-: FLit ( -- r )  r> faligned dup f@ float+ >r ;
-: FLiteral ( r -- )  postpone FLit  falign f, ;  immediate
+: FLit ( -- r )  r> dup f@ float+ >r ;
+: FLiteral ( r -- )
+  BEGIN  here cell+ dup faligned <>  WHILE  postpone noop  REPEAT
+  postpone FLit  f, ;  immediate
 
 &15 Value precision
 : set-precision  to precision ;

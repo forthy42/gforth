@@ -191,6 +191,16 @@ VARIABLE C-Pass
         Display? IF dup @ dup abs 0 <# #S rot sign #> 0 .string bl cemit THEN
         cell+ ;
 
+: c-flit
+        Display? IF  dup f@ scratch represent 0=
+                     IF    2drop  scratch 3 min 0 .string
+                     ELSE   IF  '- cemit  THEN  1-
+                            scratch over c@ cemit '. cemit 1 /string 0 .string
+                            'E cemit
+                            dup abs 0 <# #S rot sign #> 0 .string bl cemit
+                 THEN THEN
+        float+ ;
+
 : c-s"
         count 2dup + aligned -rot
         Display?
@@ -373,6 +383,7 @@ VARIABLE C-Pass
 
 CREATE C-Table
         ' lit A,         ' c-lit A,
+        ' flit A,        ' c-flit A,
         ' (s") A,        ' c-s" A,
         ' (.") A,        ' c-." A,
         ' "lit A,        ' c-c" A,

@@ -1,5 +1,5 @@
 \ CROSS.FS     The Cross-Compiler                      06oct92py
-\ $Id: cross.fs,v 1.22 1995-02-06 18:14:30 anton Exp $
+\ $Id: cross.fs,v 1.23 1995-02-08 13:38:50 pazsan Exp $
 \ Idea and implementation: Bernd Paysan (py)
 \ Copyright 1992-94 by the GNU Forth Development Group
 
@@ -23,6 +23,10 @@
 
 \ include other.fs       \ ansforth extentions for cross
 
+: string, ( c-addr u -- )
+    \ puts down string as cstring
+    dup c, here swap chars dup allot move ;
+' falign Alias cfalign
 : comment? ( c-addr u -- c-addr u )
         2dup s" (" compare 0=
         IF    postpone (
