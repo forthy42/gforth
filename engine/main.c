@@ -717,10 +717,6 @@ int forget_dyncode(Address code)
 
 Label decompile_code(Label code)
 {
-#ifdef DIRECT_THREADED
-  if((code >= (Cell)vm_prims) && (code < (Cell)(vm_prims+npriminfos)))
-    return *(Label *)code;
-#endif
 #ifdef NO_DYNAMIC
   return code;
 #else /* !defined(NO_DYNAMIC) */

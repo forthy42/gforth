@@ -55,6 +55,7 @@ false DefaultValue control-rack \ disable return stack use for control flow
 false DefaultValue ec
 false DefaultValue crlf
 
+$100 DefaultValue kernel-start
 cell 2 = [IF] &32 KB [ELSE] $100000 cells [THEN] DefaultValue kernel-size
 
 &16 KB		DefaultValue stack-size
