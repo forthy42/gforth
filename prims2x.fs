@@ -1105,12 +1105,12 @@ stack inst-stream IP Cell
     cr ;
 
 
-\ superinstruction data for a sophisticated combiner (e.g., shortest path)
+\ cost and superinstruction data for a sophisticated combiner (e.g.,
+\ shortest path)
 
 \ This is intended as initializer for a structure like this
 
 \  struct super {
-\    int super;       /* index in vm_prims */
 \    int loads;       /* number of stack loads */
 \    int stores;      /* number of stack stores */
 \    int updates;     /* number of stack pointer updates */
@@ -1118,15 +1118,38 @@ stack inst-stream IP Cell
 \    int *components; /* array of vm_prim indexes of components */
 \  };
 
+\ How do you know which primitive or combined instruction this
+\ structure refers to?  By the order of cost structures, as in most
+\ other cases.
+
+: compute-costs { p -- nloads nstores nupdates }
+    \ compute the number of loads, stores, and stack pointer updates
+    \ of a primitive or combined instruction; does not take TOS
+    \ caching into account, nor that IP updates are combined with
+    \ other stuff
+    0 max-stacks 0 +do
+	p prim-stacks-in i th @ +
+    loop
+    0 max-stacks 0 +do
+	p prim-stacks-out i th @ +
+    loop
+    0 max-stacks 0 +do
+	p prim-stacks-in i th @ p prim-stacks-out i th @ <> -
+    loop ;
 
 : output-num-part ( p -- )
     prim-num @ 4 .r ." ," ;
 
-: output-supers ( -- )
-    ." {" combined prim-num @ 4 .r
-    ." ,0,0,0," \ counting this stuff is not yet implemented
-    num-combined @ 2 .r
-    ." , ((int []){" ['] output-num-part map-combined ." })}"
+: output-costs ( -- )
+    ." {" prim compute-costs
+    rot 2 .r ." ," swap 2 .r ." ," 2 .r ." ,"
+    combined if
+	num-combined @ 2 .r
+	." , ((int []){" ['] output-num-part map-combined ." })}, /* "
+    else
+	."  1, ((int []){" prim prim-num @ 4 .r ." })}, /* "
+    endif
+    prim prim-name 2@ type ."  */"
     cr ;
 
 \ the parser

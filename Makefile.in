@@ -662,8 +662,8 @@ engine/profile.i:	prim.b prims2x.fs
 		$(CP) $@- $@
 		$(RM) $@-
 
-engine/supers.i:	prim.b prims2x.fs
-		$(FORTHP) prims2x.fs -e "c-flag on s\" prim.b\" ' noop ' output-supers process-file bye" >$@-
+engine/costs.i:	prim.b prims2x.fs
+		$(FORTHP) prims2x.fs -e "c-flag on s\" prim.b\" ' output-costs dup process-file bye" >$@-
 		$(CP) $@- $@
 		$(RM) $@-
 
