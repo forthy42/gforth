@@ -62,7 +62,9 @@ interpret/compile: ." ( compilation 'ccc"' -- ; run-time -- )  \ core	dot-quote
     dodoes, here !does ]
     defstart :-hook ;
 :noname
-    ;-hook ?struc exit-like postpone (does>) dodoes,
+    ;-hook ?struc 
+    [ has? xconds [IF] ] exit-like [ [THEN] ]
+    postpone (does>) dodoes,
     defstart :-hook ;
 interpret/compile: DOES>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ core	does
     
