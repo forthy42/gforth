@@ -210,9 +210,9 @@ AUser CSP
     endif
     1 max ur min ;
 
-: f>buf-rdp ( rf c-addr ur nd up -- ) \ gforth
-\G Convert @i{rf} into a string at @i{c-addr ur}.  The conversion
-\G rules and the meanings of @i{ur nd up} are the same as for
+: f>buf-rdp ( rf c-addr +nr nd np -- ) \ gforth
+\G Convert @i{rf} into a string at @i{c-addr nr}.  The conversion
+\G rules and the meanings of @i{nr nd np} are the same as for
 \G @code{f.rdp}.
     \ first, get the mantissa length, then convert for real.  The
     \ mantissa length is wrong in a few cases because of different
@@ -225,30 +225,30 @@ AUser CSP
     swap 0 max swap 0 max
     fdup 2over 2over 2 pick f>buf-rdp-try f>buf-rdp-try drop ;
 
-: f>str-rdp ( rf ur +nd up -- c-addr ur ) \ gforth
-\G Convert @i{rf} into a string at @i{c-addr ur}.  The conversion
-\G rules and the meanings of @i{ur +nd up} are the same as for
+: f>str-rdp ( rf +nr +nd +np -- c-addr nr ) \ gforth
+\G Convert @i{rf} into a string at @i{c-addr nr}.  The conversion
+\G rules and the meanings of @i{nr +nd np} are the same as for
 \G @code{f.rdp}.  The result in in the pictured numeric output buffer
 \G and will be destroyed by anything destroying that buffer.
-    rot holdptr @ 1- 0 rot negate /string ( rf +nd up c-addr ur )
+    rot holdptr @ 1- 0 rot negate /string ( rf +nd np c-addr nr )
     over holdbuf u< -&17 and throw
     2tuck 2>r f>buf-rdp 2r> ;
 
-: f.rdp ( rf ur +nd up -- ) \ gforth
+: f.rdp ( rf +nr +nd +np -- ) \ gforth
 \G Print float @i{rf} formatted.  The total width of the output is
 \G @i{nr}, the number of digits after the decimal point is @i{+nd},
 \G the minimum number of significant digits for fixed-point notation
-\G is @i{up}.  @code{Set-precision} has no effect on @code{f.rdp}.
+\G is @i{np}.  @code{Set-precision} has no effect on @code{f.rdp}.
 \G Fixed-point notation is used if the number of siginicant digits
-\G would be larger than @i{up} and if the number of digits before the
+\G would be larger than @i{np} and if the number of digits before the
 \G decimal point would fit.  If fixed-point notation is not used,
 \G exponential notation is used, and if that does not fit, asterisks
-\G are printed.  We recommend using @i{ur}>=7 to avoid the risk of
-\G numbers not fitting at all.  We recommend @i{ur}>=@i{up}+5 to avoid
+\G are printed.  We recommend using @i{nr}>=7 to avoid the risk of
+\G numbers not fitting at all.  We recommend @i{nr}>=@i{np}+5 to avoid
 \G cases where @code{f.rdp} switches to exponential notation because
 \G fixed-point notation would have too few significant digits, yet
 \G exponential notation offers fewer significant digits.  We recomment
-\G @i{ur}>=@i{nd}+2, if you want to have fixed-point notation for some
+\G @i{nr}>=@i{nd}+2, if you want to have fixed-point notation for some
 \G numbers.
     f>str-rdp type ;
 

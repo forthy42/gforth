@@ -138,7 +138,7 @@ ans-report-words definitions
     \    >body ! ;
     dup @ docol: <> -12 and throw \ for colon defs only
     >body ['] branch xt>threaded over !
-    cell+ >r >body r@ - r> ! ;
+    cell+ >r >body r> ! ;
 
 forth definitions
 ans-report-words
