@@ -1,6 +1,6 @@
 \ kernel to verilog converter
 
-\ Copyright (C) 1998,2000,2003 Free Software Foundation, Inc.
+\ Copyright (C) 1998,2000,2003,2004 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
