@@ -1186,8 +1186,9 @@ Disable or enable dynamic superinstructions with replication
 (@pxref{Dynamic Superinstructions}).
 
 @item --no-super
-Disable dynamic superinstructions, use just dynamic replication
-(@pxref{Dynamic Superinstructions}).
+Disable dynamic superinstructions, use just dynamic replication; this is
+useful if you want to patch threaded code (@pxref{Dynamic
+Superinstructions}).
 
 @end table
 
@@ -14817,12 +14818,20 @@ You can disable this optimization with @option{--no-dynamic}.  You can
 use the copying without eliminating the jumps (i.e., dynamic
 replication, but without superinstructions) with @option{--no-super};
 this gives the branch prediction benefit alone; the effect on
-performance depends on the CPU.
+performance depends on the CPU; on the Athlon and Pentium III the
+speedup is a little less than for dynamic superinstructions with
+replication.
+
+@cindex patching threaded code
+One use of these options is if you want to patch the threaded code.
+With superinstructions, many of the dispatch jumps are eliminated, so
+patching often has no effect.  These options preserve all the dispatch
+jumps.
 
 @cindex --dynamic command-line option
-On some machines this optimization is disabled by default, because it is
-unsafe on these machines.  However, if you feel adventurous, you can
-enable it with @option{--dynamic}.
+On some machines dynamic superinstructions are disabled by default,
+because it is unsafe on these machines.  However, if you feel
+adventurous, you can enable it with @option{--dynamic}.
 
 @node DOES>,  , Dynamic Superinstructions, Threading
 @subsection DOES>
