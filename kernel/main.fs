@@ -45,7 +45,7 @@ include ./../cross.fs              \ cross-compiler
 
 decimal
 
-has? kernel-size makekernel
+has? kernel-start has? kernel-size makekernel
 \ create image-header
 has? header [IF]
 here 1802 over 

@@ -53,9 +53,9 @@ End-Label
 \ The virtual machine registers an data (stacks) go
 \ to a seperate memory region (hopefully ram)
 
-UNLOCK
-current-region vm-memory activate ( saved-region )
-LOCK
+\ UNLOCK
+\ current-region vm-memory activate ( saved-region )
+\ LOCK
 
 Label RP	0 ,
 Label SP	0 ,
@@ -304,22 +304,15 @@ Code ?branch
 		"Next" , jmp ,
                 '~ dout
 		t0 , accu ,
-		*accu , accu ,
-Label >branch
-		IP , add ,
-		#2 , sub ,
-		accu , IP ,
+		*accu , IP ,
 		"Next" , jmp ,
-Label "branch"	>branch ,
 end-code
 
 Code branch
                 'b dout
 		#0 , add ,
 		IP , shr ,
-		*accu , accu ,
-		IP , add ,
-		accu , IP ,
+		*accu , IP ,
 		"Next" , jmp ,
 end-code
 
@@ -344,7 +337,8 @@ Code (loop)
 		t3 , sub ,
 		"Next" , jz ,
 		t0 , accu ,
-		"branch" , jmp ,
+		*accu , IP ,
+		"Next" , jmp ,
 end-code
 		
 Code xor

@@ -19,7 +19,7 @@
 \ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
 
 Label start
-	nop          ;; first opcode must be a nop!
+        nop          ;; first opcode must be a nop!
 	$80000000 ## ;;
 	#,           ;;
 	sr!          jmpa $818 >IP ;;
@@ -66,11 +66,11 @@ docon:  ;;
 	drop     nop       nop      nop                               ;;
 end-code
 
--2 Alias: :docol
--3 Alias: :docon
--4 Alias: :dovar
--8 Alias: :dodoes
--9 Alias: :doesjump
+-2 Doer: :docol
+-3 Doer: :docon
+-4 Doer: :dovar
+-8 Doer: :dodoes
+-9 Doer: :doesjump
 
 Code execute ( xt -- )
 	ip!      nop       nop      nop                               ;;
@@ -79,7 +79,7 @@ end-code
 
 Code ?branch
 	nop      nop       nop      nop       br 0 ?0<>
-	nop      nop       nop      nop       -4 #        R1= R1 1: +s0 ;;
+	nop      dup       nop      nop       0 #         set 1: R1   ;;
 .endif
 	nop      drop      nop      nop       0 #         ld 1: R1 N+ ;;
 	nop      nop       nop      nop                               ;;
@@ -164,21 +164,6 @@ Code (emit)
 	nop      nop       nop      nop                               ;;
 end-code
 
-: (type)
-    bounds ?DO  I c@ (emit)  LOOP ;
-\    BEGIN  dup  WHILE
-\	>r dup c@ (emit) 1+ r> 1-  REPEAT  2drop ;
-
-\ obligatory code address manipulations
-
-: >code-address ( xt -- addr )  cell+ @ -8 and ;
-: >does-code    ( xt -- addr )
-    cell+ @ -8 and \ dup 3 and 3 <> IF  drop 0  EXIT  THEN
-    8 + dup cell - @ 3 and 0<> and ;
-: code-address! ( addr xt -- )  >r 3 or $808 @ r> 2! ;
-: does-code!    ( a_addr xt -- )  >r 5 - $808 @ r> 2! ;
-: does-handler! ( a_addr -- )  >r $810 2@ r> 2! ;
-
 \ this was obligatory, now some things to speed it up
 
 Code 2/
@@ -187,8 +172,8 @@ Code 2/
 end-code
 
 Code branch
-	nop      nop       nop      nop       -4 #        R1= R1 1: +s0 ;;
-	nop      drop      nop      nop       0 #         ld 1: R1 N+ ;;
+	nop      nop       nop      nop       0 #         set 1: R1   ;;
+	nop      nop       nop      nop       0 #         ld 1: R1 N+ ;;
 	nop      nop       nop      nop                               ;;
 	nop      ip!       nop      nop       0 #         ld 1: R1 N+ ;;
 	nop      nop       nop      nop                               ;;
@@ -197,7 +182,7 @@ end-code
 Code (loop)
 	pick 3s1 nop       nop      inc                               ;;
         sub 3s0  nop       nop      nop       br 0 ?0=
-	nop      nop       nop      nop       -4 #        R1= R1 1: +s0 ;;
+	nop      dup       nop      nop       0 #         set 1: R1   ;;
 .endif
 	nop      drop      nop      nop       0 #         ld 1: R1 N+ ;;
 	nop      nop       nop      nop                               ;;
@@ -210,7 +195,7 @@ Code (+loop)
 	subr 3s0 nop       nop      nop                               ;;
 	xor #min nop       nop      nop                               ;;
 	add s1   nop       nop      nop       br 0 ?ov
-	nop      nop       nop      nop       -4 #        R1= R1 1: +s0 ;;
+	nop      dup       nop      nop       0 #         set 1: R1   ;;
 .endif
 	nop      drop      nop      nop       0 #         ld 1: R1 N+ ;;
 	nop      nop       nop      nop
@@ -221,6 +206,11 @@ end-code
 Code (do)
 	nip      ip!       nop      pick 0s1  0 #         ld 1: R1 N+ ;;
 	drop     nop       nop      pick 0s0                          ;;
+end-code
+
+Code unloop
+	nop      ip!       nop      drop      0 #         ld 1: R1 N+ ;;
+	nop      nop       nop      drop                              ;;
 end-code
 
 Code -
@@ -385,23 +375,41 @@ Code <>
 	0<>      nop       nop      nop                               ;;
 end-code
 
-\ : (find-samelen) ( u f83name1 -- u f83name2/0 )
-\     BEGIN  2dup cell+ c@ $1F and <> WHILE  @  dup 0= UNTIL  THEN ;
-Code (find-samelen)
-        nop      0 #       0 #      nop                               ;;
-	nop      nop       pick 0s0 nop                               ;;
+\ : (findl-samelen) ( u name1 -- u name2/0 )
+\     BEGIN  2dup cell+ @ $1FFFFFFF and <> WHILE  @  dup 0= UNTIL  THEN ;
+Code (findl-samelen)
+        nop      0 #       0 #      $20 #                             ;;
+        nop      nop       pick 0s0 hib                               ;;
+        nop      nop       nop      dec                               ;;
 .begin
-	drop     drop      nop      nop       ldb 0: s0b  4 #         ;;
-        nop      $1F #     nip      nop       ld 2: s0b   0 #         ;;
+	drop     drop      nop      nop       ld 0: s0b   1 #         ;;
+        nop      pick 3s0  nip      nop       ld 2: s0b   0 #         ;;
 	drop     and 0s0   nop      nop                               ;;
 	pick 2s0 sub 0s0   nop      nop       br 1&2 :0<> .until      ;;
 	nop      nop       nop      nop       br 1 ?0=                ;;
-	nop      ip!       drop     nip       0 #         ld 1: R1 N+ ;;
+	nop      ip!       drop     drop      0 #         ld 1: R1 N+ ;;
 	nop      nop       drop     nop                               ;;
 .endif
-	pick 2s1 ip!       drop     nop       0 #         ld 1: R1 N+ ;;
+	pick 2s1 ip!       drop     drop      0 #         ld 1: R1 N+ ;;
 	nip      nop       drop     nop                               ;;
 end-code
+
+\ necessary high-level code
+
+: (type)
+    bounds ?DO  I c@ (emit)  LOOP ;
+\    BEGIN  dup  WHILE
+\	>r dup c@ (emit) 1+ r> 1-  REPEAT  2drop ;
+
+\ obligatory code address manipulations
+
+: >code-address ( xt -- addr )  cell+ @ -8 and ;
+: >does-code    ( xt -- addr )
+    cell+ @ -8 and \ dup 3 and 3 <> IF  drop 0  EXIT  THEN
+    8 + dup cell - @ 3 and 0<> and ;
+: code-address! ( addr xt -- )  >r 3 or $808 @ r> 2! ;
+: does-code!    ( a_addr xt -- )  >r 5 - $808 @ r> 2! ;
+: does-handler! ( a_addr -- )  >r $810 2@ r> 2! ;
 
 : bye  0 execute ;
 

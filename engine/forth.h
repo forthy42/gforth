@@ -19,6 +19,10 @@
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
 */
 
+#define _FILE_OFFSET_BITS 64
+#define _LARGEFILE_SOURCE
+#define _GNU_SOURCE
+
 #include "config.h"
 #include <stdio.h>
 #include <sys/time.h>

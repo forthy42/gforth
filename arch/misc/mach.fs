@@ -40,35 +40,36 @@ false Constant NIL  \ relocating
 
 >ENVIRON
 
-false Constant file		\ controls the presence of the
+false DefaultValue file		\ controls the presence of the
 				\ file access wordset
-false Constant OS		\ flag to indicate a operating system
+false DefaultValue OS		\ flag to indicate a operating system
 
-false Constant prims		\ true: primitives are c-code
+false DefaultValue prims		\ true: primitives are c-code
 
-false Constant floating		\ floating point wordset is present
+false DefaultValue floating		\ floating point wordset is present
 
-false Constant glocals		\ gforth locals are present
+false DefaultValue glocals		\ gforth locals are present
 				\ will be loaded
-false Constant dcomps		\ double number comparisons
+false DefaultValue dcomps		\ double number comparisons
 
-false Constant hash		\ hashing primitives are loaded/present
+false DefaultValue hash		\ hashing primitives are loaded/present
 
-false Constant xconds		\ used together with glocals,
+false DefaultValue xconds		\ used together with glocals,
 				\ special conditionals supporting gforths'
 				\ local variables
-false Constant header		\ save a header information
+false DefaultValue header		\ save a header information
 
-true Constant ec
-false Constant crlf
+true DefaultValue ec
+false DefaultValue crlf
 false SetValue new-input
 false SetValue peephole
+true SetValue abranch       \ enables absolute branches
 
-true Constant rom
+false DefaultValue rom
 
-cell 2 = [IF] 32 [ELSE] 256 [THEN] KB Constant kernel-size
+cell 2 = [IF] 32 [ELSE] 256 [THEN] KB DefaultValue kernel-size
 
-16 KB		Constant stack-size
-15 KB 512 +	Constant fstack-size
-15 KB		Constant rstack-size
-14 KB 512 +	Constant lstack-size
+16 KB		DefaultValue stack-size
+15 KB 512 +	DefaultValue fstack-size
+15 KB		DefaultValue rstack-size
+14 KB 512 +	DefaultValue lstack-size

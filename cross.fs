@@ -1412,11 +1412,10 @@ T has? rom H
 
 \ MakeKernel                                           		22feb99jaw
 
-: makekernel ( targetsize -- )
+: makekernel ( start targetsize -- )
 \G convenience word to setup the memory of the target
 \G used by main.fs of the c-engine based systems
-  100 swap dictionary (region)
-  setup-target ;
+  dictionary (region) setup-target ;
 
 >MINIMAL
 : makekernel makekernel ;
@@ -2581,8 +2580,13 @@ Cond: [ ( -- ) interpreting-state ;Cond
 
 Defer instant-interpret-does>-hook
 
+T has? peephole H [IF]
 : does-resolved ( ghost -- )
     compile does-exec g>xt T a, H ;
+[ELSE]
+: does-resolved ( ghost -- )
+    g>xt T a, H ;
+[THEN]
 
 : resolve-does>-part ( -- )
 \ resolve words made by builders

@@ -39,32 +39,34 @@ true  Constant NIL  \ relocating
 
 >ENVIRON
 
-false Constant file		\ controls the presence of the
+false SetValue file		\ controls the presence of the
 				\ file access wordset
-false Constant OS		\ flag to indicate a operating system
+false SetValue OS		\ flag to indicate a operating system
 
-false Constant prims		\ true: primitives are c-code
+false SetValue prims		\ true: primitives are c-code
 
-false Constant floating		\ floating point wordset is present
+false SetValue floating		\ floating point wordset is present
 
-false Constant glocals		\ gforth locals are present
+false SetValue glocals		\ gforth locals are present
 				\ will be loaded
-false Constant dcomps		\ double number comparisons
+false SetValue dcomps		\ double number comparisons
 
-false Constant hash		\ hashing primitives are loaded/present
+false SetValue hash		\ hashing primitives are loaded/present
 
-false Constant xconds		\ used together with glocals,
+false SetValue xconds		\ used together with glocals,
 				\ special conditionals supporting gforths'
 				\ local variables
-false Constant header		\ save a header information
+false SetValue header		\ save a header information
 
-false Constant ec
-false Constant crlf
-false Constant ITC
+false SetValue ec
+false SetValue crlf
+false SetValue ITC
 false SetValue new-input
 false SetValue peephole
+true SetValue abranch       \ enables absolute branches
 
-cell 2 = [IF] 32 [ELSE] 256 [THEN] KB Constant kernel-size
+0 SetValue kernel-start
+cell 2 = [IF] 32 [ELSE] 256 [THEN] KB SetValue kernel-size
 
 16 KB		Constant stack-size
 15 KB 512 +	Constant fstack-size
