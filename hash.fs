@@ -18,19 +18,15 @@
 \ along with this program; if not, write to the Free Software
 \ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-[IFUNDEF] e? : e? name 2drop false ; [THEN]
-
-e? ec
-[IF]
+[IFUNDEF] allocate
 : reserve-mem here swap allot ;
-\ ToDo: check memory space with unused
 \ move to a kernel/memory.fs
 [ELSE]
 : reserve-mem allocate throw ;
 [THEN]
 
 [IFUNDEF] hashbits
-11 value hashbits
+11 Value hashbits
 [THEN]
 1 hashbits lshift Value Hashlen
 
@@ -140,7 +136,7 @@ to hashsearch-map
       HashTable Hashlen cells erase THEN
   HashIndex @ over !  1 HashIndex +!
   HashIndex @ Hashlen >=
-  [ e? ec [IF] ]
+  [ [IFUNDEF] allocate ]
   ABORT" no more space in hashtable"
   [ [ELSE] ]
   IF  HashTable >r clearhash
@@ -151,7 +147,7 @@ to hashsearch-map
   [ [THEN] ] ; is hash-alloc
 
 \ Hash-Find                                            01jan93py
-e? cross 0= 
+has? cross 0= 
 [IF]
 : make-hash
   hashsearch-map forth-wordlist cell+ !
@@ -164,14 +160,14 @@ e? cross 0=
 \ for ec version display that vocabulary goes hashed
 
 : hash-cold  ( -- )
-[ e? ec [IF] ] ." Hashing..." [ [THEN] ]
+[ has? ec [IF] ] ." Hashing..." [ [THEN] ]
   HashPointer off  0 TO HashTable  HashIndex off
   addall
 \  voclink
 \  BEGIN  @ dup WHILE
 \         dup 0 wordlist-link - initvoc
 \  REPEAT  drop 
-[ e? ec [IF] ] ." Done" cr [ [THEN] ] ;
+[ has? ec [IF] ] ." Done" cr [ [THEN] ] ;
 
 ' hash-cold INIT8 chained
 

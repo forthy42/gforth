@@ -41,10 +41,9 @@ Create sleepers  sleepers A, sleepers A, 0 ,
   lp! fp! rp! prev-task @ sleep ;
 
 \ USER' computes the task offset
-: user' ( 'user' -- n )
-    ' >body @ postpone literal ; immediate
-interpretation:
-    ' >body @ ;
+:noname    ' >body @ ;
+:noname    ' >body @ postpone literal ; 
+interpret/compile: user' ( 'user' -- n )
 
 \ NEWTASK creates a new, sleeping task
 : NewTask ( n -- Task )  dup 2* 2* udp @ + dup

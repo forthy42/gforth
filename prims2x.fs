@@ -615,7 +615,9 @@ set-current
 : output-forth ( -- )  flush-comment on
  ?flush-comment
  forth-code @ 0=
- IF    output-alias
+ IF    	\ output-alias
+	\ this is bad for ec: an alias is compiled if tho word does not exist!
+	\ JAW
  ELSE  ." : " forth-name 2@ type ."   ( "
        effect-in effect-in-end @ .stack-list ." -- "
        effect-out effect-out-end @ .stack-list ." )" cr

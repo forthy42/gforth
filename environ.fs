@@ -29,7 +29,7 @@ Create environment-wordlist  wordlist drop
 	false
     endif ;
 
-: e? name environment? ; immediate
+: e? name environment? 0= ABORT" environmental dependency not existing" ;
 
 : has? name environment? IF ELSE false THEN ;
 

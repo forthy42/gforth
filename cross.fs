@@ -128,9 +128,12 @@ false DefaultValue create-forward-warn   \ warn on forward declaration of create
 
 previous >CROSS
 
+: .dec
+  base @ decimal swap . base ! ;
+
 : .sourcepos
   cr sourcefilename type ." :"
-  base @ decimal sourceline# . base ! ;
+  sourceline# .dec ;
 
 : warnhead
 \G display error-message head
@@ -274,21 +277,33 @@ VARIABLE env-current \ save information of current dictionary to restore with en
 
 : e? name T environment? H 0= ABORT" environment variable not defined!" ;
 
-: has? name T environment? H IF ELSE false THEN ;
+: has? 	name T environment? H 
+	IF 	\ environment variable is present, return its value
+	ELSE	\ environment variable is not present, return false
+		\ !! JAW abort is just for testing
+		false true ABORT" arg" 
+	THEN ;
 
 : $has? T environment? H IF ELSE false THEN ;
 
 >ENVIRON
-true Value cross
+false SetValue ionly
+true  SetValue cross
 >TARGET
 
 mach-file count included hex
 
->TARGET
+>ENVIRON
 
-[IFUNDEF] has-interpreter true Value has-interpreter [THEN]
-[IFUNDEF] itc true Value itc [THEN]
-[IFUNDEF] has-rom false Value has-rom [THEN]
+s" interpreter" T environment? H 0= ?dup nip [IF] true Value interpreter [THEN]
+s" ITC" T environment? H 0= ?dup nip [IF] true SetValue ITC [THEN]
+s" rom" T environment? H 0= ?dup nip [IF] false Value rom [THEN]
+
+>TARGET
+s" relocate" T environment? H 
+[IF]	SetValue NIL
+[ELSE]	>ENVIRON T NIL H SetValue relocate
+[THEN]
 
 >CROSS
 
@@ -406,7 +421,7 @@ Variable mirrored-link          \ linked list for mirrored regions
 	." End: " r@ 1 cells + @ + .addr space
 	." DP: " r> 2 cells + @ .addr 
   REPEAT drop
-  s" rom" $has? 0= ?EXIT
+  s" rom" T $has? H 0= ?EXIT
   cr ." Mirrored:"
   mirrored-link @
   BEGIN dup
@@ -422,7 +437,7 @@ Variable mirrored-link          \ linked list for mirrored regions
 0 0 region dictionary
 \ rom area for the compiler
 
-has? rom 
+T has? rom H
 [IF]
 0 0 region ram-dictionary mirrored
 \ ram area for the compiler
@@ -440,7 +455,7 @@ has? rom
 
 
 : setup-target ( -- )   \G initialize targets memory space
-  s" rom" $has?
+  s" rom" T $has? H
   IF  \ check for ram and rom...
       address-space area nip
       ram-dictionary area nip
@@ -493,7 +508,7 @@ variable fixed		\ flag: true: no automatic switching
 variable constflag constflag off
 
 : (switchram)
-  fixed @ ?EXIT has-rom 0= ?EXIT
+  fixed @ ?EXIT s" rom" T $has? H 0= ?EXIT
   ram-dictionary >rdp to tdp ;
 
 : switchram
@@ -674,18 +689,53 @@ DEFER comp[     \ ends compilation
 : compile, colon, ;
 >CROSS
 
+\ file loading
 
+Variable filelist 0 filelist !
+0 Value	 loadfile
+
+0 [IF] \ !! JAW WIP
+
+: add-included-file ( adr len -- )
+	dup 2 cells + allocate throw >r
+	r@ 1 cells + dup TO loadfile place
+	filelist @ r@ !
+	r> filelist ! ;
+
+: included? ( c-addr u -- f )
+  	filelist
+	BEGIN	@ dup
+	WHILE	>r r@ 1 cells + count compare 0=
+		IF rdrop 2drop true EXIT THEN
+		r>
+	REPEAT
+	2drop drop false ;	
+
+: included 
+	cr ." Including: " 2dup type ." ..."
+	2dup add-included-file included ;
+
+: include bl word count included ;
+
+: require bl word count included ;
+
+[THEN]
 
 \ resolve structure
 
 : >next ;		\ link to next field
 : >tag cell+ ;		\ indecates type of reference: 0: call, 1: address
-: >taddr cell+ cell+ ;
+: >taddr cell+ cell+ ;	
 : >ghost 3 cells + ;
+: >file 4 cells + ;
+: >line 5 cells + ;
 
 : refered ( ghost tag -- )
+\G creates a resolve structure
   swap >r here r@ >link @ , r@ >link ! ( tag ) ,
-  T here aligned H , r> drop  last-header-ghost @ , ;
+  T here aligned H , r> drop  last-header-ghost @ , 
+  loadfile , sourceline# , 
+  ;
 
 Defer resolve-warning
 
@@ -768,9 +818,24 @@ variable ResolveFlag
 : ?touched ( ghost -- flag ) dup forward? swap >link @
                                0 <> and ;
 
+: .forwarddefs ( ghost -- )
+	."  appeared in:"
+	>link
+	BEGIN	@ dup
+	WHILE	cr 5 spaces
+		dup >ghost @ >ghostname type
+		."  file " dup >file @ ?dup IF count type ELSE ." CON" THEN
+		."  line " dup >line @ .dec
+	REPEAT 
+	drop ;
+
 : ?resolved  ( ghostname -- )
   dup cell+ @ ?touched
-  IF  cell+ cell+ count cr type ResolveFlag on ELSE drop THEN ;
+  IF  	dup 
+	cell+ cell+ count cr type ResolveFlag on 
+	cell+ @ .forwarddefs
+  ELSE 	drop 
+  THEN ;
 
 >MINIMAL
 : .unresolved  ( -- )
@@ -789,8 +854,6 @@ variable ResolveFlag
 : .stats
   base @ >r decimal
   cr ." named Headers: " headers-named @ . 
-\  cr ." MaxRam*" ramdp @ . 
-\  cr ." MaxRom*" romdp @ . 
   r> base ! ;
 
 >CROSS
@@ -958,16 +1021,16 @@ VARIABLE ;Resolve 1 cells allot
 >TARGET
 : Alias    ( cfa -- ) \ name
     >in @ skip? IF  2drop  EXIT  THEN  >in !
-    dup 0< has-prims 0= and
+    dup 0< s" prims" T $has? H 0= and
     IF
-	." needs prim: " >in @ bl word count type >in ! cr
+	.sourcepos ." needs prim: " >in @ bl word count type >in ! cr
     THEN
     (THeader over resolve T A, H 80 flag! ;
 : Alias:   ( cfa -- ) \ name
     >in @ skip? IF  2drop  EXIT  THEN  >in !
-    dup 0< has-prims 0= and
+    dup 0< s" prims" T $has? H 0= and
     IF
-	." needs doer: " >in @ bl word count type >in ! cr
+	.sourcepos ." needs doer: " >in @ bl word count type >in ! cr
     THEN
     ghost tuck swap resolve <do:> swap >magic ! ;
 >CROSS
@@ -1066,7 +1129,7 @@ Defer (end-code)
 : Code
   defempty?
   (THeader there resolve
-  [ has-prims 0= [IF] ITC [ELSE] true [THEN] ] [IF]
+  [ T e? prims H 0= [IF] T e? ITC H [ELSE] true [THEN] ] [IF]
   doprim, 
   [THEN]
   depth (code) ;
@@ -1268,7 +1331,7 @@ Cond: DOES> restrict?
 
 : BuildSmart:  ( -- [xt] [colon-sys] )
   :noname
-  [ has-rom [IF] ]
+  [ T has? rom H [IF] ]
   postpone RTCreate
   [ [ELSE] ]
   postpone TCreate 
@@ -1320,7 +1383,7 @@ BuildSmart: ;
 by: :dovar ( ghost -- addr ) ;DO
 Builder Create
 
-has-rom [IF]
+T has? rom H [IF]
 Build: ( n -- ) T here 0 , H switchram T align here swap ! 0 , H ( switchrom ) ;
 by (Constant)
 Builder Variable
@@ -1330,7 +1393,7 @@ by Create
 Builder Variable
 [THEN]
 
-has-rom [IF]
+T has? rom H [IF]
 Build: ( n -- ) T here 0 , H switchram T align here swap ! 0 , H ( switchrom ) ;
 by (Constant)
 Builder AVariable
@@ -1504,6 +1567,7 @@ Cond: NEXT      restrict? sys? compile (next)  loop] ;Cond
 Cond: BUT       restrict? sys? swap ;Cond
 Cond: YET       restrict? sys? dup ;Cond
 
+1 [IF]
 >CROSS
 Variable tleavings
 >TARGET
@@ -1519,8 +1583,44 @@ Cond: DONE   ( addr -- )  restrict? tleavings @
 Cond: LEAVE     restrict? compile branch (leave ;Cond
 Cond: ?LEAVE    restrict? compile 0=  compile ?branch (leave  ;Cond
 
+[ELSE]
+    \ !! This is WIP
+    \ The problem is (?DO)!
+    \ perhaps we need a plug-in for (?DO)
+    
+>CROSS
+Variable tleavings 0 tleavings !
+>TARGET
+
+Cond: DONE   ( addr -- )  
+      restrict? tleavings @
+      BEGIN  dup
+      WHILE  >r dup r@ cell+ @ \ address of branch
+	     u> 0=	   \ lower than DO?	
+      WHILE  r@ 2 cells + @ \ branch token
+	     branchtoresolve,
+	     r@ @ r> free throw
+      REPEAT drop r>
+      THEN
+      tleavings ! drop ;Cond
+
+>CROSS
+: (leave ( branchtoken -- )
+    3 cells allocate throw >r
+    T here H r@ cell+ !
+    r@ 2 cells + !
+    tleavings @ r@ !
+    r> tleavings ! ;
+>TARGET
+
+Cond: LEAVE     restrict? branchmark, (leave ;Cond
+Cond: ?LEAVE    restrict? compile 0=  ?branchmark, (leave  ;Cond
+
+[THEN]
+
 \ Structural Conditionals                              12dec92py
 
+>TARGET
 Cond: AHEAD     restrict? branchmark, ;Cond
 Cond: IF        restrict? ?branchmark, ;Cond
 Cond: THEN      restrict? sys? branchto, branchtoresolve, ;Cond
@@ -1545,7 +1645,7 @@ Cond: ?DO       restrict? compile (?do)  T (leave here H ;Cond
 Cond: FOR       restrict? compile (for)  T here H ;Cond
 
 >CROSS
-: loop]   dup <resolve tcell - compile DONE compile unloop ;
+: loop]   branchto, dup <resolve tcell - compile DONE compile unloop ;
 >TARGET
 
 Cond: LOOP      restrict? sys? compile (loop)  loop] ;Cond

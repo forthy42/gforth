@@ -46,7 +46,7 @@ decimal
 [IFUNDEF] look
 has? ec [IF]
 
-has-rom 
+has? rom 
 [IF]
 : look
     dup [ unlock rom-dictionary area lock ] 

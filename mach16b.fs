@@ -29,14 +29,4 @@
 
 \ feature list
 
-true Constant NIL  \ relocating
-
-true Constant has-files 
-true Constant has-OS
-true Constant has-prims
-true Constant has-floats
-true Constant has-locals
-true Constant has-dcomps
-true Constant has-hash
-true Constant has-xconds
-true Constant has-header
+include machpc.fs
