@@ -218,6 +218,9 @@ case "$host_cpu" in
 			AC_DEFINE(DIRECT_THREADED)
 		fi
 		;;
+	ia64*)
+		machine=ia64
+		;;
         m68k)
 		machine=m68k
 		CFLAGS="$CFLAGS -fomit-frame-pointer"

@@ -121,7 +121,7 @@ CVSDIRS = CVS engine/CVS kernel/CVS doc/CVS asm/CVS ec/CVS test/CVS \
 	arch/386/CVS arch/hppa/CVS arch/sparc/CVS arch/power/CVS \
 	arch/alpha/CVS arch/4stack/CVS arch/misc/CVS arch/6502/CVS \
 	arch/8086/CVS arch/avr/CVS arch/c165/CVS arch/h8/CVS \
-	arch/shboom/CVS
+	arch/shboom/CVS arch/ia64/CVS
 
 INCLUDES = engine/forth.h engine/threaded.h engine/io.h
 
@@ -258,6 +258,7 @@ ARCHS =	\
 	arch/power/_sync_cache_range.c \
 	arch/power/elf32ppc.x \
 	arch/alpha/machine.h \
+	arch/ia64/machine.h \
 	arch/4stack/README \
 	arch/4stack/asm.fs \
 	arch/4stack/mach.fs \
