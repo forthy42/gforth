@@ -33,7 +33,7 @@ VARIABLE PNT Names PNT !
         PNT @ + ALIGNED DUP PNT !
         DUP 0 SWAP ! CELL+ 0 SWAP ! ;
 
-S" wordsets.fs" INCLUDED
+S" ../wordsets.fs" INCLUDED
 
 : END
         CR CR ." Wordset:            Status:  Words:" CR
