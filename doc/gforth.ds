@@ -11525,7 +11525,7 @@ The word @code{~~} prints debugging information (by default the source
 location and the stack contents). It is easy to insert. If you use Emacs
 it is also easy to remove (@kbd{C-x ~} in the Emacs Forth mode to
 query-replace them with nothing). The deferred words
-@code{printdebugdata} and @code{printdebugline} control the output of
+@code{printdebugdata} and @code{.debugline} control the output of
 @code{~~}. The default source location output format works well with
 Emacs' compilation mode, so you can step through the program at the
 source level using @kbd{C-x `} (the advantage over a stepping debugger
@@ -11534,7 +11534,7 @@ happened or where the strange data has occurred).
 
 doc-~~
 doc-printdebugdata
-doc-printdebugline
+doc-.debugline
 
 @node Assertions, Singlestep Debugger, Debugging, Programming Tools
 @subsection Assertions

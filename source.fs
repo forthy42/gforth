@@ -18,28 +18,17 @@
 \ along with this program; if not, write to the Free Software
 \ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
 
-
 \ related stuff can be found in kernel.fs
 
-\ this stuff is used by (at least) assert.fs and debugging.fs
+\ this stuff is used by (at least) assert.fs and debugs.fs
 
-require struct.fs
+: compile-sourcepos ( compile-time: -- ; run-time: -- nfile nline )
+    \ compile the current source position as literals: nfile is the
+    \ source file index, nline the line number within the file.
+    loadfilename# @ postpone literal
+    sourceline# postpone literal ;
 
-struct
-    cell% field sourcepos-name#
-    cell% field sourcepos-line#
-end-struct sourcepos
-    
-: sourcepos, ( -- )
-    \ record the current source position HERE
-    loadfilename# @ , sourceline# , ;
-
-: get-sourcepos ( a-addr -- c-addr u n )
-    \ c-addr u is the filename, n is the line number
-    dup sourcepos-name# @ loadfilename#>str
-    rot sourcepos-line# @ ;
-
-: print-sourcepos ( a-addr -- )
-    get-sourcepos
-    >r type ." :"
-    base @ decimal r> 0 .r base ! ;
+: .sourcepos ( nfile nline -- )
+    \ print source position
+    swap loadfilename#>str type ." :"
+    base @ decimal swap 0 .r base ! ;

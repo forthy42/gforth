@@ -38,21 +38,16 @@ require source.fs
 
 defer printdebugdata ( -- ) \ gforth print-debug-data
 ' .s IS printdebugdata
-defer printdebugline ( addr -- ) \ gforth print-debug-line
+defer .debugline ( nfile nline -- ) \ gforth print-debug-line
 
-: (printdebugline) ( addr -- )
-    cr print-sourcepos ." :"
+: (.debugline) ( nfile nline -- )
+    cr .sourcepos ." :"
     \ it would be nice to print the name of the following word,
     \ but that's not easily possible for primitives
     printdebugdata
     cr ;
 
-' (printdebugline) IS printdebugline
-
-: (~~) ( -- )
-    r@ printdebugline
-    r> sourcepos %size + >r ;
+' (.debugline) IS .debugline
 
 : ~~ ( compilation  -- ; run-time  -- ) \ gforth tilde-tilde
-    POSTPONE (~~) sourcepos, ; immediate
-
+    compile-sourcepos POSTPONE .debugline ; immediate

@@ -48,15 +48,14 @@ variable assert-level ( -- a-addr ) \ gforth
     \G Equivalent to @code{assert1(}
     POSTPONE assert1( ; immediate
 
-: (endassert) ( flag -- ) \ gforth-internal
-    \ inline argument sourcepos
-    if
-	r> sourcepos %size + >r EXIT
+: (end-assert) ( flag nfile nline -- ) \ gforth-internal
+    rot if
+	2drop
     else
-	r> print-sourcepos ." : failed assertion"
+	.sourcepos ." : failed assertion"
 	true abort" assertion failed" \ !! or use a new throw code?
     then ;
 
 : ) ( -- ) \ gforth	close-paren
-    \G End an assertion.
-    POSTPONE (endassert) sourcepos, ; immediate
+\G End an assertion.
+    compile-sourcepos POSTPONE (end-assert) ; immediate
