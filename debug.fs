@@ -22,7 +22,18 @@ decimal
 
 VARIABLE dbg-ip     \ instruction pointer for debugger
 
+\ !! move to see?
+
+: save-see-flags ( -- n* cnt )
+  C-Output @
+  C-Formated @ 1 ;
+
+: restore-see-flags ( n* cnt -- )
+  drop C-Formated !
+  C-Output ! ;
+
 : scanword ( body -- )
+        >r save-see-flags r>
         c-init C-Output off
         ScanMode c-pass !
         dup MakePass
@@ -30,7 +41,7 @@ VARIABLE dbg-ip     \ instruction pointer for debugger
         0 XPos !
         DisplayMode c-pass !
         MakePass
-        C-Output on ;
+        restore-see-flags ;
 
 : .n    0 <# # # # # #S #> ctype bl cemit ;
 
@@ -42,15 +53,20 @@ VARIABLE dbg-ip     \ instruction pointer for debugger
                 C-Formated off
                 ;
 
-: disp-step
+: Leave-D ;
+
+: disp-step ( -- )
+\ display step at current dbg-ip
         DisplayMode c-pass !            \ change to displaymode
         cr
         c-stop off
         Base @ hex dbg-ip @ 8 u.r space dbg-ip @ @ 8 u.r space
         Base !
+        save-see-flags
         NoFine 10 XPos !
         dbg-ip @ DisplayMode c-pass ! Analyse drop
-        25 XPos @ - 0 max spaces ." -> " ;
+        25 XPos @ - 0 max spaces ." -> " 
+        restore-see-flags ;
 
 : get-next ( -- n | n n )
         DebugMode c-pass !
@@ -94,10 +110,6 @@ VARIABLE Body
 
 VARIABLE Nesting
 
-: Leave-D
-                C-Formated on
-                C-Output on ;
-
 VARIABLE Unnest
 
 : D-KEY         ( -- flag )
@@ -120,11 +132,11 @@ VARIABLE Unnest
                 ENDCASE
         AGAIN ;
 
-: (debug) ( body -- )
+: (_debug) ( body ip -- )
         0 Nesting !
         BEGIN   Unnest off
                 cr ." Scanning code..." cr C-Formated on
-                dup scanword dbg-ip !
+                swap scanword dbg-ip !
                 cr ." Nesting debugger ready!" cr
                 BEGIN   d.s disp-step D-Key
                 WHILE   C-Stop @ 0=
@@ -138,21 +150,29 @@ VARIABLE Unnest
                 ELSE
                 dbg-ip @ 1 cells + >r 1 Nesting +!
                 THEN
+                dup
         AGAIN ;
+
+: (debug) dup (_debug) ;
 
 : dbg ( "name" -- ) \ gforth 
     ' NestXT IF EXIT THEN (debug) Leave-D ;
 
-has? compiler invert [IF] \ nac bugfix
+: break:, ( -- )
+  lastxt postpone literal ;
+
+: (break:)
+    r> ['] (_debug) >body >r ;
+  
 : break: ( -- ) \ gforth
-    r> ['] (debug) >body >r ;
+    break:, postpone (break:) ; immediate
 
 : (break")
     cr
     ." BREAK AT: " type cr
-    r> ['] (debug) >body >r ;
+    r> ['] (_debug) >body >r ;
 
 : break" ( 'ccc"' -- ) \ gforth
+    break:,
     postpone s"
     postpone (break") ; immediate
-[THEN]
