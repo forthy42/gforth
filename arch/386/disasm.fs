@@ -256,7 +256,9 @@ create s-buf MAXSTRING allot
 : mod-r/m32     ( adr r/m mod -- adr' )
                 dup 3 =
                 if    drop reg                          \ mod = 3, register case
-                else  over 4 =
+		else  size IF  16-bit-data 0= IF .s" d" THEN .s" word"
+		      ELSE  .s" byte" THEN .s"  ptr "
+		      over 4 =
                       if nip sib                        \ r/m = 4, sib case
                       else  2dup 0= swap 5 = and        \ mod = 0, r/m = 5,
                             if 2drop disp32             \ disp32 case

@@ -594,5 +594,5 @@ $BB 3Dnow: PSWABD               : SFENCE   $AE $07 mod0F# ;
 : makeflag   [A] ~cond AL swap setIF  1 # AX and  AX dec [F] ;
 
 
-previous set-current decimal base !
+previous previous set-current decimal base !
 
