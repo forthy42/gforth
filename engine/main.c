@@ -233,7 +233,7 @@ void relocate(Cell *image, const char *bitstring,
 		  compile_prim1(&image[i]);
 #endif
 	      } else
-		fprintf(stderr,"Primitive %d used in this image at $%lx is not implemented by this\n engine (%s); executing this code will crash.\n",CF(token),(long)&image[i],VERSION);
+		fprintf(stderr,"Primitive %d used in this image at $%lx is not implemented by this\n engine (%s); executing this code will crash.\n",CF(token),(long)&image[i],PACKAGE_VERSION);
 	    }
 	else {
           // if base is > 0: 0 is a null reference so don't adjust
@@ -1166,7 +1166,7 @@ void gforth_args(int argc, char ** argv, char ** path, char ** imagename)
     case 'c': clear_dictionary = 1; break;
     case 's': die_on_signal = 1; break;
     case 'x': debug = 1; break;
-    case 'v': fprintf(stderr, "gforth %s\n", VERSION); exit(0);
+    case 'v': fputs(PACKAGE_STRING"\n", stderr); exit(0);
     case 'h': 
       fprintf(stderr, "Usage: %s [engine options] ['--'] [image arguments]\n\
 Engine Options:\n\

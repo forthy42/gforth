@@ -30,7 +30,7 @@
 
 # ------------- gforth version
 
-VERSION	= @VERSION@
+VERSION	= @PACKAGE_VERSION@
 DOSVERSION=`echo $(VERSION)|sed 's/\.//g'|sed 's/-.*//g'`
 
 # -------------	System specific variables	
@@ -334,7 +334,7 @@ VMGEN_EX2 = $(VMGEN_EX:vmgen-ex/%=vmgen-ex2/%)
 SOURCES	= $(CVSDIRS) compat Makefile.in Makedist.in engine/Makefile.in \
 	gforthmi.in vmgen.in README.vmgen NEWS.vmgen \
 	configure.in configure config.sub config.guess elisp-comp missing \
-	acconfig.h acinclude.m4 engine/config.h.in stamp-h.in \
+	acconfig.h engine/config.h.in stamp-h.in \
 	iss.sh install-sh INSTALL INSTALL.BINDIST NEWS README ToDo BUGS model \
 	COPYING COPYING.DOC AUTHORS ChangeLog Benchres aclocal.m4 \
 	doc/gforth.ds doc/texinfo.tex doc/gforth.1 doc/version.texi.in \
@@ -360,7 +360,8 @@ SOURCES	= $(CVSDIRS) compat Makefile.in Makedist.in engine/Makefile.in \
 
 RCS_FILES =  ToDo model high-level
 
-GEN = gforth$(EXE) gforth-ditc$(EXE) gforth-fast$(EXE) gforth-native$(EXE) gforth-itc$(EXE) gforth-prof$(EXE) kernel/version.fs
+GEN = gforth$(EXE) gforth-ditc$(EXE) gforth-fast$(EXE) gforth-itc$(EXE) kernel/version.fs
+#gforth-native$(EXE) gforth-prof$(EXE)
 
 # things that need a working forth system to be generated
 FORTH_GEN_ENGINE=engine/prim.i engine/prim_lab.i engine/prim_names.i \
@@ -718,10 +719,10 @@ gforth-ditc$(EXE):	engines
 gforth-prof$(EXE):	engines
 		$(CP) engine/$@ $@
 
-gforths: gforth$(EXE) gforth-fast$(EXE) gforth-native$(EXE) gforth-itc$(EXE) gforth-ditc$(EXE) gforth-prof$(EXE)
+gforths: gforth$(EXE) gforth-fast$(EXE) gforth-itc$(EXE) gforth-ditc$(EXE) #gforth-prof$(EXE) gforth-native$(EXE)
 
 engines:	FORCE $(FORTH_GEN_ENGINE) engine/Makefile
-		cd engine && $(MAKE) gforth$(EXE) gforth-fast$(EXE) gforth-native$(EXE) gforth-itc$(EXE) gforth-ditc$(EXE) gforth-prof$(EXE)
+		cd engine && $(MAKE) gforth$(EXE) gforth-fast$(EXE) gforth-itc$(EXE) gforth-ditc$(EXE) #gforth-prof$(EXE) gforth-native$(EXE)
 
 # ------------- additional C primitives
 
@@ -834,28 +835,27 @@ doc:		info doc/gforth doc/vmgen doc/gforth.ps doc/vmgen.ps doc/gforth.txt doc/vm
 
 #Note: no target "$(srcdir)/configure", because that does not trigger 
 #unless $(srcdir)!="."
-configure:	configure.in aclocal.m4
-		cd $(srcdir) && autoconf
+configure: configure.in aclocal.m4
+	cd $(srcdir) && autoconf
 
-aclocal.m4:	acinclude.m4 configure.in
+aclocal.m4:	configure.in
 		aclocal
 
 # autoheader might not change config.h.in, so touch a stamp file.
-engine/config.h.in:	stamp-h.in
-stamp-h.in:	configure.in  acconfig.h
-		cd $(srcdir) && autoheader
-		echo timestamp > $(srcdir)/stamp-h.in
+engine/config.h.in: stamp-h.in
+stamp-h.in: configure.in aclocal.m4
+	cd $(srcdir) && autoheader
+	echo timestamp > $(srcdir)/stamp-h.in
 
-engine/config.h:	stamp-h
-stamp-h:	engine/config.h.in config.status
-		CONFIG_FILES=$@ CONFIG_HEADERS="engine/config.h" ./config.status
-		echo timestamp > stamp-h
+engine/config.h: stamp-h
+stamp-h: engine/config.h.in config.status
+	./config.status
 
-Makefile Makedist engine/Makefile gforthmi vmgen machpc.fs doc/version.texi:	Makefile.in Makedist.in engine/Makefile.in gforthmi.in vmgen.in machpc.fs.in doc/version.texi.in config.status configure.in
-		CONFIG_FILES="$@" CONFIG_HEADERS="engine/config.h" ./config.status
+Makedist engine/Makefile gforthmi vmgen machpc.fs doc/version.texi:	Makefile.in Makedist.in engine/Makefile.in gforthmi.in vmgen.in machpc.fs.in doc/version.texi.in config.status configure.in
+	./config.status
 
-config.status:	configure
-		./config.status --recheck
+config.status: configure
+	./config.status --recheck
 
 
 #create files for DOS, because DOS cannot do it itself

@@ -20,13 +20,13 @@
 
 prefix=@prefix@
 test "x$GFORTHDIR" != x || GFORTHDIR=@exec_prefix@/bin
-test "x$GFORTHDATADIR" != x || GFORTHDATADIR=$prefix/share/gforth/@VERSION@
+test "x$GFORTHDATADIR" != x || GFORTHDATADIR=$prefix/share/gforth/@PACKAGE_VERSION@
 GFORTH=$GFORTHDIR/gforth-fast
 if test $# = 0 || test $1 = --help || test $1 = -h; then
   echo "usage: `basename $0` <file>.vmg"
   exit 0
 elif test $1 = --version || test $1 = -v; then
-  echo "vmgen (@PACKAGE@) @VERSION@"
+  echo "vmgen (@PACKAGE_NAME@) @PACKAGE_VERSION@"
   $GFORTH --version
   echo 'Copyright (C) 2001 Free Software Foundation, Inc.'
   echo 'This program is part of Gforth'

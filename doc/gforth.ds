@@ -12042,11 +12042,11 @@ then,
 @subsection Other assemblers
 
 If you want to contribute another assembler/disassembler, please contact
-us (@email{bug-gforth@@gnu.org}) to check if we have such an assembler
-already.  If you are writing them from scratch, please use a similar
-syntax style as the one we use (i.e., postfix, commas at the end of the
-instruction names, @pxref{Common Assembler}); make the output of the
-disassembler be valid input for the assembler, and keep the style
+us (@email{anton@@mips.complang.tuwien.ac.at}) to check if we have such
+an assembler already.  If you are writing them from scratch, please use
+a similar syntax style as the one we use (i.e., postfix, commas at the
+end of the instruction names, @pxref{Common Assembler}); make the output
+of the disassembler be valid input for the assembler, and keep the style
 similar to the style we used.
 
 Hints on implementation: The most important part is to have a good test
@@ -14962,9 +14962,8 @@ cell 2 = [IF] &32 [ELSE] &256 [THEN] KB DefaultValue kernel-size
 
 Known bugs are described in the file @file{BUGS} in the Gforth distribution.
 
-If you find a bug, please send a bug report to
-@email{bug-gforth@@gnu.org}. A bug report should include this
-information:
+If you find a bug, please submit a bug report through
+@uref{https://savannah.gnu.org/bugs/?func=addbug&group=gforth}.
 
 @itemize @bullet
 @item

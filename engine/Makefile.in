@@ -20,7 +20,7 @@
 
 # ------------- gforth version
 
-VERSION =@VERSION@
+VERSION =@PACKAGE_VERSION@
 DOSVERSION=`echo $VERSION|sed 's/\.//g'`
 EXE=@EXE@
 

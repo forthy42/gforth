@@ -25,7 +25,7 @@ decimal
 
 \ .(                                                    12may93jaw
 
-: .(   ( compilation,interpretation "ccc<paren>" -- ) \ core-ext dot-paren
+: .(   ( compilation&interpretation "ccc<paren>" -- ) \ core-ext dot-paren
   \G Compilation and interpretation semantics: Parse a string @i{ccc}
   \G delimited by a @code{)} (right parenthesis). Display the
   \G string. This is often used to display progress information during
