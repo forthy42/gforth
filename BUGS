@@ -61,7 +61,11 @@ anton 3 sep 2001
 gforth-native does not deal correctly with inline arguments in static
 superinstructions: when using lit_lit, the wrong literals are put into
 the native code (probably due to wrong assumptions about argument
-offsets).
+offsets). 6 nov 2003
+
+finish-code changes the stack for gforth-fast with --enable-force-reg
+(probably for gforth-native too).  Apparently ecx (spTOS) is neither
+saved by engine, nor by finish_code().
 
 -----
 Copyright (C) 1995,1996,1997,1998,2000,2003 Free Software Foundation, Inc.

@@ -1101,96 +1101,6 @@ void finish_code(void)
   flush_to_here();
 }
 
-#if 0
-/* compile *start into a dynamic superinstruction, updating *start */
-void compile_prim_dyn(Cell *start)
-{
-#if defined(NO_IP)
-  static Cell *last_start=NULL;
-  static Xt last_prim=NULL;
-  /* delay work by one call in order to get relocated immargs */
-
-  if (last_start) {
-    unsigned i = last_prim-vm_prims;
-    PrimInfo *pi=&priminfos[i];
-    Cell *next_code_target=NULL;
-
-    assert(i<npriminfos);
-    if (i==N_execute||i==N_perform||i==N_lit_perform) {
-      next_code_target = compile_prim1arg(N_set_next_code);
-    }
-    if (i==N_call) {
-      next_code_target = compile_call2(last_start[1]);
-    } else if (i==N_does_exec) {
-      struct doesexecinfo *dei = &doesexecinfos[ndoesexecinfos++];
-      *compile_prim1arg(N_lit) = (Cell)PFA(last_start[1]);
-      /* we cannot determine the callee now (last_start[1] may be a
-         forward reference), so just register an arbitrary target, and
-         register in dei that we need to fix this before resolving
-         branches */
-      dei->branchinfo = nbranchinfos;
-      dei->xt = (Cell *)(last_start[1]);
-      next_code_target = compile_call2(NULL);
-    } else if (!is_relocatable(i)) {
-      next_code_target = compile_prim1arg(N_set_next_code);
-      set_rel_target(compile_prim1arg(N_abranch),*(Xt)last_prim);
-    } else {
-      unsigned j;
-      Address old_code_here = append_prim(i);
-
-      for (j=0; j<pi->nimmargs; j++) {
-	struct immarg *ia = &(pi->immargs[j]);
-	Cell argval = last_start[pi->nimmargs - j]; /* !! specific to prims */
-	if (ia->rel) { /* !! assumption: relative refs are branches */
-	  register_branchinfo(old_code_here + ia->offset, argval);
-	} else /* plain argument */
-	  *(Cell *)(old_code_here + ia->offset) = argval;
-      }
-    }
-    if (next_code_target!=NULL)
-      *next_code_target = (Cell)code_here;
-  }
-  if (start) {
-    last_prim = (Xt)*start;
-    *start = (Cell)code_here;
-  }
-  last_start = start;
-  return;
-#elif !defined(NO_DYNAMIC)
-  Label prim=(Label)*start;
-  unsigned i;
-  Address old_code_here;
-
-  i = ((Xt)prim)-vm_prims;
-  prim = *(Xt)prim;
-  if (no_dynamic) {
-    *start = (Cell)prim;
-    return;
-  }
-  if (i>=npriminfos || !is_relocatable(i)) {
-    append_jump();
-    *start = (Cell)prim;
-    return;
-  }
-#ifdef ALIGN_CODE
-  /*  ALIGN_CODE;*/
-#endif
-  assert(prim==priminfos[i].start);
-  old_code_here = append_prim(i);
-  last_jump = (priminfos[i].superend) ? 0 : i;
-  *start = (Cell)old_code_here;
-  return;
-#else /* !defined(DOUBLY_INDIRECT), no code replication */
-  Label prim=(Label)*start;
-#if !defined(INDIRECT_THREADED)
-  prim = *(Xt)prim;
-#endif
-  *start = (Cell)prim;
-  return;
-#endif /* !defined(DOUBLY_INDIRECT) */
-}
-#endif /* 0 */
-
 #ifdef NO_IP
 Cell compile_prim_dyn(PrimNum p, Cell *tcp)
      /* compile prim #p dynamically (mod flags etc.) and return start
@@ -1479,7 +1389,6 @@ void compile_prim1(Cell *start)
 #elif defined(INDIRECT_THREADED)
   return;
 #else /* !(defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED)) */
-#if 1
   /* !! does not work, for unknown reasons; but something like this is
      probably needed to ensure that we don't call compile_prim_dyn
      before the inline arguments are there */
@@ -1500,7 +1409,7 @@ void compile_prim1(Cell *start)
   prim_num = ((Xt)*start)-vm_prims;
   if(prim_num >= npriminfos) {
     optimize_rewrite(instps,origs,ninsts);
-    fprintf(stderr,"optimize_rewrite(...,%d)\n",ninsts);
+    /* fprintf(stderr,"optimize_rewrite(...,%d)\n",ninsts);*/
     ninsts=0;
     return;
   }    
@@ -1508,29 +1417,6 @@ void compile_prim1(Cell *start)
   instps[ninsts] = start;
   origs[ninsts] = prim_num;
   ninsts++;
-#else
-  static Cell *instps[MAX_BB];
-  static PrimNum origs[MAX_BB];
-  static int ninsts=0;
-  PrimNum prim_num;
-
-  if (start==NULL)
-    goto end_bb;
-  prim_num = ((Xt)*start)-vm_prims;
-  if (prim_num >= npriminfos)
-    goto end_bb;
-  assert(ninsts<MAX_BB);
-  instps[ninsts] = start;
-  origs[ninsts] = prim_num;
-  ninsts++;
-  if (ninsts >= MAX_BB || (ninsts>0 && superend[origs[ninsts-1]])) {
-  end_bb:
-    optimize_rewrite(instps,origs,ninsts);
-    fprintf(stderr,"optimize_rewrite(...,%d)\n",ninsts);
-    ninsts=0;
-    return;
-  }
-#endif
 #endif /* !(defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED)) */
 }
 
