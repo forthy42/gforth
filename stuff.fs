@@ -164,3 +164,95 @@ AUser CSP
     \ switch into postpone state
     ['] postponer is parser state on ; immediate restrict
 
+\ f.rdp
+
+: move-right ( c-addr u1 u2 cfill -- )
+    \ move string at c-addr u1 right by u2 chars (without exceeding
+    \ the original bound); fill the gap with cfill
+    >r dup >r rot dup >r ( u1 u2 c-addr R: cfill u2 c-addr )
+    dup 2swap /string cmove>
+    r> r> r> fill ;
+
+: f>buf-rdp { f: rf c-addr ur nd up -- } \ gforth
+\G Convert @i{rf} into a string at @i{c-addr ur}.  The conversion
+\G rules and the meanings of @i{ur nd up} are the same as for
+\G @code{f.rdp}.
+    rf c-addr ur represent if { nexp fsign }
+	nd nexp + up >=
+	ur nd - 1- dup { beforep } fsign + nexp 0 max >= and if
+	    \ fixed-point notation
+	    c-addr ur beforep nexp - dup { befored } '0 move-right
+	    c-addr beforep 1- befored min dup { beforez } 0 max bl fill
+	    fsign if
+		'- c-addr beforez 1- 0 max + c!
+	    endif
+	    c-addr ur beforep /string 1 '. move-right
+	else \ exponential notation
+	    c-addr ur 1 /string 1 '. move-right
+	    fsign if
+		c-addr ur 1 '- move-right
+	    endif
+	    nexp 1- s>d tuck dabs <<# #s rot sign 'E hold #> { explen }
+	    explen 1+ fsign - ur > if \ exponent too large
+		drop c-addr ur '* fill
+	    else
+		c-addr ur + 0 explen negate /string move
+	    endif
+	    #>>
+	endif
+    else \ inf or nan
+	if \ negative
+	    c-addr ur 1 '- move-right
+	endif
+	drop
+	\ !! align in some way?
+    endif ;
+
+: f>str-rdp ( rf ur +nd up -- c-addr ur ) \ gforth
+\G Convert @i{rf} into a string at @i{c-addr ur}.  The conversion
+\G rules and the meanings of @i{ur +nd up} are the same as for
+\G @code{f.rdp}.  The result in in the pictured numeric output buffer
+\G and will be destroyed by anything destroying that buffer.
+    rot holdptr @ 1- 0 rot negate /string ( rf +nd up c-addr ur )
+    over holdbuf u< -&17 and throw
+    2tuck 2>r f>buf-rdp 2r> ;
+
+: f.rdp ( rf ur +nd up -- ) \ gforth
+\G Print float @i{rf} formatted.  The total width of the output is
+\G @i{nr}, the number of digits after the decimal point is @i{+nd},
+\G the minimum number of significant digits for fixed-point notation
+\G is @i{up}.  @code{Set-precision} has no effect on @code{f.rdp}.
+\G Fixed-point notation is used if the number of siginicant digits
+\G would be larger than @i{up} and if the number of digits before the
+\G decimal point would fit.  If fixed-point notation is not used,
+\G exponential notation is used, and if that does not fit, asterisks
+\G are printed.  We recommend using @i{ur}>=7 to avoid the risk of
+\G numbers not fitting at all.  We recommend @i{ur}>=@i{up}+5 to avoid
+\G cases where @code{f.rdp} switches to exponential notation because
+\G fixed-point notation would have too few significant digits, yet
+\G exponential notation offers fewer significant digits.  We recomment
+\G @i{ur}>=@i{nd}+2, if you want to have fixed-point notation for some
+\G numbers.  Currently, trailing digits are cut off.
+    f>str-rdp type ;
+
+0 [if]
+: testx ( rf ur nd up -- )
+    '| emit f.rdp ;
+
+: test ( -- )
+    -0.123456789123456789e-20
+    40 0 ?do
+	cr
+	fdup 7 3 1 testx
+	fdup 7 3 4 testx
+	fdup 7 3 0 testx
+	fdup 7 7 1 testx
+	fdup 7 5 1 testx
+	fdup 7 0 2 testx
+	fdup 5 2 1 testx
+	fdup 4 2 1 testx
+	fdup 18 8 5 testx
+	'| emit
+	10e f*
+    loop ;
+[then]

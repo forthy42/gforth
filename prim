@@ -2013,7 +2013,7 @@ f1=FLAG(flag!=0);
 f2=FLAG(isdigit((unsigned)(sig[0]))!=0);
 siglen=strlen(sig);
 memcpy(c_addr,sig,siglen);
-memset(c_addr+siglen,'0',u-siglen);
+memset(c_addr+siglen,f2?'0':' ',u-siglen);
 
 >float	( c_addr u -- flag )	float	to_float
 ""Actual stack effect: ( c_addr u -- r t | f ).  Attempt to convert the

@@ -37,6 +37,7 @@ include hash.fs
 \ include search.fs
 require compat/strcomp.fs
 include glocals.fs
+require float.fs
 require stuff.fs
 include wordinfo.fs
 include vt100.fs
