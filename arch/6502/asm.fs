@@ -1,35 +1,46 @@
-\ ASM1.F65
+\ asm.fs
+\
+\ postfix assembler/disassembler for 6502 and variants.
 
+\ Generic routines for labels (forwards/backward references). The
+\ assembler-specific part is supplied as an xt in "std-resolver" below.
 HEX
-
 require asm/numref.fs
-
 HEX
 
 also assembler definitions
 
-[IFUNDEF] 2+ : 2+ 2 + ; [THEN]
+\ Select CPU variant
+VARIABLE CPU&
 
+: 65N02    10 CPU& C! ; \ 0001xxxx
+: R65C02   80 CPU& C! ; \ 0010xxxx
+: 65SC02   40 CPU& C! ; \ 0100xxxx
+: 6511Q    20 CPU& C! ; \ 1000xxxx
+
+65N02 \ Set a default CPU type
+
+\ Support for std-resolver
 : ABS/REL@                    \ ( Addr --- A/R )
-                            \ Addr is the Addr of the Opcode
-                            \ A/R is a flag: A=1 R=0
-\ Opcode Rel = 01, 03, 05, 07, 08, 09, 0B, 0D, 0F all other are ABS
-X c@                            \ Get Opcode
-dup 0F and 0=               \ 0000xxxx = 0
-over 10 and 0<>               \ xxxxxxx1 = 0
-and                          \ 0 0 => 1
-swap 80 =		\ !!JAW bugfix for bra
-or 0= ;                     \ Flag: 1 = ABS 0 = Rel
+                              \ Addr is the Addr of the Opcode
+                              \ A/R is a flag: A=1 R=0
+\ RELative opcodes are 01, 03, 05, 07, 08, 09, 0B, 0D, 0F all other are ABS
+  X c@                        \ Get Opcode
+  dup 0F and 0=               \ 0000xxxx = 0
+  over 10 and 0<>             \ xxxxxxx1 = 0
+  and                         \ 0 0 => 1
+  swap 80 =		      \ !!JAW bugfix for bra
+  or 0= ;                     \ Flag: 1 = ABS 0 = Rel
 
 : ABS/REL!                    \ ( $-Addr $:-Addr A/R --- )
-IF
-swap 1+ X !                    \ ABS
-ELSE
-over 2 + -                     \ REL
-dup 0 80 - < ABORT" branch out of range"
-dup 7F > ABORT" branch out of range"
-swap 1+ X C!
-THEN ;
+  IF
+      swap 1+ X !             \ ABS
+  ELSE
+      over 2 + -              \ REL
+      dup 0 80 - < ABORT" branch out of range"
+      dup 7F > ABORT" branch out of range"
+      swap 1+ X C!
+  THEN ;
 
 : doresolve ( instruction-address -- )
   ref-adr @ over abs/rel@ abs/rel! ;
@@ -44,11 +55,11 @@ THEN ;
 \ 1011xxxx Bx   65C02 &          6511Q & 65N02   basic + 6511Q
 \ 1101xxxx Dx   65C02 & 65SC02 &         65N02   basic + 65SC02
 \
-\ Adressing:
+\ Addressing:
 \ x0 = None      x1 = A.      x2 = C #.    x3 = C X)
 \ x4 = C )Y      x5 = C ,X    x6 = C ,Y    x7 = C
 \ x8 = N ,X      x9 = N ,Y    xA = N       xB = N ).
-\ xC = N X)      xD = C rel   xE = C ).     xF = C bit
+\ xC = N X)      xD = C rel   xE = C ).    xF = C bit
 \
 \ Opcodes:
 \ 00 ADC   01 and   02 ASL   03 BBR   04 BBS   05 BCC
@@ -66,7 +77,7 @@ THEN ;
 \ 80 no Opcode
 \
 \ Position:   AABC
-\              ||| Adressing
+\              ||| Addressing
 \              || CPU-Type
 \              | Opcode
 \
@@ -216,16 +227,9 @@ CREATE ASMTAB
 80F0 , ( FC           ) 33F8 , ( FD N ,X  SBC )
 1BF8 , ( FE N ,X  INC ) 04BF , ( FF C C   BBS )
 
-\ Assembler
-
-VARIABLE CPU&
-
-: 65N02    10 CPU& C! ; \ 0001xxxx
-: R65C02   80 CPU& C! ; \ 0010xxxx
-: 65SC02   40 CPU& C! ; \ 0100xxxx
-: 6511Q    20 CPU& C! ; \ 1000xxxx
-
 \ ***********************************************************************
+\
+\ Assembler
 
 \ single Byte Instructions
 
@@ -237,7 +241,7 @@ VARIABLE CPU&
 : TAY, A8 X c, ;     : TSX, BA X c, ;     : TXA, 8A X c, ;     : TXS, 9A X c, ;
 : TYA, 98 X c, ;
 
-: SOP, CPU& C@ C0 and IF X c, ELSE -1 ABorT" sop not supported"  THEN ;  ( C1 ---   )
+: SOP, CPU& C@ C0 and IF X c, ELSE -1 ABORT" sop not supported"  THEN ;  ( C1 ---   )
 : PLY, 7A SOP, ;  : PLX, FA SOP, ;  : PHY, 5A SOP, ;  : PHX, DA SOP, ;
 : WAI, CB SOP, ;  : STP, DB SOP, ;
 
@@ -250,6 +254,7 @@ VARIABLE COPAD
 : ,Y 06 COPAD C! ;   : X) 03 COPAD C! ;   : )Y 04 COPAD C! ;
 : A. 01 COPAD C! ;
 
+\ ->ASM2.F65
 2D EMIT 3E EMIT
 41 EMIT 53 EMIT 4D EMIT 32 EMIT
 2E EMIT 46 EMIT 36 EMIT 35 EMIT CR
@@ -258,31 +263,30 @@ VARIABLE COPAD
 
 : RB,                                \ ( Addr1 ---    ) ( COPAD = 00 )
                                      \ (    C1 ---    ) COPAD = 02
-X c, COPAD C@ 02 =
-IF   00 COPAD C!                     \ C1 #.-Addressing
-ELSE 
-     X here 1+ -
-     dup 0 80 - < abort" branch out of range"
-     dup 7F > abort" branch out of range"
-THEN  X c,  ;                         \ Put Addr in Memory
+  X c, COPAD C@ 02 =
+  IF   00 COPAD C!                   \ C1 #.-Addressing
+  ELSE 
+      X here 1+ -
+      dup 0 80 - < ABORT" branch out of range"
+      dup 7F > ABORT" branch out of range"
+  THEN  X c,  ;                      \ Put Addr in Memory
 
 : BCC, 090 RB, ; : BCS, 0B0 RB, ; : BEQ, 0F0 RB, ; : BMI, 030 RB, ;
 : BNE, 0D0 RB, ; : BPL, 010 RB, ; : BVC, 050 RB, ; : BVS, 070 RB, ;
 : BRA, CPU& C@ C0 and IF 80 RB, ELSE -1 ABORT" bra not supported" THEN ;
 
-\ These 4 Opcodes are only in 65C02 and 6511Q available
+\ These 4 Opcodes are only available in 65C02 and 6511Q.
 \ Error 07 "Opcode-Bitaddressing is wrong"
 
 : BOP,                              \    ( Addr1 C2  C3 ---  )
                                     \ or ( C1    C2  C3 ---  )
-CPU& C@ A0 and                      \ only 65C02 and 6511Q
-IF
-swap dup FFF8 and -1 ABorT" bop error jrd?!"         \ C2 is only 0 - 7
-4 lshift or                          \ make opcode
-dup 08 and
-  IF X c, X ,                           \ BBS, BBR,
-  ELSE X c, X c, THEN                   \ RMB, SMB,
-ELSE -1 ABorT" bop not supported" THEN ;
+  CPU& C@ A0 and IF                 \ only 65C02 and 6511Q
+      swap dup FFF8 and -1 ABORT" bop error jrd?!"         \ C2 is only 0 - 7
+      4 lshift or                   \ make opcode
+      dup 08 and IF
+          X c, X ,                  \ BBS, BBR,
+      ELSE X c, X c, THEN           \ RMB, SMB,
+  ELSE -1 ABORT" bop not supported" THEN ;
 
 : BBR, 0F BOP, ;                    \ ( Addr1 C2 ---  )
 : BBS, 8F BOP, ;                    \ ( Addr1 C2 ---  )
@@ -290,19 +294,19 @@ ELSE -1 ABorT" bop not supported" THEN ;
 : SMB, 87 BOP, ;                    \ ( C1    C2 ---  )
 
 : JMP,                              \ ( Addr1 ---    )
-COPAD C@ dup 07 =
-IF drop 6C                          \ Addr1 ) JMP
-ELSE 03 =                           \ Addr1 JMP
- IF CPU& C@ C0 and 0= ABorT" jmp (),x not supported" 7C
- ELSE 4C
- THEN
-THEN X c, X ,
-00 COPAD C! ;
+  COPAD C@ dup 07 = IF
+      drop 6C                       \ Addr1 ) JMP
+  ELSE 03 =                         \ Addr1 JMP
+      IF CPU& C@ C0 and 0= ABORT" jmp (),x not supported" 7C
+      ELSE 4C
+      THEN
+  THEN X c, X ,
+  00 COPAD C! ;
 
-: JSR,                                    \ ( Addr1 ---    )
+: JSR,                              \ ( Addr1 ---    )
   20 X c, X , ;
 
-\ Instructions with multiple Adressing
+\ Instructions with multiple Addressing
 \
 \ Offset: COPAD x 2 + 1 wenn N
 \         COPAD x 2     wenn C
@@ -323,46 +327,46 @@ CREATE FOPCADR
 : FOPC                                          \    (   C1 ---  )
                                                 \ or ( N C1 ---  )
                                                 \ or ( C C1 ---  )
-COPAD C@ 1 = IF 1 swap 1 swap 1 swap   \ ( 1 1 1 C1 --- )
-             ELSE 1 ROT ROT swap       \      ( 1 N 1 C1 --- )
-                  dup FF00 and ROT     \ oder ( 1 C 0 C1 --- )
-             THEN
-
-\ TOS C1 is a Token representing the Opcode corresponding to ASMTAB
-\ SOS Then comes a Flag indicating C or N -Data
-\ 3OS Then comes the Data or a Dummy in case of A.-Addr
-\ 4OS Last comes the Errorflag
-
-ASMTAB 100 cells + ASMTAB
-DO
-dup I @ 8 rshift =                           \ Opcode ? C1 = ?
-IF                                      \ Now test Addr
-   COPAD C@ 06 =                        \ ,Y-Patch
-   IF dup dup 39 =                      \ if STX
-      swap 21 = or 0=                 \ or LDX not, otherwise
-      IF swap 1 or swap THEN            \ make C a N
-   THEN
-   over
-   COPAD C@
-   cells FOPCADR + @			\ look in FOPCADR
-   swap IF 8 rshift ELSE 0ff and THEN   \ N => 1+ , C => 0+
-   I @ 00f and =
-   I @ 0f0 and CPU& C@ and 0<>             \ CPU-Test
-   and                                 \ 1-Flag if ok
-                                        \ ( 1 x x C1 F --- )
-  IF I ASMTAB - 1 cells /               \ Recalculate Opcode from Offset
-    X c,                                  \ Compile Opcode
-    drop                                \ C1 goes
-    COPAD C@ 01 =                       \ No Operand if A.-Addr
-    IF 2drop
-    ELSE IF X , ELSE X c, THEN             \ Compile Operand
-    THEN
-    drop                                \ drop Errorflag
-    0 0 0 0 LEAVE                       \ Successflag and Dummys
+  COPAD C@ 1 = IF 
+      1 swap 1 swap 1 swap   \      ( 1 1 1 C1 --- )
+  ELSE 1 ROT ROT swap        \      ( 1 N 1 C1 --- )
+      dup FF00 and ROT       \ oder ( 1 C 0 C1 --- )
   THEN
-THEN
-1 cells +LOOP drop 2drop abort" not supported"
-0 COPAD C! ;
+
+  \ TOS C1 is a Token representing the Opcode corresponding to ASMTAB
+  \ SOS Then comes a Flag indicating C or N -Data
+  \ 3OS Then comes the Data or a Dummy in case of A.-Addr
+  \ 4OS Last comes the Errorflag
+  ASMTAB 100 cells + ASMTAB
+  DO
+      dup I @ 8 rshift =                       \ Opcode ? C1 = ?
+      IF                                       \ Now test Addr
+          COPAD C@ 06 = IF                     \ ,Y-Patch
+              dup dup 39 =                     \ if STX
+              swap 21 = or 0=                  \ or LDX not, otherwise
+              IF swap 1 or swap THEN           \ make C a N
+          THEN
+          over COPAD C@
+          cells FOPCADR + @                    \ look in FOPCADR
+          swap IF 8 rshift ELSE 0ff and THEN   \ N => 1+ , C => 0+
+          I @ 00f and =
+          I @ 0f0 and CPU& C@ and 0<>          \ CPU-Test
+          and                                  \ 1-Flag if ok
+                                               \ ( 1 x x C1 F --- )
+          IF I ASMTAB - 1 cells /              \ Recalculate Opcode from Offset
+              X c,                             \ Compile Opcode
+              drop                             \ C1 goes
+              COPAD C@ 01 = IF                 \ No Operand if A.-Addr
+                  2drop
+              ELSE
+                  IF X , ELSE X c, THEN        \ Compile Operand
+              THEN
+              drop                             \ drop Errorflag
+              0 0 0 0 LEAVE                    \ Successflag and Dummys
+          THEN
+      THEN
+      1 cells
+  +LOOP drop 2drop ABORT" not supported" 0 COPAD C! ;
 
 : ADC, 00 FOPC ; : and, 01 FOPC ; : ASL, 02 FOPC ; : CMP, 14 FOPC ;
 : CPX, 15 FOPC ; : CPY, 16 FOPC ; : DEC, 17 FOPC ; : EOR, 1A FOPC ;
@@ -382,7 +386,7 @@ THEN
 \ AAAA:  Addr in hex
 \ BBB:   Opcode
 \ C:     Operand embedded in opcode
-\ DD:    Adressing
+\ DD:    Addressing
 \ EEEE or
 \ EE:    Operand in hex
 \
@@ -454,8 +458,10 @@ CREATE ADTAB3
    2 C,    2 C,    2 C,    2 C,
    2 C,    1 C,    3 C,    3 C,
 
+\ ->COLD.F65
 2D EMIT 3E EMIT
 43 EMIT 4F EMIT 4C EMIT 44 EMIT
 2E EMIT 46 EMIT 36 EMIT 35 EMIT CR
 
+\ end of definitions for assembler wordlist
 previous definitions

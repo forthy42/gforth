@@ -31,6 +31,7 @@ false Constant bigendian
 
 : prims-include  ." Include primitives" cr s" arch/6502/prim.fs" included ;
 : asm-include    ." Include assembler" cr s" arch/6502/asm.fs" included ;
+: >boot ;
 
 >ENVIRON
 
