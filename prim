@@ -445,27 +445,28 @@ n = rp[4];
 \ digit is high-level: 0/0%
 
 move	c_from c_to ucount --		core
-"" If @i{ucount}>0, copy the contents of @i{ucount} address units
-at @i{c-from} to @i{c-to}. @code{move} chooses its copy direction
-to avoid problems when @i{c-from}, @i{c-to} overlap.""
+""Copy the contents of @i{ucount} address units at @i{c-from} to
+@i{c-to}. @code{move} works correctly even if the two areas overlap.""
 memmove(c_to,c_from,ucount);
 /* make an Ifdef for bsd and others? */
 :
  >r 2dup u< IF r> cmove> ELSE r> cmove THEN ;
 
 cmove	c_from c_to u --	string
-"" If @i{u}>0, copy the contents of @i{ucount} characters from
-data space at @i{c-from} to @i{c-to}. The copy proceeds @code{char}-by-@code{char}
-from low address to high address.""
+""Copy the contents of @i{ucount} characters from data space at
+@i{c-from} to @i{c-to}. The copy proceeds @code{char}-by-@code{char}
+from low address to high address; i.e., for overlapping areas it is
+safe if @i{c-to}=<@i{c-from}.""
 while (u-- > 0)
   *c_to++ = *c_from++;
 :
  bounds ?DO  dup c@ I c! 1+  LOOP  drop ;
 
 cmove>	c_from c_to u --	string	c_move_up
-"" If @i{u}>0, copy the contents of @i{ucount} characters from
-data space at @i{c-from} to @i{c-to}. The copy proceeds @code{char}-by-@code{char}
-from high address to low address.""
+""Copy the contents of @i{ucount} characters from data space at
+@i{c-from} to @i{c-to}. The copy proceeds @code{char}-by-@code{char}
+from high address to low address; i.e., for overlapping areas it is
+safe if @i{c-to}>=@i{c-from}.""
 while (u-- > 0)
   c_to[u] = c_from[u];
 :

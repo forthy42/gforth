@@ -27,9 +27,6 @@
 [IFUNDEF] allot
 [IFUNDEF] forthstart
 : allot ( n -- ) \ core
-    \G Reserve or release @i{n} address units of data space; @i{n}
-    \G is a signed number. There are restrictions on releasing data
-    \G space.
     dup unused u> -8 and throw
     dp +! ;
 [THEN]
@@ -38,9 +35,11 @@
 \ we default to this version if we have nothing else 05May99jaw
 [IFUNDEF] allot
 : allot ( n -- ) \ core
-    \G Reserve or release @i{n} address units of data space; @i{n}
-    \G is a signed number. There are restrictions on releasing data
-    \G space.
+    \G Reserve or release @i{n} address units of data space without
+    \G initialization; @i{n} is a signed number.  In ANS Forth you can
+    \G only deallocate memory from the current contiguous region in
+    \G this way.  In Gforth you can deallocate anything in this way
+    \G but named words.  The system does not check this restriction.
     here +
     dup 1- usable-dictionary-end forthstart within -8 and throw
     dp ! ;
@@ -349,9 +348,6 @@ DOES>
 \ \ Create Variable User Constant                        	17mar93py
 
 : Alias    ( xt "name" -- ) \ gforth
-    \ 29Apr1999nac The stack comment for this was cfa -- I changed it to xt because
-    \ they are the same thing in Gforth, and xt is a more appropriate thing to
-    \ document.
     Header reveal
     alias-mask lastflags creset
     dup A, lastcfa ! ;

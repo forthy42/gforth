@@ -156,12 +156,12 @@ Goals of Gforth
 
 Gforth Environment
 
-* Invoking Gforth::
-* Leaving Gforth::
-* Command-line editing::
+* Invoking Gforth::             Getting in
+* Leaving Gforth::              Getting out
+* Command-line editing::        
 * Upper and lower case::
-* Environment variables::
-* Gforth Files::
+* Environment variables::       ..that affect how Gforth starts up
+* Gforth Files::                What gets installed and where
 
 An Introduction to ANS Forth
 
@@ -206,7 +206,7 @@ Arithmetic
 * Bitwise operations::          
 * Double precision::            Double-cell integer arithmetic
 * Numeric comparison::
-* Mixed precision::             operations with single and double-cell integers
+* Mixed precision::             Operations with single and double-cell integers
 * Floating Point::              
 
 Stack Manipulation
@@ -219,28 +219,29 @@ Stack Manipulation
 
 Memory
 
-* Reserving Data Space::
-* Memory Access::      
-* Address Arithmetic::          
-* Memory Blocks::
-* Dynamic Allocation::        
+* Memory model::                
+* Dictionary allocation::       
+* Heap Allocation::             
+* Memory Access::               
+* Address arithmetic::          
+* Memory Blocks::               
 
 Control Structures
 
-* Selection::                   
-* Simple Loops::                
-* Counted Loops::               
-* Arbitrary control structures::  
-* Calls and returns::           
+* Selection::                   IF.. ELSE.. ENDIF
+* Simple Loops::                BEGIN..
+* Counted Loops::               DO
+* Arbitrary control structures::
+* Calls and returns::
 * Exception Handling::          
 
 Defining Words
 
-* Simple Defining Words::       
-* Colon Definitions::           
-* User-defined Defining Words::  
-* Supplying names::             
-* Interpretation and Compilation Semantics::  
+* Simple Defining Words::       Variables, values and constants
+* Colon Definitions::
+* User-defined Defining Words::
+* Supplying names::
+* Interpretation and Compilation Semantics::
 
 The Text Interpreter
 
@@ -265,11 +266,11 @@ Files
 
 Other I/O
 
-* Simple numeric output::
-* Formatted numeric output::
-* String Formats::
-* Displaying characters and strings::
-* Input::
+* Simple numeric output::       Predefined formats
+* Formatted numeric output::    Formatted (pictured) output
+* String Formats::              How Forth stores strings in memory
+* Displaying characters and strings:: Other stuff
+* Input::                       Input
 
 Programming Tools
 
@@ -410,11 +411,11 @@ Image Files
 
 * Image Licensing Issues::      Distribution terms for images.
 * Image File Background::       Why have image files?
-* Non-Relocatable Image Files::  don't always work.
+* Non-Relocatable Image Files::   don't always work.
 * Data-Relocatable Image Files::  are better.
-* Fully Relocatable Image Files::  better yet.
+* Fully Relocatable Image Files:: better yet.
 * Stack and Dictionary Sizes::  Setting the default sizes for an image.
-* Running Image Files::         @code{gforth -i @var{file}} or @var{file}.
+* Running Image Files::         @code{gforth -i @i{file}} or @i{file}.
 * Modifying the Startup Sequence::  and turnkey applications.
 
 Fully Relocatable Image Files
@@ -2527,10 +2528,7 @@ doc-sm/rem
 @xref{Number Conversion} for the rules used by the text interpreter for
 recognising floating-point numbers.
 
-@cindex angles in trigonometric operations
-@cindex trigonometric operations
-Angles in floating point operations are given in radians (a full circle
-has 2 pi radians). Gforth has a separate floating point
+Gforth has a separate floating point
 stack, but the documentation uses the unified notation.
 
 @cindex floating-point arithmetic, pitfalls
@@ -2564,6 +2562,17 @@ doc-fln
 doc-flnp1
 doc-flog
 doc-falog
+doc-f2*
+doc-f2/
+doc-1/f
+doc-precision
+doc-set-precision
+
+@cindex angles in trigonometric operations
+@cindex trigonometric operations
+Angles in floating point operations are given in radians (a full circle
+has 2 pi radians).
+
 doc-fsin
 doc-fcos
 doc-fsincos
@@ -2580,12 +2589,8 @@ doc-facosh
 doc-fatanh
 doc-pi
 
-doc-f2*
-doc-f2/
-doc-1/f
-doc-precision
-doc-set-precision
-
+@cindex equality of floats
+@cindex floating-point comparisons
 One particular problem with floating-point arithmetic is that comparison
 for equality often fails when you would expect it to succeed.  For this
 reason approximate equality is often preferred (but you still have to
@@ -2631,32 +2636,12 @@ A floating point stack -- for floating point numbers.
 @cindex return stack
 @item
 A return stack -- for storing the return addresses of colon
-definitions and other data.
+definitions and other (non-FP) data.
 
 @cindex locals stack
 @item
 A locals stack for storing local variables.
 @end itemize
-
-Whilst every sane Forth has a separate floating-point stack, it is not
-strictly required; an ANS Forth system could theoretically keep
-floating-point numbers on the data stack. As an additional difficulty,
-you don't know how many cells a floating-point number takes. It is
-reportedly possible to write words in a way that they work also for a
-unified stack model, but we do not recommend trying it. Instead, just
-say that your program has an environmental dependency on a separate
-floating-point stack.
-
-doc-floating-stack
-
-@cindex return stack and locals
-@cindex locals and return stack
-A Forth system is allowed to keep local variables on the
-return stack. This is reasonable, as local variables usually eliminate
-the need to use the return stack explicitly. So, if you want to produce
-a standard compliant program and you are using local variables in a
-word, forget about return stack manipulations in that word (refer to the
-standard document for the exact rules).
 
 @menu
 * Data stack::                  
@@ -2695,6 +2680,17 @@ doc-2rot
 @cindex floating-point stack manipulation words
 @cindex stack manipulation words, floating-point stack
 
+Whilst every sane Forth has a separate floating-point stack, it is not
+strictly required; an ANS Forth system could theoretically keep
+floating-point numbers on the data stack. As an additional difficulty,
+you don't know how many cells a floating-point number takes. It is
+reportedly possible to write words in a way that they work also for a
+unified stack model, but we do not recommend trying it. Instead, just
+say that your program has an environmental dependency on a separate
+floating-point stack.
+
+doc-floating-stack
+
 doc-fdrop
 doc-fnip
 doc-fdup
@@ -2708,6 +2704,15 @@ doc-frot
 @subsection Return stack
 @cindex return stack manipulation words
 @cindex stack manipulation words, return stack
+
+@cindex return stack and locals
+@cindex locals and return stack
+A Forth system is allowed to keep local variables on the
+return stack. This is reasonable, as local variables usually eliminate
+the need to use the return stack explicitly. So, if you want to produce
+a standard compliant program and you are using local variables in a
+word, forget about return stack manipulations in that word (refer to the
+standard document for the exact rules).
 
 doc->r
 doc-r>
@@ -2728,18 +2733,15 @@ doc-2rdrop
 @cindex stack pointer manipulation words
 
 doc-sp0
-doc-s0
 doc-sp@
 doc-sp!
 doc-fp0
 doc-fp@
 doc-fp!
 doc-rp0
-doc-r0
 doc-rp@
 doc-rp!
 doc-lp0
-doc-l0
 doc-lp@
 doc-lp!
 
@@ -2747,36 +2749,64 @@ doc-lp!
 @section Memory
 @cindex memory words
 
-@cindex dictionary
-Forth definitions are organised in memory structures that are
-collectively called the @dfn{dictionary}. The dictionary can be
-considered as three logical memory regions:
+@menu
+* Memory model::                
+* Dictionary allocation::       
+* Heap Allocation::             
+* Memory Access::               
+* Address arithmetic::          
+* Memory Blocks::               
+@end menu
 
-@itemize @bullet
-@item
-@cindex code space
-@cindex code dictionary
-Code space, also known as the @dfn{code dictionary}.
-@item
-@cindex name space
-@cindex name dictionary
-Name space, also known as the @dfn{name dictionary}@footnote{Sometimes,
-the term @dfn{dictionary} is used simply to refer to the name
-dictionary, because it is the one region that is used for looking up
-names, just as you would in a conventional dictionary.}.
-@item
-@cindex data space
-Data space
-@end itemize
+@node Memory model, Dictionary allocation, Memory, Memory
+@subsection ANS Forth and Gforth memory models
+
+@c The ANS Forth description is a mess (e.g., is the heap part of
+@c the dictionary?), so let's not stick to closely with it.
+
+ANS Forth considers a Forth system as consisting of several memories, of
+which only @dfn{data space} is managed and accessible with the memory
+words.  Memory not necessarily in data space includes the stacks, the
+code (called code space) and the headers (called name space). In Gforth
+everything is in data space, but the code for the primitives is usually
+read-only.
+
+Data space is divided into a number of areas: The (data space portion of
+the) dictionary@footnote{Sometimes, the term @dfn{dictionary} is used to
+refer to the search data structure embodied in word lists and headers,
+because it is used for looking up names, just as you would in a
+conventional dictionary.}, the heap, and a number of system-allocated
+buffers.
+
+In ANS Forth data space is also divided into contiguous regions.  You
+can only use address arithmetic within a contiguous region, not between
+them.  Usually each allocation gives you one contiguous region, but the
+Dictionary allocation words have additional rules (@pxref{Dictionary
+allocation}).
+
+Gforth provides one big address space, and address arithmetic can be
+performed between any addresses. However, in the dictionary headers or
+code are interleaved with data, so almost the only contiguous data space
+regions there are those described by ANS Forth as contiguous; but you
+can be sure that the dictionary is allocated towards increasing
+addresses even between contiguous regions.  The memory order of
+allocations in the heap is platform-dependent (and possibly different
+from one run to the next).
+
+@subsubsection ANS Forth dictionary details
+
+@c !! I have deleted some of the stuff this section refers to - anton
+
+This section is just informative, you can skip it if you are in a hurry.
 
 When you create a colon definition, the text interpreter compiles the
-code for the definition into the code dictionary and compiles the name
-of the definition into the name dictionary, together with other
+code for the definition into the code space and compiles the name
+of the definition into the header space, together with other
 information about the definition (such as its execution token).
 
 When you create a variable, the execution of @code{variable} will
-compile some code, assign once cell in data space, and compile the name
-of the variable into the name dictionary.
+compile some code, assign one cell in data space, and compile the name
+of the variable into the header space.
 
 @cindex memory regions - relationship between them
 ANS Forth does not specify the relationship between the three memory
@@ -2801,9 +2831,9 @@ For a Forth system that runs from RAM under a general-purpose operating
 system, it can be convenient to interleave name, code and data spaces in
 a single contiguous memory region. This organisation can be
 memory-efficient (for example, because the relationship between the name
-dictionary entry and the associated code dictionary entry can be
+dictionary entry and the associated code space entry can be
 implicit, rather than requiring an explicit memory pointer to reference
-from the name dictionary and the code dictionary). This is the
+from the header space and the code space). This is the
 organisation used by Gforth, as this example@footnote{The addresses
 in the example have been truncated to fit it onto the page, and the
 addresses and data shown will not match the output from your system} shows:
@@ -2825,7 +2855,7 @@ For a high-performance system running on a modern RISC processor with a
 modified Harvard architecture (one that has a unified main memory but
 separate instruction and data caches), it is desirable to separate
 processor instructions from processor data. This encourages a high cache
-density and therefore a high cache hit rate. The Forth code dictionary
+density and therefore a high cache hit rate. The Forth code space
 is not necessarily made up entirely of processor instructions; its
 nature is dependent upon the Forth implementation. 
 
@@ -2841,7 +2871,7 @@ accessible.
 Microprocessors exist that run Forth (or many of the primitives required
 to implement the Forth virtual machine efficiently) directly. On these
 processors, the relationship between name, code and data spaces may be
-imposed as a side-effect of the microarchitecture of the processor.
+imposed as a side-effect of the architecture of the processor.
 
 @item
 A Forth compiler that executes from ROM on an embedded system needs its
@@ -2851,92 +2881,40 @@ space can be mapped to a RAM area.
 @item 
 A Forth compiler that runs on an embedded system may have a requirement
 for a small memory footprint. On such a system it can be useful to
-separate the name space from the data and code spaces; once the
-application has been compiled, the name dictionary is no longer
+separate the header space from the data and code spaces; once the
+application has been compiled, the header space is no longer
 required@footnote{more strictly speaking, most applications can be
-designed so that this is the case}. The name dictionary can be deleted
+designed so that this is the case}. The header space can be deleted
 entirely, or could be stored in memory on a remote @i{host} system for
 debug and development purposes. In the latter case, the compiler running
 on the @i{target} system could implement a protocol across a
-communication link that would allow it to interrogate the name dictionary.
+communication link that would allow it to interrogate the header space.
 @end itemize
 
-@menu
-* Reserving Data Space::
-* Memory Access::
-* Address Arithmetic::
-* Memory Blocks::
-* Dynamic Allocation::
-@end menu
 
-
-@node Reserving Data Space, Memory Access, Memory, Memory
-@subsection Reserving Data Space
+@node Dictionary allocation, Heap Allocation, Memory model, Memory
+@subsection Dictionary allocation
 @cindex reserving data space
 @cindex data space - reserving some
 
-@cindex data space pointer - contiguous regions
-Data space may be reserved as individual chars or cells or in contiguous
-regions. These are the rules for reserving contiguous regions in a
-Standard (i.e., portable) way:
-@itemize @bullet
-@item
-The value of the data-space pointer, @code{here}, always defines the
-beginning of a contiguous region of data space.
+Dictionary allocation is a stack-oriented allocation scheme, i.e., if
+you want to deallocate X, you also deallocate everything
+allocated after X.
 
-@item
-@code{CREATE} establishes the beginning of a contiguous region of data
-space (the @code{CREATE}d definition returns the initial address of the
-region).
+The allocations using the words below are contiguous and grow the region
+towards increasing addresses.  Other words that allocate dictionary
+memory of any kind (i.e., defining words including @code{:noname}) end
+the contiguous region and start a new one.
 
-@item
-@code{variable} does @i{not} establish the beginning of a contiguous
-region in data space; @code{variable} followed by @code{allot} is not
-guaranteed to allocate data space region that is contiguous with the
-storage allocated by @code{variable}. Instead, use @code{create} --
-@xref{Simple Defining Words} for examples.
+In ANS Forth only @code{create}d words are guaranteed to produce an
+address that is the start of the following contiguous region.  In
+particular, the cell allocated by @code{variable} is not guaranteed to
+be contiguous with following @code{allot}ed memory.
 
-@item
-Successive calls to @code{allot}, @code{,} (comma), @code{2,} (2-comma),
-@code{c,} (c-comma) and @code{align} reserve a single contiguous region
-in data space. The contiguity of the region is interrupted by compiling
-(or removing) definitions from the dictionary.
+You can deallocate memory by using @code{allot} with a negative argument
+(with some restrictions, see @code{allot}). For larger deallocations use
+@code{marker}.
 
-@item
-The most recently reserved contiguous region may be released by calling
-@code{allot} with a negative argument, provided that the region has not
-been interrupted by compiling (or removing) definitions from the
-dictionary.
-@end itemize
-
-@cindex data space pointer - alignment
-These factors affect the alignment of @code{here}, the data
-space pointer:
-
-@itemize @bullet
-@item
-If the data-space pointer is aligned@footnote{In ANS Forth-speak,
-@i{aligned} implictly means @code{CELL}-aligned.} before an
-@code{allot}, and a whole number of characters are reserved or released, it
-will remain aligned after the @code{allot}.
-
-@item
-If the data-space pointer is character-aligned before an @code{allot},
-and a whole number of cells are reserved or released, it will remain
-character-aligned after the @code{allot}.
-
-@item
-The initial contents of data space reserved using @code{allot} is
-undefined.
-
-@item
-Definitions created by @code{create}, @code{variable}, @code{2variable}
-return aligned addresses.
-
-@item
-After a definition is compiled or @code{align} is executed, the data
-space pointer is guaranteed to be aligned.
-@end itemize
 
 doc-here
 doc-unused
@@ -2949,8 +2927,42 @@ doc-2,
 doc-udp
 doc-uallot
 
+Memory accesses have to be aligned (@pxref{Address arithmetic}). So of
+course you should allocate memory in an aligned way, too. I.e., before
+allocating allocating a cell, @code{here} must be cell-aligned, etc.
+The words below align @code{here} if it is not already.  Basically it is
+only already aligned for a type, if the last allocation was a multiple
+of the size of this type and if @code{here} was aligned for this type
+before.
 
-@node Memory Access, Address Arithmetic, Reserving Data Space, Memory
+After freshly @code{create}ing a word, @code{here} is @code{align}ed in
+ANS Forth (@code{maxalign}ed in Gforth).
+
+doc-align
+doc-falign
+doc-sfalign
+doc-dfalign
+doc-maxalign
+doc-cfalign
+
+
+@node Heap Allocation, Memory Access, Dictionary allocation, Memory
+@subsection Heap allocation
+@cindex heap allocation
+@cindex dynamic allocation of memory
+@cindex memory-allocation word set
+
+Heap allocation supports deallocation of allocated memory in any
+order. Dictionary allocation is not affected by it (i.e., it does not
+end a contiguous region). In Gforth, these words are implemented using
+the standard C library calls malloc(), free() and resize().
+
+doc-allocate
+doc-free
+doc-resize
+
+
+@node Memory Access, Address arithmetic, Heap Allocation, Memory
 @subsection Memory Access
 @cindex memory access words
 
@@ -2968,9 +2980,13 @@ doc-sf!
 doc-df@
 doc-df!
 
-@node Address Arithmetic, Memory Blocks, Memory Access, Memory
-@subsection Address Arithmetic
+@node Address arithmetic, Memory Blocks, Memory Access, Memory
+@subsection Address arithmetic
 @cindex address arithmetic words
+
+Address arithmetic is the foundation on which data structures like
+arrays, records (@pxref{Structures}) and objects (@pxref{Object-oriented
+Forth}) are built.
 
 ANS Forth does not specify the sizes of the data types. Instead, it
 offers a number of words for computing sizes and doing address
@@ -3008,28 +3024,22 @@ doc-char+
 doc-cells
 doc-cell+
 doc-cell
-doc-align
 doc-aligned
 doc-floats
 doc-float+
 doc-float
-doc-falign
 doc-faligned
 doc-sfloats
 doc-sfloat+
-doc-sfalign
 doc-sfaligned
 doc-dfloats
 doc-dfloat+
-doc-dfalign
 doc-dfaligned
-doc-maxalign
 doc-maxaligned
-doc-cfalign
 doc-cfaligned
 doc-address-unit-bits
 
-@node Memory Blocks, Dynamic Allocation, Address Arithmetic, Memory
+@node Memory Blocks,  , Address arithmetic, Memory
 @subsection Memory Blocks
 @cindex memory block words
 @cindex character strings - moving and copying
@@ -3038,16 +3048,9 @@ Memory blocks often represent character strings; @xref{String Formats}
 for ways of storing character strings in memory. @xref{Displaying
 characters and strings} for other string-processing words.
 
-Some of these words work on address units (increments of @code{CELL}),
-and expect a @code{CELL}-aligned address. Others work on character units
-(increments of @code{CHAR}), and expect a @code{CHAR}-aligned
-address. Choose the correct operation depending upon your data type. If
-you are moving a block of memory (for example, a region reserved by
-@code{allot}) it is safe to use @code{move}, and it should be faster
-than using @code{cmove}. If you are moving (for example) a string
-compiled using @code{S"}, it is not portable to use @code{move}; the
-alignment of the string in memory could change, and the relationship
-between @code{CELL} and @code{CHAR} could change.
+Some of these words work on address units. Others work on character
+units (increments of @code{CHAR}), and expect a @code{CHAR}-aligned
+address. Choose the correct operation depending upon your data type.
 
 When copying characters between overlapping memory regions, choose
 carefully between @code{cmove} and @code{cmove>}.
@@ -3071,20 +3074,6 @@ doc--trailing
 doc-/string
 
 @comment TODO examples
-
-@node Dynamic Allocation, ,Memory Blocks, Memory
-@subsection Dynamic Allocation of Memory
-@cindex dynamic allocation of memory
-@cindex memory-allocation word set
-
-The ANS Forth memory-allocation word set allows memory regions to be
-dynamically assigned, resized and released without affecting the data
-space pointer. In Gforth, these words are implemented using
-the standard C library calls malloc(), free() and resize().
-
-doc-allocate
-doc-free
-doc-resize
 
 
 @node Control Structures, Defining Words, Memory, Words
@@ -3799,7 +3788,7 @@ assembler or a #define in C) only exists at compile-time; in the
 executable program the constant has been translated into an absolute
 number and, unless you are using a symbolic debugger, it's impossible to
 know what abstract thing that number represents. In Forth a constant has
-an entry in the name dictionary and remains there after the code that
+an entry in the header space and remains there after the code that
 uses it has been defined. In fact, it must remain in the dictionary
 since it has run-time duties to perform. For example:
 
@@ -5063,11 +5052,11 @@ doc-[REPEAT]
 This section describes the creation and use of tokens that represent
 words.
 
-Named words have information stored in their name dictionary entries to
+Named words have information stored in their header space entries to
 indicate any non-default semantics (@pxref{Interpretation and
 Compilation Semantics}). The semantics can be modified, using
 @code{immediate} and/or @code{compile-only}, at the time that the words
-are defined. Unnamed words have (by definition) no name dictionary
+are defined. Unnamed words have (by definition) no header space
 entry, and therefore must have default semantics.
 
 Named words have interpretation and compilation semantics. Unnamed words
@@ -5158,11 +5147,11 @@ doc-name>string
 @node Word Lists, Environmental Queries, Tokens for Words, Words
 @section Word Lists
 @cindex word lists
-@cindex name dictionary
+@cindex header space
 
 @cindex wid
 All definitions other than those created by @code{:noname} have an entry
-in the name dictionary. The name dictionary is fragmented into a number
+in the header space. The header space is fragmented into a number
 of parts, called @dfn{word lists}. A word list is identified by a
 cell-sized word list identifier (@i{wid}) in much the same way as a
 file is identified by a file handle. The numerical value of the wid has
@@ -5176,7 +5165,7 @@ word list called @code{FORTH-WORDLIST}.
 
 @cindex search order stack
 Forth maintains a stack of word lists, representing the @dfn{search
-order}.  When the name dictionary is searched (for example, when
+order}.  When the header space is searched (for example, when
 attempting to find a word's execution token during compilation), only
 those word lists that are currently in the search order are
 searched. The most recently-defined word in the word list at the top of
@@ -5238,7 +5227,7 @@ Here are some reasons for using multiple word lists:
 
 @itemize @bullet
 @item
-To improve compilation speed by reducing the number of name dictionary
+To improve compilation speed by reducing the number of header space
 entries that must be searched. This is achieved by creating a new
 word list that contains all of the definitions that are used in the
 definition of a Forth system but which would not usually be used by
@@ -5316,8 +5305,8 @@ ANS Forth introduced the idea of ``environmental queries'' as a way
 for a program running on a system to determine certain characteristics of the system.
 The Standard specifies a number of strings that might be recognised by a system.
 
-The Standard requires that the name space used for environmental queries
-be distinct from the name space used for definitions.
+The Standard requires that the header space used for environmental queries
+be distinct from the header space used for definitions.
 
 Typically, environmental queries are supported by creating a set of
 definitions in a word list that is @i{only} used during environmental
@@ -6979,7 +6968,7 @@ possibly John Hayes). A version of this section has been published in
 @cindex structures using address arithmetic
 If we want to use a structure containing several fields, we could simply
 reserve memory for it, and access the fields using address arithmetic
-(@pxref{Address Arithmetic}). As an example, consider a structure with
+(@pxref{Address arithmetic}). As an example, consider a structure with
 the following fields
 
 @table @code
@@ -9125,7 +9114,7 @@ necessary.
 
 @item addressing a region not inside the various data spaces of the forth system:
 @cindex Invalid memory address
-The stacks, code space and name space are accessible. Machine code space is
+The stacks, code space and header space are accessible. Machine code space is
 typically readable. Accessing other addresses gives results dependent on
 the operating system. On decent systems: @code{-9 throw} (Invalid memory
 address).
