@@ -1058,13 +1058,13 @@ void register_branchinfo(Label source, Cell targetptr)
   nbranchinfos++;
 }
 
-Cell *compile_prim1arg(PrimNum p)
+Address compile_prim1arg(PrimNum p, Cell **argp)
 {
-  Address old_code_here=code_here;
+  Address old_code_here=append_prim(p);
 
   assert(vm_prims[p]==priminfos[p].start);
-  append_prim(p);
-  return (Cell*)(old_code_here+priminfos[p].immargs[0].offset);
+  *argp = (Cell*)(old_code_here+priminfos[p].immargs[0].offset);
+  return old_code_here;
 }
 
 Cell *compile_call2(Cell targetptr)
@@ -1114,13 +1114,15 @@ Cell compile_prim_dyn(PrimNum p, Cell *tcp)
   
   assert(p<npriminfos);
   if (p==N_execute || p==N_perform || p==N_lit_perform) {
-    next_code_target = compile_prim1arg(N_set_next_code);
+    codeaddr = (Cell)compile_prim1arg(N_set_next_code, &next_code_target);
   }
   if (p==N_call) {
     next_code_target = compile_call2(tcp[1]);
   } else if (p==N_does_exec) {
     struct doesexecinfo *dei = &doesexecinfos[ndoesexecinfos++];
-    *compile_prim1arg(N_lit) = (Cell)PFA(tcp[1]);
+    Cell *arg;
+    codeaddr = compile_prim1arg(N_lit,&arg);
+    *arg = (Cell)PFA(tcp[1]);
     /* we cannot determine the callee now (last_start[1] may be a
        forward reference), so just register an arbitrary target, and
        register in dei that we need to fix this before resolving
@@ -1129,8 +1131,10 @@ Cell compile_prim_dyn(PrimNum p, Cell *tcp)
     dei->xt = (Cell *)(tcp[1]);
     next_code_target = compile_call2(0);
   } else if (!is_relocatable(p)) {
-    next_code_target = compile_prim1arg(N_set_next_code);
-    set_rel_target(compile_prim1arg(N_branch),vm_prims[p]);
+    Cell *branch_target;
+    codeaddr = compile_prim1arg(N_set_next_code, &next_code_target);
+    compile_prim1arg(N_branch,&branch_target);
+    set_rel_target(branch_target,vm_prims[p]);
   } else {
     unsigned j;
     Address old_code_here = append_prim(p);
