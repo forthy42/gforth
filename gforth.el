@@ -92,6 +92,16 @@ OBS! All words in forth-negatives must be surrounded by spaces.")
 (define-key forth-mode-map "\M-q" 'forth-fill-paragraph)
 (define-key forth-mode-map "\e." 'forth-find-tag)
 
+;setup for C-h C-i to work
+(if (fboundp 'info-lookup-add-help)
+    (info-lookup-add-help
+     :topic 'symbol
+     :mode 'forth-mode
+     :regexp "[^ 	
+]+"
+     :ignore-case t
+     :doc-spec '(("(gforth)Name Index" nil "`" "'  "))))
+
 (load "etags")
 
 (defun forth-find-tag (tagname &optional next-p regexp-p)

@@ -674,7 +674,7 @@ html:		$(GFORTH_TEXI)
 doc/gforth.txt:	$(GFORTH_TEXI)
 		-cd doc; $(MAKEINFO) --no-headers --no-split gforth.texi >gforth.txt
 
-doc:		doc/gforth.ps html doc/gforth.txt
+doc:		info doc/gforth.ps html doc/gforth.txt
 
 # For an explanation of the following Makefile rules, see node
 # `Automatic Remaking' in GNU Autoconf documentation.

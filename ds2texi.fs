@@ -133,6 +133,13 @@ create description-buffer 4096 chars allot
     ." @cindex "
     ." @code{" r@ doc-name 2@ typetexi ." }"
     cr
+    r@ doc-name 2@ drop c@ [char] : <> if
+	\ cut out words starting with :, info-lookup cannot handle them
+	\ !! deal with : by replacing it here and in info-lookup?
+	." @kindex "
+	r@ doc-name 2@ typetexi
+	cr
+    endif
     ." @format" cr
     ." @code{" r@ doc-name 2@ typetexi ." }       "
     ." @i{" r@ doc-stack-effect 2@ type ." }       "

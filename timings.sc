@@ -27,6 +27,9 @@ format Y 10 0 0
 format Z 10 0 0
 format AC 10 0 0
 format AD 10 0 0
+hide M
+hide N
+hide V
 label B0 = "gforth"
 label C0 = "f2c -O3 .."
 label D0 = "timbre"
@@ -59,7 +62,7 @@ let H1 = 11.2
 let I1 = 12.01
 let J1 = 6.61
 let K1 = 7.64
-let L1 = 29.89
+let L1 = 26.19
 let M1 = 31.9
 let N1 = 10.91
 let O1 = 41.49
@@ -80,7 +83,7 @@ let H2 = 11.1
 let I2 = 10.53
 let J2 = 34.12
 let K2 = 7.71
-let L2 = 35.42
+let L2 = 29.92
 let M2 = 35.6
 let N2 = 11.94
 let O2 = 46.397
@@ -100,7 +103,7 @@ let H3 = 8.8
 let I3 = 9.29
 let J3 = 16.66
 let K3 = 7.98
-let L3 = 26.96
+let L3 = 23.8
 let M3 = 28.3
 let N3 = 11.24
 let O3 = 39.677
@@ -120,7 +123,7 @@ let H4 = 10.5000000004768
 let I4 = 7.56
 let J4 = 11.74
 let K4 = 6.6
-let L4 = 34.59
+let L4 = 30.18
 let M4 = 36.7
 let N4 = 13.13
 let O4 = 52.725
@@ -342,13 +345,14 @@ label M16 = "ITC"
 label N16 = "P133"
 rightstring O16 = "Win32-"
 rightstring P16 = "NT"
+rightstring R16 = "eforth"
 rightstring T16 = "This-"
 rightstring W16 = "abs.\ time"
 rightstring B17 = "time"
 rightstring C17 = "opt."
 rightstring D17 = "Timbre"
 rightstring E17 = "no opt."
-rightstring F17 = "coded C"
+rightstring F17 = "coded"
 rightstring G17 = "Forth"
 rightstring H17 = "iForth"
 rightstring I17 = "Forth"
@@ -359,8 +363,8 @@ rightstring M17 = "Gforth"
 rightstring N17 = "Gforth"
 rightstring O17 = "Forth"
 rightstring P17 = "Forth"
-rightstring Q17 = "PFE"
-rightstring R17 = "PFE"
+rightstring Q17 = "eforth"
+rightstring R17 = "+opt"
 rightstring S17 = "PFE"
 rightstring T17 = "Forth"
 rightstring U17 = "TILE"
@@ -477,7 +481,7 @@ leftstring B24 = "time"
 rightstring C24 = "opt."
 rightstring D24 = "Timbre"
 rightstring E24 = "no opt."
-rightstring F24 = "coded C"
+rightstring F24 = "coded"
 rightstring G24 = "Forth"
 rightstring H24 = "iForth"
 rightstring I24 = "Forth"
@@ -587,4 +591,4 @@ let U28 = U4/$L4
 let V28 = V4/$L4
 let W28 = C4
 fmt W28 "##0.00s"
-goto A2
+goto H18

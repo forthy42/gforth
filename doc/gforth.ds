@@ -149,9 +149,11 @@ personal machines. This manual corresponds to version @value{VERSION}.
 * Origin::                      Authors and ancestors of Gforth
 * Forth-related information::   Books and places to look on the WWW
 * Word Index::                  An item for each Forth word
+* Name Index::                  Forth words, only names listed
 * Concept Index::               A menu covering many topics
 
-@detailmenu --- The Detailed Node Listing ---
+@detailmenu
+ --- The Detailed Node Listing ---
 
 Goals of Gforth
 
@@ -231,8 +233,8 @@ Memory
 
 Control Structures
 
-* Selection::                   IF.. ELSE.. ENDIF
-* Simple Loops::                BEGIN..
+* Selection::                   IF ... ELSE ... ENDIF
+* Simple Loops::                BEGIN ...
 * Counted Loops::               DO
 * Arbitrary control structures::
 * Calls and returns::
@@ -314,12 +316,13 @@ The @file{objects.fs} model
 
 * Properties of the Objects model::  
 * Basic Objects Usage::         
-* The Objects base class::            
+* The Objects base class::      
 * Creating objects::            
 * Object-Oriented Programming Style::  
 * Class Binding::               
 * Method conveniences::         
 * Classes and Scoping::         
+* Dividing classes::            
 * Object Interfaces::           
 * Objects Implementation::      
 * Objects Glossary::            
@@ -9651,10 +9654,10 @@ undefined OS errors produce a message with a strange number; e.g.,
 @cindex keyboard events, encoding in @code{EKEY}
 @cindex @code{EKEY}, encoding of keyboard events
 Keys corresponding to ASCII characters are encoded as ASCII characters.
-Other keys are encoded with the constants \code{k-left}, \code{k-right},
-\code{k-up}, \code{k-down}, \code{k-home}, \code{k-end}, \code{k1},
-\code{k2}, \code{k3}, \code{k4}, \code{k5}, \code{k6}, \code{k7},
-\code{k8}, \code{k9}, \code{k10}, \code{k11}, \code{k12}.
+Other keys are encoded with the constants @code{k-left}, @code{k-right},
+@code{k-up}, @code{k-down}, @code{k-home}, @code{k-end}, @code{k1},
+@code{k2}, @code{k3}, @code{k4}, @code{k5}, @code{k6}, @code{k7},
+@code{k8}, @code{k9}, @code{k10}, @code{k11}, @code{k12}.
 
 
 @item duration of a system clock tick:
@@ -10310,6 +10313,9 @@ Comment paragraph filling (@kbd{M-q})
 Commenting (@kbd{C-x \}) and uncommenting (@kbd{C-u C-x \}) of regions
 @item
 Removal of debugging tracers (@kbd{C-x ~}, @pxref{Debugging}).
+@item
+Support of the @code{info-lookup} feature for looking up the
+documentation of a word.
 @end itemize
 
 I left the stuff I do not use alone, even though some of it only makes
@@ -10339,6 +10345,15 @@ and one for your program, @pxref{Select Tags Table,,Selecting a Tags
 Table,emacs, Emacs Manual}). The TAGS file for the preloaded words is
 @file{$(datadir)/gforth/$(VERSION)/TAGS} (e.g.,
 @file{/usr/local/share/gforth/0.2.0/TAGS}).
+
+@cindex viewing the documentation of a word in Emacs
+@cindex context-sensitive help
+Moreover, for words documented in this manual, you can look up the
+glossary entry quickly by using @kbd{C-h TAB}
+(@code{info-lookup-symbol}, see @pxref{Documentation, ,Documentation
+Commands, emacs, Emacs Manual}).  This feature requires Emacs 20.3 or
+later.
+
 
 @cindex @file{.emacs}
 To get all these benefits, add the following lines to your @file{.emacs}
@@ -11514,7 +11529,7 @@ EuroForth -- this European conference takes place annually.
 @end itemize
 
 
-@node Word Index, Concept Index, Forth-related information, Top
+@node Word Index, Name Index, Forth-related information, Top
 @unnumbered Word Index
 
 This index is a list of Forth words that have ``glossary'' entries
@@ -11523,7 +11538,15 @@ wordset.
 
 @printindex fn
 
-@node Concept Index,  , Word Index, Top
+@node Name Index, Concept Index, Word Index, Top
+@unnumbered Name Index
+
+This index is a list of Forth words that have ``glossary'' entries
+within this manual.
+
+@printindex ky
+
+@node Concept Index,  , Name Index, Top
 @unnumbered Concept and Word Index
 
 Not all entries listed in this index are present verbatim in the
