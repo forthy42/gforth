@@ -120,6 +120,32 @@ VARIABLE Colors Colors on
 
 ' (.string) IS .string
 
+: c-\type ( c-addr u -- )
+    \ type string in \-escaped form
+    begin
+	dup while
+	    2dup newline string-prefix? if
+		'\ cemit 'n cemit
+		newline nip /string
+	    else
+		over c@
+		dup '" = over '\ = or if
+		    '\ cemit cemit
+		else
+		    dup bl 127 within if
+			cemit
+		    else
+			base @ >r try
+			    8 base ! 0 <<# # # # '\ hold #> ctype #>> 0
+			recover
+			endtry
+			r> base ! throw
+		    endif
+		endif
+		1 /string
+	    endif
+    repeat
+    2drop ;
 
 : .struc        
 	uppercase on Str# .string ;
@@ -188,12 +214,12 @@ ACONSTANT MaxTable
 
 : MyBranch      ( a-addr -- a-addr a-addr2 )
 \ finds branch table entry for branch at a-addr
-                dup @ over +
+                dup @
                 BranchAddr?
                 BEGIN
                 WHILE 1 cells - @
                       over <>
-                WHILE dup @ over +
+                WHILE dup @
                       MoreBranchAddr?
                 REPEAT
                 SearchPointer @ 3 cells -
@@ -231,7 +257,8 @@ ACONSTANT MaxTable
         BranchPointer @ 1 cells - ! ;
 
 : Branch! ( a-addr rel -- a-addr )
-        over + over ,Branch ,Branch 0 ,Branch ;
+    over ,Branch ,Branch 0 ,Branch ;
+\        over + over ,Branch ,Branch 0 ,Branch ;
 
 \ DEFER CheckUntil
 VARIABLE NoOutput
@@ -245,8 +272,8 @@ VARIABLE C-Pass
 : Display? ( -- flag ) C-Pass @ 1 = ;
 : Debug? ( -- flag ) C-Pass @ 2 = ;
 
-: back? ( n -- flag ) 0< ;
-: ahead? ( n -- flag ) 0> ;
+: back? ( addr target -- addr flag )
+    over u< ;
 
 : .word ( addr xt -- addr )
     look 0= IF
@@ -300,12 +327,18 @@ VARIABLE C-Pass
     cell+ ;
 
 : .name-without ( addr -- addr )
-\ prints a name without () e.g. (+LOOP) or (s")
-  dup 1 cells - @ look 
-  IF   name>string over c@ '( = IF 1 /string THEN
-       2dup + 1- c@ ') = IF 1- THEN .struc ELSE drop 
-  THEN ;
+\ prints a name without a() e.g. a(+LOOP) or (s")
+    dup 1 cells - @ look IF
+	name>string over c@ 'a = IF
+	    1 /string
+	THEN
+	 over c@ '( = IF
+	    1 /string
+	THEN
+	2dup + 1- c@ ') = IF 1- THEN .struc ELSE drop 
+    THEN ;
 
+[ifdef] (s")
 : c-c"
 	Display? IF nl .name-without THEN
         count 2dup + aligned -rot
@@ -314,19 +347,63 @@ VARIABLE C-Pass
                 [char] " cemit bl cemit
         ELSE    2drop
         THEN ;
+[endif]
 
+: c-string? ( addr1 -- addr2 f )
+    \ f is true if a string was found and decompiled.
+    \ if f is false, addr2=addr1
+    \ recognizes the following patterns:
+    \ c":     ahead X: len string then lit X
+    \ s\":    ahead X: string then lit X lit len
+    \ .\":    ahead X: string then lit X lit len type
+    \ !! not recognized anywhere:
+    \ abort": if ahead X: len string then lit X c(abort") then
+    dup @ back? if false exit endif
+    dup @ >r
+    r@ @ decompile-prim ['] lit xt>threaded <> if rdrop false exit endif
+    r@ cell+ @ over cell+ <> if rdrop false exit endif
+    \ we have at least C"
+    r@ 2 cells + @ decompile-prim ['] lit xt>threaded = if
+	r@ 3 cells + @ over cell+ + aligned r@ = if
+	    \ we have at least s"
+	    r@ 4 cells + @ decompile-prim ['] lit-perform xt>threaded =
+	    r@ 5 cells + @ ['] type >body = and if
+		6 s\" .\\\" "
+	    else
+		4 s\" s\\\" "
+	    endif
+	    \ !! make newline if string too long?
+	    display? if
+		0 .string r@ cell+ @ r@ 3 cells + @ c-\type '" cemit bl cemit
+	    else
+		2drop
+	    endif
+	    nip cells r> + true exit
+	endif
+    endif
+    \ !! check if count matches space?
+    display? if
+	s\" c\" " 0 .string r@ cell+ @ count 0 .string '" cemit bl cemit
+    endif
+    drop r> 2 cells + true ;
 
 : Forward? ( a-addr true | false -- a-addr true | false )
-\ a-addr1 is pointer into branch table
-\ returns true when jump is a forward jump
-        IF      dup dup @ swap 1 cells - @ -
-                Ahead? IF true ELSE drop false THEN
-                \ only if forward jump
-        ELSE    false THEN ;
+    \ a-addr is pointer into branch table
+    \ returns true when jump is a forward jump
+    IF
+	dup dup @ swap 1 cells - @ u> IF
+	    true
+	ELSE
+	    drop false
+	THEN
+	\ only if forward jump
+    ELSE
+	false
+    THEN ;
 
 : RepeatCheck ( a-addr1 a-addr2 true | false -- false )
         IF  BEGIN  2dup
-                   1 cells - @ swap dup @ +
+                   1 cells - @ swap @
                    u<=
             WHILE  drop dup cell+
                    MoreBranchAddr? 0=
@@ -336,7 +413,8 @@ VARIABLE C-Pass
         ELSE false
         THEN ;
 
-: c-branch
+: c-branch ( addr1 -- addr2 )
+    c-string? ?exit
         Scan?
         IF      dup @ Branch!
                 dup @ back?
@@ -430,9 +508,11 @@ VARIABLE C-Pass
 : c-do
         Display? IF nl .name-without level+ THEN ;
 
-: c-?do
-        Display? IF nl S" ?DO" .struc level+ THEN
-        DebugBranch cell+ ;
+: c-?do ( addr1 -- addr2 )
+    Display? IF
+	nl .name-without level+
+    THEN
+    DebugBranch cell+ ;
 
 : c-exit  dup 1 cells -
         CheckEnd
@@ -481,19 +561,19 @@ CREATE C-Table
 [IFDEF] "lit    ' "lit A,           ' c-c" A, [THEN]
 [IFDEF] (c")	' (c") A,	    ' c-c" A, [THEN]
         	' (do) A,           ' c-do A,
-[IFDEF] (+do)	' (+do) A,	    ' c-do A, [THEN]
-[IFDEF] (u+do)	' (u+do) A,	    ' c-do A, [THEN]
-[IFDEF] (-do)	' (-do) A,	    ' c-do A, [THEN]
-[IFDEF] (u-do)	' (u-do) A,	    ' c-do A, [THEN]
-        	' (?do) A,          ' c-?do A,
+[IFDEF] (+do)	' a(+do) A,	    ' c-?do A, [THEN]
+[IFDEF] (u+do)	' a(u+do) A,	    ' c-?do A, [THEN]
+[IFDEF] (-do)	' a(-do) A,	    ' c-?do A, [THEN]
+[IFDEF] (u-do)	' a(u-do) A,	    ' c-?do A, [THEN]
+        	' a(?do) A,         ' c-?do A,
         	' (for) A,          ' c-for A,
-        	' ?branch A,        ' c-?branch A,
-        	' branch A,         ' c-branch A,
-        	' (loop) A,         ' c-loop A,
-        	' (+loop) A,        ' c-loop A,
-[IFDEF] (s+loop) ' (s+loop) A,       ' c-loop A, [THEN]
-[IFDEF] (-loop) ' (-loop) A,        ' c-loop A, [THEN]
-        	' (next) A,         ' c-loop A,
+        	' a?branch A,       ' c-?branch A,
+        	' abranch A,        ' c-branch A,
+        	' a(loop) A,        ' c-loop A,
+        	' a(+loop) A,       ' c-loop A,
+[IFDEF] (s+loop) ' a(s+loop) A,     ' c-loop A, [THEN]
+[IFDEF] (-loop) ' a(-loop) A,       ' c-loop A, [THEN]
+        	' a(next) A,        ' c-loop A,
         	' ;s A,             ' c-exit A,
 [IFDEF] (abort") ' (abort") A,      ' c-abort" A, [THEN]
 \ only defined if compiler is loaded

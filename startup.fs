@@ -41,11 +41,7 @@ require stuff.fs
 include wordinfo.fs
 include vt100.fs
 \ include colorize.fs
-include see.fs
-include see-ext.fs
-require simp-see.fs
 include bufio.fs
-include debug.fs
 include history.fs
 s" os-class" environment? dup [IF] drop s" unix" str= [THEN]
 [IF]
@@ -65,8 +61,12 @@ require ekey.fs
 [ELSE]
 require dosekey.fs
 [THEN]
-require backtrac.fs
 require quotes.fs
+require see.fs
+require see-ext.fs
+require backtrac.fs
+require simp-see.fs
+require debug.fs
 require code.fs
 
 \ define the environmental queries for all the loaded wordsets
