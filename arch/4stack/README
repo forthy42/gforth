@@ -3,15 +3,15 @@ processor. Create an gforth image for the misc simulator with
 
 make kernl-4stack.fi
 
-This also creates a file for the simulator in the directory ../4stack.
+This also creates the file gforth.4o for the simulator in the directory
+../4stack.
 
 Load this image into the simulator and run the simulator with
 
-cd ../4stack; 4stack kernl-4stack.4o
+cd ../4stack; 4stack gforth.4o
 
 Additonally, there are two more complex examples (two terminal games,
-Sokoban and Tetris). To create the image games-misc.fi, do the
-following:
+Sokoban and Tetris). To create the image, do the following:
 
 Add
 
@@ -19,12 +19,12 @@ include arch/misc/sokoban.fs
 include arch/misc/tt.fs
 
 in main.fs just before "include special.fs". Perform a make
-kernl-4stack.fi like above. Move the resulting kernl-4stack.4o to
-games-4stack.4o, and start the simulator:
+kernl-4stack.fi like above. Move the resulting gforth.4o to
+gforth-games.4o, and start the simulator:
 
 cd ../4stack
-mv kernl-4stack.4o games-4stack.4o
-4stack games-4stack.4o
+mv gforth.4o gforth-games.4o
+4stack gforth-games.4o
 
 Now type in "sokoban" <return> or "tt" <return> to play sokoban or
 tetris (both run at reasonable speed on a Pentium 133). To stop either

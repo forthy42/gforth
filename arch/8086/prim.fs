@@ -437,3 +437,6 @@ end-macros
     End-Code
 
 -9 Alias: :doesjump
+
+Create "newline 2 c, $0A c, $0D c,
+: newline "newline count ;

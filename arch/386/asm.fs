@@ -300,7 +300,7 @@ $27 bc: DAA     $2F bc: DAS     $37 bc: AAA     $3F bc: AAS
 : aa:  Create c,
     DOES> ( -- ) c@
     imm# @ 0= IF  &10 imm !  THEN  1 imm# ! finish ;
-$D4 aa: AAM     $D5 aa: AAD                     $D7 bc: XLAT
+$D4 aa: AAM     $D5 aa: AAD     $D6 bc: SALC    $D7 bc: XLAT
 
 $60 bc: PUSHA   $61 bc: POPA
 $90 bc: NOP
