@@ -173,8 +173,8 @@
 #  define NEXT_INST	(*ip)
 #  define INC_IP(const_inc)	({ip+=(const_inc);})
 #  define DEF_CA
-#  define NEXT_P1	({cfa=*ip++;})
-#  define NEXT_P2	({goto **cfa;})
+#  define NEXT_P1
+#  define NEXT_P2	({cfa=*ip++; goto **cfa;})
 #  define EXEC(XT)	({cfa=(XT); goto **cfa;})
 #endif
 
@@ -225,8 +225,8 @@
 #  define NEXT_INST	(*ip)
 #  define INC_IP(const_inc)	({ip+=(const_inc);})
 #  define DEF_CA
-#  define NEXT_P1	({cfa=*ip;})
-#  define NEXT_P2	({ip++; goto **cfa;})
+#  define NEXT_P1
+#  define NEXT_P2	({cfa=*ip++; goto **cfa;})
 #  define EXEC(XT)	({cfa=(XT); goto **cfa;})
 #endif
 
