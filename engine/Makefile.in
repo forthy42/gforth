@@ -38,3 +38,8 @@ all:	replace.a
 
 replace.a:	$(OBJECTS)
 	ar r $@ $(OBJECTS)
+
+#NeXTstep hack
+
+termios.o:	/usr/lib/libposix.a
+	ar x /usr/lib/libposix.a termios.o

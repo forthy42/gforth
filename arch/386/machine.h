@@ -100,3 +100,5 @@
 #endif /* USE_TOS && !CFA_NEXT */
 #endif /* gcc-version */
 #endif /* FORCE_REG */
+
+/* #define ALIGNMENT_CHECK 1 */

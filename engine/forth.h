@@ -227,3 +227,30 @@ DCell fmdiv (DCell num, Cell denom);
 int memcasecmp(const char *s1, const char *s2, long n);
 
 extern int offset_image;
+
+/* declare all the functions that are missing */
+#ifndef HAVE_ATANH
+extern double atanh(double r1);
+extern double asinh(double r1);
+extern double acosh(double r1);
+#endif
+#ifndef HAVE_ECVT
+extern char* ecvt(double x, int len, int* exp, int* sign);
+#endif
+#ifndef HAVE_MEMMOVE
+extern char *memmove(char *dest, const char *src, long n);
+#endif
+#ifndef HAVE_POW10
+extern double pow10(double x);
+#endif
+#ifndef HAVE_STRERROR
+extern char *strerror(int err);
+#endif
+#ifndef HAVE_STRSIGNAL
+extern char *strsignal(int sig);
+#endif
+#ifndef HAVE_STRTOUL
+extern unsigned long int strtol(const char *nptr, char **endptr, int base);
+#endif
+
+

@@ -183,7 +183,11 @@ case "$host_cpu" in
 		;;
         m68k)
 		mach_h=m68k
-		CFLAGS="$CFLAGS -fomit-frame-pointer -traditional-cpp"
+		CFLAGS="$CFLAGS -fomit-frame-pointer"
+		if test "$host_os" = "nextstep3"
+		then
+			LIBOBJS="$LIBOBJS termios.o"
+		fi
 		;;
 	mips*)
 		mach_h=mips
@@ -253,7 +257,10 @@ AC_CHECK_LIB(m,asin)
 AC_CHECK_FUNCS(dlopen)
 AC_CHECK_LIB(dl,dlopen)
 AC_CHECK_LIB(kernel32,GetModuleHandle)
-AC_FUNC_MEMCMP
+if test "$host_os" != "nextstep3"
+then
+	AC_FUNC_MEMCMP
+fi
 AC_REPLACE_FUNCS(memmove strtoul pow10 strerror strsignal atanh)
 AC_CHECK_FUNCS(sys_siglist)
 AC_DECL_SYS_SIGLIST

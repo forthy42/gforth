@@ -24,6 +24,7 @@
 #include <errno.h>
 #include <ctype.h>
 #include <stdio.h>
+#include <unistd.h>
 #include <string.h>
 #include <math.h>
 #include <sys/types.h>
@@ -400,7 +401,7 @@ int go_forth(Address image, int stack, Cell *entries)
 }
 
 UCell convsize(char *s, UCell elemsize)
-/* converts s of the format [0-9]+[bekM]? (e.g. 25k) into the number
+/* converts s of the format [0-9]+[bekMGT]? (e.g. 25k) into the number
    of bytes.  the letter at the end indicates the unit, where e stands
    for the element size. default is e */
 {
@@ -416,6 +417,12 @@ UCell convsize(char *s, UCell elemsize)
       m=1024;
     else if (strcmp(endp,"M")==0)
       m=1024*1024;
+    else if (strcmp(endp,"G")==0)
+      m=1024*1024*1024;
+#if (SIZEOF_CHAR_P > 4)
+    else if (strcmp(endp,"T")==0)
+      m=1024*1024*1024*1024;
+#endif
     else if (strcmp(endp,"e")!=0 && strcmp(endp,"")!=0) {
       fprintf(stderr,"%s: cannot grok size specification %s: invalid unit \"%s\"\n", progname, s, endp);
       exit(1);

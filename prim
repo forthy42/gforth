@@ -508,7 +508,7 @@ else if (n>0)
 
 -trailing	c_addr u1 -- c_addr u2		string	dash_trailing
 u2 = u1;
- while (u2>0 && c_addr[u2-1] == ' ')
+while (c_addr[u2-1] == ' ')
   u2--;
 :
  BEGIN  1- 2dup + c@ bl =  WHILE
@@ -1795,7 +1795,11 @@ r2 = exp(r1);
 fexpm1		r1 -- r2	float-ext
 ""@i{r2}=@i{e}**@i{r1}@minus{}1""
 #ifdef HAVE_EXPM1
-extern double expm1(double);
+extern double
+#ifdef NeXT
+              const
+#endif
+                    expm1(double);
 r2 = expm1(r1);
 #else
 r2 = exp(r1)-1.;
@@ -1807,7 +1811,11 @@ r2 = log(r1);
 flnp1		r1 -- r2	float-ext
 ""@i{r2}=ln(@i{r1}+1)""
 #ifdef HAVE_LOG1P
-extern double log1p(double);
+extern double
+#ifdef NeXT
+              const
+#endif
+                    log1p(double);
 r2 = log1p(r1);
 #else
 r2 = log(r1+1.);
