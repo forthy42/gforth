@@ -1,0 +1,52 @@
+.de TQ
+.br
+.ns
+.IP "\fB\\$1\fI\\$2" 9
+..
+.TH Vmgen 1 "March 25, 2003" \" -*- nroff -*-
+.SH NAME
+vmgen \- a virtual machine generator
+.SH SYNOPSIS
+
+\fCvmgen\fR [-h | -v] INPUTFILE
+
+.SH DESCRIPTION
+
+\fBvmgen\fR Vmgen is a tool for writing efficient interpreters.  It takes a
+simple virtual machine description and generates efficient C code for
+dealing with the virtual machine code in various ways (in particular,
+executing it).  For more details, consult the info documentation,
+which can be read with 'info vmgen'.
+
+.SH OPTIONS
+
+.BI "\-\-help"
+.TQ "\-h"
+Lists the available options, including some not described here (see
+also the manual).
+.TP
+.BI "\-\-version"
+.TQ "\-v"
+Print version and exit
+.TP
+
+.BI INPUTFILE
+ INPUTFILE is the VM instruction description file, which usually
+ends in `.vmg'.  The output filenames are made by taking the basename
+of `inputfile' (i.e., the output files will be created in the current
+working directory) and replacing `.vmg' with `-vm.i', `-disasm.i',
+`-gen.i', `-labels.i', `-profile.i', and `-peephole.i'.  E.g., `vmgen
+hack/foo.vmg' will create `foo-vm.i', `foo-disasm.i', `foo-gen.i',
+`foo-labels.i', `foo-profile.i' and `foo-peephole.i'.
+
+.SH SEE ALSO
+The Vmgen manual - available in hypertext (Info, HTML) and printable
+(TeX, PS, ASCII) forms.
+
+Vmgen is part of Gforth.  More information on Gforth (e.g., pointers
+to new versions, to the manual on the WWW and to papers about Gforth)
+is available through \fChttp://www.complang.tuwien.ac.at/projects/forth.html\fR.
+
+.SH AUTHORS
+\fBGforth\fR was written by Anton Ertl, Bernd Paysan, Jens Wilke and
+others.
