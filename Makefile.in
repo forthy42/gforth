@@ -89,7 +89,7 @@ STARTUP	= -e 3 exboot.fs startup.fs @asm_fs@ @disasm_fs@
 STRIP	= strip
 TEXI2DVI = texi2dvi -e
 TEXI2PDF = texi2dvi --pdf -e
-DVI2PS	= dvips -Pcmz -t letterSize -Z
+DVI2PS	= dvips -t letterSize -Z
 #you can get texi2html from http://wwwcn.cern.ch/dci/texi2html/
 MAKEINFO = makeinfo
 TEXI2HTML = texi2html

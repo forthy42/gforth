@@ -638,6 +638,10 @@ n = compare(c_addr1, u1, c_addr2, u2);
 :
  rot 2dup swap - >r min swap -text dup
  IF  rdrop  ELSE  drop r> sgn  THEN ;
+: -text ( c_addr1 u c_addr2 -- n )
+ swap bounds
+ ?DO  dup c@ I c@ = WHILE  1+  LOOP  drop 0
+ ELSE  c@ I c@ - unloop  THEN  sgn ;
 : sgn ( n -- -1/0/1 )
  dup 0= IF EXIT THEN  0< 2* 1+ ;
 

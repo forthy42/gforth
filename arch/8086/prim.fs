@@ -432,8 +432,11 @@ end-macros
 \ ======================== not ready ============================
 [ENDIF]
 
-  Code bye     ( -- ) \ back to DOS
-     0 # al mov,  $4c # ah mov,  $21 int,
+  Code (bye)     ( -- ) \ back to DOS
+     ax pop,  $4c # ah mov,  $21 int,
     End-Code
 
--9 Alias: :doesjump
+: bye ( -- )  0 (bye) ;
+    
+Code: :doesjump
+end-code

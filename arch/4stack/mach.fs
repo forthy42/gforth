@@ -64,6 +64,7 @@ false SetValue ITC
 false SetValue new-input
 false SetValue peephole
 true SetValue abranch       \ enables absolute branches
+false SetValue standardthreading
 
 0 SetValue kernel-start
 cell 2 = [IF] 32 [ELSE] 256 [THEN] KB SetValue kernel-size

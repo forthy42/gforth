@@ -100,8 +100,8 @@ s" os-class" environment? [IF] s" unix" str= [ELSE] true [THEN]
 : clear-tib ( max span addr pos -- max 0 addr 0 false )
   clear-line 0 tuck dup ;
 
-: hist-pos    ( -- ud )  history file-position throw ;
-: hist-setpos ( ud -- )  history reposition-file throw ;
+: hist-pos    ( -- ud )  history file-position drop ( throw ) ;
+: hist-setpos ( ud -- )  history reposition-file drop ( throw ) ;
 
 : get-line ( addr len -- len' flag )
   swap history read-line throw ;
@@ -129,7 +129,7 @@ Create lfpad #lf c,
 
 : (enter)  ( max span addr pos1 -- max span addr pos2 true )
   >r end^ 2@ hist-setpos
-  2dup swap history write-line throw
+  2dup swap history write-line drop ( throw ) \ don't worry about errors
   hist-pos 2dup backward^ 2! end^ 2!
   r> (ret) ;
 

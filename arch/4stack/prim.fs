@@ -410,18 +410,12 @@ end-code
 : code-address! ( addr xt -- )  >r 3 or $808 @ r> 2! ;
 : does-code!    ( a_addr xt -- )  >r 5 - $808 @ r> 2! ;
 : does-handler! ( a_addr -- )  >r $810 2@ r> 2! ;
-: finish-code ;
+2 cells constant /does-handler
 
 : bye  0 execute ;
 : (bye) 0 execute ;
 : float+ 8 + ;
 
-: sgn ( n -- -1/0/1 )
- dup 0= IF EXIT THEN  0< 2* 1+ ;
-: -text ( c_addr1 u c_addr2 -- n )
- swap bounds
- ?DO  dup c@ I c@ = WHILE  1+  LOOP  drop 0
- ELSE  c@ I c@ - unloop  THEN  sgn ;
 : capscomp ( c_addr1 u c_addr2 -- n )
  swap bounds
  ?DO  dup c@ I c@ <>

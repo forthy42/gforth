@@ -22,8 +22,8 @@
 # Windoze.
 # Note that I use sed to create a setup file
 
-# use iss.sh >iss.txt
-# copy the resulting iss.txt to the location of your Windows installation
+# use iss.sh >gforth.iss
+# copy the resulting *.iss to the location of your Windows installation
 # of Gforth, and start the setup compiler there.
 
 cat <<EOT
@@ -81,7 +81,7 @@ done) | sed \
   -e 's,^\(..*\)\\\([^\\]*\)$,Source: "\1\\\2"; DestDir: "{app}\\\1",g' \
   -e 's,^\([^\\]*\)$,Source: "\1"; DestDir: "{app}",g' \
   -e 's,^\(.*\.[oib]".*\),\1; Components: objects,g' \
-  -e 's,^\(.*\.ps".*\),\1; Components: print,g' \
+  -e 's,^\(.*\.p\)s\(".*\),\1df\2; Components: print,g' \
   -e 's,^\(.*\.info.*".*\),\1; Components: info,g')
 
 [Icons]

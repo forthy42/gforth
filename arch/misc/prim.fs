@@ -830,4 +830,3 @@ include ./optcmove.fs
 
 : (bye) 0 execute ;
 : float+ 8 + ;
-: finish-code ;
