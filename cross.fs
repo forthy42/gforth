@@ -1042,6 +1042,7 @@ mach-file count included
 : undef-words  ['] defined? IS skip? ;
 
 : \  postpone \ ;  immediate
+: \G T-\G ; immediate
 : (  postpone ( ;  immediate
 : include bl word count included ;
 : .( [char] ) parse type ;

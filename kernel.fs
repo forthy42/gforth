@@ -69,7 +69,7 @@ NIL AConstant NIL \ gforth
 \ Aliases
 
 ' i Alias r@ ( -- w ; R: w -- w ) \ core r-fetch
-\ copy w from the return stack to the data stack
+\G copy w from the return stack to the data stack
 
 \ Bit string manipulation                              06oct92py
 
