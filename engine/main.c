@@ -130,9 +130,12 @@ void relocate(Cell *image, const char *bitstring, int size, Label symbols[])
   int i=0, j, k, steps=(size/sizeof(Cell))/RELINFOBITS;
   Cell token;
   char bits;
+  Cell max_symbols;
 
 /*  printf("relocating %x[%x]\n", image, size); */
-   
+  
+  for (max_symbols=DOESJUMP+1; symbols[max_symbols]!=0; max_symbols++)
+    ;
   size/=sizeof(Cell);
 
   for(k=0; k<=steps; k++) {
@@ -159,7 +162,10 @@ void relocate(Cell *image, const char *bitstring, int size, Label symbols[])
 	    default          :
 /*	      printf("Code field generation image[%x]:=CA(%x)\n",
 		     i, CF(image[i])); */
-	      image[i]=(Cell)CA(CF(token));
+	      if (CF(token)<max_symbols)
+		image[i]=(Cell)CA(CF(token));
+	      else
+		fprintf(stderr,"Primitive %d used in this image at $%lx is not implemented by this\n engine (%s); executing this code will crash.\n",CF(token),(long)&image[i],VERSION);
 	    }
 	else
 	  image[i]+=(Cell)image;

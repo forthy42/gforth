@@ -306,12 +306,12 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
       if (i>=MAX_SYMBOLS) {
 	fprintf(stderr,"gforth-ditc: more than %d primitives\n",MAX_SYMBOLS);
 	exit(1);
+      }
+      symbols[i] = &routines[i];
     }
-    symbols[i] = &routines[i];
-  }
 #endif /* defined(DOUBLY_INDIRECT) */
-  return symbols;
-}
+    return symbols;
+  }
 
   IF_TOS(TOS = sp[0]);
   IF_FTOS(FTOS = fp[0]);
