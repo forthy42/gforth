@@ -92,7 +92,7 @@ let L3 = 11.24
 let M3 = 39.677
 let N3 = 36.53
 let O3 = 39.4
-let P3 = 31.2
+let P3 = 19.9
 let Q3 = 42.59
 let S3 = 110.19
 leftstring A4 = "fib 34"
@@ -110,7 +110,7 @@ let L4 = 13.13
 let M4 = 52.725
 let N4 = 46.23
 let O4 = 42.3
-let P4 = 39.1
+let P4 = 29.9
 let Q4 = 60.14
 let R4 = 103.44
 let S4 = 148.71
@@ -509,4 +509,4 @@ let R28 = R4/$J4
 let S28 = S4/$J4
 let T28 = C4
 fmt T28 "##0.00s"
-goto R25
+goto L25

@@ -137,6 +137,9 @@ require termsize.fs
     REPEAT
     2drop ;
 
+' words alias vlist ( -- ) \ gforth
+\g Old (pre-Forth-83) name for @code{WORDS}.
+
 : body> ( data -- cfa )  0 >body - ;
 
 : .voc

@@ -281,7 +281,7 @@ check:		test
 		touch test
 
 test:		gforth gforth.fi
-		$(FORTH) tester.fs coretest.fs -e bye
+		$(FORTH) tester.fs coretest.fs dbltest.fs -e bye
 		$(FORTH) code.fs checkans.fs -e bye
 		@echo 'Expect no differences'
 		$(FORTH) prims2x.fs -e "s\" primitives.b\" ' output-c process-file bye"| diff -c - primitives.i
