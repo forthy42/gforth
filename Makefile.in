@@ -165,11 +165,9 @@ EC_SRC = \
 	asm/target.fs \
 	ec/README \
 	ec/mirror.fs \
-	ec/mirrors.fs \
 	ec/shex.fs \
 	ec/builttag.fs \
 	ec/dotx.fs \
-	ec/mirrored.fs \
 	ec/nesting.fs
 
 GFORTH_FI_SRC = \
@@ -307,7 +305,8 @@ SOURCES	= $(CVSDIRS) compat Makefile.in Makedist.in engine/Makefile.in gforthmi.
 	configure.cmd mkos2mf.sed os2conf.h makefile.os2 engine/makefile.os2 \
 	gforthmi.cmd glosgen.glo doc/glossaries.doc \
 	$(INCLUDES) $(FORTH_SRC) $(COMPAT) \
-	timings.sc
+	timings.sc \
+	test/coretest.out test/checkans.out
 
 RCS_FILES =  ToDo model high-level
 
@@ -483,12 +482,9 @@ uninstall:	FORCE
 		@echo -e "To remove Gforth completely, type\n$(RM) -rf $(bindir)/gforth$(EXE) $(bindir)/gforthmi $(man1dir)/gforth.1 $(infodir)/gforth.info* $(datadir)/gforth $(libdir)/gforth"
 
 check test:	gforth$(EXE) gforth.fi
-		$(FORTH) test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs -e bye
+		$(FORTH) test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs -e bye | diff -c - $(srcdir)/test/coretest.out
 		$(FORTH) test/other.fs -e bye
-		@echo "Expect 'Missing: EKEY EKEY>CHAR EKEY? EMIT?'"
-		@echo "Expect 'Missing: EDITOR FORGET'"
-		$(FORTH) code.fs test/checkans.fs -e bye
-		@echo 'Expect no differences'
+		$(FORTH) code.fs test/checkans.fs -e bye | diff -c - $(srcdir)/test/checkans.out
 		$(FORTHK) -m 100000 prims2x.fs -e \
 		  "c-flag on s\" $(srcdir)/prim.b\" ' output-c process-file bye"| \
 		  diff -c - $(srcdir)/engine/prim.i

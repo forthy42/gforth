@@ -784,7 +784,7 @@ Variable init8
 [ [THEN] ]
     ['] cold catch DoError cr
 [ has? os [IF] ]
-    bye
+    1 (bye) \ !! determin exit code from throw code?
 [ [THEN] ]
 ;
 

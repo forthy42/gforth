@@ -12,6 +12,8 @@
 \ I HAVEN'T FIGURED OUT HOW TO TEST KEY, QUIT, ABORT, OR ABORT"...
 \ I ALSO HAVEN'T THOUGHT OF A WAY TO TEST ENVIRONMENT?...
 
+\ modified by Anton Ertl to produce output that is independent of type sizes
+
 TESTING CORE WORDS
 HEX
 
@@ -965,12 +967,20 @@ TESTING OUTPUT: . ." CR EMIT SPACE SPACES TYPE U.
    5 1+ 0 DO I [CHAR] 0 + EMIT 2 SPACES LOOP CR
    ." YOU SHOULD SEE TWO SEPARATE LINES:" CR
    S" LINE 1" TYPE CR S" LINE 2" TYPE CR
-   ." YOU SHOULD SEE THE NUMBER RANGES OF SIGNED AND UNSIGNED NUMBERS:" CR
-   ."   SIGNED: " MIN-INT . MAX-INT . CR
-   ." UNSIGNED: " 0 U. MAX-UINT U. CR
+\   ." YOU SHOULD SEE THE NUMBER RANGES OF SIGNED AND UNSIGNED NUMBERS:" CR
+\   ."   SIGNED: " MIN-INT . MAX-INT . CR
+\   ." UNSIGNED: " 0 U. MAX-UINT U. CR
 ;
 
 { OUTPUT-TEST -> }
+
+\ the lower case stuff is not restricted to core words - anton
+{ min-int s>d tuck dabs <# #s rot sign #>
+  S" -8000000000000000" drop 2 cells 1+ compare -> 0 }
+{ max-int s>d tuck dabs <# #s rot sign #>
+  S" 7FFFFFFFFFFFFFFF" drop 2 cells compare -> 0 }
+{ max-uint 0 <# #s #>
+  S" FFFFFFFFFFFFFFFF" drop 2 cells compare -> 0 }
 
 \ ------------------------------------------------------------------------
 \ commented out to allow batch testing -anton
