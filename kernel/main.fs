@@ -28,8 +28,8 @@
 Create mach-file here over 1+ allot place
 
 require errors.fs
-require extend.fs
 require search.fs
+require extend.fs
 
 \ include etags.fs
 
