@@ -101,6 +101,13 @@ skipsynclines on
     loop
     drop ;
 
+: wordlist-insert { c-addr u wordlist xt -- }
+    \ adds name "addr u" to wordlist using defining word xt
+    \ xt may cause additional stack effects
+    get-current >r wordlist set-current
+    c-addr u nextname xt execute
+    r> set-current ;
+
 : start ( -- addr )
  cookedinput @ ;
 
@@ -130,9 +137,6 @@ skipsynclines on
 
 variable output          \ xt ( -- ) of output word for simple primitives
 variable output-combined \ xt ( -- ) of output word for combined primitives
-
-: printprim ( -- )
- output @ execute ;
 
 struct%
     cell%    field stack-number \ the number of this stack
@@ -227,6 +231,9 @@ variable in-part \ true if processing a part
 1000 constant max-combined
 create combined-prims max-combined cells allot
 variable num-combined
+
+table constant combinations
+  \ the keys are the sequences of pointers to primitives
 
 create current-depth max-stacks cells allot
 create max-depth     max-stacks cells allot
@@ -447,7 +454,7 @@ does> ( item -- )
 	endif
 	-1 s+loop
     \ we did not find a type, abort
-    true abort" unknown prefix" ;
+    false s" unknown prefix" ?print-error ;
 
 : declaration ( item -- )
     dup item-name 2@ execute-prefix ;
@@ -514,7 +521,14 @@ s" IP" save-mem cell-type  s" error don't use # on results" make-stack inst-stre
     inst-stream clear-stack
     prim prim-effect-in  prim prim-effect-in-end  @ ['] compute-offset-in  map-items
     prim prim-effect-out prim prim-effect-out-end @ ['] compute-offset-out map-items
-    inst-stream stack-out @ 0<> abort" # can only be on the input side" ;
+    inst-stream stack-out @ 0= s" # can only be on the input side" ?print-error ;
+
+: process-simple ( -- )
+    prim prim { W^ key } key cell
+    combinations ['] constant wordlist-insert
+    declarations compute-offsets
+    output @ execute
+    1 function-number +! ;
 
 : flush-a-tos { stack -- }
     stack stack-out @ 0<> stack stack-in @ 0= and
@@ -888,6 +902,8 @@ s" IP" save-mem cell-type  s" error don't use # on results" make-stack inst-stre
     loop ;
 
 : process-combined ( -- )
+    combined combined-prims num-combined @ cells
+    combinations ['] constant wordlist-insert
     prim compute-effects
     prim init-effects
     output-combined perform ;
@@ -954,7 +970,21 @@ s" IP" save-mem cell-type  s" error don't use # on results" make-stack inst-stre
     cr ;
 
 : output-forth-combined ( -- )
-    ;
+;
+
+
+\ compile VM insts
+
+\ in order for this to work as intended, shorter combinations for each
+\ length must be present, and the longer combinations must follow
+\ shorter ones (this restriction may go away in the future).
+  
+: output-pregen-combined ( -- )
+    combined-prims num-combined @ 1- cells combinations search-wordlist
+    s" the prefix for this combination must be defined earlier" ?print-error
+    execute prim-c-name 2@ type space
+    combined-prims num-combined @ 1- th @ prim-c-name 2@ type ."  -> "
+    combined prim-c-name 2@ type cr ;
 
 \ the parser
 
@@ -989,11 +1019,11 @@ print-token !
     endif
     0. r> 6 chars + 20 >number drop >r drop line ! r> ( c-addr )
     dup c@ bl = if
-	char+ dup c@ [char] " <> abort" sync line syntax"
+	char+ dup c@ [char] " <> 0= s" sync line syntax" ?print-error
 	char+ dup 100 [char] " scan drop swap 2dup - save-mem filename 2!
 	char+
     endif
-    dup c@ nl-char <> abort" sync line syntax"
+    dup c@ nl-char <> 0= s" sync line syntax" ?print-error
     skipsynclines @ if
 	dup char+ rawinput !
 	rawinput @ c@ cookedinput @ c!
@@ -1104,7 +1134,7 @@ Variable c-flag
    {{ skipsynclines off line @ c-line ! filename 2@ c-filename 2! start }} (( nocolonnl nonl **  nleof white ** )) ** {{ end prim prim-c-code 2! skipsynclines on }}
    (( ` :  white ** nleof
       {{ start }} (( nonl ++  nleof white ** )) ++ {{ end prim prim-forth-code 2! }}
-   )) ?? {{  declarations compute-offsets printprim 1 function-number +! }}
+   )) ?? {{ process-simple }}
    nleof
 )) <- simple-primitive ( -- )
 
