@@ -274,16 +274,42 @@ $20 constant restrict-mask
     (name>x) tuck (x>int) ( b xt )
     swap immediate-mask and flag-sign ;
 
+: head? ( addr -- f )
+    \G heuristic check whether addr is a name token; may deliver false
+    \G positives; addr must be a valid address
+    \ we follow the link fields and check for plausibility; two
+    \ iterations should catch most false addresses: on the first
+    \ iteration, we may get an xt, on the second a code address (or
+    \ some code), which is typically not in the dictionary.
+    2 0 do
+	dup @ dup
+	if ( addr addr1 )
+	    dup rot forthstart within
+	    if \ addr1 is outside forthstart..addr, not a head
+		drop false unloop exit
+	    then ( addr1 )
+	else \ 0 in the link field, no further checks
+	    2drop true unloop exit
+	then
+    loop
+    \ in dubio pro:
+    drop true ;
+
 const Create ???  0 , 3 c, char ? c, char ? c, char ? c,
 \ ??? is used by dovar:, must be created/:dovar
 
-: >head ( cfa -- nt ) \ gforth  to-name
- $21 cell do
-   dup i - count $9F and + cfaligned over alias-mask + = if
-     i - cell - unloop exit
-   then
- cell +loop
- drop ??? ( wouldn't 0 be better? ) ;
+: >head ( cfa -- nt ) \ gforth  to-head
+    $21 cell do ( cfa )
+	dup i - count $9F and + cfaligned over alias-mask + =
+	if ( cfa )
+	    dup i - cell - dup head?
+	    if
+		nip unloop exit
+	    then
+	    drop
+	then
+	cell +loop
+    drop ??? ( wouldn't 0 be better? ) ;
 
 ' >head ALIAS >name
 

@@ -382,15 +382,19 @@ defer :-hook ( sys1 -- sys2 )
 
 defer ;-hook ( sys2 -- sys1 )
 
-: : ( "name" -- colon-sys ) \ core	colon
-    Header docol: cfa, defstart ] :-hook ;
+: (:noname) ( -- colon-sys )
+    \ common factor of : and :noname
+    docol: cfa, defstart ] :-hook ;
 
-: ; ( compilation colon-sys -- ; run-time nest-sys ) \ core	semicolon
-    ;-hook ?struc postpone exit reveal postpone [ ; immediate restrict
+: : ( "name" -- colon-sys ) \ core	colon
+    Header (:noname) ;
 
 : :noname ( -- xt colon-sys ) \ core-ext	colon-no-name
     0 last !
-    cfalign here docol: cfa, 0 ] :-hook ;
+    cfalign here (:noname) ;
+
+: ; ( compilation colon-sys -- ; run-time nest-sys ) \ core	semicolon
+    ;-hook ?struc postpone exit reveal postpone [ ; immediate restrict
 
 \ \ Search list handling: reveal words, recursive		23feb93py
 
