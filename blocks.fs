@@ -118,7 +118,7 @@ Defer flush-file
     dup 0= -35 and throw
     dup get-buffer >r
     dup r@ buffer-block @ <>
-    r@ buffer-fid @ block-fid @ <> and
+    r@ buffer-fid @ block-fid @ <> or
     if
 	r@ save-buffer
 	dup block-position

@@ -101,6 +101,8 @@ void relocate(Cell *image, char *bitstring, int size, Label symbols[])
   int i=0, j, k, steps=(size/sizeof(Cell))/8;
   char bits;
 /*   static char bits[8]={0x80,0x40,0x20,0x10,0x08,0x04,0x02,0x01};*/
+
+/*  printf("relocating %x[%x]\n", image, size); */
    
   for(k=0; k<=steps; k++)
     for(j=0, bits=bitstring[k]; j<8; j++, i++, bits<<=1)
@@ -118,7 +120,10 @@ void relocate(Cell *image, char *bitstring, int size, Label symbols[])
 	    case CF(DODOES)  : MAKE_DOES_CF(image+i,image[i+1]+((Cell)image));
 	      break;
 	    case CF(DOESJUMP): MAKE_DOES_HANDLER(image+i); break;
-	    default          : image[i]=(Cell)CA(CF(image[i]));
+	    default          :
+/*	      printf("Code field generation image[%x]:=CA(%x)\n",
+		     i, CF(image[i]));
+*/	      image[i]=(Cell)CA(CF(image[i]));
 	    }
 	else
 	  image[i]+=(Cell)image;

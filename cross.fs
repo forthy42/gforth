@@ -569,6 +569,9 @@ Cond: [Char]   ( "<char>" -- )  restrict? Char  lit, ;Cond
   (THeader ;Resolve ! there ;Resolve cell+ !
   docol, depth T ] H ;
 
+: :noname ( -- colon-sys )
+  T align H there docol, depth T ] H ;
+
 Cond: EXIT ( -- )  restrict?  compile ;S  ;Cond
 
 Cond: ?EXIT ( -- ) 1 abort" CROSS: using ?exit" ;Cond
@@ -702,6 +705,10 @@ Build:  ( -- ) compile noop ;
 DO: ( ghost -- ) ABORT" CROSS: Don't execute" ;DO
 Builder Defer
 by Defer :dodefer resolve
+
+Build:  ( inter comp -- ) swap T immediate A, A, H ;
+DO: ( ghost -- ) ABORT" CROSS: Don't execute" ;DO
+Builder special:
 
 \ Sturctures                                           23feb95py
 

@@ -1,4 +1,4 @@
-\ History file support                                 16oct94py
+\ command line edit and history support                 16oct94py
 
 \ Copyright (C) 1995 Free Software Foundation, Inc.
 
@@ -17,6 +17,44 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program; if not, write to the Free Software
 \ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+:noname
+    char [char] @ - ;
+:noname
+    char [char] @ - postpone Literal ;
+special: ctrl  ( "<char>" -- ctrl-code )
+
+\ command line editing                                  16oct94py
+
+: >string  ( span addr pos1 -- span addr pos1 addr2 len )
+  over 3 pick 2 pick chars /string ;
+: type-rest ( span addr pos1 -- span addr pos1 back )
+  >string tuck type ;
+: (del)  ( max span addr pos1 -- max span addr pos2 )
+  1- >string over 1+ -rot move
+  rot 1- -rot  #bs emit  type-rest bl emit 1+ backspaces ;
+: (ins)  ( max span addr pos1 char -- max span addr pos2 )
+  >r >string over 1+ swap move 2dup chars + r> swap c!
+  rot 1+ -rot type-rest 1- backspaces 1+ ;
+: ?del ( max span addr pos1 -- max span addr pos2 0 )
+  dup  IF  (del)  THEN  0 ;
+: (ret)  type-rest drop true space ;
+: back  dup  IF  1- #bs emit  ELSE  #bell emit  THEN 0 ;
+: forw 2 pick over <> IF  2dup + c@ emit 1+  ELSE  #bell emit  THEN 0 ;
+: eof  2 pick over or 0=  IF
+        bye
+    ELSE  2 pick over <>
+	IF  forw drop (del)  ELSE  #bell emit  THEN  0
+    THEN ;
+
+' forw  ctrl F cells ctrlkeys + !
+' back  ctrl B cells ctrlkeys + !
+' ?del  ctrl H cells ctrlkeys + !
+' eof   ctrl D cells ctrlkeys + !
+
+' (ins) IS insert-char
+
+\ history support                                       16oct94py
 
 0 Value history
 
@@ -71,11 +109,6 @@ s" ~/.gforth-history" get-history
       rot drop
   REPEAT  2drop  THEN
   tuck 2dup type 0 ;
-
-: ctrl ( compilation: "<char>" -- ) ( run-time: -- ctrl-code )
-    char [char] @ - postpone Literal ; immediate
-interpretation: ( "<char>" -- ctrl-code )
-    char [char] @ - ;
 
 Create lfpad #lf c,
 

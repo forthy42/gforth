@@ -1,4 +1,4 @@
-#! /usr/users/bernd/bin/gforth
+#! /usr/local/lib/gforth/0.2.0/kernal.fi
 \ file hex dump
 
 Create buffer $10 allot

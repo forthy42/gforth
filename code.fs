@@ -35,13 +35,14 @@ vocabulary assembler ( -- ) \ tools-ext
     \ execution semantics of @code{;code}
     r> lastxt code-address! ;
 
-: ;code ( colon-sys1 -- colon-sys2 )	\ tools-ext	semicolon-code
+:noname ( colon-sys1 -- colon-sys2 )	\ tools-ext	semicolon-code
     ( create the [;code] part of a low level defining word )
     ;-hook postpone (;code) ?struc postpone [
-    defstart init-asm ;  immediate
-interpretation: ( -- colon-sys )
+    defstart init-asm ;
+:noname ( -- colon-sys )
     align here lastxt code-address!
     defstart init-asm ;
+special: ;code
 
 : end-code ( colon-sys -- )	\ gforth	end_code
     ( end a code definition )

@@ -74,6 +74,8 @@ HEX
     \ the code address of a @code{field}
     ['] reveal-method >code-address ;
 
+NIL AConstant NIL \ gforth
+
 \ Bit string manipulation                              06oct92py
 
 \ Create bits  80 c, 40 c, 20 c, 10 c, 8 c, 4 c, 2 c, 1 c,
@@ -143,6 +145,15 @@ HEX
 : off ( addr -- ) \ gforth
     false swap ! ;
 
+\ dabs roll                                           17may93jaw
+
+: dabs ( d1 -- d2 ) \ double
+    dup 0< IF dnegate THEN ;
+
+: roll  ( x0 x1 .. xn n -- x1 .. xn x0 ) \ core-ext
+  dup 1+ pick >r
+  cells sp@ cell+ dup cell+ rot move drop r> ;
+
 \ name> found                                          17dec92py
 
 $80 constant alias-mask \ set when the word is not an alias!
@@ -154,12 +165,6 @@ $20 constant restrict-mask
 : name>    ( nfa -- cfa ) \ gforth
     cell+
     dup  (name>) swap  c@ alias-mask and 0= IF  @ THEN ;
-
-: found ( nfa -- cfa n ) \ gforth
-    cell+
-    dup c@ >r  (name>) r@ alias-mask     and  0= IF  @       THEN
-                    -1 r@ restrict-mask  and     IF  1-      THEN
-                       r> immediate-mask and     IF  negate  THEN  ;
 
 \ (find)                                               17dec92py
 
@@ -264,8 +269,11 @@ Defer source ( -- addr count ) \ core
     r> dup cell+ >r @ compile, ;
 : postpone ( "name" -- ) \ core
   name sfind dup 0= abort" Can't compile "
-  0> IF  compile,  ELSE  postpone (compile) A,  THEN ;
-                                             immediate restrict
+  0> IF  compile,  ELSE  postpone (compile) A,  THEN ; immediate restrict
+
+: special: ( interp comp "name" -- )
+    Create immediate swap A, A,
+    DOES>  state @ IF  cell+  THEN  perform ;
 
 \ Use (compile) for the old behavior of compile!
 
@@ -514,7 +522,7 @@ Defer interpret-special ( c-addr u xt -- ) \ !! use nfa instead of xt?
 
 : interpreter  ( c-addr u -- ) \ gforth
     \ interpretation semantics for the name/number c-addr u
-    2dup sfind dup
+    2dup (sfind) dup
     IF
 	1 and
 	IF \ not restricted to compile state?
@@ -534,7 +542,7 @@ Defer interpret-special ( c-addr u xt -- ) \ !! use nfa instead of xt?
 
 : compiler     ( c-addr u -- ) \ gforth
     \ compilation semantics for the name/number c-addr u
-    2dup sfind dup
+    2dup (sfind) dup
     IF
 	0>
 	IF
@@ -738,22 +746,23 @@ variable backedge-locals
 : ?DUP-0=-IF ( compilation -- orig ; run-time n -- n| ) \ gforth	question-dupe-zero-equals-if
     POSTPONE ?dup-0=-?branch >mark ;       immediate restrict
 
-: THEN ( compilation orig -- ; run-time -- ) \ core
-    dup orig?
-    dead-orig =
+: then-like ( orig -- addr )
+    swap -rot dead-orig =
     if
-        >resolve drop
+        drop
     else
         dead-code @
         if
-	    >resolve set-locals-size-list dead-code off
+	    set-locals-size-list dead-code off
 	else \ both live
-	    over list-size adjust-locals-size
-	    >resolve
+	    dup list-size adjust-locals-size
 	    locals-list @ common-list dup list-size adjust-locals-size
 	    locals-list !
 	then
-    then ; immediate restrict
+    then ;
+
+: THEN ( compilation orig -- ; run-time -- ) \ core
+    dup orig?  then-like  >resolve ; immediate restrict
 
 ' THEN alias ENDIF ( compilation orig -- ; run-time -- ) \ gforth
 immediate restrict
@@ -782,13 +791,13 @@ immediate restrict
 \ issue a warning (see below). The following code is generated:
 \ lp+!# (current-local-size - dest-locals-size)
 \ branch <begin>
-: AGAIN ( compilation dest -- ; run-time -- ) \ core-ext
-    dest?
+
+: again-like ( dest -- addr )
     over list-size adjust-locals-size
-    POSTPONE branch
-    <resolve
-    check-begin
-    POSTPONE unreachable ; immediate restrict
+    swap check-begin  POSTPONE unreachable ;
+
+: AGAIN ( compilation dest -- ; run-time -- ) \ core-ext
+    dest? again-like  POSTPONE branch  <resolve ; immediate restrict
 
 \ UNTIL (the current control flow may join an earlier one or continue):
 \ Similar to AGAIN. The new locals-list and locals-size are the current
@@ -955,12 +964,6 @@ Avariable leave-sp  leave-stack 3 cells + leave-sp !
 : SLiteral ( Compilation c-addr1 u ; run-time -- c-addr2 u ) \ string
     postpone (S") here over char+ allot  place align ;
                                              immediate restrict
-create s"-buffer /line chars allot
-: S" ( compilation 'ccc"' -- ; run-time -- c-addr u )	\ core,file	s-quote
-    [char] " parse postpone SLiteral ; immediate restrict
-
-: ." ( compilation 'ccc"' -- ; run-time -- )  \ core	dot-quote
-    postpone (.") ,"  align ; immediate restrict
 : ( ( compilation 'ccc<close-paren>' -- ; run-time -- ) \ core,file	paren
     BEGIN
 	>in @ [char] ) parse nip >in @ rot - =
@@ -1100,12 +1103,6 @@ Create ???  0 , 3 c, char ? c, char ? c, char ? c,
 : Create ( -- ) \ core
     Header reveal dovar: cfa, ;
 
-\ DOES>                                                17mar93py
-
-: DOES>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ core	does
-    ;-hook postpone (does>) ?struc dodoes,
-    defstart :-hook ; immediate restrict
-
 \ Create Variable User Constant                        17mar93py
 
 : Variable ( -- ) \ core
@@ -1142,14 +1139,6 @@ Create ???  0 , 3 c, char ? c, char ? c, char ? c,
 \ 	['] noop A,
 \     DOES> ( ??? )
 \ 	perform ;
-
-: IS ( addr "name" -- ) \ gforth
-    ' >body postpone ALiteral postpone ! ; immediate restrict
-' IS Alias TO ( addr "name" -- ) \ core-ext
-immediate restrict
-
-: What's ( "name" -- addr ) \ gforth
-    ' >body postpone ALiteral postpone @ ; immediate restrict
 
 : Defers ( "name" -- ) \ gforth
     ' >body @ compile, ; immediate
@@ -1208,18 +1197,71 @@ Create forth-wordlist  NIL A, G f83search T A, NIL A, NIL A,
 AVariable lookup       G forth-wordlist lookup T !
 G forth-wordlist current T !
 
+\ higher level parts of find
+
+: special? ( xt -- flag )
+    >does-code ['] S" >does-code = ;
+
+: xt>i ( xt -- xt )
+    dup special?  IF  >body  @  THEN ;
+
+: xt>c ( xt -- xt )
+    dup special?  IF  >body  cell+  @  THEN ;
+
+: xt>s ( xt -- xt )
+    dup special?  IF  >body  state @ IF  cell+  THEN  @  THEN ;
+
+: found ( nfa -- cfa n ) \ gforth
+    cell+  dup c@ >r  (name>)
+    r@ alias-mask     and  0= IF  @       THEN  -1
+    r@ restrict-mask  and     IF  1-      THEN
+    r> immediate-mask and     IF  negate  THEN  ;
+
 : (search-wordlist)  ( addr count wid -- nfa / false )
-  dup wordlist-map @ find-method perform ;
+    dup wordlist-map @ find-method perform ;
 
 : search-wordlist  ( addr count wid -- 0 / xt +-1 ) \ search
-    (search-wordlist) dup  IF  found  THEN ;
+    (search-wordlist) dup  IF  found  swap xt>s swap  THEN ;
+
+: (sfind) ( c-addr u -- xt n / 0 )
+    lookup @ (search-wordlist) dup IF  found  THEN ;
+
+: sfind ( c-addr u -- xt n / 0 ) \ gforth
+    lookup @ search-wordlist ;
+
+: find   ( addr -- cfa +-1 / string false ) \ core,search
+    dup count sfind dup IF
+	rot drop
+    THEN
+    dup 1 and 0=  IF  2/  THEN ;
+
+: (')    ( "name" -- xt ) \ gforth	paren-tick
+    name (sfind) 0= IF  -&13 bounce THEN  ;
+: [(')]  ( compilation "name" -- ; run-time -- addr ) \ gforth	bracket-paren-tick
+    (') postpone ALiteral ; immediate restrict
+
+: '    ( "name" -- xt ) \ core	tick
+    (') xt>i ;
+: [']  ( compilation "name" -- ; run-time -- addr ) \ core	bracket-tick
+    ' postpone ALiteral ; immediate restrict
+
+: C'    ( "name" -- xt ) \ gforth	c-tick
+    (') xt>c ;
+: [C']  ( compilation "name" -- ; run-time -- addr ) \ gforth	bracket-c-tick
+    C' postpone ALiteral ; immediate restrict
+
+: S'    ( "name" -- xt ) \ gforth	s-tick
+    (') xt>s ;
+: [S']  ( compilation "name" -- ; run-time -- addr ) \ gforth	bracket-s-tick
+    S' postpone ALiteral ; immediate restrict
+
+\ reveal words
 
 Variable warnings ( -- addr ) \ gforth
 G -1 warnings T !
 
 : check-shadow  ( addr count wid -- )
 \ prints a warning if the string is already present in the wordlist
-\ !! should be refined so the user can suppress the warnings
  >r 2dup 2dup r> (search-wordlist) warnings @ and ?dup if
    ." redefined " name>string 2dup type
    compare 0<> if
@@ -1230,18 +1272,6 @@ G -1 warnings T !
    space space EXIT
  then
  2drop 2drop ;
-
-: (sfind) ( c-addr u -- nfa | 0 )
-    lookup @ (search-wordlist) ;
-
-: sfind ( c-addr u -- xt n / 0 ) \ gforth
-    lookup @ search-wordlist ;
-
-: find   ( addr -- cfa +-1 / string false ) \ core,search
-    \ !! not ANS conformant: returns +-2 for restricted words
-    dup count sfind dup if
-	rot drop
-    then ;
 
 : reveal ( -- ) \ gforth
     last?
@@ -1257,10 +1287,6 @@ G -1 warnings T !
 : rehash  ( wid -- )
     dup wordlist-map @ rehash-method perform ;
 
-: '    ( "name" -- addr ) \ core	tick
-    name sfind 0= if -&13 bounce then ;
-: [']  ( compilation "name" -- ; run-time --addr ) \ core	bracket-tick
-    ' postpone ALiteral ; immediate restrict
 \ Input                                                13feb93py
 
 07 constant #bell ( -- c ) \ gforth
@@ -1279,35 +1305,22 @@ G -1 warnings T !
 
 \ : backspaces  0 ?DO  #bs emit  LOOP ;
 
-Variable ^d-mode  -1 ^d-mode ! \ ^d is "EOF" if at beginning of the line
-
-: >string  ( span addr pos1 -- span addr pos1 addr2 len )
-  over 3 pick 2 pick chars /string ;
-: type-rest ( span addr pos1 -- span addr pos1 back )
-  >string tuck type ;
-: (del)  ( max span addr pos1 -- max span addr pos2 )
-  1- >string over 1+ -rot move
-  rot 1- -rot  #bs emit  type-rest bl emit 1+ backspaces ;
-: (ins)  ( max span addr pos1 char -- max span addr pos2 )
-  >r >string over 1+ swap move 2dup chars + r> swap c!
-  rot 1+ -rot type-rest 1- backspaces 1+ ;
-: ?del ( max span addr pos1 -- max span addr pos2 0 )
-  dup  IF  (del)  THEN  0 ;
-: (ret)  type-rest drop true space ;
-: back  dup  IF  1- #bs emit  ELSE  #bell emit  THEN 0 ;
-: forw 2 pick over <> IF  2dup + c@ emit 1+  ELSE  #bell emit  THEN 0 ;
-: eof  ^d-mode @  IF
-        bye
-    ELSE  2 pick over <>
-	IF  forw drop (del)  ELSE  #bell emit  THEN  0
-    THEN ;
+: (ins) ( max span addr pos1 key -- max span addr pos2 )
+    >r 2dup + r@ swap c! r> emit 1+ rot 1+ -rot ;
+: (bs) ( max span addr pos1 -- max span addr pos2 flag )
+    dup IF
+	#bs emit bl emit #bs emit 1- rot 1- -rot
+    THEN false ;
+: (ret)  true space ;
 
 Create ctrlkeys
-  ] false false back  false  eof   false forw  false
-    ?del  false (ret) false  false (ret) false false
+  ] false false false false  false false false false
+    (bs)  false (ret) false  false (ret) false false
     false false false false  false false false false
     false false false false  false false false false [
 
+defer insert-char
+' (ins) IS insert-char
 defer everychar
 ' noop IS everychar
 
@@ -1316,13 +1329,13 @@ defer everychar
   dup #del = IF  drop #bs  THEN  \ del is rubout
   dup bl <   IF  cells ctrlkeys + perform  EXIT  THEN
   >r 2over = IF  rdrop bell 0 EXIT  THEN
-  r> (ins) 0 ;
+  r> insert-char 0 ;
 
 : accept   ( addr len -- len ) \ core
   dup 0< IF    abs over dup 1 chars - c@ tuck type 
 \ this allows to edit given strings
          ELSE  0  THEN rot over
-  BEGIN  key decode dup ^d-mode !  UNTIL
+  BEGIN  key decode  UNTIL
   2drop nip ;
 
 \ Output                                               13feb93py
@@ -1439,6 +1452,17 @@ create pathfilenamebuf 256 chars allot \ !! make this grow on demand
 \   ELSE   false
 \   THEN ;
 
+: absolut-path? ( addr u -- flag ) \ gforth
+    \ a path is absolute, if it starts with a / or a ~ (~ expansion),
+    \ or if it is in the form ./* or ../*, extended regexp: [/~]|./|../
+    \ Pathes simply containing a / are not absolute!
+    over c@ '/ = >r
+    over c@ '~ = >r
+    2dup 2 min S" ./" compare 0= >r
+         3 min S" ../" compare 0=
+    r> r> r> or or or ;
+\   [char] / scan nip 0<> ;    
+
 : open-path-file ( c-addr1 u1 -- file-id c-addr2 u2 ) \ gforth
     \ opens a file for reading, searching in the path for it (unless
     \ the filename contains a slash); c-addr2 u2 is the full filename
@@ -1448,7 +1472,7 @@ create pathfilenamebuf 256 chars allot \ !! make this grow on demand
     \ the path will usually contain dirs that are only readable for
     \ the user
     \ !! use file-status to determine access mode?
-    2dup [char] / scan nip ( 0<> )
+    2dup absolut-path?
     if \ the filename contains a slash
 	2dup r/o open-file throw ( c-addr1 u1 file-id )
 	-rot >r pathfilenamebuf r@ cmove ( file-id R: u1 )
@@ -1812,3 +1836,5 @@ Defer 'cold ' noop IS 'cold
 \ or space and stackspace overrides
 
 \ 0 arg contains, however, the name of the program.
+
+

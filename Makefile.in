@@ -85,6 +85,7 @@ KERN_SRC = \
 	kernal.fs \
 	main.fs \
 	search-order.fs \
+	special.fs \
 	tools.fs \
 	toolsext.fs \
 	vars.fs \
@@ -103,7 +104,6 @@ GFORTH_FI_SRC = \
 	glocals.fs \
 	hash.fs \
 	history.fs \
-	interpretation.fs \
 	look.fs \
 	search-order.fs \
 	see.fs \
@@ -267,7 +267,7 @@ install:	gforth $(FORTH_SRC) kernal.fi gforth.fi gforth.1 gforth.info* primitive
 		done
 		$(INSTALL_DATA) kernal.fi $(libdir)/gforth/$(VERSION)
 		$(FORTHK) startup.fs dumpimage.fs -e "savesystem $(libdir)/gforth/$(VERSION)/gforth.fi bye" #gforth.fi contains some path names
-		sed s:$(srcdir)/:$(datadir)/gforth/$(VERSION): gforth.TAGS >TAGS; $(INSTALL_DATA) TAGS $(datadir)/gforth/$(VERSION)
+		sed s:$(srcdir)/:$(datadir)/gforth/$(VERSION)/: gforth.TAGS >TAGS; $(INSTALL_DATA) TAGS $(datadir)/gforth/$(VERSION)
 		if test -d $(emacssitelispdir); then \
 			$(INSTALL_DATA) gforth.el $(emacssitelispdir); \
 		else \
@@ -304,22 +304,22 @@ gforth:		$(OBJECTS)
 		@MAKE_EXE@
 
 kernl16l.fi-:	$(KERN_SRC) mach16l.fs $(FORTH_GEN0)
-		$(FORTHK) -p . interpretation.fs -e 's" mach16l.fs"' main.fs -e "save-cross kernl16l.fi- $(bindir)/gforth-$(VERSION) bye"
+		$(FORTHK) -p . -e 's" mach16l.fs"' main.fs -e "save-cross kernl16l.fi- $(bindir)/gforth-$(VERSION) bye"
 
 kernl16b.fi-:	$(KERN_SRC) mach16b.fs $(FORTH_GEN0)
-		$(FORTHK) -p . interpretation.fs -e 's" mach16b.fs"' main.fs -e "save-cross kernl16b.fi- $(bindir)/gforth-$(VERSION) bye"
+		$(FORTHK) -p . -e 's" mach16b.fs"' main.fs -e "save-cross kernl16b.fi- $(bindir)/gforth-$(VERSION) bye"
 
 kernl32l.fi-:	$(KERN_SRC) mach32l.fs $(FORTH_GEN0)
-		$(FORTHK) -p . interpretation.fs -e 's" mach32l.fs"' main.fs -e "save-cross kernl32l.fi- $(bindir)/gforth-$(VERSION) bye"
+		$(FORTHK) -p . -e 's" mach32l.fs"' main.fs -e "save-cross kernl32l.fi- $(bindir)/gforth-$(VERSION) bye"
 
 kernl32b.fi-:	$(KERN_SRC) mach32b.fs $(FORTH_GEN0)
-		$(FORTHK) -p . interpretation.fs -e 's" mach32b.fs"' main.fs -e "save-cross kernl32b.fi- $(bindir)/gforth-$(VERSION) bye"
+		$(FORTHK) -p . -e 's" mach32b.fs"' main.fs -e "save-cross kernl32b.fi- $(bindir)/gforth-$(VERSION) bye"
 
 kernl64l.fi-:	$(KERN_SRC) mach64l.fs $(FORTH_GEN0)
-		$(FORTHK) -p . interpretation.fs -e 's" mach64l.fs"' main.fs -e "save-cross kernl64l.fi- $(bindir)/gforth-$(VERSION) bye"
+		$(FORTHK) -p . -e 's" mach64l.fs"' main.fs -e "save-cross kernl64l.fi- $(bindir)/gforth-$(VERSION) bye"
 
 kernl64b.fi-:	$(KERN_SRC) mach64b.fs $(FORTH_GEN0)
-		$(FORTHK) -p . interpretation.fs -e 's" mach64b.fs"' main.fs -e "save-cross kernl64b.fi- $(bindir)/gforth-$(VERSION) bye"
+		$(FORTHK) -p . -e 's" mach64b.fs"' main.fs -e "save-cross kernl64b.fi- $(bindir)/gforth-$(VERSION) bye"
 
 kernl16b.fi:	$(KERNLS)
 		-$(CP) kernl16b.fi kernl16b.fi~
@@ -394,7 +394,7 @@ doc.fd:		makedoc.fs float.fs search-order.fs glocals.fs environ.fs \
 		$(FORTHK) -p . -e "s\" doc.fd\"" makedoc.fs startup.fs code.fs -e bye
 
 crossdoc.fd:	$(KERN_SRC) $(FORTH_GEN0)
-		$(FORTHK) -p . interpretation.fs -e 's" mach32l.fs"' main.fs
+		$(FORTHK) -p . -e 's" mach32l.fs"' main.fs -e bye
 
 gforth.texi:	gforth.ds primitives.b ds2texi.fs prims2x.fs doc.fd crossdoc.fd
 		$(FORTHK) -p . ds2texi.fs -e "s\" gforth.ds\" r/o open-file throw ds2texi bye" >$@
@@ -415,6 +415,8 @@ html:		gforth.texi
 		-$(RM) html/*
 		-mkdir html
 		cd html; $(TEXI2HTML) -menu -split_node ../gforth.texi
+
+doc:		gforth.ps html
 
 # For an explanation of the following Makefile rules, see node
 # `Automatic Remaking' in GNU Autoconf documentation.

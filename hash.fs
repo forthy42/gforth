@@ -84,8 +84,8 @@ Variable HashIndex
 : clearhash  ( -- )
     HashTable Hashlen cells bounds
     DO  I @
-        BEGIN  dup  WHILE
-               dup @ swap HashPointer DelFix
+	BEGIN  dup  WHILE
+	       dup @ swap HashPointer DelFix
         REPEAT  I !
     cell +LOOP  HashIndex off ;
 
@@ -110,7 +110,7 @@ Create hashsearch-map ( -- wordlist-map )
   THEN ;
 
 : (initvoc) ( addr -- )
-    cell+ dup @ 0< IF  drop EXIT  THEN
+    cell+ dup @  0< IF  drop EXIT  THEN
     insRule @ >r  insRule off  hash-alloc
     3 cells - hashsearch-map over cell+ ! dup
     BEGIN  @ dup  WHILE  2dup swap (reveal  REPEAT

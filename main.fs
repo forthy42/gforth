@@ -25,7 +25,8 @@
 \ : ; ( colon-sys -- )  ?struc postpone exit reveal postpone [ ; immediate
 \ : :noname ( -- xt colon-sys )  here [ ' : @ ] ALiteral cfa, 0 ] ;
 
-[IFUNDEF] vocabulary include search-order.fs [THEN]
+include search-order.fs
+
 \ include etags.fs
 
 include cross.fs               \ include cross-compiler
@@ -59,14 +60,15 @@ include aliases.fs             \ include primitive aliases
 include vars.fs                \ variables and other stuff
 include add.fs                 \ additional things
 include errore.fs
-include kernal.fs              \ load kernal
 include version.fs
+include kernal.fs              \ load kernal
 include extend.fs              \ load core-extended
 include tools.fs               \ load tools ( .s dump )
+include toolsext.fs
+include special.fs
 \ include words.fs
 \ include wordinfo.fs
 \ include see.fs                 \ load see
-include toolsext.fs
 \ include search-order.fs
 
 \ Setup                                                13feb93py

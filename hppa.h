@@ -154,10 +154,14 @@ extern void cacheflush(void *, int, int);
 /* this is the point where the does code starts if label points to the
  * jump dodoes */
 
-#  define DOES_CODE(cfa)	((Xt *)(((long *)(cfa))[1]))
-
 /* this is a special version of DOES_CODE for use in dodoes */
-#  define DOES_CODE1(cfa)  DOES_CODE(cfa) \
+#  define DOES_CODE1(cfa)	((Xt *)(((long *)(cfa))[1]))
+
+#  define DOES_CODE(cfa) \
+   (((((*(long *)(cfa)) & 0xF7E0E002) == 0xE0000000) && \
+     ((long)(CODE_ADDRESS(CODE_ADDRESS(cfa))) == (long)symbols[DODOES])) ? \
+    DOES_CODE1(cfa) : 0L)
+
 /*	({register Xt * _ret asm("%r31"); _ret;}) */
 
 /* HPPA uses register 2 for branch and link */
@@ -191,7 +195,7 @@ extern void cacheflush(void *, int, int);
      } \
      else \
      { \
-	 fprintf(stderr,"DOESHANDLER assignment failed, use ITC instead of DTC\n"); exit(1); \
+	 _ca -= 4; \
 	 _cfa[0] = ((0x08 << 26) | \
 		    ((int)_ca<0) | \
 		    (_ca & 0x00001800)<<1 | \

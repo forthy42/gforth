@@ -57,10 +57,15 @@
 /* this is the point where the does code starts if label points to the
  * jump dodoes */
 #define DOES_HANDLER_SIZE       8
-#define DOES_CODE(label)	((Xt *)(CODE_ADDRESS(label)+DOES_HANDLER_SIZE))
+#define DOES_CODE(xt) \
+({ long _xt = (long)(CODE_ADDRESS(xt)); \
+   (((*(unsigned char *)(xt)) == CALL) && \
+    ((*(unsigned char *)_xt) == JMP) && \
+    ((long)(CODE_ADDRESS(_xt)) == (long)symbols[DODOES])) ? \
+      _xt+DOES_HANDLER_SIZE : 0L; })
 
 /* this is a special version of DOES_CODE for use in dodoes */
-#define DOES_CODE1(label)	DOES_CODE(label)
+#define DOES_CODE1(label)      (CODE_ADDRESS(label)+DOES_HANDLER_SIZE)
 
 /* this stores a jump dodoes at addr */
 #define MAKE_DOES_CF(addr,doesp)	({long _addr = (long)(addr); \

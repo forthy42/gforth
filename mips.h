@@ -80,10 +80,10 @@
 
 	/* this is the point where the does code starts if label points to the
 	 * jump dodoes */
-#	define DOES_CODE(cfa)	((Xt *)(((char *)CODE_ADDRESS(cfa))+8))
+#	define DOES_CODE1(cfa)	((Xt *)(((char *)CODE_ADDRESS(cfa))+8))
 
 	/* this is a special version of DOES_CODE for use in dodoes */
-#	define DOES_CODE1(cfa)	DOES_CODE(cfa)
+#	define DOES_CODE(cfa)	DOES_CODE1(cfa)
 
 #	define DOES_HANDLER_SIZE	8
 #	define MAKE_DOES_CF(cfa,does_code) \

@@ -26,13 +26,13 @@ Variable countif
 : scanIF   f83find  dup 0=  IF  drop ['] dummy >name  THEN  ;
 
 Create [struct]-search    ' scanIF A,  ' (reveal) A,  ' drop A,
-Create [struct]-voc       NIL A,       G [struct]-search T A,
+Create [struct]-voc       NIL A,       [struct]-search A,
                           NIL A,       NIL A,
 
 : ?if  countif @ 0<
   IF  [ [struct]-voc 3 cells + ] ALiteral @ lookup !  THEN ;
 
-UNLOCK Tlast @ NIL Tlast ! LOCK
+UNLOCK  Tlast @ NIL Tlast !  LOCK
 
 : [IF]      1 countif +! ?if ;       immediate
 : [THEN]   -1 countif +! ?if ;       immediate
@@ -55,7 +55,7 @@ UNLOCK Tlast @ NIL Tlast ! LOCK
 ' \ Alias \                          immediate
 
 UNLOCK Tlast @ swap Tlast ! LOCK
-1 cells - G [struct]-voc T !
+1 cells - [struct]-voc !
 
 \ Interpretative Structuren                            30apr92py
 
@@ -83,7 +83,7 @@ User (i)
 : [LOOP] ( -- ) 1 rdrop rdrop ;                       immediate
 : [FOR] ( n -- )  0 swap postpone [DO] ;              immediate
 : [NEXT] ( n -- ) -1 rdrop rdrop ;                    immediate
-: [I] ( -- index ) (I) @ postpone Literal ;           immediate restrict
+: [I] ( -- index ) (I) @ postpone Literal ;           immediate
 : [BEGIN] >in @ >r BEGIN r@ >in ! interpret UNTIL rdrop ;
                                                       immediate
 ' [+LOOP]  Alias [UNTIL] immediate

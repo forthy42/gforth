@@ -39,9 +39,6 @@ decimal
 
 ' drop alias d>s ( d -- n ) \ double		d_to_s
 
-: dabs ( d1 -- d2 ) \ double
-    dup 0< IF dnegate THEN ;
-
 : m*/ ( d1 n2 u3 -- dqout ) \ double m-star-slash
     >r s>d >r abs -rot
     s>d r> xor r> swap >r >r dabs rot tuck um* 2swap um*
@@ -125,12 +122,6 @@ decimal
     REPEAT
     2drop 2drop  rdrop false ;
 
-\ ROLL                                                  17may93jaw
-
-: roll  ( x0 x1 .. xn n -- x1 .. xn x0 ) \ core-ext
-  dup 1+ pick >r
-  cells sp@ cell+ dup cell+ rot move drop r> ;
-
 \ SOURCE-ID SAVE-INPUT RESTORE-INPUT                    11jun93jaw
 
 : source-id ( -- 0 | -1 | fileid ) \ core-ext source-i-d
@@ -204,6 +195,6 @@ variable span ( -- a-addr ) \ core-ext
 	key decode ( maxlen span c-addr pos2 flag )
 	>r 2over = r> or
     UNTIL
-    type-rest drop
-    2drop nip span ! ;
+    2 pick swap /string type
+    nip span ! ;
 

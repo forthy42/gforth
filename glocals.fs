@@ -505,7 +505,14 @@ forth definitions
 	code-address!
     then ;
 
-: TO ( c|w|d|r "name" -- ) \ core-ext,local
+:noname
+    ' dup >definer [ ' locals-wordlist >definer ] literal =
+    if
+	>body !
+    else
+	-&32 throw
+    endif ;
+:noname
     0 0 0. 0.0e0 { c: clocal w: wlocal d: dlocal f: flocal }
     ' dup >definer
     case
@@ -520,14 +527,8 @@ forth definitions
 	[ ' flocal >definer ] literal
 	OF POSTPONE laddr# >body @ lp-offset, POSTPONE f! ENDOF
 	-&32 throw
-    endcase ; immediate
-interpretation:
-    ' dup >definer [ ' locals-wordlist >definer ] literal =
-    if
-	>body !
-    else
-	-&32 throw
-    endif ;
+    endcase ;
+special: TO ( c|w|d|r "name" -- ) \ core-ext,local
 
 : locals|
     \ don't use 'locals|'! use '{'! A portable and free '{'

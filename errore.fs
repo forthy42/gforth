@@ -23,18 +23,17 @@
 \ and deleting. Speed is not neccassary at this point.
 
 AVARIABLE ErrLink              \ Linked list entry point
-0 ErrLink !
+NIL ErrLink !
 
 : ERR" ( n -- )
        ErrLink linked
        ,
-       [char] " word count
+       [char] " parse
        string, align ;
 
 decimal
 
 -1 ERR" Aborted"
-ErrLink @ unlock reloff lock \ make sure that the terminating 0 is not relocated
 -3 ERR" Stack overflow"                 -4 ERR" Stack underflow"
 -5 ERR" Return stack overflow"          -6 ERR" Return stack undeflow"
 -7 ERR" Do-loops nested too deeply"     -8 ERR" Dictionary overflow"
