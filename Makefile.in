@@ -295,6 +295,7 @@ ARCHS =	\
 	arch/misc/README \
 	arch/misc/asm.fs \
 	arch/misc/mach.fs \
+	arch/misc/optcmove.fs \
 	arch/misc/prim.fs \
 	arch/misc/sim.fs \
 	arch/misc/sokoban.fs \

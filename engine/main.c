@@ -1035,13 +1035,14 @@ Label decompile_code(Label _code)
 int nbranchinfos=0;
 
 struct branchinfo {
-  Label *targetptr; /* *(bi->targetptr) is the target */
+  Label **targetpp; /* **(bi->targetpp) is the target */
   Cell *addressptr; /* store the target here */
 } branchinfos[100000];
 
 int ndoesexecinfos=0;
 struct doesexecinfo {
   int branchinfo; /* fix the targetptr of branchinfos[...->branchinfo] */
+  Label *targetp; /*target for branch (because this is not in threaded code)*/
   Cell *xt; /* cfa of word whose does-code needs calling */
 } doesexecinfos[10000];
 
@@ -1050,10 +1051,10 @@ void set_rel_target(Cell *source, Label target)
   *source = ((Cell)target)-(((Cell)source)+4);
 }
 
-void register_branchinfo(Label source, Cell targetptr)
+void register_branchinfo(Label source, Cell *targetpp)
 {
   struct branchinfo *bi = &(branchinfos[nbranchinfos]);
-  bi->targetptr = (Label *)targetptr;
+  bi->targetpp = (Label **)targetpp;
   bi->addressptr = (Cell *)source;
   nbranchinfos++;
 }
@@ -1067,13 +1068,13 @@ Address compile_prim1arg(PrimNum p, Cell **argp)
   return old_code_here;
 }
 
-Address compile_call2(Cell targetptr, Cell **next_code_targetp)
+Address compile_call2(Cell *targetpp, Cell **next_code_targetp)
 {
   PrimInfo *pi = &priminfos[N_call2];
   Address old_code_here = append_prim(N_call2);
 
   *next_code_targetp = (Cell *)(old_code_here + pi->immargs[0].offset);
-  register_branchinfo(old_code_here + pi->immargs[1].offset, targetptr);
+  register_branchinfo(old_code_here + pi->immargs[1].offset, targetpp);
   return old_code_here;
 }
 #endif
@@ -1086,12 +1087,13 @@ void finish_code(void)
   compile_prim1(NULL);
   for (i=0; i<ndoesexecinfos; i++) {
     struct doesexecinfo *dei = &doesexecinfos[i];
-    branchinfos[dei->branchinfo].targetptr = (Label *)DOES_CODE1((dei->xt));
+    dei->targetp = (Label *)DOES_CODE1((dei->xt));
+    branchinfos[dei->branchinfo].targetpp = &(dei->targetp);
   }
   ndoesexecinfos = 0;
   for (i=0; i<nbranchinfos; i++) {
     struct branchinfo *bi=&branchinfos[i];
-    set_rel_target(bi->addressptr, *(bi->targetptr));
+    set_rel_target(bi->addressptr, **(bi->targetpp));
   }
   nbranchinfos = 0;
 #else
@@ -1118,7 +1120,7 @@ Cell compile_prim_dyn(PrimNum p, Cell *tcp)
     primstart = append_prim(p);
     goto other_prim;
   } else if (p==N_call) {
-    codeaddr = compile_call2(tcp[1], &next_code_target);
+    codeaddr = compile_call2(tcp+1, &next_code_target);
   } else if (p==N_does_exec) {
     struct doesexecinfo *dei = &doesexecinfos[ndoesexecinfos++];
     Cell *arg;
@@ -1143,9 +1145,10 @@ Cell compile_prim_dyn(PrimNum p, Cell *tcp)
   other_prim:
     for (j=0; j<pi->nimmargs; j++) {
       struct immarg *ia = &(pi->immargs[j]);
-      Cell argval = tcp[pi->nimmargs - j]; /* !! specific to prims */
+      Cell *argp = tcp + pi->nimmargs - j;
+      Cell argval = *argp; /* !! specific to prims */
       if (ia->rel) { /* !! assumption: relative refs are branches */
-	register_branchinfo(primstart + ia->offset, argval);
+	register_branchinfo(primstart + ia->offset, argp);
       } else /* plain argument */
 	*(Cell *)(primstart + ia->offset) = argval;
     }

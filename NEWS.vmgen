@@ -1,3 +1,8 @@
+User-visible changes between 0.6.[01] and 0.6.2:
+
+You now have to define a macro MAYBE_UNUSED (see manual); useful for
+  suppressing expected "unused variable" warnings.
+
 User-visible changes between 0.5.9-20020901 and 0.6.0:
 
 Support for upward-growing stacks (see "Stack growth direction" in the
