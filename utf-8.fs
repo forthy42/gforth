@@ -22,16 +22,16 @@
 
 s" malformed UTF-8 character" exception Constant UTF-8-err
 
-$80 Value maxascii
+$80 Value max-single-byte
 
 : u8len ( u8 -- n )
-    dup      maxascii u< IF  drop 1  EXIT  THEN \ special case ASCII
+    dup      max-single-byte u< IF  drop 1  EXIT  THEN \ special case ASCII
     $800  2 >r
     BEGIN  2dup u>=  WHILE  5 lshift r> 1+ >r  REPEAT
     2drop r> ;
 
 : u8@+ ( u8addr -- u8addr' u )
-    count  dup maxascii u< ?EXIT  \ special case ASCII
+    count  dup max-single-byte u< ?EXIT  \ special case ASCII
     $7F and  $40 >r
     BEGIN  dup r@ and  WHILE  r@ xor
 	    6 lshift r> 5 lshift >r >r count
@@ -40,7 +40,7 @@ $80 Value maxascii
     REPEAT  rdrop ;
 
 : u8!+ ( u u8addr -- u8addr' )
-    over maxascii u< IF  tuck c! 1+  EXIT  THEN \ special case ASCII
+    over max-single-byte u< IF  tuck c! 1+  EXIT  THEN \ special case ASCII
     >r 0 swap  $3F
     BEGIN  2dup u>  WHILE
 	    2/ >r  dup $3F and $80 or swap 6 rshift r>
@@ -62,14 +62,16 @@ $80 Value maxascii
 
 \ scan to next/previous character
 
+\ alternative names: u8char+ u8char-
+
 : u8>> ( u8addr -- u8addr' )  u8@+ drop ;
 : u8<< ( u8addr -- u8addr' )
-    BEGIN  1- dup c@ $C0 and maxascii <>  UNTIL ;
+    BEGIN  1- dup c@ $C0 and max-single-byte <>  UNTIL ;
 
 \ utf key and emit
 
 : u8key ( -- u )
-    defers key dup maxascii u< ?EXIT  \ special case ASCII
+    defers key dup max-single-byte u< ?EXIT  \ special case ASCII
     $7F and  $40 >r
     BEGIN  dup r@ and  WHILE  r@ xor
 	    6 lshift r> 5 lshift >r >r defers key
@@ -78,12 +80,65 @@ $80 Value maxascii
     REPEAT  rdrop ;
 
 : u8emit ( u -- )
-    dup maxascii u< IF  defers emit  EXIT  THEN \ special case ASCII
+    dup max-single-byte u< IF  defers emit  EXIT  THEN \ special case ASCII
     0 swap  $3F
     BEGIN  2dup u>  WHILE
 	    2/ >r  dup $3F and $80 or swap 6 rshift r>
     REPEAT  $7F xor 2* or
     BEGIN   dup $80 u>= WHILE  defers emit  REPEAT  drop ;
+
+\ utf-8 stuff for xchars
+
+: +u8/string ( c-addr1 u1 -- c-addr2 u2 )
+    over dup u8>> swap - /string ;
+
+: -u8/string ( c-addr1 u1 -- c-addr2 u2 )
+    over dup u8<< swap - /string ;
+
+: u8@ ( c-addr -- u )
+    u8@+ nip ;
+
+: u8!+? ( xc xc-addr1 u1 -- xc-addr2 u2 f )
+    >r over u8len r@ over u< if ( xc xc-addr1 len r: u1 )
+	\ not enough space
+	drop nip r> false
+    else
+	>r u8!+ r> r> swap - true
+    then ;
+
+: u8addrlen ( u8-addr -- u )
+    \ length of UTF-8 char starting at u8-addr (accesses only u8-addr)
+    c@
+    dup $80 u< if drop 1 exit endif
+    dup $c0 u< if UTF-8-err throw endif
+    dup $e0 u< if drop 2 exit endif
+    dup $f0 u< if drop 3 exit endif
+    dup $f8 u< if drop 4 exit endif
+    dup $fc u< if drop 5 exit endif
+    dup $fe u< if drop 6 exit endif
+    UTF-8-err throw ;
+
+: -u8trailing-garbage ( addr u1 -- addr u2 )
+    2dup + dup u8<< ( addr u1 end1 end2 )
+    2dup dup u8addrlen + = if \ last character ok
+	2drop
+    else
+	nip nip over -
+    then ;
+
+: set-encoding-utf-8 ( -- )
+    ['] u8emit is xemit
+    ['] u8key is xkey
+    ['] u8>> is xchar+
+    ['] u8<< is xchar-
+    ['] +u8/string is +x/string
+    ['] -u8/string is -x/string
+    ['] u8@ is xc@
+    ['] u8!+? is xc!+?
+    ['] u8@+ is xc@+
+    ['] u8len is xc-size
+    ['] -u8trailing-garbage is -trailing-garbage
+;
 
 \ input editor
 

@@ -244,7 +244,7 @@ Create prefix-found  0 , 0 ,
 
 \ UTF-8 support
 
-include utf-8.fs
+require utf-8.fs
 
 : utf-8-cold ( -- )
     s" LANG" getenv s" .UTF-8" search nip nip
