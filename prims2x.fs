@@ -669,7 +669,7 @@ stack inst-stream IP Cell
     prim prim-effect-in prim prim-effect-in-end @ ['] fetch map-items ;
 
 : stack-pointer-update { stack -- }
-    \ stack grow downwards
+    \ stacks grow downwards
     stack stack-diff
     ?dup-if \ this check is not necessary, gcc would do this for us
 	stack inst-stream = if
@@ -1166,7 +1166,7 @@ stack inst-stream IP Cell
     r> in-part ! ;
 
 : part-stack-pointer-updates ( -- )
-    max-stacks 0 +do
+    next-stack-number @ 0 +do
 	i part-num @ 1+ s-c-max-depth @ dup
 	i num-combined @ s-c-max-depth @ =    \ final depth
 	swap i part-num @ s-c-max-depth @ <> \ just reached now

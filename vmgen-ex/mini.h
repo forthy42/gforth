@@ -65,6 +65,9 @@ void vm_print_profile(FILE *file);
 /* the cast in vm_Cell2Cell is needed because the base type for
    inst-stream is Cell, but *IP is an Inst */
 
+/* for future extensions */
+#define IMM_ARG(access,value)		(access)
+
 #define VM_IS_INST(inst, n) ((inst) == vm_prim[n])
 
 /* mini type-specific support functions */

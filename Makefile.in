@@ -334,14 +334,15 @@ VMGEN_EX2 = $(VMGEN_EX:vmgen-ex/%=vmgen-ex2/%)
 SOURCES	= $(CVSDIRS) compat Makefile.in Makedist.in engine/Makefile.in \
 	gforthmi.in vmgen.in README.vmgen NEWS.vmgen \
 	configure.in configure config.sub config.guess elisp-comp missing \
-	acconfig.h engine/config.h.in stamp-h.in \
+	engine/config.h.in stamp-h.in \
 	iss.sh install-sh INSTALL INSTALL.BINDIST NEWS README ToDo BUGS model \
 	COPYING COPYING.DOC AUTHORS ChangeLog Benchres aclocal.m4 \
 	doc/gforth.ds doc/texinfo.tex doc/gforth.1 doc/version.texi.in \
 	doc/vmgen.texi doc/fdl.texi \
 	gforth.el \
 	prim peeprules.vmg engine/engine.c engine/main.c \
-	engine/io.c engine/memcmpc.c engine/signals.c $(ARCHS) \
+	engine/io.c engine/support.c engine/memcmpc.c engine/signals.c \
+	$(ARCHS) \
 	engine/peephole.c engine/profile.c \
 	engine/getopt.c engine/getopt1.c engine/getopt.h engine/select.c \
 	engine/ecvt.c engine/memcmp.c engine/strtol.c engine/strtoul.c \

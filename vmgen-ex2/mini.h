@@ -42,6 +42,9 @@ typedef union Cell {
 #define vm_a2Cell(_x,_cell)	((_cell).a=(_x))	
 #define vm_Cell2Cell(_x,_y) ((_y)=(_x))
 
+/* for future extensions */
+#define IMM_ARG(access,value)		(access)
+
 #define VM_IS_INST(_inst, n) ((_inst).inst == vm_prim[n])
 
 extern Label *vm_prim;
