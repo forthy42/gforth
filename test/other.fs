@@ -99,6 +99,23 @@ name b 2dup name abc search throw d<> throw
     r> abort" ONLY sets current" ;
 test-only
 
+\ create-interpret/compile
+
+: constant ( n "name" -- )
+    create-interpret/compile
+    ,
+interpretation>
+    @
+<interpretation
+compilation>
+    @ postpone literal
+<compilation ;
+
+5 constant five
+five 5 <> throw
+: five' five ;
+five' 5 <> throw
+
 \ comments across several lines
 
 ( fjklfjlas;d

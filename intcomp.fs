@@ -47,7 +47,7 @@ constant no-interpretation-does-code
     lastxt interpret/compile-int @ r@ >body = and
     lastxt interpret/compile-comp @ r> = and
     0= abort" not created with create-interpret/compile"
-    [ /does-handler cell+ cell+ ] literal + \ to does-code
+    cell+ cell+ maxaligned /does-handler + \ to does-code
     swap @ does-code! ;
 
 : (interpretation>) ( -- )
