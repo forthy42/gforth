@@ -9,6 +9,7 @@ prim.i-
 config.h
 version.h
 gforth
+gforth-fast
 gforth-ditc
 config.h.in
 stamp-h

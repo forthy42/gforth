@@ -40,9 +40,9 @@ require ./io.fs
     holdbuf-end dup holdptr ! holdend ! ;
 
 : #>      ( xd -- addr u ) \ core	number-sign-greater
-    \G Complete the pictured numeric output string by
-    \G discarding xd and returning addr u; the address and length
-    \G of the formatted string. A Standard program may modify characters
+    \G Complete the pictured numeric output string by discarding
+    \G @var{xd} and returning @var{addr u}; the address and length of
+    \G the formatted string. A Standard program may modify characters
     \G within the string.
     2drop holdptr @ holdend @ over - ;
 
@@ -60,20 +60,22 @@ require ./io.fs
     count chars bounds holdptr ! holdend ! ;
 
 : sign    ( n -- ) \ core
-    \G Used within @code{<#} and @code{#>}. If n (a @var{single} number)
-    \G is negative, append the display code for a minus sign to the pictured
-    \G numeric output string. Since the string is built up "backwards"
-    \G this is usually used immediately prior to @code{#>}, as shown in
-    \G the examples below.
+    \G Used within @code{<#} and @code{#>}. If @var{n} (a @var{single}
+    \G number) is negative, append the display code for a minus sign
+    \G to the pictured numeric output string. Since the string is
+    \G built up ``backwards'' this is usually used immediately prior
+    \G to @code{#>}, as shown in the examples below.
     0< IF  [char] - hold  THEN ;
 
 : #       ( ud1 -- ud2 ) \ core		number-sign
-    \G Used within @code{<#} and @code{#>}. Add the next least-significant
-    \G digit to the pictured numeric output string. This is achieved by dividing ud1
-    \G by the number in @code{base} to leave quotient ud2 and remainder n; n
-    \G is converted to the appropriate display code (eg ASCII code) and appended
-    \G to the string. If the number has been fully converted, ud1 will be 0 and
-    \G @code{#} will append a "0" to the string.
+    \G Used within @code{<#} and @code{#>}. Add the next
+    \G least-significant digit to the pictured numeric output
+    \G string. This is achieved by dividing @var{ud1} by the number in
+    \G @code{base} to leave quotient @var{ud2} and remainder @var{n};
+    \G @var{n} is converted to the appropriate display code (eg ASCII
+    \G code) and appended to the string. If the number has been fully
+    \G converted, @var{ud1} will be 0 and @code{#} will append a ``0''
+    \G to the string.
     base @ ud/mod rot 9 over <
     IF
 	[ char A char 9 - 1- ] Literal +
@@ -83,8 +85,8 @@ require ./io.fs
 : #s      ( ud -- 0 0 ) \ core	number-sign-s
     \G Used within @code{<#} and @code{#>}. Convert all remaining digits
     \G using the same algorithm as for @code{#}. @code{#s} will convert
-    \G at least one digit. Therefore, if ud is 0, @code{#s} will append
-    \G a "0" to the pictured numeric output string.
+    \G at least one digit. Therefore, if @var{ud} is 0, @code{#s} will append
+    \G a ``0'' to the pictured numeric output string.
     BEGIN
 	# 2dup or 0=
     UNTIL ;
@@ -94,7 +96,7 @@ require ./io.fs
 : d.r ( d n -- ) \ double	d-dot-r
     \G Display @var{d} right-aligned in a field @var{n} characters wide. If more than
     \G @var{n} characters are needed to display the number, all digits are displayed.
-    \G If appropriate, @var{n} must include a character for a leading "-".
+    \G If appropriate, @var{n} must include a character for a leading ``-''.
     >r tuck  dabs  <<# #s  rot sign #>
     r> over - spaces  type #>> ;
 
@@ -106,7 +108,7 @@ require ./io.fs
 : .r ( n1 n2 -- ) \ core-ext	dot-r
     \G Display @var{n1} right-aligned in a field @var{n2} characters wide. If more than
     \G @var{n2} characters are needed to display the number, all digits are displayed.
-    \G If appropriate, @var{n2} must include a character for a leading "-".
+    \G If appropriate, @var{n2} must include a character for a leading ``-''.
     >r s>d r> d.r ;
 
 : u.r ( u n -- )  \ core-ext	u-dot-r
