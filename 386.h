@@ -1,5 +1,5 @@
 /*
-  $Id: 386.h,v 1.3 1994-09-08 17:20:03 anton Exp $
+  $Id: 386.h,v 1.4 1994-09-09 16:27:15 anton Exp $
   Copyright 1992 by the ANSI figForth Development Group
 
   This is the machine-specific part for Intel 386 compatible processors
@@ -27,7 +27,7 @@ typedef float SFloat;
 /* #define BIG_ENDIAN */
 
 /* define this if the processor cannot exploit instruction-level
-   parallelism and/or has few registers */
+   parallelism (no pipelining or too few registers) */
 #define CISC_NEXT
 
 #ifdef DIRECT_THREADED
@@ -57,5 +57,15 @@ typedef float SFloat;
 
 #define MAKE_DOES_CF(addr,doesp) MAKE_CF(addr,((int)(doesp)-8))
 #endif
+
+#ifdef FORCE_REG
+#define IPREG asm("%esi")
+#define SPREG asm("%edi")
+#ifdef USE_TOS
+#define CFAREG asm("%ecx")
+#else
+#define CFAREG asm("%edx")
+#endif
+#endif /* FORCE_REG */
 
 #define rint(x)	floor((x)+0.5)

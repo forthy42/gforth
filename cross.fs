@@ -1,5 +1,5 @@
 \ CROSS.FS     The Cross-Compiler                      06oct92py
-\ $Id: cross.fs,v 1.11 1994-09-02 15:23:33 pazsan Exp $
+\ $Id: cross.fs,v 1.12 1994-09-09 16:27:17 anton Exp $
 \ Idea and implementation: Bernd Paysan (py)
 \ Copyright 1992 by the ANSI figForth Development Group
 
@@ -110,7 +110,7 @@ include-file
 
 >CROSS
 
-endian  0 pad ! -1 pad c! pad @ 0<
+bigendian  0 pad ! -1 pad c! pad @ 0<
 = [IF]   : bswap ; immediate 
 [ELSE]   : bswap ( big / little -- little / big )  0
            cell 1- FOR  bits/byte lshift over
@@ -733,7 +733,7 @@ Cond: [ELSE]    [ELSE] ;Cond
 \ [THEN]
 \ included throw after create-file                     11may93jaw
 
-endian Constant endian
+bigendian Constant bigendian
 
 : save-cross ( "name" -- )
   bl parse ." Saving to " 2dup type

@@ -53,7 +53,7 @@ LOCK
 .unresolved
 
 cr cr 
-endian [IF]
+bigendian [IF]
    save-cross kernl32b.fi
 [ELSE]
    save-cross kernl32l.fi

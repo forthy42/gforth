@@ -1,5 +1,5 @@
 /*
-  $Id: engine.c,v 1.14 1994-09-08 17:20:05 anton Exp $
+  $Id: engine.c,v 1.15 1994-09-09 16:27:18 anton Exp $
   Copyright 1992 by the ANSI figForth Development Group
 */
 
@@ -123,33 +123,49 @@ static char* fileattr[6]={"r","rb","r+","r+b","w+","w+b"};
 
 static Address up0=NULL;
 
-#if defined(i386) && defined(FORCE_REG)
-#  define REG(reg) __asm__(reg)
-
-Label *engine(Xt *ip0, Cell *sp0, Cell *rp, Float *fp, Address lp)
-{
-   register Xt *ip REG("%esi")=ip0;
-   register Cell *sp REG("%edi")=sp0;
-
-#else
-#  define REG(reg)
-
-Label *engine(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp)
-{
+/* if machine.h has not defined explicit registers, define them as implicit */
+#ifndef IPREG
+#define IPREG
 #endif
+#ifndef SPREG
+#define SPREG
+#endif
+#ifndef RPREG
+#define RPREG
+#endif
+#ifndef FPREG
+#define FPREG
+#endif
+#ifndef LPREG
+#define LPREG
+#endif
+#ifndef CFAREG
+#define CFAREG
+#endif
+#ifndef UPREG
+#define UPREG
+#endif
+#ifndef TOSREG
+#define TOSREG
+#endif
+#ifndef FTOSREG
+#define FTOSREG
+#endif
+
+Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
 /* executes code at ip, if ip!=NULL
    returns array of machine code labels (for use in a loader), if ip==NULL
 */
-  register Xt cfa
-#ifdef i386
-#  ifdef USE_TOS
-   REG("%ecx")
-#  else
-   REG("%edx")
-#  endif
-#endif
-   ;
-  Address up=up0;
+{
+  register Xt *ip IPREG = ip0;
+  register Cell *sp SPREG = sp0;
+  register Cell *rp RPREG = rp0;
+  register Float *fp FPREG = fp0;
+  register Address lp LPREG = lp0;
+  register Xt cfa CFAREG;
+  register Address up UPREG = up0;
+  IF_TOS(register Cell TOS TOSREG;)
+  IF_FTOS(register Float FTOS FTOSREG;)
   static Label symbols[]= {
     &&docol,
     &&docon,
@@ -160,8 +176,6 @@ Label *engine(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp)
     &&dodoes,  /* dummy for does handler address */
 #include "prim_labels.i"
   };
-  IF_TOS(register Cell TOS;)
-  IF_FTOS(Float FTOS;)
 #ifdef CPU_DEP
   CPU_DEP;
 #endif
@@ -178,12 +192,12 @@ Label *engine(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp)
 #ifdef DEBUG
   printf("%08x: col: %08x\n",(Cell)ip,(Cell)PFA1(cfa));
 #endif
-#ifdef i386
+#ifdef CISC_NEXT
   /* this is the simple version */
   *--rp = (Cell)ip;
   ip = (Xt *)PFA1(cfa);
   NEXT;
-#endif
+#else
   /* this one is important, so we help the compiler optimizing
      The following version may be better (for scheduling), but probably has
      problems with code fields employing calls and delay slots
@@ -197,6 +211,7 @@ Label *engine(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp)
     ip = current_ip+1;
     NEXT1_P2;
   }
+#endif
   
  docon:
 #ifdef DEBUG

@@ -5,5 +5,5 @@
     5 Constant cell>bit
     8 Constant bits/byte
     8 Constant float
- true Constant endian
+ true Constant bigendian
 ( true=big, false=little )
