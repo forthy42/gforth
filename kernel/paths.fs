@@ -140,8 +140,8 @@
     2dup 2 u> swap 1+ c@ ': = and >r \ dos absoulte: c:/....
     over c@ '/ = >r
     over c@ '~ = >r
-    \ 2dup 3 min S" ../" compare 0= r> or >r \ not catered for in expandtopic
-    2 min S" ./" compare 0=
+    \ 2dup S" ../" string-prefix? r> or >r \ not catered for in expandtopic
+    S" ./" string-prefix?
     r> r> r> or or or ;
 
 Create ofile 0 c, 255 chars allot
@@ -157,14 +157,14 @@ Create tfile 0 c, 255 chars allot
   REPEAT ;
 
 : remove~+ ( -- )
-    ofile count 3 min s" ~+/" compare 0=
+    ofile count s" ~+/" string-prefix?
     IF
 	ofile count 3 /string ofile place
     THEN ;
 
 : expandtopic ( -- ) \ stack effect correct? - anton
     \ expands "./" into an absolute name
-    ofile count 2 min s" ./" compare 0=
+    ofile count s" ./" string-prefix?
     IF
 	ofile count 1 /string tfile place
 	0 ofile c! sourcefilename extractpath ofile place
@@ -178,7 +178,7 @@ Create tfile 0 c, 255 chars allot
     \ deletes phrases like "xy/.." out of our directory name 2dec97jaw
     over swap
     BEGIN  dup  WHILE
-        dup >r '/ scan 2dup 4 min s" /../" compare 0=
+        dup >r '/ scan 2dup s" /../" string-prefix?
         IF
             dup r> - >r 4 /string over r> + 4 -
             swap 2dup + >r move dup r> over -

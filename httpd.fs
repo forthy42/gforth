@@ -113,9 +113,9 @@ Variable htmldir
 
 : rework-htmldir ( addr u -- addr' u' / ior )
   htmldir $! htmldir $@ compact.. htmldir $!len drop
-  htmldir $@ 3 min s" ../" compare 0=
+  htmldir $@ s" ../" string-prefix?
   IF    -1 EXIT  THEN  \ can't access below current directory
-  htmldir $@ 1 min s" ~" compare 0=
+  htmldir $@ s" ~" string-prefix?
   IF    UserDir $@ htmldir dup $@ 2dup '/ scan '/ skip
         nip - nip $ins
   ELSE  DocumentRoot $@ htmldir 0 $ins  THEN
@@ -144,7 +144,7 @@ Variable htmldir
 
 : .connection ( -- )
   ." Connection: "
-  connection $@ s" Keep-Alive" compare 0= maxnum @ 0> and
+  connection $@ s" Keep-Alive" str= maxnum @ 0> and
   IF  connection $@ type cr
       ." Keep-Alive: timeout=15, max=" maxnum @ 0 .r cr
       -1 maxnum +!  ELSE  ." close" cr maxnum off  THEN ;

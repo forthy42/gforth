@@ -631,7 +631,7 @@ G -1 warnings T !
     >r 2dup 2dup r> (search-wordlist) warnings @ and ?dup if
 	>stderr
 	." redefined " name>string 2dup type
-	compare 0<> if
+	str= 0= if
 	    ."  with " type
 	else
 	    2drop

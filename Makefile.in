@@ -252,6 +252,7 @@ COMPAT = compat/README \
 	compat/exception.fs \
 	compat/loops.fs \
 	compat/required.fs \
+	compat/strcomp.fs \
 	compat/struct.fs \
 	compat/vocabulary.fs
 
@@ -365,6 +366,9 @@ FORTH_GEN0 = prim.b $(FORTH_GEN_ENGINE) kernel/aliases.fs kernel/prim.fs
 FORTH_GEN =  $(FORTH_GEN0) @KERNEL@ gforth.fi
 # this is used for antidependences,
 FORTH_GEN1 = $(FORTH_GEN0) @kernel_fi@ 
+
+#kernel dependencies
+KERN_DEPS = $(KERN_SRC) kernel/version.fs machpc.fs $(FORTH_GEN0) compat/strcomp.fs
 
 #distributed documentation
 DOCDIST = doc/gforth.info doc/gforth.info-* doc/gforth.ps
@@ -564,22 +568,22 @@ bench:		gforth-fast$(EXE) gforth.fi
 # 3. copy new kernels to kernlXYZ.fi
 #    these are the ones we want to use now
 
-kernl16l.fi-:	$(KERN_SRC) kernel/version.fs mach16l.fs machpc.fs $(FORTH_GEN0)
+kernl16l.fi-:	$(KERN_DEPS) mach16l.fs
 		$(FORTHB) -e 's" mach16l.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl16l.fi- $(bindir)/gforth-$(VERSION) bye"
 
-kernl16b.fi-:	$(KERN_SRC) kernel/version.fs mach16b.fs machpc.fs $(FORTH_GEN0)
+kernl16b.fi-:	$(KERN_DEPS) mach16b.fs
 		$(FORTHB) -e 's" mach16b.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl16b.fi- $(bindir)/gforth-$(VERSION) bye"
 
-kernl32l.fi-:	$(KERN_SRC) kernel/version.fs mach32l.fs machpc.fs $(FORTH_GEN0)
+kernl32l.fi-:	$(KERN_DEPS) mach32l.fs
 		$(FORTHB) -e 's" mach32l.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl32l.fi- $(bindir)/gforth-$(VERSION) bye"
 
-kernl32b.fi-:	$(KERN_SRC) kernel/version.fs mach32b.fs machpc.fs $(FORTH_GEN0)
+kernl32b.fi-:	$(KERN_DEPS) mach32b.fs
 		$(FORTHB) -e 's" mach32b.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl32b.fi- $(bindir)/gforth-$(VERSION) bye"
 
-kernl64l.fi-:	$(KERN_SRC) kernel/version.fs mach64l.fs machpc.fs $(FORTH_GEN0)
+kernl64l.fi-:	$(KERN_DEPS) mach64l.fs
 		$(FORTHB) -e 's" mach64l.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl64l.fi- $(bindir)/gforth-$(VERSION) bye"
 
-kernl64b.fi-:	$(KERN_SRC) kernel/version.fs mach64b.fs machpc.fs $(FORTH_GEN0)
+kernl64b.fi-:	$(KERN_DEPS) mach64b.fs
 		$(FORTHB) -e 's" mach64b.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl64b.fi- $(bindir)/gforth-$(VERSION) bye"
 
 kernl-%.fi:	arch/%/mach.fs $(KERN_SRC) kernel/version.fs $(FORTH_GEN0)

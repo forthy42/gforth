@@ -46,7 +46,7 @@ require simp-see.fs
 include bufio.fs
 include debug.fs
 include history.fs
-s" os-class" environment? dup [IF] drop s" unix" compare 0= [THEN]
+s" os-class" environment? dup [IF] drop s" unix" str= [THEN]
 [IF]
 include vt100key.fs
 [ELSE]
@@ -58,7 +58,7 @@ require blocks.fs
 require intcomp.fs
 require savesys.fs
 require table.fs
-s" os-class" environment? dup [IF] drop s" unix" compare 0= [THEN]
+s" os-class" environment? dup [IF] drop s" unix" str= [THEN]
 [IF]
 require ekey.fs
 [ELSE]

@@ -30,6 +30,8 @@ ToDo:
 
 [THEN]
 
+s" compat/strcomp.fs" included
+
 hex
 
 \ debugging for compiling
@@ -259,9 +261,9 @@ hex
 
 \ FIXME move down
 : comment? ( c-addr u -- c-addr u )
-        2dup s" (" compare 0=
+        2dup s" (" str=
         IF    postpone (
-        ELSE  2dup s" \" compare 0= IF postpone \ THEN
+        ELSE  2dup s" \" str= IF postpone \ THEN
         THEN ;
 
 : X ( -- <name> )
@@ -474,8 +476,8 @@ sourcepath value fpath
     2dup 2 u> swap 1+ c@ [char] : = and >r \ dos absoulte: c:/....
     over c@ [char] / = >r
     over c@ [char] ~ = >r
-    \ 2dup 3 min S" ../" compare 0= r> or >r \ not catered for in expandtopic
-    2 min S" ./" compare 0=
+    \ 2dup S" ../" string-prefix? r> or >r \ not catered for in expandtopic
+    S" ./" string-prefix?
     r> r> r> or or or ;
 
 Create ofile 0 c, 255 chars allot
@@ -491,14 +493,14 @@ Create tfile 0 c, 255 chars allot
   REPEAT ;
 
 : remove~+ ( -- )
-    ofile count 3 min s" ~+/" compare 0=
+    ofile count s" ~+/" string-prefix?
     IF
 	ofile count 3 /string ofile place
     THEN ;
 
 : expandtopic ( -- ) \ stack effect correct? - anton
     \ expands "./" into an absolute name
-    ofile count 2 min s" ./" compare 0=
+    ofile count s" ./" string-prefix?
     IF
 	ofile count 1 /string tfile place
 	0 ofile c! sourcefilename extractpath ofile place
@@ -511,7 +513,7 @@ Create tfile 0 c, 255 chars allot
     \ deletes phrases like "xy/.." out of our directory name 2dec97jaw
     over swap
     BEGIN  dup  WHILE
-        dup >r '/ scan 2dup 4 min s" /../" compare 0=
+        dup >r '/ scan 2dup s" /../" string-prefix?
         IF
             dup r> - >r 4 /string over r> + 4 -
             swap 2dup + >r move dup r> over -
@@ -574,7 +576,7 @@ fpath= ~+
 : included? ( c-addr u -- f )
   file-list
   BEGIN	@ dup
-  WHILE	>r 2dup r@ >fl-name count compare 0=
+  WHILE	>r 2dup r@ >fl-name count str=
 	IF rdrop 2drop true EXIT THEN
 	r>
   REPEAT
@@ -3439,17 +3441,17 @@ Create parsed 20 chars allot	\ store word we parsed
     1 BEGIN
 	BEGIN bl word count dup WHILE
 	    comment? 20 umin parsed place upcase parsed count
-	    2dup s" [IF]" compare 0= >r 
-	    2dup s" [IFUNDEF]" compare 0= >r
-	    2dup s" [IFDEF]" compare 0= r> or r> or
+	    2dup s" [IF]" str= >r 
+	    2dup s" [IFUNDEF]" str= >r
+	    2dup s" [IFDEF]" str= r> or r> or
 	    IF   2drop 1+
-	    ELSE 2dup s" [ELSE]" compare 0=
+	    ELSE 2dup s" [ELSE]" str=
 		IF   2drop 1- dup
 		    IF 1+
 		    THEN
 		ELSE
-		    2dup s" [ENDIF]" compare 0= >r
-		    s" [THEN]" compare 0= r> or
+		    2dup s" [ENDIF]" str= >r
+		    s" [THEN]" str= r> or
 		    IF 1- THEN
 		THEN
 	    THEN
@@ -3497,7 +3499,7 @@ Cond: [IFUNDEF] postpone [IFUNDEF] ;Cond
      IF    >in ! X :
      ELSE drop
         BEGIN bl word dup c@
-              IF   count comment? s" ;" compare 0= ?EXIT
+              IF   count comment? s" ;" str= ?EXIT
               ELSE refill 0= ABORT" CROSS: Out of Input while C:"
               THEN
         AGAIN

@@ -126,10 +126,3 @@ AUser CSP
 	2drop
     repeat
     - + dup >r resize throw r> ;
-
-: str= ( c-addr1 u1 c-addr2 u2 -- f )
-    compare 0= ;
-
-: string-prefix? ( c-addr1 u1 c-addr2 u2 -- f )
-    \G Is @var{c-addr2 u2} a prefix of @var{c-addr1 u1}?
-    tuck 2>r min 2r> compare 0= ;

@@ -99,19 +99,19 @@ Create jfif   $FF c, $D8 c, $FF c, $E0 c, $00 c, $10 c, $4A c, $46 c,
 : bw@ ( addr -- x )  0 swap 2 bounds ?DO  8 lshift I c@ +  LOOP ;
 
 : gif? ( -- flag )
-    s" GIF89a" imgbuf over compare 0=
-    s" GIF87a" imgbuf over compare 0= or ;
+    s" GIF89a" imgbuf over str=
+    s" GIF87a" imgbuf over str= or ;
 : gif-size ( -- w h )
     imgbuf 8 + c@ imgbuf 9 + c@ 8 lshift +
     imgbuf 6 + c@ imgbuf 7 + c@ 8 lshift + ;
 
 : png? ( -- flag )
-    pngsig 8 imgbuf over compare 0= ;
+    pngsig 8 imgbuf over str= ;
 : png-size ( -- w h )
     imgbuf $14 + b@ imgbuf $10 + b@ ;
 
 : jpg? ( -- flag )
-    jfif 10 imgbuf over compare 0= ;
+    jfif 10 imgbuf over str= ;
 : jpg-size ( fd -- w h )  >r
     2.  BEGIN
 	2dup r@ reposition-file throw
@@ -195,7 +195,7 @@ Defer parse-line
     over c@ '% = over 0> and IF  do-size on  1 /string  THEN
     over c@ '\ = over 0> and IF  do-icon off 1 /string  THEN ;
 
-s" Gforth" environment? [IF] s" 0.5.0" compare 0= [IF] 
+s" Gforth" environment? [IF] s" 0.5.0" str= [IF] 
 : parse-string ( c-addr u -- ) \ core,block
     loadfilename# @ >r
     1 loadfilename# ! \ "*evaluated string*"
@@ -297,7 +297,7 @@ wordlist Constant autoreplacements
 : get-rest ( addr -- ) 0 parse -trailing rot $! ;
 Create $lf 1 c, #lf c,
 : get-par ( addr -- )  >r  s" " r@ $+!
-    BEGIN  0 parse 2dup s" ." compare  WHILE
+    BEGIN  0 parse 2dup s" ." str= 0=  WHILE
 	r@ $@len IF  $lf count r@ $+!  THEN  r@ $+!
 	refill 0= UNTIL  ELSE  2drop  THEN
     rdrop ;
@@ -405,7 +405,7 @@ longtags set-current
 : . end-sec on 0 indent ;
 : :code s" pre" >env
     BEGIN  source >in @ /string type cr refill  WHILE
-	source s" :endcode" compare 0= UNTIL  THEN
+	source s" :endcode" str= UNTIL  THEN
   -env ;
 : \ postpone \ ;
 

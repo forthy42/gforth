@@ -61,7 +61,7 @@ create description-buffer 4096 chars allot
     description-buffer tuck - ;
 
 : skip-prefix ( c-addr1 u1 -- c-addr2 u2 )
-    2dup 2 min s" --" compare 0=
+    2dup s" --" string-prefix?
     IF
 	[char] - skip [char] - scan 1 /string
     THEN ;
@@ -165,7 +165,7 @@ create description-buffer 4096 chars allot
     \ with the prefix addr2 u2 and continuing with a word in the
     \ wordlist `documentation'. f is true if xt is executed.
     >r dup >r
-    3 pick over compare 0=
+    3 pick over str=
     if \ addr2 u2 is a prefix of addr1 u1
 	r> /string documentation search-wordlist
 	if \ the rest of addr1 u1 is in documentation

@@ -132,7 +132,7 @@ Variable data-buffer
     Content-Length @ IF
 	Content-Length $@ s>number drop r> read-sized  EXIT  THEN
     Transfer-Encoding @ IF
-	Transfer-Encoding $@ s" chunked" compare 0= IF
+	Transfer-Encoding $@ s" chunked" str= 0= IF
 	    r> read-chunked  EXIT  THEN  THEN
     r> read-to-end ;
 

@@ -72,7 +72,7 @@ interpret/compile: ctrl  ( "<char>" -- ctrl-code )
 	nip nip
     THEN ;
 
-s" os-class" environment? [IF] s" unix" compare 0= [ELSE] true [THEN] 
+s" os-class" environment? [IF] s" unix" str= [ELSE] true [THEN] 
 [IF]
 : history-file ( -- addr u )
     s" GFORTHHIST" getenv dup 0= IF

@@ -45,7 +45,7 @@
     forthstart
     begin \ search for start of file ("#! " at a multiple of 8)
 	8 -
-	dup 3 s" #! " compare 0=
+	dup 3 s" #! " str=
     until ( imagestart )
     here over - r@ write-file throw
     r> close-file throw ;

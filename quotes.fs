@@ -100,9 +100,9 @@ interpret/compile: .\" ( compilation 'ccc"' -- ; run-time -- )	\ gforth	dot-back
     s" x1fg" drop \-escape 31 <> throw drop .s
     s" 00129" drop \-escape 10 <> throw drop .s
     s" a" drop \-escape 7 <> throw drop .s
-    \"-parse " s" " compare 0<> throw .s
+    \"-parse " s" " str= 0= throw .s
     \"-parse \a\b\c\e\f\n\r\t\v\100\x40xabcde" dump
-    s\" \a\bcd\e\fghijklm\12opq\rs\tu\v" \-escape-table over compare 0<> throw
-    s\" \w\0101\x041\"\\" name wAA"\ compare 0<> throw
+    s\" \a\bcd\e\fghijklm\12opq\rs\tu\v" \-escape-table over str= 0= throw
+    s\" \w\0101\x041\"\\" name wAA"\ str= 0= throw
     s\" s\\\" \\" ' evaluate catch 0= throw
 [endif]

@@ -60,7 +60,7 @@ create image-included-files 4 , A, ( pointer to and count of included files )
     \G @file{./foo.fs}
     included-files 2@ 0
     ?do ( c-addr u addr )
-	dup >r 2@ 2over compare 0=
+	dup >r 2@ 2over str=
 	if
 	    2drop rdrop unloop
 	    true EXIT

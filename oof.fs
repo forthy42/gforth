@@ -601,8 +601,8 @@ Objects definitions
     :ilist + @ >r get-order r> swap 1+ set-order  1 voc# +! ;
 
 : inter-method, ( interface -- ) \ oof-interface- oof
-    :ilist + @ bl word count 2dup s" '" compare
-    0= dup >r IF  2drop bl word count  THEN
+    :ilist + @ bl word count 2dup s" '" str=
+    dup >r IF  2drop bl word count  THEN
     rot search-wordlist
     dup 0= abort" Not an interface method!"
     r> IF  drop state @ IF  postpone Literal  THEN  EXIT  THEN

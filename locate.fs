@@ -36,7 +36,7 @@ Variable sys-buf
 : locate ( "name" -- )  s" " last-file $!  bl sword
     s" TAGS" r/o open-file throw >r
     BEGIN  r@ tag-line  WHILE
-        s" " line-buf $@ compare 0=
+        s" " line-buf $@ str=
         IF    r@ get-file
         ELSE  2dup check-word
             IF  print-location 2drop  r> close-file throw  EXIT  THEN

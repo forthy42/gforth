@@ -23,6 +23,7 @@
 \ Needs:
 
 require ./vars.fs
+require ../compat/strcomp.fs
 
 hex
 

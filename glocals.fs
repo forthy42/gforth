@@ -685,7 +685,7 @@ interpret/compile: TO ( c|w|d|r "name" -- ) \ core-ext,local
     \ don't use 'locals|'! use '{'! A portable and free '{'
     \ implementation is compat/anslocals.fs
     BEGIN
-	name 2dup s" |" compare 0<>
+	name 2dup s" |" str= 0=
     WHILE
 	(local)
     REPEAT

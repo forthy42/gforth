@@ -42,12 +42,12 @@ Variable argc ( -- addr ) \ gforth
 
 : do-option ( addr1 len1 addr2 len2 -- n )
     2swap
-    2dup s" -e"         compare  0= >r
-    2dup s" --evaluate" compare  0= r> or
+    2dup s" -e"         str= >r
+    2dup s" --evaluate" str= r> or
     IF  2drop ( dup >r ) evaluate
 	( r> >tib +! )  2 EXIT  THEN
-    2dup s" -h"         compare  0= >r
-    2dup s" --help"     compare  0= r> or
+    2dup s" -h"         str= >r
+    2dup s" --help"     str= r> or
     IF  ." Image Options:" cr
 	."   FILE				    load FILE (with `require')" cr
 	."   -e STRING, --evaluate STRING      interpret STRING (with `EVALUATE')" cr

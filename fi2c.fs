@@ -36,7 +36,7 @@ Variable au
 
 : search-magic ( fd -- )  >r
     BEGIN  magicbuf 8 r@ read-file throw  8 =  WHILE
-	magicbuf s" Gforth2" tuck compare 0=  UNTIL
+	magicbuf s" Gforth2" tuck str=  UNTIL
     ELSE  true abort" No magic found"  THEN
     1 magicbuf 7 + c@ 5 rshift 3 and lshift tchars !
     1 magicbuf 7 + c@ 1 rshift 3 and lshift tcell !
