@@ -218,7 +218,7 @@ Create prefix-found  0 , 0 ,
     prefix-found @ IF  bl (ins)  THEN  0 ;
 
 : kill-prefix  ( key -- key )
-  dup #tab <> IF  0 0 prefix-found 2!  THEN ;
+  dup #tab <> IF  prefix-off  THEN ;
 
 [IFUNDEF] everyline defer everyline [THEN]
 
