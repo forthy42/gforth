@@ -18,6 +18,10 @@
 \	along with this program; if not, write to the Free Software
 \	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+require code.fs
+
+also assembler definitions
+
 $20 constant asm-registers
 
 \ register names
@@ -365,3 +369,4 @@ $08 asm-copz0				tlbl,
     >r $at rot rot sltu,
     $at $zero r> beq, ;
 
+previous
