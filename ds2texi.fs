@@ -24,6 +24,37 @@ struct
     2 cells: field doc-description
 end-struct doc-entry
 
+create description-buffer 4096 chars allot
+
+: get-description ( -- addr u )
+    description-buffer
+    begin
+	refill
+    while
+	source nip
+    while
+	source swap >r 2dup r> -rot cmove
+	chars +
+	#lf over c! char+
+    repeat then
+    description-buffer tuck - ;
+
+: make-doc ( -- )
+    get-current documentation set-current
+    create
+	last @ name>string 2,		\ name
+	[char] ) parse save-string 2,	\ stack-effect
+	bl parse-word save-string 2,	\ wordset
+	bl parse-word dup		\ pronounciation
+	if
+	    save-string
+	else
+	    2drop last @ name>string
+	endif
+	2,
+	get-description save-string 2,
+    set-current ;
+
 : emittexi ( c -- )
     >r
     s" @{}" r@ scan 0<>
@@ -103,5 +134,6 @@ create docline doclinelength chars allot
 script? [IF]
 include prims2x.fs
 s" primitives.b" ' register-doc process-file
+require doc.fs
 s" gforth.ds" r/o open-file throw ds2texi bye
 [THEN]

@@ -786,8 +786,16 @@ Avariable leave-sp  leave-stack 3 cells + leave-sp !
 : ."       state @  IF    postpone (.") ,"  align
                     ELSE  [char] " parse type  THEN  ;  immediate
 : (        [char] ) parse 2drop ;                       immediate
-: \        blk @ IF  >in @ c/l / 1+ c/l * >in !  EXIT  THEN
-           source >in ! drop ;                          immediate
+: \ ( -- ) \ core-ext backslash
+    blk @
+    IF
+	>in @ c/l / 1+ c/l * >in !
+	EXIT
+    THEN
+    source >in ! drop ; immediate
+
+: G\ ( -- ) \ new backslash
+    POSTPONE \ ; immediate
 
 \ error handling                                       22feb93py
 \ 'abort thrown out!                                   11may93jaw
@@ -1447,13 +1455,14 @@ Variable argc
     2drop
     here r> tuck - 2 cells / ;
 
-: do-option ( addr1 len1 addr2 len2 -- n )  2swap
-  2dup s" -e"        compare  0= >r
-  2dup s" -evaluate" compare  0= r> or
-  IF  2drop dup >r ['] evaluate catch
-      ?dup IF  dup >r DoError r> negate (bye)  THEN
-      r> >tib +!  2 EXIT  THEN
-  ." Unknown option: " type cr 2drop 1 ;
+: do-option ( addr1 len1 addr2 len2 -- n )
+    2swap
+    2dup s" -e"         compare  0= >r
+    2dup s" --evaluate" compare  0= r> or
+    IF  2drop dup >r ['] evaluate catch
+	?dup IF  dup >r DoError r> negate (bye)  THEN
+	r> >tib +!  2 EXIT  THEN
+    ." Unknown option: " type cr 2drop 1 ;
 
 : process-args ( -- )  >tib @ >r
     argc @ 1

@@ -11,7 +11,9 @@
 
 \ We support fast insertion and removal of the printing code.
 
-\ !!Warning: the default debugging actions will destroy the contents of pad
+\ !!Warning: the default debugging actions will destroy the contents
+\ of the pictured numeric output string (i.e., don't use ~~ between <#
+\ and #>).
 
 
 defer printdebugdata ( -- )

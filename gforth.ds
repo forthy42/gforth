@@ -1320,8 +1320,8 @@ efficiency reasons, e.g., @code{@@local0} as specialization of
 compile the right specialized version, or the general version, as
 appropriate:
 
-doc-compile-@@local
-doc-compile-f@@local
+doc-compile-@local
+doc-compile-f@local
 doc-compile-lp+!
 
 Combinations of conditional branches and @code{lp+!#} like

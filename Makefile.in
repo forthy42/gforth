@@ -210,7 +210,13 @@ aliases.fs:	primitives.b prims2x.fs
 primitives.fs:	primitives.b prims2x.fs
 		$(FORTH) prims2x.fs -e "s\" primitives.b\" ' output-forth process-file bye" >$@
 
-gforth.texi:	gforth.ds primitives.b ds2texi.fs prims2x.fs
+doc.fs:		makedoc.fs float.fs search-order.fs glocals.fs environ.fs \
+		 toolsext.fs wordinfo.fs \
+		 vt100.fs colorize.fs see.fs bufio.fs debug.fs history.fs \
+		 doskey.fs vt100key.fs startup.fs assert.fs debugging.fs
+		$(FORTH) -e "s\" doc.fs\"" makedoc.fs startup.fs -e bye
+
+gforth.texi:	gforth.ds primitives.b ds2texi.fs prims2x.fs doc.fs
 		$(FORTH) ds2texi.fs >$@
 
 gforth.dvi:	gforth.texi

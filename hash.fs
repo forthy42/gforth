@@ -1,6 +1,6 @@
 \ Hashed dictionaries                                  15jul94py
 
-9 value hashbits
+11 value hashbits
 1 hashbits lshift Value Hashlen
 
 Variable insRule        insRule on

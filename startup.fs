@@ -17,6 +17,8 @@ include debug.fs
 include history.fs
 \ include doskey.fs
 include vt100key.fs
+require debugging.fs
+require assert.fs
 
 0 Value $?
 : sh  '# parse cr system  to $? ;
