@@ -40,7 +40,7 @@ defer everychar
 : decode ( max span addr pos1 key -- max span addr pos2 flag )
   everychar
   dup #del = IF  drop #bs  THEN  \ del is rubout
-  dup bl <   IF  cells ctrlkeys + perform  EXIT  THEN
+  dup bl u<  IF  cells ctrlkeys + perform  EXIT  THEN
   >r 2over = IF  rdrop bell 0 EXIT  THEN
   r> insert-char 0 ;
 

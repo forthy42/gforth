@@ -666,7 +666,7 @@ long key_avail (FILE * stream)
 /* When compiling and running in the `Posix' environment, Ultrix does
    not restart system calls, so this needs to do it. */
 
-unsigned char getkey(FILE * stream)
+unsigned getkey(FILE * stream)
 {
   int result;
   unsigned char c;
@@ -683,7 +683,7 @@ unsigned char getkey(FILE * stream)
       /* If zero characters are returned, then the file that we are
 	 reading from is empty!  Return EOF in that case. */
       if (result == 0)
-	return CTRL('D');
+	return (EOF);
 
       /* If the error that we received was SIGINT, then try again,
 	 this is simply an interrupted system call to read ().

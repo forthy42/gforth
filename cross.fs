@@ -1252,7 +1252,7 @@ Cond: [']  T ' H alit, ;Cond
 
 : (lit,) ( n -- )   compile lit T  ,  H ;	' (lit,) IS lit,
 
-: (alit,) ( n -- )  lit, T here cell - H relon ;	' (alit,) IS alit,
+: (alit,) ( n -- )  compile lit T  a, H ;	' (alit,) IS alit,
 
 : (fini,)         compile ;s ;                ' (fini,) IS fini,
 
@@ -1804,7 +1804,7 @@ Cond: S"        restrict? compile (S")     T ," H ;Cond
 Cond: ABORT"    restrict? compile (ABORT") T ," H ;Cond
 
 Cond: IS        T ' >body H compile ALiteral compile ! ;Cond
-: IS            T ' >body ! H ;
+: IS            T >address ' >body ! H ;
 Cond: TO        T ' >body H compile ALiteral compile ! ;Cond
 : TO            T ' >body ! H ;
 

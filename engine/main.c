@@ -73,9 +73,12 @@ int die_on_signal=0;
 #ifndef INCLUDE_IMAGE
 static int clear_dictionary=0;
 static size_t pagesize=0;
+char *progname;
+#else
+char *progname = "gforth";
+int optind = 1;
 #endif
 static int debug=0;
-char *progname;
 
 /* image file format:
  *  "#! binary-path -i\n" (e.g., "#! /usr/local/bin/gforth-0.4.0 -i\n")
@@ -165,6 +168,7 @@ void relocate(Cell *image, const char *bitstring, int size, Label symbols[])
 	  image[i]+=(Cell)image;
       }
     }
+  ((ImageHeader*)(image))->base = image;
 }
 
 UCell checksum(Label symbols[])
@@ -685,7 +689,9 @@ int main(int argc, char **argv, char **env)
 
 #ifdef INCLUDE_IMAGE
   set_stack_sizes((ImageHeader *)image);
-  relocate(image, reloc_bits, ((ImageHeader*)&image)->image_size, (Label*)engine(0, 0, 0, 0, 0));
+  if(((ImageHeader *)image)->base != image)
+    relocate(image, reloc_bits, ((ImageHeader *)image)->image_size,
+	     (Label*)engine(0, 0, 0, 0, 0));
   alloc_stacks((ImageHeader *)image);
 #else
   image_file = open_image_file(imagename, path);

@@ -632,7 +632,7 @@ Variable init8
     [ has? os [IF] ]
     r0 @ forthstart 6 cells + @ -
     [ [ELSE] ]
-    sp@ $40 +
+    sp@ $10 cells +
     [ [THEN] ]
 [ [THEN] ]
     dup >tib ! tibstack ! #tib off >in off ;
