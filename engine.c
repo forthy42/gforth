@@ -230,6 +230,7 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
     (Label)0,
 #endif
 #include "prim_labels.i"
+    (Label)0
   };
 #ifdef CPU_DEP2
   CPU_DEP2

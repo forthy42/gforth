@@ -453,7 +453,7 @@ hex
 
 : throw ( y1 .. ym error/0 -- y1 .. ym / z1 .. zn error ) \ exception
     ?DUP IF
-	[ here 4 cells ! ]
+	[ here 9 cells ! ]
 	handler @ rp!
 	r> handler !
 	r> lp!

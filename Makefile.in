@@ -301,22 +301,22 @@ gforth:		$(OBJECTS)
 		@MAKE_EXE@
 
 kernl16l.fi-:	$(KERN_SRC) mach16l.fs $(FORTH_GEN0)
-		$(FORTHK) -p . -e 's" mach16l.fs"' main.fs
+		$(FORTHK) -p . -e 's" mach16l.fs"' main.fs -e "save-cross kernl16l.fi- $(bindir)/gforth-$(VERSION) bye"
 
 kernl16b.fi-:	$(KERN_SRC) mach16b.fs $(FORTH_GEN0)
-		$(FORTHK) -p . -e 's" mach16b.fs"' main.fs
+		$(FORTHK) -p . -e 's" mach16b.fs"' main.fs -e "save-cross kernl16b.fi- $(bindir)/gforth-$(VERSION) bye"
 
 kernl32l.fi-:	$(KERN_SRC) mach32l.fs $(FORTH_GEN0)
-		$(FORTHK) -p . -e 's" mach32l.fs"' main.fs
+		$(FORTHK) -p . -e 's" mach32l.fs"' main.fs -e "save-cross kernl32l.fi- $(bindir)/gforth-$(VERSION) bye"
 
 kernl32b.fi-:	$(KERN_SRC) mach32b.fs $(FORTH_GEN0)
-		$(FORTHK) -p . -e 's" mach32b.fs"' main.fs
+		$(FORTHK) -p . -e 's" mach32b.fs"' main.fs -e "save-cross kernl32b.fi- $(bindir)/gforth-$(VERSION) bye"
 
 kernl64l.fi-:	$(KERN_SRC) mach64l.fs $(FORTH_GEN0)
-		$(FORTHK) -p . -e 's" mach64l.fs"' main.fs
+		$(FORTHK) -p . -e 's" mach64l.fs"' main.fs -e "save-cross kernl64l.fi- $(bindir)/gforth-$(VERSION) bye"
 
 kernl64b.fi-:	$(KERN_SRC) mach64b.fs $(FORTH_GEN0)
-		$(FORTHK) -p . -e 's" mach64b.fs"' main.fs
+		$(FORTHK) -p . -e 's" mach64b.fs"' main.fs -e "save-cross kernl64b.fi- $(bindir)/gforth-$(VERSION) bye"
 
 kernl16b.fi:	$(KERNLS)
 		-$(CP) kernl16b.fi kernl16b.fi~

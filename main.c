@@ -21,6 +21,7 @@
 */
 
 #include "config.h"
+#include <errno.h>
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
@@ -57,31 +58,43 @@ static Cell fsize=0;
 static Cell lsize=0;
 char *progname;
 
-
 /* image file format:
- *   preamble (is skipped off), size multiple of 8
- *   magig: "gforth00" (means format version 0.0)
- *   "gforth0x" means format 0.1,
- *              whereas x in 2 4 8 for big endian and 3 5 9 for little endian
- *              and x & -2 is the size of the cell in byte.
- *   size of image with stacks without tags (in bytes)
- *   size of image without stacks and tags (in bytes)
- *   size of data and FP stack (in bytes)
- *   pointer to start of code
- *   pointer into throw (for signal handling)
- *   pointer to dictionary
- *   data (size in image[1])
- *   tags (1 bit/data cell)
+ *  "#! binary-path -i\n" (e.g., "#! /usr/local/bin/gforth-0.2.0 -i\n")
+ *   padding to a multiple of 8
+ *   magic: "gforth1x" means format 0.2,
+ *              where x is even for big endian and odd for little endian
+ *              and x & ~1 is the size of the cell in bytes.
+ *  padding to max alignment (no padding necessary on current machines)
+ *  ImageHeader structure (see below)
+ *  data (size in ImageHeader.image_size)
+ *  tags ((if relocatable, 1 bit/data cell)
  *
- * tag==1 mean that the corresponding word is an address;
+ * tag==1 means that the corresponding word is an address;
  * If the word is >=0, the address is within the image;
  * addresses within the image are given relative to the start of the image.
- * If the word is =-1, the address is NIL,
- * If the word is between -2 and -5, it's a CFA (:, Create, Constant, User)
- * If the word is -7, it's a DOES> CFA
- * If the word is -8, it's a DOES JUMP
- * If the word is <-9, it's a primitive
+ * If the word =-1 (CF_NIL), the address is NIL,
+ * If the word is <CF_NIL and >CF(DODOES), it's a CFA (:, Create, ...)
+ * If the word =CF(DODOES), it's a DOES> CFA
+ * If the word =CF(DOESJUMP), it's a DOES JUMP (2 Cells after DOES>,
+ *					possibly containing a jump to dodoes)
+ * If the word is <CF(DOESJUMP), it's a primitive
  */
+
+typedef struct {
+  Address base;		/* base address of image (0 if relocatable) */
+  UCell checksum;	/* checksum of ca's to protect against some
+			   incompatible	binary/executable combinations
+			   (0 if relocatable) */
+  UCell image_size;	/* all sizes in bytes */
+  UCell dict_size;
+  UCell data_stack_size;
+  UCell fp_stack_size;
+  UCell return_stack_size;
+  UCell locals_stack_size;
+  Xt *boot_entry;	/* initial ip for booting (in BOOT) */
+  Xt *throw_entry;	/* ip after signal (in THROW) */
+} ImageHeader;
+/* the image-header is created in main.fs */
 
 void relocate(Cell *image, char *bitstring, int size, Label symbols[])
 {
@@ -111,45 +124,68 @@ void relocate(Cell *image, char *bitstring, int size, Label symbols[])
 	  image[i]+=(Cell)image;
 }
 
-Cell *loader(FILE *imagefile)
+UCell checksum(Label symbols[])
 {
-  Cell header[3];
-  Cell *image;
-  Char magic[8];
-  int wholesize;
-  int imagesize; /* everything needed by the image */
+  UCell r=0;
+  Cell i;
 
-  static char* endsize[10]=
-    {
-      "no size information", "",
-      "16 bit big endian", "16 bit little endian",
-      "32 bit big endian", "32 bit little endian",
-      "n/n", "n/n",
-      "64 bit big endian", "64 bit little endian",
-    };
+  for (i=DOCOL; i<=DOESJUMP; i++) {
+    r ^= (UCell)(symbols[i]);
+    r = (r << 5) | (r >> (8*sizeof(Cell)-5));
+  }
+#ifdef DIRECT_THREADED
+  /* we have to consider all the primitives */
+  for (; symbols[i]!=(Label)0; i++) {
+    r ^= (UCell)(symbols[i]);
+    r = (r << 5) | (r >> (8*sizeof(Cell)-5));
+  }
+#else
+  /* in indirect threaded code all primitives are accessed through the
+     symbols table, so we just have to put the base address of symbols
+     in the checksum */
+  r ^= (UCell)symbols;
+#endif
+  return r;
+}
+
+Address loader(FILE *imagefile)
+/* returns the address of the image proper (after the preamble) */
+{
+  ImageHeader header;
+  Address image;
+  Address imp; /* image+preamble */
+  Char magic[8];
+  Cell wholesize;
+  Cell imagesize; /* everything needed by the image */
+  Cell preamblesize=0;
+  Label *symbols=engine(0,0,0,0,0);
+  UCell check_sum=checksum(symbols);
+
+  static char* endianstring[]= { "big","little" };
 
   do
     {
       if(fread(magic,sizeof(Char),8,imagefile) < 8) {
-	fprintf(stderr,"This image doesn't seem to be a gforth image.\n");
+	fprintf(stderr,"%s: image doesn't seem to be a Gforth image.\n",progname);
 	exit(1);
       }
+      preamblesize+=8;
 #ifdef DEBUG
-      printf("Magic found: %s\n",magic);
+      fprintf(stderr,"Magic found: %-8s\n",magic);
 #endif
     }
-  while(memcmp(magic,"gforth0",7));
+  while(memcmp(magic,"Gforth1",7));
   
-  if(!(magic[7]=='0' || magic[7] == sizeof(Cell) +
+  if(magic[7] != sizeof(Cell) +
 #ifdef WORDS_BIGENDIAN
        '0'
 #else
        '1'
 #endif
-       ))
-    { fprintf(stderr,"This image is %s, whereas the machine is %s.\n",
-	      endsize[magic[7]-'0'],
-	      endsize[sizeof(Cell) +
+       )
+    { fprintf(stderr,"This image is %d bit %s-endian, whereas the machine is %d bit %s-endian.\n", 
+	      ((magic[7]-'0')&~1)*8, endianstring[magic[7]&1],
+	      sizeof(Cell)*8, endianstring[
 #ifdef WORDS_BIGENDIAN
 		      0
 #else
@@ -159,57 +195,65 @@ Cell *loader(FILE *imagefile)
       exit(-2);
     };
 
-  fread(header,sizeof(Cell),3,imagefile);
+  fread((void *)&header,sizeof(ImageHeader),1,imagefile);
   if (dictsize==0)
-    dictsize = header[0];
+    dictsize = header.dict_size;
   if (dsize==0)
-    dsize=header[2];
+    dsize=header.data_stack_size;
   if (rsize==0)
-    rsize=header[2];
+    rsize=header.return_stack_size;
   if (fsize==0)
-    fsize=header[2];
+    fsize=header.fp_stack_size;
   if (lsize==0)
-    lsize=header[2];
+    lsize=header.locals_stack_size;
   dictsize=maxaligned(dictsize);
   dsize=maxaligned(dsize);
   rsize=maxaligned(rsize);
   lsize=maxaligned(lsize);
   fsize=maxaligned(fsize);
   
-  wholesize = dictsize+dsize+rsize+fsize+lsize;
-  imagesize = header[1]+((header[1]-1)/sizeof(Cell))/8+1;
-  image=malloc((wholesize>imagesize?wholesize:imagesize)+sizeof(Float));
-  image = maxaligned(image);
+  wholesize = preamblesize+dictsize+dsize+rsize+fsize+lsize;
+  imagesize = preamblesize+header.image_size+((header.image_size-1)/sizeof(Cell))/8+1;
+  image=malloc((wholesize>imagesize?wholesize:imagesize)/*+sizeof(Float)*/);
+  /*image = maxaligned(image);*/
   memset(image,0,wholesize); /* why? - anton */
-  image[0]=header[0];
-  image[1]=header[1];
-  image[2]=header[2];
-  
-  fread(image+3,1,header[1]-3*sizeof(Cell),imagefile);
-  fread(((void *)image)+header[1],1,((header[1]-1)/sizeof(Cell))/8+1,
-	imagefile);
+  rewind(imagefile);  /* fseek(imagefile,0L,SEEK_SET); */
+  fread(image,1,imagesize,imagefile);
   fclose(imagefile);
+  imp=image+preamblesize;
   
-  if(image[5]==0) {
-    relocate(image,(char *)image+header[1],header[1],engine(0,0,0,0,0));
+  if(header.base==0) {
+    relocate((Cell *)imp,imp+header.image_size,header.image_size,symbols);
+    ((ImageHeader *)imp)->checksum=check_sum;
   }
-  else if(image[5]!=(Cell)image) {
-    fprintf(stderr,"%s: Cannot load nonrelocatable image (compiled for address 0x%lx) at address 0x%lx\nThe Gforth installer should look into the INSTALL file\n", progname, (unsigned long)image[5], (unsigned long)image);
+  else if(header.base!=imp) {
+    fprintf(stderr,"%s: Cannot load nonrelocatable image (compiled for address 0x%lx) at address 0x%lx\nThe Gforth installer should look into the INSTALL file\n",
+	    progname, (unsigned long)header.base, (unsigned long)imp);
+    exit(1);
+  } else if (header.checksum != check_sum) {
+    fprintf(stderr,"%s: Checksum of image (0x%lx) does not match the executable (0x%lx)\nThe Gforth installer should look into the INSTALL file\n",
+	    progname, (unsigned long)(header.checksum),(unsigned long)check_sum);
     exit(1);
   }
 
-  CACHE_FLUSH(image,image[1]);
-  
-  return(image);
+  ((ImageHeader *)imp)->dict_size=dictsize;
+  ((ImageHeader *)imp)->data_stack_size=dsize;
+  ((ImageHeader *)imp)->return_stack_size=rsize;
+  ((ImageHeader *)imp)->fp_stack_size=fsize;
+  ((ImageHeader *)imp)->locals_stack_size=lsize;
+
+  CACHE_FLUSH(imp, header.imagesize);
+
+  return imp;
 }
 
-int go_forth(Cell *image, int stack, Cell *entries)
+int go_forth(Address image, int stack, Cell *entries)
 {
-  Cell *sp=(Cell*)((void *)image+dictsize+dsize);
+  Cell *sp=(Cell*)(image+dictsize+dsize);
   Address lp=(Address)((void *)sp+lsize);
   Float *fp=(Float *)((void *)lp+fsize);
   Cell *rp=(Cell*)((void *)fp+rsize);
-  Xt *ip=(Xt *)((Cell)image[3]);
+  Xt *ip=(Xt *)(((ImageHeader *)image)->boot_entry);
   int throw_code;
   
   for(;stack>0;stack--)
@@ -225,10 +269,10 @@ int go_forth(Cell *image, int stack, Cell *entries)
     
     signal_data_stack[7]=throw_code;
     
-    return((int)engine((Xt *)image[4],signal_data_stack+7,
+    return((int)engine(((ImageHeader *)image)->throw_entry,signal_data_stack+7,
 		       signal_return_stack+8,signal_fp_stack,0));
   }
-  
+
   return((int)engine(ip,sp,rp,fp,lp));
 }
 
@@ -337,9 +381,10 @@ int main(int argc, char **argv, char **env)
   else
     {
       image_file=fopen(imagename,"rb");
-      if(image_file==NULL)
-  	  fprintf(stderr,"%s: cannot open image file %s for reading\n",
-		  progname, imagename);
+      if(image_file==NULL) {
+	fprintf(stderr,"%s: %s: %s\n", progname, imagename, strerror(errno));
+	exit(1);
+      }
     }
 
   {

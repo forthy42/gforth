@@ -32,8 +32,20 @@ include cross.fs               \ include cross-compiler
 
 decimal
 
-cell 2 = [IF] 32 [ELSE] 256 [THEN] KB
-makekernal , 0 , 0 , 0 A, 0 A, 0 A,
+cell 2 = [IF] 32 [ELSE] 256 [THEN] KB makekernal ( size )
+\ create image-header
+0 A,	\ base address
+0 ,	\ checksum
+0 ,	\ image size (without tags)
+,	\ dict size
+16 KB ,	\ data stack size
+16 KB ,	\ FP stack size
+16 KB ,	\ return stack size
+16 KB ,	\ locals stack size
+0 A,	\ code entry point
+0 A,	\ throw entry point
+16 KB ,	\ unused (possibly tib stack size)
+0 ,	\ unused
 
 UNLOCK ghost - drop \ ghost must exist because - would be treated as number
 LOCK
@@ -63,26 +75,10 @@ here normal-dp !
 tudp H @ minimal udp !
 decimal
 
-\ 64 KB        0 cells !  \ total Space... defined above!
-  here         1 cells !  \ Size of the system
-  16 KB        2 cells !  \ Return and fp stack size
-  ' boot >body 3 cells !  \ Entry point
+  here         2 cells !  \ image size
+  ' boot >body 8 cells !  \ Entry point
 
 UNLOCK Tlast @
 LOCK
 1 cells - dup forth-wordlist ! Last !
 .unresolved
-
-cr cr
-cell bigendian
-[IF]
-   dup 2 = [IF]   save-cross kernl16b.fi-  [THEN]
-   dup 4 = [IF]   save-cross kernl32b.fi-  [THEN]
-   dup 8 = [IF]   save-cross kernl64b.fi-  [THEN]
-[ELSE]
-   dup 2 = [IF]   save-cross kernl16l.fi-  [THEN]
-   dup 4 = [IF]   save-cross kernl32l.fi-  [THEN]
-   dup 8 = [IF]   save-cross kernl64l.fi-  [THEN]
-[THEN] drop cr
-
-bye

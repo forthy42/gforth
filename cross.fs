@@ -877,13 +877,22 @@ Cond: [ELSE]    [ELSE] ;Cond
 
 bigendian Constant bigendian
 
-Create magic  s" gforth00" here over allot swap move
+Create magic  s" Gforth10" here over allot swap move
 
 [char] 1 bigendian + cell + magic 7 + c!
 
-: save-cross ( "name" -- )
-  bl parse ." Saving to " 2dup type
+: save-cross ( "image-name" "binary-name" -- )
+  bl parse ." Saving to " 2dup type cr
   w/o bin create-file throw >r
+  s" #! "  r@ write-file throw
+  bl parse r@ write-file throw
+  s"  -i"  r@ write-file throw
+  #lf      r@ emit-file throw
+  r@ dup file-position throw drop 8 mod 8 swap ( file-id limit index )
+  ?do
+      bl over emit-file throw
+  loop
+  drop
   magic 8       r@ write-file throw \ write magic
   image @ there r@ write-file throw \ write image
   bit$  @ there 1- cell>bit rshift 1+

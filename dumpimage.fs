@@ -18,10 +18,6 @@
 \ along with this program; if not, write to the Free Software
 \ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-Create magic  s" gforth00" here over allot swap move
-
-'1 1 cells + 0 pad ! -1 pad c! pad @ 0< +  magic 7 chars + c!
-
 : save-string-dict { addr1 u -- addr2 u }
     here { addr2 }
     u allot
@@ -43,12 +39,15 @@ Create magic  s" gforth00" here over allot swap move
 
 : dump-fi ( addr u -- )
     w/o bin create-file throw >r
-    magic 8 r@ write-file throw
     update-image-included-files
-    forthstart here over - dup forthstart cell+ !
-                         r@ write-file throw
-\  relinfo here forthstart - 1- 8 cells / 1+ r@ write-file throw
-  r> close-file throw ;
+    here forthstart - forthstart 2 cells + !
+    forthstart
+    begin \ search for start of file ("#! " at a multiple of 8)
+	8 -
+	dup 3 s" #! " compare 0=
+    until ( imagestart )
+    here over - r@ write-file throw
+    r> close-file throw ;
 
 : savesystem ( "name" -- ) \ gforth
     name dump-fi ;

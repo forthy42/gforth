@@ -111,7 +111,7 @@
 #endif /* !NEW_TTY_DRIVER && !_POSIX_VDISABLE */
 
 #include <errno.h>
-extern int errno;
+/* extern int errno; */
 
 #if defined (SHELL)
 #  include <posixstat.h>
