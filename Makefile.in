@@ -248,6 +248,7 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_SRC) $(EC_SRC) \
 	test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs \
 	test/string.fs test/float.fs test/gforth.fs \
 	test/other.fs test/signals.fs test/checkans.fs \
+	test/primtest.fs \
 	bubble.fs siev.fs matrix.fs fib.fs \
 	oof.fs oofsampl.fs objects.fs objexamp.fs mini-oof.fs moof-exm.fs \
 	moofglos.fs fixpath.fs \
@@ -610,8 +611,7 @@ test/primtest.fi: test/primtest.fs mach32l.fs cross.fs
 		$(FORTHB) -e 's" mach32l.fs"' $(srcdir)/test/primtest.fs -e "save-cross $@ $(bindir)/gforth-$(VERSION) bye"
 
 primtest:	gforth gforth-native test/primtest.fi FORCE
-		(echo rs|ENVVAR=bla gforth -i test/primtest.fi) && (echo rs|ENVVAR=bla gforth-native -i test/primtest.fi); echo $$?
-		
+		(echo rs|ENVVAR=bla ./gforth -i test/primtest.fi) && (echo rs|ENVVAR=bla ./gforth-native -i test/primtest.fi); echo $$?
 
 bench:		gforth-fast$(EXE) gforth.fi
 		@echo 'Each benchmark takes about 30s on a 486-66 (gcc-2.6.3 -DFORCE_REG)'
@@ -721,7 +721,7 @@ prim-fast.b:	prim cache1.vmg peeprules.vmg
 		sleep 1 #should make hpux-workaround unnecessary
 
 $(FORTH_GEN_ENGINE_FAST): prim-fast.b prims2x.fs
-		GFORTH="$(FORTHP)" gfgen -fast
+		GFORTH="$(FORTHP)" $(srcdir)/gfgen -fast
 
 $(FORTH_GEN_ENGINE): prim.b prims2x.fs
 		GFORTH="$(FORTHP)" gfgen

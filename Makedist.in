@@ -30,7 +30,7 @@ BINONLYDIST = config.status Makefile Makedist \
 	$(DOBJECTS) engine/config.h engine/Makefile \
 	engine/gforth$(EXE) engine/gforth-fast$(EXE) \
         engine/gforth-ditc$(EXE) engine/gforth-itc$(EXE) \
-	$(addprefix engine/,$(PROFEXES))
+	$(addprefix engine/,$(PROFEXES)) \
 	stamp-h kernel/version.fs INSTALL.BINDIST
 
 #use dist targets only when srcdir=.
