@@ -26,13 +26,17 @@ s%@GCCLDFLAGS@%%g
 s%@LIBS@%-lm -lpc%g
 s%@prefix@%%g
 s%@exec_prefix@%%g
-s%@srcdir@%%g
+s%@srcdir@%.%g
 s%@LINK_KERNL16B@%%g
 s%@LINK_KERNL16L@%%g
 s%@LINK_KERNL32B@%%g
 s%@LINK_KERNL32L@%-$(CP) kernl32l.fi kernel.fi%g
 s%@LINK_KERNL64B@%%g
 s%@LINK_KERNL64L@%%g
-s%\": version-string s\\\" $(VERSION)\\\" ;\"%: version-string s\" $(VERSION)\" ;%g
-s%\"char gforth_version\[\]=\\\"$(VERSION)\\\" ;\"%char gforth_version\[\]=\"$(VERSION)\" ;%g
-s%config\.h\.in%config_h\.in%g
+s%@PATHSEP@%;%g
+s%-fforce-mem -fforce-addr %%g
+s%": version-string s\\" $(VERSION)\\" ;\"%: version-string s" $(VERSION)" ;%g
+s%"char gforth_version\[\]=\\"$(VERSION)\\" ;"%char gforth_version\[\]="$(VERSION)" ;%g
+s%$(srcdir)/config.h.in:	stamp-h.in%#$(srcdir)/config.h.in:	stamp-h.in%g
+s%config.h:	stamp-h%#config.h:	stamp-h%g
+s%$(FORTHPATH)$(PATHSEP)%%g

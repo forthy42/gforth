@@ -34,7 +34,10 @@ s%@host_cpu@%i486%g
 s%@host_vendor@%%g
 s%@host_os@%os2%g
 s%@ENGINE_FLAGS@%%g
-s%@MAKE_EXE@%-$(CP) gforth gforth.exe%g
+s%gforth:%gforth.exe:%g
+s%-$(CP) gforth gforth~%-$(CP) gforth.exe gforth.exe~%g
+s%@MAKE_EXE@%\
+gforth:		gforth.exe%g
 s%@PATHSEP@%;%g
 s%@LINK_KERNL16L@%%g
 s%@LINK_KERNL16B@%%g
@@ -50,3 +53,10 @@ s%@INSTALL_DATA@%${INSTALL} -m 644%g
 s%@LIBOBJS@% pow10.o strsignal.o ecvt.o atanh.o%g
 s%@getopt_long@%getopt.o getopt1.o%g
 s%@kernel_fi@%kernl32l.fi%g
+s%@PATHSEP@%;%g
+s%-fforce-mem -fforce-addr %%g
+s%": version-string s\\" $(VERSION)\\" ;\"%: version-string s" $(VERSION)" ;%g
+s%"char gforth_version\[\]=\\"$(VERSION)\\" ;"%char gforth_version\[\]="$(VERSION)" ;%g
+s%$(srcdir)/config.h.in:	stamp-h.in%#$(srcdir)/config.h.in:	stamp-h.in%g
+s%config.h:	stamp-h%#config.h:	stamp-h%g
+s%$(FORTHPATH)$(PATHSEP)%%g

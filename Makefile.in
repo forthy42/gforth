@@ -24,9 +24,12 @@
 # (2) otherwise, pass the desired values on the `make' command line.
 
 VERSION	=0.2.0#gforth version
+DOSVERSION=020#gforth version
 SHELL	= /bin/sh
 RM	= rm
+RMTREE	= rm -rf
 CP	= cp
+TAR	= tar cf -
 INSTALL	= @INSTALL@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_DATA = @INSTALL_DATA@
@@ -147,7 +150,7 @@ SOURCES	= CVS compat Makefile.in configure.in configure config.sub config.guess 
 	strerror.c strsignal.c dblsub.c \
 	INSTALL.DOS makefile.dos mkdosmf.sed configure.bat dosconf.h \
 	startup.dos history.dos \
-	os2conf.h makefile.os2 \
+	configure.cmd mkos2mf.sed os2conf.h makefile.os2 \
 	glosgen.glo glossaries.doc \
 	$(INCLUDES) $(FORTH_SRC)
 
@@ -228,39 +231,47 @@ virtualclean:	mostlyclean
 
 #use dist targets only when srcdir=.
 dist:		$(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST)
-		-rm -rf gforth-$(VERSION)
+		-$(RMTREE) gforth-$(VERSION)
 		mkdir gforth-$(VERSION)
 		$(CP) -rp $(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST) gforth-$(VERSION)
-		tar cvf - gforth-$(VERSION)|gzip -9 >gforth-$(VERSION).tar.gz
-		-rm -rf gforth-$(VERSION)
+		$(TAR) gforth-$(VERSION)|gzip -9 >gforth-$(VERSION).tar.gz
+		-$(RMTREE) gforth-$(VERSION)
+
+#use dist targets only when srcdir=.
+dosdist:	$(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST)
+		-$(RMTREE) gforth.$(DOSVERSION)
+		mkdir gforth.$(DOSVERSION)
+		$(CP) -rp $(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST) gforth.$(DOSVERSION)
+		zip -r9 gforth.zip gforth.$(DOSVERSION)/*
+		-$(RMTREE) gforth.$(DOSVERSION)
 
 #A source distribution contains only the things needed to install gforth,
 #without the documents.
 srcdist:	$(SOURCES) $(FORTH_GEN0) @KERNEL@
-		-rm -rf gforth-$(VERSION)
+		-$(RMTREE) gforth-$(VERSION)
 		mkdir gforth-$(VERSION)
 		$(CP) -rp $(SOURCES) $(FORTH_GEN0) @KERNEL@ gforth-$(VERSION)
-		tar cvf - gforth-$(VERSION)|gzip -9 >gforth-src-$(VERSION).tar.gz
-		-rm -rf gforth-$(VERSION)
+		$(TAR) gforth-$(VERSION)|gzip -9 >gforth-src-$(VERSION).tar.gz
+		-$(RMTREE) gforth-$(VERSION)
 
 #A document distribution contains only the documents, which can be created
 #with MAKE.
 docdist:	$(DOCDIST)
-		-rm -rf gforth-$(VERSION)
+		-$(RMTREE) gforth-$(VERSION)
 		mkdir gforth-$(VERSION)
 		$(CP) -rp $(DOCDIST) gforth-$(VERSION)
-		tar cvf - gforth-$(VERSION)|gzip -9 >gforth-doc-$(VERSION).tar.gz
-		-rm -rf gforth-$(VERSION)
+		$(TAR) gforth-$(VERSION)|gzip -9 >gforth-doc-$(VERSION).tar.gz
+		-$(RMTREE) gforth-$(VERSION)
 
 #a binary distribution contains the complete source distribution,
 # the objects, the executable and the links. the objects are there for making
 # make happy.
 bindist:	$(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST) $(BINONLYDIST)
-		-rm -rf gforth-$(VERSION)
+		-$(RMTREE) gforth-$(VERSION)
 		mkdir gforth-$(VERSION)
 		$(CP) -rp -d $(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST) $(BINONLYDIST) gforth-$(VERSION)
 		strip gforth-$(VERSION)/gforth
-		tar cvf - gforth-$(VERSION)|gzip -9 >gforth-$(VERSION)-@host@.tar.gz
+		$(TAR) gforth-$(VERSION)|gzip -9 >gforth-$(VERSION)-@host@.tar.gz
 
 #makes a package with only the stuff not present in the source
 #package. For installation the source package is still needed!
@@ -270,11 +281,11 @@ bindist:	$(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST) $(BINONLYDIST)
 #then just has to unpack the source and his favourite binonly into the
 #same directory and has a full binary distribution.
 binonlydist:	$(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST) $(BINONLYDIST)
-		-rm -rf gforth-$(VERSION)
+		-$(RMTREE) gforth-$(VERSION)
 		mkdir gforth-$(VERSION)
 		$(CP) -p -d  $(BINONLYDIST) gforth-$(VERSION)
 		strip gforth-$(VERSION)/gforth
-		tar cvf - gforth-$(VERSION)|gzip -9 >gforth-$(VERSION)-binonly-@host@.tar.gz
+		$(TAR) gforth-$(VERSION)|gzip -9 >gforth-$(VERSION)-binonly-@host@.tar.gz
 
 
 #strip gforth, because the debugging stuff is hardly useful once
