@@ -65,7 +65,7 @@ SOURCES	= Makefile.in configure.in configure config.sub  config.guess \
 	primitives engine.c main.c io.c \
 	m68k.h mips.h 386.h hppa.h cache.c sparc.h power.h alpha.h 32bit.h \
 	getopt.c getopt1.c getopt.h select.c \
-	ecvt.c memcmp.c strtol.c strtoul.c ansidecl.h memmove.c \
+	ecvt.c memcmp.c strtol.c strtoul.c ansidecl.h memmove.c pow10.c \
 	makefile.dos configure.bat startup.dos \
 	glosgen.glo glossaries.doc \
 	$(INCLUDES) $(FORTH_SRC)

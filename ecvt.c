@@ -1,6 +1,8 @@
 /* cheap ecvt replacement */
 
 #include <math.h>
+extern double floor(double);
+extern double pow10(double);
 
 #define MAXCONV 0x40
 char scratch[MAXCONV];

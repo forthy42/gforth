@@ -1209,15 +1209,8 @@ r2 = log10(r1);
 
 falog		r1 -- r2	float-ext
 ""@i{r2}=10**@i{r1}""
-#ifdef HAVE_POW10
 extern double pow10(double);
 r2 = pow10(r1);
-#else
-#ifndef M_LN10
-#define M_LN10      2.30258509299404568402
-#endif
-r2 = exp(r1*M_LN10);
-#endif
 
 fsin		r1 -- r2	float-ext
 r2 = sin(r1);

@@ -1464,16 +1464,19 @@ Variable argc
 	r> >tib +!  2 EXIT  THEN
     ." Unknown option: " type cr 2drop 1 ;
 
-: process-args ( -- )  >tib @ >r
+: process-args ( -- )
+    >tib @ >r
+    true to script?
     argc @ 1
     ?DO
 	I arg over c@ [char] - <>
 	IF
-	    true to script? included  false to script? 1
+	    included 1
 	ELSE
 	    I 1+ arg  do-option
 	THEN
     +LOOP
+    false to script?
     r> >tib ! ;
 
 Defer 'cold ' noop IS 'cold
