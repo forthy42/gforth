@@ -162,6 +162,7 @@ struct%
     cell% 2* field stack-pointer \ stackpointer name
     cell%    field stack-type \ name for default type of stack items
     cell%    field stack-in-index-xt \ ( in-size item -- in-index )
+    cell%    field stack-access-transform \ ( nitem -- index )
 end-struct stack%
 
 struct%
@@ -197,7 +198,9 @@ create stacks max-stacks cells allot \ array of stacks
     1 next-stack-number +!
     r@ stack-type !
     save-mem r@ stack-pointer 2! 
-    ['] stack-in-index r> stack-in-index-xt ! ;
+    ['] stack-in-index r@ stack-in-index-xt !
+    ['] noop r@ stack-access-transform !
+    rdrop ;
 
 : map-stacks { xt -- }
     \ perform xt for all stacks
@@ -333,13 +336,15 @@ defer inst-stream-f ( -- stack )
 
 \ stack access stuff
 
-: normal-stack-access1 ( n stack -- )
-    stack-pointer 2@ type
-    dup
-    if
-	." [" 0 .r ." ]"
+: normal-stack-access0 { n stack -- }
+    n stack stack-access-transform @ execute ." [" 0 .r ." ]" ;
+    
+: normal-stack-access1 { n stack -- }
+    stack stack-pointer 2@ type
+    n if
+	n stack normal-stack-access0
     else
-	drop ." TOS"
+	." TOS"
     endif ;
 
 : normal-stack-access ( n stack -- )
@@ -645,7 +650,7 @@ stack inst-stream IP Cell
     stack stack-out @ 0<> stack stack-in @ 0= and
     if
 	." IF_" stack stack-pointer 2@ 2dup type ." TOS("
-	2dup type ." [0] = " type ." TOS);" cr
+	2dup type 0 stack normal-stack-access0 ."  = " type ." TOS);" cr
     endif ;
 
 : flush-tos ( -- )
@@ -655,7 +660,7 @@ stack inst-stream IP Cell
     stack stack-out @ 0= stack stack-in @ 0<> and
     if
 	." IF_" stack stack-pointer 2@ 2dup type ." TOS("
-	2dup type ." TOS = " type ." [0]);" cr
+	2dup type ." TOS = " type 0 stack normal-stack-access0 ." );" cr
     endif ;
 
 : fill-tos ( -- )
@@ -668,6 +673,12 @@ stack inst-stream IP Cell
 : fetches ( -- )
     prim prim-effect-in prim prim-effect-in-end @ ['] fetch map-items ;
 
+: stack-update-transform ( n1 stack -- n2 )
+    \ n2 is the number by which the stack pointer should be
+    \ incremented to pop n1 items
+    stack-access-transform @ dup >r execute
+    0 r> execute - ;
+
 : stack-pointer-update { stack -- }
     \ stacks grow downwards
     stack stack-diff
@@ -675,7 +686,8 @@ stack inst-stream IP Cell
 	stack inst-stream = if
 	    ." INC_IP(" 0 .r ." );" cr
 	else
-	    stack stack-pointer 2@ type ."  += " 0 .r ." ;" cr
+	    stack stack-pointer 2@ type ."  += "
+	    stack stack-update-transform 0 .r ." ;" cr
 	endif
     endif ;
 
