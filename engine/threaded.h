@@ -148,6 +148,10 @@
 */
 #define KILLS asm("":"=X"(cfa));
 
+#ifndef THREADING_SCHEME
+#define THREADING_SCHEME 6
+#endif
+
 #if THREADING_SCHEME==1
 #warning direct threading scheme 1: autoinc, long latency, cfa live
 #  define NEXT_P0	({cfa=*ip++;})
@@ -287,6 +291,10 @@
 /* direct threaded */
 #else
 /* indirect THREADED  */
+
+#ifndef THREADING_SCHEME
+#define THREADING_SCHEME 6
+#endif
 
 #if THREADING_SCHEME==1
 #warning indirect threading scheme 1: autoinc, long latency, cisc
