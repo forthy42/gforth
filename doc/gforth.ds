@@ -14239,10 +14239,10 @@ doc-#!
 @cindex image file initialization sequence
 @cindex initialization sequence of image file
 
-You can add your own initialization to the startup sequence through the
-deferred word @code{'cold}. @code{'cold} is invoked just before the
-image-specific command line processing (i.e., loading files and
-evaluating (@code{-e}) strings) starts.
+You can add your own initialization to the startup sequence of an image
+through the deferred word @code{'cold}. @code{'cold} is invoked just
+before the image-specific command line processing (i.e., loading files
+and evaluating (@code{-e}) strings) starts.
 
 A sequence for adding your initialization usually looks like this:
 

@@ -273,7 +273,7 @@ has? peephole [IF]
   cfalign here /does-handler allot does-handler! ;
 
 : (compile) ( -- ) \ gforth-obsolete: dummy
-    ( r> dup cell+ >r @ compile, ) ;
+    true abort" (compile) doesn't work, use POSTPONE instead" ;
 
 \ \ ticks
 

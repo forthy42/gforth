@@ -8,9 +8,10 @@ interpreter is direct threaded with several optimizations, but you can
 also use a traditional-style indirect threaded interpreter.  Gforth is
 distributed under the GNU General Public license (see COPYING).
 
-Gforth runs under Unix, MS Windows, MacOS X, OS/2, and DOS and should
-not be hard to port to other systems supported by GCC. This version
-has been tested successfully on the following platforms:
+Gforth runs under GNU, BSD, and similar systems, MS Windows, MacOS X,
+OS/2, and DOS and should not be hard to port to other systems
+supported by GCC. This version has been tested successfully on the
+following platforms:
 
  alpha-dec-osf4.0d
  alpha-unknown-linux-gnu

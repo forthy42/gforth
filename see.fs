@@ -794,7 +794,7 @@ Defer discode ( addr u -- ) \ gforth
 	else \ interpret/compile word
 	    r@ xt-see-xt cr
 	    swap xt-see-xt cr
-	    ." interpret/compile " over .name (.immediate)
+	    ." interpret/compile: " over .name drop
 	then
     then
     rdrop drop ;
