@@ -44,6 +44,9 @@
 
 #ifdef MSDOS
 jmp_buf throw_jmp_buf;
+#  ifndef DEFAULTPATH
+#    define DEFAULTPATH "."
+#  endif
 #endif
 
 #if defined(DIRECT_THREADED) 
@@ -66,7 +69,7 @@ static size_t pagesize=0;
 char *progname;
 
 /* image file format:
- *  "#! binary-path -i\n" (e.g., "#! /usr/local/bin/gforth-0.2.0 -i\n")
+ *  "#! binary-path -i\n" (e.g., "#! /usr/local/bin/gforth-0.3.0 -i\n")
  *   padding to a multiple of 8
  *   magic: "Gforth1x" means format 0.2,
  *              where x is even for big endian and odd for little endian

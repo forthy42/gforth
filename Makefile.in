@@ -161,7 +161,7 @@ SOURCES	= CVS compat Makefile.in gforth-makeimage \
 	ecvt.c memcmp.c strtol.c strtoul.c ansidecl.h memmove.c pow10.c atanh.c \
 	strerror.c strsignal.c dblsub.c \
 	INSTALL.DOS makefile.dos mkdosmf.sed configure.bat dosconf.h \
-	startup.dos history.dos mkinstalldirs \
+	gforth-makeimage.bat startup.dos history.dos mkinstalldirs \
 	configure.cmd mkos2mf.sed os2conf.h makefile.os2 \
 	glosgen.glo glossaries.doc \
 	$(INCLUDES) $(FORTH_SRC)
@@ -454,19 +454,31 @@ primitives.b:	primitives
 		m4 -s $(srcdir)/primitives >$@ 
 
 primitives.i :	primitives.b prims2x.fs
-		$(FORTHK) prims2x.fs -e "s\" primitives.b\" ' output-c process-file bye" >$@
+		$(FORTHK) prims2x.fs -e "s\" primitives.b\" ' output-c process-file bye" >$@-
+		$(CP) $@- $@
+		$(RM) $@-
 
 prim_labels.i :	primitives.b prims2x.fs
-		$(FORTHK) prims2x.fs -e "s\" primitives.b\" ' output-label process-file bye" >$@
+		$(FORTHK) prims2x.fs -e "s\" primitives.b\" ' output-label process-file bye" >$@-
+		$(CP) $@- $@
+		$(RM) $@-
 
 aliases.fs:	primitives.b prims2x.fs aliases0.fs
-		$(FORTHK) prims2x.fs -e "s\" primitives.b\" ' output-alias process-file bye" |cat aliases0.fs - >$@
+		$(CP) aliases0.fs $@-
+		$(FORTHK) prims2x.fs -e "s\" primitives.b\" ' output-alias process-file bye" >>$@-
+		$(CP) $@- $@
+		$(RM) $@-
 
 primitives.fs:	primitives.b prims2x.fs primitives0.fs
-		$(FORTHK) prims2x.fs -e "s\" primitives.b\" ' output-forth process-file bye"|cat primitives0.fs - >$@
+		$(CP) primitives0.fs primitives.fs-
+		$(FORTHK) prims2x.fs -e "s\" primitives.b\" ' output-forth process-file bye" >>$@-
+		$(CP) $@- $@
+		$(RM) $@-
 
 primitives.TAGS: primitives.b prims2x.fs
-		$(FORTHK) prims2x.fs -e "s\" $(srcdir)/primitives.b\" ' output-tag process-file bye" >$@
+		$(FORTHK) prims2x.fs -e "s\" $(srcdir)/primitives.b\" ' output-tag process-file bye" >$@-
+		$(CP) $@- $@
+		$(RM) $@-
 
 doc.fd:		makedoc.fs $(GFORTH_FI_SRC)
 		$(FORTHK) -e "s\" doc.fd\"" makedoc.fs startup.fs code.fs -e bye
@@ -475,7 +487,9 @@ crossdoc.fd:	$(KERN_SRC) version.fs $(FORTH_GEN0)
 		$(FORTHK) -e 's" mach32l.fs"' main.fs -e bye
 
 gforth.texi:	gforth.ds primitives.b ds2texi.fs prims2x.fs doc.fd crossdoc.fd
-		$(FORTHK) -m 100000 ds2texi.fs prims2x.fs -e "s\" $(srcdir)/primitives.b\" ' register-doc process-file" crossdoc.fd doc.fd -e "s\" $(srcdir)/gforth.ds\" r/o open-file throw ds2texi bye" >$@
+		$(FORTHK) -m 100000 ds2texi.fs prims2x.fs -e "s\" $(srcdir)/primitives.b\" ' register-doc process-file" crossdoc.fd doc.fd -e "s\" $(srcdir)/gforth.ds\" r/o open-file throw ds2texi bye" >$@-
+		$(CP) $@- $@
+		$(RM) $@-
 
 checkdoc:	gforth.ds primitives.b ds2texi.fs prims2x.fs doc.fd crossdoc.fd answords.fs gforth.texi
 		$(FORTHK) ds2texi.fs prims2x.fs -e "s\" $(srcdir)/primitives.b\" ' register-doc process-file" crossdoc.fd doc.fd answords.fs -e bye

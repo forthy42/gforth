@@ -5,7 +5,7 @@ s% ln -s% copy%g
 s%-pipe %%g
 s% ./gforth% gforth%g
 s%io.o %%g
-s%-DDEFAULTPATH=\\".*"%-DDEFAULTPATH=\\".\\"%g
+s%-DDEFAULTPATH=\\".*"%%g
 s%@kernel_fi@%kernl32l.fi%g
 s%@KERNEL@%kernl16l.fi kernl16b.fi kernl32l.fi kernl32b.fi kernl64l.fi kernl64b.fi%g
 s%@LIBOBJS@%ecvt.o io.o strsignal.o%g
@@ -38,3 +38,6 @@ s%$(FORTHPATH)$(PATHSEP)%%g
 s%@FORTHSIZES@%%g
 s%test x'$(VERSION)' = x`cat $@` || %%g
 s%--clear-dictionary%-c%g
+s%.$(PATHSEP)$(srcdir)%.%g
+s% -I$(srcdir)%%g
+s%GFORTHD="./gforth-ditc -p .$(PATHSEP)$(srcdir)" $(srcdir)/%%g
