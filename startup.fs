@@ -101,6 +101,9 @@ true constant search-order
 true constant search-order-ext
 true constant string
 true constant string-ext
+\ extension queries
+' noop alias X:deferred
+' noop alias X:extension-query
 set-current
 
 warnings on
