@@ -16,7 +16,7 @@
 
 \ You should have received a copy of the GNU General Public License
 \ along with this program; if not, write to the Free Software
-\ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+\ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
 
 \ this disassembler is based on data from the R4400 manual
 \ http://www.mips.com/Documentation/R4400_Uman_book_Ed2.pdf, in

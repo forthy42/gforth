@@ -16,7 +16,7 @@
 
 \ You should have received a copy of the GNU General Public License
 \ along with this program; if not, write to the Free Software
-\ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+\ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
 
 \ Now: Kernel Module, Reloadable
 
@@ -156,5 +156,5 @@ create image-included-files 4 , A, ( pointer to and count of included files )
     included-files 2@ .strings ;
     
 \ contains tools/newrequire.fs
-\ \I $Id: require.fs,v 1.17 2000-09-23 15:06:10 anton Exp $
+\ \I $Id: require.fs,v 1.18 2000-09-23 15:47:12 anton Exp $
 
