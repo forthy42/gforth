@@ -324,7 +324,10 @@ INST_TAIL;
 JUMP(a_target);
 #else
 SET_IP((Xt *)a_target);
+INST_TAIL;
+NEXT_P2;
 #endif
+SUPER_CONTINUE;  /* we do our own control flow, so don't append NEXT etc. */
 :
  r> @ >r ;
 
