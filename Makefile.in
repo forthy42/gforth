@@ -228,10 +228,12 @@ GFORTH_FI_SRC = \
 	stuff.fs \
 	tasker.fs \
 	termsize.fs \
+	utf-8.fs \
 	vt100.fs \
 	vt100key.fs \
 	wordinfo.fs \
 	arch/386/asm.fs arch/386/disasm.fs \
+	arch/amd64/asm.fs arch/amd64/disasm.fs \
 	arch/alpha/asm.fs arch/alpha/disasm.fs \
 	arch/mips/asm.fs arch/mips/disasm.fs arch/mips/insts.fs
 
