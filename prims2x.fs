@@ -672,6 +672,42 @@ does> ( item -- )
     ." } else "
     1 function-number +! ;
 
+
+
+
+: gen-arg-parm { item -- }
+    item item-stack @ inst-stream = if
+	." , " item item-type @ type-c-name 2@ type space
+	item item-name 2@ type
+    endif ;
+
+: gen-args-parm ( -- )
+ effect-in-end @ effect-in ?do
+   i gen-arg-parm
+ item% %size +loop ; 
+
+: gen-arg-gen { item -- }
+    item item-stack @ inst-stream = if
+	."   genarg_" item item-type @ print-type-prefix
+        ." (ctp, " item item-name 2@ type ." );" cr
+    endif ;
+
+: gen-args-gen ( -- )
+ effect-in-end @ effect-in ?do
+   i gen-arg-gen
+ item% %size +loop ; 
+
+: output-gen ( -- )
+    \ generate C code for generating VM instructions
+    ." /* " declarations ." */" cr
+    compute-offsets
+    ." void gen_" c-name 2@ type ." (Inst **ctp" gen-args-parm ." )" cr
+    ." {" cr
+    ."   gen_inst(ctp, vm_prim[" function-number @ 0 .r ." ]);" cr
+    gen-args-gen
+    ." }" cr
+    1 function-number +! ;
+
 : stack-used? { stack -- f }
     stack stack-in @ stack stack-out @ or 0<> ;
 
