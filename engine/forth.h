@@ -130,15 +130,7 @@ typedef union {
 #define vm_d2twoCell(d_,lo,hi)  STORE_DCELL_T(d_,lo,hi,d)
 #define vm_ud2twoCell(d_,lo,hi) STORE_DCELL_T(d_,lo,hi,ud)
 
-#ifdef DIRECT_THREADED
-typedef Label Xt;
-#else
 typedef Label *Xt;
-#endif
-
-#if !defined(DIRECT_THREADED)
-/* i.e. indirect threaded our doubly indirect threaded */
-/* the direct threaded version is machine dependent and resides in machine.h */
 
 /* PFA gives the parameter field address corresponding to a cfa */
 #define PFA(cfa)	(((Cell *)cfa)+2)
@@ -172,7 +164,6 @@ typedef Label *Xt;
 #else /* !defined(DOUBLY_INDIRECT) */
 #define MAKE_DOES_HANDLER(addr)	0
 #endif /* !defined(DOUBLY_INDIRECT) */
-#endif /* !defined(DIRECT_THREADED) */
 
 #ifdef DEBUG
 #	define	NAME(string)	fprintf(stderr,"%08lx: "string"\n",(Cell)ip);
@@ -187,12 +178,6 @@ typedef Label *Xt;
 #ifndef FLUSH_ICACHE
 #warning flush-icache probably will not work (see manual)
 #	define FLUSH_ICACHE(addr,size)
-#endif
-
-#if defined(DIRECT_THREADED)
-#define CACHE_FLUSH(addr,size) FLUSH_ICACHE(addr,size)
-#else
-#define CACHE_FLUSH(addr,size)
 #endif
 
 #ifdef USE_TOS

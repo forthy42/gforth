@@ -282,14 +282,6 @@ static int ufileattr[6]= {
 # define CPU_DEP1 0
 #endif
 
-/* declare and compute cfa for certain threading variants */
-/* warning: this is nonsyntactical; it will not work in place of a statement */
-#ifndef GETCFA
-#define DOCFA
-#else
-#define DOCFA	Xt cfa; GETCFA(cfa)
-#endif
-
 /* instructions containing these must be the last instruction of a
    super-instruction (e.g., branches, EXECUTE, and other instructions
    ending the basic block). Instructions containing SET_IP get this
@@ -327,6 +319,7 @@ Cell *rp;
 #endif
 
 Xt *primtable(Label symbols[], Cell size)
+     /* used in primitive primtable for peephole optimization */
 {
 #ifdef DIRECT_THREADED
   return symbols;
@@ -354,9 +347,7 @@ define(enginerest,
   register Cell *sp SPREG = sp0;
   register Float *fp FPREG = fp0;
   register Address lp LPREG = lp0;
-#ifdef CFA_NEXT
   register Xt cfa CFAREG;
-#endif
 #ifdef MORE_VARS
   MORE_VARS
 #endif
@@ -441,7 +432,6 @@ define(enginerest,
   
  docol:
   {
-    DOCFA;
 #ifdef DEBUG
     {
       CFA_TO_NAME(cfa);
@@ -471,7 +461,6 @@ define(enginerest,
 
  docon:
   {
-    DOCFA;
 #ifdef DEBUG
     fprintf(stderr,"%08lx: con: %08lx\n",(Cell)ip,*(Cell*)PFA1(cfa));
 #endif
@@ -487,7 +476,6 @@ define(enginerest,
   
  dovar:
   {
-    DOCFA;
 #ifdef DEBUG
     fprintf(stderr,"%08lx: var: %08lx\n",(Cell)ip,(Cell)PFA1(cfa));
 #endif
@@ -503,7 +491,6 @@ define(enginerest,
   
  douser:
   {
-    DOCFA;
 #ifdef DEBUG
     fprintf(stderr,"%08lx: user: %08lx\n",(Cell)ip,(Cell)PFA1(cfa));
 #endif
@@ -519,7 +506,6 @@ define(enginerest,
   
  dodefer:
   {
-    DOCFA;
 #ifdef DEBUG
     fprintf(stderr,"%08lx: defer: %08lx\n",(Cell)ip,*(Cell*)PFA1(cfa));
 #endif
@@ -529,7 +515,6 @@ define(enginerest,
 
  dofield:
   {
-    DOCFA;
 #ifdef DEBUG
     fprintf(stderr,"%08lx: field: %08lx\n",(Cell)ip,(Cell)PFA1(cfa));
 #endif
@@ -557,8 +542,6 @@ define(enginerest,
      
      */
   {
-    DOCFA;
-
     /*    fprintf(stderr, "Got CFA %08lx at doescode %08lx/%08lx: does: %08lx\n",cfa,(Cell)ip,(Cell)PFA(cfa),(Cell)DOES_CODE1(cfa));*/
 #ifdef DEBUG
     fprintf(stderr,"%08lx/%08lx: does: %08lx\n",(Cell)ip,(Cell)PFA(cfa),(Cell)DOES_CODE1(cfa));

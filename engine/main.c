@@ -57,13 +57,10 @@
 jmp_buf throw_jmp_buf;
 #endif
 
-#if defined(DIRECT_THREADED)
-/*#  define CA(n) (symbols[(n)])*/
-#  define CA(n)	(symbols[(n)&~0x4000UL])
-#elif defined(DOUBLY_INDIRECT)
-#  define CA(n)	({Cell _n = (n); ((Cell)(((_n & 0x4000) ? symbols : xts)+(_n&~0x4000UL)));})
+#if defined(DOUBLY_INDIRECT)
+#  define CFA(n)	({Cell _n = (n); ((Cell)(((_n & 0x4000) ? symbols : xts)+(_n&~0x4000UL)));})
 #else
-#  define CA(n)	((Cell)(symbols+((n)&~0x4000UL)))
+#  define CFA(n)	((Cell)(symbols+((n)&~0x4000UL)))
 #endif
 
 #define maxaligned(n)	(typeof(n))((((Cell)n)+sizeof(Float)-1)&-sizeof(Float))
@@ -181,10 +178,14 @@ void relocate(Cell *image, const char *bitstring,
 	      MAKE_DOES_CF(image+i,(Xt *)(image[i+1]+((Cell)start)));
 	      break;
 	    default          :
-/*	      printf("Code field generation image[%x]:=CA(%x)\n",
+/*	      printf("Code field generation image[%x]:=CFA(%x)\n",
 		     i, CF(image[i])); */
 	      if (CF((token | 0x4000))<max_symbols) {
-		image[i]=(Cell)CA(CF(token));
+		image[i]=(Cell)CFA(CF(token));
+#ifdef DIRECT_THREADED
+		if ((token & 0x4000) == 0) /* threade code, no CFA */
+		  image[i] = *(Cell *)image[i];
+#endif
 	      } else
 		fprintf(stderr,"Primitive %d used in this image at $%lx is not implemented by this\n engine (%s); executing this code will crash.\n",CF(token),(long)&image[i],VERSION);
 	    }
@@ -307,20 +308,11 @@ Address my_alloc(Cell size)
   return verbose_malloc(size);
 }
 
-#if (defined(mips) && !defined(INDIRECT_THREADED))
-/* the 256MB jump restriction on the MIPS architecture makes the
-   combination of direct threading and mmap unsafe. */
-#define mips_dict_alloc 1
-#define dict_alloc(size) verbose_malloc(size)
-#else
-#define dict_alloc(size) my_alloc(size)
-#endif
-
 Address dict_alloc_read(FILE *file, Cell imagesize, Cell dictsize, Cell offset)
 {
   Address image = MAP_FAILED;
 
-#if defined(HAVE_MMAP) && !defined(mips_dict_alloc)
+#if defined(HAVE_MMAP)
   if (offset==0) {
     image=alloc_mmap(dictsize);
     if (debug)
@@ -328,9 +320,9 @@ Address dict_alloc_read(FILE *file, Cell imagesize, Cell dictsize, Cell offset)
     image = mmap(image, imagesize, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_FIXED|MAP_FILE|MAP_PRIVATE, fileno(file), 0);
     after_alloc(image,dictsize);
   }
-#endif /* defined(MAP_ANON) && !defined(mips_dict_alloc) */
+#endif /* defined(HAVE_MMAP) */
   if (image == MAP_FAILED) {
-    image = dict_alloc(dictsize+offset)+offset;
+    image = my_alloc(dictsize+offset)+offset;
     rewind(file);  /* fseek(imagefile,0L,SEEK_SET); */
     fread(image, 1, imagesize, file);
   }
@@ -515,6 +507,7 @@ Label compile_prim(Label prim)
   Address old_code_here=code_here;
   static Address last_jump=0;
 
+  prim = *(Xt)prim;
   for (i=0; ; i++) {
     if (i>=npriminfos) { /* not a relocatable prim */
       if (last_jump) { /* make sure the last sequence is complete */
@@ -535,6 +528,7 @@ Label compile_prim(Label prim)
   last_jump = (priminfos[i].super_end) ? 0 : (prim+priminfos[i].length);
   return (Label)old_code_here;
 #else
+  prim = *(Xt)prim;
   return prim;
 #endif
 #endif /* !defined(DOUBLY_INDIRECT) */
@@ -652,7 +646,8 @@ Address loader(FILE *imagefile, char* filename)
 
   alloc_stacks((ImageHeader *)imp);
 
-  CACHE_FLUSH(imp, header.image_size);
+  /* unnecessary, except maybe for CODE words */
+  /* FLUSH_ICACHE(imp, header.image_size);*/
 
   return imp;
 }
@@ -856,7 +851,7 @@ int main(int argc, char **argv, char **env)
 #endif
   int retvalue;
 	  
-#if defined(i386) && defined(ALIGNMENT_CHECK) && !defined(DIRECT_THREADED)
+#if defined(i386) && defined(ALIGNMENT_CHECK)
   /* turn on alignment checks on the 486.
    * on the 386 this should have no effect. */
   __asm__("pushfl; popl %eax; orl $0x40000, %eax; pushl %eax; popfl;");

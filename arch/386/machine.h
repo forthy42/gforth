@@ -59,7 +59,7 @@
    flush-icache is a noop */
 #define FLUSH_ICACHE(addr,size)
 
-#ifdef DIRECT_THREADED
+#if 0
 
 #define CALL 0xe8 /* call */
 #define JMP  0xe9 /* jmp  */
@@ -123,10 +123,12 @@
 /* this works with 2.5.7; nothing works with 2.5.8 */
 #define IPREG asm("%esi")
 #define SPREG asm("%edi")
+#if 0
 #ifdef USE_TOS
 #define CFAREG asm("%ecx")
 #else
 #define CFAREG asm("%edx")
+#endif
 #endif
 #else /* gcc-version */
 /* this works with 2.6.3 (and quite well, too) */
