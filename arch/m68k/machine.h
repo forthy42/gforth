@@ -72,7 +72,12 @@ extern int cacheflush(void *, int, int, size_t);
 /* PFA1 is a special version for use just after a NEXT1 */
 #define PFA1(cfa)	PFA(cfa)
 /* CODE_ADDRESS is the address of the code jumped to through the code field */
-#define CODE_ADDRESS(cfa)	(*(Label *)((char *)(cfa)+2))
+#define CODE_ADDRESS1(cfa)	(*(Label *)((char *)(cfa)+2))
+#define CODE_ADDRESS(cfa)  ({ \
+    short *__cfa=(short *)(cfa); \
+    (*__cfa == 0x4ef9) ? CODE_ADDRESS1(__cfa): (Label)__cfa; \
+  })
+
 /* MAKE_CF creates an appropriate code field at the cfa;
    ca is the code address */
 #define MAKE_CF(cfa,ca)		({short * _cfa = (short *)(cfa); \
@@ -85,13 +90,12 @@ extern int cacheflush(void *, int, int, size_t);
 #define DOES_CODE(cfa) \
      ({ short *_cfa=(short *)(cfa); \
 	short *_ca=CODE_ADDRESS(_cfa); \
-	((_cfa[0] == 0x4ef9 \
-	  && _ca[0] == 0x4ef9 && CODE_ADDRESS(_ca) == &&dodoes) \
+	((_ca[0] == 0x4ef9 && CODE_ADDRESS1(_ca) == &&dodoes) \
 	 ? ((unsigned)_ca)+DOES_HANDLER_SIZE \
 	 : 0); })
 
 /* this is a special version of DOES_CODE for use in dodoes */
-#define DOES_CODE1(cfa)	((Xt *)(((char *)CODE_ADDRESS(cfa))+DOES_HANDLER_SIZE))
+#define DOES_CODE1(cfa)	((Xt *)(((char *)CODE_ADDRESS1(cfa))+DOES_HANDLER_SIZE))
 
 /* this stores a call dodoes at addr */
 #define MAKE_DOES_HANDLER(addr) MAKE_CF(addr,symbols[DODOES])
