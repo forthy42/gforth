@@ -94,7 +94,6 @@
 #define DOES_CODE1(cfa)	((Xt *)(((char *)CODE_ADDRESS(cfa))+DOES_HANDLER_SIZE))
 
 
-#	define DOES_HANDLER_SIZE	8
 #	define MAKE_DOES_CF(cfa,does_code) \
 			({long does_handlerp=((long)(does_code))-DOES_HANDLER_SIZE; \
 			  long *_cfa = (long*)(cfa); \

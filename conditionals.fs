@@ -113,12 +113,12 @@ variable backedge-locals
 : ?DUP-0=-IF ( compilation -- orig ; run-time n -- n| ) \ gforth	question-dupe-zero-equals-if
     POSTPONE ?dup-0=-?branch >mark ;       immediate restrict
 
-Defer then-like ( orig -- addr )
-: cs>addr ( orig/dest -- addr )  drop nip ;
+Defer then-like ( orig -- )
+: cs>addr ( orig/dest -- )  drop >resolve drop ;
 ' cs>addr IS then-like
 
 : THEN ( compilation orig -- ; run-time -- ) \ core
-    dup orig?  then-like  >resolve ; immediate restrict
+    dup orig?  then-like ; immediate restrict
 
 ' THEN alias ENDIF ( compilation orig -- ; run-time -- ) \ gforth
 immediate restrict

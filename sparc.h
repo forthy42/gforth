@@ -91,8 +91,6 @@
 /* this stores a call dodoes at addr */
 #define MAKE_DOES_HANDLER(addr) MAKE_CF(addr,symbols[DODOES])
 
-#define DOES_HANDLER_SIZE       8
-
 #define MAKE_DOES_CF(addr,doesp) ({long *_addr        = (long *)(addr); \
 			  unsigned _doesp = (unsigned)(doesp); \
 			  _addr[0] = 0x40000000|((_doesp-8-(unsigned)_addr)>>2); /* CALL doesp-8 */ \

@@ -56,7 +56,6 @@
 
 /* this is the point where the does code starts if label points to the
  * jump dodoes */
-#define DOES_HANDLER_SIZE       8
 #define DOES_CODE(xt) \
 ({ long _xt = (long)(xt); \
    long _ca = (long)(CODE_ADDRESS(_xt)); \

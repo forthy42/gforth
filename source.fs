@@ -41,4 +41,5 @@ end-struct sourcepos
 
 : print-sourcepos ( a-addr -- )
     get-sourcepos
-    >r type ." :" r> 0 .r ;
+    >r type ." :"
+    base @ decimal r> 0 .r base ! ;

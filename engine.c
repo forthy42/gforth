@@ -190,6 +190,10 @@ static int ufileattr[6]= {
 #define FTOSREG
 #endif
 
+#ifndef CPU_DEP1
+# define CPU_DEP1 0
+#endif
+
 /* declare and compute cfa for certain threading variants */
 /* warning: this is nonsyntactical; it will not work in place of a statement */
 #ifdef CFA_NEXT
@@ -214,7 +218,12 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
   register Address up UPREG = UP;
   IF_TOS(register Cell TOS TOSREG;)
   IF_FTOS(register Float FTOS FTOSREG;)
+#if defined(DOUBLY_INDIRECT)
+  static Label *symbols;
+  static void *routines[]= {
+#else /* !defined(DOUBLY_INDIRECT) */
   static Label symbols[]= {
+#endif /* !defined(DOUBLY_INDIRECT) */
     &&docol,
     &&docon,
     &&dovar,
@@ -224,13 +233,9 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
     &&dodoes,
     /* the following entry is normally unused;
        it's there because its index indicates a does-handler */
-#ifdef CPU_DEP1
     CPU_DEP1,
-#else
-    (Label)0,
-#endif
 #include "prim_labels.i"
-    (Label)0
+    0
   };
 #ifdef CPU_DEP2
   CPU_DEP2
@@ -242,8 +247,25 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
 	  (unsigned)fp,(unsigned)lp,(unsigned)up);
 #endif
 
-  if (ip == NULL)
-    return symbols;
+  if (ip == NULL) {
+#if defined(DOUBLY_INDIRECT)
+#define MAX_SYMBOLS 1000
+    int i;
+    Cell code_offset = offset_image? 11*sizeof(Cell) : 0;
+
+    symbols = (Label *)(malloc(MAX_SYMBOLS*sizeof(Cell)+code_offset)+code_offset);
+    for (i=0; i<DOESJUMP+1; i++)
+      symbols[i] = (Label)routines[i];
+    for (; routines[i]!=0; i++) {
+      if (i>=MAX_SYMBOLS) {
+	fprintf(stderr,"gforth-ditc: more than %d primitives\n",MAX_SYMBOLS);
+	exit(1);
+    }
+    symbols[i] = &routines[i];
+  }
+#endif /* defined(DOUBLY_INDIRECT) */
+  return symbols;
+}
 
   IF_TOS(TOS = sp[0]);
   IF_FTOS(FTOS = fp[0]);

@@ -497,16 +497,17 @@ forth definitions
 \ ELSE. However, if ELSE generates an appropriate "lp+!#" before the
 \ branch, there will be none after the target <then>.
 
-: (then-like) ( orig -- addr )
-    swap -rot dead-orig =
+: (then-like) ( orig -- )
+    dead-orig =
     if
-        drop
+	>resolve drop
     else
         dead-code @
         if
-	    set-locals-size-list dead-code off
+	    >resolve set-locals-size-list dead-code off
 	else \ both live
-	    dup list-size adjust-locals-size
+	    over list-size adjust-locals-size
+	    >resolve
 	    locals-list @ common-list dup list-size adjust-locals-size
 	    locals-list !
 	then
@@ -616,10 +617,9 @@ forth definitions
     \ this gives a unique identifier for the way the xt was defined
     \ words defined with different does>-codes have different definers
     \ the definer can be used for comparison and in definer!
-    dup >code-address [ ' spaces >code-address ] Literal =
-    \ !! this definition will not work on some implementations for `bits'
-    if  \ if >code-address delivers the same value for all does>-def'd words
-	>does-code 1 or \ bit 0 marks special treatment for does codes
+    dup >does-code
+    ?dup-if
+	nip 1 or
     else
 	>code-address
     then ;
@@ -643,15 +643,15 @@ forth definitions
     0 0 0. 0.0e0 { c: clocal w: wlocal d: dlocal f: flocal }
     comp' drop dup >definer
     case
-	[ ' locals-wordlist >definer ] literal \ value
+	[ ' locals-wordlist ] literal >definer \ value
 	OF >body POSTPONE Aliteral POSTPONE ! ENDOF
-	[ comp' clocal drop >definer ] literal
+	[ comp' clocal drop ] literal >definer
 	OF POSTPONE laddr# >body @ lp-offset, POSTPONE c! ENDOF
-	[ comp' wlocal drop >definer ] literal
+	[ comp' wlocal drop ] literal >definer
 	OF POSTPONE laddr# >body @ lp-offset, POSTPONE ! ENDOF
-	[ comp' dlocal drop >definer ] literal
+	[ comp' dlocal drop ] literal >definer
 	OF POSTPONE laddr# >body @ lp-offset, POSTPONE 2! ENDOF
-	[ comp' flocal drop >definer ] literal
+	[ comp' flocal drop ] literal >definer
 	OF POSTPONE laddr# >body @ lp-offset, POSTPONE f! ENDOF
 	-&32 throw
     endcase ;

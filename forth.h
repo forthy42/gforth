@@ -20,12 +20,23 @@
 */
 
 #include "config.h"
+
+#if defined(DOUBLY_INDIRECT)
+#  undef DIRECT_THREADED
+#  define INDIRECT_THREADED
+#endif
+
 #include <limits.h>
+
 #if defined(NeXT)
 #  include <libc.h>
 #endif /* NeXT */
 
+#if defined(DOUBLY_INDIRECT)
+typedef void **Label;
+#else /* !defined(DOUBLY_INDIRECT) */
 typedef void *Label;
+#endif /* !defined(DOUBLY_INDIRECT) */
 
 /* symbol indexed constants */
 
@@ -37,6 +48,9 @@ typedef void *Label;
 #define DOFIELD	5
 #define DODOES	6
 #define DOESJUMP	7
+
+/* the size of the DOESJUMP, which resides between DOES> and the does-code */
+#define DOES_HANDLER_SIZE	(2*sizeof(Cell))
 
 #include "machine.h"
 
@@ -124,8 +138,9 @@ typedef Label Xt;
 typedef Label *Xt;
 #endif
 
-#ifndef DIRECT_THREADED
-/* i.e. indirect threaded */
+
+#if !defined(DIRECT_THREADED)
+/* i.e. indirect threaded our doubly indirect threaded */
 /* the direct threaded version is machine dependent and resides in machine.h */
 
 /* PFA gives the parameter field address corresponding to a cfa */
@@ -133,20 +148,33 @@ typedef Label *Xt;
 /* PFA1 is a special version for use just after a NEXT1 */
 #define PFA1(cfa)	PFA(cfa)
 /* CODE_ADDRESS is the address of the code jumped to through the code field */
-#define CODE_ADDRESS(cfa)	(*(Label *)(cfa))
+#define CODE_ADDRESS(cfa)	(*(Xt)(cfa))
+
 /* DOES_CODE is the Forth code does jumps to */
+#if !defined(DOUBLY_INDIRECT)
+#  define DOES_CA (symbols[DODOES])
+#else /* defined(DOUBLY_INDIRECT) */
+#  define DOES_CA ((Label)&symbols[DODOES])
+#endif /* defined(DOUBLY_INDIRECT) */
+
+
+
 #define DOES_CODE(cfa)	({Xt _cfa=(Xt)(cfa); \
-			  _cfa[0] == symbols[DODOES] ? _cfa[1] : NULL;})
-#define DOES_CODE1(cfa)	(cfa[1])
+			  (Xt *)(_cfa[0]==DOES_CA ? _cfa[1] : NULL);})
+#define DOES_CODE1(cfa)	((Xt *)(cfa[1]))
 /* MAKE_CF creates an appropriate code field at the cfa;
    ca is the code address */
 #define MAKE_CF(cfa,ca) ((*(Label *)(cfa)) = ((Label)ca))
 /* make a code field for a defining-word-defined word */
-#define MAKE_DOES_CF(cfa,does_code)	({MAKE_CF(cfa,symbols[DODOES]);	\
-					  ((Cell *)cfa)[1] = (Cell)does_code;})
+#define MAKE_DOES_CF(cfa,does_code)  ({MAKE_CF(cfa,DOES_CA);	\
+				       ((Cell *)cfa)[1] = (Cell)(does_code);})
 /* the does handler resides between DOES> and the following Forth code */
-#define DOES_HANDLER_SIZE	(2*sizeof(Cell))
-#define MAKE_DOES_HANDLER(addr)	0 /* do nothing */
+/* not needed in indirect threaded code */
+#if defined(DOUBLY_INDIRECT)
+#define MAKE_DOES_HANDLER(addr)	MAKE_CF(addr, ((Label)&symbols[DOESJUMP]))
+#else /* !defined(DOUBLY_INDIRECT) */
+#define MAKE_DOES_HANDLER(addr)	0
+#endif /* !defined(DOUBLY_INDIRECT) */
 #endif /* !defined(DIRECT_THREADED) */
 
 #ifdef DEBUG
@@ -164,7 +192,7 @@ typedef Label *Xt;
 #	define FLUSH_ICACHE(addr,size)
 #endif
 
-#ifdef DIRECT_THREADED
+#if defined(DIRECT_THREADED)
 #define CACHE_FLUSH(addr,size) FLUSH_ICACHE(addr,size)
 #else
 #define CACHE_FLUSH(addr,size)
@@ -185,6 +213,7 @@ typedef Label *Xt;
 #endif
 
 Label *engine(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp);
+Address my_alloc(Cell size);
 
 /* dblsub routines */
 DCell dnegate(DCell d1);
@@ -196,3 +225,4 @@ DCell fmdiv (DCell num, Cell denom);
 
 int memcasecmp(const char *s1, const char *s2, long n);
 
+extern int offset_image;

@@ -9,6 +9,18 @@ foo2
 
 foo1
 
+\ locals in an if structure
+: locals-test1
+    lp@ swap
+    if
+	{ a } a
+    else
+    endif
+    lp@ <> abort" locals in if error 1" ;
+
+0 locals-test1
+1 locals-test1
+
 \ comments across several lines
 
 ( fjklfjlas;d

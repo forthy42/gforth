@@ -4444,9 +4444,9 @@ cannot represent @code{ALLOCATE}d memory chunks (and pointers to
 them). And the contents of the stacks are not represented, either.
 
 @item
-The only kinds of relocation supported are: the addition of the same
-offset to all cells that represent data addresses; and the replacement of
-special tokens with code addresses.
+The only kinds of relocation supported are: adding the same offset to
+all cells that represent data addresses; and replacing special tokens
+with code addresses or with pieces of machine code.
 
 If any complex computations involving addresses are performed, the
 results cannot be represented in the image file. Several applications that
@@ -4465,6 +4465,14 @@ There's a cute implementation of doubly-linked lists that uses
 in the image file, and restore the doubly-linked representation on
 startup.@footnote{In my opinion, though, you should think thrice before
 using a doubly-linked list (whatever implementation).}
+
+@item
+The code addresses of run-time routines like @code{docol:} cannot be
+represented in the image file (because their tokens would be replaced by
+machine code in direct threaded implementations). As a workaround,
+compute these addresses at run-time with @code{>code-address} from the
+executions tokens of selected words (see the definitions of
+@code{docol:} and friends in @file{kernel.fs}).
 
 @item
 On many architectures addresses are represented in machine code in some

@@ -44,7 +44,8 @@ PATHSEP = @PATHSEP@
 FORTHPATH = $(libdir)/gforth/site-forth$(PATHSEP)$(datadir)/gforth/site-forth$(PATHSEP)$(libdir)/gforth/$(VERSION)$(PATHSEP)$(datadir)/gforth/$(VERSION)$(PATHSEP).
 FORTHSIZES = @FORTHSIZES@
 FORTH	= ./gforth -p $(FORTHPATH)$(PATHSEP)$(srcdir)
-FORTHK	= ./gforth -p .$(PATHSEP)$(srcdir) -i ./kernel.fi
+FORTHKFLAGS= -p .$(PATHSEP)$(srcdir) -i ./kernel.fi
+FORTHK	= ./gforth $(FORTHKFLAGS)
 FORTHP	= ./gforth -i ./kernel.fi
 STRIP	= strip
 TEXI2DVI = texi2dvi
@@ -168,7 +169,9 @@ RCS_FILES =  ToDo model high-level
 
 GEN = gforth version.fs
 
-OBJECTS	= engine.o io.o main.o memcasecmp.o @LIBOBJS@ @getopt_long@
+OBJECTS0 = io.o memcasecmp.o @LIBOBJS@ @getopt_long@
+OBJECTS	= engine.o main.o
+OBJECTS_DITC =  engine-ditc.o main-ditc.o
 
 # things that need a working forth system to be generated
 FORTH_GEN0 = primitives.b primitives.i prim_labels.i aliases.fs primitives.fs
@@ -180,7 +183,8 @@ FORTH_GEN1 = $(FORTH_GEN0) @kernel_fi@
 DOCDIST = gforth.info* gforth.ps
 
 #stuff in a binonly distribution 
-BINONLYDIST = config.status Makefile gforth $(OBJECTS) \
+BINONLYDIST = config.status Makefile gforth gforth-ditc \
+	$(OBJECTS0) $(OBJECTS) $(OBJECTS_DITC)\
 	machine.h config.h kernel.fi stamp-h version.h version.fs \
 	INSTALL.BINDIST
 
@@ -356,23 +360,73 @@ bench:		gforth gforth.fi
 
 dvi:		gforth.dvi
 
-gforth:		$(OBJECTS)
+gforth:		$(OBJECTS) $(OBJECTS0)
 		-$(CP) gforth gforth~
-		$(GCC) $(LDFLAGS) $(OBJECTS) $(LDLIBS) -o $@
+		$(GCC) $(LDFLAGS) $(OBJECTS) $(OBJECTS0) $(LDLIBS) -o $@
+		@MAKE_EXE@
+
+gforth-ditc:	$(OBJECTS_DITC) $(OBJECTS0)
+		$(GCC) $(LDFLAGS) $(OBJECTS_DITC) $(OBJECTS0) $(LDLIBS) -o $@
 		@MAKE_EXE@
 
 kernl%.fi-:	mach%.fs $(KERN_SRC) version.fs $(FORTH_GEN0)
 		$(FORTHK) -e 's" $<"' main.fs -e "save-cross $@ $(bindir)/gforth-$(VERSION) bye"
+
+kernl16l.fi-:	$(KERN_SRC) version.fs mach16l.fs $(FORTH_GEN0)
+		$(FORTHK) -e 's" mach16l.fs"' main.fs -e "save-cross kernl16l.fi- $(bindir)/gforth-$(VERSION) bye"
+
+kernl16b.fi-:	$(KERN_SRC) version.fs mach16b.fs $(FORTH_GEN0)
+		$(FORTHK) -e 's" mach16b.fs"' main.fs -e "save-cross kernl16b.fi- $(bindir)/gforth-$(VERSION) bye"
+
+kernl32l.fi-:	$(KERN_SRC) version.fs mach32l.fs $(FORTH_GEN0)
+		$(FORTHK) -e 's" mach32l.fs"' main.fs -e "save-cross kernl32l.fi- $(bindir)/gforth-$(VERSION) bye"
+
+kernl32b.fi-:	$(KERN_SRC) version.fs mach32b.fs $(FORTH_GEN0)
+		$(FORTHK) -e 's" mach32b.fs"' main.fs -e "save-cross kernl32b.fi- $(bindir)/gforth-$(VERSION) bye"
+
+kernl64l.fi-:	$(KERN_SRC) version.fs mach64l.fs $(FORTH_GEN0)
+		$(FORTHK) -e 's" mach64l.fs"' main.fs -e "save-cross kernl64l.fi- $(bindir)/gforth-$(VERSION) bye"
+
+kernl64b.fi-:	$(KERN_SRC) version.fs mach64b.fs $(FORTH_GEN0)
+		$(FORTHK) -e 's" mach64b.fs"' main.fs -e "save-cross kernl64b.fi- $(bindir)/gforth-$(VERSION) bye"
 
 kernl%.fi:	kernl%.fi- $(KERNLS)
 		-$(CP) $@ $@~
 		-$(CP) $< $@
 		@LINK_KERNL@
 
-gforth.fi:	@kernel_fi@ gforth $(GFORTH_FI_SRC)
-		$(FORTHK) --clear-dictionary $(FORTHSIZES) startup.fs -e "savesystem gforth.fi1 bye"
-		$(FORTHK)  --clear-dictionary --offset-image $(FORTHSIZES) startup.fs -e "savesystem gforth.fi2 bye"
-		$(FORTHK) -m 100000 startup.fs  comp-image.fs -e "comp-image gforth.fi1 gforth.fi2 gforth.fi bye"
+kernl16b.fi:	$(KERNLS)
+		-$(CP) kernl16b.fi kernl16b.fi~
+		-$(CP) kernl16b.fi- kernl16b.fi
+		@LINK_KERNL16B@
+
+kernl16l.fi:	$(KERNLS)
+		-$(CP) kernl16l.fi kernl16l.fi~
+		-$(CP) kernl16l.fi- kernl16l.fi
+		@LINK_KERNL16L@
+
+kernl32b.fi:	$(KERNLS)
+		-$(CP) kernl32b.fi kernl32b.fi~
+		-$(CP) kernl32b.fi- kernl32b.fi
+		@LINK_KERNL32B@
+
+kernl32l.fi:	$(KERNLS)
+		-$(CP) kernl32l.fi kernl32l.fi~
+		-$(CP) kernl32l.fi- kernl32l.fi
+		@LINK_KERNL32L@
+
+kernl64b.fi:	$(KERNLS)
+		-$(CP) kernl64b.fi kernl64b.fi~
+		-$(CP) kernl64b.fi- kernl64b.fi
+		@LINK_KERNL64B@
+
+kernl64l.fi:	$(KERNLS)
+		-$(CP) kernl64l.fi kernl64l.fi~
+		-$(CP) kernl64l.fi- kernl64l.fi
+		@LINK_KERNL64L@
+
+gforth.fi:	@kernel_fi@ gforth-makeimage gforth gforth-ditc $(GFORTH_FI_SRC)
+		GFORTH=./gforth-ditc $(srcdir)/gforth-makeimage gforth.fi $(FORTHSIZES) $(FORTHKFLAGS) startup.fs
 
 #TAGS is a GNU standard target
 TAGS:		gforth.TAGS
@@ -389,8 +443,14 @@ engine.s:	engine.c primitives.i prim_labels.i machine.h threading.h $(INCLUDES) 
 engine.o:	engine.c primitives.i prim_labels.i machine.h threading.h $(INCLUDES) config.h
 		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -c $(srcdir)/engine.c
 
+engine-ditc.o:	engine.c primitives.i prim_labels.i machine.h threading.h $(INCLUDES) config.h
+		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -DDOUBLY_INDIRECT -o $@ -c $(srcdir)/engine.c
+
 main.o:		main.c machine.h threading.h $(INCLUDES) config.h version.h
 		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -c $(srcdir)/main.c
+
+main-ditc.o:	main.c machine.h threading.h $(INCLUDES) config.h version.h
+		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -DDOUBLY_INDIRECT -o $@ -c $(srcdir)/main.c
 
 strtoul.o:	strtoul.c strtol.c
 

@@ -149,7 +149,6 @@ typedef short Int16;
 /* the does handler resides between DOES> and the following Forth
    code. Since the code-field jumps directly to dodoes, the
    does-handler is not needed for the Alpha architecture */
-#define DOES_HANDLER_SIZE       (2*sizeof(Cell))
 #define MAKE_DOES_HANDLER(addr)   0
 
 /* This makes a code field for a does-defined word. doesp is the

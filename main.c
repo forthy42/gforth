@@ -46,11 +46,7 @@
 jmp_buf throw_jmp_buf;
 #endif
 
-#ifndef DEFAULTPATH
-#  define DEFAULTPATH "/usr/local/lib/gforth:."
-#endif
-
-#ifdef DIRECT_THREADED
+#if defined(DIRECT_THREADED) 
 #  define CA(n)	(symbols[(n)])
 #else
 #  define CA(n)	((Cell)(symbols+(n)))
@@ -63,7 +59,7 @@ static UCell dsize=0;
 static UCell rsize=0;
 static UCell fsize=0;
 static UCell lsize=0;
-static int image_offset=0;
+int offset_image=0;
 static int clear_dictionary=0;
 static int debug=0;
 static size_t pagesize=0;
@@ -128,19 +124,22 @@ void relocate(Cell *image, char *bitstring, int size, Label symbols[])
 	  switch(image[i])
 	    {
 	    case CF_NIL      : image[i]=0; break;
+#if !defined(DOUBLY_INDIRECT)
 	    case CF(DOCOL)   :
 	    case CF(DOVAR)   :
 	    case CF(DOCON)   :
 	    case CF(DOUSER)  : 
 	    case CF(DODEFER) : 
 	    case CF(DOFIELD) : MAKE_CF(image+i,symbols[CF(image[i])]); break;
-	    case CF(DODOES)  : MAKE_DOES_CF(image+i,image[i+1]+((Cell)image));
-	      break;
 	    case CF(DOESJUMP): MAKE_DOES_HANDLER(image+i); break;
+#endif /* !defined(DOUBLY_INDIRECT) */
+	    case CF(DODOES)  :
+	      MAKE_DOES_CF(image+i,image[i+1]+((Cell)image));
+	      break;
 	    default          :
 /*	      printf("Code field generation image[%x]:=CA(%x)\n",
-		     i, CF(image[i]));
-*/	      image[i]=(Cell)CA(CF(image[i]));
+		     i, CF(image[i])); */
+	      image[i]=(Cell)CA(CF(image[i]));
 	    }
 	else
 	  image[i]+=(Cell)image;
@@ -175,10 +174,28 @@ Address my_alloc(Cell size)
   static Address next_address=0;
   Address r;
 
-#if HAVE_MMAP && defined(MAP_ANON)
+#if HAVE_MMAP
+#if defined(MAP_ANON)
   if (debug)
-    fprintf(stderr,"try mmap($%lx, $%lx, ...); ", (long)next_address, (long)size);
+    fprintf(stderr,"try mmap($%lx, $%lx, ..., MAP_ANON, ...); ", (long)next_address, (long)size);
   r=mmap(next_address, size, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE, -1, 0);
+#else /* !defined(MAP_ANON) */
+  static int dev_zero=-1;
+
+  if (dev_zero == -1)
+    dev_zero = open("/dev/zero", O_RDONLY);
+  if (dev_zero == -1) {
+    r = (Address)-1;
+    if (debug)
+      fprintf(stderr, "open(\"/dev/zero\"...) failed (%s), no mmap; ", 
+	      strerror(errno));
+  } else {
+    if (debug)
+      fprintf(stderr,"try mmap($%lx, $%lx, ..., MAP_FILE, dev_zero, ...); ", (long)next_address, (long)size);
+    r=mmap(next_address, size, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_FILE|MAP_PRIVATE, dev_zero, 0);
+  }
+#endif /* !defined(MAP_ANON) */
+
   if (r != (Address)-1) {
     if (debug)
       fprintf(stderr, "success, address=$%lx\n", (long) r);
@@ -188,7 +205,7 @@ Address my_alloc(Cell size)
   }
   if (debug)
     fprintf(stderr, "failed: %s\n", strerror(errno));
-#endif
+#endif /* HAVE_MMAP */
   /* use malloc as fallback, leave a little room (64B) for stack underflows */
   if ((r = malloc(size+64))==NULL) {
     perror(progname);
@@ -208,10 +225,16 @@ Address loader(FILE *imagefile, char* filename)
   Address imp; /* image+preamble */
   Char magic[9];
   Cell preamblesize=0;
-  Label *symbols=engine(0,0,0,0,0);
-  UCell check_sum=checksum(symbols);
-
+  Label *symbols = engine(0,0,0,0,0);
+  Cell data_offset = offset_image ? 28*sizeof(Cell) : 0;
+  UCell check_sum;
   static char* endianstring[]= { "big","little" };
+
+#ifndef DOUBLY_INDIRECT
+  check_sum = checksum(symbols);
+#else /* defined(DOUBLY_INDIRECT) */
+  check_sum = (UCell)symbols;
+#endif /* defined(DOUBLY_INDIRECT) */
 
   do
     {
@@ -269,12 +292,12 @@ Address loader(FILE *imagefile, char* filename)
 #elif HAVE_SYSCONF && defined(_SC_PAGESIZE)
   pagesize=sysconf(_SC_PAGESIZE); /* POSIX.4 */
 #elif PAGESIZE
-  pagesize=PAGESIZE; /* in limits.h accoring to Gallmeister's POSIX.4 book */
+  pagesize=PAGESIZE; /* in limits.h according to Gallmeister's POSIX.4 book */
 #endif
   if (debug)
     fprintf(stderr,"pagesize=%d\n",pagesize);
 
-  image = my_alloc(preamblesize+dictsize+image_offset)+image_offset;
+  image = my_alloc(preamblesize+dictsize+data_offset)+data_offset;
   rewind(imagefile);  /* fseek(imagefile,0L,SEEK_SET); */
   if (clear_dictionary)
     memset(image,0,dictsize);
@@ -360,9 +383,9 @@ int go_forth(Address image, int stack, Cell *entries)
 }
 
 UCell convsize(char *s, UCell elemsize)
-/* converts s of the format #+u (e.g. 25k) into the number of bytes.
-   the unit u can be one of bekM, where e stands for the element
-   size. default is e */
+/* converts s of the format [0-9]+[bekM]? (e.g. 25k) into the number
+   of bytes.  the letter at the end indicates the unit, where e stands
+   for the element size. default is e */
 {
   char *endp;
   UCell n,m;
@@ -417,16 +440,15 @@ int main(int argc, char **argv, char **env)
       {"path", required_argument, NULL, 'p'},
       {"version", no_argument, NULL, 'v'},
       {"help", no_argument, NULL, 'h'},
-      {"clear-dictionary", no_argument, NULL, 'c'},
-      /* put something != 0 into image_offset; it should be a
-         not-too-large max-aligned number */
-      {"offset-image", no_argument, NULL, 'o'},
+      /* put something != 0 into offset_image */
+      {"offset-image", no_argument, &offset_image, 1},
+      {"clear-dictionary", no_argument, &clear_dictionary, 1},
       {"debug", no_argument, &debug, 1},
       {0,0,0,0}
       /* no-init-file, no-rc? */
     };
     
-    c = getopt_long(argc, argv, "+i:m:d:r:f:l:p:vhco", opts, &option_index);
+    c = getopt_long(argc, argv, "+i:m:d:r:f:l:p:vh", opts, &option_index);
     
     if (c==EOF)
       break;
@@ -435,8 +457,6 @@ int main(int argc, char **argv, char **env)
       break;
     }
     switch (c) {
-    case 'c': clear_dictionary=1; break;
-    case 'o': image_offset=28*sizeof(Cell); break;
     case 'i': imagename = optarg; break;
     case 'm': dictsize = convsize(optarg,sizeof(Cell)); break;
     case 'd': dsize = convsize(optarg,sizeof(Cell)); break;
@@ -460,7 +480,7 @@ Engine Options:\n\
  -p PATH, --path=PATH		    Search path for finding image and sources\n\
  -r SIZE, --return-stack-size=SIZE  Specify return stack size\n\
  -v, --version			    Print version and exit\n\
-SIZE arguments consists of an integer followed by a unit. The unit can be\n\
+SIZE arguments consist of an integer followed by a unit. The unit can be\n\
   `b' (bytes), `e' (elements), `k' (kilobytes), or `M' (Megabytes).\n\
 \n\
 Arguments of default image `gforth.fi':\n\
@@ -490,6 +510,8 @@ Arguments of default image `gforth.fi':\n\
 	    fullfilename[dirlen++]='/';
 	  strcpy(fullfilename+dirlen,imagename);
 	  image_file=fopen(fullfilename,"rb");
+	  if (image_file!=NULL && debug)
+	    fprintf(stderr, "Opened image file: %s\n", fullfilename);
 	}
 	path=pend+(*pend==PATHSEP);
       } while (image_file==NULL);

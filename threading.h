@@ -95,6 +95,20 @@
 #  define CFA_NEXT
 #endif
 
+#ifdef DOUBLY_INDIRECT
+#  define NEXT_P0	({cfa=*ip;})
+#  define IP		(ip)
+#  define NEXT_INST	(cfa)
+#  define INC_IP(const_inc)	({cfa=IP[const_inc]; ip+=(const_inc);})
+#  define DEF_CA	Label ca;
+#  define NEXT_P1	({ip++; ca=**cfa;})
+#  define NEXT_P2	({goto *ca;})
+#  define EXEC(XT)	({DEF_CA cfa=(XT); ca=**cfa; goto *ca;})
+#  define NEXT1_P1 ({ca = **cfa;})
+#  define NEXT1_P2 ({goto *ca;})
+
+#else /* !defined(DOUBLY_INDIRECT) */
+
 #if defined(DIRECT_THREADED) && defined(AUTO_INCREMENT)\
     && defined(LONG_LATENCY) && defined(CFA_NEXT)
 #warning scheme 1
@@ -309,8 +323,6 @@
 #  define EXEC(XT)	({DEF_CA cfa=(XT); ca=*cfa; goto *ca;})
 #endif
 
-#define NEXT ({DEF_CA NEXT_P1; NEXT_P2;})
-
 #if defined(CISC_NEXT) && !defined(LONG_LATENCY)
 # define NEXT1_P1
 # ifdef DIRECT_THREADED
@@ -318,12 +330,17 @@
 # else
 #  define NEXT1_P2 ({goto **cfa;})
 # endif /* DIRECT_THREADED */
-#else /* defined(CISC_NEXT) && !defined(LONG_LATENCY) */
+#else /* !defined(CISC_NEXT) || defined(LONG_LATENCY) */
 # ifdef DIRECT_THREADED
 #  define NEXT1_P1
 #  define NEXT1_P2 ({goto *cfa;})
-# else /* DIRECT_THREADED */
+# else /* !DIRECT_THREADED */
 #  define NEXT1_P1 ({ca = *cfa;})
 #  define NEXT1_P2 ({goto *ca;})
-# endif /* DIRECT_THREADED */
-#endif
+# endif /* !DIRECT_THREADED */
+#endif /* !defined(CISC_NEXT) || defined(LONG_LATENCY) */
+
+#endif /* !defined(DOUBLY_INDIRECT) */
+
+#define NEXT ({DEF_CA NEXT_P1; NEXT_P2;})
+

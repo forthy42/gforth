@@ -1292,7 +1292,7 @@ a_addr = PFA(xt);
 >code-address		xt -- c_addr		gforth	to_code_address
 ""c_addr is the code address of the word xt""
 /* !! This behaves installation-dependently for DOES-words */
-c_addr = CODE_ADDRESS(xt);
+c_addr = (Address)CODE_ADDRESS(xt);
 :
     @ ;
 
@@ -1335,11 +1335,16 @@ n = DOES_HANDLER_SIZE;
     2 cells ;
 
 threading-method	-- n	gforth	threading_method
-""0 if the engine is direct threaded.""
-#if defined(DIRECT_THREADED)
-n=0;
+""0 if the engine is direct threaded. Note that this may change during
+the lifetime of an image.""
+#if defined(DOUBLY_INDIRECT)
+n=2;
 #else
+# if defined(DIRECT_THREADED)
+n=0;
+# else
 n=1;
+# endif
 #endif
 :
  1 ;

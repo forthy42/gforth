@@ -26,10 +26,14 @@
  */
 #if defined(apollo)
 #  define FLUSH_ICACHE(addr,size)    cache_$clear()
+#elif defined(NeXT)
+#  define FLUSH_ICACHE(addr,size)     asm("trap #2");
+#elif defined(hpux)
+#  include <sys/cache.h>
+#  define FLUSH_ICACHE(addr,size) cachectl(CC_IPURGE,(addr),(size))
 #else
-#  if defined(NeXT)
-#    define FLUSH_ICACHE(addr,size)     asm("trap #2");
-#  endif
+#  warning no FLUSH_ICACHE defined. If your machine has an I-cache (68020+),
+#  warning direct threading and CODE words will not work.
 #endif
 
 #ifdef DIRECT_THREADED
@@ -50,7 +54,7 @@
    starts. */
 #define DOES_CODE(cfa) \
      ({ short *_cfa=(short *)(cfa); \
-	short *_ca;
+	short *_ca; \
 	((_cfa[0] == 0x4ef9 \
 	  && (_ca=CODE_ADDRESS(cfa), _ca[0] == 0x4ef9) \
 	  && *(long *)(_cfa+1) == &&docol) \
@@ -62,8 +66,6 @@
 
 /* this stores a call dodoes at addr */
 #define MAKE_DOES_HANDLER(addr) MAKE_CF(addr,symbols[DODOES])
-
-#define DOES_HANDLER_SIZE       8
 
 #define MAKE_DOES_CF(addr,doesp)   MAKE_CF(addr,((int)(doesp)-8))
 #endif
