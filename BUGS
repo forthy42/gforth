@@ -34,6 +34,3 @@ Hendrix 3oct00 <8rdcmd$j96$1@news.IAEhv.nl>
 
 Newline has only LF (instead of CRLF) in DOS.  Bruce Hoyt 25oct2000
 <39f7b14b$2@clear.net.nz>
-
-Differences between kernl64l.fi created on a 32l machine and one
-created on a 64l machine.  anton 29jan01

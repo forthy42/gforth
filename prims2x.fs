@@ -208,7 +208,18 @@ end-struct prim%
     s" " p prim-doc 2! s" " p prim-forth-code 2! s" " p prim-wordset 2!
     p ;
 
-0 value prim
+0 value prim     \ in combined prims either combined or a part
+0 value combined \ in combined prims the combined prim
+variable in-part \ true if processing a part
+ in-part off
+
+1000 constant max-combined
+create combined-prims max-combined cells allot
+variable num-combined
+
+create current-depth max-stacks cells allot
+create max-depth     max-stacks cells allot
+create min-depth     max-stacks cells allot
 
 wordlist constant primitives
 
@@ -244,14 +255,30 @@ Variable function-number 0 function-number !
 
 \ types
 
-: stack-access ( n stack -- )
-    \ print a stack access at index n of stack
+
+: normal-stack-access ( n stack -- )
     stack-pointer 2@ type
     dup
     if
 	." [" 0 .r ." ]"
     else
 	drop ." TOS"
+    endif ;
+
+: part-stack-access { n stack -- }
+    \ print _<stack><x>, x=maxdepth-currentdepth-n-1
+    ." _" stack stack-pointer 2@ type
+    stack stack-number @ { stack# }
+    combined prim-stacks-in stack# th @ assert( dup max-depth stack# th @ = )
+    current-depth stack# th @ - n - 1-
+    0 .r ;
+
+: stack-access ( n stack -- )
+    \ print a stack access at index n of stack
+    in-part @ if
+	part-stack-access
+    else
+	normal-stack-access
     endif ;
 
 : item-in-index { item -- n }
@@ -775,15 +802,8 @@ s" IP" save-mem cell-type  s" error don't use # on results" make-stack inst-stre
 \  spTOS = (Cell)_x_sp0;
 \  NEXT_P2;
 
-1000 constant max-combined
-create combined-prims max-combined cells allot
-variable num-combined
-
-create current-depth max-stacks cells allot
-create max-depth     max-stacks cells allot
-create min-depth     max-stacks cells allot
-
 : init-combined ( -- )
+    prim to combined
     0 num-combined !
     current-depth max-stacks cells erase
     max-depth     max-stacks cells erase
@@ -856,8 +876,8 @@ create min-depth     max-stacks cells allot
 
 : print-item { n stack -- }
     \ print nth stack item name
-    ." _" stack stack-type @ type-c-name 2@ type space
-    stack stack-pointer 2@ type n 0 .r ;
+    stack stack-type @ type-c-name 2@ type space
+    ." _" stack stack-pointer 2@ type n 0 .r ;
 
 : print-declarations-combined ( -- )
     max-stacks 0 ?do
@@ -865,13 +885,36 @@ create min-depth     max-stacks cells allot
 	    i stacks j th @ print-item ." ;" cr
 	loop
     loop ;
-    
+
+: part-fetches ( -- )
+    fetches ;
+
+: part-output-c-tail ( -- )
+    output-c-tail ;
+
+: output-part ( p -- )
+    to prim
+    ." /* " prim prim-name 2@ type ."  ( " prim prim-stack-string 2@ type ." ) */" cr
+    ." NAME(" quote prim prim-name 2@ type quote ." )" cr \ debugging
+    ." {" cr
+    print-declarations
+    part-fetches
+    print-debug-args
+    prim add-depths \ !! right place?
+    ." {" cr
+    ." #line " c-line @ . quote c-filename 2@ type quote cr
+    prim prim-c-code 2@ type-c \ !! deal with TAIL
+    ." }" cr
+    part-output-c-tail
+    ." }" cr ;
+
 : output-parts ( -- )
-    prim >r
+    prim >r in-part on
+    current-depth max-stacks cells erase
     num-combined @ 0 +do
-	combined-prims i th @ to prim
-	output-c
+	combined-prims i th @ output-part
     loop
+    in-part off
     r> to prim ;
 
 : output-c-combined ( -- )
@@ -976,7 +1019,7 @@ bl 1+ maxchar ..                                        charclass nowhite
 char " singleton eof-char over add-member complement	charclass noquote
 nl-char singleton					charclass nl
 eof-char singleton					charclass eof
-
+nl-char singleton eof-char over add-member		charclass nleof
 
 (( letter (( letter || digit )) **
 )) <- c-ident ( -- )
@@ -1022,7 +1065,7 @@ Variable c-flag
 
 (( (( eval-comment || forth-comment || c-comment || else-comment || if-comment )) ?? nonl ** )) <- comment-body
 
-(( ` \ comment-body nl )) <- comment ( -- )
+(( ` \ comment-body nleof )) <- comment ( -- )
 
 (( {{ start }} stack-ident {{ end 2 pick init-item item% %size + }} white ** )) **
 <- stack-items
@@ -1036,21 +1079,21 @@ Variable c-flag
    ` ( white ** {{ start }} stack-effect {{ end prim prim-stack-string 2! }} ` ) white **
    (( {{ start }} forth-ident {{ end prim prim-wordset 2! }} white **
       (( {{ start }}  c-ident {{ end prim prim-c-name 2! }} )) ??
-   )) ??  nl
-   (( ` " ` "  {{ start }} (( noquote ++ ` " )) ++ {{ end 1- prim prim-doc 2! }} ` " white ** nl )) ??
-   {{ skipsynclines off line @ c-line ! filename 2@ c-filename 2! start }} (( nocolonnl nonl **  nl white ** )) ** {{ end prim prim-c-code 2! skipsynclines on }}
-   (( ` :  white ** nl
-      {{ start }} (( nonl ++  nl white ** )) ++ {{ end prim prim-forth-code 2! }}
+   )) ??  nleof
+   (( ` " ` "  {{ start }} (( noquote ++ ` " )) ++ {{ end 1- prim prim-doc 2! }} ` " white ** nleof )) ??
+   {{ skipsynclines off line @ c-line ! filename 2@ c-filename 2! start }} (( nocolonnl nonl **  nleof white ** )) ** {{ end prim prim-c-code 2! skipsynclines on }}
+   (( ` :  white ** nleof
+      {{ start }} (( nonl ++  nleof white ** )) ++ {{ end prim prim-forth-code 2! }}
    )) ?? {{  declarations compute-offsets printprim 1 function-number +! }}
-   (( nl || eof ))
+   nleof
 )) <- simple-primitive ( -- )
 
 (( {{ init-combined }}
    ` = (( white ++ {{ start }} forth-ident {{ end add-prim }} )) ++
-   (( nl || eof )) {{ process-combined }}
+   nleof {{ process-combined }}
 )) <- combined-primitive
 
-(( {{ make-prim to prim
+(( {{ make-prim to prim 0 to combined
       line @ name-line ! filename 2@ name-filename 2!
       start }} forth-ident {{ end 2dup prim prim-name 2! prim prim-c-name 2! }}  white ++
    (( simple-primitive || combined-primitive ))
