@@ -86,6 +86,9 @@ variable skipsynclines \ are sync lines ("#line ...") invisible to the parser?
 skipsynclines on
 variable out-nls \ newlines in output (for output sync lines)
 0 out-nls !
+variable store-optimization \ use store optimization?
+store-optimization off
+
 
 : th ( addr1 n -- addr2 )
     cells + ;
@@ -380,18 +383,16 @@ defer inst-stream-f ( -- stack )
     rdrop ;
 
 : store-single ( item -- )
- >r
- r@ same-as-in?
- if
-   r@ item-in-index 0= r@ item-out-index 0= xor
-   if
-       ." IF_" r@ item-stack @ stack-pointer 2@ type
-       ." TOS(" r@ really-store-single ." );" cr
-   endif
- else
-   r@ really-store-single cr
- endif
- rdrop ;
+    >r
+    store-optimization @ r@ same-as-in? and if
+	r@ item-in-index 0= r@ item-out-index 0= xor if
+	    ." IF_" r@ item-stack @ stack-pointer 2@ type
+	    ." TOS(" r@ really-store-single ." );" cr
+	endif
+    else
+	r@ really-store-single cr
+    endif
+    rdrop ;
 
 : store-double ( item -- )
 \ !! store optimization is not performed, because it is not yet needed

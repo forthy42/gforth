@@ -85,6 +85,7 @@ Input File Format
 * Input File Grammar::          
 * Simple instructions::         
 * Superinstructions::           
+* Store Optimization::          
 * Register Machines::           How to define register VM instructions
 
 Input File Grammar
@@ -605,6 +606,7 @@ Most examples are taken from the example in @file{vmgen-ex}.
 * Input File Grammar::          
 * Simple instructions::         
 * Superinstructions::           
+* Store Optimization::          
 * Register Machines::           How to define register VM instructions
 @end menu
 
@@ -707,12 +709,13 @@ text according to the following grammar; these rules are normally all
 Forth you need for using Vmgen:
 
 @example
-text: stack-decl|type-prefix-decl|stack-prefix-decl
+text: stack-decl|type-prefix-decl|stack-prefix-decl|set-flag
 
 stack-decl: 'stack ' ident ident ident
 type-prefix-decl: 
     's" ' string '" ' ('single'|'double') ident 'type-prefix' ident
 stack-prefix-decl:  ident 'stack-prefix' string
+set-flag: 'store-optimization' ('on'|'off')
 @end example
 
 Note that the syntax of this code is not checked thoroughly (there are
@@ -732,13 +735,15 @@ are:
 @findex single
 @findex double
 @findex stack-prefix
+@findex store-optimization
 @example
-stack        ( "name" "pointer" "type" -- )
-             ( name execution: -- stack )
-type-prefix  ( addr u item-size stack "prefix" -- )
-single       ( -- item-size )
-double       ( -- item-size )
-stack-prefix ( stack "prefix" -- )
+stack              ( "name" "pointer" "type" -- )
+                   ( name execution: -- stack )
+type-prefix        ( addr u item-size stack "prefix" -- )
+single             ( -- item-size )
+double             ( -- item-size )
+stack-prefix       ( stack "prefix" -- )
+store-optimization ( -- addr )
 @end example
 
 An @var{item-size} takes three cells on the stack.
@@ -972,7 +977,7 @@ contents.
 
 
 @c --------------------------------------------------------------------
-@node Superinstructions, Register Machines, Simple instructions, Input File Format
+@node Superinstructions, Store Optimization, Simple instructions, Input File Format
 @section Superinstructions
 @cindex superinstructions, defining
 @cindex defining superinstructions
@@ -1030,7 +1035,65 @@ does not check these restrictions, they just result in bugs in your
 interpreter.
 
 @c -------------------------------------------------------------------
-@node Register Machines,  , Superinstructions, Input File Format
+@node  Store Optimization, Register Machines, Superinstructions, Input File Format
+@section Store Optimization
+@cindex store optimization
+@cindex optimization, stack stores
+@cindex stack stores, optimization
+@cindex eliminating stack stores
+
+This minor optimization (0.6\%--0.8\% reduction in executed instructions
+for Gforth) puts additional requirements on the instruction descriptions
+and is therefore disabled by default.
+
+What does it do?  Consider an instruction like
+
+@example
+dup ( n -- n n )
+@end example
+
+For simplicity, also assume that we are not caching the top-of-stack in
+a register.  Now, the C code for dup first loads @code{n} from the
+stack, and then stores it twice to the stack, one time to the address
+where it came from; that time is unnecessary, but gcc does not optimize
+it away, so vmgen can do it instead (if you turn on the store
+optimization).
+
+Vmgen uses the stack item's name to determine if the stack item contains
+the same value as it did at the start.  Therefore, if you use the store
+optimization, you have to ensure that stack items that have the same
+name on input and output also have the same value, and are not changed
+in the C code you supply.  I.e., the following code could fail if you
+turn on the store optimization:
+
+@example
+add1 ( n -- n )
+n++;
+@end example
+
+Instead, you have to use different names, i.e.:
+
+@example
+add1 ( n1 -- n1 )
+n2=n1+1;
+@end example
+
+To turn on the store optimization, write
+
+@example
+\E store-optimization on
+@end example
+
+at the start of the file.  You can turn this optimization on or off
+between any two VM instruction descriptions.  For turning it off again,
+you can use
+
+@example
+\E store-optimization off
+@end example
+
+@c -------------------------------------------------------------------
+@node Register Machines,  , Store Optimization, Input File Format
 @section Register Machines
 @cindex Register VM
 @cindex Superinstructions for register VMs

@@ -104,6 +104,7 @@
 \E inst-stream  stack-prefix #
 \E 
 \E set-current
+\E store-optimization on
 
 \ 
 \ 
