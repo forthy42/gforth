@@ -31,7 +31,7 @@ require ./errore.fs	\ .error ...
 require ~+/kernel/version.fs	\ version-string
 require ./../chains.fs
 
-: tib ( -- c-addr ) \ core-ext
+: tib ( -- c-addr ) \ core-ext t-i-b
     \G @i{c-addr} is the address of the Terminal Input Buffer.
     \G OBSOLESCENT: @code{source} superceeds the function of this word.
     >tib @ ;
@@ -243,12 +243,12 @@ AValue forth-wordlist \ variable, will be redefined by search.fs
 AVariable lookup       	forth-wordlist lookup !
 \ !! last is user and lookup?! jaw
 AVariable current ( -- addr ) \ gforth
-\G @code{Variable} -- holds the wid of the current compilation word list.
+\G @code{Variable} -- holds the @i{wid} of the compilation word list.
 AVariable voclink	forth-wordlist wordlist-link voclink !
 \ lookup AValue context ( -- addr ) \ gforth
 Defer context ( -- addr ) \ gforth
-\G @code{context} @code{@@} is the wid of the word list at the
-\G top of the search order stack.
+\G @code{context} @code{@@} is the @i{wid} of the word list at the
+\G top of the search order.
 
 ' lookup is context
 forth-wordlist current !

@@ -68,7 +68,7 @@ Defer key ( -- char ) \ core
 
 [IFDEF] (key) ' (key) IS key [THEN]
 
-Defer key? ( -- flag ) \ facility
+Defer key? ( -- flag ) \ facility key-question
 \G Determine whether a character is available. If a character is
 \G available, @var{flag} is true; the next call to @code{key} will
 \G yield the character. Once @code{key?} returns true, subsequent
@@ -94,7 +94,7 @@ all-words
 0A constant #lf ( -- c ) \ gforth
 
 : bell  #bell emit [ has? os [IF] ] outfile-id flush-file drop [ [THEN] ] ;
-: cr ( -- ) \ core
+: cr ( -- ) \ core c-r
   \G Output a carriage-return and (if appropriate for the host operating system)
   \G a line feed.
 [ has? crlf [IF] ]	#cr emit #lf emit 

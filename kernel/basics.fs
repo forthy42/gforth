@@ -94,7 +94,7 @@ Constant dictionary-end
 
 \ dabs roll                                           17may93jaw
 
-: dabs ( d1 -- d2 ) \ double
+: dabs ( d1 -- d2 ) \ double d-abs
     dup 0< IF dnegate THEN ;
 
 : roll  ( x0 x1 .. xn n -- x1 .. xn x0 ) \ core-ext
@@ -154,7 +154,7 @@ Constant dictionary-end
 : accumulate ( +d0 addr digit - +d1 addr )
   swap >r swap  base @  um* drop rot  base @  um* d+ r> ;
 
-: >number ( ud1 c-addr1 u1 -- ud2 c-addr2 u2 ) \ core
+: >number ( ud1 c-addr1 u1 -- ud2 c-addr2 u2 ) \ core to-number
     \G Attempt to convert the character string @var{c-addr1, u1} to an
     \G unsigned number in the current number base. The double
     \G @var{ud1} accumulates the result of the conversion to form

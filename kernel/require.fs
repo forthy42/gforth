@@ -29,8 +29,8 @@ create image-included-files  1 , A, ( pointer to and count of included files )
 \ included-files points to ALLOCATEd space, while image-included-files
 \ points to ALLOTed objects, so it survives a save-system
 
-: loadfilename ( -- a-addr )
-    \G a-addr 2@ produces the current file name ( c-addr u )
+: loadfilename ( -- a-addr ) \ gforth
+    \G @i{a-addr} @code{2@@} produces the current file name ( @i{c-addr u} )
     included-files 2@ loadfilename# @ min 2* cells + ;
 
 : sourcefilename ( -- c-addr u ) \ gforth
@@ -55,10 +55,10 @@ create image-included-files  1 , A, ( pointer to and count of included files )
 : included? ( c-addr u -- f ) \ gforth
     \G True only if the file @var{c-addr u} is in the list of earlier
     \G included files. If the file has been loaded, it may have been
-    \G specified as, say, foo.fs and found somewhere on the Forth
-    \G search path. To return true from @code{included?}, you must
-    \G specify the exact path to the file, even if that is
-    \G @code{./foo.fs}
+    \G specified as, say, @file{foo.fs} and found somewhere on the
+    \G Forth search path. To return @code{true} from @code{included?},
+    \G you must specify the exact path to the file, even if that is
+    \G @file{./foo.fs}
     included-files 2@ 0
     ?do ( c-addr u addr )
 	dup >r 2@ 2over compare 0=
@@ -152,5 +152,5 @@ create image-included-files  1 , A, ( pointer to and count of included files )
 	cr I 2@ type  2 cells +LOOP ;  
 
 \ contains tools/newrequire.fs
-\ \I $Id: require.fs,v 1.8 1999-05-17 14:55:50 jwilke Exp $
+\ \I $Id: require.fs,v 1.9 1999-12-03 18:49:52 crook Exp $
 

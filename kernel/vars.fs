@@ -40,7 +40,7 @@ hex \ everything now hex!                               11may93jaw
 1 floats Constant float ( -- u ) \ gforth
 \G @code{Constant} -- the number of address units corresponding to a floating-point number.
 
-20 Constant bl ( -- c-char ) \ core
+20 Constant bl ( -- c-char ) \ core b-l
 \G @i{c-char} is the character value for a space.
 \ used by docon:, must be constant
 
@@ -112,19 +112,19 @@ AUser "error            0 "error !
 [IFUNDEF] #tib		\ in ec-Version we may define this ourself
  User tibstack		\ saves >tib in execute
  User >tib		\ pointer to terminal input buffer
- User #tib ( -- a-addr ) \ core-ext
+ User #tib ( -- a-addr ) \ core-ext number-t-i-b
  \G @code{User} variable -- @i{a-addr} is the address of a cell containing
  \G the number of characters in the terminal input buffer.
  \G OBSOLESCENT: @code{source} superceeds the function of this word.
 
- User >in ( -- a-addr ) \ core
+ User >in ( -- a-addr ) \ core to-in
  \G @code{User} variable -- @i{a-addr} is the address of a cell containing the
  \G char offset from the start of the input buffer to the start of the
  \G parse area.
                         0 >in ! \ char number currently processed in tib
 [THEN]
 has? file [IF]
- User blk ( -- a-addr ) \ block
+ User blk ( -- a-addr ) \ block b-l-k
  \G @code{User} variable -- @i{a-addr} is the address of a cell containing zero
  \G (in which case the input source is not a block and can be identified
  \G by @code{source-id}) or the number of the block currently being

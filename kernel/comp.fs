@@ -45,11 +45,11 @@
     dp ! ;
 [THEN]
 
-: c,    ( c -- ) \ core
+: c,    ( c -- ) \ core c-comma
     \G Reserve data space for one char and store @i{c} in the space.
     here 1 chars allot c! ;
 
-: ,     ( w -- ) \ core
+: ,     ( w -- ) \ core comma
     \G Reserve data space for one cell and store @i{w} in the space.
     here cell allot  ! ;
 
@@ -65,10 +65,10 @@
     \G If the data-space pointer is not aligned, reserve enough space to align it.
     here dup aligned swap ?DO  bl c,  LOOP ;
 
-\ : faligned ( addr -- f-addr ) \ float
+\ : faligned ( addr -- f-addr ) \ float f-aligned
 \     [ 1 floats 1- ] Literal + [ -1 floats ] Literal and ; 
 
-: falign ( -- ) \ float
+: falign ( -- ) \ float f-align
     \G If the data-space pointer is not float-aligned, reserve
     \G enough space to align it.
     here dup faligned swap
@@ -281,7 +281,7 @@ create nextname-buffer 32 chars allot
 	THEN
     then ;
 
-: [ ( -- ) \ core	left-bracket
+: [ ( -- ) \  core	left-bracket
     \G Enter interpretation state. Immediate word.
     ['] interpreter  IS parser state off ; immediate
 
@@ -361,7 +361,7 @@ doer? :dovar [IF]
 : AVariable ( "name" -- ) \ gforth
     Create 0 A, ;
 
-: 2Variable ( "name" -- ) \ double
+: 2Variable ( "name" -- ) \ double two-variable
     create 0 , 0 , ;
 
 : uallot ( n -- ) \ gforth
@@ -399,7 +399,7 @@ doer? :docon [IF]
 : Value ( w "name" -- ) \ core-ext
     (Constant) , ;
 
-: 2Constant ( w1 w2 "name" -- ) \ double
+: 2Constant ( w1 w2 "name" -- ) \ double two-constant
     Create ( w1 w2 "name" -- )
         2,
     DOES> ( -- w1 w2 )
