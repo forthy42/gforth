@@ -218,6 +218,8 @@ Create prefix-found  0 , 0 ,
 : kill-prefix  ( key -- key )
   dup #tab <> IF  0 0 prefix-found 2!  THEN ;
 
+[IFUNDEF] everyline defer everyline [THEN]
+
 : 8-bit-io ( -- )
     ['] forw        ctrl F bindkey
     ['] back        ctrl B bindkey

@@ -13,8 +13,24 @@ http://www.complang.tuwien.ac.at/papers/ertl&maierhofer95.ps.gz.
 
 All times are given in seconds of user time.
 
+Results with Gforth 0.6.2 (for comparing CPUs):
 siev	bubble	matrix	fib	machine and configuration
  0.21	 0.33	 0.14	 0.36	Athlon 64 3200+ (2GHz, 1MB L2); gcc-2.95.1; gforth-0.6.2 --enable-force-reg
+ 0.23	 0.34	 0.14	 0.35	Athlon MP 2600+ (2GHz, 0.5MB L2); gcc-2.95.1; gforth-0.6.2 --enable-force-reg
+ 0.23	 0.28    0.19    0.34	Pentium 4 2.26 (Northwood); gcc-2.95.1; gforth-0.6.2 --enable-force-reg
+ 0.55	 0.73	 0.32	 0.66	Pentium-III 1000 (Coppermine); gcc-2.95.1; gforth-0.6.2 --enable-force-reg
+ 0.56    0.63    0.36    0.79   Transmeta Crusoe TM5800 (1GHz); gcc-2.95.4; gforth-0.6.2 --enable-force-reg
+
+ 1.974	 2.313	 2.033	 2.428	Itanium 2 (HP rx2600) 900MHz; gcc-3.3; gforth-0.6.2
+
+ 1.71	 2.18	 1.30	 2.24	PPC7400 (G4) 450MHz; Linux; gcc-2.95.4; gforth-0.6.2
+ 4.18	 5.43	 3.37	 5.88	PPC604e (PowerMac) 200MHz; Linux; gcc-2.95.2; gforth-0.6.2
+
+All results (for historical perspective):
+siev	bubble	matrix	fib	machine and configuration
+ 0.56    0.63    0.36    0.79   Transmeta Crusoe TM5800 (1GHz); gcc-2.95.4; gforth-0.6.2 --enable-force-reg
+ 0.21	 0.33	 0.14	 0.36	Athlon 64 3200+ (2GHz, 1MB L2); gcc-2.95.1; gforth-0.6.2 --enable-force-reg
+ 0.23	 0.34	 0.14	 0.35	Athlon MP 2600+ (2GHz, 0.5MB L2); gcc-2.95.1; gforth-0.6.2 --enable-force-reg
  0.31    0.42    0.19    0.46   Athlon 1800+ (Palomino, 1.533GHz); gcc-2.95.3;  gforth-0.5.9-20011224 -DFORCE_REG; ELF with dynamic superinstructions
  0.37	 0.52	 0.24	 0.61	Athlon 1200 (Thunderbird); gcc-2.95.1; gforth-0.5.9-20011224 -DFORCE_REG; ELF with dynamic superinstructions
  0.75	 1.00    1.29    1.20   Athlon 1200 (Thunderbird); gcc-2.95.1; gforth-0.5.9-20011224 -DFORCE_REG; ELF before dynamic superinstructions
@@ -73,7 +89,7 @@ siev	bubble	matrix	fib	machine and configuration
  6.18	 6.07	 4.94	 5.61	21064A (Alpha,Cabriolet) 300MHz 2M cache; gcc-2.95.2; gforth-0.5.9-20011229 without alignment
  7.0	 7.6	 6.2	 7.7	21064A (Alpha,Cabriolet) 300MHz 2M cache; gcc-2.7.2; gforth-0.2.0
 
- 7.49	 7.85	 6.21	 8.07	R4400 250 Mhz 2Mb cache; gcc-2.7.2.2
+ 7.49	 7.85	 6.21	 8.07	R4400 250 Mhz 2Mb cache; gcc-2.7.2.2; gforth-0.4.0?
  7.45	 7.98	 5.82	 9.44	R10000 (SGI PowerChallenge XL) 195MHz 2M cache; egcs-1.1.2 -DFORCE_REG; gforth-0.4.9
 17.3	19.0	14.1	18.3	R4000 (DecStation 5000/150) 100MHz 1M cache; gcc-2.4.5; gforth-0.1beta
 50.9	56.8	42.4	52.0	R3000 (DecStation 5000/200) 25MHz 64K+64K cache; gcc-2.5.8 -DFORCE_REG; gforth-0.1beta
