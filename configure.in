@@ -34,19 +34,24 @@ AC_CONFIG_HEADERS(engine/config.h)
 test "$CFLAGS" || CFLAGS=-O2
 
 AC_ARG_ENABLE(force-reg,
-[  --enable-force-reg	  Use explicit register declarations if they appear in
+	AC_HELP_STRING([--enable-force-reg],
+		        [ Use explicit register declarations if they appear in
 			  the machine.h file. This can cause a good speedup,
 			  but also incorrect code with some gcc versions on
-			  some processors (default disabled).],
-AC_DEFINE(FORCE_REG,,[Define if you want to use explicit register declarations for better performance or for more convenient CODE words (does not work with all GCC versions on all machines)]))
+			  some processors (default disabled).]),
+	,enable_force_reg=no)
+test "$enable_force_reg" = "no"||
+  AC_DEFINE(FORCE_REG,,[Define if you want to use explicit register declarations for better performance or for more convenient CODE words (does not work with all GCC versions on all machines)])
+
 AC_ARG_ENABLE(force-ll,
-[  --enable-force-ll	  Use explicit long long declarations if they appear in
+	AC_HELP_STRING([--enable-force-ll],
+		       [  Use explicit long long declarations if they appear in
 			  the machine.h file. This can cause a good speedup,
 			  but also incorrect code with some gcc versions on
-			  some processors (default disabled).],
-AC_DEFINE(FORCE_LL,,[Define if you want to use explicit long long declarations for better performance (does not work with all GCC versions on all machines)]))
-AC_SUBST(PROFEXES)
-AC_SUBST(PROFOBJS)
+			  some processors (default disabled).]),
+	,enable_force_ll=no)
+test "$enable_force_ll" = "no"||
+  AC_DEFINE(FORCE_LL,,[Define if you want to use explicit long long declarations for better performance (does not work with all GCC versions on all machines)])
 
 AC_ARG_ENABLE(gcc-pr15242-workaround,
               AC_HELP_STRING([--disable-gcc-pr15242-workaround],[Disables
@@ -59,10 +64,16 @@ test "$enable_gcc_pr15242_workaround" = "no"||
 AC_DEFINE(GCC_PR15242_WORKAROUND,,[Define if you want to get dynamic code
 generation on gccs affected by PR15242])
 
+AC_SUBST(PROFEXES)
+AC_SUBST(PROFOBJS)
 AC_ARG_ENABLE(prof,
-[  --enable-prof          Build gforth-prof, which outputs frequently occuring
-                          sequences of primitives.],
-PROFEXES="gforth-prof\$(EXE)"; PROFOBJS="engine-prof.o main-prof.o profile.o")
+	AC_HELP_STRING([--enable-prof],
+			[ Build gforth-prof, which outputs frequently occuring
+                          sequences of primitives.]),
+	,enable_prof=no)
+if test "$enable_prof" = "no"; then
+  PROFEXES="gforth-prof\$(EXE)"; PROFOBJS="engine-prof.o main-prof.o profile.o"
+fi
 
 AC_ARG_WITH(debug,
 [  --with-debug		  specifies option -g to compile with debug info
