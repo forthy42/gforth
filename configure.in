@@ -22,7 +22,10 @@ AC_INIT(engine/engine.c)
 
 dnl We use some automake macros here,
 dnl but don't use automake for creating Makefile.in
-AM_INIT_AUTOMAKE(gforth,0.4.0)
+AM_INIT_AUTOMAKE(gforth,0.4.0-19990101)
+#snapshots have numbers major.minor.release-YYYYMMDD
+#note that lexicographic ordering bust be heeded.
+#I.e., 0.4.1-YYYYMMDD must not exist before 0.4.1!
 AM_CONFIG_HEADER(engine/config.h)
 AM_CYGWIN32
 
@@ -151,7 +154,7 @@ case "$host_cpu" in
 		$srcdir/mkinstalldirs arch/hppa
 		LIBOBJS="$LIBOBJS ../arch/hppa/cache.o"
 		LDFLAGS="-Xlinker -N"
-		LIBS="-L/lib/pa1.1/"
+		LIBS="$LIBS -L/lib/pa1.1/"
 		if test "${enable_direct_threaded+set}" = ""
 		then
 			AC_DEFINE(DIRECT_THREADED)

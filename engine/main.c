@@ -216,8 +216,8 @@ Address my_alloc(Cell size)
     fprintf(stderr,"try mmap($%lx, $%lx, ..., MAP_ANON, ...); ", (long)next_address, (long)size);
   r=mmap(next_address, size, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE, -1, 0);
 #else /* !defined(MAP_ANON) */
-  /* Ultrix (at least does not define MAP_FILE and MAP_PRIVATE (both are
-     apparently defaults*/
+  /* Ultrix (at least) does not define MAP_FILE and MAP_PRIVATE (both are
+     apparently defaults) */
 #ifndef MAP_FILE
 # define MAP_FILE 0
 #endif
@@ -342,7 +342,8 @@ Address loader(FILE *imagefile, char* filename)
   ImageHeader header;
   Address image;
   Address imp; /* image+preamble */
-  Char magic[9];
+  Char magic[8];
+  char magic7; /* size byte of magic number */
   Cell preamblesize=0;
   Label *symbols = engine(0,0,0,0,0);
   Cell data_offset = offset_image ? 56*sizeof(Cell) : 0;
@@ -357,6 +358,7 @@ Address loader(FILE *imagefile, char* filename)
   Cell cellsize = ((sizeof(Cell) == 1) ? 0 :
 		   (sizeof(Cell) == 2) ? 1 :
 		   (sizeof(Cell) == 4) ? 2 : 3) + ausize;
+  
 
 #ifndef DOUBLY_INDIRECT
   check_sum = checksum(symbols);
@@ -372,12 +374,13 @@ Address loader(FILE *imagefile, char* filename)
     }
     preamblesize+=8;
   } while(memcmp(magic,"Gforth2",7));
+  magic7 = magic[7];
   if (debug) {
-    magic[8]='\0';
-    fprintf(stderr,"Magic found: %s\n", magic);
+    magic[7]='\0';
+    fprintf(stderr,"Magic found: %s $%x\n", magic, magic7);
   }
 
-  if(magic[7] != (ausize << 5) + (charsize << 3) + (cellsize << 1) +
+  if(magic7 != (ausize << 5) + (charsize << 3) + (cellsize << 1) +
 #ifdef WORDS_BIGENDIAN
        0
 #else
@@ -386,10 +389,10 @@ Address loader(FILE *imagefile, char* filename)
        )
     { fprintf(stderr,"This image is %d bit cell, %d bit char, %d bit address unit %s-endian,\n"
 	      "whereas the machine is %d bit cell, %d bit char, %d bit address unit, %s-endian.\n", 
-	      (1<<((magic[7]>>1)&3))*8,
-	      (1<<((magic[7]>>3)&3))*8,
-	      (1<<((magic[7]>>5)&3))*8,
-	      endianstring[magic[7]&1],
+	      (1<<((magic7>>1)&3))*8,
+	      (1<<((magic7>>3)&3))*8,
+	      (1<<((magic7>>5)&3))*8,
+	      endianstring[magic7&1],
 	      (1<<cellsize)*8,
 	      (1<<charsize)*8,
 	      (1<<ausize)*8,
