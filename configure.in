@@ -250,6 +250,15 @@ case "$host_cpu" in
 		machine=power
 		$srcdir/mkinstalldirs arch/power
 		AC_CHECK_FUNC(_sync_cache_range,true,LIBOBJS="$LIBOBJS ../arch/power/_sync_cache_range.o")
+		#link text segment into first 32MB
+		AC_MSG_CHECKING([whether the linker accepts --script=arch/power/elf32ppc.x])
+		OLDLDFLAGS=$LDFLAGS
+                #the -L../$srcdir helps when $srcdir is relative
+		LDFLAGS="$LDFLAGS -L$srcdir -L../$srcdir -Xlinker --script=$srcdir/arch/power/elf32ppc.x"
+		AC_TRY_LINK(,,ac_link_script=yes,ac_link_script=no)
+		test $ac_link_script = yes||LDFLAGS=$OLDLDFLAGS
+		AC_MSG_RESULT($ac_link_script)
+		#AC_DEFINE(INDIRECT_THREADED))
 		;;
 	*)
 		echo "No direct threading support for $host_cpu, using indirect threading."
