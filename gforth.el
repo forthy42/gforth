@@ -241,8 +241,6 @@ forth source, using a local variables list at the end of the file
 ; `forth-use-oof' could be set to non-nil for automatical adding of those
 ; word-lists. Using local variable list?
 ;
-; Anzeige von Screen-Nummern in Status-Zeile (S???)
-;
 ; Konfiguration über customization groups
 ;
 ; Bereich nur auf Wortanfang/ende ausweiten, wenn anfang bzw ende in einem 
@@ -254,13 +252,13 @@ forth source, using a local variables list at the end of the file
 
 (setq debug-on-error t)
 
-;; Filter list by predicat. This is a somewhat standard function for 
+;; Filter list by predicate. This is a somewhat standard function for 
 ;; functional programming languages. So why isn't it already implemented 
 ;; in Lisp??
-(defun forth-filter (predicat list)
+(defun forth-filter (predicate list)
   (let ((filtered nil))
     (mapcar (lambda (item)
-	      (when (funcall predicat item)
+	      (when (funcall predicate item)
 		(if filtered
 		    (nconc filtered (list item))
 		  (setq filtered (cons item nil))))
@@ -838,9 +836,9 @@ screen number."
 	(setq overlay-arrow-string forth-overlay-arrow-string)
 	(goto-line first-line)
 	(setq overlay-arrow-position forth-screen-marker)
-	(when (/= forth-screen-marker (point))
-	  (message "Entered screen #%i" scr)
-	  (set-marker forth-screen-marker (point)))))))
+	(set-marker forth-screen-marker 
+		    (save-excursion (goto-line first-line) (point)))
+	(setq forth-screen-number-string (format "%d" scr))))))
 
 (add-hook 'forth-motion-hooks 'forth-update-show-screen)
 
@@ -984,6 +982,7 @@ exceeds 64 characters."
   (make-local-variable 'forth-show-screen)
   (make-local-variable 'forth-screen-marker)
   (make-local-variable 'forth-warn-long-lines)
+  (make-local-variable 'forth-screen-number-string)
   (setq forth-screen-marker (copy-marker 0))
   (add-hook 'after-change-functions 'forth-change-function))
 
@@ -1059,9 +1058,9 @@ Variables controlling indentation style:
 Variables controlling block-file editing:
  `forth-show-screen'
     Non-nil means, that the start of the current screen is marked by an
-    overlay arrow, and motion over screen boundaries displays the number 
-    of the screen entered. This variable is by default nil for `forth-mode' 
-    and t for `forth-block-mode'.
+    overlay arrow, and screen numbers are displayed in the mode line.
+    This variable is by default nil for `forth-mode' and t for 
+    `forth-block-mode'.
  `forth-overlay-arrow-string'
     String to display as the overlay arrow, when `forth-show-screen' is t.
     Setting this variable to nil disables the overlay arrow.
@@ -1104,6 +1103,7 @@ Variables controling documentation search
 ;      (run-forth forth-program-name))
   (run-hooks 'forth-mode-hook))
 
+;;;###autoload
 (define-derived-mode forth-block-mode forth-mode "Forth Block Source" 
   "Major mode for editing Forth block source files, derived from 
 `forth-mode'. Differences to `forth-mode' are:
@@ -1117,7 +1117,7 @@ echo area and the line is truncated.
 
 Another problem is imposed by block files that contain newline or tab 
 characters. When Emacs converts such files back to block file format, 
-it'll translate those characters to a number of spaces. However, whenever
+it'll translate those characters to a number of spaces. However, when
 you read such a file, a warning message is displayed in the echo area,
 including a line number that may help you to locate and fix the problem.
 
@@ -1125,7 +1125,10 @@ So have a look at the *Messages* buffer, whenever you hear (or see) Emacs'
 bell during block file read/write operations."
   (setq buffer-file-format '(forth-blocks))
   (setq forth-show-screen t)
-  (setq forth-warn-long-lines t))
+  (setq forth-warn-long-lines t)
+  (setq forth-screen-number-string (format "%d" forth-block-base))
+  (setq mode-line-format (append (reverse (cdr (reverse mode-line-format)))
+				 '("--S" forth-screen-number-string "-%-"))))
 
 (add-hook 'forth-mode-hook
       '(lambda () 
