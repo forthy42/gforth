@@ -24,7 +24,8 @@ If everything is all right, you may want to install gforth. Type
 
 make install
 
-You have to make an entry in the info directory file manually.
+You have to make an entry in the info directory file manually (see
+Installing Info Files, below).
 
 For paper documentation, print gforth.ps (a Postscript file (300dpi
 fonts, i.e., it works, but does not produce best quality on better
@@ -162,3 +163,28 @@ keep the old version for some time after a new one has been installed.
 You can deinstall this version of Gforth with 'make uninstall' and
 version foo with 'make uninstall VERSION=foo'. 'make uninstall' also
 tells you how to uninstall Gforth completely.
+
+
+		Installing Info Files
+
+Info is the GNU project on-line documentation format. You can read
+info files either from within Emacs (Ctrl-h i) or using the
+stand-alone Info reader, 'info'.
+
+If you use the default install root of '/usr/local' then the info
+files will be installed in '/usr/local/info'.
+
+Many GNU/Linux distributions are set up to put all of their
+documentation in '/usr/info', in which case you might have to do a
+couple of things to get your environment set up to accommodate files
+in both areas:
+
+1. Add an INFOPATH environment variable. The easiest place to do
+this is '/etc/profile', right next to PATH and MANPATH:
+
+INFOPATH=/usr/local/info:/usr/info
+
+2. Create a file called 'dir' in 'usr/local/info'. Use the file
+'/usr/info/dir' as a template. You can add the line for gforth
+manually, or use '/sbin/install-info' (man install-info for details).
+
