@@ -64,7 +64,7 @@
 include search-order.fs
 include float.fs
 
-: compile-@local ( n -- )
+: compile-@local ( n -- ) \ new compile-fetch-local
  case
     0       of postpone @local0 endof
     1 cells of postpone @local1 endof
@@ -73,7 +73,7 @@ include float.fs
    ( otherwise ) dup postpone @local# ,
  endcase ;
 
-: compile-f@local ( n -- )
+: compile-f@local ( n -- ) \ new compile-f-fetch-local
  case
     0        of postpone f@local0 endof
     1 floats of postpone f@local1 endof

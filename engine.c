@@ -14,6 +14,7 @@
 #include <time.h>
 #include <sys/time.h>
 #include <unistd.h>
+#include <errno.h>
 #include "forth.h"
 #include "io.h"
 
@@ -21,6 +22,8 @@
 /* should be defined in stdio.h, but some systems don't have it */
 #define SEEK_SET 0
 #endif
+
+#define IOR(flag)	((flag)? -512-errno : 0)
 
 typedef union {
   struct {
@@ -123,6 +126,8 @@ typedef struct F83Name {
 #define FTOS (fp[0])
 #endif
 
+Cell *SP;
+Float *FP;
 int emitcounter;
 #define NULLC '\0'
 

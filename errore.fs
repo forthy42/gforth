@@ -61,14 +61,22 @@ ErrLink @ unlock reloff lock \ make sure that the terminating 0 is not relocated
 -266 ERR" Terminate signal"
 -267 ERR" User signal 1"
 -268 ERR" User signal 2"
+\ error numbers between -512 and -2047 are for OS errors and are
+\ handled with strerror
+
 
 : .error ( n -- )
-        cr ." Error: "
-        ErrLink
-        BEGIN @ dup
-        WHILE
-              2dup cell+ @ =
-              IF 2 cells + count type drop exit THEN
-        REPEAT
-        drop . ;
+    cr ." Error: "
+    ErrLink
+    BEGIN @ dup
+    WHILE
+	2dup cell+ @ =
+	IF 2 cells + count type drop exit THEN
+    REPEAT
+    drop
+    dup -512 <= over -2048 > and
+    IF
+	512 + negate strerror type exit
+    THEN
+    . ;
 

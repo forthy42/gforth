@@ -786,7 +786,7 @@ static char* mode[2]={"r","w"};
 wfileid=(Cell)popen(cstr(c_addr,u,1),mode[n]);
 
 pclose	wfileid -- wior	own
-wior=pclose((FILE *)wfileid);
+wior=pclose((FILE *)wfileid); /* !! what to do with the result */
 
 time&date	-- nsec nmin nhour nday nmonth nyear	facility-ext	time_and_date
 struct timeval time1;
@@ -809,15 +809,25 @@ timeout.tv_usec=1000*(n%1000);
 
 allocate	u -- a_addr wior	memory
 a_addr = (Cell *)malloc(u);
-wior = a_addr==NULL;	/* !! Define a return code */
+wior = IOR(a_addr==NULL);
 
 free		a_addr -- wior		memory
 free(a_addr);
 wior = 0;
 
 resize		a_addr1 u -- a_addr2 wior	memory
-a_addr2 = realloc(a_addr1, u);
-wior = a_addr2==NULL;	/* !! Define a return code */
+""Change the size of the allocated area at @i{a_addr1} to @i{u}
+address units, possibly moving the contents to a different
+area. @i{a_addr2} is the address of the resulting area. If
+@code{a_addr2} is 0, gforth's (but not the standard) @code{resize}
+@code{allocate}s @i{u} address units.""
+/* the following check is not necessary on most OSs, but it is needed
+   on SunOS 4.1.2. */
+if (a_addr1==NULL)
+  a_addr2 = (Cell *)malloc(u);
+else
+  a_addr2 = (Cell *)realloc(a_addr1, u);
+wior = IOR(a_addr2==NULL);	/* !! Define a return code */
 
 (f83find)	c_addr u f83name1 -- f83name2	new	paren_f83find
 for (; f83name1 != NULL; f83name1 = f83name1->next)
@@ -909,54 +919,54 @@ else {
  BEGIN  dup  WHILE  over c@ bl >   WHILE  1 /string
  REPEAT  THEN  nip - ;
 
-close-file	wfileid -- wior	file	close_file
-wior = FILEIO(fclose((FILE *)wfileid)==EOF);
+close-file	wfileid -- wior		file	close_file
+wior = IOR(fclose((FILE *)wfileid)==EOF);
 
 open-file	c_addr u ntype -- w2 wior	file	open_file
 w2 = (Cell)fopen(cstr(c_addr, u, 1), fileattr[ntype]);
-wior =  FILEEXIST(w2 == NULL);
+wior =  IOR(w2 == NULL);
 
 create-file	c_addr u ntype -- w2 wior	file	create_file
 Cell	fd;
 fd = open(cstr(c_addr, u, 1), O_CREAT|O_RDWR|O_TRUNC, 0666);
-if (fd > -1) {
+if (fd != -1) {
   w2 = (Cell)fdopen(fd, fileattr[ntype]);
-  assert(w2 != NULL);
-  wior = 0;
+  wior = IOR(w2==NULL);
 } else {
-  assert(fd == -1);
-  wior = FILEIO(fd);
   w2 = 0;
+  wior = IOR(1);
 }
 
 delete-file	c_addr u -- wior		file	delete_file
-wior = FILEEXIST(unlink(cstr(c_addr, u, 1)));
+wior = IOR(unlink(cstr(c_addr, u, 1))==-1);
 
 rename-file	c_addr1 u1 c_addr2 u2 -- wior	file-ext	rename_file
 char *s1=cstr(c_addr2, u2, 1);
-wior = FILEEXIST(rename(cstr(c_addr1, u1, 0), s1));
+wior = IOR(rename(cstr(c_addr1, u1, 0), s1)==-1);
 
 file-position	wfileid -- ud wior	file	file_position
 /* !! use tell and lseek? */
 ud = ftell((FILE *)wfileid);
-wior = 0; /* !! or wior = FLAG(ud<0) */
+wior = IOR(ud==-1);
 
 reposition-file	ud wfileid -- wior	file	reposition_file
-wior = FILEIO(fseek((FILE *)wfileid, (long)ud, SEEK_SET));
+wior = IOR(fseek((FILE *)wfileid, (long)ud, SEEK_SET)==-1);
 
 file-size	wfileid -- ud wior	file	file_size
 struct stat buf;
-wior = FILEEXIST(fstat(fileno((FILE *)wfileid), &buf));
+wior = IOR(fstat(fileno((FILE *)wfileid), &buf)==-1);
 ud = buf.st_size;
 
 resize-file	ud wfileid -- wior	file	resize_file
-wior = FILEIO(ftruncate(fileno((FILE *)wfileid), (Cell)ud));
+wior = IOR(ftruncate(fileno((FILE *)wfileid), (Cell)ud)==-1);
 
 read-file	c_addr u1 wfileid -- u2 wior	file	read_file
 /* !! fread does not guarantee enough */
 u2 = fread(c_addr, sizeof(Char), u1, (FILE *)wfileid);
 wior = FILEIO(u2<u1 && ferror((FILE *)wfileid));
-/* !! who performs clearerr((FILE *)wfileid); ? */
+/* !! is the value of ferror errno-compatible? */
+if (wior)
+  clearerr((FILE *)wfileid);
 
 read-line	c_addr u1 wfileid -- u2 flag wior	file	read_line
 /*
@@ -976,7 +986,9 @@ wior=FILEIO(ferror((FILE *)wfileid));
 */
 if ((flag=FLAG(!feof((FILE *)wfileid) &&
 	       fgets(c_addr,u1+1,(FILE *)wfileid) != NULL))) {
-  wior=FILEIO(ferror((FILE *)wfileid));
+  wior=FILEIO(ferror((FILE *)wfileid)); /* !! ior? */
+  if (wior)
+    clearerr((FILE *)wfileid);
   u2 = strlen(c_addr);
   u2-=((u2>0) && (c_addr[u2-1]==NEWLINE));
 }
@@ -990,10 +1002,12 @@ write-file	c_addr u1 wfileid -- wior	file	write_file
 {
   Cell u2 = fwrite(c_addr, sizeof(Char), u1, (FILE *)wfileid);
   wior = FILEIO(u2<u1 && ferror((FILE *)wfileid));
+  if (wior)
+    clearerr((FILE *)wfileid);
 }
 
 flush-file	wfileid -- wior		file-ext	flush_file
-wior = FILEIO(fflush((FILE *) wfileid));
+wior = IOR(fflush((FILE *) wfileid)==EOF);
 
 comparisons(f, r1 r2, f_, r1, r2, new, new, float, new)
 comparisons(f0, r, f_zero_, r, 0., float, new, float, new)
@@ -1359,3 +1373,22 @@ lp -= sizeof(Float);
 
 up!	a_addr --	new	up_store
 up0=up=(char *)a_addr;
+
+call-c	w --	new	call_c
+""Call the C function pointed to by @i{w}. The C function has to
+access the stack itself. The stack pointers are exported in the gloabl
+variables @code{SP} and @code{FP}.""
+/* This is a first attempt at support for calls to C. This may change in
+   the future */
+IF_FTOS(fp[0]=FTOS);
+FP=fp;
+SP=sp;
+((void (*)())w)();
+sp=SP;
+fp=FP;
+IF_TOS(TOS=sp[0]);
+IF_FTOS(FTOS=fp[0]);
+
+strerror	n -- c_addr u	new
+c_addr = strerror(n);
+u = strlen(c_addr);
