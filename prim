@@ -2157,8 +2157,10 @@ if(dent == NULL) {
   flag = 0;
 } else {
   u2 = strlen(dent->d_name);
-  if(u2 > u1)
+  if(u2 > u1) {
     u2 = u1;
+    wior = -512-ENAMETOOLONG;
+  }
   memmove(c_addr, dent->d_name, u2);
 }
 
