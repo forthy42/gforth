@@ -39,14 +39,23 @@ char o c,  char p c,  char q c,      13 c,  char s c,       8 c,  char u c,
 : \-escape ( c-addr1 -- c-addr2 c )
     \ c-addr1 points at a char right after a '\', c-addr2 points right
     \ after the whole sequence, c is the translated char
-    dup c@ dup [char] x = if
+    dup c@
+    dup [char] x = if
 	drop char+ 16 parse-num exit
     endif
     dup [char] 0 [char] 8 within if
 	drop 8 parse-num exit
     endif
-    dup [char] a [char] w within if
-	[char] a - chars \-escape-table + c@
+    dup [char] n = if
+	\ \-escapes were designed to translate to one character, so
+	\ this is quite ugly: copy all but the last char right away
+	drop newline 1-
+	2dup here swap chars dup allot move
+	chars + c@
+    else
+	dup [char] a [char] w within if
+	    [char] a - chars \-escape-table + c@
+	endif
     endif
     1 chars under+ ;
 
@@ -54,8 +63,8 @@ char o c,  char p c,  char q c,      13 c,  char s c,       8 c,  char u c,
 \G parses string, translating @code{\}-escapes to characters (as in
 \G C).  The resulting string resides at @code{here char+}.  The
 \G supported @code{\-escapes} are: @code{\a} BEL (alert), @code{\b}
-\G BS, @code{\e} ESC (not in C99), @code{\f} FF, @code{\n} LF (or
-\G newline?), @code{\r} CR, @code{\t} HT, @code{\v} VT, @code{\"} ",
+\G BS, @code{\e} ESC (not in C99), @code{\f} FF, @code{\n} newline,
+\G @code{\r} CR, @code{\t} HT, @code{\v} VT, @code{\"} ",
 \G @code{\}[0-7]+ octal numerical character value, @code{\x}[0-9a-f]+
 \G hex numerical character value; a @code{\} before any other
 \G character represents that character (only ', \, ? in C99).
@@ -85,7 +94,7 @@ interpret/compile: s\" ( compilation 'ccc"' -- ; run-time -- c-addr u )	\ gforth
 :noname postpone (.") \"-parse dup c, 1+ chars allot drop ;
 interpret/compile: .\" ( compilation 'ccc"' -- ; run-time -- )	\ gforth	dot-backslash-quote
 
-0 [if] \ test
+1 [if] \ test
     s" 123" drop 10 parse-num-x 123 <> throw drop .s
     s" 123a" drop 10 parse-num   123 <> throw drop .s
     s" x1fg" drop \-escape 31 <> throw drop .s
@@ -93,7 +102,7 @@ interpret/compile: .\" ( compilation 'ccc"' -- ; run-time -- )	\ gforth	dot-back
     s" a" drop \-escape 7 <> throw drop .s
     \"-parse " s" " compare 0<> throw .s
     \"-parse \a\b\c\e\f\n\r\t\v\100\x40xabcde" dump
-    s\" \a\bcd\e\fghijklm\nopq\rs\tu\v" \-escape-table over compare 0<> throw
-    s\" \0101\x041\"\\" name AA"\ compare 0<> throw
+    s\" \a\bcd\e\fghijklm\12opq\rs\tu\v" \-escape-table over compare 0<> throw
+    s\" \w\0101\x041\"\\" name wAA"\ compare 0<> throw
     s\" s\\\" \\" ' evaluate catch 0= throw
 [endif]
