@@ -63,7 +63,7 @@ AUser save-task        0 save-task !
 AUser sp0 	\ used by douser:, must be user
 		' sp0 Alias s0
 AUser rp0	' rp0 Alias r0
-AUser fp0	' fp0 Alias f0
+AUser fp0       \ no f0, because this leads to unexpected results
 AUser lp0	' lp0 Alias l0
 AUser handler	\ pointer to last throw frame
 \ AUser output

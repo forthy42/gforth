@@ -143,7 +143,7 @@ prim_lab.i:	../prim.b ../prims2x.fs
 		$(RM) $@-
 
 config.h:	stamp-h
-stamp-h:	../config.h.in ../config.status
+stamp-h:	config.h.in ../config.status
 		cd .. && CONFIG_FILES=$@ CONFIG_HEADERS=engine/config.h ./config.status
 		echo timestamp > stamp-h
 

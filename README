@@ -36,7 +36,7 @@ the documentation and the foreign language interface for C.
 On popular request, here are the meanings of unusual file extensions:
 
 *.fs	Forth stream source file (include with "include <file>" from within
-        gforth)
+        gforth, or start with "gforth <file1> <file2> ...")
 *.fi	Forth image files (start with "gforth -i <image file>")
 *.fb	Forth blocks file (load with "use <block file> 1 load")
 *.i	C include files
