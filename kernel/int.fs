@@ -687,32 +687,33 @@ Defer dobacktrace ( -- )
 \ n2:		line number
 \ n1:		error position in input line
 \ addr1 u1:	input line
-
   cr error-stack @
   IF
      ." in file included from "
      type ." :" dec.r  drop 2drop
   ELSE
-     type ." :" dec.r ." : " 3 pick .error-string cr
-     dup 2over type cr drop
-     nip -trailing 1- ( line-start index2 )
-     0 >r  BEGIN
-                  2dup + c@ bl >  WHILE
-		  r> 1+ >r  1- dup 0<  UNTIL  THEN  1+
-     ( line-start index1 )
-     typewhite
-     r> 1 max 0 ?do \ we want at least one "^", even if the length is 0
-                  [char] ^ emit
-     loop
+      type ." :" dup >r dec.r ." : " 3 pick .error-string
+      r> IF \ if line# non-zero, there is a line
+	  cr dup 2over type cr drop
+	  nip -trailing 1- ( line-start index2 )
+	  0 >r  BEGIN
+	      2dup + c@ bl >  WHILE
+	      r> 1+ >r  1- dup 0<  UNTIL  THEN  1+
+	  ( line-start index1 )
+	  typewhite
+	  r> 1 max 0 ?do \ we want at least one "^", even if the length is 0
+	      [char] ^ emit
+	  loop
+      ELSE
+	  2drop drop
+      THEN
   THEN ;
 
 : (DoError) ( throw-code -- )
   [ has? os [IF] ]
       >stderr
   [ [THEN] ] 
-  sourceline# IF
-      source >in @ sourceline# sourcefilename .error-frame
-  THEN
+  source >in @ sourceline# sourcefilename .error-frame
   error-stack @ 0 ?DO
     -1 error-stack +!
     error-stack dup @ 6 * cells + cell+
