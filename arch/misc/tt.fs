@@ -175,8 +175,8 @@ DOES>	1+ rot 2* 2* rot + 2* + ;
 Create scratch	,"                                 "
 DOES>	1+ rot 2* 2* rot + 2* + ;
 
-create bricks	brick1 1 + ,  brick2 1 + ,  brick3 1 + ,  brick4 1 + ,
-		brick5 1 + ,  brick6 1 + ,  brick7 1 + ,
+create bricks	brick1 1 + a,  brick2 1 + a,  brick3 1 + a,  brick4 1 + a,
+		brick5 1 + a,  brick6 1 + a,  brick7 1 + a,
 
 create brick-val 1 c, 2 c, 3 c, 3 c, 4 c, 5 c, 5 c,
 
