@@ -7469,16 +7469,16 @@ floating-point number.
 There is a word @code{bin} but it does @i{not} set the number base!
 It is used to specify file types.
 @item
-ANS Forth requires the @code{.} of a double-precision number to
-be the final character in the string. Allowing the @code{.} to be
-anywhere after the first digit is a Gforth extension.
+ANS Forth requires the @code{.} of a double-precision number to be the
+final character in the string.  Gforth allows the @code{.} to be
+anywhere after the first digit.
 @item
 The number conversion process does not check for overflow.
 @item
-In Gforth, number conversion to floating-point numbers always use base
-10, irrespective of the value of @code{base}. In ANS Forth,
-conversion to floating-point numbers whilst the value of
-@code{base} is not 10 is an ambiguous condition.
+In an ANS Forth program @code{base} is required to be decimal when
+converting floating-point numbers.  In Gforth, number conversion to
+floating-point numbers always uses base &10, irrespective of the value
+of @code{base}.
 @end itemize
 
 You can read numbers into your programs with the words described in
@@ -7512,6 +7512,9 @@ Directives}).
 @c as it is helpful for showing what is and what is not portable, particularly
 @c where it outlaws a style in common use.
 
+@c anton: it's more important to show what's portable.  After we have done
+@c that, we can also show what's not.  In any case, I intend to write a
+@c section Macros (or so) which will also deal with [ ].
 
 @code{[} and @code{]} also give you the ability to switch into compile
 state and back, but we cannot think of any useful Standard application
@@ -7622,6 +7625,7 @@ doc-fliteral
 @node Interpreter Directives,  , Literals, The Text Interpreter
 @subsection Interpreter Directives
 @cindex interpreter directives
+@cindex conditional compilation
 
 These words are usually used in interpret state; typically to control
 which parts of a source file are processed by the text
@@ -7631,10 +7635,10 @@ to compensate for the fact that the non-immediate versions can only be
 used in compile state (@pxref{Control Structures}). Typical usages:
 
 @example
-FALSE Constant ASSEMBLER
+FALSE Constant HAVE-ASSEMBLER
 .
 .
-ASSEMBLER [IF]
+HAVE-ASSEMBLER [IF]
 : ASSEMBLER-FEATURE
   ...
 ;
@@ -7643,7 +7647,7 @@ ASSEMBLER [IF]
 .
 : SEE
   ... \ general-purpose SEE code
-  [ ASSEMBLER [IF] ]
+  [ HAVE-ASSEMBLER [IF] ]
   ... \ assembler-specific SEE code
   [ [ENDIF] ]
 ;
