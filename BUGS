@@ -4,3 +4,10 @@ before name>, but adapt all uses.  anton 23apr94
 revealing the same name several times (e.g., by using refcursive)
 results in redefined messages.  anton 28jul94
 
+[IF] is case-sensitive.  anton 2aug94
+
+gforth.el: fill-paragraph should either not work, or it should make sure that comments stay comments and code stays code.  anton 2aug94
+
+if blocks.fb does not exist, 1 block creates the file, but cannot
+read-file from it. Only if the file-id has been created with
+open-file, not create-file, read-file works. - anton 6aug94

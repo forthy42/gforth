@@ -437,6 +437,12 @@ system that only supplies @code{THEN} is simple:
 : endif   POSTPONE then ; immediate
 @end example
 
+[According to Webster's New Encyclopedic Dictionary, then (adv.) has the
+following meanings: ... 2b: following next after in order ... 3d: as a
+necessary consequence (if you were there, then you saw them). Forth's
+@code{THEN} has the meaning 2b, @code{THEN} in Pascal and many other
+programming languages has the meaning 3d.]
+
 We also provide the words @code{?dup-if} and @code{?dup-not-if}, so you
 can avoid using @code{?dup}.
 
@@ -550,9 +556,9 @@ The loop is terminated when the border between @var{limit-sgn(n)} and
 @var{limit} is crossed. However, @code{S+LOOP} is not part of the ANS
 Forth standard.
 
-The @code{?DO} can be replaced by @code{DO}. @code{DO} enters the loop
-even when the start and the limit value are equal. We do not recommend
-using @code{DO}. It will just give you maintenance troubles.
+@code{?DO} can be replaced by @code{DO}. @code{DO} enters the loop even
+when the start and the limit value are equal. We do not recommend using
+@code{DO}. It will just give you maintenance troubles.
 
 FOR NEXT UNLOOP
 

@@ -1,9 +1,9 @@
 ;; This file is part of GNU Emacs.
 ;; Changes by anton
-;; This is a variant of forth.el that came with TILE
+;; This is a variant of forth.el that came with TILE.
 ;; I left most of this stuff untouched and made just a few changes for 
-;; the things I use.
-;; So there is still a lot of work to do to adapt this to gforth
+;; the things I use (mainly indentation and syntax tables).
+;; So there is still a lot of work to do to adapt this to gforth.
 
 ;; GNU Emacs is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY.  No author or distributor
@@ -20,7 +20,7 @@
 ;; file named COPYING.  Among other things, the copyright notice
 ;; and this notice must be preserved on all copies.
 
-;;; $Header: /usr/local/lib/cvs-repository/src-master/gforth/gforth.el,v 1.5 1994-07-29 11:16:21 anton Exp $
+;;; $Header: /usr/local/lib/cvs-repository/src-master/gforth/gforth.el,v 1.6 1994-08-10 17:22:36 anton Exp $
 
 ;;-------------------------------------------------------------------
 ;; A Forth indentation, documentation search and interaction library
@@ -37,13 +37,13 @@
 
 
 (defvar forth-positives
-  " : :noname begin do ?do while if ?dup-if ?dup-not-if else case create does> exception> struct "
+  " : :noname begin do ?do while if ?dup-if ?dup-not-if else case create does> exception> struct [if] [else] "
   "Contains all words which will cause the indent-level to be incremented
 on the next line.
 OBS! All words in forth-positives must be surrounded by spaces.")
 
 (defvar forth-negatives
-  " ; until repeat while +loop loop s+loop else then endif again endcase does> end-struct "
+  " ; until repeat while +loop loop s+loop else then endif again endcase does> end-struct [then] [else] "
   "Contains all words which will cause the indent-level to be decremented
 on the current line.
 OBS! All words in forth-negatives must be surrounded by spaces.")
@@ -51,6 +51,10 @@ OBS! All words in forth-negatives must be surrounded by spaces.")
 (defvar forth-zeroes
   " : :noname "
   "Contains all words which causes the indent to go to zero")
+
+(defvar forth-prefixes
+  " postpone [compile] ['] [char] "
+  "words that prefix and escape other words")
 
 (defvar forth-mode-abbrev-table nil
   "Abbrev table in use in Forth-mode buffers.")
@@ -67,6 +71,7 @@ OBS! All words in forth-negatives must be surrounded by spaces.")
 (global-set-key "\C-x\C-m" 'forth-split)
 (global-set-key "\e " 'forth-reload)
 
+(define-key forth-mode-map "\M-\C-x" 'compile)
 (define-key forth-mode-map "\e\C-m" 'forth-send-paragraph)
 (define-key forth-mode-map "\eo" 'forth-send-buffer)
 (define-key forth-mode-map "\C-x\C-m" 'forth-split)
@@ -80,23 +85,28 @@ OBS! All words in forth-negatives must be surrounded by spaces.")
 (if (not forth-mode-syntax-table)
     (progn
       (setq forth-mode-syntax-table (make-syntax-table))
-      (modify-syntax-entry ?\\ "\\" forth-mode-syntax-table)
-      (modify-syntax-entry ?/ ". 14" forth-mode-syntax-table)
-      (modify-syntax-entry ?* ". 23" forth-mode-syntax-table)
-      (modify-syntax-entry ?+ "." forth-mode-syntax-table)
-      (modify-syntax-entry ?- "." forth-mode-syntax-table)
-      (modify-syntax-entry ?= "." forth-mode-syntax-table)
-      (modify-syntax-entry ?% "." forth-mode-syntax-table)
-      (modify-syntax-entry ?< "." forth-mode-syntax-table)
-      (modify-syntax-entry ?> "." forth-mode-syntax-table)
-      (modify-syntax-entry ?& "." forth-mode-syntax-table)
-      (modify-syntax-entry ?| "." forth-mode-syntax-table)
-      (modify-syntax-entry ?\' "\"" forth-mode-syntax-table)
-      (modify-syntax-entry ?\t "    " forth-mode-syntax-table)
-      (modify-syntax-entry ?) ">   " forth-mode-syntax-table)
-      (modify-syntax-entry ?( "<   " forth-mode-syntax-table)
-      (modify-syntax-entry ?\( "()  " forth-mode-syntax-table)
-      (modify-syntax-entry ?\) ")(  " forth-mode-syntax-table)))
+      (let ((char 0))
+	(while (< char ?!)
+	  (modify-syntax-entry char " " forth-mode-syntax-table)
+	  (setq char (1+ char)))
+	(while (< char 256)
+	  (modify-syntax-entry char "w" forth-mode-syntax-table)
+	  (setq char (1+ char))))
+      (modify-syntax-entry ?\" "\"" forth-mode-syntax-table)
+      (modify-syntax-entry ?\\ "<" forth-mode-syntax-table)
+      (modify-syntax-entry ?\n ">" forth-mode-syntax-table)
+      ))
+;I do not define '(' and ')' as comment delimiters, because emacs
+;only supports one comment syntax (and a hack to accomodate C++); I
+;use '\' for natural language comments and '(' for formal comments
+;like stack comments, so for me it's better to have emacs treat '\'
+;comments as comments. I you want it different, make the appropriate
+;changes (best in your .emacs file).
+;
+;Hmm, the C++ hack could be used to support both comment syntaxes: we
+;can have different comment styles, if both comments start with the
+;same character. we could use ' ' as first and '(' and '\' as second
+;character. However this would fail for G\ comments.
 
 (defconst forth-indent-level 4
   "Indentation of Forth statements.")
@@ -110,8 +120,8 @@ OBS! All words in forth-negatives must be surrounded by spaces.")
   (setq paragraph-separate paragraph-start)
   (make-local-variable 'indent-line-function)
   (setq indent-line-function 'forth-indent-line)
-  (make-local-variable 'require-final-newline)
-  (setq require-final-newline t)
+;  (make-local-variable 'require-final-newline)
+;  (setq require-final-newline t)
   (make-local-variable 'comment-start)
   (setq comment-start "\\ ")
   ;(make-local-variable 'comment-end)
@@ -201,6 +211,9 @@ Variables controling documentation search
 ;      (run-forth forth-program-name))
   (run-hooks 'forth-mode-hook))
 
+(setq forth-mode-hook
+      '(lambda () (setq compile-command "gforth ")))
+
 (defun forth-comment-indent ()
   (save-excursion
     (beginning-of-line)
@@ -285,8 +298,6 @@ Variables controling documentation search
 			     forth-positives))
       (setq t2 (string-match (regexp-quote (concat " " w " "))
 			     forth-negatives))
-      (if (and t1 t2)
-	  (setq sum (+ sum forth-indent-level)))
       (if t1
 	  (setq sum (+ sum forth-indent-level)))
       (if (and t2 (not first))
@@ -297,7 +308,10 @@ Variables controling documentation search
 
 
 (defun forth-next-word ()
-  "Return the next forth-word. Skip anything enclosed in double quotes or ()."
+  "Return the next forth-word. Skip anything that the forth-word takes from
+the input stream (comments, arguments, etc.)"
+;actually, it would be better to use commands based on the
+;syntax-table or comment-start etc.
   (let ((w1 nil))
     (while (not w1)
       (skip-chars-forward " \t\n")
@@ -306,12 +320,19 @@ Variables controling documentation search
 	(setq w1 (buffer-substring p (point))))
       (cond ((string-match "\"" w1)
 	     (progn
-	       (skip-chars-forward "^\"")
-	       (setq w1 nil)))
-	    ((string-match "\(" w1)
+	       (skip-chars-forward "^\"\n")
+	       (forward-char)))
+	    ((string-match "\\\\" w1)
 	     (progn
-	       (skip-chars-forward "^\)")
-	       (setq w1 nil)))
+	       (end-of-line)
+	       ))
+	    ((or (equal "(" w1) (equal ".(" w1))
+	     (progn
+	       (skip-chars-forward "^)\n")
+	       (forward-char)))
+	    ((string-match (regexp-quote (concat " " w1 " ")) forth-prefixes)
+	     (progn (skip-chars-forward " \t\n")
+		    (skip-chars-forward "^ \t\n")))
 	    (t nil)))
     w1))
       
@@ -801,7 +822,7 @@ The region is sent terminated by a newline."
 (define-key forth-mode-map "\C-x\C-n" 'next-error)
 (require 'compile "compile")
 
-(defvar forth-compile-command "forth ")
+(defvar forth-compile-command "gforth ")
 (defvar forth-compilation-window-percent-height 30)
 
 (defun forth-compile (command)
