@@ -1,4 +1,4 @@
-\ COLORIZE.STR  Coloured .NAME and WORDS                20may93jaw
+\ colorize.fs  Coloured .NAME and WORDS                20may93jaw
 
 \ Copyright (C) 1995,1996,1997,1999 Free Software Foundation, Inc.
 
@@ -18,7 +18,7 @@
 \ along with this program; if not, write to the Free Software
 \ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
 
-include ansi.fs
+needs ansi.fs
 
 decimal
 
@@ -30,20 +30,22 @@ VARIABLE Color 20 Color !
 
 : Color: Color @ 1 Color +! constant ;
 
+\ define colours for the different stuff that can be found in the
+\ dictionary; see wordinfo.fs for the descriptions/definitions
 Color: Hig#
 
-<A White >f A>          0 CT!
-<A White >f bold A>     Ali# CT!
-<A Brown >f A>          Con# CT!
-<A Green >f A>          Var# CT!
-<A Cyan >f A>           Def# CT!
-<A Yellow >f A>         Val# CT!
-<A Brown >f bold A>     Doe# CT!
-<A Yellow >f bold A>    Col# CT!
-<A Blue >f bold A>      Pri# CT!
-<A Red >f bold A>       Str# CT!
-<A Green >f bold A>     Com# CT!
-<A Red >b A>            Hig# CT!
+<A White >FG A>             0 CT!
+<A White >FG bold A>     Ali# CT!
+<A Brown >FG A>          Con# CT!
+<A Green >FG A>          Var# CT!
+<A Cyan >FG A>           Def# CT!
+<A Yellow >FG A>         Val# CT!
+<A Brown >FG bold A>     Doe# CT!
+<A Yellow >FG bold A>    Col# CT!
+<A Blue >FG bold A>      Pri# CT!
+<A Red >FG bold A>       Str# CT!
+<A Green >FG bold A>     Com# CT!
+<A Red >BG A>            Hig# CT!
 
 : (.name) ( nfa -- )
         dup wordinfo cells ct + @ attr!

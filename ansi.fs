@@ -1,4 +1,4 @@
-\ ANSI.STR      Define terminal attributes              20may93jaw
+\ ansi.fs      Define terminal attributes              20may93jaw
 
 \ Copyright (C) 1995,1996,1997,1998 Free Software Foundation, Inc.
 
@@ -19,25 +19,28 @@
 \ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
 
 
-\ If you want another terminal you can redefine
-\ the colours.
+\ If you want another terminal you can redefine the colours.
 
 \ But a better way is it only to redefine SET-ATTR
 \ to have compatible colours.
 
 \ Attributes description:
-\ <A ( -- -1 )       Entry attributes description
-\ >B ( colour -- x ) Colour is Background colour
-\ >F ( colour -- x ) Colour is Foreground colour
-\                    Attributes may be used freely
-\ A> ( -1 x .. x -- attr )
-\                    Return over all attribute
-\                    only 12 Bits are used up to now!
+\ <A ( -- -1 0 )           Start attributes description
+\ A> ( -1 x .. x -- attr ) Terminate an attributes description and
+\                          return overall attribute; currently only
+\                          12 bits are used.
+\
+\ >BG ( colour -- x )      x is attribute with colour as Background colour
+\ >FG ( colour -- x )      x is attribute with colour as Foreground colour
+\
+\ SET-ATTR ( attr -- )     Send attributes to terminal
+\
+\ BG> ( attr -- colour)    extract colour of Background from attr
+\ FG> ( attr -- colour)    extract colour of Foreground from attr
+\
+\ See colorize.fs for an example of usage.
 
-\ SET-ATTR ( attr -- ) Send attributes to terminal
-
-\ To do:        Make <A A> State smart and compile
-\               only literals!
+\ To do:        Make <A A> State smart and only compile literals!
 
 needs vt100.fs
 
@@ -59,11 +62,11 @@ decimal
 
 \ For portable programs don't use invers and underline
 
-: >B    4 lshift ;
-: >F    >B >B ;
+: >BG    4 lshift ;
+: >FG    >BG >BG ;
 
-: B>    4 rshift 15 and ;
-: F>    8 rshift 15 and ;
+: BG>    4 rshift 15 and ;
+: FG>    8 rshift 15 and ;
 
 : <A    -1 0 ;
 : A>    BEGIN over -1 <> WHILE or REPEAT nip ;
@@ -75,8 +78,8 @@ DEFER Attr!
 : (Attr!)       ( attr -- ) dup Attr @ = IF drop EXIT THEN
                 dup Attr !
                 ESC[    0 pn
-                        dup F> ?dup IF 30 + ;pn THEN
-                        dup B> ?dup IF 40 + ;pn THEN
+                        dup FG> ?dup IF 30 + ;pn THEN
+                        dup BG> ?dup IF 40 + ;pn THEN
                         dup Bold and IF 1 ;pn THEN
                         dup Underline and IF 4 ;pn THEN
                         dup Blink and IF 5 ;pn THEN
@@ -85,7 +88,7 @@ DEFER Attr!
 
 ' (Attr!) IS Attr!
 
-: BlackSpace    Attr @ dup B> Black =
+: BlackSpace    Attr @ dup BG> Black =
                 IF drop space
                 ELSE 0 attr! space attr! THEN ;
 
