@@ -26,6 +26,9 @@
 \ Problems: A compiled xt via compile, might be created with noname:
 \           a noname: leaves now a empty name field
 
+require stuff.fs
+require environ.fs
+
 decimal
 
 \ look                                                  17may93jaw

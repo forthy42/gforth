@@ -41,9 +41,9 @@ vocabulary environment ( -- ) \ gforth
 
 : e? name environment? 0= ABORT" environmental dependency not existing" ;
 
-: has? name environment? 0= IF false THEN ;
-
 : $has? environment? 0= IF false THEN ;
+
+: has? name $has? ;
 
 environment-wordlist set-current
 get-order environment-wordlist swap 1+ set-order

@@ -87,6 +87,7 @@
 
 require search.fs
 require float.fs
+require extend.fs \ for case
 
 : compile-@local ( n -- ) \ gforth compile-fetch-local
  case
