@@ -202,6 +202,13 @@ Create bases   10 ,   2 ,   A , 100 ,
 
 [THEN]
 
+\ this provides assert( and struct stuff
+\GFORTH [IFUNDEF] assert1(
+\GFORTH also forth definitions require assert.fs previous
+\GFORTH [THEN]
+
+>CROSS
+
 hex     \ the defualt base for the cross-compiler is hex !!
 \ Warnings off
 
@@ -1007,10 +1014,13 @@ Variable reuse-ghosts reuse-ghosts off
 
 \ ' >ghostname ALIAS @name
 
+: findghost ( "ghostname" -- ghost ) 
+  bl word gfind 0= ABORT" CROSS: Ghost don't exists" ;
+
 : [G'] ( -- ghost : name )
 \G ticks a ghost and returns its address
-\  bl word gfind 0= ABORT" CROSS: Ghost don't exists"
-  ghost state @ IF postpone literal THEN ; immediate
+  findghost
+  state @ IF postpone literal THEN ; immediate
 
 : g>xt ( ghost -- xt )
 \G Returns the xt (cfa) of a ghost. Issues a warning if undefined.
@@ -1061,8 +1071,15 @@ Ghost :dovar					drop
 Ghost over      Ghost =         Ghost drop      2drop drop
 Ghost 2drop drop
 Ghost 2dup drop
-
-
+Ghost state drop
+Ghost call drop
+Ghost @ drop
+Ghost useraddr drop
+Ghost execute drop
+Ghost + drop
+Ghost (C") drop
+Ghost decimal drop
+Ghost hex drop
 
 \ \ Parameter for target systems                         06oct92py
 
@@ -2177,8 +2194,7 @@ Comment (       Comment \
 \ compile                                              10may93jaw
 
 : compile  ( "name" -- ) \ name
-\  bl word gfind 0= ABORT" CROSS: Can't compile "
-  ghost
+  findghost
   dup >exec-compile @ ?dup
   IF    nip compile,
   ELSE  postpone literal postpone gexecute  THEN ;  immediate restrict
@@ -2200,7 +2216,8 @@ Cond: [']  T ' H alit, ;Cond
 
 : [T']
 \ returns the target-cfa of a ghost, or compiles it as literal
-  postpone [G'] state @ IF postpone g>xt ELSE g>xt THEN ; immediate
+  postpone [G'] 
+  state @ IF postpone g>xt ELSE g>xt THEN ; immediate
 
 \ \ threading modell					13dec92py
 \ modularized						14jun97jaw
@@ -2325,6 +2342,7 @@ Cond: MAXI
  ;Cond
 
 >CROSS
+
 \ Target compiling loop                                12dec92py
 \ ">tib trick thrown out                               10may93jaw
 \ number? defined at the top                           11may93jaw
@@ -2345,9 +2363,10 @@ Cond: MAXI
   IF	0> IF swap lit,  THEN  lit, discard
   ELSE	2drop restore-input throw Ghost gexecute THEN  ;
 
->TARGET
 \ : ; DOES>                                            13dec92py
 \ ]                                                     9may93py/jaw
+
+>CROSS
 
 : compiling-state ( -- )
 \G set states to compililng
@@ -2362,6 +2381,8 @@ Cond: MAXI
    [G'] state dup undefined? 0= 
    IF >ghost-xt @ execute X off ELSE drop THEN
    Interpreting comp-state ! ;
+
+>TARGET
 
 : ] 
     compiling-state
