@@ -66,7 +66,7 @@ DOES> ( n -- )  + c@ ;
       bl c,
   LOOP ;
 
-
+: chars ; immediate
 
 : A!    ( addr1 addr2 -- )  dup relon ! ;
 : A,    ( addr -- )     here cell allot A! ;
@@ -173,10 +173,10 @@ Defer source
 : [char] ( 'char' -- n )  char postpone Literal ; immediate
 ' [char] Alias Ascii immediate
 
-: (compile) ( -- )  r> dup cell+ >r @ A, ;
+: (compile) ( -- )  r> dup cell+ >r @ compile, ;
 : postpone ( "name" -- )
   name sfind dup 0= abort" Can't compile "
-  0> IF  A,  ELSE  postpone (compile) A,  THEN ;
+  0> IF  compile,  ELSE  postpone (compile) A,  THEN ;
                                              immediate restrict
 
 \ Use (compile) for the old behavior of compile!
@@ -417,11 +417,23 @@ AConstant locals-list \ acts like a variable that contains
 
 
 variable dead-code \ true if normal code at "here" would be dead
+variable backedge-locals
+    \ contains the locals list that BEGIN will assume to be live on
+    \ the back edge if the BEGIN is unreachable from above. Set by
+    \ ASSUME-LIVE, reset by UNREACHABLE.
 
-: unreachable ( -- )
-\ declares the current point of execution as unreachable
- dead-code on ;
+: UNREACHABLE ( -- )
+    \ declares the current point of execution as unreachable
+    dead-code on
+    0 backedge-locals ! ; immediate
 
+: ASSUME-LIVE ( orig -- orig )
+    \ used immediateliy before a BEGIN that is not reachable from
+    \ above.  causes the BEGIN to assume that the same locals are live
+    \ as at the orig point
+    dup orig?
+    2 pick backedge-locals ! ; immediate
+    
 \ locals list operations
 
 : common-list ( list1 list2 -- list3 )
@@ -546,7 +558,7 @@ variable dead-code \ true if normal code at "here" would be dead
 \ Structural Conditionals                              12dec92py
 
 : AHEAD ( -- orig )
- POSTPONE branch >mark unreachable ; immediate restrict
+ POSTPONE branch >mark POSTPONE unreachable ; immediate restrict
 
 : IF ( -- orig )
  POSTPONE ?branch >mark ; immediate restrict
@@ -588,17 +600,10 @@ variable dead-code \ true if normal code at "here" would be dead
 
 : BEGIN ( -- dest )
     dead-code @ if
-	\ set up an assumption of the locals visible here
-	\ currently we just take the top cs-item
-	\ it would be more intelligent to take the top orig
-	\   but that can be arranged by the user
-	dup defstart <> if
-	    dup cs-item?
-	    2 pick
-	else
-	    0
-	then
-	set-locals-size-list
+	\ set up an assumption of the locals visible here.  if the
+	\ users want something to be visible, they have to declare
+	\ that using ASSUME-LIVE
+	backedge-locals @ set-locals-size-list
     then
     cs-push-part dest
     dead-code off ; immediate restrict
@@ -614,7 +619,7 @@ variable dead-code \ true if normal code at "here" would be dead
     POSTPONE branch
     <resolve
     check-begin
-    unreachable ; immediate restrict
+    POSTPONE unreachable ; immediate restrict
 
 \ UNTIL (the current control flow may join an earlier one or continue):
 \ Similar to AGAIN. The new locals-list and locals-size are the current
@@ -746,7 +751,7 @@ Avariable leave-sp  leave-stack 3 cells + leave-sp !
 : EXIT ( -- )
     0 adjust-locals-size
     POSTPONE ;s
-    unreachable ; immediate restrict
+    POSTPONE unreachable ; immediate restrict
 
 : ?EXIT ( -- )
      POSTPONE if POSTPONE exit POSTPONE then ; immediate restrict

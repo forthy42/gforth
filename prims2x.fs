@@ -347,13 +347,13 @@ constant type-description
  endif
  rdrop ;
  
-: single-type ( -- xt n1 n2 )
+: single-type ( -- xt1 xt2 n1 n2 )
  ['] fetch-single ['] store-single 1 0 ;
 
-: double-type ( -- xt n1 n2 )
+: double-type ( -- xt1 xt2 n1 n2 )
  ['] fetch-double ['] store-double 2 0 ;
 
-: float-type ( -- xt n1 n2 )
+: float-type ( -- xt1 xt2 n1 n2 )
  ['] fetch-float ['] store-float 0 1 ;
 
 : s, ( addr u -- )
@@ -548,8 +548,19 @@ set-current
        effect-out effect-out-end @ .stack-list ." )" cr
        forth-code 2@ type cr
        -1 primitive-number +!
- THEN
-;
+ THEN ;
+
+[IFDEF] documentation
+: register-doc ( -- )
+    get-current documentation set-current
+    forth-name 2@ nextname create
+    forth-name 2@ 2,
+    stack-string 2@ 2,
+    wordset 2@ 2,
+    c-name 2@ 2,
+    doc 2@ 2,
+    set-current ;
+[THEN]
 
 : process-file ( addr u xt -- )
  >r r/o open-file abort" cannot open file"

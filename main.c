@@ -1,5 +1,5 @@
 /*
-  $Id: main.c,v 1.14 1994-09-28 17:02:48 anton Exp $
+  $Id: main.c,v 1.15 1994-10-24 19:16:02 anton Exp $
   Copyright 1993 by the ANSI figForth Development Group
 */
 
@@ -135,30 +135,30 @@ Cell *loader(FILE *imagefile)
 
 int go_forth(Cell *image, int stack, Cell *entries)
 {
-	Cell *sp=(Cell*)((void *)image+dictsize+dsize);
-	Address lp=(Address)((void *)sp+lsize);
-	Float *fp=(Float *)((void *)lp+fsize);
-	Cell *rp=(Cell*)((void *)fp+rsize);
-	Xt *ip=(Xt *)(image[3]);
-	int throw_code;
-
-	for(;stack>0;stack--)
-		*--sp=entries[stack-1];
-
-	install_signal_handlers(); /* right place? */
-
-	if ((throw_code=setjmp(throw_jmp_buf))) {
-		static Cell signal_data_stack[8];
-		static Cell signal_return_stack[8];
-      static Float signal_fp_stack[1];
-
-		signal_data_stack[7]=throw_code;
-
-		return((int)engine((Xt *)image[4],signal_data_stack+7,
-				                  signal_return_stack+8,signal_fp_stack,0));
-	}
-
-	return((int)engine(ip,sp,rp,fp,lp));
+  Cell *sp=(Cell*)((void *)image+dictsize+dsize);
+  Address lp=(Address)((void *)sp+lsize);
+  Float *fp=(Float *)((void *)lp+fsize);
+  Cell *rp=(Cell*)((void *)fp+rsize);
+  Xt *ip=(Xt *)(image[3]);
+  int throw_code;
+  
+  for(;stack>0;stack--)
+    *--sp=entries[stack-1];
+  
+  install_signal_handlers(); /* right place? */
+  
+  if ((throw_code=setjmp(throw_jmp_buf))) {
+    static Cell signal_data_stack[8];
+    static Cell signal_return_stack[8];
+    static Float signal_fp_stack[1];
+    
+    signal_data_stack[7]=throw_code;
+    
+    return((int)engine((Xt *)image[4],signal_data_stack+7,
+		       signal_return_stack+8,signal_fp_stack,0));
+  }
+  
+  return((int)engine(ip,sp,rp,fp,lp));
 }
 
 int convsize(char *s, int elemsize)

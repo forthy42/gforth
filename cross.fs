@@ -1,5 +1,5 @@
 \ CROSS.FS     The Cross-Compiler                      06oct92py
-\ $Id: cross.fs,v 1.13 1994-09-12 19:00:27 pazsan Exp $
+\ $Id: cross.fs,v 1.14 1994-10-24 19:15:53 anton Exp $
 \ Idea and implementation: Bernd Paysan (py)
 \ Copyright 1992 by the ANSI figForth Development Group
 
@@ -407,6 +407,8 @@ ghost '
   dup >magic @ <fwd> = ABORT" CROSS: forward " >link @ ;
 
 Cond: [']  compile lit ghost gexecute ;Cond
+
+Cond: chars ;Cond
 
 >CROSS
 \ tLiteral                                             12dec92py

@@ -509,5 +509,9 @@ forth definitions
  endif ; immediate
 
 : locals|
-  BEGIN  name 2dup s" |" compare 0=  WHILE
-         (local)  REPEAT  drop 0 (local) ;  immediate restrict
+    BEGIN
+	name 2dup s" |" compare 0<>
+    WHILE
+	(local)
+    REPEAT
+    drop 0 (local) ;  immediate restrict

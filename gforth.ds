@@ -1,0 +1,744 @@
+\input texinfo   @c -*-texinfo-*-
+@comment The source is gforth.ds, from which gforth.texi is generated
+@comment %**start of header (This is for running Texinfo on a region.)
+@setfilename gforth-info
+@settitle GNU Forth Manual
+@setchapternewpage odd
+@comment %**end of header (This is for running Texinfo on a region.)
+
+@ifinfo
+This file documents GNU Forth 0.0
+
+Copyright @copyright{} 1994 GNU Forth Development Group
+
+     Permission is granted to make and distribute verbatim copies of
+     this manual provided the copyright notice and this permission notice
+     are preserved on all copies.
+     
+     @ignore
+     Permission is granted to process this file through TeX and print the
+     results, provided the printed document carries a copying permission
+     notice identical to this one except for the removal of this paragraph
+     (this paragraph not being relevant to the printed manual).
+     
+     @end ignore
+     Permission is granted to copy and distribute modified versions of this
+     manual under the conditions for verbatim copying, provided also that the
+     sections entitled "Distribution" and "General Public License" are
+     included exactly as in the original, and provided that the entire
+     resulting derived work is distributed under the terms of a permission
+     notice identical to this one.
+     
+     Permission is granted to copy and distribute translations of this manual
+     into another language, under the above conditions for modified versions,
+     except that the sections entitled "Distribution" and "General Public
+     License" may be included in a translation approved by the author instead
+     of in the original English.
+@end ifinfo
+
+@titlepage
+@sp 10
+@center @titlefont{GNU Forth Manual}
+@sp 2
+@center for version 0.0
+@sp 2
+@center Anton Ertl
+
+@comment  The following two commands start the copyright page.
+@page
+@vskip 0pt plus 1filll
+Copyright @copyright{} 1994 GNU Forth Development Group
+
+@comment !! Published by ... or You can get a copy of this manual ...
+
+     Permission is granted to make and distribute verbatim copies of
+     this manual provided the copyright notice and this permission notice
+     are preserved on all copies.
+     
+     Permission is granted to copy and distribute modified versions of this
+     manual under the conditions for verbatim copying, provided also that the
+     sections entitled "Distribution" and "General Public License" are
+     included exactly as in the original, and provided that the entire
+     resulting derived work is distributed under the terms of a permission
+     notice identical to this one.
+     
+     Permission is granted to copy and distribute translations of this manual
+     into another language, under the above conditions for modified versions,
+     except that the sections entitled "Distribution" and "General Public
+     License" may be included in a translation approved by the author instead
+     of in the original English.
+@end titlepage
+
+
+@node Top, License, (dir), (dir)
+@ifinfo
+GNU Forth is a free implementation of ANS Forth available on many
+personal machines. This manual corresponds to version 0.0.
+@end ifinfo
+
+@menu
+* License::             
+* Goals::               About the GNU Forth Project
+* Other Books::         Things you might want to read
+* Invocation::          Starting GNU Forth
+* Words::               Forth words available in GNU Forth
+* ANS conformance::     Implementation-defined options etc.
+* Model::               The abstract machine of GNU Forth
+* Emacs and GForth::    The GForth Mode
+* Internals::           Implementation details
+* Bugs::                How to report them
+* Pedigree::            Ancestors of GNU Forth
+* Word Index::          An item for each Forth word
+* Node Index::          An item for each node
+@end menu
+
+@node License, Goals, Top, Top
+@unnumbered License
+!! Insert GPL here
+
+@iftex
+@unnumbered Preface
+This manual documents GNU Forth. The reader is expected to know
+Forth. This manual is primarily a reference manual. @xref{Other Books}
+for introductory material.
+@end iftex
+
+@node    Goals, Other Books, License, Top
+@comment node-name,     next,           previous, up
+@chapter Goals of GNU Forth
+@cindex Goals
+The goal of the GNU Forth Project is to develop a standard model for
+ANSI Forth. This can be split into several subgoals:
+
+@itemize @bullet
+@item
+GNU Forth should conform to the ANSI Forth standard.
+@item
+It should be a model, i.e. it should define all the
+implementation-dependent things.
+@item
+It should become standard, i.e. widely accepted and used. This goal
+is the most difficult one.
+@end itemize
+
+To achieve these goals GNU Forth should be
+@itemize @bullet
+@item
+Similar to previous models (fig-Forth, F83)
+@item
+Powerful. It should provide for all the things that are considered
+necessary today and even some that are not yet considered necessary.
+@item
+Efficient. It should not get the reputation of being exceptionally
+slow.
+@item
+Free.
+@item
+Available on many machines/easy to port.
+@end itemize
+
+Have we achieved these goals? GNU Forth conforms to the ANS Forth
+standard; it may be considered a model, but we have not yet documented
+which parts of the model are stable and which parts we are likely to
+change; it certainly has not yet become a de facto standard. It has some
+similarities and some differences to previous models; It has some
+powerful features, but not yet everything that we envisioned; on RISCs
+it is as fast as interpreters programmed in assembly, on
+register-starved machines it is not so fast, but still faster than any
+other C-based interpretive implementation; it is free and available on
+many machines.
+
+@node Other Books, Invocation, Goals, Top
+@chapter Other books on ANS Forth
+
+As the standard is relatively new, there are not many books out yet. It
+is not recommended to learn Forth by using GNU Forth and a book that is
+not written for ANS Forth, as you will not know your mistakes from the
+deviations of the book.
+
+There is, of course, the standard, the definite reference if you want to
+write ANS Forth programs. It will be available in printed form from
+Global Engineering Documents !! somtime in spring or summer 1994. If you
+are lucky, you can still get dpANS6 (the draft that was approved as
+standard) by aftp from ftp.uu.net:/vendor/minerva/x3j14.
+
+@cite{Forth: The new model} by Jack Woehr (!! Publisher) is an
+introductory book based on a draft version of the standard. It does not
+cover the whole standard. It also contains interesting background
+information (Jack Woehr was in the ANS Forth Technical Committe). It is
+not appropriate for complete newbies, but programmers experienced in
+other languages should find it ok.
+
+@node Invocation, Words, Other Books, Top
+@chapter Invocation
+
+You will usually just say @code{gforth}. In many other cases the default
+GNU Forth image will be invoked like this:
+
+@example
+gforth [files] [-e forth-code]
+@end example
+
+executing the contents of the files and the Forth code in the order they
+are given.
+
+In general, the command line looks like this:
+
+@example
+gforth [initialization options] [image-specific options]
+@end example
+
+The initialization options must come before the rest of the command
+line. They are:
+
+@table @code
+@item --image-file @var{file}
+Loads the Forth image @var{file} instead of the default
+@file{gforth.fi}.
+
+@item --path @var{path}
+Uses @var{path} for searching the image file and Forth source code
+files instead of the default in the environment variable
+@code{GFORTHPATH} or the path specified at installation time (typically
+@file{/usr/local/lib/gforth:.}). A path is given as a @code{:}-separated
+list.
+
+@item --dictionary-size @var{size}
+@item -m @var{size}
+Allocate @var{size} space for the Forth dictionary space instead of
+using the default specified in the image (typically 256K). The
+@var{size} specification consists of an integer and a unit (e.g.,
+@code{4M}). The unit can be one of @code{b} (bytes), @code{e} (element
+size, in this case Cells), @code{k} (kilobytes), and @code{M}
+(Megabytes). If no unit is specified, @code{e} is used.
+
+@item --data-stack-size @var{size}
+@item -d @var{size}
+Allocate @var{size} space for the data stack instead of using the
+default specified in the image (typically 16K).
+
+@item --return-stack-size @var{size}
+@item -r @var{size}
+Allocate @var{size} space for the return stack instead of using the
+default specified in the image (typically 16K).
+
+@item --fp-stack-size @var{size}
+@item -f @var{size}
+Allocate @var{size} space for the floating point stack instead of
+using the default specified in the image (typically 16K). In this case
+the unit specifier @code{e} refers to floating point numbers.
+
+@item --locals-stack-size @var{size}
+@item -l @var{size}
+Allocate @var{size} space for the locals stack instead of using the
+default specified in the image (typically 16K).
+
+@end table
+
+As explained above, the image-specific command-line arguments for the
+default image @file{gforth.fi} consist of a sequence of filenames and
+@code{-e @var{forth-code}} options that are interpreted in the seqence
+in which they are given. The @code{-e @var{forth-code}} or
+@code{--evaluate @var{forth-code}} option evaluates the forth
+code. This option takes only one argument; if you want to evaluate more
+Forth words, you have to quote them or use several @code{-e}s. To exit
+after processing the command line (instead of entering interactive mode)
+append @code{-e bye} to the command line.
+
+Not yet implemented:
+On startup the system first executes the system initialization file
+(unless the option @code{--no-init-file} is given; note that the system
+resulting from using this option may not be ANS Forth conformant). Then
+the user initialization file @file{.gforth.fs} is executed, unless the
+option @code{--no-rc} is given; this file is first searched in @file{.},
+then in @file{~}, then in the normal path (see above).
+
+@node Words,  , Invocation, Top
+@chapter Forth Words
+
+@menu
+* Notation::
+* Arithmetic::
+* Stack Manipulation::
+* Memory access::
+* Control Structures::
+* Local Variables::
+* Defining Words::
+* Vocabularies::
+* Files::
+* Blocks::
+* Other I/O::
+* Programming Tools::
+@end menu
+
+@node Notation, Arithmetic, Words, Words
+@section Notation
+
+The Forth words are described in this section in the glossary notation
+that has become a de-facto standard for Forth texts, i.e.
+
+@quotation
+@var{word}     @var{Stack effect}   @var{wordset}   @var{pronunciation}
+@var{Description}
+@end quotation
+
+@table @var
+@item word
+The name of the word. BTW, GNU Forth is case insensitive, so you can
+type the words in in lower case.
+
+@item Stack effect
+The stack effect is written in the notation @code{@var{before} --
+@var{after}}, where @var{before} and @var{after} describe the top of
+stack entries before and after the execution of the word. The rest of
+the stack is not touched by the word. The top of stack is rightmost,
+i.e., a stack sequence is written as it is typed in. Note that GNU Forth
+uses a separate floating point stack, but a unified stack
+notation. Also, return stack effects are not shown in @var{stack
+effect}, but in @var{Description}. The name of a stack item describes
+the type and/or the function of the item. See below for a discussion of
+the types.
+
+@item pronunciation
+How the word is pronounced
+
+@item wordset
+The ANS Forth standard is divided into several wordsets. A standard
+system need not support all of them. So, the fewer wordsets your program
+uses the more portable it will be in theory. However, we suspect that
+most ANS Forth systems on personal machines will feature all
+wordsets. Words that are not defined in the ANS standard have
+@code{gforth} as wordset.
+
+@item Description
+A description of the behaviour of the word.
+@end table
+
+The name of a stack item corresponds in the following way with its type:
+
+@table @code
+@item name starts with
+Type
+@item f
+Bool, i.e. @code{false} or @code{true}.
+@item c
+Char
+@item w
+Cell, can contain an integer or an address
+@item n
+signed integer
+@item u
+unsigned integer
+@item d
+double sized signed integer
+@item ud
+double sized unsigned integer
+@item r
+Float
+@item a_
+Cell-aligned address
+@item c_
+Char-aligned address (note that a Char is two bytes in Windows NT)
+@item f_
+Float-aligned address
+@item df_
+Address aligned for IEEE double precision float
+@item sf_
+Address aligned for IEEE single precision float
+@item xt
+Execution token, same size as Cell
+@item wid
+Wordlist ID, same size as Cell
+@item f83name
+Pointer to a name structure
+@end table
+
+@node Arithmetic,  , Notation, Words
+@section Arithmetic
+Forth arithmetic is not checked, i.e., you will not hear about integer
+overflow on addition or multiplication, you may hear about division by
+zero if you are lucky. The operator is written after the operands, but
+the operands are still in the original order. I.e., the infix @code{2-1}
+corresponds to @code{2 1 -}. Forth offers a variety of division
+operators. If you perform division with potentially negative operands,
+you do not want to use @code{/} or @code{/mod} with its undefined
+behaviour, but rather @code{fm/mod} or @code{sm/mod} (probably the
+former).
+
+@subsection Single precision
+doc-+
+doc--
+doc-*
+doc-/
+doc-mod
+doc-/mod
+doc-negate
+doc-abs
+doc-min
+doc-max
+
+@subsection Bitwise operations
+doc-and
+doc-or
+doc-xor
+doc-invert
+doc-2*
+doc-2/
+
+@subsection Mixed precision
+doc-m+
+doc-*/
+doc-*/mod
+doc-m*
+doc-um*
+doc-m*/
+doc-um/mod
+doc-fm/mod
+doc-sm/rem
+
+@subsection Double precision
+doc-d+
+doc-d-
+doc-dnegate
+doc-dabs
+doc-dmin
+doc-dmax
+
+@node Stack Manipulation,,,
+@section Stack Manipulation
+
+gforth has a data stack (aka parameter stack) for characters, cells,
+addresses, and double cells, a floating point stack for floating point
+numbers, a return stack for storing the return addresses of colon
+definitions and other data, and a locals stack for storing local
+variables. Note that while every sane Forth has a separate floating
+point stack, this is not strictly required; an ANS Forth system could
+theoretically keep floating point numbers on the data stack. As an
+additional difficulty, you don't know how many cells a floating point
+number takes. It is reportedly possible to write words in a way that
+they work also for a unified stack model, but we do not recommend trying
+it. Also, a Forth system is allowed to keep the local variables on the
+return stack. This is reasonable, as local variables usually eliminate
+the need to use the return stack explicitly. So, if you want to produce
+a standard complying program and if you are using local variables in a
+word, forget about return stack manipulations in that word (see the
+standard document for the exact rules).
+
+@subsection Data stack
+doc-drop
+doc-nip
+doc-dup
+doc-over
+doc-tuck
+doc-swap
+doc-rot
+doc--rot
+doc-?dup
+doc-pick
+doc-roll
+doc-2drop
+doc-2nip
+doc-2dup
+doc-2over
+doc-2tuck
+doc-2swap
+doc-2rot
+
+@subsection Floating point stack
+doc-fdrop
+doc-fnip
+doc-fdup
+doc-fover
+doc-ftuck
+doc-fswap
+doc-frot
+
+@subsection Return stack
+doc->r
+doc-r>
+doc-r@
+doc-rdrop
+doc-2>r
+doc-2r>
+doc-2r@
+doc-2rdrop
+
+@subsection Locals stack
+
+@subsection Stack pointer manipulation
+doc-sp@
+doc-sp!
+doc-fp@
+doc-fp!
+doc-rp@
+doc-rp!
+doc-lp@
+doc-lp!
+
+@node Memory access
+@section Memory access
+
+@subsection Stack-Memory transfers
+
+doc-@
+doc-!
+doc-+!
+doc-c@
+doc-c!
+doc-2@
+doc-2!
+doc-f@
+doc-f!
+doc-sf@
+doc-sf!
+doc-df@
+doc-df!
+
+@subsection Address arithmetic
+
+ANS Forth does not specify the sizes of the data types. Instead, it
+offers a number of words for computing sizes and doing address
+arithmetic. Basically, address arithmetic is performed in terms of
+address units (aus); on most systems the address unit is one byte. Note
+that a character may have more than one au, so @code{chars} is no noop
+(on systems where it is a noop, it compiles to nothing).
+
+ANS Forth also defines words for aligning addresses for specific
+addresses. Many computers require that accesses to specific data types
+must only occur at specific addresses; e.g., that cells may only be
+accessed at addresses divisible by 4. Even if a machine allows unaligned
+accesses, it can usually perform aligned accesses faster. 
+
+For the performance-concious: alignment operations are usually only
+necessary during the definition of a data structure, not during the
+(more frequent) accesses to it.
+
+ANS Forth defines no words for character-aligning addresses. This is not
+an oversight, but reflects the fact that addresses that are not
+char-aligned have no use in the standard and therefore will not be
+created.
+
+The standard guarantees that addresses returned by @code{CREATE}d words
+are cell-aligned; in addition, gforth guarantees that these addresses
+are aligned for all purposes.
+
+doc-chars
+doc-char+
+doc-cells
+doc-cell+
+doc-align
+doc-aligned
+doc-floats
+doc-float+
+doc-falign
+doc-faligned
+doc-sfloats
+doc-sfloat+
+doc-sfalign
+doc-sfaligned
+doc-dfloats
+doc-dfloat+
+doc-dfalign
+doc-dfaligned
+doc-address-unit-bits
+
+@subsection Memory block access
+
+doc-move
+doc-erase
+
+While the previous words work on address units, the rest works on
+characters.
+
+doc-cmove
+doc-cmove>
+doc-fill
+doc-blank
+
+@node Control Structures
+@section Control Structures
+
+Control structures in Forth cannot be used in interpret state, only in
+compile state, i.e., in a colon definition. We do not like this
+limitation, but have not seen a satisfying way around it yet, although
+many schemes have been proposed.
+
+@subsection Selection
+
+@example
+@var{flag}
+IF
+  @var{code}
+ENDIF
+@end example
+or
+@example
+@var{flag}
+IF
+  @var{code1}
+ELSE
+  @var{code2}
+ENDIF
+@end example
+
+You can use @code{THEN} instead of {ENDIF}. Indeed, @code{THEN} is
+standard, and @code{ENDIF} is not, although it is quite popular. We
+recommend using @code{ENDIF}, because it is less confusing for people
+who also know other languages (and is not prone to reinforcing negative
+prejudices against Forth in these people). Adding @code{ENDIF} to a
+system that only supplies @code{THEN} is simple:
+@example
+: endif   POSTPONE then ; immediate
+@end example
+
+[According to @cite{Webster's New Encyclopedic Dictionary}, @dfn{then
+(adv.)}  has the following meanings:
+@quotation
+... 2b: following next after in order ... 3d: as a necessary consequence
+(if you were there, then you saw them).
+@end quotation
+Forth's @code{THEN} has the meaning 2b, whereas @code{THEN} in Pascal
+and many other programming languages has the meaning 3d.]
+
+We also provide the words @code{?dup-if} and @code{?dup-0=-if}, so you
+can avoid using @code{?dup}.
+
+@example
+@var{n}
+CASE
+  @var{n1} OF @var{code1} ENDOF
+  @var{n2} OF @var{code2} ENDOF
+  @dots
+ENDCASE
+@end example
+
+Executes the first @var{codei}, where the @var{ni} is equal to
+@var{n}. A default case can be added by simply writing the code after
+the last @code{ENDOF}. It may use @var{n}, which is on top of the stack,
+but must not consume it.
+
+@subsection Simple Loops
+
+@example
+BEGIN
+  @var{code1}
+  @var{flag}
+WHILE
+  @var{code2}
+REPEAT
+@end example
+
+@var{code1} is executed and @var{flag} is computed. If it is true,
+@var{code2} is executed and the loop is restarted; If @var{flag} is false, execution continues after the @code{REPEAT}.
+
+@example
+BEGIN
+  @var{code}
+  @var{flag}
+UNTIL
+@end example
+
+@var{code} is executed. The loop is restarted if @code{flag} is false.
+
+@example
+BEGIN
+  @var{code}
+AGAIN
+@end example
+
+This is an endless loop.
+
+@subsection Counted Loops
+
+The basic counted loop is:
+@example
+@var{limit} @var{start}
+?DO
+  @var{body}
+LOOP
+@end example
+
+This performs one iteration for every integer, starting from @var{start}
+and up to, but excluding @var{limit}. The counter, aka index, can be
+accessed with @code{i}. E.g., the loop
+@example
+10 0 ?DO
+  i .
+LOOP
+@end example
+prints
+@example
+0 1 2 3 4 5 6 7 8 9
+@end example
+The index of the innermost loop can be accessed with @code{i}, the index
+of the next loop with @code{j}, and the index of the third loop with
+@code{k}.
+
+The loop control data are kept on the return stack, so there are some
+restrictions on mixing return stack accesses and counted loop
+words. E.g., if you put values on the return stack outside the loop, you
+cannot read them inside the loop. If you put values on the return stack
+within a loop, you have to remove them before the end of the loop and
+before accessing the index of the loop.
+
+There are several variations on the counted loop:
+
+@code{LEAVE} leaves the innermost counted loop immediately.
+
+@code{LOOP} can be replaced with @code{@var{n} +LOOP}; this updates the
+index by @var{n} instead of by 1. The loop is terminated when the border
+between @var{limit-1} and @var{limit} is crossed. E.g.:
+
+4 0 ?DO  i .  2 +LOOP   prints 0 2
+
+4 1 ?DO  i .  2 +LOOP   prints 1 3
+
+The behaviour of @code{@var{n} +LOOP} is peculiar when @var{n} is negative:
+
+-1 0 ?DO  i .  -1 +LOOP  prints 0 -1
+
+ 0 0 ?DO  i .  -1 +LOOP  prints nothing
+
+Therefore we recommend avoiding using @code{@var{n} +LOOP} with negative
+@var{n}. One alternative is @code{@var{n} S+LOOP}, where the negative
+case behaves symmetrical to the positive case:
+
+-2 0 ?DO  i .  -1 +LOOP  prints 0 -1
+
+-1 0 ?DO  i .  -1 +LOOP  prints 0
+
+ 0 0 ?DO  i .  -1 +LOOP  prints nothing
+
+The loop is terminated when the border between @var{limit-sgn(n)} and
+@var{limit} is crossed. However, @code{S+LOOP} is not part of the ANS
+Forth standard.
+
+@code{?DO} can be replaced by @code{DO}. @code{DO} enters the loop even
+when the start and the limit value are equal. We do not recommend using
+@code{DO}. It will just give you maintenance troubles.
+
+@code{UNLOOP} is used to prepare for an abnormal loop exit, e.g., via
+@code{EXIT}. @code{UNLOOP} removes the loop control parameters from the
+return stack so @code{EXIT} can get to its return address.
+
+Another counted loop is
+@example
+@var{n}
+FOR
+  @var{body}
+NEXT
+@end example
+This is the preferred loop of native code compiler writers who are too
+lazy to optimize @code{?DO} loops properly. In GNU Forth, this loop
+iterates @var{n+1} times; @code{i} produces values starting with @var{n}
+and ending with 0. Other Forth systems may behave differently, even if
+they support @code{FOR} loops.
+
+@node Locals
+@section Locals
+
+
+
+@contents
+@bye
+

@@ -27,7 +27,7 @@ FORTH_SRC = add.fs assert.fs blocks.fs bufio.fs cross.fs debug.fs \
 	test2.fs tools.fs toolsext.fs vars.fs vt100.fs wordinfo.fs
 
 SOURCES	= Makefile primitives primitives2c.el engine.c main.c io.c \
-	apollo68k.h decstation.h 386.h hppa.h sparc.h \
+	apollo68k.h decstation.h 386.h hppa.h sparc.h gforth.ds \
 	$(INCLUDES) $(FORTH_SRC)
 
 RCS_FILES = $(SOURCES) INSTALL ToDo model high-level
@@ -40,9 +40,10 @@ OBJECTS = engine.o io.o main.o
 
 # things that need a working forth system to be generated
 # this is used for antidependences,
-FORTH_GEN = primitives.i prim_labels.i prim_alias.4th kernl32l.fi kernl32b.fi
+FORTH_GEN = primitives.i prim_labels.i prim_alias.4th \
+	kernl32l.fi kernl32b.fi gforth.texi
 
-all:	gforth aliases.fs
+all:	gforth
 
 #from the gcc Makefile: 
 #"Deletion of files made during compilation.
@@ -56,7 +57,7 @@ all:	gforth aliases.fs
 # `realclean' also deletes everything that could be regenerated automatically."
 
 clean:		
-		-rm $(GEN)
+		-rm $(GEN) *.o *.s
 
 distclean:	clean
 		-rm machine.h machine.fs
@@ -103,6 +104,12 @@ aliases.fs:	primitives.b prims2x.fs
 
 primitives.fs:	primitives.b prims2x.fs
 		$(FORTH) prims2x.fs -e "s\" primitives.b\" ' output-forth process-file bye" >$@
+
+gforth.texi:	gforth.ds primitives.b ds2texi.fs prims2x.fs
+		$(FORTH) search-order.fs struct.fs debugging.fs ds2texi.fs prims2x.fs -e "s\" primitives.b\" ' register-doc process-file s\" gforth.ds\" r/o open-file throw ds2texi bye" >$@
+
+gforth.dvi:	gforth.texi
+		tex gforth.texi
 
 #primitives.4th:	primitives.b primitives2c.el
 #		$(EMACS) -batch -load primitives2c.el -funcall make-forth

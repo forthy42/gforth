@@ -181,7 +181,8 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
 
 #ifdef DEBUG
   fprintf(stderr,"ip=%x, sp=%x, rp=%x, fp=%x, lp=%x, up=%x\n",
-          ip,sp,rp,fp,lp,up);
+          (unsigned)ip,(unsigned)sp,(unsigned)rp,
+	  (unsigned)fp,(unsigned)lp,(unsigned)up);
 #endif
 
   if (ip == NULL)

@@ -737,7 +737,7 @@ c_addr2 = c_addr1 + 1;
 :
  1+ ;
 
-chars	n1 -- n2		core	cares
+(chars)		n1 -- n2	core	cares
 n2 = n1 * sizeof(Char);
 :
  ;

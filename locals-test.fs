@@ -94,9 +94,12 @@ until
 
 : xxx5
 { a }
+a drop    
 ahead
+assume-live
 begin
 [ ." after begin" localsinfo ]
+a drop    
 [ 1 cs-roll ]
 then
 [ ." after then" localsinfo ]
@@ -278,5 +281,10 @@ s" " s" " strcmp1 . cr
 ;
 teststrcmp1
 
+." testing the abominable locals-ext wordset" cr
+: puke locals| this read you can |
+    you read this can ;
+
+1 2 3 4 puke . . . . cr
 
 bye
