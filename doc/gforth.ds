@@ -207,6 +207,7 @@ Forth Tutorial
 * Memory Tutorial::             
 * Characters and Strings Tutorial::  
 * Alignment Tutorial::          
+* Files Tutorial::              
 * Interpretation and Compilation Semantics and Immediacy Tutorial::  
 * Execution Tokens Tutorial::   
 * Exceptions Tutorial::         
@@ -1460,6 +1461,7 @@ e.g., a loop is.
 * Memory Tutorial::             
 * Characters and Strings Tutorial::  
 * Alignment Tutorial::          
+* Files Tutorial::              
 * Interpretation and Compilation Semantics and Immediacy Tutorial::  
 * Execution Tokens Tutorial::   
 * Exceptions Tutorial::         
