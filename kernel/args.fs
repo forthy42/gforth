@@ -38,6 +38,14 @@ Variable argv ( -- addr ) \ gforth
 Variable argc ( -- addr ) \ gforth
 \g @code{Variable} -- the number of command-line arguments (including the command name).
 
+0 Value arg# ( -- addr ) \ gforth
+\g While processing the OS command line arguments, this points to the
+\g argument counter (otherwise @code{arg#} produces 0); @code{arg# @
+\g arg} produces the current argument, @code{1 arg# +!} will result in
+\g one argument being skipped, and @code{argc @ 1- arg# !} will skip
+\g all further arguments.  Don't increase @code{arg# @} above
+\g @code{argc @ 1-} (undefined behaviour)!
+    
 0 Value script? ( -- flag )
 
 : do-option ( addr1 len1 addr2 len2 -- n )
@@ -61,6 +69,7 @@ Variable argc ( -- addr ) \ gforth
 \    >tib @ >r #tib @ >r >in @ >r
     argc @ 1
     ?DO
+	rp@ to arg#
 	I arg over c@ [char] - <>
 	IF
 \ 	    2dup dup #tib ! >in ! >tib !
@@ -71,6 +80,7 @@ Variable argc ( -- addr ) \ gforth
 	THEN
     +LOOP
 \    r> >in ! r> #tib ! r> >tib !
+    0 to arg#
     false to script?
 ;
 

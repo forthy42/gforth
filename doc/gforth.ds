@@ -217,6 +217,7 @@ Forth Words
 * Files::                       
 * Blocks::                      
 * Other I/O::                   
+* OS command line arguments::   
 * Locals::                      
 * Structures::                  
 * Object-oriented Forth::       
@@ -831,11 +832,13 @@ As explained above, the image-specific command-line arguments for the
 default image @file{gforth.fi} consist of a sequence of filenames and
 @code{-e @var{forth-code}} options that are interpreted in the sequence
 in which they are given. The @code{-e @var{forth-code}} or
-@code{--evaluate @var{forth-code}} option evaluates the Forth
-code. This option takes only one argument; if you want to evaluate more
-Forth words, you have to quote them or use @code{-e} several times. To exit
+@code{--evaluate @var{forth-code}} option evaluates the Forth code. This
+option takes only one argument; if you want to evaluate more Forth
+words, you have to quote them or use @code{-e} several times. To exit
 after processing the command line (instead of entering interactive mode)
-append @code{-e bye} to the command line.
+append @code{-e bye} to the command line.  You can also process the
+command-line arguments with a Forth program (@pxref{OS command line
+arguments}).
 
 @cindex versions, invoking other versions of Gforth
 If you have several versions of Gforth installed, @code{gforth} will
@@ -4212,6 +4215,7 @@ the exercises in a .fs file in the distribution.
 * Files::                       
 * Blocks::                      
 * Other I/O::                   
+* OS command line arguments::   
 * Locals::                      
 * Structures::                  
 * Object-oriented Forth::       
@@ -8879,6 +8883,54 @@ problem yourself, and then return to regular processing.
 
 doc-broken-pipe-error
 
+
+@node OS command line arguments, Locals, Other I/O, Words
+@section OS command line arguments
+@cindex OS command line arguments
+@cindex command line arguments, OS
+@cindex arguments, OS command line
+
+The usual way to pass arguments to Gforth programs on the command line
+is via the @option{-e} option, e.g.
+
+@example
+gforth -e "123 456" foo.fs -e bye
+@end example
+
+However, you may want to interpret the command-line arguments directly.
+In that case, you can access the (image-specific) command-line arguments
+through the variables @code{argc} and @code{argv}. @code{arg} provides
+convenient access to @code{argv}.
+
+doc-argc
+doc-argv
+doc-arg
+
+If you are using these words from @code{'cold}, the (image-specific)
+arguments start at index 1.  If you are using these words during
+Gforth's argument processing (e.g., while including a file on the
+command line), you can use @code{arg#} to get the current index and for
+skipping arguments.
+
+doc-arg#
+
+Here's an example program using @code{arg#}:
+
+@example
+: echo ( -- )
+    argc @ arg# @ 1+ +do
+	i arg type space
+	1 arg# +!
+    loop ;
+
+echo cr bye
+@end example
+
+This can be invoked with
+
+@example
+gforth echo.fs hello world
+@end example
 
 @c -------------------------------------------------------------
 @node Locals, Structures, Other I/O, Words
@@ -14259,24 +14311,15 @@ You can make a turnkey image by letting @code{'cold} execute a word
 (your turnkey application) that never returns; instead, it exits Gforth
 via @code{bye} or @code{throw}.
 
-@cindex command-line arguments, access
-@cindex arguments on the command line, access
-You can access the (image-specific) command-line arguments through the
-variables @code{argc} and @code{argv}. @code{arg} provides convenient
-access to @code{argv}.
+You can access the (image-specific) command-line arguments through
+@code{argc}, @code{argv} and @code{arg} (@pxref{OS command line
+arguments}).
 
 If @code{'cold} exits normally, Gforth processes the command-line
 arguments as files to be loaded and strings to be evaluated.  Therefore,
 @code{'cold} should remove the arguments it has used in this case.
 
-
-
 doc-'cold
-doc-argc
-doc-argv
-doc-arg
-
-
 
 @c ******************************************************************
 @node Engine, Cross Compiler, Image Files, Top
