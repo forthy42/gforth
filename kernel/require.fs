@@ -23,12 +23,9 @@
 create included-files 0 , 0 , ( pointer to and count of included files )
 \ note: these names must not contain a "/" or "\"; otherwise a part of
 \ that name might be used when expanding "./" (see expandtopic).
-here ," *a file*" dup c@ swap 1 + swap
-here ," *a block*" dup c@ swap 1 + swap
-here ," *evaluated string*" dup c@ swap 1 + swap
-here ," *the terminal*" dup c@ swap 1 + swap
-, A, , A, , A, , A, here 8 cells -
-create image-included-files 4 , A, ( pointer to and count of included files )
+here ," *somewhere*" dup c@ swap 1 + swap
+, A, here 2 cells -
+create image-included-files 1 , A, ( pointer to and count of included files )
 \ included-files points to ALLOCATEd space, while image-included-files
 \ points to ALLOTed objects, so it survives a save-system
 
@@ -151,4 +148,4 @@ has? new-input [IF]
 
 : .included ( -- ) \ gforth
     \G list the names of the files that have been @code{included}
-    included-files 2@ .strings ;
+    included-files 2@ 2 cells under+ 1- .strings ;

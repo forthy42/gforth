@@ -32,7 +32,7 @@
 	    rdrop 2drop i unloop exit
 	endif
 	r> loop
-    drop 2drop 3 ;
+    drop 2drop 0 ;
 
 : compile-sourcepos ( compile-time: -- ; run-time: -- nfile nline )
     \ compile the current source position as literals: nfile is the
