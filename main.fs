@@ -68,6 +68,7 @@ include add.fs                 \ additional things
 include errore.fs
 include version.fs
 include kernel.fs              \ load kernel
+include conditionals.fs        \ load IF and co
 include extend.fs              \ load core-extended
 include tools.fs               \ load tools ( .s dump )
 include toolsext.fs

@@ -50,6 +50,7 @@ VARIABLE Level
 : level-        -7 Level +! ;
 
 VARIABLE nlflag
+VARIABLE uppercase	\ structure words are in uppercase
 
 DEFER nlcount ' noop IS nlcount
 
@@ -68,8 +69,14 @@ DEFER nlcount ' noop IS nlcount
                 nlflag @ IF (nl) nlflag off THEN
                 XPos @ over + cols u>= IF (nl) THEN ;
 
+: c-to-upper
+  dup [char] a >= over [char] z <= and if  bl -  then ;
+
 : ctype         ( adr len -- )
-                warp? dup XPos +! C-Output @ IF type ELSE 2drop THEN ;
+                warp? dup XPos +! C-Output @ 
+		IF uppercase @ IF bounds ?DO i c@ c-to-upper emit LOOP
+				  uppercase off ELSE type THEN
+		ELSE 2drop THEN ;
 
 : cemit         1 warp?
                 over bl = Level @ XPos @ = and
@@ -98,7 +105,8 @@ VARIABLE Colors Colors on
 ' (.string) IS .string
 
 
-: .struc        Str# .string ;
+: .struc        
+	uppercase on Str# .string ;
 
 \ CODES                                                 15may93jaw
 
@@ -212,46 +220,6 @@ VARIABLE C-Pass
 
 : c-lit
     Display? IF
-	dup @ dup abs 0 <# #S rot sign #> 0 .string bl cemit
-    THEN
-    cell+ ;
-
-: c-@local#
-    Display? IF
-	S" @local" 0 .string
-	dup @ dup 1 cells / abs 0 <# #S rot sign #> 0 .string bl cemit
-    THEN
-    cell+ ;
-
-: c-flit
-    Display? IF
-	dup f@ scratch represent 0=
-	IF    2drop  scratch 3 min 0 .string
-	ELSE
-	    IF  '- cemit  THEN  1-
-	    scratch over c@ cemit '. cemit 1 /string 0 .string
-	    'E cemit
-	    dup abs 0 <# #S rot sign #> 0 .string bl cemit
-	THEN THEN
-    float+ ;
-
-: c-f@local#
-    Display? IF
-	S" f@local" 0 .string
-	dup @ dup 1 floats / abs 0 <# #S rot sign #> 0 .string bl cemit
-    THEN
-    cell+ ;
-
-: c-laddr#
-    Display? IF
-	S" laddr# " 0 .string
-	dup @ dup abs 0 <# #S rot sign #> 0 .string bl cemit
-    THEN
-    cell+ ;
-
-: c-lp+!#
-    Display? IF
-	S" lp+!# " 0 .string
 	dup @ dup abs 0 <# #S rot sign #> 0 .string bl cemit
     THEN
     cell+ ;
@@ -383,44 +351,22 @@ VARIABLE C-Pass
         DebugBranch
         cell+ ;
 
-: c-?branch-lp+!#  c-?branch cell+ ;
-: c-branch-lp+!#   c-branch  cell+ ;
+: c-for
+        Display? IF nl S" FOR" .struc level+ THEN ;
+
+: .name-without
+	dup 1 cells - @ look IF name>string 1 /string 1- .struc ELSE drop THEN ;
+
+: c-loop
+        Display? IF level- nl .name-without bl cemit nl THEN
+        DebugBranch cell+ cell+ ;
 
 : c-do
-        Display? IF nl S" DO" .struc level+ THEN ;
+        Display? IF nl .name-without level+ THEN ;
 
 : c-?do
         Display? IF nl S" ?DO" .struc level+ THEN
         DebugBranch cell+ ;
-
-: c-for
-        Display? IF nl S" FOR" .struc level+ THEN ;
-
-: c-next
-        Display? IF level- nl S" NEXT " .struc nl THEN
-        DebugBranch cell+ cell+ ;
-
-: c-loop
-        Display? IF level- nl S" LOOP " .struc nl THEN
-        DebugBranch cell+ cell+ ;
-
-: c-+loop
-        Display? IF level- nl S" +LOOP " .struc nl THEN
-        DebugBranch cell+ cell+ ;
-
-: c-s+loop
-        Display? IF level- nl S" S+LOOP " .struc nl THEN
-        DebugBranch cell+ cell+ ;
-
-: c--loop
-        Display? IF level- nl S" -LOOP " .struc nl THEN
-        DebugBranch cell+ cell+ ;
-
-: c-next-lp+!#  c-next cell+ ;
-: c-loop-lp+!#  c-loop cell+ ;
-: c-+loop-lp+!#  c-+loop cell+ ;
-: c-s+loop-lp+!#  c-s+loop cell+ ;
-: c--loop-lp+!#  c--loop cell+ ;
 
 : c-leave
         Display? IF S" LEAVE " .struc THEN
@@ -454,56 +400,55 @@ VARIABLE C-Pass
 
 CREATE C-Table
         ' lit A,            ' c-lit A,
-	' @local# A,        ' c-@local# A,
-        ' flit A,           ' c-flit A,
-	' f@local# A,       ' c-f@local# A,
-	' laddr# A,         ' c-laddr# A,
-	' lp+!# A,          ' c-lp+!# A,
 	' (s") A,	    ' c-s" A,
         ' (.") A,	    ' c-." A,
         ' "lit A,           ' c-c" A,
         comp' leave drop A, ' c-leave A,
         comp' ?leave drop A, ' c-?leave A,
         ' (do) A,           ' c-do A,
+	' (+do) A,	    ' c-do A,
+	' (u+do) A,	    ' c-do A,
+	' (-do) A,	    ' c-do A,
+	' (u-do) A,	    ' c-do A,
         ' (?do) A,          ' c-?do A,
         ' (for) A,          ' c-for A,
         ' ?branch A,        ' c-?branch A,
         ' branch A,         ' c-branch A,
         ' (loop) A,         ' c-loop A,
-        ' (+loop) A,        ' c-+loop A,
-        ' (s+loop) A,       ' c-s+loop A,
-        ' (-loop) A,        ' c--loop A,
-        ' (next) A,         ' c-next A,
-        ' ?branch-lp+!# A,  ' c-?branch-lp+!# A,
-        ' branch-lp+!# A,   ' c-branch-lp+!# A,
-        ' (loop)-lp+!# A,   ' c-loop-lp+!# A,
-        ' (+loop)-lp+!# A,  ' c-+loop-lp+!# A,
-        ' (s+loop)-lp+!# A, ' c-s+loop-lp+!# A,
-        ' (-loop)-lp+!# A,  ' c--loop-lp+!# A,
-        ' (next)-lp+!# A,   ' c-next-lp+!# A,
+        ' (+loop) A,        ' c-loop A,
+        ' (s+loop) A,       ' c-loop A,
+        ' (-loop) A,        ' c-loop A,
+        ' (next) A,         ' c-loop A,
         ' ;s A,             ' c-exit A,
         ' (does>) A,        ' c-does> A,
         ' (abort") A,       ' c-abort" A,
         ' (compile) A,      ' c-(compile) A,
-        0 ,
+        0 ,		here 0 ,
+
+avariable c-extender
+c-extender !
 
 \ DOTABLE                                               15may93jaw
 
 : DoTable ( cfa -- flag )
         C-Table
-        BEGIN   dup @ dup
-        WHILE   2 pick <>
+        BEGIN   dup @ dup 0= 
+		IF drop cell+ @ dup 
+		  IF ( next table!) dup @ ELSE 
+			( end!) 2drop false EXIT THEN 
+		THEN
+		\ jump over to extender, if any 26jan97jaw
+       		2 pick <>
         WHILE   2 cells +
         REPEAT
         nip cell+ perform
         true
-        ELSE
-        2drop drop false
-        THEN ;
+	;
 
 : BranchTo? ( a-addr -- a-addr )
         Display?  IF     dup BranchAddr?
-                        IF BEGIN cell+ @ dup 20 u>
+                        IF
+				BEGIN cell+ @ dup 20 u>
                                 IF drop nl S" BEGIN " .struc level+
                                 ELSE
                                   dup Disable <>
@@ -594,7 +539,7 @@ IS discode
     S" DOES> " Com# .string XPos @ Level !
     >does-code see-threaded ;
 : seecol ( xt -- )
-    dup s" :" .defname cr
+    dup s" :" .defname nl
     2 Level !
     >body see-threaded ;
 : seefield ( xt -- )

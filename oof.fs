@@ -157,9 +157,8 @@ Objects definitions
     dup  IF    2@ >r recurse r> :ilist + @ swap 1+
          ELSE  drop  THEN ;
 
-: add-order ( addr -- n )  dup 0= ?EXIT  >r
-    get-order r> swap >r 0 swap
-    dup >r object-order r> :iface + @ interface-order
+: add-order ( addr -- n )  >r
+    get-order r> swap >r 0 swap object-order
     r> over >r + set-order r> ;
 
 : drop-order ( n -- )  0 ?DO  previous  LOOP ;
@@ -174,22 +173,22 @@ Objects definitions
   drop dup early?  IF >body @  THEN  compile, ;
 
 : findo    ( string -- cfa n )
-    o@ add-order >r
-    find
+    >r get-order 0
+    o@ object-order
+    o@ :iface + @ interface-order set-order
+    r> find
     ?dup 0= IF drop set-order true abort" method not found!" THEN
-    r> drop-order ;
+    >r >r set-order r> r> ;
 
 false Value method?
-false Value oset?
-
 : method,  ( object early? -- )  true to method?
     swap >o >r bl word  findo  0< state @ and
     IF  r> o,  ELSE  r> drop execute  THEN  o> false to method?  ;
 
-: early, ( object -- )  true to oset?  true  method,
-  state @ IF  postpone o>  THEN  false to oset? ;
-: late,  ( object -- )  true to oset?  false method,
-  state @ IF  postpone o>  THEN  false to oset? ;
+: early, ( object -- )  true  method,
+  state @ IF  postpone o>  THEN  ;
+: late,  ( object -- )  false method,
+  state @ IF  postpone o>  THEN  ;
 
 \ new,                                                 29oct94py
 
@@ -273,7 +272,7 @@ Objects definitions
   DOES> state @ IF  dup postpone Literal postpone >o  THEN early, ;
 : ptr,      ( o -- )  0 , ,
   DOES>  state @
-    IF    dup postpone Literal postpone @ postpone >o cell+
+    IF    postpone Literal postpone @ postpone >o cell+
     ELSE  @  THEN late, ;
 
 : array,  ( n o -- )  alloc @ >r static new[], r> alloc ! drop
@@ -373,7 +372,7 @@ Variable last-interface  0 last-interface !
 
 : lastob!  ( -- )  lastob @ dup
     BEGIN  nip dup @ here cell+ 2 pick ! dup 0= UNTIL  drop
-    dup , op! o@ lastob ! ;
+    dup , [ order ] op! o@ lastob ! ;
 
 : thread,  ( -- )  classlist @ , ;
 : var,     ( -- )  methods @ , vars @ , ;
@@ -452,54 +451,41 @@ Create object  immediate  0 (class \ do not create as subclass
          early     link        immediate
 	 early     '           immediate
 	 early     send        immediate
-	 early     with        immediate
-	 early     endwith     immediate
 	 
 \ base object class implementation part                23mar95py
 
-how:	0 parento !
-        0 childo !
-	0 nexto !
-        : class   ( -- )       Create immediate o@ (class ;
-        : :       ( -- )       Create immediate o@
-	  decl @ IF  instvar,    ELSE  instance,  THEN ;
-        : ptr     ( -- )       Create immediate o@
-          decl @ IF  instptr,    ELSE  ptr,       THEN ;
-        : asptr   ( addr -- )
-	  decl @ 0= abort" only in declaration!"
-	  Create immediate o@ , cell+ @ , instptr> ;
-        : []      ( n -- )     Create immediate o@
-          decl @ IF  instarray,  ELSE  array,     THEN ;
-        : new     ( -- o )     o@ state @
-          IF  postpone Literal postpone new,  ELSE  new,  THEN ;
-        : new[]   ( n -- o )   o@ state @
-          IF postpone Literal postpone new[], ELSE new[], THEN ;
-        : dispose ( -- )       ^ size @ dispose, ;
-        : bind    ( addr -- )  (bind ;
-        : bound   ( o1 o2 addr2  -- ) (bound ;
-        : link    ( -- o addr ) (link ;
-        : class?  ( class -- flag )  ^ parent? nip 0<> ;
-        : ::      ( -- )
-          state @ IF  ^ true method,  ELSE  inherit  THEN ;
-        : super   ( -- )       parento true method, ;
-        : is      ( cfa -- )   (is ;
-        : self    ( -- obj )   ^ ;
-        : init    ( -- )       ;
+how:     0 parento !
+         0 childo !
+	 0 nexto !
+         : class   ( -- )       Create immediate o@ (class ;
+         : :       ( -- )       Create immediate o@
+	     decl @ IF  instvar,    ELSE  instance,  THEN ;
+         : ptr     ( -- )       Create immediate o@
+           decl @ IF  instptr,    ELSE  ptr,       THEN ;
+         : asptr   ( addr -- )
+           decl @ 0= abort" only in declaration!"
+           Create immediate o@ , cell+ @ , instptr> ;
+         : []      ( n -- )     Create immediate o@
+           decl @ IF  instarray,  ELSE  array,     THEN ;
+         : new     ( -- o )     o@ state @
+           IF  postpone Literal postpone new,  ELSE  new,  THEN ;
+         : new[]   ( n -- o )   o@ state @
+           IF postpone Literal postpone new[], ELSE new[], THEN ;
+         : dispose ( -- )       ^ size @ dispose, ;
+         : bind    ( addr -- )  (bind ;
+         : bound   ( o1 o2 addr2  -- ) (bound ;
+         : link    ( -- o addr ) (link ;
+         : class?  ( class -- flag )  ^ parent? nip 0<> ;
+         : ::      ( -- )
+           state @ IF  ^ true method,  ELSE  inherit  THEN ;
+         : super   ( -- )       parento true method, ;
+         : is      ( cfa -- )   (is ;
+         : self    ( -- obj )   ^ ;
+         : init    ( -- )       ;
 
-        : '       ( -- xt )  bl word findo 0= abort" not found!"
-          state @ IF  postpone Literal  THEN ;
-	: send    ( xt -- )  execute ;
-
-	: with ( -- )
-          state @ oset? 0= and IF  postpone >o  THEN
-	  o@ add-order voc# ! false to oset?
-	  rdrop state @
-	  IF    o>
-	  ELSE  oset? IF  ^ THEN  o> postpone >o
-	  THEN
-          rdrop rdrop ;
-	: endwith  postpone o> 
-	  voc# @ drop-order ;
+         : '       ( -- xt )  bl word findo 0= abort" not found!"
+           state @ IF  postpone Literal  THEN ;
+	 : send    ( xt -- )  execute ;
 class; \ object
 
 \ interface                                            01sep96py
