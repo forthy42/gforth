@@ -136,13 +136,16 @@ Variable .arel
 : osize@  2 .onow @ IF  2*  THEN  ;
 
 \ Address modes                                        01may95py
-: #) ( disp -- reg )
-    .64bit @ IF  .arel on  disp !  55 4  EXIT  THEN
-    disp ! .anow @ IF  55 4  ELSE  66 2  THEN  disp# ! ;
-: *2   100 xor ;    : *4   200 xor ;    : *8   300 xor ;
 : index  ( breg1 ireg2 -- ireg )
     dup $10000 and >r 370 and swap dup $10000 and >r 7 and or
     SIB ! 1 SIB# ! r> r> 2* or 44 or ;
+: #) ( disp -- reg )
+    .64bit @ IF  disp !  44 55 index 4 disp# !  EXIT  THEN
+    disp ! .anow @ IF  55 4  ELSE  66 2  THEN  disp# ! ;
+: R#) ( disp -- reg )
+    .64bit @ 0= abort" RIP address only in 64 bit mode"
+    disp ! 4 disp# ! .arel on  55 ;
+: *2   100 xor ;    : *4   200 xor ;    : *8   300 xor ;
 : I) ( reg1 reg2 -- ireg )  .anow @ 0= abort" No Index!"
   *8  index ;
 : I#) ( disp32 reg -- ireg ) BP swap I) swap #) drop ;
@@ -251,16 +254,18 @@ $AB bc.b: stos  $AD bc.b: lods  $AF bc.b: scas
 \ mov                                                  23jan93py
 
 : assign#  byte? @ 0= IF  osize@ imm# !  ELSE 1 imm# ! THEN ;
-
-: ?ofax ( reg ax -- flag ) .anow @ IF 55 ELSE 66 THEN AX d= ;
+: ?64off  .64bit @ .anow @ 0= and IF  10 disp# ! THEN  0 sib# ! ;
+: ?ofax ( reg ax -- flag )
+    .64bit @ IF  44  ELSE  .anow @ IF 55 ELSE 66 THEN  THEN AX d= ;
 : mov ( r/m reg / reg r/m / reg -- )  2dup or 0> imm# @ and
   IF    assign#  reg?
         IF    7 and  $B8 or byte? @ 3 lshift xor  byte? off
+	      .64now @ IF  10 imm# !  THEN
         ELSE  0 >mod  $C7  THEN
   ELSE  2dup or $FFFF and $FF > IF  movxr exit  THEN
         2dup ?ofax
-        IF  2drop $A1  ELSE  2dup swap  ?ofax
-            IF  2drop $A3  ELSE  reg>mod $88 or  THEN
+        IF  2drop $A1  ?64off  ELSE  2dup swap  ?ofax
+            IF  2drop $A3  ?64off  ELSE  reg>mod $88 or  THEN
         THEN
   THEN  finishb ;
 
