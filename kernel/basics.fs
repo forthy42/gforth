@@ -63,8 +63,8 @@ hex
 
 has? ec 
 [IF]
-unlock ram-dictionary area nip lock
-Constant dictionary-end
+unlock ram-dictionary borders nip lock
+AConstant dictionary-end
 [ELSE]
 : dictionary-end ( -- addr )
     forthstart [ 3 cells ] Aliteral @ + ;
