@@ -95,7 +95,7 @@ Copyright @copyright{} 1995-1999 Free Software Foundation, Inc.
 @center Bernd Paysan
 @center Jens Wilke
 @sp 3
-@center This manual is permanently under construction and was last updated on 04-May-1999
+@center This manual is permanently under construction and was last updated on 05-Jun-1999
 
 @comment  The following two commands start the copyright page.
 @page
@@ -242,11 +242,18 @@ Control Structures
 
 Defining Words
 
-* Simple Defining Words::       Variables, values and constants
+* @code{CREATE}::
+* Variables::                   Variables and user variables
+* Constants::
+* Values::                      Initialised variables
 * Colon Definitions::
+* Anonymous Definitions::       Definitions without names
 * User-defined Defining Words::
+* Deferred words::              Allow forward references
+* Aliases::
 * Supplying names::
 * Interpretation and Compilation Semantics::
+* Combined words::
 
 The Text Interpreter
 
@@ -1166,6 +1173,7 @@ the system before leaving Gforth.
 
 doc-bye
 
+
 @comment ----------------------------------------------
 @node Command-line editing, Upper and lower case,Leaving Gforth,Gforth Environment
 @section Command-line editing
@@ -1177,7 +1185,6 @@ used to provide a command-line recall facility; if you type ctrl-P
 repeatedly you can recall successively older commands from this (or
 previous) session(s). The full list of command-line editing facilities is:
 
-@comment use @table? - anton
 @itemize @bullet
 @item
 @kbd{Ctrl-p} (``previous'') (or up-arrow) to recall successively older
@@ -1234,6 +1241,8 @@ Gforth never trims the size of the history file, so you should do this
 periodically, if necessary.
 
 @comment this is all defined in history.fs
+@comment NAC TODO the ctrl-D behaviour can either do a bye or a beep.. how is that option
+@comment chosen?
 
 
 
@@ -1243,7 +1252,7 @@ periodically, if necessary.
 @cindex case-sensitivity
 @cindex upper and lower case
 
-Gforth is case-insensitive, so you can enter definitions and invoke
+Gforth is case-insensitive; you can enter definitions and invoke
 Standard words using upper, lower or mixed case (however,
 @pxref{core-idef, Implementation-defined options, Implementation-defined
 options}).
@@ -1280,28 +1289,28 @@ Gforth uses these environment variables:
 
 @itemize @bullet
 @item
-@cindex GFORTHHIST - environment variable
-GFORTHHIST - (Unix systems only) specifies the directory in which to
+@cindex @code{GFORTHHIST} -- environment variable
+@code{GFORTHHIST} -- (Unix systems only) specifies the directory in which to
 open/create the history file, @file{.gforth-history}. Default:
 @code{$HOME}.
 
 @item
-@cindex GFORTHPATH - environment variable
-GFORTHPATH - specifies the path used when searching for the gforth image file and
+@cindex @code{GFORTHPATH} -- environment variable
+@code{GFORTHPATH} -- specifies the path used when searching for the gforth image file and
 for Forth source-code files.
 
 @item
-@cindex GFORTH - environment variable
-GFORTH - used by @file{gforthmi} @xref{gforthmi}.
+@cindex @code{GFORTH} -- environment variable
+@code{GFORTH} -- used by @file{gforthmi} @xref{gforthmi}.
 
 @item
-@cindex GFORTHD - environment variable
-GFORTHD - used by @file{gforthmi} @xref{gforthmi}.
+@cindex @code{GFORTHD} -- environment variable
+@code{GFORTHD} -- used by @file{gforthmi} @xref{gforthmi}.
 
 @item
-@cindex TMP, TEMP - environment variable
-TMP, TEMP - (non-Unix systems only) used as a potential location for the
-history file.
+@cindex @code{TMP}, @code{TEMP} - environment variable
+@code{TMP}, @code{TEMP} - (non-Unix systems only) used as a potential
+location for the history file.
 @end itemize
 
 @comment also POSIXELY_CORRECT LINES COLUMNS HOME but no interest in
@@ -1316,8 +1325,8 @@ are not set.
 @section Gforth files
 @cindex Gforth files
 
-When you Gforth on a Unix system in the default places, it installs
-files in these locations:
+When you install Gforth on a Unix system, it installs files in these
+locations by default:
 
 @itemize @bullet
 @item
@@ -1395,6 +1404,13 @@ lead to great productivity improvements.
 @c http://www.complang.tuwien.ac.at/anton/lvas/skriptum-stack.html 
 @c to see how I do it - anton 
 
+@c nac-> Where I have accepted your comments 100% and modified the text
+@c accordingly, I have deleted your comments. Elsewhere I have added a
+@c response like this to attempt to rationalise what I have done. Of
+@c course, this is a very clumsy mechanism for something that would be
+@c done far more efficiently over a beer. Please delete any dialogue
+@c you consider closed.
+
 When you invoke the Forth image, you will see a startup banner printed
 and nothing else (if you have Gforth installed on your system, try
 invoking it now, by typing @kbd{gforth@key{RET}}). Forth is now running
@@ -1438,6 +1454,7 @@ group of characters in turn, it makes two attempts to do something:
 
 @itemize @bullet
 @item
+@cindex name dictionary
 It tries to treat it as a command. It does this by searching a @dfn{name
 dictionary}. If the group of characters matches an entry in the name
 dictionary, the name dictionary provides the text interpreter with
@@ -1843,13 +1860,30 @@ words of your own.
 @c be better to keep them (or add run-time semantics), to make it easier to
 @c explain what compilation semantics usually does. - anton
 
+@c nac-> I removed the term ``default compilation sematics'' from the
+@c introductory chapter. Removing ``execution semantics'' was making
+@c everything simpler to explain, then I think the use of this term made
+@c everything more complex again. I replaced it with ``default
+@c semantics'' (which is used elsewhere in the manual) by which I mean
+@c ``a definition that has neither the immediate nor the compile-only
+@c flag set''. I reworded big chunks of the ``how does that work''
+@c section (and, unusually for me, I think I even made it shorter!).  See
+@c what you think -- I know I have not addressed your primary concern
+@c that it is too heavy-going for an introduction. From what I understood
+@c of your course notes it looks as though they might be a good framework. 
+@c Things that I've tried to capture here are some things that came as a
+@c great revelation here when I first understood them. Also, I like the
+@c fact that a very simple code example shows up almost all of the issues
+@c that you need to understand to see how Forth works. That's unique and
+@c worthwhile to emphasise.
+
 Now we're going to take another look at the definition of @code{add-two}
 from the previous section. From our knowledge of the way that the text
 interpreter works, we would have expected this result when we tried to
 define @code{add-two}:
 
 @example
-@kbd{: add-two 2 + . " ;@key{RET}}
+@kbd{: add-two 2 + . ;@key{RET}}
   ^^^^^^^
 Error: Undefined word
 @end example
@@ -1859,7 +1893,7 @@ works. The word @code{:} does two special things. The first special
 thing that it does prevents the text interpreter from ever seeing the
 characters @code{add-two}. The text interpreter uses a variable called
 @cindex modifying >IN
-@code{>IN} (pronounced ''to-in'') to keep track of where it is in the
+@code{>IN} (pronounced ``to-in'') to keep track of where it is in the
 input line. When it encounters the word @code{:} it behaves in exactly
 the same way as it does for any other word; it looks it up in the name
 dictionary, finds its xt and executes it. When @code{:} executes, it
@@ -1883,52 +1917,44 @@ variable called @code{state}, which affects the way that the text
 interpreter behaves. When Gforth starts up, @code{state} has the value
 0, and the text interpreter is said to be @dfn{interpreting}. During a
 colon definition (started with @code{:}), @code{state} is set to -1 and
-the text interpreter is said to be @dfn{compiling}. The word @code{;}
-ends the definition -- one of the things that it does is to change the
-value of @code{state} back to 0.
+the text interpreter is said to be @dfn{compiling}.
 
-We have already seen how the text interpreter behaves when it is
-interpreting; it looks for each character sequence in the dictionary,
-finds its xt and executes it, or it converts it to a number and pushes
-it onto the stack, or it fails to do either and generates an error.
+In this example, the text interpreter is compiling when it processes the
+string ``@code{2 + . ;}''. It still breaks the string down into
+character sequences in the same way. However, instead of pushing the
+number @code{2} onto the stack, it lays down (@dfn{compiles}) some magic
+into the definition of @code{add-two} that will make the number @code{2} get
+pushed onto the stack when @code{add-two} is @dfn{executed}. Similarly,
+the behaviours of @code{+} and @code{.} are also compiled into the
+definition.
 
-When the text interpreter is compiling, its behaviour is slightly
-different; it still looks for each character sequence in the dictionary
-and finds it, or converts it to a number, or fails to do either and
-generates an error.  But instead of the execution token of a word it
-finds and executes the compilation token.  For most words executing the
-compilation token results in laying down (@dfn{compiling}) the execution
-token, i.e., some magic to make that xt or number get executed or pushed
-at a later time; at the time that @code{add-two} is
-@dfn{executed}. Therefore, when you execute @code{add-two} its
-@dfn{run-time effect} is exactly the same as if you had typed @code{2 +
-.} outside of a definition, and pressed carriage-return.
+One category of words don't get compiled. These so-called @dfn{immediate
+words} get executed (performed @i{now}) regardless of whether the text
+interpreter is interpreting or compiling. The word @code{;} is an
+immediate word. Rather than being compiled into the definition, it
+executes. Its effect is to terminate the current definition, which
+includes changing the value of @code{state} back to 0.
+
+When you execute @code{add-two}, it has a @dfn{run-time effect} that is
+exactly the same as if you had typed @code{2 + . @key{RET}} outside of a
+definition.
 
 In Forth, every word or number can be described in terms of two
 properties:
 
 @itemize @bullet
 @item
-Its @dfn{interpretation semantics}, represented by the execution token.
-@item
-Its @dfn{compilation semantics}, represented by the compilation token.
-@end itemize
-
-The value of @code{state} determines whether the text interpreter will
-use the compilation or interpretation semantics of a word or number that
-it encounters.
-
-@itemize @bullet
-@item
 @cindex interpretation semantics
-When the text interpreter encounters a word or number in @dfn{interpret}
-state, it performs the @dfn{interpretation semantics} of the word or
-number.
+Its @dfn{interpretation semantics} describe how it will behave when the
+text interpreter encounters it in @dfn{interpret} state. The
+interpretation semantics of a word are represented by an @dfn{execution
+token}.
 @item
 @cindex compilation semantics
-When the text interpreter encounters a word or number in @dfn{compile}
-state, it performs the @dfn{compilation semantics} of the word or
-number.
+Its @dfn{compilation semantics} describe how it will behave when the
+text interpreter encounters it in @dfn{compile} state. The compilation
+semantics of a word are represented in an implementation-dependent way;
+Gforth uses a @dfn{compilation token}.
 @end itemize
 
 @noindent
@@ -1936,7 +1962,8 @@ Numbers are always treated in a fixed way:
 
 @itemize @bullet
 @item
-When the number is @dfn{interpreted}, its behaviour is to push the number onto the stack.
+When the number is @dfn{interpreted}, its behaviour is to push the
+number onto the stack.
 @item
 When the number is @dfn{compiled}, a piece of code is appended to the
 current definition that pushes the number when it runs. (In other words,
@@ -1945,8 +1972,8 @@ semantics until the run-time of the definition that it is being compiled
 into.)
 @end itemize
 
-The behaviour of a word is not so regular, but most have @i{default
-compilation semantics} which means that they behave like this:
+Words don't behave in such a regular way, but most have @i{default
+semantics} which means that they behave like this:
 
 @itemize @bullet
 @item
@@ -1958,19 +1985,15 @@ run-time behaviour is to do something useful).
 @end itemize
 
 @cindex immediate words
-The actual behaviour of any particular word depends upon the way in
-which it was defined. When the text interpreter finds the word in the
-name dictionary, it not only retrieves the xt for the word, it also
-retrieves some flags: the @dfn{compile-only} flag and the @dfn{immediate
-flag}. The compile-only flag indicates that the word has no
-interpretation semantics (the run-time behaviour for the default
-compilation semantics is not affected by this flag, however); any
-attempt to interpret a word that has the compile-only flag set will
-generate an error (for example, @code{IF} has no interpretation
-semantics). The immediate flag changes the compilation semantics of the
-word; if it is set, the compilation semantics are equal to the
-interpretation semantics (again ignoring the compile-only flag).  it. In
-other words, these so-called @dfn{immediate} words behave like this:
+The actual behaviour of any particular word can be controlled by using
+the words @code{immediate} and @code{compile-only} when the word is
+defined. These words set flags in the name dictionary entry of the most
+recently defined word, and these flags are retrieved by the text
+interpreter when it finds the word in the name dictionary.
+
+A word that is marked as @dfn{immediate} has compilation semantics that
+are identical to its interpretation semantics. In other words, it
+behaves like this:
 
 @itemize @bullet
 @item
@@ -1979,6 +2002,19 @@ The @dfn{interpretation semantics} of the word are to do something useful.
 The @dfn{compilation semantics} of the word are to do something useful
 (and actually the same thing); i.e., it is executed during compilation.
 @end itemize
+
+Marking a word as @dfn{compile-only} prohibits the text interpreter from
+performing the interpretation semantics of the word directly; an attempt
+to do so will generate an error. It is never necessary to use
+@code{compile-only} (and it is not even part of ANS Forth, though it is
+provided by many implementations) but it is good etiquette to apply it
+to a word that will not behave correctly (and might have unexpected
+side-effects) in interpret state. For example, it is only legal to use
+the conditional word @code{IF} within a definition. If you forget this
+and try to use it elsewhere, the fact that (in Gforth) it is marked as
+@code{compile-only} allows the text interpreter to generate a helpful
+error message rather than subjecting you to the consequences of your
+folly.
 
 This example shows the difference between an immediate and a
 non-immediate word:
@@ -2363,9 +2399,11 @@ quotes.
 Forth supports two styles of comment; the traditional @i{in-line} comment,
 @code{(} and its modern cousin, the @i{comment to end of line}; @code{\}.
 
+
 doc-(
 doc-\
 doc-\G
+
 
 @node Boolean Flags, Arithmetic, Comments, Words
 @section Boolean Flags
@@ -2376,10 +2414,12 @@ flag @code{false} and a flag with all bits set represents the flag
 @code{true}. Words that check a flag (for example, @code{IF}) will treat
 a cell that has @i{any} bit set as @code{true}.
 
+
 doc-true
 doc-false
 doc-on
 doc-off
+
 
 @node Arithmetic, Stack Manipulation, Boolean Flags, Words
 @section Arithmetic
@@ -2415,6 +2455,7 @@ cell in size. They can be signed or unsigned, depending upon how you
 treat them. @xref{Number Conversion} for the rules used by the text
 interpreter for recognising single-precision integers.
 
+
 doc-+
 doc-1+
 doc--
@@ -2430,9 +2471,11 @@ doc-max
 doc-d>s
 doc-floored
 
+
 @node Bitwise operations, Double precision, Single precision, Arithmetic
 @subsection Bitwise operations
 @cindex bitwise operation words
+
 
 doc-and
 doc-or
@@ -2444,6 +2487,7 @@ doc-2*
 doc-d2*
 doc-2/
 doc-d2/
+
 
 @node Double precision, Numeric comparison, Bitwise operations, Arithmetic
 @subsection Double precision
@@ -2462,6 +2506,7 @@ using @code{s>d}. The moral of the story is that you cannot convert a
 number without knowing whether it represents an unsigned or a
 signed number.
 
+
 doc-s>d
 doc-d+
 doc-d-
@@ -2470,9 +2515,11 @@ doc-dabs
 doc-dmin
 doc-dmax
 
+
 @node Numeric comparison, Mixed precision, Double precision, Arithmetic
 @subsection Numeric comparison
 @cindex numeric comparison words
+
 
 doc-<
 doc-<=
@@ -2490,8 +2537,7 @@ doc-0>=
 
 doc-u<
 doc-u<=
-@c TODO why u<> and u= ... they are the same as <> and =
-@c commented them out because they are unnecessary
+@c u<> and u= exist but are the same as <> and =
 @c doc-u<>
 @c doc-u=
 doc-u>
@@ -2515,14 +2561,17 @@ doc-d0>=
 
 doc-du<
 doc-du<=
+@c du<> and du= exist but are the same as d<> and d=
 @c doc-du<>
 @c doc-du=
 doc-du>
 doc-du>=
 
+
 @node Mixed precision, Floating Point, Numeric comparison, Arithmetic
 @subsection Mixed precision
 @cindex mixed precision arithmetic words
+
 
 doc-m+
 doc-*/
@@ -2533,6 +2582,7 @@ doc-m*/
 doc-um/mod
 doc-fm/mod
 doc-sm/rem
+
 
 @node Floating Point,  , Mixed precision, Arithmetic
 @subsection Floating Point
@@ -2554,6 +2604,7 @@ avoid them), you might start with @cite{David Goldberg, What Every
 Computer Scientist Should Know About Floating-Point Arithmetic, ACM
 Computing Surveys 23(1):5@minus{}48, March 1991}
 (@url{http://www.validgh.com/goldberg/paper.ps}).
+
 
 doc-d>f
 doc-f>d
@@ -2644,16 +2695,16 @@ characters, cells, addresses, and double cells.
 
 @cindex floating-point stack
 @item
-A floating point stack -- for floating point numbers.
+A floating point stack -- for holding floating point (FP) numbers.
 
 @cindex return stack
 @item
-A return stack -- for storing the return addresses of colon
+A return stack -- for holding the return addresses of colon
 definitions and other (non-FP) data.
 
 @cindex locals stack
 @item
-A locals stack for storing local variables.
+A locals stack -- for holding local variables.
 @end itemize
 
 @menu
@@ -2668,6 +2719,7 @@ A locals stack for storing local variables.
 @subsection Data stack
 @cindex data stack manipulation words
 @cindex stack manipulations words, data stack
+
 
 doc-drop
 doc-nip
@@ -2687,6 +2739,7 @@ doc-2over
 doc-2tuck
 doc-2swap
 doc-2rot
+
 
 @node Floating point stack, Return stack, Data stack, Stack Manipulation
 @subsection Floating point stack
@@ -2713,6 +2766,7 @@ doc-fswap
 doc-fpick
 doc-frot
 
+
 @node Return stack, Locals stack, Floating point stack, Stack Manipulation
 @subsection Return stack
 @cindex return stack manipulation words
@@ -2736,6 +2790,7 @@ doc-2r>
 doc-2r@
 doc-2rdrop
 
+
 @node Locals stack, Stack pointer manipulation, Return stack, Stack Manipulation
 @subsection Locals stack
 
@@ -2745,6 +2800,7 @@ doc-2rdrop
 @subsection Stack pointer manipulation
 @cindex stack pointer manipulation words
 
+@c removed s0 r0 l0 -- they are obsolete aliases for sp0 rp0 lp0
 doc-sp0
 doc-sp@
 doc-sp!
@@ -2757,6 +2813,7 @@ doc-rp!
 doc-lp0
 doc-lp@
 doc-lp!
+
 
 @node Memory, Control Structures, Stack Manipulation, Words
 @section Memory
@@ -2808,8 +2865,6 @@ from one run to the next).
 
 @subsubsection ANS Forth dictionary details
 
-@c !! I have deleted some of the stuff this section refers to - anton
-
 This section is just informative, you can skip it if you are in a hurry.
 
 When you create a colon definition, the text interpreter compiles the
@@ -2817,7 +2872,7 @@ code for the definition into the code space and compiles the name
 of the definition into the header space, together with other
 information about the definition (such as its execution token).
 
-When you create a variable, the execution of @code{variable} will
+When you create a variable, the execution of @code{Variable} will
 compile some code, assign one cell in data space, and compile the name
 of the variable into the header space.
 
@@ -2904,7 +2959,6 @@ on the @i{target} system could implement a protocol across a
 communication link that would allow it to interrogate the header space.
 @end itemize
 
-
 @node Dictionary allocation, Heap Allocation, Memory model, Memory
 @subsection Dictionary allocation
 @cindex reserving data space
@@ -2979,6 +3033,7 @@ doc-resize
 @subsection Memory Access
 @cindex memory access words
 
+
 doc-@
 doc-!
 doc-+!
@@ -3032,6 +3087,7 @@ are aligned for all purposes.
 Note that the ANS Forth word @code{char} has nothing to do with address
 arithmetic.
 
+
 doc-chars
 doc-char+
 doc-cells
@@ -3051,6 +3107,7 @@ doc-dfaligned
 doc-maxaligned
 doc-cfaligned
 doc-address-unit-bits
+
 
 @node Memory Blocks,  , Address arithmetic, Memory
 @subsection Memory Blocks
@@ -3075,6 +3132,7 @@ You can only use any of these words @i{portably} to access data space.
 @comment describes MOVE as a word that requires a CELL-aligned source
 @comment and destination address but a xtranfer count that need not
 @comment be a multiple of CELL.
+
 doc-move
 doc-erase
 doc-cmove
@@ -3085,6 +3143,7 @@ doc-compare
 doc-search
 doc--trailing
 doc-/string
+
 
 @comment TODO examples
 
@@ -3116,6 +3175,12 @@ yet, although many schemes have been proposed.
 @c what's the purpose of all these @i? Maybe we should define a macro
 @c so we can produce logical markup.  - anton
 
+@c nac-> When I started working on the manual, a mixture of @i and @var
+@c were used inconsistently in code examples and \Glossary entries. These
+@c two behave differently in info format so I decided to standardize on @i.
+@c Logical markup would be better but texi isn't really upto it, and
+@c texi2html just ignores macros.
+
 @cindex @code{IF} control structure
 @example
 @i{flag}
@@ -3125,8 +3190,8 @@ ENDIF
 @end example
 @noindent
 
-@var{code} is executed if @var{flag} is non-zero (that's truth as far as
-@code{IF} etc. are concerned).
+If @i{flag} is non-zero (as far as @code{IF} etc. are concerned, a cell
+with any bit set represents truth) @i{code} is executed.
 
 @example
 @i{flag}
@@ -3137,7 +3202,8 @@ ELSE
 ENDIF
 @end example
 
-If @var{flag} is true, perform @var{code1}, otherwise @var{code2}.
+If @var{flag} is true, @i{code1} is executed, otherwise @i{code2} is
+executed.
 
 You can use @code{THEN} instead of @code{ENDIF}. Indeed, @code{THEN} is
 standard, and @code{ENDIF} is not, although it is quite popular. We
@@ -3247,9 +3313,11 @@ The index of the innermost loop can be accessed with @code{i}, the index
 of the next loop with @code{j}, and the index of the third loop with
 @code{k}.
 
+
 doc-i
 doc-j
 doc-k
+
 
 The loop control data are kept on the return stack, so there are some
 restrictions on mixing return stack accesses and counted loop words. In
@@ -3396,6 +3464,7 @@ entry represents a backward branch target. A few words are the basis for
 building any control structure possible (except control structures that
 need storage, like calls, coroutines, and backtracking).
 
+
 doc-if
 doc-ahead
 doc-then
@@ -3405,6 +3474,7 @@ doc-again
 doc-cs-pick
 doc-cs-roll
 
+
 The Standard words @code{CS-PICK} and @code{CS-ROLL} allow you to
 manipulate the control-flow stack in a portable way. Without them, you
 would need to know how many stack items are occupied by a control-flow
@@ -3413,17 +3483,24 @@ but this may change in the future).
 
 Some standard control structure words are built from these words:
 
+
 doc-else
 doc-while
 doc-repeat
 
+
+@noindent
 Gforth adds some more control-structure words:
+
 
 doc-endif
 doc-?dup-if
 doc-?dup-0=-if
 
+
+@noindent
 Counted loop words constitute a separate group of words:
+
 
 doc-?do
 doc-+do
@@ -3441,6 +3518,7 @@ doc-?leave
 doc-unloop
 doc-done
 
+
 The standard does not allow using @code{CS-PICK} and @code{CS-ROLL} on
 @i{do-sys}. Gforth allows it, but it's your job to ensure that for
 every @code{?DO} etc. there is exactly one @code{UNLOOP} on any path
@@ -3448,12 +3526,15 @@ through the definition (@code{LOOP} etc. compile an @code{UNLOOP} on the
 fall-through path). Also, you have to ensure that all @code{LEAVE}s are
 resolved (by using one of the loop-ending words or @code{DONE}).
 
+@noindent
 Another group of control structure words are:
+
 
 doc-case
 doc-endcase
 doc-of
 doc-endof
+
 
 @i{case-sys} and @i{of-sys} cannot be processed using @code{CS-PICK} and
 @code{CS-ROLL}.
@@ -3513,8 +3594,10 @@ definition. If you want to write a directly recursive definition, you
 can use @code{recursive} to make the current definition visible, or
 @code{recurse} to call the current definition directly.
 
+
 doc-recursive
 doc-recurse
+
 
 @comment TODO add example of the two recursion methods
 @quotation
@@ -3539,14 +3622,14 @@ Defer foo
 IS foo
 @end example
 
-Deferred words are discussed in more detail in @ref{Simple
-Defining Words}.
+Deferred words are discussed in more detail in @ref{Deferred words}.
 
 The current definition returns control to the calling definition when
 the end of the definition is reached or @code{EXIT} is encountered.
 
 doc-exit
 doc-;s
+
 
 @node Exception Handling,  , Calls and returns, Control Structures
 @subsection Exception Handling
@@ -3593,6 +3676,9 @@ would be:
 @end example
 
 @c TOS is undefined. - anton
+
+@c nac-> TODO -- I need to look at this example again.
+
 Whilst @code{foo} executes, it can call other words to any level of
 nesting, as usual.  If @code{foo} (and all the words that it calls)
 execute successfully, control will ultimately pass to the word following
@@ -3617,9 +3703,9 @@ definition of @code{top-level} and work backwards:
 @example
 : lowest-level ( -- c )
     key dup 27 = if
-	1 throw \ ESCAPE key pressed
+        1 throw \ ESCAPE key pressed
     else
-	." lowest-level successfull" CR
+        ." lowest-level successful" CR
     then
 ;
 
@@ -3627,21 +3713,21 @@ definition of @code{top-level} and work backwards:
     lowest-level
     \ at this level consider a CTRL-U to be a fatal error
     dup 21 = if \ CTRL-U
-	2 throw
+        2 throw
     else
-	." lower-level successfull" CR
+        ." lower-level successful" CR
     then
 ;
 
 : low-level ( -- c )
     ['] lower-level catch
     ?dup if
-	\ error occurred - do we recognise it?
-	dup 1 = if
-	    \ ESCAPE key pressed.. pretend it was an E
-	    [char] E
-	else throw \ propogate the error upwards
-	then
+        \ error occurred - do we recognise it?
+        dup 1 = if
+            \ ESCAPE key pressed.. pretend it was an E
+            [char] E
+        else throw \ propogate the error upwards
+        then
     then
     ." low-level successfull" CR
 ;
@@ -3649,9 +3735,9 @@ definition of @code{top-level} and work backwards:
 : top-level ( -- )
     CR ['] low-level catch \ CATCH is used like EXECUTE
     ?dup if \ error occurred..
-	." Error " . ." occurred - contact your supplier"
+        ." Error " . ." occurred - contact your supplier"
     else
-	." The '" emit ." ' key was pressed" CR
+        ." The '" emit ." ' key was pressed" CR
     then
 ;
 @end example
@@ -3676,6 +3762,7 @@ co-exist in memory without any clash of @code{throw} codes. A definition
 of @code{exception} in ANS Forth is provided in
 @file{compat/exception.fs}.
 
+
 doc-quit
 doc-abort
 doc-abort"
@@ -3685,25 +3772,31 @@ doc-throw
 doc---exception-exception
 
 
+
 @c -------------------------------------------------------------
 @node Defining Words, The Text Interpreter, Control Structures, Words
 @section Defining Words
 @cindex defining words
 
 @menu
-* Simple Defining Words::       Variables, values and constants
+* CREATE::
+* Variables::                   Variables and user variables
+* Constants::
+* Values::                      Initialised variables
 * Colon Definitions::
+* Anonymous Definitions::       Definitions without names
 * User-defined Defining Words::
+* Deferred words::              Allow forward references
+* Aliases::
 * Supplying names::
 * Interpretation and Compilation Semantics::
+* Combined words::
 @end menu
 
-@node Simple Defining Words, Colon Definitions, Defining Words, Defining Words
-@subsection Simple Defining Words
+@node CREATE, Variables, Defining Words, Defining Words
+@subsection @code{CREATE}
 @cindex simple defining words
 @cindex defining words, simple
-
-@c split this section?
 
 Defining words are used to create new entries in the dictionary. The
 simplest defining word is @code{CREATE}. @code{CREATE} is used like
@@ -3738,31 +3831,6 @@ new-word2 @@ .      \ get address, fetch from it and display
 1234 new-word2 !   \ new value, get address, store to it
 @end example
 
-As a final refinement, the whole code sequence can be wrapped up in a
-defining word (pre-empting the subject of the next section), making it
-easier to create new variables:
-
-@example
-: myvariable ( "name" -- a-addr ) CREATE 0 , ;
-
-myvariable foo
-myvariable joe
-
-45 3 * foo !   \ set foo to 135
-1234 joe !     \ set joe to 1234
-3 joe +!       \ increment joe by 3.. to 1237
-@end example
-
-Not surprisingly, there is no need to define @code{myvariable}, since
-Forth already has a definition @code{Variable}. It behaves in exactly
-the same way as @code{myvariable}. Forth also provides @code{2Variable}
-and @code{fvariable} for double and floating-point variables,
-respectively.
-
-doc-variable
-doc-2variable
-doc-fvariable
-
 @cindex arrays
 A similar mechanism can be used to create arrays. For example, an
 80-character text input buffer:
@@ -3778,6 +3846,42 @@ You can build arbitrarily complex data structures by allocating
 appropriate areas of memory. @xref{Structures} for further discussions
 of this, and to learn about some Gforth tools that make it easier.
 
+
+@node Variables, Constants, CREATE, Defining Words
+@subsection Variables
+@cindex variables
+
+The previous section showed how a sequence of commands could be used to
+generate a variable.  As a final refinement, the whole code sequence can
+be wrapped up in a defining word (pre-empting the subject of the next
+section), making it easier to create new variables:
+
+@example
+: myvariableX ( "name" -- a-addr ) CREATE 1 cells allot ;
+: myvariable0 ( "name" -- a-addr ) CREATE 0 , ;
+
+myvariableX foo \ variable foo starts off with an unknown value
+myvariable0 joe \ whilst joe is initialised to 0
+
+45 3 * foo !   \ set foo to 135
+1234 joe !     \ set joe to 1234
+3 joe +!       \ increment joe by 3.. to 1237
+@end example
+
+Not surprisingly, there is no need to define @code{myvariable}, since
+Forth already has a definition @code{Variable}. ANS Forth does not
+require a @code{Variable} to be initialised when it is created (i.e., it
+behaves like @code{myvariableX}). In contrast, Gforth's @code{Variable}
+initialises the variable to 0 (i.e., it behaves exactly like
+@code{myvariable0}). Forth also provides @code{2Variable} and
+@code{fvariable} for double and floating-point variables,
+respectively -- both are initialised to 0 in Gforth.
+
+doc-variable
+doc-2variable
+doc-fvariable
+
+
 @cindex user variables
 @cindex user space
 The defining word @code{User} behaves in the same way as @code{Variable}.
@@ -3792,9 +3896,13 @@ doc-user
 @comment should document tasker.fs (with some examples) elsewhere
 @comment in this manual, then expand on user space and user variables.
 
-After @code{CREATE} and @code{Variable}s, the next defining word to
-consider is @code{Constant}. @code{Constant} allows you to declare a
-fixed value and refer to it by name. For example:
+
+@node Constants, Values, Variables, Defining Words
+@subsection Constants
+@cindex constants
+
+@code{Constant} allows you to declare a fixed value and refer to it by
+name. For example:
 
 @example
 12 Constant INCHES-PER-FOOT
@@ -3820,15 +3928,21 @@ doc-2constant
 doc-fconstant
 
 @c that's too deep, and it's not necessarily true for all ANS Forths. - anton
+@c nac-> How could that not be true in an ANS Forth? You can't define a
+@c constant, use it and then delete the definition of the constant..
+@c I agree that it's rather deep, but IMO it is an important difference
+@c relative to other programming languages.. often it's annoying: it
+@c certainly changes my programming style relative to C.
+
 Constants in Forth behave differently from their equivalents in other
 programming languages. In other languages, a constant (such as an EQU in
 assembler or a #define in C) only exists at compile-time; in the
 executable program the constant has been translated into an absolute
 number and, unless you are using a symbolic debugger, it's impossible to
 know what abstract thing that number represents. In Forth a constant has
-an entry in the header space and remains there after the code that
-uses it has been defined. In fact, it must remain in the dictionary
-since it has run-time duties to perform. For example:
+an entry in the header space and remains there after the code that uses
+it has been defined. In fact, it must remain in the dictionary since it
+has run-time duties to perform. For example:
 
 @example
 12 Constant INCHES-PER-FOOT
@@ -3860,16 +3974,28 @@ a second dictionary for holding transient words such that this second
 dictionary can be deleted later in order to recover memory
 space. However, there is no standard way of doing this.
 
-One aspect of constants and variables that can sometimes be confusing is
-that they have different stack effects; one returns its value whilst the
-other returns the address of its value. The defining word @code{Value}
-provides an alternative to @code{Variable}, and has the same stack
-effect as a constant. A @code{Value} needs an additional word, @code{TO}
-to allow its value to be changed. Here are some examples:
+
+@node Values, Colon Definitions, Constants, Defining Words
+@subsection Values
+@cindex values
+
+A @code{Value} is like a @code{Variable} but with two important
+differences:
+
+@itemize @bullet
+@item
+A @code{Value} is initialised when it is declared; like a
+@code{Constant} but unlike a @code{Variable}.
+@item
+A @code{Value} returns its value rather than its address when it is
+executed; i.e., it has the same run-time behaviour as @code{Constant}.
+@end itemize
+
+A @code{Value} needs an additional word, @code{TO} to allow its value to
+be changed. Here are some examples:
 
 @example
-12 Value APPLES \ a Value is initialised when it is declared.. like a
-                \ constant but unlike a variable
+12 Value APPLES \ Define APPLES with an initial value of 12
 34 TO APPLES    \ Change the value of APPLES. TO is a parsing word
 APPLES          \ puts 34 on the top of the stack.
 @end example
@@ -3877,119 +4003,8 @@ APPLES          \ puts 34 on the top of the stack.
 doc-value
 doc-to
 
-The defining word @code{Defer} allows you to define a word by name
-without defining its behaviour; the definition of its behaviour is
-deferred. Here are two situation where this can be useful:
 
-@itemize @bullet
-@item
-Where you want to allow the behaviour of a word to be altered later, and
-for all precompiled references to the word to change when its behaviour
-is changed.
-@item
-For mutual recursion; @xref{Calls and returns}.
-@end itemize
-
-In the following example, @code{foo} always invokes the version of
-@code{greet} that prints ``@code{Good morning}'' whilst @code{bar}
-always invokes the version that prints ``@code{Hello}''. There is no way
-of getting @code{foo} to use the later version without re-ordering the
-source code and recompilng it.
-
-@example
-: greet ." Good morning" ;
-: foo ... greet ... ;
-: greet ." Hello" ;
-: bar ... greet ... ;
-@end example
-
-This problem can be solved by defining @code{greet} as a @code{Defer}red
-word. The behaviour of a @code{Defer}red word can be defined and
-redefined at any time by using @code{IS} to associate the xt of a
-previously-defined word with it. The previous example becomes:
-
-@example
-Defer greet
-: foo ... greet ... ;
-: bar ... greet ... ;
-: greet1 ." Good morning" ;
-: greet2 ." Hello" ;
-' greet2 <IS> greet  \ make greet behave like greet2
-@end example
-
-One thing to note is that @code{<IS>} consumes it's name when it is
-executed.  If you want to specify the name at compile time, use
-@code{[IS]}:
-
-@example
-: set-greet ( xt -- )
-  [IS] greet ;
-
-' greet1 set-greet
-@end example
-
-A deferred word can only inherit default semantics from the xt (because
-that is all that an xt can represent -- @pxref{Tokens for Words} for
-more discussion of this). However, the semantics of the deferred word
-itself can be modified at the time that it is defined. For example:
-
-@example
-: bar .... ; compile-only
-Defer fred immediate
-Defer jim
-
-' bar <IS> jim  \ jim has default semantics
-' bar <IS> fred \ fred is immediate
-@end example
-
-doc-defer
-doc-<is>
-doc-[is]
-@comment TODO document these: what's defers [is]
-doc-what's
-doc-defers
-
-Definitions in ANS Forth for @code{defer}, @code{<is>} and
-@code{[is]} are provided in @file{compat/defer.fs}.
-
-The defining word @code{Alias} allows you to define a word by name that
-has the same behaviour as some other word. Here are two situation where
-this can be useful:
-
-@itemize @bullet
-@item
-When you want access to a word's definition from a different word list
-(for an example of this, see the definition of the @code{Root} word list
-in the Gforth source).
-@item
-When you want to create a synonym; a definition that can be known by
-either of two names (for example, @code{THEN} and @code{ENDIF} are
-aliases).
-@end itemize
-
-The word whose behaviour the alias is to inherit is represented by an
-xt. Therefore, the alias only inherits default semantics from its
-ancestor. The semantics of the alias itself can be modified at the time
-that it is defined. For example:
-
-@example
-: foo ... ; immediate
-
-' foo Alias bar \ bar is not an immediate word
-' foo Alias fooby immediate \ fooby is an immediate word
-@end example
-
-@c "combined words" is an undefined term
-Words that are aliases have the same xt, different headers in the
-dictionary, and consequently different name tokens (@pxref{Tokens for
-Words}) and possibly different immediate flags.  An alias can only have
-default or immediate compilation semantics; you can define aliases for
-combined words with @code{interpret/compile:}.
-
-@c distribute this to the appropriate paragraphs? - anton
-doc-alias
-
-@node Colon Definitions, User-defined Defining Words, Simple Defining Words, Defining Words
+@node Colon Definitions, Anonymous Definitions, Values, Defining Words
 @subsection Colon Definitions
 @cindex colon definitions
 
@@ -4010,7 +4025,63 @@ discussion of some of the issues involved.
 doc-:
 doc-;
 
-@node User-defined Defining Words, Supplying names, Colon Definitions, Defining Words
+
+@node Anonymous Definitions, User-defined Defining Words, Colon Definitions, Defining Words
+@subsection Anonymous Definitions
+@cindex colon definitions
+@cindex defining words without name
+
+Sometimes you want to define an @dfn{anonymous word}; a word without a
+name. You can do this with:
+
+doc-:noname
+
+This leaves the execution token for the word on the stack after the
+closing @code{;}. Here's an example in which a deferred word is
+initialised with an @code{xt} from an anonymous colon definition:
+
+@example
+Defer deferred
+:noname ( ... -- ... )
+  ... ;
+IS deferred
+@end example
+
+@noindent
+Gforth provides an alternative way of doing this, using two separate
+words:
+
+doc-noname
+@cindex execution token of last defined word
+doc-lastxt
+
+@noindent
+The previous example can be rewritten using @code{noname} and
+@code{lastxt}:
+
+@example
+Defer deferred
+noname : ( ... -- ... )
+  ... ;
+lastxt IS deferred
+@end example
+
+@noindent
+@code{noname} works with any defining word, not just @code{:}.
+
+@code{lastxt} also works when the last word was not defined as
+@code{noname}. It also has the useful property that is is valid as soon
+as the header for a definition has been built. Thus:
+
+@example
+lastxt . : foo [ lastxt . ] ; ' foo .
+@end example
+
+@noindent
+prints 3 numbers; the last two are the same.
+
+
+@node User-defined Defining Words, Deferred words, Anonymous Definitions, Defining Words
 @subsection User-defined Defining Words
 @cindex user-defined defining words
 @cindex defining words, user-defined
@@ -4081,21 +4152,6 @@ see foo
 \ use ' stats . to show that 107645672 is the xt for stats
 @end example
 
-
-@c a deferred word is not neccessary for these examples. - anton
-Rather than edit your application's source code to change every @code{:}
-to a @code{my:}, use a deferred word:
-
-@example
-: real: : ;     \ retain access to the original
-defer :         \ redefine as a deferred word
-' my: IS :      \ use special version of :
-\
-\ load application here
-\
-' real: IS :    \ go back to the original
-@end example
-
 You can use techniques like this to make new defining words in terms of
 @i{any} existing defining word.
 
@@ -4151,17 +4207,8 @@ is executed, using parameters (data) that are private and specific to
 the child word.
 @end itemize
 
-@c NAC I think this is a really bad example, because it diminishes
-@c rather than emphasising the fact that some important stuff happens
-@c at define time, and other important stuff happens at child-invocation
-@c time, and that those two times are potentially very different.
-
-@c Well, IMO CREATE-DOES> is usually presented with much ado, making
-@c people think that it's hard to understand, and making those people who
-@c understand it easily think that it's hyped.  I prefer presenting it in a
-@c diminished way and only emphasize the special issues later. - anton
-
-In other words, if you make the following definitions:
+Another way of understanding the behaviour of @code{def-word} and
+@code{name} is to say that, if you make the following definitions:
 @example
 : def-word1 ( "name" -- )
     CREATE @i{code1} ;
@@ -4172,7 +4219,8 @@ In other words, if you make the following definitions:
 def-word1 name1
 @end example
 
-Using @code{name1 action1} is equivalent to using @code{name}.
+@noindent
+Then using @code{name1 action1} is equivalent to using @code{name}.
 
 The classic example is that you can define @code{CONSTANT} in this way:
 
@@ -4190,7 +4238,7 @@ DOES> ( -- w )
 When you create a constant with @code{5 CONSTANT five}, a set of
 define-time actions take place; first a new word @code{five} is created,
 then the value 5 is laid down in the body of @code{five} with
-@code{,}. When @code{five} is invoked, the address of the body is put on
+@code{,}. When @code{five} is executed, the address of the body is put on
 the stack, and @code{@@} retrieves the value 5. The word @code{five} has
 no code of its own; it simply contains a data field and a pointer to the
 code that follows @code{DOES>} in its defining word. That makes words
@@ -4334,16 +4382,154 @@ CREATE name EXECUTE ( ... -- ... )
     @i{initialization}
 @end example
 
-You can get the address of the body of a word with:
 
 doc->body
 
-@node Supplying names, Interpretation and Compilation Semantics, User-defined Defining Words, Defining Words
+
+@node Deferred words, Aliases, User-defined Defining Words, Defining Words
+@subsection Deferred words
+@cindex deferred words
+
+The defining word @code{Defer} allows you to define a word by name
+without defining its behaviour; the definition of its behaviour is
+deferred. Here are two situation where this can be useful:
+
+@itemize @bullet
+@item
+Where you want to allow the behaviour of a word to be altered later, and
+for all precompiled references to the word to change when its behaviour
+is changed.
+@item
+For mutual recursion; @xref{Calls and returns}.
+@end itemize
+
+In the following example, @code{foo} always invokes the version of
+@code{greet} that prints ``@code{Good morning}'' whilst @code{bar}
+always invokes the version that prints ``@code{Hello}''. There is no way
+of getting @code{foo} to use the later version without re-ordering the
+source code and recompiling it.
+
+@example
+: greet ." Good morning" ;
+: foo ... greet ... ;
+: greet ." Hello" ;
+: bar ... greet ... ;
+@end example
+
+This problem can be solved by defining @code{greet} as a @code{Defer}red
+word. The behaviour of a @code{Defer}red word can be defined and
+redefined at any time by using @code{IS} to associate the xt of a
+previously-defined word with it. The previous example becomes:
+
+@example
+Defer greet
+: foo ... greet ... ;
+: bar ... greet ... ;
+: greet1 ." Good morning" ;
+: greet2 ." Hello" ;
+' greet2 <IS> greet  \ make greet behave like greet2
+@end example
+
+A deferred word can be used to improve the statistics-gathering example
+from @ref{User-defined Defining Words}; rather than edit the
+application's source code to change every @code{:} to a @code{my:}, do
+this:
+
+@example
+: real: : ;     \ retain access to the original
+defer :         \ redefine as a deferred word
+' my: IS :      \ use special version of :
+\
+\ load application here
+\
+' real: IS :    \ go back to the original
+@end example
+
+
+One thing to note is that @code{<IS>} consumes its name when it is
+executed.  If you want to specify the name at compile time, use
+@code{[IS]}:
+
+@example
+: set-greet ( xt -- )
+  [IS] greet ;
+
+' greet1 set-greet
+@end example
+
+A deferred word can only inherit default semantics from the xt (because
+that is all that an xt can represent -- @pxref{Tokens for Words} for
+more discussion of this). However, the semantics of the deferred word
+itself can be modified at the time that it is defined. For example:
+
+@example
+: bar .... ; compile-only
+Defer fred immediate
+Defer jim
+
+' bar <IS> jim  \ jim has default semantics
+' bar <IS> fred \ fred is immediate
+@end example
+
+doc-defer
+doc-<is>
+doc-[is]
+doc-is
+@comment TODO document these: what's defers [is]
+doc-what's
+doc-defers
+
+@c Use @code{words-deferred} to see a list of deferred words.
+
+Definitions in ANS Forth for @code{defer}, @code{<is>} and @code{[is]}
+are provided in @file{compat/defer.fs}.
+
+
+@node Aliases, Supplying names, Deferred words, Defining Words
+@subsection Aliases
+@cindex aliases
+
+The defining word @code{Alias} allows you to define a word by name that
+has the same behaviour as some other word. Here are two situation where
+this can be useful:
+
+@itemize @bullet
+@item
+When you want access to a word's definition from a different word list
+(for an example of this, see the definition of the @code{Root} word list
+in the Gforth source).
+@item
+When you want to create a synonym; a definition that can be known by
+either of two names (for example, @code{THEN} and @code{ENDIF} are
+aliases).
+@end itemize
+
+The word whose behaviour the alias is to inherit is represented by an
+xt. Therefore, the alias only inherits default semantics from its
+ancestor. The semantics of the alias itself can be modified at the time
+that it is defined. For example:
+
+@example
+: foo ... ; immediate
+
+' foo Alias bar \ bar is not an immediate word
+' foo Alias fooby immediate \ fooby is an immediate word
+@end example
+
+Words that are aliases have the same xt, different headers in the
+dictionary, and consequently different name tokens (@pxref{Tokens for
+Words}) and possibly different immediate flags.  An alias can only have
+default or immediate compilation semantics; you can define aliases for
+combined words with @code{interpret/compile:} -- see @ref{Combined words}.
+
+doc-alias
+
+
+@node Supplying names, Interpretation and Compilation Semantics, Aliases, Defining Words
 @subsection Supplying the name of a defined word
 @cindex names for defined words
-@cindex defining words, name parameter
-
 @cindex defining words, name given in a string
+
 By default, a defining word takes the name for the defined word from the
 input stream. Sometimes you want to supply the name from a string. You
 can do this with:
@@ -4355,64 +4541,19 @@ For example:
 @example
 s" foo" nextname create
 @end example
+
 @noindent
 is equivalent to:
+
 @example
 create foo
 @end example
 
-@cindex defining words without name
-Sometimes you want to define an @dfn{anonymous word}; a word without a
-name. You can do this with:
-
-doc-:noname
-
-This leaves the execution token for the word on the stack after the
-closing @code{;}. Here's an example in which a deferred word is
-initialised with an @code{xt} from an anonymous colon definition:
-@example
-Defer deferred
-:noname ( ... -- ... )
-  ... ;
-IS deferred
-@end example
-
 @noindent
-Gforth provides an alternative way of doing this, using two separate
-words:
-
-doc-noname
-@cindex execution token of last defined word
-doc-lastxt
-
-@noindent
-The previous example can be rewritten using @code{noname} and
-@code{lastxt}:
-
-@example
-Defer deferred
-noname : ( ... -- ... )
-  ... ;
-lastxt IS deferred
-@end example
-
-@noindent
-@code{noname} and @code{nextname} work with any defining word, not just
-@code{:}.
-
-@code{lastxt} also works when the last word was not defined as
-@code{noname}. It also has the useful property that is is valid as soon
-as the header for a definition has been build. Thus:
-
-@example
-lastxt . : foo [ lastxt . ] ; ' foo .
-@end example
-
-@noindent
-prints 3 numbers; the last two are the same.
+@code{nextname} works with any defining word, not just @code{:}.
 
 
-@node Interpretation and Compilation Semantics,  , Supplying names, Defining Words
+@node Interpretation and Compilation Semantics, Combined words, Supplying names, Defining Words
 @subsection Interpretation and Compilation Semantics
 @cindex semantics, interpretation and compilation
 
@@ -4448,17 +4589,26 @@ definition.}
 @cindex compile-only words
 You can change the semantics of the most-recently defined word:
 
+
 doc-immediate
 doc-compile-only
 doc-restrict
 
+
 Note that ticking (@code{'}) a compile-only word gives an error
 (``Interpreting a compile-only word'').
 
-Gforth also allows you to define words with arbitrary combinations of
-interpretation and compilation semantics.
+
+@node Combined words, ,Interpretation and Compilation Semantics, Defining Words
+@subsection Combined Words
+@cindex combined words
+
+Gforth allows you to define @dfn{combined words} -- words that have an
+arbitrary combination of interpretation and compilation semantics.
+
 
 doc-interpret/compile:
+
 
 This feature was introduced for implementing @code{TO} and @code{S"}. I
 recommend that you do not define such words, as cute as they may be:
@@ -4559,11 +4709,13 @@ compilation> ( compilation. -- ; run-time. -- n )
 <compilation ;
 @end example
 
+
 doc-create-interpret/compile
 doc-interpretation>
 doc-<interpretation
 doc-compilation>
 doc-<compilation
+
 
 Words defined with @code{interpret/compile:} and
 @code{create-interpret/compile} have an extended header structure that
@@ -4573,7 +4725,9 @@ accessing the header structure usually know how to deal with this; e.g.,
 @code{'} @i{word} @code{>body} also gives you the body of a word created
 with @code{create-interpret/compile}.
 
+
 doc-postpone
+
 @comment TODO -- expand glossary text for POSTPONE
 
 @c ----------------------------------------------------------
@@ -4586,6 +4740,12 @@ doc-postpone
 @c Should we really describe all these ugly details?  IMO the text
 @c interpreter should be much cleaner, but that may not be possible within
 @c ANS Forth. - anton
+@c nac-> I wanted to explain how it works to show how you can exploit
+@c it in your own programs. When I was writing a cross-compiler, figuring out
+@c some of these gory details was very helpful to me. None of the textbooks
+@c I've seen cover it, and the most modern Forth textbook -- Forth Inc's,
+@c seems to positively avoid going into too much detail for some of
+@c the internals.
 
 The text interpreter@footnote{This is an expanded version of the
 material in @ref{Introducing the Text Interpreter}.} is an endless loop
@@ -4748,11 +4908,13 @@ device.
 
 @ref{Input Sources} describes this in more detail.
 
+
 doc->in
 doc-source
 
 doc-tib
 doc-#tib
+
 
 @menu
 * Input Sources::
@@ -4767,7 +4929,7 @@ doc-#tib
 @cindex input sources
 @cindex text interpreter - input sources
 
-By default, the text interpreter accepts input from the user input
+By default, the text interpreter processes input from the user input
 device (the keyboard) when Forth starts up. The text interpreter can
 process input from any of these sources:
 
@@ -4785,6 +4947,7 @@ A text string, using @code{evaluate}.
 A program can identify the current input device from the values of
 @code{source-id} and @code{blk}.
 
+
 doc-source-id
 doc-blk
 
@@ -4792,6 +4955,7 @@ doc-save-input
 doc-restore-input
 
 doc-evaluate
+
 
 
 @node Number Conversion, Interpret/Compile states, Input Sources, The Text Interpreter
@@ -4859,6 +5023,7 @@ doc-dpl
 doc-base
 doc-hex
 doc-decimal
+
 
 @cindex '-prefix for character strings
 @cindex &-prefix for decimal numbers
@@ -4939,41 +5104,51 @@ words @code{[} and @code{]}. When @code{[} is executed it switches
 @code{state} to interpret state, and therefore the text interpreter
 starts interpreting. When @code{]} is executed it switches @code{state}
 to compile state and therefore the text interpreter starts
-compiling. The most common usage for these words is to compile literals,
-as shown in @ref{Literals}. However, they give you the freedom to switch
-modes at will.
+compiling. The most common usage for these words is for switching into
+interpret state and back from within a colon definition; this technique
+can be used to compile a literal (@pxref{Literals} for an example) or
+for conditional compilation (@pxref{Interpreter Directives} for an
+example).
+
 
 @c This is a bad example: It's non-standard, and it's not necessary.
 @c However, I can't think of a good example for switching into compile
 @c state when there is no current word (@code{state}-smart words are not a
 @c good reason).  So maybe we should use an example for switching into
 @c interpret @code{state} in a colon def. - anton
+@c nac-> I agree. I started out by putting in the example, then realised
+@c that it was non-ANS, so wrote more words around it. I hope this
+@c re-written version is acceptable to you. I do want to keep the example
+@c as it is helpful for showing what is and what is not portable, particularly
+@c where it outlaws a style in common use.
 
-Here is an example of building a jump-table of execution
-tokens:
+
+@code{[} and @code{]} also give you the ability to switch into compile
+state and back, but we cannot think of any useful Standard application
+for this ability. Pre-ANS Forth textbooks have examples like this:
 
 @example
 : AA ." this is A" ;
 : BB ." this is B" ;
 : CC ." this is C" ;
 
-create table ' aa COMPILE, ' bb COMPILE, ' cc COMPILE,
+create table ] aa bb cc [
+
 : go ( n -- ) \ n is offset into table.. 0 for 1st entry
   cells table + @ execute ;
 @end example
 
-@noindent
-Now @code{0 go} will display ``@code{this is A}''. The table can be
-built far more neatly@footnote{The source code is neater.. what is
-compiled in memory in each case is identical.} like this:
+This example builds a jump table; @code{0 go} will display ``@code{this
+is A}''. Using @code{[} and @code{]} in this example is equivalent to
+defining @code{table} like this:
 
 @example
-create table ] aa bb cc [
+create table ' aa COMPILE, ' bb COMPILE, ' cc COMPILE,
 @end example
 
-The problem with this code is that it is not portable; it will only work
-on systems where code space and data space co-incide. The reason is that
-both tables @i{compile} execution tokens -- into code space. The
+The problem with this code is that the definition of @code{table} is not
+portable -- it @i{compile}s execution tokens into code space. Whilst it
+@i{may} work on systems where code space and data space co-incide, the
 Standard only allows data space to be assigned for a @code{CREATE}d
 word. In addition, the Standard only allows @code{@@} to access data
 space, whilst this example is using it to access code space. The only
@@ -4984,16 +5159,10 @@ like this:
 create table ' aa , ' bb , ' cc ,
 @end example
 
-@noindent
-A similar technique can be used to build a table of constants:
-
-@example
-create primes 1 , 3 , 5 , 7 , 11 ,
-@end example
-
 doc-state
 doc-[
 doc-]
+
 
 @node Literals, Interpreter Directives, Interpret/Compile states, The Text Interpreter
 @subsection Literals
@@ -5053,10 +5222,12 @@ solving this problem in this instance is to use @code{[ ]} like this:
   LITERAL * ;   \ to seconds
 @end example
 
+
 doc-literal
 doc-]L
 doc-2literal
 doc-fliteral
+
 
 @node Interpreter Directives, , Literals, The Text Interpreter
 @subsection Interpreter Directives
@@ -5088,6 +5259,7 @@ ASSEMBLER [IF]
 ;
 @end example
 
+
 doc-[IF]
 doc-[ELSE]
 doc-[THEN]
@@ -5108,6 +5280,7 @@ doc-[UNTIL]
 doc-[AGAIN]
 doc-[WHILE]
 doc-[REPEAT]
+
 
 
 
@@ -5196,6 +5369,7 @@ Named words are also represented by the @dfn{name token}, (@i{nt}). In
 Gforth, the abstract data type @emph{name token} is implemented as a
 name field address (NFA).
 
+
 doc-execute
 doc-compile,
 doc-[']
@@ -5209,6 +5383,7 @@ doc-name>int
 doc-name?int
 doc-name>comp
 doc-name>string
+
 
 @c -------------------------------------------------------------
 @node Word Lists, Environmental Queries, Tokens for Words, Words
@@ -5247,6 +5422,7 @@ Standard Forth.
 
 @comment the thisone- prefix is used to pick out the true definition of a
 @comment word from the source files, rather than some alias.
+
 doc-forth-wordlist
 doc-definitions
 doc-get-current
@@ -5267,6 +5443,7 @@ doc-search-wordlist
 
 doc-words
 doc-vlist
+@c doc-words-deferred
 
 doc-mappedwordlist
 doc-root
@@ -5275,6 +5452,7 @@ doc-seal
 doc-vocs
 doc-current
 doc-context
+
 
 @menu
 * Why use word lists?::
@@ -5380,11 +5558,13 @@ associated environmental query string must return @code{true}). In
 Gforth, the word list used to honour environmental queries can be
 manipulated just like any other word list.
 
+
 doc-environment?
 doc-environment-wordlist
 
 doc-gforth
 doc-os-class
+
 
 Note that, whilst the documentation for (e.g.) @code{gforth} shows it
 returning two items on the stack, querying it using @code{environment?}
@@ -5486,6 +5666,7 @@ does not change the stack. This allows using these files with
 1 require foo.fs drop
 @end example
 
+
 doc-include-file
 doc-included
 doc-included?
@@ -5494,6 +5675,7 @@ doc-required
 doc-require
 doc-needs
 doc-init-included-files
+
 
 A definition in ANS Forth for @code{required} is provided in
 @file{compat/required.fs}.
@@ -5507,16 +5689,19 @@ A definition in ANS Forth for @code{required} is provided in
 Files are opened/created by name and type. The following types are
 recognised:
 
+
 doc-r/o
 doc-r/w
 doc-w/o
 doc-bin
+
 
 When a file is opened/created, it returns a file identifier,
 @i{wfileid} that is used for all other file commands. All file
 commands also return a status value, @i{wior}, that is 0 for a
 successful operation and an implementation-defined non-zero value in the
 case of an error.
+
 
 doc-open-file
 doc-create-file
@@ -5536,6 +5721,7 @@ doc-file-position
 doc-reposition-file
 doc-file-size
 doc-resize-file
+
 
 @c ---------------------------------------------------------
 @node Search Paths, Forth Search Paths, General files, Files
@@ -5582,11 +5768,14 @@ as described above.
 The search path is initialized when you start Gforth (@pxref{Invoking
 Gforth}). You can display it and change it using these words:
 
+
 doc-.fpath
 doc-fpath+
 doc-fpath=
 doc-open-fpath-file
 
+
+@noindent
 Here is an example of using @code{fpath} and @code{require}:
 
 @example
@@ -5604,10 +5793,12 @@ Your application may need to search files in several directories, like
 and use your own search paths, by providing generic equivalents of the
 Forth search path words:
 
+
 doc-.path
 doc-path+
 doc-path=
 doc-open-path-file
+
 
 Here's an example of creating a search path:
 
@@ -5759,6 +5950,7 @@ See Frank Sergeant's Pygmy Forth to see just how well blocks can be
 integrated into a Forth programming environment.
 
 @comment TODO what about errors on open-blocks?
+
 doc-open-blocks
 doc-use
 doc-get-block-fid
@@ -5781,8 +5973,9 @@ doc-load
 doc-thru
 doc-+load
 doc-+thru
-xdoc--gforth--->
+doc---gforth--->
 doc-block-included
+
 
 @c -------------------------------------------------------------
 @node Other I/O, Programming Tools, Blocks, Words
@@ -5806,6 +5999,7 @@ data or floating-point stacks. Floating-point output is always displayed
 using base 10. Numbers displayed from the data stack use the value stored
 in @code{base}.
 
+
 doc-.
 doc-dec.
 doc-hex.
@@ -5819,6 +6013,7 @@ doc-ud.r
 doc-f.
 doc-fe.
 doc-fs.
+
 
 Examples of printing the number 1234.5678E23 in the different floating-point output
 formats are shown below:
@@ -5864,6 +6059,7 @@ unsigned. The examples below show ways of printing signed numbers.
 The string is built up from right to left; least significant digit first.
 @end itemize
 
+
 doc-<#
 doc-#
 doc-#s
@@ -5873,6 +6069,8 @@ doc-#>
 
 doc-represent
 
+
+@noindent
 Here are some examples of using pictured numeric output:
 
 @example
@@ -5968,7 +6166,9 @@ ANS Forth encourages the use of the second format when representing
 strings on the stack, whilst conceeding that the counted string format
 remains useful as a way of storing strings in memory.
 
+
 doc-count
+
 
 @xref{Memory Blocks} for words that move, copy and search
 for strings. @xref{Displaying characters and strings,} for words that
@@ -5983,6 +6183,7 @@ display characters and strings.
 This section starts with a glossary of Forth words and ends with a set
 of examples.
 
+
 doc-bl
 doc-space
 doc-spaces
@@ -5991,6 +6192,7 @@ doc-toupper
 doc-."
 doc-.(
 doc-type
+doc-typewhite
 doc-cr
 @cindex cursor control
 doc-at-xy
@@ -6001,6 +6203,8 @@ doc-char
 doc-[char]
 doc-sliteral
 
+
+@noindent
 As an example, consider the following text, stored in a file @file{test.fs}:
 
 @example
@@ -6077,6 +6281,7 @@ definition of @code{my-char}.
 @comment TODO examples for >number >float accept key key? pad parse word refill
 @comment then index them
 
+
 doc-key
 doc-key?
 doc->number
@@ -6086,12 +6291,14 @@ doc-pad
 doc-parse
 doc-word
 doc-sword
+doc-(name)
 doc-refill
 @comment obsolescent words..
 doc-convert
 doc-query
 doc-expect
 doc-span
+
 
 
 @c -------------------------------------------------------------
@@ -6122,17 +6329,21 @@ The simple debugging aids provided in @file{debugs.fs}
 are meant to support this style of debugging. In addition, there are
 words for non-destructively inspecting the stack and memory:
 
+
 doc-.s
 doc-f.s
 
+
 There is a word @code{.r} but it does @i{not} display the return
 stack! It is used for formatted numeric output.
+
 
 doc-depth
 doc-fdepth
 doc-clearstack
 doc-?
 doc-dump
+
 
 The word @code{~~} prints debugging information (by default the source
 location and the stack contents). It is easy to insert. If you use Emacs
@@ -6149,12 +6360,14 @@ The default actions of @code{~~} clobber the contents of the pictured
 numeric output string, so you should not use @code{~~}, e.g., between
 @code{<#} and @code{#>}.
 
+
 doc-~~
 doc-printdebugdata
 doc-printdebugline
 
 doc-see
 doc-marker
+
 
 Here's an example of using @code{marker} at the start of a source file
 that you are debugging; it ensures that you only ever have one copy of
@@ -6208,12 +6421,14 @@ time it takes to check it, you may want to turn off some assertions and
 keep others turned on. Gforth provides several levels of assertions for
 this purpose:
 
+
 doc-assert0(
 doc-assert1(
 doc-assert2(
 doc-assert3(
 doc-assert(
 doc-)
+
 
 The variable @code{assert-level} specifies the highest assertions that
 are turned on. I.e., at the default @code{assert-level} of one,
@@ -6227,7 +6442,9 @@ piece of code. You can compile different pieces of code at different
 @code{assert-level}s (e.g., a trusted library at level 1 and
 newly-written code at level 3).
 
+
 doc-assert-level
+
 
 If an assertion fails, a message compatible with Emacs' compilation mode
 is produced and the execution is aborted (currently with @code{ABORT"}.
@@ -6308,9 +6525,11 @@ program has stopped at the moment. You can do this by the
 @code{BREAK" string"} command. This behaves like @code{BREAK:} except that
 string is typed out when the ``breakpoint'' is reached.
 
+
 doc-dbg
 doc-BREAK:
 doc-BREAK"
+
 
 
 @c -------------------------------------------------------------
@@ -6335,11 +6554,13 @@ because these words emit stuff in @i{data} space; it works because
 Gforth has unified code/data spaces. Assembler isn't likely to be
 portable anyway.}.
 
+
 doc-assembler
 doc-code
 doc-end-code
 doc-;code
 doc-flush-icache
+
 
 If @code{flush-icache} does not work correctly, @code{code} words
 etc. will not work (reliably), either.
@@ -6421,6 +6642,7 @@ present this wordset is still incomplete. It is also pretty low-level;
 some day it will hopefully be made unnecessary by an internals wordset
 that abstracts implementation details away completely.
 
+
 doc-threading-method
 doc->code-address
 doc->does-code
@@ -6429,8 +6651,10 @@ doc-does-code!
 doc-does-handler!
 doc-/does-handler
 
+
 The code addresses produced by various defining words are produced by
 the following words:
+
 
 doc-docol:
 doc-docon:
@@ -6438,6 +6662,7 @@ doc-dovar:
 doc-douser:
 doc-dodefer:
 doc-dofield:
+
 
 You can recognize words defined by a @code{CREATE}...@code{DOES>} word
 with @code{>does-code}. If the word was defined in that way, the value
@@ -6561,8 +6786,10 @@ it in block-structured languages, and sometimes a little longer. If you
 want to restrict the scope of a local, enclose its definition in
 @code{SCOPE}...@code{ENDSCOPE}.
 
+
 doc-scope
 doc-endscope
+
 
 These words behave like control structure words, so you can use them
 with @code{CS-PICK} and @code{CS-ROLL} to restrict the scope in
@@ -6601,7 +6828,9 @@ that the visibility of some locals is more limited than the rule above
 says. If @code{UNREACHABLE} is used where it should not (i.e., if you
 lie to the compiler), buggy code will be produced.
 
+
 doc-unreachable
+
 
 Another problem with this rule is that at @code{BEGIN}, the compiler
 does not know which locals will be visible on the incoming
@@ -6682,8 +6911,11 @@ visible after the @code{BEGIN}. However, the user can use
 visible at the BEGIN as at the point where the top control-flow stack
 item was created.
 
+
 doc-assume-live
 
+
+@noindent
 E.g.,
 @example
 @{ x @}
@@ -6814,6 +7046,7 @@ also eliminates the problems and restrictions of using the return stack
 as locals stack. Like the other stacks, the locals stack grows toward
 lower addresses. A few primitives allow an efficient implementation:
 
+
 doc-@local#
 doc-f@local#
 doc-laddr#
@@ -6822,6 +7055,7 @@ doc-lp!
 doc->l
 doc-f>l
 
+
 In addition to these primitives, some specializations of these
 primitives for commonly occurring inline arguments are provided for
 efficiency reasons, e.g., @code{@@local0} as specialization of
@@ -6829,9 +7063,11 @@ efficiency reasons, e.g., @code{@@local0} as specialization of
 compile the right specialized version, or the general version, as
 appropriate:
 
+
 doc-compile-@local
 doc-compile-f@local
 doc-compile-lp+!
+
 
 Combinations of conditional branches and @code{lp+!#} like
 @code{?branch-lp+!#} (the locals pointer is only changed if the branch
@@ -6902,9 +7138,11 @@ the kind of entry, in particular to differentiate between live and dead
 
 A few unusual operations have to be performed on locals word lists:
 
+
 doc-common-list
 doc-sub-list?
 doc-list-size
+
 
 Several features of our locals word list implementation make these
 operations easy to implement: The locals word lists are organised as
@@ -6972,8 +7210,8 @@ stack easier.
 The whole definition must be in one line.
 @end itemize
 
-Locals defined in this way behave like @code{VALUE}s (@xref{Simple
-Defining Words}). I.e., they are initialized from the stack. Using their
+Locals defined in this way behave like @code{VALUE}s
+(@xref{Values}). I.e., they are initialized from the stack. Using their
 name produces their value. Their value can be changed using @code{TO}.
 
 Since this syntax is supported by Gforth directly, you need not do
@@ -6987,7 +7225,9 @@ reversed. Beware!
 
 The ANS Forth locals wordset itself consists of a word:
 
+
 doc-(local)
+
 
 The ANS Forth locals extension wordset defines a syntax using @code{locals|}, but it is so
 awful that we strongly recommend not to use it. We have implemented this
@@ -7285,6 +7525,7 @@ immediate, and therefore no code is generated when it is compiled.
 @subsection Structure Glossary
 @cindex structure glossary
 
+
 doc-%align
 doc-%alignment
 doc-%alloc
@@ -7301,6 +7542,7 @@ doc-naligned
 doc-sfloat%
 doc-%size
 doc-struct
+
 
 @c -------------------------------------------------------------
 @node Object-oriented Forth, Passing Commands to the OS, Structures, Words
@@ -7969,7 +8211,7 @@ selector contains an offset into a method map.
 @cindex @code{selector} implementation, class
 @code{selector} is a defining word that uses
 @code{CREATE} and @code{DOES>}. The body of the
-selector contains the offset; the @code{does>} action for a
+selector contains the offset; the @code{DOES>} action for a
 class selector is, basically:
 
 @example
@@ -8093,6 +8335,7 @@ href="objects-implementation.eps">figure</a>, assuming a cell size of 4.
 @subsubsection @file{objects.fs} Glossary
 @cindex @file{objects.fs} Glossary
 
+
 doc---objects-bind
 doc---objects-<bind>
 doc---objects-bind'
@@ -8137,6 +8380,7 @@ doc---objects-<to-inst>
 doc---objects-[to-inst]
 doc---objects-to-this
 doc---objects-xt-new
+
 
 @c -------------------------------------------------------------
 @node OOF, Mini-OOF, Objects, Object-oriented Forth
@@ -8300,9 +8544,11 @@ selectors of the class @code{object}.
 @code{class} for subclassing, @code{definitions} to add definitions
 later on, and @code{class?} to get type informations (is the class a
 subclass of the class passed on the stack?).
+
 doc---object-class
 doc---object-definitions
 doc---object-class?
+
 
 @item
 @code{init} and @code{dispose} as constructor and destructor of the
@@ -8310,13 +8556,16 @@ object. @code{init} is invocated after the object's memory is allocated,
 while @code{dispose} also handles deallocation. Thus if you redefine
 @code{dispose}, you have to call the parent's dispose with @code{super
 dispose}, too.
+
 doc---object-init
 doc---object-dispose
+
 
 @item
 @code{new}, @code{new[]}, @code{:}, @code{ptr}, @code{asptr}, and
 @code{[]} to create named and unnamed objects and object arrays or
 object pointers.
+
 doc---object-new
 doc---object-new[]
 doc---object-:
@@ -8324,38 +8573,49 @@ doc---object-ptr
 doc---object-asptr
 doc---object-[]
 
+
 @item
 @code{::} and @code{super} for explicit scoping. You should use explicit
 scoping only for super classes or classes with the same set of instance
 variables. Explicitly-scoped selectors use early binding.
+
 doc---object-::
 doc---object-super
 
+
 @item
 @code{self} to get the address of the object
+
 doc---object-self
+
 
 @item
 @code{bind}, @code{bound}, @code{link}, and @code{is} to assign object
 pointers and instance defers.
+
 doc---object-bind
 doc---object-bound
 doc---object-link
 doc---object-is
 
+
 @item
 @code{'} to obtain selector tokens, @code{send} to invocate selectors
 form the stack, and @code{postpone} to generate selector invocation code.
+
 doc---object-'
 doc---object-postpone
+
 
 @item
 @code{with} and @code{endwith} to select the active object from the
 stack, and enable its scope. Using @code{with} and @code{endwith}
 also allows you to create code using selector @code{postpone} without being
 trapped by the state-smart objects.
+
 doc---object-with
 doc---object-endwith
+
 
 @end itemize
 
@@ -8366,30 +8626,42 @@ doc---object-endwith
 @itemize @bullet
 @item
 Instance variables
+
 doc---oof-var
+
 
 @item
 Object pointers
+
 doc---oof-ptr
 doc---oof-asptr
 
+
 @item
 Instance defers
+
 doc---oof-defer
+
 
 @item
 Method selectors
+
 doc---oof-early
 doc---oof-method
 
+
 @item
 Class-wide variables
+
 doc---oof-static
+
 
 @item
 End declaration
+
 doc---oof-how:
 doc---oof-class;
+
 
 @end itemize
 
@@ -8425,6 +8697,7 @@ a class; to end a class, to resolve binding, to allocate an object and
 to compile a class method.
 @comment TODO better description of the last one
 
+
 doc-object
 doc-method
 doc-var
@@ -8433,6 +8706,7 @@ doc-end-class
 doc-defines
 doc-new
 doc-::
+
 
 
 @c -------------------------------------------------------------
@@ -8730,10 +9004,12 @@ the @file{objects.fs} model, but syntactically it is a mixture of the @file{obje
 Gforth allows you to pass an arbitrary string to the host operating
 system shell (if such a thing exists) for execution.
 
+
 doc-sh
 doc-system
 doc-$?
 doc-getenv
+
 
 @c -------------------------------------------------------------
 @node Miscellaneous Words,  , Passing Commands to the OS, Words
@@ -8745,10 +9021,14 @@ doc-getenv
 These section lists the ANS Forth words that are not documented
 elsewhere in this manual. Ultimately, they all need proper homes.
 
+
 doc-ms
 doc-time&date
 
+
+
 doc-[compile]
+
 
 The following ANS Forth words are not currently supported by Gforth 
 (@pxref{ANS conformance}):
@@ -9027,7 +9307,7 @@ operating systems. Hopefully, Unicode will solve these problems one day.
 If @code{WORD} is called with the space character as a delimiter, all
 white-space characters (as identified by the C macro @code{isspace()})
 are delimiters. @code{PARSE}, on the other hand, treats space like other
-delimiters. @code{PARSE-WORD} treats space like @code{WORD}, but behaves
+delimiters. @code{SWORD} treats space like @code{WORD}, but behaves
 like @code{PARSE} otherwise. @code{(NAME)}, which is used by the outer
 interpreter (aka text interpreter) by default, treats all white-space
 characters as delimiters.
@@ -10520,7 +10800,9 @@ though).
 
 You can create a non-relocatable image file with
 
+
 doc-savesystem
+
 
 @node Data-Relocatable Image Files, Fully Relocatable Image Files, Non-Relocatable Image Files, Image Files
 @section Data-Relocatable Image Files
@@ -10584,7 +10866,7 @@ any) of the two Gforth invocations that produce the nonrelocatable image
 files, then you see the output of the comparing program: It displays the
 offset used for data addresses and the offset used for code addresses;
 moreover, for each cell that cannot be represented correctly in the
-image files, it displays a line like the following one:
+image files, it displays a line like this:
 
 @example
      78DC         BFFFFA50         BFFFFA40
@@ -10610,8 +10892,9 @@ instructions.
 @cindex @code{savesystem} during @file{gforthmi}
 @cindex @code{bye} during @file{gforthmi}
 @cindex doubly indirect threaded code
-@cindex environment variable @code{GFORTHD}
-@cindex @code{GFORTHD} environment variable
+@cindex environment variables
+@cindex @code{GFORTHD} -- environment variable
+@cindex @code{GFORTH} -- environment variable
 @cindex @code{gforth-ditc}
 There are a few wrinkles: After processing the passed @i{options}, the
 words @code{savesystem} and @code{bye} must be visible. A special doubly
@@ -10732,9 +11015,9 @@ The disadvantage of this latter technique, compared with using
 @file{gforthmi}, is that it is slower; the Forth source code is compiled
 on-the-fly, each time the program is invoked.
 
-@comment TODO describe the #! magic with reference to the Power Tools book.
 
 doc-#!
+
 
 @node Modifying the Startup Sequence,  , Running Image Files, Image Files
 @section Modifying the Startup Sequence
@@ -10772,10 +11055,13 @@ If @code{'cold} exits normally, Gforth processes the command-line
 arguments as files to be loaded and strings to be evaluated.  Therefore,
 @code{'cold} should remove the arguments it has used in this case.
 
+
+
 doc-'cold
 doc-argc
 doc-argv
 doc-arg
+
 
 
 @c ******************************************************************
@@ -11456,6 +11742,7 @@ is not recommended to learn Forth by using Gforth and a book that is not
 written for ANS Forth, as you will not know your mistakes from the
 deviations of the book. However, books based on the Forth-83 standard
 should be ok, because ANS Forth is primarily an extension of Forth-83.
+Refer to the Forth FAQ for details of Forth-related books.
 
 @cindex standard document for ANS Forth
 @cindex ANS Forth document
@@ -11469,37 +11756,11 @@ $200. You can also get it from Global Engineering Documents (Tel.: USA
 @cite{dpANS6}, the last draft of the standard, which was then submitted
 to ANSI for publication is available electronically and for free in some
 MS Word format, and it has been converted to HTML
-(@url{http://www.taygeta.com/forth/dpans.html}; this is my favourite
-format); this HTML version also includes the answers to Requests for
-Interpretation (RFIs). Some pointers to these versions can be found
-through @*@url{http://www.complang.tuwien.ac.at/projects/forth.html}.
+(@url{http://www.taygeta.com/forth/dpans.html}; this HTML version also
+includes the answers to Requests for Interpretation (RFIs). Some
+pointers to these versions can be found through
+@*@url{http://www.complang.tuwien.ac.at/projects/forth.html}.
 
-@cindex introductory book on Forth
-@cindex book on Forth, introductory
-@cindex Woehr, Jack: @cite{Forth: The New Model}
-@cindex @cite{Forth: The new model} (book)
-@cite{Forth: The New Model} by Jack Woehr (Prentice-Hall, 1993) is an
-introductory book based on a draft version of the standard. It does not
-cover the whole standard. It also contains interesting background
-information (Jack Woehr was in the ANS Forth Technical Committee). It is
-not appropriate for complete newbies, but programmers experienced in
-other languages should find it ok.
-
-@cindex Conklin, Edward K., and Elizabeth Rather: @cite{Forth Programmer's Handbook}
-@cindex Rather, Elizabeth and Edward K. Conklin: @cite{Forth Programmer's Handbook}
-@cindex @cite{Forth Programmer's Handbook} (book)
-@cite{Forth Programmer's Handbook} by Edward K. Conklin, Elizabeth
-D. Rather and the technical staff of Forth, Inc. (Forth, Inc., 1997;
-ISBN 0-9662156-0-5) contains little introductory material. The majority
-of the book is similar to @ref{Words}, but the book covers most of the
-standard words and some non-standard words (whereas this manual is
-quite incomplete). In addition, the book contains a chapter on
-programming style. The major drawback of this book is that it usually
-does not identify what is standard and what is specific to the Forth
-system described in the book (probably one of Forth, Inc.'s systems).
-Fortunately, many of the non-standard programming practices described in
-the book work in Gforth, too.  Still, this drawback makes the book
-hardly more useful than a pre-ANS book.
 
 @node The Forth Interest Group, Conferences, Books, Forth-related information
 @section The Forth Interest Group
@@ -11520,7 +11781,7 @@ chapters in other countries and American cities
 
 There are several regular conferences related to Forth. They are all
 well-publicised in @var{FORTH Dimensions} and on the comp.lang.forth
-news group:
+newsgroup:
 
 @itemize @bullet
 @item
