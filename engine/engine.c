@@ -82,6 +82,7 @@ int emitcounter;
 
 #ifdef MEMCMP_AS_SUBROUTINE
 extern int gforth_memcmp(const char * s1, const char * s2, size_t n);
+#define memcmp(s1,s2,n) gforth_memcmp(s1,s2,n)
 #endif
 
 #ifdef HAS_FILE
