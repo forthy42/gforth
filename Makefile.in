@@ -128,6 +128,7 @@ GFORTH_FI_SRC = \
 	hash.fs \
 	history.fs \
 	intcomp.fs \
+	locals.fs \
 	look.fs \
 	search.fs \
 	see.fs \
@@ -140,7 +141,10 @@ GFORTH_FI_SRC = \
 	termsize.fs \
 	vt100.fs \
 	vt100key.fs \
-	wordinfo.fs
+	wordinfo.fs \
+	lib.fs \
+	sieve.fs \
+	add.fs
 
 FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_SRC) \
 	ans-report.fs ansi.fs answords.fs \
@@ -164,26 +168,47 @@ COMPAT	= compat/CVS compat/README compat/control.fs compat/anslocal.fs \
 
 ALLSUBDIRS = engine
 
+ARCHS =	arch/m68k/machine.h \
+	arch/mips/machine.h \
+	arch/386/machine.h \
+	arch/hppa/machine.h \
+	arch/sparc/machine.h \
+	arch/power/machine.h \
+	arch/alpha/machine.h \
+	arch/4stack/README \
+	arch/4stack/asm.fs \
+	arch/4stack/mach.fs \
+	arch/4stack/prim.fs \
+	arch/4stack/mach.sh \
+	arch/4stack/relocate.fs \
+	arch/misc/README \
+	arch/misc/asm.fs \
+	arch/misc/mach.fs \
+	arch/misc/prim.fs \
+	arch/misc/sim.fs \
+	arch/misc/sokoban.fs \
+	arch/misc/tt.fs
+
 SOURCES	= CVS compat Makefile.in engine/Makefile.in gforthmi \
 	configure.in configure config.sub config.guess \
 	acconfig.h engine/config.h.in stamp-h.in \
-	install-sh INSTALL README ToDo BUGS model COPYING Benchres \
+	install-sh INSTALL INSTALL.BINDIST NEWS README ToDo BUGS model \
+	COPYING Benchres aclocal.m4 \
 	doc/gforth.ds doc/texinfo.tex doc/gforth.1 gforth.el \
 	prim engine/engine.c engine/main.c engine/io.c engine/memcmpc.c \
-	arch/m68k/machine.h arch/mips/machine.h arch/386/machine.h \
-	arch/hppa/machine.h arch/sparc/machine.h arch/power/machine.h \
-	arch/alpha/machine.h \
+	$(ARCHS) \
 	engine/cache.c engine/32bit.h \
 	engine/getopt.c engine/getopt1.c engine/getopt.h engine/select.c \
 	engine/ecvt.c engine/memcmp.c engine/strtol.c engine/strtoul.c \
 	engine/ansidecl.h engine/memmove.c \
-	engine/pow10.c engine/atanh.c \
+	engine/pow10.c engine/atanh.c engine/cleanalign.c \
 	engine/strerror.c engine/strsignal.c engine/strsig.c engine/dblsub.c \
 	INSTALL.DOS makefile.dos engine/makefile.dos mkdosmf.sed config.bat \
 	dosconf.h gforthmi.bat startup.dos history.dos mkinstalldirs \
 	configure.cmd mkos2mf.sed os2conf.h makefile.os2 engine/makefile.os2 \
 	gforthmi.cmd glosgen.glo doc/glossaries.doc \
-	$(INCLUDES) $(FORTH_SRC) $(COMPAT)
+	$(INCLUDES) $(FORTH_SRC) $(COMPAT) \
+	testclean testdist testdist1 timings.sc
 
 RCS_FILES =  ToDo model high-level
 
@@ -573,7 +598,7 @@ stamp-h:	config.h.in config.status
 		CONFIG_FILES=$@ CONFIG_HEADERS=engine/config.h ./config.status
 		echo > stamp-h
 Makefile:	Makefile.in config.status
-		CONFIG_FILES=$@ CONFIG_HEADERS=engine/config.h ./config.status
+		CONFIG_FILES="$@ engine/$@" CONFIG_HEADERS=engine/config.h ./config.status
      
 config.status:	configure
 		./config.status --recheck

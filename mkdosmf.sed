@@ -41,7 +41,7 @@ s%test x'$(VERSION)' = x`cat $@` || %%g
 s%--clear-dictionary%-c%g
 s%.$(PATHSEP)$(srcdir)%.%g
 s% -I$(srcdir)%%g
-s%GFORTHD="./gforth-ditc -p ." $(srcdir)/%%g
+s%GFORTHD="./gforth-ditc -p .* $(srcdir)/%%g
 s%gforth-ditc%gforth-d%g
 s%engine-ditc%engine-d%g
 s%main-ditc%main-d%g

@@ -1,9 +1,9 @@
 #tests that dist works
 #call this with gforth-$(version).tar.gz in the working directory
 #use this if your make cannot handle VPATH
-GFORTH=gforth-0.3.0
-mkdir test
-cd test
+GFORTH=gforth-0.3.1
+mkdir test-dist
+cd test-dist
 DIR=$PWD
 gunzip -cd ../$GFORTH.tar.gz|tar xf -
 cd $GFORTH
@@ -17,4 +17,4 @@ make bench
 cd ..
 install/bin/gforth tester.fs coretest.fs postponetest.fs dbltest.fs -e bye
 cd ..
-rm -rf test
+rm -rf test-dist

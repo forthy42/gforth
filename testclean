@@ -1,5 +1,5 @@
 #usage: invoke this in the gforth directory
-GFORTH=gforth-0.3.0
+GFORTH=gforth-0.3.1
 make dist
 mkdir test
 cd test

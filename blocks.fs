@@ -168,12 +168,12 @@ User scr 0 scr !
   pop-file ( throw ) ;
 
 : thru ( i*x n1 n2 -- j*x )
-  1+ swap 0 ?DO  I load  LOOP ;
+  1+ swap ?DO  I load  LOOP ;
 
 : +load ( i*x n -- j*x )  blk @ + load ;
 
 : +thru ( i*x n1 n2 -- j*x )
-  1+ swap 0 ?DO  I +load  LOOP ;
+  1+ swap ?DO  I +load  LOOP ;
 
 : --> ( -- )  refill drop ; immediate
 

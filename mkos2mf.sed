@@ -62,6 +62,6 @@ s%$(FORTHPATH)$(PATHSEP)%%g
 s%@FORTHSIZES@%%g
 s%$(PATHSEP)$(srcdir)%%g
 s%test x'$(VERSION)' = x`cat $@` || %%g
-s%GFORTHD="./gforth-ditc -p ." $(srcdir)/%%g
+s%GFORTHD="./gforth-ditc -p .* $(srcdir)/%%g
 s%'s"%"s\\"%g
 s%"'%\\""%g

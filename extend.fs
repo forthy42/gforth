@@ -84,7 +84,7 @@ decimal
 \ [COMPILE]                                             17may93jaw
 
 : [compile] ( compilation "name" -- ; run-time ? -- ? ) \ core-ext bracket-compile
-    ' compile, ; immediate
+    comp' drop compile, ; immediate
 
 \ MARKER                                                17may93jaw
 
