@@ -42,9 +42,9 @@ here normal-dp !
 tudp H @ minimal udp !
 decimal
 
-\ 64 KB       0 cells !  \ total Space... defined above!
-here         1 cells !  \ Size of the system
-  16 KB       2 cells !  \ Return and fp stack size
+\ 64 KB        0 cells !  \ total Space... defined above!
+  here         1 cells !  \ Size of the system
+  16 KB        2 cells !  \ Return and fp stack size
   ' boot >body 3 cells !  \ Entry point
 
 UNLOCK Tlast @
@@ -52,11 +52,16 @@ LOCK
 1 cells - dup forth-wordlist ! Last !
 .unresolved
 
-cr cr 
-bigendian [IF]
-   save-cross kernl32b.fi
+cr cr
+cell bigendian
+[IF]
+   dup 2 = [IF]   save-cross kernl16b.fi  [THEN]
+   dup 4 = [IF]   save-cross kernl32b.fi  [THEN]
+   dup 8 = [IF]   save-cross kernl64b.fi  [THEN]
 [ELSE]
-   save-cross kernl32l.fi
-[THEN] cr
+   dup 2 = [IF]   save-cross kernl16l.fi  [THEN]
+   dup 4 = [IF]   save-cross kernl32l.fi  [THEN]
+   dup 8 = [IF]   save-cross kernl64l.fi  [THEN]
+[THEN] drop cr
 
 bye

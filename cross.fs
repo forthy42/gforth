@@ -1,5 +1,5 @@
 \ CROSS.FS     The Cross-Compiler                      06oct92py
-\ $Id: cross.fs,v 1.18 1994-12-15 12:35:12 pazsan Exp $
+\ $Id: cross.fs,v 1.19 1995-01-19 17:47:59 pazsan Exp $
 \ Idea and implementation: Bernd Paysan (py)
 \ Copyright 1992-94 by the GNU Forth Development Group
 
@@ -86,17 +86,28 @@ Variable tdp
 
 included
 
+\ Create additional parameters                         19jan95py
+
+T
+cell               Constant tcell
+cell<<             Constant tcell<<
+cell>bit           Constant tcell>bit
+bits/byte          Constant tbits/byte
+float              Constant tfloat
+1 bits/byte lshift Constant maxbyte
+H
+
 >TARGET
 
 \ Byte ordering and cell size                          06oct92py
 
-: cell+         cell + ;
-: cells         cell<< lshift ;
+: cell+         tcell + ;
+: cells         tcell<< lshift ;
 : chars         ;
-: floats	float * ;
+: floats	tfloat * ;
     
 >CROSS
-: cell/         cell<< rshift ;
+: cell/         tcell<< rshift ;
 >TARGET
 20 CONSTANT bl
 -1 Constant NIL
@@ -111,11 +122,23 @@ included
 >CROSS
 
 bigendian  0 pad ! -1 pad c! pad @ 0<
-= [IF]   : bswap ; immediate 
-[ELSE]   : bswap ( big / little -- little / big )  0
-           cell 1- FOR  bits/byte lshift over
-                        [ 1 bits/byte lshift 1- ] Literal and or
-                        swap bits/byte rshift swap  NEXT  nip ;
+= [IF]
+\   : bswap ; immediate 
+: T!  ( n addr -- )  >r s>d r> tcell bounds swap 1-
+  DO  maxbyte ud/mod rot I c!  -1 +LOOP  2drop ;
+: T@  ( addr -- n )  >r 0 0 r> tcell bounds
+  DO  maxbyte * swap maxbyte um* rot + swap I c@ + swap  LOOP d>s ;
+
+[ELSE]
+: T!  ( n addr -- )  >r s>d r> tcell bounds
+  DO  maxbyte ud/mod rot I c!  LOOP  2drop ;
+: T@  ( addr -- n )  >r 0 0 r> tcell bounds swap 1-
+  DO  maxbyte * swap maxbyte um* rot + swap I c@ + swap  -1 +LOOP d>s ;
+
+\   : bswap ( big / little -- little / big )  0
+\           cell 1- FOR  bits/byte lshift over
+\                        [ 1 bits/byte lshift 1- ] Literal and or
+\                        swap bits/byte rshift swap  NEXT  nip ;
 [THEN]
 
 \ Memory initialisation                                05dec92py
@@ -164,8 +187,8 @@ CREATE Bittable 80 c, 40 c, 20 c, 10 c, 8 c, 4 c, 2 c, 1 c,
 >CROSS
 : >image ( taddr -- absaddr )  image @ + ;
 >TARGET
-: @  ( taddr -- w )     >image @ bswap ;
-: !  ( w taddr -- )     >r bswap r> >image ! ;
+: @  ( taddr -- w )     >image t@ ;
+: !  ( w taddr -- )     >image t! ;
 : c@ ( taddr -- char )  >image c@ ;
 : c! ( char taddr -- )  >image c! ;
 : 2@ ( taddr -- x1 x2 ) T dup cell+ @ swap @ H ;
@@ -547,10 +570,10 @@ Variable tup  0 tup !
 Variable tudp 0 tudp !
 : u,  ( n -- udp )
   tup @ tudp @ + T  ! H
-  tudp @ dup cell+ tudp ! ;
+  tudp @ dup T cell+ H tudp ! ;
 : au, ( n -- udp )
   tup @ tudp @ + T A! H
-  tudp @ dup cell+ tudp ! ;
+  tudp @ dup T cell+ H tudp ! ;
 >TARGET
 
 Build: T 0 u, , H ;
@@ -751,8 +774,9 @@ bigendian Constant bigendian
 : * * ;         : / / ;
 : dup dup ;     : over over ;
 : swap swap ;   : rot rot ;
-: drop drop ;
+: drop drop ;   : =   = ;
 : lshift lshift ; : 2/ 2/ ;
+: . . ;
 cell constant cell
 
 \ include bug5.fs

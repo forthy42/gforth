@@ -1,5 +1,5 @@
 /*
-  $Id: main.c,v 1.20 1994-12-12 17:10:42 anton Exp $
+  $Id: main.c,v 1.21 1995-01-19 17:48:08 pazsan Exp $
   Copyright 1993 by the ANSI figForth Development Group
 */
 
@@ -23,16 +23,16 @@
 #ifdef DIRECT_THREADED
 #  define CA(n)	(symbols[(n)])
 #else
-#  define CA(n)	((int)(symbols+(n)))
+#  define CA(n)	((Cell)(symbols+(n)))
 #endif
 
 #define maxaligned(n)	((((Cell)n)+sizeof(Float)-1)&-sizeof(Float))
 
-static int dictsize=0;
-static int dsize=0;
-static int rsize=0;
-static int fsize=0;
-static int lsize=0;
+static Cell dictsize=0;
+static Cell dsize=0;
+static Cell rsize=0;
+static Cell fsize=0;
+static Cell lsize=0;
 char *progname;
 
 
@@ -76,7 +76,7 @@ void relocate(Cell *image, char *bitstring, int size, Label symbols[])
 	    case CF(DOCON)   :
 	    case CF(DOUSER)  : 
 	    case CF(DODEFER) : MAKE_CF(image+i,symbols[CF(image[i])]); break;
-	    case CF(DODOES)  : MAKE_DOES_CF(image+i,image[i+1]+((int)image));
+	    case CF(DODOES)  : MAKE_DOES_CF(image+i,image[i+1]+((Cell)image));
 	      break;
 	    case CF(DOESJUMP): MAKE_DOES_HANDLER(image+i); break;
 	    default          : image[i]=(Cell)CA(CF(image[i]));
@@ -96,7 +96,7 @@ Cell *loader(FILE *imagefile)
   do
     {
       if(fread(magic,sizeof(Char),8,imagefile) < 8) {
-	fprintf(stderr,"This file doesn't seam to be a gforth image\n");
+	fprintf(stderr,"This file doesn't seem to be a gforth image\n");
 	exit(1);
       }
 #ifdef DEBUG
@@ -154,7 +154,7 @@ int go_forth(Cell *image, int stack, Cell *entries)
   Address lp=(Address)((void *)sp+lsize);
   Float *fp=(Float *)((void *)lp+fsize);
   Cell *rp=(Cell*)((void *)fp+rsize);
-  Xt *ip=(Xt *)(image[3]);
+  Xt *ip=(Xt *)((Cell)image[3]);
   int throw_code;
   
   for(;stack>0;stack--)

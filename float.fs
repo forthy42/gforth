@@ -103,5 +103,10 @@
 \ : facosh   fdup fdup f* 1e0 f- fsqrt f+ fln ;
 \ : fasinh   fdup fdup f* 1e0 f+ fsqrt f/ fatanh ;
 
+: f~ ( f1 f2 f3 -- flag )  fdup f0= IF  fdrop f= EXIT  THEN
+  fdup f0>   IF  frot frot f- fabs fswap
+           ELSE  fnegate frot frot fover fabs fover fabs f+ frot frot
+                 f- fabs frot frot f*  THEN  f< ;
+
 : f.s  ." <" fdepth 0 .r ." > " fdepth 0 max maxdepth-.s @ min dup 0 
   ?DO  dup i - 1- floats fp@ + f@ f.  LOOP  drop ; 

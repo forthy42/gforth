@@ -59,12 +59,12 @@ Label *engine(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp);
 #define MAKE_DOES_CF(cfa,does_code)	({MAKE_CF(cfa,symbols[DODOES]);	\
 					  ((Cell *)cfa)[1] = (Cell)does_code;})
 /* the does handler resides between DOES> and the following Forth code */
-#define DOES_HANDLER_SIZE	8
+#define DOES_HANDLER_SIZE	(2*sizeof(Cell))
 #define MAKE_DOES_HANDLER(addr)	0 /* do nothing */
 #endif
 
 #ifdef DEBUG
-#	define	NAME(string)	fprintf(stderr,"%08x: "string"\n",(int)ip);
+#	define	NAME(string)	fprintf(stderr,"%08x: "string"\n",(Cell)ip);
 #else
 #	define	NAME(string)
 #endif

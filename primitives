@@ -96,12 +96,12 @@ NEXT1;
 branch-lp+!#	--	new	branch_lp_plus_store_number
 /* this will probably not be used */
 branch_adjust_lp:
-lp += (int)(ip[1]);
+lp += (Cell)(ip[1]);
 goto branch;
 
 branch	--		fig
 branch:
-ip = (Xt *)(((int)ip)+(int)*ip);
+ip = (Xt *)(((Cell)ip)+(Cell)*ip);
 :
  r> dup @ + >r ;
 
@@ -149,7 +149,7 @@ if ((olddiff^(olddiff+n))>=0   /* the limit is not crossed */
     || (olddiff^n)>=0          /* it is a wrap-around effect */) {
 #else
 #ifndef MAXINT
-#define MAXINT ((1<<(8*sizeof(Cell)-1))-1)
+#define MAXINT ((((Cell)1)<<(8*sizeof(Cell)-1))-1)
 #endif
 if(((olddiff^MAXINT) >= n) ^ ((olddiff+n) < 0)) {
 #endif
@@ -852,7 +852,7 @@ while(a_addr != NULL)
 (hashkey)	c_addr u1 -- u2		new	paren_hashkey
 u2=0;
 while(u1--)
-   u2+=(int)toupper(*c_addr++);
+   u2+=(Cell)toupper(*c_addr++);
 :
  0 -rot bounds ?DO  I c@ toupper +  LOOP ;
 
@@ -944,7 +944,7 @@ wior = FILEEXIST(fstat(fileno((FILE *)wfileid), &buf));
 ud = buf.st_size;
 
 resize-file	ud wfileid -- wior	file	resize_file
-wior = FILEIO(ftruncate(fileno((FILE *)wfileid), (int)ud));
+wior = FILEIO(ftruncate(fileno((FILE *)wfileid), (Cell)ud));
 
 read-file	c_addr u1 wfileid -- u2 wior	file	read_file
 /* !! fread does not guarantee enough */
@@ -1121,7 +1121,7 @@ switch(number[u-1])
 }
 number[u]='\0';
 r=strtod(number,&endconv);
-if((flag=FLAG(!(int)*endconv)))
+if((flag=FLAG(!(Cell)*endconv)))
 {
 	IF_FTOS(fp[0] = FTOS);
 	fp += -1;
@@ -1131,7 +1131,7 @@ else if(*endconv=='d' || *endconv=='D')
 {
 	*endconv='E';
 	r=strtod(number,&endconv);
-	if((flag=FLAG(!(int)*endconv)))
+	if((flag=FLAG(!(Cell)*endconv)))
 	{
 		IF_FTOS(fp[0] = FTOS);
 		fp += -1;
@@ -1279,7 +1279,7 @@ c2 = toupper(c1);
 
 \ local variable implementation primitives
 @local#		-- w	new	fetch_local_number
-w = *(Cell *)(lp+(int)(*ip++));
+w = *(Cell *)(lp+(Cell)(*ip++));
 
 @local0	-- w	new	fetch_local_zero
 w = *(Cell *)(lp+0*sizeof(Cell));
@@ -1294,7 +1294,7 @@ w = *(Cell *)(lp+2*sizeof(Cell));
 w = *(Cell *)(lp+3*sizeof(Cell));
 
 f@local#	-- r	new	f_fetch_local_number
-r = *(Float *)(lp+(int)(*ip++));
+r = *(Float *)(lp+(Cell)(*ip++));
 
 f@local0	-- r	new	f_fetch_local_zero
 r = *(Float *)(lp+0*sizeof(Float));
@@ -1304,13 +1304,13 @@ r = *(Float *)(lp+1*sizeof(Float));
 
 laddr#		-- c_addr	new	laddr_number
 /* this can also be used to implement lp@ */
-c_addr = (Char *)(lp+(int)(*ip++));
+c_addr = (Char *)(lp+(Cell)(*ip++));
 
 lp+!#	--	new	lp_plus_store_number
 ""used with negative immediate values it allocates memory on the
 local stack, a positive immediate argument drops memory from the local
 stack""
-lp += (int)(*ip++);
+lp += (Cell)(*ip++);
 
 lp-	--	new	minus_four_lp_plus_store
 lp += -sizeof(Cell);

@@ -490,6 +490,8 @@ case "$host_cpu" in
 	hppa*)
 		mach_h=hppa
 		LIBOBJS="cache.o"
+		LDFLAGS="-Xlinker -N"
+		LIBS="-L/lib/pa1.1/ $LIBS"
 		;;
 	sparc*)
 		mach_h=sparc
@@ -504,6 +506,7 @@ case "$host_cpu" in
 		;;
 	mips*)
 		mach_h=mips
+		LDFLAGS="-Xlinker -N"
 		#!! link text and data segment into the same 256M region!
 		#!! does cacheflush work on OSs other than Ultrix?
 		;;
@@ -520,9 +523,17 @@ esac
 MAKE_EXE=""
 
 
+LINK_KERNL16L=""
+
+LINK_KERNL16B=""
+
 LINK_KERNL32L=""
 
 LINK_KERNL32B=""
+
+LINK_KERNL64L=""
+
+LINK_KERNL64B=""
 
 #if test $host_os=dos
 #then
@@ -540,7 +551,7 @@ else
   ac_cv_cross=yes
 else
 cat > conftest.$ac_ext <<EOF
-#line 544 "configure"
+#line 555 "configure"
 #include "confdefs.h"
 main(){return(0);}
 EOF
@@ -564,7 +575,7 @@ else
     { echo "configure: error: can not run test program while cross compiling" 1>&2; exit 1; }
 else
 cat > conftest.$ac_ext <<EOF
-#line 568 "configure"
+#line 579 "configure"
 #include "confdefs.h"
 main () {
   /* Are we little or big endian?  From Harbison&Steele.  */
@@ -597,10 +608,10 @@ fi
 
 if test $ac_cv_c_bigendian = yes; then
   bytesex=b
-  KERNAL="kernl32b.fi kernl32l.fi"
+  KERNAL="kernl16b.fi kernl16l.fi kernl32b.fi kernl32l.fi kernl64b.fi kernl64l.fi"
 else
   bytesex=l
-  KERNAL="kernl32l.fi kernl32b.fi"
+  KERNAL="kernl16l.fi kernl16b.fi kernl32l.fi kernl32b.fi kernl64l.fi kernl64b.fi"
 fi
 
 echo $ac_n "checking whether ln -s works""... $ac_c" 1>&4
@@ -682,7 +693,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="$LIBS -lm "
 cat > conftest.$ac_ext <<EOF
-#line 686 "configure"
+#line 697 "configure"
 #include "confdefs.h"
 
 int main() { return 0; }
@@ -722,7 +733,7 @@ else
   ac_cv_func_memcmp=no
 else
 cat > conftest.$ac_ext <<EOF
-#line 726 "configure"
+#line 737 "configure"
 #include "confdefs.h"
 
 main()
@@ -751,7 +762,7 @@ if eval "test \"`echo '${'ac_cv_func_$ac_func'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&4
 else
   cat > conftest.$ac_ext <<EOF
-#line 755 "configure"
+#line 766 "configure"
 #include "confdefs.h"
 #include <ctype.h> /* Arbitrary system header to define __stub macros. */
 /* Override any gcc2 internal prototype to avoid an error.  */
@@ -796,7 +807,7 @@ if eval "test \"`echo '${'ac_cv_func_getopt_long'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&4
 else
   cat > conftest.$ac_ext <<EOF
-#line 800 "configure"
+#line 811 "configure"
 #include "confdefs.h"
 #include <ctype.h> /* Arbitrary system header to define __stub macros. */
 /* Override any gcc2 internal prototype to avoid an error.  */
@@ -842,7 +853,7 @@ if eval "test \"`echo '${'ac_cv_func_$ac_func'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&4
 else
   cat > conftest.$ac_ext <<EOF
-#line 846 "configure"
+#line 857 "configure"
 #include "confdefs.h"
 #include <ctype.h> /* Arbitrary system header to define __stub macros. */
 /* Override any gcc2 internal prototype to avoid an error.  */
@@ -891,7 +902,7 @@ if eval "test \"`echo '${'ac_cv_func_$ac_func'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&4
 else
   cat > conftest.$ac_ext <<EOF
-#line 895 "configure"
+#line 906 "configure"
 #include "confdefs.h"
 #include <ctype.h> /* Arbitrary system header to define __stub macros. */
 /* Override any gcc2 internal prototype to avoid an error.  */
@@ -1047,8 +1058,12 @@ s%@host_cpu@%$host_cpu%g
 s%@host_vendor@%$host_vendor%g
 s%@host_os@%$host_os%g
 s%@MAKE_EXE@%$MAKE_EXE%g
+s%@LINK_KERNL16L@%$LINK_KERNL16L%g
+s%@LINK_KERNL16B@%$LINK_KERNL16B%g
 s%@LINK_KERNL32L@%$LINK_KERNL32L%g
 s%@LINK_KERNL32B@%$LINK_KERNL32B%g
+s%@LINK_KERNL64L@%$LINK_KERNL64L%g
+s%@LINK_KERNL64B@%$LINK_KERNL64B%g
 s%@KERNAL@%$KERNAL%g
 s%@LN_S@%$LN_S%g
 s%@INSTALL_PROGRAM@%$INSTALL_PROGRAM%g

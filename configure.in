@@ -27,6 +27,8 @@ case "$host_cpu" in
 	hppa*)
 		mach_h=hppa
 		LIBOBJS="cache.o"
+		LDFLAGS="-Xlinker -N"
+		LIBS="-L/lib/pa1.1/"
 		;;
 	sparc*)
 		mach_h=sparc
@@ -41,6 +43,7 @@ case "$host_cpu" in
 		;;
 	mips*)
 		mach_h=mips
+		LDFLAGS="-Xlinker -N"
 		#!! link text and data segment into the same 256M region!
 		#!! does cacheflush work on OSs other than Ultrix?
 		;;
@@ -58,10 +61,18 @@ AC_SUBST(MAKE_EXE)
 MAKE_EXE=""
 
 dnl copy commands for systems that don't have links
+AC_SUBST(LINK_KERNL16L)
+LINK_KERNL16L=""
+AC_SUBST(LINK_KERNL16B)
+LINK_KERNL16B=""
 AC_SUBST(LINK_KERNL32L)
 LINK_KERNL32L=""
 AC_SUBST(LINK_KERNL32B)
 LINK_KERNL32B=""
+AC_SUBST(LINK_KERNL64L)
+LINK_KERNL64L=""
+AC_SUBST(LINK_KERNL64B)
+LINK_KERNL64B=""
 
 #if test $host_os=dos
 #then
@@ -76,10 +87,10 @@ AC_SUBST(KERNAL)
 dnl ac_cv_c_bigendian is an undocumented variable of autoconf-2.1
 if test $ac_cv_c_bigendian = yes; then
   bytesex=b
-  KERNAL="kernl32b.fi kernl32l.fi"
+  KERNAL="kernl16b.fi kernl16l.fi kernl32b.fi kernl32l.fi kernl64b.fi kernl64l.fi"
 else
   bytesex=l
-  KERNAL="kernl32l.fi kernl32b.fi"
+  KERNAL="kernl16l.fi kernl16b.fi kernl32l.fi kernl32b.fi kernl64l.fi kernl64b.fi"
 fi
 
 dnl Checks for programs.
