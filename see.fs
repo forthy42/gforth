@@ -254,6 +254,20 @@ VARIABLE C-Pass
     THEN
     cell+ ;
 
+: .word
+    look 0= IF
+	drop dup 1 cells - @ ." <" 0 .r ." >"
+    ELSE
+	dup cell+ @ immediate-mask and
+	IF
+	    bl cemit  ." POSTPONE "
+	THEN
+	dup name>string rot wordinfo .string
+    THEN ;
+
+: c-call
+    Display? IF  dup @ body> .word bl cemit  THEN  cell+ ;
+
 : .name-without ( addr -- addr )
 \ prints a name without () e.g. (+LOOP) or (s")
   dup 1 cells - @ look 
@@ -425,6 +439,7 @@ VARIABLE C-Pass
 
 CREATE C-Table
 	        ' lit A,            ' c-lit A,
+		' call A,           ' c-call A,
 		' (s") A,	    ' c-c" A,
        		 ' (.") A,	    ' c-c" A,
         	' "lit A,           ' c-c" A,
@@ -493,16 +508,7 @@ c-extender !
     dup >r DoTable r> swap IF drop EXIT THEN
     Display?
     IF
-	look 0= IF
-	    drop dup 1 cells - @ ." <" 0 .r ." >"
-	ELSE
-	    dup cell+ @ immediate-mask and
-	    IF
-		bl cemit  ." POSTPONE "
-	    THEN
-	    dup name>string rot wordinfo .string
-	THEN
-	bl cemit
+	.word bl cemit
     ELSE
 	drop
     THEN ;

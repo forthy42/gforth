@@ -1777,7 +1777,7 @@ Comment (       Comment \
   ELSE  postpone literal postpone gexecute  THEN ;
                                         immediate
 
-: (cc) compile call T a, H ;		' (cc) IS colon,
+: (cc) compile call T >body a, H ;		' (cc) IS colon,
 
 : [G'] 
 \G ticks a ghost and returns its address
@@ -1976,7 +1976,7 @@ Cond: ; ( -- ) restrict?
                state off
                ;Resolve @
 	       IF ;Resolve @ ;Resolve cell+ @ resolve
-	          ['] prim-resolved ;Resolve @ >comp ! THEN
+	          ['] colon-resolved ;Resolve @ >comp ! THEN
 		Interpreting comp-state !
                ;Cond
 Cond: [  restrict? state off Interpreting comp-state ! ;Cond
@@ -1994,11 +1994,17 @@ Create GhostDummy ghostheader
     GhostDummy >link ! GhostDummy 
     tlastcfa @ >tempdp dodoes, tempdp> ;
 
+: g>body ( ghost -- body )
+    >link @ T >body H ;
+: does-resolved ( ghost -- )
+    dup g>body alit, >end @ g>body colon, ;
+
 >TARGET
 Cond: DOES> restrict?
         compile (does>) doeshandler, 
 	\ resolve words made by builders
-	tdoes @ ?dup IF  @ T here H resolve THEN
+	tdoes @ ?dup IF  @ dup T here H resolve
+	    ['] prim-resolved swap >comp !  THEN
         ;Cond
 : DOES> switchrom doeshandler, T here H !does depth T ] H ;
 
@@ -2075,8 +2081,6 @@ Cond: DOES> restrict?
   postpone TCreate 
   [ [THEN] ] ;
 
-: g>body ( ghost -- body )
-    >link @ T >body H ;
 : gdoes>  ( ghost -- addr flag )
   executed-ghost @
   state @ IF  gexecute true EXIT  THEN
@@ -2127,7 +2131,7 @@ Builder 2Constant
 
 BuildSmart: ;
 by: :dovar ( ghost -- addr ) ;DO
-compile: alit, ;compile
+\ compile: alit, ;compile
 Builder Create
 
 T has? rom H [IF]
