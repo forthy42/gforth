@@ -47,6 +47,11 @@
 UCell cols=DEFAULTCOLS;
 UCell rows=DEFAULTROWS;
 
+#ifndef SA_NODEFER
+#define SA_NODEDER 0
+/* systems that don't have SA_NODEFER hopefully don't block anyway */
+#endif
+
 #ifdef SA_SIGINFO
 void install_signal_handler(int sig, void (*handler)(int, siginfo_t *, void *))
      /* installs three-argument signal handler for sig */
