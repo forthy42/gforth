@@ -20,7 +20,7 @@
 
 \ contributed by Bernd Thallner
 
-require ../../code.fs
+\ require ../../code.fs
 
 get-current
 also assembler definitions

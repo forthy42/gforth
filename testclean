@@ -1,6 +1,6 @@
 #usage: invoke this in the gforth directory
-GFORTH=gforth-0.4.0
-make dist
+GFORTH=gforth-0.4.9-20000715
+make dist >/dev/null 2>/dev/null
 mkdir xxxtest
 cd xxxtest
 for i in orig changed
@@ -13,7 +13,7 @@ done
 cd changed/$GFORTH
 ./configure >/dev/null
 make >/dev/null 2>/dev/null
-make distclean
+make distclean >/dev/null 2>/dev/null
 cd ../..
 echo checking distclean
 diff -rq orig changed
@@ -25,9 +25,9 @@ do
 done
 cd changed/$GFORTH
 make >/dev/null 2>/dev/null
-make clean
+make clean >/dev/null 2>/dev/null
 cd ../..
 echo checking clean
-diff -rq orig changed
+diff -ru orig changed
 cd ..
 rm -rf xxxtest

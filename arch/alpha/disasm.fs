@@ -22,7 +22,7 @@
 
 \ util
 
-require asm.fs
+\ require asm.fs
 
 \  : h@ ( addr -- n )  \ 32 bit fetch
 \  dup dup aligned = if

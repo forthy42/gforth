@@ -119,7 +119,7 @@ CVSDIRS = CVS engine/CVS kernel/CVS doc/CVS asm/CVS ec/CVS test/CVS \
 	arch/386/CVS arch/hppa/CVS arch/sparc/CVS arch/power/CVS \
 	arch/alpha/CVS arch/4stack/CVS arch/misc/CVS arch/6502/CVS \
 	arch/8086/CVS arch/avr/CVS arch/c165/CVS arch/h8/CVS \
-	arch/shboom/CVS arch/sharc/CVS \
+	arch/shboom/CVS
 
 INCLUDES = engine/forth.h engine/threaded.h engine/io.h
 
@@ -209,7 +209,7 @@ GFORTH_FI_SRC = \
 	wordinfo.fs \
 	arch/386/asm.fs arch/386/disasm.fs \
 	arch/alpha/asm.fs arch/alpha/disasm.fs \
-	arch/mips/asm.fs arch/mips/disasm.fs
+	arch/mips/asm.fs arch/mips/disasm.fs arch/mips/insts.fs
 
 FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_SRC) $(EC_SRC) \
 	ans-report.fs ansi.fs answords.fs \
@@ -291,14 +291,15 @@ ARCHS =	\
 	arch/shboom/prim.fs \
 	arch/shboom/dis2.fs \
 	arch/shboom/sh.p \
-	arch/shboom/doers.fs \
-	arch/sharc/mach.fs \
-	arch/sharc/machine.h \
-	arch/sharc/compile.sharc \
-	arch/sharc/unistd.h \
-	arch/sharc/systypes.h \
-	arch/sharc/types.h \
-	arch/sharc/g21k-3.3.4-bp1.diff
+	arch/shboom/doers.fs
+
+#	arch/sharc/mach.fs \
+#	arch/sharc/machine.h \
+#	arch/sharc/compile.sharc \
+#	arch/sharc/unistd.h \
+#	arch/sharc/systypes.h \
+#	arch/sharc/types.h \
+#	arch/sharc/g21k-3.3.4-bp1.diff
 
 SOURCES	= $(CVSDIRS) compat Makefile.in Makedist.in engine/Makefile.in gforthmi.in \
 	configure.in configure config.sub config.guess elisp-comp missing \
@@ -451,6 +452,7 @@ binonlydist:	Makedist FORCE
 #install does not depend on gforth.info, because that would require
 #supplying a lot of files that can be easily generated (only info is
 #hard to generate)
+#gforth.fi and install.TAGS is rm'ed after installing because of ownership
 install:	gforth$(EXE) $(FORTH_SRC) $(kernel_fi) gforth.fi gforthmi doc/gforth.1 prim install.TAGS installdirs
 		touch $(siteforthdir)/siteinit.fs
 		-$(RM) $(bindir)/gforth$(EXE) $(bindir)/gforth-$(VERSION)$(EXE) $(bindir)/gforthmi
@@ -472,7 +474,6 @@ install:	gforth$(EXE) $(FORTH_SRC) $(kernel_fi) gforth.fi gforthmi doc/gforth.1 
 		GFORTHD="./gforth-ditc -p$(libdir)/gforth/site-forth$(PATHSEP)$(siteforthdir)$(PATHSEP)$(datadir)/gforth/$(VERSION) -i $(kernel_fi)" GFORTH="./gforth-ditc --die-on-signal -i $(kernel_fi) $(STARTUP)" ./gforthmi gforth.fi $(FORTHSIZES) $(STARTUP) #gforth.fi contains some path names
 		$(INSTALL_DATA) gforth.fi $(libdir)/gforth/$(VERSION)
 		$(INSTALL_DATA) install.TAGS $(datadir)/gforth/$(VERSION)/TAGS
-		# after install, remove these because they are owned by ROOT
 		$(RM) gforth.fi install.TAGS
 		@if test -d "$(emacssitelispdir)"; then \
 			$(INSTALL_DATA) $(srcdir)/gforth.el $(emacssitelispdir); \
@@ -491,7 +492,7 @@ installdirs:	mkinstalldirs
 		for i in $(CVSDIRS); do \
 			$(srcdir)/mkinstalldirs $(datadir)/gforth/$(VERSION)/`dirname $$i`; \
 		done
-		$(RM) -rf $(datadir)/gforth/$(VERSION)/arch $(datadir)/gforth/$(VERSION)/engine
+		$(RM) -rf $(datadir)/gforth/$(VERSION)/engine
 
 #deinstall all files specific to this version of gforth
 #to uninstall version foo, type `make uninstall VERSION=foo'
@@ -549,7 +550,8 @@ kernl-%.fi:	arch/%/mach.fs $(KERN_SRC) kernel/version.fs $(FORTH_GEN0)
 		else $(CP) $@- $@; \
 		fi
 
-arch/%/mach.fs:	arch/%/prim.fs arch/%/asm.fs
+#SunOS make does not like that
+#arch/%/mach.fs:	arch/%/prim.fs arch/%/asm.fs
 
 kernl16b.fi:	$(KERNLS)
 		-$(CP) kernl16b.fi kernl16b.fi~

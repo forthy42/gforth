@@ -46,3 +46,6 @@ line)  anton 27apr2000
 The output of .included for gforth.fi does not include exboot.fs and
 exceptions.fs  anton 1jul00
 
+When arch/alpha/asm.fs is somewhere on the path (not in the wd), and
+includes ../../code.fs, Gforth should interpret .. relative to the
+position of asm.fs, but doesn't.  anton 15jul00
