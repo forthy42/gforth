@@ -1,0 +1,97 @@
+@include version.texi
+
+@c @ifnottex
+This file documents vmgen (Gforth @value{VERSION}).
+
+@section Introduction
+
+Vmgen is a tool for writing efficient interpreters.  It takes a simple
+virtual machine description and generates efficient C code for dealing
+with the virtual machine code in various ways (in particular, executing
+it).  The run-time efficiency of the resulting interpreters is usually
+within a factor of 10 of machine code produced by an optimizing
+compiler.
+
+The interpreter design strategy supported by vmgen is to divide the
+interpreter into two parts:
+
+@itemize @bullet
+
+@item The @emph{front end} takes the source code of the language to be
+implemented, and translates it into virtual machine code.  This is
+similar to an ordinary compiler front end; typically an interpreter
+front-end performs no optimization, so it is relatively simple to
+implement and runs fast.
+
+@item The @emph{virtual machine interpreter} executes the virtual
+machine code.
+
+@end itemize
+
+Such a division is usually used in interpreters, for modularity as well
+as for efficiency reasons.  The virtual machine code is typically passed
+between front end and virtual machine interpreter in memory, like in a
+load-and-go compiler; this avoids the complexity and time cost of
+writing the code to a file and reading it again.
+
+A @emph{virtual machine} (VM) represents the program as a sequence of
+@emph{VM instructions}, following each other in memory, similar to real
+machine code.  Control flow occurs through VM branch instructions, like
+in a real machine.
+
+In this setup, vmgen can generate most of the code dealing with virtual
+machine instructions from a simple description of the virtual machine
+instructions (@pxref...), in particular:
+
+@table @emph
+
+@item VM instruction execution
+
+@item VM code generation
+Useful in the front end.
+
+@item VM code decompiler
+Useful for debugging the front end.
+
+@item VM code tracing
+Useful for debugging the front end and the VM interpreter.  You will
+typically provide other means for debugging the user's programs at the
+source level.
+
+@item VM code profiling
+Useful for optimizing the VM insterpreter with superinstructions
+(@pxref...).
+
+@end table
+
+VMgen supports efficient interpreters though various optimizations, in
+particular
+
+@itemize
+
+@item Threaded code
+
+@item Caching the top-of-stack in a register
+
+@item Combining VM instructions into superinstructions
+
+@item
+Replicating VM (super)instructions for better BTB prediction accuracy
+(not yet in vmgen-ex, but already in Gforth).
+
+@end itemize
+
+As a result, vmgen-based interpreters are only about an order of
+magintude slower than native code from an optimizing C compiler on small
+benchmarks; on large benchmarks, which spend more time in the run-time
+system, the slowdown is often less (e.g., the slowdown over the best JVM
+JIT compiler we measured is only a factor of 2-3 for large benchmarks
+(and some other JITs were slower than our interpreter).
+
+VMs are usually designed as stack machines (passing data between VM
+instructions on a stack), and vmgen supports such designs especially
+well; however, you can also use vmgen for implementing a register VM and
+still benefit from most of the advantages offered by vmgen.
+
+@section Why interpreters?
+
