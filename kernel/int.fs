@@ -365,7 +365,7 @@ const Create ???  0 , 3 c, char ? c, char ? c, char ? c,
     drop true ;
 
 : >head ( cfa -- nt ) \ gforth  to-head
-    $21 cell do ( cfa )
+    $25 cell do ( cfa )
 	dup i - count $9F and + cfaligned over alias-mask + =
 	if ( cfa )
 	    dup i - cell - dup head?
@@ -380,7 +380,7 @@ const Create ???  0 , 3 c, char ? c, char ? c, char ? c,
 [ELSE]
 
 : >head ( cfa -- nt ) \ gforth  to-head
-    $21 cell do ( cfa )
+    $25 cell do ( cfa )
 	dup i - count $9F and + cfaligned over alias-mask + =
 	if ( cfa ) i - cell - unloop exit
 	then
