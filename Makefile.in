@@ -458,6 +458,8 @@ install:	gforth$(EXE) $(FORTH_SRC) $(kernel_fi) gforth.fi gforthmi doc/gforth.1 
 		GFORTHD="./gforth-ditc -p$(libdir)/gforth/site-forth$(PATHSEP)$(siteforthdir)$(PATHSEP)$(datadir)/gforth/$(VERSION) -i $(kernel_fi)" GFORTH="./gforth-ditc --die-on-signal -i $(kernel_fi) startup.fs" ./gforthmi gforth.fi $(FORTHSIZES) startup.fs #gforth.fi contains some path names
 		$(INSTALL_DATA) gforth.fi $(libdir)/gforth/$(VERSION)
 		$(INSTALL_DATA) install.TAGS $(datadir)/gforth/$(VERSION)/TAGS
+		# after install, remove these because they are owned by ROOT
+		$(RM) gforth.fi install.TAGS
 		@if test -d "$(emacssitelispdir)"; then \
 			$(INSTALL_DATA) $(srcdir)/gforth.el $(emacssitelispdir); \
 		else \
@@ -671,12 +673,14 @@ doc/gforth.info doc/gforth.info-*: $(GFORTH_TEXI)
 html:		$(GFORTH_TEXI)
 		-$(RMTREE) html
 		-mkdir html
+### need makeinfo 4.0 to generate html. Otherwise, use texi2html..
+###		cd html; $(MAKEINFO) --html -I ../doc ../doc/gforth.texi
 		cd html; $(TEXI2HTML) -menu -split_node ../doc/gforth.texi
 
 doc/gforth.txt:	$(GFORTH_TEXI)
 		-cd doc; $(MAKEINFO) --no-headers --no-split gforth.texi >gforth.txt
 
-doc:		info doc/gforth.ps html doc/gforth.txt
+doc:		info doc/gforth.ps html doc/gforth.txt TAGS
 
 # For an explanation of the following Makefile rules, see node
 # `Automatic Remaking' in GNU Autoconf documentation.
