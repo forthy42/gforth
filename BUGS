@@ -29,3 +29,8 @@ Our ecvt routine apparently does not work correctly for Infs and NaNs.
 Try "ac_cv_func_ecvt=no ./configure; make" and then in Gforth: "1e 0e
 f/ f. 0e 0e f/ f.". anton 25sep00
 
+Our ecvt routine does not round correctly, e.g., 0.25->0.3. Marcel
+Hendrix 3oct00 <8rdcmd$j96$1@news.IAEhv.nl>
+
+Newline has only LF (instead of CRLF) in DOS.  Bruce Hoyt 25oct2000
+<39f7b14b$2@clear.net.nz>

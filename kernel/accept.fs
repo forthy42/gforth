@@ -45,16 +45,20 @@ defer everychar
   >r 2over = IF  rdrop bell 0 EXIT  THEN
   r> insert-char 0 ;
 
-: accept   ( c-addr +n1 -- +n2 ) \ core
-    \G Receive a string of at most @var{+n2} characters, and store it
-    \G in memory starting at @var{c-addr}. The string is
-    \G displayed. Input terminates when the <return> key is pressed or
-    \G @var{n1} characters have been received. The normal Gforth line
-    \G editing capabilites are available. @var{+n2} is the length of
-    \G the string; it does not include the <return> character.
-    dup 0< IF abs over dup 1 chars - c@ tuck type
-	\ this allows to edit given strings
-    ELSE 0 THEN rot over
+: edit-line ( c-addr n1 n2 -- n3 ) \ gforth
+    \G edit the string with length @var{n2} in the buffer @var{c-addr
+    \G n1}, like @code{accept}.
+    rot over
+    2dup type
     BEGIN key decode UNTIL
     2drop nip ;
-
+    
+: accept   ( c-addr +n1 -- +n2 ) \ core
+    \G Get a string of up to @var{n1} characters from the user input
+    \G device and store it at @var{c-addr}.  @var{n2} is the length of
+    \G the received string. The user indicates the end by pressing
+    \G @key{RET}.  Gforth supports all the editing functions available
+    \G on the Forth command line (including history and word
+    \G completion) in @code{accept}.
+    dup 0< -&24 and throw \ use edit-line to edit given strings
+    0 edit-line ;
