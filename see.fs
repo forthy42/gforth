@@ -25,7 +25,10 @@
 
 \ Ideas:        Level should be a stack
 
+require look.fs
 require termsize.fs
+require wordinfo.fs
+[IFUNDEF] .name : .name name>string type space ; [THEN]
 
 decimal
 
@@ -56,7 +59,7 @@ DEFER nlcount ' noop IS nlcount
 
 : nl            nlflag on ;
 : (nl)          nlcount
-                XPos @ Level @ = ?Exit
+                XPos @ Level @ = IF EXIT THEN \ ?Exit
                 C-Formated @ IF
                 C-Output @
                 IF C-Clearline @ IF cols XPos @ - spaces
@@ -247,27 +250,18 @@ VARIABLE C-Pass
     THEN
     cell+ ;
 
-: c-s"
-        count 2dup + aligned -rot
-        Display?
-        IF      [char] S cemit [char] " cemit bl cemit 0 .string
-                [char] " cemit bl cemit
-        ELSE    2drop
-        THEN ;
-
-: c-."
-        count 2dup + aligned -rot
-        Display?
-        IF      [char] . cemit
-                [char] " cemit bl cemit 0 .string
-                [char] " cemit bl cemit
-        ELSE    2drop
-        THEN ;
+: .name-without ( addr -- addr )
+\ prints a name without () e.g. (+LOOP) or (s")
+  dup 1 cells - @ look 
+  IF   name>string over c@ '( = IF 1 /string THEN
+       2dup + 1- c@ ') = IF 1- THEN .struc ELSE drop 
+  THEN ;
 
 : c-c"
+	Display? IF nl .name-without THEN
         count 2dup + aligned -rot
         Display?
-        IF      [char] C cemit [char] " cemit bl cemit 0 .string
+        IF      bl cemit 0 .string
                 [char] " cemit bl cemit
         ELSE    2drop
         THEN ;
@@ -373,10 +367,6 @@ VARIABLE C-Pass
 : c-for
         Display? IF nl S" FOR" .struc level+ THEN ;
 
-: .name-without
-\ prints a name without () e.g. (+LOOP)
-	dup 1 cells - @ look IF name>string 1 /string 1- .struc ELSE drop THEN ;
-
 : c-loop
         Display? IF level- nl .name-without bl cemit nl THEN
         DebugBranch cell+ 
@@ -418,29 +408,30 @@ VARIABLE C-Pass
 
 
 CREATE C-Table
-        ' lit A,            ' c-lit A,
-	' (s") A,	    ' c-s" A,
-        ' (.") A,	    ' c-." A,
-        ' "lit A,           ' c-c" A,
-        ' (do) A,           ' c-do A,
-	' (+do) A,	    ' c-do A,
-	' (u+do) A,	    ' c-do A,
-	' (-do) A,	    ' c-do A,
-	' (u-do) A,	    ' c-do A,
-        ' (?do) A,          ' c-?do A,
-        ' (for) A,          ' c-for A,
-        ' ?branch A,        ' c-?branch A,
-        ' branch A,         ' c-branch A,
-        ' (loop) A,         ' c-loop A,
-        ' (+loop) A,        ' c-loop A,
-        ' (s+loop) A,       ' c-loop A,
-        ' (-loop) A,        ' c-loop A,
-        ' (next) A,         ' c-loop A,
-        ' ;s A,             ' c-exit A,
-        ' (does>) A,        ' c-does> A,
-        ' (abort") A,       ' c-abort" A,
-        ' (compile) A,      ' c-(compile) A,
-        0 ,		here 0 ,
+	        ' lit A,            ' c-lit A,
+		' (s") A,	    ' c-c" A,
+       		 ' (.") A,	    ' c-c" A,
+        	' "lit A,           ' c-c" A,
+[IFDEF] (c")	' (c") A,	    ' c-c" A, [THEN]
+        	' (do) A,           ' c-do A,
+[IFDEF] (+do)	' (+do) A,	    ' c-do A, [THEN]
+[IFDEF] (u+do)	' (u+do) A,	    ' c-do A, [THEN]
+[IFDEF] (-do)	' (-do) A,	    ' c-do A, [THEN]
+[IFDEF] (u-do)	' (u-do) A,	    ' c-do A, [THEN]
+        	' (?do) A,          ' c-?do A,
+        	' (for) A,          ' c-for A,
+        	' ?branch A,        ' c-?branch A,
+        	' branch A,         ' c-branch A,
+        	' (loop) A,         ' c-loop A,
+        	' (+loop) A,        ' c-loop A,
+[IFDEF] (s+loop) ' (s+loop) A,       ' c-loop A, [THEN]
+[IFDEF] (-loop) ' (-loop) A,        ' c-loop A, [THEN]
+        	' (next) A,         ' c-loop A,
+        	' ;s A,             ' c-exit A,
+        	' (does>) A,        ' c-does> A,
+        	' (abort") A,       ' c-abort" A,
+        	' (compile) A,      ' c-(compile) A,
+        	0 ,		here 0 ,
 
 avariable c-extender
 c-extender !
@@ -572,7 +563,7 @@ IS discode
     if
 	seedoes EXIT
     then
-    dup forthstart u<
+    dup xtprim?
     if
 	seecode EXIT
     then
@@ -581,9 +572,15 @@ IS discode
 	docon: of seecon endof
 	docol: of seecol endof
 	dovar: of seevar endof
+[ [IFDEF] douser: ]
 	douser: of seeuser endof
+[ [THEN] ]
+[ [IFDEF] dodefer: ]
 	dodefer: of seedefer endof
+[ [THEN] ]
+[ [IFDEF] dofield: ]
 	dofield: of seefield endof
+[ [THEN] ]
 	over >body of seecode endof
 	2drop abort" unknown word type"
     ENDCASE ;

@@ -28,9 +28,9 @@
 
 decimal
 
-: PrimStart ['] true >name ;
-
 \ look                                                  17may93jaw
+
+\ rename to discover!!!
 
 : (look)  ( xt startlfa -- lfa flag )
         false swap
@@ -41,6 +41,19 @@ decimal
         drop nip
         dup 0<> ;
 
+
+\ !!! nicht optimal!
+[IFUNDEF] look
+[IFUNDEF] dictionary-end  has-rom [ELSE] false [THEN]
+[IF]
+
+: look ( cfa -- lfa flag )
+  forth-wordlist @ (look) ;
+
+[ELSE]
+
+: PrimStart ['] true >name ;
+
 : look ( cfa -- lfa flag )
         dup dictionary-end forthstart within
 	IF
@@ -49,3 +62,5 @@ decimal
 	    >name dup ??? <>
 	THEN ;
 
+[THEN]
+[THEN]

@@ -22,7 +22,7 @@
 \ If you want check values then exclude comments,
 \ but keep in mind that this can't be cross-compiled
 
-INCLUDE look.fs
+\ INCLUDE look.fs
 
 \ Wordinfo is a tool that checks a nfa
 \ and finds out what wordtype we have
@@ -61,9 +61,15 @@ INCLUDE look.fs
 \ the above words could be factored with create-does>, but this would
 \ probably make this file incompatible with cross.
 
+[IFDEF] forthstart
+: xtprim? ( xt -- flag )
+	forthstart u< ;
+[ELSE]
+: xtprim? ( xt -- flag )
+	dup >body swap >code-address = ;		
+[THEN]
 : prim? ( nfa -- flag )
-        name>int
-        forthstart u< ;
+        name>int xtprim? ;
 
 \ None nestable IDs:
 
