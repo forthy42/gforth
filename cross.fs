@@ -1,5 +1,5 @@
 \ CROSS.FS     The Cross-Compiler                      06oct92py
-\ $Id: cross.fs,v 1.1 1994-02-11 16:30:45 anton Exp $
+\ $Id: cross.fs,v 1.2 1994-05-03 15:24:11 pazsan Exp $
 \ Idea and implementation: Bernd Paysan (py)
 \ Copyright 1992 by the ANSI figForth Development Group
 
@@ -412,7 +412,7 @@ ghost (do)      ghost (?do)                     2drop
 ghost (for)                                     drop
 ghost (loop)    ghost (+loop)                   2drop
 ghost (next)                                    drop
-ghost unloop    ghost EXIT                      2drop
+ghost unloop    ghost ;S                        2drop
 ghost lit       ghost (compile) ghost !         2drop drop
 ghost (;code)   ghost noop                      2drop
 ghost (.")      ghost (S")      ghost (ABORT")  2drop drop
@@ -481,10 +481,12 @@ Cond: [Char]   ( "<char>" -- )  restrict? Char  lit, ;Cond
   (THeader ;Resolve ! there ;Resolve cell+ !
   docol, depth T ] H ;
 
+Cond: EXIT ( -- )  restrict?  compile ;S  ;Cond
+
 Cond: ; ( -- ) restrict?
                depth ?dup IF   1- <> ABORT" CROSS: Stack changed"
                           ELSE true ABORT" CROSS: Stack empty" THEN
-               compile EXIT state off
+               compile ;S state off
                ;Resolve @
                IF ;Resolve @ ;Resolve cell+ @ resolve THEN
                ;Cond

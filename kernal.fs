@@ -509,6 +509,8 @@ Create ???  ," ???"
 
 \ : ;                                                  24feb93py
 
+: EXIT  ( -- )  postpone ;s ;  immediate
+
 : : ( -- colon-sys )  Header [ :docol ] ALiteral cfa, 0 ] ;
 : ; ( colon-sys -- )  ?struc postpone exit reveal postpone [ ;
   immediate restrict

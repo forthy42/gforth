@@ -1,5 +1,5 @@
 /*
-$Id: primitives,v 1.2 1994-04-20 17:12:06 pazsan Exp $
+$Id: primitives,v 1.3 1994-05-03 15:24:14 pazsan Exp $
 Copyright 1992 by the ANSI figForth Development Group
 
 WARNING: This file is processed by m4. Make sure your identifiers
@@ -464,7 +464,7 @@ f_addr = fp;
 fp!	f_addr --	new	fp_store
 fp = f_addr;
 
-exit	--		core
+;s	--		core	exit
 /* use ;s as alias */
 ip = (Xt *)(*rp++);
 
@@ -875,13 +875,32 @@ r2 = cos(r1);
 fexp		r1 -- r2	float-ext
 r2 = exp(r1);
 
+fexpm1		r1 -- r2	float-ext
+r2 =
+#ifdef expm1
+	expm1(r1);
+#else
+	exp(r1)-1;
+#endif
+
 fln		r1 -- r2	float-ext
 r2 = log(r1);
+
+flnp1		r1 -- r2	float-ext
+r2 =
+#ifdef log1p
+	log1p(r1);
+#else
+	log(r1+1);
+#endif
 
 flog		r1 -- r2	float-ext
 r2 = log10(r1);
 
-fsin		r1 -- r2 r3	float-ext
+fsin		r1 -- r2	float-ext
+r2 = sin(r1);
+
+fsincos		r1 -- r2 r3	float-ext
 r2 = sin(r1);
 r3 = cos(r1);
 
