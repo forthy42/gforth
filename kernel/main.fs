@@ -103,10 +103,6 @@ include ./getdoers.fs
 
 \ Setup                                                13feb93py
 
-here normal-dp !
-UNLOCK tudp @ LOCK udp !
-decimal
-
 has? header [IF]
 \    UNLOCK
     here >address 2 cells  !  \ image size
@@ -116,7 +112,6 @@ has? header [IF]
   >boot
 [THEN]
 
-UNLOCK Tlast @
-LOCK
-1 cells - dup forth-wordlist wordlist-id ! Last !
+include ./pass.fs
+
 .unresolved
