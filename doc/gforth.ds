@@ -3379,18 +3379,18 @@ all of your input successfully. Now type something illegal:
 
 @example
 @kbd{qwer341@key{RET}}
-:1: Undefined word
-qwer341
-^^^^^^^
-$400D2BA8 Bounce
-$400DBDA8 no.extensions
+*the terminal*:2: Undefined word
+>>>qwer341<<<
+Backtrace:
+$2A95B42A20 throw 
+$2A95B57FB8 no.extensions 
 @end example
 
-The exact text, other than the ``Undefined word'' may differ slightly on
-your system, but the effect is the same; when the text interpreter
+The exact text, other than the ``Undefined word'' may differ slightly
+on your system, but the effect is the same; when the text interpreter
 detects an error, it discards any remaining text on a line, resets
-certain internal state and prints an error message. For a detailed description of error messages see @ref{Error
-messages}.
+certain internal state and prints an error message. For a detailed
+description of error messages see @ref{Error messages}.
 
 The text interpreter waits for you to press carriage-return, and then
 processes your input line. Starting at the beginning of the line, it
@@ -3440,11 +3440,11 @@ command:
 
 @example
 @kbd{12 dup fred dup@key{RET}}
-:1: Undefined word
-12 dup fred dup
-       ^^^^
-$400D2BA8 Bounce
-$400DBDA8 no.extensions
+*the terminal*:3: Undefined word
+12 dup >>>fred<<< dup
+Backtrace:
+$2A95B42A20 throw 
+$2A95B57FB8 no.extensions 
 @end example
 
 When you press the carriage-return key, the text interpreter starts to
@@ -3845,8 +3845,8 @@ define @code{add-two}:
 
 @example
 @kbd{: add-two 2 + . ;@key{RET}}
-  ^^^^^^^
-Error: Undefined word
+*the terminal*:4: Undefined word
+: >>>add-two<<< 2 + . ;
 @end example
 
 The reason that this didn't happen is bound up in the way that @code{:}
@@ -12105,8 +12105,7 @@ A typical Gforth error message looks like this:
 in file included from \evaluated string/:-1
 in file included from ./yyy.fs:1
 ./xxx.fs:4: Invalid memory address
-bar
-^^^
+>>>bar<<<
 Backtrace:
 $400E664C @@
 $400E6664 foo
@@ -12116,7 +12115,7 @@ The message identifying the error is @code{Invalid memory address}.  The
 error happened when text-interpreting line 4 of the file
 @file{./xxx.fs}. This line is given (it contains @code{bar}), and the
 word on the line where the error happened, is pointed out (with
-@code{^^^}).
+@code{>>>} and @code{<<<}).
 
 The file containing the error was included in line 1 of @file{./yyy.fs},
 and @file{yyy.fs} was included from a non-file (in this case, by giving

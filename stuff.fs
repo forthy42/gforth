@@ -300,3 +300,17 @@ interpret/compile: action-of ( interpretation "name" -- xt; compilation "name" -
 comp' action-of drop
 interpret/compile: what's ( interpretation "name" -- xt; compilation "name" -- ; run-time -- xt ) \ gforth-obsolete
 \G Old name of @code{action-of}
+
+
+: typewhite ( addr n -- ) \ gforth
+\G Like type, but white space is printed instead of the characters.
+    \ bounds u+do
+    0 max bounds ?do
+	i c@ #tab = if \ check for tab
+	    #tab
+	else
+	    bl
+	then
+	emit
+    loop ;
+

@@ -830,18 +830,6 @@ max-errors /error * cells allot
     \ !! not used...
     [char] $ emit base @ swap hex u. base ! ;
 
-: typewhite ( addr n -- ) \ gforth
-\G Like type, but white space is printed instead of the characters.
-    \ bounds u+do
-    0 max bounds ?do
-	i c@ #tab = if \ check for tab
-	    #tab
-	else
-	    bl
-	then
-	emit
-    loop ;
-
 : -trailing  ( c_addr u1 -- c_addr u2 ) \ string dash-trailing
 \G Adjust the string specified by @i{c-addr, u1} to remove all
 \G trailing spaces. @i{u2} is the length of the modified string.
