@@ -34,7 +34,7 @@ hex \ everything now hex!                               11may93jaw
 
 [IFUNDEF] cell 
 1 cells Constant cell ( -- u ) \ gforth
-\G @code{Constant} -- the number of address units corresponding to 1 cell.
+\G @code{Constant} -- @code{1 cells}
 [THEN]
 
 1 floats Constant float ( -- u ) \ gforth

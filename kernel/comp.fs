@@ -56,7 +56,7 @@
 
 : 2,	( w1 w2 -- ) \ gforth
     \G Reserve data space for two cells and store the double @i{w1
-    \G w2} in the space.
+    \G w2} there, @i{w2} first (lower address).
     here 2 cells allot 2! ;
 
 \ : aligned ( addr -- addr' ) \ core
@@ -86,8 +86,8 @@
 
 \ the code field is aligned if its body is maxaligned
 ' maxalign Alias cfalign ( -- ) \ gforth
-\G Align data-space pointer for code field (i.e., such that the
-\G corresponding body is maxaligned).
+\G Align data-space pointer for code field requirements (i.e., such
+\G that the corresponding body is maxaligned).
 
 ' , alias A, ( addr -- ) \ gforth
 

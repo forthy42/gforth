@@ -4463,6 +4463,10 @@ Execution token, same size as Cell
 @item wid
 @cindex @code{wid}, stack item type
 Word list ID, same size as Cell
+@item ior, wior
+@cindex ior type description
+@cindex wior type description
+I/O result code, cell-sized.  In Gforth, you can @code{throw} iors.
 @item f83name
 @cindex @code{f83name}, stack item type
 Pointer to a name structure
@@ -4786,12 +4790,12 @@ One particular problem with floating-point arithmetic is that comparison
 for equality often fails when you would expect it to succeed.  For this
 reason approximate equality is often preferred (but you still have to
 know what you are doing).  Also note that IEEE NaNs may compare
-differently from you might expect.  The comparison words are:
+differently from what you might expect.  The comparison words are:
 
 doc-f~rel
 doc-f~abs
-doc-f=
 doc-f~
+doc-f=
 doc-f<>
 
 doc-f<
@@ -4981,6 +4985,8 @@ because it is used for looking up names, just as you would in a
 conventional dictionary.}, the heap, and a number of system-allocated
 buffers.
 
+@cindex address arithmetic restrictions, ANS vs. Gforth
+@cindex contiguous regions, ANS vs. Gforth
 In ANS Forth data space is also divided into contiguous regions.  You
 can only use address arithmetic within a contiguous region, not between
 them.  Usually each allocation gives you one contiguous region, but the
@@ -5006,6 +5012,7 @@ Dictionary allocation is a stack-oriented allocation scheme, i.e., if
 you want to deallocate X, you also deallocate everything
 allocated after X.
 
+@cindex contiguous regions in dictionary allocation
 The allocations using the words below are contiguous and grow the region
 towards increasing addresses.  Other words that allocate dictionary
 memory of any kind (i.e., defining words including @code{:noname}) end
@@ -5054,10 +5061,16 @@ doc-cfalign
 @cindex dynamic allocation of memory
 @cindex memory-allocation word set
 
+@cindex contiguous regions and heap allocation
 Heap allocation supports deallocation of allocated memory in any
 order. Dictionary allocation is not affected by it (i.e., it does not
 end a contiguous region). In Gforth, these words are implemented using
 the standard C library calls malloc(), free() and resize().
+
+The memory region produced by one invocation of @code{allocate} or
+@code{resize} is internally contiguous.  There is no contiguity between
+such a region and any other region (including others allocated from the
+heap).
 
 doc-allocate
 doc-free
@@ -5067,7 +5080,6 @@ doc-resize
 @node Memory Access, Address arithmetic, Heap Allocation, Memory
 @subsection Memory Access
 @cindex memory access words
-
 
 doc-@
 doc-!
@@ -5083,6 +5095,7 @@ doc-sf!
 doc-df@
 doc-df!
 
+
 @node Address arithmetic, Memory Blocks, Memory Access, Memory
 @subsection Address arithmetic
 @cindex address arithmetic words
@@ -5091,17 +5104,20 @@ Address arithmetic is the foundation on which you can build data
 structures like arrays, records (@pxref{Structures}) and objects
 (@pxref{Object-oriented Forth}).
 
+@cindex address unit
+@cindex au (address unit)
 ANS Forth does not specify the sizes of the data types. Instead, it
 offers a number of words for computing sizes and doing address
 arithmetic. Address arithmetic is performed in terms of address units
 (aus); on most systems the address unit is one byte. Note that a
 character may have more than one au, so @code{chars} is no noop (on
-systems where it is a noop, it compiles to nothing).
+platforms where it is a noop, it compiles to nothing).
 
 The basic address arithmetic words are @code{+} and @code{-}.  E.g., if
 you have the address of a cell, perform @code{1 cells +}, and you will
 have the address of the next cell.
 
+@cindex contiguous regions and address arithmetic
 In ANS Forth you can perform address arithmetic only within a contiguous
 region, i.e., if you have an address into one region, you can only add
 and subtract such that the result is still within the region; you can
@@ -5286,13 +5302,15 @@ CASE
   @i{n1} OF @i{code1} ENDOF
   @i{n2} OF @i{code2} ENDOF
   @dots{}
+  ( n ) @i{default-code} ( n )
 ENDCASE
 @end example
 
-Executes the first @i{codei}, where the @i{ni} is equal to
-@i{n}. A default case can be added by simply writing the code after
-the last @code{ENDOF}. It may use @i{n}, which is on top of the stack,
-but must not consume it.
+Executes the first @i{codei}, where the @i{ni} is equal to @i{n}.  If no
+@i{ni} matches, the optional @i{default-code} is executed. The optional
+default case can be added by simply writing the code after the last
+@code{ENDOF}. It may use @i{n}, which is on top of the stack, but must
+not consume it.
 
 @node Simple Loops, Counted Loops, Selection, Control Structures
 @subsection Simple Loops
@@ -5433,7 +5451,7 @@ prints @code{0 2}
 @noindent
 prints @code{1 3}
 
-
+@item
 @cindex negative increment for counted loops
 @cindex counted loops with negative increment
 The behaviour of @code{@i{n} +LOOP} is peculiar when @i{n} is negative:
@@ -5686,141 +5704,127 @@ doc-;s
 @subsection Exception Handling
 @cindex exceptions
 
-If your program detects a fatal error condition, the simplest action
-that it can take is to @code{quit}. This resets the return stack and
-restarts the text interpreter, but does not print any error message.
+@c quit is a very bad idea for error handling, 
+@c because it does not translate into a THROW
+@c it also does not belong into this chapter
 
-The next stage in severity is to execute @code{abort}, which has the
-same effect as @code{quit}, with the addition that it resets the data
-stack.
+If a word detects an error condition that it cannot handle, it can
+@code{throw} an exception.  In the simplest case, this will terminate
+your program, and report an appropriate error.
 
-A slightly more sophisticated approach is use use @code{abort"}, which
-compiles a string to be used as an error message and does a conditional
-@code{abort} at run-time. For example:
+doc-throw
 
-@example
-@kbd{: checker abort" That flag was true" ." A false flag" ;@key{RET}}  ok
-@kbd{0 checker@key{RET}} A false flag ok
-@kbd{1 checker@key{RET}}
-:1: That flag was true
-1 checker
-  ^^^^^^^
-$400D1648 throw 
-$400E4660
-@end example
-
-These simple techniques allow a program to react to a fatal error
-condition, but they are not exactly user-friendly. The ANS Forth
-Exception word set provides the pair of words @code{throw} and
-@code{catch}, which can be used to provide sophisticated error-handling.
-
-@code{catch} has a similar behaviour to @code{execute}, in that it takes
-an @i{xt} as a parameter and starts execution of the xt. However,
-before passing control to the xt, @code{catch} pushes an
-@dfn{exception frame} onto the @dfn{exception stack}. This exception
-frame is used to restore the system to a known state if a detected error
-occurs during the execution of the xt. A typical way to use @code{catch}
-would be:
+@code{Throw} consumes a cell-sized error number on the stack; there are
+some predefined error numbers (see @file{errors.fs}).  In Gforth (and
+most other systems) you can use the iors produced by various words as
+error numbers (e.g., a typical use of @code{allocate} is @code{allocate
+throw}).  Gforth also provides the word @code{exception} to define your
+own error numbers (with decent error reporting); an ANS Forth version of
+this word (but without the error messages) is available in
+@code{compat/except.fs}.  And finally, you can use your own error
+numbers (anything outside the range -4095..0), but won't get nice error
+messages, only numbers.  For example, try:
 
 @example
-... ['] foo catch IF ...
+-10 throw
+-267 throw
+s" my error" exception throw
+7 throw
 @end example
 
-@c TOS is undefined. - anton
+doc---exception-exception
 
-@c nac-> TODO -- I need to look at this example again.
+Your program can catch exceptions and then either correct the problem,
+or clean up some data structures and just throw the exception to the
+next exception handler.  Note that @code{throw} always executes the
+dynamically innermost exception handler; the system's exception handler
+is outermost, and just prints an error and restarts command-line
+interpretation (or, in batch mode (i.e., while processing the shell
+command line), leaves Gforth).
 
-Whilst @code{foo} executes, it can call other words to any level of
-nesting, as usual.  If @code{foo} (and all the words that it calls)
-execute successfully, control will ultimately pass to the word following
-the @code{catch}, and there will be a 0 at TOS.  However, if any word
-detects an error, it can terminate the execution of @code{foo} by
-pushing a non-zero error code onto the stack and then performing a
-@code{throw}. The execution of @code{throw} will pass control to the
-word following the @code{catch}, but this time the TOS will hold the
-error code. Therefore, the @code{IF} in the example can be used to
-determine whether @code{foo} executed successfully.
-
-This simple example shows how you can use @code{throw} and @code{catch}
-to ``take over'' exception handling from the system:
-@example
-: my-div ['] / catch if ." DIVIDE ERROR" else ." OK.. " . then ;
-@end example
-
-The next example is more sophisticated and shows a multi-level
-@code{throw} and @code{catch}. To understand this example, start at the
-definition of @code{top-level} and work backwards:
-
-@example
-: lowest-level ( -- c )
-    key dup 27 = if
-        1 throw \ ESCAPE key pressed
-    else
-        ." lowest-level successful" CR
-    then
-;
-
-: lower-level ( -- c )
-    lowest-level
-    \ at this level consider a CTRL-U to be a fatal error
-    dup 21 = if \ CTRL-U
-        2 throw
-    else
-        ." lower-level successful" CR
-    then
-;
-
-: low-level ( -- c )
-    ['] lower-level catch
-    ?dup if
-        \ error occurred - do we recognise it?
-        dup 1 = if
-            \ ESCAPE key pressed.. pretend it was an E
-            [char] E
-        else throw \ propogate the error upwards
-        then
-    then
-    ." low-level successfull" CR
-;
-
-: top-level ( -- )
-    CR ['] low-level catch \ CATCH is used like EXECUTE
-    ?dup if \ error occurred..
-        ." Error " . ." occurred - contact your supplier"
-    else
-        ." The '" emit ." ' key was pressed" CR
-    then
-;
-@end example
-
-The ANS Forth document assigns @code{throw} codes thus:
-
-@itemize @bullet
-@item
-codes in the range -1 -- -255 are reserved to be assigned by the
-Standard. Assignments for codes in the range -1 -- -58 are currently
-documented in the Standard. In particular, @code{-1 throw} is equivalent
-to @code{abort} and @code{-2 throw} is equivalent to @code{abort"}.
-@item
-codes in the range -256 -- -4095 are reserved to be assigned by the system.
-@item
-all other codes may be assigned by programs.
-@end itemize
-
-Gforth provides the word @code{exception} as a mechanism for assigning
-system throw codes to applications. This allows multiple applications to
-co-exist in memory without any clash of @code{throw} codes. A definition
-of @code{exception} in ANS Forth is provided in
-@file{compat/exception.fs}.
-
-
-doc-quit
-doc-abort
-doc-abort"
+The ANS Forth way to catch exceptions is @code{catch}:
 
 doc-catch
-doc-throw
-doc---exception-exception
+
+The most common use of exception handlers is to clean up the state when
+an error happens.  E.g.,
+
+@example
+base @ >r hex \ actually the hex should be inside foo, or we h
+['] foo catch ( nerror|0 )
+r> base !
+( nerror|0 ) throw \ throw on
+@end example
+
+A use of @code{catch} for handling an error might look like this:
+
+@example
+['] foo catch 
+dup myerror = if \ an error we can do something about?
+  ... \ do something about it
+else
+    throw \ if there is an error, throw it on
+endif
+@end example
+
+Having to wrap the code into a separate word is often cumbersome,
+therefore Gforth provides an alternative syntax:
+
+@example
+try
+  @i{code1}
+recover     \ optional
+  @i{code2} \ optional
+endtry
+@end example
+
+This performs @i{Code1}.  If @i{code1} completes normally, execution
+continues after the @code{endtry}.  If @i{Code1} throws, the stacks are
+reset to the state during @code{try}, the throw value is pushed on the
+data stack, and execution constinues at @i{code2}, and finally falls
+through the @code{endtry} into the following code. If there is no
+@code{recover} clause, this works like an empty recover clause.
+
+doc-try
+doc-recover
+doc-endtry
+
+The cleanup example above in this syntax:
+
+@example
+base @ >r try
+  hex foo \ now the hex is placed correctly
+  0 \ value for throw
+endtry
+r> base ! throw
+@end example
+
+And here's the error handling example
+
+@example
+try
+  foo
+recover
+  dup myerror = if
+    ... \ do something about it
+  else
+    throw
+  endif
+endtry
+@end example
+
+There are two alternatives to @code{throw}: @code{Abort"} is conditional
+and you can provide an error message.  @code{Abort} just produces an
+``Aborted'' error.
+
+The problem with these words is that exception handlers cannot
+differentiate between different @code{abort"}s; they just look like
+@code{-2 throw} to them (the error message cannot be accessed by
+standard programs).  Similar @code{abort} looks like @code{-1 throw} to
+exception handlers.
+
+doc-abort"
+doc-abort
 
 
 
@@ -11504,7 +11508,7 @@ These section lists the ANS Forth words that are not documented
 elsewhere in this manual. Ultimately, they all need proper homes.
 
 doc-[compile]
-
+doc-quit
 
 The following ANS Forth words are not currently supported by Gforth 
 (@pxref{ANS conformance}):
@@ -12508,6 +12512,7 @@ All files that are left via the exception are closed.
 
 @item @i{ior} values and meaning:
 @cindex @i{ior} values and meaning
+@cindex @i{wior} values and meaning
 The @i{ior}s returned by the file and memory allocation words are
 intended as throw codes. They typically are in the range
 -512@minus{}-2047 of OS errors.  The mapping from OS error numbers to

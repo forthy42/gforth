@@ -98,7 +98,7 @@ Constant dictionary-end
 
 \ dabs roll                                           17may93jaw
 
-: dabs ( d1 -- d2 ) \ double d-abs
+: dabs ( d -- ud ) \ double d-abs
     dup 0< IF dnegate THEN ;
 
 : roll  ( x0 x1 .. xn n -- x1 .. xn x0 ) \ core-ext
@@ -200,12 +200,22 @@ has? glocals [IF]
 [THEN]
 
 defer catch ( x1 .. xn xt -- y1 .. ym 0 / z1 .. zn error ) \ exception
+\G @code{Executes} @i{xt}.  If execution returns normally,
+\G @code{catch} pushes 0 on the stack.  If execution returns through
+\G @code{throw}, all the stacks are reset to the depth on entry to
+\G @code{catch}, and the TOS (the @i{xt} position) is replaced with
+\G the throw code.
+
 :noname ( ... xt -- ... 0 )
     execute 0 ;
 is catch
 
-defer throw ( y1 .. ym error/0 -- y1 .. ym / z1 .. zn error ) \ exception
-:noname ( y1 .. ym error/0 -- y1 .. ym / z1 .. zn error )
+defer throw ( y1 .. ym nerror -- y1 .. ym / z1 .. zn error ) \ exception
+\G If @i{nerror} is 0, drop it and continue.  Otherwise, transfer
+\G control to the next dynamically enclosing exception handler, reset
+\G the stacks accordingly, and push @i{nerror}.
+
+:noname ( y1 .. ym error -- y1 .. ym / z1 .. zn error )
     ?dup if
 	[ has? ec 0= [IF] here forthstart 9 cells + ! [THEN] ]
 	cr .error cr
@@ -259,7 +269,7 @@ is throw
 
 \ !! I think */mod should have the same rounding behaviour as / - anton
 : */mod ( n1 n2 n3 -- n4 n5 ) \ core	star-slash-mod
-    \G n1*n2=n3*n5+n4, with the intermediate result (n1*n1) being double.
+    \G n1*n2=n3*n5+n4, with the intermediate result (n1*n2) being double.
     >r m* r> sm/rem ;
 
 : */ ( n1 n2 n3 -- n4 ) \ core	star-slash
