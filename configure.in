@@ -108,6 +108,8 @@ AC_CHECK_SIZEOF(short)
 AC_CHECK_SIZEOF(int)
 AC_CHECK_SIZEOF(long)
 AC_CHECK_SIZEOF(long long)
+AC_CHECK_SIZEOF(intptr_t)
+AC_CHECK_SIZEOF(int128_t)
 
 AC_MSG_CHECKING([for a C type for cells])
 ac_cv_int_type_cell=none
@@ -127,6 +129,12 @@ case "$ac_cv_sizeof_char_p" in
   $ac_cv_sizeof_long_long)
     ac_cv_int_type_cell="long long"
     ;;
+  $ac_cv_sizeof_intptr_t)
+    ac_cv_int_type_cell="intptr_t"
+    ;;
+  $ac_cv_sizeof_int128_t)
+    ac_cv_int_type_cell="int128_t"
+    ;;
 esac
 AC_MSG_RESULT($ac_cv_int_type_cell)
 AC_DEFINE_UNQUOTED(CELL_TYPE,$ac_cv_int_type_cell,[an integer type that is as long as a pointer])
@@ -145,6 +153,12 @@ case `expr 2 '*' "$ac_cv_sizeof_char_p"` in
     ;;
   $ac_cv_sizeof_long_long)
     ac_cv_int_type_double_cell="long long"
+    ;;
+  $ac_cv_sizeof_intptr_t)
+    ac_cv_int_type_double_cell="intptr_t"
+    ;;
+  $ac_cv_sizeof_int128_t)
+    ac_cv_int_type_double_cell="int128_t"
     ;;
 esac
 AC_MSG_RESULT($ac_cv_int_type_double_cell)
