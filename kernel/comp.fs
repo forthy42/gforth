@@ -486,9 +486,9 @@ DOES>
 
 \ IS Defer What's Defers TO                            24feb93py
 
-: defer-default ( -- ) \ gforth
-    \ might change into a THROW in the future
-    ; \ >stderr ." uninitialized deferred word" ;
+defer defer-default ( -- )
+' noop is defer-default
+\ default action for deferred words, might THROW in the future
     
 doer? :dodefer [IF]
 

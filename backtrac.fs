@@ -111,3 +111,7 @@ IS store-backtrace
 :noname ( -- )
     backtrace-rs-buffer 2@ over + print-backtrace ;
 IS dobacktrace
+
+:noname
+    r@ >stderr cr ." deferred word " print-bt-entry ." is uninitialized" ;
+is defer-default
