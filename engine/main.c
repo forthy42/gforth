@@ -84,6 +84,9 @@ int optind = 1;
 Address code_area=0;
 Address code_here=0; /* does for code-area what HERE does for the dictionary */
 
+static int no_super=0;   /* true if compile_prim should not fuse prims */
+static int no_dynamic=0; /* true if compile_prim should not generate code */
+
 #ifdef HAS_DEBUG
 static int debug=0;
 #else
@@ -461,7 +464,7 @@ void check_prims(Label symbols1[])
     int prim_len=symbols1[i+1]-symbols1[i];
     PrimInfo *pi=&priminfos[i];
     int j;
-    pi->super_end = superend[i-DOESJUMP-1];
+    pi->super_end = superend[i-DOESJUMP-1]|no_super;
     for (j=prim_len-IND_JUMP_LENGTH; ; j--) {
       if (IS_NEXT_JUMP(symbols1[i]+j)) {
 	prim_len = j;
@@ -479,7 +482,7 @@ void check_prims(Label symbols1[])
     pi->length = prim_len;
     /* fprintf(stderr,"checking primitive %d: memcmp(%p, %p, %d)\n",
        i, symbols1[i], symbols2[i], prim_len);*/
-    if (memcmp(symbols1[i],symbols2[i],prim_len)!=0) {
+    if (no_dynamic||memcmp(symbols1[i],symbols2[i],prim_len)!=0) {
       if (debug)
 	fprintf(stderr,"Primitive %d not relocatable: memcmp(%p, %p, %d)\n",
 		i, symbols1[i], symbols2[i], prim_len);
@@ -788,6 +791,8 @@ void gforth_args(int argc, char ** argv, char ** path, char ** imagename)
       {"clear-dictionary", no_argument, &clear_dictionary, 1},
       {"die-on-signal", no_argument, &die_on_signal, 1},
       {"debug", no_argument, &debug, 1},
+      {"no-super", no_argument, &no_super, 1},
+      {"no-dynamic", no_argument, &no_dynamic, 1},
       {0,0,0,0}
       /* no-init-file, no-rc? */
     };
@@ -824,7 +829,9 @@ Engine Options:\n\
   -i FILE, --image-file=FILE	    Use image FILE instead of `gforth.fi'\n\
   -l SIZE, --locals-stack-size=SIZE Specify locals stack size\n\
   -m SIZE, --dictionary-size=SIZE   Specify Forth dictionary size\n\
+  --no-dynamic			    Use only statically compiled primitives\n\
   --no-offset-im		    Load image at normal position\n\
+  --no-super                        No dynamically formed superinstructions\n\
   --offset-image		    Load image at a different position\n\
   -p PATH, --path=PATH		    Search path for finding image and sources\n\
   -r SIZE, --return-stack-size=SIZE Specify return stack size\n\
