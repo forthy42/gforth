@@ -1,6 +1,6 @@
-\ lib.fs	shared library support package 		11may97py
+\ lib.fs	shared library support package 		16aug03py
 
-\ Copyright (C) 1995,1996,1997,1998,2000 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,2000,2003 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -22,6 +22,11 @@ Variable libs 0 libs !
 Variable thisproc
 Variable thislib
 \G links between libraries
+Variable revdec  revdec off
+\ turn revdec on to compile bigFORTH libraries
+
+Vocabulary c-decl
+Vocabulary cb-decl
 
 : @lib ( lib -- )
     \G obtains library handle
@@ -46,7 +51,7 @@ Variable thislib
 
 : proc:  ( lib "name" -- )
     \G Creates a named proc stub
-    Create proc, 0
+    Create proc, 0 also c-decl
 DOES> ( x1 .. xn -- r )
     dup cell+ @ swap 3 cells + >r ;
 
@@ -72,28 +77,27 @@ DOES> ( -- )  dup thislib ! proc: ;
 
 ' init-shared-libs IS 'cold
 
+: rettype ( endxt startxt "name" -- )
+    create immediate 2,
+  DOES>
+    2@ compile, >r
+    revdec @ IF  0 >r
+	BEGIN  dup  WHILE  >r  REPEAT drop
+	BEGIN  r> dup  WHILE  compile,  REPEAT  drop
+    ELSE
+	BEGIN  dup  WHILE  compile,  REPEAT drop
+    THEN
+    r> compile,  postpone EXIT
+    here thisproc @ 2 cells + ! bl sword s,
+    thislib @ thisproc @ @proc previous ;
+
+also c-decl definitions
+
 ' av-int AConstant int
 ' av-float AConstant sf
 ' av-double AConstant df
 ' av-longlong AConstant llong
 ' av-ptr AConstant ptr
-
-Variable revdec  revdec off
-\ turn revdec on to compile bigFORTH libraries
-
-: rettype ( endxt startxt "name" -- )
-    create immediate 2,
-  DOES>
-    2@ compile, >r
-    revdec @ IF
-	0 >r  BEGIN  dup  WHILE  >r  REPEAT  drop
-	BEGIN  r> dup  WHILE  compile,  REPEAT  drop
-    ELSE
-	BEGIN dup  WHILE  compile,  REPEAT  drop
-    THEN
-    r> compile,  postpone EXIT
-    here thisproc @ 2 cells + ! bl sword s,
-    thislib @ thisproc @ @proc ;
 
 ' av-call-void ' av-start-void rettype (void)
 ' av-call-int ' av-start-int rettype (int)
@@ -102,28 +106,82 @@ Variable revdec  revdec off
 ' av-call-longlong ' av-start-longlong rettype (llong)
 ' av-call-ptr ' av-start-ptr rettype (ptr)
 
-\ compatibility layer for old library -- use is deprecated
+previous definitions
 
-Variable legacy
+\ legacy interface for old library interface
 
-\ turn legacy on for old library
+also c-decl
 
-warnings @ warnings off
-
+: (int...) ( n -- )
+    >r ' execute r> 0 ?DO  int  LOOP
+    0 postpone Literal postpone ?DO postpone int postpone LOOP
+    postpone (int) ;
+: (void...) ( n -- )
+    >r ' execute r> 0 ?DO  int  LOOP
+    0 postpone Literal postpone ?DO postpone int postpone LOOP
+    postpone (void) ;
+: (float...) ( n -- )
+    >r ' execute r> 0 ?DO  df  LOOP
+    0 postpone Literal postpone ?DO postpone df postpone LOOP
+    postpone (fp) ;
 : (int) ( n -- )
-    legacy @ IF
-	>r ' execute r> 0 ?DO  int  LOOP
-    THEN  (int) ;
+    >r ' execute r> 0 ?DO  int  LOOP  postpone (int) ;
 : (void) ( n -- )
-    legacy @ IF
-	>r ' execute r> 0 ?DO  int  LOOP
-    THEN  (void) ;
+    >r ' execute r> 0 ?DO  int  LOOP  postpone (void) ;
 : (float) ( n -- )
-    legacy @ IF
-	>r ' execute r> 0 ?DO  df  LOOP
-    THEN  (df) ;
+    >r ' execute r> 0 ?DO  df   LOOP  postpone (fp) ;
 
-warnings on
+previous
+
+\ callback stuff
+
+Variable callbacks
+\G link between callbacks
+
+: callback ( -- )
+    Create  0 ] postpone >r also cb-decl
+  DOES>
+    Create here >r 0 , callbacks @ A, r@ callbacks !
+    swap postpone Literal compile, postpone EXIT
+    r> dup cell+ cell+ alloc-callback swap !
+  DOES> @ ;
+
+: callback; ( 0 xt1 .. xtn -- )
+    BEGIN  over  WHILE  compile,  REPEAT
+    postpone r> postpone execute compile, drop
+    postpone EXIT postpone [ previous ; immediate
+
+: va-ret ( xt xt -- )
+    Create A, A, immediate
+  DOES> 2@ compile, ;
+
+: init-callbacks ( -- )
+    defers 'cold  callbacks 1 cells -
+    BEGIN  cell+ @ dup  WHILE  dup cell+ cell+ alloc-callback over !
+    REPEAT  drop ;
+
+' init-callbacks IS 'cold
+
+also cb-decl definitions
+
+\ arguments
+
+' va-arg-int      Alias int
+' va-arg-float    Alias sf
+' va-arg-double   Alias df
+' va-arg-longlong Alias llong
+' va-arg-ptr      Alias ptr
+
+' va-return-void     ' va-start-void     va-ret (void)
+' va-return-int      ' va-start-int      va-ret (int)
+' va-return-float    ' va-start-float    va-ret (sf)
+' va-return-double   ' va-start-double   va-ret (fp)
+' va-return-longlong ' va-start-longlong va-ret (llong)
+' va-return-ptr      ' va-start-ptr      va-ret (ptr)
+
+previous definitions
+
+\ testing stuff
 
 [ifdef] testing
 
@@ -140,4 +198,8 @@ library libm /lib/libm.so.6
 libm fmodf sf sf (sf) fmodf
 libm fmod  df df (fp) fmod
 
+callback wincall (int) int int int int callback;
+
+:noname ( a b c d -- e )  2drop 2drop 0 ; wincall do_timer
+    
 [then]    

@@ -20,7 +20,6 @@
 
 [IFDEF] av-call-int
     include fflib.fs
-    legacy on
 [ELSE]
     include oldlib.fs
 [THEN]

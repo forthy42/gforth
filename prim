@@ -2259,23 +2259,41 @@ av_call(alist);
 REST_REGS
 c_addr = prv;
 
-alloc-callback	( xt -- c_addr )	gforth	alloc_callback
-c_addr = (char *)alloc_callback(engine_callback, ((Xt *)xt)+2);
+alloc-callback	( a_ip -- c_addr )	gforth	alloc_callback
+c_addr = (char *)alloc_callback(engine_callback, (Xt *)a_ip);
 
-va-start-int	( -- w )	gforth	va_start_int
-w = va_start_int(clist);
+va-start-void	( -- )	gforth	va_start_void
+va_start_void(clist);
 
-va-start-longlong	( -- d )	gforth	va_start_longlong
-d = va_start_longlong(clist);
+va-start-int	( -- )	gforth	va_start_int
+va_start_int(clist);
 
-va-start-ptr	( -- c_addr )	gforth	va_start_ptr
-c_addr = (char *)va_start_ptr(clist, (char *));
+va-start-longlong	( -- )	gforth	va_start_longlong
+va_start_longlong(clist);
 
-va-start-float	( -- r )	gforth	va_start_float
-r = va_start_float(clist);
+va-start-ptr	( -- )	gforth	va_start_ptr
+va_start_ptr(clist, (char *));
 
-va-start-double	( -- r )	gforth	va_start_double
-r = va_start_double(clist);
+va-start-float	( -- )	gforth	va_start_float
+va_start_float(clist);
+
+va-start-double	( -- )	gforth	va_start_double
+va_start_double(clist);
+
+va-arg-int	( -- w )	gforth	va_arg_int
+w = va_arg_int(clist);
+
+va-arg-longlong	( -- d )	gforth	va_arg_longlong
+d = va_arg_longlong(clist);
+
+va-arg-ptr	( -- c_addr )	gforth	va_arg_ptr
+c_addr = (char *)va_arg_ptr(clist,char*);
+
+va-arg-float	( -- r )	gforth	va_arg_float
+r = va_arg_float(clist);
+
+va-arg-double	( -- r )	gforth	va_arg_double
+r = va_arg_double(clist);
 
 va-return-void ( -- )	gforth va_return_void
 va_return_void(clist);
