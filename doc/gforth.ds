@@ -14423,11 +14423,11 @@ cannot use @code{,} to compile an xt.  Instead, you have to use
 @code{compile,}.
 
 @cindex gforth-itc engine
-If you want to compile xts with @code{,}, use @command{gforth-itc}.  This
-engine uses plain old indirect threaded code.  It still compiles in a
-primitive-centric style, so you cannot use @code{compile,} instead of
+If you want to compile xts with @code{,}, use @command{gforth-itc}.
+This engine uses plain old indirect threaded code.  It still compiles in
+a primitive-centric style, so you cannot use @code{compile,} instead of
 @code{,} (e.g., for producing tables of xts with @code{] word1 word2
-... [}.  If you want to do that, you have to use @command{gforth-itc}
+... [}).  If you want to do that, you have to use @command{gforth-itc}
 and execute @code{' , is compile,}.  Your program can check if it is
 running on a hybrid direct/indirect threaded engine or a pure indirect
 threaded engine with @code{threading-method} (@pxref{Threading Words}).

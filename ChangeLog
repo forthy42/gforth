@@ -1,4 +1,21 @@
+2003-03-11  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* backtrac.fs: minor bugfix (bug located by Jorge Acereda)
+
+2003-03-11  Bernd Paysan  <pazsan@mips.complang.tuwien.ac.at>
+
+	* kernel/int.fs:
+	Fixed -trailing (cures cross.fs bug for big endian machine...)
+
 2003-03-09  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* NEWS, README: fixed typos
+
+	* NEWS.vmgen: added NEWS.vmgen
+
+	* gforth.lsm: updated gforth.lsm
+
+	* ChangeLog: updated Changelog
 
 	* configure.in, INSTALL, Makefile.in, NEWS, README:
 	updated version number
@@ -5225,7 +5242,7 @@
 
 	* getopt1.c, getopt.h, getopt.c, forth.h, engine.c, ToDo, README, Makefile, INSTALL, COPYING, 386.h:
 	Updated ToDo and INSTALL; Wrote README; Lifted COPYING and getopt*
-	from other packages;  removed $Id: ChangeLog,v 1.7 2003-03-09 17:20:37 anton Exp $ lines from some files
+	from other packages;  removed $Id: ChangeLog,v 1.8 2003-03-11 21:18:31 anton Exp $ lines from some files
 
 1994-09-28  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
 
