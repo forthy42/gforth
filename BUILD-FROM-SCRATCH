@@ -56,5 +56,8 @@ autoheader
 
 if [ "$GFORTH" != "" ]
 then
-	make all BUILDFORTH="$GFORTH"
+ echo Running: make BUILDFORTH="$GFORTH" gforth...
+ make BUILDFORTH="$GFORTH" gforth
+ echo Running: make BUILDFORTH="$GFORTH" all...
+ make BUILDFORTH="$GFORTH" all
 fi

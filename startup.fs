@@ -20,7 +20,9 @@
 
 \ don't require except.fs, because except.fs is not in included-files
 \ (see exboot.fs)
-\ require except.fs \ included on command line
+[IFUNDEF] try
+require except.fs \ included on command line
+[THEN]
 
 warnings off
 include search.fs

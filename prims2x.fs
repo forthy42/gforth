@@ -53,19 +53,6 @@
 
 warnings off
 
-[IFUNDEF] vocabulary	\ we are executed just with kernel image
-			\ load the rest that is needed
-			\ (require fails because this file is needed from a
-			\ different directory with the wordlibraries)
-include ./search.fs			
-include ./extend.fs
-include ./stuff.fs
-[THEN]
-
-[IFUNDEF] environment?
-include ./environ.fs
-[THEN]
-
 : struct% struct ; \ struct is redefined in gray
 
 include ./gray.fs

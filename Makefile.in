@@ -74,7 +74,7 @@ BUILDFORTH = $(ENGINE) --die-on-signal -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)" -i 
 # the forth system plus flags we use to build
 FORTHB = $(BUILDFORTH) -m 1000000 -e 'fpath= .|~+|$(srcdir)'
 # the Forth system for running prims2x.fs
-FORTHP = $(FORTH) -m 1000000
+FORTHP = $(FORTHB) startup.fs
 ENGINE_FAST = $(ENGINE)-fast
 FORTH_FAST	= $(ENGINE_FAST) $(FORTH_ARGS)
 FORTHKFLAGS= --die-on-signal -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)" -m 1000000 -i $(kernel_fi)
