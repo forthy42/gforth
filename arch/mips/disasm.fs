@@ -23,6 +23,9 @@
 \ particular pages A3, A181, A182 (p. 471, 649, 650 in xpdf).
 \ it is limited to the R3000 (MIPS-I) architecture, though.
 
+\ test this with
+\ gforth arch/mips/disasm.fs -e "here" arch/mips/testdisasm.fs -e "here over - disasm-dump bye" |sed 's/([^)]*) //'|diff -u - arch/mips/testasm.fs
+
 \ instruction fields
 
 : disasm-op ( w -- u )
@@ -128,7 +131,7 @@ $40 disasm-table cp0-tab-entry     \ COP0 CO instructions funct table
 
 : disasm-J-target ( addr w -- )
     \ print jump target
-    $03ffffff and swap $fc000000 and or 2 lshift hex. ;
+    2 lshift $0fffffff and swap $f0000000 and or hex. ;
 
 : disasm-I-rs,rt,imm ( addr w -- )
     dup disasm-rs .

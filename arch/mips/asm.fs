@@ -18,6 +18,9 @@
 \	along with this program; if not, write to the Free Software
 \	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+\ test this with
+\ gforth arch/mips/asm.fs -e "also assembler here" arch/mips/testasm.fs -e "here over - here" arch/mips/testdisasm.fs -e "here over - compare throw bye"
+
 require code.fs
 
 get-current
@@ -66,33 +69,44 @@ $3F constant asm-bm06
 $FFFF constant asm-bm10
 $3FFFFFF constant asm-bm1A
 
-: asm-expand ( x -- x )
-    dup $0000ffff > if
-	$ffff0000 or
-    endif ;
-
 : asm-op ( n -- code )
     asm-bm06 and $1a lshift ;
 
-: asm-rs ( n code -- code )
-    swap asm-bm05 and $15 lshift or ;
+: check-range ( u1 u2 u3 -- )
+    within 0= -24 and throw ;
+
+: asm-rs ( u code -- code )
+    over 0 $20 check-range
+    swap $15 lshift or ;
 
 : asm-rt ( n code -- code )
-    swap asm-bm05 and $10 lshift or ;
+    over 0 $20 check-range
+    swap $10 lshift or ;
 
 : asm-imm ( n code -- code )
-    swap asm-bm10 and or ;
-' asm-imm alias asm-uimm
+    over -$8000 $8000 check-range
+    swap $ffff and or ;
 ' asm-imm alias asm-offset
 
+: asm-uimm ( u code -- code )
+    over 0 $10000 check-range
+    or ;
+
+: asm-rel ( n code -- code )
+    over 3 and 0<> -24 and throw \ check lower 2 bits
+    swap 2/ 2/ swap asm-imm ;
+
 : asm-target ( n code -- code )
+    over here cell+ xor $f0000003 and 0<> -24 and throw
     swap 2 rshift asm-bm1A and or ;
 
 : asm-rd ( n code -- code )
-    swap asm-bm05 and $b lshift or ;
+    over 0 $20 check-range
+    swap $b lshift or ;
 
 : asm-shamt ( n code -- code )
-    swap asm-bm05 and $6 lshift or ;
+    over 0 $20 check-range
+    swap $6 lshift or ;
 ' asm-shamt alias asm-sa
 
 : asm-funct ( n code -- code )
@@ -115,7 +129,7 @@ does> ( rt uimm -- )
 : asm-I-rs,imm ( code -- )
     create ,
 does> ( rs imm -- )
-    @ swap 2 rshift swap asm-imm asm-rs , ;
+    @ asm-rel asm-rs , ;
 
 : asm-I-rt,rs,imm ( code -- )
     create ,
@@ -130,7 +144,7 @@ does> ( rt rs uimm -- )
 : asm-I-rs,rt,imm ( code -- )
     create ,
 does> ( rs rt imm -- )
-    @ swap 2 rshift swap asm-imm asm-rt asm-rs , ;
+    @ asm-rel asm-rt asm-rs , ;
 
 : asm-I-rt,offset,rs ( code -- )
     create ,
@@ -146,7 +160,7 @@ does> ( rt offset rs -- )
 : asm-I-imm,z ( code -- )
     create ,
 does> ( imm z -- )
-    @ swap asm-op or swap 2 rshift swap asm-imm , ;
+    @ swap asm-op or asm-rel , ;
 
 : asm-copz-imm ( code -- )
     $10 asm-op or asm-I-imm,z ;
