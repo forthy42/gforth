@@ -84,7 +84,7 @@ Create jfif   $FF c, $D8 c, $FF c, $E0 c, $00 c, $10 c, $4A c, $46 c,
     2.  BEGIN
 	2dup r@ reposition-file throw
 	imgbuf $10 r@ read-file throw 0<>
-	imgbuf bw@ $FFC0 <> and  WHILE
+	imgbuf bw@ $FFC0 $FFD0 within 0= and  WHILE
 	imgbuf 2 + bw@ 2 + 0 d+  REPEAT
     2drop imgbuf 5 + bw@ imgbuf 7 + bw@  rdrop ;
 
@@ -110,6 +110,8 @@ Variable iconpath
 
 Variable do-size
 
+Defer parse-line
+
 : alt-suffix ( -- )
     link-suffix $@len 2 - link-suffix $!len
     s" [" link-suffix 0 $ins
@@ -130,7 +132,9 @@ Variable do-size
     r> close-dir throw ;
 
 : link-icon? ( -- )  iconpath @  IF  iconpath $off  THEN
-    link '. ['] get-icon $iter ;
+    link $@
+    BEGIN  '. $split 2swap 2drop dup  WHILE
+	2dup get-icon  REPEAT  2drop ;
 
 : link-size? ( -- )  do-size @ 0= ?EXIT
     link $@ r/o open-file IF  drop  EXIT  THEN >r
@@ -141,11 +145,15 @@ Variable do-size
     do-size off
     over c@ '% = over 0> and IF  do-size on  1 /string  THEN ;
 
+: parse-string ( addr u -- )
+    evaluate-input cell new-tib #tib ! tib !
+    ['] parse-line catch pop-file throw ;
+
 : .link ( -- )  '[ parse type '] parse '| $split
     link-options link $!
     link $@len 0= IF  2dup link $! s" .html" link $+!  THEN
-    link-icon? link $@ href= s" a" tagged
-    link-size? ;
+    link-icon? link $@ href= s" a" tag
+    parse-string s" a" /tag  link-size? ;
 
 : .img ( -- ) '{ parse type '} parse '| $split
     dup IF  2swap alt=  ELSE  2drop  THEN
@@ -179,8 +187,8 @@ char>tag # code
 
 : do-word ( char -- )  cells do-words + perform ;
 
-: parse-line ( -- )
-    BEGIN  char? do-word source nip >in @ = UNTIL ;
+:noname ( -- )
+    BEGIN  char? do-word source nip >in @ = UNTIL ; is parse-line
 
 : parse-to ( char -- ) >r
     BEGIN  char? dup r@ <> WHILE
@@ -198,23 +206,32 @@ char>tag # code
 
 \ handle global tags
 
+Variable indentlevel
+: indent ( n -- )  indentlevel @
+    2dup < IF  2dup swap DO  -env -env  LOOP  THEN
+    2dup > IF  2dup      DO  s" dl" >env  LOOP  THEN
+    2dup = IF  -env  THEN
+    drop indentlevel ! s" dt" >env ;
+: +indent ( -- )  -env s" dd" >env ;
+
 wordlist constant longtags
 
 Variable end-sec
 
 longtags set-current
 
-: --- cr s" hr" tag cr ;
-: * s" h1" line ;
-: ** s" h2" line ;
-: *** s" h3" line ;
+: --- 1 indent cr s" hr" tag cr +indent ;
+: *   1 indent s" h1" line +indent ;
+: **  1 indent s" h2" line +indent ;
+: *** 2 indent s" h3" line +indent ;
 : - s" ul" env s" li" par ;
 : + s" ol" env s" li" par ;
 : << +env ;
 : <* s" center" >env ;
 : >> -env ;
 : *> -env ;
-: . end-sec on ;
+: :: also forth interpret previous ;
+: . end-sec on indentlevel off ;
 : \ postpone \ ;
 
 definitions
@@ -248,12 +265,13 @@ definitions
 
 \ parse a section
 
+: section-line ( -- )  >in off
+    bl sword find-name
+    ?dup IF  name>int execute
+    ELSE  source nip IF  >in off s" p" par  THEN  THEN ;
 : refill-loop ( -- )  end-sec off
-    BEGIN  refill  WHILE  >in off
-	bl sword find-name
-	?dup IF  name>int execute
-	ELSE  source nip IF  >in off s" p" par  THEN  THEN
-	end-sec @ UNTIL  THEN ;
+    BEGIN  refill  WHILE
+	section-line end-sec @ UNTIL  THEN ;
 : parse-section ( -- )
     get-order  longtags 1 set-order  refill-loop set-order ;
 
@@ -309,9 +327,24 @@ Variable style$
     r> to outfile-id
     dup 0< IF  throw  ELSE  drop  THEN ;
 
+: eval-par ( addr u -- )
+  s" wf-temp.wf" r/w create-file throw >r
+  r@ write-file r> close-file throw
+  push-file s" wf-temp.wf" r/o open-file throw loadfile !
+  parse-par parse-section
+  loadfile @ close-file swap 2dup or
+  pop-file  drop throw throw
+  s" wf-temp.wf" delete-file throw ;
+
 \ simple text data base
 
 : get-rest ( addr -- ) 0 parse -trailing rot $! ;
+Create $lf 1 c, #lf c,
+: get-par ( addr -- )  >r  s" " r@ $+!
+    BEGIN  0 parse 2dup s" ." compare  WHILE
+	r@ $@len IF  $lf count r@ $+!  THEN  r@ $+!
+	refill 0= UNTIL  ELSE  2drop  THEN
+    rdrop ;
 
 Variable last-entry
 Variable field#
@@ -327,5 +360,7 @@ Variable field#
 
 : field:  Create field# @ , 1 field# +!
 DOES> @ cells last-entry @ + get-rest ;
+: par:  Create field# @ , 1 field# +!
+DOES> @ cells last-entry @ + get-par ;
 
 : >field  ' >body @ cells postpone Literal postpone + ; immediate
