@@ -1,0 +1,5 @@
+end of acondbranch needs checking (double INST_TAIL? No LABEL2 before NEXT_P2?)
+TRY does not produce a correct recovery address for THROW.
+lib.fs does some funny things to the return address (certainly does
+  not work with gforth-native).
+The >EXEC trick (users: >STDERR) might work, but I am not sure.

@@ -66,7 +66,7 @@
 
 create c-extend1
 	' @local# A,        ' c-@local# A,
-        ' flit A,           ' c-flit A,
+[ifdef] flit ' flit A,      ' c-flit A, [then]
 	' f@local# A,       ' c-f@local# A,
 	' laddr# A,         ' c-laddr# A,
 	' lp+!# A,          ' c-lp+!# A,

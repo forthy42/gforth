@@ -33,10 +33,9 @@ Defer store-backtrace
 ' noop IS store-backtrace
 \ [THEN]
 
-: (try) ( -- )
-    \ inline argument: address of the handler
+: (try) ( ahandler -- )
     r>
-    dup @ >r \ recovery address
+    swap >r \ recovery address
     rp@ 'catch >r
     sp@ >r
     fp@ >r
@@ -44,10 +43,11 @@ Defer store-backtrace
     handler @ >r
     rp@ handler !
     backtrace-empty on
-    cell+ >r ;
+    >r ;
 
 : try ( compilation  -- orig ; run-time  -- ) \ gforth
-    POSTPONE (try) >mark ; immediate compile-only
+    \ !! does not work correctly for gforth-native
+    POSTPONE lit >mark POSTPONE (try) ; immediate compile-only
 
 : (recover) ( -- )
     \ normal end of try block: restore handler, forget rest
