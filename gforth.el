@@ -266,7 +266,7 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 	 "[ \t\n]" t name (font-lock-function-name-face . 3))
 	(("if" "begin" "ahead" "do" "?do" "+do" "u+do" "-do" "u-do" "for" 
 	  "case" "of" "?dup-if" "?dup-0=-if" "then" "endif" "until"
-	  "repeat" "again"
+	  "repeat" "again" "leave" "?leave"
 	  "loop" "+loop" "-loop" "next" "endcase" "endof" "else" "while" "try"
 	  "recover" "endtry" "assert(" "assert0(" "assert1(" "assert2(" 
 	  "assert3(" ")" "<interpretation" "<compilation" "interpretation>" 

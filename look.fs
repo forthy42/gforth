@@ -42,7 +42,11 @@ decimal
     then ;
 
 : (look)  ( xt startlfa -- lfa flag )
-    swap decompile-prim false rot
+    swap
+    [IFDEF] decompile-prim
+    decompile-prim
+    [THEN]
+    false rot
     BEGIN
 	@ dup
     WHILE
