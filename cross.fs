@@ -62,6 +62,7 @@ forth definitions
 : T  previous Ghosts also Target ; immediate
 : G  Ghosts ; immediate
 
+
 : >cross  also Cross definitions previous ;
 : >target also Target definitions previous ;
 : >minimal also Minimal definitions previous ;
@@ -250,6 +251,12 @@ hex
         IF    postpone (
         ELSE  2dup s" \" compare 0= IF postpone \ THEN
         THEN ;
+
+: X 	bl word count [ ' target >wordlist ] Literal search-wordlist
+	IF	state @ IF compile,
+		ELSE execute THEN
+	ELSE	-1 ABORT" Cross: access method not supported!"
+	THEN ; immediate
 
 \ Begin CROSS COMPILER:
 
@@ -628,14 +635,159 @@ stack-warn [IF]
 : defempty? ; immediate
 [THEN]
 
+\ \ --------------------        Compiler Plug Ins               01aug97jaw
+
+>CROSS
+
+\ Compiler States
+
+Variable comp-state
+0 Constant interpreting
+1 Constant compiling
+2 Constant resolving
+3 Constant assembling
+
+: compiling? comp-state @ compiling = ;
+
+: pi-undefined -1 ABORT" Plugin undefined" ;
+
+: Plugin ( -- : pluginname )
+  Create 
+  \ for normal cross-compiling only one action
+  \ exists, this fields are identical. For the instant
+  \ simulation environment we need, two actions for each plugin
+  \ the target one and the one that generates the simulation code
+  ['] pi-undefined , \ action
+  ['] pi-undefined , \ target plugin action
+  8765 ,     \ plugin magic
+  DOES> perform ;
+
+Plugin DummyPlugin
+
+: 'PI ( -- addr : pluginname )
+  ' >body dup 2 cells + @ 8765 <> ABORT" not a plugin" ;
+
+: plugin-of ( xt -- : pluginname )
+  dup 'PI 2! ;
+
+: action-of ( xt -- : plunginname )
+  'PI cell+ ! ;
+
+: TPA ( -- : plugin )
+\ target plugin action
+\ executes current target action of plugin
+  'PI cell+ POSTPONE literal POSTPONE perform ; immediate
+
+Variable ppi-temp 0 ppi-temp !
+
+: pa:
+\g define plugin action
+  ppi-temp @ ABORT" pa: definition not closed"
+  'PI ppi-temp ! :noname ;
+
+: ;pa
+\g end a definition for plugin action
+  POSTPONE ; ppi-temp @ ! 0 ppi-temp ! ; immediate
+
+
+Plugin lit, ( n -- )
+Plugin alit, ( n -- )
+
+Plugin branch, ( target-addr -- )	\ compiles a branch
+Plugin ?branch, ( target-addr -- )	\ compiles a ?branch
+Plugin branchmark, ( -- branch-addr )	\ reserves room for a branch
+Plugin ?branchmark, ( -- branch-addr )	\ reserves room for a ?branch
+Plugin ?domark, ( -- branch-addr )	\ reserves room for a ?do branch
+Plugin branchto, ( -- )			\ actual program position is target of a branch (do e.g. alignment)
+' NOOP plugin-of branchto, 
+Plugin branchtoresolve, ( branch-addr -- ) \ resolves a forward reference from branchmark
+Plugin branchtomark, ( -- target-addr )	\ marks a branch destination
+
+Plugin colon, ( tcfa -- )		\ compiles call to tcfa at current position
+Plugin prim, ( tcfa -- )		\ compiles primitive invocation
+Plugin colonmark, ( -- addr )		\ marks a colon call
+Plugin colon-resolve ( tcfa addr -- )
+
+Plugin addr-resolve ( target-addr addr -- )
+Plugin doer-resolve ( ghost res-pnt target-addr addr -- ghost res-pnt )
+
+Plugin ncontrols? ( [ xn ... x1 ] n -- ) \ checks wheter n control structures are open
+Plugin if, 	( -- if-token )
+Plugin else,	( if-token -- if-token )
+Plugin then,	( if-token -- )
+Plugin ahead,
+Plugin begin,
+Plugin while,
+Plugin until,
+Plugin again,
+Plugin repeat,
+Plugin cs-swap	( x1 x2 -- x2 x1 )
+
+Plugin case,	( -- n )
+Plugin of,	( n -- x1 n )
+Plugin endof,	( x1 n -- x2 n )
+Plugin endcase,	( x1 .. xn n -- )
+
+Plugin do,	( -- do-token )
+Plugin ?do,	( -- ?do-token )
+Plugin for,	( -- for-token )
+Plugin loop,	( do-token / ?do-token -- )
+Plugin +loop,	( do-token / ?do-token -- )
+Plugin next,	( for-token )
+Plugin leave,	( -- )
+Plugin ?leave, 	( -- )
+
+[IFUNDEF] ca>native
+Plugin ca>native	
+[THEN]
+
+Plugin doprim,	\ compiles start of a primitive
+Plugin docol,   	\ compiles start of a colon definition
+Plugin doer,		
+Plugin fini,      \ compiles end of definition ;s
+Plugin doeshandler,
+Plugin dodoes,
+
+Plugin colon-start
+' noop plugin-of colon-start
+Plugin colon-end
+' noop plugin-of colon-end
+
+Plugin ]comp     \ starts compilation
+' noop plugin-of ]comp
+Plugin comp[     \ ends compilation
+' noop plugin-of comp[
+
+Plugin t>body             \ we need the system >body
+			\ and the target >body
+
+>TARGET
+: >body t>body ;
+
+
 \ Ghost Builder                                        06oct92py
 
+>CROSS
 hex
+\ Values for ghost magic
 4711 Constant <fwd>             4712 Constant <res>
 4713 Constant <imm>             4714 Constant <do:>
 4715 Constant <skip>
 
+\ Bitmask for ghost flags
 1 Constant <unique>
+2 Constant <primitive>
+
+\ FXIME: move this to general stuff?
+: set-flag ( addr flag -- )
+  over @ or swap ! ;
+
+: reset-flag ( addr flag -- )
+  invert over @ and swap ! ;
+
+: get-flag ( addr flag -- f )
+  swap @ and 0<> ;
+  
 
 Struct
 
@@ -651,6 +803,8 @@ Struct
 
   \ execution symantics (while target compiling) of ghost
   cell% field >exec
+
+  cell% field >comp
 
   cell% field >exec-compile
 
@@ -722,8 +876,11 @@ Variable cross-space-dp-orig
   ELSE true ABORT" CROSS: Don't execute ghost, or immediate target word"
   THEN ;
 
+Defer is-forward
+
 : (ghostheader) ( -- )
-  ghost-list linked <fwd> , 0 , ['] NoExec , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , ;
+  ghost-list linked <fwd> , 0 , ['] NoExec , ['] is-forward , 
+  0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , ;
 
 : ghostheader ( -- ) (ghostheader) 0 , ;
 
@@ -783,6 +940,9 @@ Defer search-ghosts
   REPEAT
   drop r> false ;
 
+: xt>ghost ( xt -- ghost )
+  gdiscover 0= ABORT" CROSS: ghost not found for this xt" ;
+
 : Ghost   ( "name" -- ghost )
   >in @ bl word gfind IF  nip EXIT  THEN
   drop  >in !  Make-Ghost ;
@@ -841,9 +1001,15 @@ Variable reuse-ghosts reuse-ghosts off
 \  bl word gfind 0= ABORT" CROSS: Ghost don't exists"
   ghost state @ IF postpone literal THEN ; immediate
 
-: ghost>cfa ( ghost -- cfa )
+: g>xt ( ghost -- xt )
+\G Returns the xt (cfa) of a ghost. Issues a warning if undefined.
   dup undefined? ABORT" CROSS: forward " >link @ ;
    
+: g>body ( ghost -- body )
+\G Returns the body-address (pfa) of a ghost. 
+\G Issues a warning if undefined (a forward-reference).
+  g>xt X >body ;
+
 1 Constant <label>
 
 Struct
@@ -951,6 +1117,9 @@ false DefaultValue dcomps
 false DefaultValue hash
 false DefaultValue xconds
 false DefaultValue header
+false DefaultValue backtrace
+false DefaultValue new-input
+false DefaultValue peephole
 [THEN]
 
 true DefaultValue interpreter
@@ -1022,7 +1191,7 @@ Variable user-vars 0 user-vars !
 : target>bitmask-size ( u1 -- u2 )
   1- tcell>bit rshift 1+ ;
 
-: allocatetarget ( size --- adr )
+: allocatetarget ( size -- adr )
   dup allocate ABORT" CROSS: No memory for target"
   swap over swap erase ;
 
@@ -1134,7 +1303,7 @@ T has? rom H
 ' dictionary ALIAS rom-dictionary
 
 
-: setup-target ( -- )   \G initialize targets memory space
+: setup-target ( -- )   \G initialize target's memory space
   s" rom" T $has? H
   IF  \ check for ram and rom...
       \ address-space area nip 0<>
@@ -1174,7 +1343,7 @@ T has? rom H
         ELSE    r> drop THEN
    REPEAT drop ;
 
-\ MakeKernal                                           		22feb99jaw
+\ MakeKernel                                           		22feb99jaw
 
 : makekernel ( targetsize -- targetsize )
   dup dictionary >rlen ! setup-target ;
@@ -1441,12 +1610,9 @@ T has? relocate H
 >TARGET
 H also Forth definitions
 
-: X 	bl word count [ ' target >wordlist ] Literal search-wordlist
-	IF	state @ IF compile,
-		ELSE execute THEN
-	ELSE	-1 ABORT" Cross: access method not supported!"
-	THEN ; immediate
-
+\ FIXME: should we include the assembler really in the forth 
+\ dictionary?!?!?!? This conflicts with the existing assembler 
+\ of the host forth system!!
 [IFDEF] asm-include asm-include [THEN] hex
 
 previous
@@ -1479,129 +1645,12 @@ previous
 : on		T -1 swap ! H ; 
 : off   	T 0 swap ! H ;
 
-\ \ --------------------        Compiler Plug Ins               01aug97jaw
-
->CROSS
-
-\  Compiler States
-
-Variable comp-state
-0 Constant interpreting
-1 Constant compiling
-2 Constant resolving
-3 Constant assembling
-
-: compiling? comp-state @ compiling = ;
-
-: Plugin ( -- : pluginname )
-  Create 
-  ['] noop , \ action
-  ['] noop , \ target plugin action
-  8765 ,     \ plugin magic
-  DOES> perform ;
-
-Plugin DummyPlugin
-
-: 'PI ( -- addr : pluginname )
-  ' >body dup 2 cells + @ 8765 <> ABORT" not a plugin" ;
-
-: plugin-of ( xt -- : pluginname )
-  dup 'PI 2! ;
-
-: action-of ( xt -- : plunginname )
-  'PI cell+ ! ;
-
-: TPA ( -- : plugin )
-\ target plugin action
-\ executes current target action of plugin
-  'PI cell+ POSTPONE literal POSTPONE perform ; immediate
-
-Variable ppi-temp 0 ppi-temp !
-
-: pa:
-\g define plugin action
-  ppi-temp @ ABORT" pa: definition not closed"
-  'PI ppi-temp ! :noname ;
-
-: ;pa
-\g end a definition for plugin action
-  POSTPONE ; ppi-temp @ ! 0 ppi-temp ! ; immediate
-
-
-Plugin lit, ( n -- )
-Plugin alit, ( n -- )
-
-Plugin branch, ( target-addr -- )	\ compiles a branch
-Plugin ?branch, ( target-addr -- )	\ compiles a ?branch
-Plugin branchmark, ( -- branch-addr )	\ reserves room for a branch
-Plugin ?branchmark, ( -- branch-addr )	\ reserves room for a ?branch
-Plugin ?domark, ( -- branch-addr )	\ reserves room for a ?do branch
-Plugin branchto, ( -- )			\ actual program position is target of a branch (do e.g. alignment)
-Plugin branchtoresolve, ( branch-addr -- ) \ resolves a forward reference from branchmark
-Plugin branchtomark, ( -- target-addr )	\ marks a branch destination
-
-Plugin colon, ( tcfa -- )		\ compiles call to tcfa at current position
-Plugin colonmark, ( -- addr )		\ marks a colon call
-Plugin colon-resolve ( tcfa addr -- )
-
-Plugin addr-resolve ( target-addr addr -- )
-Plugin doer-resolve ( ghost res-pnt target-addr addr -- ghost res-pnt )
-
-Plugin ncontrols? ( [ xn ... x1 ] n -- ) \ checks wheter n control structures are open
-Plugin if, 	( -- if-token )
-Plugin else,	( if-token -- if-token )
-Plugin then,	( if-token -- )
-Plugin ahead,
-Plugin begin,
-Plugin while,
-Plugin until,
-Plugin again,
-Plugin repeat,
-Plugin cs-swap	( x1 x2 -- x2 x1 )
-
-Plugin case,	( -- n )
-Plugin of,	( n -- x1 n )
-Plugin endof,	( x1 n -- x2 n )
-Plugin endcase,	( x1 .. xn n -- )
-
-Plugin do,	( -- do-token )
-Plugin ?do,	( -- ?do-token )
-Plugin for,	( -- for-token )
-Plugin loop,	( do-token / ?do-token -- )
-Plugin +loop,	( do-token / ?do-token -- )
-Plugin next,	( for-token )
-Plugin leave,	( -- )
-Plugin ?leave, 	( -- )
-
-[IFUNDEF] ca>native
-Plugin ca>native	
-[THEN]
-
-Plugin doprim,	\ compiles start of a primitive
-Plugin docol,   	\ compiles start of a colon definition
-Plugin doer,		
-Plugin fini,      \ compiles end of definition ;s
-Plugin doeshandler,
-Plugin dodoes,
-
-Plugin colon-start
-Plugin colon-end
-
-Plugin ]comp     \ starts compilation
-Plugin comp[     \ ends compilation
-
-T 2 cells H Value xt>body
-
-Plugin t>body             \ we need the system >body
-			\ and the target >body
-
->TARGET
-: >body t>body ;
 >CROSS
 
 : (cc) T a, H ;					' (cc) plugin-of colon,
+: (prim) T a, H ;				' (prim) plugin-of prim,
 
-: (cr) >tempdp ]comp colon, comp[ tempdp> ; 	' (cr) plugin-of colon-resolve
+: (cr) >tempdp ]comp prim, comp[ tempdp> ; 	' (cr) plugin-of colon-resolve
 : (ar) T ! H ;					' (ar) plugin-of addr-resolve
 : (dr)  ( ghost res-pnt target-addr addr )
 	>tempdp drop over 
@@ -1616,7 +1665,9 @@ Plugin t>body             \ we need the system >body
     -1 colon, ;					' (cm) plugin-of colonmark,
 
 >TARGET
-: compile, colon, ;
+: compile, ( xt -- )
+  dup xt>ghost >ghost-flags <primitive> get-flag
+  IF prim, ELSE colon, THEN ;
 >CROSS
 
 \ resolve structure
@@ -1696,20 +1747,30 @@ Defer resolve-warning
   swap exists-warning
   >link ! ;
 
-Variable rdbg
+: colon-resolved   ( ghost -- )
+    >link @ colon, ; \ compile-call
+
+: prim-resolved  ( ghost -- )
+    >link @ prim, ;
+
+\ FIXME: not activated
+: does-resolved ( ghost -- )
+    dup g>body alit, >do:ghost @ g>body colon, ;
+
+: (is-forward)   ( ghost -- )
+  colonmark, 0 (refered) ; \ compile space for call
+' (is-forward) IS is-forward
 
 : resolve  ( ghost tcfa -- )
 \G resolve referencies to ghost with tcfa
-    rdbg @ IF break: THEN 
     dup taddr>region 0<> IF
       2dup (>regiontype) define-addr-struct addr-xt-ghost 
 
       \ we define new address only if empty
-      \ this is for not to overtake the alias ghost
+      \ this is for not to take over the alias ghost
+      \ (different ghost, but identical xt)
       \ but the very first that really defines it
-\ FIXME: define when HeaderGhost is ready
       dup @ 0= IF ! ELSE 2drop THEN
-\    !
     THEN
 
     \ is ghost resolved?, second resolve means another 
@@ -1719,6 +1780,8 @@ Variable rdbg
     swap >r r@ >link @ swap \ ( list tcfa R: ghost )
     \ mark ghost as resolved
     dup r@ >link ! <res> r@ >magic !
+    r@ >comp @ ['] is-forward = IF
+	['] prim-resolved  r@ >comp !  THEN
     \ loop through forward referencies
     r> -rot 
     comp-state @ >r Resolving comp-state !
@@ -1730,22 +1793,19 @@ Variable rdbg
 
 \ gexecute ghost,                                      01nov92py
 
-: is-forward   ( ghost -- )
-  colonmark, 0 (refered) ; \ compile space for call
-
-: is-resolved   ( ghost -- )
-  >link @ colon, ; \ compile-call
+\ FIXME cleanup
+\ : is-resolved   ( ghost -- )
+\  >link @ colon, ; \ compile-call
 
 : (gexecute)   ( ghost -- )
-  dup >magic @ 
-  <fwd> = IF  is-forward  ELSE  is-resolved  THEN ;
+  dup >comp @ EXECUTE ;
 
 : gexecute ( ghost -- )
-\  dup >magic @ <imm> = IF -1 ABORT" CROSS: gexecute on immediate word" THEN
+  dup >magic @ <imm> = IF -1 ABORT" CROSS: gexecute on immediate word" THEN
   (gexecute) ;
 
 : addr,  ( ghost -- )
-  dup >magic @ <fwd> = IF  1 refered 0 T a, H ELSE >link @ T a, H THEN ;
+  dup forward? IF  1 refered 0 T a, H ELSE >link @ T a, H THEN ;
 
 \ !! : ghost,     ghost  gexecute ;
 
@@ -1807,12 +1867,17 @@ bigendian [IF] 0 [ELSE] tcell 1- [THEN] Constant flag+
 
 VARIABLE ^imm
 
+\ !! should be target wordsize specific
+$80 constant alias-mask
+$40 constant immediate-mask
+$20 constant restrict-mask
+
 >TARGET
-: immediate     40 flag!
+: immediate     immediate-mask flag!
                 ^imm @ @ dup <imm> = IF  drop  EXIT  THEN
                 <res> <> ABORT" CROSS: Cannot immediate a unresolved word"
                 <imm> ^imm @ ! ;
-: restrict      20 flag! ;
+: restrict      restrict-mask flag! ;
 
 : isdoer	
 \G define a forth word as doer, this makes obviously only sence on
@@ -1847,7 +1912,7 @@ Variable to-doc  to-doc on
 	s" " doc-file-id write-line throw
 	s" make-doc " doc-file-id write-file throw
 
-	tlast @ >image count 1F and doc-file-id write-file throw
+	Last-Header-Ghost @ >ghostname doc-file-id write-file throw
 	>in @
 	[char] ( parse 2drop
 	[char] ) parse doc-file-id write-file throw
@@ -1980,7 +2045,7 @@ Defer setup-execution-semantics
     [ [THEN] ]
     dup Last-Header-Ghost ! dup to lastghost
     dup >magic ^imm !     \ a pointer for immediate
-    80 flag!
+    alias-mask flag!
     cross-doc-entry cross-tag-entry 
     setup-execution-semantics
     ;
@@ -2011,8 +2076,8 @@ Variable aprim-nr -20 aprim-nr !
 : Alias    ( cfa -- ) \ name
   >in @ skip? IF  2drop  EXIT  THEN  >in !
   (THeader ( S xt ghost )
-  2dup swap gdiscover 0= ABORT" missing" swap copy-execution-semantics
-  over resolve T A, H 80 flag! ;
+  2dup swap xt>ghost swap copy-execution-semantics
+  over resolve T A, H alias-mask flag! ;
 
 Variable last-prim-ghost
 0 last-prim-ghost !
@@ -2052,7 +2117,8 @@ Variable prim#
      .sourcepos ." needs prim: " >in @ bl word count type >in ! cr
   THEN
   prim# @ (THeader ( S xt ghost )
-  over resolve T A, H 80 flag!
+  dup >ghost-flags <primitive> set-flag
+  over resolve T A, H alias-mask flag!
   -1 prim# +! ;
 >CROSS
 
@@ -2097,10 +2163,10 @@ Comment (       Comment \
             
 >TARGET
 
-: '  ( -- cfa ) 
-\ returns the target-cfa of a ghost
+: '  ( -- xt ) 
+\G returns the target-cfa of a ghost
   bl word gfind 0= ABORT" CROSS: Ghost don't exists"
-  ghost>cfa ;
+  g>xt ;
 
 \ FIXME: this works for the current use cases, but is not
 \ in all cases correct ;-) 
@@ -2112,27 +2178,31 @@ Cond: [']  T ' H alit, ;Cond
 
 : [T']
 \ returns the target-cfa of a ghost, or compiles it as literal
-  postpone [G'] state @ IF postpone ghost>cfa ELSE ghost>cfa THEN ; immediate
+  postpone [G'] state @ IF postpone g>xt ELSE g>xt THEN ; immediate
 
 \ \ threading modell					13dec92py
 \ modularized						14jun97jaw
 
-: fillcfa   ( usedcells -- )
-  T cells H xt>body swap - 0 ?DO 0 X c, tchar +LOOP ;
+T 2 cells H .s Value xt>body
 
 : (>body)   ( cfa -- pfa ) 
-  xt>body + ;					' (>body) plugin-of t>body
+  xt>body + ;						' (>body) plugin-of t>body
+
+: fillcfa   ( usedcells -- )
+  T cells H xt>body swap - dup .
+  assert1( dup 0 >= )
+  0 ?DO 0 X c, tchar +LOOP ;
 
 : (doer,)   ( ghost -- ) 
-  addr, 1 fillcfa ;   				' (doer,) plugin-of doer,
+  addr, 1 fillcfa ;   					' (doer,) plugin-of doer,
 
-: (docol,)  ( -- ) [G'] :docol (doer,) ;	' (docol,) plugin-of docol,
+: (docol,)  ( -- ) [G'] :docol (doer,) ;		' (docol,) plugin-of docol,
 
 : (doprim,) ( -- )
-  there xt>body + ca>native T a, H 1 fillcfa ;	' (doprim,) plugin-of doprim,
+  there xt>body + ca>native T a, H 1 fillcfa ;		' (doprim,) plugin-of doprim,
 
 : (doeshandler,) ( -- ) 
-  T cfalign H compile :doesjump T 0 , H ; 	' (doeshandler,) plugin-of doeshandler,
+  T cfalign H compile :doesjump T 0 , H ; 		' (doeshandler,) plugin-of doeshandler,
 
 : (dodoes,) ( does-action-ghost -- )
   ]comp [G'] :dodoes gexecute comp[
@@ -2140,21 +2210,21 @@ Cond: [']  T ' H alit, ;Cond
   \ the relocator in the c engine, does not like the
   \ does-address to marked for relocation
   [ T e? ec H 0= [IF] ] T here H tcell - reloff [ [THEN] ]
-  2 fillcfa ;		' (dodoes,) plugin-of dodoes,
+  2 fillcfa ;						' (dodoes,) plugin-of dodoes,
 
-: (lit,) ( n -- )   compile lit T  ,  H ;	' (lit,) plugin-of lit,
+: (lit,) ( n -- )  compile lit T  ,  H ;		' (lit,) plugin-of lit,
 
 \ if we dont produce relocatable code alit, defaults to lit, jaw
 \ this is just for convenience, so we don't have to define alit,
 \ seperately for embedded systems....
 T has? relocate H
 [IF]
-: (alit,) ( n -- )  compile lit T  a, H ;	' (alit,) plugin-of alit,
+: (alit,) ( n -- )  compile lit T  a, H ;		' (alit,) plugin-of alit,
 [ELSE]
-: (alit,) ( n -- )  lit, ;			' (alit,) plugin-of alit,
+: (alit,) ( n -- )  lit, ;				' (alit,) plugin-of alit,
 [THEN]
 
-: (fini,)         compile ;s ;			' (fini,) plugin-of fini,
+: (fini,)         compile ;s ;				' (fini,) plugin-of fini,
 
 [IFUNDEF] (code) 
 Defer (code)
@@ -2188,7 +2258,7 @@ Defer (end-code)
 >TARGET
 Cond: \G  T-\G ;Cond
 
-Cond:  Literal ( n -- )   lit, ;Cond
+Cond: Literal  ( n -- )   lit, ;Cond
 Cond: ALiteral ( n -- )   alit, ;Cond
 
 : Char ( "<char>" -- )  bl word char+ c@ ;
@@ -2252,10 +2322,22 @@ Cond: MAXI
 \ : ; DOES>                                            13dec92py
 \ ]                                                     9may93py/jaw
 
-: ] 
+: compiling-state ( -- )
+\G set states to compililng
     Compiling comp-state !
     \ if we have a state in target, change it with the compile state
-    [G'] state dup undefined? 0= IF >ghost-xt @ execute X on ELSE drop THEN
+    [G'] state dup undefined? 0= 
+    IF >ghost-xt @ execute X on ELSE drop THEN ;
+
+: interpreting-state ( -- )
+\G set states to interpreting
+   \ if target has a state variable, change it according to our state
+   [G'] state dup undefined? 0= 
+   IF >ghost-xt @ execute X off ELSE drop THEN
+   Interpreting comp-state ! ;
+
+: ] 
+    compiling-state
     BEGIN
         BEGIN save-input bl word
               dup c@ 0= WHILE drop discard refill 0=
@@ -2298,21 +2380,21 @@ Cond: ?EXIT ( -- ) 1 abort" CROSS: using ?exit" ;Cond
 Cond: recurse ( -- ) Last-Header-Ghost @ gexecute ;Cond
 
 Cond: ; ( -- ) 
-               depth ?dup IF   1- <> ABORT" CROSS: Stack changed"
-                          ELSE true ABORT" CROSS: Stack empty" THEN
-               colon-end
-               fini,
-               comp[
-               ;Resolve @
-               IF ;Resolve @ ;Resolve cell+ @ resolve THEN
-    [G'] state dup undefined? 0= IF >ghost-xt @ execute X off ELSE drop THEN
-               Interpreting comp-state !
-               ;Cond
-Cond: [  
-  \ if we have a state in target, change it with the compile state
-    [G'] state dup undefined? 0= IF >ghost-xt @ execute X off ELSE drop THEN
-\  [G'] state dup undefined? 0= IF ghost>cfa X >body X off ELSE drop THEN
-  Interpreting comp-state ! ;Cond
+	depth ?dup 
+	IF   1- <> ABORT" CROSS: Stack changed"
+	ELSE true ABORT" CROSS: Stack empty" 
+	THEN
+	colon-end
+	fini,
+	comp[
+	;Resolve @ 
+	IF 	;Resolve @ ;Resolve cell+ @ resolve 
+		['] colon-resolved ;Resolve @ >comp !
+	THEN
+	interpreting-state
+	;Cond
+
+Cond: [ ( -- ) interpreting-state ;Cond
 
 >CROSS
 
@@ -2328,18 +2410,19 @@ Create GhostDummy ghostheader
     tlastcfa @ >tempdp dodoes, tempdp> ;
 
 
-Defer instant-compile-does>-hook
 Defer instant-interpret-does>-hook
 
 : resolve-does>-part ( -- )
 \ resolve words made by builders
-  Last-Header-Ghost @ >do:ghost @ ?dup IF there resolve THEN ;
+  Last-Header-Ghost @ >do:ghost @ ?dup 
+  IF    there resolve 
+        \ TODO: set special DOES> resolver action here
+  THEN ;
 
 >TARGET
 Cond: DOES>
         compile (does>) doeshandler,
         resolve-does>-part
-\        instant-compile-does>-hook
         ;Cond
 
 : DOES> switchrom doeshandler, T here H !does 
@@ -2351,18 +2434,19 @@ Cond: DOES>
 
 \ Builder                                               11may93jaw
 
-: Builder    ( Create-xt do:-xt "name" -- )
+: Builder    ( Create-xt do-ghost "name" -- )
 \ builds up a builder in current vocabulary
 \ create-xt is executed when word is interpreted
 \ do:-xt is executet when the created word from builder is executed
-\ for do:-xt an additional entry after the normal ghost-enrys is used
+\ for do:-xt an additional entry after the normal ghost-entrys is used
 
-  Make-Ghost 		( Create-xt do:-xt ghost )
+  Make-Ghost 		( Create-xt do-ghost ghost )
   dup >created on
-  rot swap		( do:-xt Create-xt ghost )
-  tuck >exec ! >do:ghost ! ;
-\  rot swap >exec dup @ ['] NoExec <>
-\  IF 2drop ELSE ! THEN , ;
+  rot swap		( do-ghost Create-xt ghost )
+  tuck >exec ! 
+  tuck >do:ghost ! 
+  ['] prim-resolved over >comp !
+  drop ;
 
 : gdoes,  ( ghost -- )
 \ makes the codefield for a word that is built
@@ -2381,10 +2465,16 @@ Cond: DOES>
   ;
 
 : takeover-x-semantics ( S constructor-ghost new-ghost -- )
-\g stores execution semantic in the built word
+\g stores execution semantic and compilation semantic in the built word
 \g if the word already has a semantic (concerns S", IS, .", DOES>)
 \g then keep it
-   swap >do:ghost @ >exec @ swap >exec2 ! ;
+   swap >do:ghost @ 
+   \ we use the >exec2 field for the semantic of a crated word,
+   \ so predefined semantics e.g. for ....
+   \ FIXME: find an example in the normal kernel!!!
+   2dup >exec @ swap >exec2 ! 
+   >comp @ swap >comp ! ;
+\ old version of this:
 \  >exec dup @ ['] NoExec = 
 \  IF swap >do:ghost @ >exec @ swap ! ELSE 2drop THEN ;
 
@@ -2403,7 +2493,7 @@ Cond: DOES>
   executed-ghost @ (THeader 
   dup >created on
   2dup takeover-x-semantics
-  there 0 T a, H 80 flag!
+  there 0 T a, H alias-mask flag!
   \ store poiter to code-field
   switchram T cfalign H
   there swap T ! H
@@ -2423,22 +2513,23 @@ Cond: DOES>
 
 : gdoes>  ( ghost -- addr flag )
   executed-ghost @
+\ FIXME: cleanup
 \  compiling? ABORT" CROSS: Executing gdoes> while compiling"
 \ ?! compiling? IF  gexecute true EXIT  THEN
-  >link @ X >body ( false ) ;
+  g>body ( false ) ;
 
 \ DO: ;DO                                               11may93jaw
 \ changed to ?EXIT                                      10may93jaw
 
-: DO:     ( -- addr [xt] [colon-sys] )
+: DO:     ( -- ghost [xt] [colon-sys] )
   here ghostheader
   :noname postpone gdoes> ( postpone ?EXIT ) ;
 
-: by:     ( -- addr [xt] [colon-sys] ) \ name
+: by:     ( -- ghost [xt] [colon-sys] ) \ name
   Ghost
   :noname postpone gdoes> ( postpone ?EXIT ) ;
 
-: ;DO ( addr [xt] [colon-sys] -- addr )
+: ;DO ( ghost [xt] [colon-sys] -- addr )
   postpone ;    ( S addr xt )
   over >exec ! ; immediate
 
@@ -2569,7 +2660,7 @@ Builder Field
 : cell% ( n -- size align )
     T 1 cells H dup ;
 
-
+\ Input-Methods                                            01py
 
 Build: ( m v -- m' v )  dup T , cell+ H ;
 DO:  abort" Not in cross mode" ;DO
@@ -3314,7 +3405,7 @@ previous
 : hwords        words ;
 \ : words 	also ghosts 
 \                words previous ;
-\ : .s            .s ;
+: .s            .s ;
 : bye           bye ;
 
 \ dummy
