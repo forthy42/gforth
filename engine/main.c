@@ -629,12 +629,12 @@ int compare_priminfo_length(const void *_a, const void *_b)
     return (*b)->start - (*a)->start;
 }
 
-#endif /* defined(NO_DYNAMIC) */
-Cell npriminfos=0;
-
 static char superend[]={
 #include "prim_superend.i"
 };
+#endif /* !defined(NO_DYNAMIC) */
+
+Cell npriminfos=0;
 
 void check_prims(Label symbols1[])
 {
@@ -1028,6 +1028,49 @@ void compile_prim_dyn(Cell *start)
 
 #define MAX_BB 128 /* maximum number of instructions in BB */
 
+/* use dynamic programming to find the shortest paths within the basic
+   block origs[0..ninsts-1]; optimals[i] contains the superinstruction
+   on the shortest path to the end of the BB */
+void optimize_bb(short origs[], short optimals[], int ninsts)
+{
+  int i,j;
+  static int costs[MAX_BB+1];
+
+  assert(ninsts<MAX_BB);
+  costs[ninsts]=0;
+  for (i=ninsts-1; i>=0; i--) {
+    optimals[i] = origs[i];
+    costs[i] = costs[i+1] + mycost(optimals[i]);
+    for (j=2; j<=max_super && i+j<=ninsts ; j++) {
+      int super, jcost;
+
+      super = lookup_super(origs+i,j);
+      if (super >= 0) {
+	jcost = costs[i+j] + mycost(super);
+	if (jcost <= costs[i]) {
+	  optimals[i] = super;
+	  costs[i] = jcost;
+	}
+      }
+    }
+  }
+}
+
+/* rewrite the instructions pointed to by instps to use the
+   superinstructions in optimals */
+void rewrite_bb(Cell *instps[], short *optimals, int ninsts)
+{
+  int i, nextdyn;
+
+  for (i=0, nextdyn=0; i<ninsts; i++) {
+    *(instps[i]) = vm_prims[optimals[i]+DOESJUMP+1];
+    if (i==nextdyn) {
+      nextdyn += super_costs[optimals[i]].length;
+      /* !! *(p->instp) = compile_prim_dyn(p->superinst); */
+    }
+  }
+}
+
 /* compile *start, possibly rewriting it into a static and/or dynamic
    superinstruction */
 void compile_prim1(Cell *start)
@@ -1035,13 +1078,10 @@ void compile_prim1(Cell *start)
 #if defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED)
   compile_prim_dyn(start);
 #else
-  static struct {
-    Cell *instp;
-    int superinst; /* best superinst for instp */
-    int cost;       /* cost from here to end of bb */
-  } best[MAX_BB+1], *p;
+  static Cell *instps[MAX_BB];
+  static short origs[MAX_BB];
+  static short optimals[MAX_BB];
   static int ninsts=0;
-  int i,j, nextdyn;
   unsigned prim_num;
 
   if (start==NULL)
@@ -1050,37 +1090,13 @@ void compile_prim1(Cell *start)
   if (prim_num >= npriminfos)
     goto end_bb;
   assert(ninsts<MAX_BB);
-  best[ninsts++].instp = start;
+  instps[ninsts] = start;
+  origs[ninsts] = prim_num-DOESJUMP-1;
+  ninsts++;
   if (ninsts >= MAX_BB || superend[prim_num-DOESJUMP-1]) {
   end_bb:
-    best[ninsts].cost=0;
-    for (i=ninsts-1; i>=0; i--) {
-      short components[max_super];
-      p=&best[i];
-      p->superinst = ((Xt)*(p->instp))-vm_prims-DOESJUMP-1;
-      p->cost = p[1].cost + mycost(p->superinst);
-      components[0] = p->superinst;
-      for (j=2; j<=max_super && i+j<=ninsts ; j++) {
-	int super, jcost;
-	components[j-1] = ((Xt)*(p[j-1].instp))-vm_prims-DOESJUMP-1;
-	super = lookup_super(components,j);
-	if (super >= 0) {
-	  jcost = p[j].cost + mycost(super);
-	  if (jcost <= p->cost) {
-	    p->superinst = super;
-	    p->cost = jcost;
-	  }
-	}
-      }
-    }
-    for (i=0, nextdyn=0; i<ninsts; i++) {
-      p=&best[i];
-      *(p->instp) = vm_prims[p->superinst+DOESJUMP+1];
-      if (i==nextdyn) {
-	nextdyn += super_costs[p->superinst].length;
-	/* !! *(p->instp) = compile_prim_dyn(p->superinst); */
-      }
-    }
+    optimize_bb(origs,optimals,ninsts);
+    rewrite_bb(instps,optimals,ninsts);
     ninsts=0;
   }
 #endif /* defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED) */
