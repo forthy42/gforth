@@ -44,6 +44,7 @@ Copyright @copyright{} 1995 Free Software Foundation, Inc.
 @center for version 0.1
 @sp 2
 @center Anton Ertl
+@center Bernd Paysan
 @sp 3
 @center This manual is under construction
 
@@ -2088,9 +2089,9 @@ machine code), and for defining the the machine-code equivalent of
 nature of Gforth poses a few problems: First of all. Gforth runs on
 several architectures, so it can provide no standard assembler. What's
 worse is that the register allocation not only depends on the processor,
-but also on the gcc version and options used.
+but also on the @code{gcc} version and options used.
 
-The words Gforth offers encapsulate some system dependences (e.g., the
+The words that Gforth offers encapsulate some system dependences (e.g., the
 header structure), so a system-independent assembler may be used in
 Gforth. If you do not have an assembler, you can compile machine code
 directly with @code{,} and @code{c,}.
@@ -2108,10 +2109,42 @@ These words are rarely used. Therefore they reside in @code{code.fs},
 which is usually not loaded (except @code{flush-icache}, which is always
 present). You can load them with @code{require code.fs}.
 
+In the assembly code you will want to refer to the inner interpreter's
+registers (e.g., the data stack pointer) and you may want to use other
+registers for temporary storage. Unfortunately, the register allocation
+is installation-dependent.
+
+The easiest solution is to use explicit register declarations
+(@pxref{Explicit Reg Vars, , Variables in Specified Registers, gcc.info,
+GNU C Manual}) for all of the inner interpreter's registers: You have to
+compile Gforth with @code{-DFORCE_REG} (configure option
+@code{--enable-force-reg}) and the appropriate declarations must be
+present in the @code{machine.h} file (see @code{mips.h} for an example;
+you can find a full list of all declarable register symbols with
+@code{grep register engine.c}). If you give explicit registers to all
+variables that are declared at the beginning of @code{engine()}, you
+should be able to use the other caller-saved registers for temporary
+storage. Alternatively, you can use the @code{gcc} option
+@code{-ffixed-REG} (@pxref{Code Gen Options, , Options for Code
+Generation Conventions, gcc.info, GNU C Manual}) to reserve a register
+(however, this restriction on register allocation may slow Gforth
+significantly).
+
+If this solution is not viable (e.g., because @code{gcc} does not allow
+you to explicitly declare all the registers you need), you have to find
+out by looking at the code where the inner interpreter's registers
+reside and which registers can be used for temporary storage. You can
+get an assembly listing of the engine's code with @code{make engine.s}.
+
+In any case, it is good practice to abstract your assembly code from the
+actual register allocation. E.g., if the data stack pointer resides in
+register @code{$17}, create an alias for this register called @code{sp},
+and use that in your assembly code.
+
 Another option for implementing normal and defining words efficiently
 is: adding the wanted functionality to the source of Gforth. For normal
 words you just have to edit @file{primitives}, defining words (for fast
-defined words) probably require changes in @file{engine.c},
+defined words) may require changes in @file{engine.c},
 @file{kernal.fs}, @file{prims2x.fs}, and possibly @file{cross.fs}.
 
 
@@ -2384,7 +2417,7 @@ characters is determined by the locale you are using. In the default
 
 @item division rounding:
 installation dependent. @code{s" floored" environment? drop .}. We leave
-the choice to gcc (what to use for @code{/}) and to you (whether to use
+the choice to @code{gcc} (what to use for @code{/}) and to you (whether to use
 @code{fm/mod}, @code{sm/rem} or simply @code{/}).
 
 @item values of @code{STATE} when true:
@@ -3701,7 +3734,7 @@ VolksForth descends from F83. It was written by Klaus Schleisiek, Bernd
 Pennemann, Georg Rehfeld and Dietrich Weineck for the C64 (called
 UltraForth there) in the mid-80s and ported to the Atari ST in 1986.
 
-Laxen and Perry wrote F83 as a model implementation of the
+Hennry Laxen and Mike Perry wrote F83 as a model implementation of the
 Forth-83 standard. !! Pedigree? When?
 
 A team led by Bill Ragsdale implemented fig-Forth on many processors in

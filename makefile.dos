@@ -143,10 +143,10 @@ more:	$(FORTH_GEN) gforth
 # `realclean' also deletes everything that could be regenerated automatically."
 
 clean:		
-		-$(RM) $(GEN) *.o *.s gforth.fi
+		-$(RM) $(GEN) *.o *.s gforth.fi *.fi~ *.fi+ version.fs TAGS crossdoc.fd
 
 distclean:	clean
-		-$(RM) machine.h kernal.fi config.cache config.log
+		-$(RM) machine.h kernal.fi config.cache config.log config.status Makefile
 
 realclean:	distclean
 		-$(RM) $(GEN_PRECIOUS)

@@ -1,10 +1,14 @@
 Gforth is a fast and portable implementation of the ANS Forth
-language. This represents the present state of the Gforth project
-whose goal is the development of a standard implementation model for
-ANS Forth. Gforth supports indirect threading on every machine
-supported by GCC, and direct threading on several popular
-architectures. Gforth is distributed under the GNU General Public
-license (see COPYING).
+language. It works nicely with the Emacs editor, offers some nice
+features such as a powerful locals facility, and even has (the
+beginnings of) a manual. Gforth employs traditional implementation
+techniques: its inner innerpreter is indirect or direct threaded.
+Gforth is distributed under the GNU General Public license (see
+COPYING).
+
+Gforth runs under Unix and DOS and should not be hard to port to other
+systems supported by GCC. This version has been tested on Linux (for
+Intel), SunOS (SPARC), Ultrix (MIPS) before release.
 
 Read INSTALL for installation instructions. Mail
 gforth-bugs@mips.complang.tuwien.ac.at if you have problems.  To start
