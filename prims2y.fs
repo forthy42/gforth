@@ -1307,6 +1307,56 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
     compute-max-back-depths
     output-combined perform ;
 
+\ reprocessing (typically to generate versions for another cache states)
+
+variable reprocessed-num 0 reprocessed-num !
+
+: new-name ( -- c-addr u )
+    reprocessed-num @ 0
+    1 reprocessed-num +!
+    <# #s 'p hold '_ hold #> save-mem ;
+
+: reprocess-simple ( prim -- )
+    to prim
+    new-name prim prim-c-name 2!
+    output @ execute ;
+
+: lookup-prim ( c-addr u -- prim )
+    primitives search-wordlist 0= -13 and throw execute ;
+
+: state-prim1 { in-state out-state prim -- }
+    in-state  to state-in
+    out-state to state-out
+    prim reprocess-simple ;
+
+: state-prim ( in-state out-state "name" -- )
+    parse-word lookup-prim state-prim1 ;
+
+\ reprocessing with default states
+
+\ This is a simple scheme and should be generalized
+\ assumes we only cache one stack and use simple states for that
+
+0 value cache-stack  \ stack that we cache
+2variable cache-states \ states of the cache, starting with the empty state
+
+: compute-default-state-out ( n-in -- n-out )
+    \ for the current prim
+    cache-stack stack-in @ - 0 max
+    cache-stack stack-out @ + cache-states 2@ nip 1- min ;
+
+: gen-prim-states ( prim -- )
+    to prim
+    cache-states 2@ swap { states } ( nstates )
+    cache-stack stack-in @ +do
+	states i th @
+	states i compute-default-state-out th @
+	prim state-prim1
+    loop ;
+
+: prim-states ( "name" -- )
+    parse-word lookup-prim gen-prim-states ;
+
 \ C output
 
 : print-item { n stack -- }
