@@ -20,31 +20,46 @@
 
 $20 constant asm-registers
 
-: asm-register ( n n "name" ... "name" -- )
-    ?do
-	i constant
-    loop ;
-
-$08 $00 asm-register @zero @at @v0 @v1 @a0 @a1 @a2 @a3
-$10 $08 asm-register @t0 @t1 @t2 @t3 @t4 @t5 @t6 @t7
-$18 $10 asm-register @s0 @s1 @s2 @s3 @s4 @s5 @s6 @s7
-$20 $18 asm-register @t8 @t9 @k0 @k1 @gp @sp @s8 @ra
+\ register names
+0 constant $zero
+1 constant $at
+2 constant $v0
+3 constant $v1
+\ 4 constant $a0 \ commented out to avoid shadowing hex numbers
+\ 5 constant $a1
+\ 6 constant $a2
+\ 7 constant $a3
+8 constant $t0
+9 constant $t1
+10 constant $t2
+11 constant $t3
+12 constant $t4
+13 constant $t5
+14 constant $t6
+15 constant $t7
+16 constant $s0
+17 constant $s1
+18 constant $s2
+19 constant $s3
+20 constant $s4
+21 constant $s5
+22 constant $s6
+23 constant $s7
+24 constant $t8
+25 constant $t9
+26 constant $k0
+27 constant $k1
+28 constant $gp
+29 constant $sp
+30 constant $s8
+31 constant $ra
 
 $00 constant asm-init-code
 
-: asm-bitmask ( n -- code )
-    $1 swap lshift 1- ;
-
-: asm-bmask ( n n "name" ... "name" -- )
-    ?do
-	i asm-bitmask constant
-    loop ;
-
-$09 $01 asm-bmask asm-bm01 asm-bm02 asm-bm03 asm-bm04 asm-bm05 asm-bm06 asm-bm07 asm-bm08
-$11 $09 asm-bmask asm-bm09 asm-bm0A asm-bm0B asm-bm0C asm-bm0D asm-bm0E asm-bm0F asm-bm10
-$19 $11 asm-bmask asm-bm11 asm-bm12 asm-bm13 asm-bm14 asm-bm15 asm-bm16 asm-bm17 asm-bm18
-$20 $19 asm-bmask asm-bm19 asm-bm1A asm-bm1B asm-bm1C asm-bm1D asm-bm1E asm-bm1F
-$FFFFFFFF constant asm-bm20
+$1F constant asm-bm05
+$3F constant asm-bm06
+$FFFF constant asm-bm10
+$3FFFFFF constant asm-bm1A
 
 : asm-expand ( x -- x )
     dup $0000ffff > if
@@ -77,73 +92,53 @@ $FFFFFFFF constant asm-bm20
 : asm-funct ( n code -- code )
     swap asm-bm06 and or ;
 
+: asm-special ( code1 -- code2 )
+    asm-init-code asm-funct ;
+
 \ ***** I-types
-: asm-I-type ( code -- )
-    a, ;
+: asm-I-rt,imm ( code -- )
+    create ,
+does> ( rt imm -- )
+    @ asm-imm asm-rt , ;
 
-: (asm-I-rt,imm) ( rt imm addr -- )
-    @ asm-imm asm-rt a, ;
+: asm-I-rs,imm ( code -- )
+    create ,
+does> ( rs imm -- )
+    @ swap 2 rshift swap asm-imm asm-rs , ;
 
-: asm-I-rt,imm
-    create asm-I-type
-does>
-    (asm-I-rt,imm) ;
+: asm-I-rt,rs,imm ( code -- )
+    create ,
+does> ( rt rs imm -- )
+    @ asm-imm asm-rs asm-rt , ;
 
-: (asm-I-rs,imm) ( rs imm addr -- )
-    @ swap 2 rshift swap asm-imm asm-rs a, ;
+: asm-I-rs,rt,imm ( code -- )
+    create ,
+does> ( rs rt imm -- )
+    @ swap 2 rshift swap asm-imm asm-rt asm-rs , ;
 
-: asm-I-rs,imm
-    create asm-I-type
-does>
-    (asm-I-rs,imm) ;
-
-: (asm-I-rt,rs,imm) ( rt rs imm addr -- )
-    @ asm-imm asm-rs asm-rt a, ;
-
-: asm-I-rt,rs,imm
-    create asm-I-type
-does>
-    (asm-I-rt,rs,imm) ;
-
-: (asm-I-rs,rt,imm) ( rs rt imm addr -- )
-    @ swap 2 rshift swap asm-imm asm-rt asm-rs a, ;
-
-: asm-I-rs,rt,imm
-    create asm-I-type
-does>
-    (asm-I-rs,rt,imm) ;
-
-: (asm-I-rt,offset,rs) ( rt offset rs addr -- )
-    @ asm-rs asm-offset asm-rt a, ;
-
-: asm-I-rt,offset,rs
-    create asm-I-type
-does>
-    (asm-I-rt,offset,rs) ;
+: asm-I-rt,offset,rs ( code -- )
+    create ,
+does> ( rt offset rs -- )
+    @ asm-rs asm-offset asm-rt , ;
 
 \ ***** regimm types
 : asm-regimm-rs,imm ( funct -- )
     $01 asm-op asm-rt asm-I-rs,imm ;
 
 \ ***** copz types 1
-: (asm-I-imm,z) ( imm z addr -- )
-    @ swap asm-op or swap 2 rshift swap asm-imm a, ;
 
-: asm-I-imm,z
-    create asm-I-type
-does>
-    (asm-I-imm,z) ;
+: asm-I-imm,z ( code -- )
+    create ,
+does> ( imm z -- )
+    @ swap asm-op or swap 2 rshift swap asm-imm , ;
 
 : asm-copz-imm ( code -- )
     $10 asm-op or asm-I-imm,z ;
 
-: (asm-I-rt,offset,rs,z) ( rt offset rs z addr -- )
-    @ swap asm-op or asm-rs asm-offset asm-rt a, ;
-
-: asm-I-rt,offset,rs,z
-    create asm-I-type
-does>
-    (asm-I-rt,offset,rs,z) ;
+: asm-I-rt,offset,rs,z ( code -- )
+    create ,
+does> ( rt offset rs z -- )
+    @ swap asm-op or asm-rs asm-offset asm-rt , ;
 
 : asm-copz-rt,offset,rs ( code -- )
     asm-op asm-I-rt,offset,rs,z ;
@@ -158,128 +153,65 @@ $10 constant asm-copz-C0
 $00 constant asm-copz-BCF
 $01 constant asm-copz-BCT
 
-\ ***** J-types
-: asm-J-type ( code -- )
-    a, ;
-
-: (asm-J-target) ( target addr -- )
-    @ asm-target a, ;
-
-: asm-J-target
-    create asm-J-type
-does>
-    (asm-J-target) ;
-
-\ ***** R-types
-: asm-R-type ( code -- )
-    a, ;
-
-: (asm-R-nothing) ( addr -- )
-    @ a, ;
-
-: asm-R-nothing
-    create asm-R-type
-does>
-    (asm-R-nothing) ;
-
-: (asm-R-rd) ( rd addr -- )
-    @ asm-rd a, ;
-
-: asm-R-rd
-    create asm-R-type
-does>
-    (asm-R-rd) ;
-
-: (asm-R-rs) ( rs addr -- )
-    @ asm-rs a, ;
-
-: asm-R-rs
-    create asm-R-type
-does>
-    (asm-R-rs) ;
-
-: (asm-R-rd,rs) ( rd rs addr -- )
-    @ asm-rs asm-rd a, ;
-
-: asm-R-rd,rs
-    create asm-R-type
-does>
-    (asm-R-rd,rs) ;
-
-: (asm-R-rs,rt) ( rs rt addr -- )
-    @ asm-rt asm-rs a, ;
-
-: asm-R-rs,rt
-    create asm-R-type
-does>
-    (asm-R-rs,rt) ;
-
-: (asm-R-rd,rs,rt) ( rd rs rt addr -- )
-    @ asm-rt asm-rs asm-rd a, ;
-
-: asm-R-rd,rs,rt
-    create asm-R-type
-does>
-    (asm-R-rd,rs,rt) ;
-
-: (asm-R-rd,rt,rs) ( rd rt rs addr -- )
-    @ asm-rs asm-rt asm-rd a, ;
-
-: asm-R-rd,rt,rs
-    create asm-R-type
-does>
-    (asm-R-rd,rt,rs) ;
-
-: (asm-R-rd,rt,sa) ( rd rt sa addr -- )
-    @ asm-sa asm-rt asm-rd a, ;
-
-: asm-R-rd,rt,sa
-    create asm-R-type
-does>
-    (asm-R-rd,rt,sa) ;
+: asm-J-target ( code -- )
+    create ,
+does> ( target -- )
+    @ asm-target , ;
 
 \ ***** special types
-: asm-special-nothing ( funct -- )
-    asm-init-code asm-funct asm-R-nothing ;
+: asm-special-nothing ( code -- )
+    asm-special create ,
+does> ( addr -- )
+    @ , ;
 
-: asm-special-rd ( funct -- )
-    asm-init-code asm-funct asm-R-rd ;
+: asm-special-rd ( code -- )
+    asm-special create ,
+does> ( rd addr -- )
+    @ asm-rd , ;
 
-: asm-special-rs ( funct -- )
-    asm-init-code asm-funct asm-R-rs ;
+: asm-special-rs ( code -- )
+    asm-special create ,
+does> ( rs addr -- )
+    @ asm-rs , ;
 
-: asm-special-rd,rs ( funct -- )
-    asm-init-code asm-funct asm-R-rd,rs ;
+: asm-special-rd,rs ( code -- )
+    asm-special create ,
+does> ( rd rs addr -- )
+    @ asm-rs asm-rd , ;
 
-: asm-special-rs,rt ( funct -- )
-    asm-init-code asm-funct asm-R-rs,rt ;
+: asm-special-rs,rt ( code -- )
+    asm-special create ,
+does> ( rs rt addr -- )
+    @ asm-rt asm-rs , ;
 
-: asm-special-rd,rs,rt ( funct -- )
-    asm-init-code asm-funct asm-R-rd,rs,rt ;
+: asm-special-rd,rs,rt ( code -- )
+    asm-special create ,
+does> ( rd rs rt addr -- )
+    @ asm-rt asm-rs asm-rd , ;
 
-: asm-special-rd,rt,rs ( funct -- )
-    asm-init-code asm-funct asm-R-rd,rt,rs ;
+: asm-special-rd,rt,rs ( code -- )
+    asm-special create ,
+does> ( rd rt rs addr -- )
+    @ asm-rs asm-rt asm-rd , ;
 
-: asm-special-rd,rt,sa ( funct -- )
-    asm-init-code asm-funct asm-R-rd,rt,sa ;
+: asm-special-rd,rt,sa ( code -- )
+    asm-special create ,
+does> ( rd rt sa addr -- )
+    @ asm-sa asm-rt asm-rd , ;
 
 \ ***** copz types 2
 : asm-copz0 ( funct -- )
-    $10 $10 asm-op asm-rs asm-funct asm-R-nothing ;
-
-: (asm-R-rt,rd,z) ( rt rd z addr -- )
-    @ swap asm-op or asm-rd asm-rt a, ;
-
-: asm-R-rt,rd,z
-    create asm-R-type
-does>
-    (asm-R-rt,rd,z) ;
+    $10 $10 asm-op asm-rs asm-funct create ,
+does> ( addr -- )
+    @ , ;
 
 : asm-copz-rt,rd ( funct -- )
-    $10 asm-op or asm-R-rt,rd,z ;
+    $10 asm-op or create ,
+does> ( rt rd z addr -- )
+    @ swap asm-op or asm-rd asm-rt , ;
 
 : nop, ( -- )
-    0 a, ;
+    0 , ;
 
 $04 asm-op asm-I-rs,rt,imm		beq,
 $05 asm-op asm-I-rs,rt,imm		bne,
@@ -357,41 +289,41 @@ $06 asm-copz0				tlbwr,
 $08 asm-copz0				tlbl,
 
 : move, ( rd rs -- )
-    @zero addu, ;
+    $zero addu, ;
 
 : abs, ( rd rs -- )
     dup $0008 bgez,
     2dup move,
-    @zero swap subu, ;
+    $zero swap subu, ;
 
 : neg, ( rd rs -- )
-    @zero swap subu, ;
+    $zero swap subu, ;
 
 : negu, ( rd rs -- )
-    @zero swap subu, ;
+    $zero swap subu, ;
 
 : not, ( rd rs -- )
-    @zero nor, ;
+    $zero nor, ;
 
 : li, ( rd imm -- )
     dup 0= if
-	drop dup @zero = if
+	drop dup $zero = if
 	    drop nop, assert( false )
 	else
-	    @zero move,
+	    $zero move,
 	endif
     else
 	dup $8000 u< if
-	    @zero swap addiu,
+	    $zero swap addiu,
 	else
 	    dup $10000 u< if
-		@zero swap ori,
+		$zero swap ori,
 	    else
 		dup $ffff and 0= if
 		    $10 rshift lui,
 		else
 		    dup $ffff8000 and $ffff8000 = if
-			@zero swap addiu,
+			$zero swap addiu,
 		    else
 			2dup $10 rshift lui,
 			over swap ori,
@@ -402,34 +334,34 @@ $08 asm-copz0				tlbl,
     endif ;
 
 : blt, ( rs rt imm -- )		\ <
-    >r @at rot rot slt,
-    @at @zero r> bne, ;
+    >r $at rot rot slt,
+    $at $zero r> bne, ;
 
 : ble, ( rs rt imm -- )		\ <=
-    >r @at rot rot swap slt,
-    @at @zero r> beq, ;
+    >r $at rot rot swap slt,
+    $at $zero r> beq, ;
 
 : bgt, ( rs rt imm -- )		\ >
-    >r @at rot rot swap slt,
-    @at @zero r> bne, ;
+    >r $at rot rot swap slt,
+    $at $zero r> bne, ;
 
 : bge, ( rs rt imm -- )		\ >=
-    >r @at rot rot slt,
-    @at @zero r> beq, ;
+    >r $at rot rot slt,
+    $at $zero r> beq, ;
 
 : bltu, ( rs rt imm -- )	\ < unsigned
-    >r @at rot rot sltu,
-    @at @zero r> bne, ;
+    >r $at rot rot sltu,
+    $at $zero r> bne, ;
 
 : bleu, ( rs rt imm -- )	\ <= unsigned
-    >r @at rot rot swap sltu,
-    @at @zero r> beq, ;
+    >r $at rot rot swap sltu,
+    $at $zero r> beq, ;
 
 : bgtu, ( rs rt imm -- )	\ > unsigned
-    >r @at rot rot swap sltu,
-    @at @zero r> bne, ;
+    >r $at rot rot swap sltu,
+    $at $zero r> bne, ;
 
 : bgeu, ( rs rt imm -- )	\ >= unsigned
-    >r @at rot rot sltu,
-    @at @zero r> beq, ;
+    >r $at rot rot sltu,
+    $at $zero r> beq, ;
 
