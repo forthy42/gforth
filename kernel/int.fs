@@ -429,7 +429,7 @@ Defer .status
 : prompt        state @ IF ."  compiled" EXIT THEN ."  ok" ;
 
 : (Query)  ( -- )
-    loadfile off  blk off  refill drop ;
+    loadfile off  blk off loadline off refill drop ;
 
 : (quit)  BEGIN  .status cr (query) interpret prompt  AGAIN ;
 
@@ -520,7 +520,7 @@ DEFER DOERROR
 ' (DoError) IS DoError
 
 : quit ( ?? -- ?? ) \ core
-    rp0 @ rp! handler off >tib @ >r
+    rp0 @ rp! handler off clear-tibstack >tib @ >r
     BEGIN
 	[ has? compiler [IF] ]
 	postpone [
@@ -575,15 +575,7 @@ Variable init8
     bootmessage
     loadline off quit ;
 
-: boot ( path **argv argc -- )
-    main-task up!
-[ has? os [IF] ]
-    stdout TO outfile-id
-\ !! [ [THEN] ]
-\ !! [ has? file [IF] ]
-    argc ! argv ! pathstring 2!
-[ [THEN] ]
-    sp@ sp0 !
+: clear-tibstack ( -- )
 [ has? glocals [IF] ]
     lp@ forthstart 7 cells + @ - 
 [ [ELSE] ]
@@ -593,7 +585,18 @@ Variable init8
     sp@ $40 +
     [ [THEN] ]
 [ [THEN] ]
-    dup >tib ! tibstack ! #tib off >in off
+    dup >tib ! tibstack ! #tib off >in off ;
+
+: boot ( path **argv argc -- )
+    main-task up!
+[ has? os [IF] ]
+    stdout TO outfile-id
+\ !! [ [THEN] ]
+\ !! [ has? file [IF] ]
+    argc ! argv ! pathstring 2!
+[ [THEN] ]
+    sp@ sp0 !
+    clear-tibstack
     rp@ rp0 !
 [ has? floating [IF] ]
     fp@ fp0 !
