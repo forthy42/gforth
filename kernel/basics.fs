@@ -183,7 +183,14 @@ has-locals [IF]
     handler @ >r
     rp@ handler !
     execute
-    r> handler ! rdrop rdrop rdrop 0 ;
+    r> handler ! rdrop 
+[ has-floats [IF] ]
+    rdrop
+[ [THEN] ]
+[ has-locals [IF] ]
+    rdrop
+[ [THEN] ]
+    0 ;
 
 : throw ( y1 .. ym error/0 -- y1 .. ym / z1 .. zn error ) \ exception
     ?DUP IF
@@ -238,9 +245,9 @@ has-locals [IF]
 \ ?stack                                               23feb93py
 
 : ?stack ( ?? -- ?? ) \ gforth
-    sp@ s0 @ u> IF    -4 throw  THEN
+    sp@ sp0 @ u> IF    -4 throw  THEN
 [ has-floats [IF] ]
-    fp@ f0 @ u> IF  -&45 throw  THEN
+    fp@ fp0 @ u> IF  -&45 throw  THEN
 [ [THEN] ]
 ;
 \ ?stack should be code -- it touches an empty stack!
@@ -248,9 +255,9 @@ has-locals [IF]
 \ DEPTH                                                 9may93jaw
 
 : depth ( -- +n ) \ core
-    sp@ s0 @ swap - cell / ;
+    sp@ sp0 @ swap - cell / ;
 : clearstack ( ... -- )
-    s0 @ sp! ;
+    sp0 @ sp! ;
 
 \ Strings						 22feb93py
 
