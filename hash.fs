@@ -111,17 +111,22 @@ Create hashsearch-map ( -- wordlist-map )
 
 : (initvoc) ( addr -- )
     cell+ dup @  0< IF  drop EXIT  THEN
-    insRule @ >r  insRule off  hash-alloc
-    3 cells - hashsearch-map over cell+ ! dup
+    dup 2 cells - @ hashsearch-map <> IF  drop EXIT  THEN
+    insRule @ >r  insRule off  hash-alloc 3 cells - dup
     BEGIN  @ dup  WHILE  2dup swap (reveal  REPEAT
     2drop  r> insRule ! ;
 
-' (initvoc) ' 'initvoc >body !
+' (initvoc) IS 'initvoc
 
 \ Hash-Find                                            01jan93py
 
-addall          \ Baum aufbauen
-\ Baumsuche ist installiert.
+: make-hash
+  Root   hashsearch-map context @ cell+ !
+  Forth  hashsearch-map context @ cell+ !
+  addall          \ Baum aufbauen
+;
+
+make-hash  \ Baumsuche ist installiert.
 
 : hash-cold  ( -- ) Defers 'cold
   HashPointer off  0 TO HashTable  HashIndex off

@@ -499,7 +499,7 @@ ghost unloop    ghost ;S                        2drop
 ghost lit       ghost (compile) ghost !         2drop drop
 ghost (does>)   ghost noop                      2drop
 ghost (.")      ghost (S")      ghost (ABORT")  2drop drop
-ghost '
+ghost '                                         drop
 
 \ compile                                              10may93jaw
 

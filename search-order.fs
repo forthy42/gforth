@@ -38,8 +38,14 @@ Defer 'initvoc
 
 Variable slowvoc   slowvoc off
 
+Forth-wordlist AConstant Forth-wordlist
+
 : wordlist  ( -- wid )
-  here  0 A, Forth-wordlist wordlist-map @ A, voclink @ A, slowvoc @ A,
+  here  0 A,
+  slowvoc @
+  IF    [ Forth-wordlist wordlist-map @ ] ALiteral
+  ELSE  Forth-wordlist wordlist-map @   THEN
+  A, voclink @ A, slowvoc @ A,
   dup wordlist-link dup voclink ! 'initvoc ;
 
 : Vocabulary ( -- ) Create wordlist drop  DOES> context ! ;
@@ -87,7 +93,7 @@ Create vocsearch ( -- wordlist-map )
 \ Only root                                            14may93py
 
 wordlist \ the wordlist structure
-vocsearch over wordlist-map A! \ patch the map into it
+vocsearch over wordlist-map ! \ patch the map into it
 
 Vocabulary Forth
 Vocabulary Root
@@ -96,14 +102,14 @@ Vocabulary Root
 
 \ set initial search order                             14may93py
 
-Forth-wordlist @ ' Forth >body A!
+Forth-wordlist @ ' Forth >body !
 
 vp off  also Root also definitions
 Only Forth also definitions
 
-lookup A! \ our dictionary search order becomes the law
+lookup ! \ our dictionary search order becomes the law
 
-' Forth >body constant forth-wordlist \ "forth definitions get-current" and "forth-wordlist" should produce the same wid
+' Forth >body to Forth-wordlist \ "forth definitions get-current" and "forth-wordlist" should produce the same wid
 
 
 \ get-order set-order                                  14may93py

@@ -450,7 +450,7 @@ gforth.info:	gforth.texi
 html:		gforth.texi
 		-$(RM) html/*
 		-mkdir html
-		cd html; $(TEXI2HTML) -menu -split_node gforth.texi
+		cd html; $(TEXI2HTML) -menu -split_node ../gforth.texi
 
 doc:		gforth.ps html
 
