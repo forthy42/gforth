@@ -334,10 +334,10 @@ NIL		   Constant TNIL
 cell               Constant tcell
 cell<<             Constant tcell<<
 cell>bit           Constant tcell>bit
-bits/byte          Constant tbits/byte
-bits/byte 8 /      Constant tchar
+bits/char          Constant tbits/char
+bits/char 8 /      Constant tchar
 float              Constant tfloat
-1 bits/byte lshift Constant tmaxbyte
+1 bits/char lshift Constant tmaxchar
 H
 
 \ Variables                                            06oct92py
