@@ -1410,6 +1410,11 @@ gforthnrnh.fi -e bye} takes about 2.1ms user and 6.1ms system time.
 @c what happens on redefinition
 @c parsing words (in particular, defining words)
 
+The difference of this chapter from the Introduction
+(@pxref{Introduction}) is that this tutorial is more fast-paced, should
+be used while sitting in front of a computer, and covers much more
+material, but does not explain how the Forth system works.
+
 This tutorial can be used with any ANS-compliant Forth; any
 Gforth-specific features are marked as such and you can skip them if you
 work with another Forth.  This tutorial does not explain all features of
@@ -3439,6 +3444,12 @@ Reference: @ref{Word Lists}.
 @chapter An Introduction to ANS Forth
 @cindex Forth - an introduction
 
+The difference of this chapter from the Tutorial (@pxref{Tutorial}) is
+that it is slower-paced in its examples, but uses them to dive deep into
+explaining Forth internals (not covered by the Tutorial).  Apart from
+that, this chapter covers far less material.  It is suitable for reading
+without using a computer.
+
 The primary purpose of this manual is to document Gforth. However, since
 Forth is not a widely-known language and there is a lack of up-to-date
 teaching material, it seems worthwhile to provide some introductory
@@ -3949,7 +3960,14 @@ words of your own.
 @c everything more complex again. I replaced it with ``default
 @c semantics'' (which is used elsewhere in the manual) by which I mean
 @c ``a definition that has neither the immediate nor the compile-only
-@c flag set''. I reworded big chunks of the ``how does that work''
+@c flag set''.
+
+@c anton: I have eliminated default semantics (except in one place where it
+@c means "default interpretation and compilation semantics"), because it
+@c makes no sense in the presence of combined words.  I reverted to
+@c "execution semantics" where necessary.
+
+@c nac-> I reworded big chunks of the ``how does that work''
 @c section (and, unusually for me, I think I even made it shorter!).  See
 @c what you think -- I know I have not addressed your primary concern
 @c that it is too heavy-going for an introduction. From what I understood
@@ -3959,6 +3977,15 @@ words of your own.
 @c fact that a very simple code example shows up almost all of the issues
 @c that you need to understand to see how Forth works. That's unique and
 @c worthwhile to emphasise.
+
+@c anton: I think it's a good idea to present the details, especially those
+@c that you found to be a revelation, and probably the tutorial tries to be
+@c too superficial and does not get some of the things across that make
+@c Forth special.  I do believe that most of the time these things should
+@c be discussed at the end of a section or in separate sections instead of
+@c in the middle of a section (e.g., the stuff you added in "User-defined
+@c defining words" leads in a completely different direction from the rest
+@c of the section).
 
 Now we're going to take another look at the definition of @code{add-two}
 from the previous section. From our knowledge of the way that the text
@@ -7752,8 +7779,8 @@ Directives}).
 @c where it outlaws a style in common use.
 
 @c anton: it's more important to show what's portable.  After we have done
-@c that, we can also show what's not.  In any case, I intend to write a
-@c section Macros (or so) which will also deal with [ ].
+@c that, we can also show what's not.  In any case, I have written a
+@c section Compiling Words which also deals with [ ].
 
 @code{[} and @code{]} also give you the ability to switch into compile
 state and back, but we cannot think of any useful Standard application
