@@ -56,15 +56,22 @@ struct
 end-struct list%
 
 list%
-    cell% 2* field profile-count
+    cell% 2* field profile-count \ how often this profile point is performed
     cell% 2* field profile-sourcepos
     cell% field profile-char \ character position in line
     cell% field profile-bblen \ number of primitives in BB
+    cell% field profile-bblenpi \ bblen after partial inlining
+    cell% field profile-callee-postlude \ 0 or (for calls) callee postlude len
+    cell% field profile-tailof \ 0 or (for tail bbs) pointer to coldef bb
     cell% field profile-colondef? \ is this a colon definition start
     cell% field profile-calls \ static calls to the colon def (calls%)
     cell% field profile-straight-line \ may contain calls, but no other CF
     cell% field profile-calls-from \ static calls in the colon def
-end-struct profile% \ profile point
+    cell% field profile-exits \ number of exits in this colon def
+    cell% 2* field profile-execs \ number of EXECUTEs etc. of this colon def
+    cell% field profile-prelude \ first BB-len of colon def (incl. callee)
+    cell% field profile-postlude \ last BB-len of colon def (incl. callee)
+end-struct profile% \ profile point 
 
 list%
     cell% field calls-call \ ptr to profile point of bb containing the call
@@ -118,11 +125,21 @@ variable all-bbs 0 all-bbs ! \ list of all basic blocks
     0. r@ profile-count 2!
     current-sourcepos r@ profile-sourcepos 2!
     >in @ r@ profile-char !
+    0 r@ profile-callee-postlude !
+    0 r@ profile-tailof !
     r@ profile-colondef? off
     0 r@ profile-bblen !
+    -100000000 r@ profile-bblenpi !
+    current-profile-point @ profile-bblenpi @ -100000000 = if
+	current-profile-point @ dup profile-bblen @ swap profile-bblenpi !
+    endif
     0 r@ profile-calls !
     r@ profile-straight-line on
     0 r@ profile-calls-from !
+    0 r@ profile-exits !
+    0. r@ profile-execs 2!
+    0 r@ profile-prelude !
+    0 r@ profile-postlude !
     r@ next-profile-point-p insert-list-end
     r@ current-profile-point !
     r@ new-call all-bbs insert-list
@@ -291,7 +308,9 @@ Defer before-word-profile ( -- )
     r> ! ; \ change hook behaviour
 
 : note-execute ( -- )
-    \ end of BB due to execute
+    \ end of BB due to execute, dodefer, perform
+    profile-this \ should actually happen after the word, but the
+                 \ error is probably small
 ;
 
 : note-call ( addr -- )
@@ -299,12 +318,19 @@ Defer before-word-profile ( -- )
     dup ['] (does>2) >body = if \ adjust does handler address
 	4 cells here 1 cells - +!
     endif
-    profile-this current-profile-point @ new-call
-    over 3 cells + @ ['] dinc >body = if ( addr call-prof-point )
+    { addr }
+    current-profile-point @ { lastbb }
+    profile-this
+    current-profile-point @ { thisbb }
+    thisbb new-call { call-node }
+    over 3 cells + @ ['] dinc >body = if
 	\ non-library call
-	 swap cell+ @ profile-calls insert-list
+    !! update profile-bblenpi of last and current pp
+	addr cell+ @ { callee-pp }
+	callee-pp profile-postlude @ thisbb profile-callee-postlude !
+	call-node callee-pp profile-calls insert-list
     else ( addr call-prof-point )
-	library-calls insert-list drop
+	call-node library-calls insert-list
     endif ;
 
 : prof-compile, ( xt -- )
@@ -312,14 +338,18 @@ Defer before-word-profile ( -- )
 	DEFERS compile, EXIT
     endif
     1 current-profile-point @ profile-bblen +!
-    dup >does-code if
-	dup >does-code note-call
-    then
-    dup >code-address CASE
-	docol:   OF dup >body note-call ENDOF
-	dodefer: OF note-execute ENDOF
-	\ dofield: OF >body @ POSTPONE literal ['] + peephole-compile, EXIT ENDOF
-	\ code words and ;code-defined words (code words could be optimized):
+    dup CASE
+	['] execute of note-execute endof
+	['] perform of note-execute endof
+	dup >does-code if
+	    dup >does-code note-call
+	then
+	dup >code-address CASE
+	    docol:   OF dup >body note-call ENDOF
+	    dodefer: OF note-execute ENDOF
+	    \ dofield: OF >body @ POSTPONE literal ['] + peephole-compile, EXIT ENDOF
+	    \ code words and ;code-defined words (code words could be optimized):
+	ENDCASE
     ENDCASE
     DEFERS compile, ;
 
@@ -327,8 +357,27 @@ Defer before-word-profile ( -- )
     defers :-hook
     next-profile-point-p @
     profile-this
-    @ dup last-colondef-profile !
+    @ dup last-colondef-profile ! ( current-profile-point )
+    1 over profile-bblenpi !
     profile-colondef? on ;
+
+: exit-hook-profile ( -- )
+    defers exit-hook
+    1 last-colondef-profile @ profile-exits +! ;
+
+: ;-hook-profile ( -- )
+    \ ;-hook is called before the POSTPONE EXIT
+    defers ;-hook
+    last-colondef-profile @ { col }
+    current-profile-point @ { bb }
+    col profile-bblen @ col profile-prelude +!
+    col profile-exits @ 0= if
+	col bb profile-tailof !
+	bb profile-bblen @ bb profile-callee-postlude @ +
+	col profile-postlude !
+	1 bb profile-bblenpi !
+	\ not counting the EXIT
+    endif ;
 
 hook-profiling-into then-like
 \ hook-profiling-into if-like    \ subsumed by other-control-flow
@@ -339,3 +388,5 @@ hook-profiling-into again-like
 hook-profiling-into until-like
 ' :-hook-profile IS :-hook
 ' prof-compile, IS compile,
+' exit-hook-profile IS exit-hook
+' ;-hook-profile IS ;-hook

@@ -5182,19 +5182,21 @@ CASE
   @i{n2} OF @i{code2} ENDOF
   @dots{}
   ( n ) @i{default-code} ( n )
-ENDCASE
+ENDCASE ( )
 @end example
 
-Executes the first @i{codei}, where the @i{ni} is equal to @i{n}.  If no
-@i{ni} matches, the optional @i{default-code} is executed. The optional
-default case can be added by simply writing the code after the last
-@code{ENDOF}. It may use @i{n}, which is on top of the stack, but must
-not consume it.
+Executes the first @i{codei}, where the @i{ni} is equal to @i{n}.  If
+no @i{ni} matches, the optional @i{default-code} is executed. The
+optional default case can be added by simply writing the code after
+the last @code{ENDOF}. It may use @i{n}, which is on top of the stack,
+but must not consume it.  The value @i{n} is consumed by this
+construction (either by a OF that matches, or by the ENDCASE, if no OF
+matches).
 
 @progstyle
-To keep the code understandable, you should ensure that on all paths
-through a selection construct the stack is changed in the same way
-(wrt. number and types of stack items consumed and pushed).
+To keep the code understandable, you should ensure that you change the
+stack in the same way (wrt. number and types of stack items consumed
+and pushed) on all paths through a selection construct.
 
 @node Simple Loops, Counted Loops, Selection, Control Structures
 @subsection Simple Loops
