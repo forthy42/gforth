@@ -62,7 +62,7 @@ defer everyline
     everyline
     rot over
     2dup type
-    BEGIN  key decode  UNTIL
+    BEGIN  xkey decode  UNTIL
     2drop nip ;
     
 : accept   ( c-addr +n1 -- +n2 ) \ core

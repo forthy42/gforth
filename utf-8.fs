@@ -140,3 +140,10 @@ $80 Value max-single-byte
     ['] -u8trailing-garbage is -trailing-garbage
 ;
 
+: utf-8-cold ( -- )
+    s" LANG" getenv s" .UTF-8" search nip nip
+    IF  set-encoding-utf-8  ELSE  set-encoding-fixed-width  THEN ;
+
+' utf-8-cold INIT8 chained
+
+utf-8-cold

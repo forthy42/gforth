@@ -54,11 +54,11 @@ DEFER -TRAILING-GARBAGE ( addr u1 -- addr u2 ) \ remove trailing incomplete xc
     -1 /string ;
 
 : c!+? ( c c-addr1 u1 -- c-addr2 u2 f )
-    1 chars u< if \ or use < ?
-	>r dup >r c!
-	1 r> r> /string true
-    else
+    dup 1 chars u< if \ or use < ?
 	rot drop false
+    else
+	>r dup >r c!
+	r> r> 1 /string true
     then ;
 
 : c-size ( c -- 1 )

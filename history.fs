@@ -222,7 +222,8 @@ Create prefix-found  0 , 0 ,
 
 [IFUNDEF] everyline defer everyline [THEN]
 
-: 8-bit-io ( -- )
+: char-history ( -- )
+    \ might be useful on dumb terminals, otherwise unused
     ['] forw        ctrl F bindkey
     ['] back        ctrl B bindkey
     ['] ?del        ctrl H bindkey
@@ -238,9 +239,7 @@ Create prefix-found  0 , 0 ,
     ['] tab-expand  #tab   bindkey
     ['] (ins)       IS insert-char
     ['] kill-prefix IS everychar
-    ['] noop        IS everyline
-    [ action-of key ] Literal IS key
-    [ action-of emit ] Literal IS emit ;
+    ['] noop        IS everyline ;
 
 \ UTF-8 support
 
@@ -255,47 +254,49 @@ require utf-8.fs
 : .all ( span addr pos1 -- span addr pos1 )
     restore-cursor >r 2dup swap type r> ;
 
-: <u8ins>  ( max span addr pos1 u8char -- max span addr pos2 )
-    >r  2over r@ u8len + u< IF  rdrop bell  EXIT  THEN
-    >string over r@ u8len + swap move 2dup chars + r@ swap u8!+ drop
-    r> u8len >r  rot r@ chars + -rot r> chars + ;
-: (u8ins)  ( max span addr pos1 u8char -- max span addr pos2 )
-    <u8ins> .all .rest ;
-: u8back  ( max span addr pos1 -- max span addr pos2 f )
-    dup  IF  over + u8<< over -  0 max .all .rest
+: <xins>  ( max span addr pos1 xc -- max span addr pos2 )
+    >r  2over r@ xc-size + u< IF  ( max span addr pos1 R:xc )
+	rdrop bell  EXIT  THEN
+    >string over r@ xc-size + swap move
+    2dup chars + r@ swap r@ xc-size xc!+? 2drop drop
+    r> xc-size >r  rot r@ chars + -rot r> chars + ;
+: (xins)  ( max span addr pos1 xc -- max span addr pos2 )
+    <xins> .all .rest ;
+: xback  ( max span addr pos1 -- max span addr pos2 f )
+    dup  IF  over + xchar- over -  0 max .all .rest
     ELSE  bell  THEN 0 ;
-: u8forw  ( max span addr pos1 -- max span addr pos2 f )
-    2 pick over <> IF  over + u8@+ u8emit over -  ELSE  bell  THEN 0 ;
-: (u8del)  ( max span addr pos1 -- max span addr pos2 )
-    over + dup u8<< tuck - >r over -
+: xforw  ( max span addr pos1 -- max span addr pos2 f )
+    2 pick over <> IF  over + xc@+ xemit over -  ELSE  bell  THEN 0 ;
+: (xdel)  ( max span addr pos1 -- max span addr pos2 )
+    over + dup xchar- tuck - >r over -
     >string over r@ + -rot move
     rot r> - -rot ;
-: ?u8del ( max span addr pos1 -- max span addr pos2 0 )
-  dup  IF  (u8del) .all 2 spaces .rest  THEN  0 ;
-: <u8del> ( max span addr pos1 -- max span addr pos2 0 )
+: ?xdel ( max span addr pos1 -- max span addr pos2 0 )
+  dup  IF  (xdel) .all 2 spaces .rest  THEN  0 ;
+: <xdel> ( max span addr pos1 -- max span addr pos2 0 )
   2 pick over <>
-    IF  u8forw drop (u8del) .all 2 spaces .rest
+    IF  xforw drop (xdel) .all 2 spaces .rest
     ELSE  bell  THEN  0 ;
-: u8eof  2 pick over or 0=  IF  bye  ELSE  <u8del>  THEN ;
+: xeof  2 pick over or 0=  IF  bye  ELSE  <xdel>  THEN ;
 
-: u8first-pos  ( max span addr pos1 -- max span addr 0 0 )
+: xfirst-pos  ( max span addr pos1 -- max span addr 0 0 )
   drop 0 .all .rest 0 ;
-: u8end-pos  ( max span addr pos1 -- max span addr span 0 )
+: xend-pos  ( max span addr pos1 -- max span addr span 0 )
   drop over .all 0 ;
 
 
-: u8clear-line ( max span addr pos1 -- max addr )
+: xclear-line ( max span addr pos1 -- max addr )
     drop restore-cursor swap spaces restore-cursor ;
-: u8clear-tib ( max span addr pos -- max 0 addr 0 false )
-    u8clear-line 0 tuck dup ;
+: xclear-tib ( max span addr pos -- max 0 addr 0 false )
+    xclear-line 0 tuck dup ;
 
-: (u8enter)  ( max span addr pos1 -- max span addr pos2 true )
+: (xenter)  ( max span addr pos1 -- max span addr pos2 true )
     >r end^ 2@ hist-setpos
     2dup swap history write-line drop ( throw ) \ don't worry about errors
     hist-pos 2dup backward^ 2! end^ 2!
     r> .all space true ;
 
-: u8kill-expand ( max span addr pos1 -- max span addr pos2 )
+: xkill-expand ( max span addr pos1 -- max span addr pos2 )
     prefix-found cell+ @ ?dup IF  >r
 	r@ - >string over r@ + -rot move
 	rot r@ - -rot .all r> spaces .rest THEN ;
@@ -304,42 +305,34 @@ require utf-8.fs
     rot over min >r  r@ - ( left over )
     over dup r@ +  rot move   r> move  ;
 
-: u8tab-expand ( max span addr pos1 -- max span addr pos2 0 )
-    key? IF  #tab (u8ins) 0  EXIT  THEN
-    u8kill-expand 2dup extract-word dup 0= IF  nip EXIT  THEN
+: xtab-expand ( max span addr pos1 -- max span addr pos2 0 )
+    key? IF  #tab (xins) 0  EXIT  THEN
+    xkill-expand 2dup extract-word dup 0= IF  nip EXIT  THEN
     search-prefix tib-full?
-    IF    7 emit  2drop  prefix-off
+    IF    bell  2drop  prefix-off
     ELSE  dup >r
 	2>r >string r@ + 2r> 2swap insert
 	r@ + rot r> + -rot
     THEN
-    prefix-found @ IF  bl (u8ins)  ELSE  .all .rest  THEN  0 ;
+    prefix-found @ IF  bl (xins)  ELSE  .all .rest  THEN  0 ;
 
-: utf-8-io ( -- )
-    ['] u8forw       ctrl F bindkey
-    ['] u8back       ctrl B bindkey
-    ['] ?u8del       ctrl H bindkey
-    ['] u8eof        ctrl D bindkey
-    ['] <u8del>      ctrl X bindkey
-    ['] u8clear-tib  ctrl K bindkey
-    ['] u8first-pos  ctrl A bindkey
-    ['] u8end-pos    ctrl E bindkey
-    ['] (u8enter)    #lf    bindkey
-    ['] (u8enter)    #cr    bindkey
-    ['] u8tab-expand #tab   bindkey
-    ['] (u8ins)      IS insert-char
+: xchar-history ( -- )
+    ['] xforw        ctrl F bindkey
+    ['] xback        ctrl B bindkey
+    ['] ?xdel        ctrl H bindkey
+    ['] xeof         ctrl D bindkey
+    ['] <xdel>       ctrl X bindkey
+    ['] xclear-tib   ctrl K bindkey
+    ['] xfirst-pos   ctrl A bindkey
+    ['] xend-pos     ctrl E bindkey
+    ['] (xenter)     #lf    bindkey
+    ['] (xenter)     #cr    bindkey
+    ['] xtab-expand  #tab   bindkey
+    ['] (xins)       IS insert-char
     ['] kill-prefix  IS everychar
-    ['] save-cursor  IS everyline
-    ['] u8key        IS key
-    ['] u8emit       IS emit ;
+    ['] save-cursor  IS everyline ;
 
-: utf-8-cold ( -- )
-    s" LANG" getenv s" .UTF-8" search nip nip
-    IF  utf-8-io  ELSE  8-bit-io  THEN ;
-
-' utf-8-cold INIT8 chained
-
-utf-8-cold
+xchar-history
 
 \ initializing history
 
