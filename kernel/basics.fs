@@ -277,11 +277,9 @@ is throw
 \ HEX DECIMAL                                           2may93jaw
 
 : decimal ( -- ) \ core
-    \G Set the numeric conversion radix (the value of @code{BASE}) to 10
-    \G (decimal).
+    \G Set @code{base} to &10 (decimal).
     a base ! ;
 : hex ( -- ) \ core-ext
-    \G Set the numeric conversion radix (the value of @code{BASE}) to 16
-    \G (hexadecimal).
+    \G Set @code{base} to &16 (hexadecimal).
     10 base ! ;
 

@@ -11366,7 +11366,7 @@ So first, let's declare methods:
 
 @example
 : method ( m v -- m' v ) Create  over , swap cell+ swap
-  DOES> ( ... o -- ... ) @ over @ + @ execute ;
+  DOES> ( ... o -- ... ) @@ over @@ + @@ execute ;
 @end example
 
 During method declaration, the number of methods and instance
@@ -11381,7 +11381,7 @@ Now, we also have to declare instance variables
 
 @example
 : var ( m v size -- m v' ) Create  over , +
-  DOES> ( o -- addr ) @ + ;
+  DOES> ( o -- addr ) @@ + ;
 @end example
 
 As before, a word is created with the current offset. Instance
@@ -11395,7 +11395,7 @@ We need a starting point (the base object) and some syntactic sugar:
 
 @example
 Create object  1 cells , 2 cells ,
-: class ( class -- class methods vars ) dup 2@ ;
+: class ( class -- class methods vars ) dup 2@@ ;
 @end example
 
 For inheritance, the vtable of the parent object has to be
@@ -11405,7 +11405,7 @@ methods of the parent class, which can be overridden, though.
 @example
 : end-class  ( class methods vars -- )
   Create  here >r , dup , 2 cells ?DO ['] noop , 1 cells +LOOP
-  cell+ dup cell+ r> rot @ 2 cells /string move ;
+  cell+ dup cell+ r> rot @@ 2 cells /string move ;
 @end example
 
 The first line creates the vtable, initialized with
@@ -11415,13 +11415,13 @@ copies the xts from the parent vtable.
 We still have no way to define new methods, let's do that now:
 
 @example
-: defines ( xt class -- ) ' >body @ + ! ;
+: defines ( xt class -- ) ' >body @@ + ! ;
 @end example
 
 To allocate a new object, we need a word, too:
 
 @example
-: new ( class -- o )  here over @ allot swap over ! ;
+: new ( class -- o )  here over @@ allot swap over ! ;
 @end example
 
 Sometimes derived classes want to access the method of the
@@ -11430,7 +11430,7 @@ first, you could use named words, and second, you could look up the
 vtable of the parent object.
 
 @example
-: :: ( class "name" -- ) ' >body @ + @ compile, ;
+: :: ( class "name" -- ) ' >body @@ + @@ compile, ;
 @end example
 
 
@@ -11454,10 +11454,10 @@ Now, implement the two methods, @code{draw} and @code{init}:
 
 @example
 :noname ( o -- )
- >r r@ x @ r@ y @ at-xy  r@ text @ r> len @ type ;
+ >r r@@ x @@ r@@ y @@ at-xy  r@@ text @@ r> len @@ type ;
  button defines draw
 :noname ( addr u o -- )
- >r 0 r@ x ! 0 r@ y ! r@ len ! r> text ! ;
+ >r 0 r@@ x ! 0 r@@ y ! r@@ len ! r> text ! ;
  button defines init
 @end example
 
