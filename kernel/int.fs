@@ -416,6 +416,7 @@ Defer interpreter-notfound ( c-addr count -- )
 
 : interpret ( ?? -- ?? ) \ gforth
     \ interpret/compile the (rest of the) input buffer
+    rp@ backtrace-rp0 !
     BEGIN
 	?stack name dup
     WHILE

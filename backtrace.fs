@@ -65,8 +65,7 @@ IS 'cold
     else \ throw by signal handler with insufficient information
 	handler @ cell - \ beyond that we know nothing
     then
-    rp0 @ over - [ 10 cells ]L - 0 max ; \ the bottom 10 cells (and often
-					 \ more) are uninteresting
+    backtrace-rp0 @ [ 2 cells ]L - over - 0 max ;
 
 :noname ( -- )
     backtrace-empty @

@@ -92,7 +92,8 @@ AUser lp0 ( -- a-addr ) \ gforth
 \G OBSOLETE alias of @code{lp0}
 
 AUser handler	\ pointer to last throw frame
-AUser backtrace-empty \ true if the next THROW should store a backtrace
+User backtrace-empty \ true if the next THROW should store a backtrace
+AUser backtrace-rp0 \ rp at last call of interpret
 \ AUser output
 \ AUser input
 
