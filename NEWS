@@ -1,3 +1,54 @@
+User-visible changes between 0.3.0 and 0.4.0:
+
+Operating environment:
+
+Path handling: "." at the start of the path represents the directory
+  the nearest enclosing file resides in (if there is none: the working
+  directory). "~+" indicates the working directory.  The default path
+  now has "." in front.
+gforth and gforthmi is now more GNU standards compliant (wrt
+  command-line options).
+New command-line-option: --die-on-signal
+Errors are now directed to stderr.
+Stdout is now unbuffered, if it is a tty.
+User input device redirection (for filters) is now possible.
+
+Ports:
+
+Now runs on IRIX (and other MIPS-based systems without linker-flag -d).
+Direct threading now works on PowerPC (20% speedup on 604e).
+Better support for m68k (thanks to Andreas Schwab and Jorge Acereda).
+It is possible to create executables that contain the image (for
+  non-OS systems).
+Added a lot of embedded control (EC) stuff.
+
+New, changed, and removed words:
+
+Renamed F0 to FP0 (avoids unexpected behaviour in hex), added aliases
+  SP0, RP0, LP0 (recommended for future use) for S0, R0, L0.
+Renamed PARSE-WORD into SWORD (PARSE-WORD is used with the meaning of
+  NAME in OpenBoot and dpans6 A.6.2.2008)
+Added FPICK (suggested by Julian Noble).
+Added EXCEPTION.
+S" gforth" ENVIRONMENT? now produces the version-string.
+Changed representation of types in struct package, and correspondingly
+  changed names.
+
+Miscellaneous:
+
+Plain text documentation is now available in doc/gforth.txt.
+Documentation improvements.
+Wordlist structure changed.
+Added mini-oof.
+Reorganized files: added directories and reorganized many files into
+  them; renamed files into 8.3 format to work with completely broken
+  systems (but there are again some files that won't work there).
+Bug fixes.
+Various changes without log information only known as mega-patches.
+More files in the compat library.
+
+
+
 User-visible changes between 0.2.1 and 0.3.0:
 
 Stack overflow detection by memory protection on most systems
@@ -10,9 +61,13 @@ Improved support for embedded controllers and other deprived environments.
 some bug fixes.
 added concept index; other documentation improvements.
 
+
+
 User-visible changes between 0.2.0 and 0.2.1:
 
 Bug fixes
+
+
 
 User-visible changes between 0.1beta and 0.2.0:
 
@@ -53,3 +108,6 @@ changed behaviour of SYSTEM (no longer returns wretval, but puts it in
 $?)  added (SYSTEM) ( c_addr u -- wretval wior ).
 ' and ['] now give an error for compile-only words.
 
+
+% Local Variables:
+% fill-prefix: "  "

@@ -303,7 +303,7 @@ FORTH_GEN =  $(FORTH_GEN0) @KERNEL@ gforth.fi
 FORTH_GEN1 = $(FORTH_GEN0) @kernel_fi@ 
 
 #distributed documentation
-DOCDIST = doc/gforth.info doc/gforth.info-* doc/gforth.ps
+DOCDIST = doc/gforth.info doc/gforth.info-* doc/gforth.txt doc/gforth.ps
 
 #stuff in a binonly distribution 
 BINONLYDIST = config.status Makefile gforth$(EXE) gforth-ditc$(EXE) \
@@ -676,7 +676,7 @@ html:		$(GFORTH_TEXI)
 doc/gforth.txt:	$(GFORTH_TEXI)
 		-cd doc; $(MAKEINFO) --no-headers --no-split gforth.texi >gforth.txt
 
-doc:		doc/gforth.ps html
+doc:		doc/gforth.ps html doc/gforth.txt
 
 # For an explanation of the following Makefile rules, see node
 # `Automatic Remaking' in GNU Autoconf documentation.
