@@ -124,7 +124,7 @@ normal Forth code and save the image, you get a fixed-address
 image. Producing a relocatable image is more difficult.
 
 Therefore, Gforth has only a relocatable image of the kernel
-(kernal.fi), which is powerful enough to load the rest of
+(kernel.fi), which is powerful enough to load the rest of
 Gforth. However, loading the rest takes a noticable amount of time. To
 avoid this delay (which would occur on every startup), the
 installation procedure produces an image fixed at an address
@@ -145,7 +145,7 @@ images on your OS. In this case, send us a message so that we start
 searching for a comfortable solution to this problem. In the
 meantime, start gforth with
 
-gforth -i kernal.fi startup.fs
+gforth -i kernel.fi startup.fs
 
 
 2) "%s: Checksum of image ($13579b) does not match the executable ($2468a)

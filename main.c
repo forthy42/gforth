@@ -153,7 +153,7 @@ UCell checksum(Label symbols[])
   return r;
 }
 
-Address loader(FILE *imagefile)
+Address loader(FILE *imagefile, char* filename)
 /* returns the address of the image proper (after the preamble) */
 {
   ImageHeader header;
@@ -171,7 +171,8 @@ Address loader(FILE *imagefile)
   do
     {
       if(fread(magic,sizeof(Char),8,imagefile) < 8) {
-	fprintf(stderr,"%s: image doesn't seem to be a Gforth (>=0.2) image.\n",progname);
+	fprintf(stderr,"%s: image %s doesn't seem to be a Gforth (>=0.2) image.\n",
+		progname, filename);
 	exit(1);
       }
       preamblesize+=8;
@@ -263,8 +264,11 @@ int go_forth(Address image, int stack, Cell *entries)
   
   for(;stack>0;stack--)
     *--sp=entries[stack-1];
-  
+
+#ifndef MSDOS
   get_winsize();
+#endif
+   
   install_signal_handlers(); /* right place? */
   
   if ((throw_code=setjmp(throw_jmp_buf))) {
@@ -402,7 +406,7 @@ int main(int argc, char **argv, char **env)
        for (i=0; i<environ[0]; i++)
        printf("%s\n", ((char **)(environ[1]))[i]);
        */
-    retvalue=go_forth(loader(image_file),3,environ);
+    retvalue=go_forth(loader(image_file, imagename),3,environ);
     deprep_terminal();
     exit(retvalue);
   }

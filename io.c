@@ -36,7 +36,7 @@
 #include <signal.h>
 #include <string.h>
 #include <sys/types.h>
-#ifndef apollo
+#if !defined(apollo) && !defined(MSDOS)
 #include <sys/ioctl.h>
 #endif
 #include <fcntl.h>

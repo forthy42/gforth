@@ -35,3 +35,4 @@ s%@LINK_KERNL64B@%%g
 s%@LINK_KERNL64L@%%g
 s%\": version-string s\\\" $(VERSION)\\\" ;\"%: version-string s\" $(VERSION)\" ;%g
 s%\"char gforth_version\[\]=\\\"$(VERSION)\\\" ;\"%char gforth_version\[\]=\"$(VERSION)\" ;%g
+s%config\.h\.in%config_h\.in%g

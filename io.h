@@ -37,8 +37,6 @@ void prep_terminal();
 void deprep_terminal();
 void get_winsize(void);
 
-extern int terminal_prepped;
-
 #  define key()		getkey(stdin)
 #  define key_query	-(!!key_avail(stdin)) /* !! FLAG(...)? - anton */
          		/* flag was originally wrong -- lennart */
@@ -46,3 +44,4 @@ extern int terminal_prepped;
 
 void install_signal_handlers(void);
 extern UCell rows, cols;
+extern int terminal_prepped;

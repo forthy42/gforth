@@ -1,9 +1,12 @@
-You need DJ Delorie's port of GCC to DOS (DJGPP) to compile Gforth. DJGPP
-provides a DOS extender (GO32) that allows to use the 32-bit features of
-the 80386, but on the other hand it requires at least an 386.
+You need DJ Delorie's port of GCC to DOS (DJGPP 2.0) to compile
+Gforth. DJGPP provides a DPMI client that allows to use the 32-bit
+features of the 80386, but on the other hand it requires at least a
+386. A DPMI host is also part of the DJGPP 2.0 package, this is
+required if you don't have a DPMI host yourself (Windows/OS/2/Linux
+DOS-box, Quemm or others).
 
 Gforth hasn't been tested with EMX, using EMX will require some changes in
-the console IO part. If you don't want to install this package (quite
+the console IO part. If you don't want to install the DJGPP package (quite
 large), look for a binary distribution of Gforth for DOS. You must have a
 version of GNU make, because DOS make programs are likely to have problems
 with the Makefile. If you want to change Gforth, you may need GNU m4, too.
@@ -12,34 +15,21 @@ If you don't bother and want to make it yourself, type
 
 configure
 
-There are no options for configure, because DOS can't execute a real
-configure script, all the configuring stuff is done on a real operating
-system. If you want to change something (e.g. use FORCE_REG or
-DIRECT_THREADED), you have to change the makefile yourself. Be careful! DOS
-command line arguments are limited to an overall size of 126 bytes, so
-adding a new define in the makefile will make it too long. In this case add
-the define at the beginning of machine.h instead, or create a file
-containing all extra options, and add @<filename> to the defines (move the
--DDEFAULTPATH-define into this file, and it will fit into the command line).
+configure has the following useful parameters:
+  --enable-force-reg      Use explicit register declarations if they appear in
+                          the machine.h file. This can cause a good speedup,
+                          but also incorrect code with some gcc versions on
+                          some processors (default disabled).
+  --enable-direct-threaded      Force direct threading. This may not work on
+                                some machines and may cause slowdown on others.
+                                (default processor-dependent)
+  --enable-indirect-threaded    Force indirect threading. This can cause a
+                                slowdown on some machines.
+                                (default processor-dependent)
 
 After covering all inconveniences, type
 
-make gforth
-
-and after this finishes, type
-
 make
-
-We apologize for the inconveniences, we did not invent the 640k limit
-that prevents doing make straight forward. You may run out of memory
-anyway, because GCC eats up lots of it while compiling engine.c. Keep
-enough space free on your harddisk to allow GCC to swap.
-
-If you want to add some defines like -DFORCE_REG, type
-
-make gforth XDEFINES=-DFORCE_REG
-
-instead.
 
 Now you can check whether your shiny new Forth system works. Say
 

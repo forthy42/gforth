@@ -22,7 +22,7 @@
 
 #include <sys/time.h>
 
-void select(int n, int a, int b, int c, struct timeval * timeout)
+int select(int n, fd_set *a, fd_set *b, fd_set *c, struct timeval * timeout)
 {
    struct timeval time1;
    struct timeval time2;
