@@ -1,0 +1,56 @@
+# Procedures to build gforth from the CVS sources
+# created: 2may00jaw
+
+# To build gforth from scratch you need autoconf and automake.
+# This file can be used as shell script. If you make the environment
+# variable OLDGFORTH point to an existing gforth installation, this
+# script takes over kernel and primitve files.
+
+# makes a aclocal.m4 which includes the automake macros for autconf
+
+aclocal
+
+# generate configure script
+
+autoconf
+
+# generate header files like engine/config.h.in
+
+autoheader
+
+# Option 1: You have kernl???.fi files for the latest gforth engine
+
+# fetch primitve and kernel files from an existing gforth installation
+# this works only if there are no changes between the prim file
+# in the existing gforth installation and this one!
+if [ "$CURRENTGFORTH" != "" ]; then
+
+  # fetch some apropirate kernel images and copy it into the gforth root
+
+  cp $CURRENTGFORTH/kernl???.fi .
+
+  # fetch the include files for the primitives
+  primfiles="engine/prim.i engine/prim_lab.i prim.b kernel/aliases.fs kernel/prim.fs"
+  for I in $primfiles; do
+    cp $CURRENTGFORTH/$I $I;
+  done
+
+  # mark them up to date
+  touch $primfiles
+
+  # mark kernel files up to date
+  touch kernl???.fi .
+
+fi
+
+# Option 2: You don't have the lates kernel???.fi but a running (old) gforth on your system
+
+# If you don't have apropriate kernel images use an old gforth installation to
+# bootstrap:
+# run ./configure
+# Edit the Makefile and replace the FORTHK variable with your existing
+# gforth call e.g. "/usr/bin/gforth", you don't need any options!
+# then run make gforth; make gforth.fi
+
+# go on with INSTALL ...
+
