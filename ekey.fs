@@ -117,7 +117,7 @@ table constant esc-sequences \ and prefixes
 create ekey-buffer 8 chars allot
 2variable ekey-buffered
 
-27 constant #esc
+[IFUNDEF] #esc  27 Constant #esc  [THEN]
 
 : esc-prefix ( -- u )
     key? if

@@ -790,8 +790,9 @@ Defer .status
 \ \ DOERROR (DOERROR)                        		13jun93jaw
 
 8 Constant max-errors
+4 has? file 2 and + Constant /error
 Variable error-stack  0 error-stack !
-max-errors has? file [IF] 6 [ELSE] 4 [THEN] * cells allot
+max-errors /error * cells allot
 \ format of one cell:
 \ source ( addr u )
 \ >in
@@ -801,15 +802,15 @@ max-errors has? file [IF] 6 [ELSE] 4 [THEN] * cells allot
 : error> ( -- addr u >in line# [addr u] )
     -1 error-stack +!
     error-stack dup @
-    [ has? file [IF] 6 [ELSE] 4 [THEN] ] Literal * cells + cell+
-    [ has? file [IF] 6 [ELSE] 4 [THEN] ] Literal cells bounds DO
+    /error * cells + cell+
+    /error cells bounds DO
 	I @
 	cell +LOOP ;
 : >error ( addr u >in line# [addr u] -- )
     error-stack dup @ dup 1+
     max-errors 1- min error-stack !
-    [ has? file [IF] 6 [ELSE] 4 [THEN] ] Literal * cells + cell+
-    [ has? file [IF] 6 [ELSE] 4 [THEN] 1- ] Literal cells bounds swap DO
+    /error * cells + cell+
+    /error 1- cells bounds swap DO
 	I !
 	-1 cells +LOOP ;
 
@@ -870,6 +871,12 @@ Defer dobacktrace ( -- )
     then
     drop ;
 
+Defer mark-start
+Defer mark-end
+
+:noname ." >>>" ; IS mark-start
+:noname ." <<<" ; IS mark-end
+
 : .error-line ( addr1 u1 n1 -- )
     \ print error ending at char n1 in line addr1 u1
     \ should work with UTF-8 (whitespace check looks ok)
@@ -880,9 +887,9 @@ Defer dobacktrace ( -- )
 	2dup + c@ bl >  WHILE
 	r> 1+ >r  1- dup 0<  UNTIL  THEN  1+
     ( addr1 n2 r: u1 namelen )
-    2dup type ." >>>"
+    2dup type mark-start
     r> -rot r> swap /string ( namelen addr2 u2 )
-    >r swap 2dup type ." <<<" ( addr2 namelen r: u2 )
+    >r swap 2dup type mark-end ( addr2 namelen r: u2 )
     r> swap /string type ;
 
 : .error-frame ( throwcode addr1 u1 n1 n2 [addr2 u2] -- throwcode )

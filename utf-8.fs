@@ -20,6 +20,8 @@
 
 \ short: u8 means utf-8 encoded address
 
+s" malformed UTF-8 character" exception Constant UTF-8-err
+
 : u8len ( u8 -- n )
     dup      $80 u< IF  drop 1  EXIT  THEN \ special case ASCII
     $800  2 >r
@@ -31,7 +33,7 @@
     $7F and  $40 >r
     BEGIN  dup r@ and  WHILE  r@ xor
 	    6 lshift r> 5 lshift >r >r count
-\	    dup $C0 and $80 <> abort" malformed character"
+	    dup $C0 and $80 <> IF   UTF-8-err throw  THEN
 	    $3F and r> or
     REPEAT  rdrop ;
 
@@ -57,7 +59,7 @@
     $7F and  $40 >r
     BEGIN  dup r@ and  WHILE  r@ xor
 	    6 lshift r> 5 lshift >r >r defers key
-\	    dup $C0 and $80 <> abort" malformed character"
+	    dup $C0 and $80 <> IF  UTF-8-err throw  THEN
 	    $3F and r> or
     REPEAT  rdrop ;
 
@@ -71,8 +73,10 @@
 
 \ input editor
 
-: save-cursor ( -- )  27 emit '7 emit ;
-: restore-cursor ( -- )  27 emit '8 emit ;
+[IFUNDEF] #esc  27 Constant #esc  [THEN]
+
+: save-cursor ( -- )  #esc emit '7 emit ;
+: restore-cursor ( -- )  #esc emit '8 emit ;
 : .rest ( addr pos1 -- addr pos1 )
     restore-cursor 2dup type ;
 : .all ( span addr pos1 -- span addr pos1 )
