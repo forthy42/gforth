@@ -52,6 +52,9 @@ siev	bubble	matrix	fib	machine and configuration
 39.50	45.91	36.73	44.90	i486 50MHz 256K cache; gcc-2.7.0 -DFORCE_REG -DDIRECT_THREADED; gforth-0.1beta
 42.82	46.74	38.69	48.30	i486 50MHz 256K cache; gcc-2.7.0 -DFORCE_REG; gforth-0.1beta
 
+ 1.144	 1.329	 0.762	 1.333	Itanium 2 (HP rx2600) 900MHz; gcc-3.3; gforth-0.6.2-20030910
+ 1.974	 2.313	 2.033	 2.428	Itanium 2 (HP rx2600) 900MHz; gcc-3.3; gforth-0.6.2
+
  0.790	 1.375	 0.850	 1.118	21264B (UP1500) 800MHz 8MB cache; gcc-2.95.2; gforth-0.5.9-20011229 with alignment
  0.891	 1.646	 0.729	 1.289  21264B (UP1500) 800MHz 8MB cache; gcc-2.95.2; gforth-0.5.9-20011229 without eliminating jumps
  1.383	 1.769	 2.415	 2.139  21264B (UP1500) 800MHz 8MB cache; gcc-2.96; gforth-0.5.9-20011229
@@ -91,3 +94,5 @@ siev	bubble	matrix	fib	machine and configuration
 14.05	16.96	11.14	17.51	PPC604 (PowerMac) 132MHz 256K L2 cache; MkLinux 2.1; gcc-2.7.2.1; gforth-0.3.0
  7.42    8.81    5.96    8.61    PPC603 (Amiga + BlizzardPPC) 160Mhz; gcc-2.95.2 -DDIRECT_THREADED; gforth-0.4.9-19990617
 16.29   10.38   7.58    10.5    PPC603 (Amiga + BlizzardPPC) 160Mhz; gcc-2.95.2 -DINDIRECT_THREADED; gforth-0.4.9-19990617
+
+ 4.38	 5.66	 3.52	 4.86	StrongARM SA-1110 206MHz (iPAQ); Linux; gcc-2.95.2; gforth-0.6.2-20030910 --enable-force-reg --dynamic

@@ -21,7 +21,8 @@
 */
 
 #ifndef THREADING_SCHEME
-#define THREADING_SCHEME 1
+
+#define THREADING_SCHEME 8
 #endif
 
 #if !defined(USE_TOS) && !defined(USE_NO_TOS)
@@ -37,5 +38,22 @@
 #include "../generic/machine.h"
 #include <sys/types.h>
 
+#if 0
+/* if you know how to flush the icache on the arm, mail me */
 extern void flush_icache_block(caddr_t eaddr, size_t count);
 #define FLUSH_ICACHE(addr,size) flush_icache_block(addr, size)
+#endif
+
+#if defined(FORCE_REG) && !defined(DOUBLY_INDIRECT) && !defined(VM_PROFILING)
+/*
+according to http://mail-index.netbsd.org/port-arm/2003/05/17/0000.html:
+
+R0-R3: argument passing/caller-saved
+R4-R10: callee-saved
+R12, R14: caller-saved
+R11: frame pointer
+R13: stack pointer
+*/
+/* works with gcc-2.95.2 */
+#define RPREG asm("r7")
+#endif

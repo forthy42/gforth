@@ -233,7 +233,8 @@ extern int gforth_memcmp(const char * s1, const char * s2, size_t n);
 #error illegal ENGINE value
 #endif /* ENGINE */
 
-#define LABEL2(name) K_##name:
+/* the asm(""); is there to get a stop compiled on Itanium */
+#define LABEL2(name) K_##name: asm("");
 
 Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
 /* executes code at ip, if ip!=NULL

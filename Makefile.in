@@ -136,7 +136,8 @@ CVSDIRS = CVS engine/CVS kernel/CVS doc/CVS asm/CVS ec/CVS test/CVS \
 	arch/386/CVS arch/hppa/CVS arch/sparc/CVS arch/power/CVS \
 	arch/alpha/CVS arch/4stack/CVS arch/misc/CVS arch/6502/CVS \
 	arch/8086/CVS arch/avr/CVS arch/c165/CVS arch/h8/CVS \
-	arch/shboom/CVS arch/sharc/CVS arch/ia64/CVS
+	arch/shboom/CVS arch/sharc/CVS arch/ia64/CVS arch/amd64/CVS \
+	arch/arm/CVS
 
 INCLUDES = engine/forth.h engine/threaded.h engine/io.h
 
@@ -280,7 +281,10 @@ ARCHS =	\
 	arch/power/machine.h \
 	arch/power/_sync_cache_range.c \
 	arch/alpha/machine.h \
+	arch/arm/machine.h \
 	arch/ia64/machine.h \
+	arch/ia64/flush_icache_block.c \
+	arch/amd64/machine.h \
 	arch/4stack/README \
 	arch/4stack/asm.fs \
 	arch/4stack/mach.fs \
@@ -350,7 +354,8 @@ SOURCES	= $(CVSDIRS) compat Makefile.in Makedist.in engine/Makefile.in \
 	$(ARCHS) \
 	engine/profile.c \
 	engine/getopt.c engine/getopt1.c engine/getopt.h engine/select.c \
-	engine/ecvt.c engine/memcmp.c engine/strtol.c engine/strtoul.c \
+	engine/ecvt.c engine/memcmp.c engine/rint.c \
+	engine/strtol.c engine/strtoul.c \
 	engine/ansidecl.h engine/memmove.c \
 	engine/pow10.c engine/atanh.c engine/cleanalign.c \
 	engine/strerror.c engine/strsignal.c engine/dblsub.c \

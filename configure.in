@@ -21,20 +21,17 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl We use some automake macros here,
 dnl but don't use automake for creating Makefile.in
-AC_INIT([gforth],[0.6.2],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
+AC_INIT([gforth],[0.6.2-20030910],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
 AC_PREREQ(2.54)
 #snapshots have numbers major.minor.release-YYYYMMDD
 #note that lexicographic ordering must be heeded.
 #I.e., 0.4.1-YYYYMMDD must not exist before 0.4.1!
-UPDATED="August 25, 2003"
+UPDATED="September 10, 2003"
 AC_SUBST(UPDATED)
 AC_CONFIG_HEADERS(engine/config.h)
 
 #suppress the "-g -O2" default
 test "$CFLAGS" || CFLAGS=-O2
-
-#default setting that may be changed later:
-test "$no_dynamic_default" || no_dynamic_default=0
 
 AC_ARG_ENABLE(force-reg,
 [  --enable-force-reg	  Use explicit register declarations if they appear in
@@ -76,6 +73,7 @@ AC_ARG_VAR(ac_cv_sizeof_intptr_t, [sizeof(intptr_t)])
 AC_ARG_VAR(ac_cv_sizeof_int128_t, [sizeof(int128_t)])
 AC_ARG_VAR(ac_cv_c_bigendian, [Is the target big-endian ("yes" or "no")?])
 AC_ARG_VAR(no_dynamic_default, [run gforth with --dynamic (0) or --no-dynamic (1) by default])
+AC_ARG_VAR(skip_code, [assembly code for skipping 16 bytes of code])
 
 #set up feature test macros, so the tests get them right:
 # turn on all POSIX, SUSv3, and GNU features if available
@@ -113,16 +111,6 @@ AC_MSG_RESULT($make_type)
 
 AC_SUBST(GNUMAKE)
 
-dnl gcc-3.2 seems to work fine now
-dnl AC_MSG_CHECKING(gcc version)
-dnl gcc_version=`$CC -v 2>&1|grep 'gcc version'|sed 's/.*gcc version //'`
-dnl AC_MSG_RESULT($gcc_version)
-dnl if expr "$gcc_version" \> 3.0.4 >/dev/null && expr "$gcc_version" \< 3.2.1 >/dev/null
-dnl then
-dnl    no_dynamic_default=1
-dnl    AC_MSG_WARN(Disabling dynamic native code generation by default (speed penalty factor ~2))
-dnl fi
-
 AC_MSG_CHECKING([whether the linker accepts -export-dynamic])
 OLDLDFLAGS=$LDFLAGS
 LDFLAGS="$LDFLAGS -export-dynamic"
@@ -136,6 +124,14 @@ AC_MSG_RESULT($ac_export_dynamic)
 #gforth will run; the system on which configure will run is the `build'
 AC_CANONICAL_HOST
 case "$host_cpu" in
+	arm*)
+		machine=arm
+		CFLAGS="$CFLAGS -fomit-frame-pointer"
+		if test -z $no_dynamic_default; then
+		    no_dynamic_default=1
+		    AC_MSG_WARN([No I-cache flush code known, disabling dynamic native code generation])
+		fi
+		;;
 	hppa*)
 		machine=hppa
 		$srcdir/mkinstalldirs arch/hppa
@@ -165,10 +161,13 @@ case "$host_cpu" in
 	x86_64)
 		machine=amd64
 		;;
-#generic should work for IA64
-#	ia64*)
-#		machine=ia64
-#		;;
+	ia64*)
+		machine=ia64
+		AC_LIBOBJ(../arch/ia64/flush_icache_block)
+		test "$skipcode" || skipcode="nop.i 0"
+		#".skip 16" passes the test below,
+		# but gives an assembler error in engine
+		;;
         m68k)
 		machine=m68k
 		CFLAGS="$CFLAGS -fomit-frame-pointer"
@@ -192,8 +191,10 @@ case "$host_cpu" in
 		#particular, the delay slots of LW, MFLO, etc.)
 		#
 		#Therefore we disable dynamic native code by default:
-		no_dynamic_default=1
-		AC_MSG_WARN(Disabling dynamic native code generation by default (speed penalty factor ~2))
+		if test -z $no_dynamic_default; then
+		    no_dynamic_default=1
+		    AC_MSG_WARN([Disabling default dynamic native code generation (relocation and delay slot issues)])
+		fi
 		;;
 	alpha*)
 		machine=alpha
@@ -213,8 +214,10 @@ case "$host_cpu" in
 		AC_MSG_WARN([FLUSH-ICACHE will do nothing, so END-CODE may not work properly!])
 		machine=generic
 		#I-cache flushing would be needed for dynamic code generation
-		no_dynamic_default=1
-		AC_MSG_WARN(Disabling dynamic native code generation by default (speed penalty factor ~2))
+		if test -z $no_dynamic_default; then
+		    no_dynamic_default=1
+		    AC_MSG_WARN([No I-cache flush code known, disabling dynamic native code generation])
+		fi
 esac
 AC_SUBST(host)
 
@@ -417,37 +420,46 @@ fi
 
 #check how to do asm(".skip 16")
 AC_MSG_CHECKING([if and how we can waste code space])
-skipcode=no
-for i in ".skip 16" ".block 16" ".org .+16" ".=.+16" ".space 16"
-do
+if test -z "$skipcode"; then
+    for i in ".skip 16" ".block 16" ".org .+16" ".=.+16" ".space 16"
+    do
 	AC_TRY_RUN(
-int foo(int);
+[int foo(int,int,int);
 main()
 {
-  exit(foo(0)!=16);
+  exit(foo(0,0,0)!=16);
 }
-int foo(int x)
+int foo(int x, int y, int z)
 {
+  static void *labels[]={&&label1, &&label2};
   if (x) {
+    y++; /* workaround for http://gcc.gnu.org/bugzilla/show_bug.cgi?id=12108 */
   label1:
-    asm("$i");
-  label2:
+    asm(".skip 16"); /* or ".space 16" or somesuch */
+  label2: ;
   }
-  return (&&label2)-(&&label1);
-}
+  {
+  if (y) goto *labels[z]; /* workaround for gcc PR12108 */
+  return labels[1]-labels[0];
+  }
+}]
 	,skipcode=$i; break
 	,,)
-done	
+    done
+fi
 AC_MSG_RESULT($skipcode)
 if test "$skipcode" = no
 then 
-    no_dynamic_default=1
+    if test -z $no_dynamic_default; then
+	no_dynamic_default=1
+	AC_MSG_WARN(Disabling default dynamic native code generation)
+    fi
     AC_DEFINE_UNQUOTED(SKIP16,((void)0),statement for skipping 16 bytes)
-    AC_MSG_WARN(Disabling dynamic native code generation by default (speed penalty factor ~2))
 else
     AC_DEFINE_UNQUOTED(SKIP16,asm("$skipcode"),statement for skipping 16 bytes)
 fi
 
+test "$no_dynamic_default" || no_dynamic_default=0
 AC_DEFINE_UNQUOTED(NO_DYNAMIC_DEFAULT,$no_dynamic_default,default value for no_dynamic)
 
 dnl Checks for programs.

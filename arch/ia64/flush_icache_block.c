@@ -1,7 +1,6 @@
-/*
-  This is the machine-specific part for Intel ia64 compatible processors
+/* cache flushing for IA64
 
-  Copyright (C) 2000 Free Software Foundation, Inc.
+  Copyright (C) 1998,2001,2003 Free Software Foundation, Inc.
 
   This file is part of Gforth.
 
@@ -20,22 +19,16 @@
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
 */
 
-#ifndef THREADING_SCHEME
-#define THREADING_SCHEME 1
-#endif
-
-#if !defined(USE_TOS) && !defined(USE_NO_TOS)
-#define USE_TOS
-#endif
-
-#ifndef USE_FTOS
-#ifndef USE_NO_FTOS
-#define USE_FTOS
-#endif
-#endif
-
-#include "../generic/machine.h"
+#include <stddef.h>
 #include <sys/types.h>
 
-extern void flush_icache_block(caddr_t eaddr, size_t count);
-#define FLUSH_ICACHE(addr,size) flush_icache_block(addr, size)
+void flush_icache_block(caddr_t addr, size_t size)
+{
+  size_t cache_block_size=32;
+  caddr_t p=(caddr_t)(((long)addr)&-cache_block_size);
+
+  for (; p < (addr+size); p+=cache_block_size)
+    asm("fc %0"::"r"(p));
+  asm("sync.i");
+  asm("srlz.i");
+}

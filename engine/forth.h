@@ -37,6 +37,8 @@
 #if defined(GFORTH_DEBUGGING)
 #  undef USE_TOS
 #  undef USE_FTOS
+#  undef USE_NO_TOS
+#  undef USE_NO_FTOS
 #  define USE_NO_TOS
 #  define USE_NO_FTOS
 #endif
