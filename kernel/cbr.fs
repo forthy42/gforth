@@ -29,18 +29,18 @@
 
 \ Structural Conditionals                              12dec92py
 
-: AHEAD     compile branch >mark ;           immediate restrict
-: IF        compile ?branch >mark ;          immediate restrict
+: AHEAD     postpone branch >mark ;           immediate restrict
+: IF        postpone ?branch >mark ;          immediate restrict
 : THEN      sys? dup @ ?struc >resolve ;     immediate restrict
-: ELSE      sys? compile AHEAD swap compile THEN ;
+: ELSE      sys? postpone AHEAD swap postpone THEN ;
                                              immediate restrict
 
 ' THEN Alias ENDIF immediate restrict
 
 : BEGIN     here ;                           immediate restrict
-: WHILE     sys? compile IF swap ;           immediate restrict
-: AGAIN     sys? compile branch  <resolve ;  immediate restrict
-: UNTIL     sys? compile ?branch <resolve ;  immediate restrict
-: REPEAT    over 0= ?struc compile AGAIN compile THEN ;
+: WHILE     sys? postpone IF swap ;           immediate restrict
+: AGAIN     sys? postpone branch  <resolve ;  immediate restrict
+: UNTIL     sys? postpone ?branch <resolve ;  immediate restrict
+: REPEAT    over 0= ?struc postpone AGAIN postpone THEN ;
                                              immediate restrict
 
