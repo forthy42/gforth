@@ -167,8 +167,6 @@ case "$host_cpu" in
 		;;
 	x86_64)
 		machine=amd64
-		ac_includes_default="$ac_includes_default
-#include \"arch/generic/128bit.h\""
 		;;
 	ia64*)
 		machine=ia64
@@ -229,6 +227,11 @@ case "$host_cpu" in
 		fi
 esac
 AC_SUBST(host)
+
+if test "${enable_force_ll+set}" = set; then
+   ac_includes_default="$ac_includes_default
+#include \"arch/generic/128bit.h\""
+fi
 
 dnl the following macro produces a warning with autoconf-2.1
 AC_CHECK_SIZEOF(char *)

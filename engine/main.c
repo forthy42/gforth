@@ -1781,19 +1781,9 @@ SIZE arguments consist of an integer followed by a unit. The unit can be\n\
 
 void print_diag()
 {
-  /* prints something like:
-missing functionality:
-    no getrusage -> CPUTIME broken
-    no ffcall -> only old-style foreign function calls (no fflib.fs)
-    Alpha, no ffcall -> only integer args for foreign function calls
-    Other functionality checked ok
-  performance problems:
-    gcc PR 15242 -> no dynamic code generation (use gcc-2.95 instead)
-    double-cell integer type buggy -> 
-       CMP, MUL, DIV, ADD, SHIFT, D2F, F2D, SIZE slow */
 
 #if !defined(HAVE_GETRUSAGE) || !defined(HAS_FFCALL)
-  fprintf(stderr, "missing functionality:\n"
+  fprintf(stderr, "*** missing functionality ***\n"
 #ifndef HAVE_GETRUSAGE
 	  "    no getrusage -> CPUTIME broken\n"
 #endif
@@ -1810,7 +1800,7 @@ missing functionality:
 #endif
      )
     debugp(stderr, "relocs: %d:%d\n", relocs, nonrelocs);
-    fprintf(stderr, "performance problems:\n%s"
+    fprintf(stderr, "*** performance problems ***\n%s"
 #if defined(BUGGY_LL_CMP) || defined(BUGGY_LL_MUL) || defined(BUGGY_LL_DIV) || defined(BUGGY_LL_ADD) || defined(BUGGY_LL_SHIFT) || defined(BUGGY_LL_D2F) || defined(BUGGY_LL_F2D)
 	    "    double-cell integer type buggy ->\n        "
 #ifdef BUGGY_LL_CMP
@@ -1835,6 +1825,19 @@ missing functionality:
 	    "F2D, "
 #endif
 	    "\b\b slow\n"
+#endif
+#ifndef FORCE_REG
+	    "    automatic register allocation: performance degradation possible\n"
+#endif
+#if !defined(FORCE_REG) || defined(BUGGY_LONG_LONG)
+	    "*** Suggested remedy: try ./configure"
+#ifndef FORCE_REG
+	    " --enable-force-reg"
+#endif
+#ifdef BUGGY_LONG_LONG
+	    " --enable-force-ll"
+#endif
+	    "\n"
 #endif
 	    ,
 	    (relocs < nonrelocs) ? "    gcc PR 15242 -> no dynamic code generation (use gcc-2.95 instead)\n" : "");
