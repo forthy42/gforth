@@ -38,6 +38,7 @@ require debugging.fs
 require assert.fs
 require blocks.fs
 require dumpimage.fs
+require stuff.fs
 
 0 Value $?
 : sh  '# parse cr system  to $? ;

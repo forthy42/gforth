@@ -97,26 +97,46 @@ Create lfpad #lf c,
 Create prefix-found  0 , 0 ,
 
 : word-lex ( nfa1 nfa2 -- -1/0/1 )
-  dup 0=  IF  2drop 1  EXIT  THEN
-  cell+ >r cell+ count $1F and
-  dup r@ c@ $1F and =
-  IF  r> char+ capscomp 0<=  EXIT  THEN
-  nip r> c@ $1F and < ;
+    dup 0=
+    IF
+	2drop 1  EXIT
+    THEN
+    name>string 2>r name>string
+    dup r@ =
+    IF
+	rdrop r> capscomp 0<= EXIT
+    THEN
+    r> <
+    nip rdrop ;
 
-: search-voc ( addr len nfa1 nfa2 -- addr len nfa3 ) >r
-    BEGIN  dup  WHILE  >r dup r@ cell+ c@ $1F and <=
-	IF  2dup r@ cell+ char+ capscomp  0=
-	    IF  r> dup r@ word-lex
-		IF  dup prefix-found @ word-lex
-		    0>= IF  rdrop dup >r  THEN
-		THEN >r
+: search-voc ( addr len nfa1 nfa2 -- addr len nfa3 )
+    >r
+    BEGIN
+	dup
+    WHILE
+	>r dup r@ name>string nip <=
+	IF
+	    2dup r@ name>string drop capscomp  0=
+	    IF
+		r> dup r@ word-lex
+		IF
+		    dup prefix-found @ word-lex
+		    0>=
+		    IF
+			rdrop dup >r
+		    THEN
+		THEN
+		>r
 	    THEN
-	THEN  r> @
-    REPEAT drop r> ;
+	THEN
+	r> @
+    REPEAT
+    drop r> ;
 
 : prefix-string ( addr len nfa -- addr' len' )
     dup prefix-found !  ?dup
-    IF  cell+ count $1F and rot /string rot drop
+    IF
+	name>string rot /string rot drop
 	dup 1+ prefix-found cell+ !
     ELSE
 	2drop s" " prefix-found cell+ off

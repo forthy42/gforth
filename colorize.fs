@@ -45,10 +45,9 @@ Color: Hig#
 <A Green >f bold A>     Com# CT!
 <A Red >b A>            Hig# CT!
 
-: (.name) ( lfa -- )
-        cell+ dup
-        wordinfo cells ct + @ attr!
-        count $1f and type blackspace ;
+: (.name) ( nfa -- )
+        dup wordinfo cells ct + @ attr!
+        .name blackspace ;
 
 : .name (.name) ct @ attr! ;
 

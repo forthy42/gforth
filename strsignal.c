@@ -22,6 +22,7 @@
 #include "config.h"
 #include <stdio.h>
 #include <signal.h>
+#include <unistd.h>
 
 
 char *strsignal(int sig)
@@ -29,7 +30,7 @@ char *strsignal(int sig)
   static char errbuf[16];
 
 #if defined(HAVE_SYS_SIGLIST) && defined(NSIG)
-#if defined(DECLARE_SYS_SIGLIST)
+#if !defined(SYS_SIGLIST_DECLARED)
   extern const char * const sys_siglist[];
 #endif
   if (sig>0 && sig<NSIG)

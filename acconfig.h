@@ -21,10 +21,6 @@
 
 /* this, together with configure.in, is the source file for config.h.in */
 
-
-/* Define if including signal.h does not declare sys_siglist */
-#undef DECLARE_SYS_SIGLIST
-
 /* Define if you want to force a direct threaded code implementation
    (does not work on all machines */
 #ifndef DIRECT_THREADED
@@ -42,3 +38,6 @@
 #ifndef FORCE_REG
 #undef FORCE_REG
 #endif
+
+@BOTTOM@
+/* Of course, sys_siglist is a variable, not a function */

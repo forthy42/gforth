@@ -39,7 +39,7 @@
 \ To do:        Make <A A> State smart and compile
 \               only literals!
 
-include vt100.fs
+needs vt100.fs
 
 decimal
 

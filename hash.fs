@@ -56,7 +56,7 @@ Variable HashIndex
   BEGIN  dup @ dup  WHILE  nip  REPEAT  drop ! ;
 
 : (reveal ( addr voc -- )  [ 3 cells ] Literal + dup @ 0< IF  2drop EXIT  THEN
-  @ over cell+ count $1F and Hash xor cells >r
+  @ over name>string Hash xor cells >r
   HashPointer 2 Cells $400 NewFix
   tuck cell+ ! r> HashTable @ + insRule @
   IF  dup @ 2 pick ! !  ELSE  lastlink!  THEN  revealed on ;

@@ -142,8 +142,8 @@ DOES> ( n -- )  + c@ ;
 
 \ name> found                                          17dec92py
 
-: (name>)  ( nfa -- cfa )
-    count  $1F and  +  cfaligned ;
+: (name>)  ( nfa+cell -- cfa )
+    1 cells - name>string +  cfaligned ;
 : name>    ( nfa -- cfa ) \ gforth
     cell+
     dup  (name>) swap  c@ $80 and 0= IF  @ THEN ;
@@ -158,7 +158,7 @@ DOES> ( n -- )  + c@ ;
 
 \ : (find) ( addr count nfa1 -- nfa2 / false )
 \   BEGIN  dup  WHILE  dup >r
-\          cell+ count $1F and dup >r 2over r> =
+\          name>string dup >r 2over r> =
 \          IF  -text  0= IF  2drop r> EXIT  THEN
 \          ELSE  2drop drop  THEN  r> @
 \   REPEAT nip nip ;
@@ -1264,6 +1264,9 @@ G -1 warnings T !
 0A constant #lf ( -- c ) \ gforth
 
 : bell  #bell emit ;
+: cr ( -- ) \ core
+    \ emit a newline
+    #lf ( sic! ) emit ;
 
 \ : backspaces  0 ?DO  #bs emit  LOOP ;
 : >string  ( span addr pos1 -- span addr pos1 addr2 len )
@@ -1325,11 +1328,6 @@ Defer emit ( c -- ) \ core
 
 Defer key ( -- c ) \ core
 ' (key) IS key
-
-\ : form  ( -- rows cols )  &24 &80 ;
-\ form should be implemented using TERMCAPS or CURSES
-\ : rows  form drop ;
-\ : cols  form nip  ;
 
 \ Query                                                07apr93py
 
@@ -1681,7 +1679,7 @@ DEFER DOERROR
 
 \ Cold                                                 13feb93py
 
-\ : .name ( name -- ) cell+ count $1F and type space ;
+\ : .name ( name -- ) name>string type space ;
 \ : words  listwords @
 \          BEGIN  @ dup  WHILE  dup .name  REPEAT drop ;
 
@@ -1761,7 +1759,7 @@ Defer 'cold ' noop IS 'cold
 	cr
     THEN
     false to script?
-    ." GForth " version-string type ." , Copyright (C) 1994 Free Software Foundation, Inc." cr
+    ." GForth " version-string type ." , Copyright (C) 1994-1996 Free Software Foundation, Inc." cr
     ." GForth comes with ABSOLUTELY NO WARRANTY; for details type `license'" cr
     ." Type `bye' to exit"
     loadline off quit ;

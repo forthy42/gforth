@@ -85,7 +85,10 @@ typedef struct F83Name {
 
 Cell *SP;
 Float *FP;
+#if 0
+/* not used currently */
 int emitcounter;
+#endif
 #define NULLC '\0'
 
 char *cstr(Char *from, UCell size, int clear)

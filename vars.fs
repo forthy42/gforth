@@ -43,8 +43,6 @@ FF Constant /line
 
 \ User variables                                       13feb93py
 
-\ doesn't produce real user variables now, but normal variables
-
 Create main-task  100 cells allot
 main-task tup H ! minimal
 

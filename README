@@ -38,6 +38,30 @@ On popular request, here are the meanings of unusual file extensions:
 *.ds	documenation source
 *TAGS	etags files
 
+A number of Forth source files are included in this package that are
+not necessary for building Gforth. Not all of them are mentioned in
+the rest of the documentation, so here's a short overview:
+
+Add-ons:
+code.fs random.fs more.fs ansi.fs colorize.fs
+
+Utilities:
+etags.fs glosgen.fs filedump.fs
+
+Games:
+tt.fs sokoban.fs
+
+Test programs:
+tester.fs coretest.fs
+checkans.fs wordsets.fs
+
+Benchmarks:
+bubble.fs siev.fs matrix.fs fib.fs sieve.fs
+
+ANS Forth implementations of Gforth extensions:
+anslocal.fs other.fs
+
+
 - anton
 anton@mips.complang.tuwien.ac.at
 http://www.complang.tuwien.ac.at/anton/home.html

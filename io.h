@@ -39,6 +39,8 @@ void prep_terminal();
 void deprep_terminal();
 void install_signal_handlers(void);
 
+extern int terminal_prepped;
+
 #  define key()		getkey(stdin)
 #  define key_query	-(!!key_avail(stdin)) /* !! FLAG(...)? - anton */
          		/* flag was originally wrong -- lennart */

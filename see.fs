@@ -25,6 +25,8 @@
 
 \ Ideas:        Level should be a stack
 
+require termsize.fs
+
 decimal
 
 \ Screen format words                                   16may93jaw
@@ -56,7 +58,7 @@ DEFER nlcount ' noop IS nlcount
                 XPos @ Level @ = ?Exit
                 C-Formated @ IF
                 C-Output @
-                IF C-Clearline @ IF 80 XPos @ - spaces
+                IF C-Clearline @ IF cols XPos @ - spaces
                                  ELSE cr THEN
                 1 YPos +! 0 XPos !
                 Level @ spaces
@@ -64,7 +66,7 @@ DEFER nlcount ' noop IS nlcount
 
 : warp?         ( len -- len )
                 nlflag @ IF (nl) nlflag off THEN
-                XPos @ over + 79 u> IF (nl) THEN ;
+                XPos @ over + cols u>= IF (nl) THEN ;
 
 : ctype         ( adr len -- )
                 warp? dup XPos +! C-Output @ IF type ELSE 2drop THEN ;
@@ -200,11 +202,13 @@ VARIABLE C-Pass
 : ahead? ( n -- flag ) 0> ;
 
 : c-(compile)
-        Display? IF s" POSTPONE " Com# .string
-                    dup @ look 0= ABORT" SEE: No valid XT"
-                    cell+ count $1F and 0 .string bl cemit
-                 THEN
-        cell+ ;
+    Display?
+    IF
+	s" POSTPONE " Com# .string
+	dup @ look 0= ABORT" SEE: No valid XT"
+	name>string 0 .string bl cemit
+    THEN
+    cell+ ;
 
 : c-lit
     Display? IF
@@ -556,13 +560,17 @@ DEFER dosee
         DisplayMode c-pass ! makepass ;
 : doali here @ .name ." Alias " .name cr
         here @ dosee ;
-: docol S" : " Com# .string
-        dup cell+ count $1F and 2 pick wordinfo .string bl cemit bl cemit
-        ( XPos @ ) 2 Level !
-        name> >body
-        C-Pass @ DebugMode = IF ScanMode c-pass ! EXIT THEN
-        ScanMode c-pass ! dup makepass
-        DisplayMode c-pass ! makepass ;
+: docol
+    S" : " Com# .string
+    dup name>string 2 pick wordinfo .string bl cemit bl cemit
+    ( XPos @ ) 2 Level !
+    name> >body
+    C-Pass @ DebugMode =
+    IF
+	ScanMode c-pass ! EXIT
+    THEN
+    ScanMode c-pass ! dup makepass
+    DisplayMode c-pass ! makepass ;
 
 create wordtypes
         Pri# ,   ' dopri A,

@@ -73,6 +73,8 @@ documentation in HTML format by typing
 
 make html
 
+If you prefer plain ASCII documentation, just concatenate the files
+gforth.info-* ('cat gforth.info-*' under Unix).
 
 		Preloading installation-specific code
 

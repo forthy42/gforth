@@ -308,11 +308,15 @@ n = rp[2];
 
 (emit)	c --		gforth	paren_emit
 putchar(c);
+#if 0
 emitcounter++;
+#endif
 
 (type)	c_addr n --	gforth	paren_type
 fwrite(c_addr,sizeof(Char),n,stdout);
+#if 0
 emitcounter += n;
+#endif
 
 (key)	-- n		gforth	paren_key
 fflush(stdout);
@@ -322,11 +326,6 @@ n = key();
 key?	-- n		facility	key_q
 fflush(stdout);
 n = key_query;
-
-cr	--		core
-puts("");
-:
- $0A emit ;
 
 move	c_from c_to ucount --		core
 memmove(c_to,c_from,ucount);
@@ -864,7 +863,11 @@ c_addr2 = c_addr1+1;
 return (Label *)n;
 
 system	c_addr u -- n	gforth
+int old_tp=terminal_prepped;
+deprep_terminal();
 n=system(cstr(c_addr,u,1)); /* ~ expansion on first part of string? */
+if (old_tp)
+  prep_terminal();
 
 getenv	c_addr1 u1 -- c_addr2 u2	gforth
 c_addr2 = getenv(cstr(c_addr1,u1,1));
@@ -908,7 +911,7 @@ resize		a_addr1 u -- a_addr2 wior	memory
 ""Change the size of the allocated area at @i{a_addr1} to @i{u}
 address units, possibly moving the contents to a different
 area. @i{a_addr2} is the address of the resulting area. If
-@code{a_addr2} is 0, gforth's (but not the standard) @code{resize}
+@code{a_addr2} is 0, Gforth's (but not the standard) @code{resize}
 @code{allocate}s @i{u} address units.""
 /* the following check is not necessary on most OSs, but it is needed
    on SunOS 4.1.2. */

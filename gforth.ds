@@ -91,7 +91,7 @@ personal machines. This manual corresponds to version 0.1.
 * Emacs and Gforth::            The Gforth Mode
 * Internals::                   Implementation details
 * Bugs::                        How to report them
-* Pedigree::                    Ancestors of Gforth
+* Origin::                      Authors and ancestors of Gforth
 * Word Index::                  An item for each Forth word
 * Node Index::                  An item for each node
 @end menu
@@ -3726,7 +3726,7 @@ used here. The paper available at
 it also contains numbers for some native code systems. You can find
 numbers for Gforth on various machines in @file{Benchres}.
 
-@node Bugs, Pedigree, Internals, Top
+@node Bugs, Origin, Internals, Top
 @chapter Bugs
 
 Known bugs are described in the file BUGS in the Gforth distribution.
@@ -3746,8 +3746,20 @@ For a thorough guide on reporting bugs read @ref{Bug Reporting, , How
 to Report Bugs, gcc.info, GNU C Manual}.
 
 
-@node Pedigree, Word Index, Bugs, Top
-@chapter Pedigree
+@node Origin, Word Index, Bugs, Top
+@chapter Authors and Ancestors of Gforth
+
+@section Authors and Contributors
+
+The Gforth project was started in mid-1992 by Bernd Paysan and Anton
+Ertl. The third major author was Jens Wilke. Lennart Benschop (who also
+was one of Gforth's first users, in mid-1993) and Stuart Ramsden
+inspired us with their continuous feedback. Lennart Benshop contributed
+@file{glosgen.fs}, while Stuart Ramsden has been working on automatic
+support for calling C libraries. Helpful comments also came from Paul
+Kleinrubatscher, Christian Pirker, Dirk Zoller and Marcel Hendrix.
+
+@section Pedigree
 
 Gforth descends from BigForth (1993) and fig-Forth. Gforth and PFE (by
 Dirk Zoller) will cross-fertilize each other. Of course, a significant
@@ -3782,7 +3794,7 @@ H. Moore, presented at the HOPL-II conference and preprinted in SIGPLAN
 Notices 28(3), 1993.  You can find more historical and genealogical
 information about Forth there.
 
-@node Word Index, Node Index, Pedigree, Top
+@node Word Index, Node Index, Origin, Top
 @chapter Word Index
 
 This index is as incomplete as the manual. Each word is listed with

@@ -183,7 +183,7 @@ static int eof_char = CTRL ('D');
 /* **************************************************************** */
 
 /* Non-zero means that the terminal is in a prepped state. */
-static int terminal_prepped = 0;
+int terminal_prepped = 0;
 
 #if defined (NEW_TTY_DRIVER)
 

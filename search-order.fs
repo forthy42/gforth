@@ -118,15 +118,29 @@ lookup A! \ our dictionary search order becomes the law
 
 \ words visible in roots                               14may93py
 
-: .name ( name -- ) name>string type space ;
-: words  cr 0 context @
-  BEGIN  @ dup  WHILE  2dup cell+ c@ $1F and 2 + dup >r +
-         &79 >  IF  cr nip 0 swap  THEN
-         dup .name space r> rot + swap  REPEAT 2drop ;
+: .name ( name -- ) \ gforth	dot-name
+    name>string type space ;
+
+require termsize.fs
+
+: words ( -- ) \ tools
+    cr 0 context @
+    BEGIN
+	@ dup
+    WHILE
+	2dup name>string nip 2 + dup >r +
+	cols >=
+	IF
+	    cr nip 0 swap
+	THEN
+	dup .name space r> rot + swap
+    REPEAT
+    2drop ;
 
 : body> ( data -- cfa )  0 >body - ;
 
-: .voc  body> >name .name ;
+: .voc
+    body> >name .name ;
 : order ( -- )  \  search-ext
     \g prints the search order and the @code{current} wordlist.  The
     \g standard requires that the wordlists are printed in the order

@@ -28,14 +28,16 @@ INCLUDE look.fs
 \ and finds out what wordtype we have
 \ it is used in SEE.FS
 
-: alias? ( nfa -- flag )
-        dup name> look
-        0= ABORT" WINFO: CFA not found"
-\       cell+
-        2dup <>
-        IF   nip dup 1 cells - here !
-             count $1f and here cell+ place true
-        ELSE 2drop false THEN ;
+\ the old alias? did not work and it is not used, so I changed
+\ it in many respects - anton
+: alias? ( nfa1 -- nfa2|0 )
+    \ if nfa1 is an alias, nfa2 is the name of the original word
+    cell+ dup c@ $80 and 0=
+    IF
+	(name>) @ >name ( use look instead? )
+    ELSE
+	drop 0
+    THEN ;
 
 : var?  ( nfa -- flag )
     cell+ (name>) >code-address dovar: = ;
