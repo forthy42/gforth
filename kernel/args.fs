@@ -23,7 +23,12 @@
 
 : arg ( u -- addr count ) \ gforth
 \g Return the string for the @i{u}th command-line argument; returns
-\g @code{0 0} if the access is beyond the last argument.
+\g @code{0 0} if the access is beyond the last argument.  @code{0 arg}
+\g is the program name with which you started Gforth.  The next
+\g unprocessed argument is always @code{1 arg}, the one after that is
+\g @code{2 arg} etc.  All arguments already processed by the system
+\g are deleted.  After you have processed an argument, you can delete
+\g it with @code{shift-args}.
     dup argc @ u< if
 	cells argv @ + @ cstring>sstring
     else
@@ -38,12 +43,15 @@ Create pathstring 2 cells allot \ string
 Create pathdirs   2 cells allot \ dir string array, pointer and count
 
 Variable argv ( -- addr ) \ gforth
-\g @code{Variable} -- a pointer to a vector of pointers to the command-line
-\g arguments (including the command-name). Each argument is
-\g represented as a C-style string.
+\g @code{Variable} -- a pointer to a vector of pointers to the
+\g command-line arguments (including the command-name). Each argument
+\g is represented as a C-style zero-terminated string.  Changed by
+\g @code{next-arg} and @code{shift-args}.
     
 Variable argc ( -- addr ) \ gforth
-\g @code{Variable} -- the number of command-line arguments (including the command name).
+\g @code{Variable} -- the number of command-line arguments (including
+\g the command name).  Changed by @code{next-arg} and @code{shift-args}.
+
     
 0 Value script? ( -- flag )
     
@@ -58,11 +66,16 @@ Variable argc ( -- addr ) \ gforth
 	argv @ !
     endif ;
 
+: next-arg ( -- addr u ) \ gforth
+\g get the next argument from the OS command line, consuming it; if
+\g there is no argument left, return @code{0 0}.
+    1 arg shift-args ;
+
 : process-option ( addr u -- )
     \ process option, possibly consuming further arguments
     2dup s" -e"         str= >r
     2dup s" --evaluate" str= r> or if
-	2drop 1 arg shift-args evaluate exit endif
+	2drop next-arg evaluate exit endif
     2dup s" -h"         str= >r
     2dup s" --help"     str= r> or if
 	." Image Options:" cr
@@ -77,7 +90,7 @@ Variable argc ( -- addr ) \ gforth
     true to script?
     BEGIN
 	argc @ 1 > WHILE
-	    1 arg shift-args over c@ [char] - <> IF
+	    next-arg over c@ [char] - <> IF
 		required
 	    else
 		process-option

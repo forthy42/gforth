@@ -8899,30 +8899,19 @@ gforth -e "123 456" foo.fs -e bye
 
 However, you may want to interpret the command-line arguments directly.
 In that case, you can access the (image-specific) command-line arguments
-through the variables @code{argc} and @code{argv}. @code{arg} provides
-convenient access to @code{argv}.
+through @code{next-arg}:
 
-doc-argc
-doc-argv
-doc-arg
+doc-next-arg
 
-@code{0 arg} is the program name with which you started Gforth.  The
-next unprocessed argument is always @code{1 arg}, the one after that is
-@code{2 arg} etc.  All arguments already processed by the system are
-deleted.  After you have processed an argument, you can delete it with
-@code{shift-args}.
-
-doc-shift-args
-
-Here's an example program @file{echo.fs} using @code{arg} etc.:
+Here's an example program @file{echo.fs} for @code{next-arg}:
 
 @example
 : echo ( -- )
     begin
-	argc @ 1 > while
-	    1 arg type space
-	    shift-args
-    repeat ;
+	next-arg 2dup 0 0 d<> while
+	    type space
+    repeat
+    2drop ;
 
 echo cr bye
 @end example
@@ -8932,6 +8921,23 @@ This can be invoked with
 @example
 gforth echo.fs hello world
 @end example
+
+and it will print
+
+@example
+hello world
+@end example
+
+The next lower level of dealing with the OS command line are the
+following words:
+
+doc-arg
+doc-shift-args
+
+Finally, at the lowest level Gforth provides the following words:
+
+doc-argc
+doc-argv
 
 @c -------------------------------------------------------------
 @node Locals, Structures, Other I/O, Words
