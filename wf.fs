@@ -232,7 +232,7 @@ Defer parse-line
 
 : link-warn? ( -- ) \ local links only
     link $@ ': scan nip ?EXIT
-    link $@ r/o open-file nip IF
+    link $@ '# $split 2drop r/o open-file nip IF
 	s" Dead Link '" stderr write-file throw
 	link $@ stderr write-file throw
 	s\" ' !!!\n" stderr write-file throw
