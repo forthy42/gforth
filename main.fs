@@ -58,13 +58,13 @@ LOCK
 cr cr
 cell bigendian
 [IF]
-   dup 2 = [IF]   save-cross kernl16b.fi  [THEN]
-   dup 4 = [IF]   save-cross kernl32b.fi  [THEN]
-   dup 8 = [IF]   save-cross kernl64b.fi  [THEN]
+   dup 2 = [IF]   save-cross kernl16b.fi+  [THEN]
+   dup 4 = [IF]   save-cross kernl32b.fi+  [THEN]
+   dup 8 = [IF]   save-cross kernl64b.fi+  [THEN]
 [ELSE]
-   dup 2 = [IF]   save-cross kernl16l.fi  [THEN]
-   dup 4 = [IF]   save-cross kernl32l.fi  [THEN]
-   dup 8 = [IF]   save-cross kernl64l.fi  [THEN]
+   dup 2 = [IF]   save-cross kernl16l.fi+  [THEN]
+   dup 4 = [IF]   save-cross kernl32l.fi+  [THEN]
+   dup 8 = [IF]   save-cross kernl64l.fi+  [THEN]
 [THEN] drop cr
 
 bye

@@ -7,7 +7,7 @@
 #To do:
 #use $(srcdir) to make compilation in a non-srcdir possible
 
-VERSION	=0.1alpha#gforth version
+VERSION	=0.1#gforth version
 SHELL	= /bin/sh
 RM	= rm
 CP	= cp
@@ -28,10 +28,13 @@ XCFLAGS	= @CFLAGS@
 XDEFINES = @DEFS@
 SWITCHES = $(XCFLAGS) $(XDEFINES) #-DNDEBUG #turn off assertions
 ENGINE_FLAGS =  -fno-defer-pop -fcaller-saves
-CFLAGS	= @DEBUGFLAG@ -pipe -O4 -Wall $(SWITCHES) -DDEFAULTPATH=\"$(datadir)/gforth/$(VERSION):$(libdir)/gforth/$(VERSION):.\"
+DEBUGFLAG = @DEBUGFLAG@
+CFLAGS	= -pipe -O4 -Wall $(SWITCHES) -DDEFAULTPATH=\"$(datadir)/gforth/$(VERSION):$(libdir)/gforth/$(VERSION):.\"
 
 #John Wavrik should use -Xlinker -N to get a writable text (executable)
-LDFLAGS	=  @DEBUGFLAG@ @LDFLAGS@ @GCCLDFLAGS@
+XLDFLAGS = @LDFLAGS@
+GCCLDFLAGS = @GCCLDFLAGS@
+LDFLAGS	=  $(DEBUGFLAG) $(XLDFLAGS) $(GCCLDFLAGS)
 LDLIBS	= @LIBS@
 
 prefix = @prefix@
@@ -47,6 +50,9 @@ mandir = $(prefix)/man/man1
 
 
 INCLUDES = forth.h io.h
+
+KERN_SRC = main.fs search-order.fs cross.fs aliases.fs vars.fs add.fs \
+	errore.fs kernal.fs version.fs extend.fs tools.fs toolsext.fs
 
 FORTH_SRC = anslocal.fs add.fs assert.fs ansi.fs blocks.fs bufio.fs checkans.fs \
 	colorize.fs cross.fs debug.fs debugging.fs doskey.fs ds2texi.fs \
@@ -67,7 +73,7 @@ SOURCES	= Makefile.in configure.in configure config.sub  config.guess \
 	getopt.c getopt1.c getopt.h select.c \
 	ecvt.c memcmp.c strtol.c strtoul.c ansidecl.h memmove.c pow10.c \
 	strerror.c \
-	makefile.dos configure.bat startup.dos \
+	makefile.dos mkdosmf.sed configure.bat startup.dos \
 	glosgen.glo glossaries.doc \
 	$(INCLUDES) $(FORTH_SRC)
 
@@ -84,7 +90,11 @@ FORTH_GEN =  $(FORTH_GEN0) @KERNAL@
 FORTH_GEN1 = $(FORTH_GEN0) @gforth_fi@ 
 
 
-GEN_PRECIOUS = $(FORTH_GEN) gforth.texi gforth.dvi gforth.ps Makefile configure
+KERNLS = kernl16b.fi+ kernl16l.fi+ \
+	 kernl32b.fi+ kernl32l.fi+ \
+	 kernl64b.fi+ kernl64l.fi+
+
+GEN_PRECIOUS = $(FORTH_GEN) $(KERNLS) gforth.texi gforth.dvi gforth.ps Makefile configure
 
 #standards.info recommends this:
 .SUFFIXES:
@@ -123,6 +133,7 @@ dist:		$(SOURCES) $(FORTH_GEN)
 		mkdir gforth-$(VERSION)
 		cp -p $(SOURCES) $(FORTH_GEN) gforth-$(VERSION)
 		tar cvf - gforth-$(VERSION)|gzip -9 >gforth-$(VERSION).tar.gz
+		-rm -rf gforth-$(VERSION)
 
 #a binary distribution contains the complete source distribution,
 # the objects, the executable and the links. the objects are there for making
@@ -164,7 +175,8 @@ install:	gforth $(FORTH_SRC) gforth.fi gforth.1 gforth.info
 		done
 
 check:		test
-		
+		touch test
+
 test:		gforth
 		@echo 'Expect to see INCORRECT RESULT: { GS1 -> <TRUE> <TRUE> }'
 		@echo 'This is a bug of the testing program'
@@ -180,47 +192,53 @@ gforth:		$(OBJECTS)
 		$(GCC) $(LDFLAGS) $(OBJECTS) $(LDLIBS) -o $@
 		@MAKE_EXE@
 
-kernl16l.fi:	main.fs search-order.fs cross.fs aliases.fs vars.fs add.fs \
-		errore.fs kernal.fs version.fs extend.fs tools.fs toolsext.fs \
-		mach16l.fs $(FORTH_GEN1)
+kernl16l.fi+:	$(KERN_SRC) mach16l.fs $(FORTH_GEN0)
 		-$(CP) kernl16l.fi kernl16l.fi~
 		$(FORTH) -e 's" mach16l.fs"' main.fs
-		@LINK_KERNL16L@
 
-kernl16b.fi:	main.fs search-order.fs cross.fs aliases.fs vars.fs add.fs \
-		errore.fs kernal.fs version.fs extend.fs tools.fs toolsext.fs \
-		mach16b.fs $(FORTH_GEN1)
+kernl16b.fi+:	$(KERN_SRC) mach16b.fs $(FORTH_GEN0)
 		-$(CP) kernl16b.fi kernl16b.fi~
 		$(FORTH) -e 's" mach16b.fs"' main.fs
-		@LINK_KERNL16B@
 
-kernl32l.fi:	main.fs search-order.fs cross.fs aliases.fs vars.fs add.fs \
-		errore.fs kernal.fs version.fs extend.fs tools.fs toolsext.fs \
-		mach32l.fs $(FORTH_GEN1)
+kernl32l.fi+:	$(KERN_SRC) mach32l.fs $(FORTH_GEN0)
 		-$(CP) kernl32l.fi kernl32l.fi~
 		$(FORTH) -e 's" mach32l.fs"' main.fs
-		@LINK_KERNL32L@
 
-kernl32b.fi:	main.fs search-order.fs cross.fs aliases.fs vars.fs add.fs \
-		errore.fs kernal.fs version.fs extend.fs tools.fs toolsext.fs \
-		mach32b.fs $(FORTH_GEN1)
+kernl32b.fi+:	$(KERN_SRC) mach32b.fs $(FORTH_GEN0)
 		-$(CP) kernl32b.fi kernl32b.fi~
 		$(FORTH) -e 's" mach32b.fs"' main.fs
-		@LINK_KERNL32B@
 
-kernl64l.fi:	main.fs search-order.fs cross.fs aliases.fs vars.fs add.fs \
-		errore.fs kernal.fs version.fs extend.fs tools.fs toolsext.fs \
-		mach64l.fs $(FORTH_GEN1)
+kernl64l.fi+:	$(KERN_SRC) mach64l.fs $(FORTH_GEN0)
 		-$(CP) kernl64l.fi kernl64l.fi~
 		$(FORTH) -e 's" mach64l.fs"' main.fs
-		@LINK_KERNL64L@
 
-kernl64b.fi:	main.fs search-order.fs cross.fs aliases.fs vars.fs add.fs \
-		errore.fs kernal.fs version.fs extend.fs tools.fs toolsext.fs \
-		mach64b.fs $(FORTH_GEN1)
+kernl64b.fi+:	$(KERN_SRC) mach64b.fs $(FORTH_GEN0)
 		-$(CP) kernl64b.fi kernl64b.fi~
 		$(FORTH) -e 's" mach64b.fs"' main.fs
+
+kernl16b.fi:	$(KERNLS)
+		-$(CP) kernl16b.fi+ kernl16b.fi
+		@LINK_KERNL16B@
+
+kernl16l.fi:	$(KERNLS)
+		-$(CP) kernl16l.fi+ kernl16l.fi
+		@LINK_KERNL16L@
+
+kernl32b.fi:	$(KERNLS)
+		-$(CP) kernl32b.fi+ kernl32b.fi
+		@LINK_KERNL32B@
+
+kernl32l.fi:	$(KERNLS)
+		-$(CP) kernl32l.fi+ kernl32l.fi
+		@LINK_KERNL32L@
+
+kernl64b.fi:	$(KERNLS)
+		-$(CP) kernl64b.fi+ kernl64b.fi
 		@LINK_KERNL64B@
+
+kernl64l.fi:	$(KERNLS)
+		-$(CP) kernl64l.fi+ kernl64l.fi
+		@LINK_KERNL64L@
 
 engine.s:	engine.c primitives.i prim_labels.i machine.h $(INCLUDES)
 		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -S engine.c
@@ -283,3 +301,6 @@ config.status: configure
 	./config.status --recheck
 configure: configure.in
 	cd $(srcdir) && autoconf
+
+makefile.dos: mkdosmf.sed Makefile.in
+	sed -f mkdosmf.sed <Makefile.in >makefile.dos

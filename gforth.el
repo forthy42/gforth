@@ -20,7 +20,7 @@
 ;; file named COPYING.  Among other things, the copyright notice
 ;; and this notice must be preserved on all copies.
 
-;;; $Header: /usr/local/lib/cvs-repository/src-master/gforth/gforth.el,v 1.11 1995-01-30 18:47:48 anton Exp $
+;;; $Header: /usr/local/lib/cvs-repository/src-master/gforth/gforth.el,v 1.12 1995-08-27 19:56:30 pazsan Exp $
 
 ;;-------------------------------------------------------------------
 ;; A Forth indentation, documentation search and interaction library
@@ -865,3 +865,69 @@ The region is sent terminated by a newline."
   (compile1 ctools-compile-command "No more errors"))
 
 
+;;; Forth menu
+;;; Mikael Karlsson <qramika@eras70.ericsson.se>
+
+(cond ((string-match "XEmacs\\|Lucid" emacs-version)
+       (require 'func-menu)
+
+  (defconst fume-function-name-regexp-forth
+   "^\\(:\\)[ \t]+\\([^ \t]*\\)"
+   "Expression to get word definitions in Forth.")
+
+  (setq fume-function-name-regexp-alist
+      (append '((forth-mode . fume-function-name-regexp-forth) 
+             ) fume-function-name-regexp-alist))
+
+  ;; Find next forth word in the buffer
+  (defun fume-find-next-forth-function-name (buffer)
+    "Searches for the next forth word in BUFFER."
+    (set-buffer buffer)
+    (if (re-search-forward fume-function-name-regexp nil t)
+      (let ((beg (match-beginning 2))
+            (end (match-end 2)))
+        (cons (buffer-substring beg end) beg))))
+
+  (setq fume-find-function-name-method-alist
+  (append '((forth-mode    . fume-find-next-forth-function-name))))
+
+  ))
+;;; End Forth menu
+
+;;; File folding of forth-files
+;;; uses outline
+;;; Toggle activation with M-x fold-f (when editing a forth-file) 
+;;; Use f9 to expand, f10 to hide, Or the menubar in xemacs
+;;;
+;;; Works most of the times but loses sync with the cursor occasionally 
+;;; Could be improved by also folding on comments
+
+(require 'outline)
+
+;;(define-key outline-minor-mode-map 'f9 'show-entry)
+;;(define-key outline-minor-mode-map 'f10 'hide-entry)
+
+(defun fold-f  ()
+   (interactive)
+   (add-hook 'outline-minor-mode-hook 'hide-body)
+
+   ; outline mode header start, i.e. find word definitions
+   (setq  outline-regexp  "^\\(:\\)[ \t]+\\([^ \t]*\\)")
+
+   (outline-minor-mode)
+)
+;;; end file folding
+
+;;; func-menu is a package that scans your source file for function definitions
+;;; and makes a menubar entry that lets you jump to any particular function
+;;; definition by selecting it from the menu.  The following code turns this on
+;;; for all of the recognized languages.  Scanning the buffer takes some time,
+;;; but not much.
+;;;
+(cond ((string-match "XEmacs\\|Lucid" emacs-version)
+       (require 'func-menu)
+;;       (define-key global-map 'f8 'function-menu)
+       (add-hook 'find-fible-hooks 'fume-add-menubar-entry)
+       (define-key global-map "\C-cg" 'fume-prompt-function-goto)
+       (define-key global-map '(shift button3) 'mouse-function-menu)
+       ))

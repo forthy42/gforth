@@ -1,10 +1,10 @@
-#! /usr/stud/paysan/bin/gforth
+#! /usr/users/bernd/bin/gforth
 \ file hex dump
 
 Create buffer $10 allot
 
 : dumpline ( addr handle -- flag )
-  buffer $10 2dup 0 fill rot read-file throw
+  buffer $10 rot read-file throw
   dup /dump !  $10 <> swap 6 u.r ." : "  buffer .line cr ;
 
 : init  cr $10 base ! ;

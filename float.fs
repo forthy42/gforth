@@ -82,28 +82,28 @@
 ' sfnumber IS notfound
 
 : fvariable ( -- )
-    Create 0e0 f, ;
+    Create 0.0E0 f, ;
     \ does> ( -- f-addr )
 
-1e0 fasin 2e0 f* fconstant pi
+1.0e0 fasin 2.0e0 f* fconstant pi
 
-: f2*  2e0 f* ;
-: f2/  .5e0 f* ;
-: 1/f  1e0 fswap f/ ;
+: f2*  2.0e0 f* ;
+: f2/  0.5e0 f* ;
+: 1/f  1.0e0 fswap f/ ;
 
 
 \ We now have primitives for these, so we need not define them
 
-\ : falog ( f -- 10^f )  [ 10e0 fln ] FLiteral f* fexp ;
+\ : falog ( f -- 10^f )  [ 10.0e0 fln ] FLiteral f* fexp ;
 
-\ : fsinh    fexpm1 fdup fdup 1e0 f+ f/ f+ f2/ ;
+\ : fsinh    fexpm1 fdup fdup 1.0e0 f+ f/ f+ f2/ ;
 \ : fcosh    fexp fdup 1/f f+ f2/ ;
-\ : ftanh    f2* fexpm1 fdup 2e0 f+ f/ ;
+\ : ftanh    f2* fexpm1 fdup 2.0e0 f+ f/ ;
 
-\ : fatanh   fdup f0< >r fabs 1e0 fover f- f/  f2* flnp1 f2/
+\ : fatanh   fdup f0< >r fabs 1.0e0 fover f- f/  f2* flnp1 f2/
 \            r> IF  fnegate  THEN ;
-\ : facosh   fdup fdup f* 1e0 f- fsqrt f+ fln ;
-\ : fasinh   fdup fdup f* 1e0 f+ fsqrt f/ fatanh ;
+\ : facosh   fdup fdup f* 1.0e0 f- fsqrt f+ fln ;
+\ : fasinh   fdup fdup f* 1.0e0 f+ fsqrt f/ fatanh ;
 
 : f~ ( f1 f2 f3 -- flag )  fdup f0= IF  fdrop f= EXIT  THEN
   fdup f0>   IF  frot frot f- fabs fswap

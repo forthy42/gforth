@@ -1,5 +1,5 @@
 /*
-  $Id: hppa.h,v 1.6 1994-12-14 16:15:28 anton Exp $
+  $Id: hppa.h,v 1.7 1995-08-27 19:56:32 pazsan Exp $
   Copyright 1992 by the ANSI figForth Development Group
 
   This is the machine-specific part for a HPPA running HP-UX
@@ -227,3 +227,14 @@ extern void * cacheflush(void *, int, int);
 	/* this stores a call dodoes at addr */
 #endif
 
+#undef HAVE_LOG1P
+#undef HAVE_RINT
+
+#ifdef FORCE_REG
+#define IPREG asm("%r10")
+#define SPREG asm("%r9")
+#define RPREG asm("%r8")
+#define LPREG asm("%r7")
+#define CFAREG asm("%r6")
+#define TOSREG asm("%r11")
+#endif /* FORCE_REG */
