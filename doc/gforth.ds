@@ -1267,7 +1267,8 @@ or you don't care that the results you get are totally bogus. If you
 want to learn about the problems of floating point numbers (and how to
 avoid them), you might start with @cite{David Goldberg, What Every
 Computer Scientist Should Know About Floating-Point Arithmetic, ACM
-Computing Surveys 23(1):5@minus{}48, March 1991}.
+Computing Surveys 23(1):5@minus{}48, March 1991}
+(@url{http://www.validgh.com/goldberg/paper.ps}).
 
 doc-f+
 doc-f-
