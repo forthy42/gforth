@@ -19,7 +19,7 @@
 @comment %**start of header (This is for running Texinfo on a region.)
 @setfilename gforth.info
 @settitle Gforth Manual
-@dircategory GNU programming tools
+@dircategory Software development
 @direntry
 * Gforth: (gforth).             A fast interpreter for the Forth language.
 @end direntry
@@ -73,7 +73,7 @@ Programming style note:
 @ifnottex
 This file documents Gforth @value{VERSION}
 
-Copyright @copyright{} 1995--2000 Free Software Foundation, Inc.
+Copyright @copyright{} 1995, 1996, 1997, 1998, 2000, 2003 Free Software Foundation, Inc.
 
      Permission is granted to make and distribute verbatim copies of
      this manual provided the copyright notice and this permission notice
@@ -117,7 +117,7 @@ Copyright @copyright{} 1995--2000 Free Software Foundation, Inc.
 @comment  The following two commands start the copyright page.
 @page
 @vskip 0pt plus 1filll
-Copyright @copyright{} 1995--2000 Free Software Foundation, Inc.
+Copyright @copyright{} 1995, 1996, 1997, 1998, 2000, 2003 Free Software Foundation, Inc.
 
 @comment !! Published by ... or You can get a copy of this manual ...
 
