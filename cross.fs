@@ -2194,7 +2194,9 @@ Cond: ALiteral ( n -- )   alit, ;Cond
 : Char ( "<char>" -- )  bl word char+ c@ ;
 Cond: [Char]   ( "<char>" -- )  Char  lit, ;Cond
 
-\ JAW Cond: chars ;Cond 
+tchar 1 = [IF]
+Cond: chars ;Cond 
+[THEN]
 
 \ some special literals					27jan97jaw
 
