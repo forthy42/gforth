@@ -324,14 +324,14 @@ Variable c-flag
 	)) ??  nl
    ))
    (( ` " ` "  {{ start }} (( noquote ++ ` " )) ++ {{ end 1- doc 2! }} ` " white ** nl )) ??
-   {{ skipsynclines off line @ c-line ! filename 2@ c-filename 2! start }} (( nocolonnl nonl **  nl )) ** {{ end c-code 2! skipsynclines on }}
+   {{ skipsynclines off line @ c-line ! filename 2@ c-filename 2! start }} (( nocolonnl nonl **  nl white ** )) ** {{ end c-code 2! skipsynclines on }}
    (( ` :  white ** nl
-      {{ start }} (( nonl ++  nl )) ++ {{ end forth-code 2! }}
+      {{ start }} (( nonl ++  nl white ** )) ++ {{ end forth-code 2! }}
    )) ?? {{ printprim }}
    (( nl || eof ))
 )) <- primitive ( -- )
 
-(( (( comment || primitive || nl )) ** eof ))
+(( (( comment || primitive || nl white ** )) ** eof ))
 parser primitives2something
 warnings @ [IF]
 .( parser generated ok ) cr
