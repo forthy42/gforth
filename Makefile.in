@@ -28,7 +28,7 @@ XCFLAGS	= @CFLAGS@
 XDEFINES = @DEFS@
 SWITCHES = $(XCFLAGS) $(XDEFINES) #-DNDEBUG #turn off assertions
 ENGINE_FLAGS =  -fno-defer-pop -fcaller-saves
-CFLAGS	= @DEBUGFLAG@ -O4 -Wall $(SWITCHES)
+CFLAGS	= @DEBUGFLAG@ -O4 -Wall $(SWITCHES) -DDEFAULTPATH=\"$(datadir)/gforth/$(VERSION):$(libdir)/gforth/$(VERSION):.\"
 
 #John Wavrik should use -Xlinker -N to get a writable text (executable)
 LDFLAGS	=  @DEBUGFLAG@ @LDFLAGS@ @GCCLDFLAGS@
@@ -154,13 +154,13 @@ binonlydist:	$(SOURCES) $(FORTH_GEN) gforth $(OBJECTS)
 # gforth manages to execute more than a few primitives
 
 install:	gforth $(FORTH_SRC) gforth.fi gforth.1 gforth.info
-		$(INSTALL) -d $(bindir) $(mandir) $(infodir) $(libdir)/gforth $(datadir)/gforth	
+		$(INSTALL) -d $(bindir) $(mandir) $(infodir) $(libdir)/gforth/$(VERSION) $(datadir)/gforth/$(VERSION)	
 		$(INSTALL_PROGRAM) -s gforth $(bindir)
 		$(INSTALL_DATA) gforth.1 $(mandir)
 		$(INSTALL_DATA) gforth.info* $(infodir)
-		$(INSTALL_DATA) gforth.fi $(libdir)/gforth
+		$(INSTALL_DATA) gforth.fi $(libdir)/gforth/$(VERSION)
 		for i in $(FORTH_SRC); do \
-			$(INSTALL_DATA) $$i $(libdir)/gforth; \
+			$(INSTALL_DATA) $$i $(datadir)/gforth/$(VERSION); \
 		done
 
 check:		test
@@ -181,42 +181,42 @@ gforth:		$(OBJECTS)
 		@MAKE_EXE@
 
 kernl16l.fi:	main.fs search-order.fs cross.fs aliases.fs vars.fs add.fs \
-		errore.fs kernal.fs extend.fs tools.fs toolsext.fs \
+		errore.fs kernal.fs version.fs extend.fs tools.fs toolsext.fs \
 		mach16l.fs $(FORTH_GEN1)
 		-$(CP) kernl16l.fi kernl16l.fi~
 		$(FORTH) -e 's" mach16l.fs"' main.fs
 		@LINK_KERNL16L@
 
 kernl16b.fi:	main.fs search-order.fs cross.fs aliases.fs vars.fs add.fs \
-		errore.fs kernal.fs extend.fs tools.fs toolsext.fs \
+		errore.fs kernal.fs version.fs extend.fs tools.fs toolsext.fs \
 		mach16b.fs $(FORTH_GEN1)
 		-$(CP) kernl16b.fi kernl16b.fi~
 		$(FORTH) -e 's" mach16b.fs"' main.fs
 		@LINK_KERNL16B@
 
 kernl32l.fi:	main.fs search-order.fs cross.fs aliases.fs vars.fs add.fs \
-		errore.fs kernal.fs extend.fs tools.fs toolsext.fs \
+		errore.fs kernal.fs version.fs extend.fs tools.fs toolsext.fs \
 		mach32l.fs $(FORTH_GEN1)
 		-$(CP) kernl32l.fi kernl32l.fi~
 		$(FORTH) -e 's" mach32l.fs"' main.fs
 		@LINK_KERNL32L@
 
 kernl32b.fi:	main.fs search-order.fs cross.fs aliases.fs vars.fs add.fs \
-		errore.fs kernal.fs extend.fs tools.fs toolsext.fs \
+		errore.fs kernal.fs version.fs extend.fs tools.fs toolsext.fs \
 		mach32b.fs $(FORTH_GEN1)
 		-$(CP) kernl32b.fi kernl32b.fi~
 		$(FORTH) -e 's" mach32b.fs"' main.fs
 		@LINK_KERNL32B@
 
 kernl64l.fi:	main.fs search-order.fs cross.fs aliases.fs vars.fs add.fs \
-		errore.fs kernal.fs extend.fs tools.fs toolsext.fs \
+		errore.fs kernal.fs version.fs extend.fs tools.fs toolsext.fs \
 		mach64l.fs $(FORTH_GEN1)
 		-$(CP) kernl64l.fi kernl64l.fi~
 		$(FORTH) -e 's" mach64l.fs"' main.fs
 		@LINK_KERNL64L@
 
 kernl64b.fi:	main.fs search-order.fs cross.fs aliases.fs vars.fs add.fs \
-		errore.fs kernal.fs extend.fs tools.fs toolsext.fs \
+		errore.fs kernal.fs version.fs extend.fs tools.fs toolsext.fs \
 		mach64b.fs $(FORTH_GEN1)
 		-$(CP) kernl64b.fi kernl64b.fi~
 		$(FORTH) -e 's" mach64b.fs"' main.fs
@@ -244,6 +244,13 @@ aliases.fs:	primitives.b prims2x.fs
 
 primitives.fs:	primitives.b prims2x.fs
 		$(FORTH) prims2x.fs -e "s\" primitives.b\" ' output-forth process-file bye" >$@
+
+version.fs:	Makefile.in
+		echo ": version-string s\" $(VERSION)\" ;" >$@
+
+version.c:	Makefile.in
+		echo "char gforth_version[]=\"$(VERSION)\" ;" >$@
+
 
 doc.fs:		makedoc.fs float.fs search-order.fs glocals.fs environ.fs \
 		 toolsext.fs wordinfo.fs \

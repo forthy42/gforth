@@ -5,6 +5,10 @@ First, type
 ./configure
 
 configure has the following useful parameters:
+  --prefix=PREFIX         install architecture-independent files in PREFIX
+                          [default: /usr/local]
+  --exec-prefix=PREFIX    install architecture-dependent files in PREFIX
+                          [default: same as prefix]
   --enable-force-reg      Use explicit register declarations if they appear in
                           the machine.h file. This can cause a good speedup,
                           but also incorrect code with some gcc versions on
@@ -21,14 +25,20 @@ configure has the following useful parameters:
                     debugging informations.
   --help: tells you about other parameters.
 
+If you don't like the defaults for the installation directories, you
+should override them already during configure.  E.g., if you want to
+install in the /gnu hierarchy instead of in the default /usr/local
+hirarchy, say
 
-Now type
+./configure --prefix=/gnu
+
+After, configuration, type
 
 make
 
 If your make has trouble with the Makefile, "make gforth" might work.
 
-If your installed gcc isn't called "gcc" (eg. called "gcc-2.6.1"), type
+If your installed gcc isn't called "gcc" (e.g., called "gcc-2.6.1"), type
 
 make GCC=<whatever you call your gcc>
 
@@ -46,10 +56,5 @@ If everything is allright, you may want to install gforth. Type
 
 make install
 
-You may want to override the defaults for the directories. E.g., if
-you want to install in the /gnu hierarchy instead of in the default
-/usr/local hirarchy, say
-
-make install prefix=/gnu
-
-Alternatively, you can specify the prefixes with configure.
+You have to make an entry in the info directory file manually. Also,
+you have to install gforth.ps and html yourself.

@@ -15,6 +15,7 @@
 #include <sys/time.h>
 #include <unistd.h>
 #include <errno.h>
+#include <pwd.h>
 #include "forth.h"
 #include "io.h"
 
@@ -159,6 +160,47 @@ char *cstr(Char *from, UCell size, int clear)
   nextscratch += size+1;
   return oldnextscratch;
 }
+
+char *tilde_cstr(Char *from, UCell size, int clear)
+/* like cstr(), but perform tilde expansion on the string */
+{
+  char *s1,*s2;
+  int s1_len, s2_len;
+  struct passwd *getpwnam (), *user_entry;
+
+  if (size<1 || from[0]!='~')
+    return cstr(from, size, clear);
+  if (size<2 || from[1]=='/') {
+    s1 = (char *)getenv ("HOME");
+    s2 = from+1;
+    s2_len = size-1;
+  } else {
+    int i;
+    for (i=1; i<size && from[i]!='/'; i++)
+      ;
+    {
+      char user[i];
+      memcpy(user,from+1,i-1);
+      user[i-1]='\0';
+      user_entry=getpwnam(user);
+    }
+    if (user_entry==NULL)
+      return cstr(from, size, clear);
+    s1 = user_entry->pw_dir;
+    s2 = from+i;
+    s2_len = size-i;
+  }
+  s1_len = strlen(s1);
+  if (s1_len>1 && s1[s1_len-1]=='/')
+    s1_len--;
+  {
+    char path[s1_len+s2_len];
+    memcpy(path,s1,s1_len);
+    memcpy(path+s1_len,s2,s2_len);
+    return cstr(path,s1_len+s2_len,clear);
+  }
+}
+   
 
 #define NEWLINE	'\n'
 

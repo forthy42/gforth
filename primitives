@@ -775,17 +775,17 @@ c_addr2 = c_addr1+1;
 return (Label *)n;
 
 system	c_addr u -- n	own
-n=system(cstr(c_addr,u,1));
+n=system(cstr(c_addr,u,1)); /* ~ expansion on first part of string? */
 
 getenv	c_addr1 u1 -- c_addr2 u2	new
 c_addr2 = getenv(cstr(c_addr1,u1,1));
 u2=strlen(c_addr2);
 
 popen	c_addr u n -- wfileid	own
-static char* mode[2]={"r","w"};
-wfileid=(Cell)popen(cstr(c_addr,u,1),mode[n]);
+static char* mode[2]={"r","w"}; /* !! should we use FAM here? */
+wfileid=(Cell)popen(cstr(c_addr,u,1),mode[n]); /* ~ expansion of 1st arg? */
 
-pclose	wfileid -- wior	own
+pclose	wfileid -- wior		own
 wior=pclose((FILE *)wfileid); /* !! what to do with the result */
 
 time&date	-- nsec nmin nhour nday nmonth nyear	facility-ext	time_and_date
@@ -923,12 +923,12 @@ close-file	wfileid -- wior		file	close_file
 wior = IOR(fclose((FILE *)wfileid)==EOF);
 
 open-file	c_addr u ntype -- w2 wior	file	open_file
-w2 = (Cell)fopen(cstr(c_addr, u, 1), fileattr[ntype]);
+w2 = (Cell)fopen(tilde_cstr(c_addr, u, 1), fileattr[ntype]);
 wior =  IOR(w2 == NULL);
 
 create-file	c_addr u ntype -- w2 wior	file	create_file
 Cell	fd;
-fd = open(cstr(c_addr, u, 1), O_CREAT|O_RDWR|O_TRUNC, 0666);
+fd = open(tilde_cstr(c_addr, u, 1), O_CREAT|O_RDWR|O_TRUNC, 0666);
 if (fd != -1) {
   w2 = (Cell)fdopen(fd, fileattr[ntype]);
   wior = IOR(w2==NULL);
@@ -938,11 +938,11 @@ if (fd != -1) {
 }
 
 delete-file	c_addr u -- wior		file	delete_file
-wior = IOR(unlink(cstr(c_addr, u, 1))==-1);
+wior = IOR(unlink(tilde_cstr(c_addr, u, 1))==-1);
 
 rename-file	c_addr1 u1 c_addr2 u2 -- wior	file-ext	rename_file
-char *s1=cstr(c_addr2, u2, 1);
-wior = IOR(rename(cstr(c_addr1, u1, 0), s1)==-1);
+char *s1=tilde_cstr(c_addr2, u2, 1);
+wior = IOR(rename(tilde_cstr(c_addr1, u1, 0), s1)==-1);
 
 file-position	wfileid -- ud wior	file	file_position
 /* !! use tell and lseek? */
@@ -1010,7 +1010,7 @@ flush-file	wfileid -- wior		file-ext	flush_file
 wior = IOR(fflush((FILE *) wfileid)==EOF);
 
 file-status	c_addr u -- ntype wior	file-ext	file_status
-char *filename=cstr(c_addr, u, 1);
+char *filename=tilde_cstr(c_addr, u, 1);
 if (access (filename, F_OK) != 0) {
   ntype=0;
   wior=IOR(1);

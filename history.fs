@@ -7,17 +7,18 @@
 2Variable end^
 
 : get-history ( addr len -- wid )
-  check-file-prefix drop
+\  check-file-prefix drop
   2dup r/w open-file 0<
   IF  drop r/w create-file throw  ELSE  nip nip  THEN
   to history
   history file-size throw
   2dup forward^ 2! 2dup backward^ 2! end^ 2! ;
 
-s" ~/gforth.history" get-history
+s" ~/.gforth-history" get-history
 
-: history-cold  Defers 'cold
-  s" ~/gforth.history" get-history ;
+: history-cold
+    Defers 'cold
+    s" ~/.gforth-history" get-history ;
 
 ' history-cold IS 'cold
 

@@ -29,6 +29,7 @@ include vars.fs                \ variables and other stuff
 include add.fs                 \ additional things
 include errore.fs
 include kernal.fs              \ load kernal
+include version.fs
 include extend.fs              \ load core-extended
 include tools.fs               \ load tools ( .s dump )
 \ include words.fs
