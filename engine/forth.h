@@ -320,7 +320,7 @@ extern Address UP;
 #ifdef HAS_FFCALL
 extern Cell *RP;
 extern Address LP;
-extern void engine_callback(Xt fcall, void * alist);
+extern void engine_callback(Xt* fcall, void * alist);
 #endif
 
 #ifdef GFORTH_DEBUGGING

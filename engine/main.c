@@ -62,7 +62,7 @@ Address LP;
 
 va_alist clist;
 
-void engine_callback(Xt fcall, void * alist)
+void engine_callback(Xt* fcall, void * alist)
 {
   engine(fcall, SP, RP, FP, LP);
   clist = (va_alist)alist;

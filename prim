@@ -2259,7 +2259,7 @@ REST_REGS
 c_addr = prv;
 
 alloc-callback	( xt -- c_addr )	gforth	alloc_callback
-c_addr = (char *)alloc_callback(engine_callback, (void *)xt);
+c_addr = (char *)alloc_callback(engine_callback, ((Xt *)xt)+2);
 
 va-start-int	( -- w )	gforth	va_start_int
 w = va_start_int(clist);
