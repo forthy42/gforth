@@ -23,11 +23,11 @@
 [IF]
 
 ToDo:
-Crossdoc destination ./doc/crossdoc.fd makes no sense when
-cross.fs is uses seperately. jaw
-Do we need this char translation with >address and in branchoffset? 
-(>body also affected) jaw
-Clean up mark> and >resolve stuff jaw
+- Crossdoc destination ./doc/crossdoc.fd makes no sense when
+  cross.fs is used seperately. jaw
+- Do we need this char translation with >address and in branchoffset? 
+  (>body also affected) jaw
+- MAXU etc. can be done with dlit,
 
 [THEN]
 
@@ -690,6 +690,7 @@ Variable ppi-temp 0 ppi-temp !
   POSTPONE ; ppi-temp @ ! 0 ppi-temp ! ; immediate
 
 
+Plugin dlit, ( d -- )			\ compile numerical value the target
 Plugin lit, ( n -- )
 Plugin alit, ( n -- )
 
@@ -1612,31 +1613,13 @@ T has? relocate H
 : A,    ( w -- )        >address T here H relon T , H ;
 
 
->CROSS
-
-: tcmove ( source dest len -- )
-\G cmove in target memory
-  tchar * bounds
-  ?DO  dup T c@ H I T c! H 1+
-  tchar +LOOP  drop ;
-
-
-\ \ Load Assembler
-
->TARGET
-H also Forth definitions
-
-\ FIXME: should we include the assembler really in the forth 
-\ dictionary?!?!?!? This conflicts with the existing assembler 
-\ of the host forth system!!
-[IFDEF] asm-include asm-include [THEN] hex
-
-previous
-
 \ \ --------------------        Host/Target copy etc.     	29aug01jaw
 
 
 >CROSS
+
+: TD! >image DS! ;
+: TD@ >image DS@ ;
 
 : th-count ( taddr -- host-addr len )
 \G returns host address of target string
@@ -1661,6 +1644,29 @@ previous
 : on		T -1 swap ! H ; 
 : off   	T 0 swap ! H ;
 
+: tcmove ( source dest len -- )
+\G cmove in target memory
+  tchar * bounds
+  ?DO  dup T c@ H I T c! H 1+
+  tchar +LOOP  drop ;
+
+: td, ( d -- )
+\G Store a host value as one cell into the target
+  there tcell X allot TD! ;
+
+\ \ Load Assembler
+
+>TARGET
+H also Forth definitions
+
+\ FIXME: should we include the assembler really in the forth 
+\ dictionary?!?!?!? This conflicts with the existing assembler 
+\ of the host forth system!!
+[IFDEF] asm-include asm-include [THEN] hex
+
+previous
+
+
 >CROSS
 
 : (cc) T a, H ;					' (cc) plugin-of colon,
@@ -1682,8 +1688,7 @@ previous
 
 >TARGET
 : compile, ( xt -- )
-  dup xt>ghost >ghost-flags <primitive> get-flag
-  IF prim, ELSE colon, THEN ;
+  dup xt>ghost >comp @ EXECUTE ;
 >CROSS
 
 \ resolve structure
@@ -2228,7 +2233,9 @@ T 2 cells H Value xt>body
   [ T e? ec H 0= [IF] ] T here H tcell - reloff [ [THEN] ]
   2 fillcfa ;						' (dodoes,) plugin-of dodoes,
 
-: (lit,) ( n -- )  compile lit T  ,  H ;		' (lit,) plugin-of lit,
+: (dlit,) ( n -- ) compile lit td, ;			' (dlit,) plugin-of dlit,
+
+: (lit,) ( n -- )  s>d dlit, ;				' (lit,) plugin-of lit,
 
 \ if we dont produce relocatable code alit, defaults to lit, jaw
 \ this is just for convenience, so we don't have to define alit,
@@ -2288,6 +2295,9 @@ Cond: chars ;Cond
 
 \ !! Known Bug: Special Literals and plug-ins work only correct
 \ on 16 and 32 Bit Targets and 32 Bit Hosts!
+
+\ This section could be done with dlit, now. But first I need
+\ some test code JAW
 
 Cond: MAXU
   tcell 1 cells u> 
@@ -2537,20 +2547,30 @@ Cond: DOES>
 \ DO: ;DO                                               11may93jaw
 \ changed to ?EXIT                                      10may93jaw
 
-: DO:     ( -- ghost [xt] [colon-sys] )
+: DO:     ( -- do-ghost [xt] [colon-sys] )
   here ghostheader
   :noname postpone gdoes> ( postpone ?EXIT ) ;
 
-: by:     ( -- ghost [xt] [colon-sys] ) \ name
+: by:     ( -- do-ghost [xt] [colon-sys] ) \ name
   Ghost
   :noname postpone gdoes> ( postpone ?EXIT ) ;
 
-: ;DO ( ghost [xt] [colon-sys] -- addr )
+: ;DO ( do-ghost [xt] [colon-sys] -- do-ghost )
   postpone ;    ( S addr xt )
   over >exec ! ; immediate
 
-: by      ( -- addr ) \ Name
+: by      ( -- do-ghost ) \ Name
   Ghost >do:ghost @ ;
+
+: compile: ( do-ghost -- do-ghost [xt] [colon-sys] )
+\G defines a compile time action for created words
+\G by this builder
+  :noname ;
+
+: ;compile ( do-ghost [xt] [colon-sys] -- do-ghost )
+  postpone ;  over >comp ! ; immediate
+
+
 
 >TARGET
 \ Variables and Constants                              05dec92py
