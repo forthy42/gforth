@@ -616,7 +616,6 @@ Defer dobacktrace ( -- )
     cell +LOOP
     .error-frame
   LOOP
-  cr ." Error: " .error-string
   dobacktrace
   normal-dp dpp ! ;
 
