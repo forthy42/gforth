@@ -1684,7 +1684,7 @@ previous
 
 : (cm) ( -- addr )
     T here align H
-    -1 colon, ;					' (cm) plugin-of colonmark,
+    -1 prim, ;					' (cm) plugin-of colonmark,
 
 >TARGET
 : compile, ( xt -- )
@@ -2468,8 +2468,7 @@ Cond: DOES>
 \ do:-xt is executed when the created word from builder is executed
 \ for do:-xt an additional entry after the normal ghost-entrys is used
 
-  ghost 		( Create-xt do-ghost ghost )
-  to built 
+  ghost to built 
   built >created @ 0= IF
     built >created on
     ['] prim-resolved built >comp ! 
@@ -2500,6 +2499,8 @@ Cond: DOES>
    \ so predefined semantics e.g. for ....
    \ FIXME: find an example in the normal kernel!!!
    2dup >exec @ swap >exec2 ! 
+\   cr ." XXX" over .ghost
+\   dup >comp @ xt-see
    >comp @ swap >comp ! ;
 \ old version of this:
 \  >exec dup @ ['] NoExec = 
@@ -2565,19 +2566,17 @@ Cond: DOES>
 : ;DO ( [xt] [colon-sys] -- )
   postpone ; doexec! ; immediate
 
-: by      ( -- do-ghost ) \ Name
+: by      ( -- ) \ Name
   Ghost >do:ghost @ do:ghost! ;
 
-: compile: ( do-ghost -- do-ghost [xt] [colon-sys] )
+: compile: ( --[xt] [colon-sys] )
 \G defines a compile time action for created words
 \G by this builder
   :noname ;
 
-: ;compile ( do-ghost [xt] [colon-sys] -- do-ghost )
-  postpone ;  built >do:ghost @ >comp ! ; immediate
+: ;compile ( [xt] [colon-sys] -- )
+  postpone ; built >do:ghost @ >comp ! ; immediate
 
-
->TARGET
 \ Variables and Constants                              05dec92py
 
 Builder (Constant)
@@ -2629,8 +2628,6 @@ by Create
 
 \ User variables                                       04may94py
 
->CROSS
-
 Variable tup  0 tup !
 Variable tudp 0 tudp !
 
@@ -2641,8 +2638,6 @@ Variable tudp 0 tudp !
 : au, ( n -- udp )
   tup @ tudp @ + T A! H
   tudp @ dup T cell+ H tudp ! ;
-
->TARGET
 
 Builder User
 Build: 0 u, X , ;Build
@@ -2680,11 +2675,10 @@ DO: ( ghost -- ) ABORT" CROSS: Don't execute" ;DO
 
 \ Sturctures                                           23feb95py
 
->CROSS
 : nalign ( addr1 n -- addr2 )
 \ addr2 is the aligned version of addr1 wrt the alignment size n
  1- tuck +  swap invert and ;
->TARGET
+
 
 Builder (Field)
 Build: ;Build
@@ -2696,11 +2690,13 @@ Build: ( align1 offset1 align size "name" --  align2 offset2 )
     + >r nalign r> ;Build
 by (Field)
 
+>TARGET
 : struct  T 1 chars 0 H ;
 : end-struct  T 2Constant H ;
 
 : cell% ( n -- size align )
     T 1 cells H dup ;
+>CROSS
 
 \ Input-Methods                                            01py
 
@@ -2726,10 +2722,16 @@ DO:  abort" Not in cross mode" ;DO
 
 T has? peephole H [IF]
 
-: (cc) compile call T >body a, H ;		' (cc) IS colon,
+>CROSS
+: (callc) compile call T >body a, H ;		' (callc) plugin-of colon,
+
+\ if we want this, we have to spilt aconstant
+\ and constant!!
+\ Builder (Constant)
+\ compile: g>body X @ lit, ;compile
 
 Builder (Constant)
-compile: g>body X @ lit, ;compile
+compile: g>body alit, compile @ ;compile
 
 Builder (Value)
 compile: g>body alit, compile @ ;compile
@@ -3268,8 +3270,8 @@ Variable outfile-fd
 \ \ [IF] [ELSE] [THEN] ...				14sep97jaw
 
 \ it is useful to define our own structures and not to rely
-\ on the words in the compiler
-\ The words in the compiler might be defined with vocabularies
+\ on the words in the host system
+\ The words in the host system might be defined with vocabularies
 \ this doesn't work with our self-made compile-loop
 
 Create parsed 20 chars allot	\ store word we parsed
