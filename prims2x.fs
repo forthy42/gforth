@@ -590,15 +590,16 @@ s" IP" save-mem w s" error don't use # on results" make-stack inst-stream
     ." NEXT_P1;" cr
     stores
     fill-tos
-    ." NEXT_P2;" cr ;
+    ." NEXT_P2;" ;
 
-: type-c ( c-addr u -- )
-    \ like TYPE, but replaces "TAIL;" with tail code
+: type-c-code ( c-addr u xt -- )
+    \ like TYPE, but replaces "TAIL;" with tail code produced by xt
+    { xt }
     begin ( c-addr1 u1 )
 	2dup s" TAIL;" search
     while ( c-addr1 u1 c-addr3 u3 )
 	2dup 2>r drop nip over - type
-	output-c-tail
+	xt execute
 	2r> 5 /string
 	\ !! resync #line missing
     repeat
@@ -634,7 +635,7 @@ s" IP" save-mem w s" error don't use # on results" make-stack inst-stream
  stack-pointer-updates
  ." {" cr
  ." #line " c-line @ . quote c-filename 2@ type quote cr
- prim prim-c-code 2@ type-c
+ prim prim-c-code 2@ ['] output-c-tail type-c-code
  ." }" cr
  output-c-tail
  ." }" cr
@@ -922,8 +923,14 @@ s" IP" save-mem w s" error don't use # on results" make-stack inst-stream
     fetches ;
 
 : part-output-c-tail ( -- )
-    stores
-    fill-tos ;
+    stores ;
+
+: output-combined-tail ( -- )
+    part-output-c-tail
+    prim >r combined to prim
+    in-part @ >r in-part off
+    output-c-tail
+    r> in-part ! r> to prim ;
 
 : output-part ( p -- )
     to prim
@@ -936,7 +943,7 @@ s" IP" save-mem w s" error don't use # on results" make-stack inst-stream
     prim add-depths \ !! right place?
     ." {" cr
     ." #line " c-line @ . quote c-filename 2@ type quote cr
-    prim prim-c-code 2@ type-c \ !! deal with TAIL
+    prim prim-c-code 2@ ['] output-combined-tail type-c-code
     ." }" cr
     part-output-c-tail
     ." }" cr ;
