@@ -894,7 +894,7 @@ void compile_prim1(Cell *start)
   }
   assert(priminfos[i].start = prim); 
 #ifdef ALIGN_CODE
-  ALIGN_CODE;
+  /*  ALIGN_CODE;*/
 #endif
   assert(prim==priminfos[i].start);
   old_code_here = append_prim(i);
@@ -1228,18 +1228,6 @@ SIZE arguments consist of an integer followed by a unit. The unit can be\n\
 extern Cell image[];
 extern const char reloc_bits[];
 #endif
-
-DCell double2ll(Float r)
-{
-#ifndef BUGGY_LONG_LONG
-  return (DCell)(r);
-#else
-  DCell d;
-  d.hi = ldexp(r,-(int)(CELL_BITS)) - (r<0);
-  d.lo = r-ldexp((Float)d.hi,CELL_BITS);
-  return d;
-#endif
-}
 
 int main(int argc, char **argv, char **env)
 {

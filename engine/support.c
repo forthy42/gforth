@@ -27,6 +27,7 @@
 #include <unistd.h>
 #include <pwd.h>
 #include <dirent.h>
+#include <math.h>
 
 #ifdef HAS_FILE
 char *cstr(Char *from, UCell size, int clear)
@@ -128,4 +129,22 @@ Xt *primtable(Label symbols[], Cell size)
   for (i=0; i<size; i++)
     xts[i] = &symbols[i];
   return xts;
+}
+
+DCell double2ll(Float r)
+{
+#ifndef BUGGY_LONG_LONG
+  return (DCell)(r);
+#else
+  double ldexp(double x, int exp);
+  DCell d;
+  if (r<0) {
+    d.hi = ldexp(-r,-(int)(CELL_BITS));
+    d.lo = (-r)-ldexp((Float)d.hi,CELL_BITS);
+    return dnegate(d);
+  }
+  d.hi = ldexp(r,-(int)(CELL_BITS));
+  d.lo = r-ldexp((Float)d.hi,CELL_BITS);
+  return d;
+#endif
 }

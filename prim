@@ -1941,7 +1941,11 @@ comparisons(f0, r, f_zero_, r, 0., float, gforth, float, gforth)
 d>f	( d -- r )		float	d_to_f
 #ifdef BUGGY_LONG_LONG
 extern double ldexp(double x, int exp);
-r = ldexp((Float)d.hi,CELL_BITS) + (Float)d.lo;
+if (d.hi<0) {
+  DCell d2=dnegate(d);
+  r = -(ldexp((Float)d2.hi,CELL_BITS) + (Float)d2.lo);
+} else
+  r = ldexp((Float)d.hi,CELL_BITS) + (Float)d.lo;
 #else
 r = d;
 #endif
