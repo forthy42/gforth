@@ -2211,7 +2211,7 @@ Builder Field
 : cell% ( n -- size align )
     T 1 cells H dup ;
 
-Build: ( m v -- m' v )  dup T , H cell+ ;
+Build: ( m v -- m' v )  dup T , cell+ H ;
 DO:  abort" Not in cross mode" ;DO
 Builder input-method
 
