@@ -37,6 +37,8 @@
 \ header, NAME>STRING must convert that pointer to a string, and
 \ HEADER must be a deferred word that is called to create the name.
 
+include extend.fs
+
 : tags-file-name ( -- c-addr u )
     \ for now I use just TAGS; this may become more flexible in the
     \ future

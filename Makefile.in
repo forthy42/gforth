@@ -167,7 +167,7 @@ GEN = gforth version.fs
 OBJECTS	= engine.o io.o main.o memcasecmp.o @LIBOBJS@ @getopt_long@
 
 # things that need a working forth system to be generated
-FORTH_GEN0 = primitives.b primitives.i prim_labels.i aliases.fs
+FORTH_GEN0 = primitives.b primitives.i prim_labels.i aliases.fs primitives.fs
 FORTH_GEN =  $(FORTH_GEN0) @KERNEL@ gforth.fi
 # this is used for antidependences,
 FORTH_GEN1 = $(FORTH_GEN0) @kernel_fi@ 
@@ -203,7 +203,7 @@ version.fs:	version-stamp
 		$(MAKE) gforth
 		echo ": version-string s\" $(VERSION)\" ;" >$@
 
-more:	$(FORTH_GEN) gforth
+more:	$(OBJECTS) $(FORTH_GEN) gforth
 
 #from the gcc Makefile: 
 #"Deletion of files made during compilation.
@@ -309,13 +309,14 @@ install:	gforth $(FORTH_SRC) kernel.fi gforth.fi gforth.1 primitives gforth.TAGS
 		-$(RM) $(bindir)/gforth $(bindir)/gforth-$(VERSION)
 		$(INSTALL_PROGRAM) -s gforth $(bindir)
 		ln $(bindir)/gforth $(bindir)/gforth-$(VERSION)
-		$(INSTALL_DATA) $(srcdir)/gforth.1 $(man1dir)
-		for i in $(srcdir)/gforth.info*; do $(INSTALL_DATA) $$i $(infodir); done
+		-$(INSTALL_DATA) $(srcdir)/gforth.1 $(man1dir)
+		-for i in $(srcdir)/gforth.info*; do $(INSTALL_DATA) $$i $(infodir); done
 		for i in $(FORTH_SRC) primitives; do \
 			$(INSTALL_DATA) $(srcdir)/$$i $(datadir)/gforth/$(VERSION); \
 		done
 		$(INSTALL_DATA) kernel.fi $(libdir)/gforth/$(VERSION)
 		$(RM) gforth.fi; $(MAKE) gforth.fi #gforth.fi contains some path names
+		$(INSTALL_DATA) gforth.fi $(libdir)/gforth/$(VERSION)
 		sed s:^$(srcdir)/:$(datadir)/gforth/$(VERSION)/: gforth.TAGS >TAGS; $(INSTALL_DATA) TAGS $(datadir)/gforth/$(VERSION)
 		if test -d $(emacssitelispdir); then \
 			$(INSTALL_DATA) $(srcdir)/gforth.el $(emacssitelispdir); \
@@ -356,53 +357,13 @@ gforth:		$(OBJECTS)
 		$(GCC) $(LDFLAGS) $(OBJECTS) $(LDLIBS) -o $@
 		@MAKE_EXE@
 
-kernl16l.fi-:	$(KERN_SRC) version.fs mach16l.fs $(FORTH_GEN0)
-		$(FORTHK) -e 's" mach16l.fs"' main.fs -e "save-cross kernl16l.fi- $(bindir)/gforth-$(VERSION) bye"
+kernl%.fi-:	mach%.fs $(KERN_SRC) version.fs $(FORTH_GEN0)
+		$(FORTHK) -e 's" $<"' main.fs -e "save-cross $@ $(bindir)/gforth-$(VERSION) bye"
 
-kernl16b.fi-:	$(KERN_SRC) version.fs mach16b.fs $(FORTH_GEN0)
-		$(FORTHK) -e 's" mach16b.fs"' main.fs -e "save-cross kernl16b.fi- $(bindir)/gforth-$(VERSION) bye"
-
-kernl32l.fi-:	$(KERN_SRC) version.fs mach32l.fs $(FORTH_GEN0)
-		$(FORTHK) -e 's" mach32l.fs"' main.fs -e "save-cross kernl32l.fi- $(bindir)/gforth-$(VERSION) bye"
-
-kernl32b.fi-:	$(KERN_SRC) version.fs mach32b.fs $(FORTH_GEN0)
-		$(FORTHK) -e 's" mach32b.fs"' main.fs -e "save-cross kernl32b.fi- $(bindir)/gforth-$(VERSION) bye"
-
-kernl64l.fi-:	$(KERN_SRC) version.fs mach64l.fs $(FORTH_GEN0)
-		$(FORTHK) -e 's" mach64l.fs"' main.fs -e "save-cross kernl64l.fi- $(bindir)/gforth-$(VERSION) bye"
-
-kernl64b.fi-:	$(KERN_SRC) version.fs mach64b.fs $(FORTH_GEN0)
-		$(FORTHK) -e 's" mach64b.fs"' main.fs -e "save-cross kernl64b.fi- $(bindir)/gforth-$(VERSION) bye"
-
-kernl16b.fi:	$(KERNLS)
-		-$(CP) kernl16b.fi kernl16b.fi~
-		-$(CP) kernl16b.fi- kernl16b.fi
-		@LINK_KERNL16B@
-
-kernl16l.fi:	$(KERNLS)
-		-$(CP) kernl16l.fi kernl16l.fi~
-		-$(CP) kernl16l.fi- kernl16l.fi
-		@LINK_KERNL16L@
-
-kernl32b.fi:	$(KERNLS)
-		-$(CP) kernl32b.fi kernl32b.fi~
-		-$(CP) kernl32b.fi- kernl32b.fi
-		@LINK_KERNL32B@
-
-kernl32l.fi:	$(KERNLS)
-		-$(CP) kernl32l.fi kernl32l.fi~
-		-$(CP) kernl32l.fi- kernl32l.fi
-		@LINK_KERNL32L@
-
-kernl64b.fi:	$(KERNLS)
-		-$(CP) kernl64b.fi kernl64b.fi~
-		-$(CP) kernl64b.fi- kernl64b.fi
-		@LINK_KERNL64B@
-
-kernl64l.fi:	$(KERNLS)
-		-$(CP) kernl64l.fi kernl64l.fi~
-		-$(CP) kernl64l.fi- kernl64l.fi
-		@LINK_KERNL64L@
+kernl%.fi:	kernl%.fi- $(KERNLS)
+		-$(CP) $@ $@~
+		-$(CP) $< $@
+		@LINK_KERNL@
 
 gforth.fi:	@kernel_fi@ gforth $(GFORTH_FI_SRC)
 		$(FORTHK) --clear-dictionary $(FORTHSIZES) startup.fs -e "savesystem gforth.fi1 bye"
@@ -442,8 +403,9 @@ aliases.fs:	primitives.b prims2x.fs aliases0.fs
 		$(CP) aliases0.fs aliases.fs
 		$(FORTHK) prims2x.fs -e "s\" primitives.b\" ' output-alias process-file bye" >>$@
 
-primitives.fs:	primitives.b prims2x.fs
-		$(FORTHK) prims2x.fs -e "s\" primitives.b\" ' output-forth process-file bye" >$@
+primitives.fs:	primitives.b prims2x.fs aliases0.fs
+		$(CP) aliases0.fs primitives.fs
+		$(FORTHK) prims2x.fs -e "s\" primitives.b\" ' output-forth process-file bye" >>$@
 
 primitives.TAGS: primitives.b prims2x.fs
 		$(FORTHK) prims2x.fs -e "s\" $(srcdir)/primitives.b\" ' output-tag process-file bye" >$@

@@ -91,9 +91,20 @@ H
 
 >CROSS
 
+\ Parameter for target systems                         06oct92py
+
+mach-file count included
+
+also Forth definitions
+
+[IFDEF] asm-include asm-include [THEN]
+
+previous
+
+>CROSS
+
 \ Variables                                            06oct92py
 
--1 Constant NIL
 Variable image
 Variable tlast    NIL tlast !  \ Last name field
 Variable tlastcfa \ Last code field
@@ -101,10 +112,6 @@ Variable tdoes    \ Resolve does> calls
 Variable bit$
 Variable tdp
 : there  tdp @ ;
-
-\ Parameter for target systems                         06oct92py
-
-mach-file count included
 
 \ Create additional parameters                         19jan95py
 
@@ -187,7 +194,7 @@ CREATE Bittable 80 c, 40 c, 20 c, 10 c, 8 c, 4 c, 2 c, 1 c,
     cell tuck 1- and - [ cell 1- ] Literal and ;
 : cfalign+  ( taddr -- rest )
     \ see kernel.fs:cfaligned
-    float tuck 1- and - [ float 1- ] Literal and ;
+    /maxalign tuck 1- and - [ /maxalign 1- ] Literal and ;
 
 >TARGET
 : aligned ( taddr -- ta-addr )  dup align+ + ;
@@ -250,7 +257,9 @@ Variable atonce atonce off
 
 : GhostHeader <fwd> , 0 , ['] NoExec , ;
 
-: >magic ; : >link cell+ ; : >exec cell+ cell+ ;
+: >magic ;
+: >link cell+ ;
+: >exec cell+ cell+ ;
 : >end 3 cells + ;
 
 Variable last-ghost
@@ -424,11 +433,27 @@ Create tag-bof 1 c,  0C c,
 	base !
     THEN ;
 
+\ Check for words
+
+Defer skip? ' false IS skip?
+
+: defined? ( -- flag ) \ name
+    ghost >magic @ <fwd> <> ;
+
+: needed? ( -- flag ) \ name
+    ghost dup >magic @ <fwd> =
+    IF  >link @ 0<>  ELSE  drop false  THEN ;
+
+: skip-defs ( -- )
+    BEGIN  refill  WHILE  source -trailing nip 0= UNTIL  THEN ;
+
 \ Target header creation
 
 VARIABLE CreateFlag CreateFlag off
 
-: (Theader ( "name" -- ghost ) T align H view,
+: (Theader ( "name" -- ghost )
+\  >in @ bl word count type 2 spaces >in !
+  T align H view,
   tlast @ dup 0> IF  T 1 cells - THEN  A, H  there tlast !
   >in @ name, >in ! T here H tlastcfa !
   CreateFlag @ IF
@@ -450,9 +475,19 @@ VARIABLE ;Resolve 1 cells allot
 
 >TARGET
 : Alias    ( cfa -- ) \ name
-  (THeader over resolve T A, H 80 flag! ;
+    >in @ skip? IF  2drop  EXIT  THEN  >in !
+    dup 0< has-prims 0= and
+    IF
+	." needs prim: " >in @ bl word count type >in ! cr
+    THEN
+    (THeader over resolve T A, H 80 flag! ;
 : Alias:   ( cfa -- ) \ name
-  ghost tuck swap resolve <do:> swap >magic ! ;
+    >in @ skip? IF  2drop  EXIT  THEN  >in !
+    dup 0< has-prims 0= and
+    IF
+	." needs doer: " >in @ bl word count type >in ! cr
+    THEN
+    ghost tuck swap resolve <do:> swap >magic ! ;
 >CROSS
 
 \ Conditionals and Comments                            11may93jaw
@@ -506,7 +541,26 @@ ghost :docol    ghost :doesjump ghost :dodoes   2drop drop
 
 : dodoes, ( -- ) compile :doesjump T 0 , H ;
 
+[IFUNDEF] (code) 
+Defer (code)
+Defer (end-code)
+[THEN]
+
 >TARGET
+: Code
+    (THeader there resolve
+    there 2 T cells H + T a, 0 , H
+    depth (code) ;
+
+: Code:
+    ghost dup there resolve  <do:> swap >magic !
+    depth (code) ;
+
+: end-code
+    depth ?dup IF   1- <> ABORT" CROSS: Stack changed"
+    ELSE true ABORT" CROSS: Stack empty" THEN
+    (end-code) ;
+               
 : '  ( -- cfa ) bl word gfind 0= ABORT" CROSS: undefined "
   dup >magic @ <fwd> = ABORT" CROSS: forward " >link @ ;
 
@@ -528,6 +582,30 @@ Cond: ALiteral ( n -- )   restrict? alit, ;Cond
 
 : Char ( "<char>" -- )  bl word char+ c@ ;
 Cond: [Char]   ( "<char>" -- )  restrict? Char  lit, ;Cond
+
+\ some special literals					27jan97jaw
+
+Cond: MAXU
+ restrict? compile lit 
+ tcell 0 ?DO FF T c, H LOOP ;Cond
+
+Cond: MINI
+ restrict? compile lit
+ bigendian IF
+ 80 T c, H tcell 1 ?DO 0 T c, H LOOP 
+ ELSE
+ tcell 1 ?DO 0 T c, H LOOP 80 T c, H
+ THEN
+ ;Cond
+ 
+Cond: MAXI
+ restrict? compile lit
+ bigendian IF
+ 7F T c, H tcell 1 ?DO FF T c, H LOOP 
+ ELSE
+ tcell 1 ?DO FF T c, H LOOP 7F T c, H
+ THEN
+ ;Cond
 
 >CROSS
 \ Target compiling loop                                12dec92py
@@ -561,6 +639,7 @@ Cond: [Char]   ( "<char>" -- )  restrict? Char  lit, ;Cond
 \             is not allowed if a system should be ans conform
 
 : : ( -- colon-sys ) \ Name
+  >in @ skip? IF  drop skip-defs  EXIT  THEN  >in !
   (THeader ;Resolve ! there ;Resolve cell+ !
   docol, depth T ] H ;
 
@@ -840,14 +919,14 @@ also minimal
 
 \ define new [IFDEF] and [IFUNDEF]                      20may93jaw
 
-: there? bl word gfind IF >magic @ <fwd> <> ELSE drop false THEN ;
+: defined? defined? ;
 
-: [IFDEF] there? postpone [IF] ;
-: [IFUNDEF] there? 0= postpone [IF] ;
+: [IFDEF] defined? postpone [IF] ;
+: [IFUNDEF] defined? 0= postpone [IF] ;
 
 \ C: \- \+ Conditional Compiling                         09jun93jaw
 
-: C: >in @ there? 0=
+: C: >in @ defined? 0=
      IF    >in ! T : H
      ELSE drop
         BEGIN bl word dup c@
@@ -859,8 +938,8 @@ also minimal
 
 also minimal
 
-: \- there? IF postpone \ THEN ;
-: \+ there? 0= IF postpone \ THEN ;
+: \- defined? IF postpone \ THEN ;
+: \+ defined? 0= IF postpone \ THEN ;
 
 : [IF]   postpone [IF] ;
 : [THEN] postpone [THEN] ;
@@ -889,37 +968,54 @@ char 1 bigendian + cell + magic 7 + c!
 : save-cross ( "image-name" "binary-name" -- )
   bl parse ." Saving to " 2dup type cr
   w/o bin create-file throw >r
-  s" #! "  r@ write-file throw
-  bl parse r@ write-file throw
-  s"  -i"  r@ write-file throw
-  #lf      r@ emit-file throw
-  r@ dup file-position throw drop 8 mod 8 swap ( file-id limit index )
-  ?do
-      bl over emit-file throw
-  loop
-  drop
-  magic 8       r@ write-file throw \ write magic
+  NIL IF
+      s" #! "   r@ write-file throw
+      bl parse  r@ write-file throw
+      s"  -i"   r@ write-file throw
+      #lf       r@ emit-file throw
+      r@ dup file-position throw drop 8 mod 8 swap ( file-id limit index )
+      ?do
+	  bl over emit-file throw
+      loop
+      drop
+      magic 8       r@ write-file throw \ write magic
+  ELSE
+      bl parse 2drop
+  THEN
   image @ there r@ write-file throw \ write image
-  bit$  @ there 1- cell>bit rshift 1+
+  NIL IF
+      bit$  @ there 1- cell>bit rshift 1+
                 r@ write-file throw \ write tags
+  THEN
   r> close-file throw ;
 
 \ words that should be in minimal
 
-: + + ;         : 1- 1- ;
-: - - ;         : 2* 2* ;
-: * * ;         : / / ;
-: dup dup ;     : over over ;
-: swap swap ;   : rot rot ;
-: drop drop ;   : =   = ;
-: lshift lshift ; : 2/ 2/ ;
+: here there ;
+also forth [IFDEF] Label : Label Label ; [THEN] previous
+: + + ;
+: or or ;
+: 1- 1- ;
+: - - ;
+: 2* 2* ;
+: * * ;
+: / / ;
+: dup dup ;
+: over over ;
+: swap swap ;
+: rot rot ;
+: drop drop ;
+: =   = ;
+: 0=   0= ;
+: lshift lshift ;
+: 2/ 2/ ;
 : . . ;
-\ cell constant cell
 
 mach-file count included
 
-\ include bug5.fs
-\ only forth also minimal definitions
+: all-words    ['] false    IS skip? ;
+: needed-words ['] needed?  IS skip? ;
+: undef-words  ['] defined? IS skip? ;
 
 : \  postpone \ ;  immediate
 : (  postpone ( ;  immediate

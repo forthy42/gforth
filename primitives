@@ -176,6 +176,8 @@ if (f==0) {
 \ we don't need an lp_plus_store version of the ?dup-stuff, because it
 \ is only used in if's (yet)
 
+\+has-xconds [IF]
+
 ?dup-?branch	f -- f	new	question_dupe_question_branch
 ""The run-time procedure compiled by @code{?DUP-IF}.""
 if (f==0) {
@@ -202,6 +204,8 @@ if (f!=0) {
 }
 else
   INC_IP(1);
+
+\+[THEN]
 
 condbranch((next),--		cmFORTH	paren_next,
 if ((*rp)--) {
@@ -241,6 +245,8 @@ if ((olddiff^(olddiff+n))>=0   /* the limit is not crossed */
  IF    >r + >r dup @ + >r
  ELSE  >r >r drop cell+ >r THEN ;)
 
+\+has-xconds [IF]
+
 condbranch((-loop),u --		gforth	paren_minus_loop,
 /* !! check this thoroughly */
 Cell index = *rp;
@@ -275,6 +281,8 @@ if (diff>=0 || newdiff<0) {
     IF_TOS(TOS = sp[0]);
 ,)
 
+\+[THEN]
+
 unloop		--	core
 rp += 2;
 :
@@ -305,14 +313,12 @@ else {
     INC_IP(1);
 }
 :
- swap 2dup
- r> swap >r swap >r
- =
- IF
-     dup @ +
- ELSE
-     cell+
- THEN  >r ;
+  2dup =
+  IF   r> swap rot >r >r
+       dup @ + >r
+  ELSE r> swap rot >r >r
+       cell+ >r
+  THEN ;				\ --> CORE-EXT
 
 (+do)	nlimit nstart --	gforth	paren_plus_do
 *--rp = nlimit;
@@ -411,23 +417,6 @@ n = rp[2];
  rp@ cell+ cell+ cell+ @ ;
 
 \ digit is high-level: 0/0%
-
-(key)	-- n		gforth	paren_key
-fflush(stdout);
-/* !! noecho */
-n = key();
-
-key?	-- n		facility	key_q
-fflush(stdout);
-n = key_query;
-
-form	-- urows ucols	gforth
-""The number of lines and columns in the terminal. These numbers may change
-with the window size.""
-/* we could block SIGWINCH here to get a consistent size, but I don't
- think this is necessary or always beneficial */
-urows=rows;
-ucols=cols;
 
 move	c_from c_to ucount --		core
 memmove(c_to,c_from,ucount);
@@ -676,7 +665,7 @@ ud = (UDCell)u1 * (UDCell)u2;
        r> 2* r> swap
    LOOP 2drop ;
 : d2*+ ( ud n -- ud+n c )
-       over U-HIGHBIT
+       over MINI
        and >r >r 2dup d+ swap r> + swap r> ;
 
 um/mod	ud u1 -- u2 u3		core	u_m_slash_mod
@@ -772,29 +761,62 @@ w2 = ~w1;
 
 rshift	u1 n -- u2		core
   u2 = u1>>n;
+:
+    0 ?DO 2/ MAXI and LOOP ;
 
 lshift	u1 n -- u2		core
   u2 = u1<<n;
+:
+    0 ?DO 2* LOOP ;
 
 \ comparisons(prefix, args, prefix, arg1, arg2, wordsets...)
 define(comparisons,
 $1=	$2 -- f		$6	$3equals
 f = FLAG($4==$5);
+:
+    [ char $1x char 0 = [IF]
+	] IF false ELSE true THEN [
+    [ELSE]
+	] xor 0= [
+    [THEN] ] ;
 
 $1<>	$2 -- f		$7	$3different
 f = FLAG($4!=$5);
+:
+    [ char $1x char 0 = [IF]
+	] IF true ELSE false THEN [
+    [ELSE]
+	] xor 0<> [
+    [THEN] ] ;
 
 $1<	$2 -- f		$8	$3less
 f = FLAG($4<$5);
+:
+    [ char $1x char 0 = [IF]
+	] MINI and 0<> [
+    [ELSE] char $1x char u = [IF]
+	]   2dup xor 0<  IF nip ELSE - THEN 0<  [
+	[ELSE]
+	    ] MINI xor >r MINI xor r> u< [
+	[THEN]
+    [THEN] ] ;
 
 $1>	$2 -- f		$9	$3greater
 f = FLAG($4>$5);
+:
+    [ char $1x char 0 = [IF] ] negate [ [ELSE] ] swap [ [THEN] ]
+    $1< ;
 
 $1<=	$2 -- f		gforth	$3less_or_equal
 f = FLAG($4<=$5);
+:
+    $1> 0= ;
 
 $1>=	$2 -- f		gforth	$3greater_or_equal
 f = FLAG($4>=$5);
+:
+    [ char $1x char 0 = [IF] ] negate [ [ELSE] ] swap [ [THEN] ]
+    $1<= ;
 
 )
 
@@ -848,9 +870,13 @@ f = FLAG($4>=$5);
 
 )
 
+\+has-dcomps [IF]
+
 dcomparisons(d, d1 d2, d_, d1, d2, double, gforth, double, gforth)
 dcomparisons(d0, d, d_zero_, d, DZERO, double, gforth, double, gforth)
 dcomparisons(du, ud1 ud2, d_u_, ud1, ud2, gforth, gforth, double-ext, gforth)
+
+\+[THEN]
 
 within	u1 u2 u3 -- f		core-ext
 f = FLAG(u1-u2 < u3-u2);
@@ -870,11 +896,15 @@ a_addr = rp;
 rp!	a_addr --		gforth		rpstore
 rp = a_addr;
 
+\+has-floats [IF]
+
 fp@	-- f_addr	gforth	fp_fetch
 f_addr = fp;
 
 fp!	f_addr --	gforth	fp_store
 fp = f_addr;
+
+\+[THEN]
 
 ;s	--		gforth	semis
 ip = (Xt *)(*rp++);
@@ -933,8 +963,12 @@ dup	w -- w w		core
 
 rot	w1 w2 w3 -- w2 w3 w1	core	rote
 :
- (swap) ! (rot) ! >r (rot) @ (swap) @ r> ;
+[ defined? (swap) [IF] ]
+    (swap) ! (rot) ! >r (rot) @ (swap) @ r> ;
 Variable (rot)
+[ELSE] ]
+    >r swap r> swap ;
+[THEN]
 
 -rot	w1 w2 w3 -- w3 w1 w2	gforth	not_rote
 :
@@ -1006,9 +1040,56 @@ w = *a_addr;
 
 c@	c_addr -- c		core	cfetch
 c = *c_addr;
+:
+[ bigendian [IF] ]
+    [ cell>bit 4 = [IF] ]
+	dup [ 0 cell - ] Literal and @ swap 1 and
+	IF  $FF and  ELSE  8>>  THEN  ;
+    [ [ELSE] ]
+	dup [ cell 1- ] literal and
+	tuck - @ swap [ cell 1- ] literal xor
+ 	0 ?DO 8>> LOOP $FF and
+    [ [THEN] ]
+[ [ELSE] ]
+    [ cell>bit 4 = [IF] ]
+	dup [ 0 cell - ] Literal and @ swap 1 and
+	IF  8>>  ELSE  $FF and  THEN
+    [ [ELSE] ]
+	dup [ cell  1- ] literal and 
+	tuck - @ swap
+	0 ?DO 8>> LOOP 255 and
+    [ [THEN] ]
+[ [THEN] ]
+;
+: 8>> 2/ 2/ 2/ 2/  2/ 2/ 2/ 2/ ;
 
 c!	c c_addr --		core	cstore
 *c_addr = c;
+:
+[ bigendian [IF] ]
+    [ cell>bit 4 = [IF] ]
+	tuck 1 and IF  $FF and  ELSE  8<<  THEN >r
+	dup -2 and @ over 1 and
+	IF  $FF00  ELSE  $FF  THEN  and r> or swap -2 and !
+    [ [ELSE] ]
+	dup [ cell 1- ] literal and dup 
+	[ cell 1- ] literal xor >r
+	- dup @ $FF r@ 0 ?DO 8<< LOOP invert and
+	rot $FF and r> 0 ?DO 8<< LOOP or swap !
+    [ [THEN] ]
+[ [ELSE] ]
+    [ cell>bit 4 = [IF] ]
+	tuck 1 and IF  8<<  ELSE  $FF and  THEN >r
+	dup -2 and @ over 1 and
+	IF  $FF  ELSE  $FF00  THEN  and r> or swap -2 and !
+    [ [ELSE] ]
+	dup [ cell 1- ] literal and dup >r
+	- dup @ $FF r@ 0 ?DO 8<< LOOP invert and
+	rot $FF and r> 0 ?DO 8<< LOOP or swap !
+    [ [THEN] ]
+[ [THEN] ]
+;
+: 8<< 2* 2* 2* 2*  2* 2* 2* 2* ;
 
 2!	w1 w2 a_addr --		core	two_store
 a_addr[0] = w2;
@@ -1025,17 +1106,17 @@ w1 = a_addr[1];
 cell+	a_addr1 -- a_addr2	core	cell_plus
 a_addr2 = a_addr1+1;
 :
- [ cell ] Literal + ;
+ cell + ;
 
 cells	n1 -- n2		core
 n2 = n1 * sizeof(Cell);
 :
- [ cell ]
- [ 2/ dup ] [IF] 2* [THEN]
- [ 2/ dup ] [IF] 2* [THEN]
- [ 2/ dup ] [IF] 2* [THEN]
- [ 2/ dup ] [IF] 2* [THEN]
- [ drop ] ;
+ [ cell
+ 2/ dup [IF] ] 2* [ [THEN]
+ 2/ dup [IF] ] 2* [ [THEN]
+ 2/ dup [IF] ] 2* [ [THEN]
+ 2/ dup [IF] ] 2* [ [THEN]
+ drop ] ;
 
 char+	c_addr1 -- c_addr2	core	care_plus
 c_addr2 = c_addr1 + 1;
@@ -1066,6 +1147,8 @@ f83name2=f83name1;
 	    IF  2drop r>  EXIT  THEN  THEN
 	r> @
  REPEAT  nip nip ;
+
+\+has-hash [IF]
 
 (hashfind)	c_addr u a_addr -- f83name2	new	paren_hashfind
 F83Name *f83name1;
@@ -1146,6 +1229,8 @@ Create rot-values
   7 c, 5 c, 5 c, 5 c, 5 c,  6 c, 5 c, 5 c, 5 c, 5 c,
   7 c, 5 c, 5 c,
 
+\+[THEN]
+
 (parse-white)	c_addr1 u1 -- c_addr2 u2	gforth	paren_parse_white
 /* use !isgraph instead of isspace? */
 Char *endp = c_addr1+u1;
@@ -1209,7 +1294,7 @@ is the start of the Forth code after DOES>""
 MAKE_DOES_CF(xt, a_addr);
 CACHE_FLUSH(xt,PFA(0));
 :
-    dodoes: over ! cell+ ! ;
+    ['] :dodoes over ! cell+ ! ;
 
 does-handler!	a_addr --	gforth	does_handler_store
 ""creates a DOES>-handler at address a_addr. a_addr usually points
@@ -1237,6 +1322,29 @@ n=1;
  1 ;
 
 \+has-os [IF]
+
+(key)	-- n		gforth	paren_key
+fflush(stdout);
+/* !! noecho */
+n = key();
+
+key?	-- n		facility	key_q
+fflush(stdout);
+n = key_query;
+
+stdout	-- wfileid	gforth
+wfileid = (Cell)stdout;
+
+stderr	-- wfileid	gforth
+wfileid = (Cell)stderr;
+
+form	-- urows ucols	gforth
+""The number of lines and columns in the terminal. These numbers may change
+with the window size.""
+/* we could block SIGWINCH here to get a consistent size, but I don't
+ think this is necessary or always beneficial */
+urows=rows;
+ucols=cols;
 
 flush-icache	c_addr u --	gforth	flush_icache
 ""Make sure that the instruction cache of the processor (if there is
@@ -1417,6 +1525,8 @@ else {
   u2=0;
 }
 
+\+[THEN]  has-files [IF] -1 [ELSE] has-os [THEN] [IF]
+
 write-file	c_addr u1 wfileid -- wior	file	write_file
 /* !! fwrite does not guarantee enough */
 {
@@ -1430,6 +1540,8 @@ emit-file	c wfileid -- wior	gforth	emit_file
 wior = FILEIO(putc(c, (FILE *)wfileid)==EOF);
 if (wior)
   clearerr((FILE *)wfileid);
+
+\+[THEN]  has-files [IF]
 
 flush-file	wfileid -- wior		file-ext	flush_file
 wior = IOR(fflush((FILE *) wfileid)==EOF);
@@ -1457,12 +1569,6 @@ else {
 	    access mode (r/o bin), so we get a decent error later upon open. */
   wior=0;
 }
-
-stdout	-- wfileid	gforth
-wfileid = (Cell)stdout;
-
-stderr	-- wfileid	gforth
-wfileid = (Cell)stderr;
 
 \+[THEN] ( has-files ) has-floats [IF]
 
@@ -1821,5 +1927,3 @@ lp -= sizeof(Float);
 
 up!	a_addr --	gforth	up_store
 up0=up=(char *)a_addr;
-:
- up ! ;

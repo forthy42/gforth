@@ -39,6 +39,7 @@ decimal
 
 cell 2 = [IF] 32 [ELSE] 256 [THEN] KB makekernel ( size )
 \ create image-header
+has-header [IF]
 0 A,	\ base address
 0 ,	\ checksum
 0 ,	\ image size (without tags)
@@ -55,6 +56,7 @@ cell 2 = [IF] 32 [ELSE] 256 [THEN] KB makekernel ( size )
 0 ,	\ fp stack base
 0 ,	\ return stack base
 0 ,	\ locals stack base
+[THEN]
 
 UNLOCK ghost - drop \ ghost must exist because - would be treated as number
 LOCK
@@ -63,7 +65,10 @@ doc-off
 has-prims [IF]
     include aliases.fs             \ include primitive aliases
 [ELSE]
+    prims-include
+    undef-words
     include primitives.fs
+    all-words
 [THEN]
 doc-on
 
@@ -73,9 +78,15 @@ include vars.fs                \ variables and other stuff
 include errore.fs
 include version.fs
 include kernel.fs              \ load kernel
+has-files [IF]
 include args.fs
 include files.fs               \ load file words
+[THEN]
+has-locals [IF]
 include conditionals.fs        \ load IF and co
+[ELSE]
+include conditionals-old.fs    \ load IF and co w/o locals
+[THEN]
 include tools.fs               \ load tools ( .s dump )
 include toolsext.fs
 
@@ -87,8 +98,12 @@ here normal-dp !
 tudp H @ minimal udp !
 decimal
 
+has-header [IF]
   here         2 cells !  \ image size
   ' boot >body 8 cells !  \ Entry point
+[ELSE]
+  >boot
+[THEN]
 
 UNLOCK Tlast @
 LOCK

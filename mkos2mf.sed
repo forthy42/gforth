@@ -39,12 +39,7 @@ s%-$(CP) gforth gforth~%-$(CP) gforth.exe gforth.exe~%g
 s%@MAKE_EXE@%\
 gforth:		gforth.exe%g
 s%@PATHSEP@%;%g
-s%@LINK_KERNL16L@%%g
-s%@LINK_KERNL16B@%%g
-s%@LINK_KERNL32L@%%g
-s%@LINK_KERNL32B@%%g
-s%@LINK_KERNL64L@%%g
-s%@LINK_KERNL64B@%%g
+s%@LINK_KERNL@%%g
 s%-DDEFAULTPATH=\\".*"%-DDEFAULTPATH=\\".\\"%g
 s%@KERNEL@%kernl16l.fi kernl16b.fi kernl32l.fi kernl32b.fi kernl64l.fi kernl64b.fi%g
 s%@LN_S@%ln -s%g

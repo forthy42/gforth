@@ -23,6 +23,7 @@
     5 Constant cell>bit
     8 Constant bits/byte
     8 Constant float
+    8 Constant /maxalign
  true Constant bigendian
 ( true=big, false=little )
 
@@ -33,13 +34,9 @@ true Constant NIL  \ relocating
 true Constant has-files 
 true Constant has-OS
 true Constant has-prims
-
-\ feature list
-
-true Constant NIL  \ relocating
-
-true Constant has-files 
-true Constant has-OS
-true Constant has-prims
 true Constant has-floats
 true Constant has-locals
+true Constant has-dcomps
+true Constant has-hash
+true Constant has-xconds
+true Constant has-header

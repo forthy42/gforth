@@ -73,6 +73,13 @@ variable line \ line number of char pointed to by input
 variable skipsynclines \ are sync lines ("#line ...") invisible to the parser?
 skipsynclines on 
 
+Variable flush-comment flush-comment off
+
+: ?flush-comment
+ flush-comment @ 0= ?EXIT
+ f-comment 2@ nip
+ IF  cr f-comment 2@ 2 /string type 0 0 f-comment 2! THEN ;
+
 : start ( -- addr )
  cookedinput @ ;
 
@@ -228,7 +235,7 @@ eof-char singleton					charclass eof
 nowhite ++
 <- name ( -- )
 
-(( {{ start }} ` \ nonl ** nl {{ end
+(( {{ ?flush-comment start }} ` \ nonl ** nl {{ end
       2dup 2 min s" \+" compare 0= IF  f-comment 2!  ELSE  2drop  THEN }}
 )) <- comment ( -- )
 
@@ -600,15 +607,13 @@ set-current
 : output-label ( -- )
  ." &&I_" c-name 2@ type ." ," cr ;
 
-: output-alias ( -- )
- f-comment 2@ nip
- IF  cr f-comment 2@ 2 /string type 0 0 f-comment 2! THEN
+: output-alias ( -- )  flush-comment on
+ ?flush-comment
  primitive-number @ . ." alias " forth-name 2@ type cr
  -1 primitive-number +! ;
 
-: output-forth ( -- )
- f-comment 2@ 2 min s" \+" compare 0=
- IF  cr f-comment 2@ 2 /string type 0 0 f-comment 2! THEN
+: output-forth ( -- )  flush-comment on
+ ?flush-comment
  forth-code @ 0=
  IF    output-alias
  ELSE  ." : " forth-name 2@ type ."   ( "

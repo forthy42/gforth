@@ -44,7 +44,6 @@ FF Constant /line
 
 \ User variables                                       13feb93py
 
-0 Value outfile-id ( -- file-id ) \ gforth
 \ initialized by COLD
 
 Create main-task  100 cells allot

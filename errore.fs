@@ -43,6 +43,7 @@ decimal
 	IF 2 cells + count type drop exit THEN
     REPEAT
     drop
+[ has-os [IF] ]
     dup -511 -255 within
     IF
 	256 + negate strsignal type exit
@@ -51,5 +52,6 @@ decimal
     IF
 	512 + negate strerror type exit
     THEN
+[ [THEN] ]
     . ;
 

@@ -187,24 +187,14 @@ AC_DEFINE_UNQUOTED(PATHSEP,'$PATHSEP')
 AC_SUBST(FORTHSIZES)
 
 dnl copy commands for systems that don't have links
-AC_SUBST(LINK_KERNL16L)
-LINK_KERNL16L=""
-AC_SUBST(LINK_KERNL16B)
-LINK_KERNL16B=""
-AC_SUBST(LINK_KERNL32L)
-LINK_KERNL32L=""
-AC_SUBST(LINK_KERNL32B)
-LINK_KERNL32B=""
-AC_SUBST(LINK_KERNL64L)
-LINK_KERNL64L=""
-AC_SUBST(LINK_KERNL64B)
-LINK_KERNL64B=""
+AC_SUBST(LINK_KERNL)
+LINK_KERNL=""
 
 #if test $host_os=dos
 #then
 #  echo Configuring for DOS!!!
 #  MAKE_EXE="coff2exe gforth"
-#  LINK_KERNL32L='$(CP) kernl32l.fi kernel.fi'
+#  LINK_KERNL='$(CP) kernl32l.fi kernel.fi'
 #fi
 
 dnl the following macro produces a warning with autoconf-2.1

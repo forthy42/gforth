@@ -27,12 +27,7 @@ s%@LIBS@%-lm -lpc%g
 s%@prefix@%%g
 s%@exec_prefix@%%g
 s%@srcdir@%.%g
-s%@LINK_KERNL16B@%%g
-s%@LINK_KERNL16L@%%g
-s%@LINK_KERNL32B@%%g
-s%@LINK_KERNL32L@%-$(CP) kernl32l.fi kernel.fi%g
-s%@LINK_KERNL64B@%%g
-s%@LINK_KERNL64L@%%g
+s%@LINK_KERNL@%-$(CP) kernl32l.fi kernel.fi%g
 s%@PATHSEP@%;%g
 s%-fforce-mem -fforce-addr %%g
 s%echo "static char gforth_version.*;" >$@%$(CP) VERSION.H1 version.h%g

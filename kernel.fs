@@ -96,8 +96,14 @@ NIL AConstant NIL \ gforth
     LOOP ;
 
 \ !! this is machine-dependent, but works on all but the strangest machines
-' faligned Alias maxaligned ( addr1 -- addr2 ) \ gforth
-' falign Alias maxalign ( -- ) \ gforth
+
+: maxaligned ( addr -- f-addr ) \ float
+    [ /maxalign 1 - ] Literal + [ 0 /maxalign - ] Literal and ;
+: maxalign ( -- ) \ float
+    here dup maxaligned swap
+    ?DO
+	bl c,
+    LOOP ;
 
 \ !! machine-dependent and won't work if "0 >body" <> "0 >body maxaligned"
 ' maxaligned Alias cfaligned ( addr1 -- addr2 ) \ gforth
@@ -407,7 +413,7 @@ hex
 
 : #s      ( +d -- 0 0 ) \ core	number-sign-s
     BEGIN
-	# 2dup d0=
+	# 2dup or 0=
     UNTIL ;
 
 \ print numbers                                        07jun92py
@@ -440,12 +446,13 @@ hex
 \ !! allow the user to add rollback actions    anton
 \ !! use a separate exception stack?           anton
 
+has-locals [IF]
 : lp@ ( -- addr ) \ gforth	l-p-fetch
  laddr# [ 0 , ] ;
+[THEN]
 
 Defer 'catch
 Defer 'throw
-Defer 'bounce
 
 ' noop IS 'catch
 ' noop IS 'throw
@@ -453,8 +460,12 @@ Defer 'bounce
 : catch ( x1 .. xn xt -- y1 .. ym 0 / z1 .. zn error ) \ exception
     'catch
     sp@ >r
+[ has-floats [IF] ]
     fp@ >r
+[ [THEN] ]
+[ has-locals [IF] ]
     lp@ >r
+[ [THEN] ]
     handler @ >r
     rp@ handler !
     execute
@@ -464,12 +475,20 @@ Defer 'bounce
     ?DUP IF
 	[ here 9 cells ! ] \ entry point for signal handler
 	handler @ dup 0= IF
+[ has-os [IF] ]
 	    2 (bye)
+[ [ELSE] ]
+	    quit
+[ [THEN] ]
 	THEN
 	rp!
 	r> handler !
-	r> lp!
+[ has-locals [IF] ]
+        r> lp!
+[ [THEN] ]
+[ has-floats [IF] ]
 	r> fp!
+[ [THEN] ]
 	r> swap >r sp! drop r>
 	'throw
     THEN ;
@@ -481,8 +500,12 @@ Defer 'bounce
   ?DUP IF
       handler @ rp!
       r> handler !
+[ has-locals [IF] ]
       r> lp!
+[ [THEN] ]
+[ has-floats [IF] ]
       rdrop
+[ [THEN] ]
       rdrop
       'throw
   THEN ;
@@ -491,7 +514,10 @@ Defer 'bounce
 
 : ?stack ( ?? -- ?? ) \ gforth
     sp@ s0 @ u> IF    -4 throw  THEN
-    fp@ f0 @ u> IF  -&45 throw  THEN  ;
+[ has-floats [IF] ]
+    fp@ f0 @ u> IF  -&45 throw  THEN
+[ [THEN] ]
+;
 \ ?stack should be code -- it touches an empty stack!
 
 \ interpret                                            10mar92py
@@ -983,7 +1009,7 @@ G -1 warnings T !
     dup IF
 	#bs emit bl emit #bs emit 1- rot 1- -rot
     THEN false ;
-: (ret)  true space ;
+: (ret)  true bl emit ;
 
 Create ctrlkeys
   ] false false false false  false false false false
@@ -1006,25 +1032,26 @@ defer everychar
 : accept   ( addr len -- len ) \ core
   dup 0< IF    abs over dup 1 chars - c@ tuck type 
 \ this allows to edit given strings
-         ELSE  0  THEN rot over
+  ELSE  0  THEN rot over
   BEGIN  key decode  UNTIL
   2drop nip ;
 
 \ Output                                               13feb93py
 
+has-os [IF]
+0 Value outfile-id ( -- file-id ) \ gforth
+
 : (type) ( c-addr u -- ) \ gforth
     outfile-id write-file drop \ !! use ?DUP-IF THROW ENDIF instead of DROP ?
 ;
 
-Defer type ( c-addr u -- ) \ core
-\ defer type for a output buffer or fast
-\ screen write
-
-' (type) IS Type
-
 : (emit) ( c -- ) \ gforth
     outfile-id emit-file drop \ !! use ?DUP-IF THROW ENDIF instead of DROP ?
 ;
+[THEN]
+
+Defer type ( c-addr u -- ) \ core
+' (type) IS Type
 
 Defer emit ( c -- ) \ core
 ' (Emit) IS Emit
@@ -1034,14 +1061,23 @@ Defer key ( -- c ) \ core
 
 \ Query                                                07apr93py
 
+has-files 0= [IF]
+: sourceline# ( -- n )  loadline @ ;
+[THEN]
+
 : refill ( -- flag ) \ core-ext,block-ext,file-ext
   blk @  IF  1 blk +!  true  0 >in !  EXIT  THEN
   tib /line
+[ has-files [IF] ]
   loadfile @ ?dup
   IF    read-line throw
-  ELSE  sourceline# 0< IF 2drop false EXIT THEN
-        accept true
+  ELSE
+[ [THEN] ]
+      sourceline# 0< IF 2drop false EXIT THEN
+      accept true
+[ has-files [IF] ]
   THEN
+[ [THEN] ]
   1 loadline +!
   swap #tib ! 0 >in ! ;
 
@@ -1052,6 +1088,7 @@ Defer key ( -- c ) \ core
 
 \ save-mem extend-mem
 
+has-os [IF]
 : save-mem	( addr1 u -- addr2 u ) \ gforth
     \g copy a memory block into a newly allocated region in the heap
     swap >r
@@ -1063,6 +1100,7 @@ Defer key ( -- c ) \ core
     \ the (possibly reallocated piece is addr2 u2, the extension is at addr
     over >r + dup >r resize throw
     r> over r> + -rot ;
+[THEN]
 
 \ HEX DECIMAL                                           2may93jaw
 
@@ -1096,6 +1134,17 @@ Defer key ( -- c ) \ core
 
 \ EVALUATE                                              17may93jaw
 
+has-files 0= [IF]
+: push-file  ( -- )  r>
+  sourceline# >r  tibstack @ >r  >tib @ >r  #tib @ >r
+  >tib @ tibstack @ = IF  r@ tibstack +!  THEN
+  tibstack @ >tib ! >in @ >r  >r ;
+
+: pop-file   ( throw-code -- throw-code )
+  r>
+  r> >in !  r> #tib !  r> >tib !  r> tibstack !  r> loadline !  >r ;
+[THEN]
+
 : evaluate ( c-addr len -- ) \ core,block
   push-file  #tib ! >tib !
   >in off blk off loadfile off -1 loadline !
@@ -1115,7 +1164,7 @@ Defer .status
 : prompt        state @ IF ."  compiled" EXIT THEN ."  ok" ;
 : (Query)  ( -- )
     loadfile off  blk off  refill drop ;
-: (quit)        BEGIN .status cr (query) interpret prompt AGAIN ;
+: (quit)  BEGIN  .status cr (query) interpret prompt  AGAIN ;
 ' (quit) IS 'quit
 
 \ DOERROR (DOERROR)                                     13jun93jaw
@@ -1214,10 +1263,15 @@ DEFER DOERROR
 Defer 'cold ' noop IS 'cold
 
 : cold ( -- ) \ gforth
+[ has-os [IF] ]
     stdout TO outfile-id
+[ [THEN] ]
+[ has-files [IF] ]
     pathstring 2@ process-path pathdirs 2!
     init-included-files
+[ [THEN] ]
     'cold
+[ has-files [IF] ]
     argc @ 1 >
     IF
 	['] process-args catch ?dup
@@ -1226,9 +1280,12 @@ Defer 'cold ' noop IS 'cold
 	THEN
 	cr
     THEN
+[ [THEN] ]
     ." GForth " version-string type ." , Copyright (C) 1994-1996 Free Software Foundation, Inc." cr
-    ." GForth comes with ABSOLUTELY NO WARRANTY; for details type `license'" cr
-    ." Type `bye' to exit"
+    ." GForth comes with ABSOLUTELY NO WARRANTY; for details type `license'"
+[ has-os [IF] ]
+     cr ." Type `bye' to exit"
+[ [THEN] ]
     loadline off quit ;
 
 : license ( -- ) \ gforth
@@ -1248,16 +1305,40 @@ Defer 'cold ' noop IS 'cold
  ." Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA." cr ;
 
 : boot ( path **argv argc -- )
-  argc ! argv ! pathstring 2!  main-task up!
-  sp@ s0 !
-  lp@ forthstart 7 cells + @ - dup >tib ! tibstack ! #tib off >in off
-  rp@ r0 !
-  fp@ f0 !
-  ['] cold catch DoError
-  bye ;
+[ has-files [IF] ]
+    argc ! argv ! pathstring 2!
+[ [THEN] ]
+    main-task up!
+    sp@ s0 !
+[ has-locals [IF] ]
+    lp@ forthstart 7 cells + @ - 
+[ [ELSE] ]
+    [ has-os [IF] ]
+    sp@ $1040 +
+    [ [ELSE] ]
+    sp@ $40 +
+    [ [THEN] ]
+[ [THEN] ]
+    dup >tib ! tibstack ! #tib off >in off
+    rp@ r0 !
+[ has-floats [IF] ]
+    fp@ f0 !
+[ [THEN] ]
+    ['] cold catch DoError
+[ has-os [IF] ]
+    bye
+[ [THEN] ]
+;
 
+has-os [IF]
 : bye ( -- ) \ tools-ext
-    script? 0= IF  cr  THEN  0 (bye) ;
+[ has-files [IF] ]
+    script? 0= IF  cr  THEN
+[ [ELSE] ]
+    cr
+[ [THEN] ]
+    0 (bye) ;
+[THEN]
 
 \ **argv may be scanned by the C starter to get some important
 \ information, as -display and -geometry for an X client FORTH
