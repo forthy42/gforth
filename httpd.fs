@@ -22,6 +22,9 @@ warnings off
 
 require string.fs
 
+Variable DocumentRoot  s" /usr/local/httpd/htdocs/" DocumentRoot $!
+Variable UserDir       s" .html-data/"              UserDir      $!
+
 Variable url
 Variable posted
 Variable url-args
@@ -83,6 +86,7 @@ value: Connection:
 value: Referer:
 value: Content-Type:
 value: Content-Length:
+value: Keep-Alive:
 
 definitions
 
@@ -91,13 +95,14 @@ Variable maxnum
 : ?cr ( -- )
   #tib @ 1 >= IF  source 1- + c@ #cr = #tib +!  THEN ;
 : refill-loop ( -- flag )
-  BEGIN  refill ?cr  WHILE  interpret  >in @ 0=  UNTIL
+  BEGIN  refill ?cr  WHILE  ['] interpret catch drop  >in @ 0=  UNTIL
   true  ELSE  maxnum off false  THEN ;
 : get-input ( -- flag ior )
   s" /nosuchfile" url $!  s" HTTP/1.0" protocol $!
   s" close" connection $!
   infile-id push-file loadfile !  loadline off  blk off
   commands 1 set-order  command? on  ['] refill-loop catch
+  Keep-Alive $@ snumber? dup 0> IF  nip  THEN  IF  maxnum !  THEN
   active @ IF  s" " posted $! Content-Length $@ snumber? drop
       posted $!len  posted $@ infile-id read-file throw drop
   THEN  only forth also  pop-file ;
@@ -107,11 +112,13 @@ Variable maxnum
 Variable htmldir
 
 : rework-htmldir ( addr u -- addr' u' / ior )
-  htmldir $!
+  htmldir $! htmldir $@ compact.. htmldir $!len drop
+  htmldir $@ 3 min s" ../" compare 0=
+  IF    -1 EXIT  THEN  \ can't access below current directory
   htmldir $@ 1 min s" ~" compare 0=
-  IF    s" /.html-data" htmldir dup $@ 2dup '/ scan
+  IF    UserDir $@ htmldir dup $@ 2dup '/ scan '/ skip
         nip - nip $ins
-  ELSE  s" /usr/local/httpd/htdocs/" htmldir 0 $ins  THEN
+  ELSE  DocumentRoot $@ htmldir 0 $ins  THEN
   htmldir $@ 1- 0 max + c@ '/ = htmldir $@len 0= or
   IF  s" index.html" htmldir dup $@len $ins  THEN
   htmldir $@ file-status nip ?dup ?EXIT
@@ -152,10 +159,13 @@ Variable htmldir
 
 : mime-read ( addr u -- )  r/o open-file throw
     push-file loadfile !  0 loadline ! blk off
-    BEGIN  refill  WHILE  name
-	BEGIN  >in @ >r name nip  WHILE
-	    r> >in ! 2dup transparent:  REPEAT
-	2drop rdrop
+    BEGIN  refill  WHILE
+	char '# <> >in off name nip 0<> and  IF
+	    >in off name
+	    BEGIN  >in @ >r name nip  WHILE
+		r> >in ! 2dup transparent:  REPEAT
+	    2drop rdrop
+	THEN
     REPEAT  loadfile @ close-file pop-file throw ;
 
 : lastrequest
@@ -217,7 +227,7 @@ Defer redirect ( addr u -- )
 	    0= IF  ['] txt  THEN  catch IF  maxnum off THEN
 	THEN  THEN  THEN  THEN  outfile-id flush-file throw ;
 
-: httpd  ( n -- )  maxnum !
+: httpd  ( n -- )  dup maxnum ! 0 <# #S #> Keep-Alive $!
   BEGIN  ['] http catch  maxnum @ 0= or  UNTIL ;
 
 script? [IF]  :noname &100 httpd bye ; is bootmessage  [THEN]

@@ -2174,10 +2174,23 @@ IF_fpTOS(fpTOS=fp[0]);
 \+file
 
 open-dir	( c_addr u -- wdirid wior )	gforth	open_dir
+""Open the directory specified by @i{c-addr, u}
+and return @i{dir-id} for futher access to it.""
 wdirid = (Cell)opendir(tilde_cstr(c_addr, u, 1));
 wior =  IOR(wdirid == 0);
 
 read-dir	( c_addr u1 wdirid -- u2 flag wior )	gforth	read_dir
+""Attempt to read the next entry from the directory specified
+by @i{dir-id} to the buffer of length @i{u1} at address @i{c-addr}. 
+If the attempt fails because there is no more entries,
+@i{ior}=0, @i{flag}=0, @i{u2}=0, and the buffer is unmodified.
+If the attempt to read the next entry fails because of any other reason, 
+return @i{ior}<>0.
+If the attempt succeeds, store file name to the buffer at @i{c-addr}
+and return @i{ior}=0, @i{flag}=true and @i{u2} equal to the size of the file name.
+If the length of the file name is greater than @i{u1}, 
+store first @i{u1} characters from file name into the buffer and
+indicate "name too long" with @i{ior}, @i{flag}=true, and @i{u2}=@i{u1}.""
 struct dirent * dent;
 dent = readdir((DIR *)wdirid);
 wior = 0;
@@ -2195,6 +2208,7 @@ if(dent == NULL) {
 }
 
 close-dir	( wdirid -- wior )	gforth	close_dir
+""Close the directory specified by @i{dir-id}.""
 wior = IOR(closedir((DIR *)wdirid));
 
 filename-match	( c_addr1 u1 c_addr2 u2 -- flag )	gforth	match_file
