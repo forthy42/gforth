@@ -11836,6 +11836,7 @@ e.g., @code{3 #}.  Here are some examples of addressing modes:
 
 @example
 3 #          \ immediate
+1000 #)      \ absolute
 ax           \ register
 100 di d)    \ 100[edi]
 4 bx cx di)  \ 4[ebx][ecx]
