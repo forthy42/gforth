@@ -31,8 +31,8 @@
 
 false Constant NIL  \ relocating
 
-: prims-include  ." Include primitives" cr s" ~+/arch/misc/prim.fs" included ;
-: asm-include    ." Include assembler" cr s" ~+/arch/misc/asm.fs" included ;
+: prims-include  ." Include primitives" cr s" arch/misc/prim.fs" included ;
+: asm-include    ." Include assembler" cr s" arch/misc/asm.fs" included ;
 : >boot
     hex
     S" data-stack-top SP' 2* ! return-stack-top RP' 2* ! ' boot >body IP' 2* !" 
@@ -65,9 +65,14 @@ false SetValue new-input
 false SetValue peephole
 true SetValue abranch       \ enables absolute branches
 
-false DefaultValue rom
+true SetValue rom
 
-cell 2 = [IF] 32 [ELSE] 256 [THEN] KB DefaultValue kernel-size
+false SetValue compiler
+false SetValue primtrace
+true SetValue no-userspace
+
+
+\ cell 2 = [IF] 32 [ELSE] 256 [THEN] KB Constant kernel-size
 
 16 KB		DefaultValue stack-size
 15 KB 512 +	DefaultValue fstack-size

@@ -39,15 +39,19 @@ constant mem
 
 variable nesting 0 nesting !
 : .hs
-	." RP: " $12 ram> .####
-	." SP: " $13 ram> .####
-	." UP: " $14 ram> .#### ;
+	." RP: " $4000 ram> .####
+	." SP: " $4001 ram> .####
+	." UP: " $4002 ram> .#### ;
+
+: .ip
+	$4003 ram> ." IP: " .#### ;
+: trace
+		cr nesting @ spaces 
+		dup CASE [char] : OF 1 nesting +! .ip ENDOF 
+		[char] ; OF -1 nesting +! ENDOF ENDCASE ;
 
 : >txd		
-		\ cr nesting @ spaces 
-		\ $15 ram> ." IP: " .#### .hs
-		\ dup CASE [char] : OF 1 nesting +! ENDOF 
-		\ [char] ; OF -1 nesting +! ENDOF ENDCASE
+\                trace
 		[IFDEF] curoff curoff [THEN]
 		dup bl < IF
 		    CASE
