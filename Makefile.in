@@ -49,7 +49,7 @@ all:
 
 first:	gforth
 
-more:	gforth $(FORTH_GEN)
+more:	$(FORTH_GEN) gforth
 
 #from the gcc Makefile: 
 #"Deletion of files made during compilation.

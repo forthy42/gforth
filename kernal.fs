@@ -1385,15 +1385,15 @@ Variable argc
     2drop
     here r> tuck - 2 cells / ;
 
-: ">tib  ( addr len -- )  dup #tib ! >in off tib swap move ;
-
 : do-option ( addr1 len1 addr2 len2 -- n )  2swap
   2dup s" -e"        compare  0= >r
   2dup s" -evaluate" compare  0= r> or
-  IF  2drop ">tib interpret  2 EXIT  THEN
+  IF  2drop dup >r ['] evaluate catch
+      ?dup IF  dup >r DoError r> negate (bye)  THEN
+      r> >tib +!  2 EXIT  THEN
   ." Unknown option: " type cr 2drop 1 ;
 
-: process-args ( -- )
+: process-args ( -- )  >tib @ >r
     argc @ 1
     ?DO
 	I arg over c@ [char] - <>
@@ -1402,13 +1402,14 @@ Variable argc
 	ELSE
 	    I 1+ arg  do-option
 	THEN
-    +LOOP ;
+    +LOOP
+    r> >tib ! ;
 
 Defer 'cold ' noop IS 'cold
 
 : cold ( -- )
-    'cold
     pathstring 2@ process-path pathdirs 2!
+    'cold
     argc @ 1 >
     IF
 	['] process-args catch ?dup
@@ -1439,7 +1440,8 @@ Defer 'cold ' noop IS 'cold
 
 : boot ( path **argv argc -- )
   argc ! argv ! cstring>sstring pathstring 2!  main-task up!
-  sp@ dup s0 ! $10 + >tib ! rp@ r0 !  fp@ f0 !  cold ;
+  sp@ dup s0 ! $10 + >tib ! #tib off >in off
+  rp@ r0 !  fp@ f0 !  cold ;
 
 : bye  script? 0= IF  cr  THEN  0 (bye) ;
 

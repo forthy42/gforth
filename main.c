@@ -1,5 +1,5 @@
 /*
-  $Id: main.c,v 1.16 1994-11-15 15:55:40 pazsan Exp $
+  $Id: main.c,v 1.17 1994-11-15 16:54:57 pazsan Exp $
   Copyright 1993 by the ANSI figForth Development Group
 */
 
@@ -225,9 +225,9 @@ int main(int argc, char **argv, char **env)
       /* no-init-file, no-rc? */
     };
 
-    c = getopt_long(argc, argv, "i:m:d:r:f:l:p:", opts, &option_index);
+    c = getopt_long(argc, argv, "+i:m:d:r:f:l:p:", opts, &option_index);
 #else
-    c = getopt(argc, argv, "i:m:d:r:f:l:p:");
+    c = getopt(argc, argv, "+i:m:d:r:f:l:p:");
 #endif
 
     if (c==EOF)
