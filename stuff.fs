@@ -44,11 +44,18 @@ AUser CSP
 
 \ shell commands
 
-0 Value $?
+0 Value $? ( -- n ) \ gforth
+\G VALUE: The exit status returned by the most recently executed
+\G @code{system} command.
 
 : system ( addr u -- ) \ gforth
+\G Pass the string specified by c-addr, u to the host operating system
+\G for execution in a sub-shell.
     (system) throw TO $? ;
+
 : sh ( "..." -- ) \ gforth
+\G Parse a string and use @code{system} to pass it to the host
+\G operating system for execution in a sub-shell.
     '# parse cr system ;
 
 \ stuff

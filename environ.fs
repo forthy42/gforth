@@ -20,9 +20,15 @@
 
 \ wordlist constant environment-wordlist
 
-Create environment-wordlist  wordlist drop
+Create environment-wordlist ( -- wid ) \ gforth
+  \G wid identifies the word list that is searched by environmental
+  \G queries.
+  wordlist drop
 
 : environment? ( c-addr u -- false / ... true ) \ core environment-query
+    \G c-addr, u specify the address and length of a string. If the string is
+    \G not recognised, return a @code{false} flag. Otherwise return a true
+    \G flag and some (string-specific) information about the queried string.
     environment-wordlist search-wordlist if
 	execute true
     else
@@ -43,31 +49,58 @@ get-order environment-wordlist swap 1+ set-order
 \ this should be computed in C as CHAR_BITS/sizeof(char),
 \ but I don't know any machine with gcc where an au does not have 8 bits.
 8 constant ADDRESS-UNIT-BITS ( -- n ) \ environment
-1 ADDRESS-UNIT-BITS chars lshift 1- constant MAX-CHAR
-MAX-CHAR constant /COUNTED-STRING
-ADDRESS-UNIT-BITS cells 2* 2 + constant /HOLD
-&84 constant /PAD
-true constant CORE
-true constant CORE-EXT
-1 -3 mod 0< constant FLOORED
+\G Size of one address unit, it bits.
 
-1 ADDRESS-UNIT-BITS cells 1- lshift 1- constant MAX-N
--1 constant MAX-U
+1 ADDRESS-UNIT-BITS chars lshift 1- constant MAX-CHAR ( -- u ) \ environment
+\G Maximum value of any character in the character set
 
--1 MAX-N 2constant MAX-D
--1. 2constant MAX-UD
+MAX-CHAR constant /COUNTED-STRING ( -- n ) \ environment
+\G Maximum size of a counted string, in characters.
 
-version-string 2constant gforth \ version string (for versions>0.3.0)
+ADDRESS-UNIT-BITS cells 2* 2 + constant /HOLD ( -- n ) \ environment
+\G Size of the pictured numeric string output buffer, in characters.
+
+&84 constant /PAD ( -- n ) \ environment
+\G Size of the scratch area pointed to by @code{PAD}, in characters.
+
+true constant CORE ( -- f ) \ environment
+\G True if the complete core word set is present. Always true for Gforth.
+
+true constant CORE-EXT ( -- f ) \ environment
+\G True if the complete core extension word set is present. Always true for Gforth.
+
+1 -3 mod 0< constant FLOORED ( -- f ) \ environment
+\G True if division is floored by default.
+
+1 ADDRESS-UNIT-BITS cells 1- lshift 1- constant MAX-N ( -- n ) \ environment
+\G Largest usable signed integer.
+
+-1 constant MAX-U ( -- u ) \ environment
+\G Largest usable unsigned integer.
+
+-1 MAX-N 2constant MAX-D ( -- d ) \ environment
+\G Largest usable signed double.
+
+-1. 2constant MAX-UD ( -- ud ) \ environment
+\G Largest usable unsigned double.
+
+version-string 2constant gforth ( -- c-addr u ) \ gforth-environment
+\G Counted string representing a version string for this version of Gforth
+\G (for versions>0.3.0).
 \ the version strings of the various versions are guaranteed to be
 \ sorted lexicographically
 
-: return-stack-cells ( -- n )
+: return-stack-cells ( -- n ) \ environment
+    \G Maximum size of the return stack, in cells.
     [ forthstart 6 cells + ] literal @ cell / ;
 
-: stack-cells ( -- n )
+: stack-cells ( -- n ) \ environment
+    \G Maximum size of the data stack, in cells.
     [ forthstart 4 cells + ] literal @ cell / ;
 
-: floating-stack ( -- n )
+: floating-stack ( -- n ) \ environment
+    \G n is non-zero, showing that Gforth maintains a separate
+    \G floating-point stack of depth n.
     [ forthstart 5 cells + ] literal @
     [IFDEF] float  float  [ELSE]  [ 1 floats ] Literal [THEN] / ;
 

@@ -616,7 +616,12 @@ IS discode
     then
     rdrop drop ;
 
-: see ( "name" -- ) \ tools
+: see ( "<spaces>name" -- ) \ tools
+    \G Locate @var{name} using the current search order. Display the
+    \G definition of @var{name}. Since this is achieved by decompiling
+    \G the definition, the formatting is mechanised and some source
+    \G information (comments, interpreted sequences within definitions
+    \G etc.) is lost.
     name find-name dup 0=
     IF
 	drop -&13 bounce

@@ -371,6 +371,14 @@ mostlyclean:	FORCE
 		doc/gforth.toc doc/gforth.tp doc/gforth.vr html \
 		gforth-$(VERSION).tar.gz
 
+# Just the stuff needed to rebuild the documentation nac03feb1999
+docclean:	FORCE
+		-$(RM) -rf doc/crossdoc.fd doc/doc.fd doc/gforth.texi doc/gforth.fns \
+		doc/gforth.aux doc/gforth.cp doc/gforth.cps \
+		doc/gforth.dvi doc/gforth.fn doc/gforth.ky doc/gforth.log \
+		doc/gforth.pg \
+		doc/gforth.toc doc/gforth.tp doc/gforth.vr html
+
 clean:		mostlyclean
 		-$(RM) -rf $(GEN) engine/gforth$(EXE) \
 		engine/gforth-fast$(EXE) engine/gforth-ditc$(EXE) \

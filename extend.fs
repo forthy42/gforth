@@ -25,14 +25,19 @@ decimal
 
 \ .(                                                    12may93jaw
 
-: .(   ( compilation "...<paren>" -- ) \ core-ext dot-paren
-    [char] ) parse type ; immediate
+: .(   ( "ccc<paren>" -- ) \ core-ext dot-paren
+  \G Parse a string ccc delimited by a ) (right parenthesis). Display
+  \G the string. This is often used to display progress information
+  \G during compilation. See examples below.
+  [char] ) parse type ; immediate
 
 \ VALUE 2>R 2R> 2R@                                     17may93jaw
 
 \ !! 2value
 
 : 2Literal ( compilation w1 w2 -- ; run-time  -- w1 w2 ) \ double two-literal
+    \G Compile appropriate code such that, at run-time, cell pair w1, w2 are
+    \G placed on the stack. Interpretation semantics are undefined.
     swap postpone Literal  postpone Literal ; immediate restrict
 
 ' drop alias d>s ( d -- n ) \ double		d_to_s
@@ -70,7 +75,10 @@ decimal
 : CLiteral
     postpone (c") here over char+ allot  place align ; immediate restrict
 
-: C" ( compilation "...<quote>" -- ; run-time  -- c-addr ) \ core-ext c-quote
+: C" ( compilation "ccc<quote>" -- ; run-time  -- c-addr ) \ core-ext c-quote
+    \G Compilation: parse a string ccc delimited by a " (double quote). At
+    \G run-time, return c-addr which specifies the counted string ccc.
+    \G Interpretation semantics are undefined.
     [char] " parse postpone CLiteral ; immediate restrict
 
 \ [COMPILE]                                             17may93jaw
@@ -87,14 +95,23 @@ decimal
 \ ERASE                                                 17may93jaw
 
 : erase ( addr len -- ) \ core-ext
+    \G If len>0, clear all bits in each location of a memory region
+    \G of len address units starting at address addr.
     \ !! dependence on "1 chars 1 ="
     ( 0 1 chars um/mod nip )  0 fill ;
 : blank ( addr len -- ) \ string
+    \G If len>0, store the character value for a space in each
+    \G location of a memory region
+    \G of len character units starting at address addr.
     bl fill ;
 
 \ SEARCH                                                02sep94py
 
 : search ( c-addr1 u1 c-addr2 u2 -- c-addr3 u3 flag ) \ string
+    \G Search the string specified by c-addr1, u1 for the string
+    \G speficied by c-addr2, u2. If flag is true: match was found
+    \G at c-addr3 with u3 characters remaining. If flag is false:
+    \G no match was found; c-addr3, u3 are equal to c-addr1, u1.
     \ not very efficient; but if we want efficiency, we'll do it as primitive
     2>r 2dup
     begin
@@ -236,7 +253,10 @@ variable span ( -- a-addr ) \ core-ext
 	forth-wordlist set-current
     THEN ;
 
-: marker ( "mark" -- )
+: marker ( "<spaces> name" -- ) \ core-ext
+    \G Create a definition, @var{name} (called a @var{mark}) whose
+    \G execution semantics are to remove itself and everything 
+    \G defined after it.
     marker, Create A,
 DOES> ( -- )
     @ marker! ;

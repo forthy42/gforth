@@ -70,7 +70,7 @@
   BEGIN  refill  WHILE  interpret  REPEAT ;
 
 : include-file ( i*x fid -- j*x ) \ file
-    \G interpret (process using the text interpreter) the contents of
+    \G Interpret (process using the text interpreter) the contents of
     \G the file @var{fid}.
     push-file  loadfile !
     0 loadline ! blk off  ['] read-loop catch

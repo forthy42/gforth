@@ -60,15 +60,25 @@ dofield: lastxt code-address! \ change the constant into a field
 DOES> ( -- r )
     f@ ;
 
-: fdepth  ( -- n )  fp0 @ fp@ - [ 1 floats ] Literal / ;
+: fdepth ( -- +n ) \ floating f-depth
+    \G +n is the current number of (floating-point) values on the
+    \G floating-point stack.
+    fp0 @ fp@ - [ 1 floats ] Literal / ;
 
 : FLit ( -- r )  r> dup f@ float+ >r ;
-: FLiteral ( r -- )
-  BEGIN  here cell+ dup faligned <>  WHILE  postpone noop  REPEAT
-  postpone FLit  f, ;  immediate
+: FLiteral ( compilation r -- ; run-time -- r ) \ float
+    \G Compile appropriate code such that, at run-time, r is placed
+    \G on the (floating-point) stack. Interpretation semantics are undefined.
+    BEGIN  here cell+ dup faligned <>  WHILE  postpone noop  REPEAT
+    postpone FLit  f, ;  immediate
 
-&15 Value precision
-: set-precision  to precision ;
+&15 Value precision ( -- u ) \ floating-ext
+\G u is the number of significant digits currently used by
+\G @code{F.} @code{FE.} and @code{FS.} 
+: set-precision ( u -- ) \ floating-ext
+    \G Set the number of significant digits currently used by
+    \G @code{F.} @code{FE.} and @code{FS.} to u.
+    to precision ;
 
 : scratch ( r -- addr len )
   pad precision - precision ;
@@ -82,7 +92,10 @@ DOES> ( -- r )
   IF  2drop  scratch 3 min type  rdrop  EXIT  THEN
   IF  '- emit  THEN ;
 
-: f.  ( r -- )  f$ dup >r 0<
+: f.  ( r -- ) \ floating-ext f-dot
+\G Display (the floating-point number) r using fixed-point notation,
+\G followed by a space.
+  f$ dup >r 0<
   IF    '0 emit
   ELSE  scratch r@ min type  r@ precision - zeros  THEN
   '. emit r@ negate zeros
@@ -90,11 +103,15 @@ DOES> ( -- r )
 \ I'm afraid this does not really implement ansi semantics wrt precision.
 \ Shouldn't precision indicate the number of places shown after the point?
 
-: fe. ( r -- )  f$ 1- s>d 3 fm/mod 3 * >r 1+ >r
+: fe. ( r -- ) \ floating-ext f-e-dot
+\G Display r using engineering notation, followed by a space.
+  f$ 1- s>d 3 fm/mod 3 * >r 1+ >r
   scratch r@ min type '. emit  scratch r> /string type
   'E emit r> . ;
 
-: fs. ( r -- )  f$ 1-
+: fs. ( r -- ) \ floating-ext f-s-dot
+\G Display r using scientific notation, followed by a space.
+  f$ 1-
   scratch over c@ emit '. emit 1 /string type
   'E emit . ;
 
@@ -135,11 +152,21 @@ IS interpreter-notfound
     Create 0.0E0 f, ;
     \ does> ( -- f-addr )
 
-1.0e0 fasin 2.0e0 f* fconstant pi
+1.0e0 fasin 2.0e0 f* fconstant pi ( -- r ) \ gforth
+\G FCONSTANT: r is the value pi; the ratio of a circle's area
+\G to its diameter.
 
-: f2*  2.0e0 f* ;
-: f2/  0.5e0 f* ;
-: 1/f  1.0e0 fswap f/ ;
+: f2* ( r1 -- r2 ) \ gforth
+    \G Multiply r1 by 2.0e0
+    2.0e0 f* ;
+
+: f2/ ( r1 -- r2 ) \ gforth
+    \G Multiply r1 by 0.5e0
+    0.5e0 f* ;
+
+: 1/f ( r1 -- r2 ) \ gforth
+    \G Divide 1.0e0 by r1
+    1.0e0 fswap f/ ;
 
 
 \ We now have primitives for these, so we need not define them
@@ -170,5 +197,8 @@ IS interpreter-notfound
     THEN
     f< ;
 
-: f.s  ." <" fdepth 0 .r ." > " fdepth 0 max maxdepth-.s @ min dup 0 
-  ?DO  dup i - 1- floats fp@ + f@ f.  LOOP  drop ; 
+: f.s ( -- ) \ gforth f-dot-s
+    \G Display the number of items on the floating-point stack,
+    \G followed by a list of the items; TOS is the right-most item.
+    ." <" fdepth 0 .r ." > " fdepth 0 max maxdepth-.s @ min dup 0 
+    ?DO  dup i - 1- floats fp@ + f@ f.  LOOP  drop ; 

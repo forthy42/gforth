@@ -36,9 +36,9 @@
 
 require source.fs
 
-defer printdebugdata ( -- ) \ gforth
+defer printdebugdata ( -- ) \ gforth print-debug-data
 ' .s IS printdebugdata
-defer printdebugline ( addr -- ) \ gforth
+defer printdebugline ( addr -- ) \ gforth print-debug-line
 
 : (printdebugline) ( addr -- )
     cr print-sourcepos ." :"

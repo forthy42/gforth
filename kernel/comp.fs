@@ -126,15 +126,22 @@ create nextname-buffer 32 chars allot
 \ \ literals							17dec92py
 
 : Literal  ( compilation n -- ; run-time -- n ) \ core
+    \G Compile appropriate code such that, at run-time, n is placed
+    \G on the stack. Interpretation semantics are undefined.
     postpone lit  , ; immediate restrict
 
 : ALiteral ( compilation addr -- ; run-time -- addr ) \ gforth
     postpone lit A, ; immediate restrict
 
-: char   ( 'char' -- n ) \ core
+: char   ( '<spaces>ccc' -- c ) \ core
+    \G Skip leading spaces. Parse the string ccc and return c, the
+    \G display code representing the first character of ccc.
     bl word char+ c@ ;
 
-: [char] ( compilation 'char' -- ; run-time -- n )
+: [char] ( compilation '<spaces>ccc' -- ; run-time -- c ) \ core bracket-char
+    \G Compilation: skip leading spaces. Parse the string ccc. Run-time:
+    \G return c, the display code representing the first character of ccc.
+    \G Interpretation semantics for this word are undefined.
     char postpone Literal ; immediate restrict
 
 \ \ threading							17mar93py
@@ -145,6 +152,7 @@ create nextname-buffer 32 chars allot
     0 A, 0 ,  code-address! ;
 
 : compile, ( xt -- )	\ core-ext	compile-comma
+    \G  Blah, blah.
     A, ;
 
 : !does    ( addr -- ) \ gforth	store-does
@@ -245,9 +253,11 @@ DOES>
     then ;
 
 : [ ( -- ) \ core	left-bracket
+    \G Enter interpretation state. Immediate word.
     ['] interpreter  IS parser state off ; immediate
 
 : ] ( -- ) \ core	right-bracket
+    \G Enter compilation state.
     ['] compiler     IS parser state on  ;
 
 \ \ Strings							22feb93py
@@ -256,6 +266,9 @@ DOES>
   here over char+ allot  place align ;
 
 : SLiteral ( Compilation c-addr1 u ; run-time -- c-addr2 u ) \ string
+    \G Compilation: compile the string specified by c-addr1, u into
+    \G the current definition. Run-time: return c-addr2 u describing
+    \G the address and length of the string.
     postpone (S") here over char+ allot  place align ;
                                              immediate restrict
 

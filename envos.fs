@@ -19,5 +19,7 @@
 \ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 get-current environment-wordlist set-current
-: os-class s" unix" ;
+: os-class ( -- c-addr u ) \ gforth-environment
+    \G Counted string representing a description of the host operating system.
+    s" unix" ;
 set-current

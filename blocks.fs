@@ -83,7 +83,7 @@ Defer flush-blocks
     block-fid @ ;
 
 : block-position ( u -- ) \ block
-    \G positions the block file to the start of block u
+    \G Position the block file to the start of block u.
     1- chars/block chars um* get-block-fid reposition-file throw ;
 
 : update ( -- ) \ block
@@ -119,7 +119,10 @@ Defer flush-blocks
 : get-buffer ( n -- a-addr ) \ gforth
     buffers mod buffer-struct %size * block-buffers @ + ;
 
-: block ( u -- a-addr ) \ block
+: block ( u -- a-addr ) \ block- block
+  \G u identifies a block number. Assign a block buffer to u,
+  \G make it the current block buffer and return its start
+  \G address, a-addr.
     dup 0= -35 and throw
     dup get-buffer >r
     dup r@ buffer-block @ <>
@@ -141,7 +144,11 @@ Defer flush-blocks
     \ reading in the block is unnecessary, but simpler
     block ;
 
-User scr 0 scr !
+User scr ( -- a-addr ) \ block-ext
+    \G USER VARIABLE a-addr is the address of a cell containing
+    \G the block number of the block most recently processed by
+    \G @code{LIST}.
+    0 scr !
 
 : updated?  ( n -- f ) \ gforth
     scr @ buffer
@@ -181,6 +188,9 @@ User scr 0 scr !
   1+ swap ?DO  I +load  LOOP ;
 
 : --> ( -- ) \ block- block
+    \G If this symbol is encountered whilst loading block @var{n},
+    \G discard the remainder of the block and load block @var{n+1}. Used
+    \G for chaining multiple blocks together as a single loadable unit.
     refill drop ; immediate
 
 : block-included ( addr u -- ) \ gforth
@@ -198,4 +208,6 @@ true constant block
 true constant block-ext
 set-current
 
-: bye  ['] flush catch drop bye ;
+: bye ( -- ) \ tools-ext
+  \G Return control to the host operating system (if any).
+  ['] flush catch drop bye ;

@@ -29,9 +29,9 @@
 
 variable next-exception -2048 next-exception !
 
-: exception ( addr u -- n )
+: exception ( addr u -- n ) \ exception- gforth
     \G @var{n} is a previously unused THROW value in the range
-    \G {-4095...-256}. Consecutive calls to EXCEPTION return
+    \G (-4095...-256). Consecutive calls to EXCEPTION return
     \G consecutive decreasing numbers. Gforth uses the string
     \G @var{addr u} as error message.
     next-exception @ errstring

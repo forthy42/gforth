@@ -292,8 +292,19 @@ locals-types definitions
 	postpone laddr# @ lp-offset, ;
 
 \ you may want to make comments in a locals definitions group:
-' \ alias \ immediate
-' ( alias ( immediate
+' \ alias \ ( -- ) \ core-ext,block-ext backslash
+\G Line comment: if @code{BLK} contains 0, parse and discard the remainder
+\G of the parse area. Otherwise, parse and discard all subsequent characters in the
+\G parse area corresponding to the current line.
+immediate 
+
+' ( alias ( ( compilation 'ccc<close-paren>' -- ; run-time -- ) \ core,file	paren
+\G Comment: parse and discard all subsequent characters in the parse
+\G area until ")" is encountered. During interactive input, an end-of-line
+\G also acts as a comment terminator. For file input, it does not; if the
+\G end-of-file is encountered whilst parsing for the ")" delimiter, Gforth
+\G will generate a warning.
+immediate
 
 forth definitions
 

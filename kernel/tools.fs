@@ -27,7 +27,9 @@ hex
 variable maxdepth-.s
 9 maxdepth-.s !
 
-: .s ( -- )
+: .s ( -- ) \ tools dot-s
+    \G Display the number of items on the data stack,
+    \G followed by a list of the items; TOS is the right-most item
     ." <" depth 0 .r ." > "
     depth 0 max maxdepth-.s @ min
     dup 0
@@ -54,7 +56,11 @@ Variable /dump
 : .line ( addr -- )
   dup .4 space .4 ." - " .4 space .4 drop  10 /dump +!  space .chars ;
 
-: dump  ( addr u -- )
+: dump  ( addr u -- ) \ tools dump
+    \G Display u lines of memory starting at address addr. Each line
+    \G displays the contents of 16 bytes. When Gforth is running under
+    \G an operating system you may get @file{Invalid memory address} errors
+    \G if you attempt to access arbitrary locations.
     cr base @ >r hex        \ save base on return stack
     0 ?DO  I' I - 10 min /dump !
 	dup 8 u.r ." : " dup .line cr  10 +
@@ -63,13 +69,16 @@ Variable /dump
 
 \ ?                                                     17may93jaw
 
-: ? @ . ;
+: ? ( a-addr -- ) \ tools question
+    \G Display the contents of address a-addr in the current number base.
+    @ . ;
 
 \ words visible in roots                               14may93py
 
 include  ../termsize.fs
 
 : words ( -- ) \ tools
+    \G ** this will not get annotated. See other defn in search.fs .. **
     cr 0 context @ wordlist-id
     BEGIN
 	@ dup

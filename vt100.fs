@@ -23,6 +23,15 @@ decimal
 : pn    base @ swap decimal 0 u.r base ! ;
 : ;pn   [char] ; emit pn ;
 : ESC[  27 emit [char] [ emit ;
-: at-xy 1+ swap 1+ swap ESC[ pn ;pn [char] H emit ;
-: page  ESC[ ." 2J" 0 0 at-xy ;
+
+: at-xy ( u1 u2 -- ) \ facility at-x-y
+  \G Position the cursor so that subsequent text output will
+  \G take place at column u1, row u2 of the display. (column
+  \G 0, row 0 is the top left-hand corner of the display).
+  1+ swap 1+ swap ESC[ pn ;pn [char] H emit ;
+
+: page ( -- ) \ gforth
+  \G Clear the display and set the cursor to the top left-hand
+  \G corner.
+  ESC[ ." 2J" 0 0 at-xy ;
 

@@ -1,5 +1,19 @@
 \input texinfo   @c -*-texinfo-*-
 @comment The source is gforth.ds, from which gforth.texi is generated
+@comment TODO: nac29jan99 - a list of things to add in the next edit:
+@comment 1. x-ref all ambiguous or implementation-defined features
+@comment 2. refer to all environment strings
+@comment 3. gloss and info in blocks section
+@comment 4. move file and blocks to common sub-section?
+@comment 5. command-line editing, command completion etc.
+@comment 6. document more of the words in require.fs
+@comment 7. document the include files process (Describe the list,
+@comment    including its scope)
+@comment 8. Describe the use of Auser Avariable etc.
+@comment 9. cross-compiler
+@comment 10.words in miscellaneous section need a home.
+@comment 11.Move structures and oof into their own chapters.
+@comment 12.search for TODO for other minor works
 @comment %**start of header (This is for running Texinfo on a region.)
 @setfilename gforth.info
 @settitle Gforth Manual
@@ -56,7 +70,7 @@ Copyright @copyright{} 1995-1998 Free Software Foundation, Inc.
 @center Bernd Paysan
 @center Jens Wilke
 @sp 3
-@center This manual is permanently under construction
+@center This manual is permanently under construction and was last updated on 18-Jan-1999
 
 @comment  The following two commands start the copyright page.
 @page
@@ -91,10 +105,10 @@ personal machines. This manual corresponds to version @value{VERSION}.
 @end ifinfo
 
 @menu
-* License::                     
+* License::                     The GPL
+* Introduction::                An introduction to ANS Forth
 * Goals::                       About the Gforth Project
-* Other Books::                 Things you might want to read
-* Invoking Gforth::             Starting Gforth
+* Invoking Gforth::             Starting (and exiting) Gforth
 * Words::                       Forth words available in Gforth
 * Tools::                       Programming tools
 * ANS conformance::             Implementation-defined options etc.
@@ -106,24 +120,33 @@ personal machines. This manual corresponds to version @value{VERSION}.
 * Cross Compiler::              The Cross Compiler
 * Bugs::                        How to report them
 * Origin::                      Authors and ancestors of Gforth
+* Forth-related information::   Books and places to look on the WWW
 * Word Index::                  An item for each Forth word
 * Concept Index::               A menu covering many topics
 
  --- The Detailed Node Listing ---
 
+Goals
+
+* Gforth Extensions Sinful?::
+
 Forth Words
 
 * Notation::                    
+* Comments::
+* Boolean Flags::
 * Arithmetic::                  
 * Stack Manipulation::          
 * Memory::                      
 * Control Structures::          
 * Locals::                      
 * Defining Words::              
+* The Text Interpreter::
 * Structures::                  
 * Object-oriented Forth::       
 * Tokens for Words::            
-* Wordlists::                   
+* Word Lists::                   
+* Environmental Queries::
 * Files::                       
 * Including Files::             
 * Blocks::                      
@@ -131,13 +154,16 @@ Forth Words
 * Programming Tools::           
 * Assembler and Code Words::    
 * Threading Words::             
+* Passing Commands to the OS::
+* Miscellaneous Words::
 
 Arithmetic
 
 * Single precision::            
 * Bitwise operations::          
-* Mixed precision::             operations with single and double-cell integers
 * Double precision::            Double-cell integer arithmetic
+* Numeric comparison::
+* Mixed precision::             operations with single and double-cell integers
 * Floating Point::              
 
 Stack Manipulation
@@ -183,6 +209,13 @@ Defining Words
 * Supplying names::             
 * Interpretation and Compilation Semantics::  
 
+The Text Interpreter
+
+* Number Conversion::
+* Interpret/Compile states::
+* Literals::
+* Interpreter Directives::
+
 Structures
 
 * Why explicit structure support?::  
@@ -222,12 +255,25 @@ OOF
 * Class Declaration::
 * Class Implementation::
 
+Word Lists
+
+* Why use word lists?::
+* Word list examples::
+
 Including Files
 
 * Words for Including::         
 * Search Path::                 
-* Changing the Search Path::    
+* Forth Search Paths::    
 * General Search Paths::        
+
+Other I/O
+
+* Simple numeric output::
+* Formatted numeric output::
+* String Formats::
+* Displaying characters and strings::
+* Input::
 
 Programming Tools
 
@@ -319,7 +365,7 @@ Image Files
 
 Fully Relocatable Image Files
 
-* gforthmi::            The normal way
+* gforthmi::                    The normal way
 * cross.fs::                    The hard way
 
 Engine
@@ -350,9 +396,18 @@ Cross Compiler
 * Using the Cross Compiler::
 * How the Cross Compiler Works::
 
+Forth-related information
+
+* Internet resources::
+* Books::
+* The Forth Interest Group::
+* Conferences::
+
+
+
 @end menu
 
-@node License, Goals, Top, Top
+@node License, Introduction, Top, Top
 @unnumbered GNU GENERAL PUBLIC LICENSE
 @center Version 2, June 1991
 
@@ -747,12 +802,684 @@ Public License instead of this License.
 @iftex
 @unnumbered Preface
 @cindex Preface
-This manual documents Gforth. The reader is expected to know
-Forth. This manual is primarily a reference manual. @xref{Other Books}
-for introductory material.
+This manual documents Gforth. Some introductory material is provided for
+readers who are unfamiliar with Forth or who are migrating to Gforth
+from other Forth compilers. However, this manual is primarily a
+reference manual.
 @end iftex
 
-@node    Goals, Other Books, License, Top
+@c ----------------------------------------------------------
+@node    Introduction, Goals, License, Top
+@comment node-name,     next,           previous, up
+@chapter An Introduction to ANS Forth
+@cindex Forth - an introduction
+
+The primary purpose of this manual is to document Gforth. However, since
+Forth is not a widely-known language and there is a lack of up-to-date
+teaching material, it seems worthwhile to provide some introductory
+material. @xref{Forth-related information} for other sources of Forth-related
+information.
+
+The examples in this section should work on any ANS Standard Forth, the
+output shown was produced using Gforth. In each example, I have tried to
+reproduce the exact output that Gforth produces. If you try out the
+examples (and you should), what you should type is shown @kbd{like this}
+and Gforth's response is shown @code{like this}. The single exception is
+that, where the example shows @kbd{<return>} it means that you should
+press the "carriage return" key. Unfortunatley, some output formats for
+this manual cannot show the difference between @kbd{this} and
+@code{this} which will make trying out the examples harder (but not
+impossible).
+
+Forth is an unusual language. It provides an interactive development
+environment which includes both an interpreter and compiler. Forth
+programming style encourages you to break a problem down into many
+@cindex factoring
+small fragments (@var{factoring}), and then to develop and test each
+fragment interactively. Forth advocates assert that breaking the
+edit-compile-test cycle used by conventional programming languages can
+lead to great productivity improvements.
+
+@menu
+* Introducing the Text Interpreter::
+* Stacks and Postfix notation::
+* Your first definition::
+* How does that work?::
+* Forth is written in Forth::
+* Classifying Forth words::
+* Review - elements of a Forth system::
+* Exercises::
+@end menu
+@comment TODO add these sections to the top xref lists
+
+@comment ----------------------------------------------
+@node Introducing the Text Interpreter, Stacks and Postfix notation, Introduction, Introduction
+@section Introducing the Text Interpreter
+@cindex text interpreter
+@cindex outer interpreter
+
+When you invoke the Forth image, you will see a startup banner printed
+and nothing else (if you have Gforth installed on your system, try
+invoking it now, by typing @kbd{gforth<return>}). Forth is now running
+its command line interpreter, which is called the @var{Text Interpreter}
+(also known as the @var{Outer Interpreter}).  (@pxref{The Text
+Interpreter} describes it in more detail, but we will learn more about
+its behaviour as we go through this chapter).
+
+Although it may not be obvious, Forth is actually waiting for your
+input. Type a number and press the <return> key:
+
+@example
+@kbd{45<return>}  ok
+@end example
+
+Rather than give you a prompt to invite you to input something, the text
+interpreter prints a status message @var{after} it has processed a line
+of input. The status message in this case (" ok" followed by
+carriage-return) indicates that the text interpreter was able to process
+all of your input successfully. Now type something illegal:
+
+@example
+@kbd{qwer341<return>}
+^^^^^^^
+Error: Undefined word
+@end example
+
+When the text interpreter detects an error, it discards any remaining
+text on a line, resets certain internal state and prints an error
+message.
+
+The text interpreter works on input one line at a time. Starting at
+the beginning of the line, it breaks the line into groups of characters
+separated by spaces. For each group of characters in turn, it makes two
+attempts to do something:
+
+@itemize @bullet
+@item
+It tries to treat it as a command. It does this by searching a @var{name
+dictionary}. If the group of characters matches an entry in the name
+dictionary, the name dictionary provides the text interpreter with
+information that allows the text interpreter perform some actions. In
+Forth jargon, we say that the group
+@cindex word
+@cindex definition
+@cindex execution token
+@cindex xt
+of characters names a @var{word}, that the dictionary search returns an
+@var{execution token (xt)} corresponding to the @var{definition} of the
+word, and that the text interpreter executes the xt. Often, the terms
+@var{word} and @var{definition} are used interchangeably.
+@item
+If the text interpreter fails to find a match in the name dictionary, it
+tries to treat the group of characters as a number in the current number
+base (when you start up Forth, the current number base is base 10). If
+the group of characters legitimately represents a number, the text
+interpreter pushes the number onto a stack (we'll learn more about that
+in the next section).
+@end itemize
+
+If the text interpreter is unable to do either of these things with any
+group of characters, it discards the rest of the line and print an error
+message. If the text interpreter reaches the end of the line without
+error, it prints the status message " ok" followed by carriage-return.
+
+This is the simplest command we can give to the text interpreter:
+
+@example
+@kbd{<return>}  ok
+@end example
+
+The text interpreter did everything we asked it to do (nothing) without
+an error, so it said that everything is "ok". Try a slightly longer
+command:
+
+@example
+@kbd{12 dup fred dup<return>}
+       ^^^^
+Error: Undefined word
+@end example
+
+When you pres the <return> key, the text interpreter starts to work its
+way along the line.
+
+@itemize @bullet
+@item
+When it gets to the space after the @code{2}, it takes the group of
+characters @code{12} and looks them up in the name
+dictionary@footnote{We can't tell if it found them or not, but assume
+for now that it did not}. There is no match for this group of characters
+in the name dictionary, so it tries to treat them as a number. It is
+able to do this successfully, so it puts the number, 12, "on the stack"
+(whatever that means).
+@item
+The text interpreter resumes scanning the line and gets the next group
+of characters, @code{dup}. It looks them up in the name dictionary and
+(you'll have to take my word for this) finds them, and executes the word
+@code{dup} (whatever that means).
+@item
+Once again, the text interpreter resumes scanning the line and gets the
+group of characters @code{fred}. It looks them up in the name
+dictionary, but can't find them. It tries to treat them as a number, but
+they don't represent any legal number.
+@end itemize
+
+At this point, the text interpreter gives up and prints an error
+message. The error message shows exactly how far the text interpreter
+got in processing the line. In particular, it shows that the text
+interpreter made no attempt to do anything with the final character
+group, @code{dup}, even though we have good reason to believe that the
+text interpreter would have had no problems with looking that word up
+and executing it a second time.
+
+
+@comment ----------------------------------------------
+@node Stacks and Postfix notation, Your first definition, Introducing the Text Interpreter, Introduction
+@section Stacks, postfix notation and parameter passing
+@cindex text interpreter
+@cindex outer interpreter
+
+In procedural programming languages (like C and Pascal), the
+building-block of programs is the function or procedure. These
+functions or procedures are called with explicit parameters. For
+example, in C we might write:
+
+@example
+total = total + new_volume(length,height,depth);
+@end example
+
+where total, length, height, depth are all variables and new_volume is
+a function-call to another piece of code.
+
+In Forth, the equivalent to the function or procedure is the
+@var{definition} and parameters are implicitly passed between
+definitions using a shared stack that is visible to the
+programmer. Although Forth does support variables, the existence of the
+stack means that they are used far less often than in most other
+programming languages. When the text interpreter encounters a number, it
+will place (@var{push}) it on the stack. There are several stacks (the
+actual number is implementation-dependent ..) and the particular stack
+used for any operation is implied unambiguously by the operation being
+performed. The stack used for all integer operations is called the @var{data
+stack} and, since this is the stack used most commonly, references to
+"the data stack" are often abbreviated to "the stack".
+
+The stacks have a last-in, first-out (LIFO) organisation. If you type:
+
+@example
+@kbd{1 2 3<return>}  ok
+@end example
+
+Then you (well, the text interpreter, really) have placed three numbers
+on the (data) stack. An analogy for the behaviour of the stack is to
+take a pack of playing cards and deal out the ace (1), 2 and 3 into a
+pile on the table. The 3 was the last card onto the pile ("last-in") and
+if you take a card off the pile then, unless you're prepared to fiddle a
+bit, the card that you take off will be the 3 ("first-out"). The number
+that will be first-out of the stack is called the "top of stack", which
+is often abbreviated to @var{TOS}.
+
+To see how parameters are passed in Forth, we will consider the
+behaviour of the definition @code{+} (pronounced "plus"). You will not be
+surprised to learn that this definition performs addition. More
+precisely, it adds two number together and produces a result. Where does
+it get the two numbers from? It takes the first two numbers off the
+stack. Where does it place the result? On the stack. You can act-out the
+behaviour of @code{+} with your playing cards like this:
+
+@itemize @bullet
+@item
+Pick up two cards from the stack
+@item
+Stare at them intently and ask yourself "what *is* the sum of these two
+numbers"
+@item
+Decide that the answer is 5
+@item
+Shuffle the two cards back into the pack and find a 5
+@item
+Put a 5 on the remaining ace that's on the table.
+@end itemize
+
+If you don't have a pack of cards handy but you do have Forth running,
+you can use the definition .s to show the current state of the stack,
+without affecting the stack. Type:
+
+@example
+@kbd{clearstack 1 2 3<return>} ok
+@kbd{.s<return> <3> 1 2 3 } ok
+@end example
+
+The text interpreter looks up the word @code{clearstack} and executes
+it; it tidies up the stack and removes any entries that may have been
+left on it by earlier examples. The text interpreter pushes each of the
+three numbers in turn onto the stack. Finally, the text interpreter
+looks up the word @code{.s} and executes it. The effect of executing
+@code{.s} is to print the "<3>" (the total number of items on the stack)
+followed by a list of all the items and the item on the far right-hand
+side is the TOS.
+
+You can now type:
+
++ .s<return> <2> 1 5  ok
+
+which is correct; there are now 2 items on the stack and the result of
+the addition is 5.
+
+If you're playing with cards, try doing a second addition; pick up the
+two cards, work out that their sum is 6, shuffle them into the pack,
+look for a 6 and place that on the table. You now have just one item
+on the stack. What happens if you try to do a third addition? Pick up
+the first card, pick up the second card - ah. There is no second
+card. This is called a "stack underflow" and consitutes an error. If
+you try to do the same thing with Forth it will report an error
+(probably a Stack Underflow or an Invalid Memory Address error).
+
+The opposite situation to a stack underflow is a stack overflow, which
+simply accepts that there is a finite amount of storage space reserved
+for the stack. To stretch the playing card analogy, if you had enough
+packs of cards and you piled the cards up on the table, you would
+eventually be unable to add another card; you'd hit the
+ceiling. Gforth allows you to set the maximum size of the stacks. In
+general, the only time that you will get a stack overflow is because a
+definition has a bug in it and is generating data on the stack
+uncontrollably.
+
+There's one final use for the playing card analogy. If you model your
+stack using a pack of playing cards, the maximum number of items on
+your stack will be 52 (I assume you didn't use the Joker). The maximum
+*value* of any item on the stack is 13 (the King). In fact, the only
+possible numbers are positive integer numbers 1 through 13; you can't
+have (for example) 0 or 27 or 3.52 or -2. If you change the way you
+think about some of the cards, you can accommodate different
+numbers. For example, you could think of the Jack as representing 0,
+the Queen as representing -1 and the King as representing -2. Your
+*range* remains unchanged (you can still only represent a total of 13
+numbers) but the numbers that you can represent are -2 through 10.
+
+In that analogy, the limit was the amount of information that a single
+stack entry could hold, and Forth has a similar limit. In Forth, the
+size of a stack entry is called a "cell". The actual size of a cell is
+implementation dependent and affects the maximum value that a stack
+entry can hold. A Standard Forth provides a cell size of at least
+16-bits, and most desktop systems use a cell size of 32-bits.
+
+Forth does not do any type checking for you, so you are free to
+manipulate and combine stack items in any way you wish. A convenient
+ways of treating stack items is as 2's complement signed integers, and
+that is what Standard words like "+" do. Therefore you can type:
+
+-5 12 + .s<return> <1> 7  ok
+
+If you use numbers and definitions like "+" in order to turn Forth
+into a great big pocket calculator, you will realise that it's rather
+different from a normal calculator. Rather than typing 2 + 3 = you had
+to type 2 3 + (ignore the fact that you had to use .s to see the
+result). The terminology used to describe this difference is to say
+that your calculator uses "Infix Notation" (parameters and operators
+are mixed) whilst Forth uses "Postfix Notation" (parameters and
+operators are separate), also called "Reverse Polish Notation".
+
+Whilst postfix notation might look confusing to begin with, it has
+several important advantages:
+
+- it is unambiguous
+- it is more concise
+- it fits naturally with a stack-based system
+
+To examine these claims in more detail, consider these sums:
+
+6 + 5 * 4 =
+4 * 5 + 6 =
+
+If you're just learning maths or your maths is very rusty, you will
+probably come up with the answer 44 for the first and 26 for the
+second. If you are a bit of a whizz at maths you will remember the
+*convention* that multiplication takes precendence over addition, and
+you'd come up with the answer 26 both times. To explain the answer 26
+to someone who got the answer 44, you'd probably rewrite the first sum
+like this:
+
+6 + (5 * 4) =
+
+If what you really wanted was to perform the addition before the
+multiplication, you would have to use parentheses to force it.
+
+If you did the first two sums on a pocket calculator you would probably
+get the right answers, unless you were very cautious and entered them using
+these keystroke sequences:
+
+6 + 5 = * 4 =
+4 * 5 = + 6 =
+
+Postfix notation is unambiguous because the order that the operators
+are applied is always explicit; that also means that parentheses are
+never required. The operators are *active* (the act of quoting the
+operator makes the operation occur) which removes the need for "=".
+
+The sum 6 + 5 * 4 can be written (in postfix notation) in two
+equivalent ways:
+
+6 5 4 * +      or:
+5 4 * 6 +
+
+TODO point out that the order of number is never changed.
+
+TODO -- another way of thinking of this is to think of all Forth
+definitions as being ACTIVE. They execute as they are encountered by the
+text interpreter. With this mental model, it's easy to see that the only
+way of implementing an active scheme is to use postfix notation.
+
+
+
+
+.. up until now we've just been giving lists of commands that once
+exeduted are gone forwever (well, not really-- try pressing the up-arrow
+key.. you can recall, edit and re-enter )
+
+
+@comment ----------------------------------------------
+@node Your first definition, How does that work?, Stacks and Postfix notation, Introduction
+@section Your first Forth definition
+@cindex first definition
+
+
+The easiest way to create a new definition is to use a "colon
+definition". In order to provide a few examples (and give you some
+homework) I'm going to introduce a very small set of words but only
+describe what they do very informally, by example.
+
++   add the top two numbers on the stack and place the result on the
+stack
+.   print the top stack item
+."  print text until a " delimiter is found
+CR  print a carriage-return
+:   start a new definition
+;   end a definition
+DUP blah
+DROP blah
+
+example 1:
+: greet ." Hello and welcome" ;<return>  ok
+greet<return> Hello and welcome  ok
+greet greet<return> Hello and welcomeHello and welcome  ok
+
+When you try out this example, be careful to copy the spaces
+accurately; there needs to be a space between each group of characters
+that will be processed by the text interpreter.
+
+
+example 2:
+: add-two 2 + . ;<return>  ok
+5 add-two<return> 7  ok
+
+
+- numbers and definitions
+- redefining things .. what uses the old defn and what uses the new one
+- boundary between system definitions and your definitions
+- standards.. a double-edged sword
+- philosophy
+
+- your first set of definitions
+
+
+
+@comment ----------------------------------------------
+@node How does that work?, Forth is written in Forth, Your first definition, Introduction
+@section How does that work?
+@cindex parsing words
+
+
+todo parsing words .. trick the text interpreter
+
+.. switching from intepret to compile and back again
+
+.. what the text interpreter does.
+
+Now that we have looked at the behaviour of the text interpreter in
+greater detail, we can list all of the things that it knows how to do:
+
+@itemize @bullet
+@item
+It knows how to @var{compile} a number
+@item
+It knows how to @var{compile} a word into a new definition
+@item
+It knows how to @var{interpret} a number
+@item
+It knows how to @var{interpret} a word
+@end itemize
+
+The way in which the text interpreter interprets and compiles numbers is
+fixed; the effect of interpreting a number is to put that number on the
+stack, and the effect of compiling a number into a definition is to
+perform some trick whereby the number appears on the stack when the
+definition is executed.
+
+The way in which the text interpreter interprets and compiles words is
+not fixed; it is defined at the same time as the word is defined, and
+can be overridden in subtle ways later. When the text interpreter
+searches the name dictionary for a defintion, it not only retrieves the
+xt for the word, it also retrieves information about the way in which
+the words can behave.
+
+
+@comment TODO -- fix this up and decide whether I really want it here.
+@itemize @bullet
+@item
+Interpretation
+Compilation
+Description
+
+@item
+execute
+the xt is compiled
+Normal non-immediate definition. Created by default (eg using @code{:})
+
+@item
+execute
+execute
+Normal immediate definition. Created using @code{immediate} after definition.
+
+@item
+illegal (generate error)
+the xt is compiled
+Compile-only definition. Created using @code{compile-only} after definition.
+
+@item
+illegal (generate error)
+execute
+Immediate compile-only definition created using @code{immediate} @code{compile-only} after definition.
+
+@item
+execute
+illegal
+Interpret-only definition. No standard way to generate this.
+
+@end itemize
+
+
+
+@comment ----------------------------------------------
+@node Forth is written in Forth, Classifying Forth words, How does that work?, Introduction
+@section Forth is written in Forth
+@cindex structure of Forth programs
+
+
+
+Blah
+
+When you start up the Forth compiler, a large number of definitions
+already exist. To develop a new application, use bottom-up programming
+techniques to create new definitions that are defined in terms of
+existing definitions. As you create each definition you can test it
+interactively. Ultimately, you end up with an environment <blah blah>
+
+@comment TODO - other defining words
+@comment other parsing words
+@comment Your first loop
+@comment syntax and semantics
+@comment DOES>
+@comment taste of other elements of Forth
+
+@comment ----------------------------------------------
+@node Classifying Forth words, Review - elements of a Forth system, Forth is written in Forth, Introduction
+@section Classifying Forth words
+@cindex classifying Forth words
+
+It can be helpful to classify Forth words into a number of groups. We
+can classify any word in several orthogonal ways:
+
+@itemize @bullet
+@item
+Based upon the way in which it is implemented
+@item
+Based upon whether it affects the input stream
+@item
+Based upon its behaviour at different times
+@end itemize
+
+If we classify a word based upon the way in which it is implemented, we
+divide words into two groups:
+
+@itemize @bullet
+@item
+Those that are implemented in Forth (often called @var{high-level
+definitions}).
+@item
+Those that are not (often called @var{low-level definitions},
+@var{code definitions} or @var{primitives}).
+@end itemize
+
+When you are programming in Forth it should never make any difference to you (or
+even be apparent to you) whether any particular word is implemented as a
+high-level definition or a low-level definition. If you use the word
+disassembler, @code{see} you can easily find both types of words (try
+@kbd{see +} and @kbd{see :}).
+
+If we classify a word based upon the way in which it affects the input
+stream we also divide words into two groups:
+
+@itemize @bullet
+@item
+Those that do not affect the input stream (the vast majority of Forth
+definitions fall into this category).
+@item
+Those that do affect the input stream (these are called @var{parsing words}).
+@end itemize
+
+Here are some examples of ANS Standard parsing words; you can use the
+word index at the back of this manual to find out more about them:
+
+@code{:}  @ @code{CONSTANT} @ @code{[CHAR]} @ @code{CHAR} @ @code{\}
+
+The most complex way of classifying Forth words is based upon their
+behaviour at different times. We have already seen how the text
+interpreter knows how to treat words differently depending upon whether
+it is interpreting or compiling, 
+  
+-- classifying words
+  Three orthogonal ways:
+  -- by function
+  -- classifying words by the way in which they are defined
+  -- classifying words by their behaviour
+
+
+
+
+.. interactive stuff
+5 3 +  . <return> 8  ok
+
+could have been split over several lines
+
+5 . . <return> 
+
+
+.. talk about syntax and semantics
+
+
+-- command-line recall and editing
+
+
+Recode this example to show that, when you define a word, the old
+definition becomes unavailable to any *subsequent* definitions.
+
+@example
+: greet ." Hello" ;
+: announce ." I just want to say " greet ;
+: greet ." Bog off" ;
+: another-announce ." I just want to say " greet ;
+@end example
+
+After these four words have been defined, invoking the three distinct words will have this result:
+
+@example
+greet Welcome
+announce I just want to say Hello
+another-announce I just want to say Bog off
+@end example
+
+The original definition of @code{greet} is no longer available.
+
+However, if you created two word lists and put alternative definitions of
+greet in each of them, you could control which was used by changing the search order, like this:
+
+@example
+<create two word lists>
+ALSO POLITE-WORDS DEFINITIONS
+: greet ." Hello" ;
+ALSO RUDE-WORDS DEFINITIONS
+: greet ." Bonjour" ;
+
+FORTH DEFINITIONS
+ALSO POLITE-WORDS
+: announce ." I just want to say " greet ;
+PREVIOUS
+ALSO RUDE-WORDS
+: another-announce ." I just want to say " greet ;
+PREVIOUS
+@end example
+
+
+
+
+
+
+- cells and chars
+
+- the text interpreter in "Compilation" state.
+
+-- elements of a forth system
+  - text interpreter (outer interpreter)
+  - compiler
+  - inner interpreter
+  - dictionaries and wordlists
+  - stacks
+
+-- disparate spaces .. may be better to describe that elsewhere.
+
+-- show how to use the rest of the manual and how to use the ANS Forth Standard
+
+@comment ----------------------------------------------
+@node Review - elements of a Forth system, Exercises, Classifying Forth words, Introduction
+@section Review - elements of a Forth system
+@cindex elements of a Forth system
+
+
+
+
+@comment ----------------------------------------------
+@node Exercises, ,Review - elements of a Forth system, Introduction
+@section Exercises
+@cindex elements of a Forth system
+
+Ideally, provide a set of programming excercises linked into the stuff
+done already and into other sections of the manual. Provide solutions to
+all the exercises in a .fs file in the distribution. Get some
+inspiration from Starting Forth and Kelly&Spies.
+
+
+@c ----------------------------------------------------------
+@node Goals, Invoking Gforth, Introduction, Top
 @comment node-name,     next,           previous, up
 @chapter Goals of Gforth
 @cindex Goals
@@ -761,7 +1488,7 @@ ANS Forth. This can be split into several subgoals:
 
 @itemize @bullet
 @item
-Gforth should conform to the Forth standard (ANS Forth).
+Gforth should conform to the ANS Forth Standard.
 @item
 It should be a model, i.e. it should define all the
 implementation-dependent things.
@@ -796,62 +1523,59 @@ yet everything that we envisioned. We certainly have achieved our
 execution speed goals (@pxref{Performance}).  It is free and available
 on many machines.
 
-@node Other Books, Invoking Gforth, Goals, Top
-@chapter Other books on ANS Forth
-@cindex books on Forth
+@menu
+* Gforth Extensions Sinful?::
+@end menu
 
-As the standard is relatively new, there are not many books out yet. It
-is not recommended to learn Forth by using Gforth and a book that is not
-written for ANS Forth, as you will not know your mistakes from the
-deviations of the book. However, books based on the Forth-83 standard
-should be ok, because ANS Forth is primarily an extension of Forth-83.
+@node Gforth Extensions Sinful?, , Goals, Goals
+@comment node-name,     next,           previous, up
+@section Is it a Sin to use Gforth Extensions?
+@cindex Gforth extensions
 
-@cindex standard document for ANS Forth
-@cindex ANS Forth document
-There is, of course, the standard, the definite reference if you want to
-write ANS Forth programs. It is available in printed form from the
-National Standards Institute Sales Department (Tel.: USA (212) 642-4900;
-Fax.: USA (212) 302-1286) as document @cite{X3.215-1994} for about $200. You
-can also get it from Global Engineering Documents (Tel.: USA (800)
-854-7179; Fax.: (303) 843-9880) for about $300.
+If you've been paying attention, you will have realised that there is an
+ANS Standard for Forth. As you read through the rest of this manual, you
+will see documentation for @var{Standard} words, and documentation for
+some appealing Gforth @var{extensions}. You might ask yourself the
+question: @var{"Given that there is a standard, would I be committing a
+sin to use (non-Standard) Gforth extensions?"}
 
-@cite{dpANS6}, the last draft of the standard, which was then submitted
-to ANSI for publication is available electronically and for free in some
-MS Word format, and it has been converted to HTML
-(@url{http://www.taygeta.com/forth/dpans.html}; this is my favourite
-format); this HTML version also includes the answers to Requests for
-Interpretation (RFIs). Some pointers to these versions can be found
-through @*@url{http://www.complang.tuwien.ac.at/projects/forth.html}.
+The answer to that question is somewhat pragmatic and somewhat
+philosophical. Consider these points:
 
-@cindex introductory book
-@cindex book, introductory
-@cindex Woehr, Jack: @cite{Forth: The New Model}
-@cindex @cite{Forth: The new model} (book)
-@cite{Forth: The New Model} by Jack Woehr (Prentice-Hall, 1993) is an
-introductory book based on a draft version of the standard. It does not
-cover the whole standard. It also contains interesting background
-information (Jack Woehr was in the ANS Forth Technical Committee). It is
-not appropriate for complete newbies, but programmers experienced in
-other languages should find it ok.
+@itemize @bullet
+@item
+A number of the Gforth extensions can be implemented in ANS Standard
+Forth using files provided in the @file{compat/} directory. These are
+mentioned in the text in passing.
+@item
+Forth has a rich historical precedent for programmers taking advantage
+of implementation-dependent features of their tools (for example,
+relying on a knowledge of the dictionary structure). Sometimes these
+techniques are necessary to extract every last bit of performance from
+the hardware, sometimes they are just a programming shorthand.
+@item
+The best way to break the rules is to know what the rules are. To learn
+the rules, there is no substitute for studying the text of the Standard
+itself. In particular, Appendix A of the Standard (@var{Rationale})
+provides a valuable insight into the thought processes of the technical
+committee.
+@item
+The best reason to break a rule is because you have to; because it's
+more productive to do that, because it makes your code run fast enough
+or because you can see no Standard way to achieve what you want to
+achieve.
+@end itemize
 
-@cindex Conklin, Edward K., and Elizabeth Rather: @cite{Forth Programmer's Handbook}
-@cindex Rather, Elizabeth and Edward K. Conklin: @cite{Forth Programmer's Handbook}
-@cindex @cite{Forth Programmer's Handbook} (book)
-@cite{Forth Programmer's Handbook} by Edward K. Conklin, Elizabeth
-D. Rather and the technical staff of Forth, Inc. (Forth, Inc., 1997;
-ISBN 0-9662156-0-5) contains little introductory material. The majority
-of the book is similar to @ref{Words}, but the book covers most of the
-standard words and some non-standard words (whereas this manual is
-quite incomplete). In addition, the book contains a chapter on
-programming style. The major drawback of this book is that it usually
-does not identify what is standard and what is specific to the Forth
-system described in the book (probably one of Forth, Inc.'s systems).
-Fortunately, many of the non-standard programming practices described in
-the book work in Gforth, too.  Still, this drawback makes the book
-hardly more useful than a pre-ANS book.
+The tool @file{ans-report.fs} (@pxref{ANS Report}) makes it easy to
+analyse your program and determine what non-Standard definitions it
+relies upon.
 
-@node Invoking Gforth, Words, Other Books, Top
+
+
+@c ----------------------------------------------------------
+@node Invoking Gforth, Words, Goals, Top
 @chapter Invoking Gforth
+@cindex Gforth - invoking
 @cindex invoking Gforth
 @cindex running Gforth
 @cindex command-line options
@@ -901,7 +1625,8 @@ directories, separated by @samp{:} (on Unix) or @samp{;} (on other OSs).
 @itemx -m @var{size}
 Allocate @var{size} space for the Forth dictionary space instead of
 using the default specified in the image (typically 256K). The
-@var{size} specification consists of an integer and a unit (e.g.,
+@var{size} specification for this and subsequent options consists of
+an integer and a unit (e.g.,
 @code{4M}). The unit can be one of @code{b} (bytes), @code{e} (element
 size, in this case Cells), @code{k} (kilobytes), @code{M} (Megabytes),
 @code{G} (Gigabytes), and @code{T} (Terabytes). If no unit is specified,
@@ -984,7 +1709,7 @@ As explained above, the image-specific command-line arguments for the
 default image @file{gforth.fi} consist of a sequence of filenames and
 @code{-e @var{forth-code}} options that are interpreted in the sequence
 in which they are given. The @code{-e @var{forth-code}} or
-@code{--evaluate @var{forth-code}} option evaluates the forth
+@code{--evaluate @var{forth-code}} option evaluates the Forth
 code. This option takes only one argument; if you want to evaluate more
 Forth words, you have to quote them or use several @code{-e}s. To exit
 after processing the command line (instead of entering interactive mode)
@@ -1005,22 +1730,38 @@ the user initialization file @file{.gforth.fs} is executed, unless the
 option @code{--no-rc} is given; this file is first searched in @file{.},
 then in @file{~}, then in the normal path (see above).
 
+
+@cindex Gforth - leaving
+@cindex leaving Gforth
+
+You can leave Gforth by typing @code{bye} or (if you invoked Gforth with
+the @code{--die-on-signal} option) Ctrl-C. When you leave Gforth, all of
+your definitions and data are discarded. @xref{Image Files} for ways
+of saving the state of the system before leaving Gforth.
+
+doc-bye
+
+
 @node Words, Tools, Invoking Gforth, Top
 @chapter Forth Words
 @cindex Words
 
 @menu
 * Notation::                    
+* Comments::
+* Boolean Flags::
 * Arithmetic::                  
 * Stack Manipulation::          
 * Memory::                      
 * Control Structures::          
 * Locals::                      
 * Defining Words::              
+* The Text Interpreter::
 * Structures::                  
 * Object-oriented Forth::       
 * Tokens for Words::            
-* Wordlists::                   
+* Word Lists::                   
+* Environmental Queries::
 * Files::                       
 * Including Files::             
 * Blocks::                      
@@ -1028,9 +1769,11 @@ then in @file{~}, then in the normal path (see above).
 * Programming Tools::           
 * Assembler and Code Words::    
 * Threading Words::             
+* Passing Commands to the OS::
+* Miscellaneous Words::
 @end menu
 
-@node Notation, Arithmetic, Words, Words
+@node Notation, Comments, Words, Words
 @section Notation
 @cindex notation of glossary entries
 @cindex format of glossary entries
@@ -1077,16 +1820,16 @@ How the word is pronounced.
 
 @cindex wordset
 @item wordset
-The ANS Forth standard is divided into several wordsets. A standard
-system need not support all of them. So, the fewer wordsets your program
-uses the more portable it will be in theory. However, we suspect that
-most ANS Forth systems on personal machines will feature all
-wordsets. Words that are not defined in the ANS standard have
-@code{gforth} or @code{gforth-internal} as wordset. @code{gforth}
+The ANS Forth standard is divided into several word sets. A standard
+system need not support all of them. Therefore, in theory, the fewer
+word sets your program uses the more portable it will be. However, we
+suspect that most ANS Forth systems on personal machines will feature
+all word sets. Words that are not defined in the ANS standard have
+@code{gforth} or @code{gforth-internal} as word set. @code{gforth}
 describes words that will work in future releases of Gforth;
 @code{gforth-internal} words are more volatile. Environmental query
 strings are also displayed like words; you can recognize them by the
-@code{environment} in the wordset field.
+@code{environment} in the word set field.
 
 @item Description
 A description of the behaviour of the word.
@@ -1122,19 +1865,19 @@ double sized unsigned integer
 @item r
 @cindex @code{r}, stack item type
 Float (on the FP stack)
-@item a_
+@item a-
 @cindex @code{a_}, stack item type
 Cell-aligned address
-@item c_
+@item c-
 @cindex @code{c_}, stack item type
 Char-aligned address (note that a Char may have two bytes in Windows NT)
-@item f_
+@item f-
 @cindex @code{f_}, stack item type
 Float-aligned address
-@item df_
+@item df-
 @cindex @code{df_}, stack item type
 Address aligned for IEEE double precision float
-@item sf_
+@item sf-
 @cindex @code{sf_}, stack item type
 Address aligned for IEEE single precision float
 @item xt
@@ -1142,7 +1885,7 @@ Address aligned for IEEE single precision float
 Execution token, same size as Cell
 @item wid
 @cindex @code{wid}, stack item type
-Wordlist ID, same size as Cell
+Word list ID, same size as Cell
 @item f83name
 @cindex @code{f83name}, stack item type
 Pointer to a name structure
@@ -1153,7 +1896,31 @@ is a blank by default. If it is not a blank, it is shown in @code{<>}
 quotes.
 @end table
 
-@node Arithmetic, Stack Manipulation, Notation, Words
+@node Comments, Boolean Flags, Notation, Words
+@section Comments
+@cindex Comments
+
+Forth supports two styles of comment; the traditional "in-line" comment,
+@code{(} and its modern cousin, the "comment to end of line"; @code{\}.
+
+doc-\
+doc-(
+
+
+@node Boolean Flags, Arithmetic, Comments, Words
+@section Boolean Flags
+@cindex Boolean Flags
+
+A Boolean flag is cell-sized. A cell with all bits clear represents the
+flag @code{false} and a flag with all bits set represents the flag
+@code{true}. Words that check a flag (for example, @var{IF}) will treat
+a cell that has @var{any} bit set as @code{true}.
+
+doc-true
+doc-false
+
+
+@node Arithmetic, Stack Manipulation, Boolean Flags, Words
 @section Arithmetic
 @cindex arithmetic words
 
@@ -1171,8 +1938,9 @@ former, @pxref{Mixed precision}).
 @menu
 * Single precision::            
 * Bitwise operations::          
-* Mixed precision::             operations with single and double-cell integers
 * Double precision::            Double-cell integer arithmetic
+* Numeric comparison::
+* Mixed precision::             operations with single and double-cell integers
 * Floating Point::              
 @end menu
 
@@ -1180,8 +1948,15 @@ former, @pxref{Mixed precision}).
 @subsection Single precision
 @cindex single precision arithmetic words
 
+By default, numbers in Forth are single-precision integers that are 1
+CELL in size. They can be signed or unsigned, depending upon how you
+treat them. @xref{Number Conversion} for the rules used by the text
+interpreter for recognising single-precision integers.
+
 doc-+
+doc-1+
 doc--
+doc-1-
 doc-*
 doc-/
 doc-mod
@@ -1190,8 +1965,9 @@ doc-negate
 doc-abs
 doc-min
 doc-max
+doc-d>s
 
-@node Bitwise operations, Mixed precision, Single precision, Arithmetic
+@node Bitwise operations, Double precision, Single precision, Arithmetic
 @subsection Bitwise operations
 @cindex bitwise operation words
 
@@ -1199,10 +1975,58 @@ doc-and
 doc-or
 doc-xor
 doc-invert
+doc-lshift
+doc-rshift
 doc-2*
+doc-d2*
 doc-2/
+doc-d2/
 
-@node Mixed precision, Double precision, Bitwise operations, Arithmetic
+@node Double precision, Numeric comparison, Bitwise operations, Arithmetic
+@subsection Double precision
+@cindex double precision arithmetic words
+
+@xref{Number Conversion} for the rules used by the text interpreter for
+recognising double-precision integers.
+
+A double precision number is represented by a cell pair, with the most
+significant digit at the TOS. It is trivial to convert an unsigned single
+to an (unsigned) double; simply push a @code{0} onto the TOS. Since numbers
+are represented by Gforth using 2's complement arithmetic, converting
+a signed single to a (signed) double requires sign-extension across the
+most significant digit. This can be achieved using @code{s>d}. The moral
+of the story is that you cannot convert a number without knowing what that
+number represents.
+
+doc-s>d
+doc-d+
+doc-d-
+doc-dnegate
+doc-dabs
+doc-dmin
+doc-dmax
+
+@node Numeric comparison, Mixed precision, Double precision, Arithmetic
+@subsection Numeric comparison
+@cindex numeric comparison words
+
+doc-0<
+doc-0<>
+doc-0=
+doc-<
+doc-<>
+doc-=
+doc->
+doc-d0<
+doc-d0=
+doc-d<
+doc-d=
+doc-u<
+doc-du<
+doc-u>
+doc-within
+
+@node Mixed precision, Floating Point, Numeric comparison, Arithmetic
 @subsection Mixed precision
 @cindex mixed precision arithmetic words
 
@@ -1216,42 +2040,12 @@ doc-um/mod
 doc-fm/mod
 doc-sm/rem
 
-@node Double precision, Floating Point, Mixed precision, Arithmetic
-@subsection Double precision
-@cindex double precision arithmetic words
-
-@cindex double-cell numbers, input format
-@cindex input format for double-cell numbers
-The outer (aka text) interpreter converts numbers containing a dot into
-a double precision number. Note that only numbers with the dot as last
-character are standard-conforming.
-
-doc-d+
-doc-d-
-doc-dnegate
-doc-dabs
-doc-dmin
-doc-dmax
-
-@node Floating Point,  , Double precision, Arithmetic
+@node Floating Point,  , Mixed precision, Arithmetic
 @subsection Floating Point
 @cindex floating point arithmetic words
 
-@cindex floating-point numbers, input format
-@cindex input format for floating-point numbers
-The format of floating point numbers recognized by the outer (aka text)
-interpreter is: a signed decimal number, possibly containing a decimal
-point (@code{.}), followed by @code{E} or @code{e}, optionally followed
-by a signed integer (the exponent). E.g., @code{1e} is the same as
-@code{+1.0e+0}. Note that a number without @code{e} is not interpreted
-as floating-point number, but as double (if the number contains a
-@code{.}) or single precision integer. Also, conversions between string
-and floating point numbers always use base 10, irrespective of the value
-of @code{BASE} (in Gforth; for the standard this is an ambiguous
-condition). If @code{BASE} contains a value greater then 14, the
-@code{E} may be interpreted as digit and the number will be interpreted
-as integer, unless it has a signed exponent (both @code{+} and @code{-}
-are allowed as signs).
+@xref{Number Conversion} for the rules used by the text interpreter for
+recognising floating-point numbers.
 
 @cindex angles in trigonometric operations
 @cindex trigonometric operations
@@ -1270,6 +2064,8 @@ Computer Scientist Should Know About Floating-Point Arithmetic, ACM
 Computing Surveys 23(1):5@minus{}48, March 1991}
 (@url{http://www.validgh.com/goldberg/paper.ps}).
 
+doc-d>f
+doc-f>d
 doc-f+
 doc-f-
 doc-f*
@@ -1302,32 +2098,63 @@ doc-ftanh
 doc-fasinh
 doc-facosh
 doc-fatanh
+doc-pi
+doc-f0<
+doc-f0=
+doc-f<
+doc-f<=
+doc-f<>
+doc-f=
+doc-f>
+doc-f>=
+doc-f2*
+doc-f2/
+doc-1/f
+doc-f~
+doc-precision
+doc-set-precision
 
 @node Stack Manipulation, Memory, Arithmetic, Words
 @section Stack Manipulation
 @cindex stack manipulation words
 
 @cindex floating-point stack in the standard
-Gforth has a data stack (aka parameter stack) for characters, cells,
-addresses, and double cells, a floating point stack for floating point
-numbers, a return stack for storing the return addresses of colon
-definitions and other data, and a locals stack for storing local
-variables. Note that while every sane Forth has a separate floating
-point stack, this is not strictly required; an ANS Forth system could
-theoretically keep floating point numbers on the data stack. As an
-additional difficulty, you don't know how many cells a floating point
-number takes. It is reportedly possible to write words in a way that
-they work also for a unified stack model, but we do not recommend trying
-it. Instead, just say that your program has an environmental dependency
-on a separate FP stack.
+Gforth maintains a number of separate stacks:
+
+@itemize @bullet
+@item
+A data stack (aka parameter stack) -- for characters, cells,
+addresses, and double cells.
+
+@item
+A floating point stack -- for floating point numbers.
+
+@item
+A return stack -- for storing the return addresses of colon
+definitions and other data.
+
+@item
+A locals stack for storing local variables.
+@end itemize
+
+Whilst every sane Forth has a separate floating-point stack, it is not
+strictly required; an ANS Forth system could theoretically keep
+floating-point numbers on the data stack. As an additional difficulty,
+you don't know how many cells a floating-point number takes. It is
+reportedly possible to write words in a way that they work also for a
+unified stack model, but we do not recommend trying it. Instead, just
+say that your program has an environmental dependency on a separate
+floating-point stack.
+
+doc-floating-stack
 
 @cindex return stack and locals
 @cindex locals and return stack
-Also, a Forth system is allowed to keep the local variables on the
+A Forth system is allowed to keep local variables on the
 return stack. This is reasonable, as local variables usually eliminate
 the need to use the return stack explicitly. So, if you want to produce
-a standard complying program and if you are using local variables in a
-word, forget about return stack manipulations in that word (see the
+a standard compliant program and you are using local variables in a
+word, forget about return stack manipulations in that word (refer to the
 standard document for the exact rules).
 
 @menu
@@ -1349,10 +2176,10 @@ doc-dup
 doc-over
 doc-tuck
 doc-swap
+doc-pick
 doc-rot
 doc--rot
 doc-?dup
-doc-pick
 doc-roll
 doc-2drop
 doc-2nip
@@ -1373,6 +2200,7 @@ doc-fdup
 doc-fover
 doc-ftuck
 doc-fswap
+doc-fpick
 doc-frot
 
 @node Return stack, Locals stack, Floating point stack, Stack Manipulation
@@ -1392,16 +2220,24 @@ doc-2rdrop
 @node Locals stack, Stack pointer manipulation, Return stack, Stack Manipulation
 @subsection Locals stack
 
+
 @node Stack pointer manipulation,  , Locals stack, Stack Manipulation
 @subsection Stack pointer manipulation
 @cindex stack pointer manipulation words
 
+doc-sp0
+doc-s0
 doc-sp@
 doc-sp!
+doc-fp0
 doc-fp@
 doc-fp!
+doc-rp0
+doc-r0
 doc-rp@
 doc-rp!
+doc-lp0
+doc-l0
 doc-lp@
 doc-lp!
 
@@ -1498,16 +2334,35 @@ doc-address-unit-bits
 @subsection Memory Blocks
 @cindex memory block words
 
+Some of these words work on address units (increments of @code{CELL}),
+and expect a @code{CELL}-aligned address. Others work on character units
+(increments of @code{CHAR}), and expect a @code{CHAR}-aligned
+address. Choose the correct operation depending upon your data type. If
+you are moving a block of memory (for example, a region reserved by
+@code{allot}) it is safe to use @code{move}, and it should be faster
+than using @code{cmove}. If you are moving (for example) a string
+compiled using @code{S"}, it is not portable to use @code{move}; the
+alignment of the string in memory could change, and the relationship
+between @code{CELL} and @code{CHAR} could change.
+
+When copying characters between overlapping memory regions, choose
+carefully between @code{cmove} and @code{cmove>}.
+
+You can only use any of these words @var{portably} to access data space.
+
+@comment - think the naming of the arguments is wrong for move
 doc-move
 doc-erase
 
-While the previous words work on address units, the rest works on
-characters.
-
+@comment - think the naming of the arguments is wrong for cmove
 doc-cmove
+@comment - think the naming of the arguments is wrong for cmove>
 doc-cmove>
 doc-fill
+@comment - think the naming of the arguments is wrong for blank
 doc-blank
+doc-compare
+doc-search
 
 @node Control Structures, Locals, Memory, Words
 @section Control Structures
@@ -1540,6 +2395,7 @@ IF
   @var{code}
 ENDIF
 @end example
+@noindent
 or
 @example
 @var{flag}
@@ -1557,7 +2413,7 @@ who also know other languages (and is not prone to reinforcing negative
 prejudices against Forth in these people). Adding @code{ENDIF} to a
 system that only supplies @code{THEN} is simple:
 @example
-: endif   POSTPONE then ; immediate
+: ENDIF   POSTPONE THEN ; immediate
 @end example
 
 [According to @cite{Webster's New Encyclopedic Dictionary}, @dfn{then
@@ -1569,9 +2425,9 @@ system that only supplies @code{THEN} is simple:
 Forth's @code{THEN} has the meaning 2b, whereas @code{THEN} in Pascal
 and many other programming languages has the meaning 3d.]
 
-Gforth also provides the words @code{?dup-if} and @code{?dup-0=-if}, so
+Gforth also provides the words @code{?DUP-IF} and @code{?DUP-0=-IF}, so
 you can avoid using @code{?dup}. Using these alternatives is also more
-efficient than using @code{?dup}. Definitions in plain standard Forth
+efficient than using @code{?dup}. Definitions in ANS Standard Forth
 for @code{ENDIF}, @code{?DUP-IF} and @code{?DUP-0=-IF} are provided in
 @file{compat/control.fs}.
 
@@ -1644,17 +2500,16 @@ LOOP
 @end example
 
 This performs one iteration for every integer, starting from @var{start}
-and up to, but excluding @var{limit}. The counter, aka index, can be
-accessed with @code{i}. E.g., the loop
+and up to, but excluding @var{limit}. The counter, or @var{index}, can be
+accessed with @code{i}. For example, the loop:
 @example
 10 0 ?DO
   i .
 LOOP
 @end example
-prints
-@example
-0 1 2 3 4 5 6 7 8 9
-@end example
+@noindent
+prints @code{0 1 2 3 4 5 6 7 8 9}
+
 The index of the innermost loop can be accessed with @code{i}, the index
 of the next loop with @code{j}, and the index of the third loop with
 @code{k}.
@@ -1664,16 +2519,38 @@ doc-j
 doc-k
 
 The loop control data are kept on the return stack, so there are some
-restrictions on mixing return stack accesses and counted loop
-words. E.g., if you put values on the return stack outside the loop, you
-cannot read them inside the loop. If you put values on the return stack
-within a loop, you have to remove them before the end of the loop and
-before accessing the index of the loop.
+restrictions on mixing return stack accesses and counted loop words. In
+particuler, if you put values on the return stack outside the loop, you
+cannot read them inside the loop@footnote{well, not in a way that is
+portable.}. If you put values on the return stack within a loop, you
+have to remove them before the end of the loop and before accessing the
+index of the loop.
 
 There are several variations on the counted loop:
 
-@code{LEAVE} leaves the innermost counted loop immediately.
+@itemize @bullet
+@item
+@code{LEAVE} leaves the innermost counted loop immediately; execution
+continues after the associated @code{LOOP} or @code{NEXT}. For example:
 
+@example
+10 0 ?DO  i DUP . 3 = IF LEAVE THEN LOOP
+@end example
+prints @code{0 1 2 3}
+
+
+@item
+@code{UNLOOP} prepares for an abnormal loop exit, e.g., via
+@code{EXIT}. @code{UNLOOP} removes the loop control parameters from the
+return stack so @code{EXIT} can get to its return address. For example:
+
+@example
+: demo 10 0 ?DO i DUP . 3 = IF UNLOOP EXIT THEN LOOP ." Done" ;
+@end example
+prints @code{0 1 2 3}
+
+
+@item
 If @var{start} is greater than @var{limit}, a @code{?DO} loop is entered
 (and @code{LOOP} iterates until they become equal by wrap-around
 arithmetic). This behaviour is usually not what you want. Therefore,
@@ -1682,21 +2559,45 @@ Gforth offers @code{+DO} and @code{U+DO} (as replacements for
 @var{limit}; @code{+DO} is for signed loop parameters, @code{U+DO} for
 unsigned loop parameters.
 
+@item
+@code{?DO} can be replaced by @code{DO}. @code{DO} always enters
+the loop, independent of the loop parameters. Do not use @code{DO}, even
+if you know that the loop is entered in any case. Such knowledge tends
+to become invalid during maintenance of a program, and then the
+@code{DO} will make trouble.
+
+@item
 @code{LOOP} can be replaced with @code{@var{n} +LOOP}; this updates the
 index by @var{n} instead of by 1. The loop is terminated when the border
 between @var{limit-1} and @var{limit} is crossed. E.g.:
 
-@code{4 0 +DO  i .  2 +LOOP}   prints @code{0 2}
+@example
+4 0 +DO  i .  2 +LOOP
+@end example
+@noindent
+prints @code{0 2}
 
-@code{4 1 +DO  i .  2 +LOOP}   prints @code{1 3}
+@example
+4 1 +DO  i .  2 +LOOP
+@end example
+@noindent
+prints @code{1 3}
+
 
 @cindex negative increment for counted loops
 @cindex counted loops with negative increment
 The behaviour of @code{@var{n} +LOOP} is peculiar when @var{n} is negative:
 
-@code{-1 0 ?DO  i .  -1 +LOOP}  prints @code{0 -1}
+@example
+-1 0 ?DO  i .  -1 +LOOP
+@end example
+@noindent
+prints @code{0 -1}
 
-@code{ 0 0 ?DO  i .  -1 +LOOP}  prints nothing
+@example
+0 0 ?DO  i .  -1 +LOOP
+@end example
+prints nothing.
 
 Therefore we recommend avoiding @code{@var{n} +LOOP} with negative
 @var{n}. One alternative is @code{@var{u} -LOOP}, which reduces the
@@ -1704,26 +2605,32 @@ index by @var{u} each iteration. The loop is terminated when the border
 between @var{limit+1} and @var{limit} is crossed. Gforth also provides
 @code{-DO} and @code{U-DO} for down-counting loops. E.g.:
 
-@code{-2 0 -DO  i .  1 -LOOP}  prints @code{0 -1}
+@example
+-2 0 -DO  i .  1 -LOOP
+@end example
+@noindent
+prints @code{0 -1}
 
-@code{-1 0 -DO  i .  1 -LOOP}  prints @code{0}
+@example
+-1 0 -DO  i .  1 -LOOP
+@end example
+@noindent
+prints @code{0}
 
-@code{ 0 0 -DO  i .  1 -LOOP}  prints nothing
+@example
+0 0 -DO  i .  1 -LOOP
+@end example
+@noindent
+prints nothing.
+
+@end itemize
 
 Unfortunately, @code{+DO}, @code{U+DO}, @code{-DO}, @code{U-DO} and
 @code{-LOOP} are not in the ANS Forth standard. However, an
 implementation for these words that uses only standard words is provided
 in @file{compat/loops.fs}.
 
-@code{?DO} can also be replaced by @code{DO}. @code{DO} always enters
-the loop, independent of the loop parameters. Do not use @code{DO}, even
-if you know that the loop is entered in any case. Such knowledge tends
-to become invalid during maintenance of a program, and then the
-@code{DO} will make trouble.
 
-@code{UNLOOP} is used to prepare for an abnormal loop exit, e.g., via
-@code{EXIT}. @code{UNLOOP} removes the loop control parameters from the
-return stack so @code{EXIT} can get to its return address.
 
 @cindex @code{FOR} loops
 Another counted loop is
@@ -1766,11 +2673,12 @@ doc-again
 doc-cs-pick
 doc-cs-roll
 
-On many systems control-flow stack items take one word, in Gforth they
-currently take three (this may change in the future). Therefore it is a
-really good idea to manipulate the control flow stack with
-@code{cs-pick} and @code{cs-roll}, not with data stack manipulation
-words.
+The Standard words @code{CS-PICK} and @code{CS-ROLL} allow you to
+manipulate the control-flow stack in a portable way. Without them, you
+would need to know how many stack items are occupied by a control-flow
+entry (many systems use one cell. In Gforth they currently take three,
+but this may change in the future).
+
 
 Some standard control structure words are built from these words:
 
@@ -1802,8 +2710,8 @@ doc-?leave
 doc-unloop
 doc-done
 
-The standard does not allow using @code{cs-pick} and @code{cs-roll} on
-@i{do-sys}. Our system allows it, but it's your job to ensure that for
+The standard does not allow using @code{CS-PICK} and @code{CS-ROLL} on
+@i{do-sys}. Gforth allows it, but it's your job to ensure that for
 every @code{?DO} etc. there is exactly one @code{UNLOOP} on any path
 through the definition (@code{LOOP} etc. compile an @code{UNLOOP} on the
 fall-through path). Also, you have to ensure that all @code{LEAVE}s are
@@ -1816,8 +2724,8 @@ doc-endcase
 doc-of
 doc-endof
 
-@i{case-sys} and @i{of-sys} cannot be processed using @code{cs-pick} and
-@code{cs-roll}.
+@i{case-sys} and @i{of-sys} cannot be processed using @code{CS-PICK} and
+@code{CS-ROLL}.
 
 @subsubsection Programming Style
 
@@ -1826,7 +2734,7 @@ arbitrary control structures directly, but define new control structure
 words for the control structure you want and use these words in your
 program.
 
-E.g., instead of writing
+E.g., instead of writing:
 
 @example
 begin
@@ -1836,6 +2744,7 @@ if [ 1 cs-roll ]
 again then
 @end example
 
+@noindent
 we recommend defining control structure words, e.g.,
 
 @example
@@ -1848,6 +2757,7 @@ we recommend defining control structure words, e.g.,
  POSTPONE then ; immediate
 @end example
 
+@noindent
 and then using these to create the control structure:
 
 @example
@@ -1879,6 +2789,7 @@ Another way to perform a recursive call is
 
 doc-recurse
 
+@comment TODO add example of the two recursion methods
 @quotation
 @progstyle
 I prefer using @code{recursive} to @code{recurse}, because calling the
@@ -1887,6 +2798,9 @@ the somewhat cryptic @code{recurse}.  E.g., in a quicksort
 implementation, it is much better to read (and think) ``now sort the
 partitions'' than to read ``now do a recursive call''.
 @end quotation
+
+@comment TODO maybe move deferred words to Defining Words section and x-ref
+@comment from here.. that is where these two are glossed.
 
 For mutual recursion, use @code{defer}red words, like this:
 
@@ -1907,8 +2821,7 @@ can be forced using
 doc-exit
 
 Don't forget to clean up the return stack and @code{UNLOOP} any
-outstanding @code{?DO}...@code{LOOP}s before @code{EXIT}ing. The
-primitive compiled by @code{EXIT} is
+outstanding @code{?DO}...@code{LOOP}s before @code{EXIT}ing.
 
 doc-;s
 
@@ -1916,8 +2829,16 @@ doc-;s
 @subsection Exception Handling
 @cindex Exceptions
 
+@comment TODO examples and blurb
 doc-catch
 doc-throw
+@comment TODO -- think this will alllcate you a new THROW code?
+@comment for reserving new exception numbers. Note the existence of compat/exception.fs
+doc---exception-exception
+doc-quit
+doc-abort
+doc-abort"
+
 
 @node Locals, Defining Words, Control Structures, Words
 @section Locals
@@ -2316,15 +3237,15 @@ area and @code{@}} switches it back and generates the locals
 initializing code. @code{W:} etc.@ are normal defining words. This
 special area is cleared at the start of every colon definition.
 
-@cindex wordlist for defining locals
+@cindex word list for defining locals
 A special feature of Gforth's dictionary is used to implement the
-definition of locals without type specifiers: every wordlist (aka
+definition of locals without type specifiers: every word list (aka
 vocabulary) has its own methods for searching
-etc. (@pxref{Wordlists}). For the present purpose we defined a wordlist
+etc. (@pxref{Word Lists}). For the present purpose we defined a word list
 with a special search method: When it is searched for a word, it
 actually creates that word using @code{W:}. @code{@{} changes the search
-order to first search the wordlist containing @code{@}}, @code{W:} etc.,
-and then the wordlist for defining locals without type specifiers.
+order to first search the word list containing @code{@}}, @code{W:} etc.,
+and then the word list for defining locals without type specifiers.
 
 The lifetime rules support a stack discipline within a colon
 definition: The lifetime of a local is either nested with other locals
@@ -2367,20 +3288,20 @@ adjustment from the current level to the right level after the
 @cindex control-flow stack items, locals information
 In a conventional Forth implementation a dest control-flow stack entry
 is just the target address and an orig entry is just the address to be
-patched. Our locals implementation adds a wordlist to every orig or dest
+patched. Our locals implementation adds a word list to every orig or dest
 item. It is the list of locals visible (or assumed visible) at the point
 described by the entry. Our implementation also adds a tag to identify
 the kind of entry, in particular to differentiate between live and dead
 (reachable and unreachable) orig entries.
 
-A few unusual operations have to be performed on locals wordlists:
+A few unusual operations have to be performed on locals word lists:
 
 doc-common-list
 doc-sub-list?
 doc-list-size
 
-Several features of our locals wordlist implementation make these
-operations easy to implement: The locals wordlists are organised as
+Several features of our locals word list implementation make these
+operations easy to implement: The locals word lists are organised as
 linked lists; the tails of these lists are shared, if the lists
 contain some of the same locals; and the address of a name is greater
 than the address of the names behind it in the list.
@@ -2470,7 +3391,7 @@ programs harder to read, and easier to misread and miswrite. The only
 merit of this syntax is that it is easy to implement using the ANS Forth
 locals wordset.
 
-@node Defining Words, Structures, Locals, Words
+@node Defining Words, The Text Interpreter, Locals, Words
 @section Defining Words
 @cindex defining words
 
@@ -2500,6 +3421,10 @@ doc-to
 doc-defer
 doc-is
 
+Definitions in ANS Standard Forth for @code{defer}, @code{<is>} and
+@code{[is]} are provided in @file{compat/defer.fs}. TODO - what do
+the two is words do?
+
 @node Colon Definitions, User-defined Defining Words, Simple Defining Words, Defining Words
 @subsection Colon Definitions
 @cindex colon definitions
@@ -2528,6 +3453,8 @@ You can create new defining words simply by wrapping defining-time code
 around existing defining words and putting the sequence in a colon
 definition.
 
+@comment TODO example
+
 @cindex @code{CREATE} ... @code{DOES>}
 If you want the words defined with your defining words to behave
 differently from words defined with standard defining words, you can
@@ -2546,7 +3473,8 @@ Technically, this fragment defines a defining word @code{def-word}, and
 a word @code{name}; when you execute @code{name}, the address of the
 body of @code{name} is put on the data stack and @var{code2} is executed
 (the address of the body of @code{name} is the address @code{HERE}
-returns immediately after the @code{CREATE}).
+returns immediately after the @code{CREATE}). The word @code{name} is
+sometimes called a @var{child} of @code{def-word}.
 
 In other words, if you make the following definitions:
 
@@ -2570,6 +3498,10 @@ E.g., you can implement @code{Constant} in this way:
 DOES> ( -- w )
     @@ ;
 @end example
+
+@comment that is the classic example.. maybe it should be earlier. There
+@comment is a beautiful description of how this works and what it does in
+@comment the Forthwrite 100th edition.
 
 When you create a constant with @code{5 constant five}, first a new word
 @code{five} is created, then the value 5 is laid down in the body of
@@ -2603,10 +3535,11 @@ that look very similar:
     1 asm-reg-reg-imm ;
 @end example
 
+@noindent
 This could be factored with:
 @example
 : reg-reg-imm ( op-code -- )
-    create ,
+    CREATE ,
 DOES> ( reg-target reg-source n -- )
     @@ asm-reg-reg-imm ;
 
@@ -2622,7 +3555,7 @@ parameters. Creating versions of @code{+} with one parameter fixed can
 be done like this:
 @example
 : curry+ ( n1 -- )
-    create ,
+    CREATE ,
 DOES> ( n2 -- n1+n2 )
     @@ + ;
 
@@ -2637,7 +3570,7 @@ doc-does>
 
 @cindex @code{DOES>} in a separate definition
 This means that you need not use @code{CREATE} and @code{DOES>} in the
-same definition; E.g., you can put the @code{DOES>}-part in a separate
+same definition; you can put the @code{DOES>}-part in a separate
 definition. This allows us to, e.g., select among different DOES>-parts:
 @example
 : does1 
@@ -2656,6 +3589,10 @@ DOES> ( ... -- ... )
        does2
     ENDIF ;
 @end example
+
+In this example, the selection of whether to use @code{does1} or
+@code{does2} is made at compile-time; at the time that the child word is
+@code{Create}d.
 
 @cindex @code{DOES>} in interpretation state
 In a standard program you can apply a @code{DOES>}-part only if the last
@@ -2691,33 +3628,47 @@ doc->body
 @cindex defining words, name given in a string
 By default, defining words take the names for the defined words from the
 input stream. Sometimes you want to supply the name from a string. You
-can do this with
+can do this with:
 
 doc-nextname
 
-E.g.,
+For example:
 
 @example
 s" foo" nextname create
 @end example
-is equivalent to
+@noindent
+is equivalent to:
 @example
 create foo
 @end example
 
 @cindex defining words without name
-Sometimes you want to define a word without a name. You can do this with
+Sometimes you want to define an @var{anonymous word}; a word without a
+name. You can do this with:
+
+doc-:noname
+
+This leaves the execution token for the word on the stack after the
+closing @code{;}. Here's an example in which a deferred word is
+initialised with an @code{xt} from an anonymous colon definition:
+@example
+Defer deferred
+:noname ( ... -- ... )
+  ... ;
+IS deferred
+@end example
+
+Gforth provides an alternative way of doing this, using two separate
+words:
 
 doc-noname
-
 @cindex execution token of last defined word
-To make any use of the newly defined word, you need its execution
-token. You can get it with
-
 doc-lastxt
 
-E.g., you can initialize a deferred word with an anonymous colon
-definition:
+The previous example can be rewritten using @code{noname} and
+@code{lastxt}:
+
 @example
 Defer deferred
 noname : ( ... -- ... )
@@ -2728,19 +3679,6 @@ lastxt IS deferred
 @code{lastxt} also works when the last word was not defined as
 @code{noname}. 
 
-The standard has also recognized the need for anonymous words and
-provides
-
-doc-:noname
-
-This leaves the execution token for the word on the stack after the
-closing @code{;}. You can rewrite the last example with @code{:noname}:
-@example
-Defer deferred
-:noname ( ... -- ... )
-  ... ;
-IS deferred
-@end example
 
 @node Interpretation and Compilation Semantics,  , Supplying names, Defining Words
 @subsection Interpretation and Compilation Semantics
@@ -2771,6 +3709,8 @@ standard terminology: The default interpretation semantics are its
 execution semantics; the default compilation semantics are to append its
 execution semantics to the execution semantics of the current
 definition.}
+
+@comment TODO expand, make it co-operate with new sections on text interpreter.
 
 @cindex immediate words
 You can change the compilation semantics into @code{execute}ing the
@@ -2812,7 +3752,8 @@ default compilation semantics with this feature, like this:
 interpret/compile: foobar
 @end example
 
-as an optimizing version of
+@noindent
+as an optimizing version of:
 
 @example
 : foobar
@@ -2850,7 +3791,10 @@ original @code{foobar}; when you execute this execution token (directly
 with @code{EXECUTE} or indirectly through @code{COMPILE,}) in compile
 state, the result will not be what you expected (i.e., it will not
 perform @code{foo bar}). State-smart words are a bad idea. Simply don't
-write them!
+write them@footnote{For a more detailed discussion of this topic, see
+@cite{@code{State}-smartness -- Why it is Evil and How to Exorcise it} by Anton
+Ertl; presented at EuroForth '98 and available from
+@url{http://www.complang.tuwien.ac.at/papers/}}!
 
 @cindex defining words with arbitrary semantics combinations
 It is also possible to write defining words that define words with
@@ -2903,13 +3847,528 @@ accessing the header structure usually know how to deal with this; e.g.,
 @code{create-interpret/compile}.
 
 @c ----------------------------------------------------------
-@node Structures, Object-oriented Forth, Defining Words, Words
+@node The Text Interpreter, Structures, Defining Words, Words
+@section  The Text Interpreter
+@cindex interpreter - outer
+@cindex text interpreter
+@cindex outer interpreter
+
+Blah blah.
+
+doc->in
+
+
+@menu
+* Number Conversion::
+* Interpret/Compile states::
+* Literals::
+* Interpreter Directives::
+@end menu
+
+
+
+invoking it now, by typing @kbd{gforth<return>}). Forth is now running
+its command line interpreter, which is called the "Text Interpreter"
+(also known as the "Outer Interpreter").  The behaviour of the text
+interpreter depends upon whether the system is in "Interpret" or
+"Compile" state. At startup, the system is always in "Interpret" state.
+
+
+Behaviour of the text interpreter in "Interpret" state
+------------------------------------------------------
+
+Although it may not be obvious, Forth is actually prompting you for
+input. Type a number and press the <return> key:
+
+45<return>  ok
+
+Rather than give you a prompt to invite you to input something, the
+text interpreter prints a status message *after* it has processed a
+line of input. The status message in this case (" ok" followed by
+carriage-return) indicates that the text interpreter was able to
+process all of your input successfully. Now type something illegal:
+
+qwer341<return>
+^^^^^^^
+Error: Undefined word
+
+When the text interpreter detects an error, it discards any remaining
+text on a line, resets certain internal state (including returning to
+"Interpret" state) and prints an error message.
+
+The text interpreter works on input one line at a time. Starting at
+the beginning of the line, it skips leading spaces (called
+"delimiters") then parses a string (a sequence of non-space
+characters) until it either reaches a space character or it
+reaches the end of the line. Having parsed a string, it then makes two
+attempts to do something with it:
+
+* It looks the string up in a dictionary of definitions. If the string
+  is found in the dictionary, the string names a "definition" (also
+  known as a "word") and the dictionary search will return an
+  "Execution token" (xt) for the definition and some flags that show
+  when the definition can be used legally. If the definition can be
+  legally executed in "Interpret" mode then the text interpreter will
+  use the xt to execute it, otherwise it will issue an error
+  message. The dictionary is described in more detail in <blah>.
+
+* If the string is not found in the dictionary, the text interpreter
+  attempts to treat it as a number in the current radix (base 10 after
+  initial startup). If the string represents a legal number in the
+  current radix, the number is pushed onto the appropriate parameter
+  stack. Stacks are discussed in more detail in <blah>. Number
+  conversion is described in more detail in <section about +, -
+  numbers and different number formats>.
+
+If both of these attempts fail, the remainer of the input line is
+discarded and the text interpreter isses an error message. If one of
+these attempts succeeds, the text interpreter repeats the parsing
+process until the end of the line has been reached. At this point, 
+it prints the status message "  ok" and waits for more input.
+
+There are two important things to note about the behaviour of the text
+interpreter:
+
+* it processes each input string to completion before parsing
+  additional characters from the input line.
+
+* it keeps track of its position in the input line using a variable
+  (called >IN, pronounced "to-in"). The value of >IN can be modified
+  by the execution of definitions in the input line. This means that
+  definitions can "trick" the text interpreter either into skipping
+  sections of the input line or into parsing a section of the
+  input line more than once.
+
+
+Stacks, postfix notation and parameter passing
+----------------------------------------------
+
+In procedural programming languages (like C and Pascal), the
+building-block of programs is the function or procedure. These
+functions or procedures are called with explicit parameters. For
+example, in C we might write:
+
+total = total + new_volume(length,height,depth);
+
+where total, length, height, depth are all variables and new_volume is
+a function-call to another piece of code.
+
+In Forth, the equivalent to the function or procedure is the
+"definition" and parameters are implicitly passed between definitions
+using a shared stack that is visible to the programmer. Although Forth
+does support variables, the existence of the stack means that they are
+used far less often than in most other programming languages. When the
+text interpreter encounters a number, it will place it on the
+stack. There are several stacks (the actual number is
+implementation-dependent ..) and the particular stack used for any
+operation is implied unambiguously by the operation being
+performed. The stack used for all integer operations is called the
+"data stack", and since this is the stack used most commonly,
+references to "the data stack" are often abbreviated to "the stack".
+
+The stacks have a LIFO (last-in, first-out) organisation. If you type:
+
+1 2 3<return>  ok
+
+then you have placed three numbers on the (data) stack. An analogy for
+the behaviour of the stack is to take a pack of playing cards and deal
+out the ace (1), 2 and 3 into a pile on the table. The 3 was the last
+card onto the pile ("last-in") and if you take a card off the pile
+then, unless you're prepared to fiddle a bit, the card that you take
+off will be the 3 ("first-out"). The number that will be first-out of
+the stack is called the "top of stack", which is often abbreviated to
+TOS.
+
+To see how parameters are passed in Forth, we will consider the
+behaviour of the definition "+" (pronounced "plus"). You will not be
+surprised to learn that this definition performs addition. More
+precisely, it adds two number together and produces a result. Where
+does it get the two numbers from? It takes the first two numbers off
+the stack. Where does it place the result? On the stack. To continue
+with the playing-cards analogy, you can perform the behaviour of "+"
+like this:
+
+- pick up two cards from the stack
+- stare at them intently and ask yourself "what *is* the sum of these
+  two numbers"
+- decide that the answer is 5
+- shuffle the two cards back into the pack and find a 5
+- put a 5 on the remaining ace that's on the table.
+
+If you don't have a pack of cards handy but you do have Forth running,
+you can use the definition .s to show the current state of the stack,
+without affecting the stack. If you already typed "1 2 3" then you
+should see:
+
+.s<return> <3> 1 2 3  ok
+
+The "<3>" is the total number of items on the stack, and the item on
+the far right-hand side is the TOS. You can now type:
+
++ .s<return> <2> 1 5  ok
+
+which is correct; there are now 2 items on the stack and the result of
+the addition is 5.
+
+If you're playing with cards, try doing a second addition; pick up the
+two cards, work out that their sum is 6, shuffle them into the pack,
+look for a 6 and place that on the table. You now have just one item
+on the stack. What happens if you try to do a third addition? Pick up
+the first card, pick up the second card - ah. There is no second
+card. This is called a "stack underflow" and consitutes an error. If
+you try to do the same thing with Forth it will report an error
+(probably a Stack Underflow or an Invalid Memory Address error).
+
+The opposite situation to a stack underflow is a stack overflow, which
+simply accepts that there is a finite amount of storage space reserved
+for the stack. To stretch the playing card analogy, if you had enough
+packs of cards and you piled the cards up on the table, you would
+eventually be unable to add another card; you'd hit the
+ceiling. Gforth allows you to set the maximum size of the stacks. In
+general, the only time that you will get a stack overflow is because a
+definition has a bug in it and is generating data on the stack
+uncontrollably.
+
+There's one final use for the playing card analogy. If you model your
+stack using a pack of playing cards, the maximum number of items on
+your stack will be 52 (I assume you didn't use the Joker). The maximum
+*value* of any item on the stack is 13 (the King). In fact, the only
+possible numbers are positive integer numbers 1 through 13; you can't
+have (for example) 0 or 27 or 3.52 or -2. If you change the way you
+think about some of the cards, you can accommodate different
+numbers. For example, you could think of the Jack as representing 0,
+the Queen as representing -1 and the King as representing -2. Your
+*range* remains unchanged (you can still only represent a total of 13
+numbers) but the numbers that you can represent are -2 through 10.
+
+In that analogy, the limit was the amount of information that a single
+stack entry could hold, and Forth has a similar limit. In Forth, the
+size of a stack entry is called a "cell". The actual size of a cell is
+implementation dependent and affects the maximum value that a stack
+entry can hold. A Standard Forth provides a cell size of at least
+16-bits, and most desktop systems use a cell size of 32-bits.
+
+Forth does not do any type checking for you, so you are free to
+manipulate and combine stack items in any way you wish. A convenient
+ways of treating stack items is as 2's complement signed integers, and
+that is what Standard words like "+" do. Therefore you can type:
+
+-5 12 + .s<return> <1> 7  ok
+
+If you use numbers and definitions like "+" in order to turn Forth
+into a great big pocket calculator, you will realise that it's rather
+different from a normal calculator. Rather than typing 2 + 3 = you had
+to type 2 3 + (ignore the fact that you had to use .s to see the
+result). The terminology used to describe this difference is to say
+that your calculator uses "Infix Notation" (parameters and operators
+are mixed) whilst Forth uses "Postfix Notation" (parameters and
+operators are separate), also called "Reverse Polish Notation".
+
+Whilst postfix notation might look confusing to begin with, it has
+several important advantages:
+
+- it is unambiguous
+- it is more concise
+- it fits naturally with a stack-based system
+
+To examine these claims in more detail, consider these sums:
+
+6 + 5 * 4 =
+4 * 5 + 6 =
+
+If you're just learning maths or your maths is very rusty, you will
+probably come up with the answer 44 for the first and 26 for the
+second. If you are a bit of a whizz at maths you will remember the
+*convention* that multiplication takes precendence over addition, and
+you'd come up with the answer 26 both times. To explain the answer 26
+to someone who got the answer 44, you'd probably rewrite the first sum
+like this:
+
+6 + (5 * 4) =
+
+If what you really wanted was to perform the addition before the
+multiplication, you would have to use parentheses to force it.
+
+If you did the first two sums on a pocket calculator you would probably
+get the right answers, unless you were very cautious and entered them using
+these keystroke sequences:
+
+6 + 5 = * 4 =
+4 * 5 = + 6 =
+
+Postfix notation is unambiguous because the order that the operators
+are applied is always explicit; that also means that parentheses are
+never required. The operators are *active* (the act of quoting the
+operator makes the operation occur) which removes the need for "=".
+
+The sum 6 + 5 * 4 can be written (in postfix notation) in two
+equivalent ways:
+
+6 5 4 * +      or:
+5 4 * 6 +
+
+TODO point out that the order of number is never changed.
+
+The Structure Of Programs In Forth
+----------------------------------
+
+When you start up the Forth compiler, a large number of definitions
+already exist. To develop a new application, use bottom-up programming
+techniques to create new definitions that are defined in terms of
+existing definitions. As you create each definition you can test it
+interactively. Ultimately, you end up with an environment <blah blah>
+
+Creating new definitions
+------------------------
+
+The easiest way to create a new definition is to use a "colon
+definition". In order to provide a few examples (and give you some
+homework) I'm going to introduce a very small set of words but only
+describe what they do very informally, by example.
+
++   add the top two numbers on the stack and place the result on the
+stack
+.   print the top stack item
+."  print text until a " delimiter is found
+CR  print a carriage-return
+:   start a new definition
+;   end a definition
+DUP blah
+DROP blah
+
+example 1:
+: greet ." Hello and welcome" ;<return>  ok
+greet<return> Hello and welcome  ok
+greet greet<return> Hello and welcomeHello and welcome  ok
+
+When you try out this example, be careful to copy the spaces
+accurately; there needs to be a space between each group of characters
+that will be processed by the text interpreter.
+
+
+example 2:
+: add-two 2 + . ;<return>  ok
+5 add-two<return> 7  ok
+
+
+- numbers and definitions
+- redefining things .. what uses the old defn and what uses the new one
+- boundary between system definitions and your definitions
+- standards.. a double-edged sword
+- philosophy
+
+- your first set of definitions
+
+
+
+.. interactive stuff
+5 3 +  . <return> 8  ok
+
+could have been split over several lines
+
+5 . . <return> 
+
+- cells and chars
+
+- the text interpreter in "Compilation" state.
+
+-- elements of a forth system
+  - text interpreter (outer interpreter)
+  - compiler
+  - inner interpreter
+  - dictionaries and wordlists
+  - stacks
+
+-- disparate spaces .. may be better to describe that elsewhere.
+
+
+
+@node Number Conversion, Interpret/Compile states, The Text Interpreter, The Text Interpreter
+@subsection Number Conversion
+@cindex Number conversion
+@cindex double-cell numbers, input format
+@cindex input format for double-cell numbers
+@cindex single-cell numbers, input format
+@cindex input format for single-cell numbers
+@cindex floating-point numbers, input format
+@cindex input format for floating-point numbers
+
+If the text interpreter fails to find a particular string in the name
+dictionary, it attempts to convert it to a number using a set of rules.
+
+Let <digit> represent any character that is a legal digit in the current
+number base (for example, 0-9 when the number base is decimal or 0-9, A-F
+when the number base is hexadecimal).
+
+Let <decimal digit> represent any character in the range 0-9.
+
+@comment TODO need to extend the next defn to support fp format
+Let @{+ | -@} represent the optional presence of either a @code{+} or
+@code{-} character.
+
+Let * represent any number of instances of the previous character
+(including none).
+
+Let any other character represent itself.
+
+Now, the conversion rules are:
+
+@itemize @bullet
+@item
+A string of the form <digit><digit>* is treated as a single-precision
+(CELL-sized) positive integer. Examples are 0 123 6784532 32343212343456 42
+@item
+A string of the form -<digit><digit>* is treated as a single-precision
+(CELL-sized) negative integer, and is represented using 2's-complement
+arithmetic. Examples are -45 -5681 -0
+@item
+A string of the form <digit><digit>*.<digit>* is treated as a double-precision
+(double-CELL-sized) positive integer. Examples are 3465. 3.465 34.65
+(and note that these all represent the same number).
+@item
+A string of the form -<digit><digit>*.<digit>* is treated as a
+double-precision (double-CELL-sized) negative integer, and is
+represented using 2's-complement arithmetic. Examples are -3465. -3.465
+-34.65 (and note that these all represent the same number).
+@item
+A string of the form @{+ | -@}<decimal digit>@{.@}<decimal digit>*@{e | E@}@{+
+| -@}<decimal digit><decimal digit>* is treated as floating-point
+number. Examples are 1e0 1.e 1.e0 +1e+0 (which all represent the same
+number) +12.E-4 
+@end itemize
+
+By default, the number base used for integer number conversion is given
+by the contents of a variable named @code{BASE}. Base 10 (decimal) is
+always used for floating-point number conversion.
+
+doc-base
+doc-hex
+doc-decimal
+
+@cindex '-prefix for character strings
+@cindex &-prefix for decimal numbers
+@cindex %-prefix for binary numbers
+@cindex $-prefix for hexadecimal numbers
+Gforth allows you to override the value of @code{BASE} by using a prefix
+before the first digit of an (integer) number. Four prefixes are
+supported:
+
+@itemize @bullet
+@item
+@code{&} -- decimal number
+@item
+@code{%} -- binary number
+@item
+@code{$} -- hexadecimal number
+@item
+@code{'} -- base 256 number
+@end itemize
+
+Here are some examples, with the equivalent decimal number shown after
+in braces:
+
+-$41 (-65) %1001101 (205) %1001.0001 (145 - a double-precision number)
+'AB (16706; ascii A is 65, ascii B is 66, number is 65*256 + 66)
+'ab (24930; ascii a is 97, ascii B is 98, number is 97*256 + 98)
+&905 (905) $abc (2478) $ABC (2478)
+
+@cindex Number conversion - traps for the unwary
+Number conversion has a number of traps for the unwary:
+
+@itemize @bullet
+@item
+You cannot determine the current number base using the code sequence
+@code{BASE @@ .} -- the number base is always 10 in the current number
+base. Instead, use something like @code{BASE @@ DECIMAL DUP . BASE !}
+@item
+If the number base is set to a value greater than 14 (for example,
+hexadecimal), the number 123E4 is ambiguous; the conversion rules allow
+it to be intepreted as either a single-precision integer or a
+floating-point number (Gforth treats it as an integer). The ambiguity
+can be resolved by explicitly stating the sign of the mantissa and/or
+exponent: 123E+4 or +123E4 -- if the number base is decimal, no
+ambiguity arises; either representation will be treated as a
+floating-point number.
+@item
+There is a word @code{bin} but it does @var{not} set the number base!
+It is used to specify file types.
+@item
+ANS Forth Standard requires the @code{.} of a double-precision number to
+be the final character in the string. Allowing the @code{.} to be
+anywhere after the first digit is a Gforth extension.
+@item
+The number conversion process does not check for overflow.
+@item
+In Gforth, number conversion to floating-point numbers always use base
+10, irrespective of the value of @code{BASE}. For the ANS Forth
+Standard, conversion to floating-point numbers whilst the value of
+@code{BASE} is not 10 is an ambiguous condition.
+@end itemize
+
+
+@node Interpret/Compile states, Literals, Number Conversion, The Text Interpreter
+@subsection Interpret/Compile states
+@cindex Interpret/Compile states
+
+Blah
+
+doc-state
+doc-[
+doc-]
+
+
+
+@node Literals, Interpreter Directives, Interpret/Compile states, The Text Interpreter
+@subsection Literals
+@cindex Literals
+
+Blah blah
+
+doc-literal
+doc-2literal
+doc-fliteral
+
+@node Interpreter Directives, ,Literals, The Text Interpreter
+@subsection Interpreter Directives
+@cindex Interpreter Directives
+
+These words are usually used outside of definitions; for example, to
+control which parts of a source file are processed by the text
+interpreter. There are only a few ANS Forth Standard words, but Gforth
+supplements these with a rich set of immediate control structure words
+to compensate for the fact that the non-immediate versions can only be
+used in compile state (@pxref{Control Structures}).
+
+doc-[IF]
+doc-[ELSE]
+doc-[THEN]
+doc-[ENDIF]
+
+doc-[IFDEF]
+doc-[IFUNDEF]
+
+doc-[?DO]
+doc-[DO]
+doc-[FOR]
+doc-[LOOP]
+doc-[+LOOP]
+doc-[NEXT]
+
+doc-[BEGIN]
+doc-[UNTIL]
+doc-[AGAIN]
+doc-[WHILE]
+doc-[REPEAT]
+
+
+@c ----------------------------------------------------------
+@node Structures, Object-oriented Forth, The Text Interpreter, Words
 @section  Structures
 @cindex structures
 @cindex records
 
 This section presents the structure package that comes with Gforth. A
-version of the package implemented in plain ANS Forth is available in
+version of the package implemented in ANS Standard Forth is available in
 @file{compat/struct.fs}. This package was inspired by a posting on
 comp.lang.forth in 1989 (unfortunately I don't remember, by whom;
 possibly John Hayes). A version of this section has been published in
@@ -3161,23 +4620,24 @@ The type description on the stack is of the form @emph{align
 size}. Keeping the size on the top-of-stack makes dealing with arrays
 very simple.
 
-@code{field} is a defining word that uses @code{create}
-and @code{does>}. The body of the field contains the offset
-of the field, and the normal @code{does>} action is
+@code{field} is a defining word that uses @code{Create}
+and @code{DOES>}. The body of the field contains the offset
+of the field, and the normal @code{DOES>} action is:
 
 @example
 @ +
 @end example
 
+@noindent
 i.e., add the offset to the address, giving the stack effect
 @code{addr1 -- addr2} for a field.
 
 @cindex first field optimization, implementation
 This simple structure is slightly complicated by the optimization
 for fields with offset 0, which requires a different
-@code{does>}-part (because we cannot rely on there being
+@code{DOES>}-part (because we cannot rely on there being
 something on the stack if such a field is invoked during
-compilation). Therefore, we put the different @code{does>}-parts
+compilation). Therefore, we put the different @code{DOES>}-parts
 in separate words, and decide which one to invoke based on the
 offset. For a zero offset, the field is basically a noop; it is
 immediate, and therefore no code is generated when it is compiled.
@@ -3300,8 +4760,8 @@ An implementation in ANS Forth is available.
 
 I have used the technique, on which this model is based, for
 implementing the parser generator Gray; we have also used this technique
-in Gforth for implementing the various flavours of wordlists (hashed or
-not, case-sensitive or not, special-purpose wordlists for locals etc.).
+in Gforth for implementing the various flavours of word lists (hashed or
+not, case-sensitive or not, special-purpose word lists for locals etc.).
 
 @node Why object-oriented programming?, Object-Oriented Terminology, Properties of the Objects model, Objects
 @subsubsection Why object-oriented programming?
@@ -3720,10 +5180,10 @@ Once we have this mechanism, we can also use it for controlling the
 visibility of other words: All words defined after
 @code{protected} are visible only in the current class and its
 descendents. @code{public} restores the compilation
-(i.e. @code{current}) wordlist that was in effect before. If you
+(i.e. @code{current}) word list that was in effect before. If you
 have several @code{protected}s without an intervening
 @code{public} or @code{set-current}, @code{public}
-will restore the compilation wordlist in effect before the first of
+will restore the compilation word list in effect before the first of
 these @code{protected}s.
 
 @node Object Interfaces, Objects Implementation, Classes and Scoping, Objects
@@ -3866,10 +5326,10 @@ a different @code{does>} action:
 Similar for @code{inst-value}.
 
 @cindex class scoping implementation
-Each class also has a wordlist that contains the words defined with
+Each class also has a word list that contains the words defined with
 @code{inst-var} and @code{inst-value}, and its protected
 words. It also has a pointer to its parent. @code{class} pushes
-the wordlists of the class an all its ancestors on the search order,
+the word lists of the class an all its ancestors on the search order,
 and @code{end-class} drops them.
 
 @cindex interface implementation
@@ -3972,7 +5432,7 @@ model is available at @url{http://www.forth.org/fig/oopf.html}.
 
 @cindex @file{oof.fs}, differences to other models
 The @file{oof.fs} model combines information hiding and overloading
-resolution (by keeping names in various wordlists) with object-oriented
+resolution (by keeping names in various word lists) with object-oriented
 programming. It sets the active object implicitly on method entry, but
 also allows explicit changing (with @code{>o...o>} or with
 @code{with...endwith}). It uses parsing and state-smart objects and
@@ -4225,7 +5685,7 @@ doc---object-asptr
 doc---object-[]
 
 @item
-@code{::} and @code{super} for expicit scoping. You should use expicit
+@code{::} and @code{super} for explicit scoping. You should use expicit
 scoping only for super classes or classes with the same set of instance
 variables. Explicit scoped selectors use early binding.
 doc---object-::
@@ -4555,7 +6015,7 @@ bar draw
 @end example
 
 @c -------------------------------------------------------------
-@node Tokens for Words, Wordlists, Object-oriented Forth, Words
+@node Tokens for Words, Word Lists, Object-oriented Forth, Words
 @section Tokens for Words
 @cindex tokens for words
 
@@ -4565,23 +6025,27 @@ words on the stack (and in data space).
 Named words have interpretation and compilation semantics. Unnamed words
 just have execution semantics.
 
+@comment TODO ?normally interpretation semantics are the execution semantics.
+@comment this should all be covered in earlier ss
+
 @cindex execution token
 An @dfn{execution token} represents the execution semantics of an
 unnamed word. An execution token occupies one cell. As explained in
-section @ref{Supplying names}, the execution token of the last words
-defined can be produced with
+@ref{Supplying names}, the execution token of the last word
+defined can be produced with @code{lastxt}.
 
-short-lastxt
-
-You can perform the semantics represented by an execution token with
+You can perform the semantics represented by an execution token with:
 doc-execute
-You can compile the word with
+You can compile the word with:
 doc-compile,
 
 @cindex code field address
 @cindex CFA
 In Gforth, the abstract data type @emph{execution token} is implemented
 as CFA (code field address).
+@comment TODO note that the standard does not say what it represents..
+@comment and you cannot necessarily compile it in all Forths (eg native
+@comment compilers?).
 
 The interpretation semantics of a named word are also represented by an
 execution token. You can get it with
@@ -4630,28 +6094,251 @@ doc-name?int
 doc-name>comp
 doc-name>string
 
-@node Wordlists, Files, Tokens for Words, Words
-@section Wordlists
+@node Word Lists, Environmental Queries, Tokens for Words, Words
+@section Word Lists
+@cindex word lists
+@cindex name dictionary
 
-@node Files, Including Files, Wordlists, Words
+@cindex wid
+All definitions other than those created by @code{:noname} have an entry
+in the name dictionary. The name dictionary is fragmented into a number
+of parts, called @var{word lists}. A word list is identified by a
+cell-sized word list identifier (@var{wid}) in much the same way as a
+file is identified by a file handle. The numerical value of the wid has
+no (portable) meaning, and might change from session to session.
+
+@cindex compilation word list
+At any one time, a single word list is defined as the word list to which
+all new definitions will be added -- this is called the @var{compilation
+word list}. When Gforth is started, the compilation word list is the
+word list called @code{FORTH-WORDLIST}.
+
+@cindex search order stack
+Forth maintains a stack of word lists, representing the @var{search
+order}.  When the name dictionary is searched (for example, when
+attempting to find a word's execution token during compilation), only
+those word lists that are currently in the search order are
+searched. The most recently-defined word in the word list at the top of
+the word list stack is searched first, and the search proceeds until
+either the word is located or the oldest definition in the word list at
+the bottom of the stack is reached. Definitions of the word may exist in
+more than one word lists; the search order determines which version will
+be found.
+
+The ANS Forth Standard "Search order" word set is intended to provide a
+set of low-level tools that allow various different schemes to be
+implemented. Gforth provides @code{vocabulary}, a traditional Forth
+word.  @file{compat/vocabulary.fs} provides an implementation in ANS
+Standard Forth.
+
+TODO: locals section refers to here, saying that every word list (aka
+vocabulary) has its own methods for searching etc. Need to document that.
+
+doc-forth-wordlist
+doc-definitions
+doc-get-current
+doc-set-current
+
+@comment TODO when a defn (like set-order) is instanced twice, the second instance gets documented.
+@comment In general that might be fine, but in this example (search.fs) the second instance is an
+@comment alias, so it would not naturally have documentation
+
+doc-get-order
+doc-set-order
+doc-wordlist
+doc-also
+doc-forth
+doc-only
+doc-order
+doc-previous
+
+doc-find
+doc-search-wordlist
+
+doc-words
+doc-vlist
+
+doc-mappedwordlist
+doc-root
+doc-vocabulary
+doc-seal
+doc-vocs
+doc-current
+doc-context
+
+@menu
+* Why use word lists?::
+* Word list examples::
+@end menu
+
+@node Why use word lists?, Word list examples, Word Lists, Word Lists
+@subsection Why use word lists?
+@cindex word lists - why use them?
+
+There are several reasons for using multiple word lists:
+
+@itemize @bullet
+@item
+To improve compilation speed by reducing the number of name dictionary
+entries that must be searched. This is achieved by creating a new
+word list that contains all of the definitions that are used in the
+definition of a Forth system but which would not usually be used by
+programs running on that system. That word list would be on the search
+list when the Forth system was compiled but would be removed from the
+search list for normal operation. This can be a useful technique for
+low-performance systems (for example, 8-bit processors in embedded
+systems) but is unlikely to be necessary in high-performance desktop
+systems.
+@item
+To prevent a set of words from being used outside the context in which
+they are valid. Two classic examples of this are an integrated editor
+(all of the edit commands are defined in a separate word list; the
+search order is set to the editor word list when the editor is invoked;
+the old search order is restored when the editor is terminated) and an
+integrated assembler (the op-codes for the machine are defined in a
+separate word list which is used when a @code{CODE} word is defined).
+@item
+To prevent a name-space clash between multiple definitions with the same
+name. For example, when building a cross-compiler you might have a word
+@code{IF} that generates conditional code for your target system. By
+placing this definition in a different word list you can control whether
+the host system's @code{IF} or the target system's @code{IF} get used in
+any particular context by controlling the order of the word lists on the
+search order stack.
+@end itemize
+
+@node Word list examples, ,Why use word lists?, Word Lists
+@subsection Word list examples
+@cindex word lists - examples
+
+Here is an example of creating and using a new wordlist using ANS
+Standard words:
+
+@example
+wordlist constant my-new-words-wordlist
+: my-new-words get-order nip my-new-words-wordlist swap set-order ;
+
+\ add it to the search order
+also my-new-words
+
+\ alternatively, add it to the search order and make it
+\ the compilation word list
+also my-new-words definitions
+\ type "order" to see the problem
+@end example
+
+The problem with this example is that @code{order} has no way to
+associate the name @code{my-new-words} with the wid of the word list (in
+Gforth, @code{order} and @code{vocs} will display @code{???}  for a wid
+that has no associated name). There is no Standard way of associating a
+name with a wid.
+
+In Gforth, this example can be re-coded using @code{vocabulary}, which
+associates a name with a wid:
+
+@example
+vocabulary my-new-words
+
+\ add it to the search order
+my-new-words
+
+\ alternatively, add it to the search order and make it
+\ the compilation word list
+my-new-words definitions
+\ type "order" to see that the problem is solved
+@end example
+
+
+@node Environmental Queries, Files, Word Lists, Words
+@section Environmental Queries
+@cindex environmental queries
+@comment TODO more index entries
+
+The ANS Standard introduced the idea of "environmental queries" as a way
+for a program running on a system to determine certain characteristics of the system.
+The Standard specifies a number of strings that might be recognised by a system.
+
+The Standard requires that the name space used for environmental queries
+be distinct from the name space used for definitions.
+
+Typically, environmental queries are supported by creating a set of
+definitions in a word set that is @var{only} used during environmental
+queries; that is what Gforth does. There is no Standard way of adding
+definitions to the set of recognised environmental queries, but any
+implementation that supports the loading of optional word sets must have
+some mechanism for doing this (after loading the word set, the
+associated environmental query string must return @code{true}). In
+Gforth, the word set used to honour environmental queries can be
+manipulated just like any other word set.
+
+doc-environment?
+doc-environment-wordlist
+
+doc-gforth
+doc-os-class
+
+Note that, whilst the documentation for (eg) @code{gforth} shows it
+returning two items on the stack, querying it using @code{environment?}
+will return an additional item; the @code{true} flag that shows that the
+string was recognised.
+
+TODO Document the standard strings or note where they are documented herein
+
+Here are some examples of using environmental queries:
+
+@example
+s" address-unit-bits" environment? 0=
+[IF]
+     cr .( environmental attribute address-units-bits unknown... ) cr
+[THEN]
+
+s" block" environment? [IF] DROP include block.fs [THEN]
+
+s" gforth" environment? [IF] 2DROP include compat/vocabulary.fs [THEN]
+
+s" gforth" environment? [IF] .( Gforth version ) TYPE [ELSE] .( Not Gforth..) [THEN]
+
+@end example
+
+
+Here is an example of adding a definition to the environment word list:
+
+@example
+get-current environment-wordlist set-current
+true constant block
+true constant block-ext
+set-current
+@end example
+
+You can see what definitions are in the environment word list like this:
+
+@example
+get-order 1+ environment-wordlist swap set-order words previous
+@end example
+
+
+
+@node Files, Including Files, Environmental Queries, Words
 @section Files
 
 This chapter describes how to operate on files from Forth.
 
-Files have the following types for opening and creating:
+Files are opened/created by name and type. The following types are
+recognised:
 
 doc-r/o
 doc-r/w
 doc-w/o
 doc-bin
 
-Files are opened/created by name and type, and return a file
-identifier.
+When a file is opened/created, it returns a file identifier,
+@var{wfileid} that is used for all other file commands. All file
+commands also return a status value, @var{wior}, that is 0 for a
+successful operation and an implementation-defined non-zero value in the
+case of an error.
 
 doc-open-file
 doc-create-file
-
-This identifier is used for all other file commands.
 
 doc-close-file
 doc-delete-file
@@ -4659,6 +6346,7 @@ doc-rename-file
 doc-read-file
 doc-read-line
 doc-write-file
+doc-write-line
 doc-emit-file
 doc-flush-file
 
@@ -4675,7 +6363,7 @@ doc-resize-file
 @menu
 * Words for Including::         
 * Search Path::                 
-* Changing the Search Path::    
+* Forth Search Paths::    
 * General Search Paths::        
 @end menu
 
@@ -4688,10 +6376,16 @@ doc-include
 
 Usually you want to include a file only if it is not included already
 (by, say, another source file):
+@comment TODO describe what happens on error. Describes how the require
+@comment stuff works and describe how to clear/reset the history (eg
+@comment for debug). Might want to include that in the MARKER example.
 
 doc-required
 doc-require
 doc-needs
+
+A definition in ANS Standard Forth for @code{required} is provided in
+@file{compat/required.fs}.
 
 @cindex stack effect of included files
 @cindex including files, stack effect
@@ -4703,20 +6397,21 @@ does not change the stack. This allows using these files with
 1 require foo.fs drop
 @end example
 
-@node Search Path, Changing the Search Path, Words for Including, Including Files
+@node Search Path, Forth Search Paths, Words for Including, Including Files
 @subsection Search Path
 @cindex path for @code{included}
 @cindex file search path
 @cindex include search path
 @cindex search path for files
 
+@comment what uses these search paths.. just inc;lude and friends?
 If you specify an absolute filename (i.e., a filename starting with
 @file{/} or @file{~}, or with @file{:} in the second position (as in
 @samp{C:...})) for @code{included} and friends, that file is included
 just as you would expect.
 
 For relative filenames, Gforth uses a search path similar to Forth's
-search order (@pxref{Wordlists}). It tries to find the given filename in
+search order (@pxref{Word Lists}). It tries to find the given filename in
 the directories present in the path, and includes the first one it
 finds.
 
@@ -4738,9 +6433,9 @@ If the filename starts with @file{./}, the search path is not searched
 (just as with absolute filenames), and the @file{.} has the same meaning
 as described above.
 
-@node Changing the Search Path, General Search Paths, Search Path, Including Files
-@subsection Changing the Search Path
-@cindex search path, changes
+@node Forth Search Paths, General Search Paths, Search Path, Including Files
+@subsection Forth Search Paths
+@cindex search path control - forth
 
 The search path is initialized when you start Gforth (@pxref{Invoking
 Gforth}). You can display it with
@@ -4761,21 +6456,20 @@ require timer.fs
 @end example
 
 If you have the need to look for a file in the Forth search path, you could
-use this Gforth feature in your application.
+use this Gforth feature in your application:
 
 doc-open-fpath-file
 
-@node General Search Paths,  , Changing the Search Path, Including Files
+@node General Search Paths,  , Forth Search Paths, Including Files
 @subsection General Search Paths
-@cindex search paths for user applications
+@cindex search path control - for user applications
 
 Your application may need to search files in sevaral directories, like
 @code{included} does. For this purpose you can define and use your own
 search paths. Create a search path like this:
 
 @example
-
-Make a buffer for the path:
+\ Make a buffer for the path:
 create mypath   100 chars ,     \ maximum length (is checked)
                 0 ,             \ real len
                 100 chars allot \ space for path
@@ -4784,9 +6478,11 @@ create mypath   100 chars ,     \ maximum length (is checked)
 You have the same functions for the forth search path in a generic version
 for different paths.
 
+Gforth also provides generic equivalents of the Forth search path words:
+
+doc-.path
 doc-path+
 doc-path=
-doc-.path
 doc-open-path-file
 
 
@@ -4801,16 +6497,21 @@ without OS in the past. Gforth doesn't encourage to use blocks as
 source, and provides blocks only for backward compatibility. The ANS
 standard requires blocks to be available when files are.
 
+@comment TODO what about errors on open-blocks?
 doc-open-blocks
 doc-use
+doc-scr
+doc-blk
 doc-get-block-fid
 doc-block-position
 doc-update
+doc-save-buffers
 doc-save-buffer
+doc-empty-buffers
 doc-empty-buffer
 doc-flush
 doc-get-buffer
-doc-block
+doc---block-block
 doc-buffer
 doc-updated?
 doc-list
@@ -4823,6 +6524,309 @@ doc-block-included
 
 @node Other I/O, Programming Tools, Blocks, Words
 @section Other I/O
+@comment TODO more index entries
+
+@menu
+* Simple numeric output::       Predefined formats
+* Formatted numeric output::    Formatted (pictured) output
+* String Formats::              How Forth stores strings in memory
+* Displaying characters and strings:: Other stuff
+* Input::                       Input
+@end menu
+
+@node Simple numeric output, Formatted numeric output, Other I/O, Other I/O
+@subsection Simple numeric output
+@cindex Simple numeric output
+@comment TODO more index entries
+
+The simplest output functions are those that display numbers from the
+data or floating-point stacks. Floating-point output is always displayed
+using base 10. Numbers displayed from the data stack use the value stored
+in @code{base}.
+
+doc-.
+doc-dec.
+doc-hex.
+doc-u.
+doc-.r
+doc-u.r
+doc-d.
+doc-ud.
+doc-d.r
+doc-ud.r
+doc-f.
+doc-fe.
+doc-fs.
+
+Examples of printing the number 1234.5678E23 in the different floating-point output
+formats are shown below:
+
+@example
+f. 123456779999999000000000000.
+fe. 123.456779999999E24
+fs. 1.23456779999999E26
+@end example
+
+
+@node Formatted numeric output, String Formats, Simple numeric output, Other I/O
+@subsection Formatted numeric output
+@cindex Formatted numeric output
+@cindex pictured numeric output
+@comment TODO more index entries
+
+Forth traditionally uses a technique called @var{pictured numeric
+output} for formatted printing of integers.  In this technique,
+digits are extracted from the number (using the current output radix
+defined by @code{base}), converted to ASCII codes and appended to a
+string that is built in a scratch-pad area of memory
+(@pxref{core-idef,Implementation-defined options}). During the extraction
+sequence, other arbitrary characters can be appended to the string. The
+completed string is specified by an address and length and can
+be manipulated (@code{TYPE}ed, copied, modified) under program control.
+
+All of the words described in the previous section for simple numeric
+output are implemented in Gforth using pictured numeric output.
+
+Three important things to remember about Pictured Numeric Output:
+
+@itemize @bullet
+@item
+It always operates on double-precision numbers; to display a single-precision number,
+convert it first (@pxref{Double precision} for ways of doing this).
+@item
+It always treats the double-precision number as though it were unsigned. Refer to
+the examples below for ways of printing signed numbers.
+@item
+The string is built up from right to left; least significant digit first.
+@end itemize
+
+doc-<#
+doc-#
+doc-#s
+doc-hold
+doc-sign
+doc-#>
+
+doc-represent
+
+Here are some examples of using pictured numeric output:
+
+@example
+: my-u. ( u -- )
+  \ Simplest use of pns.. behaves like Standard u. 
+  0              \ convert to unsigned double
+  <#             \ start conversion
+  #s             \ convert all digits
+  #>             \ complete conversion
+  TYPE SPACE ;   \ display, with trailing space
+
+: cents-only ( u -- )
+  0              \ convert to unsigned double
+  <#             \ start conversion
+  # #            \ convert two least-significant digits
+  #>             \ complete conversion, discard other digits
+  TYPE SPACE ;   \ display, with trailing space
+
+: dollars-and-cents ( u -- )
+  0              \ convert to unsigned double
+  <#             \ start conversion
+  # #            \ convert two least-significant digits
+  [char] . hold  \ insert decimal point
+  #s             \ convert remaining digits
+  [char] $ hold  \ append currency symbol
+  #>             \ complete conversion
+  TYPE SPACE ;   \ display, with trailing space
+
+: my-. ( n -- )
+  \ handling negatives.. behaves like Standard .
+  s>d            \ convert to signed double
+  swap over dabs \ leave sign byte followed by unsigned double
+  <#             \ start conversion
+  #s             \ convert all digits
+  rot sign       \ get at sign byte, append "-" if needed
+  #>             \ complete conversion
+  TYPE SPACE ;   \ display, with trailing space
+
+: account. ( n -- )
+  \ accountants don't like minus signs, they use braces
+  \ for negative numbers
+  s>d            \ convert to signed double
+  swap over dabs \ leave sign byte followed by unsigned double
+  <#             \ start conversion
+  2 pick         \ get copy of sign byte
+  0< IF [char] ) hold THEN \ right-most character of output
+  #s             \ convert all digits
+  rot            \ get at sign byte
+  0< IF [char] ( hold THEN
+  #>             \ complete conversion
+  TYPE SPACE ;   \ display, with trailing space
+@end example
+
+Here are some examples of using these words:
+
+@example
+1 my-u. 1
+hex -1 my-u. decimal FFFFFFFF
+1 cents-only 01
+1234 cents-only 34
+2 dollars-and-cents $0.02
+1234 dollars-and-cents $12.34
+123 my-. 123
+-123 my. -123
+123 account. 123
+-456 account. (456)
+@end example
+
+
+@node String Formats, Displaying characters and strings, Formatted numeric output, Other I/O
+@subsection String Formats
+@cindex string formats
+
+@comment TODO more index entries
+
+Forth commonly uses two different methods for representing a string:
+
+@itemize @bullet
+@item
+@cindex address of counted string
+As a @var{counted string}, represented by a c-addr. The char addressed
+by c-addr contains a character-count, n,  of the string and the string
+occupies the subsequent n char addresses in memory.
+@item
+As cell pair on the stack; c-addr u, where u is the length of the string
+in characters, and c-addr is the address of the first byte of the string.
+@end itemize
+
+The ANS Forth Standard encourages the use of the second format when
+representing strings on the stack, whilst conceeding that the counted
+string format remains useful as a way of storing strings in memory.
+
+doc-count
+
+@xref{Memory Blocks} for words that move, copy and search
+for strings. @xref{Displaying characters and strings,} for words that
+display characters and strings.
+
+
+@node Displaying characters and strings, Input, String Formats, Other I/O
+@subsection Displaying characters and strings
+@cindex displaying characters and strings
+@cindex compiling characters and strings
+@cindex cursor control
+
+@comment TODO more index entries
+
+This section starts with a glossary of Forth words and ends with a set
+of examples.
+
+doc-bl
+doc-space
+doc-spaces
+doc-emit
+doc-."
+doc-.(
+doc-type
+doc-cr
+doc-at-xy
+doc-page
+doc-s"
+doc-c"
+doc-char
+doc-[char]
+doc-sliteral
+
+As an example, consider the following text, stored in a file @file{test.fs}:
+
+@example
+.( text-1)
+: my-word
+  ." text-2" cr
+  .( text-3)
+;
+
+." text-4"
+
+: my-char
+  [char] ALPHABET emit
+  char emit
+;
+@end example
+
+When you load this code into Gforth, the following output is generated:
+
+@example
+@kbd{include test.fs} text-1text-3text-4 ok
+@end example
+
+@itemize @bullet
+@item
+Messages @code{text-1} and @code{text-3} are displayed because @code{.(} 
+is an immediate word; it behaves in the same way whether it is used inside
+or outside a colon definition.
+@item
+Message @code{text-4} is displayed because of Gforth's added interpretation
+semantics for @code{."}.
+@item
+Message @code{text-2} is @var{not} displayed, because the text interpreter
+performs the compilation semantics for @code{."} within the definition of
+@code{my-word}.
+@end itemize
+
+Here are some examples of executing @code{my-word} and @code{my-char}:
+
+@example
+my-word text-2
+ ok
+@kbd{my-char fred} Af ok
+@kbd{my-char jim} Aj ok
+@end example
+
+@itemize @bullet
+@item
+Message @code{text-2} is displayed because of the run-time behaviour of
+@code{."}.
+@item
+@code{[char]} compiles the "A" from "ALPHABET" and puts its display code
+on the stack at run-time. @code{emit} always displays the character
+when @code{my-char} is executed.
+@item
+@code{char} parses a string at run-time and the second @code{emit} displays
+the first character of the string.
+@item
+If you type @code{see my-char} you can see that @code{[char]} discarded
+the text "LPHABET" and only compiled the display code for "A" into the
+definition of @code{my-char}.
+@end itemize
+
+
+
+@node Input, , Displaying characters and strings, Other I/O
+@subsection Input
+@cindex Input
+@comment TODO more index entries
+
+Blah on traditional and recommended string formats.
+
+doc-tib
+doc-#tib
+doc--trailing
+doc-/string
+doc-convert
+doc->number
+doc->float
+doc-accept
+doc-query
+doc-expect
+doc-evaluate
+doc-key
+doc-key?
+
+TODO reference the block move stuff elsewhere
+
+TODO convert and >number might be better in the numeric input section.
+
+TODO maybe some of these shouldn't be here but should be in a "parsing" section
+
 
 @node Programming Tools, Assembler and Code Words, Other I/O, Words
 @section Programming Tools
@@ -4838,19 +6842,34 @@ doc-block-included
 @subsection Debugging
 @cindex debugging
 
-The simple debugging aids provided in @file{debugs.fs}
-are meant to support a different style of debugging than the
-tracing/stepping debuggers used in languages with long turn-around
-times.
+Languages with a slow edit/compile/link/test development loop tend to
+require sophisticated tracing/stepping debuggers to facilate
+productive debugging.
 
 A much better (faster) way in fast-compiling languages is to add
 printing code at well-selected places, let the program run, look at
 the output, see where things went wrong, add more printing code, etc.,
 until the bug is found.
 
-The word @code{~~} is easy to insert. It just prints debugging
-information (by default the source location and the stack contents). It
-is also easy to remove (@kbd{C-x ~} in the Emacs Forth mode to
+The simple debugging aids provided in @file{debugs.fs}
+are meant to support this style of debugging. In addition, there are
+words for non-destructively inspecting the stack and memory:
+
+doc-.s
+doc-f.s
+
+There is a word @code{.r} but it does @var{not} display the return
+stack! It is used for formatted numeric output.
+
+doc-depth
+doc-fdepth
+doc-clearstack
+doc-?
+doc-dump
+
+The word @code{~~} prints debugging information (by default the source
+location and the stack contents). It is easy to insert. If you use Emacs
+it is also easy to remove (@kbd{C-x ~} in the Emacs Forth mode to
 query-replace them with nothing). The deferred words
 @code{printdebugdata} and @code{printdebugline} control the output of
 @code{~~}. The default source location output format works well with
@@ -4866,6 +6885,28 @@ numeric output string, so you should not use @code{~~}, e.g., between
 doc-~~
 doc-printdebugdata
 doc-printdebugline
+
+doc-see
+doc-marker
+
+Here's an example of using @code{marker} at the start of a source file
+that you are debugging; it ensures that you only ever have one copy of
+the file's definitions compiled at any time:
+
+@example
+[IFDEF] my-code
+    my-code
+[ENDIF]
+
+marker my-code
+
+\ .. definitions start here
+\ .
+\ .
+\ end
+@end example
+
+
 
 @node Assertions, Singlestep Debugger, Debugging, Programming Tools
 @subsection Assertions
@@ -4927,6 +6968,10 @@ If there is interest, we will introduce a special throw code. But if you
 intend to @code{catch} a specific condition, using @code{throw} is
 probably more appropriate than an assertion).
 
+Definitions in ANS Standard Forth for these assertion words are provided
+in @file{compat/assert.fs}.
+
+
 @node Singlestep Debugger, , Assertions, Programming Tools
 @subsection Singlestep Debugger
 @cindex singlestep Debugger
@@ -4936,8 +6981,12 @@ probably more appropriate than an assertion).
 @cindex @code{BREAK"}
 
 When a new word is created there's often the need to check whether it behaves
-correctly or not. You can do this by typing @code{dbg badword}. This might
-look like:
+correctly or not. You can do this by typing @code{dbg badword}.
+
+doc-dbg
+
+This might look like:
+
 @example
 : badword 0 DO i . LOOP ;  ok
 2 dbg badword 
@@ -5064,11 +7113,11 @@ Another option for implementing normal and defining words efficiently
 is: adding the wanted functionality to the source of Gforth. For normal
 words you just have to edit @file{primitives} (@pxref{Automatic
 Generation}), defining words (equivalent to @code{;CODE} words, for fast
-defined words) may require changes in @file{engine.c}, @file{kernal.fs},
+defined words) may require changes in @file{engine.c}, @file{kernel.fs},
 @file{prims2x.fs}, and possibly @file{cross.fs}.
 
 
-@node Threading Words,  , Assembler and Code Words, Words
+@node Threading Words, Passing Commands to the OS, Assembler and Code Words, Words
 @section Threading Words
 @cindex threading words
 
@@ -5081,6 +7130,7 @@ present this wordset is still incomplete. It is also pretty low-level;
 some day it will hopefully be made unnecessary by an internals wordset
 that abstracts implementation details away completely.
 
+doc-threading-method
 doc->code-address
 doc->does-code
 doc-code-address!
@@ -5102,6 +7152,62 @@ You can recognize words defined by a @code{CREATE}...@code{DOES>} word
 with @code{>DOES-CODE}. If the word was defined in that way, the value
 returned is different from 0 and identifies the @code{DOES>} used by the
 defining word.
+@comment TODO should that be "identifies the xt of the DOES> ??
+
+@node Passing Commands to the OS, Miscellaneous Words, Threading Words, Words
+@section Passing Commands to the Operating System
+@cindex operating system - passing commands
+@cindex shell commands
+
+Gforth allows you to pass an arbitrary string to the host operating
+system shell (if such a thing exists) for execution.
+
+doc-sh
+doc-system
+doc-$?
+
+
+@node Miscellaneous Words,  , Passing Commands to the OS, Words
+@section Miscellaneous Words
+@cindex miscellaneous words
+
+These section lists the ANS Standard Forth words that are not documented
+elsewhere in this manual. Ultimately, they all need proper homes.
+
+doc-,
+doc-allocate
+doc-allot
+doc-c,
+doc-here
+doc-ms
+doc-pad
+doc-parse
+doc-postpone
+doc-resize
+doc-restore-input
+doc-save-input
+doc-source
+doc-source-id
+doc-span
+doc-time&date
+doc-unused
+doc-word
+doc-[compile]
+
+These ANS Standard Forth words are not currently implemented in Gforth
+(see TODO section on dependencies)
+
+The following ANS Standard Forth words are not currently supported by Gforth 
+(@pxref{ANS conformance})
+
+@code{EDITOR} 
+@code{EKEY} 
+@code{EKEY>CHAR} 
+@code{EKEY?} 
+@code{EMIT?} 
+@code{FORGET} 
+@code{LOCALS|} 
+
 
 @c ******************************************************************
 @node Tools, ANS conformance, Words, Top
@@ -5280,7 +7386,7 @@ installation-dependent. Currently a character is represented by a C
 @cindex case sensitivity for name lookup
 @cindex name lookup, case sensitivity
 @cindex locale and case sensitivity
-Any character except the ASCII NUL charcter can be used in a
+Any character except the ASCII NUL character can be used in a
 name. Matching is case-insensitive (except in @code{TABLE}s). The
 matching is performed using the C function @code{strncasecmp}, whose
 function is probably influenced by the locale. E.g., the @code{C} locale
@@ -5532,7 +7638,7 @@ Depending on the operating system, the installation, and the invocation
 of Gforth, this is either checked by the memory management hardware, or
 it is not checked. If it is checked, you typically get a @code{-9 throw}
 (Invalid memory address) as soon as the overflow happens. If it is not
-check, overflows typically result in mysterious illegal memory accesses,
+checked, overflows typically result in mysterious illegal memory accesses,
 producing @code{-9 throw} (Invalid memory address) or @code{-23 throw}
 (Address alignment exception); they might also destroy the internal data
 structure of @code{ALLOCATE} and friends, resulting in various errors in
@@ -6387,8 +8493,8 @@ as well as possible.
 
 @table @i
 
-@item deleting the compilation wordlist (@code{FORGET}):
-@cindex @code{FORGET}, deleting the compilation wordlist
+@item deleting the compilation word list (@code{FORGET}):
+@cindex @code{FORGET}, deleting the compilation word list
 Not implemented (yet).
 
 @item fewer than @var{u}+1 items on the control flow stack (@code{CS-PICK}, @code{CS-ROLL}):
@@ -6469,14 +8575,14 @@ Not implemented (yet).
 @cindex ambiguous conditions, search-order words
 
 @table @i
-@item changing the compilation wordlist (during compilation):
-@cindex changing the compilation wordlist (during compilation)
-@cindex compilation wordlist, change before definition ends
-The word is entered into the wordlist that was the compilation wordlist
+@item changing the compilation word list (during compilation):
+@cindex changing the compilation word list (during compilation)
+@cindex compilation word list, change before definition ends
+The word is entered into the word list that was the compilation word list
 at the start of the definition. Any changes to the name field (e.g.,
 @code{immediate}) or the code field (e.g., when executing @code{DOES>})
 are applied to the latest defined word (as reported by @code{last} or
-@code{lastxt}), if possible, irrespective of the compilation wordlist.
+@code{lastxt}), if possible, irrespective of the compilation word list.
 
 @item search order empty (@code{previous}):
 @cindex @code{previous}, search order empty
@@ -6510,7 +8616,7 @@ The Forth system ATLAST provides facilities for embedding it into
 applications; unfortunately it has several disadvantages: most
 importantly, it is not based on ANS Forth, and it is apparently dead
 (i.e., not developed further and not supported). The facilities
-provided by Gforth in this area are inspired by ATLASTs facilities, so
+provided by Gforth in this area are inspired by ATLAST's facilities, so
 making the switch should not be hard.
 
 We also tried to design the interface such that it can easily be
@@ -6874,7 +8980,7 @@ If you invoke Gforth with a command line flag for the size
 dictionary. If you save the dictionary with @code{savesystem} or create
 an image with @file{gforthmi}, this size will become the default
 for the resulting image file. E.g., the following will create a
-fully relocatable version of gforth.fi with a 1MB dictionary:
+fully relocatable version of @file{gforth.fi} with a 1MB dictionary:
 
 @example
 gforthmi gforth.fi -m 1M
@@ -7107,14 +9213,14 @@ NEXT;
 @end example
 the NEXT comes strictly after the other code, i.e., there is nearly no
 scheduling. After a little thought the problem becomes clear: The
-compiler cannot know that sp and ip point to different addresses (and
-the version of @code{gcc} we used would not know it even if it was
-possible), so it could not move the load of the cfa above the store to
-the TOS. Indeed the pointers could be the same, if code on or very near
-the top of stack were executed. In the interest of speed we chose to
-forbid this probably unused ``feature'' and helped the compiler in
-scheduling: NEXT is divided into the loading part (@code{NEXT_P1}) and
-the goto part (@code{NEXT_P2}). @code{+} now looks like:
+compiler cannot know that @code{sp} and @code{ip} point to different
+addresses (and the version of @code{gcc} we used would not know it even
+if it was possible), so it could not move the load of the cfa above the
+store to the TOS. Indeed the pointers could be the same, if code on or
+very near the top of stack were executed. In the interest of speed we
+chose to forbid this probably unused ``feature'' and helped the compiler
+in scheduling: NEXT is divided into the loading part (@code{NEXT_P1})
+and the goto part (@code{NEXT_P2}). @code{+} now looks like:
 @example
 n=sp[0]+sp[1];
 sp++;
@@ -7142,9 +9248,9 @@ differences between the threading methods (@pxref{Threading Words}).
 
 Indirect threading is implemented completely machine-independently.
 Direct threading needs routines for creating jumps to the executable
-code (e.g. to docol or dodoes). These routines are inherently
-machine-dependent, but they do not amount to many source lines. I.e.,
-even porting direct threading to a new machine is a small effort.
+code (e.g. to @code{docol} or @code{dodoes}). These routines are inherently
+machine-dependent, but they do not amount to many source lines. Therefore,
+even porting direct threading to a new machine requires little effort.
 
 @cindex --enable-indirect-threaded, configuration flag
 @cindex --enable-direct-threaded, configuration flag
@@ -7166,7 +9272,7 @@ the chunk of code executed by every word defined by a
 the Forth code to be executed, i.e. the code after the
 @code{DOES>} (the DOES-code)? There are two solutions:
 
-In fig-Forth the code field points directly to the dodoes and the
+In fig-Forth the code field points directly to the @code{dodoes} and the
 DOES-code address is stored in the cell after the code address (i.e. at
 @code{@var{cfa} cell+}). It may seem that this solution is illegal in
 the Forth-79 and all later standards, because in fig-Forth this address
@@ -7386,8 +9492,8 @@ of the threaded code); all these systems were written in assembly
 language. We also compared Gforth with three systems written in C:
 PFE-0.9.14 (compiled with @code{gcc-2.6.3} with the default
 configuration for Linux: @code{-O2 -fomit-frame-pointer -DUSE_REGS
--DUNROLL_NEXT}), ThisForth Beta (compiled with gcc-2.6.3 -O3
--fomit-frame-pointer; ThisForth employs peephole optimization of the
+-DUNROLL_NEXT}), ThisForth Beta (compiled with @code{gcc-2.6.3 -O3
+-fomit-frame-pointer}; ThisForth employs peephole optimization of the
 threaded code) and TILE (compiled with @code{make opt}). We benchmarked
 Gforth, PFE, ThisForth and TILE on a 486DX2/66 under Linux. Kenneth
 O'Heskin kindly provided the results for Win32Forth and NT Forth on a
@@ -7472,35 +9578,46 @@ Cross Compiler
 * How the Cross Compiler Works::
 @end menu
 
-@node Using the Cross Compiler, , How the Cross Compiler Works, Cross Compiler
+@node Using the Cross Compiler, How the Cross Compiler Works, Cross Compiler, Cross Compiler
 @section Using the Cross Compiler
 
-@node How the Cross Compiler Works, Using the Cross Compiler, , Cross Compiler
+@node How the Cross Compiler Works, , Using the Cross Compiler, Cross Compiler
 @section How the Cross Compiler Works
 
 @node Bugs, Origin, Cross Compiler, Top
-@chapter Bugs
+@appendix Bugs
 @cindex bug reporting
 
-Known bugs are described in the file BUGS in the Gforth distribution.
+Known bugs are described in the file @file{BUGS} in the Gforth distribution.
 
 If you find a bug, please send a bug report to
-@email{bug-gforth@@gnu.ai.mit.edu}. A bug report should
-describe the Gforth version used (it is announced at the start of an
-interactive Gforth session), the machine and operating system (on Unix
-systems you can use @code{uname -a} to produce this information), the
-installation options (send the @file{config.status} file), and a
-complete list of changes you (or your installer) have made to the Gforth
-sources (if any); it should contain a program (or a sequence of keyboard
-commands) that reproduces the bug and a description of what you think
-constitutes the buggy behaviour.
+@email{bug-gforth@@gnu.ai.mit.edu}. A bug report should include this
+information:
+
+@itemize @bullet
+@item
+The Gforth version used (it is announced at the start of an
+interactive Gforth session).
+@item
+The machine and operating system (on Unix
+systems @code{uname -a} will report this information).
+@item
+The installation options (send the file @file{config.status}).
+@item
+A complete list of changes (if any) you (or your installer) have made to the
+Gforth sources.
+@item
+A program (or a sequence of keyboard commands) that reproduces the bug.
+@item
+A description of what you think constitutes the buggy behaviour.
+@end itemize
 
 For a thorough guide on reporting bugs read @ref{Bug Reporting, , How
 to Report Bugs, gcc.info, GNU C Manual}.
 
 
-@node Origin, Word Index, Bugs, Top
-@chapter Authors and Ancestors of Gforth
+@node Origin, Forth-related information, Bugs, Top
+@appendix Authors and Ancestors of Gforth
 
 @section Authors and Contributors
 @cindex authors of Gforth
@@ -7520,7 +9637,7 @@ through my mailbox to extract your names is on my to-do list).
 
 Gforth also owes a lot to the authors of the tools we used (GCC, CVS,
 and autoconf, among others), and to the creators of the Internet: Gforth
-was developed across the Internet, and its authors have not met
+was developed across the Internet, and its authors did not meet
 physically for the first 4 years of development.
 
 @section Pedigree
@@ -7560,7 +9677,140 @@ H. Moore, presented at the HOPL-II conference and preprinted in SIGPLAN
 Notices 28(3), 1993.  You can find more historical and genealogical
 information about Forth there.
 
-@node Word Index, Concept Index, Origin, Top
+@node Forth-related information, Word Index, Origin, Top
+@appendix Other Forth-related information
+@cindex Forth-related information
+
+@menu
+* Internet resources::
+* Books::
+* The Forth Interest Group::
+* Conferences::
+@end menu
+
+
+@node Internet resources, Books, Forth-related information, Forth-related information
+@section Internet resources
+@cindex Internet resources
+
+@cindex comp.lang.forth
+@cindex frequently asked questions
+There is an active newsgroup (comp.lang.forth) discussing Forth and
+Forth-related issues. A frequently-asked-questions (FAQ) list
+is posted to the newsgroup regulary, and archived at these sites:
+
+@itemize @bullet
+@item
+@url{ftp://rtfm.mit.edu/pub/usenet-by-group/comp.lang.forth/}
+@item
+@url{ftp://ftp.forth.org/pub/Forth/FAQ/}
+@end itemize
+
+The FAQ list should be considered mandatory reading before posting to
+the newsgroup.
+
+Here are some other web sites holding Forth-related material:
+
+@itemize @bullet
+@item
+@url{http://www.taygeta.com/forth.html} -- Skip Carter's Forth pages.
+@item
+@url{http://www.jwdt.com/~paysan/gforth.html} -- the Gforth home page.
+@item
+@url{http://www.minerva.com/uathena.htm} -- home of ANS Forth Standard.
+@item
+@url{http://dec.bournemouth.ac.uk/forth/index.html} -- the Forth
+Research page, including links to the Journal of Forth Application and
+Research (JFAR) and a searchable Forth bibliography.
+@end itemize
+
+
+@node Books, The Forth Interest Group, Internet resources, Forth-related information
+@section Books
+@cindex Books
+
+As the Standard is relatively new, there are not many books out yet. It
+is not recommended to learn Forth by using Gforth and a book that is not
+written for ANS Forth, as you will not know your mistakes from the
+deviations of the book. However, books based on the Forth-83 standard
+should be ok, because ANS Forth is primarily an extension of Forth-83.
+
+@cindex standard document for ANS Forth
+@cindex ANS Forth document
+The definite reference if you want to write ANS Forth programs is, of
+course, the ANS Forth Standard. It is available in printed form from the
+National Standards Institute Sales Department (Tel.: USA (212) 642-4900;
+Fax.: USA (212) 302-1286) as document @cite{X3.215-1994} for about
+$200. You can also get it from Global Engineering Documents (Tel.: USA
+(800) 854-7179; Fax.: (303) 843-9880) for about $300.
+
+@cite{dpANS6}, the last draft of the standard, which was then submitted
+to ANSI for publication is available electronically and for free in some
+MS Word format, and it has been converted to HTML
+(@url{http://www.taygeta.com/forth/dpans.html}; this is my favourite
+format); this HTML version also includes the answers to Requests for
+Interpretation (RFIs). Some pointers to these versions can be found
+through @*@url{http://www.complang.tuwien.ac.at/projects/forth.html}.
+
+@cindex introductory book
+@cindex book, introductory
+@cindex Woehr, Jack: @cite{Forth: The New Model}
+@cindex @cite{Forth: The new model} (book)
+@cite{Forth: The New Model} by Jack Woehr (Prentice-Hall, 1993) is an
+introductory book based on a draft version of the standard. It does not
+cover the whole standard. It also contains interesting background
+information (Jack Woehr was in the ANS Forth Technical Committee). It is
+not appropriate for complete newbies, but programmers experienced in
+other languages should find it ok.
+
+@cindex Conklin, Edward K., and Elizabeth Rather: @cite{Forth Programmer's Handbook}
+@cindex Rather, Elizabeth and Edward K. Conklin: @cite{Forth Programmer's Handbook}
+@cindex @cite{Forth Programmer's Handbook} (book)
+@cite{Forth Programmer's Handbook} by Edward K. Conklin, Elizabeth
+D. Rather and the technical staff of Forth, Inc. (Forth, Inc., 1997;
+ISBN 0-9662156-0-5) contains little introductory material. The majority
+of the book is similar to @ref{Words}, but the book covers most of the
+standard words and some non-standard words (whereas this manual is
+quite incomplete). In addition, the book contains a chapter on
+programming style. The major drawback of this book is that it usually
+does not identify what is standard and what is specific to the Forth
+system described in the book (probably one of Forth, Inc.'s systems).
+Fortunately, many of the non-standard programming practices described in
+the book work in Gforth, too.  Still, this drawback makes the book
+hardly more useful than a pre-ANS book.
+
+@node The Forth Interest Group, Conferences, Books, Forth-related information
+@section The Forth Interest Group
+@cindex Forth interest group (FIG)
+
+The Forth Interest Group (FIG) is a world-wide, non-profit,
+member-supported organisation. It publishes a regular magazine and
+offers other benefits of membership. You can contact the FIG through
+their office email address: @email{office@@forth.org} or by visiting
+their web site at @url{http://www.forth.org/}. This web site also
+includes links to FIG chapters in other countries and American cities
+(@url{http://www.forth.org/chapters.html}).
+
+@node Conferences, , The Forth Interest Group, Forth-related information
+@section Conferences
+@cindex Conferences
+
+There are several regular conferences related to Forth. They are all
+well-publicised in FIG magazine and on the comp.lang.forth news group:
+
+@itemize @bullet
+@item
+FORML -- the Forth modification laboratory convenes every year near
+Monterey, California.
+@item
+The Rochester Forth Conference -- an annual conference traditionally
+held in Rochester, New York.
+@item
+EuroForth -- this European conference takes place annually.
+@end itemize
+
+
+@node Word Index, Concept Index, Forth-related information, Top
 @unnumbered Word Index
 
 This index is as incomplete as the manual. Each word is listed with

@@ -115,12 +115,13 @@ INC_IP(1);
  r> dup @ swap cell+ >r ;
 
 execute		xt --		core
+""Perform the semantics represented by the execution token, xt.""
 ip=IP;
 IF_TOS(TOS = sp[0]);
 EXEC(xt);
 
 perform		a_addr --	gforth
-""equivalent to @code{@ execute}""
+""Equivalent to @code{@ execute}.""
 /* and pfe */
 ip=IP;
 IF_TOS(TOS = sp[0]);
@@ -443,18 +444,27 @@ n = rp[4];
 \ digit is high-level: 0/0%
 
 move	c_from c_to ucount --		core
+"" If ucount>0, copy the contents of ucount address units
+at c-from to c-to. @code{move} chooses its copy direction
+to avoid problems when c-from, c-to overlap.""
 memmove(c_to,c_from,ucount);
 /* make an Ifdef for bsd and others? */
 :
  >r 2dup u< IF r> cmove> ELSE r> cmove THEN ;
 
 cmove	c_from c_to u --	string
+"" If u>0, copy the contents of ucount characters from
+data space at c-from to c-to. The copy proceeds @code{char}-by-@code{char}
+from low address to high address.""
 while (u-- > 0)
   *c_to++ = *c_from++;
 :
  bounds ?DO  dup c@ I c! 1+  LOOP  drop ;
 
 cmove>	c_from c_to u --	string	c_move_up
+"" If u>0, copy the contents of ucount characters from
+data space at c-from to c-to. The copy proceeds @code{char}-by-@code{char}
+from high address to low address.""
 while (u-- > 0)
   c_to[u] = c_from[u];
 :
@@ -463,13 +473,15 @@ while (u-- > 0)
  DO  1- dup c@ I c!  -1 +LOOP  drop ;
 
 fill	c_addr u c --	core
+"" If u>0, store character c in each of u consecutive
+@code{char} addresses in memory, starting at address c-addr.""
 memset(c_addr,c,u);
 :
  -rot bounds
  ?DO  dup I c!  LOOP  drop ;
 
 compare		c_addr1 u1 c_addr2 u2 -- n	string
-""Compare the strings lexicographically. If they are equal, n is 0; if
+""Compare two strings lexicographically. If they are equal, n is 0; if
 the first string is smaller, n is -1; if the first string is larger, n
 is 1. Currently this is based on the machine's character
 comparison. In the future, this may change to considering the current
@@ -942,6 +954,7 @@ fp = f_addr;
 \+
 
 ;s	--		gforth	semis
+""The primitive compiled by @code{EXIT}.""
 ip = (Xt *)(*rp++);
 NEXT_P0;
 
@@ -1171,6 +1184,8 @@ n2 = n1 * sizeof(Char);
  ;
 
 count	c_addr1 -- c_addr2 u	core
+"" If c-add1 is the address of a counted string return the length of
+the string, u, and the address of its first character, c-addr2.""
 u = *c_addr1;
 c_addr2 = c_addr1+1;
 :
@@ -1318,7 +1333,7 @@ c_addr = (Address)CODE_ADDRESS(xt);
 
 >does-code	xt -- a_addr		gforth	to_does_code
 ""If xt ist the execution token of a defining-word-defined word,
-a_addr is the start of the Forth code after the DOES>;
+a_addr is the start of the Forth code after the @code{DOES>};
 Otherwise a_addr is 0.""
 a_addr = (Cell *)DOES_CODE(xt);
 :
@@ -1513,26 +1528,26 @@ IF_FTOS(FTOS=fp[0]);
 close-file	wfileid -- wior		file	close_file
 wior = IOR(fclose((FILE *)wfileid)==EOF);
 
-open-file	c_addr u ntype -- w2 wior	file	open_file
-w2 = (Cell)fopen(tilde_cstr(c_addr, u, 1), fileattr[ntype]);
+open-file	c_addr u ntype -- wfileid wior	file	open_file
+wfileid = (Cell)fopen(tilde_cstr(c_addr, u, 1), fileattr[ntype]);
 #if defined(GO32) && defined(MSDOS)
-if(w2 && !(ntype & 1))
-  setbuf((FILE*)w2, NULL);
+if(wfileid && !(ntype & 1))
+  setbuf((FILE*)wfileid, NULL);
 #endif
-wior =  IOR(w2 == 0);
+wior =  IOR(wfileid == 0);
 
-create-file	c_addr u ntype -- w2 wior	file	create_file
+create-file	c_addr u ntype -- wfileid wior	file	create_file
 Cell	fd;
 fd = open(tilde_cstr(c_addr, u, 1), O_CREAT|O_TRUNC|ufileattr[ntype], 0666);
 if (fd != -1) {
-  w2 = (Cell)fdopen(fd, fileattr[ntype]);
+  wfileid = (Cell)fdopen(fd, fileattr[ntype]);
 #if defined(GO32) && defined(MSDOS)
-  if(w2 && !(ntype & 1))
-    setbuf((FILE*)w2, NULL);
+  if(wfileid && !(ntype & 1))
+    setbuf((FILE*)wfileid, NULL);
 #endif
-  wior = IOR(w2 == 0);
+  wior = IOR(wfileid == 0);
 } else {
-  w2 = 0;
+  wfileid = 0;
   wior = IOR(1);
 }
 

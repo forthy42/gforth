@@ -142,9 +142,11 @@ const Create bases   10 ,   2 ,   A , 100 ,
 \ \ Comments ( \ \G
 
 : ( ( compilation 'ccc<close-paren>' -- ; run-time -- ) \ core,file	paren
+    \G ** this will not get annotated. The alias in glocals.fs will instead **
     [char] ) parse 2drop ; immediate
 
-: \ ( -- ) \ core-ext backslash
+: \ ( -- ) \ core-ext,block-ext backslash
+    \G ** this will not get annotated. The alias in glocals.fs will instead **
     [ has? file [IF] ]
     blk @
     IF
@@ -192,8 +194,11 @@ AValue forth-wordlist \ variable, will be redefined by search.fs
 AVariable lookup       	forth-wordlist lookup !
 \ !! last is user and lookup?! jaw
 AVariable current ( -- addr ) \ gforth
+\G VARIABLE: holds the wid of the current compilation word list.
 AVariable voclink	forth-wordlist wordlist-link voclink !
-lookup AValue context
+lookup AValue context ( -- addr ) \ gforth
+\G VALUE: @code{context} @code{@@} is the wid of the word list at the
+\G top of the search order stack.
 
 forth-wordlist current !
 
@@ -318,8 +323,13 @@ const Create ???  0 , 3 c, char ? c, char ? c, char ? c,
 : (search-wordlist)  ( addr count wid -- nt / false )
     dup wordlist-map @ find-method perform ;
 
-: search-wordlist ( addr count wid -- 0 / xt +-1 ) \ search
-    \ xt is the interpretation semantics
+: search-wordlist ( c-addr count wid -- 0 / xt +-1 ) \ search
+    \G Search the word list identified by wid
+    \G for the definition named by the string at c-addr count.
+    \G If the definition is not found, return 0. If the definition
+    \G is found return 1 (if the definition is immediate) or -1
+    \G (if the definition is not immediate) together with the xt.
+    \G The xt returned represents the interpretation semantics.
     (search-wordlist) dup if
 	(name>intn)
     then ;
@@ -341,6 +351,11 @@ const Create ???  0 , 3 c, char ? c, char ? c, char ? c,
    then ;
 
 : find ( c-addr -- xt +-1 / c-addr 0 ) \ core,search
+    \G Search all word lists in the current search order
+    \G for the definition named by the counted string at c-addr.
+    \G If the definition is not found, return 0. If the definition
+    \G is found return 1 (if the definition is immediate) or -1
+    \G (if the definition is not immediate) together with the xt.
     dup count sfind dup
     if
 	rot drop
@@ -503,11 +518,12 @@ max-errors 6 * cells allot
 \ Loadfilename ( addr u )
 
 : dec. ( n -- ) \ gforth
-    \ print value in decimal representation
+    \G Display n as a signed decimal number, followed by a space.
     base @ decimal swap . base ! ;
 
 : hex. ( u -- ) \ gforth
-    \ print value as unsigned hex number
+    \G Display u as an unsigned hex number, prefixed with a "$" and
+    \G followed by a space.
     '$ emit base @ swap hex u. base ! ;
 
 : typewhite ( addr u -- ) \ gforth

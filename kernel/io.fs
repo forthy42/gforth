@@ -42,12 +42,15 @@ has? os [IF]
 undef-words
     
 Defer type ( c-addr u -- ) \ core
+  \G If u>0, display u characters from a string starting with the character
+  \G stored at c-addr.
 : (type)  BEGIN  dup  WHILE
     >r dup c@ (emit) 1+ r> 1-  REPEAT  2drop ;
 
 [IFDEF] (type) ' (type) IS Type [THEN]
 
 Defer emit ( c -- ) \ core
+  \G Display the character associated with character value c.
 : (emit) ( c -- ) \ gforth
     0 emit-file drop \ !! use ?DUP-IF THROW ENDIF instead of DROP ?
 ;
@@ -84,29 +87,36 @@ all-words
 
 : bell  #bell emit [ has? os [IF] ] outfile-id flush-file drop [ [THEN] ] ;
 : cr ( -- ) \ core
-    \ emit a newline
+  \G Output a carriage-return and (if appropriate for the host operating system)
+  \G a line feed.
 [ has? crlf [IF] ]	#cr emit #lf emit 
 [ [ELSE] ]		#lf emit
 [ [THEN] ]
     ;
 
-: space bl emit ;
+: space ( -- ) \ core
+  \G Display one space.
+  bl emit ;
+
 has? ec [IF]
-: spaces 0 max 0 ?DO space LOOP ;
+: spaces ( n -- ) \ core
+  \G If n > 0, display n spaces. 
+  0 max 0 ?DO space LOOP ;
 : backspaces  0 max 0 ?DO  #bs emit  LOOP ;
 [ELSE]
 \ space spaces		                                21mar93py
 decimal
 Create spaces ( u -- ) \ core
-bl 80 times \ times from target compiler! 11may93jaw
+  \G If n > 0, display n spaces. 
+  bl 80 times \ times from target compiler! 11may93jaw
 DOES>   ( u -- )
-    swap
-    0 max 0 ?DO  I' I - &80 min 2dup type  +LOOP  drop ;
+  swap
+  0 max 0 ?DO  I' I - &80 min 2dup type  +LOOP  drop ;
 Create backspaces
-08 80 times \ times from target compiler! 11may93jaw
+  08 80 times \ times from target compiler! 11may93jaw
 DOES>   ( u -- )
-   swap
-   0 max 0 ?DO  I' I - &80 min 2dup type  +LOOP  drop ;
+  swap
+  0 max 0 ?DO  I' I - &80 min 2dup type  +LOOP  drop ;
 hex
 [THEN]
 

@@ -34,13 +34,17 @@ Create [struct]-voc       [struct]-search A,
 UNLOCK  Tlast @ TNIL Tlast !  LOCK
 \ last @  0 last !
 
-: [IF]      1 countif +! ?if ;       immediate
-: [THEN]   -1 countif +! ?if ;       immediate
-: [ELSE]   postpone [THEN] postpone [IF] ;
+: [IF]
+  1 countif +! ?if ;       immediate
+: [THEN]
+  \G Do nothing. 
+  -1 countif +! ?if ;       immediate
+: [ELSE]
+  postpone [THEN] postpone [IF] ;
                                      immediate
 ' [IF]   Alias [IFDEF]               immediate
 ' [IF]   Alias [IFUNDEF]             immediate
-' [THEN] Alias [ENDIF]                immediate
+' [THEN] Alias [ENDIF]               immediate
 ' [IF]   Alias [BEGIN]               immediate
 ' [IF]   Alias [WHILE]               immediate
 ' [THEN] Alias [UNTIL]               immediate
@@ -61,38 +65,97 @@ UNLOCK Tlast @ swap Tlast ! LOCK
 \ Interpretative Structuren                            30apr92py
 
 : defined   bl word find nip 0<> ; immediate
-: [IF] 0= IF  countif off
+
+: [IF] ( flag | flag "<spaces>name ..." -- ) \ tools-ext bracket-if
+  \G If flag is @code{TRUE} do nothing (and therefore
+  \G execute subsequent words as normal). If flag is @code{FALSE},
+  \G parse and discard words from the parse
+  \G area (refilling it if necessary using
+  \G @code{REFILL}) including nested instances of @code{[IF]}..
+  \G @code{[ELSE]}.. @code{[THEN]} and @code{[IF]}.. @code{[THEN]}
+  \G until the balancing @code{[ELSE]} or @code{[THEN]} has been
+  \G parsed and discarded. Immediate word.
+       0= IF  countif off
               lookup @ [ [struct]-voc 3 cells + ] ALiteral !
 	      [struct]-voc lookup !
           THEN ;                                      immediate
-: [IFDEF]   postpone defined    postpone [IF] ;       immediate
-: [IFUNDEF] postpone defined 0= postpone [IF] ;       immediate
-: [ELSE] 0 postpone [IF] ;                            immediate
-: [THEN] ;                                            immediate
-: [ENDIF] ;                                           immediate
+
+: [IFDEF] ( "<spaces>name" -- ) \ gforth bracket-if-def
+  \G If name is found in the current search-order, behave like
+  \G @code{[IF]} with a @code{TRUE} flag, othewise behave like
+  \G @code{[IF]} with a @code{FALSE} flag. Immediate word.
+  postpone defined    postpone [IF] ;                 immediate
+
+: [IFUNDEF] ( "<spaces>name" -- ) \ gforth bracket-if-un-def
+  \G If name is not found in the current search-order, behave like
+  \G @code{[IF]} with a @code{TRUE} flag, othewise behave like
+  \G @code{[IF]} with a @code{FALSE} flag. Immediate word.
+  postpone defined 0= postpone [IF] ;                 immediate
+
+: [ELSE]  ( "<spaces>name ..." -- ) \ tools-ext bracket-else
+  \G Parse and discard words from the parse
+  \G area (refilling it if necessary using
+  \G @code{REFILL}) including nested instances of @code{[IF]}..
+  \G @code{[ELSE]}.. @code{[THEN]} and @code{[IF]}.. @code{[THEN]}
+  \G until the balancing @code{[THEN]} has been parsed and discarded.
+  \G @code{[ELSE]} only gets executed if the balancing @code{[IF]}
+  \G was @code{TRUE}; if it was @code{FALSE}, @code{[IF]} would
+  \G have parsed and discarded the @code{[ELSE]}, leaving the
+  \G subsequent words to be executed as normal.
+  \G Immediate word.
+  0 postpone [IF] ;                                   immediate
+
+: [THEN] ( -- ) \ tools-ext bracket-then
+  \G Do nothing; used as a marker for other words to parse
+  \G and discard up to. @code{[THEN]} is an immediate word.
+  ;                                                   immediate
+
+: [ENDIF] ( -- ) \ gforth bracket-end-if
+  \G Do nothing; synonym for [THEN]
+  ;                                                   immediate
 
 \ Structs for interpreter                              28nov92py
 
 User (i)
 
-: [DO]  ( start end -- )  >in @ -rot
+: [DO]  ( n-limit n-index -- ) \ gforth bracket-do
+  >in @ -rot
   DO   I (i) ! dup >r >in ! interpret r> swap +LOOP  drop ;
                                                       immediate
-: [?DO] 2dup = IF 2drop postpone [ELSE] ELSE postpone [DO] THEN ;
+
+: [?DO] ( n-limit n-index -- ) \ gforth bracket-question-do
+  2dup = IF 2drop postpone [ELSE] ELSE postpone [DO] THEN ;
                                                       immediate
-: [+LOOP] ( n -- ) rdrop rdrop ;                      immediate
-: [LOOP] ( -- ) 1 rdrop rdrop ;                       immediate
-: [FOR] ( n -- )  0 swap postpone [DO] ;              immediate
-: [NEXT] ( n -- ) -1 rdrop rdrop ;                    immediate
+
+: [+LOOP] ( n -- ) \ gforth bracket-question-plus-loop
+  rdrop rdrop ;                                       immediate
+
+: [LOOP] ( -- ) \ gforth bracket-loop
+  1 rdrop rdrop ;                                     immediate
+
+: [FOR] ( n -- ) \ gforth bracket-for
+  0 swap postpone [DO] ;                              immediate
+
+: [NEXT] ( n -- ) \ gforth bracket-next
+  -1 rdrop rdrop ;                                    immediate
+
 :noname (i) @ ;
 :noname (i) @ postpone Literal ;
-interpret/compile: [I]
-: [BEGIN] >in @ >r BEGIN r@ >in ! interpret UNTIL rdrop ;
+interpret/compile: [I] ( -- n ) \ gforth bracket-i
+
+: [BEGIN] ( -- ) \ gforth bracket-begin
+  >in @ >r BEGIN r@ >in ! interpret UNTIL rdrop ;     immediate
+
+' [+LOOP]  Alias [UNTIL] ( flag -- ) \ gforth bracket-until
                                                       immediate
-' [+LOOP]  Alias [UNTIL] immediate
-: [REPEAT]  ( -- )  false rdrop rdrop ;               immediate
-' [REPEAT] Alias [AGAIN] immediate
-: [WHILE]   ( flag -- )
+
+: [REPEAT]  ( -- ) \ gforth bracket-repeat
+  false rdrop rdrop ;                                 immediate
+
+' [REPEAT] Alias [AGAIN] ( -- ) \ gforth bracket-again
+                                                      immediate
+
+: [WHILE]   ( flag -- ) \ gforth bracket-while
   0= IF   postpone [ELSE] true rdrop rdrop 1 countif +!  THEN ;
                                                       immediate
 

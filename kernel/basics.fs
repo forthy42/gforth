@@ -272,9 +272,13 @@ Defer store-backtrace
 
 \ DEPTH                                                 9may93jaw
 
-: depth ( -- +n ) \ core
+: depth ( -- +n ) \ core depth
+    \G +n is the number of values that were on the data stack before
+    \G +n itself was placed on the stack.
     sp@ sp0 @ swap - cell / ;
-: clearstack ( ... -- )
+
+: clearstack ( ... -- ) \ gforth clear-stack
+    \G remove and discard all/any items from the data stack.
     sp0 @ sp! ;
 
 \ Strings						 22feb93py
@@ -294,7 +298,11 @@ Defer store-backtrace
 \ HEX DECIMAL                                           2may93jaw
 
 : decimal ( -- ) \ core
+    \G Set the numeric conversion radix (the value of @code{BASE}) to 10
+    \G (decimal).
     a base ! ;
 : hex ( -- ) \ core-ext
+    \G Set the numeric conversion radix (the value of @code{BASE}) to 16
+    \G (hexadecimal).
     10 base ! ;
 
