@@ -51,7 +51,8 @@ Color: Hig#
 
 : .name (.name) ct @ attr! ;
 
-: words  context @
+\ nac31mar1999 fixed up for 0.4.0 to match std words
+: words  context @ wordlist-id
          BEGIN  @ dup  WHILE  dup (.name)  REPEAT drop
          ct @ attr! ;
 

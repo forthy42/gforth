@@ -55,10 +55,10 @@ User block-fid
 
 block-cold
 
-Defer flush-blocks
+Defer flush-blocks ( -- ) \ gforth
 
-: open-blocks ( addr u -- ) \ gforth
-    \g Use the file, whose name is given by @var{addr u}, as the blocks file.
+: open-blocks ( c-addr u -- ) \ gforth
+    \g Use the file, whose name is given by @i{c-addr u}, as the blocks file.
     2dup open-fpath-file 0<>
     if
 	r/w bin create-file throw
@@ -70,12 +70,15 @@ Defer flush-blocks
     block-fid ! ;
 
 : use ( "file" -- ) \ gforth
-    \g Use @var{file} as the blocks file.
+    \g Use @i{file} as the blocks file.
     name open-blocks ;
 
 \ the file is opened as binary file, since it either will contain text
 \ without newlines or binary data
-: get-block-fid ( -- fid ) \ gforth
+: get-block-fid ( -- wfileid ) \ gforth
+    \G Return the file-id of the current blocks file. If no blocks
+    \G file has been opened, use @file{blocks.fb} as the default
+    \G blocks file.
     block-fid @ 0=
     if
 	s" blocks.fb" open-blocks
@@ -83,10 +86,11 @@ Defer flush-blocks
     block-fid @ ;
 
 : block-position ( u -- ) \ block
-    \G Position the block file to the start of block @var{u}.
+    \G Position the block file to the start of block @i{u}.
     1- chars/block chars um* get-block-fid reposition-file throw ;
 
 : update ( -- ) \ block
+    \G Mark the current block buffer as dirty.
     last-block @ ?dup IF  buffer-dirty on  THEN ;
 
 : save-buffer ( buffer -- ) \ gforth
@@ -103,14 +107,21 @@ Defer flush-blocks
     buffer-block off ;
 
 : save-buffers  ( -- ) \ block
+    \G Transfer the contents of each @code{update}d block buffer to
+    \G mass storage, then mark all block buffers as unassigned.
     block-buffers @
-    buffers 0 ?DO  dup save-buffer  next-buffer  LOOP  drop ;
+    buffers 0 ?DO dup save-buffer next-buffer LOOP drop ;
 
-: empty-buffers ( -- ) \ block
+: empty-buffers ( -- ) \ block-ext
+    \G Mark all block buffers as unassigned; if any had been marked as
+    \G assigned-dirty (by @code{update}), the changes to those blocks
+    \G will be lost.
     block-buffers @
-    buffers 0 ?DO  dup empty-buffer  next-buffer  LOOP  drop ;
+    buffers 0 ?DO dup empty-buffer next-buffer LOOP drop ;
 
 : flush ( -- ) \ block
+    \G Perform the functions of @code{save-buffers} then
+    \G @code{empty-buffers}.
     save-buffers
     empty-buffers ;
 
@@ -120,9 +131,12 @@ Defer flush-blocks
     buffers mod buffer-struct %size * block-buffers @ + ;
 
 : block ( u -- a-addr ) \ block- block
-  \G @var{u} identifies a block number. Assign a block buffer to @var{u},
-  \G make it the current block buffer and return its start
-  \G address, @var{a-addr}.
+    \G If a block buffer is assigned for block @i{u}, return its
+    \G start address, @i{a-addr}. Otherwise, assign a block buffer
+    \G for block @i{u} (if the assigned block buffer has been
+    \G @code{update}d, transfer the contents to mass storage), read
+    \G the block into the block buffer and return its start address,
+    \G @i{a-addr}.
     dup 0= -35 and throw
     dup get-buffer >r
     dup r@ buffer-block @ <>
@@ -141,25 +155,38 @@ Defer flush-blocks
     r> dup last-block ! block-buffer ;
 
 : buffer ( u -- a-addr ) \ block
+    \G If a block buffer is assigned for block @i{u}, return its
+    \G start address, @i{a-addr}. Otherwise, assign a block buffer
+    \G for block @i{u} (if the assigned block buffer has been
+    \G @code{update}d, transfer the contents to mass storage) and
+    \G return its start address, @i{a-addr}.  The subtle difference
+    \G between @code{buffer} and @code{block} mean that you should
+    \G only use @code{buffer} if you don't care about the previous
+    \G contents of block @i{u}. In Gforth, this simply calls
+    \G @code{block}.
     \ reading in the block is unnecessary, but simpler
     block ;
 
 User scr ( -- a-addr ) \ block-ext
-    \G USER VARIABLE @var{a-addr} is the address of a cell containing
+    \G USER VARIABLE: @i{a-addr} is the address of a cell containing
     \G the block number of the block most recently processed by
-    \G @code{LIST}.
-    0 scr !
+    \G @code{list}.
+0 scr !
 
+\ nac31Mar1999 moved "scr @" to list to make the stack comment correct
 : updated?  ( n -- f ) \ gforth
-    scr @ buffer
+    \G Return true if block @i{n} has been marked as dirty.
+    buffer
     [ 0 buffer-dirty 0 block-buffer - ] Literal + @ ;
 
-: list ( u -- ) \ block
+: list ( u -- ) \ block-ext
+    \G Display block @i{u}. In Gforth, the block is displayed as 16
+    \G numbered lines, each of 64 characters.
     \ calling block again and again looks inefficient but is necessary
     \ in a multitasking environment
     dup scr !
     ." Screen " u.
-    updated?  0= IF ." not "  THEN  ." modified     " cr
+    scr @ updated?  0= IF ." not "  THEN  ." modified     " cr
     16 0
     ?do
 	i 2 .r space scr @ block i 64 * chars + 64 type cr
@@ -172,30 +199,43 @@ User scr ( -- a-addr ) \ block-ext
   THEN ;
 
 ' (source) IS source ( -- c-addr u ) \ core
-\G @var{c-addr} is the address of the input buffer and @var{u} is the
+\G @i{c-addr} is the address of the input buffer and @i{u} is the
 \G number of characters in it.
 
 : load ( i*x n -- j*x ) \ block
-  push-file
-  dup loadline ! blk ! >in off ['] interpret catch
-  pop-file throw ;
+    \G Save the current input source specification. Store @i{n} in
+    \G @code{BLK}, set @code{>IN} to 0 and interpret. When the parse
+    \G area is exhausted, restore the input source specification.
+    push-file
+    dup loadline ! blk ! >in off ['] interpret catch
+    pop-file throw ;
 
-: thru ( i*x n1 n2 -- j*x ) \ block
-  1+ swap ?DO  I load  LOOP ;
+: thru ( i*x n1 n2 -- j*x ) \ block-ext
+    \G @code{load} the blocks @i{n1} through @i{n2} in sequence.
+    1+ swap ?DO  I load  LOOP ;
 
-: +load ( i*x n -- j*x ) \ block
+: +load ( i*x n -- j*x ) \ gforth
+    \G Used within a block to load the block specified as the
+    \G current block + @i{n}.
     blk @ + load ;
 
-: +thru ( i*x n1 n2 -- j*x ) \ block
-  1+ swap ?DO  I +load  LOOP ;
+: +thru ( i*x n1 n2 -- j*x ) \ gforth
+    \G Used within a block to load the range of blocks specified as the
+    \G current block + @i{n1} thru the current block + @i{n2}.
+    1+ swap ?DO  I +load  LOOP ;
 
-: --> ( -- ) \ block- block
-    \G If this symbol is encountered whilst loading block @var{n},
-    \G discard the remainder of the block and load block @var{n+1}. Used
+: --> ( -- ) \ block- block chain
+    \G If this symbol is encountered whilst loading block @i{n},
+    \G discard the remainder of the block and load block @i{n+1}. Used
     \G for chaining multiple blocks together as a single loadable unit.
     refill drop ; immediate
 
-: block-included ( addr u -- ) \ gforth
+: block-included ( a-addr u -- ) \ gforth
+    \G Use within a block that is to be processed by @code{load}. Save
+    \G the current blocks file specification, open the blocks file
+    \G specified by @i{a-addr u} and @code{load} block 1 from that
+    \G file (which may in turn chain or load other blocks). Finally,
+    \G close the blocks file and restore the original blocks file.
     block-fid @ >r block-fid off open-blocks
     1 load block-fid @ close-file throw flush
     r> block-fid ! ;

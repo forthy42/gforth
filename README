@@ -57,7 +57,7 @@ the rest of the documentation, so here's a short overview:
 
 Add-ons:
 code.fs random.fs more.fs ansi.fs colorize.fs
-oof.fs oofsampl.fs objects.fs
+oof.fs oofsampl.fs objects.fs blocked.fb
 
 Utilities:
 ans-report.fs etags.fs glosgen.fs filedump.fs

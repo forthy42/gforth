@@ -17,6 +17,8 @@ config.cache
 config.status
 stamp-h
 gforth
+gforth-fast
+gforthmi
 kernel.TAGS
 kernl16b.fi-
 kernl16l.fi-

@@ -3,7 +3,7 @@
 .ns
 .IP "\fB\\$1\fI\\$2" 9
 ..
-.TH GForth 1 "December 24, 1998" \" -*- nroff -*-
+.TH GForth 1 "April 14, 1999" \" -*- nroff -*-
 .SH NAME
 gforth, gforthmi \- a fast and portable Forth system
 .SH SYNOPSIS
@@ -26,6 +26,10 @@ double indirect threaded system.  Default: \fCgforth-ditc\fR.
 \fCGFORTH\fR gives the gforth executable used by
 \fCgforthmi\fR for computing the relocatable image from the
 base images. Default: \fCgforth\fR.
+
+\fCGFORTHHIST\fR gives the location of the history file used by gforth
+to allow command-line recall. Default: \fC$HOME\fR. (The history
+file is named \fC.gforth-history\fR).
 
 .SH EXAMPLES
 
@@ -136,8 +140,8 @@ image-specific option of the default image.
 \&\fC*TAGS\fP	etags files
 .fi
 .SH SEE ALSO
-The GForth manual is available in hypertext (Info, HTML) and printable
-(TeX, PS) forms.
+The Gforth manual - available in hypertext (Info, HTML) and printable
+(TeX, PS, ASCII) forms.
 
 The ANSI document X3.215-1994 (i.e., the ANS Forth standard).
 

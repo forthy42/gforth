@@ -1,19 +1,14 @@
 \input texinfo   @c -*-texinfo-*-
 @comment The source is gforth.ds, from which gforth.texi is generated
+
 @comment TODO: nac29jan99 - a list of things to add in the next edit:
-@comment 1. x-ref all ambiguous or implementation-defined features
-@comment 2. refer to all environment strings
-@comment 3. gloss and info in blocks section
-@comment 4. move file and blocks to common sub-section?
-@comment 5. command-line editing, command completion etc.
-@comment 6. document more of the words in require.fs
-@comment 7. document the include files process (Describe the list,
-@comment    including its scope)
-@comment 8. Describe the use of Auser Avariable etc.
-@comment 9. cross-compiler
-@comment 10.words in miscellaneous section need a home.
-@comment 11.Move structures and oof into their own chapters.
-@comment 12.search for TODO for other minor works
+@comment 1. x-ref all ambiguous or implementation-defined features?
+@comment 2. Describe the use of Auser Avariable AConstant A, etc.
+@comment 3. words in miscellaneous section need a home.
+@comment 4. search for TODO for other minor and major works required.
+@comment 5. [rats] change all @var to @i in Forth source so that info
+@comment    file looks decent.
+
 @comment %**start of header (This is for running Texinfo on a region.)
 @setfilename gforth.info
 @settitle Gforth Manual
@@ -71,7 +66,7 @@ Copyright @copyright{} 1995-1999 Free Software Foundation, Inc.
 @center Jens Wilke
 @center Neal Crook
 @sp 3
-@center This manual is permanently under construction and was last updated on 26-Mar-1999
+@center This manual is permanently under construction and was last updated on 16-Apr-1999
 
 @comment  The following two commands start the copyright page.
 @page
@@ -109,7 +104,7 @@ personal machines. This manual corresponds to version @value{VERSION}.
 * License::                     The GPL
 * Goals::                       About the Gforth Project
 * Introduction::                An introduction to ANS Forth
-* Invoking Gforth::             Starting (and exiting) Gforth
+* Gforth Environment::          Starting (and exiting) Gforth
 * Words::                       Forth words available in Gforth
 * Error messages::              How to interpret them
 * Tools::                       Programming tools
@@ -142,6 +137,17 @@ An Introduction to ANS Forth
 * Forth is written in Forth::
 * Review - elements of a Forth system::
 * Exercises::
+
+
+Gforth Environment
+
+* Invoking Gforth::
+* Leaving Gforth::
+* Command-line editing::
+* Upper and lower case::
+* Environment variables::
+* Gforth Files::
+
 
 Forth Words
 
@@ -826,6 +832,7 @@ from other Forth compilers. However, this manual is primarily a
 reference manual.
 @end iftex
 
+@comment TODO much more blurb here.
 
 @c ******************************************************************
 @node Goals, Introduction, License, Top
@@ -920,7 +927,7 @@ analyse your program and determine what non-Standard definitions it
 relies upon.
 
 @c ******************************************************************
-@node    Introduction, Invoking Gforth, Goals, Top
+@node    Introduction, Gforth Environment, Goals, Top
 @comment node-name,     next,           previous, up
 @chapter An Introduction to ANS Forth
 @cindex Forth - an introduction
@@ -1438,7 +1445,7 @@ Words like @code{:} -- words that advance the value of @code{>IN} and so
 prevent the text interpreter from acting on the whole of the input line
 -- are called @var{parsing words}.
 
-@cindex state - effect on the text interpreter
+@cindex @code{state} - effect on the text interpreter
 @cindex text interpreter - effect of state
 The second special thing that @code{:} does is to change the value of a
 variable called @code{state}, which affects the way that the text
@@ -1637,25 +1644,17 @@ Gforth also supports the traditional Forth alternative to using text
 files for program entry (@xref{Blocks}).
 
 In common with many, if not most, Forth compilers, most of Gforth is
-actually written in Forth. All of the @code{.fs} files in the
-installation directory are Forth source files, and you can look at them
-to see examples of Forth programming.
+actually written in Forth. All of the @file{.fs} files in the
+installation directory@footnote{For example,
+@file{/usr/local/share/gforth..}} are Forth source files, which you can
+study to see examples of Forth programming.
 
-Gforth maintains a history file that records every line that you
-type to the text interpreter. This file is preserved between sessions,
-and is used to provide the command-line recall facility. If you enter
-long definitions by hand, you can use a text editor to paste them out of
-the history file into a Forth source file for reuse at a later time.
-
-@cindex history file
-@cindex @file{.gforth-history}
-@cindex @code{GFORTHHIST} environment variable
-@cindex environment variables
-You can find out the name of your history file using @code{history-file
-type }. On non-Unix systems you can find the location of the file using
-@code{history-dir type }@footnote{The environment variable @code{GFORTHHIST}
-determines the location of the file.}
-
+Gforth maintains a history file that records every line that you type to
+the text interpreter. This file is preserved between sessions, and is
+used to provide a command-line recall facility. If you enter long
+definitions by hand, you can use a text editor to paste them out of the
+history file into a Forth source file for reuse at a later time
+(@pxref{Command-line editing} for more information).
 
 
 @comment ----------------------------------------------
@@ -1745,10 +1744,39 @@ all the exercises in a .fs file in the distribution. Get some
 inspiration from Starting Forth and Kelly&Spies.
 
 
+@c excercises:
+@c 1. take inches and convert to feet and inches.
+@c 2. take temperature and convert from fahrenheight to celcius;
+@c    may need to care about symmetric vs floored??
+@c 3. take input line and do character substitution
+@c    to encipher or decipher
+@c 4. as above but work on a file for in and out
+@c 5. take input line and convert to pig-latin 
+@c
+@c thing of sets of things to exercise then come up with
+@c problems that need those things.
+
 @c ******************************************************************
-@node Invoking Gforth, Words, Introduction, Top
-@chapter Invoking Gforth
-@cindex Gforth - invoking
+@node Gforth Environment, Words, Introduction, Top
+@chapter Gforth Environment
+@cindex Gforth environment
+
+Note: ultimately, the gforth man page will be auto-geenrated from the
+material in this chapter.
+
+@menu
+* Invoking Gforth::
+* Leaving Gforth::
+* Command-line editing::
+* Upper and lower case::
+* Environment variables::
+* Gforth Files::
+@end menu
+
+
+@comment ----------------------------------------------
+@node Invoking Gforth, Leaving Gforth, ,Gforth Environment
+@section Invoking Gforth
 @cindex invoking Gforth
 @cindex running Gforth
 @cindex command-line options
@@ -1904,32 +1932,178 @@ option @code{--no-rc} is given; this file is first searched in @file{.},
 then in @file{~}, then in the normal path (see above).
 
 
+
+@comment ----------------------------------------------
+@node Leaving Gforth, Command-line editing, Invoking Gforth, Gforth Environment
+@section Leaving Gforth
 @cindex Gforth - leaving
 @cindex leaving Gforth
 
-You can leave Gforth by typing @code{bye} or (if you invoked Gforth with
-the @code{--die-on-signal} option) Ctrl-C. When you leave Gforth, all of
-your definitions and data are discarded. @xref{Image Files} for ways
-of saving the state of the system before leaving Gforth.
+You can leave Gforth by typing @code{bye} or Ctrl-D or (if you invoked
+Gforth with the @code{--die-on-signal} option) Ctrl-C. When you leave
+Gforth, all of your definitions and data are discarded. @xref{Image
+Files} for ways of saving the state of the system before leaving Gforth.
 
 doc-bye
 
 
-@comment TODO add section on environment variables.. find them by
-@comment grep for "getenv" -- they are:
-@comment GFORTHHIST
-@comment POSIXELY_CORRECT
-@comment TMP TEMP
-@comment HOME
-@comment LINES
-@comment COLUMNS
-@comment GFORTHPATH
-@comment FORTHSIZES ?? in INSTALL but cannot find it in the source
-@comment some are in .c files.
+@comment ----------------------------------------------
+@node Command-line editing, Upper and lower case,Leaving Gforth,Gforth Environment
+@section Command-line editing
+@cindex command-line editing
 
+Gforth maintains a history file that records every line that you type to
+the text interpreter. This file is preserved between sessions, and is
+used to provide a command-line recall facility; if you type ctrl-P
+repeatedly you can recall successively older command from this (or
+previous) session(s). The full list of command-line editing facilities is:
+
+@itemize @bullet
+@item
+ctrl-P (``previous'') (or up-arrow) to recall successively older
+commands from the history buffer.
+@item
+ctrl-N (``next'') (or down-arrow) to recall successively newer commands
+from the history buffer.
+@item
+ctrl-F (or right-arrow) to move the cursor right, non-destructively.
+@item
+ctrl-B (or left-arrow) to move the cursor left, non-destructively.
+@item
+ctrl-H (backspace) to delete the character to the left of the cursor,
+closing up the line.
+@item
+ctrl-K to delete (``kill'') from the cursor to the end of the line.
+@item
+ctrl-A to move the cursor to the start of the line.
+@item
+ctrl-E to move the cursor to the end of the line.
+@item
+carriage-return or line-feed (ctrl-J, ctrl-M) to submit the current
+line.
+@item
+tab to step through all possible full-word completions of the word
+currently being typed.
+@item
+ctrl-D to terminate Gforth (gracefully, using @code{bye}).
+@end itemize
+
+When editing, displayable characters are inserted to the left of the
+cursor position; the line is always in ``insert'' (as opposed to
+``overstrike'') mode.
+
+@cindex history file
+@cindex @file{.gforth-history}
+On Unix systems, the history file is @file{~/.gforth-history} by
+default@footnote{i.e. it is stored in the user's home directory.}. You
+can find out the name and location of your history file using:
+
+@example 
+history-file type \ Unix-class systems
+
+history-file type \ Other systems
+history-dir  type
+@end example
+
+If you enter long definitions by hand, you can use a text editor to
+paste them out of the history file into a Forth source file for reuse at
+a later time.
+
+Gforth never trims the size of the history file, so you should do this
+periodically, if necessary.
+
+@comment this is all defined in history.fs
+@comment TODO the ctrl-D behaviour can either do a bye or a beep.. how is that option
+@comment chosen?
+
+
+
+@comment ----------------------------------------------
+@node Upper and lower case, Environment variables,Command-line editing,Gforth Environment
+@section Upper and lower case
+@cindex case-sensitivity
+@cindex upper and lower case
+
+Gforth is case-insensitive, so you can enter definitions and invoke
+Standard words using upper, lower or mixed case (however,
+@pxref{core-idef, Implementation-defined options, Implementation-defined
+options}).
+
+ANS Forth only @i{requires} implementations to recognise Standard words when
+they are typed entirely in upper case. Therefore, a Standard program
+must use upper case for all Standard words@footnote{You can use whatever
+case you like for words that you define.}.
+
+
+@comment ----------------------------------------------
+@node Environment variables, Gforth Files, Upper and lower case,Gforth Environment
+@section Environment variables
+@cindex environment variables
+
+Gforth uses these environment variables:
+
+@itemize @bullet
+@item
+@cindex GFORTHHIST - environment variable
+GFORTHHIST - (Unix systems only) specifies the directory in which to
+open/create the history file, @file{.gforth-history}. Default:
+@code{$HOME}.
+
+@item
+@cindex GFORTHPATH - environment variable
+GFORTHPATH - specifies the path used when searching for the gforth image file and
+for Forth source-code files.
+
+@item
+@cindex GFORTH - environment variable
+GFORTH - used by @file{gforthmi} @xref{gforthmi}.
+
+@item
+@cindex GFORTHD - environment variable
+GFORTHD - used by @file{gforthmi} @xref{gforthmi}.
+
+@item
+@cindex TMP, TEMP - environment variable
+TMP, TEMP - (non-Unix systems only) used as a potential location for the
+history file.
+@end itemize
+
+@comment also POSIXELY_CORRECT LINES COLUMNS HOME but no interest in
+@comment mentioning these.
+
+All the Gforth environment variables default to sensible values if they
+are not set.
+
+
+@comment ----------------------------------------------
+@node Gforth Files, ,Environment variables,Gforth Environment
+@section Gforth files
+@cindex Gforth files
+
+When Gforth is installed on a Unix system it installs files in these
+locations:
+
+@itemize @bullet
+@item
+@file{/usr/local/bin/gforth}
+@item
+@file{/usr/local/bin/gforthmi}
+@item
+@file{/usr/local/man/man1/gforth.1} - man page.
+@item
+@file{/usr/local/info} - the Info version of this manual.
+@item
+@file{/usr/local/lib/gforth/<version>/..} - Gforth @file{.fi} files.
+@item
+@file{/usr/local/share/gforth/<version>/TAGS} - Emacs TAGS file.
+@item
+@file{/usr/local/share/gforth/<version>/..} - Gforth source files.
+@item
+@file{../emacs/site-lisp/gforth.el} - Emacs gforth mode.
+@end itemize
 
 @c ******************************************************************
-@node Words, Error messages, Invoking Gforth, Top
+@node Words, Error messages, Gforth Environment, Top
 @chapter Forth Words
 @cindex words
 
@@ -1976,10 +2150,7 @@ that has become a de-facto standard for Forth texts, i.e.,
 
 @table @var
 @item word
-@cindex case-sensitivity
-The name of the word. Gforth is case-insensitive, so you can type the
-words in in lower case (However, @pxref{core-idef,
-Implementation-defined options, Implementation-defined options}).
+The name of the word.
 
 @item Stack effect
 @cindex stack effect
@@ -2200,12 +2371,6 @@ doc-dmax
 @subsection Numeric comparison
 @cindex numeric comparison words
 
-doc-0<
-doc-0<=
-doc-0<>
-doc-0=
-doc-0>
-doc-0>=
 doc-<
 doc-<=
 doc-<>
@@ -2213,12 +2378,23 @@ doc-=
 doc->
 doc->=
 
-doc-d0<
-doc-d0<=
-doc-d0<>
-doc-d0=
-doc-d0>
-doc-d0>=
+doc-0<
+doc-0<=
+doc-0<>
+doc-0=
+doc-0>
+doc-0>=
+
+doc-u<
+doc-u<=
+@comment TODO why u<> and u= .. they are the same as <> and =
+doc-u<>
+doc-u=
+doc-u>
+doc-u>=
+
+doc-within
+
 doc-d<
 doc-d<=
 doc-d<>
@@ -2226,15 +2402,19 @@ doc-d=
 doc-d>
 doc-d>=
 
-doc-u<
+doc-d0<
+doc-d0<=
+doc-d0<>
+doc-d0=
+doc-d0>
+doc-d0>=
+
 doc-du<
-doc-u>
-doc-u<=
-@comment why u<> and u= .. they are the same as <> and =
-doc-u<>
-doc-u=
-doc-u>=
-doc-within
+doc-du<=
+doc-du<>
+doc-du=
+doc-du>
+doc-du>=
 
 @node Mixed precision, Floating Point, Numeric comparison, Arithmetic
 @subsection Mixed precision
@@ -2309,14 +2489,21 @@ doc-fasinh
 doc-facosh
 doc-fatanh
 doc-pi
+
 doc-f0<
+doc-f0<=
+doc-f0<>
 doc-f0=
+doc-f0>
+doc-f0>=
+
 doc-f<
 doc-f<=
 doc-f<>
 doc-f=
 doc-f>
 doc-f>=
+
 doc-f2*
 doc-f2/
 doc-1/f
@@ -2652,6 +2839,9 @@ doc-c,
 doc-,
 doc-2,
 
+@comment TODO may want to add description of similar user-space words,
+@comment but only if its accompanied by clear description of what user
+@comment space is and when it is useful. Words are udp uallot
 
 @node Memory Access, Address Arithmetic, Reserving Data Space, Memory
 @subsection Memory Access
@@ -3223,7 +3413,7 @@ partitions'' than to read ``now do a recursive call''.
 For mutual recursion, use @code{defer}red words, like this:
 
 @example
-defer foo
+Defer foo
 
 : bar ( ... -- ... )
  ... foo ... ;
@@ -3412,6 +3602,8 @@ doc-value
 doc-to
 doc-defer
 doc-is
+doc-defers
+doc-alias
 
 Definitions in ANS Forth for @code{defer}, @code{<is>} and
 @code{[is]} are provided in @file{compat/defer.fs}.
@@ -4135,7 +4327,7 @@ doc-evaluate
 @section Tokens for Words
 @cindex tokens for words
 
-This chapter describes the creation and use of tokens that represent
+This section describes the creation and use of tokens that represent
 words on the stack (and in data space).
 
 Named words have interpretation and compilation semantics. Unnamed words
@@ -4431,6 +4623,8 @@ get-order 1+ environment-wordlist swap set-order words previous
 @c -------------------------------------------------------------
 @node Files, Blocks, Environmental Queries, Words
 @section Files
+@cindex files
+@cindex I/O - file-handling
 
 Gforth provides facilities for accessing files that are stored in the
 host operating system's file-system. Files that are processed by Gforth
@@ -4486,16 +4680,18 @@ does not change the stack. This allows using these files with
 1 require foo.fs drop
 @end example
 
-
 doc-include-file
 doc-included
+doc-included?
 doc-include
 @comment TODO describe what happens on error. Describes how the require
 @comment stuff works and describe how to clear/reset the history (eg
-@comment for debug). Might want to include that in the MARKER example.
+@comment for debug). Add examples. Describe the scope of the file
+@comment history.
 doc-required
 doc-require
 doc-needs
+doc-init-included-files
 
 A definition in ANS Forth for @code{required} is provided in
 @file{compat/required.fs}.
@@ -4547,7 +4743,7 @@ doc-resize-file
 @cindex @code{include} search path
 @cindex search path for files
 
-@comment what uses these search paths.. just include and friends?
+@comment TODO what uses these search paths.. just include and friends?
 If you specify an absolute filename (i.e., a filename starting with
 @file{/} or @file{~}, or with @file{:} in the second position (as in
 @samp{C:...})) for @code{included} and friends, that file is included
@@ -4580,7 +4776,7 @@ as described above.
 @c ---------------------------------------------------------
 @node Forth Search Paths, General Search Paths, Search Paths, Files
 @subsubsection Forth Search Paths
-@cindex search path control - forth
+@cindex search path control - Forth
 
 The search path is initialized when you start Gforth (@pxref{Invoking
 Gforth}). You can display it and change it using these words:
@@ -4624,32 +4820,164 @@ create mypath   100 chars ,     \ maximum length (is checked)
 @c -------------------------------------------------------------
 @node Blocks, Other I/O, Files, Words
 @section Blocks
+@cindex I/O - blocks
+@cindex blocks
 
-This chapter describes how to use block files within Gforth.
+@comment TODO finish the TODOs below and add more index entries
 
-Block files are traditionally means of data and source storage in
-Forth. They have been very important in resource-starved computers
-without OS in the past. Gforth doesn't encourage to use blocks as
-source, and provides blocks only for backward compatibility. The ANS
-standard requires blocks to be available when files are.
+When you run Gforth on a modern desk-top computer, it runs under the
+control of an operating system which provides certain services.  One of
+these services is @var{file services}, which allows Forth source code
+and data to be stored in files and read into Gforth (@pxref{Files}).
+
+Traditionally, Forth has been an important programming language on
+systems where it has interfaced directly to the underlying hardware with
+no intervening operating system. Forth provides a mechanism, called
+@var{blocks}, for accessing mass storage on such systems.
+
+A block is a 1024-byte data area, which can be used to hold data or
+Forth source code. No structure is imposed on the contents of the
+block. A block is identified by its number; blocks are numbered
+contiguously from 1 to an implementation-defined maximum.
+
+A typical system that used blocks but no operating system might use a
+single floppy-disk drive for mass storage, with the disks formatted to
+provide 256-byte sectors. Blocks would be implemented by assigning the
+first four sectors of the disk to block 1, the second four sectors to
+block 2 and so on, up to the limit of the capacity of the disk. The disk
+would not contain any file system information, just the set of blocks.
+
+On systems that do provide file services, blocks are typically
+implemented by storing a sequence of blocks within a single @var{blocks
+file}.  The size of the blocks file will be an exact multiple of 1024
+bytes, corresponding to the number of blocks it contains. This is the
+mechanism that Gforth uses.
+
+Only 1 blocks file can be open at a time. If you use block words without
+having specified a blocks file, Gforth defaults to the blocks file
+@file{blocks.fb}. Gforth uses the Forth search path when attempting to
+locate a blocks file (@pxref{Forth Search Paths}).
+
+When you read and write blocks under program control, Gforth uses a
+number of @var{block buffers} as intermediate storage. These buffers are
+not used when you use @code{load} to interpret the contents of a block.
+
+The behaviour of the block buffers is directly analagous to that of a
+cache. Each block buffer has three states:
+
+@itemize @bullet
+@item
+Unassigned
+@item
+Assigned-clean
+@item
+Assigned-dirty
+@end itemize
+
+Initially, all block buffers are @var{unassigned}. In order to access a
+block, the block (specified by its block number) must be assigned to a
+block buffer.
+
+The assignment of a block to a block buffer is performed by @code{block}
+or @code{buffer}. Use @code{block} when you wish to modify the existing
+contents of a block. Use @code{buffer} when you don't care about the
+existing contents of the block@footnote{The ANS Forth definition of
+@code{block} is intended not to cause disk I/O; if the data associated
+with the particular block is already stored in a block buffer due to an
+earlier @code{block} command, @code{buffer} will return that block
+buffer and the existing contents of the block will be
+available. Otherwise, @code{buffer} will simply assign a new, empty
+block buffer for the block}.
+
+Once a block has been assigned to a block buffer, the block buffer state
+becomes @var{assigned-clean}. Data can now be manipulated within the
+block buffer.
+
+When the contents of a block buffer is changed it is necessary,
+@i{before calling} @code{block} @i{or} @code{buffer} @i{again}, to
+either abandon the changes (by doing nothing) or commit the changes,
+using @code{update}. Using @code{update} does not change the blocks
+file; it simply changes a block buffer's state to @var{assigned-dirty}.
+
+The word @code{flush} causes all @var{assigned-dirty} blocks to be
+written back to the blocks file on disk. Leaving Gforth using @code{bye}
+also causes a @code{flush} to be performed.
+
+In Gforth, @code{block} and @code{buffer} use a @var{direct-mapped}
+algorithm to assign a block buffer to a block. That means that any
+particular block can only be assigned to one specific block buffer,
+called (for the particular operation) the @var{victim buffer}. If the
+victim buffer is @var{unassigned} or @var{assigned-clean} it can be
+allocated to the new block immediately. If it is @var{assigned-dirty}
+its current contents must be written out to disk before it can be
+allocated to the new block.
+
+Although no structure is imposed on the contents of a block, it is
+traditional to display the contents as 16 lines each of 64 characters.  A
+block provides a single, continuous stream of input (for example, it
+acts as a single parse area) -- there are no end-of-line characters
+within a block, and no end-of-file character at the end of a
+block. There are two consequences of this:
+
+@itemize @bullet
+@item
+The last character of one line wraps straight into the first character
+of the following line
+@item
+The word @code{\} -- comment to end of line -- requires special
+treatment; in the context of a block it causes all characters until the
+end of the current 64-character ``line'' to be ignored.
+@end itemize
+
+In Gforth, when you use @code{block} with a non-existent block number,
+the current block file will be extended to the appropriate size and the
+block buffer will be initialised with spaces.
+
+Gforth doesn't encourage the use of blocks@footnote{See Frank Sergeant's
+Pygmy Forth to see just how well blocks can be integrated into a Forth
+programming environment}; the mechanism is only provided for backward
+compatibility -- ANS Forth requires blocks to be available when files
+are.
+
+Common techniques that are used when working with blocks include:
+
+@itemize @bullet
+@item
+A screen editor that allows you to edit blocks without leaving the Forth
+environment.
+@item
+Shadow screens; where every code block has an associated block
+containing comments (for example: code in odd block numbers, comments in
+even block numbers). Typically, the block editor provides a convenient
+mechanism to toggle between code and comments.
+@item
+Load blocks; a single block (typically block 1) contains a number of
+@code{thru} commands which @code{load} the whole of the application.
+@item
+Chaining blocks; a block terminates with a @code{-->} so that a whole
+application can be @code{load}ed by @code{load}ing a single block.
+@end itemize
+
 
 @comment TODO what about errors on open-blocks?
 doc-open-blocks
 doc-use
-doc-scr
 doc-get-block-fid
 doc-block-position
+
+doc-scr
+doc-list
+
+doc---block-block
+doc-buffer
+
 doc-update
+doc-updated?
 doc-save-buffers
-doc-save-buffer
 doc-empty-buffers
 doc-empty-buffer
 doc-flush
-doc-get-buffer
-doc---block-block
-doc-buffer
-doc-updated?
-doc-list
+
 doc-load
 doc-thru
 doc-+load
@@ -4660,7 +4988,7 @@ doc-block-included
 @c -------------------------------------------------------------
 @node Other I/O, Programming Tools, Blocks, Words
 @section Other I/O
-@comment TODO more index entries
+@cindex I/O - keyboard and display
 
 @menu
 * Simple numeric output::       Predefined formats
@@ -4672,8 +5000,7 @@ doc-block-included
 
 @node Simple numeric output, Formatted numeric output, Other I/O, Other I/O
 @subsection Simple numeric output
-@cindex simple numeric output
-@comment TODO more index entries
+@cindex numeric output - simple/free-format
 
 The simplest output functions are those that display numbers from the
 data or floating-point stacks. Floating-point output is always displayed
@@ -4706,9 +5033,9 @@ fs. 1.23456779999999E26
 
 @node Formatted numeric output, String Formats, Simple numeric output, Other I/O
 @subsection Formatted numeric output
-@cindex Formatted numeric output
+@cindex formatted numeric output
 @cindex pictured numeric output
-@comment TODO more index entries
+@cindex numeric output - formatted
 
 Forth traditionally uses a technique called @var{pictured numeric
 output} for formatted printing of integers.  In this technique, digits
@@ -4728,11 +5055,12 @@ Three important things to remember about Pictured Numeric Output:
 
 @itemize @bullet
 @item
-It always operates on double-precision numbers; to display a single-precision number,
-convert it first (@pxref{Double precision} for ways of doing this).
+It always operates on double-precision numbers; to display a
+single-precision number, convert it first (@pxref{Double precision} for
+ways of doing this).
 @item
-It always treats the double-precision number as though it were unsigned. Refer to
-the examples below for ways of printing signed numbers.
+It always treats the double-precision number as though it were
+unsigned. The examples below show ways of printing signed numbers.
 @item
 The string is built up from right to left; least significant digit first.
 @end itemize
@@ -4819,8 +5147,7 @@ hex -1 my-u. decimal FFFFFFFF
 @subsection String Formats
 @cindex strings - see character strings
 @cindex character strings - formats
-
-@comment TODO more index entries
+@cindex I/O - see character strings
 
 Forth commonly uses two different methods for representing character
 strings:
@@ -4853,8 +5180,6 @@ display characters and strings.
 @subsection Displaying characters and strings
 @cindex characters - compiling and displaying
 @cindex character strings - compiling and displaying
-
-@comment TODO more index entries
 
 This section starts with a glossary of Forth words and ends with a set
 of examples.
@@ -4945,7 +5270,9 @@ definition of @code{my-char}.
 @node Input, , Displaying characters and strings, Other I/O
 @subsection Input
 @cindex input
-@comment TODO more index entries
+@cindex I/O - see input
+@cindex parsing a string
+@comment TODO more index entries.. particularly wrt parsing
 
 @xref{String Formats} for ways of storing character strings in memory.
 
@@ -4967,8 +5294,6 @@ doc-query
 doc-expect
 doc-span
 
-
-TODO maybe some of these shouldn't be here but should be in a ``parsing'' section
 
 
 @c -------------------------------------------------------------
@@ -5043,6 +5368,7 @@ the file's definitions compiled at any time:
 [ENDIF]
 
 marker my-code
+init-included-files
 
 \ .. definitions start here
 \ .
@@ -7221,10 +7547,10 @@ of Bernd Paysan in comp.arch.
 @subsubsection Basic @file{mini-oof.fs} Usage
 @cindex mini-oof usage
 
-There is a base class (@code{class}, which allocates one cell
-for the object pointer) plus seven other words: to define a method, a
-variable, a class; to end a class, to resolve binding, to allocate an
-object and to compile a class method.
+There is a base class (@code{class}, which allocates one cell for the
+object pointer) plus seven other words: to define a method, a variable,
+a class; to end a class, to resolve binding, to allocate an object and
+to compile a class method.
 @comment TODO better description of the last one
 
 doc-object
@@ -7792,7 +8118,7 @@ This is modeled on the GNU readline library (@pxref{Readline
 Interaction, , Command Line Editing, readline, The GNU Readline
 Library}) with Emacs-like key bindings. @kbd{Tab} deviates a little by
 producing a full word completion every time you type it (instead of
-producing the common prefix of all completions).
+producing the common prefix of all completions). @xref{Command-line editing}.
 
 @item character set:
 @cindex character set

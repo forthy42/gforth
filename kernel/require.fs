@@ -31,25 +31,31 @@ create image-included-files  1 , A, ( pointer to and count of included files )
     included-files 2@ loadfilename# @ min 2* cells + ;
 
 : sourcefilename ( -- c-addr u ) \ gforth
-    \G the name of the source file which is currently the input
+    \G The name of the source file which is currently the input
     \G source.  The result is valid only while the file is being
     \G loaded.  If the current input source is no (stream) file, the
     \G result is undefined.
     loadfilename 2@ ;
 
 : sourceline# ( -- u ) \ gforth		sourceline-number
-    \G the line number of the line that is currently being interpreted
+    \G The line number of the line that is currently being interpreted
     \G from a (stream) file. The first line has the number 1. If the
-    \G current input source is no (stream) file, the result is
+    \G current input source is not a (stream) file, the result is
     \G undefined.
     loadline @ ;
 
-: init-included-files ( -- )
+: init-included-files ( -- ) \ gforth
+    \G Clear the list of earlier included files.
     image-included-files 2@ 2* cells save-mem drop ( addr )
     image-included-files 2@ nip included-files 2! ;
 
 : included? ( c-addr u -- f ) \ gforth
-    \G True, iff filename c-addr u is in included-files
+    \G True only if the file @var{c-addr u} is in the list of earlier
+    \G included files. If the file has been loaded, it may have been
+    \G specified as, say, foo.fs and found somewhere on the Forth
+    \G search path. To return true from @code{included?}, you must
+    \G specify the exact path to the file, even if that is
+    \G @code{./foo.fs}
     included-files 2@ 0
     ?do ( c-addr u addr )
 	dup >r 2@ 2over compare 0=
@@ -68,7 +74,7 @@ create image-included-files  1 , A, ( pointer to and count of included files )
     2! ;
 
 : included1 ( i*x file-id c-addr u -- j*x ) \ gforth
-    \G include the file file-id with the name given by c-addr u
+    \G Include the file file-id with the name given by @var{c-addr u}.
     loadfilename# @ >r
     save-mem add-included-file ( file-id )
     included-files 2@ nip 1- loadfilename# !
@@ -76,16 +82,16 @@ create image-included-files  1 , A, ( pointer to and count of included files )
     r> loadfilename# !
     throw ;
     
-: included ( i*x addr u -- j*x ) \ file
+: included ( i*x c-addr u -- j*x ) \ file
     \G @code{include-file} the file whose name is given by the string
-    \G @var{addr u}.
+    \G @var{c-addr u}.
     open-fpath-file throw included1 ;
 
 : required ( i*x addr u -- j*x ) \ gforth
-    \G @code{include-file} the file with the name given by @var{addr u}, if it is not
-    \G @code{included} (or @code{required}) already. Currently this
-    \G works by comparing the name of the file (with path) against the
-    \G names of earlier included files.
+    \G @code{include-file} the file with the name given by @var{addr
+    \G u}, if it is not @code{included} (or @code{required})
+    \G already. Currently this works by comparing the name of the file
+    \G (with path) against the names of earlier included files.
     \ however, it may be better to fstat the file,
     \ and compare the device and inode. The advantages would be: no
     \ problems with several paths to the same file (e.g., due to
@@ -101,12 +107,12 @@ create image-included-files  1 , A, ( pointer to and count of included files )
 \ INCLUDE                                               9may93jaw
 
 : include  ( ... "file" -- ... ) \ gforth
-\G @code{include-file} the file @var{file}.
-  name included ;
+    \G @code{include-file} the file @var{file}.
+    name included ;
 
 : require  ( ... "file" -- ... ) \ gforth
-\G @code{include-file} @var{file} only if it is not included already.
-  name required ;
+    \G @code{include-file} @var{file} only if it is not included already.
+    name required ;
 
 0 [IF]
 : \I
@@ -143,5 +149,5 @@ create image-included-files  1 , A, ( pointer to and count of included files )
 	cr I 2@ type  2 cells +LOOP ;  
 
 \ contains tools/newrequire.fs
-\ \I $Id: require.fs,v 1.6 1999-03-23 20:24:26 crook Exp $
+\ \I $Id: require.fs,v 1.7 1999-04-16 22:19:54 crook Exp $
 

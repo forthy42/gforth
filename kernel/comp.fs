@@ -128,7 +128,8 @@ create nextname-buffer 32 chars allot
     ['] noname-header IS (header) ;
 
 : lastxt ( -- xt ) \ gforth
-\ xt is the execution token of the last word defined. The main purpose of this word is to get the xt of words defined using noname
+    \G @var{xt} is the execution token of the last word defined.
+    \ The main purpose of this word is to get the xt of words defined using noname
     lastcfa @ ;
 
 \ \ literals							17dec92py
