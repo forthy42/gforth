@@ -58,5 +58,5 @@ doer? :dofield [IF]
 true [IF] \ !! don't know what to put here
 : dodoes: ( -- addr )	\ gforth
     \G The code address of a @code{field}???
-    ['] spaces >code-address ;
+    ['] DOES> >code-address ;
 [THEN]

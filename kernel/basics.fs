@@ -62,8 +62,7 @@ hex
 
 \ UNUSED                                                17may93jaw
 
-has? ec 
-[IF]
+has? ec [IF]
 unlock ram-dictionary borders nip lock
 AConstant dictionary-end
 [ELSE]
@@ -87,7 +86,7 @@ AConstant dictionary-end
 
 has? ec [IF]
 : in-dictionary? ( x -- f )
-    dictionary-end < ;
+    dictionary-end u< ;
 [ELSE]    
 : in-dictionary? ( x -- f )
     forthstart dictionary-end within ;

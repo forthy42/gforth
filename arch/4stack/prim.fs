@@ -410,54 +410,69 @@ end-code
 : code-address! ( addr xt -- )  >r 3 or $808 @ r> 2! ;
 : does-code!    ( a_addr xt -- )  >r 5 - $808 @ r> 2! ;
 : does-handler! ( a_addr -- )  >r $810 2@ r> 2! ;
+: finish-code ;
 
 : bye  0 execute ;
 : (bye) 0 execute ;
 : float+ 8 + ;
+
 : sgn ( n -- -1/0/1 )
-  dup 0= IF EXIT THEN  0< 2* 1+ ;
-: -text
-  swap bounds
-  ?DO  dup c@ I c@ = WHILE  1+  LOOP  drop 0
-  ELSE  c@ I c@ - unloop  THEN  sgn ;
-: finish-code ;
-: capscomp  ( c_addr1 u c_addr2 -- n )
-  swap bounds
-  ?DO  dup c@ I c@ <>
-      IF  dup c@ toupper I c@ toupper =
-      ELSE  true  THEN  WHILE  1+  LOOP  drop 0
-  ELSE  c@ toupper I c@ toupper - unloop  THEN  sgn ;
+ dup 0= IF EXIT THEN  0< 2* 1+ ;
+: -text ( c_addr1 u c_addr2 -- n )
+ swap bounds
+ ?DO  dup c@ I c@ = WHILE  1+  LOOP  drop 0
+ ELSE  c@ I c@ - unloop  THEN  sgn ;
+: capscomp ( c_addr1 u c_addr2 -- n )
+ swap bounds
+ ?DO  dup c@ I c@ <>
+     IF  dup c@ toupper I c@ toupper =
+     ELSE  true  THEN  WHILE  1+  LOOP  drop 0
+ ELSE  c@ toupper I c@ toupper - unloop  THEN  sgn ;
 
 \ division a/b
 \ x:=a, y:=b, r:=est; iterate(x:=x*r, y:=y*r, r:=2-y*r);
 \ result: x=a/b; y=1; r=1
 
-\ Label idiv-table
-\ idiv-tab:
-\ .macro .idiv-table [F]
-\ 	$100 $80 DO  0 $100 I 2* 1+ um/mod  long, drop  LOOP
-\ .end-macro
-\ 	.idiv-table
-\ end-code
-\ 
-\ Code um/mod1 ( u -- 1/u )
-\ ;;	b        --        --       --        --          --          ;;
-\ 	ff1      -$1F #    nop      nop       br 0 :0= div0
-\ 	bfu      add 0s0   ip@      nop       set 2: R2               ;;
-\ ;;	b'       --        --       --        --          --          ;;
-\ 	lob      $0FF ##   pick 0s0 pick 0s0  0 #         -$108 ## ;;
-\ 	1 #      #,        sub #min 1 #       ld 0: R2 +s0 #,         ;;
-\ 	cm!      and       nop      cm!       br 2 ?0= by2
-\ ;;      est      --        --       b'        --          --          ;;
-\ 	umul 3s0 pick 0s0  nop      umul 0s0  0 #         0 #         ;;
-\ 	mulr<@   nop       nop      -mulr@                            ;;
-\ 	drop     umul 3s0  nop      umul 0s0                          ;;
-\ 	mulr<@   cm!       nop      -mulr@                            ;;
-\ 	umul 3s0 drop      pick 1s0 drop                              ;;
-\ 	drop     mulr<@    ip!      nop       0 #         ld 1: R1 N+ ;;
-\ 	pick 1s0 drop      nop      nop                               ;;
-\ by2:
-\ div0:
-\ 	-1 #     ip!       nop      nop       0 #         ld 1: R1 N+ ;;
-\ 	nop      nop       nop      nop                               ;;
-\ end-code
+Code u/mod ( u1 u2 -- q r )
+    drop     nop       pick 0s0  call $43 +IP ;;
+    pick 1s0 drop      nop       nop                 ;;
+    swap     ip!       nop       nop       0 #         ld 1: R1 N+ ;;
+    nop      nop       nop       nop                               ;;
+.macro .idiv-table [F]
+	$100 $80 DO  0 $100 I 2* 1+ um/mod  long, drop  LOOP
+.end-macro
+approx:
+   .idiv-table
+idiv:
+;; a         --        b         --
+   nop       pick 2s0  ff1       1 #       br 1 :0=              ;;
+   ip@       pick 2s0  bfu       cm!       set 0: R2             ;;
+;; a         n         b'        --
+   nop       -$1D #    lob       pick 2s0  0 #            -$104 ## ;;
+   nop       add       pick 3s0  drop      ld 2: R2 +s0   #, ;;
+   nop       cm!       nip       nop       ;;
+;; a         n         b' r      --
+   umul 2s0  pick 0s0  umul      nop       ;;
+   mulr@     0 #       mulr@     -mulr@    ;; first iteration
+   umul 3s0  pick s2   umul 3s0  drop      ;;
+   mulr@     nop       nop       -mulr<@   ;; second iteration
+   umul 3s0  nop       nop       drop      ;;
+   nop       mulr<@    nop       nop       ;; final iteration+shift
+   pick 1s0  umul      nop       nop       ;;
+   nop       -mul@+    nop       ret       br 1 ?0< ;;
+   nop       nip       nop       nop       ;;
+.endif
+   dec       add       nop       nop       ;;
+;; q         r
+
+.endif
+   nop       drop      drop      drop      ;;
+   dec       0 #       drop      ret       ;;
+   nop                                     ;;
+end-code
+
+: /mod  ( d1 n1 -- n2 n3 )
+ dup >r dup 0< IF  negate >r negate r>  THEN
+ over       0< IF  tuck + swap  THEN
+ u/mod
+ r> 0< IF  swap negate swap  THEN ;

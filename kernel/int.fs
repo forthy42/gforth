@@ -229,8 +229,13 @@ struct
   cell% field wordlist-extend \ wordlist extensions (eg bucket offset)
 end-struct wordlist-struct
 
+has? f83headerstring [IF]
+: f83find      ( addr len wordlist -- nt / false )
+    wordlist-id @ (f83find) ;
+[ELSE]
 : f83find      ( addr len wordlist -- nt / false )
     wordlist-id @ (listlfind) ;
+[THEN]
 
 : initvoc		( wid -- )
   dup wordlist-map @ hash-method perform ;
@@ -260,6 +265,13 @@ forth-wordlist current !
 \ The constants are defined as 32 bits, but then erased
 \ and overwritten by the right ones
 
+has? f83headerstring [IF]
+    \ to save space, Gforth EC limits words to 31 characters
+    $80 constant alias-mask
+    $40 constant immediate-mask
+    $20 constant restrict-mask
+    $1f constant lcount-mask
+[ELSE]    
 $80000000 constant alias-mask
 1 bits/char 1 - lshift
 -1 cells allot  bigendian [IF]   c, 0 1 cells 1- times
@@ -276,6 +288,7 @@ $1fffffff constant lcount-mask
 1 bits/char 3 - lshift 1 -
 -1 cells allot  bigendian [IF]   c, -1 1 cells 1- times
                           [ELSE] -1 1 cells 1- times c, [THEN]
+[THEN]
 
 \ higher level parts of find
 
@@ -306,6 +319,22 @@ $1fffffff constant lcount-mask
 	(cfa>int)
     then ;
 
+has? f83headerstring [IF]
+: name>string ( nt -- addr count ) \ gforth     head-to-string
+    \g @i{addr count} is the name of the word represented by @i{nt}.
+    cell+ count lcount-mask and ;
+
+: ((name>))  ( nfa -- cfa )
+    name>string + cfaligned ;
+
+: (name>x) ( nfa -- cfa w )
+    \ cfa is an intermediate cfa and w is the flags cell of nfa
+    dup ((name>))
+    swap cell+ c@ dup alias-mask and 0=
+    IF
+        swap @ swap
+    THEN ;
+[ELSE]
 : name>string ( nt -- addr count ) \ gforth     head-to-string
     \g @i{addr count} is the name of the word represented by @i{nt}.
     cell+ dup cell+ swap @ lcount-mask and ;
@@ -320,6 +349,7 @@ $1fffffff constant lcount-mask
     IF
         swap @ swap
     THEN ;
+[THEN]
 
 : name>int ( nt -- xt ) \ gforth
     \G @i{xt} represents the interpretation semantics of the word

@@ -59,7 +59,7 @@ false SetValue xconds		\ used together with glocals,
 				\ local variables
 false SetValue header		\ save a header information
 
-false SetValue ec
+true SetValue ec
 false SetValue crlf
 true SetValue ITC
 false SetValue new-input

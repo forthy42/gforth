@@ -107,8 +107,10 @@ has? compiler [IF]
     [THEN]
     \ these two games can be added to provide complex examples for the 4stack
     \ and misc simulators (see arch/4stack/README and arch/misc/README).
-    \ include arch/misc/tt.fs
-    \ include arch/misc/sokoban.fs
+    has? games [IF]
+	include arch/misc/tt.fs
+	include arch/misc/sokoban.fs
+    [THEN]
 [THEN]
 include ./quotes.fs
 include ./toolsext.fs

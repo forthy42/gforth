@@ -1315,6 +1315,33 @@ c_addr2 = c_addr1+1;
 
 \g compiler
 
+\+f83headerstring
+
+(f83find)	( c_addr u f83name1 -- f83name2 )	new	paren_f83find
+for (; f83name1 != NULL; f83name1 = (struct F83Name *)(f83name1->next))
+  if ((UCell)F83NAME_COUNT(f83name1)==u &&
+      memcasecmp(c_addr, f83name1->name, u)== 0 /* or inline? */)
+    break;
+f83name2=f83name1;
+:
+    BEGIN  dup WHILE  (find-samelen)  dup  WHILE
+	>r 2dup r@ cell+ char+ capscomp  0=
+	IF  2drop r>  EXIT  THEN
+	r> @
+    REPEAT  THEN  nip nip ;
+: (find-samelen) ( u f83name1 -- u f83name2/0 )
+    BEGIN  2dup cell+ c@ $1F and <> WHILE  @  dup 0= UNTIL  THEN ;
+: capscomp ( c_addr1 u c_addr2 -- n )
+ swap bounds
+ ?DO  dup c@ I c@ <>
+     IF  dup c@ toupper I c@ toupper =
+     ELSE  true  THEN  WHILE  1+  LOOP  drop 0
+ ELSE  c@ toupper I c@ toupper - unloop  THEN  sgn ;
+: sgn ( n -- -1/0/1 )
+ dup 0= IF EXIT THEN  0< 2* 1+ ;
+
+\-
+
 (listlfind)	( c_addr u longname1 -- longname2 )	new	paren_listlfind
 longname2=listlfind(c_addr, u, longname1);
 :
@@ -1348,6 +1375,12 @@ longname2 = tablelfind(c_addr, u, a_addr);
 	    IF  2drop r> rdrop  EXIT  THEN  THEN
 	rdrop r>
  REPEAT nip nip ;
+: -text ( c_addr1 u c_addr2 -- n )
+ swap bounds
+ ?DO  dup c@ I c@ = WHILE  1+  LOOP  drop 0
+ ELSE  c@ I c@ - unloop  THEN  sgn ;
+: sgn ( n -- -1/0/1 )
+ dup 0= IF EXIT THEN  0< 2* 1+ ;
 
 (hashkey1)	( c_addr u ubits -- ukey )		gforth	paren_hashkey1
 ""ukey is the hash key for the string c_addr u fitting in ubits bits""
@@ -1364,6 +1397,8 @@ Create rot-values
   3 c, 5 c, 5 c, 5 c, 5 c,  7 c, 5 c, 5 c, 5 c, 5 c,
   7 c, 5 c, 5 c, 5 c, 5 c,  6 c, 5 c, 5 c, 5 c, 5 c,
   7 c, 5 c, 5 c,
+
+\+
 
 \+
 

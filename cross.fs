@@ -1177,7 +1177,7 @@ false DefaultValue new-input
 false DefaultValue peephole
 false DefaultValue abranch
 true DefaultValue f83headerstring
-true  DefaultValue control-rack
+true DefaultValue control-rack
 [THEN]
 
 true DefaultValue gforthcross

@@ -454,11 +454,13 @@ Create lits  0. 2, 0. 2, 0. 2, 0. 2,  0. 2, 0. 2,
             dup 2 =  IF  hih  2drop  0 0 rot 2!  EXIT THEN THEN
         1- >r $100 um* #< r> rot 2!
   ELSE  2drop drop  alu? IF  nop  ELSE  0 #  THEN  THEN ;
-:D
 
+: >sym ( "symbol" -- addr )
+    bl word count sym-lookup? dup 0= abort" No symbol!"
+    >body cell+ @ @ ;
+:D
 : >ip.b  ( -- )
-  bl word count sym-lookup? dup 0= abort" No symbol!"
-  >body cell+ @ @ 4here 2 cells + - ;
+    >sym 4here 2 cells + - ;
 :A
 : .ip.b#  ( -- )    >ip.b                [A] # [F] ;
 : .ip.h#  ( -- )    >ip.b 2/             [A] # [F] ;
@@ -472,11 +474,10 @@ Create lits  0. 2, 0. 2, 0. 2, 0. 2,  0. 2, 0. 2,
 :D
 Variable procstart
 : >p.b  ( -- )
-  bl word count sym-lookup? dup 0= abort" No symbol!"
-  >body cell+ @ @ procstart @ - ;
+    >sym procstart @ - ;
 :A
 : .proc  finish?  4here procstart ! ;
-: .p     ( -- n )  >p.b                       ;
+: .p#    ( -- n )  >p.b                       ;
 : .p.b#  ( -- )    >p.b             [A] # [F] ;
 : .p.h#  ( -- )    >p.b 2/          [A] # [F] ;
 : .p.w#  ( -- )    >p.b 2/ 2/       [A] # [F] ;
