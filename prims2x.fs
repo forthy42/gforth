@@ -41,7 +41,6 @@
 \ regarding problem 1 above: It would be better (for over) to implement
 \ 	the alternative
 \ store optimization for combined instructions.
-\ eliminate stack-cast (no longer used)
 
 \ Design Uglyness:
 
@@ -142,7 +141,6 @@ struct%
     cell%    field stack-number \ the number of this stack
     cell% 2* field stack-pointer \ stackpointer name
     cell%    field stack-type \ name for default type of stack items
-    cell% 2* field stack-cast \ cast string for assignments to stack elements
     cell%    field stack-in-index-xt \ ( in-size item -- in-index )
 end-struct stack%
 
@@ -171,14 +169,21 @@ create stacks max-stacks cells allot \ array of stacks
 : inst-in-index ( in-size item -- in-index )
     nip dup item-offset @ swap item-type @ type-size @ + 1- ;
 
-: make-stack ( addr-ptr u1 type addr-cast u2 "stack-name" -- )
+: make-stack ( addr-ptr u1 type "stack-name" -- )
+    next-stack-number @ max-stacks < s" too many stacks" ?print-error
     create stack% %allot >r
     r@ stacks next-stack-number @ th !
-    next-stack-number @ r@ stack-number !  1 next-stack-number +!
-    save-mem r@ stack-cast 2!
+    next-stack-number @ r@ stack-number !
+    1 next-stack-number +!
     r@ stack-type !
     save-mem r@ stack-pointer 2! 
     ['] stack-in-index r> stack-in-index-xt ! ;
+
+: map-stacks { xt -- }
+    \ perform xt for all stacks except inst-stream
+    next-stack-number @ 1 +do
+	stacks i th @ xt execute
+    loop ;
 
 \ stack items
 
@@ -485,15 +490,19 @@ does> ( item -- )
 
 \ types pointed to by stacks for use in combined prims
 \ !! output-c-combined shouldn't use these names!
-s" Cell"  single 0 create-type w
-s" Float" single 0 create-type r
+: stack-type-name ( addr u "name" -- )
+    single 0 create-type ;
 
-s" sp" save-mem w s" (Cell)" make-stack data-stack 
-s" fp" save-mem r s" "       make-stack fp-stack
-s" rp" save-mem w s" (Cell)" make-stack return-stack
-s" IP" save-mem w s" error don't use # on results" make-stack inst-stream
+s" Cell"  stack-type-name w
+s" Float" stack-type-name r
+
+s" IP" save-mem w make-stack inst-stream
 ' inst-in-index inst-stream stack-in-index-xt !
 ' inst-stream <is> inst-stream-f
+
+s" sp" save-mem w make-stack data-stack 
+s" fp" save-mem r make-stack fp-stack
+s" rp" save-mem w make-stack return-stack
 \ !! initialize stack-in and stack-out
 
 \ offset computation
@@ -516,7 +525,7 @@ s" IP" save-mem w s" error don't use # on results" make-stack inst-stream
     dup stack-in off stack-out off ;
 
 : compute-offsets ( -- )
-    data-stack clear-stack  fp-stack clear-stack return-stack clear-stack
+    ['] clear-stack map-stacks
     inst-stream clear-stack
     prim prim-effect-in  prim prim-effect-in-end  @ ['] compute-offset-in  map-items
     prim prim-effect-out prim prim-effect-out-end @ ['] compute-offset-out map-items
@@ -536,9 +545,7 @@ s" IP" save-mem w s" error don't use # on results" make-stack inst-stream
     endif ;
 
 : flush-tos ( -- )
-    data-stack   flush-a-tos
-    fp-stack     flush-a-tos
-    return-stack flush-a-tos ;
+    ['] flush-a-tos map-stacks ;
 
 : fill-a-tos { stack -- }
     stack stack-out @ 0= stack stack-in @ 0<> and
@@ -549,9 +556,7 @@ s" IP" save-mem w s" error don't use # on results" make-stack inst-stream
 
 : fill-tos ( -- )
     \ !! inst-stream for prefetching?
-    fp-stack     fill-a-tos
-    data-stack   fill-a-tos
-    return-stack fill-a-tos ;
+    ['] fill-a-tos map-stacks ;
 
 : fetch ( addr -- )
     dup item-type @ type-fetch @ execute ;
@@ -573,9 +578,7 @@ s" IP" save-mem w s" error don't use # on results" make-stack inst-stream
 
 : stack-pointer-updates ( -- )
     inst-pointer-update
-    data-stack   stack-pointer-update
-    fp-stack     stack-pointer-update
-    return-stack stack-pointer-update ;
+    ['] stack-pointer-update map-stacks ;
 
 : store ( item -- )
 \ f is true if the item should be stored
@@ -733,32 +736,33 @@ s" IP" save-mem w s" error don't use # on results" make-stack inst-stream
 : output-forthname ( -- )
   '" emit prim prim-name 2@ type '" emit ." ," cr ;
 
-: output-c-func ( -- )
-\ used for word libraries
-    ." Cell * I_" prim prim-c-name 2@ type ." (Cell *SP, Cell **FP)      /* " prim prim-name 2@ type
-    ."  ( " prim prim-stack-string 2@ type ."  ) */" cr
-    ." /* " prim prim-doc 2@ type ."  */" cr
-    ." NAME(" quote prim prim-name 2@ type quote ." )" cr
-    \ debugging
-    ." {" cr
-    print-declarations
-    inst-stream  stack-used? IF ." Cell *ip=IP;" cr THEN
-    data-stack   stack-used? IF ." Cell *sp=SP;" cr THEN
-    fp-stack     stack-used? IF ." Cell *fp=*FP;" cr THEN
-    return-stack stack-used? IF ." Cell *rp=*RP;" cr THEN
-    flush-tos
-    fetches
-    stack-pointer-updates
-    fp-stack   stack-used? IF ." *FP=fp;" cr THEN
-    ." {" cr
-    ." #line " c-line @ . quote c-filename 2@ type quote cr
-    prim prim-c-code 2@ type
-    ." }" cr
-    stores
-    fill-tos
-    ." return (sp);" cr
-    ." }" cr
-    cr ;
+\  : output-c-func ( -- )
+\  \ used for word libraries
+\      ." Cell * I_" prim prim-c-name 2@ type ." (Cell *SP, Cell **FP)      /* " prim prim-name 2@ type
+\      ."  ( " prim prim-stack-string 2@ type ."  ) */" cr
+\      ." /* " prim prim-doc 2@ type ."  */" cr
+\      ." NAME(" quote prim prim-name 2@ type quote ." )" cr
+\      \ debugging
+\      ." {" cr
+\      print-declarations
+\      \ !! don't know what to do about that
+\      inst-stream  stack-used? IF ." Cell *ip=IP;" cr THEN
+\      data-stack   stack-used? IF ." Cell *sp=SP;" cr THEN
+\      fp-stack     stack-used? IF ." Cell *fp=*FP;" cr THEN
+\      return-stack stack-used? IF ." Cell *rp=*RP;" cr THEN
+\      flush-tos
+\      fetches
+\      stack-pointer-updates
+\      fp-stack   stack-used? IF ." *FP=fp;" cr THEN
+\      ." {" cr
+\      ." #line " c-line @ . quote c-filename 2@ type quote cr
+\      prim prim-c-code 2@ type
+\      ." }" cr
+\      stores
+\      fill-tos
+\      ." return (sp);" cr
+\      ." }" cr
+\      cr ;
 
 : output-label ( -- )  
     ." (Label)&&I_" prim prim-c-name 2@ type ." ," cr ;
