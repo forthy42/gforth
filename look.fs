@@ -24,14 +24,14 @@ decimal
 : (look)  ( xt startlfa -- lfa flag )
         false swap
         BEGIN @ dup
-        WHILE dup cell+ name>
+        WHILE dup name>
               3 pick = IF nip dup THEN
         REPEAT
         drop nip
         dup 0<> ;
 
 : look ( cfa -- lfa flag )
-        dup forthstart u<
+        dup forthstart <
         IF PrimStart (look)
         ELSE >name true THEN ;
 
