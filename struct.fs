@@ -37,7 +37,7 @@
 
 : field ( offset1 align1 size align -- offset2 align2 )
 \ note: this version uses local variables
-    (Field) \  Header reveal dofield: cfa,
+    [IFDEF]  (Field) (Field)  [ELSE]  Header reveal dofield: cfa,  [THEN]
 	>r rot r@ nalign  dup ,  ( align1 size offset )
 	+ swap r> nalign ;
 

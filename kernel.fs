@@ -1265,6 +1265,7 @@ DEFER DOERROR
 ;
 
 : (DoError) ( throw-code -- )
+  [ has-os [IF] ] stderr to outfile-id [ [THEN] ] 
   sourceline# IF
                source >in @ sourceline# 0 0 .error-frame
   THEN
@@ -1286,7 +1287,9 @@ DEFER DOERROR
   ELSE
      .error
   THEN
-  normal-dp dpp ! ;
+  normal-dp dpp !
+  [ has-os [IF] ] stdout to outfile-id [ [THEN] ] 
+;
 
 ' (DoError) IS DoError
 

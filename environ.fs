@@ -60,7 +60,8 @@ true constant CORE-EXT
     [ forthstart 4 cells + ] literal @ cell / ;
 
 : floating-stack ( -- n )
-    [ forthstart 5 cells + ] literal @ float / ;
+    [ forthstart 5 cells + ] literal @
+    [IFDEF] float  float  [ELSE]  [ 1 floats ] Literal [THEN] / ;
 
 \ !! max-float
 15 constant #locals \ 1000 64 /
