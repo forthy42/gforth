@@ -37,7 +37,6 @@ TAR	= tar cf -
 INSTALL	= @INSTALL@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_DATA = @INSTALL_DATA@
-INSTALL_DIR = $(srcdir)/install-sh -d
 LN_S	= @LN_S@
 GCC	= @CC@
 CC	= $(GCC)
@@ -190,10 +189,14 @@ GEN_PRECIOUS = $(FORTH_GEN) $(KERNLS) gforth.texi gforth.dvi gforth.ps Makefile 
 
 all:	version.fs more
 
-version.h:	Makefile.in
+#this rule avoids remaking everything after minor changes in Makefile.in
+version-stamp:	Makefile.in
+		if test x'$(VERSION)' != x`cat $@`; then echo $(VERSION) >$@; fi
+
+version.h:	version-stamp
 		echo "static char gforth_version[]=\"$(VERSION)\" ;" >$@
 
-version.fs:	Makefile.in
+version.fs:	version-stamp
 		$(MAKE) gforth
 		echo ": version-string s\" $(VERSION)\" ;" >$@
 
@@ -298,22 +301,19 @@ binonlydist:	$(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST) $(BINONLYDIST)
 #install does not depend on gforth.info, because that would require
 #supplying a lot of files that can be easily generated (only info is
 #hard to generate)
-install:	gforth $(FORTH_SRC) kernel.fi gforth.fi gforth.1 primitives gforth.TAGS
-		for i in $(bindir) $(mandir) $(infodir) $(libdir)/gforth/$(VERSION) $(datadir)/gforth/$(VERSION) $(libdir)/gforth/site-forth $(datadir)/gforth/site-forth; do \
-			$(INSTALL_DIR) $$i; \
-		done
+install:	gforth $(FORTH_SRC) kernel.fi gforth.fi gforth.1 primitives gforth.TAGS installdirs
 		touch $(datadir)/gforth/site-forth/site-init.fs
 		-$(RM) $(bindir)/gforth $(bindir)/gforth-$(VERSION)
 		$(INSTALL_PROGRAM) -s gforth $(bindir)
 		ln $(bindir)/gforth $(bindir)/gforth-$(VERSION)
-		$(INSTALL_DATA) $(srcdir)/gforth.1 $(mandir)
+		$(INSTALL_DATA) $(srcdir)/gforth.1 $(man1dir)
 		for i in $(srcdir)/gforth.info*; do $(INSTALL_DATA) $$i $(infodir); done
 		for i in $(FORTH_SRC) primitives; do \
 			$(INSTALL_DATA) $(srcdir)/$$i $(datadir)/gforth/$(VERSION); \
 		done
 		$(INSTALL_DATA) kernel.fi $(libdir)/gforth/$(VERSION)
 		$(RM) gforth.fi; $(MAKE) gforth.fi #gforth.fi contains some path names
-		sed s:$(srcdir)/:$(datadir)/gforth/$(VERSION)/: gforth.TAGS >TAGS; $(INSTALL_DATA) TAGS $(datadir)/gforth/$(VERSION)
+		sed s:^$(srcdir)/:$(datadir)/gforth/$(VERSION)/: gforth.TAGS >TAGS; $(INSTALL_DATA) TAGS $(datadir)/gforth/$(VERSION)
 		if test -d $(emacssitelispdir); then \
 			$(INSTALL_DATA) $(srcdir)/gforth.el $(emacssitelispdir); \
 		else \
@@ -323,6 +323,9 @@ install:	gforth $(FORTH_SRC) kernel.fi gforth.fi gforth.1 primitives gforth.TAGS
 		echo "* Gforth: (gforth).	A fast interpreter for the Forth language."
 
 install-strip:	install
+
+installdirs:	mkinstalldirs
+		$(srcdir)/mkinstalldirs $(bindir) $(man1dir) $(infodir) $(libdir)/gforth/$(VERSION) $(datadir)/gforth/$(VERSION) $(libdir)/gforth/site-forth $(datadir)/gforth/site-forth
 
 #deinstall all files specific to this version of gforth
 #to uninstall version foo, type `make uninstall VERSION=foo'
@@ -399,8 +402,8 @@ kernl64l.fi:	$(KERNLS)
 		@LINK_KERNL64L@
 
 gforth.fi:	@kernel_fi@ gforth $(GFORTH_FI_SRC)
-		$(FORTHK) $(FORTHSIZES) startup.fs -e "savesystem gforth.fi1 bye"
-		$(FORTHK) --offset-image $(FORTHSIZES) startup.fs -e "savesystem gforth.fi2 bye"
+		$(FORTHK) --clear-dictionary $(FORTHSIZES) startup.fs -e "savesystem gforth.fi1 bye"
+		$(FORTHK)  --clear-dictionary --offset-image $(FORTHSIZES) startup.fs -e "savesystem gforth.fi2 bye"
 		$(FORTHK) -m 100000 startup.fs  comp-image.fs -e "comp-image gforth.fi1 gforth.fi2 gforth.fi bye"
 
 #TAGS is a GNU standard target

@@ -31,6 +31,9 @@
 #include <fcntl.h>
 #include <assert.h>
 #include <stdlib.h>
+#if HAVE_SYS_MMAN_H
+#include <sys/mman.h>
+#endif
 #include "forth.h"
 #include "io.h"
 #include "getopt.h"
@@ -61,6 +64,9 @@ static Cell rsize=0;
 static Cell fsize=0;
 static Cell lsize=0;
 static int image_offset=0;
+static int clear_dictionary=0;
+static int debug=0;
+static size_t pagesize=0;
 char *progname;
 
 /* image file format:
@@ -98,6 +104,12 @@ typedef struct {
   UCell locals_stack_size;
   Xt *boot_entry;	/* initial ip for booting (in BOOT) */
   Xt *throw_entry;	/* ip after signal (in THROW) */
+  Cell unused1;		/* possibly tib stack size */
+  Cell unused2;
+  Address data_stack_base; /* this and the following fields are initialized by the loader */
+  Address fp_stack_base;
+  Address return_stack_base;
+  Address locals_stack_base;
 } ImageHeader;
 /* the image-header is created in main.fs */
 
@@ -158,6 +170,35 @@ UCell checksum(Label symbols[])
   return r;
 }
 
+Address my_alloc(Cell size)
+{
+  static Address next_address=0;
+  Address r;
+
+#if HAVE_MMAP && defined(MAP_ANON)
+  if (debug)
+    fprintf(stderr,"try mmap($%lx, $%lx, ...); ", (long)next_address, (long)size);
+  r=mmap(next_address, size, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE, -1, 0);
+  if (r != (Address)-1) {
+    if (debug)
+      fprintf(stderr, "success, address=$%lx\n", (long) r);
+    if (pagesize != 0)
+      next_address = (Address)(((((Cell)r)+size-1)&-pagesize)+2*pagesize); /* leave one page unmapped */
+    return r;
+  }
+  if (debug)
+    fprintf(stderr, "failed: %s\n", strerror(errno));
+#endif
+  /* use malloc as fallback, leave a little room (64B) for stack underflows */
+  if ((r = malloc(size+64))==NULL) {
+    perror(progname);
+    exit(1);
+  }
+  if (debug)
+    fprintf(stderr, "malloc succeeds, address=$%lx\n", (long)r);
+  return r;
+}
+
 Address loader(FILE *imagefile, char* filename)
 /* returns the address of the image proper (after the preamble) */
 {
@@ -165,8 +206,6 @@ Address loader(FILE *imagefile, char* filename)
   Address image;
   Address imp; /* image+preamble */
   Char magic[8];
-  Cell wholesize;
-  Cell imagesize; /* everything needed by the image */
   Cell preamblesize=0;
   Label *symbols=engine(0,0,0,0,0);
   UCell check_sum=checksum(symbols);
@@ -181,11 +220,10 @@ Address loader(FILE *imagefile, char* filename)
 	exit(1);
       }
       preamblesize+=8;
-#ifdef DEBUG
-      fprintf(stderr,"Magic found: %-8s\n",magic);
-#endif
     }
   while(memcmp(magic,"Gforth1",7));
+  if (debug)
+    fprintf(stderr,"Magic found: %-8s\n",magic);
   
   if(magic[7] != sizeof(Cell) +
 #ifdef WORDS_BIGENDIAN
@@ -223,28 +261,32 @@ Address loader(FILE *imagefile, char* filename)
   lsize=maxaligned(lsize);
   fsize=maxaligned(fsize);
   
-  wholesize = preamblesize+dictsize+dsize+rsize+fsize+lsize;
-  imagesize = preamblesize+header.image_size+((header.image_size-1)/sizeof(Cell))/8+1;
-  image=malloc(((wholesize>imagesize?wholesize:imagesize)+image_offset)
-#ifdef FUZZ
-	       +FUZZ
+#if HAVE_GETPAGESIZE
+  pagesize=getpagesize(); /* Linux/GNU libc offers this */
+#elif HAVE_SYSCONF && defined(_SC_PAGESIZE)
+  pagesize=sysconf(_SC_PAGESIZE); /* POSIX.4 */
+#elif PAGESIZE
+  pagesize=PAGESIZE; /* in limits.h accoring to Gallmeister's POSIX.4 book */
 #endif
-	       )+image_offset;
-  /*image = maxaligned(image);*/
-  /* memset(image,0,wholesize); */
+  if (debug)
+    fprintf(stderr,"pagesize=%d\n",pagesize);
 
-#ifdef FUZZ
-  if(header.base==0) image += FUZZ/2;
-  else if((UCell)(header.base - (Cell)image + preamblesize) < FUZZ)
-    image = header.base - preamblesize;
-#endif  
+  image = my_alloc(preamblesize+dictsize+image_offset+FUZZ)+image_offset;
+  if(header.base==0)
+    image += FUZZ/2;
+  else
+    if((UCell)(header.base - (Cell)image + preamblesize) < FUZZ)
+      image = header.base - preamblesize;
   rewind(imagefile);  /* fseek(imagefile,0L,SEEK_SET); */
-  fread(image,1,imagesize,imagefile);
-  fclose(imagefile);
+  if (clear_dictionary)
+    memset(image,0,dictsize);
+  fread(image,1,preamblesize+header.image_size,imagefile);
   imp=image+preamblesize;
-  
   if(header.base==0) {
-    relocate((Cell *)imp,imp+header.image_size,header.image_size,symbols);
+    Cell reloc_size=((header.image_size-1)/sizeof(Cell))/8+1;
+    char reloc_bits[reloc_size];
+    fread(reloc_bits,1,reloc_size,imagefile);
+    relocate((Cell *)imp,reloc_bits,header.image_size,symbols);
 #if 0
     { /* let's see what the relocator did */
       FILE *snapshot=fopen("snapshot.fi","wb");
@@ -265,12 +307,18 @@ Address loader(FILE *imagefile, char* filename)
 	    progname, (unsigned long)(header.checksum),(unsigned long)check_sum);
     exit(1);
   }
+  fclose(imagefile);
 
   ((ImageHeader *)imp)->dict_size=dictsize;
   ((ImageHeader *)imp)->data_stack_size=dsize;
-  ((ImageHeader *)imp)->return_stack_size=rsize;
   ((ImageHeader *)imp)->fp_stack_size=fsize;
+  ((ImageHeader *)imp)->return_stack_size=rsize;
   ((ImageHeader *)imp)->locals_stack_size=lsize;
+
+  ((ImageHeader *)imp)->data_stack_base=my_alloc(dsize);
+  ((ImageHeader *)imp)->fp_stack_base=my_alloc(fsize);
+  ((ImageHeader *)imp)->return_stack_base=my_alloc(rsize);
+  ((ImageHeader *)imp)->locals_stack_base=my_alloc(lsize);
 
   CACHE_FLUSH(imp, header.image_size);
 
@@ -279,12 +327,16 @@ Address loader(FILE *imagefile, char* filename)
 
 int go_forth(Address image, int stack, Cell *entries)
 {
-  Cell *sp=(Cell*)(image+dictsize+dsize);
-  Address lp=(Address)((void *)sp+lsize);
-  Float *fp=(Float *)((void *)lp+fsize);
-  Cell *rp=(Cell*)((void *)fp+rsize);
+  Cell *sp=(Cell*)(((ImageHeader *)image)->data_stack_base + dsize);
+  Float *fp=(Float *)(((ImageHeader *)image)->fp_stack_base + fsize);
+  Cell *rp=(Cell *)(((ImageHeader *)image)->return_stack_base + rsize);
+  Address lp=((ImageHeader *)image)->locals_stack_base + lsize;
   Xt *ip=(Xt *)(((ImageHeader *)image)->boot_entry);
   int throw_code;
+
+  /* ensure that the cached elements (if any) are accessible */
+  IF_TOS(sp--);
+  IF_FTOS(fp--);
   
   for(;stack>0;stack--)
     *--sp=entries[stack-1];
@@ -370,6 +422,8 @@ int main(int argc, char **argv, char **env)
       /* put something != 0 into image_offset; it should be a
          not-too-large max-aligned number */
       {"offset-image", no_argument, &image_offset, 28*sizeof(Cell)},
+      {"clear-dictionary", no_argument, &clear_dictionary, 1},
+      {"debug", no_argument, &debug, 1},
       {0,0,0,0}
       /* no-init-file, no-rc? */
     };
@@ -394,13 +448,15 @@ int main(int argc, char **argv, char **env)
     case 'h': 
       fprintf(stderr, "Usage: %s [engine options] [image arguments]\n\
 Engine Options:\n\
+ --clear-dictionary		    Initialize the dictionary with 0 bytes\n\
  -d SIZE, --data-stack-size=SIZE    Specify data stack size\n\
+ --debug			    Print debugging information during startup\n\
  -f SIZE, --fp-stack-size=SIZE	    Specify floating point stack size\n\
  -h, --help			    Print this message and exit\n\
  -i FILE, --image-file=FILE	    Use image FILE instead of `gforth.fi'\n\
  -l SIZE, --locals-stack-size=SIZE  Specify locals stack size\n\
  -m SIZE, --dictionary-size=SIZE    Specify Forth dictionary size\n\
- --offset-image			    load image at a different position\n\
+ --offset-image			    Load image at a different position\n\
  -p PATH, --path=PATH		    Search path for finding image and sources\n\
  -r SIZE, --return-stack-size=SIZE  Specify return stack size\n\
  -v, --version			    Print version and exit\n\

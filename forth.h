@@ -170,6 +170,20 @@ typedef Label *Xt;
 #define CACHE_FLUSH(addr,size)
 #endif
 
+#ifdef USE_TOS
+#define IF_TOS(x) x
+#else
+#define IF_TOS(x)
+#define TOS (sp[0])
+#endif
+
+#ifdef USE_FTOS
+#define IF_FTOS(x) x
+#else
+#define IF_FTOS(x)
+#define FTOS (fp[0])
+#endif
+
 Label *engine(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp);
 
 /* dblsub routines */

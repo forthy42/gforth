@@ -1814,8 +1814,12 @@ Defer 'cold ' noop IS 'cold
 
 : boot ( path **argv argc -- )
   argc ! argv ! pathstring 2!  main-task up!
-  sp@ dup s0 ! $10 + dup >tib ! tibstack ! #tib off >in off
-  rp@ r0 !  fp@ f0 !  ['] cold catch DoError bye ;
+  sp@ s0 !
+  lp@ forthstart 7 cells + @ - dup >tib ! tibstack ! #tib off >in off
+  rp@ r0 !
+  fp@ f0 !
+  ['] cold catch DoError
+  bye ;
 
 : bye ( -- ) \ tools-ext
     script? 0= IF  cr  THEN  0 (bye) ;

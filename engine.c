@@ -56,20 +56,6 @@ typedef struct F83Name {
 #define F83NAME_SMUDGE(np)	(((np)->countetc & 0x40) != 0)
 #define F83NAME_IMMEDIATE(np)	(((np)->countetc & 0x20) != 0)
 
-#ifdef USE_TOS
-#define IF_TOS(x) x
-#else
-#define IF_TOS(x)
-#define TOS (sp[0])
-#endif
-
-#ifdef USE_FTOS
-#define IF_FTOS(x) x
-#else
-#define IF_FTOS(x)
-#define FTOS (fp[0])
-#endif
-
 Cell *SP;
 Float *FP;
 #if 0

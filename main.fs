@@ -47,6 +47,10 @@ cell 2 = [IF] 32 [ELSE] 256 [THEN] KB makekernel ( size )
 0 A,	\ throw entry point
 16 KB ,	\ unused (possibly tib stack size)
 0 ,	\ unused
+0 ,	\ data stack base
+0 ,	\ fp stack base
+0 ,	\ return stack base
+0 ,	\ locals stack base
 
 UNLOCK ghost - drop \ ghost must exist because - would be treated as number
 LOCK

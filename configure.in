@@ -237,6 +237,8 @@ AC_CHECK_FUNCS(rint expm1 log1p)
 AC_REPLACE_FUNCS(ecvt)
 dnl No check for select, because our replacement is no good under
 dnl anything but DOS
+AC_CHECK_HEADERS(sys/mman.h)
+AC_CHECK_FUNCS(mmap sysconf getpagesize)
 
 kernel_fi=kernl${wordsize}${bytesex}.fi
 AC_SUBST(kernel_fi)
