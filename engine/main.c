@@ -258,7 +258,7 @@ Address loader(FILE *imagefile, char* filename)
   Char magic[9];
   Cell preamblesize=0;
   Label *symbols = engine(0,0,0,0,0);
-  Cell data_offset = offset_image ? 28*sizeof(Cell) : 0;
+  Cell data_offset = offset_image ? 56*sizeof(Cell) : 0;
   UCell check_sum;
   static char* endianstring[]= { "big","little" };
 

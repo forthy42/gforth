@@ -258,7 +258,7 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
 #if defined(DOUBLY_INDIRECT)
 #define MAX_SYMBOLS 1000
     int i;
-    Cell code_offset = offset_image? 11*sizeof(Cell) : 0;
+    Cell code_offset = offset_image? 22*sizeof(Cell) : 0;
 
     symbols = (Label *)(malloc(MAX_SYMBOLS*sizeof(Cell)+code_offset)+code_offset);
     for (i=0; i<DOESJUMP+1; i++)

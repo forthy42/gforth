@@ -47,7 +47,7 @@ s" address-unit-bits" environment? drop constant bits/au
     if
 	." images have the same code base address; producing only a data-relocatable image" cr
     else
-	coffset abs 11 cells <> abort" images produced by different engines"
+	coffset abs 22 cells <> abort" images produced by different engines"
 	." code offset=" coffset . cr
 	0 image1 cell+ ! 0 image2 cell+ !
     endif
