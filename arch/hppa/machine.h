@@ -27,6 +27,8 @@
 #define USE_TOS
 #endif
 
+#include "../generic/machine.h"
+
 /* cache flush stuff */
 extern void cacheflush(void *, Cell, Cell);
 #ifdef DEBUG
@@ -40,8 +42,6 @@ extern void cacheflush(void *, Cell, Cell);
 #  define FLUSH_ICACHE(addr,size) \
      cacheflush((void *)(addr), (Cell)(size), 32)
 #endif
-
-#include "../generic/machine.h"
 
 /* #undef HAVE_LOG1P */
 /* #undef HAVE_RINT */

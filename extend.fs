@@ -266,7 +266,7 @@ variable span ( -- c-addr ) \ core-ext
     drop
     \ restore udp and dp
 [IFDEF] forget-dyncode
-    dup cell+ @ forget-dyncode 0= abort" gforth bug"
+    dup cell+ @ forget-dyncode drop
 [THEN]
     @ udp !  dp !
     \ clean up vocabulary stack
