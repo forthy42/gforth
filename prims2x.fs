@@ -167,7 +167,6 @@ variable name-line
 2variable name-filename
 2variable last-name-filename
 
-variable primitive-number -10 primitive-number !
 Variable function-number 0 function-number !
 
 \ for several reasons stack items of a word are stored in a wordlist
@@ -486,8 +485,6 @@ does> ( item -- )
  ." NAME(" quote forth-name 2@ type quote ." )" cr \ debugging
  ." {" cr
  ." DEF_CA" cr
- declarations
- compute-offsets \ for everything else
  print-declarations
  ." NEXT_P0;" cr
  flush-tos
@@ -518,12 +515,9 @@ does> ( item -- )
     \ generate code for disassembling VM instructions
     ." if (ip[0] == prim[" function-number @ 0 .r ." ]) {" cr
     ."   fputs(" quote forth-name 2@ type quote ." , vm_out);" cr
-    ." /* " declarations ." */" cr
-    compute-offsets
     disasm-args
     ."   ip += " inst-stream stack-in @ 1+ 0 .r ." ;" cr
-    ." } else "
-    1 function-number +! ;
+    ." } else " ;
 
 : gen-arg-parm { item -- }
     item item-stack @ inst-stream = if
@@ -545,37 +539,29 @@ does> ( item -- )
 
 : output-gen ( -- )
     \ generate C code for generating VM instructions
-    ." /* " declarations ." */" cr
-    compute-offsets
     ." void gen_" c-name 2@ type ." (Inst **ctp" gen-args-parm ." )" cr
     ." {" cr
     ."   gen_inst(ctp, vm_prim[" function-number @ 0 .r ." ]);" cr
     gen-args-gen
-    ." }" cr
-    1 function-number +! ;
+    ." }" cr ;
 
 : stack-used? { stack -- f }
     stack stack-in @ stack stack-out @ or 0<> ;
 
 : output-funclabel ( -- )
-  1 function-number +!
   ." &I_" c-name 2@ type ." ," cr ;
 
 : output-forthname ( -- )
-  1 function-number +!
   '" emit forth-name 2@ type '" emit ." ," cr ;
 
 : output-c-func ( -- )
 \ used for word libraries
-    1 function-number +!
     ." Cell * I_" c-name 2@ type ." (Cell *SP, Cell **FP)      /* " forth-name 2@ type
     ."  ( " stack-string 2@ type ."  ) */" cr
     ." /* " doc 2@ type ."  */" cr
     ." NAME(" quote forth-name 2@ type quote ." )" cr
     \ debugging
     ." {" cr
-    declarations
-    compute-offsets \ for everything else
     print-declarations
     inst-stream  stack-used? IF ." Cell *ip=IP;" cr THEN
     data-stack   stack-used? IF ." Cell *sp=SP;" cr THEN
@@ -596,12 +582,10 @@ does> ( item -- )
     cr ;
 
 : output-label ( -- )  
-    ." (Label)&&I_" c-name 2@ type ." ," cr
-    -1 primitive-number +! ;
+    ." (Label)&&I_" c-name 2@ type ." ," cr ;
 
 : output-alias ( -- ) 
-    ( primitive-number @ . ." alias " ) ." Primitive " forth-name 2@ type cr
-    -1 primitive-number +! ;
+    ( primitive-number @ . ." alias " ) ." Primitive " forth-name 2@ type cr ;
 
 : output-forth ( -- )  
     forth-code @ 0=
@@ -611,7 +595,6 @@ does> ( item -- )
     ELSE  ." : " forth-name 2@ type ."   ( "
 	stack-string 2@ type ." )" cr
 	forth-code 2@ type cr
-	-1 primitive-number +!
     THEN ;
 
 : output-tag-file ( -- )
@@ -811,7 +794,7 @@ Variable c-flag
    {{ skipsynclines off line @ c-line ! filename 2@ c-filename 2! start }} (( nocolonnl nonl **  nl white ** )) ** {{ end c-code 2! skipsynclines on }}
    (( ` :  white ** nl
       {{ start }} (( nonl ++  nl white ** )) ++ {{ end forth-code 2! }}
-   )) ?? {{ printprim }}
+   )) ?? {{  declarations compute-offsets printprim 1 function-number +! }}
    (( nl || eof ))
 )) <- primitive ( -- )
 
