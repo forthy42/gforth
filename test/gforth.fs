@@ -30,4 +30,4 @@ require ./coretest.fs
 {      0.0996e 7 3 3 f>str-rdp s" 9.96E-2" str= -> true }
 {    999.9994e 7 3 1 f>str-rdp s" 999.999" str= -> true }
 {    999.9996e 7 3 1 f>str-rdp s" 1.000E3" str= -> true }
-{       -1e-20 5 2 1 f>str-rdp s" *******" str= -> true }
+{       -1e-20 5 2 1 f>str-rdp s" *****"   str= -> true }
