@@ -1,36 +1,36 @@
 This directory contains assembler and primitives for the 4stack
-processor. Create an gforth image for the misc simulator with
+processor.
+
+Information about the 4stack processor, including a description of the
+architecture, a user manual, a simulator, and a description of a
+sample implementation in Verilog can be found at:
+http://www.jwdt.com/~paysan/4stack.html
+
+Create a gforth image for the 4stack simulator with:
 
 make kernl-4stack.fi
 
 This also creates the file gforth.4o for the simulator in the directory
-../4stack.
+arch/4stack.
 
-Load this image into the simulator and run the simulator with
+Load this image into the simulator and run the simulator with:
 
-cd ../4stack; 4stack gforth.4o
+cd arch/4stack; 4stack gforth.4o
 
-Additonally, there are two more complex examples (two terminal games,
-Sokoban and Tetris). To create the image, do the following:
-
-Add
+Additionally, there are two more complex examples (two terminal games,
+Sokoban and Tetris). To create the image, add:
 
 include arch/misc/sokoban.fs
 include arch/misc/tt.fs
 
-in main.fs just before "include special.fs". Perform a make
-kernl-4stack.fi like above. Move the resulting gforth.4o to
+in kernel/main.fs (they are commented out by default) then perform a make
+kernl-4stack.fi as above. Move the resulting gforth.4o to
 gforth-games.4o, and start the simulator:
 
-cd ../4stack
+cd arch/4stack
 mv gforth.4o gforth-games.4o
 4stack gforth-games.4o
 
 Now type in "sokoban" <return> or "tt" <return> to play sokoban or
 tetris (both run at reasonable speed on a Pentium 133). To stop either
 game, type "q".
-
-More informations about the 4stack processor, including a description
-of the architecture, a user manual, a simulator, and a description of
-a sample implementation in Verilog can be found in
-http://www.jwdt.com/~paysan/4stack.html
