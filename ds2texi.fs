@@ -71,24 +71,24 @@ create description-buffer 4096 chars allot
     +loop ;
     
 : condition-stack-effect ( c-addr1 u1 -- c-addr2 u2 )
-    save-string 2dup replace-_ ;
+    save-mem 2dup replace-_ ;
     
 : condition-wordset ( c-addr1 u1 -- c-addr2 u2 )
     dup 0=
     if
 	2drop s" unknown"
     else
-	save-string
+	save-mem
     endif ;
 
 : condition-pronounciation ( c-addr1 u1 -- c-addr2 u2 )
-    save-string 2dup replace-_ ;
+    save-mem 2dup replace-_ ;
 
 : make-doc ( -- )
     get-current documentation set-current
     create
 	last @ name>string 2,		\ name
-	[char] ) parse save-string 2,	\ stack-effect
+	[char] ) parse save-mem 2,	\ stack-effect
 	bl parse-word condition-wordset 2,	\ wordset
 	bl parse-word dup		\ pronounciation
 	if
@@ -97,7 +97,7 @@ create description-buffer 4096 chars allot
 	    2drop last @ name>string
 	endif
 	2,
-	get-description save-string 2,
+	get-description save-mem 2,
     set-current ;
 
 : emittexi ( c -- )

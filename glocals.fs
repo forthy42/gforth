@@ -528,7 +528,7 @@ forth definitions
 	OF POSTPONE laddr# >body @ lp-offset, POSTPONE f! ENDOF
 	-&32 throw
     endcase ;
-special: TO ( c|w|d|r "name" -- ) \ core-ext,local
+interpret/compile: TO ( c|w|d|r "name" -- ) \ core-ext,local
 
 : locals|
     \ don't use 'locals|'! use '{'! A portable and free '{'

@@ -42,7 +42,7 @@ vocabulary assembler ( -- ) \ tools-ext
 :noname ( -- colon-sys )
     align here lastxt code-address!
     defstart init-asm ;
-special: ;code
+interpret/compile: ;code
 
 : end-code ( colon-sys -- )	\ gforth	end_code
     ( end a code definition )

@@ -22,7 +22,7 @@
     char [char] @ - ;
 :noname
     char [char] @ - postpone Literal ;
-special: ctrl  ( "<char>" -- ctrl-code )
+interpret/compile: ctrl  ( "<char>" -- ctrl-code )
 
 \ command line editing                                  16oct94py
 

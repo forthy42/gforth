@@ -278,9 +278,8 @@ Variable last-ghost
 
 : gfind   ( string -- ghost true/1 / string false )
 \ searches for string in word-list ghosts
-\ !! wouldn't it be simpler to just use search-wordlist ? ae
   dup count [ ' ghosts >body ] ALiteral search-wordlist
-  dup IF  >r >body nip r>  THEN ;
+  dup IF >r >body nip r>  THEN ;
 
 VARIABLE Already
 
@@ -708,7 +707,7 @@ by Defer :dodefer resolve
 
 Build:  ( inter comp -- ) swap T immediate A, A, H ;
 DO: ( ghost -- ) ABORT" CROSS: Don't execute" ;DO
-Builder special:
+Builder interpret/compile:
 
 \ Sturctures                                           23feb95py
 

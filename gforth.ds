@@ -88,6 +88,7 @@ personal machines. This manual corresponds to version 0.2.
 * Words::                       Forth words available in Gforth
 * ANS conformance::             Implementation-defined options etc.
 * Model::                       The abstract machine of Gforth
+* Integrating Gforth::          Forth as scripting language for applications.
 * Emacs and Gforth::            The Gforth Mode
 * Internals::                   Implementation details
 * Bugs::                        How to report them
@@ -2184,7 +2185,7 @@ use @code{>DOES-CODE}.
 To the best of our knowledge, Gforth is an
 
 ANS Forth System
-@itemize
+@itemize @bullet
 @item providing the Core Extensions word set
 @item providing the Block word set
 @item providing the Block Extensions word set
@@ -2203,7 +2204,7 @@ ANS Forth System
 @item providing the Memory-Allocation word set
 @item providing the Memory-Allocation Extensions word set (that one's easy)
 @item providing the Programming-Tools word set
-@item providing @code{;code}, @code{AHEAD}, @code{ASSEMBLER}, @code{BYE}, @code{CODE}, @code{CS-PICK}, @code{CS-ROLL}, @code{STATE}, @code{[ELSE]}, @code{[IF]}, @code{[THEN]} from the Programming-Tools Extensions word set
+@item providing @code{;CODE}, @code{AHEAD}, @code{ASSEMBLER}, @code{BYE}, @code{CODE}, @code{CS-PICK}, @code{CS-ROLL}, @code{STATE}, @code{[ELSE]}, @code{[IF]}, @code{[THEN]} from the Programming-Tools Extensions word set
 @item providing the Search-Order word set
 @item providing the Search-Order Extensions word set
 @item providing the String word set
@@ -3212,11 +3213,63 @@ are applied to the latest defined word (as reported by @code{last} or
 
 @end table
 
-
-@node Model, Emacs and Gforth, ANS conformance, Top
+@node Model, Integrating Gforth, ANS conformance, Top
 @chapter Model
 
-@node Emacs and Gforth, Internals, Model, Top
+This chapter has yet to be written. It will contain information, on
+which internal structures you can rely.
+
+@node Integrating Gforth, Emacs and Gforth, Model, Top
+@chapter Integrating Gforth into C programs
+
+This is not yet implemented.
+
+Several people like to use Forth as scripting language for applications
+that are otherwise written in C, C++, or some other language.
+
+The Forth system ATLAST provides facilities for embedding it into
+applications; unfortunately it has several disadvantages: most
+implorantly, it is not based on ANS Forth, and it is apparently dead
+(i.e., not developed further and not supported). The facilities
+provided by Gforth in this area are inspired by ATLASTs facilities, so
+making the switch should not be hard.
+
+We also tried to design the interface such that it can easily be
+implemented by other Forth systems, so that we may one day arrive at a
+standardized interface. Such a standard interface would allow you to
+replace the Forth system without having to rewrite C code.
+
+You embed the Gforth interpreter by linking with the library
+@code{libgforth.a} (give the compiler the option @code{-lgforth}).  All
+global symbols in this library that belong to the interface, have the
+prefix @code{forth_}. (Global symbols that are used internally have the
+prefix @code{gforth_}).
+
+You can include the declarations of Forth types and the functions and
+variables of the interface with @code{include <forth.h>}.
+
+Types.
+
+Variables.
+
+Data and FP Stack pointer. Area sizes.
+
+functions.
+
+forth_init(imagefile)
+forth_evaluate(string) exceptions?
+forth_goto(address) (or forth_execute(xt)?)
+forth_continue() (a corountining mechanism)
+
+Adding primitives.
+
+No checking.
+
+Signals?
+
+Accessing the Stacks
+
+@node Emacs and Gforth, Internals, Integrating Gforth, Top
 @chapter Emacs and Gforth
 
 Gforth comes with @file{gforth.el}, an improved version of
@@ -3549,7 +3602,7 @@ An important optimization for stack machine emulators, e.g., Forth
 engines, is keeping  one or more of the top stack items in
 registers.  If a word has the stack effect @var{in1}...@var{inx} @code{--}
 @var{out1}...@var{outy}, keeping the top @var{n} items in registers
-@itemize
+@itemize @bullet
 @item
 is better than keeping @var{n-1} items, if @var{x>=n} and @var{y>=n},
 due to fewer loads from and stores to the stack.
@@ -3583,7 +3636,7 @@ The TOS optimization makes the automatic generation of primitives a
 bit more complicated. Just replacing all occurrences of @code{sp[0]} by
 @code{TOS} is not sufficient. There are some special cases to
 consider:
-@itemize
+@itemize @bullet
 @item In the case of @code{dup ( w -- w w )} the generator must not
 eliminate the store to the original location of the item on the stack,
 if the TOS optimization is turned on.
@@ -3785,7 +3838,7 @@ VolksForth descends from F83. It was written by Klaus Schleisiek, Bernd
 Pennemann, Georg Rehfeld and Dietrich Weineck for the C64 (called
 UltraForth there) in the mid-80s and ported to the Atari ST in 1986.
 
-Hennry Laxen and Mike Perry wrote F83 as a model implementation of the
+Henry Laxen and Mike Perry wrote F83 as a model implementation of the
 Forth-83 standard. !! Pedigree? When?
 
 A team led by Bill Ragsdale implemented fig-Forth on many processors in

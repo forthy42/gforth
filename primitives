@@ -1010,7 +1010,7 @@ resize		a_addr1 u -- a_addr2 wior	memory
 ""Change the size of the allocated area at @i{a_addr1} to @i{u}
 address units, possibly moving the contents to a different
 area. @i{a_addr2} is the address of the resulting area. If
-@code{a_addr2} is 0, Gforth's (but not the standard) @code{resize}
+@code{a_addr1} is 0, Gforth's (but not the standard) @code{resize}
 @code{allocate}s @i{u} address units.""
 /* the following check is not necessary on most OSs, but it is needed
    on SunOS 4.1.2. */

@@ -32,46 +32,38 @@ INCLUDE look.fs
 \ it in many respects - anton
 : alias? ( nfa1 -- nfa2|0 )
     \ if nfa1 is an alias, nfa2 is the name of the original word
-    cell+ dup c@ alias-mask and 0=
-    IF
-	(name>) @ >name ( use look instead? )
+    dup cell+ c@ alias-mask and 0=
+    IF ( nfa1 )
+	((name>)) @ >name ( use look instead? )
     ELSE
 	drop 0
     THEN ;
 
 : var?  ( nfa -- flag )
-    cell+ (name>) >code-address dovar: = ;
+    ((name>)) >code-address dovar: = ;
 
 : con?  ( nfa -- flag )
-    cell+ (name>) >code-address docon: = ;
+    ((name>)) >code-address docon: = ;
 
 : user?  ( nfa -- flag )
-    cell+ (name>) >code-address douser: = ;
+    ((name>)) >code-address douser: = ;
 
 : does? ( nfa -- flag )
     \ !! does not work on all installations
-    cell+ (name>)
+    ((name>))
     >code-address ['] spaces >code-address = ;
 
 : defered? ( nfa -- flag )
-    cell+ (name>) >code-address dodefer: = ;
+    ((name>)) >code-address dodefer: = ;
 
 : colon? ( nfa -- flag )
-    cell+ (name>) >code-address docol: = ;
+    ((name>)) >code-address docol: = ;
 
 \ the above words could be factored with create-does>, but this would
 \ probably make this file incompatible with cross.
 
-\ VALUE VCheck
-
-\ : value? ( nfa -- flag )
-\         dup does?
-\         IF here @ ['] VCheck cell+ @ =
-\            dup IF swap (name>) >body @ here ! ELSE nip THEN
-\         ELSE drop false THEN ;
-
 : prim? ( nfa -- flag )
-        name>
+        name>int
         forthstart u< ;
 
 \ None nestable IDs:

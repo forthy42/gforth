@@ -546,15 +546,15 @@ DEFER dosee
 : dopri .name ." is primitive" cr ;
 : dovar ." Variable " .name cr ;
 : douse ." User " .name cr ;
-: docon  dup cell+ (name>) >body @ . ." Constant " .name cr ;
-: doval  dup cell+ (name>) >body @ . ." Value " .name cr ;
+: docon  dup ((name>)) >body @ . ." Constant " .name cr ;
+: doval  dup ((name>)) >body @ . ." Value " .name cr ;
 : dodef ." Defer " dup >r .name cr
-    r@ cell+ (name>) >body @ look
+    r@ ((name>)) >body @ look
     0= ABORT" SEE: No valid xt in deferred word"
     dup dosee cr
     ." ' " .name r> ." IS " .name cr ;
 : dodoe ." Create " dup .name cr
-        S" DOES> " Com# .string XPos @ Level ! name>
+        S" DOES> " Com# .string XPos @ Level ! name>int
         >does-code dup C-Pass @ DebugMode = IF ScanMode c-pass ! EXIT THEN
         ScanMode c-pass ! dup makepass
         DisplayMode c-pass ! makepass ;
@@ -564,7 +564,7 @@ DEFER dosee
     S" : " Com# .string
     dup name>string 2 pick wordinfo .string bl cemit bl cemit
     ( XPos @ ) 2 Level !
-    name> >body
+    name>int >body
     C-Pass @ DebugMode =
     IF
 	ScanMode c-pass ! EXIT
@@ -605,8 +605,12 @@ create wordtypes
         cr c-init
         dosee ;
 
-: see   name sfind 0= IF ." Word unknown" cr exit THEN
-        xtc ;
+: see ( "name" -- ) \ tools
+    name find-name dup 0=
+    IF
+	drop -&13 bounce
+    THEN
+    name>int xtc ;
 
 : lfc   cr c-init cell+ dosee ;
 : nfc   cr c-init dosee ;

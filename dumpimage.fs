@@ -37,6 +37,7 @@
 	new-addr i 2* cells + 2!
     LOOP ;
 
+
 : dump-fi ( addr u -- )
     w/o bin create-file throw >r
     update-image-included-files

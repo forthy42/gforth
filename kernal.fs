@@ -160,20 +160,16 @@ $80 constant alias-mask \ set when the word is not an alias!
 $40 constant immediate-mask
 $20 constant restrict-mask
 
-: (name>)  ( nfa+cell -- cfa )
-    1 cells - name>string +  cfaligned ;
-: name>    ( nfa -- cfa ) \ gforth
-    cell+
-    dup  (name>) swap  c@ alias-mask and 0= IF  @ THEN ;
+: ((name>))  ( nfa -- cfa )
+    name>string +  cfaligned ;
 
-\ (find)                                               17dec92py
-
-\ : (find) ( addr count nfa1 -- nfa2 / false )
-\   BEGIN  dup  WHILE  dup >r
-\          name>string dup >r 2over r> =
-\          IF  -text  0= IF  2drop r> EXIT  THEN
-\          ELSE  2drop drop  THEN  r> @
-\   REPEAT nip nip ;
+: (name>x) ( nfa -- cfa b )
+    \ cfa is an intermediate cfa and b is the flags byte of nfa
+    dup ((name>))
+    swap cell+ c@ dup alias-mask and 0=
+    IF
+	swap @ swap
+    THEN ;
 
 \ place bounds                                         13feb93py
 
@@ -181,6 +177,18 @@ $20 constant restrict-mask
     over >r  rot over 1+  r> move c! ;
 : bounds ( beg count -- end beg ) \ gforth
     over + swap ;
+
+: save-mem	( addr1 u -- addr2 u ) \ gforth
+    \ copy a memory block into a newly allocated region in the heap
+    swap >r
+    dup allocate throw
+    swap 2dup r> -rot move ;
+
+: extend-mem	( addr1 u1 u -- addr addr2 u2 )
+    \ extend memory block allocated from the heap by u aus
+    \ the (possibly reallocated piece is addr2 u2, the extension is at addr
+    over >r + dup >r resize throw
+    r> over r> + -rot ;
 
 \ input stream primitives                              23feb93py
 
@@ -267,13 +275,16 @@ Defer source ( -- addr count ) \ core
 
 : (compile) ( -- ) \ gforth
     r> dup cell+ >r @ compile, ;
-: postpone ( "name" -- ) \ core
-  name sfind dup 0= abort" Can't compile "
-  0> IF  compile,  ELSE  postpone (compile) A,  THEN ; immediate restrict
 
-: special: ( interp comp "name" -- )
+\ not the most efficient implementation of POSTPONE, but simple
+: POSTPONE ( -- ) \ core
+    COMP' swap POSTPONE aliteral compile, ; immediate restrict
+
+: interpret/compile: ( interp-xt comp-xt "name" -- )
     Create immediate swap A, A,
-    DOES>  state @ IF  cell+  THEN  perform ;
+DOES>
+    abort" executed primary cfa of an interpret/compile: word" ;
+\    state @ IF  cell+  THEN  perform ;
 
 \ Use (compile) for the old behavior of compile!
 
@@ -504,10 +515,10 @@ Defer interpreter-notfound ( c-addr count -- )
 ' no.extensions IS compiler-notfound
 ' no.extensions IS interpreter-notfound
 
-: compile-only ( ... -- )
+: compile-only-error ( ... -- )
     -&14 throw ;
 Defer interpret-special ( c-addr u xt -- ) \ !! use nfa instead of xt?
-' compile-only IS interpret-special
+' compile-only-error IS interpret-special
 
 : interpret ( ?? -- ?? ) \ gforth
     \ interpret/compile the (rest of the) input buffer
@@ -520,48 +531,41 @@ Defer interpret-special ( c-addr u xt -- ) \ !! use nfa instead of xt?
 
 \ interpreter compiler                                 30apr92py
 
-: interpreter  ( c-addr u -- ) \ gforth
-    \ interpretation semantics for the name/number c-addr u
-    2dup (sfind) dup
-    IF
-	1 and
-	IF \ not restricted to compile state?
-	    nip nip execute EXIT
+\ not the most efficient implementations of interpreter and compiler
+: interpreter ( c-addr u -- ) 
+    2dup find-name dup
+    if
+	nip nip name>int execute
+    else
+	drop
+	2dup 2>r snumber?
+	IF
+	    2rdrop
+	ELSE
+	    2r> interpreter-notfound
 	THEN
-	interpret-special exit
-    THEN
-    drop
-    2dup 2>r snumber?
-    IF
-	2rdrop
-    ELSE
-	2r> interpreter-notfound
-    THEN ;
+    then ;
+
+: compiler ( c-addr u -- )
+    2dup find-name dup
+    if ( c-addr u nfa )
+	nip nip name>comp execute
+    else
+	drop
+	2dup snumber? dup
+	IF
+	    0>
+	    IF
+		swap postpone Literal
+	    THEN
+	    postpone Literal
+	    2drop
+	ELSE
+	    drop compiler-notfound
+	THEN
+    then ;
 
 ' interpreter  IS  parser
-
-: compiler     ( c-addr u -- ) \ gforth
-    \ compilation semantics for the name/number c-addr u
-    2dup (sfind) dup
-    IF
-	0>
-	IF
-	    nip nip execute EXIT
-	THEN
-	compile, 2drop EXIT
-    THEN
-    drop
-    2dup snumber? dup
-    IF
-	0>
-	IF
-	    swap postpone Literal
-	THEN
-	postpone Literal
-	2drop
-    ELSE
-	drop compiler-notfound
-    THEN ;
 
 : [ ( -- ) \ core	left-bracket
     ['] interpreter  IS parser state off ; immediate
@@ -639,7 +643,7 @@ variable backedge-locals
    over 0<>
  while
    over
-   name> >body @ max
+   ((name>)) >body @ max
    swap @ swap ( get next )
  repeat
  faligned nip ;
@@ -1199,61 +1203,96 @@ G forth-wordlist current T !
 
 \ higher level parts of find
 
-: special? ( xt -- flag )
+( struct )
+0 >body cell
+  1 cells: field special-interpretation
+  1 cells: field special-compilation
+end-struct special-struct
+
+: interpret/compile? ( xt -- flag )
     >does-code ['] S" >does-code = ;
 
-: xt>i ( xt -- xt )
-    dup special?  IF  >body  @  THEN ;
+: (x>int) ( cfa b -- xt )
+    \ get interpretation semantics of name
+    restrict-mask and
+    if
+	drop ['] compile-only-error
+    else
+	dup interpret/compile?
+	if
+	    special-interpretation @
+	then
+    then ;
 
-: xt>c ( xt -- xt )
-    dup special?  IF  >body  cell+  @  THEN ;
+: name>int ( nfa -- xt ) \ gforth
+    (name>x) (x>int) ;
 
-: xt>s ( xt -- xt )
-    dup special?  IF  >body  state @ IF  cell+  THEN  @  THEN ;
-
-: found ( nfa -- cfa n ) \ gforth
-    cell+  dup c@ >r  (name>)
-    r@ alias-mask     and  0= IF  @       THEN  -1
-    r@ restrict-mask  and     IF  1-      THEN
-    r> immediate-mask and     IF  negate  THEN  ;
+: name>comp ( nfa -- w xt ) \ gforth
+    \ get compilation semantics of name
+    (name>x) >r dup interpret/compile?
+    if
+	special-compilation @
+    then
+    r> immediate-mask and if
+	['] execute
+    else
+	['] compile,
+    then ;
 
 : (search-wordlist)  ( addr count wid -- nfa / false )
     dup wordlist-map @ find-method perform ;
 
-: search-wordlist  ( addr count wid -- 0 / xt +-1 ) \ search
-    (search-wordlist) dup  IF  found  swap xt>s swap  THEN ;
+: flag-sign ( f -- 1|-1 )
+    \ true becomes 1, false -1
+    0= 2* 1+ ;
 
-: (sfind) ( c-addr u -- xt n / 0 )
-    lookup @ (search-wordlist) dup IF  found  THEN ;
+: search-wordlist ( addr count wid -- 0 / xt +-1 ) \ search
+   \ xt is the interpretation semantics
+    (search-wordlist) dup if
+	(name>x) tuck (x>int) ( b xt )
+	swap immediate-mask and flag-sign
+    then ;
 
-: sfind ( c-addr u -- xt n / 0 ) \ gforth
-    lookup @ search-wordlist ;
+: find-name ( c-addr u -- nfa/0 )
+    lookup @ (search-wordlist) ;
 
-: find   ( addr -- cfa +-1 / string false ) \ core,search
-    dup count sfind dup IF
+: sfind ( c-addr u -- 0 / xt +-1  ) \ gforth-obsolete
+    find-name dup
+    if ( nfa )
+	state @
+	if
+	    name>comp ['] execute =
+	else
+	    (name>x) tuck (x>int)
+	    swap immediate-mask and
+	then
+	flag-sign
+    then ;
+
+: find ( c-addr -- xt +-1 / c-addr 0 ) \ core
+    dup count sfind dup
+    if
 	rot drop
-    THEN
-    dup 1 and 0=  IF  2/  THEN ;
+    then ;
 
-: (')    ( "name" -- xt ) \ gforth	paren-tick
-    name (sfind) 0= IF  -&13 bounce THEN  ;
-: [(')]  ( compilation "name" -- ; run-time -- addr ) \ gforth	bracket-paren-tick
+: (') ( "name" -- nfa ) \ gforth
+    name find-name dup 0=
+    IF
+	drop -&13 bounce
+    THEN  ;
+
+: [(')]  ( compilation "name" -- ; run-time -- nfa ) \ gforth	bracket-paren-tick
     (') postpone ALiteral ; immediate restrict
 
 : '    ( "name" -- xt ) \ core	tick
-    (') xt>i ;
-: [']  ( compilation "name" -- ; run-time -- addr ) \ core	bracket-tick
+    (') name>int ;
+: [']  ( compilation "name" -- ; run-time -- xt ) \ core	bracket-tick
     ' postpone ALiteral ; immediate restrict
 
-: C'    ( "name" -- xt ) \ gforth	c-tick
-    (') xt>c ;
-: [C']  ( compilation "name" -- ; run-time -- addr ) \ gforth	bracket-c-tick
-    C' postpone ALiteral ; immediate restrict
-
-: S'    ( "name" -- xt ) \ gforth	s-tick
-    (') xt>s ;
-: [S']  ( compilation "name" -- ; run-time -- addr ) \ gforth	bracket-s-tick
-    S' postpone ALiteral ; immediate restrict
+: COMP'    ( "name" -- w xt ) \ gforth	c-tick
+    (') name>comp ;
+: [COMP']  ( compilation "name" -- ; run-time -- w xt ) \ gforth	bracket-comp-tick
+    COMP' swap POSTPONE Aliteral POSTPONE ALiteral ; immediate restrict
 
 \ reveal words
 
@@ -1519,7 +1558,7 @@ create image-included-files  1 , A, ( pointer to and count of included files )
     loadline @ ;
 
 : init-included-files ( -- )
-    image-included-files 2@ 2* cells save-string drop ( addr )
+    image-included-files 2@ 2* cells save-mem drop ( addr )
     image-included-files 2@ nip included-files 2! ;
 
 : included? ( c-addr u -- f ) \ gforth
@@ -1537,20 +1576,17 @@ create image-included-files  1 , A, ( pointer to and count of included files )
 
 : add-included-file ( c-addr u -- ) \ gforth
     \ add name c-addr u to included-files
-    included-files 2@ tuck 1+ 2* cells resize throw
-    swap 2dup 1+ included-files 2!
-    2* cells + 2! ;
-
-: save-string		( addr1 u -- addr2 u ) \ gforth
-    \ !! not a string, but a memblock word
-    swap >r
-    dup allocate throw
-    swap 2dup r> -rot move ;
+    included-files 2@ 2* cells 2 cells extend-mem
+    2/ cell / included-files 2!
+    2! ;
+\    included-files 2@ tuck 1+ 2* cells resize throw
+\    swap 2dup 1+ included-files 2!
+\    2* cells + 2! ;
 
 : included1 ( i*x file-id c-addr u -- j*x ) \ gforth
     \ include the file file-id with the name given by c-addr u
     loadfilename# @ >r
-    save-string add-included-file ( file-id )
+    save-mem add-included-file ( file-id )
     included-files 2@ nip 1- loadfilename# !
     ['] include-file catch
     r> loadfilename# !
@@ -1649,6 +1685,10 @@ max-errors 6 * cells allot
 : dec. ( n -- ) \ gforth
     \ print value in decimal representation
     base @ decimal swap . base ! ;
+
+: hex. ( u -- ) \ gforth
+    \ print value as unsigned hex number
+    '$ emit base @ swap hex u. base ! ;
 
 : typewhite ( addr u -- ) \ gforth
     \ like type, but white space is printed instead of the characters

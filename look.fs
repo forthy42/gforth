@@ -42,7 +42,7 @@ decimal
 : (look)  ( xt startlfa -- lfa flag )
         false swap
         BEGIN @ dup
-        WHILE dup name>
+        WHILE dup name>int
               3 pick = IF nip dup THEN
         REPEAT
         drop nip

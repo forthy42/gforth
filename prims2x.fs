@@ -42,7 +42,7 @@
 
 warnings off
 
-require interpretation.fs
+\ require interpretation.fs
 require debugging.fs
 [IFUNDEF] vocabulary    include search-order.fs [THEN]
 [IFUNDEF] environment?  include environ.fs      [THEN]
@@ -165,7 +165,7 @@ print-token !
     0. r> 6 chars + 20 >number drop >r drop line ! r> ( c-addr )
     dup c@ bl = if
 	char+ dup c@ [char] " <> abort" sync line syntax"
-	char+ dup 100 [char] " scan drop swap 2dup - save-string filename 2!
+	char+ dup 100 [char] " scan drop swap 2dup - save-mem filename 2!
 	char+
     endif
     dup c@ nl-char <> abort" sync line syntax"
