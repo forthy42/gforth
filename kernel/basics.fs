@@ -41,6 +41,7 @@ HEX
 ' maxaligned Alias cfaligned ( addr1 -- addr2 ) \ gforth
 
 : chars ( n1 -- n2 ) \ core
+\G @i{n2} is the number of address units corresponding to @i{n1} chars.""
 ; immediate
 
 
@@ -80,9 +81,11 @@ Constant dictionary-end
 \ on off                                               23feb93py
 
 \ on is used by docol:
-: on  ( addr -- ) \ gforth
+: on  ( a-addr -- ) \ gforth
+    \G Set the (value of the) variable  at @i{a-addr} to @code{true}.
     true  swap ! ;
-: off ( addr -- ) \ gforth
+: off ( a-addr -- ) \ gforth
+    \G Set the (value of the) variable at @i{a-addr} to @code{false}.
     false swap ! ;
 
 \ dabs roll                                           17may93jaw

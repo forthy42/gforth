@@ -115,7 +115,7 @@ INC_IP(1);
  r> dup @ swap cell+ >r ;
 
 execute		xt --		core
-""Perform the semantics represented by the execution token, @var{xt}.""
+""Perform the semantics represented by the execution token, @i{xt}.""
 ip=IP;
 IF_TOS(TOS = sp[0]);
 EXEC(xt);
@@ -440,17 +440,17 @@ n = rp[4];
 \ digit is high-level: 0/0%
 
 move	c_from c_to ucount --		core
-"" If @var{ucount}>0, copy the contents of @var{ucount} address units
-at @var{c-from} to @var{c-to}. @code{move} chooses its copy direction
-to avoid problems when @var{c-from}, @var{c-to} overlap.""
+"" If @i{ucount}>0, copy the contents of @i{ucount} address units
+at @i{c-from} to @i{c-to}. @code{move} chooses its copy direction
+to avoid problems when @i{c-from}, @i{c-to} overlap.""
 memmove(c_to,c_from,ucount);
 /* make an Ifdef for bsd and others? */
 :
  >r 2dup u< IF r> cmove> ELSE r> cmove THEN ;
 
 cmove	c_from c_to u --	string
-"" If @var{u}>0, copy the contents of @var{ucount} characters from
-data space at @var{c-from} to @var{c-to}. The copy proceeds @code{char}-by-@code{char}
+"" If @i{u}>0, copy the contents of @i{ucount} characters from
+data space at @i{c-from} to @i{c-to}. The copy proceeds @code{char}-by-@code{char}
 from low address to high address.""
 while (u-- > 0)
   *c_to++ = *c_from++;
@@ -458,8 +458,8 @@ while (u-- > 0)
  bounds ?DO  dup c@ I c! 1+  LOOP  drop ;
 
 cmove>	c_from c_to u --	string	c_move_up
-"" If @var{u}>0, copy the contents of @var{ucount} characters from
-data space at @var{c-from} to @var{c-to}. The copy proceeds @code{char}-by-@code{char}
+"" If @i{u}>0, copy the contents of @i{ucount} characters from
+data space at @i{c-from} to @i{c-to}. The copy proceeds @code{char}-by-@code{char}
 from high address to low address.""
 while (u-- > 0)
   c_to[u] = c_from[u];
@@ -469,16 +469,16 @@ while (u-- > 0)
  DO  1- dup c@ I c!  -1 +LOOP  drop ;
 
 fill	c_addr u c --	core
-"" If @var{u}>0, store character @var{c} in each of @var{u} consecutive
-@code{char} addresses in memory, starting at address @var{c-addr}.""
+"" If @i{u}>0, store character @i{c} in each of @i{u} consecutive
+@code{char} addresses in memory, starting at address @i{c-addr}.""
 memset(c_addr,c,u);
 :
  -rot bounds
  ?DO  dup I c!  LOOP  drop ;
 
 compare		c_addr1 u1 c_addr2 u2 -- n	string
-""Compare two strings lexicographically. If they are equal, @var{n} is 0; if
-the first string is smaller, @var{n} is -1; if the first string is larger, @var{n}
+""Compare two strings lexicographically. If they are equal, @i{n} is 0; if
+the first string is smaller, @i{n} is -1; if the first string is larger, @i{n}
 is 1. Currently this is based on the machine's character
 comparison. In the future, this may change to consider the current
 locale and its collation order.""
@@ -512,7 +512,7 @@ else if (n>0)
  dup 0< IF  drop -1  ELSE  0>  1 and  THEN  ;
 
 toupper	c1 -- c2	gforth
-""If @var{c1} is a lower-case character (in the current locale), @var{c2}
+""If @i{c1} is a lower-case character (in the current locale), @i{c2}
 is the equivalent upper-case character. All other characters are unchanged.""
 c2 = toupper(c1);
 :
@@ -532,8 +532,8 @@ else if (n>0)
  ELSE  c@ toupper I c@ toupper - unloop  THEN  -text-flag ;
 
 -trailing	c_addr u1 -- c_addr u2		string	dash_trailing
-""Adjust the string specified by @var{c-addr, u1} to remove all trailing
-spaces. @var{u2} is the length of the modified string.""
+""Adjust the string specified by @i{c-addr, u1} to remove all trailing
+spaces. @i{u2} is the length of the modified string.""
 u2 = u1;
 while (u2>0 && c_addr[u2-1] == ' ')
   u2--;
@@ -542,7 +542,7 @@ while (u2>0 && c_addr[u2-1] == ' ')
         dup  0= UNTIL  ELSE  1+  THEN ;
 
 /string		c_addr1 u1 n -- c_addr2 u2	string	slash_string
-""Adjust the string specified by @var{c-addr1, u1} to remove @var{n}
+""Adjust the string specified by @i{c-addr1, u1} to remove @i{n}
 characters from the start of the string.""
 c_addr2 = c_addr1+n;
 u2 = u1-n;
@@ -554,7 +554,7 @@ n = n1+n2;
 
 \ PFE-0.9.14 has it differently, but the next release will have it as follows
 under+	n1 n2 n3 -- n n2	gforth	under_plus
-""add @var{n3} to @var{n1} (giving @var{n})""
+""add @i{n3} to @i{n1} (giving @i{n})""
 n = n1+n3;
 :
  rot + swap ;
@@ -641,7 +641,7 @@ n2 = n1>>1;
  LOOP nip ;
 
 fm/mod	d1 n1 -- n2 n3		core		f_m_slash_mod
-""Floored division: @var{d1} = @var{n3}*@var{n1}+@var{n2}, @var{n1}>@var{n2}>=0 or 0>=@var{n2}>@var{n1}.""
+""Floored division: @i{d1} = @i{n3}*@i{n1}+@i{n2}, @i{n1}>@i{n2}>=0 or 0>=@i{n2}>@i{n1}.""
 #ifdef BUGGY_LONG_LONG
 DCell r = fmdiv(d1,n1);
 n2=r.hi;
@@ -663,7 +663,7 @@ if (1%-3>0 && (d1<0) != (n1<0) && n2!=0) {
  r> 0< IF  swap negate swap  THEN ;
 
 sm/rem	d1 n1 -- n2 n3		core		s_m_slash_rem
-""Symmetric division: @var{d1} = @var{n3}*@var{n1}+@var{n2}, sign(@var{n2})=sign(@var{d1}) or 0.""
+""Symmetric division: @i{d1} = @i{n3}*@i{n1}+@i{n2}, sign(@i{n2})=sign(@i{d1}) or 0.""
 #ifdef BUGGY_LONG_LONG
 DCell r = smdiv(d1,n1);
 n2=r.hi;
@@ -1083,17 +1083,21 @@ w = sp[u+1];
 \ toggle is high-level: 0.11/0.42%
 
 @	a_addr -- w		core	fetch
+"" Read from the cell at address @i{a-addr}, and return its contents, @i{w}.""
 w = *a_addr;
 
 !	w a_addr --		core	store
+"" Write the value @i{w} to the cell at address @i{a-addr}.""
 *a_addr = w;
 
 +!	n a_addr --		core	plus_store
+"" Add @i{n} to the value stored in the cell at address @i{a-addr}.""
 *a_addr += n;
 :
  tuck @ + swap ! ;
 
 c@	c_addr -- c		core	c_fetch
+"" Read from the char at address @i{c-addr}, and return its contents, @i{c}.""
 c = *c_addr;
 :
 [ bigendian [IF] ]
@@ -1119,6 +1123,7 @@ c = *c_addr;
 : 8>> 2/ 2/ 2/ 2/  2/ 2/ 2/ 2/ ;
 
 c!	c c_addr --		core	c_store
+"" Write the value @i{c} to the char at address @i{c-addr}.""
 *c_addr = c;
 :
 [ bigendian [IF] ]
@@ -1148,23 +1153,28 @@ c!	c c_addr --		core	c_store
 : 8<< 2* 2* 2* 2*  2* 2* 2* 2* ;
 
 2!	w1 w2 a_addr --		core	two_store
+"" Write the value @i{w1, w2} to the double at address @i{a-addr}.""
 a_addr[0] = w2;
 a_addr[1] = w1;
 :
  tuck ! cell+ ! ;
 
 2@	a_addr -- w1 w2		core	two_fetch
+"" Read from the double at address @i{a-addr}, and return its contents, @i{w1, w2}.""
 w2 = a_addr[0];
 w1 = a_addr[1];
 :
  dup cell+ @ swap @ ;
 
 cell+	a_addr1 -- a_addr2	core	cell_plus
+"" Increment @i{a-addr1} by the number of address units corresponding to the size of
+one cell, to give @i{a-addr2}.""
 a_addr2 = a_addr1+1;
 :
  cell + ;
 
 cells	n1 -- n2		core
+"" @i{n2} is the number of address units corresponding to @i{n1} cells.""
 n2 = n1 * sizeof(Cell);
 :
  [ cell
@@ -1174,19 +1184,21 @@ n2 = n1 * sizeof(Cell);
  2/ dup [IF] ] 2* [ [THEN]
  drop ] ;
 
-char+	c_addr1 -- c_addr2	core	care_plus
+char+	c_addr1 -- c_addr2	core	char_plus
+"" Increment @i{c-addr1} by the number of address units corresponding to the size of
+one char, to give @i{c-addr2}.""
 c_addr2 = c_addr1 + 1;
 :
  1+ ;
 
-(chars)		n1 -- n2	gforth	paren_cares
+(chars)		n1 -- n2	gforth	paren_chars
 n2 = n1 * sizeof(Char);
 :
  ;
 
 count	c_addr1 -- c_addr2 u	core
-"" If @var{c-add1} is the address of a counted string return the length of
-the string, @var{u}, and the address of its first character, @var{c-addr2}.""
+"" If @i{c-add1} is the address of a counted string return the length of
+the string, @i{u}, and the address of its first character, @i{c-addr2}.""
 u = *c_addr1;
 c_addr2 = c_addr1+1;
 :
@@ -1311,11 +1323,13 @@ else {
  REPEAT  THEN  nip - ;
 
 aligned		c_addr -- a_addr	core
+"" @i{a-addr} is the first aligned address greater than or equal to @i{c-addr}.""
 a_addr = (Cell *)((((Cell)c_addr)+(sizeof(Cell)-1))&(-sizeof(Cell)));
 :
  [ cell 1- ] Literal + [ -1 cells ] Literal and ;
 
 faligned	c_addr -- f_addr	float	f_aligned
+"" @i{f-addr} is the first float-aligned address greater than or equal to @i{c-addr}.""
 f_addr = (Float *)((((Cell)c_addr)+(sizeof(Float)-1))&(-sizeof(Float)));
 :
  [ 1 floats 1- ] Literal + [ -1 floats ] Literal and ;
@@ -1328,29 +1342,29 @@ a_addr = PFA(xt);
 \+standardthreading
 
 >code-address		xt -- c_addr		gforth	to_code_address
-""@var{c-addr} is the code address of the word @var{xt}.""
+""@i{c-addr} is the code address of the word @i{xt}.""
 /* !! This behaves installation-dependently for DOES-words */
 c_addr = (Address)CODE_ADDRESS(xt);
 :
     @ ;
 
 >does-code	xt -- a_addr		gforth	to_does_code
-""If @var{xt} is the execution token of a defining-word-defined word,
-@var{a-addr} is the start of the Forth code after the @code{DOES>};
-Otherwise @var{a-addr} is 0.""
+""If @i{xt} is the execution token of a defining-word-defined word,
+@i{a-addr} is the start of the Forth code after the @code{DOES>};
+Otherwise @i{a-addr} is 0.""
 a_addr = (Cell *)DOES_CODE(xt);
 :
     cell+ @ ;
 
 code-address!		c_addr xt --		gforth	code_address_store
-""Create a code field with code address @var{c-addr} at @var{xt}.""
+""Create a code field with code address @i{c-addr} at @i{xt}.""
 MAKE_CF(xt, c_addr);
 CACHE_FLUSH(xt,(size_t)PFA(0));
 :
     ! ;
 
 does-code!	a_addr xt --		gforth	does_code_store
-""Create a code field at @var{xt} for a defining-word-defined word; @var{a-addr}
+""Create a code field at @i{xt} for a defining-word-defined word; @i{a-addr}
 is the start of the Forth code after @code{DOES>}.""
 MAKE_DOES_CF(xt, a_addr);
 CACHE_FLUSH(xt,(size_t)PFA(0));
@@ -1358,7 +1372,7 @@ CACHE_FLUSH(xt,(size_t)PFA(0));
     dodoes: over ! cell+ ! ;
 
 does-handler!	a_addr --	gforth	does_handler_store
-""Create a @code{DOES>}-handler at address @var{a-addr}. Usually, @var{a-addr} points
+""Create a @code{DOES>}-handler at address @i{a-addr}. Usually, @i{a-addr} points
 just behind a @code{DOES>}.""
 MAKE_DOES_HANDLER(a_addr);
 CACHE_FLUSH((caddr_t)a_addr,DOES_HANDLER_SIZE);
@@ -1426,7 +1440,7 @@ ucols=cols;
 
 flush-icache	c_addr u --	gforth	flush_icache
 ""Make sure that the instruction cache of the processor (if there is
-one) does not contain stale data at @var{c-addr} and @var{u} bytes
+one) does not contain stale data at @i{c-addr} and @i{u} bytes
 afterwards. @code{END-CODE} performs a @code{flush-icache}
 automatically. Caveat: @code{flush-icache} might not work on your
 installation; this is usually the case if direct threading is not
@@ -1452,9 +1466,9 @@ if (old_tp)
 #endif
 
 getenv	c_addr1 u1 -- c_addr2 u2	gforth
-""The string @var{c-addr1 u1} specifies an environment variable. The string @var{c-addr2 u2}
+""The string @i{c-addr1 u1} specifies an environment variable. The string @i{c-addr2 u2}
 is the host operating system's expansion of that environment variable. If the
-environment variable does not exist, @var{c-addr2 u2} specifies a string 0 characters
+environment variable does not exist, @i{c-addr2 u2} specifies a string 0 characters
 in length.""
 c_addr2 = getenv(cstr(c_addr1,u1,1));
 u2 = (c_addr2 == NULL ? 0 : strlen(c_addr2));
@@ -1487,19 +1501,19 @@ timeout.tv_usec=1000*(n%1000);
 (void)select(0,0,0,0,&timeout);
 
 allocate	u -- a_addr wior	memory
-""Allocate @var{u} address units of contiguous data space. The initial
+""Allocate @i{u} address units of contiguous data space. The initial
 contents of the data space is undefined. If the allocation is successful,
-@var{a-addr} is the start address of the allocated region and @var{wior}
-is 0. If the allocation fails, @var{a-addr} is undefined and @var{wior}
+@i{a-addr} is the start address of the allocated region and @i{wior}
+is 0. If the allocation fails, @i{a-addr} is undefined and @i{wior}
 is an implementation-defined I/O result code.""
 a_addr = (Cell *)malloc(u?u:1);
 wior = IOR(a_addr==NULL);
 
 free		a_addr -- wior		memory
-""Return the region of data space starting at @var{a-addr} to the system.
+""Return the region of data space starting at @i{a-addr} to the system.
 The regon must originally have been obtained using @code{allocate} or
-@code{resize}. If the operational is successful, @var{wior} is 0.
-If the operation fails, @var{wior} is an implementation-defined
+@code{resize}. If the operational is successful, @i{wior} is 0.
+If the operation fails, @i{wior} is an implementation-defined
 I/O result code.""
 free(a_addr);
 wior = 0;
@@ -1508,9 +1522,9 @@ resize		a_addr1 u -- a_addr2 wior	memory
 ""Change the size of the allocated area at @i{a-addr1} to @i{u}
 address units, possibly moving the contents to a different
 area. @i{a-addr2} is the address of the resulting area.
-If the operational is successful, @var{wior} is 0.
-If the operation fails, @var{wior} is an implementation-defined
-I/O result code. If @i{a-addr1} is 0, Gforth's (but not the standard)
+If the operational is successful, @i{wior} is 0.
+If the operation fails, @i{wior} is an implementation-defined
+I/O result code. If @i{a-addr1} is 0, Gforth's (but not the Standard)
 @code{resize} @code{allocate}s @i{u} address units.""
 /* the following check is not necessary on most OSs, but it is needed
    on SunOS 4.1.2. */
@@ -1576,7 +1590,7 @@ delete-file	c_addr u -- wior		file	delete_file
 wior = IOR(unlink(tilde_cstr(c_addr, u, 1))==-1);
 
 rename-file	c_addr1 u1 c_addr2 u2 -- wior	file-ext	rename_file
-""Rename file @var{c_addr1 u1} to new name @var{c_addr2 u2}""
+""Rename file @i{c_addr1 u1} to new name @i{c_addr2 u2}""
 char *s1=tilde_cstr(c_addr2, u2, 1);
 wior = IOR(rename(tilde_cstr(c_addr1, u1, 0), s1)==-1);
 
@@ -1708,12 +1722,15 @@ d = r;
 #endif
 
 f!		r f_addr --	float	f_store
+"" Store the floating-point value @i{r} to address @i{f-addr}.""
 *f_addr = r;
 
 f@		f_addr -- r	float	f_fetch
+"" Fetch floating-point value @i{r} from address @i{f-addr}.""
 r = *f_addr;
 
 df@		df_addr -- r	float-ext	d_f_fetch
+"" Fetch the double-precision IEEE floating-point value @i{r} from the address @i{df-addr}.""
 #ifdef IEEE_FP
 r = *df_addr;
 #else
@@ -1721,6 +1738,7 @@ r = *df_addr;
 #endif
 
 df!		r df_addr --	float-ext	d_f_store
+"" Store the double-precision IEEE floating-point value @i{r} to the address @i{df-addr}.""
 #ifdef IEEE_FP
 *df_addr = r;
 #else
@@ -1728,6 +1746,7 @@ df!		r df_addr --	float-ext	d_f_store
 #endif
 
 sf@		sf_addr -- r	float-ext	s_f_fetch
+"" Fetch the single-precision IEEE floating-point value @i{r} from the address @i{sf-addr}.""
 #ifdef IEEE_FP
 r = *sf_addr;
 #else
@@ -1735,6 +1754,7 @@ r = *sf_addr;
 #endif
 
 sf!		r sf_addr --	float-ext	s_f_store
+"" Store the single-precision IEEE floating-point value @i{r} to the address @i{sf-addr}.""
 #ifdef IEEE_FP
 *sf_addr = r;
 #else
@@ -1775,9 +1795,12 @@ fnip		r1 r2 -- r2	gforth
 ftuck		r1 r2 -- r2 r1 r2	gforth
 
 float+		f_addr1 -- f_addr2	float	float_plus
+"" Increment @i{f-addr1} by the number of address units corresponding to the size of
+one floating-point number, to give @i{f-addr2}.""
 f_addr2 = f_addr1+1;
 
 floats		n1 -- n2	float
+""@i{n2} is the number of address units corresponding to @i{n1} floating-point numbers.""
 n2 = n1*sizeof(Float);
 
 floor		r1 -- r2	float
@@ -1818,11 +1841,11 @@ f2=FLAG(isdigit((unsigned)(sig[0]))!=0);
 memmove(c_addr,sig,u);
 
 >float	c_addr u -- flag	float	to_float
-""Attempt to convert the character string @var{c-addr u} to
+""Attempt to convert the character string @i{c-addr u} to
 internal floating-point representation. If the string
-represents a valid floating-point number @var{r} is placed
-on the floating-point stack and @var{flag} is true. Otherwise,
-@var{flag} is false. A string of blanks is a special case
+represents a valid floating-point number @i{r} is placed
+on the floating-point stack and @i{flag} is true. Otherwise,
+@i{flag} is false. A string of blanks is a special case
 and represents the flotaing-point number 0.""
 /* real signature: c_addr u -- r t / f */
 Float r;
@@ -1966,17 +1989,25 @@ r2 = atanh(r1);
  r> IF  fnegate  THEN ;
 
 sfloats		n1 -- n2	float-ext	s_floats
+""@i{n2} is the number of address units corresponding to @i{n1}
+single-precision IEEE floating-point numbers.""
 n2 = n1*sizeof(SFloat);
 
 dfloats		n1 -- n2	float-ext	d_floats
+""@i{n2} is the number of address units corresponding to @i{n1}
+double-precision IEEE floating-point numbers.""
 n2 = n1*sizeof(DFloat);
 
 sfaligned	c_addr -- sf_addr	float-ext	s_f_aligned
+"" @i{sf-addr} is the first single-float-aligned address greater
+than or equal to @i{c-addr}.""
 sf_addr = (SFloat *)((((Cell)c_addr)+(sizeof(SFloat)-1))&(-sizeof(SFloat)));
 :
  [ 1 sfloats 1- ] Literal + [ -1 sfloats ] Literal and ;
 
 dfaligned	c_addr -- df_addr	float-ext	d_f_aligned
+"" @i{df-addr} is the first double-float-aligned address greater
+than or equal to @i{c-addr}.""
 df_addr = (DFloat *)((((Cell)c_addr)+(sizeof(DFloat)-1))&(-sizeof(DFloat)));
 :
  [ 1 dfloats 1- ] Literal + [ -1 dfloats ] Literal and ;

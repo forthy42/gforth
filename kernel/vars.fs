@@ -26,19 +26,22 @@ hex \ everything now hex!                               11may93jaw
 \ "a true flag ... [is] a single-cell value with all bits set"
 \ better definition: 0 0= constant true ( no dependence on 2's compl)
  -1 Constant true ( -- f ) \ core-ext
-\G CONSTANT: @var{f} is a cell with all bits set.
+\G CONSTANT: @i{f} is a cell with all bits set.
 \ see starts looking for primitives after this word!
 
   0 Constant false ( -- f ) \ core-ext
-\G CONSTANT: @var{f} is a cell with all bits clear.
+\G CONSTANT: @i{f} is a cell with all bits clear.
 
 [IFUNDEF] cell 
 1 cells Constant cell ( -- u ) \ gforth
+\G CONSTANT: the number of address units corresponding to 1 cell.
 [THEN]
+
 1 floats Constant float ( -- u ) \ gforth
+\G CONSTANT: the number of address units corresponding to a floating-point number.
 
 20 Constant bl ( -- c-char ) \ core
-\G @var{c-char} is the character value for a space.
+\G @i{c-char} is the character value for a space.
 \ used by docon:, must be constant
 
 FF Constant /line
@@ -107,19 +110,19 @@ AUser "error            0 "error !
  User tibstack		\ saves >tib in execute
  User >tib		\ pointer to terminal input buffer
  User #tib ( -- a-addr ) \ core-ext
- \G USER VARIABLE: @var{a-addr} is the address of a cell containing
+ \G USER VARIABLE: @i{a-addr} is the address of a cell containing
  \G the number of characters in the terminal input buffer.
  \G OBSOLESCENT: @code{source} superceeds the function of this word.
 
  User >in ( -- a-addr ) \ core
- \G USER VARIABLE: @var{a-addr} is the address of a cell containing the
- \G char offset from the start of the terminal input buffer to the
- \G start of the parse area.
+ \G USER VARIABLE: @i{a-addr} is the address of a cell containing the
+ \G char offset from the start of the input buffer to the start of the
+ \G parse area.
                         0 >in ! \ char number currently processed in tib
 [THEN]
 has? file [IF]
  User blk ( -- a-addr ) \ block
- \G USER VARIABLE: @var{a-addr} is the address of a cell containing zero
+ \G USER VARIABLE: @i{a-addr} is the address of a cell containing zero
  \G (in which case the input source is not a block and can be identified
  \G by @code{source-id}) or the number of the block currently being
  \G interpreted. A Standard program should not alter @code{blk} directly.
@@ -139,24 +142,31 @@ has? file [IF]
 [THEN]
 
  User base ( -- a-addr ) \ core
- \G USER VARIABLE: @var{a-addr} is the address of a cell that stores the
+ \G USER VARIABLE: @i{a-addr} is the address of a cell that stores the
  \G number base used by default for number conversion during input and output.
                         A base !
- User dpl               -1 dpl !
+ User dpl ( -- a-addr ) \ gforth
+ \G USER VARIABLE: @i{a-addr} is the address of a cell that stores the 		
+ \G position of the decimal point in the most recent numeric conversion.
+ \G Initialised to -1. After the conversion of a number containing no
+ \G decimal point, @code{@ dpl} is -1. After the conversion of @code{2.} it holds
+ \G 0. After the conversion of 234123.9 it contains 1, and so forth.
+ -1 dpl !
 
  User state ( -- a-addr ) \ core,tools-ext
- \G Recommended reading: @cite{@code{State}-smartness--Why it is evil
- \G and how to exorcise it},
- \G @url{http://www.complang.tuwien.ac.at/papers/ertl98.ps.gz}; short
- \G version: Don't use @code{state}! @xref{Interpretation and
- \G Compilation Semantics} for an alternative. USER VARIABLE: @var{a-addr}
- \G is the address of a cell containing the compilation state flag. 0
- \G => interpreting, -1 => compiling.  A program shall not directly
- \G alter the value of @code{state}. The following Standard words
- \G alter the value in @code{state}: @code{:} (colon) @code{;}
- \G (semicolon) @code{abort} @code{quit} @code{:noname} @code{[}
- \G (left-bracket) @code{]} (right-bracket) @code{;code}
-			0 state !
+ \G USER VARIABLE: @i{a-addr} is the address of a cell containing the
+ \G compilation state flag. 0 => interpreting, -1 => compiling.  A
+ \G program shall not directly alter the value of @code{state}. The
+ \G following Standard words alter the value in @code{state}: @code{:}
+ \G (colon) @code{;} (semicolon) @code{abort} @code{quit}
+ \G @code{:noname} @code{[} (left-bracket) @code{]} (right-bracket)
+ \G @code{;code}. Don't use @code{state}! @xref{Interpretation and
+ \G Compilation Semantics} for an alternative. 
+ \  Recommended reading: @cite{@code{State}-smartness--Why it is evil
+ \  and how to exorcise it},
+ \  @url{http://www.complang.tuwien.ac.at/papers/ertl98.ps.gz}; short
+ \  version: Don't use @code{state}! 
+ 0 state !
 
 AUser normal-dp		\ the usual dictionary pointer
 AUser dpp		normal-dp dpp !

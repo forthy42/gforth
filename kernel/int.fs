@@ -291,13 +291,15 @@ $20 constant restrict-mask
     THEN ;
 
 : name>int ( nt -- xt ) \ gforth
-    \G @var{xt} represents the interpretation semantics of the word
-    \G @var{nt}. Produces @code{' compile-only-error} if
-    \G @var{nt} is compile-only.
+    \G @i{xt} represents the interpretation semantics of the word
+    \G @i{nt}. If @i{nt} has no interpretation semantics (i.e. is
+    \G @code{compile-only}), @i{xt} is the execution token for
+    \G @code{compile-only-error}, which performs @code{-14 throw}.
     (name>x) (x>int) ;
 
 : name?int ( nt -- xt ) \ gforth
-    \G Like @code{name>int}, but throws an error if @code{compile-only}.
+    \G Like @code{name>int}, but perform @code{-14 throw} if @i{nt}
+    \G has no interpretation semantics.
     (name>x) restrict-mask and
     if
 	compile-only-error \ does not return
@@ -305,7 +307,7 @@ $20 constant restrict-mask
     (cfa>int) ;
 
 : (name>comp) ( nt -- w +-1 ) \ gforth
-    \G @var{w xt} is the compilation token for the word @var{nt}.
+    \G @i{w xt} is the compilation token for the word @i{nt}.
     (name>x) >r 
 [ has? compiler [IF] ]
     dup interpret/compile?
@@ -377,23 +379,23 @@ const Create ???  0 , 3 c, char ? c, char ? c, char ? c,
 
 : body> 0 >body - ;
 
-: (search-wordlist)  ( addr count wid -- nt / false )
+: (search-wordlist)  ( addr count wid -- nt | false )
     dup wordlist-map @ find-method perform ;
 
-: search-wordlist ( c-addr count wid -- 0 / xt +-1 ) \ search
-    \G Search the word list identified by @var{wid}
-    \G for the definition named by the string at @var{c-addr count}.
+: search-wordlist ( c-addr count wid -- 0 | xt +-1 ) \ search
+    \G Search the word list identified by @i{wid}
+    \G for the definition named by the string at @i{c-addr count}.
     \G If the definition is not found, return 0. If the definition
     \G is found return 1 (if the definition is immediate) or -1
-    \G (if the definition is not immediate) together with the @var{xt}.
-    \G The @var{xt} returned represents the interpretation semantics.
+    \G (if the definition is not immediate) together with the @i{xt}.
+    \G The @i{xt} returned represents the interpretation semantics.
     (search-wordlist) dup if
 	(name>intn)
     then ;
 
-: find-name ( c-addr u -- nt/0 ) \ gforth
-    \g Find the name @var{c-addr u} in the current search
-    \g order. Return its nt, if found, otherwise 0.
+: find-name ( c-addr u -- nt | 0 ) \ gforth
+    \g Find the name @i{c-addr u} in the current search
+    \g order. Return its @i{nt}, if found, otherwise 0.
     lookup @ (search-wordlist) ;
 
 : sfind ( c-addr u -- 0 / xt +-1  ) \ gforth-obsolete
@@ -407,12 +409,12 @@ const Create ???  0 , 3 c, char ? c, char ? c, char ? c,
 	then
    then ;
 
-: find ( c-addr -- xt +-1 / c-addr 0 ) \ core,search
+: find ( c-addr -- xt +-1 | c-addr 0 ) \ core,search
     \G Search all word lists in the current search order
-    \G for the definition named by the counted string at @var{c-addr}.
+    \G for the definition named by the counted string at @i{c-addr}.
     \G If the definition is not found, return 0. If the definition
     \G is found return 1 (if the definition is immediate) or -1
-    \G (if the definition is not immediate) together with the @var{xt}.
+    \G (if the definition is not immediate) together with the @i{xt}.
     dup count sfind dup
     if
 	rot drop
@@ -428,8 +430,8 @@ const Create ???  0 , 3 c, char ? c, char ? c, char ? c,
     THEN  ;
 
 : '    ( "name" -- xt ) \ core	tick
-    \g @var{xt} represents @var{name}'s interpretation
-    \g semantics. Performs @code{-14 throw} if the word has no
+    \g @i{xt} represents @i{name}'s interpretation
+    \g semantics. Perform @code{-14 throw} if the word has no
     \g interpretation semantics.
     (') name?int ;
 

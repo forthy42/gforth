@@ -27,7 +27,7 @@
 [IFUNDEF] allot
 [IFUNDEF] forthstart
 : allot ( n -- ) \ core
-    \G Reserve or release @var{n} address units of data space; @var{n}
+    \G Reserve or release @i{n} address units of data space; @i{n}
     \G is a signed number. There are restrictions on releasing data
     \G space.
     dup unused u> -8 and throw
@@ -38,7 +38,7 @@
 \ we default to this version if we have nothing else 05May99jaw
 [IFUNDEF] allot
 : allot ( n -- ) \ core
-    \G Reserve or release @var{n} address units of data space; @var{n}
+    \G Reserve or release @i{n} address units of data space; @i{n}
     \G is a signed number. There are restrictions on releasing data
     \G space.
     here +
@@ -47,15 +47,15 @@
 [THEN]
 
 : c,    ( c -- ) \ core
-    \G Reserve data space for one char and store @var{c} in the space.
+    \G Reserve data space for one char and store @i{c} in the space.
     here 1 chars allot c! ;
 
 : ,     ( w -- ) \ core
-    \G Reserve data space for one cell and store @var{w} in the space.
+    \G Reserve data space for one cell and store @i{w} in the space.
     here cell allot  ! ;
 
 : 2,	( w1 w2 -- ) \ gforth
-    \G Reserve data space for two cells and store the double @var{w1
+    \G Reserve data space for two cells and store the double @i{w1
     \G w2} in the space.
     here 2 cells allot 2! ;
 
@@ -63,12 +63,15 @@
 \     [ cell 1- ] Literal + [ -1 cells ] Literal and ;
 
 : align ( -- ) \ core
+    \G If the data-space pointer is not aligned, reserve enough space to align it.
     here dup aligned swap ?DO  bl c,  LOOP ;
 
 \ : faligned ( addr -- f-addr ) \ float
 \     [ 1 floats 1- ] Literal + [ -1 floats ] Literal and ; 
 
 : falign ( -- ) \ float
+    \G If the data-space pointer is not float-aligned, reserve
+    \G enough space to align it.
     here dup faligned swap
     ?DO
 	bl c,
@@ -142,14 +145,14 @@ create nextname-buffer 32 chars allot
     ['] noname-header IS (header) ;
 
 : lastxt ( -- xt ) \ gforth
-    \G @var{xt} is the execution token of the last word defined.
+    \G @i{xt} is the execution token of the last word defined.
     \ The main purpose of this word is to get the xt of words defined using noname
     lastcfa @ ;
 
 \ \ literals							17dec92py
 
 : Literal  ( compilation n -- ; run-time -- n ) \ core
-    \G Compile appropriate code such that, at run-time, @var{n} is placed
+    \G Compile appropriate code such that, at run-time, @i{n} is placed
     \G on the stack. Interpretation semantics are undefined.
 [ [IFDEF] lit, ]
     lit,
@@ -165,14 +168,14 @@ create nextname-buffer 32 chars allot
 [ [THEN] ] ; immediate restrict
 
 : char   ( '<spaces>ccc' -- c ) \ core
-    \G Skip leading spaces. Parse the string @var{ccc} and return @var{c}, the
-    \G display code representing the first character of @var{ccc}.
+    \G Skip leading spaces. Parse the string @i{ccc} and return @i{c}, the
+    \G display code representing the first character of @i{ccc}.
     bl word char+ c@ ;
 
 : [char] ( compilation '<spaces>ccc' -- ; run-time -- c ) \ core bracket-char
     \G Compilation: skip leading spaces. Parse the string
-    \G @var{ccc}. Run-time: return @var{c}, the display code
-    \G representing the first character of @var{ccc}.  Interpretation
+    \G @i{ccc}. Run-time: return @i{c}, the display code
+    \G representing the first character of @i{ccc}.  Interpretation
     \G semantics for this word are undefined.
     char postpone Literal ; immediate restrict
 
@@ -185,7 +188,8 @@ create nextname-buffer 32 chars allot
 
 [IFUNDEF] compile,
 : compile, ( xt -- )	\ core-ext	compile-comma
-    \G  Compile the word represented by the execution token, @var{xt}.
+    \G  Compile the word represented by the execution token, @i{xt},
+    \G  into the current definition.
     A, ;
 [THEN]
 
@@ -202,7 +206,7 @@ create nextname-buffer 32 chars allot
     r> dup cell+ >r @ compile, ;
 
 : postpone, ( w xt -- ) \ gforth	postpone-comma
-    \g Compile the compilation semantics represented by @var{w xt}.
+    \g Compile the compilation semantics represented by @i{w xt}.
     dup ['] execute =
     if
 	drop compile,
@@ -216,7 +220,7 @@ create nextname-buffer 32 chars allot
     then ;
 
 : POSTPONE ( "name" -- ) \ core
-    \g Compiles the compilation semantics of @var{name}.
+    \g Compiles the compilation semantics of @i{name}.
     COMP' postpone, ; immediate restrict
 
 struct
@@ -234,7 +238,7 @@ DOES>
 \ \ ticks
 
 : name>comp ( nt -- w xt ) \ gforth
-    \G @var{w xt} is the compilation token for the word @var{nt}.
+    \G @i{w xt} is the compilation token for the word @i{nt}.
     (name>comp)
     1 = if
         ['] execute
@@ -246,17 +250,17 @@ DOES>
     (') postpone ALiteral ; immediate restrict
 
 : [']  ( compilation. "name" -- ; run-time. -- xt ) \ core      bracket-tick
-    \g @var{xt} represents @var{name}'s interpretation
-    \g semantics. Performs @code{-14 throw} if the word has no
+    \g @i{xt} represents @i{name}'s interpretation
+    \g semantics. Perform @code{-14 throw} if the word has no
     \g interpretation semantics.
     ' postpone ALiteral ; immediate restrict
 
 : COMP'    ( "name" -- w xt ) \ gforth  comp-tick
-    \g @var{w xt} represents @var{name}'s compilation semantics.
+    \g Compilation token @i{w xt} represents @i{name}'s compilation semantics.
     (') name>comp ;
 
 : [COMP']  ( compilation "name" -- ; run-time -- w xt ) \ gforth bracket-comp-tick
-    \g @var{w xt} represents @var{name}'s compilation semantics.
+    \g Compilation token @i{w xt} represents @i{name}'s compilation semantics.
     COMP' swap POSTPONE Aliteral POSTPONE ALiteral ; immediate restrict
 
 \ \ recurse							17may93jaw
@@ -300,9 +304,9 @@ DOES>
   here over char+ allot  place align ;
 
 : SLiteral ( Compilation c-addr1 u ; run-time -- c-addr2 u ) \ string
-    \G Compilation: compile the string specified by @var{c-addr1},
-    \G @var{u} into the current definition. Run-time: return
-    \G @var{c-addr2 u} describing the address and length of the
+    \G Compilation: compile the string specified by @i{c-addr1},
+    \G @i{u} into the current definition. Run-time: return
+    \G @i{c-addr2 u} describing the address and length of the
     \G string.
     postpone (S") here over char+ allot  place align ;
                                              immediate restrict
@@ -310,8 +314,8 @@ DOES>
 \ \ abort"							22feb93py
 
 : abort" ( compilation 'ccc"' -- ; run-time f -- ) \ core,exception-ext	abort-quote
-    \G If any bit of @var{f} is non-zero, perform the function of @code{-2 throw},
-    \G displaying the string @var{ccc} if there is no exception frame on the
+    \G If any bit of @i{f} is non-zero, perform the function of @code{-2 throw},
+    \G displaying the string @i{ccc} if there is no exception frame on the
     \G exception stack.
     postpone (abort") ," ;        immediate restrict
 
@@ -344,7 +348,10 @@ DOES>
 
 \ \ Create Variable User Constant                        	17mar93py
 
-: Alias    ( cfa "name" -- ) \ gforth
+: Alias    ( xt "name" -- ) \ gforth
+    \ 29Apr1999nac The stack comment for this was cfa -- I changed it to xt because
+    \ they are the same thing in Gforth, and xt is a more appropriate thing to
+    \ document.
     Header reveal
     alias-mask lastflags creset
     dup A, lastcfa ! ;
@@ -391,9 +398,9 @@ doer? :docon [IF]
 [THEN]
 
 : Constant ( w "name" -- ) \ core
-    \G Defines constant @var{name}
+    \G Define a constant @i{name} with value @i{w}.
     \G  
-    \G @var{name} execution: @var{-- w}
+    \G @i{name} execution: @i{-- w}
     (Constant) , ;
 
 : AConstant ( addr "name" -- ) \ gforth

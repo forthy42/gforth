@@ -43,17 +43,28 @@
 \ [THEN]
 
 : sfalign ( -- ) \ float-ext s-f-align
+    \G If the data-space pointer is not single-float-aligned, reserve
+    \G enough space to align it.
     here dup sfaligned swap ?DO  bl c,  LOOP ;
 : dfalign ( -- ) \ float-ext d-f-align
+    \G If the data-space pointer is not double-float-aligned, reserve
+    \G enough space to align it.
     here dup dfaligned swap ?DO  bl c,  LOOP ;
 
 1 sfloats constant sfloat+ ( sf-addr1 -- sf-addr2 ) \ float-ext s-float-plus
+\G Increment @i{sf-addr1} by the number of address units corresponding to the size of
+\G a single-precision IEEE floating-point number, to give @i{sf-addr2}.""
 dofield: lastxt code-address! \ change the constant into a field
 
 1 dfloats constant dfloat+ ( df-addr1 -- df-addr2 ) \ float-ext d-float-plus
+\G Increment @i{df-addr1} by the number of address units corresponding to the size of
+\G a double-precision IEEE floating-point number, to give @i{df-addr2}.""
 dofield: lastxt code-address! \ change the constant into a field
 
-: f, ( f -- )  here 1 floats allot f! ;
+: f, ( f -- ) \ gforth
+    \G Reserve data space for one floating-point number and store
+    \G @i{f} in the space.
+    here 1 floats allot f! ;
 
 : fconstant  ( r "name" -- ) \ float
     Create f,
