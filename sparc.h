@@ -1,5 +1,5 @@
 /*
-  $Id: sparc.h,v 1.8 1995-01-10 18:34:29 anton Exp $
+  $Id: sparc.h,v 1.9 1995-01-10 18:46:05 anton Exp $
   Copyright 1992 by the ANSI figForth Development Group
 
   This is the machine-specific part for a SPARC
@@ -11,8 +11,9 @@
 #define USE_TOS
 #endif
 
-/* direct threading is probably faster on the SPARC, but has it been
-   tested? Therefore, DIRECT_THREADED is not defined */
+#if !defined(INDIRECT_THREADED) && !defined(DIRECT_THREADED)
+#define DIRECT_THREADED
+#endif
 
 #ifdef DIRECT_THREADED
 #ifndef WORDS_BIGENDIAN
