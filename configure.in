@@ -323,6 +323,12 @@ AC_TRY_COMPILE(,,ac_nocrossjumping=yes;ENGINE_FLAGS="$ENGINE_FLAGS -fno-crossjum
 CFLAGS="$CFLAGS_1"
 AC_MSG_RESULT($ac_nocrossjumping)
 
+# Try if GCC understands __attribute__((unused))
+AC_MSG_CHECKING([how to suppress 'unused variable' warnings])
+AC_TRY_COMPILE(,[int __attribute__((unused)) foo;], MAYBE_UNUSED='__attribute__((unused))',)
+AC_DEFINE_UNQUOTED(MAYBE_UNUSED,$MAYBE_UNUSED,[attribute for possibly unused variables])
+AC_MSG_RESULT($MAYBE_UNUSED)
+
 AC_CHECK_PROG(asm_fs,asm.fs,arch/$machine/asm.fs,,$srcdir/arch/$machine)
 AC_SUBST(asm_fs)
 

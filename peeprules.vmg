@@ -1,3 +1,28 @@
+\ taken from David Gregg's EuroForth 2001 paper; omitted some sequences
 super1 = lit +
 super2 = lit call
 super3 = lit @
+super4 = lit @ call
+super5 = @ call
+super6 = lit !
+super7 = lit lit
+super8 = dup lit
+super9 = ! lit
+super10 = lit ! lit
+super11 = ! ;s
+super12 = lit + @
+super13 = 0= ?branch
+super14 = dup call
+super15 = useraddr @
+super16 = + @
+super17 = lit @ ?branch
+super18 = lit ! ;s
+super19 = lit @ and
+super20 = = ?branch
+super21 = lit lit !
+super22 = @ ?branch
+super23 = useraddr !
+super24 = dup ?branch
+super25 = @ ;s
+super26 = lit @ +
+super27 = dup @

@@ -371,7 +371,8 @@ FORTH_GEN_ENGINE=engine/prim.i engine/prim_lab.i engine/prim_names.i \
 	engine/prim_superend.i engine/profile.i \
 	engine/prim_num.i engine/prim_grp.i \
 	engine/costs.i engine/super2.i
-FORTH_GEN0 = prim.b $(FORTH_GEN_ENGINE) kernel/aliases.fs kernel/prim.fs
+FORTH_GEN_PRIMB = $(FORTH_GEN_ENGINE) kernel/aliases.fs kernel/prim.fs
+FORTH_GEN0 = prim.b $(FORTH_GEN_PRIMB)
 FORTH_GEN =  $(FORTH_GEN0) @KERNEL@ gforth.fi
 # this is used for antidependences,
 FORTH_GEN1 = $(FORTH_GEN0) @kernel_fi@ 
@@ -503,6 +504,10 @@ binonlydist:	Makedist machpc.fs FORCE
 		$(MAKE) -f Makedist d$@
 		-$(RM) machpc.fs
 
+#HPUX make breaks the cycle differently when the dates are equal, so
+# touch some of the files if it acts up
+hpux-workaround:
+	touch $(FORTH_GEN_PRIMB)
 
 #strip gforth, because the debugging stuff is hardly useful once
 # gforth manages to execute more than a few primitives.
@@ -682,7 +687,8 @@ gforth.fi:	$(kernel_fi) gforthmi gforth$(EXE) gforth-ditc$(EXE) $(GFORTH_FI_SRC)
 # -------------	Make c-engine
 
 prim.b:		prim peeprules.vmg
-		m4 -s $(srcdir)/prim >$@ 
+		m4 -s $(srcdir)/prim >$@
+		sleep 1 #should make hpux-workaround unnecessary
 
 engine/prim.i:		prim.b prims2x.fs
 		$(FORTHP) prims2x.fs -e "c-flag on s\" prim.i\" save-mem out-filename 2! s\" prim.b\" ' output-c ' output-c-combined process-file bye" >$@-
@@ -791,7 +797,7 @@ tags:		gforth.tags
 		$(CP) gforth.tags $@
 
 install.TAGS:	gforth.TAGS
-		sed 's:^\$(srcdir)/:$(datadir)/gforth/$(VERSION)/:' gforth.TAGS >install.TAGS
+		sed 's;^\$(srcdir)/;$(datadir)/gforth/$(VERSION)/;' gforth.TAGS >install.TAGS
 
 gforth.TAGS:	@kernel_fi@ gforth$(EXE) $(GFORTH_FI_SRC) prim.TAGS kernel.TAGS
 		$(FORTHK) etags.fs except.fs startup.fs -e bye

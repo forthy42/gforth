@@ -757,18 +757,21 @@ void check_prims(Label symbols1[])
 	      i, s1, s2, s3, (long)(pi->length), (long)(pi->restlength), pi->superend);
     if (endlabel == NULL) {
       pi->start = NULL; /* not relocatable */
+      if (pi->length<0) pi->length=100;
       if (debug)
 	fprintf(stderr,"\n   non_reloc: no J label > start found\n");
       continue;
     }
     if (ends1[i] > endlabel && !pi->superend) {
       pi->start = NULL; /* not relocatable */
+      pi->length = endlabel-symbols1[i];
       if (debug)
 	fprintf(stderr,"\n   non_reloc: there is a J label before the K label (restlength<0)\n");
       continue;
     }
     if (ends1[i] < pi->start && !pi->superend) {
       pi->start = NULL; /* not relocatable */
+      pi->length = endlabel-symbols1[i];
       if (debug)
 	fprintf(stderr,"\n   non_reloc: K label before I label (length<0)\n");
       continue;
@@ -1265,13 +1268,6 @@ void compile_prim1(Cell *start)
 #endif /* !(defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED)) */
 }
 
-#if defined(PRINT_SUPER_LENGTHS) && !defined(NO_DYNAMIC)
-Cell prim_length(Cell prim)
-{
-  return priminfos[prim].length;
-}
-#endif
-
 Address loader(FILE *imagefile, char* filename)
 /* returns the address of the image proper (after the preamble) */
 {
@@ -1645,10 +1641,10 @@ int main(int argc, char **argv, char **env)
   gforth_args(argc, argv, &path, &imagename);
 #ifndef NO_DYNAMIC
   if (no_dynamic && ss_cost == cost_codesize) {
-    ss_cost = cost_lsu;
-    cost_sums[0] = cost_sums[1];
+    ss_cost = cost_nexts;
+    cost_sums[0] = cost_sums[1]; /* don't use cost_codesize for print-metrics */
     if (debug)
-      fprintf(stderr, "--no-dynamic conflicts with --ss-min-codesize, reverting to --ss-min-lsu\n");
+      fprintf(stderr, "--no-dynamic conflicts with --ss-min-codesize, reverting to --ss-min-nexts\n");
   }
 #endif /* !defined(NO_DYNAMIC) */
 #endif /* defined(HAS_OS) */

@@ -1173,7 +1173,7 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
 : print-item { n stack -- }
     \ print nth stack item name
     stack stack-type @ type-c-name 2@ type space
-    ." _" stack stack-pointer 2@ type n 0 .r ;
+    ." MAYBE_UNUSED _" stack stack-pointer 2@ type n 0 .r ;
 
 : print-declarations-combined ( -- )
     max-stacks 0 ?do
