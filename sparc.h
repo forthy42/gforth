@@ -1,4 +1,5 @@
 /*
+  $Id: sparc.h,v 1.8 1995-01-10 18:34:29 anton Exp $
   Copyright 1992 by the ANSI figForth Development Group
 
   This is the machine-specific part for a SPARC
@@ -21,13 +22,11 @@
 */
 #endif
 
-#ifdef undefined
 /* according to the SPARC V9 architecture manual, we have to use flush,
    but as V2.20 does not recognize the opcode */
 /* assuming size = 8 */
 #define CACHE_FLUSH(addr,size) \
-  asm("flush %0; flush %0+4"::"r"(addr))
-#endif
+  asm("iflush %0; iflush %0+4"::"r"(addr))
 
 /* PFA gives the parameter field address corresponding to a cfa */
 #define PFA(cfa)	(((Cell *)cfa)+2)
