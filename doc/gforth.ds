@@ -72,7 +72,7 @@ Programming style note:
 @ifnottex
 This file documents Gforth @value{VERSION}
 
-Copyright @copyright{} 1995-1999 Free Software Foundation, Inc.
+Copyright @copyright{} 1995--2000 Free Software Foundation, Inc.
 
      Permission is granted to make and distribute verbatim copies of
      this manual provided the copyright notice and this permission notice
@@ -116,7 +116,7 @@ Copyright @copyright{} 1995-1999 Free Software Foundation, Inc.
 @comment  The following two commands start the copyright page.
 @page
 @vskip 0pt plus 1filll
-Copyright @copyright{} 1995--1999 Free Software Foundation, Inc.
+Copyright @copyright{} 1995--2000 Free Software Foundation, Inc.
 
 @comment !! Published by ... or You can get a copy of this manual ...
 
@@ -309,12 +309,6 @@ Defining Words
 * Aliases::
 * Supplying names::
 
-User-defined Defining Words
-
-* CREATE..DOES> applications::  
-* CREATE..DOES> details::       
-* Advanced does> usage example::  
-
 Interpretation and Compilation Semantics
 
 * Combined words::
@@ -356,16 +350,6 @@ Programming Tools
 * Debugging::                   Simple and quick.
 * Assertions::                  Making your programs self-checking.
 * Singlestep Debugger::         Executing your program word by word.
-
-Assembler and Code Words
-
-* Code and ;code::              
-* Common Assembler::            Assembler Syntax
-* Common Disassembler::         
-* 386 Assembler::               Deviations and special cases
-* Alpha Assembler::             Deviations and special cases
-* MIPS assembler::              Deviations and special cases
-* Other assemblers::            How to write them
 
 Locals
 
@@ -1233,7 +1217,7 @@ On startup the system first executes the system initialization file
 (unless the option @code{--no-init-file} is given; note that the system
 resulting from using this option may not be ANS Forth conformant). Then
 the user initialization file @file{.gforth.fs} is executed, unless the
-option @code{--no-rc} is given; this file is first searched in @file{.},
+option @code{--no-rc} is given; this file is searched for in @file{.},
 then in @file{~}, then in the normal path (see above).
 
 
@@ -1339,13 +1323,13 @@ options}).
 ANS Forth only @i{requires} implementations to recognise Standard words
 when they are typed entirely in upper case. Therefore, a Standard
 program must use upper case for all Standard words. You can use whatever
-case you like for words that you define, but in a standard program you
+case you like for words that you define, but in a Standard program you
 have to use the words in the same case that you defined them.
 
 Gforth supports case sensitivity through @code{table}s (case-sensitive
 wordlists, @pxref{Word Lists}).
 
-Two people have asked how to convert Gforth to case sensitivity; while
+Two people have asked how to convert Gforth to be case-sensitive; while
 we think this is a bad idea, you can change all wordlists into tables
 like this:
 
@@ -1356,7 +1340,7 @@ like this:
 Note that you now have to type the predefined words in the same case
 that we defined them, which are varying.  You may want to convert them
 to your favourite case before doing this operation (I won't explain how,
-because if you are even contemplating to do this, you'd better have
+because if you are even contemplating doing this, you'd better have
 enough knowledge of Forth systems to know this already).
 
 @comment ----------------------------------------------
@@ -1384,7 +1368,7 @@ for Forth source-code files.
 
 @item
 @cindex @code{GFORTHD} -- environment variable
-@code{GFORTHD} -- used by @file{gforthmi} @xref{gforthmi}.
+@code{GFORTHD} -- used by @file{gforthmi}, @xref{gforthmi}.
 
 @item
 @cindex @code{TMP}, @code{TEMP} - environment variable
@@ -1442,7 +1426,7 @@ system time.
 
 If startup speed is a problem, you may consider the following ways to
 improve it; or you may consider ways to reduce the number of startups
-(e.g., Fast-CGI).
+(for example, by using Fast-CGI).
 
 The first step to improve startup speed is to statically link Gforth, by
 building it with @code{XLDFLAGS=-static}.  This requires more memory for
@@ -1453,11 +1437,11 @@ result, @code{gforth-static -e bye} takes about 17.1ms user and
 8.2ms system time.
 
 The next step to improve startup speed is to use a non-relocatable image
-@ref{Non-Relocatable Image Files}.  You can create this image with
+(@xref{Non-Relocatable Image Files}).  You can create this image with
 @code{gforth -e "savesystem gforthnr.fi bye"} and later use it with
 @code{gforth -i gforthnr.fi ...}.  This avoids the relocation overhead
 and a part of the copy-on-write overhead.  The disadvantage is that the
-nonrelocatable image does not work if the OS gives Gforth a different
+non-relocatable image does not work if the OS gives Gforth a different
 address for the dictionary, for whatever reason; so you better provide a
 fallback on a relocatable image.  @code{gforth-static -i gforthnr.fi -e
 bye} takes about 15.3ms user and 7.5ms system time.
@@ -1471,7 +1455,7 @@ The disadvantages are that functionality like @code{table} and
 @code{ekey} is missing and that text interpretation (e.g., compiling)
 now takes much longer. So, you should only use this method if there is
 no significant text interpretation to perform (the script should be
-compiled into the image, among other things).  @code{gforth-static -i
+compiled into the image, amongst other things).  @code{gforth-static -i
 gforthnrnh.fi -e bye} takes about 2.1ms user and 6.1ms system time.
 
 @c ******************************************************************
@@ -1480,12 +1464,12 @@ gforthnrnh.fi -e bye} takes about 2.1ms user and 6.1ms system time.
 @cindex Tutorial
 @cindex Forth Tutorial
 
-This tutorial can be used with any ANS-compliant Forth; any places that
-mention features specific to Gforth are marked as such and you can skip
-them, if you work with another Forth.  This tutorial does not explain
-all features of Forth, just enough to get you started and give you some
-ideas about the facilities available in Forth.  Read the rest of the
-manual and the standard when you are through this.
+This tutorial can be used with any ANS-compliant Forth; any
+Gforth-specific features are marked as such and you can skip them if you
+work with another Forth.  This tutorial does not explain all features of
+Forth, just enough to get you started and give you some ideas about the
+facilities available in Forth.  Read the rest of the manual and the
+standard when you are through this.
 
 The intended way to use this tutorial is that you work through it while
 sitting in front of the console, take a look at the examples and predict
@@ -2628,7 +2612,7 @@ happens when you remove the space).
 However, this interpretive use of @code{s"} is quite restricted: the
 string exists only until the next call of @code{s"} (some Forth systems
 keep more than one of these strings, but usually they still have a
-limited lifetime.
+limited lifetime).
 
 @example
 s" hello," s" world" .s
@@ -2636,8 +2620,8 @@ type
 type
 @end example
 
-However, you can also use @code{s"} in a definition, and the resulting
-strings then live forever (well, as long as the definition):
+You can also use @code{s"} in a definition, and the resulting
+strings then live forever (well, for as long as the definition):
 
 @example
 : foo s" hello," s" world" ;
@@ -2656,7 +2640,7 @@ Implement @code{type ( addr u -- )}.
 
 On many processors cells have to be aligned in memory, if you want to
 access them with @code{@@} and @code{!} (and even if the processor does
-not require alignment, access to aligned cells are faster).
+not require alignment, access to aligned cells is faster).
 
 @code{Create} aligns @code{here} (i.e., the place where the next
 allocation will occur, and that the @code{create}d word points to).
@@ -3110,7 +3094,7 @@ see foo
 @end example
 
 However, there are some broken Forth systems where this does not always
-work, and therefore this practice has been declared non-standard in
+work, and therefore this practice was been declared non-standard in
 1999.
 @c !! repair.fs
 
@@ -6290,7 +6274,7 @@ locals declarations for stack effect specification, though).
 @menu
 * CREATE..DOES> applications::  
 * CREATE..DOES> details::       
-* Advanced does> usage example::  
+* Advanced does> usage::        
 @end menu
 
 @node CREATE..DOES> applications, CREATE..DOES> details, User-defined Defining Words, User-defined Defining Words
@@ -6340,7 +6324,7 @@ DOES> ( n2 -- n1+n2 )
 -2 curry+ 2-
 @end example
 
-@node CREATE..DOES> details, Advanced does> usage example, CREATE..DOES> applications, User-defined Defining Words
+@node CREATE..DOES> details, Advanced does> usage, CREATE..DOES> applications, User-defined Defining Words
 @subsubsection The gory details of @code{CREATE..DOES>}
 @cindex @code{CREATE} ... @code{DOES>}, details
 
@@ -6398,122 +6382,9 @@ CREATE name EXECUTE ( ... -- ... )
 
 doc->body
 
-@node Advanced does> usage example,  , CREATE..DOES> details, User-defined Defining Words
-@subsubsection Advanced does> usage example
+@node Advanced does> usage,  , CREATE..DOES> details, User-defined Defining Words
+@subsubsection Advanced does> usage
 
-The MIPS disassembler (@file{arch/mips/disasm.fs}) contains many words
-for disassembling instructions, that follow a very repetetive scheme:
-
-@example
-:noname @var{disasm-operands} s" @var{inst-name}" type ;
-@var{entry-num} cells @var{table} + !
-@end example
-
-Of course, this inspires the idea to factor out the commonalities to
-allow a definition like
-
-@example
-@var{disasm-operands} @var{entry-num} @var{table} define-inst @var{inst-name}
-@end example
-
-The parameters @var{disasm-operands} and @var{table} are usually
-correlated.  Moreover, there existed code defining instructions like
-this:
-
-@example
-@var{entry-num} @var{inst-format} @var{inst-name}
-@end example
-
-This code comes from the assembler and resides in
-@file{arch/mips/insts.fs}.
-
-So I had to define the @var{inst-format} words that performed the scheme
-above when executed.  At first I chose to use run-time code-generation:
-
-@example
-: @var{inst-format} ( entry-num "name" -- ; compiled code: addr w -- )
-  :noname Postpone @var{disasm-operands}
-  name Postpone sliteral Postpone type Postpone ;
-  swap cells @var{table} + ! ;
-@end example
-
-Note that this supplies the other two parameters of the scheme above.
-
-An alternative would have been to write this using
-@code{create}/@code{does>}:
-
-@example
-: @var{inst-format} ( entry-num "name" -- )
-  here name string, ( entry-num c-addr ) \ parse and save "name"
-  noname create , ( entry-num )
-  lastxt swap cells @var{table} + !
-does> ( addr w -- )
-  \ disassemble instruction w at addr
-  @@ >r 
-  @var{disasm-operands}
-  r> count type ;
-@end example
-
-Somehow the first solution is simpler, mainly because it's simpler to
-shift a string from definition-time to use-time with @code{sliteral}
-than with @code{string,} and friends.
-
-I wrote a lot of words following this scheme and soon thought about
-factoring out the commonalities among them.  Note that this uses a
-two-level defining word, i.e., a word that defines ordinary defining
-words.
-
-This time a solution involving @code{postpone} and friends seemed more
-difficult (try it as an exercise), so I decided to use a
-@code{create}/@code{does>} word; since I was already at it, I also used
-@code{create}/@code{does>} for the lower level (try using
-@code{postpone} etc. as an exercise), resulting in the following
-definition:
-
-@example
-: define-format ( disasm-xt table-xt -- )
-    \ define an instruction format that uses disasm-xt for
-    \ disassembling and enters the defined instructions into table
-    \ table-xt
-    create 2,
-does> ( u "inst" -- )
-    \ defines an anonymous word for disassembling instruction inst,
-    \ and enters it as u-th entry into table-xt
-    2@@ swap here name string, ( u table-xt disasm-xt c-addr ) \ remember string
-    noname create 2,      \ define anonymous word
-    execute lastxt swap ! \ enter xt of defined word into table-xt
-does> ( addr w -- )
-    \ disassemble instruction w at addr
-    2@@ >r ( addr w disasm-xt R: c-addr )
-    execute ( R: c-addr ) \ disassemble operands
-    r> count type ; \ print name 
-@end example
-
-Note that the tables here (in contrast to above) do the @code{cells +}
-by themselves (that's why you have to pass an xt).  This word is used in
-the following way:
-
-@example
-' @var{disasm-operands} ' @var{table} define-format @var{inst-format}
-@end example
-
-In terms of currying, this kind of two-level defining word provides the
-parameters in three stages: first @var{disasm-operands} and @var{table},
-then @var{entry-num} and @var{inst-name}, finally @code{addr w}, i.e.,
-the instruction to be disassembled.  
-
-Of course this did not quite fit all the instruction format names used
-in @file{insts.fs}, so I had to define a few wrappers that conditioned
-the parameters into the right form.
-
-If you have trouble following this section, don't worry.  First, this is
-involved and takes time (and probably some playing around) to
-understand; second, this is the first two-level
-@code{create}/@code{does>} word I have written in seventeen years of
-Forth; and if I did not have @file{insts.fs} to start with, I may well
-have elected to use just a one-level defining word (with some repeating
-of parameters when using the defining word). So it is not necessary to
-understand this, but it may improve your understanding of Forth.
 
 
 @node Deferred words, Aliases, User-defined Defining Words, Defining Words
@@ -9011,8 +8882,8 @@ suite that contains all instructions.  Once you have that, the rest is
 easy.  For actual coding you can take a look at
 @file{arch/mips/disasm.fs} to get some ideas on how to use data for both
 the assembler and disassembler, avoiding redundancy and some potential
-bugs.  You can also look at that file (and @pxref{Advanced does> usage
-example}) to get ideas how to factor a disassembler.
+bugs.  You can also look at that file (and @pxref{Advanced does> usage})
+to get ideas how to factor a disassembler.
 
 Start with the disassembler, because it's easier to reuse data from the
 disassembler for the assembler than the other way round.
@@ -13264,7 +13135,7 @@ gforthmi asm.fi asm.fs
 @file{gforthmi} is implemented as a sh script and works like this: It
 produces two non-relocatable images for different addresses and then
 compares them. Its output reflects this: first you see the output (if
-any) of the two Gforth invocations that produce the nonrelocatable image
+any) of the two Gforth invocations that produce the non-relocatable image
 files, then you see the output of the comparing program: It displays the
 offset used for data addresses and the offset used for code addresses;
 moreover, for each cell that cannot be represented correctly in the
@@ -13301,7 +13172,7 @@ instructions.
 There are a few wrinkles: After processing the passed @i{options}, the
 words @code{savesystem} and @code{bye} must be visible. A special doubly
 indirect threaded version of the @file{gforth} executable is used for
-creating the nonrelocatable images; you can pass the exact filename of
+creating the non-relocatable images; you can pass the exact filename of
 this executable through the environment variable @code{GFORTHD}
 (default: @file{gforth-ditc}); if you pass a version that is not doubly
 indirect threaded, you will not get a fully relocatable image, but a
