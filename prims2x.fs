@@ -724,6 +724,12 @@ stack inst-stream IP Cell
     endif
     2drop ;
 
+: output-nextp2 ( -- )
+    ." NEXT_P2;" cr ;
+
+variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
+' output-nextp2 tail-nextp2 !
+
 : output-label2 ( -- )
     ." LABEL2(" prim prim-c-name 2@ type ." )" cr
     ." NEXT_P2;" cr ;
@@ -745,13 +751,13 @@ stack inst-stream IP Cell
     xt execute ;
 
 : output-c-tail ( -- )
-    ['] noop output-c-tail1 ;
+    tail-nextp2 @ output-c-tail1 ;
 
 : output-c-tail2 ( -- )
     ['] output-label2 output-c-tail1 ;
 
 : output-c-tail-no-stores ( -- )
-    ['] noop output-c-tail1-no-stores ;
+    tail-nextp2 @ output-c-tail1-no-stores ;
 
 : output-c-tail2-no-stores ( -- )
     ['] output-label2 output-c-tail1-no-stores ;

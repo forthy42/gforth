@@ -105,6 +105,7 @@
 \E 
 \E set-current
 \E store-optimization on
+\E ' noop tail-nextp2 ! \ now INST_TAIL just stores, but does not jump
 
 \ 
 \ 
