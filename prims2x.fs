@@ -53,6 +53,10 @@
 
 warnings off
 
+[IFUNDEF] try
+include startup.fs
+[THEN]
+
 : struct% struct ; \ struct is redefined in gray
 
 include ./gray.fs
@@ -1214,7 +1218,7 @@ warnings @ [IF]
 [THEN]
 
 
-\ run with out of box gforth 0.5.0
+\ run with gforth-0.5.0 (slurp-file is missing)
 [IFUNDEF] slurp-file
 : slurp-file ( c-addr1 u1 -- c-addr2 u2 )
     \ c-addr1 u1 is the filename, c-addr2 u2 is the file's contents
