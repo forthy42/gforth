@@ -23,16 +23,16 @@
 require ./vars.fs
 
 : CLiteral ( Compilation c-addr1 u ; run-time -- c-addr )
-    here 4 cells + postpone literal
-    2>r postpone ahead 2r> s, postpone then ; immediate restrict
+    2>r postpone ahead here 2r> s, >r postpone then
+    r> postpone literal ; immediate restrict
 
 : SLiteral ( Compilation c-addr1 u ; run-time -- c-addr2 u ) \ string
 \G Compilation: compile the string specified by @i{c-addr1},
 \G @i{u} into the current definition. Run-time: return
 \G @i{c-addr2 u} describing the address and length of the
 \G string.
-    \ !! limited to 255 chars
-    postpone cliteral postpone count ; immediate restrict
+    tuck 2>r postpone ahead here 2r> chars mem, align >r postpone then
+    r> postpone literal postpone literal ; immediate restrict
 
 \ \ abort"							22feb93py
 

@@ -381,7 +381,12 @@ is basic-block-end
 \ \ Strings							22feb93py
 
 : S, ( addr u -- )
+    \ allot string as counted string
     here over char+ allot  place align ;
+
+: mem, ( addr u -- )
+    \ allot the memory block HERE (do alignment yourself)
+    here over allot swap move ;
 
 : ," ( "string"<"> -- )
     [char] " parse s, ;

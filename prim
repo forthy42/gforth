@@ -2461,7 +2461,7 @@ does-exec ( #a_cfa -- R:nest a_pfa )	new	does_exec
 assert(0);
 #else
 a_pfa = PFA(a_cfa);
-nest = (Cell)ip;
+nest = (Cell)IP;
 IF_spTOS(spTOS = sp[0]);
 #ifdef DEBUG
     {
