@@ -43,10 +43,6 @@ Defer source ( -- addr count ) \ core
 
 \ name                                                 13feb93py
 
-: capitalize ( addr len -- addr len ) \ gforth
-  2dup chars chars bounds
-  ?DO  I c@ toupper I c! 1 chars +LOOP ;
-
 [IFUNDEF] (name) \ name might be a primitive
 
 : (name) ( -- c-addr count )
