@@ -58,11 +58,12 @@
  * jump dodoes */
 #define DOES_HANDLER_SIZE       8
 #define DOES_CODE(xt) \
-({ long _xt = (long)(CODE_ADDRESS(xt)); \
-   (((*(unsigned char *)(xt)) == CALL) && \
-    ((*(unsigned char *)_xt) == JMP) && \
-    ((long)(CODE_ADDRESS(_xt)) == (long)symbols[DODOES])) ? \
-      _xt+DOES_HANDLER_SIZE : 0L; })
+({ long _xt = (long)(xt); \
+   long _ca = (long)(CODE_ADDRESS(_xt)); \
+   (((*(unsigned char *)_xt) == CALL) && \
+    ((*(unsigned char *)_ca) == JMP) && \
+    ((long)(CODE_ADDRESS(_ca)) == (long)symbols[DODOES])) ? \
+      _ca+DOES_HANDLER_SIZE : 0L; })
 
 /* this is a special version of DOES_CODE for use in dodoes */
 #define DOES_CODE1(label)      (CODE_ADDRESS(label)+DOES_HANDLER_SIZE)

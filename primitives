@@ -1562,10 +1562,8 @@ c_addr = CODE_ADDRESS(xt);
 
 >does-code	xt -- a_addr		gforth	to_does_code
 ""If xt ist the execution token of a defining-word-defined word,
-a_addr is the start of the Forth code after the DOES>; Otherwise the
-behaviour is undefined""
-/* !! there is currently no way to determine whether a word is
-defining-word-defined */
+a_addr is the start of the Forth code after the DOES>;
+Otherwise a_addr is 0.""
 a_addr = (Cell *)DOES_CODE(xt);
 
 code-address!		c_addr xt --		gforth	code_address_store
