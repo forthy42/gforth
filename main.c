@@ -1,5 +1,5 @@
 /*
-  $Id: main.c,v 1.15 1994-10-24 19:16:02 anton Exp $
+  $Id: main.c,v 1.16 1994-11-15 15:55:40 pazsan Exp $
   Copyright 1993 by the ANSI figForth Development Group
 */
 
@@ -17,20 +17,20 @@
 #ifdef USE_GETOPT
 #  include "getopt.h"
 #else
-     extern int getopt (int argc, char *argv[], char *optstring);
+   extern int getopt (int , char * const [], const char *);
 
-     extern char *optarg;
-     extern int optind, opterr;
+   extern char *optarg;
+   extern int optind, opterr;
 #endif
 
 #ifndef DEFAULTPATH
-#	define DEFAULTPATH "/usr/local/lib/gforth:."
+#  define DEFAULTPATH "/usr/local/lib/gforth:."
 #endif
 
 #ifdef DIRECT_THREADED
-#	define CA(n)	(symbols[(n)])
+#  define CA(n)	(symbols[(n)])
 #else
-#	define CA(n)	((int)(symbols+(n)))
+#  define CA(n)	((int)(symbols+(n)))
 #endif
 
 #define maxaligned(n)	((((Cell)n)+sizeof(Float)-1)&-sizeof(Float))
@@ -49,6 +49,7 @@ char *progname;
  *   size of data and FP stack (in bytes)
  *   pointer to start of code
  *   pointer into throw (for signal handling)
+ *   pointer to dictionary
  *   data (size in image[1])
  *   tags (1 bit/data cell)
  *
@@ -64,73 +65,79 @@ char *progname;
 
 void relocate(Cell *image, char *bitstring, int size, Label symbols[])
 {
-   int i=0, j, k, steps=(size/sizeof(Cell))/8;
-   char bits;
+  int i=0, j, k, steps=(size/sizeof(Cell))/8;
+  char bits;
 /*   static char bits[8]={0x80,0x40,0x20,0x10,0x08,0x04,0x02,0x01};*/
    
-   for(k=0; k<=steps; k++)
-     for(j=0, bits=bitstring[k]; j<8; j++, i++, bits<<=1)
-       if(bits & 0x80)
-         if(image[i]<0)
-           switch(image[i])
-             {
-		case CF_NIL      : image[i]=0; break;
-		case CF(DOCOL)   :
-		case CF(DOVAR)   :
-		case CF(DOCON)   :
-		case CF(DOUSER)  : 
-		case CF(DODEFER) : MAKE_CF(image+i,symbols[CF(image[i])]); break;
-		case CF(DODOES)  : MAKE_DOES_CF(image+i,image[i+1]+((int)image));
-		                   break;
-		case CF(DOESJUMP): MAKE_DOES_HANDLER(image+i); break;
-		default          : image[i]=(Cell)CA(CF(image[i]));
-	     }
-         else
-           image[i]+=(Cell)image;
-
-   CACHE_FLUSH(image,size);
+  for(k=0; k<=steps; k++)
+    for(j=0, bits=bitstring[k]; j<8; j++, i++, bits<<=1)
+      if(bits & 0x80)
+	if(image[i]<0)
+	  switch(image[i])
+	    {
+	    case CF_NIL      : image[i]=0; break;
+	    case CF(DOCOL)   :
+	    case CF(DOVAR)   :
+	    case CF(DOCON)   :
+	    case CF(DOUSER)  : 
+	    case CF(DODEFER) : MAKE_CF(image+i,symbols[CF(image[i])]); break;
+	    case CF(DODOES)  : MAKE_DOES_CF(image+i,image[i+1]+((int)image));
+	      break;
+	    case CF(DOESJUMP): MAKE_DOES_HANDLER(image+i); break;
+	    default          : image[i]=(Cell)CA(CF(image[i]));
+	    }
+	else
+	  image[i]+=(Cell)image;
 }
 
 Cell *loader(FILE *imagefile)
 {
-	Cell header[3];
-	Cell *image;
-	int wholesize;
-	int imagesize; /* everything needed by the image */
+  Cell header[3];
+  Cell *image;
+  int wholesize;
+  int imagesize; /* everything needed by the image */
+  
+  fread(header,1,3*sizeof(Cell),imagefile);
+  if (dictsize==0)
+    dictsize = header[0];
+  if (dsize==0)
+    dsize=header[2];
+  if (rsize==0)
+    rsize=header[2];
+  if (fsize==0)
+    fsize=header[2];
+  if (lsize==0)
+    lsize=header[2];
+  dictsize=maxaligned(dictsize);
+  dsize=maxaligned(dsize);
+  rsize=maxaligned(rsize);
+  lsize=maxaligned(lsize);
+  fsize=maxaligned(fsize);
+  
+  wholesize = dictsize+dsize+rsize+fsize+lsize;
+  imagesize = header[1]+((header[1]-1)/sizeof(Cell))/8+1;
+  image=malloc(wholesize>imagesize?wholesize:imagesize);
+  memset(image,0,wholesize); /* why? - anton */
+  image[0]=header[0];
+  image[1]=header[1];
+  image[2]=header[2];
+  
+  fread(image+3,1,header[1]-3*sizeof(Cell),imagefile);
+  fread(((void *)image)+header[1],1,((header[1]-1)/sizeof(Cell))/8+1,
+	imagefile);
+  fclose(imagefile);
+  
+  if(image[5]==0) {
+    relocate(image,(char *)image+header[1],header[1],engine(0,0,0,0,0));
+  }
+  else if(image[5]!=(Cell)image) {
+    fprintf(stderr,"Corrupted image address, please recompile image\n");
+    exit(1);
+  }
 
-	fread(header,1,3*sizeof(Cell),imagefile);
-	if (dictsize==0)
-	  dictsize = header[0];
-	if (dsize==0)
-	  dsize=header[2];
-	if (rsize==0)
-	  rsize=header[2];
-	if (fsize==0)
-	  fsize=header[2];
-	if (lsize==0)
-	  lsize=header[2];
-	dictsize=maxaligned(dictsize);
-	dsize=maxaligned(dsize);
-	rsize=maxaligned(rsize);
-	lsize=maxaligned(lsize);
-	fsize=maxaligned(fsize);
-
-	wholesize = dictsize+dsize+rsize+fsize+lsize;
-	imagesize = header[1]+((header[1]-1)/sizeof(Cell))/8+1;
-	image=malloc(wholesize>imagesize?wholesize:imagesize);
-	memset(image,0,wholesize); /* why? - anton */
-	image[0]=header[0];
-	image[1]=header[1];
-	image[2]=header[2];
-
-	fread(image+3,1,header[1]-3*sizeof(Cell),imagefile);
-	fread(((void *)image)+header[1],1,((header[1]-1)/sizeof(Cell))/8+1,
-	      imagefile);
-	fclose(imagefile);
-
-	relocate(image,(char *)image+header[1],header[1],engine(0,0,0,0,0));
-
-	return(image);
+  CACHE_FLUSH(image,image[1]);
+  
+  return(image);
 }
 
 int go_forth(Cell *image, int stack, Cell *entries)
@@ -188,10 +195,10 @@ int convsize(char *s, int elemsize)
 
 int main(int argc, char **argv, char **env)
 {
-	char *path, *path1;
-	char *imagename="gforth.fi";
-	FILE *image_file;
-	int c, retvalue;
+  char *path, *path1;
+  char *imagename="gforth.fi";
+  FILE *image_file;
+  int c, retvalue;
 	  
 #if defined(i386) && defined(ALIGNMENT_CHECK) && !defined(DIRECT_THREADED)
 	/* turn on alignment checks on the 486.
@@ -199,76 +206,80 @@ int main(int argc, char **argv, char **env)
 	__asm__("pushfl; popl %eax; orl $0x40000, %eax; pushl %eax; popfl;");
 #endif
 
-	progname = argv[0];
-	if ((path=getenv("GFORTHPATH"))==NULL)
-	  path = strcpy(malloc(strlen(DEFAULTPATH)+1),DEFAULTPATH);
-	opterr=0;
-	while (1) {
-	  int option_index=0;
+  progname = argv[0];
+  if ((path=getenv("GFORTHPATH"))==NULL)
+    path = strcpy(malloc(strlen(DEFAULTPATH)+1),DEFAULTPATH);
+  opterr=0;
+  while (1) {
+    int option_index=0;
 #ifdef USE_GETOPT
-	  static struct option opts[] = {
-	    {"image-file", required_argument, NULL, 'i'},
-	    {"dictionary-size", required_argument, NULL, 'm'},
-	    {"data-stack-size", required_argument, NULL, 'd'},
-	    {"return-stack-size", required_argument, NULL, 'r'},
-	    {"fp-stack-size", required_argument, NULL, 'f'},
-	    {"locals-stack-size", required_argument, NULL, 'l'},
-	    {"path", required_argument, NULL, 'p'},
-	    {0,0,0,0}
-	    /* no-init-file, no-rc? */
-	  };
+    static struct option opts[] = {
+      {"image-file", required_argument, NULL, 'i'},
+      {"dictionary-size", required_argument, NULL, 'm'},
+      {"data-stack-size", required_argument, NULL, 'd'},
+      {"return-stack-size", required_argument, NULL, 'r'},
+      {"fp-stack-size", required_argument, NULL, 'f'},
+      {"locals-stack-size", required_argument, NULL, 'l'},
+      {"path", required_argument, NULL, 'p'},
+      {0,0,0,0}
+      /* no-init-file, no-rc? */
+    };
 
-	  c = getopt_long(argc, argv, "+mdrfl", opts, &option_index);
+    c = getopt_long(argc, argv, "i:m:d:r:f:l:p:", opts, &option_index);
 #else
-	  c = getopt(argc, argv, "imdrflp");
+    c = getopt(argc, argv, "i:m:d:r:f:l:p:");
 #endif
 
-	  if (c==EOF)
-	    break;
-	  if (c=='?') {
-	    optind--;
-	    break;
-	  }
-	  switch (c) {
-	  case 'i': imagename = optarg; break;
-	  case 'm': dictsize = convsize(optarg,sizeof(Cell)); break;
-	  case 'd': dsize = convsize(optarg,sizeof(Cell)); break;
-	  case 'r': rsize = convsize(optarg,sizeof(Cell)); break;
-	  case 'f': fsize = convsize(optarg,sizeof(Float)); break;
-	  case 'l': lsize = convsize(optarg,sizeof(Cell)); break;
-	  case 'p': path = optarg; break;
-	  }
-	}
-	path1=path;
-	do {
-	  char *pend=strchr(path, ':');
-	  if (pend==NULL)
-	    pend=path+strlen(path);
-	  if (strlen(path)==0) {
-	    fprintf(stderr,"%s: cannot open image file %s in path %s for reading\n", progname, imagename, path1);
-	    exit(1);
-	  }
-	  {
-	    int dirlen=pend-path;
-	    char fullfilename[dirlen+strlen(imagename)+2];
-	    memcpy(fullfilename, path, dirlen);
-	    if (fullfilename[dirlen-1]!='/')
-	      fullfilename[dirlen++]='/';
-	    strcpy(fullfilename+dirlen,imagename);
-	    image_file=fopen(fullfilename,"rb");
-	  }
-	  path=pend+(*pend==':');
-	} while (image_file==NULL);
-
-	{
-	  Cell environ[]= {(Cell)argc-(optind-1), (Cell)(argv+(optind-1)), (Cell)path1};
-	  argv[optind-1] = progname;
-/*
-	  for (i=0; i<environ[0]; i++)
-	    printf("%s\n", ((char **)(environ[1]))[i]);
-*/
-     retvalue=go_forth(loader(image_file),3,environ);
-     deprep_terminal();
-     exit(retvalue);
-	}
+    if (c==EOF)
+      break;
+    if (c=='?') {
+      optind--;
+      break;
+    }
+    switch (c) {
+    case 'i': imagename = optarg; break;
+    case 'm': dictsize = convsize(optarg,sizeof(Cell)); break;
+    case 'd': dsize = convsize(optarg,sizeof(Cell)); break;
+    case 'r': rsize = convsize(optarg,sizeof(Cell)); break;
+    case 'f': fsize = convsize(optarg,sizeof(Float)); break;
+    case 'l': lsize = convsize(optarg,sizeof(Cell)); break;
+    case 'p': path = optarg; break;
+    }
+  }
+  path1=path;
+  do {
+    char *pend=strchr(path, ':');
+    if (pend==NULL)
+      pend=path+strlen(path);
+    if (strlen(path)==0) {
+      fprintf(stderr,"%s: cannot open image file %s in path %s for reading\n",
+	      progname, imagename, path1);
+      exit(1);
+    }
+    {
+      int dirlen=pend-path;
+      char fullfilename[dirlen+strlen(imagename)+2];
+      memcpy(fullfilename, path, dirlen);
+      if (fullfilename[dirlen-1]!='/')
+	fullfilename[dirlen++]='/';
+      strcpy(fullfilename+dirlen,imagename);
+      image_file=fopen(fullfilename,"rb");
+    }
+    path=pend+(*pend==':');
+  } while (image_file==NULL);
+  
+  {
+    Cell environ[]= {
+      (Cell)argc-(optind-1),
+      (Cell)(argv+(optind-1)),
+      (Cell)path1};
+    argv[optind-1] = progname;
+    /*
+       for (i=0; i<environ[0]; i++)
+       printf("%s\n", ((char **)(environ[1]))[i]);
+       */
+    retvalue=go_forth(loader(image_file),3,environ);
+    deprep_terminal();
+    exit(retvalue);
+  }
 }

@@ -15,6 +15,11 @@
 
 s" gforth.history" get-history
 
+: history-cold  Defers 'cold
+  s" gforth.history" get-history ;
+
+' history-cold IS 'cold
+
 \ moving in history file                               16oct94py
 
 : clear-line ( max span addr pos1 -- max addr )

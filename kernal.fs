@@ -1,4 +1,4 @@
-\ KERNAL.FS    ANS figFORTH kernal                     17dec92py
+\ KERNAL.FS    GNU FORTH kernal                        17dec92py
 \ $ID:
 \ Idea and implementation: Bernd Paysan (py)
 \ Copyright 1992 by the ANSI figForth Development Group
@@ -1404,7 +1404,10 @@ Variable argc
 	THEN
     +LOOP ;
 
+Defer 'cold ' noop IS 'cold
+
 : cold ( -- )
+    'cold
     pathstring 2@ process-path pathdirs 2!
     argc @ 1 >
     IF

@@ -4,16 +4,16 @@ RM	= echo 'Trying to remove'
 GCC	= gcc
 FORTH	= gforth
 CC	= gcc
+MAKE = gmake
 XCFLAGS	=
 XDEFINES	=
-SWITCHES	= $(XCFLAGS) $(XDEFINES) -DDEFAULTBIN='"'`pwd`'"' \
-	#-DNDEBUG #turn off assertions
-CFLAGS	= -O4 -Wall -g $(SWITCHES)
+SWITCHES	= $(XCFLAGS) $(XDEFINES) -DDEFAULTBIN='"'`pwd`'"' #-DNDEBUG #turn off assertions
+CFLAGS	= -O4 -Wall $(SWITCHES)
 
 #-Xlinker -n puts text and data into the same 256M region
 #John Wavrik should use -Xlinker -N to get a writable text (executable)
 LDFLAGS	= -Xlinker -N
-LDLIBS = -lm
+LDLIBS	= -lm
 
 EMACS	= emacs
 
@@ -40,10 +40,16 @@ OBJECTS	= engine.o io.o main.o
 
 # things that need a working forth system to be generated
 # this is used for antidependences,
-FORTH_GEN = primitives.i prim_labels.i \
+FORTH_GEN = primitives.i prim_labels.i aliases.fs \
 	kernl32l.fi kernl32b.fi gforth.texi
 
-all:	gforth
+all:
+	if [ ! -x gforth ]; then $(MAKE) first; fi
+	$(MAKE) more
+
+first:	gforth
+
+more:	gforth $(FORTH_GEN)
 
 #from the gcc Makefile: 
 #"Deletion of files made during compilation.
@@ -69,7 +75,7 @@ realclean:	distclean
 #gforth.tar.gz:	$(SOURCES) $(GEN_PRECIOUS) CVS
 #		cd ..; tar cvf gforth/gforth.tar gforth/{$^}; gzip -9 gforth/gforth.tar
 
-gforth:	$(OBJECTS) $(FORTH_GEN)
+gforth:	$(OBJECTS)
 		-cp gforth gforth~
 		$(GCC) $(LDFLAGS) $(OBJECTS) $(LDLIBS) -o $@
 

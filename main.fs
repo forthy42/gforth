@@ -13,7 +13,7 @@ include cross.fs               \ include cross-compiler
 
 decimal
 
-256 KB makekernal , 0 , 0 , 0 A, 0 A,
+256 KB makekernal , 0 , 0 , 0 A, 0 A, 0 A,
 
 UNLOCK ghost - drop \ ghost must exist because - would be treated as number
 LOCK

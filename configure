@@ -84,6 +84,7 @@ host=
 build=
 name1=
 name2=
+debugging=-g
 
 for arg in $*;
 do
@@ -171,7 +172,11 @@ do
    | --direct-thre | --direct-thr | --direct-th | --direct-t | --direct- \
    | --direct | --direc | --dire | --dir | --di | --d)
     threading=-DDIRECT_THREADED
-	;;
+   ;;
+     -without-debug | --without-debu | --without-deb | --without-de \
+   | --without-d)
+    debugging=
+   ;;
      -with-* | --with-*) ;; #ignored
      -without-* | --without-*) ;; #ignored
      -enable-* | --enable-*) ;; #ignored
@@ -387,9 +392,11 @@ else
 	ln -s kernl32l.fi gforth.fi
 fi
 
-sed -e "s|^XCFLAGS[	]*=*\(.*\)$|XCFLAGS = \1 $flags|" \
-    -e "s|^XDEFINES[	]*=*\(.*\)$|XDEFINES = \1 $defines|" \
-    -e "s|^OBJECTS[	]*=*\(.*\)$|OBJECTS = \1 $extra_obs|" \
+sed -e "s|^XCFLAGS[	 ]*=*\(.*\)$|XCFLAGS	= \1 $flags|" \
+    -e "s|^XDEFINES[	 ]*=*\(.*\)$|XDEFINES	= \1 $defines|" \
+    -e "s|^OBJECTS[	 ]*=*\(.*\)$|OBJECTS	= \1 $extra_obs|" \
+    -e "s|^CFLAGS[	 ]*=*\(.*\)$|CFLAGS	= $debugging\1|" \
+    -e "s|^LDFLAGS[	 ]*=*\(.*\)$|LDFLAGS	= $debugging\1|" \
     Makefile.in > Makefile
 
 exit 0

@@ -91,6 +91,11 @@ Create hashsearch  ' hash-find A, ' hash-reveal A, ' (rehash) A,
 addall          \ Baum aufbauen
 \ Baumsuche ist installiert.
 
+: hash-cold  ( -- ) Defers 'cold
+  HashPointer off  HashTable off  HashIndex off
+  addall ;
+' hash-cold IS 'cold
+
 : .words  ( -- )
   base @ >r hex HashTable @  Hashlen 0
   DO  cr  i 2 .r ." : " dup i cells +

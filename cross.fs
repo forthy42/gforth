@@ -1,7 +1,7 @@
 \ CROSS.FS     The Cross-Compiler                      06oct92py
-\ $Id: cross.fs,v 1.14 1994-10-24 19:15:53 anton Exp $
+\ $Id: cross.fs,v 1.15 1994-11-15 15:55:34 pazsan Exp $
 \ Idea and implementation: Bernd Paysan (py)
-\ Copyright 1992 by the ANSI figForth Development Group
+\ Copyright 1992-94 by the GNU Forth Development Group
 
 \ Log:
 \       changed in ; [ to state off           12may93jaw
