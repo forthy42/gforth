@@ -119,17 +119,51 @@ that it does not use "long long":
 env ac_cv_sizeof_long_long=0 ./configure
 
 
-			Cross-Configuration
+			Cross-Installation
 
-A few tests made by the configure script do not work in a
+You need a cross-compilation toolchain for your target including gcc
+(2.0 or later).
+
+The first step in cross-installation is the cross-configuration.  A
+few tests made by the configure script do not work in a
 cross-compilation situation. You have to provide the results of these
 tests by hand. E.g., if you compile for a 386 architecture processor:
 
-env ac_cv_sizeof_char_p=4 ac_cv_sizeof_short=2 ac_cv_sizeof_int=4 ac_cv_sizeof_long=4 ac_cv_sizeof_long_long=8 ac_cv_c_bigendian=no ./configure
+env ac_cv_sizeof_char_p=4 ac_cv_sizeof_char=1 ac_cv_sizeof_short=2 ac_cv_sizeof_int=4 ac_cv_sizeof_long=4 ac_cv_sizeof_long_long=8 ac_cv_c_bigendian=no ./configure
 
 The ac_cv_sizeof_... variables give the sizes of various C types;
 ac_cv_sizeof_char_p is the same as "sizeof(char*)" in C code. The
 ac_cv_c_bigendian variable gives the byte order.
+
+After the cross-configuration you type
+
+make gforths
+
+This produces the gforth engines for the target.
+
+The next step is to transfer everything to the target; on the target,
+you do
+
+make
+
+to complete building gforth.  If you do not have a make on the target,
+run
+
+make -n
+
+on the host; manually execute on the target the last command output by
+"make -n" (GFORTHD=...); the other commands output by "make -n" are
+not necessary unless you have changed the Gforth sources.  You can
+then check and benchmark Gforth with
+
+make check
+make bench
+
+or equivalent.  Finally, perform
+
+make install
+
+or the equivalent commands on the target.
 
 
 		Preloading installation-specific code

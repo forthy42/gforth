@@ -35,17 +35,6 @@ AC_ARG_ENABLE(force-reg,
 			  but also incorrect code with some gcc versions on
 			  some processors (default disabled).],
 AC_DEFINE(FORCE_REG))
-dnl this is not quite according to the autoconf manual, it causes a replacement
-AC_ARG_ENABLE(direct-threaded,
-[  --enable-direct-threaded	Force direct threading. This may not work on
-				some machines and may cause slowdown on others.
-				(default processor-dependent)],
-AC_DEFINE(DIRECT_THREADED))
-AC_ARG_ENABLE(indirect-threaded,
-[  --enable-indirect-threaded	Force indirect threading. This can cause a
-				slowdown on some machines.
-				(default processor-dependent)],
-AC_DEFINE(INDIRECT_THREADED))
 
 AC_ARG_WITH(debug,
 [  --with-debug     specifies option -g to compile with debug info (default)
@@ -60,6 +49,10 @@ AC_ARG_WITH(peephole,
   --without-peephole	disables peephole optimization. Creates smaller,
 			but slower images.],
 PEEPHOLE="$withval")
+
+#currently we force direct threading this way.  Eventually we should
+#setup in the arch and engine files right
+AC_DEFINE(DIRECT_THREADED)
 
 CFLAGS=$CFLAGS
 

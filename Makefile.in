@@ -390,7 +390,7 @@ kernel/version.fs:	version
 	$(MAKE) gforth$(EXE)
 	echo ": version-string s\" $(VERSION)\" ;" > kernel/version.fs
 
-more:	engine $(FORTH_GEN) $(GEN)
+more:	engines $(FORTH_GEN) $(GEN)
 
 #from the gcc Makefile: 
 #"Deletion of files made during compilation.
@@ -677,6 +677,8 @@ gforth-ditc$(EXE):	engines
 
 gforth-prof$(EXE):	engines
 		$(CP) engine/$@ $@
+
+gforths: gforth$(EXE) gforth-fast$(EXE) gforth-ditc$(EXE) gforth-prof$(EXE)
 
 engines:	FORCE $(FORTH_GEN_ENGINE) engine/Makefile
 		cd engine && $(MAKE) gforth$(EXE) gforth-fast$(EXE) gforth-ditc$(EXE) gforth-prof$(EXE)
