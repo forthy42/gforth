@@ -192,10 +192,13 @@ has? OS [IF]
     postpone lit A, 
 [ [THEN] ] ; immediate restrict
 
+Defer char@ ( addr u -- char addr' u' )
+:noname  over c@ -rot 1 /string ; IS char@
+
 : char   ( '<spaces>ccc' -- c ) \ core
     \G Skip leading spaces. Parse the string @i{ccc} and return @i{c}, the
     \G display code representing the first character of @i{ccc}.
-    bl word char+ c@ ;
+    bl word count char@ 2drop ;
 
 : [char] ( compilation '<spaces>ccc' -- ; run-time -- c ) \ core bracket-char
     \G Compilation: skip leading spaces. Parse the string

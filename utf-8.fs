@@ -45,6 +45,12 @@ s" malformed UTF-8 character" exception Constant UTF-8-err
     REPEAT  $7F xor 2* or  r>
     BEGIN   over $80 u>= WHILE  tuck c! 1+  REPEAT  nip ;
 
+\ plug-in so that char and '<char> work for UTF-8
+
+:noname  ( addr u -- char addr' u' )
+    dup 1 u<= IF  defers char@  EXIT  THEN
+    over + >r u8@+ swap r> over - ; IS char@
+
 \ scan to next/previous character
 
 : u8>> ( u8addr -- u8addr' )

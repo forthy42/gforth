@@ -133,9 +133,8 @@ const Create bases   0A , 10 ,   2 ,   0A ,
     dup 0= if
 	false exit
     endif
-    over c@ >r
-    1 /string s" '" 2swap string-prefix?
-    r> 0 rot ;
+    char@ s" '" 2swap string-prefix?
+    0 swap ;
 
 : s>unumber? ( addr u -- ud flag )
     over c@ '' = if
