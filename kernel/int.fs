@@ -274,8 +274,8 @@ $20000000 constant restrict-mask
                           [ELSE] 0 1 cells 1- times c, [THEN]
 $1fffffff constant lcount-mask
 1 bits/char 3 - lshift 1 -
--1 cells allot  bigendian [IF]   c, $FF 1 cells 1- times
-                          [ELSE] $FF 1 cells 1- times c, [THEN]
+-1 cells allot  bigendian [IF]   c, -1 1 cells 1- times
+                          [ELSE] -1 1 cells 1- times c, [THEN]
 
 \ higher level parts of find
 
@@ -386,8 +386,8 @@ const Create ???  0 , 3 c, char ? c, char ? c, char ? c,
     $25 cell do ( cfa )
 	dup i - dup @ [ alias-mask lcount-mask or ] literal
 	[ 1 bits/char 3 - lshift 1 - 1 bits/char 1 - lshift or
-	-1 cells allot bigendian [IF]   c, $FF 1 cells 1- times
-	[ELSE] $FF 1 cells 1- times c, [THEN] ]
+	-1 cells allot bigendian [IF]   c, -1 1 cells 1- times
+	[ELSE] -1 1 cells 1- times c, [THEN] ]
 	and ( cfa len|alias )
 	swap + cell + cfaligned over alias-mask + =
 	if ( cfa )
@@ -406,8 +406,8 @@ const Create ???  0 , 3 c, char ? c, char ? c, char ? c,
     $25 cell do ( cfa )
 	dup i - dup @ [ alias-mask lcount-mask or ] literal
 	[ 1 bits/char 3 - lshift 1 - 1 bits/char 1 - lshift or
-	-1 cells allot bigendian [IF]   c, $FF 1 cells 1- times
-	[ELSE] $FF 1 cells 1- times c, [THEN] ]
+	-1 cells allot bigendian [IF]   c, -1 1 cells 1- times
+	[ELSE] -1 1 cells 1- times c, [THEN] ]
 	and ( cfa len|alias )
 	swap + cell + cfaligned over alias-mask + =
 	if ( cfa ) i - cell - unloop exit
