@@ -42,10 +42,6 @@ anton 30may01
 F. does not print trailing zeroes (e.g., "10 SET-PRECISION 125e f.")
 anton 31may01
 
-It may be useful for printing tables of FP numbers to have ways to
-control the number of digits before and after the decimal point.
-anton 31may01
-
 Block 0 does not work as it should: "0 block drop update save-buffers"
 does not write to the blocks file.  "0 block 1024 dump" seems to give
 the previous contents of the buffer.  Travis Bemann 10jul2001
@@ -56,9 +52,6 @@ filled with spaces (this is also documented).  However, when accessing
 a previously unwritten block before the end of the block file, we will
 get a block full of zeroes on most (all?) OSs.  This inconsistency
 should be eliminated and the documentation fixed.  anton 14jul2001
-
-F. does not print a leading digit for numbers <1, although it should.
-anton 19aug2001
 
 Path handling may have a bug:
 strace $FORTH 'fpath= .|~+/gforth s" /home/anton/threading-variations/gforth/mach32b.fs" include gforth/kernel/main.fs bye'

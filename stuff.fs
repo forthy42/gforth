@@ -236,21 +236,22 @@ AUser CSP
 
 : f.rdp ( rf +nr +nd +np -- ) \ gforth
 \G Print float @i{rf} formatted.  The total width of the output is
-\G @i{nr}, the number of digits after the decimal point is @i{+nd},
-\G the minimum number of significant digits for fixed-point notation
-\G is @i{np}.  @code{Set-precision} has no effect on @code{f.rdp}.
-\G Fixed-point notation is used if the number of siginicant digits
-\G would be at least @i{np} and if the number of digits before the
-\G decimal point would fit.  If fixed-point notation is not used,
-\G exponential notation is used, and if that does not fit, asterisks
-\G are printed.  We recommend using @i{nr}>=7 to avoid the risk of
-\G numbers not fitting at all.  We recommend @i{nr}>=@i{np}+5 to avoid
-\G cases where @code{f.rdp} switches to exponential notation because
-\G fixed-point notation would have too few significant digits, yet
-\G exponential notation offers fewer significant digits.  We recommend
-\G @i{nr}>=@i{nd}+2, if you want to have fixed-point notation for some
-\G numbers.  We recommend @i{np}>@i{nr}, if you want to have
-\G exponential notation for all numbers.
+\G @i{nr}.  For fixed-point notation, the number of digits after the
+\G decimal point is @i{+nd} and the minimum number of significant
+\G digits is @i{np}.  @code{Set-precision} has no effect on
+\G @code{f.rdp}.  Fixed-point notation is used if the number of
+\G siginicant digits would be at least @i{np} and if the number of
+\G digits before the decimal point would fit.  If fixed-point notation
+\G is not used, exponential notation is used, and if that does not
+\G fit, asterisks are printed.  We recommend using @i{nr}>=7 to avoid
+\G the risk of numbers not fitting at all.  We recommend
+\G @i{nr}>=@i{np}+5 to avoid cases where @code{f.rdp} switches to
+\G exponential notation because fixed-point notation would have too
+\G few significant digits, yet exponential notation offers fewer
+\G significant digits.  We recommend @i{nr}>=@i{nd}+2, if you want to
+\G have fixed-point notation for some numbers.  We recommend
+\G @i{np}>@i{nr}, if you want to have exponential notation for all
+\G numbers.
     f>str-rdp type ;
 
 0 [if]

@@ -1,3 +1,1623 @@
+2003-02-02  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* vmgen-ex/support.c, vmgen-ex2/support.c, README, engine/signals.c, test/signals.fs:
+	portability bugfixes
+	use SA_ONSTACK for all program-generated signals
+	updated README
+
+2003-02-01  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* vmgen-ex/Makefile, vmgen-ex2/Makefile, configure.in, testdist:
+	updated version number and date
+	minor changes
+
+	* testdist, vmgen-ex/mini.l, vmgen-ex2/mini.l:
+	portability bugfixes, minor changes
+
+	* kernel/int.fs, vmgen-ex/Makefile, vmgen-ex/profile.c, vmgen-ex2/Makefile, vmgen-ex2/profile.c, arch/hppa/cache.c, arch/hppa/machine.h, engine/main.c, engine/signals.c, testall, Makefile.in, prims2x.fs:
+	portability changes
+	bugfixes in prims2x.fs, kernel/int.fs
+
+2003-01-31  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* arch/hppa/machine.h, configure.in, extend.fs, testall:
+	fixed some portability bugs
+
+2003-01-30  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* prims2x.fs: bugfix in prims2x.fs sync line handling
+
+	* vmgen-ex2/Makefile, arch/hppa/cache.c, arch/hppa/machine.h, engine/main.c, prims2x.fs, vmgen-ex/Makefile, configure.in:
+	eliminated some (hopefully outdated) hppa special treatments
+	rewrote hppa cacheflush
+	prims2x can now process CRLF inputs (but the output is partly unixified)
+	prims2x can now process several sync lines in sequence
+	minor fixes
+
+	* vmgen-ex/Makefile, vmgen-ex2/Makefile, engine/Makefile.in, engine/main.c, Makefile.in, configure.in, testall:
+	fixed some portability bugs and other minor bugs
+
+2003-01-27  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* Makefile.in, configure.in: some changes for cygwin
+
+	* Makefile.in, configure.in, engine/Makefile.in, mkdosmf.sed, mkos2mf.sed:
+	replaced configure variable EXE with EXEEXT (provided by autoconf by default)
+
+	* engine/Makefile.in, engine/engine.c, engine/forth.h, engine/main.c, engine/support.c:
+	minor changes (64-bit-cleanups)
+
+	* configure.in: updated version number and date
+
+2003-01-26  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* engine/engine.c, engine/memcmpc.c:
+	removed engine/memcmpc.c (now in support.c)
+	removed unused stuff
+
+	* engine/Makefile.in, engine/engine.c, engine/forth.h, engine/memcmpc.c, engine/support.c, kernel/int.fs, test/string.fs, configure.in, ds2texi.fs, extend.fs, float.fs, history.fs, prim, see.fs, stuff.fs, Makefile.in:
+	use AC_SYS_LARGEFILE instead of declaring this stuff unconditionally
+	moved memcasecmp() into support.c
+	eliminated -TEXT (all uses replaced, except within prim)
+	converted CAPSCOMP and -TRAILING into high-level words
+	folded C code for more complex primitives into support.c
+	Fliterals are now decompiled ok
+	f.rdp etc. documentation changes
+	added test cases for SEARCH
+
+	* Makefile.in, engine/main.c: minor changes
+
+2003-01-25  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* test/gforth.fs: bugfix in test/gforth.fs
+
+	* ans-report.fs, stuff.fs: converted ans-report.fs to absolute branches
+	changed comments for f.rdp etc.
+
+	* Makefile.in, test/gforth.fs: added test cases for f>str-rdp
+
+	* prim, stuff.fs:
+	bugfixes and improvements for f.rdp, represent, and friends
+
+2003-01-24  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* prim, startup.fs, stuff.fs: added F.RDP F>STR-RDP F>BUF-RDP
+
+2003-01-23  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* prim, quotes.fs: REPRESENT bugfix
+	new escape sequence \q (equivalent to \").
+
+2003-01-22  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* kernel/int.fs, stuff.fs: added ]] ... [[
+	fixed compile-only error message
+
+	* INSTALL, configure.in:
+	Declared some environment variables in configure.in
+	cleaned up PEEPHOLE configuration options (no longer used in C code)
+	related documentation changes in INSTALL
+
+	* configure.in, kernel/input.fs, kernel/require.fs, stamp-h.in, stuff.fs:
+	disabled long long on PPC (buggy in some gcc versions).
+	implemented EXECUTE-PARSING-FILE (new-input only).
+
+	* kernel/input.fs: added EXECUTE-PARSING
+
+	* kernel/require.fs, blocks.fs, kernel/files.fs, kernel/int.fs, source.fs, wf.fs:
+	factored out saving and restoring loadfilename (not relevant for new-input)
+
+2003-01-21  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* doc/gforth.ds, source.fs: loadfilename#>str is now safer
+	documented the interaction of markers and ~~ and assertions
+
+2003-01-20  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* kernel/require.fs, source.fs:
+	replaced "*a file*" etc. with "*somewhere*"
+
+	* blocks.fs, kernel/files.fs, kernel/input.fs, kernel/int.fs, kernel/require.fs, kernel/vars.fs, source.fs, wf.fs:
+	replaced loadfilename# with loadfilename (bugfix)
+
+	* kernel/int.fs, kernel/io.fs, kernel/main.fs, kernel/nio.fs, kernel/paths.fs, kernel/require.fs, kernel/toolsext.fs, kernel/vars.fs, engine/signals.c, engine/support.c, kernel/args.fs, kernel/basics.fs, kernel/comp.fs, kernel/cond.fs, kernel/files.fs, engine/Makefile.in, engine/engine.c, engine/forth.h, engine/main.c, arch/mips/machine.h, arch/power/machine.h, arch/sparc/machine.h, doc/gforth.ds, arch/386/machine.h, arch/alpha/machine.h, arch/m68k/machine.h, prims2x.fs, search.fs, startup.fs, struct.fs, vt100key.fs, wordinfo.fs, configure.in, cross.fs, debug.fs, doskey.fs, environ.fs, extend.fs, glocals.fs, hash.fs, look.fs, machpc.fs.in, Makedist.in, Makefile.in, blocks.fs:
+	undid changes to copyright notices
+
+2003-01-19  pazsan  <pazsan@TK147097.tuwien.teleweb.at>
+
+	* kernel/int.fs, kernel/io.fs, kernel/main.fs, kernel/nio.fs, kernel/paths.fs, kernel/require.fs, kernel/toolsext.fs, kernel/vars.fs, engine/forth.h, engine/main.c, engine/signals.c, engine/support.c, kernel/args.fs, kernel/basics.fs, kernel/comp.fs, kernel/cond.fs, kernel/files.fs, kernel/input.fs, engine/engine.c, doc/gforth.ds, engine/Makefile.in, arch/386/machine.h, arch/alpha/machine.h, arch/m68k/machine.h, arch/mips/machine.h, arch/power/machine.h, arch/sparc/machine.h, look.fs, machpc.fs, machpc.fs.in, prims2x.fs, search.fs, startup.fs, struct.fs, vt100key.fs, wordinfo.fs, blocks.fs, configure.in, cross.fs, debug.fs, doskey.fs, environ.fs, extend.fs, glocals.fs, hash.fs, Makedist.in, Makefile.in:
+	Updated copyright notices
+	Added stack effects to kernel/input.fs
+
+2003-01-18  pazsan  <pazsan@TK147097.tuwien.teleweb.at>
+
+	* configure.in, kernel/int.fs:
+	Added intptr_t and int128_t to types to be checked
+	Changed boot message copyright date
+
+2003-01-14  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* engine/main.c: flush_to_here now not called on superblock ends
+
+	* engine/forth.h, engine/main.c, kernel/comp.fs, code.fs, configure.in:
+	Icache-flushing is now not performed on generating a NEXT, just on the
+	   end of a definition through finish-code.
+	Eliminated MIPS linker testing (not necessary with hybrid D/ITC).
+	--no-dynamic is default on systems that don't define FLUSH_ICACHE.
+
+2003-01-10  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* Makefile.in, engine/Makefile.in, kernel/comp.fs, kernel/int.fs, prim:
+	eliminated all greedy static superinstruction stuff (we will use something
+	  else for static superinstructions eventually)
+	eliminated PRIMTABLE PREPARE-PEEPHOLE-TABLE PEEPHOLE-OPT COMPILE-PRIM
+
+	* engine/forth.h, engine/main.c, kernel/int.fs, prim:
+	moved DOES-HANDLER! from prim to kernel/int.fs
+	eliminated MAKE_DOES_HANDLER
+
+	* ans-report.fs, engine/main.c, prim:
+	deleted unused prims (HASHKEY) and COMPILE-PRIM
+
+2003-01-08  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* kernel/int.fs, prim:
+	moved CODE-ADDRESS! DOES-CODE! /DOES-HANDLER from prim to kernel/int.fs
+
+	* engine/forth.h, kernel/getdoers.fs, kernel/int.fs, prim:
+	moved >code-address and >does-code from prim to kernel/int.fs
+
+	* kernel/int.fs, prim: moved >BODY from prim to kernel/int.fs
+
+	* prim: kludged NEWLINE portability bug
+
+2003-01-07  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* engine/forth.h, engine/main.c, engine/threaded.h, prim:
+	changes to eliminate gcc warnings
+
+	* arch/mips/machine.h, arch/power/machine.h, arch/sparc/machine.h, engine/signals.c, arch/386/machine.h, arch/alpha/machine.h, arch/hppa/machine.h, arch/m68k/machine.h, configure.in, Makefile.in:
+	Some changes for portability to AIX and Darwin
+	Eliminated the (non-hybrid) direct threading stuff from arch/*/machine.h
+
+2003-01-06  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* backtrac.fs, look.fs, see.fs, test/other.fs:
+	Changed interfaces of PRIM>NAME THREADED>NAME to be like >NAME.
+
+	* Makefile.in, configure.in:
+	added dependence on engine/config.h (for automatic autoheader call)
+	removed most feature test macro definitions (problems with Darwin)
+	dynamic is now default for all gcc versions
+	various changes to configure.in (for Darwin, ia64, m68k, generic)
+
+2003-01-04  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* test/other.fs, backtrac.fs, look.fs, see.fs:
+	bugfix: LOOK works again for xts of primitives
+	new words: threaded>xt, prim>name, threaded>name (stack effect not final)
+
+2003-01-03  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* engine/forth.h, engine/main.c, machpc.fs, machpc.fs.in:
+	undid the unnecessary/broken stuff Bernd has done
+	moved a change from machpc.fs to machpc.fs.in
+	removed machpc.fs (generated file)
+
+2003-01-03  pazsan  <pazsan@TK147097.tuwien.teleweb.at>
+
+	* engine/forth.h, kernel/basics.fs, kernel/main.fs, Makefile.in, arch/4stack/mach.fs, arch/4stack/prim.fs, arch/4stack/relocate.fs, arch/misc/mach.fs, arch/misc/prim.fs, cross.fs, machpc.fs:
+	Made 4stack port of Gforth EC work again
+
+2003-01-03  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* arch/generic/machine.h, arch/power/machine.h, engine/threaded.h:
+	PPC fixes and speedups
+
+2003-01-02  pazsan  <pazsan@TK147097.tuwien.teleweb.at>
+
+	* Makefile.in, engine/main.c, engine/threaded.h, kernel/accept.fs, look.fs:
+	Fixed look problem
+	Added benchmarking of all engines
+
+2003-01-02  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* engine/main.c, engine/support.c, prim:
+	Alpha bug workaround (disabled ALIGN_CODE)
+	fixed bugs in F>D and D>F
+
+	* engine/forth.h:
+	support for small (cell-sized or smaller) off_t on machines without proper
+	  double-cell type; typically needed on 64-bit machines.
+
+	* configure.in, engine/forth.h:
+	feature test macros now defined in configure.in (so the tests see them) instead
+	  of engine/forth.h
+	Testing for size of off_t
+
+2003-01-01  pazsan  <pazsan@TK147097.tuwien.teleweb.at>
+
+	* kernel/cond.fs, kernel/input.fs, cross.fs, prim, see-ext.fs, see.fs:
+	Cleaned up prim file (only one soft of branches, grouping)
+	Added auto-expanding tib for file reading - the terminal line length remains
+	limited.
+
+2002-12-31  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* engine/Makefile.in:
+	dependence for engine/prim_grp.i in engine/Makefile.in
+
+	* Makefile.in, engine/engine.c, engine/main.c, prims2x.fs:
+	restored the old engine/prim_lab.i format (for vmgen compatibility)
+	introduced engine/prim_grp.i for the new use
+
+	* prims2x.fs:
+	vmgen: introduced STACK-ACCESS-TRANSFORM to support upward-growing stacks.
+
+2002-12-30  pazsan  <pazsan@TK147097.tuwien.teleweb.at>
+
+	* prim: Forth replacement for absolute branch
+
+2002-12-28  pazsan  <pazsan@TK147097.tuwien.teleweb.at>
+
+	* engine/engine.c, engine/forth.h, engine/main.c, engine/threaded.h, filedump.fs, prim, prims2x.fs, Makefile.in, comp-i.fs, cross.fs:
+	First inclusion of group-based primitive tokens (no reordering happend yet)
+
+2002-12-27  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* engine/main.c, comp-i.fs, cross.fs: increased image version
+
+	* prim, prims2x.fs:
+	prims2x: INST_TAIL now produces NEXT_P2 again by default
+
+	* Makefile.in, engine/Makefile.in, prims2x.fs, vmgen-ex/mini.h, vmgen-ex2/mini.h:
+	some fixes to make make dist work
+	bugfixes to make building outside srcdir work
+	minor prims2x.fs bugfix (for vmgen-ex)
+	vmgen-ex[2] bugfix
+
+	* configure.in: modernized configure.in (with the help of autoupdate)
+
+	* doc/version.texi.in, engine/Makefile.in, engine/main.c, kernel/args.fs, doc/gforth.ds, mkos2mf.sed, vmgen.in, Makefile.in, README, acinclude.m4, configure.in, extend.fs, gforth.lsm, gforthmi.in, mkdosmf.sed:
+	replaced some automake macros with autoconf macros; related changes in
+	  autoconf variables (e.g., @VERSION@ -> @PACKAGE_VERSION@)
+	gforth-prof and gforth-native are now not built by default
+	modernized "Automatic Remaking" section of Makefile.in
+	Updated bug reporting instructions
+	Eliminated use of old bug reporting email address
+
+2002-12-26  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* code.fs, kernel/basics.fs, kernel/comp.fs, kernel/int.fs, stuff.fs, Makefile.in:
+	made CODE and ;CODE work again
+
+	* see-ext.fs, see.fs, startup.fs:
+	SEE now works again for control structures and strings
+
+2002-12-25  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* kernel/comp.fs, see.fs: worked on SEE
+	COMPILE, now produces LIT@ and LIT+ again
+
+	* blocks.fs, kernel/paths.fs:
+	Limit blocks files to 2GB (to avoid catastrphic interaction with gforth<0.6.0)
+	blocks bugfixes: OPEN-BLOCKS tries to avoid deleting existing blocks files
+	  SAVE-BUFFERS stack underflow fixed
+
+2002-12-24  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* engine/forth.h, engine/io.c, engine/main.c, engine/memcmpc.c, engine/profile.c, engine/signals.c, configure.in, engine/engine.c, prim:
+	Gforth now supports large files (>2GB) on small machines (32-bits/cell).
+	forth.h now asks for all kinds of POSIX, X/Open, and GNU support.
+	rearranged include files such that forth.h precedes the system files.
+
+	* elisp-comp, engine/main.c, install-sh, missing, mkinstalldirs, configure.in:
+	some configure.in cleanups.  In particular, I replaced all echos with
+	  AC_MSG_... macros.
+	The gcc version (for disabling dynamic code) is now checked in configure (not
+	  when compiling main.c)
+	updated elisp-comp install-sh missing mkinstalldirs from autoconf-2.54
+
+2002-12-23  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* engine/engine.c, configure.in:
+	the skipping code for engine2 is now checked with configure
+
+2002-12-22  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* engine/threaded.h:
+	cfa is now killed in NEXT_P2 in some direct threading schemes (for better
+	  register allocation)
+
+2002-12-21  pazsan  <pazsan@TK147097.tuwien.teleweb.at>
+
+	* extend.fs, gforth.el, look.fs: gforth.el: LEAVE ?LEAVE
+	rest: made compilable with gforth 0.5.0
+
+2002-12-21  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* arch/386/machine.h, engine/engine.c:
+	minimized differences between engine and engine2 to avoid register
+	  allocation differences
+	disabled USE_TOS on 386 without FORCE_REG (otherwise sp is spilled)
+
+	* BUILD-FROM-SCRATCH: some more BUILD-FROM-SCRATCH refinements
+
+	* BUILD-FROM-SCRATCH, Makefile.in: refined BUILD-FROM-SCRATCH
+
+2002-12-19  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* prim: compile-prim is now obsolete
+
+	* kernel/comp.fs, engine/main.c:
+	"compile," now uses compile-prim1 instead of compile-prim
+	disablesd compile-prim
+
+	* engine/Makefile.in, engine/engine.c:
+	each engine is now compiled separately; unfortunately, the problem with
+	  lots of differences between engine and engine2 in gforth-fast on i386 without
+	  force-reg persists
+
+	* engine/engine.c, engine/forth.h, engine/main.c:
+	moved global/static vars from engine.c into main.c (to avoid duplicating them)
+
+	* engine/support.c, doc/gforth.ds, engine/Makefile.in, engine/engine.c:
+	moved all functions except engine() out of engine.c into (new file) support.c
+	minor documentation changes (suggested by John A. Peters <japeters@pacbell.net>)
+
+2002-12-16  pazsan  <pazsan@TK147097.tuwien.teleweb.at>
+
+	* prim: Made the hash shift array static
+
+2002-12-15  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* Makefile.in, engine/main.c:
+	"make check" now checks all engines and some variations
+	bugfix in forget-dyncode
+
+	* engine/engine.c, engine/rint.c, test/float.fs, configure.in, float.fs, prim:
+	fround is a primitive again
+	rint replacement function written
+
+2002-12-14  pazsan  <pazsan@TK147097.tuwien.teleweb.at>
+
+	* cross.fs, kernel/quotes.fs, machpc.fs, machpc.fs.in:
+	Changed string compilation to not use the return stack to skipp the string
+	added control-rack property to specify if the return stack does point to
+	control-relevant information
+
+2002-12-13  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* engine/main.c: bugfixes in DECOMPILE-PRIM (no crash on non-address,
+	   find @ instead of >code-address etc.)
+
+	* engine/main.c, kernel/int.fs, look.fs, see.fs, simp-see.fs:
+	implemented DECOMPILE-PRIM and use it in (LOOK); SIMPLE-SEE works again
+	minor bugfix in SIMPLE-SEE
+	HEAD? now delivers 1 on likely-false positives
+
+	* engine/forth.h, engine/main.c, extend.fs, prim:
+	dynamically generated code is now (sort of) released on executing a MARKER
+
+2002-12-08  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* engine/main.c: code_area now allocated on demand (unlimited size)
+	some refactoring in dynamic code generation
+
+	* engine/Makefile.in, engine/main.c, Makefile.in, prims2x.fs:
+	now engine/prim_num.i is generated, and used in main.c (for main-native.o)
+
+2002-12-07  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* hash.fs:
+	the limit for hash table doubling is now an average 2 entries/bucket
+
+	* engine/main.c: bugfix ("gforth" crashed, "./gforth" didn't)
+
+2002-12-05  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* ToDo-native, except.fs, float.fs, see-ext.fs:
+	TRY should now be partially ready forth gforth-native
+	FLITERAL should be ready for gforth-native
+
+2002-12-04  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* assert.fs, debugs.fs, doc/gforth.ds, source.fs:
+	source positions are now passed through literals instead of using
+	  return stack tricks; appropriate changes in the users of source.fs.
+
+	* kernel/quotes.fs, quotes.fs, see.fs, extend.fs:
+	eliminated all uses of "lit (abort") (s") (.") outside cross.fs, except one
+	eliminated (c"); cliteral is now in the kernel.
+
+2002-12-03  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* kernel/comp.fs, kernel/quotes.fs, prim: New word: "MEM,"
+	new implementations of CLITERAL (independent of threaded code size) and
+	   SLITERAL (also can deal with long strings now)
+
+2002-11-24  pazsan  <pazsan@TK147097.tuwien.teleweb.at>
+
+	* acconfig.h:
+	Deleted acconfig.h after cleaning up configure (no longer needed)
+
+	* configure.in: Cleaned up configuring
+
+	* acconfig.h, configure.in, engine/main.c:
+	Added check for directory separation
+
+	* hash.fs:
+	Added tracking of the number of hash table entries and doubling the hash
+	size when this number exceeds the number of buckets
+
+2002-11-24  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* engine/threaded.h, kernel/basics.fs, kernel/comp.fs, kernel/quotes.fs, arch/386/machine.h, engine/Makefile.in, engine/engine.c, engine/forth.h, engine/main.c, prims2x.fs, Makefile.in, prim:
+	new engine gforth-native (works on 386 arch only for now).
+	  appropriate changes in control-flow instructions in prim
+	  new primitives SET-NEXT-CODE and CALL2 (not necessary for the other engines)
+	  new primitives COMPILE-PRIM1 and FINISH-CODE
+	  prims2x.fs now produces IMMARG(...) macros for initializing immediate args
+	  prims2x.fs: changes in some of the output-c-tail words (goes with the
+	     changes in the control-flow words).
+	  appropriate changes in engine.c
+	  engine.c: rewrite of check_prims, support for gforth-native (NO_IP)
+	  threaded.c: support for NO_IP
+	  various kernel files: started to eliminate return stack manipulations for
+	    embedding data (e.g. string literals); incomplete.
+	dynamic superinstructions now use LABEL2 instead of IS_NEXT_JUMP
+	FORCE_REG has no effect if DOUBLY_INDIRECT (gcc-2.95.1 crashes otherwise;
+	   it's unclear which change provoked this).
+
+2002-11-10  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* engine/engine.c, engine/forth.h, engine/main.c:
+	No engine2 and other dynamic stuff is compiled for gforth-itc, -iditc, -prof
+
+2002-11-02  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* test/float.fs, Makefile.in, engine/signals.c, float.fs:
+	New file test/float.fs
+	FROUND-OFFSET now defined without f**
+	bugfix in signals (disabled SA_ONSTACK in most cases to allow graceful_exit).
+
+2002-10-27  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* engine/signals.c, prim, float.fs:
+	FROUND is now implemented in high-level Forth.
+	  The primitive is now called "(FROUND)".
+
+2002-10-26  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* engine/signals.c: work around missing MacOS X FPE_... si_codes
+
+2002-10-25  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* engine/main.c, engine/signals.c, engine/forth.h:
+	Gforth now survives destruction of the C stack pointer (it now uses
+	  sigaltstack() to set up signal handling on another stack).
+
+2002-10-12  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* peeprules.vmg: emptied peeprules.vmg again
+
+	* peeprules.vmg, prims2x.fs:
+	bugfix (use of inst-pointer-update left stack items)
+	bugfix (now no debugging output at superinstruction end)
+	refactored output-c-tail...
+
+	* prims2x.fs:
+	In superinstructions, move stores into the last part writing to the stack item.
+
+	* prims2x.fs:
+	Stack loads in superinstructions are now delayed until the part that needs them
+
+2002-10-07  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* config.guess, config.sub:
+	config.guess and config.sub from autoconf-2.54
+
+2002-10-04  pazsan  <pazsan@TK147097.tuwien.teleweb.at>
+
+	* engine/main.c, configure.in, prim, prims2x.fs: Fixes for GCC 3.2
+
+2002-10-02  jwilke  <jwilke@TK147097.tuwien.teleweb.at>
+
+	* arch/misc/asm.fs: warn if end-label / end-code is missing
+
+	* arch/misc/prim.fs: fix: missing end-label statements
+
+	* arch/misc/optcmove.fs: added
+
+	* arch/misc/mach.fs, arch/misc/sim.fs: romable feature
+
+	* arch/misc/asm.fs: added txd io stuff
+
+2002-09-26  jwilke  <jwilke@TK147097.tuwien.teleweb.at>
+
+	* cross.fs:
+	If abranch option is on we compiler abranch, a?branch, a(do), ...
+	(instead of branch, ...) and use absolute addresses for branch
+	targets.
+
+	* machpc.fs.in, machpc.fs: added abranch option
+
+2002-09-24  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* kernel/cond.fs, except.fs:
+	replace all uses of relative branches with absolute branches
+	  Exception: cross still produces relative branches in the kernel.
+
+	* prim: added absolute versions of all relative branches
+	  I am not sure if I got conditional compilation right.
+	  I left the Forth code for acondbranch alone because I don't know
+	    what may be used there.
+
+	* prim: changed lit+ and lit@ into simple primitives
+
+2002-09-22  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* prims2x.fs: added include-skipped-insts to prims2x.fs
+
+	* Makefile.in, prims2x.fs:
+	Changed creation of engine/super.i into engine/costs.i, which contains
+	   all primitives, not just superinstructions; costs now work (mostly)
+
+	* doc/vmgen.texi, Makefile.in, prims2x.fs:
+	Added generation of engine/supers.i
+	Deleted generation of kernel/peephole.fs
+
+2002-09-19  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* engine/Makefile.in, engine/main.c:
+	Disabled dynamic native code generation for gcc >=3.1
+	added flag --dynamic
+
+2002-09-15  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* test/other.fs, engine/main.c:
+	Bugfixes: compile_prim now flushes the I-cache; fixed test case
+
+2002-09-14  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* look.fs, see.fs:
+	bugfix: (complex) SEE now works (output quality could be improved, though).
+
+	* look.fs: bugfix: simple decompilation of static hybrid threaded code
+
+	* blocks.fs, compat/strcomp.fs, engine/forth.h, startup.fs:
+	fixed bugs in compat/strcomp.fs and its usage
+
+	* kernel/comp.fs, kernel/paths.fs, kernel/require.fs, compat/strcomp.fs, kernel/args.fs, kernel/basics.fs, savesys.fs, startup.fs, stuff.fs, wf.fs, fi2c.fs, glocals.fs, history.fs, httpd.fs, locate.fs, oof.fs, prims2x.fs, proxy.fs, quotes.fs, Makefile.in, cross.fs, ds2texi.fs:
+	Added compat/strcomp.fs, introducing STR=, STRING-PREFIX?, and STR<
+	replaced most occurences of COMPARE with STR= and STRING-PREFIX?
+
+2002-09-01  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* doc/vmgen.texi, engine/main.c, configure.in: changed version
+	disabled dynamic code generation for now (problems with gcc-3.2).
+	documentation changes
+
+2002-08-28  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* doc/vmgen.texi, prim, prims2x.fs:
+	Made store optimization optional (default off), and documented it
+
+	* engine/main.c, engine/Makefile.in, engine/engine.c, engine/forth.h, arch/386/machine.h, arch/generic/machine.h, doc/gforth.ds, testdist:
+	gforth now stores a local ip to saved_ip instead of using a global ip
+	  associated changes in register allocation, threading, documentation
+	testdist now also tests vmgen and vmgen-ex
+
+2002-08-22  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* README, README.vmgen, configure.in, cross.fs, doc/vmgen.texi, Makefile.in:
+	Getting ready for the Vmgen release
+	New snapshot dates, various documentation changes, Makefile and configure fixes
+
+2002-08-21  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* doc/vmgen.texi: documentation changes
+
+	* vmgen-ex2/Makefile, vmgen-ex2/engine.c, vmgen-ex/Makefile, vmgen-ex/engine.c:
+	made all threading schemes run in vmgen-ex*
+
+2002-08-20  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* Makefile.in, doc/vmgen.texi, prims2x.fs, vmgen.in:
+	prims2x.fs now outputs #line directives at the end of the user C code
+	documentation changes
+
+	* vmgen-ex/engine.c, vmgen-ex/mini-inst.vmg, vmgen-ex2/engine.c, vmgen-ex2/mini-inst.vmg, doc/vmgen.texi, prims2x.fs, vmgen.in:
+	prims2x.fs changes: now supports C code delimited by braces;
+	                    Forth or C names for primitives depending on [ifdef] vmgen
+	Documentation changes
+	adapted vmgen-ex* to earlier prims2x.fs changes
+
+2002-08-19  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* doc/vmgen.texi, engine/engine.c, prim, prims2x.fs:
+	Vmgen documentation changes
+	Small changes in Vmgen and related changes in prim and engine/engine.c
+
+2002-08-16  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* doc/version.texi.in, doc/vmgen.texi, Makefile.in, configure.in:
+	Documentation changes
+
+2002-08-14  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* Makefile.in, doc/texinfo.tex, doc/vmgen.texi:
+	vmgen documentation changes
+
+2002-08-13  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* COPYING.DOC, Makefile.in, doc/fdl.texi, doc/vmgen.texi:
+	documentation changes
+
+2002-08-12  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* stuff.fs: added str= and string-prefix?
+
+2002-08-09  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* engine/engine.c, Benchres, doc/vmgen.texi, prims2x.fs:
+	added LABEL2 generation to prims2x.fs for future portable superinstructions
+
+2002-08-08  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* doc/vmgen.texi: documentation changes
+
+	* doc/vmgen.texi: more documentation
+
+2002-08-07  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* doc/vmgen.texi: documentation changes
+
+	* vmgen-ex/engine.c, vmgen-ex/mini.h: more disassembly stuff
+
+	* vmgen-ex2/disasm.c, vmgen-ex2/engine.c, vmgen-ex2/mini.h, prims2x.fs, vmgen-ex/disasm.c, vmgen-ex/engine.c, vmgen-ex/mini.h:
+	VM disassembler now prints immediate arguments nicely
+
+2002-08-01  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* doc/gforth.1, doc/vmgen.texi: documentation changes
+
+2002-07-30  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* vmgen-ex/README, vmgen-ex/engine.c, vmgen-ex/mini-super.vmg, vmgen-ex/mini.h, vmgen-ex/peephole.c, vmgen-ex/support.c, vmgen-ex2/README, vmgen-ex2/mini-super.vmg, vmgen-ex2/mini.h, vmgen-ex2/peephole.c, vmgen-ex2/support.c:
+	profiling now turns off superinstructions in vmgen-ex*
+
+2002-07-26  pazsan  <pazsan@TK147097.tuwien.teleweb.at>
+
+	* wf.fs: Old version of parse-string for Gforth 0.5.0 added
+
+2002-07-12  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* tags.fs: fixes (thanks to Erik Rossen)
+
+2002-06-17  pazsan  <pazsan@TK147097.tuwien.teleweb.at>
+
+	* Benchres, prim: Added Athlon XP 1800+ to Benchres
+	fixed type in wcall
+
+2002-06-03  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* ekey.fs: EKEY? now does not require complete ESC-sequences
+
+2002-06-02  pazsan  <pazsan@TK147097.tuwien.teleweb.at>
+
+	* httpd.fs, prim, tags.fs: Added tags.
+	Security fix in httpd.fs
+	Documentation for directory access in prim
+
+2002-06-02  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* vmgen-ex2/profile.c, vmgen-ex2/support.c, README.vmgen, vmgen-ex/engine.c, vmgen-ex/mini.h, vmgen-ex/mini.l, vmgen-ex/mini.y, vmgen-ex/peephole.c, vmgen-ex/profile.c, vmgen-ex/support.c, vmgen-ex2/engine.c, vmgen-ex2/mini.h, vmgen-ex2/mini.l, vmgen-ex2/peephole.c:
+	vmgen* now works with lcc and "gcc -O3 -ansi --pedantic -U__GNUC__"
+
+	* vmgen-ex2/mini.y, vmgen-ex2/peephole-blacklist, vmgen-ex2/peephole.c, vmgen-ex2/profile.c, vmgen-ex2/seq2rule.awk, vmgen-ex2/simple.mini, vmgen-ex2/stat.awk, vmgen-ex2/support.c, vmgen-ex2/test.mini, vmgen-ex2/test.out, vmgen-ex2/test.prof, vmgen-ex/mini.h, vmgen-ex/profile.c, vmgen-ex2/Makefile, vmgen-ex2/README, vmgen-ex2/disasm.c, vmgen-ex2/engine.c, vmgen-ex2/fib.mini, vmgen-ex2/fib.prof, vmgen-ex2/mini-inst.vmg, vmgen-ex2/mini-super.vmg, vmgen-ex2/mini.h, vmgen-ex2/mini.l, doc/vmgen.texi, engine/engine.c, engine/forth.h, prims2x.fs, vmgen-ex/engine.c:
+	vmgen-related changes:
+	in prims2x:
+	  Conversion macros for single items now take 2 arguments
+	  Converting from two items to a type has changed order
+	  argument printing for disassembler disabled (for now)
+	  disassembler now also uses VM_IS_INST
+	in Gforth and vmgen-ex: adapted to work with changed prims2x
+	new: vmgen-ex2: uses union for Cell instead of casting (lots of
+	   changes compared to vmgen-ex)
+
+	* doc/vmgen.texi, ekey.fs, prim, prims2x.fs:
+	EKEY now returns single characters instead of waiting for the rest of
+	   an escape sequence
+	documentation changes
+
+2002-05-28  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* doc/vmgen.texi, doc/gforth.ds, glocals.fs: Documentation changes
+
+2002-05-16  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* README, doc/vmgen.texi: changed mailing list address in README
+	started working on vmgen documentation
+
+2002-05-01  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* quotes.fs: bugfix
+
+2002-04-30  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* Makefile.in, quotes.fs: added quotes.fs in Makefile.in
+
+	* quotes.fs: \n now means newline, not LF
+
+2002-04-27  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* kernel/int.fs, kernel/require.fs, doc/gforth.ds, startup.fs, gforth.el, quotes.fs:
+	gforth.el: while now increases indentation
+	new words s\" .\" \"-parse for dealing with non-printing characters
+
+2002-04-18  dvdkhlng  <dvdkhlng@TK147097.tuwien.teleweb.at>
+
+	* gforth.el:
+	Fixed bug that caused scrolling to slow down extremely since
+	forth-mode's fontification function was by default installed to
+	`fontification-functions' (in Emacs21).  Changed motion-hooking (for
+	screen-number display in block files) to using timers instead of
+	post-command-hook to prevent further speed lag.
+
+2002-04-01  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* kernel/int.fs, test/signals.fs, doc/gforth.ds, engine/main.c, kernel/comp.fs, Makefile.in, errors.fs, see.fs:
+	added regression test for signal on broken execute (not working on Linux-PPC)
+	new error message and code for ticking compile-only words
+	bug workaround for gforth binary (dynamic superinsts produced wrong code for
+	    ?dup-0=-branch)
+
+2002-03-25  jwilke  <jwilke@TK147097.tuwien.teleweb.at>
+
+	* arch/misc/prim.fs: deleted x! and x@
+
+	* arch/misc/prim.fs: before deleting x! and x@
+
+2002-03-23  dvdkhlng  <dvdkhlng@TK147097.tuwien.teleweb.at>
+
+	* gforth.el: Minor bug- und compatability fixes.
+
+2002-03-22  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* arch/m68k/machine.h, arch/mips/machine.h, arch/power/machine.h, arch/sparc/machine.h, engine/Makefile.in, engine/main.c, Makefile.in, arch/386/machine.h, arch/alpha/machine.h, arch/generic/machine.h, arch/hppa/machine.h, configure.in:
+	cleaned up #defines of DIRECT_THREADED and INDIRECT_THREADED
+	introduced engine gforth-itc (indirect threading, no replication)
+	fixed bug in indirect threading
+
+	* ans-report.fs:
+	bugfix (replace-word adapted to primitive-centric code)
+
+	* engine/main.c:
+	support for --no-super (no dynamic superinstructions) and
+	            --no-dynamic (use only static primitives)
+
+2002-03-21  jwilke  <jwilke@TK147097.tuwien.teleweb.at>
+
+	* cross.fs: fix?!
+
+	* cross.fs: MAXU MINI MAXI work now with dlit,
+
+	* cross.fs: added optional write protection for memory regions
+
+	* cross.fs: added symentry and \?
+
+	* arch/misc/prim.fs: cleanup
+
+	* arch/misc/prim.fs:
+	volatile vm data (registers and stack) go to seperate memory region
+	(preparation for romable tests)
+
+2002-03-20  jwilke  <jwilke@TK147097.tuwien.teleweb.at>
+
+	* cross.fs: No forward references to native code definitions
+	(primitives and doer) are allowed any more
+	(didn't work in any case before, but now a warning is issued)
+
+	* kernel/main.fs: sanity check for header address changed
+
+	* kernel/main.fs:
+	moved image-header down to avoid forward reference for doer
+
+2002-03-19  jwilke  <jwilke@TK147097.tuwien.teleweb.at>
+
+	* cross.fs: cleaned up bernds changes.
+	tried to manage the peephole/call threading stuff with the
+	existing plugin definitions.
+
+	* kernel/main.fs: Oops. Sorry for that empty log-message.
+	Moved forthstart definition to not have a forward reference on a primitive.
+
+	* kernel/main.fs: *** empty log message ***
+
+	* cross.fs: no functional change
+
+2002-03-13  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* engine/io.c: portability change
+
+	* INSTALL, Makefile.in, configure.in:
+	Better discussion of cross-installation in INSTALL.
+	Force direct threading everywhere (indirect threading currentldoes not work).
+	make target "gforths" builds and copies all engines.
+
+2002-03-01  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* BUILD-FROM-SCRATCH, Makefile.in:
+	fixed Makefile bugs (to get BUILD-FROM-SCRATCH running again)
+
+2002-02-10  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* kernel/comp.fs, engine/forth.h, engine/main.c, engine/peephole.c, engine/profile.c, prim, prims2x.fs, Makefile.in:
+	lit@ and lit+ are now defined as superinstructions
+	compile lit @ and lit + instead of lit@ and lit+
+	extended prims2x to support superinstructions with non-C-names
+	  (syntax: forth-name /c-name = ...)
+	support profiling of interpreters with superinstructions
+	  (with simple instructions in the output).
+	profile output with prefixes only (enable by editing profile.c).
+	optional reporting of static superinstruction lengths (compared to
+	  dynamic superinstructions); enable by compiling with -DPRINT_SUPER_LENGTHS
+
+2002-02-04  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* engine/engine.c, kernel/comp.fs, kernel/cond.fs, kernel/vars.fs, gforth.el, peeprules.vmg:
+	Compiles static superinstructions combined with dynamic superinstructions
+	added ENDIF to gforth.el
+
+2002-01-26  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* engine/main.c:
+	eliminated searching in compile_prim (faster startup and compilation)
+
+	* engine/main.c, see.fs:
+	dynamic superinstructions for the code in the image
+	SEE works again for CODE words
+
+2002-01-26  dvdkhlng  <dvdkhlng@TK147097.tuwien.teleweb.at>
+
+	* gforth.el:
+	Fixed everything that prevented `gforth.el' from working with XEmacs
+	21.1. Fixed info-lookup.
+
+2002-01-20  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* arch/386/machine.h, engine/engine.c, engine/forth.h, engine/main.c, engine/threaded.h, prim:
+	hybrid direct/indirect threading (replaces direct threading)
+
+2002-01-19  dvdkhlng  <dvdkhlng@TK147097.tuwien.teleweb.at>
+
+	* gforth.el: Added code for making `gforth.el' work in Emacs 19.34.
+
+2002-01-17  dvdkhlng  <dvdkhlng@TK147097.tuwien.teleweb.at>
+
+	* gforth.el:
+	added and fixed `require's, fixed byte-code-compilation relevant
+	things (avoid free variables, top-level `require's etc), added
+	`(provide 'forth-mode)'
+
+2002-01-17  pazsan  <pazsan@TK147097.tuwien.teleweb.at>
+
+	* environ.fs, float.fs, startup.fs: Fixed enviroment queries
+
+2002-01-16  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* engine/forth.h, engine/main.c, engine/threaded.h: bugfixes
+
+2002-01-15  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* engine/main.c:
+	compile_prim now converts "xts" into "threaded-code" for DOUBLY_INDIRECT,
+	     and reports non-primitive non-xt input
+
+2002-01-14  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* engine/engine.c, engine/forth.h, engine/main.c, engine/signals.c, engine/threaded.h, Makefile.in, comp-i.fs:
+	Differentiate between threaded code and xts in gforth-ditc and in gforthmi
+
+2002-01-05  pazsan  <pazsan@TK147097.tuwien.teleweb.at>
+
+	* engine/main.c, engine/signals.c, kernel/aliases0.fs, cross.fs, prim, search.fs:
+	Thrown out static vocabulary stack
+	Changed cross to make mixed threading workable
+
+	* kernel/args.fs, kernel/comp.fs, kernel/int.fs, kernel/paths.fs, cross.fs, prim:
+	Cross compiler changes for mixed threading
+
+2002-01-05  dvdkhlng  <dvdkhlng@TK147097.tuwien.teleweb.at>
+
+	* search.fs, gforth.el: Made gforth.el hilight see and dbg.
+	Added dynamic search order stack allocation code to search.fs.
+
+2002-01-04  pazsan  <pazsan@TK147097.tuwien.teleweb.at>
+
+	* engine/engine.c, see.fs, cross.fs, prim:
+	Modified cross to get closer to mixed threading
+	Added a few debugging aids
+
+2002-01-02  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* engine/main.c: preparations in loader for hybrid threading
+
+2002-01-01  pazsan  <pazsan@TK147097.tuwien.teleweb.at>
+
+	* Benchres, Makefile.in:
+	Added benchmark result (superinstructions) for 600 MHz Athlon
+	Made cross work again with superinstructions (requires larger dictionary)
+
+2001-12-29  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* arch/alpha/machine.h, arch/power/_sync_cache_range.c, engine/main.c, Benchres, Makefile.in, arch/386/machine.h, machpc.fs, machpc.fs.in:
+	default dictionary size 1M cells
+	machine-specific stuff for dynamic superinstructions is now in machine.h
+	support for dynamic superinstructions for Alpha
+
+2001-12-28  pazsan  <pazsan@TK147097.tuwien.teleweb.at>
+
+	* engine/engine.c: undefined symbols to make engine.c work with GNU m4
+
+2001-12-27  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* engine/forth.h, engine/main.c, doc/gforth.ds, machpc.fs:
+	gforth no longer uses TOS caching (for improved error detection, suggested by
+	                                   Dennis Donnelly).
+	The default FP stack size is 16K (for improved error detection).
+	minor changes.
+
+2001-12-25  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* engine/engine.c, kernel/toolsext.fs, prim:
+	dynamic superinstructions now continue across conditional branches
+	added DEFINED back in (as alias of [DEFINED])
+
+2001-12-24  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* engine/Makefile.in, engine/forth.h, engine/main.c, kernel/comp.fs, Benchres, Makefile.in, prim, prims2x.fs:
+	added dynamic superinstructions (currently for direct threading on 386,
+	                                 without checking for other platforms)
+
+	* engine/Makefile.in, engine/engine.c, engine/main.c, Benchres, doc/gforth.ds, prims2x.fs:
+	determine primitive relocatability for dynamic superinstructions
+	documentation changes (from bug reports by Robert Epprecht and others)
+
+2001-12-15  dvdkhlng  <dvdkhlng@TK147097.tuwien.teleweb.at>
+
+	* gforth.el:
+	Cleaned up motion-dectection, used for displaying screen-numbers in
+	forth-block-mode. Added support for just-in-time hilighting feature of
+	Emacs21 (using fontification-functions hook).
+
+2001-12-09  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* engine/engine.c, engine/threaded.h, doc/gforth.ds, prim, prims2x.fs:
+	use LABEL(name) instead of CASE I_name at the start of a primitive
+	fixed read-line tutorial documentation bug
+
+2001-12-02  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* Benchres, arch/386/machine.h:
+	more register allocation fine-tuning; USE_TOS is again used with gcc-3.*
+
+	* Benchres, arch/386/machine.h, engine/Makefile.in:
+	explicit register allocation for gcc-3.0.x (not as good as gcc-2.95, but
+	  better than before); don't use TOS with gcc-3.x, so rp can be allocated.
+	Compile engine.c with -fno-gcse (to improve gcc-3.x code quality).
+
+2001-12-01  pazsan  <pazsan@TK147097.tuwien.teleweb.at>
+
+	* engine/engine.c, prim, proxy.fs, script.fs:
+	Fixed popen access type (*not binary*)
+	Fixed some bugs in proxy.fs
+	Added scripting support
+
+2001-11-21  pazsan  <pazsan@TK147097.tuwien.teleweb.at>
+
+	* fi2c.fs: fixed fi2c.fs address size bug
+
+2001-11-11  pazsan  <pazsan@TK147097.tuwien.teleweb.at>
+
+	* arch/386/ncex/ncexcompiler.fs, arch/386/ncex/ncexcontrol.fs, arch/386/ncex/ncexcpu1.fs, arch/386/ncex/ncexcpu2.fs, arch/386/ncex/ncexregalloc.fs, Makefile.in, cross.fs, httpd.fs, prims2x.fs, proxy.fs, wf.fs:
+	Added tags generation for vi
+	small changes on httpd for EuroForth paper
+	Added navigation button generation via Gimp to wf
+	Made nccomp from Lars Krueger work at least somehow
+
+2001-10-26  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* engine/threaded.h, vmgen-ex/engine.c, prims2x.fs:
+	prims2x now generates CASE before the label
+
+	* kernel/int.fs, BUGS, ekey.fs, machpc.fs:
+	added some function key names and sequences (from Linux console)
+	renamed NAME into PARSE-WORD
+
+2001-10-07  pazsan  <pazsan@TK147097.tuwien.teleweb.at>
+
+	* locate.fs: Added locate for vi fans
+
+2001-09-21  pazsan  <pazsan@TK147097.tuwien.teleweb.at>
+
+	* dosekey.fs, startup.fs: Added DOS support for ekey
+
+2001-09-17  pazsan  <pazsan@TK147097.tuwien.teleweb.at>
+
+	* kernel/toolsext.fs: Provided [defined] and [undefined]
+	Changed stack comments in toolsext.fs
+
+	* history.fs:
+	Added ignoring command completion if there's another key in the queue
+
+2001-09-16  pazsan  <pazsan@TK147097.tuwien.teleweb.at>
+
+	* kernel/main.fs:
+	Put full featured startup.fs into main.fs, so that both BUILD-FROM-SCRATCH
+	and a build based on kernl*.fi can expect the same extensions.
+
+2001-09-16  jwilke  <jwilke@TK147097.tuwien.teleweb.at>
+
+	* arch/c165/prim.fs: fix
+
+	* cross.fs: fix: cross now works again on top of kernlXYZ.fi
+
+	* debug.fs, environ.fs, glocals.fs, look.fs: added requires
+
+	* engine/.cvsignore: Added profile.i, peephole.i and gforth-prof
+
+	* engine/main.c: Non-relocatable images with fixed base work again.
+	Base address of $100 and 0 are now special cases that indicate
+	a relocatable image.
+
+2001-09-15  pazsan  <pazsan@TK147097.tuwien.teleweb.at>
+
+	* arch/386/ncex/ncexcompiler.fs, engine/signals.c, history.fs:
+	Fix for terminals where TIOCGWINSZ doesn't work
+	Added bindkey to history.fs
+
+2001-09-12  jwilke  <jwilke@TK147097.tuwien.teleweb.at>
+
+	* cross.fs: added comment
+
+	* kernel/main.fs: cleanup
+
+	* machpc.fs, cross.fs, engine/main.c, kernel/basics.fs, kernel/main.fs:
+	Image starts at $100 for cross-compilation now. A NULL-reference
+	is really a reference to address 0 and NIL is 0.
+	In the kernel image-header to get the headers address.
+	Image loading is only changed minimal: The stuff with fixed
+	addressed images is thrown out, because every image is relocatable.
+	No header change. Old images should work.
+
+	* cross.fs: renamed aprim
+
+2001-09-06  pazsan  <pazsan@TK147097.tuwien.teleweb.at>
+
+	* wf.fs: Improved table handling
+
+2001-09-06  jwilke  <jwilke@TK147097.tuwien.teleweb.at>
+
+	* cross.fs: added fixme comment
+
+	* kernel/files.fs:
+	changed warnings to redefinitions-start / end because
+	we have to switch more than only the warnings
+
+2001-09-05  jwilke  <jwilke@TK147097.tuwien.teleweb.at>
+
+	* cross.fs: cleaned up
+	EC stuff currently broken
+
+	* cross.fs:
+	fix: this version produces exacly the same images as version 1.101
+
+	* cross.fs: - added changes for peephole optimization
+	Test version!
+
+	* cross.fs: - some cleanup
+	- added dlit,
+
+	* cross.fs: - oops, left some debugging output
+	- added comment for ghost fields
+
+	* cross.fs:
+	merged in the sepearation from colon, and prim, through the >comp field in the ghost
+	still TODOs:
+	- peephole stuff
+	- unification of new >exec-compile and >comp fields
+
+	a running kernl32l.fi was created successfully with this cross.fs
+
+2001-09-04  jwilke  <jwilke@TK147097.tuwien.teleweb.at>
+
+	* cross.fs: char optimization
+
+	* cross.fs: lots of changes from the G&D project
+	- relocatable assembler output
+	- vocabularies support prepared
+	- lots of cleanup
+	- hooks for instant (target execution while cross-compilation)
+	- peephole changes from bernd missing
+	- genereation of kernl32l.fi works correctly
+
+	* cross.fs: this is the orignal cross.fs from 0.5.0 updated
+	with input-method and long headers
+	(used to compare generated images, does not last long)
+
+	* hash.fs: relocation fixes for cross-compilation
+
+	* kernel/comp.fs, kernel/int.fs:
+	relocation fixes, use [compile] for immediate words
+	added AValue in comp.fs
+
+	* cross.fs: interims version to check in the kernel changes
+
+	* kernel/cloop.fs: changed compile to postpone
+
+	* kernel/cbr.fs: changed to postpone
+
+	* kernel/basics.fs: fix for ec: AConstant relocatable
+
+2001-09-03  dvdkhlng  <dvdkhlng@TK147097.tuwien.teleweb.at>
+
+	* gforth.el:
+	Bugfix, Improved hilighting/indentation to recoginize structured
+	data-types, that end on %. Indentation now also ignores non-immediate
+	words inside definitions. Tested gforth.el on Emacs21. Works fine!!
+
+2001-09-03  jwilke  <jwilke@TK147097.tuwien.teleweb.at>
+
+	* arch/misc/tt.fs: fix for relocating
+
+2001-08-25  pazsan  <pazsan@TK147097.tuwien.teleweb.at>
+
+	* arch/386/asm.fs, wf.fs: Fixed 386 assembler jump table
+	Some improvements to Wiki Forth
+
+2001-08-08  jwilke  <jwilke@TK147097.tuwien.teleweb.at>
+
+	* BUILD-FROM-SCRATCH: fix
+
+2001-08-07  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* BUGS, doc/gforth.ds, float.fs, stuff.fs: New bug reports.
+	added slurp-fid; documented slurp-fid and slurp-file.
+	bugfix in f. (thanks to Doug Bagley).
+
+2001-08-06  pazsan  <pazsan@TK147097.tuwien.teleweb.at>
+
+	* wf.fs: Another set of fixes for wf.fs
+
+2001-08-05  pazsan  <pazsan@TK147097.tuwien.teleweb.at>
+
+	* arch/386/ncex/ncexcompiler.fs, arch/386/ncex/ncexcpu1.fs, wf.fs:
+	Added toc handling to wf
+	Wrote wrapper code for ncex
+
+2001-07-29  pazsan  <pazsan@TK147097.tuwien.teleweb.at>
+
+	* wf.fs: Some further fixes
+
+2001-07-24  pazsan  <pazsan@TK147097.tuwien.teleweb.at>
+
+	* wf.fs: Fixed jpeg handling
+	Improved data base
+
+2001-07-23  pazsan  <pazsan@TK147097.tuwien.teleweb.at>
+
+	* wf.fs: Added image size handling
+
+2001-07-22  pazsan  <pazsan@TK147097.tuwien.teleweb.at>
+
+	* wf.fs: Some further modification to wiki for Forth
+
+2001-07-17  pazsan  <pazsan@TK147097.tuwien.teleweb.at>
+
+	* wf.fs: fixed table end problem
+
+	* wf.fs: Added embedded images (no size yet)
+	Improved table parsing
+
+	* wf.fs: Added HTML table, easier ways to add options to a tag
+
+	* wf.fs: Improvements of wiki for Forth
+	Added small text data base
+
+2001-07-16  pazsan  <pazsan@TK147097.tuwien.teleweb.at>
+
+	* wf.fs: Added first version of a Wiki in Forth
+
+2001-07-10  crook  <crook@TK147097.tuwien.teleweb.at>
+
+	* cross.fs, arch/c165/mach.fs:
+	added constant for bits/char -- seems that this is now obligatory.
+
+	* arch/6502/asm.fs, arch/6502/mach.fs:
+	fixed comments and formatting in asm.fs, and set a default processor variant
+	(one of the reasons why kernl-6502.fi doesn't build). Added null >boot in
+	mach.fs.
+
+	* arch/misc/README:
+	fixed up comments to reflect current file organisation.
+
+	* arch/4stack/README, arch/4stack/mach.sh:
+	kernl-4stack.fi now builds. Fixed paths in mach.sh, and changed reference
+	therein from gforth to ./gforth to ensure that the engine is consistent
+	with the source tree in which the .fi file is being built. Revised README
+	to reflect the current file organisation.
+
+	* asm/numref.fs: fix typos and comments.
+
+	* kernel/kernel.fs, kernel/main.fs, kernel/pass.fs:
+	minor formatting fixes. Fix typos and comments.
+
+2001-06-26  dvdkhlng  <dvdkhlng@TK147097.tuwien.teleweb.at>
+
+	* gforth.el, etags.fs:
+	Fixed some old bug in etags.fs and refined tag search in gforth.el. See my
+	not in etags.fs for details.
+
+2001-06-19  dvdkhlng  <dvdkhlng@TK147097.tuwien.teleweb.at>
+
+	* gforth.el: Improved imenu support.
+
+2001-06-17  dvdkhlng  <dvdkhlng@TK147097.tuwien.teleweb.at>
+
+	* gforth.el: Improved interface for customizing hilighting/indentation.
+	Added imenu and speedbar support (needs further refinement, though).
+
+2001-06-16  pazsan  <pazsan@TK147097.tuwien.teleweb.at>
+
+	* arch/misc/mach.fs, arch/shboom/mach.fs:
+	Some further steps to make gforth EC work
+
+	* kernel/quotes.fs, kernel/vars.fs, arch/386/ncex/ncexregalloc.fs, arch/4stack/mach.fs, arch/4stack/relocate.fs, arch/6502/mach.fs, arch/8086/mach.fs, engine/forth.h, engine/main.c, arch/386/ncex/ncexcpu1.fs, cross.fs, prim, prims2x.fs:
+	Made some Gforth-EC targets work again
+	Started grouping (no renumbering yet, groups are just dummies)
+
+2001-06-15  ak042  <ak042@TK147097.tuwien.teleweb.at>
+
+	* engine/peephole.c: revert all 2001/05/28 changes.
+
+2001-06-14  crook  <crook@TK147097.tuwien.teleweb.at>
+
+	* colorize.fs, ansi.fs:
+	changed >f to >FG and >b to >BG (and <f <b to <FG <BG) to remove name
+	clash between ansi.fs ">f" and gforth floating comparison word.
+
+2001-06-12  pazsan  <pazsan@TK147097.tuwien.teleweb.at>
+
+	* tasker.fs: Fixed kill-task
+	Added glossary entries
+
+	* tasker.fs: Fixed tasker (to handle new input method)
+
+2001-05-28  ak042  <ak042@TK147097.tuwien.teleweb.at>
+
+	* engine/peephole.c: there is still a problem with iburg <-> burg.
+
+2001-05-18  dvdkhlng  <dvdkhlng@TK147097.tuwien.teleweb.at>
+
+	* gforth.el: Refined forth-block-mode.
+
+2001-05-13  jwilke  <jwilke@TK147097.tuwien.teleweb.at>
+
+	* Makefile.in, prims2x.fs:
+	simpy inlclude startup.fs in prims2x if needed
+
+	* BUILD-FROM-SCRATCH, Makefile.in, prims2x.fs, startup.fs:
+	cleanup, so BUILD-FROM-SCRATCH (should) works
+
+	* exboot.fs: comment fix
+
+2001-05-11  crook  <crook@TK147097.tuwien.teleweb.at>
+
+	* engine/forth.h:
+	removed spurious ; from end of #endif to get rid of compile warning.
+
+2001-05-10  jwilke  <jwilke@TK147097.tuwien.teleweb.at>
+
+	* kernel/accept.fs: corrected control keys vector
+
+2001-05-09  jwilke  <jwilke@TK147097.tuwien.teleweb.at>
+
+	* Makefile.in: BUILDFORTH more comment
+
+	* cross.fs: corrected problem with messed up word names in crossdoc.fd
+
+2001-05-07  jwilke  <jwilke@TK147097.tuwien.teleweb.at>
+
+	* ToDo: new topics
+
+2001-05-06  dvdkhlng  <dvdkhlng@TK147097.tuwien.teleweb.at>
+
+	* gforth.el: *** empty log message ***
+
+2001-05-04  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* kernel/quotes.fs, README.vmgen:
+	interpreted s" now ALLOCATEs the string
+
+2001-05-01  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* vmgen.in: vmgen base file
+
+	* README, configure.in, testdist, vmgen-ex/README, Makefile.in:
+	minor changes
+
+	* engine/Makefile.in, prim, testdist, Makefile.in, README.vmgen, configure.in, peeprules.vmg:
+	vmgen-related changes in Makefile
+	fixed FORTHB/prims2x breakage
+	removed lit_plus
+	added peeprules.vmg as a place to put superinstructions
+	testdist now also tests vmgen-ex
+
+	* vmgen-ex/mini-super.vmg, vmgen-ex/mini.h, vmgen-ex/mini.vmg, vmgen-ex/peephole-blacklist, vmgen-ex/profile.c, vmgen-ex/seq2rule.awk, vmgen-ex/stat.awk, vmgen-ex/support.c, vmgen-ex/Makefile, vmgen-ex/README, vmgen-ex/engine.c, vmgen-ex/mini-inst.vmg:
+	fixed profiling
+	completed README
+
+2001-04-30  jwilke  <jwilke@TK147097.tuwien.teleweb.at>
+
+	* arch/avr/asm.fs: fixes
+
+	* BUILD-FROM-SCRATCH:
+	with an installed gorth 0.5.0 just type ". BUILD-FROM-SCRATCH" after
+	checkout
+
+	* BUILD-FROM-SCRATCH, Makefile.in, prims2x.fs:
+	set of changes to use gforth0.5.0 to build right out of the cvs sources
+
+	* arch/generic/machine.h: define HAS_PEEPHOLE only if not defined
+
+	* arch/generic/machine.h:
+	HAS_PEEPHOLE must be defined by default as in machpc.fs
+
+2001-04-29  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* vmgen-ex/Makefile, vmgen-ex/engine.c, vmgen-ex/mini.vmg:
+	added more threading schemes and comments
+	added USE_spTOS and commented out superflouos cache flushes and refills
+
+	* vmgen-ex/Makefile, vmgen-ex/mini.y, vmgen-ex/test.out: minor changes
+
+	* vmgen-ex/mini.h, vmgen-ex/mini.l, vmgen-ex/mini.vmg, vmgen-ex/mini.y, vmgen-ex/peephole.c, vmgen-ex/profile.c, vmgen-ex/simple.mini, vmgen-ex/support.c, vmgen-ex/test.mini, vmgen-ex/Makefile, vmgen-ex/README, vmgen-ex/disasm.c, vmgen-ex/engine.c, vmgen-ex/fib.mini:
+	added vmgen-ex
+
+2001-04-24  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* vmgen-Attic/Makefile, vmgen-Attic/disasm.c:
+	removing vmgen directory (will be replaced by vmgen-ex)
+
+2001-04-08  pazsan  <pazsan@TK147097.tuwien.teleweb.at>
+
+	* machpc.fs.in: source for machpc.fs (for peephole)
+
+	* arch/generic/machine.h, engine/engine.c, prim, see.fs, Makefile.in, acconfig.h, configure.in, cross.fs, gforth.el:
+	Made peephole a configurable option
+
+2001-03-28  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* engine/engine.c, engine/peephole.c:
+	peephole optimization now uses a hash table
+	primtable() moved to engine.c (threading dependent)
+
+	* kernel/int.fs, see.fs, simp-see.fs, startup.fs: added SIMPLE-SEE
+
+2001-03-18  pazsan  <pazsan@TK147097.tuwien.teleweb.at>
+
+	* arch/generic/machine.h, kernel/comp.fs, kernel/int.fs, kernel/vars.fs, machpc.fs, prim, cross.fs:
+	Made peephole a configurable option
+	call compilation in cross works now
+	Not done yet:
+	- peephole itself
+	- Create as alit,
+	- DOES> compilation
+
+2001-03-18  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* prims2x.fs:
+	prefixes are now automatically defined in wordlist PREFIXES
+
+	* engine/engine.c, prim, prims2x.fs:
+	moved stack definitions from prims2x.fs to prim (and support for that)
+
+	* prims2x.fs:
+	cleaned up prims2x.fs, prepare for pulling stack definition out
+
+	* engine/profile.c, prims2x.fs:
+	VM_DEBUGGING now also prints stack-out values.
+	output-profile now uses goto to avoid gcc parser overflow.
+
+2001-03-17  pazsan  <pazsan@TK147097.tuwien.teleweb.at>
+
+	* cross.fs, see.fs:
+	Further peephole optimization preparation in cross.fs:
+	- compile calls now works
+	- compile Create/DOES> better prepaired (doesn't work yet)
+	- compile Create/Variable doesn't work yet
+	- no peephole optimization yet
+	See calls works
+
+2001-03-11  pazsan  <pazsan@TK147097.tuwien.teleweb.at>
+
+	* cross.fs, gforth.el:
+	Checked in cross with some part of peephole optimization (doers - not all of
+	them)
+	Checked in fontlock-mode coloring version of gforth.el
+
+	* Makefile.in, cross.fs, prim, prims2x.fs:
+	First steps to get peephole optimizing into cross
+
+2001-03-04  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* engine/profile.c, prims2x.fs: minor bugfixes
+
+2001-03-01  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* Makefile.in, engine/profile.c, prims2x.fs:
+	profiling now outputs subsequences
+
+2001-02-28  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* Makefile.in, engine/forth.h, engine/main.c, engine/profile.c, prim, prims2x.fs:
+	continued block profiling
+
+2001-02-27  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* engine/engine.c, engine/forth.h, engine/main.c, engine/peephole.c, engine/profile.c, Makefile.in, backtrac.fs, engine/Makefile.in, prim, prims2x.fs:
+	good start at profiling for peephole optimization
+	backtrace now also works for calls done with CALL
+
+	* prims2x.fs: "TAIL;" now works properly in superinstructions
+
+2001-02-26  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* kernel/comp.fs, test/string.fs, gforthmi.in, prim:
+	gforthmi now deals properly with arguments containing spaces
+	added CALL and USERADDR primitives
+	all references to colon defs, constants etc. are now compiled to primitives
+	   with inline arguments
+	improved COMPARE test case
+
+2001-02-24  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* kernel/comp.fs, kernel/cond.fs, kernel/int.fs, kernel/vars.fs, comp-i.fs, prims2x.fs:
+	added peephole optimization to kernel
+
+	* engine/Makefile.in, engine/engine.c, engine/forth.h, engine/peephole.c, prim, prims2x.fs, Makefile.in:
+	added C and primitive support for peeophole optimization
+
+	* Makefile.in, prims2x.fs, test/string.fs: added test for COMPARE
+	more peephole optimization stuff
+
+2001-02-23  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* prims2x.fs: first take on generating combined instructions
+
+2001-02-09  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* prims2x.fs:
+	fixed inst-stream access in parts of combined instructions
+
+2001-02-08  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* BUGS, prims2x.fs: more combined word changes
+
+2001-02-07  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* engine/forth.h, prims2x.fs:
+	type-specific conversion functions for fetch/store-double
+
+2001-02-06  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* engine/engine.c, BUGS, configure.in, prim, prims2x.fs:
+	type conversion macros instead of casts for fetch/store-single (prims2x.fs)
+
+2001-02-04  pazsan  <pazsan@TK147097.tuwien.teleweb.at>
+
+	* arch/8086/mach.fs, cross.fs, kernel/int.fs, prim:
+	Fixed problems with new word header format for Gforth EC (now only tested
+	for gf8086.com)
+
+2001-01-30  pazsan  <pazsan@TK147097.tuwien.teleweb.at>
+
+	* kernel/int.fs: Fixed masks for character sizes > 8 bit
+
+2001-01-29  pazsan  <pazsan@TK147097.tuwien.teleweb.at>
+
+	* kernel/int.fs: Fixed [ alias-mask lcount-mask or ] Literal problem
+
+	* cross.fs: Fixed input method problem
+
+2001-01-28  pazsan  <pazsan@TK147097.tuwien.teleweb.at>
+
+	* cross.fs, kernel/comp.fs, kernel/int.fs, prims2x.fs:
+	Fixed cell-size dependent masks
+
+2001-01-28  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* kernel/comp.fs, kernel/int.fs, Makefile.in, wordinfo.fs:
+	fixed bug (?; might also be due to an Emacs change) in prim.TAGS generation.
+	bugfix in alias? (length related)
+	NEXTNAME can now also handle long names
+	added FREE-MEM-VAR
+
+	* kernel/comp.fs, see.fs: SEE bugfix (coming from long names)
+	NEXTNAME bugfix (but still length restrictions)
+
+	* kernel/int.fs, comp-i.fs, cross.fs, hash.fs, kernel/comp.fs, table.fs:
+	long names in dictionary
+
+2001-01-27  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* engine/engine.c, prim:
+	added primitives (listlfind) (hashlfind) (tablelfind) for dealing with
+	   long names
+
+2001-01-24  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* prims2x.fs: replaced items with field in prim
+
+	* kernel/tools.fs, prims2x.fs: factored out WORDLIST-WORDS from WORDS
+	more work on combined primitives
+
+2001-01-23  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* prims2x.fs: minor changes
+
+	* kernel/int.fs: made bracktrace-rp0 restoration THROW-proof
+
+	* Makefile.in, kernel/int.fs, prims2cl.fs, prims2x.fs:
+	bugfix (complete?): backtrace-rp0 now is restored in interpret
+	process-file in prims2x.fs now takes two xts
+	various other chnages in prims2x.fs
+
+2001-01-21  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* prims2x.fs: first parts for combined instructions
+
+2001-01-20  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* prims2x.fs: introduced make-prim
+
+2001-01-19  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* comp-i.fs, prims2x.fs, stuff.fs:
+	moved SLURP-FILE from comp-i.fs to stuff.fs
+	various changes in prims2x.fs
+
+2001-01-18  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* prims2x.fs: more refactoring in prims2x.fs
+
+	* prims2x.fs: moved parser to the end
+
+	* prims2x.fs: factored output out of DECLARATIONS
+
+	* doc/gforth.ds, prims2x.fs: Better error reporting in prims2x.fs
+	Bug fixed by changing the docs: RECOVER is not optional in TRY...ENDTRY.
+
+2001-01-17  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* prims2x.fs: some refactoring
+
+2001-01-14  pazsan  <pazsan@TK147097.tuwien.teleweb.at>
+
+	* prim: Fixed error report for read-dir
+
+2001-01-09  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* prims2x.fs, ChangeLog, prim: changes for better debugging output
+	made a ChangeLog for real
+	NEWLINE for Darwin (should be LF, but if does not define unix)
+
+2001-01-06  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* engine/threaded.h, prims2x.fs: bugfix
+
 2001-01-06  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
 
 	* engine/threaded.h, prims2x.fs: bugfix
@@ -3471,7 +5091,7 @@
 
 	* getopt1.c, getopt.h, getopt.c, forth.h, engine.c, ToDo, README, Makefile, INSTALL, COPYING, 386.h:
 	Updated ToDo and INSTALL; Wrote README; Lifted COPYING and getopt*
-	from other packages;  removed $Id: ChangeLog,v 1.3 2001-01-09 16:11:35 anton Exp $ lines from some files
+	from other packages;  removed $Id: ChangeLog,v 1.4 2003-02-03 08:59:28 anton Exp $ lines from some files
 
 1994-09-28  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
 

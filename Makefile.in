@@ -504,10 +504,13 @@ install:	gforth$(EXE) $(FORTH_SRC) $(kernel_fi) gforth.fi gforthmi vmgen doc/gfo
 		touch $(siteforthdir)/siteinit.fs
 		-$(RM) $(bindir)/gforth$(EXE) $(bindir)/gforth-$(VERSION)$(EXE) $(bindir)/gforthmi $(bindir)/vmgen
 		-$(RM) $(bindir)/gforth-fast$(EXE) $(bindir)/gforth-fast-$(VERSION)$(EXE)
+		-$(RM) $(bindir)/gforth-itc$(EXE) $(bindir)/gforth-itc-$(VERSION)$(EXE)
 		$(INSTALL_PROGRAM) -s gforth$(EXE) $(bindir)/gforth-$(VERSION)$(EXE)
 		(cd $(bindir) && $(LN_S) gforth-$(VERSION)$(EXE) gforth$(EXE))
 		$(INSTALL_PROGRAM) -s gforth-fast$(EXE) $(bindir)/gforth-fast-$(VERSION)$(EXE)
 		(cd $(bindir) && $(LN_S) gforth-fast-$(VERSION)$(EXE) gforth-fast$(EXE))
+		$(INSTALL_PROGRAM) -s gforth-itc$(EXE) $(bindir)/gforth-itc-$(VERSION)$(EXE)
+		(cd $(bindir) && $(LN_S) gforth-itc-$(VERSION)$(EXE) gforth-itc$(EXE))
 		$(INSTALL_PROGRAM) gforthmi $(bindir)/gforthmi-$(VERSION)
 		$(INSTALL_PROGRAM) vmgen $(bindir)/vmgen-$(VERSION)
 		$(INSTALL_PROGRAM) gforth-ditc $(libdir)/gforth/$(VERSION)
@@ -546,8 +549,8 @@ installdirs:	mkinstalldirs
 #deinstall all files specific to this version of gforth
 #to uninstall version foo, type `make uninstall VERSION=foo'
 uninstall:	FORCE
-		-$(RM) -rf $(libdir)/gforth/$(VERSION) $(datadir)/gforth/$(VERSION) $(bindir)/gforth-$(VERSION)$(EXE) $(bindir)/gforth-fast-$(VERSION)$(EXE) $(bindir)/gforthmi-$(VERSION) (bindir)/vmgen-$(VERSION)
-		@echo -e "To remove Gforth completely, type\n$(RM) -rf $(bindir)/gforth$(EXE) $(bindir)/gforth-fast$(EXE) $(bindir)/gforthmi $(bindir)/vmgen $(man1dir)/gforth.1 $(infodir)/gforth.info* $(datadir)/gforth $(libdir)/gforth"
+		-$(RM) -rf $(libdir)/gforth/$(VERSION) $(datadir)/gforth/$(VERSION) $(bindir)/gforth-$(VERSION)$(EXE) $(bindir)/gforth-fast-$(VERSION)$(EXE) $(bindir)/gforth-itc-$(VERSION)$(EXE) $(bindir)/gforthmi-$(VERSION) (bindir)/vmgen-$(VERSION)
+		@echo -e "To remove Gforth completely, type\n$(RM) -rf $(bindir)/gforth$(EXE) $(bindir)/gforth-fast$(EXE) $(bindir)/gforth-itc$(EXE) $(bindir)/gforthmi $(bindir)/vmgen $(man1dir)/gforth.1 $(infodir)/gforth.info* $(datadir)/gforth $(libdir)/gforth"
 
 check:		gforths	gforth.fi
 		$(MAKE) checkone ENGINE="./gforth --no-dynamic" >/dev/null 2>&1
