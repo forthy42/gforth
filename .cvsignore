@@ -29,3 +29,5 @@ gforth.fi
 html
 gforth.TAGS
 prim.TAGS
+aclocal.m4
+config.h.in
