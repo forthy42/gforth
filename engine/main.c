@@ -441,6 +441,7 @@ void print_sizes(Cell sizebyte)
 	  1 << ((sizebyte >> 5) & 3));
 }
 
+#ifndef NO_DYNAMIC
 typedef struct {
   Label start;
   Cell length; /* excluding the jump */
@@ -449,7 +450,9 @@ typedef struct {
 } PrimInfo;
 
 PrimInfo *priminfos;
+#endif /* defined(NO_DYNAMIC) */
 Cell npriminfos=0;
+
 
 void check_prims(Label symbols1[])
 {
@@ -471,7 +474,7 @@ void check_prims(Label symbols1[])
     ;
   npriminfos = i;
 
-#if defined(IS_NEXT_JUMP) && !defined(DOUBLY_INDIRECT)
+#if defined(IS_NEXT_JUMP) && !defined(NO_DYNAMIC)
   if (no_dynamic)
     return;
   symbols2=engine2(0,0,0,0,0);
@@ -520,7 +523,7 @@ Label compile_prim(Label prim)
     return prim;
   } else
     return prim-((Label)xts)+((Label)vm_prims);
-#elif defined(IND_JUMP_LENGTH) && !defined(VM_PROFILING) && !defined(INDIRECT_THREADED)
+#elif defined(IND_JUMP_LENGTH) && !defined(NO_DYNAMIC)
   unsigned i;
   Address old_code_here=code_here;
   static Address last_jump=0;
@@ -559,7 +562,7 @@ Label compile_prim(Label prim)
 #endif /* !defined(DOUBLY_INDIRECT) */
 }
 
-#ifdef PRINT_SUPER_LENGTHS
+#if defined(PRINT_SUPER_LENGTHS) && !defined(NO_DYNAMIC)
 Cell prim_length(Cell prim)
 {
   return priminfos[prim+DOESJUMP+1].length;

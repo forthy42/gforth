@@ -572,6 +572,7 @@ define(enginerest,
 
 Label *engine enginerest
 
+#ifndef NO_DYNAMIC
 #define IN_ENGINE2
 Label *engine2 enginerest
-
+#endif

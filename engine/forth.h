@@ -24,6 +24,10 @@
 #include "config.h"
 #include <stdio.h>
 
+#if defined(DOUBLY_INDIRECT)||defined(INDIRECT_THREADED)||defined(VM_PROFILING)
+#define NO_DYNAMIC
+#endif
+
 #if defined(DOUBLY_INDIRECT)
 #  undef DIRECT_THREADED
 #  undef INDIRECT_THREADED
