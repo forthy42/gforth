@@ -20,10 +20,6 @@ SEE does not work when the control structure is too complex (e.g.,
 load http://www.complang.tuwien.ac.at/forth/pentomino.fs and then do
 SEE NEXT-PIECE). anton 5mar2000
 
-RESTORE-INPUT does not work for files with CRLF newlines, and if
-SAVE-INPUT was called on a line without newline (i.e., on the last
-line)  anton 27apr2000
-
 Include cannot handle lines longer than 255 characters.  anton 4sep00
 
 Errors happening during a LOAD do not report the offending word and

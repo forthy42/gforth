@@ -110,11 +110,14 @@ DOES> ( -- r )
 \ I'm afraid this does not really implement ansi semantics wrt precision.
 \ Shouldn't precision indicate the number of places shown after the point?
 
+\ Why do you think so? ANS Forth appears ambiguous on this point. -anton.
+
 : fe. ( r -- ) \ float-ext f-e-dot
 \G Display @i{r} using engineering notation (with exponent dividable
 \G by 3), followed by a space.
   f$ 1- s>d 3 fm/mod 3 * >r 1+ >r
-  scratch r@ min type '. emit scratch r> /string type
+  scratch r@ tuck min tuck - >r type r> zeros
+  '. emit scratch r> /string type
   'E emit r> . ;
 
 : fs. ( r -- ) \ float-ext f-s-dot

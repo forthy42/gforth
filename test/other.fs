@@ -167,6 +167,13 @@ abort 0 [if]
 [then]
 ( 0 ) throw
 
+\ the same test with CRLF newlines
+test-restore-input[ abort \ these aborts are skipped
+abort 0 [if]
+    s" oops" 2drop ]test-restore-input abort
+[then]
+( 0 ) throw
+
 \ comments across several lines
 
 ( fjklfjlas;d
