@@ -37,9 +37,13 @@
 
 #define NEW_TTY_DRIVER
 #define HAVE_BSD_SIGNALS
+/*
 #ifndef DOMAINOS
 #define USE_XON_XOFF
 #endif
+*/
+
+#define HANDLE_SIGNALS
 
 /* Some USG machines have BSD signal handling (sigblock, sigsetmask, etc.) */
 #if defined (USG) && !defined (hpux)
@@ -740,6 +744,13 @@ signal_throw(int sig)
   longjmp(throw_jmp_buf,throw_codes[sig-1]); /* or use siglongjmp ? */
 }
 
+static void
+termprep (int sig)
+{
+  terminal_prepped=0; prep_terminal();
+  signal(sig,termprep);
+}
+
 void
 install_signal_handlers (void)
 {
@@ -751,10 +762,12 @@ install_signal_handlers (void)
 			SIGALRM,  SIGBUS
 #define SIGS_TO_QUIT	SIGHUP, SIGQUIT, SIGABRT, SIGPIPE, \
 			SIGTERM 
+#define SIGS_TO_TERMPREP    SIGCONT
 
   static short sigs_to_ignore [] = { SIGS_TO_IGNORE };
   static short sigs_to_abort [] = { SIGS_TO_ABORT };
   static short sigs_to_quit [] = { SIGS_TO_QUIT };
+  static short sigs_to_termprep [] = { SIGS_TO_TERMPREP };
   int i;
 
 #define DIM(X)		(sizeof (X) / sizeof *(X))
@@ -765,5 +778,7 @@ install_signal_handlers (void)
     signal (sigs_to_abort [i], signal_throw); /* !! change to throw */
   for (i = 0; i < DIM (sigs_to_quit); i++)
     signal (sigs_to_quit [i], graceful_exit);
+  for (i = 0; i < DIM (sigs_to_termprep); i++)
+    signal (sigs_to_termprep [i], termprep);
 }
 /* end signal handling */
