@@ -89,6 +89,11 @@ variable out-nls \ newlines in output (for output sync lines)
 variable store-optimization \ use store optimization?
 store-optimization off
 
+variable include-skipped-insts
+\ does the threaded code for a combined instruction include the cells
+\ for the component instructions (true) or only the cells for the
+\ inline arguments (false)
+include-skipped-insts off
 
 : th ( addr1 n -- addr2 )
     cells + ;
@@ -947,6 +952,7 @@ stack inst-stream IP Cell
     prim to combined
     0 num-combined !
     current-depth max-stacks cells erase
+    include-skipped-insts @ current-depth 0 th !
     max-depth     max-stacks cells erase
     min-depth     max-stacks cells erase
     prim prim-effect-in  prim prim-effect-in-end  !
@@ -958,11 +964,16 @@ stack inst-stream IP Cell
 : min! ( n addr -- )
     tuck @ min swap ! ;
 
+: inst-stream-correction ( nin1 nstack -- nin2 )
+    0= if
+	include-skipped-insts @ -
+    endif ;
+
 : add-depths { p -- }
     \ combine stack effect of p with *-depths
     max-stacks 0 ?do
 	current-depth i th @
-	p prim-stacks-in  i th @ +
+	p prim-stacks-in  i th @ + i inst-stream-correction
 	dup max-depth i th max!
 	p prim-stacks-out i th @ -
 	dup min-depth i th min!
@@ -1110,7 +1121,7 @@ stack inst-stream IP Cell
 
 \ This is intended as initializer for a structure like this
 
-\  struct super {
+\  struct cost {
 \    int loads;       /* number of stack loads */
 \    int stores;      /* number of stack stores */
 \    int updates;     /* number of stack pointer updates */
