@@ -19,7 +19,7 @@ CREATE Closenest 7 chars allot
                 IF   2drop 1+
                 ELSE    Closenest count compare 0= IF 1- THEN
                 THEN
-                ?dup 0= ?EXIT
+                ?dup 0= IF EXIT THEN
           REPEAT
           2drop refill 0=
         UNTIL drop ;
@@ -45,7 +45,7 @@ CREATE Closenest 7 chars allot
                      ELSE s" [THEN]" compare 0= IF 1- THEN
                      THEN
                 THEN
-                ?dup 0= ?EXIT
+                ?dup 0= IF EXIT THEN
           REPEAT
           2drop refill 0=
         UNTIL drop ; immediate

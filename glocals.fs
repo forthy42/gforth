@@ -64,6 +64,22 @@
 include float.fs
 include search-order.fs
 
+: compile-@local ( n -- )
+ case
+    0 of postpone @local0 endof
+    4 of postpone @local4 endof
+    8 of postpone @local8 endof
+   12 of postpone @local12 endof
+   ( otherwise ) dup postpone @local# ,
+ endcase ;
+
+: compile-f@local ( n -- )
+ case
+    0 of postpone f@local0 endof
+    8 of postpone f@local8 endof
+   ( otherwise ) dup postpone f@local# ,
+ endcase ;
+
 \ the locals stack grows downwards (see primitives)
 \ of the local variables of a group (in braces) the leftmost is on top,
 \ i.e. by going onto the locals stack the order is reversed.
@@ -72,9 +88,7 @@ include search-order.fs
 \ for simplicity we align it strictly for every group.
 
 vocabulary locals \ this contains the local variables
-' locals >body Constant locals-list \ acts like a variable that contains
-				    \ a linear list of locals names
-: locals-list! ( list -- )  locals-list ! locals-list rehash ;
+' locals >body ' locals-list >body !
 
 create locals-buffer 1000 allot \ !! limited and unsafe
     \ here the names of the local variables are stored
@@ -84,10 +98,10 @@ variable locals-dp \ so here's the special dp for locals.
 
 : alignlp-w ( n1 -- n2 )
     \ cell-align size and generate the corresponding code for aligning lp
-    dup aligned tuck - compile-lp+!# ;
+    aligned dup adjust-locals-size ;
 
 : alignlp-f ( n1 -- n2 )
-    dup faligned tuck - compile-lp+!# ;
+    faligned dup adjust-locals-size ;
 
 \ a local declaration group (the braces stuff) is compiled by calling
 \ the appropriate compile-pushlocal for the locals, starting with the
@@ -112,7 +126,7 @@ variable locals-dp \ so here's the special dp for locals.
     postpone swap postpone >l postpone >l ;
 
 : compile-pushlocal-c ( a-addr -- ) ( run-time: w -- )
-    -1 chars compile-lp+!#
+    -1 chars compile-lp+!
     locals-size @ swap !
     postpone lp@ postpone c! ;
 
@@ -122,11 +136,15 @@ variable locals-dp \ so here's the special dp for locals.
 	immediate
 	here 0 , ( place for the offset ) ;
 
+: lp-offset ( n1 -- n2 )
+\ converts the offset from the frame start to an offset from lp and
+\ i.e., the address of the local is lp+locals_size-offset
+  locals-size @ swap - ;
+
 : lp-offset, ( n -- )
 \ converts the offset from the frame start to an offset from lp and
 \ adds it as inline argument to a preceding locals primitive
-\ i.e., the address of the local is lp+locals_size-offset
-  locals-size @ swap - , ;
+  lp-offset , ;
 
 vocabulary locals-types \ this contains all the type specifyers, -- and }
 locals-types definitions
@@ -137,7 +155,7 @@ locals-types definitions
 	['] compile-pushlocal-w
     does> ( Compilation: -- ) ( Run-time: -- w )
         \ compiles a local variable access
-	postpone @local# @ lp-offset, ;
+	@ lp-offset compile-@local ;
 
 : W^
     create-local ( "name" -- a-addr xt )
@@ -149,7 +167,7 @@ locals-types definitions
     create-local ( "name" -- a-addr xt )
 	['] compile-pushlocal-f
     does> ( Compilation: -- ) ( Run-time: -- w )
-	postpone f@local# @ lp-offset, ;
+	@ lp-offset compile-f@local ;
 
 : F^
     create-local ( "name" -- a-addr xt )
@@ -193,8 +211,6 @@ forth definitions
 \ So we create a vocabulary new-locals, that creates a 'w:' local named x
 \ when it is asked if it contains x.
 
-0. 2constant last-local \ !! actually a 2value
-
 also locals-types
 
 : new-locals-find ( caddr u w -- nfa )
@@ -202,9 +218,8 @@ also locals-types
 \ make a new local with name caddr u; w is ignored
 \ the returned nfa denotes a word that produces what W: produces
 \ !! do the whole thing without nextname
-    drop nextname W: \ we don't want the thing that W: produces,
-    ['] last-local >body 2!   \ but the nfa of a word that produces that value: last-local
-    [ ' last-local >name ] Aliteral ;
+    drop nextname
+    ['] W: >name ;
 
 previous
 
@@ -337,98 +352,7 @@ forth definitions
 
 \ If this assumption is too optimistic, the compiler will warn the user.
 
-\ Implementation:
-
-\ orig, dest and do-sys have the following structure:
-\ address (of the branch or the instruction to be branched to) (TOS)
-\ locals-list (valid at address) (second)
-\ locals-size (at address; this could be computed from locals-list, but so what) (third)
-
-3 constant cs-item-size
-
-: CS-PICK ( ... u -- ... destu )
- 1+ cs-item-size * 1- >r
- r@ pick  r@ pick  r@ pick
- rdrop ;
-
-: CS-ROLL ( destu/origu .. dest0/orig0 u -- .. dest0/orig0 destu/origu )
- 1+ cs-item-size * 1- >r
- r@ roll r@ roll r@ roll
- rdrop ; 
-
-: CS-PUSH ( -- dest/orig )
- locals-size @
- locals-list @
- here ;
-
-: BUT       sys? 1 cs-roll ;                      immediate restrict
-: YET       sys? 0 cs-pick ;                       immediate restrict
-
-: common-list ( list1 list2 -- list3 )
-\ list1 and list2 are lists, where the heads are at higher addresses than
-\ the tail. list3 is the largest sublist of both lists.
- begin
-   2dup u<>
- while
-   2dup u>
-   if
-     swap
-   endif
-   @
- repeat
- drop ;
-
-: sub-list? ( list1 list2 -- f )
-\ true iff list1 is a sublist of list2
- begin
-   2dup u<
- while
-   @
- repeat
- = ;
-
-: list-size ( list -- u )
-\ size of the locals frame represented by list
- 0 ( list n )
- begin
-   over 0<>
- while
-   over
-   cell+ name> >body @ max
-   swap @ swap ( get next )
- repeat
- faligned nip ;
-
-: x>mark ( -- orig )
- cs-push 0 , ;
-
-variable dead-code \ true if normal code at "here" would be dead
-
-: unreachable ( -- )
-\ declares the current point of execution as unreachable and
-\ prepares the assumptions for a possible upcoming BEGIN
- dead-code on
- dup 0<> if
-   2 pick 2 pick
- else
-   0 0
- endif
- locals-list!
- locals-size ! ;
-
-: check-begin ( list -- )
-\ warn if list is not a sublist of locals-list
- locals-list @ sub-list? 0= if
-   \ !! print current position
-   ." compiler was overly optimistic about locals at a BEGIN" cr
-   \ !! print assumption and reality
- endif ;
-
-: xahead ( -- orig )
- POSTPONE branch x>mark unreachable ; immediate
-
-: xif ( -- orig )
- POSTPONE ?branch x>mark ; immediate
+\ Implementation: migrated to kernal.fs
 
 \ THEN (another control flow from before joins the current one):
 \ The new locals-list is the intersection of the current locals-list and
@@ -442,192 +366,36 @@ variable dead-code \ true if normal code at "here" would be dead
 \ inefficient, e.g. if there is a locals declaration between IF and
 \ ELSE. However, if ELSE generates an appropriate "lp+!#" before the
 \ branch, there will be none after the target <then>.
-: xthen ( orig -- )
- sys? dup @ ?struc
- dead-code @
- if
-   >resolve
-   locals-list!
-   locals-size !
- else
-   locals-size @ 3 roll - compile-lp+!#
-   >resolve
-   locals-list @ common-list locals-list!
-   locals-size @  locals-list @ list-size - compile-lp+!#
- endif
- dead-code off ; immediate
 
-: scope ( -- dest )
- cs-push ; immediate
+\ explicit scoping
 
-: endscope ( dest -- )
+: scope ( -- scope )
+ cs-push-part scopestart ; immediate
+
+: endscope ( scope -- )
+ scope?
  drop
- locals-list @ common-list locals-list!
- locals-size @  locals-list @ list-size - compile-lp+!#
- drop ; immediate
+ locals-list @ common-list
+ dup list-size adjust-locals-size
+ locals-list ! ; immediate
 
-: xexit ( -- )
-    locals-size @ compile-lp+!# POSTPONE exit unreachable ; immediate
+\ adapt the hooks
 
-: x?exit ( -- )
-    POSTPONE xif POSTPONE xexit POSTPONE xthen ; immediate
-
-: xelse ( orig1 -- orig2 )
- sys?
- POSTPONE xahead
- 1 cs-roll
- POSTPONE xthen ; immediate
-
-: xbegin ( -- dest )
- cs-push dead-code off ; immediate
-
-: xwhile ( dest -- orig dest )
- sys?
- POSTPONE xif
- 1 cs-roll ; immediate
-
-\ AGAIN (the current control flow joins another, earlier one):
-\ If the dest-locals-list is not a subset of the current locals-list,
-\ issue a warning (see below). The following code is generated:
-\ lp+!# (current-local-size - dest-locals-size)
-\ branch <begin>
-: xagain ( dest -- )
- sys?
- locals-size @ 3 roll - compile-lp+!#
- POSTPONE branch
- <resolve
- check-begin
- unreachable ; immediate
-
-\ UNTIL (the current control flow may join an earlier one or continue):
-\ Similar to AGAIN. The new locals-list and locals-size are the current
-\ ones. The following code is generated:
-\ lp+!# (current-local-size - dest-locals-size)
-\ ?branch <begin>
-\ lp+!# (dest-local-size - current-locals-size)
-\ (Another inefficiency. Maybe we should introduce a ?branch-lp+!#
-\ primitive. This would also solve the interrupt problem)
-: until-like ( dest xt -- )
- >r
- sys?
- locals-size @ dup 4 roll - compile-lp+!# ( list dest-addr old-locals-size )
- r> compile,
- >r <resolve
- check-begin
- locals-size @ r> - compile-lp+!# ;
-
-: xuntil ( dest -- )
- ['] ?branch until-like ; immediate
-
-: xrepeat ( orig dest -- )
- 3 pick 0= ?struc
- postpone xagain
- postpone xthen ; immediate
-
-\ counted loops
-
-\ leave poses a little problem here
-\ we have to store more than just the address of the branch, so the
-\ traditional linked list approach is no longer viable.
-\ This is solved by storing the information about the leavings in a
-\ special stack. The leavings of different DO-LOOPs are separated
-\ by a 0 entry
-
-\ !! remove the fixed size limit. 'Tis easy.
-20 constant leave-stack-size
-create leave-stack leave-stack-size cs-item-size * cells allot
-variable leave-sp  leave-stack leave-sp !
-
-: clear-leave-stack ( -- )
- leave-stack leave-sp ! ;
-
-\ : leave-empty? ( -- f )
-\  leave-sp @ leave-stack = ;
-
-: >leave ( orig -- )
-\ push on leave-stack
- leave-sp @
- dup [ leave-stack leave-stack-size cs-item-size * cells + ] Aliteral >=
- if
-   abort" leave-stack full"
- endif
- tuck ! cell+
- tuck ! cell+
- tuck ! cell+
- leave-sp ! ;
-
-: leave> ( -- orig )
-\ pop from leave-stack
- leave-sp @
- dup leave-stack <= if
-   abort" leave-stack empty"
- endif
- cell - dup @ swap
- cell - dup @ swap
- cell - dup @ swap
- leave-sp ! ;
-
-: done ( -- )
-\ !! the original done had ( addr -- )
- begin
-   leave>
-   dup
- while
-   POSTPONE xthen
- repeat
- 2drop drop ; immediate
-
-: xleave ( -- )
- POSTPONE xahead
- >leave ; immediate
-
-: x?leave ( -- )
- POSTPONE 0= POSTPONE xif
- >leave ; immediate
-
-: xdo ( -- do-sys )
- POSTPONE (do)
- POSTPONE xbegin
- 0 0 0 >leave ; immediate
-
-: x?do ( -- do-sys )
- 0 0 0 >leave
- POSTPONE (?do)
- x>mark >leave
- POSTPONE xbegin ; immediate
-
-: xfor ( -- do-sys )
- POSTPONE (for)
- POSTPONE xbegin
- 0 0 0 >leave ; immediate
-
-\ LOOP etc. are just like UNTIL
-\ the generated code for ?DO ... LOOP with locals is inefficient, this 
-\ could be changed by introducing (loop)-lp+!# etc.
-
-: loop-like ( do-sys xt -- )
- until-like  POSTPONE done  POSTPONE unloop ;
-
-: xloop ( do-sys -- )
- ['] (loop) loop-like ; immediate
-
-: x+loop ( do-sys -- )
- ['] (+loop) loop-like ; immediate
-
-: xs+loop ( do-sys -- )
- ['] (s+loop) loop-like ; immediate
-
-: locals-:-hook ( sys -- sys addr xt )
+: locals-:-hook ( sys -- sys addr xt n )
+    \ addr is the nfa of the defined word, xt its xt
     DEFERS :-hook
     last @ lastcfa @
     clear-leave-stack
     0 locals-size !
     locals-buffer locals-dp !
-    0 locals-list! ; ( clear locals vocabulary )
+    0 locals-list !
+    dead-code off
+    defstart ;
 
-: locals-;-hook ( sys addr xt -- sys )
+: locals-;-hook ( sys addr xt sys -- sys )
+    def?
     0 TO locals-wordlist
-    locals-size @ compile-lp+!#
+    0 adjust-locals-size ( not every def ends with an exit )
     lastcfa ! last !
     DEFERS ;-hook ;
 
@@ -678,14 +446,14 @@ variable leave-sp  leave-stack leave-sp !
 \ And here's finally the ANS standard stuff
 
 : (local) ( addr u -- )
-\ a little space-inefficient, but well deserved ;-)
-\ In exchange, there are no restrictions whatsoever on using (local)
- dup
- if
-   nextname POSTPONE { [ also locals-types ] W: } [ previous ]
- else
-   2drop
- endif ;
+    \ a little space-inefficient, but well deserved ;-)
+    \ In exchange, there are no restrictions whatsoever on using (local)
+    dup
+    if
+	nextname POSTPONE { [ also locals-types ] W: } [ previous ]
+    else
+	2drop
+    endif ;
 
 \ \ !! untested
 \ : TO ( c|w|d|r "name" -- )

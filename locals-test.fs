@@ -28,18 +28,20 @@ depth . cr
 ." testing part 2" cr
 
 : xxxx
+    [ ." starting xxxx" .s cr ]
 { f } f
-xif
+if
   { a b }
   b a
 [ ." before else" .s cr ]
-xelse
+else
 [ ." after else" .s cr ]
   { c d }
   c d
-xthen
+then
 [ ." locals-size after then:" locals-size @ . cr ]
 f drop
+    [ ." ending xxxx" .s cr ]
 ;
 
 2 3 1 xxxx . . cr
@@ -47,25 +49,25 @@ f drop
 cr cr cr
 
 : xxx3
-xbegin
+begin
   { a }
-xuntil
+until
 a
 ;
 ." after xxx3" .s cr cr cr
 
 : xxx2
 [ ." start of xxx2" .s cr ]
-xbegin
+begin
 [ ." after begin" .s cr ]
   { a }
 [ ." after { a }" .s cr ]
-1 xwhile
+1 while
 [ ." after while" .s cr ]
   { b }
   a b
 [ ." after a" .s cr ]
-xrepeat
+repeat
 [ ." after repeat" .s cr
   also locals words previous cr
 ]
@@ -75,52 +77,56 @@ a
 
 : xxx4
 [ ." before if" localsinfo ]
-xif
+if
 [ ." after if" localsinfo ]
 { a }
 [ ." before begin" localsinfo ]
-xbegin
+begin
 [ ." after begin" localsinfo ]
 [ 1 cs-roll ]
 [ ." before then" localsinfo ]
-xthen
+then
 { b }
-xuntil
+until
 [ ." after until" localsinfo ]
 ;
 
 : xxx5
 { a }
-xahead
-xbegin
+ahead
+begin
 [ ." after begin" localsinfo ]
 [ 1 cs-roll ]
-xthen
+then
 [ ." after then" localsinfo ]
-xuntil
+until
 [ ." after until" localsinfo ]
 ;
 
+." xxx6 coming up" cr
 : xxx6
-xif
+    [ ." starting xxx6" localsinfo ]
+if
 { x }
-xelse
+else
 [ ." after else" localsinfo ]
-xahead
-xbegin
+ahead
+begin
 [ ." after begin" localsinfo ]
-[ 2 CS-ROLL ] xthen
+[ 2 CS-ROLL ] then
 [ ." after then" localsinfo ]
-xuntil
+until
+then
+    [ ." ending xxx6" localsinfo ]
 ;
 
 ." xxx7 coming up" cr
 : xxx7
 { b }
-xdo
+do
 { a }
 [ ." before loop" localsinfo ]
-xloop
+loop
 [ ." after loop" localsinfo ]
 ;
 
@@ -128,36 +134,36 @@ xloop
 
 : xxx8
 { b }
-x?do
+?do
 { a }
 [ ." before loop" localsinfo ]
-xloop
+loop
 [ ." after loop" localsinfo ]
 ;
 
 ." xxx9 coming up" cr
 : xxx9
 { b }
-xdo
+do
 { c }
 [ ." before ?leave" leave-sp ? leave-stack . cr ]
-x?leave
+?leave
 [ ." after ?leave" leave-sp ? cr ]
 { a }
 [ ." before loop" localsinfo ]
-xloop
+loop
 [ ." after loop" localsinfo ]
 ;
 
 ." strcmp coming up" cr
 : strcmp { addr1 u1 addr2 u2 -- n }
- addr1 addr2 u1 u2 min 0 x?do
+ addr1 addr2 u1 u2 min 0 ?do
    { s1 s2 }
-   s1 c@ s2 c@ - ?dup xif
-     unloop xexit
-   xthen
+   s1 c@ s2 c@ - ?dup if
+     unloop exit
+   then
    s1 char+ s2 char+
- xloop
+ loop
  2drop
  u1 u2 - ;
 
@@ -178,13 +184,13 @@ s" " s" " strcmp . cr
 ;
 
 : findchar { c addr u -- i }
- addr u 0 x?do
+ addr u 0 ?do
    { p }
-   p c@ c = xif
-     p xleave
-   xthen
+   p c@ c = if
+     p leave
+   then
    p char+
- xloop
+ loop
  addr - ;
 
 
@@ -213,7 +219,7 @@ testfindchar
 
 : xxx10
 [ ." before if" localsinfo ]
-xif
+if
 [ ." after if" localsinfo ]
 scope
 [ ." after scope" localsinfo ]
@@ -221,13 +227,27 @@ scope
 [ ." before endscope" localsinfo ]
 endscope
 [ ." before begin" localsinfo ]
-xbegin
+begin
 [ ." after begin" localsinfo ]
 [ 1 cs-roll ]
 [ ." before then" localsinfo ]
-xthen
+then
 { b }
-xuntil
+until
 [ ." after until" localsinfo ]
 ;
 
+: xxx11
+    if
+    { a }
+    exit
+    [ ." after xexit" localsinfo ]
+    else
+    { b }
+    [ ." before xthen" localsinfo
+    then
+    [ ." after xthen" localsinfo ]
+;
+
+
+bye

@@ -1,5 +1,5 @@
 /*
-  $Id: main.c,v 1.5 1994-05-18 17:29:56 pazsan Exp $
+  $Id: main.c,v 1.6 1994-06-17 12:35:13 anton Exp $
   Copyright 1993 by the ANSI figForth Development Group
 */
 
@@ -123,6 +123,11 @@ int main(int argc, char **argv, char **env)
 	Cell environ[3] = {(Cell)argc, (Cell)argv, (Cell)env};
 	char* imagepath;
 
+#if defined(i386) && defined(ALIGNMENT_CHECK)
+	/* turn on alignment checks on the 486.
+	 * on the 386 this should have no effect. */
+	__asm__("pushfl; popl %eax; orl $0x40000, %eax; pushl %eax; popfl;");
+#endif
 	if((int)(imagepath=getenv("FORTHBIN")))
 	{
 		strcpy(imagefile,imagepath);

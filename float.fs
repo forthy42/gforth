@@ -1,12 +1,5 @@
 \ High level floating point                            14jan94py
 
-: faligned ( addr -- f-addr )
-  [ 1 floats 1- ] Literal + [ -1 floats ] Literal and ;
-
-: falign ( -- )
-  here dup faligned swap
-  ?DO  bl c,  LOOP ;
-
 : f, ( f -- )  here 1 floats allot f! ;
 
 \ !! have create produce faligned pfas

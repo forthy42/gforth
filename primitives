@@ -79,54 +79,62 @@ cfa = xt;
 IF_TOS(TOS = sp[0]);
 NEXT1;
 
+branch-lp+!#	--	new	branch_lp_plus_store_number
+/* this will probably not be used */
+branch_adjust_lp:
+lp += (int)(ip[1]);
+goto branch;
+
 branch	--		fig
 branch:
 ip = (Xt *)(((int)ip)+(int)*ip);
 
-?branch		f --		f83	question_branch
-""also known as 0branch""
-if (f==0) {
-    IF_TOS(TOS = sp[0]);
-    goto branch;
-    }
+\ condbranch(forthname,restline,code)
+\ this is non-syntactical: code must open a brace that is close by the macro
+define(condbranch,
+$1	$2
+$3    goto branch;
+}
 else
     ip++;
 
-(next)	--		cmFORTH	paren_next
-if ((*rp)--) {
-    goto branch;
-} else {
-    ip++;
+$1-lp+!#	$2_lp_plus_store_number
+$3    goto branch_adjust_lp;
 }
+else
+    ip+=2;
 
-(loop)	--		fig	paren_loop
+)
+
+condbranch(?branch,f --		f83	question_branch,
+if (f==0) {
+    IF_TOS(TOS = sp[0]);
+)
+
+condbranch((next),--		cmFORTH	paren_next,
+if ((*rp)--) {
+)
+
+condbranch((loop),--		fig	paren_loop,
 int index = *rp+1;
 int limit = rp[1];
 if (index != limit) {
     *rp = index;
-    goto branch;
-} else {
-    ip++;
-}
+)
 
-(+loop)		n --		fig	paren_plus_loop
+condbranch((+loop),n --		fig	paren_plus_loop,
 /* !! check this thoroughly */
 int index = *rp;
 int olddiff = index-rp[1];
 /* sign bit manipulation and test: (x^y)<0 is equivalent to (x<0) != (y<0) */
 /* dependent upon two's complement arithmetic */
-if ((olddiff^(olddiff+n))<0   /* the limit is crossed */
-    && (olddiff^n)<0          /* it is not a wrap-around effect */) {
-    /* break */
-    ip++;
-} else {
-    /* continue */
+if ((olddiff^(olddiff+n))>=0   /* the limit is not crossed */
+    || (olddiff^n)>=0          /* it is a wrap-around effect */) {
     *rp = index+n;
     IF_TOS(TOS = sp[0]);
-    goto branch;
-}
+)
 
-(s+loop)	n --		new	paren_symmetric_plus_loop
+condbranch((s+loop),n --		new	paren_symmetric_plus_loop,
 ""The run-time procedure compiled by S+LOOP. It loops until the index
 crosses the boundary between limit and limit-sign(n). I.e. a symmetric
 version of (+LOOP).""
@@ -141,10 +149,7 @@ if (n<0) {
 if (diff>=0 || newdiff<0) {
     *rp = oldindex+n;
     IF_TOS(TOS = sp[0]);
-    goto branch;
-} else {
-    ip++;
-}
+)
 
 unloop		--	core
 rp += 2;
@@ -460,13 +465,7 @@ fp!	f_addr --	new	fp_store
 fp = f_addr;
 
 ;s	--		core	exit
-/* use ;s as alias */
 ip = (Xt *)(*rp++);
-
-?exit	w --		core		question_exit
-/* use ;s as alias */
-if(w)
-	ip = (Xt *)(*rp++);
 
 >r	w --		core,fig	to_r
 *--rp = w;
@@ -824,7 +823,9 @@ else
 represent		r c_addr u -- n f1 f2	float
 char *sig;
 int flag;
-sig=ecvt(r, u, (int *)&n, &flag);
+int decpt;
+sig=ecvt(r, u, &decpt, &flag);
+n=decpt;
 f1=FLAG(flag!=0);
 f2=FLAG(isdigit(sig[0])!=0);
 memmove(c_addr,sig,u);
@@ -960,8 +961,26 @@ c2 = toupper(c1);
 @local#		-- w	new	fetch_local_number
 w = *(Cell *)(lp+(int)(*ip++));
 
+@local0	-- w	new	fetch_local_zero
+w = *(Cell *)(lp+0);
+
+@local4	-- w	new	fetch_local_four
+w = *(Cell *)(lp+4);
+
+@local8	-- w	new	fetch_local_eight
+w = *(Cell *)(lp+8);
+
+@local12	-- w	new	fetch_local_twelve
+w = *(Cell *)(lp+12);
+
 f@local#	-- r	new	f_fetch_local_number
 r = *(Float *)(lp+(int)(*ip++));
+
+f@local0	-- r	new	f_fetch_local_zero
+r = *(Float *)(lp+0);
+
+f@local8	-- r	new	f_fetch_local_eight
+r = *(Float *)(lp+8);
 
 laddr#		-- c_addr	new	laddr_number
 /* this can also be used to implement lp@ */
@@ -972,6 +991,15 @@ lp+!#	--	new	lp_plus_store_number
 local stack, a positive immediate argument drops memory from the local
 stack""
 lp += (int)(*ip++);
+
+-4lp+!	--	new	minus_four_lp_plus_store
+lp += -4;
+
+8lp+!	--	new	eight_lp_plus_store
+lp += 8;
+
+16lp+!	--	new	sixteen_lp_plus_store
+lp += 16;
 
 lp!	c_addr --	new	lp_store
 lp = (Address)c_addr;

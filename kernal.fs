@@ -57,6 +57,17 @@ DOES> ( n -- )  + c@ ;
   [ cell 1- ] Literal + [ -1 cells ] Literal and ;
 : align ( -- )          here dup aligned swap ?DO  bl c,  LOOP ;
 
+: faligned ( addr -- f-addr )
+  [ 1 floats 1- ] Literal + [ -1 floats ] Literal and ;
+
+: falign ( -- )
+  here dup faligned swap
+  ?DO
+      bl c,
+  LOOP ;
+
+
+
 : A!    ( addr1 addr2 -- )  dup relon ! ;
 : A,    ( addr -- )     here cell allot A! ;
 
@@ -135,9 +146,9 @@ Defer source
 
 \ Literal                                              17dec92py
 
-: Literal  ( n -- )  state @ 0= ?EXIT  postpone lit  , ;
+: Literal  ( n -- )  state @ IF postpone lit  , THEN ;
                                                       immediate
-: ALiteral ( n -- )  state @ 0= ?EXIT  postpone lit A, ;
+: ALiteral ( n -- )  state @ IF postpone lit A, THEN ;
                                                       immediate
 
 : char   ( 'char' -- n )  bl word char+ c@ ;
@@ -155,7 +166,10 @@ Defer source
 \ digit?                                               17dec92py
 
 : digit?   ( char -- digit true/ false )
-  base @ $100 = ?dup ?EXIT
+  base @ $100 =
+  IF
+    true EXIT
+  THEN
   toupper [char] 0 - dup 9 u> IF
     [ 'A '9 1 + -  ] literal -
     dup 9 u<= IF
@@ -241,7 +255,6 @@ hex
 \ catch throw                                          23feb93py
 \ bounce                                                08jun93jaw
 
-\ !! what about the other stacks (FP, locals)  anton
 \ !! allow the user to add rollback actions    anton
 \ !! use a separate exception stack?           anton
 
@@ -312,90 +325,369 @@ Defer notfound
 : [     ['] interpreter  IS parser state off ; immediate
 : ]     ['] compiler     IS parser state on  ;
 
+\ locals stuff needed for control structures
+
+variable locals-size \ this is the current size of the locals stack
+		     \ frame of the current word
+
+: compile-lp+! ( n -- )
+    dup negate locals-size +!
+    0 over = if
+    else -4 over = if postpone -4lp+!
+    else  8 over = if postpone  8lp+!
+    else 16 over = if postpone 16lp+!
+    else postpone lp+!# dup ,
+    then then then then drop ;
+
+: adjust-locals-size ( n -- )
+    \ sets locals-size to n and generates an appropriate lp+!
+    locals-size @ swap - compile-lp+! ;
+
+
+here 0 , \ just a dummy, the real value of locals-list is patched into it in glocals.fs
+AConstant locals-list \ acts like a variable that contains
+		     \ a linear list of locals names
+
+
+variable dead-code \ true if normal code at "here" would be dead
+
+: unreachable ( -- )
+\ declares the current point of execution as unreachable
+ dead-code on ;
+
+\ locals list operations
+
+: common-list ( list1 list2 -- list3 )
+\ list1 and list2 are lists, where the heads are at higher addresses than
+\ the tail. list3 is the largest sublist of both lists.
+ begin
+   2dup u<>
+ while
+   2dup u>
+   if
+     swap
+   then
+   @
+ repeat
+ drop ;
+
+: sub-list? ( list1 list2 -- f )
+\ true iff list1 is a sublist of list2
+ begin
+   2dup u<
+ while
+   @
+ repeat
+ = ;
+
+: list-size ( list -- u )
+\ size of the locals frame represented by list
+ 0 ( list n )
+ begin
+   over 0<>
+ while
+   over
+   cell+ name> >body @ max
+   swap @ swap ( get next )
+ repeat
+ faligned nip ;
+
+: set-locals-size-list ( list -- )
+ dup locals-list !
+ list-size locals-size ! ;
+
+: check-begin ( list -- )
+\ warn if list is not a sublist of locals-list
+ locals-list @ sub-list? 0= if
+   \ !! print current position
+   ." compiler was overly optimistic about locals at a BEGIN" cr
+   \ !! print assumption and reality
+ then ;
+
+\ Control Flow Stack
+\ orig, etc. have the following structure:
+\ type ( defstart, live-orig, dead-orig, dest, do-dest, scopestart) ( TOS )
+\ address (of the branch or the instruction to be branched to) (second)
+\ locals-list (valid at address) (third)
+
+\ types
+0 constant defstart
+1 constant live-orig
+2 constant dead-orig
+3 constant dest \ the loopback branch is always assumed live
+4 constant do-dest
+5 constant scopestart
+
+: def? ( n -- )
+    defstart <> abort" unstructured " ;
+
+: orig? ( n -- )
+ dup live-orig <> swap dead-orig <> and abort" expected orig " ;
+
+: dest? ( n -- )
+ dest <> abort" expected dest " ;
+
+: do-dest? ( n -- )
+ do-dest <> abort" expected do-dest " ;
+
+: scope? ( n -- )
+ scopestart <> abort" expected scope " ;
+
+: non-orig? ( n -- )
+ dest scopestart 1+ within 0= abort" expected dest, do-dest or scope" ;
+
+: cs-item? ( n -- )
+ live-orig scopestart 1+ within 0= abort" expected control flow stack item" ;
+
+3 constant cs-item-size
+
+: CS-PICK ( ... u -- ... destu )
+ 1+ cs-item-size * 1- >r
+ r@ pick  r@ pick  r@ pick
+ rdrop
+ dup non-orig? ;
+
+: CS-ROLL ( destu/origu .. dest0/orig0 u -- .. dest0/orig0 destu/origu )
+ 1+ cs-item-size * 1- >r
+ r@ roll r@ roll r@ roll
+ rdrop
+ dup cs-item? ; 
+
+: cs-push-part ( -- list addr )
+ locals-list @ here ;
+
+: cs-push-orig ( -- orig )
+ cs-push-part dead-code @
+ if
+   dead-orig
+ else
+   live-orig
+ then ;   
+
 \ Structural Conditionals                              12dec92py
 
 : ?struc      ( flag -- )       abort" unstructured " ;
 : sys?        ( sys -- )        dup 0= ?struc ;
-: >mark       ( -- sys )        here  0 , ;
-: >resolve    ( sys -- )        here over - swap ! ;
-: <resolve    ( sys -- )        here - , ;
+: >mark ( -- orig )
+ cs-push-orig 0 , ;
+: >resolve    ( addr -- )        here over - swap ! ;
+: <resolve    ( addr -- )        here - , ;
 
-: BUT       sys? swap ;                      immediate restrict
-: YET       sys? dup ;                       immediate restrict
+: BUT       1 cs-roll ;                      immediate restrict
+: YET       0 cs-pick ;                       immediate restrict
 
 \ Structural Conditionals                              12dec92py
 
-: AHEAD     postpone branch >mark ;           immediate restrict
-: IF        postpone ?branch >mark ;          immediate restrict
+: AHEAD ( -- orig )
+ POSTPONE branch >mark unreachable ; immediate restrict
+
+: IF ( -- orig )
+ POSTPONE ?branch >mark ; immediate restrict
+
 : ?DUP-IF \ general
 \ This is the preferred alternative to the idiom "?DUP IF", since it can be
 \ better handled by tools like stack checkers
-    postpone ?dup postpone IF ;       immediate restrict
+    POSTPONE ?dup POSTPONE if ;       immediate restrict
 : ?DUP-NOT-IF \ general
-    postpone ?dup postpone 0= postpone if ; immediate restrict
-: THEN      sys? dup @ ?struc >resolve ;     immediate restrict
+    POSTPONE ?dup POSTPONE 0= POSTPONE if ; immediate restrict
+
+: THEN ( orig -- )
+    dup orig?
+    dead-code @
+    if
+	dead-orig =
+	if
+	    >resolve drop
+	else
+	    >resolve set-locals-size-list dead-code off
+	then
+    else
+	dead-orig =
+	if
+	    >resolve drop
+	else \ both live
+	    over list-size adjust-locals-size
+	    >resolve
+	    locals-list @ common-list dup list-size adjust-locals-size
+	    locals-list !
+	then
+    then ; immediate restrict
+
 ' THEN alias ENDIF immediate restrict \ general
 \ Same as "THEN". This is what you use if your program will be seen by
 \ people who have not been brought up with Forth (or who have been
 \ brought up with fig-Forth).
 
-: ELSE      sys? postpone AHEAD swap postpone THEN ;
-                                             immediate restrict
+: ELSE ( orig1 -- orig2 )
+    POSTPONE ahead
+    1 cs-roll
+    POSTPONE then ; immediate restrict
 
-: BEGIN     here ;                           immediate restrict
-: WHILE     sys? postpone IF swap ;           immediate restrict
-: AGAIN     sys? postpone branch  <resolve ;  immediate restrict
-: UNTIL     sys? postpone ?branch <resolve ;  immediate restrict
-: REPEAT    over 0= ?struc postpone AGAIN postpone THEN ;
-                                             immediate restrict
+
+: BEGIN ( -- dest )
+    dead-code @ if
+	\ set up an assumption of the locals visible here
+	\ currently we just take the top cs-item
+	\ it would be more intelligent to take the top orig
+	\   but that can be arranged by the user
+	dup defstart <> if
+	    dup cs-item?
+	    2 pick
+	else
+	    0
+	then
+	set-locals-size-list
+    then
+    cs-push-part dest
+    dead-code off ; immediate restrict
+
+\ AGAIN (the current control flow joins another, earlier one):
+\ If the dest-locals-list is not a subset of the current locals-list,
+\ issue a warning (see below). The following code is generated:
+\ lp+!# (current-local-size - dest-locals-size)
+\ branch <begin>
+: AGAIN ( dest -- )
+    dest?
+    over list-size adjust-locals-size
+    POSTPONE branch
+    <resolve
+    check-begin
+    unreachable ; immediate restrict
+
+\ UNTIL (the current control flow may join an earlier one or continue):
+\ Similar to AGAIN. The new locals-list and locals-size are the current
+\ ones. The following code is generated:
+\ ?branch-lp+!# <begin> (current-local-size - dest-locals-size)
+: until-like ( list addr xt1 xt2 -- )
+    \ list and addr are a fragment of a cs-item
+    \ xt1 is the conditional branch without lp adjustment, xt2 is with
+    >r >r
+    locals-size @ 2 pick list-size - dup if ( list dest-addr adjustment )
+	r> drop r> compile,
+	swap <resolve ( list adjustment ) ,
+    else ( list dest-addr adjustment )
+	drop
+	r> compile, <resolve
+	r> drop
+    then ( list )
+    check-begin ;
+
+: UNTIL ( dest -- )
+    dest? ['] ?branch ['] ?branch-lp+!# until-like ; immediate restrict
+
+: WHILE ( dest -- orig dest )
+    POSTPONE if
+    1 cs-roll ; immediate restrict
+
+: REPEAT ( orig dest -- )
+    POSTPONE again
+    POSTPONE then ; immediate restrict
+
+
+\ counted loops
+
+\ leave poses a little problem here
+\ we have to store more than just the address of the branch, so the
+\ traditional linked list approach is no longer viable.
+\ This is solved by storing the information about the leavings in a
+\ special stack. The leavings of different DO-LOOPs are separated
+\ by a 0 entry
+
+\ !! remove the fixed size limit. 'Tis not hard.
+20 constant leave-stack-size
+create leave-stack 60 cells allot
+Avariable leave-sp  leave-stack leave-sp !
+
+: clear-leave-stack ( -- )
+    leave-stack leave-sp ! ;
+
+\ : leave-empty? ( -- f )
+\  leave-sp @ leave-stack = ;
+
+: >leave ( orig -- )
+    \ push on leave-stack
+    leave-sp @
+    dup [ leave-stack 60 cells + ] Aliteral
+    >= abort" leave-stack full"
+    tuck ! cell+
+    tuck ! cell+
+    tuck ! cell+
+    leave-sp ! ;
+
+: leave> ( -- orig )
+    \ pop from leave-stack
+    leave-sp @
+    dup leave-stack <= abort" leave-stack empty"
+    cell - dup @ swap
+    cell - dup @ swap
+    cell - dup @ swap
+    leave-sp ! ;
+
+: done ( -- )
+    \ !! the original done had ( addr -- )
+    begin
+	leave>
+	dup
+    while
+	POSTPONE then
+    repeat
+    2drop drop ; immediate
+
+: LEAVE ( -- )
+    POSTPONE ahead
+    >leave ; immediate
+
+: ?LEAVE ( -- )
+    POSTPONE 0= POSTPONE if
+    >leave ; immediate
+
+: DO ( -- do-sys )
+    POSTPONE (do)
+    POSTPONE begin drop do-dest
+    0 0 0 >leave ; immediate
+
+: ?DO ( -- do-sys )
+    0 0 0 >leave
+    POSTPONE (?do)
+    >mark >leave
+    POSTPONE begin drop do-dest ; immediate
+
+: FOR ( -- do-sys )
+    POSTPONE (for)
+    POSTPONE begin drop do-dest
+    0 0 0 >leave ; immediate
+
+\ LOOP etc. are just like UNTIL
+
+: loop-like ( do-sys xt1 xt2 -- )
+    rot do-dest?
+    until-like  POSTPONE done  POSTPONE unloop ;
+
+: LOOP ( do-sys -- )
+ ['] (loop) ['] (loop)-lp+!# loop-like ; immediate
+
+: +LOOP ( do-sys -- )
+ ['] (+loop) ['] (+loop)-lp+!# loop-like ; immediate
+
+\ A symmetric version of "+LOOP". I.e., "-high -low ?DO -inc S+LOOP"
+\ will iterate as often as "high low ?DO inc S+LOOP". For positive
+\ increments it behaves like "+LOOP". Use S+LOOP instead of +LOOP for
+\ negative increments.
+: S+LOOP ( do-sys -- )
+ ['] (s+loop) ['] (s+loop)-lp+!# loop-like ; immediate
+
+: NEXT ( do-sys -- )
+ ['] (next) ['] (next)-lp+!# loop-like ; immediate
 
 \ Structural Conditionals                              12dec92py
 
-variable locals-size \ this is the current size of the locals stack
-		     \ frame of the current word
+: EXIT ( -- )
+    0 adjust-locals-size
+    POSTPONE ;s
+    unreachable ; immediate restrict
 
-: compile-lp+!# ( n -- )
-    ?DUP IF
-	dup negate locals-size +!
-	postpone lp+!#  ,
-    THEN ;
-
-\ : EXIT ( -- )
-\     locals-size @ compile-lp+!# POSTPONE ;s ; immediate restrict
-\ : ?EXIT ( -- )
-\     postpone IF postpone EXIT postpone THEN ; immediate restrict
-
-Variable leavings
-
-: (leave)   here  leavings @ ,  leavings ! ;
-: LEAVE     postpone branch  (leave) ;  immediate restrict
-: ?LEAVE    postpone 0= postpone ?branch  (leave) ;
-                                             immediate restrict
-: DONE   ( addr -- )
-  leavings @
-  BEGIN
-    2dup u<=
-  WHILE
-    dup @ swap >resolve
-  REPEAT
-  leavings ! drop ;                          immediate restrict
-
-\ Structural Conditionals                              12dec92py
-
-: DO        postpone (do)   here ;            immediate restrict
-
-: ?DO       postpone (?do)  (leave) here ;
-                                             immediate restrict
-: FOR       postpone (for)  here ;            immediate restrict
-
-: loop]     dup <resolve 2 cells - postpone done postpone unloop ;
-
-: LOOP      sys? postpone (loop)  loop] ;     immediate restrict
-: +LOOP     sys? postpone (+loop) loop] ;     immediate restrict
-: S+LOOP \ general
-\ A symmetric version of "+LOOP". I.e., "-high -low ?DO -inc S+LOOP" will iterate as often as "high low ?DO inc S+LOOP". For positive increments it behaves like "+LOOP". Use S+LOOP instead of +LOOP for negative increments.
-    sys? postpone (s+loop) loop] ;    immediate restrict
-: NEXT      sys? postpone (next)  loop] ;     immediate restrict
+: ?EXIT ( -- )
+     POSTPONE if POSTPONE exit POSTPONE then ; immediate restrict
 
 \ Strings                                              22feb93py
 
@@ -567,9 +859,7 @@ Create ???  ," ???"
 defer :-hook ( sys1 -- sys2 )
 defer ;-hook ( sys2 -- sys1 )
 
-: EXIT  ( -- )  postpone ;s ;  immediate
-
-: : ( -- colon-sys )  Header [ :docol ] Literal cfa, 0 ] :-hook ;
+: : ( -- colon-sys )  Header [ :docol ] Literal cfa, defstart ] :-hook ;
 : ; ( colon-sys -- )  ;-hook ?struc postpone exit reveal postpone [ ;
   immediate restrict
 

@@ -1,5 +1,5 @@
 \ CROSS.FS     The Cross-Compiler                      06oct92py
-\ $Id: cross.fs,v 1.5 1994-06-01 10:05:14 pazsan Exp $
+\ $Id: cross.fs,v 1.6 1994-06-17 12:34:58 anton Exp $
 \ Idea and implementation: Bernd Paysan (py)
 \ Copyright 1992 by the ANSI figForth Development Group
 
@@ -134,7 +134,8 @@ include machine.fs
 : cell+         cell + ;
 : cells         cell<< lshift ;
 : chars         ;
-
+: floats	float * ;
+    
 >CROSS
 : cell/         cell<< rshift ;
 >TARGET
@@ -487,6 +488,8 @@ Cond: [Char]   ( "<char>" -- )  restrict? Char  lit, ;Cond
   docol, depth T ] H ;
 
 Cond: EXIT ( -- )  restrict?  compile ;S  ;Cond
+
+Cond: ?EXIT ( -- ) 1 abort" CROSS: using ?exit" ;Cond
 
 Cond: ; ( -- ) restrict?
                depth ?dup IF   1- <> ABORT" CROSS: Stack changed"

@@ -16,7 +16,7 @@
 ;; file named COPYING.  Among other things, the copyright notice
 ;; and this notice must be preserved on all copies.
 
-;;; $Header: /usr/local/lib/cvs-repository/src-master/gforth/gforth.el,v 1.1 1994-05-07 14:55:53 anton Exp $
+;;; $Header: /usr/local/lib/cvs-repository/src-master/gforth/gforth.el,v 1.2 1994-06-17 12:35:01 anton Exp $
 
 ;;-------------------------------------------------------------------
 ;; A Forth indentation, documentation search and interaction library
@@ -121,6 +121,7 @@ OBS! All words in forth-negatives must be surrounded by spaces.")
   (make-local-variable 'parse-sexp-ignore-comments)
   (setq parse-sexp-ignore-comments t))
   
+;;;###autoload
 (defun forth-mode ()
   "
 Major mode for editing Forth code. Tab indents for Forth code. Comments

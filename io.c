@@ -717,7 +717,7 @@ install_signal_handlers (void)
    but I would like something more automatic - anton */
 #define SIGS_TO_IGNORE	SIGCHLD
 #define SIGS_TO_ABORT	SIGINT, SIGILL, SIGFPE, SIGUSR1, SIGSEGV, SIGUSR2, \
-			SIGALRM, SIGEMT, SIGBUS, SIGSYS
+			SIGALRM,  SIGBUS
 #define SIGS_TO_QUIT	SIGHUP, SIGQUIT, SIGABRT, SIGPIPE, \
 			SIGTERM 
 

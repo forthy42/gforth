@@ -177,7 +177,7 @@ variable @code{GFORTHPATH}; if this does not exist, in
 @node Notation, Arithmetic, Words, Words
 @section Notation
 
-The Forth words are describes in this section in the glossary notation
+The Forth words are described in this section in the glossary notation
 that has become a de-facto standard for Forth texts, i.e.
 
 @quotation
@@ -320,10 +320,10 @@ theoretically keep floating point numbers on the data stack. As an
 additional difficulty, you don't know how many cells a floating point
 numkber takes. It is reportedly possible to write words in a way that
 they work also for a unified stack model, but we do not recommend trying
-it. Also, a Forth system to keep the local variables on the return
-stack. This is reasonable, as local variables usually eliminate the need
-to use the return stack explicitely. So, if you want to produce a
-standard complying program and if you are using local variables in a
+it. Also, a Forth system is allowed to keep the local variables on the
+return stack. This is reasonable, as local variables usually eliminate
+the need to use the return stack explicitely. So, if you want to produce
+a standard complying program and if you are using local variables in a
 word, forget about return stack manipulations in that word (see the
 standard document for the exact rules).
 
@@ -417,7 +417,7 @@ IF
   @var{code}
 ENDIF
 @end example
-
+or
 @example
 @var{flag}
 IF
@@ -527,11 +527,13 @@ index by @var{n} instead of by 1. The loop is terminated when the border
 between @var{limit-1} and @var{limit} is crossed. E.g.:
 
 4 0 ?DO  i .  2 +LOOP   prints 0 2
+
 4 1 ?DO  i .  2 +LOOP   prints 1 3
 
 The behaviour of @code{@var{n} +LOOP} is peculiar when @var{n} is negative:
 
 -1 0 ?DO  i .  -1 +LOOP  prints 0 -1
+
  0 0 ?DO  i .  -1 +LOOP  prints nothing
 
 Therefore we recommend avoiding using @code{@var{n} +LOOP} with negative
@@ -539,7 +541,9 @@ Therefore we recommend avoiding using @code{@var{n} +LOOP} with negative
 case behaves symmetrical to the positive case:
 
 -2 0 ?DO  i .  -1 +LOOP  prints 0 -1
+
 -1 0 ?DO  i .  -1 +LOOP  prints 0
+
  0 0 ?DO  i .  -1 +LOOP  prints nothing
 
 The loop is terminated when the border between @var{limit-sgn(n)} and
