@@ -1500,12 +1500,12 @@ Engine Options:\n\
   -p PATH, --path=PATH		    Search path for finding image and sources\n\
   --print-metrics		    Print some code generation metrics on exit\n\
   -r SIZE, --return-stack-size=SIZE Specify return stack size\n\
-  --ss-greedy                       greedy, not optimal superinst selection\n
-  --ss-min-codesize                 select superinsts for smallest native code\n
-  --ss-min-ls                       minimize loads and stores\n
-  --ss-min-lsu                      minimize loads, stores, and pointer updates\n
-  --ss-min-nexts                    minimize the number of static superinsts\n
-  --ss-number=N                     use N static superinsts (default max)\n
+  --ss-greedy                       greedy, not optimal superinst selection\n\
+  --ss-min-codesize                 select superinsts for smallest native code\n\
+  --ss-min-ls                       minimize loads and stores\n\
+  --ss-min-lsu                      minimize loads, stores, and pointer updates\n\
+  --ss-min-nexts                    minimize the number of static superinsts\n\
+  --ss-number=N                     use N static superinsts (default max)\n\
   -v, --version			    Print engine version and exit\n\
 SIZE arguments consist of an integer followed by a unit. The unit can be\n\
   `b' (byte), `e' (element; default), `k' (KB), `M' (MB), `G' (GB) or `T' (TB).\n",
