@@ -62,7 +62,7 @@ INSTALL_DATA = @INSTALL_DATA@
 LN_S	= @LN_S@
 GCC	= @CC@
 CC	= $(GCC)
-FORTHPATH = ~+$(PATHSEP)$(libdir)/gforth/site-forth$(PATHSEP)$(siteforthdir)$(PATHSEP)$(libdir)/gforth/$(VERSION)$(PATHSEP)$(datadir)/gforth/$(VERSION)
+FORTHPATH = .$(PATHSEP)$(libdir)/gforth/site-forth$(PATHSEP)$(siteforthdir)$(PATHSEP)$(libdir)/gforth/$(VERSION)$(PATHSEP)$(datadir)/gforth/$(VERSION)
 FORTHSIZES = @FORTHSIZES@
 FORTH_ARGS = --die-on-signal -p $(FORTHPATH)$(PATHSEP)$(srcdir)
 ENGINE = ./gforth
@@ -72,7 +72,9 @@ FORTH_FAST	= $(ENGINE_FAST) $(FORTH_ARGS)
 FORTHKFLAGS= --die-on-signal -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)" -i $(kernel_fi)
 FORTHK	= $(ENGINE) $(FORTHKFLAGS)
 FORTHP	= $(ENGINE) --die-on-signal -i ./$(kernel_fi)
-STARTUP	= -e 3 exboot.fs startup.fs @asm_fs@ @disasm_fs@
+#the "-2 image-included-files +!" undoes the change to image-included-files
+# in exboot.fs
+STARTUP	= -e 3 exboot.fs -e -2 -e image-included-files -e +! startup.fs @asm_fs@ @disasm_fs@
 STRIP	= strip
 TEXI2DVI = texi2dvi -e
 DVI2PS	= dvips -Z

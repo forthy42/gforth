@@ -1,5 +1,3 @@
-etags.fs crashes one of my applications (gs.fs). anton 12jan95
-
 gforth.el: indentation does not work right on the first line of a
 buffer. anton 27jan95
 
@@ -26,13 +24,6 @@ text files under DOS and Windows.  anton 31oct99
 gforth.el: Typing <ret> does not work when tabs separate words in a
 line, and there is a \-comment at the end of the line.  anton 19feb00
 
-If I start Gforth and type first
-: 123456789012345678901234567890 ;
-' 123456789012345678901234567890  >name name>string type    gives ??? ok
-Robert Epprecht 18mar00
-
-EKEY no longer works (does not recognize function keys etc.). anton 23feb2000
-
 SEE does not work when the control structure is too complex (e.g.,
 load http://www.complang.tuwien.ac.at/forth/pentomino.fs and then do
 SEE NEXT-PIECE). anton 5mar2000
@@ -41,9 +32,8 @@ RESTORE-INPUT does not work for files with CRLF newlines, and if
 SAVE-INPUT was called on a line without newline (i.e., on the last
 line)  anton 27apr2000
 
-The output of .included for gforth.fi does not include exboot.fs and
-exceptions.fs  anton 1jul00
-
 If a signal happens when waiting on the command line, the cause of the
 exception is not reported, and the backtrace is strange the first time
 on Linux (and every second time on IRIX and DU).  anton 21jul00
+
+Include cannot handle lines longer than 255 characters.  anton 4sep00
