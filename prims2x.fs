@@ -585,6 +585,34 @@ s" IP" save-mem w s" error don't use # on results" make-stack inst-stream
 : stores ( -- )
     prim prim-effect-out prim prim-effect-out-end @ ['] store map-items ;
 
+: print-debug-arg { item -- }
+    ." fputs(" quote space item item-name 2@ type ." =" quote ." , vm_out); "
+    ." printarg_" item item-type @ print-type-prefix
+    ." (" item item-name 2@ type ." );" cr ;
+    
+: print-debug-args ( -- )
+    ." #ifdef VM_DEBUG" cr
+    ." if (vm_debug) {" cr
+    prim prim-effect-in prim prim-effect-in-end @ ['] print-debug-arg map-items
+\    ." fputc('\n', vm_out);" cr
+    ." }" cr
+    ." #endif" cr ;
+
+: print-debug-result { item -- }
+    item item-first @ if
+	item print-debug-arg
+    endif ;
+
+: print-debug-results ( -- )
+    cr
+    ." #ifdef VM_DEBUG" cr
+    ." if (vm_debug) {" cr
+    ." fputs(" quote ."  -- " quote ." , vm_out); "
+    prim prim-effect-out prim prim-effect-out-end @ ['] print-debug-result map-items
+    ." fputc('\n', vm_out);" cr
+    ." }" cr
+    ." #endif" cr ;
+
 : output-super-end ( -- )
     prim prim-c-code 2@ s" SET_IP" search if
 	." SUPER_END;" cr
@@ -594,6 +622,7 @@ s" IP" save-mem w s" error don't use # on results" make-stack inst-stream
 : output-c-tail ( -- )
     \ the final part of the generated C code
     output-super-end
+    print-debug-results
     ." NEXT_P1;" cr
     stores
     fill-tos
@@ -611,19 +640,6 @@ s" IP" save-mem w s" error don't use # on results" make-stack inst-stream
 	\ !! resync #line missing
     repeat
     2drop type ;
-
-: print-debug-arg { item -- }
-    ." fputs(" quote space item item-name 2@ type ." =" quote ." , vm_out); "
-    ." printarg_" item item-type @ print-type-prefix
-    ." (" item item-name 2@ type ." );" cr ;
-    
-: print-debug-args ( -- )
-    ." #ifdef VM_DEBUG" cr
-    ." if (vm_debug) {" cr
-    prim prim-effect-in prim prim-effect-in-end @ ['] print-debug-arg map-items
-    ." fputc('\n', vm_out);" cr
-    ." }" cr
-    ." #endif" cr ;
 
 : print-entry ( -- )
     ." I_" prim prim-c-name 2@ type ." :" ;
@@ -666,7 +682,8 @@ s" IP" save-mem w s" error don't use # on results" make-stack inst-stream
     ."   fputs(" quote prim prim-name 2@ type quote ." , vm_out);" cr
     disasm-args
     ."   ip += " inst-stream stack-in @ 1+ 0 .r ." ;" cr
-    ." } else " ;
+    ."   goto _endif_;" cr
+    ." }" cr ;
 
 : output-profile ( -- )
     \ generate code for postprocessing the VM block profile stuff
@@ -676,8 +693,10 @@ s" IP" save-mem w s" error don't use # on results" make-stack inst-stream
     prim prim-c-code 2@  s" SET_IP"    search nip nip
     prim prim-c-code 2@  s" SUPER_END" search nip nip or if
 	."   return;" cr
+    else
+	."   goto _endif_;" cr
     endif
-    ." } else " cr ;
+    ." }" cr ;
 
 : gen-arg-parm { item -- }
     item item-stack @ inst-stream = if
@@ -943,6 +962,7 @@ s" IP" save-mem w s" error don't use # on results" make-stack inst-stream
     fetches ;
 
 : part-output-c-tail ( -- )
+    print-debug-results
     stores ;
 
 : output-combined-tail ( -- )

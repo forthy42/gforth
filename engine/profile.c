@@ -102,6 +102,7 @@ void postprocess_block(block_count *b)
       add_inst(b,"unknown");
       ip++;
     }
+  _endif_:
     next_block = block_lookup(ip);
   } while (next_block == NULL);
   /* we fell through, so set fallthrough and update the count */
