@@ -142,6 +142,10 @@ create ekey-buffer 8 chars allot
     then ( xt addr u )
     nextname alias ;
 
+\ nac02dec1999 exclude the escape sequences if we are using crossdoc.fs to generate
+\ a documentation file. Do this because key sequences [ and OR here clash with
+\ standard names and so prevent them appearing in the documentation. 
+[IFUNDEF] put-doc-entry
 get-current esc-sequences set-current
 
 \ esc sequences (derived by using key-sequence in an xterm)
@@ -170,18 +174,19 @@ get-current esc-sequences set-current
 ' k12	s" [24~" esc-sequence
 
 set-current
+[ENDIF]
 
 : clear-ekey-buffer ( -- )
       ekey-buffer 0 ekey-buffered 2! ;
 
-: ekey ( -- u )
+: ekey ( -- u ) \ facility-ext e-key
     key dup #esc =
     if
 	drop clear-ekey-buffer
 	esc-prefix
     then ;
 
-: ekey>char ( u -- u false | c true )
+: ekey>char ( u -- u false | c true ) \ facility-ext e-key-to-char
     dup 256 u< ;
 
 : esc? ( -- flag ) recursive
@@ -199,7 +204,9 @@ set-current
     then
     true ;
 
-: ekey? ( -- flag )
+: ekey? ( -- flag ) \ facility-ext e-key-question
+    \G Return @code{true} if a keyboard event is available (use
+    \G @code{ekey} to receive the event), @code{false} otherwise.
     key?
     if
 	key dup #esc =
