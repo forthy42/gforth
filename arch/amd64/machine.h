@@ -38,6 +38,7 @@
 #endif
 #endif
 
+#include "../generic/128bit.h"
 #include "../generic/machine.h"
 
 /* The architecture requires hardware consistency */

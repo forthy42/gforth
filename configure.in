@@ -71,6 +71,7 @@ AC_ARG_VAR(ac_cv_sizeof_long, [sizeof(long)])
 AC_ARG_VAR(ac_cv_sizeof_long_long, [sizeof(long long)])
 AC_ARG_VAR(ac_cv_sizeof_intptr_t, [sizeof(intptr_t)])
 AC_ARG_VAR(ac_cv_sizeof_int128_t, [sizeof(int128_t)])
+AC_ARG_VAR(ac_cv_sizeof_uint128_t, [sizeof(uint128_t)])
 AC_ARG_VAR(ac_cv_c_bigendian, [Is the target big-endian ("yes" or "no")?])
 AC_ARG_VAR(no_dynamic_default, [run gforth with --dynamic (0) or --no-dynamic (1) by default])
 AC_ARG_VAR(skip_code, [assembly code for skipping 16 bytes of code])
@@ -160,6 +161,8 @@ case "$host_cpu" in
 		;;
 	x86_64)
 		machine=amd64
+		ac_includes_default="$ac_includes_default
+#include \"arch/generic/128bit.h\""
 		;;
 	ia64*)
 		machine=ia64
@@ -242,6 +245,7 @@ AC_CHECK_SIZEOF(long)
 AC_CHECK_SIZEOF(long long)
 AC_CHECK_SIZEOF(intptr_t)
 AC_CHECK_SIZEOF(int128_t)
+AC_CHECK_SIZEOF(uint128_t)
 
 AC_MSG_CHECKING([for a C type for cells])
 ac_cv_int_type_cell=none
@@ -294,12 +298,40 @@ case `expr 2 '*' "$ac_cv_sizeof_char_p"` in
     ;;
 esac
 AC_MSG_RESULT($ac_cv_int_type_double_cell)
-if test "$ac_cv_int_type_double_cell" = none; then
+
+AC_MSG_CHECKING([for a C type for unsigned double-cells])
+ac_cv_int_type_double_ucell=none
+case `expr 2 '*' "$ac_cv_sizeof_char_p"` in
+  $ac_cv_sizeof_short)
+    ac_cv_int_type_double_ucell="unsigned short"
+    ;;
+  $ac_cv_sizeof_int)
+    ac_cv_int_type_double_ucell="unsigned int"
+    ;;
+  $ac_cv_sizeof_long)
+    ac_cv_int_type_double_ucell="unsigned long"
+    ;;
+  $ac_cv_sizeof_long_long)
+    ac_cv_int_type_double_ucell="unsigned long long"
+    ;;
+  $ac_cv_sizeof_intptr_t)
+    ac_cv_int_type_double_ucell="unsigned intptr_t"
+    ;;
+  $ac_cv_sizeof_uint128_t)
+    ac_cv_int_type_double_ucell="uint128_t"
+    ;;
+esac
+AC_MSG_RESULT($ac_cv_int_type_double_ucell)
+
+if test "$ac_cv_int_type_double_cell" = none || \
+   test "$ac_cv_int_type_double_ucell" = none
+then
 	AC_MSG_WARN([Emulating double-cell arithmetic. This may be slow.])
 	AC_LIBOBJ(dblsub)
 	AC_DEFINE(BUGGY_LONG_LONG,,[define this if there is no working DOUBLE_CELL_TYPE on your machine])
 else
 	AC_DEFINE_UNQUOTED(DOUBLE_CELL_TYPE,$ac_cv_int_type_double_cell,[an integer type that is twice as long as a pointer])
+	AC_DEFINE_UNQUOTED(DOUBLE_UCELL_TYPE,$ac_cv_int_type_double_ucell,[an unsigned integer type that is twice as long as a pointer])
 fi
 
 AC_TYPE_OFF_T

@@ -132,7 +132,7 @@ typedef struct {
 
 /* DCell and UDCell must be twice as large as Cell */
 typedef DOUBLE_CELL_TYPE DCell;
-typedef unsigned DOUBLE_CELL_TYPE UDCell;
+typedef DOUBLE_UCELL_TYPE UDCell;
 
 #define OFF2UD(o)	((UDCell)(o))
 #define UD2OFF(ud)	((off_t)(ud))
