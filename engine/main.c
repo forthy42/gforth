@@ -318,9 +318,7 @@ int go_forth(Address image, int stack, Cell *entries)
   for(;stack>0;stack--)
     *--sp0=entries[stack-1];
 
-#if !defined(MSDOS) && !defined(SHARC) && !defined(_WIN32) && !defined(__EMX__)
   get_winsize();
-#endif
    
 #ifdef SYSSIGNALS
   install_signal_handlers(); /* right place? */

@@ -22,7 +22,7 @@
 include Makefile
 
 #!! redundancy with engine/Makefile.in
-DOBJECTS=$(addprefix engine/,io.o memcmpc.o @LIBOBJS@ engine.o main.o engine-fast.o main-fast.o engine-ditc.o main-ditc.o)
+DOBJECTS=$(addprefix engine/,io.o signal.o memcmpc.o @LIBOBJS@ engine.o main.o engine-fast.o main-fast.o engine-ditc.o main-ditc.o)
 
 #stuff in a binonly distribution 
 BINONLYDIST = config.status Makefile Makedist gforth$(EXE) gforth-ditc$(EXE) \

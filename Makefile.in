@@ -292,7 +292,7 @@ SOURCES	= $(CVSDIRS) compat Makefile.in Makedist.in engine/Makefile.in gforthmi.
 	doc/gforth.ds doc/texinfo.tex doc/gforth.1 doc/version.texi.in \
 	gforth.el \
 	prim engine/engine.c engine/main.c engine/io.c engine/memcmpc.c \
-	$(ARCHS) \
+	engine/signal.c $(ARCHS) \
 	engine/getopt.c engine/getopt1.c engine/getopt.h engine/select.c \
 	engine/ecvt.c engine/memcmp.c engine/strtol.c engine/strtoul.c \
 	engine/ansidecl.h engine/memmove.c \
