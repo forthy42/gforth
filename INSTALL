@@ -103,6 +103,26 @@ env "FORTHSIZES=--dictionary-size=256k --data-stack-size=16k --fp-stack-size=16k
 The line above reaffirms the default sizes. Note that the locals
 stack area is also used as input buffer stack.
 
+If C's "long long" do not work properly on your machine (i.e., if the
+tests involving double-cell numbers fail), you can build Gforth such
+that it does not use "long long":
+
+env ac_cv_sizeof_long_long=0 ./configure
+
+
+			Cross-Configuration
+
+A few tests made by the configure script do not work in a
+cross-compilation situation. You have to provide the results of these
+tests by hand. E.g., if you compile for a 386 architecture processor:
+
+env ac_cv_sizeof_char_p=4 ac_cv_sizeof_short=2 ac_cv_sizeof_int=4 ac_cv_sizeof_long=4 ac_cv_sizeof_long_long=8 ac_cv_c_bigendian=no ./configure
+
+The ac_cv_sizeof_... variables give the sizes of various C types;
+ac_cv_sizeof_char_p is the same as "sizeof(char*)" in C code. The
+ac_cv_c_bigendian variable gives the byte order.
+
+
 		Preloading installation-specific code
 
 If you want to have some installation-specific files loaded when
