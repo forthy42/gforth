@@ -1,6 +1,15 @@
 User-visible changes between 0.6.1 and 0.6.2:
 
-bugfixes (in particular, gforth-0.6.2 compiles with gcc-3.3)
+Bug fixes (in particular, gforth-0.6.2 compiles with gcc-3.3)
+New words: LATEST, LATESTXT (LASTXT deprecated)
+Operating environment: Added optional support for a C interface built
+  on the ffcall libraries (more portable and powerful than the old
+  one, but still not documented).  To use it, the ffcall libraries
+  have to be installed before building Gforth (see INSTALL).
+Miscellaneous: Gforth-fast now uses static superinstructions (some
+  speedup on some platforms); generally this is transparent (apart
+  from the speedup), but there are lots of command-line options for
+  controlling the static superinstruction generation.
 
 
 User-visible changes between 0.6.0 and 0.6.1:
