@@ -3352,7 +3352,7 @@ Variable outfile-fd
   dup @ dup IF addr-refs @ THEN
   swap >r
   over align+ tuck tcell swap - rshift swap 0
-  DO dup 1 and 
+  ?DO dup 1 and 
      IF drop rdrop snl-calc UNLOOP EXIT THEN 
      2/ swap 1+ swap 
   LOOP
