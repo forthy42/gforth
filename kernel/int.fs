@@ -384,7 +384,11 @@ const Create ???  0 , 3 c, char ? c, char ? c, char ? c,
 : >head-noprim ( cfa -- nt ) \ gforth  to-head-noprim
     \ also heuristic; finds only names with up to 32 chars
     $25 cell do ( cfa )
-	dup i - dup @ [ alias-mask lcount-mask or ] literal and ( cfa len|alias )
+	dup i - dup @ [ alias-mask lcount-mask or ] literal
+	[ 1 bits/char 3 - lshift 1 - 1 bits/char 1 - lshift or
+	-1 cells allot bigendian [IF]   c, $FF 1 cells 1- times
+	[ELSE] $FF 1 cells 1- times c, [THEN] ]
+	and ( cfa len|alias )
 	swap + cell + cfaligned over alias-mask + =
 	if ( cfa )
 	    dup i - cell - dup head?
@@ -400,7 +404,11 @@ const Create ???  0 , 3 c, char ? c, char ? c, char ? c,
 
 : >head-noprim ( cfa -- nt ) \ gforth  to-head-noprim
     $25 cell do ( cfa )
-	dup i - dup @ [ alias-mask lcount-mask or ] literal and ( cfa len|alias )
+	dup i - dup @ [ alias-mask lcount-mask or ] literal
+	[ 1 bits/char 3 - lshift 1 - 1 bits/char 1 - lshift or
+	-1 cells allot bigendian [IF]   c, $FF 1 cells 1- times
+	[ELSE] $FF 1 cells 1- times c, [THEN] ]
+	and ( cfa len|alias )
 	swap + cell + cfaligned over alias-mask + =
 	if ( cfa ) i - cell - unloop exit
 	then
