@@ -74,31 +74,31 @@ doc-on
 
 0 AConstant forthstart
 
-include vars.fs                \ variables and other stuff
+include ./vars.fs                \ variables and other stuff
 include kernel/version.fs \ is in $(build)/kernel
-include kernel.fs              \ load kernel
-include errore.fs
-include doers.fs
+include ./kernel.fs              \ load kernel
+include ./errore.fs
+include ./doers.fs
 has? file [IF]
-include args.fs
-include files.fs               \ load file words
-include paths.fs
-include require.fs
+include ./args.fs
+include ./files.fs               \ load file words
+include ./paths.fs
+include ./require.fs
 [THEN]
 
 has? compiler [IF]
 has? glocals [IF]
-include cond.fs                \ load IF and co
+include ./cond.fs                \ load IF and co
 [ELSE]
-include cond-old.fs            \ load IF and co w/o locals
+include ./cond-old.fs            \ load IF and co w/o locals
 [THEN]
 \ include arch/misc/tt.fs
 \ include arch/misc/sokoban.fs
 [THEN]
-include toolsext.fs
-include tools.fs               \ load tools ( .s dump )
-include getdoers.fs
-include special.fs             \ special must be last!
+include ./toolsext.fs
+include ./tools.fs               \ load tools ( .s dump )
+include ./getdoers.fs
+include ./special.fs             \ special must be last!
 
 \ Setup                                                13feb93py
 
