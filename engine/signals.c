@@ -72,8 +72,6 @@ void install_signal_handler(int sig, void (*handler)(int, siginfo_t *, void *))
 }
 #endif
 
-typedef void Sigfunc(int);
-
 Sigfunc *bsd_signal(int signo, Sigfunc *func)
 {
   struct sigaction act, oact;
@@ -109,6 +107,9 @@ signal_throw(int sig)
   case SIGBUS: code=-23; break;
 #endif
   case SIGSEGV: code=-9; break;
+#ifdef SIGPIPE
+  case SIGPIPE: code=-2049; break;
+#endif
   default: code=-256-sig; break;
   }
   longjmp(throw_jmp_buf,code); /* !! or use siglongjmp ? */

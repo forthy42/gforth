@@ -90,8 +90,9 @@ decimal
 \ Gforth's errors:
 
 -2048 s" Cannot tick compile-only word (try COMP' ... DROP)" rot errstring
+-2049 s" Write to broken pipe" rot errstring
 
-variable next-exception -2049 next-exception !
+variable next-exception -2050 next-exception !
 
 : exception ( addr u -- n ) \ exception- gforth
     \G @var{n} is a previously unused @code{throw} value in the range

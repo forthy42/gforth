@@ -35,6 +35,7 @@
 #include <fcntl.h>
 #include <assert.h>
 #include <stdlib.h>
+#include <signal.h>
 #ifndef STANDALONE
 #if HAVE_SYS_MMAN_H
 #include <sys/mman.h>
@@ -1316,6 +1317,9 @@ int main(int argc, char **argv, char **env)
 	*p2 = *p1;
     *p2='\0';
     retvalue = go_forth(image, 4, environ);
+#ifdef SIGPIPE
+    bsd_signal(SIGPIPE, SIG_IGN);
+#endif
 #ifdef VM_PROFILING
     vm_print_profile(stderr);
 #endif

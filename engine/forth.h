@@ -275,6 +275,11 @@ Cell to_float(Char *c_addr, UCell u, Float *rp);
 Float v_star(Float *f_addr1, Cell nstride1, Float *f_addr2, Cell nstride2, UCell ucount);
 void faxpy(Float ra, Float *f_x, Cell nstridex, Float *f_y, Cell nstridey, UCell ucount);
 
+/* signal handler stuff */
+void install_signal_handlers(void);
+typedef void Sigfunc(int);
+Sigfunc *bsd_signal(int signo, Sigfunc *func);
+
 /* dblsub routines */
 DCell dnegate(DCell d1);
 UDCell ummul (UCell a, UCell b);

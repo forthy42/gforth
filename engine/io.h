@@ -42,6 +42,5 @@ void get_winsize(void);
          		/* flag was originally wrong -- lennart */
 #endif
 
-void install_signal_handlers(void);
 extern UCell rows, cols;
 extern int terminal_prepped;

@@ -729,7 +729,13 @@ Defer .status
     \ after the next THROW it catches (it may be off due to BOUNCEs or
     \ because process-args left something on the stack)
     BEGIN
-	.status cr query interpret prompt
+	.status
+	['] cr catch if
+	    >stderr ." can't print to stdout, leaving" cr
+	    \ if stderr does not work either, already DoError causes a hang
+	    2 (bye)
+	endif
+	query interpret prompt
     AGAIN ;
 
 ' (quit) IS 'quit
@@ -959,7 +965,9 @@ has? new-input 0= [IF]
     fp@ fp0 !
 [ [THEN] ]
     handler off
-    ['] cold catch DoError cr
+    ['] cold catch dup -&2049 <> if \ broken pipe?
+	DoError cr
+    endif
 [ has? os [IF] ]
     1 (bye) \ !! determin exit code from throw code?
 [ [THEN] ]
