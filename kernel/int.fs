@@ -92,15 +92,15 @@ const Create bases   10 ,   2 ,   A , 100 ,
 	drop
     THEN ;
 
-\ ouch, this is complicated; there must be a simpler way - anton
-: s>number? ( addr len -- d f )
-    \ converts string addr len into d, flag indicates success
-    base @ >r  dpl on
+: sign? ( addr u -- addr u flag )
     over c@ '- =  dup >r
     IF
 	1 /string
     THEN
-    getbase  dpl on  0. 2swap
+    r> ;
+
+: s>unumber? ( addr u -- ud flag )
+    0. 2swap
     BEGIN ( d addr len )
 	dup >r >number dup
     WHILE \ there are characters left
@@ -110,9 +110,20 @@ const Create bases   10 ,   2 ,   A , 100 ,
     WHILE \ the current char is '.'
 	1 /string
     REPEAT  THEN \ there are unparseable characters left
-        2drop rdrop false
+	rdrop 2drop false
+    ELSE
+	rdrop 2drop true
+    THEN ;
+
+\ ouch, this is complicated; there must be a simpler way - anton
+: s>number? ( addr len -- d f )
+    \ converts string addr len into d, flag indicates success
+    base @ >r  dpl on   sign? >r  getbase
+    s>unumber?
+    0= IF
+        false
     ELSE \ no characters left, all ok
-	2drop rdrop r>
+	r>
 	IF
 	    dnegate
 	THEN
