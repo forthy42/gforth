@@ -207,6 +207,7 @@ GFORTH_FI_SRC = \
 	vt100.fs \
 	vt100key.fs \
 	wordinfo.fs \
+	arch/386/asm.fs arch/386/disasm.fs \
 	arch/alpha/asm.fs arch/alpha/disasm.fs \
 	arch/mips/asm.fs arch/mips/disasm.fs
 
