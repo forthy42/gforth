@@ -30,6 +30,8 @@
 #define vm_Cell2a(x) ((char *)(x))
 #define vm_a2Cell(x) ((Cell)(x))
 
+#define USE_spTOS 1
+
 #ifdef USE_spTOS
 #define IF_spTOS(x) x
 #else
@@ -42,18 +44,48 @@
 #define NAME(_x)
 #endif
 
-/* different threading schemes for different architectures; for more,
-   look in ../engine/threaded.h, and 
-   look for THREADING_SCHEME in ../arch/.../machine.h */
+/* different threading schemes for different architectures; the sparse
+   numbering is there for historical reasons */
 
+/* here you select the threading scheme; I have only set this up for
+   386 and generic, because I don't know what preprocessor macros to
+   test for (Gforth uses config.guess instead).
+   Anyway, it's probably best to build them all and select the fastest
+   instead of hardwiring a specific scheme for an architecture. */
+#ifndef THREADING_SCHEME
 #ifdef i386
 #define THREADING_SCHEME 8
 #else
 #define THREADING_SCHEME 5
 #endif
+#endif /* defined(THREADING_SCHEME) */
+
+#if THREADING_SCHEME==1
+/* direct threading scheme 1: autoinc, long latency (HPPA, Sharc) */
+#  define NEXT_P0	({cfa=*ip++;})
+#  define IP		(ip-1)
+#  define SET_IP(p)	({ip=(p); NEXT_P0;})
+#  define NEXT_INST	(cfa)
+#  define INC_IP(const_inc)	({cfa=IP[const_inc]; ip+=(const_inc);})
+#  define DEF_CA
+#  define NEXT_P1
+#  define NEXT_P2	({goto *cfa;})
+#endif
+
+#if THREADING_SCHEME==3
+/* direct threading scheme 3: autoinc, low latency (68K) */
+#  define NEXT_P0
+#  define IP		(ip)
+#  define SET_IP(p)	({ip=(p); NEXT_P0;})
+#  define NEXT_INST	(*ip)
+#  define INC_IP(const_inc)	({ip+=(const_inc);})
+#  define DEF_CA
+#  define NEXT_P1	({cfa=*ip++;})
+#  define NEXT_P2	({goto *cfa;})
+#endif
 
 #if THREADING_SCHEME==5
-/* direct threading scheme 5: early fetching */
+/* direct threading scheme 5: early fetching (Alpha, MIPS) */
 #  define CFA_NEXT
 #  define NEXT_P0	({cfa=*ip;})
 #  define IP		((Cell *)ip)
@@ -77,6 +109,35 @@
 #  define NEXT_P2	({goto **(ip-1);})
 #endif
 
+#if THREADING_SCHEME==9
+/* direct threading scheme 9: prefetching (for PowerPC) */
+/* note that the "cfa=next_cfa;" occurs only in NEXT_P1, because this
+   works out better with the capabilities of gcc to introduce and
+   schedule the mtctr instruction. */
+#  define NEXT_P0
+#  define IP		ip
+#  define SET_IP(p)	({ip=(p); next_cfa=*ip; NEXT_P0;})
+#  define NEXT_INST	(next_cfa)
+#  define INC_IP(const_inc)	({next_cfa=IP[const_inc]; ip+=(const_inc);})
+#  define DEF_CA	
+#  define NEXT_P1	({cfa=next_cfa; ip++; next_cfa=*ip;})
+#  define NEXT_P2	({goto *cfa;})
+#  define MORE_VARS	Inst next_cfa;
+#endif
+
+#if THREADING_SCHEME==10
+/* direct threading scheme 10: plain (no attempt at scheduling) */
+#  define NEXT_P0
+#  define IP		(ip)
+#  define SET_IP(p)	({ip=(p); NEXT_P0;})
+#  define NEXT_INST	(*ip)
+#  define INC_IP(const_inc)	({ip+=(const_inc);})
+#  define DEF_CA
+#  define NEXT_P1
+#  define NEXT_P2	({cfa=*ip++; goto *cfa;})
+#endif
+
+
 #define NEXT ({DEF_CA NEXT_P1; NEXT_P2;})
 #define IPTOS NEXT_INST
 
@@ -89,7 +150,7 @@
 /* the return type can be anything you want it to */
 Cell engine(Inst *ip0, Cell *sp, char *fp)
 {
-  /* VM registers */
+  /* VM registers (you may want to use gcc's "Explicit Reg Vars" here) */
   Inst * ip;
   Inst * cfa;
 #ifdef USE_spTOS
@@ -100,6 +161,9 @@ Cell engine(Inst *ip0, Cell *sp, char *fp)
   static Inst   labels[] = {
 #include "mini-labels.i"
   };
+#ifdef MORE_VARS
+  MORE_VARS
+#endif
 
   if (vm_debug)
       fprintf(vm_out,"entering engine(%p,%p,%p)\n",ip0,sp,fp);

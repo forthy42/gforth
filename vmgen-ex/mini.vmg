@@ -97,18 +97,28 @@ if (i==0) {
 \  ---------------------- top of stack
 \  lower addresses
 
+\ The following VM instructions also explicitly reference sp and
+\ therefore may have to do something about spTOS caching.
+
 call ( #target #iadjust -- targetret aoldfp )
+/* IF_spTOS(sp[2] = spTOS);*/ /* unnecessary; vmgen inserts a flush anyway */
 targetret = IP;
 SET_IP(target);
 aoldfp = fp;
 sp = (Cell *)(((char *)sp)+iadjust);
 fp = (char *)sp;
+/* IF_spTOS(spTOS = sp[0]); */ /* dead, thus unnecessary; vmgen copies aoldfp there */
 
 return ( #iadjust target afp i1 -- i2 )
+/* IF_spTOS(sp[-2] = spTOS); */ /* unnecessary; that stack item is dead */
 SET_IP(target);
 sp = (Cell *)(((char *)sp)+iadjust);
 fp = afp;
 i2=i1;
+/* IF_spTOS(spTOS = sp[0]); */ /* dead, thus unnecessary; vmgen copies i2 there */
+
+\ loadlocal and storelocal access stack items below spTOS, so we can
+\ ignore spTOS caching.
 
 loadlocal ( #ioffset -- i )
 i = *(Cell *)(fp+ioffset);
@@ -121,8 +131,6 @@ end ( i -- )
    this would be a problem if there is no following BB.
    Instead, we do the following to add an end point for the current BB: */
 #ifdef VM_PROFILING
-block_insert(IP); /* we also do this at compile time; 
-                           only one of them is necessary */
+block_insert(IP); /* we also do this at compile time, so this is unnecessary */
 #endif
 return i;
-

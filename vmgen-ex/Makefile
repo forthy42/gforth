@@ -22,7 +22,7 @@ LEX=flex -l
 YACC=bison
 #YACC=yacc
 VMGEN=vmgen
-GCC=gcc -g -Wall
+GCC=gcc -O3 -fomit-frame-pointer -Wall
 CC=$(GCC)
 
 mini: mini.tab.o support.o peephole.o profile.o disasm.o engine.o engine-debug.o
