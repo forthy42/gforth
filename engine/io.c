@@ -26,6 +26,8 @@
 */
 
 #include "config.h"
+#include <sys/time.h>
+#include <sys/types.h>
 #include <unistd.h>
 
 #if defined(apollo) || defined(_WIN32)
@@ -40,7 +42,6 @@ typedef unsigned int uint32_t;
 #include <stdio.h>
 #include <signal.h>
 #include <string.h>
-#include <sys/types.h>
 #if !defined(apollo) && !defined(MSDOS)
 #include <sys/ioctl.h>
 #endif
@@ -617,8 +618,7 @@ void deprep_terminal ()
 
 long pending = -1L;
 
-long key_avail (stream)
-	FILE *stream;
+long key_avail (FILE * stream)
 {
   int tty = fileno (stream);
   int chars_avail = pending;
@@ -627,33 +627,34 @@ long key_avail (stream)
   if(!terminal_prepped)  prep_terminal();
 
 #ifndef _WIN32
-  result = ioctl (tty, FIONREAD, &chars_avail);
+  if(isatty (tty)) {
+    result = ioctl (tty, FIONREAD, &chars_avail);
+  }
 #else
   {
-     fd_set selin;
-     static int now[2] = { 0 , 0 };
-     int res;
-
-     FD_ZERO(&selin);
-     FD_SET(tty, &selin);
-     chars_avail=select(1, &selin, NULL, NULL, now);
+    fd_set selin;
+    static int now[2] = { 0 , 0 };
+    int res;
+    
+    FD_ZERO(&selin);
+    FD_SET(tty, &selin);
+    chars_avail=select(1, &selin, NULL, NULL, now);
   }
 #endif
-
-  if(chars_avail == -1L)
-    {  unsigned char inchar;
-
-       fcntl(tty, F_SETFL, O_NDELAY);
-       result = read(tty, &inchar, sizeof(char));
-       if(result == sizeof(char))
-       {
-         chars_avail = 1;
-         pending = (long)inchar;
-       }
-       else
-         chars_avail = 0;
-       fcntl(tty, F_SETFL, 0);
+  
+  if(chars_avail == -1L) {
+    unsigned char inchar;
+    
+    fcntl(tty, F_SETFL, O_NDELAY);
+    result = read(tty, &inchar, sizeof(char));
+    if(result == sizeof(char)) {
+      chars_avail = 1;
+      pending = (long)inchar;
+    } else {
+      chars_avail = 0;
     }
+    fcntl(tty, F_SETFL, 0);
+  }
 
   return chars_avail;
 }
@@ -665,8 +666,7 @@ long key_avail (stream)
 /* When compiling and running in the `Posix' environment, Ultrix does
    not restart system calls, so this needs to do it. */
 
-unsigned char getkey(stream)
-     FILE *stream;
+unsigned char getkey(FILE * stream)
 {
   int result;
   unsigned char c;

@@ -221,6 +221,16 @@ esac
 AC_SUBST(host)
 AC_SUBST(ENGINE_FLAGS)
 
+case "$host_os" in
+	*win32)
+		EXE=".exe"
+		;;
+	*)
+		EXE=""
+		;;
+esac
+AC_SUBST(EXE)
+
 dnl Now a little support for DOS/DJGCC
 AC_SUBST(GFORTH_EXE)
 GFORTH_EXE=""

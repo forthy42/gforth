@@ -22,6 +22,7 @@
 
 VERSION =@VERSION@
 DOSVERSION=`echo $VERSION|sed 's/\.//g'`
+EXE=@EXE@
 
 # ------------- System specific variables
 
@@ -88,10 +89,10 @@ OBJECTS_DITC =  engine-ditc.o main-ditc.o
 DEPS =  config.h *.h ../arch/$(machine)/*.[h]
 ENGINE_DEPS = engine.c $(DEPS) prim_lab.i prim.i
 
-gforth:	$(OBJECTS) $(AOBJECTS)
+gforth$(EXE):	$(OBJECTS) $(AOBJECTS)
 	$(GCC) $(LDFLAGS) $(OBJECTS) $(AOBJECTS) $(LDLIBS) -o $@
 
-gforth-ditc: $(OBJECTS_DITC) $(AOBJECTS)
+gforth-ditc$(EXE): $(OBJECTS_DITC) $(AOBJECTS)
 	$(GCC) $(LDFLAGS) $(OBJECTS_DITC) $(AOBJECTS) $(LDLIBS) -o $@
 
 engine.s:	$(ENGINE_DEPS)

@@ -22,6 +22,7 @@
 
 has? os [IF]
 0 Value outfile-id ( -- file-id ) \ gforth
+0 Value infile-id ( -- file-id ) \ gforth
 
 : (type) ( c-addr u -- ) \ gforth
     outfile-id write-file drop \ !! use ?DUP-IF THROW ENDIF instead of DROP ?
@@ -30,6 +31,12 @@ has? os [IF]
 : (emit) ( c -- ) \ gforth
     outfile-id emit-file drop \ !! use ?DUP-IF THROW ENDIF instead of DROP ?
 ;
+
+: (key) ( -- c ) \ gforth
+    infile-id key-file ;
+
+: (key?) ( -- flag ) \ gforth
+    infile-id key?-file ;
 [THEN]
 
 [IFUNDEF] (type)
@@ -45,6 +52,9 @@ Defer emit ( c -- ) \ core
 
 Defer key ( -- c ) \ core
 ' (key) IS key
+
+Defer key? ( -- flag ) \ core
+' (key?) IS key?
 
 : (.")     "lit count type ;
 : (S")     "lit count ;

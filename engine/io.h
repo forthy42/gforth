@@ -28,8 +28,8 @@ extern jmp_buf throw_jmp_buf;
 #  define deprep_terminal()
 #  include <conio.h>
 
-#  define key()		getch()
-#  define key_query	FLAG(kbhit())
+#  define key(stdin)		getch()
+#  define key_query(stdin)	FLAG(kbhit())
 #else
 unsigned char getkey(FILE *);
 long key_avail(FILE *);
@@ -37,8 +37,8 @@ void prep_terminal(void);
 void deprep_terminal(void);
 void get_winsize(void);
 
-#  define key()		getkey(stdin)
-#  define key_query	-(!!key_avail(stdin)) /* !! FLAG(...)? - anton */
+#  define key(stdin)		getkey(stdin)
+#  define key_query(stdin)	-(!!key_avail(stdin)) /* !! FLAG(...)? - anton */
          		/* flag was originally wrong -- lennart */
 #endif
 

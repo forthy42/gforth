@@ -1371,14 +1371,16 @@ n=1;
 
 \+has? os [IF]
 
-(key)	-- n		gforth	paren_key
+key-file	wfileid -- n		gforth	paren_key_file
 fflush(stdout);
-/* !! noecho */
-n = key();
+n = key((FILE*)wfileid);
 
-key?	-- n		facility	key_q
+key?-file	wfileid -- n		facility	key_q_file
 fflush(stdout);
-n = key_query;
+n = key_query((FILE*)wfileid);
+
+stdin	-- wfileid	gforth
+wfileid = (Cell)stdin;
 
 stdout	-- wfileid	gforth
 wfileid = (Cell)stdout;

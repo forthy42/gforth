@@ -591,6 +591,7 @@ Variable init8
     main-task up!
 [ has? os [IF] ]
     stdout TO outfile-id
+    stdin  TO infile-id
 \ !! [ [THEN] ]
 \ !! [ has? file [IF] ]
     argc ! argv ! pathstring 2!
