@@ -37,6 +37,7 @@ include vt100key.fs
 require debugging.fs
 require assert.fs
 require blocks.fs
+require dumpimage.fs
 
 0 Value $?
 : sh  '# parse cr system  to $? ;

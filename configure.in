@@ -154,6 +154,8 @@ dnl using sin here is no good idea since it is built-into gcc and typechecked
 AC_CHECK_LIB(m,asin)
 AC_FUNC_MEMCMP
 AC_REPLACE_FUNCS(memmove strtoul pow10 strerror strsignal)
+dnl AC_TRY_LINK(#include <signal.h>,sys_siglist;,AC_DEFINE(HAVE_SYS_SIGLIST),)
+AC_CHECK_FUNCS(sys_siglist)
 AC_CHECK_FUNC(getopt_long,getopt_long="",getopt_long="getopt.o getopt1.o")
 AC_SUBST(getopt_long)
 AC_CHECK_FUNCS(rint expm1 log1p)

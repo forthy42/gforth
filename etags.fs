@@ -89,7 +89,7 @@ create emit-file-char 0 c,
     \ write the entry for the last name to the TAGS file
     \ if the input is from a file and it is not a local name
     source-id dup 0<> swap -1 <> and	\ input from a file
-    get-current locals-list <> and	\ not a local name
+    current @ locals-list <> and	\ not a local name
     last @ 0<> and	\ not an anonymous (i.e. noname) header
     if
 	tags-file-id >r 
@@ -106,7 +106,7 @@ create emit-file-char 0 c,
 	\ instead of using 0, we could use file-position and subtract
 	\ the line length
 	rdrop
-    endif cr ;
+    endif ;
 
 : (tags-header) ( -- )
     defers header

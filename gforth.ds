@@ -3243,7 +3243,10 @@ Also, if you @code{include} @file{etags.fs}, a new @file{TAGS} file
 contains the definitions of all words defined afterwards. You can then
 find the source for a word using @kbd{M-.}. Note that emacs can use
 several tags files at the same time (e.g., one for the Gforth sources
-and one for your program).
+and one for your program, @pxref{Select Tags Table,,Selecting a Tags
+Table,emacs, Emacs Manual}). The TAGS file for the preloaded words is
+@file{$(datadir)/gforth/$(VERSION)/TAGS} (e.g.,
+@file{/usr/local/share/gforth/0.2/TAGS}).
 
 To get all these benefits, add the following lines to your @file{.emacs}
 file:

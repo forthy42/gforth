@@ -50,8 +50,8 @@ include gray.fs
 4096 constant batch-size \ no meaning, just make sure it's >0
 255 constant maxchar
 maxchar 1+ constant eof-char
-9 constant tab-char
-10 constant nl-char
+#tab constant tab-char
+#lf constant nl-char
 
 : read-whole-file ( c-addr1 file-id -- c-addr2 )
 \ reads the contents of the file file-id puts it into memory at c-addr1
@@ -68,6 +68,15 @@ maxchar 1+ constant eof-char
 
 variable input \ pointer to next character to be parsed
 variable endinput \ pointer to the end of the input (the char after the last)
+variable line \ line number of char pointed to by input
+1 line !
+2variable filename \ filename of original input file
+0 0 filename 2!
+variable skipsynclines \ are sync lines ("#line ...") invisible to the parser?
+skipsynclines on 
+\ !! unfortunately, this does not mean that they do not appear in the
+\ output. This could be changed by copying the input (skipping
+\ synclines) in ?nextchar
 
 : start ( -- addr )
  input @ ;
@@ -110,6 +119,11 @@ variable effect-in-end ( pointer )
 variable effect-out-end ( pointer )
 2variable effect-in-size
 2variable effect-out-size
+variable c-line
+2variable c-filename
+variable name-line
+2variable name-filename
+2variable last-name-filename
 
 variable primitive-number -10 primitive-number !
 
@@ -151,16 +165,39 @@ print-token !
  getinput member? ;
 ' testchar? test-vector !
 
+: checksyncline ( -- )
+    \ when input points to a newline, check if the next line is a
+    \ sync line.  If it is, perform the appropriate actions.
+    input @ >r
+    s" #line " r@ over compare 0<> if
+	rdrop 1 line +! EXIT
+    endif
+    0. r> 6 chars + 20 >number drop >r drop line ! r> ( c-addr )
+    dup c@ bl = if
+	char+ dup c@ [char] " <> abort" sync line syntax"
+	char+ dup 100 [char] " scan drop swap 2dup - filename 2!
+	char+
+    endif
+    dup c@ nl-char <> abort" sync line syntax"
+    skipsynclines @ if
+	dup char+ input !
+    endif
+    drop ;
+
 : ?nextchar ( f -- )
- ?not? if
-   ." syntax error" cr
-   getinput . cr
-   input @ endinput @ over - 100 min type cr
-   abort
- endif
- input @ endinput @ <> if
-   1 input +!
- endif ;
+    ?not? if
+	." syntax error" cr
+	getinput . cr
+	input @ endinput @ over - 100 min type cr
+	abort
+    endif
+    input @ endinput @ <> if
+	input @ c@
+	1 input +!
+	nl-char = if
+	    checksyncline
+	endif
+    endif ;
 
 : charclass ( set "name" -- )
  ['] ?nextchar terminal ;
@@ -197,6 +234,14 @@ nowhite ++
 (( ` \ nonl ** nl
 )) <- comment ( -- )
 
+\ (( ` # ` l ` i ` n ` e blank
+\ {{ 0. start }} digit ++ {{ end >number abort" line number?" drop drop 1- line ! }} blank
+\    (( ` " {{ start }} noquote ++ {{ end filename 2! }} `" )) ??
+\    nl
+\ )) <- syncline ( -- )
+
+\ (( nl syncline ?? )) <- nlsync
+
 (( {{ effect-in }} (( {{ start }} c-name {{ end 2 pick item-name 2! item-descr + }} blank ** )) ** {{ effect-in-end ! }}
    ` - ` - blank **
    {{ effect-out }} (( {{ start }} c-name {{ end 2 pick item-name 2! item-descr + }} blank ** )) ** {{ effect-out-end ! }}
@@ -204,13 +249,14 @@ nowhite ++
 
 (( {{ s" " doc 2! s" " forth-code 2! }}
    (( comment || nl )) **
-   (( {{ start }} name {{ end 2dup forth-name 2! c-name 2! }}  tab ++
+   (( {{ line @ name-line ! filename 2@ name-filename 2! }}
+      {{ start }} name {{ end 2dup forth-name 2! c-name 2! }}  tab ++
       {{ start }} stack-effect {{ end stack-string 2! }} tab ++
         {{ start }} name {{ end wordset 2! }} tab **
         (( {{ start }}  c-name {{ end c-name 2! }} )) ??  nl
    ))
    (( ` " ` "  {{ start }} (( noquote ++ ` " )) ++ {{ end 1- doc 2! }} ` " nl )) ??
-   {{ start }} (( nocolonnl nonl **  nl )) ** {{ end c-code 2! }}
+   {{ line @ c-line ! filename 2@ c-filename 2! start }} (( nocolonnl nonl **  nl )) ** {{ end c-code 2! }}
    (( ` :  nl
       {{ start }} (( nonl ++  nl )) ++ {{ end forth-code 2! }}
    )) ??
@@ -231,6 +277,7 @@ warnings @ [IF]
  dup endinput !
  here - allot
  align
+ checksyncline
  primitives2something ;
 
 \ types
@@ -546,6 +593,7 @@ set-current
  fetches
  stack-pointer-updates
  ." {" cr
+ ." #line " c-line @ . [char] " emit c-filename 2@ type [char] " emit cr
  c-code 2@ type
  ." }" cr
  ." NEXT_P1;" cr
@@ -573,6 +621,23 @@ set-current
        -1 primitive-number +!
  THEN ;
 
+: output-tag-file ( -- )
+    name-filename 2@ last-name-filename 2@ compare if
+	name-filename 2@ last-name-filename 2!
+	#ff emit cr
+	name-filename 2@ type
+	." ,0" cr
+    endif ;
+
+: output-tag ( -- )
+    output-tag-file
+    forth-name 2@ 1+ type
+    127 emit
+    space forth-name 2@ type space
+    1 emit
+    name-line @ 0 .r
+    ." ,0" cr ;
+
 [IFDEF] documentation
 : register-doc ( -- )
     get-current documentation set-current
@@ -586,8 +651,10 @@ set-current
 [THEN]
 
 : process-file ( addr u xt -- )
- >r r/o open-file abort" cannot open file"
- warnings @ if
- ." ------------ CUT HERE -------------" cr  endif
- r> primfilter ;
+    >r
+    2dup filename 2!
+    r/o open-file abort" cannot open file"
+    warnings @ if
+	." ------------ CUT HERE -------------" cr  endif
+    r> primfilter ;
 

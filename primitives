@@ -24,7 +24,7 @@
 \ 
 \ 
 \ 
-\ This file contains instructions in the following format:
+\ This file contains primitive specifications in the following format:
 \ 
 \ forth name	stack effect	category	[pronunciation]
 \ [""glossary entry""]
@@ -32,11 +32,15 @@
 \ [:
 \ Forth code]
 \ 
-\ The pronunciation is also used for forming C names.
+\ prims2x is pedantic about tabs vs. blanks. The fields of the first
+\ line of a primitive are separated by tabs, the stack items in a
+\ stack effect by blanks.
+\
+\ Both pronounciation and stack items (in the stack effect) must
+\ conform to the C name syntax or the C compiler will complain.
 \ 
 \ 
-\ 
-\ These informations are automatically translated into C-code for the
+\ These specifications are automatically translated into C-code for the
 \ interpreter and into some other files. I hope that your C compiler has
 \ decent optimization, otherwise the automatically generated code will
 \ be somewhat slow. The Forth version of the code is included for manual

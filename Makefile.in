@@ -26,7 +26,7 @@
 #To do:
 #use $(srcdir) to make compilation in a non-srcdir possible
 
-VERSION	=0.1beta#gforth version
+VERSION	=0.1beta-pl1#gforth version
 SHELL	= /bin/sh
 RM	= rm
 CP	= cp
@@ -74,6 +74,11 @@ INCLUDES = forth.h threading.h io.h io-dos.h
 
 KERN_SRC = main.fs search-order.fs cross.fs aliases.fs vars.fs add.fs \
 	errore.fs kernal.fs version.fs extend.fs tools.fs toolsext.fs
+
+GFORTH_FI_SRC = startup.fs glocals.fs search-order.fs hash.fs float.fs \
+	debugging.fs environ.fs wordinfo.fs look.fs vt100.fs see.fs \
+	bufio.fs debug.fs history.fs vt100key.fs assert.fs source.fs \
+	blocks.fs struct.fs dumpimage.fs
 
 FORTH_SRC = anslocal.fs add.fs assert.fs ansi.fs answords.fs blocks.fs bufio.fs checkans.fs \
 	code.fs colorize.fs cross.fs debug.fs debugging.fs doskey.fs ds2texi.fs \
@@ -165,7 +170,7 @@ realclean:	distclean
 #mostlyclean, but also remove some of the stuff that is distributed
 virtualclean:	mostlyclean
 		-$(RM) -rf gforth.fns gforth.texi gforth.ps gforth.info* \
-		gforth-$(VERSION).tar.gz config.cache *~
+		gforth-$(VERSION).tar.gz config.cache *~ *TAGS
 
 dist:		$(SOURCES) $(FORTH_GEN) $(DOCDIST)
 		-rm -rf gforth-$(VERSION)
@@ -203,7 +208,7 @@ binonlydist:	$(SOURCES) $(FORTH_GEN) gforth $(OBJECTS)
 #strip gforth, because the debugging stuff is hardly useful once
 # gforth manages to execute more than a few primitives
 
-install:	gforth $(FORTH_SRC) kernal.fi gforth.fi gforth.1 gforth.info*
+install:	gforth $(FORTH_SRC) kernal.fi gforth.fi gforth.1 gforth.info* primitives gforth.TAGS
 		for i in $(bindir) $(mandir) $(infodir) $(libdir)/gforth/$(VERSION) $(datadir)/gforth/$(VERSION) $(libdir)/gforth/site-forth $(datadir)/gforth/site-forth; do \
 			$(INSTALL_DIR) $$i; \
 		done
@@ -213,12 +218,12 @@ install:	gforth $(FORTH_SRC) kernal.fi gforth.fi gforth.1 gforth.info*
 		ln $(bindir)/gforth $(bindir)/gforth-$(VERSION)
 		$(INSTALL_DATA) gforth.1 $(mandir)
 		for i in gforth.info*; do $(INSTALL_DATA) $$i $(infodir); done
-		for i in $(FORTH_SRC); do \
+		for i in $(FORTH_SRC) primitives; do \
 			$(INSTALL_DATA) $$i $(datadir)/gforth/$(VERSION); \
 		done
 		$(INSTALL_DATA) kernal.fi $(libdir)/gforth/$(VERSION)
 		$(FORTHK) startup.fs dumpimage.fs -e "savesystem $(libdir)/gforth/$(VERSION)/gforth.fi bye" #gforth.fi contains some path names
-
+		sed s:$(srcdir)/:$(datadir)/gforth/$(VERSION): gforth.TAGS >TAGS; $(INSTALL_DATA) TAGS $(datadir)/gforth/$(VERSION)
 
 #deinstall all files specific to this version of gforth
 #to uninstall version foo, type `make uninstall VERSION=foo'
@@ -297,8 +302,12 @@ kernl64l.fi:	$(KERNLS)
 		-$(CP) kernl64l.fi- kernl64l.fi
 		@LINK_KERNL64L@
 
-gforth.fi:	@kernal_fi@ gforth startup.fs glocals.fs search-order.fs hash.fs float.fs debugging.fs environ.fs wordinfo.fs look.fs vt100.fs see.fs bufio.fs debug.fs history.fs vt100key.fs assert.fs source.fs blocks.fs struct.fs dumpimage.fs
-		$(FORTHK) startup.fs dumpimage.fs -e "savesystem gforth.fi bye"
+gforth.fi:	@kernal_fi@ gforth $(GFORTH_FI_SRC)
+		$(FORTHK) startup.fs -e "savesystem gforth.fi bye"
+
+gforth.TAGS:	@kernal_fi@ gforth $(GFORTH_FI_SRC) primitives.TAGS
+		$(FORTHK) etags.fs startup.fs -e bye
+		cat TAGS primitives.TAGS kernal.TAGS >gforth.TAGS
 
 engine.s:	engine.c primitives.i prim_labels.i machine.h threading.h $(INCLUDES)
 		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -S engine.c
@@ -312,7 +321,7 @@ main.o:		main.c machine.h threading.h $(INCLUDES)
 strtoul.o:	strtoul.c strtol.c
 
 primitives.b:	primitives
-		m4 primitives >$@ 
+		m4 -s $(srcdir)/primitives >$@ 
 
 primitives.i :	primitives.b prims2x.fs
 		$(FORTHK) -p . prims2x.fs -e "s\" primitives.b\" ' output-c process-file bye" >$@
@@ -326,6 +335,8 @@ aliases.fs:	primitives.b prims2x.fs
 primitives.fs:	primitives.b prims2x.fs
 		$(FORTHK) -p . prims2x.fs -e "s\" primitives.b\" ' output-forth process-file bye" >$@
 
+primitives.TAGS: primitives.b prims2x.fs
+		$(FORTHK) -p . prims2x.fs -e "s\" primitives.b\" ' output-tag process-file bye" >$@
 
 doc.fd:		makedoc.fs float.fs search-order.fs glocals.fs environ.fs \
 		 toolsext.fs wordinfo.fs \

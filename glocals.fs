@@ -504,7 +504,6 @@ forth definitions
 	code-address!
     then ;
 
-\ !! untested
 : TO ( c|w|d|r "name" -- ) \ core-ext,local
 \ !! state smart
  0 0 0. 0.0e0 { c: clocal w: wlocal d: dlocal f: flocal }

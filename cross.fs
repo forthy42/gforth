@@ -405,7 +405,7 @@ Variable to-doc
 
 \ Target TAGS creation
 
-s" TAGS" r/w create-file throw value tag-file-id
+s" kernal.TAGS" r/w create-file throw value tag-file-id
 \ contains the file-id of the tags file
 
 Create tag-beg 2 c,  7F c, bl c,

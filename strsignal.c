@@ -20,11 +20,17 @@
 */
 
 #include <stdio.h>
+#include <signal.h>
+
 
 char *strsignal(int sig)
 {
-  /* !! use sys_siglist; how do I find out how many sigs there are? */
-  static char errbuf[50];
+  static char errbuf[16];
+
+#if defined(HAVE_SYS_SIGLIST) && defined(NSIG)
+  if (sig>0 && sig<NSIG)
+    return sys_siglist[sig];
+#endif
   sprintf(errbuf,"signal %d",sig);
   return errbuf;
 }
