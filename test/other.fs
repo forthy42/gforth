@@ -138,6 +138,10 @@ s" //jkfklfggfld/fjsjfk/hjfdjs" open-fpath-file 2drop
 1 allot
 -1 allot
 
+\ unaligned input for head?
+
+here 1+ head? throw
+
 \ comments across several lines
 
 ( fjklfjlas;d

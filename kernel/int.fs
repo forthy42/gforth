@@ -348,6 +348,9 @@ const Create ???  0 , 3 c, char ? c, char ? c, char ? c,
     \ iteration, we may get an xt, on the second a code address (or
     \ some code), which is typically not in the dictionary.
     2 0 do
+	dup dup aligned <> if \ protect @ against unaligned accesses
+	    drop false unloop exit
+	then
 	dup @ dup
 	if ( addr addr1 )
 	    dup rot forthstart within
