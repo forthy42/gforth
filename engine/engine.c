@@ -196,6 +196,7 @@ DCell timeval2us(struct timeval *tvp)
 
 #ifdef HAS_FILE
 static char* fileattr[6]={"rb","rb","r+b","r+b","wb","wb"};
+static char* pfileattr[6]={"r","r","r+","r+","w","w"};
 
 #ifndef O_BINARY
 #define O_BINARY 0

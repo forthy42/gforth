@@ -186,7 +186,7 @@ DOES> ( -- addr u )
 	I c@ '/ = IF  #lf I c!  THEN  LOOP
     redirects 1 set-order redir$ $off
     htmldir $@ ['] evaluate catch
-    IF  false  ELSE  redir$ @ 0<>  THEN ;
+    IF  2drop false  ELSE  redir$ @ 0<>  THEN ;
 
 : (redirect) ( -- )
     host$ $@ redir$ $@ proxy-open handle-request maxnum off ;

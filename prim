@@ -1466,7 +1466,7 @@ c_addr2 = getenv(cstr(c_addr1,u1,1));
 u2 = (c_addr2 == NULL ? 0 : strlen(c_addr2));
 
 open-pipe	( c_addr u wfam -- wfileid wior )	gforth	open_pipe
-wfileid=(Cell)popen(cstr(c_addr,u,1),fileattr[wfam]); /* ~ expansion of 1st arg? */
+wfileid=(Cell)popen(cstr(c_addr,u,1),pfileattr[wfam]); /* ~ expansion of 1st arg? */
 wior = IOR(wfileid==0); /* !! the man page says that errno is not set reliably */
 
 close-pipe	( wfileid -- wretval wior )		gforth	close_pipe
