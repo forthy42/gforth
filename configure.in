@@ -309,7 +309,7 @@ AC_MSG_RESULT($ac_nostrictaliasing)
 AC_MSG_CHECKING([if $CC understands -fno-crossjumping])
 CFLAGS_1="$CFLAGS"
 CFLAGS="$CFLAGS -fno-crossjumping"
-AC_TRY_COMPILE(,,ac_nocrossjump=yes;ENGINE_FLAGS="$ENGINE_FLAGS -fno-crossjumping",ac_nocrossjump=no)
+AC_TRY_COMPILE(,,ac_nocrossjumping=yes;ENGINE_FLAGS="$ENGINE_FLAGS -fno-crossjumping",ac_nocrossjumping=no)
 CFLAGS="$CFLAGS_1"
 AC_MSG_RESULT($ac_nocrossjumping)
 
@@ -437,11 +437,9 @@ AC_CHECK_LIB(avcall,__builtin_avcall)
 AC_CHECK_LIB(callback,__vacall_r)
 AC_CHECK_LIB(vacall,vacall)
 AC_CHECK_LIB(trampoline,alloc_trampoline)
-if test $ac_cv_lib_avcall___builtin_avcall = yes
-then
-    FFCALLFLAG="true"
-    AC_SUBST(FFCALLFLAG)
-fi
+FFCALLFLAG="false"
+test $ac_cv_lib_avcall___builtin_avcall = yes && FFCALLFLAG="true"
+AC_SUBST(FFCALLFLAG)
 if test "$host_os" != "nextstep3"
 then
 	AC_FUNC_MEMCMP
