@@ -511,7 +511,7 @@ else if (n>0)
 :
  swap bounds
  ?DO  dup c@ I c@ = WHILE  1+  LOOP  drop 0
- ELSE  c@ I c@ - unloop  THEN  -text-flag ;
+ ELSE  c@ I c@ - unloop  THEN  sgn ;
 : sgn ( n -- -1/0/1 )
  dup 0= IF EXIT THEN  0< 2* 1+ ;
 
@@ -533,7 +533,7 @@ else if (n>0)
  ?DO  dup c@ I c@ <>
      IF  dup c@ toupper I c@ toupper =
      ELSE  true  THEN  WHILE  1+  LOOP  drop 0
- ELSE  c@ toupper I c@ toupper - unloop  THEN  -text-flag ;
+ ELSE  c@ toupper I c@ toupper - unloop  THEN  sgn ;
 
 -trailing	( c_addr u1 -- c_addr u2 )		string	dash_trailing
 ""Adjust the string specified by @i{c-addr, u1} to remove all trailing
@@ -2249,3 +2249,6 @@ char newline[] = {
 };
 c_addr=newline;
 u=sizeof(newline);
+:
+ "newline count ;
+Create "newline 1 c, $0A c,
