@@ -646,7 +646,7 @@ VARIABLE GhostNames
 0 GhostNames !
 
 : GhostName ( -- addr )
-    here GhostNames @ , GhostNames ! here 0 ,
+    align here GhostNames @ , GhostNames ! here 0 ,
     bl word count
     \ 2dup type space
     string, \ !! cfalign ?
@@ -927,7 +927,7 @@ Variable mirrored-link          \ linked list for mirrored regions
   dup >rstart @ swap >rdp @ over - ;
 
 : area ( region -- startaddr totallen ) \G returns the total area
-  dup >rstart swap >rlen @ ;
+  dup >rstart @ swap >rlen @ ;
 
 : mirrored                              \G mark a region as mirrored
   mirrored-link
@@ -1489,7 +1489,6 @@ variable ResolveFlag
   ELSE 	drop 
   THEN ;
 
->MINIMAL
 : .unresolved  ( -- )
   ResolveFlag off cr ." Unresolved: "
   Ghostnames
@@ -1507,6 +1506,10 @@ variable ResolveFlag
   base @ >r decimal
   cr ." named Headers: " headers-named @ . 
   r> base ! ;
+
+>MINIMAL
+
+: .unresolved .unresolved ;
 
 >CROSS
 \ Header states                                        12dec92py
@@ -1604,7 +1607,8 @@ Create tag-bof 1 c,  0C c,
 Defer skip? ' false IS skip?
 
 : skipdef ( <name> -- )
-\G skip definition of an undefined word in undef-words mode
+\G skip definition of an undefined word in undef-words and
+\G all-words mode
     ghost dup forward?
     IF  >magic <skip> swap !
     ELSE drop THEN ;
@@ -1616,6 +1620,10 @@ Defer skip? ' false IS skip?
 \G return true for anything else than forward, even for <skip>
 \G that's what we want
     ghost forward? 0= ;
+
+: forced? ( -- flag ) \ name
+\G return ture if it is a foreced skip with defskip
+    ghost >magic @ <skip> = ;
 
 : needed? ( -- flag ) \ name
 \G returns a false flag when
@@ -2347,7 +2355,7 @@ Cond: defers	T ' >body @ compile, H ;Cond
 \ LINKED ERR" ENV" 2ENV"                                18may93jaw
 
 \ linked list primitive
-: linked        T here over @ A, swap ! H ;
+: linked        X here over X @ X A, swap X ! ;
 : chained	T linked A, H ;
 
 : err"   s" ErrLink linked" evaluate T , H
@@ -2587,7 +2595,7 @@ previous
 : 2/ 2/ ;
 : . . ;
 
-: all-words    ['] false    IS skip? ;
+: all-words    ['] forced?    IS skip? ;
 : needed-words ['] needed?  IS skip? ;
 : undef-words  ['] defined2? IS skip? ;
 : skipdef skipdef ;
