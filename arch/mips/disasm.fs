@@ -20,7 +20,7 @@
 
 \ this disassembler is based on data from the R4400 manual
 \ http://www.mips.com/Documentation/R4400_Uman_book_Ed2.pdf, in
-\ particular pages A3,A181,A182 (offset 468 pages in xpdf).
+\ particular pages A3, A181, A182 (p. 471, 649, 650 in xpdf).
 \ it is limited to the R3000 (MIPS-I) architecture, though.
 
 \ instruction fields
@@ -55,7 +55,7 @@
 
 : disasm-relative ( addr n -- w )
     \ compute printable form of relative address n relative to addr
-    nip ( + ) ;
+    2 lshift nip ( + ) ;
 
 \ decode tables
 
@@ -128,7 +128,7 @@ $40 disasm-table cp0-tab-entry     \ COP0 CO instructions funct table
 
 : disasm-J-target ( addr w -- )
     \ print jump target
-    $3ffffff and swap $fc000000 and or hex. ;
+    $03ffffff and swap $fc000000 and or 2 lshift hex. ;
 
 : disasm-I-rs,rt,imm ( addr w -- )
     dup disasm-rs .
