@@ -211,6 +211,7 @@ VARIABLE VocTemp
 hex
 4711 Constant <fwd>             4712 Constant <res>
 4713 Constant <imm>             4714 Constant <do:>
+4715 Constant <skip>
 
 \ iForth makes only immediate directly after create
 \ make atonce trick! ?
@@ -280,6 +281,9 @@ VARIABLE Already
 : forward? ( ghost -- flag )
   >magic @ <fwd> = ;
 
+: undefined? ( ghost -- flag )
+  >magic @ dup <fwd> = swap <skip> = or ;
+
 \ Predefined ghosts                                    12dec92py
 
 ghost 0=                                        drop
@@ -321,8 +325,7 @@ VARIABLE env-current \ save information of current dictionary to restore with en
 : has? 	bl word count T environment? H 
 	IF 	\ environment variable is present, return its value
 	ELSE	\ environment variable is not present, return false
-		\ !! JAW abort is just for testing
-		false true ABORT" arg" 
+		false \ debug true ABORT" arg" 
 	THEN ;
 
 : $has? T environment? H IF ELSE false THEN ;
@@ -1013,7 +1016,7 @@ Exists-Warnings on
 \G resolve referencies to ghost with tcfa
     \ is ghost resolved?, second resolve means another definition with the
     \ same name
-    over forward? 0= IF  exists EXIT THEN
+    over undefined? 0= IF  exists EXIT THEN
     \ get linked-list
     swap >r r@ >link @ swap \ ( list tcfa R: ghost )
     \ mark ghost as resolved
@@ -1190,7 +1193,18 @@ Create tag-bof 1 c,  0C c,
 
 Defer skip? ' false IS skip?
 
+: skipdef ( <name> -- )
+\G skip definition of an undefined word in undef-words mode
+    ghost dup forward?
+    IF  >magic <skip> swap !
+    ELSE drop THEN ;
+
 : defined? ( -- flag ) \ name
+    ghost undefined? 0= ;
+
+: defined2? ( -- flag ) \ name
+\G return true for anything else than forward, even for <skip>
+\G that's what we want
     ghost forward? 0= ;
 
 : needed? ( -- flag ) \ name
@@ -1199,7 +1213,7 @@ Defer skip? ' false IS skip?
 \G a forward reference exists
 \G so the definition is not skipped!
     bl word gfind
-    IF dup forward?
+    IF dup undefined?
 	nip
 	0=
     ELSE  drop true  THEN ;
@@ -1332,7 +1346,7 @@ Comment (       Comment \
   THEN ; immediate
 
 : ghost>cfa
-  dup forward? ABORT" CROSS: forward " >link @ ;
+  dup undefined? ABORT" CROSS: forward " >link @ ;
                
 >TARGET
 
@@ -1566,7 +1580,7 @@ Cond: DOES> restrict?
 
 : gdoes,  ( ghost -- )
 \ makes the codefield for a word that is built
-  >end @ dup forward? 0=
+  >end @ dup undefined? 0=
   IF
 	dup >magic @ <do:> =
 	IF 	 doer, 
@@ -2190,7 +2204,8 @@ previous
 
 : all-words    ['] false    IS skip? ;
 : needed-words ['] needed?  IS skip? ;
-: undef-words  ['] defined? IS skip? ;
+: undef-words  ['] defined2? IS skip? ;
+: skipdef skipdef ;
 
 : \  postpone \ ;  immediate
 : \G T-\G ; immediate
