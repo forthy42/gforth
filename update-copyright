@@ -1,4 +1,6 @@
 #bash script
+#usage: update-copyright [--update]
+
 #call this at the end of each year on a GNU system
 
 #Copyright (C) 2003 Free Software Foundation, Inc.
@@ -21,7 +23,16 @@
 
 for i in `cvs -q status|grep 'Repository revision:'|sed 's|^.*/usr/local/lib/cvs-repository/src-master/gforth/||'|sed 's/,v$//'`; do
     if grep -q "[0-9]  *Free Software Foundation" $i; then
-	:
+	year=`cvs log -rHEAD $i|grep date: |sed 's/date: //'|sed 's|/.*$||'`
+	if grep "[0-9]  *Free Software Foundation" $i|grep -q $year; then
+	    echo "$i: up-to-date $year"
+	else
+	    if [ x$1 = x--update ]; then
+		sed "s/\([0-9]\)  *Free Software Foundation/\1,$year Free Software Foundation/" $i >update-copyright-tmp
+		cp update-copyright-tmp $i
+	    fi
+	    echo "$i: update to $year"
+	fi
     else
 	echo "$i: no copyright"
     fi
