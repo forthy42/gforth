@@ -81,11 +81,9 @@ Variable /dump
 
 include  ./../termsize.fs
 
-: words
-    \G ** this will not get annotated. See other defn in search.fs .. **
-    \G It does not work to use "wordset-" prefix since this file is glossed
-    \G by cross.fs which doesn't have the same functionalty as makedoc.fs
-    cr 0 context @ wordlist-id
+: wordlist-words ( wid -- ) \ gforth
+    \G Display the contents of the wordlist wid.
+    wordlist-id 0 swap cr
     BEGIN
 	@ dup
     WHILE
@@ -97,6 +95,12 @@ include  ./../termsize.fs
 	dup name>string type space r> rot + swap
     REPEAT
     2drop ;
+
+: words
+    \G ** this will not get annotated. See other defn in search.fs .. **
+    \G It does not work to use "wordset-" prefix since this file is glossed
+    \G by cross.fs which doesn't have the same functionalty as makedoc.fs
+    context @ wordlist-words ;
 
 ' words alias vlist ( -- ) \ gforth
 \g Old (pre-Forth-83) name for @code{WORDS}.

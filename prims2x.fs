@@ -125,7 +125,7 @@ variable output-combined \ xt ( -- ) of output word for combined primitives
 struct%
     cell%    field stack-number \ the number of this stack
     cell% 2* field stack-pointer \ stackpointer name
-    cell% 2* field stack-typename \ name for default type of stack items
+    cell%    field stack-type \ name for default type of stack items
     cell% 2* field stack-cast \ cast string for assignments to stack elements
     cell%    field stack-in-index-xt \ ( in-size item -- in-index )
 end-struct stack%
@@ -155,12 +155,12 @@ create stacks max-stacks cells allot \ array of stacks
 : inst-in-index ( in-size item -- in-index )
     nip dup item-offset @ swap item-type @ type-size @ + 1- ;
 
-: make-stack ( addr-ptr u1 addr-stack u2 addr-cast u3 "stack-name" -- )
+: make-stack ( addr-ptr u1 type addr-cast u2 "stack-name" -- )
     create stack% %allot >r
     r@ stacks next-stack-number @ th !
     next-stack-number @ r@ stack-number !  1 next-stack-number +!
     save-mem r@ stack-cast 2!
-    save-mem r@ stack-typename 2!
+    r@ stack-type !
     save-mem r@ stack-pointer 2! 
     ['] stack-in-index r> stack-in-index-xt ! ;
 
@@ -230,7 +230,7 @@ Variable function-number 0 function-number !
 \ for several reasons stack items of a word are stored in a wordlist
 \ since neither forget nor marker are implemented yet, we make a new
 \ wordlist for every word and store it in the variable items
-variable items
+variable itemsqq
 
 \ a few more set ops
 
@@ -280,8 +280,10 @@ variable items
 : same-as-in? ( item -- f )
  \ f is true iff the offset and stack of item is the same as on input
  >r
- r@ item-name 2@ items @ search-wordlist 0=
- abort" bug"
+ r@ item-first @ if
+     rdrop false exit
+ endif
+ r@ item-name 2@ itemsqq @ search-wordlist 0= abort" bug"
  execute @
  dup r@ =
  if \ item first appeared in output
@@ -368,7 +370,7 @@ does> ( item -- )
     { item typ }
     typ item item-type !
     typ type-stack @ item item-stack !default
-    item item-name 2@ items @ search-wordlist 0= if \ new name
+    item item-name 2@ itemsqq @ search-wordlist 0= if \ new name
 	item item-name 2@ nextname item declare
 	item item-first on
 	\ typ type-c-name 2@ type space type  ." ;" cr
@@ -397,7 +399,7 @@ does> ( item -- )
     ['] declaration map-items ;
 
 : declarations ( -- )
- wordlist dup items ! set-current
+ wordlist dup itemsqq ! set-current
  prim prim-effect-in prim prim-effect-in-end @ declaration-list
  prim prim-effect-out prim prim-effect-out-end @ declaration-list ;
 
@@ -419,10 +421,14 @@ does> ( item -- )
     stack item item-stack !
     item declaration ;
 
-s" sp" save-mem s" Cell"  save-mem s" (Cell)" make-stack data-stack 
-s" fp" save-mem s" Float" save-mem s" "       make-stack fp-stack
-s" rp" save-mem s" Cell"  save-mem s" (Cell)" make-stack return-stack
-s" IP" save-mem s" Cell"  save-mem s" error don't use # on results" make-stack inst-stream
+\ types pointed to by stacks for use in combined prims
+s" Cell"  single 0 create-type cell-type
+s" Float" single 0 create-type float-type
+
+s" sp" save-mem cell-type  s" (Cell)" make-stack data-stack 
+s" fp" save-mem cell-type  s" "       make-stack fp-stack
+s" rp" save-mem float-type s" (Cell)" make-stack return-stack
+s" IP" save-mem cell-type  s" error don't use # on results" make-stack inst-stream
 ' inst-in-index inst-stream stack-in-index-xt !
 \ !! initialize stack-in and stack-out
 
@@ -820,7 +826,7 @@ create min-depth     max-stacks cells allot
 	i 0 <# #s stack stack-pointer 2@ holds [char] _ hold #> save-mem
 	item item-name 2!
 	stack item item-stack !
-	0 item item-type !
+	stack stack-type @ item item-type !
 	i item item-offset !
 	item item-first on
 	item% %size effect-endp +!
@@ -842,7 +848,7 @@ create min-depth     max-stacks cells allot
 
 : print-item { n stack -- }
     \ print nth stack item name
-    ." _" stack stack-typename 2@ type space
+    ." _" stack stack-type @ type-c-name 2@ type space
     stack stack-pointer 2@ type n 0 .r ;
 
 : print-declarations-combined ( -- )
@@ -852,16 +858,29 @@ create min-depth     max-stacks cells allot
 	loop
     loop ;
     
+: output-parts ( -- )
+    prim >r
+    num-combined @ 0 +do
+	combined-prims i th @ to prim
+	output-c
+    loop
+    r> to prim ;
+
 : output-c-combined ( -- )
     print-entry cr
-    \ debugging messages just in constituents
+    \ debugging messages just in parts
     ." {" cr
     ." DEF_CA" cr
     print-declarations-combined
     ." NEXT_P0;" cr
     flush-tos
     fetches
-    ;
+    \ print-debug-args
+    stack-pointer-updates
+    output-parts
+    output-c-tail
+    ." }" cr
+    cr ;
 
 : output-forth-combined ( -- )
     ;
