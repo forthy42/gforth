@@ -37,8 +37,8 @@ does> ( name execution: -- )
     drop ;
 
 : create-field ( align1 offset1 align size "name" --  align2 offset2 )
-    create rot dup , ( align1 align size offset1 )
-    + >r nalign r> ;
+    create swap rot over nalign dup , ( align1 size align offset )
+    rot + >r nalign r> ;
 
 : field ( align1 offset1 align size "name" --  align2 offset2 )
     \ name execution: addr1 -- addr2

@@ -417,6 +417,10 @@ part of the screen."
   (forth-split)
   (forth-set-runlight forth-runlight:input))
 
+(defun run-forth-if-not ()
+  (if (not (forth-process-running-p))
+      (run-forth forth-program-name)))
+
 (defun reset-forth ()
   "Reset the Forth process."
   (interactive)
@@ -710,7 +714,7 @@ The region is sent terminated by a newline."
   (interactive)
   (let ((process (get-process forth-program-name)))
     (if process (kill-process process t)))
-  (sleep-for-millisecs 100)
+  (sleep-for 0 100)
   (forth-mode))
 
 

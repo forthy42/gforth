@@ -35,8 +35,8 @@ does> ( name execution: -- )
     drop ;
 
 : field, ( align1 offset1 align size --  align2 offset2 )
-    rot dup , ( align1 align size offset1 )
-    + >r nalign r> ;
+    swap rot over nalign dup , ( align1 size align offset )
+    rot + >r nalign r> ;
 
 : create-field ( align1 offset1 align size --  align2 offset2 )
     create field, ;

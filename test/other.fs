@@ -60,6 +60,10 @@ foo1
     addr1 false <> abort" TO does not work on locals" ;
 locals-test2
 
+: locals-test3 ( -- )
+    \ this should compile, but gives "invalid name argument" on gforth-0.3.0
+    0 { a b } 0 to a ;
+
 \ multiple reveals (recursive)
 
 0
@@ -101,7 +105,7 @@ test-only
 
 \ create-interpret/compile
 
-: constant ( n "name" -- )
+: my-constant ( n "name" -- )
     create-interpret/compile
     ,
 interpretation>
@@ -111,10 +115,19 @@ compilation>
     @ postpone literal
 <compilation ;
 
-5 constant five
+5 my-constant five
 five 5 <> throw
 : five' five ;
 five' 5 <> throw
+
+\ structs and alignment
+
+struct
+  char% field field1
+  float% field field2
+end-struct my-struct%
+
+0 field2 float% %alignment <> throw
 
 \ comments across several lines
 
@@ -122,7 +135,7 @@ five' 5 <> throw
 abort" ( does not work across lines"
 )
 
-s" ( testing ( without delimited by newline in non-files" evaluate
+s" ( testing ( without being delimited by newline in non-files" evaluate
 
 \ last test!
 \ testing '(' without ')' at end-of-file

@@ -487,6 +487,12 @@ int main(int argc, char **argv, char **env)
      functions (e.g., memcpy) to make it work */
 #endif
 
+  /* buffering of the user output device */
+  if (isatty(fileno(stdout))) {
+    fflush(stdout);
+    setvbuf(stdout,NULL,_IONBF,0);
+  }
+
   progname = argv[0];
   if ((path1=getenv("GFORTHPATH"))==NULL)
     path1 = DEFAULTPATH;
