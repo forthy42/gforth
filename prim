@@ -74,6 +74,31 @@
 \ xt.*		XT
 \ wid.*		WID
 \ f83name.*	F83Name *
+
+\E get-current prefixes set-current
+\E 
+\E s" Bool"		single data-stack type-prefix f
+\E s" Char"		single data-stack type-prefix c
+\E s" Cell"		single data-stack type-prefix n
+\E s" Cell"		single data-stack type-prefix w
+\E s" UCell"		single data-stack type-prefix u
+\E s" DCell"		double data-stack type-prefix d
+\E s" UDCell"		double data-stack type-prefix ud
+\E s" Float"		single fp-stack   type-prefix r
+\E s" Cell *"		single data-stack type-prefix a_
+\E s" Char *"		single data-stack type-prefix c_
+\E s" Float *"		single data-stack type-prefix f_
+\E s" DFloat *"		single data-stack type-prefix df_
+\E s" SFloat *"		single data-stack type-prefix sf_
+\E s" Xt"		single data-stack type-prefix xt
+\E s" WID"		single data-stack type-prefix wid
+\E s" struct F83Name *"	single data-stack type-prefix f83name
+\E 
+\E return-stack stack-prefix R:
+\E inst-stream  stack-prefix #
+\E 
+\E set-current
+
 \ 
 \ 
 \ 

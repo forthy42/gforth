@@ -273,6 +273,10 @@ eof-char singleton					charclass eof
 Variable forth-flag
 Variable c-flag
 
+(( (( ` e || ` E )) {{ start }} nonl ** 
+   {{ end evaluate }}
+)) <- eval-comment ( ... -- ... )
+
 (( (( ` f || ` F )) {{ start }} nonl ** 
    {{ end forth-flag @ IF type cr ELSE 2drop THEN }}
 )) <- forth-comment ( -- )
@@ -299,7 +303,7 @@ Variable c-flag
 	THEN }}
 )) <- if-comment
 
-(( (( forth-comment || c-comment || else-comment || if-comment )) ?? nonl ** )) <- comment-body
+(( (( eval-comment || forth-comment || c-comment || else-comment || if-comment )) ?? nonl ** )) <- comment-body
 
 (( ` \ comment-body nl )) <- comment ( -- )
 
@@ -432,15 +436,11 @@ warnings @ [IF]
  ." );" cr
  rdrop ;
 
+: single ( -- xt1 xt2 n )
+    ['] fetch-single ['] store-single 1 ;
 
-: single-type ( -- xt1 xt2 n stack )
- ['] fetch-single ['] store-single 1 data-stack ;
-
-: double-type ( -- xt1 xt2 n stack )
- ['] fetch-double ['] store-double 2 data-stack ;
-
-: float-type ( -- xt1 xt2 n stack )
- ['] fetch-single ['] store-single 1 fp-stack ;
+: double ( -- xt1 xt2 n )
+    ['] fetch-double ['] store-double 2 ;
 
 : s, ( addr u -- )
 \ allocate a string
@@ -471,7 +471,7 @@ wordlist constant prefixes
     stack r@ type-stack !
     rdrop ;
 
-: type-prefix ( addr u xt1 xt2 n stack "prefix" -- )
+: type-prefix ( xt1 xt2 n stack "prefix" -- )
     create-type
 does> ( item -- )
     \ initialize item
@@ -518,31 +518,6 @@ does> ( item -- )
  wordlist dup items ! set-current
  effect-in effect-in-end @ declaration-list
  effect-out effect-out-end @ declaration-list ;
-
-get-current
-prefixes set-current
-
-s" Bool"	single-type type-prefix f
-s" Char"	single-type type-prefix c
-s" Cell"	single-type type-prefix n
-s" Cell"	single-type type-prefix w
-s" UCell"	single-type type-prefix u
-s" DCell"	double-type type-prefix d
-s" UDCell"	double-type type-prefix ud
-s" Float"	float-type  type-prefix r
-s" Cell *"	single-type type-prefix a_
-s" Char *"	single-type type-prefix c_
-s" Float *"	single-type type-prefix f_
-s" DFloat *"	single-type type-prefix df_
-s" SFloat *"	single-type type-prefix sf_
-s" Xt"		single-type type-prefix xt
-s" WID"		single-type type-prefix wid
-s" struct F83Name *"	single-type type-prefix f83name
-
-return-stack stack-prefix R:
-inst-stream  stack-prefix #
-
-set-current
 
 \ offset computation
 \ the leftmost (i.e. deepest) item has offset 0
