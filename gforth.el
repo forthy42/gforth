@@ -160,8 +160,11 @@ OBS! All words in forth-negatives must be surrounded by spaces.")
   (setq comment-column 40)
   (make-local-variable 'comment-start-skip)
   (setq comment-start-skip "\\ ")
-  (make-local-hook 'comment-indent-hook)
-  (add-hook comment-indent-hook 'forth-comment-indent)
+; this is obsolete (according to 20.5 docs) and replace with comment-indent-function
+;  (make-local-hook 'comment-indent-hook)
+;  (add-hook 'comment-indent-hook 'forth-comment-indent nil t)
+  (make-local-variable 'comment-indent-function)
+  (setq comment-indent-function 'forth-comment-indent)
   (make-local-variable 'parse-sexp-ignore-comments)
   (setq parse-sexp-ignore-comments t))
   
@@ -992,27 +995,27 @@ The region is sent terminated by a newline."
 
 ;;; Highlighting
 
-(cond ((featurep 'hilit19)
- (if (not (file-exists-p "/usr/share/emacs/site-lisp/hl319.el"))
-     (require 'hilit19)
-   (require 'hl319))
+; (cond ((featurep 'hilit19)
+;  (if (not (file-exists-p "/usr/share/emacs/site-lisp/hl319.el"))
+;      (require 'hilit19)
+;    (require 'hl319))
 
- (hilit-set-mode-patterns
-  '(forth-mode)
-  (append
-   '(("\\\\ \\(.*\\)$" nil comment))    ; comments
-   '(("\\\\[gG] \\(.*\\)$" nil comment)) ; comments
-   '(("(\\( [^)\n]* \\| \\)--\\( [^)\n]* \\| \\))" nil decl))
-   '(("( " ")" comment))
-   '(("\" [^\"\n]*\"" nil string))
-   '(("\\(\\[IF]\\|\\[IFDEF]\\|\\[IFUNDEF]\\|\\[ELSE]\\|\\[THEN]\\|IF\\|ELSE\\|THEN\\|CASE\\|ENDCASE\\|OF\\|ENDOF\\|BEGIN\\|WHILE\\|REPEAT\\|UNTIL\\|AGAIN\\|DOES>\\|?DO\\|DO\\|\+LOOP\\|UNLOOP\\|LOOP\\|EXIT\\)" nil keyword))
-   '(("\\(\\[if]\\|\\[ifdef]\\|\\[ifundef]\\|\\[else]\\|\\[then]\\|if\\|else\\|then\\|case\\|endcase\\|of\\|endof\\|begin\\|while\\|repeat\\|until\\|again\\|does>\\|?do\\|do\\|\+loop\\|unloop\\|loop\\|exit\\)" nil keyword))
-   '((": *[^ \n]*" nil defun))
-   '(("Defer *[^ \n]*" nil defun))
-   '(("\\(Variable\\|Constant\\|Value\\|Create\\) *[^ \n]*" nil define))
-   '(("\\(include\\|require\\) *[^ \n]*" nil include))
-   '(("[\n 	]\\(\\$[0-9A-Fa-f]+[\n 	]\\|&[0-9]+[\n 	]\\|[0-9]+[\n 	]\\|%[01]+[\n 	]\\|'[^ \n]+\\)+" nil formula))
-   '((":noname" nil defun))))))
+;  (hilit-set-mode-patterns
+;   '(forth-mode)
+;   (append
+;    '(("\\\\ \\(.*\\)$" nil comment))    ; comments
+;    '(("\\\\[gG] \\(.*\\)$" nil comment)) ; comments
+;    '(("(\\( [^)\n]* \\| \\)--\\( [^)\n]* \\| \\))" nil decl))
+;    '(("( " ")" comment))
+;    '(("\" [^\"\n]*\"" nil string))
+;    '(("\\(\\[IF]\\|\\[IFDEF]\\|\\[IFUNDEF]\\|\\[ELSE]\\|\\[THEN]\\|IF\\|ELSE\\|THEN\\|CASE\\|ENDCASE\\|OF\\|ENDOF\\|BEGIN\\|WHILE\\|REPEAT\\|UNTIL\\|AGAIN\\|DOES>\\|?DO\\|DO\\|\+LOOP\\|UNLOOP\\|LOOP\\|EXIT\\)" nil keyword))
+;    '(("\\(\\[if]\\|\\[ifdef]\\|\\[ifundef]\\|\\[else]\\|\\[then]\\|if\\|else\\|then\\|case\\|endcase\\|of\\|endof\\|begin\\|while\\|repeat\\|until\\|again\\|does>\\|?do\\|do\\|\+loop\\|unloop\\|loop\\|exit\\)" nil keyword))
+;    '((": *[^ \n]*" nil defun))
+;    '(("Defer *[^ \n]*" nil defun))
+;    '(("\\(Variable\\|Constant\\|Value\\|Create\\) *[^ \n]*" nil define))
+;    '(("\\(include\\|require\\) *[^ \n]*" nil include))
+;    '(("[\n 	]\\(\\$[0-9A-Fa-f]+[\n 	]\\|&[0-9]+[\n 	]\\|[0-9]+[\n 	]\\|%[01]+[\n 	]\\|'[^ \n]+\\)+" nil formula))
+;    '((":noname" nil defun))))))
 
 ;; end
 

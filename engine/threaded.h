@@ -248,9 +248,9 @@
 #  define SET_IP(p)	({ip=(p); next_cfa=*ip; NEXT_P0;})
 #  define NEXT_INST	(next_cfa)
 #  define INC_IP(const_inc)	({next_cfa=IP[const_inc]; ip+=(const_inc);})
-#  define DEF_CA	Label ca;
-#  define NEXT_P1	({ca=next_cfa; cfa=next_cfa; ip++; next_cfa=*ip;})
-#  define NEXT_P2	({goto *ca;})
+#  define DEF_CA	
+#  define NEXT_P1	({cfa=next_cfa; ip++; next_cfa=*ip;})
+#  define NEXT_P2	({goto *cfa;})
 #  define EXEC(XT)	({cfa=(XT); goto *cfa;})
 #  define MORE_VARS	Xt next_cfa;
 #endif
