@@ -323,9 +323,9 @@ Variable c-flag
 	   (( {{ start }}  c-ident {{ end c-name 2! }} )) ??
 	)) ??  nl
    ))
-   (( ` " ` "  {{ start }} (( noquote ++ ` " )) ++ {{ end 1- doc 2! }} ` " nl )) ??
+   (( ` " ` "  {{ start }} (( noquote ++ ` " )) ++ {{ end 1- doc 2! }} ` " white ** nl )) ??
    {{ skipsynclines off line @ c-line ! filename 2@ c-filename 2! start }} (( nocolonnl nonl **  nl )) ** {{ end c-code 2! skipsynclines on }}
-   (( ` :  nl
+   (( ` :  white ** nl
       {{ start }} (( nonl ++  nl )) ++ {{ end forth-code 2! }}
    )) ?? {{ printprim }}
    (( nl || eof ))
