@@ -40,6 +40,17 @@
 \ add the store optimization for doubles
 \ regarding problem 1 above: It would be better (for over) to implement
 \ 	the alternative
+\ store optimization for combined instructions.
+\ eliminate stack-cast (no longer used)
+
+\ Design Uglyness:
+
+\ - global state (values, variables) in connection with combined instructions.
+
+\ - index computation is different for instruction-stream and the
+\ stacks; there are two mechanisms for dealing with that
+\ (stack-in-index-xt and a test for stack==instruction-stream); there
+\ should be only one.
 
 warnings off
 
@@ -253,8 +264,7 @@ Variable function-number 0 function-number !
 : complement ( set1 -- set2 )
  empty ['] bit-equivalent binary-set-operation ;
 
-\ types
-
+\ stack access stuff
 
 : normal-stack-access ( n stack -- )
     stack-pointer 2@ type
@@ -265,12 +275,21 @@ Variable function-number 0 function-number !
 	drop ." TOS"
     endif ;
 
+\ forward declaration for inst-stream (breaks cycle in definitions)
+defer inst-stream-f ( -- stack )
+
 : part-stack-access { n stack -- }
-    \ print _<stack><x>, x=maxdepth-currentdepth-n-1
+    \ print _<stack><x>, x=inst-stream? n : maxdepth-currentdepth-n-1
     ." _" stack stack-pointer 2@ type
     stack stack-number @ { stack# }
-    combined prim-stacks-in stack# th @ assert( dup max-depth stack# th @ = )
-    current-depth stack# th @ - n - 1-
+    current-depth stack# th @ n + { access-depth }
+    stack inst-stream-f = if
+	access-depth
+    else
+	combined prim-stacks-in stack# th @
+	assert( dup max-depth stack# th @ = )
+	access-depth - 1-
+    endif
     0 .r ;
 
 : stack-access ( n stack -- )
@@ -468,6 +487,7 @@ s" fp" save-mem float-type s" "       make-stack fp-stack
 s" rp" save-mem cell-type  s" (Cell)" make-stack return-stack
 s" IP" save-mem cell-type  s" error don't use # on results" make-stack inst-stream
 ' inst-in-index inst-stream stack-in-index-xt !
+' inst-stream <is> inst-stream-f
 \ !! initialize stack-in and stack-out
 
 \ offset computation
