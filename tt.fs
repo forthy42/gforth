@@ -11,7 +11,7 @@
 \
 
 only forth also definitions
-s" forget-tt" sfind [if] forget-tt [then] marker forget-tt
+[ifdef] forget-tt forget-tt [then] marker forget-tt
 
 vocabulary tetris  tetris also definitions
 

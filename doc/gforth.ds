@@ -2692,7 +2692,7 @@ Implement @code{type ( addr u -- )}.
 Reference: @ref{Memory Blocks}.
 
 
-@node Alignment Tutorial, Interpretation and Compilation Semantics and Immediacy Tutorial, Characters and Strings Tutorial, Tutorial
+@node Alignment Tutorial, Files Tutorial, Characters and Strings Tutorial, Tutorial
 @section Alignment
 @cindex alignment tutorial
 @cindex memory alignment tutorial
@@ -2732,7 +2732,124 @@ not require them, if you want your program to be portable.
 Reference: @ref{Address arithmetic}.
 
 
-@node Interpretation and Compilation Semantics and Immediacy Tutorial, Execution Tokens Tutorial, Alignment Tutorial, Tutorial
+@node Files Tutorial, Interpretation and Compilation Semantics and Immediacy Tutorial, Alignment Tutorial, Tutorial
+@section Files
+@cindex files tutorial
+
+This section gives a short introduction into how to use files inside
+Forth. It's broken up into five easy steps:
+
+@enumerate 1
+@item Opened an ASCII text file for input
+@item Opened a file for output
+@item Read input file until string matched (or some other condition matched)
+@item Wrote some lines from input ( modified or not) to output
+@item Closed the files.
+@end enumerate
+
+@subsection Open file for input
+
+@example
+s" foo.in"  r/o open-file throw Value fd-in
+@end example
+
+@subsection Create file for output
+
+@example
+s" foo.out" w/o create-file throw Value fd-out
+@end example
+
+The available file modes are r/o for read-only access, r/w for
+read-write access, and w/o for write-only access. You could open both
+files with r/w, too, if you like. All file words return error codes; for
+most applications, it's best to pass there error codes with @code{throw}
+to the outer error handler.
+
+If you want words for opening and assigning, define them as follows:
+
+@example
+0 Value fd-in
+0 Value fd-out
+: open-input ( addr u -- )  r/o open-file throw to fd-in ;
+: open-output ( addr u -- )  w/o create-file throw to fd-out ;
+@end example
+
+Usage example:
+
+@example
+s" foo.in" open-input
+s" foo.out" open-output
+@end example
+
+@subsection Scan file for a particular line
+
+@example
+256 Constant max-line
+Create line-buffer  max-line 2 + allot
+
+: scan-file ( addr u -- )
+  begin
+      line-buffer max-line fd-in read-line throw
+  while
+         >r 2dup line-buffer r> compare 0=
+     until
+  else
+     drop
+  then
+  2drop ;
+@end example
+
+@code{read-line ( addr u1 fd -- u2 flag ior )} reads up to u1 bytes into
+the buffer at addr, and returns the number of bytes read, a flag that's
+true when the end of file is reached, and an error code.
+
+@code{compare ( addr1 u1 addr2 u2 -- n )} compares two strings and
+returns zero if both strings are equal. It returns a positive number if
+the first string is lexically greater, a negative if the second string
+is lexically greater.
+
+We haven't seen this loop here; it has two exits. Since the @code{while}
+exits with the number of bytes read on the stack, we have to clean up
+that separately; that's after the @code{else}.
+
+Usage example:
+
+@example
+s" The text I search is here" scan-file
+@end example
+
+@subsection Copy input to output
+
+@example
+: copy-file ( -- )
+  begin
+      line-buffer max-line fd-in read-line throw
+  while
+      line-buffer swap fd-out write-file throw
+  repeat ;
+@end example
+
+@subsection Close files
+
+@example
+fd-in close-file throw
+fd-out close-file throw
+@end example
+
+Likewise, you can put that into definitions, too:
+
+@example
+: close-input ( -- )  fd-in close-file throw ;
+: close-output ( -- )  fd-out close-file throw ;
+@end example
+
+@assignment
+How could you modify @code{copy-file} so that it copies until a second line is
+matched? Can you write a program that extracts a section of a text file,
+given the line that starts and the line that terminates that section?
+@endassignment
+
+@node Interpretation and Compilation Semantics and Immediacy Tutorial, Execution Tokens Tutorial, Files Tutorial, Tutorial
 @section Interpretation and Compilation Semantics and Immediacy
 @cindex semantics tutorial
 @cindex interpretation semantics tutorial
