@@ -722,7 +722,7 @@ Cond: DOES> restrict?
 	dup >magic @ <do:> =
 	IF  gexecute T 0 , H  EXIT THEN
     THEN
-    compile :dodoes gexecute T here H cell - reloff ;
+    compile :dodoes gexecute T here H tcell - reloff ;
 
 : TCreate ( -- )
   last-ghost @
