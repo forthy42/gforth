@@ -154,6 +154,8 @@ static int no_dynamic=NO_DYNAMIC_DEFAULT; /* if true, no code is generated
 					     dynamically */
 static int print_metrics=0; /* if true, print metrics on exit */
 static int static_super_number = 10000000; /* number of ss used if available */
+#define MAX_STATE 4 /* maximum number of states */
+static int maxstates = MAX_STATE; /* number of states for stack caching */
 static int ss_greedy = 0; /* if true: use greedy, not optimal ss selection */
 
 #ifdef HAS_DEBUG
@@ -169,12 +171,52 @@ Label *vm_prims;
 Label *xts; /* same content as vm_prims, but should only be used for xts */
 #endif
 
+#ifndef NO_DYNAMIC
+#define MAX_IMMARGS 2
+
+typedef struct {
+  Label start; /* NULL if not relocatable */
+  Cell length; /* only includes the jump iff superend is true*/
+  Cell restlength; /* length of the rest (i.e., the jump or (on superend) 0) */
+  char superend; /* true if primitive ends superinstruction, i.e.,
+                     unconditional branch, execute, etc. */
+  Cell nimmargs;
+  struct immarg {
+    Cell offset; /* offset of immarg within prim */
+    char rel;    /* true if immarg is relative */
+  } immargs[MAX_IMMARGS];
+} PrimInfo;
+
+PrimInfo *priminfos;
+PrimInfo **decomp_prims;
+
+static int is_relocatable(int p)
+{
+  return !no_dynamic && priminfos[p].start != NULL;
+}
+#else /* defined(NO_DYNAMIC) */
+static int is_relocatable(int p)
+{
+  return 0;
+}
+#endif /* defined(NO_DYNAMIC) */
+
 #ifdef MEMCMP_AS_SUBROUTINE
 int gforth_memcmp(const char * s1, const char * s2, size_t n)
 {
   return memcmp(s1, s2, n);
 }
 #endif
+
+static Cell max(Cell a, Cell b)
+{
+  return a>b?a:b;
+}
+
+static Cell min(Cell a, Cell b)
+{
+  return a<b?a:b;
+}
 
 /* image file format:
  *  "#! binary-path -i\n" (e.g., "#! /usr/local/bin/gforth-0.4.0 -i\n")
@@ -221,6 +263,30 @@ Cell groups[32] = {
 #define GROUPADD(n)
 };
 
+unsigned char *branch_targets(Cell *image, const unsigned char *bitstring,
+			      int size, Cell base)
+     /* produce a bitmask marking all the branch targets */
+{
+  int i=0, j, k, steps=(size/sizeof(Cell))/RELINFOBITS;
+  Cell token;
+  unsigned char bits;
+  unsigned char *result=malloc(steps+1);
+  
+  memset(result, 0, steps+1);
+  for(k=0; k<=steps; k++) {
+    for(j=0, bits=bitstring[k]; j<RELINFOBITS; j++, i++, bits<<=1) {
+      if((i < size) && (bits & (1U << (RELINFOBITS-1)))) {
+        token=image[i];
+	if (token>=base) { /* relocatable address */
+	  UCell bitnum=(token-base)/sizeof(Cell);
+	  result[bitnum/RELINFOBITS] |= 1U << ((~bitnum)&(RELINFOBITS-1));
+	}
+      }
+    }
+  }
+  return result;
+}
+
 void relocate(Cell *image, const unsigned char *bitstring, 
               int size, Cell base, Label symbols[])
 {
@@ -233,6 +299,7 @@ void relocate(Cell *image, const unsigned char *bitstring,
    * the one in the image 
    */
   Cell *start = (Cell * ) (((void *) image) - ((void *) base));
+  unsigned char *targets = branch_targets(image, bitstring, size, base);
 
   /* group index into table */
   if(groups[31]==0) {
@@ -281,8 +348,11 @@ void relocate(Cell *image, const unsigned char *bitstring,
 	      if (CF((token | 0x4000))<max_symbols) {
 		image[i]=(Cell)CFA(CF(token));
 #ifdef DIRECT_THREADED
-		if ((token & 0x4000) == 0) /* threade code, no CFA */
+		if ((token & 0x4000) == 0) { /* threade code, no CFA */
+		  if (targets[k] & (1U<<(RELINFOBITS-1-j)))
+		    compile_prim1(0);
 		  compile_prim1(&image[i]);
+		}
 #endif
 	      } else
 		fprintf(stderr,"Primitive %ld used in this image at $%lx (offset $%x) is not implemented by this\n engine (%s); executing this code will crash.\n",(long)CF(token),(long)&image[i], i, PACKAGE_VERSION);
@@ -296,8 +366,11 @@ void relocate(Cell *image, const unsigned char *bitstring,
 	      image[i]=(Cell)CFA((groups[group]+tok));
 #endif
 #ifdef DIRECT_THREADED
-	      if ((token & 0x4000) == 0) /* threade code, no CFA */
+	      if ((token & 0x4000) == 0) { /* threade code, no CFA */
+		if (targets[k] & (1U<<(RELINFOBITS-1-j)))
+		  compile_prim1(0);
 		compile_prim1(&image[i]);
+	      }
 #endif
 	    } else
 	      fprintf(stderr,"Primitive %lx, %d of group %d used in this image at $%lx (offset $%x) is not implemented by this\n engine (%s); executing this code will crash.\n", (long)-token, tok, group, (long)&image[i],i,PACKAGE_VERSION);
@@ -311,6 +384,7 @@ void relocate(Cell *image, const unsigned char *bitstring,
       }
     }
   }
+  free(targets);
   finish_code();
   ((ImageHeader*)(image))->base = (Address) image;
 }
@@ -560,10 +634,10 @@ struct cost {
   char stores;      /* number of stack stores */
   char updates;     /* number of stack pointer updates */
   char branch;	    /* is it a branch (SET_IP) */
-  char state_in;    /* state on entry */
-  char state_out;   /* state on exit */
+  unsigned char state_in;    /* state on entry */
+  unsigned char state_out;   /* state on exit */
   short offset;     /* offset into super2 table */
-  char length;      /* number of components */
+  unsigned char length;      /* number of components */
 };
 
 PrimNum super2[] = {
@@ -574,15 +648,22 @@ struct cost super_costs[] = {
 #include "costs.i"
 };
 
+struct super_state {
+  struct super_state *next;
+  PrimNum super;
+};
+
 #define HASH_SIZE 256
 
 struct super_table_entry {
   struct super_table_entry *next;
   PrimNum *start;
   short length;
-  PrimNum super;
+  struct super_state *ss_list; /* list of supers */
 } *super_table[HASH_SIZE];
 int max_super=2;
+
+struct super_state *state_transitions=NULL;
 
 int hash_super(PrimNum *start, int length)
 {
@@ -595,18 +676,18 @@ int hash_super(PrimNum *start, int length)
   return r & (HASH_SIZE-1);
 }
 
-int lookup_super(PrimNum *start, int length)
+struct super_state **lookup_super(PrimNum *start, int length)
 {
   int hash=hash_super(start,length);
   struct super_table_entry *p = super_table[hash];
 
-  assert(length >= 2);
+  /* assert(length >= 2); */
   for (; p!=NULL; p = p->next) {
     if (length == p->length &&
 	memcmp((char *)p->start, (char *)start, length*sizeof(PrimNum))==0)
-      return p->super;
+      return &(p->ss_list);
   }
-  return -1;
+  return NULL;
 }
 
 void prepare_super_table()
@@ -616,18 +697,34 @@ void prepare_super_table()
 
   for (i=0; i<sizeof(super_costs)/sizeof(super_costs[0]); i++) {
     struct cost *c = &super_costs[i];
-    if (c->length > 1 && nsupers < static_super_number) {
-      int hash = hash_super(super2+c->offset, c->length);
-      struct super_table_entry **p = &super_table[hash];
-      struct super_table_entry *e = malloc(sizeof(struct super_table_entry));
-      e->next = *p;
-      e->start = super2 + c->offset;
-      e->length = c->length;
-      e->super = i;
-      *p = e;
+    if ((c->length < 2 || nsupers < static_super_number) &&
+	c->state_in < maxstates && c->state_out < maxstates) {
+      struct super_state **ss_listp= lookup_super(super2+c->offset, c->length);
+      struct super_state *ss = malloc(sizeof(struct super_state));
+      ss->super= i;
+      if (c->offset==N_noop && i != N_noop) {
+	if (is_relocatable(i)) {
+	  ss->next = state_transitions;
+	  state_transitions = ss;
+	}
+      } else if (ss_listp != NULL) {
+	ss->next = *ss_listp;
+	*ss_listp = ss;
+      } else {
+	int hash = hash_super(super2+c->offset, c->length);
+	struct super_table_entry **p = &super_table[hash];
+	struct super_table_entry *e = malloc(sizeof(struct super_table_entry));
+	ss->next = NULL;
+	e->next = *p;
+	e->start = super2 + c->offset;
+	e->length = c->length;
+	e->ss_list = ss;
+	*p = e;
+      }
       if (c->length > max_super)
 	max_super = c->length;
-      nsupers++;
+      if (c->length >= 2)
+	nsupers++;
     }
   }
   if (debug)
@@ -636,25 +733,7 @@ void prepare_super_table()
 
 /* dynamic replication/superinstruction stuff */
 
-#define MAX_IMMARGS 2
-
 #ifndef NO_DYNAMIC
-typedef struct {
-  Label start;
-  Cell length; /* only includes the jump iff superend is true*/
-  Cell restlength; /* length of the rest (i.e., the jump or (on superend) 0) */
-  char superend; /* true if primitive ends superinstruction, i.e.,
-                     unconditional branch, execute, etc. */
-  Cell nimmargs;
-  struct immarg {
-    Cell offset; /* offset of immarg within prim */
-    char rel;    /* true if immarg is relative */
-  } immargs[MAX_IMMARGS];
-} PrimInfo;
-
-PrimInfo *priminfos;
-PrimInfo **decomp_prims;
-
 int compare_priminfo_length(const void *_a, const void *_b)
 {
   PrimInfo **a = (PrimInfo **)_a;
@@ -669,7 +748,7 @@ int compare_priminfo_length(const void *_a, const void *_b)
 }
 #endif /* !defined(NO_DYNAMIC) */
 
-static char superend[]={
+static char MAYBE_UNUSED superend[]={
 #include "prim_superend.i"
 };
 
@@ -1050,7 +1129,7 @@ void compile_prim_dyn(Cell *start)
       dei->branchinfo = nbranchinfos;
       dei->xt = (Cell *)(last_start[1]);
       next_code_target = compile_call2(NULL);
-    } else if (pi->start == NULL) { /* non-reloc */
+    } else if (!is_relocatable(i)) {
       next_code_target = compile_prim1arg(N_set_next_code);
       set_rel_target(compile_prim1arg(N_abranch),*(Xt)last_prim);
     } else {
@@ -1086,12 +1165,11 @@ void compile_prim_dyn(Cell *start)
     *start = (Cell)prim;
     return;
   }
-  if (i>=npriminfos || priminfos[i].start == 0) { /* not a relocatable prim */
+  if (i>=npriminfos || !is_relocatable(i)) {
     append_jump();
     *start = (Cell)prim;
     return;
   }
-  assert(priminfos[i].start = prim); 
 #ifdef ALIGN_CODE
   /*  ALIGN_CODE;*/
 #endif
@@ -1121,7 +1199,7 @@ Cell compile_prim_dyn(unsigned p)
 
   if (no_dynamic)
     return static_prim;
-  if (p>=npriminfos || priminfos[p].start == 0) { /* not a relocatable prim */
+  if (p>=npriminfos || !is_relocatable(p)) {
     append_jump();
     return static_prim;
   }
@@ -1179,40 +1257,157 @@ struct {
 };
 
 #define MAX_BB 128 /* maximum number of instructions in BB */
+#define INF_COST 1000000 /* infinite cost */
+#define CANONICAL_STATE 0
 
-/* use dynamic programming to find the shortest paths within the basic
-   block origs[0..ninsts-1]; optimals[i] contains the superinstruction
-   on the shortest path to the end of the BB */
-void optimize_bb(PrimNum origs[], PrimNum optimals[], int ninsts)
+struct waypoint {
+  int cost;     /* the cost from here to the end */
+  PrimNum inst; /* the inst used from here to the next waypoint */
+  char relocatable; /* the last non-transition was relocatable */
+  char no_transition; /* don't use the next transition (relocatability)
+		       * or this transition (does not change state) */
+};
+
+void init_waypoints(struct waypoint ws[])
 {
-  int i,j, mincost;
-  static int costs[MAX_BB+1];
+  int k;
 
-  assert(ninsts<MAX_BB);
-  costs[ninsts]=0;
-  for (i=ninsts-1; i>=0; i--) {
-    optimals[i] = origs[i];
-    costs[i] = mincost = costs[i+1] + ss_cost(optimals[i]);
-    for (j=2; j<=max_super && i+j<=ninsts ; j++) {
-      int super, jcost;
+  for (k=0; k<maxstates; k++)
+    ws[k].cost=INF_COST;
+}
 
-      super = lookup_super(origs+i,j);
-      if (super >= 0) {
-	jcost = costs[i+j] + ss_cost(super);
-	if (jcost <= mincost) {
-	  optimals[i] = super;
-	  mincost = jcost;
-	  if (!ss_greedy)
-	    costs[i] = jcost;
-	}
-      }
+void transitions(struct waypoint inst[], struct waypoint trans[])
+{
+  int k;
+  struct super_state *l;
+  
+  for (k=0; k<maxstates; k++) {
+    trans[k] = inst[k];
+    trans[k].no_transition = 1;
+  }
+  for (l = state_transitions; l != NULL; l = l->next) {
+    PrimNum s = l->super;
+    int jcost;
+    struct cost *c=super_costs+s;
+    struct waypoint *wi=&(trans[c->state_in]);
+    struct waypoint *wo=&(inst[c->state_out]);
+    if (wo->cost == INF_COST)
+      continue;
+    jcost = wo->cost + ss_cost(s);
+    if (jcost <= wi->cost) {
+      wi->cost = jcost;
+      wi->inst = s;
+      wi->relocatable = wo->relocatable;
+      wi->no_transition = 0;
+      /* if (ss_greedy) wi->cost = wo->cost ? */
     }
   }
 }
 
+/* use dynamic programming to find the shortest paths within the basic
+   block origs[0..ninsts-1] and rewrite the instructions pointed to by
+   instps to use it */
+void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
+{
+  int i,j;
+  static struct waypoint inst[MAX_BB+1][MAX_STATE];  /* before instruction*/
+  static struct waypoint trans[MAX_BB+1][MAX_STATE]; /* before transition */
+  int nextdyn, nextstate, no_transition;
+  
+  init_waypoints(inst[ninsts]);
+  inst[ninsts][CANONICAL_STATE].cost=0;
+  transitions(inst[ninsts],trans[ninsts]);
+  for (i=ninsts-1; i>=0; i--) {
+    init_waypoints(inst[i]);
+    for (j=1; j<=max_super && i+j<=ninsts; j++) {
+      struct super_state **superp = lookup_super(origs+i, j);
+      if (superp!=NULL) {
+	struct super_state *supers = *superp;
+	for (; supers!=NULL; supers = supers->next) {
+	  PrimNum s = supers->super;
+	  int jcost;
+	  struct cost *c=super_costs+s;
+	  struct waypoint *wi=&(inst[i][c->state_in]);
+	  struct waypoint *wo=&(trans[i+j][c->state_out]);
+	  int no_transition = wo->no_transition;
+	  if (!(is_relocatable(s)) && !wo->relocatable) {
+	    wo=&(inst[i+j][c->state_out]);
+	    no_transition=1;
+	  }
+	  if (wo->cost == INF_COST) 
+	    continue;
+	  jcost = wo->cost + ss_cost(s);
+	  if (jcost <= wi->cost) {
+	    wi->cost = jcost;
+	    wi->inst = s;
+	    wi->relocatable = is_relocatable(s);
+	    wi->no_transition = no_transition;
+	    /* if (ss_greedy) wi->cost = wo->cost ? */
+	  }
+	}
+      }
+    }
+    transitions(inst[i],trans[i]);
+  }
+  /* now rewrite the instructions */
+  nextdyn=0;
+  nextstate=CANONICAL_STATE;
+  no_transition = ((!trans[0][nextstate].relocatable) 
+		   ||trans[0][nextstate].no_transition);
+  for (i=0; i<ninsts; i++) {
+    Cell tc=0, tc2;
+    if (i==nextdyn) {
+      if (!no_transition) {
+	/* process trans */
+	PrimNum p = trans[i][nextstate].inst;
+	struct cost *c = super_costs+p;
+	assert(trans[i][nextstate].cost != INF_COST);
+	assert(c->state_in==nextstate);
+	tc = compile_prim_dyn(p);
+	nextstate = c->state_out;
+      }
+      {
+	/* process inst */
+	PrimNum p = inst[i][nextstate].inst;
+	struct cost *c=super_costs+p;
+	assert(c->state_in==nextstate);
+	assert(inst[i][nextstate].cost != INF_COST);
+#if defined(GFORTH_DEBUGGING)
+	assert(p == origs[i]);
+#endif
+	tc2 = compile_prim_dyn(p);
+	if (no_transition || !is_relocatable(p))
+	  /* !! actually what we care about is if and where
+	   * compile_prim_dyn() puts NEXTs */
+	  tc=tc2;
+	no_transition = inst[i][nextstate].no_transition;
+	nextstate = c->state_out;
+	nextdyn += c->length;
+      }
+    } else {
+#if defined(GFORTH_DEBUGGING)
+      assert(0);
+#endif
+      tc=0;
+      /* tc= (Cell)vm_prims[inst[i][CANONICAL_STATE].inst]; */
+    }
+    *(instps[i]) = tc;
+  }      
+  if (!no_transition) {
+    PrimNum p = trans[i][nextstate].inst;
+    struct cost *c = super_costs+p;
+    assert(c->state_in==nextstate);
+    assert(trans[i][nextstate].cost != INF_COST);
+    assert(i==nextdyn);
+    (void)compile_prim_dyn(p);
+    nextstate = c->state_out;
+  }
+  assert(nextstate==CANONICAL_STATE);
+}
+
 /* rewrite the instructions pointed to by instps to use the
    superinstructions in optimals */
-void rewrite_bb(Cell *instps[], PrimNum *optimals, int ninsts)
+static void rewrite_bb(Cell *instps[], PrimNum *optimals, int ninsts)
 {
   int i,j, nextdyn;
   Cell inst;
@@ -1235,7 +1430,11 @@ void rewrite_bb(Cell *instps[], PrimNum *optimals, int ninsts)
 void compile_prim1(Cell *start)
 {
 #if defined(DOUBLY_INDIRECT)
-  Label prim=(Label)*start;
+  Label prim;
+
+  if (start==NULL)
+    return;
+  prim = (Label)*start;
   if (prim<((Label)(xts+DOESJUMP)) || prim>((Label)(xts+npriminfos))) {
     fprintf(stderr,"compile_prim encountered xt %p\n", prim);
     *start=(Cell)prim;
@@ -1249,7 +1448,6 @@ void compile_prim1(Cell *start)
 #else /* !(defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED)) */
   static Cell *instps[MAX_BB];
   static PrimNum origs[MAX_BB];
-  static PrimNum optimals[MAX_BB];
   static int ninsts=0;
   PrimNum prim_num;
 
@@ -1264,8 +1462,7 @@ void compile_prim1(Cell *start)
   ninsts++;
   if (ninsts >= MAX_BB || superend[prim_num]) {
   end_bb:
-    optimize_bb(origs,optimals,ninsts);
-    rewrite_bb(instps,optimals,ninsts);
+    optimize_rewrite(instps,origs,ninsts);
     ninsts=0;
   }
 #endif /* !(defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED)) */
@@ -1491,6 +1688,7 @@ UCell convsize(char *s, UCell elemsize)
 
 enum {
   ss_number = 256,
+  ss_states,
   ss_min_codesize,
   ss_min_ls,
   ss_min_lsu,
@@ -1526,6 +1724,7 @@ void gforth_args(int argc, char ** argv, char ** path, char ** imagename)
       {"dynamic", no_argument, &no_dynamic, 0},
       {"print-metrics", no_argument, &print_metrics, 1},
       {"ss-number", required_argument, NULL, ss_number},
+      {"ss-states", required_argument, NULL, ss_states},
 #ifndef NO_DYNAMIC
       {"ss-min-codesize", no_argument, NULL, ss_min_codesize},
 #endif
@@ -1557,6 +1756,7 @@ void gforth_args(int argc, char ** argv, char ** path, char ** imagename)
     case 'x': debug = 1; break;
     case 'v': fputs(PACKAGE_STRING"\n", stderr); exit(0);
     case ss_number: static_super_number = atoi(optarg); break;
+    case ss_states: maxstates = max(min(atoi(optarg),MAX_STATE),1); break;
 #ifndef NO_DYNAMIC
     case ss_min_codesize: ss_cost = cost_codesize; break;
 #endif
@@ -1590,6 +1790,7 @@ Engine Options:\n\
   --ss-min-lsu                      minimize loads, stores, and pointer updates\n\
   --ss-min-nexts                    minimize the number of static superinsts\n\
   --ss-number=N                     use N static superinsts (default max)\n\
+  --ss-states=N                     N states for stack caching (default max)\n\
   -v, --version			    Print engine version and exit\n\
 SIZE arguments consist of an integer followed by a unit. The unit can be\n\
   `b' (byte), `e' (element; default), `k' (KB), `M' (MB), `G' (GB) or `T' (TB).\n",

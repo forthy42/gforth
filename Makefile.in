@@ -736,7 +736,7 @@ engine/profile.i:	prim.b prims2x.fs
 		$(RM) $@-
 
 engine/super2.i:	prim.b prims2x.fs
-		$(FORTHP) prims2x.fs -e "c-flag on s\" prim.b\" ' output-super2 dup process-file bye" >$@-
+		$(FORTHP) prims2x.fs -e "c-flag on s\" prim.b\" ' output-super2-simple ' output-super2-combined process-file bye" >$@-
 		$(CP) $@- $@
 		$(RM) $@-
 
@@ -924,7 +924,7 @@ engine/config.h: stamp-h
 stamp-h: engine/config.h.in config.status
 	./config.status
 
-Makedist engine/Makefile gforthmi vmgen machpc.fs doc/version.texi:	Makefile.in Makedist.in engine/Makefile.in gforthmi.in vmgen.in machpc.fs.in doc/version.texi.in config.status configure.in
+Makefile Makedist engine/Makefile gforthmi vmgen machpc.fs doc/version.texi:	Makefile.in Makedist.in engine/Makefile.in gforthmi.in vmgen.in machpc.fs.in doc/version.texi.in config.status configure.in
 	./config.status
 
 config.status: configure

@@ -267,6 +267,7 @@ struct%
     cell% 2* field prim-name
     cell% 2* field prim-wordset
     cell% 2* field prim-c-name
+    cell% 2* field prim-c-name-orig \ for reprocessed prims, the original name
     cell% 2* field prim-doc
     cell% 2* field prim-c-code
     cell% 2* field prim-forth-code
@@ -301,6 +302,9 @@ variable in-part \ true if processing a part
     catch
     r> to prim
     throw ;
+
+: prim-c-name-2! ( c-addr u -- )
+    2dup prim prim-c-name 2! prim prim-c-name-orig 2! ;
 
 1000 constant max-combined
 create combined-prims max-combined cells allot
@@ -1505,11 +1509,14 @@ variable reprocessed-num 0 reprocessed-num !
 \ This is intended as initializer for a structure like this
 
 \  struct cost {
-\    int loads;       /* number of stack loads */
-\    int stores;      /* number of stack stores */
-\    int updates;     /* number of stack pointer updates */
-\    int offset;      /* offset into super2 table */
-\    int length;      /* number of components */
+\    char loads;       /* number of stack loads */
+\    char stores;      /* number of stack stores */
+\    char updates;     /* number of stack pointer updates */
+\    char branch;      /* is it a branch (SET_IP) */
+\    char state_in;    /* state on entry */
+\    char state_out;   /* state on exit */
+\    short offset;     /* offset into super2 table */
+\    char length;      /* number of components */
 \  };
 
 \ How do you know which primitive or combined instruction this
@@ -1539,7 +1546,7 @@ variable reprocessed-num 0 reprocessed-num !
     loop ;
 
 : output-num-part ( p -- )
-    ." N_" prim-c-name 2@ type ." ," ;
+    ." N_" prim-c-name-orig 2@ type ." ," ;
     \ prim-num @ 4 .r ." ," ;
 
 : output-name-comment ( -- )
@@ -1577,13 +1584,15 @@ variable offset-super2  0 offset-super2 ! \ offset into the super2 table
     output-name-comment
     cr ;
 
-: output-super2 ( -- )
-    \ table of superinstructions without requirement for existing prefixes
-    combined if
-	['] output-num-part map-combined 
-    else
+: output-super2-simple ( -- )
+    prim prim-c-name 2@ prim prim-c-name-orig 2@ d= if
 	prim output-num-part
-    endif
+	output-name-comment
+	cr
+    endif ;   
+  
+: output-super2-combined ( -- )
+    ['] output-num-part map-combined 
     output-name-comment
     cr ;   
 
@@ -1744,7 +1753,7 @@ Variable c-flag
 (( {{ prim create-prim }}
    ` ( white ** {{ start }} stack-effect {{ end prim prim-stack-string 2! }} ` ) white **
    (( {{ start }} forth-ident {{ end prim prim-wordset 2! }} white **
-      (( {{ start }}  c-ident {{ end prim prim-c-name 2! }} )) ??
+      (( {{ start }}  c-ident {{ end 2dup prim-c-name-2! }} )) ??
    )) ??  nleof
    (( ` " ` "  {{ start }} (( noquote ++ ` " )) ++ {{ end 1- prim prim-doc 2! }} ` " white ** nleof )) ??
    {{ skipsynclines off line @ c-line ! filename 2@ c-filename 2! start }}
@@ -1766,8 +1775,8 @@ Variable c-flag
       line @ name-line ! filename 2@ name-filename 2!
       function-number @ prim prim-num !
       start }} [ifdef] vmgen c-ident [else] forth-ident [then] {{ end
-      2dup prim prim-name 2! prim prim-c-name 2! }}  white **
-   (( ` / white ** {{ start }} c-ident {{ end prim prim-c-name 2! }} white ** )) ??
+      2dup prim prim-name 2! prim-c-name-2! }}  white **
+   (( ` / white ** {{ start }} c-ident {{ end prim-c-name-2! }} white ** )) ??
    (( simple-primitive || combined-primitive ))
    {{ 1 function-number +! }}
 )) <- primitive ( -- )

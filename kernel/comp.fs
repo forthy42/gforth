@@ -221,7 +221,9 @@ defer compile, ( xt -- )	\ core-ext	compile-comma
 
 defer basic-block-end ( -- )
 
-' noop is basic-block-end
+:noname ( -- )
+    0 compile-prim1 ;
+is basic-block-end
 
 has? peephole [IF]
 
