@@ -282,14 +282,14 @@ VARIABLE Unnest
 
 : dbg   ' NestXT ?EXIT (debug) Leave-D ;
 
-: TRACE:
-        r> (debug) ;
+: break:
+        r> ['] (debug) >body >r ;
 
-: (TRACE")
+: (break")
         cr
         ." BREAK AT: " type cr
-        r> (debug) ;
+        r> ['] (debug) >body >r ;
 
-: TRACE"
+: break"
         postpone s"
-        postpone (TRACE") ; immediate
+        postpone (break") ; immediate

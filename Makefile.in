@@ -419,8 +419,6 @@ bench:		gforth gforth.fi
 		time $(FORTH) -m 160000 matrix.fs -e "main bye"
 		time $(FORTH) fib.fs -e "main bye"
 
-dvi:		gforth.dvi
-
 gforth:		$(OBJECTS) $(OBJECTS0)
 		-$(CP) gforth gforth~
 		$(GCC) $(LDFLAGS) $(OBJECTS) $(OBJECTS0) $(LDLIBS) -o $@

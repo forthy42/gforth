@@ -108,7 +108,7 @@ VARIABLE Colors Colors on
 : .struc        
 	uppercase on Str# .string ;
 
-\ CODES                                                 15may93jaw
+\ CODES (Branchtypes)                                    15may93jaw
 
 21 CONSTANT RepeatCode
 22 CONSTANT AgainCode
@@ -118,21 +118,30 @@ VARIABLE Colors Colors on
 11 CONSTANT AheadCode
 13 CONSTANT WhileCode2
 14 CONSTANT Disable
+15 CONSTANT LeaveCode
+
 
 \ FORMAT WORDS                                          13jun93jaw
 
 VARIABLE C-Stop
 VARIABLE Branches
 
-VARIABLE BranchPointer
+VARIABLE BranchPointer	\ point to the end of branch table
 VARIABLE SearchPointer
+
+\ The branchtable consists of three entrys:
+\ address of branch , branch destination , branch type
+
 CREATE BranchTable 500 allot
 here 3 cells -
 ACONSTANT MaxTable
 
 : FirstBranch BranchTable cell+ SearchPointer ! ;
 
-: (BranchAddr?) ( a-addr -- a-addr true | false )
+: (BranchAddr?) ( a-addr1 -- a-addr2 true | false )
+\ searches a branch with destination a-addr1
+\ a-addr1: branch destination
+\ a-addr2: pointer in branch table
         SearchPointer @
         BEGIN   dup BranchPointer @ u<
         WHILE
@@ -160,6 +169,20 @@ ACONSTANT MaxTable
         ELSE
         2drop true
         THEN ;
+
+: MyBranch      ( a-addr -- a-addr a-addr2 )
+\ finds branch table entry for branch at a-addr
+                dup @ over +
+                BranchAddr?
+                BEGIN
+                WHILE 1 cells - @
+                      over <>
+                WHILE dup @ over +
+                      MoreBranchAddr?
+                REPEAT
+                SearchPointer @ 3 cells -
+                ELSE    true ABORT" SEE: Table failure"
+                THEN ;
 
 \
 \                 addrw               addrt
@@ -250,13 +273,15 @@ VARIABLE C-Pass
         THEN ;
 
 
-: Forward? ( a-addr true | false -- )
+: Forward? ( a-addr true | false -- a-addr true | false )
+\ a-addr1 is pointer into branch table
+\ returns true when jump is a forward jump
         IF      dup dup @ swap 1 cells - @ -
                 Ahead? IF true ELSE drop false THEN
                 \ only if forward jump
         ELSE    false THEN ;
 
-: RepeatCheck
+: RepeatCheck ( a-addr1 a-addr2 true | false -- false )
         IF  BEGIN  2dup
                    1 cells - @ swap dup @ +
                    u<=
@@ -295,32 +320,23 @@ VARIABLE C-Pass
                         IF      drop S" REPEAT " .struc nl
                         ELSE    S" AGAIN " .struc nl
                         THEN
-                ELSE    dup cell+ BranchAddr? Forward?
-                        IF      dup cell+ @ WhileCode2 =
-                                IF nl S" ELSE" .struc level+
-                                ELSE level- nl S" ELSE" .struc level+ THEN
-                                cell+ Disable swap !
-                        ELSE    S" AHEAD" .struc level+
-                        THEN
+                ELSE    MyBranch cell+ @ LeaveCode =
+			IF 	S" LEAVE " .struc
+			ELSE
+				dup cell+ BranchAddr? Forward?
+       	                 	IF      dup cell+ @ WhileCode2 =
+       	                         	IF nl S" ELSE" .struc level+
+                                	ELSE level- nl S" ELSE" .struc level+ THEN
+                                	cell+ Disable swap !
+                        	ELSE    S" AHEAD" .struc level+
+                        	THEN
+			THEN
                 THEN
         THEN
         Debug?
         IF      dup @ +
         ELSE    cell+
         THEN ;
-
-: MyBranch      ( a-addr -- a-addr a-addr2 )
-                dup @ over +
-                BranchAddr?
-                BEGIN
-                WHILE 1 cells - @
-                      over <>
-                WHILE dup @ over +
-                      MoreBranchAddr?
-                REPEAT
-                SearchPointer @ 3 cells -
-                ELSE    true ABORT" SEE: Table failure"
-                THEN ;
 
 : DebugBranch
         Debug?
@@ -344,7 +360,10 @@ VARIABLE C-Pass
                                 level- nl
                                 S" WHILE " .struc
                                 level+
-                        ELSE    nl S" IF " .struc level+
+                        ELSE    MyBranch cell+ @ LeaveCode =
+				IF   s" 0= ?LEAVE " .struc
+				ELSE nl S" IF " .struc level+
+				THEN
                         THEN
                 THEN
         THEN
@@ -355,11 +374,19 @@ VARIABLE C-Pass
         Display? IF nl S" FOR" .struc level+ THEN ;
 
 : .name-without
+\ prints a name without () e.g. (+LOOP)
 	dup 1 cells - @ look IF name>string 1 /string 1- .struc ELSE drop THEN ;
 
 : c-loop
         Display? IF level- nl .name-without bl cemit nl THEN
-        DebugBranch cell+ cell+ ;
+        DebugBranch cell+ 
+	Scan? 
+	IF 	dup BranchAddr? 
+		BEGIN   WHILE cell+ LeaveCode swap !
+			dup MoreBranchAddr?
+		REPEAT
+	THEN
+	cell+ ;
 
 : c-do
         Display? IF nl .name-without level+ THEN ;
@@ -367,14 +394,6 @@ VARIABLE C-Pass
 : c-?do
         Display? IF nl S" ?DO" .struc level+ THEN
         DebugBranch cell+ ;
-
-: c-leave
-        Display? IF S" LEAVE " .struc THEN
-        Debug? IF dup @ + THEN cell+ ;
-
-: c-?leave
-        Display? IF S" ?LEAVE " .struc THEN
-        cell+ DebugBranch swap cell+ swap cell+ ;
 
 : c-exit  dup 1 cells -
         CheckEnd
@@ -403,8 +422,6 @@ CREATE C-Table
 	' (s") A,	    ' c-s" A,
         ' (.") A,	    ' c-." A,
         ' "lit A,           ' c-c" A,
-        comp' leave drop A, ' c-leave A,
-        comp' ?leave drop A, ' c-?leave A,
         ' (do) A,           ' c-do A,
 	' (+do) A,	    ' c-do A,
 	' (u+do) A,	    ' c-do A,
@@ -446,12 +463,12 @@ c-extender !
 	;
 
 : BranchTo? ( a-addr -- a-addr )
-        Display?  IF     dup BranchAddr?
+        Display?  IF    dup BranchAddr?
                         IF
 				BEGIN cell+ @ dup 20 u>
                                 IF drop nl S" BEGIN " .struc level+
                                 ELSE
-                                  dup Disable <>
+                                  dup Disable <> over LeaveCode <> and
                                   IF   WhileCode2 =
                                        IF nl S" THEN " .struc nl ELSE
                                        level- nl S" THEN " .struc nl THEN
