@@ -1,5 +1,5 @@
 /*
-  $Id: main.c,v 1.13 1994-09-26 20:31:14 pazsan Exp $
+  $Id: main.c,v 1.14 1994-09-28 17:02:48 anton Exp $
   Copyright 1993 by the ANSI figForth Development Group
 */
 
@@ -17,7 +17,7 @@
 #ifdef USE_GETOPT
 #  include "getopt.h"
 #else
-     extern int getopt (argc, argv, optstring);
+     extern int getopt (int argc, char *argv[], char *optstring);
 
      extern char *optarg;
      extern int optind, opterr;
@@ -193,7 +193,7 @@ int main(int argc, char **argv, char **env)
 	FILE *image_file;
 	int c, retvalue;
 	  
-#if defined(i386) && defined(ALIGNMENT_CHECK)
+#if defined(i386) && defined(ALIGNMENT_CHECK) && !defined(DIRECT_THREADED)
 	/* turn on alignment checks on the 486.
 	 * on the 386 this should have no effect. */
 	__asm__("pushfl; popl %eax; orl $0x40000, %eax; pushl %eax; popfl;");
@@ -218,7 +218,7 @@ int main(int argc, char **argv, char **env)
 	    /* no-init-file, no-rc? */
 	  };
 
-	  c = getopt_long(argc, argv, "+drfl", opts, &option_index);
+	  c = getopt_long(argc, argv, "+mdrfl", opts, &option_index);
 #else
 	  c = getopt(argc, argv, "imdrflp");
 #endif

@@ -1,5 +1,5 @@
 /*
-  $Id: 386.h,v 1.4 1994-09-09 16:27:15 anton Exp $
+  $Id: 386.h,v 1.5 1994-09-28 17:02:44 anton Exp $
   Copyright 1992 by the ANSI figForth Development Group
 
   This is the machine-specific part for Intel 386 compatible processors
@@ -37,7 +37,7 @@ typedef float SFloat;
 #define PFA1(cfa)	PFA(cfa)
 /* CODE_ADDRESS is the address of the code jumped to through the code field */
 #define CODE_ADDRESS(cfa) \
-    ({long _cfa = (char *)(cfa); (Label)(_cfa+*((long *)(_cfa+1))+5);})
+    ({long _cfa = (long)(cfa); (Label)(_cfa+*((long *)(_cfa+1))+5);})
 /* MAKE_CF creates an appropriate code field at the cfa; ca is the code address */
 #define MAKE_CF(cfa,ca)	({long _cfa = (long)(cfa); \
                           long _ca  = (long)(ca); \

@@ -1179,7 +1179,7 @@ a_addr is the start of the Forth code after the DOES>; Otherwise the
 behaviour is uundefined""
 /* !! there is currently no way to determine whether a word is
 defining-word-defined */
-a_addr = DOES_CODE(xt);
+a_addr = (Cell *)DOES_CODE(xt);
 
 code-address!		n xt --	new	code_address_store
 ""Creates a code field with code address c_addr at xt""

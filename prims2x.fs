@@ -404,7 +404,7 @@ set-current
      execute nip
      UNLOOP EXIT
    endif
- -1 +loop
+ -1 s+loop
  \ we did not find a type, abort
  true abort" unknown type prefix" ;
 
@@ -528,7 +528,7 @@ set-current
  ." NEXT_P1;" cr
  stores
  fill-tos
- ." NEXT1_P2;" cr
+ ." NEXT_P2;" cr
  ." }" cr
  cr
 ;

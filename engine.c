@@ -1,5 +1,5 @@
 /*
-  $Id: engine.c,v 1.16 1994-09-26 20:31:10 pazsan Exp $
+  $Id: engine.c,v 1.17 1994-09-28 17:02:46 anton Exp $
   Copyright 1992 by the ANSI figForth Development Group
 */
 
@@ -282,7 +282,7 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
      
      */
 #ifdef DEBUG
-  fprintf(stderr,"%08x/%08x: does: %08x\n",(Cell)ip,(Cell)cfa,DOES_CODE1(cfa));
+  fprintf(stderr,"%08x/%08x: does: %08x\n",(Cell)ip,(Cell)PFA(cfa),(Cell)DOES_CODE1(cfa));
   fflush(stderr);
 #endif
   *--rp = (Cell)ip;

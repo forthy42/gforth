@@ -7,7 +7,7 @@ CC	= gcc
 SWITCHES = \
 	-fno-defer-pop -fcaller-saves \
 	-DUSE_TOS -DUSE_FTOS -DDEFAULTBIN='"'`pwd`'"' \
-	-DDIRECT_THREADED #-DNDEBUG #turn off assertions
+	-DDIRECT_THREADED -D_POSIX_VERSION -DUSE_GETOPT #-DNDEBUG #turn off assertions
 CFLAGS	= -O4 -Wall -g $(SWITCHES)
 
 #-Xlinker -n puts text and data into the same 256M region
@@ -19,10 +19,12 @@ EMACS	= emacs
 
 INCLUDES = forth.h io.h
 
-FORTH_SRC = cross.fs debug.fs environ.fs errore.fs extend.fs \
-	filedump.fs glosgen.fs kernal.fs look.fs mach32b.fs \
-	mach32l.fs main.fs other.fs search-order.fs see.fs sieve.fs \
-	struct.fs tools.fs toolsext.fs vars.fs wordinfo.fs
+FORTH_SRC = add.fs assert.fs blocks.fs bufio.fs cross.fs debug.fs \
+	debugging.fs environ.fs errore.fs etags.fs extend.fs filedump.fs \
+	float.fs glocals.fs glosgen.fs gray.fs hash.fs kernal.fs \
+	locals-test.fs look.fs mach32b.fs mach32l.fs main.fs other.fs \
+	prims2x.fs search-order.fs see.fs sieve.fs startup.fs struct.fs \
+	test2.fs tools.fs toolsext.fs vars.fs vt100.fs wordinfo.fs
 
 SOURCES	= Makefile primitives primitives2c.el engine.c main.c io.c \
 	apollo68k.h decstation.h 386.h hppa.h sparc.h \
@@ -32,7 +34,7 @@ RCS_FILES = $(SOURCES) INSTALL ToDo model high-level
 
 GEN = gforth
 
-GEN_PRECIOUS = primitives.i prim_labels.i primitives.b prim_alias.4th aliases.fs
+GEN_PRECIOUS = primitives.i prim_labels.i primitives.b aliases.fs
 
 OBJECTS = engine.o io.o main.o
 
@@ -62,7 +64,9 @@ distclean:	clean
 realclean:	distclean
 		-rm $(GEN_PRECIOUS)
 
-current:	$(RCS_FILES)
+#does not work
+#gforth.tar.gz:	$(SOURCES) $(GEN_PRECIOUS) CVS
+#		cd ..; tar cvf gforth/gforth.tar gforth/{$^}; gzip -9 gforth/gforth.tar
 
 gforth:	$(OBJECTS) $(FORTH_GEN)
 		-cp gforth gforth~
