@@ -1,0 +1,12 @@
+Some benchmark results for various combinations of hardware, Gforth
+version, and Gforth configuration. You can measure your combination
+with `make bench'. You can find a table comparing Gforth with four
+interpretive Forth systems in the manual (Section Performance), and a
+comparison with more systems in
+http://www.complang.tuwien.ac.at/pub/papers/ertl&maierhofer95.ps.gz.
+
+All times are given in seconds of user time.
+
+siev	bubble	matrix	fib	machine and configuration
+10.99	12.13	11.34	13.13	Pentium 133MHz 256K PB cache; gcc-2.6.3 -DFORCE_REG; gforth-0.1beta
+31.90	35.60	28.30	36.70	i486 66MHz 256K cache; gcc-2.6.3 -DFORCE_REG; gforth-0.1alpha
