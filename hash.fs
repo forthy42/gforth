@@ -53,7 +53,8 @@ Variable revealed
 \ Memory handling                                      10oct94py
 
 AVariable HashPointer
-Variable HashIndex
+Variable HashIndex     \ Number of wordlists
+Variable HashPop       \ Number of words
 0 AValue HashTable
 
 \ forward declarations
@@ -91,20 +92,20 @@ Defer hash-alloc ( addr -- addr )
     ELSE
 	lastlink!
     THEN
-    revealed on ;
+    revealed on 1 HashPop +! 0 hash-alloc drop ;
 
 : hash-reveal ( nfa wid -- )
     2dup (reveal) (reveal ;
 
 : inithash ( wid -- )
     wordlist-extend
-    insRule @ >r  insRule off  hash-alloc 3 cells -
+    insRule @ >r  insRule off  1 hash-alloc over ! 3 cells -
     dup wordlist-id
     BEGIN  @ dup  WHILE  2dup swap (reveal  REPEAT
     2drop  r> insRule ! ;
 
 : addall  ( -- )
-    voclink
+    HashPop off voclink
     BEGIN  @ dup WHILE
 	   dup 0 wordlist-link -
 	   dup wordlist-map @ reveal-method @ ['] hash-reveal = 
@@ -144,26 +145,29 @@ Defer hash-alloc ( addr -- addr )
   IF   inithash
   ELSE rehashall THEN ;
 
+: hashdouble ( -- )
+    HashTable >r clearhash
+    1 hashbits 1+ dup  to hashbits  lshift  to hashlen
+    r> free >r  0 to HashTable
+    addall r> throw ;
+
 const Create (hashsearch-map)
 ' hash-find A, ' hash-reveal A, ' (rehash) A, ' (rehash) A,
 (hashsearch-map) to hashsearch-map
 
 \ hash allocate and vocabulary initialization          10oct94py
 
-:noname ( addr -- addr )
+:noname ( n+ -- n )
   HashTable 0= 
   IF  Hashlen cells reserve-mem TO HashTable
       HashTable Hashlen cells erase THEN
-  HashIndex @ over !  1 HashIndex +!
+  HashIndex @ swap HashIndex +!
   HashIndex @ Hashlen >=
   [ [IFUNDEF] allocate ]
   ABORT" no more space in hashtable"
   [ [ELSE] ]
-  IF  HashTable >r clearhash
-      1 hashbits 1+ dup  to hashbits  lshift  to hashlen
-      r> free >r  0 to HashTable
-      addall r> throw
-  THEN 
+  HashPop @ 1 hashbits lshift >= or
+  IF  hashdouble  THEN 
   [ [THEN] ] ; is hash-alloc
 
 \ Hash-Find                                            01jan93py
