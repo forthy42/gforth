@@ -60,6 +60,7 @@ static Cell dsize=0;
 static Cell rsize=0;
 static Cell fsize=0;
 static Cell lsize=0;
+static int image_offset=0;
 char *progname;
 
 /* image file format:
@@ -224,11 +225,11 @@ Address loader(FILE *imagefile, char* filename)
   
   wholesize = preamblesize+dictsize+dsize+rsize+fsize+lsize;
   imagesize = preamblesize+header.image_size+((header.image_size-1)/sizeof(Cell))/8+1;
-  image=malloc((wholesize>imagesize?wholesize:imagesize)
+  image=malloc(((wholesize>imagesize?wholesize:imagesize)+image_offset)
 #ifdef FUZZ
 	       +FUZZ
 #endif
-	       );
+	       )+image_offset;
   /*image = maxaligned(image);*/
   /* memset(image,0,wholesize); */
 
@@ -244,13 +245,22 @@ Address loader(FILE *imagefile, char* filename)
   
   if(header.base==0) {
     relocate((Cell *)imp,imp+header.image_size,header.image_size,symbols);
-    ((ImageHeader *)imp)->checksum=check_sum;
+#if 0
+    { /* let's see what the relocator did */
+      FILE *snapshot=fopen("snapshot.fi","wb");
+      fwrite(image,1,imagesize,snapshot);
+      fclose(snapshot);
+    }
+#endif
   }
   else if(header.base!=imp) {
     fprintf(stderr,"%s: Cannot load nonrelocatable image (compiled for address $%lx) at address $%lx\nThe Gforth installer should look into the INSTALL file\n",
 	    progname, (unsigned long)header.base, (unsigned long)imp);
     exit(1);
-  } else if (header.checksum != check_sum) {
+  }
+  if (header.checksum==0)
+    ((ImageHeader *)imp)->checksum=check_sum;
+  else if (header.checksum != check_sum) {
     fprintf(stderr,"%s: Checksum of image ($%lx) does not match the executable ($%lx)\nThe Gforth installer should look into the INSTALL file\n",
 	    progname, (unsigned long)(header.checksum),(unsigned long)check_sum);
     exit(1);
@@ -357,6 +367,9 @@ int main(int argc, char **argv, char **env)
       {"path", required_argument, NULL, 'p'},
       {"version", no_argument, NULL, 'v'},
       {"help", no_argument, NULL, 'h'},
+      /* put something != 0 into image_offset; it should be a
+         not-too-large max-aligned number */
+      {"offset-image", no_argument, &image_offset, 28*sizeof(Cell)},
       {0,0,0,0}
       /* no-init-file, no-rc? */
     };
@@ -387,6 +400,7 @@ Engine Options:\n\
  -i FILE, --image-file=FILE	    Use image FILE instead of `gforth.fi'\n\
  -l SIZE, --locals-stack-size=SIZE  Specify locals stack size\n\
  -m SIZE, --dictionary-size=SIZE    Specify Forth dictionary size\n\
+ --offset-image			    load image at a different position\n\
  -p PATH, --path=PATH		    Search path for finding image and sources\n\
  -r SIZE, --return-stack-size=SIZE  Specify return stack size\n\
  -v, --version			    Print version and exit\n\

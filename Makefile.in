@@ -23,8 +23,12 @@
 #     (which will cause the Makefiles to be regenerated when you run `make');
 # (2) otherwise, pass the desired values on the `make' command line.
 
-VERSION	=0.2.1#gforth version
-DOSVERSION=021#gforth version
+#gforth version
+VERSION_MAJOR=0
+VERSION_MINOR=2
+VERSION_RELEASE=9
+VERSION	=$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_RELEASE)
+DOSVERSION=$(VERSION_MAJOR)$(VERSION_MINOR)$(VERSION_RELEASE)
 SHELL	= /bin/sh
 RM	= rm
 RMTREE	= rm -rf
@@ -308,7 +312,7 @@ install:	gforth $(FORTH_SRC) kernel.fi gforth.fi gforth.1 primitives gforth.TAGS
 			$(INSTALL_DATA) $(srcdir)/$$i $(datadir)/gforth/$(VERSION); \
 		done
 		$(INSTALL_DATA) kernel.fi $(libdir)/gforth/$(VERSION)
-		$(FORTHP) $(FORTHSIZES) startup.fs -e "savesystem $(libdir)/gforth/$(VERSION)/gforth.fi bye" #gforth.fi contains some path names
+		$(RM) gforth.fi; $(MAKE) gforth.fi #gforth.fi contains some path names
 		sed s:$(srcdir)/:$(datadir)/gforth/$(VERSION)/: gforth.TAGS >TAGS; $(INSTALL_DATA) TAGS $(datadir)/gforth/$(VERSION)
 		if test -d $(emacssitelispdir); then \
 			$(INSTALL_DATA) $(srcdir)/gforth.el $(emacssitelispdir); \
@@ -395,7 +399,9 @@ kernl64l.fi:	$(KERNLS)
 		@LINK_KERNL64L@
 
 gforth.fi:	@kernel_fi@ gforth $(GFORTH_FI_SRC)
-		$(FORTHK) $(FORTHSIZES) startup.fs -e "savesystem gforth.fi bye"
+		$(FORTHK) $(FORTHSIZES) startup.fs -e "savesystem gforth.fi1 bye"
+		$(FORTHK) --offset-image $(FORTHSIZES) startup.fs -e "savesystem gforth.fi2 bye"
+		$(FORTHK) -m 100000 startup.fs  comp-image.fs -e "comp-image gforth.fi1 gforth.fi2 gforth.fi bye"
 
 #TAGS is a GNU standard target
 TAGS:		gforth.TAGS

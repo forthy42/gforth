@@ -449,13 +449,12 @@ u2 = u1-n;
 +	n1 n2 -- n		core	plus
 n = n1+n2;
 
-\ PFE has it differently, so let's better not define it
-\ under+	n1 n2 n3 -- n n2	gforth	under_plus
-\ ""add @var{n3} to @var{n1} (giving @var{n})""
-\ /* and pfe */
-\ n = n1+n3;
-\ :
-\  rot + swap ;
+\ PFE-0.9.14 has it differently, but the next release will have it as follows
+under+	n1 n2 n3 -- n n2	gforth	under_plus
+""add @var{n3} to @var{n1} (giving @var{n})""
+n = n1+n3;
+:
+ rot + swap ;
 
 -	n1 n2 -- n		core	minus
 n = n1-n2;

@@ -35,8 +35,8 @@
     U+DO
         addr i 2* cells + 2@ save-string-dict
 	new-addr i 2* cells + 2!
-    LOOP ;
-
+    LOOP
+    maxalign ;
 
 : dump-fi ( addr u -- )
     w/o bin create-file throw >r
