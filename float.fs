@@ -36,11 +36,13 @@
 
 : f.  ( r -- )  scratch represent 0=
   IF  2drop  scratch 3 min type  EXIT  THEN
-  IF  '- emit  THEN  dup >r 0<
+  IF  '- emit  THEN  dup >r 0<=
   IF  '0 emit
   ELSE  scratch r@ min type  r@ precision - zeros  THEN
   '. emit r@ negate zeros
   scratch r> 0 max /string 0 max -zeros type space ;
+\ I'm afraid this does not really implement ansi semantics wrt precision.
+\ Shouldn't precision indicate the number of places shown after the point?
 
 : fe. ( r -- )  scratch represent 0=
   IF  2drop  scratch 3 min type  EXIT  THEN
