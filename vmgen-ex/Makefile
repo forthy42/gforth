@@ -57,7 +57,7 @@ disasm.o: disasm.c mini-disasm.i mini.h
 engine.o: engine.c mini-vm.i mini-labels.i mini.h
 
 engine-debug.o: engine.c mini-vm.i mini-labels.i mini.h
-	$(GCC) -DVM_DEBUG -DVM_PROFILING -Dengine=engine_debug -c -o $@ engine.c
+	$(CC) -DVM_DEBUG -DVM_PROFILING -Dengine=engine_debug -c -o $@ engine.c
 
 clean:
 	rm -f *.o mini mini-*.i lex.yy.c mini.tab.c mini.vmg xxx-bench
@@ -66,7 +66,7 @@ check:  mini
 	./mini test.mini | tr -d '\015' | diff - test.out
 
 checkall:
-	for i in 1 3 5 8 9 10; do make clean; echo $i; make check VMGEN=../vmgen GCC="gcc -O3 -fomit-frame-pointer -Wall -DTHREADING_SCHEME=$i"; echo $i >>xxx-bench; time mini fib.mini 2>>xxx-bench; done; cat xxx-bench
+	for i in 1 3 5 8 9 10; do make clean; echo $i; make check VMGEN=../vmgen CC="gcc -O3 -fomit-frame-pointer -Wall -DTHREADING_SCHEME=$i"; echo $i >>xxx-bench; time mini fib.mini 2>>xxx-bench; done; cat xxx-bench
 
 #make profiles
 %.prof: %.mini mini

@@ -25,14 +25,13 @@ make check &&
 #gforth locals-test.fs
 #gforth test-counted-loops.fs
 make install &&
-#make bench
+#make all-bench &&
 chmod -R +w ../$GFORTH/vmgen-ex ../$GFORTH/vmgen-ex2 &&
 cd ../$GFORTH/vmgen-ex &&
-PATH=$DIR/install/bin:$PATH make check &&
+PATH=$DIR/install/bin:$PATH make check GCC="cc -O" &&
 cd ../vmgen-ex2 &&
-PATH=$DIR/install/bin:$PATH make check &&
+PATH=$DIR/install/bin:$PATH make check GCC="cc -O" &&
 cd .. &&
-make all-bench &&
 cd .. &&
 install/bin/gforth test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs -e bye &&
 echo test ok
