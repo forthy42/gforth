@@ -18,7 +18,7 @@
 \ along with this program; if not, write to the Free Software
 \ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-\ require exceptions.fs \ included on command line
+require except.fs \ included on command line
 warnings off
 include search.fs
 include environ.fs
@@ -53,7 +53,7 @@ require intcomp.fs
 require savesys.fs
 require table.fs
 require ekey.fs
-require backtrace.fs
+require backtrac.fs
 require code.fs
 
 \ define the environmental queries for all the loaded wordsets

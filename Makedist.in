@@ -25,9 +25,10 @@ include Makefile
 DOBJECTS=$(addprefix engine/,io.o signals.o memcmpc.o @LIBOBJS@ engine.o main.o engine-fast.o main-fast.o engine-ditc.o main-ditc.o)
 
 #stuff in a binonly distribution 
-BINONLYDIST = config.status Makefile Makedist gforth$(EXE) gforth-ditc$(EXE) \
+BINONLYDIST = config.status Makefile Makedist \
+	gforth$(EXE) gforth-fast$(EXE) gforth-ditc$(EXE) \
 	$(DOBJECTS) engine/config.h engine/Makefile \
-	engine/gforth$(EXE) engine/gforth-ditc$(EXE) \
+	engine/gforth$(EXE) engine/gforth-fast$(EXE) engine/gforth-ditc$(EXE) \
 	stamp-h kernel/version.fs \
 	INSTALL.BINDIST
 
@@ -47,7 +48,7 @@ ddosdist:	$(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST)
 		$(TAR) $(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST) | \
 			(cd gforth.$(DOSVERSION); tar xf -)
 		$(MV) gforth.$(DOSVERSION)/engine/strsignal.c gforth.$(DOSVERSION)/engine/strsig.c
-		for i in 1 2 3 4 5 6 7 8; do \
+		for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14; do \
 			$(MV) gforth.$(DOSVERSION)/doc/gforth.info-$$i gforth.$(DOSVERSION)/doc/gforth.i$$i; \
 		done
 		zip -r9 gf$(DOSVERSION)dos.zip gforth.$(DOSVERSION)/*

@@ -649,7 +649,7 @@ void gforth_args(int argc, char ** argv, char ** path, char ** imagename)
       /* no-init-file, no-rc? */
     };
     
-    c = getopt_long(argc, argv, "+i:m:d:r:f:l:p:vh", opts, &option_index);
+    c = getopt_long(argc, argv, "+i:m:d:r:f:l:p:vhoncsx", opts, &option_index);
     
     switch (c) {
     case EOF: return;
@@ -662,6 +662,11 @@ void gforth_args(int argc, char ** argv, char ** path, char ** imagename)
     case 'f': fsize = convsize(optarg,sizeof(Float)); break;
     case 'l': lsize = convsize(optarg,sizeof(Cell)); break;
     case 'p': *path = optarg; break;
+    case 'o': offset_image = 1; break;
+    case 'n': offset_image = 0; break;
+    case 'c': clear_dictionary = 1; break;
+    case 's': die_on_signal = 1; break;
+    case 'x': debug = 1; break;
     case 'v': fprintf(stderr, "gforth %s\n", VERSION); exit(0);
     case 'h': 
       fprintf(stderr, "Usage: %s [engine options] ['--'] [image arguments]\n\

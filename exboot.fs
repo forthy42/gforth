@@ -20,7 +20,7 @@
 \ along with this program; if not, write to the Free Software
 \ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-require exceptions.fs
+require except.fs
 
 included-files 2@ image-included-files 2!
 pathstring 2@ rot argv @ over cells + argc @ rot - boot

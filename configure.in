@@ -207,7 +207,7 @@ case "$host_cpu" in
 		machine=386
 		CFLAGS="$CFLAGS -fomit-frame-pointer -fforce-addr -fforce-mem"
 		CFLAGS_1="$CFLAGS"
-		CFLAGS="$CFLAGS -mpentiumpro"
+		CFLAGS="$CFLAGS -mpentium"
 		AC_TRY_COMPILE(,,,CFLAGS="$CFLAGS_1 -m486")
 		if test "${enable_direct_threaded+set}" = "" \
 			-a "${enable_indirect_threaded+set}" = ""
