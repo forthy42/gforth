@@ -532,7 +532,7 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
   '("VARIABLE" "CONSTANT" "2VARIABLE" "2CONSTANT" "FVARIABLE" "FCONSTANT"
    "USER" "VALUE" "field" "end-struct" "VOCABULARY" "CREATE" ":" "CODE"
    "DEFER" "ALIAS")
-  "List of words, that define the following word.\
+  "List of words, that define the following word.
  Used for imenu index generation")
 
  
@@ -992,12 +992,11 @@ exceeds 64 characters."
 
 (defun forth-find-tag (tagname &optional next-p regexp-p)
   (interactive (find-tag-interactive "Find tag: "))
-;  (when (not regexp-p)
-;      (setq tagname (concat "^\\(" (regexp-opt (list tagname)) 
-;			    "\\)$"))
-;      (setq regexp-p t))
+  (unless (or regexp-p next-p)
+    (setq tagname (concat "\\(^\\|\\s-\\)\\(" (regexp-quote tagname) 
+			    "\\)\\(\\s-\\|$\\)")))
   (switch-to-buffer
-   (find-tag-noselect (concat " " tagname " ") next-p regexp-p)))
+   (find-tag-noselect tagname next-p t)))
 
 (defvar forth-mode-syntax-table nil
   "Syntax table in use in Forth-mode buffers.")

@@ -37,6 +37,11 @@
 \ header, NAME>STRING must convert that pointer to a string, and
 \ HEADER must be a deferred word that is called to create the name.
 
+\ Changes by David: Removed the blanks before and after the explicit
+\ tag name, since that conflicts with Emacs' auto-completition. In
+\ fact those blanks are not necessary, since search is performed on
+\ the tag-text, rather than the tag name.
+
 require search.fs
 require extend.fs
 
@@ -93,9 +98,9 @@ create tags-line 128 chars allot
 	r@ put-load-file-name
 	source drop >in @ r@ write-file throw
 	127 r@ emit-file throw
-	bl r@ emit-file throw
+\	bl r@ emit-file throw
 	last @ name>string r@ write-file throw
-	bl r@ emit-file throw
+\	bl r@ emit-file throw
 	1 r@ emit-file throw
 	base @ decimal sourceline# 0 <# #s #> r@ write-file throw base !
 	s" ,0" r@ write-line throw
