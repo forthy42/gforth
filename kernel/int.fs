@@ -111,7 +111,7 @@ const Create bases   0A , 10 ,   2 ,   0A ,
 : getbase ( addr u -- addr' u' )
     2dup s" 0x" string-prefix? >r
     2dup s" 0X" string-prefix? r> or
-    base @ #34 < and if
+    base @ &34 < and if
 	hex 2 /string
     endif
     over c@ [char] # - dup 4 u<
