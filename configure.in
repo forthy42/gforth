@@ -193,7 +193,6 @@ case "$host_cpu" in
 		AC_MSG_WARN(Disabling dynamic native code generation by default (speed penalty factor ~2))
 esac
 AC_SUBST(host)
-AC_SUBST(ENGINE_FLAGS)
 
 dnl the following macro produces a warning with autoconf-2.1
 AC_CHECK_SIZEOF(char *)
@@ -282,11 +281,35 @@ test $ac_cv_sizeof_off_t -gt $ac_cv_sizeof_char_p
 ac_small_off_t=$?
 AC_DEFINE_UNQUOTED(SMALL_OFF_T,$ac_small_off_t,[1 if off_t fits in a Cell])
 
+ENGINE_FLAGS=
+AC_SUBST(ENGINE_FLAGS)
+
+# Try if GCC understands -fno-gcse
+
+AC_MSG_CHECKING([if $CC understands -fno-gcse])
+CFLAGS_1="$CFLAGS"
+CFLAGS="$CFLAGS -fno-gcse"
+AC_TRY_COMPILE(,,ac_nogcse=yes;ENGINE_FLAGS="$ENGINE_FLAGS -fno-gcse",ac_nogcse=no)
+CFLAGS="$CFLAGS_1"
+AC_MSG_RESULT($ac_nogcse)
+
+# Try if GCC understands -fno-strict-aliasing
+
+AC_MSG_CHECKING([if $CC understands -fno-strict-aliasing])
+CFLAGS_1="$CFLAGS"
+CFLAGS="$CFLAGS -fno-strict-aliasing"
+AC_TRY_COMPILE(,,ac_nostrictaliasing=yes;ENGINE_FLAGS="$ENGINE_FLAGS -fno-strict-aliasing",ac_nostrictaliasing=no)
+CFLAGS="$CFLAGS_1"
+AC_MSG_RESULT($ac_nostrictaliasing)
+
 # Try if GCC understands -fno-cross-jump
 
+AC_MSG_CHECKING([if $CC understands -fno-cross-jump])
 CFLAGS_1="$CFLAGS"
 CFLAGS="$CFLAGS -fno-cross-jump"
-AC_TRY_COMPILE(,,,CFLAGS="$CFLAGS_1")
+AC_TRY_COMPILE(,,ac_nocrossjump=yes;ENGINE_FLAGS="$ENGINE_FLAGS -fno-cross-jump",ac_nocrossjump=no)
+CFLAGS="$CFLAGS_1"
+AC_MSG_RESULT($ac_nocrossjump)
 
 AC_CHECK_PROG(asm_fs,asm.fs,arch/$machine/asm.fs,,$srcdir/arch/$machine)
 AC_SUBST(asm_fs)

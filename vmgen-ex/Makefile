@@ -25,9 +25,10 @@ VMGEN=vmgen
 #GCC=gcc -g -Wall
 GCC=gcc -O3 -fomit-frame-pointer -Wall
 CC=$(GCC)
+OBJECTS_MINI=mini.tab.o support.o peephole.o profile.o disasm.o engine.o engine-debug.o
 
-mini: mini.tab.o support.o peephole.o profile.o disasm.o engine.o engine-debug.o
-	$(CC) $^ -o $@
+mini: $(OBJECTS_MINI)
+	$(CC) $(OBJECTS_MINI) -o $@
 
 lex.yy.c: mini.l
 	$(LEX) mini.l
@@ -39,7 +40,7 @@ mini-vm.i mini-disasm.i mini-gen.i mini-labels.i mini-profile.i mini-peephole.i:
 	$(VMGEN) mini.vmg
 
 mini.vmg: mini-inst.vmg mini-super.vmg
-	m4 -s $< >$@
+	m4 -s mini-inst.vmg >$@
 
 mini.tab.o: mini.tab.c mini-gen.i lex.yy.c mini.h
 
@@ -54,7 +55,7 @@ disasm.o: disasm.c mini-disasm.i mini.h
 engine.o: engine.c mini-vm.i mini-labels.i mini.h
 
 engine-debug.o: engine.c mini-vm.i mini-labels.i mini.h
-	$(GCC) -DVM_DEBUG -DVM_PROFILING -Dengine=engine_debug -c -o $@ $<
+	$(GCC) -DVM_DEBUG -DVM_PROFILING -Dengine=engine_debug -c -o $@ engine.c
 
 clean:
 	rm -f *.o mini mini-*.i lex.yy.c mini.tab.c mini.vmg xxx-bench
