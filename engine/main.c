@@ -132,6 +132,7 @@ static int no_super=0;   /* true if compile_prim should not fuse prims */
 static int no_dynamic=NO_DYNAMIC_DEFAULT; /* if true, no code is generated
 					     dynamically */
 static int print_codesize=0; /* if true, print code size on exit */
+static int static_super_number = 10000000; /* number of ss used if available */
 
 #ifdef HAS_DEBUG
 int debug=0;
@@ -572,10 +573,11 @@ int lookup_super(short *start, int length)
 void prepare_super_table()
 {
   int i;
+  int nsupers = 0;
 
   for (i=0; i<sizeof(super_costs)/sizeof(super_costs[0]); i++) {
     struct cost *c = &super_costs[i];
-    if (c->length > 1) {
+    if (c->length > 1 && nsupers < static_super_number) {
       int hash = hash_super(super2+c->offset, c->length);
       struct super_table_entry **p = &super_table[hash];
       struct super_table_entry *e = malloc(sizeof(struct super_table_entry));
@@ -586,13 +588,11 @@ void prepare_super_table()
       *p = e;
       if (c->length > max_super)
 	max_super = c->length;
+      nsupers++;
     }
   }
-}
-
-int mycost(int prim)
-{
-  return 1;
+  if (debug)
+    fprintf(stderr, "Using %d static superinsts\n", nsupers);
 }
 
 /* dynamic replication/superinstruction stuff */
@@ -1039,6 +1039,40 @@ Cell compile_prim_dyn(unsigned p)
 #endif  /* !defined(NO_DYNAMIC) */
 }
 
+#ifndef NO_DYNAMIC
+int cost_codesize(int prim)
+{
+  return priminfos[prim+DOESJUMP+1].length;
+}
+#endif
+
+int cost_ls(int prim)
+{
+  struct cost *c = super_costs+prim;
+
+  return c->loads + c->stores;
+}
+
+int cost_lsu(int prim)
+{
+  struct cost *c = super_costs+prim;
+
+  return c->loads + c->stores + c->updates;
+}
+
+int cost_nexts(int prim)
+{
+  return 1;
+}
+
+typedef int Costfunc(int);
+Costfunc *ss_cost =  /* cost function for optimize_bb */
+#ifdef NO_DYNAMIC
+cost_lsu;
+#else
+cost_codesize;
+#endif
+
 #define MAX_BB 128 /* maximum number of instructions in BB */
 
 /* use dynamic programming to find the shortest paths within the basic
@@ -1053,13 +1087,13 @@ void optimize_bb(short origs[], short optimals[], int ninsts)
   costs[ninsts]=0;
   for (i=ninsts-1; i>=0; i--) {
     optimals[i] = origs[i];
-    costs[i] = costs[i+1] + mycost(optimals[i]);
+    costs[i] = costs[i+1] + ss_cost(optimals[i]);
     for (j=2; j<=max_super && i+j<=ninsts ; j++) {
       int super, jcost;
 
       super = lookup_super(origs+i,j);
       if (super >= 0) {
-	jcost = costs[i+j] + mycost(super);
+	jcost = costs[i+j] + ss_cost(super);
 	if (jcost <= costs[i]) {
 	  optimals[i] = super;
 	  costs[i] = jcost;
@@ -1081,7 +1115,7 @@ void rewrite_bb(Cell *instps[], short *optimals, int ninsts)
       nextdyn += super_costs[optimals[i]].length;
       inst = compile_prim_dyn(optimals[i]);
     } else { /* compile statically */
-      inst = vm_prims[optimals[i]+DOESJUMP+1];
+      inst = (Cell)vm_prims[optimals[i]+DOESJUMP+1];
     }
     *(instps[i]) = inst;
   }
@@ -1353,6 +1387,14 @@ UCell convsize(char *s, UCell elemsize)
   return n*m;
 }
 
+enum {
+  ss_number = 256,
+  ss_min_codesize,
+  ss_min_ls,
+  ss_min_lsu,
+  ss_min_nexts,
+};
+
 void gforth_args(int argc, char ** argv, char ** path, char ** imagename)
 {
   int c;
@@ -1381,6 +1423,13 @@ void gforth_args(int argc, char ** argv, char ** path, char ** imagename)
       {"no-dynamic", no_argument, &no_dynamic, 1},
       {"dynamic", no_argument, &no_dynamic, 0},
       {"print-codesize", no_argument, &print_codesize, 1},
+      {"ss-number", required_argument, NULL, ss_number},
+#ifndef NO_DYNAMIC
+      {"ss-min-codesize", no_argument, NULL, ss_min_codesize},
+#endif
+      {"ss-min-ls",       no_argument, NULL, ss_min_ls},
+      {"ss-min-lsu",      no_argument, NULL, ss_min_lsu},
+      {"ss-min-nexts",    no_argument, NULL, ss_min_nexts},
       {0,0,0,0}
       /* no-init-file, no-rc? */
     };
@@ -1404,6 +1453,13 @@ void gforth_args(int argc, char ** argv, char ** path, char ** imagename)
     case 's': die_on_signal = 1; break;
     case 'x': debug = 1; break;
     case 'v': fputs(PACKAGE_STRING"\n", stderr); exit(0);
+    case ss_number: static_super_number = atoi(optarg); break;
+#ifndef NO_DYNAMIC
+    case ss_min_codesize: ss_cost = cost_codesize; break;
+#endif
+    case ss_min_ls:       ss_cost = cost_ls;       break;
+    case ss_min_lsu:      ss_cost = cost_lsu;      break;
+    case ss_min_nexts:    ss_cost = cost_nexts;    break;
     case 'h': 
       fprintf(stderr, "Usage: %s [engine options] ['--'] [image arguments]\n\
 Engine Options:\n\
@@ -1425,6 +1481,11 @@ Engine Options:\n\
   -p PATH, --path=PATH		    Search path for finding image and sources\n\
   --print-codesize		    Print size of generated native code on exit\n\
   -r SIZE, --return-stack-size=SIZE Specify return stack size\n\
+  --ss-number=N                     use N static superinsts (default max)\n
+  --ss-min-codesize                 select superinsts for smallest native code\n
+  --ss-min-ls                       minimize loads and stores\n
+  --ss-min-lsu                      minimize loads, stores, and pointer updates\n
+  --ss-min-nexts                    minimize the number of static superinsts\n
   -v, --version			    Print engine version and exit\n\
 SIZE arguments consist of an integer followed by a unit. The unit can be\n\
   `b' (byte), `e' (element; default), `k' (KB), `M' (MB), `G' (GB) or `T' (TB).\n",
@@ -1477,7 +1538,14 @@ int main(int argc, char **argv, char **env)
 
 #ifdef HAS_OS
   gforth_args(argc, argv, &path, &imagename);
-#endif
+#ifndef NO_DYNAMIC
+  if (no_dynamic && ss_cost == cost_codesize) {
+    ss_cost = cost_lsu;
+    if (debug)
+      fprintf(stderr, "--no-dynamic conflicts with --ss-min-codesize, reverting to --ss-min-lsu\n");
+  }
+#endif /* !defined(NO_DYNAMIC) */
+#endif /* defined(HAS_OS) */
 
 #ifdef INCLUDE_IMAGE
   set_stack_sizes((ImageHeader *)image);
