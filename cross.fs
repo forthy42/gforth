@@ -1822,7 +1822,7 @@ Defer resolve-warning
   dup >comp @ EXECUTE ;
 
 : gexecute ( ghost -- )
-  dup >magic @ <imm> = IF -1 ABORT" CROSS: gexecute on immediate word" THEN
+\  dup >magic @ <imm> = IF -1 ABORT" CROSS: gexecute on immediate word" THEN
   (gexecute) ;
 
 : addr,  ( ghost -- )
@@ -2288,7 +2288,7 @@ Cond: ALiteral ( n -- )   alit, ;Cond
 Cond: [Char]   ( "<char>" -- )  Char  lit, ;Cond
 
 tchar 1 = [IF]
-Cond: chars ;Cond 
+\ Cond: chars ;Cond 
 [THEN]
 
 \ some special literals					27jan97jaw
@@ -2456,9 +2456,11 @@ Cond: DOES>
   depth T ] H ;
 
 >CROSS
-\ Creation                                             01nov92py
+\ Creation                                              01nov92py
 
 \ Builder                                               11may93jaw
+
+0 Value built
 
 : Builder    ( Create-xt do-ghost "name" -- )
 \ builds up a builder in current vocabulary
@@ -2466,13 +2468,12 @@ Cond: DOES>
 \ do:-xt is executed when the created word from builder is executed
 \ for do:-xt an additional entry after the normal ghost-entrys is used
 
-  Make-Ghost 		( Create-xt do-ghost ghost )
-  dup >created on
-  rot swap		( do-ghost Create-xt ghost )
-  tuck >exec ! 
-  tuck >do:ghost ! 
-  ['] prim-resolved over >comp !
-  drop ;
+  ghost 		( Create-xt do-ghost ghost )
+  to built 
+  built >created @ 0= IF
+    built >created on
+    ['] prim-resolved built >comp ! 
+  THEN ;
 
 : gdoes,  ( ghost -- )
 \ makes the codefield for a word that is built
@@ -2537,6 +2538,9 @@ Cond: DOES>
   postpone TCreate 
   [ [THEN] ] ;
 
+: ;Build
+  postpone ; built >exec ! ; immediate
+
 : gdoes>  ( ghost -- addr flag )
   executed-ghost @
 \ FIXME: cleanup
@@ -2547,20 +2551,22 @@ Cond: DOES>
 \ DO: ;DO                                               11may93jaw
 \ changed to ?EXIT                                      10may93jaw
 
-: DO:     ( -- do-ghost [xt] [colon-sys] )
-  here ghostheader
+: do:ghost! ( ghost -- ) built >do:ghost ! ;
+: doexec! ( xt -- ) built >do:ghost @ >exec ! ;
+
+: DO:     ( -- [xt] [colon-sys] )
+  here ghostheader do:ghost!
   :noname postpone gdoes> ( postpone ?EXIT ) ;
 
-: by:     ( -- do-ghost [xt] [colon-sys] ) \ name
-  Ghost
+: by:     ( -- [xt] [colon-sys] ) \ name
+  Ghost do:ghost!
   :noname postpone gdoes> ( postpone ?EXIT ) ;
 
-: ;DO ( do-ghost [xt] [colon-sys] -- do-ghost )
-  postpone ;    ( S addr xt )
-  over >exec ! ; immediate
+: ;DO ( [xt] [colon-sys] -- )
+  postpone ; doexec! ; immediate
 
 : by      ( -- do-ghost ) \ Name
-  Ghost >do:ghost @ ;
+  Ghost >do:ghost @ do:ghost! ;
 
 : compile: ( do-ghost -- do-ghost [xt] [colon-sys] )
 \G defines a compile time action for created words
@@ -2568,61 +2574,57 @@ Cond: DOES>
   :noname ;
 
 : ;compile ( do-ghost [xt] [colon-sys] -- do-ghost )
-  postpone ;  over >comp ! ; immediate
-
+  postpone ;  built >do:ghost @ >comp ! ; immediate
 
 
 >TARGET
 \ Variables and Constants                              05dec92py
 
-Build:  ( n -- ) ;
-by: :docon ( target-body-addr -- n ) T @ H ;DO
 Builder (Constant)
+Build:  ( n -- ) ;Build
+by: :docon ( target-body-addr -- n ) T @ H ;DO
 
-Build:  ( n -- ) T , H ;
-by (Constant)
 Builder Constant
-
-Build:  ( n -- ) T A, H ;
+Build:  ( n -- ) T , H ;Build
 by (Constant)
+
 Builder AConstant
+Build:  ( n -- ) T A, H ;Build
+by (Constant)
 
-Build:  ( d -- ) T , , H ;
-DO: ( ghost -- d ) T dup cell+ @ swap @ H ;DO
 Builder 2Constant
+Build:  ( d -- ) T , , H ;Build
+DO: ( ghost -- d ) T dup cell+ @ swap @ H ;DO
 
-BuildSmart: ;
-by: :dovar ( target-body-addr -- addr ) ;DO
 Builder Create
+BuildSmart: ;Build
+by: :dovar ( target-body-addr -- addr ) ;DO
 
+Builder Variable
 T has? rom H [IF]
-Build: ( -- ) T here 0 A, H switchram T align here swap ! 0 , H ( switchrom ) ;
+Build: ( -- ) T here 0 A, H switchram T align here swap ! 0 , H ( switchrom ) ;Build
 by (Constant)
-Builder Variable
 [ELSE]
-Build: T 0 , H ;
+Build: T 0 , H ;Build
 by Create
-Builder Variable
 [THEN]
 
+Builder 2Variable
 T has? rom H [IF]
-Build: ( -- ) T here 0 A, H switchram T align here swap ! 0 , 0 , H ( switchrom ) ;
+Build: ( -- ) T here 0 A, H switchram T align here swap ! 0 , 0 , H ( switchrom ) ;Build
 by (Constant)
-Builder 2Variable
 [ELSE]
-Build: T 0 , 0 , H ;
+Build: T 0 , 0 , H ;Build
 by Create
-Builder 2Variable
 [THEN]
 
+Builder AVariable
 T has? rom H [IF]
-Build: ( -- ) T here 0 A, H switchram T align here swap ! 0 A, H ( switchrom ) ;
+Build: ( -- ) T here 0 A, H switchram T align here swap ! 0 A, H ( switchrom ) ;Build
 by (Constant)
-Builder AVariable
 [ELSE]
-Build: T 0 A, H ;
+Build: T 0 A, H ;Build
 by Create
-Builder AVariable
 [THEN]
 
 \ User variables                                       04may94py
@@ -2642,35 +2644,39 @@ Variable tudp 0 tudp !
 
 >TARGET
 
-Build: 0 u, X , ;
-by: :douser ( ghost -- up-addr )  X @ tup @ + ;DO
 Builder User
+Build: 0 u, X , ;Build
+by: :douser ( ghost -- up-addr )  X @ tup @ + ;DO
 
-Build: 0 u, X , 0 u, drop ;
-by User
 Builder 2User
-
-Build: 0 au, X , ;
+Build: 0 u, X , 0 u, drop ;Build
 by User
+
 Builder AUser
+Build: 0 au, X , ;Build
+by User
 
-BuildSmart: T , H ;
-by (Constant)
+Builder (Value)
+Build:  ( n -- ) ;Build
+by: :docon ( target-body-addr -- n ) T @ H ;DO
+
 Builder Value
+BuildSmart: T , H ;Build
+by (Value)
 
-BuildSmart: T A, H ;
-by (Constant)
 Builder AValue
+BuildSmart: T A, H ;Build
+by (Value)
 
 Defer texecute
 
-BuildSmart:  ( -- ) [T'] noop T A, H ;
-by: :dodefer ( ghost -- ) X @ texecute ;DO
 Builder Defer
+BuildSmart:  ( -- ) [T'] noop T A, H ;Build
+by: :dodefer ( ghost -- ) X @ texecute ;DO
 
-Build: ( inter comp -- ) swap T immediate A, A, H ;
-DO: ( ghost -- ) ABORT" CROSS: Don't execute" ;DO
 Builder interpret/compile:
+Build: ( inter comp -- ) swap T immediate A, A, H ;Build
+DO: ( ghost -- ) ABORT" CROSS: Don't execute" ;DO
 
 \ Sturctures                                           23feb95py
 
@@ -2680,15 +2686,15 @@ Builder interpret/compile:
  1- tuck +  swap invert and ;
 >TARGET
 
-Build: ;
-by: :dofield T @ H + ;DO
 Builder (Field)
+Build: ;Build
+by: :dofield T @ H + ;DO
 
+Builder Field
 Build: ( align1 offset1 align size "name" --  align2 offset2 )
     rot dup T , H ( align1 align size offset1 )
-    + >r nalign r> ;
+    + >r nalign r> ;Build
 by (Field)
-Builder Field
 
 : struct  T 1 chars 0 H ;
 : end-struct  T 2Constant H ;
@@ -2698,16 +2704,50 @@ Builder Field
 
 \ Input-Methods                                            01py
 
-Build: ( m v -- m' v )  dup T , cell+ H ;
-DO:  abort" Not in cross mode" ;DO
 Builder input-method
-
-Build: ( m v size -- m v' )  over T , H + ;
+Build: ( m v -- m' v )  dup T , cell+ H ;Build
 DO:  abort" Not in cross mode" ;DO
+
 Builder input-var
+Build: ( m v size -- m v' )  over T , H + ;Build
+DO:  abort" Not in cross mode" ;DO
+
+\ Peephole optimization					05sep01jaw
+
+\ this section defines different compilation
+\ actions for created words
+\ this will help the peephole optimizer
+\ I (jaw) took this from bernds lates cross-compiler
+\ changes but seperated it from the original
+\ Builder words. The final plan is to put this
+\ into a seperate file, together with the peephole
+\ optimizer for cross
 
 
+T has? peephole H [IF]
 
+: (cc) compile call T >body a, H ;		' (cc) IS colon,
+
+Builder (Constant)
+compile: g>body X @ lit, ;compile
+
+Builder (Value)
+compile: g>body alit, compile @ ;compile
+
+\ this changes also Variable, AVariable and 2Variable
+Builder Create
+\ compile: g>body alit, ;compile
+
+Builder User
+compile: g>body compile useraddr T @ , H ;compile
+
+Builder Defer
+compile: g>body alit, compile @ compile execute ;compile
+
+Builder (Field)
+compile: g>body T @ H lit, compile + ;compile
+
+[THEN]
 
 \ structural conditionals                              17dec92py
 
