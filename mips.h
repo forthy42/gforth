@@ -55,6 +55,8 @@
 /* this provides the first 4 bits of a jump address, i.e. it must be <16 */
 #define SEGMENT_NUM	1
 
+#define JUMP(addr)	(J_PATTERN|((((unsigned)(addr))&JUMP_MASK)>>2))
+#define CALL(addr)	(JAL_PATTERN|((((unsigned)(addr))&JUMP_MASK)>>2))
 
 	/* PFA gives the parameter field address corresponding to a cfa */
 #	define PFA(cfa)	(((Cell *)cfa)+2)
@@ -64,7 +66,7 @@
 #	define CODE_ADDRESS(cfa)	((Label)(((*(unsigned *)(cfa))^J_PATTERN^(SEGMENT_NUM<<26))<<2))
 	/* MAKE_CF creates an appropriate code field at the cfa; ca is the code address */
 #	define MAKE_CF(cfa,ca)	({long * _cfa = (long *)(cfa); \
-					  _cfa[0] = J_PATTERN|((((long)(ca))&JUMP_MASK)>>2); /* J ca */ \
+					  _cfa[0] = JUMP(ca); \
 					  _cfa[1] = 0; /* nop */})
 #	ifdef undefined
 		/* the following version uses JAL to make PFA1 faster */
@@ -74,22 +76,29 @@
 #		define CODE_ADDRESS(cfa)	((Label)(((*(unsigned *)(cfa))^JAL_PATTERN^(SEGMENT_NUM<<26))<<2))
 #		define MAKE_CF(cfa,ca)	({long *_cfa = (long *)(cfa); \
 					  long _ca = (long)(ca); \
-						  _cfa[0] = JAL_PATTERN|(((((long)_ca)>>2))&JUMP_MASK); /* JAL ca+4 */ \
+						  _cfa[0] = CALL(_ca); \
 						  _cfa[1] = 0; /* *(long *)_ca; delay slot */})
 #	endif /* undefined */
 
-	/* this is the point where the does code starts if label points to the
-	 * jump dodoes */
-#	define DOES_CODE1(cfa)	((Xt *)(((char *)CODE_ADDRESS(cfa))+8))
+/* this is the point where the does code starts if cfa points to a
+   code field of a does>-defined word */
+#define DOES_CODE(cfa)	\
+     ({ Xt _cfa=(Xt)(cfa); \
+	Label _ca=CODE_ADDRESS(_cfa); \
+	((*(unsigned *)_cfa)&(~JUMP_MASK)) == J_PATTERN && \
+	(*(unsigned *)_ca) == JUMP(symbols[DODOES]) \
+	? _ca+DOES_HANDLER_SIZE : 0; })
 
-	/* this is a special version of DOES_CODE for use in dodoes */
-#	define DOES_CODE(cfa)	DOES_CODE1(cfa)
+
+/* this is a special version of DOES_CODE for use in dodoes */
+#define DOES_CODE1(cfa)	((Xt *)(((char *)CODE_ADDRESS(cfa))+DOES_HANDLER_SIZE))
+
 
 #	define DOES_HANDLER_SIZE	8
 #	define MAKE_DOES_CF(cfa,does_code) \
 			({long does_handlerp=((long)(does_code))-DOES_HANDLER_SIZE; \
 			  long *_cfa = (long*)(cfa); \
-			  _cfa[0] = J_PATTERN|((does_handlerp&JUMP_MASK)>>2); /* J ca */ \
+			  _cfa[0] = JUMP(does_handlerp); \
 			  _cfa[1] = 0; /* nop */})
 /*
 #	define MAKE_DOES_CF(cfa, does_code)	({char *does_handlerp=((char *)does_code)-DOES_HANDLER_SIZE;	\
@@ -108,7 +117,7 @@
 */
 
 #define MAKE_DOESJUMP(addr)	({long * _addr = (long *)addr; \
-				  _addr[0] = J_PATTERN|(((((long)symbols[DODOES])>>2)+4)&JUMP_MASK), /* J dodoes+4 */ \
+				  _addr[0] = JUMP(((unsigned)symbols[DODOES])+4); \
 				  _addr[1] = *(long *)symbols[DODOES]; /* delay */})
 
 /* the following version uses JAL to make DOES_CODE1 faster */
@@ -119,7 +128,7 @@
 #define DOES_CODE1(cfa)	({register Code *_does_code asm("$31"); \
 				    _does_code; })
 #define MAKE_DOESJUMP(addr)	({long * _addr = (long *)addr; \
-				  _addr[0] = JAL_PATTERN|(((((long)symbols[DODOES])>>2)+4)&JUMP_MASK), /* JAL dodoes+4 */ \
+				  _addr[0] = CALL(((long)symbols[DODOES])+4);
 				  _addr[1] = *(long *)symbols[DODOES]; /* delay */})
 
 #endif

@@ -44,6 +44,9 @@
 */
 #endif
 
+/* call to dest+4, because dest will reside in delay slot */
+#define CALLD(dest,source) (0x40000000|((((unsigned)(dest))+4-(unsigned)(source))>>2))
+
 /* PFA gives the parameter field address corresponding to a cfa */
 #define PFA(cfa)	(((Cell *)cfa)+2)
 /* PFA1 is a special version for use just after a NEXT1 */
@@ -61,19 +64,25 @@
 /* we use call, since 'branch always' only has 22 bits displacement */
 #define MAKE_CF(cfa,ca)	({long *_cfa        = (long *)(cfa); \
 			  unsigned _ca = (unsigned)(ca); \
-			  _cfa[0] = 0x40000000|((_ca+4-(unsigned)_cfa)>>2); /* CALL ca */ \
+			  _cfa[0] = CALLD(_ca,_cfa); \
 			  _cfa[1] = *(long *)_ca; /* delay slot */})
 
-/* this is the point where the does code starts if label points to the
- * jump dodoes */
+/* this is the point where the does code starts if cfa1 points to a
+   code field of a does>-defined word */
 /* the +4 is due to the fact, that the does_cf jumps directly to the
    code address, whereas CODE_ADDRESS expects a jump to
    code_address+4, and corrects for that (which is countercorrected by
    the +4) */
-#define DOES_CODE(label)	((Xt *)(CODE_ADDRESS(label)+4+DOES_HANDLER_SIZE))
+#define DOES_CODE(cfa1) \
+     ({ Xt _cfa1=(Xt)(cfa1); \
+	unsigned _ca; \
+	((*(unsigned *)_cfa1)&0xc0000000) == 0x40000000 && \
+	(_ca=((unsigned)CODE_ADDRESS(_cfa1))+4 , \
+	 ((*(unsigned *)(_ca)) == CALLD(symbols[DODOES],_ca))) \
+	? _ca+DOES_HANDLER_SIZE : 0; })
 
 /* this is a special version of DOES_CODE for use in dodoes */
-#define DOES_CODE1(label)	DOES_CODE(label)
+#define DOES_CODE1(label)	((Xt *)(CODE_ADDRESS(label)+4+DOES_HANDLER_SIZE))
 #ifdef undefined
 #define DOES_CODE1(label)	({register Xt *_does_code asm("%o7"); \
 			  	_does_code+2; })

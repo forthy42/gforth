@@ -71,9 +71,14 @@
 /* this is the point where the does code for the word with the xt cfa
    starts. Since a branch is only a cell on Power, we can use the
    second cell of the cfa for storing the does address */
-#define DOES_CODE(cfa)	((Xt *)(((long *)(cfa))[1]))
+#define DOES_CODE(cfa) \
+     ({ unsigned *_cfa=(unsigned)(cfa); \
+	_cfa[0]==(0x48000002|&&docol) ? DOES_CODE1(_cfa) : 0; })
+   
+
+	DOES_CODE(label)
 /* this is a special version of DOES_CODE for use in dodoes */
-#define DOES_CODE1(label)	DOES_CODE(label)
+#define DOES_CODE1(cfa)	((Xt *)(((long *)(cfa))[1]))
 
 /* the does handler resides between DOES> and the following Forth
    code. Since the code-field jumps directly to dodoes, the

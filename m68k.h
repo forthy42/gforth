@@ -40,12 +40,19 @@
 				  _cfa[0] = 0x4ef9; /* jmp.l */ \
 				  *(long *)(_cfa+1) = (long)(ca);})
 
-/* this is the point where the does code starts if label points to the
- * jump dodoes */
-#define DOES_CODE(label)	((Xt *)(((char *)CODE_ADDRESS(label))+DOES_HANDLER_SIZE))
+/* this is the point where the does code for the word with the xt cfa
+   starts. */
+#define DOES_CODE(cfa) \
+     ({ short *_cfa=(short *)(cfa); \
+	short *_ca;
+	((_cfa[0] == 0x4ef9 \
+	  && (_ca=CODE_ADDRESS(cfa), _ca[0] == 0x4ef9) \
+	  && *(long *)(_cfa+1) == &&docol) \
+	 ? ((unsigned)_ca)+DOES_HANDLER_SIZE \
+	 : 0); })
 
 /* this is a special version of DOES_CODE for use in dodoes */
-#define DOES_CODE1(label)	DOES_CODE(label)
+#define DOES_CODE1(cfa)	((Xt *)(((char *)CODE_ADDRESS(cfa))+DOES_HANDLER_SIZE))
 
 /* this stores a call dodoes at addr */
 #define MAKE_DOES_HANDLER(addr) MAKE_CF(addr,symbols[DODOES])

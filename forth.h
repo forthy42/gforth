@@ -131,7 +131,7 @@ typedef Label *Xt;
 #define PFA1(cfa)	PFA(cfa)
 /* CODE_ADDRESS is the address of the code jumped to through the code field */
 #define CODE_ADDRESS(cfa)	(*(Label *)(cfa))
-      /* DOES_CODE is the Forth code does jumps to */
+/* DOES_CODE is the Forth code does jumps to */
 #define DOES_CODE(cfa)	({Xt _cfa=(Xt)(cfa); \
 			  _cfa[0] == symbols[DODOES] ? _cfa[1] : NULL;})
 #define DOES_CODE1(cfa)	(cfa[1])

@@ -79,7 +79,7 @@ typedef short Int16;
    32-bit systems) to load the address as literal and jump indirectly.
    
    So, what we do is this: a pointer into our code (at docol, to be
-   exact) is kept in a register: _alpha_docol. When the innner
+   exact) is kept in a register: _alpha_docol. When the inner
    interpreter jumps to the word address of a variable etc., the
    destination address is computed from that with a lda instruction
    and stored in another register: _alpha_ca. Then an indirect jump
@@ -135,9 +135,15 @@ typedef short Int16;
    starts. Because the jump to the code field takes only one cell on
    64-bit systems we can use the second cell of the cfa for storing
    the does address */
-#define DOES_CODE(cfa)	((Xt *)(((Cell *)(cfa))[1]))
+#define DOES_CODE(cfa) \
+     ({ Int32 *_wa=(cfa); \
+	(_wa[0] == ((((Int32 *)_CPU_DEP_LABEL)[0] & 0xffff0000)| \
+		    ((((Cell)&&dodoes)-((Cell)&&docol)) & 0xffff)) && \
+	 (_wa[1]&0xffffc000) == (((Int32 *)_CPU_DEP_LABEL)[1] & 0xffffc000)) \
+	? DOES_CODE1(_wa) : 0; })
+
 /* this is a special version of DOES_CODE for use in dodoes */
-#define DOES_CODE1(label)	DOES_CODE(label)
+#define DOES_CODE1(cfa)	((Xt *)(((Cell *)(cfa))[1]))
 
 /* the does handler resides between DOES> and the following Forth
    code. Since the code-field jumps directly to dodoes, the

@@ -247,7 +247,7 @@ Address loader(FILE *imagefile)
   ((ImageHeader *)imp)->fp_stack_size=fsize;
   ((ImageHeader *)imp)->locals_stack_size=lsize;
 
-  CACHE_FLUSH(imp, header.imagesize);
+  CACHE_FLUSH(imp, header.image_size);
 
   return imp;
 }

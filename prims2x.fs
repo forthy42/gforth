@@ -57,7 +57,7 @@ maxchar 1+ constant eof-char
 : read-whole-file ( c-addr1 file-id -- c-addr2 )
 \ reads the contents of the file file-id puts it into memory at c-addr1
 \ c-addr2 is the first address after the file block
-  >r dup -1 r> read-file throw + ;
+  >r dup $7fffffff r> read-file throw + ;
 
 variable rawinput \ pointer to next character to be scanned
 variable endrawinput \ pointer to the end of the input (the char after the last)
