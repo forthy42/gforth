@@ -6,7 +6,7 @@ CP	= cp
 GCC	= gcc
 FORTH	= gforth
 CC	= gcc
-MAKE	= gmake
+#MAKE	= gmake
 XCFLAGS	=
 XDEFINES	=
 SWITCHES	= $(XCFLAGS) $(XDEFINES) -DDEFAULTBIN='"'`pwd`'"' #-DNDEBUG #turn off assertions

@@ -1,5 +1,4 @@
 /*
-  $Id: decstation.h,v 1.4 1994-11-29 16:22:38 pazsan Exp $
   Copyright 1992 by the ANSI figForth Development Group
 
   This is the machine-specific part for a Decstation running Ultrix
@@ -111,3 +110,11 @@ typedef float SFloat;
 
 #endif
 
+#ifdef FORCE_REG
+#define IPREG asm("$16")
+#define SPREG asm("$17")
+#define RPREG asm("$18")
+#define LPREG asm("$19")
+#define CFAREG asm("$20")
+#define TOSREG asm("$21")
+#endif /* FORCE_REG */
