@@ -188,6 +188,7 @@ struct%
     cell% 2* field prim-c-code
     cell% 2* field prim-forth-code
     cell% 2* field prim-stack-string
+    cell%    field prim-items-wordlist \ unique items
     item% max-effect * field prim-effect-in
     item% max-effect * field prim-effect-out
     cell%    field prim-effect-in-end
@@ -226,11 +227,6 @@ variable name-line
 2variable name-filename
 2variable last-name-filename
 Variable function-number 0 function-number !
-
-\ for several reasons stack items of a word are stored in a wordlist
-\ since neither forget nor marker are implemented yet, we make a new
-\ wordlist for every word and store it in the variable items
-variable itemsqq
 
 \ a few more set ops
 
@@ -283,7 +279,7 @@ variable itemsqq
  r@ item-first @ if
      rdrop false exit
  endif
- r@ item-name 2@ itemsqq @ search-wordlist 0= abort" bug"
+ r@ item-name 2@ prim prim-items-wordlist @ search-wordlist 0= abort" bug"
  execute @
  dup r@ =
  if \ item first appeared in output
@@ -370,7 +366,7 @@ does> ( item -- )
     { item typ }
     typ item item-type !
     typ type-stack @ item item-stack !default
-    item item-name 2@ itemsqq @ search-wordlist 0= if \ new name
+    item item-name 2@ prim prim-items-wordlist @ search-wordlist 0= if
 	item item-name 2@ nextname item declare
 	item item-first on
 	\ typ type-c-name 2@ type space type  ." ;" cr
@@ -399,7 +395,7 @@ does> ( item -- )
     ['] declaration map-items ;
 
 : declarations ( -- )
- wordlist dup itemsqq ! set-current
+ wordlist dup prim prim-items-wordlist ! set-current
  prim prim-effect-in prim prim-effect-in-end @ declaration-list
  prim prim-effect-out prim prim-effect-out-end @ declaration-list ;
 
