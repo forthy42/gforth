@@ -357,7 +357,7 @@ SOURCES	= $(CVSDIRS) compat Makefile.in Makedist.in engine/Makefile.in \
 	versions.bsh \
 	configure.cmd mkos2mf.sed os2conf.h makefile.os2 engine/makefile.os2 \
 	gforthmi.cmd glosgen.glo doc/glossaries.doc \
-	$(INCLUDES) $(FORTH_SRC) $(COMPAT) $(VMGEN_EX) $(VMGEN_EX2) \
+	$(INCLUDES) $(FORTH_SRC) $(COMPAT) $(VMGEN_EX) \
 	timings.sc \
 	test/coretest.out test/checkans.out
 
@@ -589,17 +589,17 @@ onebench:
 
 all-bench:	gforth-fast$(EXE) gforth$(EXE) gforth-itc$(EXE) gforth-ditc$(EXE) gforth.fi
 		@echo "*** gforth-fast dynamic:"
-		@$(MAKE) onebench ENGINE_FAST="gforth-fast --dynamic"
+		@$(MAKE) onebench ENGINE_FAST="./gforth-fast --dynamic"
 		@echo "*** gforth-fast not dynamic:"
-		@$(MAKE) onebench ENGINE_FAST="gforth-fast --no-dynamic"
+		@$(MAKE) onebench ENGINE_FAST="./gforth-fast --no-dynamic"
 		@echo "*** gforth dynamic:"
-		@$(MAKE) onebench ENGINE_FAST="gforth --dynamic"
+		@$(MAKE) onebench ENGINE_FAST="./gforth --dynamic"
 		@echo "*** gforth not dynamic:"
-		@$(MAKE) onebench ENGINE_FAST="gforth --no-dynamic"
+		@$(MAKE) onebench ENGINE_FAST="./gforth --no-dynamic"
 		@echo "*** gforth-itc:"
-		@$(MAKE) onebench ENGINE_FAST=gforth-itc
+		@$(MAKE) onebench ENGINE_FAST=./gforth-itc
 		@echo "*** gforth-ditc:"
-		@$(MAKE) onebench ENGINE_FAST=gforth-ditc
+		@$(MAKE) onebench ENGINE_FAST=./gforth-ditc
 
 # -------------	Make forth images
 

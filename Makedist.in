@@ -22,15 +22,15 @@
 include Makefile
 
 #!! redundancy with engine/Makefile.in
-DOBJECTS=$(addprefix engine/,io.o signals.o support.o @LIBOBJS@ engine.o engine2.o main.o engine-fast.o engine-fast2.o main-fast.o engine-ditc.o main-ditc.o  engine-itc.o main-itc.o)
+DOBJECTS=$(addprefix engine/,io.o signals.o support.o @LIBOBJS@ engine.o engine2.o main.o engine-fast.o engine-fast2.o main-fast.o engine-ditc.o engine-prof.o main-ditc.o  engine-itc.o main-itc.o main-prof.o profile.o)
 
 #stuff in a binonly distribution 
 BINONLYDIST = config.status Makefile Makedist \
-	gforth$(EXE) gforth-fast$(EXE) gforth-ditc$(EXE)  gforth-itc$(EXE) \
+	$(ENGINES) \
 	$(DOBJECTS) engine/config.h engine/Makefile \
 	engine/gforth$(EXE) engine/gforth-fast$(EXE) \
         engine/gforth-ditc$(EXE) engine/gforth-itc$(EXE) \
-	stamp-h kernel/version.fs \
+	engine/gforth-prof$(EXE) stamp-h kernel/version.fs \
 	INSTALL.BINDIST
 
 #use dist targets only when srcdir=.

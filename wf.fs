@@ -193,6 +193,7 @@ Defer parse-line
 : link-icon? ( -- )  do-icon @ 0= ?EXIT
     iconpath @  IF  iconpath $off  THEN
     link $@ + 1- c@ '/ = IF  s" index.html"  ELSE  link $@  THEN
+    '# $split 2drop
     BEGIN  '. $split 2swap 2drop dup  WHILE
 	2dup get-icon  REPEAT  2drop ;
 
@@ -228,7 +229,7 @@ s" Gforth" environment? [IF] s" 0.5.0" str= [IF]
 
 : .link ( addr u -- ) dup >r '| -$split  dup r> = IF  2swap  THEN 
     link-options link $!
-    link $@len 0= IF  2dup link $! s" .html" link $+!  THEN
+    link $@len 0= IF  2dup link $! ( s" .html" link $+! ) THEN
     link $@ href= s" a" tag link-icon?
     parse-string s" a" /tag link-size? link-sig? ;
 : >link ( -- )  '[ parse type '] parse .link ;
@@ -480,12 +481,16 @@ Variable mail
 Variable mail-name
 Variable orig-date
 
+: .lastmod
+    ." Last modified: " time&date rot 0 u.r swap 1-
+    s" janfebmaraprmayjunjulaugsepoctnovdec" rot 3 * /string 3 min type
+    0 u.r ;
+
 : .trailer
     s" address" >env s" center" >env
     orig-date @ IF  ." Created " orig-date $@ type ." . "  THEN
-    ." Last modified: " time&date rot 0 u.r swap 1-
-    s" janfebmaraprmayjunjulaugsepoctnovdec" rot 3 * /string 3 min type
-    0 u.r ."  by "
+    .lastmod
+ ."  by "
     s" Mail|icons/mail.gif" .img mail $@ mailto: mail-name $@ s" a" tagged
     -envs ;
 
