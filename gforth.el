@@ -33,6 +33,7 @@
 ;; Changes by David
 ;; Added a syntax-hilighting engine, rewrote auto-indentation engine.
 ;; Added support for block files.
+;; Tested with Emacs 19.34, 20.5, 21.1 and XEmacs 21.1
  
 ;;-------------------------------------------------------------------
 ;; A Forth indentation, documentation search and interaction library
@@ -49,7 +50,7 @@
 
 ;;; Code:
 
-(setq debug-on-error t)
+;(setq debug-on-error t)
 
 ;; Code ripped from `version.el' for compatability with Emacs versions
 ;; prior to 19.23.
@@ -90,9 +91,16 @@
   (set-face-foreground font-lock-warning-face "red")
   (make-face-bold font-lock-warning-face))
 
+;; define `font-lock-constant-face' in XEmacs (just copy
+;; `font-lock-preprocessor-face')
+(unless (boundp 'font-lock-constant-face)
+  (copy-face font-lock-preprocessor-face 'font-lock-constant-face)
+  (defvar font-lock-constant-face 'font-lock-comment-face))
+
 ;; define `regexp-opt' in emacs versions prior to 20.1 
 ;; (this implementation is extremely inefficient, though)
-(unless (boundp 'regexp-opt)
+(eval-and-compile (forth-require 'regexp-opt))
+(unless (memq 'regexp-opt features)
   (message (concat 
 	    "Warning: your Emacs version doesn't support `regexp-opt'. "
             "Hilighting will be slow."))
@@ -102,7 +110,6 @@
   (defun regexp-opt-depth (re)
     (if (string= (substring re 0 2) "\\(") 1 0)))
 
-  
 ; todo:
 ;
 
@@ -432,11 +439,14 @@ End:\" construct).")
 ;; Helper function for `forth-compile-word': translate one entry from 
 ;; `forth-words' into the form  (regexp regexp-depth word-description)
 (defun forth-compile-words-mapper (word)
+  ;; warning: we cannot rely on regexp-opt's PAREN argument, since
+  ;; XEmacs will use shy parens by default :-(
   (let* ((matcher (car word))
-	 (regexp (if (stringp matcher) (concat "\\(" matcher "\\)")
-		   (if (listp matcher) (regexp-opt matcher t)
-		     (error "Invalid matcher (stringp or listp expected `%s'" 
-			    matcher))))
+	 (regexp 
+	  (concat "\\(" (cond ((stringp matcher) matcher)
+			      ((listp matcher) (regexp-opt matcher))
+			      (t (error "Invalid matcher `%s'")))
+		  "\\)"))
 	 (depth (regexp-opt-depth regexp))
 	 (description (cdr word)))
     (list regexp depth description)))
@@ -542,7 +552,8 @@ End:\" construct).")
 ;; expression that matched. (used for identifying branches "a\\|b\\|c...")
 (defun forth-get-regexp-branch ()
   (let ((count 2))
-    (while (not (match-beginning count))
+    (while (not (condition-case err (match-beginning count)
+		  (args-out-of-range t)))  ; XEmacs requires error handling
       (setq count (1+ count)))
     count))
 
@@ -1059,13 +1070,20 @@ exceeds 64 characters."
 ;setup for C-h C-i to work
 (eval-and-compile (forth-require 'info-look))
 (when (memq 'info-look features)
-  (info-lookup-add-help
-   :topic 'symbol
-   :mode 'forth-mode
-   :regexp "[^ 	
-]+"
-   :ignore-case t
-   :doc-spec '(("(gforth)Name Index" nil "`" "'  "))))
+  ;; info-lookup-add-help not supported in XEmacs :-(
+  (defvar forth-info-lookup '(symbol (forth-mode "\\w+" t 
+						  (("(gforth)Word Index"))
+						  "\\w+")))
+  (unless (memq forth-info-lookup info-lookup-alist)
+    (setq info-lookup-alist (cons forth-info-lookup info-lookup-alist))))
+
+;;   (info-lookup-add-help
+;;    :topic 'symbol
+;;    :mode 'forth-mode
+;;    :regexp "[^ 	
+;; ]+"
+;;    :ignore-case t
+;;    :doc-spec '(("(gforth)Name Index" nil "`" "'  "))))
 
 (require 'etags)
 
