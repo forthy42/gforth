@@ -682,8 +682,8 @@ inh ud1 ud1
         disp16/32 ;
 
 : mv2   ( addr op -- addr' )
-        .s" mov     " disp16/32 .,
-        1 and
+        >r .s" mov     " disp16/32 .,
+        r> 1 and
         IF      16-bit-data
                 IF      .s"  ax"
                 ELSE    .s"  eax"
@@ -1478,7 +1478,7 @@ ops  lok ??? rpz rep  hlt cmc F6. F6.  clc stc cli sti  cld std FE. FF.  \ F
         if      dis-op
                 s-buf count type
         else    dup dis-op
-                over base-addr - hex. ( 6 h.r ) space
+                over base-addr - ." ( " hex. ( 6 h.r )  ." ) "
                 comment-col col s-buf count type ."  \ "
 		dup rot
                 2dup - $10 u> abort" decompiler error"
@@ -1494,7 +1494,7 @@ forth definitions
     while
 	cr inst
     repeat
-    cr rdrop ;
+    cr rdrop drop ;
     
 ' disasm is discode
 
