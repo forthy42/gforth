@@ -109,6 +109,16 @@
 #define F_FALSE (FLAG(0!=0))
 
 #ifdef BUGGY_LONG_LONG
+
+#define BUGGY_LL_CMP    /* compares not possible */
+#define BUGGY_LL_MUL    /* multiplication not possible */
+#define BUGGY_LL_DIV    /* division not possible */
+#define BUGGY_LL_ADD    /* addition not possible */
+#define BUGGY_LL_SHIFT  /* shift not possible */
+#define BUGGY_LL_D2F    /* to float not possible */
+#define BUGGY_LL_F2D    /* from float not possible */
+#define BUGGY_LL_SIZE   /* long long "too short", so we use something else */
+
 typedef struct {
   Cell hi;
   UCell lo;
@@ -118,6 +128,11 @@ typedef struct {
   UCell hi;
   UCell lo;
 } UDCell;
+
+#define DHI(x) (x).hi
+#define DLO(x) (x).lo
+#define DHI_IS(x,y) (x).hi=(y)
+#define DLO_IS(x,y) (x).lo=(y)
 
 #if SMALL_OFF_T
 #define OFF2UD(o) ({UDCell _ud; _ud.hi=0; _ud.lo=(Cell)(o); _ud;})
@@ -153,6 +168,15 @@ typedef union {
   DCell d;
   UDCell ud;
 } Double_Store;
+
+#ifndef BUGGY_LONG_LONG
+#define DHI(x) ({ Double_Store _d; _d.d=(x); _d.cells.high; })
+#define DLO(x) ({ Double_Store _d; _d.d=(x); _d.cells.low;  })
+
+/* beware with the assignment: x is referenced twice! */
+#define DHI_IS(x,y) ({ Double_Store _d; _d.d=(x); _d.cells.high=(y); (x)=_d; })
+#define DLO_IS(x,y) ({ Double_Store _d; _d.d=(x); _d.cells.low =(y); (x)=_d; })
+#endif
 
 #define FETCH_DCELL_T(d_,lo,hi,t_)	({ \
 				     Double_Store _d; \

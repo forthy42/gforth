@@ -820,7 +820,7 @@ n2 = n1>>1;
 
 fm/mod	( d1 n1 -- n2 n3 )		core		f_m_slash_mod
 ""Floored division: @i{d1} = @i{n3}*@i{n1}+@i{n2}, @i{n1}>@i{n2}>=0 or 0>=@i{n2}>@i{n1}.""
-#ifdef BUGGY_LONG_LONG
+#ifdef BUGGY_LL_DIV
 DCell r = fmdiv(d1,n1);
 n2=r.hi;
 n3=r.lo;
@@ -842,7 +842,7 @@ if (1%-3>0 && (d1<0) != (n1<0) && n2!=0) {
 
 sm/rem	( d1 n1 -- n2 n3 )		core		s_m_slash_rem
 ""Symmetric division: @i{d1} = @i{n3}*@i{n1}+@i{n2}, sign(@i{n2})=sign(@i{d1}) or 0.""
-#ifdef BUGGY_LONG_LONG
+#ifdef BUGGY_LL_DIV
 DCell r = smdiv(d1,n1);
 n2=r.hi;
 n3=r.lo;
@@ -863,7 +863,7 @@ if (1%-3<0 && (d1<0) != (n1<0) && n2!=0) {
  r>        0< IF  swap negate swap  THEN ;
 
 m*	( n1 n2 -- d )		core	m_star
-#ifdef BUGGY_LONG_LONG
+#ifdef BUGGY_LL_MUL
 d = mmul(n1,n2);
 #else
 d = (DCell)n1 * (DCell)n2;
@@ -875,7 +875,7 @@ d = (DCell)n1 * (DCell)n2;
 
 um*	( u1 u2 -- ud )		core	u_m_star
 /* use u* as alias */
-#ifdef BUGGY_LONG_LONG
+#ifdef BUGGY_LL_MUL
 ud = ummul(u1,u2);
 #else
 ud = (UDCell)u1 * (UDCell)u2;
@@ -891,7 +891,7 @@ ud = (UDCell)u1 * (UDCell)u2;
 
 um/mod	( ud u1 -- u2 u3 )		core	u_m_slash_mod
 ""ud=u3*u1+u2, u1>u2>=0""
-#ifdef BUGGY_LONG_LONG
+#ifdef BUGGY_LL_DIV
 UDCell r = umdiv(ud,u1);
 u2=r.hi;
 u3=r.lo;
@@ -910,9 +910,9 @@ u2 = ud%u1;
    and >r >r 2dup d+ swap r> + swap r> ;
 
 m+	( d1 n -- d2 )		double		m_plus
-#ifdef BUGGY_LONG_LONG
-d2.lo = d1.lo+n;
-d2.hi = d1.hi - (n<0) + (d2.lo<d1.lo);
+#ifdef BUGGY_LL_ADD
+DLO_IS(d2, DLO(d1)+n);
+DHI_IS(d2, DHI(d1) - (n<0) + (DLO(d2)<DLO(d1)));
 #else
 d2 = d1+n;
 #endif
@@ -920,9 +920,9 @@ d2 = d1+n;
  s>d d+ ;
 
 d+	( d1 d2 -- d )		double	d_plus
-#ifdef BUGGY_LONG_LONG
-d.lo = d1.lo+d2.lo;
-d.hi = d1.hi + d2.hi + (d.lo<d1.lo);
+#ifdef BUGGY_LL_ADD
+DLO_IS(d, DLO(d1) + DLO(d2));
+DHI_IS(d, DHI(d1) + DHI(d2) + (d.lo<DLO(d1)));
 #else
 d = d1+d2;
 #endif
@@ -930,9 +930,9 @@ d = d1+d2;
  rot + >r tuck + swap over u> r> swap - ;
 
 d-	( d1 d2 -- d )		double		d_minus
-#ifdef BUGGY_LONG_LONG
-d.lo = d1.lo - d2.lo;
-d.hi = d1.hi-d2.hi-(d1.lo<d2.lo);
+#ifdef BUGGY_LL_ADD
+DLO_IS(d, DLO(d1) - DLO(d2));
+DHI_IS(d, DHI(d1)-DHI(d2)-(DLO(d1)<DLO(d2)));
 #else
 d = d1-d2;
 #endif
@@ -941,7 +941,7 @@ d = d1-d2;
 
 dnegate	( d1 -- d2 )		double	d_negate
 /* use dminus as alias */
-#ifdef BUGGY_LONG_LONG
+#ifdef BUGGY_LL_ADD
 d2 = dnegate(d1);
 #else
 d2 = -d1;
@@ -951,9 +951,9 @@ d2 = -d1;
 
 d2*	( d1 -- d2 )		double		d_two_star
 ""Shift left by 1; also works on unsigned numbers""
-#ifdef BUGGY_LONG_LONG
-d2.lo = d1.lo<<1;
-d2.hi = (d1.hi<<1) | (d1.lo>>(CELL_BITS-1));
+#ifdef BUGGY_LL_SHIFT
+DLO_IS(d2, DLO(d1)<<1);
+DHI_IS(d2, (DHI(d1)<<1) | (DLO(d1)>>(CELL_BITS-1)));
 #else
 d2 = 2*d1;
 #endif
@@ -963,9 +963,9 @@ d2 = 2*d1;
 d2/	( d1 -- d2 )		double		d_two_slash
 ""Arithmetic shift right by 1.  For signed numbers this is a floored
 division by 2.""
-#ifdef BUGGY_LONG_LONG
-d2.hi = d1.hi>>1;
-d2.lo= (d1.lo>>1) | (d1.hi<<(CELL_BITS-1));
+#ifdef BUGGY_LL_SHIFT
+DHI_IS(d2, DHI(d1)>>1);
+DLO_IS(d2, (DLO(d1)>>1) | (DHI(d1)<<(CELL_BITS-1)));
 #else
 d2 = d1>>1;
 #endif
@@ -1068,42 +1068,42 @@ comparisons(u, u1 u2, u_, u1, u2, gforth, gforth, core, core-ext)
 \ dcomparisons(prefix, args, prefix, arg1, arg2, wordsets...)
 define(dcomparisons,
 $1=	( $2 -- f )		$6	$3equals
-#ifdef BUGGY_LONG_LONG
+#ifdef BUGGY_LL_CMP
 f = FLAG($4.lo==$5.lo && $4.hi==$5.hi);
 #else
 f = FLAG($4==$5);
 #endif
 
 $1<>	( $2 -- f )		$7	$3not_equals
-#ifdef BUGGY_LONG_LONG
+#ifdef BUGGY_LL_CMP
 f = FLAG($4.lo!=$5.lo || $4.hi!=$5.hi);
 #else
 f = FLAG($4!=$5);
 #endif
 
 $1<	( $2 -- f )		$8	$3less_than
-#ifdef BUGGY_LONG_LONG
+#ifdef BUGGY_LL_CMP
 f = FLAG($4.hi==$5.hi ? $4.lo<$5.lo : $4.hi<$5.hi);
 #else
 f = FLAG($4<$5);
 #endif
 
 $1>	( $2 -- f )		$9	$3greater_than
-#ifdef BUGGY_LONG_LONG
+#ifdef BUGGY_LL_CMP
 f = FLAG($4.hi==$5.hi ? $4.lo>$5.lo : $4.hi>$5.hi);
 #else
 f = FLAG($4>$5);
 #endif
 
 $1<=	( $2 -- f )		gforth	$3less_or_equal
-#ifdef BUGGY_LONG_LONG
+#ifdef BUGGY_LL_CMP
 f = FLAG($4.hi==$5.hi ? $4.lo<=$5.lo : $4.hi<=$5.hi);
 #else
 f = FLAG($4<=$5);
 #endif
 
 $1>=	( $2 -- f )		gforth	$3greater_or_equal
-#ifdef BUGGY_LONG_LONG
+#ifdef BUGGY_LL_CMP
 f = FLAG($4.hi==$5.hi ? $4.lo>=$5.lo : $4.hi>=$5.hi);
 #else
 f = FLAG($4>=$5);
@@ -1905,11 +1905,7 @@ dsystem = timeval2us(&usage.ru_stime);
 struct timeval time1;
 gettimeofday(&time1,NULL);
 duser = timeval2us(&time1);
-#ifndef BUGGY_LONG_LONG
-dsystem = (DCell)0;
-#else
-dsystem=(DCell){0,0};
-#endif
+dsystem = DZERO;
 #endif
 
 \+
@@ -1922,13 +1918,17 @@ comparisons(f, r1 r2, f_, r1, r2, gforth, gforth, float, gforth)
 comparisons(f0, r, f_zero_, r, 0., float, gforth, float, gforth)
 
 d>f	( d -- r )		float	d_to_f
-#ifdef BUGGY_LONG_LONG
+#ifdef BUGGY_LL_D2F
 extern double ldexp(double x, int exp);
-if (d.hi<0) {
+if (DHI(d)<0) {
+#ifdef BUGGY_LL_ADD
   DCell d2=dnegate(d);
-  r = -(ldexp((Float)d2.hi,CELL_BITS) + (Float)d2.lo);
+#else
+  DCell d2=-d;
+#endif
+  r = -(ldexp((Float)DHI(d2),CELL_BITS) + (Float)DLO(d2));
 } else
-  r = ldexp((Float)d.hi,CELL_BITS) + (Float)d.lo;
+  r = ldexp((Float)DHI(d),CELL_BITS) + (Float)DLO(d);
 #else
 r = d;
 #endif
@@ -2372,8 +2372,8 @@ av-double	( r -- )	gforth  av_double
 av_double(alist, r);
 
 av-longlong	( d -- )	gforth  av_longlong
-#ifdef BUGGY_LONG_LONG
-av_longlong(alist, d.lo);
+#ifdef BUGGY_LL_SIZE
+av_longlong(alist, DLO(d));
 #else
 av_longlong(alist, d);
 #endif
@@ -2395,8 +2395,8 @@ lp += sizeof(Float);
 av_double(alist, r);
 
 av-longlong-r	( R:d -- )	gforth  av_longlong_r
-#ifdef BUGGY_LONG_LONG
-av_longlong(alist, d.lo);
+#ifdef BUGGY_LL_SIZE
+av_longlong(alist, DLO(d));
 #else
 av_longlong(alist, d);
 #endif
@@ -2432,8 +2432,8 @@ SAVE_REGS
 av_call(alist);
 REST_REGS
 #ifdef BUGGY_LONG_LONG
-d.lo = llrv;
-d.hi = 0;
+DLO_IS(d, llrv);
+DHI_IS(d, 0);
 #else
 d = llrv;
 #endif
@@ -2470,8 +2470,8 @@ w = va_arg_int(clist);
 
 va-arg-longlong	( -- d )	gforth	va_arg_longlong
 #ifdef BUGGY_LONG_LONG
-d.lo = va_arg_longlong(clist);
-d.hi = 0;
+DLO_IS(d, va_arg_longlong(clist));
+DHI_IS(d, 0);
 #else
 d = va_arg_longlong(clist);
 #endif
