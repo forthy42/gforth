@@ -82,8 +82,8 @@
     >r >string over r@ u8len + swap move 2dup chars + r@ swap u8!+ drop
     r> u8len >r  rot r@ chars + -rot r> chars + .all .rest ;
 : u8back  ( max span addr pos1 -- max span addr pos2 f )
-    dup  IF  over + u8<< over -  0 max
-    ELSE  #bell emit  THEN .rest 0 ;
+    dup  IF  over + u8<< over -  0 max .all .rest
+    ELSE  #bell emit  THEN 0 ;
 : u8forw  ( max span addr pos1 -- max span addr pos2 f )
     2 pick over <> IF  over + u8@+ u8emit over -  ELSE  #bell emit  THEN 0 ;
 : (u8del)  ( max span addr pos1 -- max span addr pos2 )
