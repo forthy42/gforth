@@ -30,7 +30,7 @@
 
 # try to guess a installed gforth
 
-if [ "$GFORTH" == "" ]
+if [ "$GFORTH"xx = "xx" ];
 then
 	GFORTH=`which gforth`
 fi
@@ -47,14 +47,15 @@ autoconf
 
 autoheader
 
-# run configure script
+# run configure sXScript
 
 ./configure $*
 
 # if you have specified a previous Gforth, you can savely run make now
 # with FORTHK and FORTHP changed appropriate.
 
-if [ "$GFORTH" != "" ]
+echo xz
+if [ "$GFORTH"xx != "xx" ]
 then
  echo Running: make BUILDFORTH="$GFORTH" gforth...
  make BUILDFORTH="$GFORTH" gforth
