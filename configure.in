@@ -160,6 +160,9 @@ case "$host_cpu" in
 		CFLAGS="$CFLAGS -march=pentium"
 		AC_TRY_COMPILE(,,,CFLAGS="$CFLAGS_1 -m486")
 		;;
+	x86_64)
+		machine=amd64
+		;;
 #generic should work for IA64
 #	ia64*)
 #		machine=ia64

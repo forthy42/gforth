@@ -40,9 +40,13 @@
 #define USE_FTOS
 #endif
 #endif
-/* I don't do the same for the data stack (i.e. USE_TOS), since this
-   loses on processors with few registers. USE_TOS might be defined in
-   the processor-specific files */
+
+#ifndef USE_TOS
+#ifndef USE_NO_TOS
+/* keep top of data stack in register.  Usually a good idea unless registers are very scarce */
+#define USE_TOS
+#endif
+#endif
 
 #ifndef INDIRECT_THREADED
 #ifndef DIRECT_THREADED
