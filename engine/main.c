@@ -359,8 +359,8 @@ int go_forth(Address image, int stack, Cell *entries)
 #endif
 
   /* ensure that the cached elements (if any) are accessible */
-  IF_TOS(sp0--);
-  IF_FTOS(fp0--);
+  IF_spTOS(sp0--);
+  IF_fpTOS(fp0--);
   
   for(;stack>0;stack--)
     *--sp0=entries[stack-1];

@@ -19,6 +19,8 @@
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
 */
 
+#define _GNU_SOURCE
+
 #include "config.h"
 
 #if defined(DOUBLY_INDIRECT)
@@ -186,17 +188,17 @@ typedef Label *Xt;
 #endif
 
 #ifdef USE_TOS
-#define IF_TOS(x) x
+#define IF_spTOS(x) x
 #else
-#define IF_TOS(x)
-#define TOS (sp[0])
+#define IF_spTOS(x)
+#define spTOS (sp[0])
 #endif
 
 #ifdef USE_FTOS
-#define IF_FTOS(x) x
+#define IF_fpTOS(x) x
 #else
-#define IF_FTOS(x)
-#define FTOS (fp[0])
+#define IF_fpTOS(x)
+#define fpTOS (fp[0])
 #endif
 
 typedef struct {

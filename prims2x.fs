@@ -54,6 +54,8 @@ include ./extend.fs
 include ./environ.fs
 [THEN]
 
+: struct% struct ; \ struct is redefined in gray
+
 include ./gray.fs
 
 100 constant max-effect \ number of things on one side of a stack effect
@@ -85,22 +87,40 @@ variable output \ xt ( -- ) of output word
 : printprim ( -- )
  output @ execute ;
 
-: field
- <builds-field ( n1 n2 -- n3 )
- does>         ( addr1 -- addr2 )
-   @ + ;
+\ stack types
 
-: const-field
- <builds-field ( n1 n2 -- n3 )
- does>         ( addr -- w )
-   @ + @ ;
+struct%
+    cell% 2* field stack-pointer \ stackpointer name
+    cell% 2* field stack-cast \ cast string for assignments to stack elements
+    cell%    field stack-in  \ number of stack items in effect in
+    cell%    field stack-out \ number of stack items in effect out
+end-struct stack%
 
-struct
- 2 cells field item-name
- cell field item-d-offset
- cell field item-f-offset
- cell field item-type
-constant item-descr
+: make-stack ( addr-ptr u1 addr-cast u2 "stack-name" -- )
+    create stack% %allot >r
+    save-mem r@ stack-cast 2!
+    save-mem r> stack-pointer 2! ;
+
+s" sp" save-mem s" (Cell)" make-stack data-stack 
+s" fp" save-mem s" "       make-stack fp-stack
+\ !! initialize stack-in and stack-out
+
+\ stack items
+
+struct%
+ cell% 2* field item-name   \ name, excluding stack prefixes
+ cell%    field item-stack  \ descriptor for the stack used, 0 is default
+ cell%    field item-type   \ descriptor for the item type
+ cell%    field item-offset \ offset in stack items, 0 for the deepest element
+end-struct item%
+
+: init-item ( addr u addr1 -- )
+    \ initialize item at addr1 with name addr u
+    \ !! remove stack prefix
+    dup item% %size erase
+    item-name 2! ;
+
+\ various variables for storing stuff of one primitive
 
 2variable forth-name
 2variable wordset
@@ -109,12 +129,10 @@ constant item-descr
 2variable c-code
 2variable forth-code
 2variable stack-string
-create effect-in  max-effect item-descr * allot
-create effect-out max-effect item-descr * allot
+create effect-in  max-effect item% %size * allot
+create effect-out max-effect item% %size * allot
 variable effect-in-end ( pointer )
 variable effect-out-end ( pointer )
-2variable effect-in-size
-2variable effect-out-size
 variable c-line
 2variable c-filename
 variable name-line
@@ -265,9 +283,9 @@ Variable c-flag
 
 (( ` \ comment-body nl )) <- comment ( -- )
 
-(( {{ effect-in }} (( {{ start }} c-name {{ end 2 pick item-name 2! item-descr + }} white ** )) ** {{ effect-in-end ! }}
+(( {{ effect-in }} (( {{ start }} c-name {{ end 2 pick init-item item% %size + }} white ** )) ** {{ effect-in-end ! }}
    ` - ` - white **
-   {{ effect-out }} (( {{ start }} c-name {{ end 2 pick item-name 2! item-descr + }} white ** )) ** {{ effect-out-end ! }}
+   {{ effect-out }} (( {{ start }} c-name {{ end 2 pick init-item item% %size + }} white ** )) ** {{ effect-out-end ! }}
 )) <- stack-effect ( -- )
 
 (( {{ s" " doc 2! s" " forth-code 2! }}
@@ -307,59 +325,50 @@ warnings @ [IF]
 
 \ types
 
-struct
- 2 cells field type-c-name
- cell const-field type-d-size
- cell const-field type-f-size
- cell const-field type-fetch-handler
- cell const-field type-store-handler
-constant type-description
+struct%
+    cell% 2* field type-c-name
+    cell%    field type-stack \ default stack
+    cell%    field type-size  \ size of type in stack items
+    cell%    field type-fetch \ xt of fetch code generator ( item -- )
+    cell%    field type-store \ xt of store code generator ( item -- )
+end-struct type%
 
-: data-stack-access ( n1 n2 n3 -- )
-\ n1 is the offset of the accessed item, n2, n3 are effect-*-size
- drop swap - 1- dup
- if
-   ." sp[" 0 .r ." ]"
- else
-   drop ." TOS"
- endif ;
+: stack-access ( n stack -- )
+    \ print a stack access at index n of stack
+    stack-pointer 2@ type
+    dup
+    if
+	." [" 0 .r ." ]"
+    else
+	drop ." TOS"
+    endif ;
 
-: fp-stack-access ( n1 n2 n3 -- )
-\ n1 is the offset of the accessed item, n2, n3 are effect-*-size
- nip swap - 1- dup
- if
-   ." fp[" 0 .r ." ]"
- else
-   drop ." FTOS"
- endif ;
+: item-in-index ( item -- n )
+    \ n is the index of item (in the in-effect)
+    >r r@ item-stack @ stack-in @ r> item-offset @ - 1- ;
 
 : fetch-single ( item -- )
+ \ fetch a single stack item from its stack
  >r
  r@ item-name 2@ type
  ."  = (" 
  r@ item-type @ type-c-name 2@ type ." ) "
- r@ item-d-offset @ effect-in-size 2@ data-stack-access ." ;" cr
+ r@ item-in-index r@ item-stack @ stack-access
+ ." ;" cr
  rdrop ; 
 
 : fetch-double ( item -- )
+ \ fetch a double stack item from its stack
  >r
  ." FETCH_DCELL("
  r@ item-name 2@ type ." , "
- r@ item-d-offset @ dup    effect-in-size 2@ data-stack-access
- ." , "			1+ effect-in-size 2@ data-stack-access
+ r@ item-in-index r@ item-stack @ 2dup stack-access
+ ." , "                      -1 under+ stack-access
  ." );" cr
  rdrop ;
 
-: fetch-float ( item -- )
- >r
- r@ item-name 2@ type
- ."  = "
- \ ." (" r@ item-type @ type-c-name 2@ type ." ) "
- r@ item-f-offset @ effect-in-size 2@ fp-stack-access ." ;" cr
- rdrop ;
-
-: d-same-as-in? ( item -- f )
-\ f is true iff the offset of item is the same as on input
+: same-as-in? ( item -- f )
+ \ f is true iff the offset and stack of item is the same as on input
  >r
  r@ item-name 2@ items @ search-wordlist 0=
  abort" bug"
@@ -368,31 +377,30 @@ constant type-description
  if \ item first appeared in output
    drop false
  else
-   item-d-offset @ r@ item-d-offset @ =
+   dup  item-stack  @ r@ item-stack  @ = 
+   swap item-offset @ r@ item-offset @ = and
  endif
  rdrop ;
 
-: is-in-tos? ( item -- f )
-\ true if item has the same offset as the input TOS
- item-d-offset @ 1+ effect-in-size 2@ drop = ;
-
-: is-out-tos? ( item -- f )
-\ true if item has the same offset as the input TOS
- item-d-offset @ 1+ effect-out-size 2@ drop = ;
+: item-out-index ( item -- n )
+    \ n is the index of item (in the in-effect)
+    >r r@ item-stack @ stack-out @ r> item-offset @ - 1- ;
 
 : really-store-single ( item -- )
  >r
- r@ item-d-offset @ effect-out-size 2@ data-stack-access ."  = (Cell)"
+ r@ item-out-index r@ item-stack @ stack-access ."  = "
+ r@ item-stack @ stack-cast 2@ type
  r@ item-name 2@ type ." ;"
  rdrop ;
 
 : store-single ( item -- )
  >r
- r@ d-same-as-in?
+ r@ same-as-in?
  if
-   r@ is-in-tos? r@ is-out-tos? xor
+   r@ item-in-index 0= r@ item-out-index 0= xor
    if
-     ." IF_TOS(" r@ really-store-single ." );" cr
+       ." IF_" r@ item-stack @ stack-pointer 2@ type
+       ." TOS(" r@ really-store-single ." );" cr
    endif
  else
    r@ really-store-single cr
@@ -403,72 +411,36 @@ constant type-description
 \ !! store optimization is not performed, because it is not yet needed
  >r
  ." STORE_DCELL(" r@ item-name 2@ type ." , "
- r@ item-d-offset @ dup    effect-out-size 2@ data-stack-access
- ." , "			1+ effect-out-size 2@ data-stack-access
+ r@ item-out-index r@ item-stack @ 2dup stack-access
+ ." , "                       -1 under+ stack-access
  ." );" cr
  rdrop ;
 
-: f-same-as-in? ( item -- f )
-\ f is true iff the offset of item is the same as on input
- >r
- r@ item-name 2@ items @ search-wordlist 0=
- abort" bug"
- execute @
- dup r@ =
- if \ item first appeared in output
-   drop false
- else
-   item-f-offset @ r@ item-f-offset @ =
- endif
- rdrop ;
 
-: is-in-ftos? ( item -- f )
-\ true if item has the same offset as the input TOS
- item-f-offset @ 1+ effect-in-size 2@ nip = ;
+: single-type ( -- xt1 xt2 n stack )
+ ['] fetch-single ['] store-single 1 data-stack ;
 
-: really-store-float ( item -- )
- >r
- r@ item-f-offset @ effect-out-size 2@ fp-stack-access ."  = "
- r@ item-name 2@ type ." ;"
- rdrop ;
+: double-type ( -- xt1 xt2 n stack )
+ ['] fetch-double ['] store-double 2 data-stack ;
 
-: store-float ( item -- )
- >r
- r@ f-same-as-in?
- if
-   r@ is-in-ftos?
-   if
-     ." IF_FTOS(" r@ really-store-float ." );" cr
-   endif
- else
-   r@ really-store-float cr
- endif
- rdrop ;
- 
-: single-type ( -- xt1 xt2 n1 n2 )
- ['] fetch-single ['] store-single 1 0 ;
-
-: double-type ( -- xt1 xt2 n1 n2 )
- ['] fetch-double ['] store-double 2 0 ;
-
-: float-type ( -- xt1 xt2 n1 n2 )
- ['] fetch-float ['] store-float 0 1 ;
+: float-type ( -- xt1 xt2 n stack )
+ ['] fetch-single ['] store-single 1 fp-stack ;
 
 : s, ( addr u -- )
 \ allocate a string
  here swap dup allot move ;
 
-: starts-with ( addr u xt1 xt2 n1 n2 "prefix" -- )
-\ describes a type
-\ addr u specifies the C type name
-\ n1 is the size of the type on the data stack
-\ n2 is the size of the type on the FP stack
-\ stack effect entries of the type start with prefix
- >r >r >r >r
- dup >r here >r s,
- create
- r> r> 2,
- r> r> r> , r> , swap , , ;
+: starts-with { addr u xt1 xt2 n stack -- } ( "prefix" -- )
+    \ describes a type
+    \ addr u specifies the C type name
+    \ stack effect entries of the type start with prefix
+    create type% %allot >r
+    addr u save-mem r@ type-c-name 2!
+    xt1   r@ type-fetch !
+    xt2   r@ type-store !
+    n     r@ type-size !
+    stack r@ type-stack !
+    rdrop ;
 
 wordlist constant types
 get-current
@@ -513,10 +485,12 @@ set-current
 : declaration ( item -- )
  dup item-name 2@ items @ search-wordlist
  if \ already declared ( item xt )
-   execute @ item-type @ swap item-type !
+     execute @ 2dup item-type @ swap item-type !
+     item-stack @ swap item-stack ! \ !! does not generalize to stack prefixes
  else ( addr )
    dup item-name 2@ nextname dup declare ( addr )
    dup >r item-name 2@ 2dup get-type ( addr1 u type-descr )
+   dup type-stack @ r@ item-stack ! \ !! only if item-stack @ 0=
    dup r> item-type ! ( addr1 u type-descr )
    type-c-name 2@ type space type ." ;" cr
  endif ;
@@ -524,10 +498,7 @@ set-current
 : declaration-list ( addr1 addr2 -- )
  swap ?do
   i declaration
- item-descr +loop ;
-
-: fetch ( addr -- )
- dup item-type @ type-fetch-handler execute ;
+ item% %size +loop ;
 
 : declarations ( -- )
  wordlist dup items ! set-current
@@ -538,76 +509,77 @@ set-current
 \ the leftmost (i.e. deepest) item has offset 0
 \ the rightmost item has the highest offset
 
-: compute-offset ( n1 n2 item -- n3 n4 )
-\ n1, n3 are data-stack-offsets
-\ n2, n4 are the fp-stack-offsets
- >r
- swap dup r@ item-d-offset !
- r@ item-type @ type-d-size +
- swap dup r@ item-f-offset !
- r@ item-type @ type-f-size +
- rdrop ;
+: compute-offset { item xt -- }
+    \ xt specifies in/out; update stack-in/out and set item-offset
+    item item-type @ type-size @
+    item item-stack @ xt execute dup @ >r +!
+    r> item item-offset ! ;
 
-: compute-list ( addr1 addr2 -- n1 n2 )
-\ n1, n2 are the final offsets
- 0 0 2swap swap ?do
-  i compute-offset
- item-descr +loop ;
+: compute-list ( addr1 addr2 xt -- )
+    { xt }
+    swap u+do
+	i xt compute-offset
+    item% %size +loop ;
+
+: clear-stack { -- }
+    dup stack-in off stack-out off ;
+
 
 : compute-offsets ( -- )
- effect-in effect-in-end @ compute-list effect-in-size 2!
- effect-out effect-out-end @ compute-list effect-out-size 2! ;
+    data-stack clear-stack  fp-stack clear-stack
+    effect-in  effect-in-end  @ ['] stack-in  compute-list
+    effect-out effect-out-end @ ['] stack-out compute-list ;
+
+: flush-a-tos { stack -- }
+    stack stack-out @ 0<> stack stack-in @ 0= and
+    if
+	." IF_" stack stack-pointer 2@ 2dup type ." TOS("
+	2dup type ." [0] = " type ." TOS);" cr
+    endif ;
 
 : flush-tos ( -- )
- effect-in-size 2@ effect-out-size 2@
- 0<> rot 0= and
- if
-   ." IF_FTOS(fp[0] = FTOS);" cr
- endif
- 0<> swap 0= and
- if
-   ." IF_TOS(sp[0] = TOS);" cr
- endif ;
+    data-stack flush-a-tos
+    fp-stack   flush-a-tos ;
+
+: fill-a-tos { stack -- }
+    stack stack-out @ 0= stack stack-in @ 0<> and
+    if
+	." IF_" stack stack-pointer 2@ 2dup type ." TOS("
+	2dup type ." TOS = " type ." [0]);" cr
+    endif ;
 
 : fill-tos ( -- )
- effect-in-size 2@ effect-out-size 2@
- 0= rot 0<> and
- if
-   ." IF_FTOS(FTOS = fp[0]);" cr
- endif
- 0= swap 0<> and
- if
-   ." IF_TOS(TOS = sp[0]);" cr
- endif ;
+    fp-stack   fill-a-tos
+    data-stack fill-a-tos ;
+
+: fetch ( addr -- )
+ dup item-type @ type-fetch @ execute ;
 
 : fetches ( -- )
  effect-in-end @ effect-in ?do
    i fetch
- item-descr +loop ; 
+ item% %size +loop ; 
+
+: stack-pointer-update { stack -- }
+    \ stack grow downwards
+    stack stack-in @ stack stack-out @ -
+    ?dup-if \ this check is not necessary, gcc would do this for us
+	stack stack-pointer 2@ type ."  += " 0 .r ." ;" cr
+    endif ;
 
 : stack-pointer-updates ( -- )
-\ we need not check if an update is a noop; gcc does this for us
- effect-in-size 2@
- effect-out-size 2@
- rot swap - ( d-in d-out f-diff )
- rot rot - ( f-diff d-diff )
- ?dup IF  ." sp += " 0 .r ." ;" cr  THEN
- ?dup IF  ." fp += " 0 .r ." ;" cr  THEN ;
+    data-stack stack-pointer-update
+    fp-stack   stack-pointer-update ;
 
 : store ( item -- )
 \ f is true if the item should be stored
 \ f is false if the store is probably not necessary
- dup item-type @ type-store-handler execute ;
+ dup item-type @ type-store @ execute ;
 
 : stores ( -- )
  effect-out-end @ effect-out ?do
    i store
- item-descr +loop ; 
-
-: .stack-list ( start end -- )
- swap ?do
-   i item-name 2@ type space
- item-descr +loop ; 
+ item% %size +loop ; 
 
 : output-c ( -- ) 
  ." I_" c-name 2@ type ." :	/* " forth-name 2@ type ."  ( " stack-string 2@ type ." ) */" cr
@@ -633,13 +605,8 @@ set-current
  cr
 ;
 
-: dstack-used?
-  effect-in-size 2@ drop
-  effect-out-size 2@ drop max 0<> ;
-
-: fstack-used?
-  effect-in-size 2@ nip
-  effect-out-size 2@ nip max 0<> ;
+: stack-used? { stack -- f }
+    stack stack-in @ stack stack-out @ or 0<> ;
 
 : output-funclabel ( -- )
   1 function-number +!
@@ -660,12 +627,12 @@ set-current
     ." {" cr
     declarations
     compute-offsets \ for everything else
-    dstack-used? IF ." Cell *sp=SP;" cr THEN
-    fstack-used? IF ." Cell *fp=*FP;" cr THEN
+    data-stack stack-used? IF ." Cell *sp=SP;" cr THEN
+    fp-stack   stack-used? IF ." Cell *fp=*FP;" cr THEN
     flush-tos
     fetches
     stack-pointer-updates
-    fstack-used? IF ." *FP=fp;" cr THEN
+    fp-stack   stack-used? IF ." *FP=fp;" cr THEN
     ." {" cr
     ." #line " c-line @ . [char] " emit c-filename 2@ type [char] " emit cr
     c-code 2@ type
@@ -690,8 +657,7 @@ set-current
 	\ this is bad for ec: an alias is compiled if tho word does not exist!
 	\ JAW
     ELSE  ." : " forth-name 2@ type ."   ( "
-	effect-in effect-in-end @ .stack-list ." -- "
-	effect-out effect-out-end @ .stack-list ." )" cr
+	stack-string 2@ type ." )" cr
 	forth-code 2@ type cr
 	-1 primitive-number +!
     THEN ;

@@ -117,14 +117,14 @@ INC_IP(1);
 execute	( xt -- )		core
 ""Perform the semantics represented by the execution token, @i{xt}.""
 ip=IP;
-IF_TOS(TOS = sp[0]);
+IF_spTOS(spTOS = sp[0]);
 EXEC(xt);
 
 perform	( a_addr -- )	gforth
 ""@code{@@ execute}.""
 /* and pfe */
 ip=IP;
-IF_TOS(TOS = sp[0]);
+IF_spTOS(spTOS = sp[0]);
 EXEC(*(Xt *)a_addr);
 :
  @ execute ;
@@ -170,7 +170,7 @@ else
 
 condbranch(?branch,( f -- )		f83	question_branch,
 if (f==0) {
-    IF_TOS(TOS = sp[0]);
+    IF_spTOS(spTOS = sp[0]);
 ,:
  0= dup     \ !f !f
  r> dup @   \ !f !f IP branchoffset
@@ -187,7 +187,7 @@ if (f==0) {
 ""The run-time procedure compiled by @code{?DUP-IF}.""
 if (f==0) {
   sp++;
-  IF_TOS(TOS = sp[0]);
+  IF_spTOS(spTOS = sp[0]);
   SET_IP((Xt *)(((Cell)IP)+(Cell)NEXT_INST));
   NEXT;
 }
@@ -241,7 +241,7 @@ if ((olddiff^(olddiff+n))>=0   /* the limit is not crossed */
 #else
     *rp = index + n;
 #endif
-    IF_TOS(TOS = sp[0]);
+    IF_spTOS(spTOS = sp[0]);
 ,:
  r> swap
  r> r> 2dup - >r
@@ -262,7 +262,7 @@ if (olddiff>u) {
 #else
     *rp = index - u;
 #endif
-    IF_TOS(TOS = sp[0]);
+    IF_spTOS(spTOS = sp[0]);
 ,)
 
 condbranch((s+loop),( n -- )		gforth	paren_symmetric_plus_loop,
@@ -283,7 +283,7 @@ if (diff>=0 || newdiff<0) {
 #else
     *rp = index + n;
 #endif
-    IF_TOS(TOS = sp[0]);
+    IF_spTOS(spTOS = sp[0]);
 ,)
 
 \+
@@ -311,7 +311,7 @@ rp += 2;
 *--rp = nlimit;
 *--rp = nstart;
 if (nstart == nlimit) {
-    IF_TOS(TOS = sp[0]);
+    IF_spTOS(spTOS = sp[0]);
     goto branch;
     }
 else {
@@ -331,7 +331,7 @@ else {
 *--rp = nlimit;
 *--rp = nstart;
 if (nstart >= nlimit) {
-    IF_TOS(TOS = sp[0]);
+    IF_spTOS(spTOS = sp[0]);
     goto branch;
     }
 else {
@@ -351,7 +351,7 @@ else {
 *--rp = ulimit;
 *--rp = ustart;
 if (ustart >= ulimit) {
-    IF_TOS(TOS = sp[0]);
+    IF_spTOS(spTOS = sp[0]);
     goto branch;
     }
 else {
@@ -371,7 +371,7 @@ else {
 *--rp = nlimit;
 *--rp = nstart;
 if (nstart <= nlimit) {
-    IF_TOS(TOS = sp[0]);
+    IF_spTOS(spTOS = sp[0]);
     goto branch;
     }
 else {
@@ -391,7 +391,7 @@ else {
 *--rp = ulimit;
 *--rp = ustart;
 if (ustart <= ulimit) {
-    IF_TOS(TOS = sp[0]);
+    IF_spTOS(spTOS = sp[0]);
     goto branch;
     }
 else {
@@ -955,7 +955,7 @@ a_addr = sp+1;
 
 sp!	( a_addr -- )		gforth		sp_store
 sp = a_addr;
-/* works with and without TOS caching */
+/* works with and without spTOS caching */
 
 rp@	( -- a_addr )		gforth		rp_fetch
 a_addr = rp;
@@ -1066,7 +1066,7 @@ tuck	( w1 w2 -- w2 w1 w2 )	core-ext
 ""Actually the stack effect is: @code{( w -- 0 | w w )}.  It performs a
 @code{dup} if w is nonzero.""
 if (w!=0) {
-  IF_TOS(*sp-- = w;)
+  IF_spTOS(*sp-- = w;)
 #ifndef USE_TOS
   *--sp = w;
 #endif
@@ -1584,14 +1584,14 @@ access the stack itself. The stack pointers are exported in the global
 variables @code{SP} and @code{FP}.""
 /* This is a first attempt at support for calls to C. This may change in
    the future */
-IF_FTOS(fp[0]=FTOS);
+IF_fpTOS(fp[0]=fpTOS);
 FP=fp;
 SP=sp;
 ((void (*)())w)();
 sp=SP;
 fp=FP;
-IF_TOS(TOS=sp[0]);
-IF_FTOS(FTOS=fp[0]);
+IF_spTOS(spTOS=sp[0]);
+IF_fpTOS(fpTOS=fp[0]);
 
 \+
 \+file
@@ -1892,9 +1892,9 @@ number[u]='\0';
 r=strtod(number,&endconv);
 if((flag=FLAG(!(Cell)*endconv)))
 {
-   IF_FTOS(fp[0] = FTOS);
+   IF_fpTOS(fp[0] = fpTOS);
    fp += -1;
-   FTOS = sign ? -r : r;
+   fpTOS = sign ? -r : r;
 }
 else if(*endconv=='d' || *endconv=='D')
 {
@@ -1902,9 +1902,9 @@ else if(*endconv=='d' || *endconv=='D')
    r=strtod(number,&endconv);
    if((flag=FLAG(!(Cell)*endconv)))
      {
-	IF_FTOS(fp[0] = FTOS);
+	IF_fpTOS(fp[0] = fpTOS);
 	fp += -1;
-	FTOS = sign ? -r : r;
+	fpTOS = sign ? -r : r;
      }
 }
 
@@ -2196,12 +2196,12 @@ UP=up=(char *)a_addr;
 Variable UP
 
 wcall	( u -- )	gforth
-IF_FTOS(fp[0]=FTOS);
+IF_fpTOS(fp[0]=fpTOS);
 FP=fp;
 sp=(SYSCALL(Cell(*)(Cell *, void *))u)(sp, &FP);
 fp=FP;
-IF_TOS(TOS=sp[0];)
-IF_FTOS(FTOS=fp[0]);
+IF_spTOS(spTOS=sp[0];)
+IF_fpTOS(fpTOS=fp[0]);
 
 \+file
 

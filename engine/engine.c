@@ -273,8 +273,8 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
   MORE_VARS
 #endif
   register Address up UPREG = UP;
-  IF_TOS(register Cell TOS TOSREG;)
-  IF_FTOS(register Float FTOS FTOSREG;)
+  IF_spTOS(register Cell spTOS TOSREG;)
+  IF_fpTOS(register Float fpTOS FTOSREG;)
 #if defined(DOUBLY_INDIRECT)
   static Label *symbols;
   static void *routines[]= {
@@ -327,8 +327,8 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
     return symbols;
   }
 
-  IF_TOS(TOS = sp[0]);
-  IF_FTOS(FTOS = fp[0]);
+  IF_spTOS(spTOS = sp[0]);
+  IF_fpTOS(fpTOS = fp[0]);
 /*  prep_terminal(); */
   SET_IP(ip);
   NEXT;
@@ -369,8 +369,8 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
     fprintf(stderr,"%08lx: con: %08lx\n",(Cell)ip,*(Cell*)PFA1(cfa));
 #endif
 #ifdef USE_TOS
-    *sp-- = TOS;
-    TOS = *(Cell *)PFA1(cfa);
+    *sp-- = spTOS;
+    spTOS = *(Cell *)PFA1(cfa);
 #else
     *--sp = *(Cell *)PFA1(cfa);
 #endif
@@ -385,8 +385,8 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
     fprintf(stderr,"%08lx: var: %08lx\n",(Cell)ip,(Cell)PFA1(cfa));
 #endif
 #ifdef USE_TOS
-    *sp-- = TOS;
-    TOS = (Cell)PFA1(cfa);
+    *sp-- = spTOS;
+    spTOS = (Cell)PFA1(cfa);
 #else
     *--sp = (Cell)PFA1(cfa);
 #endif
@@ -401,8 +401,8 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
     fprintf(stderr,"%08lx: user: %08lx\n",(Cell)ip,(Cell)PFA1(cfa));
 #endif
 #ifdef USE_TOS
-    *sp-- = TOS;
-    TOS = (Cell)(up+*(Cell*)PFA1(cfa));
+    *sp-- = spTOS;
+    spTOS = (Cell)(up+*(Cell*)PFA1(cfa));
 #else
     *--sp = (Cell)(up+*(Cell*)PFA1(cfa));
 #endif
@@ -425,7 +425,7 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
 #ifdef DEBUG
     fprintf(stderr,"%08lx: field: %08lx\n",(Cell)ip,(Cell)PFA1(cfa));
 #endif
-    TOS += *(Cell*)PFA1(cfa);
+    spTOS += *(Cell*)PFA1(cfa);
   }
   NEXT_P0;
   NEXT;
@@ -459,13 +459,13 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
     *--rp = (Cell)ip;
     /* PFA1 might collide with DOES_CODE1 here, so we use PFA */
 #ifdef USE_TOS
-    *sp-- = TOS;
-    TOS = (Cell)PFA(cfa);
+    *sp-- = spTOS;
+    spTOS = (Cell)PFA(cfa);
 #else
     *--sp = (Cell)PFA(cfa);
 #endif
     SET_IP(DOES_CODE1(cfa));
-    /*    fprintf(stderr,"TOS = %08lx, IP=%08lx\n", TOS, IP);*/
+    /*    fprintf(stderr,"TOS = %08lx, IP=%08lx\n", spTOS, IP);*/
   }
   NEXT;
 

@@ -508,7 +508,7 @@ check test:	gforth$(EXE) gforth.fi
 		$(FORTH) test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs -e bye | diff -c - $(srcdir)/test/coretest.out
 		$(FORTH) test/other.fs -e bye
 		$(FORTH) code.fs test/checkans.fs -e bye | diff -c - $(srcdir)/test/checkans.out
-		$(FORTHK) -m 100000 prims2x.fs -e \
+		$(FORTH) -m 100000 prims2x.fs -e \
 		  "c-flag on s\" $(srcdir)/prim.b\" ' output-c process-file bye"| \
 		  diff -c - $(srcdir)/engine/prim.i
 
@@ -594,24 +594,24 @@ prim.b:		prim
 		m4 -s $(srcdir)/prim >$@ 
 
 engine/prim.i:		prim.b prims2x.fs
-		$(FORTHK) prims2x.fs -e "c-flag on s\" prim.b\" ' output-c process-file bye" >$@-
+		$(FORTH) -m 1000000 prims2x.fs -e "c-flag on s\" prim.b\" ' output-c process-file bye" >$@-
 		$(CP) $@- $@
 		$(RM) $@-
 
 engine/prim_lab.i:	prim.b prims2x.fs
-		$(FORTHK) prims2x.fs -e "c-flag on s\" prim.b\" ' output-label process-file bye" >$@-
+		$(FORTH) prims2x.fs -e "c-flag on s\" prim.b\" ' output-label process-file bye" >$@-
 		$(CP) $@- $@
 		$(RM) $@-
 
 kernel/aliases.fs:	prim.b prims2x.fs kernel/aliases0.fs
 		$(CP) kernel/aliases0.fs $@-
-		$(FORTHK) prims2x.fs -e "forth-flag on s\" prim.b\" ' output-alias process-file bye" >>$@-
+		$(FORTH) prims2x.fs -e "forth-flag on s\" prim.b\" ' output-alias process-file bye" >>$@-
 		$(CP) $@- $@
 		$(RM) $@-
 
 kernel/prim.fs:	prim.b prims2x.fs kernel/prim0.fs
 		$(CP) kernel/prim0.fs kernel/prim.fs-
-		$(FORTHK) prims2x.fs -e "forth-flag on s\" prim.b\" ' output-forth process-file bye" >>$@-
+		$(FORTH) prims2x.fs -e "forth-flag on s\" prim.b\" ' output-forth process-file bye" >>$@-
 		$(CP) $@- $@
 		$(RM) $@-
 
@@ -656,7 +656,7 @@ gforth.TAGS:	@kernel_fi@ gforth$(EXE) $(GFORTH_FI_SRC) prim.TAGS kernel.TAGS
 prim.TAGS: 	prim.b prims2x.fs
 		echo '2c\' >prim.TAGS.sed
 		echo $(srcdir)/prim >>prim.TAGS.sed
-		$(FORTHK) prims2x.fs -e "s\" $(srcdir)/prim.b\" ' output-tag process-file bye" | sed -f prim.TAGS.sed >$@-
+		$(FORTH) prims2x.fs -e "s\" $(srcdir)/prim.b\" ' output-tag process-file bye" | sed -f prim.TAGS.sed >$@-
 		$(CP) $@- $@
 		$(RM) $@-
 
@@ -671,12 +671,12 @@ doc/crossdoc.fd:	$(KERN_SRC) kernel/version.fs $(FORTH_GEN0)
 
 doc/gforth.texi:	doc/gforth.ds prim.b ds2texi.fs prims2x.fs \
 		doc/doc.fd doc/crossdoc.fd
-		$(FORTHK) -m 100000 ds2texi.fs prims2x.fs -e "s\" $(srcdir)/prim.b\" ' register-doc process-file" doc/crossdoc.fd doc/doc.fd -e "s\" $(srcdir)/doc/gforth.ds\" r/o open-file throw ds2texi bye" >$@-
+		$(FORTH) -m 100000 ds2texi.fs prims2x.fs -e "s\" $(srcdir)/prim.b\" ' register-doc process-file" doc/crossdoc.fd doc/doc.fd -e "s\" $(srcdir)/doc/gforth.ds\" r/o open-file throw ds2texi bye" >$@-
 		$(CP) $@- $@
 		$(RM) $@-
 
 checkdoc:	doc/gforth.ds prim.b ds2texi.fs prims2x.fs doc/doc.fd doc/crossdoc.fd answords.fs doc/gforth.texi
-		$(FORTHK) -m 1M ds2texi.fs prims2x.fs -e "s\" $(srcdir)/prim.b\" ' register-doc process-file" doc/crossdoc.fd doc/doc.fd answords.fs -e bye
+		$(FORTH) -m 1M ds2texi.fs prims2x.fs -e "s\" $(srcdir)/prim.b\" ' register-doc process-file" doc/crossdoc.fd doc/doc.fd answords.fs -e bye
 		-grep unknown doc/gforth.texi
 
 dvi:		doc/gforth.dvi
