@@ -1067,15 +1067,14 @@ Address compile_prim1arg(PrimNum p, Cell **argp)
   return old_code_here;
 }
 
-Cell *compile_call2(Cell targetptr)
+Address compile_call2(Cell targetptr, Cell **next_code_targetp)
 {
-  Cell *next_code_target;
   PrimInfo *pi = &priminfos[N_call2];
   Address old_code_here = append_prim(N_call2);
 
-  next_code_target = (Cell *)(old_code_here + pi->immargs[0].offset);
+  *next_code_targetp = (Cell *)(old_code_here + pi->immargs[0].offset);
   register_branchinfo(old_code_here + pi->immargs[1].offset, targetptr);
-  return next_code_target;
+  return old_code_here;
 }
 #endif
 
@@ -1114,10 +1113,10 @@ Cell compile_prim_dyn(PrimNum p, Cell *tcp)
   
   assert(p<npriminfos);
   if (p==N_execute || p==N_perform || p==N_lit_perform) {
-    codeaddr = (Cell)compile_prim1arg(N_set_next_code, &next_code_target);
+    codeaddr = compile_prim1arg(N_set_next_code, &next_code_target);
   }
   if (p==N_call) {
-    next_code_target = compile_call2(tcp[1]);
+    codeaddr = compile_call2(tcp[1], &next_code_target);
   } else if (p==N_does_exec) {
     struct doesexecinfo *dei = &doesexecinfos[ndoesexecinfos++];
     Cell *arg;
@@ -1129,7 +1128,7 @@ Cell compile_prim_dyn(PrimNum p, Cell *tcp)
        branches */
     dei->branchinfo = nbranchinfos;
     dei->xt = (Cell *)(tcp[1]);
-    next_code_target = compile_call2(0);
+    compile_call2(0, &next_code_target);
   } else if (!is_relocatable(p)) {
     Cell *branch_target;
     codeaddr = compile_prim1arg(N_set_next_code, &next_code_target);
