@@ -1585,10 +1585,6 @@ wior = IOR(fclose((FILE *)wfileid)==EOF);
 
 open-file	( c_addr u ntype -- wfileid wior )	file	open_file
 wfileid = (Cell)fopen(tilde_cstr(c_addr, u, 1), fileattr[ntype]);
-#if defined(GO32) && defined(MSDOS)
-if(wfileid && !(ntype & 1))
-  setbuf((FILE*)wfileid, NULL);
-#endif
 wior =  IOR(wfileid == 0);
 
 create-file	( c_addr u ntype -- wfileid wior )	file	create_file
@@ -1596,10 +1592,6 @@ Cell	fd;
 fd = open(tilde_cstr(c_addr, u, 1), O_CREAT|O_TRUNC|ufileattr[ntype], 0666);
 if (fd != -1) {
   wfileid = (Cell)fdopen(fd, fileattr[ntype]);
-#if defined(GO32) && defined(MSDOS)
-  if(wfileid && !(ntype & 1))
-    setbuf((FILE*)wfileid, NULL);
-#endif
   wior = IOR(wfileid == 0);
 } else {
   wfileid = 0;

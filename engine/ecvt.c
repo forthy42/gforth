@@ -56,6 +56,7 @@ char* ecvt(double x, int len, int* exp, int* sign)
    for(i=0; i < len; i++)
      {
 	z=floor(x);
+	if(z<0) z = 0;
 	scratch[i]='0'+(char)((int)z);
 	x = (x-z)*10;
      }
@@ -94,3 +95,4 @@ int main(int argc, char ** argv)
    printf("ecvt Test: %f -> %s, %d, %d\n",9e0,conv,a,b);
 }
 #endif
+

@@ -18,10 +18,9 @@ REM along with this program; if not, write to the Free Software
 REM Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 if not x%1==x goto makeit
-if not x%1==x--help" goto makeit
-if not x%1==x-h" goto makeit
-  echo usage: gforth-makeimage target-name [gforth-options]
-  echo   environment: GFORTHD: the Gforth binary used (default: gforth-d)
+if not x%1==x--help goto makeit
+if not x%1==x-h goto makeit
+  echo usage: gforthmi target-name [gforth-options]
   echo creates a relocatable image 'target-name'
   goto end
 :makeit
@@ -34,15 +33,12 @@ set GFORTHPAR=%GFORTHPAR% %1
 shift
 goto accupars
 :accudone
-if not x%GFORTHD%==x goto doit
-set GFORTHD=gforth-d
-:doit
 echo savesystem tmp.fi1 bye >tmp.fs
-%GFORTHD% -c -n %GFORTHPAR% tmp.fs
+gforth-d -c -n %GFORTHPAR% tmp.fs
 echo savesystem tmp.fi2 bye >tmp.fs
-%GFORTHD% -c -o %GFORTHPAR% tmp.fs
+gforth-d -c -o %GFORTHPAR% tmp.fs
 echo comp-image tmp.fi1 tmp.fi2 %outfile% bye >tmp.fs
-%GFORTHD% -i kernl32l.fi startup.fs  comp-i.fs tmp.fs
+gforth-d -i kernl32l.fi startup.fs  comp-i.fs tmp.fs
 del tmp.fs
 del tmp.fi1
 del tmp.fi2
