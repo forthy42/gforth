@@ -30,18 +30,17 @@
 
 # ------------- gforth version
 
-VERSION_MAJOR=0
-VERSION_MINOR=4
-VERSION_RELEASE=0
-VERSION	=$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_RELEASE)
-DOSVERSION=$(VERSION_MAJOR)$(VERSION_MINOR)$(VERSION_RELEASE)
+VERSION	= @VERSION@
+DOSVERSION=`echo $VERSION|sed 's/\.//g'`
 
 # -------------	System specific variables	
 
-machine=@mach_h@
+machine=@machine@
+kernel_fi=@kernel_fi@
+
 # this is the type of machine
 # used to extend the include path with ./arch/$machine
-# so we could include a machine specific 
+# so we can include a machine specific 
 # machine.h file
 
 PATHSEP = @PATHSEP@
@@ -64,9 +63,9 @@ CC	= $(GCC)
 FORTHPATH = $(libdir)/gforth/site-forth$(PATHSEP)$(datadir)/gforth/site-forth$(PATHSEP)$(libdir)/gforth/$(VERSION)$(PATHSEP)$(datadir)/gforth/$(VERSION)$(PATHSEP).
 FORTHSIZES = @FORTHSIZES@
 FORTH	= ./gforth --die-on-signal -p $(FORTHPATH)$(PATHSEP)$(srcdir)
-FORTHKFLAGS= --die-on-signal -p .$(PATHSEP)$(srcdir) -i ./kernel.fi
+FORTHKFLAGS= --die-on-signal -p .$(PATHSEP)$(srcdir) -i ./$(kernel_fi)
 FORTHK	= ./gforth $(FORTHKFLAGS)
-FORTHP	= ./gforth --die-on-signal -i ./kernel.fi
+FORTHP	= ./gforth --die-on-signal -i ./$(kernel_fi)
 STRIP	= strip
 TEXI2DVI = texi2dvi
 DVI2PS	= dvips -D300
@@ -105,7 +104,7 @@ mandir = $(prefix)/man
 man1dir= $(mandir)/man1
 man1ext= .1
 #older emacses have their site-lisp in $(libdir)/emacs/
-emacssitelispdir=$(datadir)/emacs/site-lisp
+emacssitelispdir=@lispdir@
 
 INCLUDES = engine/CVS engine/forth.h engine/threaded.h engine/io.h
 
@@ -283,10 +282,6 @@ RCS_FILES =  ToDo model high-level
 
 GEN = gforth gforth-ditc kernel/version.fs version-stamp
 
-OBJECTS0 = engine/replace.a
-OBJECTS	= engine/engine.o engine/main.o
-OBJECTS_DITC =  engine/engine-ditc.o engine/main-ditc.o
-
 # things that need a working forth system to be generated
 FORTH_GEN0 = prim.b engine/prim.i engine/prim_lab.i kernel/aliases.fs kernel/prim.fs
 FORTH_GEN =  $(FORTH_GEN0) @KERNEL@ gforth.fi
@@ -299,8 +294,8 @@ DOCDIST = doc/gforth.info doc/gforth.info-* doc/gforth.ps
 #stuff in a binonly distribution 
 BINONLYDIST = config.status Makefile gforth gforth-ditc \
 	$(OBJECTS0) $(OBJECTS) $(OBJECTS_DITC)\
-	arch/$(machine)/machine.h engine/config.h kernel.fi \
-	stamp-h engine/version.h kernel/version.fs version-stamp \
+	arch/$(machine)/machine.h engine/config.h \
+	stamp-h kernel/version.fs version-stamp \
 	INSTALL.BINDIST
 
 KERNLS = kernl16b.fi- kernl16l.fi- \
@@ -328,12 +323,9 @@ version:	Makefile.in
 # of the "/ and \" problem. Copying works because we use the
 # shell und file utilities.
 
-engine/version.h:	version
-		bash versions.bsh $(VERSION)
-
 kernel/version.fs:	version
-		$(MAKE) gforth
-		bash versions.bsh $(VERSION)
+	$(MAKE) gforth
+	$(SHELL) versions.bsh $(VERSION)
 
 more:	engine $(FORTH_GEN) gforth
 
@@ -355,14 +347,13 @@ mostlyclean:	FORCE
 		doc/gforth.dvi doc/gforth.fn doc/gforth.ky doc/gforth.log \
 		doc/gforth.pg \
 		doc/gforth.toc doc/gforth.tp doc/gforth.vr html \
-		gforth-$(VERSION).tar.gz \
-		engine/version.h
+		gforth-$(VERSION).tar.gz
 
 clean:		mostlyclean
 		-$(RM) -rf $(GEN) *.o engine/*.o engine/*.a
 
 distclean:	clean
-		-$(RM) machine kernel.fi config.cache config.log \
+		-$(RM) config.cache config.log \
 		config.status engine/config.h Makefile stamp-h
 
 #realclean is useless, but dangerous, so it's commented out
@@ -450,7 +441,7 @@ binonlydist:	$(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST) $(BINONLYDIST)
 #install does not depend on gforth.info, because that would require
 #supplying a lot of files that can be easily generated (only info is
 #hard to generate)
-install:	gforth $(FORTH_SRC) kernel.fi gforth.fi doc/gforth.1 prim gforth.TAGS installdirs
+install:	gforth $(FORTH_SRC) $(kernel_fi) gforth.fi doc/gforth.1 prim gforth.TAGS installdirs
 		touch $(datadir)/gforth/site-forth/siteinit.fs
 		-$(RM) $(bindir)/gforth $(bindir)/gforth-$(VERSION)
 		$(INSTALL_PROGRAM) -s gforth $(bindir)
@@ -460,7 +451,7 @@ install:	gforth $(FORTH_SRC) kernel.fi gforth.fi doc/gforth.1 prim gforth.TAGS i
 		for i in $(FORTH_SRC) prim; do \
 			$(INSTALL_DATA) $(srcdir)/$$i $(datadir)/gforth/$(VERSION); \
 		done
-		$(INSTALL_DATA) kernel.fi $(libdir)/gforth/$(VERSION)
+		$(INSTALL_DATA) $(kernel_fi) $(datadir)/gforth/$(VERSION)
 		$(RM) gforth.fi; $(MAKE) gforth.fi #gforth.fi contains some path names
 		$(INSTALL_DATA) gforth.fi $(libdir)/gforth/$(VERSION)
 		sed 's:^$(srcdir)/:$(datadir)/gforth/$(VERSION)/:' gforth.TAGS >TAGS; $(INSTALL_DATA) TAGS $(datadir)/gforth/$(VERSION)
@@ -561,15 +552,8 @@ kernl64l.fi:	$(KERNLS)
 #		-$(CP) $@ $@~
 #		-$(CP) $< $@
 
-# If we want a new kernel.fi we should use "kernel.fi:" this makes
-# a link or a copy from kernl....fi to kernel.fi 
-# works for dos-computers, too!!
-
-kernel.fi:	 @kernel_fi@
-		@LINK_KERNL@
-
-gforth.fi:	kernel.fi gforthmi gforth gforth-ditc $(GFORTH_FI_SRC)
-		GFORTHD="./gforth-ditc -p .$(PATHSEP)$(srcdir)" GFORTH="./gforth-ditc -p .$(PATHSEP)$(srcdir) -i kernel.fi startup.fs" $(srcdir)/gforthmi gforth.fi $(FORTHSIZES) $(FORTHKFLAGS) startup.fs
+gforth.fi:	$(kernel_fi) gforthmi gforth gforth-ditc $(GFORTH_FI_SRC)
+		GFORTHD="./gforth-ditc -p .$(PATHSEP)$(srcdir)" GFORTH="./gforth-ditc -p .$(PATHSEP)$(srcdir) -i $(kernel_fi) startup.fs" $(srcdir)/gforthmi gforth.fi $(FORTHSIZES) $(FORTHKFLAGS) startup.fs
 
 # -------------	Make c-engine
 
@@ -598,19 +582,15 @@ kernel/prim.fs:	prim.b prims2x.fs kernel/prim0.fs
 		$(CP) $@- $@
 		$(RM) $@-
 
-engine:		engine/prim_lab.i engine/prim.i engine/version.h FORCE
-		$(MAKE) -C engine engine
-
-engine_ditc:	engine/prim_lab.i engine/prim.i engine/version.h FORCE
-		$(MAKE) -C engine engine_ditc
-
-gforth:		engine
+gforth:		FORCE
 		-$(CP) gforth gforth~
-		$(GCC) $(LDFLAGS) $(OBJECTS) $(OBJECTS0) $(LDLIBS) -o $@
+		cd engine; make gforth; cd ..
+		$(CP) engine/$@ $@
 		@GFORTH_EXE@
 
-gforth-ditc:	engine_ditc
-		$(GCC) $(LDFLAGS) $(OBJECTS_DITC) $(OBJECTS0) $(LDLIBS) -o $@
+gforth-ditc:	FORCE
+		cd engine; make gforth-ditc; cd ..
+		$(CP) engine/$@ $@
 		@GFORTHDITC_EXE@
 
 # ------------- additional C primitives

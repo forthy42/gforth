@@ -1,4 +1,4 @@
-#Makefile for library replace functions
+#Makefile for the C part of Gforth
 
 #Copyright (C) 1995-1997 Free Software Foundation, Inc.
 
@@ -20,15 +20,12 @@
 
 # ------------- gforth version
 
-VERSION_MAJOR=0
-VERSION_MINOR=4
-VERSION_RELEASE=0
-VERSION =$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_RELEASE)
-DOSVERSION=$(VERSION_MAJOR)$(VERSION_MINOR)$(VERSION_RELEASE)
+VERSION =@VERSION@
+DOSVERSION=`echo $VERSION|sed 's/\.//g'`
 
 # ------------- System specific variables
 
-machine=@mach_h@
+machine=@machine@
 # this is the type of machine
 # used to extend the include path with ./arch/$machine
 # so we could include a machine specific
@@ -66,8 +63,6 @@ infodir = $(prefix)/info
 mandir = $(prefix)/man
 man1dir= $(mandir)/man1
 man1ext= .1
-#older emacses have their site-lisp in $(libdir)/emacs/
-emacssitelispdir=$(datadir)/emacs/site-lisp
 
 # ------------- Compiler Flags
 
@@ -76,7 +71,7 @@ XDEFINES = @DEFS@
 SWITCHES = $(XCFLAGS) $(XDEFINES)
 ENGINE_FLAGS = @ENGINE_FLAGS@ -fno-defer-pop -fcaller-saves
 DEBUGFLAG = @DEBUGFLAG@
-CFLAGS	= $(DEBUGFLAG) -I../arch/$(machine) -O4 -Wall $(SWITCHES) -DDEFAULTPATH=\"$(FORTHPATH)\"
+CFLAGS	= $(DEBUGFLAG) -I$(srcdir)/../arch/$(machine) -O4 -Wall $(SWITCHES) -DDEFAULTPATH=\"$(FORTHPATH)\"
 
 #John Wavrik should use -Xlinker -N to get a writable text (executable)
 XLDFLAGS = @LDFLAGS@
@@ -84,20 +79,20 @@ GCCLDFLAGS = @GCCLDFLAGS@
 LDFLAGS =  $(DEBUGFLAG) $(XLDFLAGS) $(GCCLDFLAGS)
 LDLIBS  = @LIBS@
 
-AOBJECTS = io.o memcmpc.o @LIBOBJS@ @getopt_long@
+AOBJECTS = io.o memcmpc.o @LIBOBJS@
 
-OBJECTS0 = replace.a
 OBJECTS = engine.o main.o
 OBJECTS_DITC =  engine-ditc.o main-ditc.o
 
 # In engine subdirectory there are (or should be) only files that belong to
 # our engine, so we can make life easy
-ENGINE_DEPS = *.c *.h *.i ../arch/$(machine)/*
+ENGINE_DEPS = *.c *.h *.i ../arch/$(machine)/*.[ch]
 
-all:	replace.a
+gforth:	$(OBJECTS) $(AOBJECTS)
+	$(GCC) $(LDFLAGS) $(OBJECTS) $(AOBJECTS) $(LDLIBS) -o $@
 
-replace.a:	$(AOBJECTS)
-		ar r $@ $(AOBJECTS)
+gforth-ditc: $(OBJECTS_DITC) $(AOBJECTS)
+	$(GCC) $(LDFLAGS) $(OBJECTS_DITC) $(AOBJECTS) $(LDLIBS) -o $@
 
 engine.s:	$(ENGINE_DEPS)
 		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -S engine.c
@@ -122,4 +117,13 @@ engine_ditc:	$(OBJECTS_DITC) $(OBJECTS0) ;
 
 termios.o:	/usr/lib/libposix.a
 	ar x /usr/lib/libposix.a termios.o
+
+prim.i: FORCE
+	cd ..; $(MAKE) engine/$@
+
+prim_lab.i: FORCE
+	cd ..; $(MAKE) engine/$@
+
+#phony targets depend on FORCE; this is more portable than .PHONY
+FORCE:
 

@@ -2016,6 +2016,9 @@ rret = ((Float(*)(argdlist($1)))u)(argclist($1));
 
 open-lib	c_addr1 u1 -- u2	gforth	open_lib
 #if defined(HAVE_LIBDL) || defined(HAVE_DLOPEN)
+#ifndef RTLD_GLOBAL
+#define RTLD_GLOBAL 0
+#endif
 u2=(UCell) dlopen(cstr(c_addr1, u1, 1), RTLD_GLOBAL | RTLD_LAZY);
 #else
 #  ifdef HAVE_LIBKERNEL32

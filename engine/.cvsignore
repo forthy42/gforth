@@ -8,3 +8,5 @@ engine.s
 prim.i-
 config.h
 version.h
+gforth
+gforth-ditc

@@ -15,8 +15,10 @@
 @end macro
 @comment %**end of header (This is for running Texinfo on a region.)
 
+@include version.texi
+
 @ifinfo
-This file documents Gforth 0.4
+This file documents Gforth @VERSION{}
 
 Copyright @copyright{} 1995-1997 Free Software Foundation, Inc.
 
@@ -50,7 +52,7 @@ Copyright @copyright{} 1995-1997 Free Software Foundation, Inc.
 @sp 10
 @center @titlefont{Gforth Manual}
 @sp 2
-@center for version 0.4
+@center for version @VERSION{}
 @sp 2
 @center Anton Ertl
 @center Bernd Paysan
@@ -87,7 +89,7 @@ Copyright @copyright{} 1995--1997 Free Software Foundation, Inc.
 @node Top, License, (dir), (dir)
 @ifinfo
 Gforth is a free implementation of ANS Forth available on many
-personal machines. This manual corresponds to version 0.4.
+personal machines. This manual corresponds to version @VERSION{}.
 @end ifinfo
 
 @menu
@@ -4752,10 +4754,9 @@ redirected in the command line that starts Gforth.
 @item method of selecting the user output device:
 @cindex user output device, method of selecting
 @code{EMIT} and @code{TYPE} output to the file-id stored in the value
-@code{outfile-id} (@code{stdout} by default). Gforth uses buffered
-output, so output on a terminal does not become visible before the next
-newline or buffer overflow. Output on non-terminals is invisible until
-the buffer overflows.
+@code{outfile-id} (@code{stdout} by default). Gforth uses unbuffered
+output when the user output device is a terminal, otherwise the output
+is buffered.
 
 @item methods of dictionary compilation:
 What are we expected to document here?

@@ -21,6 +21,12 @@
 
 /* this, together with configure.in, is the source file for config.h.in */
 
+/* Package name */
+#define PACKAGE "gforth"
+
+/* Package version */
+#define VERSION "major.minor.release"
+
 /* Define if you want to force a direct threaded code implementation
    (does not work on all machines */
 #ifndef DIRECT_THREADED

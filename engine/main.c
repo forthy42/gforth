@@ -38,7 +38,6 @@
 #include "forth.h"
 #include "io.h"
 #include "getopt.h"
-#include "version.h"
 
 #define PRIM_VERSION 1
 /* increment this whenever the primitives change in an incompatible way */
@@ -536,7 +535,7 @@ int main(int argc, char **argv, char **env)
     case 'f': fsize = convsize(optarg,sizeof(Float)); break;
     case 'l': lsize = convsize(optarg,sizeof(Cell)); break;
     case 'p': path1 = optarg; break;
-    case 'v': fprintf(stderr, "gforth %s\n", gforth_version); exit(0);
+    case 'v': fprintf(stderr, "gforth %s\n", VERSION); exit(0);
     case 'h': 
       fprintf(stderr, "Usage: %s [engine options] [image arguments]\n\
 Engine Options:\n\
@@ -559,7 +558,8 @@ SIZE arguments consist of an integer followed by a unit. The unit can be\n\
 \n\
 Arguments of default image `gforth.fi':\n\
  FILE				    load FILE (with `require')\n\
- -e STRING, --evaluate STRING       interpret STRING (with `EVALUATE')\n",
+ -e STRING, --evaluate STRING       interpret STRING (with `EVALUATE')\n\n\
+Report bugs to <bug-gforth@gnu.ai.mit.edu>\n",
 	      argv[0]); exit(0);
     }
   }

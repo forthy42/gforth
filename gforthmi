@@ -17,18 +17,24 @@
 #along with this program; if not, write to the Free Software
 #Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+test "x$GFORTHD" != x || GFORTHD=@pkglibdir@/gforth-ditc
+test "x$GFORTH" != x || GFORTH=@bindir@/gforth
 if test $# = 0 || test $1 = --help || test $1 = -h; then
   echo "usage: `basename $0` target-name [gforth-options]"
   echo "creates a relocatable image 'target-name'"
   echo "environment:"
-  echo " \$GFORTHD (default: gforth-ditc): System used for creating the fixed images"
-  echo " \$GFORTH (default: gforth): System used for computing the relocatable image"
-  exit 1
+  echo " \$GFORTHD (default: $GFORTHD): System used for creating the fixed images"
+  echo " \$GFORTH (default: $GFORTH): System used for computing the relocatable image"
+  test $# != 0 || exit 1
+  exit 0
+elif test $1 = --version || test $1 = -v; then
+  echo "gforthmi (@PACKAGE@) @VERSION@"
+  $GFORTH --version
+  echo FIXME: copyright
+  exit 0
 fi
 outfile=$1; shift
 tmpfile=./temp-image.fi
-test "x$GFORTHD" != x || GFORTHD=gforth-ditc
-test "x$GFORTH" != x || GFORTH=gforth
 $GFORTHD --clear-dictionary --no-offset-im $* -e "savesystem $tmpfile"1" bye"
 $GFORTHD --clear-dictionary --offset-image $* -e "savesystem $tmpfile"2" bye"
 $GFORTH comp-i.fs -e "comp-image $tmpfile"1" $tmpfile"2" $outfile bye"
