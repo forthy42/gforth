@@ -1,8 +1,8 @@
 #usage: invoke this in the gforth directory
-GFORTH=gforth-0.3.1
+GFORTH=gforth-0.4.0
 make dist
-mkdir test
-cd test
+mkdir xxxtest
+cd xxxtest
 for i in orig changed
 do
   mkdir $i
@@ -30,4 +30,4 @@ cd ../..
 echo checking clean
 diff -rq orig changed
 cd ..
-rm -rf test
+rm -rf xxxtest
