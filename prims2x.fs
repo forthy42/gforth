@@ -1331,8 +1331,7 @@ print-token !
 : checksynclines ( -- )
     \ when input points to a newline, check if the next line is a
     \ sync line.  If it is, perform the appropriate actions.
-    begin
-	rawinput @ >r
+    rawinput @ begin >r
 	s" #line " r@ over compare if
 	    rdrop 1 line +! EXIT
 	endif
@@ -1344,10 +1343,9 @@ print-token !
 	endif
 	dup c@ nl-char <> 0= s" sync line syntax" ?print-error
 	skipsynclines @ if
-	    dup char+ rawinput !
+	    char+ dup rawinput !
 	    rawinput @ c@ cookedinput @ c!
 	endif
-	drop
     again ;
 
 : ?nextchar ( f -- )
