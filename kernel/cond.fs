@@ -163,9 +163,10 @@ Defer again-like ( dest -- addr )
 : AGAIN ( compilation dest -- ; run-time -- ) \ core-ext
     dest? again-like  POSTPONE branch  <resolve ; immediate restrict
 
-Defer until-like
-: until, ( list addr xt1 xt2 -- )  drop compile, <resolve drop ;
-' until, IS until-like
+Defer until-like ( list addr xt1 xt2 -- )
+:noname ( list addr xt1 xt2 -- )
+    drop compile, <resolve drop ;
+IS until-like
 
 : UNTIL ( compilation dest -- ; run-time f -- ) \ core
     dest? ['] ?branch ['] ?branch-lp+!# until-like ; immediate restrict

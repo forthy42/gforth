@@ -4,15 +4,22 @@
 
 \ util
 
-: h@ ( addr -- n )  \ 32 bit fetch
-dup dup aligned = if
-  @
-  $00000000ffffffff and
-else
-  4 - @
-  $20 rshift
-endif
-;
+require asm.fs
+
+\  : h@ ( addr -- n )  \ 32 bit fetch
+\  dup dup aligned = if
+\    @
+\    $00000000ffffffff and
+\  else
+\    4 - @
+\    $20 rshift
+\  endif
+\  ;
+
+also assembler
+vocabulary disassembler
+get-current
+also disassembler definitions
 
 create string_table
 1000 allot
@@ -415,7 +422,9 @@ create opcode_table
 
 drop \ string_table end
 
-: decode_inst ( n -- )  \ instruction decoder
+set-current
+
+: disasm-inst ( n -- )  \ instruction decoder
   dup $fc000000 and
   26 rshift cells
   opcode_table +
@@ -424,13 +433,15 @@ drop \ string_table end
   $2c emit cr
 ;
 
-: disasm ( addr n -- )  \ disassembler
-cr 0
-?do
-  dup h@
-  over $28 emit space . $29 emit space
-  decode_inst
-  4 +
-loop
-drop
-;
+: disasm ( addr u -- )  \ gforth
+    \G disassemble u aus starting at addr
+    cr bounds
+    u+do
+	." ( " i hex. ."  ) "
+	i h@ disasm-inst
+	4
+    +loop ;
+
+' disasm is discode
+
+previous previous

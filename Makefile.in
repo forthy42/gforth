@@ -72,7 +72,7 @@ FORTH_FAST	= $(ENGINE_FAST) $(FORTH_ARGS)
 FORTHKFLAGS= --die-on-signal -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)" -i $(kernel_fi)
 FORTHK	= $(ENGINE) $(FORTHKFLAGS)
 FORTHP	= $(ENGINE) --die-on-signal -i ./$(kernel_fi)
-STARTUP	= -e 3 exboot.fs startup.fs
+STARTUP	= -e 3 exboot.fs startup.fs @asm_fs@ @disasm_fs@
 STRIP	= strip
 TEXI2DVI = texi2dvi -e
 DVI2PS	= dvips -Z
@@ -207,9 +207,8 @@ GFORTH_FI_SRC = \
 	vt100.fs \
 	vt100key.fs \
 	wordinfo.fs \
-	lib.fs \
-	sieve.fs \
-	add.fs
+	arch/alpha/asm.fs arch/alpha/disasm.fs \
+	arch/mips/asm.fs arch/mips/disasm.fs
 
 FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_SRC) $(EC_SRC) \
 	ans-report.fs ansi.fs answords.fs \
@@ -226,7 +225,8 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_SRC) $(EC_SRC) \
 	test/other.fs test/checkans.fs \
 	bubble.fs siev.fs matrix.fs fib.fs \
 	oof.fs oofsampl.fs objects.fs objexamp.fs mini-oof.fs moof-exm.fs \
-	moofglos.fs
+	moofglos.fs \
+	add.fs lib.fs sieve.fs
 
 COMPAT = compat/README \
 	compat/anslocal.fs \

@@ -2,9 +2,10 @@
 \ bernd thallner 9725890 881
 \ assembler in forth for alpha
 
-\ requires code.fs
+\ require ../../code.fs
 
-\ also assembler definitions
+get-current
+also assembler definitions
 
 \ register
 
@@ -24,12 +25,13 @@
  $d constant s4
  $e constant s5
  $f constant fp
-$10 constant a0
-$11 constant a1
-$12 constant a2
-$13 constant a3
-$14 constant a4
-$15 constant a5
+\ commented out to avoid shadowing hex numbers
+\  $10 constant a0
+\  $11 constant a1
+\  $12 constant a2
+\  $13 constant a3
+\  $14 constant a4
+\  $15 constant a5
 $16 constant t8
 $17 constant t9
 $18 constant t10
@@ -458,102 +460,106 @@ $12 $31   Opr# zapnot#,
   endif,
 ;
 
-\ jump marks
+\  \ jump marks
 
-\ example:
+\  \ example:
 
-\ init_marktbl		\ initializes mark table
-\ 31 0 br,
-\ 0 store_branch	\ store jump address for mark 0
-\ 1 2 3 addf,
-\ 0 set_mark		\ store mark 0
-\ 2 3 4 addf,
-\ 2 0 beq,
-\ 0 store_branch	\ store jump address for mark 0
-\ calculate_marks       \ calculate all jumps
+\  \ init_marktbl		\ initializes mark table
+\  \ 31 0 br,
+\  \ 0 store_branch	\ store jump address for mark 0
+\  \ 1 2 3 addf,
+\  \ 0 set_mark		\ store mark 0
+\  \ 2 3 4 addf,
+\  \ 2 0 beq,
+\  \ 0 store_branch	\ store jump address for mark 0
+\  \ calculate_marks       \ calculate all jumps
 
-\ with <mark_address> <jump_address> calculate_branch you can calculate the
-\ displacement field without the mark_table for one branch
+\  \ with <mark_address> <jump_address> calculate_branch you can calculate the
+\  \ displacement field without the mark_table for one branch
 
-\ example:
-\ here 31 0 br,
-\ here 1 2 3 addf,
-\ calculate_branch
+\  \ example:
+\  \ here 31 0 br,
+\  \ here 1 2 3 addf,
+\  \ calculate_branch
 
-5 constant mark_numbers
-5 constant mark_uses
+\  5 constant mark_numbers
+\  5 constant mark_uses
 
-create mark_table
-mark_numbers mark_uses 1+ * cells allot
+\  create mark_table
+\  mark_numbers mark_uses 1+ * cells allot
 
-: init_marktbl ( -- )			\ initializes mark table
-  mark_table mark_numbers mark_uses 1+ * cells +
-  mark_table
-  begin
-    over over >
-  while
-    dup 0 swap !
-    1 cells +
-  repeat
-  drop drop
-;
+\  : init_marktbl ( -- )			\ initializes mark table
+\    mark_table mark_numbers mark_uses 1+ * cells +
+\    mark_table
+\    begin
+\      over over >
+\    while
+\      dup 0 swap !
+\      1 cells +
+\    repeat
+\    drop drop
+\  ;
 
-: set_mark ( mark_number -- )		\ sets mark, store address in mark table
-  dup mark_numbers >= abort" error, illegal mark number"
-  mark_uses 1+ * cells
-  mark_table + here 8 - swap !
-;
+\  : set_mark ( mark_number -- )		\ sets mark, store address in mark table
+\    dup mark_numbers >= abort" error, illegal mark number"
+\    mark_uses 1+ * cells
+\    mark_table + here 8 - swap !
+\  ;
 
-: store_branch ( mark_number -- )	\ stores address of branch in mark table
-  dup mark_numbers >= abort" error, illegal mark number"
-  mark_uses 1+ * cells
-  mark_table + 1 cells +
-  dup mark_uses cells + swap
-  begin
-    over over > over @ and 
-  while
-    1 cells +
-  repeat
-  swap over = abort" error, not enough space in mark_table, increase mark_uses"
-  here 4 - swap !
-;
+\  : store_branch ( mark_number -- )	\ stores address of branch in mark table
+\    dup mark_numbers >= abort" error, illegal mark number"
+\    mark_uses 1+ * cells
+\    mark_table + 1 cells +
+\    dup mark_uses cells + swap
+\    begin
+\      over over > over @ and 
+\    while
+\      1 cells +
+\    repeat
+\    swap over = abort" error, not enough space in mark_table, increase mark_uses"
+\    here 4 - swap !
+\  ;
 
-: calculate_branch ( mark_addr branch_addr -- ) \ calculate branch displacement field for one branch
-  swap over - 4 + 4 /
-  $1fffff and
-  over h@ or swap h!
-;
+\  : calculate_branch ( mark_addr branch_addr -- ) \ calculate branch displacement field for one branch
+\    swap over - 4 + 4 /
+\    $1fffff and
+\    over h@ or swap h!
+\  ;
 
-: calculate_mark ( tb mark_address -- tb )	\ calculates branch displacement field for one mark
-  over 1 cells +
-  dup mark_uses cells + swap
-  begin
-    over over >
-  while
-    2over swap drop ( ei i markaddr ej j markaddr )
-    over @
-    dup if
-      calculate_branch
-    else
-      drop drop
-    endif
-    1 cells +
-  repeat drop drop drop
-;
+\  : calculate_mark ( tb mark_address -- tb )	\ calculates branch displacement field for one mark
+\    over 1 cells +
+\    dup mark_uses cells + swap
+\    begin
+\      over over >
+\    while
+\      2over swap drop ( ei i markaddr ej j markaddr )
+\      over @
+\      dup if
+\        calculate_branch
+\      else
+\        drop drop
+\      endif
+\      1 cells +
+\    repeat drop drop drop
+\  ;
 
-: calculate_marks ( -- )		\ calculates branch displacement field for all marks
-  mark_table mark_numbers 1- mark_uses 1+ * cells +
-  mark_table
-  begin
-    over over >=
-  while
-    dup @
-      dup if \ used mark
-        calculate_mark
-      else
-        drop
-      endif
-    mark_uses 1+ cells +
-  repeat
-  drop drop
-;
+\  : calculate_marks ( -- )		\ calculates branch displacement field for all marks
+\    mark_table mark_numbers 1- mark_uses 1+ * cells +
+\    mark_table
+\    begin
+\      over over >=
+\    while
+\      dup @
+\        dup if \ used mark
+\          calculate_mark
+\        else
+\          drop
+\        endif
+\      mark_uses 1+ cells +
+\    repeat
+\    drop drop
+\  ;
+
+previous set-current
+
+

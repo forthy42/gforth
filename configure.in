@@ -262,6 +262,12 @@ esac
 AC_SUBST(host)
 AC_SUBST(ENGINE_FLAGS)
 
+AC_CHECK_PROG(asm_fs,asm.fs,$srcdir/arch/$machine/asm.fs,,$srcdir/arch/$machine)
+AC_SUBST(asm_fs)
+
+AC_CHECK_PROG(disasm_fs,disasm.fs,$srcdir/arch/$machine/disasm.fs,,$srcdir/arch/$machine)
+AC_SUBST(disasm_fs)
+
 case "$host_os" in
 	*win32)
 		EXE=".exe"
