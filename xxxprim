@@ -171,8 +171,10 @@
 \E data-stack to cache-stack
 \E here 4 cache-states 2! s0 , s1 , s2 , s3 ,
 
-\E S1 to state-in
-\E S1 to state-out
+\E S1 to state-in-default
+\E S1 to state-out-default
+\E state-in-default to state-in
+\E state-out-default to state-out
 
 +	( n1 n2 -- n )		core	plus
 n = n1+n2;
@@ -185,5 +187,19 @@ over ( n1 n2 -- n1 n2 n1 )
 
 drop ( n -- )
 
+?branch ( #a_target f -- ) f83	question_branch
+if (f==0) {
+  SET_IP((Xt *)a_target);
+  INST_TAIL; NEXT_P2;
+}
+SUPER_CONTINUE;
+
+noop ( -- )
+
 \E prim-states drop
 \E prim-states over
+
+\E S1 branch-states ?branch
+
+\E gen-transitions noop
+

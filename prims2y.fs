@@ -290,6 +290,8 @@ variable in-part \ true if processing a part
  in-part off
 0 value state-in  \ state on entering prim
 0 value state-out \ state on exiting prim
+0 value state-in-default  \ state on entering prim
+0 value state-out-default \ state on exiting prim
 
 : prim-context ( ... p xt -- ... )
     \ execute xt with prim set to p
@@ -1308,6 +1310,7 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
     output-combined perform ;
 
 \ reprocessing (typically to generate versions for another cache states)
+\ !! use prim-context
 
 variable reprocessed-num 0 reprocessed-num !
 
@@ -1325,6 +1328,7 @@ variable reprocessed-num 0 reprocessed-num !
     primitives search-wordlist 0= -13 and throw execute ;
 
 : state-prim1 { in-state out-state prim -- }
+    in-state out-state state-in-default state-out-default d= ?EXIT
     in-state  to state-in
     out-state to state-out
     prim reprocess-simple ;
@@ -1356,6 +1360,30 @@ variable reprocessed-num 0 reprocessed-num !
 
 : prim-states ( "name" -- )
     parse-word lookup-prim gen-prim-states ;
+
+: gen-branch-states ( out-state prim -- )
+    \ generate versions that produce out-state; useful for branches
+    to prim { out-state }
+    cache-states 2@ swap { states } ( nstates )
+    cache-stack stack-in @ +do
+	states i th @ out-state prim state-prim1
+    loop ;
+
+: branch-states ( out-state "name" -- )
+    parse-word lookup-prim gen-branch-states ;
+
+\ producing state transitions
+
+: gen-transitions ( "name" -- )
+    parse-word lookup-prim { prim }
+    cache-states 2@ { states nstates }
+    nstates 0 +do
+	nstates 0 +do
+	    i j <> if
+		states i th @ states j th @ prim state-prim1
+	    endif
+	loop
+    loop ;
 
 \ C output
 
