@@ -3546,12 +3546,12 @@ you can use the definition @code{.s} to show the current state of the stack,
 without affecting the stack. Type:
 
 @example
-@kbd{clearstack 1 2 3@key{RET}} ok
+@kbd{clearstacks 1 2 3@key{RET}} ok
 @kbd{.s@key{RET}} <3> 1 2 3  ok
 @end example
 
-The text interpreter looks up the word @code{clearstack} and executes
-it; it tidies up the stack and removes any entries that may have been
+The text interpreter looks up the word @code{clearstacks} and executes
+it; it tidies up the stacks and removes any entries that may have been
 left on it by earlier examples. The text interpreter pushes each of the
 three numbers in turn onto the stack. Finally, the text interpreter
 looks up the word @code{.s} and executes it. The effect of executing
@@ -11311,6 +11311,7 @@ It is used for formatted numeric output (@pxref{Simple numeric output}).
 doc-depth
 doc-fdepth
 doc-clearstack
+doc-clearstacks
 
 The following words inspect memory.
 
@@ -12179,6 +12180,58 @@ wordsets, and not necessarily the one you expect. It depends on usage
 which wordset is the right one to specify. E.g., if you only use the
 compilation semantics of @code{S"}, it is a Core word; if you also use
 its interpretation semantics, it is a File word.
+
+
+@node Stack depth changes
+@section Stack depth changes during interpretation
+@cindex @file{depth-changes.fs}
+@cindex depth changes during interpretation
+@cindex stack depth changes during interpretation
+@cindex items on the stack after interpretation
+
+Sometimes you notice that, after loading a file, there are items left
+on the stack.  The tool @file{depth-changes.fs} helps you find out
+quickly where in the file these stack items are coming from.
+
+The simplest way of using @file{depth-changes.fs} is to include it
+before the file(s) you want to check, e.g.:
+
+@example
+gforth depth-changes.fs my-file.fs
+@end example
+
+This will compare the stack depths of the data and FP stack at every
+empty line (in interpretation state) against these depths at the last
+empty line (in interpretation state).  If the depths are not equal,
+the position in the file and the stack contents are printed with
+@code{~~} (@pxref{Debugging}).  This indicates that a stack depth
+change has occured in the paragraph of non-empty lines before the
+indicated line.  It is a good idea to leave an empty line at the end
+of the file, so the last paragraph is checked, too.
+
+Checking only at empty lines usually works well, but sometimes you
+have big blocks of non-empty lines (e.g., when building a big table),
+and you want to know where in this block the stack depth changed.  You
+can check all interpreted lines with
+
+@example
+gforth depth-changes.fs -e "' all-lines is depth-changes-filter" my-file.fs
+@end example
+
+This checks the stack depth at every end-of-line.  So the depth change
+occured in the line reported by the @code{~~} (not in the line
+before).
+
+Note that, while this offers better accuracy in indicating where the
+stack depth changes, it will often report many intentional stack depth
+changes (e.g., when an interpreted computation stretches across
+several lines).  You can suppress the checking of some lines by
+putting backslashes at the end of these lines (not followed by white
+space), and using
+
+@example
+gforth depth-changes.fs -e "' most-lines is depth-changes-filter" my-file.fs
+@end example
 
 @c ******************************************************************
 @node ANS conformance, Standard vs Extensions, Tools, Top

@@ -228,9 +228,14 @@ has? file [IF]
 \ load a file
 
 has? file [IF]
+defer line-end-hook ( -- ) \ gforth
+\G called at every end-of-line when text-interpreting from a file    
+\ alternatively we could use a wrapper for REFILL
+' noop is line-end-hook
+    
 : read-loop ( i*x -- j*x ) \ gforth
     \G refill and interpret a file until EOF
-    BEGIN  refill  WHILE  interpret  REPEAT ;
+    BEGIN  refill  WHILE  interpret line-end-hook REPEAT ;
 
 : execute-parsing-named-file ( i*x wfileid filename-addr filename-u xt -- j*x )
     >r push-file \ dup 2* cells included-files 2@ drop + 2@ type

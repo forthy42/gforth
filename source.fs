@@ -34,13 +34,16 @@
 	r> loop
     drop 2drop 0 ;
 
+: current-sourcepos ( -- )
+    sourcefilename  str>loadfilename# sourceline# ;
+
 : compile-sourcepos ( compile-time: -- ; run-time: -- nfile nline )
     \ compile the current source position as literals: nfile is the
     \ source file index, nline the line number within the file.
-    sourcefilename str>loadfilename# postpone literal
-    sourceline# postpone literal ;
+    current-sourcepos swap postpone literal postpone literal ;
 
 : .sourcepos ( nfile nline -- )
     \ print source position
     swap loadfilename#>str type ." :"
     base @ decimal swap 0 .r base ! ;
+

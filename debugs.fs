@@ -39,6 +39,9 @@ require source.fs
 defer printdebugdata ( -- ) \ gforth print-debug-data
 ' .s IS printdebugdata
 defer .debugline ( nfile nline -- ) \ gforth print-debug-line
+\G Print the source code location indicated by @var{nfile nline}, and
+\G additional debugging information; the default @code{.debugline}
+\G prints the additional information with @code{printdebugdata}.
 
 : (.debugline) ( nfile nline -- )
     cr .sourcepos ." :"
@@ -49,5 +52,11 @@ defer .debugline ( nfile nline -- ) \ gforth print-debug-line
 
 ' (.debugline) IS .debugline
 
-: ~~ ( compilation  -- ; run-time  -- ) \ gforth tilde-tilde
-    compile-sourcepos POSTPONE .debugline ; immediate
+:noname ( -- )
+    current-sourcepos .debugline ;
+:noname ( compilation  -- ; run-time  -- )
+    compile-sourcepos POSTPONE .debugline ;
+interpret/compile: ~~  \ gforth tilde-tilde
+\G Prints the source code location of the @code{~~} and the stack
+\G contents with @code{.debugline}.
+
