@@ -50,10 +50,10 @@ interpretation:
 : NewTask ( n -- Task )  dup 2* 2* udp @ + dup
   allocate throw  + >r
   r@ over - udp @ - next-task over udp @ move
-  r> over user' r0 + ! dup >r
-  dup r@ user' l0   + ! over -
-  dup r@ user' f0   + ! over -
-  dup r@ user' s0   + ! over -
+  r> over user' rp0 + ! dup >r
+  dup r@ user' lp0   + ! over -
+  dup r@ user' fp0   + ! over -
+  dup r@ user' sp0   + ! over -
   dup r@ user' normal-dp + dup >r !
    r> r@ user' dpp  + ! + $10 +
       r@ user' >tib + !
@@ -65,11 +65,11 @@ interpretation:
 
 : (pass) ( x1 .. xn n task -- )  rdrop
   [ ' kill-task >body ] ALiteral r>
-  rot >r r@ user' r0 + @ 2 cells - dup >r 2!
+  rot >r r@ user' rp0 + @ 2 cells - dup >r 2!
   r>              swap 1+
-  r@ user' f0 + @ swap 1+
-  r@ user' l0 + @ swap 1+
-  cells r@ user' s0 + @ tuck swap - dup r@ user' save-task + !
+  r@ user' fp0 + @ swap 1+
+  r@ user' lp0 + @ swap 1+
+  cells r@ user' sp0 + @ tuck swap - dup r@ user' save-task + !
   ?DO  I !  cell  +LOOP  r> wake ;
 
 : activate ( task -- )  0 swap (pass) ;
