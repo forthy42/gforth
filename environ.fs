@@ -42,7 +42,7 @@ MAX-CHAR constant /COUNTED-STRING
 ADDRESS-UNIT-BITS cells 2* 2 + constant /HOLD
 &84 constant /PAD
 true constant CORE
-true constant CORE-EXT?
+true constant CORE-EXT
 1 -3 mod 0< constant FLOORED
 
 1 ADDRESS-UNIT-BITS cells 1- lshift 1- constant MAX-N

@@ -34,6 +34,7 @@
 #include "forth.h"
 #include "io.h"
 #include "getopt.h"
+#include "version.h"
 
 #ifdef MSDOS
 jmp_buf throw_jmp_buf;
@@ -356,11 +357,13 @@ int main(int argc, char **argv, char **env)
       {"fp-stack-size", required_argument, NULL, 'f'},
       {"locals-stack-size", required_argument, NULL, 'l'},
       {"path", required_argument, NULL, 'p'},
+      {"version", no_argument, NULL, 'v'},
+      {"help", no_argument, NULL, 'h'},
       {0,0,0,0}
       /* no-init-file, no-rc? */
     };
     
-    c = getopt_long(argc, argv, "+i:m:d:r:f:l:p:", opts, &option_index);
+    c = getopt_long(argc, argv, "+i:m:d:r:f:l:p:vh", opts, &option_index);
     
     if (c==EOF)
       break;
@@ -376,6 +379,26 @@ int main(int argc, char **argv, char **env)
     case 'f': fsize = convsize(optarg,sizeof(Float)); break;
     case 'l': lsize = convsize(optarg,sizeof(Cell)); break;
     case 'p': path1 = optarg; break;
+    case 'v': fprintf(stderr, "gforth %s\n", gforth_version); exit(0);
+    case 'h': 
+      fprintf(stderr, "Usage: %s [engine options] [image arguments]\n\
+Engine Options:\n\
+ -d SIZE, --data-stack-size=SIZE    Specify data stack size\n\
+ -f SIZE, --fp-stack-size=SIZE	    Specify floating point stack size\n\
+ -h, --help			    Print this message and exit\n\
+ -i FILE, --image-file=FILE	    Use image FILE instead of `gforth.fi'\n\
+ -l SIZE, --locals-stack-size=SIZE  Specify locals stack size\n\
+ -m SIZE, --dictionary-size=SIZE    Specify Forth dictionary size\n\
+ -p PATH, --path=PATH		    Search path for finding image and sources\n\
+ -r SIZE, --return-stack-size=SIZE  Specify return stack size\n\
+ -v, --version			    Print version and exit\n\
+SIZE arguments consists of an integer followed by a unit. The unit can be\n\
+  `b' (bytes), `e' (elements), `k' (kilobytes), or `M' (Megabytes).\n\
+\n\
+Arguments of default image `gforth.fi':\n\
+ FILE				    load FILE (with `require')\n\
+ -e STRING, --evaluate STRING       interpret STRING (with `EVALUATE')\n",
+	      argv[0]); exit(0);
     }
   }
   path=path1;
@@ -409,7 +432,7 @@ int main(int argc, char **argv, char **env)
     }
 
   {
-    char path2[strlen(path1)+2];
+    char path2[strlen(path1)+1];
     char *p1, *p2;
     Cell environ[]= {
       (Cell)argc-(optind-1),
@@ -427,7 +450,6 @@ int main(int argc, char **argv, char **env)
 	*p2 = '\0';
       else
 	*p2 = *p1;
-    *p2++='\0';
     *p2='\0';
     retvalue=go_forth(loader(image_file, imagename),4,environ);
     deprep_terminal();

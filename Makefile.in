@@ -180,8 +180,8 @@ GEN_PRECIOUS = $(FORTH_GEN) $(KERNLS) gforth.texi gforth.dvi gforth.ps Makefile 
 
 all:	version.fs more
 
-version.c:	Makefile.in
-		echo "char gforth_version[]=\"$(VERSION)\" ;" >$@
+version.h:	Makefile.in
+		echo "static char gforth_version[]=\"$(VERSION)\" ;" >$@
 
 version.fs:	Makefile.in
 		$(MAKE) gforth
@@ -396,7 +396,7 @@ engine.s:	engine.c primitives.i prim_labels.i machine.h threading.h $(INCLUDES) 
 engine.o:	engine.c primitives.i prim_labels.i machine.h threading.h $(INCLUDES) config.h
 		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -c $(srcdir)/engine.c
 
-main.o:		main.c machine.h threading.h $(INCLUDES) config.h
+main.o:		main.c machine.h threading.h $(INCLUDES) config.h version.h
 		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -c $(srcdir)/main.c
 
 strtoul.o:	strtoul.c strtol.c
