@@ -44,6 +44,12 @@
 #endif
 #endif
 
+#define ASM_SM_SLASH_REM4(d1, n1, n2, n3) \
+	asm("idiv %3": "=a"(n3),"=d"(n2) : "A"(d1),"g"(n1):"cc");
+
+#define ASM_UM_SLASH_MOD4(d1, n1, n2, n3) \
+	asm("div %3": "=a"(n3),"=d"(n2) : "A"(d1),"g"(n1):"cc");
+
 #include "../generic/machine.h"
 
 /* define this if the processor cannot exploit instruction-level

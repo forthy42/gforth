@@ -898,6 +898,13 @@ n2=DHI(r);
 n3=DLO(r);
 #endif /* !defined(ASM_SM_SLASH_REM) */
 #else
+#ifdef ASM_SM_SLASH_REM4
+ASM_SM_SLASH_REM4(d1, n1, n2, n3);
+if ((d1<0) != (n1<0) && n2!=0) {
+  n3--;
+  n2+=n1;
+}
+#else /* !defined(ASM_SM_SLASH_REM4) */
 /* assumes that the processor uses either floored or symmetric division */
 n3 = d1/n1;
 n2 = d1%n1;
@@ -906,6 +913,7 @@ if (1%-3>0 && (d1<0) != (n1<0) && n2!=0) {
   n3--;
   n2+=n1;
 }
+#endif /* !defined(ASM_SM_SLASH_REM4) */
 #endif
 :
  dup >r dup 0< IF  negate >r dnegate r>  THEN
@@ -924,6 +932,9 @@ n2=DHI(r);
 n3=DLO(r);
 #endif /* !defined(ASM_SM_SLASH_REM) */
 #else
+#ifdef ASM_SM_SLASH_REM4
+ASM_SM_SLASH_REM4(d1, n1, n2, n3);
+#else /* !defined(ASM_SM_SLASH_REM4) */
 /* assumes that the processor uses either floored or symmetric division */
 n3 = d1/n1;
 n2 = d1%n1;
@@ -932,6 +943,7 @@ if (1%-3<0 && (d1<0) != (n1<0) && n2!=0) {
   n3++;
   n2-=n1;
 }
+#endif /* !defined(ASM_SM_SLASH_REM4) */
 #endif
 :
  over >r dup >r abs -rot
@@ -977,8 +989,12 @@ u2=DHI(r);
 u3=DLO(r);
 #endif /* !defined(ASM_UM_SLASH_MOD) */
 #else
+#ifdef ASM_UM_SLASH_MOD4
+ASM_UM_SLASH_MOD4(d1, n1, n2, n3);
+#else /* !defined(ASM_UM_SLASH_MOD4) */
 u3 = ud/u1;
 u2 = ud%u1;
+#endif /* !defined(ASM_UM_SLASH_MOD4) */
 #endif
 :
    0 swap [ 8 cells 1 + ] literal 0
