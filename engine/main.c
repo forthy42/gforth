@@ -81,11 +81,13 @@ char *progname = "gforth";
 int optind = 1;
 #endif
 
-#define CODE_BLOCK_SIZE (1024*1024)
+#define CODE_BLOCK_SIZE (256*1024)
 Address code_area=0;
 Cell code_area_size = CODE_BLOCK_SIZE;
 Address code_here=0; /* does for code-area what HERE does for the dictionary */
 Address start_flush=0; /* start of unflushed code */
+Cell last_jump=0; /* if the last prim was compiled without jump, this
+                     is it's number, otherwise this contains 0 */
 
 static int no_super=0;   /* true if compile_prim should not fuse prims */
 /* --no-dynamic by default on gcc versions >=3.1 (it works with 3.0.4,
@@ -449,7 +451,8 @@ void print_sizes(Cell sizebyte)
 #ifndef NO_DYNAMIC
 typedef struct {
   Label start;
-  Cell length; /* excluding the jump */
+  Cell length; /* only includes the jump iff superend is true*/
+  Cell restlength; /* length of the rest (i.e., the jump or (on superend) 0) */
   char superend; /* true if primitive ends superinstruction, i.e.,
                      unconditional branch, execute, etc. */
   Cell nimmargs;
@@ -508,17 +511,19 @@ void check_prims(Label symbols1[])
       pi->length = symbols1[i+1]-symbols1[i];
     else
       pi->length = prim_len;
+    pi->restlength = symbols1[i+1] - symbols1[i] - pi->length;
     pi->nimmargs = 0;
     if (debug)
-      fprintf(stderr, "Prim %3d @ %p %p %p, length=%3d superend=%1d",
-	      i, s1, s2, s3, prim_len, pi->superend);
+      fprintf(stderr, "Prim %3d @ %p %p %p, length=%3d restlength=%2d superend=%1d",
+	      i, s1, s2, s3, pi->length, pi->restlength, pi->superend);
     assert(prim_len>=0);
-    while (j<prim_len) {
+    while (j<(pi->length+pi->restlength)) {
       if (s1[j]==s3[j]) {
 	if (s1[j] != s2[j]) {
 	  pi->start = NULL; /* not relocatable */
 	  if (debug)
 	    fprintf(stderr,"\n   non_reloc: engine1!=engine2 offset %3d",j);
+	  /* assert(j<prim_len); */
 	  break;
 	}
 	j++;
@@ -540,6 +545,7 @@ void check_prims(Label symbols1[])
 	  pi->start = NULL; /* not relocatable */
 	  if (debug)
 	    fprintf(stderr,"\n   non_reloc: engine1!=engine3 offset %3d",j);
+	  /* assert(j<prim_len);*/
 	  break;
 	}
 	j+=4;
@@ -550,6 +556,44 @@ void check_prims(Label symbols1[])
   }
 #endif
 }
+
+#ifndef NO_DYNAMIC
+void flush_to_here(void)
+{
+  FLUSH_ICACHE(start_flush, code_here-start_flush);
+  start_flush=code_here;
+}
+
+void append_jump(void)
+{
+  if (last_jump) {
+    PrimInfo *pi = &priminfos[last_jump];
+    
+    memcpy(code_here, pi->start+pi->length, pi->restlength);
+    code_here += pi->restlength;
+    last_jump=0;
+    flush_to_here();
+  }
+}
+
+Address append_prim(Cell p)
+{
+  PrimInfo *pi = &priminfos[p];
+  Address old_code_here = code_here;
+
+  if (code_area+code_area_size < code_here+pi->length+pi->restlength) {
+    /* not enough space for all cases */
+    append_jump();
+    code_here = start_flush = code_area = my_alloc(code_area_size);
+    old_code_here = code_here;
+  }
+  memcpy(code_here, pi->start, pi->length);
+  code_here += pi->length;
+  if (pi->superend)
+    flush_to_here();
+  return old_code_here;
+}
+#endif
 
 #ifdef NO_IP
 int nbranchinfos=0;
@@ -586,8 +630,8 @@ Cell *compile_prim1arg(Cell p)
   int l = priminfos[p].length;
   Address old_code_here=code_here;
 
-  memcpy(code_here, vm_prims[p], l);
-  code_here+=l;
+  assert(vm_prims[p]==priminfos[p].start);
+  append_prim(p);
   return (Cell*)(old_code_here+priminfos[p].immargs[0].offset);
 }
 
@@ -595,11 +639,10 @@ Cell *compile_call2(Cell targetptr)
 {
   Cell *next_code_target;
   PrimInfo *pi = &priminfos[N_call2];
+  Address old_code_here = append_prim(N_call2);
 
-  memcpy(code_here, pi->start, pi->length);
-  next_code_target = (Cell *)(code_here + pi->immargs[0].offset);
-  register_branchinfo(code_here + pi->immargs[1].offset, targetptr);
-  code_here += pi->length;
+  next_code_target = (Cell *)(old_code_here + pi->immargs[0].offset);
+  register_branchinfo(old_code_here + pi->immargs[1].offset, targetptr);
   return next_code_target;
 }
 #endif
@@ -668,17 +711,16 @@ void compile_prim1(Cell *start)
       set_rel_target(compile_prim1arg(N_abranch),*(Xt)last_prim);
     } else {
       unsigned j;
+      Address old_code_here = append_prim(i);
 
-      memcpy(code_here, *last_prim, pi->length);
       for (j=0; j<pi->nimmargs; j++) {
 	struct immarg *ia = &(pi->immargs[j]);
 	Cell argval = last_start[pi->nimmargs - j]; /* !! specific to prims */
 	if (ia->rel) { /* !! assumption: relative refs are branches */
-	  register_branchinfo(code_here + ia->offset, argval);
+	  register_branchinfo(old_code_here + ia->offset, argval);
 	} else /* plain argument */
-	  *(Cell *)(code_here + ia->offset) = argval;
+	  *(Cell *)(old_code_here + ia->offset) = argval;
       }
-      code_here += pi->length;
     }
     if (next_code_target!=NULL)
       *next_code_target = (Cell)code_here;
@@ -692,8 +734,7 @@ void compile_prim1(Cell *start)
 #elif !defined(NO_DYNAMIC)
   Label prim=(Label)*start;
   unsigned i;
-  Address old_code_here=code_here;
-  static Address last_jump=0;
+  Address old_code_here;
 
   i = ((Xt)prim)-vm_prims;
   prim = *(Xt)prim;
@@ -702,13 +743,7 @@ void compile_prim1(Cell *start)
     return;
   }
   if (i>=npriminfos || priminfos[i].start == 0) { /* not a relocatable prim */
-    if (last_jump) { /* make sure the last sequence is complete */
-      memcpy(code_here, last_jump, IND_JUMP_LENGTH);
-      code_here += IND_JUMP_LENGTH;
-      last_jump = 0;
-      FLUSH_ICACHE(start_flush, code_here-start_flush);
-      start_flush=code_here;
-    }
+    append_jump();
     *start = (Cell)prim;
     return;
   }
@@ -716,13 +751,9 @@ void compile_prim1(Cell *start)
 #ifdef ALIGN_CODE
   ALIGN_CODE;
 #endif
-  memcpy(code_here, (Address)prim, priminfos[i].length);
-  code_here += priminfos[i].length;
-  last_jump = (priminfos[i].superend) ? 0 : (prim+priminfos[i].length);
-  if (last_jump == 0) {
-    FLUSH_ICACHE(start_flush, code_here-start_flush);
-    start_flush=code_here;
-  }
+  assert(prim==priminfos[i].start);
+  old_code_here = append_prim(i);
+  last_jump = (priminfos[i].superend) ? 0 : i;
   *start = (Cell)old_code_here;
   return;
 #else /* !defined(DOUBLY_INDIRECT), no code replication */
