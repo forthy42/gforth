@@ -23,8 +23,8 @@
 Variable leavings
 
 : (leave)   here  leavings @ ,  leavings ! ;
-: LEAVE     compile branch  (leave) ;  immediate restrict
-: ?LEAVE    compile 0= compile ?branch  (leave) ;
+: LEAVE     postpone branch  (leave) ;  immediate restrict
+: ?LEAVE    postpone 0= postpone ?branch  (leave) ;
                                              immediate restrict
 
 : DONE   ( addr -- )  leavings @
@@ -33,18 +33,18 @@ Variable leavings
 
 \ Structural Conditionals                              12dec92py
 
-: DO        compile (do)   here ;            immediate restrict
+: DO        postpone (do)   here ;            immediate restrict
 
-: ?DO       compile (?do)  (leave) here ;
+: ?DO       postpone (?do)  (leave) here ;
                                              immediate restrict
-: FOR       compile (for)  here ;            immediate restrict
+: FOR       postpone (for)  here ;            immediate restrict
 
-: loop]     dup <resolve 2 cells - compile done compile unloop ;
+: loop]     dup <resolve 2 cells - postpone done postpone unloop ;
 
-: LOOP      sys? compile (loop)  loop] ;     immediate restrict
-: +LOOP     sys? compile (+loop) loop] ;     immediate restrict
-: NEXT      sys? compile (next)  loop] ;     immediate restrict
+: LOOP      sys? postpone (loop)  loop] ;     immediate restrict
+: +LOOP     sys? postpone (+loop) loop] ;     immediate restrict
+: NEXT      sys? postpone (next)  loop] ;     immediate restrict
 
-: EXIT compile ;s ; immediate restrict
+: EXIT postpone ;s ; immediate restrict
 : ?EXIT postpone IF postpone EXIT postpone THEN ; immediate restrict
 
