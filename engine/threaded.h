@@ -96,23 +96,23 @@
 #  define DEBUG_DITC 0
 # endif
 /* define to 1 if you want to check consistency */
-#  define NEXT_P0	({cfa1=cfa; cfa=*ip;})
+#  define NEXT_P0	do {cfa1=cfa; cfa=*ip;} while(0)
 #  define CFA		cfa1
 #  define MORE_VARS     Xt cfa1;
 #  define IP		(ip)
-#  define SET_IP(p)	({ip=(p); cfa=*ip;})
+#  define SET_IP(p)	do {ip=(p); cfa=*ip;} while(0)
 #  define NEXT_INST	(cfa)
-#  define INC_IP(const_inc)	({cfa=IP[const_inc]; ip+=(const_inc);})
+#  define INC_IP(const_inc)	do {cfa=IP[const_inc]; ip+=(const_inc);} while(0)
 #  define DEF_CA	Label ca;
-#  define NEXT_P1	({\
+#  define NEXT_P1	do {\
   if (DEBUG_DITC && (cfa<=vm_prims+DOESJUMP || cfa>=vm_prims+npriminfos)) \
     fprintf(stderr,"NEXT encountered prim %p at ip=%p\n", cfa, ip); \
-  ip++;})
-#  define NEXT_P2	({ca=**cfa; goto *ca;})
-#  define EXEC(XT)	({DEF_CA cfa=(XT);\
+  ip++;} while(0)
+#  define NEXT_P2	do {ca=**cfa; goto *ca;} while(0)
+#  define EXEC(XT)	do {DEF_CA cfa=(XT);\
   if (DEBUG_DITC && (cfa>vm_prims+DOESJUMP && cfa<vm_prims+npriminfos)) \
     fprintf(stderr,"EXEC encountered xt %p at ip=%p, vm_prims=%p, xts=%p\n", cfa, ip, vm_prims, xts); \
- ca=**cfa; goto *ca;})
+ ca=**cfa; goto *ca;} while(0)
 
 #elif defined(NO_IP)
 
@@ -122,9 +122,9 @@
 #define INC_IP(n)	((void)0)
 #define DEF_CA
 #define NEXT_P1
-#define NEXT_P2		({goto *next_code;})
+#define NEXT_P2		do {goto *next_code;} while(0)
 /* set next_code to the return address before performing EXEC */
-#define EXEC(XT)	({cfa=(XT); goto **cfa;})
+#define EXEC(XT)	do {cfa=(XT); goto **cfa;} while(0)
 
 #else  /* !defined(DOUBLY_INDIRECT) && !defined(NO_IP) */
 
@@ -157,17 +157,17 @@
 
 #if THREADING_SCHEME==1
 #warning direct threading scheme 1: autoinc, long latency, cfa live
-#  define NEXT_P0	({cfa1=cfa; cfa=*ip++;})
+#  define NEXT_P0	do {cfa1=cfa; cfa=*ip++;} while(0)
 #  define CFA		cfa1
 #  define MORE_VARS     Xt cfa1;
 #  define IP		(ip-1)
-#  define SET_IP(p)	({ip=(p); cfa=*ip++;})
+#  define SET_IP(p)	do {ip=(p); cfa=*ip++;} while(0)
 #  define NEXT_INST	(cfa)
-#  define INC_IP(const_inc)	({cfa=IP[const_inc]; ip+=(const_inc);})
+#  define INC_IP(const_inc)	do {cfa=IP[const_inc]; ip+=(const_inc);} while(0)
 #  define DEF_CA
 #  define NEXT_P1
-#  define NEXT_P2	({goto *cfa;})
-#  define EXEC(XT)	({cfa=(XT); goto **cfa;})
+#  define NEXT_P2	do {goto *cfa;} while(0)
+#  define EXEC(XT)	do {cfa=(XT); goto **cfa;} while(0)
 #endif
 
 #if THREADING_SCHEME==2
@@ -175,13 +175,13 @@
 #  define NEXT_P0	(ip++)
 #  define CFA		cfa
 #  define IP		(ip-1)
-#  define SET_IP(p)	({ip=(p); NEXT_P0;})
+#  define SET_IP(p)	do {ip=(p); NEXT_P0;} while(0)
 #  define NEXT_INST	(*(ip-1))
-#  define INC_IP(const_inc)	({ ip+=(const_inc);})
+#  define INC_IP(const_inc)	do { ip+=(const_inc);} while(0)
 #  define DEF_CA
 #  define NEXT_P1
-#  define NEXT_P2	({KILLS goto **(ip-1);})
-#  define EXEC(XT)	({cfa=(XT); goto **cfa;})
+#  define NEXT_P2	do {KILLS goto **(ip-1);} while(0)
+#  define EXEC(XT)	do {cfa=(XT); goto **cfa;} while(0)
 #endif
 
 
@@ -190,13 +190,13 @@
 #  define NEXT_P0
 #  define CFA		cfa
 #  define IP		(ip)
-#  define SET_IP(p)	({ip=(p); NEXT_P0;})
+#  define SET_IP(p)	do {ip=(p); NEXT_P0;} while(0)
 #  define NEXT_INST	(*ip)
-#  define INC_IP(const_inc)	({ip+=(const_inc);})
+#  define INC_IP(const_inc)	do {ip+=(const_inc);} while(0)
 #  define DEF_CA
-#  define NEXT_P1	({cfa=*ip++;})
-#  define NEXT_P2	({goto *cfa;})
-#  define EXEC(XT)	({cfa=(XT); goto **cfa;})
+#  define NEXT_P1	do {cfa=*ip++;} while(0)
+#  define NEXT_P2	do {goto *cfa;} while(0)
+#  define EXEC(XT)	do {cfa=(XT); goto **cfa;} while(0)
 #endif
 
 #if THREADING_SCHEME==4
@@ -204,28 +204,28 @@
 #  define NEXT_P0
 #  define CFA		cfa
 #  define IP		(ip)
-#  define SET_IP(p)	({ip=(p); NEXT_P0;})
+#  define SET_IP(p)	do {ip=(p); NEXT_P0;} while(0)
 #  define NEXT_INST	(*ip)
-#  define INC_IP(const_inc)	({ ip+=(const_inc);})
+#  define INC_IP(const_inc)	do { ip+=(const_inc);} while(0)
 #  define DEF_CA
 #  define NEXT_P1
-#  define NEXT_P2	({KILLS goto **(ip++);})
-#  define EXEC(XT)	({cfa=(XT); goto **cfa;})
+#  define NEXT_P2	do {KILLS goto **(ip++);} while(0)
+#  define EXEC(XT)	do {cfa=(XT); goto **cfa;} while(0)
 #endif
 
 #if THREADING_SCHEME==5
 #warning direct threading scheme 5: long latency, cfa live
-#  define NEXT_P0	({cfa1=cfa; cfa=*ip;})
+#  define NEXT_P0	do {cfa1=cfa; cfa=*ip;} while(0)
 #  define CFA		cfa1
 #  define MORE_VARS     Xt cfa1;
 #  define IP		(ip)
-#  define SET_IP(p)	({ip=(p); cfa=*ip;})
+#  define SET_IP(p)	do {ip=(p); cfa=*ip;} while(0)
 #  define NEXT_INST	(cfa)
-#  define INC_IP(const_inc)	({cfa=IP[const_inc]; ip+=(const_inc);})
+#  define INC_IP(const_inc)	do {cfa=IP[const_inc]; ip+=(const_inc);} while(0)
 #  define DEF_CA
 #  define NEXT_P1	(ip++)
-#  define NEXT_P2	({goto *cfa;})
-#  define EXEC(XT)	({cfa=(XT); goto **cfa;})
+#  define NEXT_P2	do {goto *cfa;} while(0)
+#  define EXEC(XT)	do {cfa=(XT); goto **cfa;} while(0)
 #endif
 
 #if THREADING_SCHEME==6
@@ -233,13 +233,13 @@
 #  define NEXT_P0
 #  define CFA		cfa
 #  define IP		(ip)
-#  define SET_IP(p)	({ip=(p); NEXT_P0;})
+#  define SET_IP(p)	do {ip=(p); NEXT_P0;} while(0)
 #  define NEXT_INST	(*ip)
-#  define INC_IP(const_inc)	({ip+=(const_inc);})
+#  define INC_IP(const_inc)	do {ip+=(const_inc);} while(0)
 #  define DEF_CA
 #  define NEXT_P1	(ip++)
-#  define NEXT_P2	({KILLS goto **(ip-1);})
-#  define EXEC(XT)	({cfa=(XT); goto **cfa;})
+#  define NEXT_P2	do {KILLS goto **(ip-1);} while(0)
+#  define EXEC(XT)	do {cfa=(XT); goto **cfa;} while(0)
 #endif
 
 
@@ -248,13 +248,13 @@
 #  define NEXT_P0
 #  define CFA		cfa
 #  define IP		(ip)
-#  define SET_IP(p)	({ip=(p); NEXT_P0;})
+#  define SET_IP(p)	do {ip=(p); NEXT_P0;} while(0)
 #  define NEXT_INST	(*ip)
-#  define INC_IP(const_inc)	({ip+=(const_inc);})
+#  define INC_IP(const_inc)	do {ip+=(const_inc);} while(0)
 #  define DEF_CA
-#  define NEXT_P1	({cfa=*ip++;})
-#  define NEXT_P2	({goto *cfa;})
-#  define EXEC(XT)	({cfa=(XT); goto **cfa;})
+#  define NEXT_P1	do {cfa=*ip++;} while(0)
+#  define NEXT_P2	do {goto *cfa;} while(0)
+#  define EXEC(XT)	do {cfa=(XT); goto **cfa;} while(0)
 #endif
 
 #if THREADING_SCHEME==8
@@ -262,13 +262,13 @@
 #  define NEXT_P0
 #  define CFA		cfa
 #  define IP		(ip)
-#  define SET_IP(p)	({ip=(p); NEXT_P0;})
+#  define SET_IP(p)	do {ip=(p); NEXT_P0;} while(0)
 #  define NEXT_INST	(*IP)
-#  define INC_IP(const_inc)	({ ip+=(const_inc);})
+#  define INC_IP(const_inc)	do { ip+=(const_inc);} while(0)
 #  define DEF_CA
 #  define NEXT_P1	(ip++)
-#  define NEXT_P2	({KILLS goto **(ip-1);})
-#  define EXEC(XT)	({cfa=(XT); goto **cfa;})
+#  define NEXT_P2	do {KILLS goto **(ip-1);} while(0)
+#  define EXEC(XT)	do {cfa=(XT); goto **cfa;} while(0)
 #endif
 
 #if THREADING_SCHEME==9
@@ -279,13 +279,13 @@
 #  define NEXT_P0
 #  define CFA		cfa
 #  define IP		ip
-#  define SET_IP(p)	({ip=(p); next_cfa=*ip; NEXT_P0;})
+#  define SET_IP(p)	do {ip=(p); next_cfa=*ip; NEXT_P0;} while(0)
 #  define NEXT_INST	(next_cfa)
-#  define INC_IP(const_inc)	({next_cfa=IP[const_inc]; ip+=(const_inc);})
+#  define INC_IP(const_inc)	do {next_cfa=IP[const_inc]; ip+=(const_inc);} while(0)
 #  define DEF_CA	
-#  define NEXT_P1	({cfa=next_cfa; ip++; next_cfa=*ip;})
-#  define NEXT_P2	({goto *cfa;})
-#  define EXEC(XT)	({cfa=(XT); goto **cfa;})
+#  define NEXT_P1	do {cfa=next_cfa; ip++; next_cfa=*ip;} while(0)
+#  define NEXT_P2	do {goto *cfa;} while(0)
+#  define EXEC(XT)	do {cfa=(XT); goto **cfa;} while(0)
 #  define MORE_VARS	Xt next_cfa;
 #endif
 
@@ -294,13 +294,13 @@
 #  define NEXT_P0
 #  define CFA		cfa
 #  define IP		(ip)
-#  define SET_IP(p)	({ip=(p); NEXT_P0;})
+#  define SET_IP(p)	do {ip=(p); NEXT_P0;} while(0)
 #  define NEXT_INST	(*ip)
-#  define INC_IP(const_inc)	({ip+=(const_inc);})
+#  define INC_IP(const_inc)	do {ip+=(const_inc);} while(0)
 #  define DEF_CA
 #  define NEXT_P1
-#  define NEXT_P2	({cfa=*ip++; goto *cfa;})
-#  define EXEC(XT)	({cfa=(XT); goto **cfa;})
+#  define NEXT_P2	do {cfa=*ip++; goto *cfa;} while(0)
+#  define EXEC(XT)	do {cfa=(XT); goto **cfa;} while(0)
 #endif
 
 /* direct threaded */
@@ -313,32 +313,32 @@
 
 #if THREADING_SCHEME==1
 #warning indirect threading scheme 1: autoinc, long latency, cisc
-#  define NEXT_P0	({cfa1=cfa; cfa=*ip++;})
+#  define NEXT_P0	do {cfa1=cfa; cfa=*ip++;} while(0)
 #  define CFA		cfa1
 #  define MORE_VARS     Xt cfa1;
 #  define IP		(ip-1)
-#  define SET_IP(p)	({ip=(p); cfa=*ip++;})
+#  define SET_IP(p)	do {ip=(p); cfa=*ip++;} while(0)
 #  define NEXT_INST	(cfa)
-#  define INC_IP(const_inc)	({cfa=IP[const_inc]; ip+=(const_inc);})
+#  define INC_IP(const_inc)	do {cfa=IP[const_inc]; ip+=(const_inc);} while(0)
 #  define DEF_CA
 #  define NEXT_P1
-#  define NEXT_P2	({goto **cfa;})
-#  define EXEC(XT)	({cfa=(XT); goto **cfa;})
+#  define NEXT_P2	do {goto **cfa;} while(0)
+#  define EXEC(XT)	do {cfa=(XT); goto **cfa;} while(0)
 #endif
 
 #if THREADING_SCHEME==2
 #warning indirect threading scheme 2: autoinc, long latency
-#  define NEXT_P0	({cfa1=cfa; cfa=*ip++;})
+#  define NEXT_P0	do {cfa1=cfa; cfa=*ip++;} while(0)
 #  define CFA		cfa1
 #  define MORE_VARS     Xt cfa1;
 #  define IP		(ip-1)
-#  define SET_IP(p)	({ip=(p); cfa=*ip++;})
+#  define SET_IP(p)	do {ip=(p); cfa=*ip++;} while(0)
 #  define NEXT_INST	(cfa)
-#  define INC_IP(const_inc)	({cfa=IP[const_inc]; ip+=(const_inc);})
+#  define INC_IP(const_inc)	do {cfa=IP[const_inc]; ip+=(const_inc);} while(0)
 #  define DEF_CA	Label ca;
-#  define NEXT_P1	({ca=*cfa;})
-#  define NEXT_P2	({goto *ca;})
-#  define EXEC(XT)	({DEF_CA cfa=(XT); ca=*cfa; goto *ca;})
+#  define NEXT_P1	do {ca=*cfa;} while(0)
+#  define NEXT_P2	do {goto *ca;} while(0)
+#  define EXEC(XT)	do {DEF_CA cfa=(XT); ca=*cfa; goto *ca;} while(0)
 #endif
 
 
@@ -347,74 +347,74 @@
 #  define NEXT_P0
 #  define CFA		cfa
 #  define IP		(ip)
-#  define SET_IP(p)	({ip=(p); NEXT_P0;})
+#  define SET_IP(p)	do {ip=(p); NEXT_P0;} while(0)
 #  define NEXT_INST	(*ip)
-#  define INC_IP(const_inc)	({ip+=(const_inc);})
+#  define INC_IP(const_inc)	do {ip+=(const_inc);} while(0)
 #  define DEF_CA
 #  define NEXT_P1
-#  define NEXT_P2	({cfa=*ip++; goto **cfa;})
-#  define EXEC(XT)	({cfa=(XT); goto **cfa;})
+#  define NEXT_P2	do {cfa=*ip++; goto **cfa;} while(0)
+#  define EXEC(XT)	do {cfa=(XT); goto **cfa;} while(0)
 #endif
 
 #if THREADING_SCHEME==4
 #warning indirect threading scheme 4: autoinc, low latency
-#  define NEXT_P0	({cfa1=cfa; cfa=*ip++;})
+#  define NEXT_P0	do {cfa1=cfa; cfa=*ip++;} while(0)
 #  define CFA		cfa1
 #  define MORE_VARS     Xt cfa1;
 #  define IP		(ip-1)
-#  define SET_IP(p)	({ip=(p); cfa=*ip++;})
+#  define SET_IP(p)	do {ip=(p); cfa=*ip++;} while(0)
 #  define NEXT_INST	(cfa)
-#  define INC_IP(const_inc)	({cfa=IP[const_inc]; ip+=(const_inc);})
+#  define INC_IP(const_inc)	do {cfa=IP[const_inc]; ip+=(const_inc);} while(0)
 #  define DEF_CA	Label ca;
-#  define NEXT_P1	({ca=*cfa;})
-#  define NEXT_P2	({goto *ca;})
-#  define EXEC(XT)	({DEF_CA cfa=(XT); ca=*cfa; goto *ca;})
+#  define NEXT_P1	do {ca=*cfa;} while(0)
+#  define NEXT_P2	do {goto *ca;} while(0)
+#  define EXEC(XT)	do {DEF_CA cfa=(XT); ca=*cfa; goto *ca;} while(0)
 #endif
 
 
 #if THREADING_SCHEME==5
 #warning indirect threading scheme 5: long latency, cisc
-#  define NEXT_P0	({cfa1=cfa; cfa=*ip;})
+#  define NEXT_P0	do {cfa1=cfa; cfa=*ip;} while(0)
 #  define CFA		cfa1
 #  define MORE_VARS     Xt cfa1;
 #  define IP		(ip)
-#  define SET_IP(p)	({ip=(p); cfa=*ip;})
+#  define SET_IP(p)	do {ip=(p); cfa=*ip;} while(0)
 #  define NEXT_INST	(cfa)
-#  define INC_IP(const_inc)	({cfa=IP[const_inc]; ip+=(const_inc);})
+#  define INC_IP(const_inc)	do {cfa=IP[const_inc]; ip+=(const_inc);} while(0)
 #  define DEF_CA
 #  define NEXT_P1	(ip++)
-#  define NEXT_P2	({goto **cfa;})
-#  define EXEC(XT)	({cfa=(XT); goto **cfa;})
+#  define NEXT_P2	do {goto **cfa;} while(0)
+#  define EXEC(XT)	do {cfa=(XT); goto **cfa;} while(0)
 #endif
 
 #if THREADING_SCHEME==6
 #warning indirect threading scheme 6: long latency
-#  define NEXT_P0	({cfa1=cfa; cfa=*ip;})
+#  define NEXT_P0	do {cfa1=cfa; cfa=*ip;} while(0)
 #  define CFA		cfa1
 #  define MORE_VARS     Xt cfa1;
 #  define IP		(ip)
-#  define SET_IP(p)	({ip=(p); cfa=*ip;})
+#  define SET_IP(p)	do {ip=(p); cfa=*ip;} while(0)
 #  define NEXT_INST	(cfa)
-#  define INC_IP(const_inc)	({cfa=IP[const_inc]; ip+=(const_inc);})
+#  define INC_IP(const_inc)	do {cfa=IP[const_inc]; ip+=(const_inc);} while(0)
 #  define DEF_CA	Label ca;
-#  define NEXT_P1	({ip++; ca=*cfa;})
-#  define NEXT_P2	({goto *ca;})
-#  define EXEC(XT)	({DEF_CA cfa=(XT); ca=*cfa; goto *ca;})
+#  define NEXT_P1	do {ip++; ca=*cfa;} while(0)
+#  define NEXT_P2	do {goto *ca;} while(0)
+#  define EXEC(XT)	do {DEF_CA cfa=(XT); ca=*cfa; goto *ca;} while(0)
 #endif
 
 #if THREADING_SCHEME==7
 #warning indirect threading scheme 7: low latency
-#  define NEXT_P0	({cfa1=cfa; cfa=*ip;})
+#  define NEXT_P0	do {cfa1=cfa; cfa=*ip;} while(0)
 #  define CFA		cfa1
 #  define MORE_VARS     Xt cfa1;
 #  define IP		(ip)
-#  define SET_IP(p)	({ip=(p); cfa=*ip;})
+#  define SET_IP(p)	do {ip=(p); cfa=*ip;} while(0)
 #  define NEXT_INST	(cfa)
-#  define INC_IP(const_inc)	({cfa=IP[const_inc]; ip+=(const_inc);})
+#  define INC_IP(const_inc)	do {cfa=IP[const_inc]; ip+=(const_inc);} while(0)
 #  define DEF_CA	Label ca;
-#  define NEXT_P1	({ip++; ca=*cfa;})
-#  define NEXT_P2	({goto *ca;})
-#  define EXEC(XT)	({DEF_CA cfa=(XT); ca=*cfa; goto *ca;})
+#  define NEXT_P1	do {ip++; ca=*cfa;} while(0)
+#  define NEXT_P2	do {goto *ca;} while(0)
+#  define EXEC(XT)	do {DEF_CA cfa=(XT); ca=*cfa; goto *ca;} while(0)
 #endif
 
 #if THREADING_SCHEME==8
@@ -422,13 +422,13 @@
 #  define NEXT_P0
 #  define CFA		cfa
 #  define IP		(ip)
-#  define SET_IP(p)	({ip=(p); NEXT_P0;})
+#  define SET_IP(p)	do {ip=(p); NEXT_P0;} while(0)
 #  define NEXT_INST	(*ip)
-#  define INC_IP(const_inc)	({ip+=(const_inc);})
+#  define INC_IP(const_inc)	do {ip+=(const_inc);} while(0)
 #  define DEF_CA
 #  define NEXT_P1
-#  define NEXT_P2	({cfa=*ip++; goto **cfa;})
-#  define EXEC(XT)	({cfa=(XT); goto **cfa;})
+#  define NEXT_P2	do {cfa=*ip++; goto **cfa;} while(0)
+#  define EXEC(XT)	do {cfa=(XT); goto **cfa;} while(0)
 #endif
 
 /* indirect threaded */
@@ -436,5 +436,5 @@
 
 #endif /* !defined(DOUBLY_INDIRECT) && !defined(NO_IP) */
 
-#define NEXT ({DEF_CA NEXT_P1; NEXT_P2;})
+#define NEXT do {DEF_CA NEXT_P1; NEXT_P2;} while(0)
 #define IPTOS NEXT_INST
