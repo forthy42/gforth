@@ -18,32 +18,37 @@
 \	along with this program; if not, write to the Free Software
 \	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+require arch/mips/asm.fs
+
+: hex.r ( u n -- )
+    drop hex. ;
+
 : (disasm-op) ( code -- n )
     $1a rshift $6 asm-bitmask and ;
 
 : disasm-op ( code -- )
-    (disasm-op) 2 swap hexn. space ;
+    (disasm-op) 2 hex.r space ;
 
 : (disasm-rs) ( code -- n )
     $15 rshift $5 asm-bitmask and ;
 
 : disasm-rs ( code -- )
-    (disasm-rs) 2 swap hexn. space ;
+    (disasm-rs) 2 hex.r space ;
 
 : (disasm-rt) ( code -- n )
     $10 rshift $5 asm-bitmask and ;
 
 : disasm-rt ( code -- )
-    (disasm-rt) 2 swap hexn. space ;
+    (disasm-rt) 2 hex.r space ;
 
 : (disasm-imm) ( code -- n )
     $10 asm-bitmask and ;
 
 : disasm-imm ( code -- )
-    (disasm-imm) 4 swap hexn. space ;
+    (disasm-imm) 4 hex.r space ;
 
 : disasm-addr ( addr code -- n )
-    (disasm-imm) $2 lshift asm-expand dup 4 swap hexn. space ." ( " + cell+ hex. ." ) " ;
+    (disasm-imm) $2 lshift asm-expand dup 4 hex.r space ." ( " + cell+ hex. ." ) " ;
 
 : (disasm-target) ( code -- n )
     $1a asm-bitmask and ;
@@ -55,13 +60,13 @@
     $b rshift $5 asm-bitmask and ;
 
 : disasm-rd ( code -- )
-    (disasm-rd) 2 swap hexn. space ;
+    (disasm-rd) 2 hex.r space ;
 
 : (disasm-shamt) ( code -- n )
     $6 rshift $5 asm-bitmask and ;
 
 : disasm-shamt ( code -- )
-    (disasm-shamt) 2 swap hexn. space ;
+    (disasm-shamt) 2 hex.r space ;
 
 ' disasm-shamt alias disasm-sa
 
@@ -225,7 +230,7 @@ $40 2 matrix disasm-opc-cop0
 : illegal-code ( -- ) ;
 
 : disasm-nop ( code -- )
-    @ 8 swap ." ( " hexn. space ." ) " ;
+    @ 8 ." ( " hex.r space ." ) " ;
 
 : disasm-init ( xt n -- )
     0 ?do
