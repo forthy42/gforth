@@ -990,7 +990,7 @@ u3=DLO(r);
 #endif /* !defined(ASM_UM_SLASH_MOD) */
 #else
 #ifdef ASM_UM_SLASH_MOD4
-ASM_UM_SLASH_MOD4(d1, n1, n2, n3);
+ASM_UM_SLASH_MOD4(ud, u1, u2, u3);
 #else /* !defined(ASM_UM_SLASH_MOD4) */
 u3 = ud/u1;
 u2 = ud%u1;
