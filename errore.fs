@@ -47,23 +47,25 @@ ErrLink @ unlock reloff lock \ make sure that the terminating 0 is not relocated
 -55 ERR" Floating-point unidentified fault"
 -56 ERR" QUIT"                          -57 ERR" Error in sending or receiving a character"
 -58 ERR" [IF], [ELSE], [THEN] error"
-\ signals: ( We list them all, execpt those already present, just in case )
--256 ERR" Hangup signal"
--257 ERR" Quit signal"
--258 ERR" Illegal Instruction"
--259 ERR" Trace Trap"
--260 ERR" IOT instruction"
--261 ERR" EMT instruction" \ abort() call?
--262 ERR" Kill signal" \ cannot be caught but so what
--263 ERR" Bad arg to system call"
--264 ERR" Broken pipe"
--265 ERR" Alarm signal"
--266 ERR" Terminate signal"
--267 ERR" User signal 1"
--268 ERR" User signal 2"
+
+\ signals are handled with strsignal
+\ but some signals produce throw-codes > -256, e.g., -28
+\ signals: ( We list them all, except those already present, just in case )
+\ -256 ERR" Hangup signal"
+\ -257 ERR" Quit signal"
+\ -258 ERR" Illegal Instruction"
+\ -259 ERR" Trace Trap"
+\ -260 ERR" IOT instruction"
+\ -261 ERR" EMT instruction" \ abort() call?
+\ -262 ERR" Kill signal" \ cannot be caught but so what
+\ -263 ERR" Bad arg to system call"
+\ -264 ERR" Broken pipe"
+\ -265 ERR" Alarm signal"
+\ -266 ERR" Terminate signal"
+\ -267 ERR" User signal 1"
+\ -268 ERR" User signal 2"
 \ error numbers between -512 and -2047 are for OS errors and are
 \ handled with strerror
-
 
 : .error ( n -- )
     cr ." Error: "
@@ -74,6 +76,10 @@ ErrLink @ unlock reloff lock \ make sure that the terminating 0 is not relocated
 	IF 2 cells + count type drop exit THEN
     REPEAT
     drop
+    dup -511 -255 within
+    IF
+	256 + negate strsignal type exit
+    THEN
     dup -2047 -511 within
     IF
 	512 + negate strerror type exit

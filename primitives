@@ -80,12 +80,12 @@
 undefine(`index')
 undefine(`shift')
 
-noop	--		fig
+noop	--		gforth
 ;
 :
  ;
 
-lit	-- w		fig
+lit	-- w		gforth
 w = (Cell)NEXT_INST;
 INC_IP(1);
 
@@ -95,13 +95,13 @@ cfa = xt;
 IF_TOS(TOS = sp[0]);
 NEXT1;
 
-branch-lp+!#	--	new	branch_lp_plus_store_number
+branch-lp+!#	--	gforth	branch_lp_plus_store_number
 /* this will probably not be used */
 branch_adjust_lp:
 lp += (Cell)(IP[1]);
 goto branch;
 
-branch	--		fig
+branch	--		gforth
 branch:
 ip = (Xt *)(((Cell)IP)+(Cell)NEXT_INST);
 NEXT_P0;
@@ -136,7 +136,7 @@ condbranch((next),--		cmFORTH	paren_next,
 if ((*rp)--) {
 )
 
-condbranch((loop),--		fig	paren_loop,
+condbranch((loop),--		gforth	paren_loop,
 Cell index = *rp+1;
 Cell limit = rp[1];
 if (index != limit) {
@@ -210,14 +210,14 @@ rp += 2;
 :
  r> swap 0 >r >r >r ;
 
-(do)	nlimit nstart --		fig		paren_do
+(do)	nlimit nstart --		gforth		paren_do
 /* or do it in high-level? 0.09/0.23% */
 *--rp = nlimit;
 *--rp = nstart;
 :
  r> -rot swap >r >r >r ;
 
-(?do)	nlimit nstart --	new	paren_question_do
+(?do)	nlimit nstart --	gforth	paren_question_do
 *--rp = nlimit;
 *--rp = nstart;
 if (nstart == nlimit) {
@@ -228,7 +228,7 @@ else {
     INC_IP(1);
 }
 
-(+do)	nlimit nstart --	new	paren_plus_do
+(+do)	nlimit nstart --	gforth	paren_plus_do
 *--rp = nlimit;
 *--rp = nstart;
 if (nstart >= nlimit) {
@@ -239,7 +239,7 @@ else {
     INC_IP(1);
 }
 
-(u+do)	ulimit ustart --	new	paren_u_plus_do
+(u+do)	ulimit ustart --	gforth	paren_u_plus_do
 *--rp = ulimit;
 *--rp = ustart;
 if (ustart >= ulimit) {
@@ -250,7 +250,7 @@ else {
     INC_IP(1);
 }
 
-(-do)	nlimit nstart --	new	paren_minus_do
+(-do)	nlimit nstart --	gforth	paren_minus_do
 *--rp = nlimit;
 *--rp = nstart;
 if (nstart <= nlimit) {
@@ -261,7 +261,7 @@ else {
     INC_IP(1);
 }
 
-(u-do)	ulimit ustart --	new	paren_u_minus_do
+(u-do)	ulimit ustart --	gforth	paren_u_minus_do
 *--rp = ulimit;
 *--rp = ustart;
 if (ustart <= ulimit) {
@@ -280,7 +280,7 @@ n = rp[2];
 
 \ digit is high-level: 0/0%
 
-(emit)	c --		fig	paren_emit
+(emit)	c --		gforth	paren_emit
 putchar(c);
 emitcounter++;
 
@@ -288,7 +288,7 @@ emitcounter++;
 fwrite(c_addr,sizeof(Char),n,stdout);
 emitcounter += n;
 
-(key)	-- n		fig	paren_key
+(key)	-- n		gforth	paren_key
 fflush(stdout);
 /* !! noecho */
 n = key();
@@ -627,46 +627,46 @@ f = FLAG($4<$5);
 $1>	$2 -- f		$9	$3greater
 f = FLAG($4>$5);
 
-$1<=	$2 -- f		new	$3less_or_equal
+$1<=	$2 -- f		gforth	$3less_or_equal
 f = FLAG($4<=$5);
 
-$1>=	$2 -- f		new	$3greater_or_equal
+$1>=	$2 -- f		gforth	$3greater_or_equal
 f = FLAG($4>=$5);
 
 )
 
 comparisons(0, n, zero_, n, 0, core, core-ext, core, core-ext)
 comparisons(, n1 n2, , n1, n2, core, core-ext, core, core)
-comparisons(u, u1 u2, u_, u1, u2, new, new, core, core-ext)
-comparisons(d, d1 d2, d_, d1, d2, double, new, double, new)
-comparisons(d0, d, d_zero_, d, 0, double, new, double, new)
-comparisons(du, ud1 ud2, d_u_, ud1, ud2, new, new, double-ext, new)
+comparisons(u, u1 u2, u_, u1, u2, gforth, gforth, core, core-ext)
+comparisons(d, d1 d2, d_, d1, d2, double, gforth, double, gforth)
+comparisons(d0, d, d_zero_, d, 0, double, gforth, double, gforth)
+comparisons(du, ud1 ud2, d_u_, ud1, ud2, gforth, gforth, double-ext, gforth)
 
 within	u1 u2 u3 -- f		core-ext
 f = FLAG(u1-u2 < u3-u2);
 :
  over - >r - r> u< ;
 
-sp@	-- a_addr		fig		spat
+sp@	-- a_addr		gforth		spat
 a_addr = sp+1;
 
-sp!	a_addr --		fig		spstore
+sp!	a_addr --		gforth		spstore
 sp = a_addr;
 /* works with and without TOS caching */
 
-rp@	-- a_addr		fig		rpat
+rp@	-- a_addr		gforth		rpat
 a_addr = rp;
 
-rp!	a_addr --		fig		rpstore
+rp!	a_addr --		gforth		rpstore
 rp = a_addr;
 
-fp@	-- f_addr	new	fp_fetch
+fp@	-- f_addr	gforth	fp_fetch
 f_addr = fp;
 
-fp!	f_addr --	new	fp_store
+fp!	f_addr --	gforth	fp_store
 fp = f_addr;
 
-;s	--		fig	semis
+;s	--		gforth	semis
 ip = (Xt *)(*rp++);
 NEXT_P0;
 
@@ -755,7 +755,7 @@ w = sp[u+1];
 :
  >r -rot r> -rot ;
 
-2rot	w1 w2 w3 w4 w5 w6 -- w3 w4 w5 w6 w1 w2	double	two_rote
+2rot	w1 w2 w3 w4 w5 w6 -- w3 w4 w5 w6 w1 w2	double-ext	two_rote
 :
  >r >r 2swap r> r> 2swap ;
 
@@ -928,14 +928,14 @@ while(a_addr != NULL)
 	rdrop r>
  REPEAT nip nip ;
 
-(hashkey)	c_addr u1 -- u2		new	paren_hashkey
+(hashkey)	c_addr u1 -- u2		gforth	paren_hashkey
 u2=0;
 while(u1--)
    u2+=(Cell)toupper(*c_addr++);
 :
  0 -rot bounds ?DO  I c@ toupper +  LOOP ;
 
-(hashkey1)	c_addr u ubits -- ukey		new	paren_hashkey1
+(hashkey1)	c_addr u ubits -- ukey		gforth	paren_hashkey1
 ""ukey is the hash key for the string c_addr u fitting in ubits bits""
 /* this hash function rotates the key at every step by rot bits within
    ubits bits and xors it with the character. This function does ok in
@@ -962,7 +962,7 @@ Create rot-values
   7 c, 5 c, 5 c, 5 c, 5 c,  6 c, 5 c, 5 c, 5 c, 5 c,
   7 c, 5 c, 5 c,
 
-(parse-white)	c_addr1 u1 -- c_addr2 u2	new	paren_parse_white
+(parse-white)	c_addr1 u1 -- c_addr2 u2	gforth	paren_parse_white
 /* use !isgraph instead of isspace? */
 Char *endp = c_addr1+u1;
 while (c_addr1<endp && isspace(*c_addr1))
@@ -1096,8 +1096,8 @@ else {
   wior=0;
 }
 
-comparisons(f, r1 r2, f_, r1, r2, new, new, float, new)
-comparisons(f0, r, f_zero_, r, 0., float, new, float, new)
+comparisons(f, r1 r2, f_, r1, r2, gforth, gforth, float, gforth)
+comparisons(f0, r, f_zero_, r, 0., float, gforth, float, gforth)
 
 d>f		d -- r		float	d_to_f
 r = d;
@@ -1350,6 +1350,24 @@ r2 = atanh(r1);
  fdup f0< >r fabs 1. d>f fover f- f/  f2* flnp1 f2/
  r> IF  fnegate  THEN ;
 
+sfloats		n1 -- n2	float-ext	s_floats
+n2 = n1*sizeof(SFloat);
+
+dfloats		n1 -- n2	float-ext	d_floats
+n2 = n1*sizeof(DFloat);
+
+aligned		c_addr -- a_addr	core
+a_addr = (Cell *)((((Cell)c_addr)+(sizeof(Cell)-1))&~sizeof(Cell));
+
+faligned	c_addr -- f_addr	float	f_aligned
+f_addr = (Float *)((((Cell)c_addr)+(sizeof(Float)-1))&~sizeof(Float));
+
+sfaligned	c_addr -- sf_addr	float-ext	s_f_aligned
+sf_addr = (SFloat *)((((Cell)c_addr)+(sizeof(SFloat)-1))&~sizeof(SFloat));
+
+dfaligned	c_addr -- df_addr	float-ext	d_f_aligned
+df_addr = (DFloat *)((((Cell)c_addr)+(sizeof(DFloat)-1))&~sizeof(DFloat));
+
 \ The following words access machine/OS/installation-dependent ANSI
 \   figForth internals
 \ !! how about environmental queries DIRECT-THREADED,
@@ -1358,12 +1376,12 @@ r2 = atanh(r1);
 >body		xt -- a_addr	core	to_body
 a_addr = PFA(xt);
 
->code-address		xt -- c_addr		new	to_code_address
+>code-address		xt -- c_addr		gforth	to_code_address
 ""c_addr is the code address of the word xt""
 /* !! This behaves installation-dependently for DOES-words */
 c_addr = CODE_ADDRESS(xt);
 
->does-code	xt -- a_addr		new	to_does_code
+>does-code	xt -- a_addr		gforth	to_does_code
 ""If xt ist the execution token of a defining-word-defined word,
 a_addr is the start of the Forth code after the DOES>; Otherwise the
 behaviour is undefined""
@@ -1371,24 +1389,24 @@ behaviour is undefined""
 defining-word-defined */
 a_addr = (Cell *)DOES_CODE(xt);
 
-code-address!		c_addr xt --		new	code_address_store
+code-address!		c_addr xt --		gforth	code_address_store
 ""Creates a code field with code address c_addr at xt""
 MAKE_CF(xt, c_addr);
 CACHE_FLUSH(xt,PFA(0));
 
-does-code!	a_addr xt --		new	does_code_store
+does-code!	a_addr xt --		gforth	does_code_store
 ""creates a code field at xt for a defining-word-defined word; a_addr
 is the start of the Forth code after DOES>""
 MAKE_DOES_CF(xt, a_addr);
 CACHE_FLUSH(xt,PFA(0));
 
-does-handler!	a_addr --	new	does_handler_store
+does-handler!	a_addr --	gforth	does_handler_store
 ""creates a DOES>-handler at address a_addr. a_addr usually points
 just behind a DOES>.""
 MAKE_DOES_HANDLER(a_addr);
 CACHE_FLUSH(a_addr,DOES_HANDLER_SIZE);
 
-/does-handler	-- n	new	slash_does_handler
+/does-handler	-- n	gforth	slash_does_handler
 ""the size of a does-handler (includes possible padding)""
 /* !! a constant or environmental query might be better */
 n = DOES_HANDLER_SIZE;
@@ -1405,11 +1423,11 @@ your machine has a separate instruction cache. In such cases,
 cache.""
 FLUSH_ICACHE(c_addr,u);
 
-toupper	c1 -- c2	new
+toupper	c1 -- c2	gforth
 c2 = toupper(c1);
 
 \ local variable implementation primitives
-@local#		-- w	new	fetch_local_number
+@local#		-- w	gforth	fetch_local_number
 w = *(Cell *)(lp+(Cell)NEXT_INST);
 INC_IP(1);
 
@@ -1425,7 +1443,7 @@ w = *(Cell *)(lp+2*sizeof(Cell));
 @local3	-- w	new	fetch_local_twelve
 w = *(Cell *)(lp+3*sizeof(Cell));
 
-f@local#	-- r	new	f_fetch_local_number
+f@local#	-- r	gforth	f_fetch_local_number
 r = *(Float *)(lp+(Cell)NEXT_INST);
 INC_IP(1);
 
@@ -1435,12 +1453,12 @@ r = *(Float *)(lp+0*sizeof(Float));
 f@local1	-- r	new	f_fetch_local_eight
 r = *(Float *)(lp+1*sizeof(Float));
 
-laddr#		-- c_addr	new	laddr_number
+laddr#		-- c_addr	gforth	laddr_number
 /* this can also be used to implement lp@ */
 c_addr = (Char *)(lp+(Cell)NEXT_INST);
 INC_IP(1);
 
-lp+!#	--	new	lp_plus_store_number
+lp+!#	--	gforth	lp_plus_store_number
 ""used with negative immediate values it allocates memory on the
 local stack, a positive immediate argument drops memory from the local
 stack""
@@ -1456,21 +1474,21 @@ lp += sizeof(Float);
 lp+2	--	new	sixteen_lp_plus_store
 lp += 2*sizeof(Float);
 
-lp!	c_addr --	new	lp_store
+lp!	c_addr --	gforth	lp_store
 lp = (Address)c_addr;
 
->l	w --	new	to_l
+>l	w --	gforth	to_l
 lp -= sizeof(Cell);
 *(Cell *)lp = w;
 
-f>l	r --	new	f_to_l
+f>l	r --	gforth	f_to_l
 lp -= sizeof(Float);
 *(Float *)lp = r;
 
-up!	a_addr --	new	up_store
+up!	a_addr --	gforth	up_store
 up0=up=(char *)a_addr;
 
-call-c	w --	new	call_c
+call-c	w --	gforth	call_c
 ""Call the C function pointed to by @i{w}. The C function has to
 access the stack itself. The stack pointers are exported in the gloabl
 variables @code{SP} and @code{FP}.""
@@ -1485,10 +1503,10 @@ fp=FP;
 IF_TOS(TOS=sp[0]);
 IF_FTOS(FTOS=fp[0]);
 
-strerror	n -- c_addr u	new
+strerror	n -- c_addr u	gforth
 c_addr = strerror(n);
 u = strlen(c_addr);
 
-strsignal	n -- c_addr u	new
+strsignal	n -- c_addr u	gforth
 c_addr = strsignal(n);
 u = strlen(c_addr);

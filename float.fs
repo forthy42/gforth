@@ -1,28 +1,39 @@
 \ High level floating point                            14jan94py
 
-1 cells 4 = [IF]
-' cells   Alias sfloats
-' cell+   Alias sfloat+
-' align   Alias sfalign
-' aligned Alias sfaligned
-[ELSE]
-: sfloats  2* 2* ;
-: sfloat+  4 + ;
-: sfaligned ( addr -- addr' )  3 + -4 and ;
-: sfalign ( -- )  here dup sfaligned swap ?DO  bl c,  LOOP ;
-[THEN]
+\ 1 cells 4 = [IF]
+\ ' cells   Alias sfloats
+\ ' cell+   Alias sfloat+
+\ ' align   Alias sfalign
+\ ' aligned Alias sfaligned
+\ [ELSE]
+\ : sfloats  2* 2* ;
+\ : sfloat+  4 + ;
+\ : sfaligned ( addr -- addr' )  3 + -4 and ;
+\ : sfalign ( -- )  here dup sfaligned swap ?DO  bl c,  LOOP ;
+\ [THEN]
 
-1 floats 8 = [IF]
-' floats   Alias dfloats
-' float+   Alias dfloat+
-' falign   Alias dfalign
-' faligned Alias dfaligned
-[ELSE]
-: dfloats  2* 2* 2* ;
-: dfloat+  8 + ;
-: dfaligned ( addr -- addr' )  7 + -8 and ;
-: dfalign ( -- )  here dup dfaligned swap ?DO  bl c,  LOOP ;
-[THEN]
+\ 1 floats 8 = [IF]
+\ ' floats   Alias dfloats
+\ ' float+   Alias dfloat+
+\ ' falign   Alias dfalign
+\ ' faligned Alias dfaligned
+\ [ELSE]
+\ : dfloats  2* 2* 2* ;
+\ : dfloat+  8 + ;
+\ : dfaligned ( addr -- addr' )  7 + -8 and ;
+\ : dfalign ( -- )  here dup dfaligned swap ?DO  bl c,  LOOP ;
+\ [THEN]
+
+: sfalign ( -- ) \ float-ext s-f-align
+    here dup sfaligned swap ?DO  bl c,  LOOP ;
+: dfalign ( -- ) \ float-ext d-f-align
+    here dup dfaligned swap ?DO  bl c,  LOOP ;
+
+1 sfloats constant sfloat+ ( sf-addr1 -- sf-addr2 ) \ float-ext s-float-plus
+dofield: lastxt code-address! \ change the constant into a field
+
+1 dfloats constant dfloat+ ( df-addr1 -- df-addr2 ) \ float-ext d-float-plus
+dofield: lastxt code-address! \ change the constant into a field
 
 : f, ( f -- )  here 1 floats allot f! ;
 

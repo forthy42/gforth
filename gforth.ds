@@ -157,10 +157,17 @@ not written for ANS Forth, as you will not know your mistakes from the
 deviations of the book.
 
 There is, of course, the standard, the definite reference if you want to
-write ANS Forth programs. It will be available in printed form from
-Global Engineering Documents !! somtime in spring or summer 1994. If you
-are lucky, you can still get dpANS6 (the draft that was approved as
-standard) by aftp from ftp.uu.net:/vendor/minerva/x3j14.
+write ANS Forth programs. It is available in printed form from the
+National Standards Institute Sales Department (Tel.: USA (212) 642-4900;
+Fax.: USA (212) 302-1286) as document @cite{X3.215-1994} for about $200. You
+can also get it from Global Engineering Documents (Tel.: USA (800)
+854-7179; Fax.: (303) 843-9880) for about $300.
+
+@cite{dpANS6}, the last draft of the standard, which was then submitted to ANSI
+for publication is available electronically and for free in some MS Word
+format, and it has been converted to HTML. Some pointers to these
+versions can be found through
+http://www.complang.tuwien.ac.at/projects/forth.html.
 
 @cite{Forth: The new model} by Jack Woehr (!! Publisher) is an
 introductory book based on a draft version of the standard. It does not
@@ -301,6 +308,13 @@ effect}, but in @var{Description}. The name of a stack item describes
 the type and/or the function of the item. See below for a discussion of
 the types.
 
+All words have two stack effects: A compile-time stack effect and a
+run-time stack effect. The compile-time stack-effect of most words is
+@var{ -- }. If the compile-time stack-effect of a word deviates from
+this standard behaviour, or the word does other unusual things at
+compile time, both stack effects are shown; otherwise only the run-time
+stack effect is shown.
+
 @item pronunciation
 How the word is pronounced
 
@@ -310,7 +324,11 @@ system need not support all of them. So, the fewer wordsets your program
 uses the more portable it will be in theory. However, we suspect that
 most ANS Forth systems on personal machines will feature all
 wordsets. Words that are not defined in the ANS standard have
-@code{gforth} as wordset.
+@code{gforth} or @code{gforth-internal} as wordset. @code{gforth}
+describes words that will work in future releases of Gforth;
+@code{gforth-internal} words are more volatile. Environmental query
+strings are also displayed like words; you can recognize them by the
+@code{environment} in the wordset field.
 
 @item Description
 A description of the behaviour of the word.
@@ -1683,7 +1701,7 @@ etc. will not work (reliably), either.
 
 These words are rarely used. Therefore they reside in @code{code.fs},
 which is usually not loaded (except @code{flush-icache}, which is always
-present). You can load it with @code{require code.fs}.
+present). You can load them with @code{require code.fs}.
 
 Another option for implementing normal and defining words efficiently
 is: adding the wanted functionality to the source of Gforth. For normal
@@ -2073,7 +2091,7 @@ Compiles a recursive call to the defining word not to the defined word.
 
 @item argument input source different than current input source for @code{RESTORE-INPUT}:
 !!???If the argument input source is a valid input source then it gets
-restored. Otherwise causes @code{-12 THROW} which unless caught issues
+restored. Otherwise causes @code{-12 THROW}, which, unless caught, issues
 the message "argument type mismatch" and aborts.
 
 @item data space containing definitions gets de-allocated:

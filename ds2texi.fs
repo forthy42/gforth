@@ -10,6 +10,7 @@
 script? [IF]
 warnings off
 require search-order.fs
+require glocals.fs
 require float.fs
 require struct.fs
 require debugging.fs
@@ -40,15 +41,40 @@ create description-buffer 4096 chars allot
     repeat then
     description-buffer tuck - ;
 
+: replace-_ ( c-addr u -- )
+    \ replaces _ with -
+    chars bounds
+    +DO
+	i c@ [char] _ =
+	if
+	    [char] - i c!
+	endif
+	1 chars
+    +loop ;
+    
+: condition-stack-effect ( c-addr1 u1 -- c-addr2 u2 )
+    save-string 2dup replace-_ ;
+    
+: condition-wordset ( c-addr1 u1 -- c-addr2 u2 )
+    dup 0=
+    if
+	2drop s" unknown"
+    else
+	save-string
+    endif ;
+
+: condition-pronounciation ( c-addr1 u1 -- c-addr2 u2 )
+    save-string 2dup replace-_ ;
+
 : make-doc ( -- )
     get-current documentation set-current
     create
 	last @ name>string 2,		\ name
 	[char] ) parse save-string 2,	\ stack-effect
-	bl parse-word save-string 2,	\ wordset
+	bl parse-word condition-wordset 2,	\ wordset
 	bl parse-word dup		\ pronounciation
 	if
-	    save-string
+	    condition-pronounciation
 	else
 	    2drop last @ name>string
 	endif
@@ -139,10 +165,44 @@ create docline doclinelength chars allot
     repeat
     drop rdrop ;
 
+: compare-ci ( addr1 u1 addr2 u2 -- n )
+    \ case insensitive string compare
+    2 pick swap -
+    ?dup-0=-if
+        capscomp
+    else
+	nip nip nip
+	0<
+	if
+	    -1
+	else
+	    1
+	endif
+    endif  ;
+
+: answord ( "name wordset pronounciation" -- )
+    \ check the documentaion of an ans word
+    name { D: wordname }
+    name { D: wordset }
+    name { D: pronounciation }
+    wordname documentation search-wordlist
+    if
+	execute { doc }
+	wordset doc doc-wordset 2@ compare-ci
+	if 
+	    ." wordset: " wordname type ." : '"  doc doc-wordset 2@ type ." ' instead of '" wordset type ." '" cr
+	endif
+	pronounciation doc doc-pronounciation 2@ compare-ci
+	if
+	    ." pronounciation: " wordname type ." : '" doc doc-pronounciation 2@ type ." ' instead of '" pronounciation type ." '" cr
+	endif
+    else
+	." undocumented: " wordname type cr
+    endif ;
+
 script? [IF]
 require prims2x.fs
 s" primitives.b" ' register-doc process-file
-require doc.fd
 require crossdoc.fd
-s" gforth.ds" r/o open-file throw ds2texi bye
+require doc.fd
 [THEN]

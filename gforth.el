@@ -20,7 +20,7 @@
 ;; file named COPYING.  Among other things, the copyright notice
 ;; and this notice must be preserved on all copies.
 
-;;; $Header: /usr/local/lib/cvs-repository/src-master/gforth/gforth.el,v 1.15 1995-10-11 19:39:34 anton Exp $
+;;; $Header: /usr/local/lib/cvs-repository/src-master/gforth/gforth.el,v 1.16 1995-10-16 18:33:09 anton Exp $
 
 ;;-------------------------------------------------------------------
 ;; A Forth indentation, documentation search and interaction library
@@ -37,7 +37,7 @@
 
 
 (defvar forth-positives
-  " : :noname code ;code does> begin do ?do +do -do u+do u-do while if ?dup-if ?dup-not-if else case struct [if] [else] "
+  " : :noname code ;code does> begin do ?do +do -do u+do u-do while if ?dup-if ?dup-0=-if else case struct [if] [else] "
   "Contains all words which will cause the indent-level to be incremented
 on the next line.
 OBS! All words in forth-positives must be surrounded by spaces.")
@@ -378,7 +378,7 @@ the input stream (comments, arguments, etc.)"
 (defun forth-remove-tracers ()
   "Remove tracers of the form `~~ '. Queries the user for each occurrence."
   (interactive)
-  (query-replace "~~ " ""))
+  (query-replace-regexp "\\(~~ \\| ~~$\\)" "" nil))
 
 (defvar forth-program-name "gforth"
   "*Program invoked by the `run-forth' command.")

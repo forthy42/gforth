@@ -61,10 +61,10 @@
 \ Currently locals may only be
 \ defined at the outer level and TO is not supported.
 
-include search-order.fs
-include float.fs
+require search-order.fs
+require float.fs
 
-: compile-@local ( n -- ) \ new compile-fetch-local
+: compile-@local ( n -- ) \ gforth compile-fetch-local
  case
     0       of postpone @local0 endof
     1 cells of postpone @local1 endof
@@ -73,7 +73,7 @@ include float.fs
    ( otherwise ) dup postpone @local# ,
  endcase ;
 
-: compile-f@local ( n -- ) \ new compile-f-fetch-local
+: compile-f@local ( n -- ) \ gforth compile-f-fetch-local
  case
     0        of postpone f@local0 endof
     1 floats of postpone f@local1 endof
@@ -153,52 +153,52 @@ variable locals-dp \ so here's the special dp for locals.
 vocabulary locals-types \ this contains all the type specifyers, -- and }
 locals-types definitions
 
-: W:
-    create-local ( "name" -- a-addr xt )
+: W: ( "name" -- a-addr xt ) \ gforth w-colon
+    create-local
 	\ xt produces the appropriate locals pushing code when executed
 	['] compile-pushlocal-w
     does> ( Compilation: -- ) ( Run-time: -- w )
         \ compiles a local variable access
 	@ lp-offset compile-@local ;
 
-: W^
-    create-local ( "name" -- a-addr xt )
+: W^ ( "name" -- a-addr xt ) \ gforth w-caret
+    create-local
 	['] compile-pushlocal-w
     does> ( Compilation: -- ) ( Run-time: -- w )
 	postpone laddr# @ lp-offset, ;
 
-: F:
-    create-local ( "name" -- a-addr xt )
+: F: ( "name" -- a-addr xt ) \ gforth f-colon
+    create-local
 	['] compile-pushlocal-f
     does> ( Compilation: -- ) ( Run-time: -- w )
 	@ lp-offset compile-f@local ;
 
-: F^
-    create-local ( "name" -- a-addr xt )
+: F^ ( "name" -- a-addr xt ) \ gforth f-caret
+    create-local
 	['] compile-pushlocal-f
     does> ( Compilation: -- ) ( Run-time: -- w )
 	postpone laddr# @ lp-offset, ;
 
-: D:
-    create-local ( "name" -- a-addr xt )
+: D: ( "name" -- a-addr xt ) \ gforth d-colon
+    create-local
 	['] compile-pushlocal-d
     does> ( Compilation: -- ) ( Run-time: -- w )
 	postpone laddr# @ lp-offset, postpone 2@ ;
 
-: D^
-    create-local ( "name" -- a-addr xt )
+: D^ ( "name" -- a-addr xt ) \ gforth d-caret
+    create-local
 	['] compile-pushlocal-d
     does> ( Compilation: -- ) ( Run-time: -- w )
 	postpone laddr# @ lp-offset, ;
 
-: C:
-    create-local ( "name" -- a-addr xt )
+: C: ( "name" -- a-addr xt ) \ gforth c-colon
+    create-local
 	['] compile-pushlocal-c
     does> ( Compilation: -- ) ( Run-time: -- w )
 	postpone laddr# @ lp-offset, postpone c@ ;
 
-: C^
-    create-local ( "name" -- a-addr xt )
+: C^ ( "name" -- a-addr xt ) \ gforth c-caret
+    create-local
 	['] compile-pushlocal-c
     does> ( Compilation: -- ) ( Run-time: -- w )
 	postpone laddr# @ lp-offset, ;
@@ -238,7 +238,7 @@ new-locals-map ' new-locals >body cell+ A! \ !! use special access words
 variable old-dpp
 
 \ and now, finally, the user interface words
-: { ( -- addr wid 0 )
+: { ( -- addr wid 0 ) \ gforth open-brace
     dp old-dpp !
     locals-dp dpp !
     also new-locals
@@ -248,7 +248,7 @@ variable old-dpp
 
 locals-types definitions
 
-: } ( addr wid 0 a-addr1 xt1 ... -- )
+: } ( addr wid 0 a-addr1 xt1 ... -- ) \ gforth close-brace
     \ ends locals definitions
     ] old-dpp @ dpp !
     begin
@@ -262,7 +262,7 @@ locals-types definitions
     previous previous
     locals-list TO locals-wordlist ;
 
-: -- ( addr wid 0 ... -- )
+: -- ( addr wid 0 ... -- ) \ gforth dash-dash
     }
     [char] } parse 2drop ;
 
@@ -373,10 +373,10 @@ forth definitions
 
 \ explicit scoping
 
-: scope ( -- scope )
+: scope ( compilation  -- scope ; run-time  -- ) \ gforth
  cs-push-part scopestart ; immediate
 
-: endscope ( scope -- )
+: endscope ( compilation scope -- ; run-time  -- ) \ gforth
  scope?
  drop
  locals-list @ common-list
@@ -449,7 +449,7 @@ forth definitions
 
 \ And here's finally the ANS standard stuff
 
-: (local) ( addr u -- )
+: (local) ( addr u -- ) \ local paren-local-paren
     \ a little space-inefficient, but well deserved ;-)
     \ In exchange, there are no restrictions whatsoever on using (local)
     \ as long as you use it in a definition
@@ -481,7 +481,7 @@ forth definitions
     then ;
 
 \ !! untested
-: TO ( c|w|d|r "name" -- )
+: TO ( c|w|d|r "name" -- ) \ core-ext,local
 \ !! state smart
  0 0 0. 0.0e0 { c: clocal w: wlocal d: dlocal f: flocal }
  ' dup >definer
@@ -510,9 +510,11 @@ forth definitions
  endif ; immediate
 
 : locals|
+    \ don't use 'locals|'! use '{'! A portable and free '{'
+    \ implementation is anslocals.fs
     BEGIN
 	name 2dup s" |" compare 0<>
     WHILE
 	(local)
     REPEAT
-    drop 0 (local) ;  immediate restrict
+    drop 0 (local) ; immediate restrict

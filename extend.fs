@@ -6,58 +6,64 @@ decimal
 
 \ .(                                                    12may93jaw
 
-: .(   ( -- )
+: .(   ( compilation "...<paren>" -- ) \ core-ext dot-paren
     [char] ) parse type ; immediate
 
 \ VALUE 2>R 2R> 2R@                                     17may93jaw
 
-: value ( n -- )
+: value ( w -- ) \ core-ext
   (constant) , ;
 \ !! 2value
 
-: 2Literal  swap postpone Literal  postpone Literal ;
-  immediate restrict
+: 2Literal ( compilation w1 w2 -- ; run-time  -- w1 w2 ) \ double two-literal
+    swap postpone Literal  postpone Literal ; immediate restrict
 
-: m*/    ( d1 n2 u3 -- dqout )    >r s>d >r abs -rot
-  s>d r> xor r> swap >r >r dabs rot tuck um* 2swap um*
-  swap >r 0 d+ r> -rot r@ um/mod -rot r> um/mod nip swap
-  r> IF dnegate THEN ;
+: m*/ ( d1 n2 u3 -- dqout ) \ double m-star-slash
+    >r s>d >r abs -rot
+    s>d r> xor r> swap >r >r dabs rot tuck um* 2swap um*
+    swap >r 0 d+ r> -rot r@ um/mod -rot r> um/mod nip swap
+    r> IF dnegate THEN ;
 
 \ CASE OF ENDOF ENDCASE                                 17may93jaw
 
 \ just as described in dpANS5
 
-0 CONSTANT case immediate
+0 CONSTANT case ( compilation  -- case-sys ; run-time  -- ) \ core-ext
+    immediate
 
-: of
-        1+ >r
-        postpone over postpone = postpone if postpone drop
-        r> ; immediate
+: of ( compilation  -- of-sys ; run-time x1 x2 -- |x1 ) \ core-ext
+    \ !! the implementation does not match the stack effect
+    1+ >r
+    postpone over postpone = postpone if postpone drop
+    r> ; immediate
 
-: endof
-        >r postpone else r> ; immediate
+: endof ( compilation case-sys1 of-sys -- case-sys2 ; run-time  -- ) \ core-ext end-of
+    >r postpone else r> ; immediate
 
-: endcase
-        postpone drop
-        0 ?do postpone then loop ; immediate
+: endcase ( compilation case-sys -- ; run-time x -- ) \ core-ext end-case
+    postpone drop
+    0 ?do postpone then loop ; immediate
 
 \ C"                                                    17may93jaw
 
 : (c")     "lit ;
 
-: CLiteral postpone (c") here over char+ allot  place align ;
-                                              immediate restrict
-: C"       [char] " parse postpone CLiteral ; immediate restrict
+: CLiteral
+    postpone (c") here over char+ allot  place align ; immediate restrict
+
+: C" ( compilation "...<quote>" -- ; run-time  -- c-addr ) \ core-ext c-quote
+    [char] " parse postpone CLiteral ; immediate restrict
 
 \ UNUSED                                                17may93jaw
 
-: unused   s0 @ 512 -        \ for stack
-           here - ;
+: unused ( -- u ) \ core-ext
+    s0 @ 512 -        \ for stack
+    here - ;
 
 \ [COMPILE]                                             17may93jaw
 
-: [compile] 
- ' compile, ; immediate
+: [compile] ( compilation "name" -- ; run-time ? -- ? ) \ core-ext bracket-compile
+    ' compile, ; immediate
 
 \ MARKER                                                17may93jaw
 
@@ -66,35 +72,47 @@ decimal
 
 \ CONVERT                                               17may93jaw
 
-: convert true >number drop ;
+: convert ( ud1 c-addr1 -- ud2 c-addr2 ) \ core-ext
+    \ obsolescent; supersedet by @code{>number}.
+    true >number drop ;
 
 \ ERASE                                                 17may93jaw
 
-: erase ( addr len -- )  ( 0 1 chars um/mod nip )  0 fill ;
-: blank ( addr len -- )  ( 0 1 chars um/mod nip ) bl fill ;
+: erase ( addr len -- ) \ core-ext
+    \ !! dependence on "1 chars 1 ="
+    ( 0 1 chars um/mod nip )  0 fill ;
+: blank ( addr len -- ) \ string
+    bl fill ;
 
 \ SEARCH                                                02sep94py
 
-: search   ( buf buflen text textlen -- restbuf restlen flag )
-  2over  2 pick - 1+ 3 pick c@ >r
-  BEGIN  r@ scan dup  WHILE
-         >r >r  2dup r@ -text
-         0= IF  >r drop 2drop r> r> r> rot + 1- rdrop true  EXIT  THEN
-	 r> r>  1 /string   REPEAT
-  2drop 2drop  rdrop false ;
+: search   ( buf buflen text textlen -- restbuf restlen flag ) \ string
+    2over  2 pick - 1+ 3 pick c@ >r
+    BEGIN
+	r@ scan dup
+    WHILE
+	>r >r  2dup r@ -text
+	0=
+	IF
+	    >r drop 2drop r> r> r> rot + 1- rdrop true
+	    EXIT
+	THEN
+	r> r>  1 /string
+    REPEAT
+    2drop 2drop  rdrop false ;
 
 \ ROLL                                                  17may93jaw
 
-: roll  ( x0 x1 .. xn n -- x1 .. xn x0 ) 
+: roll  ( x0 x1 .. xn n -- x1 .. xn x0 ) \ core-ext
   dup 1+ pick >r
   cells sp@ cell+ dup cell+ rot move drop r> ;
 
 \ SOURCE-ID SAVE-INPUT RESTORE-INPUT                    11jun93jaw
 
-: source-id ( -- 0 | -1 | fileid )
+: source-id ( -- 0 | -1 | fileid ) \ core-ext source-i-d
   loadfile @ dup 0= IF  drop loadline @ 0 min  THEN ;
 
-: save-input ( -- x1 .. xn n )
+: save-input ( -- x1 .. xn n ) \ core-ext
   >in @
   loadfile @ ?dup
   IF    dup file-position throw loadline @ >tib @ 6
@@ -102,7 +120,7 @@ decimal
   ELSE  loadline @ blk @ linestart @ >tib @ 5 THEN
 ;
 
-: restore-input ( x1 .. xn n -- flag )
+: restore-input ( x1 .. xn n -- flag ) \ core-ext
   swap >tib !
   6 = IF   loadline ! rot dup loadfile !
            reposition-file IF drop true EXIT THEN
@@ -118,9 +136,11 @@ decimal
 
 \ EXPECT SPAN                                           17may93jaw
 
-variable span
+variable span ( -- a-addr ) \ core-ext
+\ obsolescent
 
-: expect ( c-addr +len -- )
+: expect ( c-addr +len -- ) \ core-ext
+    \ obsolescent; use accept
     0 rot over
     BEGIN ( maxlen span c-addr pos1 )
 	key decode ( maxlen span c-addr pos2 flag )

@@ -557,9 +557,9 @@ set-current
     get-current documentation set-current
     forth-name 2@ nextname create
     forth-name 2@ 2,
-    stack-string 2@ 2,
+    stack-string 2@ condition-stack-effect 2,
     wordset 2@ 2,
-    c-name 2@ 2,
+    c-name 2@ condition-pronounciation 2,
     doc 2@ 2,
     set-current ;
 [THEN]

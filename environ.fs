@@ -18,7 +18,7 @@ get-order environment-wordlist swap 1+ set-order
 
 \ this should be computed in C as CHAR_BITS/sizeof(char),
 \ but I don't know any machine with gcc where an au does not have 8 bits.
-8 constant ADDRESS-UNIT-BITS
+8 constant ADDRESS-UNIT-BITS ( -- n ) \ environment
 1 ADDRESS-UNIT-BITS chars lshift 1- constant MAX-CHAR
 MAX-CHAR constant /COUNTED-STRING
 ADDRESS-UNIT-BITS cells 2* 2 + constant /HOLD

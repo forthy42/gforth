@@ -16,9 +16,9 @@
 \ and #>).
 
 
-defer printdebugdata ( -- )
+defer printdebugdata ( -- ) \ gforth
 ' .s IS printdebugdata
-defer printdebugline ( addr -- )
+defer printdebugline ( addr -- ) \ gforth
 
 : (printdebugline) ( addr -- )
     cr
@@ -35,6 +35,6 @@ defer printdebugline ( addr -- )
     r@ printdebugline
     r> 3 cells + >r ;
 
-: ~~ ( -- )
+: ~~ ( compilation  -- ; run-time  -- ) \ gforth tilde-tilde
     POSTPONE (~~) loadfilename 2@ 2, loadline @ , ; immediate
 

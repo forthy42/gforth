@@ -55,7 +55,7 @@ INCLUDES = forth.h io.h
 KERN_SRC = main.fs search-order.fs cross.fs aliases.fs vars.fs add.fs \
 	errore.fs kernal.fs version.fs extend.fs tools.fs toolsext.fs
 
-FORTH_SRC = anslocal.fs add.fs assert.fs ansi.fs blocks.fs bufio.fs checkans.fs \
+FORTH_SRC = anslocal.fs add.fs assert.fs ansi.fs answords.fs blocks.fs bufio.fs checkans.fs \
 	code.fs colorize.fs cross.fs debug.fs debugging.fs doskey.fs ds2texi.fs \
 	dumpimage.fs environ.fs errore.fs etags.fs extend.fs filedump.fs \
 	float.fs glocals.fs glosgen.fs gray.fs hash.fs history.fs \
@@ -73,7 +73,7 @@ SOURCES	= Makefile.in configure.in configure config.sub  config.guess \
 	m68k.h mips.h 386.h hppa.h cache.c sparc.h power.h alpha.h 32bit.h \
 	getopt.c getopt1.c getopt.h select.c \
 	ecvt.c memcmp.c strtol.c strtoul.c ansidecl.h memmove.c pow10.c \
-	strerror.c \
+	strerror.c strsignal.c \
 	makefile.dos mkdosmf.sed configure.bat startup.dos \
 	glosgen.glo glossaries.doc \
 	$(INCLUDES) $(FORTH_SRC)
@@ -281,8 +281,14 @@ doc.fd:		makedoc.fs float.fs search-order.fs glocals.fs environ.fs \
 		 doskey.fs vt100key.fs startup.fs assert.fs debugging.fs code.fs
 		$(FORTHK) -e "s\" doc.fd\"" makedoc.fs startup.fs code.fs -e bye
 
+crossdoc.fd:	$(KERN_SRC) $(FORTH_GEN0)
+		$(FORTHK) -e 's" mach32l.fs"' main.fs
+
 gforth.texi:	gforth.ds primitives.b ds2texi.fs prims2x.fs doc.fd crossdoc.fd
-		$(FORTHK) ds2texi.fs >$@
+		$(FORTHK) ds2texi.fs -e "s\" gforth.ds\" r/o open-file throw ds2texi bye" >$@
+
+checkdoc:	gforth.ds primitives.b ds2texi.fs prims2x.fs doc.fd crossdoc.fd answords.fs
+		$(FORTHK) ds2texi.fs answords.fs -e bye
 
 gforth.dvi:	gforth.texi
 		$(TEXI2DVI) gforth.texi

@@ -1,4 +1,4 @@
-\ KERNAL.FS    GNU FORTH kernal                        17dec92py
+\ KERNAL.FS    GForth kernal                        17dec92py
 \ $ID:
 \ Idea and implementation: Bernd Paysan (py)
 \ Copyright 1992 by the ANSI figForth Development Group
@@ -85,7 +85,7 @@ DOES> ( n -- )  + c@ ;
     here 2 cells allot 2! ;
 
 : aligned ( addr -- addr' ) \ core
-  [ cell 1- ] Literal + [ -1 cells ] Literal and ;
+    [ cell 1- ] Literal + [ -1 cells ] Literal and ;
 : align ( -- ) \ core
     here dup aligned swap ?DO  bl c,  LOOP ;
 
@@ -226,15 +226,15 @@ Defer source ( -- addr count ) \ core
 
 \ Literal                                              17dec92py
 
-: Literal  ( compilation: n -- ; run-time: -- n ) \ core
+: Literal  ( compilation n -- ; run-time -- n ) \ core
     state @ IF postpone lit  , THEN ; immediate
-: ALiteral ( compilation: addr -- ; run-time: -- addr ) \ gforth
+: ALiteral ( compilation addr -- ; run-time -- addr ) \ gforth
     state @ IF postpone lit A, THEN ;
                                                       immediate
 
 : char   ( 'char' -- n ) \ core
     bl word char+ c@ ;
-: [char] ( compilation: 'char' -- ; run-time: -- n )
+: [char] ( compilation 'char' -- ; run-time -- n )
     char postpone Literal ; immediate
 ' [char] Alias Ascii immediate
 
@@ -360,7 +360,7 @@ hex
     >r 0 r@ um/mod r> swap >r
     um/mod r> ;
 
-: pad    ( -- addr ) \ core
+: pad    ( -- addr ) \ core-ext
   here [ $20 8 2* cells + 2 + cell+ ] Literal + aligned ;
 
 \ hold <# #> sign # #s                                 25jan92py
@@ -572,7 +572,7 @@ variable backedge-locals
     
 \ locals list operations
 
-: common-list ( list1 list2 -- list3 )
+: common-list ( list1 list2 -- list3 ) \ gforth-internal
 \ list1 and list2 are lists, where the heads are at higher addresses than
 \ the tail. list3 is the largest sublist of both lists.
  begin
@@ -586,7 +586,7 @@ variable backedge-locals
  repeat
  drop ;
 
-: sub-list? ( list1 list2 -- f )
+: sub-list? ( list1 list2 -- f ) \ gforth-internal
 \ true iff list1 is a sublist of list2
  begin
    2dup u<
@@ -595,7 +595,7 @@ variable backedge-locals
  repeat
  = ;
 
-: list-size ( list -- u )
+: list-size ( list -- u ) \ gforth-internal
 \ size of the locals frame represented by list
  0 ( list n )
  begin
@@ -695,20 +695,20 @@ variable backedge-locals
 
 \ Structural Conditionals                              12dec92py
 
-: AHEAD ( compilation: -- orig ; run-time: -- ) \ tools-ext
+: AHEAD ( compilation -- orig ; run-time -- ) \ tools-ext
     POSTPONE branch  >mark  POSTPONE unreachable ; immediate restrict
 
-: IF ( compilation: -- orig ; run-time: f -- ) \ core
+: IF ( compilation -- orig ; run-time f -- ) \ core
  POSTPONE ?branch >mark ; immediate restrict
 
-: ?DUP-IF ( compilation: -- orig ; run-time: n -- n| ) \ gforth	question-dupe-if
+: ?DUP-IF ( compilation -- orig ; run-time n -- n| ) \ gforth	question-dupe-if
 \ This is the preferred alternative to the idiom "?DUP IF", since it can be
 \ better handled by tools like stack checkers
     POSTPONE ?dup POSTPONE if ;       immediate restrict
-: ?DUP-0=-IF ( compilation: -- orig ; run-time: n -- n| ) \ gforth	question-dupe-zero-equals-if
+: ?DUP-0=-IF ( compilation -- orig ; run-time n -- n| ) \ gforth	question-dupe-zero-equals-if
     POSTPONE ?dup POSTPONE 0= POSTPONE if ; immediate restrict
 
-: THEN ( compilation: orig -- ; run-time: -- ) \ core
+: THEN ( compilation orig -- ; run-time -- ) \ core
     dup orig?
     dead-orig =
     if
@@ -725,19 +725,19 @@ variable backedge-locals
 	then
     then ; immediate restrict
 
-' THEN alias ENDIF ( compilation: orig -- ; run-time: -- ) \ gforth
+' THEN alias ENDIF ( compilation orig -- ; run-time -- ) \ gforth
 immediate restrict
 \ Same as "THEN". This is what you use if your program will be seen by
 \ people who have not been brought up with Forth (or who have been
 \ brought up with fig-Forth).
 
-: ELSE ( compilation: orig1 -- orig2 ; run-time: f -- ) \ core
+: ELSE ( compilation orig1 -- orig2 ; run-time f -- ) \ core
     POSTPONE ahead
     1 cs-roll
     POSTPONE then ; immediate restrict
 
 
-: BEGIN ( compilation: -- dest ; run-time: -- ) \ core
+: BEGIN ( compilation -- dest ; run-time -- ) \ core
     dead-code @ if
 	\ set up an assumption of the locals visible here.  if the
 	\ users want something to be visible, they have to declare
@@ -752,7 +752,7 @@ immediate restrict
 \ issue a warning (see below). The following code is generated:
 \ lp+!# (current-local-size - dest-locals-size)
 \ branch <begin>
-: AGAIN ( compilation: dest -- ; run-time: -- ) \ core-ext
+: AGAIN ( compilation dest -- ; run-time -- ) \ core-ext
     dest?
     over list-size adjust-locals-size
     POSTPONE branch
@@ -778,14 +778,14 @@ immediate restrict
     then ( list )
     check-begin ;
 
-: UNTIL ( compilation: dest -- ; run-time: f -- ) \ core
+: UNTIL ( compilation dest -- ; run-time f -- ) \ core
     dest? ['] ?branch ['] ?branch-lp+!# until-like ; immediate restrict
 
-: WHILE ( compilation: dest -- orig dest ; run-time: f -- ) \ core
+: WHILE ( compilation dest -- orig dest ; run-time f -- ) \ core
     POSTPONE if
     1 cs-roll ; immediate restrict
 
-: REPEAT ( compilation: orig dest -- ; run-time: -- ) \ core
+: REPEAT ( compilation orig dest -- ; run-time -- ) \ core
     POSTPONE again
     POSTPONE then ; immediate restrict
 
@@ -829,7 +829,7 @@ Avariable leave-sp  leave-stack 3 cells + leave-sp !
     cell - dup @ swap
     leave-sp ! ;
 
-: DONE ( compilation: orig -- ; run-time: -- ) \ gforth
+: DONE ( compilation orig -- ; run-time -- ) \ gforth
     \ !! the original done had ( addr -- )
     drop >r drop
     begin
@@ -840,15 +840,15 @@ Avariable leave-sp  leave-stack 3 cells + leave-sp !
     repeat
     >leave rdrop ; immediate restrict
 
-: LEAVE ( compilation: -- ; run-time: loop-sys -- ) \ core
+: LEAVE ( compilation -- ; run-time loop-sys -- ) \ core
     POSTPONE ahead
     >leave ; immediate restrict
 
-: ?LEAVE ( compilation: -- ; run-time: f | f loop-sys -- ) \ gforth	question-leave
+: ?LEAVE ( compilation -- ; run-time f | f loop-sys -- ) \ gforth	question-leave
     POSTPONE 0= POSTPONE if
     >leave ; immediate restrict
 
-: DO ( compilation: -- do-sys ; run-time: w1 w2 -- loop-sys )
+: DO ( compilation -- do-sys ; run-time w1 w2 -- loop-sys ) \ core
     POSTPONE (do)
     POSTPONE begin drop do-dest
     ( 0 0 0 >leave ) ; immediate restrict
@@ -858,22 +858,22 @@ Avariable leave-sp  leave-stack 3 cells + leave-sp !
     >mark >leave
     POSTPONE begin drop do-dest ;
 
-: ?DO ( compilation: -- do-sys ; run-time: w1 w2 -- | loop-sys )	\ core-ext	question-do
+: ?DO ( compilation -- do-sys ; run-time w1 w2 -- | loop-sys )	\ core-ext	question-do
     POSTPONE (?do) ?do-like ; immediate restrict
 
-: +DO ( compilation: -- do-sys ; run-time: w1 w2 -- | loop-sys )	\ gforth	plus-do
+: +DO ( compilation -- do-sys ; run-time w1 w2 -- | loop-sys )	\ gforth	plus-do
     POSTPONE (+do) ?do-like ; immediate restrict
 
-: U+DO ( compilation: -- do-sys ; run-time: w1 w2 -- | loop-sys )	\ gforth	u-plus-do
+: U+DO ( compilation -- do-sys ; run-time w1 w2 -- | loop-sys )	\ gforth	u-plus-do
     POSTPONE (u+do) ?do-like ; immediate restrict
 
-: -DO ( compilation: -- do-sys ; run-time: w1 w2 -- | loop-sys )	\ gforth	minus-do
+: -DO ( compilation -- do-sys ; run-time w1 w2 -- | loop-sys )	\ gforth	minus-do
     POSTPONE (-do) ?do-like ; immediate restrict
 
-: U-DO ( compilation: -- do-sys ; run-time: w1 w2 -- | loop-sys )	\ gforth	u-minus-do
+: U-DO ( compilation -- do-sys ; run-time w1 w2 -- | loop-sys )	\ gforth	u-minus-do
     POSTPONE (u-do) ?do-like ; immediate restrict
 
-: FOR ( compilation: -- do-sys ; run-time: w -- loop-sys )	\ gforth
+: FOR ( compilation -- do-sys ; run-time w -- loop-sys )	\ gforth
     POSTPONE (for)
     POSTPONE begin drop do-dest
     ( 0 0 0 >leave ) ; immediate restrict
@@ -884,34 +884,34 @@ Avariable leave-sp  leave-stack 3 cells + leave-sp !
     >r >r 0 cs-pick swap cell - swap 1 cs-roll r> r> rot do-dest?
     until-like  POSTPONE done  POSTPONE unloop ;
 
-: LOOP ( compilation: do-sys -- ; run-time: loop-sys1 -- | loop-sys2 )	\ core
+: LOOP ( compilation do-sys -- ; run-time loop-sys1 -- | loop-sys2 )	\ core
  ['] (loop) ['] (loop)-lp+!# loop-like ; immediate restrict
 
-: +LOOP ( compilation: do-sys -- ; run-time: loop-sys1 n -- | loop-sys2 )	\ core	plus-loop
+: +LOOP ( compilation do-sys -- ; run-time loop-sys1 n -- | loop-sys2 )	\ core	plus-loop
  ['] (+loop) ['] (+loop)-lp+!# loop-like ; immediate restrict
 
 \ !! should the compiler warn about +DO..-LOOP?
-: -LOOP ( compilation: do-sys -- ; run-time: loop-sys1 u -- | loop-sys2 )	\ gforth	minus-loop
+: -LOOP ( compilation do-sys -- ; run-time loop-sys1 u -- | loop-sys2 )	\ gforth	minus-loop
  ['] (-loop) ['] (-loop)-lp+!# loop-like ; immediate restrict
 
 \ A symmetric version of "+LOOP". I.e., "-high -low ?DO -inc S+LOOP"
 \ will iterate as often as "high low ?DO inc S+LOOP". For positive
 \ increments it behaves like "+LOOP". Use S+LOOP instead of +LOOP for
 \ negative increments.
-: S+LOOP ( compilation: do-sys -- ; run-time: loop-sys1 n -- | loop-sys2 )	\ gforth	s-plus-loop
+: S+LOOP ( compilation do-sys -- ; run-time loop-sys1 n -- | loop-sys2 )	\ gforth	s-plus-loop
  ['] (s+loop) ['] (s+loop)-lp+!# loop-like ; immediate restrict
 
-: NEXT ( compilation: do-sys -- ; run-time: loop-sys1 -- | loop-sys2 ) \ gforth
+: NEXT ( compilation do-sys -- ; run-time loop-sys1 -- | loop-sys2 ) \ gforth
  ['] (next) ['] (next)-lp+!# loop-like ; immediate restrict
 
 \ Structural Conditionals                              12dec92py
 
-: EXIT ( compilation: -- ; run-time: nest-sys -- ) \ core
+: EXIT ( compilation -- ; run-time nest-sys -- ) \ core
     0 adjust-locals-size
     POSTPONE ;s
     POSTPONE unreachable ; immediate restrict
 
-: ?EXIT ( -- ) ( compilation: -- ; run-time: nest-sys f -- | nest-sys ) \ gforth
+: ?EXIT ( -- ) ( compilation -- ; run-time nest-sys f -- | nest-sys ) \ gforth
      POSTPONE if POSTPONE exit POSTPONE then ; immediate restrict
 
 \ Strings                                              22feb93py
@@ -922,11 +922,11 @@ Avariable leave-sp  leave-stack 3 cells + leave-sp !
   r> r> dup count + aligned >r swap >r ;               restrict
 : (.")     "lit count type ;                           restrict
 : (S")     "lit count ;                                restrict
-: SLiteral ( Compilation: c-addr1 u ; run-time: -- c-addr2 u ) \ string
+: SLiteral ( Compilation c-addr1 u ; run-time -- c-addr2 u ) \ string
     postpone (S") here over char+ allot  place align ;
                                              immediate restrict
 create s"-buffer /line chars allot
-: S" ( compilation: 'ccc"' -- ; run-time: -- c-addr u )	\ core,file	s-quote
+: S" ( compilation 'ccc"' -- ; run-time -- c-addr u )	\ core,file	s-quote
     [char] " parse
     state @
     IF
@@ -936,10 +936,10 @@ create s"-buffer /line chars allot
 	s"-buffer r>
     THEN ; immediate
 
-: ." ( compilation: 'ccc"' -- ; run-time: -- )  \ core	dot-quote
+: ." ( compilation 'ccc"' -- ; run-time -- )  \ core	dot-quote
     state @  IF    postpone (.") ,"  align
                     ELSE  [char] " parse type  THEN  ;  immediate
-: ( ( compilation: 'ccc<close-paren>' -- ; run-time: -- ) \ core,file	paren
+: ( ( compilation 'ccc<close-paren>' -- ; run-time -- ) \ core,file	paren
     [char] ) parse 2drop ;                       immediate
 : \ ( -- ) \ core-ext backslash
     blk @
@@ -961,7 +961,7 @@ create s"-buffer /line chars allot
 	r> "error ! -2 throw
     THEN
     rdrop ;
-: abort" ( compilation: 'ccc"' -- ; run-time: f -- ) \ core,exception-ext	abort-quote
+: abort" ( compilation 'ccc"' -- ; run-time f -- ) \ core,exception-ext	abort-quote
     postpone (abort") ," ;        immediate restrict
 
 \ Header states                                        23feb93py
@@ -1066,7 +1066,7 @@ Create ???  0 , 3 c, char ? c, char ? c, char ? c,
 
 \ DOES>                                                17mar93py
 
-: DOES>  ( compilation: colon-sys1 -- colon-sys2 ; run-time: nest-sys -- ) \ core	does
+: DOES>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ core	does
     state @
     IF
 	;-hook postpone (does>) ?struc dodoes,
@@ -1139,7 +1139,7 @@ defer ;-hook ( sys2 -- sys1 )
 
 : : ( -- colon-sys ) \ core	colon
     Header docol: cfa, defstart ] :-hook ;
-: ; ( compilation: colon-sys -- ; run-time: nest-sys ) \ core	semicolon
+: ; ( compilation colon-sys -- ; run-time nest-sys ) \ core	semicolon
     ;-hook ?struc postpone exit reveal postpone [ ; immediate restrict
 
 : :noname ( -- xt colon-sys ) \ core-ext	colon-no-name
@@ -1233,7 +1233,7 @@ G -1 warnings T !
 
 : '    ( "name" -- addr ) \ core	tick
     name sfind 0= if -&13 bounce then ;
-: [']  ( compilation: "name" -- ; run-time: --addr ) \ core	bracket-tick
+: [']  ( compilation "name" -- ; run-time --addr ) \ core	bracket-tick
     ' postpone ALiteral ; immediate
 \ Input                                                13feb93py
 
@@ -1476,7 +1476,7 @@ create image-included-files 0 , 0 , ( pointer to and count of included files )
     ['] include-file catch
     r> r> loadfilename 2!  throw ;
     
-: included ( i*x addr u -- j*x ) \ gforth
+: included ( i*x addr u -- j*x ) \ file
     open-path-file included1 ;
 
 : required ( i*x addr u -- j*x ) \ gforth
@@ -1519,7 +1519,7 @@ create image-included-files 0 , 0 , ( pointer to and count of included files )
 
 \ RECURSE                                               17may93jaw
 
-: recurse ( compilation: -- ; run-time: ?? -- ?? ) \ core
+: recurse ( compilation -- ; run-time ?? -- ?? ) \ core
     lastxt compile, ; immediate restrict
 : recursive ( -- ) \ gforth
     reveal last off ; immediate
@@ -1722,8 +1722,8 @@ Defer 'cold ' noop IS 'cold
 	cr
     THEN
     false to script?
-    ." GNU Forth " version-string type ." , Copyright (C) 1994 Free Software Foundation, Inc." cr
-    ." GNU Forth comes with ABSOLUTELY NO WARRANTY; for details type `license'" cr
+    ." GForth " version-string type ." , Copyright (C) 1994 Free Software Foundation, Inc." cr
+    ." GForth comes with ABSOLUTELY NO WARRANTY; for details type `license'" cr
     ." Type `bye' to exit"
     loadline off quit ;
 

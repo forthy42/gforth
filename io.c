@@ -15,6 +15,7 @@
 
 #include <stdio.h>
 #include <signal.h>
+#include <string.h>
 #include <sys/types.h>
 #ifndef apollo
 #include <sys/ioctl.h>
@@ -674,47 +675,14 @@ int main()
 }
 #endif
 
-/* signal handling taken from pfe by Dirk Zoller (Copylefted) - anton */
-/* !! needs cleanup */
-char *
-sigmsg (int sig)
-{
-	static char buf [25];
-	static char *msg [] =
-	{
-		"Hangup",	/* These strings are cited from */
-		"Interrupt",	/* Rochkind: Advanced UNIX programming */
-		"Quit",
-		"Illegal Instruction",
-		"Trace Trap",
-		"IOT instruction",
-		"EMT instruction",
-		"Floating point exception",
-		"Kill",
-		"Bus error",
-		"Segmentation Violation",
-		"Bad arg to system call",
-		"Broken pipe",
-		"Alarm clock",
-		"Terminate signal",
-		"User signal 1",
-		"User signal 2",
-	};
 
-	if ((unsigned)sig <= 17)
-		return msg [sig - 1];
-	sprintf (buf, "signal %d received", sig);
-	return buf;
-}
+/* signal handling adapted from pfe by Dirk Zoller (Copylefted) - anton */
 
 static void
 graceful_exit (int sig)
 {
   deprep_terminal();
-  if ((unsigned)sig <= 17)
-    fprintf (stderr, "\n\n%s.\n", sigmsg (sig));
-  else
-    fprintf (stderr, "\n\nSignal %d received, terminated.\n", sig);
+  fprintf (stderr, "\n\n%s.\n", strsignal (sig));
   exit (0x80|sig);
 }
 
@@ -723,27 +691,23 @@ jmp_buf throw_jmp_buf;
 static void 
 signal_throw(int sig)
 {
-  static int throw_codes[] = {
-    -256,
-    -28,
-    -257,
-    -258,
-    -259,
-    -260,
-    -261,
-    -55,
-    -262,
-    -23,
-    -9,
-    -263,
-    -264,
-    -265,
-    -266,
-    -267,
-    -268,
+  int code;
+  struct {
+    int signal;
+    int throwcode;
+  } *p, throwtable[] = {
+    { SIGINT, -28 },
+    { SIGFPE, -55 },
+    { SIGBUS, -23 },
+    { SIGSEGV, -9 },
   };
   signal(sig,signal_throw);
-  longjmp(throw_jmp_buf,throw_codes[sig-1]); /* or use siglongjmp ? */
+  for (code=-256-sig, p=throwtable; p<throwtable+(sizeof(throwtable)/sizeof(*p)); p++)
+    if (sig == p->signal) {
+      code = p->throwcode;
+      break;
+    }
+  longjmp(throw_jmp_buf,code); /* or use siglongjmp ? */
 }
 
 static void
@@ -756,28 +720,170 @@ termprep (int sig)
 void
 install_signal_handlers (void)
 {
-/* !! These definitions seem to be system dependent
-   We could have them in the machine.h file,
-   but I would like something more automatic - anton */
-#define SIGS_TO_IGNORE	SIGCHLD
-#define SIGS_TO_ABORT	SIGINT, SIGILL, SIGFPE, SIGUSR1, SIGSEGV, SIGUSR2, \
-			SIGALRM,  SIGBUS
-#define SIGS_TO_QUIT	SIGHUP, SIGQUIT, SIGABRT, SIGPIPE, \
-			SIGTERM 
-#define SIGS_TO_TERMPREP    SIGCONT
 
-  static short sigs_to_ignore [] = { SIGS_TO_IGNORE };
-  static short sigs_to_abort [] = { SIGS_TO_ABORT };
-  static short sigs_to_quit [] = { SIGS_TO_QUIT };
-  static short sigs_to_termprep [] = { SIGS_TO_TERMPREP };
+#if 0
+/* these signals are handled right by default, no need to handle them;
+   they are listed here just for fun */
+  static short sigs_to_default [] = {
+#ifdef SIGCHLD
+    SIGCHLD,
+#endif
+#ifdef SIGINFO
+    SIGINFO,
+#endif
+#ifdef SIGIO
+    SIGIO,
+#endif
+#ifdef SIGLOST
+    SIGLOST,
+#endif
+#ifdef SIGKILL
+    SIGKILL,
+#endif
+#ifdef SIGSTOP
+    SIGSTOP,
+#endif
+#ifdef SIGPWR
+    SIGPWR,
+#endif
+#ifdef SIGMSG
+    SIGMSG,
+#endif
+#ifdef SIGDANGER
+    SIGDANGER,
+#endif
+#ifdef SIGMIGRATE
+    SIGMIGRATE,
+#endif
+#ifdef SIGPRE
+    SIGPRE,
+#endif
+#ifdef SIGVIRT
+    SIGVIRT,
+#endif
+#ifdef SIGGRANT
+    SIGGRANT,
+#endif
+#ifdef SIGRETRACT
+    SIGRETRACT,
+#endif
+#ifdef SIGSOUND
+    SIGSOUND,
+#endif
+#ifdef SIGSAK
+    SIGSAK,
+#endif
+#ifdef SIGTSTP
+    SIGTSTP,
+#endif
+#ifdef SIGTTIN
+    SIGTTIN,
+#endif
+#ifdef SIGTTOU
+    SIGTTOU,
+#endif
+#ifdef SIGWINCH
+    SIGWINCH,
+#endif
+#ifdef SIGSTKFLT
+    SIGSTKFLT,
+#endif
+#ifdef SIGUNUSED
+    SIGUNUSED,
+#endif
+  };
+#endif
+
+  static short sigs_to_throw [] = {
+#ifdef SIGBREAK
+    SIGBREAK,
+#endif
+#ifdef SIGINT
+    SIGINT,
+#endif
+#ifdef SIGILL
+    SIGILL,
+#endif
+#ifdef SIGEMT
+    SIGEMT,
+#endif
+#ifdef SIGFPE
+    SIGFPE,
+#endif
+#ifdef SIGIOT
+    SIGIOT,
+#endif
+#ifdef SIGSEGV
+    SIGSEGV,
+#endif
+#ifdef SIGALRM
+    SIGALRM,
+#endif
+#ifdef SIGPOLL
+    SIGPOLL,
+#endif
+#ifdef SIGPROF
+    SIGPROF,
+#endif
+#ifdef SIGBUS
+    SIGBUS,
+#endif
+#ifdef SIGSYS
+    SIGSYS,
+#endif
+#ifdef SIGTRAP
+    SIGTRAP,
+#endif
+#ifdef SIGURG
+    SIGURG,
+#endif
+#ifdef SIGUSR1
+    SIGUSR1,
+#endif
+#ifdef SIGUSR2
+    SIGUSR2,
+#endif
+#ifdef SIGVTALRM
+    SIGVTALRM,
+#endif
+#ifdef SIGXFSZ
+    SIGXFSZ,
+#endif
+  };
+  static short sigs_to_quit [] = {
+#ifdef SIGHUP
+    SIGHUP,
+#endif
+#ifdef SIGQUIT
+    SIGQUIT,
+#endif
+#ifdef SIGABRT
+    SIGABRT,
+#endif
+#ifdef SIGPIPE
+    SIGPIPE,
+#endif
+#ifdef SIGTERM
+    SIGTERM,
+#endif
+#ifdef SIGXCPU
+    SIGXCPU,
+#endif
+  };
+  static short sigs_to_termprep [] = {
+#ifdef SIGCONT
+    SIGCONT,
+#endif
+  };
   int i;
 
 #define DIM(X)		(sizeof (X) / sizeof *(X))
+/*
   for (i = 0; i < DIM (sigs_to_ignore); i++)
-    if (sigs_to_ignore [i])
-      signal (sigs_to_ignore [i], SIG_IGN);
-  for (i = 0; i < DIM (sigs_to_abort); i++)
-    signal (sigs_to_abort [i], signal_throw); /* !! change to throw */
+    signal (sigs_to_ignore [i], SIG_IGN);
+*/
+  for (i = 0; i < DIM (sigs_to_throw); i++)
+    signal (sigs_to_throw [i], signal_throw);
   for (i = 0; i < DIM (sigs_to_quit); i++)
     signal (sigs_to_quit [i], graceful_exit);
   for (i = 0; i < DIM (sigs_to_termprep); i++)
