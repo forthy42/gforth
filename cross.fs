@@ -1954,9 +1954,14 @@ previous
 \ save-cross                                           17mar93py
 
 >CROSS
-Create magic  s" Gforth10" here over allot swap move
+Create magic  s" Gforth2x" here over allot swap move
 
-char 1 bigendian + tcell + magic 7 + c!
+bigendian
+tcell 1 = 0 and
+tcell 2 = 2 and or
+tcell 4 = 4 and or
+tcell 8 = 6 and or
+magic 7 + c!
 
 : save-cross ( "image-name" "binary-name" -- )
   bl parse ." Saving to " 2dup type cr

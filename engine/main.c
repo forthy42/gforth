@@ -78,11 +78,16 @@ static int debug=0;
 char *progname;
 
 /* image file format:
- *  "#! binary-path -i\n" (e.g., "#! /usr/local/bin/gforth-0.3.0 -i\n")
+ *  "#! binary-path -i\n" (e.g., "#! /usr/local/bin/gforth-0.4.0 -i\n")
  *   padding to a multiple of 8
- *   magic: "Gforth1x" means format 0.2,
- *              where x is even for big endian and odd for little endian
- *              and x & ~1 is the size of the cell in bytes.
+ *   magic: "Gforth2x" means format 0.4,
+ *              where x is a byte with
+ *              bit 7:   reserved = 0
+ *              bit 6:5: address unit size 2^n octets
+ *              bit 4:3: character size 2^n octets
+ *              bit 2:1: cell size 2^n octets
+ *              bit 0:   endian, big=0, little=1.
+ *  The magic are always 8 octets, no matter what the native AU/character size is
  *  padding to max alignment (no padding necessary on current machines)
  *  ImageHeader structure (see below)
  *  data (size in ImageHeader.image_size)
@@ -343,6 +348,15 @@ Address loader(FILE *imagefile, char* filename)
   Cell data_offset = offset_image ? 56*sizeof(Cell) : 0;
   UCell check_sum;
   static char* endianstring[]= { "big","little" };
+  Cell ausize = ((RELINFOBITS ==  8) ? 0 :
+		 (RELINFOBITS == 16) ? 1 :
+		 (RELINFOBITS == 32) ? 2 : 3);
+  Cell charsize = ((sizeof(Char) == 1) ? 0 :
+		   (sizeof(Char) == 2) ? 1 :
+		   (sizeof(Char) == 4) ? 2 : 3) + ausize;
+  Cell cellsize = ((sizeof(Cell) == 1) ? 0 :
+		   (sizeof(Cell) == 2) ? 1 :
+		   (sizeof(Cell) == 4) ? 2 : 3) + ausize;
 
 #ifndef DOUBLY_INDIRECT
   check_sum = checksum(symbols);
@@ -352,27 +366,34 @@ Address loader(FILE *imagefile, char* filename)
   
   do {
     if(fread(magic,sizeof(Char),8,imagefile) < 8) {
-      fprintf(stderr,"%s: image %s doesn't seem to be a Gforth (>=0.2) image.\n",
+      fprintf(stderr,"%s: image %s doesn't seem to be a Gforth (>=0.4) image.\n",
 	      progname, filename);
       exit(1);
     }
     preamblesize+=8;
-  } while(memcmp(magic,"Gforth1",7));
+  } while(memcmp(magic,"Gforth2",7));
   if (debug) {
     magic[8]='\0';
     fprintf(stderr,"Magic found: %s\n", magic);
   }
 
-  if(magic[7] != sizeof(Cell) +
+  if(magic[7] != (ausize << 5) + (charsize << 3) + (cellsize << 1) +
 #ifdef WORDS_BIGENDIAN
-       '0'
+       0
 #else
-       '1'
+       1
 #endif
        )
-    { fprintf(stderr,"This image is %d bit %s-endian, whereas the machine is %d bit %s-endian.\n", 
-	      ((magic[7]-'0')&~1)*8, endianstring[magic[7]&1],
-	      (int) sizeof(Cell)*8, endianstring[
+    { fprintf(stderr,"This image is %d bit cell, %d bit char, %d bit address unit %s-endian,\n"
+	      "whereas the machine is %d bit cell, %d bit char, %d bit address unit, %s-endian.\n", 
+	      (1<<((magic[7]>>1)&3))*8,
+	      (1<<((magic[7]>>3)&3))*8,
+	      (1<<((magic[7]>>5)&3))*8,
+	      endianstring[magic[7]&1],
+	      (1<<cellsize)*8,
+	      (1<<charsize)*8,
+	      (1<<ausize)*8,
+	      endianstring[
 #ifdef WORDS_BIGENDIAN
 		      0
 #else
