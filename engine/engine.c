@@ -19,7 +19,11 @@
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
 */
 
+#if defined(GFORTH_DEBUGGING) || defined(INDIRECT_THREADED) || defined(DOUBLY_INDIRECT) || defined(VM_PROFILING)
 #define USE_NO_TOS
+#else
+#define USE_TOS
+#endif
 #define USE_NO_FTOS
 
 #include "config.h"
@@ -196,7 +200,7 @@ extern int gforth_memcmp(const char * s1, const char * s2, size_t n);
    because the stack loads may already cause a stack underflow. */
 #endif /* !DEBUG */
 #elif DEBUG
-#       define  NAME(string)    fprintf(stderr,"%08lx depth=%3ld: "string"\n",(Cell)ip,sp0+3-sp);
+#       define  NAME(string)    {Cell __depth=sp0+3-sp; int i; fprintf(stderr,"%08lx depth=%3ld: "string,(Cell)ip,sp0+3-sp); for (i=__depth-1; i>0; i--) fprintf(stderr, " $%lx",sp[i]); fprintf(stderr, " $%lx\n",spTOS); }
 #else
 #	define	NAME(string)
 #endif
@@ -277,7 +281,7 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
   void * prv;
 #endif
   register Address up UPREG = UP;
-  register Cell MAYBE_UNUSED spa TOSREG;
+  IF_spTOS(register Cell MAYBE_UNUSED spTOS TOSREG;)
   register Cell MAYBE_UNUSED spb spaREG;
   register Cell MAYBE_UNUSED spc spbREG;
   IF_fpTOS(register Float fpTOS FTOSREG;)

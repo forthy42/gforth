@@ -535,8 +535,8 @@ defer inst-stream-f ( -- stack )
 : store-single { item -- }
     item item-stack @ { stack }
     store-optimization @ in-part @ 0= and item same-as-in? and
-    item item-in-index  stack state-in  stack-reg 0= and \  in in memory?
-    item item-out-index stack state-out stack-reg 0= and \ out in memory?
+    item item-in-index  stack state-in  stack-reg       \  in reg/mem
+    item item-out-index stack state-out stack-reg = and \ out reg/mem
     0= if
 	item really-store-single cr
     endif ;

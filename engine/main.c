@@ -1405,26 +1405,6 @@ void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
   assert(nextstate==CANONICAL_STATE);
 }
 
-/* rewrite the instructions pointed to by instps to use the
-   superinstructions in optimals */
-static void rewrite_bb(Cell *instps[], PrimNum *optimals, int ninsts)
-{
-  int i,j, nextdyn;
-  Cell inst;
-
-  for (i=0, nextdyn=0; i<ninsts; i++) {
-    if (i==nextdyn) { /* compile dynamically */
-      nextdyn += super_costs[optimals[i]].length;
-      inst = compile_prim_dyn(optimals[i]);
-      for (j=0; j<sizeof(cost_sums)/sizeof(cost_sums[0]); j++)
-	cost_sums[j].sum += cost_sums[j].costfunc(optimals[i]);
-    } else { /* compile statically */
-      inst = (Cell)vm_prims[optimals[i]];
-    }
-    *(instps[i]) = inst;
-  }
-}
-
 /* compile *start, possibly rewriting it into a static and/or dynamic
    superinstruction */
 void compile_prim1(Cell *start)

@@ -54,6 +54,12 @@
 
 #else
 /* gforth-fast or gforth-native */
+#  undef USE_TOS
+#  undef USE_FTOS
+#  undef USE_NO_TOS
+#  undef USE_NO_FTOS
+#  define USE_TOS
+#  define USE_NO_FTOS
 
 #define PRIM_I "prim-fast.i"
 #define PRIM_LAB_I "prim_lab-fast.i"
