@@ -1,29 +1,26 @@
-name> does not take the same argument as e.g. .name. Remedy: add cell+
-before name>, but adapt all uses.  anton 23apr94 Solved?
-
-revealing the same name several times (e.g., by using recursive)
-results in "redefined ..." messages.  anton 28jul94
-
 etags.fs crashes one of my applications (gs.fs). anton 12jan95
 
 not all aliases are in the etags file. Bug in etags.fs? anton 24jan95
+-> wrote special tag generation for cross compilation. bernd 6sep95
 
 emacs often finds the wrong tag. anton 24jan95
+-> emacs does not search for a complete word, but for parts.
+-> Solution: add blanks in front and end of tag name (etags.fs)
+-> and use own forth-find-tag. bernd 6sep95
 
 gforth.el: indentation does not work right on the first line of a
 buffer. anton 27jan95
+-> Solved?
 
 Conditional compilation continues after the file ends. This is allowed
 by the standard (through an ambiguous condition), but the compiler
 should at least produce a warning.  anton 27jan95
 
-accept and expect: the result string can be exceeded with tab
-(completion). anton 16apr95
-
-gforth should terminate when the input file ends. Also, C-d from the
-terminal should terminate gforth. anton 16apr95
-
-floating-point stack not checked.  anton 23apr95
-
-.1 is interpreted as floating-pint number, not as double number or
+.1 is interpreted as floating-point number, not as double number or
 error. anton 4may95
+-> All numbers ecvt converts are (by implementation) floating-point.
+-> Should we add a check againgst . at the start of a number?
+-> .1 isn't a double number; it's either an error or a FP number.
+-> bernd 5sep95
+
+DOS and OS/2 don't like . at begin of a file (.gforth-history). bernd 6sep95py

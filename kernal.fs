@@ -346,7 +346,9 @@ hex
 
 \ ?stack                                               23feb93py
 
-: ?stack ( ?? -- ?? )  sp@ s0 @ > IF  -4 throw  THEN ;
+: ?stack ( ?? -- ?? )
+    sp@ s0 @ > IF    -4 throw  THEN
+    fp@ f0 @ > IF  -&45 throw  THEN  ;
 \ ?stack should be code -- it touches an empty stack!
 
 \ interpret                                            10mar92py
@@ -990,15 +992,15 @@ AVariable current
 
 : last?   ( -- false / nfa nfa )    last @ ?dup ;
 : (reveal) ( -- )
-  last?
-  IF
-      dup @ 0<
-      IF
-	current @ @ over ! current @ !
-      ELSE
-	drop
-      THEN
-  THEN ;
+    last?
+    IF
+	dup @ 0<
+	IF
+	    current @ @ over ! current @ !
+	ELSE
+	    drop
+	THEN
+    THEN ;
 
 \ object oriented search list                          17mar93py
 
@@ -1096,9 +1098,10 @@ Variable warnings  G -1 warnings T !
 : (ret)  type-rest drop true space ;
 : back  dup  IF  1- #bs emit  ELSE  #bell emit  THEN 0 ;
 : forw 2 pick over <> IF  2dup + c@ emit 1+  ELSE  #bell emit  THEN 0 ;
+: eof  2 pick 0=  IF  bye  ELSE  (ret)  THEN ;
 
 Create ctrlkeys
-  ] false false back  false  false false forw  false
+  ] false false back  false  eof   false forw  false
     ?del  false (ret) false  false (ret) false false
     false false false false  false false false false
     false false false false  false false false false [
@@ -1334,7 +1337,7 @@ create included-files 0 , 0 , ( pointer to and count of included files )
 : recurse ( -- )
     lastxt compile, ; immediate restrict
 : recursive ( -- )
-    reveal ; immediate
+    reveal last off ; immediate
 
 \ */MOD */                                              17may93jaw
 
@@ -1503,17 +1506,16 @@ Variable argc
 
 : process-args ( -- )
     >tib @ >r
-    true to script?
     argc @ 1
     ?DO
 	I arg over c@ [char] - <>
 	IF
 	    required 1
 	ELSE
-	    I 1+ arg  do-option
+	    I 1+ argc @ =  IF  s" "  ELSE  I 1+ arg  THEN
+	    do-option
 	THEN
     +LOOP
-    false to script?
     r> >tib ! ;
 
 Defer 'cold ' noop IS 'cold
@@ -1524,12 +1526,14 @@ Defer 'cold ' noop IS 'cold
     'cold
     argc @ 1 >
     IF
+	true to script?
 	['] process-args catch ?dup
 	IF
 	    dup >r DoError cr r> negate (bye)
 	THEN
+	cr
     THEN
-    cr
+    false to script?
     ." GNU Forth " version-string type ." , Copyright (C) 1994 Free Software Foundation, Inc." cr
     ." GNU Forth comes with ABSOLUTELY NO WARRANTY; for details type `license'" cr
     ." Type `bye' to exit"

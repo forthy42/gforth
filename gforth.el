@@ -20,7 +20,7 @@
 ;; file named COPYING.  Among other things, the copyright notice
 ;; and this notice must be preserved on all copies.
 
-;;; $Header: /usr/local/lib/cvs-repository/src-master/gforth/gforth.el,v 1.12 1995-08-27 19:56:30 pazsan Exp $
+;;; $Header: /usr/local/lib/cvs-repository/src-master/gforth/gforth.el,v 1.13 1995-09-06 21:00:15 pazsan Exp $
 
 ;;-------------------------------------------------------------------
 ;; A Forth indentation, documentation search and interaction library
@@ -37,13 +37,13 @@
 
 
 (defvar forth-positives
-  " : :noname begin do ?do while if ?dup-if ?dup-not-if else case create does> exception> struct [if] [else] "
+  " : :noname begin do ?do while if ?dup-if ?dup-not-if else case struct [if] [else] "
   "Contains all words which will cause the indent-level to be incremented
 on the next line.
 OBS! All words in forth-positives must be surrounded by spaces.")
 
 (defvar forth-negatives
-  " ; until repeat while +loop loop s+loop else then endif again endcase does> end-struct [then] [else] [endif]"
+  " ; until repeat while +loop loop s+loop else then endif again endcase end-struct [then] [else] [endif]"
   "Contains all words which will cause the indent-level to be decremented
 on the current line.
 OBS! All words in forth-negatives must be surrounded by spaces.")
@@ -81,6 +81,14 @@ OBS! All words in forth-negatives must be surrounded by spaces.")
 (define-key forth-mode-map "\t" 'forth-indent-command)
 (define-key forth-mode-map "\C-m" 'reindent-then-newline-and-indent)
 (define-key forth-mode-map "\M-q" 'forth-fill-paragraph)
+(define-key forth-mode-map "\e." 'forth-find-tag)
+
+(load "etags.el")
+
+(defun forth-find-tag (tagname &optional next-p regexp-p)
+  (interactive (find-tag-interactive "Find tag: "))
+  (switch-to-buffer
+   (find-tag-noselect (concat " " tagname " ") next-p regexp-p)))
 
 (defvar forth-mode-syntax-table nil
   "Syntax table in use in Forth-mode buffers.")
@@ -103,7 +111,7 @@ OBS! All words in forth-negatives must be surrounded by spaces.")
 ;only supports one comment syntax (and a hack to accomodate C++); I
 ;use '\' for natural language comments and '(' for formal comments
 ;like stack comments, so for me it's better to have emacs treat '\'
-;comments as comments. I you want it different, make the appropriate
+;comments as comments. If you want it different, make the appropriate
 ;changes (best in your .emacs file).
 ;
 ;Hmm, the C++ hack could be used to support both comment syntaxes: we
@@ -413,12 +421,9 @@ part of the screen."
 	   (message "Resetting Forth process...done")))))
 
 (defun forth-default-command-line ()
-  (concat forth-program-name " -emacs"
+  (concat forth-program-name
 	  (if forth-program-arguments
 	      (concat " " forth-program-arguments)
-	      "")
-	  (if forth-band-name
-	      (concat " -band " forth-band-name)
 	      "")))
 
 ;;;; Internal Variables

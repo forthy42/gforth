@@ -1,4 +1,3 @@
-#! /usr/stud/paysan/bin/forth
 \ startup file
 
 warnings off

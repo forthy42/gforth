@@ -779,7 +779,7 @@ n=system(cstr(c_addr,u,1)); /* ~ expansion on first part of string? */
 
 getenv	c_addr1 u1 -- c_addr2 u2	new
 c_addr2 = getenv(cstr(c_addr1,u1,1));
-u2=strlen(c_addr2);
+u2 = (c_addr2 == NULL ? 0 : strlen(c_addr2));
 
 popen	c_addr u n -- wfileid	own
 static char* mode[2]={"r","w"}; /* !! should we use FAM here? */
@@ -793,7 +793,7 @@ struct timeval time1;
 struct timezone zone1;
 struct tm *ltime;
 gettimeofday(&time1,&zone1);
-ltime=localtime(&time1.tv_sec);
+ltime=localtime((time_t *)&time1.tv_sec);
 nyear =ltime->tm_year+1900;
 nmonth=ltime->tm_mon+1;
 nday  =ltime->tm_mday;
@@ -924,14 +924,14 @@ wior = IOR(fclose((FILE *)wfileid)==EOF);
 
 open-file	c_addr u ntype -- w2 wior	file	open_file
 w2 = (Cell)fopen(tilde_cstr(c_addr, u, 1), fileattr[ntype]);
-wior =  IOR(w2 == NULL);
+wior =  IOR(w2 == 0);
 
 create-file	c_addr u ntype -- w2 wior	file	create_file
 Cell	fd;
 fd = open(tilde_cstr(c_addr, u, 1), O_CREAT|O_RDWR|O_TRUNC, 0666);
 if (fd != -1) {
   w2 = (Cell)fdopen(fd, fileattr[ntype]);
-  wior = IOR(w2==NULL);
+  wior = IOR(w2 == 0);
 } else {
   w2 = 0;
   wior = IOR(1);
@@ -1143,7 +1143,7 @@ represent		r c_addr u -- n f1 f2	float
 char *sig;
 Cell flag;
 Cell decpt;
-sig=ecvt(r, u, &decpt, &flag);
+sig=ecvt(r, u, (int *)&decpt, (int *)&flag);
 n=(r==0 ? 1 : decpt);
 f1=FLAG(flag!=0);
 f2=FLAG(isdigit(sig[0])!=0);

@@ -281,7 +281,7 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
 
   IF_TOS(TOS = sp[0]);
   IF_FTOS(FTOS = fp[0]);
-  prep_terminal();
+/*  prep_terminal(); */
   NEXT_P0;
   NEXT;
   

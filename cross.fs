@@ -1,5 +1,5 @@
 \ CROSS.FS     The Cross-Compiler                      06oct92py
-\ $Id: cross.fs,v 1.27 1995-08-27 19:56:27 pazsan Exp $
+\ $Id: cross.fs,v 1.28 1995-09-06 21:00:11 pazsan Exp $
 \ Idea and implementation: Bernd Paysan (py)
 \ Copyright 1992-94 by the GNU Forth Development Group
 
@@ -357,7 +357,7 @@ VARIABLE ^imm
 \ Target Header Creation                               01nov92py
 
 : string,  ( addr count -- )
-  dup T c, H bounds  DO  I c@ T c, H  LOOP ; 
+  dup T c, H bounds  ?DO  I c@ T c, H  LOOP ; 
 : name,  ( "name" -- )  bl word count string, T cfalign H ;
 : view,   ( -- ) ( dummy ) ;
 
@@ -387,6 +387,43 @@ Variable to-doc
 	>in !
     THEN  to-doc on ;
 
+\ Target TAGS creation
+
+s" TAGS" r/w create-file throw value tag-file-id
+\ contains the file-id of the tags file
+
+Create tag-beg 2 c,  7F c, bl c,
+Create tag-end 2 c,  bl c, 01 c,
+Create tag-bof 1 c,  0C c,
+
+2variable last-loadfilename 0 0 last-loadfilename 2!
+	    
+: put-load-file-name ( -- )
+    loadfilename 2@ last-loadfilename 2@ d<>
+    IF
+	tag-bof count tag-file-id write-line throw
+	loadfilename 2@ 2dup
+	tag-file-id write-file throw
+	last-loadfilename 2!
+	s" ,0" tag-file-id write-line throw
+    THEN ;
+
+: cross-tag-entry  ( -- )
+    tlast @ 0<>	\ not an anonymous (i.e. noname) header
+    IF
+	put-load-file-name
+	source >in @ min tag-file-id write-file throw
+	tag-beg count tag-file-id write-file throw
+	tlast @ >image count $1F and tag-file-id write-file throw
+	tag-end count tag-file-id write-file throw
+	base @ decimal loadline @ 0 <# #s #> tag-file-id write-file throw
+\	>in @ 0 <# #s [char] , hold #> tag-file-id write-line throw
+	s" ,0" tag-file-id write-line throw
+	base !
+    THEN ;
+
+\ Target header creation
+
 VARIABLE CreateFlag CreateFlag off
 
 : (Theader ( "name" -- ghost ) T align H view,
@@ -402,7 +439,7 @@ VARIABLE CreateFlag CreateFlag off
   Already @ IF  dup >end tdoes !
   ELSE 0 tdoes ! THEN
   80 flag!
-  cross-doc-entry ;
+  cross-doc-entry cross-tag-entry ;
 
 VARIABLE ;Resolve 1 cells allot
 

@@ -570,6 +570,8 @@ long key_avail (stream)
   long chars_avail = pending;
   int result;
 
+  if(!terminal_prepped)  prep_terminal();
+
 #if defined (FIONREAD)
   result = ioctl (tty, FIONREAD, &chars_avail);
 #endif
@@ -605,6 +607,8 @@ unsigned char getkey(stream)
   int result;
   unsigned char c;
 
+  if(!terminal_prepped)  prep_terminal();
+
   while (pending < 0)
     {
       result = read (fileno (stream), &c, sizeof (char));
@@ -615,7 +619,7 @@ unsigned char getkey(stream)
       /* If zero characters are returned, then the file that we are
 	 reading from is empty!  Return EOF in that case. */
       if (result == 0)
-	return (0);
+	return CTRL('D');
 
       /* If the error that we received was SIGINT, then try again,
 	 this is simply an interrupted system call to read ().
@@ -745,7 +749,7 @@ signal_throw(int sig)
 static void
 termprep (int sig)
 {
-  terminal_prepped=0; prep_terminal();
+  terminal_prepped=0;
   signal(sig,termprep);
 }
 

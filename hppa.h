@@ -1,5 +1,5 @@
 /*
-  $Id: hppa.h,v 1.7 1995-08-27 19:56:32 pazsan Exp $
+  $Id: hppa.h,v 1.8 1995-09-06 21:00:18 pazsan Exp $
   Copyright 1992 by the ANSI figForth Development Group
 
   This is the machine-specific part for a HPPA running HP-UX

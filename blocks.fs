@@ -39,13 +39,13 @@ block-cold
 Defer flush-file
 
 : use-file ( addr u -- )
-    block-fid @  IF  flush-file block-fid @ close-file throw  THEN
     2dup r/w bin open-file 0<>
     if
 	drop r/w bin create-file throw
     else
 	nip nip
     then
+    block-fid @ IF  flush-file block-fid @ close-file throw  THEN
     block-fid ! ;
 
 \ the file is opened as binary file, since it either will contain text

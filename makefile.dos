@@ -193,50 +193,50 @@ gforth:		$(OBJECTS)
 		coff2exe $@
 
 kernl16l.fi+:	$(KERN_SRC) mach16l.fs $(FORTH_GEN0)
-		-$(CP) kernl16l.fi kernl16l.fi~
 		$(FORTH) -e 's" mach16l.fs"' main.fs
 
 kernl16b.fi+:	$(KERN_SRC) mach16b.fs $(FORTH_GEN0)
-		-$(CP) kernl16b.fi kernl16b.fi~
 		$(FORTH) -e 's" mach16b.fs"' main.fs
 
 kernl32l.fi+:	$(KERN_SRC) mach32l.fs $(FORTH_GEN0)
-		-$(CP) kernl32l.fi kernl32l.fi~
 		$(FORTH) -e 's" mach32l.fs"' main.fs
 
 kernl32b.fi+:	$(KERN_SRC) mach32b.fs $(FORTH_GEN0)
-		-$(CP) kernl32b.fi kernl32b.fi~
 		$(FORTH) -e 's" mach32b.fs"' main.fs
 
 kernl64l.fi+:	$(KERN_SRC) mach64l.fs $(FORTH_GEN0)
-		-$(CP) kernl64l.fi kernl64l.fi~
 		$(FORTH) -e 's" mach64l.fs"' main.fs
 
 kernl64b.fi+:	$(KERN_SRC) mach64b.fs $(FORTH_GEN0)
-		-$(CP) kernl64b.fi kernl64b.fi~
 		$(FORTH) -e 's" mach64b.fs"' main.fs
 
 kernl16b.fi:	$(KERNLS)
+		-$(CP) kernl16b.fi kernl16b.fi~
 		-$(CP) kernl16b.fi+ kernl16b.fi
 		
 
 kernl16l.fi:	$(KERNLS)
+		-$(CP) kernl16l.fi kernl16l.fi~
 		-$(CP) kernl16l.fi+ kernl16l.fi
 		
 
 kernl32b.fi:	$(KERNLS)
+		-$(CP) kernl32b.fi kernl32b.fi~
 		-$(CP) kernl32b.fi+ kernl32b.fi
 		
 
 kernl32l.fi:	$(KERNLS)
+		-$(CP) kernl32l.fi kernl32l.fi~
 		-$(CP) kernl32l.fi+ kernl32l.fi
 		-$(CP) kernl32l.fi gforth.fi
 
 kernl64b.fi:	$(KERNLS)
+		-$(CP) kernl64b.fi kernl64b.fi~
 		-$(CP) kernl64b.fi+ kernl64b.fi
 		
 
 kernl64l.fi:	$(KERNLS)
+		-$(CP) kernl64l.fi kernl64l.fi~
 		-$(CP) kernl64l.fi+ kernl64l.fi
 		
 
@@ -304,3 +304,7 @@ configure: configure.in
 
 makefile.dos: mkdosmf.sed Makefile.in
 	sed -f mkdosmf.sed <Makefile.in >makefile.dos
+
+startup.dos: startup.fs Makefile.in
+	sed -e "s/\\\\ include doskey/include doskey/g" \
+	    -e "s/include vt100key/\\\\ include vt100key/g" <$< >$@
