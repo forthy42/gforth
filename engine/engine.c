@@ -19,6 +19,9 @@
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
 */
 
+#define USE_NO_TOS
+#define USE_NO_FTOS
+
 #include "config.h"
 #include "forth.h"
 #include <ctype.h>

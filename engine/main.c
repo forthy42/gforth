@@ -560,6 +560,8 @@ struct cost {
   char stores;      /* number of stack stores */
   char updates;     /* number of stack pointer updates */
   char branch;	    /* is it a branch (SET_IP) */
+  char state_in;    /* state on entry */
+  char state_out;   /* state on exit */
   short offset;     /* offset into super2 table */
   char length;      /* number of components */
 };

@@ -148,13 +148,14 @@
 \E create regs sp2 , sp1 , spTOS ,
 
 \E IPregs 1 0 stack-state IPss1
-\E regs           0 -1 stack-state ss0
+\E regs 3 cells + 0 -1 stack-state ss0
 \E regs 2 cells + 1  0 stack-state ss1
 \E regs 1 cells + 2  1 stack-state ss2
 \E regs 0 cells + 3  2 stack-state ss3
 
-\E state S0
+\ the first of these is the default state
 \E state S1
+\E state S0
 \E state S2
 \E state S3
 
@@ -171,10 +172,9 @@
 \E data-stack to cache-stack
 \E here 4 cache-states 2! s0 , s1 , s2 , s3 ,
 
-\E S1 to state-in-default
-\E S1 to state-out-default
-\E state-in-default to state-in
-\E state-out-default to state-out
+\E S1 to state-default
+\E state-default to state-in
+\E state-default to state-out
 
 +	( n1 n2 -- n )		core	plus
 n = n1+n2;
@@ -199,7 +199,7 @@ noop ( -- )
 \E prim-states drop
 \E prim-states over
 
-\E S1 branch-states ?branch
+\E branch-states ?branch
 
 \E gen-transitions noop
 

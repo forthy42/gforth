@@ -188,8 +188,29 @@ struct%
     cell%    field type-store \ xt of store code generator ( item -- )
 end-struct type%
 
+struct%
+    cell%    field register-number
+    cell%    field register-type \ pointer to type
+    cell% 2* field register-name \ c name
+end-struct register%
+
+struct%
+    cell% 2* field ss-registers  \ addr u; ss-registers[0] is TOS
+                                 \ 0 means: use memory
+    cell%    field ss-offset     \ stack pointer offset: sp[-offset] is TOS
+end-struct ss% \ stack-state
+
+struct%
+    cell%              field state-number
+    cell% max-stacks * field state-sss
+end-struct state%
+
 variable next-stack-number 0 next-stack-number !
 create stacks max-stacks cells allot \ array of stacks
+256 constant max-registers
+create registers max-registers cells allot \ array of registers
+variable nregisters 0 nregisters ! \ number of registers
+variable next-state-number 0 next-state-number ! \ next state number
 
 : stack-in-index ( in-size item -- in-index )
     item-offset @ - 1- ;
@@ -269,6 +290,9 @@ end-struct prim%
 0 value combined \ in combined prims the combined prim
 variable in-part \ true if processing a part
  in-part off
+0 value state-in  \ state on entering prim
+0 value state-out \ state on exiting prim
+0 value state-default  \ canonical state at bb boundaries
 
 : prim-context ( ... p xt -- ... )
     \ execute xt with prim set to p
@@ -351,18 +375,36 @@ defer inst-stream-f ( -- stack )
 \ stack access stuff
 
 : normal-stack-access0 { n stack -- }
+    \ n has the ss-offset already applied (see ...-access1)
     n stack stack-access-transform @ execute ." [" 0 .r ." ]" ;
-    
-: normal-stack-access1 { n stack -- }
-    stack stack-pointer 2@ type
-    n if
-	n stack normal-stack-access0
+
+: state-ss { stack state -- ss }
+    state state-sss stack stack-number @ th @ ;
+
+: stack-reg { n stack state -- reg }
+    \ n is the index (TOS=0); reg is 0 if the access is to memory
+    stack state state-ss ss-registers 2@ n u> if ( addr ) \ in ss-registers?
+	n th @
     else
-	." TOS"
+	drop 0
     endif ;
 
-: normal-stack-access ( n stack -- )
-    dup inst-stream-f = if
+: .reg ( reg -- )
+    register-name 2@ type ;
+
+: stack-offset ( stack state -- n )
+    \ offset for stack in state
+    state-ss ss-offset @ ;
+
+: normal-stack-access1 { n stack state -- }
+    n stack state stack-reg ?dup-if
+	.reg exit
+    endif
+    stack stack-pointer 2@ type
+    n stack state stack-offset - stack normal-stack-access0 ;
+
+: normal-stack-access ( n stack state -- )
+    over inst-stream-f = if
 	." IMM_ARG(" normal-stack-access1 ." ," immarg ? ." )"
 	1 immarg +!
     else
@@ -391,7 +433,7 @@ defer inst-stream-f ( -- stack )
     stack stack-number @ part-num @ s-c-max-depth @
 \    max-depth stack stack-number @ th @ ( ndepth nmaxdepth )
     over <= if ( ndepth ) \ load from memory
-	stack normal-stack-access
+	stack state-in normal-stack-access
     else
 	drop n stack part-stack-access
     endif ;
@@ -405,7 +447,7 @@ defer inst-stream-f ( -- stack )
     stack stack-number @ part-num @ s-c-max-back-depth @
     over <= if ( ndepth )
 	stack combined ['] stack-diff prim-context -
-	stack normal-stack-access
+	stack state-out normal-stack-access
     else
 	drop n stack part-stack-access
     endif ;
@@ -415,7 +457,7 @@ defer inst-stream-f ( -- stack )
     in-part @ if
 	part-stack-read
     else
-	normal-stack-access
+	state-in normal-stack-access
     endif ;
 
 : stack-write ( n stack -- )
@@ -423,7 +465,7 @@ defer inst-stream-f ( -- stack )
     in-part @ if
 	part-stack-write
     else
-	normal-stack-access
+	state-out normal-stack-access
     endif ;
 
 : item-in-index { item -- n }
@@ -474,7 +516,7 @@ defer inst-stream-f ( -- stack )
  rdrop ;
 
 : item-out-index ( item -- n )
-    \ n is the index of item (in the in-effect)
+    \ n is the index of item (in the out-effect)
     >r r@ item-stack @ stack-out @ r> item-offset @ - 1- ;
 
 : really-store-single ( item -- )
@@ -486,17 +528,14 @@ defer inst-stream-f ( -- stack )
     r@ item-out-index r@ item-stack @ stack-write ." );"
     rdrop ;
 
-: store-single ( item -- )
-    >r
-    store-optimization @ in-part @ 0= and r@ same-as-in? and if
-	r@ item-in-index 0= r@ item-out-index 0= xor if
-	    ." IF_" r@ item-stack @ stack-pointer 2@ type
-	    ." TOS(" r@ really-store-single ." );" cr
-	endif
-    else
-	r@ really-store-single cr
-    endif
-    rdrop ;
+: store-single { item -- }
+    item item-stack @ { stack }
+    store-optimization @ in-part @ 0= and item same-as-in? and
+    item item-in-index  stack state-in  stack-reg 0= and \  in in memory?
+    item item-out-index stack state-out stack-reg 0= and \ out in memory?
+    0= if
+	item really-store-single cr
+    endif ;
 
 : store-double ( item -- )
 \ !! store optimization is not performed, because it is not yet needed
@@ -614,20 +653,67 @@ does> ( item -- )
 wordlist constant type-names \ this is here just to meet the requirement
                     \ that a type be a word; it is never used for lookup
 
+: define-type ( addr u -- xt )
+    \ define single type with name addr u, without stack
+    get-current type-names set-current >r
+    2dup nextname stack-type-name
+    r> set-current
+    latestxt ;
+
 : stack ( "name" "stack-pointer" "type" -- )
     \ define stack
     name { d: stack-name }
     name { d: stack-pointer }
     name { d: stack-type }
-    get-current type-names set-current
-    stack-type 2dup nextname stack-type-name
-    set-current
-    stack-pointer latestxt >body stack-name nextname make-stack ;
+    stack-type define-type
+    stack-pointer rot >body stack-name nextname make-stack ;
 
 stack inst-stream IP Cell
 ' inst-in-index inst-stream stack-in-index-xt !
 ' inst-stream <is> inst-stream-f
 \ !! initialize stack-in and stack-out
+
+\ registers
+
+: make-register ( type addr u -- )
+    \ define register with type TYPE and name ADDR U.
+    nregisters @ max-registers < s" too many registers" ?print-error
+    2dup nextname create register% %allot >r
+    r@ register-name 2!
+    r@ register-type !
+    nregisters @ r@ register-number !
+    1 nregisters +!
+    rdrop ;
+
+: register ( "name" "type" -- )
+    \ define register
+    name { d: reg-name }
+    name { d: reg-type }
+    reg-type define-type >body
+    reg-name make-register ;
+
+\ stack-states
+
+: stack-state ( a-addr u uoffset "name" -- )
+    create ss% %allot >r
+    r@ ss-offset !
+    r@ ss-registers 2!
+    rdrop ;
+
+0 0 0 stack-state default-ss
+
+\ state
+
+: state ( "name" -- )
+    \ create a state initialized with default-sss
+    create state% %allot { s }
+    next-state-number @ s state-number ! 1 next-state-number +!
+    max-stacks 0 ?do
+	default-ss s state-sss i th !
+    loop ;
+
+: set-ss ( ss stack state -- )
+    state-sss swap stack-number @ th ! ;
 
 \ offset computation
 \ the leftmost (i.e. deepest) item has offset 0
@@ -658,32 +744,81 @@ stack inst-stream IP Cell
     declarations compute-offsets
     output @ execute ;
 
-: flush-a-tos { stack -- }
-    stack stack-out @ 0<> stack stack-in @ 0= and
-    if
-	." IF_" stack stack-pointer 2@ 2dup type ." TOS("
-	2dup type 0 stack normal-stack-access0 ."  = " type ." TOS);" cr
-    endif ;
+: stack-state-items ( stack state -- n )
+    state-ss ss-registers 2@ nip ;
 
-: flush-tos ( -- )
-    ['] flush-a-tos map-stacks1 ;
+: unused-stack-items { stack -- n-in n-out }
+    \ n-in  are the stack items in state-in  not used    by prim
+    \ n-out are the stack items in state-out not written by prim
+    stack state-in  stack-state-items stack stack-in  @ - 0 max
+    stack state-out stack-state-items stack stack-out @ - 0 max ;
 
-: fill-a-tos { stack -- }
-    stack stack-out @ 0= stack stack-in @ 0<> and
-    if
-	." IF_" stack stack-pointer 2@ 2dup type ." TOS("
-	2dup type ." TOS = " type 0 stack normal-stack-access0 ." );" cr
-    endif ;
+: spill-stack { stack -- }
+    \ spill regs of state-in that are not used by prim and are not in state-out
+    stack state-in stack-offset { offset }
+    stack state-in stack-state-items ( items )
+    dup stack unused-stack-items - - +do
+	\ loop through the bottom items
+	stack stack-pointer 2@ type
+	i offset - stack normal-stack-access0 ."  = "
+	i stack state-in normal-stack-access1 ." ;" cr
+    loop ;
 
-: fill-tos ( -- )
+: spill-state ( -- )
+    ['] spill-stack map-stacks1 ;
+
+: fill-stack { stack -- }
+    stack state-out stack-offset { offset }
+    stack state-out stack-state-items ( items )
+    dup stack unused-stack-items - + +do
+	\ loop through the bottom items
+	i stack state-out normal-stack-access1 ."  = "
+	stack stack-pointer 2@ type
+	i offset - stack normal-stack-access0 ." ;" cr
+    loop ;
+
+: fill-state ( -- )
     \ !! inst-stream for prefetching?
-    ['] fill-a-tos map-stacks1 ;
+    ['] fill-stack map-stacks1 ;
 
 : fetch ( addr -- )
     dup item-type @ type-fetch @ execute ;
 
 : fetches ( -- )
     prim prim-effect-in prim prim-effect-in-end @ ['] fetch map-items ;
+
+: reg-reg-move ( reg-from reg-to -- )
+    2dup = if
+	2drop
+    else
+	.reg ."  = " .reg ." ;" cr
+    endif ;
+
+: stack-bottom-reg { n stack state -- reg }
+    stack state stack-state-items n - 1- stack state stack-reg ;
+
+: stack-moves { stack -- }
+    \ generate moves between registers in state-in/state-out that are
+    \ not spilled or consumed/produced by prim.
+    \ !! this works only for a simple stack cache, not e.g., for
+    \ rotating stack caches, or registers shared between stacks (the
+    \ latter would also require a change in interface)
+    \ !! maybe place this after NEXT_P1?
+    stack unused-stack-items 2dup < if ( n-in n-out )
+	\ move registers from 0..n_in-1 to n_out-n_in..n_out-1
+	over - { diff } ( n-in )
+	-1 swap 1- -do
+	    i stack state-in stack-bottom-reg ( reg-from )
+	    i diff + stack state-out stack-bottom-reg reg-reg-move
+	1 -loop
+    else
+	\ move registers from n_in-n_out..n_in-1 to 0..n_out-1
+	swap over - { diff } ( n-out )
+	0 +do
+	    i diff + stack state-in stack-bottom-reg ( reg-from )
+	    i stack state-out stack-bottom-reg reg-reg-move
+	loop
+    endif ;
 
 : stack-update-transform ( n1 stack -- n2 )
     \ n2 is the number by which the stack pointer should be
@@ -692,8 +827,11 @@ stack inst-stream IP Cell
     0 r> execute - ;
 
 : stack-pointer-update { stack -- }
+    \ and moves
     \ stacks grow downwards
-    stack stack-diff
+    stack stack-diff ( in-out )
+    stack state-in  stack-offset -
+    stack state-out stack-offset + ( [in-in_offset]-[out-out_offset] )
     ?dup-if \ this check is not necessary, gcc would do this for us
 	stack inst-stream = if
 	    ." INC_IP(" 0 .r ." );" cr
@@ -701,7 +839,8 @@ stack inst-stream IP Cell
 	    stack stack-pointer 2@ type ."  += "
 	    stack stack-update-transform 0 .r ." ;" cr
 	endif
-    endif ;
+    endif
+    stack stack-moves ;
 
 : stack-pointer-updates ( -- )
     ['] stack-pointer-update map-stacks ;
@@ -764,14 +903,14 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
     print-debug-results
     ." NEXT_P1;" cr
     stores
-    fill-tos 
+    fill-state 
     xt execute ;
 
 : output-c-tail1-no-stores { xt -- }
     \ the final part of the generated C code for combinations
     output-super-end
     ." NEXT_P1;" cr
-    fill-tos 
+    fill-state 
     xt execute ;
 
 : output-c-tail ( -- )
@@ -814,7 +953,7 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
     ." DEF_CA" cr
     print-declarations
     ." NEXT_P0;" cr
-    flush-tos
+    spill-state
     fetches
     print-debug-args
     stack-pointer-updates
@@ -936,7 +1075,7 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
 \      data-stack   stack-used? IF ." Cell *sp=SP;" cr THEN
 \      fp-stack     stack-used? IF ." Cell *fp=*FP;" cr THEN
 \      return-stack stack-used? IF ." Cell *rp=*RP;" cr THEN
-\      flush-tos
+\      spill-state
 \      fetches
 \      stack-pointer-updates
 \      fp-stack   stack-used? IF ." *FP=fp;" cr THEN
@@ -945,7 +1084,7 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
 \      prim prim-c-code 2@ type
 \      ." }" cr
 \      stores
-\      fill-tos
+\      fill-state
 \      ." return (sp);" cr
 \      ." }" cr
 \      cr ;
@@ -1172,6 +1311,82 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
     compute-max-back-depths
     output-combined perform ;
 
+\ reprocessing (typically to generate versions for another cache states)
+\ !! use prim-context
+
+variable reprocessed-num 0 reprocessed-num !
+
+: new-name ( -- c-addr u )
+    reprocessed-num @ 0
+    1 reprocessed-num +!
+    <# #s 'p hold '_ hold #> save-mem ;
+
+: reprocess-simple ( prim -- )
+    to prim
+    new-name prim prim-c-name 2!
+    output @ execute ;
+
+: lookup-prim ( c-addr u -- prim )
+    primitives search-wordlist 0= -13 and throw execute ;
+
+: state-prim1 { in-state out-state prim -- }
+    in-state out-state state-default dup d= ?EXIT
+    in-state  to state-in
+    out-state to state-out
+    prim reprocess-simple ;
+
+: state-prim ( in-state out-state "name" -- )
+    parse-word lookup-prim state-prim1 ;
+
+\ reprocessing with default states
+
+\ This is a simple scheme and should be generalized
+\ assumes we only cache one stack and use simple states for that
+
+0 value cache-stack  \ stack that we cache
+2variable cache-states \ states of the cache, starting with the empty state
+
+: compute-default-state-out ( n-in -- n-out )
+    \ for the current prim
+    cache-stack stack-in @ - 0 max
+    cache-stack stack-out @ + cache-states 2@ nip 1- min ;
+
+: gen-prim-states ( prim -- )
+    to prim
+    cache-states 2@ swap { states } ( nstates )
+    cache-stack stack-in @ +do
+	states i th @
+	states i compute-default-state-out th @
+	prim state-prim1
+    loop ;
+
+: prim-states ( "name" -- )
+    parse-word lookup-prim gen-prim-states ;
+
+: gen-branch-states ( prim -- )
+    \ generate versions that produce state-default; useful for branches
+    to prim
+    cache-states 2@ swap { states } ( nstates )
+    cache-stack stack-in @ +do
+	states i th @ state-default prim state-prim1
+    loop ;
+
+: branch-states ( out-state "name" -- )
+    parse-word lookup-prim gen-branch-states ;
+
+\ producing state transitions
+
+: gen-transitions ( "name" -- )
+    parse-word lookup-prim { prim }
+    cache-states 2@ { states nstates }
+    nstates 0 +do
+	nstates 0 +do
+	    i j <> if
+		states i th @ states j th @ prim state-prim1
+	    endif
+	loop
+    loop ;
+
 \ C output
 
 : print-item { n stack -- }
@@ -1240,7 +1455,7 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
     ." DEF_CA" cr
     print-declarations-combined
     ." NEXT_P0;" cr
-    flush-tos
+    spill-state
     \ fetches \ now in parts
     \ print-debug-args
     \ stack-pointer-updates now in parts
@@ -1324,7 +1539,9 @@ variable offset-super2  0 offset-super2 ! \ offset into the super2 table
 : output-costs-prefix ( -- )
     ." {" prim compute-costs
     rot 2 .r ." ," swap 2 .r ." ," 2 .r ." , "
-    prim prim-branch? negate . ." ," ;
+    prim prim-branch? negate . ." ,"
+    state-in  state-number @ 2 .r ." ,"
+    state-out state-number @ 2 .r ." ," ;
 
 : output-costs-gforth-simple ( -- )
     output-costs-prefix
