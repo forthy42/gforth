@@ -259,15 +259,17 @@ variable public-wordlist
     then
     r> class-wordlist @ swap 1+ ;
 
-: push-order ( class -- ) \ objects- objects
+: class>order ( class -- ) \ objects- objects
     \g Add @var{class}'s wordlists to the head of the search-order.
     >r get-order r> add-class-order set-order ;
+
+: push-order class>order ; \ old name
 
 : methods ( class -- ) \ objects- objects
     \g Makes @var{class} the current class. This is intended to be
     \g used for defining methods to override selectors; you cannot
     \g define new fields or selectors.
-    dup current-interface ! push-order ;
+    dup current-interface ! class>order ;
 
 : class ( parent-class -- align offset ) \ objects- objects
     \g Start a new class definition as a child of
@@ -291,16 +293,18 @@ variable public-wordlist
     until
     drop ;
 
-: drop-order ( class -- ) \ objects- objects
+: class-previous ( class -- ) \ objects- objects
     \g Drop @var{class}'s wordlists from the search order. No
     \g checking is made whether @var{class}'s wordlists are actually
     \g on the search order.
     >r get-order r> remove-class-order set-order ;
 
+: drop-order class-previous ; \ old name
+
 : end-methods ( -- ) \ objects- objects
     \g Switch back from defining methods of a class to normal mode
     \g (currently this just restores the old search order).
-    current-interface @ drop-order ;
+    current-interface @ class-previous ;
 
 : end-class-noname ( align offset -- class ) \ objects- objects
     \g End a class definition. The resulting class is @var{class}.
@@ -481,7 +485,7 @@ current-interface 1 cells save-mem current-interface @ interface-map 2!
 0 current-interface @ class-parent !
 wordlist current-interface @ class-wordlist !
 object%
-current-interface @ push-order
+current-interface @ class>order
 
 ' drop ( object -- )
 method construct ( ... object -- ) \ objects- objects

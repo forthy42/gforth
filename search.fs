@@ -73,7 +73,7 @@ Variable slowvoc   0 slowvoc !
 : check-maxvp ( n -- )
     maxvp > -49 and throw ;
 
-: push-order ( wid -- ) \ gforth
+: >order ( wid -- ) \ gforth to-order
     \g Push @var{wid} on the search order.
     vp @ 1+ dup check-maxvp vp! context ! ;
 
@@ -81,7 +81,7 @@ Variable slowvoc   0 slowvoc !
   \G Like @code{DUP} for the search order. Usually used before a
   \G vocabulary (e.g., @code{also Forth}); the combined effect is to push
   \G the wordlist represented by the vocabulary on the search order.
-  context @ push-order ;
+  context @ >order ;
 
 : previous ( -- ) \ search-ext
   \G Drop the wordlist at the top of the search order.

@@ -7728,7 +7728,7 @@ doc-get-order
 doc---gforthman-set-order
 doc-wordlist
 doc-table
-doc-push-order
+doc->order
 doc-previous
 doc-also
 doc---gforthman-forth
@@ -7982,7 +7982,7 @@ set-current
 You can see what definitions are in the environment word list like this:
 
 @example
-environment-wordlist push-order words previous
+environment-wordlist >order words previous
 @end example
 
 
@@ -10400,12 +10400,13 @@ doc---objects-class
 doc---objects-class->map
 doc---objects-class-inst-size
 doc---objects-class-override!
+doc---objects-class-previous
+doc---objects-class>order
 doc---objects-construct
 doc---objects-current'
 doc---objects-[current]
 doc---objects-current-interface
 doc---objects-dict-new
-doc---objects-drop-order
 doc---objects-end-class
 doc---objects-end-class-noname
 doc---objects-end-interface
@@ -10429,8 +10430,6 @@ doc---objects-[parent]
 doc---objects-print
 doc---objects-protected
 doc---objects-public
-@c !! push-order conflicts
-doc---objects-push-order
 doc---objects-selector
 doc---objects-this
 doc---objects-<to-inst>
@@ -10733,7 +10732,7 @@ doc---oof-class;
 @cindex mini-oof
 
 Gforth's third object oriented Forth package is a 12-liner. It uses a
-mixture of the @file{object.fs} and the @file{oof.fs} syntax,
+mixture of the @file{objects.fs} and the @file{oof.fs} syntax,
 and reduces to the bare minimum of features. This is based on a posting
 of Bernd Paysan in comp.lang.forth.
 
@@ -10839,25 +10838,26 @@ Object-oriented systems with late binding typically use a
 table, which contains the methods as function pointers. The vtable
 may also contain other information.
 
-So first, let's declare methods:
+So first, let's declare selectors:
 
 @example
-: method ( m v -- m' v ) Create  over , swap cell+ swap
+: method ( m v "name" -- m' v ) Create  over , swap cell+ swap
   DOES> ( ... o -- ... ) @@ over @@ + @@ execute ;
 @end example
 
-During method declaration, the number of methods and instance
-variables is on the stack (in address units). @code{method} creates
-one method and increments the method number. To execute a method, it
+During selector declaration, the number of selectors and instance
+variables is on the stack (in address units). @code{method} creates one
+selector and increments the selector number. To execute a selector, it
 takes the object, fetches the vtable pointer, adds the offset, and
-executes the @i{xt} stored there. Each method takes the object it is
-invoked from as top of stack parameter. The method itself should
+executes the method @i{xt} stored there. Each selector takes the object
+it is invoked with as top of stack parameter; it passes the parameters
+(including the object) unchanged to the appropriate method which should
 consume that object.
 
 Now, we also have to declare instance variables
 
 @example
-: var ( m v size -- m v' ) Create  over , +
+: var ( m v size "name" -- m v' ) Create  over , +
   DOES> ( o -- addr ) @@ + ;
 @end example
 
@@ -10872,7 +10872,7 @@ We need a starting point (the base object) and some syntactic sugar:
 
 @example
 Create object  1 cells , 2 cells ,
-: class ( class -- class methods vars ) dup 2@@ ;
+: class ( class -- class selectors vars ) dup 2@@ ;
 @end example
 
 For inheritance, the vtable of the parent object has to be
@@ -10880,7 +10880,7 @@ copied when a new, derived class is declared. This gives all the
 methods of the parent class, which can be overridden, though.
 
 @example
-: end-class  ( class methods vars -- )
+: end-class  ( class selectors vars "name" -- )
   Create  here >r , dup , 2 cells ?DO ['] noop , 1 cells +LOOP
   cell+ dup cell+ r> rot @@ 2 cells /string move ;
 @end example
@@ -10892,7 +10892,7 @@ copies the xts from the parent vtable.
 We still have no way to define new methods, let's do that now:
 
 @example
-: defines ( xt class -- ) ' >body @@ + ! ;
+: defines ( xt class "name" -- ) ' >body @@ + ! ;
 @end example
 
 To allocate a new object, we need a word, too:
@@ -10940,7 +10940,7 @@ Now, implement the two methods, @code{draw} and @code{init}:
 
 @noindent
 To demonstrate inheritance, we define a class @code{bold-button}, with no
-new data and no new methods:
+new data and no new selectors:
 
 @example
 button class
@@ -10960,7 +10960,7 @@ for @code{button}:
 @end example
 
 @noindent
-Finally, create two objects and apply methods:
+Finally, create two objects and apply selectors:
 
 @example
 button new Constant foo
@@ -11001,13 +11001,13 @@ to pass objects on the stack.
 
 @item
 It requires that the selector parses the input stream (at
-compile time); this leads to reduced extensibility and to bugs that are+
+compile time); this leads to reduced extensibility and to bugs that are
 hard to find.
 
 @item
-It allows using every selector to every object;
-this eliminates the need for classes, but makes it harder to create
-efficient implementations. 
+It allows using every selector on every object; this eliminates the
+need for interfaces, but makes it harder to create efficient
+implementations.
 @end itemize
 
 @cindex Pountain's object-oriented model
@@ -11018,19 +11018,20 @@ binding. Instead, it focuses on features like information hiding and
 overloading that are characteristic of modular languages like Ada (83).
 
 @cindex Zsoter's object-oriented model
-In @cite{Does late binding have to be slow?} (Forth Dimensions 18(1)
-1996, pages 31-35) Andras Zsoter describes a model that makes heavy use
-of an active object (like @code{this} in @file{objects.fs}): The active
-object is not only used for accessing all fields, but also specifies the
-receiving object of every selector invocation; you have to change the
-active object explicitly with @code{@{ ... @}}, whereas in
-@file{objects.fs} it changes more or less implicitly at @code{m:
-... ;m}. Such a change at the method entry point is unnecessary with the
-Zsoter's model, because the receiving object is the active object
-already. On the other hand, the explicit change is absolutely necessary
-in that model, because otherwise no one could ever change the active
-object. An ANS Forth implementation of this model is available at
-@uref{http://www.forth.org/fig/oopf.html}.
+In @uref{http://www.forth.org/oopf.html, Does late binding have to be
+slow?} (Forth Dimensions 18(1) 1996, pages 31-35) Andras Zsoter
+describes a model that makes heavy use of an active object (like
+@code{this} in @file{objects.fs}): The active object is not only used
+for accessing all fields, but also specifies the receiving object of
+every selector invocation; you have to change the active object
+explicitly with @code{@{ ... @}}, whereas in @file{objects.fs} it
+changes more or less implicitly at @code{m: ... ;m}. Such a change at
+the method entry point is unnecessary with Zsoter's model, because the
+receiving object is the active object already. On the other hand, the
+explicit change is absolutely necessary in that model, because otherwise
+no one could ever change the active object. An ANS Forth implementation
+of this model is available through
+@uref{http://www.forth.org/oopf.html}.
 
 @cindex @file{oof.fs}, differences to other models
 The @file{oof.fs} model combines information hiding and overloading
@@ -11768,12 +11769,10 @@ doc-getenv
 @section Keeping track of Time
 @cindex time-related words
 
-Gforth implements time-related operations by making calls to the C
-library function, @code{gettimeofday}.
-
 doc-ms
 doc-time&date
-
+doc-utime
+doc-cputime
 
 
 @c -------------------------------------------------------------
@@ -11810,6 +11809,7 @@ in file included from ./yyy.fs:1
 ./xxx.fs:4: Invalid memory address
 bar
 ^^^
+Backtrace:
 $400E664C @@
 $400E6664 foo
 @end example
@@ -11857,7 +11857,7 @@ case.
 @cindex @code{gforth-fast}, difference from @code{gforth}
 @cindex backtraces with @code{gforth-fast}
 @cindex return stack dump with @code{gforth-fast}
-@code{gforth} is able to do a return stack dump for throws generated
+@code{Gforth} is able to do a return stack dump for throws generated
 from primitives (e.g., invalid memory address, stack empty etc.);
 @code{gforth-fast} is only able to do a return stack dump from a
 directly called @code{throw} (including @code{abort} etc.).  This is the
@@ -12067,7 +12067,7 @@ If @code{WORD} is called with the space character as a delimiter, all
 white-space characters (as identified by the C macro @code{isspace()})
 are delimiters. @code{PARSE}, on the other hand, treats space like other
 delimiters. @code{SWORD} treats space like @code{WORD}, but behaves
-like @code{PARSE} otherwise. @code{(NAME)}, which is used by the outer
+like @code{PARSE} otherwise. @code{Name}, which is used by the outer
 interpreter (aka text interpreter) by default, treats all white-space
 characters as delimiters.
 
@@ -12110,7 +12110,7 @@ lines. One of these characters is typically produced when you type the
 @cindex maximum size of a counted string
 @cindex counted string, maximum size
 @code{s" /counted-string" environment? drop .}. Currently 255 characters
-on all ports, but this may change.
+on all platforms, but this may change.
 
 @item maximum size of a parsed string:
 @cindex maximum size of a parsed string
@@ -12147,11 +12147,11 @@ What are we expected to document here?
 @cindex number of bits in one address unit
 @cindex address unit, size in bits
 @code{s" address-units-bits" environment? drop .}. 8 in all current
-ports.
+platforms.
 
 @item number representation and arithmetic:
 @cindex number representation and arithmetic
-Processor-dependent. Binary two's complement on all current ports.
+Processor-dependent. Binary two's complement on all current platforms.
 
 @item ranges for integer types:
 @cindex ranges for integer types
@@ -12182,7 +12182,7 @@ string.
 
 @item size of one character in address units:
 @cindex char size
-@code{1 chars .}. 1 on all current ports.
+@code{1 chars .}. 1 on all current platforms.
 
 @item size of the keyboard terminal buffer:
 @cindex size of the keyboard terminal buffer
