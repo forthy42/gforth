@@ -60,6 +60,17 @@ Variable table-start
 
 : >align ( c -- )
     CASE
+	'l OF  s" left"      align=  ENDOF
+	'r OF  s" right"     align=  ENDOF
+	'c OF  s" center"    align=  ENDOF
+	'< OF  s" left"      align=  ENDOF
+	'> OF  s" right"     align=  ENDOF
+	'= OF  s" center"    align=  ENDOF
+	'~ OF  s" absmiddle" align=  ENDOF
+    ENDCASE ;
+
+: >talign ( c -- )
+    CASE
 	'l OF  s" left"   align=  ENDOF
 	'r OF  s" right"  align=  ENDOF
 	'c OF  s" center" align=  ENDOF
@@ -367,7 +378,7 @@ definitions
     
 \ Table
 
-: |tag  table-format $@ table# @ /string drop c@ >align
+: |tag  table-format $@ table# @ /string drop c@ >talign
     >env  1 table# +! ;
 : |d  table# @ table-start @ > IF  -env  THEN  s" td" |tag ;
 : |h  table# @ table-start @ > IF  -env  THEN  s" th" |tag ;
