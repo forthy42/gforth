@@ -29,6 +29,8 @@ Create environment-wordlist  wordlist drop
 	false
     endif ;
 
+: e? name environment? ; immediate
+
 environment-wordlist set-current
 get-order environment-wordlist swap 1+ set-order
 

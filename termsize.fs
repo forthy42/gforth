@@ -21,8 +21,12 @@
 \ # rows and columns that the terminal has.
 \ these words are also present in PFE.
 
+[IFUNDEF] form : form &24 &80 ; [THEN]
+
+[IFUNDEF] rows
 : rows ( -- u )
     form drop ;
 
 : cols ( -- u )
     form nip ;
+[THEN]

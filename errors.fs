@@ -18,7 +18,9 @@
 \ along with this program; if not, write to the Free Software
 \ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+[IFUNDEF] linked \ defined by chains.fs?!
 : linked        here over @ a, swap ! ;
+[THEN]
 
 : ERR" ( n -- )
        ErrLink linked
@@ -85,3 +87,4 @@ decimal
 -56 ERR" QUIT"
 -57 ERR" Error in sending or receiving a character"
 -58 ERR" [IF], [ELSE], [THEN] error"
+ 
