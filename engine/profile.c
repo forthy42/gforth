@@ -144,7 +144,7 @@ void print_block(FILE *file, block_count *b)
   size_t i,j,k;
 
   for (i=2; i<12; i++)
-    for (j=0; i+j<b->ninsts; j++) {
+    for (j=0; i+j<=b->ninsts; j++) {
       fprintf(file,"%14lld\t",b->count);
       for (k=j; k<i+j; k++)
 	fprintf(file, "%s ", b->insts[k]);

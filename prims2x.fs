@@ -1167,7 +1167,7 @@ Variable c-flag
 )) <- simple-primitive ( -- )
 
 (( {{ init-combined }}
-   ` = (( white ++ {{ start }} forth-ident {{ end add-prim }} )) ++
+   ` = white ** (( {{ start }} forth-ident {{ end add-prim }} white ** )) ++
    nleof {{ process-combined }}
 )) <- combined-primitive
 
