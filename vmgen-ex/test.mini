@@ -1,0 +1,93 @@
+func operators()
+  print 3 = 3;
+  print (3+5) = 8;
+  print (5-3) = 2;
+  print (3*5) = 15;
+  print (3&5) = 1;
+  print (3|5) = 7;
+  print (3<5) = 1;
+  print (5<3) = 0;
+  print (3=5) = 0;
+  print (5=5) = 1;
+  print (!3) = 0;
+  print (!0) = 1;
+  print (-3) = (0-3);
+  return 0;
+end func;
+
+func params(a, b, c)
+  print a = 3;
+  print b = 5;
+  print c = 7;
+  return 9;
+end func;
+
+func locals(a)
+  var b;
+  var c;
+  b:=a+1;
+  c:=b+1;
+  a:=c+1;
+  return a;
+end func;
+
+func inc(x)
+  return x+1;
+end func;
+
+func sign(n)
+  var r;
+  if (n<0) then
+    r:=-1;
+  else
+    if (0<n) then
+      r:=1;
+    else
+      r:=0;
+    end if;
+  end if;
+  return r;
+end func;
+
+func recfac(n)
+  var r;
+  if (n<1) then
+    r:=1;
+  else
+    r:=recfac(n-1)*n;
+  end if;
+  return r;
+end func;
+
+func itfac(n)
+  var r;
+  r:=1;
+  while (0<n) do
+    r:=r*n;
+    n:=n-1;
+  end while;
+  return r;
+end func;
+
+func testfac()
+  var i;
+  i:=0;
+  while (i<10) do
+    print itfac(i) = recfac(i);
+    i:=i+1;
+  end while;
+  return 0;
+end func;
+
+func main()
+  operators();
+  print params(3,5,7) = 9;
+  print locals(3) = 6;
+  print (inc(1)+inc(inc(inc(3))))=8;
+  print sign(5) = 1;
+  print sign(0) = 0;
+  print sign(-5) = (-1);
+  print itfac(5) = 120;
+  testfac();
+  return 0;
+end func;

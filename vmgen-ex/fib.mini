@@ -1,0 +1,14 @@
+func fib(n)
+  var r;
+  if n<2 then
+    r:=1;
+  else
+    r:=fib(n-1)+fib(n-2);
+  end if;
+  return r; 
+  // the language syntax (return only at end) leads to inefficient code here
+end func;
+
+func main()
+  return fib(34);
+end func;
