@@ -267,7 +267,7 @@ create decode_code
 : decode_Bra ( instruction tbentry -- )
   swap
   dup $03e00000 and 21 rshift decode_register
-  $001fffff and .
+  $001fffff and hex.
   print_string
 ;
 
@@ -289,7 +289,7 @@ create decode_code
 : decode_Mem ( instruction tbentry -- )
   swap
   dup $03e00000 and 21 rshift decode_register
-  dup $0000ffff and .
+  dup $0000ffff and dup 15 rshift negate 15 lshift or .
   $001f0000 and 16 rshift decode_register
   print_string
 ;

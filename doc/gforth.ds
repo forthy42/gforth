@@ -8778,6 +8778,12 @@ the assembler and disassembler, avoiding redundancy and some potential
 bugs.  You can also look at that file (and @pxref{Advanced does> usage})
 to get ideas how to factor a disassembler.
 
+Start with the disassembler, because it's easier to reuse data from the
+disassembler for the assembler than the other way round.
+
+For the assembler, take a look at @file{arch/alpha/asm.fs}, which shows
+how simple it can be.
+
 @c -------------------------------------------------------------
 @node Threading Words, Locals, Assembler and Code Words, Words
 @section Threading Words

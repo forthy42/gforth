@@ -81,90 +81,85 @@ endif
 4 allot
 ;
 
-\ format
+\ operands
 
-: Bra ( oo )			\ branch instruction format
-  create ,
-does> ( ra, branch_disp, addr )
-  @ 26 lshift
-  swap $1fffff and or
-  swap $1f and 21 lshift or h,
-;
+: check-range ( u1 u2 u3 -- )
+    within 0= -24 and throw ;
 
-: Mbr ( oo.h )			\ memory branch instruction format
-  create 2,
-does> ( ra, rb, hint, addr )
-  2@ 14 lshift
-  swap 26 lshift or
-  swap $3fff and or
-  swap $1f and 16 lshift or
-  swap $1f and 21 lshift or
-  h,
-; 
+: rega ( rega code -- code )
+    \ ra field, named rega to avoid conflict with register ra
+    swap dup 0 $20 check-range
+    21 lshift or ;
 
-: F-P ( oo.fff )		\ floating-point operate instruction format
-  create 2,
-does> ( fa, fb, fc, addr )
-  2@ 5 lshift
-  swap 26 lshift or
-  swap $1f and or
-  swap $1f and 16 lshift or
-  swap $1f and 21 lshift or
-  h,
-;
+: rb ( rb code -- code )
+    swap dup 0 $20 check-range
+    16 lshift or ;
 
-: Mem ( oo )			\ memory instruction format
-  create ,
-does> ( ra, memory_disp, rb, addr )
-  @ 26 lshift
-  swap $1f and 16 lshift or
-  swap $ffff and or 
-  swap $1f and 21 lshift or
-  h,
-;
+: rc ( rc code -- code )
+    swap dup 0 $20 check-range
+    or ;
 
-: Mfc ( oo.ffff )		\ memory instruction with function code format
-  create 2,
-does> ( ra, rb, addr )
-  2@
-  swap 26 lshift or
-  swap $1f and 16 lshift or
-  swap $1f and 21 lshift or
-  h,
-;
+: hint ( addr code -- code )
+    swap 2 rshift $3fff and or ;
 
-: Opr ( oo.ff )			\ operate instruction format
-  create 2,
-does> ( ra, rb, rc, addr )
-  2@
-  5 lshift
-  swap 26 lshift or
-  swap $1f and or
-  swap $1f and 16 lshift or
-  swap $1f and 21 lshift or
-  h, 
-;
+: disp ( n code -- code )
+    swap dup -$8000 $8000 check-range
+    $ffff and or ;
 
-: Opr# ( oo.ff )		\ operate instruction format
-  create 2,
-does> ( ra, lit, rc, addr )
-  2@
-  5 lshift
-  swap 26 lshift or
-  1 12 lshift or
-  swap $1f and or
-  swap $ff and 13 lshift or
-  swap $1f and 21 lshift or
-  h, 
-;
+: branch-disp ( addr code -- code )
+    swap here 4 + -
+    dup 3 and 0<> -24 and throw
+    dup -$100000 $100000 check-range
+    $1fffff and or ;
 
-: Pcd ( oo )			\ palcode instruction format
-  create ,
-does> ( palcode, addr )
-  @ 26 lshift
-  swap $3ffffff and or
-  h,
-;
+: imm ( u code -- code )
+    swap dup 0 $100 check-range
+    13 lshift or ;
+
+: palcode ( u code -- code )
+    swap dup 0 $4000000 check-range or ;
+
+\ formats
+
+: Bra ( opcode -- )			\ branch instruction format
+    create 26 lshift ,
+does> ( rega target-addr -- )
+    @ branch-disp rega h, ;
+
+: Mbr ( opcode hint -- )		\ memory branch instruction format
+    create 14 lshift swap 26 lshift or ,
+does> ( rega rb hint -- )
+    @ hint rb rega h, ; 
+
+: F-P ( opcode func -- )	\ floating-point operate instruction format
+    create 5 lshift swap 26 lshift or ,
+does> ( fa fb fc -- )
+    @ rc rb rega h, ;
+
+: Mem ( opcode -- )		\ memory instruction format
+  create 26 lshift ,
+does> ( rega memory_disp rb -- )
+  @ rb disp rega h, ;
+
+: Mfc ( opcode func -- )	\ memory instruction with function code format
+  create swap 26 lshift or ,
+does> ( rega rb -- )
+  @ rb rega h, ;
+
+: Opr ( opcode.ff )		\ operate instruction format
+  create 5 lshift swap 26 lshift or ,
+does> ( rega rb rc -- )
+  @ rc rb rega h, ;
+
+: Opr# ( opcode func -- )		\ operate instruction format
+  create 5 lshift swap 26 lshift or 1 12 lshift or ,
+does> ( rega imm rc -- )
+  @ rc imm rega h, ;
+
+: Pcd ( opcode -- )		\ palcode instruction format
+  create 26 lshift ,
+does> ( palcode addr -- )
+  @ palcode h, ;
 
 \ instructions
 
@@ -193,7 +188,7 @@ $38       Bra  blbc,
 $3c       Bra  blbs,
 $3b       Bra  ble,
 $3a       Bra  blt,
-$3d       Bra  bne,
+$3d       Bra  bne, 
 $30       Bra  br,
 $34       Bra  bsr,
 $00       Pcd  call_pal,
@@ -402,9 +397,39 @@ $12 $30   Opr# zap#,
 $12 $31   Opr  zapnot,
 $12 $31   Opr# zapnot#,
 
-\ structures
+\ conditions
+
+' beq,  constant ne
+' bge, 	constant lt
+' bgt, 	constant le
+' blbc,	constant lbs
+' blbs,	constant lbc
+' ble, 	constant gt
+' blt,  constant ge
+' bne,  constant eq
+' fbeq, constant fne
+' fbge, constant flt
+' fbgt, constant fle
+' fble, constant fgt
+' fblt, constant fge
+' fbne, constant feq
+
+\ control structures
 
 \ <register_number> if, <if_code> [ else, <else_code> ] endif,
+
+\  : magic-asm ( u1 u2 -- u3 u4 )
+\      \ turns a magic number into an asm-magic number or back
+\      $fedcba0987654321 xor ;
+
+\  : patch-branch ( branch-delay-addr target-addr -- )
+\      \ there is a branch just before branch-delay-addr; PATCH-BRANCH
+\      \ patches this branch to branch to target-addr
+\      over - ( branch-delay-addr rel )
+\      swap cell - dup >r ( rel branch-addr R:branch-addr )
+\      @ asm-rel r> ! ; \ !! relies on the imm field being 0 before
+
+
 
 : ahead, ( -- asmorig )
     31 0 br,
@@ -561,5 +586,6 @@ $12 $31   Opr# zapnot#,
 \  ;
 
 previous set-current
+
 
 
