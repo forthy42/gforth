@@ -1,7 +1,7 @@
 \ CROSS.FS     The Cross-Compiler                      06oct92py
 \ Idea and implementation: Bernd Paysan (py)
 
-\ Copyright (C) 1995,1996,1997,1998 Free Software Foundation, Inc.
+
 
 \ This file is part of Gforth.
 
@@ -52,9 +52,14 @@ Warnings off
 \G Same behaviour as "Value" if the <name> is not defined
 \G Same behaviour as "to" if <name> is defined
 \G SetValue searches in the current vocabulary
- save-input bl word >r restore-input throw r> count
- get-current search-wordlist
- IF ['] to execute ELSE Value THEN ;
+  save-input bl word >r restore-input throw r> count
+  get-current search-wordlist
+  IF	drop >r
+	\ we have to set current to be topmost context wordlist
+	get-order get-order get-current swap 1+ set-order
+	r> ['] to execute
+	set-order order
+  ELSE Value THEN ;
 
 : DefaultValue ( n -- <name> )
 \G Same behaviour as "Value" if the <name> is not defined
@@ -425,7 +430,7 @@ Variable mirrored-link          \ linked list for mirrored regions
 
 : mirrored                              \G mark a region as mirrored
   mirrored-link
-  linked last-defined-region @ , ;
+  align linked last-defined-region @ , ;
 
 : .addr ( u -- )
 \G prints a 16 or 32 Bit nice hex value
@@ -684,7 +689,7 @@ T has? relocate H
 [ELSE]
 ' drop IS relon
 ' drop IS reloff
-' (correcter) IS >image
+' (>regionimage) IS >image
 [THEN]
 
 \ Target memory access                                 06oct92py
