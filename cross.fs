@@ -19,32 +19,17 @@
 \ along with this program; if not, write to the Free Software
 \ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-\ Log:
-\       changed in ; [ to state off           12may93jaw
-\       included place +place                 12may93jaw
-\       for a created word (variable, constant...)
-\       is now an alias in the target voabulary.
-\       this means it is no longer necessary to
-\       switch between vocabularies for variable
-\       initialization                        12may93jaw
-\       discovered error in DOES>
-\       replaced !does with (;code)           16may93jaw
-\       made complete redesign and
-\       introduced two vocs method
-\       to be asure that the right words
-\       are found                             08jun93jaw
-\       btw:  ! works not with 16 bit
-\             targets                         09jun93jaw
-\       added: 2user and value                11jun93jaw
+0 
+[IF]
 
-\ 	needed? works better now!!!		01mar97jaw
-\	mach file is only loaded into target
-\	cell corrected
-\ 	romable extansions			27apr97-5jun97jaw
-\	environmental query support		01sep97jaw
-\	added own [IF] ... [ELSE] ... [THEN]	14sep97jaw
-\	extra resolver for doers		20sep97jaw
-\	added killref for DOES>			20sep97jaw
+ToDo:
+Crossdoc destination ./doc/crossdoc.fd makes no sense when
+cross.fs is uses seperately. jaw
+Do we need this char translation with >address and in branchoffset? 
+(>body also affected) jaw
+Clean up mark> and >resolve stuff jaw
+
+[THEN]
 
 
 hex     \ the defualt base for the cross-compiler is hex !!
@@ -282,13 +267,13 @@ VARIABLE env-current \ save information of current dictionary to restore with en
 
 >TARGET
 
-: environment?
+: environment? ( adr len -- [ x ] true | false )
   target-environment search-wordlist 
   IF execute true ELSE false THEN ;
 
-: e? name T environment? H 0= ABORT" environment variable not defined!" ;
+: e? bl word count T environment? H 0= ABORT" environment variable not defined!" ;
 
-: has? 	name T environment? H 
+: has? 	bl word count T environment? H 
 	IF 	\ environment variable is present, return its value
 	ELSE	\ environment variable is not present, return false
 		\ !! JAW abort is just for testing
@@ -336,7 +321,9 @@ s" relocate" T environment? H
 
 \ \ Create additional parameters                         19jan95py
 
-1 8 lshift Constant maxbyte
+1 8 lshift Constant maxbyte 
+\ this sets byte size for the target machine, an (probably right guess) jaw
+
 T
 NIL		   Constant TNIL
 cell               Constant tcell
@@ -383,9 +370,16 @@ Variable user-vars 0 user-vars !
 
 >MINIMAL
 : makekernel makekernel ;
-
-
 >CROSS
+
+: target>bitmask-size ( u1 -- u2 )
+  1- tcell>bit rshift 1+ ;
+
+: allocatetarget ( size --- adr )
+  dup allocate ABORT" CROSS: No memory for target"
+  swap over swap erase ;
+
+
 
 \ \ memregion.fs
 
@@ -396,6 +390,10 @@ Variable mirrored-link          \ linked list for mirrored regions
 0 dup mirrored-link ! region-link !
 
 
+: >rname 6 cells + ;
+: >rbm   5 cells + ;
+: >rmem  4 cells + ;
+: >rlink 3 cells + ;
 : >rdp 2 cells + ;
 : >rlen cell+ ;
 : >rstart ;
@@ -409,27 +407,28 @@ Variable mirrored-link          \ linked list for mirrored regions
 	save-input create restore-input throw
 	here last-defined-region !
 	over ( startaddr ) , ( length ) , ( dp ) ,
-	region-link linked name string,
+	region-link linked 0 , 0 , bl word count string,
   ELSE	\ store new parameters in region
         bl word drop
 	>body >r r@ last-defined-region !
-	r@ cell+ ! dup r@ ! r> 2 cells + !
+	r@ >rlen ! dup r@ >rstart ! r> >rdp !
   THEN ;
 
 : borders ( region -- startaddr endaddr ) \G returns lower and upper region border
-  dup @ swap cell+ @ over + ;
+  dup >rstart @ swap >rlen @ over + ;
 
 : extent  ( region -- startaddr len )   \G returns the really used area
-  dup @ swap 2 cells + @ over - ;
+  dup >rstart @ swap >rdp @ over - ;
 
 : area ( region -- startaddr totallen ) \G returns the total area
-  dup @ swap cell+ @ ;
+  dup >rstart swap >rlen @ ;
 
 : mirrored                              \G mark a region as mirrored
   mirrored-link
   linked last-defined-region @ , ;
 
-: .addr
+: .addr ( u -- )
+\G prints a 16 or 32 Bit nice hex value
   base @ >r hex
   tcell 2 u>
   IF s>d <# # # # # '. hold # # # # #> type
@@ -443,18 +442,19 @@ Variable mirrored-link          \ linked list for mirrored regions
   0 region-link @
   BEGIN dup WHILE dup @ REPEAT drop
   BEGIN dup
-  WHILE cr 3 cells - >r
-	r@ 4 cells + count tuck type
+  WHILE cr
+        0 >rlink - >r
+        r@ >rname count tuck type
         12 swap - 0 max spaces space
-	." Start: " r@ @ dup .addr space
-	." End: " r@ 1 cells + @ + .addr space
-	." DP: " r> 2 cells + @ .addr 
+        ." Start: " r@ >rstart @ dup .addr space
+        ." End: " r@ >rlen @ + .addr space
+        ." DP: " r> >rdp @ .addr
   REPEAT drop
   s" rom" T $has? H 0= ?EXIT
   cr ." Mirrored:"
   mirrored-link @
   BEGIN dup
-  WHILE	space dup cell+ @ 4 cells + count type @
+  WHILE space dup cell+ @ >rname count type @
   REPEAT drop cr
   ;
 
@@ -486,9 +486,9 @@ T has? rom H
 : setup-target ( -- )   \G initialize targets memory space
   s" rom" T $has? H
   IF  \ check for ram and rom...
-      address-space area nip
-      ram-dictionary area nip
-      rom-dictionary area nip
+      address-space area nip 0<>
+      ram-dictionary area nip 0<>
+      rom-dictionary area nip 0<>
       and and 0=
       ABORT" CROSS: define address-space, rom- , ram-dictionary, with rom-support!"
   THEN
@@ -498,9 +498,28 @@ T has? rom H
   ELSE
       dictionary area
   THEN
-  dup 0=
+  nip 0=
   ABORT" CROSS: define at least address-space or dictionary!!"
-  + makekernel drop ;
+
+  \ allocate target for each region
+  region-link
+  BEGIN @ dup
+  WHILE dup
+        0 >rlink - >r
+        r@ >rlen @
+        IF      \ allocate mem
+                r@ >rlen @ dup
+
+                allocatetarget dup image !
+                r@ >rmem !
+
+                target>bitmask-size allocatetarget
+                dup
+                bit$ !
+                r> >rbm !
+
+        ELSE    r> drop THEN
+   REPEAT ;
 
 \ \ switched tdp for rom support				03jun97jaw
 
@@ -536,16 +555,20 @@ variable fixed		\ flag: true: no automatic switching
 
 variable constflag constflag off
 
+: activate ( region -- )
+\G next code goes to this region
+  >rdp to tdp ;
+
 : (switchram)
   fixed @ ?EXIT s" rom" T $has? H 0= ?EXIT
-  ram-dictionary >rdp to tdp ;
+  ram-dictionary activate ;
 
 : switchram
   constflag @
   IF constflag off ELSE (switchram) THEN ;
 
 : switchrom
-  fixed @ ?EXIT rom-dictionary >rdp to tdp ;
+  fixed @ ?EXIT rom-dictionary activate ;
 
 : >tempdp ( addr -- ) 
   tdp tempdp-save ! tempdp to tdp tdp ! ;
@@ -561,7 +584,7 @@ variable constflag constflag off
 \ : romstart dup sromdp ! romdp ! ;
 \ : ramstart dup sramdp ! ramdp ! ;
 
-\ default compilation goed to rom
+\ default compilation goes to rom
 \ when romable support is off, only the rom switch is used (!!)
 >auto
 
@@ -608,7 +631,32 @@ bigendian
      DO  maxbyte * swap maxbyte um* rot + swap I c@ + swap  -1 +LOOP d>s ;
 [THEN]
 
->CROSS
+: taddr>region ( taddr -- region | 0 )
+\G finds for a target-address the correct region
+\G returns 0 if taddr is not in range of a target memory region
+  region-link
+  BEGIN @ dup
+  WHILE dup >r
+        0 >rlink - >r
+        r@ >rlen @
+        IF      dup r@ borders within
+                IF r> r> drop nip EXIT THEN
+        THEN
+        r> drop
+        r>
+  REPEAT
+  2drop 0 ;
+
+: (>regionimage) ( taddr -- 'taddr )
+  dup
+  \ find region we want to address
+  taddr>region dup 0= ABORT" Address out of range!"
+  >r
+  \ calculate offset in region
+  r@ >rstart @ -
+  \ add regions real address in our memory
+  r> >rmem @ + ;
+
 \ Bit string manipulation                               06oct92py
 \                                                       9may93jaw
 CREATE Bittable 80 c, 40 c, 20 c, 10 c, 8 c, 4 c, 2 c, 1 c,
@@ -617,8 +665,27 @@ CREATE Bittable 80 c, 40 c, 20 c, 10 c, 8 c, 4 c, 2 c, 1 c,
 : >bit ( addr n -- c-addr mask ) 8 /mod rot + swap bits ;
 : +bit ( addr n -- )  >bit over c@ or swap c! ;
 : -bit ( addr n -- )  >bit invert over c@ and swap c! ;
-: relon ( taddr -- )  bit$ @ swap cell/ +bit ;
-: reloff ( taddr -- )  bit$ @ swap cell/ -bit ;
+
+: (relon) ( taddr -- )  bit$ @ swap cell/ +bit ;
+: (reloff) ( taddr -- ) bit$ @ swap cell/ -bit ;
+
+: (>image) ( taddr -- absaddr ) image @ + ;
+
+DEFER >image
+DEFER relon
+DEFER reloff
+DEFER correcter
+
+T has? relocate H
+[IF]
+' (relon) IS relon
+' (reloff) IS reloff
+' (>image) IS >image
+[ELSE]
+' drop IS relon
+' drop IS reloff
+' (correcter) IS >image
+[THEN]
 
 \ Target memory access                                 06oct92py
 
@@ -636,9 +703,6 @@ CREATE Bittable 80 c, 40 c, 20 c, 10 c, 8 c, 4 c, 2 c, 1 c,
     \ see kernel.fs
     dup cfalign+ + ;
 
->CROSS
-: >image ( taddr -- absaddr )  image @ + ;
->TARGET
 : @  ( taddr -- w )     >image S@ ;
 : !  ( w taddr -- )     >image S! ;
 : c@ ( taddr -- char )  >image Sc@ ;
@@ -653,11 +717,11 @@ CREATE Bittable 80 c, 40 c, 20 c, 10 c, 8 c, 4 c, 2 c, 1 c,
 : allot ( n -- )        tdp +! ;
 : ,     ( w -- )        T here H tcell T allot  ! H T here drop H ;
 : c,    ( char -- )     T here    tchar allot c! H ;
-: align ( -- )          T here H align+ 0 ?DO  bl T c, H LOOP ;
+: align ( -- )          T here H align+ 0 ?DO  bl T c, tchar H +LOOP ;
 : cfalign ( -- )
     T here H cfalign+ 0 ?DO  bl T c, tchar H +LOOP ;
 
-: >address		dup 0>= IF tchar / THEN ;
+: >address		dup 0>= IF tchar / THEN ; \ ?? jaw 
 : A!                    swap >address swap dup relon T ! H ;
 : A,    ( w -- )        >address T here H relon T , H ;
 
@@ -668,6 +732,8 @@ CREATE Bittable 80 c, 40 c, 20 c, 10 c, 8 c, 4 c, 2 c, 1 c,
   tchar * bounds
   ?DO  dup T c@ H I T c! H 1+
   tchar +LOOP  drop ;
+
+\ \ Load Assembler
 
 >TARGET
 H also Forth definitions \ ." asm: " order
@@ -766,8 +832,9 @@ DEFER comp[     \ ends compilation
 : >fl-name 2 cells + ;
 
 Variable filelist 0 filelist !
+Create NoFile ," #load-file#"
 0 Value	 filemem
-: loadfile filemem >fl-name ;
+: loadfile  FileMem ?dup IF >fl-name ELSE NoFile THEN ;
 
 1 [IF] \ !! JAW WIP
 
@@ -1252,7 +1319,13 @@ Cond: [']  T ' H alit, ;Cond
 
 : (lit,) ( n -- )   compile lit T  ,  H ;	' (lit,) IS lit,
 
+\ if we dont produce relocatable code alit, defaults to lit, jaw
+has? relocate
+[IF]
 : (alit,) ( n -- )  compile lit T  a, H ;	' (alit,) IS alit,
+[ELSE]
+: (alit,) ( n -- )  lit, ;			' (alit,) IS alit,
+[THEN]
 
 : (fini,)         compile ;s ;                ' (fini,) IS fini,
 
@@ -1639,7 +1712,7 @@ Builder Field
 : sys?        ( sys -- sys )    dup 0= ?struc ;
 : >mark       ( -- sys )        T here  ( dup ." M" hex. ) 0 , H ;
 
-: branchoffset ( src dest -- ) - tchar / ;
+: branchoffset ( src dest -- ) - tchar / ; \ ?? jaw
 
 : >resolve    ( sys -- )        T here ( dup ." >" hex. ) over branchoffset swap ! H ;
 
@@ -1763,7 +1836,7 @@ Cond: ENDCASE   restrict? compile drop 0 ?DO  compile THEN  LOOP ;Cond
 
 \ Structural Conditionals                              12dec92py
 
-:noname
+:noname \ ?? i think 0 is too much! jaw
     0 compile (do)
     branchtomark,  2 to1 ;
   IS do, ( -- target-addr )
@@ -1999,7 +2072,7 @@ magic 7 + c!
 
 : save-region ( addr len -- )
   bl parse w/o bin create-file throw >r
-  swap image @ + swap r@ write-file throw
+  swap >image swap r@ write-file throw
   r> close-file throw ;
 
 \ words that should be in minimal
@@ -2011,6 +2084,8 @@ also minimal
 
 bigendian Constant bigendian
 : here there ;
+: equ constant ;
+: mark there constant ;
 
 \ compiler directives
 : >ram >ram ;
