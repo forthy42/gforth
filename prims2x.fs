@@ -935,7 +935,7 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
 \      cr ;
 
 : output-label ( -- )  
-    ." INST_ADDR(" prim prim-c-name 2@ type ." )" cr ;
+    ." INST_ADDR(" prim prim-c-name 2@ type ." )," cr ;
 
 : output-alias ( -- ) 
     ( primitive-number @ . ." alias " ) ." Primitive " prim prim-name 2@ type cr ;

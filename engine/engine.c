@@ -270,15 +270,15 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
     /* the following entry is normally unused;
        it is there because its index indicates a does-handler */
     CPU_DEP1,
-#define INST_ADDR(name) (Label)&&I_##name,
+#define INST_ADDR(name) ((Label)&&I_##name)
 #include "prim_lab.i"
 #undef INST_ADDR
     (Label)&&after_last,
     (Label)0,
-#define INST_ADDR(name) (Label)&&K_##name,
+#define INST_ADDR(name) ((Label)&&K_##name)
 #include "prim_lab.i"
 #undef INST_ADDR
-#define INST_ADDR(name) (Label)&&J_##name,
+#define INST_ADDR(name) ((Label)&&J_##name)
 #include "prim_lab.i"
 #undef INST_ADDR
   };

@@ -184,9 +184,8 @@ int gforth_memcmp(const char * s1, const char * s2, size_t n)
 
 static Cell groups[32] = {
   0,
-#define INST_ADDR(name)
 #define GROUP(x, n) DOESJUMP+1+n,
-#include "prim_lab.i"
+#include "prim_grp.i"
 #define GROUP(x, n)
 };
 
