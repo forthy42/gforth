@@ -1,4 +1,4 @@
-\ words with non-default and non-immediate compilation semantics
+\ quote: S" and ." words
 
 \ Copyright (C) 1996,1998 Free Software Foundation, Inc.
 
@@ -39,18 +39,6 @@ interpret/compile: S" ( compilation 'ccc"' -- ; run-time -- c-addr u )	\ core,fi
   \G by subsequent uses of @code{S"}.
 [THEN]
 
-has? compiler [IF]
-: [IS] ( compilation "name" -- ; run-time xt -- ) \ possibly-gforth bracket-is
-    ' >body postpone ALiteral postpone ! ; immediate restrict
-
-:noname    ' >body ! ;
-' [IS]
-interpret/compile: IS ( xt "name" -- ) \ gforth
-
-:noname    ' >body @ ;
-:noname    ' >body postpone ALiteral postpone @ ;
-interpret/compile: What's ( "name" -- addr ) \ gforth
-
 :noname    [char] " parse type ;
 :noname    postpone (.") ,"  align ;
 interpret/compile: ." ( compilation 'ccc"' -- ; run-time -- )  \ core	dot-quote
@@ -59,29 +47,4 @@ interpret/compile: ." ( compilation 'ccc"' -- ; run-time -- )  \ core	dot-quote
   \G for this word are undefined in ANS Forth. Gforth's interpretation
   \G semantics are to display the string. This is the simplest way to
   \G display a string from within a definition; see examples below.
-
-\ DOES>                                                17mar93py
-
-:noname
-    dodoes, here !does ]
-    defstart :-hook ;
-:noname
-    ;-hook ?struc 
-    [ has? xconds [IF] ] exit-like [ [THEN] ]
-    postpone (does>) dodoes,
-    defstart :-hook ;
-interpret/compile: DOES>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ core	does
-    
-' IS Alias TO ( w "name" -- ) \ core-ext
-immediate
-
-[THEN]
-
-has? compiler [IF]
-: interpret/compile? ( xt -- flag )
-    >does-code ['] S" >does-code = ;
-[ELSE]
-: interpret/compile?
-    false ;
-[THEN]
 

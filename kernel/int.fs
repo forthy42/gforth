@@ -428,7 +428,7 @@ const Create ???  0 , 3 c, char ? c, char ? c, char ? c,
 	rot drop
     then ;
 
-\ ticks
+\ ticks in interpreter
 
 : (') ( "name" -- nt ) \ gforth
     name name-too-short?
@@ -442,6 +442,13 @@ const Create ???  0 , 3 c, char ? c, char ? c, char ? c,
     \g semantics. Perform @code{-14 throw} if the word has no
     \g interpretation semantics.
     (') name?int ;
+
+has? compiler 0= [IF]	\ interpreter only version of IS and TO
+
+: IS ' >body ! ;
+' IS Alias TO
+
+[THEN]
 
 \ \ the interpreter loop				  mar92py
 

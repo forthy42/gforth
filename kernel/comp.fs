@@ -204,36 +204,6 @@ create nextname-buffer 32 chars allot
 : (compile) ( -- ) \ gforth
     r> dup cell+ >r @ compile, ;
 
-: postpone, ( w xt -- ) \ gforth	postpone-comma
-    \g Compile the compilation semantics represented by @i{w xt}.
-    dup ['] execute =
-    if
-	drop compile,
-    else
-	dup ['] compile, =
-	if
-	    drop POSTPONE (compile) a,
-	else
-	    swap POSTPONE aliteral compile,
-	then
-    then ;
-
-: POSTPONE ( "name" -- ) \ core
-    \g Compiles the compilation semantics of @i{name}.
-    COMP' postpone, ; immediate restrict
-
-struct
-    >body
-    cell% field interpret/compile-int
-    cell% field interpret/compile-comp
-end-struct interpret/compile-struct
-
-: interpret/compile: ( interp-xt comp-xt "name" -- ) \ gforth
-    Create immediate swap A, A,
-DOES>
-    abort" executed primary cfa of an interpret/compile: word" ;
-\    state @ IF  cell+  THEN  perform ;
-
 \ \ ticks
 
 : name>comp ( nt -- w xt ) \ gforth
@@ -261,6 +231,24 @@ DOES>
 : [COMP']  ( compilation "name" -- ; run-time -- w xt ) \ gforth bracket-comp-tick
     \g Compilation token @i{w xt} represents @i{name}'s compilation semantics.
     COMP' swap POSTPONE Aliteral POSTPONE ALiteral ; immediate restrict
+
+: postpone, ( w xt -- ) \ gforth	postpone-comma
+    \g Compile the compilation semantics represented by @i{w xt}.
+    dup ['] execute =
+    if
+	drop compile,
+    else
+	dup ['] compile, =
+	if
+	    drop POSTPONE (compile) a,
+	else
+	    swap POSTPONE aliteral compile,
+	then
+    then ;
+
+: POSTPONE ( "name" -- ) \ core
+    \g Compiles the compilation semantics of @i{name}.
+    COMP' postpone, ; immediate restrict
 
 \ \ recurse							17may93jaw
 
@@ -342,6 +330,7 @@ DOES>
 : restrict ( -- ) \ gforth
     \G A synonym for @code{compile-only}
     restrict-mask lastflags cset ;
+
 ' restrict alias compile-only ( -- ) \ gforth
 \G Remove the interpretation semantics of a word.
 
@@ -424,15 +413,58 @@ doer? :dodefer [IF]
     \ !! shouldn't it be initialized with abort or something similar?
     Header Reveal dodefer: cfa,
     ['] noop A, ;
+
 [ELSE]
 
 : Defer ( "name" -- ) \ gforth
     Create ['] noop A,
 DOES> @ execute ;
+
 [THEN]
 
 : Defers ( "name" -- ) \ gforth
     ' >body @ compile, ; immediate
+
+:noname
+    dodoes, here !does ]
+    defstart :-hook ;
+:noname
+    ;-hook ?struc
+    [ has? xconds [IF] ] exit-like [ [THEN] ]
+    postpone (does>) dodoes,
+    defstart :-hook ;
+interpret/compile: DOES>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ core        does
+
+: [IS] ( compilation "name" -- ; run-time xt -- ) \ possibly-gforth bracket-is
+    ' >body postpone ALiteral postpone ! ; immediate restrict
+
+:noname    ' >body ! ;
+' [IS]
+interpret/compile: IS ( xt "name" -- ) \ gforth
+
+' IS Alias TO ( w "name" -- ) \ core-ext
+immediate
+
+:noname    ' >body @ ;
+:noname    ' >body postpone ALiteral postpone @ ;
+interpret/compile: What's ( "name" -- addr ) \ gforth
+
+\ \ interpret/compile:
+
+struct
+    >body
+    cell% field interpret/compile-int
+    cell% field interpret/compile-comp
+end-struct interpret/compile-struct
+
+: interpret/compile: ( interp-xt comp-xt "name" -- ) \ gforth
+    Create immediate swap A, A,
+DOES>
+    abort" executed primary cfa of an interpret/compile: word" ;
+\    state @ IF  cell+  THEN  perform ;
+
+: interpret/compile? ( xt -- flag )
+    >does-code ['] DOES> >does-code = ;
 
 \ \ : ;                                                  	24feb93py
 
