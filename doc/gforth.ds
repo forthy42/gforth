@@ -246,6 +246,7 @@ Forth Words
 * Tokens for Words::            
 * Compiling words::             
 * The Text Interpreter::        
+* The Input Stream::            
 * Word Lists::                  
 * Environmental Queries::       
 * Files::                       
@@ -4518,6 +4519,7 @@ the exercises in a .fs file in the distribution.
 * Tokens for Words::            
 * Compiling words::             
 * The Text Interpreter::        
+* The Input Stream::            
 * Word Lists::                  
 * Environmental Queries::       
 * Files::                       
@@ -5384,10 +5386,14 @@ doc-cmove>
 doc-fill
 doc-blank
 doc-compare
+doc-str=
+doc-str<
+doc-string-prefix?
 doc-search
 doc--trailing
 doc-/string
 doc-bounds
+
 
 @comment TODO examples
 
@@ -7570,7 +7576,7 @@ better, because the compiler knows that the value compiled with
 @code{create}d word can be changed.
 
 @c ----------------------------------------------------------
-@node The Text Interpreter, Word Lists, Compiling words, Words
+@node The Text Interpreter, The Input Stream, Compiling words, Words
 @section  The Text Interpreter
 @cindex interpreter - outer
 @cindex text interpreter
@@ -7804,6 +7810,7 @@ doc-save-input
 doc-restore-input
 
 doc-evaluate
+doc-query
 
 
 
@@ -8071,7 +8078,51 @@ doc-[REPEAT]
 
 
 @c -------------------------------------------------------------
-@node Word Lists, Environmental Queries, The Text Interpreter, Words
+@node The Input Stream, Word Lists, The Text Interpreter, Words
+@section The Input Stream
+@cindex input stream
+
+@c !! integrate this better with the "Text Interpreter" section
+The text interpreter reads from the input stream, which can come from
+several sources (@pxref{Input Sources}).  Some words, in particular
+defining words, but also words like @code{'}, read parameters from the
+input stream instead of from the stack.
+
+Such words are called parsing words, because they parse the input
+stream.  Parsing words are hard to use in other words, because it is
+hard to pass program-generated parameters through the input stream.
+They also usually have an unintuitive combination of interpretation and
+compilation semantics when implemented naively, leading to various
+approaches that try to produce a more intuitive behaviour
+(@pxref{Combined words}).
+
+It should be obvious by now that parsing words are a bad idea.  If you
+want to implement a parsing word for convenience, also provide a factor
+of the word that does not parse, but takes the parameters on the stack.
+To implement the parsing word on top if it, you can use the following
+words:
+
+@c anton: these belong in the input stream section
+doc-parse
+doc-parse-word
+doc-name
+doc-word
+doc-\"-parse
+doc-refill
+
+Conversely, if you have the bad luck (or lack of foresight) to have to
+deal with parsing words without having such factors, how do you pass a
+string that is not in the input stream to it?
+
+doc-execute-parsing
+
+If you want to run a parsing word on a file, the following word should
+help:
+
+doc-execute-parsing-file
+
+@c -------------------------------------------------------------
+@node Word Lists, Environmental Queries, The Input Stream, Words
 @section Word Lists
 @cindex word lists
 @cindex header space
@@ -8804,7 +8855,7 @@ doc-ud.r
 doc-f.
 doc-fe.
 doc-fs.
-
+doc-f.rdp
 
 Examples of printing the number 1234.5678E23 in the different floating-point output
 formats are shown below:
@@ -8862,6 +8913,8 @@ doc-#>
 doc-#>>
 
 doc-represent
+doc-f>str-rdp
+doc-f>buf-rdp
 
 
 @noindent
@@ -9096,17 +9149,8 @@ doc->float
 doc-accept
 doc-edit-line
 doc-pad
-@c anton: these belong in the input stream section
-doc-parse
-doc-word
-doc-name
-doc-parse-word
-doc-\"-parse
-doc-sword
-doc-refill
 @comment obsolescent words..
 doc-convert
-doc-query
 doc-expect
 doc-span
 
@@ -11493,6 +11537,8 @@ And finally, @code{see} allows to inspect code:
 
 doc-see
 doc-xt-see
+doc-simple-see
+doc-simple-see-range
 
 @node Forgetting words, Debugging, Examining, Programming Tools
 @subsection Forgetting words

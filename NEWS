@@ -1,6 +1,20 @@
 User-visible changes between 0.5.0 and 0.6.0:
 
-added words: EDIT-LINE ID. .ID CONST-DOES> K-PRIOR K-NEXT K-DELETE SLURP-FILE SLURP-FID WORDLIST-WORDS
+added words: EDIT-LINE ID. .ID CONST-DOES> K-PRIOR K-NEXT K-DELETE
+  SLURP-FILE SLURP-FID WORDLIST-WORDS SIMPLE-SEE [DEFINED] [UNDEFINED]
+  PARSE-WORD S\" .\" \"-PARSE STR= STR< STRING-PREFIX? EXECUTE-PARSING
+  EXECUTE-PARSING-FILE F.RDP F>STR-RDP F>BUF-RDP
+
+Large file support on OSs that support them (i.e., files with more
+  than 2GB on 32-bit machines).
+
+Default dictionary size is now 4MB.
+
+vi tags files can be built with tags.fs (usage like etags.fs).
+
+gforth.el mostly rewritten.
+
+S": interpreted use now ALLOCATEs the string (they live until BYE).
 
 Long word names (512MB on 32-bit systems) are now supported (change to
   the header format).
@@ -12,9 +26,12 @@ Generalized prims2x.fs into Vmgen (see README.vmgen etc.); used the
 New threaded code execution method: primitive-centric (allows the
   following), hybrid direct/indirect threaded (easier portability),
   with dynamic superinstructions (typical speedup on Athlon: factor
-  2).  New engine gforth-itc for dealing with some
+  2).  New engine gforth-itc for dealing with some potential
   backwards-compatibility problems (see "Invoking Gforth" in the
   manual).
+
+New image file format.
+
 
 User-visible changes between 0.4.0 and 0.5.0:
 

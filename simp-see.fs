@@ -20,13 +20,14 @@
 
 require see.fs
 
-: simple-see-range ( addr1 addr2 -- )
+: simple-see-range ( addr1 addr2 -- ) \ gforth
     swap u+do
 	cr xpos off i hex. i cell+ i @ .word drop
 	cell +loop
 ;
 
-: simple-see ( "name" -- )
+: simple-see ( "name" -- ) \ gforth
+    \G a simple decompiler that's closer to @code{dump} than @code{see}.
     \ !! at the moment NEXT-HEAD is a little too optimistic (see
     \ comment in HEAD?)
     ' >body dup next-head simple-see-range ;

@@ -10,18 +10,19 @@
 s" gforth" environment? [if]
     2drop defined str=
 [else]
+    \ : \G postpone \ ; immediate
     0
 [then]
 0= [if]
 
-: str= ( c-addr1 u1 c-addr2 u2 -- f )
+: str= ( c-addr1 u1 c-addr2 u2 -- f ) \ gforth
     compare 0= ;
 
-: string-prefix? ( c-addr1 u1 c-addr2 u2 -- f )
+: string-prefix? ( c-addr1 u1 c-addr2 u2 -- f ) \ gforth
     \G Is @var{c-addr2 u2} a prefix of @var{c-addr1 u1}?
     tuck 2>r min 2r> str= ;
 
-: str< ( c-addr1 u1 c-addr2 u2 -- f )
+: str< ( c-addr1 u1 c-addr2 u2 -- f ) \ gforth
     compare 0< ;
 
 [then]

@@ -96,6 +96,7 @@ Simple instructions
 
 * C Code Macros::               Macros recognized by Vmgen
 * C Code restrictions::         Vmgen makes assumptions about C code
+* Stack growth direction::      is configurable per stack
 
 Using the generated code
 
@@ -715,7 +716,7 @@ stack-decl: 'stack ' ident ident ident
 type-prefix-decl: 
     's" ' string '" ' ('single'|'double') ident 'type-prefix' ident
 stack-prefix-decl:  ident 'stack-prefix' string
-set-flag: 'store-optimization' ('on'|'off')
+set-flag: ('store-optimization'|'include-skipped-insts') ('on'|'off')
 @end example
 
 Note that the syntax of this code is not checked thoroughly (there are
@@ -737,13 +738,14 @@ are:
 @findex stack-prefix
 @findex store-optimization
 @example
-stack              ( "name" "pointer" "type" -- )
-                   ( name execution: -- stack )
-type-prefix        ( addr u item-size stack "prefix" -- )
-single             ( -- item-size )
-double             ( -- item-size )
-stack-prefix       ( stack "prefix" -- )
-store-optimization ( -- addr )
+stack                 ( "name" "pointer" "type" -- )
+                      ( name execution: -- stack )
+type-prefix           ( addr u item-size stack "prefix" -- )
+single                ( -- item-size )
+double                ( -- item-size )
+stack-prefix          ( stack "prefix" -- )
+store-optimization    ( -- addr )
+include-skipped-insts ( -- addr )
 @end example
 
 An @var{item-size} takes three cells on the stack.
@@ -803,14 +805,13 @@ Before we can use @code{data-stack} in this way, we have to define it:
 @cindex stack basic type
 @cindex basic type of a stack
 @cindex type of a stack, basic
-@cindex stack growth direction
 This line defines the stack @code{data-stack}, which uses the stack
 pointer @code{sp}, and each item has the basic type @code{Cell}; other
 types have to fit into one or two @code{Cell}s (depending on whether the
 type is @code{single} or @code{double} wide), and are cast from and to
 Cells on accessing the @code{data-stack} with type cast macros
-(@pxref{VM engine}).  Stacks grow towards lower addresses in
-Vmgen-erated interpreters.
+(@pxref{VM engine}).  By default, stacks grow towards lower addresses in
+Vmgen-erated interpreters (@pxref{Stack growth direction}).
 
 @cindex stack prefix
 @cindex prefix, stack
@@ -846,6 +847,7 @@ first one (just as the intuition suggests).
 @menu
 * C Code Macros::               Macros recognized by Vmgen
 * C Code restrictions::         Vmgen makes assumptions about C code
+* Stack growth direction::      is configurable per stack
 @end menu
 
 @c --------------------------------------------------------------------
@@ -915,7 +917,7 @@ a C preprocessor macro.
 
 
 @c --------------------------------------------------------------------
-@node C Code restrictions,  , C Code Macros, Simple instructions
+@node C Code restrictions, Stack growth direction, C Code Macros, Simple instructions
 @subsection C Code restrictions
 @cindex C code restrictions
 @cindex restrictions on C code
@@ -975,6 +977,33 @@ macros can be implemented in several ways for best performance.
 @samp{IP} points to the next instruction, and @samp{IPTOS} is its
 contents.
 
+@c --------------------------------------------------------------------
+@node Stack growth direction,  , C Code restrictions, Simple instructions
+@subsection Stack growth direction
+@cindex stack growth direction
+
+@cindex @code{stack-access-transform}
+By default, the stacks grow towards lower addresses.  You can change
+this for a stack by setting the @code{stack-access-transform} field of
+the stack to an xt @code{( itemnum -- index )} that performs the
+appropriate index transformation.
+
+E.g., if you want to let @code{data-stack} grow towards higher
+addresses, with the stack pointer always pointing just beyond the
+top-of-stack, use this right after defining @code{data-stack}:
+
+@example
+\E : sp-access-transform ( itemnum -- index ) negate 1- ;
+\E ' sp-access-transform ' data-stack >body stack-access-transform !
+@end example
+
+This means that @code{sp-access-transform} will be used to generate
+indexes for accessing @code{data-stack}.  The definition of
+@code{sp-access-transform} above transforms n into -n-1, e.g, 1 into -2.
+This will access the 0th data-stack element (top-of-stack) at sp[-1],
+the 1st at sp[-2], etc., which is the typical way upward-growing
+stacks are used.  If you need a different transform and do not know
+enough Forth to program it, let me know.
 
 @c --------------------------------------------------------------------
 @node Superinstructions, Store Optimization, Simple instructions, Input File Format
@@ -1034,6 +1063,11 @@ accesses a stack pointer should not be used as component at all.  Vmgen
 does not check these restrictions, they just result in bugs in your
 interpreter.
 
+@cindex include-skipped-insts
+The Vmgen flag @code{include-skipped-insts} influences superinstruction
+code generation.  Currently there is no support in the peephole
+optimizer for both variations, so leave this flag alone for now.
+
 @c -------------------------------------------------------------------
 @node  Store Optimization, Register Machines, Superinstructions, Input File Format
 @section Store Optimization
@@ -1077,6 +1111,12 @@ Instead, you have to use different names, i.e.:
 add1 ( n1 -- n1 )
 n2=n1+1;
 @end example
+
+Similarly, the store optimization assumes that the stack pointer is only
+changed by Vmgen-erated code.  If your C code changes the stack pointer,
+use different names in input and output stack items to avoid a (probably
+wrong) store optimization, or turn the store optimization off for this
+VM instruction.
 
 To turn on the store optimization, write
 
@@ -1177,7 +1217,7 @@ expected by Vmgen (this should not happen; please report the offending
 line in a bug report).
 
 @cindex @code{syntax error, wrong char} error
-@cindex syntax error, wrong char
+@item syntax error, wrong char
 A syntax error.  If you do not see right away where the error is, it may
 be helpful to check the following: Did you put an empty line in a VM
 instruction where the C code is not delimited by braces (then the empty
@@ -1196,7 +1236,7 @@ The stack item does not match any defined type prefix (after stripping
 away any stack prefix).  You should either declare the type prefix you
 want for that stack item, or use a different type prefix
 
-@item @code{unknown primitive} error
+@cindex @code{unknown primitive} error
 @item unknown primitive
 You have used the name of a simple VM instruction in a superinstruction
 definition without defining the simple VM instruction first.
@@ -1385,6 +1425,12 @@ typically it is a variable declared as a pointer to the stack's basic
 type.  For @samp{inst-stream}, the name is @samp{IP}, and it can be a
 plain r-value; typically it is a macro that abstracts away the
 differences between the various implementations of @code{NEXT_P*}.
+
+@cindex IMM_ARG
+@findex IMM_ARG
+@item IMM_ARG(access,value)
+Define this to expland to ``(access)''.  This is just a placeholder for
+future extensions.
 
 @cindex top of stack caching
 @cindex stack caching
