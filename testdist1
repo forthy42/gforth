@@ -1,0 +1,19 @@
+#tests that dist works
+#call this with gforth-$(version).tar.gz in the working directory
+GFORTH=gforth-0.2.0
+mkdir test
+cd test
+DIR=$PWD
+gunzip -cd ../$GFORTH.tar.gz|tar xf -
+cd $GFORTH
+./configure --prefix=$DIR/install
+make
+make check
+#gforth locals-test.fs
+#gforth test-counted-loops.fs
+make install
+make bench
+cd ..
+install/bin/gforth tester.fs coretest.fs postponetest.fs dbltest.fs -e bye
+cd ..
+rm -rf test

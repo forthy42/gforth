@@ -208,13 +208,14 @@ mostlyclean:
 		crossdoc.fd doc.fd gforth.texi gforth.fns gforth.aux gforth.cp gforth.cps \
 		gforth.dvi gforth.fn gforth.ky gforth.log gforth.pg \
 		gforth.toc gforth.tp gforth.vr html gforth-$(VERSION).tar.gz \
-		version.h stamp-h
+		version.h
 
 clean:		mostlyclean
 		-$(RM) -rf $(GEN) *.o 
 
 distclean:	clean
-		-$(RM) machine.h kernel.fi config.cache config.log config.status config.h Makefile
+		-$(RM) machine.h kernel.fi config.cache config.log \
+		config.status config.h Makefile stamp-h
 
 #realclean is useless, but dangerous, so it's commented out
 #realclean:	distclean
@@ -433,7 +434,7 @@ crossdoc.fd:	$(KERN_SRC) version.fs $(FORTH_GEN0)
 		$(FORTHK) -e 's" mach32l.fs"' main.fs -e bye
 
 gforth.texi:	gforth.ds primitives.b ds2texi.fs prims2x.fs doc.fd crossdoc.fd
-		$(FORTHK) ds2texi.fs prims2x.fs -e "s\" $(srcdir)/primitives.b\" ' register-doc process-file" crossdoc.fd doc.fd -e "s\" $(srcdir)/gforth.ds\" r/o open-file throw ds2texi bye" >$@
+		$(FORTHK) -m 100000 ds2texi.fs prims2x.fs -e "s\" $(srcdir)/primitives.b\" ' register-doc process-file" crossdoc.fd doc.fd -e "s\" $(srcdir)/gforth.ds\" r/o open-file throw ds2texi bye" >$@
 
 checkdoc:	gforth.ds primitives.b ds2texi.fs prims2x.fs doc.fd crossdoc.fd answords.fs
 		$(FORTHK) ds2texi.fs answords.fs -e bye

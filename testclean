@@ -1,0 +1,32 @@
+GFORTH=gforth-0.2.0
+make dist
+mkdir test
+cd test
+for i in orig changed
+do
+  mkdir $i
+  cd $i
+  tar xfz ../../$GFORTH.tar.gz
+  cd ..
+done
+cd changed/$GFORTH
+./configure >/dev/null
+make >/dev/null 2>/dev/null
+make distclean
+cd ../..
+echo checking distclean
+diff -rq orig changed
+for i in orig changed
+do
+  cd $i/$GFORTH
+  ./configure >/dev/null
+  cd ../..
+done
+cd changed/$GFORTH
+make >/dev/null 2>/dev/null
+make clean
+cd ../..
+echo checking clean
+diff -rq orig changed
+cd ..
+rm -rf test

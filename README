@@ -8,8 +8,8 @@ General Public license (see COPYING).
 
 Gforth runs under Unix and DOS and should not be hard to port to other
 systems supported by GCC. This version has been tested successfully on
-Linux (for Intel), SunOS (SPARC), Digital "Unix" (Alpha) and Ultrix
-(MIPS).
+the following platforms: i486-unknown-linuxaout, alpha-dec-osf3.2,
+mips-dec-ultrix4.3.
 
 Read INSTALL for installation instructions. Mail
 bug-gforth@gnu.ai.mit.edu if you have problems.  To start

@@ -43,13 +43,13 @@ gforth.info-* ('cat gforth.info-*' under Unix).
 
 		Configuration Options
 
-You can build in a directory different from the source directory by
-changing to the build directory and invoking configure thus:
+If you use GNU make, you can build in a directory different from the
+source directory by changing to the build directory and invoking
+configure thus:
 
 $srcdir/configure
 
-where $srcdir is the source directory. You need a VPATH-capable 'make'
-(e.g., GNU make) for this. (Note that we tested this only
+where $srcdir is the source directory. (Note that we tested this only
 for installation; i.e., if you want to hack the Gforth sources, you
 should probably build in the source directory).
 
