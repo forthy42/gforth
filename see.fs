@@ -673,13 +673,15 @@ Defer discode ( addr u -- ) \ gforth
     cell +loop
     here ;
 
+[ifundef] umin \ !! bootstrapping help
 : umin ( u1 u2 -- u )
     2dup u>
     if
 	swap
     then
     drop ;
-	
+[then]
+
 : next-prim ( addr1 -- addr2 ) \ gforth
     \G find the next primitive after addr1 (unreliable)
     1+ >r -1 primstart

@@ -818,9 +818,10 @@ max-errors has? file [IF] 6 [ELSE] 4 [THEN] * cells allot
     \ !! not used...
     base @ decimal swap . base ! ;
 
-: dec.r ( u -- ) \ gforth
-    \G Display @i{u} as a unsigned decimal number
-    base @ decimal swap 0 .r base ! ;
+: dec.r ( u n -- ) \ gforth
+    \G Display @i{u} as a unsigned decimal number in a field @i{n}
+    \G characters wide.
+    base @ >r decimal .r r> base ! ;
 
 : hex. ( u -- ) \ gforth
     \G Display @i{u} as an unsigned hex number, prefixed with a "$" and
@@ -862,34 +863,47 @@ Defer dobacktrace ( -- )
   ELSE	.error
   THEN ;
 
+: umin ( u1 u2 -- u )
+    2dup u>
+    if
+	swap
+    then
+    drop ;
+
+: .error-line ( addr1 u1 n1 -- )
+    \ print error ending at char n1 in line addr1 u1
+    \ should work with UTF-8 (whitespace check looks ok)
+    over umin \ protect against wrong n1
+    swap >r ( addr1 n1 R: u1 )
+    -trailing 1- \ last non-space
+    0 >r  BEGIN \ search for the first non-space
+	2dup + c@ bl >  WHILE
+	r> 1+ >r  1- dup 0<  UNTIL  THEN  1+
+    ( addr1 n2 r: u1 namelen )
+    2dup type ." >>>"
+    r> -rot r> swap /string ( namelen addr2 u2 )
+    >r swap 2dup type ." <<<" ( addr2 namelen r: u2 )
+    r> swap /string type ;
+
 : .error-frame ( throwcode addr1 u1 n1 n2 [addr2 u2] -- throwcode )
 \ addr2 u2: 	filename of included file - optional
 \ n2:		line number
 \ n1:		error position in input line
 \ addr1 u1:	input line
   cr error-stack @
-  IF
-[ has? file [IF] ]
+  IF ( throwcode addr1 u1 n1 n2 [addr2 u2] )
+[ has? file [IF] ] \ !! unbalanced stack effect
     ." in file included from "
     type ." :"
-[ [THEN] ]
-    dec.r  drop 2drop
-  ELSE
+[ [THEN] ] ( throwcode addr1 u1 n1 n2 )
+    0 dec.r  drop 2drop
+  ELSE ( throwcode addr1 u1 n1 n2 [addr2 u2] )
 [ has? file [IF] ]
       type ." :"
-[ [THEN] ]
-      dup >r dec.r ." : " 3 pick .error-string
-      r> IF \ if line# non-zero, there is a line
-	  cr dup 2over type cr drop
-	  nip -trailing 1- ( line-start index2 )
-	  0 >r  BEGIN
-	      2dup + c@ bl >  WHILE
-	      r> 1+ >r  1- dup 0<  UNTIL  THEN  1+
-	  ( line-start index1 )
-	  typewhite
-	  r> 1 max 0 ?do \ we want at least one "^", even if the length is 0
-	      [char] ^ emit
-	  loop
+[ [THEN] ] ( throwcode addr1 u1 n1 n2 )
+      dup 0 dec.r ." : " 4 pick .error-string
+      IF \ if line# non-zero, there is a line
+	  cr .error-line
       ELSE
 	  2drop drop
       THEN
@@ -899,7 +913,7 @@ Defer dobacktrace ( -- )
   [ has? os [IF] ]
       >stderr
   [ [THEN] ] 
-  source >in @ sourceline# [ has? file [IF] ]
+  source >in @ sourceline# [ has? file [IF] ] \ !! unbalanced stack effect
       sourcefilename
   [ [THEN] ] .error-frame
   error-stack @ 0 ?DO
