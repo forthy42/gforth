@@ -1077,6 +1077,7 @@ previous
 : lshift lshift ;
 : 2/ 2/ ;
 : . . ;
+: const ;
 
 \ mach-file count included
 
