@@ -1,5 +1,5 @@
 /*
-  $Id: hppa.h,v 1.12 1995-10-29 21:35:12 pazsan Exp $
+  $Id: hppa.h,v 1.13 1995-11-02 14:20:53 pazsan Exp $
   Copyright 1992 by the ANSI figForth Development Group
 
   This is the machine-specific part for a HPPA running HP-UX
@@ -14,6 +14,8 @@
 #define DIRECT_THREADED
 #endif
 #endif
+
+#define LONG_LATENCY
 
 /* cache flush stuff */
 extern void cacheflush(void *, int, int);

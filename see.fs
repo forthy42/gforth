@@ -188,18 +188,50 @@ VARIABLE C-Pass
         cell+ ;
 
 : c-lit
-        Display? IF dup @ dup abs 0 <# #S rot sign #> 0 .string bl cemit THEN
-        cell+ ;
+    Display? IF
+	dup @ dup abs 0 <# #S rot sign #> 0 .string bl cemit
+    THEN
+    cell+ ;
+
+: c-@local#
+    Display? IF
+	S" @local" 0 .string
+	dup @ dup 1 cells / abs 0 <# #S rot sign #> 0 .string bl cemit
+    THEN
+    cell+ ;
 
 : c-flit
-        Display? IF  dup f@ scratch represent 0=
-                     IF    2drop  scratch 3 min 0 .string
-                     ELSE   IF  '- cemit  THEN  1-
-                            scratch over c@ cemit '. cemit 1 /string 0 .string
-                            'E cemit
-                            dup abs 0 <# #S rot sign #> 0 .string bl cemit
-                 THEN THEN
-        float+ ;
+    Display? IF
+	dup f@ scratch represent 0=
+	IF    2drop  scratch 3 min 0 .string
+	ELSE
+	    IF  '- cemit  THEN  1-
+	    scratch over c@ cemit '. cemit 1 /string 0 .string
+	    'E cemit
+	    dup abs 0 <# #S rot sign #> 0 .string bl cemit
+	THEN THEN
+    float+ ;
+
+: c-f@local#
+    Display? IF
+	S" f@local" 0 .string
+	dup @ dup 1 floats / abs 0 <# #S rot sign #> 0 .string bl cemit
+    THEN
+    cell+ ;
+
+: c-laddr#
+    Display? IF
+	S" laddr# " 0 .string
+	dup @ dup abs 0 <# #S rot sign #> 0 .string bl cemit
+    THEN
+    cell+ ;
+
+: c-lp+!#
+    Display? IF
+	S" lp+!# " 0 .string
+	dup @ dup abs 0 <# #S rot sign #> 0 .string bl cemit
+    THEN
+    cell+ ;
 
 : c-s"
         count 2dup + aligned -rot
@@ -319,14 +351,17 @@ VARIABLE C-Pass
                                          IF WhileCode2 swap !
                                          ELSE drop THEN
                                 level- nl
-                                S" WHILE" .struc
+                                S" WHILE " .struc
                                 level+
-                        ELSE    nl S" IF" .struc level+
+                        ELSE    nl S" IF " .struc level+
                         THEN
                 THEN
         THEN
         DebugBranch
         cell+ ;
+
+: c-?branch-lp+!#  c-?branch cell+ ;
+: c-branch-lp+!#   c-branch  cell+ ;
 
 : c-do
         Display? IF nl S" DO" .struc level+ THEN ;
@@ -346,10 +381,23 @@ VARIABLE C-Pass
         Display? IF level- nl S" LOOP " .struc nl THEN
         DebugBranch cell+ cell+ ;
 
-
 : c-+loop
         Display? IF level- nl S" +LOOP " .struc nl THEN
         DebugBranch cell+ cell+ ;
+
+: c-s+loop
+        Display? IF level- nl S" S+LOOP " .struc nl THEN
+        DebugBranch cell+ cell+ ;
+
+: c--loop
+        Display? IF level- nl S" -LOOP " .struc nl THEN
+        DebugBranch cell+ cell+ ;
+
+: c-next-lp+!#  c-next cell+ ;
+: c-loop-lp+!#  c-loop cell+ ;
+: c-+loop-lp+!#  c-+loop cell+ ;
+: c-s+loop-lp+!#  c-s+loop cell+ ;
+: c--loop-lp+!#  c--loop cell+ ;
 
 : c-leave
         Display? IF S" LEAVE " .struc THEN
@@ -382,25 +430,38 @@ VARIABLE C-Pass
 
 
 CREATE C-Table
-        ' lit A,         ' c-lit A,
-        ' flit A,        ' c-flit A,
-        ' (s") A,        ' c-s" A,
-        ' (.") A,        ' c-." A,
-        ' "lit A,        ' c-c" A,
-        ' ?branch A,     ' c-?branch A,
-        ' branch A,      ' c-branch A,
-        ' leave A,       ' c-leave A,
-        ' ?leave A,      ' c-?leave A,
-        ' (do) A,        ' c-do A,
-        ' (?do) A,       ' c-?do A,
-        ' (for) A,       ' c-for A,
-        ' (loop) A,      ' c-loop A,
-        ' (+loop) A,     ' c-+loop A,
-        ' (next) A,      ' c-next A,
-        ' ;s A,          ' c-exit A,
-        ' (does>) A,     ' c-does> A,
-        ' (abort") A,    ' c-abort" A,
-        ' (compile) A,   ' c-(compile) A,
+        ' lit A,            ' c-lit A,
+	' @local# A,        ' c-@local# A,
+        ' flit A,           ' c-flit A,
+	' f@local# A,       ' c-f@local# A,
+	' laddr# A,         ' c-laddr# A,
+	' lp+!# A,          ' c-lp+!# A,
+        ' (s") A,           ' c-s" A,
+        ' (.") A,           ' c-." A,
+        ' "lit A,           ' c-c" A,
+        ' leave A,          ' c-leave A,
+        ' ?leave A,         ' c-?leave A,
+        ' (do) A,           ' c-do A,
+        ' (?do) A,          ' c-?do A,
+        ' (for) A,          ' c-for A,
+        ' ?branch A,        ' c-?branch A,
+        ' branch A,         ' c-branch A,
+        ' (loop) A,         ' c-loop A,
+        ' (+loop) A,        ' c-+loop A,
+        ' (s+loop) A,       ' c-s+loop A,
+        ' (-loop) A,        ' c--loop A,
+        ' (next) A,         ' c-next A,
+        ' ?branch-lp+!# A,  ' c-?branch-lp+!# A,
+        ' branch-lp+!# A,   ' c-branch-lp+!# A,
+        ' (loop)-lp+!# A,   ' c-loop-lp+!# A,
+        ' (+loop)-lp+!# A,  ' c-+loop-lp+!# A,
+        ' (s+loop)-lp+!# A, ' c-s+loop-lp+!# A,
+        ' (-loop)-lp+!# A,  ' c--loop-lp+!# A,
+        ' (next)-lp+!# A,   ' c-next-lp+!# A,
+        ' ;s A,             ' c-exit A,
+        ' (does>) A,        ' c-does> A,
+        ' (abort") A,       ' c-abort" A,
+        ' (compile) A,      ' c-(compile) A,
         0 ,
 
 \ DOTABLE                                               15may93jaw
@@ -465,9 +526,10 @@ DEFER dosee
 : docon  dup cell+ (name>) >body @ . ." Constant " .name cr ;
 : doval  dup cell+ (name>) >body @ . ." Value " .name cr ;
 : dodef ." Defer " dup >r .name cr
-         here @ look 0= ABORT" SEE: No valid xt in defered word"
-	 here @ look drop dosee cr
-        ." ' " .name r> ." IS " .name cr ;
+    r@ cell+ (name>) >body @ look
+    0= ABORT" SEE: No valid xt in deferred word"
+    dup dosee cr
+    ." ' " .name r> ." IS " .name cr ;
 : dodoe ." Create " dup .name cr
         S" DOES> " Com# .string XPos @ Level ! name>
         >does-code dup C-Pass @ DebugMode = IF ScanMode c-pass ! EXIT THEN

@@ -262,6 +262,6 @@ VARIABLE Unnest
                 THEN
         AGAIN ;
 
-: dbg   ' NestXT ?EXIT (debug) ;
+: dbg   ' NestXT ?EXIT (debug) Leave-D ;
 
 \ : test 1 2 4 swap dup . ;
