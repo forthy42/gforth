@@ -2891,7 +2891,7 @@ like this:
    ( ... n ) throw ;
 @end example
 
-Gforth provides an alternative syntax in addition to @code{cacth}:
+Gforth provides an alternative syntax in addition to @code{catch}:
 @code{try ... recover ... endtry}.  If the code between @code{try} and
 @code{recover} has an exception, the stack depths are restored, the
 exception number is pushed on the stack, and the code between
@@ -3321,7 +3321,7 @@ The search order is a powerful foundation for providing features similar
 to Modula-2 modules and C++ namespaces.  However, trying to modularize
 programs in this way has disadvantages for debugging and reuse/factoring
 that overcome the advantages in my experience (I don't do huge projects,
-though).  These disadvanategs are not so clear in other
+though).  These disadvantages are not so clear in other
 languages/programming environments, because these langauges are not so
 strong in debugging and reuse.
 
@@ -8669,6 +8669,11 @@ The instruction names usually end with a @code{,}.  This makes it easier
 to visually separate instructions if you put several of them on one
 line; it also avoids shadowing other Forth words (e.g., @code{and}).
 
+Registers are usually specified by number; e.g., (decimal) @code{11}
+specifies registers R11 and F11 on the Alpha architecture (which one,
+depends on the instruction).  The usual names are also available, e.g.,
+@code{s2} for R11 on Alpha.
+
 Control flow is specified similar to normal Forth code (@pxref{Arbitrary
 control structures}), with @code{if,}, @code{ahead,}, @code{then,},
 @code{begin,}, @code{until,}, @code{again,}, @code{cs-roll},
@@ -8704,7 +8709,29 @@ Andrew McKewan; it is in the public domain.
 @node Alpha Assembler, MIPS assembler, 386 Assembler, Assembler and Code Words
 @subsection Alpha Assembler
 
-The Alpha assembler and disassembler was written by Bernd Thallner.
+The Alpha assembler and disassembler were originally written by Bernd
+Thallner.
+
+The register names @code{a0}--@code{a5} are not available to avoid
+shadowing hex numbers.
+
+Immediate forms of arithmetic instructions are distinguished by a
+@code{#} just before the @code{,}, e.g., @code{and#,} (note: @code{lda,}
+does not count as arithmetic instruction).
+
+You have to specify all operands to an instruction, even those that
+other assemblers consider optional, e.g., the destination register for
+@code{br,}, or the destination register and hint for @code{jmp,}.
+
+You can specify conditions for @code{if,} by removing the first @code{b}
+and the trailing @code{,} from a branch with a corresponding name; e.g.,
+
+@example
+11 fgt if, \ if F11>0e
+  ...
+endif,
+
+@code{fbgt,} gives @code{fgt}.  
 
 @node MIPS assembler, Other assemblers, Alpha Assembler, Assembler and Code Words
 @subsection MIPS assembler
@@ -8714,10 +8741,8 @@ The MIPS assembler was originally written by Christian Pirker.
 Currently the assembler and disassembler only cover the MIPS-I
 architecture (R3000), and don't support FP instructions.
 
-Registers are specified by numbers, e.g., @code{1} (without preceding
-@code{$}).  You can also specify them by name, e.g. @code{$at}; however,
-@code{$a0}--@code{$a3} are not available, to avoid shadowing hex
-numbers.
+The register names @code{$a0}--@code{$a3} are not available to avoid
+shadowing hex numbers.
 
 Because there is no way to distinguish registers from immediate values,
 you have to explicitly use the immediate forms of instructions, i.e.,

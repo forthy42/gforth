@@ -325,7 +325,7 @@ include ./insts.fs
 ' bgtz, constant lez
 ' bltz, constant gez
 ' bgez, constant ltz
-\ bczf, bczt, \ these don't teke the relative address as last argument
+\ bczf, bczt, \ these don't take the relative address as last argument
 ' blt,  constant ge
 ' ble,  constant gt
 ' bgt,  constant le
