@@ -88,11 +88,11 @@ if test $ac_cv_int_type_cell != int; then
 	echo "to use Forth;-)"
 fi
 AC_CHECK_INT_TYPE(2*sizeof(char *),double cell,long long)
-if test $ac_cv_int_type_double_cell = none; then
+if test "$ac_cv_int_type_double_cell" = none; then
 	echo "Emulating double-cell arithmetic. This may be slow."
 	echo "If you find this unacceptable, ask the GCC maintainers to provide proper"
-	echo 'long longs for your machine (the GCC manual states that they \"are twice as'
-	echo "long as \`long int\'\")."
+	echo 'long longs for your machine (the GCC manual states that they "are twice as'
+	echo "long as \`long int'\")."
 	LIBOBJS="$LIBOBJS dblsub.o"
 	AC_DEFINE(BUGGY_LONG_LONG)
 fi
@@ -103,7 +103,7 @@ AC_CANONICAL_HOST
 case "$host_cpu" in
 	hppa*)
 		mach_h=hppa
-		LIBOBJS="cache.o"
+		LIBOBJS="$LIBOBJS cache.o"
 		LDFLAGS="-Xlinker -N"
 		LIBS="-L/lib/pa1.1/"
 		;;

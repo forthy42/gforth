@@ -9,7 +9,7 @@
 @ifinfo
 This file documents Gforth 0.2
 
-Copyright @copyright{} 1995 Free Software Foundation, Inc.
+Copyright @copyright{} 1995,1996 Free Software Foundation, Inc.
 
      Permission is granted to make and distribute verbatim copies of
      this manual provided the copyright notice and this permission notice
@@ -51,7 +51,7 @@ Copyright @copyright{} 1995 Free Software Foundation, Inc.
 @comment  The following two commands start the copyright page.
 @page
 @vskip 0pt plus 1filll
-Copyright @copyright{} 1995 Free Software Foundation, Inc.
+Copyright @copyright{} 1995,1996 Free Software Foundation, Inc.
 
 @comment !! Published by ... or You can get a copy of this manual ...
 
@@ -3299,10 +3299,16 @@ GNU C Manual}). Its labels as values feature (@pxref{Labels as Values, ,
 Labels as Values, gcc.info, GNU C Manual}) makes direct and indirect
 threading possible, its @code{long long} type (@pxref{Long Long, ,
 Double-Word Integers, gcc.info, GNU C Manual}) corresponds to Forths
-double numbers. GNU C is available for free on all important (and many
-unimportant) UNIX machines, VMS, 80386s running MS-DOS, the Amiga, and
-the Atari ST, so a Forth written in GNU C can run on all these
-machines.
+double numbers@footnote{Unfortunately, long longs are not implemented
+properly on all machines (e.g., on alpha-osf1, long longs are only 64
+bits, the same size as longs (and pointers), but they should be twice as
+long according to @ref{Long Long, , Double-Word Integers, gcc.info, GNU
+C Manual}). So, we had to implement doubles in C after all. Still, on
+most machines we can use long longs and achieve better performance than
+with the emulation package.}. GNU C is available for free on all
+important (and many unimportant) UNIX machines, VMS, 80386s running
+MS-DOS, the Amiga, and the Atari ST, so a Forth written in GNU C can run
+on all these machines.
 
 Writing in a portable language has the reputation of producing code that
 is slower than assembly. For our Forth engine we repeatedly looked at
@@ -3657,16 +3663,17 @@ Gforth (direct threaded, compiled with @code{gcc-2.6.3} and
 1994) and Eforth (with and without peephole (aka pinhole) optimization
 of the threaded code); all these systems were written in assembly
 language. We also compared Gforth with three systems written in C:
-PFE-0.9.11 (compiled with @code{gcc-2.6.3} with the default
-configuration for Linux: @code{-O2 -fomit-frame-pointer -DUSE_REGS}),
-ThisForth Beta (compiled with gcc-2.6.3 -O3 -fomit-frame-pointer;
-ThisForth employs peephole optimization of the threaded code) and TILE
-(compiled with @code{make opt}). We benchmarked Gforth, PFE, ThisForth
-and TILE on a 486DX2/66 under Linux. Kenneth O'Heskin kindly provided
-the results for Win32Forth and NT Forth on a 486DX2/66 with similar
-memory performance under Windows NT. Marcel Hendrix ported Eforth to
-Linux, then extended it to run the benchmarks, added the peephole
-optimizer, ran the benchmarks and reported the results.
+PFE-0.9.14 (compiled with @code{gcc-2.6.3} with the default
+configuration for Linux: @code{-O2 -fomit-frame-pointer -DUSE_REGS
+-DUNROLL_NEXT}), ThisForth Beta (compiled with gcc-2.6.3 -O3
+-fomit-frame-pointer; ThisForth employs peephole optimization of the
+threaded code) and TILE (compiled with @code{make opt}). We benchmarked
+Gforth, PFE, ThisForth and TILE on a 486DX2/66 under Linux. Kenneth
+O'Heskin kindly provided the results for Win32Forth and NT Forth on a
+486DX2/66 with similar memory performance under Windows NT. Marcel
+Hendrix ported Eforth to Linux, then extended it to run the benchmarks,
+added the peephole optimizer, ran the benchmarks and reported the
+results.
  
 We used four small benchmarks: the ubiquitous Sieve; bubble-sorting and
 matrix multiplication come from the Stanford integer benchmarks and have
@@ -3680,10 +3687,10 @@ factor that Gforth achieved over the other systems).
 @example
 relative      Win32-    NT       eforth       This-
   time  Gforth Forth Forth eforth  +opt   PFE Forth  TILE
-sieve     1.00  1.39  1.14   1.39  0.85  1.78  3.18  8.58
-bubble    1.00  1.31  1.41   1.48  0.88  1.67        3.88
-matmul    1.00  1.47  1.35   1.46  1.16  2.36        4.09
-fib       1.00  1.52  1.34   1.22  1.13  1.93  2.99  4.30
+sieve     1.00  1.39  1.14   1.39  0.85  1.58  3.18  8.58
+bubble    1.00  1.31  1.41   1.48  0.88  1.50        3.88
+matmul    1.00  1.47  1.35   1.46  1.16  1.58        4.09
+fib       1.00  1.52  1.34   1.22  1.13  1.74  2.99  4.30
 @end example
 
 You may find the good performance of Gforth compared with the systems
@@ -3730,7 +3737,7 @@ numbers for Gforth on various machines in @file{Benchres}.
 Known bugs are described in the file BUGS in the Gforth distribution.
 
 If you find a bug, please send a bug report to
-@code{gforth-bugs@@mips.complang.tuwien.ac.at}. A bug report should
+@code{bug-gforth@@gnu.ai.mit.edu}. A bug report should
 describe the Gforth version used (it is announced at the start of an
 interactive Gforth session), the machine and operating system (on Unix
 systems you can use @code{uname -a} to produce this information), the

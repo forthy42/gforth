@@ -11,17 +11,18 @@ systems supported by GCC. This version has been tested successfully on
 Linux (for Intel), SunOS (SPARC) and Ultrix (MIPS).
 
 Read INSTALL for installation instructions. Mail
-gforth-bugs@mips.complang.tuwien.ac.at if you have problems.  To start
+bug-gforth@gnu.ai.mit.edu if you have problems.  To start
 the system, just say `gforth' (after installing it).
 
-You can find new versions of Gforth at
+You can find new versions of Gforth at prep.ai.mit.edu and its mirrors
+or at
 
-http://www.complang.tuwien.ac.at/forth
+http://www.complang.tuwien.ac.at/forth/gforth/
 or
-ftp://ftp.complang.tuwien.ac.at/pub/forth
+ftp://ftp.complang.tuwien.ac.at/pub/forth/gforth/
 
-This site will also contain binary distributions of Gforth for some
-popular platforms when it has proved stable.
+This site will contains binary distributions of Gforth for some
+popular platforms.
 
 If you want to work on Gforth, mail me. Tasks to be done can be found
 in ToDo; but if you would like to do something not mentioned there,
@@ -59,7 +60,7 @@ Benchmarks:
 bubble.fs siev.fs matrix.fs fib.fs sieve.fs
 
 ANS Forth implementations of Gforth extensions:
-anslocal.fs other.fs
+compat/*.fs other.fs
 
 
 - anton

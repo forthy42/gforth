@@ -3,6 +3,23 @@
 
 set numeric tblstyle = latex craction = 1
 format B 8 2 0
+format C 6 2 0
+format D 6 2 0
+format E 6 2 0
+format F 6 2 0
+format G 6 2 0
+format H 6 2 0
+format I 6 2 0
+format J 6 2 0
+format K 6 2 0
+format L 6 2 0
+format M 6 2 0
+format N 6 2 0
+format O 6 2 0
+format P 6 2 0
+format Q 6 2 0
+format R 6 2 0
+format S 6 2 0
 format V 10 0 0
 format W 10 0 0
 format Z 10 0 0
@@ -41,7 +58,7 @@ let M1 = 41.49
 let N1 = 34.05
 let O1 = 41.5000000005364
 let P1 = 25.3
-let Q1 = 53.27
+let Q1 = 47.18
 let R1 = 95.07
 let S1 = 256.48
 leftstring A2 = "bubble 6000"
@@ -59,7 +76,7 @@ let M2 = 46.397
 let N2 = 49.86
 let O2 = 52.4
 let P2 = 31.1
-let Q2 = 59.23
+let Q2 = 53.24
 let S2 = 137.34
 leftstring A3 = "matmul 200"
 let B3 = 28.3
@@ -76,7 +93,7 @@ let M3 = 39.677
 let N3 = 36.53
 let O3 = 39.4
 let P3 = 31.2
-let Q3 = 63.5000000005364
+let Q3 = 42.59
 let S3 = 110.19
 leftstring A4 = "fib 34"
 let B4 = 36.7
@@ -94,7 +111,7 @@ let M4 = 52.725
 let N4 = 46.23
 let O4 = 42.3
 let P4 = 39.1
-let Q4 = 66.87
+let Q4 = 60.14
 let R4 = 103.44
 let S4 = 148.71
 rightstring B5 = "time"
@@ -379,7 +396,7 @@ let R21 = R4/$C4
 let S21 = S4/$C4
 let T21 = C4
 fmt T21 "##0.00s"
-rightstring B23 = "relative"
+leftstring B23 = "relative"
 rightstring C23 = "f2c"
 rightstring E23 = "f2c"
 rightstring F23 = "hand-"
@@ -393,7 +410,7 @@ rightstring N23 = "NT"
 rightstring P23 = "eforth"
 rightstring R23 = "This-"
 rightstring T23 = "abs.\ time"
-rightstring B24 = "time"
+leftstring B24 = "time"
 rightstring C24 = "opt."
 rightstring D24 = "Timbre"
 rightstring E24 = "no opt."
@@ -407,7 +424,7 @@ rightstring L24 = "Gforth"
 rightstring M24 = "Forth"
 rightstring N24 = "Forth"
 label O24 = "eforth"
-rightstring P24 = "+pinhole"
+rightstring P24 = "+opt"
 rightstring Q24 = "PFE"
 rightstring R24 = "Forth"
 rightstring S24 = "TILE"
@@ -492,4 +509,4 @@ let R28 = R4/$J4
 let S28 = S4/$J4
 let T28 = C4
 fmt T28 "##0.00s"
-goto A27
+goto R25
