@@ -78,7 +78,7 @@ true constant double-ext
 true constant exception
 true constant exception-ext
 true constant facility
-\ !! facility-ext
+true constant facility-ext
 true constant file
 true constant file-ext
 true constant floating
@@ -88,7 +88,7 @@ true constant locals-ext
 true constant memory-alloc
 true constant memory-alloc-ext
 true constant tools
-\ !! tools-ext
+true constant tools-ext
 true constant search-order
 true constant search-order-ext
 true constant string

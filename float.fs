@@ -180,6 +180,9 @@ IS interpreter-notfound
     \G Divide 1.0e0 by @i{r1}.
     1.0e0 fswap f/ ;
 
+get-current environment-wordlist set-current
+1.7976931348623157e308 FConstant max-float
+set-current
 
 \ We now have primitives for these, so we need not define them
 
