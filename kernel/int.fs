@@ -703,7 +703,7 @@ has? os [IF]
 
 : extend-mem	( addr1 u1 u -- addr addr2 u2 )
     \ extend memory block allocated from the heap by u aus
-    \ the (possibly reallocated piece is addr2 u2, the extension is at addr
+    \ the (possibly reallocated) piece is addr2 u2, the extension is at addr
     over >r + dup >r resize throw
     r> over r> + -rot ;
 [THEN]
