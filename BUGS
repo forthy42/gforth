@@ -24,3 +24,8 @@ Include cannot handle lines longer than 255 characters.  anton 4sep00
 
 Errors happening during a LOAD do not report the offending word and
 its context (e.g., the 64-byte line). anton 8sep00
+
+Our ecvt routine apparently does not work correctly for Infs and NaNs.
+Try "ac_cv_func_ecvt=no ./configure; make" and then in Gforth: "1e 0e
+f/ f. 0e 0e f/ f.". anton 25sep00
+
