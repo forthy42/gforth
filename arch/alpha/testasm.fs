@@ -1,4 +1,4 @@
-here
+create test_asm
 1 2 3 addf,
 1 2 3 addg,
 1 2 3 addl,

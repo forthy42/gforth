@@ -43,27 +43,13 @@ $1f constant zero
 
 \ util
 
-: right_shift ( a n -- a>>=n )
-0
-?do
-  2/
-loop
-;
-
-: left_shift ( a n -- a<<=n )
-0
-?do
-  2*
-loop
-;
-
 : h@ ( addr -- n )		\ 32 bit fetch
 dup dup aligned = if
   @
   $00000000ffffffff and
 else
   4 - @
-  $20 right_shift
+  $20 rshift
 endif
 ;
 
@@ -76,7 +62,7 @@ dup dup aligned = if
 else
   4 - dup @
   $00000000ffffffff and
-  rot $20 left_shift or
+  rot $20 lshift or
   swap !
 endif
 ;
@@ -85,7 +71,7 @@ endif
 here here aligned = if
   here !
 else
-  32 left_shift
+  32 lshift
   here 4 - dup
   @ rot or
   swap !
@@ -98,40 +84,40 @@ endif
 : Bra ( oo )			\ branch instruction format
   create ,
 does> ( ra, branch_disp, addr )
-  @ 26 left_shift
+  @ 26 lshift
   swap $1fffff and or
-  swap $1f and 21 left_shift or h,
+  swap $1f and 21 lshift or h,
 ;
 
 : Mbr ( oo.h )			\ memory branch instruction format
   create 2,
 does> ( ra, rb, hint, addr )
-  2@ 14 left_shift
-  swap 26 left_shift or
+  2@ 14 lshift
+  swap 26 lshift or
   swap $3fff and or
-  swap $1f and 16 left_shift or
-  swap $1f and 21 left_shift or
+  swap $1f and 16 lshift or
+  swap $1f and 21 lshift or
   h,
 ; 
 
 : F-P ( oo.fff )		\ floating-point operate instruction format
   create 2,
 does> ( fa, fb, fc, addr )
-  2@ 5 left_shift
-  swap 26 left_shift or
+  2@ 5 lshift
+  swap 26 lshift or
   swap $1f and or
-  swap $1f and 16 left_shift or
-  swap $1f and 21 left_shift or
+  swap $1f and 16 lshift or
+  swap $1f and 21 lshift or
   h,
 ;
 
 : Mem ( oo )			\ memory instruction format
   create ,
 does> ( ra, memory_disp, rb, addr )
-  @ 26 left_shift
-  swap $1f and 16 left_shift or
+  @ 26 lshift
+  swap $1f and 16 lshift or
   swap $ffff and or 
-  swap $1f and 21 left_shift or
+  swap $1f and 21 lshift or
   h,
 ;
 
@@ -139,9 +125,9 @@ does> ( ra, memory_disp, rb, addr )
   create 2,
 does> ( ra, rb, addr )
   2@
-  swap 26 left_shift or
-  swap $1f and 16 left_shift or
-  swap $1f and 21 left_shift or
+  swap 26 lshift or
+  swap $1f and 16 lshift or
+  swap $1f and 21 lshift or
   h,
 ;
 
@@ -149,11 +135,11 @@ does> ( ra, rb, addr )
   create 2,
 does> ( ra, rb, rc, addr )
   2@
-  5 left_shift
-  swap 26 left_shift or
+  5 lshift
+  swap 26 lshift or
   swap $1f and or
-  swap $1f and 16 left_shift or
-  swap $1f and 21 left_shift or
+  swap $1f and 16 lshift or
+  swap $1f and 21 lshift or
   h, 
 ;
 
@@ -161,19 +147,19 @@ does> ( ra, rb, rc, addr )
   create 2,
 does> ( ra, lit, rc, addr )
   2@
-  5 left_shift
-  swap 26 left_shift or
-  1 12 left_shift or
+  5 lshift
+  swap 26 lshift or
+  1 12 lshift or
   swap $1f and or
-  swap $ff and 13 left_shift or
-  swap $1f and 21 left_shift or
+  swap $ff and 13 lshift or
+  swap $1f and 21 lshift or
   h, 
 ;
 
 : Pcd ( oo )			\ palcode instruction format
   create ,
 does> ( palcode, addr )
-  @ 26 left_shift
+  @ 26 lshift
   swap $3ffffff and or
   h,
 ;
@@ -418,31 +404,35 @@ $12 $31   Opr# zapnot#,
 
 \ <register_number> if, <if_code> [ else, <else_code> ] endif,
 
-: if,
-  0 beq, here 4 -
+: ahead, ( -- asmorig )
+    31 0 br,
+    here 4 -
 ;
 
-: else,
-  dup here swap - 4 /
-  $1fffff and
-  over h@ or swap h!
-  31 0 br,
+: if, ( -- asmorig )
+  0 beq,
   here 4 -
 ;
 
-: endif,
+: endif, ( asmorig -- )
   dup here swap - 4 - 4 /
   $1fffff and
   over h@ or swap h!
 ;
 
+: else, ( asmorig1 -- asmorig2 )
+    ahead,
+    swap
+    endif,
+;
+
 \ begin, <code> again,
 
-: begin,
+: begin, ( -- asmdest )
   here
 ;
 
-: again,
+: again, ( asmdest -- )
   here - 4 - 4 /
   $1fffff and
   31 swap br,
@@ -450,7 +440,7 @@ $12 $31   Opr# zapnot#,
 
 \ begin, <code> <register_number> until,
 
-: until,
+: until, ( asmdest -- )
   here rot swap - 4 - 4 /
   $1fffff and
   bne,
@@ -458,42 +448,112 @@ $12 $31   Opr# zapnot#,
 
 \ begin, <register_number> while, <code> repeat,
 
-: while,
-  0 beq, here 4 -
+: while, ( asmdest -- asmorig asmdest )
+  if,
+  swap
 ;
 
-: repeat,
-  swap here - 4 - 4 /
-  $1fffff and
-  31 swap br,
-  dup here 4 - swap - 4 /
+: repeat, ( asmorig asmdest -- )
+  again,
+  endif,
+;
+
+\ jump marks
+
+\ example:
+
+\ init_marktbl		\ initializes mark table
+\ 31 0 br,
+\ 0 store_branch	\ store jump address for mark 0
+\ 1 2 3 addf,
+\ 0 set_mark		\ store mark 0
+\ 2 3 4 addf,
+\ 2 0 beq,
+\ 0 store_branch	\ store jump address for mark 0
+\ calculate_marks       \ calculate all jumps
+
+\ with <mark_address> <jump_address> calculate_branch you can calculate the
+\ displacement field without the mark_table for one branch
+
+\ example:
+\ here 31 0 br,
+\ here 1 2 3 addf,
+\ calculate_branch
+
+5 constant mark_numbers
+5 constant mark_uses
+
+create mark_table
+mark_numbers mark_uses 1+ * cells allot
+
+: init_marktbl ( -- )			\ initializes mark table
+  mark_table mark_numbers mark_uses 1+ * cells +
+  mark_table
+  begin
+    over over >
+  while
+    dup 0 swap !
+    1 cells +
+  repeat
+  drop drop
+;
+
+: set_mark ( mark_number -- )		\ sets mark, store address in mark table
+  dup mark_numbers >= abort" error, illegal mark number"
+  mark_uses 1+ * cells
+  mark_table + here 8 - swap !
+;
+
+: store_branch ( mark_number -- )	\ stores address of branch in mark table
+  dup mark_numbers >= abort" error, illegal mark number"
+  mark_uses 1+ * cells
+  mark_table + 1 cells +
+  dup mark_uses cells + swap
+  begin
+    over over > over @ and 
+  while
+    1 cells +
+  repeat
+  swap over = abort" error, not enough space in mark_table, increase mark_uses"
+  here 4 - swap !
+;
+
+: calculate_branch ( mark_addr branch_addr -- ) \ calculate branch displacement field for one branch
+  swap over - 4 + 4 /
   $1fffff and
   over h@ or swap h!
 ;
 
-\ labels
-
-10 constant mark_numbers
-10 constant mark_uses
-
-create mark_table
-mark_numbers mark_uses 1 + * cells allot
-
-: set_mark ( mark_number -- )
-
+: calculate_mark ( tb mark_address -- tb )	\ calculates branch displacement field for one mark
+  over 1 cells +
+  dup mark_uses cells + swap
+  begin
+    over over >
+  while
+    2over swap drop ( ei i markaddr ej j markaddr )
+    over @
+    dup if
+      calculate_branch
+    else
+      drop drop
+    endif
+    1 cells +
+  repeat drop drop drop
 ;
 
-: set_branch ( mark_number -- )
-
+: calculate_marks ( -- )		\ calculates branch displacement field for all marks
+  mark_table mark_numbers 1- mark_uses 1+ * cells +
+  mark_table
+  begin
+    over over >=
+  while
+    dup @
+      dup if \ used mark
+        calculate_mark
+      else
+        drop
+      endif
+    mark_uses 1+ cells +
+  repeat
+  drop drop
 ;
-
-: calculate_marks ( -- )
-
-;
-
-
-
-
-
-
-

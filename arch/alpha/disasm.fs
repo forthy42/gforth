@@ -2,32 +2,7 @@
 \ bernd thallner 9725890 e881
 \ disassembler in forth for alpha
 
-\ format
-
-0 constant cOpc
-1 constant cBra
-2 constant cF-P
-3 constant cMem
-4 constant cMfc
-5 constant cMbr
-6 constant cOpr
-7 constant cPcd
-
 \ util
-
-: right_shift ( a n -- a>>=n )
-0
-?do
-  2/
-loop
-;
-
-: left_shift ( a n -- a<<=n )
-0
-?do
-  2*
-loop
-;
 
 : h@ ( addr -- n )  \ 32 bit fetch
 dup dup aligned = if
@@ -35,7 +10,7 @@ dup dup aligned = if
   $00000000ffffffff and
 else
   4 - @
-  $20 right_shift
+  $20 rshift
 endif
 ;
 
@@ -47,8 +22,8 @@ create string_table
 
 : mktbentry, { start format straddr strlen -- start }  \ make table entry
   straddr string_table start + strlen cmove
-  start 48 left_shift
-  strlen 32 left_shift or
+  start 48 lshift
+  strlen 32 lshift or
   format or
   ,
   start strlen +
@@ -59,9 +34,9 @@ create string_table
 
 : print_string ( table_entry -- )  \ print string entry
   dup
-  48 right_shift string_table +
+  48 rshift string_table +
   swap
-  32 right_shift $000000000000ffff and
+  32 rshift $000000000000ffff and
   type
 ;
 
@@ -80,73 +55,6 @@ create string_table
 : tab3 2* 2* 3 + ;
 
 0 \ string_table offset
-
-create opcode_table
-
-( 00 ) cPcd s" call_pal"    mktbentry,
-( 01 ) cOpc s" opc01"       mktbentry,
-( 02 ) cOpc s" opc02"       mktbentry,
-( 03 ) cOpc s" opc03"       mktbentry,
-( 04 ) cOpc s" opc04"       mktbentry,
-( 05 ) cOpc s" opc05"       mktbentry,
-( 06 ) cOpc s" opc06"       mktbentry,
-( 07 ) cOpc s" opc07"       mktbentry,
-( 08 ) cMem s" lda"         mktbentry,
-( 09 ) cMem s" ldah"        mktbentry,
-( 0a ) cOpc s" opc0a"       mktbentry,
-( 0b ) cMem s" ldq_u"       mktbentry,
-( 0c ) cOpc s" opc0c"       mktbentry,
-( 0d ) cOpc s" opc0d"       mktbentry,
-( 0e ) cOpc s" opc0e"       mktbentry,
-( 0f ) cMem s" stq_u"       mktbentry,
-( 10 ) cOpr s" "            mktbentry,
-( 11 ) cOpr s" "            mktbentry,
-( 12 ) cOpr s" "            mktbentry,
-( 13 ) cOpr s" "            mktbentry,
-( 14 ) cOpc s" opc14"       mktbentry,
-( 15 ) cF-P s" "            mktbentry,
-( 16 ) cF-P s" "            mktbentry,
-( 17 ) cF-P s" "            mktbentry,
-( 18 ) cMfc s" "            mktbentry,
-( 19 ) cOpc s" pal19"       mktbentry,
-( 1a ) cMbr s" "            mktbentry,
-( 1b ) cOpc s" pal1b"       mktbentry,
-( 1c ) cOpc s" opc1c"       mktbentry,
-( 1d ) cOpc s" pal1d"       mktbentry,
-( 1e ) cOpc s" pal1e"       mktbentry,
-( 1f ) cOpc s" pal1f"       mktbentry,
-( 20 ) cMem s" ldf"         mktbentry,
-( 21 ) cMem s" ldg"         mktbentry,
-( 22 ) cMem s" lds"         mktbentry,
-( 23 ) cMem s" ldt"         mktbentry,
-( 24 ) cMem s" stf"         mktbentry,
-( 25 ) cMem s" stg"         mktbentry,
-( 26 ) cMem s" sts"         mktbentry,
-( 27 ) cMem s" stt"         mktbentry,
-( 28 ) cMem s" ldl"         mktbentry,
-( 29 ) cMem s" ldq"         mktbentry,
-( 2a ) cMem s" ldl_l"       mktbentry,
-( 2b ) cMem s" ldq_l"       mktbentry,
-( 2c ) cMem s" stl"         mktbentry,
-( 2d ) cMem s" stq"         mktbentry,
-( 2e ) cMem s" stl_c"       mktbentry,
-( 2f ) cMem s" stq_c"       mktbentry,
-( 30 ) cBra s" br"          mktbentry,
-( 31 ) cBra s" fbeq"        mktbentry,
-( 32 ) cBra s" fblt"        mktbentry,
-( 33 ) cBra s" fble"        mktbentry,
-( 34 ) cBra s" bsr"         mktbentry,
-( 35 ) cBra s" fbne"        mktbentry,
-( 36 ) cBra s" fbge"        mktbentry,
-( 37 ) cBra s" fbgt"        mktbentry,
-( 38 ) cBra s" blbc"        mktbentry,
-( 39 ) cBra s" beq"         mktbentry,
-( 3a ) cBra s" blt"         mktbentry,
-( 3b ) cBra s" ble"         mktbentry,
-( 3c ) cBra s" blbs"        mktbentry,
-( 3d ) cBra s" bne"         mktbentry,
-( 3e ) cBra s" bge"         mktbentry,
-( 3f ) cBra s" bgt"         mktbentry,
 
 create Opr_list
 
@@ -329,8 +237,6 @@ create register_table
 ( 1e ) 0 s" sp"           mktbentry,
 ( 1f ) 0 s" zero"         mktbentry,
 
-drop \ string_table end
-
 defer decode_register
 
 : decode_register_symb ( register -- )
@@ -345,24 +251,26 @@ defer decode_register
 ' decode_register_number is decode_register
 \ ' decode_register_symb is decode_register
 
+create decode_code
+
 : decode_Opc ( instruction tbentry -- )
   print_string drop
 ;
 
 : decode_Bra ( instruction tbentry -- )
   swap
-  dup $03e00000 and 21 right_shift decode_register
+  dup $03e00000 and 21 rshift decode_register
   $001fffff and .
   print_string
 ;
 
 : decode_F-P ( instruction tbentry -- )
   drop
-  dup $03e00000 and 21 right_shift decode_register
-  dup $001f0000 and 16 right_shift decode_register
+  dup $03e00000 and 21 rshift decode_register
+  dup $001f0000 and 16 rshift decode_register
   dup $0000001f and decode_register
-  dup 26 right_shift $15 -
-  swap $0000fff0 and 3 right_shift or F-P_list
+  dup 26 rshift $15 -
+  swap $0000fff0 and 3 rshift or F-P_list
   begin
     dup @ rot swap over over $00000000ffffffff and
     = if print_string swap drop register_table swap else drop endif
@@ -373,16 +281,16 @@ defer decode_register
 
 : decode_Mem ( instruction tbentry -- )
   swap
-  dup $03e00000 and 21 right_shift decode_register
+  dup $03e00000 and 21 rshift decode_register
   dup $0000ffff and .
-  $001f0000 and 16 right_shift decode_register
+  $001f0000 and 16 rshift decode_register
   print_string
 ;
 
 : decode_Mfc ( instruction tbentry -- )
   drop
-  dup $03e00000 and 21 right_shift decode_register
-  dup $001f0000 and 16 right_shift decode_register
+  dup $03e00000 and 21 rshift decode_register
+  dup $001f0000 and 16 rshift decode_register
   $0000ffff and Mfc_list
   begin
     dup @ rot swap over over $00000000ffffffff and
@@ -394,25 +302,25 @@ defer decode_register
 
 : decode_Mbr ( instruction tbentry -- )
   drop
-  dup $03e00000 and 21 right_shift decode_register
-  dup $001f0000 and 16 right_shift decode_register
+  dup $03e00000 and 21 rshift decode_register
+  dup $001f0000 and 16 rshift decode_register
   dup $00003fff and decode_register
-  $0000c000 and 14 right_shift cells Mbr_table +
+  $0000c000 and 14 rshift cells Mbr_table +
   @ print_string
 ;
 
 : decode_Opr ( instruction tbentry -- )
   drop
-  dup $03e00000 and 21 right_shift decode_register
+  dup $03e00000 and 21 rshift decode_register
   dup dup $00001000 and $00001000
   = if
-    $001fe000 and 13 right_shift . -1
+    $001fe000 and 13 rshift . -1
   else
-    $001f0000 and 16 right_shift decode_register 0
+    $001f0000 and 16 rshift decode_register 0
   endif
   swap dup $0000001f and decode_register
-  dup 26 right_shift $10 -
-  swap $00000fe0 and 3 right_shift or Opr_list
+  dup 26 rshift $10 -
+  swap $00000fe0 and 3 rshift or Opr_list
   begin
     dup @ rot swap over over $00000000ffffffff and
     = if print_string swap drop register_table swap else drop endif
@@ -427,38 +335,102 @@ defer decode_register
   print_string
 ;
 
+\ format
+
+' decode_Opc decode_code - constant cOpc
+' decode_Bra decode_code - constant cBra
+' decode_F-P decode_code - constant cF-P
+' decode_Mem decode_code - constant cMem
+' decode_Mfc decode_code - constant cMfc
+' decode_Mbr decode_code - constant cMbr
+' decode_Opr decode_code - constant cOpr
+' decode_Pcd decode_code - constant cPcd
+
+create opcode_table
+
+( 00 ) cPcd s" call_pal" mktbentry,
+( 01 ) cOpc s" opc01"       mktbentry,
+( 02 ) cOpc s" opc02"       mktbentry,
+( 03 ) cOpc s" opc03"       mktbentry,
+( 04 ) cOpc s" opc04"       mktbentry,
+( 05 ) cOpc s" opc05"       mktbentry,
+( 06 ) cOpc s" opc06"       mktbentry,
+( 07 ) cOpc s" opc07"       mktbentry,
+( 08 ) cMem s" lda"         mktbentry,
+( 09 ) cMem s" ldah"        mktbentry,
+( 0a ) cOpc s" opc0a"       mktbentry,
+( 0b ) cMem s" ldq_u"       mktbentry,
+( 0c ) cOpc s" opc0c"       mktbentry,
+( 0d ) cOpc s" opc0d"       mktbentry,
+( 0e ) cOpc s" opc0e"       mktbentry,
+( 0f ) cMem s" stq_u"       mktbentry,
+( 10 ) cOpr s" "            mktbentry,
+( 11 ) cOpr s" "            mktbentry,
+( 12 ) cOpr s" "            mktbentry,
+( 13 ) cOpr s" "            mktbentry,
+( 14 ) cOpc s" opc14"       mktbentry,
+( 15 ) cF-P s" "            mktbentry,
+( 16 ) cF-P s" "            mktbentry,
+( 17 ) cF-P s" "            mktbentry,
+( 18 ) cMfc s" "            mktbentry,
+( 19 ) cOpc s" pal19"       mktbentry,
+( 1a ) cMbr s" "            mktbentry,
+( 1b ) cOpc s" pal1b"       mktbentry,
+( 1c ) cOpc s" opc1c"       mktbentry,
+( 1d ) cOpc s" pal1d"       mktbentry,
+( 1e ) cOpc s" pal1e"       mktbentry,
+( 1f ) cOpc s" pal1f"       mktbentry,
+( 20 ) cMem s" ldf"         mktbentry,
+( 21 ) cMem s" ldg"         mktbentry,
+( 22 ) cMem s" lds"         mktbentry,
+( 23 ) cMem s" ldt"         mktbentry,
+( 24 ) cMem s" stf"         mktbentry,
+( 25 ) cMem s" stg"         mktbentry,
+( 26 ) cMem s" sts"         mktbentry,
+( 27 ) cMem s" stt"         mktbentry,
+( 28 ) cMem s" ldl"         mktbentry,
+( 29 ) cMem s" ldq"         mktbentry,
+( 2a ) cMem s" ldl_l"       mktbentry,
+( 2b ) cMem s" ldq_l"       mktbentry,
+( 2c ) cMem s" stl"         mktbentry,
+( 2d ) cMem s" stq"         mktbentry,
+( 2e ) cMem s" stl_c"       mktbentry,
+( 2f ) cMem s" stq_c"       mktbentry,
+( 30 ) cBra s" br"          mktbentry,
+( 31 ) cBra s" fbeq"        mktbentry,
+( 32 ) cBra s" fblt"        mktbentry,
+( 33 ) cBra s" fble"        mktbentry,
+( 34 ) cBra s" bsr"         mktbentry,
+( 35 ) cBra s" fbne"        mktbentry,
+( 36 ) cBra s" fbge"        mktbentry,
+( 37 ) cBra s" fbgt"        mktbentry,
+( 38 ) cBra s" blbc"        mktbentry,
+( 39 ) cBra s" beq"         mktbentry,
+( 3a ) cBra s" blt"         mktbentry,
+( 3b ) cBra s" ble"         mktbentry,
+( 3c ) cBra s" blbs"        mktbentry,
+( 3d ) cBra s" bne"         mktbentry,
+( 3e ) cBra s" bge"         mktbentry,
+( 3f ) cBra s" bgt"         mktbentry,
+
+drop \ string_table end
+
 : decode_inst ( n -- )  \ instruction decoder
   dup $fc000000 and
-  26 right_shift cells
+  26 rshift cells
   opcode_table +
-  @ dup
-  $000000000000ffff and
-  dup cOpc = if drop decode_Opc 
-    else dup cF-P = if drop decode_F-P
-      else dup cOpr = if drop decode_Opr
-        else dup cMfc = if drop decode_Mfc
-          else dup cMbr = if drop decode_Mbr
-            else dup cMem = if drop decode_Mem
-              else dup cBra = if drop decode_Bra
-                else dup cPcd = if drop decode_Pcd
-                               endif
-                             endif
-                           endif
-                         endif
-                       endif
-                     endif
-                   endif
-                 endif
-  $2c emit $a emit
+  @ dup $00000000ffffffff and
+  decode_code + execute
+  $2c emit cr
 ;
 
 : disasm ( addr n -- )  \ disassembler
-$a emit 0
+cr 0
 ?do
   dup h@
-  over $28 emit $20 emit . $29 emit $20 emit
+  over $28 emit space . $29 emit space
   decode_inst
   4 +
 loop
-drop $a emit
+drop
 ;
