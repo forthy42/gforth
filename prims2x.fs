@@ -1572,25 +1572,28 @@ variable offset-super2  0 offset-super2 ! \ offset into the super2 table
 : output-costs-gforth-simple ( -- )
     output-costs-prefix
     prim output-num-part
-    1 2 .r ." },"
+    1 2 .r ." ,"
+    inst-stream stack-in @ 1 .r ." },"
     output-name-comment
     cr ;
 
 : output-costs-gforth-combined ( -- )
     output-costs-prefix
     ." N_START_SUPER+" offset-super2 @ 5 .r ." ,"
-    super2-length dup 2 .r ." }," offset-super2 +!
+    super2-length dup 2 .r ." ," offset-super2 +!
+    inst-stream stack-in @ 1 .r ." },"
     output-name-comment
     cr ;
 
-: output-costs ( -- )
-    \ description of superinstructions and simple instructions
-    ." {" prim compute-costs
-    rot 2 .r ." ," swap 2 .r ." ," 2 .r ." ,"
-    offset-super2 @ 5 .r ." ,"
-    super2-length dup 2 .r ." }," offset-super2 +!
-    output-name-comment
-    cr ;
+\  : output-costs ( -- )
+\      \ description of superinstructions and simple instructions
+\      ." {" prim compute-costs
+\      rot 2 .r ." ," swap 2 .r ." ," 2 .r ." ,"
+\      offset-super2 @ 5 .r ." ,"
+\      super2-length dup 2 .r ." ," offset-super2 +!
+\      inst-stream stack-in @ 1 .r ." },"
+\      output-name-comment
+\      cr ;
 
 : output-super2-simple ( -- )
     prim prim-c-name 2@ prim prim-c-name-orig 2@ d= if

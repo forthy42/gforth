@@ -647,7 +647,7 @@ void print_sizes(Cell sizebyte)
 
 /* static superinstruction stuff */
 
-struct cost {
+struct cost { /* super_info might be a more accurate name */
   char loads;       /* number of stack loads */
   char stores;      /* number of stack stores */
   char updates;     /* number of stack pointer updates */
@@ -656,6 +656,7 @@ struct cost {
   unsigned char state_out;   /* state on exit */
   short offset;     /* offset into super2 table */
   unsigned char length;      /* number of components */
+  unsigned char imm_ops;     /* number of immediate operands */
 };
 
 PrimNum super2[] = {
