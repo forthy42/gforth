@@ -347,10 +347,11 @@ void alloc_stacks(ImageHeader * header)
 
 int go_forth(Address image, int stack, Cell *entries)
 {
-  ImageHeader *image_header = (ImageHeader *)image;
+  volatile ImageHeader *image_header = (ImageHeader *)image;
   Cell *sp0=(Cell*)(image_header->data_stack_base + dsize);
   Float *fp0=(Float *)(image_header->fp_stack_base + fsize);
   Cell *rp0=(Cell *)(image_header->return_stack_base + rsize);
+  volatile Cell *orig_rp0=rp0;
   Address lp0=image_header->locals_stack_base + lsize;
   Xt *ip0=(Xt *)(image_header->boot_entry);
 #ifdef SYSSIGNALS
@@ -377,7 +378,8 @@ int go_forth(Address image, int stack, Cell *entries)
     signal_data_stack[7]=throw_code;
 
 #ifdef GFORTH_DEBUGGING
-    if (rp <= rp0 && rp > (Cell *)(image_header->return_stack_base+5)) {
+    /* fprintf(stderr,"\nrp=%ld\n",(long)rp); */
+    if (rp <= orig_rp0 && rp > (Cell *)(image_header->return_stack_base+5)) {
       /* no rstack overflow or underflow */
       rp0 = rp;
       *--rp0 = (Cell)ip;

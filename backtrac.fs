@@ -43,7 +43,7 @@ end-struct buffer%
 
 \ backtrace stuff
 
-create backtrace-rs-buffer buffer% %allot \ copy of the rturn stack at throw
+create backtrace-rs-buffer buffer% %allot \ copy of the return stack at throw
 
 : init-backtrace ( -- )
     backtrace-rs-buffer init-buffer ;
