@@ -36,13 +36,20 @@ decimal
 \ rename to discover!!!
 
 : (look)  ( xt startlfa -- lfa flag )
-        false swap
-        BEGIN @ dup
-        WHILE dup name>int
-              3 pick = IF nip dup THEN
-        REPEAT
-        drop nip
-        dup 0<> ;
+    false swap
+    BEGIN
+	@ dup
+    WHILE
+	    dup name>int
+	    threading-method 0= if
+		@
+	    then
+	    3 pick = IF
+		nip dup
+	    THEN
+    REPEAT
+    drop nip
+    dup 0<> ;
 
 
 \ !!! nicht optimal!
