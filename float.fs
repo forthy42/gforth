@@ -86,7 +86,7 @@
 1e0 fasin 2e0 f* fconstant pi
 
 : f2*  2e0 f* ;
-: f2/  2e0 f/ ;
+: f2/  .5e0 f* ;
 : 1/f  1e0 fswap f/ ;
 
 

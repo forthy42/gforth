@@ -801,11 +801,11 @@ Therefore we recommend avoiding using @code{@var{n} +LOOP} with negative
 @var{n}. One alternative is @code{@var{n} S+LOOP}, where the negative
 case behaves symmetrical to the positive case:
 
-@code{-2 0 ?DO  i .  -1 +LOOP}  prints @code{0 -1}
+@code{-2 0 ?DO  i .  -1 S+LOOP}  prints @code{0 -1}
 
-@code{-1 0 ?DO  i .  -1 +LOOP}  prints @code{0}
+@code{-1 0 ?DO  i .  -1 S+LOOP}  prints @code{0}
 
-@code{ 0 0 ?DO  i .  -1 +LOOP}  prints nothing
+@code{ 0 0 ?DO  i .  -1 S+LOOP}  prints nothing
 
 The loop is terminated when the border between @var{limit@minus{}sgn(n)} and
 @var{limit} is crossed. However, @code{S+LOOP} is not part of the ANS
@@ -885,7 +885,7 @@ The standard does not allow using @code{cs-pick} and @code{cs-roll} on
 every @code{?DO} etc. there is exactly one @code{UNLOOP} on any path
 through the definition (@code{LOOP} etc. compile an @code{UNLOOP} on the
 fall-through path). Also, you have to ensure that all @code{LEAVE}s are
-resolved (by using one of the loop-ending words or @code{UNDO}).
+resolved (by using one of the loop-ending words or @code{DONE}).
 
 Another group of control structure words are
 
@@ -1038,7 +1038,8 @@ locals are initialized with values from the data or FP stack.
 Currently there is no way to define locals with user-defined data
 structures, but we are working on it.
 
-GNU Forth allows defining locals everywhere in a colon definition. This poses the following questions:
+GNU Forth allows defining locals everywhere in a colon definition. This
+poses the following questions:
 
 @menu
 * Where are locals visible by name?::  

@@ -19,14 +19,11 @@ char* ecvt(double x, int len, int* exp, int* sign)
      {
 	*sign = 0;
      }
-   
+
    if(x==0)
-     {
-	*exp=0;
-	return "0";
-     }
-   
-   *exp=(int)floor(log10(x));
+	*exp=-1;
+   else
+     *exp=(int)floor(log10(x));
    x = x / pow10((double)*exp);
    
    *exp += 1;
