@@ -33,7 +33,7 @@
 
 /* cache flush stuff */
 #warning If you get assembly errors, here is the reason why
-#define FLUSH_ICACHE(addr,size)   asm("icbi (%0); isync"::"b"(addr))
+#define FLUSH_ICACHE(addr,size)   asm("dcbst 0,%0; sync; icbi 0,%0; isync"::"r"(addr))
 /* this assumes size=4 */
 /* the mnemonics are for the PPC and the syntax is a wild guess; for
    Power the mnemonic for the isync instruction is "ics" and I have
@@ -66,17 +66,15 @@
 /* MAKE_CF creates an appropriate code field at the cfa; ca is the
    code address. For those familiar with assembly, this is a `ba'
    instruction in both Power and PowerPC assembly languages */
-#define MAKE_CF(cfa,ca)	(*(long *)(cfa) = 0x48000002|(ca))
+#define MAKE_CF(cfa,ca)	(*(unsigned *)(cfa) = 0x48000002|(unsigned)(ca))
 
 /* this is the point where the does code for the word with the xt cfa
    starts. Since a branch is only a cell on Power, we can use the
    second cell of the cfa for storing the does address */
 #define DOES_CODE(cfa) \
      ({ unsigned *_cfa=(unsigned *)(cfa); \
-	_cfa[0]==(0x48000002|&&docol) ? DOES_CODE1(_cfa) : 0; })
+	_cfa[0]==(0x48000002|(unsigned)(&&dodoes)) ? DOES_CODE1(_cfa) : 0; })
    
-
-	DOES_CODE(label)
 /* this is a special version of DOES_CODE for use in dodoes */
 #define DOES_CODE1(cfa)	((Xt *)(((long *)(cfa))[1]))
 
