@@ -178,6 +178,7 @@ GFORTH_FI_SRC = \
 	bufio.fs \
 	debug.fs \
 	debugs.fs \
+	ekey.fs \
 	savesys.fs \
 	environ.fs \
 	errors.fs \

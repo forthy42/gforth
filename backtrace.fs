@@ -79,6 +79,7 @@ IS store-backtrace
 
 : print-backtrace ( addr1 addr2 -- )
     \G print a backtrace for the return stack addr1..addr2
+    cr ." Backtrace:"
     swap u+do
 	cr
 	i @ dup hex. ( return-addr? )

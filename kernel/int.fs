@@ -244,10 +244,12 @@ AVariable lookup       	forth-wordlist lookup !
 AVariable current ( -- addr ) \ gforth
 \G VARIABLE: holds the wid of the current compilation word list.
 AVariable voclink	forth-wordlist wordlist-link voclink !
-lookup AValue context ( -- addr ) \ gforth
-\G VALUE: @code{context} @code{@@} is the wid of the word list at the
+\ lookup AValue context ( -- addr ) \ gforth
+Defer context ( -- addr ) \ gforth
+\G @code{context} @code{@@} is the wid of the word list at the
 \G top of the search order stack.
 
+' lookup is context
 forth-wordlist current !
 
 \ \ header, finding, ticks                              17dec92py

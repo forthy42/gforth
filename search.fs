@@ -31,8 +31,12 @@ Variable vp
   \G Set the compilation word list to the word list identified by @var{wid}.
   current ! ;
 
-\ : context ( -- addr )  vp dup @ cells + ;
-: vp! dup vp ! cells vp + to context ;
+:noname ( -- addr )
+    vp dup @ cells + ;
+is context
+
+: vp! ( u -- )
+    vp ! ;
 : definitions  ( -- ) \ search
   \G Make the compilation word list the same as the word list
   \G that is currently at the top of the search order stack.
@@ -78,8 +82,9 @@ Variable slowvoc   0 slowvoc !
   context @ push-order ;
 
 : previous ( -- ) \ search ext
-  \G Perform a @code{DROP} on the search order stack, thereby removing the wid at the
-  \G top of the (search order) stack from the search order.
+  \G Perform a @code{DROP} on the search order stack, thereby removing
+  \G the wid at the top of the (search order) stack from the search
+  \G order.
   vp @ 1- dup 0= -50 and throw vp! ;
 
 \ vocabulary find                                      14may93py
