@@ -275,21 +275,25 @@ VARIABLE C-Pass
 : back? ( addr target -- addr flag )
     over u< ;
 
-: .word ( addr xt -- addr )
-    look 0= IF
-	drop dup 1 cells - @ dup body> look
-	IF
-	    nip dup ." <" name>string rot wordinfo .string ." >"
-	ELSE
-	    drop ." <" 0 .r ." >"
-	THEN
-    ELSE
-	dup cell+ @ immediate-mask and
-	IF
-	    bl cemit  ." POSTPONE "
-	THEN
-	dup name>string rot wordinfo .string
-    THEN ;
+: .word ( addr x -- addr )
+    \ print x as a word if possible
+    dup look 0= IF
+	drop dup threaded>name 0= if
+	    2drop dup 1 cells - @ dup body> look
+	    IF
+		nip dup ." <" name>string rot wordinfo .string ." > "
+	    ELSE
+		drop ." <" 0 .r ." > "
+	    THEN
+	    EXIT
+	then
+    THEN
+    nip dup cell+ @ immediate-mask and
+    IF
+	bl cemit  ." POSTPONE "
+    THEN
+    dup name>string rot wordinfo .string
+    ;
 
 : c-call ( addr1 -- addr2 )
     Display? IF
@@ -328,7 +332,7 @@ VARIABLE C-Pass
 
 : .name-without ( addr -- addr )
 \ prints a name without a() e.g. a(+LOOP) or (s")
-    dup 1 cells - @ look IF
+    dup 1 cells - @ threaded>name IF
 	name>string over c@ 'a = IF
 	    1 /string
 	THEN

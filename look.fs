@@ -42,15 +42,13 @@ decimal
     then ;
 
 : (look)  ( xt startlfa -- lfa flag )
+    \ look up name of primitive with code at xt
     swap
-    [IFDEF] decompile-prim
-    decompile-prim
-    [THEN]
     >r false swap
     BEGIN
 	@ dup
     WHILE
-	    dup name>int xt>threaded
+	    dup name>int
 	    r@ = IF
 		nip dup
 	    THEN
@@ -58,6 +56,20 @@ decimal
     drop rdrop
     dup 0<> ;
 
+: threaded>xt ( ca -- xt|0 )
+\G For the code address ca of a primitive, find the xt (or 0).
+    [IFDEF] decompile-prim
+	decompile-prim
+    [THEN]
+     \ walk through the array of primitive CAs
+    >r ['] noop begin
+	dup @ while
+	    dup xt>threaded r@ = if
+		rdrop exit
+	    endif
+	    cell+
+    repeat
+    drop rdrop 0 ;
 
 \ !!! nicht optimal!
 [IFUNDEF] look
@@ -65,13 +77,16 @@ has? ec [IF]
 
 has? rom 
 [IF]
+: prim>name ( xt -- nt flag )
+    forth-wordlist @ (look) ;
+
 : look
     dup [ unlock rom-dictionary area lock ] 
     literal literal within
     IF
 	>head-noprim dup ?? <>
     ELSE
-	forth-wordlist @ (look)
+	xt>threaded threaded>name
     THEN ;
 [ELSE]
 : look ( cfa -- lfa flag )
@@ -82,16 +97,22 @@ has? rom
 
 : PrimStart ['] true >head-noprim ;
 
+: prim>name ( xt -- lfa flag )
+    PrimStart (look) ;
+
 : look ( cfa -- lfa flag )
     dup in-dictionary?
     IF
 	>head-noprim dup ??? <>
     ELSE
-	PrimStart (look)
+	prim>name
     THEN ;
 
 [THEN]
 [THEN]
+
+: threaded>name ( ca -- lfa flag )
+    threaded>xt prim>name ;
 
 : >head ( cfa -- nt|0 ) \ gforth to-head
     \G tries to find the name token nt of the word represented by cfa;
