@@ -27,8 +27,7 @@ RESTORE-INPUT does not work for files with CRLF newlines, and if
 SAVE-INPUT was called on a line without newline (i.e., on the last
 line)  anton 27apr2000
 
-If a signal happens when waiting on the command line, the cause of the
-exception is not reported, and the backtrace is strange the first time
-on Linux (and every second time on IRIX and DU).  anton 21jul00
-
 Include cannot handle lines longer than 255 characters.  anton 4sep00
+
+Errors happening during a LOAD do not report the offending word and
+its context (e.g., the 64-byte line). anton 8sep00
