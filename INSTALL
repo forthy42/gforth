@@ -48,7 +48,8 @@ changing to the build directory and invoking configure thus:
 
 $srcdir/configure
 
-where $srcdir is the source directory (Note that we tested this only
+where $srcdir is the source directory. You need a VPATH-capable 'make'
+(e.g., GNU make) for this. (Note that we tested this only
 for installation; i.e., if you want to hack the Gforth sources, you
 should probably build in the source directory).
 
@@ -68,9 +69,9 @@ configure has the following useful parameters:
                                 slowdown on some machines.
                                 (default processor-dependent)
   --with-debug     specifies option -g to compile with debug info (default)
-   --without-debug  omits the -g switch and creates smaller images on
-                    machines where strip has problems with gcc style
-                    debugging informations.
+  --without-debug  omits the -g switch and creates smaller images on
+                   machines where strip has problems with gcc style
+                   debugging informations.
   --help: tells you about other parameters.
 
 The file Benchres shows which combination of the -enable options we
@@ -93,6 +94,14 @@ want to generate an a.out executable under Linux with gcc-2.7.0:
 
 env "CC=gcc -b i486-linuxaout -V 2.7.0" ./configure
 
+You can change the sizes of the various areas used in the default
+image `gforth.fi' by passing the appropriate Gforth command line
+options in the FORTHSIZES environment variable:
+
+env "FORTHSIZES=--dictionary-size=256k --data-stack-size=16k --fp-stack-size=16k --return-stack-size=16k --locals-stack-size=16k" ./configure
+
+The line above reaffirms the default sizes. Note that the locals
+stack area is also used as input buffer stack.
 
 		Preloading installation-specific code
 

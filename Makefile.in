@@ -23,9 +23,6 @@
 #     (which will cause the Makefiles to be regenerated when you run `make');
 # (2) otherwise, pass the desired values on the `make' command line.
 
-#To do:
-#use $(srcdir) to make compilation in a non-srcdir possible
-
 VERSION	=0.2.0#gforth version
 SHELL	= /bin/sh
 RM	= rm
@@ -39,6 +36,7 @@ GCC	= @CC@
 CC	= $(GCC)
 PATHSEP = @PATHSEP@
 FORTHPATH = $(libdir)/gforth/site-forth$(PATHSEP)$(datadir)/gforth/site-forth$(PATHSEP)$(libdir)/gforth/$(VERSION)$(PATHSEP)$(datadir)/gforth/$(VERSION)$(PATHSEP).
+FORTHSIZES = @FORTHSIZES@
 FORTH	= ./gforth -p $(FORTHPATH)$(PATHSEP)$(srcdir)
 FORTHK	= ./gforth -p .$(PATHSEP)$(srcdir) -i ./kernel.fi
 FORTHP	= ./gforth -i ./kernel.fi
@@ -168,6 +166,11 @@ FORTH_GEN1 = $(FORTH_GEN0) @kernel_fi@
 #distributed documentation
 DOCDIST = gforth.info* gforth.ps
 
+#stuff in a binonly distribution 
+BINONLYDIST = config.status Makefile gforth $(OBJECTS) \
+	machine.h config.h kernel.fi stamp-h version.h version.fs \
+	INSTALL.BINDIST
+
 KERNLS = kernl16b.fi- kernl16l.fi- \
 	 kernl32b.fi- kernl32l.fi- \
 	 kernl64b.fi- kernl64l.fi-
@@ -204,7 +207,8 @@ mostlyclean:
 		-$(RM) -rf *.s gforth.fi *.fi~ *.fi- version.fs *TAGS \
 		crossdoc.fd doc.fd gforth.texi gforth.fns gforth.aux gforth.cp gforth.cps \
 		gforth.dvi gforth.fn gforth.ky gforth.log gforth.pg \
-		gforth.toc gforth.tp gforth.vr html gforth-$(VERSION).tar.gz
+		gforth.toc gforth.tp gforth.vr html gforth-$(VERSION).tar.gz \
+		version.h stamp-h
 
 clean:		mostlyclean
 		-$(RM) -rf $(GEN) *.o 
@@ -250,10 +254,10 @@ docdist:	$(DOCDIST)
 #a binary distribution contains the complete source distribution,
 # the objects, the executable and the links. the objects are there for making
 # make happy.
-bindist:	$(SOURCES) $(FORTH_GEN) gforth $(OBJECTS) config.status Makefile
+bindist:	$(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST) $(BINONLYDIST)
 		-rm -rf gforth-$(VERSION)
 		mkdir gforth-$(VERSION)
-		$(CP) -rp -d $(SOURCES) config.status Makefile $(FORTH_GEN) gforth $(OBJECTS) machine.h kernel.fi gforth-$(VERSION)
+		$(CP) -rp -d $(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST) $(BINONLYDIST) gforth-$(VERSION)
 		strip gforth-$(VERSION)/gforth
 		tar cvf - gforth-$(VERSION)|gzip -9 >gforth-$(VERSION)-@host@.tar.gz
 
@@ -264,10 +268,10 @@ bindist:	$(SOURCES) $(FORTH_GEN) gforth $(OBJECTS) config.status Makefile
 #all the binonly packages you are interested in on the disk. The user
 #then just has to unpack the source and his favourite binonly into the
 #same directory and has a full binary distribution.
-binonlydist:	$(SOURCES) $(FORTH_GEN) gforth $(OBJECTS)
+binonlydist:	$(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST) $(BINONLYDIST)
 		-rm -rf gforth-$(VERSION)
 		mkdir gforth-$(VERSION)
-		$(CP) -p -d  config.status Makefile gforth $(OBJECTS) machine.h kernel.fi gforth-$(VERSION)
+		$(CP) -p -d  $(BINONLYDIST) gforth-$(VERSION)
 		strip gforth-$(VERSION)/gforth
 		tar cvf - gforth-$(VERSION)|gzip -9 >gforth-$(VERSION)-binonly-@host@.tar.gz
 
@@ -292,7 +296,7 @@ install:	gforth $(FORTH_SRC) kernel.fi gforth.fi gforth.1 primitives gforth.TAGS
 			$(INSTALL_DATA) $(srcdir)/$$i $(datadir)/gforth/$(VERSION); \
 		done
 		$(INSTALL_DATA) kernel.fi $(libdir)/gforth/$(VERSION)
-		$(FORTHP) startup.fs -e "savesystem $(libdir)/gforth/$(VERSION)/gforth.fi bye" #gforth.fi contains some path names
+		$(FORTHP) $(FORTHSIZES) startup.fs -e "savesystem $(libdir)/gforth/$(VERSION)/gforth.fi bye" #gforth.fi contains some path names
 		sed s:$(srcdir)/:$(datadir)/gforth/$(VERSION)/: gforth.TAGS >TAGS; $(INSTALL_DATA) TAGS $(datadir)/gforth/$(VERSION)
 		if test -d $(emacssitelispdir); then \
 			$(INSTALL_DATA) $(srcdir)/gforth.el $(emacssitelispdir); \
@@ -300,7 +304,7 @@ install:	gforth $(FORTH_SRC) kernel.fi gforth.fi gforth.1 primitives gforth.TAGS
 			echo ">>>>>Please install $(srcdir)/gforth.el in your .../emacs/site-lisp directory"; \
 		fi
 		echo ">>>>> Please make an entry for Gforth in your info dir file; e.g.:"; \
-		echo "* Gforth: (gforth).	A fast implementation of the Forth language."
+		echo "* Gforth: (gforth).	A fast interpreter for the Forth language."
 
 install-strip:	install
 
@@ -379,7 +383,7 @@ kernl64l.fi:	$(KERNLS)
 		@LINK_KERNL64L@
 
 gforth.fi:	@kernel_fi@ gforth $(GFORTH_FI_SRC)
-		$(FORTHK) startup.fs -e "savesystem gforth.fi bye"
+		$(FORTHK) $(FORTHSIZES) startup.fs -e "savesystem gforth.fi bye"
 
 #TAGS is a GNU standard target
 TAGS:		gforth.TAGS

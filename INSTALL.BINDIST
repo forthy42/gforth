@@ -1,0 +1,30 @@
+This file discribes how to install Gforth from a binary distribution
+(i.e., a distribution, where the package file name contains a
+machine/OS name).
+
+Installation is quite simple: Type
+
+make install
+
+and you are set. You can
+
+make test
+make bench
+
+first, to make sure that the binary works.
+
+If you want to know more: A binary distribution contains all the files
+of the source distribution, and a few more, in particular the
+executable `gforth'. The configuration options we used for creating it
+can be seen in config.status. Basically, we use the default; among
+other things, this means installation in the /usr/local hierarchy; if
+this does not suit you, "make distclean" and continue by reading
+INSTALL.
+
+The only deviation from the default is with respect to options like
+--enable-force-reg, which by default are not used, because they don't
+work with all versions of gcc; we use them, if they work with the
+compiler we use. We try to give you good performance, but two
+compatible machines may require different options for best performance
+(e.g., --enable-direct-threading is good for the 486, and bad for the
+Pentium).

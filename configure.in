@@ -42,9 +42,9 @@ AC_DEFINE(INDIRECT_THREADED))
 
 AC_ARG_WITH(debug,
 [  --with-debug     specifies option -g to compile with debug info (default)
-   --without-debug  omits the -g switch and creates smaller images on
-                    machines where "strip" has problems with gcc style
-                    debugging informations.],
+  --without-debug  omits the -g switch and creates smaller images on
+                   machines where "strip" has problems with gcc style
+                   debugging informations.],
 if test "$withval" = "yes"; then DEBUGFLAG=-g; fi)
 
 CFLAGS=$CFLAGS
@@ -183,6 +183,8 @@ MAKE_EXE=""
 PATHSEP=":"
 AC_SUBST(PATHSEP)
 AC_DEFINE_UNQUOTED(PATHSEP,'$PATHSEP')
+
+AC_SUBST(FORTHSIZES)
 
 dnl copy commands for systems that don't have links
 AC_SUBST(LINK_KERNL16L)
