@@ -72,14 +72,6 @@
 #define ftello ftell
 #endif
 
-struct F83Name {
-  struct F83Name *next;  /* the link field for old hands */
-  char		countetc;
-  char		name[0];
-};
-
-#define F83NAME_COUNT(np)	((np)->countetc & 0x1f)
-
 #define NULLC '\0'
 
 #ifdef MEMCMP_AS_SUBROUTINE
