@@ -343,7 +343,7 @@ then
 	AC_FUNC_MEMCMP
 fi
 AC_REPLACE_FUNCS(memmove strtoul pow10 strerror strsignal atanh)
-AC_CHECK_FUNCS(dlopen sys_siglist)
+AC_CHECK_FUNCS(dlopen sys_siglist getrusage)
 AC_DECL_SYS_SIGLIST
 AC_CHECK_FUNC(getopt_long,true,LIBOBJS="$LIBOBJS getopt.o getopt1.o")
 AC_CHECK_FUNCS(rint expm1 log1p)

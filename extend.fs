@@ -42,7 +42,7 @@ decimal
 
 ' drop alias d>s ( d -- n ) \ double		d_to_s
 
-: m*/ ( d1 n2 u3 -- dqout ) \ double m-star-slash
+: m*/ ( d1 n2 u3 -- dquot ) \ double m-star-slash
     >r s>d >r abs -rot
     s>d r> xor r> swap >r >r dabs rot tuck um* 2swap um*
     swap >r 0 d+ r> -rot r@ um/mod -rot r> um/mod nip swap

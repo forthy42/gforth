@@ -37,6 +37,13 @@
 #endif
 #define MEMCMP_AS_SUBROUTINE 1
 
+#ifndef USE_FTOS
+#ifndef USE_NO_FTOS
+/* gcc can't keep TOS in a register on the 386, so don't try */
+#define USE_NO_FTOS
+#endif
+#endif
+
 #include "../generic/machine.h"
 
 /* indirect threading is faster on the Pentium, on the 486 direct

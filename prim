@@ -1504,6 +1504,8 @@ struct timeval time1;
 struct timezone zone1;
 struct tm *ltime;
 gettimeofday(&time1,&zone1);
+/* !! Single Unix specification: 
+   If tzp is not a null pointer, the behaviour is unspecified. */
 ltime=localtime((time_t *)&time1.tv_sec);
 nyear =ltime->tm_year+1900;
 nmonth=ltime->tm_mon+1;
@@ -2244,3 +2246,45 @@ u=sizeof(newline);
 :
  "newline count ;
 Create "newline 1 c, $0A c,
+
+utime	( -- dtime )	gforth
+""Report the current time in microseconds since some epoch.""
+struct timeval time1;
+gettimeofday(&time1,NULL);
+dtime = timeval2us(&time1);
+
+cputime ( -- duser dsystem ) gforth
+""duser and dsystem are the respective user- and system-level CPU
+times used since the start of the Forth system (excluding child
+processes), in microseconds (the granularity may be much larger,
+however).  On platforms without the getrusage call, it reports elapsed
+time (since some epoch) for duser and 0 for dsystem.""
+#ifdef HAVE_GETRUSAGE
+struct rusage usage;
+getrusage(RUSAGE_SELF, &usage);
+duser = timeval2us(&usage.ru_utime);
+dsystem = timeval2us(&usage.ru_stime);
+#else
+struct timeval time1;
+gettimeofday(&time1,NULL);
+duser = timeval2us(&time1);
+dsystem = (DCell)0;
+#endif
+
+v*	( f_addr1 nstride1 f_addr2 nstride2 ucount -- r ) gforth v_star
+""dot-product: r=v1*v2.  The first element of v1 is at f_addr1, the
+next at f_addr1+nstride1 and so on (similar for v2). Both vectors have
+ucount elements.""
+for (r=0.; ucount>0; ucount--) {
+  r += *f_addr1 * *f_addr2;
+  f_addr1 = (Float *)(((Address)f_addr1)+nstride1);
+  f_addr2 = (Float *)(((Address)f_addr2)+nstride2);
+}
+
+faxpy	( ra f_x nstridex f_y nstridey ucount -- )	gforth
+""vy=ra*vx+vy""
+for (; ucount>0; ucount--) {
+  *f_y += ra * *f_x;
+  f_x = (Float *)(((Address)f_x)+nstridex);
+  f_y = (Float *)(((Address)f_y)+nstridey);
+}

@@ -39,6 +39,7 @@
 #include <unistd.h>
 #include <pwd.h>
 #include <dirent.h>
+#include <sys/resource.h>
 #ifdef HAVE_FNMATCH_H
 #include <fnmatch.h>
 #else
@@ -168,6 +169,19 @@ char *tilde_cstr(Char *from, UCell size, int clear)
   }
 }
 #endif
+
+DCell timeval2us(struct timeval *tvp)
+{
+#ifndef BUGGY_LONG_LONG
+  return (tvp->tv_sec*(DCell)1000000)+tvp->tv_usec;
+#else
+  DCell d2;
+  DCell d1=mmul(tvp->tv_sec,1000000);
+  d2.lo = d1.lo+tvp->tv_usec;
+  d2.hi = d1.hi + (d2.lo<d1.lo);
+  return d2;
+#endif
+}
 
 #define NEWLINE	'\n'
 
