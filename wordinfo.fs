@@ -21,15 +21,15 @@ INCLUDE look.fs
 
 : var?  ( nfa -- flag )
         (name>)
-        @ ['] leavings @ = ;
+        >code-address ['] leavings >code-address = ;
 
 : con?  ( nfa -- flag )
         (name>)
-        @ ['] bl @ = ;
+        >code-address ['] bl >code-address = ;
 
 : does? ( nfa -- flag )
         dup (name>)
-        @ ['] source @ =
+        >code-address ['] source >code-address =
         dup IF swap (name>) cell+ @ here ! ELSE nip THEN ;
 
 : defered? ( nfa -- flag )
@@ -40,7 +40,7 @@ INCLUDE look.fs
 
 : colon? ( nfa -- flag )
         (name>)
-        @ ['] does? @ = ;
+        >code-address ['] does? >code-address = ;
 
 \ VALUE VCheck
 

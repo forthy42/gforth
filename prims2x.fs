@@ -204,6 +204,7 @@ parser primitives2something
  here swap read-whole-file
  dup endinput !
  here - allot
+ align
  primitives2something ;
 
 \ types
@@ -220,7 +221,7 @@ constant type-description
 \ n1 is the offset of the accessed item, n2, n3 are effect-*-size
  drop swap - 1- dup
  if
-   ." sp[" . ." ]"
+   ." sp[" 0 .r ." ]"
  else
    drop ." TOS"
  endif ;
@@ -229,7 +230,7 @@ constant type-description
 \ n1 is the offset of the accessed item, n2, n3 are effect-*-size
  nip swap - 1- dup
  if
-   ." fp[" . ." ]"
+   ." fp[" 0 .r ." ]"
  else
    drop ." FTOS"
  endif ;
@@ -300,8 +301,8 @@ constant type-description
  >r
  ." {Double_Store _d; _d.dcell = " r@ item-name 2@ type ." ; "
  r@ item-d-offset @ dup    effect-out-size 2@ data-stack-access 
- ."  =  _d.cells.low; " 1+ effect-out-size 2@ data-stack-access
- ." =  _d.cells.high;}" cr
+ ."  = _d.cells.low; " 1+ effect-out-size 2@ data-stack-access
+ ." = _d.cells.high;}" cr
  rdrop ;
 
 : f-same-as-in? ( item -- f )
@@ -489,8 +490,8 @@ set-current
  effect-out-size 2@
  rot swap - ( d-in d-out f-diff )
  rot rot - ( f-diff d-diff )
- ." sp += " . ." ;" cr
- ." fp += " . ." ;" cr ;
+ ?dup IF  ." sp += " 0 .r ." ;" cr  THEN
+ ?dup IF  ." fp += " 0 .r ." ;" cr  THEN ;
 
 : store ( item -- )
 \ f is true if the item should be stored
@@ -503,7 +504,7 @@ set-current
  item-descr +loop ; 
 
 : output-c ( -- )
- ." I_" c-name 2@ type ." : /* " forth-name 2@ type ."  ( " stack-string 2@ type ."  ) */" cr
+ ." I_" c-name 2@ type ." :	/* " forth-name 2@ type ."  ( " stack-string 2@ type ."  ) */" cr
  ." /* " doc 2@ type ."  */" cr
  ." {" cr
  ." DEF_CA" cr
@@ -511,7 +512,7 @@ set-current
  compute-offsets \ for everything else
  flush-tos
  fetches
- stack-pointer-updates
+ stack-pointer-updates cr
  ." NAME(" [char] " emit forth-name 2@ type [char] " emit ." )" cr \ debugging
  ." {" cr
  c-code 2@ type

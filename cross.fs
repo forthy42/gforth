@@ -1,5 +1,5 @@
 \ CROSS.FS     The Cross-Compiler                      06oct92py
-\ $Id: cross.fs,v 1.3 1994-05-05 15:46:38 pazsan Exp $
+\ $Id: cross.fs,v 1.4 1994-05-18 17:29:50 pazsan Exp $
 \ Idea and implementation: Bernd Paysan (py)
 \ Copyright 1992 by the ANSI figForth Development Group
 
@@ -181,7 +181,9 @@ CREATE Bittable 80 c, 40 c, 20 c, 10 c, 8 c, 4 c, 2 c, 1 c,
 
 : >bit ( addr n -- c-addr mask ) 8 /mod rot + swap bits ;
 : +bit ( addr n -- )  >bit over c@ or swap c! ;
+: -bit ( addr n -- )  >bit invert over c@ and swap c! ;
 : relon ( taddr -- )  bit$ @ swap cell/ +bit ;
+: reloff ( taddr -- )  bit$ @ swap cell/ -bit ;
 
 \ Target memory access                                 06oct92py
 
@@ -510,7 +512,7 @@ Cond: DOES> restrict?
 
 : gdoes,  ( ghost -- )  >end @ dup >magic @ <fwd> <>
   IF dup >link @ dup 0< IF T A, 0 , H drop EXIT THEN drop THEN
-  :dodoes T A, H gexecute ;
+  :dodoes T A, H gexecute T here H cell - reloff ;
 
 : TCreate ( ghost -- )
   CreateFlag on

@@ -254,7 +254,8 @@ hex
   handler @ >r
   rp@ handler !
   execute
-  r> handler ! rdrop rdrop 0 ;
+  r> handler ! rdrop rdrop rdrop 0 ;
+
 : throw ( y1 .. ym error/0 -- y1 .. ym / z1 .. zn error )
   ?DUP IF
     handler @ rp!
@@ -263,6 +264,7 @@ hex
     r> fp!
     r> swap >r sp! r>
   THEN ;
+
 \ Bouncing is very fine,
 \ programming without wasting time...   jaw
 : bounce ( y1 .. ym error/0 -- y1 .. ym error / y1 .. ym )
@@ -779,8 +781,8 @@ create nl$ 1 c, A c, 0 c, \ gnu includes usually a cr in dos
 
 \ INCLUDE                                               9may93jaw
 
-: include
-        bl word count included ;
+: include  ( "file" -- )
+  bl word count included ;
 
 \ RECURSE                                               17may93jaw
 

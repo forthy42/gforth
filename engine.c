@@ -1,5 +1,5 @@
 /*
-  $Id: engine.c,v 1.5 1994-05-07 14:55:47 anton Exp $
+  $Id: engine.c,v 1.6 1994-05-18 17:29:52 pazsan Exp $
   Copyright 1992 by the ANSI figForth Development Group
 */
 
@@ -13,11 +13,16 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <time.h>
+#include <sys/time.h>
 #include "forth.h"
 #include "io.h"
 
-extern unlink(char *);
-extern ftruncate(int, int);
+#ifndef unlink
+	extern unlink(char *);
+#endif
+#ifndef ftruncate
+	extern ftruncate(int, int);
+#endif
 
 typedef union {
   struct {
@@ -72,10 +77,6 @@ typedef struct F83Name {
 #define FTOS (fp[0])
 #endif
 
-/*
-#define CA_DODOES	(symbols[DODOES])
-*/
-
 int emitcounter;
 #define NULLC '\0'
 
@@ -86,10 +87,33 @@ int emitcounter;
 
 static char* fileattr[6]={"r","rb","r+","r+b","w+","w+b"};
 
+#if ~defined(select) && defined(DOS)
+/* select replacement for DOS computers for ms only */
+void select(int n, int a, int b, int c, struct timeval * timeout)
+{
+   struct timeval time1;
+   struct timeval time2;
+   struct timezone zone1;
+
+   gettimeofday(&time1,&zone1);
+   time1.tv_sec += timeout->tv_sec;
+   time1.tv_usec += timeout->tv_usec;
+   while(time1.tv_usec >= 1000000)
+     {
+	time1.tv_usec -= 1000000;
+	time1.tv_sec++;
+     }
+   do
+     {
+	gettimeofday(&time2,&zone1);
+     }
+   while(time2.tv_usec < time1.tv_usec || time2.tv_sec < time1.tv_sec);
+}
+#endif
+
 Label *engine(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp)
 /* executes code at ip, if ip!=NULL
    returns array of machine code labels (for use in a loader), if ip==NULL
-   This is very preliminary, as the bootstrap architecture is not yet decided
 */
 {
   Xt cfa;
@@ -100,7 +124,7 @@ Label *engine(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp)
     &&dovar,
     &&douser,
     &&dodoes,
-    &&docol,  /* dummy for does handler address */
+    &&dodoes,  /* dummy for does handler address */
 #include "prim_labels.i"
   };
   IF_TOS(register Cell TOS;)
@@ -119,7 +143,7 @@ Label *engine(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp)
   
  docol:
 #ifdef DEBUG
-  printf("col: %x\n",(Cell)PFA1(cfa));
+  printf("%08x: col: %08x\n",(Cell)ip,(Cell)PFA1(cfa));
 #endif
 #ifdef undefined
   /* this is the simple version */
@@ -143,7 +167,7 @@ Label *engine(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp)
   
  docon:
 #ifdef DEBUG
-  printf("con: %x\n",*(Cell*)PFA1(cfa));
+  printf("%08x: con: %08x\n",(Cell)ip,*(Cell*)PFA1(cfa));
 #endif
 #ifdef USE_TOS
   *sp-- = TOS;
@@ -155,7 +179,7 @@ Label *engine(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp)
   
  dovar:
 #ifdef DEBUG
-  printf("var: %x\n",(Cell)PFA1(cfa));
+  printf("%08x: var: %08x\n",(Cell)ip,(Cell)PFA1(cfa));
 #endif
 #ifdef USE_TOS
   *sp-- = TOS;
@@ -169,7 +193,7 @@ Label *engine(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp)
   
  douser:
 #ifdef DEBUG
-  printf("user: %x\n",(Cell)PFA1(cfa));
+  printf("%08x: user: %08x\n",(Cell)ip,(Cell)PFA1(cfa));
 #endif
 #ifdef USE_TOS
   *sp-- = TOS;
@@ -198,7 +222,8 @@ Label *engine(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp)
      
      */
 #ifdef DEBUG
-  printf("does: %x\n",(Cell)PFA(cfa)); fflush(stdout);
+  printf("%08x/%08x: does: %08x\n",(Cell)ip,(Cell)cfa,*(Cell)PFA(cfa));
+  fflush(stdout);
 #endif
   *--rp = (Cell)ip;
   /* PFA1 might collide with DOES_CODE1 here, so we use PFA */

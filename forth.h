@@ -1,5 +1,5 @@
 /*
-  $Id: forth.h,v 1.4 1994-05-07 14:55:51 anton Exp $
+  $Id: forth.h,v 1.5 1994-05-18 17:29:53 pazsan Exp $
   Copyright 1992 by the ANSI figForth Development Group
 */
 
@@ -21,6 +21,8 @@ typedef void *Label;
 /* Forth data types */
 typedef int Bool;
 #define FLAG(b) (-(b))
+#define FILEIO(error)	(FLAG(error) & -37)
+#define FILEEXIST(error)	(FLAG(error) & -38)
 
 #define F_TRUE (FLAG(0==0))
 #define F_FALSE (FLAG(0!=0))
@@ -62,7 +64,7 @@ Label *engine(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp);
 #endif
 
 #ifdef DEBUG
-#	define	NAME(string)	printf("%08x: %s\n",(int)ip,string);
+#	define	NAME(string)	printf("%08x: "string"\n",(int)ip);
 #else
 #	define	NAME(string)
 #endif

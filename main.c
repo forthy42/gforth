@@ -1,5 +1,5 @@
 /*
-  $Id: main.c,v 1.4 1994-05-07 14:56:01 anton Exp $
+  $Id: main.c,v 1.5 1994-05-18 17:29:56 pazsan Exp $
   Copyright 1993 by the ANSI figForth Development Group
 */
 
@@ -13,6 +13,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include "forth.h"
+#include "io.h"
 
 #ifndef DEFAULTBIN
 #	define DEFAULTBIN ""
@@ -27,8 +28,7 @@
 /* image file format:
  *   size of image with stacks without tags (in bytes)
  *   size of image without stacks and tags (in bytes)
- *   size of return, FP and locals stack (in bytes, just one entry)
- *       !! have a different number for each one!
+ *   size of data and FP stack (in bytes)
  *   pointer to start of code
  *   data (size in image[1])
  *   tags (1 bit/data cell)
@@ -45,38 +45,30 @@
 
 void relocate(int *image, char *bitstring, int size, Label symbols[])
 {
-	int i;
-	static char bits[8]={0x80,0x40,0x20,0x10,0x08,0x04,0x02,0x01};
+   int i=0, j, k, steps=(size/sizeof(Cell))/8;
+   char bits;
+/*   static char bits[8]={0x80,0x40,0x20,0x10,0x08,0x04,0x02,0x01};*/
+   
+   for(k=0; k<=steps; k++)
+     for(j=0, bits=bitstring[k]; j<8; j++, i++, bits<<=1)
+       if(bits & 0x80)
+         if(image[i]<0)
+           switch(image[i])
+             {
+		case CF_NIL      : image[i]=0; break;
+		case CF(DOCOL)   :
+		case CF(DOVAR)   :
+		case CF(DOCON)   :
+		case CF(DOUSER)  : MAKE_CF(image+i,symbols[CF(image[i])]); break;
+		case CF(DODOES)  : MAKE_DOES_CF(image+i,image[i+1]+((int)image));
+		                   break;
+		case CF(DOESJUMP): MAKE_DOES_HANDLER(image+i); break;
+		default          : image[i]=(Cell)CA(CF(image[i]));
+	     }
+         else
+           image[i]+=(Cell)image;
 
-#ifdef DEBUG
-	printf("Dodoes-Adresse: %08x\n",(int)symbols[DODOES]);
-#endif
-
-	for(i=0;i<size/sizeof(Cell);i++)
-		if(bitstring[i >> 3] & bits[i & 7])
-			if(image[i]<0)
-				switch(image[i])
-				{
-					case CF_NIL     :
-						image[i]=0; break;
-					case CF(DOCOL)  :
-					case CF(DOVAR)  :
-					case CF(DOCON)  :
-					case CF(DOUSER) :
-						MAKE_CF(image+i,symbols[CF(image[i])]); break;
-					case CF(DODOES) :
-						MAKE_DOES_CF(image+i,image[i+1]+((int)image));
-						i++; break; /* is this necessary? */
-					case CF(DOESJUMP):
-						MAKE_DOES_HANDLER(image+i);
-						break;
-					default:
-						image[i]=(Cell)CA(CF(image[i]));
-				}
-			else
-				image[i]+=(Cell)image;
-
-	CACHE_FLUSH(image,size);
+   CACHE_FLUSH(image,size);
 }
 
 int* loader(const char* filename)

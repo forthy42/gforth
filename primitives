@@ -502,12 +502,10 @@ nip	w1 w2 -- w2		core-ext
 tuck	w1 w2 -- w2 w1 w2	core-ext
 
 ?dup	w -- w			core	question_dupe
-/* resulting C code suboptimal */
-/* make -dup an alias */
 if (w!=0) {
-  --sp;
+  IF_TOS(*sp-- = w;)
 #ifndef USE_TOS
-  *sp = w;
+  *--sp = w;
 #endif
 }
 
@@ -644,13 +642,13 @@ else {
 }
 
 close-file	wfileid -- wior	file	close_file
-wior = FLAG(fclose((FILE *)wfileid)==EOF);
+wior = FILEIO(fclose((FILE *)wfileid)==EOF);
 
 open-file	c_addr u ntype -- w2 wior	file	open_file
 char fname[u+1];
 cstr(fname, c_addr, u);
 w2 = (Cell)fopen(fname, fileattr[ntype]);
-wior = FLAG(w2 == NULL);
+wior =  FILEEXIST(w2 == NULL);
 
 create-file	c_addr u ntype -- w2 wior	file	create_file
 int	fd;
@@ -663,21 +661,21 @@ if (fd > -1) {
   wior = 0;
 } else {
   assert(fd == -1);
-  wior = fd;
+  wior = FILEIO(fd);
   w2 = 0;
 }
 
 delete-file	c_addr u -- wior		file	delete_file
 char fname[u+1];
 cstr(fname, c_addr, u);
-wior = unlink(fname);
+wior = FILEEXIST(unlink(fname));
 
 rename-file	c_addr1 u1 c_addr2 u2 -- wior	file-ext	rename_file
 char fname1[u1+1];
 char fname2[u2+1];
 cstr(fname1, c_addr1, u1);
 cstr(fname2, c_addr2, u2);
-wior = rename(fname1, fname2);
+wior = FILEEXIST(rename(fname1, fname2));
 
 file-position	wfileid -- ud wior	file	file_position
 /* !! use tell and lseek? */
@@ -685,26 +683,26 @@ ud = ftell((FILE *)wfileid);
 wior = 0; /* !! or wior = FLAG(ud<0) */
 
 reposition-file	ud wfileid -- wior	file	reposition_file
-wior = fseek((FILE *)wfileid, (long)ud, SEEK_SET);
+wior = FILEIO(fseek((FILE *)wfileid, (long)ud, SEEK_SET));
 
 file-size	wfileid -- ud wior	file	file_size
 struct stat buf;
-wior = fstat(fileno((FILE *)wfileid), &buf);
+wior = FILEEXIST(fstat(fileno((FILE *)wfileid), &buf));
 ud = buf.st_size;
 
 resize-file	ud wfileid -- wior	file	resize_file
-wior = ftruncate(fileno((FILE *)wfileid), (int)ud);
+wior = FILEIO(ftruncate(fileno((FILE *)wfileid), (int)ud));
 
 read-file	c_addr u1 wfileid -- u2 wior	file	read_file
 /* !! fread does not guarantee enough */
 u2 = fread(c_addr, sizeof(Char), u1, (FILE *)wfileid);
-wior = FLAG(u2<u1 && ferror((FILE *)wfileid));
+wior = FILEIO(u2<u1 && ferror((FILE *)wfileid));
 /* !! who performs clearerr((FILE *)wfileid); ? */
 
 read-line	c_addr u1 wfileid -- u2 flag wior	file	read_line
 wior=(Cell)fgets(c_addr,u1+1,(FILE *)wfileid);
 flag=FLAG(!feof((FILE *)wfileid) && wior);
-wior=FLAG(ferror((FILE *)wfileid)) & flag;
+wior=FILEIO(ferror((FILE *)wfileid)) & flag;
 u2=(flag & strlen(c_addr));
 u2-=((u2>0) && (c_addr[u2-1]==NEWLINE));
 
@@ -712,11 +710,11 @@ write-file	c_addr u1 wfileid -- wior	file	write_file
 /* !! fwrite does not guarantee enough */
 {
   int u2 = fwrite(c_addr, sizeof(Char), u1, (FILE *)wfileid);
-  wior = FLAG(u2<u1 && ferror((FILE *)wfileid));
+  wior = FILEIO(u2<u1 && ferror((FILE *)wfileid));
 }
 
 flush-file	wfileid -- wior		file-ext	flush_file
-wior = fflush((FILE *)wfileid);
+wior = FILEIO(fflush((FILE *) wfileid));
 
 comparisons(f, r1 r2, f_, r1, r2, new, new, float, new)
 comparisons(f0, r, f_zero_, r, 0., float, new, float, new)
