@@ -42,3 +42,7 @@ SEE NEXT-PIECE). anton 5mar2000
 RESTORE-INPUT does not work for files with CRLF newlines, and if
 SAVE-INPUT was called on a line without newline (i.e., on the last
 line)  anton 27apr2000
+
+The output of .included for gforth.fi does not include exboot.fs and
+exceptions.fs  anton 1jul00
+

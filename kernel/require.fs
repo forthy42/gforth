@@ -124,7 +124,8 @@ create image-included-files  1 , A, ( pointer to and count of included files )
   string,
   needsrcs^ @ ! ;
 
-: .modules
+: .included ( -- ) \ gforth
+    \G list the names of the files that have been @code{included}
   cr
   needs^ @
   BEGIN		dup 
@@ -147,10 +148,11 @@ create image-included-files  1 , A, ( pointer to and count of included files )
 : loadfilename#>str ( n -- adr len )
     included-files 2@ drop swap 2* cells + 2@ ;
 
-: .modules
+: .included ( -- ) \ gforth
+    \G list the names of the files that have been @code{included}
     included-files 2@ 2* cells bounds ?DO
 	cr I 2@ type  2 cells +LOOP ;  
 
 \ contains tools/newrequire.fs
-\ \I $Id: require.fs,v 1.9 1999-12-03 18:49:52 crook Exp $
+\ \I $Id: require.fs,v 1.10 2000-07-01 07:59:10 anton Exp $
 
