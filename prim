@@ -1601,16 +1601,8 @@ SUPER_END;
 return (Label *)n;
 
 (system)	( c_addr u -- wretval wior )	gforth	paren_system
-#ifndef MSDOS
-int old_tp=terminal_prepped;
-deprep_terminal();
-#endif
-wretval=system(cstr(c_addr,u,1)); /* ~ expansion on first part of string? */
+wretval = gforth_system(c_addr, u);  
 wior = IOR(wretval==-1 || (wretval==127 && errno != 0));
-#ifndef MSDOS
-if (old_tp)
-  prep_terminal();
-#endif
 
 getenv	( c_addr1 u1 -- c_addr2 u2 )	gforth
 ""The string @i{c-addr1 u1} specifies an environment variable. The string @i{c-addr2 u2}

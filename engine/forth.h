@@ -298,6 +298,7 @@ Float v_star(Float *f_addr1, Cell nstride1, Float *f_addr2, Cell nstride2, UCell
 void faxpy(Float ra, Float *f_x, Cell nstridex, Float *f_y, Cell nstridey, UCell ucount);
 UCell lshift(UCell u1, UCell n);
 UCell rshift(UCell u1, UCell n);
+int gforth_system(Char *c_addr, UCell u);
 
 
 /* signal handler stuff */

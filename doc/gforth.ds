@@ -968,6 +968,15 @@ open/create the history file, @file{.gforth-history}. Default:
 for Forth source-code files.
 
 @item
+@cindex @code{GFORTHSYSTEMPREFIX} -- environment variable
+
+@code{GFORTHSYSTEMPREFIX} -- specifies what to prepend to the argument
+of @code{system} before passing it to C's @code{system()}.  Default:
+@code{"command.com /c "} on Windows, @code{""} on other OSs.  The prefix
+and the command are directly concatenated, so if a space between them is
+necessary, append it to the prefix.
+
+@item
 @cindex @code{GFORTH} -- environment variable
 @code{GFORTH} -- used by @file{gforthmi}, @xref{gforthmi}.
 
@@ -12040,12 +12049,10 @@ doc-definer!
 Gforth allows you to pass an arbitrary string to the host operating
 system shell (if such a thing exists) for execution.
 
-
 doc-sh
 doc-system
 doc-$?
 doc-getenv
-
 
 @c -------------------------------------------------------------
 @node Keeping track of Time, Miscellaneous Words, Passing Commands to the OS, Words

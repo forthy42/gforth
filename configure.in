@@ -362,6 +362,9 @@ case "$host_os" in
 	*win32|cygwin)
 		DIRSEP="\\\\"
 		PATHSEP=";"
+		#we want the builtins of command.com and its handling of .com files
+		#on some Windows versions "cmd.exe /c " is an alternative
+		DEFAULTSYSTEMPREFIX="command.com /c "
 		;;
 	*darwin*)
 		#Darwin uses some funny preprocessor by default; eliminate it:
@@ -369,17 +372,20 @@ case "$host_os" in
 		CFLAGS="$CFLAGS -no-cpp-precomp"
 		DIRSEP="/"
 		PATHSEP=":"
+		DEFAULTSYSTEMPREFIX=""
 		;;
 	*)
 		DIRSEP="/"
 		PATHSEP=":"
+		DEFAULTSYSTEMPREFIX=""
 		;;
 esac
 AC_SUBST(DIRSEP)
 AC_DEFINE_UNQUOTED(DIRSEP,'$DIRSEP',[a directory separator character])
 AC_SUBST(PATHSEP)
 AC_DEFINE_UNQUOTED(PATHSEP,'$PATHSEP',[a path separator character])
-
+AC_SUBST(DEFAULTSYSTEMPREFIX)
+AC_DEFINE_UNQUOTED(DEFAULTSYSTEMPREFIX,"$DEFAULTSYSTEMPREFIX",[default for environment variable GFORTHSYSTEMPREFIX])
 
 dnl Now a little support for DOS/DJGCC
 AC_SUBST(GFORTH_EXE)

@@ -51,8 +51,12 @@ AUser CSP
 \G @code{system} command.
 
 : system ( c-addr u -- ) \ gforth
-\G Pass the string specified by @var{c-addr u} to the host operating system
-\G for execution in a sub-shell.
+\G Pass the string specified by @var{c-addr u} to the host operating
+\G system for execution in a sub-shell.  The value of the environment
+\G variable @code{GFORTHSYSTEMPREFIX} (or its default value) is
+\G prepended to the string (mainly to support using @code{command.com}
+\G as shell in Windows instead of whatever shell Cygwin uses by
+\G default; @pxref{Environment variables}).
     (system) throw TO $? ;
 
 : sh ( "..." -- ) \ gforth

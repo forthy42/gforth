@@ -21,6 +21,7 @@
 
 #include "config.h"
 #include "forth.h"
+#include "io.h"
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
@@ -408,4 +409,25 @@ UCell lshift(UCell u1, UCell n)
 UCell rshift(UCell u1, UCell n)
 {
   return u1 >> n;
+}
+
+int gforth_system(Char *c_addr, UCell u)
+{
+  int retval;
+  char *prefix = getenv("GFORTHSYSTEMPREFIX") ? : DEFAULTSYSTEMPREFIX;
+  size_t prefixlen = strlen(prefix);
+  char buffer[prefixlen+u+1];
+#ifndef MSDOS
+  int old_tp=terminal_prepped;
+  deprep_terminal();
+#endif
+  memcpy(buffer,prefix,prefixlen);
+  memcpy(buffer+prefixlen,c_addr,u);
+  buffer[prefixlen+u]='\0';
+  retval=system(buffer); /* ~ expansion on first part of string? */
+#ifndef MSDOS
+  if (old_tp)
+    prep_terminal();
+#endif
+  return retval;
 }

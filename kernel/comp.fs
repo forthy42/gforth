@@ -263,11 +263,9 @@ has? peephole [IF]
 : !does    ( addr -- ) \ gforth	store-does
     latestxt does-code! ;
 
+\ !! unused, but ifdefed/gosted in some places
 : (does>)  ( R: addr -- )
     r> cfaligned /does-handler + !does ; \ !! no gforth-native
-
-: (does>1)  ( addr r:retaddr -- )
-    rdrop cfaligned /does-handler + !does ; \ !! no tail-call optimization
 
 : (does>2)  ( addr -- )
     cfaligned /does-handler + !does ;
