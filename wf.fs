@@ -41,6 +41,18 @@ Variable envs 10 0 [DO] 0 , [LOOP]
 : -envs envs @ 0 ?DO  -env cr  LOOP ;
 : >env ( addr u -- ) +env env env? ;
 
+\ alignment
+
+: >align ( c -- )
+    CASE
+	'l OF  s" left"   align=  ENDOF
+	'r OF  s" right"  align=  ENDOF
+	'c OF  s" center" align=  ENDOF
+	'< OF  s" left"   align=  ENDOF
+	'> OF  s" right"  align=  ENDOF
+	'| OF  s" center" align=  ENDOF
+    ENDCASE ;
+
 \ link creation
 
 Variable link
@@ -49,8 +61,8 @@ Variable iconpath
 
 Variable do-size
 
-: link-icon? ( -- )
-    link $@ '. $split link-suffix $! 2drop s" .*" link-suffix $+!
+: get-icon ( addr u -- )  iconpath @ IF  2drop  EXIT  THEN
+    link-suffix $! s" .*" link-suffix $+!
     s" icons" open-dir throw >r
     BEGIN
 	pad $100 r@ read-dir throw  WHILE
@@ -58,8 +70,11 @@ Variable do-size
 	IF  s" icons/" iconpath $! iconpath $+!
 	    iconpath $@ src= s" img" tag true
 	ELSE  2drop  false  THEN
-    UNTIL  ELSE  drop  THEN \ ELSE  '( emit link-suffix $@ 2 - type ') emit  THEN
+    UNTIL  ELSE  drop  THEN
     r> close-dir throw ;
+
+: link-icon? ( -- )  iconpath @  IF  iconpath $off  THEN
+    link '. ['] get-icon $iter ;
 
 : link-size? ( -- )  do-size @ 0= ?EXIT
     link $@ r/o open-file IF  drop  EXIT  THEN >r
@@ -77,7 +92,9 @@ Variable do-size
     link-size? ;
 
 : .img ( -- ) '{ parse type '} parse '| $split
-    dup IF  2swap alt=  ELSE  2drop  THEN  src= s" img" tag ;
+    dup IF  2swap alt=  ELSE  2drop  THEN
+    tag-option $@len >r over c@ >align tag-option $@len r> = 1+ /string
+    src= s" img" tag ;
 
 \ line handling
 
@@ -86,18 +103,25 @@ Variable do-size
     >r r@ parse type
     r> parse 2swap tagged ;
 
-: .bold ( -- )  s" b" '* parse-tag ;
-: .em   ( -- )  s" em" '_ parse-tag ;
+: .text ( -- ) 	>in @ >r char drop
+    source r@ /string >in @ r> - nip type ;
 
-: do-word ( char -- )
-    CASE
-	'* OF .bold ENDOF
-	'_ OF .em   ENDOF
-	'[ OF .link ENDOF
-	'{ OF .img  ENDOF
-	>in @ >r char drop
-	source r@ /string >in @ r> - nip type
-    ENDCASE ;
+Create do-words  $100 0 [DO] ' .text , [LOOP]
+
+: bind-char ( xt -- )  char cells do-words + ! ;
+
+: char>tag ( -- ) char >r
+:noname bl sword postpone SLiteral r@ postpone Literal
+    postpone parse-tag postpone ; r> cells do-words + ! ;
+
+char>tag * b
+char>tag _ em
+char>tag # code
+
+' .link bind-char [
+' .img  bind-char {
+
+: do-word ( char -- )  cells do-words + perform ;
 
 : parse-line ( -- )
     BEGIN  char? do-word source nip >in @ = UNTIL ;
@@ -144,12 +168,8 @@ definitions
 Variable table-format
 Variable table#
 
-: |tag  table-format $@ table# @ /string drop c@
-    CASE
-	'l OF  s" left"   align=  ENDOF
-	'r OF  s" right"  align=  ENDOF
-	'c OF  s" center" align=  ENDOF
-    ENDCASE  >env  1 table# +! ;
+: |tag  table-format $@ table# @ /string drop c@ >align
+    >env  1 table# +! ;
 : |d  table# @ IF  -env  THEN  s" td" |tag ;
 : |h  table# @ IF  -env  THEN  s" th" |tag ;
 : |line  s" tr" >env  table# off ;
@@ -205,14 +225,29 @@ Variable mail-name
 
 \ top word
 
+: parse" ( -- addr u ) '" parse 2drop '" parse ;
+
 : maintainer
-    bl sword mail $! '" parse 2drop '" parse mail-name $! ;
+    bl sword mail $! parse" mail-name $! ;
+
+Variable style$
+: style> style$ @ 0= IF  s" " style$ $!  THEN  style$ $@ tag-option $! ;
+: >style tag-option $@ style$ $! s" " tag-option $! ;
+
+: style  style> opt >style ;
+: background ( -- )  parse" s" background" style ;
+: text ( -- )  parse" s" text" style ;
+    warnings @ warnings off
+: link ( -- )  parse" s" link" style ;
+    warnings !
+: vlink ( -- ) parse" s" vlink" style ;
+: marginheight ( -- ) parse" s" marginheight" style ;
 
 : wf ( -- )
     outfile-id >r
     bl sword r/w create-file throw to outfile-id
-    '" parse 2drop '" parse .title
-    +env s" body" env
+    parse" .title
+    +env style> s" body" env env?
     ['] parse-section catch .trailer
     outfile-id close-file throw
     r> to outfile-id
