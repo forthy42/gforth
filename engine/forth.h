@@ -235,7 +235,7 @@ extern double asinh(double r1);
 extern double acosh(double r1);
 #endif
 #ifndef HAVE_ECVT
-extern char* ecvt(double x, int len, int* exp, int* sign);
+/* extern char* ecvt(double x, int len, int* exp, int* sign);*/
 #endif
 #ifndef HAVE_MEMMOVE
 /* extern char *memmove(char *dest, const char *src, long n); */

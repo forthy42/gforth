@@ -44,9 +44,6 @@
 : -rot ( a b c -- c a b )
     rot rot ;
 
-: under+ ( a b c -- a+c b )
-    rot + swap ;
-
 : perform ( ... addr -- ... )
     @ execute ;
 
@@ -90,7 +87,7 @@ end-struct interface%
 
 interface%
     cell%    field class-parent
-    cell%    field class-wordlist \ instance variables and other private words
+    cell%    field class-wordlist \ inst-vars and other protected words
     cell% 2* field class-inst-size \ size and alignment
 end-struct class%
 
@@ -117,7 +114,7 @@ variable current-interface
 
 : do-class-method ( -- )
 does> ( ... object -- ... )
-    ( object )
+    ( object selector-body )
     selector-offset @ over object-map @ + ( object xtp ) perform ;
 
 : do-interface-method ( -- )
@@ -178,7 +175,7 @@ does> ( ... object -- ... )
     interface-override! ;
 
 : overrides ( xt "selector" -- )
-    \ replace default method "method" in the current class with xt
+    \ replace default method for "selector" in the current class with xt
     \ must not be used during an interface definition
     ' current-interface @ class->map class-override! ;
 
@@ -308,6 +305,11 @@ variable public-wordlist
     POSTPONE >r
     POSTPONE to-this ;
 
+: exitm ( -- )
+    POSTPONE r>
+    POSTPONE to-this
+    POSTPONE exit ; immediate
+
 : ;m ( colon-sys -- ) ( run-time: -- )
     POSTPONE r>
     POSTPONE to-this
@@ -367,7 +369,7 @@ does> \ name execution: ( -- w )
 : bind' ( "class" "selector" -- xt )
     ' execute ' <bind> ;
 
-: bind ( ... object "class" "selector" -- ... )
+: bind ( ... "class" "selector" -- ... )
     bind' execute ;
 
 : [bind] ( compile-time: "class" "selector" -- ; run-time: ... object -- ... )
@@ -398,8 +400,7 @@ wordlist current-interface @ class-wordlist !
 object%
 current-interface @ push-order
 
-:noname ( object -- )
-    drop ;
+' drop ( object -- )
 method construct ( ... object -- )
 
 :noname ( object -- )
