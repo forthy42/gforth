@@ -105,7 +105,7 @@ slowvoc off
 Vocabulary Forth
 Vocabulary Root
 
-: Only  0 vp! also Root also definitions ;
+: Only  1 vp! Root also ;
 
 \ set initial search order                             14may93py
 
