@@ -96,18 +96,19 @@ Constant tib+
 :noname  1 <> -12 and throw >in ! ;
                        \ restore-input
 :noname  >in @ 1 ;     \ save-input
-:noname  0 ;           \ source-id
+' false                \ source-id
 :noname  tib max#tib @ accept #tib !
     >in off true 1 loadline +! ;     \ refill
 :noname  tib #tib @ ;  \ source
 
 | Create terminal-input   A, A, A, A, A,
+:noname  tib @ #tib @ ; \ source
 | Create evaluate-input
-    terminal-input @ A,
-    ' false A,
-    terminal-input 2 cells + @ A,
-    terminal-input 3 cells + @ A,
-    terminal-input 4 cells + @ A,
+    A,                  \ source
+    ' false A,          \ refill
+    ' true A,           \ source-id
+    terminal-input 3 cells + @ A, \ terminal::restore-input
+    terminal-input 4 cells + @ A, \ terminal::save-input
 
 \ file input implementation
 
@@ -184,11 +185,11 @@ has? file [IF]
     \G @code{0} and make the string @i{c-addr u} the input source
     \G and input buffer. Interpret. When the parse area is empty,
     \G restore the input source specification.
-    evaluate-input over new-tib
+    evaluate-input cell new-tib
 [ has? file [IF] ]
     1 loadfilename# ! \ "*evaluated string*"
 [ [THEN] ]
-    -1 loadline ! dup #tib ! tib swap move
+    -1 loadline ! #tib ! tib !
     ['] interpret catch pop-file throw ;
 
 \ clear tibstack
