@@ -147,6 +147,26 @@ here 1+ head? throw
 : foo [compile] exit abort" '[compile] exit' broken" ;
 foo
 
+\ restore-input
+
+: test-restore-input[ ( -- )
+    refill 0= abort" refill failed"
+    bl word drop
+    save-input
+    refill 0= abort" refill failed"
+    -1 ;
+
+: ]test-restore-input ( -- )
+    drop restore-input abort" restore-input failed" 0 ;
+
+\ First input is skipped until the "]test-restore-input", then it is
+\ reset to just before "0 [if]"
+test-restore-input[ abort \ these aborts are skipped
+abort 0 [if]
+    s" oops" 2drop ]test-restore-input abort
+[then]
+( 0 ) throw
+
 \ comments across several lines
 
 ( fjklfjlas;d

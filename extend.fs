@@ -146,7 +146,7 @@ decimal
     >in @
     loadfile @
     if
-	loadfile @ file-position throw
+	loadfile @ file-position throw #TIB @ 1+ 0 d- \ !! bug for CRLF and EOF
     else
 	blk @
 	linestart @
@@ -168,6 +168,7 @@ decimal
     loadfile @ 0<>
     if
 	loadfile @ reposition-file throw
+	refill 0= -36 and throw \ should never throw
     else
 	linestart !
 	blk !
