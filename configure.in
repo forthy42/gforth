@@ -20,11 +20,11 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl We use some automake macros here,
 dnl but don't use automake for creating Makefile.in
-AC_INIT([gforth],[0.5.9-20021227],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
+AC_INIT([gforth],[0.5.9-20030127],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
 #snapshots have numbers major.minor.release-YYYYMMDD
 #note that lexicographic ordering must be heeded.
 #I.e., 0.4.1-YYYYMMDD must not exist before 0.4.1!
-UPDATED="27 December 2002"
+UPDATED="27 January 2003"
 AC_SUBST(UPDATED)
 AC_CONFIG_HEADERS(engine/config.h)
 
