@@ -399,3 +399,13 @@ void faxpy(Float ra, Float *f_x, Cell nstridex, Float *f_y, Cell nstridey, UCell
     f_y = (Float *)(((Address)f_y)+nstridey);
   }
 }
+
+UCell lshift(UCell u1, UCell n)
+{
+  return u1 << n;
+}
+
+UCell rshift(UCell u1, UCell n)
+{
+  return u1 >> n;
+}

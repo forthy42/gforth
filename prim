@@ -991,12 +991,20 @@ w2 = ~w1;
 
 rshift	( u1 n -- u2 )		core	r_shift
 ""Logical shift right by @i{n} bits.""
-  u2 = u1>>n;
+#ifdef BROKEN_SHIFT
+  u2 = rshift(u1, n);
+#else
+  u2 = u1 >> n;
+#endif
 :
     0 ?DO 2/ MAXI and LOOP ;
 
 lshift	( u1 n -- u2 )		core	l_shift
-  u2 = u1<<n;
+#ifdef BROKEN_SHIFT
+  u2 = lshift(u1, n);
+#else
+  u2 = u1 << n;
+#endif
 :
     0 ?DO 2* LOOP ;
 
