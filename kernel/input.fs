@@ -81,9 +81,9 @@ cell input-var blk \ block
 cell input-var #fill-bytes \ gforth
     \G @code{input-var} variable -- number of bytes read via
     \G (read-line) by the last refill
-cell input-var loadfilename# \ gforth
-    \G @code{input-var} variable -- This cell contains the index into
-    \G the file name array and allows to identify the loaded file.
+2 cells input-var loadfilename \ gforth
+    \G @code{input-var} variable -- addr u describes name of currently
+    \G interpreted input (file name or somesuch)
 [THEN]
 0 input-var tib
 
@@ -191,7 +191,7 @@ has? file [IF]
 : create-input ( -- )
     \G create a new terminal input
     terminal-input def#tib new-tib ;
-    ( loadfilename# off ) \ "*the terminal*"
+    \ s" *the terminal*" loadfilename 2!
 
 : evaluate ( addr u -- ) \ core,block
     \G Save the current input source specification. Store @code{-1} in
@@ -201,7 +201,7 @@ has? file [IF]
     \G restore the input source specification.
     evaluate-input cell new-tib
 [ has? file [IF] ]
-    1 loadfilename# ! \ "*evaluated string*"
+    s" *evaluated string*" loadfilename 2!
 [ [THEN] ]
     -1 loadline ! #tib ! tib !
     ['] interpret catch pop-file throw ;
@@ -227,9 +227,9 @@ has? file [IF]
     \G refill and interpret a file until EOF
     BEGIN  refill  WHILE  interpret  REPEAT ;
 
-: include-file2 ( i*x wfileid loadfilename# -- j*x )
+: include-file2 ( i*x wfileid filename-addr filename-u -- j*x )
     push-file \ dup 2* cells included-files 2@ drop + 2@ type
-    loadfilename# !  loadfile !
+    loadfilename 2!  loadfile !
     ['] read-loop catch
     loadfile @ close-file swap 2dup or
     pop-file  drop throw throw ;
@@ -237,5 +237,5 @@ has? file [IF]
 : include-file ( i*x wfileid -- j*x )
     \G Interpret (process using the text interpreter) the contents of
     \G the file @var{wfileid}.
-    3 include-file2 ;
+    s" * a file*" include-file2 ;
 [THEN]

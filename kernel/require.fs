@@ -38,7 +38,7 @@ create image-included-files 4 , A, ( pointer to and count of included files )
     \G loaded.  If the current input source is no (stream) file, the
     \G result is undefined.  In Gforth, the result is valid during the
     \G whole seesion (but not across @code{savesystem} etc.).
-    loadfilename# @ loadfilename#>str ;
+    loadfilename 2@ ;
 
 : sourceline# ( -- u ) \ gforth		sourceline-number
     \G The line number of the line that is currently being interpreted
@@ -78,17 +78,17 @@ create image-included-files 4 , A, ( pointer to and count of included files )
 has? new-input [IF]
 : included1 ( i*x file-id c-addr u -- j*x ) \ gforth
     \G Include the file file-id with the name given by @var{c-addr u}.
-    save-mem add-included-file ( file-id )
-    included-files @ 1- ['] include-file2 catch
+    save-mem 2dup add-included-file ( file-id )
+    ['] include-file2 catch
     throw ;
 [ELSE]
 : included1 ( i*x file-id c-addr u -- j*x ) \ gforth
-    \G Include the file file-id with the name given by @var{c-addr u}.
-    loadfilename# @ >r
-    save-mem add-included-file ( file-id )
-    included-files 2@ nip 1- loadfilename# !
+\G Include the file file-id with the name given by @var{c-addr u}.
+    loadfilename 2@ 2>r
+    save-mem 2dup loadfilename 2!
+    add-included-file ( file-id )
     ['] include-file2 catch
-    r> loadfilename# !
+    2r> loadfilename 2!
     throw ;
 [THEN]
 
@@ -142,16 +142,6 @@ has? new-input [IF]
 \ 		@
 \   REPEAT
 \   drop ;
-
-\ : loadfilename#>str ( n -- adr len )
-\ \ this converts the filenumber into the string
-\   loadfilenamecount @ swap -
-\   needs^ @
-\   swap 0 ?DO dup 0= IF LEAVE THEN @ LOOP 
-\   dup IF cell+ count ELSE drop s" NOT FOUND" THEN ;
-
-: loadfilename#>str ( n -- adr len )
-    included-files 2@ drop swap 2* cells + 2@ ;
 
 : .strings ( addr u -- ) \ gforth
     \G list the strings from an array of string descriptors at addr

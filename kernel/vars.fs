@@ -145,7 +145,7 @@ has? file [IF]
 
  User loadfile          0 loadfile !
 
- User loadfilename#	0 loadfilename# !
+ 2user loadfilename	0 0 loadfilename 2! \ addr u for sourcefilename
 
  User loadline          \ number of the currently interpreted
                         \ (in TIB) line if the interpretation

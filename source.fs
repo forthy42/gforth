@@ -22,10 +22,22 @@
 
 \ this stuff is used by (at least) assert.fs and debugs.fs
 
+: loadfilename#>str ( n -- addr u )
+    included-files 2@ drop swap 2* cells + 2@ ;
+
+: str>loadfilename# ( addr u -- n )
+    included-files 2@ 0 ?do ( addr u included-files )
+	i over >r 2* cells + 2@
+	2over str= if
+	    rdrop 2drop i unloop exit
+	endif
+	r> loop
+    drop 2drop 3 ;
+
 : compile-sourcepos ( compile-time: -- ; run-time: -- nfile nline )
     \ compile the current source position as literals: nfile is the
     \ source file index, nline the line number within the file.
-    loadfilename# @ postpone literal
+    loadfilename 2@ str>loadfilename# postpone literal
     sourceline# postpone literal ;
 
 : .sourcepos ( nfile nline -- )

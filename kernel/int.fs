@@ -696,8 +696,8 @@ has? new-input 0= [IF]
     \G and input buffer. Interpret. When the parse area is empty,
     \G restore the input source specification.
 [ has? file [IF] ]
-    loadfilename# @ >r
-    1 loadfilename# ! \ "*evaluated string*"
+    loadfilename 2@ 2>r
+    s" *evaluated string*" loadfilename 2!
 [ [THEN] ]
     push-file #tib ! >tib !
     >in off
@@ -707,7 +707,7 @@ has? new-input 0= [IF]
     ['] interpret catch
     pop-file
 [ has? file [IF] ]
-    r> loadfilename# !
+    2r> loadfilename 2!
 [ [THEN] ]
     throw ;
 [THEN]
@@ -904,7 +904,7 @@ AVariable init8 NIL init8 !
     'cold
     init8 chainperform
 [ has? file [IF] ]
-    loadfilename# off
+    s" *the terminal*" loadfilename 2!
     process-args
     loadline off
 [ [THEN] ]

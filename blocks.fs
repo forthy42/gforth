@@ -225,7 +225,7 @@ Create block-input   A, A, A, A, A,
     \G Save the current input source specification. Store @i{n} in
     \G @code{BLK}, set @code{>IN} to 0 and interpret. When the parse
     \G area is exhausted, restore the input source specification.
-    block-input 0 new-tib dup loadline ! blk !  2 loadfilename# !
+    block-input 0 new-tib dup loadline ! blk !  s" * a block*" loadfilename 2!
     ['] interpret catch pop-file throw ;
 [ELSE]
 : (source)  ( -- c-addr u )
@@ -242,12 +242,12 @@ Create block-input   A, A, A, A, A,
     \G Save the current input source specification. Store @i{n} in
     \G @code{BLK}, set @code{>IN} to 0 and interpret. When the parse
     \G area is exhausted, restore the input source specification.
-    loadfilename# @ >r
-    2 loadfilename# ! \ "*a block*"
+    loadfilename 2@ 2>r
+    s" * a block*" loadfilename 2!
     push-file
     dup loadline ! blk ! >in off ['] interpret catch
     pop-file
-    r> loadfilename# !
+    2r> loadfilename 2!
     throw ;
 [THEN]
 

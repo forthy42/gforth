@@ -79,10 +79,10 @@ has? new-input 0= [IF]
     include-file1 throw throw ;
 
 : include-file ( i*x wfileid -- j*x ) \ file
-    loadfilename# @ >r
-    3 loadfilename# ! \ "*a file*"
+    loadfilename 2@ 2>r
+    s" *a file*" loadfilename 2! \ "*a file*"
     include-file1
-    r> loadfilename# !
+    2r> loadfilename 2!
     throw throw ;
 [THEN]
     

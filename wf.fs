@@ -197,12 +197,12 @@ Defer parse-line
 
 s" Gforth" environment? [IF] s" 0.5.0" str= [IF] 
 : parse-string ( c-addr u -- ) \ core,block
-    loadfilename# @ >r
-    1 loadfilename# ! \ "*evaluated string*"
+    loadfilename 2@ 2>r
+    s" *evaluated string*" loadfilename 2! \ "*evaluated string*"
     push-file #tib ! >tib !
     >in off blk off loadfile off -1 loadline !
     ['] parse-line catch
-    pop-file r> loadfilename# ! throw ;
+    pop-file 2r> loadfilename 2! throw ;
 [ELSE]
 : parse-string ( addr u -- )
     evaluate-input cell new-tib #tib ! tib !
