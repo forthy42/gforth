@@ -104,6 +104,7 @@ struct%
  cell%    field item-stack  \ descriptor for the stack used, 0 is default
  cell%    field item-type   \ descriptor for the item type
  cell%    field item-offset \ offset in stack items, 0 for the deepest element
+ cell%	  field item-first  \ true if this is the first occurence of the item
 end-struct item%
 
 struct%
@@ -502,10 +503,12 @@ does> ( item -- )
     typ item item-type !
     typ type-stack @ item item-stack !default
     item item-name 2@ items @ search-wordlist 0= if \ new name
-	item item-name 2@ 2dup nextname item declare
-	typ type-c-name 2@ type space type  ." ;" cr
+	item item-name 2@ nextname item declare
+	item item-first on
+	\ typ type-c-name 2@ type space type  ." ;" cr
     else
 	drop
+	item item-first off
     endif ;
 
 : execute-prefix ( item addr1 u1 -- )
@@ -532,6 +535,16 @@ does> ( item -- )
  effect-in effect-in-end @ declaration-list
  effect-out effect-out-end @ declaration-list ;
 
+: print-declaration { item -- }
+    item item-first @ if
+	item item-type @ type-c-name 2@ type space
+	item item-name 2@ type ." ;" cr
+    endif ;
+
+: print-declarations ( -- )
+    effect-in  effect-in-end  @ ['] print-declaration map-items
+    effect-out effect-out-end @ ['] print-declaration map-items ;
+    
 : stack-prefix ( stack "prefix" -- )
     name tuck nextname create ( stack length ) 2,
 does> ( item -- )
@@ -666,6 +679,7 @@ does> ( item -- )
  ." DEF_CA" cr
  declarations
  compute-offsets \ for everything else
+ print-declarations
  ." NEXT_P0;" cr
  flush-tos
  fetches
@@ -753,6 +767,7 @@ does> ( item -- )
     ." {" cr
     declarations
     compute-offsets \ for everything else
+    print-declarations
     inst-stream  stack-used? IF ." Cell *ip=IP;" cr THEN
     data-stack   stack-used? IF ." Cell *sp=SP;" cr THEN
     fp-stack     stack-used? IF ." Cell *fp=*FP;" cr THEN
