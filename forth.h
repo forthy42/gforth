@@ -1,5 +1,5 @@
 /*
-  $Id: forth.h,v 1.5 1994-05-18 17:29:53 pazsan Exp $
+  $Id: forth.h,v 1.6 1994-05-31 07:25:12 benschop Exp $
   Copyright 1992 by the ANSI figForth Development Group
 */
 
@@ -15,6 +15,12 @@ typedef void *Label;
 #define DOUSER	3
 #define DODOES	4
 #define DOESJUMP	5
+
+/* Some versions of some unices (Linux) have the symbol BIG_ENDIAN defined
+   in their standard headers. Make sure it's undefined -- Lennart */
+#ifdef BIG_ENDIAN
+#undef BIG_ENDIAN
+#endif
 
 #include "machine.h"
 
