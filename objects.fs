@@ -211,11 +211,11 @@ variable last-interface-offset 0 last-interface-offset !
 : interface ( -- ) \ objects
     \g starts an interface definition.
     interface% %allot >r
-    0 0 r@ interface-map 2!
+    r@ current-interface !
+    current-interface 1 cells save-mem r@ interface-map 2!
     -1 cells last-interface-offset +!
     last-interface-offset @ r@ interface-offset !
-    0 r@ interface-map-offset !
-    r> current-interface ! ;
+    0 r> interface-map-offset ! ;
 
 : end-interface-noname ( -- interface ) \ objects
     \g ends an interface definition. The resulting interface is

@@ -82,6 +82,7 @@ m: ( object -- n )
 
 end-class xcounter
 
+
 object class
     foobar implementation
 
@@ -139,6 +140,23 @@ int drop-order
 order
 cr
 
+\ test override of inherited interface selector
+xcounter class
+
+m: ( object -- n )
+    this [parent] val 2*
+;m overrides val
+
+end-class ycounter
+
+ycounter dict-new constant z
+cr
+z print cr
+z val . cr
+z inc
+z val . cr
+
+\ test inst-value
 object class
     foobar implementation
 

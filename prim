@@ -1980,6 +1980,11 @@ f>l	r --	gforth	f_to_l
 lp -= sizeof(Float);
 *(Float *)lp = r;
 
+fpick	u -- r		gforth
+r = fp[u+1]; /* +1, because update of fp happens before this fragment */
+:
+ floats fp@ + f@ ;
+
 \+[THEN]  [THEN] \ has? glocals
 
 \+has? OS [IF]
