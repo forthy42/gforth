@@ -599,6 +599,12 @@ n2 = 2*n1;
 2/	n1 -- n2		core		two_slash
 /* !! is this still correct? */
 n2 = n1>>1;
+:
+ dup U-HIGHBIT and IF 1 ELSE 0 THEN
+ [ bits/byte cell * 1- ] literal 
+ 0 DO 2* swap dup 2* >r U-HIGHBIT and 
+     IF 1 ELSE 0 THEN or r> swap
+ LOOP nip ;
 
 fm/mod	d1 n1 -- n2 n3		core		f_m_slash_mod
 ""floored division: d1 = n3*n1+n2, n1>n2>=0 or 0>=n2>n1""
@@ -757,6 +763,8 @@ w = w1&w2;
 
 or	w1 w2 -- w		core
 w = w1|w2;
+:
+ invert swap invert and invert ;
 
 xor	w1 w2 -- w		core
 w = w1^w2;
@@ -764,7 +772,7 @@ w = w1^w2;
 invert	w1 -- w2		core
 w2 = ~w1;
 :
- -1 xor ;
+ MAXU xor ;
 
 rshift	u1 n -- u2		core
   u2 = u1>>n;
