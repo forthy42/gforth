@@ -249,21 +249,26 @@ hex     \ the defualt base for the cross-compiler is hex !!
 
 hex
 
+\ FIXME delete`
 \ 1 Constant Cross-Flag	\ to check whether assembler compiler plug-ins are
 			\ for cross-compiling
 \ No! we use "[IFUNDEF]" there to find out whether we are target compiling!!!
 
+\ FIXME move down
 : comment? ( c-addr u -- c-addr u )
         2dup s" (" compare 0=
         IF    postpone (
         ELSE  2dup s" \" compare 0= IF postpone \ THEN
         THEN ;
 
-: X 	bl word count [ ' target >wordlist ] Literal search-wordlist
-	IF	state @ IF compile,
-		ELSE execute THEN
-	ELSE	-1 ABORT" Cross: access method not supported!"
-	THEN ; immediate
+: X ( -- <name> )
+\G The next word in the input is a target word.
+\G Equivalent to T <name> but without permanent
+\G switch to target dictionary. Used as prefix e.g. for @, !, here etc.
+  bl word count [ ' target >wordlist ] Literal search-wordlist
+  IF state @ IF compile, ELSE execute THEN
+  ELSE	-1 ABORT" Cross: access method not supported!"
+  THEN ; immediate
 
 \ Begin CROSS COMPILER:
 
@@ -902,8 +907,10 @@ Defer is-forward
 Defer do-refered
 
 : prim-forward   ( ghost -- )
+\  ." PF" .sourcepos
   colonmark, 0 do-refered ; \ compile space for call
 : doer-forward   ( ghost -- )
+\  ." DF" .sourcepos
   colonmark, 2 do-refered ; \ compile space for doer
 ' prim-forward IS is-forward
 
@@ -1089,6 +1096,7 @@ Ghost does-exec drop
 
 Ghost :docol    Ghost :doesjump Ghost :dodoes   2drop drop
 Ghost :dovar					drop
+
 
 ' prim-forward IS is-forward
 
@@ -1651,6 +1659,7 @@ T has? relocate H
 >CROSS
 
 : call-forward ( ghost -- )
+\    ." CF" .sourcepos
     there 0 colon, 0 do-refered ;
 ' call-forward IS is-forward
 
@@ -1874,7 +1883,7 @@ Defer resolve-warning
   dup >comp @ EXECUTE ;
 
 : gexecute ( ghost -- )
-  dup >magic @ <imm> = IF -1 ABORT" CROSS: gexecute on immediate word" THEN
+  dup >magic @ <imm> = ABORT" CROSS: gexecute on immediate word"
   (gexecute) ;
 
 : addr,  ( ghost -- )
