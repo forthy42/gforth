@@ -364,6 +364,7 @@ const Create ???  0 , 3 , char ? c, char ? c, char ? c,
     \ iterations should catch most false addresses: on the first
     \ iteration, we may get an xt, on the second a code address (or
     \ some code), which is typically not in the dictionary.
+    \ !! does not work se well for simple-see: trips on the first "0"
     2 0 do
 	dup dup aligned <> if \ protect @ against unaligned accesses
 	    drop false unloop exit

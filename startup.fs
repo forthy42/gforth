@@ -40,6 +40,7 @@ include vt100.fs
 \ include colorize.fs
 include see.fs
 include see-ext.fs
+require simp-see.fs
 include bufio.fs
 include debug.fs
 include history.fs

@@ -254,9 +254,14 @@ VARIABLE C-Pass
     THEN
     cell+ ;
 
-: .word
+: .word ( addr xt -- addr )
     look 0= IF
-	drop dup 1 cells - @ ." <" 0 .r ." >"
+	drop dup 1 cells - @ dup body> look
+	IF
+	    nip dup ." <" name>string rot wordinfo .string ." >"
+	ELSE
+	    drop ." <" 0 .r ." >"
+	THEN
     ELSE
 	dup cell+ @ immediate-mask and
 	IF
