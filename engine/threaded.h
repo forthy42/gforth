@@ -106,7 +106,7 @@
 #define NEXT do {DEF_CA NEXT_P1; NEXT_P2;} while(0)
 #define FIRST_NEXT_P2 NEXT_P1_5; GOTO_ALIGN; \
 before_goto: goto *real_ca; after_goto:
-#define FIRST_NEXT DEF_CA NEXT_P1; FIRST_NEXT_P2;
+#define FIRST_NEXT do {DEF_CA NEXT_P1; FIRST_NEXT_P2;} while(0)
 #define IPTOS NEXT_INST
 
 
