@@ -542,10 +542,10 @@ IS discode
 : seedefer ( xt -- )
     dup >body @ xt-see-xt cr
     dup s" Defer" .defname cr
-    >name dup ??? = if
-	drop ." lastxt >body !"
-    else
+    >name ?dup-if
 	." IS " .name cr
+    else
+	." lastxt >body !"
     then ;
 : see-threaded ( addr -- )
     C-Pass @ DebugMode = IF
