@@ -626,7 +626,7 @@ long key_avail (FILE * stream)
 
   if(!terminal_prepped)  prep_terminal();
 
-#ifndef _WIN32
+#if defined(FIONREAD) && !defined(_WIN32)
   if(isatty (tty)) {
     result = ioctl (tty, FIONREAD, &chars_avail);
   }
