@@ -31,9 +31,14 @@
 #include <sys/ioctl.h>
 #endif
 /* #include <asm/signal.h> */
+#include <sys/types.h>
 #include <signal.h>
 #include "io.h"
 
+#ifndef HAVE_STACK_T
+/* Darwin uses "struct sigaltstack" instead of "stack_t" */
+typedef struct sigaltstack stack_t;
+#endif
 
 #define DEFAULTCOLS 80
 #if defined(MSDOS) || defined (_WIN32)

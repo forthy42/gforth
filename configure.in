@@ -287,9 +287,11 @@ case "$host_os" in
 		;;
 	*darwin*)
 		#Darwin uses some funny preprocessor by default; eliminate it:
-		AC_MSG_WARN([using -traditional-cpp on Darwin])
+		AC_MSG_NOTICE([using -traditional-cpp on Darwin])
 		CFLAGS="$CFLAGS -traditional-cpp"
-                ;;
+		EXE=""
+		DIRSEP="/"
+		;;
 	*)
 		EXE=""
 		DIRSEP="/"
@@ -398,7 +400,7 @@ fi
 AC_REPLACE_FUNCS(memmove strtoul pow10 strerror strsignal atanh)
 AC_FUNC_FSEEKO
 AC_CHECK_FUNCS(ftello dlopen sys_siglist getrusage)
-
+AC_CHECK_TYPES(stack_t)
 AC_DECL_SYS_SIGLIST
 AC_CHECK_FUNC(getopt_long,true,AC_LIBOBJ(getopt); AC_LIBOBJ(getopt1))
 AC_CHECK_FUNCS(expm1 log1p)

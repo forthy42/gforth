@@ -55,64 +55,6 @@
    flush-icache is a noop */
 #define FLUSH_ICACHE(addr,size)
 
-#if 0
-
-#define CALL 0xe8 /* call */
-#define JMP  0xe9 /* jmp  */
-#define GETCFA(reg)  ({ asm("popl %0" : "=r" (reg)); (int)reg -= 5;});
-
-/* PFA gives the parameter field address corresponding to a cfa */
-#define PFA(cfa)	(((Cell *)cfa)+2)
-/* PFA1 is a special version for use just after a NEXT1 */
-#define PFA1(cfa)	PFA(cfa)
-/* a special version of CODE_ADDRESS for DOES_CODE1 and DOES_CODE */
-#define CODE_ADDRESS1(cfa) \
-    ({long _cfa1 = (long)(cfa); (Label)(_cfa1+*((long *)(_cfa1+1))+5);})
-
-/* CODE_ADDRESS is the address of the code jumped to through the code field */
-#define CODE_ADDRESS(cfa) \
-    ({long _cfa = (long)(cfa); \
-       (((*(unsigned char *)_cfa)==CALL) ? \
-       CODE_ADDRESS1(_cfa) : \
-       (Label)(_cfa));})
-
-/* MAKE_CF creates an appropriate code field at the cfa; ca is the code address */
-#define MAKE_CF(cfa,ca)	({long _cfa = (long)(cfa); \
-                          long _ca  = (long)(ca); \
-			  *(char *)_cfa = CALL; \
-			  *(long *)(_cfa+1) = _ca-(_cfa+5);})
-
-/* this is the point where the does code starts if label points to the
- * jump dodoes */
-#define DOES_CODE(xt) \
-({ long _xt = (long)(xt); \
-   long _ca = (long)(CODE_ADDRESS(_xt)); \
-   ((((*(unsigned char *)_xt) == CALL) \
-     && ((*(unsigned char *)_ca) == JMP) \
-     && ((long)(CODE_ADDRESS1(_ca)) == (long)&&dodoes)) \
-    ? _ca+DOES_HANDLER_SIZE : 0L); })
-
-/* this is a special version of DOES_CODE for use in dodoes */
-#define DOES_CODE1(label)      (CODE_ADDRESS1(label)+DOES_HANDLER_SIZE)
-
-/* this stores a jump dodoes at addr */
-#define MAKE_DOES_CF(addr,doesp)	({long _addr = (long)(addr); \
-                          long _doesp  = (long)(doesp)-8; \
-			  *(char *)_addr = CALL; \
-			  *(long *)(_addr+1) = _doesp-(_addr+5);})
-
-#define MAKE_DOES_HANDLER(addr)	({long _addr = (long)(addr); \
-                          long _dodo  = (long)symbols[DODOES]; \
-			  *(char *)_addr = JMP; \
-			  *(long *)(_addr+1) = _dodo-(_addr+5);})
-#endif
-
-/* dynamic superinstruction stuff */
-#define INST_GRANULARITY 1
-#define IND_JUMP_LENGTH 3
-#define IS_NEXT_JUMP(_addr) (((*(Cell *)(symbols1[i]+j))&0xfff8ff) == 0xfc60ff)
-	/* jmp -4(reg), i.e., the NEXT jump */
-
 #if defined(FORCE_REG) && !defined(DOUBLY_INDIRECT)
 #if (__GNUC__==2 && defined(__GNUC_MINOR__) && __GNUC_MINOR__==5)
 /* i.e. gcc-2.5.x */
