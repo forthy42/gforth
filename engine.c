@@ -1,5 +1,5 @@
 /*
-  $Id: engine.c,v 1.7 1994-06-01 10:05:15 pazsan Exp $
+  $Id: engine.c,v 1.8 1994-06-01 16:40:01 pazsan Exp $
   Copyright 1992 by the ANSI figForth Development Group
 */
 
@@ -14,7 +14,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <sys/time.h>
-#include <sys/unistd.h>
+#include <unistd.h>
 #include "forth.h"
 #include "io.h"
 
