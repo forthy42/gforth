@@ -489,56 +489,62 @@ Create object  immediate  0 (class \ do not create as subclass
          early     super       immediate
          early     self
          early     bind        immediate
-         early     is          immediate
          early     bound
          early     link        immediate
-	 early     '           immediate
+         early     is          immediate
 	 early     send        immediate
 	 early     with        immediate
 	 early     endwith     immediate
+	 early     '           immediate
 	 early     postpone    immediate
+	 early     definitions
 	 
 \ base object class implementation part                23mar95py
 
-how:	0 parento !
-        0 childo !
-	0 nexto !
-        : class   ( -- )       Create immediate o@ (class ;
-        : :       ( -- )       Create immediate o@
-	  decl @ IF  instvar,    ELSE  instance,  THEN ;
-        : ptr     ( -- )       Create immediate o@
-          decl @ IF  instptr,    ELSE  ptr,       THEN ;
-        : asptr   ( addr -- )
-	  decl @ 0= abort" only in declaration!"
-	  Create immediate o@ , cell+ @ , instptr> ;
-        : []      ( n -- )     Create immediate o@
-          decl @ IF  instarray,  ELSE  array,     THEN ;
-        : new     ( -- o )     o@ state @
-          IF  Fpostpone Literal Fpostpone new,  ELSE  new,  THEN ;
-        : new[]   ( n -- o )   o@ state @
-          IF Fpostpone Literal Fpostpone new[], ELSE new[], THEN ;
-        : dispose ( -- )       ^ size @ dispose, ;
-        : bind    ( addr -- )  (bind ;
-        : bound   ( o1 o2 addr2  -- ) (bound ;
-        : link    ( -- o addr ) (link ;
-        : class?  ( class -- flag )  ^ parent? nip 0<> ;
-        : ::      ( -- )
-          state @ IF  ^ true method,  ELSE  inherit  THEN ;
-        : super   ( -- )       parento true method, ;
-        : is      ( cfa -- )   (is ;
-        : self    ( -- obj )   ^ ;
-        : init    ( -- )       ;
+how:
+0 parento !
+0 childo !
+0 nexto !
+    : class   ( -- )       Create immediate o@ (class ;
+    : :       ( -- )       Create immediate o@
+	decl @ IF  instvar,    ELSE  instance,  THEN ;
+    : ptr     ( -- )       Create immediate o@
+	decl @ IF  instptr,    ELSE  ptr,       THEN ;
+    : asptr   ( addr -- )
+	decl @ 0= abort" only in declaration!"
+	Create immediate o@ , cell+ @ , instptr> ;
+    : []      ( n -- )     Create immediate o@
+	decl @ IF  instarray,  ELSE  array,     THEN ;
+    : new     ( -- o )     o@ state @
+	IF  Fpostpone Literal Fpostpone new,  ELSE  new,  THEN ;
+    : new[]   ( n -- o )   o@ state @
+	IF Fpostpone Literal Fpostpone new[], ELSE new[], THEN ;
+    : dispose ( -- )       ^ size @ dispose, ;
+    : bind    ( addr -- )  (bind ;
+    : bound   ( o1 o2 addr2  -- ) (bound ;
+    : link    ( -- o addr ) (link ;
+    : class?  ( class -- flag )  ^ parent? nip 0<> ;
+    : ::      ( -- )
+	state @ IF  ^ true method,  ELSE  inherit  THEN ;
+    : super   ( -- )       parento true method, ;
+    : is      ( cfa -- )   (is ;
+    : self    ( -- obj )   ^ ;
+    : init    ( -- )       ;
+    
+    : '       ( -- xt )  bl word findo 0= abort" not found!"
+	state @ IF  Fpostpone Literal  THEN ;
+    : send    ( xt -- )  execute ;
+    : postpone ( -- )  o@ add-order Fpostpone Fpostpone drop-order ;
+    
+    : with ( -- )
+	state @ oset? 0= and IF  Fpostpone >o  THEN
+	o@ add-order voc# ! false to oset? ;
+    : endwith  Fpostpone o> voc# @ drop-order ;
 
-        : '       ( -- xt )  bl word findo 0= abort" not found!"
-          state @ IF  Fpostpone Literal  THEN ;
-	: send    ( xt -- )  execute ;
-	: postpone ( -- )  o@ add-order Fpostpone Fpostpone drop-order ;
-
-	: with ( -- )
-          state @ oset? 0= and IF  Fpostpone >o  THEN
-	  o@ add-order voc# ! false to oset? ;
-	: endwith  Fpostpone o> 
-	  voc# @ drop-order ;
+    : definitions
+	o@ add-order 1+ voc# ! also types o@ lastob !
+	false to oset?   get-current old-current !
+	thread @ set-current ;
 class; \ object
 
 \ interface                                            01sep96py
