@@ -1105,6 +1105,7 @@ create nl$ 1 c, A c, 0 c, \ gnu includes usually a cr in dos
 
 \ */MOD */                                              17may93jaw
 
+\ !! I think */mod should have the same rounding behaviour as / - anton
 : */mod >r m* r> sm/rem ;
 
 : */ */mod nip ;
@@ -1227,15 +1228,17 @@ Variable argc
 	    dup >r DoError cr r> negate (bye)
 	THEN
     THEN
-    ." GNU Forth 0.0alpha, Copyright (C) 1994 Free Software Foundation" cr
-    ." GNU Forth comes with ABSOLUTELY NO WARRANTY; for details type `license'" 
-    cr quit ;
+    cr
+    ." GNU Forth 0.0alpha, Copyright (C) 1994 Free Software Foundation, Inc." cr
+    ." GNU Forth comes with ABSOLUTELY NO WARRANTY; for details type `license'" cr
+    ." Type `bye' to exit"
+    quit ;
 
 : license ( -- ) cr
  ." This program is free software; you can redistribute it and/or modify" cr
  ." it under the terms of the GNU General Public License as published by" cr
- ." the Free Software Foundation; either version 1, or (at your option)" cr
- ." any later version." cr cr
+ ." the Free Software Foundation; either version 2 of the License, or" cr
+ ." (at your option) any later version." cr cr
 
  ." This program is distributed in the hope that it will be useful," cr
  ." but WITHOUT ANY WARRANTY; without even the implied warranty of" cr

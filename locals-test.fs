@@ -245,7 +245,7 @@ until
     [ ." after xexit" localsinfo ]
     else
     { b }
-    [ ." before xthen" localsinfo
+    [ ." before xthen" localsinfo ]
     then
     [ ." after xthen" localsinfo ]
 ;

@@ -1,42 +1,39 @@
-\ ENVIRON.FS   Answer environmental queries            20may93jaw
+\ environmental queries
 
-\ May be cross-compiled
+wordlist constant environment-wordlist
 
-decimal
+: environment? ( c-addr u -- false / ... true )
+    environment-wordlist search-wordlist if
+	execute true
+    else
+	false
+    endif ;
 
-AVARIABLE EnvLink 0 EnvLink !
+environment-wordlist set-current
+get-order environment-wordlist swap 1+ set-order
 
-: (env)
-       EnvLink linked
-       dup c, here over chars allot swap move align
-       , ;
+\ assumes that chars, cells and doubles use an integral number of aus
 
-: (2env)
-       EnvLink linked
-       dup $80 or
-       c, here over chars allot swap move align
-       , , ; 
+\ this should be computed in C as CHAR_BITS/sizeof(char),
+\ but I don't know any machine with gcc where an au does not have 8 bits.
+8 constant ADDRESS-UNIT-BITS
+1 ADDRESS-UNIT-BITS chars lshift 1- constant MAX-CHAR
+MAX-CHAR constant /COUNTED-STRING
+ADDRESS-UNIT-BITS cells 2* 2 + constant /HOLD
+&84 constant /PAD
+true constant CORE
+\ CORE-EXT?
+1 -3 mod 0< constant FLOORED
 
-: env" ( n -- )
-       State @
-       IF   postpone S" postpone (env)
-       ELSE [char] " parse (env) THEN ; immediate
+1 ADDRESS-UNIT-BITS cells 1- lshift 1- constant MAX-N
+-1 constant MAX-U
 
-: 2env" ( d -- )
-       State @
-       IF   postpone S" postpone (2env)
-       ELSE [char] " parse (2env) THEN ; immediate
+-1 MAX-N 2constant MAX-D
+-1. 2constant MAX-UD
 
+\ !! RETURN-STACK-CELLS
+\ !! STACK-CELLS
 
-: environment?  EnvLink
-                BEGIN   @ dup
-                WHILE   dup cell+ count $1f and
-                        4 pick 4 pick compare 0=
-                        IF      nip nip cell+ count dup -rot
-                                $1f and + aligned
-                                swap $80 and IF 2@ ELSE @ THEN
-                                EXIT
-                        THEN
-                REPEAT
-                drop 2drop false ;
+forth definitions
+previous
 

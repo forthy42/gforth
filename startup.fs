@@ -5,6 +5,7 @@ warnings off
 
 include float.fs
 include search-order.fs
+include environ.fs
 \ include toolsext.fs
 include wordinfo.fs
 include vt100.fs

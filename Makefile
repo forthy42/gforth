@@ -65,8 +65,8 @@ ansforth:	$(OBJECTS) $(FORTH_GEN)
 		-cp ansforth ansforth.old
 		$(GCC) $(LDFLAGS) $(OBJECTS) $(LDLIBS) -o $@
 
-kernal.fi:	search-order.fs cross.fs aliases.fs vars.fs add.fs \
-		environ.fs errore.fs kernal.fs extend.fs tools.fs toolsext.fs \
+kernal.fi:	main.fs search-order.fs cross.fs aliases.fs vars.fs add.fs \
+		errore.fs kernal.fs extend.fs tools.fs toolsext.fs \
                 $(FORTH_GEN)
 		-cp kernal.32limg kernal.32limg.old
 		$(FORTH) main.fs

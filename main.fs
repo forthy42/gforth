@@ -26,7 +26,6 @@ include aliases.fs             \ include primitive aliases
 
 include vars.fs                \ variables and other stuff
 include add.fs                 \ additional things
-include environ.fs             \ create environmental query strings
 include errore.fs
 include kernal.fs              \ load kernal
 include extend.fs              \ load core-extended
