@@ -61,10 +61,13 @@ Constant dictionary-end
     forthstart [ 3 cells ] Aliteral @ + ;
 [THEN]
 
+: usable-dictionary-end ( -- addr )
+    dictionary-end [ word-pno-size pad-minsize + ] Literal - ;
+
 : unused ( -- u ) \ core-ext
     \G Return the amount of free space remaining (in address units) in
     \G the region addressed by @code{here}.
-    dictionary-end here - [ word-pno-size pad-minsize + ] Literal - ;
+    usable-dictionary-end here - ;
 
 \ here is used for pad calculation!
 

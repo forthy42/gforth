@@ -133,6 +133,11 @@ end-struct my-struct%
 
 s" //jkfklfggfld/fjsjfk/hjfdjs" open-fpath-file 2drop
 
+\ allotting negative space
+
+1 allot
+-1 allot
+
 \ comments across several lines
 
 ( fjklfjlas;d

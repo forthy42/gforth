@@ -28,8 +28,9 @@
     \G Reserve or release @var{n} address units of data space; @var{n}
     \G is a signed number. There are restrictions on releasing data
     \G space.
-    dup unused u> -8 and throw
-    dp +! ;
+    here +
+    dup 1- usable-dictionary-end forthstart within -8 and throw
+    dp ! ;
 
 : c,    ( c -- ) \ core
     \G Reserve data space for one char and store @var{c} in the space.
