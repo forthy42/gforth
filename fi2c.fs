@@ -35,11 +35,12 @@ Variable tcell
 
 : search-magic ( fd -- )  >r
     BEGIN  magicbuf 8 r@ read-file throw  8 =  WHILE
-	magicbuf s" Gforth" tuck compare 0=  UNTIL
+	magicbuf s" Gforth2" tuck compare 0=  UNTIL
     ELSE  true abort" No magic found"  THEN
-    magicbuf 6 + c@ digit? drop tchars !
-    magicbuf 7 + c@ digit? drop dup -2 and tcell !
-    1 and 0= [ pad off 1 pad ! pad c@ 1 = ] Literal = bswap? !
+    1 magicbuf 7 + c@ 5 rshift 3 and lshift tchars !
+    1 magicbuf 7 + c@ 1 rshift 3 and lshift tcell !
+    magicbuf 7 + c@ 1 and 0=
+    [ pad off 1 pad ! pad c@ 1 = ] Literal = bswap? !
     rdrop ;
 
 Create image-header  4 cells allot
