@@ -794,7 +794,7 @@ Avariable leave-sp  leave-stack 3 cells + leave-sp !
     THEN
     source >in ! drop ; immediate
 
-: G\ ( -- ) \ new backslash
+: \G ( -- ) \ new backslash
     POSTPONE \ ; immediate
 
 \ error handling                                       22feb93py

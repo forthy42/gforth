@@ -1,6 +1,5 @@
-Preliminary version
-
 You need gcc version 2.0 or later to compile gforth.
+
 First, type
 
 configure
@@ -24,10 +23,26 @@ If your make has trouble with the Makefile, "make gforth" might work.
 
 If your installed gcc isn't called "gcc" (eg. called "gcc-2.6.1"), type
 
-make CC=<whatever you call your gcc>
+make GCC=<whatever you call your gcc>
 
 instead.
+
+Now you can check whether your shiny new Forth system works. Say
+
+make test
 
 To make the documentation, type
 
 make -k gforth.info gforth.ps html
+
+If everything is allright, you may want to install gforth. Type
+
+make install
+
+You may want to override the defaults for the directories. E.g., if
+you want to install in the /gnu hierarchy instead of in the default
+/usr/local hirarchy, say
+
+make install prefix=/gnu
+
+Alternatively, you can specify the prefixes with configure.
