@@ -269,8 +269,8 @@ has? peephole [IF]
 : dodoes,  ( -- )
   cfalign here /does-handler allot does-handler! ;
 
-: (compile) ( -- ) \ gforth
-    r> dup cell+ >r @ compile, ;
+: (compile) ( -- ) \ gforth-obsolete: dummy
+    ( r> dup cell+ >r @ compile, ) ;
 
 \ \ ticks
 
@@ -307,12 +307,7 @@ has? peephole [IF]
     if
 	drop compile,
     else
-	dup ['] compile, =
-	if
-	    drop POSTPONE (compile) a,
-	else
-	    swap POSTPONE aliteral compile,
-	then
+	swap POSTPONE aliteral compile,
     then ;
 
 : POSTPONE ( "name" -- ) \ core

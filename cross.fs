@@ -1722,7 +1722,7 @@ Ghost (do)      Ghost (?do)                     2drop
 Ghost (for)                                     drop
 Ghost (loop)    Ghost (+loop)                   2drop
 Ghost (next)                                    drop
-Ghost (does>)   Ghost (compile)                 2drop
+Ghost (does>)   Ghost compile,                  2drop
 Ghost (.")      Ghost (S")      Ghost (ABORT")  2drop drop
 Ghost (C")      Ghost c(abort") Ghost type      2drop drop
 Ghost '                                         drop
@@ -3247,7 +3247,7 @@ Cond: postpone ( -- ) \ name
       ABORT" CROSS: Can't postpone on forward declaration"
       dup >magic @ <imm> =
       IF   (gexecute)
-      ELSE compile (compile) addr, THEN ;Cond
+      ELSE >link @ alit, compile compile,  THEN ;Cond
 	   
 \ save-cross                                           17mar93py
 
