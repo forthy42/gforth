@@ -2,8 +2,8 @@
 
 $10 constant maxvp
 Variable vp
-  0 A, 0 A,   0 A, 0 A,   0 A, 0 A,   0 A, 0 A, 
-  0 A, 0 A,   0 A, 0 A,   0 A, 0 A,   0 A, 0 A, 
+  0 A, 0 A,  0 A, 0 A,   0 A, 0 A,   0 A, 0 A, 
+  0 A, 0 A,  0 A, 0 A,   0 A, 0 A,   0 A, 0 A, 
 
 : get-current  ( -- wid )  current @ ;
 : set-current  ( wid -- )  current ! ;
@@ -11,58 +11,18 @@ Variable vp
 : context ( -- addr )  vp dup @ cells + ;
 : definitions  ( -- )  context @ current ! ;
 
-\ hash search                                          29may94py
-
-\ uses a direct hash mapped cache --- idea from Heinz Schnitter
-
-\ : hashkey ( addr count -- key )
-\   swap c@ toupper 3 * + $3F and ; \ gives a simple hash key
-
-\ Variable hits
-\ Variable fails
-
-\ : hash-find  ( addr count wid -- nfa / false )
-\   >r  2dup hashkey
-\   cells r@ 3 cells + @ +           \ hashed addr
-\   dup @
-\   IF  >r r@ @ cell+ c@ over =
-\       IF  2dup r@ @ cell+ char+ capscomp 0=
-\           IF  2drop r> @ rdrop  1 hits +!  EXIT  THEN  THEN
-\       r>
-\   THEN  r> swap >r @ (f83casefind)  dup
-\   IF  dup r@ !  THEN  rdrop  1 fails +! ;
-
-\ : hash-reveal ( -- )
-\   last?
-\   IF  dup cell+ count hashkey cells
-\       current @ 3 cells + @ + !
-\       (reveal)
-\   THEN ;
-
-\ : clear-hash ( wid -- )  3 cells + @ $40 cells erase ;
-
-\ Create hashsearch
-\ ' hash-find A,  ' hash-reveal A,  ' clear-hash A,
-
-\ for testing
-
-\ : .hash ( wid -- )  3 cells + @ ?dup 0= ?EXIT  cr
-\   8 0 DO
-\           8 0 DO  dup I J 8 * + cells + @ dup
-\ 	          IF    cell+ count $1F and tuck 10 min type
-\ 		        10 swap - spaces
-\ 		  ELSE  drop  10 spaces  THEN
-\ 	  LOOP
-\   LOOP  drop ;
-
 \ wordlist Vocabulary also previous                    14may93py
 
 AVariable voclink
 
+Defer 'initvoc
+' drop IS 'initvoc
+
+Variable slowvoc   slowvoc off
+
 : wordlist  ( -- wid )
-  here  0 A, f83search ( hashsearch ) A, voclink @ A,
-  ( here cell+ ) 0 A, \ here $40 cells dup allot erase
-  dup 2 cells + voclink ! ;
+  here  0 A, Forth-wordlist cell+ @ A, voclink @ A, slowvoc @ A,
+  dup 2 cells + dup voclink ! 'initvoc ;
 
 : Vocabulary ( -- ) Create wordlist drop  DOES> context ! ;
 
@@ -74,7 +34,7 @@ AVariable voclink
 
 \ vocabulary find                                      14may93py
 
-: (vocfind)  ( addr count wid -- nfa2|false )
+: (vocfind)  ( addr count nfa1 -- nfa2|false )
     \ !! generalize this to be independent of vp
     drop 1 vp @
     DO  2dup vp I cells + @ (search-wordlist) dup
@@ -86,7 +46,7 @@ AVariable voclink
 
 0 value locals-wordlist
 
-: (localsvocfind)  ( addr count wid -- nfa2|false )
+: (localsvocfind)  ( addr count nfa1 -- nfa2|false )
     \ !! use generalized (vocfind)
     drop locals-wordlist
     IF 2dup locals-wordlist (search-wordlist) dup
@@ -102,8 +62,7 @@ AVariable voclink
 \  (including locals)
 
 \ this is the wordlist-map of the dictionary
-Create vocsearch
-       ' (localsvocfind) A, ' (reveal) A,  ' drop A,
+Create vocsearch       ' (localsvocfind) A, ' (reveal) A,  ' drop A,
 
 \ Only root                                            14may93py
 
@@ -122,8 +81,6 @@ Forth-wordlist @ ' Forth >body A!
 Only Forth also definitions
 
 search A! \ our dictionary search order becomes the law
-
-' Forth >body AConstant Forth-wordlist
 
 \ get-order set-order                                  14may93py
 
@@ -157,3 +114,5 @@ Root definitions
 ' Forth Alias Forth
 
 Forth definitions
+
+[IFDEF] (hashkey) include hash.fs [THEN]

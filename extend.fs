@@ -14,12 +14,17 @@ decimal
   (constant) , ;
 \ !! 2value
 
-: 2>r   postpone >r postpone >r ; immediate restrict
-: 2r>   postpone r> postpone r> ; immediate restrict
+: 2>r   postpone swap postpone >r postpone >r ; immediate restrict
+: 2r>   postpone r> postpone r> postpone swap ; immediate restrict
 : 2r@   postpone 2r> postpone 2dup postpone 2>r ; immediate restrict
 
 : 2Literal  swap postpone Literal  postpone Literal ;
   immediate restrict
+
+: m*/    ( d1 n2 u3 -- dqout )    >r s>d >r abs -rot
+  s>d r> xor r> swap >r >r dabs rot tuck um* 2swap um*
+  swap >r 0 d+ r> -rot r@ um/mod -rot r> um/mod nip swap
+  r> IF dnegate THEN ;
 
 \ CASE OF ENDOF ENDCASE                                 17may93jaw
 
@@ -49,9 +54,8 @@ decimal
 
 \ UNUSED                                                17may93jaw
 
-: unused   forthstart dup @ over 2 cells + @ -
-           512 -        \ for stack
-           + here - ;
+: unused   s0 @ 512 -        \ for stack
+           here - ;
 
 \ [COMPILE]                                             17may93jaw
 
@@ -80,20 +84,20 @@ decimal
 \ SOURCE-ID SAVE-INPUT RESTORE-INPUT                    11jun93jaw
 
 : source-id ( -- 0 | -1 | fileid )
-  loadfile @ dup 0= IF drop linestart @ THEN ;
+  loadfile @ dup 0= IF  drop loadline @ 0 min  THEN ;
 
 : save-input ( -- x1 .. xn n )
   >in @
   loadfile @ ?dup
-  IF    linestart 2@ loadline @ 6
-  ELSE  loadline @ blk @ linestart @ 5 THEN
-  >tib @ swap ; \ >tib for security
+  IF    dup file-position throw loadline @ >tib @ 6
+        #tib @ >tib +!
+  ELSE  loadline @ blk @ linestart @ >tib @ 5 THEN
+;
 
 : restore-input ( x1 .. xn n -- flag )
-  1- swap >tib @ <> IF discard true EXIT THEN
-  5 = IF   loadline ! 2dup linestart 2! rot dup loadfile !
+  swap >tib !
+  6 = IF   loadline ! rot dup loadfile !
            reposition-file IF drop true EXIT THEN
-           refill 0= IF drop true EXIT THEN
       ELSE linestart ! blk !
            dup loadline @ <> IF 2drop true EXIT THEN
            loadline !

@@ -7,7 +7,7 @@
 \ : ; ( colon-sys -- )  ?struc postpone exit reveal postpone [ ; immediate
 \ : :noname ( -- xt colon-sys )  here [ ' : @ ] ALiteral cfa, 0 ] ;
 
-include search-order.fs
+[IFUNDEF] vocabulary include search-order.fs [THEN]
 
 include cross.fs               \ include cross-compiler
 

@@ -142,7 +142,7 @@ Defer source
   dup count chars bounds
   ?DO  I c@ toupper I c! 1 chars +LOOP ;
 : (name)  ( -- addr )  bl word ;
-: (cname) ( -- addr )  bl word capitalize ;
+\ : (cname) ( -- addr )  bl word capitalize ;
 
 \ Literal                                              17dec92py
 
@@ -194,15 +194,18 @@ Create bases   10 ,   2 ,   A , 100 ,
 \ !! this saving and restoring base is an abomination! - anton
 : getbase ( addr u -- addr' u' )  over c@ [char] $ - dup 4 u<
   IF  cells bases + @ base ! 1 /string  ELSE  drop  THEN ;
-: number?  ( string -- string 0 / n -1 )  base @ >r
-  dup count over c@ [char] - = dup >r  IF 1 /string  THEN
+: s>number ( addr len -- d )  base @ >r  dpl on
+  over c@ '- =  dup >r  IF  1 /string  THEN
   getbase  dpl on  0 0 2swap
   BEGIN  dup >r >number dup  WHILE  dup r> -  WHILE
          dup dpl ! over c@ [char] . =  WHILE
          1 /string
-  REPEAT  THEN  2drop 2drop rdrop false r> base ! EXIT  THEN
-  2drop rot drop rdrop r> IF dnegate THEN
-  dpl @ dup 0< IF  nip  THEN  r> base ! ;
+  REPEAT  THEN  2drop rdrop dpl off  ELSE
+  2drop rdrop r> IF  dnegate  THEN
+  THEN r> base ! ;
+: number? ( string -- string 0 / n -1 / d 0> )
+  dup count s>number dpl @ 0= IF  2drop false  EXIT  THEN
+  rot drop dpl @ dup 0> 0= IF  nip  THEN ;
 : s>d ( n -- d ) dup 0< ;
 : number ( string -- d )
   number? ?dup 0= abort" ?"  0< IF s>d THEN ;
@@ -303,7 +306,7 @@ Defer parser
 Defer name      ' (name) IS name
 Defer notfound
 
-: no.extensions  ( string -- )  IF  &-13 bounce  THEN ;
+: no.extensions  ( string -- )  IF  -&13 bounce  THEN ;
 
 ' no.extensions IS notfound
 
@@ -730,7 +733,7 @@ defer header
 
 : name,  ( "name" -- )
     name c@
-    dup $1F u> &-19 and throw ( is name too long? )
+    dup $1F u> -&19 and throw ( is name too long? )
     1+ chars allot align ;
 : input-stream-header ( "name" -- )
     \ !! this is f83-implementation-dependent
@@ -756,7 +759,7 @@ create nextname-buffer 32 chars allot
 
 \ the next name is given in the string
 : nextname ( c-addr u -- ) \ general
-    dup $1F u> &-19 and throw ( is name too long? )
+    dup $1F u> -&19 and throw ( is name too long? )
     nextname-buffer c! ( c-addr )
     nextname-buffer count move
     ['] nextname-header IS header ;
@@ -854,7 +857,7 @@ Create ???  0 , 3 c, char ? c, char ? c, char ? c,
   state @ IF  postpone ALiteral postpone @  ELSE  @  THEN ;
                                              immediate
 : Defers ( "name" -- )  ' >body @ compile, ;
-                                             immediate restrict
+                                             immediate
 
 \ : ;                                                  24feb93py
 
@@ -903,14 +906,9 @@ AVariable current
 \ end-struct wordlist-struct
 
 : f83find      ( addr len wordlist -- nfa / false )  @ (f83find) ;
-: f83casefind  ( addr len wordlist -- nfa / false )  @ (f83casefind) ;
 
 \ Search list table: find reveal
-Create f83search       ' f83casefind A,  ' (reveal) A,  ' drop A,
-
-: caps-name       ['] (cname) IS name  ['] f83find     f83search ! ;
-: case-name       ['] (name)  IS name  ['] f83casefind f83search ! ;
-: case-sensitive  ['] (name)  IS name  ['] f83find     f83search ! ;
+Create f83search       ' f83find A,  ' (reveal) A,  ' drop A,
 
 Create forth-wordlist  NIL A, G f83search T A, NIL A, NIL A,
 AVariable search       G forth-wordlist search T !
@@ -1024,9 +1022,9 @@ DEFER Emit
 : refill ( -- flag )
   tib /line
   loadfile @ ?dup
-  IF    dup file-position throw linestart 2!
+  IF    \ dup file-position throw linestart 2!
         read-line throw
-  ELSE  linestart @ IF 2drop false EXIT THEN
+  ELSE  loadline @ 0< IF 2drop false EXIT THEN
         accept true
   THEN
   1 loadline +!
@@ -1060,17 +1058,20 @@ create nl$ 1 c, A c, 0 c, \ gnu includes usually a cr in dos
 
 \ include-file                                         07apr93py
 
-: include-file ( i*x fid -- j*x )
-  linestart @ >r loadline @ >r loadfile @ >r
-  blk @ >r >tib @ >r  #tib @ dup >r  >in @ >r
+: push-file  ( -- )  r>
+  ( linestart 2@ >r >r ) loadline @ >r loadfile @ >r
+  blk @ >r >tib @ >r  #tib @ dup >r  >tib +!  >in @ >r  >r ;
 
-  >tib +! loadfile !
+: pop-file   ( -- )  r>
+  r> >in !  r> #tib !  r> >tib ! r> blk !
+  r> loadfile ! r> loadline ! ( r> r> linestart 2! ) >r ;
+
+: include-file ( i*x fid -- j*x )
+  push-file  loadfile !
   0 loadline ! blk off
   BEGIN  refill  WHILE  interpret  REPEAT
   loadfile @ close-file throw
-
-  r> >in !  r> #tib !  r> >tib ! r> blk !
-  r> loadfile ! r> loadline ! r> linestart ! ;
+  pop-file ;
 
 : included ( i*x addr u -- j*x )
     loadfilename 2@ >r >r
@@ -1111,16 +1112,12 @@ create nl$ 1 c, A c, 0 c, \ gnu includes usually a cr in dos
 \ EVALUATE                                              17may93jaw
 
 : evaluate ( c-addr len -- )
-  linestart @ >r loadline @ >r loadfile @ >r
-  blk @ >r >tib @ >r  #tib @ dup >r  >in @ >r
-
-  >tib +! dup #tib ! >tib @ swap move
-  >in off blk off loadfile off -1 linestart !
+  push-file  dup #tib ! >tib @ swap move
+  >in off blk off loadfile off -1 loadline !
 
   BEGIN  interpret  >in @ #tib @ u>= UNTIL
 
-  r> >in !  r> #tib !  r> >tib ! r> blk !
-  r> loadfile ! r> loadline ! r> linestart ! ;
+  pop-file ;
 
 
 : abort -1 throw ;
@@ -1205,35 +1202,55 @@ Variable env
 Variable argv
 Variable argc
 
-: get-args ( -- )  #tib off
-  argc @ 1 ?DO  I arg 2dup source + swap move
-                #tib +! drop  bl source + c! 1 #tib +!  LOOP
-  >in off #tib @ 0<> #tib +! ;
+0 Value script? ( -- flag )
 
-: script? ( -- flag )  0 arg 1 arg dup 3 pick - /string compare 0= ;
+: ">tib  ( addr len -- )  dup #tib ! >in off tib swap move ;
+
+: do-option ( addr1 len1 addr2 len2 -- n )  2swap
+  2dup s" -e"        compare  0= >r
+  2dup s" -evaluate" compare  0= r> or
+  IF  2drop ">tib interpret  2 EXIT  THEN
+  ." Unknown option: " type cr 2drop 1 ;
+
+: process-args ( -- )  argc @ 1
+  ?DO  I arg over c@ [char] - <>
+       IF    true to script? included  false to script? 1
+       ELSE  I 1+ arg  do-option
+       THEN
+  +LOOP ;
 
 : cold ( -- )  
     argc @ 1 >
-    IF  script?
+    IF
+	['] process-args catch ?dup
 	IF
-	    1 arg ['] included
-	ELSE
-	    get-args ['] interpret
-	THEN
-	catch ?dup
-	IF
-	    dup >r DoError cr r> (bye)
+	    dup >r DoError cr r> negate (bye)
 	THEN
     THEN
-    cr ." GNU Forth 0.0alpha, Copyright (C) 1994 Free Software Foundation"
-    cr ." GNU Forth comes with ABSOLUTELY NO WARRANTY; for details type `license'" 
+    ." GNU Forth 0.0alpha, Copyright (C) 1994 Free Software Foundation" cr
+    ." GNU Forth comes with ABSOLUTELY NO WARRANTY; for details type `license'" 
     cr quit ;
+
+: license ( -- ) cr
+ ." This program is free software; you can redistribute it and/or modify" cr
+ ." it under the terms of the GNU General Public License as published by" cr
+ ." the Free Software Foundation; either version 1, or (at your option)" cr
+ ." any later version." cr cr
+
+ ." This program is distributed in the hope that it will be useful," cr
+ ." but WITHOUT ANY WARRANTY; without even the implied warranty of" cr
+ ." MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the" cr
+ ." GNU General Public License for more details." cr cr
+
+ ." You should have received a copy of the GNU General Public License" cr
+ ." along with this program; if not, write to the Free Software" cr
+ ." Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA." cr ;
 
 : boot ( **env **argv argc -- )
   argc ! argv ! env !  main-task up!
   sp@ dup s0 ! $10 + >tib ! rp@ r0 !  fp@ f0 !  cold ;
 
-: bye  cr 0 (bye) ;
+: bye  script? 0= IF  cr  THEN  0 (bye) ;
 
 \ **argv may be scanned by the C starter to get some important
 \ information, as -display and -geometry for an X client FORTH

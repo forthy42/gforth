@@ -10,7 +10,7 @@
   dup count chars bounds
   ?DO  I c@ [char] a [char] { within
        IF  I c@ bl - I c!  THEN  1 chars +LOOP ;
-: name bl word capitalize ;
+: name bl word ( capitalize ) ;
 : on true swap ! ;
 : off false swap ! ;
 : place ( adr len adr )

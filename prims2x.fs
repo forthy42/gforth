@@ -21,8 +21,8 @@
 
 warnings off
 
+[IFUNDEF] vocabulary  include search-order.fs [THEN]
 include gray.fs
-include search-order.fs
 
 100 constant max-effect \ number of things on one side of a stack effect
 4096 constant batch-size \ no meaning, just make sure it's >0
@@ -543,4 +543,5 @@ set-current
  endif
  warnings @ if
  ." ------------ CUT HERE -------------" cr  endif
- r> [ ] primfilter [ 0 ] ;
+ r> primfilter ;
+

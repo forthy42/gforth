@@ -164,7 +164,7 @@ rp += 2;
 *--rp = nlimit;
 *--rp = nstart;
 :
- swap >r >r ;
+ r> -rot swap >r >r >r ;
 
 (?do)	nlimit nstart --	core-ext	paren_question_do
 *--rp = nlimit;
@@ -392,7 +392,7 @@ d2 = 2*d1;
 
 d2/	d1 -- d2		double		d_two_slash
 /* !! is this still correct? */
-d2 = d1/2;
+d2 = d1>>1;
 
 d>s	d -- n			double		d_to_s
 /* make this an alias for drop? */
@@ -625,16 +625,29 @@ wior = a_addr2==NULL;	/* !! Define a return code */
 (f83find)	c_addr u f83name1 -- f83name2	new	paren_f83find
 for (; f83name1 != NULL; f83name1 = f83name1->next)
   if (F83NAME_COUNT(f83name1)==u &&
-      strncmp(c_addr, f83name1->name, u)== 0 /* or inline? */)
-    break;
-f83name2=f83name1;
-
-(f83casefind)	c_addr u f83name1 -- f83name2	new	paren_f83casefind
-for (; f83name1 != NULL; f83name1 = f83name1->next)
-  if (F83NAME_COUNT(f83name1)==u &&
       strncasecmp(c_addr, f83name1->name, u)== 0 /* or inline? */)
     break;
 f83name2=f83name1;
+
+(hashfind)	c_addr u a_addr -- f83name2	new	paren_hashfind
+F83Name *f83name1;
+f83name2=NULL;
+while(a_addr != NULL)
+{
+   f83name1=(F83Name *)(a_addr[1]);
+   a_addr=(Cell *)(a_addr[0]);
+   if (F83NAME_COUNT(f83name1)==u &&
+       strncasecmp(c_addr, f83name1->name, u)== 0 /* or inline? */)
+     {
+	f83name2=f83name1;
+	break;
+     }
+}
+
+(hashkey)	c_addr u1 -- u2	new	paren_hashkey
+u2=0;
+while(u1--)
+   u2+=(int)toupper(*c_addr++);
 
 (parse-white)	c_addr1 u1 -- c_addr2 u2	new	paren_parse_white
 /* use !isgraph instead of isspace? */
@@ -710,10 +723,25 @@ wior = FILEIO(u2<u1 && ferror((FILE *)wfileid));
 /* !! who performs clearerr((FILE *)wfileid); ? */
 
 read-line	c_addr u1 wfileid -- u2 flag wior	file	read_line
-if ((flag=FLAG(!feof((FILE *)wfileid)))) {
-  char *s = fgets(c_addr,u1+1,(FILE *)wfileid);
+/*
+Cell c;
+flag=-1;
+for(u2=0; u2<u1; u2++)
+{
+   *c_addr++ = (Char)(c = getc((FILE *)wfileid));
+   if(c=='\n') break;
+   if(c==EOF)
+     {
+	flag=FLAG(u2!=0);
+	break;
+     }
+}
+wior=FILEIO(ferror((FILE *)wfileid));
+*/
+if ((flag=FLAG(!feof((FILE *)wfileid) &&
+	       fgets(c_addr,u1+1,(FILE *)wfileid) != NULL))) {
   wior=FILEIO(ferror((FILE *)wfileid));
-  u2=strlen(c_addr);
+  u2 = strlen(c_addr);
   u2-=((u2>0) && (c_addr[u2-1]==NEWLINE));
 }
 else {

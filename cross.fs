@@ -1,5 +1,5 @@
 \ CROSS.FS     The Cross-Compiler                      06oct92py
-\ $Id: cross.fs,v 1.8 1994-07-13 19:20:59 pazsan Exp $
+\ $Id: cross.fs,v 1.9 1994-07-21 10:52:37 pazsan Exp $
 \ Idea and implementation: Bernd Paysan (py)
 \ Copyright 1992 by the ANSI figForth Development Group
 
@@ -21,7 +21,7 @@
 \             targets                         09jun93jaw
 \       added: 2user and value                11jun93jaw
 
-include other.fs       \ ansforth extentions for cross
+\ include other.fs       \ ansforth extentions for cross
 
 : comment? ( c-addr u -- c-addr u )
         2dup s" (" compare 0=
@@ -30,47 +30,6 @@ include other.fs       \ ansforth extentions for cross
         THEN ;
 
 decimal
-
-\ number?                                               11may93jaw
-
-\ checks for +, -, $, & ...
-: leading? ( c-addr u -- c-addr u doubleflag negflag base )
-        2dup 1- chars + c@ [char] . =   \ process double
-        IF dup 1 chars = IF over 1 swap c! false ELSE 1 chars - true THEN
-        \ only if more than only . ( may be number output! )
-        \ if only . => store garbage
-        ELSE false THEN >r      \ numbers
-        false -rot base @ -rot
-        BEGIN over c@
-                dup [char] - =
-                        IF drop >r >r >r
-                           drop true r> r> r> 0 THEN
-                dup [char] + =
-                        IF drop 0 THEN
-                dup [char] $ =
-                        IF drop >r >r drop 16 r> r> 0 THEN
-                dup [char] & =
-                        IF drop >r >r drop 10 r> r> 0 THEN
-              0= IF 1 chars - swap char+ swap false ELSE true THEN
-              over 0= or
-        UNTIL
-              rot >r rot r> r> -rot ;
-
-: number? ( c-addr -- n/d flag )
-\ return -1 if cell 1 if double 0 if garbage
-                0 swap 0 swap           \ create double number
-                count leading?
-                base @ >r base !
-                >r >r
-                >number IF 2drop false r> r> 2drop
-                           r> base ! EXIT THEN
-                drop r> r>
-                IF IF dnegate 1
-                   ELSE drop negate -1 THEN
-                ELSE IF 1 ELSE drop -1 THEN
-                THEN r> base ! ;
-
-
 
 \ Begin CROSS COMPILER:
 
@@ -424,6 +383,7 @@ ghost unloop    ghost ;S                        2drop
 ghost lit       ghost (compile) ghost !         2drop drop
 ghost (;code)   ghost noop                      2drop
 ghost (.")      ghost (S")      ghost (ABORT")  2drop drop
+ghost '
 
 \ compile                                              10may93jaw
 
@@ -682,6 +642,8 @@ Cond: ABORT"    restrict? compile (ABORT") T ," H ;Cond
 
 Cond: IS        T ' >body H compile ALiteral compile ! ;Cond
 : IS            T ' >body ! H ;
+Cond: TO        T ' >body H compile ALiteral compile ! ;Cond
+: TO            T ' >body ! H ;
 
 \ LINKED ERR" ENV" 2ENV"                                18may93jaw
 

@@ -51,7 +51,7 @@ AUser "error            0 "error !
                         \ is in a textfile
                         \ the first line is 1
 
- 2User linestart        \ starting file postition of
+2User linestart         \ starting file postition of
                         \ the current interpreted line (in TIB)
 
  User base              A base !

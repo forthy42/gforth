@@ -2,13 +2,14 @@
 
 RM	= echo 'Trying to remove'
 GCC	= gcc
+FORTH	= ansforth
 CC	= gcc
-SWITCHES = -D_POSIX_VERSION -DDEFAULTBIN='"'`pwd`'"' #-DNDEBUG #turn off assertions
+SWITCHES = -D_POSIX_VERSION -DUSE_TOS -DUSE_FTOS -DDEFAULTBIN='"'`pwd`'"' -DDIRECT_THREADED #-DNDEBUG #turn off assertions
 CFLAGS	= -O4 -Wall -g $(SWITCHES)
 
 #-Xlinker -n puts text and data into the same 256M region
 #John Wavrik should use -Xlinker -N to get a writable text (executable)
-LDFLAGS	= -g # -Xlinker -N
+LDFLAGS	= -g -Xlinker -N
 LDLIBS = -lm
 
 EMACS	= emacs
@@ -34,7 +35,7 @@ OBJECTS = engine.o io.o main.o
 
 # things that need a working forth system to be generated
 # this is used for antidependences,
-FORTH_GEN = primitives.i prim_labels.i prim_alias.4th kernal.32limg
+FORTH_GEN = primitives.i prim_labels.i prim_alias.4th kernal.fi
 
 all:	ansforth aliases.fs
 
@@ -64,11 +65,11 @@ ansforth:	$(OBJECTS) $(FORTH_GEN)
 		-cp ansforth ansforth.old
 		$(GCC) $(LDFLAGS) $(OBJECTS) $(LDLIBS) -o $@
 
-kernal.32limg:	search-order.fs cross.fs aliases.fs vars.fs add.fs \
+kernal.fi:	search-order.fs cross.fs aliases.fs vars.fs add.fs \
 		environ.fs errore.fs kernal.fs extend.fs tools.fs toolsext.fs \
                 $(FORTH_GEN)
 		-cp kernal.32limg kernal.32limg.old
-		ansforth "include main.fs"
+		$(FORTH) main.fs
 
 
 engine.s:	engine.c primitives.i prim_labels.i machine.h $(INCLUDES)
@@ -80,16 +81,13 @@ primitives.b:	primitives
 		m4 primitives >$@ 
 
 primitives.i :	primitives.b prims2x.fs
-		ansforth "include prims2x.fs s\" primitives.b\" ' output-c process-file bye" >$@
+		$(FORTH) prims2x.fs -e "s\" primitives.b\" ' output-c process-file bye" >$@
 
 prim_labels.i :	primitives.b prims2x.fs
-		ansforth "include prims2x.fs s\" primitives.b\" ' output-label process-file bye" >$@
+		$(FORTH) prims2x.fs -e "s\" primitives.b\" ' output-label process-file bye" >$@
 
-prim_alias.4th:	primitives.b prims2x.fs
-		ansforth "include prims2x.fs s\" primitives.b\" ' output-alias process-file bye" >$@
-
-aliases.fs:	prim_alias.4th
-		cp prim_alias.4th $@
+aliases.fs:	primitives.b prims2x.fs
+		$(FORTH) prims2x.fs -e "s\" primitives.b\" ' output-alias process-file bye" >$@
 
 #primitives.4th:	primitives.b primitives2c.el
 #		$(EMACS) -batch -load primitives2c.el -funcall make-forth

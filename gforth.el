@@ -16,7 +16,7 @@
 ;; file named COPYING.  Among other things, the copyright notice
 ;; and this notice must be preserved on all copies.
 
-;;; $Header: /usr/local/lib/cvs-repository/src-master/gforth/gforth.el,v 1.3 1994-07-08 15:00:41 anton Exp $
+;;; $Header: /usr/local/lib/cvs-repository/src-master/gforth/gforth.el,v 1.4 1994-07-21 10:52:42 pazsan Exp $
 
 ;;-------------------------------------------------------------------
 ;; A Forth indentation, documentation search and interaction library
@@ -617,7 +617,7 @@ The region is sent terminated by a newline."
 ;; Misc
 
 (setq auto-mode-alist (append auto-mode-alist
-				'(("\\.f83$" . forth-mode))))
+				'(("\\.fs$" . forth-mode))))
 
 (defun forth-split ()
   (interactive)

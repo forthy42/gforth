@@ -1,5 +1,29 @@
 \ High level floating point                            14jan94py
 
+1 cells 4 = [IF]
+' cells   Alias sfloats
+' cell+   Alias sfloat+
+' align   Alias sfalign
+' aligned Alias sfaligned
+[ELSE]
+: sfloats  4 * ;
+: sfloat+  4 + ;
+: sfaligned ( addr -- addr' )  3 + -4 and ;
+: sfalign ( -- )  here dup sfaligned swap ?DO  bl c,  LOOP ;
+[THEN]
+
+1 floats 8 = [IF]
+' floats   Alias dfloats
+' float+   Alias dfloat+
+' falign   Alias dfalign
+' faligned Alias dfaligned
+[ELSE]
+: dfloats  8 * ;
+: dfloat+  8 + ;
+: dfaligned ( addr -- addr' )  7 + -8 and ;
+: dfalign ( -- )  here dup dfaligned swap ?DO  bl c,  LOOP ;
+[THEN]
+
 : f, ( f -- )  here 1 floats allot f! ;
 
 \ !! have create produce faligned pfas
@@ -55,3 +79,18 @@
 ' fnumber IS notfound
 
 1e0 fasin 2e0 f* fconstant pi
+
+: f2*  2e0 f* ;
+: f2/  2e0 f/ ;
+: 1/f  1e0 fswap f/ ;
+
+: falog ( f -- 10^f )  [ 10e0 fln ] FLiteral f* fexp ;
+
+: fsinh    fexpm1 fdup fdup 1e0 f+ f/ f+ f2/ ;
+: fcosh    fexp fdup 1/f f+ f2/ ;
+: ftanh    f2* fexpm1 fdup 2e0 f+ f/ ;
+
+: fatanh   fdup f0< >r fabs 1e0 fover f- f/  f2* flnp1 f2/
+           r> IF  fnegate  THEN ;
+: facosh   fdup fdup f* 1e0 f- fsqrt f+ fln ;
+: fasinh   fdup fdup f* 1e0 f+ fsqrt f/ fatanh ;
