@@ -594,13 +594,17 @@ has? file 0= [IF]
     \G @code{0} and make the string @i{c-addr u} the input source
     \G and input buffer. Interpret. When the parse area is empty,
     \G restore the input source specification.
+    loadfilename# @ >r
+    1 loadfilename# ! \ "\evaluated string/"
     push-file #tib ! >tib !
     >in off
     [ has? file [IF] ]
 	blk off loadfile off -1 loadline !
 	[ [THEN] ]
     ['] interpret catch
-    pop-file throw ;
+    pop-file
+    r> loadfilename# !
+    throw ;
 
 \ \ Quit                                            	13feb93py
 
@@ -707,7 +711,7 @@ Defer dobacktrace ( -- )
       >stderr
   [ [THEN] ] 
   sourceline# IF
-      source >in @ sourceline# 0 0 .error-frame
+      source >in @ sourceline# sourcefilename .error-frame
   THEN
   error-stack @ 0 ?DO
     -1 error-stack +!
@@ -777,6 +781,7 @@ Variable init8
 [ has? file [IF] ]
     process-args
     loadline off
+    loadfilename# off
 [ [THEN] ]
     bootmessage
     quit ;

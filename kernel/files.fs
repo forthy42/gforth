@@ -69,14 +69,25 @@
 : read-loop ( i*x -- j*x )
   BEGIN  refill  WHILE  interpret  REPEAT ;
 
-: include-file ( i*x wfileid -- j*x ) \ file
+: include-file1 ( i*x wfileid -- j*x ior1 ior2 )
     \G Interpret (process using the text interpreter) the contents of
     \G the file @var{wfileid}.
     push-file  loadfile !
     0 loadline ! blk off  ['] read-loop catch
     loadfile @ close-file swap 2dup or
-    pop-file  drop throw throw ;
+    pop-file  drop ;
 
+: include-file2 ( i*x wfileid -- j*x )
+    \ like include-file, but does not update loadfile#
+    include-file1 throw throw ;
+
+: include-file ( i*x wfileid -- j*x ) \ file
+    loadfilename# @ >r
+    3 loadfilename# ! \ "\a file/"
+    include-file1
+    r> loadfilename# !
+    throw throw ;
+    
 \ additional words only needed if there is file support
 
 Warnings off

@@ -21,17 +21,14 @@
 \ Now: Kernel Module, Reloadable
 
 create included-files 0 , 0 , ( pointer to and count of included files )
-\ here ," ./the terminal" dup c@ swap 1 + swap , A, here 2 cells -
-\ ./ is confusing for the search path stuff! There should be never a .
-\ in sourcefilename....
-here ," #terminal#" dup c@ swap 1 + swap , A, here 2 cells -
-create image-included-files  1 , A, ( pointer to and count of included files )
+here ," \a file/" dup c@ swap 1 + swap
+here ," \a block/" dup c@ swap 1 + swap
+here ," \evaluated string/" dup c@ swap 1 + swap
+here ," \the terminal/" dup c@ swap 1 + swap
+, A, , A, , A, , A, here 8 cells -
+create image-included-files 4 , A, ( pointer to and count of included files )
 \ included-files points to ALLOCATEd space, while image-included-files
 \ points to ALLOTed objects, so it survives a save-system
-
-: loadfilename ( -- a-addr ) \ gforth-internal
-    \G @i{a-addr} @code{2@@} produces the current file name ( @i{c-addr u} )
-    included-files 2@ loadfilename# @ min 2* cells + ;
 
 : sourcefilename ( -- c-addr u ) \ gforth
     \G The name of the source file which is currently the input
@@ -39,7 +36,7 @@ create image-included-files  1 , A, ( pointer to and count of included files )
     \G loaded.  If the current input source is no (stream) file, the
     \G result is undefined.  In Gforth, the result is valid during the
     \G whole seesion (but not across @code{savesystem} etc.).
-    loadfilename 2@ ;
+    loadfilename# @ loadfilename#>str ;
 
 : sourceline# ( -- u ) \ gforth		sourceline-number
     \G The line number of the line that is currently being interpreted
@@ -81,7 +78,7 @@ create image-included-files  1 , A, ( pointer to and count of included files )
     loadfilename# @ >r
     save-mem add-included-file ( file-id )
     included-files 2@ nip 1- loadfilename# !
-    ['] include-file catch
+    ['] include-file2 catch
     r> loadfilename# !
     throw ;
     
@@ -149,7 +146,7 @@ create image-included-files  1 , A, ( pointer to and count of included files )
 : .strings ( addr u -- ) \ gforth
     \G list the strings from an array of string descriptors at addr
     \G with u entries, one per line.
-    included-files 2@ 2* cells bounds ?DO
+    2* cells bounds ?DO
 	cr I 2@ type 2 cells +LOOP ;
 
 : .included ( -- ) \ gforth
@@ -157,5 +154,5 @@ create image-included-files  1 , A, ( pointer to and count of included files )
     included-files 2@ .strings ;
     
 \ contains tools/newrequire.fs
-\ \I $Id: require.fs,v 1.13 2000-09-06 08:47:15 anton Exp $
+\ \I $Id: require.fs,v 1.14 2000-09-06 20:30:07 anton Exp $
 

@@ -8371,7 +8371,6 @@ doc-required
 doc-require
 doc-needs
 @c doc-init-included-files @c internal
-@c doc-loadfilename @c internal word
 doc-sourcefilename
 doc-sourceline#
 
@@ -12116,7 +12115,7 @@ The following ANS Forth words are not currently supported by Gforth
 A typical Gforth error message looks like this:
 
 @example
-in file included from :-1
+in file included from \evaluated string/:-1
 in file included from ./yyy.fs:1
 ./xxx.fs:4: Invalid memory address
 bar

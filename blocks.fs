@@ -216,9 +216,13 @@ User scr ( -- a-addr ) \ block-ext s-c-r
     \G Save the current input source specification. Store @i{n} in
     \G @code{BLK}, set @code{>IN} to 0 and interpret. When the parse
     \G area is exhausted, restore the input source specification.
+    loadfilename# @ >r
+    2 loadfilename# ! \ "\a block/"
     push-file
     dup loadline ! blk ! >in off ['] interpret catch
-    pop-file throw ;
+    pop-file
+    r> loadfilename# !
+    throw ;
 
 : thru ( i*x n1 n2 -- j*x ) \ block-ext
     \G @code{load} the blocks @i{n1} through @i{n2} in sequence.
