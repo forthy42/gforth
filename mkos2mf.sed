@@ -45,6 +45,7 @@ s%@LINK_KERNL32L@%%g
 s%@LINK_KERNL32B@%%g
 s%@LINK_KERNL64L@%%g
 s%@LINK_KERNL64B@%%g
+s%-DDEFAULTPATH=\\".*"%-DDEFAULTPATH=\\".\\"%g
 s%@KERNEL@%kernl16l.fi kernl16b.fi kernl32l.fi kernl32b.fi kernl64l.fi kernl64b.fi%g
 s%@LN_S@%ln -s%g
 s%@INSTALL@%install-sh -c%g
@@ -55,8 +56,10 @@ s%@getopt_long@%getopt.o getopt1.o%g
 s%@kernel_fi@%kernl32l.fi%g
 s%@PATHSEP@%;%g
 s%-fforce-mem -fforce-addr %%g
-s%": version-string s\\" $(VERSION)\\" ;\"%: version-string s" $(VERSION)" ;%g
-s%"char gforth_version\[\]=\\"$(VERSION)\\" ;"%char gforth_version\[\]="$(VERSION)" ;%g
+s%echo "static char gforth_version.*;" >$@%$(CP) version.h1 version.h%g
+s%echo ": version-string.*;" >$@%$(CP) version.fs1 version.fs%g
 s%$(srcdir)/config.h.in:	stamp-h.in%#$(srcdir)/config.h.in:	stamp-h.in%g
 s%config.h:	stamp-h%#config.h:	stamp-h%g
 s%$(FORTHPATH)$(PATHSEP)%%g
+s%@FORTHSIZES@%%g
+s%$(PATHSEP)$(srcdir)%%g
