@@ -167,7 +167,6 @@ personal machines. This manual corresponds to version @value{VERSION}.
 * Origin::                      Authors and ancestors of Gforth
 * Forth-related information::   Books and places to look on the WWW
 * Word Index::                  An item for each Forth word
-* Name Index::                  Forth words, only names listed
 * Concept Index::               A menu covering many topics
 
 @detailmenu --- The Detailed Node Listing ---
@@ -243,6 +242,7 @@ Forth Words
 * Defining Words::              
 * Interpretation and Compilation Semantics::  
 * Tokens for Words::            
+* Compiling words::             
 * The Text Interpreter::        
 * Word Lists::                  
 * Environmental Queries::       
@@ -543,13 +543,6 @@ Cross Compiler
 
 * Using the Cross Compiler::    
 * How the Cross Compiler Works::  
-
-Other Forth-related information
-
-* Internet resources::          
-* Books::                       
-* The Forth Interest Group::    
-* Conferences::                 
 
 @end detailmenu
 @end menu
@@ -4343,6 +4336,7 @@ the exercises in a .fs file in the distribution.
 * Defining Words::              
 * Interpretation and Compilation Semantics::  
 * Tokens for Words::            
+* Compiling words::             
 * The Text Interpreter::        
 * Word Lists::                  
 * Environmental Queries::       
@@ -6981,13 +6975,8 @@ accessing the header structure usually know how to deal with this; e.g.,
 with @code{create-interpret/compile}.
 
 
-doc-postpone
-
-@comment TODO -- expand glossary text for POSTPONE
-
-
 @c -------------------------------------------------------------
-@node Tokens for Words, The Text Interpreter, Interpretation and Compilation Semantics, Words
+@node Tokens for Words, Compiling words, Interpretation and Compilation Semantics, Words
 @section Tokens for Words
 @cindex tokens for words
 
@@ -7111,9 +7100,31 @@ doc-name?int
 doc-name>comp
 doc-name>string
 
+@c ----------------------------------------------------------
+@node Compiling words, The Text Interpreter, Tokens for Words, Words
+@section Compiling words
+@cindex compiling words
+@cindex macros
+
+In contrast to most other languages, Forth has no strict boundary
+between compilation and run-time.  
+
+doc-postpone
+
+@comment TODO -- expand glossary text for POSTPONE
+
+doc-literal
+doc-]L
+doc-2literal
+doc-fliteral
+doc-[
+doc-]
+
+
+
 
 @c ----------------------------------------------------------
-@node The Text Interpreter, Word Lists, Tokens for Words, Words
+@node The Text Interpreter, Word Lists, Compiling words, Words
 @section  The Text Interpreter
 @cindex interpreter - outer
 @cindex text interpreter
@@ -7556,9 +7567,6 @@ create table ' aa , ' bb , ' cc ,
 @end example
 
 doc-state
-doc-[
-doc-]
-
 
 @node Literals, Interpreter Directives, Interpret/Compile states, The Text Interpreter
 @subsection Literals
@@ -7618,11 +7626,6 @@ solving this problem in this instance is to use @code{[ ]} like this:
   LITERAL * ;   \ to seconds
 @end example
 
-
-doc-literal
-doc-]L
-doc-2literal
-doc-fliteral
 
 
 @node Interpreter Directives,  , Literals, The Text Interpreter
@@ -13351,7 +13354,8 @@ the additional porting problems?
 
 In order to perform these consideratios, you need to know what's
 standard and what's not.  This manual generally states if something is
-non-standard, but the authoritative source is the standard document.
+non-standard, but the authoritative source is the
+@uref{http://www.taygeta.com/forth/dpans.html,standard document}.
 Appendix A of the Standard (@var{Rationale}) provides a valuable insight
 into the thought processes of the technical committee.
 
@@ -14060,28 +14064,33 @@ sp++;
 sp[0]=n;
 NEXT;
 @end example
-the @code{NEXT} comes strictly after the other code, i.e., there is nearly no
-scheduling. After a little thought the problem becomes clear: The
-compiler cannot know that @code{sp} and @code{ip} point to different
+the @code{NEXT} comes strictly after the other code, i.e., there is
+nearly no scheduling. After a little thought the problem becomes clear:
+The compiler cannot know that @code{sp} and @code{ip} point to different
 addresses (and the version of @code{gcc} we used would not know it even
 if it was possible), so it could not move the load of the cfa above the
 store to the TOS. Indeed the pointers could be the same, if code on or
 very near the top of stack were executed. In the interest of speed we
 chose to forbid this probably unused ``feature'' and helped the compiler
-in scheduling: @code{NEXT} is divided into the loading part (@code{NEXT_P1})
-and the goto part (@code{NEXT_P2}). @code{+} now looks like:
+in scheduling: @code{NEXT} is divided into several parts:
+@code{NEXT_P0}, @code{NEXT_P1} and @code{NEXT_P2}). @code{+} now looks
+like:
 @example
+NEXT_P0;
 n=sp[0]+sp[1];
 sp++;
 NEXT_P1;
 sp[0]=n;
 NEXT_P2;
 @end example
-This can be scheduled optimally by the compiler.
 
-This division can be turned off with the switch @code{-DCISC_NEXT}. This
-switch is on by default on machines that do not profit from scheduling
-(e.g., the 80386), in order to preserve registers.
+There are various schemes that distribute the different operations of
+NEXT between these parts in several ways; in general, different schemes
+perform best on different processors.  We use a scheme for most
+architectures that performs well for most processors of this
+architecture; in the furture we may switch to benchmarking and chosing
+the scheme on installation time.
+
 
 @node Direct or Indirect Threaded?, DOES>, Scheduling, Threading
 @subsection Direct or Indirect Threaded?
@@ -14204,15 +14213,16 @@ looks like this:
 @example
 I_plus: /* + ( n1 n2 -- n ) */  /* label, stack effect */
 /*  */                          /* documentation */
+NAME("+")                       /* debugging output (with -DDEBUG) */
 @{
 DEF_CA                          /* definition of variable ca (indirect threading) */
 Cell n1;                        /* definitions of variables */
 Cell n2;
 Cell n;
+NEXT_P0;                        /* NEXT part 0 */
 n1 = (Cell) sp[1];              /* input */
 n2 = (Cell) TOS;
 sp += 1;                        /* stack adjustment */
-NAME("+")                       /* debugging output (with -DDEBUG) */
 @{
 n = n1+n2;                      /* C code taken from the source */
 @}
@@ -14306,7 +14316,8 @@ effect @code{--} no stores or loads should be generated.
 @cindex @file{engine.s}
 To see what assembly code is produced for the primitives on your machine
 with your compiler and your flag settings, type @code{make engine.s} and
-look at the resulting file @file{engine.s}.
+look at the resulting file @file{engine.s}.  Alternatively, you can also
+disassemble the code of primitives with @code{see} on some architectures.
 
 @node  Performance,  , Primitives, Engine
 @section Performance
@@ -14336,24 +14347,24 @@ earlier results.
 @cindex ThisForth performance
 @cindex PFE performance
 @cindex TILE performance
-The potential advantage of assembly language implementations
-is not necessarily realized in complete Forth systems: We compared
-Gforth-0.4.9 (direct threaded, compiled with @code{gcc-2.95.1} and
-@code{-DFORCE_REG}) with Win32Forth 1.2093, LMI's NT Forth (Beta, May
-1994) and Eforth (with and without peephole (aka pinhole) optimization
-of the threaded code); all these systems were written in assembly
-language. We also compared Gforth with three systems written in C:
-PFE-0.9.14 (compiled with @code{gcc-2.6.3} with the default
-configuration for Linux: @code{-O2 -fomit-frame-pointer -DUSE_REGS
--DUNROLL_NEXT}), ThisForth Beta (compiled with @code{gcc-2.6.3 -O3
--fomit-frame-pointer}; ThisForth employs peephole optimization of the
-threaded code) and TILE (compiled with @code{make opt}). We benchmarked
-Gforth, PFE, ThisForth and TILE on a 486DX2/66 under Linux. Kenneth
-O'Heskin kindly provided the results for Win32Forth and NT Forth on a
-486DX2/66 with similar memory performance under Windows NT. Marcel
-Hendrix ported Eforth to Linux, then extended it to run the benchmarks,
-added the peephole optimizer, ran the benchmarks and reported the
-results.
+The potential advantage of assembly language implementations is not
+necessarily realized in complete Forth systems: We compared Gforth-0.4.9
+(direct threaded, compiled with @code{gcc-2.95.1} and
+@code{-DFORCE_REG}) with Win32Forth 1.2093 (newer versions are
+reportedly much faster), LMI's NT Forth (Beta, May 1994) and Eforth
+(with and without peephole (aka pinhole) optimization of the threaded
+code); all these systems were written in assembly language. We also
+compared Gforth with three systems written in C: PFE-0.9.14 (compiled
+with @code{gcc-2.6.3} with the default configuration for Linux:
+@code{-O2 -fomit-frame-pointer -DUSE_REGS -DUNROLL_NEXT}), ThisForth
+Beta (compiled with @code{gcc-2.6.3 -O3 -fomit-frame-pointer}; ThisForth
+employs peephole optimization of the threaded code) and TILE (compiled
+with @code{make opt}). We benchmarked Gforth, PFE, ThisForth and TILE on
+a 486DX2/66 under Linux. Kenneth O'Heskin kindly provided the results
+for Win32Forth and NT Forth on a 486DX2/66 with similar memory
+performance under Windows NT. Marcel Hendrix ported Eforth to Linux,
+then extended it to run the benchmarks, added the peephole optimizer,
+ran the benchmarks and reported the results.
 
 We used four small benchmarks: the ubiquitous Sieve; bubble-sorting and
 matrix multiplication come from the Stanford integer benchmarks and have
@@ -14367,10 +14378,10 @@ factor that Gforth achieved over the other systems).
 @example
 relative      Win32-    NT       eforth       This-      
   time  Gforth Forth Forth eforth  +opt   PFE Forth  TILE
-sieve     1.00  1.58  1.30   1.58  0.97  1.80  3.63  9.79
-bubble    1.00  1.55  1.67   1.75  1.04  1.78        4.59
-matmul    1.00  1.67  1.53   1.66  0.84  1.79        4.63
-fib       1.00  1.75  1.53   1.40  0.99  1.99  3.43  4.93
+sieve     1.00  1.60  1.32   1.60  0.98  1.82  3.67  9.91
+bubble    1.00  1.55  1.66   1.75  1.04  1.78        4.58
+matmul    1.00  1.71  1.57   1.69  0.86  1.83        4.74
+fib       1.00  1.76  1.54   1.41  1.00  2.01  3.45  4.96
 @end example
 
 You may be quite surprised by the good performance of Gforth when
@@ -14450,6 +14461,11 @@ while you usually can't execute the code compiled by cross, because the
 code you are compiling is typically for a different computer than the
 one you are compiling on.
 
+@c anton: This chapter is somewhat different from waht I would expect: I
+@c would expect an explanation of the cross language and how to create an
+@c application image with it.  The section explains some aspects of
+@c creating a Gforth kernel.
+
 The Makefile is already set up to allow you to create kernels for new
 architectures with a simple make command. The generic kernels using the
 GCC compiled virtual machine are created in the normal build process
@@ -14485,7 +14501,7 @@ depending on whether the target supports these features.
 
 There are some optional features, if you define your own primitives,
 have an assembler, or need special, nonstandard preparation to make the
-boot process work. @code{asm-include} include an assembler,
+boot process work. @code{asm-include} includes an assembler,
 @code{prims-include} includes primitives, and @code{>boot} prepares for
 booting.
 
@@ -14501,7 +14517,7 @@ booting.
 @end example
 
 These words are used as sort of macro during the cross compilation in
-the file @file{kernel/main.fs}. Instead of using this macros, it would
+the file @file{kernel/main.fs}. Instead of using these macros, it would
 be possible --- but more complicated --- to write a new kernel project
 file, too.
 
@@ -14572,20 +14588,22 @@ information:
 
 @itemize @bullet
 @item
+A program (or a sequence of keyboard commands) that reproduces the bug.
+@item
+A description of what you think constitutes the buggy behaviour.
+@item
 The Gforth version used (it is announced at the start of an
 interactive Gforth session).
 @item
 The machine and operating system (on Unix
 systems @code{uname -a} will report this information).
 @item
-The installation options (send the file @file{config.status}).
+The installation options (you can find the configure options at the
+start of @file{config.status}) and configuration (@code{configure}
+output or @file{config.cache}).
 @item
 A complete list of changes (if any) you (or your installer) have made to the
 Gforth sources.
-@item
-A program (or a sequence of keyboard commands) that reproduces the bug.
-@item
-A description of what you think constitutes the buggy behaviour.
 @end itemize
 
 For a thorough guide on reporting bugs read @ref{Bug Reporting, , How
@@ -14600,9 +14618,11 @@ to Report Bugs, gcc.info, GNU C Manual}.
 @cindex contributors to Gforth
 
 The Gforth project was started in mid-1992 by Bernd Paysan and Anton
-Ertl. The third major author was Jens Wilke.  Lennart Benschop (who was
-one of Gforth's first users, in mid-1993) and Stuart Ramsden inspired us
-with their continuous feedback. Lennart Benshop contributed
+Ertl. The third major author was Jens Wilke.  Neal Crook contributed a
+lot to the manual.  Assemblers and disassemblers were contributed by
+Andrew McKewan, Christian Pirker, and Bernd Thallner.  Lennart Benschop
+(who was one of Gforth's first users, in mid-1993) and Stuart Ramsden
+inspired us with their continuous feedback. Lennart Benshop contributed
 @file{glosgen.fs}, while Stuart Ramsden has been working on automatic
 support for calling C libraries. Helpful comments also came from Paul
 Kleinrubatscher, Christian Pirker, Dirk Zoller, Marcel Hendrix, John
@@ -14610,8 +14630,7 @@ Wavrik, Barrie Stott, Marc de Groot, Jorge Acerada, Bruce Hoyt, and
 Robert Epprecht. Since the release of Gforth-0.2.1 there were also
 helpful comments from many others; thank you all, sorry for not listing
 you here (but digging through my mailbox to extract your names is on my
-to-do list). Since the release of Gforth-0.4.0 Neal Crook worked on the
-manual.
+to-do list).
 
 Gforth also owes a lot to the authors of the tools we used (GCC, CVS,
 and autoconf, among others), and to the creators of the Internet: Gforth
@@ -14621,17 +14640,16 @@ physically for the first 4 years of development.
 @section Pedigree
 @cindex pedigree of Gforth
 
-Gforth descends from bigFORTH (1993) and fig-Forth. Gforth and PFE (by
-Dirk Zoller) will cross-fertilize each other. Of course, a significant
-part of the design of Gforth was prescribed by ANS Forth.
+Gforth descends from bigFORTH (1993) and fig-Forth.  Of course, a
+significant part of the design of Gforth was prescribed by ANS Forth.
 
 Bernd Paysan wrote bigFORTH, a descendent from TurboForth, an unreleased
 32 bit native code version of VolksForth for the Atari ST, written
 mostly by Dietrich Weineck.
 
-VolksForth descends from F83. It was written by Klaus Schleisiek, Bernd
-Pennemann, Georg Rehfeld and Dietrich Weineck for the C64 (called
-UltraForth there) in the mid-80s and ported to the Atari ST in 1986.
+VolksForth was written by Klaus Schleisiek, Bernd Pennemann, Georg
+Rehfeld and Dietrich Weineck for the C64 (called UltraForth there) in
+the mid-80s and ported to the Atari ST in 1986.  It descends from F83.
 
 Henry Laxen and Mike Perry wrote F83 as a model implementation of the
 Forth-83 standard. !! Pedigree? When?
@@ -14649,123 +14667,35 @@ All earlier Forth systems were custom-made, usually by Charles Moore,
 who discovered (as he puts it) Forth during the late 60s. The first full
 Forth existed in 1971.
 
-A part of the information in this section comes from @cite{The Evolution
-of Forth} by Elizabeth D. Rather, Donald R. Colburn and Charles
-H. Moore, presented at the HOPL-II conference and preprinted in SIGPLAN
-Notices 28(3), 1993.  You can find more historical and genealogical
-information about Forth there.
+A part of the information in this section comes from
+@cite{@uref{http://www.forth.com/Content/History/History1.htm,The
+Evolution of Forth}} by Elizabeth D. Rather, Donald R. Colburn and
+Charles H. Moore, presented at the HOPL-II conference and preprinted in
+SIGPLAN Notices 28(3), 1993.  You can find more historical and
+genealogical information about Forth there.
 
+@c ------------------------------------------------------------------
 @node Forth-related information, Word Index, Origin, Top
 @appendix Other Forth-related information
 @cindex Forth-related information
 
-@menu
-* Internet resources::          
-* Books::                       
-* The Forth Interest Group::    
-* Conferences::                 
-@end menu
-
-
-@node Internet resources, Books, Forth-related information, Forth-related information
-@section Internet resources
-@cindex internet resources
+@c anton: I threw most of this stuff out, because it can be found through
+@c the FAQ and the FAQ is more likely to be up-to-date.
 
 @cindex comp.lang.forth
 @cindex frequently asked questions
-There is an active news group (comp.lang.forth) discussing Forth and
-Forth-related issues. A frequently-asked-questions (FAQ) list
-is posted to the news group regularly, and archived at these sites:
+There is an active news group (comp.lang.forth) discussing Forth
+(including Gforth) and Forth-related issues. Its
+@uref{http://www.complang.tuwien.ac.at/forth/faq/faq-general-2.html,FAQs}
+(frequently asked questions and their answers) contains a lot of
+information on Forth.  You should read it before posting to
+comp.lang.forth.
 
-@itemize @bullet
-@item
-@uref{ftp://rtfm.mit.edu/pub/usenet-by-group/comp.lang.forth/}
-@item
-@uref{ftp://ftp.forth.org/pub/Forth/FAQ/}
-@end itemize
+The ANS Forth standard is most usable in its
+@uref{http://www.taygeta.com/forth/dpans.html, HTML form}.
 
-The FAQ list should be considered mandatory reading before posting to
-the news group.
-
-Here are some other web sites holding Forth-related material:
-
-@itemize @bullet
-@item
-@uref{http://www.taygeta.com/forth.html} -- Skip Carter's Forth pages.
-@item
-@uref{http://www.jwdt.com/~paysan/gforth.html} -- the Gforth home page.
-@item
-@uref{http://www.minerva.com/uathena.htm} -- home of ANS Forth Standard.
-@item
-@uref{http://dec.bournemouth.ac.uk/forth/index.html} -- the Forth
-Research page, including links to the Journal of Forth Application and
-Research (JFAR) and a searchable Forth bibliography.
-@end itemize
-
-
-@node Books, The Forth Interest Group, Internet resources, Forth-related information
-@section Books
-@cindex books on Forth
-
-As the Standard is relatively new, there are not many books out yet. It
-is not recommended to learn Forth by using Gforth and a book that is not
-written for ANS Forth, as you will not know your mistakes from the
-deviations of the book. However, books based on the Forth-83 standard
-should be ok, because ANS Forth is primarily an extension of Forth-83.
-Refer to the Forth FAQ for details of Forth-related books.
-
-@cindex standard document for ANS Forth
-@cindex ANS Forth document
-The definite reference if you want to write ANS Forth programs is, of
-course, the ANS Forth document. It is available in printed form from the
-National Standards Institute Sales Department (Tel.: USA (212) 642-4900;
-Fax.: USA (212) 302-1286) as document @cite{X3.215-1994} for about
-$200. You can also get it from Global Engineering Documents (Tel.: USA
-(800) 854-7179; Fax.: (303) 843-9880) for about $300.
-
-@cite{dpANS6}, the last draft of the standard, which was then submitted
-to ANSI for publication is available electronically and for free in some
-MS Word format, and it has been converted to HTML
-(@uref{http://www.taygeta.com/forth/dpans.html}; this HTML version also
-includes the answers to Requests for Interpretation (RFIs). Some
-pointers to these versions can be found through
-@*@uref{http://www.complang.tuwien.ac.at/projects/forth.html}.
-
-
-@node The Forth Interest Group, Conferences, Books, Forth-related information
-@section The Forth Interest Group
-@cindex Forth interest group (FIG)
-
-The Forth Interest Group (FIG) is a world-wide, non-profit,
-member-supported organisation. It publishes a regular magazine,
-@var{FORTH Dimensions}, and offers other benefits of membership. You can
-contact the FIG through their office email address:
-@email{office@@forth.org} or by visiting their web site at
-@uref{http://www.forth.org/}. This web site also includes links to FIG
-chapters in other countries and American cities
-(@uref{http://www.forth.org/chapters.html}).
-
-@node Conferences,  , The Forth Interest Group, Forth-related information
-@section Conferences
-@cindex Conferences
-
-There are several regular conferences related to Forth. They are all
-well-publicised in @var{FORTH Dimensions} and on the comp.lang.forth
-news group:
-
-@itemize @bullet
-@item
-FORML -- the Forth modification laboratory convenes every year near
-Monterey, California.
-@item
-The Rochester Forth Conference -- an annual conference traditionally
-held in Rochester, New York.
-@item
-EuroForth -- this European conference takes place annually.
-@end itemize
-
-
-@node Word Index, Name Index, Forth-related information, Top
+@c ------------------------------------------------------------------
+@node Word Index, Concept Index, Forth-related information, Top
 @unnumbered Word Index
 
 This index is a list of Forth words that have ``glossary'' entries
@@ -14774,15 +14704,17 @@ wordset.
 
 @printindex fn
 
-@node Name Index, Concept Index, Word Index, Top
-@unnumbered Name Index
+@c anton: the name index seems superfluous given the word and concept indices.
 
-This index is a list of Forth words that have ``glossary'' entries
-within this manual.
+@c @node Name Index, Concept Index, Word Index, Top
+@c @unnumbered Name Index
 
-@printindex ky
+@c This index is a list of Forth words that have ``glossary'' entries
+@c within this manual.
 
-@node Concept Index,  , Name Index, Top
+@c @printindex ky
+
+@node Concept Index,  , Word Index, Top
 @unnumbered Concept and Word Index
 
 Not all entries listed in this index are present verbatim in the
@@ -14793,4 +14725,6 @@ listed in the Word Index (only the names are listed for the words here).
 
 @contents
 @bye
+
+
 
