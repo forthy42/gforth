@@ -29,10 +29,12 @@ Defer store-backtrace
 ' noop IS store-backtrace
 \ [THEN]
 
-: (protect) ( -- )
+: (try) ( -- )
     \ inline argument: address of the handler
     r>
     'catch
+    sp@ >r
+    fp@ >r
     dup dup @ + >r \ recovery address
     lp@ >r
     handler @ >r
@@ -40,34 +42,8 @@ Defer store-backtrace
     backtrace-empty on
     cell+ >r ;
 
-: protect ( compilation  -- orig ; run-time  -- ) \ gforth
-    POSTPONE (protect) >mark ; immediate compile-only
-
-: (endprotect) ( -- )
-    \ end of protect block: restore handler, forget rest
-    r>
-    r> handler !
-    rdrop \ lp
-    rdrop \ recovery address
-    >r ;
-
-: endprotect ( compilation  orig -- ; run-time  -- x ) \ gforth
-    0 POSTPONE literal
-    POSTPONE (endprotect)
-    POSTPONE then ; immediate compile-only
-
-: catch-protect ( ... xt -- ... x )
-    protect execute endprotect ;
-
-: (try) ( -- )
-    \ inline argument: address of the handler
-    r>
-    sp@ >r
-    fp@ >r
-    >r ;
-
 : try ( compilation  -- orig ; run-time  -- ) \ gforth
-    POSTPONE (try) POSTPONE (protect) >mark ; immediate compile-only
+    POSTPONE (try) >mark ; immediate compile-only
 
 : (recover) ( -- )
     \ normal end of try block: restore handler, forget rest
@@ -87,7 +63,7 @@ Defer store-backtrace
 
 : recover ( compilation  orig -- ; run-time  -- ) \ gforth
     \ !! check using a special tag
-    POSTPONE (endprotect) POSTPONE rdrop POSTPONE rdrop
+    POSTPONE (recover)
     POSTPONE else
     POSTPONE (recover2) ; immediate compile-only
 
