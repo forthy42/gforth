@@ -1,44 +1,48 @@
+
 \ oof.fs	Object Oriented FORTH
-\ 		This file is (c) 1996 by Bernd Paysan
-\			e-mail: paysan@informatik.tu-muenchen.de
+\ 		This file is (c) 1996,2000 by Bernd Paysan
+\			e-mail: bernd.paysan@gmx.de
 \
 \		Please copy and share this program, modify it for your system
 \		and improve it as you like. But don't remove this notice.
 \
 \		Thank you.
 \
-\ The program uses the following words
-\ from CORE :
-\ decimal : bl word 0= ; = cells Constant Variable ! Create , allot @ IF
-\ POSTPONE >r ELSE +! dup + THEN immediate r> * >body cell+ Literal drop
-\ align here aligned DOES> execute ['] 2@ recurse swap 1+ over LOOP and
-\ EXIT ?dup 0< rot r@ - i negate +LOOP 2drop BEGIN WHILE 2dup REPEAT 1-
-\ rshift > / ' move UNTIL or count 
-\ from CORE-EXT :
-\ nip tuck true ?DO compile, false Value erase pick :noname 0<> 
-\ from BLOCK-EXT :
-\ \ 
-\ from EXCEPTION :
-\ throw 
-\ from EXCEPTION-EXT :
-\ abort" 
-\ from FILE :
-\ ( S" 
-\ from FLOAT :
-\ faligned 
-\ from LOCAL :
-\ TO 
-\ from MEMORY :
-\ allocate free 
-\ from SEARCH :
-\ find definitions get-order set-order get-current wordlist set-current
-\ search-wordlist 
-\ from SEARCH-EXT :
-\ also Forth previous 
-\ from STRING :
-\ /string compare 
-\ from TOOLS-EXT :
-\ [IF] [THEN] [ELSE] state 
+
+\  The program uses the following words
+\  from CORE :
+\  decimal : bl word 0= ; = cells Constant Variable ! Create , allot @
+\  IF POSTPONE >r ELSE +! dup + THEN immediate r> * >body cell+
+\  Literal drop align here aligned DOES> execute ['] 2@ recurse swap
+\  1+ over LOOP and EXIT ?dup 0< ] [ rot r@ - i negate +LOOP 2drop
+\  BEGIN WHILE 2dup REPEAT 1- rshift > / ' move UNTIL or count
+\  from CORE-EXT :
+\  nip false Value tuck true ?DO compile, erase pick :noname 0<> 
+\  from BLOCK-EXT :
+\  \ 
+\  from EXCEPTION :
+\  throw 
+\  from EXCEPTION-EXT :
+\  abort" 
+\  from FILE :
+\  ( S" 
+\  from FLOAT :
+\  faligned 
+\  from LOCAL :
+\  TO 
+\  from MEMORY :
+\  allocate free 
+\  from SEARCH :
+\  find definitions get-order set-order get-current wordlist
+\  set-current search-wordlist
+\  from SEARCH-EXT :
+\  also Forth previous 
+\  from STRING :
+\  /string compare 
+\  from TOOLS-EXT :
+\  [IF] [THEN] [ELSE] state 
+\  from non-ANS :
+\  cell dummy [THEN] ?EXIT Vocabulary [ELSE] ( \G 
 
 \ Loadscreen                                           27dec95py
 
@@ -49,6 +53,10 @@ decimal
 
 define? cell  [IF]
 1 cells Constant cell
+[THEN]
+
+define? \G [IF]
+: \G postpone \ ; immediate
 [THEN]
 
 define? ?EXIT [IF]
@@ -234,7 +242,10 @@ false Value method?
     IF  r> o,  ELSE  r> drop execute  THEN  o> false to method?  ;
 
 : cmethod,  ( object early? -- )
-    state @ >r state on  method, r> state ! ;
+    state @ dup >r
+    0= IF  postpone ]  THEN
+    method,
+    r> 0= IF  postpone [  THEN ;
 
 : early, ( object -- )  true to oset?  true  method,
   state @ oset? and IF  postpone o>  THEN  false to oset? ;
@@ -320,7 +331,8 @@ Objects definitions
 \ instance creation                                    29mar94py
 
 : instance, ( o -- )  alloc @ >r static new, r> alloc ! drop
-  DOES> state @ IF  dup postpone Literal oset? IF  postpone op!  ELSE  postpone >o  THEN  THEN early, ;
+  DOES> state @ IF  dup postpone Literal oset? IF  postpone op!  ELSE  postpone >o  THEN  THEN early,
+;
 : ptr,      ( o -- )  0 , ,
   DOES>  state @
     IF    dup postpone Literal postpone @ oset? IF  postpone op!  ELSE  postpone >o  THEN cell+
@@ -342,11 +354,12 @@ Variable ob-interface
   get-order wordlist tuck classlist ! 1+ set-order
   also types classlist @ set-current ;
 
-: (class ( parent -- )
+: (class-does>  DOES> false method, ;
+
+: (class ( parent -- )  (class-does>
     here lastob !  true decl !  0 ob-interface !
     0 ,  dup voc!  dup lastparent !
-    dup 0= IF  0  ELSE  :method# + 2@  THEN  methods ! vars !
-    DOES>  false method, ;
+  dup 0= IF  0  ELSE  :method# + 2@  THEN  methods ! vars ! ;
 
 : (is ( addr -- )  bl word findo drop
     dup defer? abort" not deferred!"
@@ -631,14 +644,17 @@ Forth
 
 Forth definitions
 
+: interface-does>
+    DOES>  @ decl @  IF  implement  ELSE  inter-method,  THEN ;
 : interface ( -- ) \ oof-interface- oof
-    Create  here lastif !  0 ,  get-current old-current !
+    Create  interface-does>
+    here lastif !  0 ,  get-current old-current !
     last-interface @ dup  IF  :inum @  THEN  1 cells - inter# !
     get-order wordlist
     dup inter-list ! dup set-current swap 1+ set-order
     true decl !
-    0 vars ! :inum cell+ methods !  also interfaces
-    DOES>  @ decl @  IF  implement  ELSE  inter-method,  THEN ;
+    0 vars ! :inum cell+ methods !  also interfaces ;
 
 previous previous
+
 
