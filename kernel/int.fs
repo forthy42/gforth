@@ -450,6 +450,10 @@ has? standardthreading has? compiler and [IF]
 \G @i{a-addr} is the start of the Forth code after @code{DOES>}.
     dodoes: over ! cell+ ! ;
 
+' drop alias does-handler! ( a_addr -- ) \ gforth
+\G Create a @code{DOES>}-handler at address @i{a-addr}. Normally,
+\G @i{a-addr} points just behind a @code{DOES>}.
+
 2 cells constant /does-handler ( -- n ) \ gforth
 \G The size of a @code{DOES>}-handler (includes possible padding).
 

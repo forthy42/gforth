@@ -164,13 +164,6 @@ typedef Label *Xt;
 /* make a code field for a defining-word-defined word */
 #define MAKE_DOES_CF(cfa,does_code)  ({MAKE_CF(cfa,DOES_CA);	\
 				       ((Cell *)cfa)[1] = (Cell)(does_code);})
-/* the does handler resides between DOES> and the following Forth code */
-/* not needed in indirect threaded code */
-#if defined(DOUBLY_INDIRECT)
-#define MAKE_DOES_HANDLER(addr)	MAKE_CF(addr, ((Label)&symbols[DOESJUMP]))
-#else /* !defined(DOUBLY_INDIRECT) */
-#define MAKE_DOES_HANDLER(addr)	((void)0)
-#endif /* !defined(DOUBLY_INDIRECT) */
 
 #ifdef GFORTH_DEBUGGING
 #define NAME(string) { saved_ip=ip; asm(""); }

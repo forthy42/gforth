@@ -1468,13 +1468,6 @@ f_addr = (Float *)((((Cell)c_addr)+(sizeof(Float)-1))&(-sizeof(Float)));
 
 \ threading stuff is currently only interesting if we have a compiler
 \fhas? standardthreading has? compiler and [IF]
-does-handler!	( a_addr -- )	gforth	does_handler_store
-""Create a @code{DOES>}-handler at address @i{a-addr}. Normally,
-@i{a-addr} points just behind a @code{DOES>}.""
-MAKE_DOES_HANDLER(a_addr);
-:
-    drop ;
-
 threading-method	( -- n )	gforth	threading_method
 ""0 if the engine is direct threaded. Note that this may change during
 the lifetime of an image.""

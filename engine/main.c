@@ -231,7 +231,7 @@ void relocate(Cell *image, const char *bitstring,
 	    case CF(DOUSER)  : 
 	    case CF(DODEFER) : 
 	    case CF(DOFIELD) : MAKE_CF(image+i,symbols[CF(token)]); break;
-	    case CF(DOESJUMP): MAKE_DOES_HANDLER(image+i); break;
+	    case CF(DOESJUMP): image[i]=0; break;
 #endif /* !defined(DOUBLY_INDIRECT) */
 	    case CF(DODOES)  :
 	      MAKE_DOES_CF(image+i,(Xt *)(image[i+1]+((Cell)start)));
