@@ -4461,6 +4461,7 @@ work for unsigned numbers: @code{+}, @code{1+}, @code{-}, @code{1-},
 
 doc-+
 doc-1+
+doc-under+
 doc--
 doc-1-
 doc-*

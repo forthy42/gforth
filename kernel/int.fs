@@ -587,12 +587,16 @@ Defer interpreter-notfound ( c-addr count -- )
 ' no.extensions IS compiler-notfound
 ' no.extensions IS interpreter-notfound
 
+Defer before-word ( -- ) \ gforth
+\ called before the text interpreter parses the next word
+' noop IS before-word
+
 : interpret1 ( ... -- ... )
 [ has? backtrace [IF] ]
     rp@ backtrace-rp0 !
 [ [THEN] ]
     BEGIN
-	?stack name dup
+	?stack before-word name dup
     WHILE
 	parser
     REPEAT

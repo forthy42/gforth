@@ -18,9 +18,9 @@
 \ along with this program; if not, write to the Free Software
 \ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
 
-: append-extend-string ( addr1 u1 addr2 u2 -- addr2 u1+u2 )
-    \ concatenate string1 and string2 with dynamic memory allocation
-    swap >r dup >r extend-mem ( to addr2 u1+u2 r: addr2 u2 )
+: append-extend-string ( addr1 u1 addr2 u2 -- addr3 u1+u2 )
+    \ append string2 to string1 with dynamic memory reallocation.
+    swap >r dup >r extend-mem ( to addr3 u1+u2 r: addr2 u2 )
     rot r> r> rot rot chars move ;
 
 : disasm-gdb { addr u -- }

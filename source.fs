@@ -34,7 +34,7 @@
 	r> loop
     drop 2drop 0 ;
 
-: current-sourcepos ( -- )
+: current-sourcepos ( -- nfile nline )
     sourcefilename  str>loadfilename# sourceline# ;
 
 : compile-sourcepos ( compile-time: -- ; run-time: -- nfile nline )

@@ -105,10 +105,13 @@ variable backedge-locals
 
 \ Structural Conditionals                              12dec92py
 
+defer other-control-flow ( -- )
+\ hook for control-flow stuff that's not handled by begin-like etc.
+
 : ?struc      ( flag -- )       abort" unstructured " ;
 : sys?        ( sys -- )        dup 0= ?struc ;
 : >mark ( -- orig )
- cs-push-orig 0 , ;
+ cs-push-orig 0 , other-control-flow ;
 : >resolve    ( addr -- )
     here swap !
     basic-block-end ;
