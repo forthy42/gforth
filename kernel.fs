@@ -1308,7 +1308,7 @@ Defer 'cold ' noop IS 'cold
     pathstring 2@ process-path pathdirs 2!
     init-included-files
 [ [THEN] ]
-\    'cold
+    'cold
 [ has-files [IF] ]
     argc @ 1 >
     IF

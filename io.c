@@ -615,8 +615,18 @@ long key_avail (stream)
 
   if(!terminal_prepped)  prep_terminal();
 
-#if defined (FIONREAD)
+#ifndef _WIN32
   result = ioctl (tty, FIONREAD, &chars_avail);
+#else
+  {
+     fd_set selin;
+     static int now[2] = { 0 , 0 };
+     int res;
+
+     FD_ZERO(&selin);
+     FD_SET(tty, &selin);
+     chars_avail=select(1, &selin, NULL, NULL, now);
+  }
 #endif
 
   if(chars_avail == -1L)

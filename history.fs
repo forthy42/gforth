@@ -66,16 +66,20 @@ interpret/compile: ctrl  ( "<char>" -- ctrl-code )
   2dup r/w open-file 0<
   IF  drop r/w create-file throw  ELSE  nip nip  THEN ;
 
-: get-history ( addr len -- wid )
+: get-history ( addr len -- )
   force-open to history
   history file-size throw
   2dup forward^ 2! 2dup backward^ 2! end^ 2! ;
 
-s" ~/.gforth-history" get-history
+s" GFORTHHIST" getenv dup 0= [IF]
+    2drop s" ~/.gforth-history"
+[THEN] get-history
 
 : history-cold
     Defers 'cold
-    s" ~/.gforth-history" get-history ;
+    s" GFORTHHIST" getenv dup 0= IF
+	2drop s" ~/.gforth-history"
+    THEN  get-history ;
 
 ' history-cold IS 'cold
 
