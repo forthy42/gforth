@@ -1050,15 +1050,19 @@ Variable warnings  G -1 warnings T !
 : back  dup  IF  1- #bs emit  ELSE  #bell emit  THEN 0 ;
 : forw 2 pick over <> IF  2dup + c@ emit 1+  ELSE  #bell emit  THEN 0 ;
 
-Create crtlkeys
+Create ctrlkeys
   ] false false back  false  false false forw  false
     ?del  false (ret) false  false (ret) false false
     false false false false  false false false false
     false false false false  false false false false [
 
+defer everychar
+' noop IS everychar
+
 : decode ( max span addr pos1 key -- max span addr pos2 flag )
+  everychar
   dup #del = IF  drop #bs  THEN  \ del is rubout
-  dup bl <   IF  cells crtlkeys + @ execute  EXIT  THEN
+  dup bl <   IF  cells ctrlkeys + @ execute  EXIT  THEN
   >r 2over = IF  rdrop bell 0 EXIT  THEN
   r> (ins) 0 ;
 
@@ -1203,6 +1207,7 @@ create pathfilenamebuf 256 chars allot \ !! make this grow on demand
 \ DEPTH                                                 9may93jaw
 
 : depth ( -- +n )  sp@ s0 @ swap - cell / ;
+: clearstack ( ... -- )  s0 @ sp! ;
 
 \ INCLUDE                                               9may93jaw
 

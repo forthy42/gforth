@@ -765,14 +765,14 @@ wfileid=(Cell)popen(cstr(c_addr,u,1),mode[n]);
 pclose	wfileid -- wior	own
 wior=pclose((FILE *)wfileid);
 
-time&date	-- nyear nmonth nday nhour nmin nsec	facility-ext	time_and_date
+time&date	-- nsec nmin nhour nday nmonth nyear	facility-ext	time_and_date
 struct timeval time1;
 struct timezone zone1;
 struct tm *ltime;
 gettimeofday(&time1,&zone1);
 ltime=localtime(&time1.tv_sec);
 nyear =ltime->tm_year+1900;
-nmonth=ltime->tm_mon;
+nmonth=ltime->tm_mon+1;
 nday  =ltime->tm_mday;
 nhour =ltime->tm_hour;
 nmin  =ltime->tm_min;
