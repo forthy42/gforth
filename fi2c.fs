@@ -52,7 +52,7 @@ Variable bitmap-chars
 
 : read-header ( fd -- )
     image-header 4 cells rot read-file throw drop
-    image-header 2 cells + @ bswap tchars @ * au @ /
+    image-header 2 cells + @ bswap tchars @ * tcell @ / au @ /
     dup image-cells ! 1- 8 / tchars @ / 1+ bitmap-chars !
     image-cells @ cells allocate throw to image
     bitmap-chars @ allocate throw to bitmap ;
@@ -85,7 +85,7 @@ Variable bitmap-chars
     r@ read-dictionary r@ read-bitmap r> close-file throw ;
 
 : .imagesize ( -- )
-    image-header 3 cells + @ bswap .08x ;
+    image-header 3 cells + @ tchars @ * tcell @ / au @ / bswap .08x ;
 
 : .relocsize ( -- )
     bitmap-chars @ .08x ;
