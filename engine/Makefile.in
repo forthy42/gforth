@@ -74,8 +74,8 @@ XDEFINES = @DEFS@
 SWITCHES = $(XCFLAGS) $(XDEFINES)
 ENGINE_FLAGS = @ENGINE_FLAGS@ -fno-defer-pop -fcaller-saves
 DEBUGFLAG = @DEBUGFLAG@
-CFLAGS	= $(DEBUGFLAG) -I$(srcdir)/../arch/$(machine) -O4 -Wall $(SWITCHES) -DDEFAULTPATH=\"$(FORTHPATH)\"
-CFLAGS2	= $(DEBUGFLAG) -I$(srcdir)/../arch/$(machine) -O4 -Wall $(SWITCHES) -DDEFAULTPATH=\"$(FORTHPATH)\"
+CFLAGS	= $(DEBUGFLAG) -I$(srcdir)/../arch/$(machine) -I. -O4 -Wall $(SWITCHES) -DDEFAULTPATH=\"$(FORTHPATH)\"
+CFLAGS2	= $(DEBUGFLAG) -I$(srcdir)/../arch/$(machine) -I. -O4 -Wall $(SWITCHES) -DDEFAULTPATH=\"$(FORTHPATH)\"
 FORTHKFLAGS= --die-on-signal -p ..$(PATHSEP)$(srcdir) -i ../$(kernel_fi)
 FORTHK	= ../gforth $(FORTHKFLAGS)
 
@@ -92,7 +92,7 @@ OBJECTS_FI =  engine.o main-fi.o
 
 # In engine subdirectory there are (or should be) only files that belong to
 # our engine, so we can make life easy
-DEPS =  config.h *.h ../arch/$(machine)/*.[h]
+DEPS =  config.h *.h $(srcdir)/../arch/$(machine)/*.[h]
 ENGINE_DEPS = engine.c $(DEPS) prim_lab.i prim.i
 
 gforth$(EXE):	$(OBJECTS) $(AOBJECTS)
@@ -105,22 +105,22 @@ gforth-fi$(EXE):	$(OBJECTS_FI) $(AOBJECTS)
 	$(GCC) $(LDFLAGS) $(OBJECTS_FI) $(AOBJECTS) $(LDLIBS) -o $@
 
 engine.s:	$(ENGINE_DEPS)
-		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -S engine.c
+		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -S $(srcdir)/engine.c
 
 engine.o:	$(ENGINE_DEPS)
-		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -c engine.c -o $@
+		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -o $@ -c $(srcdir)/engine.c
 
 engine-ditc.o:	$(ENGINE_DEPS)
-		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -DDOUBLY_INDIRECT -o $@ -c engine.c
+		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -DDOUBLY_INDIRECT -o $@ -c $(srcdir)/engine.c
 
 main.o:		main.c $(DEPS) 
-		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -o $@ -c main.c
+		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -o $@ -c $(srcdir)/main.c
 
 main-ditc.o:	main.c $(DEPS)
-		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -DDOUBLY_INDIRECT -o $@ -c main.c
+		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -DDOUBLY_INDIRECT -o $@ -c $(srcdir)/main.c
 
 main-fi.o:	main.c $(DEPS)
-		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -DINCLUDE_IMAGE -o $@ -c main.c
+		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -DINCLUDE_IMAGE -o $@ -c $(srcdir)/main.c
 
 engine:		$(OBJECTS) $(OBJECTS0) ;
 

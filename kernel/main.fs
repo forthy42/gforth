@@ -75,7 +75,7 @@ doc-on
 0 AConstant forthstart
 
 include vars.fs                \ variables and other stuff
-include version.fs
+include kernel/version.fs \ is in $(build)/kernel
 include kernel.fs              \ load kernel
 include errore.fs
 include doers.fs

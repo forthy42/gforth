@@ -65,7 +65,7 @@ CC	= $(GCC)
 FORTHPATH = .$(PATHSEP)$(libdir)/gforth/site-forth$(PATHSEP)$(datadir)/gforth/site-forth$(PATHSEP)$(libdir)/gforth/$(VERSION)$(PATHSEP)$(datadir)/gforth/$(VERSION)
 FORTHSIZES = @FORTHSIZES@
 FORTH	= ./gforth --die-on-signal -p $(FORTHPATH)$(PATHSEP)$(srcdir)
-FORTHKFLAGS= --die-on-signal -p .$(PATHSEP)$(srcdir) -i ./$(kernel_fi)
+FORTHKFLAGS= --die-on-signal -p .$(PATHSEP)$\~+$(PATHSEP)$(srcdir) -i $(kernel_fi)
 FORTHK	= ./gforth $(FORTHKFLAGS)
 FORTHP	= ./gforth --die-on-signal -i ./$(kernel_fi)
 STRIP	= strip
@@ -484,7 +484,8 @@ install:	gforth$(EXE) $(FORTH_SRC) $(kernel_fi) gforth.fi gforthmi doc/gforth.1 
 			$(INSTALL_DATA) $(srcdir)/$$i $(datadir)/gforth/$(VERSION)/$$i; \
 		done
 		$(INSTALL_DATA) $(kernel_fi) $(datadir)/gforth/$(VERSION)
-		$(RM) gforth.fi; $(MAKE) gforth.fi #gforth.fi contains some path names
+		$(RM) gforth.fi
+		GFORTHD="./gforth-ditc -i $(kernel_fi)" GFORTH="./gforth-ditc -i $(kernel_fi) startup.fs" ./gforthmi gforth.fi $(FORTHSIZES) startup.fs #gforth.fi contains some path names
 		$(INSTALL_DATA) gforth.fi $(libdir)/gforth/$(VERSION)
 		$(INSTALL_DATA) install.TAGS $(datadir)/gforth/$(VERSION)/TAGS
 		@if test -d $(emacssitelispdir); then \
@@ -540,23 +541,23 @@ kernl16l.fi-:	$(KERN_SRC) kernel/version.fs mach16l.fs $(FORTH_GEN0)
 		$(FORTHK) -e 's" mach16l.fs"' kernel/main.fs -e "save-cross kernl16l.fi- $(bindir)/gforth-$(VERSION) bye"
 
 kernl16b.fi-:	$(KERN_SRC) kernel/version.fs mach16b.fs $(FORTH_GEN0)
-		$(FORTHK) -e 's" mach16b.fs"' kernel/main.fs -e "save-cross kernl16b.fi- $(bindir)/gforth-$(VERSION) bye"
+		$(FORTHK) -e 's" mach16b.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl16b.fi- $(bindir)/gforth-$(VERSION) bye"
 
 kernl32l.fi-:	$(KERN_SRC) kernel/version.fs mach32l.fs $(FORTH_GEN0)
-		$(FORTHK) -e 's" mach32l.fs"' kernel/main.fs -e "save-cross kernl32l.fi- $(bindir)/gforth-$(VERSION) bye"
+		$(FORTHK) -e 's" mach32l.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl32l.fi- $(bindir)/gforth-$(VERSION) bye"
 
 kernl32b.fi-:	$(KERN_SRC) kernel/version.fs mach32b.fs $(FORTH_GEN0)
-		$(FORTHK) -e 's" mach32b.fs"' kernel/main.fs -e "save-cross kernl32b.fi- $(bindir)/gforth-$(VERSION) bye"
+		$(FORTHK) -e 's" mach32b.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl32b.fi- $(bindir)/gforth-$(VERSION) bye"
 
 kernl64l.fi-:	$(KERN_SRC) kernel/version.fs mach64l.fs $(FORTH_GEN0)
-		$(FORTHK) -e 's" mach64l.fs"' kernel/main.fs -e "save-cross kernl64l.fi- $(bindir)/gforth-$(VERSION) bye"
+		$(FORTHK) -e 's" mach64l.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl64l.fi- $(bindir)/gforth-$(VERSION) bye"
 
 kernl64b.fi-:	$(KERN_SRC) kernel/version.fs mach64b.fs $(FORTH_GEN0)
-		$(FORTHK) -e 's" mach64b.fs"' kernel/main.fs -e "save-cross kernl64b.fi- $(bindir)/gforth-$(VERSION) bye"
+		$(FORTHK) -e 's" mach64b.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl64b.fi- $(bindir)/gforth-$(VERSION) bye"
 
 kernl-%.fi:	arch/%/mach.fs \
 		$(KERN_SRC) kernel/version.fs $(FORTH_GEN0)
-		$(FORTHK) -e 's" $<"' kernel/main.fs -e "save-cross $@- $(bindir)/gforth-$(VERSION) bye"
+		$(FORTHK) -e 's" $<"' $(srcdir)/kernel/main.fs -e "save-cross $@- $(bindir)/gforth-$(VERSION) bye"
 		if [ -f `echo $< | sed s/fs/sh/` ]; \
 		then sh `echo $< | sed s/fs/sh/` $@; \
 		else $(CP) $@- $@; \

@@ -40,9 +40,9 @@ elif test $1 = --version || test $1 = -v; then
 fi
 outfile=$1; shift
 tmpfile=./temp-image.fi
-$GFORTHD --clear-dictionary --no-offset-im $* -e "savesystem $tmpfile"1" bye"
-$GFORTHD --clear-dictionary --offset-image $* -e "savesystem $tmpfile"2" bye"
-$GFORTH comp-i.fs -e "comp-image $tmpfile"1" $tmpfile"2" $outfile bye"
+$GFORTHD --clear-dictionary --no-offset-im --die-on-signal $* -e "savesystem $tmpfile"1" bye"
+$GFORTHD --clear-dictionary --offset-image --die-on-signal $* -e "savesystem $tmpfile"2" bye"
+$GFORTH --die-on-signal comp-i.fs -e "comp-image $tmpfile"1" $tmpfile"2" $outfile bye"
 chmod +x $outfile
 #gforth-0.2.1 -m 100000  comp-i.fs -e "comp-image $tmpfile"1" $tmpfile"2" $outfile bye"
 rm $tmpfile"1" $tmpfile"2"

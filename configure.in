@@ -278,14 +278,13 @@ dnl Checks for library functions
 dnl This check is just for making later checks link with libm.
 dnl using sin here is no good idea since it is built-into gcc and typechecked
 AC_CHECK_LIB(m,asin)
-AC_CHECK_FUNCS(dlopen)
 AC_CHECK_LIB(dl,dlopen)
 if test "$host_os" != "nextstep3"
 then
 	AC_FUNC_MEMCMP
 fi
 AC_REPLACE_FUNCS(memmove strtoul pow10 strerror strsignal atanh)
-AC_CHECK_FUNCS(sys_siglist)
+AC_CHECK_FUNCS(dlopen sys_siglist)
 AC_DECL_SYS_SIGLIST
 AC_CHECK_FUNC(getopt_long,true,LIBOBJS="$LIBOBJS getopt.o getopt1.o")
 AC_CHECK_FUNCS(rint expm1 log1p)
@@ -305,5 +304,8 @@ AC_OUTPUT([
 Makefile
 gforthmi
 engine/Makefile
-doc/version.texi ],echo timestamp > stamp-h)
+doc/version.texi ],
+echo timestamp > stamp-h
 chmod +x gforthmi
+test -d kernel||mkdir kernel)
+
