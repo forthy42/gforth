@@ -2102,12 +2102,12 @@ Variable last-prim-ghost
 
 Defer setup-prim-semantics
 
-: aprim   ( -- ) 
+: mapprim   ( "forthname" "asmlabel" -- ) 
   THeader -1 aprim-nr +! aprim-nr @ T A, H
   asmprimname, 
   setup-prim-semantics ;
 
-: aprim:   ( -- ) 
+: mapprim:   ( "forthname" "asmlabel" -- ) 
   -1 aprim-nr +! aprim-nr @
   Ghost tuck swap resolve <do:> swap tuck >magic !
   asmprimname, ;
@@ -3507,6 +3507,3 @@ UNLOCK >CROSS
 [IFDEF] extend-cross extend-cross [THEN]
 
 LOCK
-
-
-
