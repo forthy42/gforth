@@ -1,30 +1,10 @@
 User-visible changes between 0.5.0 and 0.6.0:
 
-added words: EDIT-LINE ID. .ID CONST-DOES> K-PRIOR K-NEXT K-DELETE
-  SLURP-FILE SLURP-FID WORDLIST-WORDS SIMPLE-SEE [DEFINED] [UNDEFINED]
-  PARSE-WORD S\" .\" \"-PARSE STR= STR< STRING-PREFIX? EXECUTE-PARSING
-  EXECUTE-PARSING-FILE F.RDP F>STR-RDP F>BUF-RDP
-
-Large file support on OSs that support them (i.e., files with more
-  than 2GB on 32-bit machines).
-
-Gforth can now deal with well with broken pipes in most situations.
-
-Default dictionary size is now 4MB.
-
-vi tags files can be built with tags.fs (usage like etags.fs).
-
-gforth.el mostly rewritten.
+Changes in behaviour:
 
 S": interpreted use now ALLOCATEs the string (they live until BYE).
-
 Long word names (512MB on 32-bit systems) are now supported (change to
   the header format).
-
-Generalized prims2x.fs into Vmgen (see README.vmgen etc.); used the
-  new capabilities in prims (e.g., automatic handling of the return
-  stack and instruction stream).
-
 New threaded code execution method: primitive-centric (allows the
   following), hybrid direct/indirect threaded (easier portability),
   with dynamic superinstructions (typical speedup on Athlon: factor
@@ -32,7 +12,33 @@ New threaded code execution method: primitive-centric (allows the
   backwards-compatibility problems (see "Invoking Gforth" in the
   manual).
 
+Operating environment:
+
+Default dictionary size is now 4MB.
+Large file support on OSs that support them (i.e., files with more
+  than 2GB on 32-bit machines).
+Gforth can now deal with well with broken pipes in most situations.
+vi tags files can be built with tags.fs (usage like etags.fs).
+gforth.el mostly rewritten.
 New image file format.
+
+New words:
+
+Keyboard input: EDIT-LINE K-PRIOR K-NEXT K-DELETE
+File input: SLURP-FILE SLURP-FID 
+Programming tools: ID. .ID WORDLIST-WORDS SIMPLE-SEE
+Conditional execution: [DEFINED] [UNDEFINED]
+Defining Words: CONST-DOES>
+Input stream: PARSE-WORD EXECUTE-PARSING EXECUTE-PARSING-FILE
+String comparison: STR= STR< STRING-PREFIX?
+String literals: S\" .\" \"-PARSE
+Floating point output: F.RDP F>STR-RDP F>BUF-RDP
+
+Miscellaneous:
+
+Generalized prims2x.fs into Vmgen (see README.vmgen etc.); used the
+  new capabilities in prims (e.g., automatic handling of the return
+  stack and instruction stream).
 
 
 User-visible changes between 0.4.0 and 0.5.0:

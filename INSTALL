@@ -28,9 +28,6 @@ If everything is all right, you may want to install gforth. Type
 
 make install
 
-You have to make an entry in the info directory file manually (see
-Installing Info Files, below).
-
 For paper documentation, print gforth.ps (a Postscript file (300dpi
 fonts, i.e., it works, but does not produce best quality on better
 printers)), or say

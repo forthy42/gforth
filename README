@@ -14,17 +14,20 @@ port to other systems supported by GCC. This version has been tested
 successfully on the following platforms:
 
 alpha-dec-osf4.0d
+alphapca56-unknown-linux-gnu
 alpha-unknown-linux-gnu
 hppa1.1-unknown-linux-gnu
 hppa2.0w-hp-hpux11.11
-i386-unknown-freebsd4.7
+i386-unknown-freebsd5.0
 i486-pc-linux-gnulibc1
+i686-pc-cygwin
 i686-pc-linux-gnu
 mips-dec-ultrix4.3
 mipsel-pc-linux-gnu
 mips-sgi-irix6.5
 powerpc-apple-darwin5.4
 powerpc-unknown-linux-gnu
+sparc-sun-solaris2.7
 
 Read INSTALL for installation instructions, or INSTALL.DOS for DOS,
 Windows 95, and OS/2.  To start the system, just say `gforth' (after
