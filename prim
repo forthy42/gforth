@@ -2414,10 +2414,10 @@ SAVE_REGS
 av_call(alist);
 REST_REGS
 #ifdef BUGGY_LONG_LONG
-d = llrv;
-#else
 d.lo = llrv;
 d.hi = 0;
+#else
+d = llrv;
 #endif
 
 av-call-ptr	( -- c_addr )	gforth  av_call_ptr
