@@ -805,20 +805,20 @@ n = n1*n2;
 
 /	( n1 n2 -- n )		core	slash
 n = n1/n2;
-if(FLOORED_DIV && (n1 < 0) != (n2 < 0) && (n1%n2 != 0)) n--;
+if(FLOORED_DIV && ((n1^n2) < 0) && (n1%n2 != 0)) n--;
 :
  /mod nip ;
 
 mod	( n1 n2 -- n )		core
 n = n1%n2;
-if(FLOORED_DIV && (n1 < 0) != (n2 < 0) && n!=0) n += n2;
+if(FLOORED_DIV && ((n1^n2) < 0) && n!=0) n += n2;
 :
  /mod drop ;
 
 /mod	( n1 n2 -- n3 n4 )		core		slash_mod
 n4 = n1/n2;
 n3 = n1%n2; /* !! is this correct? look into C standard! */
-if (FLOORED_DIV && (n1<0) != (n2<0) && n3!=0) {
+if (FLOORED_DIV && ((n1^n2) < 0) && n3!=0) {
   n4--;
   n3+=n2;
 }
@@ -840,7 +840,7 @@ n5=DLO(r);
 /* assumes that the processor uses either floored or symmetric division */
 n5 = d/n3;
 n4 = d%n3;
-if (FLOORED_DIV && (d<0) != (n3<0) && n4!=0) {
+if (FLOORED_DIV && ((DHI(d)^n3)<0) && n4!=0) {
   n5--;
   n4+=n3;
 }
@@ -861,7 +861,7 @@ n4=DLO(r);
 #else
 /* assumes that the processor uses either floored or symmetric division */
 n4 = d/n3;
-if (FLOORED_DIV && (d<0) != (n3<0) && (d%n3)!=0) n4--;
+if (FLOORED_DIV && ((DHI(d)^n3)<0) && (d%n3)!=0) n4--;
 #endif
 :
  */mod nip ;
@@ -888,7 +888,7 @@ fm/mod	( d1 n1 -- n2 n3 )		core		f_m_slash_mod
 #ifdef BUGGY_LL_DIV
 #ifdef ASM_SM_SLASH_REM
 ASM_SM_SLASH_REM(d1.lo, d1.hi, n1, n2, n3);
-if ((d1.hi<0) != (n1<0) && n2!=0) {
+if (((DHI(d1)^n1)<0) && n2!=0) {
   n3--;
   n2+=n1;
 }
@@ -900,7 +900,7 @@ n3=DLO(r);
 #else
 #ifdef ASM_SM_SLASH_REM4
 ASM_SM_SLASH_REM4(d1, n1, n2, n3);
-if ((d1<0) != (n1<0) && n2!=0) {
+if (((DHI(d1)^n1)<0) && n2!=0) {
   n3--;
   n2+=n1;
 }
@@ -909,7 +909,7 @@ if ((d1<0) != (n1<0) && n2!=0) {
 n3 = d1/n1;
 n2 = d1%n1;
 /* note that this 1%-3>0 is optimized by the compiler */
-if (1%-3>0 && (d1<0) != (n1<0) && n2!=0) {
+if (1%-3>0 && ((DHI(d1)^n1)<0) && n2!=0) {
   n3--;
   n2+=n1;
 }
@@ -939,7 +939,7 @@ ASM_SM_SLASH_REM4(d1, n1, n2, n3);
 n3 = d1/n1;
 n2 = d1%n1;
 /* note that this 1%-3<0 is optimized by the compiler */
-if (1%-3<0 && (d1<0) != (n1<0) && n2!=0) {
+if (1%-3<0 && ((DHI(d1)^n1)<0) && n2!=0) {
   n3++;
   n2-=n1;
 }
