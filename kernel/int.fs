@@ -500,9 +500,13 @@ has? compiler 0= [IF]	\ interpreter only version of IS and TO
 \ interpret                                            10mar92py
 
 Defer parser ( c-addr u -- )
-Defer name ( -- c-addr count ) \ gforth
+Defer parse-word ( -- c-addr count ) \ gforth
 \G Get the next word from the input buffer
-' (name) IS name
+' (name) IS parse-word
+
+' parse-word alias name ( -- c-addr u ) \ gforth-obsolete
+\G old name for @code{parse-word}
+
 Defer compiler-notfound ( c-addr count -- )
 Defer interpreter-notfound ( c-addr count -- )
 

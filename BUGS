@@ -57,3 +57,11 @@ a previously unwritten block before the end of the block file, we will
 get a block full of zeroes on most (all?) OSs.  This inconsistency
 should be eliminated and the documentation fixed.  anton 14jul2001
 
+F. does not print a leading digit for numbers <1, although it should.
+anton 19aug2001
+
+Path handling may have a bug:
+strace $FORTH 'fpath= .|~+/gforth s" /home/anton/threading-variations/gforth/mach32b.fs" include gforth/kernel/main.fs bye'
+tries to open gforth/kernel/gforth/kernel/aliases.fs, then
+gforth/gforth/kernel/aliases.fs, but not gforth/kernel/aliases.fs.
+anton 3 sep 2001

@@ -58,20 +58,20 @@ keycode k9
 keycode k10
 keycode k11 \ not in pfe
 keycode k12 \ not in pfe
-\ shifted function/keypad keys have the same key sequences (in xterm)
-\ and pfe gives the same keycodes; so what are these keycodes good for?
-\ keycode s-k1
-\ keycode s-k2
-\ keycode s-k3
-\ keycode s-k4
-\ keycode s-k5
-\ keycode s-k6
-\ keycode s-k7
-\ keycode s-k8
-\ keycode s-k9
-\ keycode s-k10
-\ keycode s-k11 \ not in pfe
-\ keycode s-k12 \ not in pfe
+\ shifted fuinction keys (don't work in xterm (same as unshifted, but
+\ s-k1..s-k8 work in the Linux console)
+keycode s-k1
+keycode s-k2
+keycode s-k3
+keycode s-k4
+keycode s-k5
+keycode s-k6
+keycode s-k7
+keycode s-k8
+keycode s-k9
+keycode s-k10
+keycode s-k11 \ not in pfe
+keycode s-k12 \ not in pfe
 
 \ helper word
 \ print a key sequence:
@@ -184,6 +184,15 @@ get-current esc-sequences set-current
 ' k-delete s" [3~" esc-sequence
 ' k-home   s" [1~" esc-sequence
 ' k-end    s" [4~" esc-sequence
+
+' s-k1 s" [25~" esc-sequence
+' s-k2 s" [26~" esc-sequence
+' s-k3 s" [28~" esc-sequence
+' s-k4 s" [29~" esc-sequence
+' s-k5 s" [31~" esc-sequence
+' s-k6 s" [32~" esc-sequence
+' s-k7 s" [33~" esc-sequence
+' s-k8 s" [34~" esc-sequence
 
 set-current
 [ENDIF]
