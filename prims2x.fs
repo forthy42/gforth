@@ -431,7 +431,8 @@ wordlist constant prefixes
     rdrop ;
 
 : type-prefix ( xt1 xt2 n stack "prefix" -- )
-    create-type
+    get-current >r prefixes set-current
+    create-type r> set-current
 does> ( item -- )
     \ initialize item
     { item typ }
@@ -481,7 +482,9 @@ does> ( item -- )
     prim prim-effect-out prim prim-effect-out-end @ ['] print-declaration map-items ;
     
 : stack-prefix ( stack "prefix" -- )
+    get-current >r prefixes set-current
     name tuck nextname create ( stack length ) 2,
+    r> set-current
 does> ( item -- )
     2@ { item stack prefix-length }
     item item-name 2@ prefix-length /string item item-name 2!
