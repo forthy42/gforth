@@ -1,6 +1,6 @@
 \ yet another Forth objects extension
 
-\ written by Anton Ertl 1996-1998
+\ written by Anton Ertl 1996-1999
 \ public domain; NO WARRANTY
 
 \ This (in combination with compat/struct.fs) is in ANS Forth (with an
@@ -263,6 +263,12 @@ variable public-wordlist
     \g Add @var{class}'s wordlists to the head of the search-order.
     >r get-order r> add-class-order set-order ;
 
+: methods ( class -- )
+    \g Makes @var{class} the current class. This is intended to be
+    \g used for defining methods to override selectors; you cannot
+    \g define new fields or selectors.
+    dup current-interface ! push-order ;
+
 : class ( parent-class -- align offset ) \ objects- objects
     \g Start a new class definition as a child of
     \g @var{parent-class}. @var{align offset} are for use by
@@ -274,8 +280,7 @@ variable public-wordlist
     0 r@ interface-offset !
     dup r@ class-parent !
     wordlist r@ class-wordlist !
-    r@ current-interface !
-    r> push-order
+    r> methods
     class-inst-size 2@ ;
 
 : remove-class-order ( wid1 ... widn n+n1 class -- n1 )
@@ -292,10 +297,15 @@ variable public-wordlist
     \g on the search order.
     >r get-order r> remove-class-order set-order ;
 
+: end-methods ( -- )
+    \g Switch back from defining methods of a class to normal mode
+    \g (currently this just restores the old search order).
+    current-interface @ drop-order ;
+
 : end-class-noname ( align offset -- class ) \ objects- objects
     \g End a class definition. The resulting class is @var{class}.
-    public
-    current-interface @ dup drop-order class-inst-size 2!
+    public end-methods
+    current-interface @ class-inst-size 2!
     end-interface-noname ;
 
 : end-class ( align offset "name" -- ) \ objects- objects

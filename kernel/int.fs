@@ -454,7 +454,7 @@ has? compiler 0= [IF]	\ interpreter only version of IS and TO
 
 \ interpret                                            10mar92py
 
-Defer parser
+Defer parser ( c-addr u -- )
 Defer name ( -- c-addr count ) \ gforth
 \ get the next word from the input buffer
 ' (name) IS name
