@@ -54,5 +54,5 @@ autoheader
 
 if [ "$GFORTH" != "" ]
 then
-	make FORTHK="$GFORTH"
+	make BUILDGFORTH="$GFORTH"
 fi

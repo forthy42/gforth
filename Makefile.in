@@ -67,6 +67,10 @@ FORTHSIZES = @FORTHSIZES@
 FORTH_ARGS = --die-on-signal -p $(FORTHPATH)$(PATHSEP)$(srcdir)
 ENGINE = ./gforth
 FORTH	= $(ENGINE) $(FORTH_ARGS)
+# the (existing) forth system to use for cross compiling and primitives tables
+BUILDFORTH = $(FORTHK)
+# the forth system plus flags we use to build
+FORTHB = $(BUILDFORTH) -m 1000000 -e 'fpath= .|~+|$(srcdir)'
 ENGINE_FAST = $(ENGINE)-fast
 FORTH_FAST	= $(ENGINE_FAST) $(FORTH_ARGS)
 FORTHKFLAGS= --die-on-signal -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)" -m 1000000 -i $(kernel_fi)
@@ -530,25 +534,25 @@ bench:		gforth-fast$(EXE) gforth.fi
 #    these are the ones we want to use now
 
 kernl16l.fi-:	$(KERN_SRC) kernel/version.fs mach16l.fs machpc.fs $(FORTH_GEN0)
-		$(FORTHK) -e 's" mach16l.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl16l.fi- $(bindir)/gforth-$(VERSION) bye"
+		$(FORTHB) -e 's" mach16l.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl16l.fi- $(bindir)/gforth-$(VERSION) bye"
 
 kernl16b.fi-:	$(KERN_SRC) kernel/version.fs mach16b.fs machpc.fs $(FORTH_GEN0)
-		$(FORTHK) -e 's" mach16b.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl16b.fi- $(bindir)/gforth-$(VERSION) bye"
+		$(FORTHB) -e 's" mach16b.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl16b.fi- $(bindir)/gforth-$(VERSION) bye"
 
 kernl32l.fi-:	$(KERN_SRC) kernel/version.fs mach32l.fs machpc.fs $(FORTH_GEN0)
-		$(FORTHK) -e 's" mach32l.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl32l.fi- $(bindir)/gforth-$(VERSION) bye"
+		$(FORTHB) -e 's" mach32l.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl32l.fi- $(bindir)/gforth-$(VERSION) bye"
 
 kernl32b.fi-:	$(KERN_SRC) kernel/version.fs mach32b.fs machpc.fs $(FORTH_GEN0)
-		$(FORTHK) -e 's" mach32b.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl32b.fi- $(bindir)/gforth-$(VERSION) bye"
+		$(FORTHB) -e 's" mach32b.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl32b.fi- $(bindir)/gforth-$(VERSION) bye"
 
 kernl64l.fi-:	$(KERN_SRC) kernel/version.fs mach64l.fs machpc.fs $(FORTH_GEN0)
-		$(FORTHK) -e 's" mach64l.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl64l.fi- $(bindir)/gforth-$(VERSION) bye"
+		$(FORTHB) -e 's" mach64l.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl64l.fi- $(bindir)/gforth-$(VERSION) bye"
 
 kernl64b.fi-:	$(KERN_SRC) kernel/version.fs mach64b.fs machpc.fs $(FORTH_GEN0)
-		$(FORTHK) -e 's" mach64b.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl64b.fi- $(bindir)/gforth-$(VERSION) bye"
+		$(FORTHB) -e 's" mach64b.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl64b.fi- $(bindir)/gforth-$(VERSION) bye"
 
 kernl-%.fi:	arch/%/mach.fs $(KERN_SRC) kernel/version.fs $(FORTH_GEN0)
-		$(FORTHK) -e 's" $<"' $(srcdir)/kernel/main.fs -e "save-cross $@- $(bindir)/gforth-$(VERSION) bye"
+		$(FORTHB) -e 's" $<"' $(srcdir)/kernel/main.fs -e "save-cross $@- $(bindir)/gforth-$(VERSION) bye"
 		if [ -f `echo $< | sed s/fs/sh/` ]; \
 		then sh `echo $< | sed s/fs/sh/` $@; \
 		else $(CP) $@- $@; \
@@ -594,39 +598,39 @@ prim.b:		prim
 		m4 -s $(srcdir)/prim >$@ 
 
 engine/prim.i:		prim.b prims2x.fs
-		$(FORTH) -m 1000000 prims2x.fs -e "c-flag on s\" prim.b\" ' output-c ' output-c-combined process-file bye" >$@-
+		$(FORTHB) prims2x.fs -e "c-flag on s\" prim.b\" ' output-c ' output-c-combined process-file bye" >$@-
 		$(CP) $@- $@
 		$(RM) $@-
 
 engine/prim_lab.i:	prim.b prims2x.fs
-		$(FORTH) -m 1000000 prims2x.fs -e "c-flag on s\" prim.b\" ' output-label dup process-file bye" >$@-
+		$(FORTHB) prims2x.fs -e "c-flag on s\" prim.b\" ' output-label dup process-file bye" >$@-
 		$(CP) $@- $@
 		$(RM) $@-
 
 engine/peephole.i:	prim.b prims2x.fs
-		$(FORTH) -m 1000000 prims2x.fs -e "c-flag on s\" prim.b\" ' noop ' output-peephole process-file bye" >$@-
+		$(FORTHB) prims2x.fs -e "c-flag on s\" prim.b\" ' noop ' output-peephole process-file bye" >$@-
 		$(CP) $@- $@
 		$(RM) $@-
 
 engine/profile.i:	prim.b prims2x.fs
-		$(FORTH) -m 1000000 prims2x.fs -e "c-flag on s\" prim.b\" ' output-profile ' output-profile process-file bye" >$@-
+		$(FORTHB) prims2x.fs -e "c-flag on s\" prim.b\" ' output-profile ' output-profile process-file bye" >$@-
 		$(CP) $@- $@
 		$(RM) $@-
 
 kernel/aliases.fs:	prim.b prims2x.fs kernel/aliases0.fs
 		$(CP) kernel/aliases0.fs $@-
-		$(FORTH) -m 1000000 prims2x.fs -e "forth-flag on s\" prim.b\" ' output-alias dup process-file bye" >>$@-
+		$(FORTHB) prims2x.fs -e "forth-flag on s\" prim.b\" ' output-alias dup process-file bye" >>$@-
 		$(CP) $@- $@
 		$(RM) $@-
 
 kernel/prim.fs:	prim.b prims2x.fs kernel/prim0.fs
 		$(CP) kernel/prim0.fs kernel/prim.fs-
-		$(FORTH) -m 1000000 prims2x.fs -e "forth-flag on s\" prim.b\" ' output-forth ' output-forth-combined process-file bye" >>$@-
+		$(FORTHB) prims2x.fs -e "forth-flag on s\" prim.b\" ' output-forth ' output-forth-combined process-file bye" >>$@-
 		$(CP) $@- $@
 		$(RM) $@-
 
 kernel/peephole.fs:	prim.b prims2x.fs
-		$(FORTH) -m 1000000 prims2x.fs -e "forth-flag on s\" prim.b\" ' noop ' output-forth-peephole process-file bye" >$@-
+		$(FORTHB) prims2x.fs -e "forth-flag on s\" prim.b\" ' noop ' output-forth-peephole process-file bye" >$@-
 		$(CP) $@- $@
 		$(RM) $@-
 
@@ -674,8 +678,8 @@ gforth.TAGS:	@kernel_fi@ gforth$(EXE) $(GFORTH_FI_SRC) prim.TAGS kernel.TAGS
 prim.TAGS: 	prim.b prims2x.fs
 		#echo '2c\' >prim.TAGS.sed
 		#echo $(srcdir)/prim >>prim.TAGS.sed
-		#$(FORTH) -m 1000000 prims2x.fs -e "s\" $(srcdir)/prim.b\" ' output-tag dup process-file bye" | sed -f prim.TAGS.sed >$@-
-		$(FORTH) -m 1000000 prims2x.fs -e "s\" $(srcdir)/prim.b\" ' output-tag dup process-file bye" >$@-
+		#$(FORTHB) prims2x.fs -e "s\" $(srcdir)/prim.b\" ' output-tag dup process-file bye" | sed -f prim.TAGS.sed >$@-
+		$(FORTHB) prims2x.fs -e "s\" $(srcdir)/prim.b\" ' output-tag dup process-file bye" >$@-
 		$(CP) $@- $@
 		$(RM) $@-
 
@@ -690,7 +694,7 @@ doc/crossdoc.fd:	$(KERN_SRC) kernel/version.fs $(FORTH_GEN0)
 
 doc/gforth.texi:	doc/gforth.ds prim.b ds2texi.fs prims2x.fs \
 		doc/doc.fd doc/crossdoc.fd
-		$(FORTH) -m 100000 ds2texi.fs prims2x.fs -e "s\" $(srcdir)/prim.b\" ' register-doc ' noop process-file" doc/crossdoc.fd doc/doc.fd -e "s\" $(srcdir)/doc/gforth.ds\" r/o open-file throw ds2texi bye" >$@-
+		$(FORTHB) ds2texi.fs prims2x.fs -e "s\" $(srcdir)/prim.b\" ' register-doc ' noop process-file" doc/crossdoc.fd doc/doc.fd -e "s\" $(srcdir)/doc/gforth.ds\" r/o open-file throw ds2texi bye" >$@-
 		$(CP) $@- $@
 		$(RM) $@-
 

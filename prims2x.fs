@@ -1226,6 +1226,18 @@ warnings @ [IF]
 .( parser generated ok ) cr
 [THEN]
 
+
+\ run with out of box gforth 0.5.0
+[IFUNDEF] slurp-file
+: slurp-file ( c-addr1 u1 -- c-addr2 u2 )
+    \ c-addr1 u1 is the filename, c-addr2 u2 is the file's contents
+    r/o bin open-file throw >r
+    r@ file-size throw abort" file too large"
+    dup allocate throw swap
+    2dup r@ read-file throw over <> abort" could not read whole file"
+    r> close-file throw ;
+[THEN]
+
 : primfilter ( addr u -- )
     \ process the string at addr u
     over dup rawinput ! dup line-start ! cookedinput !
