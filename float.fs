@@ -221,3 +221,16 @@ set-current
     ELSE
 	fnegate f~rel
     THEN ;
+
+\ proposals from Krishna Myeni in <cjsp2d$47l$1@ngspool-d02.news.aol.com>
+\ not sure if they are a good idea
+
+: FTRUNC ( r1 -- r2 )
+    \ round towards 0
+    \ !! should be implemented properly
+    F>D D>F ;
+
+: FMOD ( r1 r2 -- r )
+    \ remainder of r1/r2
+    \ !! should be implemented properly
+    FOVER FOVER F/ ftrunc F* F- ;
