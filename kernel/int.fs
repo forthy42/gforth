@@ -133,8 +133,7 @@ const Create bases   0A , 10 ,   2 ,   0A ,
     dup 0= if
 	false exit
     endif
-    char@ s" '" 2swap string-prefix?
-    0 swap ;
+    x@+/string 0 s" '" 2rot string-prefix? ;
 
 : s>unumber? ( addr u -- ud flag )
     over c@ '' = if
@@ -977,6 +976,7 @@ AVariable init8 NIL init8 !
 [ has? file [IF] ]
     os-cold
 [ [THEN] ]
+    set-encoding-fixed-width
     'cold
     init8 chainperform
 [ has? file [IF] ]

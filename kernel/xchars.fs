@@ -35,6 +35,13 @@ DEFER XC@+ ( xc-addr1 -- xc-addr2 xc )
 DEFER XC-SIZE ( xc -- u ) \ size in cs
 DEFER -TRAILING-GARBAGE ( addr u1 -- addr u2 ) \ remove trailing incomplete xc
 
+\ derived words, faster implementations are probably possible
+
+: X@+/string ( xc-addr1 u1 -- xc-addr2 u2 xc )
+    \ !! check for errors?
+    over >r +x/string
+    r> xc@ ;
+
 \ fixed-size versions of these words
 
 : char- ( c-addr1 -- c-addr2 )

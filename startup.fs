@@ -31,7 +31,6 @@ include envos.fs
 include errors.fs
 include extend.fs              \ load core-extended
 include hash.fs
-require xchars.fs
 
 \ require interpretation.fs
 \ include float.fs
