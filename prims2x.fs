@@ -129,6 +129,7 @@ variable name-line
 2variable last-name-filename
 
 variable primitive-number -10 primitive-number !
+Variable function-number 0 function-number !
 
 \ for several reasons stack items of a word are stored in a wordlist
 \ since neither forget nor marker are implemented yet, we make a new
@@ -605,8 +606,42 @@ set-current
  cr
 ;
 
+: output-funclabel ( -- )
+  1 function-number +!
+  ." &I_" c-name 2@ type ." ," cr ;
+
+: output-forthname ( -- )
+  1 function-number +!
+  '" emit forth-name 2@ type '" emit ." ," cr ;
+
+: output-c-func ( -- )
+    1 function-number +!
+    ." void I_" c-name 2@ type ." ()      /* " forth-name 2@ type
+    ."  ( " stack-string 2@ type ."  ) */" cr
+    ." /* " doc 2@ type ."  */" cr
+    ." NAME(" [char] " emit forth-name 2@ type [char] " emit ." )" cr
+    \ debugging
+    ." {" cr
+    ." DEF_CA" cr
+    declarations
+    compute-offsets \ for everything else
+    ." NEXT_P0;" cr
+    flush-tos
+    fetches
+    stack-pointer-updates
+    ." {" cr
+    ." #line " c-line @ . [char] " emit c-filename 2@ type [char] " emit cr
+    c-code 2@ type
+    ." }" cr
+    ." NEXT_P1;" cr
+    stores
+    fill-tos
+    ." NEXT_P2;" cr
+    ." }" cr
+    cr ;
+
 : output-label ( -- )
- ." &&I_" c-name 2@ type ." ," cr ;
+    ." &&I_" c-name 2@ type ." ," cr ;
 
 : output-alias ( -- )  flush-comment on
  ?flush-comment
@@ -614,17 +649,17 @@ set-current
  -1 primitive-number +! ;
 
 : output-forth ( -- )  flush-comment on
- ?flush-comment
- forth-code @ 0=
- IF    	\ output-alias
+    ?flush-comment
+    forth-code @ 0=
+    IF    	\ output-alias
 	\ this is bad for ec: an alias is compiled if tho word does not exist!
 	\ JAW
- ELSE  ." : " forth-name 2@ type ."   ( "
-       effect-in effect-in-end @ .stack-list ." -- "
-       effect-out effect-out-end @ .stack-list ." )" cr
-       forth-code 2@ type cr
-       -1 primitive-number +!
- THEN ;
+    ELSE  ." : " forth-name 2@ type ."   ( "
+	effect-in effect-in-end @ .stack-list ." -- "
+	effect-out effect-out-end @ .stack-list ." )" cr
+	forth-code 2@ type cr
+	-1 primitive-number +!
+    THEN ;
 
 : output-tag-file ( -- )
     name-filename 2@ last-name-filename 2@ compare if
@@ -658,8 +693,13 @@ set-current
 : process-file ( addr u xt -- )
     >r
     2dup filename 2!
+    0 function-number !
     r/o open-file abort" cannot open file"
     warnings @ if
 	." ------------ CUT HERE -------------" cr  endif
     r> primfilter ;
+
+: process      ( xt -- )
+    bl word count rot
+    process-file ;
 

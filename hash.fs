@@ -175,7 +175,7 @@ has? cross 0=
   base @ >r hex HashTable  Hashlen 0
   DO  cr  i 2 .r ." : " dup i cells +
       BEGIN  @ dup  WHILE
-             dup cell+ @ head>string type space  REPEAT  drop
+             dup cell+ @ name>string type space  REPEAT  drop
   LOOP  drop r> base ! ;
 
 \ \ this stuff is for evaluating the hash function

@@ -21,8 +21,8 @@
 # ------------- gforth version
 
 VERSION_MAJOR=0
-VERSION_MINOR=3
-VERSION_RELEASE=1
+VERSION_MINOR=4
+VERSION_RELEASE=0
 VERSION =$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_RELEASE)
 DOSVERSION=$(VERSION_MAJOR)$(VERSION_MINOR)$(VERSION_RELEASE)
 
@@ -50,6 +50,24 @@ CC	= $(GCC)
 STRIP	= strip
 
 FORTHPATH = $(libdir)/gforth/site-forth$(PATHSEP)$(datadir)/gforth/site-forth$(PATHSEP)$(libdir)/gforth/$(VERSION)$(PATHSEP)$(datadir)/gforth/$(VERSION)$(PATHSEP).
+
+# ------------	Install Directorys
+
+VPATH = @srcdir@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+srcdir = @srcdir@
+bindir = $(exec_prefix)/bin
+#read-only architecture-independent files
+datadir = $(prefix)/share
+#read-only architecture-dependent non-ascii files
+libdir = $(prefix)/lib
+infodir = $(prefix)/info
+mandir = $(prefix)/man
+man1dir= $(mandir)/man1
+man1ext= .1
+#older emacses have their site-lisp in $(libdir)/emacs/
+emacssitelispdir=$(datadir)/emacs/site-lisp
 
 # ------------- Compiler Flags
 

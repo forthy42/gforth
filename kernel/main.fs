@@ -78,21 +78,27 @@ include kernel/vars.fs                \ variables and other stuff
 include kernel/errore.fs
 include kernel/version.fs
 include kernel/kernel.fs              \ load kernel
+include kernel/doers.fs
 has? file [IF]
 include kernel/args.fs
 include kernel/files.fs               \ load file words
 include kernel/paths.fs
 include kernel/require.fs
 [THEN]
+
+has? compiler [IF]
 has? glocals [IF]
 include kernel/cond.fs                \ load IF and co
 [ELSE]
 include kernel/cond-old.fs            \ load IF and co w/o locals
 [THEN]
-include kernel/tools.fs               \ load tools ( .s dump )
 include kernel/toolsext.fs
 \ include arch/misc/tt.fs
 \ include arch/misc/sokoban.fs
+[THEN]
+include kernel/tools.fs               \ load tools ( .s dump )
+include kernel/doers.fs
+include kernel/getdoers.fs
 include kernel/special.fs             \ special must be last!
 
 \ Setup                                                13feb93py

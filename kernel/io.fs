@@ -32,6 +32,11 @@ has? os [IF]
 ;
 [THEN]
 
+[IFUNDEF] (type)
+: (type)  BEGIN  dup  WHILE
+    >r dup c@ (emit) 1+ r> 1-  REPEAT  2drop ;
+[THEN]
+
 Defer type ( c-addr u -- ) \ core
 ' (type) IS Type
 

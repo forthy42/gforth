@@ -21,7 +21,10 @@
 include ~+/basics.fs
 include ~+/io.fs		\ basic io functions
 has? interpreter [IF]
-include ~+/interp.fs
+include ~+/int.fs
+has? compiler [IF]
+include ~+/comp.fs
+[THEN]
 [THEN]
 include ~+/accept.fs
 include ~+/license.fs

@@ -1,4 +1,4 @@
-/* Input driver header
+/* cache flushing for the HP-PA architecture
 
   Copyright (C) 1995 Free Software Foundation, Inc.
 
@@ -19,29 +19,15 @@
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-#include <setjmp.h>
+void cacheflush(void * address, int size, int linewidth)
+{
+  int i;
 
-extern jmp_buf throw_jmp_buf;
+  address=(void *)((int)address & (-linewidth));
 
-#ifdef MSDOS
-#  define prep_terminal()
-#  define deprep_terminal()
-#  include <conio.h>
-
-#  define key()		getch()
-#  define key_query	FLAG(kbhit())
-#else
-unsigned char getkey(FILE *);
-long key_avail(FILE *);
-void prep_terminal(void);
-void deprep_terminal(void);
-void get_winsize(void);
-
-#  define key()		getkey(stdin)
-#  define key_query	-(!!key_avail(stdin)) /* !! FLAG(...)? - anton */
-         		/* flag was originally wrong -- lennart */
-#endif
-
-void install_signal_handlers(void);
-extern UCell rows, cols;
-extern int terminal_prepped;
+  for(i=1-linewidth; i<size; i+=linewidth)
+    asm volatile("fdc (%0)\n\t"
+		 "sync\n\t"
+		 "fic,m %1(%0)\n\t"
+		 "sync" : : "r" (address), "r" (linewidth) : "memory" );
+}

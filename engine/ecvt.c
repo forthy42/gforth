@@ -1,5 +1,6 @@
 /* cheap ecvt replacement */
 
+#include <stdio.h>
 #include "config.h"
 #include <math.h>
 extern double floor(double);
@@ -12,6 +13,7 @@ char* ecvt(double x, int len, int* exp, int* sign)
 {
    int i, j;
    double z;
+   fprintf(stderr, "using own ecvt\n");
    
    if(len > (MAXCONV-1)) len = MAXCONV-1;
    
@@ -53,7 +55,7 @@ char* ecvt(double x, int len, int* exp, int* sign)
 		  scratch[j]='0';
 	       }
 	  }
-	if(j==0)
+	if(j<0)
 	  {
 	     scratch[0]='1';
 	     *exp += 1;
@@ -69,8 +71,8 @@ char* ecvt(double x, int len, int* exp, int* sign)
 int main(int argc, char ** argv)
 {
    int a, b;
-   char * conv=ecvt(PI*1e10,20,&a,&b);
+   char * conv=ecvt(9e0,20,&a,&b);
    
-   printf("ecvt Test: %f -> %s, %d, %d\n",PI,conv,a,b);
+   printf("ecvt Test: %f -> %s, %d, %d\n",9e0,conv,a,b);
 }
 #endif

@@ -21,17 +21,17 @@
 \ this file comes last, because these words override cross' words.
 
 create s"-buffer /line chars allot
-has? ionly 
+has? compiler 0= 
 [IF] : s" [ELSE] :noname [THEN]
 	[char] " parse
     	/line min >r s"-buffer r@ cmove
     	s"-buffer r> ;
-has? ionly 0= [IF]
+has? compiler [IF]
 :noname [char] " parse postpone SLiteral ;
 interpret/compile: S" ( compilation 'ccc"' -- ; run-time -- c-addr u )	\ core,file	s-quote
 [THEN]
 
-has? ionly 0= [IF]
+has? compiler [IF]
 : [IS] ( compilation "name" -- ; run-time xt -- ) \ possibly-gforth bracket-is
     ' >body postpone ALiteral postpone ! ; immediate restrict
 
@@ -62,49 +62,11 @@ immediate
 
 [THEN]
 
-doer? :docon [IF]
-: docon: ( -- addr )	\ gforth
-    \G the code address of a @code{CONSTANT}
-    ['] bl >code-address ;
-[THEN]
-
-: docol: ( -- addr )	\ gforth
-    \G the code address of a colon definition
-    ['] on >code-address ;
-\ !! mark on
-
-doer? :dovar [IF]
-: dovar: ( -- addr )	\ gforth
-    \G the code address of a @code{CREATE}d word
-    \ in rom-applications variable might be implemented with constant
-    \ use really a created word!
-    ['] ??? >code-address ;
-[THEN]
-
-doer? :douser [IF]
-: douser: ( -- addr )	\ gforth
-    \G the code address of a @code{USER} variable
-    ['] sp0 >code-address ;
-[THEN]
-
-doer? :dodefer [IF]
-: dodefer: ( -- addr )	\ gforth
-    \G the code address of a @code{defer}ed word
-    ['] source >code-address ;
-[THEN]
-
-doer? :dofield [IF]
-: dofield: ( -- addr )	\ gforth
-    \G the code address of a @code{field}
-    ['] reveal-method >code-address ;
-[THEN]
-
-has? prims 0= [IF]
-: dodoes: ( -- addr )	\ gforth
-    \G the code address of a @code{field}
-    ['] spaces >code-address ;
-[THEN]
-
+has? compiler [IF]
 : interpret/compile? ( xt -- flag )
     >does-code ['] S" >does-code = ;
+[ELSE]
+: interpret/compile?
+    false ;
+[THEN]
 

@@ -130,7 +130,7 @@ lookup ! \ our dictionary search order becomes the law ( -- )
 : seal ( -- )  context @ 1 set-order ;
 
 : .voc
-    body> >head head>string type space ;
+    body> >head name>string type space ;
 
 : order ( -- )  \  search-ext
     \g prints the search order and the @code{current} wordlist.  The

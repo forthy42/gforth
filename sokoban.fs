@@ -118,6 +118,8 @@ Variable score     0 score !  \ total number of scores
 	S" &."  S" .&"  r@ play-rule  IF  r> soko +!  EXIT  THEN
 	S" &* " S" .&$" r@ play-rule
 	      IF  r> soko +!  1 rocks +! -1 score +!  EXIT  THEN
+	S" &$." S" .@*" r@ play-rule
+	      IF  r> soko +!  1 rocks +! -1 score +!  EXIT  THEN
 	-1 moves +!  r> drop  ;
 
 1            move: soko-right

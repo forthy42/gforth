@@ -19,7 +19,7 @@
 \ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 : pad    ( -- addr ) \ core-ext
-  here word-pno-size + aligned ;
+    here word-pno-size + aligned ;
 
 \ hold <# #> sign # #s                                 25jan92py
 

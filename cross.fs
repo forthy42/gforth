@@ -41,6 +41,10 @@
 \	mach file is only loaded into target
 \	cell corrected
 \ 	romable extansions			27apr97-5jun97jaw
+\	environmental query support		01sep97jaw
+\	added own [IF] ... [ELSE] ... [THEN]	14sep97jaw
+\	extra resolver for doers		20sep97jaw
+\	added killref for DOES>			20sep97jaw
 
 
 hex     \ the defualt base for the cross-compiler is hex !!
@@ -59,16 +63,16 @@ Warnings off
     dup c, here swap chars dup allot move ;
 
 : SetValue ( n -- <name> )
-\G Same behaviour as "Value" when the <name> is not defined
-\G Same behaviour as "to" when <name> is defined
+\G Same behaviour as "Value" if the <name> is not defined
+\G Same behaviour as "to" if <name> is defined
 \G SetValue searches in the current vocabulary
  save-input bl word >r restore-input throw r> count
  get-current search-wordlist
  IF bl word drop >body ! ELSE Value THEN ;
 
 : DefaultValue ( n -- <name> )
-\G Same behaviour as "Value" when the <name> is not defined
-\G SetValue searches in the current vocabulary
+\G Same behaviour as "Value" if the <name> is not defined
+\G DefaultValue searches in the current vocabulary
  save-input bl word >r restore-input throw r> count
  get-current search-wordlist
  IF bl word drop drop drop ELSE Value THEN ;
@@ -147,6 +151,7 @@ stack-warn [IF]
 [ELSE]
 : defempty? ; immediate
 [THEN]
+
 
 
 \ \ GhostNames Ghosts                                  9may93jaw
@@ -234,7 +239,9 @@ VARIABLE Already
   BEGIN @ dup
   WHILE 2dup cell+ @ =
   UNTIL nip 2 cells + count
-  ELSE  2drop true abort" CROSS: Ghostnames inconsistent"
+  ELSE  2drop 
+	\ true abort" CROSS: Ghostnames inconsistent"
+	s" ?!?!?!"
   THEN ;
 
 ' >ghostname ALIAS @name
@@ -256,8 +263,11 @@ ghost (does>)   ghost noop                      2drop
 ghost (.")      ghost (S")      ghost (ABORT")  2drop drop
 ghost '                                         drop
 ghost :docol    ghost :doesjump ghost :dodoes   2drop drop
+ghost :dovar					drop
 ghost over      ghost =         ghost drop      2drop drop
 ghost - drop
+ghost 2drop drop
+ghost 2dup drop
 
 \ \ Parameter for target systems                         06oct92py
 
@@ -286,18 +296,33 @@ VARIABLE env-current \ save information of current dictionary to restore with en
 
 : $has? T environment? H IF ELSE false THEN ;
 
->ENVIRON
-false SetValue ionly
+>ENVIRON get-order get-current swap 1+ set-order
+true SetValue compiler
 true  SetValue cross
->TARGET
+true SetValue standard-threading
+>TARGET previous
 
 mach-file count included hex
 
 >ENVIRON
 
-s" interpreter" T environment? H 0= ?dup nip [IF] true Value interpreter [THEN]
-s" ITC" T environment? H 0= ?dup nip [IF] true SetValue ITC [THEN]
-s" rom" T environment? H 0= ?dup nip [IF] false Value rom [THEN]
+T has? ec H
+[IF]
+false DefaultValue relocate
+false DefaultValue file
+false DefaultValue OS
+false DefaultValue prims
+false DefaultValue floating
+false DefaultValue glocals
+false DefaultValue dcomps
+false DefaultValue hash
+false DefaultValue xconds
+false DefaultValue header
+[THEN]
+
+true DefaultValue interpreter
+true DefaultValue ITC
+false DefaultValue rom
 
 >TARGET
 s" relocate" T environment? H 
@@ -358,7 +383,7 @@ Variable user-vars 0 user-vars !
 
 >CROSS
 
-\ memregion.fs
+\ \ memregion.fs
 
 
 Variable last-defined-region    \ pointer to last defined region
@@ -473,7 +498,7 @@ T has? rom H
   ABORT" CROSS: define at least address-space or dictionary!!"
   + makekernel drop ;
 
-\ switched tdp for rom support				03jun97jaw
+\ \ switched tdp for rom support				03jun97jaw
 
 \ second value is here to store some maximal value for statistics
 \ tempdp is also embedded here but has nothing to do with rom support
@@ -648,19 +673,40 @@ previous
 
 \ \ --------------------        Compiler Plug Ins               01aug97jaw
 
+\  Compiler States
+
+Variable comp-state
+0 Constant interpreting
+1 Constant compiling
+2 Constant resolving
+3 Constant assembling
+
 Defer lit, ( n -- )
 Defer alit, ( n -- )
-Defer branch, ( target-addr -- )
-Defer ?branch, ( target-addr -- )
-Defer branchmark, ( -- branch-addr )
-Defer ?branchmark, ( -- branch-addr )
-Defer branchto,
-Defer branchtoresolve, ( branch-addr -- )
-Defer branchfrom, ( -- )
-Defer branchtomark, ( -- target-addr )
+
+Defer branch, ( target-addr -- )	\ compiles a branch
+Defer ?branch, ( target-addr -- )	\ compiles a ?branch
+Defer branchmark, ( -- branch-addr )	\ reserves room for a branch
+Defer ?branchmark, ( -- branch-addr )	\ reserves room for a ?branch
+Defer ?domark, ( -- branch-addr )	\ reserves room for a ?do branch
+Defer branchto, ( -- )			\ actual program position is target of a branch (do e.g. alignment)
+Defer branchtoresolve, ( branch-addr -- ) \ resolves a forward reference from branchmark
+Defer branchfrom, ( -- )		\ ?!
+Defer branchtomark, ( -- target-addr )	\ marks a branch destination
+
 Defer colon, ( tcfa -- )		\ compiles call to tcfa at current position
+Defer colonmark, ( -- addr )		\ marks a colon call
 Defer colon-resolve ( tcfa addr -- )
+
 Defer addr-resolve ( target-addr addr -- )
+Defer doer-resolve ( ghost res-pnt target-addr addr -- ghost res-pnt )
+
+Defer do,	( -- do-token )
+Defer ?do,	( -- ?do-token )
+Defer for,	( -- for-token )
+Defer loop,	( do-token / ?do-token -- )
+Defer +loop,	( do-token / ?do-token -- )
+Defer next,	( for-token )
 
 [IFUNDEF] ca>native
 defer ca>native	
@@ -671,8 +717,8 @@ DEFER >body             \ we need the system >body
 			\ and the target >body
 >CROSS
 T 2 cells H VALUE xt>body
-DEFER doprim,
-DEFER docol,     \ compiles start of definition and doer
+DEFER doprim,	\ compiles start of a primitive
+DEFER docol,   	\ compiles start of a colon definition
 DEFER doer,		
 DEFER fini,      \ compiles end of definition ;s
 DEFER doeshandler,
@@ -681,9 +727,21 @@ DEFER dodoes,
 DEFER ]comp     \ starts compilation
 DEFER comp[     \ ends compilation
 
-: (cc) T a, H ;			' (cc) IS colon,
-: (cr) >tempdp ]comp colon, comp[ tempdp> ; ' (cr) IS colon-resolve
-: (ar) T ! H ;			' (ar) IS addr-resolve
+: (cc) T a, H ;					' (cc) IS colon,
+
+: (cr) >tempdp ]comp colon, comp[ tempdp> ; 	' (cr) IS colon-resolve
+: (ar) T ! H ;					' (ar) IS addr-resolve
+: (dr)  ( ghost res-pnt target-addr addr )
+	>tempdp drop over 
+	dup >magic @ <do:> =
+	IF 	doer,
+	ELSE	dodoes,
+	THEN 
+	tempdp> ;				' (dr) IS doer-resolve
+
+: (cm) ( -- addr )
+    T here align H
+    -1 colon, ;					' (cm) IS colonmark,
 
 >TARGET
 : compile, colon, ;
@@ -691,16 +749,21 @@ DEFER comp[     \ ends compilation
 
 \ file loading
 
-Variable filelist 0 filelist !
-0 Value	 loadfile
+: >fl-id   1 cells + ;
+: >fl-name 2 cells + ;
 
-0 [IF] \ !! JAW WIP
+Variable filelist 0 filelist !
+0 Value	 filemem
+: loadfile filemem >fl-name ;
+
+1 [IF] \ !! JAW WIP
 
 : add-included-file ( adr len -- )
-	dup 2 cells + allocate throw >r
-	r@ 1 cells + dup TO loadfile place
+	dup char+ >fl-name allocate throw >r
+	r@ >fl-name place
 	filelist @ r@ !
-	r> filelist ! ;
+	r> dup filelist ! to FileMem
+	;
 
 : included? ( c-addr u -- f )
   	filelist
@@ -712,8 +775,10 @@ Variable filelist 0 filelist !
 	2drop drop false ;	
 
 : included 
-	cr ." Including: " 2dup type ." ..."
-	2dup add-included-file included ;
+\	cr ." Including: " 2dup type ." ..."
+	FileMem >r
+	2dup add-included-file included 
+	r> to FileMem ;
 
 : include bl word count included ;
 
@@ -724,17 +789,37 @@ Variable filelist 0 filelist !
 \ resolve structure
 
 : >next ;		\ link to next field
-: >tag cell+ ;		\ indecates type of reference: 0: call, 1: address
+: >tag cell+ ;		\ indecates type of reference: 0: call, 1: address, 2: doer
 : >taddr cell+ cell+ ;	
 : >ghost 3 cells + ;
 : >file 4 cells + ;
 : >line 5 cells + ;
 
+: (refered) ( ghost addr tag -- )
+\G creates a reference to ghost at address taddr
+    rot >r here r@ >link @ , r> >link ! 
+    ( taddr tag ) ,
+    ( taddr ) , 
+    last-header-ghost @ , 
+    loadfile , 
+    sourceline# , 
+  ;
+
 : refered ( ghost tag -- )
 \G creates a resolve structure
-  swap >r here r@ >link @ , r@ >link ! ( tag ) ,
-  T here aligned H , r> drop  last-header-ghost @ , 
-  loadfile , sourceline# , 
+    T here aligned H swap (refered)
+  ;
+
+: killref ( addr ghost -- )
+\G kills a forward reference to ghost at position addr
+\G this is used to eleminate a :dovar refence after making a DOES>
+    dup >magic @ <fwd> <> IF 2drop EXIT THEN
+    swap >r >link
+    BEGIN dup @ dup  ( addr last this )
+    WHILE dup >taddr @ r@ =
+ 	 IF   @ over !
+	 ELSE nip THEN
+    REPEAT rdrop 2drop 
   ;
 
 Defer resolve-warning
@@ -750,16 +835,20 @@ Defer resolve-warning
  
 \ resolve                                              14oct92py
 
- : resolve-loop ( ghost tcfa -- ghost tcfa )
-  >r dup >link
-  BEGIN @ dup WHILE 
-	resolve-warning 
-	r@ over >taddr @ 
-	2 pick >tag @
-	IF	addr-resolve
-	ELSE	colon-resolve
-	THEN
-  REPEAT drop r> ;
+ : resolve-loop ( ghost resolve-list tcfa -- )
+    >r
+    BEGIN dup WHILE 
+\  	  dup >tag @ 2 = IF reswarn-forward THEN
+	  resolve-warning 
+	  r@ over >taddr @ 
+	  2 pick >tag @
+	  CASE	0 OF colon-resolve ENDOF
+		1 OF addr-resolve ENDOF
+		2 OF doer-resolve ENDOF
+	  ENDCASE
+	  @ \ next list element
+    REPEAT 2drop rdrop 
+  ;
 
 \ : resolve-loop ( ghost tcfa -- ghost tcfa )
 \  >r dup >link @
@@ -786,17 +875,27 @@ Exists-Warnings on
   THEN ;
 
 : resolve  ( ghost tcfa -- )
-\ resolve referencies to ghost with tcfa
-  over forward? 0= IF  exists EXIT THEN
-  resolve-loop  over >link ! <res> swap >magic ! 
-  ['] noop IS resolve-warning 
+\G resolve referencies to ghost with tcfa
+    \ is ghost resolved?, second resolve means another definition with the
+    \ same name
+    over forward? 0= IF  exists EXIT THEN
+    \ get linked-list
+    swap >r r@ >link @ swap \ ( list tcfa R: ghost )
+    \ mark ghost as resolved
+    dup r@ >link ! <res> r@ >magic !
+    \ loop through forward referencies
+    r> -rot 
+    comp-state @ >r Resolving comp-state !
+    resolve-loop 
+    r> comp-state !
+
+    ['] noop IS resolve-warning 
   ;
 
 \ gexecute ghost,                                      01nov92py
 
 : is-forward   ( ghost -- )
-\  >link dup @ there rot !  T  A,  H ;
-  0 refered  -1 colon, ;
+  colonmark, 0 (refered) ; \ compile space for call
 
 : is-resolved   ( ghost -- )
   >link @ colon, ; \ compile-call
@@ -870,7 +969,10 @@ VARIABLE ^imm
                 <imm> ^imm @ ! ;
 : restrict      20 flag! ;
 
-: isdoer	<do:> last-header-ghost @ >magic ! ;
+: isdoer	
+\G define a forth word as doer, this makes obviously only sence on
+\G forth processors such as the PSC1000
+		<do:> last-header-ghost @ >magic ! ;
 >CROSS
 
 \ ALIAS2 ansforth conform alias                          9may93jaw
@@ -975,10 +1077,16 @@ Defer skip? ' false IS skip?
 
 \ Target header creation
 
+Variable CreateFlag
+CreateFlag off
 
-VARIABLE CreateFlag CreateFlag off
+Variable NoHeaderFlag
+NoHeaderFlag off
 
-: 0.r ( n1 n2 -- ) 0 swap <# 0 ?DO # LOOP #> type ;
+: 0.r ( n1 n2 -- ) 
+    base @ >r hex 
+    0 swap <# 0 ?DO # LOOP #> type 
+    r> base ! ;
 : .sym
   bounds 
   DO I c@ dup
@@ -986,30 +1094,40 @@ VARIABLE CreateFlag CreateFlag off
 		'\ OF drop ." \\" ENDOF
 		dup OF emit ENDOF
 	ENDCASE
-  LOOP ;
+    LOOP ;
 
 : (Theader ( "name" -- ghost )
-\  >in @ bl word count type 2 spaces >in !
-\ wordheaders will always be compiled to rom
-  switchrom
-  T align H view,
-  tlast @ dup 0> IF  T 1 cells - THEN  A, H  there tlast !
-  1 headers-named +!	\ Statistic
-  >in @ T name, H >in ! T here H tlastcfa !
-  \ Symbol table
-  \ >in @ cr ." sym:s/CFA=" there 4 0.r ." /"  bl word count .sym ." /g" cr >in !
-  CreateFlag @ IF
-       >in @ alias2 swap >in !         \ create alias in target
-       >in @ ghost swap >in !
-       swap also ghosts ' previous swap !     \ tick ghost and store in alias
-       CreateFlag off
-  ELSE ghost THEN
-  dup Last-Header-Ghost !
-  dup >magic ^imm !     \ a pointer for immediate
-  Already @ IF  dup >end tdoes !
-  ELSE 0 tdoes ! THEN
-  80 flag!
-  cross-doc-entry cross-tag-entry ;
+    \  >in @ bl word count type 2 spaces >in !
+    \ wordheaders will always be compiled to rom
+    switchrom
+    \ build header in target
+    NoHeaderFlag @
+    IF  NoHeaderFlag off
+    ELSE
+	T align H view,
+	tlast @ dup 0> IF  T 1 cells - THEN  A, H  there tlast !
+	1 headers-named +!	\ Statistic
+	>in @ T name, H >in !
+    THEN
+    T cfalign here H tlastcfa !
+    \ Symbol table
+\    >in @ cr ." sym:s/CFA=" there 4 0.r ." /"  bl word count .sym ." /g" cr >in !
+    CreateFlag @
+    IF
+	>in @ alias2 swap >in !         \ create alias in target
+	>in @ ghost swap >in !
+	swap also ghosts ' previous swap !     \ tick ghost and store in alias
+	CreateFlag off
+    ELSE ghost
+    THEN
+    dup Last-Header-Ghost !
+    dup >magic ^imm !     \ a pointer for immediate
+    Already @
+    IF  dup >end tdoes !
+    ELSE 0 tdoes !
+    THEN
+    80 flag!
+    cross-doc-entry cross-tag-entry ;
 
 VARIABLE ;Resolve 1 cells allot
 \ this is the resolver information from ":"
@@ -1210,6 +1328,7 @@ Cond: MAXI
 \ ]                                                     9may93py/jaw
 
 : ] state on
+    Compiling comp-state !
     BEGIN
         BEGIN >in @ bl word
               dup c@ 0= WHILE 2drop refill 0=
@@ -1254,15 +1373,22 @@ Cond: ; ( -- ) restrict?
                state off
                ;Resolve @
                IF ;Resolve @ ;Resolve cell+ @ resolve THEN
+		Interpreting comp-state !
                ;Cond
-Cond: [  restrict? state off ;Cond
+Cond: [  restrict? state off Interpreting comp-state ! ;Cond
 
 >CROSS
+
+Create GhostDummy ghostheader
+<res> GhostDummy >magic !
+
 : !does ( does-action -- )
 \ !! zusammenziehen und dodoes, machen!
-    tlastcfa @ dup there >r tdp ! compile :dodoes r> tdp ! T cell+ ! H ;
+    tlastcfa @ [G'] :dovar killref
+\    tlastcfa @ dup there >r tdp ! compile :dodoes r> tdp ! T cell+ ! H ;
 \ !! geht so nicht, da dodoes, ghost will!
-\     tlastcfa @ >tempdp dodoes, tempdp> ;
+    GhostDummy >link ! GhostDummy 
+    tlastcfa @ >tempdp dodoes, tempdp> ;
 
 >TARGET
 Cond: DOES> restrict?
@@ -1284,7 +1410,10 @@ Cond: DOES> restrict?
 \ for do:-xt an additional entry after the normal ghost-enrys is used
 
   >in @ alias2 swap dup >in ! >r >r
-  Make-Ghost rot swap >exec ! ,
+  Make-Ghost 
+  rot swap >exec dup @ ['] NoExec <>
+  IF 2drop ELSE ! THEN
+  ,
   r> r> >in !
   also ghosts ' previous swap ! ;
 \  DOES>  dup >exec @ execute ;
@@ -1294,12 +1423,16 @@ Cond: DOES> restrict?
   >end @ dup forward? 0=
   IF
 	dup >magic @ <do:> =
-	IF  doer, EXIT THEN
+	IF 	 doer, 
+	ELSE	dodoes,
+	THEN
+	EXIT
   THEN
 \  compile :dodoes gexecute
 \  T here H tcell - reloff 
-  dodoes,
-;
+  2 refered 
+  0 fillcfa
+  ;
 
 : TCreate ( <name> -- )
   executed-ghost @
@@ -1384,7 +1517,7 @@ by: :dovar ( ghost -- addr ) ;DO
 Builder Create
 
 T has? rom H [IF]
-Build: ( n -- ) T here 0 , H switchram T align here swap ! 0 , H ( switchrom ) ;
+Build: ( -- ) T here 0 , H switchram T align here swap ! 0 , H ( switchrom ) ;
 by (Constant)
 Builder Variable
 [ELSE]
@@ -1394,7 +1527,17 @@ Builder Variable
 [THEN]
 
 T has? rom H [IF]
-Build: ( n -- ) T here 0 , H switchram T align here swap ! 0 , H ( switchrom ) ;
+Build: ( -- ) T here 0 , H switchram T align here swap ! 0 , 0 , H ( switchrom ) ;
+by (Constant)
+Builder 2Variable
+[ELSE]
+Build: T 0 , 0 , H ;
+by Create
+Builder 2Variable
+[THEN]
+
+T has? rom H [IF]
+Build: ( -- ) T here 0 , H switchram T align here swap ! 0 , H ( switchrom ) ;
 by (Constant)
 Builder AVariable
 [ELSE]
@@ -1471,25 +1614,42 @@ Builder Field
 \ ' 2Constant Alias2 end-struct
 \ 0 1 T Chars H 2Constant struct
 
+\ structural conditionals                              17dec92py
+
+>CROSS
+: ?struc      ( flag -- )       ABORT" CROSS: unstructured " ;
+: sys?        ( sys -- sys )    dup 0= ?struc ;
+: >mark       ( -- sys )        T here  ( dup ." M" hex. ) 0 , H ;
+
+: branchoffset ( src dest -- ) - ;
+
+: >resolve    ( sys -- )        T here ( dup ." >" hex. ) over branchoffset swap ! H ;
+
+: <resolve    ( sys -- )        T here ( dup ." <" hex. ) branchoffset , H ;
+
+:noname compile branch T here branchoffset , H ;
+  IS branch, ( target-addr -- )
+:noname compile ?branch T here branchoffset , H ;
+  IS ?branch, ( target-addr -- )
+:noname compile branch T here 0 , H ;
+  IS branchmark, ( -- branchtoken )
+:noname compile ?branch T here 0 , H ;
+  IS ?branchmark, ( -- branchtoken )
+:noname T here 0 , H ;
+  IS ?domark, ( -- branchtoken )
+:noname dup T @ H ?struc T here over branchoffset swap ! H ;
+  IS branchtoresolve, ( branchtoken -- )
+:noname branchto, T here H ;
+  IS branchtomark, ( -- target-addr )
+
+>TARGET
+
+\ Structural Conditionals                              12dec92py
+
+Cond: BUT       restrict? sys? swap ;Cond
+Cond: YET       restrict? sys? dup ;Cond
+
 0 [IF]
-
-\ structural conditionals                              17dec92py
-
->CROSS
-: ?struc      ( flag -- )       ABORT" CROSS: unstructured " ;
-: sys?        ( sys -- sys )    dup 0= ?struc ;
-: >mark       ( -- sys )        T here  ( dup ." M" hex. ) 0 , H ;
-
-: branchoffset ( src dest -- ) - ;
-: >resolve    ( sys -- )        T here ( dup ." >" hex. ) over branchoffset swap ! H ;
-: <resolve    ( sys -- )        T here ( dup ." <" hex. ) branchoffset , H ;
->TARGET
-
-\ Structural Conditionals                              12dec92py
-
-Cond: BUT       restrict? sys? swap ;Cond
-Cond: YET       restrict? sys? dup ;Cond
-
 >CROSS
 Variable tleavings
 >TARGET
@@ -1499,89 +1659,11 @@ Cond: DONE   ( addr -- )  restrict? tleavings @
       tleavings ! drop ;Cond
 
 >CROSS
-: (leave  T here H tleavings @ T , H  tleavings ! ;
+: (leave)  T here H tleavings @ T , H  tleavings ! ;
 >TARGET
 
-Cond: LEAVE     restrict? compile branch (leave ;Cond
-Cond: ?LEAVE    restrict? compile 0=  compile ?branch (leave  ;Cond
-
-\ Structural Conditionals                              12dec92py
-
-Cond: AHEAD     restrict? compile branch >mark ;Cond
-Cond: IF        restrict? compile ?branch >mark ;Cond
-Cond: THEN      restrict? sys? branchto, dup T @ H ?struc >resolve ;Cond
-Cond: ELSE      restrict? sys? compile AHEAD swap compile THEN ;Cond
-
-Cond: BEGIN     restrict? T branchto, here ( dup ." B" hex. ) H ;Cond
-Cond: WHILE     restrict? sys? compile IF swap ;Cond
-Cond: AGAIN     restrict? sys? compile branch <resolve ;Cond
-Cond: UNTIL     restrict? sys? compile ?branch <resolve ;Cond
-Cond: REPEAT    restrict? over 0= ?struc compile AGAIN compile THEN ;Cond
-
-Cond: CASE      restrict? 0 ;Cond
-Cond: OF        restrict? 1+ >r compile over compile =
-                compile IF compile drop r> ;Cond
-Cond: ENDOF     restrict? >r compile ELSE r> ;Cond
-Cond: ENDCASE   restrict? compile drop 0 ?DO  compile THEN  LOOP ;Cond
-
-\ Structural Conditionals                              12dec92py
-
-Cond: DO        restrict? compile (do)   T here H ;Cond
-Cond: ?DO       restrict? compile (?do)  T (leave here H ;Cond
-Cond: FOR       restrict? compile (for)  T here H ;Cond
-
->CROSS
-: loop]   dup <resolve tcell - compile DONE compile unloop ;
->TARGET
-
-Cond: LOOP      restrict? sys? compile (loop)  loop] ;Cond
-Cond: +LOOP     restrict? sys? compile (+loop) loop] ;Cond
-Cond: NEXT      restrict? sys? compile (next)  loop] ;Cond
-
-[ELSE]
-
-\ structural conditionals                              17dec92py
-
->CROSS
-: ?struc      ( flag -- )       ABORT" CROSS: unstructured " ;
-: sys?        ( sys -- sys )    dup 0= ?struc ;
-: >mark       ( -- sys )        T here  ( dup ." M" hex. ) 0 , H ;
-
-: branchoffset ( src dest -- ) - ;
-
-: >resolve    ( sys -- )        T here ( dup ." >" hex. ) over branchoffset swap ! H ;
-
-: <resolve    ( sys -- )        T here ( dup ." <" hex. ) branchoffset , H ;
-
-:noname compile branch T here branchoffset , H ; IS branch,
-:noname compile ?branch T here branchoffset , H ; IS ?branch,
-:noname compile branch T here 0 , H ; IS branchmark,
-:noname compile ?branch T here 0 , H ; IS  ?branchmark,
-:noname dup T @ H ?struc T here over branchoffset swap ! H ; IS branchtoresolve,
-:noname branchto, T here H ; IS branchtomark,
-
->TARGET
-
-\ Structural Conditionals                              12dec92py
-
-Cond: BUT       restrict? sys? swap ;Cond
-Cond: YET       restrict? sys? dup ;Cond
-
-1 [IF]
->CROSS
-Variable tleavings
->TARGET
-
-Cond: DONE   ( addr -- )  restrict? tleavings @
-      BEGIN  2dup u> 0=  WHILE  dup T @ H swap >resolve REPEAT
-      tleavings ! drop ;Cond
-
->CROSS
-: (leave  T here H tleavings @ T , H  tleavings ! ;
->TARGET
-
-Cond: LEAVE     restrict? compile branch (leave ;Cond
-Cond: ?LEAVE    restrict? compile 0=  compile ?branch (leave  ;Cond
+Cond: LEAVE     restrict? compile branch (leave) ;Cond
+Cond: ?LEAVE    restrict? compile 0=  compile ?branch (leave)  ;Cond
 
 [ELSE]
     \ !! This is WIP
@@ -1590,22 +1672,25 @@ Cond: ?LEAVE    restrict? compile 0=  compile ?branch (leave  ;Cond
     
 >CROSS
 Variable tleavings 0 tleavings !
+: (done) ( addr -- )
+    tleavings @
+    BEGIN  dup
+    WHILE
+	>r dup r@ cell+ @ \ address of branch
+	u> 0=	   \ lower than DO?	
+    WHILE
+	r@ 2 cells + @ \ branch token
+	branchtoresolve,
+	r@ @ r> free throw
+    REPEAT  r>  THEN
+    tleavings ! drop ;
+
 >TARGET
 
-Cond: DONE   ( addr -- )  
-      restrict? tleavings @
-      BEGIN  dup
-      WHILE  >r dup r@ cell+ @ \ address of branch
-	     u> 0=	   \ lower than DO?	
-      WHILE  r@ 2 cells + @ \ branch token
-	     branchtoresolve,
-	     r@ @ r> free throw
-      REPEAT drop r>
-      THEN
-      tleavings ! drop ;Cond
+Cond: DONE   ( addr -- )  restrict? (done) ;Cond
 
 >CROSS
-: (leave ( branchtoken -- )
+: (leave) ( branchtoken -- )
     3 cells allocate throw >r
     T here H r@ cell+ !
     r@ 2 cells + !
@@ -1613,10 +1698,30 @@ Cond: DONE   ( addr -- )
     r> tleavings ! ;
 >TARGET
 
-Cond: LEAVE     restrict? branchmark, (leave ;Cond
-Cond: ?LEAVE    restrict? compile 0=  ?branchmark, (leave  ;Cond
+Cond: LEAVE     restrict? branchmark, (leave) ;Cond
+Cond: ?LEAVE    restrict? compile 0=  ?branchmark, (leave)  ;Cond
 
 [THEN]
+
+>CROSS
+\ !!JW ToDo : Move to general tools section
+
+: to1 ( x1 x2 xn n -- addr )
+\G packs n stack elements in a allocated memory region
+   dup dup 1+ cells allocate throw dup >r swap 1+
+   0 DO tuck ! cell+ LOOP
+   drop r> ;
+: 1to ( addr -- x1 x2 xn )
+\G unpacks the elements saved by to1
+    dup @ swap over cells + swap
+    0 DO  dup @ swap 1 cells -  LOOP
+    free throw ;
+
+: loop]     branchto, dup <resolve tcell - (done) ;
+
+: skiploop] ?dup IF branchto, branchtoresolve, THEN ;
+
+>TARGET
 
 \ Structural Conditionals                              12dec92py
 
@@ -1640,19 +1745,37 @@ Cond: ENDCASE   restrict? compile drop 0 ?DO  compile THEN  LOOP ;Cond
 
 \ Structural Conditionals                              12dec92py
 
-Cond: DO        restrict? compile (do)   T here H ;Cond
-Cond: ?DO       restrict? compile (?do)  T (leave here H ;Cond
-Cond: FOR       restrict? compile (for)  T here H ;Cond
+:noname
+    0 compile (do)
+    branchtomark,  2 to1 ;
+  IS do, ( -- target-addr )
 
->CROSS
-: loop]   branchto, dup <resolve tcell - compile DONE compile unloop ;
->TARGET
+\ :noname
+\     compile 2dup compile = compile IF
+\     compile 2drop compile ELSE
+\     compile (do) branchtomark, 2 to1 ;
+\   IS ?do,
+    
+:noname
+    0 compile (?do)  ?domark, (leave)
+    branchtomark,  2 to1 ;
+  IS ?do, ( -- target-addr )
+:noname compile (for) branchtomark, ;
+  IS for, ( -- target-addr )
+:noname 1to compile (loop)  loop] compile unloop skiploop] ;
+  IS loop, ( target-addr -- )
+:noname 1to compile (+loop)  loop] compile unloop skiploop] ;
+  IS +loop, ( target-addr -- )
+:noname compile (next)  loop] compile unloop ;
+  IS next, ( target-addr -- )
 
-Cond: LOOP      restrict? sys? compile (loop)  loop] ;Cond
-Cond: +LOOP     restrict? sys? compile (+loop) loop] ;Cond
-Cond: NEXT      restrict? sys? compile (next)  loop] ;Cond
+Cond: DO      	restrict? do, ;Cond
+Cond: ?DO     	restrict? ?do, ;Cond
+Cond: FOR	restrict? for, ;Cond
 
-[THEN]
+Cond: LOOP	restrict? sys? loop, ;Cond
+Cond: +LOOP	restrict? sys? +loop, ;Cond
+Cond: NEXT	restrict? sys? next, ;Cond
 
 \ String words                                         23feb93py
 
@@ -1694,20 +1817,69 @@ Cond: compile ( -- ) restrict? \ name
       0> IF    gexecute
          ELSE  dup >magic @ <imm> =
                IF   gexecute
-               ELSE compile (compile) gexecute THEN THEN ;Cond
+               ELSE compile (compile) addr, THEN THEN ;Cond
 
 Cond: postpone ( -- ) restrict? \ name
       bl word gfind dup 0= ABORT" CROSS: Can't compile"
       0> IF    gexecute
          ELSE  dup >magic @ <imm> =
                IF   gexecute
-               ELSE compile (compile) gexecute THEN THEN ;Cond
-
+	       ELSE compile (compile) addr, THEN THEN ;Cond
+	   
+\ \ minimal definitions
+	   
 >MINIMAL
 also minimal
 \ Usefull words                                        13feb93py
 
 : KB  400 * ;
+
+\ \ [IF] [ELSE] [THEN] ...				14sep97jaw
+
+\ it is useful to define our own structures and not to rely
+\ on the words in the compiler
+\ The words in the compiler might be defined with vocabularies
+\ this doesn't work with our self-made compile-loop
+
+Create parsed 20 chars allot	\ store word we parsed
+
+: upcase
+    parsed count bounds
+    ?DO I c@ toupper I c! LOOP ;
+
+: [ELSE]
+    1 BEGIN
+	BEGIN bl word count dup WHILE
+	    comment? parsed place upcase parsed count
+	    2dup s" [IF]" compare 0= >r 
+	    2dup s" [IFUNDEF]" compare 0= >r
+	    2dup s" [IFDEF]" compare 0= r> or r> or
+	    IF   2drop 1+
+	    ELSE 2dup s" [ELSE]" compare 0=
+		IF   2drop 1- dup
+		    IF 1+
+		    THEN
+		ELSE
+		    2dup s" [ENDIF]" compare 0= >r
+		    s" [THEN]" compare 0= r> or
+		    IF 1- THEN
+		THEN
+	    THEN
+	    ?dup 0= ?EXIT
+	REPEAT
+	2drop refill 0=
+    UNTIL drop ; immediate
+  
+: [THEN] ( -- ) ; immediate
+
+: [ENDIF] ( -- ) ; immediate
+
+: [IF] ( flag -- )
+    0= IF postpone [ELSE] THEN ; immediate 
+
+Cond: [IF]      postpone [IF] ;Cond
+Cond: [THEN]    postpone [THEN] ;Cond
+Cond: [ELSE]    postpone [ELSE] ;Cond
 
 \ define new [IFDEF] and [IFUNDEF]                      20may93jaw
 
@@ -1726,6 +1898,10 @@ also minimal
 	   postpone [IF] ;
 
 : [IFUNDEF] defined? 0= postpone [IF] ;
+
+Cond: [IFDEF]   postpone [IFDEF] ;Cond
+
+Cond: [IFUNDEF] postpone [IFUNDEF] ;Cond
 
 \ C: \- \+ Conditional Compiling                         09jun93jaw
 
@@ -1759,16 +1935,6 @@ Cond: \D \D ;Cond
 : needed:
 \G defines ghost for words that we want to be compiled
   BEGIN >in @ bl word c@ WHILE >in ! ghost drop REPEAT drop ;
-
-: [IF]   postpone [IF] ;
-: [THEN] postpone [THEN] ;
-: [ELSE] postpone [ELSE] ;
-
-Cond: [IF]      [IF] ;Cond
-Cond: [IFDEF]   [IFDEF] ;Cond
-Cond: [IFUNDEF] [IFUNDEF] ;Cond
-Cond: [THEN]    [THEN] ;Cond
-Cond: [ELSE]    [ELSE] ;Cond
 
 previous
 
@@ -1818,6 +1984,8 @@ also minimal
 
 bigendian Constant bigendian
 : here there ;
+
+\ compiler directives
 : >ram >ram ;
 : >rom >rom ;
 : >auto >auto ;
@@ -1825,7 +1993,7 @@ bigendian Constant bigendian
 : tempdp> tempdp> ;
 : const constflag on ;
 : warnings name 3 = 0= twarnings ! drop ;
-
+: | NoHeaderFlag on ;
 
 : save-cross save-cross ;
 : save-region save-region ;

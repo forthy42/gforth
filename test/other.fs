@@ -67,7 +67,7 @@ locals-test2
 \ multiple reveals (recursive)
 
 0
-: xxx recursive ;
+: xxx recursive ; .s
 throw \ if the TOS is not 0, throw an error
 
 \ look for primitives

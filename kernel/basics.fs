@@ -203,7 +203,7 @@ has? glocals [IF]
 
 : throw ( y1 .. ym error/0 -- y1 .. ym / z1 .. zn error ) \ exception
     ?DUP IF
-	[ has? header [IF] here 9 cells ! [THEN] ] ] \ entry point for signal handler
+	[ has? header [IF] here 9 cells ! [THEN] ] \ entry point for signal handler
 [ has? interpreter [IF] ]
 	handler @ dup 0= IF
 [ has? os [IF] ]
@@ -250,6 +250,9 @@ has? glocals [IF]
 	r> "error ! -2 throw
     THEN
     rdrop ;
+
+: abort ( ?? -- ?? ) \ core,exception-ext
+    -1 throw ;
 
 \ ?stack                                               23feb93py
 

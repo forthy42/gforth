@@ -47,7 +47,7 @@ mypath path=
 mypath .path
 
 do a open with the search path:
-open-path-file ( adr len path -- fd adr len )
+open-path-file ( adr len path -- fd adr len ior )
 the file is opened read-only; if the file is not found an error is generated
 
 \ questions to: wilke@jwdt.com
@@ -146,13 +146,55 @@ Create tfile 0 c, 255 chars allot
   ofile count 2 min s" ~+" compare 0=
   IF 	ofile count 2 /string tfile place
 	0 ofile c! sourcefilename extractpath ofile place need/
-	tfile count ofile +place
+	tfile count over c@ pathsep? IF 1 /string THEN
+	ofile +place
   THEN ;
 	
+: compact// ( adr len -- adr2 len2 )
+\ deletes phrases like "//" out of our directory name 2dec97jaw
+  over >r
+  BEGIN	dup WHILE
+	over c@ pathsep? over 1- 0<> and
+	IF over 1+ c@ pathsep?
+	   IF 	1- over 1+ swap move
+	   THEN
+	THEN
+	1 /string
+   REPEAT 
+   drop r> tuck - ;
+
+: compact.. ( adr len -- adr2 len2 )
+\ deletes phrases like "xy/.." out of our directory name 2dec97jaw
+  over >r -1 >r
+  BEGIN dup WHILE
+	over c@ pathsep? 
+	IF 	r@ -1 =
+		IF	r> drop dup >r
+		ELSE	2dup 1 /string 
+			3 min s" ../" compare
+			0=
+			IF	r@ over - ( diff )
+				2 pick swap - ( dest-adr )
+				>r 3 /string r> swap 2dup >r >r
+				move r> r>
+			ELSE	r> drop dup >r
+			THEN
+		THEN
+	THEN
+	1 /string
+  REPEAT 
+  r> drop 
+  drop r> tuck - ;
+
+: reworkdir
+  expandtopic
+  ofile count compact// compact..
+  nip ofile c! ;
+
 : check-path ( adr1 len1 adr2 len2 -- fd 0 | 0 <>0 )
   0 ofile ! >r >r ofile place need/
   r> r> ofile +place
-  expandtopic
+  reworkdir
   ofile count r/o open-file ;
 
 : open-path-file ( adr len path-addr -- fd adr1 len2 0 | ior ) \ gforth
@@ -162,8 +204,8 @@ Create tfile 0 c, 255 chars allot
   >r
   2dup absolut-path?
   IF    rdrop
-        ofile place expandtopic ofile count r/o open-file throw
-        ofile count 0 EXIT
+        ofile place reworkdir ofile count r/o open-file
+	dup 0= IF >r ofile count r> THEN EXIT
   ELSE  r> path>counted
         BEGIN  next-path dup
         WHILE  5 pick 5 pick check-path

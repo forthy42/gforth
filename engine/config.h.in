@@ -1,0 +1,111 @@
+/* engine/config.h.in.  Generated automatically from configure.in by autoheader.  */
+
+/* Define if `sys_siglist' is declared by <signal.h>.  */
+#undef SYS_SIGLIST_DECLARED
+
+/* Define if your processor stores words with the most significant
+   byte first (like Motorola and SPARC, unlike Intel and VAX).  */
+#undef WORDS_BIGENDIAN
+
+/* Define if you want to force a direct threaded code implementation
+   (does not work on all machines */
+#ifndef DIRECT_THREADED
+#undef DIRECT_THREADED
+#endif
+
+/* Define if you want to force an indirect threaded code implementation */
+#ifndef INDIRECT_THREADED
+#undef INDIRECT_THREADED
+#endif
+
+/* Define if you want to use explicit register declarations for better
+   performance or for more convenient CODE words (does not work with
+   all GCC versions on all machines) */
+#ifndef FORCE_REG
+#undef FORCE_REG
+#endif
+
+/* an integer type that is as long as a pointer */
+#define CELL_TYPE long
+
+/* an integer type that is twice as long as a pointer */
+#define DOUBLE_CELL_TYPE none
+
+/* a path separator character */
+#define PATHSEP ':'
+
+/* define this if there is no working DOUBLE_CELL_TYPE on your machine */
+#undef BUGGY_LONG_LONG
+
+/* The number of bytes in a char *.  */
+#undef SIZEOF_CHAR_P
+
+/* The number of bytes in a int.  */
+#undef SIZEOF_INT
+
+/* The number of bytes in a long.  */
+#undef SIZEOF_LONG
+
+/* The number of bytes in a long long.  */
+#undef SIZEOF_LONG_LONG
+
+/* The number of bytes in a short.  */
+#undef SIZEOF_SHORT
+
+/* Define if you have the atanh function.  */
+#undef HAVE_ATANH
+
+/* Define if you have the dlopen function.  */
+#undef HAVE_DLOPEN
+
+/* Define if you have the ecvt function.  */
+#undef HAVE_ECVT
+
+/* Define if you have the expm1 function.  */
+#undef HAVE_EXPM1
+
+/* Define if you have the getpagesize function.  */
+#undef HAVE_GETPAGESIZE
+
+/* Define if you have the log1p function.  */
+#undef HAVE_LOG1P
+
+/* Define if you have the memmove function.  */
+#undef HAVE_MEMMOVE
+
+/* Define if you have the mmap function.  */
+#undef HAVE_MMAP
+
+/* Define if you have the pow10 function.  */
+#undef HAVE_POW10
+
+/* Define if you have the rint function.  */
+#undef HAVE_RINT
+
+/* Define if you have the strerror function.  */
+#undef HAVE_STRERROR
+
+/* Define if you have the strsignal function.  */
+#undef HAVE_STRSIGNAL
+
+/* Define if you have the strtoul function.  */
+#undef HAVE_STRTOUL
+
+/* Define if you have the sys_siglist function.  */
+#undef HAVE_SYS_SIGLIST
+
+/* Define if you have the sysconf function.  */
+#undef HAVE_SYSCONF
+
+/* Define if you have the <sys/mman.h> header file.  */
+#undef HAVE_SYS_MMAN_H
+
+/* Define if you have the dl library (-ldl).  */
+#undef HAVE_LIBDL
+
+/* Define if you have the kernel32 library (-lkernel32).  */
+#undef HAVE_LIBKERNEL32
+
+/* Define if you have the m library (-lm).  */
+#undef HAVE_LIBM
+/* Of course, sys_siglist is a variable, not a function */

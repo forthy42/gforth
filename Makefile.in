@@ -31,8 +31,8 @@
 # ------------- gforth version
 
 VERSION_MAJOR=0
-VERSION_MINOR=3
-VERSION_RELEASE=1
+VERSION_MINOR=4
+VERSION_RELEASE=0
 VERSION	=$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_RELEASE)
 DOSVERSION=$(VERSION_MAJOR)$(VERSION_MINOR)$(VERSION_RELEASE)
 
@@ -131,11 +131,29 @@ KERN_SRC = \
 	kernel/vars.fs \
 	kernel/accept.fs \
 	kernel/basics.fs \
-	kernel/interp.fs \
+	kernel/int.fs \
+	kernel/comp.fs \
 	kernel/io.fs \
 	kernel/license.fs \
 	kernel/nio.fs \
 	kernel/saccept.fs
+
+EC_SRC = \
+	asm/00-readme \
+	asm/bitmask.fs \
+	asm/numref.fs \
+	asm/basic.fs \
+	asm/generic.fs \
+	asm/target.fs \
+	ec/00-readme \
+	ec/crossdoc.fd \
+	ec/mirror.fs \
+	ec/mirrors.fs \
+	ec/shex.fs \
+	ec/builttag.fs \
+	ec/dotx.fs \
+	ec/mirrored.fs \
+	ec/nesting.fs
 
 GFORTH_FI_SRC = \
 	assert.fs \
@@ -171,7 +189,7 @@ GFORTH_FI_SRC = \
 	sieve.fs \
 	add.fs
 
-FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_SRC) \
+FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_SRC) $(EC_SRC) \
 	ans-report.fs ansi.fs answords.fs \
 	code.fs colorize.fs comp-i.fs \
 	doskey.fs ds2texi.fs \
@@ -213,7 +231,30 @@ ARCHS =	arch/generic/machine.h \
 	arch/misc/prim.fs \
 	arch/misc/sim.fs \
 	arch/misc/sokoban.fs \
-	arch/misc/tt.fs
+	arch/misc/tt.fs \
+	arch/6502/asm.fs \
+	arch/6502/prim.fs \
+	arch/6502/mach.fs \
+	arch/6502/zero.fs \
+	arch/6502/softuart.fs \
+	arch/6502/cold.fs \
+	arch/8086/asm.fs \
+	arch/8086/mach.fs \
+	arch/8086/mach.sh \
+	arch/8086/prim.fs \
+	arch/avr/asm.fs \
+	arch/c165/asm.fs \
+	arch/c165/mach.fs \
+	arch/c165/prim.fs \
+	arch/h8/asm.fs \
+	arch/shboom/asm.fs \
+	arch/shboom/compiler.fs \
+	arch/shboom/dis.fs \
+	arch/shboom/mach.fs \
+	arch/shboom/prim.fs \
+	arch/shboom/dis2.fs \
+	arch/shboom/sh.p \
+	arch/shboom/doers.fs
 
 SOURCES	= CVS compat Makefile.in engine/Makefile.in gforthmi \
 	configure.in configure config.sub config.guess \
@@ -445,7 +486,7 @@ check test:	gforth gforth.fi
 		$(FORTH) test/other.fs -e bye
 		$(FORTH) code.fs test/checkans.fs -e bye
 		@echo 'Expect no differences'
-		$(FORTH) -m 100000 prims2x.fs -e "s\" $(srcdir)/prim.b\"' output-c process-file bye"| diff -c - $(srcdir)/engine/prim.i
+		$(FORTHK) -m 100000 prims2x.fs -e "s\" $(srcdir)/prim.b\"' output-c process-file bye"| diff -c - $(srcdir)/engine/prim.i
 
 bench:		gforth gforth.fi
 		@echo 'Each benchmark takes about 30s on a 486-66 (gcc-2.6.3 -DFORCE_REG)'
@@ -556,10 +597,10 @@ kernel/prim.fs:	prim.b prims2x.fs kernel/prim0.fs
 		$(RM) $@-
 
 engine:		engine/prim_lab.i engine/prim.i engine/version.h FORCE
-		bash makein.bsh engine engine
+		$(MAKE) -C engine engine
 
 engine_ditc:	engine/prim_lab.i engine/prim.i engine/version.h FORCE
-		bash makein.bsh engine engine_ditc
+		$(MAKE) -C engine engine_ditc
 
 gforth:		engine
 		-$(CP) gforth gforth~
@@ -569,6 +610,14 @@ gforth:		engine
 gforth-ditc:	engine_ditc
 		$(GCC) $(LDFLAGS) $(OBJECTS_DITC) $(OBJECTS0) $(LDLIBS) -o $@
 		@GFORTHDITC_EXE@
+
+# ------------- additional C primitives
+
+%.c:		%.pri prim2cl.fs
+		$(FORTHK) prim2cl.fs -e "file $< altogether bye" >$@
+
+%.so:		%.c
+		$(GCC) -shared $(CFLAGS) $< -o $@
 
 # -------------	Make Documentation
 

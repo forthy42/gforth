@@ -74,12 +74,12 @@ include  termsize.fs
     BEGIN
 	@ dup
     WHILE
-	2dup head>string nip 2 + dup >r +
+	2dup name>string nip 2 + dup >r +
 	cols >=
 	IF
 	    cr nip 0 swap
 	THEN
-	dup head>string type space r> rot + swap
+	dup name>string type space r> rot + swap
     REPEAT
     2drop ;
 

@@ -31,19 +31,33 @@
 
 true  Constant NIL  \ relocating
 
-false Constant has-files 
-false Constant has-OS
-false Constant has-prims
-false Constant has-floats
-false Constant has-locals
-false Constant has-dcomps
-false Constant has-hash
-false Constant has-xconds
-false Constant has-header
-false Constant ITC
-
 : prims-include  ." Include primitives" cr s" arch/4stack/prim.fs" included ;
 : asm-include    ." Include assembler" cr s" arch/4stack/asm.fs" included ;
 
 : >boot
     S" ' boot >body $800 ! here $804 !" evaluate ;
+
+>ENVIRON
+
+false Constant file		\ controls the presence of the
+				\ file access wordset
+false Constant OS		\ flag to indicate a operating system
+
+false Constant prims		\ true: primitives are c-code
+
+false Constant floating		\ floating point wordset is present
+
+false Constant glocals		\ gforth locals are present
+				\ will be loaded
+false Constant dcomps		\ double number comparisons
+
+false Constant hash		\ hashing primitives are loaded/present
+
+false Constant xconds		\ used together with glocals,
+				\ special conditionals supporting gforths'
+				\ local variables
+false Constant header		\ save a header information
+
+false Constant ec
+false Constant crlf
+false Constant ITC

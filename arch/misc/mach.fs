@@ -40,16 +40,24 @@ false Constant NIL  \ relocating
 
 >ENVIRON
 
-false Constant file
-false Constant OS
-false Constant prims
-false Constant floating
-false Constant glocals
-false Constant dcomps
-false Constant hash
-false Constant xconds
-false Constant header
-true  Constant ec
-true  Constant crlf
-true  Constant ITC
+false Constant file		\ controls the presence of the
+				\ file access wordset
+false Constant OS		\ flag to indicate a operating system
 
+false Constant prims		\ true: primitives are c-code
+
+false Constant floating		\ floating point wordset is present
+
+false Constant glocals		\ gforth locals are present
+				\ will be loaded
+false Constant dcomps		\ double number comparisons
+
+false Constant hash		\ hashing primitives are loaded/present
+
+false Constant xconds		\ used together with glocals,
+				\ special conditionals supporting gforths'
+				\ local variables
+false Constant header		\ save a header information
+
+true Constant ec
+false Constant crlf
