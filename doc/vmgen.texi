@@ -29,8 +29,8 @@ machine code.
 @end itemize
 
 Such a division is usually used in interpreters, for modularity as well
-as for efficiency reasons.  The virtual machine code is typically passed
-between front end and virtual machine interpreter in memory, like in a
+as for efficiency.  The virtual machine code is typically passed between
+front end and virtual machine interpreter in memory, like in a
 load-and-go compiler; this avoids the complexity and time cost of
 writing the code to a file and reading it again.
 
@@ -129,7 +129,6 @@ Vmgen makes it even easier to implement interpreters.  It also supports
 techniques for building efficient interpreters.
 
 @c ********************************************************************
-
 @chapter Concepts
 
 @c --------------------------------------------------------------------
@@ -202,6 +201,38 @@ your run-time libraries.  Using @emph{reference counting} is probably
 harder, but might be possible (contact us if you are interested).
 @c reference counting might be possible by including counting code in 
 @c the conversion macros.
+
+@section Dispatch
+
+Understanding this section is probably not necessary for using vmgen,
+but it may help.  You may want to skip it now, and read it if you find statements about dispatch methods confusing.
+
+After executing one VM instruction, the VM interpreter has to dispatch
+the next VM instruction (vmgen calls the dispatch routine @samp{NEXT}).
+Vmgen supports two methods of dispatch:
+
+@table
+
+@item switch dispatch
+In this method the VM interpreter contains a giant @code{switch}
+statement, with one @code{case} for each VM instruction.  The VM
+instructions are represented by integers (e.g., produced by an
+@code{enum}) in the VM code, and dipatch occurs by loading the next
+integer from the VM code, @code{switch}ing on it, and continuing at the
+appropriate @code{case}; after executing the VM instruction, jump back
+to the dispatch code.
+
+@item threaded code
+This method represents a VM instruction in the VM code by the address of
+the start of the machine code fragment for executing the VM instruction.
+Dispatch consists of loading this address, jumping to it, and
+incrementing the VM instruction pointer.  Typically the threaded-code
+dispatch code is appended directly to the code for executing the VM
+instruction.  Threaded code cannot be implemented in ANSI C, but it can
+be implemented using GNU C's labels-as-values extension (@pxref{labels
+as values}).
+
+@end table
 
 @c *************************************************************
 @chapter Invoking vmgen
@@ -681,14 +712,26 @@ purposes.  This chapter is just the reference manual for the macros
 etc. used by the generated code, and the other context expected by the
 generated code, and what you can do with the various generated files.
 
+
 @section VM engine
 
 The VM engine is the VM interpreter that executes the VM code.  It is
 essential for an interpretive system.
 
-The main file generated for the VM interpreter is
-@file{@var{name}-vm.i}.  It uses the following macros and variables (and
-you have to define them):
+Vmgen supports two methods of VM instruction dispatch: @emph{threaded
+code} (fast, but gcc-specific), and @emph{switch dispatch} (slow, but
+portable across C compilers); you can use conditional compilation
+(@samp{defined(__GNUC__)}) to choose between these methods, and our
+example does so.
+
+For both methods, the VM engine is contained in a C-level function.
+Vmgen generates most of the contents of the function for you
+(@file{@var{name}-vm.i}), but you have to define this function, and
+macros and variables used in the engine, and initialize the variables.
+In our example the engine function also includes
+@file{@var{name}-labels.i} (@pxref{VM instruction table}).
+
+The following macros and variables are used in @file{@var{name}-vm.i}:
 
 @table @code
 
@@ -813,23 +856,175 @@ basic type of the stack.
 
 @end table
 
-The file @file{@var{name}-labels.i} is used for enumerating or listing
-all virtual machine instructions and uses the following macro:
+
+@section{VM instruction table}
+
+For threaded code we also need to produce a table containing the labels
+of all VM instructions.  This is needed for VM code generation
+(@pxref{VM code generation}), and it has to be done in the engine
+function, because the labels are not visible outside.  It then has to be
+passed outside the function (and assigned to @samp{vm_prim}), to be used
+by the VM code generation functions.
+
+This means that the engine function has to be called first to produce
+the VM instruction table, and later, after generating VM code, it has to
+be called again to execute the generated VM code (yes, this is ugly).
+In our example program, these two modes of calling the engine function
+are differentiated by the value of the parameter ip0 (if it equals 0,
+then the table is passed out, otherwise the VM code is executed); in our
+example, we pass the table out by assigning it to @samp{vm_prim} and
+returning from @samp{engine}.
+
+In our example, we also build such a table for switch dispatch; this is
+mainly done for uniformity.
+
+For switch dispatch, we also need to define the VM instruction opcodes
+used as case labels in an @code{enum}.
+
+For both purposes (VM instruction table, and enum), the file
+@file{@var{name}-labels.i} is generated by vmgen.  You have to define
+the following macro used in this file:
 
 @table @samp
 
 @item INST_ADDR(@var{inst_name})
 For switch dispatch, this is just the name of the switch label (the same
-name as used in @samp{LABEL(@var{inst_name})}).  For threaded-code
-dispatch, this is the address of the label defined in
-@samp{LABEL(@var{inst_name})}); the address is taken with @samp{&&}
-(@pxref{labels-as-values}).
+name as used in @samp{LABEL(@var{inst_name})}), for both uses of
+@file{@var{name}-labels.i}.  For threaded-code dispatch, this is the
+address of the label defined in @samp{LABEL(@var{inst_name})}); the
+address is taken with @samp{&&} (@pxref{labels-as-values}).
+
+@end table
+
+
+@section VM code generation
+
+Vmgen generates VM code generation functions in @file{@var{name}-gen.i}
+that the front end can call to generate VM code.  This is essential for
+an interpretive system.
+
+For a VM instruction @samp{x ( #a b #c -- d )}, vmgen generates a
+function with the prototype
+
+@example
+void gen_x(Inst **ctp, a_type a, c_type c)
+@end example
+
+The @code{ctp} argument points to a pointer to the next instruction.
+@code{*ctp} is increased by the generation functions; i.e., you should
+allocate memory for the code to be generated beforehand, and start with
+*ctp set at the start of this memory area.  Before running out of
+memory, allocate a new area, and generate a VM-level jump to the new
+area (this is not implemented in our examples).
+
+The other arguments correspond to the immediate arguments of the VM
+instruction (with their appropriate types as defined in the
+@code{type_prefix} declaration.
+
+The following types, variables, and functions are used in
+@file{@var{name}-gen.i}:
+
+@table @samp
+
+@item Inst
+The type of the VM instruction; if you use threaded code, this is
+@code{void *}; for switch dispatch this is an integer type.
+
+@item vm_prim
+The VM instruction table (type: @code{Inst *}, @pxref{VM instruction table}).
+
+@item gen_inst(Inst **ctp, Inst i)
+This function compiles the instruction @code{i}.  Take a look at it in
+@file{vmgen-ex/peephole.c}.  It is trivial when you don't want to use
+superinstructions (just the last two lines of the example function), and
+slightly more complicated in the example due to its ability to use
+superinstructions (@pxref{Peephole optimization}).
+
+@item genarg_@var{type_prefix}(Inst **ctp, @var{type} @var{type_prefix})
+This compiles an immediate argument of @var{type} (as defined in a
+@code{type-prefix} definition).  These functions are trivial to define
+(see @file{vmgen-ex/support.c}).  You need one of these functions for
+every type that you use as immediate argument.
+
+@end table
+
+In addition to using these functions to generate code, you should call
+@code{BB_BOUNDARY} at every basic block entry point if you ever want to
+use superinstructions (or if you want to use the profiling supported by
+vmgen; however, this is mainly useful for selecting superinstructions).
+If you use @code{BB_BOUNDARY}, you should also define it (take a look at
+its definition in @file{vmgen-ex/mini.y}).
+
+You do not need to call @code{BB_BOUNDARY} after branches, because you
+will not define superinstructions that contain branches in the middle
+(and if you did, and it would work, there would be no reason to end the
+superinstruction at the branch), and because the branches announce
+themselves to the profiler.
+
+
+@section Peephole optimization
+
+You need peephole optimization only if you want to use
+superinstructions.  But having the code for it does not hurt much if you
+do not use superinstructions.
+
+A simple greedy peephole optimization algorithm is used for
+superinstruction selection: every time @code{gen_inst} compiles a VM
+instruction, it looks if it can combine it with the last VM instruction
+(which may also be a superinstruction resulting from a previous peephole
+optimization); if so, it changes the last instruction to the combined
+instruction instead of laying down @code{i} at the current @samp{*ctp}.
+
+The code for peephole optimization is in @file{vmgen-ex/peephole.c}.
+You can use this file almost verbatim.  Vmgen generates
+@file{@var{file}-peephole.i} which contains data for the peephoile
+optimizer.
+
+You have to call @samp{init_peeptable()} after initializing
+@samp{vm_prim}, and before compiling any VM code to initialize data
+structures for peephole optimization.  After that, compiling with the VM
+code generation functions will automatically combine VM instructions
+into superinstructions.  Since you do not want to combine instructions
+across VM branch targets (otherwise there will not be a proper VM
+instruction to branch to), you have to call @code{BB_BOUNDARY}
+(@pxref{VM code generation}) at branch targets.
+
+
+@section VM disassembler
+
+A VM code disassembler is optional for an interpretive system, but
+highly recommended during its development and maintenance, because it is
+very useful for detecting bugs in the front end (and for distinguishing
+them from VM interpreter bugs).
+
+Vmgen supports VM code disassembling by generating
+@file{@var{file}-disasm.i}.  This code has to be wrapped into a
+function, as is done in @file{vmgen-ex/disasm.i}.  You can use this file
+almost verbatim.  In addition to @samp{vm_@var{A}2@var{B}(a,b)},
+@samp{vm_out}, @samp{printarg_@var{type}(@var{value})}, which are
+explained above, the following macros and variables are used in
+@file{@var{file}-disasm.i} (and you have to define them):
+
+@table @samp
+
+@item ip
+This variable points to the opcode of the current VM instruction.
+
+@item IP IPTOS
+@samp{IPTOS} is the first argument of the current VM instruction, and
+@samp{IP} points to it; this is just as in the engine, but here
+@samp{ip} points to the opcode of the VM instruction (in contrast to the
+engine, where @samp{ip} points to the next cell, or even one further).
+
+@item VM_IS_INST(Inst i, int n)
+Tests if the opcode @samp{i} is the same as the @samp{n}th entry in the
+VM instruction table.
 
 @end table
 
 
 
-@section Stacks, types, and prefixes
+
 
 
 
