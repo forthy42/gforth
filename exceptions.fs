@@ -81,7 +81,7 @@ is catch
 	[ here forthstart 9 cells + ! ]
 	store-backtrace
 	handler @ ?dup-0=-IF
-	    cr .error cr
+	    cr ." uncaught exception: " .error cr
 	    2 (bye)
 	    quit
 	THEN

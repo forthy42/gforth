@@ -758,7 +758,6 @@ Variable init8
 [ has? backtrace [IF] ]
     rp@ backtrace-rp0 !
 [ [THEN] ]
-    handler off
 [ has? file [IF] ]
     pathstring 2@ fpath only-path 
     init-included-files
@@ -799,6 +798,7 @@ Variable init8
 [ has? floating [IF] ]
     fp@ fp0 !
 [ [THEN] ]
+    handler off
     ['] cold catch DoError cr
 [ has? os [IF] ]
     1 (bye) \ !! determin exit code from throw code?
