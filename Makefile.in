@@ -545,7 +545,15 @@ uninstall:	FORCE
 		-$(RM) -rf $(libdir)/gforth/$(VERSION) $(datadir)/gforth/$(VERSION) $(bindir)/gforth-$(VERSION)$(EXE) $(bindir)/gforth-fast-$(VERSION)$(EXE) $(bindir)/gforthmi-$(VERSION) (bindir)/vmgen-$(VERSION)
 		@echo -e "To remove Gforth completely, type\n$(RM) -rf $(bindir)/gforth$(EXE) $(bindir)/gforth-fast$(EXE) $(bindir)/gforthmi $(bindir)/vmgen $(man1dir)/gforth.1 $(infodir)/gforth.info* $(datadir)/gforth $(libdir)/gforth"
 
-check test:	gforth$(EXE) gforth.fi
+check:		gforths	gforth.fi
+		make checkone ENGINE="./gforth --no-dynamic" &>/dev/null
+		make checkone ENGINE="./gforth-itc" &>/dev/null
+		make checkone ENGINE="./gforth-ditc" &>/dev/null
+		make checkone ENGINE="./gforth-fast --no-dynamic" &>/dev/null
+		make checkone ENGINE="./gforth" &>/dev/null
+		make checkone ENGINE="./gforth-fast" &>/dev/null
+
+checkone test:	gforth$(EXE) gforth.fi
 		$(FORTH) test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs test/string.fs test/float.fs -e bye | diff -c - $(srcdir)/test/coretest.out
 		$(FORTH) test/other.fs -e bye
 		$(FORTHS) test/signals.fs -e bye

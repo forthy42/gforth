@@ -653,7 +653,7 @@ int forget_dyncode(Address code)
       return -1;
     }
   }
-  return 0;
+  return -no_dynamic;
 #endif /* !defined(NO_DYNAMIC) */
 }
 
