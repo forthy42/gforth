@@ -87,10 +87,10 @@ Copyright @copyright{} 1995-1999 Free Software Foundation, Inc.
 @sp 2
 @center for version @value{VERSION}
 @sp 2
+@center Neal Crook
 @center Anton Ertl
 @center Bernd Paysan
 @center Jens Wilke
-@center Neal Crook
 @sp 3
 @center This manual is permanently under construction and was last updated on 04-May-1999
 
@@ -3707,6 +3707,8 @@ the data space pointer (@code{HERE}) at the time that @code{new-word1}
 was defined. Therefore, @code{CREATE} is a way of associating a name
 with the address of a region of memory.
 
+doc-create
+
 By extending this example to reserve some memory in data space, we end
 up with a @i{variable}. Here are two different ways to do it:
 
@@ -3744,6 +3746,10 @@ the same way as @code{myvariable}. Forth also provides @code{2Variable}
 and @code{fvariable} for double and floating-point variables,
 respectively.
 
+doc-variable
+doc-2variable
+doc-fvariable
+
 @cindex arrays
 A similar mechanism can be used to create arrays. For example, an
 80-character text input buffer:
@@ -3765,6 +3771,8 @@ The defining word @code{User} behaves in the same way as @code{Variable}.
 The difference is that it reserves space in @i{user (data) space} rather
 than normal data space. In a Forth system that has a multi-tasker, each
 task has its own set of user variables.
+
+doc-user
 
 @comment TODO is that stuff about user variables strictly correct? Is it
 @comment just terminal tasks that have user variables?
@@ -3794,6 +3802,11 @@ way of implementing @code{Constant}).
 Gforth also provides @code{2Constant} and @code{fconstant} for defining
 double and floating-point constants, respectively.
 
+doc-constant
+doc-2constant
+doc-fconstant
+
+@c that's too deep, and it's not necessarily true for all ANS Forths. - anton
 Constants in Forth behave differently from their equivalents in other
 programming languages. In other languages, a constant (such as an EQU in
 assembler or a #define in C) only exists at compile-time; in the
@@ -3809,7 +3822,6 @@ since it has run-time duties to perform. For example:
 : FEET-TO-INCHES ( n1 -- n2 ) INCHES-PER-FOOT * ;
 @end example
 
-@c that's too deep, and it's not necessarily true for all ANS Forths. - anton
 @cindex in-lining of constants
 When @code{FEET-TO-INCHES} is executed, it will in turn execute the xt
 associated with the constant @code{INCHES-PER-FOOT}. If you use
@@ -3848,6 +3860,9 @@ to allow its value to be changed. Here are some examples:
 34 TO APPLES    \ Change the value of APPLES. TO is a parsing word
 APPLES          \ puts 34 on the top of the stack.
 @end example
+
+doc-value
+doc-to
 
 The defining word @code{Defer} allows you to define a word by name
 without defining its behaviour; the definition of its behaviour is
@@ -3903,6 +3918,15 @@ Defer jim
 ' bar IS fred \ fred is immediate
 @end example
 
+doc-defer
+doc-is
+@comment TODO document these: what's defers <is> [is]
+doc-what's
+doc-defers
+
+Definitions in ANS Forth for @code{defer}, @code{<is>} and
+@code{[is]} are provided in @file{compat/defer.fs}.
+
 The defining word @code{Alias} allows you to define a word by name that
 has the same behaviour as some other word. Here are two situation where
 this can be useful:
@@ -3919,7 +3943,7 @@ aliases).
 @end itemize
 
 The word whose behaviour the alias is to inherit is represented by an
-xt. Therefore, the alias can only inherits default semantics from its
+xt. Therefore, the alias only inherits default semantics from its
 ancestor. The semantics of the alias itself can be modified at the time
 that it is defined. For example:
 
@@ -3930,34 +3954,15 @@ that it is defined. For example:
 ' foo Alias fooby immediate \ fooby is an immediate word
 @end example
 
-Words that are aliases have the same xt. Their semantics can differ
-because the rules about a word's semantics are stored in the name
-dictionary, and the aliases each have their own dictionary entry. It
-follows that words that are aliases have different name tokens and may
-have the same or different compilation tokens. Once again, see
-@ref{Tokens for Words} for more discussions of this.
+@c "combined words" is an undefined term
+Words that are aliases have the same xt, different headers in the
+dictionary, and consequently different name tokens (@pxref{Tokens for
+Words}) and possibly different immediate flags.  An alias can only have
+default or immediate compilation semantics; you can define aliases for
+combined words with @code{interpret/compile:}.
 
 @c distribute this to the appropriate paragraphs? - anton
-doc-create
-doc-variable
-doc-2variable
-doc-fvariable
-doc-user
-doc-constant
-doc-2constant
-doc-fconstant
-doc-value
-doc-to
-doc-defer
-doc-is
 doc-alias
-@comment TODO document these: what's defers <is> [is]
-doc-what's
-doc-defers
-
-Definitions in ANS Forth for @code{defer}, @code{<is>} and
-@code{[is]} are provided in @file{compat/defer.fs}.
-
 
 @node Colon Definitions, User-defined Defining Words, Simple Defining Words, Defining Words
 @subsection Colon Definitions
@@ -4553,13 +4558,16 @@ doc-postpone
 @cindex text interpreter
 @cindex outer interpreter
 
+@c Should we really describe all these ugly details?  IMO the text
+@c interpreter should be much cleaner, but that may not be possible within
+@c ANS Forth. - anton
+
 The text interpreter@footnote{This is an expanded version of the
 material in @ref{Introducing the Text Interpreter}.} is an endless loop
-that processes input from the current input device. A popular
-implementation technique for Forth is to implement a @dfn{forth virtual
-machine} using a loop called the @dfn{inner interpreter}. Because of
-this naming, the text interpreter is also known as the @dfn{outer
-interpreter}.
+that processes input from the current input device. It is also called
+the outer interpreter, in contrast to the inner interpreter
+(@pxref{Engine}) which executes the compiled Forth code on interpretive
+implementations.
 
 @cindex interpret state
 @cindex compile state

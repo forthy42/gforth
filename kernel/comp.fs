@@ -130,6 +130,8 @@ create nextname-buffer 32 chars allot
 \ the next name is given in the string
 
 : nextname ( c-addr u -- ) \ gforth
+    \g The next defined word will have the name @var{c-addr u}; the
+    \g defining word will leave the input stream alone.
     name-too-long?
     nextname-buffer c! ( c-addr )
     nextname-buffer count move
@@ -140,7 +142,9 @@ create nextname-buffer 32 chars allot
     input-stream ;
 
 : noname ( -- ) \ gforth
-\ the next defined word remains anonymous. The xt of that word is given by lastxt
+    \g The next defined word will be anonymous. The defining word will
+    \g leave the input stream alone. The xt of the defined word will
+    \g be given by @code{lastxt}.
     ['] noname-header IS (header) ;
 
 : lastxt ( -- xt ) \ gforth
