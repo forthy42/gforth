@@ -56,9 +56,10 @@ Programming style note:
 
 @comment %**end of header (This is for running Texinfo on a region.)
 @copying
-This manual is for Gforth
-(version @value{VERSION}, @value{UPDATED}),
-a fast and portable implementation of the ANS Forth language
+This manual is for Gforth (version @value{VERSION}, @value{UPDATED}),
+a fast and portable implementation of the ANS Forth language.  It
+serves as reference manual, but it also contains an introduction to
+Forth and a Forth tutorial.
 
 Copyright @copyright{} 1995, 1996, 1997, 1998, 2000, 2003 Free Software Foundation, Inc.
 
