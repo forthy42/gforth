@@ -3,10 +3,20 @@
 	The following is stolen from the readline library for bash
 */
 
+/* Use -DDOMAINOS for Apollo Domain-OS.
+   Use -D_POSIX_VERSION for POSIX systems.
+*/
+
+#ifdef DOMAINOS
+#define _POSIX_VERSION
+#endif
+
 #include <stdio.h>
 #include <signal.h>
 #include <sys/types.h>
+#ifndef DOMAINOS
 #include <sys/ioctl.h>
+#endif
 #include <fcntl.h>
 #include <sys/file.h>
 
@@ -24,7 +34,9 @@
 
 #define NEW_TTY_DRIVER
 #define HAVE_BSD_SIGNALS
+#ifndef DOMAINOS
 #define USE_XON_XOFF
+#endif
 
 /* Some USG machines have BSD signal handling (sigblock, sigsetmask, etc.) */
 #if defined (USG) && !defined (hpux)
@@ -89,7 +101,7 @@ extern int errno;
 #  endif /* USGr3 */
 #endif /* USG && hpux */
 
-#if defined (_POSIX_VERSION) || defined (USGr3)
+#if (defined (_POSIX_VERSION) || defined (USGr3)) && !defined(DOMAINOS)
 #  include <dirent.h>
 #  define direct dirent
 #  if defined (_POSIX_VERSION)
