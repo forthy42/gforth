@@ -131,6 +131,7 @@ Cell last_jump=0; /* if the last prim was compiled without jump, this
 static int no_super=0;   /* true if compile_prim should not fuse prims */
 static int no_dynamic=NO_DYNAMIC_DEFAULT; /* if true, no code is generated
 					     dynamically */
+static int print_codesize=0; /* if true, print code size on exit */
 
 #ifdef HAS_DEBUG
 int debug=0;
@@ -732,6 +733,21 @@ int forget_dyncode(Address code)
 #endif /* !defined(NO_DYNAMIC) */
 }
 
+long dyncodesize(void)
+{
+#ifndef NO_DYNAMIC
+  struct code_block_list *p, **pp;
+  long size=0;
+  for (p=code_block_list; p!=NULL; p=p->next) {
+    if (code_here >= p->block && code_here < p->block+p->size)
+      return size + (code_here - p->block);
+    else
+      size += p->size;
+  }
+#endif /* !defined(NO_DYNAMIC) */
+  return 0;
+}
+
 Label decompile_code(Label _code)
 {
 #ifdef NO_DYNAMIC
@@ -1187,6 +1203,7 @@ void gforth_args(int argc, char ** argv, char ** path, char ** imagename)
       {"no-super", no_argument, &no_super, 1},
       {"no-dynamic", no_argument, &no_dynamic, 1},
       {"dynamic", no_argument, &no_dynamic, 0},
+      {"print-codesize", no_argument, &print_codesize, 1},
       {0,0,0,0}
       /* no-init-file, no-rc? */
     };
@@ -1229,6 +1246,7 @@ Engine Options:\n\
   --no-super                        No dynamically formed superinstructions\n\
   --offset-image		    Load image at a different position\n\
   -p PATH, --path=PATH		    Search path for finding image and sources\n\
+  --print-codesize		    Print size of generated native code on exit\n\
   -r SIZE, --return-stack-size=SIZE Specify return stack size\n\
   -v, --version			    Print engine version and exit\n\
 SIZE arguments consist of an integer followed by a unit. The unit can be\n\
@@ -1324,6 +1342,9 @@ int main(int argc, char **argv, char **env)
     vm_print_profile(stderr);
 #endif
     deprep_terminal();
+  }
+  if (print_codesize) {
+    fprintf(stderr, "code size = %ld\n", dyncodesize());
   }
   return retvalue;
 }
