@@ -147,7 +147,7 @@ void relocate(Cell *image, const char *bitstring, int size, Label symbols[])
 	  image[i]+=(Cell)image;
       }
     }
-  ((ImageHeader*)(image))->base = image;
+  ((ImageHeader*)(image))->base = (Address) image;
 }
 
 UCell checksum(Label symbols[])
@@ -313,7 +313,7 @@ int go_forth(Address image, int stack, Cell *entries)
     if (rp <= rp0 && rp > (Cell *)(image_header->return_stack_base+5)) {
       /* no rstack overflow or underflow */
       rp0 = rp;
-      *--rp0 = ip;
+      *--rp0 = (int) ip;
     }
     else /* I love non-syntactic ifdefs :-) */
 #endif
