@@ -185,9 +185,13 @@ n = rp[2];
 
 \ digit is high-level: 0/0%
 
-emit	c --		fig
+(emit)	c --		fig	paren_emit
 putchar(c);
 emitcounter++;
+
+(type)	c_addr n --	fig	paren_type
+fwrite(c_addr,sizeof(Char),n,stdout);
+emitcounter += n;
 
 key	-- n		fig
 fflush(stdout);

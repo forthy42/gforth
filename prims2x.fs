@@ -19,6 +19,8 @@
 \ regarding problem 1 above: It would be better (for over) to implement
 \ 	the alternative
 
+warnings off
+
 include gray.fs
 include search-order.fs
 
@@ -195,7 +197,9 @@ nowhite ++
 
 (( (( primitive {{ printprim }} )) **  eof ))
 parser primitives2something
+warnings @ [IF]
 .( parser generated ok ) cr
+[THEN]
 
 : primfilter ( file-id xt -- )
 \ fileid is for the input file, xt ( -- ) is for the output word
@@ -537,5 +541,6 @@ set-current
  if
    ." cannot open file" cr abort
  endif
- ." ------------ CUT HERE -------------" cr
+ warnings @ if
+ ." ------------ CUT HERE -------------" cr  endif
  r> primfilter ;

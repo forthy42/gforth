@@ -3,7 +3,7 @@
 RM	= echo 'Trying to remove'
 GCC	= gcc
 CC	= gcc
-SWITCHES = -D_POSIX_VERSION -DDEFAULTBIN='"'$(PWD)'"' #-DUSE_TOS -DUSE_FTOS # -DDIRECT_THREADED 
+SWITCHES = -D_POSIX_VERSION -DDEFAULTBIN='"'$(PWD)'"' -DUSE_TOS -DUSE_FTOS # -DDIRECT_THREADED 
 CFLAGS	= -O4 -Wall -g $(SWITCHES)
 
 #-Xlinker -n puts text and data into the same 256M region
@@ -80,13 +80,13 @@ primitives.b:	primitives
 		m4 primitives >$@ 
 
 primitives.i :	primitives.b prims2x.fs
-		ansforth "include prims2x.fs s\" primitives.b\" ' output-c process-file bye" | awk -f from-cut-here >$@
+		ansforth "include prims2x.fs s\" primitives.b\" ' output-c process-file bye" >$@
 
 prim_labels.i :	primitives.b prims2x.fs
-		ansforth "include prims2x.fs s\" primitives.b\" ' output-label process-file bye" | awk -f from-cut-here >$@
+		ansforth "include prims2x.fs s\" primitives.b\" ' output-label process-file bye" >$@
 
 prim_alias.4th:	primitives.b prims2x.fs
-		ansforth "include prims2x.fs s\" primitives.b\" ' output-alias process-file bye" | awk -f from-cut-here >$@
+		ansforth "include prims2x.fs s\" primitives.b\" ' output-alias process-file bye" >$@
 
 aliases.fs:	prim_alias.4th
 		cp prim_alias.4th $@

@@ -47,7 +47,9 @@
 
 \ recursive descent parser generator )
 
+warnings @ [IF]
 .( Loading Gray ... Copyright 1990 Martin Anton Ertl; NO WARRANTY ) cr
+[THEN]
 
 \ misc )
 : noop ;
@@ -311,7 +313,7 @@ variable print-token ' . print-token !
 
 : check-conflict \ set1 set2 -- )
 \ print the intersection of set1 and set2 if it isn't empty )
- 2dup disjoint? ?not? if
+ 2dup disjoint? ?not? warnings @ and if
   cr .in ." conflict:"
   intersection print-token @ apply-to-members
  else
@@ -498,7 +500,7 @@ create concatenation-map
 : compute-alternative \ -- first maybe-empty )
  operand1 compute
  operand2 compute
- rot 2dup and if
+ rot 2dup and warnings @ and if
   cr .in ." warning: two branches may be empty" endif
  or >r union r> ;
 
@@ -570,7 +572,7 @@ constant unary-syntax-expr
 
 \ options )
 : compute-option \ -- set f )
- operand compute if
+ operand compute warnings @ and if
   cr .in ." warning: unnessesary option" endif
  true ;
 
@@ -600,7 +602,7 @@ create option-map
 
 \ *-repetitions )
 : compute-*repetition \ -- set f )
- operand compute if
+ operand compute warnings @ and if
   cr .in ." warning: *repetition of optional term" endif
  true ;
 

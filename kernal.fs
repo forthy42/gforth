@@ -79,13 +79,13 @@ DOES> ( n -- )  + c@ ;
 \ name> found                                          17dec92py
 
 : (name>)  ( nfa -- cfa )    count  $1F and  +  aligned ;
-: name>    ( nfa -- cfa )
+: name>    ( nfa -- cfa )    cell+
   dup  (name>) swap  c@ $80 and 0= IF  @ THEN ;
 
 : found ( nfa -- cfa n )  cell+
   dup c@ >r  (name>) r@ $80 and  0= IF  @       THEN
-\                  -1 r@ $40 and     IF  1-      THEN
-                  -1 r> $20 and     IF  negate  THEN  ;
+                  -1 r@ $40 and     IF  1-      THEN
+                     r> $20 and     IF  negate  THEN  ;
 
 \ (find)                                               17dec92py
 
@@ -590,13 +590,12 @@ variable dead-code \ true if normal code at "here" would be dead
 \ we have to store more than just the address of the branch, so the
 \ traditional linked list approach is no longer viable.
 \ This is solved by storing the information about the leavings in a
-\ special stack. The leavings of different DO-LOOPs are separated
-\ by a 0 entry
+\ special stack.
 
 \ !! remove the fixed size limit. 'Tis not hard.
 20 constant leave-stack-size
-create leave-stack 60 cells allot
-Avariable leave-sp  leave-stack leave-sp !
+create leave-stack  60 cells allot
+Avariable leave-sp  leave-stack 3 cells + leave-sp !
 
 : clear-leave-stack ( -- )
     leave-stack leave-sp ! ;
@@ -617,67 +616,68 @@ Avariable leave-sp  leave-stack leave-sp !
 : leave> ( -- orig )
     \ pop from leave-stack
     leave-sp @
-    dup leave-stack <= abort" leave-stack empty"
+    dup leave-stack <= IF
+       drop 0 0 0  EXIT  THEN
     cell - dup @ swap
     cell - dup @ swap
     cell - dup @ swap
     leave-sp ! ;
 
-: done ( -- )
+: DONE ( orig -- )  drop >r drop
     \ !! the original done had ( addr -- )
     begin
 	leave>
-	dup
+	over r@ u>=
     while
 	POSTPONE then
     repeat
-    2drop drop ; immediate
+    >leave rdrop ; immediate restrict
 
 : LEAVE ( -- )
     POSTPONE ahead
-    >leave ; immediate
+    >leave ; immediate restrict
 
 : ?LEAVE ( -- )
     POSTPONE 0= POSTPONE if
-    >leave ; immediate
+    >leave ; immediate restrict
 
 : DO ( -- do-sys )
     POSTPONE (do)
     POSTPONE begin drop do-dest
-    0 0 0 >leave ; immediate
+    ( 0 0 0 >leave ) ; immediate restrict
 
 : ?DO ( -- do-sys )
-    0 0 0 >leave
+    ( 0 0 0 >leave )
     POSTPONE (?do)
     >mark >leave
-    POSTPONE begin drop do-dest ; immediate
+    POSTPONE begin drop do-dest ; immediate restrict
 
 : FOR ( -- do-sys )
     POSTPONE (for)
     POSTPONE begin drop do-dest
-    0 0 0 >leave ; immediate
+    ( 0 0 0 >leave ) ; immediate restrict
 
 \ LOOP etc. are just like UNTIL
 
 : loop-like ( do-sys xt1 xt2 -- )
-    rot do-dest?
+    >r >r 0 cs-pick swap cell - swap 1 cs-roll r> r> rot do-dest?
     until-like  POSTPONE done  POSTPONE unloop ;
 
 : LOOP ( do-sys -- )
- ['] (loop) ['] (loop)-lp+!# loop-like ; immediate
+ ['] (loop) ['] (loop)-lp+!# loop-like ; immediate restrict
 
 : +LOOP ( do-sys -- )
- ['] (+loop) ['] (+loop)-lp+!# loop-like ; immediate
+ ['] (+loop) ['] (+loop)-lp+!# loop-like ; immediate restrict
 
 \ A symmetric version of "+LOOP". I.e., "-high -low ?DO -inc S+LOOP"
 \ will iterate as often as "high low ?DO inc S+LOOP". For positive
 \ increments it behaves like "+LOOP". Use S+LOOP instead of +LOOP for
 \ negative increments.
 : S+LOOP ( do-sys -- )
- ['] (s+loop) ['] (s+loop)-lp+!# loop-like ; immediate
+ ['] (s+loop) ['] (s+loop)-lp+!# loop-like ; immediate restrict
 
 : NEXT ( do-sys -- )
- ['] (next) ['] (next)-lp+!# loop-like ; immediate
+ ['] (next) ['] (next)-lp+!# loop-like ; immediate restrict
 
 \ Structural Conditionals                              12dec92py
 
@@ -717,8 +717,8 @@ Avariable leave-sp  leave-stack leave-sp !
 
 : flag! ( 8b -- )   last @ cell+ tuck c@ xor swap c! ;
 : immediate     $20 flag! ;
-\ : restrict      $40 flag! ;
-' noop alias restrict
+: restrict      $40 flag! ;
+\ ' noop alias restrict
 
 \ Header                                               23feb93py
 
@@ -777,7 +777,7 @@ create nextname-buffer 32 chars allot
 : name>string ( nfa -- addr count )
  cell+ count $1F and ;
 
-Create ???  ," ???"
+Create ???  0 , 3 c, char ? c, char ? c, char ? c,
 : >name ( cfa -- nfa )
  $21 cell do
    dup i - count $9F and + aligned over $80 + = if
@@ -1001,14 +1001,14 @@ Create crtlkeys
 DEFER type      \ defer type for a output buffer or fast
                 \ screen write
 
-: (type) ( addr len -- )
-  bounds ?DO  I c@ emit  LOOP ;
+\ : (type) ( addr len -- )
+\   bounds ?DO  I c@ emit  LOOP ;
 
 ' (TYPE) IS Type
 
-\ DEFER Emit
+DEFER Emit
 
-\ ' (Emit) IS Emit
+' (Emit) IS Emit
 
 \ : form  ( -- rows cols )  &24 &80 ;
 \ form should be implemented using TERMCAPS or CURSES
@@ -1087,7 +1087,7 @@ create nl$ 1 c, A c, 0 c, \ gnu includes usually a cr in dos
 
 \ RECURSE                                               17may93jaw
 
-: recurse  last @ cell+ name> a, ; immediate restrict
+: recurse  last @ ( cell+ ) name> a, ; immediate restrict
 \ !! does not work with anonymous words; use lastxt compile,
 
 \ */MOD */                                              17may93jaw
