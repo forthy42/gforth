@@ -1,5 +1,4 @@
 
-\ FIXME: Find a place where this compiler extetions should go
 
 UNLOCK
 >ENVIRON
@@ -755,7 +754,6 @@ Label >d2*+	*accu , t0 ,
 		"Next" , jmp ,
 end-code
 
-Label res1	0 ,
 Label "d2*+"	>d2*+ ,
 Code /modstep ( ud c R: u -- ud-?u 0/1 )
 		sym /modstep
