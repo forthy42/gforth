@@ -363,8 +363,9 @@ SOURCES	= $(CVSDIRS) compat Makefile.in Makedist.in engine/Makefile.in \
 
 RCS_FILES =  ToDo model high-level
 
-GEN = gforth$(EXE) gforth-ditc$(EXE) gforth-fast$(EXE) gforth-itc$(EXE) kernel/version.fs
-#gforth-native$(EXE) gforth-prof$(EXE)
+ENGINES = gforth$(EXE) gforth-ditc$(EXE) gforth-fast$(EXE) gforth-itc$(EXE) gforth-prof$(EXE) #gforth-native$(EXE)
+
+GEN = $(ENGINES) kernel/version.fs
 
 # things that need a working forth system to be generated
 FORTH_GEN_ENGINE=engine/prim.i engine/prim_lab.i engine/prim_names.i \
@@ -447,13 +448,13 @@ docclean:	FORCE
 		doc/gforth.toc doc/gforth.tp doc/gforth.vr html
 
 clean:		mostlyclean
-		-$(RM) -rf $(GEN) engine/gforth$(EXE) \
-		engine/gforth-fast$(EXE) engine/gforth-native$(EXE) engine/gforth-itc$(EXE) \
-		engine/gforth-ditc$(EXE) engine/gforth-prof$(EXE) \
-		*.o engine/*.o arch/*/*.o version
+		-$(RM) -rf $(GEN) *.o engine/*.o arch/*/*.o version \
+		engine/gforth$(EXE) engine/gforth-fast$(EXE) \
+                engine/gforth-native$(EXE) engine/gforth-itc$(EXE) \
+		engine/gforth-ditc$(EXE) engine/gforth-prof$(EXE)
 
 distclean:	clean
-		-$(RM) config.cache config.log config.status \
+		-$(RM) -rf config.cache config.log config.status \
 		engine/config.h Makefile Makedist engine/Makefile \
 		stamp-h engine/stamp-h \
 		doc/version.texi gforthmi vmgen
@@ -762,10 +763,10 @@ gforth-ditc$(EXE):	engines
 gforth-prof$(EXE):	engines
 		$(CP) engine/$@ $@
 
-gforths: gforth$(EXE) gforth-fast$(EXE) gforth-itc$(EXE) gforth-ditc$(EXE) #gforth-prof$(EXE) gforth-native$(EXE)
+gforths: $(ENGINES)
 
 engines:	FORCE $(FORTH_GEN_ENGINE) engine/Makefile
-		cd engine && $(MAKE) gforth$(EXE) gforth-fast$(EXE) gforth-itc$(EXE) gforth-ditc$(EXE) #gforth-prof$(EXE) gforth-native$(EXE)
+		cd engine && $(MAKE) $(ENGINES)
 
 # ------------- additional C primitives
 

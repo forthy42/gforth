@@ -629,11 +629,11 @@ int compare_priminfo_length(const void *_a, const void *_b)
           of (char) and @ instead of >code-address */
     return (*b)->start - (*a)->start;
 }
+#endif /* !defined(NO_DYNAMIC) */
 
 static char superend[]={
 #include "prim_superend.i"
 };
-#endif /* !defined(NO_DYNAMIC) */
 
 Cell npriminfos=0;
 
@@ -1155,7 +1155,7 @@ void compile_prim1(Cell *start)
   }
 #elif defined(INDIRECT_THREADED)
   return;
-#else /* defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED) */
+#else /* !(defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED)) */
   static Cell *instps[MAX_BB];
   static short origs[MAX_BB];
   static short optimals[MAX_BB];
@@ -1177,7 +1177,7 @@ void compile_prim1(Cell *start)
     rewrite_bb(instps,optimals,ninsts);
     ninsts=0;
   }
-#endif /* defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED) */
+#endif /* !(defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED)) */
 }
 
 #if defined(PRINT_SUPER_LENGTHS) && !defined(NO_DYNAMIC)

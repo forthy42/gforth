@@ -2277,8 +2277,6 @@ assert(0);
 
 \g static_super
 
-super0 = lit call
-
 include(peeprules.vmg)
 
 \g end

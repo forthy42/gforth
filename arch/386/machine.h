@@ -55,7 +55,7 @@
    flush-icache is a noop */
 #define FLUSH_ICACHE(addr,size)
 
-#if defined(FORCE_REG) && !defined(DOUBLY_INDIRECT)
+#if defined(FORCE_REG) && !defined(DOUBLY_INDIRECT) && !defined(VM_PROFILING)
 #if (__GNUC__==2 && defined(__GNUC_MINOR__) && __GNUC_MINOR__==5)
 /* i.e. gcc-2.5.x */
 /* this works with 2.5.7; nothing works with 2.5.8 */
@@ -93,6 +93,6 @@
 #endif  /* !(gcc-2.95 or later) */
 #endif /* !defined(USE_TOS) || defined(CFA_NEXT) */
 #endif /* !gcc-2.5.x */
-#endif /* defined(FORCE_REG) && !defined(DOUBLY_INDIRECT) */
+#endif /* defined(FORCE_REG) && !defined(DOUBLY_INDIRECT) && !defined(VM_PROFILING) */
 
 /* #define ALIGNMENT_CHECK 1 */

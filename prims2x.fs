@@ -1279,30 +1279,30 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
 \ structure refers to?  By the order of cost structures, as in most
 \ other cases.
 
-: compute-costs { p -- nloads nstores nupdates }
-    \ compute the number of loads, stores, and stack pointer updates
-    \ of a primitive or combined instruction; does not take TOS
-    \ caching into account, nor that IP updates are combined with
-    \ other stuff
-    0 max-stacks 0 +do
-	p prim-stacks-in i th @ +
-    loop
-    0 max-stacks 0 +do
-	p prim-stacks-out i th @ +
-    loop
-    0 max-stacks 0 +do
-	p prim-stacks-in i th @ p prim-stacks-out i th @ <> -
-    loop ;
-
-: output-num-part ( p -- )
-    prim-num @ 4 .r ." ," ;
-
 : super2-length ( -- n )
     combined if
 	num-combined @
     else
 	1
     endif ;
+
+: compute-costs { p -- nloads nstores nupdates }
+    \ compute the number of loads, stores, and stack pointer updates
+    \ of a primitive or combined instruction; does not take TOS
+    \ caching into account
+    0 max-stacks 0 +do
+	p prim-stacks-in i th @ +
+    loop
+    super2-length 1- - \ don't count instruction fetches of subsumed insts
+    0 max-stacks 0 +do
+	p prim-stacks-out i th @ +
+    loop
+    0 max-stacks 1 +do \ don't count ip updates, therefore "1 +do"
+	p prim-stacks-in i th @ p prim-stacks-out i th @ <> -
+    loop ;
+
+: output-num-part ( p -- )
+    prim-num @ 4 .r ." ," ;
 
 : output-name-comment ( -- )
     ."  /* " prim prim-name 2@ type ."  */" ;
