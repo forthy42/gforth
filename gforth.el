@@ -434,8 +434,7 @@ INDENT1 and INDENT2 are indentation specifications of the form
 	(("else" "recover" "[else]") (-2 . 2) (0 . 0))
 	(("does>") (-1 . 1) (0 . 0))
 	(("while" "[while]") (-2 . 4) (0 . 2))
-	(("repeat" "[repeat]") (-4 . 0) (0 . -4))
-	(("\\g") (-2 . 2) (0 . 0))))
+	(("repeat" "[repeat]") (-4 . 0) (0 . -4))))
 
 (defvar forth-local-indent-words nil 
   "List of Forth words to prepend to `forth-indent-words', when a forth-mode
@@ -827,8 +826,8 @@ Used for imenu index generation.")
 
 ;; Return the column increment, that the current line of forth code does to
 ;; the current or following lines. `which' specifies which indentation values
-;; to use. 0 means the indentation of following lines relative to current 
-;; line, 1 means the indentation of the current line relative to the previous 
+;; to use. 1 means the indentation of following lines relative to current 
+;; line, 0 means the indentation of the current line relative to the previous 
 ;; line. Return `nil', if there are no indentation words on the current line.
 (defun forth-get-column-incr (which)
   (save-excursion
@@ -1680,12 +1679,10 @@ next one.")
 				    forth-source-modes t)) ; T because LOAD
 					; needs an exact name
     (comint-check-source file-name) ; Check to see if buffer needs saved.
-    (setq forth-prev-l/c-dir/file (cons (file-name-directory    file-name)
+    (setq forth-prev-l/c-dir/file (cons (file-name-directory file-name)
 					(file-name-nondirectory file-name)))
-    (comint-send-string (forth-proc) (concat "(load \""
-					     file-name
-					     "\"\)\n")))
-
+    (comint-send-string (forth-proc)
+			(concat "s\" " file-name "\" included\n")))
 
   
   (defvar forth-process-buffer nil "*The current Forth process buffer.
