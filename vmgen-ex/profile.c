@@ -29,12 +29,18 @@
 #define HASH_SIZE (1<<20)
 #define hash(p) ((((Cell)(p))/sizeof(Inst))&(HASH_SIZE-1))
 
+#ifdef __GNUC__
+typedef long long long_long;
+#else
+typedef long long_long;
+#endif
+
 typedef struct block_count {
   struct block_count *next; /* next in hash table */
   struct block_count *fallthrough; /* the block that this one falls
                                        through to without SUPER_END */
   Inst *ip;
-  long long count;
+  long_long count;
   char **insts;
   size_t ninsts;
 } block_count;
@@ -63,7 +69,7 @@ block_count *block_insert(Inst *ip)
   new->next = blocks[hash(ip)];
   new->fallthrough = NULL;
   new->ip = ip;
-  new->count = 0LL;
+  new->count = (long_long)0;
   new->insts = malloc(0);
   assert(new->insts != NULL);
   new->ninsts = 0;

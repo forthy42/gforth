@@ -21,8 +21,13 @@
 
 #include <stdio.h>
 
+#ifdef __GNUC__
 typedef void *Label;
 typedef void *Inst; /* for direct threading, the same as Label */
+#else
+typedef long Label;
+typedef long Inst;
+#endif
 typedef long Cell;
 
 extern Inst *vm_prim;

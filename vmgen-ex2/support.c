@@ -22,6 +22,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+extern int optind;
+
 #include <assert.h>
 #include "mini.h"
 
@@ -164,14 +166,7 @@ int main(int argc, char **argv)
     default:
     case 'h':
     help:
-      fprintf(stderr, "\
-Usage: %s [options] file\n
-Options:\n
--h	Print this message and exit\n\
--d	disassemble VM program before execution\n\
--p	profile VM code sequences (output on stderr)\n\
--t	trace VM code execution (output on stderr)\n\
-",
+      fprintf(stderr, "Usage: %s [options] file\nOptions:\n-h	Print this message and exit\n-d	disassemble VM program before execution\n-p	profile VM code sequences (output on stderr)\n-t	trace VM code execution (output on stderr)\n",
 	      argv[0]);
       exit(1);
     case 'd':

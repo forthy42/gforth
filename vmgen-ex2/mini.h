@@ -21,21 +21,12 @@
 
 #include <stdio.h>
 
+#ifdef __GNUC__
 typedef void *Label; 
-
-#ifdef USE_CASTS
-typedef long Cell;
-Typedef Cell Inst;
-
-/* type change macros; these are specific to the types you use, so you
-   have to change this part */
-#define vm_Cell2i(_cell,x) ((x)=(long)(_cell))
-#define vm_i2Cell(_cell,x) ((x)=(Cell)(_cell))
-#define vm_Cell2target(_cell,x) ((x)=(Inst *)(_cell))
-#define vm_target2Cell(_cell,x) ((x)=(Cell)(_cell))
-#define vm_Cell2a(_cell,x) ((x)=(char *)(_cell))
-#define vm_a2Cell(_cell,x) ((x)=(Cell)(_cell))
 #else
+typedef long Label;
+#endif
+
 typedef union Cell {
   long i;
   union Cell *target;
@@ -49,7 +40,6 @@ typedef union Cell {
 #define vm_target2Cell(_x,_cell) ((_cell).target=(_x))	
 #define vm_Cell2a(_cell,_x)	((_x)=(_cell).a)
 #define vm_a2Cell(_x,_cell)	((_cell).a=(_x))	
-#endif
 
 #define VM_IS_INST(_inst, n) ((_inst).inst == vm_prim[n])
 

@@ -22,8 +22,11 @@ used to advantage when implementing a register-based VM).
 The main shortcoming in the current release is the lack of a user
 manual; however, there is a paper describing vmgen's operation (at
 http://www.complang.tuwien.ac.at/anton/vmgen/), and there is a simple,
-working and somewhat commented example of using vmgen (in directory
-vmgen-ex).
+working and somewhat commented example of using vmgen.
+
+There are two versions of the example: in directory vmgen-ex you find
+a version using many casts; in directory vmgen-ex2 you find a version
+using unions instead of casts.
 
 The current release requires GCC both for building and for compiling
 the resulting interpreters (threaded code cannot be implemented in

@@ -21,6 +21,13 @@
 
 /* %option yylineno (flex option, implied by flex -l) */
 
+%{
+#ifndef __GNUC__
+#include <string.h>
+char *strdup(const char *s);
+#endif
+%}
+
 %%
 [-();,+*&|<=!]	return yytext[0];
 :=	return BECOMES;

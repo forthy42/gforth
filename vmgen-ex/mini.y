@@ -94,16 +94,16 @@ stats: stats stat ';'
 
 stat: IF expr THEN { gen_zbranch(&vmcodep, 0); $<instp>$ = vmcodep; }
       stats { $<instp>$ = $<instp>4; } 
-      elsepart END IF { BB_BOUNDARY; $<instp>7[-1] = vmcodep; }
+      elsepart END IF { BB_BOUNDARY; $<instp>7[-1] = (Inst)vmcodep; }
     | WHILE   { BB_BOUNDARY; $<instp>$ = vmcodep; } 
       expr DO { gen_zbranch(&vmcodep, 0); $<instp>$ = vmcodep; }
-      stats END WHILE { gen_branch(&vmcodep, $<instp>2); $<instp>5[-1] = vmcodep; }
+      stats END WHILE { gen_branch(&vmcodep, $<instp>2); $<instp>5[-1] = (Inst)vmcodep; }
     | IDENT BECOMES expr	{ gen_storelocal(&vmcodep,  var_offset($1)); }
     | PRINT expr		{ gen_print(&vmcodep); }
     | expr                      { gen_drop(&vmcodep); }
     ;
 
-elsepart: ELSE { gen_branch(&vmcodep, 0); $<instp>$ = vmcodep; $<instp>0[-1] = vmcodep; }
+elsepart: ELSE { gen_branch(&vmcodep, 0); $<instp>$ = vmcodep; $<instp>0[-1] = (Inst)vmcodep; }
           stats { $$ = $<instp>2; }
         | { $$ = $<instp>0; }
         ;

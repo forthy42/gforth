@@ -62,6 +62,7 @@
 #endif
 #endif /* defined(THREADING_SCHEME) */
 
+#ifdef __GNUC__
 #if THREADING_SCHEME==1
 /* direct threading scheme 1: autoinc, long latency (HPPA, Sharc) */
 #  define NEXT_P0	({cfa=*ip++;})
@@ -144,14 +145,35 @@
 #define IPTOS NEXT_INST
 #define CASE
 
+#define INST_ADDR(name) (Label)&&I_##name
+#define LABEL(name) I_##name
+#else /* !defined(__GNUC__) */
+/* use switch dispatch */
+#define DEF_CA
+#define NEXT_P0
+#define NEXT_P1
+#define NEXT_P2 goto next_inst;
+#define SET_IP(p)	(ip=(p))
+#define IP              ip
+#define NEXT_INST	(*ip)
+#define INC_IP(const_inc)	(ip+=(const_inc))
+#define IPTOS NEXT_INST
+#define INST_ADDR(name) I_##name
+#define LABEL(name) case I_##name
+
+#endif /* !defined(__GNUC__) */
+
 #ifdef VM_PROFILING
 #define SUPER_END  vm_count_block(IP)
 #else
 #define SUPER_END
 #endif
 
-#define INST_ADDR(name) (Label)&&I_##name
-#define LABEL(name) I_##name
+#ifndef __GNUC__
+enum {
+#include "mini-labels.i"
+};
+#endif
 
 /* the return type can be anything you want it to */
 Cell engine(Inst *ip0, Cell *sp, char *fp)
@@ -184,7 +206,17 @@ Cell engine(Inst *ip0, Cell *sp, char *fp)
 
   SET_IP(ip0);
   SUPER_END;  /* count the BB starting at ip0 */
-  NEXT;
 
+#ifdef __GNUC__
+  NEXT;
 #include "mini-vm.i"
+#else  
+ next_inst:
+  switch(*ip++) {
+#include "mini-vm.i"
+  default:
+    fprintf(stderr,"unknown instruction %d at %p\n", ip[-1], ip-1);
+    exit(1);
+  }
+#endif
 }
