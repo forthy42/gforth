@@ -190,7 +190,17 @@ variable span ( -- a-addr ) \ core-ext
 	dup 0 wordlist-link - rehash
     REPEAT
     drop
-    @ udp !  dp ! ;
+    @ udp !  dp !
+    \ clean up vocabulary stack
+    0 vp @ 0
+    ?DO
+	vp cell+ I cells + @ dup here >
+	IF  drop  ELSE  swap 1+  THEN
+    LOOP
+    dup 0= or set-order \ -1 set-order if order is empty
+    get-current here > IF
+	forth-wordlist set-current
+    THEN ;
 
 : marker ( "mark" -- )
     marker, Create A,

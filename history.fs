@@ -64,36 +64,38 @@ interpret/compile: ctrl  ( "<char>" -- ctrl-code )
 
 : force-open ( addr len -- fid )
   2dup r/w open-file 0<
-  IF  drop r/w create-file throw  ELSE  nip nip  THEN ;
-
-: get-history ( addr len -- )
-  force-open to history
-  history file-size throw
-  2dup forward^ 2! 2dup backward^ 2! end^ 2! ;
+  IF  drop r/w create-file
+      throw  ELSE  nip nip  THEN ;
 
 s" os-class" environment? [IF] s" unix" compare 0= [ELSE] true [THEN] 
 [IF]
-: history-cold
+: history-file ( -- addr u )
     s" GFORTHHIST" getenv dup 0= IF
 	2drop s" ~/.gforth-history"
-    THEN  get-history ;
+    THEN ;
 [ELSE]
 
-: history-dir
+: history-dir ( -- addr u )
   s" TMP" getenv ?dup ?EXIT drop
   s" TEMP" getenv ?dup ?EXIT drop
   s" c:/" ;
 
-: history-file
+: history-file ( -- addr u )
   s" GFORTHHIST" getenv ?dup ?EXIT
   drop
   history-dir pad place
-  s" /ghist.txt" pad +place pad count ;
-
-: history-cold
-        history-file
-        get-history ;
+  s" /ghist.fs" pad +place pad count ;
 [THEN]
+
+: get-history ( addr len -- )
+    ['] force-open catch
+    dup 0< IF  ." can't open " history-file type cr throw  THEN  drop
+    to history
+    history file-size throw
+    2dup forward^ 2! 2dup backward^ 2! end^ 2! ;
+
+: history-cold ( -- )
+    history-file get-history ;
 
 ' history-cold INIT8 chained
 history-cold

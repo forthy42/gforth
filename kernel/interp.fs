@@ -847,7 +847,7 @@ DEFER DOERROR
       outfile-id dup flush-file drop >r
       stderr to outfile-id
   [ [THEN] ] 
-  sourceline# IF
+  sourceline# 0> IF
                source >in @ sourceline# 0 0 .error-frame
   THEN
   error-stack @ 0 ?DO
@@ -955,7 +955,7 @@ Variable init8
 [ has? floating [IF] ]
     fp@ fp0 !
 [ [THEN] ]
-    ['] cold catch DoError
+    ['] cold catch DoError cr
 [ has? os [IF] ]
     bye
 [ [THEN] ]

@@ -84,7 +84,9 @@ User (i)
 : [LOOP] ( -- ) 1 rdrop rdrop ;                       immediate
 : [FOR] ( n -- )  0 swap postpone [DO] ;              immediate
 : [NEXT] ( n -- ) -1 rdrop rdrop ;                    immediate
-: [I] ( -- index ) (I) @ postpone Literal ;           immediate
+:noname (i) @ ;
+:noname (i) @ postpone Literal ;
+interpret/compile: [I]
 : [BEGIN] >in @ >r BEGIN r@ >in ! interpret UNTIL rdrop ;
                                                       immediate
 ' [+LOOP]  Alias [UNTIL] immediate
