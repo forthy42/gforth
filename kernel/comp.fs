@@ -237,21 +237,21 @@ has? peephole [IF]
     \G instead of ","-ing the xt.
     \ !! all POSTPONEs here postpone primitives; this can be optimized
     dup >does-code if
-	POSTPONE does-exec , EXIT
-	\ dup >body POSTPONE literal POSTPONE call >does-code , EXIT
+	['] does-exec peephole-compile, , EXIT
+	\ dup >body POSTPONE literal ['] call peephole-compile, >does-code , EXIT
     then
     dup >code-address CASE
-	docon:   OF >body POSTPONE lit@ , EXIT ENDOF
-	\ docon:   OF >body POSTPONE literal POSTPONE @ EXIT ENDOF
+	docon:   OF >body ['] lit@ peephole-compile, , EXIT ENDOF
+	\ docon:   OF >body POSTPONE literal ['] @ peephole-compile, EXIT ENDOF
 	\ docon is also used by VALUEs, so don't @ at compile time
-	docol:   OF >body POSTPONE call , EXIT ENDOF
-	dovar:   OF >body POSTPONE literal EXIT ENDOF
-	douser:  OF >body @ POSTPONE useraddr , EXIT ENDOF
-	dodefer: OF >body POSTPONE lit-perform , EXIT ENDOF
-	dofield: OF >body @ POSTPONE lit+ , EXIT ENDOF
-	\ dofield: OF >body @ POSTPONE literal POSTPONE + EXIT ENDOF
+	docol:   OF >body ['] call peephole-compile, , EXIT ENDOF
+	dovar:   OF >body ['] lit peephole-compile, , EXIT ENDOF
+	douser:  OF >body @ ['] useraddr peephole-compile, , EXIT ENDOF
+	dodefer: OF >body ['] lit-perform peephole-compile, , EXIT ENDOF
+	dofield: OF >body @ ['] lit+ peephole-compile, , EXIT ENDOF
+	\ dofield: OF >body @ POSTPONE literal ['] + peephole-compile, EXIT ENDOF
 	\ code words and ;code-defined words (code words could be optimized):
-	dup in-dictionary? IF drop POSTPONE literal POSTPONE execute EXIT THEN
+	dup in-dictionary? IF drop POSTPONE literal ['] execute peephole-compile, EXIT THEN
     ENDCASE
     peephole-compile, ;
 
