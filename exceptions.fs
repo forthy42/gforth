@@ -33,9 +33,9 @@ Defer store-backtrace
     \ inline argument: address of the handler
     r>
     'catch
+    dup dup @ + >r \ recovery address
     sp@ >r
     fp@ >r
-    dup dup @ + >r \ recovery address
     lp@ >r
     handler @ >r
     rp@ handler !
@@ -50,22 +50,15 @@ Defer store-backtrace
     r>
     r> handler !
     rdrop \ lp
-    rdrop \ recovery address
     rdrop \ fp
     rdrop \ sp
+    rdrop \ recovery address
     >r ;
-
-: (recover2) ( ... x -- ... x )
-    \ restore sp and fp
-    r>
-    r> fp!
-    r> -rot >r >r sp! drop r> ;
 
 : recover ( compilation  orig -- ; run-time  -- ) \ gforth
     \ !! check using a special tag
     POSTPONE (recover)
-    POSTPONE else
-    POSTPONE (recover2) ; immediate compile-only
+    POSTPONE else ; immediate compile-only
 
 : endtry ( compilation  orig -- ; run-time  -- ) \ gforth
     POSTPONE then ; immediate compile-only
@@ -78,53 +71,20 @@ Defer store-backtrace
     endtry ;
 is catch
 
-\ :noname ( x1 .. xn xt -- y1 .. ym 0 / z1 .. zn error ) \ exception
-\     'catch
-\     sp@ >r
-\ \ [ has? floating [IF] ]
-\     fp@ >r
-\ \ [ [THEN] ]
-\ \ [ has? glocals [IF] ]
-\     lp@ >r
-\ \ [ [THEN] ]
-\     handler @ >r
-\     rp@ handler !
-\ \ [ has? backtrace [IF] ]
-\     backtrace-empty on
-\ \ [ [THEN] ]
-\     execute
-\     r> handler ! rdrop 
-\ \ [ has? floating [IF] ]
-\     rdrop
-\ \ [ [THEN] ]
-\ \ [ has? glocals [IF] ]
-\     rdrop
-\ \ [ [THEN] ]
-\     0 ;
-\ is catch
-
 :noname ( y1 .. ym error/0 -- y1 .. ym / z1 .. zn error ) \ exception
     ?DUP IF
 	[ here forthstart 9 cells + ! ]
-\ 	[ has? header [IF] here 9 cells ! [THEN] ] \ entry point for signal handler
-\ [ has? backtrace [IF] ]
 	store-backtrace
-\ [ [THEN] ]
-\ [ has? interpreter [IF] ]
 	handler @ ?dup-0=-IF
-\ [ has? os [IF] ]
 	    cr .error cr
 	    2 (bye)
-\ [ [ELSE] ]
 	    quit
-\ [ [THEN] ]
 	THEN
-\ [ [THEN] ]
 	rp!
 	r> handler !
-\ [ has? glocals [IF] ]
-        r> lp!
-\ [ [THEN] ]
+	r> lp!
+	r> fp!
+	r> swap >r sp! drop r>
 	'throw
     THEN ;
 is throw
