@@ -1,1 +1,3 @@
-
+super1 = lit +
+super2 = lit call
+super3 = lit @

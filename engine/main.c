@@ -932,7 +932,8 @@ Label decompile_code(Label _code)
   for (i=npriminfos-1; i>DOESJUMP; i--) {
     PrimInfo *pi=decomp_prims[i];
     if (pi->start==code || (pi->start && memcmp(code,pi->start,pi->length)==0))
-      return pi->start;
+      return vm_prims[super2[super_costs[pi-priminfos-DOESJUMP-1].offset]+DOESJUMP+1];
+    /* return pi->start;*/
   }
   return code;
 #endif /* !defined(NO_DYNAMIC) */
