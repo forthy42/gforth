@@ -40,3 +40,5 @@ decimal
 36 base !
 { 0x10 -> x10 }
 decimal
+{ 'a' -> 97 }
+{ 'A  -> 65 }

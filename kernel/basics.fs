@@ -158,10 +158,6 @@ has? ec [IF]
 \ digit?                                               17dec92py
 
 : digit?   ( char -- digit true/ false ) \ gforth
-  base @ $100 =
-  IF
-    true EXIT
-  THEN
   toupper [char] 0 - dup 9 u> IF
     [ char A char 9 1 + -  ] literal -
     dup 9 u<= IF

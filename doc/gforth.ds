@@ -7599,11 +7599,12 @@ doc-base
 doc-hex
 doc-decimal
 
-
 @cindex '-prefix for character strings
 @cindex &-prefix for decimal numbers
+@cindex #-prefix for decimal numbers
 @cindex %-prefix for binary numbers
 @cindex $-prefix for hexadecimal numbers
+@cindex 0x-prefix for hexadecimal numbers
 Gforth allows you to override the value of @code{base} by using a
 prefix@footnote{Some Forth implementations provide a similar scheme by
 implementing @code{$} etc. as parsing words that process the subsequent
@@ -7611,25 +7612,30 @@ number in the input stream and push it onto the stack. For example, see
 @cite{Number Conversion and Literals}, by Wil Baden; Forth Dimensions
 20(3) pages 26--27. In such implementations, unlike in Gforth, a space
 is required between the prefix and the number.} before the first digit
-of an (integer) number. Four prefixes are supported:
+of an (integer) number. The following prefixes are supported:
 
 @itemize @bullet
 @item
 @code{&} -- decimal
 @item
+@code{#} -- decimal
+@item
 @code{%} -- binary
 @item
 @code{$} -- hexadecimal
 @item
-@code{'} -- base @code{max-char+1}
+@code{0x} -- hexadecimal, if base<33.
+@item
+@code{'} -- numeric value (e.g., ASCII code) of next character; an
+optional @code{'} may be present after the character.
 @end itemize
 
 Here are some examples, with the equivalent decimal number shown after
 in braces:
 
 -$41 (-65), %1001101 (205), %1001.0001 (145 - a double-precision number),
-'AB (16706; ascii A is 65, ascii B is 66, number is 65*256 + 66),
-'ab (24930; ascii a is 97, ascii B is 98, number is 97*256 + 98),
+'A (65),
+-'a' (-97),
 &905 (905), $abc (2478), $ABC (2478).
 
 @cindex number conversion - traps for the unwary
