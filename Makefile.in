@@ -406,8 +406,8 @@ distclean:	clean
 		doc/version.texi gforthmi
 
 #realclean is useless, but dangerous, so it's commented out
-#realclean:	distclean
-#		-$(RM) $(GEN_PRECIOUS)
+realclean:	distclean
+		-$(RM) $(GEN_PRECIOUS)
 
 #mostlyclean, but also remove some of the stuff that is distributed
 virtualclean:	mostlyclean

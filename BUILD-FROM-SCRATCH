@@ -3,8 +3,15 @@
 
 # To build gforth from scratch you need autoconf and automake.
 # This file can be used as shell script. If you make the environment
-# variable OLDGFORTH point to an existing gforth installation, this
+# variable GFORTH point to an existing gforth installation, this
 # script takes over kernel and primitve files.
+
+# try to guess a previous version of Gforth
+
+if [ "$GFORTH" == "" ]
+then
+	GFORTH=`which gforth`
+fi
 
 # makes a aclocal.m4 which includes the automake macros for autconf
 
@@ -18,39 +25,14 @@ autoconf
 
 autoheader
 
-# Option 1: You have kernl???.fi files for the latest gforth engine
+# run configure script
 
-# fetch primitve and kernel files from an existing gforth installation
-# this works only if there are no changes between the prim file
-# in the existing gforth installation and this one!
-if [ "$CURRENTGFORTH" != "" ]; then
+./configure $*
 
-  # fetch some apropirate kernel images and copy it into the gforth root
+# if you have specified a previous Gforth, you can savely run make now
+# with FORTHK and FORTHP changed appropriate.
 
-  cp $CURRENTGFORTH/kernl???.fi .
-
-  # fetch the include files for the primitives
-  primfiles="engine/prim.i engine/prim_lab.i prim.b kernel/aliases.fs kernel/prim.fs"
-  for I in $primfiles; do
-    cp $CURRENTGFORTH/$I $I;
-  done
-
-  # mark them up to date
-  touch $primfiles
-
-  # mark kernel files up to date
-  touch kernl???.fi .
-
+if [ "$GFORTH" != "" ]
+then
+	make FORTHK="$GFORTH"
 fi
-
-# Option 2: You don't have the lates kernel???.fi but a running (old) gforth on your system
-
-# If you don't have apropriate kernel images use an old gforth installation to
-# bootstrap:
-# run ./configure
-# Edit the Makefile and replace the FORTHK variable with your existing
-# gforth call e.g. "/usr/bin/gforth", you don't need any options!
-# then run make gforth; make gforth.fi
-
-# go on with INSTALL ...
-
