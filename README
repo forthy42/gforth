@@ -16,9 +16,8 @@ If you want to work on gforth, mail me an encrypted UNIX password
 (i.e., what you find in /etc/passwd). Tasks to be done can be found in
 ToDo; but if you would like to do something not mentioned there, it's
 ok, too. In any case, we would like to hear what you are doing. The
-most important tasks IMO are the configuartion script, the missing ANS
-Forth words (musts before the alpha release), speeding up the loading
-of startup.fs, the documentation, adding readline and the foreign
+most important tasks IMO are the missing ANS Forth words (musts before
+the alpha release), the documentation, adding readline and the foreign
 language interface for C.
 
 - anton

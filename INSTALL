@@ -1,9 +1,9 @@
 Preliminary version
 
-Create a makefile with configure.
 You need gcc version 2.0 or later to compile gforth.
+First, type
 
-Create a machine description file for your machine, if necessary.
+configure
 
 configure has the following useful parameters:
 -direct-threaded: setup for a direct threaded interpreter; this is faster
@@ -14,13 +14,16 @@ configure has the following useful parameters:
 -without-debug: omits the -g switch and creates smaller images on machines
    where "strip" has problems with gcc style debugging informations.
 
+--help: tells you about other parameters.
+
 Now type
 
-gmake
+make
 
-or whatever the name of GNU make on your system is.
+If your make has trouble with the Makefile, "make gforth" might work.
+
 If your installed gcc isn't called "gcc" (eg. called "gcc-2.6.1"), type
 
-gmake CC=<whatever you call your gcc>
+make CC=<whatever you call your gcc>
 
 instead.

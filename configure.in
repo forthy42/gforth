@@ -20,6 +20,8 @@ AC_ARG_ENABLE(indirect-threaded,
 				(default processor-dependent)],
 AC_DEFINE(INDIRECT_THREADED))
 
+AC_SUBST(GCCLDFLAGS)
+
 #terminology is a bit unusual here: The host is the system on which
 #gforth will run; the system on which configure will run is the `build'
 AC_CANONICAL_HOST
@@ -43,9 +45,10 @@ case "$host_cpu" in
 		;;
 	mips*)
 		mach_h=mips
-		LDFLAGS="-Xlinker -N"
-		#!! link text and data segment into the same 256M region!
-		#!! does cacheflush work on OSs other than Ultrix?
+		#link text and data segment into the same 256M region!
+		GCCLDFLAGS="-Xlinker -T -Xlinker 10000000 -Xlinker -D -Xlinker 10400000"
+		#this works on Ultrix, but not on Irix
+		#for now use indirect threading under Irix
 		;;
 	*)
 		echo "No direct threading support for $host_cpu, using indirect threading."

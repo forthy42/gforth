@@ -22,8 +22,12 @@
 
 #ifdef DIRECT_THREADED
 
-/* this works on Ultrix. Let's hope it works on others, too */
+#ifdef ultrix
 #include <mips/cachectl.h>
+#else
+/* works on Irix */
+#include <sys/cachectl.h>
+#endif
 
 #define CACHE_FLUSH(addr,size) \
 			cacheflush((char *)(addr), (int)(size), BCACHE)
