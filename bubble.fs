@@ -9,6 +9,8 @@
 \ MM forth2c doesn't have it !
 : mybounds  over + swap ;
 
+1 cells Constant cell
+
 variable seed ( -- addr)
 
 : initiate-seed ( -- )  74755 seed ! ;
