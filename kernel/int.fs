@@ -320,6 +320,13 @@ $20 constant restrict-mask
     (name>x) tuck (x>int) ( b xt )
     swap immediate-mask and flag-sign ;
 
+const Create ???  0 , 3 c, char ? c, char ? c, char ? c,
+\ ??? is used by dovar:, must be created/:dovar
+
+[IFDEF] forthstart
+\ if we have a forthstart we can define head? with it
+\ otherwise leave out the head? check
+
 : head? ( addr -- f )
     \G heuristic check whether addr is a name token; may deliver false
     \G positives; addr must be a valid address
@@ -341,9 +348,6 @@ $20 constant restrict-mask
     \ in dubio pro:
     drop true ;
 
-const Create ???  0 , 3 c, char ? c, char ? c, char ? c,
-\ ??? is used by dovar:, must be created/:dovar
-
 : >head ( cfa -- nt ) \ gforth  to-head
     $21 cell do ( cfa )
 	dup i - count $9F and + cfaligned over alias-mask + =
@@ -356,6 +360,18 @@ const Create ???  0 , 3 c, char ? c, char ? c, char ? c,
 	then
 	cell +loop
     drop ??? ( wouldn't 0 be better? ) ;
+
+[ELSE]
+
+: >head ( cfa -- nt ) \ gforth  to-head
+    $21 cell do ( cfa )
+	dup i - count $9F and + cfaligned over alias-mask + =
+	if ( cfa ) i - cell - unloop exit
+	then
+	cell +loop
+    drop ??? ( wouldn't 0 be better? ) ;
+
+[THEN]
 
 ' >head ALIAS >name
 
@@ -696,7 +712,7 @@ Defer 'cold ( -- ) \ gforth  tick-cold
 \ command-line arguments
 ' noop IS 'cold
 
-include ../chains.fs
+include ./../chains.fs
 
 Variable init8
 
