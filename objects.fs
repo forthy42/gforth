@@ -359,12 +359,20 @@ variable public-wordlist
 \ : to-this ( object -- )
 \     thisp ! ;
 
-: m: ( -- xt colon-sys; run-time: object -- ) \ objects- objects
-    \g Start a method definition; @var{object} becomes new @code{this}.
-    :noname 
+: enterm ( -- ; run-time: object -- )
+    \g method prologue; @var{object} becomes new @code{this}.
     POSTPONE this
     POSTPONE >r
     POSTPONE to-this ;
+    
+: m: ( -- xt colon-sys; run-time: object -- ) \ objects- objects
+    \g Start a method definition; @var{object} becomes new @code{this}.
+    :noname enterm ;
+
+: :m ( "name" -- xt; run-time: object -- ) \ objects- objects
+    \g Start a named method definition; @var{object} becomes new
+    \g @code{this}.  Has to be ended with @code{;m}.
+    : enterm ;
 
 : exitm ( -- ) \ objects- objects
     \g @code{exit} from a method; restore old @code{this}.

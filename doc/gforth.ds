@@ -7797,6 +7797,12 @@ overrides construct
 end-class circle
 @end example
 
+Finally, you can define named methods with @code{:m}.  One use of this
+feature is the definition of words that occur only in one class and are
+not intended to be overridden, but which still need method context
+(e.g., for accessing @code{inst-var}s).  Another use is for methods that
+would be bound frequently, if defined anonymously.
+
 
 @node Classes and Scoping, Dividing classes, Method conveniences, Objects
 @subsubsection Classes and Scoping
@@ -8103,8 +8109,9 @@ doc---objects-init-object
 doc---objects-inst-value
 doc---objects-inst-var
 doc---objects-interface
-doc---objects-;m
 doc---objects-m:
+doc---objects-:m
+doc---objects-;m
 doc---objects-method
 doc---objects-methods
 doc---objects-object

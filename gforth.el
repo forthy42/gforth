@@ -40,7 +40,7 @@
 
 
 (defvar forth-positives
-  " : :noname m: code interpretation: ;code does> begin do ?do +do -do u+do u-do while if ?dup-if ?dup-0=-if else case of struct [if] [ifdef] [ifundef] [else] with public: private: class "
+  " : :noname m: :m code interpretation: ;code does> begin do ?do +do -do u+do u-do while if ?dup-if ?dup-0=-if else case of struct [if] [ifdef] [ifundef] [else] with public: private: class "
   "Contains all words which will cause the indent-level to be incremented
 on the next line.
 OBS! All words in forth-positives must be surrounded by spaces.")
