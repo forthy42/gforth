@@ -30,9 +30,9 @@ make install &&
 #make all-bench &&
 chmod -R +w ../$GFORTH/vmgen-ex ../$GFORTH/vmgen-ex2 &&
 cd ../$GFORTH/vmgen-ex &&
-PATH=$DIR/install/bin:$PATH make check GCC="$CC -O" YACC=yacc &&
+PATH=$DIR/install/bin:$PATH make check GCC="$CC -O" YACC=yacc LEX=lex &&
 cd ../vmgen-ex2 &&
-PATH=$DIR/install/bin:$PATH make check GCC="$CC -O" YACC=yacc &&
+PATH=$DIR/install/bin:$PATH make check GCC="$CC -O" YACC=yacc LEX=lex &&
 cd .. &&
 cd .. &&
 install/bin/gforth test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs -e bye &&

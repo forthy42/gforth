@@ -1461,6 +1461,13 @@ profiling.
 @item SUPER_CONTINUE
 This is just a hint to Vmgen and does nothing at the C level.
 
+@findex MAYBE_UNUSED
+@item MAYBE_UNUSED
+This should be defined as @code{__attribute__((unused))} for gcc-2.7 and
+higher.  It suppresses the warnings about unused variables in the code
+for superinstructions.  You need to define this only if you are using
+superinstructions.
+
 @findex VM_DEBUG
 @item VM_DEBUG
 If this is defined, the tracing code will be compiled in (slower
@@ -1638,7 +1645,7 @@ instruction instead of laying down @code{i} at the current @samp{*ctp}.
 
 The code for peephole optimization is in @file{vmgen-ex/peephole.c}.
 You can use this file almost verbatim.  Vmgen generates
-@file{@var{file}-peephole.i} which contains data for the peephoile
+@file{@var{file}-peephole.i} which contains data for the peephole
 optimizer.
 
 @findex init_peeptable

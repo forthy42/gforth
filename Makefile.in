@@ -362,7 +362,7 @@ SOURCES	= $(CVSDIRS) compat Makefile.in Makedist.in engine/Makefile.in \
 
 RCS_FILES =  ToDo model high-level
 
-ENGINES = gforth$(EXE) gforth-ditc$(EXE) gforth-fast$(EXE) gforth-itc$(EXE) gforth-prof$(EXE) #gforth-native$(EXE)
+ENGINES = gforth$(EXE) gforth-ditc$(EXE) gforth-fast$(EXE) gforth-itc$(EXE) #gforth-prof$(EXE) #gforth-native$(EXE)
 
 GEN = $(ENGINES) kernel/version.fs
 
@@ -451,7 +451,7 @@ clean:		mostlyclean
 		-$(RM) -rf $(GEN) *.o engine/*.o arch/*/*.o version \
 		engine/gforth$(EXE) engine/gforth-fast$(EXE) \
                 engine/gforth-native$(EXE) engine/gforth-itc$(EXE) \
-		engine/gforth-ditc$(EXE) engine/gforth-prof$(EXE)
+		engine/gforth-ditc$(EXE) #engine/gforth-prof$(EXE)
 
 distclean:	clean
 		-$(RM) -rf config.cache config.log config.status \
