@@ -37,6 +37,8 @@
 \ This program uses Gforth internals and won't be easy to port
 \ to other systems.
 
+\ !! ignore struct-voc stuff (dummy, [then] etc.).
+
 vocabulary ans-report-words ans-report-words definitions
 
 : wordset ( "name" -- )
