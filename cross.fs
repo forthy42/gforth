@@ -1180,8 +1180,19 @@ CREATE Bittable 80 c, 40 c, 20 c, 10 c, 8 c, 4 c, 2 c, 1 c,
 : +bit ( addr n -- )  >bit over c@ or swap c! ;
 : -bit ( addr n -- )  >bit invert over c@ and swap c! ;
 
-: (relon) ( taddr -- )  bit$ @ swap cell/ +bit ;
-: (reloff) ( taddr -- ) bit$ @ swap cell/ -bit ;
+: (relon) ( taddr -- )  
+  [ [IFDEF] fd-relocation-table ]
+  s" +" fd-relocation-table write-file throw
+  dup s>d <# #s #> fd-relocation-table write-line throw
+  [ [THEN] ]
+  bit$ @ swap cell/ +bit ;
+
+: (reloff) ( taddr -- ) 
+  [ [IFDEF] fd-relocation-table ]
+  s" -" fd-relocation-table write-file throw
+  dup s>d <# #s #> fd-relocation-table write-line throw
+  [ [THEN] ]
+  bit$ @ swap cell/ -bit ;
 
 : (>image) ( taddr -- absaddr ) image @ + ;
 
@@ -1651,7 +1662,9 @@ NoHeaderFlag off
     base @ >r hex 
     0 swap <# 0 ?DO # LOOP #> type 
     r> base ! ;
-: .sym
+
+: .sym ( adr len -- )
+\G escapes / and \ to produce sed output
   bounds 
   DO I c@ dup
 	CASE	[char] / OF drop ." \/" ENDOF
@@ -1674,9 +1687,15 @@ NoHeaderFlag off
 	>in @ T name, H >in !
     THEN
     T cfalign here H tlastcfa !
-    \ Symbol table
+    \ Old Symbol table sed-script
 \    >in @ cr ." sym:s/CFA=" there 4 0.r ." /"  bl word count .sym ." /g" cr >in !
     ghost
+    \ output symbol table to extra file
+    [ [IFDEF] fd-symbol-table ]
+      base @ hex there s>d <# 8 0 DO # LOOP #> fd-symbol-table write-file throw base !
+      s" :" fd-symbol-table write-file throw
+      dup >ghostname fd-symbol-table write-line throw
+    [ [THEN] ]
     dup Last-Header-Ghost !
     dup >magic ^imm !     \ a pointer for immediate
     Already @
@@ -1797,7 +1816,9 @@ Cond: [']  T ' H alit, ;Cond
 : (lit,) ( n -- )   compile lit T  ,  H ;	' (lit,) IS lit,
 
 \ if we dont produce relocatable code alit, defaults to lit, jaw
-has? relocate
+\ this is just for convenience, so we don't have to define alit,
+\ seperately for embedded systems....
+T has? relocate H
 [IF]
 : (alit,) ( n -- )  compile lit T  a, H ;	' (alit,) IS alit,
 [ELSE]
