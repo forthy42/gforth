@@ -723,10 +723,11 @@ variable backedge-locals
 
 : ?DUP-IF ( compilation -- orig ; run-time n -- n| ) \ gforth	question-dupe-if
 \ This is the preferred alternative to the idiom "?DUP IF", since it can be
-\ better handled by tools like stack checkers
-    POSTPONE ?dup POSTPONE if ;       immediate restrict
+\ better handled by tools like stack checkers. Besides, it's faster.
+    POSTPONE ?dup-?branch >mark ;       immediate restrict
+
 : ?DUP-0=-IF ( compilation -- orig ; run-time n -- n| ) \ gforth	question-dupe-zero-equals-if
-    POSTPONE ?dup POSTPONE 0= POSTPONE if ; immediate restrict
+    POSTPONE ?dup-0=-?branch >mark ;       immediate restrict
 
 : THEN ( compilation orig -- ; run-time -- ) \ core
     dup orig?
@@ -1317,14 +1318,19 @@ defer everychar
 
 \ Output                                               13feb93py
 
+: (type) ( c-addr u -- ) \ gforth
+    outfile-id write-file drop \ !! use ?DUP-IF THROW ENDIF instead of DROP ?
+;
+
 Defer type ( c-addr u -- ) \ core
 \ defer type for a output buffer or fast
 \ screen write
 
-\ : (type) ( addr len -- )
-\   bounds ?DO  I c@ emit  LOOP ;
-
 ' (type) IS Type
+
+: (emit) ( c -- ) \ gforth
+    outfile-id emit-file drop \ !! use ?DUP-IF THROW ENDIF instead of DROP ?
+;
 
 Defer emit ( c -- ) \ core
 ' (Emit) IS Emit
@@ -1749,6 +1755,7 @@ Variable argc
 Defer 'cold ' noop IS 'cold
 
 : cold ( -- ) \ gforth
+    stdout TO outfile-id
     pathstring 2@ process-path pathdirs 2!
     init-included-files
     'cold

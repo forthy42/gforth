@@ -518,7 +518,7 @@ forth definitions
      [ ' wlocal >definer ] literal
      OF POSTPONE laddr# >body @ lp-offset, POSTPONE ! ENDOF
      [ ' dlocal >definer ] literal
-     OF POSTPONE laddr# >body @ lp-offset, POSTPONE d! ENDOF
+     OF POSTPONE laddr# >body @ lp-offset, POSTPONE 2! ENDOF
      [ ' flocal >definer ] literal
      OF POSTPONE laddr# >body @ lp-offset, POSTPONE f! ENDOF
      -&32 throw

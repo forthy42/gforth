@@ -31,6 +31,7 @@ include vt100.fs
 include see.fs
 include bufio.fs
 include debug.fs
+require stuff.fs
 include history.fs
 \ include doskey.fs
 include vt100key.fs
@@ -38,7 +39,6 @@ require debugging.fs
 require assert.fs
 require blocks.fs
 require dumpimage.fs
-require stuff.fs
 
 0 Value $?
 : sh  '# parse cr system  to $? ;

@@ -1141,8 +1141,11 @@ system that only supplies @code{THEN} is simple:
 Forth's @code{THEN} has the meaning 2b, whereas @code{THEN} in Pascal
 and many other programming languages has the meaning 3d.]
 
-We also provide the words @code{?dup-if} and @code{?dup-0=-if}, so you
-can avoid using @code{?dup}.
+Gforth also provides the words @code{?dup-if} and @code{?dup-0=-if}, so
+you can avoid using @code{?dup}. Using these alternatives is also more
+efficient than using @code{?dup}. Definitions in plain standard Forth
+for @code{ENDIF}, @code{?DUP-IF} and @code{?DUP-0=-IF} are provided in
+@file{compat/control.fs}.
 
 @example
 @var{n}
@@ -1324,6 +1327,12 @@ Some standard control structure words are built from these words:
 doc-else
 doc-while
 doc-repeat
+
+Gforth adds some more control-structure words:
+
+doc-endif
+doc-?dup-if
+doc-?dup-0=-if
 
 Counted loop words constitute a separate group of words:
 
@@ -1724,8 +1733,8 @@ E.g., a definition using @code{TO} might look like this:
 : strcmp @{ addr1 u1 addr2 u2 -- n @}
  u1 u2 min 0
  ?do
-   addr1 c@ addr2 c@ - ?dup
-   if
+   addr1 c@ addr2 c@ -
+   ?dup-if
      unloop exit
    then
    addr1 char+ TO addr1
@@ -1747,8 +1756,8 @@ are initialized with the right value for the current iteration.
  addr1 addr2
  u1 u2 min 0 
  ?do @{ s1 s2 @}
-   s1 c@ s2 c@ - ?dup 
-   if
+   s1 c@ s2 c@ -
+   ?dup-if
      unloop exit
    then
    s1 char+ s2 char+

@@ -64,12 +64,6 @@ create tags-line 128 chars allot
     endif
     tags-file @ ;
 
-create emit-file-char 0 c,
-
-: emit-file ( c file-id -- )
-    swap emit-file-char c!
-    emit-file-char 1 chars rot write-file ;
-
 2variable last-loadfilename 0 0 last-loadfilename 2!
 
 : put-load-file-name ( file-id -- )

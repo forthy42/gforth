@@ -49,9 +49,9 @@ typedef union {
   struct {
 #ifdef WORDS_BIGENDIAN
     Cell high;
-    Cell low;
+    UCell low;
 #else
-    Cell low;
+    UCell low;
     Cell high;
 #endif;
   } cells;

@@ -37,6 +37,9 @@ decimal
 : 2Literal ( compilation w1 w2 -- ; run-time  -- w1 w2 ) \ double two-literal
     swap postpone Literal  postpone Literal ; immediate restrict
 
+: dabs ( d1 -- d2 ) \ double
+    dup 0< IF dnegate THEN ;
+
 : m*/ ( d1 n2 u3 -- dqout ) \ double m-star-slash
     >r s>d >r abs -rot
     s>d r> xor r> swap >r >r dabs rot tuck um* 2swap um*

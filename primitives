@@ -1,6 +1,6 @@
 \ Gforth primitives
 
-\ Copyright (C) 1995 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -154,6 +154,36 @@ if (f==0) {
     IF_TOS(TOS = sp[0]);
 )
 
+\ we don't need an lp_plus_store version of the ?dup-stuff, because it
+\ is only used in if's (yet)
+
+?dup-?branch	f -- f	new	question_dupe_question_branch
+""The run-time procedure compiled by @code{?DUP-IF}.""
+if (f==0) {
+  sp++;
+  IF_TOS(TOS = sp[0]);
+  ip = (Xt *)(((Cell)IP)+(Cell)NEXT_INST);
+  NEXT_P0;
+  NEXT;
+}
+else
+  INC_IP(1);
+
+?dup-0=-?branch	f --	new	question_dupe_zero_equals_question_branch
+""The run-time procedure compiled by @code{?DUP-0=-IF}.""
+/* the approach taken here of declaring the word as having the stack
+effect ( f -- ) and correcting for it in the branch-taken case costs a
+few cycles in that case, but is easy to convert to a CONDBRANCH
+invocation */
+if (f!=0) {
+  sp--;
+  ip = (Xt *)(((Cell)IP)+(Cell)NEXT_INST);
+  NEXT_P0;
+  NEXT;
+}
+else
+  INC_IP(1);
+
 condbranch((next),--		cmFORTH	paren_next,
 if ((*rp)--) {
 )
@@ -191,8 +221,6 @@ if(((olddiff^MAXINT) >= n) ^ ((olddiff+n) < 0)) {
 condbranch((-loop),u --		gforth	paren_minus_loop,
 /* !! check this thoroughly */
 Cell index = *rp;
-/* sign bit manipulation and test: (x^y)<0 is equivalent to (x<0) != (y<0) */
-/* dependent upon two's complement arithmetic */
 UCell olddiff = index-rp[1];
 if (olddiff>u) {
 #ifdef i386
@@ -305,18 +333,6 @@ j	-- n		core
 n = rp[2];
 
 \ digit is high-level: 0/0%
-
-(emit)	c --		gforth	paren_emit
-putchar(c);
-#if 0
-emitcounter++;
-#endif
-
-(type)	c_addr n --	gforth	paren_type
-fwrite(c_addr,sizeof(Char),n,stdout);
-#if 0
-emitcounter += n;
-#endif
 
 (key)	-- n		gforth	paren_key
 fflush(stdout);
@@ -562,68 +578,67 @@ u2 = ud%u1;
   ELSE  dnegate  d+  rot 1+  THEN ; 
 
 m+	d1 n -- d2		double		m_plus
+#ifdef BUGGY_LONG_LONG
+d2.low = d1.low+n;
+d2.high = d1.high - (n<0) + (d2.low<d1.low)
+#else
 d2 = d1+n;
+#endif
 :
  s>d d+ ;
 
 d+	d1 d2 -- d		double	d_plus
+#ifdef BUGGY_LONG_LONG
+d.low = d1.low+d2.low;
+d.high = d1.high + d2.high + (d.low<d1.low)
+#else
 d = d1+d2;
+#endif
 :
  >r swap >r over 2/ over 2/ + >r over 1 and over 1 and + 2/
  r> + >r + r> 0< r> r> + swap - ;
 
 d-	d1 d2 -- d		double		d_minus
+#ifdef BUGGY_LONG_LONG
+d.low = d1.low - d2.low;
+d.high = d1.high-d2.high-(d1.low<d2.low)
+#else
 d = d1-d2;
+#endif
 :
  dnegate d+ ;
 
 dnegate	d1 -- d2		double
 /* use dminus as alias */
+#ifdef BUGGY_LONG_LONG
+d2.high = ~d1.high + (d1.low==0);
+d2.low = -d1.low;
+#else
 d2 = -d1;
+#endif
 :
  invert swap negate tuck 0= - ;
 
-dmax	d1 d2 -- d	double
-if (d1<d2)
-  d = d2;
-else
-  d = d1;
-:
- 2over 2over d> IF  2swap  THEN 2drop ;
-
-dmin	d1 d2 -- d	double
-if (d1<d2)
-  d = d1;
-else
-  d = d2;
-:
- 2over 2over d< IF  2swap  THEN 2drop ;
-
-dabs	d1 -- d2	double
-if (d1<0)
-  d2 = -d1;
-else
-  d2 = d1;
-:
- dup 0< IF dnegate THEN ;
-
 d2*	d1 -- d2		double		d_two_star
+#ifdef BUGGY_LONG_LONG
+d2.low = d1.low<<1;
+d2.high = (d1.high<<1) | (d1.low>>(CELL_BITS-1));
+#else
 d2 = 2*d1;
+#endif
 :
  2dup d+ ;
 
 d2/	d1 -- d2		double		d_two_slash
-/* !! is this still correct? */
+#ifdef BUGGY_LONG_LONG
+d2.high = d1.high>>1;
+d2.low= (d1.low>>1) | (d1.high<<(CELL_BITS-1));
+#else
 d2 = d1>>1;
+#endif
 :
  dup 1 and >r 2/ swap 2/ [ 1 8 cells 1- lshift 1- ] Literal and
  r> IF  [ 1 8 cells 1- lshift ] Literal + THEN  swap ;
-
-d>s	d -- n			double		d_to_s
-/* make this an alias for drop? */
-n = d;
-:
- drop ;
 
 and	w1 w2 -- w		core
 w = w1&w2;
@@ -828,13 +843,6 @@ w2 = a_addr[0];
 w1 = a_addr[1];
 :
  dup cell+ @ swap @ ;
-
-d!	d a_addr --		double	d_store
-/* !! alignment problems on some machines */
-*(DCell *)a_addr = d;
-
-d@	a_addr -- d		double	d_fetch
-d = *(DCell *)a_addr;
 
 cell+	a_addr1 -- a_addr2	core	cell_plus
 a_addr2 = a_addr1+1;
@@ -1106,6 +1114,11 @@ write-file	c_addr u1 wfileid -- wior	file	write_file
     clearerr((FILE *)wfileid);
 }
 
+emit-file	c wfileid -- wior	gforth	emit_file
+wior = FILEIO(putc(c, (FILE *)wfileid)==EOF);
+if (wior)
+  clearerr((FILE *)wfileid);
+
 flush-file	wfileid -- wior		file-ext	flush_file
 wior = IOR(fflush((FILE *) wfileid)==EOF);
 
@@ -1132,6 +1145,12 @@ else {
 	    access mode (r/o bin), so we get a decent error later upon open. */
   wior=0;
 }
+
+stdout	-- wfileid	gforth
+wfileid = (Cell)stdout;
+
+stderr	-- wfileid	gforth
+wfileid = (Cell)stderr;
 
 comparisons(f, r1 r2, f_, r1, r2, gforth, gforth, float, gforth)
 comparisons(f0, r, f_zero_, r, 0., float, gforth, float, gforth)
