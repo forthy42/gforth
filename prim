@@ -74,6 +74,10 @@
 \ xt.*		XT
 \ f83name.*	F83Name *
 
+\E stack data-stack   sp Cell
+\E stack fp-stack     fp Float
+\E stack return-stack rp Cell
+\E
 \E get-current prefixes set-current
 \E 
 \E s" Bool"		single data-stack type-prefix f

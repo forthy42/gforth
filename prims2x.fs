@@ -493,16 +493,22 @@ does> ( item -- )
 : stack-type-name ( addr u "name" -- )
     single 0 create-type ;
 
-s" Cell"  stack-type-name w
-s" Float" stack-type-name r
+wordlist constant type-names \ this is here just to meet the requirement
+                    \ that a type be a word; it is never used for lookup
 
-s" IP" save-mem w make-stack inst-stream
+: stack ( "name" "stack-pointer" "type" -- )
+    \ define stack
+    name { d: stack-name }
+    name { d: stack-pointer }
+    name { d: stack-type }
+    get-current type-names set-current
+    stack-type 2dup nextname stack-type-name
+    set-current
+    stack-pointer lastxt >body stack-name nextname make-stack ;
+
+stack inst-stream IP Cell
 ' inst-in-index inst-stream stack-in-index-xt !
 ' inst-stream <is> inst-stream-f
-
-s" sp" save-mem w make-stack data-stack 
-s" fp" save-mem r make-stack fp-stack
-s" rp" save-mem w make-stack return-stack
 \ !! initialize stack-in and stack-out
 
 \ offset computation

@@ -244,6 +244,8 @@ static int ufileattr[6]= {
 #define vm_longname2Cell(x)	((Cell)(x))
 #define vm_r2Float(x)	(x)
 
+#define vm_Cell2Cell(x)		(x)
+
 /* if machine.h has not defined explicit registers, define them as implicit */
 #ifndef IPREG
 #define IPREG
