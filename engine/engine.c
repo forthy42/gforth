@@ -170,7 +170,7 @@ char *tilde_cstr(Char *from, UCell size, int clear)
 #endif
 
 #ifdef HAS_FILE
-static char* fileattr[6]={"r","rb","r+","r+b","w","wb"};
+static char* fileattr[6]={"rb","rb","r+b","r+b","wb","wb"};
 
 #ifndef O_BINARY
 #define O_BINARY 0
@@ -180,9 +180,9 @@ static char* fileattr[6]={"r","rb","r+","r+b","w","wb"};
 #endif
 
 static int ufileattr[6]= {
-  O_RDONLY|O_TEXT, O_RDONLY|O_BINARY,
-  O_RDWR  |O_TEXT, O_RDWR  |O_BINARY,
-  O_WRONLY|O_TEXT, O_WRONLY|O_BINARY };
+  O_RDONLY|O_BINARY, O_RDONLY|O_BINARY,
+  O_RDWR  |O_BINARY, O_RDWR  |O_BINARY,
+  O_WRONLY|O_BINARY, O_WRONLY|O_BINARY };
 #endif
 
 /* if machine.h has not defined explicit registers, define them as implicit */

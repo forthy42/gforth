@@ -1636,21 +1636,26 @@ if (wior)
   clearerr((FILE *)wfileid);
 
 read-line	c_addr u1 wfileid -- u2 flag wior	file	read_line
-/*
+#if 1
 Cell c;
 flag=-1;
 for(u2=0; u2<u1; u2++)
 {
-   *c_addr++ = (Char)(c = getc((FILE *)wfileid));
-   if(c=='\n') break;
-   if(c==EOF)
-     {
+   c = getc((FILE *)wfileid);
+   if (c=='\n') break;
+   if (c=='\r') {
+     if ((c = getc((FILE *)wfileid))!='\n')
+       ungetc(c,(FILE *)wfileid);
+     break;
+   }
+   if (c==EOF) {
 	flag=FLAG(u2!=0);
 	break;
      }
+   c_addr[u2] = (Char)c;
 }
 wior=FILEIO(ferror((FILE *)wfileid));
-*/
+#else
 if ((flag=FLAG(!feof((FILE *)wfileid) &&
 	       fgets(c_addr,u1+1,(FILE *)wfileid) != NULL))) {
   wior=FILEIO(ferror((FILE *)wfileid)!=0); /* !! ior? */
@@ -1663,6 +1668,7 @@ else {
   wior=0;
   u2=0;
 }
+#endif
 
 \+
 
@@ -2197,3 +2203,14 @@ fp=FP;
 IF_TOS(TOS=sp[0];)
 IF_FTOS(FTOS=fp[0]);
 
+newline	-- c_addr u	gforth
+""String containing the newline sequence of the host OS""
+char newline[] = {
+#ifdef unix
+'\n'
+#else
+'\r','\n'
+#endif
+};
+c_addr=newline;
+u=sizeof(newline);

@@ -76,8 +76,8 @@ STRIP	= strip
 TEXI2DVI = texi2dvi -e
 DVI2PS	= dvips -Z
 #you can get texi2html from http://wwwcn.cern.ch/dci/texi2html/
-TEXI2HTML = texi2html
 MAKEINFO = makeinfo
+TEXI2HTML = texi2html
 
 # -------------	Compiler Flags
 
@@ -671,8 +671,8 @@ html:		$(GFORTH_TEXI)
 		-$(RMTREE) html
 		-mkdir html
 ### need makeinfo 4.0 to generate html. Otherwise, use texi2html..
-###		cd html; $(MAKEINFO) --html -I ../doc ../doc/gforth.texi
-		cd html; $(TEXI2HTML) -menu -split_node ../doc/gforth.texi
+		cd html; $(MAKEINFO) --html -I ../doc ../doc/gforth.texi
+###		cd html; $(TEXI2HTML) -menu -split_node ../doc/gforth.texi
 
 doc/gforth.txt:	$(GFORTH_TEXI)
 		-cd doc; $(MAKEINFO) --no-headers --no-split gforth.texi >gforth.txt
