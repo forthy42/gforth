@@ -52,7 +52,6 @@ PEEPHOLE="$withval")
 
 #currently we force direct threading this way.  Eventually we should
 #setup in the arch and engine files right
-AC_DEFINE(DIRECT_THREADED)
 
 CFLAGS=$CFLAGS
 
@@ -163,10 +162,6 @@ case "$host_cpu" in
 		LIBOBJS="$LIBOBJS ../arch/hppa/cache.o"
 		LDFLAGS="$LDFLAGS -Xlinker -N"
 		LIBS="$LIBS -L/lib/pa1.1/"
-		if test "${enable_direct_threaded+set}" = ""
-		then
-			AC_DEFINE(DIRECT_THREADED)
-		fi
 		;;
 	sparc*)
 		machine=sparc
@@ -174,22 +169,10 @@ case "$host_cpu" in
 	i386)
 		machine=386
 		CFLAGS="$CFLAGS -fomit-frame-pointer -fforce-addr -fforce-mem"
-		if test "${enable_direct_threaded+set}" = "" \
-			-a "${enable_indirect_threaded+set}" = ""
-		then
-			echo "Using direct threaded code on 386"
-			AC_DEFINE(DIRECT_THREADED)
-		fi
 		;;
 	i486)
 		machine=386
 		CFLAGS="$CFLAGS -fomit-frame-pointer -fforce-addr -fforce-mem -m486"
-		if test "${enable_direct_threaded+set}" = "" \
-			-a "${enable_indirect_threaded+set}" = ""
-		then
-			echo "Using direct threaded code on 486"
-			AC_DEFINE(DIRECT_THREADED)
-		fi
 		;;
 	i*86)
 		machine=386
@@ -197,12 +180,6 @@ case "$host_cpu" in
 		CFLAGS_1="$CFLAGS"
 		CFLAGS="$CFLAGS -mpentium"
 		AC_TRY_COMPILE(,,,CFLAGS="$CFLAGS_1 -m486")
-		if test "${enable_direct_threaded+set}" = "" \
-			-a "${enable_indirect_threaded+set}" = ""
-		then
-			echo "Using indirect threaded code on IA32 CPUs with split L1 caches"
-			AC_DEFINE(INDIRECT_THREADED)
-		fi
 		;;
 	ia64*)
 		machine=ia64
@@ -224,6 +201,8 @@ case "$host_cpu" in
 		AC_TRY_LINK(,,ac_link_mips_t=yes,ac_link_mips_t=no)
 		test $ac_link_mips_t = yes||LDFLAGS=$OLDLDFLAGS
 		AC_MSG_RESULT($ac_link_mips_t)
+		fixme #dynamically generated code should be in the same 256MB
+		# region as the text segment; no indirect threading necessary
 		test $ac_link_mips_t = yes||(echo cannot link text and data into same 256M region, using indirect threading; AC_DEFINE(INDIRECT_THREADED))
 		AC_MSG_CHECKING([whether the linker accepts -D])
 		OLDLDFLAGS=$LDFLAGS
@@ -241,21 +220,8 @@ case "$host_cpu" in
 		machine=power
 		$srcdir/mkinstalldirs arch/power
 		AC_CHECK_FUNC(_sync_cache_range,true,LIBOBJS="$LIBOBJS ../arch/power/_sync_cache_range.o")
-		#link text segment into first 32MB
-		AC_MSG_CHECKING([whether the linker accepts --script=arch/power/elf32ppc.x])
-		OLDLDFLAGS=$LDFLAGS
-                #the -L../$srcdir helps when $srcdir is relative
-		LDFLAGS="$LDFLAGS -L$srcdir -L../$srcdir -Xlinker --script=$srcdir/arch/power/elf32ppc.x"
-		AC_TRY_LINK(,,ac_link_script=yes,ac_link_script=no)
-		test $ac_link_script = yes||LDFLAGS=$OLDLDFLAGS
-		AC_MSG_RESULT($ac_link_script)
-		AC_MSG_CHECKING([whether the code is in the first 32MB])
-		AC_TRY_RUN([main(){label: exit(((unsigned long)&&label)>32000000UL);}],ac_code_under_32=yes,ac_code_under_32=no,ac_code_under_32=no)
-                AC_MSG_RESULT($ac_code_under_32)
-		test $ac_code_under_32 = yes||(AC_MSG_WARN([Using indirect threading]); AC_DEFINE(INDIRECT_THREADED))
 		;;
 	*)
-		echo "No direct threading support for $host_cpu, using indirect threading."
 		echo "Using a generic machine description."
 		echo "I'll assume that C floats and doubles are represented by IEEE single and"
 		echo "double numbers. If this is not so, SF@ etc. will not work correctly."
@@ -286,6 +252,8 @@ AC_SUBST(GFORTH_EXE)
 GFORTH_EXE=""
 AC_SUBST(GFORTHFAST_EXE)
 GFORTHFAST_EXE=""
+AC_SUBST(GFORTHITC_EXE)
+GFORTHITC_EXE=""
 AC_SUBST(GFORTHDITC_EXE)
 GFORTHDITC_EXE=""
 

@@ -23,11 +23,7 @@
 #define USE_TOS
 #endif
 
-#ifndef INDIRECT_THREADED
-#ifndef DIRECT_THREADED
-#define DIRECT_THREADED
-#endif
-#endif
+#error reorder including ../generic/machine.h and the following direct threading check?
 
 #ifndef THREADING_SCHEME
 #ifdef DIRECT_THREADED

@@ -88,6 +88,7 @@ AOBJECTS = io.o signals.o memcmpc.o peephole.o @LIBOBJS@
 
 OBJECTS = engine.o main.o
 OBJECTS_FAST = engine-fast.o main-fast.o
+OBJECTS_ITC = engine-itc.o main-itc.o
 OBJECTS_DITC = engine-ditc.o main-ditc.o
 OBJECTS_PROF = engine-prof.o main-prof.o
 OBJECTS_FI =  engine.o main-fi.o
@@ -108,6 +109,9 @@ gforth$(EXE):	$(OBJECTS) $(AOBJECTS)
 gforth-fast$(EXE):	$(OBJECTS_FAST) $(AOBJECTS)
 	$(GCC) $(LDFLAGS) $(OBJECTS_FAST) $(AOBJECTS) $(LDLIBS) -o $@
 
+gforth-itc$(EXE):	$(OBJECTS_ITC) $(AOBJECTS)
+	$(GCC) $(LDFLAGS) $(OBJECTS_ITC) $(AOBJECTS) $(LDLIBS) -o $@
+
 gforth-ditc$(EXE): $(OBJECTS_DITC) $(AOBJECTS)
 	$(GCC) $(LDFLAGS) $(OBJECTS_DITC) $(AOBJECTS) $(LDLIBS) -o $@
 
@@ -118,13 +122,16 @@ gforth-fi$(EXE):	$(OBJECTS_FI) $(AOBJECTS)
 	$(GCC) $(LDFLAGS) $(OBJECTS_FI) $(AOBJECTS) $(LDLIBS) -o $@
 
 engine.s:	$(ENGINE_DEPS)
-		$(GCC) -fno-gcse $(CFLAGS) $(ENGINE_FLAGS) -S engine.b.c
+		$(GCC) -fno-gcse $(CFLAGS2) $(ENGINE_FLAGS) -S engine.b.c
 
 engine.o:	$(ENGINE_DEPS)
 		$(GCC) -fno-gcse $(CFLAGS2) $(ENGINE_FLAGS) -DGFORTH_DEBUGGING -o $@ -c engine.b.c
 
 engine-fast.o:	$(ENGINE_DEPS)
-		$(GCC) -fno-gcse $(CFLAGS) $(ENGINE_FLAGS) -o $@ -c engine.b.c
+		$(GCC) -fno-gcse $(CFLAGS2) $(ENGINE_FLAGS) -o $@ -c engine.b.c
+
+engine-itc.o:	$(ENGINE_DEPS)
+		$(GCC) -fno-gcse $(CFLAGS2) $(ENGINE_FLAGS) -DINDIRECT_THREADED -DGFORTH_DEBUGGING -o $@ -c engine.b.c
 
 engine-ditc.o:	$(ENGINE_DEPS)
 		$(GCC) -fno-gcse $(CFLAGS2) $(ENGINE_FLAGS) -DDOUBLY_INDIRECT -o $@ -c engine.b.c
@@ -137,6 +144,9 @@ main.o:		$(MAIN_DEPS)
 
 main-fast.o:	$(MAIN_DEPS) 
 		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -o $@ -c $(srcdir)/main.c
+
+main-itc.o:	$(MAIN_DEPS) 
+		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -DINDIRECT_THREADED -DGFORTH_DEBUGGING -o $@ -c $(srcdir)/main.c
 
 main-ditc.o:	$(MAIN_DEPS)
 		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -DDOUBLY_INDIRECT -o $@ -c $(srcdir)/main.c

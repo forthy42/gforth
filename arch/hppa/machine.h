@@ -27,12 +27,6 @@
 #define USE_TOS
 #endif
 
-#ifndef INDIRECT_THREADED
-#ifndef DIRECT_THREADED
-#define DIRECT_THREADED
-#endif
-#endif
-
 /* cache flush stuff */
 extern void cacheflush(void *, int, int);
 #ifdef DEBUG

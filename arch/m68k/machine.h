@@ -23,11 +23,6 @@
 #define THREADING_SCHEME 3
 #endif
 
-/* direct threading is faster at least on 68030 */
-#if !defined INDIRECT_THREADED && !defined DIRECT_THREADED
-#define DIRECT_THREADED
-#endif
-
 /* define this if the processor cannot exploit instruction-level
    parallelism (no pipelining or too few registers) */
 #define CISC_NEXT

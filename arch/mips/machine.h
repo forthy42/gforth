@@ -31,19 +31,6 @@
 #endif
 
 /* cache flush stuff */
-
-#ifndef INDIRECT_THREADED
-#ifndef DIRECT_THREADED
-#define DIRECT_THREADED
-/* direct threading saves 2 cycles per primitive on an R3000, 4 on an R4000 */
-#endif
-#endif
-
-#if defined(INDIRECT_THREADED)
-#undef DIRECT_THREADED
-/* configure may define both on the MIPS */
-#endif
-
 #ifdef ultrix
 #include <mips/cachectl.h>
 #else

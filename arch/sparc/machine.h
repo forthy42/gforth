@@ -27,10 +27,6 @@
 #define USE_TOS
 #endif
 
-#if !defined(INDIRECT_THREADED) && !defined(DIRECT_THREADED)
-#define DIRECT_THREADED
-#endif
-
 #include "../generic/machine.h"
 
 #define FLUSH_ICACHE(addr,size) \

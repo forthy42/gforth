@@ -60,10 +60,10 @@
    loses on processors with few registers. USE_TOS might be defined in
    the processor-specific files */
 
-#ifdef DIRECT_THREADED
-/* If you want direct threading, write a .h file for your processor! */
-/* We could put some stuff here that causes a compile error, but then
-   we could not use this file in the other machine.h files */
+#ifndef INDIRECT_THREADED
+#ifndef DIRECT_THREADED
+#define DIRECT_THREADED
+#endif
 #endif
 
 /* Types: these types are used as Forth's internal types */

@@ -46,16 +46,12 @@
 
 #include "../generic/machine.h"
 
-/* indirect threading is faster on the Pentium, on the 486 direct
-   threading is faster. Therefore we leave defining
-   DIRECT_THREADED to configure */
-
 /* define this if the processor cannot exploit instruction-level
    parallelism (no pipelining or too few registers) */
 #define CISC_NEXT
 
 /* 386 and below have no cache, 486 has a shared cache, and the
-   Pentium probably employs hardware cache consistency, so
+   Pentium and later employ hardware cache consistency, so
    flush-icache is a noop */
 #define FLUSH_ICACHE(addr,size)
 

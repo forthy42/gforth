@@ -29,12 +29,6 @@
 #define USE_TOS
 #endif
 
-#ifndef INDIRECT_THREADED
-#ifndef DIRECT_THREADED
-#define DIRECT_THREADED
-#endif
-#endif
-
 #define FLUSH_ICACHE(addr,size)		asm("call_pal 0x86") /* imb (instruction-memory barrier) */
 
 #include "../generic/machine.h"

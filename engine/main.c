@@ -498,14 +498,13 @@ void check_prims(Label symbols1[])
 
 Label compile_prim(Label prim)
 {
-#ifdef DOUBLY_INDIRECT
+#if defined(DOUBLY_INDIRECT)
   if (prim<((Label)(xts+DOESJUMP)) || prim>((Label)(xts+npriminfos))) {
     fprintf(stderr,"compile_prim encountered xt %p\n", prim);
     return prim;
   } else
     return prim-((Label)xts)+((Label)vm_prims);
-#else /* !defined(DOUBLY_INDIRECT) */
-#if defined(IND_JUMP_LENGTH) && !defined(VM_PROFILING)
+#elif defined(IND_JUMP_LENGTH) && !defined(VM_PROFILING) && !defined(INDIRECT_THREADED)
   unsigned i;
   Address old_code_here=code_here;
   static Address last_jump=0;
@@ -528,10 +527,11 @@ Label compile_prim(Label prim)
   code_here += priminfos[i].length;
   last_jump = (priminfos[i].super_end) ? 0 : (prim+priminfos[i].length);
   return (Label)old_code_here;
-#else
+#else /* !defined(DOUBLY_INDIRECT), no code replication */
+#if !defined(INDIRECT_THREADED)
   prim = *(Xt)prim;
-  return prim;
 #endif
+  return prim;
 #endif /* !defined(DOUBLY_INDIRECT) */
 }
 
