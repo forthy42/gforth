@@ -310,14 +310,20 @@ immediate
 immediate
 
 forth definitions
+also locals-types
+    
+\ these "locals" are used for comparison in TO
 
+c: some-clocal 2drop
+d: some-dlocal 2drop
+f: some-flocal 2drop
+w: some-wlocal 2drop
+    
 \ the following gymnastics are for declaring locals without type specifier.
 \ we exploit a feature of our dictionary: every wordlist
 \ has it's own methods for finding words etc.
 \ So we create a vocabulary new-locals, that creates a 'w:' local named x
 \ when it is asked if it contains x.
-
-also locals-types
 
 : new-locals-find ( caddr u w -- nfa )
 \ this is the find method of the new-locals vocabulary
@@ -661,7 +667,6 @@ forth definitions
 	-&32 throw
     endif ;
 :noname
-    0 0 0. 0.0e0 { c: clocal w: wlocal d: dlocal f: flocal }
     comp' drop dup >definer
     case
 	[ ' locals-wordlist ] literal >definer \ value
@@ -669,13 +674,13 @@ forth definitions
 	\ !! dependent on c: etc. being does>-defining words
 	\ this works, because >definer uses >does-code in this case,
 	\ which produces a relocatable address
-	[ comp' clocal drop >definer ] literal
+	[ comp' some-clocal drop ] literal >definer
 	OF POSTPONE laddr# >body @ lp-offset, POSTPONE c! ENDOF
-	[ comp' wlocal drop >definer ] literal
+	[ comp' some-wlocal drop ] literal >definer
 	OF POSTPONE laddr# >body @ lp-offset, POSTPONE ! ENDOF
-	[ comp' dlocal drop >definer ] literal
+	[ comp' some-dlocal drop ] literal >definer
 	OF POSTPONE laddr# >body @ lp-offset, POSTPONE 2! ENDOF
-	[ comp' flocal drop >definer ] literal
+	[ comp' some-flocal drop ] literal >definer
 	OF POSTPONE laddr# >body @ lp-offset, POSTPONE f! ENDOF
 	-&32 throw
     endcase ;
