@@ -1,5 +1,5 @@
 /*
-  $Id: hppa.h,v 1.2 1994-09-26 20:31:13 pazsan Exp $
+  $Id: hppa.h,v 1.3 1994-10-04 18:23:59 pazsan Exp $
   Copyright 1992 by the ANSI figForth Development Group
 
   This is the machine-specific part for a HPPA running HP-UX
@@ -15,17 +15,9 @@ extern void * cacheflush(void *, int, int);
 		fflush(stderr); \
 		fprintf(stderr,"Cache flushed, final address: %08x\n", \
 		        (int)cacheflush((void *)(addr), (int)(size), 32)); })
-#  else
-/*
-#  define CACHE_FLUSH(addr,size) \
-	({	fprintf(stderr,"Flushing Cache at %08x:%08x\n",(int) addr, size); \
-		fflush(stderr); \
-		fprintf(stderr,"Cache flushed, final address: %08x\n", \
-		        (int)cacheflush((void *)(addr), (int)(size), 32)); })
-*/
+#else
 #  define CACHE_FLUSH(addr,size) \
 		({ (void)cacheflush((void *)(addr), (int)(size), 32); })
-
 #  endif
 #endif
 
@@ -64,22 +56,13 @@ typedef float SFloat;
 	/* we use ble and a register, since 'bl' only has 21 bits displacement */
 #endif
 
-#ifdef undefined
-#define MAKE_CFA(cfa,ca)	({long *_cfa        = (long *)(cfa); \
-			  unsigned _ca = (unsigned)(ca); \
-				  _cfa[0] = 0xE4A02000 | (((int)_ca+4-(int)symbols[0]) & 0x7FC)<<1 ; \
-				  _cfa[1] = *(long *)(_ca); \
-				  /* printf("%08x:%08x,%08x\n",_cfa,_cfa[0],_cfa[1]); */ \
-			  })
-#endif
-
 #ifdef DIRECT_THREADED
 
-#ifdef DEBUG
-#	define DOUT(a,b,c,d)  fprintf(stderr,a,b,c,d)
-#else
-#	define DOUT(a,b,c,d)
-#endif
+#  ifdef DEBUG
+#	  define DOUT(a,b,c,d)  fprintf(stderr,a,b,c,d)
+#  else
+#	  define DOUT(a,b,c,d)
+#  endif
 
 #  define ASS17(n)(((((n) >> 13) & 0x1F) << 16)| /* first 5 bits */ \
 				       ((((n) >>  2) & 0x3FF) << 3)| /* second 11 bits */ \
@@ -121,7 +104,7 @@ typedef float SFloat;
 #	define MAKE_CF(cfa,ca) \
 	({ \
 		long *_cfa   = (long *)(cfa); \
-		int _ca      = (int)(ca); \
+		int _ca      = (int)(ca)+4; \
 		int _dp      = _ca-(int)(_cfa+2); \
 		\
 		if(_ca < 0x40000) /* Branch absolute */ \
@@ -131,7 +114,7 @@ typedef float SFloat;
 				          (   0 << 13) | /* space register */ \
 				          (   0 <<  1))| /* if 1, don't execute delay slot */ \
                       ASS17(_ca); \
-				_cfa[1] = 0x08000240 /* or %r0,%r0,%r0 */; \
+				_cfa[1] = ((long *)(_ca))[-1]; /* or %r0,%r0,%r0 */; \
 			} \
 		else if(_dp < 0x40000 || _dp >= -0x40000) \
 			{ \
@@ -140,10 +123,11 @@ typedef float SFloat;
 				          (   0 << 13) | /* space register */ \
 				          (   0 <<  1))| /* if 1, don't execute delay slot */ \
 				          ASS17(_dp); \
-				_cfa[1] = 0x08000240 /* or %r0,%r0,%r0 */; \
+				_cfa[1] = ((long *)(_ca))[-1]; /* 0x08000240 or %r0,%r0,%r0 */; \
 			} \
 		else \
 			{ \
+				_ca -= 4; \
 				_cfa[0] = (0x08 << 26) | \
 				          ((int)_ca<0) | \
 				          (_ca & 0x00001800)<<1 | \
@@ -164,7 +148,7 @@ typedef float SFloat;
 	/* this is the point where the does code starts if label points to the
 	 * jump dodoes */
 
-#	define DOES_CODE(cfa)	((Xt *)(((char *)CODE_ADDRESS(cfa))+8))
+#	define DOES_CODE(cfa)	((Xt *)(((long *)(cfa))[1]))
 
 	/* this is a special version of DOES_CODE for use in dodoes */
 #	define DOES_CODE1(cfa)  DOES_CODE(cfa) \
@@ -173,6 +157,8 @@ typedef float SFloat;
 	/* HPPA uses register 2 for branch and link */
 
 #	define DOES_HANDLER_SIZE 8
+#	define MAKE_DOES_HANDLER(cfa)  ({ *(long *)(cfa)=DODOES; })
+#ifdef undefined
 #	define MAKE_DOES_HANDLER(cfa) \
 	({ \
 		long *_cfa   = (long *)(cfa); \
@@ -215,45 +201,35 @@ typedef float SFloat;
 			} \
 			DOUT("%08x: %08x,%08x\n",(int)_cfa,_cfa[0],_cfa[1]); \
 	})
+#endif
 
 #	define MAKE_DOES_CF(cfa,ca) \
 	({ \
 		long *_cfa   = (long *)(cfa); \
-		int _ca      = (int)(ca)-DOES_HANDLER_SIZE; \
+		int _ca      = (int)symbols[DODOES]; \
 		int _dp      = _ca-(int)(_cfa+2); \
 		\
-		if(_dp < 0x40000 || _dp >= -0x40000) \
+		if(_ca < 0x40000) /* Branch absolute */ \
 			{ \
-				_cfa[0] = (0x3A << 26) | /* major opcode */ \
+				_cfa[0] =((0x38 << 26) | /* major opcode */ \
 				          (   0 << 21) | /* register */ \
 				          (   0 << 13) | /* space register */ \
-				          (   0 <<  1) | /* if 1, don't execute delay slot */ \
-				          ASS17(_dp); \
-				_cfa[1] = 0x08000240 /* or %r0,%r0,%r0 */; \
-			} \
-		else if(_ca < 0x40000) /* Branch absolute */ \
-			{ \
-				_cfa[0] = (0x38 << 26) | /* major opcode */ \
-				          (   0 << 21) | /* register */ \
-				          (   0 << 13) | /* space register */ \
-				          (   0 <<  1) | /* if 1, don't execute delay slot */ \
+				          (   1 <<  1))| /* if 1, don't execute delay slot */ \
 				          ASS17(_ca); \
-				_cfa[1] = 0x08000240 /* or %r0,%r0,%r0 */; \
+				_cfa[1] = (long)(ca); \
+			} \
+		else if(_dp < 0x40000 || _dp >= -0x40000) \
+			{ \
+				_cfa[0] =((0x3A << 26) | /* major opcode */ \
+				          (   0 << 21) | /* register */ \
+				          (   0 << 13) | /* space register */ \
+				          (   1 <<  1))| /* if 1, don't execute delay slot */ \
+				          ASS17(_dp); \
+				_cfa[1] = (long)(ca); \
 			} \
 		else \
 			{ \
-				_cfa[0] = (0x08 << 26) | \
-				          ((int)_ca<0) | \
-				          (_ca & 0x00001800)<<1 | \
-				          (_ca & 0x0003E000)<<3 | \
-				          (_ca & 0x000C0000)>>4 | \
-				          (_ca & 0x7FF00000)>>19; \
-            _ca &= 0x3FF; \
-				_cfa[1] = (0x38 << 26) | /* major opcode */ \
-				          (   1 << 21) | /* register */ \
-				          (   0 << 13) | /* space register */ \
-				          (   1 <<  1) | /* if 1, don't execute delay slot */ \
-				          ASS17(_ca); \
+				fprintf(stderr,"DOESCFA assignment failed, use ITC instead of DTC\n"); exit(1); \
 			} \
 			DOUT("%08x: %08x,%08x\n",(int)_cfa,_cfa[0],_cfa[1]); \
 	})
