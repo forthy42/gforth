@@ -1,16 +1,7 @@
 etags.fs crashes one of my applications (gs.fs). anton 12jan95
 
-not all aliases are in the etags file. Bug in etags.fs? anton 24jan95
--> wrote special tag generation for cross compilation. bernd 6sep95
-
-emacs often finds the wrong tag. anton 24jan95
--> emacs does not search for a complete word, but for parts.
--> Solution: add blanks in front and end of tag name (etags.fs)
--> and use own forth-find-tag. bernd 6sep95
-
 gforth.el: indentation does not work right on the first line of a
 buffer. anton 27jan95
--> Solved?
 
 Conditional compilation continues after the file ends. This is allowed
 by the standard (through an ambiguous condition), but the compiler

@@ -26,7 +26,7 @@
 #To do:
 #use $(srcdir) to make compilation in a non-srcdir possible
 
-VERSION	=0.1beta-pl1#gforth version
+VERSION	=0.2.0#gforth version
 SHELL	= /bin/sh
 RM	= rm
 CP	= cp
@@ -70,7 +70,7 @@ infodir = $(prefix)/info
 mandir = $(prefix)/man/man1
 
 
-INCLUDES = forth.h threading.h io.h io-dos.h
+INCLUDES = forth.h threading.h io.h io-dos.h config.h
 
 KERN_SRC = main.fs search-order.fs cross.fs aliases.fs vars.fs add.fs \
 	errore.fs kernal.fs version.fs extend.fs tools.fs toolsext.fs
@@ -92,7 +92,8 @@ FORTH_SRC = anslocal.fs add.fs assert.fs ansi.fs answords.fs blocks.fs bufio.fs 
 	tester.fs coretest.fs \
 	bubble.fs siev.fs matrix.fs fib.fs
 
-SOURCES	= CVS Makefile.in configure.in configure config.sub  config.guess \
+SOURCES	= CVS Makefile.in configure.in configure config.sub config.guess \
+	acconfig.h config.h.in \
 	install-sh INSTALL README ToDo BUGS model COPYING Benchres \
 	gforth.ds texinfo.tex gforth.1 gforth.el \
 	primitives engine.c main.c io.c \
@@ -162,7 +163,7 @@ clean:		mostlyclean
 		-$(RM) -rf $(GEN) *.o 
 
 distclean:	clean
-		-$(RM) machine.h kernal.fi config.cache config.log config.status Makefile
+		-$(RM) machine.h kernal.fi config.cache config.log config.status config.h Makefile
 
 realclean:	distclean
 		-$(RM) $(GEN_PRECIOUS)
@@ -369,13 +370,27 @@ html:		gforth.texi
 
 # For an explanation of the following Makefile rules, see node
 # `Automatic Remaking' in GNU Autoconf documentation.
-Makefile: Makefile.in config.status
-	CONFIG_FILES=$@ CONFIG_HEADERS= ./config.status
-config.status: configure
-	./config.status --recheck
-configure: configure.in
-	cd $(srcdir) && autoconf
+${srcdir}/configure: configure.in 
+		cd ${srcdir} && autoconf
+     
+# autoheader might not change config.h.in, so touch a stamp file.
+${srcdir}/config.h.in: stamp-h.in
+${srcdir}/stamp-h.in: configure.in  acconfig.h
+		cd ${srcdir} && autoheader
+		echo timestamp > ${srcdir}/stamp-h.in
 
+config.h: stamp-h
+stamp-h: config.h.in config.status
+		CONFIG_FILES=$@ CONFIG_HEADERS=config.h ./config.status
+		echo > stamp-h
+Makefile: Makefile.in config.status
+		CONFIG_FILES=$@ CONFIG_HEADERS=config.h ./config.status
+     
+config.status: configure
+		./config.status --recheck
+
+
+#create files for DOS, because DOS cannot do it itself
 makefile.dos: mkdosmf.sed Makefile.in
 	sed -f mkdosmf.sed <Makefile.in >makefile.dos
 
@@ -385,3 +400,4 @@ history.dos: history.fs Makefile.in
 startup.dos: startup.fs Makefile.in
 	sed -e "s/\\\\ include doskey/include doskey/g" \
 	    -e "s/include vt100key/\\\\ include vt100key/g" <startup.fs >startup.dos
+

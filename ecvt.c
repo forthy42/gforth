@@ -1,5 +1,6 @@
 /* cheap ecvt replacement */
 
+#include "config.h"
 #include <math.h>
 extern double floor(double);
 extern double pow10(double);

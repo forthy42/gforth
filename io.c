@@ -25,6 +25,7 @@
    Use -D_POSIX_VERSION for POSIX systems.
 */
 
+#include "config.h"
 #include <unistd.h>
 
 #ifdef apollo

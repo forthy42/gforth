@@ -42,12 +42,12 @@
 
 warnings off
 
+require debugging.fs
 [IFUNDEF] vocabulary    include search-order.fs [THEN]
 [IFUNDEF] environment?  include environ.fs      [THEN]
 include gray.fs
 
 100 constant max-effect \ number of things on one side of a stack effect
-4096 constant batch-size \ no meaning, just make sure it's >0
 255 constant maxchar
 maxchar 1+ constant eof-char
 #tab constant tab-char
@@ -56,33 +56,23 @@ maxchar 1+ constant eof-char
 : read-whole-file ( c-addr1 file-id -- c-addr2 )
 \ reads the contents of the file file-id puts it into memory at c-addr1
 \ c-addr2 is the first address after the file block
-  begin ( c-addr file-id )
-    2dup batch-size swap read-file 
-    if
-      true abort" I/O error"
-    endif
-    ( c-addr file-id actual-size ) rot over + -rot
-    batch-size <>
-  until
-  drop ;
+  >r dup -1 r> read-file throw + ;
 
-variable input \ pointer to next character to be parsed
-variable endinput \ pointer to the end of the input (the char after the last)
+variable rawinput \ pointer to next character to be scanned
+variable endrawinput \ pointer to the end of the input (the char after the last)
+variable cookedinput \ pointer to the next char to be parsed
 variable line \ line number of char pointed to by input
 1 line !
 2variable filename \ filename of original input file
 0 0 filename 2!
 variable skipsynclines \ are sync lines ("#line ...") invisible to the parser?
 skipsynclines on 
-\ !! unfortunately, this does not mean that they do not appear in the
-\ output. This could be changed by copying the input (skipping
-\ synclines) in ?nextchar
 
 : start ( -- addr )
- input @ ;
+ cookedinput @ ;
 
 : end ( addr -- addr u )
- input @ over - ;
+ cookedinput @ over - ;
 
 variable output \ xt ( -- ) of output word
 
@@ -145,12 +135,11 @@ variable items
 eof-char max-member \ the whole character set + EOF
 
 : getinput ( -- n )
- input @
- dup endinput @ =
+ rawinput @ endrawinput @ =
  if
-   drop eof-char
+   eof-char
  else
-   c@
+   cookedinput @ c@
  endif ;
 
 :noname ( n -- )
@@ -168,7 +157,7 @@ print-token !
 : checksyncline ( -- )
     \ when input points to a newline, check if the next line is a
     \ sync line.  If it is, perform the appropriate actions.
-    input @ >r
+    rawinput @ >r
     s" #line " r@ over compare 0<> if
 	rdrop 1 line +! EXIT
     endif
@@ -180,23 +169,26 @@ print-token !
     endif
     dup c@ nl-char <> abort" sync line syntax"
     skipsynclines @ if
-	dup char+ input !
+	dup char+ rawinput !
+	rawinput @ c@ cookedinput @ c!
     endif
     drop ;
 
 : ?nextchar ( f -- )
     ?not? if
-	." syntax error" cr
+	filename 2@ type ." :" line @ 0 .r ." : syntax error, wrong char:"
 	getinput . cr
-	input @ endinput @ over - 100 min type cr
+	rawinput @ endrawinput @ over - 100 min type cr
 	abort
     endif
-    input @ endinput @ <> if
-	input @ c@
-	1 input +!
+    rawinput @ endrawinput @ <> if
+	rawinput @ c@
+	1 chars rawinput +!
+	1 chars cookedinput +!
 	nl-char = if
 	    checksyncline
 	endif
+	rawinput @ c@ cookedinput @ c!
     endif ;
 
 : charclass ( set "name" -- )
@@ -234,14 +226,6 @@ nowhite ++
 (( ` \ nonl ** nl
 )) <- comment ( -- )
 
-\ (( ` # ` l ` i ` n ` e blank
-\ {{ 0. start }} digit ++ {{ end >number abort" line number?" drop drop 1- line ! }} blank
-\    (( ` " {{ start }} noquote ++ {{ end filename 2! }} `" )) ??
-\    nl
-\ )) <- syncline ( -- )
-
-\ (( nl syncline ?? )) <- nlsync
-
 (( {{ effect-in }} (( {{ start }} c-name {{ end 2 pick item-name 2! item-descr + }} blank ** )) ** {{ effect-in-end ! }}
    ` - ` - blank **
    {{ effect-out }} (( {{ start }} c-name {{ end 2 pick item-name 2! item-descr + }} blank ** )) ** {{ effect-out-end ! }}
@@ -256,7 +240,7 @@ nowhite ++
         (( {{ start }}  c-name {{ end c-name 2! }} )) ??  nl
    ))
    (( ` " ` "  {{ start }} (( noquote ++ ` " )) ++ {{ end 1- doc 2! }} ` " nl )) ??
-   {{ line @ c-line ! filename 2@ c-filename 2! start }} (( nocolonnl nonl **  nl )) ** {{ end c-code 2! }}
+   {{ skipsynclines off line @ c-line ! filename 2@ c-filename 2! start }} (( nocolonnl nonl **  nl )) ** {{ end c-code 2! skipsynclines on }}
    (( ` :  nl
       {{ start }} (( nonl ++  nl )) ++ {{ end forth-code 2! }}
    )) ??
@@ -272,12 +256,15 @@ warnings @ [IF]
 : primfilter ( file-id xt -- )
 \ fileid is for the input file, xt ( -- ) is for the output word
  output !
- here input !
+ here dup rawinput ! cookedinput !
  here swap read-whole-file
- dup endinput !
+ dup endrawinput !
  here - allot
  align
  checksyncline
+\ begin
+\     getinput dup eof-char = ?EXIT emit true ?nextchar
+\ again ;
  primitives2something ;
 
 \ types

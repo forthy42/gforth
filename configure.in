@@ -1,5 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(engine.c)
+AC_CONFIG_HEADER(config.h)
 
 AC_ARG_ENABLE(force-reg,
 [  --enable-force-reg	  Use explicit register declarations if they appear in
@@ -154,8 +155,17 @@ dnl using sin here is no good idea since it is built-into gcc and typechecked
 AC_CHECK_LIB(m,asin)
 AC_FUNC_MEMCMP
 AC_REPLACE_FUNCS(memmove strtoul pow10 strerror strsignal)
-dnl AC_TRY_LINK(#include <signal.h>,sys_siglist;,AC_DEFINE(HAVE_SYS_SIGLIST),)
 AC_CHECK_FUNCS(sys_siglist)
+AC_MSG_CHECKING(whether sys_siglist may be declared)
+AC_CACHE_VAL(gf_cv_declare_sys_siglist,
+AC_TRY_COMPILE(#include <stdio.h>
+#include <signal.h>
+,extern void sys_siglist;,gf_cv_declare_sys_siglist='yes',gf_cv_declare_sys_siglist='no'))
+if test $gf_cv_declare_sys_siglist = yes
+then
+  AC_DEFINE(DECLARE_SYS_SIGLIST)
+fi
+AC_MSG_RESULT($gf_cv_declare_sys_siglist)
 AC_CHECK_FUNC(getopt_long,getopt_long="",getopt_long="getopt.o getopt1.o")
 AC_SUBST(getopt_long)
 AC_CHECK_FUNCS(rint expm1 log1p)
@@ -167,5 +177,5 @@ kernal_fi=kernl${wordsize}${bytesex}.fi
 AC_SUBST(kernal_fi)
 
 AC_LINK_FILES(${mach_h}.h $kernal_fi,machine.h kernal.fi)
-AC_OUTPUT(Makefile)
+AC_OUTPUT(Makefile,echo timestamp > stamp-h)
 

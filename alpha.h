@@ -113,10 +113,10 @@ typedef short Int16;
 #define _CPU_DEP_LABEL	(symbols[DOESJUMP])
 #define _DOCOL_LABEL	(symbols[DOCOL])
 
-/* MAKE_CF creates an appropriate code field at the wa; ca is the
-   code address. For the Alpha, this is a lda followed by a jmp.
-   We patch the jmp with a good hint (on the 21064a this save 5 cycles!) */
-/* !!do special case for docol */
+/* MAKE_CF creates an appropriate code field at the wa; ca is the code
+   address. For the Alpha, this is a lda followed by a jmp (or just a
+   jmp, if ca==&&docol).  We patch the jmp with a good hint (on the
+   21064A this saves 5 cycles!) */
 #define MAKE_CF(wa,ca)	({ \
 			     Int32 *_wa=(Int32 *)(wa); \
 			     Label _ca=(Label)(ca); \

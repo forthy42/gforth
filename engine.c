@@ -19,6 +19,7 @@
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
+#include "config.h"
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
@@ -88,32 +89,35 @@ int emitcounter;
 #define NULLC '\0'
 
 char *cstr(Char *from, UCell size, int clear)
-/* if clear is true, scratch can be reused, otherwise we want more of
-   the same */
+/* return a C-string corresponding to the Forth string ( FROM SIZE ).
+   the C-string lives until the next call of cstr with CLEAR being true */
 {
-  static char *scratch=NULL;
-  static unsigned scratchsize=0;
-  static char *nextscratch;
-  char *oldnextscratch;
+  static struct cstr_buffer {
+    char *buffer;
+    size_t size;
+  } *buffers=NULL;
+  static int nbuffers=0;
+  static int used=0;
+  struct cstr_buffer *b;
 
+  if (buffers==NULL)
+    buffers=malloc(0);
   if (clear)
-    nextscratch=scratch;
-  if (scratch==NULL) {
-    scratch=malloc(size+1);
-    nextscratch=scratch;
-    scratchsize=size;
+    used=0;
+  if (used>=nbuffers) {
+    buffers=realloc(buffers,sizeof(struct cstr_buffer)*(used+1));
+    buffers[used]=(struct cstr_buffer){malloc(0),0};
+    nbuffers=used+1;
   }
-  else if (nextscratch+size>scratch+scratchsize) {
-    char *oldscratch=scratch;
-    scratch = realloc(scratch, (nextscratch-scratch)+size+1);
-    nextscratch=scratch+(nextscratch-oldscratch);
-    scratchsize=size;
+  b=&buffers[used];
+  if (size+1 > b->size) {
+    b->buffer = realloc(b->buffer,size+1);
+    b->size = size+1;
   }
-  memcpy(nextscratch,from,size);
-  nextscratch[size]='\0';
-  oldnextscratch = nextscratch;
-  nextscratch += size+1;
-  return oldnextscratch;
+  memcpy(b->buffer,from,size);
+  b->buffer[size]='\0';
+  used++;
+  return b->buffer;
 }
 
 char *tilde_cstr(Char *from, UCell size, int clear)

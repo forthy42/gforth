@@ -1,4 +1,4 @@
-/* a strsignal implementation
+/* Descriptions and defaults for C preprocessor symbols for config.h.in
 
   Copyright (C) 1995 Free Software Foundation, Inc.
 
@@ -19,22 +19,26 @@
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-#include "config.h"
-#include <stdio.h>
-#include <signal.h>
+/* this, together with configure.in, is the source file for config.h.in */
 
 
-char *strsignal(int sig)
-{
-  static char errbuf[16];
+/* Define if including signal.h does not declare sys_siglist */
+#undef DECLARE_SYS_SIGLIST
 
-#if defined(HAVE_SYS_SIGLIST) && defined(NSIG)
-#if defined(DECLARE_SYS_SIGLIST)
-  extern const char * const sys_siglist[];
+/* Define if you want to force a direct threaded code implementation
+   (does not work on all machines */
+#ifndef DIRECT_THREADED
+#undef DIRECT_THREADED
 #endif
-  if (sig>0 && sig<NSIG)
-    return sys_siglist[sig];
-#endif /* defined(HAVE_SYS_SIGLIST) && defined(NSIG) */
-  sprintf(errbuf,"signal %d",sig);
-  return errbuf;
-}
+
+/* Define if you want to force an indirect threaded code implementation */
+#ifndef INDIRECT_THREADED
+#undef INDIRECT_THREADED
+#endif
+
+/* Define if you want to use explicit register declarations for better
+   performance or for more convenient CODE words (does not work with
+   all GCC versions on all machines) */
+#ifndef FORCE_REG
+#undef FORCE_REG
+#endif
