@@ -1,5 +1,5 @@
 /*
-  $Id: hppa.h,v 1.10 1995-10-12 20:43:24 pazsan Exp $
+  $Id: hppa.h,v 1.11 1995-10-26 22:48:40 pazsan Exp $
   Copyright 1992 by the ANSI figForth Development Group
 
   This is the machine-specific part for a HPPA running HP-UX
@@ -22,8 +22,8 @@ extern void cacheflush(void *, int, int);
 ({ \
    fprintf(stderr,"Flushing Cache at %08x:%08x\n",(int) addr, size); \
    fflush(stderr); \
-   fprintf(stderr,"Cache flushed, final address: %08x\n", \
-	   (int)cacheflush((void *)(addr), (int)(size), 32)); })
+   cacheflush((void *)(addr), (int)(size), 32); \
+   fprintf(stderr,"Cache flushed\n");  })
 #else
 #  define FLUSH_ICACHE(addr,size) \
      cacheflush((void *)(addr), (int)(size), 32)

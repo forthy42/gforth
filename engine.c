@@ -18,6 +18,7 @@
 #include <pwd.h>
 #include "forth.h"
 #include "io.h"
+#include "threading.h"
 
 #ifndef SEEK_SET
 /* should be defined in stdio.h, but some systems don't have it */
@@ -49,69 +50,6 @@ typedef struct F83Name {
 #define F83NAME_COUNT(np)	((np)->countetc & 0x1f)
 #define F83NAME_SMUDGE(np)	(((np)->countetc & 0x40) != 0)
 #define F83NAME_IMMEDIATE(np)	(((np)->countetc & 0x20) != 0)
-
-/* !!someone should organize this ifdef chaos */
-#if defined(LONG_LATENCY)
-#if defined(AUTO_INCREMENT)
-#define NEXT_P0		(cfa=*ip++)
-#define IP		(ip-1)
-#else /* AUTO_INCREMENT */
-#define NEXT_P0		(cfa=*ip)
-#define IP		ip
-#endif /* AUTO_INCREMENT */
-#define NEXT_INST	(cfa)
-#define INC_IP(const_inc)	({cfa=IP[const_inc]; ip+=(const_inc);})
-#else /* LONG_LATENCY */
-/* NEXT and NEXT1 are split into several parts to help scheduling,
-   unless CISC_NEXT is defined */
-#define NEXT_P0
-/* in order for execute to work correctly, NEXT_P0 (or other early
-   fetches) should not update the ip (or should we put
-   compensation-code into execute? */
-#define NEXT_INST	(*ip)
-/* the next instruction (or what is in its place, e.g., an immediate
-   argument */
-#define INC_IP(const_inc)	(ip+=(const_inc))
-/* increment the ip by const_inc and perform NEXT_P0 (or prefetching) again */
-#define IP		ip
-/* the pointer to the next instruction (i.e., NEXT_INST could be
-   defined as *IP) */
-#endif /* LONG_LATENCY */
-
-#if defined(CISC_NEXT) && !defined(LONG_LATENCY)
-#define NEXT1_P1
-#define NEXT_P1
-#define DEF_CA
-#ifdef DIRECT_THREADED
-#define NEXT1_P2 ({goto *cfa;})
-#else
-#define NEXT1_P2 ({goto **cfa;})
-#endif /* DIRECT_THREADED */
-#define NEXT_P2 ({cfa = *ip++; NEXT1_P2;})
-#else /* defined(CISC_NEXT) && !defined(LONG_LATENCY) */
-#ifdef DIRECT_THREADED
-#define NEXT1_P1
-#define NEXT1_P2 ({goto *cfa;})
-#define DEF_CA
-#else /* DIRECT_THREADED */
-#define NEXT1_P1 ({ca = *cfa;})
-#define NEXT1_P2 ({goto *ca;})
-#define DEF_CA	Label ca;
-#endif /* DIRECT_THREADED */
-#if defined(LONG_LATENCY)
-#if defined(AUTO_INCREMENT)
-#define NEXT_P1 NEXT1_P1
-#else /* AUTO_INCREMENT */
-#define NEXT_P1 ({ip++; NEXT1_P1;})
-#endif /* AUTO_INCREMENT */
-#else /* LONG_LATENCY */
-#define NEXT_P1 ({cfa=*ip++; NEXT1_P1;})
-#endif /* LONG_LATENCY */
-#define NEXT_P2 NEXT1_P2
-#endif /* defined(CISC_NEXT) && !defined(LONG_LATENCY) */
-
-#define NEXT1 ({DEF_CA NEXT1_P1; NEXT1_P2;})
-#define NEXT ({DEF_CA NEXT_P1; NEXT_P2;})
 
 #ifdef USE_TOS
 #define IF_TOS(x) x
@@ -251,7 +189,9 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
   register Cell *rp RPREG = rp0;
   register Float *fp FPREG = fp0;
   register Address lp LPREG = lp0;
+#ifdef CFA_NEXT
   register Xt cfa CFAREG;
+#endif
   register Address up UPREG = up0;
   IF_TOS(register Cell TOS TOSREG;)
   IF_FTOS(register Float FTOS FTOSREG;)
@@ -286,8 +226,12 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
   NEXT;
   
  docol:
+#ifndef CFA_NEXT
+  {
+    Xt cfa; GETCFA(cfa);
+#endif
 #ifdef DEBUG
-  fprintf(stderr,"%08x: col: %08x\n",(Cell)ip,(Cell)PFA1(cfa));
+  fprintf(stderr,"%08lx: col: %08lx\n",(Cell)ip,(Cell)PFA1(cfa));
 #endif
 #ifdef CISC_NEXT
   /* this is the simple version */
@@ -310,10 +254,17 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
     NEXT1_P2;
   }
 #endif
+#ifndef CFA_NEXT
+  }
+#endif
 
  docon:
+#ifndef CFA_NEXT
+  {
+    Xt cfa; GETCFA(cfa);
+#endif
 #ifdef DEBUG
-  fprintf(stderr,"%08x: con: %08x\n",(Cell)ip,*(Cell*)PFA1(cfa));
+  fprintf(stderr,"%08lx: con: %08lx\n",(Cell)ip,*(Cell*)PFA1(cfa));
 #endif
 #ifdef USE_TOS
   *sp-- = TOS;
@@ -321,12 +272,19 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
 #else
   *--sp = *(Cell *)PFA1(cfa);
 #endif
+#ifndef CFA_NEXT
+  }
+#endif
   NEXT_P0;
   NEXT;
   
  dovar:
+#ifndef CFA_NEXT
+  {
+    Xt cfa; GETCFA(cfa);
+#endif
 #ifdef DEBUG
-  fprintf(stderr,"%08x: var: %08x\n",(Cell)ip,(Cell)PFA1(cfa));
+  fprintf(stderr,"%08lx: var: %08lx\n",(Cell)ip,(Cell)PFA1(cfa));
 #endif
 #ifdef USE_TOS
   *sp-- = TOS;
@@ -334,12 +292,19 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
 #else
   *--sp = (Cell)PFA1(cfa);
 #endif
+#ifndef CFA_NEXT
+  }
+#endif
   NEXT_P0;
   NEXT;
   
  douser:
+#ifndef CFA_NEXT
+  {
+    Xt cfa; GETCFA(cfa);
+#endif
 #ifdef DEBUG
-  fprintf(stderr,"%08x: user: %08x\n",(Cell)ip,(Cell)PFA1(cfa));
+  fprintf(stderr,"%08lx: user: %08lx\n",(Cell)ip,(Cell)PFA1(cfa));
 #endif
 #ifdef USE_TOS
   *sp-- = TOS;
@@ -347,21 +312,37 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
 #else
   *--sp = (Cell)(up+*(Cell*)PFA1(cfa));
 #endif
+#ifndef CFA_NEXT
+  }
+#endif
   NEXT_P0;
   NEXT;
   
  dodefer:
-#ifdef DEBUG
-  fprintf(stderr,"%08x: defer: %08x\n",(Cell)ip,(Cell)PFA1(cfa));
+#ifndef CFA_NEXT
+  {
+    Xt cfa; GETCFA(cfa);
 #endif
-  cfa = *(Xt *)PFA1(cfa);
-  NEXT1;
+#ifdef DEBUG
+  fprintf(stderr,"%08lx: defer: %08lx\n",(Cell)ip,*(Cell*)PFA1(cfa));
+#endif
+  EXEC(*(Xt *)PFA1(cfa));
+#ifndef CFA_NEXT
+  }
+#endif
 
  dofield:
+#ifndef CFA_NEXT
+  {
+    Xt cfa; GETCFA(cfa);
+#endif
 #ifdef DEBUG
-  fprintf(stderr,"%08x: field: %08x\n",(Cell)ip,(Cell)PFA1(cfa));
+  fprintf(stderr,"%08lx: field: %08lx\n",(Cell)ip,(Cell)PFA1(cfa));
 #endif
   TOS += *(Cell*)PFA1(cfa); 
+#ifndef CFA_NEXT
+  }
+#endif
   NEXT_P0;
   NEXT;
 
@@ -383,8 +364,14 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
      pfa:
      
      */
+#ifndef CFA_NEXT
+  {
+    Xt cfa; GETCFA(cfa);
+
+/*    fprintf(stderr, "Got CFA %08lx at doescode %08lx/%08lx: does: %08lx\n",cfa,(Cell)ip,(Cell)PFA(cfa),(Cell)DOES_CODE1(cfa));*/
+#endif
 #ifdef DEBUG
-  fprintf(stderr,"%08x/%08x: does: %08x\n",(Cell)ip,(Cell)PFA(cfa),(Cell)DOES_CODE1(cfa));
+  fprintf(stderr,"%08lx/%08lx: does: %08lx\n",(Cell)ip,(Cell)PFA(cfa),(Cell)DOES_CODE1(cfa));
   fflush(stderr);
 #endif
   *--rp = (Cell)ip;
@@ -395,6 +382,10 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
   TOS = (Cell)PFA(cfa);
 #else
   *--sp = (Cell)PFA(cfa);
+#endif
+#ifndef CFA_NEXT
+/*    fprintf(stderr,"TOS = %08lx, IP=%08lx\n", TOS, IP);*/
+  }
 #endif
   NEXT_P0;
   NEXT;

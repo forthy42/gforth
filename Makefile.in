@@ -30,7 +30,7 @@ XDEFINES = @DEFS@
 SWITCHES = $(XCFLAGS) $(XDEFINES) #-DNDEBUG #turn off assertions
 ENGINE_FLAGS =  -fno-defer-pop -fcaller-saves
 DEBUGFLAG = @DEBUGFLAG@
-CFLAGS	= -pipe -O4 -Wall $(SWITCHES) -DDEFAULTPATH=\"$(datadir)/gforth/$(VERSION):$(libdir)/gforth/$(VERSION):.\"
+CFLAGS	= $(DEBUGFLAG) -pipe -O4 -Wall $(SWITCHES) -DDEFAULTPATH=\"$(datadir)/gforth/$(VERSION):$(libdir)/gforth/$(VERSION):.\"
 
 #John Wavrik should use -Xlinker -N to get a writable text (executable)
 XLDFLAGS = @LDFLAGS@
@@ -50,7 +50,7 @@ infodir = $(prefix)/info
 mandir = $(prefix)/man/man1
 
 
-INCLUDES = forth.h io.h
+INCLUDES = forth.h threading.h io.h
 
 KERN_SRC = main.fs search-order.fs cross.fs aliases.fs vars.fs add.fs \
 	errore.fs kernal.fs version.fs extend.fs tools.fs toolsext.fs
@@ -245,11 +245,14 @@ kernl64l.fi:	$(KERNLS)
 gforth.fi:	@kernal_fi@ gforth startup.fs glocals.fs search-order.fs hash.fs float.fs debugging.fs environ.fs wordinfo.fs look.fs vt100.fs see.fs bufio.fs debug.fs history.fs vt100key.fs assert.fs blocks.fs struct.fs dumpimage.fs
 		$(FORTHK) startup.fs dumpimage.fs -e "savesystem gforth.fi bye"
 
-engine.s:	engine.c primitives.i prim_labels.i machine.h $(INCLUDES)
+engine.s:	engine.c primitives.i prim_labels.i machine.h threading.h $(INCLUDES)
 		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -S engine.c
 
-engine.o:	engine.c primitives.i prim_labels.i machine.h $(INCLUDES)
+engine.o:	engine.c primitives.i prim_labels.i machine.h threading.h $(INCLUDES)
 		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -c engine.c
+
+main.o:		main.c machine.h threading.h $(INCLUDES)
+		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -c main.c
 
 strtoul.o:	strtoul.c strtol.c
 

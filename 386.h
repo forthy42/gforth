@@ -17,9 +17,14 @@
 /* 386 and below have no cache, 486 has a shared cache, and the
    Pentium probably employs hardware cache consistency, so
    flush-icache is a noop */
-#define FLUSH_ICACHE(addr,size) 0
+#define FLUSH_ICACHE(addr,size)
 
 #ifdef DIRECT_THREADED
+
+#define CALL 0xe8 /* call */
+#define JMP  0xe9 /* jmp  */
+#define GETCFA(reg)  ({ asm("popl %0" : "=r" (reg)); (int)reg -= 5;});
+
 /* PFA gives the parameter field address corresponding to a cfa */
 #define PFA(cfa)	(((Cell *)cfa)+2)
 /* PFA1 is a special version for use just after a NEXT1 */
@@ -30,7 +35,7 @@
 /* MAKE_CF creates an appropriate code field at the cfa; ca is the code address */
 #define MAKE_CF(cfa,ca)	({long _cfa = (long)(cfa); \
                           long _ca  = (long)(ca); \
-			  *(char *)_cfa = 0xe9; /* jmp */ \
+			  *(char *)_cfa = CALL; \
 			  *(long *)(_cfa+1) = _ca-(_cfa+5);})
 
 /* this is the point where the does code starts if label points to the
@@ -42,9 +47,15 @@
 #define DOES_CODE1(label)	DOES_CODE(label)
 
 /* this stores a jump dodoes at addr */
-#define MAKE_DOES_HANDLER(addr) MAKE_CF(addr,symbols[DODOES])
+#define MAKE_DOES_CF(addr,doesp)	({long _addr = (long)(addr); \
+                          long _doesp  = (long)(doesp)-8; \
+			  *(char *)_addr = CALL; \
+			  *(long *)(_addr+1) = _doesp-(_addr+5);})
 
-#define MAKE_DOES_CF(addr,doesp) MAKE_CF(addr,((int)(doesp)-8))
+#define MAKE_DOES_HANDLER(addr)	({long _addr = (long)(addr); \
+                          long _dodo  = (long)symbols[DODOES]; \
+			  *(char *)_addr = JMP; \
+			  *(long *)(_addr+1) = _dodo-(_addr+5);})
 #endif
 
 #ifdef FORCE_REG
@@ -61,6 +72,10 @@
 #else /* gcc-version */
 /* this works with 2.6.3 (and quite well, too) */
 /* since this is not very demanding, it's the default for other gcc versions */
+#if defined(USE_TOS) && !defined(CFA_NEXT)
+#define IPREG asm("%ebx")
+#else
 #define SPREG asm("%ebx")
+#endif /* USE_TOS && !CFA_NEXT */
 #endif /* gcc-version */
 #endif /* FORCE_REG */

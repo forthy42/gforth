@@ -1,5 +1,5 @@
 /*
-  $Id: main.c,v 1.28 1995-10-11 19:39:35 anton Exp $
+  $Id: main.c,v 1.29 1995-10-26 22:48:41 pazsan Exp $
   Copyright 1993 by the ANSI figForth Development Group
 */
 
@@ -288,27 +288,38 @@ int main(int argc, char **argv, char **env)
     }
   }
   path1=path;
-  do {
-    char *pend=strchr(path, ':');
-    if (pend==NULL)
-      pend=path+strlen(path);
-    if (strlen(path)==0) {
-      fprintf(stderr,"%s: cannot open image file %s in path %s for reading\n",
-	      progname, imagename, path1);
-      exit(1);
-    }
+
+  if(strchr(imagename, '/')==NULL)
     {
-      int dirlen=pend-path;
-      char fullfilename[dirlen+strlen(imagename)+2];
-      memcpy(fullfilename, path, dirlen);
-      if (fullfilename[dirlen-1]!='/')
-	fullfilename[dirlen++]='/';
-      strcpy(fullfilename+dirlen,imagename);
-      image_file=fopen(fullfilename,"rb");
+      do {
+	char *pend=strchr(path, ':');
+	if (pend==NULL)
+	  pend=path+strlen(path);
+	if (strlen(path)==0) {
+	  fprintf(stderr,"%s: cannot open image file %s in path %s for reading\n",
+		  progname, imagename, path1);
+	  exit(1);
+	}
+	{
+	  int dirlen=pend-path;
+	  char fullfilename[dirlen+strlen(imagename)+2];
+	  memcpy(fullfilename, path, dirlen);
+	  if (fullfilename[dirlen-1]!='/')
+	    fullfilename[dirlen++]='/';
+	  strcpy(fullfilename+dirlen,imagename);
+	  image_file=fopen(fullfilename,"rb");
+	}
+	path=pend+(*pend==':');
+      } while (image_file==NULL);
     }
-    path=pend+(*pend==':');
-  } while (image_file==NULL);
-  
+  else
+    {
+      image_file=fopen(imagename,"rb");
+      if(image_file==NULL)
+  	  fprintf(stderr,"%s: cannot open image file %s for reading\n",
+		  progname, imagename);
+    }
+
   {
     Cell environ[]= {
       (Cell)argc-(optind-1),

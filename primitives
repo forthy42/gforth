@@ -91,9 +91,8 @@ INC_IP(1);
 
 execute		xt --		core
 ip=IP;
-cfa = xt;
 IF_TOS(TOS = sp[0]);
-NEXT1;
+EXEC(xt);
 
 branch-lp+!#	--	gforth	branch_lp_plus_store_number
 /* this will probably not be used */
@@ -173,7 +172,11 @@ Cell index = *rp;
 /* dependent upon two's complement arithmetic */
 UCell olddiff = index-rp[1];
 if (olddiff>u) {
+#ifdef i386
+    *rp -= u;
+#else
     *rp = index - u;
+#endif
     IF_TOS(TOS = sp[0]);
 )
 
@@ -1368,8 +1371,8 @@ sf_addr = (SFloat *)((((Cell)c_addr)+(sizeof(SFloat)-1))&~sizeof(SFloat));
 dfaligned	c_addr -- df_addr	float-ext	d_f_aligned
 df_addr = (DFloat *)((((Cell)c_addr)+(sizeof(DFloat)-1))&~sizeof(DFloat));
 
-\ The following words access machine/OS/installation-dependent ANSI
-\   figForth internals
+\ The following words access machine/OS/installation-dependent
+\   Gforth internals
 \ !! how about environmental queries DIRECT-THREADED,
 \   INDIRECT-THREADED, TOS-CACHED, FTOS-CACHED, CODEFIELD-DOES */
 

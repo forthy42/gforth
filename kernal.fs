@@ -1661,7 +1661,7 @@ Variable argc
 
 : process-path ( addr1 u1 -- addr2 u2 )
     \ addr1 u1 is a path string, addr2 u2 is an array of dir strings
-    here >r
+    align here >r
     BEGIN
 	over >r [char] : scan
 	over r> tuck - ( rest-str this-str )
