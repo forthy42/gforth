@@ -48,7 +48,7 @@ UCell cols=DEFAULTCOLS;
 UCell rows=DEFAULTROWS;
 
 #ifndef SA_NODEFER
-#define SA_NODEDER 0
+#define SA_NODEFER 0
 /* systems that don't have SA_NODEFER hopefully don't block anyway */
 #endif
 
