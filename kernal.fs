@@ -84,13 +84,13 @@ DOES> ( n -- )  + c@ ;
 : 2,	( w1 w2 -- ) \ gforth
     here 2 cells allot 2! ;
 
-: aligned ( addr -- addr' ) \ core
-    [ cell 1- ] Literal + [ -1 cells ] Literal and ;
+\ : aligned ( addr -- addr' ) \ core
+\     [ cell 1- ] Literal + [ -1 cells ] Literal and ;
 : align ( -- ) \ core
     here dup aligned swap ?DO  bl c,  LOOP ;
 
-: faligned ( addr -- f-addr ) \ float
-    [ 1 floats 1- ] Literal + [ -1 floats ] Literal and ;
+\ : faligned ( addr -- f-addr ) \ float
+\     [ 1 floats 1- ] Literal + [ -1 floats ] Literal and ;
 
 : falign ( -- ) \ float
     here dup faligned swap

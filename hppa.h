@@ -1,5 +1,5 @@
 /*
-  $Id: hppa.h,v 1.11 1995-10-26 22:48:40 pazsan Exp $
+  $Id: hppa.h,v 1.12 1995-10-29 21:35:12 pazsan Exp $
   Copyright 1992 by the ANSI figForth Development Group
 
   This is the machine-specific part for a HPPA running HP-UX
@@ -55,12 +55,12 @@ extern void cacheflush(void *, int, int);
 
 #  define ASS17(n)(((((n) >> 13) & 0x1F) << 16)| /* first 5 bits */ \
 		   ((((n) >>  2) & 0x3FF) << 3)| /* second 11 bits */ \
-		   ((((n) >> 12) & 0x1) << 2)  | /* lo sign (arg!) */ \
+		   ((((n) >> 12) & 0x1) << 2)  | /* lo sign (aaarg!) */ \
 		   (((n) < 0) << 0)) /* sign bit */
 
 #  define DIS17(n)(((((n) >> 16) & 0x1F) << 13)| /* first 5 bits */ \
 		   ((((n) >>  3) & 0x3FF) << 2)| /* second 11 bits */ \
-		   ((((n) >>  2) & 0x1) << 12) | /* lo sign (arg!) */ \
+		   ((((n) >>  2) & 0x1) << 12) | /* lo sign (aaarg!) */ \
 		   (-((n) & 1) << 18)) /* sign bit */
 
 #  define CODE_ADDRESS(cfa)\
@@ -102,8 +102,8 @@ extern void cacheflush(void *, int, int);
 	 _cfa[0] =((0x38 << 26) | /* major opcode */ \
 		   (   0 << 21) | /* register */ \
 		   (   0 << 13) | /* space register */ \
-		   (   0 <<  1))| /* if 1, don't execute delay slot */ \
-	 ASS17(_ca); \
+		   (   0 <<  1) | /* if 1, don't execute delay slot */ \
+		   ASS17(_ca)); \
 	 _cfa[1] = ((long *)(_ca))[-1]; /* or %r0,%r0,%r0 */; \
      } \
      else if(_dp < 0x40000 || _dp >= -0x40000) \
@@ -111,8 +111,8 @@ extern void cacheflush(void *, int, int);
 	 _cfa[0] =((0x3A << 26) | /* major opcode */ \
 		   (   0 << 21) | /* register */ \
 		   (   0 << 13) | /* space register */ \
-		   (   0 <<  1))| /* if 1, don't execute delay slot */ \
-	 ASS17(_dp); \
+		   (   0 <<  1) | /* if 1, don't execute delay slot */ \
+		   ASS17(_dp)); \
 	 _cfa[1] = ((long *)(_ca))[-1]; /* 0x08000240 or %r0,%r0,%r0 */; \
      } \
      else \
@@ -128,8 +128,8 @@ extern void cacheflush(void *, int, int);
 	 _cfa[1] =((0x38 << 26) | /* major opcode */ \
 		   (   1 << 21) | /* register */ \
 		   (   0 << 13) | /* space register */ \
-		   (   1 <<  1))| /* if 1, don't execute delay slot */ \
-	 ASS17(_ca); \
+		   (   1 <<  1) | /* if 1, don't execute delay slot */ \
+		   ASS17(_ca)); \
      } \
      DOUT("%08x: %08x,%08x\n",(int)_cfa,_cfa[0],_cfa[1]); \
  })
@@ -160,8 +160,8 @@ extern void cacheflush(void *, int, int);
 	 _cfa[0] =((0x38 << 26) | /* major opcode */ \
 		   (   0 << 21) | /* register */ \
 		   (   0 << 13) | /* space register */ \
-		   (   0 <<  1))| /* if 1, don't execute delay slot */ \
-	 ASS17(_ca); \
+		   (   0 <<  1) | /* if 1, don't execute delay slot */ \
+		   ASS17(_ca)); \
 	 _cfa[1] = 0x08000240 /* or %r0,%r0,%r0 */; \
      } \
      else if(_dp < 0x40000 || _dp >= -0x40000) \
@@ -169,8 +169,8 @@ extern void cacheflush(void *, int, int);
 	 _cfa[0] =((0x3A << 26) | /* major opcode */ \
 		   (   0 << 21) | /* register */ \
 		   (   0 << 13) | /* space register */ \
-		   (   0 <<  1))| /* if 1, don't execute delay slot */ \
-	 ASS17(_dp); \
+		   (   0 <<  1) | /* if 1, don't execute delay slot */ \
+		   ASS17(_dp)); \
 	 _cfa[1] = 0x08000240 /* or %r0,%r0,%r0 */; \
      } \
      else \
@@ -186,8 +186,8 @@ extern void cacheflush(void *, int, int);
 	 _cfa[1] =((0x38 << 26) | /* major opcode */ \
 		   (   1 << 21) | /* register */ \
 		   (   0 << 13) | /* space register */ \
-		   (   1 <<  1))| /* if 1, don't execute delay slot */ \
-	 ASS17(_ca); \
+		   (   1 <<  1) | /* if 1, don't execute delay slot */ \
+		   ASS17(_ca)); \
      } \
      DOUT("%08x: %08x,%08x\n",(int)_cfa,_cfa[0],_cfa[1]); \
  })
@@ -204,8 +204,8 @@ extern void cacheflush(void *, int, int);
 	 _cfa[0] =((0x38 << 26) | /* major opcode */ \
 		   (   0 << 21) | /* register */ \
 		   (   0 << 13) | /* space register */ \
-		   (   1 <<  1))| /* if 1, don't execute delay slot */ \
-	 ASS17(_ca); \
+		   (   1 <<  1) | /* if 1, don't execute delay slot */ \
+		   ASS17(_ca)); \
 	 _cfa[1] = (long)(ca); \
      } \
      else if(_dp < 0x40000 || _dp >= -0x40000) \
@@ -213,8 +213,8 @@ extern void cacheflush(void *, int, int);
 	 _cfa[0] =((0x3A << 26) | /* major opcode */ \
 		   (   0 << 21) | /* register */ \
 		   (   0 << 13) | /* space register */ \
-		   (   1 <<  1))| /* if 1, don't execute delay slot */ \
-	 ASS17(_dp); \
+		   (   1 <<  1) | /* if 1, don't execute delay slot */ \
+		   ASS17(_dp)); \
 	 _cfa[1] = (long)(ca); \
      } \
      else \

@@ -1,36 +1,121 @@
-.TH GForth 1 "November 27, 1994" \" -*- nroff -*-
-
+.de TQ
+.br
+.ns
+.IP "\fB\\$1\fI\\$2" 9
+..
+.TH GForth 1 "October 29, 1995" \" -*- nroff -*-
 .SH NAME
 
 GForth
-
 .SH SYNOPSIS
 
 \fCgforth\fR [initialization options] [image-specific options]
-
 .SH DESCRIPTION
 
 \fBGForth\fR is a fast and portable implementation of the Forth
 programming language. For details read the manual.
-
 .SH ENVIRONMENT VARIABLES
 
 \fCGFORTHPATH\fR
 gives the search path for source files.
-
 .SH EXAMPLES
 
 \fCgforth\fR
 
 starts the system and goes into interactive mode.
 
-\fCgforth file1 file2 -e bye\fR
+\fCgforth file1 file2 \-e bye\fR
 
 loads and interprets the files \fCfile1\fR and \fCfile2\fR, then
 exits.
+.SH OPTIONS
 
+.BI "\-\-image\-file " "file"
+.TQ "\-i " "file"
+Loads the Forth image
+.I file
+instead of the default \fCgforth.fi\fR.
+.TP
+.BI "\-\-path " "path"
+.TQ "\-p " "path"
+Uses
+.I path
+for searching the image file and Forth source code
+files instead of the default in the environment variable
+\fCGFORTHPATH\fR
+or the path specified at installation time (typically
+\fC/usr/local/lib/gforth:.\fR. A path is given as a 
+.BR : -separated
+list.
+.TP
+.BI "\-\-dictionary\-size " "size"
+.TQ "\-m " "size"
+Allocate
+.I size
+space for the Forth dictionary space instead of
+using the default specified in the image (typically 256K). The
+.I size
+specification consists of an integer and a unit (e.g., \fC4M\fR).
+The unit can be one of \fCb\fR (bytes),
+\fCe\fR (element size, in this case Cells),
+\fCk\fR (kilobytes), and
+\fCM\fR (Megabytes). If no unit is specified,
+\fCe\fR is used.
+.TP
+.BI "\-\-data\-stack\-size " "size"
+.TQ "\-d " "size"
+Allocate
+.I size
+space for the data stack instead of using the
+default specified in the image (typically 16K).
+.TP
+.BI "\-\-return\-stack\-size " "size"
+.TQ "\-r " "size"
+Allocate
+.I size
+space for the return stack instead of using the
+default specified in the image (typically 16K).
+.TP
+.BI "\-\-fp\-stack\-size " "size"
+.TQ "\-f " "size"
+Allocate
+.I size
+space for the floating point stack instead of
+using the default specified in the image (typically 16K). In this case
+the unit specifier
+\fCe\fR
+refers to floating point numbers.
+.TP
+.BI "\-\-locals\-stack\-size " "size"
+.TQ "\-l " "size"
+Allocate
+.I size
+space for the locals stack instead of using the
+default specified in the image (typically 16K).
+
+.TP
+.BI "\-\-evaluate " "forth"
+.TQ "\-e " "forth"
+Evaluates the
+.I forth
+code. This option takes only one argument; if you want to evaluate
+more Forth words, you have to quote them or use several \fC-e\fRs.  To
+exit after processing the command line (instead of entering
+interactive mode) append \fC-e bye\fR to the command line. This is an
+image-specific option.
+.SH FILES
+.nf
+.ta \w'\fCkernal.fi\fP 	'u
+\&\fCgforth.fi\fP	default Forth image
+\&\fCkernal.fi\fP	kernel image
+\&\fC*.fi\fP	Forth loadable image
+\&\fC*.fs\fP	Forth source (sequential)
+\&\fC*.fb\fP	Forth source (block)
+\&\fC*.fd\fP	generated with \fCmakedoc.fs\fP
+\&\fC*.i\fP	C include files
+\&\fC*.ds\fP	C documentation source
+\&\fC*TAGS\fP	etags files
 .SH SEE ALSO
-
 The GForth manual is available in hypertext (Info, HTML) and printable
 (TeX, PS) forms.
 
@@ -39,3 +124,6 @@ The ANS Forth document (i.e., the standard).
 More information on Gforth (e.g., pointers to new versions, to the
 manual on the WWW and to papers about Gforth) is available through
 \fChttp://www.complang.tuwien.ac.at/projects/forth.html\fR.
+.SH AUTHORS
+\fBGforth\fR was written by Anton Ertl, Bernd Paysan, Jens Wilke and
+others.

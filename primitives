@@ -1360,16 +1360,24 @@ dfloats		n1 -- n2	float-ext	d_floats
 n2 = n1*sizeof(DFloat);
 
 aligned		c_addr -- a_addr	core
-a_addr = (Cell *)((((Cell)c_addr)+(sizeof(Cell)-1))&~sizeof(Cell));
+a_addr = (Cell *)((((Cell)c_addr)+(sizeof(Cell)-1))&(-sizeof(Cell)));
+:
+ [ cell 1- ] Literal + [ -1 cells ] Literal and ;
 
 faligned	c_addr -- f_addr	float	f_aligned
-f_addr = (Float *)((((Cell)c_addr)+(sizeof(Float)-1))&~sizeof(Float));
+f_addr = (Float *)((((Cell)c_addr)+(sizeof(Float)-1))&(-sizeof(Float)));
+:
+ [ 1 floats 1- ] Literal + [ -1 floats ] Literal and ;
 
 sfaligned	c_addr -- sf_addr	float-ext	s_f_aligned
-sf_addr = (SFloat *)((((Cell)c_addr)+(sizeof(SFloat)-1))&~sizeof(SFloat));
+sf_addr = (SFloat *)((((Cell)c_addr)+(sizeof(SFloat)-1))&(-sizeof(SFloat)));
+:
+ [ 1 sfloats 1- ] Literal + [ -1 sfloats ] Literal and ;
 
 dfaligned	c_addr -- df_addr	float-ext	d_f_aligned
-df_addr = (DFloat *)((((Cell)c_addr)+(sizeof(DFloat)-1))&~sizeof(DFloat));
+df_addr = (DFloat *)((((Cell)c_addr)+(sizeof(DFloat)-1))&(-sizeof(DFloat)));
+:
+ [ 1 dfloats 1- ] Literal + [ -1 dfloats ] Literal and ;
 
 \ The following words access machine/OS/installation-dependent
 \   Gforth internals
