@@ -14,6 +14,7 @@
 @comment .. would be useful to have a word that identified all deferred words
 @comment should semantics stuff in intro be moved to another section
 
+@c POSTPONE, COMPILE, [COMPILE], LITERAL should have their own section
 
 @comment %**start of header (This is for running Texinfo on a region.)
 @setfilename gforth.info
@@ -1456,7 +1457,7 @@ e.g., a loop is.
 
 @node Starting Gforth Tutorial, Syntax Tutorial, Tutorial, Tutorial
 @section Starting Gforth
-
+@cindex starting Gforth tutorial
 You can start Gforth by typing its name:
 
 @example
@@ -1470,6 +1471,7 @@ the command line history with cursor keys, similar to bash.
 
 @node Syntax Tutorial, Crash Course Tutorial, Starting Gforth Tutorial, Tutorial
 @section Syntax
+@cindex syntax tutorial
 
 A @dfn{word} is a sequence of arbitrary characters (expcept white
 space).  Words are separated by white space.  E.g., each of the
@@ -1520,6 +1522,7 @@ them), let's learn how to produce meaningful programs.
 
 @node Stack Tutorial, Arithmetics Tutorial, Crash Course Tutorial, Tutorial
 @section Stack
+@cindex stack tutorial
 
 The most obvious feature of Forth is the stack.  When you type in a
 number, it is pushed on the stack.  You can display the content of the
@@ -1549,6 +1552,7 @@ What does the stack contain after @code{5 6 7 .}?
 
 @node Arithmetics Tutorial, Stack Manipulation Tutorial, Stack Tutorial, Tutorial
 @section Arithmetics
+@cindex arithmetics tutorial
 
 The words @code{+}, @code{-}, @code{*}, @code{/}, and @code{mod} always
 operate on the top two stack items:
@@ -1594,8 +1598,12 @@ Convert -(-3)*4-5 to Forth.
 7 3 /mod . .
 @end example
 
+Reference: @ref{Arithmetic}.
+
+
 @node Stack Manipulation Tutorial, Using files for Forth code Tutorial, Arithmetics Tutorial, Tutorial
 @section Stack Manipulation
+@cindex stack manipulation tutorial
 
 Stack manipulation words rearrange the data on the stack.
 
@@ -1652,8 +1660,13 @@ Write a piece of Forth code that expects two numbers on the stack
 @code{(a-b)(a+1)}.
 @endassignment
 
+Reference: @ref{Stack Manipulation}.
+
+
 @node Using files for Forth code Tutorial, Comments Tutorial, Stack Manipulation Tutorial, Tutorial
 @section Using files for Forth code
+@cindex loading Forth code, tutorial
+@cindex files containing Forth code, tutorial
 
 While working at the Forth command line is convenient for one-line
 examples and short one-off code, you probably want to store your source
@@ -1695,9 +1708,12 @@ The advantage of this approach is that the tests can be repeated easily
 every time the program ist changed, making it easy to catch bugs
 introduced by the change.
 
+Reference: @ref{Forth source files}.
+
 
 @node Comments Tutorial, Colon Definitions Tutorial, Using files for Forth code Tutorial, Tutorial
 @section Comments
+@cindex comments tutorial
 
 @example
 \ That's a comment; it ends at the end of the line
@@ -1726,9 +1742,15 @@ these uses by commenting out a region with @kbd{C-x \}, uncommenting a
 region with @kbd{C-u C-x \}, and filling a @code{\}-commented region
 with @kbd{M-q}.
 
+Reference: @ref{Comments}.
+
 
 @node Colon Definitions Tutorial, Decompilation Tutorial, Comments Tutorial, Tutorial
 @section Colon Definitions
+@cindex colon definitions, tutorial
+@cindex definitions, tutorial
+@cindex procedures, tutorial
+@cindex functions, tutorial
 
 are similar to procedures and functions in other programming languages.
 
@@ -1763,9 +1785,13 @@ test your tests on the originals first).  Don't let the
 @samp{redefined}-Messages spook you, they are just warnings.
 @endassignment
 
+Reference: @ref{Colon Definitions}.
+
 
 @node Decompilation Tutorial, Stack-Effect Comments Tutorial, Colon Definitions Tutorial, Tutorial
 @section Decompilation
+@cindex decompilation tutorial
+@cindex see tutorial
 
 You can decompile colon definitions with @code{see}:
 
@@ -1788,7 +1814,8 @@ see +
 
 @node Stack-Effect Comments Tutorial, Types Tutorial, Decompilation Tutorial, Tutorial
 @section Stack-Effect Comments
-
+@cindex stack-effect comments, tutorial
+@cindex --, tutorial
 By convention the comment after the name of a definition describes the
 stack effect: The part in from of the @samp{--} describes the state of
 the stack before the execution of the definition, i.e., the parameters
@@ -1873,6 +1900,7 @@ now.
 
 @node Types Tutorial, Factoring Tutorial, Stack-Effect Comments Tutorial, Tutorial
 @section Types
+@cindex types tutorial
 
 In Forth the names of the operations are not overloaded; so similar
 operations on different types need different names; e.g., @code{+} adds
@@ -1897,7 +1925,7 @@ two cells (not-necessarily double-cell numbers)
 mixed single-cell and double-cell operations
 @item f
 floating-point (note that in stack comments @samp{f} represents flags,
-and @samp{r} represents FP number).
+and @samp{r} represents FP numbers).
 @end table
 
 If there are no differences between the signed and the unsigned variant
@@ -1923,6 +1951,7 @@ add type checking to Forth have not caught on).
 
 @node Factoring Tutorial, Designing the stack effect Tutorial, Types Tutorial, Tutorial
 @section Factoring
+@cindex factoring tutorial
 
 If you try to write longer definitions, you will soon find it hard to
 keep track of the stack contents.  Therefore, good Forth programmers
@@ -1950,6 +1979,8 @@ despair.
 
 @node Designing the stack effect Tutorial, Local Variables Tutorial, Factoring Tutorial, Tutorial
 @section Designing the stack effect
+@cindex Stack effect design, tutorial
+@cindex design of stack effects, tutorial
 
 In other languages you can use an arbitrary order of parameters for a
 function; and since there is only one result, you don't have to deal with
@@ -2006,6 +2037,7 @@ unconventional order).
 
 @node Local Variables Tutorial, Conditional execution Tutorial, Designing the stack effect Tutorial, Tutorial
 @section Local Variables
+@cindex local variables, tutorial
 
 You can define local variables (@emph{locals}) in a colon definition:
 
@@ -2044,9 +2076,13 @@ essential factoring skills.
 Rewrite your definitions until now with locals
 @endassignment
 
+Reference: @ref{Locals}.
+
 
 @node Conditional execution Tutorial, Flags and Comparisons Tutorial, Local Variables Tutorial, Tutorial
 @section Conditional execution
+@cindex conditionals, tutorial
+@cindex if, tutorial
 
 In Forth you can use control structures only inside colon definitions.
 An @code{if}-structure looks like this:
@@ -2099,9 +2135,13 @@ Write @code{min} without @code{else}-part (hint: what's the definition
 of @code{nip}?).
 @endassignment
 
+Reference: @ref{Selection}.
+
 
 @node Flags and Comparisons Tutorial, General Loops Tutorial, Conditional execution Tutorial, Tutorial
 @section Flags and Comparisons
+@cindex flags tutorial
+@cindex comparison tutorial
 
 In a false-flag all bits are clear (0 when interpreted as integer).  In
 a canonical true-flag all bits are set (-1 as a twos-complement signed
@@ -2125,10 +2165,10 @@ Comparison words produce canonical flags:
 -1 1 < .
 @end example
 
-Gforth supports all combinations of the prefixes @code{0 u d d0 du} (or
-none) and the comparisons @code{= <> < > <= >=}.  Only a part of these
-combinations are standard (for details see the standard or @ref{Word
-Index}).
+Gforth supports all combinations of the prefixes @code{0 u d d0 du f f0}
+(or none) and the comparisons @code{= <> < > <= >=}.  Only a part of
+these combinations are standard (for details see the standard,
+@ref{Numeric comparison}, @ref{Floating Point} or @ref{Word Index}).
 
 You can use @code{and or xor invert} can be used as operations on
 canonical flags.  Actually they are bitwise operations:
@@ -2171,9 +2211,13 @@ operation of the Boolean operations to avoid @code{if}s:
 Write @code{min} without @code{if}.
 @endassignment
 
+For reference, see @ref{Boolean Flags}, @ref{Numeric comparison}, and
+@ref{Bitwise operations}.
+
 
 @node General Loops Tutorial, Counted loops Tutorial, Flags and Comparisons Tutorial, Tutorial
 @section General Loops
+@cindex loops, indefinite, tutorial
 
 The endless loop is the most simple one:
 
@@ -2245,9 +2289,12 @@ the @code{begin}, otherwise after the @code{until}.
 Write a definition for computing the greatest common divisor.
 @endassignment
 
+Reference: @ref{Simple Loops}.
+
 
 @node Counted loops Tutorial, Recursion Tutorial, General Loops Tutorial, Tutorial
 @section Counted loops
+@cindex loops, counted, tutorial
 
 @example
 : ^ ( n1 u -- n )
@@ -2304,9 +2351,12 @@ You can also use increments other than 1:
 0 10 down2
 @end example
 
+Reference: @ref{Counted Loops}.
+
 
 @node Recursion Tutorial, Leaving definitions or loops Tutorial, Counted loops Tutorial, Tutorial
 @section Recursion
+@cindex recursion tutorial
 
 Usually the name of a definition is not visible in the definition; but
 earlier definitions are usually visible:
@@ -2347,9 +2397,13 @@ For recursive definitions you can use @code{recursive} (non-standard) or
 Write a recursive definition for computing the nth Fibonacci number.
 @endassignment
 
+Reference (including indirect recursion): @xref{Calls and returns}.
+
 
 @node Leaving definitions or loops Tutorial, Return Stack Tutorial, Recursion Tutorial, Tutorial
 @section Leaving definitions or loops
+@cindex leaving definitions, tutorial
+@cindex leaving loops, tutorial
 
 @code{EXIT} exits the current definition right away.  For every counted
 loop that is left in this way, an @code{UNLOOP} has to be performed
@@ -2382,8 +2436,12 @@ before the @code{EXIT}:
 
 @c !! example
 
+Reference: @ref{Calls and returns}, @ref{Counted Loops}.
+
+
 @node Return Stack Tutorial, Memory Tutorial, Leaving definitions or loops Tutorial, Tutorial
 @section Return Stack
+@cindex return stack tutorial
 
 In addition to the data stack Forth also has a second stack, the return
 stack; most Forth systems store the return addresses of procedure calls
@@ -2440,9 +2498,12 @@ Can you rewrite any of the definitions you wrote until now in a better
 way using the return stack?
 @endassignment
 
+Reference: @ref{Return stack}.
+
 
 @node Memory Tutorial, Characters and Strings Tutorial, Return Stack Tutorial, Tutorial
 @section Memory
+@cindex memory access/allocation tutorial
 
 You can create a global variable @code{v} with
 
@@ -2545,9 +2606,13 @@ And there is also a
 garbage collector}, which eliminates the need to @code{free} memory
 explicitly.
 
+Reference: @ref{Memory}.
+
 
 @node Characters and Strings Tutorial, Alignment Tutorial, Memory Tutorial, Tutorial
 @section Characters and Strings
+@cindex strings tutorial
+@cindex characters tutorial
 
 On the stack characters take up a cell, like numbers.  In memory they
 have their own size (one 8-bit byte on most systems), and therefore
@@ -2605,8 +2670,13 @@ type
 Implement @code{type ( addr u -- )}.
 @endassignment
 
+Reference: @ref{Memory Blocks}.
+
+
 @node Alignment Tutorial, Interpretation and Compilation Semantics and Immediacy Tutorial, Characters and Strings Tutorial, Tutorial
 @section Alignment
+@cindex alignment tutorial
+@cindex memory alignment tutorial
 
 On many processors cells have to be aligned in memory, if you want to
 access them with @code{@@} and @code{!} (and even if the processor does
@@ -2640,9 +2710,15 @@ align here .
 Note that you should use aligned addresses even if your processor does
 not require them, if you want your program to be portable.
 
+Reference: @ref{Address arithmetic}.
+
 
 @node Interpretation and Compilation Semantics and Immediacy Tutorial, Execution Tokens Tutorial, Alignment Tutorial, Tutorial
 @section Interpretation and Compilation Semantics and Immediacy
+@cindex semantics tutorial
+@cindex interpretation semantics tutorial
+@cindex compilation semantics tutorial
+@cindex immediate, tutorial
 
 When a word is compiled, it behaves differently from being interpreted.
 E.g., consider @code{+}:
@@ -2717,9 +2793,13 @@ see xxx
 These brackets are also the source of the naming convention mentioned
 above.
 
+Reference: @ref{Interpretation and Compilation Semantics}.
+
 
 @node Execution Tokens Tutorial, Exceptions Tutorial, Interpretation and Compilation Semantics and Immediacy Tutorial, Tutorial
 @section Execution Tokens
+@cindex execution tokens tutorial
+@cindex XT tutorial
 
 @code{' word} gives you the execution token (XT) of a word.  The XT is a
 cell representing the interpretation semantics of a word.  You can
@@ -2806,17 +2886,22 @@ confused by the actual behaviour.  If you are, just remember that the
 Forth system just takes @code{'} as one unit and has no idea that it is
 a parsing word (attempts to convenience programmers in this issue have
 usually resulted in even worse pitfalls, see
-@uref{http://www.complang.tuwien.ac.at/papers/ertl98.ps.gz}).
+@uref{http://www.complang.tuwien.ac.at/papers/ertl98.ps.gz,
+@code{State}-smartness---Why it is evil and How to Exorcise it}).
 
 Note that the state of the interpreter does not come into play when
 creating and executing XTs.  I.e., even when you execute @code{'} in
 compile state, it still gives you the interpretation semantics.  And
 whatever that state is, @code{execute} performs the semantics
-represented by the XT (i.e., the interpretation semantics).
+represented by the XT (i.e., for XTs produced with @code{'} the
+interpretation semantics).
+
+Reference: @ref{Tokens for Words}.
 
 
 @node Exceptions Tutorial, Defining Words Tutorial, Execution Tokens Tutorial, Tutorial
 @section Exceptions
+@cindex exceptions tutorial
 
 @code{throw ( n -- )} causes an exception unless n is zero.
 
@@ -2893,9 +2978,16 @@ The equivalent to the restoration code above is
 
 As you can see, the @code{recover} part is optional.
 
+Reference: @ref{Exception Handling}.
+
 
 @node Defining Words Tutorial, Arrays and Records Tutorial, Exceptions Tutorial, Tutorial
 @section Defining Words
+@cindex defining words tutorial
+@cindex does> tutorial
+@cindex create...does> tutorial
+
+@c before semantics?
 
 @code{:}, @code{create}, and @code{variable} are definition words: They
 define other words.  @code{Constant} is another definition word:
@@ -3001,8 +3093,14 @@ XT (at the start the XT of @code{abort}), and upon execution
 recursion is one application of @code{defer}.
 @endassignment
 
+Reference: @ref{User-defined Defining Words}.
+
+
 @node Arrays and Records Tutorial, POSTPONE Tutorial, Defining Words Tutorial, Tutorial
 @section Arrays and Records
+@cindex arrays tutorial
+@cindex records tutorial
+@cindex structs tutorial
 
 Forth has no standard words for defining data structures such as arrays
 and records (structs in C terminology), but you can build them yourself
@@ -3017,7 +3115,8 @@ learn that you have little use for these words (inappropriate use would
 be even worse).  I have not yet found a set of useful array words yet;
 the needs are just too diverse, and named, global arrays (the result of
 naive use of defining words) are often not flexible enough (e.g.,
-consider how to pass them as parameters).
+consider how to pass them as parameters).  Another such project is a set
+of words to help dealing with strings.
 
 On the other hand, there is a useful set of record words, and it has
 been defined in @file{compat/struct.fs}; these words are predefined in
@@ -3028,6 +3127,7 @@ simplified variant of fields in this package.
 
 @node POSTPONE Tutorial, Literal Tutorial, Arrays and Records Tutorial, Tutorial
 @section @code{POSTPONE}
+@cindex postpone tutorial
 
 You can compile the compilation semantics (instead of compiling the
 interpretation semantics) of a word with @code{POSTPONE}:
@@ -3091,8 +3191,12 @@ Write @code{MY-2DUP} that has compilation semantics equivalent to
 @code{2dup}, but compiles @code{over over}.
 @endassignment
 
+@c !! @xref{Macros} for reference
+
+
 @node Literal Tutorial, Advanced macros Tutorial, POSTPONE Tutorial, Tutorial
 @section @code{Literal}
+@cindex literal tutorial
 
 You cannot @code{POSTPONE} numbers:
 
@@ -3127,13 +3231,17 @@ Write @code{]L} which allows writing the example above as @code{: bar (
 -- n ) [ 2 2 + ]L ;}
 @endassignment
 
+@c !! @xref{Macros} for reference
+
 
 @node Advanced macros Tutorial, Compilation Tokens Tutorial, Literal Tutorial, Tutorial
 @section Advanced macros
+@cindex macros, advanced tutorial
+@cindex run-time code generation, tutorial
 
-Reconsider @code{map-array} from @ref{Execution Tokens
-Tutorial,, Execution Tokens}.  It frequently performs @code{execute}, a
-relatively expensive operation in some implementations.  You can use
+Reconsider @code{map-array} from @ref{Execution Tokens Tutorial,,
+Execution Tokens}.  It frequently performs @code{execute}, a relatively
+expensive operation in some Forth implementations.  You can use
 @code{compile,} and @code{POSTPONE} to eliminate these @code{execute}s
 and produce a word that contains the word to be performed directly:
 
@@ -3178,7 +3286,7 @@ a a-vmul .
 @end example
 
 This example uses @code{compile-map-array} to show off, but you could
-also use @code{map-array} instead (try it now).
+also use @code{map-array} instead (try it now!).
 
 You can use this technique for efficient multiplication of large
 matrices.  In matrix multiplication, you multiply every line of one
@@ -3188,8 +3296,13 @@ this technique is that it is cumbersome to recover the memory consumed
 by the generated code when you are done (and in more complicated cases
 it is not possible portably).
 
+@c !! @xref{Macros} for reference
+
+
 @node Compilation Tokens Tutorial, Wordlists and Search Order Tutorial, Advanced macros Tutorial, Tutorial
 @section Compilation Tokens
+@cindex compilation tokens, tutorial
+@cindex CT, tutorial
 
 This section is Gforth-specific.  You can skip it.
 
@@ -3226,9 +3339,13 @@ interpretation semantics:
 comp' if .s 2drop
 @end example
 
+Reference: @ref{Tokens for Words}.
+
 
 @node Wordlists and Search Order Tutorial,  , Compilation Tokens Tutorial, Tutorial
 @section Wordlists and Search Order
+@cindex wordlists tutorial
+@cindex search order, tutorial
 
 The dictionary is not just a memory area that allows you to allocate
 memory with @code{allot}, it also contains the Forth words, arranged in
@@ -3298,6 +3415,9 @@ though).  These disadvantages are not so clear in other
 languages/programming environments, because these langauges are not so
 strong in debugging and reuse.
 
+@c !! example
+
+Reference: @ref{Word Lists}.
 
 @c ******************************************************************
 @node Introduction, Words, Tutorial, Top
@@ -4586,10 +4706,10 @@ unwary (e.g., floating point addition is not associative) and even a few
 for the wary. You should not use them unless you know what you are doing
 or you don't care that the results you get are totally bogus. If you
 want to learn about the problems of floating point numbers (and how to
-avoid them), you might start with @cite{David Goldberg, What Every
-Computer Scientist Should Know About Floating-Point Arithmetic, ACM
-Computing Surveys 23(1):5@minus{}48, March 1991}
-(@uref{http://www.validgh.com/goldberg/paper.ps}).
+avoid them), you might start with @cite{David Goldberg,
+@uref{http://www.validgh.com/goldberg/paper.ps,What Every Computer
+Scientist Should Know About Floating-Point Arithmetic}, ACM Computing
+Surveys 23(1):5@minus{}48, March 1991}.
 
 
 doc-d>f
@@ -5837,7 +5957,7 @@ text-buf 3 chars c@@ \ the 4th character (offset 3)
 
 You can build arbitrarily complex data structures by allocating
 appropriate areas of memory. For further discussions of this, and to
-learn about some Gforth tools that make it easier, see
+learn about some Gforth tools that make it easier,
 @xref{Structures}.
 
 
@@ -6014,7 +6134,7 @@ Creates a word called @code{name} that, upon execution, executes
 
 The explanation above is somewhat superficial. For simple examples of
 colon definitions see @ref{Your first definition}.  For an in-depth
-discussion of some of the issues involved, see @xref{Interpretation and
+discussion of some of the issues involved, @xref{Interpretation and
 Compilation Semantics}.
 
 doc-:
@@ -6791,9 +6911,9 @@ with @code{EXECUTE} or indirectly through @code{COMPILE,}) in compile
 state, the result will not be what you expected (i.e., it will not
 perform @code{foo bar}). State-smart words are a bad idea. Simply don't
 write them@footnote{For a more detailed discussion of this topic, see
-@cite{@code{State}-smartness -- Why it is Evil and How to Exorcise it} by Anton
-Ertl; presented at EuroForth '98 and available from
-@*@uref{http://www.complang.tuwien.ac.at/papers/ertl98.ps.gz}}!
+M. Anton Ertl,
+@cite{@uref{http://www.complang.tuwien.ac.at/papers/ertl98.ps.gz,@code{State}-smartness---Why
+it is Evil and How to Exorcise it}}, EuroForth '98.}!
 
 @cindex defining words with arbitrary semantics combinations
 It is also possible to write defining words that define words with
@@ -9089,10 +9209,9 @@ laden with restrictions. Therefore, we provide not only the ANS Forth
 locals wordset, but also our own, more powerful locals wordset (we
 implemented the ANS Forth locals wordset through our locals wordset).
 
-The ideas in this section have also been published in the paper
-@cite{Automatic Scoping of Local Variables} by M. Anton Ertl, presented
-at EuroForth '94; it is available at
-@*@uref{http://www.complang.tuwien.ac.at/papers/ertl94l.ps.gz}.
+The ideas in this section have also been published in M. Anton Ertl,
+@cite{@uref{http://www.complang.tuwien.ac.at/papers/ertl94l.ps.gz,
+Automatic Scoping of Local Variables}}, EuroForth '94.
 
 @menu
 * Gforth locals::               
@@ -10084,9 +10203,10 @@ terminology: The derived class inherits from the base class.
 @cindex @file{oof.fs}
 
 This section describes the @file{objects.fs} package. This material also
-has been published in @cite{Yet Another Forth Objects Package} by Anton
-Ertl and appeared in Forth Dimensions 19(2), pages 37--43
-(@uref{http://www.complang.tuwien.ac.at/forth/objects/objects.html}).
+has been published in M. Anton Ertl,
+@cite{@uref{http://www.complang.tuwien.ac.at/forth/objects/objects.html,
+Yet Another Forth Objects Package}}, Forth Dimensions 19(2), pages
+37--43.
 @c McKewan's and Zsoter's packages
 
 This section assumes that you have read @ref{Structures}.
@@ -13574,11 +13694,10 @@ doc-arg
 Reading this chapter is not necessary for programming with Gforth. It
 may be helpful for finding your way in the Gforth sources.
 
-The ideas in this section have also been published in the papers
-@cite{ANS fig/GNU/??? Forth} (in German) by Bernd Paysan, presented at
-the Forth-Tagung '93 and @cite{A Portable Forth Engine} by M. Anton
-Ertl, presented at EuroForth '93; the latter is available at
-@*@uref{http://www.complang.tuwien.ac.at/papers/ertl93.ps.Z}.
+The ideas in this section have also been published in Bernd Paysan,
+@cite{ANS fig/GNU/??? Forth} (in German), Forth-Tagung '93 and M. Anton
+Ertl, @cite{@uref{http://www.complang.tuwien.ac.at/papers/ertl93.ps.Z, A
+Portable Forth Engine}}, EuroForth '93.
 
 @menu
 * Portability::                 
@@ -14061,14 +14180,14 @@ predictive value for the performance of Win32Forth today (results for
 the current release on an i486DX2/66 are welcome).
 
 @cindex @file{Benchres}
-In @cite{Translating Forth to Efficient C} by M. Anton Ertl and Martin
+In
+@cite{@uref{http://www.complang.tuwien.ac.at/papers/ertl&maierhofer95.ps.gz,
+Translating Forth to Efficient C}} by M. Anton Ertl and Martin
 Maierhofer (presented at EuroForth '95), an indirect threaded version of
-Gforth is compared with Win32Forth, NT Forth, PFE, and ThisForth; that
-version of Gforth is slower on a 486 than the direct threaded version
-used here. The paper available at
-@*@uref{http://www.complang.tuwien.ac.at/papers/ertl&maierhofer95.ps.gz};
-it also contains numbers for some native code systems. You can find a
-newer version of these measurements at
+Gforth is compared with Win32Forth, NT Forth, PFE, ThisForth, and
+several native code systems; that version of Gforth is slower on a 486
+than the direct threaded version used here. You can find a newer version
+of these measurements at
 @uref{http://www.complang.tuwien.ac.at/forth/performance.html}. You can
 find numbers for Gforth on various machines in @file{Benchres}.
 
