@@ -166,7 +166,7 @@ const Create (hashsearch-map)
   [ [IFUNDEF] allocate ]
   ABORT" no more space in hashtable"
   [ [ELSE] ]
-  HashPop @ 1 hashbits lshift >= or
+  HashPop @ hashlen 2* >= or
   IF  hashdouble  THEN 
   [ [THEN] ] ; is hash-alloc
 
