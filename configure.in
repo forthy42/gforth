@@ -39,6 +39,12 @@ AC_ARG_ENABLE(force-reg,
 			  but also incorrect code with some gcc versions on
 			  some processors (default disabled).],
 AC_DEFINE(FORCE_REG,,[Define if you want to use explicit register declarations for better performance or for more convenient CODE words (does not work with all GCC versions on all machines)]))
+AC_ARG_ENABLE(force-ll,
+[  --enable-force-ll	  Use explicit long long declarations if they appear in
+			  the machine.h file. This can cause a good speedup,
+			  but also incorrect code with some gcc versions on
+			  some processors (default disabled).],
+AC_DEFINE(FORCE_LL,,[Define if you want to use explicit long long declarations for better performance (does not work with all GCC versions on all machines)]))
 AC_SUBST(PROFEXES)
 AC_SUBST(PROFOBJS)
 AC_ARG_ENABLE(prof,

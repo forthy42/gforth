@@ -38,11 +38,14 @@
 #endif
 #endif
 
+#ifdef FORCE_LL
 #define BUGGY_LL_D2F    /* to float not possible */
 #define BUGGY_LL_F2D    /* from float not possible */
 #define BUGGY_LL_SIZE   /* long long "too short", so we use something else */
 
 #include "../generic/128bit.h"
+#endif
+
 #include "../generic/machine.h"
 
 /* The architecture requires hardware consistency */
