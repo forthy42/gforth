@@ -1,6 +1,6 @@
 dnl AC_CHECK_INT_TYPE macro
 
-dnl Copyright (C) 1996 Free Software Foundation, Inc.
+dnl Copyright (C) 1996,1997,1998 Free Software Foundation, Inc.
 
 dnl This file is part of Gforth.
 

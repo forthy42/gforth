@@ -2,7 +2,6 @@
 
 \ 1-3MAY93 Jens A. Wilke
 \ This program is public domain
-\ Not for commercial usage!
 
 DECIMAL
 

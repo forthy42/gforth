@@ -1,6 +1,6 @@
 \ see-ext.fs extentions for see locals, floats
 
-\ Copyright (C) 1995-1997 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

@@ -14,6 +14,3 @@ points to the current SOURCE, and QUERY puts its result there.  anton
 open-path-file expands "./" into the sourcefilename. It should either
 not expand "./" or provide a mechanism that allows the application to
 determine what "./" should expand to. anton 16jun98
-
-": foo create c, does> c@ ; see foo" displays a number after DOES> on
-i386, direct threaded. Marcel Hendrix 23nov98 -- fixed Bernd Paysan 27nov98

@@ -1,6 +1,6 @@
 \ COLORIZE.STR  Coloured .NAME and WORDS                20may93jaw
 
-\ Copyright (C) 1995 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

@@ -1,7 +1,7 @@
 \ CROSS.FS     The Cross-Compiler                      06oct92py
 \ Idea and implementation: Bernd Paysan (py)
 
-\ Copyright (C) 1995 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

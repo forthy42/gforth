@@ -1,10 +1,8 @@
 ;; Forth mode for Emacs
-;; This file is part of GForth.
-;; Changes by anton
-;; This is a variant of forth.el that came with TILE.
-;; I left most of this stuff untouched and made just a few changes for 
-;; the things I use (mainly indentation and syntax tables).
-;; So there is still a lot of work to do to adapt this to gforth.
+
+;; Copyright (C) 1995,1996,1997,1998 Free Software Foundation, Inc.
+
+;; This file is part of Gforth.
 
 ;; GForth is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY.  No author or distributor
@@ -20,6 +18,12 @@
 ;; can know your rights and responsibilities.  It should be in a
 ;; file named COPYING.  Among other things, the copyright notice
 ;; and this notice must be preserved on all copies.
+
+;; Changes by anton
+;; This is a variant of forth.el that came with TILE.
+;; I left most of this stuff untouched and made just a few changes for 
+;; the things I use (mainly indentation and syntax tables).
+;; So there is still a lot of work to do to adapt this to gforth.
 
 ;;-------------------------------------------------------------------
 ;; A Forth indentation, documentation search and interaction library

@@ -1,6 +1,6 @@
 \ examples and tests for objects.fs
 
-\ written by Anton Ertl 1996, 1997
+\ written by Anton Ertl 1996-1998
 \ public domain
 
 cr object heap-new print

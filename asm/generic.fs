@@ -1,14 +1,25 @@
 \ generic.fs implements generic assembler definitions		13aug97jaw
 
+\ Copyright (C) 1998 Free Software Foundation, Inc.
+
+\ This file is part of Gforth.
+
+\ Gforth is free software; you can redistribute it and/or
+\ modify it under the terms of the GNU General Public License
+\ as published by the Free Software Foundation; either version 2
+\ of the License, or (at your option) any later version.
+
+\ This program is distributed in the hope that it will be useful,
+\ but WITHOUT ANY WARRANTY; without even the implied warranty of
+\ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+\ GNU General Public License for more details.
+
+\ You should have received a copy of the GNU General Public License
+\ along with this program; if not, write to the Free Software
+\ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 \ These are generic routines to build up a table-driven assembler
 \ fo any modern (RISC)-CPU
-
-\ This file is copyritghted by JW-Datentechnik GmbH, Munich.
-\ You have the right to use it together with GForth EC.
-\ This file may copied and redistributed if it is not altered.
-\ This is distributed without any warranty.
-\ Send comments, suggestions, additions and bugfixes to: wilke@jwdt.com
 
 \ Revision Log:
 \
