@@ -76,7 +76,7 @@ FORTHS	= $(ENGINE) $(FORTHS_ARGS)
 # possible to override this variable at the command line for an initial build (jaw)
 BUILDFORTH = $(ENGINE) --die-on-signal -m 4M -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)" -i $(kernel_fi)
 # the forth system plus flags we use to build
-FORTHB = $(BUILDFORTH) -e 0 exboot.fs -e 'fpath= .|~+|$(srcdir)'
+FORTHB = $(BUILDFORTH) exboot.fs -e 'fpath= .|~+|$(srcdir)'
 # the Forth system for running prims2x.fs
 FORTHP = $(FORTH)
 ENGINE_FAST = $(ENGINE)-fast
@@ -86,7 +86,7 @@ FORTHK	= $(ENGINE) $(FORTHKFLAGS)
 #FORTHP	= $(ENGINE) --die-on-signal -i ./$(kernel_fi)
 #the "-2 image-included-files +!" undoes the change to image-included-files
 # in exboot.fs
-STARTUP	= -e 0 exboot.fs startup.fs @asm_fs@ @disasm_fs@
+STARTUP	= exboot.fs startup.fs @asm_fs@ @disasm_fs@
 STRIP	= strip
 TEXI2DVI = texi2dvi -e
 TEXI2PDF = texi2dvi --pdf -e

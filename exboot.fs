@@ -1,6 +1,5 @@
-\ ( n -- ) include except.fs and restart Gforth, ignoring the
-\ first n arguments. Gforth is restarted to create an exception frame
-\ for the exception handler.
+\ include except.fs and restart Gforth. Gforth is restarted to create
+\ an exception frame for the exception handler.
 
 \ Copyright (C) 2000,2001,2003 Free Software Foundation, Inc.
 
@@ -31,4 +30,4 @@ require except.fs
 \ included-files 2@ image-included-files 2!
 
 \ now boot
-pathstring 2@ rot argv @ over cells + argc @ rot - boot
+pathstring 2@ argv @ argc @ boot
