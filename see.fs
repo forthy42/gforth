@@ -99,7 +99,7 @@ DEFER nlcount ' noop IS nlcount
                 IF 2drop ELSE XPos +! C-Output @ IF emit ELSE drop THEN
                 THEN ;
 
-DEFER .string
+DEFER .string ( c-addr u n -- )
 
 [IFDEF] Green
 VARIABLE Colors Colors on
@@ -488,17 +488,24 @@ c-extender !
                   THEN ;
 
 : analyse ( a-addr1 -- a-addr2 )
-        Branches @ IF BranchTo? THEN
-        dup cell+ swap @
-        dup >r DoTable r> swap IF drop EXIT THEN
-        Display?
-        IF look 0= IF  drop dup 1 cells - @ ." <" 0 .r ." >"
+    Branches @ IF BranchTo? THEN
+    dup cell+ swap @
+    dup >r DoTable r> swap IF drop EXIT THEN
+    Display?
+    IF
+	look 0= IF
+	    drop dup 1 cells - @ ." <" 0 .r ." >"
 	ELSE
-	    dup cell+ count dup immediate-mask and
-	    IF  bl cemit  ." POSTPONE " THEN
-	    31 and rot wordinfo .string  THEN  bl cemit
-        ELSE drop
-        THEN ;
+	    dup cell+ @ immediate-mask and
+	    IF
+		bl cemit  ." POSTPONE "
+	    THEN
+	    dup name>string rot wordinfo .string
+	THEN
+	bl cemit
+    ELSE
+	drop
+    THEN ;
 
 : c-init
         0 YPos ! 0 XPos !

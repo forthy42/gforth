@@ -140,7 +140,7 @@ create nextname-buffer 32 chars allot
 : nextname ( c-addr u -- ) \ gforth
     \g The next defined word will have the name @var{c-addr u}; the
     \g defining word will leave the input stream alone.
-    dup 31 u> -&19 and throw \ !! make buffer variable-sized
+    dup &31 u> -&19 and throw \ !! make buffer variable-sized
     name-too-long?
     nextname-buffer c! ( c-addr )
     nextname-buffer count move
