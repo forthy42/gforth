@@ -13,7 +13,7 @@ direct/indirect, NEXT splitting, keeping the TOSses in variables
 **make it easy to put the right variation for each processor into the
 configuration. I.e., on installation all combinations of options
 should be measured and the fastest chosen. Knowing OS and architecture
-is not enough, the best otions depend more on the processor and the
+is not enough, the best options depend more on the processor and the
 compiler version.
 
 * ANSI Forth
@@ -37,10 +37,11 @@ Use gcc-generated assembly on machines without gcc, but with
 processors supported by gcc
 
 *Foreign Language Interface
-If anybody wants to do this, mail me
-(anton@mips.complang.tuwien.ac.at). I have given some thought to this
-and will type in my notes if you are interested.
+If anybody wants to do this, take a look at
+ftp://ftp.complang.tuwien.ac.at/pub/forth/foreign.ds
+Some of the problems are discussed there,
 **C
+Stuart Ramsden is doing a bit here.
 **FORTRAN
 **C++
 
@@ -53,6 +54,13 @@ Issues: Convenience, portability across plattforms, compatibility with
 existing tools (Emacs, F-PC)
 ** Decompiler and Debugger
 need debugging
+** Profiling
+The way this (and perhaps also debugging features) could work is this:
+On compilation all code fields are remembered somewhere (using a
+special hook like etags). If the user now decides to profile part of
+the code, the corresponding code fields are replaced by fields
+pointing to code that performs the measurement (or whatever else is
+intended).
 ** emacs support
 can be improved
 **prefix file generator
@@ -71,7 +79,8 @@ John Hayes has a portable package
 
 *Documentation
 A texinfo file
-
+** a tool that extracts (stack) comments from forth sources and replaces
+them in .ds files.
 **glossaries of all wordsets.
 *** Inclusion of stack comments, glossary comments, and wordset comments
 in all source files.

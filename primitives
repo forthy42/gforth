@@ -912,7 +912,7 @@ wior =  FILEEXIST(w2 == NULL);
 
 create-file	c_addr u ntype -- w2 wior	file	create_file
 Cell	fd;
-fd = creat(cstr(c_addr, u, 1), 0644);
+fd = open(cstr(c_addr, u, 1), O_CREAT|O_RDWR|O_TRUNC, 0666);
 if (fd > -1) {
   w2 = (Cell)fdopen(fd, fileattr[ntype]);
   assert(w2 != NULL);

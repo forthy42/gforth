@@ -15,12 +15,14 @@ variable block-fid 0 block-fid ! \ the file id of the current block file
 variable buffer-dirty buffer-dirty off
 
 
+\ the file is opened as binary file, since it either will contain text
+\ without newlines or binary data
 : get-block-fid ( -- fid )
     block-fid @ 0=
     if
-	s" blocks.fb" r/w open-file 0<>
+	s" blocks.fb" r/w bin open-file 0<>
 	if
-	    s" blocks.fb" r/w create-file .s throw
+	    s" blocks.fb" r/w bin create-file throw
 	then
 	block-fid !
     then
@@ -28,7 +30,7 @@ variable buffer-dirty buffer-dirty off
 
 : block-position ( u -- )
     \ positions the block file to the start of block u
-    1- chars/block chars um* get-block-fid reposition-file .s throw ;
+    1- chars/block chars um* get-block-fid reposition-file throw ;
 
 : update ( -- )
     buffer-dirty on ;
@@ -54,7 +56,7 @@ variable buffer-dirty buffer-dirty off
     if
 	save-buffers
 	dup block-position
-	block-buffer chars/block get-block-fid read-file .s throw
+	block-buffer chars/block get-block-fid read-file throw
 	\ clear the rest of the buffer if the file is too short
 	block-buffer over chars + chars/block rot - blank
 	buffer-block !    

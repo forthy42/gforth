@@ -27,3 +27,7 @@ If your installed gcc isn't called "gcc" (eg. called "gcc-2.6.1"), type
 make CC=<whatever you call your gcc>
 
 instead.
+
+To make the documentation, type
+
+make -k gforth.info gforth.ps html

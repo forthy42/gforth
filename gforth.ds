@@ -628,6 +628,10 @@ doc-dfloats
 doc-dfloat+
 doc-dfalign
 doc-dfaligned
+doc-maxalign
+doc-maxaligned
+doc-cfalign
+doc-cfaligned
 doc-address-unit-bits
 
 @node Memory block access,  , Address arithmetic, Memory access
@@ -881,7 +885,7 @@ doc-next
 doc-leave
 doc-?leave
 doc-unloop
-doc-undo
+doc-done
 
 The standard does not allow using @code{cs-pick} and @code{cs-roll} on
 @i{do-sys}. Our system allows it, but it's your job to ensure that for

@@ -704,8 +704,9 @@ Avariable leave-sp  leave-stack 3 cells + leave-sp !
     cell - dup @ swap
     leave-sp ! ;
 
-: DONE ( orig -- )  drop >r drop
+: DONE ( orig -- )
     \ !! the original done had ( addr -- )
+    drop >r drop
     begin
 	leave>
 	over r@ u>=

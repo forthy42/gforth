@@ -4,10 +4,6 @@ before name>, but adapt all uses.  anton 23apr94 Solved?
 revealing the same name several times (e.g., by using recursive)
 results in "redefined ..." messages.  anton 28jul94
 
-if blocks.fb does not exist, 1 block creates the file, but cannot
-read-file from it. Only if the file-id has been created with
-open-file, not create-file, read-file works. - anton 6aug94
-
 etags.fs crashes one of my applications (gs.fs). anton 12jan95
 
 not all aliases are in the etags file. Bug in etags.fs? anton 24jan95
