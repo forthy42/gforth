@@ -377,38 +377,12 @@ Variable bit$
 Variable headers-named 0 headers-named !
 Variable user-vars 0 user-vars !
 
-\ Memory initialisation                                05dec92py
-
-[IFDEF] Memory \ Memory is a bigFORTH feature
-   also Memory
-   : initmem ( var len -- )
-     2dup swap handle! >r @ r> erase ;
-   toss
-[ELSE]
-   : initmem ( var len -- )
-     tuck allocate abort" CROSS: No memory for target"
-     ( len var adr ) dup rot !
-     ( len adr ) swap erase ;
-[THEN]
-
-\ MakeKernal                                           12dec92py
-
-: makekernel ( targetsize -- targetsize )
-  bit$  over 1- tcell>bit rshift 1+ initmem
-  image over initmem ;
-
->MINIMAL
-: makekernel makekernel ;
->CROSS
-
 : target>bitmask-size ( u1 -- u2 )
   1- tcell>bit rshift 1+ ;
 
 : allocatetarget ( size --- adr )
   dup allocate ABORT" CROSS: No memory for target"
   swap over swap erase ;
-
-
 
 \ \ memregion.fs
 
@@ -515,10 +489,10 @@ T has? rom H
 : setup-target ( -- )   \G initialize targets memory space
   s" rom" T $has? H
   IF  \ check for ram and rom...
-      address-space area nip 0<>
+      \ address-space area nip 0<>
       ram-dictionary area nip 0<>
       rom-dictionary area nip 0<>
-      and and 0=
+      and 0=
       ABORT" CROSS: define address-space, rom- , ram-dictionary, with rom-support!"
   THEN
   address-space area nip
@@ -543,12 +517,20 @@ T has? rom H
                 r@ >rmem !
 
                 target>bitmask-size allocatetarget
-                dup
-                bit$ !
+                dup bit$ !
                 r> >rbm !
 
         ELSE    r> drop THEN
-   REPEAT ;
+   REPEAT drop ;
+
+\ MakeKernal                                           		22feb99jaw
+
+: makekernel ( targetsize -- targetsize )
+  dup dictionary >rlen ! setup-target ;
+
+>MINIMAL
+: makekernel makekernel ;
+>CROSS
 
 \ \ switched tdp for rom support				03jun97jaw
 
