@@ -58,7 +58,12 @@ require blocks.fs
 require intcomp.fs
 require savesys.fs
 require table.fs
+s" os-class" environment? dup [IF] drop s" unix" compare 0= [THEN]
+[IF]
 require ekey.fs
+[ELSE]
+require dosekey.fs
+[THEN]
 require backtrac.fs
 require code.fs
 
