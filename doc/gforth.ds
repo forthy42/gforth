@@ -8,10 +8,8 @@
 * Gforth: (gforth).             A fast interpreter for the Forth language.
 @end direntry
 @comment @setchapternewpage odd
-@macro progstyle {TEXT}
-@quotation
-{Programming style note:} \TEXT\
-@end quotation
+@macro progstyle {}
+Programming style note:
 @end macro
 @comment %**end of header (This is for running Texinfo on a region.)
 
@@ -109,6 +107,238 @@ personal machines. This manual corresponds to version @value{VERSION}.
 * Origin::                      Authors and ancestors of Gforth
 * Word Index::                  An item for each Forth word
 * Concept Index::               A menu covering many topics
+
+ --- The Detailed Node Listing ---
+
+Forth Words
+
+* Notation::                    
+* Arithmetic::                  
+* Stack Manipulation::          
+* Memory::                      
+* Control Structures::          
+* Locals::                      
+* Defining Words::              
+* Structures::                  
+* Object-oriented Forth::       
+* Tokens for Words::            
+* Wordlists::                   
+* Files::                       
+* Including Files::             
+* Blocks::                      
+* Other I/O::                   
+* Programming Tools::           
+* Assembler and Code Words::    
+* Threading Words::             
+
+Arithmetic
+
+* Single precision::            
+* Bitwise operations::          
+* Mixed precision::             operations with single and double-cell integers
+* Double precision::            Double-cell integer arithmetic
+* Floating Point::              
+
+Stack Manipulation
+
+* Data stack::                  
+* Floating point stack::        
+* Return stack::                
+* Locals stack::                
+* Stack pointer manipulation::  
+
+Memory
+
+* Memory Access::      
+* Address arithmetic::          
+* Memory Blocks::         
+
+Control Structures
+
+* Selection::                   
+* Simple Loops::                
+* Counted Loops::               
+* Arbitrary control structures::  
+* Calls and returns::           
+* Exception Handling::          
+
+Locals
+
+* Gforth locals::               
+* ANS Forth locals::            
+
+Gforth locals
+
+* Where are locals visible by name?::  
+* How long do locals live?::    
+* Programming Style::           
+* Implementation::              
+
+Defining Words
+
+* Simple Defining Words::       
+* Colon Definitions::           
+* User-defined Defining Words::  
+* Supplying names::             
+* Interpretation and Compilation Semantics::  
+
+Structures
+
+* Why explicit structure support?::  
+* Structure Usage::             
+* Structure Naming Convention::  
+* Structure Implementation::    
+* Structure Glossary::          
+
+Object-oriented Forth
+
+* Objects::                     
+* OOF::                         
+* Mini-OOF::                    
+
+Objects
+
+* Properties of the Objects model::  
+* Why object-oriented programming?::  
+* Object-Oriented Terminology::  
+* Basic Objects Usage::         
+* The class Object::            
+* Creating objects::            
+* Object-Oriented Programming Style::  
+* Class Binding::               
+* Method conveniences::         
+* Classes and Scoping::         
+* Object Interfaces::           
+* Objects Implementation::      
+* Comparison with other object models::  
+* Objects Glossary::            
+
+OOF
+
+* Properties of the OOF model::
+* Basic OOF Usage::
+* The base class object::
+* Class Declaration::
+* Class Implementation::
+
+Including Files
+
+* Words for Including::         
+* Search Path::                 
+* Changing the Search Path::    
+* General Search Paths::        
+
+Programming Tools
+
+* Debugging::                   Simple and quick.
+* Assertions::                  Making your programs self-checking.
+* Singlestep Debugger::		Executing your program word by word.
+
+Tools
+
+* ANS Report::                  Report the words used, sorted by wordset.
+
+ANS conformance
+
+* The Core Words::              
+* The optional Block word set::  
+* The optional Double Number word set::  
+* The optional Exception word set::  
+* The optional Facility word set::  
+* The optional File-Access word set::  
+* The optional Floating-Point word set::  
+* The optional Locals word set::  
+* The optional Memory-Allocation word set::  
+* The optional Programming-Tools word set::  
+* The optional Search-Order word set::  
+
+The Core Words
+
+* core-idef::                   Implementation Defined Options                   
+* core-ambcond::                Ambiguous Conditions                
+* core-other::                  Other System Documentation                  
+
+The optional Block word set
+
+* block-idef::                  Implementation Defined Options
+* block-ambcond::               Ambiguous Conditions               
+* block-other::                 Other System Documentation                 
+
+The optional Double Number word set
+
+* double-ambcond::              Ambiguous Conditions              
+
+The optional Exception word set
+
+* exception-idef::              Implementation Defined Options              
+
+The optional Facility word set
+
+* facility-idef::               Implementation Defined Options               
+* facility-ambcond::            Ambiguous Conditions            
+
+The optional File-Access word set
+
+* file-idef::                   Implementation Defined Options
+* file-ambcond::                Ambiguous Conditions                
+
+The optional Floating-Point word set
+
+* floating-idef::               Implementation Defined Options
+* floating-ambcond::            Ambiguous Conditions            
+
+The optional Locals word set
+
+* locals-idef::                 Implementation Defined Options                 
+* locals-ambcond::              Ambiguous Conditions              
+
+The optional Memory-Allocation word set
+
+* memory-idef::                 Implementation Defined Options                 
+
+The optional Programming-Tools word set
+
+* programming-idef::            Implementation Defined Options            
+* programming-ambcond::         Ambiguous Conditions         
+
+The optional Search-Order word set
+
+* search-idef::                 Implementation Defined Options                 
+* search-ambcond::              Ambiguous Conditions              
+
+Image Files
+
+* Image File Background::          Why have image files?
+* Non-Relocatable Image Files::    don't always work.
+* Data-Relocatable Image Files::   are better.
+* Fully Relocatable Image Files::  better yet.
+* Stack and Dictionary Sizes::     Setting the default sizes for an image.
+* Running Image Files::            @code{gforth -i @var{file}} or @var{file}.
+* Modifying the Startup Sequence:: and turnkey applications.
+
+Fully Relocatable Image Files
+
+* gforthmi::            The normal way
+* cross.fs::                    The hard way
+
+Engine
+
+* Portability::                 
+* Threading::                   
+* Primitives::                  
+* Performance::                 
+
+Threading
+
+* Scheduling::                  
+* Direct or Indirect Threaded?::  
+* DOES>::                       
+
+Primitives
+
+* Automatic Generation::        
+* TOS Optimization::            
+* Produced code::               
 @end menu
 
 @node License, Goals, Top, Top
@@ -548,11 +778,12 @@ Available on many machines/easy to port.
 Have we achieved these goals? Gforth conforms to the ANS Forth
 standard. It may be considered a model, but we have not yet documented
 which parts of the model are stable and which parts we are likely to
-change. It certainly has not yet become a de facto standard. It has some
-similarities and some differences to previous models. It has some
-powerful features, but not yet everything that we envisioned. We
-certainly have achieved our execution speed goals (@pxref{Performance}).
-It is free and available on many machines.
+change. It certainly has not yet become a de facto standard, but it
+appears to be quite popular. It has some similarities to and some
+differences from previous models. It has some powerful features, but not
+yet everything that we envisioned. We certainly have achieved our
+execution speed goals (@pxref{Performance}).  It is free and available
+on many machines.
 
 @node Other Books, Invoking Gforth, Goals, Top
 @chapter Other books on ANS Forth
@@ -572,10 +803,10 @@ Fax.: USA (212) 302-1286) as document @cite{X3.215-1994} for about $200. You
 can also get it from Global Engineering Documents (Tel.: USA (800)
 854-7179; Fax.: (303) 843-9880) for about $300.
 
-@cite{dpANS6}, the last draft of the standard, which was then submitted to ANSI
-for publication is available electronically and for free in some MS Word
-format, and it has been converted to HTML. Some pointers to these
-versions can be found through
+@cite{dpANS6}, the last draft of the standard, which was then submitted
+to ANSI for publication is available electronically and for free in some
+MS Word format, and it has been converted to HTML (this is my favourite
+format !!url). Some pointers to these versions can be found through
 @*@url{http://www.complang.tuwien.ac.at/projects/forth.html}.
 
 @cindex introductory book
@@ -589,6 +820,8 @@ information (Jack Woehr was in the ANS Forth Technical Committee). It is
 not appropriate for complete newbies, but programmers experienced in
 other languages should find it ok.
 
+!!Conklin, Forth programmer's handbook
+
 @node Invoking Gforth, Words, Other Books, Top
 @chapter Invoking Gforth
 @cindex invoking Gforth
@@ -599,12 +832,10 @@ other languages should find it ok.
 
 You will usually just say @code{gforth}. In many other cases the default
 Gforth image will be invoked like this:
-
 @example
 gforth [files] [-e forth-code]
 @end example
-
-executing the contents of the files and the Forth code in the order they
+This interprets the contents of the files and the Forth code in the order they
 are given.
 
 In general, the command line looks like this:
@@ -644,8 +875,9 @@ Allocate @var{size} space for the Forth dictionary space instead of
 using the default specified in the image (typically 256K). The
 @var{size} specification consists of an integer and a unit (e.g.,
 @code{4M}). The unit can be one of @code{b} (bytes), @code{e} (element
-size, in this case Cells), @code{k} (kilobytes), and @code{M}
-(Megabytes). If no unit is specified, @code{e} is used.
+size, in this case Cells), @code{k} (kilobytes), @code{M} (Megabytes),
+@code{G} (Gigabytes), and @code{T} (Terabytes). If no unit is specified,
+@code{e} is used.
 
 @cindex --data-stack-size, command-line option
 @cindex -d, command-line option
@@ -758,18 +990,16 @@ then in @file{~}, then in the normal path (see above).
 * Locals::                      
 * Defining Words::              
 * Structures::                  
-* Objects::
-* Object Oriented Forth::
-* Mini-OOF::
-* Tokens for Words::
-* Wordlists::
-* Files::
-* Blocks::
-* Other I/O::
-* Programming Tools::
-* Assembler and Code Words::
-* Threading Words::
-* Including Files::
+* Object-oriented Forth::       
+* Tokens for Words::            
+* Wordlists::                   
+* Files::                       
+* Including Files::             
+* Blocks::                      
+* Other I/O::                   
+* Programming Tools::           
+* Assembler and Code Words::    
+* Threading Words::             
 @end menu
 
 @node Notation, Arithmetic, Words, Words
@@ -890,8 +1120,8 @@ Wordlist ID, same size as Cell
 Pointer to a name structure
 @item "
 @cindex @code{"}, stack item type
-string in the input stream (not the stack). The terminating character is
-a blank by default. If it is not a blank, it is shown in @code{<>}
+string in the input stream (not on the stack). The terminating character
+is a blank by default. If it is not a blank, it is shown in @code{<>}
 quotes.
 @end table
 
@@ -985,14 +1215,15 @@ The format of floating point numbers recognized by the outer (aka text)
 interpreter is: a signed decimal number, possibly containing a decimal
 point (@code{.}), followed by @code{E} or @code{e}, optionally followed
 by a signed integer (the exponent). E.g., @code{1e} is the same as
-@code{+1.0e+0}. Note that a number without @code{e}
-is not interpreted as floating-point number, but as double (if the
-number contains a @code{.}) or single precision integer. Also,
-conversions between string and floating point numbers always use base
-10, irrespective of the value of @code{BASE}. If @code{BASE} contains a
-value greater then 14, the @code{E} may be interpreted as digit and the
-number will be interpreted as integer, unless it has a signed exponent
-(both @code{+} and @code{-} are allowed as signs).
+@code{+1.0e+0}. Note that a number without @code{e} is not interpreted
+as floating-point number, but as double (if the number contains a
+@code{.}) or single precision integer. Also, conversions between string
+and floating point numbers always use base 10, irrespective of the value
+of @code{BASE} (in Gforth; for the standard this is an ambiguous
+condition). If @code{BASE} contains a value greater then 14, the
+@code{E} may be interpreted as digit and the number will be interpreted
+as integer, unless it has a signed exponent (both @code{+} and @code{-}
+are allowed as signs).
 
 @cindex angles in trigonometric operations
 @cindex trigonometric operations
@@ -1619,12 +1850,14 @@ Another way to perform a recursive call is
 
 doc-recurse
 
-@c @progstyle{
-I prefer using @code{recursive} to @code{recurse}, because
-calling the definition by name is more descriptive (if the name is
-well-chosen) than the somewhat cryptic @code{recurse}.  E.g., in a
-quicksort implementation, it is much better to read (and think) ``now
-sort the partitions'' than to read ``now do a recursive call''.
+@quotation
+@progstyle
+I prefer using @code{recursive} to @code{recurse}, because calling the
+definition by name is more descriptive (if the name is well-chosen) than
+the somewhat cryptic @code{recurse}.  E.g., in a quicksort
+implementation, it is much better to read (and think) ``now sort the
+partitions'' than to read ``now do a recursive call''.
+@end quotation
 
 For mutual recursion, use @code{defer}red words, like this:
 
@@ -2642,7 +2875,7 @@ accessing the header structure usually know how to deal with this; e.g.,
 @code{create-interpret/compile}.
 
 @c ----------------------------------------------------------
-@node Structures, Objects, Defining Words, Words
+@node Structures, Object-oriented Forth, Defining Words, Words
 @section  Structures
 @cindex structures
 @cindex records
@@ -2943,23 +3176,32 @@ doc-%size
 doc-struct
 
 @c -------------------------------------------------------------
-@node Objects, Object Oriented Forth, Structures, Words
-@section Objects
+@node Object-oriented Forth, Tokens for Words, Structures, Words
+@section Object-oriented Forth
+
+Gforth comes with three packets for object-oriented programming,
+@file{objects.fs}, @file{oof.fs}, and @file{mini-oof.fs}; none of them
+is preloaded, so you have to @code{include} them before use. The most
+important differences between these packets (and others) are discussed
+in @ref{Comparison with other object models}. All packets are written
+in ANS Forth and can be used with any other ANS Forth.
+
+@menu
+* Objects::                     
+* OOF::                         
+* Mini-OOF::                    
+@end menu
+
+@node Objects, OOF, Object-oriented Forth, Object-oriented Forth
+@subsection Objects
 @cindex objects
 @cindex object-oriented programming
 
 @cindex @file{objects.fs}
 @cindex @file{oof.fs}
-Gforth comes with three packets for object-oriented programming,
-@file{objects.fs}, @file{oof.fs}, and @file{mini-oof.fs}; none of them
-is preloaded, so you have to @code{include} them before use. This
-section describes the @file{objects.fs} packet. You can find a
-description (in German) of @file{oof.fs} in @cite{Object oriented
-bigFORTH} by Bernd Paysan, published in @cite{Vierte Dimension} 10(2),
-1994. Both packets are written in ANS Forth and can be used with any
-other standard Forth.
+
+This section describes the @file{objects.fs} packet. This material also has been published in @cite{Yet Another Forth Objects Package} by Anton Ertl and appeared in Forth Dimensions 19(2), pages 37--43 (@url{http://www.complang.tuwien.ac.at/forth/objects/objects.html}).
 @c McKewan's and Zsoter's packages
-@c this section is a variant of ...
 
 This section assumes (in some places) that you have read @ref{Structures}.
 
@@ -2984,7 +3226,7 @@ Marcel Hendrix provided helpful comments on this section. Andras Zsoter
 and Bernd Paysan helped me with the related works section.
 
 @node Properties of the Objects model, Why object-oriented programming?, Objects, Objects
-@subsection Properties of the @file{objects.fs} model
+@subsubsection Properties of the @file{objects.fs} model
 @cindex @file{objects.fs} properties
 
 @itemize @bullet
@@ -3034,7 +3276,7 @@ in Gforth for implementing the various flavours of wordlists (hashed or
 not, case-sensitive or not, special-purpose wordlists for locals etc.).
 
 @node Why object-oriented programming?, Object-Oriented Terminology, Properties of the Objects model, Objects
-@subsection Why object-oriented programming?
+@subsubsection Why object-oriented programming?
 @cindex object-oriented programming motivation
 @cindex motivation for object-oriented programming
 
@@ -3062,7 +3304,7 @@ themselves object-oriented, and the object-oriented package I present
 here also solves this problem (and not much else).
 
 @node Object-Oriented Terminology, Basic Objects Usage, Why object-oriented programming?, Objects
-@subsection Object-Oriented Terminology
+@subsubsection Object-Oriented Terminology
 @cindex object-oriented terminology
 @cindex terminology for object-oriented programming
 
@@ -3132,7 +3374,7 @@ terminology: The derived class inherits from the base class.
 @c terminology.
 
 @node Basic Objects Usage, The class Object, Object-Oriented Terminology, Objects
-@subsection Basic Objects Usage
+@subsubsection Basic Objects Usage
 @cindex basic objects usage
 @cindex objects, basic usage
 
@@ -3219,7 +3461,7 @@ or its descendents (e.g., @code{circle}).  Immediately before
 immediately after @code{class}.
 
 @node The class Object, Creating objects, Basic Objects Usage, Objects
-@subsection The class @code{object}
+@subsubsection The class @code{object}
 @cindex @code{object} class
 
 When you define a class, you have to specify a parent class.  So how do
@@ -3229,7 +3471,7 @@ only class that has no parent. It has two selectors: @code{construct}
 and @code{print}.
 
 @node Creating objects, Object-Oriented Programming Style, The class Object, Objects
-@subsection Creating objects
+@subsubsection Creating objects
 @cindex creating objects
 @cindex object creation
 @cindex object allocation options
@@ -3252,7 +3494,7 @@ it with @code{init-object} ( ... class object -- );
 @code{construct} does only a part of the necessary work.
 
 @node Object-Oriented Programming Style, Class Binding, Creating objects, Objects
-@subsection Object-Oriented Programming Style
+@subsubsection Object-Oriented Programming Style
 @cindex object-oriented programming style
 
 This section is not exhaustive.
@@ -3274,7 +3516,7 @@ mechanism different from selector invocation would be more natural
 (but probably would take more code and more space to explain).
 
 @node Class Binding, Method conveniences, Object-Oriented Programming Style, Objects
-@subsection Class Binding
+@subsubsection Class Binding
 @cindex class binding
 @cindex early binding
 
@@ -3340,7 +3582,7 @@ descendents; then you should bind only to @code{foo} and its
 ancestors.
 
 @node Method conveniences, Classes and Scoping, Class Binding, Objects
-@subsection Method conveniences
+@subsubsection Method conveniences
 @cindex method conveniences
 
 In a method you usually access the receiving object pretty often.  If
@@ -3423,7 +3665,7 @@ end-class circle
 
 
 @node Classes and Scoping, Object Interfaces, Method conveniences, Objects
-@subsection Classes and Scoping
+@subsubsection Classes and Scoping
 @cindex classes and scoping
 @cindex scoping and classes
 
@@ -3457,7 +3699,7 @@ will restore the compilation wordlist in effect before the first of
 these @code{protected}s.
 
 @node Object Interfaces, Objects Implementation, Classes and Scoping, Objects
-@subsection Object Interfaces
+@subsubsection Object Interfaces
 @cindex object interfaces
 @cindex interfaces for objects
 
@@ -3517,7 +3759,7 @@ is slower late binding, and therefore, added complexity to avoid late
 binding.
 
 @node Objects Implementation, Comparison with other object models, Object Interfaces, Objects
-@subsection @file{objects.fs} Implementation
+@subsubsection @file{objects.fs} Implementation
 @cindex @file{objects.fs} implementation
 
 @cindex @code{object-map} discussion
@@ -3656,7 +3898,7 @@ for @code{object}) is shown in the <a
 href="objects-implementation.eps">figure</a>, assuming a cell size of 4.
 
 @node Comparison with other object models, Objects Glossary, Objects Implementation, Objects
-@subsection Comparison with other object models
+@subsubsection Comparison with other object models
 @cindex comparison of object models
 @cindex object models, comparison
 
@@ -3700,7 +3942,7 @@ change is absolutely necessary in that model, because otherwise no one
 could ever change the active object. An ANS Forth implementation of this
 model is available at @url{http://www.forth.org/fig/oopf.html}.
 
-@cindex @file{oof.fs} object model
+@cindex @file{oof.fs}, differences to other models
 The @file{oof.fs} model combines information hiding and overloading
 resolution (by keeping names in various wordlists) with object-oriented
 programming. It sets the active object implicitly on method entry, but
@@ -3714,10 +3956,16 @@ Fields are always accessed through the active object. The big
 disadvantage of this model is the parsing and the state-smartness, which
 reduces extensibility and increases the opportunities for subtle bugs;
 essentially, you are only safe if you never tick or @code{postpone} an
-object or class.
+object or class (Bernd disagrees, but I (Anton) am not convinced).
+
+@cindex @file{mini-oof.fs}, differences to other models
+The Mini-OOF model is quite similar to a very stripped-down version of
+the Objects model, but syntactically it is a mixture of the Objects and
+the OOF model.
+
 
 @node Objects Glossary,  , Comparison with other object models, Objects
-@subsection @file{objects.fs} Glossary
+@subsubsection @file{objects.fs} Glossary
 @cindex @file{objects.fs} Glossary
 
 doc-bind
@@ -3763,24 +4011,25 @@ doc-to-this
 doc-xt-new
 
 @c -------------------------------------------------------------
-@node Object Oriented Forth, Mini-OOF, Objects, Words
-@section Object oriented Forth
+@node OOF, Mini-OOF, Objects, Object-oriented Forth
+@subsection OOF
 @cindex oof
 @cindex object-oriented programming
 
 @cindex @file{objects.fs}
 @cindex @file{oof.fs}
-Gforth comes with two packets for object-oriented programming,
-@file{objects.fs} and @file{oof.fs}; none of them is preloaded, so you
-have to @code{include} them before use. This section describes the
-@file{oof.fs} packet. Both packets are written in ANS Forth and can be
-used with any other standard Forth (@pxref{Objects}). This section uses
-the same rationale why using object-oriented programming, and the same
+
+This section describes the @file{oof.fs} packet. This section uses the
+same rationale why using object-oriented programming, and the same
 terminology.
 
 The packet described in this section is used in bigFORTH since 1991, and
 used for two large applications: a chromatographic system used to
 create new medicaments, and a graphic user interface library (MINOS).
+
+You can find a description (in German) of @file{oof.fs} in @cite{Object
+oriented bigFORTH} by Bernd Paysan, published in @cite{Vierte Dimension}
+10(2), 1994.
 
 @menu
 * Properties of the OOF model::
@@ -3790,8 +4039,8 @@ create new medicaments, and a graphic user interface library (MINOS).
 * Class Implementation::
 @end menu
 
-@node Properties of the OOF model, Basic OOF Usage, Object Oriented Forth, Object Oriented Forth
-@subsection Properties of the OOF model
+@node Properties of the OOF model, Basic OOF Usage, OOF, OOF
+@subsubsection Properties of the OOF model
 @cindex @file{oof.fs} properties
 
 @itemize @bullet
@@ -3823,8 +4072,8 @@ An implementation in ANS Forth is available.
 @end itemize
 
 
-@node Basic OOF Usage, The base class object, Properties of the OOF model, Object Oriented Forth
-@subsection Basic OOF Usage
+@node Basic OOF Usage, The base class object, Properties of the OOF model, OOF
+@subsubsection Basic OOF Usage
 @cindex @file{oof.fs} usage
 
 Here, I use the same example as for @code{objects} (@pxref{Basic Objects Usage}).
@@ -3904,8 +4153,8 @@ defined in this class hierarchy, so you'll get an error at compilation
 time.
 
 
-@node The base class object, Class Declaration, Basic OOF Usage, Object Oriented Forth
-@subsection The base class @file{object}
+@node The base class object, Class Declaration, Basic OOF Usage, OOF
+@subsubsection The base class @file{object}
 @cindex @file{oof.fs} base class
 
 When you define a class, you have to specify a parent class.  So how do
@@ -3982,8 +4231,8 @@ doc---object-endwith
 
 @end itemize
 
-@node Class Declaration, Class Implementation, The base class object, Object Oriented Forth
-@subsection Class Declaration
+@node Class Declaration, Class Implementation, The base class object, OOF
+@subsubsection Class Declaration
 @cindex class declaration
 
 @itemize @bullet
@@ -4016,12 +4265,12 @@ doc---oof-class;
 
 @end itemize
 
-@node Class Implementation, , Class Declaration, Object Oriented Forth
-@subsection Class Implementation
+@node Class Implementation,  , Class Declaration, OOF
+@subsubsection Class Implementation
 @cindex class implementation
 
-@node Mini-OOF, Tokens for Words, Object Oriented Forth, Words
-@section Mini-OOF
+@node Mini-OOF,  , OOF, Object-oriented Forth
+@subsection Mini-OOF
 @cindex mini-oof
 
 Gforth's third object oriented Forth package is a 12-liner. It uses a
@@ -4044,7 +4293,7 @@ Create object  1 cells , 2 cells ,
 @end example
 
 @c -------------------------------------------------------------
-@node Tokens for Words, Wordlists, Mini-OOF, Words
+@node Tokens for Words, Wordlists, Object-oriented Forth, Words
 @section Tokens for Words
 @cindex tokens for words
 
@@ -4122,10 +4371,133 @@ doc-name>string
 @node Wordlists, Files, Tokens for Words, Words
 @section Wordlists
 
-@node Files, Blocks, Wordlists, Words
+@node Files, Including Files, Wordlists, Words
 @section Files
 
-@node Blocks, Other I/O, Files, Words
+@node Including Files, Blocks, Files, Words
+@section Including Files
+@cindex including files
+
+@menu
+* Words for Including::         
+* Search Path::                 
+* Changing the Search Path::    
+* General Search Paths::        
+@end menu
+
+@node Words for Including, Search Path, Including Files, Including Files
+@subsection Words for Including
+
+doc-include-file
+doc-included
+doc-include
+
+Usually you want to include a file only if it is not included already
+(by, say, another source file):
+
+doc-required
+doc-require
+doc-needs
+
+@cindex stack effect of included files
+@cindex including files, stack effect
+I recommend that you write your source files such that interpreting them
+does not change the stack. This allows using these files with
+@code{required} and friends without complications. E.g.,
+
+@example
+1 require foo.fs drop
+@end example
+
+@node Search Path, Changing the Search Path, Words for Including, Including Files
+@subsection Search Path
+@cindex path for @code{included}
+@cindex file search path
+@cindex include search path
+@cindex search path for files
+
+If you specify an absolute filename (i.e., a filename starting with
+@file{/} or @file{~}, or with @file{:} in the second position (as in
+@samp{C:...})) for @code{included} and friends, that file is included
+just as you would expect.
+
+For relative filenames, Gforth uses a search path similar to Forth's
+search order (@pxref{Wordlists}). It tries to find the given filename in
+the directories present in the path, and includes the first one it
+finds.
+
+If the search path contains the directory @file{.} (as it should), this
+refers to the directory that the present file was @code{included}
+from. This allows files to include other files relative to their own
+position (irrespective of the current working directory or the absolute
+position).  This feature is essential for libraries consisting of
+several files, where a file may include other files from the library.
+It corresponds to @code{#include "..."} in C. If the current input
+source is not a file, @file{.} refers to the directory of the innermost
+file being included, or, if there is no file being included, to the
+current working directory.
+
+Use @file{~+} to refer to the current working directory (as in the
+@code{bash}).
+
+If the filename starts with @file{./}, the search path is not searched
+(just as with absolute filenames), and the @file{.} has the same meaning
+as described above.
+
+@node Changing the Search Path, General Search Paths, Search Path, Including Files
+@subsection Changing the Search Path
+@cindex search path, changes
+
+The search path is initialized when you start Gforth (@pxref{Invoking
+Gforth}). You can display it with
+
+doc-.fpath
+
+You can change it later with the following words:
+
+doc-fpath+
+doc-fpath=
+
+Using fpath and require would look like:
+
+@example
+fpath= /usr/lib/forth/|./
+
+require timer.fs
+@end example
+
+If you have the need to look for a file in the Forth search path, you could
+use this Gforth feature in your application.
+
+doc-open-fpath-file
+
+
+@node General Search Paths,  , Changing the Search Path, Including Files
+@subsection General Search Paths
+@cindex search paths for user applications
+
+Your application may need to search files in sevaral directories, like
+@code{included} does. For this purpose you can define and use your own
+search paths. Create a search path like this:
+
+@example
+
+Make a buffer for the path:
+create mypath   100 chars ,     \ maximum length (is checked)
+                0 ,             \ real len
+                100 chars allot \ space for path
+@end example
+
+You have the same functions for the forth search path in a generic version
+for different paths.
+
+doc-path+
+doc-path=
+doc-.path
+doc-open-path-file
+
+
+@node Blocks, Other I/O, Including Files, Words
 @section Blocks
 
 @node Other I/O, Programming Tools, Blocks, Words
@@ -4375,7 +4747,7 @@ defined words) may require changes in @file{engine.c}, @file{kernal.fs},
 @file{prims2x.fs}, and possibly @file{cross.fs}.
 
 
-@node Threading Words, Including Files, Assembler and Code Words, Words
+@node Threading Words,  , Assembler and Code Words, Words
 @section Threading Words
 @cindex threading words
 
@@ -4409,83 +4781,6 @@ You can recognize words defined by a @code{CREATE}...@code{DOES>} word
 with @code{>DOES-CODE}. If the word was defined in that way, the value
 returned is different from 0 and identifies the @code{DOES>} used by the
 defining word.
-
-@node Including Files, Include and Require, Threading Words, Words
-@section Including Files
-@cindex including files
-
-@menu
-* Include and Require::
-* Path Handling::
-@end menu
-
-@node Include and Require, Path Handling, Including Files, Including Files
-@subsection Include and Requrie
-
-There a two words to include the source files more intelligently.
-
-doc-include
-doc-require
-
-@node Path Handling, , Include and Require, Including Files
-@subsection Path Handling
-@cindex path handling
-
-In larger program projects it is often neccassary to build up a structured
-directory tree. Standard Forth programs are somewhere more central because
-they must be accessed from some more other programs. To achieve this it is
-possible to manipulate the search path in which Gforth tries to find the
-source file.
-
-doc-fpath+
-doc-fpath=
-doc-.fpath
-
-Using fpath and require would look like:
-
-@example
-
-fpath= /usr/lib/forth/|./
-
-require timer.fs
-
-...
-
-@end example
-
-@cindex ~+
-There is another nice feature which is similar to C's @code{include <...>}
-and @code{include "..."}. For example: You have a program seperated into
-several files in a subdirectory and you want to include some other files
-in this subdirectory from within the program. You have to tell Gforth that
-you are now looking relative to the directory the current file comes from.
-You can tell this Gforth by using the prefix @code{~+/} in front of the
-filename. It is also possible to add it to the search path.
-
-If you have the need to look for a file in the Forth search path, you could
-use this Gforth feature in your application.
-
-doc-open-fpath-file
-
-It is even possible to use your own search paths. Create a search path like
-this:
-
-@example
-
-Make a buffer for the path:
-create mypath   100 chars ,     \ maximum length (is checked)
-                0 ,             \ real len
-                100 chars allot \ space for path
-
-@end example
-
-You have the same functions for the forth search path in an generic version
-for different pathes.
-
-doc-path+
-doc-path=
-doc-.path
-doc-open-path-file
 
 @c ******************************************************************
 @node Tools, ANS conformance, Words, Top
@@ -4929,12 +5224,11 @@ like other return stack overflows.
 @item insufficient space in the dictionary:
 @cindex insufficient space in the dictionary
 @cindex dictionary overflow
-Depending on the operating system, the installation, and the invocation
-of Gforth, this is either checked by the memory management hardware, or
-it is not checked. Similar results as stack overflows. However,
-typically the error appears at a different place when one inserts or
-removes code. Also, the @code{THROW} does not relieve the situation (it
-does for stack overflows).
+If you try to allot (either directly with @code{allot}, or indirectly
+with @code{,}, @code{create} etc.) more memory than available in the
+dictionary, you get a @code{-8 throw} (Dictionary overflow). If you try
+to access memory beyond the end of the dictionary, the results are
+similar to stack overflows.
 
 @item interpreting a word with undefined interpretation semantics:
 @cindex interpreting a word with undefined interpretation semantics
@@ -5019,10 +5313,10 @@ memory access faults or execution of illegal instructions.
 @cindex alignment faults
 @cindex Address alignment exception
 Processor-dependent. Typically results in a @code{-23 throw} (Address
-alignment exception). Under Linux on a 486 or later processor with
+alignment exception). Under Linux-Intel on a 486 or later processor with
 alignment turned on, incorrect alignment results in a @code{-9 throw}
 (Invalid memory address). There are reportedly some processors with
-alignment restrictions that do not report them.
+alignment restrictions that do not report violations.
 
 @item data space pointer not properly aligned, @code{,}, @code{C,}:
 @cindex data space pointer not properly aligned, @code{,}, @code{C,}
@@ -6854,7 +7148,10 @@ with their continuous feedback. Lennart Benshop contributed
 @file{glosgen.fs}, while Stuart Ramsden has been working on automatic
 support for calling C libraries. Helpful comments also came from Paul
 Kleinrubatscher, Christian Pirker, Dirk Zoller, Marcel Hendrix, John
-Wavrik, Barrie Stott and Marc de Groot.
+Wavrik, Barrie Stott, Marc de Groot, and Jorge Acerada. Since the
+release of Gforth-0.2.1 there were also helpful comments from many
+others; thank you all, sorry for not listing you here (but digging
+through my mailbox to extract your names is on my to-do list).
 
 Gforth also owes a lot to the authors of the tools we used (GCC, CVS,
 and autoconf, among others), and to the creators of the Internet: Gforth

@@ -18,41 +18,38 @@
 \ along with this program; if not, write to the Free Software
 \ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-0 [IF]
+\ -Changing the search-path:
+\ fpath+ <path> 		adds a directory to the searchpath
+\ fpath= <path>|<path>	makes complete now searchpath
+\ 			seperator is |
+\ .fpath			displays the search path
+\ remark I: 
+\ a ./ in the beginning of filename is expanded to the directory the
+\ current file comes from. ./ can also be included in the search-path!
+\ ~+/ loads from the current working directory
 
--Changing the search-path:
-fpath+ <path> 		adds a directory to the searchpath
-fpath= <path>|<path>	makes complete now searchpath
-			seperator is |
-.fpath			displays the search path
-remark I: 
-a ./ in the beginning of filename is expanded to the directory the
-current file comes from. ./ can also be included in the search-path!
-~+/ loads from the current directory
-
-remark II:
-if there is no sufficient space for the search path increase it!
+\ remark II:
+\ if there is no sufficient space for the search path increase it!
 
 
--Creating custom paths:
+\ -Creating custom paths:
 
-It is possible to use the search mechanism on yourself.
+\ It is possible to use the search mechanism on yourself.
 
-Make a buffer for the path:
-create mypath	100 chars , 	\ maximum length (is checked)
-		0 ,		\ real len
-		100 chars allot \ space for path
-use the same functions as above with:
-mypath path+ 
-mypath path=
-mypath .path
+\ Make a buffer for the path:
+\ create mypath	100 chars , 	\ maximum length (is checked)
+\ 		0 ,		\ real len
+\ 		100 chars allot \ space for path
+\ use the same functions as above with:
+\ mypath path+ 
+\ mypath path=
+\ mypath .path
 
-do a open with the search path:
-open-path-file ( adr len path -- fd adr len ior )
-the file is opened read-only; if the file is not found an error is generated
+\ do a open with the search path:
+\ open-path-file ( adr len path -- fd adr len ior )
+\ the file is opened read-only; if the file is not found an error is generated
 
 \ questions to: wilke@jwdt.com
-[THEN]
 
 [IFUNDEF] +place
 : +place ( adr len adr )
@@ -116,20 +113,21 @@ sourcepath avalue fpath
   path>counted
   BEGIN next-path dup WHILE type space REPEAT 2drop 2drop ;
 
-: .fpath ( ) \ gforth
+: .fpath ( -- ) \ gforth
 \G displays the contents of the forth search patch
   fpath .path ;
 
 : absolut-path? ( addr u -- flag ) \ gforth
     \G a path is absolute, if it starts with a / or a ~ (~ expansion),
-    \G or if it is in the form ./* or ../*, extended regexp: ^[/~]|./|../
-    \G Pathes simply containing a / are not absolute!
+    \G or if it is in the form ./*, extended regexp: ^[/~]|./, or if
+    \G it has a colon as second character ("C:...").  Paths simply
+    \G containing a / are not absolute!
     2dup 2 u> swap 1+ c@ ': = and >r \ dos absoulte: c:/....
     over c@ '/ = >r
     over c@ '~ = >r
-    2dup 2 min S" ./" compare 0= >r
-         3 min S" ../" compare 0=
-    r> r> r> r> or or or or ;
+    \ 2dup 3 min S" ../" compare 0= r> or >r \ not catered for in expandtopic
+    2 min S" ./" compare 0=
+    r> r> r> or or or ;
 
 Create ofile 0 c, 255 chars allot
 Create tfile 0 c, 255 chars allot
@@ -149,13 +147,15 @@ Create tfile 0 c, 255 chars allot
 	ofile count 3 /string ofile place
     THEN ;
 
-: expandtopic
-  ofile count 2 min s" ./" compare 0=
-  IF 	ofile count 1 /string tfile place
+: expandtopic ( -- ) \ stack effect correct? - anton
+    \ expands "./" into an absolute name
+    ofile count 2 min s" ./" compare 0=
+    IF
+	ofile count 1 /string tfile place
 	0 ofile c! sourcefilename extractpath ofile place need/
 	tfile count over c@ pathsep? IF 1 /string THEN
 	ofile +place
-  THEN ;
+    THEN ;
 	
 : compact// ( adr len -- adr2 len2 )
 \ deletes phrases like "//" out of our directory name 2dec97jaw
@@ -193,16 +193,20 @@ Create tfile 0 c, 255 chars allot
   r> drop 
   drop r> tuck - ;
 
-: reworkdir
+: reworkdir ( -- )
   remove~+
   ofile count compact// compact..
   nip ofile c! ;
 
+: open-ofile ( -- fid ior )
+    \ opens the file whose name is in ofile
+    expandtopic reworkdir
+    ofile count r/o open-file ;
+
 : check-path ( adr1 len1 adr2 len2 -- fd 0 | 0 <>0 )
   0 ofile ! >r >r ofile place need/
   r> r> ofile +place
-  reworkdir
-  ofile count r/o open-file ;
+  open-ofile ;
 
 : open-path-file ( adr len path-addr -- fd adr1 len2 0 | ior ) \ gforth
 \G looks in path path-addr for the file specified by adr len
@@ -211,7 +215,7 @@ Create tfile 0 c, 255 chars allot
   >r
   2dup absolut-path?
   IF    rdrop
-        ofile place expandtopic reworkdir ofile count r/o open-file
+        ofile place open-ofile
 	dup 0= IF >r ofile count r> THEN EXIT
   ELSE  r> path>counted
         BEGIN  next-path dup

@@ -432,11 +432,14 @@ UCell convsize(char *s, UCell elemsize)
       m=1024*1024;
     else if (strcmp(endp,"G")==0)
       m=1024*1024*1024;
+    else if (strcmp(endp,"T")==0) {
 #if (SIZEOF_CHAR_P > 4)
-    else if (strcmp(endp,"T")==0)
       m=1024*1024*1024*1024;
+#else
+      fprintf(stderr,"%s: size specification \"%s\" too large for this machine\n", progname, endp);
+      exit(1);
 #endif
-    else if (strcmp(endp,"e")!=0 && strcmp(endp,"")!=0) {
+    } else if (strcmp(endp,"e")!=0 && strcmp(endp,"")!=0) {
       fprintf(stderr,"%s: cannot grok size specification %s: invalid unit \"%s\"\n", progname, s, endp);
       exit(1);
     }
@@ -539,7 +542,7 @@ int main(int argc, char **argv, char **env)
     case 'h': 
       fprintf(stderr, "Usage: %s [engine options] [image arguments]\n\
 Engine Options:\n\
- -c, --clear-dictionary		    Initialize the dictionary with 0 bytes\n\
+ --clear-dictionary		    Initialize the dictionary with 0 bytes\n\
  -d SIZE, --data-stack-size=SIZE    Specify data stack size\n\
  --debug			    Print debugging information during startup\n\
  --die-on-signal		    exit instead of CATCHing some signals\n\
@@ -554,7 +557,7 @@ Engine Options:\n\
  -r SIZE, --return-stack-size=SIZE  Specify return stack size\n\
  -v, --version			    Print version and exit\n\
 SIZE arguments consist of an integer followed by a unit. The unit can be\n\
-  `b' (bytes), `e' (elements), `k' (kilobytes), or `M' (Megabytes).\n\
+  `b' (byte), `e' (element; default), `k' (KB), `M' (MB), `G' (GB) or `T' (TB).\n\
 \n\
 Arguments of default image `gforth.fi':\n\
  FILE				    load FILE (with `require')\n\

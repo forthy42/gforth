@@ -60,7 +60,7 @@ INSTALL_DATA = @INSTALL_DATA@
 LN_S	= @LN_S@
 GCC	= @CC@
 CC	= $(GCC)
-FORTHPATH = $(libdir)/gforth/site-forth$(PATHSEP)$(datadir)/gforth/site-forth$(PATHSEP)$(libdir)/gforth/$(VERSION)$(PATHSEP)$(datadir)/gforth/$(VERSION)$(PATHSEP).
+FORTHPATH = .$(PATHSEP)$(libdir)/gforth/site-forth$(PATHSEP)$(datadir)/gforth/site-forth$(PATHSEP)$(libdir)/gforth/$(VERSION)$(PATHSEP)$(datadir)/gforth/$(VERSION)
 FORTHSIZES = @FORTHSIZES@
 FORTH	= ./gforth --die-on-signal -p $(FORTHPATH)$(PATHSEP)$(srcdir)
 FORTHKFLAGS= --die-on-signal -p .$(PATHSEP)$(srcdir) -i ./$(kernel_fi)
@@ -296,7 +296,7 @@ DOCDIST = doc/gforth.info doc/gforth.info-* doc/gforth.ps
 #stuff in a binonly distribution 
 BINONLYDIST = config.status Makefile gforth gforth-ditc \
 	$(OBJECTS0) $(OBJECTS) $(OBJECTS_DITC)\
-	arch/$(machine)/machine.h engine/config.h \
+	arch/$(machine)/machine.h engine/config.h engione/Makefile \
 	stamp-h kernel/version.fs version-stamp \
 	INSTALL.BINDIST
 
@@ -304,7 +304,7 @@ KERNLS = kernl16b.fi- kernl16l.fi- \
 	 kernl32b.fi- kernl32l.fi- \
 	 kernl64b.fi- kernl64l.fi-
 
-GEN_PRECIOUS = $(FORTH_GEN) $(KERNLS) doc/gforth.texi doc/gforth.dvi doc/gforth.ps Makefile configure
+GEN_PRECIOUS = $(FORTH_GEN) $(KERNLS) doc/gforth.texi doc/gforth.dvi doc/gforth.ps Makefile engine/Makefile configure
 
 #standards.info recommends this:
 .SUFFIXES:
@@ -356,7 +356,7 @@ clean:		mostlyclean
 
 distclean:	clean
 		-$(RM) config.cache config.log \
-		config.status engine/config.h Makefile stamp-h
+		config.status engine/config.h Makefile engine/Makefile stamp-h
 
 #realclean is useless, but dangerous, so it's commented out
 #realclean:	distclean
@@ -673,7 +673,11 @@ engine/config.h:	stamp-h
 stamp-h:	config.h.in config.status
 		CONFIG_FILES=$@ CONFIG_HEADERS=engine/config.h ./config.status
 		echo > stamp-h
+
 Makefile:	Makefile.in config.status
+		CONFIG_FILES="$@ engine/$@" CONFIG_HEADERS=engine/config.h ./config.status
+
+engine/Makefile: engine/Makefile.in config.status
 		CONFIG_FILES="$@ engine/$@" CONFIG_HEADERS=engine/config.h ./config.status
      
 config.status:	configure

@@ -70,10 +70,12 @@
   BEGIN  refill  WHILE  interpret  REPEAT ;
 
 : include-file ( i*x fid -- j*x ) \ file
-  push-file  loadfile !
-  0 loadline ! blk off  ['] read-loop catch
-  loadfile @ close-file swap 2dup or
-  pop-file  drop throw throw ;
+    \G interpret (process using the text interpreter) the contents of
+    \G the file @var{fid}.
+    push-file  loadfile !
+    0 loadline ! blk off  ['] read-loop catch
+    loadfile @ close-file swap 2dup or
+    pop-file  drop throw throw ;
 
 \ additional words only needed if there is file support
 

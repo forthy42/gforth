@@ -18,7 +18,8 @@
 \ along with this program; if not, write to the Free Software
 \ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-' require alias needs
+' require alias needs ( ... "name" -- ... ) \ gforth
+\G an alias for @code{require}; exists on other systems (e.g., Win32Forth).
 \ needs is an F-PC name. we will probably switch to 'needs' in the future
 
 \ a little more compiler security

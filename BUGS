@@ -19,3 +19,7 @@ gives
 QUERY and TIB may behave differently than some may expect. TIB always
 points to the current SOURCE, and QUERY puts its result there.  anton
 28nov96
+
+open-path-file expands "./" into the sourcefilename. It should either
+not expand "./" or provide a mechanism that allows the application to
+determine what "./" should expand to. anton 16jun98

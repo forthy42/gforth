@@ -67,7 +67,7 @@ Variable /dump
 
 \ words visible in roots                               14may93py
 
-include  termsize.fs
+include  ../termsize.fs
 
 : words ( -- ) \ tools
     cr 0 context @

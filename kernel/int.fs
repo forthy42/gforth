@@ -551,7 +551,7 @@ Defer 'cold
 \ command-line arguments
 ' noop IS 'cold
 
-include chains.fs
+include ../chains.fs
 
 Variable init8
 
