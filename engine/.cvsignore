@@ -27,5 +27,9 @@ prim_case.i
 sharc
 image.h
 gforth-debug
+gforth-prof
 Makefile.dos
 includes
+peephole.i
+profile.i
+
