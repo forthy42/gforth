@@ -35,10 +35,15 @@ starts the system and goes into interactive mode.
 loads and interprets the files \fCfile1\fR and \fCfile2\fR, then
 exits.
 
-\fCgforth asm.fi \-m 1M asm.fs\fR
+\fCgforth-makeimage asm.fi \-m 1M asm.fs\fR
 
 creates an image \fCasm.fi\fR that has a default dictionary size of
 1MB and has the file \fCasm.fs\fR loaded.
+
+\fCgforth-ditc\fR
+
+starts a doubly indirect threaded version of Gforth and goes into
+interactive mode.
 
 .SH OPTIONS
 
@@ -114,7 +119,7 @@ code. This option takes only one argument; if you want to evaluate
 more Forth words, you have to quote them or use several \fC-e\fRs.  To
 exit after processing the command line (instead of entering
 interactive mode) append \fC-e bye\fR to the command line. This is an
-image-specific option.
+image-specific option of the default image.
 .SH FILES
 .nf
 .ta \w'\fCkernal.fi\fP 	'u

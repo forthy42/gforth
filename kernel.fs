@@ -68,7 +68,8 @@ NIL AConstant NIL \ gforth
 
 \ Aliases
 
-' i Alias r@
+' i Alias r@ ( -- w ; R: w -- w ) \ core r-fetch
+\ copy w from the return stack to the data stack
 
 \ Bit string manipulation                              06oct92py
 
@@ -264,7 +265,7 @@ Defer source ( -- addr count ) \ core
 : (compile) ( -- ) \ gforth
     r> dup cell+ >r @ compile, ;
 
-: postpone, ( w xt -- )
+: postpone, ( w xt -- ) \ gforth postpone-comma
     \g Compiles the compilation semantics represented by @var{w xt}.
     dup ['] execute =
     if
@@ -961,7 +962,7 @@ end-struct interpret/compile-struct
 	then
     then ;
 
-: find ( c-addr -- xt +-1 / c-addr 0 ) \ core
+: find ( c-addr -- xt +-1 / c-addr 0 ) \ core,search
     dup count sfind dup
     if
 	rot drop
@@ -1301,7 +1302,10 @@ DEFER DOERROR
 \ : .name ( name -- ) name>string type space ;
 \ : words  listwords @
 \          BEGIN  @ dup  WHILE  dup .name  REPEAT drop ;
-Defer 'cold ' noop IS 'cold
+Defer 'cold ( -- ) \ gforth tick-cold
+\ hook (deferred word) for things to do right before interpreting the
+\ command-line arguments
+' noop IS 'cold
 
 : cold ( -- ) \ gforth
 [ has-files [IF] ]

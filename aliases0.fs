@@ -1,4 +1,6 @@
-\ Copyright (C) 1995 Free Software Foundation, Inc.
+\ run-time routine headers
+
+\ Copyright (C) 1997 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

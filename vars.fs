@@ -29,8 +29,8 @@ hex \ everything now hex!                               11may93jaw
                                 \ primitives after this word!
   0 Constant false
 
-1 cells Constant cell
-1 floats Constant float
+1 cells Constant cell ( -- u ) \ gforth
+1 floats Constant float ( -- u ) \ gforth
 
 20 Constant bl \ used by docon:, must be constant
 

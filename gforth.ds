@@ -1371,6 +1371,10 @@ The index of the innermost loop can be accessed with @code{i}, the index
 of the next loop with @code{j}, and the index of the third loop with
 @code{k}.
 
+doc-i
+doc-j
+doc-k
+
 The loop control data are kept on the return stack, so there are some
 restrictions on mixing return stack accesses and counted loop
 words. E.g., if you put values on the return stack outside the loop, you
@@ -4576,6 +4580,12 @@ cannot be represented correctly in the output image, you should examine
 these places in the dictionary and verify that these cells are dead
 (i.e., not read before they are written).
 
+\cindex @code{savesystem} during @file{gforth-makeimage}
+\cindex @code{bye} during @file{gforth-makeimage}
+\cindex doubly indirect threaded code
+\cindex environment variable @code{GFORTHD}
+\cindex @code{GFORTHD} environment variable
+\cindex @code{gforth-ditc}
 There are a few wrinkles: After processing the passed @var{options}, the
 words @code{savesystem} and @code{bye} must be visible. A special doubly
 indirect threaded version of the @file{gforth} executable is used for
@@ -5186,8 +5196,8 @@ predictive value for the performance of Win32Forth today.
 In @cite{Translating Forth to Efficient C} by M. Anton Ertl and Martin
 Maierhofer (presented at EuroForth '95), an indirect threaded version of
 Gforth is compared with Win32Forth, NT Forth, PFE, and ThisForth; that
-version of Gforth is 2\%@minus{}8\% slower on a 486 than the version
-used here. The paper available at
+version of Gforth is 2%@minus{}8% slower on a 486 than the direct
+threaded version used here. The paper available at
 @*@file{http://www.complang.tuwien.ac.at/papers/ertl&maierhofer95.ps.gz};
 it also contains numbers for some native code systems. You can find a
 newer version of these measurements at

@@ -1,8 +1,20 @@
-User-visible changes between 0.2.0 and 0.2.1
+User-visible changes between 0.2.1 and 0.3.0:
+
+Stack overflow detection by memory protection on most systems
+	(allocation with mmap).
+gforth.fi is now fully relocatable.
+fully relocatable images are now easier to create.
+added primitives K and UNDER+.
+Win32 support.
+Improved support for embedded controllers and other deprived environments.
+some bug fixes.
+added concept index; other documentation improvements.
+
+User-visible changes between 0.2.0 and 0.2.1:
 
 Bug fixes
 
-User-visible changes between 0.1beta and 0.2.0
+User-visible changes between 0.1beta and 0.2.0:
 
 Portability and Installation:
 

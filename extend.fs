@@ -121,7 +121,7 @@ decimal
 
 \ SOURCE-ID SAVE-INPUT RESTORE-INPUT                    11jun93jaw
 
-: source-id ( -- 0 | -1 | fileid ) \ core-ext source-i-d
+: source-id ( -- 0 | -1 | fileid ) \ core-ext,file source-i-d
   loadfile @ dup 0= IF  drop sourceline# 0 min  THEN ;
 
 : save-input ( -- x1 .. xn n ) \ core-ext

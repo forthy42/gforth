@@ -1,6 +1,6 @@
 #Makefile for Gforth
 
-#Copyright (C) 1995, 1996 Free Software Foundation, Inc.
+#Copyright (C) 1995-1997 Free Software Foundation, Inc.
 
 #This file is part of Gforth.
 
@@ -146,11 +146,12 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_SRC) \
 	site-init.fs \
 	tt.fs sokoban.fs \
 	wordsets.fs \
-	tester.fs coretest.fs postponetest.fs dbltest.fs \
+	tester.fs coretest.fs postponetest.fs dbltest.fs other-tests.fs \
 	bubble.fs siev.fs matrix.fs fib.fs \
 	oof.fs oofsampl.fs objects.fs
 
-SOURCES	= CVS compat Makefile.in configure.in configure config.sub config.guess \
+SOURCES	= CVS compat Makefile.in gforth-makeimage \
+	configure.in configure config.sub config.guess \
 	acconfig.h config.h.in stamp-h.in \
 	install-sh INSTALL README ToDo BUGS model COPYING Benchres \
 	gforth.ds texinfo.tex gforth.1 gforth.el \
@@ -347,6 +348,7 @@ uninstall:
 
 check test:	gforth gforth.fi
 		$(FORTH) tester.fs coretest.fs postponetest.fs dbltest.fs -e bye
+		$(FORTH) other-tests.fs -e bye
 		$(FORTH) code.fs checkans.fs -e bye
 		@echo 'Expect no differences'
 		$(FORTH) -m 100000 prims2x.fs -e "s\" $(srcdir)/primitives.b\" ' output-c process-file bye"| diff -c - $(srcdir)/primitives.i
@@ -465,10 +467,7 @@ primitives.fs:	primitives.b prims2x.fs primitives0.fs
 primitives.TAGS: primitives.b prims2x.fs
 		$(FORTHK) prims2x.fs -e "s\" $(srcdir)/primitives.b\" ' output-tag process-file bye" >$@
 
-doc.fd:		makedoc.fs float.fs search-order.fs glocals.fs environ.fs \
-		 toolsext.fs wordinfo.fs \
-		 vt100.fs colorize.fs see.fs bufio.fs debug.fs history.fs \
-		 doskey.fs vt100key.fs startup.fs assert.fs debugging.fs code.fs
+doc.fd:		makedoc.fs $(GFORTH_FI_SRC)
 		$(FORTHK) -e "s\" doc.fd\"" makedoc.fs startup.fs code.fs -e bye
 
 crossdoc.fd:	$(KERN_SRC) version.fs $(FORTH_GEN0)
@@ -477,8 +476,9 @@ crossdoc.fd:	$(KERN_SRC) version.fs $(FORTH_GEN0)
 gforth.texi:	gforth.ds primitives.b ds2texi.fs prims2x.fs doc.fd crossdoc.fd
 		$(FORTHK) -m 100000 ds2texi.fs prims2x.fs -e "s\" $(srcdir)/primitives.b\" ' register-doc process-file" crossdoc.fd doc.fd -e "s\" $(srcdir)/gforth.ds\" r/o open-file throw ds2texi bye" >$@
 
-checkdoc:	gforth.ds primitives.b ds2texi.fs prims2x.fs doc.fd crossdoc.fd answords.fs
-		$(FORTHK) ds2texi.fs answords.fs -e bye
+checkdoc:	gforth.ds primitives.b ds2texi.fs prims2x.fs doc.fd crossdoc.fd answords.fs gforth.texi
+		$(FORTHK) ds2texi.fs prims2x.fs -e "s\" $(srcdir)/primitives.b\" ' register-doc process-file" crossdoc.fd doc.fd answords.fs -e bye
+		-grep unknown gforth.texi
 
 dvi:		gforth.dvi
 
