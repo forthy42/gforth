@@ -21,7 +21,7 @@
 prefix=@prefix@
 exec_prefix=@exec_prefix@
 test "x$GFORTHD" != x || GFORTHD=$prefix/lib/gforth/@VERSION@/gforth-ditc
-test "x$GFORTH" != x || GFORTH=@bindir@/gforth-@VERSION@
+test "x$GFORTH" != x || GFORTH="@bindir@/gforth-@VERSION@ --die-on-signal"
 if test $# = 0 || test $1 = --help || test $1 = -h; then
   echo "usage: `basename $0` target-name [gforth-options]"
   echo "creates a relocatable image 'target-name'"
@@ -42,7 +42,7 @@ outfile=$1; shift
 tmpfile=./temp-image.fi
 $GFORTHD --clear-dictionary --no-offset-im --die-on-signal $* -e "savesystem $tmpfile"1" bye"
 $GFORTHD --clear-dictionary --offset-image --die-on-signal $* -e "savesystem $tmpfile"2" bye"
-$GFORTH --die-on-signal comp-i.fs -e "comp-image $tmpfile"1" $tmpfile"2" $outfile bye"
+$GFORTH comp-i.fs -e "comp-image $tmpfile"1" $tmpfile"2" $outfile bye"
 chmod +x $outfile
 #gforth-0.2.1 -m 100000  comp-i.fs -e "comp-image $tmpfile"1" $tmpfile"2" $outfile bye"
 rm $tmpfile"1" $tmpfile"2"

@@ -23,7 +23,7 @@
 \ the cross compiler should run
 \ with any ansforth environment
 
-: ?EXIT    s" IF EXIT THEN" evaluate ; immediate
+: ?EXIT    POSTPONE if POSTPONE exit POSTPONE then ; immediate
 : bounds   over + swap ;
 : name bl word ;
 : on true swap ! ;

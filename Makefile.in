@@ -302,7 +302,7 @@ SOURCES	= $(CVSDIRS) compat Makefile.in Makedist.in engine/Makefile.in gforthmi.
 
 RCS_FILES =  ToDo model high-level
 
-GEN = gforth$(EXE) gforth-ditc$(EXE) kernel/version.fs version-stamp
+GEN = gforth$(EXE) gforth-ditc$(EXE) kernel/version.fs
 
 # things that need a working forth system to be generated
 FORTH_GEN0 = prim.b engine/prim.i engine/prim_lab.i kernel/aliases.fs kernel/prim.fs
@@ -312,13 +312,6 @@ FORTH_GEN1 = $(FORTH_GEN0) @kernel_fi@
 
 #distributed documentation
 DOCDIST = doc/gforth.info doc/gforth.info-* doc/gforth.txt doc/gforth.ps
-
-#stuff in a binonly distribution 
-BINONLYDIST = config.status Makefile Makedist gforth$(EXE) gforth-ditc$(EXE) \
-	$(OBJECTS0) $(OBJECTS) $(OBJECTS_DITC)\
-	arch/$(machine)/machine.h engine/config.h engine/Makefile \
-	stamp-h kernel/version.fs version-stamp \
-	INSTALL.BINDIST
 
 KERNLS = kernl16b.fi- kernl16l.fi- \
 	 kernl32b.fi- kernl32l.fi- \
@@ -439,7 +432,7 @@ install:	gforth$(EXE) $(FORTH_SRC) $(kernel_fi) gforth.fi gforthmi doc/gforth.1 
 		done
 		$(INSTALL_DATA) $(kernel_fi) $(datadir)/gforth/$(VERSION)
 		$(RM) gforth.fi
-		GFORTHD="./gforth-ditc -i $(kernel_fi)" GFORTH="./gforth-ditc -i $(kernel_fi) startup.fs" ./gforthmi gforth.fi $(FORTHSIZES) startup.fs #gforth.fi contains some path names
+		GFORTHD="./gforth-ditc -p$(datadir)/gforth/$(VERSION) -i $(kernel_fi)" GFORTH="./gforth-ditc --die-on-signal -i $(kernel_fi) startup.fs" ./gforthmi gforth.fi $(FORTHSIZES) startup.fs #gforth.fi contains some path names
 		$(INSTALL_DATA) gforth.fi $(libdir)/gforth/$(VERSION)
 		$(INSTALL_DATA) install.TAGS $(datadir)/gforth/$(VERSION)/TAGS
 		@if test -d "$(emacssitelispdir)"; then \

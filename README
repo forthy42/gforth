@@ -65,8 +65,7 @@ Games:
 tt.fs sokoban.fs
 
 Test programs (for testing Forth systems):
-tester.fs coretest.fs postponetest.fs dbltest.fs
-checkans.fs wordsets.fs
+test/*.fs
 
 Benchmarks:
 bubble.fs siev.fs matrix.fs fib.fs
