@@ -313,7 +313,7 @@ int go_forth(Address image, int stack, Cell *entries)
     if (rp <= rp0 && rp > (Cell *)(image_header->return_stack_base+5)) {
       /* no rstack overflow or underflow */
       rp0 = rp;
-      *--rp0 = (int) ip;
+      *--rp0 = (Cell)ip;
     }
     else /* I love non-syntactic ifdefs :-) */
 #endif
