@@ -2429,7 +2429,7 @@ SET_IP((Xt *)a_callee);
 useraddr	( #u -- a_addr )	new
 a_addr = (Cell *)(up+u);
 
-compile-prim ( xt1 -- xt2 )	new	compile_prim
+compile-prim ( xt1 -- xt2 )	obsolete	compile_prim
 xt2 = (Xt)compile_prim((Label)xt1);
 
 \ lit@ / lit_fetch = lit @
