@@ -2779,22 +2779,12 @@ recommend that you do not define such words, as cute as they may be:
 they make it hard to get at both parts of the word in some contexts.
 E.g., assume you want to get an execution token for the compilation
 part. Instead, define two words, one that embodies the interpretation
-part, and one that embodies the compilation part.
+part, and one that embodies the compilation part.  Once you have done
+that, you can define a combined word with @code{interpret/compile:} for
+the convenience of your users.
 
-There is, however, a potentially useful application of this feature:
-Providing differing implementations for the default semantics. While
-this introduces redundancy and is therefore usually a bad idea, a
-performance improvement may be worth the trouble. E.g., consider the
-word @code{foobar}:
-
-@example
-: foobar
-    foo bar ;
-@end example
-
-Let us assume that @code{foobar} is called so frequently that the
-calling overhead would take a significant amount of the run-time. We can
-optimize it with @code{interpret/compile:}:
+You also might try to provide an optimizing implementation of the
+default compilation semantics with this feature, like this:
 
 @example
 :noname
@@ -2804,10 +2794,19 @@ optimize it with @code{interpret/compile:}:
 interpret/compile: foobar
 @end example
 
-This definition has the same interpretation semantics and essentially
-the same compilation semantics as the simple definition of
-@code{foobar}, but the implementation of the compilation semantics is
-more efficient with respect to run-time.
+as an optimizing version of
+
+@example
+: foobar
+    foo bar ;
+@end example
+
+Unfortunately, this does not work correctly with @code{[compile]},
+because @code{[compile]} assumes that the compilation semantics of all
+@code{interpret/compile:} words are non-default. I.e., @code{[compile]
+foobar} would compile the compilation semantics for the optimizing
+@code{foobar}, whereas it would compile the interpretation semantics for
+the non-optimizing @code{foobar}.
 
 @cindex state-smart words are a bad idea
 Some people try to use state-smart words to emulate the feature provided
@@ -2837,9 +2836,8 @@ write them!
 
 @cindex defining words with arbitrary semantics combinations
 It is also possible to write defining words that define words with
-arbitrary combinations of interpretation and compilation semantics (or,
-preferably, arbitrary combinations of implementations of the default
-semantics). In general, this looks like:
+arbitrary combinations of interpretation and compilation semantics. In
+general, this looks like:
 
 @example
 : def-word
@@ -2857,7 +2855,8 @@ For a @var{word} defined with @code{def-word}, the interpretation
 semantics are to push the address of the body of @var{word} and perform
 @var{code2}, and the compilation semantics are to push the address of
 the body of @var{word} and perform @var{code3}. E.g., @code{constant}
-can also be defined like this:
+can also be defined like this (except that the defined constants don't
+behave correctly when @code{[compile]}d):
 
 @example
 : constant ( n "name" -- )
