@@ -30,7 +30,7 @@ HEX
 
 [IFUNDEF] r@
 ' i Alias r@ ( -- w ; R: w -- w ) \ core r-fetch
-\G copy w from the return stack to the data stack
+\G Copy @var{w} from the return stack to the data stack.
 [THEN]
 
 \ !! this is machine-dependent, but works on all but the strangest machines
@@ -170,7 +170,7 @@ Constant dictionary-end
 \ !! use a separate exception stack?           anton
 
 has? glocals [IF]
-: lp@ ( -- addr ) \ gforth	l-p-fetch
+: lp@ ( -- addr ) \ gforth	lp-fetch
  laddr# [ 0 , ] ;
 [THEN]
 
@@ -258,6 +258,9 @@ Defer store-backtrace
     rdrop ;
 
 : abort ( ?? -- ?? ) \ core,exception-ext
+    \G Empty the data stack and perform the functions of @code{quit}.
+    \G Since the exception word set is present, this is performed by
+    \G @code{-1 throw}.
     -1 throw ;
 
 \ ?stack                                               23feb93py
@@ -273,8 +276,8 @@ Defer store-backtrace
 \ DEPTH                                                 9may93jaw
 
 : depth ( -- +n ) \ core depth
-    \G +n is the number of values that were on the data stack before
-    \G +n itself was placed on the stack.
+    \G @var{+n} is the number of values that were on the data stack before
+    \G @var{+n} itself was placed on the stack.
     sp@ sp0 @ swap - cell / ;
 
 : clearstack ( ... -- ) \ gforth clear-stack

@@ -24,11 +24,11 @@ Variable vp
   0 A, 0 A,  0 A, 0 A,   0 A, 0 A,   0 A, 0 A, 
 
 : get-current  ( -- wid ) \ search
-  \G wid is the identifier of the current compilation word list.
+  \G @var{wid} is the identifier of the current compilation word list.
   current @ ;
 
 : set-current  ( wid -- )  \ search
-  \G Set the compilation word list to the word list identified by wid.
+  \G Set the compilation word list to the word list identified by @var{wid}.
   current ! ;
 
 \ : context ( -- addr )  vp dup @ cells + ;
@@ -51,7 +51,7 @@ Variable slowvoc   0 slowvoc !
   dup initvoc ;
 
 : wordlist  ( -- wid ) \ search
-  \G Create a new, empty word list represented by wid.
+  \G Create a new, empty word list represented by @var{wid}.
   slowvoc @
   IF    \ this is now f83search because hashing may be loaded already
 	\ jaw
@@ -66,13 +66,13 @@ Variable slowvoc   0 slowvoc !
   Create wordlist drop  DOES> context ! ;
 
 : also  ( -- ) \ search ext
-  \G Perform a DUP on the search order stack. Usually used prior
+  \G Perform a @code{DUP} on the search order stack. Usually used prior
   \G to @code{Forth}, @code{definitions} etc.
   context @ vp @ 1+ dup maxvp > abort" Vocstack full"
   vp! context ! ;
 
 : previous ( -- ) \ search ext
-  \G Perform a POP on the search order stack, thereby removing the wid at the
+  \G Perform a @code{DROP} on the search order stack, thereby removing the wid at the
   \G top of the (search order) stack from the search order.
   vp @ 1- dup 0= abort" Vocstack empty" vp! ;
 
@@ -130,7 +130,7 @@ Vocabulary Root ( -- ) \ gforth
 
 : Only ( -- ) \ search ext
   \G Set the search order to the implementation-defined minimum search
-  \G order (for Gforth, this is the word list Root).
+  \G order (for Gforth, this is the word list @code{Root}).
   1 vp! Root also ;
 
 \ set initial search order                             14may93py
@@ -148,9 +148,9 @@ lookup ! \ our dictionary search order becomes the law ( -- )
 
 : get-order  ( -- widn .. wid1 n ) \ search
   \G Copy the search order stack to the data stack. The current search
-  \G order has n entries, of which wid1 represents the word
+  \G order has @var{n} entries, of which @var{wid1} represents the word
   \G list that is searched first (the word list at the top of the stack) and
-  \G widn represents the word order that is searched last.
+  \G @var{widn} represents the word order that is searched last.
   vp @ 0 ?DO  vp cell+ I cells + @  LOOP  vp @ ;
 
 : set-order  ( widn .. wid1 n -- ) \ search
@@ -203,17 +203,17 @@ Root definitions
   \G Display a list of all of the definitions in the word list at the top
   \G of the search order.
 ' Forth Alias Forth ( -- ) \ search-ext
-  \G PUSH the wid associated with @code{forth-wordlist} onto the search order stack.
+  \G Push the @var{wid} associated with @code{forth-wordlist} onto the search order stack.
 ' forth-wordlist alias forth-wordlist ( -- wid ) \ search
-  \G CONSTANT: wid identifies the word list that includes all of the standard words
+  \G CONSTANT: @var{wid} identifies the word list that includes all of the standard words
   \G provided by Gforth. When Gforth is invoked, this word list is the compilation word
   \G list and is at the top of the word list stack.
 ' set-order alias set-order ( widn .. wid1 n -- ) \ search
-  \G If n=0, empty the search order.
-  \G If n=-1, set the search order to the implementation-defined minimum search
-  \G order (for Gforth, this is the word list Root). Otherwise, replace the
-  \G existing search order with the n wid entries such that wid1 represents the
-  \G word list that will be searched first and widn represents the word list that
+  \G If @var{n}=0, empty the search order.
+  \G If @var{n}=-1, set the search order to the implementation-defined minimum search
+  \G order (for Gforth, this is the word list @code{Root}). Otherwise, replace the
+  \G existing search order with the @var{n} wid entries such that @var{wid1} represents the
+  \G word list that will be searched first and @var{widn} represents the word list that
   \G will be searched last.
 ' order alias order ( -- ) \ search-ext
   \G Print the search order and the compilation word list.  The

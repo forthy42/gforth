@@ -21,7 +21,7 @@
 require source.fs
 
 variable assert-level ( -- a-addr ) \ gforth
-\G all assertions above this level are turned off
+\G All assertions above this level are turned off.
 1 assert-level !
 
 : assertn ( n -- ) \ gforth assert-n
@@ -32,20 +32,20 @@ variable assert-level ( -- a-addr ) \ gforth
     then ;
 
 : assert0( ( -- ) \ gforth assert-zero
-    \G important assertions that should always be turned on
+    \G Important assertions that should always be turned on.
     0 assertn ; immediate
 : assert1( ( -- ) \ gforth assert-one
-    \G normal assertions; turned on by default
+    \G Normal assertions; turned on by default.
     1 assertn ; immediate
 : assert2( ( -- ) \ gforth assert-two
-    \G debugging assertions
+    \G Debugging assertions.
     2 assertn ; immediate
 : assert3( ( -- ) \ gforth assert-three
-    \G slow assertions that you may not want to turn on in normal debugging;
-    \G you would turn them on mainly for thorough checking
+    \G Slow assertions that you may not want to turn on in normal debugging;
+    \G you would turn them on mainly for thorough checking.
     3 assertn ; immediate
 : assert( ( -- ) \ gforth
-    \G equivalent to assert1(
+    \G Equivalent to @code{assert1(}
     POSTPONE assert1( ; immediate
 
 : (endassert) ( flag -- ) \ gforth-internal
@@ -58,5 +58,5 @@ variable assert-level ( -- a-addr ) \ gforth
     then ;
 
 : ) ( -- ) \ gforth	close-paren
-    \G end an assertion
+    \G End an assertion.
     POSTPONE (endassert) sourcepos, ; immediate

@@ -42,7 +42,7 @@
     2drop holdptr @ holdend @ over - ;
 
 : <<# ( -- ) \ gforth	less-less-number-sign
-    \G starts a hold area that ends with @code{#>>}. Can be nested in
+    \G Start a hold area that ends with @code{#>>}. Can be nested in
     \G each other and in @code{<#}.  Note: if you do not match up the
     \G @code{<<#}s with @code{#>>}s, you will eventually run out of
     \G hold area; you can reset the hold area to empty with @code{<#}.
@@ -50,7 +50,7 @@
     holdptr @ holdend ! ;
 
 : #>> ( -- ) \ gforth	number-sign-greater-greater
-    \G releases the hold area started with @code{<<#}.
+    \G Release the hold area started with @code{<<#}.
     holdend @ dup holdbuf-end u>= -&11 and throw
     count chars bounds holdptr ! holdend ! ;
 
@@ -87,41 +87,41 @@
 \ print numbers                                        07jun92py
 
 : d.r ( d n -- ) \ double	d-dot-r
-    \G Display d right-aligned in a field n characters wide. If more than
-    \G n characters are needed to display the number, all digits are displayed.
-    \G If appropriate, n must include a character for a leading "-".
+    \G Display @var{d} right-aligned in a field @var{n} characters wide. If more than
+    \G @var{n} characters are needed to display the number, all digits are displayed.
+    \G If appropriate, @var{n} must include a character for a leading "-".
     >r tuck  dabs  <<# #s  rot sign #>
     r> over - spaces  type #>> ;
 
 : ud.r ( ud n -- ) \ gforth	u-d-dot-r
-    \G Display ud right-aligned in a field n characters wide. If more than
-    \G n characters are needed to display the number, all digits are displayed.
+    \G Display @var{ud} right-aligned in a field @var{n} characters wide. If more than
+    \G @var{n} characters are needed to display the number, all digits are displayed.
     >r <<# #s #> r> over - spaces type #>> ;
 
 : .r ( n1 n2 -- ) \ core-ext	dot-r
-    \G Display n1 right-aligned in a field n2 characters wide. If more than
-    \G n2 characters are needed to display the number, all digits are displayed.
-    \G If appropriate, n2 must include a character for a leading "-".
+    \G Display @var{n1} right-aligned in a field @var{n2} characters wide. If more than
+    \G @var{n2} characters are needed to display the number, all digits are displayed.
+    \G If appropriate, @var{n2} must include a character for a leading "-".
     >r s>d r> d.r ;
 
 : u.r ( u n -- )  \ core-ext	u-dot-r
-    \G Display u right-aligned in a field n characters wide. If more than
-    \G n characters are needed to display the number, all digits are displayed.
+    \G Display @var{u} right-aligned in a field @var{n} characters wide. If more than
+    \G @var{n} characters are needed to display the number, all digits are displayed.
     0 swap ud.r ;
 
 : d. ( d -- ) \ double	d-dot
-    \G Display (the signed double number) d in free-format. followed by a space.
+    \G Display (the signed double number) @var{d} in free-format. followed by a space.
     0 d.r space ;
 
 : ud. ( ud -- ) \ gforth	u-d-dot
-    \G Display (the signed double number) ud in free-format, followed by a space.
+    \G Display (the signed double number) @var{ud} in free-format, followed by a space.
     0 ud.r space ;
 
 : . ( n -- ) \ core	dot
-    \G Display (the signed single number) n in free-format, followed by a space.
+    \G Display (the signed single number) @var{n} in free-format, followed by a space.
     s>d d. ;
 
 : u. ( u -- ) \ core	u-dot
-    \G Display (the unsigned single number) u in free-format, followed by a space.
+    \G Display (the unsigned single number) @var{u} in free-format, followed by a space.
     0 ud. ;
 

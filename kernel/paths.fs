@@ -19,10 +19,10 @@
 \ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 \ -Changing the search-path:
-\ fpath+ <path> 		adds a directory to the searchpath
+\ fpath+ <path> 	adds a directory to the searchpath
 \ fpath= <path>|<path>	makes complete now searchpath
 \ 			seperator is |
-\ .fpath			displays the search path
+\ .fpath		displays the search path
 \ remark I: 
 \ a ./ in the beginning of filename is expanded to the directory the
 \ current file comes from. ./ can also be included in the search-path!
@@ -72,7 +72,7 @@ sourcepath avalue fpath
   r@ cell+ @ over + r@ @ u> ABORT" path buffer too small!"
   \ copy into
   tuck r@ cell+ dup @ cell+ + swap cmove
-  \ make delemiter
+  \ make delimiter
   0 r@ cell+ dup @ cell+ + 2 pick + c! 1 + r> cell+ +!
   ;
 
@@ -80,20 +80,20 @@ sourcepath avalue fpath
   dup 0 swap cell+ ! also-path ;
 
 : path+ ( path-addr  "dir" -- ) \ gforth
-    \G add the directory to the search path path-addr.
+    \G Add the directory @var{dir} to the search path @var{path-addr}.
     name rot also-path ;
 
 : fpath+ ( "dir" ) \ gforth
-    \G Add the a directory to the Forth search path.
+    \G Add directory @var{dir} to the Forth search path.
     fpath path+ ;
 
 : path= ( path-addr "dir1|dir2|dir3" ) \ gforth
-    \G Make a complete new search path, separator is |.
+    \G Make a complete new search path; the path separator is |.
     name 2dup bounds ?DO i c@ '| = IF 0 i c! THEN LOOP
     rot only-path ;
 
 : fpath= ( "dir1|dir2|dir3" ) \ gforth
-    \G Make a complete new Forth search path, serparator is |.
+    \G Make a complete new Forth search path; the path separator is |.
     fpath path= ;
 
 : path>counted  cell+ dup cell+ swap @ ;
@@ -109,12 +109,12 @@ sourcepath avalue fpath
   BEGIN tuck dup WHILE repeat ;
 
 : .path ( path-addr -- ) \ gforth
-    \G Display the contents of the search path path-addr.
+    \G Display the contents of the search path @var{path-addr}.
     path>counted
     BEGIN next-path dup WHILE type space REPEAT 2drop 2drop ;
 
 : .fpath ( -- ) \ gforth
-    \G Display the contents of the Forth search patch.
+    \G Display the contents of the Forth search path.
     fpath .path ;
 
 : absolut-path? ( addr u -- flag ) \ gforth
@@ -196,10 +196,10 @@ Create tfile 0 c, 255 chars allot
   open-ofile ;
 
 \ !! returns 2 stack items if file is not found, not just the ior
-: open-path-file ( adr len path-addr -- fd adr1 len2 0 | ior ) \ gforth
-    \G Look in path path-addr for the file specified by adr len.
-    \G If found the resulting path and an open file descriptor
-    \G are returned. If the file is not found ior is non-zero.
+: open-path-file ( addr1 u1 path-addr -- wfileid addr2 u2 0 | ior ) \ gforth
+    \G Look in path @var{path-addr} for the file specified by @var{addr1 u1}.
+    \G If found, the resulting path and an open file descriptor
+    \G are returned. If the file is not found, @var{ior} is non-zero.
   >r
   2dup absolut-path?
   IF    rdrop
@@ -214,8 +214,8 @@ Create tfile 0 c, 255 chars allot
   THEN ;
 
 \ !! returns 2 stack items if file is not found, not just the ior
-: open-fpath-file ( adr len -- fd adr1 len2 0 | ior ) \ gforth
-    \G Look in the Forth search path for the file specified by adr len.
-    \G If found the resulting path and an open file descriptor
-    \G are returned. If the file is not found ior is non-zero.
+: open-fpath-file ( addr1 u1 -- wfileid addr2 u2 0 | ior ) \ gforth
+    \G Look in the Forth search path for the file specified by @var{addr1 u1}.
+    \G If found, the resulting path and an open file descriptor
+    \G are returned. If the file is not found, @var{ior} is non-zero.
     fpath open-path-file ;

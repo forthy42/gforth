@@ -1,3 +1,6 @@
+\ This contains the same Forth source as mini-oof.fs, but
+\ also contains glossary information for the manual.
+
 : method ( m v -- m' v ) \ mini-oof
     \G Define a method.
     Create  over , swap cell+ swap

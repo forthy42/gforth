@@ -61,23 +61,23 @@ DOES> ( -- r )
     f@ ;
 
 : fdepth ( -- +n ) \ floating f-depth
-    \G +n is the current number of (floating-point) values on the
+    \G @var{+n} is the current number of (floating-point) values on the
     \G floating-point stack.
     fp0 @ fp@ - [ 1 floats ] Literal / ;
 
 : FLit ( -- r )  r> dup f@ float+ >r ;
 : FLiteral ( compilation r -- ; run-time -- r ) \ float
-    \G Compile appropriate code such that, at run-time, r is placed
+    \G Compile appropriate code such that, at run-time, @var{r} is placed
     \G on the (floating-point) stack. Interpretation semantics are undefined.
     BEGIN  here cell+ dup faligned <>  WHILE  postpone noop  REPEAT
     postpone FLit  f, ;  immediate
 
 &15 Value precision ( -- u ) \ floating-ext
-\G u is the number of significant digits currently used by
+\G @var{u} is the number of significant digits currently used by
 \G @code{F.} @code{FE.} and @code{FS.} 
 : set-precision ( u -- ) \ floating-ext
     \G Set the number of significant digits currently used by
-    \G @code{F.} @code{FE.} and @code{FS.} to u.
+    \G @code{F.} @code{FE.} and @code{FS.} to @var{u}.
     to precision ;
 
 : scratch ( r -- addr len )
@@ -93,7 +93,7 @@ DOES> ( -- r )
   IF  '- emit  THEN ;
 
 : f.  ( r -- ) \ floating-ext f-dot
-\G Display (the floating-point number) r using fixed-point notation,
+\G Display (the floating-point number) @var{r} using fixed-point notation,
 \G followed by a space.
   f$ dup >r 0<
   IF    '0 emit
@@ -104,13 +104,13 @@ DOES> ( -- r )
 \ Shouldn't precision indicate the number of places shown after the point?
 
 : fe. ( r -- ) \ floating-ext f-e-dot
-\G Display r using engineering notation, followed by a space.
+\G Display @var{r} using engineering notation, followed by a space.
   f$ 1- s>d 3 fm/mod 3 * >r 1+ >r
   scratch r@ min type '. emit  scratch r> /string type
   'E emit r> . ;
 
 : fs. ( r -- ) \ floating-ext f-s-dot
-\G Display r using scientific notation, followed by a space.
+\G Display @var{r} using scientific notation, followed by a space.
   f$ 1-
   scratch over c@ emit '. emit 1 /string type
   'E emit . ;
@@ -153,19 +153,19 @@ IS interpreter-notfound
     \ does> ( -- f-addr )
 
 1.0e0 fasin 2.0e0 f* fconstant pi ( -- r ) \ gforth
-\G FCONSTANT: r is the value pi; the ratio of a circle's area
+\G FCONSTANT: @var{r} is the value pi; the ratio of a circle's area
 \G to its diameter.
 
 : f2* ( r1 -- r2 ) \ gforth
-    \G Multiply r1 by 2.0e0
+    \G Multiply @var{r1} by 2.0e0
     2.0e0 f* ;
 
 : f2/ ( r1 -- r2 ) \ gforth
-    \G Multiply r1 by 0.5e0
+    \G Multiply @var{r1} by 0.5e0
     0.5e0 f* ;
 
 : 1/f ( r1 -- r2 ) \ gforth
-    \G Divide 1.0e0 by r1
+    \G Divide 1.0e0 by @var{r1}.
     1.0e0 fswap f/ ;
 
 

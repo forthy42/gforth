@@ -300,9 +300,9 @@ immediate
 
 ' ( alias ( ( compilation 'ccc<close-paren>' -- ; run-time -- ) \ core,file	paren
 \G Comment: parse and discard all subsequent characters in the parse
-\G area until ")" is encountered. During interactive input, an end-of-line
+\G area until "@code{)}" is encountered. During interactive input, an end-of-line
 \G also acts as a comment terminator. For file input, it does not; if the
-\G end-of-file is encountered whilst parsing for the ")" delimiter, Gforth
+\G end-of-file is encountered whilst parsing for the "@code{)}" delimiter, Gforth
 \G will generate a warning.
 immediate
 

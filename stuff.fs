@@ -20,7 +20,7 @@
 
 
 ' require alias needs ( ... "name" -- ... ) \ gforth
-\G an alias for @code{require}; exists on other systems (e.g., Win32Forth).
+\G An alias for @code{require}; exists on other systems (e.g., Win32Forth).
 \ needs is an F-PC name. we will probably switch to 'needs' in the future
 
 \ a little more compiler security
@@ -49,7 +49,7 @@ AUser CSP
 \G @code{system} command.
 
 : system ( addr u -- ) \ gforth
-\G Pass the string specified by c-addr, u to the host operating system
+\G Pass the string specified by @var{c-addr, u} to the host operating system
 \G for execution in a sub-shell.
     (system) throw TO $? ;
 

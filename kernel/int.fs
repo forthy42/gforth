@@ -279,7 +279,7 @@ $20 constant restrict-mask
     (name>x) (x>int) ;
 
 : name?int ( nt -- xt ) \ gforth
-    \G Like name>int, but throws an error if compile-only.
+    \G Like @code{name>int}, but throws an error if @code{compile-only}.
     (name>x) restrict-mask and
     if
 	compile-only-error \ does not return
@@ -347,12 +347,12 @@ const Create ???  0 , 3 c, char ? c, char ? c, char ? c,
     dup wordlist-map @ find-method perform ;
 
 : search-wordlist ( c-addr count wid -- 0 / xt +-1 ) \ search
-    \G Search the word list identified by wid
-    \G for the definition named by the string at c-addr count.
+    \G Search the word list identified by @var{wid}
+    \G for the definition named by the string at @var{c-addr count}.
     \G If the definition is not found, return 0. If the definition
     \G is found return 1 (if the definition is immediate) or -1
-    \G (if the definition is not immediate) together with the xt.
-    \G The xt returned represents the interpretation semantics.
+    \G (if the definition is not immediate) together with the @var{xt}.
+    \G The @var{xt} returned represents the interpretation semantics.
     (search-wordlist) dup if
 	(name>intn)
     then ;
@@ -375,10 +375,10 @@ const Create ???  0 , 3 c, char ? c, char ? c, char ? c,
 
 : find ( c-addr -- xt +-1 / c-addr 0 ) \ core,search
     \G Search all word lists in the current search order
-    \G for the definition named by the counted string at c-addr.
+    \G for the definition named by the counted string at @var{c-addr}.
     \G If the definition is not found, return 0. If the definition
     \G is found return 1 (if the definition is immediate) or -1
-    \G (if the definition is not immediate) together with the xt.
+    \G (if the definition is not immediate) together with the @var{xt}.
     dup count sfind dup
     if
 	rot drop
@@ -468,7 +468,7 @@ has? file 0= [IF]
     swap #tib ! 0 >in ! ;
 
 : query   ( -- ) \ core-ext
-    \G obsolescent
+    \G OBSOLESCENT.
     [ has? file [IF] ]
 	blk off loadfile off
 	[ [THEN] ]
@@ -542,16 +542,16 @@ max-errors 6 * cells allot
 \ Loadfilename ( addr u )
 
 : dec. ( n -- ) \ gforth
-    \G Display n as a signed decimal number, followed by a space.
+    \G Display @var{n} as a signed decimal number, followed by a space.
     \G !! not used...
     base @ decimal swap . base ! ;
 
 : dec.r ( u -- ) \ gforth
-    \G Display u as a unsigned decimal number
+    \G Display @var{u} as a unsigned decimal number
     base @ decimal swap 0 .r base ! ;
 
 : hex. ( u -- ) \ gforth
-    \G Display u as an unsigned hex number, prefixed with a "$" and
+    \G Display @var{u} as an unsigned hex number, prefixed with a "$" and
     \G followed by a space.
     \G !! not used...
     '$ emit base @ swap hex u. base ! ;
@@ -622,6 +622,9 @@ Defer dobacktrace ( -- )
 ' (DoError) IS DoError
 
 : quit ( ?? -- ?? ) \ core
+    \G Empty the return stack, make the user input device
+    \G the input source, enter interpret state and start
+    \G the text interpreter.
     rp0 @ rp! handler off clear-tibstack >tib @ >r
     BEGIN
 	[ has? compiler [IF] ]

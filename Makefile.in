@@ -219,7 +219,8 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_SRC) $(EC_SRC) \
 	test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs \
 	test/other.fs test/checkans.fs \
 	bubble.fs siev.fs matrix.fs fib.fs \
-	oof.fs oofsampl.fs objects.fs objexamp.fs mini-oof.fs moof-exm.fs
+	oof.fs oofsampl.fs objects.fs objexamp.fs mini-oof.fs moof-exm.fs \
+	moofglos.fs
 
 COMPAT = compat/README \
 	compat/anslocal.fs \
@@ -636,8 +637,8 @@ prim.TAGS: 	prim.b prims2x.fs
 		$(CP) $@- $@
 		$(RM) $@-
 
-doc/doc.fd:	doc/makedoc.fs $(GFORTH_FI_SRC) code.fs objects.fs oof.fs mini-oof.fs
-		$(FORTHK) -e "s\" doc/doc.fd\"" doc/makedoc.fs startup.fs code.fs objects.fs oof.fs mini-oof.fs -e bye
+doc/doc.fd:	doc/makedoc.fs $(GFORTH_FI_SRC) code.fs objects.fs oof.fs moofglos.fs
+		$(FORTHK) -e "s\" doc/doc.fd\"" doc/makedoc.fs startup.fs code.fs objects.fs oof.fs moofglos.fs -e bye
 
 doc/crossdoc.fd:	$(KERN_SRC) kernel/version.fs $(FORTH_GEN0)
 		$(FORTHK) -e 's" mach32l.fs"' kernel/main.fs -e bye

@@ -140,16 +140,17 @@ VARIABLE Unnest
                 THEN
         AGAIN ;
 
-: dbg   ' NestXT IF EXIT THEN (debug) Leave-D ;
+: dbg \ gforth 
+    ' NestXT IF EXIT THEN (debug) Leave-D ;
 
-: break:
-        r> ['] (debug) >body >r ;
+: break: \ gforth
+    r> ['] (debug) >body >r ;
 
 : (break")
-        cr
-        ." BREAK AT: " type cr
-        r> ['] (debug) >body >r ;
+    cr
+    ." BREAK AT: " type cr
+    r> ['] (debug) >body >r ;
 
-: break"
-        postpone s"
-        postpone (break") ; immediate
+: break" \ gforth
+    postpone s"
+    postpone (break") ; immediate

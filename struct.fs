@@ -19,8 +19,8 @@
 \ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 : naligned ( addr1 n -- addr2 ) \ gforth
-\g @code{addr2} is the aligned version of @code{addr1} wrt the
-\g alignment @code{n}.
+\g @var{addr2} is the aligned version of @var{addr1} with respect to the
+\g alignment @var{n}.
  1- tuck +  swap invert and ;
 
 ' naligned alias nalign \ old name, obsolete
@@ -44,7 +44,7 @@ does> ( name execution: -- )
     create field, ;
 
 : field ( align1 offset1 align size "name" --  align2 offset2 ) \ gforth
-    \G name execution: ( addr1 -- addr2 )
+    \G @code{name} execution: @var{addr1} -- @var{addr2}.
     2 pick 
     if \ field offset <> 0
 	[IFDEF]  (Field)
@@ -58,15 +58,15 @@ does> ( name execution: -- )
     field, ;
 
 : end-struct ( align size "name" -- ) \ gforth
-\g @code{name} execution: @code{addr1 -- addr1+offset1}@*
-\g create a field @code{name} with offset @code{offset1}, and the type
-\g given by @code{size align}. @code{offset2} is the offset of the
-\g next field, and @code{align2} is the alignment of all fields.
+\g @code{name} execution: @var{addr1} -- @var{addr1+offset1}@*
+\g Create a field @var{name} with offset @var{offset1}, and the type
+\g given by @var{size align}. @var{offset2} is the offset of the
+\g next field, and @var{align2} is the alignment of all fields.
     over nalign \ pad size to full alignment
     2constant ;
 
 1 chars 0 end-struct struct ( -- align size ) \ gforth
-\g an empty structure, used to start a structure definition.
+\g An empty structure, used to start a structure definition.
 
 \ type descriptors
 1 aligned   1 cells   2constant cell% ( -- align size ) \ gforth
@@ -78,28 +78,28 @@ cell% 2*              2constant double% ( -- align size ) \ gforth
 
 \ memory allocation words
 ' drop alias %alignment ( align size -- align ) \ gforth
-\g the alignment of the structure
+\g The alignment of the structure.
 ' nip alias %size ( align size -- size ) \ gforth
-\g the size of the structure
+\g The size of the structure.
 
 : %align ( align size -- ) \ gforth
-    \G align the data space pointer to the alignment @code{align}. 
+    \G Align the data space pointer to the alignment @var{align}. 
     drop here swap nalign here - allot ;
 
 : %allot ( align size -- addr ) \ gforth
-    \g allot @code{size} address units of data space with alignment
-    \g @code{align}; the resulting block of data is found at
-    \g @code{addr}.
+    \g Allot @var{size} address units of data space with alignment
+    \g @var{align}; the resulting block of data is found at
+    \g @var{addr}.
     tuck %align
     here swap allot ;
 
 : %allocate ( align size -- addr ior ) \ gforth
-    \g allocate @code{size} address units with alignment @code{align},
+    \g Allocate @var{size} address units with alignment @var{align},
     \g similar to @code{allocate}.
     nip allocate ;
 
 : %alloc ( size align -- addr ) \ gforth
-    \g allocate @code{size} address units with alignment @code{align},
-    \g giving a data block at @code{addr}; @code{throw}s an ior code
+    \g Allocate @var{size} address units with alignment @var{align},
+    \g giving a data block at @var{addr}; @code{throw} an ior code
     \g if not successful.
     %allocate throw ;

@@ -26,17 +26,17 @@ hex \ everything now hex!                               11may93jaw
 \ "a true flag ... [is] a single-cell value with all bits set"
 \ better definition: 0 0= constant true ( no dependence on 2's compl)
  -1 Constant true ( -- f ) \ core-ext
-\G CONSTANT: f is a cell with all bits set.
+\G CONSTANT: @var{f} is a cell with all bits set.
 \ see starts looking for primitives after this word!
 
   0 Constant false ( -- f ) \ core-ext
-\G CONSTANT: f is a cell with all bits clear.
+\G CONSTANT: @var{f} is a cell with all bits clear.
 
 1 cells Constant cell ( -- u ) \ gforth
 1 floats Constant float ( -- u ) \ gforth
 
 20 Constant bl ( -- c-char ) \ core
-\G c-char is the character value for a space.
+\G @var{c-char} is the character value for a space.
 \ used by docon:, must be constant
 
 FF Constant /line
@@ -105,19 +105,19 @@ AUser "error            0 "error !
  User tibstack		\ saves >tib in execute
  User >tib		\ pointer to terminal input buffer
  User #tib ( -- a-addr ) \ core-ext
- \G USER VARIABLE: a-addr is the address of a cell containing
+ \G USER VARIABLE: @var{a-addr} is the address of a cell containing
  \G the number of characters in the terminal input buffer.
  \G OBSOLESCENT: @code{source} superceeds the function of this word.
 
  User >in ( -- a-addr ) \ core
- \G USER VARIABLE: a-addr is the address of a cell containing the
+ \G USER VARIABLE: @var{a-addr} is the address of a cell containing the
  \G char offset from the start of the terminal input buffer to the
  \G start of the parse area
                         0 >in ! \ char number currently processed in tib
 [THEN]
 has? file [IF]
  User blk ( -- a-addr ) \ block
- \G USER VARIABLE: a-addr is the address of a cell containing zero
+ \G USER VARIABLE: @var{a-addr} is the address of a cell containing zero
  \G (in which case the input source is not a block and can be identified
  \G by @code{source-id}) or the number of the block currently being
  \G interpreted. A Standard program should not alter @code{blk} directly.
@@ -137,7 +137,7 @@ has? file [IF]
 [THEN]
 
  User base ( -- a-addr ) \ core
- \G USER VARIABLE: a-addr is the address of a cell that stores the
+ \G USER VARIABLE: @var{a-addr} is the address of a cell that stores the
  \G number base used by default for number conversion during input and output.
                         A base !
  User dpl               -1 dpl !
@@ -147,7 +147,7 @@ has? file [IF]
  \G and how to exorcise it},
  \G @url{http://www.complang.tuwien.ac.at/papers/ertl98.ps.gz}; short
  \G version: Don't use @code{state}! @xref{Interpretation and
- \G Compilation Semantics} for an alternative. USER VARIABLE: a-addr
+ \G Compilation Semantics} for an alternative. USER VARIABLE: @var{a-addr}
  \G is the address of a cell containing the compilation state flag. 0
  \G => interpreting, -1 => compiling.  A program shall not directly
  \G alter the value of @code{state}. The following Standard words

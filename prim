@@ -115,7 +115,7 @@ INC_IP(1);
  r> dup @ swap cell+ >r ;
 
 execute		xt --		core
-""Perform the semantics represented by the execution token, xt.""
+""Perform the semantics represented by the execution token, @var{xt}.""
 ip=IP;
 IF_TOS(TOS = sp[0]);
 EXEC(xt);
@@ -440,17 +440,17 @@ n = rp[4];
 \ digit is high-level: 0/0%
 
 move	c_from c_to ucount --		core
-"" If ucount>0, copy the contents of ucount address units
-at c-from to c-to. @code{move} chooses its copy direction
-to avoid problems when c-from, c-to overlap.""
+"" If @var{ucount}>0, copy the contents of @var{ucount} address units
+at @var{c-from} to @var{c-to}. @code{move} chooses its copy direction
+to avoid problems when @var{c-from}, @var{c-to} overlap.""
 memmove(c_to,c_from,ucount);
 /* make an Ifdef for bsd and others? */
 :
  >r 2dup u< IF r> cmove> ELSE r> cmove THEN ;
 
 cmove	c_from c_to u --	string
-"" If u>0, copy the contents of ucount characters from
-data space at c-from to c-to. The copy proceeds @code{char}-by-@code{char}
+"" If @var{u}>0, copy the contents of @var{ucount} characters from
+data space at @var{c-from} to @var{c-to}. The copy proceeds @code{char}-by-@code{char}
 from low address to high address.""
 while (u-- > 0)
   *c_to++ = *c_from++;
@@ -458,8 +458,8 @@ while (u-- > 0)
  bounds ?DO  dup c@ I c! 1+  LOOP  drop ;
 
 cmove>	c_from c_to u --	string	c_move_up
-"" If u>0, copy the contents of ucount characters from
-data space at c-from to c-to. The copy proceeds @code{char}-by-@code{char}
+"" If @var{u}>0, copy the contents of @var{ucount} characters from
+data space at @var{c-from} to @var{c-to}. The copy proceeds @code{char}-by-@code{char}
 from high address to low address.""
 while (u-- > 0)
   c_to[u] = c_from[u];
@@ -469,18 +469,18 @@ while (u-- > 0)
  DO  1- dup c@ I c!  -1 +LOOP  drop ;
 
 fill	c_addr u c --	core
-"" If u>0, store character c in each of u consecutive
-@code{char} addresses in memory, starting at address c-addr.""
+"" If @var{u}>0, store character @var{c} in each of @var{u} consecutive
+@code{char} addresses in memory, starting at address @var{c-addr}.""
 memset(c_addr,c,u);
 :
  -rot bounds
  ?DO  dup I c!  LOOP  drop ;
 
 compare		c_addr1 u1 c_addr2 u2 -- n	string
-""Compare two strings lexicographically. If they are equal, n is 0; if
-the first string is smaller, n is -1; if the first string is larger, n
+""Compare two strings lexicographically. If they are equal, @var{n} is 0; if
+the first string is smaller, @var{n} is -1; if the first string is larger, @var{n}
 is 1. Currently this is based on the machine's character
-comparison. In the future, this may change to considering the current
+comparison. In the future, this may change to consider the current
 locale and its collation order.""
 n = memcmp(c_addr1, c_addr2, u1<u2 ? u1 : u2);
 if (n==0)
@@ -637,7 +637,7 @@ n2 = n1>>1;
  LOOP nip ;
 
 fm/mod	d1 n1 -- n2 n3		core		f_m_slash_mod
-""floored division: d1 = n3*n1+n2, n1>n2>=0 or 0>=n2>n1""
+""Floored division: @var{d1} = @var{n3}*@var{n1}+@var{n2}, @var{n1}>@var{n2}>=0 or 0>=@var{n2}>@var{n1}.""
 #ifdef BUGGY_LONG_LONG
 DCell r = fmdiv(d1,n1);
 n2=r.hi;
@@ -659,7 +659,7 @@ if (1%-3>0 && (d1<0) != (n1<0) && n2!=0) {
  r> 0< IF  swap negate swap  THEN ;
 
 sm/rem	d1 n1 -- n2 n3		core		s_m_slash_rem
-""symmetric division: d1 = n3*n1+n2, sign(n2)=sign(d1) or 0""
+""Symmetric division: @var{d1} = @var{n3}*@var{n1}+@var{n2}, sign(@var{n2})=sign(@var{d1}) or 0.""
 #ifdef BUGGY_LONG_LONG
 DCell r = smdiv(d1,n1);
 n2=r.hi;
@@ -928,17 +928,17 @@ f = FLAG(u1-u2 < u3-u2);
 :
  over - >r - r> u< ;
 
-sp@	-- a_addr		gforth		spat
+sp@	-- a_addr		gforth		sp_fetch
 a_addr = sp+1;
 
-sp!	a_addr --		gforth		spstore
+sp!	a_addr --		gforth		sp_store
 sp = a_addr;
 /* works with and without TOS caching */
 
-rp@	-- a_addr		gforth		rpat
+rp@	-- a_addr		gforth		rp_fetch
 a_addr = rp;
 
-rp!	a_addr --		gforth		rpstore
+rp!	a_addr --		gforth		rp_store
 rp = a_addr;
 
 \+floating
@@ -1089,7 +1089,7 @@ w = *a_addr;
 :
  tuck @ + swap ! ;
 
-c@	c_addr -- c		core	cfetch
+c@	c_addr -- c		core	c_fetch
 c = *c_addr;
 :
 [ bigendian [IF] ]
@@ -1114,7 +1114,7 @@ c = *c_addr;
 ;
 : 8>> 2/ 2/ 2/ 2/  2/ 2/ 2/ 2/ ;
 
-c!	c c_addr --		core	cstore
+c!	c c_addr --		core	c_store
 *c_addr = c;
 :
 [ bigendian [IF] ]
@@ -1181,8 +1181,8 @@ n2 = n1 * sizeof(Char);
  ;
 
 count	c_addr1 -- c_addr2 u	core
-"" If c-add1 is the address of a counted string return the length of
-the string, u, and the address of its first character, c-addr2.""
+"" If @var{c-add1} is the address of a counted string return the length of
+the string, @var{u}, and the address of its first character, @var{c-addr2}.""
 u = *c_addr1;
 c_addr2 = c_addr1+1;
 :
@@ -1322,45 +1322,45 @@ a_addr = PFA(xt);
     2 cells + ;
 
 >code-address		xt -- c_addr		gforth	to_code_address
-""c_addr is the code address of the word xt""
+""@var{c-addr} is the code address of the word @var{xt}.""
 /* !! This behaves installation-dependently for DOES-words */
 c_addr = (Address)CODE_ADDRESS(xt);
 :
     @ ;
 
 >does-code	xt -- a_addr		gforth	to_does_code
-""If xt ist the execution token of a defining-word-defined word,
-a_addr is the start of the Forth code after the @code{DOES>};
-Otherwise a_addr is 0.""
+""If @var{xt} is the execution token of a defining-word-defined word,
+@var{a-addr} is the start of the Forth code after the @code{DOES>};
+Otherwise @var{a-addr} is 0.""
 a_addr = (Cell *)DOES_CODE(xt);
 :
     cell+ @ ;
 
 code-address!		c_addr xt --		gforth	code_address_store
-""Creates a code field with code address c_addr at xt""
+""Create a code field with code address @var{c-addr} at @var{xt}.""
 MAKE_CF(xt, c_addr);
 CACHE_FLUSH(xt,(size_t)PFA(0));
 :
     ! ;
 
 does-code!	a_addr xt --		gforth	does_code_store
-""creates a code field at xt for a defining-word-defined word; a_addr
-is the start of the Forth code after DOES>""
+""Create a code field at @var{xt} for a defining-word-defined word; @var{a-addr}
+is the start of the Forth code after @code{DOES>}.""
 MAKE_DOES_CF(xt, a_addr);
 CACHE_FLUSH(xt,(size_t)PFA(0));
 :
     dodoes: over ! cell+ ! ;
 
 does-handler!	a_addr --	gforth	does_handler_store
-""creates a DOES>-handler at address a_addr. a_addr usually points
-just behind a DOES>.""
+""Create a @code{DOES>}-handler at address @var{a-addr}. Usually, @var{a-addr} points
+just behind a @code{DOES>}.""
 MAKE_DOES_HANDLER(a_addr);
 CACHE_FLUSH((caddr_t)a_addr,DOES_HANDLER_SIZE);
 :
     drop ;
 
 /does-handler	-- n	gforth	slash_does_handler
-""the size of a does-handler (includes possible padding)""
+""The size of a @code{DOES>}-handler (includes possible padding).""
 /* !! a constant or environmental query might be better */
 n = DOES_HANDLER_SIZE;
 :
@@ -1418,7 +1418,7 @@ ucols=cols;
 
 flush-icache	c_addr u --	gforth	flush_icache
 ""Make sure that the instruction cache of the processor (if there is
-one) does not contain stale data at @var{c_addr} and @var{u} bytes
+one) does not contain stale data at @var{c-addr} and @var{u} bytes
 afterwards. @code{END-CODE} performs a @code{flush-icache}
 automatically. Caveat: @code{flush-icache} might not work on your
 installation; this is usually the case if direct threading is not
@@ -1444,9 +1444,9 @@ if (old_tp)
 #endif
 
 getenv	c_addr1 u1 -- c_addr2 u2	gforth
-""The string c-addr1 u1 specifies an environment variable. The string c-addr2 u2
+""The string @var{c-addr1 u1} specifies an environment variable. The string @var{c-addr2 u2}
 is the host operating system's expansion of that environment variable. If the
-environment variable does not exist, c-addr2 u2 specifies a string 0 characters
+environment variable does not exist, @var{c-addr2 u2} specifies a string 0 characters
 in length.""
 c_addr2 = getenv(cstr(c_addr1,u1,1));
 u2 = (c_addr2 == NULL ? 0 : strlen(c_addr2));
@@ -1487,10 +1487,10 @@ free(a_addr);
 wior = 0;
 
 resize		a_addr1 u -- a_addr2 wior	memory
-""Change the size of the allocated area at @i{a_addr1} to @i{u}
+""Change the size of the allocated area at @i{a-addr1} to @i{u}
 address units, possibly moving the contents to a different
-area. @i{a_addr2} is the address of the resulting area. If
-@code{a_addr1} is 0, Gforth's (but not the standard) @code{resize}
+area. @i{a-addr2} is the address of the resulting area. If
+@i{a-addr1} is 0, Gforth's (but not the standard) @code{resize}
 @code{allocate}s @i{u} address units.""
 /* the following check is not necessary on most OSs, but it is needed
    on SunOS 4.1.2. */
@@ -1556,7 +1556,7 @@ delete-file	c_addr u -- wior		file	delete_file
 wior = IOR(unlink(tilde_cstr(c_addr, u, 1))==-1);
 
 rename-file	c_addr1 u1 c_addr2 u2 -- wior	file-ext	rename_file
-""rename file c_addr1 u1 to new name c_addr2 u2""
+""Rename file @var{c_addr1 u1} to new name @var{c_addr2 u2}""
 char *s1=tilde_cstr(c_addr2, u2, 1);
 wior = IOR(rename(tilde_cstr(c_addr1, u1, 0), s1)==-1);
 
@@ -1734,7 +1734,7 @@ f/		r1 r2 -- r3	float	f_slash
 r3 = r1/r2;
 
 f**		r1 r2 -- r3	float-ext	f_star_star
-""@i{r3} is @i{r1} raised to the @i{r2}th power""
+""@i{r3} is @i{r1} raised to the @i{r2}th power.""
 r3 = pow(r1,r2);
 
 fnegate		r1 -- r2	float
@@ -1761,12 +1761,12 @@ floats		n1 -- n2	float
 n2 = n1*sizeof(Float);
 
 floor		r1 -- r2	float
-""round towards the next smaller integral value, i.e., round toward negative infinity""
+""Round towards the next smaller integral value, i.e., round toward negative infinity.""
 /* !! unclear wording */
 r2 = floor(r1);
 
 fround		r1 -- r2	float
-""round to the nearest integral value""
+""Round to the nearest integral value.""
 /* !! unclear wording */
 #ifdef HAVE_RINT
 r2 = rint(r1);
@@ -1844,7 +1844,7 @@ fatan		r1 -- r2	float-ext
 r2 = atan(r1);
 
 fatan2		r1 r2 -- r3	float-ext
-""@i{r1/r2}=tan@i{r3}. The standard does not require, but probably
+""@i{r1/r2}=tan(@i{r3}). ANS Forth does not require, but probably
 intends this to be the inverse of @code{fsincos}. In gforth it is.""
 r3 = atan2(r1,r2);
 
@@ -1884,7 +1884,7 @@ r2 = log(r1+1.);
 #endif
 
 flog		r1 -- r2	float-ext
-""the decimal logarithm""
+""The decimal logarithm.""
 r2 = log10(r1);
 
 falog		r1 -- r2	float-ext

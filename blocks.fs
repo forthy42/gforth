@@ -83,7 +83,7 @@ Defer flush-blocks
     block-fid @ ;
 
 : block-position ( u -- ) \ block
-    \G Position the block file to the start of block u.
+    \G Position the block file to the start of block @var{u}.
     1- chars/block chars um* get-block-fid reposition-file throw ;
 
 : update ( -- ) \ block
@@ -120,9 +120,9 @@ Defer flush-blocks
     buffers mod buffer-struct %size * block-buffers @ + ;
 
 : block ( u -- a-addr ) \ block- block
-  \G u identifies a block number. Assign a block buffer to u,
+  \G @var{u} identifies a block number. Assign a block buffer to @var{u},
   \G make it the current block buffer and return its start
-  \G address, a-addr.
+  \G address, @var{a-addr}.
     dup 0= -35 and throw
     dup get-buffer >r
     dup r@ buffer-block @ <>
@@ -145,7 +145,7 @@ Defer flush-blocks
     block ;
 
 User scr ( -- a-addr ) \ block-ext
-    \G USER VARIABLE a-addr is the address of a cell containing
+    \G USER VARIABLE @var{a-addr} is the address of a cell containing
     \G the block number of the block most recently processed by
     \G @code{LIST}.
     0 scr !

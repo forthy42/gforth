@@ -25,9 +25,9 @@ decimal
 : ESC[  27 emit [char] [ emit ;
 
 : at-xy ( u1 u2 -- ) \ facility at-x-y
-  \G Position the cursor so that subsequent text output will
-  \G take place at column u1, row u2 of the display. (column
-  \G 0, row 0 is the top left-hand corner of the display).
+  \G Position the cursor so that subsequent text output will take
+  \G place at column @var{u1}, row @var{u2} of the display. (column 0,
+  \G row 0 is the top left-hand corner of the display).
   1+ swap 1+ swap ESC[ pn ;pn [char] H emit ;
 
 : page ( -- ) \ gforth

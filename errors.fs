@@ -30,10 +30,10 @@
 variable next-exception -2048 next-exception !
 
 : exception ( addr u -- n ) \ exception- gforth
-    \G @var{n} is a previously unused THROW value in the range
-    \G (-4095...-256). Consecutive calls to EXCEPTION return
+    \G @var{n} is a previously unused @code{throw} value in the range
+    \G (-4095...-256). Consecutive calls to @code{exception} return
     \G consecutive decreasing numbers. Gforth uses the string
-    \G @var{addr u} as error message.
+    \G @var{addr u} as an error message.
     next-exception @ errstring
     next-exception @
     -1 next-exception +! ;

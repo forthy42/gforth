@@ -42,10 +42,10 @@ has? os [IF]
 undef-words
     
 Defer type ( c-addr u -- ) \ core
-  \G If u>0, display u characters from a string starting with the character
-  \G stored at c-addr.
-: (type)  BEGIN  dup  WHILE
-    >r dup c@ (emit) 1+ r> 1-  REPEAT  2drop ;
+  \G If @var{u}>0, display @var{u} characters from a string starting
+  \G with the character stored at @var{c-addr}.
+: (type) BEGIN dup WHILE
+    >r dup c@ (emit) 1+ r> 1- REPEAT 2drop ;
 
 [IFDEF] (type) ' (type) IS Type [THEN]
 
@@ -107,7 +107,7 @@ has? ec [IF]
 \ space spaces		                                21mar93py
 decimal
 Create spaces ( u -- ) \ core
-  \G If n > 0, display n spaces. 
+  \G If @var{n} > 0, display @var{n} spaces. 
   bl 80 times \ times from target compiler! 11may93jaw
 DOES>   ( u -- )
   swap

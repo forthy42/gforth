@@ -18,11 +18,11 @@
 \ along with this program; if not, write to the Free Software
 \ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-4 Constant w/o ( -- fam ) \ file	w-o
-2 Constant r/w ( -- fam ) \ file	r-w
-0 Constant r/o ( -- fam ) \ file	r-o
+4 Constant w/o ( -- ntype ) \ file	w-o
+2 Constant r/w ( -- ntype ) \ file	r-w
+0 Constant r/o ( -- ntype ) \ file	r-o
 
-: bin ( fam1 -- fam2 ) \ file
+: bin ( ntype1 -- ntype2 ) \ file
     1 or ;
 
 \ BIN WRITE-LINE                                        11jun93jaw
@@ -69,9 +69,9 @@
 : read-loop ( i*x -- j*x )
   BEGIN  refill  WHILE  interpret  REPEAT ;
 
-: include-file ( i*x fid -- j*x ) \ file
+: include-file ( i*x wfileid -- j*x ) \ file
     \G Interpret (process using the text interpreter) the contents of
-    \G the file @var{fid}.
+    \G the file @var{wfileid}.
     push-file  loadfile !
     0 loadline ! blk off  ['] read-loop catch
     loadfile @ close-file swap 2dup or

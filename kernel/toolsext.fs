@@ -37,7 +37,6 @@ UNLOCK  Tlast @ TNIL Tlast !  LOCK
 : [IF]
   1 countif +! ?if ;       immediate
 : [THEN]
-  \G Do nothing. 
   -1 countif +! ?if ;       immediate
 : [ELSE]
   postpone [THEN] postpone [IF] ;
@@ -82,13 +81,13 @@ UNLOCK Tlast @ swap Tlast ! LOCK
 
 : [IFDEF] ( "<spaces>name" -- ) \ gforth bracket-if-def
   \G If name is found in the current search-order, behave like
-  \G @code{[IF]} with a @code{TRUE} flag, othewise behave like
+  \G @code{[IF]} with a @code{TRUE} flag, otherwise behave like
   \G @code{[IF]} with a @code{FALSE} flag. Immediate word.
   postpone defined    postpone [IF] ;                 immediate
 
 : [IFUNDEF] ( "<spaces>name" -- ) \ gforth bracket-if-un-def
   \G If name is not found in the current search-order, behave like
-  \G @code{[IF]} with a @code{TRUE} flag, othewise behave like
+  \G @code{[IF]} with a @code{TRUE} flag, otherwise behave like
   \G @code{[IF]} with a @code{FALSE} flag. Immediate word.
   postpone defined 0= postpone [IF] ;                 immediate
 
@@ -107,11 +106,11 @@ UNLOCK Tlast @ swap Tlast ! LOCK
 
 : [THEN] ( -- ) \ tools-ext bracket-then
   \G Do nothing; used as a marker for other words to parse
-  \G and discard up to. @code{[THEN]} is an immediate word.
+  \G and discard up to. Immediate word.
   ;                                                   immediate
 
 : [ENDIF] ( -- ) \ gforth bracket-end-if
-  \G Do nothing; synonym for [THEN]
+  \G Do nothing; synonym for @code{[THEN]}
   ;                                                   immediate
 
 \ Structs for interpreter                              28nov92py

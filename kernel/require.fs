@@ -49,7 +49,7 @@ create image-included-files  1 , A, ( pointer to and count of included files )
     image-included-files 2@ nip included-files 2! ;
 
 : included? ( c-addr u -- f ) \ gforth
-    \G true, iff filename c-addr u is in included-files
+    \G True, iff filename c-addr u is in included-files
     included-files 2@ 0
     ?do ( c-addr u addr )
 	dup >r 2@ 2over compare 0=
@@ -82,7 +82,7 @@ create image-included-files  1 , A, ( pointer to and count of included files )
     open-fpath-file throw included1 ;
 
 : required ( i*x addr u -- j*x ) \ gforth
-    \G include the file with the name given by @var{addr u}, if it is not
+    \G @code{include-file} the file with the name given by @var{addr u}, if it is not
     \G @code{included} (or @code{required}) already. Currently this
     \G works by comparing the name of the file (with path) against the
     \G names of earlier included files.
@@ -101,11 +101,11 @@ create image-included-files  1 , A, ( pointer to and count of included files )
 \ INCLUDE                                               9may93jaw
 
 : include  ( ... "file" -- ... ) \ gforth
-\G includes @var{file}
+\G @code{include-file} the file @var{file}.
   name included ;
 
 : require  ( ... "file" -- ... ) \ gforth
-\G includes @var{file} only if it is not included already
+\G @code{include-file} @var{file} only if it is not included already.
   name required ;
 
 0 [IF]
@@ -143,5 +143,5 @@ create image-included-files  1 , A, ( pointer to and count of included files )
 	cr I 2@ type  2 cells +LOOP ;  
 
 \ contains tools/newrequire.fs
-\ \I $Id: require.fs,v 1.5 1998-12-08 22:03:13 anton Exp $
+\ \I $Id: require.fs,v 1.6 1999-03-23 20:24:26 crook Exp $
 

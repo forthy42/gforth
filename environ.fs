@@ -49,7 +49,7 @@ get-order environment-wordlist swap 1+ set-order
 \ this should be computed in C as CHAR_BITS/sizeof(char),
 \ but I don't know any machine with gcc where an au does not have 8 bits.
 8 constant ADDRESS-UNIT-BITS ( -- n ) \ environment
-\G Size of one address unit, it bits.
+\G Size of one address unit, in bits.
 
 1 ADDRESS-UNIT-BITS chars lshift 1- constant MAX-CHAR ( -- u ) \ environment
 \G Maximum value of any character in the character set
@@ -99,8 +99,8 @@ version-string 2constant gforth ( -- c-addr u ) \ gforth-environment
     [ forthstart 4 cells + ] literal @ cell / ;
 
 : floating-stack ( -- n ) \ environment
-    \G n is non-zero, showing that Gforth maintains a separate
-    \G floating-point stack of depth n.
+    \G @var{n} is non-zero, showing that Gforth maintains a separate
+    \G floating-point stack of depth @var{n}.
     [ forthstart 5 cells + ] literal @
     [IFDEF] float  float  [ELSE]  [ 1 floats ] Literal [THEN] / ;
 

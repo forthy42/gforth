@@ -26,9 +26,9 @@ decimal
 \ .(                                                    12may93jaw
 
 : .(   ( "ccc<paren>" -- ) \ core-ext dot-paren
-  \G Parse a string ccc delimited by a ) (right parenthesis). Display
-  \G the string. This is often used to display progress information
-  \G during compilation. See examples below.
+  \G Parse a string @var{ccc} delimited by a @code{)} (right
+  \G parenthesis). Display the string. This is often used to display
+  \G progress information during compilation; see examples below.
   [char] ) parse type ; immediate
 
 \ VALUE 2>R 2R> 2R@                                     17may93jaw
@@ -36,7 +36,7 @@ decimal
 \ !! 2value
 
 : 2Literal ( compilation w1 w2 -- ; run-time  -- w1 w2 ) \ double two-literal
-    \G Compile appropriate code such that, at run-time, cell pair w1, w2 are
+    \G Compile appropriate code such that, at run-time, cell pair @var{w1, w2} are
     \G placed on the stack. Interpretation semantics are undefined.
     swap postpone Literal  postpone Literal ; immediate restrict
 
@@ -76,9 +76,10 @@ decimal
     postpone (c") here over char+ allot  place align ; immediate restrict
 
 : C" ( compilation "ccc<quote>" -- ; run-time  -- c-addr ) \ core-ext c-quote
-    \G Compilation: parse a string ccc delimited by a " (double quote). At
-    \G run-time, return c-addr which specifies the counted string ccc.
-    \G Interpretation semantics are undefined.
+    \G Compilation: parse a string @var{ccc} delimited by a @code{"}
+    \G (double quote). At run-time, return @var{c-addr} which
+    \G specifies the counted string @var{ccc}.  Interpretation
+    \G semantics are undefined.
     [char] " parse postpone CLiteral ; immediate restrict
 
 \ [COMPILE]                                             17may93jaw
@@ -89,29 +90,29 @@ decimal
 \ CONVERT                                               17may93jaw
 
 : convert ( ud1 c-addr1 -- ud2 c-addr2 ) \ core-ext
-    \G obsolescent; superseded by @code{>number}.
+    \G OBSOLESCENT; superseded by @code{>number}.
     char+ true >number drop ;
 
 \ ERASE                                                 17may93jaw
 
 : erase ( addr len -- ) \ core-ext
-    \G If len>0, clear all bits in each location of a memory region
-    \G of len address units starting at address addr.
+    \G If @var{len}>0, clear all bits in each location of a memory region
+    \G of @var{len} address units starting at address @var{addr}.
     \ !! dependence on "1 chars 1 ="
     ( 0 1 chars um/mod nip )  0 fill ;
 : blank ( addr len -- ) \ string
-    \G If len>0, store the character value for a space in each
+    \G If @var{len}>0, store the character value for a space in each
     \G location of a memory region
-    \G of len character units starting at address addr.
+    \G of @var{len} character units starting at address @var{addr}.
     bl fill ;
 
 \ SEARCH                                                02sep94py
 
 : search ( c-addr1 u1 c-addr2 u2 -- c-addr3 u3 flag ) \ string
-    \G Search the string specified by c-addr1, u1 for the string
-    \G speficied by c-addr2, u2. If flag is true: match was found
-    \G at c-addr3 with u3 characters remaining. If flag is false:
-    \G no match was found; c-addr3, u3 are equal to c-addr1, u1.
+    \G Search the string specified by @var{c-addr1, u1} for the string
+    \G specified by @var{c-addr2, u2}. If @var{flag} is true: match was found
+    \G at @var{c-addr3} with @var{u3} characters remaining. If @var{flag} is false:
+    \G no match was found; @var{c-addr3, u3} are equal to @var{c-addr1, u1}.
     \ not very efficient; but if we want efficiency, we'll do it as primitive
     2>r 2dup
     begin

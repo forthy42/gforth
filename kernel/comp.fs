@@ -126,7 +126,7 @@ create nextname-buffer 32 chars allot
 \ \ literals							17dec92py
 
 : Literal  ( compilation n -- ; run-time -- n ) \ core
-    \G Compile appropriate code such that, at run-time, n is placed
+    \G Compile appropriate code such that, at run-time, @var{n} is placed
     \G on the stack. Interpretation semantics are undefined.
     postpone lit  , ; immediate restrict
 
@@ -134,14 +134,15 @@ create nextname-buffer 32 chars allot
     postpone lit A, ; immediate restrict
 
 : char   ( '<spaces>ccc' -- c ) \ core
-    \G Skip leading spaces. Parse the string ccc and return c, the
-    \G display code representing the first character of ccc.
+    \G Skip leading spaces. Parse the string @var{ccc} and return @var{c}, the
+    \G display code representing the first character of @var{ccc}.
     bl word char+ c@ ;
 
 : [char] ( compilation '<spaces>ccc' -- ; run-time -- c ) \ core bracket-char
-    \G Compilation: skip leading spaces. Parse the string ccc. Run-time:
-    \G return c, the display code representing the first character of ccc.
-    \G Interpretation semantics for this word are undefined.
+    \G Compilation: skip leading spaces. Parse the string
+    \G @var{ccc}. Run-time: return @var{c}, the display code
+    \G representing the first character of @var{ccc}.  Interpretation
+    \G semantics for this word are undefined.
     char postpone Literal ; immediate restrict
 
 \ \ threading							17mar93py
@@ -152,7 +153,7 @@ create nextname-buffer 32 chars allot
     0 A, 0 ,  code-address! ;
 
 : compile, ( xt -- )	\ core-ext	compile-comma
-    \G  Blah, blah.
+    \G  Compile the word represented by the execution token, @var{xt}.
     A, ;
 
 : !does    ( addr -- ) \ gforth	store-does
@@ -168,7 +169,7 @@ create nextname-buffer 32 chars allot
     r> dup cell+ >r @ compile, ;
 
 : postpone, ( w xt -- ) \ gforth	postpone-comma
-    \g Compiles the compilation semantics represented by @var{w xt}.
+    \g Compile the compilation semantics represented by @var{w xt}.
     dup ['] execute =
     if
 	drop compile,
@@ -228,7 +229,7 @@ DOES>
 \ \ recurse							17may93jaw
 
 : recurse ( compilation -- ; run-time ?? -- ?? ) \ core
-    \g calls the current definition.
+    \g Call the current definition.
     lastxt compile, ; immediate restrict
 
 \ \ compiler loop
@@ -266,15 +267,19 @@ DOES>
   here over char+ allot  place align ;
 
 : SLiteral ( Compilation c-addr1 u ; run-time -- c-addr2 u ) \ string
-    \G Compilation: compile the string specified by c-addr1, u into
-    \G the current definition. Run-time: return c-addr2 u describing
-    \G the address and length of the string.
+    \G Compilation: compile the string specified by @var{c-addr1},
+    \G @var{u} into the current definition. Run-time: return
+    \G @var{c-addr2 u} describing the address and length of the
+    \G string.
     postpone (S") here over char+ allot  place align ;
                                              immediate restrict
 
 \ \ abort"							22feb93py
 
 : abort" ( compilation 'ccc"' -- ; run-time f -- ) \ core,exception-ext	abort-quote
+    \G If any bit of @var{f} is non-zero, perform the function of @code{-2 throw},
+    \G displaying the string @var{ccc} if there is no exception frame on the
+    \G exception stack.
     postpone (abort") ," ;        immediate restrict
 
 \ \ Header states						23feb93py
@@ -294,11 +299,15 @@ DOES>
     last @ dup 0= abort" last word was headerless" cell+ ;
 
 : immediate ( -- ) \ core
+    \G Make the compilation semantics of a word be to @code{execute}
+    \G the execution semantics.
     immediate-mask lastflags cset ;
 
 : restrict ( -- ) \ gforth
+    \G A synonym for @code{compile-only}
     restrict-mask lastflags cset ;
 ' restrict alias compile-only ( -- ) \ gforth
+\G Remove the interpretation semantics of a word.
 
 \ \ Create Variable User Constant                        	17mar93py
 
@@ -456,6 +465,6 @@ G -1 warnings T !
     dup wordlist-map @ rehash-method perform ;
 
 ' reveal alias recursive ( compilation -- ; run-time -- ) \ gforth
-\g makes the current definition visible, enabling it to call itself
+\g Make the current definition visible, enabling it to call itself
 \g recursively.
 	immediate restrict

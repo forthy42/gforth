@@ -124,7 +124,7 @@ variable backedge-locals
  POSTPONE ?branch >mark ; immediate restrict
 
 : ?DUP-IF ( compilation -- orig ; run-time n -- n| ) \ gforth	question-dupe-if
-\G This is the preferred alternative to the idiom "?DUP IF", since it can be
+\G This is the preferred alternative to the idiom "@code{?DUP IF}", since it can be
 \G better handled by tools like stack checkers. Besides, it's faster.
     POSTPONE ?dup-?branch >mark ;       immediate restrict
 
@@ -296,6 +296,10 @@ Defer exit-like ( -- )
 ' noop IS exit-like
 
 : EXIT ( compilation -- ; run-time nest-sys -- ) \ core
+    \G Return to the calling definition; usually used as a way of
+    \G forcing an early return from a definition. Before
+    \G @code{EXIT}ing you must clean up the return stack and
+    \G @code{UNLOOP} any outstanding @code{?DO}...@code{LOOP}s.
     exit-like
     POSTPONE ;s
     POSTPONE unreachable ; immediate restrict
