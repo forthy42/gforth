@@ -9,6 +9,7 @@ http://www.complang.tuwien.ac.at/papers/ertl&maierhofer95.ps.gz.
 All times are given in seconds of user time.
 
 siev	bubble	matrix	fib	machine and configuration
+ 1.52	 2.13	 2.56	 2.59	Athlon 600; gcc-2.95.2; gforth-0.4.9 -DFORCE_REG -DDIRECT-THREADED; ELF
  2.39	 3.38	 4.13	 4.18	Celeron 450 (Mendocino); gcc-2.7.2.3 -DFORCE-REG -DDIRECT-THREADED; gforth-0.3.0; ELF
  1.97	 2.84	 3.21	 3.24	Celeron 450 (Mendocino); gcc-2.95; gforth-0.4.9 -DFORCE_REG; ELF
  6.88	 7.43	 5.80	 8.15	AMD K6-2 300MHz 1M PB cache 100MHz; gcc-2.7.2.3 -DFORCE-REG; gforth-0.4.0; ELF

@@ -212,7 +212,7 @@ case "$host_cpu" in
 		if test "${enable_direct_threaded+set}" = "" \
 			-a "${enable_indirect_threaded+set}" = ""
 		then
-			echo "Using direct threaded code on PPro/Pentium II"
+			echo "Using direct threaded code on Athlon/PPro/Pentium II/Pentium III"
 			AC_DEFINE(DIRECT_THREADED)
 		fi
 		;;

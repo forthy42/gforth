@@ -1000,13 +1000,10 @@ The region is sent terminated by a newline."
  '(forth-mode)
  (append
   '(("\\\\ \\(.*\\)$" nil comment)) ; comments
-  '(("( [^)\n]* -- [^)\n]* )" nil decl))
-  '(("( -- [^)\n]* )" nil decl))
-  '(("( [^)\n]* -- )" nil decl))
-  '(("( -- )" nil decl))
+  '(("(\\( [^)\n]* \\| \\)--\\( [^)\n]* \\| \\))" nil decl))
   '(("( " ")" comment))
   '(("\" [^\"\n]*\"" nil string))
-  '(("\\(\\[IF]\\|\\[IFDEF]\\|\\[IFUNDEF]\\|\\[ELSE]\\|\\[THEN]\\|IF\\|ELSE\\|THEN\\|BEGIN\\|WHILE\\|REPEAT\\|UNTIL\\|DOES>\\|?DO\\|DO\\|\+LOOP\\|LOOP\\)" nil keyword))
+  '(("\\(\\[IF]\\|\\[IFDEF]\\|\\[IFUNDEF]\\|\\[ELSE]\\|\\[THEN]\\|IF\\|ELSE\\|THEN\\|CASE\\|ENDCASE\\|OF\\|ENDOF\\|BEGIN\\|WHILE\\|REPEAT\\|UNTIL\\|DOES>\\|?DO\\|DO\\|\+LOOP\\|LOOP\\)" nil keyword))
   '((": *[^ \n]*" nil defun))
   '(("Defer *[^ \n]*" nil defun))
   '(("\\(Variable\\|Constant\\|Value\\|Create\\) *[^ \n]*" nil define))
