@@ -3,16 +3,14 @@
 .ns
 .IP "\fB\\$1\fI\\$2" 9
 ..
-.TH GForth 1 "April 10, 1997" \" -*- nroff -*-
+.TH GForth 1 "December 24, 1998" \" -*- nroff -*-
 .SH NAME
-gforth, gforth-ditc, gforth-makeimage \- a fast and portable Forth system
+gforth, gforthmi \- a fast and portable Forth system
 .SH SYNOPSIS
 
 \fCgforth\fR [initialization options] [image-specific options]
 
-\fCgforth-ditc\fR [initialization options] [image-specific options]
-
-\fCgforth-makeimage\fR \fIfilename\fR [initialization options] [image-specific options]
+\fCgforthmi\fR \fIfilename\fR [initialization options] [image-specific options]
 .SH DESCRIPTION
 
 \fBGForth\fR is a fast and portable implementation of the Forth
@@ -22,11 +20,11 @@ programming language. For details read the manual.
 \fCGFORTHPATH\fR contains the search path for source and image files.
 
 \fCGFORTHD\fR gives the gforth executable used by
-\fCgforth-makeimage\fR for creating the base images. It should be a
+\fCgforthmi\fR for creating the base images. It should be a
 double indirect threaded system.  Default: \fCgforth-ditc\fR.
 
 \fCGFORTH\fR gives the gforth executable used by
-\fCgforth-makeimage\fR for computing the relocatable image from the
+\fCgforthmi\fR for computing the relocatable image from the
 base images. Default: \fCgforth\fR.
 
 .SH EXAMPLES
@@ -40,15 +38,10 @@ starts the system and goes into interactive mode.
 loads and interprets the files \fCfile1\fR and \fCfile2\fR, then
 exits.
 
-\fCgforth-makeimage asm.fi \-m 1M asm.fs\fR
+\fCgforthmi asm.fi \-m 1M asm.fs\fR
 
 creates an image \fCasm.fi\fR that has a default dictionary size of
 1MB and has the file \fCasm.fs\fR loaded.
-
-\fCgforth-ditc\fR
-
-starts a doubly indirect threaded version of Gforth and goes into
-interactive mode.
 
 .SH OPTIONS
 
@@ -132,9 +125,8 @@ interactive mode) append \fC-e bye\fR to the command line. This is an
 image-specific option of the default image.
 .SH FILES
 .nf
-.ta \w'\fCkernal.fi\fP 	'u
-\&\fCgforth.fi\fP	default Forth image
-\&\fCkernel.fi\fP	kernel image
+.ta \w'\fC.../gforth.fi\fP 	'u
+\&\fC.../gforth.fi\fP	default Forth image
 \&\fC*.fi\fP	Forth loadable image
 \&\fC*.fs\fP	Forth source (sequential)
 \&\fC*.fb\fP	Forth source (block)
