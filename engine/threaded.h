@@ -91,7 +91,9 @@
 
 */
 
-/* CFA_NEXT: a more appropriate name would be CFA_LIVE, i.e., cfa is live after NEXT */
+/* CFA_NEXT: if NEXT uses cfa, you have to #define CFA_NEXT, to get
+ * cfa declared in engine.
+ */
 
 #ifdef DOUBLY_INDIRECT
 #  define CFA_NEXT

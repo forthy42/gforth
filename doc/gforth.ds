@@ -969,6 +969,7 @@ material in this chapter.
 * Gforth Files::                What gets installed and where
 @end menu
 
+@xref{Image Files} for related information about the creation of images.
 
 @comment ----------------------------------------------
 @node Invoking Gforth, Leaving Gforth, ,Gforth Environment
@@ -979,24 +980,29 @@ material in this chapter.
 @cindex options on the command line
 @cindex flags on the command line
 
-Gforth is made up of two parts; an executable ``engine'' (named gforth)
-and an image file. To start it, you will usually just say @code{gforth}
--- this automatically loads the default image file. In many other cases
-the default Gforth image will be invoked like this:
+Gforth is made up of two parts; an executable ``engine'' (named
+@file{gforth} or @file{gforth-fast}) and an image file. To start it, you
+will usually just say @code{gforth} -- this automatically loads the
+default image file @file{gforth.fi}. In many other cases the default
+Gforth image will be invoked like this:
 @example
-gforth [files] [-e forth-code]
+gforth [file | -e forth-code] ...
 @end example
 @noindent
 This interprets the contents of the files and the Forth code in the order they
 are given.
 
+In addition to the @file{gforth} engine, there is also an engine called
+@file{gforth-fast}, which is faster, but gives less informative error
+messages (@pxref{Error messages}).
+
 In general, the command line looks like this:
 
 @example
-gforth [initialization options] [image-specific options]
+gforth[-fast] [engine options] [image options]
 @end example
 
-The initialization options must come before the rest of the command
+The engine options must come before the rest of the command
 line. They are:
 
 @table @code
@@ -1138,10 +1144,11 @@ then in @file{~}, then in the normal path (see above).
 @cindex Gforth - leaving
 @cindex leaving Gforth
 
-You can leave Gforth by typing @code{bye} or Ctrl-D or (if you invoked
-Gforth with the @code{--die-on-signal} option) Ctrl-C. When you leave
-Gforth, all of your definitions and data are discarded. @xref{Image
-Files} for ways of saving the state of the system before leaving Gforth.
+You can leave Gforth by typing @code{bye} or @kbd{Ctrl-d} (at the start
+of a line) or (if you invoked Gforth with the @code{--die-on-signal}
+option) @kbd{Ctrl-c}. When you leave Gforth, all of your definitions and
+data are discarded. @xref{Image Files} for ways of saving the state of
+the system before leaving Gforth.
 
 doc-bye
 
@@ -1156,34 +1163,36 @@ used to provide a command-line recall facility; if you type ctrl-P
 repeatedly you can recall successively older commands from this (or
 previous) session(s). The full list of command-line editing facilities is:
 
+@comment use @table? - anton
 @itemize @bullet
 @item
-ctrl-P (``previous'') (or up-arrow) to recall successively older
+@kbd{Ctrl-p} (``previous'') (or up-arrow) to recall successively older
 commands from the history buffer.
 @item
-ctrl-N (``next'') (or down-arrow) to recall successively newer commands
+@kbd{Ctrl-n} (``next'') (or down-arrow) to recall successively newer commands
 from the history buffer.
 @item
-ctrl-F (or right-arrow) to move the cursor right, non-destructively.
+@kbd{Ctrl-f} (or right-arrow) to move the cursor right, non-destructively.
 @item
-ctrl-B (or left-arrow) to move the cursor left, non-destructively.
+@kbd{Ctrl-b} (or left-arrow) to move the cursor left, non-destructively.
 @item
-ctrl-H (backspace) to delete the character to the left of the cursor,
+@kbd{Ctrl-h} (backspace) to delete the character to the left of the cursor,
 closing up the line.
 @item
-ctrl-K to delete (``kill'') from the cursor to the end of the line.
+@kbd{Ctrl-k} to delete (``kill'') from the cursor to the end of the line.
 @item
-ctrl-A to move the cursor to the start of the line.
+@kbd{Ctrl-a} to move the cursor to the start of the line.
 @item
-ctrl-E to move the cursor to the end of the line.
+@kbd{Ctrl-e} to move the cursor to the end of the line.
 @item
-carriage-return or line-feed (ctrl-J, ctrl-M) to submit the current
+@key{RET} (@kbd{Ctrl-m}) or @key{LFD} (@kbd{Ctrl-j}) to submit the current
 line.
 @item
-tab to step through all possible full-word completions of the word
+@key{TAB} to step through all possible full-word completions of the word
 currently being typed.
 @item
-ctrl-D to terminate Gforth (gracefully, using @code{bye}).
+@kbd{Ctrl-d} at the start of the line to terminate Gforth (gracefully,
+using @code{bye}).
 @end itemize
 
 When editing, displayable characters are inserted to the left of the
@@ -1211,8 +1220,6 @@ Gforth never trims the size of the history file, so you should do this
 periodically, if necessary.
 
 @comment this is all defined in history.fs
-@comment TODO the ctrl-D behaviour can either do a bye or a beep.. how is that option
-@comment chosen?
 
 
 
@@ -1227,11 +1234,28 @@ Standard words using upper, lower or mixed case (however,
 @pxref{core-idef, Implementation-defined options, Implementation-defined
 options}).
 
-ANS Forth only @i{requires} implementations to recognise Standard words when
-they are typed entirely in upper case. Therefore, a Standard program
-must use upper case for all Standard words@footnote{You can use whatever
-case you like for words that you define.}.
+ANS Forth only @i{requires} implementations to recognise Standard words
+when they are typed entirely in upper case. Therefore, a Standard
+program must use upper case for all Standard words. You can use whatever
+case you like for words that you define, but in a standard program you
+have to use the words in the same case that you defined them.
 
+Gforth supports case sensitivity through @code{table}s (case-sensitive
+wordlists, @pxref{Word Lists}).
+
+Two people have asked how to convert Gforth to case sensitivity; while
+we think this is a bad idea, you can change all wordlists into tables
+like this:
+
+@example
+' table-find forth-wordlist wordlist-map @ !
+@end example
+
+Note that you now have to type the predefined words in the same case
+that we defined them, which are varying.  You may want to convert them
+to your favourite case before doing this operation (I won't explain how,
+because if you are even contemplating to do this, you'd better have
+enough knowledge of Forth systems to know this already).
 
 @comment ----------------------------------------------
 @node Environment variables, Gforth Files, Upper and lower case,Gforth Environment
@@ -1278,8 +1302,8 @@ are not set.
 @section Gforth files
 @cindex Gforth files
 
-When Gforth is installed on a Unix system it leaves files in these
-locations:
+When you Gforth on a Unix system in the default places, it installs
+files in these locations:
 
 @itemize @bullet
 @item
@@ -1291,15 +1315,17 @@ locations:
 @item
 @file{/usr/local/info} - the Info version of this manual.
 @item
-@file{/usr/local/lib/gforth/<version>/..} - Gforth @file{.fi} files.
+@file{/usr/local/lib/gforth/<version>/...} - Gforth @file{.fi} files.
 @item
 @file{/usr/local/share/gforth/<version>/TAGS} - Emacs TAGS file.
 @item
-@file{/usr/local/share/gforth/<version>/..} - Gforth source files.
+@file{/usr/local/share/gforth/<version>/...} - Gforth source files.
 @item
-@file{../emacs/site-lisp/gforth.el} - Emacs gforth mode.
+@file{.../emacs/site-lisp/gforth.el} - Emacs gforth mode.
 @end itemize
 
+You can select different places for installation by using
+@code{configure} options (listed with @code{configure --help}).
 
 @c ******************************************************************
 @node Introduction, Words, Gforth Environment, Top
@@ -1318,7 +1344,7 @@ output shown was produced using Gforth. Each example attempts to
 reproduce the exact output that Gforth produces. If you try out the
 examples (and you should), what you should type is shown @kbd{like this}
 and Gforth's response is shown @code{like this}. The single exception is
-that, where the example shows @kbd{<return>} it means that you should
+that, where the example shows @key{RET} it means that you should
 press the ``carriage return'' key. Unfortunately, some output formats for
 this manual cannot show the difference between @kbd{this} and
 @code{this} which will make trying out the examples harder (but not
@@ -1350,19 +1376,24 @@ lead to great productivity improvements.
 @cindex text interpreter
 @cindex outer interpreter
 
+@c IMO this is too detailed and the pace is too slow for
+@c an introduction.  If you know German, take a look at
+@c http://www.complang.tuwien.ac.at/anton/lvas/skriptum-stack.html 
+@c to see how I do it - anton 
+
 When you invoke the Forth image, you will see a startup banner printed
 and nothing else (if you have Gforth installed on your system, try
-invoking it now, by typing @kbd{gforth<return>}). Forth is now running
+invoking it now, by typing @kbd{gforth@key{RET}}). Forth is now running
 its command line interpreter, which is called the @dfn{Text Interpreter}
 (also known as the @dfn{Outer Interpreter}).  (You will learn a lot
-about the text interpreter as you read through this chapter,
-but @pxref{The Text Interpreter} for more detail).
+about the text interpreter as you read through this chapter, but
+@pxref{The Text Interpreter} for more detail).
 
 Although it's not obvious, Forth is actually waiting for your
-input. Type a number and press the <return> key:
+input. Type a number and press the @key{RET} key:
 
 @example
-@kbd{45<return>}  ok
+@kbd{45@key{RET}}  ok
 @end example
 
 Rather than give you a prompt to invite you to input something, the text
@@ -1372,7 +1403,7 @@ carriage-return) indicates that the text interpreter was able to process
 all of your input successfully. Now type something illegal:
 
 @example
-@kbd{qwer341<return>}
+@kbd{qwer341@key{RET}}
 :1: Undefined word
 qwer341
 ^^^^^^^
@@ -1383,7 +1414,8 @@ $400DBDA8 no.extensions
 The exact text, other than the ``Undefined word'' may differ slightly on
 your system, but the effect is the same; when the text interpreter
 detects an error, it discards any remaining text on a line, resets
-certain internal state and prints an error message.
+certain internal state and prints an error message. @xref{Error
+messages} for a detailed description of error messages.
 
 The text interpreter waits for you to press carriage-return, and then
 processes your input line. Starting at the beginning of the line, it
@@ -1423,7 +1455,7 @@ followed by carriage-return.
 This is the simplest command we can give to the text interpreter:
 
 @example
-@kbd{<return>}  ok
+@key{RET}  ok
 @end example
 
 The text interpreter did everything we asked it to do (nothing) without
@@ -1431,7 +1463,7 @@ an error, so it said that everything is ``@code{ ok}''. Try a slightly longer
 command:
 
 @example
-@kbd{12 dup fred dup<return>}
+@kbd{12 dup fred dup@key{RET}}
 :1: Undefined word
 12 dup fred dup
        ^^^^
@@ -1499,7 +1531,7 @@ programmer. Although Forth does support variables, the existence of the
 stack means that they are used far less often than in most other
 programming languages. When the text interpreter encounters a number, it
 will place (@dfn{push}) it on the stack. There are several stacks (the
-actual number is implementation-dependent ..) and the particular stack
+actual number is implementation-dependent ...) and the particular stack
 used for any operation is implied unambiguously by the operation being
 performed. The stack used for all integer operations is called the @dfn{data
 stack} and, since this is the stack used most commonly, references to
@@ -1508,7 +1540,7 @@ stack} and, since this is the stack used most commonly, references to
 The stacks have a last-in, first-out (LIFO) organisation. If you type:
 
 @example
-@kbd{1 2 3<return>}  ok
+@kbd{1 2 3@key{RET}}  ok
 @end example
 
 Then this instructs the text interpreter to placed three numbers on the
@@ -1549,8 +1581,8 @@ you can use the definition @code{.s} to show the current state of the stack,
 without affecting the stack. Type:
 
 @example
-@kbd{clearstack 1 2 3<return>} ok
-@kbd{.s<return>} <3> 1 2 3  ok
+@kbd{clearstack 1 2 3@key{RET}} ok
+@kbd{.s@key{RET}} <3> 1 2 3  ok
 @end example
 
 The text interpreter looks up the word @code{clearstack} and executes
@@ -1565,7 +1597,7 @@ right-hand side is the TOS.
 You can now type:
 
 @example
-@kbd{+ .s<return>} <2> 1 5  ok
+@kbd{+ .s@key{RET}} <2> 1 5  ok
 @end example
 
 @noindent
@@ -1615,7 +1647,7 @@ of treating stack items is as 2's complement signed integers, and that
 is what Standard words like @code{+} do. Therefore you can type:
 
 @example
-@kbd{-5 12 + .s<return>} <1> 7  ok
+@kbd{-5 12 + .s@key{RET}} <1> 7  ok
 @end example
 
 If you use numbers and definitions like @code{+} in order to turn Forth
@@ -1723,11 +1755,11 @@ copy the spaces accurately:
 Now try them out:
 
 @example
-@kbd{greet<return>} Hello and welcome  ok
-@kbd{greet greet<return>} Hello and welcomeHello and welcome  ok
-@kbd{4 add-two<return>} 6  ok
-@kbd{demo<return>} 7  ok
-@kbd{9 greet demo add-two<return>} Hello and welcome7 11  ok
+@kbd{greet@key{RET}} Hello and welcome  ok
+@kbd{greet greet@key{RET}} Hello and welcomeHello and welcome  ok
+@kbd{4 add-two@key{RET}} 6  ok
+@kbd{demo@key{RET}} 7  ok
+@kbd{9 greet demo add-two@key{RET}} Hello and welcome7 11  ok
 @end example
 
 The first new thing that we've introduced here is the pair of words
@@ -1759,7 +1791,7 @@ will already have a definition called @code{add-two}. Lets try modifying
 it by typing in a new definition:
 
 @example
-@kbd{: add-two dup . ." + 2 =" 2 + . ;<return>} redefined add-two  ok
+@kbd{: add-two dup . ." + 2 =" 2 + . ;@key{RET}} redefined add-two  ok
 @end example
 
 Forth recognised that we were defining a word that already exists, and
@@ -1767,7 +1799,7 @@ printed a message to warn us of that fact. Let's try out the new
 definition:
 
 @example
-@kbd{9 add-two<return>} 9 + 2 =11  ok
+@kbd{9 add-two@key{RET}} 9 + 2 =11  ok
 @end example
 
 @noindent
@@ -1788,13 +1820,22 @@ words of your own.
 @section How does that work?
 @cindex parsing words
 
+@c That's pretty deep (IMO way too deep) for an introduction. - anton
+
+@c Is it a good idea to talk about the interpretation semantics of a
+@c number? We don't have an xt to go along with it. - anton
+
+@c Now that I have eliminated execution semantics, I wonder if it would not
+@c be better to keep them (or add run-time semantics), to make it easier to
+@c explain what compilation semantics usually does. - anton
+
 Now we're going to take another look at the definition of @code{add-two}
 from the previous section. From our knowledge of the way that the text
 interpreter works, we would have expected this result when we tried to
 define @code{add-two}:
 
 @example
-@kbd{: add-two 2 + . " ;<return>}
+@kbd{: add-two 2 + . " ;@key{RET}}
   ^^^^^^^
 Error: Undefined word
 @end example
@@ -1839,31 +1880,29 @@ it onto the stack, or it fails to do either and generates an error.
 
 When the text interpreter is compiling, its behaviour is slightly
 different; it still looks for each character sequence in the dictionary
-and finds its xt, or converts it to a number, or fails to do either and
-generates an error. However, instead of executing the xt or pushing the
-number onto the stack it lays down (@dfn{compiles}) some magic to make
-that xt or number get executed or pushed at a later time; at the time
-that @code{add-two} is @dfn{executed}. Therefore, when you execute
-@code{add-two} its @dfn{run-time effect} is exactly the same as if you
-had typed @code{2 + .} outside of a definition, and pressed
-carriage-return.
+and finds it, or converts it to a number, or fails to do either and
+generates an error.  But instead of the execution token of a word it
+finds and executes the compilation token.  For most words executing the
+compilation token results in laying down (@dfn{compiling}) the execution
+token, i.e., some magic to make that xt or number get executed or pushed
+at a later time; at the time that @code{add-two} is
+@dfn{executed}. Therefore, when you execute @code{add-two} its
+@dfn{run-time effect} is exactly the same as if you had typed @code{2 +
+.} outside of a definition, and pressed carriage-return.
 
-In Forth, every word or number can be described in terms of three
+In Forth, every word or number can be described in terms of two
 properties:
 
 @itemize @bullet
 @item
-Its behaviour at @dfn{compile} time
+Its @dfn{interpretation semantics}, represented by the execution token.
 @item
-Its behaviour at @dfn{interpret} time
-@item
-Its behaviour at @dfn{execution} time.
+Its @dfn{compilation semantics}, represented by the compilation token.
 @end itemize
 
-These behaviours are called the @dfn{semantics} of the word or
-number. The value of @code{state} determines whether the text
-interpreter will use the compilation or interpretation semantics of a
-word or number that it encounters.
+The value of @code{state} determines whether the text interpreter will
+use the compilation or interpretation semantics of a word or number that
+it encounters.
 
 @itemize @bullet
 @item
@@ -1883,61 +1922,48 @@ Numbers are always treated in a fixed way:
 
 @itemize @bullet
 @item
-When the number is @dfn{compiled}, it is appended to the current
-definition so that its run-time behaviour is to execute. (In other
-words, the compilation semantics of a number are to postpone its
-execution semantics until the run-time of the definition that it is
-being compiled into.)
+When the number is @dfn{interpreted}, its behaviour is to push the number onto the stack.
 @item
-When the number is @dfn{interpreted}, its behaviour is to execute. (In
-other words, the interpretation semantics of a number are to perform its
-execution semantics.)
-@item
-@cindex execution semantics
-When the number is @dfn{executed}, its behaviour is to push its value
-onto the stack. (In other words, the execution semantics of a number are
-to push its value onto the stack.)
+When the number is @dfn{compiled}, a piece of code is appended to the
+current definition that pushes the number when it runs. (In other words,
+the compilation semantics of a number are to postpone its interpretation
+semantics until the run-time of the definition that it is being compiled
+into.)
 @end itemize
 
-
 The behaviour of a word is not so regular, but most have @i{default
-semantics} which means that they behave like this:
+compilation semantics} which means that they behave like this:
 
 @itemize @bullet
 @item
+The @dfn{interpretation semantics} of the word are to do something useful.
+@item
 The @dfn{compilation semantics} of the word are to append its
-@dfn{execution semantics} to the current definition (so that its
-run-time behaviour is to execute).
-@item
-The @dfn{interpretation semantics} of the word are to execute.
-@item
-The @dfn{execution semantics} of the word are to do something useful.
+@dfn{interpretation semantics} to the current definition (so that its
+run-time behaviour is to do something useful).
 @end itemize
 
-
+@cindex immediate words
 The actual behaviour of any particular word depends upon the way in
 which it was defined. When the text interpreter finds the word in the
 name dictionary, it not only retrieves the xt for the word, it also
 retrieves some flags: the @dfn{compile-only} flag and the @dfn{immediate
 flag}. The compile-only flag indicates that the word has no
-interpretation semantics; any attempt to interpret a word that has the
-compile-only flag set will generate an error (for example, @code{IF} has
-no interpretation semantics). The immediate flag changes the compilation
-semantics of the word; if it is set, the text interpreter will
-@dfn{execute} the word rather than @dfn{compiling}
-@cindex immediate words
-it. In other words, these so-called @dfn{immediate} words behave like
-this:
+interpretation semantics (the run-time behaviour for the default
+compilation semantics is not affected by this flag, however); any
+attempt to interpret a word that has the compile-only flag set will
+generate an error (for example, @code{IF} has no interpretation
+semantics). The immediate flag changes the compilation semantics of the
+word; if it is set, the compilation semantics are equal to the
+interpretation semantics (again ignoring the compile-only flag).  it. In
+other words, these so-called @dfn{immediate} words behave like this:
 
 @itemize @bullet
 @item
-The @dfn{compilation semantics} of the word are to perform its
-@dfn{execution semantics} (so that its compile-time behaviour is to
-execute).
+The @dfn{interpretation semantics} of the word are to do something useful.
 @item
-The @dfn{interpretation semantics} of the word are to execute.
-@item
-The @dfn{execution semantics} of the word are to do something useful.
+The @dfn{compilation semantics} of the word are to do something useful
+(and actually the same thing); i.e., it is executed during compilation.
 @end itemize
 
 This example shows the difference between an immediate and a
@@ -1960,17 +1986,17 @@ of @code{state}.
 When you execute @code{word1}, it prints the number 0, indicating that
 the system is interpreting. When the text interpreter compiled the
 definition of @code{word1}, it encountered @code{show-state} whose
-compilation semantics are to append its execution semantics to the
+compilation semantics are to append its interpretation semantics to the
 current definition. When you execute @code{word1}, it performs the
-execution semantics of @code{show-state}.  At the time that @code{word1}
+interpretation semantics of @code{show-state}.  At the time that @code{word1}
 (and therefore @code{show-state}) are executed, the system is
 interpreting.
 
-When you pressed <return> after entering the definition of @code{word2},
+When you pressed @key{RET} after entering the definition of @code{word2},
 you should have seen the number -1 printed, followed by ``@code{
 ok}''. When the text interpreter compiled the definition of
 @code{word2}, it encountered @code{show-state-now}, an immediate word,
-whose compilation semantics are therefore to perform its execution
+whose compilation semantics are therefore to perform its interpretation
 semantics. It is executed straight away (even before the text
 interpreter has moved on to process another group of characters; the
 @code{;} in this example). The effect of executing it are to display the
@@ -2028,7 +2054,7 @@ files for program entry (@xref{Blocks}).
 In common with many, if not most, Forth compilers, most of Gforth is
 actually written in Forth. All of the @file{.fs} files in the
 installation directory@footnote{For example,
-@file{/usr/local/share/gforth..}} are Forth source files, which you can
+@file{/usr/local/share/gforth...}} are Forth source files, which you can
 study to see examples of Forth programming.
 
 Gforth maintains a history file that records every line that you type to
@@ -2067,15 +2093,14 @@ uses postfix notation.
 To use a word that has previously been defined, the text interpreter
 searches for the word in the @dfn{name dictionary}.
 @item
-Words have @dfn{interpretation semantics}, @dfn{compilation semantics}
-and @dfn{execution semantics}.
+Words have @dfn{interpretation semantics} and @dfn{compilation semantics}.
 @item
 The text interpreter uses the value of @code{state} to select between
 the use of the @dfn{interpretation semantics} and the  @dfn{compilation
 semantics} of a word that it encounters.
 @item
-The relationship between the @dfn{interpretation semantics},
-@dfn{compilation semantics} and @dfn{execution semantics} for a word
+The relationship between the @dfn{interpretation semantics} and
+@dfn{compilation semantics} for a word
 depend upon the way in which the word was defined (for example, whether
 it is an @dfn{immediate} word).
 @item
@@ -2099,7 +2124,7 @@ system. You certainly know enough to be able to read and understand the
 rest of this manual and the ANS Forth document, to learn more about the
 facilities that Forth in general and Gforth in particular provide. Even
 scarier, you know almost enough to implement your own Forth system.
-However, that's not a good idea just yet.. better to try writing some
+However, that's not a good idea just yet... better to try writing some
 programs in Gforth.
 
 Forth has such a rich vocabulary that it can be hard to know where to
@@ -2451,7 +2476,7 @@ doc-0>=
 
 doc-u<
 doc-u<=
-@comment TODO why u<> and u= .. they are the same as <> and =
+@comment TODO why u<> and u= ... they are the same as <> and =
 doc-u<>
 doc-u=
 doc-u>
@@ -3519,9 +3544,9 @@ compiles a string to be used as an error message and does a conditional
 @code{abort} at run-time. For example:
 
 @example
-@kbd{: checker abort" That flag was true" ." A false flag" ;<return>}  ok
-@kbd{0 checker<return>} A false flag ok
-@kbd{1 checker<return>}
+@kbd{: checker abort" That flag was true" ." A false flag" ;@key{RET}}  ok
+@kbd{0 checker@key{RET}} A false flag ok
+@kbd{1 checker@key{RET}}
 :1: That flag was true
 1 checker
   ^^^^^^^
@@ -4532,7 +4557,7 @@ buffer}@footnote{When the text interpreter is processing input from the
 keyboard, this area of memory is called the @dfn{terminal input buffer}
 (TIB) and is addressed by the (obsolescent) words @code{TIB} and
 @code{#TIB}.}, which stores your keyboard input when you press the
-<return> key. Starting at the beginning of the input buffer, it skips
+@key{RET} key. Starting at the beginning of the input buffer, it skips
 leading spaces (called @dfn{delimiters}) then parses a string (a
 sequence of non-space characters) until it reaches either a space
 character or the end of the buffer. Having parsed a string, it makes two
@@ -5169,6 +5194,7 @@ doc-set-current
 doc-get-order
 doc---thisone-set-order
 doc-wordlist
+doc-table
 doc-also
 doc---thisone-forth
 doc-only
@@ -5937,7 +5963,7 @@ As an example, consider the following text, stored in a file @file{test.fs}:
 When you load this code into Gforth, the following output is generated:
 
 @example
-@kbd{include test.fs <return>} text-1text-3text-4 ok
+@kbd{include test.fs @key{RET}} text-1text-3text-4 ok
 @end example
 
 @itemize @bullet
@@ -5957,10 +5983,10 @@ performs the compilation semantics for @code{."} within the definition of
 Here are some examples of executing @code{my-word} and @code{my-char}:
 
 @example
-@kbd{my-word <return>} text-2
+@kbd{my-word @key{RET}} text-2
  ok
-@kbd{my-char fred <return>} Af ok
-@kbd{my-char jim <return>} Aj ok
+@kbd{my-char fred @key{RET}} Af ok
+@kbd{my-char jim @key{RET}} Aj ok
 @end example
 
 @itemize @bullet
@@ -6193,7 +6219,7 @@ an overview what keys are available:
 
 @table @i
 
-@item <return>
+@item @key{RET}
 Next; Execute the next word.
 
 @item n
@@ -8687,12 +8713,13 @@ case.
 from primitives (e.g., invalid memory address, stack empty etc.);
 @code{gforth-fast} is only able to do a return stack dump from a
 directly called @code{throw} (including @code{abort} etc.).  This is the
-only difference (apart from a speed difference of about 30%) between
-@code{gforth} and @code{gforth-fast}.  Given an exception caused by a
-primitive in @code{gforth-fast}, you will typically see no return stack
-dump at all; however, if the exception is caught by @code{catch} (e.g.,
-for restoring some state), and then @code{throw}n again, the return
-stack dump will be for the first such @code{throw}.
+only difference (apart from a speed factor of between 1.15 (K6-2) and
+1.6 (21164A)) between @code{gforth} and @code{gforth-fast}.  Given an
+exception caused by a primitive in @code{gforth-fast}, you will
+typically see no return stack dump at all; however, if the exception is
+caught by @code{catch} (e.g., for restoring some state), and then
+@code{throw}n again, the return stack dump will be for the first such
+@code{throw}.
 
 @c ******************************************************************
 @node Tools, ANS conformance, Error messages, Top
