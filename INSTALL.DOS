@@ -7,6 +7,22 @@ features of the 80386, but on the other hand it requires at least a
 required if you don't have a DPMI host yourself (Windows/OS/2/Linux
 DOS-box, Quemm or others).
 
+First run
+
+config
+
+config has the following useful parameters:
+  --enable-force-reg      Use explicit register declarations if they appear in
+                          the machine.h file. This can cause a good speedup,
+                          but also incorrect code with some gcc versions on
+                          some processors (default disabled).
+  --enable-direct-threaded      Force direct threading. This may not work on
+                                some machines and may cause slowdown on others.
+                                (default disabled)
+  --enable-indirect-threaded    Force indirect threading. This can cause a
+                                slowdown on some machines.
+                                (default enabled)
+
 OS/2:
 
 You need EMX 0.9c to compile Gforth. The EMX package provides all
@@ -19,15 +35,17 @@ beta test, so expect bugs and quirks.
 
 If you don't want to install the DJGPP, CYGWIN32 or EMX package (quite
 large), look for a binary distribution of Gforth for DOS, Win32 or
-OS/2. You also must have a version of GNU make, because DOS/Win32/OS/2
-make programs are likely to have problems with the Makefile. If you
-want to change Gforth, you may need GNU m4, too. Because DJGPP
-provides use of long filenames under Windows 95, you should unpack the
-gforth package with a Windows-95-aware archiver (those from DJGPP or
-the Cygnus Win32-package come in mind), because otherwise gforth will
-not find the necessary files. With MS-DOS versions prior 7.0 or
-DR-DOS, these names are cut due to the 8.3 rule. This might confuse
-DJGPP 2.0's make, you could use DJGPP 1.x's make instead. Gforth 0.2.0
+OS/2.
+
+You also must have a version of GNU make, because DOS/Win32/OS/2 make
+programs are likely to have problems with the Makefile. If you want to
+change Gforth, you may need GNU m4, too. Because DJGPP provides some
+use of long filenames under Windows 95, you should unpack the gforth
+package with a Windows-95-aware archiver (those from DJGPP or the
+Cygnus Win32-package come in mind), because otherwise gforth will not
+find the necessary files. With MS-DOS versions prior 7.0 or DR-DOS,
+these names are cut due to the 8.3 rule. This might confuse DJGPP
+2.0's make, you could use DJGPP 1.x's make instead. Gforth 0.4.0
 hasn't been compiled with a MS-DOS prior 7.0.
 
 Compiling under DOS or OS/2 has a number of quirks, and if it doesn't
@@ -47,18 +65,14 @@ then I mount /usr, /usr/local and /bin with
 once. Each time I start CygWin32's bash, I set up the following variables:
 
 export TMPDIR=/usr/tmp
-export COMPILER_PATH=/usr/local/lib/gcc-lib/i386-cygwin32/cygnus-2.7.2-961023
+export COMPILER_PATH=/usr/local/lib/gcc-lib/i386-cygwin32/cygnus-2.7.2-970404
 export LIBRARY_PATH="/usr/lib;/usr/local/lib"
 export C_INCLUDE_PATH=/usr/local/i386-cygwin32/include
 export GCC_DEFAULT_OPTIONS="-specs=$COMPILER_PATH/specs"
 export PATH=/bin:.:$PATH
 
-Write this into a script and source it in at each bash invocation.
-
-Because Windows doesn't know about interpreters and shell scripts, you
-must run them from bash with e.g. "bash ./configure" instead just
-typing "./configure".
-
+Write this into a script and source it in at each bash invocation, or
+put it into your .bashrc.
 
 If you don't bother and want to make it yourself, type
 
@@ -88,11 +102,13 @@ You can run some benchmarks with
 
 make bench
 
-and compare them with the results in Benchres and in the manual.
+and compare them with the results in Benchres and in the manual. DOS
+and OS/2 don't allow to run the benchmarks, since the command TIME
+means something different there.
 
-Don't try to do "make install", it won't work, either. It is not possible to
-"make dist" or "make bindist", too, because of the limitations of DOS
-command lines.
+Don't try to do "make install" there, it won't work, either. It is not
+possible to "make dist" or "make bindist", too, because of the
+limitations of DOS command lines.
 
 Add the following entry to your Autoexec.bat:
 
@@ -101,7 +117,7 @@ SET GFORTHPATH=<your gforth source directory>;.
 Use / instead of \ in your gforth source directory. Gforth now uses
 ';' as path separator for DOS and OS/2 (not for Cygwin32), so you
 won't have problems with DOS pathes that may contain ':', which is the
-default path separator in Unix.
+default path separator in Unix. Use ~+ for the current directory.
 
 For paper documentation, print gforth.ps (a Postscript file (300dpi
 fonts, i.e., it works, but does not produce best quality on better
@@ -113,4 +129,9 @@ and print the resulting file gforth.dvi (you need TeX for that! But
 with TeX you can print it even if you don't have a Postscript printer
 nor Ghostscript).  You could be able to make a HTML version of the
 document, but AFAIK there is no texi2html for DOS available, as there
-is no perl available.
+is no perl available. You should get the HTML pages from the same
+location where you got Gforth or from
+
+http://www.complang.tuwien.ac.at/forth/gforth/
+or
+ftp://ftp.complang.tuwien.ac.at/pub/forth/gforth/

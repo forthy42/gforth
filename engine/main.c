@@ -48,7 +48,7 @@
 /* increment this whenever the primitives change in an incompatible way */
 
 #ifndef DEFAULTPATH
-#  define DEFAULTPATH "."
+#  define DEFAULTPATH "~+"
 #endif
 
 #ifdef MSDOS
@@ -128,7 +128,7 @@ typedef struct {
 
 void relocate(Cell *image, const char *bitstring, int size, Label symbols[])
 {
-  int i=0, j, k, steps=(size/sizeof(Cell))/8;
+  int i=0, j, k, steps=(size/sizeof(Cell))/RELINFOBITS;
   Cell token;
   char bits;
 /*   static char bits[8]={0x80,0x40,0x20,0x10,0x08,0x04,0x02,0x01};*/

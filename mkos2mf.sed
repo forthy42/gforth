@@ -3,7 +3,7 @@ s% cp% copy%g
 s% rm% del%g
 s% ./gforth % gforth %g
 s%@srcdir@%.%g
-s%\"$(FORTHPATH)\"%\".\"%g
+s%\"$(FORTHPATH)\"%\"~+\"%g
 s%@CFLAGS@%%g
 s%@CPPFLAGS@%%g
 s%@CXXFLAGS@%%g
@@ -49,7 +49,7 @@ s%@LN_S@%ln -s%g
 s%@INSTALL@%install-sh -c%g
 s%@INSTALL_PROGRAM@%${INSTALL}%g
 s%@INSTALL_DATA@%${INSTALL} -m 644%g
-s%@LIBOBJS@% pow10.o strsig.o ecvt.o atanh.o%g
+s%@LIBOBJS@% pow10.o strsignal.o ecvt.o atanh.o getopt.o getopt1.o%g
 s%@getopt_long@%getopt.o getopt1.o%g
 s%@kernel_fi@%kernl32l.fi%g
 s%@PATHSEP@%;%g
@@ -60,7 +60,6 @@ s%$(srcdir)/config.h.in:	stamp-h.in%#$(srcdir)/config.h.in:	stamp-h.in%g
 s%engine/config.h:	stamp-h%#engine/config.h:	stamp-h%g
 s%$(FORTHPATH)$(PATHSEP)%%g
 s%@FORTHSIZES@%%g
-s%$(PATHSEP)$(srcdir)%%g
 s%test x'$(VERSION)' = x`cat $@` || %%g
 s%GFORTHD="./gforth-ditc -p .* $(srcdir)/%%g
 s%'s"%"s\\"%g
@@ -68,4 +67,13 @@ s%"'%\\""%g
 s%@OSCLASS@%dos%g
 s%@machine@%386%g
 s%@VERSION@%0.4.0%g
-s%@EXE@%exe%g
+s%@EXE@%.exe%g
+s%engine/$@%engine\\$@%g
+s%gforthmi gforth\$(EXE)%gforthmi.cmd gforth\$(EXE)%g
+s%if test -r $@ && test x'$(VERSION)' = x`cat $@` ; then true ; else echo $(VERSION) > $@ ; fi%echo $(VERSION) > $@%g
+s%echo ": version-string s\\" $(VERSION)\\" ;" > kernel/version.fs%%g
+s%GFORTHD="./gforth-ditc -p .$(PATHSEP)$(srcdir)" GFORTH="./gforth-ditc -p .$(PATHSEP)$(srcdir) -i $(kernel_fi) startup.fs" ./%%g
+s%\*\.h %%g
+s%\*\.\[h\]%machine.h%g
+s%config.h.in ../config.status%%g
+s%cd .. && CONFIG_FILES=$@ CONFIG_HEADERS=engine/config.h ./config.status%%g

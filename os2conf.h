@@ -6,7 +6,13 @@
 
 /* Define if your processor stores words with the most significant
    byte first (like Motorola and SPARC, unlike Intel and VAX).  */
-#undef WORDS_BIGENDIAN
+/* #undef WORDS_BIGENDIAN */
+
+/* Package name */
+#define PACKAGE "gforth"
+
+/* Package version */
+#define VERSION "0.4.0"
 
 /* an integer type that is as long as a pointer */
 #define CELL_TYPE int

@@ -666,7 +666,7 @@ set-current
 
 : output-alias ( -- )  flush-comment on
     ?flush-comment
-    primitive-number @ . ." alias " forth-name 2@ type cr
+    ( primitive-number @ . ." alias " ) ." Primitive " forth-name 2@ type cr
     -1 primitive-number +! ;
 
 : output-forth ( -- )  flush-comment on

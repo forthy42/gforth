@@ -1164,6 +1164,11 @@ VARIABLE ;Resolve 1 cells allot
 	.sourcepos ." needs doer: " >in @ bl word count type >in ! cr
     THEN
     ghost tuck swap resolve <do:> swap >magic ! ;
+
+Variable prim#
+: first-primitive ( n -- )  prim# ! ;
+: Primitive  ( -- ) \ name
+    prim# @ T Alias H  -1 prim# +! ;
 >CROSS
 
 \ Conditionals and Comments                            11may93jaw

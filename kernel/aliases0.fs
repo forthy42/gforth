@@ -26,3 +26,4 @@
 -7 Alias: :dofield
 -8 Alias: :dodoes
 -9 Alias: :doesjump
+-&10 first-primitive

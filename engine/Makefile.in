@@ -76,7 +76,7 @@ ENGINE_FLAGS = @ENGINE_FLAGS@ -fno-defer-pop -fcaller-saves
 DEBUGFLAG = @DEBUGFLAG@
 CFLAGS	= $(DEBUGFLAG) -I$(srcdir)/../arch/$(machine) -I. -O4 -Wall $(SWITCHES) -DDEFAULTPATH=\"$(FORTHPATH)\"
 CFLAGS2	= $(DEBUGFLAG) -I$(srcdir)/../arch/$(machine) -I. -O4 -Wall $(SWITCHES) -DDEFAULTPATH=\"$(FORTHPATH)\"
-FORTHKFLAGS= --die-on-signal -p ..$(PATHSEP)$(srcdir) -i ../$(kernel_fi)
+FORTHKFLAGS= --die-on-signal -p "..$(PATHSEP)$(srcdir)" -i ../$(kernel_fi)
 FORTHK	= ../gforth $(FORTHKFLAGS)
 
 #John Wavrik should use -Xlinker -N to get a writable text (executable)

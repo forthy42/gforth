@@ -39,7 +39,7 @@ s%$(FORTHPATH)$(PATHSEP)%%g
 s%@FORTHSIZES@%%g
 s%test x'$(VERSION)' = x`cat $@` || %%g
 s%--clear-dictionary%-c%g
-s%.$(PATHSEP)$(srcdir)%.%g
+s%".$(PATHSEP)~+$(PATHSEP)$(srcdir)"%"~+$(PATHSEP)."%g
 # s% -I$(srcdir)%%g
 s%GFORTHD=.*gforth.fi%gforthmi gforth.fi%g
 s%gforth-ditc%gforth-d%g
@@ -53,3 +53,4 @@ s%cd engine && $(MAKE)%$(MAKE) -C engine%g
 s%\(CFLAGS2.*\) -O4%\1%g
 s%gforthmi gforth\$%gforthmi.bat gforth\$%g
 s%engine/Makefile configure%engine/Makefile%g
+s%$(exec_prefix)/bin%%g
