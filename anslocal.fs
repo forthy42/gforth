@@ -8,7 +8,7 @@
 \ it and 2) it's unnecessary; just put a 0 before the "{" for every
 \ additional local you want to declare.
 
-\ This program uses PARSE from the core ext and compare from the
+\ This program uses PARSE from the core ext and COMPARE from the
 \ string wordsets
 
 : local ( "name" -- )

@@ -79,8 +79,6 @@ John Hayes has a portable package
 
 *Documentation
 A texinfo file
-** a tool that extracts (stack) comments from forth sources and replaces
-them in .ds files.
 **glossaries of all wordsets.
 *** Inclusion of stack comments, glossary comments, and wordset comments
 in all source files.
