@@ -106,7 +106,46 @@ for introductory material.
 @comment node-name,     next,           previous, up
 @chapter Goals of GNU Forth
 @cindex Goals
-!! Insert Goals here
+The goal of the GNU Forth Project is to develop a standard model for
+ANSI Forth. This can be split into several subgoals:
+
+@itemize @bullet
+@item
+GNU Forth should conform to the ANSI Forth standard.
+@item
+It should be a model, i.e. it should define all the
+implementation-dependent things.
+@item
+It should become standard, i.e. widely accepted and used. This goal
+is the most difficult one.
+@end itemize
+
+To achieve these goals GNU Forth should be
+@itemize @bullet
+@item
+Similar to previous models (fig-Forth, F83)
+@item
+Powerful. It should provide for all the things that are considered
+necessary today and even some that are not yet considered necessary.
+@item
+Efficient. It should not get the reputation of being exceptionally
+slow.
+@item
+Free.
+@item
+Available on many machines/easy to port.
+@end itemize
+
+Have we achieved these goals? GNU Forth conforms to the ANS Forth
+standard; it may be considered a model, but we have not yet documented
+which parts of the model are stable and which parts we are likely to
+change; it certainly has not yet become a de facto standard. It has some
+similarities and some differences to previous models; It has some
+powerful features, but not yet everything that we envisioned; on RISCs
+it is as fast as interpreters programmed in assembly, on
+register-starved machines it is not so fast, but still faster than any
+other C-based interpretive implementation; it is free and available on
+many machines.
 
 @node Other Books, Invocation, Goals, Top
 @chapter Other books on ANS Forth
@@ -223,7 +262,7 @@ The name of a stack item corresponds in the following way with its type:
 @item name starts with
 Type
 @item f
-Bool, i.e. false (0) or true (-1).
+Bool, i.e. @code{false} or @code{true}.
 @item c
 Char
 @item w
@@ -397,9 +436,15 @@ df!
 @subsection Memory block access
 
 move
-fill
-blanks
 erase
+
+While the previous words work on address units, the rest works on
+characters.
+
+cmove
+cmove>
+fill
+blank
 
 @node Control Structures
 @section Control Structures
@@ -437,13 +482,16 @@ system that only supplies @code{THEN} is simple:
 : endif   POSTPONE then ; immediate
 @end example
 
-[According to Webster's New Encyclopedic Dictionary, then (adv.) has the
-following meanings: ... 2b: following next after in order ... 3d: as a
-necessary consequence (if you were there, then you saw them). Forth's
-@code{THEN} has the meaning 2b, @code{THEN} in Pascal and many other
-programming languages has the meaning 3d.]
+[According to @cite{Webster's New Encyclopedic Dictionary}, @dfn{then
+(adv.)}  has the following meanings:
+@quotation
+... 2b: following next after in order ... 3d: as a necessary consequence
+(if you were there, then you saw them).
+@end quotation
+Forth's @code{THEN} has the meaning 2b, @code{THEN} in Pascal
+and many other programming languages has the meaning 3d.]
 
-We also provide the words @code{?dup-if} and @code{?dup-not-if}, so you
+We also provide the words @code{?dup-if} and @code{?dup-0=-if}, so you
 can avoid using @code{?dup}.
 
 @example
@@ -560,7 +608,23 @@ Forth standard.
 when the start and the limit value are equal. We do not recommend using
 @code{DO}. It will just give you maintenance troubles.
 
-FOR NEXT UNLOOP
+@code{UNLOOP} is used to prepare for an abnormal loop exit, e.g., via
+@code{EXIT}. @code{UNLOOP} removes the loop control parameters from the
+return stack so @code{EXIT} can get to its return address.
+
+Another counted loop is
+@example
+@var{n}
+FOR
+  @var{body}
+NEXT
+@end example
+This is the preferred loop of native code compiler writers who are too
+lazy to optimize @code{?DO} loops properly. In GNU Forth, this loop
+iterates @var{n+1} times; @code{i} produces values starting with @var{n}
+and ending with 0. Other Forth systems may differently, even if they
+support @code{FOR} loops.
+
 
 @contents
 @bye

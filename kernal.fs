@@ -489,7 +489,7 @@ variable dead-code \ true if normal code at "here" would be dead
 \ This is the preferred alternative to the idiom "?DUP IF", since it can be
 \ better handled by tools like stack checkers
     POSTPONE ?dup POSTPONE if ;       immediate restrict
-: ?DUP-NOT-IF \ general
+: ?DUP-0=-IF \ general
     POSTPONE ?dup POSTPONE 0= POSTPONE if ; immediate restrict
 
 : THEN ( orig -- )

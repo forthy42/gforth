@@ -1,13 +1,22 @@
 name> does not take the same argument as e.g. .name. Remedy: add cell+
 before name>, but adapt all uses.  anton 23apr94
 
-revealing the same name several times (e.g., by using refcursive)
+revealing the same name several times (e.g., by using recursive)
 results in redefined messages.  anton 28jul94
 
 [IF] is case-sensitive.  anton 2aug94
 
-gforth.el: fill-paragraph should either not work, or it should make sure that comments stay comments and code stays code.  anton 2aug94
-
 if blocks.fb does not exist, 1 block creates the file, but cannot
 read-file from it. Only if the file-id has been created with
 open-file, not create-file, read-file works. - anton 6aug94
+
+gforth.el: doing a forth-fill-paragraph on the following piece of code
+uncomments the first comment line. This may be a bug in
+fill-paragraph, but documentation says that a paragraph can start
+without prefix (hanging indentation), so I guess it's all right. -
+anton 19aug94
+
+: bb-shortest-paths recursive { bb bb-from start-path -- }
+    \ compute the
+    \ paths from bb-from through bb, start-path is the path from
+    \ bb-from to bb

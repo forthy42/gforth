@@ -13,7 +13,7 @@ include cross.fs               \ include cross-compiler
 
 decimal
 
-128 KB makekernal , 0 , 0 , 0 A, 0 A,
+256 KB makekernal , 0 , 0 , 0 A, 0 A,
 
 UNLOCK ghost - drop \ ghost must exist because - would be treated as number
 LOCK
@@ -44,7 +44,7 @@ decimal
 
 \ 64 KB       0 cells !  \ total Space... defined above!
 here         1 cells !  \ Size of the system
-  2 KB       2 cells !  \ Return and fp stack size
+  16 KB       2 cells !  \ Return and fp stack size
   ' boot >body 3 cells !  \ Entry point
 
 UNLOCK Tlast @

@@ -20,7 +20,7 @@
 ;; file named COPYING.  Among other things, the copyright notice
 ;; and this notice must be preserved on all copies.
 
-;;; $Header: /usr/local/lib/cvs-repository/src-master/gforth/gforth.el,v 1.6 1994-08-10 17:22:36 anton Exp $
+;;; $Header: /usr/local/lib/cvs-repository/src-master/gforth/gforth.el,v 1.7 1994-08-19 17:47:20 anton Exp $
 
 ;;-------------------------------------------------------------------
 ;; A Forth indentation, documentation search and interaction library
@@ -72,12 +72,16 @@ OBS! All words in forth-negatives must be surrounded by spaces.")
 (global-set-key "\e " 'forth-reload)
 
 (define-key forth-mode-map "\M-\C-x" 'compile)
+(define-key forth-mode-map "\C-x\\" 'comment-region)
+(define-key forth-mode-map "\C-x|" 'uncomment-region)
+(define-key forth-mode-map "\C-x~" 'forth-remove-tracers)
 (define-key forth-mode-map "\e\C-m" 'forth-send-paragraph)
 (define-key forth-mode-map "\eo" 'forth-send-buffer)
 (define-key forth-mode-map "\C-x\C-m" 'forth-split)
 (define-key forth-mode-map "\e " 'forth-reload)
 (define-key forth-mode-map "\t" 'forth-indent-command)
 (define-key forth-mode-map "\C-m" 'reindent-then-newline-and-indent)
+(define-key forth-mode-map "\M-q" 'forth-fill-paragraph)
 
 (defvar forth-mode-syntax-table nil
   "Syntax table in use in Forth-mode buffers.")
@@ -214,6 +218,19 @@ Variables controling documentation search
 (setq forth-mode-hook
       '(lambda () (setq compile-command "gforth ")))
 
+(defun forth-fill-paragraph () 
+  "Fill comments (starting with '\'; do not fill code (block style
+programmers who tend to fill code won't use emacs anyway:-)."
+  ; currently only comments at the start of the line are
+  ; filled. something like lisp-fill-paragraph may be better
+  (interactive)
+  (save-excursion
+    (beginning-of-line)
+    (if (looking-at "[ \t]*\\\\[ \t]+")
+	(progn (goto-char (match-end 0))
+	       (set-fill-prefix)
+	       (fill-paragraph nil)))))
+
 (defun forth-comment-indent ()
   (save-excursion
     (beginning-of-line)
@@ -338,6 +355,11 @@ the input stream (comments, arguments, etc.)"
       
 
 ;; Forth commands
+
+(defun forth-remove-tracers ()
+  "Remove tracers of the form `~~ '. Queries the user for each occurrence."
+  (interactive)
+  (query-replace "~~ " ""))
 
 (defvar forth-program-name "gforth"
   "*Program invoked by the `run-forth' command.")
@@ -714,7 +736,7 @@ The region is sent terminated by a newline."
     (error "forth-help-load-path not specified")))
 
 
-(define-key forth-mode-map "\C-hf" 'forth-documentation)
+;(define-key forth-mode-map "\C-hf" 'forth-documentation)
 
 (defun forth-documentation (function)
   "Display the full documentation of FORTH word."

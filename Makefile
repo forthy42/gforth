@@ -2,7 +2,7 @@
 
 RM	= echo 'Trying to remove'
 GCC	= gcc
-FORTH	= ansforth
+FORTH	= gforth
 CC	= gcc
 SWITCHES = -D_POSIX_VERSION -DUSE_FTOS -DDEFAULTBIN='"'`pwd`'"' -DDIRECT_THREADED -fcaller-saves #-DNDEBUG #turn off assertions
 CFLAGS	= -O4 -Wall -g $(SWITCHES)
@@ -27,7 +27,7 @@ SOURCES	= Makefile primitives primitives2c.el engine.c main.c io.c \
 
 RCS_FILES = $(SOURCES) INSTALL ToDo model high-level
 
-GEN = ansforth
+GEN = gforth
 
 GEN_PRECIOUS = primitives.i prim_labels.i primitives.b prim_alias.4th aliases.fs
 
@@ -37,7 +37,7 @@ OBJECTS = engine.o io.o main.o
 # this is used for antidependences,
 FORTH_GEN = primitives.i prim_labels.i prim_alias.4th kernal.fi
 
-all:	ansforth aliases.fs
+all:	gforth aliases.fs
 
 #from the gcc Makefile: 
 #"Deletion of files made during compilation.
@@ -61,8 +61,8 @@ realclean:	distclean
 
 current:	$(RCS_FILES)
 
-ansforth:	$(OBJECTS) $(FORTH_GEN)
-		-cp ansforth ansforth.old
+gforth:	$(OBJECTS) $(FORTH_GEN)
+		-cp gforth gforth.old
 		$(GCC) $(LDFLAGS) $(OBJECTS) $(LDLIBS) -o $@
 
 kernal.fi:	main.fs search-order.fs cross.fs aliases.fs vars.fs add.fs \
