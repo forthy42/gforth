@@ -18,6 +18,8 @@
 \ along with this program; if not, write to the Free Software
 \ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+-2 image-included-files +!
+
 require except.fs \ included on command line
 warnings off
 include search.fs

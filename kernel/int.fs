@@ -517,10 +517,10 @@ Defer interpreter-notfound ( c-addr count -- )
 
 has? file 0= [IF]
 : sourceline# ( -- n )  1 ;
-[THEN]
-
+[ELSE]
 Variable #fill-bytes
 \G number of bytes read via (read-line) by the last refill
+[THEN]
 
 : refill ( -- flag ) \ core-ext,block-ext,file-ext
     \G Attempt to fill the input buffer from the input source.  When

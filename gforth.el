@@ -1000,10 +1000,12 @@ The region is sent terminated by a newline."
  '(forth-mode)
  (append
   '(("\\\\ \\(.*\\)$" nil comment)) ; comments
+  '(("\\\\[gG] \\(.*\\)$" nil comment)) ; comments
   '(("(\\( [^)\n]* \\| \\)--\\( [^)\n]* \\| \\))" nil decl))
   '(("( " ")" comment))
   '(("\" [^\"\n]*\"" nil string))
-  '(("\\(\\[IF]\\|\\[IFDEF]\\|\\[IFUNDEF]\\|\\[ELSE]\\|\\[THEN]\\|IF\\|ELSE\\|THEN\\|CASE\\|ENDCASE\\|OF\\|ENDOF\\|BEGIN\\|WHILE\\|REPEAT\\|UNTIL\\|DOES>\\|?DO\\|DO\\|\+LOOP\\|LOOP\\)" nil keyword))
+  '(("\\(\\[IF]\\|\\[IFDEF]\\|\\[IFUNDEF]\\|\\[ELSE]\\|\\[THEN]\\|IF\\|ELSE\\|THEN\\|CASE\\|ENDCASE\\|OF\\|ENDOF\\|BEGIN\\|WHILE\\|REPEAT\\|UNTIL\\|AGAIN\\|DOES>\\|?DO\\|DO\\|\+LOOP\\|UNLOOP\\|LOOP\\|EXIT\\)" nil keyword))
+  '(("\\(\\[if]\\|\\[ifdef]\\|\\[ifundef]\\|\\[else]\\|\\[then]\\|if\\|else\\|then\\|case\\|endcase\\|of\\|endof\\|begin\\|while\\|repeat\\|until\\|again\\|does>\\|?do\\|do\\|\+loop\\|unloop\\|loop\\|exit\\)" nil keyword))
   '((": *[^ \n]*" nil defun))
   '(("Defer *[^ \n]*" nil defun))
   '(("\\(Variable\\|Constant\\|Value\\|Create\\) *[^ \n]*" nil define))
