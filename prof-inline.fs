@@ -77,7 +77,7 @@ variable next-profile-point-p \ the address where the next pp will be stored
 profile-points next-profile-point-p !
 variable last-colondef-profile \ pointer to the pp of last colon definition
 variable current-profile-point
-variable library-calls \ list of calls to library colon defs
+variable library-calls 0 library-calls ! \ list of calls to library colon defs
 variable in-compile,? in-compile,? off
 
 \ list stuff
@@ -170,35 +170,46 @@ variable in-compile,? in-compile,? off
 : call-count+ ( ud1 callp -- ud2 )
     calls-call @ profile-count 2@ d+ ;
 
-: add-calls ( ud-dyn-callee1 ud-dyn-caller1 u-stat1 xt-test profpp --
-              ud-dyn-callee2 ud-dyn-caller2 u-stat2 xt-test )
-    \ add the static and dynamic call counts to profpp up, if the
-    \ number of static calls to profpp satisfies xt-test ( u -- f )
+: count-dyncalls ( calls -- ud )
+    0. rot ['] call-count+ map-list ;
+
+: add-calls ( statistics1 xt-test profpp -- statistics2 xt-test )
+    \ add statistics for callee profpp up, if the number of static
+    \ calls to profpp satisfies xt-test ( u -- f ); see below for what
+    \ statistics are computed.
     { xt-test p }
-    p profile-colondef? @ if ( u-dyn1 u-stat1 )
+    p profile-colondef? @ if
 	p profile-calls @ { calls }
 	calls list-length { stat }
-	stat xt-test execute if ( u-dyn u-stat )
-	    stat + >r
-	    0. calls ['] call-count+ map-list d+ 2>r
-	    p profile-count 2@ d+
-	    2r> r>
+	stat xt-test execute if
+	    { d: ud-dyn-callee d: ud-dyn-caller u-stat u-exec-callees u-callees }
+	    ud-dyn-callee p profile-count 2@ 2dup { d: de } d+
+	    ud-dyn-caller calls count-dyncalls 2dup { d: dr } d+
+	    u-stat stat +
+	    u-exec-callees de dr d<> -
+	    u-callees 1+
 	endif
     endif
     xt-test ;
 
 : print-stat-line ( xt -- )
-    >r 0. 0. 0 r> profile-points @ ['] add-calls map-list drop
+    >r 0. 0. 0 0 0 r> profile-points @ ['] add-calls map-list drop
     ( ud-dyn-callee ud-dyn-caller u-stat )
-    7 u.r 12 ud.r 12 ud.r space ;
+    6 u.r 7 u.r 7 u.r 12 ud.r 12 ud.r space ;
+
+: print-library-stats ( -- )
+    library-calls @ list-length 20 u.r \ static callers
+    library-calls @ count-dyncalls 12 ud.r \ dynamic callers
+    13 spaces ;
 
 : print-statistics ( -- )
-    ."  static  dyn-caller  dyn-callee   condition" cr
+    ." callee exec'd static  dyn-caller  dyn-callee   condition" cr
     ['] 0=  print-stat-line ." calls to coldefs with 0 callers" cr
     ['] 1=  print-stat-line ." calls to coldefs with 1 callers" cr
     ['] 2=  print-stat-line ." calls to coldefs with 2 callers" cr
     ['] 3=  print-stat-line ." calls to coldefs with 3 callers" cr
     ['] 1u> print-stat-line ." calls to coldefs with >1 callers" cr
+    print-library-stats     ." library calls" cr
     ;
 
 : dinc ( profilep -- )
@@ -271,11 +282,16 @@ variable in-compile,? in-compile,? off
 
 : note-call ( addr -- )
     \ addr is the body address of a called colon def or does handler
-    dup 3 cells + @ ['] dinc >body = if ( addr )
-	profile-this
-	current-profile-point @ new-call over cell+ @ profile-calls insert-list
+    dup ['] (does>2) >body = if \ adjust does handler address
+	4 cells here 1 cells - +!
     endif
-    drop ;
+    profile-this current-profile-point @ new-call
+    over 3 cells + @ ['] dinc >body = if ( addr call-prof-point )
+	\ non-library call
+	 swap cell+ @ profile-calls insert-list
+    else ( addr call-prof-point )
+	library-calls insert-list drop
+    endif ;
 
 : prof-compile, ( xt -- )
     in-compile,? @ if
