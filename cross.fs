@@ -31,6 +31,171 @@ Clean up mark> and >resolve stuff jaw
 
 [THEN]
 
+hex
+
+\ debugging for compiling
+
+\ print stack at each colon definition
+\ : : save-input cr bl word count type restore-input throw .s : ;
+
+\ print stack at each created word
+\ : create save-input cr bl word count type restore-input throw .s create ;
+
+
+\ \ -------------  Setup Vocabularies
+
+\ Remark: Vocabulary is not ANS, but it should work...
+
+Vocabulary Cross
+Vocabulary Target
+Vocabulary Ghosts
+Vocabulary Minimal
+only Forth also Target also also
+definitions Forth
+
+: T  previous Cross also Target ; immediate
+: G  Ghosts ; immediate
+: H  previous Forth also Cross ; immediate
+
+forth definitions
+
+: T  previous Cross also Target ; immediate
+: G  Ghosts ; immediate
+
+: >cross  also Cross definitions previous ;
+: >target also Target definitions previous ;
+: >minimal also Minimal definitions previous ;
+
+H
+
+>CROSS
+
+\ find out whether we are compiling with gforth
+
+: defined? bl word find nip ;
+defined? emit-file defined? toupper and \ drop 0
+[IF]
+\ use this in a gforth system
+: \GFORTH ; immediate
+: \ANSI postpone \ ; immediate
+[ELSE]
+: \GFORTH postpone \ ; immediate
+: \ANSI ; immediate
+[THEN]
+
+\ANSI : [IFUNDEF] defined? 0= postpone [IF] ; immediate
+\ANSI : [IFDEF] defined? postpone [IF] ; immediate
+0 \ANSI drop 1
+[IF]
+: \G postpone \ ; immediate
+: rdrop postpone r> postpone drop ; immediate
+: name bl word count ;
+: bounds over + swap ;
+: scan >r BEGIN dup WHILE over c@ r@ <> WHILE 1 /string REPEAT THEN rdrop ;
+: linked here over @ , swap ! ;
+: alias create , DOES> @ EXECUTE ;
+: defer ['] noop alias ;
+: is state @ 
+  IF ' >body postpone literal postpone ! 
+  ELSE ' >body ! THEN ; immediate
+: 0>= 0< 0= ;
+: d<> rot <> -rot <> or ;
+: toupper dup [char] a [char] z 1+ within IF [char] A [char] a - + THEN ;
+Variable ebuf
+: emit-file ( c fd -- ior ) swap ebuf c! ebuf 1 chars rot write-file ;
+0a Constant #lf
+0d Constant #cr
+
+[IFUNDEF] Warnings Variable Warnings [THEN]
+
+\ \ Number parsing					23feb93py
+
+\ number? number                                       23feb93py
+
+Variable dpl
+
+hex
+Create bases   10 ,   2 ,   A , 100 ,
+\              16     2    10   character
+
+\ !! protect BASE saving wrapper against exceptions
+: getbase ( addr u -- addr' u' )
+    over c@ [char] $ - dup 4 u<
+    IF
+	cells bases + @ base ! 1 /string
+    ELSE
+	drop
+    THEN ;
+
+: sign? ( addr u -- addr u flag )
+    over c@ [char] - =  dup >r
+    IF
+	1 /string
+    THEN
+    r> ;
+
+: s>unumber? ( addr u -- ud flag )
+    base @ >r  dpl on  getbase
+    0. 2swap
+    BEGIN ( d addr len )
+	dup >r >number dup
+    WHILE \ there are characters left
+	dup r> -
+    WHILE \ the last >number parsed something
+	dup 1- dpl ! over c@ [char] . =
+    WHILE \ the current char is '.'
+	1 /string
+    REPEAT  THEN \ there are unparseable characters left
+	2drop false
+    ELSE
+	rdrop 2drop true
+    THEN
+    r> base ! ;
+
+\ ouch, this is complicated; there must be a simpler way - anton
+: s>number? ( addr len -- d f )
+    \ converts string addr len into d, flag indicates success
+    sign? >r
+    s>unumber?
+    0= IF
+        rdrop false
+    ELSE \ no characters left, all ok
+	r>
+	IF
+	    dnegate
+	THEN
+	true
+    THEN ;
+
+: s>number ( addr len -- d )
+    \ don't use this, there is no way to tell success
+    s>number? drop ;
+
+: snumber? ( c-addr u -- 0 / n -1 / d 0> )
+    s>number? 0=
+    IF
+	2drop false  EXIT
+    THEN
+    dpl @ dup 0< IF
+	nip
+    ELSE
+	1+
+    THEN ;
+
+: number? ( string -- string 0 / n -1 / d 0> )
+    dup >r count snumber? dup if
+	rdrop
+    else
+	r> swap
+    then ;
+
+: number ( string -- d )
+    number? ?dup 0= abort" ?"  0<
+    IF
+	s>d
+    THEN ;
+
+[THEN]
 
 hex     \ the defualt base for the cross-compiler is hex !!
 Warnings off
@@ -47,6 +212,8 @@ Warnings off
 : string, ( c-addr u -- )
     \ puts down string as cstring
     dup c, here swap chars dup allot move ;
+
+: ," [char] " parse string, ;
 
 : SetValue ( n -- <name> )
 \G Same behaviour as "Value" if the <name> is not defined
@@ -70,30 +237,6 @@ Warnings off
 
 hex
 
-Vocabulary Cross
-Vocabulary Target
-Vocabulary Ghosts
-VOCABULARY Minimal
-only Forth also Target also also
-definitions Forth
-
-: T  previous Cross also Target ; immediate
-: G  Ghosts ; immediate
-: H  previous Forth also Cross ; immediate
-
-forth definitions
-
-: T  previous Cross also Target ; immediate
-: G  Ghosts ; immediate
-
-: >cross  also Cross definitions previous ;
-: >target also Target definitions previous ;
-: >minimal also Minimal definitions previous ;
-
-H
-
->CROSS
-
 \ 1 Constant Cross-Flag	\ to check whether assembler compiler plug-ins are
 			\ for cross-compiling
 \ No! we use "[IFUNDEF]" there to find out whether we are target compiling!!!
@@ -106,7 +249,354 @@ H
 
 \ Begin CROSS COMPILER:
 
+\ debugging
 
+0 [IF]
+
+This implements debugflags for the cross compiler and the compiled
+images. It works identical to the has-flags in the environment.
+The debugflags are defined in a vocabluary. If the word exists and
+its value is true, the flag is switched on.
+
+[THEN]
+
+>CROSS
+
+Vocabulary debugflags	\ debug flags for cross
+also debugflags get-order over
+Constant debugflags-wl
+set-order previous
+
+: DebugFlag
+  get-current >r debugflags-wl set-current
+  SetValue
+  r> set-current ;
+
+: Debug? ( adr u -- flag )
+\G return true if debug flag is defined or switched on
+  debugflags-wl search-wordlist
+  IF EXECUTE
+  ELSE false THEN ;
+
+: D? ( <name> -- flag )
+\G return true if debug flag is defined or switched on
+\G while compiling we do not return the current value but
+  bl word count debug? ;
+
+: [d?]
+\G compile the value-xt so the debug flag can be switched
+\G the flag must exist!
+  bl word count debugflags-wl search-wordlist
+  IF 	compile,
+  ELSE  -1 ABORT" unknown debug flag"
+	\ POSTPONE false 
+  THEN ; immediate
+
+\ \ --------------------	source file
+
+decimal
+
+Variable cross-file-list
+0 cross-file-list !
+Variable target-file-list
+0 target-file-list !
+Variable host-file-list
+0 host-file-list !
+
+cross-file-list Value file-list
+0 Value source-desc
+
+\ file loading
+
+: >fl-id   1 cells + ;
+: >fl-name 2 cells + ;
+
+Variable filelist 0 filelist !
+Create NoFile ," #load-file#"
+
+: loadfile ( -- adr )
+  source-desc ?dup IF >fl-name ELSE NoFile THEN ;
+
+: sourcefilename ( -- adr len ) 
+  loadfile count ;
+
+\ANSI : sourceline# 0 ;
+
+\ \ --------------------	path handling from kernel/paths.fs
+
+\ paths.fs path file handling                                    03may97jaw
+
+\ -Changing the search-path:
+\ fpath+ <path> 	adds a directory to the searchpath
+\ fpath= <path>|<path>	makes complete now searchpath
+\ 			seperator is |
+\ .fpath		displays the search path
+\ remark I: 
+\ a ./ in the beginning of filename is expanded to the directory the
+\ current file comes from. ./ can also be included in the search-path!
+\ ~+/ loads from the current working directory
+
+\ remark II:
+\ if there is no sufficient space for the search path increase it!
+
+
+\ -Creating custom paths:
+
+\ It is possible to use the search mechanism on yourself.
+
+\ Make a buffer for the path:
+\ create mypath	100 chars , 	\ maximum length (is checked)
+\ 		0 ,		\ real len
+\ 		100 chars allot \ space for path
+\ use the same functions as above with:
+\ mypath path+ 
+\ mypath path=
+\ mypath .path
+
+\ do a open with the search path:
+\ open-path-file ( adr len path -- fd adr len ior )
+\ the file is opened read-only; if the file is not found an error is generated
+
+\ questions to: wilke@jwdt.com
+
+[IFUNDEF] +place
+: +place ( adr len adr )
+        2dup >r >r
+        dup c@ char+ + swap move
+        r> r> dup c@ rot + swap c! ;
+[THEN]
+
+[IFUNDEF] place
+: place ( c-addr1 u c-addr2 )
+        2dup c! char+ swap move ;
+[THEN]
+
+\ if we have path handling, use this and the setup of it
+[IFUNDEF] open-fpath-file
+
+create sourcepath 1024 chars , 0 , 1024 chars allot \ !! make this dynamic
+sourcepath value fpath
+
+: also-path ( adr len path^ -- )
+  >r
+  \ len check
+  r@ cell+ @ over + r@ @ u> ABORT" path buffer too small!"
+  \ copy into
+  tuck r@ cell+ dup @ cell+ + swap cmove
+  \ make delimiter
+  0 r@ cell+ dup @ cell+ + 2 pick + c! 1 + r> cell+ +!
+  ;
+
+: only-path ( adr len path^ -- )
+  dup 0 swap cell+ ! also-path ;
+
+: path+ ( path-addr  "dir" -- ) \ gforth
+    \G Add the directory @var{dir} to the search path @var{path-addr}.
+    name rot also-path ;
+
+: fpath+ ( "dir" ) \ gforth
+    \G Add directory @var{dir} to the Forth search path.
+    fpath path+ ;
+
+: path= ( path-addr "dir1|dir2|dir3" ) \ gforth
+    \G Make a complete new search path; the path separator is |.
+    name 2dup bounds ?DO i c@ [char] | = IF 0 i c! THEN LOOP
+    rot only-path ;
+
+: fpath= ( "dir1|dir2|dir3" ) \ gforth
+    \G Make a complete new Forth search path; the path separator is |.
+    fpath path= ;
+
+: path>counted  cell+ dup cell+ swap @ ;
+
+: next-path ( adr len -- adr2 len2 )
+  2dup 0 scan
+  dup 0= IF     2drop 0 -rot 0 -rot EXIT THEN
+  >r 1+ -rot r@ 1- -rot
+  r> - ;
+
+: previous-path ( path^ -- )
+  dup path>counted
+  BEGIN tuck dup WHILE repeat ;
+
+: .path ( path-addr -- ) \ gforth
+    \G Display the contents of the search path @var{path-addr}.
+    path>counted
+    BEGIN next-path dup WHILE type space REPEAT 2drop 2drop ;
+
+: .fpath ( -- ) \ gforth
+    \G Display the contents of the Forth search path.
+    fpath .path ;
+
+: absolut-path? ( addr u -- flag ) \ gforth
+    \G A path is absolute if it starts with a / or a ~ (~ expansion),
+    \G or if it is in the form ./*, extended regexp: ^[/~]|./, or if
+    \G it has a colon as second character ("C:...").  Paths simply
+    \G containing a / are not absolute!
+    2dup 2 u> swap 1+ c@ [char] : = and >r \ dos absoulte: c:/....
+    over c@ [char] / = >r
+    over c@ [char] ~ = >r
+    \ 2dup 3 min S" ../" compare 0= r> or >r \ not catered for in expandtopic
+    2 min S" ./" compare 0=
+    r> r> r> or or or ;
+
+Create ofile 0 c, 255 chars allot
+Create tfile 0 c, 255 chars allot
+
+: pathsep? dup [char] / = swap [char] \ = or ;
+
+: need/   ofile dup c@ + c@ pathsep? 0= IF s" /" ofile +place THEN ;
+
+: extractpath ( adr len -- adr len2 )
+  BEGIN dup WHILE 1-
+        2dup + c@ pathsep? IF EXIT THEN
+  REPEAT ;
+
+: remove~+ ( -- )
+    ofile count 3 min s" ~+/" compare 0=
+    IF
+	ofile count 3 /string ofile place
+    THEN ;
+
+: expandtopic ( -- ) \ stack effect correct? - anton
+    \ expands "./" into an absolute name
+    ofile count 2 min s" ./" compare 0=
+    IF
+	ofile count 1 /string tfile place
+	0 ofile c! sourcefilename extractpath ofile place
+	ofile c@ IF need/ THEN
+	tfile count over c@ pathsep? IF 1 /string THEN
+	ofile +place
+    THEN ;
+
+: compact.. ( adr len -- adr2 len2 )
+\ deletes phrases like "xy/.." out of our directory name 2dec97jaw
+  over >r -1 >r
+  BEGIN dup WHILE
+	over c@ pathsep? 
+	IF 	r@ -1 =
+		IF	r> drop dup >r
+		ELSE	2dup 1 /string 
+			3 min s" ../" compare
+			0=
+			IF	r@ over - ( diff )
+				2 pick swap - ( dest-adr )
+				>r 3 /string r> swap 2dup >r >r
+				move r> r>
+			ELSE	r> drop dup >r
+			THEN
+		THEN
+	THEN
+	1 /string
+  REPEAT 
+  r> drop 
+  drop r> tuck - ;
+
+: reworkdir ( -- )
+  remove~+
+  ofile count compact..
+  nip ofile c! ;
+
+: open-ofile ( -- fid ior )
+    \G opens the file whose name is in ofile
+    expandtopic reworkdir
+    ofile count r/o open-file ;
+
+: check-path ( adr1 len1 adr2 len2 -- fd 0 | 0 <>0 )
+  0 ofile ! >r >r ofile place need/
+  r> r> ofile +place
+  open-ofile ;
+
+: open-path-file ( addr1 u1 path-addr -- wfileid addr2 u2 0 | ior ) \ gforth
+    \G Look in path @var{path-addr} for the file specified by @var{addr1 u1}.
+    \G If found, the resulting path and an open file descriptor
+    \G are returned. If the file is not found, @var{ior} is non-zero.
+  >r
+  2dup absolut-path?
+  IF    rdrop
+        ofile place open-ofile
+	dup 0= IF >r ofile count r> THEN EXIT
+  ELSE  r> path>counted
+        BEGIN  next-path dup
+        WHILE  5 pick 5 pick check-path
+        0= IF >r 2drop 2drop r> ofile count 0 EXIT ELSE drop THEN
+  REPEAT
+        2drop 2drop 2drop -38
+  THEN ;
+
+: open-fpath-file ( addr1 u1 -- wfileid addr2 u2 0 | ior ) \ gforth
+    \G Look in the Forth search path for the file specified by @var{addr1 u1}.
+    \G If found, the resulting path and an open file descriptor
+    \G are returned. If the file is not found, @var{ior} is non-zero.
+    fpath open-path-file ;
+
+fpath= ~+
+
+[THEN]
+
+\ \ --------------------	include require			13may99jaw
+
+>CROSS
+
+: add-included-file ( adr len -- adr )
+  dup >fl-name char+ allocate throw >r
+  file-list @ r@ ! r@ file-list !
+  r@ >fl-name place r> ;
+
+: included? ( c-addr u -- f )
+  file-list
+  BEGIN	@ dup
+  WHILE	>r 2dup r@ >fl-name count compare 0=
+	IF rdrop 2drop true EXIT THEN
+	r>
+  REPEAT
+  2drop drop false ;	
+
+false DebugFlag showincludedfiles
+
+: included1 ( fd adr u -- )
+\ include file adr u / fd
+\ we don't use fd with include-file, because the forth system
+\ doesn't know the name of the file to get a nice error report
+  [d?] showincludedfiles
+  IF	cr ." Including: " 2dup type ." ..." THEN
+  rot close-file throw
+  source-desc >r
+  add-included-file to source-desc 
+  sourcefilename
+  ['] included catch
+  r> to source-desc 
+  throw ;
+
+: included ( adr len -- )
+	cross-file-list to file-list
+	open-fpath-file throw 
+        included1 ;
+
+: required ( adr len -- )
+	cross-file-list to file-list
+	open-fpath-file throw \ 2dup cr ." R:" type
+	2dup included?
+	IF 	2drop close-file throw
+	ELSE	included1
+	THEN ;
+
+: include bl word count included ;
+
+: require bl word count required ;
+
+also forth definitions previous
+
+: included ( adr len -- ) included ;
+
+: required ( adr len -- ) required ;
+
+: include include ;
+
+: require require ;
+
+>CROSS
+hex
 
 \ \ --------------------        Error Handling                  05aug97jaw
 
@@ -139,47 +629,6 @@ stack-warn [IF]
 [ELSE]
 : defempty? ; immediate
 [THEN]
-
-\ debugging
-
-0 [IF]
-
-This implements debugflags for the cross compiler and the compiled
-images. It works identical to the has-flags in the environment.
-The debugflags are defined in a vocabluary. If the word exists and
-its value is true, the flag is switched on.
-
-[THEN]
-
-Vocabulary debugflags	\ debug flags for cross
-also debugflags get-order over
-Constant debugflags-wl
-set-order previous
-
-: DebugFlag
-  get-current >r debugflags-wl set-current
-  SetValue
-  r> set-current ;
-
-: Debug? ( adr u -- flag )
-\G return true if debug flag is defined or switched on
-  debugflags-wl search-wordlist
-  IF EXECUTE
-  ELSE false THEN ;
-
-: D? ( <name> -- flag )
-\G return true if debug flag is defined or switched on
-\G while compiling we do not return the current value but
-  bl word count debug? ;
-
-: [d?]
-\G compile the value-xt so the debug flag can be switched
-\G the flag must exist!
-  bl word count debugflags-wl search-wordlist
-  IF 	compile,
-  ELSE  -1 ABORT" unknown debug flag"
-	\ POSTPONE false 
-  THEN ; immediate
 
 \ \ GhostNames Ghosts                                  9may93jaw
 
@@ -242,7 +691,7 @@ Variable last-header-ghost \ last ghost definitions with header
 
 : gfind   ( string -- ghost true/1 / string false )
 \ searches for string in word-list ghosts
-  dup count [ ' ghosts >wordlist ] ALiteral search-wordlist
+  dup count [ ' ghosts >wordlist ] Literal search-wordlist
   dup IF >r >body nip r>  THEN ;
 
 : gdiscover ( xt -- ghost true | xt false )
@@ -272,7 +721,7 @@ VARIABLE Already
 	s" ?!?!?!"
   THEN ;
 
-' >ghostname ALIAS @name
+\ ' >ghostname ALIAS @name
 
 : forward? ( ghost -- flag )
   >magic @ <fwd> = ;
@@ -332,8 +781,12 @@ true  SetValue cross
 true SetValue standard-threading
 >TARGET previous
 
-
-mach-file count included hex
+0
+[IFDEF] mach-file mach-file count 1 [THEN]
+[IFDEF] machine-file machine-file 1 [THEN]
+[IF] 	included hex drop
+[ELSE]  cr ." No machine description!" ABORT 
+[THEN]
 
 >ENVIRON
 
@@ -383,7 +836,7 @@ check-address-unit-bits
 8 Constant bits/byte	\ we define: byte is address-unit
 
 1 bits/byte lshift Constant maxbyte 
-\ this sets byte size for the target machine, an (probably right guess) jaw
+\ this sets byte size for the target machine, (probably right guess) jaw
 
 T
 NIL		   	Constant TNIL
@@ -474,7 +927,7 @@ Variable mirrored-link          \ linked list for mirrored regions
 \G prints a 16 or 32 Bit nice hex value
   base @ >r hex
   tcell 2 u>
-  IF s>d <# # # # # '. hold # # # # #> type
+  IF s>d <# # # # # [char] . hold # # # # #> type
   ELSE s>d <# # # # # # #> type
   THEN r> base ! ;
 
@@ -789,12 +1242,11 @@ T has? relocate H
 >TARGET
 H also Forth definitions
 
-: X 	also target bl word find
+: X 	bl word count [ ' target >wordlist ] Literal search-wordlist
 	IF	state @ IF compile,
 		ELSE execute THEN
-	ELSE	previous ABORT" Cross: access method not supported!"
-	THEN 
-	previous ; immediate
+	ELSE	-1 ABORT" Cross: access method not supported!"
+	THEN ; immediate
 
 [IFDEF] asm-include asm-include [THEN] hex
 
@@ -876,49 +1328,6 @@ DEFER comp[     \ ends compilation
 >TARGET
 : compile, colon, ;
 >CROSS
-
-\ file loading
-
-: >fl-id   1 cells + ;
-: >fl-name 2 cells + ;
-
-Variable filelist 0 filelist !
-Create NoFile ," #load-file#"
-0 Value	 filemem
-: loadfile  FileMem ?dup IF >fl-name ELSE NoFile THEN ;
-
-1 [IF] \ !! JAW WIP
-
-: add-included-file ( adr len -- )
-	dup char+ >fl-name allocate throw >r
-	r@ >fl-name place
-	filelist @ r@ !
-	r> dup filelist ! to FileMem
-	;
-
-: included? ( c-addr u -- f )
-  	filelist
-	BEGIN	@ dup
-	WHILE	>r r@ 1 cells + count compare 0=
-		IF rdrop 2drop true EXIT THEN
-		r>
-	REPEAT
-	2drop drop false ;	
-
-false DebugFlag showincludedfiles
-
-: included 
-	[d?] showincludedfiles
-	IF	cr ." Including: " 2dup type ." ..." THEN
-	FileMem >r
-	2dup add-included-file included 
-	r> to FileMem ;
-
-: include bl word count included ;
-
-: require bl word count included ;
-
-[THEN]
 
 \ resolve structure
 
@@ -1140,7 +1549,8 @@ Variable to-doc  to-doc on
     IF
 	s" " doc-file-id write-line throw
 	s" make-doc " doc-file-id write-file throw
-	tlast @ >image count $1F and doc-file-id write-file throw
+
+	tlast @ >image count 1F and doc-file-id write-file throw
 	>in @
 	[char] ( parse 2drop
 	[char] ) parse doc-file-id write-file throw
@@ -1162,7 +1572,7 @@ Create tag-bof 1 c,  0C c,
 2variable last-loadfilename 0 0 last-loadfilename 2!
 	    
 : put-load-file-name ( -- )
-    loadfilename 2@ last-loadfilename 2@ d<>
+    sourcefilename last-loadfilename 2@ d<>
     IF
 	tag-bof count tag-file-id write-line throw
 	sourcefilename 2dup
@@ -1177,7 +1587,7 @@ Create tag-bof 1 c,  0C c,
 	put-load-file-name
 	source >in @ min tag-file-id write-file throw
 	tag-beg count tag-file-id write-file throw
-	tlast @ >image count $1F and tag-file-id write-file throw
+	tlast @ >image count 1F and tag-file-id write-file throw
 	tag-end count tag-file-id write-file throw
 	base @ decimal sourceline# 0 <# #s #> tag-file-id write-file throw
 \	>in @ 0 <# #s [char] , hold #> tag-file-id write-line throw
@@ -1195,7 +1605,7 @@ Defer skip? ' false IS skip?
     IF  >magic <skip> swap !
     ELSE drop THEN ;
 
-: defined? ( -- flag ) \ name
+: tdefined? ( -- flag ) \ name
     ghost undefined? 0= ;
 
 : defined2? ( -- flag ) \ name
@@ -1235,8 +1645,8 @@ NoHeaderFlag off
 : .sym
   bounds 
   DO I c@ dup
-	CASE	'/ OF drop ." \/" ENDOF
-		'\ OF drop ." \\" ENDOF
+	CASE	[char] / OF drop ." \/" ENDOF
+		[char] \ OF drop ." \\" ENDOF
 		dup OF emit ENDOF
 	ENDCASE
     LOOP ;
@@ -1447,7 +1857,7 @@ Cond: MAXU
   restrict? 
   tcell 1 cells u> 
   IF	compile lit tcell 0 ?DO FF T c, H LOOP 
-  ELSE	$ffffffff lit, THEN
+  ELSE	ffffffff lit, THEN
   ;Cond
 
 Cond: MINI
@@ -1457,7 +1867,7 @@ Cond: MINI
   	IF	80 T c, H tcell 1 ?DO 0 T c, H LOOP 
   	ELSE  	tcell 1 ?DO 0 T c, H LOOP 80 T c, H
   	THEN
-  ELSE	tcell 2 = IF $8000 ELSE $80000000 THEN lit, THEN
+  ELSE	tcell 2 = IF 8000 ELSE 80000000 THEN lit, THEN
   ;Cond
  
 Cond: MAXI
@@ -1467,21 +1877,29 @@ Cond: MAXI
 	IF 	7F T c, H tcell 1 ?DO FF T c, H LOOP
 	ELSE 	tcell 1 ?DO FF T c, H LOOP 7F T c, H
  	THEN
- ELSE	tcell 2 = IF $7fff ELSE $7fffffff THEN lit, THEN
+ ELSE	tcell 2 = IF 7fff ELSE 7fffffff THEN lit, THEN
  ;Cond
 
 >CROSS
 \ Target compiling loop                                12dec92py
 \ ">tib trick thrown out                               10may93jaw
 \ number? defined at the top                           11may93jaw
+\ replaced >in by save-input				
+
+: discard 0 ?DO drop LOOP ;
 
 \ compiled word might leave items on stack!
-: tcom ( in name -- )
-  gfind  ?dup  IF    0> IF    nip >exec @ execute
-                        ELSE  nip gexecute  THEN EXIT THEN
-  number? dup  IF    0> IF swap lit,  THEN  lit,  drop
-               ELSE  2drop >in !
-               ghost gexecute THEN  ;
+: tcom ( x1 .. xn n name -- )
+\  dup count type space
+  gfind  ?dup
+  IF    >r >r discard r> r>
+	0> IF	>exec @ execute
+	ELSE	gexecute  THEN 
+	EXIT 
+  THEN
+  number? dup  
+  IF	0> IF swap lit,  THEN  lit, discard
+  ELSE	2drop restore-input throw ghost gexecute THEN  ;
 
 >TARGET
 \ : ; DOES>                                            13dec92py
@@ -1490,8 +1908,8 @@ Cond: MAXI
 : ] state on
     Compiling comp-state !
     BEGIN
-        BEGIN >in @ bl word
-              dup c@ 0= WHILE 2drop refill 0=
+        BEGIN save-input bl word
+              dup c@ 0= WHILE drop discard refill 0=
               ABORT" CROSS: End of file while target compiling"
         REPEAT
         tcom
@@ -1600,7 +2018,7 @@ Cond: DOES> restrict?
   create-forward-warn
   IF ['] reswarn-forward IS resolve-warning THEN
   Theader >r dup gdoes,
-\ stores execution symantic in the built word
+\ stores execution semantic in the built word
   >end @ >exec @ r> >exec ! ;
 
 : RTCreate ( <name> -- )
@@ -1986,121 +2404,9 @@ Cond: postpone ( -- ) restrict? \ name
                IF   gexecute
 	       ELSE compile (compile) addr, THEN THEN ;Cond
 	   
-\ \ minimal definitions
-	   
->MINIMAL
-also minimal
-\ Usefull words                                        13feb93py
-
-: KB  400 * ;
-
-\ \ [IF] [ELSE] [THEN] ...				14sep97jaw
-
-\ it is useful to define our own structures and not to rely
-\ on the words in the compiler
-\ The words in the compiler might be defined with vocabularies
-\ this doesn't work with our self-made compile-loop
-
-Create parsed 20 chars allot	\ store word we parsed
-
-: upcase
-    parsed count bounds
-    ?DO I c@ toupper I c! LOOP ;
-
-: [ELSE]
-    1 BEGIN
-	BEGIN bl word count dup WHILE
-	    comment? parsed place upcase parsed count
-	    2dup s" [IF]" compare 0= >r 
-	    2dup s" [IFUNDEF]" compare 0= >r
-	    2dup s" [IFDEF]" compare 0= r> or r> or
-	    IF   2drop 1+
-	    ELSE 2dup s" [ELSE]" compare 0=
-		IF   2drop 1- dup
-		    IF 1+
-		    THEN
-		ELSE
-		    2dup s" [ENDIF]" compare 0= >r
-		    s" [THEN]" compare 0= r> or
-		    IF 1- THEN
-		THEN
-	    THEN
-	    ?dup 0= ?EXIT
-	REPEAT
-	2drop refill 0=
-    UNTIL drop ; immediate
-  
-: [THEN] ( -- ) ; immediate
-
-: [ENDIF] ( -- ) ; immediate
-
-: [IF] ( flag -- )
-    0= IF postpone [ELSE] THEN ; immediate 
-
-Cond: [IF]      postpone [IF] ;Cond
-Cond: [THEN]    postpone [THEN] ;Cond
-Cond: [ELSE]    postpone [ELSE] ;Cond
-
-\ define new [IFDEF] and [IFUNDEF]                      20may93jaw
-
-: defined? defined? ;
-: needed? needed? ;
-: doer? doer? ;
-
-\ we want to use IFDEF on compiler directives (e.g. E?) in the source, too
-
-: directive? 
-  bl word count [ ' target >wordlist ] aliteral search-wordlist 
-  dup IF nip THEN ;
-
-: [IFDEF]  >in @ directive? swap >in !
-	   0= IF defined? ELSE name 2drop true THEN
-	   postpone [IF] ;
-
-: [IFUNDEF] defined? 0= postpone [IF] ;
-
-Cond: [IFDEF]   postpone [IFDEF] ;Cond
-
-Cond: [IFUNDEF] postpone [IFUNDEF] ;Cond
-
-\ C: \- \+ Conditional Compiling                         09jun93jaw
-
-: C: >in @ defined? 0=
-     IF    >in ! T : H
-     ELSE drop
-        BEGIN bl word dup c@
-              IF   count comment? s" ;" compare 0= ?EXIT
-              ELSE refill 0= ABORT" CROSS: Out of Input while C:"
-              THEN
-        AGAIN
-     THEN ;
-
-also minimal
-
-: d? d? ;
-
-\G doesn't skip line when debug switch is on
-: \D D? 0= IF postpone \ THEN ;
-
-\G interprets the line if word is not defined
-: \- defined? IF postpone \ THEN ;
-
-\G interprets the line if word is defined
-: \+ defined? 0= IF postpone \ THEN ;
-
-Cond: \- \- ;Cond
-Cond: \+ \+ ;Cond
-Cond: \D \D ;Cond
-
-: ?? bl word find IF execute ELSE drop 0 THEN ;
-
-: needed:
-\G defines ghost for words that we want to be compiled
-  BEGIN >in @ bl word c@ WHILE >in ! ghost drop REPEAT drop ;
-
-previous
-
 \ save-cross                                           17mar93py
+
+hex
 
 >CROSS
 Create magic  s" Gforth2x" here over allot swap move
@@ -2110,10 +2416,10 @@ tcell 1 = 0 and or
 tcell 2 = 2 and or
 tcell 4 = 4 and or
 tcell 8 = 6 and or
-tchar 1 = $00 and or
-tchar 2 = $28 and or
-tchar 4 = $50 and or
-tchar 8 = $78 and or
+tchar 1 = 00 and or
+tchar 2 = 28 and or
+tchar 4 = 50 and or
+tchar 8 = 78 and or
 magic 7 + c!
 
 : save-cross ( "image-name" "binary-name" -- )
@@ -2146,14 +2452,122 @@ magic 7 + c!
   swap >image swap r@ write-file throw
   r> close-file throw ;
 
+\ \ minimal definitions
+	   
+>MINIMAL also minimal
+
+\ Usefull words                                        13feb93py
+
+: KB  400 * ;
+
+\ \ [IF] [ELSE] [THEN] ...				14sep97jaw
+
+\ it is useful to define our own structures and not to rely
+\ on the words in the compiler
+\ The words in the compiler might be defined with vocabularies
+\ this doesn't work with our self-made compile-loop
+
+Create parsed 20 chars allot	\ store word we parsed
+
+: upcase
+    parsed count bounds
+    ?DO I c@ toupper I c! LOOP ;
+
+: [ELSE]
+    1 BEGIN
+	BEGIN bl word count dup WHILE
+	    comment? 20 umin parsed place upcase parsed count
+	    2dup s" [IF]" compare 0= >r 
+	    2dup s" [IFUNDEF]" compare 0= >r
+	    2dup s" [IFDEF]" compare 0= r> or r> or
+	    IF   2drop 1+
+	    ELSE 2dup s" [ELSE]" compare 0=
+		IF   2drop 1- dup
+		    IF 1+
+		    THEN
+		ELSE
+		    2dup s" [ENDIF]" compare 0= >r
+		    s" [THEN]" compare 0= r> or
+		    IF 1- THEN
+		THEN
+	    THEN
+	    ?dup 0= ?EXIT
+	REPEAT
+	2drop refill 0=
+    UNTIL drop ; immediate
+  
+: [THEN] ( -- ) ; immediate
+
+: [ENDIF] ( -- ) ; immediate
+
+: [IF] ( flag -- )
+    0= IF postpone [ELSE] THEN ; immediate 
+
+Cond: [IF]      postpone [IF] ;Cond
+Cond: [THEN]    postpone [THEN] ;Cond
+Cond: [ELSE]    postpone [ELSE] ;Cond
+
+\ define new [IFDEF] and [IFUNDEF]                      20may93jaw
+
+: defined? tdefined? ;
+: needed? needed? ;
+: doer? doer? ;
+
+\ we want to use IFDEF on compiler directives (e.g. E?) in the source, too
+
+: directive? 
+  bl word count [ ' target >wordlist ] literal search-wordlist 
+  dup IF nip THEN ;
+
+: [IFDEF]  >in @ directive? swap >in !
+	   0= IF tdefined? ELSE name 2drop true THEN
+	   postpone [IF] ;
+
+: [IFUNDEF] tdefined? 0= postpone [IF] ;
+
+Cond: [IFDEF]   postpone [IFDEF] ;Cond
+
+Cond: [IFUNDEF] postpone [IFUNDEF] ;Cond
+
+\ C: \- \+ Conditional Compiling                         09jun93jaw
+
+: C: >in @ tdefined? 0=
+     IF    >in ! X :
+     ELSE drop
+        BEGIN bl word dup c@
+              IF   count comment? s" ;" compare 0= ?EXIT
+              ELSE refill 0= ABORT" CROSS: Out of Input while C:"
+              THEN
+        AGAIN
+     THEN ;
+
+: d? d? ;
+
+\G doesn't skip line when debug switch is on
+: \D D? 0= IF postpone \ THEN ;
+
+\G interprets the line if word is not defined
+: \- tdefined? IF postpone \ THEN ;
+
+\G interprets the line if word is defined
+: \+ tdefined? 0= IF postpone \ THEN ;
+
+Cond: \- \- ;Cond
+Cond: \+ \+ ;Cond
+Cond: \D \D ;Cond
+
+: ?? bl word find IF execute ELSE drop 0 THEN ;
+
+: needed:
+\G defines ghost for words that we want to be compiled
+  BEGIN >in @ bl word c@ WHILE >in ! ghost drop REPEAT drop ;
+
 \ words that should be in minimal
 
 create s-buffer 50 chars allot
 
->MINIMAL
-also minimal
-
 bigendian Constant bigendian
+
 : here there ;
 : equ constant ;
 : mark there constant ;
@@ -2176,14 +2590,13 @@ bigendian Constant bigendian
 also forth 
 [IFDEF] Label           : Label defempty? Label ; [THEN] 
 [IFDEF] start-macros    : start-macros defempty? start-macros ; [THEN]
-[IFDEF] builttag	: builttag builttag ;	[THEN]
+\ [IFDEF] builttag	: builttag builttag ;	[THEN]
 previous
 
 : s" [char] " parse s-buffer place s-buffer count ; \ for environment?
 : + + ;
 : 1+ 1 + ;
 : 2+ 2 + ;
-: or or ;
 : 1- 1- ;
 : - - ;
 : and and ;
@@ -2216,22 +2629,22 @@ previous
 : ." [char] " parse type ;
 : cr cr ;
 
-: times 0 ?DO dup T c, H LOOP drop ; \ used for space table creation
-only forth also minimal definitions
+: times 0 ?DO dup X c, LOOP drop ; \ used for space table creation
+
+\ only forth also cross also minimal definitions order
 
 \ cross-compiler words
 
 : decimal       decimal ;
 : hex           hex ;
 
-: tudp          T tudp H ;
-: tup           T tup H ;
+\ : tudp          X tudp ;
+\ : tup           X tup ;
 
-: doc-off       false T to-doc H ! ;
-: doc-on        true  T to-doc H ! ;
+: doc-off       false to-doc ! ;
+: doc-on        true  to-doc ! ;
+
 [IFDEF] dbg : dbg dbg ; [THEN]
-
-minimal
 
 \ for debugging...
 : order         order ;
@@ -2245,17 +2658,29 @@ minimal
 : T minimal ; immediate
 : G ghosts ; immediate
 
-: turnkey  0 set-order also Target definitions
-           also Minimal also ;
+: turnkey 
+   \GFORTH 0 set-order also Target 
+   \ANSI [ ' target >wordlist ] Literal 1 set-order
+   definitions
+   also Minimal also ;
 
 \ these ones are pefered:
 
 : lock   turnkey ;
 : unlock previous forth also cross ;
 
+\ also minimal
 : [[ also unlock ;
 : ]] previous previous ;
 
 unlock definitions also minimal
 : lock   lock ;
 lock
+
+\ load cross compiler extension defined in mach file
+
+UNLOCK >CROSS
+
+[IFDEF] extend-cross extend-cross [THEN]
+
+LOCK
