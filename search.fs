@@ -38,7 +38,7 @@ Variable slowvoc   0 slowvoc !
 
 : mappedwordlist ( map-struct -- wid )	\ gforth
 \G creates a wordlist with a special map-structure
-  here 0 A, swap A, voclink @ A, 0 A,
+  here swap A, 0 A, voclink @ A, 0 A,
   dup wordlist-link voclink !
   dup initvoc ;
 
@@ -109,7 +109,7 @@ Vocabulary Root
 
 \ set initial search order                             14may93py
 
-Forth-wordlist @ ' Forth >body !
+Forth-wordlist wordlist-id @ ' Forth >body wordlist-id !
 
 0 vp! also Root also definitions
 Only Forth also definitions

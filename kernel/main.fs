@@ -116,5 +116,5 @@ has? header [IF]
 
 UNLOCK Tlast @
 LOCK
-1 cells - dup forth-wordlist ! Last !
+1 cells - dup forth-wordlist cell+ ! Last !
 .unresolved

@@ -88,7 +88,8 @@ Defer hash-alloc
 
 : inithash ( wid -- )
     wordlist-extend
-    insRule @ >r  insRule off  hash-alloc 3 cells - dup
+    insRule @ >r  insRule off  hash-alloc 3 cells -
+    dup wordlist-id
     BEGIN  @ dup  WHILE  2dup swap (reveal  REPEAT
     2drop  r> insRule ! ;
 
@@ -150,11 +151,11 @@ to hashsearch-map
 has? cross 0= 
 [IF]
 : make-hash
-  hashsearch-map forth-wordlist cell+ !
+  hashsearch-map forth-wordlist wordlist-map !
   addall ;
   make-hash \ Baumsuche ist installiert.
 [ELSE]
-  hashsearch-map forth-wordlist cell+ !
+  hashsearch-map forth-wordlist wordlist-map !
 [THEN]
 
 \ for ec version display that vocabulary goes hashed

@@ -150,14 +150,14 @@ struct
 end-struct wordlist-map-struct
 
 struct
-  cell% field wordlist-id \ not the same as wid; representation depends on implementation
   cell% field wordlist-map \ pointer to a wordlist-map-struct
+  cell% field wordlist-id \ not the same as wid; representation depends on implementation
   cell% field wordlist-link \ link field to other wordlists
   cell% field wordlist-extend \ points to wordlist extensions (eg hashtables)
 end-struct wordlist-struct
 
 : f83find      ( addr len wordlist -- nt / false )
-    ( wid>wordlist-id ) @ (f83find) ;
+    wordlist-id @ (f83find) ;
 
 : initvoc		( wid -- )
   dup wordlist-map @ hash-method perform ;
@@ -166,7 +166,7 @@ end-struct wordlist-struct
 Create f83search ( -- wordlist-map )
     ' f83find A,  ' drop A,  ' drop A, ' drop A,
 
-here NIL A, G f83search T A, NIL A, NIL A,
+here G f83search T A, NIL A, NIL A, NIL A,
 AValue forth-wordlist \ variable, will be redefined by search.fs
 
 AVariable lookup       	forth-wordlist lookup !

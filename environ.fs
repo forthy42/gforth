@@ -31,9 +31,9 @@ Create environment-wordlist  wordlist drop
 
 : e? name environment? 0= ABORT" environmental dependency not existing" ;
 
-: has? name environment? IF ELSE false THEN ;
+: has? name environment? 0= IF false THEN ;
 
-: $has? environment? IF ELSE false THEN ;
+: $has? environment? 0= IF false THEN ;
 
 environment-wordlist set-current
 get-order environment-wordlist swap 1+ set-order

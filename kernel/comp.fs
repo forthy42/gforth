@@ -380,7 +380,7 @@ defer ;-hook ( sys2 -- sys1 )
     last @ ?dup ;
 
 : (reveal) ( nt wid -- )
-    ( wid>wordlist-id ) dup >r
+    wordlist-id dup >r
     @ over ( name>link ) ! 
     r> ! ;
 

@@ -183,24 +183,24 @@ variable locals-dp \ so here's the special dp for locals.
  = ;
 
 : list-size ( list -- u ) \ gforth-internal
-\ size of the locals frame represented by list
- 0 ( list n )
- begin
-   over 0<>
- while
-   over
-   ((name>)) >body @ max
-   swap @ swap ( get next )
- repeat
- faligned nip ;
+    \ size of the locals frame represented by list
+    0 ( list n )
+    begin
+	over 0<>
+    while
+	over
+	((name>)) >body @ max
+	swap @ swap ( get next )
+    repeat
+    faligned nip ;
 
 : set-locals-size-list ( list -- )
- dup locals-list !
- list-size locals-size ! ;
+    dup locals-list wordlist-id !
+    list-size locals-size ! ;
 
 : check-begin ( list -- )
 \ warn if list is not a sublist of locals-list
- locals-list @ sub-list? 0= if
+ locals-list wordlist-id @ sub-list? 0= if
    \ !! print current position
    ." compiler was overly optimistic about locals at a BEGIN" cr
    \ !! print assumption and reality
@@ -328,7 +328,7 @@ slowvoc @
 slowvoc on
 vocabulary new-locals
 slowvoc !
-new-locals-map ' new-locals >body cell+ A! \ !! use special access words
+new-locals-map ' new-locals >body wordlist-map A! \ !! use special access words
 
 variable old-dpp
 
@@ -457,14 +457,16 @@ forth definitions
 \ explicit scoping
 
 : scope ( compilation  -- scope ; run-time  -- ) \ gforth
- cs-push-part scopestart ; immediate
+    cs-push-part scopestart ; immediate
+
+: adjust-locals-list ( wid -- )
+    locals-list wordlist-id @ common-list
+    dup list-size adjust-locals-size
+    locals-list wordlist-id ! ;
 
 : endscope ( compilation scope -- ; run-time  -- ) \ gforth
- scope?
- drop
- locals-list @ common-list
- dup list-size adjust-locals-size
- locals-list ! ; immediate
+    scope?
+    drop  adjust-locals-list ; immediate
 
 \ adapt the hooks
 
@@ -475,7 +477,7 @@ forth definitions
     clear-leave-stack
     0 locals-size !
     locals-buffer locals-dp !
-    0 locals-list !
+    0 locals-list wordlist-id !
     dead-code off
     defstart ;
 
@@ -510,8 +512,7 @@ forth definitions
 	else \ both live
 	    over list-size adjust-locals-size
 	    >resolve
-	    locals-list @ common-list dup list-size adjust-locals-size
-	    locals-list !
+	    adjust-locals-list
 	then
     then ;
 

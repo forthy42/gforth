@@ -25,8 +25,8 @@ Variable countif
 : scanIF   f83find  dup 0=  IF  drop ['] dummy >name  THEN  ;
 
 Create [struct]-search    ' scanIF A,  ' (reveal) A,  ' drop A, ' drop A,
-Create [struct]-voc       NIL A,       [struct]-search A,
-                          NIL A,       NIL A,
+Create [struct]-voc       [struct]-search A,
+                          NIL A,       NIL A,       NIL A,
 
 : ?if  countif @ 0<
   IF  [ [struct]-voc 3 cells + ] ALiteral @ lookup !  THEN ;
@@ -56,7 +56,7 @@ UNLOCK  Tlast @ TNIL Tlast !  LOCK
 
 UNLOCK Tlast @ swap Tlast ! LOCK
 \ last @ swap last !
-1 cells - [struct]-voc !
+1 cells - [struct]-voc cell+ !
 
 \ Interpretative Structuren                            30apr92py
 

@@ -91,7 +91,7 @@ variable backedge-locals
  dup cs-item? ; 
 
 : cs-push-part ( -- list addr )
- locals-list @ here ;
+ locals-list wordlist-id @ here ;
 
 : cs-push-orig ( -- orig )
  cs-push-part dead-code @

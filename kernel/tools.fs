@@ -70,7 +70,7 @@ Variable /dump
 include  ../termsize.fs
 
 : words ( -- ) \ tools
-    cr 0 context @
+    cr 0 context @ wordlist-id
     BEGIN
 	@ dup
     WHILE
