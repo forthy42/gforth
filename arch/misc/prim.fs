@@ -3,8 +3,6 @@
 0 [IF]
 Ideas/Todo
 
-- x! x@ is only used in key.fs, we could do (emit), (key)...
-  as primtives and than drop x! and x@
 
 [THEN]
 
@@ -287,25 +285,6 @@ Code @
 		SP , accu ,
 		t0 , *accu ,
 		"Next" , jmp ,
-end-code
-
-Code x!
-                'X dout
-		SP , accu ,
-		*accu , dstx ,
-		#1 , add ,
-		accu , srcx ,
-		#1 , add ,
-		accu , SP ,
-		"xmov" , jmp ,
-end-code
-		
-Code x@
-                'x dout
-		SP , accu ,
-		*accu , srcx ,
-		accu , dstx ,
-		"xmov" , jmp ,
 end-code
 
 Code ?branch
