@@ -333,7 +333,40 @@ SUPER_CONTINUE;  /* we do our own control flow, so don't append NEXT etc. */
 
 \ condbranch(forthname,stackeffect,restline,code1,code2,forthcode)
 \ this is non-syntactical: code must open a brace that is closed by the macro
+\ condbranch(forthname,stackeffect,restline,code1,code2,forthcode)
+\ this is non-syntactical: code must open a brace that is closed by the macro
 define(condbranch,
+$1 ( `#'a_target $2 ) $3
+$4	#ifdef NO_IP
+INST_TAIL;
+#endif
+$5	#ifdef NO_IP
+JUMP(a_target);
+#else
+SET_IP((Xt *)a_target);
+#endif
+}
+$6
+
+\+glocals
+
+$1-lp+!`#' ( `#'a_target `#'nlocals $2 ) $3_lp_plus_store_number
+$4	#ifdef NO_IP
+INST_TAIL;
+#endif
+$5	lp += nlocals;
+#ifdef NO_IP
+JUMP(a_target);
+#else
+SET_IP((Xt *)a_target);
+#endif
+}
+
+\+
+)
+
+\ version that generates two jumps (not good for PR 15242 workaround)
+define(condbranch_twojump,
 $1 ( `#'a_target $2 ) $3
 $4	#ifdef NO_IP
 INST_TAIL;
