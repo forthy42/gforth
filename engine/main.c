@@ -893,6 +893,7 @@ void compile_prim1(Cell *start)
 Label compile_prim(Label prim)
 {
   Cell x=(Cell)prim;
+  assert(0);
   compile_prim1(&x);
   return (Label)x;
 }

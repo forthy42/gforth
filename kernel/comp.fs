@@ -237,7 +237,7 @@ has? peephole [IF]
 
 : dyn-compile! ( xt -- )
     \ compile xt, appending its code to the current dynamic superinstruction
-    compile-prim last-compiled-here @ ! ;
+    last-compiled-here @ tuck ! compile-prim1 ;
 
 :noname ( -- )
     last-compiled @ if
