@@ -72,8 +72,9 @@ DEFER nlcount ' noop IS nlcount
                 nlflag @ IF (nl) nlflag off THEN
                 XPos @ over + cols u>= IF (nl) THEN ;
 
-: c-to-upper
-  dup [char] a >= over [char] z <= and if  bl -  then ;
+: c-to-upper ( c1 -- c2 ) \ gforth
+    \ nac05feb1999 there is a primitive, toupper, with this function
+    dup [char] a >= over [char] z <= and if  bl -  then ;
 
 : ctype         ( adr len -- )
                 warp? dup XPos +! C-Output @ 

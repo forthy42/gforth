@@ -69,8 +69,9 @@ Copyright @copyright{} 1995-1998 Free Software Foundation, Inc.
 @center Anton Ertl
 @center Bernd Paysan
 @center Jens Wilke
+@center Neal Crook
 @sp 3
-@center This manual is permanently under construction and was last updated on 18-Jan-1999
+@center This manual is permanently under construction and was last updated on 16-Feb-1999
 
 @comment  The following two commands start the copyright page.
 @page
@@ -226,17 +227,18 @@ Structures
 
 Object-oriented Forth
 
+* Why object-oriented programming?::  
+* Object-Oriented Terminology::  
 * Objects::                     
 * OOF::                         
 * Mini-OOF::                    
+* Comparison with other object models::  
 
 Objects
 
 * Properties of the Objects model::  
-* Why object-oriented programming?::  
-* Object-Oriented Terminology::  
 * Basic Objects Usage::         
-* The class Object::            
+* The Objects base class::            
 * Creating objects::            
 * Object-Oriented Programming Style::  
 * Class Binding::               
@@ -244,16 +246,21 @@ Objects
 * Classes and Scoping::         
 * Object Interfaces::           
 * Objects Implementation::      
-* Comparison with other object models::  
 * Objects Glossary::            
 
 OOF
 
 * Properties of the OOF model::
 * Basic OOF Usage::
-* The base class object::
+* The OOF base class::
 * Class Declaration::
 * Class Implementation::
+
+Mini-OOF
+
+* Basic Mini-OOF Usage::
+* Mini-OOF Example::
+* Mini-OOF Implementation::
 
 Word Lists
 
@@ -846,7 +853,6 @@ lead to great productivity improvements.
 * Your first definition::
 * How does that work?::
 * Forth is written in Forth::
-* Classifying Forth words::
 * Review - elements of a Forth system::
 * Exercises::
 @end menu
@@ -1162,19 +1168,18 @@ equivalent ways:
 6 5 4 * +      or:
 5 4 * 6 +
 
-TODO point out that the order of number is never changed.
+An important thing that you should notice about this notation is that
+the @var{order} of the numbers does not change; if you want to subtract
+2 from 10 you type @code{10 2 -}.
 
-TODO -- another way of thinking of this is to think of all Forth
-definitions as being ACTIVE. They execute as they are encountered by the
-text interpreter. With this mental model, it's easy to see that the only
-way of implementing an active scheme is to use postfix notation.
+The reason why Forth uses postfix notation is very simple to explain: it
+makes the implementation extremely simple, and it follows naturally from
+using the stack as a mechanism for passing parameters. Another way of
+thinking about this is to realise that all Forth definitions are
+@var{active}; they execute as they are encountered by the text
+interpreter. The result of this is that the syntax of Forth is almost
+trivially simple.
 
-
-
-
-.. up until now we've just been giving lists of commands that once
-exeduted are gone forwever (well, not really-- try pressing the up-arrow
-key.. you can recall, edit and re-enter )
 
 
 @comment ----------------------------------------------
@@ -1182,137 +1187,397 @@ key.. you can recall, edit and re-enter )
 @section Your first Forth definition
 @cindex first definition
 
+Until now, the examples we've seen have been trivial; we've just been
+using Forth an a bigger-than-pocket calculator. Also, each calculation
+we've shown has been a "one-off" -- to repeat it we'd need to type it in
+again@footnote{That's not quite true. If you press the up-arrow key on
+your keyboard you should be able to scroll back to any earlier command,
+edit it and re-enter it.} In this section we'll see how to add new
+word to Forth's vocabulary.
 
-The easiest way to create a new definition is to use a "colon
-definition". In order to provide a few examples (and give you some
-homework) I'm going to introduce a very small set of words but only
-describe what they do very informally, by example.
+The easiest way to create a new word is to use a "colon
+definition". We'll define a few and try them out before we worry too
+much about how they work. Try typing in these examples; be careful to
+copy the spaces accurately:
 
-+   add the top two numbers on the stack and place the result on the
-stack
-.   print the top stack item
-."  print text until a " delimiter is found
-CR  print a carriage-return
-:   start a new definition
-;   end a definition
-DUP blah
-DROP blah
+@example
+: add-two 2 + . ;
+: greet ." Hello and welcome" ;
+: demo 5 add-two ;
+@end example
 
-example 1:
-: greet ." Hello and welcome" ;<return>  ok
-greet<return> Hello and welcome  ok
-greet greet<return> Hello and welcomeHello and welcome  ok
+@noindent
+Now try them out:
 
-When you try out this example, be careful to copy the spaces
-accurately; there needs to be a space between each group of characters
-that will be processed by the text interpreter.
+@example
+@kbd{greet<return>} Hello and welcome  ok
+@kbd{greet greet<return>} Hello and welcomeHello and welcome  ok
+@kbd{4 add-two<return>} 6  ok
+@kbd{demo<return>} 7  ok
+@kbd{9 greet demo add-two<return>} Hello and welcome7 11  ok
+@end example
 
+The first new thing that we've introduced here is the pair of words
+@code{:} and @code{;}. These are used to start and terminate a new
+definition, respectively. The first word after the @code{:} is the name
+for the new definition.
 
-example 2:
-: add-two 2 + . ;<return>  ok
-5 add-two<return> 7  ok
+As you can see from the examples, a definition is built up of words that
+have already been defined; Forth makes no distinction between
+definitions that existed when you started the system up, and those that
+you define yourself.
 
+The examples also introduce the words @code{.} (dot), @code{."} (dot-quote)
+and @code{dup} (dewp). Dot takes the value from the top of the stack and
+displays it. It's like @code{.s} except that it only displays the top
+item of the stack and it is destructive; after it has executed the
+number is no longer on the top of the stack. There is always one space
+printed after the number, and no spaces before it. Dot-quote defines a
+string (a sequence of characters) that will be printed when the word is
+executed. The string can contain any printable characters except
+@code{"}. A @code{"} has a special function; it is not itself a Forth
+word but it acts as a delimiter. The way that it works is described in
+the next section. Finally, @code{dup} duplicates the value at the top of
+the stack. Try typing @code{5 dup .s} to see what it does.
 
-- numbers and definitions
-- redefining things .. what uses the old defn and what uses the new one
-- boundary between system definitions and your definitions
-- standards.. a double-edged sword
-- philosophy
+We already know that the text interpreter searches through the
+dictionary to locate names. If you've followed the examples earlier, you
+will already have a definition called @code{add-two}. Lets try modifying
+it by typing in a new definition:
 
-- your first set of definitions
+@example
+@kbd{: add-two dup . ." + 2 =" 2 + . ;<return>} redefined add-two  ok
+@end example
 
+Forth recognised that we were defining a word that already exists, and
+printed a message to warn us of that fact. Let's try out the new
+definition:
 
+@example
+@kbd{9 add-two<return>} 9 + 2 =11  ok
+@end example
+
+@noindent
+All that we've actually done here, though, is to create a new
+definition, with a particular name. The fact that there was already a
+definition with the same name did not make any difference to the way
+that the new definition was created (except that Forth printed a warning
+message). The old definition of add-two still exists (try @code{demo}
+again to see that this is true). Any new definition will use the new
+definition of @code{add-two}, but old definitions continue to use the
+version that already existed at the time that they were @code{compiled}.
+
+Before you go on to the next section, try defining and redefining some
+words of your own.
 
 @comment ----------------------------------------------
 @node How does that work?, Forth is written in Forth, Your first definition, Introduction
 @section How does that work?
 @cindex parsing words
 
+Now we're going to take another look at the definition of @code{add-two}
+from the previous section. From our knowledge of the way that the text
+interpreter works, we would have expected this result when we tried to
+define @code{add-two}:
 
-todo parsing words .. trick the text interpreter
+@example
+@kbd{: add-two 2 + . " ;<return>}
+  ^^^^^^^
+Error: Undefined word
+@end example
 
-.. switching from intepret to compile and back again
+The reason that this didn't happen is bound up in the way that @code{:}
+works. The word @code{:} does two special things. The first special
+thing that it does prevents the text interpreter from ever seeing the
+characters @code{add-two}. The text interpreter uses a variable called
+@cindex modifying >IN
+@code{>IN} (pronounced ''to-in'') to keep track of where it is in the
+input line. When it encounters the word @code{:} it behaves in exactly
+the same way as it does for any other word; it looks it up in the name
+dictionary, finds its xt and executes it. When @code{:} executes, it
+looks at the input buffer, finds the word @code{add-two} and advances the
+value of @code{>IN} to point past it. It then does some other stuff
+associated with creating the new definition (including creating an entry
+for @code{add-two} in the name dictionary). When the execution of @code{:}
+completes, control returns to the text interpreter, which is oblivious
+to the fact that it has been tricked into ignoring part of the input
+line.
 
-.. what the text interpreter does.
+@cindex parsing words
+Words like @code{:} -- words that advance the value of @code{>IN} and so
+prevent the text interpreter from acting on the whole of the input line
+-- are called @var{parsing words}.
 
-Now that we have looked at the behaviour of the text interpreter in
-greater detail, we can list all of the things that it knows how to do:
+@cindex state - effect on the text interpreter
+@cindex text interpreter - effect of state
+The second special thing that @code{:} does is to change the value of a
+variable called @code{state}, which affects the way that the text
+interpreter behaves. When Gforth starts up, @code{state} has the value
+0, and the text interpreter is said to be in @var{interpret}
+mode. During a colon definition (started with @code{:}), @code{state} is
+set to -1 and the text interpreter is said to be in @var{compile}
+mode. The word @code{;} ends the definition -- one of the things that it
+does is to change the value of @code{state} back to 0.
+
+When the text interpreter is in @var{interpret} mode, we already know
+how it behaves; it looks for each character sequence in the dictionary,
+finds its xt and executes it, or it converts it to a number and pushes
+it onto the stack, or it fails to do either and generates an error.
+
+When the text interpreter is in @var{compile} mode, its behaviour is
+slightly different; it still looks for each character sequence in the
+dictionary and finds its xt, or converts it to a number, or fails to do
+either and generates an error. However, instead of executing the xt or
+pushing the number onto the stack it lays down (@var{compiles}) some
+magic to make that xt or number get executed or pushed at a later time;
+at the time that @code{add-two} is @var{executed}. Therefore, when you
+execute @code{add-two} its @var{run-time effect} is exactly the same as
+if you had typed @code{2 + .} outside of a definition, and pressed
+<return>.
+
+In Forth, every word or number can be described in terms of three
+properties:
 
 @itemize @bullet
 @item
-It knows how to @var{compile} a number
+Its behaviour at @var{compile} time
 @item
-It knows how to @var{compile} a word into a new definition
+Its behaviour at @var{interpret} time
 @item
-It knows how to @var{interpret} a number
-@item
-It knows how to @var{interpret} a word
+Its behaviour at @var{execution} time.
 @end itemize
 
-The way in which the text interpreter interprets and compiles numbers is
-fixed; the effect of interpreting a number is to put that number on the
-stack, and the effect of compiling a number into a definition is to
-perform some trick whereby the number appears on the stack when the
-definition is executed.
+These behaviours are called the @var{semantics} of the word or
+number. The value of @var{state} determines whether the text
+interpreter will use the compile or interpret semantics of a word or
+number that it encounters.
 
-The way in which the text interpreter interprets and compiles words is
-not fixed; it is defined at the same time as the word is defined, and
-can be overridden in subtle ways later. When the text interpreter
-searches the name dictionary for a defintion, it not only retrieves the
-xt for the word, it also retrieves information about the way in which
-the words can behave.
-
-
-@comment TODO -- fix this up and decide whether I really want it here.
 @itemize @bullet
 @item
-Interpretation
-Compilation
-Description
-
+@cindex interpretation semantics
+When the text interpreter encounters a word or number in @var{interpret}
+state, it performs the @var{interpretation semantics} of the word or
+number.
 @item
-execute
-the xt is compiled
-Normal non-immediate definition. Created by default (eg using @code{:})
-
-@item
-execute
-execute
-Normal immediate definition. Created using @code{immediate} after definition.
-
-@item
-illegal (generate error)
-the xt is compiled
-Compile-only definition. Created using @code{compile-only} after definition.
-
-@item
-illegal (generate error)
-execute
-Immediate compile-only definition created using @code{immediate} @code{compile-only} after definition.
-
-@item
-execute
-illegal
-Interpret-only definition. No standard way to generate this.
-
+@cindex compilation semantics
+When the text interpreter encounters a word or number in @var{compile}
+state, it performs the @var{compilation semantics} of the word or
+number.
 @end itemize
+
+The behaviour of numbers is always the same:
+
+@itemize @bullet
+@item
+When the number is @var{compiled}, it is appended to the current
+definition so that its run-time behaviour is to execute. (In other
+words, the compilation semantics of a number are to postpone its
+execution semantics until the run-time of the definition that it is
+being compiled into.)
+@item
+When the number is @var{interpreted}, its behaviour is to execute. (In
+other words, the interpretation semantics of a number are to perform its
+execution semantics.)
+@item
+@cindex execution semantics
+When the number is @var{executed}, its behaviour is to push its value
+onto the stack. (In other words, the execution semantics of a number are
+to push its value onto the stack.)
+@end itemize
+
+The behaviour of a word is not so regular, but the vast majority behave
+like this:
+
+@itemize @bullet
+@item
+The @var{compilation semantics} of the word are to append its
+@var{execution semantics} to the current definition (so that its
+run-time behaviour is to execute).
+@item
+The @var{interpretation semantics} of the word are to execute.
+@item
+The @var{execution semantics} of the word are to do something useful.
+@end itemize
+
+
+The actual behaviour of any particular word depends upon the way in
+which it was defined. In all cases, the text interpreter decides what to
+do with the word; when it searches the name dictionary for a definition,
+it not only retrieves the xt for the word, it also retrieves a flag
+called the @var{immediate flag}. If the flag is set, the text
+interpreter will @var{execute} the word rather than @var{compiling}
+@cindex immediate words
+it. In other words, these so-called @var{immediate} words behave like
+this:
+
+@itemize @bullet
+@item
+The @var{compilation semantics} of the word are to perform its
+@var{execution semantics} (so that its compile-time behaviour is to
+execute).
+@item
+The @var{interpretation semantics} of the word are to execute.
+@item
+The @var{execution semantics} of the word are to do something useful.
+@end itemize
+
+This example shows the difference between an immediate and a
+non-immediate word:
+
+@example
+: show-state state @ . ;
+: show-state-now show-state ; immediate
+: word1 show-state ;
+: word2 show-state-now ;
+@end example
+
+The word @code{immediate} after the definition of @code{show-state-now}
+makes that word an immediate word. These definitions introduce a new
+word: @code{@@} (pronounced ''at''). This word fetches the value of a
+variable, and leaves it on the stack. Therefore, the behaviour of
+@code{show-state} is to print a number that represents the current value
+of @code{state}.
+
+When you execute @code{word1}, it prints the number 0, indicating
+that the system is in interpret state. When the text interpreter
+compiled the definition of @code{word1}, it encountered
+@code{show-state} whose compilation semantics are to append its
+execution semantics to the current definition. When you execute
+@code{word1}, it performs the execution semantics of @code{show-state}.
+At the time that @code{word1} (and therefore @code{show-state}) are
+executed, the system is in interpret state.
+
+When you pressed <return> after entering the definition of @code{word2},
+you should have seen the number -1 printed, followed by @code{ ok}. When
+the text interpreter compiled the definition of @code{word2}, it
+encountered @code{show-state-now}, an immediate word, whose compilation
+semantics are therefore to perform its execution semantics. It is
+executed straight away (even before the text interpreter has moved on
+to process another group of characters; the @code{;} in this
+example). The effect of executing it are to display the value of
+@code{state} @var{at the time that the definition of} @code{word2}
+@var{is being defined}. Printing -1 demonstrates that the system is in
+compilation state at this time. If you execute @code{word2} it does
+nothing at all.
+
+@cindex ." -- how it works
+Before leaving the subject of immediate words, consider the behaviour of
+@code{."} in the definition of @code{greet}, in the previous
+section. This word is both a parsing word and an immediate word. Notice
+that there is a space between @code{."} and the start of the text
+@code{Hello and welcome}, but that there is no space between the last
+letter of @code{welcome} and the @code{"} character. The reason for this
+is that @code{."} is a Forth word; it must have a space after it so that
+the text interpreter can identify it. The @code{"} is not a Forth word;
+it is a @var{delimiter}. The examples earlier show that, when the string
+is displayed, there is neither a space before the @code{H} nor after the
+@code{e}. Since @code{."} is an immediate word, it executes at the time
+that @code{greet is defined}. When it executes, it searches forward in
+the input line looking for the delimiter. When it finds the delimiter,
+it updates @code{>in} to point past the delimiter. It also compiles some
+magic code into the definition of @code{greet}; the xt of a run-time
+routine that prints a text string. It compiles the string @code{Hello
+and welcome} into memory so that it is available to be printed
+later. When the text interpreter gains control, the next word it finds
+in the input stream is @code{;} and so it terminates the definition of
+@code{greet}.
+
+
+@comment ----------------------------------------------
+@node Forth is written in Forth, Review - elements of a Forth system, How does that work?, Introduction
+@section Forth is written in Forth
+@cindex structure of Forth programs
+
+When you start up a Forth compiler, a large number of definitions
+already exist. In Forth, you develop a new application using bottom-up
+programming techniques to create new definitions that are defined in
+terms of existing definitions. As you create each definition you can
+test and debug it interactively.
+
+If you have tried out the examples in this section, you will probably
+have typed them in by hand; when you leave Gforth, your definitions will
+be deleted. You can avoid this by using a text editor to enter Forth
+source code into a file, and then load all of the code from the file
+using @code{include} (@xref{Including Files}). A Forth source
+file is processed by the text interpreter, just as though you had typed
+it in by hand@footnote{Actually, there are some subtle differences, like
+the fact that it doesn't print @code{ ok} at the end of each line}. 
+
+Gforth also supports the traditional Forth alternative to using text
+files for program entry (@xref{Blocks}).
+
+In common with many, if not most, Forth compilers, most of Gforth is
+actually written in Forth. All of the @code{.fs} files in the
+installation directory are Forth source files, and you can look at them
+to see examples of Forth programming.
+
+Gforth maintains a history file that records every line that you
+type to the text interpreter. This file is preserved between sessions,
+and is used to provide the command-line recall facility. If you enter
+long definitions by hand, you can use a text editor to paste them out of
+the history file into a Forth source file for reuse at a later time.
+
+@cindex history file
+@cindex .gforth-history
+@cindex GFORTHHIST
+You can find out the name of your history file using @code{history-file
+type }. On non-Unix systems you can find the location of the file using
+@code{history-dir type }@footnote{The environment variable GFORTHHIST
+determines the location of the file.}
 
 
 
 @comment ----------------------------------------------
-@node Forth is written in Forth, Classifying Forth words, How does that work?, Introduction
-@section Forth is written in Forth
-@cindex structure of Forth programs
+@node Review - elements of a Forth system, Exercises, Forth is written in Forth, Introduction
+@section Review - elements of a Forth system
+@cindex elements of a Forth system
+
+To summarise this chapter:
 
 
+@itemize @bullet
+@item
+Forth programs use @var{factoring} to break a problem down into small
+fragments called @var{words} or @var{definitions}.
+@item
+Forth program development is an interactive process.
+@item
+The main command loop that accepts input, and controls both
+interpretation and compilation, is called the @var{text interpreter}
+(also known as the @var{outer interpreter}.
+@item
+Forth has a very simple syntax, consisting of words and numbers
+separated by spaces or carriage-return characters. Any additional syntax
+is imposed by @var{parsing words}.
+@item
+Forth uses a stack to pass parameters between words. As a result, it
+uses postfix notation.
+@item
+To use a word that has previously been defined, the text interpreter
+searches for the word in the @var{name dictionary}.
+@item
+Words have @var{interpretation semantics}, @var{compilation semantics}
+and @var{execution semantics}.
+@item
+The text interpreter uses the value of @code{state} to select between
+the use of the @var{interpretation semantics} and the  @var{compilation
+semantics} of a word that it encounters.
+@item
+The relationship between the @var{interpretation semantics}, @var{compilation semantics}
+and @var{execution semantics} for a word depend upon the way in which
+the word was defined (for example, whether it is an @var{immediate} word.
+@item
+Forth definitions can be implemented in Forth (called @var{high-level
+definitions}) or in some other way (usually a lower-level language and
+as a result often called @var{low-level definitions}, @var{code
+definitions} or @var{primitives}).
+@item
+Many Forth systems are implemented mainly in Forth.
+@item
+You now know enough to read and understand the rest of this manual and
+the ANS Forth Standard.
+@end itemize
 
-Blah
-
-When you start up the Forth compiler, a large number of definitions
-already exist. To develop a new application, use bottom-up programming
-techniques to create new definitions that are defined in terms of
-existing definitions. As you create each definition you can test it
-interactively. Ultimately, you end up with an environment <blah blah>
 
 @comment TODO - other defining words
 @comment other parsing words
@@ -1321,150 +1586,6 @@ interactively. Ultimately, you end up with an environment <blah blah>
 @comment DOES>
 @comment taste of other elements of Forth
 
-@comment ----------------------------------------------
-@node Classifying Forth words, Review - elements of a Forth system, Forth is written in Forth, Introduction
-@section Classifying Forth words
-@cindex classifying Forth words
-
-It can be helpful to classify Forth words into a number of groups. We
-can classify any word in several orthogonal ways:
-
-@itemize @bullet
-@item
-Based upon the way in which it is implemented
-@item
-Based upon whether it affects the input stream
-@item
-Based upon its behaviour at different times
-@end itemize
-
-If we classify a word based upon the way in which it is implemented, we
-divide words into two groups:
-
-@itemize @bullet
-@item
-Those that are implemented in Forth (often called @var{high-level
-definitions}).
-@item
-Those that are not (often called @var{low-level definitions},
-@var{code definitions} or @var{primitives}).
-@end itemize
-
-When you are programming in Forth it should never make any difference to you (or
-even be apparent to you) whether any particular word is implemented as a
-high-level definition or a low-level definition. If you use the word
-disassembler, @code{see} you can easily find both types of words (try
-@kbd{see +} and @kbd{see :}).
-
-If we classify a word based upon the way in which it affects the input
-stream we also divide words into two groups:
-
-@itemize @bullet
-@item
-Those that do not affect the input stream (the vast majority of Forth
-definitions fall into this category).
-@item
-Those that do affect the input stream (these are called @var{parsing words}).
-@end itemize
-
-Here are some examples of ANS Standard parsing words; you can use the
-word index at the back of this manual to find out more about them:
-
-@code{:}  @ @code{CONSTANT} @ @code{[CHAR]} @ @code{CHAR} @ @code{\}
-
-The most complex way of classifying Forth words is based upon their
-behaviour at different times. We have already seen how the text
-interpreter knows how to treat words differently depending upon whether
-it is interpreting or compiling, 
-  
--- classifying words
-  Three orthogonal ways:
-  -- by function
-  -- classifying words by the way in which they are defined
-  -- classifying words by their behaviour
-
-
-
-
-.. interactive stuff
-5 3 +  . <return> 8  ok
-
-could have been split over several lines
-
-5 . . <return> 
-
-
-.. talk about syntax and semantics
-
-
--- command-line recall and editing
-
-
-Recode this example to show that, when you define a word, the old
-definition becomes unavailable to any *subsequent* definitions.
-
-@example
-: greet ." Hello" ;
-: announce ." I just want to say " greet ;
-: greet ." Bog off" ;
-: another-announce ." I just want to say " greet ;
-@end example
-
-After these four words have been defined, invoking the three distinct words will have this result:
-
-@example
-greet Welcome
-announce I just want to say Hello
-another-announce I just want to say Bog off
-@end example
-
-The original definition of @code{greet} is no longer available.
-
-However, if you created two word lists and put alternative definitions of
-greet in each of them, you could control which was used by changing the search order, like this:
-
-@example
-<create two word lists>
-ALSO POLITE-WORDS DEFINITIONS
-: greet ." Hello" ;
-ALSO RUDE-WORDS DEFINITIONS
-: greet ." Bonjour" ;
-
-FORTH DEFINITIONS
-ALSO POLITE-WORDS
-: announce ." I just want to say " greet ;
-PREVIOUS
-ALSO RUDE-WORDS
-: another-announce ." I just want to say " greet ;
-PREVIOUS
-@end example
-
-
-
-
-
-
-- cells and chars
-
-- the text interpreter in "Compilation" state.
-
--- elements of a forth system
-  - text interpreter (outer interpreter)
-  - compiler
-  - inner interpreter
-  - dictionaries and wordlists
-  - stacks
-
--- disparate spaces .. may be better to describe that elsewhere.
-
--- show how to use the rest of the manual and how to use the ANS Forth Standard
-
-@comment ----------------------------------------------
-@node Review - elements of a Forth system, Exercises, Classifying Forth words, Introduction
-@section Review - elements of a Forth system
-@cindex elements of a Forth system
-
-
 
 
 @comment ----------------------------------------------
@@ -1472,10 +1593,26 @@ PREVIOUS
 @section Exercises
 @cindex elements of a Forth system
 
+Amazing as it may seem, if you have read (and understood) this far, you
+know almost all the fundamentals about the inner workings of a Forth
+system. You certainly know enough to be able to read and understand the
+rest of this manual, to learn more about the facilities that Gforth
+provides. Even scarier, you know almost enough to implement your own Forth
+system. However, that's not a good idea just yet.. better to try writing
+some programs in Gforth.
+
+The large number of Forth words available in ANS Standard Forth and
+Gforth make learning Forth somewhat daunting. To make the problem
+easier, use the index of this manual to learn more about these words:
+
+..levels of Forth words.
+
+
 Ideally, provide a set of programming excercises linked into the stuff
 done already and into other sections of the manual. Provide solutions to
 all the exercises in a .fs file in the distribution. Get some
 inspiration from Starting Forth and Kelly&Spies.
+
 
 
 @c ----------------------------------------------------------
@@ -1742,6 +1879,19 @@ of saving the state of the system before leaving Gforth.
 doc-bye
 
 
+@comment TODO add section on environment variables.. find them by
+@comment grep for "getenv" -- they are:
+@comment GFORTHHIST
+@comment POSIXELY_CORRECT
+@comment TMP TEMP
+@comment HOME
+@comment LINES
+@comment COLUMNS
+@comment GFORTHPATH
+@comment FORTHSIZES ?? in INSTALL but cannot find it in the source
+@comment some are in .c files.
+
+
 @node Words, Tools, Invoking Gforth, Top
 @chapter Forth Words
 @cindex Words
@@ -1903,9 +2053,9 @@ quotes.
 Forth supports two styles of comment; the traditional "in-line" comment,
 @code{(} and its modern cousin, the "comment to end of line"; @code{\}.
 
-doc-\
 doc-(
-
+doc-\
+doc-\G
 
 @node Boolean Flags, Arithmetic, Comments, Words
 @section Boolean Flags
@@ -2011,19 +2161,39 @@ doc-dmax
 @cindex numeric comparison words
 
 doc-0<
+doc-0<=
 doc-0<>
 doc-0=
+doc-0>
+doc-0>=
 doc-<
+doc-<=
 doc-<>
 doc-=
 doc->
+doc->=
+
 doc-d0<
+doc-d0<=
+doc-d0<>
 doc-d0=
+doc-d0>
+doc-d0>=
 doc-d<
+doc-d<=
+doc-d<>
 doc-d=
+doc-d>
+doc-d>=
+
 doc-u<
 doc-du<
 doc-u>
+doc-u<=
+@comment why u<> and u= .. they are the same as <> and =
+doc-u<>
+doc-u=
+doc-u>=
 doc-within
 
 @node Mixed precision, Floating Point, Numeric comparison, Arithmetic
@@ -3342,6 +3512,7 @@ wordset, i.e.:
 @example
 @{ local1 local2 ... -- comment @}
 @end example
+@noindent
 or
 @example
 @{ local1 local2 ... @}
@@ -3378,11 +3549,11 @@ Note that a syntax shown in the standard, section A.13 looks
 similar, but is quite different in having the order of locals
 reversed. Beware!
 
-The ANS Forth locals wordset itself consists of the following word
+The ANS Forth locals wordset itself consists of a word:
 
 doc-(local)
 
-The ANS Forth locals extension wordset defines a syntax, but it is so
+The ANS Forth locals extension wordset defines a syntax using @code{locals|}, but it is so
 awful that we strongly recommend not to use it. We have implemented this
 syntax to make porting to Gforth easy, but do not document it here. The
 problem with this syntax is that the locals are defined in an order
@@ -3600,14 +3771,16 @@ word was defined with @code{CREATE}. In Gforth, the @code{DOES>}-part
 will override the behaviour of the last word defined in any case. In a
 standard program, you can use @code{DOES>} only in a colon
 definition. In Gforth, you can also use it in interpretation state, in a
-kind of one-shot mode:
+kind of one-shot mode; for example:
 @example
 CREATE name ( ... -- ... )
   @var{initialization}
 DOES>
   @var{code} ;
 @end example
-This is equivalent to the standard
+
+@noindent
+is equivalent to the standard:
 @example
 :noname
 DOES>
@@ -3616,7 +3789,7 @@ CREATE name EXECUTE ( ... -- ... )
     @var{initialization}
 @end example
 
-You can get the address of the body of a word with
+You can get the address of the body of a word with:
 
 doc->body
 
@@ -3741,9 +3914,11 @@ part, and one that embodies the compilation part.  Once you have done
 that, you can define a combined word with @code{interpret/compile:} for
 the convenience of your users.
 
-You also might try to provide an optimizing implementation of the
-default compilation semantics with this feature, like this:
+You also might try to  with this feature, like this:
 
+You might try to use this feature to provide an optimizing
+implementation of the default compilation semantics of a word. For
+example, by defining:
 @example
 :noname
    foo bar ;
@@ -3767,8 +3942,8 @@ foobar} would compile the compilation semantics for the optimizing
 @code{foobar}, whereas it would compile the interpretation semantics for
 the non-optimizing @code{foobar}.
 
-@cindex state-smart words are a bad idea
-Some people try to use state-smart words to emulate the feature provided
+@cindex state-smart words (are a bad idea)
+Some people try to use @var{state-smart} words to emulate the feature provided
 by @code{interpret/compile:} (words are state-smart if they check
 @code{STATE} during execution). E.g., they would try to code
 @code{foobar} like this:
@@ -3783,7 +3958,7 @@ by @code{interpret/compile:} (words are state-smart if they check
   ENDIF ; immediate
 @end example
 
-While this works if @code{foobar} is processed only by the text
+Although this works if @code{foobar} is only processed by the text
 interpreter, it does not work in other contexts (like @code{'} or
 @code{POSTPONE}). E.g., @code{' foobar} will produce an execution token
 for a state-smart word, not for the interpretation semantics of the
@@ -3799,7 +3974,7 @@ Ertl; presented at EuroForth '98 and available from
 @cindex defining words with arbitrary semantics combinations
 It is also possible to write defining words that define words with
 arbitrary combinations of interpretation and compilation semantics. In
-general, this looks like:
+general, they look like this:
 
 @example
 : def-word
@@ -3853,9 +4028,18 @@ accessing the header structure usually know how to deal with this; e.g.,
 @cindex text interpreter
 @cindex outer interpreter
 
-Blah blah.
+Intro blah.
+
+@comment TODO
 
 doc->in
+doc-tib
+doc-#tib
+doc-span
+doc-restore-input
+doc-save-input
+doc-source
+doc-source-id
 
 
 @menu
@@ -3865,36 +4049,7 @@ doc->in
 * Interpreter Directives::
 @end menu
 
-
-
-invoking it now, by typing @kbd{gforth<return>}). Forth is now running
-its command line interpreter, which is called the "Text Interpreter"
-(also known as the "Outer Interpreter").  The behaviour of the text
-interpreter depends upon whether the system is in "Interpret" or
-"Compile" state. At startup, the system is always in "Interpret" state.
-
-
-Behaviour of the text interpreter in "Interpret" state
-------------------------------------------------------
-
-Although it may not be obvious, Forth is actually prompting you for
-input. Type a number and press the <return> key:
-
-45<return>  ok
-
-Rather than give you a prompt to invite you to input something, the
-text interpreter prints a status message *after* it has processed a
-line of input. The status message in this case (" ok" followed by
-carriage-return) indicates that the text interpreter was able to
-process all of your input successfully. Now type something illegal:
-
-qwer341<return>
-^^^^^^^
-Error: Undefined word
-
-When the text interpreter detects an error, it discards any remaining
-text on a line, resets certain internal state (including returning to
-"Interpret" state) and prints an error message.
+@comment TODO
 
 The text interpreter works on input one line at a time. Starting at
 the beginning of the line, it skips leading spaces (called
@@ -3938,249 +4093,6 @@ interpreter:
   definitions can "trick" the text interpreter either into skipping
   sections of the input line or into parsing a section of the
   input line more than once.
-
-
-Stacks, postfix notation and parameter passing
-----------------------------------------------
-
-In procedural programming languages (like C and Pascal), the
-building-block of programs is the function or procedure. These
-functions or procedures are called with explicit parameters. For
-example, in C we might write:
-
-total = total + new_volume(length,height,depth);
-
-where total, length, height, depth are all variables and new_volume is
-a function-call to another piece of code.
-
-In Forth, the equivalent to the function or procedure is the
-"definition" and parameters are implicitly passed between definitions
-using a shared stack that is visible to the programmer. Although Forth
-does support variables, the existence of the stack means that they are
-used far less often than in most other programming languages. When the
-text interpreter encounters a number, it will place it on the
-stack. There are several stacks (the actual number is
-implementation-dependent ..) and the particular stack used for any
-operation is implied unambiguously by the operation being
-performed. The stack used for all integer operations is called the
-"data stack", and since this is the stack used most commonly,
-references to "the data stack" are often abbreviated to "the stack".
-
-The stacks have a LIFO (last-in, first-out) organisation. If you type:
-
-1 2 3<return>  ok
-
-then you have placed three numbers on the (data) stack. An analogy for
-the behaviour of the stack is to take a pack of playing cards and deal
-out the ace (1), 2 and 3 into a pile on the table. The 3 was the last
-card onto the pile ("last-in") and if you take a card off the pile
-then, unless you're prepared to fiddle a bit, the card that you take
-off will be the 3 ("first-out"). The number that will be first-out of
-the stack is called the "top of stack", which is often abbreviated to
-TOS.
-
-To see how parameters are passed in Forth, we will consider the
-behaviour of the definition "+" (pronounced "plus"). You will not be
-surprised to learn that this definition performs addition. More
-precisely, it adds two number together and produces a result. Where
-does it get the two numbers from? It takes the first two numbers off
-the stack. Where does it place the result? On the stack. To continue
-with the playing-cards analogy, you can perform the behaviour of "+"
-like this:
-
-- pick up two cards from the stack
-- stare at them intently and ask yourself "what *is* the sum of these
-  two numbers"
-- decide that the answer is 5
-- shuffle the two cards back into the pack and find a 5
-- put a 5 on the remaining ace that's on the table.
-
-If you don't have a pack of cards handy but you do have Forth running,
-you can use the definition .s to show the current state of the stack,
-without affecting the stack. If you already typed "1 2 3" then you
-should see:
-
-.s<return> <3> 1 2 3  ok
-
-The "<3>" is the total number of items on the stack, and the item on
-the far right-hand side is the TOS. You can now type:
-
-+ .s<return> <2> 1 5  ok
-
-which is correct; there are now 2 items on the stack and the result of
-the addition is 5.
-
-If you're playing with cards, try doing a second addition; pick up the
-two cards, work out that their sum is 6, shuffle them into the pack,
-look for a 6 and place that on the table. You now have just one item
-on the stack. What happens if you try to do a third addition? Pick up
-the first card, pick up the second card - ah. There is no second
-card. This is called a "stack underflow" and consitutes an error. If
-you try to do the same thing with Forth it will report an error
-(probably a Stack Underflow or an Invalid Memory Address error).
-
-The opposite situation to a stack underflow is a stack overflow, which
-simply accepts that there is a finite amount of storage space reserved
-for the stack. To stretch the playing card analogy, if you had enough
-packs of cards and you piled the cards up on the table, you would
-eventually be unable to add another card; you'd hit the
-ceiling. Gforth allows you to set the maximum size of the stacks. In
-general, the only time that you will get a stack overflow is because a
-definition has a bug in it and is generating data on the stack
-uncontrollably.
-
-There's one final use for the playing card analogy. If you model your
-stack using a pack of playing cards, the maximum number of items on
-your stack will be 52 (I assume you didn't use the Joker). The maximum
-*value* of any item on the stack is 13 (the King). In fact, the only
-possible numbers are positive integer numbers 1 through 13; you can't
-have (for example) 0 or 27 or 3.52 or -2. If you change the way you
-think about some of the cards, you can accommodate different
-numbers. For example, you could think of the Jack as representing 0,
-the Queen as representing -1 and the King as representing -2. Your
-*range* remains unchanged (you can still only represent a total of 13
-numbers) but the numbers that you can represent are -2 through 10.
-
-In that analogy, the limit was the amount of information that a single
-stack entry could hold, and Forth has a similar limit. In Forth, the
-size of a stack entry is called a "cell". The actual size of a cell is
-implementation dependent and affects the maximum value that a stack
-entry can hold. A Standard Forth provides a cell size of at least
-16-bits, and most desktop systems use a cell size of 32-bits.
-
-Forth does not do any type checking for you, so you are free to
-manipulate and combine stack items in any way you wish. A convenient
-ways of treating stack items is as 2's complement signed integers, and
-that is what Standard words like "+" do. Therefore you can type:
-
--5 12 + .s<return> <1> 7  ok
-
-If you use numbers and definitions like "+" in order to turn Forth
-into a great big pocket calculator, you will realise that it's rather
-different from a normal calculator. Rather than typing 2 + 3 = you had
-to type 2 3 + (ignore the fact that you had to use .s to see the
-result). The terminology used to describe this difference is to say
-that your calculator uses "Infix Notation" (parameters and operators
-are mixed) whilst Forth uses "Postfix Notation" (parameters and
-operators are separate), also called "Reverse Polish Notation".
-
-Whilst postfix notation might look confusing to begin with, it has
-several important advantages:
-
-- it is unambiguous
-- it is more concise
-- it fits naturally with a stack-based system
-
-To examine these claims in more detail, consider these sums:
-
-6 + 5 * 4 =
-4 * 5 + 6 =
-
-If you're just learning maths or your maths is very rusty, you will
-probably come up with the answer 44 for the first and 26 for the
-second. If you are a bit of a whizz at maths you will remember the
-*convention* that multiplication takes precendence over addition, and
-you'd come up with the answer 26 both times. To explain the answer 26
-to someone who got the answer 44, you'd probably rewrite the first sum
-like this:
-
-6 + (5 * 4) =
-
-If what you really wanted was to perform the addition before the
-multiplication, you would have to use parentheses to force it.
-
-If you did the first two sums on a pocket calculator you would probably
-get the right answers, unless you were very cautious and entered them using
-these keystroke sequences:
-
-6 + 5 = * 4 =
-4 * 5 = + 6 =
-
-Postfix notation is unambiguous because the order that the operators
-are applied is always explicit; that also means that parentheses are
-never required. The operators are *active* (the act of quoting the
-operator makes the operation occur) which removes the need for "=".
-
-The sum 6 + 5 * 4 can be written (in postfix notation) in two
-equivalent ways:
-
-6 5 4 * +      or:
-5 4 * 6 +
-
-TODO point out that the order of number is never changed.
-
-The Structure Of Programs In Forth
-----------------------------------
-
-When you start up the Forth compiler, a large number of definitions
-already exist. To develop a new application, use bottom-up programming
-techniques to create new definitions that are defined in terms of
-existing definitions. As you create each definition you can test it
-interactively. Ultimately, you end up with an environment <blah blah>
-
-Creating new definitions
-------------------------
-
-The easiest way to create a new definition is to use a "colon
-definition". In order to provide a few examples (and give you some
-homework) I'm going to introduce a very small set of words but only
-describe what they do very informally, by example.
-
-+   add the top two numbers on the stack and place the result on the
-stack
-.   print the top stack item
-."  print text until a " delimiter is found
-CR  print a carriage-return
-:   start a new definition
-;   end a definition
-DUP blah
-DROP blah
-
-example 1:
-: greet ." Hello and welcome" ;<return>  ok
-greet<return> Hello and welcome  ok
-greet greet<return> Hello and welcomeHello and welcome  ok
-
-When you try out this example, be careful to copy the spaces
-accurately; there needs to be a space between each group of characters
-that will be processed by the text interpreter.
-
-
-example 2:
-: add-two 2 + . ;<return>  ok
-5 add-two<return> 7  ok
-
-
-- numbers and definitions
-- redefining things .. what uses the old defn and what uses the new one
-- boundary between system definitions and your definitions
-- standards.. a double-edged sword
-- philosophy
-
-- your first set of definitions
-
-
-
-.. interactive stuff
-5 3 +  . <return> 8  ok
-
-could have been split over several lines
-
-5 . . <return> 
-
-- cells and chars
-
-- the text interpreter in "Compilation" state.
-
--- elements of a forth system
-  - text interpreter (outer interpreter)
-  - compiler
-  - inner interpreter
-  - dictionaries and wordlists
-  - stacks
-
--- disparate spaces .. may be better to describe that elsewhere.
-
 
 
 @node Number Conversion, Interpret/Compile states, The Text Interpreter, The Text Interpreter
@@ -4310,21 +4222,23 @@ Standard, conversion to floating-point numbers whilst the value of
 @subsection Interpret/Compile states
 @cindex Interpret/Compile states
 
-Blah
+@comment TODO
+Intro blah.
 
 doc-state
 doc-[
 doc-]
 
 
-
 @node Literals, Interpreter Directives, Interpret/Compile states, The Text Interpreter
 @subsection Literals
 @cindex Literals
 
-Blah blah
+@comment TODO
+Intro blah.
 
 doc-literal
+doc-]L
 doc-2literal
 doc-fliteral
 
@@ -4446,9 +4360,9 @@ a-offset float+ constant b-offset
 b-offset cell+ faligned constant c-offset
 @end example
 
-Since we always use the offsets with @code{+}, using a defining
-word @code{cfield} that includes the @code{+} in the
-action of the defined word offers itself:
+Since we always use the offsets with @code{+}, we could use a defining
+word @code{cfield} that includes the @code{+} in the action of the
+defined word:
 
 @example
 : cfield ( n "name" -- )
@@ -4476,7 +4390,7 @@ here addresses these problems.
 @cindex @code{field} usage
 @cindex @code{struct} usage
 @cindex @code{end-struct} usage
-You can define a structure for a (data-less) linked list with
+You can define a structure for a (data-less) linked list with:
 @example
 struct
     cell% field list-next
@@ -4504,24 +4418,25 @@ You can reserve memory for a list node in the dictionary with
 @code{list% %allot}, which leaves the address of the list node on the
 stack. For the equivalent allocation on the heap you can use @code{list%
 %alloc} (or, for an @code{allocate}-like stack effect (i.e., with ior),
-use @code{list% %allocate}). You can also get the the size of a list
-node with @code{list% %size} and it's alignment with @code{list%
+use @code{list% %allocate}). You can get the the size of a list
+node with @code{list% %size} and its alignment with @code{list%
 %alignment}.
 
 Note that in ANS Forth the body of a @code{create}d word is
 @code{aligned} but not necessarily @code{faligned};
-therefore, if you do a
+therefore, if you do a:
 @example
 create @emph{name} foo% %allot
 @end example
 
+@noindent
 then the memory alloted for @code{foo%} is
 guaranteed to start at the body of @code{@emph{name}} only if
 @code{foo%} contains only character, cell and double fields.
 
 @cindex strcutures containing structures
-You can also include a structure @code{foo%} as field of
-another structure, with:
+You can include a structure @code{foo%} as a field of
+another structure, like this:
 @example
 struct
 ...
@@ -4532,14 +4447,14 @@ end-struct ...
 
 @cindex structure extension
 @cindex extended records
-Instead of starting with an empty structure, you can also extend an
+Instead of starting with an empty structure, you can extend an
 existing structure. E.g., a plain linked list without data, as defined
 above, is hardly useful; You can extend it to a linked list of integers,
 like this:@footnote{This feature is also known as @emph{extended
 records}. It is the main innovation in the Oberon language; in other
 words, adding this feature to Modula-2 led Wirth to create a new
 language, write a new compiler etc.  Adding this feature to Forth just
-requires a few lines of code.}
+required a few lines of code.}
 
 @example
 list%
@@ -4591,7 +4506,7 @@ The names of fields are of the form
 @code{@emph{struct}-@emph{field}}, where
 @code{@emph{struct}} is the basic name of the structure, and
 @code{@emph{field}} is the basic name of the field. You can
-think about field words as converting converts the (address of the)
+think of field words as converting the (address of the)
 structure into the (address of the) field.
 
 @cindex structure naming convention
@@ -4622,7 +4537,7 @@ very simple.
 
 @code{field} is a defining word that uses @code{Create}
 and @code{DOES>}. The body of the field contains the offset
-of the field, and the normal @code{DOES>} action is:
+of the field, and the normal @code{DOES>} action is simply:
 
 @example
 @ +
@@ -4630,7 +4545,7 @@ of the field, and the normal @code{DOES>} action is:
 
 @noindent
 i.e., add the offset to the address, giving the stack effect
-@code{addr1 -- addr2} for a field.
+@var{addr1 -- addr2} for a field.
 
 @cindex first field optimization, implementation
 This simple structure is slightly complicated by the optimization
@@ -4667,7 +4582,7 @@ doc-struct
 @node Object-oriented Forth, Tokens for Words, Structures, Words
 @section Object-oriented Forth
 
-Gforth comes with three packets for object-oriented programming,
+Gforth comes with three packets for object-oriented programming:
 @file{objects.fs}, @file{oof.fs}, and @file{mini-oof.fs}; none of them
 is preloaded, so you have to @code{include} them before use. The most
 important differences between these packets (and others) are discussed
@@ -4675,107 +4590,29 @@ in @ref{Comparison with other object models}. All packets are written
 in ANS Forth and can be used with any other ANS Forth.
 
 @menu
-* Objects::                     
-* OOF::                         
-* Mini-OOF::                    
-@end menu
-
-@node Objects, OOF, Object-oriented Forth, Object-oriented Forth
-@subsection Objects
-@cindex objects
-@cindex object-oriented programming
-
-@cindex @file{objects.fs}
-@cindex @file{oof.fs}
-
-This section describes the @file{objects.fs} packet. This material also has been published in @cite{Yet Another Forth Objects Package} by Anton Ertl and appeared in Forth Dimensions 19(2), pages 37--43 (@url{http://www.complang.tuwien.ac.at/forth/objects/objects.html}).
-@c McKewan's and Zsoter's packages
-
-This section assumes (in some places) that you have read @ref{Structures}.
-
-@menu
-* Properties of the Objects model::  
-* Why object-oriented programming?::  
-* Object-Oriented Terminology::  
-* Basic Objects Usage::         
-* The class Object::            
-* Creating objects::            
-* Object-Oriented Programming Style::  
-* Class Binding::               
-* Method conveniences::         
-* Classes and Scoping::         
-* Object Interfaces::           
-* Objects Implementation::      
+* Why object-oriented programming?::
+* Object-Oriented Terminology::
+* Objects::
+* OOF::
+* Mini-OOF::
 * Comparison with other object models::  
-* Objects Glossary::            
 @end menu
 
-Marcel Hendrix provided helpful comments on this section. Andras Zsoter
-and Bernd Paysan helped me with the related works section.
 
-@node Properties of the Objects model, Why object-oriented programming?, Objects, Objects
-@subsubsection Properties of the @file{objects.fs} model
-@cindex @file{objects.fs} properties
-
-@itemize @bullet
-@item
-It is straightforward to pass objects on the stack. Passing
-selectors on the stack is a little less convenient, but possible.
-
-@item
-Objects are just data structures in memory, and are referenced by
-their address. You can create words for objects with normal defining
-words like @code{constant}. Likewise, there is no difference
-between instance variables that contain objects and those
-that contain other data.
-
-@item
-Late binding is efficient and easy to use.
-
-@item
-It avoids parsing, and thus avoids problems with state-smartness
-and reduced extensibility; for convenience there are a few parsing
-words, but they have non-parsing counterparts. There are also a few
-defining words that parse. This is hard to avoid, because all standard
-defining words parse (except @code{:noname}); however, such
-words are not as bad as many other parsing words, because they are not
-state-smart.
-
-@item
-It does not try to incorporate everything. It does a few things
-and does them well (IMO). In particular, I did not intend to support
-information hiding with this model (although it has features that may
-help); you can use a separate package for achieving this.
-
-@item
-It is layered; you don't have to learn and use all features to use this
-model. Only a few features are necessary (@xref{Basic Objects Usage},
-@xref{The class Object}, @xref{Creating objects}.), the others
-are optional and independent of each other.
-
-@item
-An implementation in ANS Forth is available.
-
-@end itemize
-
-I have used the technique, on which this model is based, for
-implementing the parser generator Gray; we have also used this technique
-in Gforth for implementing the various flavours of word lists (hashed or
-not, case-sensitive or not, special-purpose word lists for locals etc.).
-
-@node Why object-oriented programming?, Object-Oriented Terminology, Properties of the Objects model, Objects
+@node Why object-oriented programming?, Object-Oriented Terminology, , Object-oriented Forth
 @subsubsection Why object-oriented programming?
 @cindex object-oriented programming motivation
 @cindex motivation for object-oriented programming
 
 Often we have to deal with several data structures (@emph{objects}),
-that have to be treated similarly in some respects, but differ in
-others. Graphical objects are the textbook example: circles,
-triangles, dinosaurs, icons, and others, and we may want to add more
-during program development. We want to apply some operations to any
-graphical object, e.g., @code{draw} for displaying it on the
-screen. However, @code{draw} has to do something different for
-every kind of object.
+that have to be treated similarly in some respects, but differently in
+others. Graphical objects are the textbook example: circles, triangles,
+dinosaurs, icons, and others, and we may want to add more during program
+development. We want to apply some operations to any graphical object,
+e.g., @code{draw} for displaying it on the screen. However, @code{draw}
+has to do something different for every kind of object.
+@comment TODO add some other operations eg perimeter, area
+@comment and tie in to concrete examples later..
 
 We could implement @code{draw} as a big @code{CASE}
 control structure that executes the appropriate code depending on the
@@ -4788,10 +4625,11 @@ the system: "Here's how you @code{draw} a spaceship; you figure
 out the rest."
 
 This is the problem that all systems solve that (rightfully) call
-themselves object-oriented, and the object-oriented package I present
-here also solves this problem (and not much else).
+themselves object-oriented; the object-oriented packages presented here
+solve this problem (and not much else).
+@comment TODO ?list properties of oo systems.. oo vs o-based?
 
-@node Object-Oriented Terminology, Basic Objects Usage, Why object-oriented programming?, Objects
+@node Object-Oriented Terminology, Objects, Why object-oriented programming?, Object-oriented Forth
 @subsubsection Object-Oriented Terminology
 @cindex object-oriented terminology
 @cindex terminology for object-oriented programming
@@ -4818,7 +4656,7 @@ fields of the data structure.
 @cindex virtual function
 @item selector
 (or @emph{method selector}) a word (e.g.,
-@code{draw}) for performing an operation on a variety of data
+@code{draw}) that performs an operation on a variety of data
 structures (classes). A selector describes @emph{what} operation to
 perform. In C++ terminology: a (pure) virtual function.
 
@@ -4840,9 +4678,9 @@ to the object.
 @cindex receiving object
 @item receiving object
 the object used for determining the method executed by a selector
-invocation. In our model it is the object that is on the TOS when the
-selector is invoked. (@emph{Receiving} comes from Smalltalks
-@emph{message} terminology.)
+invocation. In the @file{objects.fs} model, it is the object that is on
+the TOS when the selector is invoked. (@emph{Receiving} comes from
+the Smalltalk @emph{message} terminology.)
 
 @cindex child class
 @cindex parent class
@@ -4861,8 +4699,90 @@ terminology: The derived class inherits from the base class.
 @c they can do most things through simple (indirect) calls. They kept the
 @c terminology.
 
-@node Basic Objects Usage, The class Object, Object-Oriented Terminology, Objects
-@subsubsection Basic Objects Usage
+
+@node Objects, OOF, Object-Oriented Terminology, Object-oriented Forth
+@subsection The @file{objects.fs} model
+@cindex objects
+@cindex object-oriented programming
+
+@cindex @file{objects.fs}
+@cindex @file{oof.fs}
+
+This section describes the @file{objects.fs} packet. This material also has been published in @cite{Yet Another Forth Objects Package} by Anton Ertl and appeared in Forth Dimensions 19(2), pages 37--43 (@url{http://www.complang.tuwien.ac.at/forth/objects/objects.html}).
+@c McKewan's and Zsoter's packages
+
+This section assumes that you have read @ref{Structures}.
+
+The techniques on which this model is based have been used to implement
+the parser generator, Gray, and have also been used in Gforth for
+implementing the various flavours of word lists (hashed or not,
+case-sensitive or not, special-purpose word lists for locals etc.).
+
+
+@menu
+* Properties of the Objects model::  
+* Basic Objects Usage::         
+* The Objects base class::            
+* Creating objects::            
+* Object-Oriented Programming Style::  
+* Class Binding::               
+* Method conveniences::         
+* Classes and Scoping::         
+* Object Interfaces::           
+* Objects Implementation::      
+* Objects Glossary::            
+@end menu
+
+Marcel Hendrix provided helpful comments on this section. Andras Zsoter
+and Bernd Paysan helped me with the related works section.
+
+@node Properties of the Objects model, Basic Objects Usage, Objects, Objects
+@subsubsection Properties of the @file{objects.fs} model
+@cindex @file{objects.fs} properties
+
+@itemize @bullet
+@item
+It is straightforward to pass objects on the stack. Passing
+selectors on the stack is a little less convenient, but possible.
+
+@item
+Objects are just data structures in memory, and are referenced by their
+address. You can create words for objects with normal defining words
+like @code{constant}. Likewise, there is no difference between instance
+variables that contain objects and those that contain other data.
+
+@item
+Late binding is efficient and easy to use.
+
+@item
+It avoids parsing, and thus avoids problems with state-smartness
+and reduced extensibility; for convenience there are a few parsing
+words, but they have non-parsing counterparts. There are also a few
+defining words that parse. This is hard to avoid, because all standard
+defining words parse (except @code{:noname}); however, such
+words are not as bad as many other parsing words, because they are not
+state-smart.
+
+@item
+It does not try to incorporate everything. It does a few things and does
+them well (IMO). In particular, this model was not designed to support
+information hiding (although it has features that may help); you can use
+a separate package for achieving this.
+
+@item
+It is layered; you don't have to learn and use all features to use this
+model. Only a few features are necessary (@xref{Basic Objects Usage},
+@xref{The Objects base class}, @xref{Creating objects}.), the others
+are optional and independent of each other.
+
+@item
+An implementation in ANS Forth is available.
+
+@end itemize
+
+
+@node Basic Objects Usage, The Objects base class, Properties of the Objects model, Objects
+@subsubsection Basic @file{objects.fs} Usage
 @cindex basic objects usage
 @cindex objects, basic usage
 
@@ -4885,8 +4805,12 @@ operation @code{draw}.  We can perform the operation
 100 100 t-rex draw
 @end example
 
+@noindent
 where @code{t-rex} is a word (say, a constant) that produces a
 graphical object.
+
+@comment nac TODO add a 2nd operation eg perimeter.. and use for
+@comment a concrete example
 
 @cindex abstract class
 How do we create a graphical object? With the present definitions,
@@ -4917,22 +4841,23 @@ end-class circle
 @end example
 
 Here we define a class @code{circle} as a child of @code{graphical},
-with a field @code{circle-radius} (which behaves just like a field in
-@pxref{Structures}); it defines new methods for the selectors
-@code{draw} and @code{construct} (@code{construct} is defined in
-@code{object}, the parent class of @code{graphical}).
+with field @code{circle-radius} (which behaves just like a field
+(@pxref{Structures}); it defines (using @code{overrides}) new methods
+for the selectors @code{draw} and @code{construct} (@code{construct} is
+defined in @code{object}, the parent class of @code{graphical}).
 
 Now we can create a circle on the heap (i.e.,
-@code{allocate}d memory) with
+@code{allocate}d memory) with:
 
 @cindex @code{heap-new} usage
 @example
 50 circle heap-new constant my-circle
 @end example
 
+@noindent
 @code{heap-new} invokes @code{construct}, thus
 initializing the field @code{circle-radius} with 50. We can draw
-this new circle at (100,100) with
+this new circle at (100,100) with:
 
 @example
 100 100 my-circle draw
@@ -4940,7 +4865,7 @@ this new circle at (100,100) with
 
 @cindex selector invocation, restrictions
 @cindex class definition, restrictions
-Note: You can invoke a selector only if the object on the TOS
+Note: You can only invoke a selector if the object on the TOS
 (the receiving object) belongs to the class where the selector was
 defined or one of its descendents; e.g., you can invoke
 @code{draw} only for objects belonging to @code{graphical}
@@ -4948,17 +4873,17 @@ or its descendents (e.g., @code{circle}).  Immediately before
 @code{end-class}, the search order has to be the same as
 immediately after @code{class}.
 
-@node The class Object, Creating objects, Basic Objects Usage, Objects
-@subsubsection The class @code{object}
+@node The Objects base class, Creating objects, Basic Objects Usage, Objects
+@subsubsection The @file{object.fs} base class
 @cindex @code{object} class
 
 When you define a class, you have to specify a parent class.  So how do
 you start defining classes? There is one class available from the start:
-@code{object}. You can use it as ancestor for all classes. It is the
+@code{object}. It is ancestor for all classes and so is the
 only class that has no parent. It has two selectors: @code{construct}
 and @code{print}.
 
-@node Creating objects, Object-Oriented Programming Style, The class Object, Objects
+@node Creating objects, Object-Oriented Programming Style, The Objects base class, Objects
 @subsubsection Creating objects
 @cindex creating objects
 @cindex object creation
@@ -5010,20 +4935,22 @@ mechanism different from selector invocation would be more natural
 
 @cindex late binding
 Normal selector invocations determine the method at run-time depending
-on the class of the receiving object (late binding).
+on the class of the receiving object. This run-time selection is called
+@var{late binding}.
 
-Sometimes we want to invoke a different method. E.g., assume that
-you want to use the simple method for @code{print}ing
-@code{object}s instead of the possibly long-winded
-@code{print} method of the receiver class. You can achieve this
-by replacing the invocation of @code{print} with
+Sometimes it's preferable to invoke a different method. For example,
+you might want to use the simple method for @code{print}ing
+@code{object}s instead of the possibly long-winded @code{print} method
+of the receiver class. You can achieve this by replacing the invocation
+of @code{print} with:
 
 @cindex @code{[bind]} usage
 @example
 [bind] object print
 @end example
 
-in compiled code or
+@noindent
+in compiled code or:
 
 @cindex @code{bind} usage
 @example
@@ -5031,6 +4958,7 @@ bind object print
 @end example
 
 @cindex class binding, alternative to
+@noindent
 in interpreted code. Alternatively, you can define the method with a
 name (e.g., @code{print-object}), and then invoke it through the
 name. Class binding is just a (often more convenient) way to achieve
@@ -5213,8 +5141,7 @@ both classes would implement the interface.
 
 As an example, consider an interface @code{storage} for
 writing objects to disk and getting them back, and a class
-@code{foo} foo that implements it. The code for this would look
-like this:
+@code{foo} that implements it. The code would look like this:
 
 @cindex @code{interface} usage
 @cindex @code{end-interface} usage
@@ -5234,7 +5161,8 @@ bar class
 end-class foo
 @end example
 
-(I would add a word @code{read} ( file -- object ) that uses
+@noindent
+(I would add a word @code{read} @var{( file -- object )} that uses
 @code{read1} internally, but that's beyond the point illustrated
 here.)
 
@@ -5246,7 +5174,7 @@ therefore it does not need interfaces. The price you pay in this model
 is slower late binding, and therefore, added complexity to avoid late
 binding.
 
-@node Objects Implementation, Comparison with other object models, Object Interfaces, Objects
+@node Objects Implementation, Objects Glossary, Object Interfaces, Objects
 @subsubsection @file{objects.fs} Implementation
 @cindex @file{objects.fs} implementation
 
@@ -5260,12 +5188,12 @@ class.
 @cindex virtual function table
 The @emph{method map}@footnote{This is Self terminology; in C++
 terminology: virtual function table.} is an array that contains the
-execution tokens (XTs) of the methods for the object's class. Each
-selector contains an offset into the method maps.
+execution tokens (@var{xt}s) of the methods for the object's class. Each
+selector contains an offset into a method map.
 
 @cindex @code{selector} implementation, class
 @code{selector} is a defining word that uses
-@code{create} and @code{does>}. The body of the
+@code{CREATE} and @code{DOES>}. The body of the
 selector contains the offset; the @code{does>} action for a
 class selector is, basically:
 
@@ -5290,14 +5218,14 @@ which is accessed through the variable
 class is represented on the stack by a pointer (e.g., as parameter for
 a child class definition).
 
-At the start, a new class has the alignment and size of its parent,
+A new class starts off with the alignment and size of its parent,
 and a copy of the parent's method map. Defining new fields extends the
 size and alignment; likewise, defining new selectors extends the
-method map. @code{overrides} just stores a new XT in the method
+method map. @code{overrides} just stores a new @var{xt} in the method
 map at the offset given by the selector.
 
 @cindex class binding, implementation
-Class binding just gets the XT at the offset given by the selector
+Class binding just gets the @var{xt} at the offset given by the selector
 from the class's method map and @code{compile,}s (in the case of
 @code{[bind]}) it.
 
@@ -5329,7 +5257,7 @@ Similar for @code{inst-value}.
 Each class also has a word list that contains the words defined with
 @code{inst-var} and @code{inst-value}, and its protected
 words. It also has a pointer to its parent. @code{class} pushes
-the word lists of the class an all its ancestors on the search order,
+the word lists of the class and all its ancestors onto the search order stack,
 and @code{end-class} drops them.
 
 @cindex interface implementation
@@ -5384,75 +5312,9 @@ create obj2 cl1    dict-new drop
 The data structure created by this code (including the data structure
 for @code{object}) is shown in the <a
 href="objects-implementation.eps">figure</a>, assuming a cell size of 4.
+@comment nac TODO add this diagram..
 
-@node Comparison with other object models, Objects Glossary, Objects Implementation, Objects
-@subsubsection Comparison with other object models
-@cindex comparison of object models
-@cindex object models, comparison
-
-Many object-oriented Forth extensions have been proposed (@cite{A survey
-of object-oriented Forths} (SIGPLAN Notices, April 1996) by Bradford
-J. Rodriguez and W. F. S. Poehlman lists 17). Here I'll discuss the
-relation of @file{objects.fs} to two well-known and two closely-related
-(by the use of method maps) models.
-
-@cindex Neon model
-The most popular model currently seems to be the Neon model (see
-@cite{Object-oriented programming in ANS Forth} (Forth Dimensions, March
-1997) by Andrew McKewan). The Neon model uses a @code{@emph{selector
-object}} syntax, which makes it unnatural to pass objects on the
-stack. It also requires that the selector parses the input stream (at
-compile time); this leads to reduced extensibility and to bugs that are
-hard to find. Finally, it allows using every selector to every object;
-this eliminates the need for classes, but makes it harder to create
-efficient implementations. A longer version of this critique can be
-found in @cite{On Standardizing Object-Oriented Forth Extensions} (Forth
-Dimensions, May 1997) by Anton Ertl.
-
-@cindex Pountain's object-oriented model
-Another well-known publication is @cite{Object-Oriented Forth} (Academic
-Press, London, 1987) by Dick Pountain. However, it is not really about
-object-oriented programming, because it hardly deals with late
-binding. Instead, it focuses on features like information hiding and
-overloading that are characteristic of modular languages like Ada (83).
-
-@cindex Zsoter's object-oriented model
-In @cite{Does late binding have to be slow?} (Forth Dimensions ??? 1996)
-Andras Zsoter describes a model that makes heavy use of an active object
-(like @code{this} in @file{objects.fs}): The active object is not only
-used for accessing all fields, but also specifies the receiving object
-of every selector invocation; you have to change the active object
-explicitly with @code{@{ ... @}}, whereas in @file{objects.fs} it
-changes more or less implicitly at @code{m: ... ;m}. Such a change at
-the method entry point is unnecessary with the Zsoter's model, because
-the receiving object is the active object already; OTOH, the explicit
-change is absolutely necessary in that model, because otherwise no one
-could ever change the active object. An ANS Forth implementation of this
-model is available at @url{http://www.forth.org/fig/oopf.html}.
-
-@cindex @file{oof.fs}, differences to other models
-The @file{oof.fs} model combines information hiding and overloading
-resolution (by keeping names in various word lists) with object-oriented
-programming. It sets the active object implicitly on method entry, but
-also allows explicit changing (with @code{>o...o>} or with
-@code{with...endwith}). It uses parsing and state-smart objects and
-classes for resolving overloading and for early binding: the object or
-class parses the selector and determines the method from this. If the
-selector is not parsed by an object or class, it performs a call to the
-selector for the active object (late binding), like Zsoter's model.
-Fields are always accessed through the active object. The big
-disadvantage of this model is the parsing and the state-smartness, which
-reduces extensibility and increases the opportunities for subtle bugs;
-essentially, you are only safe if you never tick or @code{postpone} an
-object or class (Bernd disagrees, but I (Anton) am not convinced).
-
-@cindex @file{mini-oof.fs}, differences to other models
-The Mini-OOF model is quite similar to a very stripped-down version of
-the Objects model, but syntactically it is a mixture of the Objects and
-the OOF model.
-
-
-@node Objects Glossary,  , Comparison with other object models, Objects
+@node Objects Glossary,  , Objects Implementation, Objects
 @subsubsection @file{objects.fs} Glossary
 @cindex @file{objects.fs} Glossary
 
@@ -5500,18 +5362,16 @@ doc---objects-xt-new
 
 @c -------------------------------------------------------------
 @node OOF, Mini-OOF, Objects, Object-oriented Forth
-@subsection OOF
+@subsection The @file{oof.fs} model
 @cindex oof
 @cindex object-oriented programming
 
 @cindex @file{objects.fs}
 @cindex @file{oof.fs}
 
-This section describes the @file{oof.fs} packet. This section uses the
-same rationale why using object-oriented programming, and the same
-terminology.
+This section describes the @file{oof.fs} packet.
 
-The packet described in this section is used in bigFORTH since 1991, and
+The packet described in this section has been used in bigFORTH since 1991, and
 used for two large applications: a chromatographic system used to
 create new medicaments, and a graphic user interface library (MINOS).
 
@@ -5522,13 +5382,13 @@ oriented bigFORTH} by Bernd Paysan, published in @cite{Vierte Dimension}
 @menu
 * Properties of the OOF model::
 * Basic OOF Usage::
-* The base class object::
+* The OOF base class::
 * Class Declaration::
 * Class Implementation::
 @end menu
 
 @node Properties of the OOF model, Basic OOF Usage, OOF, OOF
-@subsubsection Properties of the OOF model
+@subsubsection Properties of the @file{oof.fs} model
 @cindex @file{oof.fs} properties
 
 @itemize @bullet
@@ -5545,7 +5405,7 @@ possible.
 
 @item
 Selector invocation and instance variable usage of the active object is
-straight forward, since both make use of the active object.
+straightforward, since both make use of the active object.
 
 @item
 Late binding is efficient and easy to use.
@@ -5560,11 +5420,11 @@ An implementation in ANS Forth is available.
 @end itemize
 
 
-@node Basic OOF Usage, The base class object, Properties of the OOF model, OOF
-@subsubsection Basic OOF Usage
+@node Basic OOF Usage, The OOF base class, Properties of the OOF model, OOF
+@subsubsection Basic @file{oof.fs} Usage
 @cindex @file{oof.fs} usage
 
-Here, I use the same example as for @code{objects} (@pxref{Basic Objects Usage}).
+This section uses the same example as for @code{objects} (@pxref{Basic Objects Usage}).
 
 You can define a class for graphical objects like this:
 
@@ -5585,6 +5445,7 @@ operation @code{draw}.  We can perform the operation
 100 100 t-rex draw
 @end example
 
+@noindent
 where @code{t-rex} is an object or object pointer, created with e.g.
 @code{graphical : t-rex}.
 
@@ -5622,9 +5483,10 @@ Now we can create a circle in the dictionary with
 50 circle : my-circle
 @end example
 
+@noindent
 @code{:} invokes @code{init}, thus initializing the field
 @code{circle-radius} with 50. We can draw this new circle at (100,100)
-with
+with:
 
 @example
 100 100 my-circle draw
@@ -5632,7 +5494,7 @@ with
 
 @cindex selector invocation, restrictions
 @cindex class definition, restrictions
-Note: You can invoke a selector only if the receiving object belongs to
+Note: You can only invoke a selector if the receiving object belongs to
 the class where the selector was defined or one of its descendents;
 e.g., you can invoke @code{draw} only for objects belonging to
 @code{graphical} or its descendents (e.g., @code{circle}). The scoping
@@ -5641,8 +5503,8 @@ defined in this class hierarchy, so you'll get an error at compilation
 time.
 
 
-@node The base class object, Class Declaration, Basic OOF Usage, OOF
-@subsubsection The base class @file{object}
+@node The OOF base class, Class Declaration, Basic OOF Usage, OOF
+@subsubsection The @file{oof.fs} base class
 @cindex @file{oof.fs} base class
 
 When you define a class, you have to specify a parent class.  So how do
@@ -5665,7 +5527,7 @@ doc---object-definitions
 doc---object-class?
 
 @item
-@code{init} and @code{dispose} as constructor and destroctor of the
+@code{init} and @code{dispose} as constructor and destructor of the
 object. @code{init} is invocated after the object's memory is allocated,
 while @code{dispose} also handles deallocation. Thus if you redefine
 @code{dispose}, you have to call the parent's dispose with @code{super
@@ -5685,9 +5547,9 @@ doc---object-asptr
 doc---object-[]
 
 @item
-@code{::} and @code{super} for explicit scoping. You should use expicit
+@code{::} and @code{super} for explicit scoping. You should use explicit
 scoping only for super classes or classes with the same set of instance
-variables. Explicit scoped selectors use early binding.
+variables. Explicitly-scoped selectors use early binding.
 doc---object-::
 doc---object-super
 
@@ -5711,15 +5573,15 @@ doc---object-postpone
 
 @item
 @code{with} and @code{endwith} to select the active object from the
-stack, and enabling it's scope. Using @code{with} and @code{endwith}
-also allows to create code using selector @code{postpone} without being
-trapped bye the state-smart objects.
+stack, and enable its scope. Using @code{with} and @code{endwith}
+also allows you to create code using selector @code{postpone} without being
+trapped by the state-smart objects.
 doc---object-with
 doc---object-endwith
 
 @end itemize
 
-@node Class Declaration, Class Implementation, The base class object, OOF
+@node Class Declaration, Class Implementation, The OOF base class, OOF
 @subsubsection Class Declaration
 @cindex class declaration
 
@@ -5743,7 +5605,7 @@ doc---oof-early
 doc---oof-method
 
 @item
-Class wide variables
+Class-wide variables
 doc---oof-static
 
 @item
@@ -5759,69 +5621,49 @@ doc---oof-class;
 @cindex class implementation
 
 @c -------------------------------------------------------------
-@node Mini-OOF, , OOF, Object-oriented Forth
-@subsection Mini-OOF
+@node Mini-OOF, Comparison with other object models, OOF, Object-oriented Forth
+@subsection The @file{mini-oof.fs} model
 @cindex mini-oof
 
 Gforth's third object oriented Forth package is a 12-liner. It uses a
-bit of a mixture of the @file{object.fs} and the @file{oof.fs} syntax,
+mixture of the @file{object.fs} and the @file{oof.fs} syntax,
 and reduces to the bare minimum of features. This is based on a posting
 of Bernd Paysan in comp.arch.
 
 @menu
-* Mini-OOF Usage::
+* Basic Mini-OOF Usage::
 * Mini-OOF Example::
 * Mini-OOF Implementation::
 @end menu
 
 @c -------------------------------------------------------------
-@node Mini-OOF Usage, Mini-OOF Example, , Mini-OOF
-@subsubsection Usage
+@node Basic Mini-OOF Usage, Mini-OOF Example, , Mini-OOF
+@subsubsection Basic @file{mini-oof.fs} Usage
 @cindex mini-oof usage
 
-Basically, there are seven words, to define a method, a variable, a
-class; to end a class, to define a method, to allocate an object, to
-resolve binding, and the base class (which allocates one cell for the
-object pointer).
-
-doc-method
-
-Defines a method
-
-doc-var
-
-Defines a variable with size bytes
-
-doc-class
-
-Starts the definition of a sub-class
-
-doc-end-class
-
-Ends the definition of a class
-
-doc-defines
-
-Binds the xt to the method name in the class
-
-doc-new
-
-Creates a new incarnation of the class
-
-doc-::
-
-Compiles the method name of the class (not immediate!)
+There is a base class (@code{class}, which allocates one cell
+for the object pointer) plus seven other words: to define a method, a
+variable, a class; to end a class, to resolve binding, to allocate an
+object and to compile a class method.
+@comment TODO better description of the last one
 
 doc-object
+doc-method
+doc-var
+doc-class
+doc-end-class
+doc-defines
+doc-new
+doc-::
 
-Is the base class of all objects
 
 @c -------------------------------------------------------------
-@node Mini-OOF Example, Mini-OOF Implementation, Mini-OOF Usage, Mini-OOF
+@node Mini-OOF Example, Mini-OOF Implementation, Basic Mini-OOF Usage, Mini-OOF
 @subsubsection Mini-OOF Example
 @cindex mini-oof example
 
 A short example shows how to use this package.
+@comment nac TODO could flesh this out with some comments from the Forthwrite article
 
 @example
 object class
@@ -5865,7 +5707,7 @@ circle new Constant my-circle
 
 It is also possible to add a function to create named objects with
 automatic call of @code{init}, given that all objects have @code{init}
-on the same place
+on the same place:
 
 @example
 : new: ( .. o "name" -- )
@@ -5873,20 +5715,19 @@ on the same place
 80 circle new: large-circle
 @end example
 
-We can draw this new circle at (100,100)
-with
+We can draw this new circle at (100,100) with:
 
 @example
 100 100 my-circle draw
 @end example
 
 @node Mini-OOF Implementation, , Mini-OOF Example, Mini-OOF
-@subsubsection Mini-OOF Implementation
+@subsubsection @file{mini-oof.fs} Implementation
 
-Object oriented system with late binding typically use a
+Object-oriented systems with late binding typically use a
 "vtable"-approach: the first variable in each object is a pointer to a
-table, which contains the methods as function pointers. This vtable
-may contain some other informations, too.
+table, which contains the methods as function pointers. The vtable
+may also contain other information.
 
 So first, let's declare methods:
 
@@ -5899,7 +5740,7 @@ During method declaration, the number of methods and instance
 variables is on the stack (in address units). @code{method} creates
 one method and increments the method number. To execute a method, it
 takes the object, fetches the vtable pointer, adds the offset, and
-executes the xt stored there. Each method takes the object it is
+executes the @var{xt} stored there. Each method takes the object it is
 invoked from as top of stack parameter. The method itself should
 consume that object.
 
@@ -5910,22 +5751,22 @@ Now, we also have to declare instance variables
   DOES> ( o -- addr ) @ + ;
 @end example
 
-Same as above, a word is created with the current offset. Instance
+As before, a word is created with the current offset. Instance
 variables can have different sizes (cells, floats, doubles, chars), so
 all we do is take the size and add it to the offset. If your machine
 has alignment restrictions, put the proper @code{aligned} or
-@code{faligned} before the variable, it will adjust the variable
+@code{faligned} before the variable, to adjust the variable
 offset. That's why it is on the top of stack.
 
-We need a starting point (the empty object) and some syntactic sugar:
+We need a starting point (the base object) and some syntactic sugar:
 
 @example
 Create object  1 cells , 2 cells ,
 : class ( class -- class methods vars ) dup 2@ ;
 @end example
 
-Now, for inheritance, the vtable of the parent object has to be
-copied, when a new, derived class is declared. This gives all the
+For inheritance, the vtable of the parent object has to be
+copied when a new, derived class is declared. This gives all the
 methods of the parent class, which can be overridden, though.
 
 @example
@@ -5950,8 +5791,8 @@ To allocate a new object, we need a word, too:
 : new ( class -- o )  here over @ allot swap over ! ;
 @end example
 
-And sometimes derived classes want to access the method of the
-parent object. There are two ways to achieve this with this OOF:
+Sometimes derived classes want to access the method of the
+parent object. There are two ways to achieve this with Mini-OOF:
 first, you could use named words, and second, you could look up the
 vtable of the parent object.
 
@@ -5959,10 +5800,9 @@ vtable of the parent object.
 : :: ( class "name" -- ) ' >body @ + @ compile, ;
 @end example
 
-<H2>An Example</H2>
 
 Nothing can be more confusing than a good example, so here is
-one. First let's declare a text object (further called
+one. First let's declare a text object (called
 @code{button}), that stores text and position:
 
 @example
@@ -5976,18 +5816,20 @@ object class
 end-class button
 @end example
 
+@noindent
 Now, implement the two methods, @code{draw} and @code{init}:
 
 @example
-:noname ( o -- ) >r
- r@ x @ r@ y @ at-xy  r@ text @ r> len @ type ;
+:noname ( o -- )
+ >r r@ x @ r@ y @ at-xy  r@ text @ r> len @ type ;
  button defines draw
-:noname ( addr u o -- ) >r
- 0 r@ x ! 0 r@ y ! r@ len ! r> text ! ;
+:noname ( addr u o -- )
+ >r 0 r@ x ! 0 r@ y ! r@ len ! r> text ! ;
  button defines init
 @end example
 
-For inheritance, we define a class @code{bold-button}, with no
+@noindent
+To demonstrate inheritance, we define a class @code{bold-button}, with no
 new data and no new methods.
 
 @example
@@ -5997,11 +5839,16 @@ end-class bold-button
 : bold   27 emit ." [1m" ;
 : normal 27 emit ." [0m" ;
 
+@noindent
+The class @code{bold-button} has a different draw method to
+@code{button}, but the new method is defined in terms of the draw method
+for @code{button}:
+
 :noname bold [ button :: draw ] normal ; bold-button defines draw
 @end example
 
-And finally, some code to demonstrate how to create objects and
-apply methods:
+@noindent
+Finally, create two objects and apply methods:
 
 @example
 button new Constant foo
@@ -6013,6 +5860,87 @@ s" fat bar" bar init
 1 bar y !
 bar draw
 @end example
+
+
+@node Comparison with other object models, , Mini-OOF, Object-oriented Forth
+@subsubsection Comparison with other object models
+@cindex comparison of object models
+@cindex object models, comparison
+
+Many object-oriented Forth extensions have been proposed (@cite{A survey
+of object-oriented Forths} (SIGPLAN Notices, April 1996) by Bradford
+J. Rodriguez and W. F. S. Poehlman lists 17). This section discusses the
+relation of the object models described here to two well-known and two
+closely-related (by the use of method maps) models.
+
+@cindex Neon model
+The most popular model currently seems to be the Neon model (see
+@cite{Object-oriented programming in ANS Forth} (Forth Dimensions, March
+1997) by Andrew McKewan) but this model has a number of limitations
+@footnote{A longer version of this critique can be
+found in @cite{On Standardizing Object-Oriented Forth Extensions} (Forth
+Dimensions, May 1997) by Anton Ertl.}:
+
+@itemize @bullet
+@item
+It uses a @code{@emph{selector
+object}} syntax, which makes it unnatural to pass objects on the
+stack.
+
+@item
+It requires that the selector parses the input stream (at
+compile time); this leads to reduced extensibility and to bugs that are+
+hard to find.
+
+@item
+It allows using every selector to every object;
+this eliminates the need for classes, but makes it harder to create
+efficient implementations. 
+@end itemize
+
+@cindex Pountain's object-oriented model
+Another well-known publication is @cite{Object-Oriented Forth} (Academic
+Press, London, 1987) by Dick Pountain. However, it is not really about
+object-oriented programming, because it hardly deals with late
+binding. Instead, it focuses on features like information hiding and
+overloading that are characteristic of modular languages like Ada (83).
+
+@cindex Zsoter's object-oriented model
+In @cite{Does late binding have to be slow?} (Forth Dimensions 18(1) 1996, pages 31-35)
+Andras Zsoter describes a model that makes heavy use of an active object
+(like @code{this} in @file{objects.fs}): The active object is not only
+used for accessing all fields, but also specifies the receiving object
+of every selector invocation; you have to change the active object
+explicitly with @code{@{ ... @}}, whereas in @file{objects.fs} it
+changes more or less implicitly at @code{m: ... ;m}. Such a change at
+the method entry point is unnecessary with the Zsoter's model, because
+the receiving object is the active object already. On the other hand, the explicit
+change is absolutely necessary in that model, because otherwise no one
+could ever change the active object. An ANS Forth implementation of this
+model is available at @url{http://www.forth.org/fig/oopf.html}.
+
+@cindex @file{oof.fs}, differences to other models
+The @file{oof.fs} model combines information hiding and overloading
+resolution (by keeping names in various word lists) with object-oriented
+programming. It sets the active object implicitly on method entry, but
+also allows explicit changing (with @code{>o...o>} or with
+@code{with...endwith}). It uses parsing and state-smart objects and
+classes for resolving overloading and for early binding: the object or
+class parses the selector and determines the method from this. If the
+selector is not parsed by an object or class, it performs a call to the
+selector for the active object (late binding), like Zsoter's model.
+Fields are always accessed through the active object. The big
+disadvantage of this model is the parsing and the state-smartness, which
+reduces extensibility and increases the opportunities for subtle bugs;
+essentially, you are only safe if you never tick or @code{postpone} an
+object or class (Bernd disagrees, but I (Anton) am not convinced).
+
+@cindex @file{mini-oof.fs}, differences to other models
+The @file{mini-oof.fs} model is quite similar to a very stripped-down version of
+the @file{objects.fs} model, but syntactically it is a mixture of the @file{objects.fs} and
+@file{oof.fs} models.
+
+
 
 @c -------------------------------------------------------------
 @node Tokens for Words, Word Lists, Object-oriented Forth, Words
@@ -6723,6 +6651,7 @@ doc-bl
 doc-space
 doc-spaces
 doc-emit
+doc-toupper
 doc-."
 doc-.(
 doc-type
@@ -6807,8 +6736,6 @@ definition of @code{my-char}.
 
 Blah on traditional and recommended string formats.
 
-doc-tib
-doc-#tib
 doc--trailing
 doc-/string
 doc-convert
@@ -7165,6 +7092,7 @@ system shell (if such a thing exists) for execution.
 doc-sh
 doc-system
 doc-$?
+doc-getenv
 
 
 @node Miscellaneous Words,  , Passing Commands to the OS, Words
@@ -7184,15 +7112,11 @@ doc-pad
 doc-parse
 doc-postpone
 doc-resize
-doc-restore-input
-doc-save-input
-doc-source
-doc-source-id
-doc-span
 doc-time&date
 doc-unused
 doc-word
 doc-[compile]
+doc-refill
 
 These ANS Standard Forth words are not currently implemented in Gforth
 (see TODO section on dependencies)
@@ -9632,7 +9556,8 @@ Kleinrubatscher, Christian Pirker, Dirk Zoller, Marcel Hendrix, John
 Wavrik, Barrie Stott, Marc de Groot, and Jorge Acerada. Since the
 release of Gforth-0.2.1 there were also helpful comments from many
 others; thank you all, sorry for not listing you here (but digging
-through my mailbox to extract your names is on my to-do list).
+through my mailbox to extract your names is on my to-do list). Since the
+release of Gforth-0.4.0 Neal Crook worked on the manual.
 
 Gforth also owes a lot to the authors of the tools we used (GCC, CVS,
 and autoconf, among others), and to the creators of the Internet: Gforth

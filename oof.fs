@@ -174,15 +174,15 @@ define? faligned 0= [IF]
 types definitions
 
 : static   ( -- ) \ oof- oof
-    \G Create a class-wide cell sized variable
+    \G Create a class-wide cell-sized variable.
     mallot Create , #static ,
 DOES> @ o@ + ;
 : method   ( -- ) \ oof- oof
-    \G Create a method selector
+    \G Create a method selector.
     mallot Create , #method ,
 DOES> @ o@ + @ execute ;
 : early    ( -- ) \ oof- oof
-    \G Create a method selector for early binding
+    \G Create a method selector for early binding.
     Create ['] crash , #early ,
 DOES> @ execute ;
 : var ( size -- ) \ oof- oof
@@ -458,7 +458,7 @@ types definitions
     \G Create an instance pointer
     Create immediate lastob @ here lastob ! instptr, ;
 : asptr ( class -- ) \ oof- oof
-    \G Create an alias to an instance pointer, casted to another class
+    \G Create an alias to an instance pointer, cast to another class.
     cell+ @ Create immediate
     lastob @ here lastob ! , ,  instptr> ;
 

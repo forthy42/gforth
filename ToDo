@@ -73,7 +73,7 @@ net (Joerg Plewe has posted a reference), but I think a program that
 wires itself into the compiler (like etags.fs) is harder to fool by
 search order tricks etc. EVALUATE is a problem.
 
-*Documentation
+*Documentation (Neal Crook, nac@forth.org is working on this)
 A texinfo file
 **glossaries of all wordsets.
 *** Inclusion of stack comments, glossary comments, and wordset comments

@@ -512,6 +512,8 @@ else if (n>0)
  dup 0< IF  drop -1  ELSE  0>  1 and  THEN  ;
 
 toupper	c1 -- c2	gforth
+""For a character a-z, convert to the equivalent upper-case
+character. All other characters are unchanged.""
 c2 = toupper(c1);
 :
  dup [char] a - [ char z char a - 1 + ] Literal u<  bl and - ;
@@ -1442,6 +1444,10 @@ if (old_tp)
 #endif
 
 getenv	c_addr1 u1 -- c_addr2 u2	gforth
+""The string c-addr1 u1 specifies an environment variable. The string c-addr2 u2
+is the host operating system's expansion of that environment variable. If the
+environment variable does not exist, c-addr2 u2 specifies a string 0 characters
+in length.""
 c_addr2 = getenv(cstr(c_addr1,u1,1));
 u2 = (c_addr2 == NULL ? 0 : strlen(c_addr2));
 

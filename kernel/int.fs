@@ -165,7 +165,9 @@ const Create bases   10 ,   2 ,   A , 100 ,
     [ [THEN] ]
     source >in ! drop ; immediate
 
-: \G ( -- ) \ gforth backslash
+: \G ( -- ) \ gforth backslash-gee
+    \G Equivalent to @code{\} but used as a tag to annotate definition
+    \G comments into documentation.
     POSTPONE \ ; immediate
 
 \ \ object oriented search list                         17mar93py

@@ -44,7 +44,7 @@ AUser CSP
 
 \ shell commands
 
-0 Value $? ( -- n ) \ gforth
+0 Value $? ( -- n ) \ gforth dollar-question
 \G VALUE: The exit status returned by the most recently executed
 \G @code{system} command.
 
@@ -60,8 +60,8 @@ AUser CSP
 
 \ stuff
 
-: ]L ( compilation: n -- ; run-time: -- n )
-    \G equivalent to "] literal"
+: ]L ( compilation: n -- ; run-time: -- n ) \ gforth
+    \G equivalent to @code{] literal}
     ] postpone literal ;
 
 : in-dictionary? ( x -- f )
