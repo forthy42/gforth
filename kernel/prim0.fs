@@ -18,11 +18,11 @@
 \ along with this program; if not, write to the Free Software
 \ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
--2 Alias: :docol
+\ -2 Alias: :docol
 \ -3 Alias: :docon
 \ -4 Alias: :dovar
 \ -5 Alias: :douser
 \ -6 Alias: :dodefer
 \ -7 Alias: :dofield
--8 Alias: :dodoes
--9 Alias: :doesjump
+\ -8 Alias: :dodoes
+\ -9 Alias: :doesjump
