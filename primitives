@@ -610,14 +610,18 @@ return (Label *)n;
 system	c_addr u -- n	own
 n=system(cstr(c_addr,u));
 
+getenv	c_addr1 u1 -- c_addr2 u2	new
+c_addr2 = getenv(cstr(c_addr1,u1));
+u2=strlen(c_addr2);
+
 popen	c_addr u n -- wfileid	own
 static char* mode[2]={"r","w"};
 wfileid=(Cell)popen(cstr(c_addr,u),mode[n]);
 
-pclose	wfileid -- wior	own
+pclose	wfileid -- wior		own
 wior=pclose((FILE *)wfileid);
 
-time&date	-- nyear nmonth nday nhour nmin nsec	ansi	time_and_date
+time&date	-- nyear nmonth nday nhour nmin nsec	facility-ext	time_and_date
 struct timeval time1;
 struct timezone zone1;
 struct tm *ltime;
@@ -630,7 +634,7 @@ nhour =ltime->tm_hour;
 nmin  =ltime->tm_min;
 nsec  =ltime->tm_sec;
 
-ms	n --	ansi
+ms	n --	facility-ext
 struct timeval timeout;
 timeout.tv_sec=n/1000;
 timeout.tv_usec=1000*(n%1000);

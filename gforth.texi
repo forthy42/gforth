@@ -171,31 +171,86 @@ other languages should find it ok.
 @node Invocation, Words, Other Books, Top
 @chapter Invocation
 
-You will usually just say @code{gforth}. More generally, the default GNU
-Forth image can be invoked like this
+You will usually just say @code{gforth}. In many other cases the default
+GNU Forth image will be invoked like this:
 
 @example
-gforth [--batch] [files] [-e forth-code]
+gforth [files] [-e forth-code]
 @end example
 
-The @code{--batch} option makes @code{gforth} exit after processing the
-command line. Also, the startup message is suppressed. @file{files} are
-Forth source files that are executed in the order in which they
-appear. The @code{-e @samp{forth-code}} or @code{--evaluate
-@samp{forth-code}} option evaluates the forth code; it can be freely
-mixed with the files. This option takes only one argument; if you want
-to evaluate more Forth words, you have to quote them or use several
-@code{-e}s. !! option for suppressing default loading.
+executing the contents of the files and the Forth code in the order they
+are given.
 
-You can use the command line option @code{-i @samp{file}} or
-@code{--image-file @samp{file}} to specify a different image file. Note
-that this option must be the first in the command line. The rest of the
-command line is processed by the image file.
+In general, the command line looks like this:
 
-If the @code{--image-file} option is not used, GNU Forth searches for a
-file named @file{gforth.fi} in the path specified by the environment
-variable @code{GFORTHPATH}; if this does not exist, in
-@file{/usr/local/lib/gforth} and in @file{/usr/lib/gforth}.
+@example
+gforth [initialization options] [image-specific options]
+@end example
+
+The initialization options must come before the rest of the command
+line. They are:
+
+@table @code
+@item --image-file @samp{file}
+Loads the Forth image @samp{file} instead of the default
+@file{gforth.fi}.
+
+@item --path @samp{path}
+Uses @samp{path} for searching the image file and Forth source code
+files instead of the default in the environment variable
+@code{GFORTHPATH} or the path specified at installation time (typically
+@file{/usr/local/lib/gforth:.}). A path is given as a @code{:}-separated
+list.
+
+@item --dictionary-size @samp{size}
+@item -m @samp{size}
+Allocate @samp{size} space for the Forth dictionary space instead of
+using the default specified in the image (typically 256K). The
+@samp{size} specification consists of an integer and a unit (e.g.,
+@code{4M}). The unit can be one of @code{b} (bytes), @code{e} (element
+size, in this case Cells), @code{k} (kilobytes), and @code{M}
+(Megabytes). If no unit is specified, @code{e} is used.
+
+@item --data-stack-size @samp{size}
+@item -d @samp{size}
+Allocate @samp{size} space for the data stack instead of using the
+default specified in the image (typically 16K).
+
+@item --return-stack-size @samp{size}
+@item -r @samp{size}
+Allocate @samp{size} space for the return stack instead of using the
+default specified in the image (typically 16K).
+
+@item --fp-stack-size @samp{size}
+@item -f @samp{size}
+Allocate @samp{size} space for the floating point stack instead of
+using the default specified in the image (typically 16K). In this case
+the unit specifier @code{e} refers to floating point numbers.
+
+@item --locals-stack-size @samp{size}
+@item -l @samp{size}
+Allocate @samp{size} space for the locals stack instead of using the
+default specified in the image (typically 16K).
+
+@end table
+
+As explained above, the image-specific command-line arguments for the
+default image @file{gforth.fi} consist of a sequence of filenames and
+@code{-e @samp{forth-code}} options that are interpreted in the seqence
+in which they are given. The @code{-e @samp{forth-code}} or
+@code{--evaluate @samp{forth-code}} option evaluates the forth
+code. This option takes only one argument; if you want to evaluate more
+Forth words, you have to quote them or use several @code{-e}s. To exit
+after processing the command line (instead of entering interactive mode)
+append @code{-e bye} to the command line.
+
+Not yet implemented:
+On startup the system first executes the system initialization file
+(unless the option @code{--no-init-file} is given; note that the system
+resulting from using this option may not be ANS Forth conformant). Then
+the user initialization file @file{.gforth.fs} is executed, unless the
+option @code{--no-rc} is given; this file is first searched in @file{.},
+then in @file{~}, then in the path given by the normal path (see below).
 
 @node Words,  , Invocation, Top
 @chapter Forth Words

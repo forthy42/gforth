@@ -110,12 +110,28 @@ Defer source
 
 \ (word)                                               22feb93py
 
-: scan   ( addr1 n1 char -- addr2 n2 )  >r
-  BEGIN  dup  WHILE  over c@ r@ <>  WHILE  1 /string
-  REPEAT  THEN  rdrop ;
-: skip   ( addr1 n1 char -- addr2 n2 )  >r
-  BEGIN  dup  WHILE  over c@ r@  =  WHILE  1 /string
-  REPEAT  THEN  rdrop ;
+: scan   ( addr1 n1 char -- addr2 n2 )
+    \ skip all characters not equal to char
+    >r
+    BEGIN
+	dup
+    WHILE
+	over c@ r@ <>
+    WHILE
+	1 /string
+    REPEAT  THEN
+    rdrop ;
+: skip   ( addr1 n1 char -- addr2 n2 )
+    \ skip all characters equal to char
+    >r
+    BEGIN
+	dup
+    WHILE
+	over c@ r@  =
+    WHILE
+	1 /string
+    REPEAT  THEN
+    rdrop ;
 
 : (word) ( addr1 n1 char -- addr2 n2 )
   dup >r skip 2dup r> scan  nip - ;
@@ -1151,11 +1167,35 @@ create nl$ 1 c, A c, 0 c, \ gnu includes usually a cr in dos
   loadfile @ close-file swap
   pop-file  throw throw ;
 
+create pathfilenamebuf 256 chars allot \ !! make this grow on demand
+
+: open-path-file ( c-addr1 u1 -- file-id c-addr2 u2 )
+    \ opens a file for reading, searching in the path for it; c-addr2
+    \ u2 is the full filename (valid until the next call); if the file
+    \ is not found (or in case of other errors for each try), -38
+    \ (non-existant file) is thrown. Opening for other access modes
+    \ makes little sense, as the path will usually contain dirs that
+    \ are only readable for the user
+    \ !! check for "/", "./", "../" in original filename; check for "~/"?
+    pathdirs 2@ 0
+    ?DO ( c-addr1 u1 dirnamep )
+	dup >r 2@ dup >r pathfilenamebuf swap cmove ( addr u )
+	2dup pathfilenamebuf r@ chars + swap cmove ( addr u )
+	pathfilenamebuf over r> + dup >r r/o open-file 0=
+	if ( addr u file-id )
+	    nip nip r> rdrop 0 leave
+	then
+	rdrop drop r> cell+ cell+
+    LOOP
+    0<> -&38 and throw ( file-id u2 )
+    pathfilenamebuf swap ;
+
 : included ( i*x addr u -- j*x )
     loadfilename 2@ >r >r
-    dup allocate throw over loadfilename 2!
-    over loadfilename 2@ move
-    r/o open-file throw include-file
+    open-path-file ( file-id c-addr2 u2 )
+    dup allocate throw over loadfilename 2! ( file-id c-addr2 u2 )
+    drop loadfilename 2@ move
+    include-file
     \ don't free filenames; they don't take much space
     \ and are used for debugging
     r> r> loadfilename 2! ;
@@ -1302,15 +1342,40 @@ DEFER DOERROR
 \ : words  listwords @
 \          BEGIN  @ dup  WHILE  dup .name  REPEAT drop ;
 
-: >len  ( cstring -- addr n )  100 0 scan 0 swap 100 - /string ;
-: arg ( n -- addr count )  cells argv @ + @ >len ;
+: cstring>sstring  ( cstring -- addr n )  -1 0 scan 0 swap 1+ /string ;
+: arg ( n -- addr count )  cells argv @ + @ cstring>sstring ;
 : #!       postpone \ ;  immediate
 
-Variable env
+Create pathstring 2 cells allot \ string
+Create pathdirs   2 cells allot \ dir string array, pointer and count
 Variable argv
 Variable argc
 
 0 Value script? ( -- flag )
+
+: process-path ( addr1 u1 -- addr2 u2 )
+    \ addr1 u1 is a path string, addr2 u2 is an array of dir strings
+    here >r
+    BEGIN
+	over >r [char] : scan
+	over r> tuck - ( rest-str this-str )
+	dup
+	IF
+	    2dup 1- chars + c@ [char] / <>
+	    IF
+		2dup chars + [char] / swap c!
+		1+
+	    THEN
+	    2,
+	ELSE
+	    2drop
+	THEN
+	dup
+    WHILE
+	1 /string
+    REPEAT
+    2drop
+    here r> tuck - 2 cells / ;
 
 : ">tib  ( addr len -- )  dup #tib ! >in off tib swap move ;
 
@@ -1320,14 +1385,19 @@ Variable argc
   IF  2drop ">tib interpret  2 EXIT  THEN
   ." Unknown option: " type cr 2drop 1 ;
 
-: process-args ( -- )  argc @ 1
-  ?DO  I arg over c@ [char] - <>
-       IF    true to script? included  false to script? 1
-       ELSE  I 1+ arg  do-option
-       THEN
-  +LOOP ;
+: process-args ( -- )
+    argc @ 1
+    ?DO
+	I arg over c@ [char] - <>
+	IF
+	    true to script? included  false to script? 1
+	ELSE
+	    I 1+ arg  do-option
+	THEN
+    +LOOP ;
 
-: cold ( -- )  
+: cold ( -- )
+    pathstring 2@ process-path pathdirs 2!
     argc @ 1 >
     IF
 	['] process-args catch ?dup
@@ -1356,8 +1426,8 @@ Variable argc
  ." along with this program; if not, write to the Free Software" cr
  ." Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA." cr ;
 
-: boot ( **env **argv argc -- )
-  argc ! argv ! env !  main-task up!
+: boot ( path **argv argc -- )
+  argc ! argv ! cstring>sstring pathstring 2!  main-task up!
   sp@ dup s0 ! $10 + >tib ! rp@ r0 !  fp@ f0 !  cold ;
 
 : bye  script? 0= IF  cr  THEN  0 (bye) ;

@@ -22,5 +22,11 @@ anton 19aug94
     \ bb-from to bb
 
 
-etags.fs: The TAGS file for the kernal is strange: there are no tahs
-for some aliases; many constants and variables appear twice.
+etags.fs: The TAGS file for the kernal is strange: there are no tags
+for some aliases; many constants and variables appear twice. anton
+2sep94
+
+error-causing word indication no longer works well. Cause: relies on
+name being HERE. Future trouble (once CATCH really restores the input
+stream): it also relies on SOURCE delivering the line that caused the
+error. anton 2sep94
