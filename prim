@@ -1353,7 +1353,8 @@ a_addr = PFA(xt);
 :
     2 cells + ;
 
-\+standardthreading
+\ threading stuff is currently only interesting if we have a compiler
+\fhas? standardthreading has? compiler and [IF]
 
 >code-address		xt -- c_addr		gforth	to_code_address
 ""@i{c-addr} is the code address of the word @i{xt}.""
@@ -1415,7 +1416,7 @@ n=1;
 :
  1 ;
 
-\+
+\f[THEN]
 
 key-file	wfileid -- n		gforth	paren_key_file
 #ifdef HAS_FILE
