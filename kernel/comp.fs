@@ -219,9 +219,9 @@ is basic-block-end
 has? peephole [IF]
 
 \ dynamic only    
-\  : peephole-compile, ( xt -- )
-\      \ compile xt, appending its code to the current dynamic superinstruction
-\      compile-prim , ;
+: peephole-compile, ( xt -- )
+    \ compile xt, appending its code to the current dynamic superinstruction
+    here swap , compile-prim1 ;
     
 \ static only
 \  : peephole-compile, ( xt -- )
@@ -235,29 +235,29 @@ has? peephole [IF]
 \      here last-compiled !
 \      dyn-compile, ;
 
-: dyn-compile! ( xt -- )
-    \ compile xt, appending its code to the current dynamic superinstruction
-    last-compiled-here @ tuck ! compile-prim1 ;
+\ combine greedy static with dynamic
+\  : dyn-compile! ( xt -- )
+\      \ compile xt, appending its code to the current dynamic superinstruction
+\      last-compiled-here @ tuck ! compile-prim1 ;
 
-:noname ( -- )
-    last-compiled @ if
-	last-compiled @ dyn-compile!
-	0 last-compiled !
-    then
-    finish-code ;
-is basic-block-end
+\  :noname ( -- )
+\      last-compiled @ if
+\  	last-compiled @ dyn-compile!
+\  	0 last-compiled !
+\      then ;
+\  is basic-block-end
 
-: static-compile, ( xt -- )
-    \ compile xt, possibly combining it with the previous compiled xt
-    \ into a superinstruction (static superinstructions)
-    last-compiled @ ?dup if
-	over peeptable peephole-opt ?dup if ( xt comb-xt )
-	    last-compiled ! drop EXIT
-	then ( xt )
-	last-compiled @ dyn-compile!
-    then ( xt )
-    last-compiled !
-    here last-compiled-here ! 0 , ;
+\  : peephole-compile, ( xt -- )
+\      \ compile xt, possibly combining it with the previous compiled xt
+\      \ into a superinstruction (static superinstructions)
+\      last-compiled @ ?dup if
+\  	over peeptable peephole-opt ?dup if ( xt comb-xt )
+\  	    last-compiled ! drop EXIT
+\  	then ( xt )
+\  	last-compiled @ dyn-compile!
+\      then ( xt )
+\      last-compiled !
+\      here last-compiled-here ! 0 , ;
 
 : compile-to-prims, ( xt -- )
     \G compile xt to use primitives (and their peephole optimization)
@@ -280,7 +280,7 @@ is basic-block-end
 	\ code words and ;code-defined words (code words could be optimized):
 	dup in-dictionary? IF drop POSTPONE literal POSTPONE execute EXIT THEN
     ENDCASE
-    static-compile, ;
+    peephole-compile, ;
 
 ' compile-to-prims, IS compile,
 [ELSE]

@@ -932,7 +932,8 @@ has? new-input 0= [IF]
 [ [THEN] ]
     sp@ sp0 !
 [ has? peephole [IF] ]
-    primtable prepare-peephole-table TO peeptable
+    \ only needed for greedy static superinstruction selection
+    \ primtable prepare-peephole-table TO peeptable
 [ [THEN] ]
 [ has? new-input [IF] ]
     current-input off

@@ -344,7 +344,7 @@ SOURCES	= $(CVSDIRS) compat Makefile.in Makedist.in engine/Makefile.in \
 	prim peeprules.vmg engine/engine.c engine/main.c \
 	engine/io.c engine/support.c engine/memcmpc.c engine/signals.c \
 	$(ARCHS) \
-	engine/peephole.c engine/profile.c \
+	engine/profile.c \
 	engine/getopt.c engine/getopt1.c engine/getopt.h engine/select.c \
 	engine/ecvt.c engine/memcmp.c engine/strtol.c engine/strtoul.c \
 	engine/ansidecl.h engine/memmove.c \
@@ -367,7 +367,7 @@ GEN = gforth$(EXE) gforth-ditc$(EXE) gforth-fast$(EXE) gforth-itc$(EXE) kernel/v
 
 # things that need a working forth system to be generated
 FORTH_GEN_ENGINE=engine/prim.i engine/prim_lab.i engine/prim_names.i \
-	engine/prim_superend.i engine/peephole.i engine/profile.i \
+	engine/prim_superend.i engine/profile.i \
 	engine/prim_num.i engine/prim_grp.i \
 	engine/config.h
 FORTH_GEN0 = prim.b $(FORTH_GEN_ENGINE) kernel/aliases.fs kernel/prim.fs kernel/groups.fs
