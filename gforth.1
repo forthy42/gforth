@@ -5,19 +5,25 @@
 ..
 .TH GForth 1 "October 29, 1995" \" -*- nroff -*-
 .SH NAME
-
-GForth
+gforth, gforth-ditc, gforth-makeimage \- a fast and portable Forth system
 .SH SYNOPSIS
 
 \fCgforth\fR [initialization options] [image-specific options]
+
+\fCgforth-ditc\fR [initialization options] [image-specific options]
+
+\fCgforth-makeimage\fR \fIfilename\fR [initialization options] [image-specific options]
 .SH DESCRIPTION
 
 \fBGForth\fR is a fast and portable implementation of the Forth
 programming language. For details read the manual.
 .SH ENVIRONMENT VARIABLES
 
-\fCGFORTHPATH\fR
-gives the search path for source files.
+\fCGFORTHPATH\fR contains the search path for source and image files.
+
+\fCGFORTHD\fR gives the gforth executable to be used in creating the
+image (default: \fCgforth-ditc\fR).
+
 .SH EXAMPLES
 
 \fCgforth\fR
@@ -28,6 +34,12 @@ starts the system and goes into interactive mode.
 
 loads and interprets the files \fCfile1\fR and \fCfile2\fR, then
 exits.
+
+\fCgforth asm.fi \-m 1M asm.fs\fR
+
+creates an image \fCasm.fi\fR that has a default dictionary size of
+1MB and has the file \fCasm.fs\fR loaded.
+
 .SH OPTIONS
 
 .BI "\-\-image\-file " "file"
@@ -107,7 +119,7 @@ image-specific option.
 .nf
 .ta \w'\fCkernal.fi\fP 	'u
 \&\fCgforth.fi\fP	default Forth image
-\&\fCkernal.fi\fP	kernel image
+\&\fCkernel.fi\fP	kernel image
 \&\fC*.fi\fP	Forth loadable image
 \&\fC*.fs\fP	Forth source (sequential)
 \&\fC*.fb\fP	Forth source (block)

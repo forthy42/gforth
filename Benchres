@@ -9,8 +9,9 @@ http://www.complang.tuwien.ac.at/papers/ertl&maierhofer95.ps.gz.
 All times are given in seconds of user time.
 
 siev	bubble	matrix	fib	machine and configuration
-10.91	11.94	11.24	13.13	Pentium 133MHz 256K PB cache; gcc-2.6.3 -DFORCE_REG; gforth-0.1beta
-29.89	35.42	26.96	34.59	i486 66MHz 256K cache; gcc-2.6.3 -DFORCE_REG -DDIRECT_THREADED; gforth-0.1beta
+10.91	11.94	11.24	13.13	Pentium 133MHz 256K PB cache; gcc-2.6.3 -DFORCE_REG; gforth-0.1beta; a.out
+13.61	15.05	14.07	17.33	IBM/Cyrix-6x86 133MHz (P166+) 512K PB cache; gcc-2.7.2.1 -DFORCE_REG; gforth-0.2.1; ELF
+29.89	35.42	26.96	34.59	i486 66MHz 256K cache; gcc-2.6.3 -DFORCE_REG -DDIRECT_THREADED; gforth-0.1beta; a.out
 39.50	45.91	36.73	44.90	i486 50MHz 256K cache; gcc-2.7.0 -DFORCE_REG -DDIRECT_THREADED; gforth-0.1beta
 42.82	46.74	38.69	48.30	i486 50MHz 256K cache; gcc-2.7.0 -DFORCE_REG; gforth-0.1beta
  7.0	 7.6	 6.2	 7.7	21064A (Alpha) 300MHz 2M cache; gcc-2.7.2; gforth-0.2.0

@@ -4392,7 +4392,7 @@ convention, we use the extension @code{.fi} for image files.
 * Image File Background::          Why have image files?
 * Non-Relocatable Image Files::    don't always work.
 * Data-Relocatable Image Files::   are better.
-* Fully Relocatable Image Files::  are hard to create.
+* Fully Relocatable Image Files::  better yet.
 * Stack and Dictionary Sizes::     Setting the default sizes for an image.
 * Running Image Files::            @code{gforth -i @var{file}} or @var{file}.
 * Modifying the Startup Sequence:: and turnkey applications.
@@ -4403,13 +4403,13 @@ convention, we use the extension @code{.fi} for image files.
 @cindex image file background
 
 Our Forth system consists not only of primitives, but also of
-definitions written in Forth. Since the Forth compiler itself belongs
-to those definitions, it is not possible to start the system with the
+definitions written in Forth. Since the Forth compiler itself belongs to
+those definitions, it is not possible to start the system with the
 primitives and the Forth source alone. Therefore we provide the Forth
 code as an image file in nearly executable form. At the start of the
-system a C routine loads the image file into memory, sets up the
-memory (stacks etc.) according to information in the image file, and
-starts executing Forth code.
+system a C routine loads the image file into memory, optionally
+relocates the addresses, then sets up the memory (stacks etc.) according
+to information in the image file, and starts executing Forth code.
 
 The image file variants represent different compromises between the
 goals of making it easy to generate image files and making them
@@ -4422,10 +4422,10 @@ files are data relocatable without further ado), but costs performance
 (one addition per memory access).
 
 @cindex relocation at load-time
-Our loader performs relocation at image load time. The loader also has
-to replace tokens standing for primitive calls with the appropriate
-code-field addresses (or code addresses in the case of direct
-threading).
+By contrast, our loader performs relocation at image load time. The
+loader also has to replace tokens standing for primitive calls with the
+appropriate code-field addresses (or code addresses in the case of
+direct threading).
 
 There are three kinds of image files, with different degrees of
 relocatability: non-relocatable, data-relocatable, and fully relocatable
@@ -4471,7 +4471,7 @@ The code addresses of run-time routines like @code{docol:} cannot be
 represented in the image file (because their tokens would be replaced by
 machine code in direct threaded implementations). As a workaround,
 compute these addresses at run-time with @code{>code-address} from the
-executions tokens of selected words (see the definitions of
+executions tokens of appropriate words (see the definitions of
 @code{docol:} and friends in @file{kernel.fs}).
 
 @item
@@ -4507,23 +4507,62 @@ doc-savesystem
 @cindex data-relocatable image files
 @cindex image files, data-relocatable
 
-@cindex @file{gforth.fi}, relocatability
 These files contain relocatable data addresses, but fixed code addresses
 (instead of tokens). They are specific to the executable (i.e.,
-@file{gforth} file) they were created with. E.g., the image
-@code{gforth.fi} is a data-relocatable image file.
+@file{gforth} file) they were created with. For direct threading on some
+architectures (e.g., the i386), data-relocatable images do not work. You
+get a data-relocatable image, if you use @file{gforth-makeimage} with a
+Gforth binary that is not doubly indirect threaded (@pxref{Fully
+Relocatable Image Files}).
 
+@node Fully Relocatable Image Files, Stack and Dictionary Sizes, Data-Relocatable Image Files, Image Files
+@section Fully Relocatable Image Files
+@cindex fully relocatable image files
+@cindex image files, fully relocatable
+
+@cindex @file{kern*.fi}, relocatability
+@cindex @file{gforth.fi}, relocatability
+These image files have relocatable data addresses, and tokens for code
+addresses. They can be used with different binaries (e.g., with and
+without debugging) on the same machine, and even across machines with
+the same data formats (byte order, cell size, floating point
+format). However, they are usually specific to the version of Gforth
+they were created with. The files @file{gforth.fi} and @file{kernl*.fi}
+are fully relocatable.
+
+There are two ways to create a fully relocatable image file:
+
+@menu
+* gforth-makeimage::            The normal way
+* cross.fs::                    The hard way
+@end menu
+
+@node gforth-makeimage, cross.fs, Fully Relocatable Image Files, Fully Relocatable Image Files
+@subsection @file{gforth-makeimage}
 @cindex @file{comp-image.fs}
-You can create a data-relocatable image file by creating two
-non-relocatable image files for different base addresses and processing
-them with @file{comp-image.fs}, which generates the relocation
-information by comparing the images.
+@cindex @file{gforth-makeimage}
 
-After loading @file{comp-image.fs}, you can invoke the word
-@code{comp-image}, which reads the names of the two input files and the
-name of the output file from the input stream. This program also
-produces some output on the standard output: It displays the offset
-(i.e., the difference between the base addresses of the images);
+You will usually use @file{gforth-makeimage}. If you want to create an
+image @var{file} that contains everything you would load by invoking
+Gforth with @code{gforth @var{options}}, you simply say
+@example
+gforth-makeimage @var{file} @var{options}
+@end example
+
+E.g., if you want to create an image @file{asm.fi} that has the file
+@file{asm.fs} loaded in addition to the usual stuff, you could do it
+like this:
+
+@example
+gforth-makeimage asm.fi asm.fs
+@end example
+
+@file{gforth-makeimage} works like this: It produces two non-relocatable
+images for different addresses and then compares them. Its output
+reflects this: first you see the output (if any) of the two Gforth
+invocations that produce the nonrelocatable image files, then you see
+the output of the comparing program: It displays the offset used for
+data addresses and the offset used for code addresses;
 moreover, for each cell that cannot be represented correctly in the
 image files, it displays a line like the following one:
 
@@ -4537,51 +4576,34 @@ cannot be represented correctly in the output image, you should examine
 these places in the dictionary and verify that these cells are dead
 (i.e., not read before they are written).
 
-E.g., if you want to create an image @file{asm.fi} that has the file
-@file{asm.fs} loaded in addition to the usual stuff, you could do it
-like this:
+There are a few wrinkles: After processing the passed @var{options}, the
+words @code{savesystem} and @code{bye} must be visible. A special doubly
+indirect threaded version of the @file{gforth} executable is used for
+creating the nonrelocatable images; you can pass the exact filename of
+this executable through the environment variable @code{GFORTHD}
+(default: @file{gforth-ditc}); if you pass a version that is not doubly
+indirect threaded, you will not get a fully relocatable image, but a
+data-relocatable image (because there is no code address offset).
 
-@example
-gforth --clear-dictionary asm.fs "savesystem asm.fi1 bye"
-gforth --clear-dictionary --offset-image asm.fs "savesystem asm.fi2 bye"
-gforth -m 100000 comp-image.fs -e "comp-image asm.fi1 asm.fi2 asm.fi bye"
-@end example
-
-@cindex --clear-dictionary, creating image files
-@cindex --offset-image, creating image files
-The flag @code{--clear-dictionary} ensures that the dictionary memory is
-cleared at the start (so you won't see @code{comp-image} messages about
-spurious differences). The flag @code{--offset-image} loads the image at
-a small offset from its normal position, ensuring that the resulting
-nonrelocatable images have different bases (otherwise @code{comp-image}
-cannot work).
-
-@node Fully Relocatable Image Files, Stack and Dictionary Sizes, Data-Relocatable Image Files, Image Files
-@section Fully Relocatable Image Files
-@cindex fully relocatable image files
-@cindex image files, fully relocatable
-
-@cindex @file{kern*.fi}, relocatability
-These image files have relocatable data addresses, and tokens for code
-addresses. They are still a bit machine dependent with respect to the
-size and format (byte order, floating point format) of their data. The
-@file{kernlxxx.fi} files are fully relocatable.
-
+@node cross.fs,  , gforth-makeimage, Fully Relocatable Image Files
+@subsection @file{cross.fs}
+@cindex @file{cross.fs}
 @cindex cross-compiler
 @cindex metacompiler
-At present a fully relocatable image file can only be produced by
-@code{cross}, a batch compiler that accepts a Forth-like programming
-language. This @code{cross} language has to be documented
+
+You can also use @code{cross}, a batch compiler that accepts a Forth-like
+programming language. This @code{cross} language has to be documented
 yet.
 
 @cindex target compiler
-@code{cross} not only allows the programmer to create fully relocatable
-image files, but also to create image files for machines with different
-data sizes and data formats than the one used for generating the image
-file. This convenience is bought with restrictions and inconveniences in
-programming. E.g., addresses have to be stored in memory with special
-words (@code{A!}, @code{A,}, etc.) in order to make the code
-relocatable.
+@code{cross} also allows you to create image files for machines with
+different data sizes and data formats than the one used for generating
+the image file. You can also use it to create an application image that
+does not contain a Forth compiler. These features are bought with
+restrictions and inconveniences in programming. E.g., addresses have to
+be stored in memory with special words (@code{A!}, @code{A,}, etc.) in
+order to make the code relocatable.
+
 
 @node Stack and Dictionary Sizes, Running Image Files, Fully Relocatable Image Files, Image Files
 @section Stack and Dictionary Sizes
@@ -4591,19 +4613,18 @@ relocatable.
 
 If you invoke Gforth with a command line flag for the size
 (@pxref{Invoking Gforth}), the size you specify is stored in the
-dictionary. If you save the dictionary with @code{savesystem}, this size
-will become the default for the resulting image file. E.g., the
-following will create a non-relocatable version of gforth.fi with a 1MB
-dictionary:
+dictionary. If you save the dictionary with @code{savesystem} or create
+an image with @file{gforth-makeimage}, this size will become the default
+for the resulting image file. E.g., the following will create a
+fully relocatable version of gforth.fi with a 1MB dictionary:
 
 @example
-gforth -m 1M -e "savesystem gforth1M.fi bye"
+gforth-makeimage gforth.fi -m 1M
 @end example
 
 In other words, if you want to set the default size for the dictionary
-and the stacks of an image, just invoke Gforth with the appropriate
-options when creating the image. When creating a data-relocatable image,
-you have to use the same size options for both @code{savesystem}s.
+and the stacks of an image, just invoke @file{gforth-makeimage} with the
+appropriate options when creating the image.
 
 @cindex stack size, cache-friendly
 Note: For cache-friendly behaviour (i.e., good performance), you should
@@ -4654,7 +4675,7 @@ deferred word
 doc-'cold
 
 @code{'cold} is invoked just before the image-specific command line
-processing (by default, loading files and evaluating (@code{-e}) strings
+processing (by default, loading files and evaluating (@code{-e}) strings)
 starts.
 
 A sequence for adding your initialization usually looks like this:

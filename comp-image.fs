@@ -59,7 +59,7 @@ s" address-unit-bits" environment? drop constant bits/au
 	    cell1 dbase - file-id write-cell throw
 	    i reloc-bits set-bit
 	else
-	    cell1 coffset + cell2 =
+	    coffset 0<> cell1 coffset + cell2 = and
 	    if
 		cell1 cbase - cell / { tag }
 		tag dodoes-tag =

@@ -3,12 +3,40 @@
 \ written by Anton Ertl 1996
 \ public domain
 
-\ This is in ANS Forth (with an environmental dependence on case
-\ insensitivity; convert everything to upper case for state sensitive
-\ systems). It needs some non-core words (in particular, it uses the
-\ memory allocation wordset), but I have not made a complete list.
+\ This (in combination with compat/struct.fs) is in ANS Forth (with an
+\ environmental dependence on case insensitivity; convert everything
+\ to upper case for state sensitive systems).
 
-\ Manual:
+\ If you don't use Gforth, you have to load compat/struct.fs first.
+\ compat/struct.fs and this file together use the following words:
+
+\ from CORE :
+\ : 1- + swap invert and ; Create >r rot r@ dup , r> DOES> @ chars
+\ cells 2* here - allot drop over execute 2dup move 2! 2@ ! ['] >body
+\ ' Variable POSTPONE immediate ." . cr Constant +!
+\ from CORE-EXT :
+\ tuck :noname compile, true 
+\ from BLOCK-EXT :
+\ \ 
+\ from DOUBLE :
+\ 2Constant 2VARIABLE 
+\ from EXCEPTION :
+\ throw catch 
+\ from EXCEPTION-EXT :
+\ abort" 
+\ from FILE :
+\ ( 
+\ from FLOAT :
+\ floats 
+\ from FLOAT-EXT :
+\ dfloats sfloats 
+\ from MEMORY :
+\ allocate resize 
+\ from TOOLS-EXT :
+\ [IF] [THEN]
+
+\ ---------------------------------------
+\ MANUAL:
 
 \ A class is defined like this:
 

@@ -135,11 +135,11 @@ GFORTH_FI_SRC = \
 FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_SRC) \
 	ans-report.fs ansi.fs answords.fs \
 	checkans.fs \
-	code.fs colorize.fs \
+	code.fs colorize.fs comp-image.fs \
 	doskey.fs ds2texi.fs \
 	etags.fs filedump.fs \
 	glosgen.fs gray.fs \
-	makedoc.fs comp-image.fs \
+	makedoc.fs \
 	mach16b.fs mach16l.fs mach32b.fs mach32l.fs mach64b.fs mach64l.fs \
 	more.fs other.fs prims2x.fs random.fs \
 	sieve.fs \
@@ -369,9 +369,6 @@ gforth-ditc:	$(OBJECTS_DITC) $(OBJECTS0)
 		$(GCC) $(LDFLAGS) $(OBJECTS_DITC) $(OBJECTS0) $(LDLIBS) -o $@
 		@MAKE_EXE@
 
-kernl%.fi-:	mach%.fs $(KERN_SRC) version.fs $(FORTH_GEN0)
-		$(FORTHK) -e 's" $<"' main.fs -e "save-cross $@ $(bindir)/gforth-$(VERSION) bye"
-
 kernl16l.fi-:	$(KERN_SRC) version.fs mach16l.fs $(FORTH_GEN0)
 		$(FORTHK) -e 's" mach16l.fs"' main.fs -e "save-cross kernl16l.fi- $(bindir)/gforth-$(VERSION) bye"
 
@@ -390,43 +387,39 @@ kernl64l.fi-:	$(KERN_SRC) version.fs mach64l.fs $(FORTH_GEN0)
 kernl64b.fi-:	$(KERN_SRC) version.fs mach64b.fs $(FORTH_GEN0)
 		$(FORTHK) -e 's" mach64b.fs"' main.fs -e "save-cross kernl64b.fi- $(bindir)/gforth-$(VERSION) bye"
 
-kernl%.fi:	kernl%.fi- $(KERNLS)
-		-$(CP) $@ $@~
-		-$(CP) $< $@
-		@LINK_KERNL@
+kernl%.fi-:	mach%.fs $(KERN_SRC) version.fs $(FORTH_GEN0)
+		$(FORTHK) -e 's" $<"' main.fs -e "save-cross $@ $(bindir)/gforth-$(VERSION) bye"
 
 kernl16b.fi:	$(KERNLS)
 		-$(CP) kernl16b.fi kernl16b.fi~
 		-$(CP) kernl16b.fi- kernl16b.fi
-		@LINK_KERNL16B@
 
 kernl16l.fi:	$(KERNLS)
 		-$(CP) kernl16l.fi kernl16l.fi~
 		-$(CP) kernl16l.fi- kernl16l.fi
-		@LINK_KERNL16L@
 
 kernl32b.fi:	$(KERNLS)
 		-$(CP) kernl32b.fi kernl32b.fi~
 		-$(CP) kernl32b.fi- kernl32b.fi
-		@LINK_KERNL32B@
 
 kernl32l.fi:	$(KERNLS)
 		-$(CP) kernl32l.fi kernl32l.fi~
 		-$(CP) kernl32l.fi- kernl32l.fi
-		@LINK_KERNL32L@
 
 kernl64b.fi:	$(KERNLS)
 		-$(CP) kernl64b.fi kernl64b.fi~
 		-$(CP) kernl64b.fi- kernl64b.fi
-		@LINK_KERNL64B@
 
 kernl64l.fi:	$(KERNLS)
 		-$(CP) kernl64l.fi kernl64l.fi~
 		-$(CP) kernl64l.fi- kernl64l.fi
-		@LINK_KERNL64L@
+
+kernl%.fi:	kernl%.fi- $(KERNLS)
+		-$(CP) $@ $@~
+		-$(CP) $< $@
 
 gforth.fi:	@kernel_fi@ gforth-makeimage gforth gforth-ditc $(GFORTH_FI_SRC)
-		GFORTH=./gforth-ditc $(srcdir)/gforth-makeimage gforth.fi $(FORTHSIZES) $(FORTHKFLAGS) startup.fs
+		GFORTHD=./gforth-ditc $(srcdir)/gforth-makeimage gforth.fi $(FORTHSIZES) $(FORTHKFLAGS) startup.fs
 
 #TAGS is a GNU standard target
 TAGS:		gforth.TAGS
@@ -464,12 +457,10 @@ prim_labels.i :	primitives.b prims2x.fs
 		$(FORTHK) prims2x.fs -e "s\" primitives.b\" ' output-label process-file bye" >$@
 
 aliases.fs:	primitives.b prims2x.fs aliases0.fs
-		$(CP) aliases0.fs aliases.fs
-		$(FORTHK) prims2x.fs -e "s\" primitives.b\" ' output-alias process-file bye" >>$@
+		$(FORTHK) prims2x.fs -e "s\" primitives.b\" ' output-alias process-file bye" |cat aliases0.fs - >$@
 
 primitives.fs:	primitives.b prims2x.fs primitives0.fs
-		$(CP) primitives0.fs primitives.fs
-		$(FORTHK) prims2x.fs -e "s\" primitives.b\" ' output-forth process-file bye" >>$@
+		$(FORTHK) prims2x.fs -e "s\" primitives.b\" ' output-forth process-file bye"|cat primitives0.fs - >$@
 
 primitives.TAGS: primitives.b prims2x.fs
 		$(FORTHK) prims2x.fs -e "s\" $(srcdir)/primitives.b\" ' output-tag process-file bye" >$@

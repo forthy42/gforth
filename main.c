@@ -118,8 +118,10 @@ void relocate(Cell *image, char *bitstring, int size, Label symbols[])
 /*  printf("relocating %x[%x]\n", image, size); */
    
   for(k=0; k<=steps; k++)
-    for(j=0, bits=bitstring[k]; j<8; j++, i++, bits<<=1)
-      if(bits & 0x80)
+    for(j=0, bits=bitstring[k]; j<8; j++, i++, bits<<=1) {
+      /*      fprintf(stderr,"relocate: image[%d]\n", i);*/
+      if(bits & 0x80) {
+	/* fprintf(stderr,"relocate: image[%d]=%d\n", i, image[i]);*/
 	if(image[i]<0)
 	  switch(image[i])
 	    {
@@ -143,6 +145,8 @@ void relocate(Cell *image, char *bitstring, int size, Label symbols[])
 	    }
 	else
 	  image[i]+=(Cell)image;
+      }
+    }
 }
 
 UCell checksum(Label symbols[])
@@ -180,6 +184,14 @@ Address my_alloc(Cell size)
     fprintf(stderr,"try mmap($%lx, $%lx, ..., MAP_ANON, ...); ", (long)next_address, (long)size);
   r=mmap(next_address, size, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE, -1, 0);
 #else /* !defined(MAP_ANON) */
+  /* Ultrix (at least does not define MAP_FILE and MAP_PRIVATE (both are
+     apparently defaults*/
+#ifndef MAP_FILE
+# define MAP_FILE 0
+#endif
+#ifndef MAP_PRIVATE
+# define MAP_PRIVATE 0
+#endif
   static int dev_zero=-1;
 
   if (dev_zero == -1)
@@ -442,6 +454,7 @@ int main(int argc, char **argv, char **env)
       {"help", no_argument, NULL, 'h'},
       /* put something != 0 into offset_image */
       {"offset-image", no_argument, &offset_image, 1},
+      {"no-offset-im", no_argument, &offset_image, 0},
       {"clear-dictionary", no_argument, &clear_dictionary, 1},
       {"debug", no_argument, &debug, 1},
       {0,0,0,0}

@@ -420,6 +420,11 @@ n = rp[2];
 :
  rp@ cell+ cell+ cell+ @ ;
 
+k	-- n		gforth
+n = rp[4];
+:
+ rp@ [ 5 cells ] Literal + @ ;
+
 \ digit is high-level: 0/0%
 
 move	c_from c_to ucount --		core

@@ -633,7 +633,7 @@ forth definitions
     then ;
 
 :noname
-    ' dup >definer [ ' locals-wordlist >definer ] literal =
+    ' dup >definer [ ' locals-wordlist ] literal >definer =
     if
 	>body !
     else
