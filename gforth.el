@@ -36,7 +36,7 @@
 
 
 (defvar forth-positives
-  " : :noname code interpretation: ;code does> begin do ?do +do -do u+do u-do while if ?dup-if ?dup-0=-if else case of struct [if] [else] with public: private: class "
+  " : :noname code interpretation: ;code does> begin do ?do +do -do u+do u-do while if ?dup-if ?dup-0=-if else case of struct [if] [ifdef] [ifundef] [else] with public: private: class "
   "Contains all words which will cause the indent-level to be incremented
 on the next line.
 OBS! All words in forth-positives must be surrounded by spaces.")
@@ -160,7 +160,7 @@ OBS! All words in forth-negatives must be surrounded by spaces.")
   "
 Major mode for editing Forth code. Tab indents for Forth code. Comments
 are delimited with \\ and newline. Paragraphs are separated by blank lines
-only. Delete converts tabs to spaces as it moves back.
+only.
 \\{forth-mode-map}
  Forth-split
     Positions the current buffer on top and a forth-interaction window

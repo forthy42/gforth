@@ -4,6 +4,14 @@
 
 \ Hmm, this would be a good application for ]] ... [[
 
+\ The program uses the following words
+\ from CORE :
+\ : POSTPONE THEN ; immediate ?dup IF 0= 
+\ from BLOCK-EXT :
+\ \ 
+\ from FILE :
+\ ( 
+
 : ENDIF ( compilation orig -- ; run-time -- ) \ gforth
     POSTPONE then ; immediate
 

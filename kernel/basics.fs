@@ -48,6 +48,14 @@ HEX
 \    here cell allot A! ;
 ' ! alias A! ( addr1 addr2 -- ) \ gforth
 
+\ UNUSED                                                17may93jaw
+
+: dictionary-end ( -- addr )
+    forthstart [ 3 cells ] Aliteral @ + ;
+
+: unused ( -- u ) \ core-ext
+    dictionary-end here - [ word-pno-size pad-minsize + ] Literal - ;
+
 \ here is used for pad calculation!
 
 : dp    ( -- addr ) \ gforth

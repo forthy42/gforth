@@ -508,7 +508,7 @@ else if (n>0)
 
 -trailing	c_addr u1 -- c_addr u2		string	dash_trailing
 u2 = u1;
-while (c_addr[u2-1] == ' ')
+ while (u2>0 && c_addr[u2-1] == ' ')
   u2--;
 :
  BEGIN  1- 2dup + c@ bl =  WHILE

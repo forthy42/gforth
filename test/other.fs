@@ -61,6 +61,9 @@ s" +" find-name <> throw
 
 1e pad 5 represent -1 <> swap 0 <> or swap 1 <> or throw
 
+\ -trailing
+
+s" a     " 2 /string -trailing throw drop
 
 \ comments across several lines
 

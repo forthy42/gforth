@@ -73,14 +73,6 @@ decimal
 : C" ( compilation "...<quote>" -- ; run-time  -- c-addr ) \ core-ext c-quote
     [char] " parse postpone CLiteral ; immediate restrict
 
-\ UNUSED                                                17may93jaw
-
-: dictionary-end ( -- addr )
-    forthstart dup 3 cells + @ + ;
-
-: unused ( -- u ) \ core-ext
-    dictionary-end here - ;
-
 \ [COMPILE]                                             17may93jaw
 
 : [compile] ( compilation "name" -- ; run-time ? -- ? ) \ core-ext bracket-compile

@@ -8,6 +8,11 @@
 * Gforth: (gforth).             A fast interpreter for the Forth language.
 @end direntry
 @comment @setchapternewpage odd
+@macro progstyle {TEXT}
+@quotation
+{Programming style note:} \TEXT\
+@end quotation
+@end macro
 @comment %**end of header (This is for running Texinfo on a region.)
 
 @ifinfo
@@ -1582,9 +1587,40 @@ necessary to define them.
 @cindex calling a definition
 @cindex returning from a definition
 
-A definition can be called simply be writing the name of the
-definition. When the end of the definition is reached, it returns. An
-earlier return can be forced using
+@cindex recursive definitions
+A definition can be called simply be writing the name of the definition
+to be called. Note that normally a definition is invisible during its
+definition. If you want to write a directly recursive definition, you
+can use @code{recursive} to make the current definition visible.
+
+doc-recursive
+
+Another way to perform a recursive call is
+
+doc-recurse
+
+@c @progstyle{
+I prefer using @code{recursive} to @code{recurse}, because
+calling the definition by name is more descriptive (if the name is
+well-chosen) than the somewhat cryptic @code{recurse}.  E.g., in a
+quicksort implementation, it is much better to read (and think) ``now
+sort the partitions'' than to read ``now do a recursive call''.
+
+For mutual recursion, use @code{defer}red words, like this:
+
+@example
+defer foo
+
+: bar ( ... -- ... )
+ ... foo ... ;
+
+:noname ( ... -- ... )
+ ... bar ... ;
+IS foo
+@end example
+
+When the end of the definition is reached, it returns. An earlier return
+can be forced using
 
 doc-exit
 

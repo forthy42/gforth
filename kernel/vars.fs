@@ -40,6 +40,9 @@ FF Constant /line
 10 Constant l/s
 400 Constant chars/block
 
+$20 8 2* cells + 2 + cell+ constant word-pno-size ( -- u )
+84 constant pad-minsize ( -- u )
+
 \ that's enough so long
 
 \ User variables                                       13feb93py

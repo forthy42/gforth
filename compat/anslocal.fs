@@ -10,8 +10,20 @@
 \ it and 2) it's unnecessary; just put a 0 before the "{" for every
 \ additional local you want to declare.
 
-\ This program uses PARSE from the core ext and COMPARE from the
-\ string wordsets
+\ The program uses the following words
+\ from CORE :
+\ : bl word count ; >in @ 2dup 0= IF 2drop [char] ELSE THEN drop
+\ recurse swap ! immediate
+\ from CORE-EXT :
+\ parse true 
+\ from BLOCK-EXT :
+\ \ 
+\ from FILE :
+\ ( S" 
+\ from LOCAL :
+\ (local) 
+\ from STRING :
+\ compare 
 
 : local ( "name" -- )
     bl word count (local) ;

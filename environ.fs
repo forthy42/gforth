@@ -51,7 +51,9 @@ true constant CORE-EXT
 -1 MAX-N 2constant MAX-D
 -1. 2constant MAX-UD
 
-0 1 2constant gforth \ minor major version
+version-string 2constant gforth \ version string (for versions>0.3.0)
+\ the version strings of the various versions are guaranteed to be
+\ sorted lexicographically
 
 : return-stack-cells ( -- n )
     [ forthstart 6 cells + ] literal @ cell / ;

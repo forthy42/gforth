@@ -1,6 +1,6 @@
 \ data structures (like C structs)
 
-\ Copyright (C) 1995 Free Software Foundation, Inc.
+\ Copyright (C) 1995, 1997 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -35,11 +35,30 @@
 \ addr2 is the aligned version of addr1 wrt the alignment size n
  1- tuck +  swap invert and ;
 
-: field ( offset1 align1 size align -- offset2 align2 )
-\ note: this version uses local variables
-    [IFDEF]  (Field) (Field)  [ELSE]  Header reveal dofield: cfa,  [THEN]
-	>r rot r@ nalign  dup ,  ( align1 size offset )
-	+ swap r> nalign ;
+: dozerofield ( -- )
+    \ a field that makes no change
+    \ to enable accessing the offset with "['] <field> >body @" this
+    \ is not implemented with "['] noop alias"
+    last @
+    if
+	immediate
+    then
+does> ( -- )
+    drop ;
+
+: field ( offset1 align1 size align "name" -- offset2 align2 ) \ gforth
+    \G name execution: ( addr1 -- addr2 )
+    >r rot r@ nalign dup
+    if \ field offset <> 0
+	[IFDEF]  (Field)
+	    (Field)
+	[ELSE]
+	    Header reveal dofield: cfa,
+	[THEN]
+    else
+	create dozerofield
+    then ( align1 size offset )
+    dup , + swap r> nalign ;
 
 : end-struct ( size align -- )
  2constant ;
@@ -82,3 +101,6 @@
 
 : struct-allocate ( size align -- addr ior )
     drop allocate ;
+
+: struct-alloc ( size align -- addr )
+    struct-allocate throw ;

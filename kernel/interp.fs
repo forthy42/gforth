@@ -45,6 +45,7 @@ has-prims 0= [IF]
 \ here allot , c, A,                                   17dec92py
 
 : allot ( n -- ) \ core
+    dup unused > -8 and throw
     dp +! ;
 : c,    ( c -- ) \ core
     here 1 chars allot c! ;
@@ -766,9 +767,12 @@ has-os [IF]
 \ RECURSE                                               17may93jaw
 
 : recurse ( compilation -- ; run-time ?? -- ?? ) \ core
+    \g calls the current definition.
     lastxt compile, ; immediate restrict
-' reveal alias recursive ( -- ) \ gforth
-	immediate
+' reveal alias recursive ( compilation -- ; run-time -- ) \ gforth
+\g makes the current definition visible, enabling it to call itself
+\g recursively.
+	immediate restrict
 
 \ EVALUATE                                              17may93jaw
 

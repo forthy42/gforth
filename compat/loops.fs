@@ -4,6 +4,17 @@
 
 \ Hmm, this would be a good application for ]] ... [[
 
+\ The program uses the following words
+\ from CORE :
+\ : POSTPONE over min ; immediate 2dup IF swap THEN drop negate +LOOP
+\ ELSE 2drop < 1+ DO u<
+\ from CORE-EXT :
+\ ?DO u> 
+\ from BLOCK-EXT :
+\ \ 
+\ from FILE :
+\ ( 
+
 : +DO ( compile-time: -- do-sys; run-time: n1 n2 -- )
     POSTPONE over POSTPONE min POSTPONE ?do ; immediate
 

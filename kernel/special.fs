@@ -27,8 +27,11 @@ create s"-buffer /line chars allot
 :noname    [char] " parse postpone SLiteral ;
 interpret/compile: S" ( compilation 'ccc"' -- ; run-time -- c-addr u )	\ core,file	s-quote
 
+: [IS] ( compilation "name" -- ; run-time xt -- ) \ possibly-gforth bracket-is
+    ' >body postpone ALiteral postpone ! ; immediate restrict
+
 :noname    ' >body ! ;
-:noname    ' >body postpone ALiteral postpone ! ;
+' [IS]
 interpret/compile: IS ( addr "name" -- ) \ gforth
 
 :noname    ' >body @ ;
