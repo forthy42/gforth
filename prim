@@ -171,7 +171,12 @@ else
 condbranch(?branch,f --		f83	question_branch,
 if (f==0) {
     IF_TOS(TOS = sp[0]);
-,)
+,:
+ 0= dup     \ !f !f
+ r> dup @   \ !f !f IP branchoffset
+ rot and +  \ !f IP|IP+branchoffset
+ swap 0= cell and + \ IP''
+ >r ;)
 
 \ we don't need an lp_plus_store version of the ?dup-stuff, because it
 \ is only used in if's (yet)
@@ -404,26 +409,36 @@ else {
 
 \+[THEN]
 
+\ don't make any assumptions where the return stack is!!
+\ implement this in machine code if it should run quickly!
+
 i	-- n		core
 n = *rp;
 :
- rp@ cell+ @ ;
+\ rp@ cell+ @ ;
+  r> r> tuck >r >r ;
 
 i'	-- w		gforth		i_tick
 ""loop end value""
 w = rp[1];
 :
- rp@ cell+ cell+ @ ;
+\ rp@ cell+ cell+ @ ;
+  r> r> r> dup itmp ! >r >r >r itmp @ ;
+variable itmp
 
 j	-- n		core
 n = rp[2];
 :
- rp@ cell+ cell+ cell+ @ ;
+\ rp@ cell+ cell+ cell+ @ ;
+  r> r> r> r> dup itmp ! >r >r >r >r itmp @ ;
+[IFUNDEF] itmp variable itmp [THEN]
 
 k	-- n		gforth
 n = rp[4];
 :
- rp@ [ 5 cells ] Literal + @ ;
+\ rp@ [ 5 cells ] Literal + @ ;
+  r> r> r> r> r> r> dup itmp ! >r >r >r >r >r >r itmp @ ;
+[IFUNDEF] itmp variable itmp [THEN]
 
 \ digit is high-level: 0/0%
 
@@ -607,7 +622,7 @@ n2 = n1>>1;
 :
  dup MINI and IF 1 ELSE 0 THEN
  [ bits/byte cell * 1- ] literal 
- 0 DO 2* swap dup 2* >r U-HIGHBIT and 
+ 0 DO 2* swap dup 2* >r MINI and 
      IF 1 ELSE 0 THEN or r> swap
  LOOP nip ;
 
@@ -694,10 +709,10 @@ u2 = ud%u1;
 #endif
 :
    0 swap [ 8 cells 1 + ] literal 0
-   ?DO >r /modstep r> 
+   ?DO /modstep
    LOOP drop swap 1 rshift or swap ;
 : /modstep ( ud c R: u -- ud-?u c R: u )
-   over I' u< 0= or IF I' - 1 ELSE 0 THEN  d2*+ ;
+   >r over r@ u< 0= or IF r@ - 1 ELSE 0 THEN  d2*+ r> ;
 : d2*+ ( ud n -- ud+n c )
    over MINI
    and >r >r 2dup d+ swap r> + swap r> ;
