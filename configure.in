@@ -307,6 +307,33 @@ else
   KERNEL="kernl16l.fi kernl16b.fi kernl32l.fi kernl32b.fi kernl64l.fi kernl64b.fi"
 fi
 
+#check how to do asm(".skip 16")
+for i in ".skip 16" ".block 16" ".org .+16" ".=.+16" ".space 16"
+do
+	AC_MSG_CHECKING([whether asm("$i") skips 16 bytes])
+	AC_TRY_RUN(
+int foo(int);
+main()
+{
+  exit(foo(0)!=16);
+}
+int foo(int x)
+{
+  if (x) {
+  label1:
+    asm("$i");
+  label2:
+  }
+  return (&&label2)-(&&label1);
+}
+	,AC_MSG_RESULT(yes)
+         AC_DEFINE_UNQUOTED(SKIP16,asm("$i"),statement for skipping 16 bytes)
+         break
+	,AC_MSG_RESULT(no),)
+	
+done	
+
+
 dnl Checks for programs.
 AC_PROG_LN_S
 dnl AM_PROG_INSTALL #performed by AM_INIT_AUTOMAKE

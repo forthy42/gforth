@@ -206,7 +206,7 @@ extern int gforth_memcmp(const char * s1, const char * s2, size_t n);
 #define engine engine2
 #define VARIANT(v)	(v)
 #define JUMP(target)	goto I_noop
-#define LABEL(name) J_##name: asm(".skip 16"); I_##name:
+#define LABEL(name) J_##name: SKIP16; I_##name:
 #define IN_ENGINE2
 
 #elif ENGINE==3
