@@ -264,7 +264,10 @@ has? peephole [IF]
     latestxt does-code! ;
 
 : (does>)  ( R: addr -- )
-    r> cfaligned /does-handler + !does ;
+    r> cfaligned /does-handler + !does ; \ !! no gforth-native
+
+: (does>1)  ( addr r:retaddr -- )
+    rdrop cfaligned /does-handler + !does ; \ !! no tail-call optimization
 
 : dodoes,  ( -- )
   cfalign here /does-handler allot does-handler! ;
@@ -509,7 +512,7 @@ DOES> @ execute ;
 :noname
     ;-hook ?struc
     [ has? xconds [IF] ] exit-like [ [THEN] ]
-    postpone (does>) dodoes,
+    here 4 cells + postpone aliteral postpone (does>1) dodoes,
     defstart :-hook ;
 interpret/compile: DOES>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ core        does
 
