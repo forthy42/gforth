@@ -756,7 +756,8 @@ Avariable leave-sp  leave-stack 3 cells + leave-sp !
 : ."       state @  IF    postpone (.") ,"  align
                     ELSE  [char] " parse type  THEN  ;  immediate
 : (        [char] ) parse 2drop ;                       immediate
-: \        source >in ! drop ;                          immediate
+: \        blk @ IF  >in @ c/l / 1+ c/l * >in !  EXIT  THEN
+           source >in ! drop ;                          immediate
 
 \ error handling                                       22feb93py
 \ 'abort thrown out!                                   11may93jaw
@@ -787,7 +788,6 @@ defer header ' (header) IS header
     name c@
     dup $1F u> -&19 and throw ( is name too long? )
     1+ chars allot align ;
-
 : input-stream-header ( "name" -- )
     \ !! this is f83-implementation-dependent
     align here last !  -1 A,
@@ -1017,9 +1017,9 @@ Variable warnings  G -1 warnings T !
 08 constant #bs
 09 constant #tab
 7F constant #del
+0C constant #ff
 0D constant #cr                \ the newline key code
 0A constant #lf
-0C constant #ff
 
 : bell  #bell emit ;
 
@@ -1064,17 +1064,20 @@ Create crtlkeys
 
 \ Output                                               13feb93py
 
-DEFER type      \ defer type for a output buffer or fast
+Defer type      \ defer type for a output buffer or fast
                 \ screen write
 
 \ : (type) ( addr len -- )
 \   bounds ?DO  I c@ emit  LOOP ;
 
-' (TYPE) IS Type
+' (type) IS Type
 
-DEFER Emit
+Defer emit
 
 ' (Emit) IS Emit
+
+Defer key
+' (key) IS key
 
 \ : form  ( -- rows cols )  &24 &80 ;
 \ form should be implemented using TERMCAPS or CURSES
@@ -1084,17 +1087,17 @@ DEFER Emit
 \ Query                                                07apr93py
 
 : refill ( -- flag )
+  blk @  IF  1 blk +!  true  EXIT  THEN
   tib /line
   loadfile @ ?dup
-  IF    \ dup file-position throw linestart 2!
-        read-line throw
+  IF    read-line throw
   ELSE  loadline @ 0< IF 2drop false EXIT THEN
         accept true
   THEN
   1 loadline +!
   swap #tib ! 0 >in ! ;
 
-: Query  ( -- )  0 loadfile ! refill drop ;
+: Query  ( -- )  loadfile off  blk off  refill drop ;
 
 \ File specifiers                                       11jun93jaw
 
@@ -1123,19 +1126,21 @@ create nl$ 1 c, A c, 0 c, \ gnu includes usually a cr in dos
 \ include-file                                         07apr93py
 
 : push-file  ( -- )  r>
-  ( linestart 2@ >r >r ) loadline @ >r loadfile @ >r
+  loadline @ >r loadfile @ >r
   blk @ >r >tib @ >r  #tib @ dup >r  >tib +!  >in @ >r  >r ;
 
 : pop-file   ( -- )  r>
-  r> >in !  r> #tib !  r> >tib ! r> blk !
-  r> loadfile ! r> loadline ! ( r> r> linestart 2! ) >r ;
+  r> >in !  r> #tib !  r> >tib !  r> blk !
+  r> loadfile ! r> loadline !  >r ;
+
+: read-loop ( i*x -- j*x )
+  BEGIN  refill  WHILE  interpret  REPEAT ;
 
 : include-file ( i*x fid -- j*x )
   push-file  loadfile !
-  0 loadline ! blk off
-  BEGIN  refill  WHILE  interpret  REPEAT
-  loadfile @ close-file throw
-  pop-file ;
+  0 loadline ! blk off  ['] read-loop catch
+  loadfile @ close-file
+  pop-file  throw throw ;
 
 : included ( i*x addr u -- j*x )
     loadfilename 2@ >r >r
@@ -1180,9 +1185,9 @@ create nl$ 1 c, A c, 0 c, \ gnu includes usually a cr in dos
   push-file  dup #tib ! >tib @ swap move
   >in off blk off loadfile off -1 loadline !
 
-  BEGIN  interpret  >in @ #tib @ u>= UNTIL
-
-  pop-file ;
+\  BEGIN  interpret  >in @ #tib @ u>= UNTIL
+  ['] interpret catch
+  pop-file throw ;
 
 
 : abort -1 throw ;

@@ -125,12 +125,23 @@ if (index != limit) {
 condbranch((+loop),n --		fig	paren_plus_loop,
 /* !! check this thoroughly */
 int index = *rp;
-int olddiff = index-rp[1];
 /* sign bit manipulation and test: (x^y)<0 is equivalent to (x<0) != (y<0) */
 /* dependent upon two's complement arithmetic */
+int olddiff = index-rp[1];
+#ifndef undefined
 if ((olddiff^(olddiff+n))>=0   /* the limit is not crossed */
     || (olddiff^n)>=0          /* it is a wrap-around effect */) {
-    *rp = index+n;
+#else
+#ifndef MAXINT
+#define MAXINT ((1<<(8*sizeof(Cell)-1))-1)
+#endif
+if(((olddiff^MAXINT) >= n) ? ((olddiff+n) >= 0) : ((olddiff+n) < 0)) {
+#endif
+#ifdef i386
+    *rp += n;
+#else
+    *rp = index + n;
+#endif
     IF_TOS(TOS = sp[0]);
 )
 
@@ -139,15 +150,19 @@ condbranch((s+loop),n --		new	paren_symmetric_plus_loop,
 crosses the boundary between limit and limit-sign(n). I.e. a symmetric
 version of (+LOOP).""
 /* !! check this thoroughly */
-int oldindex = *rp;
-int diff = oldindex-rp[1];
+int index = *rp;
+int diff = index-rp[1];
 int newdiff = diff+n;
 if (n<0) {
     diff = -diff;
-    newdiff = - newdiff;
+    newdiff = -newdiff;
 }
 if (diff>=0 || newdiff<0) {
-    *rp = oldindex+n;
+#ifdef i386
+    *rp += n;
+#else
+    *rp = index + n;
+#endif
     IF_TOS(TOS = sp[0]);
 )
 
@@ -193,7 +208,7 @@ emitcounter++;
 fwrite(c_addr,sizeof(Char),n,stdout);
 emitcounter += n;
 
-key	-- n		fig
+(key)	-- n		fig	paren_key
 fflush(stdout);
 /* !! noecho */
 n = key();
@@ -450,10 +465,10 @@ within	u1 u2 u3 -- f		core-ext
 f = FLAG(u1-u2 < u3-u2);
 
 sp@	-- a_addr		fig		spat
-a_addr = sp;
+a_addr = sp+1;
 
 sp!	a_addr --		fig		spstore
-sp = a_addr+1;
+sp = a_addr;
 /* works with and without TOS caching */
 
 rp@	-- a_addr		fig		rpat
@@ -590,18 +605,14 @@ c_addr2 = c_addr1+1;
 
 (bye)	n --	toolkit-ext	paren_bye
 deprep_terminal();
-exit(n);
+return (Label *)n;
 
 system	c_addr u -- n	own
-char pname[u+1];
-cstr(pname,c_addr,u);
-n=system(pname);
+n=system(cstr(c_addr,u));
 
 popen	c_addr u n -- wfileid	own
-char pname[u+1];
 static char* mode[2]={"r","w"};
-cstr(pname,c_addr,u);
-wfileid=(Cell)popen(pname,mode[n]);
+wfileid=(Cell)popen(cstr(c_addr,u),mode[n]);
 
 pclose	wfileid -- wior	own
 wior=pclose((FILE *)wfileid);
@@ -698,16 +709,12 @@ close-file	wfileid -- wior	file	close_file
 wior = FILEIO(fclose((FILE *)wfileid)==EOF);
 
 open-file	c_addr u ntype -- w2 wior	file	open_file
-char fname[u+1];
-cstr(fname, c_addr, u);
-w2 = (Cell)fopen(fname, fileattr[ntype]);
+w2 = (Cell)fopen(cstr(c_addr, u), fileattr[ntype]);
 wior =  FILEEXIST(w2 == NULL);
 
 create-file	c_addr u ntype -- w2 wior	file	create_file
 int	fd;
-char fname[u+1];
-cstr(fname, c_addr, u);
-fd = creat(fname, 0666);
+fd = creat(cstr(c_addr, u), 0644);
 if (fd > -1) {
   w2 = (Cell)fdopen(fd, fileattr[ntype]);
   assert(w2 != NULL);
@@ -719,16 +726,10 @@ if (fd > -1) {
 }
 
 delete-file	c_addr u -- wior		file	delete_file
-char fname[u+1];
-cstr(fname, c_addr, u);
-wior = FILEEXIST(unlink(fname));
+wior = FILEEXIST(unlink(cstr(c_addr, u)));
 
 rename-file	c_addr1 u1 c_addr2 u2 -- wior	file-ext	rename_file
-char fname1[u1+1];
-char fname2[u2+1];
-cstr(fname1, c_addr1, u1);
-cstr(fname2, c_addr2, u2);
-wior = FILEEXIST(rename(fname1, fname2));
+wior = FILEEXIST(rename(cstr1(c_addr1, u1), cstr(c_addr2, u2)));
 
 file-position	wfileid -- ud wior	file	file_position
 /* !! use tell and lseek? */
@@ -900,9 +901,8 @@ memmove(c_addr,sig,u);
 >float	c_addr u -- flag	float	to_float
 /* real signature: c_addr u -- r t / f */
 Float r;
-char number[u+1];
+char *number=cstr(c_addr, u);
 char *endconv;
-cstr(number, c_addr, u);
 r=strtod(number,&endconv);
 if((flag=FLAG(!(int)*endconv)))
 {

@@ -17,6 +17,10 @@ hex \ everything now hex!                               11may93jaw
 
 FF Constant /line
 
+40 Constant c/l
+10 Constant l/s
+400 Constant chars/block
+
 \ that's enough so long
 
 \ User variables                                       13feb93py
@@ -28,9 +32,13 @@ main-task tup H ! minimal
 
 Variable udp
 
+AUser next-task        main-task next-task !
+AUser prev-task        main-task prev-task !
+AUser save-task        0 save-task !
 AUser s0
 AUser r0
 AUser f0
+AUser l0
 AUser handler
 \ AUser output
 \ AUser input

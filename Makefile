@@ -4,7 +4,10 @@ RM	= echo 'Trying to remove'
 GCC	= gcc
 FORTH	= gforth
 CC	= gcc
-SWITCHES = -D_POSIX_VERSION -DUSE_FTOS -DDEFAULTBIN='"'`pwd`'"' -DDIRECT_THREADED -fcaller-saves #-DNDEBUG #turn off assertions
+SWITCHES = -fforce-addr -fforce-mem -fomit-frame-pointer \
+	-fno-defer-pop -fcaller-saves \
+	-D_POSIX_VERSION -DUSE_TOS -DUSE_FTOS -DDEFAULTBIN='"'`pwd`'"' \
+	-DDIRECT_THREADED #-DNDEBUG #turn off assertions
 CFLAGS	= -O4 -Wall -g $(SWITCHES)
 
 #-Xlinker -n puts text and data into the same 256M region
@@ -17,8 +20,8 @@ EMACS	= emacs
 INCLUDES = forth.h io.h
 
 FORTH_SRC = cross.fs debug.fs environ.fs errore.fs extend.fs \
-	filedump.fs glosgen.fs kernal.fs look.fs machine32b.fs \
-	machine32l.fs main.fs other.fs search-order.fs see.fs sieve.fs \
+	filedump.fs glosgen.fs kernal.fs look.fs mach32b.fs \
+	mach32l.fs main.fs other.fs search-order.fs see.fs sieve.fs \
 	struct.fs tools.fs toolsext.fs vars.fs wordinfo.fs
 
 SOURCES	= Makefile primitives primitives2c.el engine.c main.c io.c \
@@ -67,15 +70,15 @@ gforth:	$(OBJECTS) $(FORTH_GEN)
 
 kernl32l.fi:	main.fs search-order.fs cross.fs aliases.fs vars.fs add.fs \
 		errore.fs kernal.fs extend.fs tools.fs toolsext.fs \
-		machine32l.fs $(FORTH_GEN)
+		mach32l.fs $(FORTH_GEN)
 		-cp kernl32l.fi kernl32l.fi.old
-		$(FORTH) -e 's" machine32l.fs" r/o open-file throw' main.fs
+		$(FORTH) -e 's" mach32l.fs" r/o open-file throw' main.fs
 
 kernl32b.fi:	main.fs search-order.fs cross.fs aliases.fs vars.fs add.fs \
 		errore.fs kernal.fs extend.fs tools.fs toolsext.fs \
-		machine32b.fs $(FORTH_GEN)
+		mach32b.fs $(FORTH_GEN)
 		-cp kernl32b.fi kernl32b.fi.old
-		$(FORTH) -e 's" machine32b.fs" r/o open-file throw' main.fs
+		$(FORTH) -e 's" mach32b.fs" r/o open-file throw' main.fs
 
 engine.s:	engine.c primitives.i prim_labels.i machine.h $(INCLUDES)
 		$(GCC) $(CFLAGS) -S engine.c

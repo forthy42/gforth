@@ -1,5 +1,5 @@
 /*
-  $Id: engine.c,v 1.12 1994-08-25 15:25:21 anton Exp $
+  $Id: engine.c,v 1.13 1994-08-31 19:42:44 pazsan Exp $
   Copyright 1992 by the ANSI figForth Development Group
 */
 
@@ -43,17 +43,26 @@ typedef struct F83Name {
 
 /* NEXT and NEXT1 are split into several parts to help scheduling */
 #ifdef DIRECT_THREADED
-#	define NEXT1_P1 
-#	define NEXT1_P2 ({goto *cfa;})
+#	define NEXT1_P1
+#	ifdef i386
+#		define NEXT1_P2 ({cfa=*ip++; goto *cfa;})
+#	else
+#		define NEXT1_P2 ({goto *cfa;})
+#	endif
 #	define DEF_CA
 #else
 #	define NEXT1_P1 ({ca = *cfa;})
 #	define NEXT1_P2 ({goto *ca;})
 #	define DEF_CA	Label ca;
 #endif
-#define NEXT_P1 ({cfa = *ip++; NEXT1_P1;})
+#if defined(i386) && defined(DIRECT_THREADED)
+#	define NEXT_P1
+#	define NEXT1 ({goto *cfa;})
+#else
+#	define NEXT_P1 ({cfa = *ip++; NEXT1_P1;})
+#	define NEXT1 ({DEF_CA NEXT1_P1; NEXT1_P2;})
+#endif
 
-#define NEXT1 ({DEF_CA NEXT1_P1; NEXT1_P2;})
 #define NEXT ({DEF_CA NEXT_P1; NEXT1_P2;})
 
 #ifdef USE_TOS
@@ -73,21 +82,62 @@ typedef struct F83Name {
 int emitcounter;
 #define NULLC '\0'
 
-#define cstr(to,from,size)\
+#ifdef copycstr
+#   define cstr(to,from,size)\
 	{	memcpy(to,from,size);\
 		to[size]=NULLC;}
+#else
+char scratch[1024];
+int soffset;
+#   define cstr(from,size) \
+           ({ char * to = scratch; \
+	      memcpy(to,from,size); \
+	      to[size] = NULLC; \
+	      soffset = size+1; \
+	      to; \
+	   })
+#   define cstr1(from,size) \
+           ({ char * to = scratch+soffset; \
+	      memcpy(to,from,size); \
+	      to[size] = NULLC; \
+	      soffset += size+1; \
+	      to; \
+	   })
+#endif
+
 #define NEWLINE	'\n'
+
 
 static char* fileattr[6]={"r","rb","r+","r+b","w+","w+b"};
 
 static Address up0=NULL;
 
+#if defined(i386) && defined(FORCE_REG)
+#  define REG(reg) __asm__(reg)
+
+Label *engine(Xt *ip0, Cell *sp0, Cell *rp, Float *fp, Address lp)
+{
+   register Xt *ip REG("%esi")=ip0;
+   register Cell *sp REG("%edi")=sp0;
+
+#else
+#  define REG(reg)
+
 Label *engine(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp)
+{
+#endif
 /* executes code at ip, if ip!=NULL
    returns array of machine code labels (for use in a loader), if ip==NULL
 */
-{
-  Xt cfa;
+  register Xt cfa
+#ifdef i386
+#  ifdef USE_TOS
+   REG("%ecx")
+#  else
+   REG("%edx")
+#  endif
+#endif
+   ;
   Address up=up0;
   static Label symbols[]= {
     &&docol,
@@ -117,7 +167,7 @@ Label *engine(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp)
 #ifdef DEBUG
   printf("%08x: col: %08x\n",(Cell)ip,(Cell)PFA1(cfa));
 #endif
-#ifdef undefined
+#ifdef i386
   /* this is the simple version */
   *--rp = (Cell)ip;
   ip = (Xt *)PFA1(cfa);
@@ -206,13 +256,13 @@ Label *engine(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp)
 #endif
   *--rp = (Cell)ip;
   /* PFA1 might collide with DOES_CODE1 here, so we use PFA */
+  ip = DOES_CODE1(cfa);
 #ifdef USE_TOS
   *sp-- = TOS;
   TOS = (Cell)PFA(cfa);
 #else
   *--sp = (Cell)PFA(cfa);
 #endif
-  ip = DOES_CODE1(cfa);
   NEXT;
   
 #include "primitives.i"

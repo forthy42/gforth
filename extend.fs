@@ -75,7 +75,7 @@ decimal
 \ ROLL                                                  17may93jaw
 
 : roll  dup 1+ pick >r
-        cells sp@ 2 cells + dup cell+ rot move drop r> ;
+        cells sp@ cell+ dup cell+ rot move drop r> ;
 
 \ SOURCE-ID SAVE-INPUT RESTORE-INPUT                    11jun93jaw
 

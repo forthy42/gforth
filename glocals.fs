@@ -508,5 +508,6 @@ forth definitions
    endif
  endif ; immediate
 
-\ : locals|
-\ !! should lie around somewhere
+: locals|
+  BEGIN  sname 2dup s" |" compare 0=  WHILE
+         (local)  REPEAT  drop 0 (local) ;  immediate restrict

@@ -6,7 +6,7 @@
 
 \ I think I avoid the assumption 1 char = 1 here, but I have not tested this
 
-1024 constant chars/block \ mandated by the standard
+\ 1024 constant chars/block \ mandated by the standard
 
 create block-buffer chars/block chars allot
 
@@ -67,7 +67,7 @@ variable buffer-dirty buffer-dirty off
     \ reading in the block is unnecessary, but simpler
     block ;
 
-variable scr 0 scr ! \ !! this should be a user var
+User scr 0 scr !
 
 : list ( u -- )
     \ calling block again and again looks inefficient but is necessary
@@ -79,11 +79,23 @@ variable scr 0 scr ! \ !! this should be a user var
 	scr @ block i 64 * chars + 64 type cr
     loop ;
 
+: (source)  ( -- addr len )
+  blk @ ?dup
+  IF    block chars/block
+  ELSE  tib #tib @
+  THEN ;
 
-\ not yet implemented (with block semantics):
+' (source) IS source
 
-\ evaluate
-\ load
-\ refill
-\ thru
-\ \
+: load ( i*x n -- j*x )
+  push-file
+  dup loadline ! blk ! >in off ( ['] ) interpret ( catch )
+  pop-file ( throw ) ;
+
+: thru ( i*x n1 n2 -- j*x )
+  1+ swap 0 ?DO  I load  LOOP ;
+
+: +load ( i*x n -- j*x )  blk @ + load ;
+
+: +thru ( i*x n1 n2 -- j*x )
+  1+ swap 0 ?DO  I +load  LOOP ;
