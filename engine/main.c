@@ -463,8 +463,16 @@ typedef struct {
 } PrimInfo;
 
 PrimInfo *priminfos;
+PrimInfo **decomp_prims;
+
+int compare_priminfo_length(PrimInfo **a, PrimInfo **b)
+{
+  return (*a)->length - (*b)->length;
+}
+
 #endif /* defined(NO_DYNAMIC) */
 Cell npriminfos=0;
+
 
 void check_prims(Label symbols1[])
 {
@@ -554,6 +562,11 @@ void check_prims(Label symbols1[])
     if (debug)
       fprintf(stderr,"\n");
   }
+  decomp_prims = calloc(i,sizeof(PrimInfo *));
+  for (i=DOESJUMP+1; i<npriminfos; i++)
+    decomp_prims[i] = &(priminfos[i]);
+  qsort(decomp_prims+DOESJUMP+1, npriminfos-DOESJUMP-1, sizeof(PrimInfo *),
+	compare_priminfo_length);
 #endif
 }
 
@@ -639,9 +652,21 @@ int forget_dyncode(Address code)
 #endif /* !defined(NO_DYNAMIC) */
 }
 
-Label decompile_code(Label prim)
+Label decompile_code(Label code)
 {
-  return prim;
+#ifdef NO_DYNAMIC
+  return code;
+#else /* !defined(NO_DYNAMIC) */
+  Cell i;
+
+  /* reverse order because NOOP might match other prims */
+  for (i=npriminfos-1; i>DOESJUMP; i--) {
+    PrimInfo *pi=decomp_prims[i];
+    if (pi->start==code || (pi->start && memcmp(code,pi->start,pi->length)==0))
+      return pi->start;
+  }
+  return code;
+#endif /* !defined(NO_DYNAMIC) */
 }
 
 #ifdef NO_IP

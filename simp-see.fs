@@ -22,7 +22,7 @@ require see.fs
 
 : simple-see-range ( addr1 addr2 -- )
     swap u+do
-	cr i hex. i cell+ i @ .word drop
+	cr xpos off i hex. i cell+ i @ .word drop
 	cell +loop
 ;
 

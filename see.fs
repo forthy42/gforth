@@ -551,8 +551,7 @@ Defer discode ( addr u -- ) \ gforth
 : next-head ( addr1 -- addr2 ) \ gforth
     \G find the next header starting after addr1, up to here (unreliable).
     here swap u+do
-	i head?
-	if
+	i head? -2 and if
 	    i unloop exit
 	then
     cell +loop

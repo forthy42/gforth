@@ -359,12 +359,12 @@ const Create ???  0 , 3 , char ? c, char ? c, char ? c,
 
 : head? ( addr -- f )
     \G heuristic check whether addr is a name token; may deliver false
-    \G positives; addr must be a valid address
+    \G positives; addr must be a valid address; returns 1 for
+    \G particularly unsafe positives
     \ we follow the link fields and check for plausibility; two
     \ iterations should catch most false addresses: on the first
     \ iteration, we may get an xt, on the second a code address (or
     \ some code), which is typically not in the dictionary.
-    \ !! does not work se well for simple-see: trips on the first "0"
     2 0 do
 	dup dup aligned <> if \ protect @ against unaligned accesses
 	    drop false unloop exit
@@ -376,7 +376,7 @@ const Create ???  0 , 3 , char ? c, char ? c, char ? c,
 		drop false unloop exit
 	    then ( addr1 )
 	else \ 0 in the link field, no further checks
-	    2drop true unloop exit
+	    2drop 1 unloop exit \ this is very unsure, so return 1
 	then
     loop
     \ in dubio pro:
