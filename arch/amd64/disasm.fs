@@ -92,10 +92,10 @@ $100 cells allot
 : disasm-addr ( addr1 -- addr2 )
     dup clear-prefixes disasm-addr1
     ."  \ " dup rot
-    2drop ;
-\     ?do
-\ 	i c@ hex.
-\     loop ;
+\     2drop ;
+    ?do
+	i c@ hex.
+    loop ;
 
 : disasm ( addr u -- ) \ gforth
 \G disassemble u aus starting at addr
@@ -248,6 +248,10 @@ create reg16-names
     \ decode and print modRM reg field according to operand width
     Gnum .regv ;
 
+: Ox ( addr -- )
+    \ absolute addressing without modRM or SIB
+    dup @ hex. ." d[]" 8 + ; \ !! address-size override?
+
 create displacement-info
   0 0 2,  1 $ff 2,  4 $ffffffff 2, \ size mask
 
@@ -257,8 +261,8 @@ create displacement-info
     over invert and ( w1 mask highbits )
     rot rot and or ;
 
-: base-regnum ( modRM/SIB -- u )
-    \ extract modRM r/m or SIB base register number
+: base-regnum ( modRM/SIB/opcode -- u )
+    \ extract modRM r/m or SIB base or opcode register number
     7 and rex-prefix @ 1 and 3 lshift + ;
 
 : print-base ( sib -- )
@@ -288,7 +292,7 @@ create displacement-info
     \ decode memory operand described by modRM
     >r
     \ get the displacement mask
-    r@ c@ 6 rshift 2* th 2@ ( dispsize mask r: addr1 )
+    displacement-info r@ c@ 6 rshift 2* th 2@ ( dispsize mask r: addr1 )
     r@ c@ 7 and 4 = if
 	r> 1+ mem-SIB exit
     endif
@@ -313,6 +317,9 @@ create displacement-info
     \ decode and print modRM mod and r/m fields as r/m8
     ['] .reg8 Ext ;
 
+: Ed ( addr1 -- addr2 )
+    ['] .reg32 Ext ;
+
 : Ev ( addr1 -- addr2 )
     \ decode and print modRM mod and r/m fields as r/m8
     ['] .regv Ext ;
@@ -325,7 +332,7 @@ create displacement-info
     else
 	4 $ffffffff
     endif
-    r@ @ swap masksx .
+    r@ @ swap masksx . ." # "
     r> + ;
 
 \ add-like instruction types
@@ -347,7 +354,7 @@ create displacement-info
     2r> type .width ', emit ;
 
 : AL,Ib ( addr1 addr u -- addr2 )
-    2>r 0 .reg8 space 1+ c@+ $ff masksx . 2r> type ." b," ;
+    2>r 0 .reg8 space 1+ c@+ $ff masksx . ." # " 2r> type ." b," ;
 
 : RAX,Iz ( addr1 addr u -- addr2 )
     2>r 0 .regv space 1+ Iz 2r> type .width ', emit ;
@@ -376,5 +383,137 @@ s" sbb" $18 set-add-likes
 s" sub" $28 set-add-likes
 s" cmp" $38 set-add-likes
 
+: push-reg ( addr1 -- addr2 )
+    c@+ base-regnum .reg64 space ." pushq," ;
+
+opcode1-table $50 th 8 ' push-reg cell-fill
+
+: movsxd ( addr1 -- addr2 )
+    1+ dup Gv space swap Ed ."  movsxd," ;
+
+' movsxd opcode1-table $63 th !
+
+create conditions
+16 string-table o no c nc z nz na a s ns p np l ge le g
+
+: Jb ( addr1 -- )
+    c@ $ff masksx over 2 + + hex. ;
+
+: jcc-short ( addr1 -- addr2 )
+    dup 1+ Jb
+    'j emit dup c@ $f and 2* cells conditions + 2@ type ', emit
+    2 + ;
+
+opcode1-table $70 th $10 ' jcc-short cell-fill
+
+s" test" ' Eb,Gb $84 set-add-like
+s" test" ' Ev,Gv $85 set-add-like
+s" xchg" ' Eb,Gb $86 set-add-like
+s" xchg" ' Ev,Gv $87 set-add-like
+
+: xchg-ax ( addr1 -- addr2 )
+    c@+ base-regnum dup 0= if
+	drop ." nop," exit
+    endif
+    .regv space 0 .regv ."  xchg," ;
+
+opcode1-table $90 th 8 ' xchg-ax cell-fill
+
+:noname \ mov-al,Ob ( addr1 -- addr2 )
+    0 .reg8 space 1+ Ox ." movb," ;
+opcode1-table $a0 th !
+
+:noname \ mov-xAx,Ov ( addr1 -- addr2 )
+    0 .regv space 1+ Ox ." mov" .width ', emit ;
+opcode1-table $a1 th !
+
+:noname \ mov-Ob,al ( addr1 -- addr2 )
+    1+ Ox 0 .reg8 space ." movb," ;
+opcode1-table $a2 th !
+
+:noname \ mov-Ov,xAx ( addr1 -- addr2 )
+    1+ Ox 0 .regv space ." mov" .width ', emit ;
+opcode1-table $a3 th !
+
+:noname ( addr1 -- addr2 )
+    ." movsb," 1+ ;
+opcode1-table $a4 th !
+    
+:noname ( addr1 -- addr2 )
+    ." movs" .width ', emit 1+ ;
+opcode1-table $a5 th !
+
+:noname ( addr1 -- addr2 )
+    ." cmpsb," 1+ ;
+opcode1-table $a6 th !
+    
+:noname ( addr1 -- addr2 )
+    ." cmps" .width ', emit 1+ ;
+opcode1-table $a7 th !
+
+: mov-reg8-ib ( addr1 -- addr2 )
+    c@+ base-regnum .reg8 c@+ $ff masksx . ." # mov," ;
+
+opcode1-table $b0 th 8 ' xchg-ax cell-fill
+
+:noname ( addr1 -- addr2 )
+    1+ dup @ $ffff masksx, . ." ret#," 2 + ;
+opcode1-table $c2 th !
+
+:noname ( addr1 -- addr2 )
+    ." ret," 1+ ;
+opcode1-table $c3 th !
+
+:noname ( addr1 -- addr2 )
+    ." xlatb," 1+ ;
+opcode1-table $d7 th !
+
+:noname ( addr1 -- addr2 )
+    dup 1+ Jb ." loopnz," ;
+opcode1-table $e0 th !
+
+:noname ( addr1 -- addr2 )
+    dup 1+ Jb ." loopz," ;
+opcode1-table $e1 th !
+
+:noname ( addr1 -- addr2 )
+    dup 1+ Jb ." loop," ;
+opcode1-table $e2 th !
+
+:noname ( addr1 -- addr2 )
+    dup 1+ Jb 'j emit 1 .regv ." z," ;
+opcode1-table $e3 th !
+
+:noname ( addr1 -- addr2 )
+    0 .reg8 1+ c@+ hex. ." inb," ;
+opcode1-table $e4 th !
+
+:noname ( addr1 -- addr2 )
+    0 .regv 1+ c@+ hex. ." in" .width ', emit ;
+opcode1-table $e5 th !
+
+:noname ( addr1 -- addr2 )
+    1+ c@+ hex. 0 .reg8 ." outb," ;
+opcode1-table $e4 th !
+
+:noname ( addr1 -- addr2 )
+    1+ c@+ hex. 0 .regv ." out" .width ', emit ;
+opcode1-table $e5 th !
+
+:noname ( addr1 -- addr2 )
+    ." int1," 1+ ;
+opcode1-table $f1 th !
+
+:noname ( addr1 -- addr2 )
+    ." hlt," 1+ ;
+opcode1-table $f4 th !
+
+:noname ( addr1 -- addr2 )
+    ." cmc," 1+ ;
+opcode1-table $f5 th !
 
 
+\ !! 80-83: Group1
+\ !! c0,c1,d0-d3: Group2
+\ !! c6,c7: Group11
+\ !! f6,f7: Group3
