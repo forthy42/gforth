@@ -72,7 +72,7 @@ throw \ if the TOS is not 0, throw an error
 
 \ look for primitives
 
-' + look 0= throw ( nt )
+' + xt>threaded look 0= throw ( nt )
 s" +" find-name <> throw
 
 \ represent

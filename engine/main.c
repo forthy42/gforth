@@ -83,6 +83,7 @@ int optind = 1;
 
 Address code_area=0;
 Address code_here=0; /* does for code-area what HERE does for the dictionary */
+Address start_flush=0; /* start of unflushed code */
 
 static int no_super=0;   /* true if compile_prim should not fuse prims */
 static int no_dynamic=1; /* true if compile_prim should not generate code */
@@ -363,7 +364,7 @@ void alloc_stacks(ImageHeader * header)
   header->fp_stack_base=my_alloc(fsize);
   header->return_stack_base=my_alloc(rsize);
   header->locals_stack_base=my_alloc(lsize);
-  code_here = code_area = my_alloc(dictsize);
+  code_here = start_flush = code_area = my_alloc(dictsize);
 }
 
 #warning You can ignore the warnings about clobbered variables in go_forth
@@ -516,6 +517,8 @@ Label compile_prim(Label prim)
       memcpy(code_here, last_jump, IND_JUMP_LENGTH);
       code_here += IND_JUMP_LENGTH;
       last_jump = 0;
+      FLUSH_ICACHE(start_flush, code_here-start_flush);
+      start_flush=code_here;
     }
     return prim;
   }
@@ -526,6 +529,10 @@ Label compile_prim(Label prim)
   memcpy(code_here, (Address)prim, priminfos[i].length);
   code_here += priminfos[i].length;
   last_jump = (priminfos[i].super_end) ? 0 : (prim+priminfos[i].length);
+  if (last_jump == 0) {
+    FLUSH_ICACHE(start_flush, code_here-start_flush);
+    start_flush=code_here;
+  }
   return (Label)old_code_here;
 #else /* !defined(DOUBLY_INDIRECT), no code replication */
 #if !defined(INDIRECT_THREADED)
