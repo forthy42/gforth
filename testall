@@ -12,8 +12,8 @@ samhain.ifs.tuwien.ac.at calis aertl@mail.zserv.tuwien.ac.at \
 rlwinm.ifs.tuwien.ac.at fmadd.ifs.tuwien.ac.at lfsux.ifs.tuwien.ac.at \
 s4addq.ifs.tuwien.ac.at \
 128.130.204.24 128.130.204.25 128.130.204.26 \
-128.130.173.38"
-#taken out: hpws03.infosys.tuwien.ac.at aertl@fbma.tuwien.ac.at w4.infosys.tuwien.ac.at jupiter aertl@stat.zserv.tuwien.ac.at  c2.complang.tuwien.ac.at
+cdbook c2.complang.tuwien.ac.at"
+#taken out: hpws03.infosys.tuwien.ac.at aertl@fbma.tuwien.ac.at w4.infosys.tuwien.ac.at jupiter aertl@stat.zserv.tuwien.ac.at 
 SSH_PROTOCOL=-oProtocol=1,2
 for i in $MACHINES
 do

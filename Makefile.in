@@ -65,7 +65,7 @@ GCC	= @CC@
 CC	= $(GCC)
 FORTHPATH = .$(PATHSEP)$(libdir)/gforth/site-forth$(PATHSEP)$(siteforthdir)$(PATHSEP)$(libdir)/gforth/$(VERSION)$(PATHSEP)$(datadir)/gforth/$(VERSION)
 FORTHSIZES = @FORTHSIZES@
-FORTHS_ARGS =  -p $(FORTHPATH)$(PATHSEP)$(srcdir)
+FORTHS_ARGS =  -p "$(FORTHPATH)$(PATHSEP)$(srcdir)"
 FORTH_ARGS = --die-on-signal $(FORTHS_ARGS)
 ENGINE = ./gforth
 FORTH	= $(ENGINE) $(FORTH_ARGS)
@@ -100,7 +100,7 @@ XDEFINES = @DEFS@
 SWITCHES = $(XCFLAGS) $(XDEFINES) #-DNDEBUG #turn off assertions
 ENGINE_FLAGS = @ENGINE_FLAGS@ -fno-defer-pop -fcaller-saves
 DEBUGFLAG = @DEBUGFLAG@
-CFLAGS	= $(DEBUGFLAG) -I$(srcdir)/engine -I$(srcdir)/arch/$(machine) -O3 -Wall $(SWITCHES) -DDEFAULTPATH=\"$(FORTHPATH)\"
+CFLAGS	= $(DEBUGFLAG) -I$(srcdir)/engine -I$(srcdir)/arch/$(machine) -O3 -Wall $(SWITCHES) -DDEFAULTPATH='"$(FORTHPATH)"'
 
 #John Wavrik should use -Xlinker -N to get a writable text (executable)
 XLDFLAGS = @LDFLAGS@
@@ -356,7 +356,7 @@ SOURCES	= $(CVSDIRS) compat Makefile.in Makedist.in engine/Makefile.in \
 	versions.bsh \
 	configure.cmd mkos2mf.sed os2conf.h makefile.os2 engine/makefile.os2 \
 	gforthmi.cmd glosgen.glo doc/glossaries.doc \
-	$(INCLUDES) $(FORTH_SRC) $(COMPAT) $(VMGEN_EX) \
+	$(INCLUDES) $(FORTH_SRC) $(COMPAT) $(VMGEN_EX) $(VMGEN_EX2) \
 	timings.sc \
 	test/coretest.out test/checkans.out
 
@@ -531,7 +531,7 @@ install:	gforth$(EXE) $(FORTH_SRC) $(kernel_fi) gforth.fi gforthmi vmgen doc/gfo
 			echo ">>>>>Please install $(srcdir)/gforth.el in your .../emacs/site-lisp directory"; \
 		fi
 		-$(RM) gforth.fi
-		GFORTHD="./gforth-ditc -p$(libdir)/gforth/site-forth$(PATHSEP)$(siteforthdir)$(PATHSEP)$(datadir)/gforth/$(VERSION) -i $(kernel_fi)" GFORTH="./gforth-ditc --die-on-signal -i $(kernel_fi) $(STARTUP)" ./gforthmi gforth.fi $(FORTHSIZES) $(STARTUP)
+		GFORTHD="./gforth-ditc -p $(libdir)/gforth/site-forth$(PATHSEP)$(siteforthdir)$(PATHSEP)$(datadir)/gforth/$(VERSION) -i $(kernel_fi)" GFORTH="./gforth-ditc --die-on-signal -i $(kernel_fi) $(STARTUP)" ./gforthmi gforth.fi $(FORTHSIZES) $(STARTUP)
 		$(INSTALL_DATA) gforth.fi $(libdir)/gforth/$(VERSION)
 		$(INSTALL_DATA) install.TAGS $(datadir)/gforth/$(VERSION)/TAGS
 		$(RM) gforth.fi install.TAGS

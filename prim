@@ -1561,7 +1561,7 @@ c_addr = strerror(n);
 u = strlen(c_addr);
 
 strsignal	( n -- c_addr u )	gforth
-c_addr = strsignal(n);
+c_addr = (Address)strsignal(n);
 u = strlen(c_addr);
 
 call-c	( w -- )	gforth	call_c

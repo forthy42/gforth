@@ -412,7 +412,7 @@ Address my_alloc(Cell size)
   Address r;
 
   r=alloc_mmap(size);
-  if (r!=MAP_FAILED)
+  if (r!=(Address)MAP_FAILED)
     return r;
 #endif /* HAVE_MMAP */
   /* use malloc as fallback */
@@ -432,7 +432,7 @@ Address dict_alloc_read(FILE *file, Cell imagesize, Cell dictsize, Cell offset)
     after_alloc(image,dictsize);
   }
 #endif /* defined(HAVE_MMAP) */
-  if (image == MAP_FAILED) {
+  if (image == (Address)MAP_FAILED) {
     image = my_alloc(dictsize+offset)+offset;
     rewind(file);  /* fseek(imagefile,0L,SEEK_SET); */
     fread(image, 1, imagesize, file);

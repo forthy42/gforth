@@ -75,8 +75,8 @@ SWITCHES = $(XCFLAGS) $(XDEFINES)
 #use -fno-inline to avoid register problems with asinh, atanh on gcc-3.3 on 386
 ENGINE_FLAGS = @ENGINE_FLAGS@ -fno-defer-pop -fcaller-saves -fno-inline
 DEBUGFLAG = @DEBUGFLAG@
-CFLAGS	= $(DEBUGFLAG) -I$(srcdir)/../arch/$(machine) -I. -Wall $(SWITCHES) -DDEFAULTPATH=\"$(FORTHPATH)\"
-CFLAGS2	= $(DEBUGFLAG) -I$(srcdir)/../arch/$(machine) -I. -Wall $(SWITCHES) -DDEFAULTPATH=\"$(FORTHPATH)\"
+CFLAGS	= $(DEBUGFLAG) -I$(srcdir)/../arch/$(machine) -I. -Wall $(SWITCHES) -DDEFAULTPATH='"$(FORTHPATH)"'
+CFLAGS2	= $(DEBUGFLAG) -I$(srcdir)/../arch/$(machine) -I. -Wall $(SWITCHES) -DDEFAULTPATH='"$(FORTHPATH)"'
 FORTHKFLAGS= --die-on-signal -p "..$(PATHSEP)$(srcdir)" -i ../$(kernel_fi)
 FORTHK	= ../gforth $(FORTHKFLAGS)
 
