@@ -132,18 +132,18 @@ if ((*rp)--) {
 )
 
 condbranch((loop),--		fig	paren_loop,
-int index = *rp+1;
-int limit = rp[1];
+Cell index = *rp+1;
+Cell limit = rp[1];
 if (index != limit) {
     *rp = index;
 )
 
 condbranch((+loop),n --		fig	paren_plus_loop,
 /* !! check this thoroughly */
-int index = *rp;
+Cell index = *rp;
 /* sign bit manipulation and test: (x^y)<0 is equivalent to (x<0) != (y<0) */
 /* dependent upon two's complement arithmetic */
-int olddiff = index-rp[1];
+Cell olddiff = index-rp[1];
 #ifdef undefined
 if ((olddiff^(olddiff+n))>=0   /* the limit is not crossed */
     || (olddiff^n)>=0          /* it is a wrap-around effect */) {
@@ -166,9 +166,9 @@ condbranch((s+loop),n --		new	paren_symmetric_plus_loop,
 crosses the boundary between limit and limit-sign(n). I.e. a symmetric
 version of (+LOOP).""
 /* !! check this thoroughly */
-int index = *rp;
-int diff = index-rp[1];
-int newdiff = diff+n;
+Cell index = *rp;
+Cell diff = index-rp[1];
+Cell newdiff = diff+n;
 if (n<0) {
     diff = -diff;
     newdiff = -newdiff;
@@ -911,10 +911,15 @@ w2 = (Cell)fopen(cstr(c_addr, u, 1), fileattr[ntype]);
 wior =  FILEEXIST(w2 == NULL);
 
 create-file	c_addr u ntype -- w2 wior	file	create_file
-int	fd;
+Cell	fd;
 fd = creat(cstr(c_addr, u, 1), 0644);
 if (fd > -1) {
+#ifdef __osf__
+  (void)close(fd);
+  w2 = (Cell)fopen(cstr(c_addr, u, 1), fileattr[ntype]);
+#else
   w2 = (Cell)fdopen(fd, fileattr[ntype]);
+#endif
   assert(w2 != NULL);
   wior = 0;
 } else {
@@ -982,7 +987,7 @@ else {
 write-file	c_addr u1 wfileid -- wior	file	write_file
 /* !! fwrite does not guarantee enough */
 {
-  int u2 = fwrite(c_addr, sizeof(Char), u1, (FILE *)wfileid);
+  Cell u2 = fwrite(c_addr, sizeof(Char), u1, (FILE *)wfileid);
   wior = FILEIO(u2<u1 && ferror((FILE *)wfileid));
 }
 
@@ -1097,8 +1102,8 @@ else
 
 represent		r c_addr u -- n f1 f2	float
 char *sig;
-int flag;
-int decpt;
+Cell flag;
+Cell decpt;
 sig=ecvt(r, u, &decpt, &flag);
 n=decpt;
 f1=FLAG(flag!=0);

@@ -29,7 +29,7 @@ Variable HashIndex
 
 
 : hash-find ( addr len wordlist -- nfa / false )
-    $C + @ >r
+    [ 3 cells ] Literal + @ >r
     2dup hash r> xor cells HashTable @ + @ (hashfind) ;
 
 \ hash vocabularies                                    16jul94py
@@ -37,9 +37,9 @@ Variable HashIndex
 : lastlink! ( addr link -- )
   BEGIN  dup @ dup  WHILE  nip  REPEAT  drop ! ;
 
-: (reveal ( addr voc -- )  $C + dup @ 0< IF  2drop EXIT  THEN
+: (reveal ( addr voc -- )  [ 3 cells ] Literal + dup @ 0< IF  2drop EXIT  THEN
   @ over cell+ count $1F and Hash xor cells >r
-  HashPointer 8 $400 NewFix
+  HashPointer 2 Cells $400 NewFix
   tuck cell+ ! r> HashTable @ + insRule @
   IF  dup @ 2 pick ! !  ELSE  lastlink!  THEN  revealed on ;
 
