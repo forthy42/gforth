@@ -21,6 +21,7 @@
 */
 
 #include "config.h"
+#include "forth.h"
 #include <errno.h>
 #include <ctype.h>
 #include <stdio.h>
@@ -39,7 +40,6 @@
 #include <sys/mman.h>
 #endif
 #endif
-#include "forth.h"
 #include "io.h"
 #include "getopt.h"
 #ifdef STANDALONE

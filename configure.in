@@ -365,7 +365,8 @@ then
 	AC_FUNC_MEMCMP
 fi
 AC_REPLACE_FUNCS(memmove strtoul pow10 strerror strsignal atanh)
-AC_CHECK_FUNCS(dlopen sys_siglist getrusage)
+AC_CHECK_FUNCS(dlopen sys_siglist getrusage fseeko ftello)
+AC_TYPE_OFF_T
 AC_DECL_SYS_SIGLIST
 AC_CHECK_FUNC(getopt_long,true,AC_LIBOBJ(getopt); AC_LIBOBJ(getopt1))
 AC_CHECK_FUNCS(expm1 log1p)

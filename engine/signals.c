@@ -21,8 +21,8 @@
 */
 
 
-#define _GNU_SOURCE
-
+#include "config.h"
+#include "forth.h"
 #include <stdio.h>
 #include <setjmp.h>
 #include <string.h>
@@ -32,8 +32,6 @@
 #endif
 /* #include <asm/signal.h> */
 #include <signal.h>
-#include "config.h"
-#include "forth.h"
 #include "io.h"
 
 

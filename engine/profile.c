@@ -20,10 +20,10 @@
 */
 
 #include "config.h"
+#include "forth.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
-#include "forth.h"
 
 
 /* data structure: simple hash table with external chaining */

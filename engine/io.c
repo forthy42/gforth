@@ -26,6 +26,7 @@
 */
 
 #include "config.h"
+#include "forth.h"
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -51,7 +52,6 @@ typedef unsigned int uint32_t;
 #include <sys/filio.h>
 #endif
 #include <setjmp.h>
-#include "forth.h"
 #include "io.h"
 
 #ifndef MSDOS

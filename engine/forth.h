@@ -19,7 +19,15 @@
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
 */
 
+/* turn on all POSIX, SUSv3, and GNU features if available */
 #define _GNU_SOURCE
+#define _POSIX_SOURCE
+#define _POSIX_C_SOURCE 199506L
+#define _XOPEN_SOURCE 600
+
+/* turn on large file support with 64-bit off_t where available */
+#define _LARGEFILE_SOURCE
+#define _FILE_OFFSET_BITS 64
 
 #include "config.h"
 #include <stdio.h>
@@ -86,8 +94,8 @@ typedef struct {
   UCell lo;
 } UDCell;
 
-#define LONG2UD(l)	({UDCell _ud; _ud.hi=0; _ud.lo=(Cell)(l); _ud;})
-#define UD2LONG(ud)	((long)(ud.lo))
+#define OFF2UD(o) ({UDCell _ud; _ud.hi=(o)>>CELL_BITS; _ud.lo=(Cell)(o); _ud;})
+#define UD2OFF(ud) ({UDCell _ud=(ud); (((off_t)_ud.hi)<<CELL_BITS)+_ud.lo;})
 #define DZERO		((DCell){0,0})
 
 #else /* ! defined(BUGGY_LONG_LONG) */
@@ -96,8 +104,8 @@ typedef struct {
 typedef DOUBLE_CELL_TYPE DCell;
 typedef unsigned DOUBLE_CELL_TYPE UDCell;
 
-#define LONG2UD(l)	((UDCell)(l))
-#define UD2LONG(ud)	((long)(ud))
+#define OFF2UD(o)	((UDCell)(o))
+#define UD2OFF(ud)	((off_t)(ud))
 #define DZERO		((DCell)0)
 
 #endif /* ! defined(BUGGY_LONG_LONG) */

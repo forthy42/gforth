@@ -23,8 +23,8 @@
    that delivers the right < and > results in any locale, you would
    have to work with strcoll and some hackery */
 
-#include <ctype.h>
 #include "forth.h"
+#include <ctype.h>
 
 Cell memcasecmp(const Char *s1, const Char *s2, Cell n)
 {

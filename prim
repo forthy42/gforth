@@ -1605,19 +1605,19 @@ wior = IOR(rename(tilde_cstr(c_addr1, u1, 0), s1)==-1);
 
 file-position	( wfileid -- ud wior )	file	file_position
 /* !! use tell and lseek? */
-ud = LONG2UD(ftell((FILE *)wfileid));
-wior = IOR(UD2LONG(ud)==-1);
+ud = OFF2UD(ftello((FILE *)wfileid));
+wior = IOR(UD2OFF(ud)==-1);
 
 reposition-file	( ud wfileid -- wior )	file	reposition_file
-wior = IOR(fseek((FILE *)wfileid, UD2LONG(ud), SEEK_SET)==-1);
+wior = IOR(fseeko((FILE *)wfileid, UD2OFF(ud), SEEK_SET)==-1);
 
 file-size	( wfileid -- ud wior )	file	file_size
 struct stat buf;
 wior = IOR(fstat(fileno((FILE *)wfileid), &buf)==-1);
-ud = LONG2UD(buf.st_size);
+ud = OFF2UD(buf.st_size);
 
 resize-file	( ud wfileid -- wior )	file	resize_file
-wior = IOR(ftruncate(fileno((FILE *)wfileid), UD2LONG(ud))==-1);
+wior = IOR(ftruncate(fileno((FILE *)wfileid), UD2OFF(ud))==-1);
 
 read-file	( c_addr u1 wfileid -- u2 wior )	file	read_file
 /* !! fread does not guarantee enough */

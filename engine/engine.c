@@ -64,6 +64,14 @@
 #define SEEK_SET 0
 #endif
 
+#ifndef HAVE_FSEEKO
+#define fseeko fseek
+#endif
+
+#ifndef HAVE_FTELLO
+#define ftello ftell
+#endif
+
 #define IOR(flag)	((flag)? -512-errno : 0)
 
 struct F83Name {
