@@ -177,14 +177,26 @@ UCell checksum(Label symbols[])
   return r;
 }
 
+Address verbose_malloc(Cell size)
+{
+  Address r;
+  /* leave a little room (64B) for stack underflows */
+  if ((r = malloc(size+64))==NULL) {
+    perror(progname);
+    exit(1);
+  }
+  r = (Address)((((Cell)r)+(sizeof(Float)-1))&(-sizeof(Float)));
+  if (debug)
+    fprintf(stderr, "malloc succeeds, address=$%lx\n", (long)r);
+  return r;
+}
+
 Address my_alloc(Cell size)
 {
   static Address next_address=0;
   Address r;
 
-/* the 256MB jump restriction on the MIPS architecture makes the
-   combination of direct threading and mmap unsafe. */
-#if HAVE_MMAP && (!defined(mips) || defined(INDIRECT_THREADED))
+#if HAVE_MMAP
 #if defined(MAP_ANON)
   if (debug)
     fprintf(stderr,"try mmap($%lx, $%lx, ..., MAP_ANON, ...); ", (long)next_address, (long)size);
@@ -224,16 +236,17 @@ Address my_alloc(Cell size)
   if (debug)
     fprintf(stderr, "failed: %s\n", strerror(errno));
 #endif /* HAVE_MMAP */
-  /* use malloc as fallback, leave a little room (64B) for stack underflows */
-  if ((r = malloc(size+64))==NULL) {
-    perror(progname);
-    exit(1);
-  }
-  r = (Address)((((Cell)r)+(sizeof(Float)-1))&(-sizeof(Float)));
-  if (debug)
-    fprintf(stderr, "malloc succeeds, address=$%lx\n", (long)r);
-  return r;
+  /* use malloc as fallback */
+  return verbose_malloc(size);
 }
+
+#if (defined(mips) && !defined(INDIRECT_THREADED))
+/* the 256MB jump restriction on the MIPS architecture makes the
+   combination of direct threading and mmap unsafe. */
+#define dict_alloc(size) verbose_malloc(size)
+#else
+#define dict_alloc(size) my_alloc(size)
+#endif
 
 Address loader(FILE *imagefile, char* filename)
 /* returns the address of the image proper (after the preamble) */
@@ -315,7 +328,7 @@ Address loader(FILE *imagefile, char* filename)
   if (debug)
     fprintf(stderr,"pagesize=%d\n",pagesize);
 
-  image = my_alloc(preamblesize+dictsize+data_offset)+data_offset;
+  image = dict_alloc(preamblesize+dictsize+data_offset)+data_offset;
   rewind(imagefile);  /* fseek(imagefile,0L,SEEK_SET); */
   if (clear_dictionary)
     memset(image,0,dictsize);
