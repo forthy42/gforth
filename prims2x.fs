@@ -953,7 +953,7 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
     ( primitive-number @ . ." alias " ) ." Primitive " prim prim-name 2@ type cr ;
 
 : output-c-prim-num ( -- )
-    ." #define N_" prim prim-c-name 2@ type prim prim-num @ 8 + 4 .r cr ;
+    ." N_" prim prim-c-name 2@ type ." ," cr ;
 
 : output-forth ( -- )  
     prim prim-forth-code @ 0=
@@ -1309,12 +1309,29 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
     loop ;
 
 : output-num-part ( p -- )
-    prim-num @ 4 .r ." ," ;
+    ." N_" prim-c-name 2@ type ." ," ;
+    \ prim-num @ 4 .r ." ," ;
 
 : output-name-comment ( -- )
     ."  /* " prim prim-name 2@ type ."  */" ;
 
 variable offset-super2  0 offset-super2 ! \ offset into the super2 table
+
+: output-costs-gforth-simple ( -- )
+     ." {" prim compute-costs
+    rot 2 .r ." ," swap 2 .r ." ," 2 .r ." , "
+    prim output-num-part
+    1 2 .r ." },"
+    output-name-comment
+    cr ;
+
+: output-costs-gforth-combined ( -- )
+    ." {" prim compute-costs
+    rot 2 .r ." ," swap 2 .r ." ," 2 .r ." , "
+    ." N_START_SUPER+" offset-super2 @ 5 .r ." ,"
+    super2-length dup 2 .r ." }," offset-super2 +!
+    output-name-comment
+    cr ;
 
 : output-costs ( -- )
     \ description of superinstructions and simple instructions

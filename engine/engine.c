@@ -281,6 +281,7 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
 #define INST_ADDR(name) ((Label)&&J_##name)
 #include "prim_lab.i"
 #undef INST_ADDR
+    (Label)&&after_last
   };
 #ifdef CPU_DEP2
   CPU_DEP2

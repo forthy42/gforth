@@ -47,6 +47,12 @@
 #include <systypes.h>
 #endif
 
+enum {
+/* definitions of N_execute etc. */
+#include "prim_num.i"
+  N_START_SUPER
+};
+
 /* global variables for engine.c 
    We put them here because engine.c is compiled several times in
    different ways for the same engine. */
@@ -696,8 +702,8 @@ void check_prims(Label symbols1[])
 {
   int i;
 #ifndef NO_DYNAMIC
-  Label *symbols2, *symbols3, *ends1, *ends1k, *ends1ksorted;
-  int nends1k;
+  Label *symbols2, *symbols3, *ends1, *ends1j, *ends1jsorted;
+  int nends1j;
 #endif
 
   if (debug)
@@ -722,11 +728,11 @@ void check_prims(Label symbols1[])
   symbols3=symbols1;
 #endif
   ends1 = symbols1+i+1-DOESJUMP;
-  ends1k =   ends1+i+1-DOESJUMP;
-  nends1k = i+1-DOESJUMP;
-  ends1ksorted = (Label *)alloca(nends1k*sizeof(Label));
-  memcpy(ends1ksorted,ends1k,nends1k*sizeof(Label));
-  qsort(ends1ksorted, nends1k, sizeof(Label), compare_labels);
+  ends1j =   ends1+i;
+  nends1j = i-DOESJUMP;
+  ends1jsorted = (Label *)alloca(nends1j*sizeof(Label));
+  memcpy(ends1jsorted,ends1j,nends1j*sizeof(Label));
+  qsort(ends1jsorted, nends1j, sizeof(Label), compare_labels);
   
   priminfos = calloc(i,sizeof(PrimInfo));
   for (i=DOESJUMP+1; symbols1[i+1]!=0; i++) {
@@ -736,7 +742,7 @@ void check_prims(Label symbols1[])
     char *s1 = (char *)symbols1[i];
     char *s2 = (char *)symbols2[i];
     char *s3 = (char *)symbols3[i];
-    Label endlabel = bsearch_next(symbols1[i]+1,ends1ksorted,nends1k);
+    Label endlabel = bsearch_next(symbols1[i]+1,ends1jsorted,nends1j);
 
     pi->start = s1;
     pi->superend = superend[i-DOESJUMP-1]|no_super;
@@ -752,19 +758,19 @@ void check_prims(Label symbols1[])
     if (endlabel == NULL) {
       pi->start = NULL; /* not relocatable */
       if (debug)
-	fprintf(stderr,"\n   non_reloc: no K label > start found\n");
+	fprintf(stderr,"\n   non_reloc: no J label > start found\n");
       continue;
     }
     if (ends1[i] > endlabel && !pi->superend) {
       pi->start = NULL; /* not relocatable */
       if (debug)
-	fprintf(stderr,"\n   non_reloc: there is a K label before the J label (restlength<0)\n");
+	fprintf(stderr,"\n   non_reloc: there is a J label before the J label (restlength<0)\n");
       continue;
     }
     if (ends1[i] < pi->start && !pi->superend) {
       pi->start = NULL; /* not relocatable */
       if (debug)
-	fprintf(stderr,"\n   non_reloc: J label before I label (length<0)\n");
+	fprintf(stderr,"\n   non_reloc: K label before I label (length<0)\n");
       continue;
     }
     assert(prim_len>=0);
@@ -952,9 +958,6 @@ struct doesexecinfo {
   int branchinfo; /* fix the targetptr of branchinfos[...->branchinfo] */
   Cell *xt; /* cfa of word whose does-code needs calling */
 } doesexecinfos[10000];
-
-/* definitions of N_execute etc. */
-#include "prim_num.i"
 
 void set_rel_target(Cell *source, Label target)
 {
