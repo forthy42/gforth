@@ -1957,7 +1957,6 @@ previous
 Create magic  s" Gforth10" here over allot swap move
 
 char 1 bigendian + tcell + magic 7 + c!
-char 0 tchar + magic 6 + c!
 
 : save-cross ( "image-name" "binary-name" -- )
   bl parse ." Saving to " 2dup type cr

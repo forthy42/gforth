@@ -115,8 +115,6 @@ CVSDIRS = CVS engine/CVS kernel/CVS doc/CVS asm/CVS ec/CVS test/CVS \
 	arch/8086/CVS arch/avr/CVS arch/c165/CVS arch/h8/CVS \
 	arch/shboom/CVS \
 
-INCLUDES = engine/forth.h engine/threaded.h engine/io.h
-
 KERN_SRC = \
 	kernel/aliases0.fs \
 	kernel/aliases.fs \
@@ -230,76 +228,6 @@ GFORTH_TEXI =  doc/gforth.texi doc/version.texi
 
 ALLSUBDIRS = engine
 
-ARCHS =	\
-	arch/generic/machine.h \
-	arch/m68k/machine.h \
-	arch/mips/machine.h \
-	arch/386/machine.h \
-	arch/hppa/machine.h \
-	arch/hppa/cache.c \
-	arch/sparc/machine.h \
-	arch/power/machine.h \
-	arch/power/_sync_cache_range.c \
-	arch/alpha/machine.h \
-	arch/4stack/README \
-	arch/4stack/asm.fs \
-	arch/4stack/mach.fs \
-	arch/4stack/prim.fs \
-	arch/4stack/mach.sh \
-	arch/4stack/relocate.fs \
-	arch/misc/README \
-	arch/misc/asm.fs \
-	arch/misc/mach.fs \
-	arch/misc/prim.fs \
-	arch/misc/sim.fs \
-	arch/misc/sokoban.fs \
-	arch/misc/tt.fs \
-	arch/6502/asm.fs \
-	arch/6502/prim.fs \
-	arch/6502/mach.fs \
-	arch/6502/zero.fs \
-	arch/6502/softuart.fs \
-	arch/6502/cold.fs \
-	arch/8086/asm.fs \
-	arch/8086/mach.fs \
-	arch/8086/mach.sh \
-	arch/8086/prim.fs \
-	arch/avr/asm.fs \
-	arch/c165/asm.fs \
-	arch/c165/mach.fs \
-	arch/c165/prim.fs \
-	arch/h8/asm.fs \
-	arch/shboom/asm.fs \
-	arch/shboom/compiler.fs \
-	arch/shboom/dis.fs \
-	arch/shboom/mach.fs \
-	arch/shboom/prim.fs \
-	arch/shboom/dis2.fs \
-	arch/shboom/sh.p \
-	arch/shboom/doers.fs
-
-SOURCES	= $(CVSDIRS) compat Makefile.in engine/Makefile.in gforthmi.in \
-	configure.in configure config.sub config.guess elisp-comp missing \
-	acconfig.h acinclude.m4 engine/config.h.in stamp-h.in \
-	install-sh INSTALL INSTALL.BINDIST NEWS README ToDo BUGS model \
-	COPYING AUTHORS ChangeLog Benchres aclocal.m4 \
-	doc/gforth.ds doc/texinfo.tex doc/gforth.1 doc/version.texi.in \
-	gforth.el \
-	prim engine/engine.c engine/main.c engine/io.c engine/memcmpc.c \
-	$(ARCHS) \
-	engine/getopt.c engine/getopt1.c engine/getopt.h engine/select.c \
-	engine/ecvt.c engine/memcmp.c engine/strtol.c engine/strtoul.c \
-	engine/ansidecl.h engine/memmove.c \
-	engine/pow10.c engine/atanh.c engine/cleanalign.c \
-	engine/strerror.c engine/strsignal.c engine/dblsub.c \
-	INSTALL.DOS makefile.dos engine/makefile.dos mkdosmf.sed config.bat \
-	dosconf.h gforthmi.bat mkinstalldirs \
-	versions.bsh \
-	configure.cmd mkos2mf.sed os2conf.h makefile.os2 engine/makefile.os2 \
-	gforthmi.cmd glosgen.glo doc/glossaries.doc \
-	$(INCLUDES) $(FORTH_SRC) $(COMPAT) \
-	timings.sc
-
 RCS_FILES =  ToDo model high-level
 
 GEN = gforth$(EXE) gforth-ditc$(EXE) kernel/version.fs version-stamp
@@ -324,7 +252,7 @@ KERNLS = kernl16b.fi- kernl16l.fi- \
 	 kernl32b.fi- kernl32l.fi- \
 	 kernl64b.fi- kernl64l.fi-
 
-GEN_PRECIOUS = $(FORTH_GEN) $(KERNLS) doc/gforth.texi doc/gforth.dvi doc/gforth.ps Makefile engine/Makefile configure
+GEN_PRECIOUS = $(FORTH_GEN) $(KERNLS) doc/gforth.texi doc/gforth.dvi doc/gforth.ps Makefile Makedist engine/Makefile configure
 
 #standards.info recommends this:
 .SUFFIXES:
@@ -378,7 +306,7 @@ clean:		mostlyclean
 
 distclean:	clean
 		-$(RM) config.cache config.log config.status \
-		engine/config.h Makefile engine/Makefile \
+		engine/config.h Makefile Makedist engine/Makefile \
 		stamp-h engine/stamp-h \
 		doc/version.texi gforthmi
 
@@ -391,82 +319,29 @@ virtualclean:	mostlyclean
 		-$(RM) -rf gforth.fns gforth.texi gforth.ps gforth.info* \
 		gforth-$(VERSION).tar.gz config.cache *~ */*~
 
-#use dist targets only when srcdir=.
-dist:		$(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST)
-		-$(RMTREE) gforth-$(VERSION)
-		mkdir gforth-$(VERSION)
-		$(TAR) $(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST) | \
-			(cd gforth-$(VERSION); tar xf -)
-		$(TAR) gforth-$(VERSION)|gzip -9 >gforth-$(VERSION).tar.gz
-		-$(RMTREE) gforth-$(VERSION)
+dist:		
+		$(MAKE) -f Makedist $@
 
-#use dist targets only when srcdir=.
-dosdist:	$(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST)
-		-$(RMTREE) gforth.$(DOSVERSION)
-		mkdir gforth.$(DOSVERSION)
-		$(TAR) $(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST) | \
-			(cd gforth.$(DOSVERSION); tar xf -)
-		$(MV) gforth.$(DOSVERSION)/engine/strsignal.c gforth.$(DOSVERSION)/engine/strsig.c
-		for i in 1 2 3 4 5 6 7 8; do \
-			$(MV) gforth.$(DOSVERSION)/doc/gforth.info-$$i gforth.$(DOSVERSION)/doc/gforth.i$$i; \
-		done
-		zip -r9 gf$(DOSVERSION)dos.zip gforth.$(DOSVERSION)/*
-		-$(RMTREE) gforth.$(DOSVERSION)
+dosdist:	
+		$(MAKE) -f Makedist $@
 
-#A source distribution contains only the things needed to install gforth,
-#without the documents.
-srcdist:	$(SOURCES) $(FORTH_GEN0) @KERNEL@
-		-$(RMTREE) gforth-$(VERSION)
-		mkdir gforth-$(VERSION)
-		$(TAR) $(SOURCES) $(FORTH_GEN0) @KERNEL@ | \
-			(cd gforth-$(VERSION); tar xf -)
-		$(TAR) gforth-$(VERSION)|gzip -9 >gforth-src-$(VERSION).tar.gz
-		-$(RMTREE) gforth-$(VERSION)
+srcdist:	
+		$(MAKE) -f Makedist $@
 
-srconlydist:	$(SOURCES)
-		-$(RMTREE) gforth-$(VERSION)
-		mkdir gforth-$(VERSION)
-		$(TAR) $(SOURCES) | \
-			(cd gforth-$(VERSION); tar xf -)
-		$(TAR) gforth-$(VERSION)|gzip -9 >gforth-srconly-$(VERSION).tar.gz
-		-$(RMTREE) gforth-$(VERSION)
+srconlydist:	
+		$(MAKE) -f Makedist $@
 
-#A document distribution contains only the documents, which can be created
-#with MAKE.
-docdist:	$(DOCDIST)
-		-$(RMTREE) gforth-$(VERSION)
-		mkdir gforth-$(VERSION)
-		$(TAR) $(DOCDIST) | (cd gforth-$(VERSION); tar xf -)
-		$(TAR) gforth-$(VERSION)|gzip -9 >gforth-doc-$(VERSION).tar.gz
-		-$(RMTREE) gforth-$(VERSION)
+docdist:	
+		$(MAKE) -f Makedist $@
 
-htmldist:	html
-		$(TAR) html|gzip -9 >gforth-html-$(VERSION).tar.gz
+htmldist:	
+		$(MAKE) -f Makedist $@
 
-#a binary distribution contains the complete source distribution,
-# the objects, the executable and the links. the objects are there for making
-# make happy.
-bindist:	$(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST) $(BINONLYDIST)
-		-$(RMTREE) gforth-$(VERSION)
-		mkdir gforth-$(VERSION)
-		$(TAR) $(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST) $(BINONLYDIST) | (cd gforth-$(VERSION); tar xf -)
-		strip gforth-$(VERSION)/gforth
-		$(TAR) gforth-$(VERSION)|gzip -9 >gforth-$(VERSION)-@host@.tar.gz
+bindist:	
+		$(MAKE) -f Makedist $@
 
-#makes a package with only the stuff not present in the source
-#package. For installation the source package is still needed!
-#This is useful if you want to distribute many binary versions in
-#little space (e.g., on floppy disk): Put the source package and
-#all the binonly packages you are interested in on the disk. The user
-#then just has to unpack the source and his favourite binonly into the
-#same directory and has a full binary distribution.
-binonlydist:	$(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST) $(BINONLYDIST)
-		-$(RMTREE) gforth-$(VERSION)
-		mkdir gforth-$(VERSION)
-		$(TAR) $(BINONLYDIST) | (cd gforth-$(VERSION); tar xf -)
-		strip gforth-$(VERSION)/gforth
-		$(TAR) gforth-$(VERSION)|gzip -9 >gforth-$(VERSION)-binonly-@host@.tar.gz
-
+binonlydist:
+		$(MAKE) -f Makedist $@
 
 #strip gforth, because the debugging stuff is hardly useful once
 # gforth manages to execute more than a few primitives
@@ -726,7 +601,7 @@ stamp-h:	engine/config.h.in config.status
 		echo timestamp > stamp-h
 
 Makefile:	Makefile.in engine/Makefile.in config.status
-		CONFIG_FILES="$@ engine/$@" CONFIG_HEADERS=engine/config.h ./config.status
+		CONFIG_FILES="$@ Makedist engine/$@" CONFIG_HEADERS=engine/config.h ./config.status
 
 gforthmi:	gforthmi.in config.status
 		CONFIG_FILES="$@" CONFIG_HEADERS=engine/config.h ./config.status
