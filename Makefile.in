@@ -401,7 +401,7 @@ kernl16l.fi:	$(KERNLS)
 		-$(CP) $@ $@~
 		-$(CP) $@- $@
 
-kernl32b:	$(KERNLS)
+kernl32b.fi:	$(KERNLS)
 		-$(CP) $@ $@~
 		-$(CP) $@- $@
 

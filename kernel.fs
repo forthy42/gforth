@@ -1265,7 +1265,10 @@ DEFER DOERROR
 ;
 
 : (DoError) ( throw-code -- )
-  [ has-os [IF] ] outfile-id >r  stderr to outfile-id [ [THEN] ] 
+  [ has-os [IF] ]
+      outfile-id dup flush-file drop >r
+      stderr to outfile-id
+  [ [THEN] ] 
   sourceline# IF
                source >in @ sourceline# 0 0 .error-frame
   THEN
