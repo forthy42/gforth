@@ -75,8 +75,7 @@ CFLAGS	= $(DEBUGFLAG) -I$(srcdir)/../arch/$(machine) -O4 -Wall $(SWITCHES) -DDEF
 
 #John Wavrik should use -Xlinker -N to get a writable text (executable)
 XLDFLAGS = @LDFLAGS@
-GCCLDFLAGS = @GCCLDFLAGS@
-LDFLAGS =  $(DEBUGFLAG) $(XLDFLAGS) $(GCCLDFLAGS)
+LDFLAGS =  $(DEBUGFLAG) $(XLDFLAGS)
 LDLIBS  = @LIBS@
 
 AOBJECTS = io.o memcmpc.o @LIBOBJS@

@@ -84,8 +84,7 @@ CFLAGS	= $(DEBUGFLAG) -I$(srcdir)/engine -I$(srcdir)/arch/$(machine) -O4 -Wall $
 
 #John Wavrik should use -Xlinker -N to get a writable text (executable)
 XLDFLAGS = @LDFLAGS@
-GCCLDFLAGS = @GCCLDFLAGS@
-LDFLAGS	=  $(DEBUGFLAG) $(XLDFLAGS) $(GCCLDFLAGS)
+LDFLAGS	=  $(DEBUGFLAG) $(XLDFLAGS)
 LDLIBS	= @LIBS@
 
 # ------------	Install Directorys
@@ -353,7 +352,8 @@ mostlyclean:	FORCE
 		gforth-$(VERSION).tar.gz
 
 clean:		mostlyclean
-		-$(RM) -rf $(GEN) *.o engine/*.o arch/*/*.o
+		-$(RM) -rf $(GEN) engine/gforth engine/gforth-ditc \
+		*.o engine/*.o arch/*/*.o
 
 distclean:	clean
 		-$(RM) config.cache config.log \
@@ -587,7 +587,7 @@ kernel/prim.fs:	prim.b prims2x.fs kernel/prim0.fs
 
 gforth:		FORCE
 		-$(CP) gforth gforth~
-		cd engine; make gforth; cd ..
+		cd engine && make gforth && cd ..
 		$(CP) engine/$@ $@
 		@GFORTH_EXE@
 

@@ -69,7 +69,6 @@ EOF
 fi
 
 AC_SUBST(CC)
-AC_SUBST(GCCLDFLAGS)
 AC_SUBST(DEBUGFLAG)
 
 dnl the following macro produces a warning with autoconf-2.1
@@ -197,7 +196,12 @@ case "$host_cpu" in
 	mips*)
 		machine=mips
 		#link text and data segment into the same 256M region!
-		GCCLDFLAGS="-Xlinker -T -Xlinker 10000000 -Xlinker -D -Xlinker 10400000"
+		AC_MSG_CHECKING([whether the linker accepts -D])
+		OLDLDFLAGS=$LDFLAGS
+		LDFLAGS="$LDFLAGS -Xlinker -T -Xlinker 10000000 -Xlinker -D -Xlinker 10400000"
+		AC_TRY_LINK(,,ac_link_mips_d=yes,ac_link_mips_d=no)
+		test $ac_link_mips_d = yes||LDFLAGS="$OLDLDFLAGS -Xlinker -T -Xlinker 10000000"
+		AC_MSG_RESULT($ac_link_mips_d)
 		;;
 	alpha*)
 		machine=alpha

@@ -45,7 +45,7 @@
 #define FLUSH_ICACHE(addr,size) \
 			cacheflush((char *)(addr), (int)(size), BCACHE)
 
-#include "../../machine/32bit.h"
+#include "../generic/machine.h"
 
 #ifdef DIRECT_THREADED
 /* some definitions for composing opcodes */
