@@ -210,7 +210,7 @@ AUser CSP
     endif
     1 max ur min ;
 
-: f>buf-rdp ( rf c-addr +nr nd np -- ) \ gforth
+: f>buf-rdp ( rf c-addr +nr +nd +np -- ) \ gforth
 \G Convert @i{rf} into a string at @i{c-addr nr}.  The conversion
 \G rules and the meanings of @i{nr nd np} are the same as for
 \G @code{f.rdp}.
@@ -240,16 +240,17 @@ AUser CSP
 \G the minimum number of significant digits for fixed-point notation
 \G is @i{np}.  @code{Set-precision} has no effect on @code{f.rdp}.
 \G Fixed-point notation is used if the number of siginicant digits
-\G would be larger than @i{np} and if the number of digits before the
+\G would be at least @i{np} and if the number of digits before the
 \G decimal point would fit.  If fixed-point notation is not used,
 \G exponential notation is used, and if that does not fit, asterisks
 \G are printed.  We recommend using @i{nr}>=7 to avoid the risk of
 \G numbers not fitting at all.  We recommend @i{nr}>=@i{np}+5 to avoid
 \G cases where @code{f.rdp} switches to exponential notation because
 \G fixed-point notation would have too few significant digits, yet
-\G exponential notation offers fewer significant digits.  We recomment
+\G exponential notation offers fewer significant digits.  We recommend
 \G @i{nr}>=@i{nd}+2, if you want to have fixed-point notation for some
-\G numbers.
+\G numbers.  We recommend @i{np}>@i{nr}, if you want to have
+\G exponential notation for all numbers.
     f>str-rdp type ;
 
 0 [if]

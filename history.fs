@@ -146,6 +146,16 @@ Create lfpad #lf c,
 
 Create prefix-found  0 , 0 ,
 
+: sgn ( n -- -1/0/1 )
+ dup 0= IF EXIT THEN  0< 2* 1+ ;
+
+: capscomp  ( c_addr1 u c_addr2 -- n )
+ swap bounds
+ ?DO  dup c@ I c@ <>
+     IF  dup c@ toupper I c@ toupper =
+     ELSE  true  THEN  WHILE  1+  LOOP  drop 0
+ ELSE  c@ toupper I c@ toupper - unloop  THEN  sgn ;
+
 : word-lex ( nfa1 nfa2 -- -1/0/1 )
     dup 0=
     IF

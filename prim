@@ -557,8 +557,7 @@ cmove	( c_from c_to u -- )	string	c_move
 @i{c-from} to @i{c-to}. The copy proceeds @code{char}-by-@code{char}
 from low address to high address; i.e., for overlapping areas it is
 safe if @i{c-to}=<@i{c-from}.""
-while (u-- > 0)
-  *c_to++ = *c_from++;
+cmove(c_from,c_to,u);
 :
  bounds ?DO  dup c@ I c! 1+  LOOP  drop ;
 
@@ -567,8 +566,7 @@ cmove>	( c_from c_to u -- )	string	c_move_up
 @i{c-from} to @i{c-to}. The copy proceeds @code{char}-by-@code{char}
 from high address to low address; i.e., for overlapping areas it is
 safe if @i{c-to}>=@i{c-from}.""
-while (u-- > 0)
-  c_to[u] = c_from[u];
+cmove_up(c_from,c_to,u);
 :
  dup 0= IF  drop 2drop exit  THEN
  rot over + -rot bounds swap 1-
@@ -588,31 +586,26 @@ is 1. Currently this is based on the machine's character
 comparison. In the future, this may change to consider the current
 locale and its collation order.""
 /* close ' to keep fontify happy */ 
-n = memcmp(c_addr1, c_addr2, u1<u2 ? u1 : u2);
-if (n==0)
-  n = u1-u2;
-if (n<0)
-  n = -1;
-else if (n>0)
-  n = 1;
+n = compare(c_addr1, u1, c_addr2, u2);
 :
  rot 2dup swap - >r min swap -text dup
  IF  rdrop  ELSE  drop r> sgn  THEN ;
 : sgn ( n -- -1/0/1 )
  dup 0= IF EXIT THEN  0< 2* 1+ ;
 
--text	( c_addr1 u c_addr2 -- n )	new	dash_text
-n = memcmp(c_addr1, c_addr2, u);
-if (n<0)
-  n = -1;
-else if (n>0)
-  n = 1;
-:
- swap bounds
- ?DO  dup c@ I c@ = WHILE  1+  LOOP  drop 0
- ELSE  c@ I c@ - unloop  THEN  sgn ;
-: sgn ( n -- -1/0/1 )
- dup 0= IF EXIT THEN  0< 2* 1+ ;
+\ -text is only used by replaced primitives now; move it elsewhere
+\ -text	( c_addr1 u c_addr2 -- n )	new	dash_text
+\ n = memcmp(c_addr1, c_addr2, u);
+\ if (n<0)
+\   n = -1;
+\ else if (n>0)
+\   n = 1;
+\ :
+\  swap bounds
+\  ?DO  dup c@ I c@ = WHILE  1+  LOOP  drop 0
+\  ELSE  c@ I c@ - unloop  THEN  sgn ;
+\ : sgn ( n -- -1/0/1 )
+\  dup 0= IF EXIT THEN  0< 2* 1+ ;
 
 toupper	( c1 -- c2 )	gforth
 ""If @i{c1} is a lower-case character (in the current locale), @i{c2}
@@ -620,29 +613,6 @@ is the equivalent upper-case character. All other characters are unchanged.""
 c2 = toupper(c1);
 :
  dup [char] a - [ char z char a - 1 + ] Literal u<  bl and - ;
-
-capscomp	( c_addr1 u c_addr2 -- n )	new
-n = memcasecmp(c_addr1, c_addr2, u); /* !! use something that works in all locales */
-if (n<0)
-  n = -1;
-else if (n>0)
-  n = 1;
-:
- swap bounds
- ?DO  dup c@ I c@ <>
-     IF  dup c@ toupper I c@ toupper =
-     ELSE  true  THEN  WHILE  1+  LOOP  drop 0
- ELSE  c@ toupper I c@ toupper - unloop  THEN  sgn ;
-
--trailing	( c_addr u1 -- c_addr u2 )		string	dash_trailing
-""Adjust the string specified by @i{c-addr, u1} to remove all trailing
-spaces. @i{u2} is the length of the modified string.""
-u2 = u1;
-while (u2>0 && c_addr[u2-1] == ' ')
-  u2--;
-:
- BEGIN  1- 2dup + c@ bl =  WHILE
-        dup  0= UNTIL  ELSE  1+  THEN ;
 
 /string	( c_addr1 u1 n -- c_addr2 u2 )	string	slash_string
 ""Adjust the string specified by @i{c-addr1, u1} to remove @i{n}
@@ -1343,11 +1313,7 @@ c_addr2 = c_addr1+1;
 \g compiler
 
 (listlfind)	( c_addr u longname1 -- longname2 )	new	paren_listlfind
-for (; longname1 != NULL; longname1 = (struct Longname *)(longname1->next))
-  if ((UCell)LONGNAME_COUNT(longname1)==u &&
-      memcasecmp(c_addr, longname1->name, u)== 0 /* or inline? */)
-    break;
-longname2=longname1;
+longname2=listlfind(c_addr, u, longname1);
 :
     BEGIN  dup WHILE  (findl-samelen)  dup  WHILE
 	>r 2dup r@ cell+ cell+ capscomp  0=
@@ -1360,19 +1326,7 @@ longname2=longname1;
 \+hash
 
 (hashlfind)	( c_addr u a_addr -- longname2 )	new	paren_hashlfind
-struct Longname *longname1;
-longname2=NULL;
-while(a_addr != NULL)
-{
-   longname1=(struct Longname *)(a_addr[1]);
-   a_addr=(Cell *)(a_addr[0]);
-   if ((UCell)LONGNAME_COUNT(longname1)==u &&
-       memcasecmp(c_addr, longname1->name, u)== 0 /* or inline? */)
-     {
-	longname2=longname1;
-	break;
-     }
-}
+longname2 = hashlfind(c_addr, u, a_addr);
 :
  BEGIN  dup  WHILE
         2@ >r >r dup r@ cell+ @ lcount-mask and =
@@ -1383,19 +1337,7 @@ while(a_addr != NULL)
 
 (tablelfind)	( c_addr u a_addr -- longname2 )	new	paren_tablelfind
 ""A case-sensitive variant of @code{(hashfind)}""
-struct Longname *longname1;
-longname2=NULL;
-while(a_addr != NULL)
-{
-   longname1=(struct Longname *)(a_addr[1]);
-   a_addr=(Cell *)(a_addr[0]);
-   if ((UCell)LONGNAME_COUNT(longname1)==u &&
-       memcmp(c_addr, longname1->name, u)== 0 /* or inline? */)
-     {
-	longname2=longname1;
-	break;
-     }
-}
+longname2 = tablelfind(c_addr, u, a_addr);
 :
  BEGIN  dup  WHILE
         2@ >r >r dup r@ cell+ @ lcount-mask and =
@@ -1406,19 +1348,7 @@ while(a_addr != NULL)
 
 (hashkey1)	( c_addr u ubits -- ukey )		gforth	paren_hashkey1
 ""ukey is the hash key for the string c_addr u fitting in ubits bits""
-/* this hash function rotates the key at every step by rot bits within
-   ubits bits and xors it with the character. This function does ok in
-   the chi-sqare-test.  Rot should be <=7 (preferably <=5) for
-   ASCII strings (larger if ubits is large), and should share no
-   divisors with ubits.
-*/
-static char rot_values[] = {5,0,1,2,3,4,5,5,5,5,3,5,5,5,5,7,5,5,5,5,7,5,5,5,5,6,5,5,5,5,7,5,5};
-unsigned rot = rot_values[ubits];
-Char *cp = c_addr;
-for (ukey=0; cp<c_addr+u; cp++)
-    ukey = ((((ukey<<rot) | (ukey>>(ubits-rot))) 
-	     ^ toupper(*cp))
-	    & ((1<<ubits)-1));
+ukey = hashkey1(c_addr, u, ubits);
 :
  dup rot-values + c@ over 1 swap lshift 1- >r
  tuck - 2swap r> 0 2swap bounds
@@ -1435,19 +1365,9 @@ Create rot-values
 \+
 
 (parse-white)	( c_addr1 u1 -- c_addr2 u2 )	gforth	paren_parse_white
-/* use !isgraph instead of isspace? */
-Char *endp = c_addr1+u1;
-while (c_addr1<endp && isspace(*c_addr1))
-  c_addr1++;
-if (c_addr1<endp) {
-  for (c_addr2 = c_addr1; c_addr1<endp && !isspace(*c_addr1); c_addr1++)
-    ;
-  u2 = c_addr1-c_addr2;
-}
-else {
-  c_addr2 = c_addr1;
-  u2 = 0;
-}
+struct Cellpair r=parse_white(c_addr1, u1);
+c_addr2 = (Char *)(r.n1);
+u2 = r.n2;
 :
  BEGIN  dup  WHILE  over c@ bl <=  WHILE  1 /string
  REPEAT  THEN  2dup
@@ -1538,7 +1458,7 @@ FLUSH_ICACHE(c_addr,u);
 SUPER_END;
 return (Label *)n;
 
-(system)	( c_addr u -- wretval wior )	gforth	peren_system
+(system)	( c_addr u -- wretval wior )	gforth	paren_system
 #ifndef MSDOS
 int old_tp=terminal_prepped;
 deprep_terminal();
@@ -1674,8 +1594,7 @@ wior = IOR(unlink(tilde_cstr(c_addr, u, 1))==-1);
 
 rename-file	( c_addr1 u1 c_addr2 u2 -- wior )	file-ext	rename_file
 ""Rename file @i{c_addr1 u1} to new name @i{c_addr2 u2}""
-char *s1=tilde_cstr(c_addr2, u2, 1);
-wior = IOR(rename(tilde_cstr(c_addr1, u1, 0), s1)==-1);
+wior = rename_file(c_addr1, u1, c_addr2, u2);
 
 file-position	( wfileid -- ud wior )	file	file_position
 /* !! use tell and lseek? */
@@ -1701,29 +1620,12 @@ wior = FILEIO(u2<u1 && ferror((FILE *)wfileid));
 if (wior)
   clearerr((FILE *)wfileid);
 
-(read-line)	( c_addr u1 wfileid -- u2 flag u3 wior )	file	paren_read_line
-Cell c;
-flag=-1;
-u3=0;
-for(u2=0; u2<u1; u2++)
-{
-   c = getc((FILE *)wfileid);
-   u3++;
-   if (c=='\n') break;
-   if (c=='\r') {
-     if ((c = getc((FILE *)wfileid))!='\n')
-       ungetc(c,(FILE *)wfileid);
-     else
-       u3++;
-     break;
-   }
-   if (c==EOF) {
-	flag=FLAG(u2!=0);
-	break;
-     }
-   c_addr[u2] = (Char)c;
-}
-wior=FILEIO(ferror((FILE *)wfileid));
+(read-line)	( c_addr u1 wfileid -- u2 flag u3 wior ) file	paren_read_line
+struct Cellquad r = read_line(c_addr, u1, wfileid);
+u2   = r.n1;
+flag = r.n2;
+u3   = r.n3;
+wior = r.n4;
 
 \+
 
@@ -1755,28 +1657,9 @@ flush-file	( wfileid -- wior )		file-ext	flush_file
 wior = IOR(fflush((FILE *) wfileid)==EOF);
 
 file-status	( c_addr u -- wfam wior )	file-ext	file_status
-char *filename=tilde_cstr(c_addr, u, 1);
-if (access (filename, F_OK) != 0) {
-  wfam=0;
-  wior=IOR(1);
-}
-else if (access (filename, R_OK | W_OK) == 0) {
-  wfam=2; /* r/w */
-  wior=0;
-}
-else if (access (filename, R_OK) == 0) {
-  wfam=0; /* r/o */
-  wior=0;
-}
-else if (access (filename, W_OK) == 0) {
-  wfam=4; /* w/o */
-  wior=0;
-}
-else {
-  wfam=1; /* well, we cannot access the file, but better deliver a legal
-	    access mode (r/o bin), so we get a decent error later upon open. */
-  wior=0;
-}
+struct Cellpair r = file_status(c_addr, u);
+wfam = r.n1;
+wior = r.n2;
 
 file-eof?	( wfileid -- flag )	gforth	file_eof_query
 flag = FLAG(feof((FILE *) wfileid));
@@ -2024,43 +1907,12 @@ representation. If the string represents a valid floating-point number
 @i{r} is placed on the floating-point stack and @i{flag} is
 true. Otherwise, @i{flag} is false. A string of blanks is a special
 case and represents the floating-point number 0.""
-/* real signature: c_addr u -- r t / f */
 Float r;
-char *number=cstr(c_addr, u, 1);
-char *endconv;
-int sign = 0;
-if(number[0]=='-') {
-   sign = 1;
-   number++;
-   u--;
-}
-while(isspace((unsigned)(number[--u])) && u>0);
-switch(number[u])
-{
-   case 'd':
-   case 'D':
-   case 'e':
-   case 'E':  break;
-   default :  u++; break;
-}
-number[u]='\0';
-r=strtod(number,&endconv);
-if((flag=FLAG(!(Cell)*endconv)))
-{
-   IF_fpTOS(fp[0] = fpTOS);
-   fp += -1;
-   fpTOS = sign ? -r : r;
-}
-else if(*endconv=='d' || *endconv=='D')
-{
-   *endconv='E';
-   r=strtod(number,&endconv);
-   if((flag=FLAG(!(Cell)*endconv)))
-     {
-	IF_fpTOS(fp[0] = fpTOS);
-	fp += -1;
-	fpTOS = sign ? -r : r;
-     }
+flag = to_float(c_addr, u, &r);
+if (flag) {
+  IF_fpTOS(fp[0] = fpTOS);
+  fp += -1;
+  fpTOS = r;
 }
 
 fabs	( r1 -- r2 )	float-ext	f_abs
@@ -2199,11 +2051,7 @@ v*	( f_addr1 nstride1 f_addr2 nstride2 ucount -- r ) gforth v_star
 ""dot-product: r=v1*v2.  The first element of v1 is at f_addr1, the
 next at f_addr1+nstride1 and so on (similar for v2). Both vectors have
 ucount elements.""
-for (r=0.; ucount>0; ucount--) {
-  r += *f_addr1 * *f_addr2;
-  f_addr1 = (Float *)(((Address)f_addr1)+nstride1);
-  f_addr2 = (Float *)(((Address)f_addr2)+nstride2);
-}
+r = v_star(f_addr1, nstride1, f_addr2, nstride2, ucount);
 :
  >r swap 2swap swap 0e r> 0 ?DO
      dup f@ over + 2swap dup f@ f* f+ over + 2swap
@@ -2211,11 +2059,7 @@ for (r=0.; ucount>0; ucount--) {
 
 faxpy	( ra f_x nstridex f_y nstridey ucount -- )	gforth
 ""vy=ra*vx+vy""
-for (; ucount>0; ucount--) {
-  *f_y += ra * *f_x;
-  f_x = (Float *)(((Address)f_x)+nstridex);
-  f_y = (Float *)(((Address)f_y)+nstridey);
-}
+faxpy(ra, f_x, nstridex, f_y, nstridey, ucount);
 :
  >r swap 2swap swap r> 0 ?DO
      fdup dup f@ f* over + 2swap dup f@ f+ dup f! over + 2swap

@@ -99,6 +99,7 @@ typedef struct {
 typedef DOUBLE_CELL_TYPE DCell;
 typedef unsigned DOUBLE_CELL_TYPE UDCell;
 
+#define IOR(flag)	((flag)? -512-errno : 0)
 #define OFF2UD(o)	((UDCell)(o))
 #define UD2OFF(ud)	((off_t)(ud))
 #define DZERO		((DCell)0)
@@ -229,13 +230,49 @@ typedef struct {
 } ImageHeader;
 /* the image-header is created in main.fs */
 
+struct Longname {
+  struct Longname *next;  /* the link field for old hands */
+  Cell		countetc;
+  char		name[0];
+};
+
+#define LONGNAME_COUNT(np)	((np)->countetc & (((~((UCell)0))<<3)>>3))
+
+struct Cellpair {
+  Cell n1;
+  Cell n2;
+};
+
+struct Cellquad {
+  Cell n1;
+  Cell n2;
+  Cell n3;
+  Cell n4;
+};
+
 Label *engine(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp);
 Label *engine2(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp);
 Label *engine3(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp);
+
+/* engine/prim support routines */
 Address my_alloc(Cell size);
 char *cstr(Char *from, UCell size, int clear);
 char *tilde_cstr(Char *from, UCell size, int clear);
 DCell timeval2us(struct timeval *tvp);
+void cmove(Char *c_from, Char *c_to, UCell u);
+void cmove_up(Char *c_from, Char *c_to, UCell u);
+Cell compare(Char *c_addr1, UCell u1, Char *c_addr2, UCell u2);
+struct Longname *listlfind(Char *c_addr, UCell u, struct Longname *longname1);
+struct Longname *hashlfind(Char *c_addr, UCell u, Cell *a_addr);
+struct Longname *tablelfind(Char *c_addr, UCell u, Cell *a_addr);
+UCell hashkey1(Char *c_addr, UCell u, UCell ubits);
+struct Cellpair parse_white(Char *c_addr1, UCell u1);
+Cell rename_file(Char *c_addr1, UCell u1, Char *c_addr2, UCell u2);
+struct Cellquad read_line(Char *c_addr, UCell u1, Cell wfileid);
+struct Cellpair file_status(Char *c_addr, UCell u);
+Cell to_float(Char *c_addr, UCell u, Float *rp);
+Float v_star(Float *f_addr1, Cell nstride1, Float *f_addr2, Cell nstride2, UCell ucount);
+void faxpy(Float ra, Float *f_x, Cell nstridex, Float *f_y, Cell nstridey, UCell ucount);
 
 /* dblsub routines */
 DCell dnegate(DCell d1);
@@ -247,11 +284,6 @@ DCell fmdiv (DCell num, Cell denom);
 
 Cell memcasecmp(const Char *s1, const Char *s2, Cell n);
 
-/* peephole routines */
-
-Xt *primtable(Label symbols[], Cell size);
-Cell prepare_peephole_table(Xt xts[]);
-Xt peephole_opt(Xt xt1, Xt xt2, Cell peeptable);
 void vm_print_profile(FILE *file);
 void vm_count_block(Xt *ip);
 

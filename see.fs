@@ -359,8 +359,9 @@ VARIABLE C-Pass
     \ if f is false, addr2=addr1
     \ recognizes the following patterns:
     \ c":     ahead X: len string then lit X
-    \ s\":    ahead X: string then lit X lit len
-    \ .\":    ahead X: string then lit X lit len type
+    \ flit:   ahead X: float      then lit X f@
+    \ s\":    ahead X: string     then lit X lit len
+    \ .\":    ahead X: string     then lit X lit len type
     \ !! not recognized anywhere:
     \ abort": if ahead X: len string then lit X c(abort") then
     dup @ back? if false exit endif
@@ -368,8 +369,8 @@ VARIABLE C-Pass
     r@ @ decompile-prim ['] lit xt>threaded <> if rdrop false exit endif
     r@ cell+ @ over cell+ <> if rdrop false exit endif
     \ we have at least C"
-    r@ 2 cells + @ decompile-prim ['] lit xt>threaded = if
-	r@ 3 cells + @ over cell+ + aligned r@ = if
+    r@ 2 cells + @ decompile-prim dup ['] lit xt>threaded = if
+	drop r@ 3 cells + @ over cell+ + aligned r@ = if
 	    \ we have at least s"
 	    r@ 4 cells + @ decompile-prim ['] lit-perform xt>threaded =
 	    r@ 5 cells + @ ['] type >body = and if
@@ -385,6 +386,12 @@ VARIABLE C-Pass
 	    endif
 	    nip cells r> + true exit
 	endif
+    endif
+    ['] f@ xt>threaded = if
+	display? if
+	    r@ cell+ @ f@ 10 8 16 f>str-rdp 0 .string bl cemit
+	endif
+	drop r> 3 cells + true exit
     endif
     \ !! check if count matches space?
     display? if

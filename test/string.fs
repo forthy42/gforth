@@ -21,3 +21,10 @@
 \ compare
 { here 0 c, 1 chars here 255 c, 1 chars compare -> -1 }
 
+\ search
+{ s" abcdef" s" abc" search -rot s" abcdef" str= -> true true }
+{ s" abcdef" s" abd" search -rot s" abcdef" str= -> false true }
+{ s" abcdef" s" bcd" search -rot s" bcdef"  str= -> true true }
+{ s" abcdef" s" ef"  search -rot s" ef"     str= -> true true }
+{ s" abcdef" s" fg"  search -rot s" abcdef" str= -> false true }
+{ s" abcdef" s" "    search -rot s" abcdef" str= -> true true }

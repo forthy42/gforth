@@ -33,8 +33,12 @@ Cell memcasecmp(const Char *s1, const Char *s2, Cell n)
   for (i=0; i<n; i++) {
     Char c1=toupper(s1[i]);
     Char c2=toupper(s2[i]);
-    if (c1 != c2)
-      return c1-c2;
+    if (c1 != c2) {
+      if (c1 < c2)
+	return -1;
+      else
+	return 1;
+    }
   }
   return 0;
 }

@@ -786,6 +786,18 @@ max-errors has? file [IF] 6 [ELSE] 4 [THEN] * cells allot
 	emit
     loop ;
 
+: -trailing  ( c_addr u1 -- c_addr u2 ) \ string dash-trailing
+\G Adjust the string specified by @i{c-addr, u1} to remove all
+\G trailing spaces. @i{u2} is the length of the modified string.
+    BEGIN
+	1- 2dup + c@ bl =
+    WHILE
+	    dup 0=
+	UNTIL
+    ELSE
+	1+
+    THEN ;
+
 DEFER DOERROR
 
 has? backtrace [IF]

@@ -342,7 +342,7 @@ SOURCES	= $(CVSDIRS) compat Makefile.in Makedist.in engine/Makefile.in \
 	doc/vmgen.texi doc/fdl.texi \
 	gforth.el \
 	prim peeprules.vmg engine/engine.c engine/main.c \
-	engine/io.c engine/support.c engine/memcmpc.c engine/signals.c \
+	engine/io.c engine/support.c engine/signals.c \
 	$(ARCHS) \
 	engine/profile.c \
 	engine/getopt.c engine/getopt1.c engine/getopt.h engine/select.c \

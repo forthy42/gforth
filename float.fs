@@ -211,7 +211,7 @@ set-current
     \G @code{f~abs}; r3=0: bitwise comparison; r3<0: @code{fnegate f~rel}.
     fdup f0=
     IF \ bitwise comparison
-	fp@ float+ 1 floats over float+ -text 0=
+	fp@ float+ 1 floats over float+ over str=
 	fdrop fdrop fdrop
 	EXIT
     THEN

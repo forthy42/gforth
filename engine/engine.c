@@ -72,8 +72,6 @@
 #define ftello ftell
 #endif
 
-#define IOR(flag)	((flag)? -512-errno : 0)
-
 struct F83Name {
   struct F83Name *next;  /* the link field for old hands */
   char		countetc;
@@ -81,14 +79,6 @@ struct F83Name {
 };
 
 #define F83NAME_COUNT(np)	((np)->countetc & 0x1f)
-
-struct Longname {
-  struct Longname *next;  /* the link field for old hands */
-  Cell		countetc;
-  char		name[0];
-};
-
-#define LONGNAME_COUNT(np)	((np)->countetc & (((~((UCell)0))<<3)>>3))
 
 #define NULLC '\0'
 

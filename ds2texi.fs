@@ -203,6 +203,7 @@ create docline doclinelength chars allot
 
 : compare-ci ( addr1 u1 addr2 u2 -- n )
     \ case insensitive string compare
+    \ !! works correctly only for comparing for equality
     2 pick swap -
     ?dup-0=-if
         capscomp

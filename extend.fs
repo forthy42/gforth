@@ -118,7 +118,7 @@ decimal
     begin
 	dup r@ >=
     while
-	over 2r@ swap -text 0= if
+	2dup 2r@ string-prefix? if
 	    2swap 2drop 2r> 2drop true exit
 	endif
 	1 /string
