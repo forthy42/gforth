@@ -8730,6 +8730,7 @@ and the trailing @code{,} from a branch with a corresponding name; e.g.,
 11 fgt if, \ if F11>0e
   ...
 endif,
+@end example
 
 @code{fbgt,} gives @code{fgt}.  
 
