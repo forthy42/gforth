@@ -290,14 +290,14 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
 #define MAX_SYMBOLS (sizeof(symbols)/sizeof(symbols[0]))
 #endif /* !defined(DOUBLY_INDIRECT) */
 #define INST_ADDR(name) ((Label)&&I_##name)
-#include "prim_lab.i"
+#include PRIM_LAB_I
 #undef INST_ADDR
     (Label)0,
 #define INST_ADDR(name) ((Label)&&K_##name)
-#include "prim_lab.i"
+#include PRIM_LAB_I
 #undef INST_ADDR
 #define INST_ADDR(name) ((Label)&&J_##name)
-#include "prim_lab.i"
+#include PRIM_LAB_I
 #undef INST_ADDR
     (Label)&&after_last
   };
@@ -350,7 +350,7 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
   CPU_DEP3
 #endif
 
-#include "prim.i"
+#include PRIM_I
   after_last: return (Label *)0;
   /*needed only to get the length of the last primitive */
 }

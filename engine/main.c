@@ -49,7 +49,7 @@
 
 typedef enum prim_num {
 /* definitions of N_execute etc. */
-#include "prim_num.i"
+#include PRIM_NUM_I
   N_START_SUPER
 } PrimNum;
 
@@ -256,7 +256,7 @@ Cell groups[32] = {
 #undef GROUPADD
 #define GROUPADD(n) +n
 #define GROUP(x, n) , 0
-#include "prim_grp.i"
+#include PRIM_GRP_I
 #undef GROUP
 #undef GROUPADD
 #define GROUP(x, n)
@@ -641,11 +641,11 @@ struct cost {
 };
 
 PrimNum super2[] = {
-#include "super2.i"
+#include SUPER2_I
 };
 
 struct cost super_costs[] = {
-#include "costs.i"
+#include COSTS_I
 };
 
 struct super_state {
@@ -749,7 +749,7 @@ int compare_priminfo_length(const void *_a, const void *_b)
 #endif /* !defined(NO_DYNAMIC) */
 
 static char MAYBE_UNUSED superend[]={
-#include "prim_superend.i"
+#include PRIM_SUPEREND_I
 };
 
 Cell npriminfos=0;

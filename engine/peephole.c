@@ -33,12 +33,12 @@ typedef struct Combination {
 } Combination;
 
 Combination peephole_table[] = {
-#include "peephole.i"
+#include PEEPHOLE_I
 };
 
 #ifdef PRINT_SUPER_LENGTHS
 char *prim_names[] = {
-#include "prim_names.i"
+#include PRIM_NAMES_I
 };
 
 Combination *find_super(Cell prim)

@@ -372,9 +372,11 @@ SOURCES	= $(CVSDIRS) compat Makefile.in Makedist.in engine/Makefile.in \
 
 RCS_FILES =  ToDo model high-level
 
-ENGINES = gforth$(EXE) gforth-ditc$(EXE) gforth-fast$(EXE) gforth-itc$(EXE) $(PROFEXES) #gforth-native$(EXE)
+ENGINES = gforth$(EXE) gforth-ditc$(EXE) gforth-itc$(EXE) $(PROFEXES)
 
-GEN = $(ENGINES) kernel/version.fs
+ENGINES_FAST = gforth-fast$(EXE) #gforth-native$(EXE) 
+
+GEN = $(ENGINES) $(ENGINES_FAST) kernel/version.fs
 
 # things that need a working forth system to be generated
 FORTH_GEN_ENGINE=engine/prim.i engine/prim_lab.i engine/prim_names.i \
@@ -731,11 +733,11 @@ gforth$(EXE):		engines
 		$(CP) engine/$@ $@
 		@GFORTH_EXE@
 
-gforth-fast$(EXE):	engines
+gforth-fast$(EXE):	engines-fast
 		$(CP) engine/$@ $@
 		@GFORTHFAST_EXE@
 
-gforth-native$(EXE):	engines
+gforth-native$(EXE):	engines-fast
 		$(CP) engine/$@ $@
 #@GFORTHX_EXE@
 
@@ -750,10 +752,13 @@ gforth-ditc$(EXE):	engines
 gforth-prof$(EXE):	engines
 		$(CP) engine/$@ $@
 
-gforths: $(ENGINES)
+gforths: $(ENGINES) $(ENGINES_FAST)
 
 engines:	FORCE $(FORTH_GEN_ENGINE) engine/Makefile
 		cd engine && $(MAKE) $(ENGINES)
+
+engines-fast:	FORCE $(FORTH_GEN_ENGINES_FAST) engine/Makefile
+		cd engine && $(MAKE) $(ENGINES_FAST)
 
 # ------------- additional C primitives
 
