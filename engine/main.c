@@ -72,13 +72,14 @@ int offset_image=0;
 int die_on_signal=0;
 #ifndef INCLUDE_IMAGE
 static int clear_dictionary=0;
-static size_t pagesize=0;
+UCell pagesize=1;
 char *progname;
 #else
 char *progname = "gforth";
 int optind = 1;
 #endif
 static int debug=0;
+ImageHeader *gforth_header;
 
 /* image file format:
  *  "#! binary-path -i\n" (e.g., "#! /usr/local/bin/gforth-0.4.0 -i\n")
@@ -92,7 +93,7 @@ static int debug=0;
  *              bit 0:   endian, big=0, little=1.
  *  The magic are always 8 octets, no matter what the native AU/character size is
  *  padding to max alignment (no padding necessary on current machines)
- *  ImageHeader structure (see below)
+ *  ImageHeader structure (see forth.h)
  *  data (size in ImageHeader.image_size)
  *  tags ((if relocatable, 1 bit/data cell)
  *
@@ -106,28 +107,6 @@ static int debug=0;
  *					possibly containing a jump to dodoes)
  * If the word is <CF(DOESJUMP), it's a primitive
  */
-
-typedef struct {
-  Address base;		/* base address of image (0 if relocatable) */
-  UCell checksum;	/* checksum of ca's to protect against some
-			   incompatible	binary/executable combinations
-			   (0 if relocatable) */
-  UCell image_size;	/* all sizes in bytes */
-  UCell dict_size;
-  UCell data_stack_size;
-  UCell fp_stack_size;
-  UCell return_stack_size;
-  UCell locals_stack_size;
-  Xt *boot_entry;	/* initial ip for booting (in BOOT) */
-  Xt *throw_entry;	/* ip after signal (in THROW) */
-  Cell unused1;		/* possibly tib stack size */
-  Cell unused2;
-  Address data_stack_base; /* this and the following fields are initialized by the loader */
-  Address fp_stack_base;
-  Address return_stack_base;
-  Address locals_stack_base;
-} ImageHeader;
-/* the image-header is created in main.fs */
 
 void relocate(Cell *image, const char *bitstring, int size, Label symbols[])
 {
@@ -247,7 +226,7 @@ Address my_alloc(Cell size)
   if (r != (Address)-1) {
     if (debug)
       fprintf(stderr, "success, address=$%lx\n", (long) r);
-    if (pagesize != 0)
+    if (pagesize != 1)
       next_address = (Address)(((((Cell)r)+size-1)&-pagesize)+2*pagesize); /* leave one page unmapped */
     return r;
   }
@@ -561,7 +540,7 @@ UCell convsize(char *s, UCell elemsize)
       m=1024*1024*1024;
     else if (strcmp(endp,"T")==0) {
 #if (SIZEOF_CHAR_P > 4)
-      m=1024*1024*1024*1024;
+      m=1024L*1024*1024*1024;
 #else
       fprintf(stderr,"%s: size specification \"%s\" too large for this machine\n", progname, endp);
       exit(1);
@@ -695,6 +674,7 @@ int main(int argc, char **argv, char **env)
   image_file = open_image_file(imagename, path);
   image = loader(image_file, imagename);
 #endif
+  gforth_header=(ImageHeader *)image; /* used in SIGSEGV handler */
 
   {
     char path2[strlen(path)+1];

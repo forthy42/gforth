@@ -44,7 +44,7 @@ decimal
 -3 s" Stack overflow" rot errstring
 -4 s" Stack underflow" rot errstring
 -5 s" Return stack overflow" rot errstring
--6 s" Return stack undeflow" rot errstring
+-6 s" Return stack underflow" rot errstring
 -7 s" Do-loops nested too deeply" rot errstring
 -8 s" Dictionary overflow" rot errstring
 -9 s" Invalid memory address" rot errstring

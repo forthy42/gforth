@@ -126,7 +126,6 @@ typedef Label Xt;
 typedef Label *Xt;
 #endif
 
-
 #if !defined(DIRECT_THREADED)
 /* i.e. indirect threaded our doubly indirect threaded */
 /* the direct threaded version is machine dependent and resides in machine.h */
@@ -200,6 +199,28 @@ typedef Label *Xt;
 #define FTOS (fp[0])
 #endif
 
+typedef struct {
+  Address base;		/* base address of image (0 if relocatable) */
+  UCell checksum;	/* checksum of ca's to protect against some
+			   incompatible	binary/executable combinations
+			   (0 if relocatable) */
+  UCell image_size;	/* all sizes in bytes */
+  UCell dict_size;
+  UCell data_stack_size;
+  UCell fp_stack_size;
+  UCell return_stack_size;
+  UCell locals_stack_size;
+  Xt *boot_entry;	/* initial ip for booting (in BOOT) */
+  Xt *throw_entry;	/* ip after signal (in THROW) */
+  Cell unused1;		/* possibly tib stack size */
+  Cell unused2;
+  Address data_stack_base; /* this and the following fields are initialized by the loader */
+  Address fp_stack_base;
+  Address return_stack_base;
+  Address locals_stack_base;
+} ImageHeader;
+/* the image-header is created in main.fs */
+
 Label *engine(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp);
 Address my_alloc(Cell size);
 
@@ -215,6 +236,8 @@ Cell memcasecmp(const Char *s1, const Char *s2, Cell n);
 
 extern int offset_image;
 extern int die_on_signal;
+extern UCell pagesize;
+extern ImageHeader *gforth_header;
 
 #ifdef GFORTH_DEBUGGING
 extern Xt *ip;

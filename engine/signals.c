@@ -62,25 +62,73 @@ static void
 signal_throw(int sig)
 {
   int code;
-  struct {
-    int signal;
-    int throwcode;
-  } *p, throwtable[] = {
-    { SIGINT, -28 },
-    { SIGFPE, -55 },
+
+  switch (sig) {
+  case SIGINT: code=-28; break;
+  case SIGFPE: code=-55; break;
 #ifdef SIGBUS
-    { SIGBUS, -23 },
+  case SIGBUS: code=-23; break;
 #endif
-    { SIGSEGV, -9 },
-  };
-  signal(sig,signal_throw);
-  for (code=-256-sig, p=throwtable; p<throwtable+(sizeof(throwtable)/sizeof(*p)); p++)
-    if (sig == p->signal) {
-      code = p->throwcode;
-      break;
-    }
-  longjmp(throw_jmp_buf,code); /* or use siglongjmp ? */
+  case SIGSEGV: code=-9; break;
+  default: code=-256-sig; break;
+  }
+  longjmp(throw_jmp_buf,code); /* !! or use siglongjmp ? */
 }
+
+#ifdef SA_SIGINFO
+static void fpe_handler(int sig, siginfo_t *info, void *_)
+     /* handler for SIGFPE */
+{
+  int code;
+
+  switch(info->si_code) {
+  case FPE_INTDIV: code=-10; break; /* integer divide by zero */
+  case FPE_INTOVF: code=-11; break; /* integer overflow */
+  case FPE_FLTDIV: code=-42; break; /* floating point divide by zero */
+  case FPE_FLTOVF: code=-43; break; /* floating point overflow  */
+  case FPE_FLTUND: code=-54; break; /* floating point underflow  */
+  case FPE_FLTRES: code=-41; break; /* floating point inexact result  */
+  case FPE_FLTINV: /* invalid floating point operation  */
+  case FPE_FLTSUB: /* subscript out of range  */
+  default: code=-55; break;
+  }
+  longjmp(throw_jmp_buf,code);
+}
+
+
+#define SPILLAGE 128
+/* if there's a SIGSEGV within SPILLAGE bytes of some stack, we assume
+   that this stack has over/underflowed */
+
+#define JUSTUNDER(addr1,addr2) (((UCell)((addr2)-1-(addr1)))<SPILLAGE)
+/* true is addr1 is just under addr2 */
+
+#define JUSTOVER(addr1,addr2) (((UCell)((addr1)-(addr2)))<SPILLAGE)
+
+#define NEXTPAGE(addr) ((Address)((((UCell)(addr)-1)&-pagesize)+pagesize))
+
+static void segv_handler(int sig, siginfo_t *info, void *_)
+{
+  int code=-9;
+  Address addr=info->si_addr;
+  ImageHeader *h=gforth_header;
+
+  if (JUSTUNDER(addr, h->data_stack_base))
+    code=-3;
+  else if (JUSTOVER(addr, NEXTPAGE(h->data_stack_base+h->data_stack_size)))
+    code=-4;
+  else if (JUSTUNDER(addr, h->return_stack_base))
+    code=-5;
+  else if (JUSTOVER(addr, NEXTPAGE(h->return_stack_base+h->return_stack_size)))
+    code=-6;
+  else if (JUSTUNDER(addr, h->fp_stack_base))
+    code=-44;
+  else if (JUSTOVER(addr, NEXTPAGE(h->fp_stack_base+h->fp_stack_size)))
+    code=-45;
+  longjmp(throw_jmp_buf,code);
+}
+
+#endif /* defined(SA_SIGINFO) */
 
 #ifdef SIGCONT
 static void termprep (int sig)
@@ -124,24 +172,19 @@ static void change_winsize(int sig)
 }
 #endif
 
-void install_signal_handler(int sig, void (*simple_handler)(), void (*complex_handler)())
-     /* installs signal handler for sig. If the system has the
-        necessary support, complex_handler will be invoked upon
-        receipt of a signal, otherwise simple_handler. */
-{
+
 #ifdef SA_SIGINFO
+void install_signal_handler(int sig, void (*handler)(int, siginfo_t *, void *))
+     /* installs three-argument signal handler for sig */
+{
   struct sigaction action;
 
-  action.sa_handler=simple_handler;
-  action.sa_sigaction=complex_handler;
+  action.sa_sigaction=handler;
   sigemptyset(&action.sa_mask);
-  action.sa_flags=SA_SIGINFO; /* use complex_handler */
-  sigaction(sig, action, NULL);
-#else
-  /* ANSI C */
-  signal(sig,simple_handler);
-#endif
+  action.sa_flags=SA_RESTART|SA_SIGINFO; /* pass siginfo */
+  sigaction(sig, &action, NULL);
 }
+#endif
 
 void install_signal_handlers(void)
 {
@@ -301,9 +344,13 @@ void install_signal_handlers(void)
     signal (sigs_to_ignore [i], SIG_IGN);
 */
   for (i = 0; i < DIM (sigs_to_throw); i++)
-    install_signal_handler(sigs_to_throw [i], throw_handler, throw_handler);
+    signal(sigs_to_throw[i], throw_handler);
   for (i = 0; i < DIM (sigs_to_quit); i++)
     signal (sigs_to_quit [i], graceful_exit);
+#ifdef SA_SIGINFO
+  install_signal_handler(SIGFPE, fpe_handler);
+  install_signal_handler(SIGSEGV, segv_handler);
+#endif
 #ifdef SIGCONT
     signal (SIGCONT, termprep);
 #endif
