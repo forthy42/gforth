@@ -157,8 +157,6 @@ typedef Label *Xt;
 
 
 
-#define DOES_CODE(cfa)	({Xt _cfa=(Xt)(cfa); \
-			  (Xt *)(_cfa[0]==DOES_CA ? _cfa[1] : NULL);})
 #define DOES_CODE1(cfa)	((Xt *)(cfa[1]))
 /* MAKE_CF creates an appropriate code field at the cfa;
    ca is the code address */

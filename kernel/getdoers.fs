@@ -55,7 +55,7 @@ doer? :dofield [IF]
     ['] reveal-method >code-address ;
 [THEN]
 
-has? prims 0= [IF]
+true [IF] \ !! don't know what to put here
 : dodoes: ( -- addr )	\ gforth
     \G The code address of a @code{field}???
     ['] spaces >code-address ;

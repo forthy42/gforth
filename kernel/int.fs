@@ -425,7 +425,24 @@ cell% 2* 0 0 field >body ( xt -- a_addr ) \ core
 drop drop
 
 cell% -2 * 0 0 field body> ( xt -- a_addr )
-drop drop
+    drop drop
+
+has? standardthreading has? compiler and [IF]
+
+' @ alias >code-address ( xt -- c_addr ) \ gforth
+\G @i{c-addr} is the code address of the word @i{xt}.
+
+: >does-code ( xt -- a_addr ) \ gforth
+\G If @i{xt} is the execution token of a child of a @code{DOES>} word,
+\G @i{a-addr} is the start of the Forth code after the @code{DOES>};
+\G Otherwise @i{a-addr} is 0.
+    dup @ dodoes: = if
+	cell+ @
+    else
+	drop 0
+    endif ;
+
+[THEN]	
 
 : (search-wordlist)  ( addr count wid -- nt | false )
     dup wordlist-map @ find-method perform ;

@@ -1475,22 +1475,6 @@ f_addr = (Float *)((((Cell)c_addr)+(sizeof(Float)-1))&(-sizeof(Float)));
 
 \ threading stuff is currently only interesting if we have a compiler
 \fhas? standardthreading has? compiler and [IF]
-
->code-address	( xt -- c_addr )		gforth	to_code_address
-""@i{c-addr} is the code address of the word @i{xt}.""
-/* !! This behaves installation-dependently for DOES-words */
-c_addr = (Address)CODE_ADDRESS(xt);
-:
-    @ ;
-
->does-code	( xt -- a_addr )		gforth	to_does_code
-""If @i{xt} is the execution token of a child of a @code{DOES>} word,
-@i{a-addr} is the start of the Forth code after the @code{DOES>};
-Otherwise @i{a-addr} is 0.""
-a_addr = (Cell *)DOES_CODE(xt);
-:
-    cell+ @ ;
-
 code-address!	( c_addr xt -- )		gforth	code_address_store
 ""Create a code field with code address @i{c-addr} at @i{xt}.""
 MAKE_CF(xt, c_addr);
