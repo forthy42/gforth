@@ -388,7 +388,7 @@ const Create ???  0 , 3 , char ? c, char ? c, char ? c,
 
 : >head-noprim ( cfa -- nt ) \ gforth  to-head-noprim
     \ also heuristic; finds only names with up to 32 chars
-    $25 cell do ( cfa )
+    dup forthstart - 41 min cell max cell ?do ( cfa )
 	dup i - dup @ [ alias-mask lcount-mask or ] literal
 	[ 1 bits/char 3 - lshift 1 - 1 bits/char 1 - lshift or
 	-1 cells allot bigendian [IF]   c, -1 1 cells 1- times

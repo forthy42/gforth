@@ -149,16 +149,25 @@ Vocabulary Root ( -- ) \ gforth
   \G order (for Gforth, this is the word list @code{Root}).
   1 vp! Root also ;
 
+: update-image-order ( -- )
+    \ save search order here, let vp point there
+    here vp over vp @ 1+ cells
+    dup allot move
+    to vp ;
+
 : init-vp  ( -- )
-   $10 TO maxvp
-   maxvp 1+ cells allocate throw TO vp
-   Only Forth also definitions ;
+    vp @ $10 max to maxvp
+    maxvp 1+ cells allocate throw
+    vp over vp @ 1+ cells move
+    TO vp ;
 
 :noname
    init-vp DEFERS 'cold ;
 IS 'cold
 
-init-vp
+here 0 , to vp
+
+init-vp Only Forth also definitions
 
 \ set initial search order                             14may93py
 
