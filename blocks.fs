@@ -131,7 +131,7 @@ Defer flush-blocks ( -- ) \ gforth
 : get-buffer ( u -- a-addr ) \ gforth
     0 buffers um/mod drop buffer-struct %size * block-buffers @ + ;
 
-: block ( u -- a-addr ) \ block- block
+: block ( u -- a-addr ) \ gforthman- block
     \G If a block buffer is assigned for block @i{u}, return its
     \G start address, @i{a-addr}. Otherwise, assign a block buffer
     \G for block @i{u} (if the assigned block buffer has been
@@ -168,7 +168,7 @@ Defer flush-blocks ( -- ) \ gforth
     \ reading in the block is unnecessary, but simpler
     block ;
 
-User scr ( -- a-addr ) \ block-ext
+User scr ( -- a-addr ) \ block-ext s-c-r
     \G @code{User} variable -- @i{a-addr} is the address of a cell containing
     \G the block number of the block most recently processed by
     \G @code{list}.
@@ -225,7 +225,7 @@ User scr ( -- a-addr ) \ block-ext
     \G current block + @i{n1} thru the current block + @i{n2}.
     1+ swap ?DO  I +load  LOOP ;
 
-: --> ( -- ) \ gforth- gforth chain
+: --> ( -- ) \ gforthman- gforth chain
     \G If this symbol is encountered whilst loading block @i{n},
     \G discard the remainder of the block and load block @i{n+1}. Used
     \G for chaining multiple blocks together as a single loadable

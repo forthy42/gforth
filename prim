@@ -452,7 +452,7 @@ memmove(c_to,c_from,ucount);
 :
  >r 2dup u< IF r> cmove> ELSE r> cmove THEN ;
 
-cmove	c_from c_to u --	string
+cmove	c_from c_to u --	string	c_move
 ""Copy the contents of @i{ucount} characters from data space at
 @i{c-from} to @i{c-to}. The copy proceeds @code{char}-by-@code{char}
 from low address to high address; i.e., for overlapping areas it is
@@ -768,7 +768,7 @@ d = d1-d2;
 :
  dnegate d+ ;
 
-dnegate	d1 -- d2		double
+dnegate	d1 -- d2		double	d_negate
 /* use dminus as alias */
 #ifdef BUGGY_LONG_LONG
 d2 = dnegate(d1);
@@ -807,7 +807,7 @@ w = w1|w2;
 :
  invert swap invert and invert ;
 
-xor	w1 w2 -- w		core
+xor	w1 w2 -- w		core	x_or
 w = w1^w2;
 
 invert	w1 -- w2		core
@@ -815,12 +815,12 @@ w2 = ~w1;
 :
  MAXU xor ;
 
-rshift	u1 n -- u2		core
+rshift	u1 n -- u2		core	r_shift
   u2 = u1>>n;
 :
     0 ?DO 2/ MAXI and LOOP ;
 
-lshift	u1 n -- u2		core
+lshift	u1 n -- u2		core	l_shift
   u2 = u1<<n;
 :
     0 ?DO 2* LOOP ;
@@ -836,7 +836,7 @@ f = FLAG($4==$5);
 	] xor 0= [
     [THEN] ] ;
 
-$1<>	$2 -- f		$7	$3different
+$1<>	$2 -- f		$7	$3not_equals
 f = FLAG($4!=$5);
 :
     [ char $1x char 0 = [IF]
@@ -845,7 +845,7 @@ f = FLAG($4!=$5);
 	] xor 0<> [
     [THEN] ] ;
 
-$1<	$2 -- f		$8	$3less
+$1<	$2 -- f		$8	$3less_than
 f = FLAG($4<$5);
 :
     [ char $1x char 0 = [IF]
@@ -857,7 +857,7 @@ f = FLAG($4<$5);
 	[THEN]
     [THEN] ] ;
 
-$1>	$2 -- f		$9	$3greater
+$1>	$2 -- f		$9	$3greater_than
 f = FLAG($4>$5);
 :
     [ char $1x char 0 = [IF] ] negate [ [ELSE] ] swap [ [THEN] ]
@@ -889,21 +889,21 @@ f = FLAG($4.lo==$5.lo && $4.hi==$5.hi);
 f = FLAG($4==$5);
 #endif
 
-$1<>	$2 -- f		$7	$3different
+$1<>	$2 -- f		$7	$3not_equals
 #ifdef BUGGY_LONG_LONG
 f = FLAG($4.lo!=$5.lo || $4.hi!=$5.hi);
 #else
 f = FLAG($4!=$5);
 #endif
 
-$1<	$2 -- f		$8	$3less
+$1<	$2 -- f		$8	$3less_than
 #ifdef BUGGY_LONG_LONG
 f = FLAG($4.hi==$5.hi ? $4.lo<$5.lo : $4.hi<$5.hi);
 #else
 f = FLAG($4<$5);
 #endif
 
-$1>	$2 -- f		$9	$3greater
+$1>	$2 -- f		$9	$3greater_than
 #ifdef BUGGY_LONG_LONG
 f = FLAG($4.hi==$5.hi ? $4.lo>$5.lo : $4.hi>$5.hi);
 #else
@@ -1026,7 +1026,7 @@ swap	w1 w2 -- w2 w1		core
  >r (swap) ! r> (swap) @ ;
 Variable (swap)
 
-dup	w -- w w		core
+dup	w -- w w		core	dupe
 :
  sp@ @ ;
 
@@ -1795,22 +1795,22 @@ f**		r1 r2 -- r3	float-ext	f_star_star
 ""@i{r3} is @i{r1} raised to the @i{r2}th power.""
 r3 = pow(r1,r2);
 
-fnegate		r1 -- r2	float
+fnegate		r1 -- r2	float	f_negate
 r2 = - r1;
 
-fdrop		r --		float
+fdrop		r --		float	f_drop
 
-fdup		r -- r r	float
+fdup		r -- r r	float	f_dupe
 
-fswap		r1 r2 -- r2 r1	float
+fswap		r1 r2 -- r2 r1	float	f_swap
 
-fover		r1 r2 -- r1 r2 r1	float
+fover		r1 r2 -- r1 r2 r1	float	f_over
 
-frot		r1 r2 r3 -- r2 r3 r1	float
+frot		r1 r2 r3 -- r2 r3 r1	float	f_rote
 
-fnip		r1 r2 -- r2	gforth
+fnip		r1 r2 -- r2	gforth	f_nip
 
-ftuck		r1 r2 -- r2 r1 r2	gforth
+ftuck		r1 r2 -- r2 r1 r2	gforth	f_tuck
 
 float+		f_addr1 -- f_addr2	float	float_plus
 "" Increment @i{f-addr1} by the number of address units corresponding to the size of
@@ -1826,7 +1826,7 @@ floor		r1 -- r2	float
 /* !! unclear wording */
 r2 = floor(r1);
 
-fround		r1 -- r2	float
+fround		r1 -- r2	float	f_round
 ""Round to the nearest integral value.""
 /* !! unclear wording */
 #ifdef HAVE_RINT
@@ -1836,13 +1836,13 @@ r2 = floor(r1+0.5);
 /* !! This is not quite true to the rounding rules given in the standard */
 #endif
 
-fmax		r1 r2 -- r3	float
+fmax		r1 r2 -- r3	float	f_max
 if (r1<r2)
   r3 = r2;
 else
   r3 = r1;
 
-fmin		r1 r2 -- r3	float
+fmin		r1 r2 -- r3	float	f_min
 if (r1<r2)
   r3 = r1;
 else
@@ -1898,30 +1898,30 @@ else if(*endconv=='d' || *endconv=='D')
      }
 }
 
-fabs		r1 -- r2	float-ext
+fabs		r1 -- r2	float-ext	f_abs
 r2 = fabs(r1);
 
-facos		r1 -- r2	float-ext
+facos		r1 -- r2	float-ext	f_a_cos
 r2 = acos(r1);
 
-fasin		r1 -- r2	float-ext
+fasin		r1 -- r2	float-ext	f_a_sine
 r2 = asin(r1);
 
-fatan		r1 -- r2	float-ext
+fatan		r1 -- r2	float-ext	f_a_tan
 r2 = atan(r1);
 
-fatan2		r1 r2 -- r3	float-ext
+fatan2		r1 r2 -- r3	float-ext	f_a_tan_two
 ""@i{r1/r2}=tan(@i{r3}). ANS Forth does not require, but probably
 intends this to be the inverse of @code{fsincos}. In gforth it is.""
 r3 = atan2(r1,r2);
 
-fcos		r1 -- r2	float-ext
+fcos		r1 -- r2	float-ext	f_cos
 r2 = cos(r1);
 
-fexp		r1 -- r2	float-ext
+fexp		r1 -- r2	float-ext	f_e_x_p
 r2 = exp(r1);
 
-fexpm1		r1 -- r2	float-ext
+fexpm1		r1 -- r2	float-ext	f_e_x_p_m_one
 ""@i{r2}=@i{e}**@i{r1}@minus{}1""
 #ifdef HAVE_EXPM1
 extern double
@@ -1934,10 +1934,10 @@ r2 = expm1(r1);
 r2 = exp(r1)-1.;
 #endif
 
-fln		r1 -- r2	float-ext
+fln		r1 -- r2	float-ext	f_l_n
 r2 = log(r1);
 
-flnp1		r1 -- r2	float-ext
+flnp1		r1 -- r2	float-ext	f_l_n_p_one
 ""@i{r2}=ln(@i{r1}+1)""
 #ifdef HAVE_LOG1P
 extern double
@@ -1950,57 +1950,57 @@ r2 = log1p(r1);
 r2 = log(r1+1.);
 #endif
 
-flog		r1 -- r2	float-ext
+flog		r1 -- r2	float-ext	f_log
 ""The decimal logarithm.""
 r2 = log10(r1);
 
-falog		r1 -- r2	float-ext
+falog		r1 -- r2	float-ext	f_a_log
 ""@i{r2}=10**@i{r1}""
 extern double pow10(double);
 r2 = pow10(r1);
 
-fsin		r1 -- r2	float-ext
+fsin		r1 -- r2	float-ext	f_sine
 r2 = sin(r1);
 
-fsincos		r1 -- r2 r3	float-ext
+fsincos		r1 -- r2 r3	float-ext	f_sine_cos
 ""@i{r2}=sin(@i{r1}), @i{r3}=cos(@i{r1})""
 r2 = sin(r1);
 r3 = cos(r1);
 
-fsqrt		r1 -- r2	float-ext
+fsqrt		r1 -- r2	float-ext	f_square_root
 r2 = sqrt(r1);
 
-ftan		r1 -- r2	float-ext
+ftan		r1 -- r2	float-ext	f_tan
 r2 = tan(r1);
 :
  fsincos f/ ;
 
-fsinh		r1 -- r2	float-ext
+fsinh		r1 -- r2	float-ext	f_cinch
 r2 = sinh(r1);
 :
  fexpm1 fdup fdup 1. d>f f+ f/ f+ f2/ ;
 
-fcosh		r1 -- r2	float-ext
+fcosh		r1 -- r2	float-ext	f_cosh
 r2 = cosh(r1);
 :
  fexp fdup 1/f f+ f2/ ;
 
-ftanh		r1 -- r2	float-ext
+ftanh		r1 -- r2	float-ext	f_tan_h
 r2 = tanh(r1);
 :
  f2* fexpm1 fdup 2. d>f f+ f/ ;
 
-fasinh		r1 -- r2	float-ext
+fasinh		r1 -- r2	float-ext	f_a_cinch
 r2 = asinh(r1);
 :
  fdup fdup f* 1. d>f f+ fsqrt f/ fatanh ;
 
-facosh		r1 -- r2	float-ext
+facosh		r1 -- r2	float-ext	f_a_cosh
 r2 = acosh(r1);
 :
  fdup fdup f* 1. d>f f- fsqrt f+ fln ;
 
-fatanh		r1 -- r2	float-ext
+fatanh		r1 -- r2	float-ext	f_a_tan_h
 r2 = atanh(r1);
 :
  fdup f0< >r fabs 1. d>f fover f- f/  f2* flnp1 f2/

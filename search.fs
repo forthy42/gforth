@@ -38,8 +38,8 @@ is context
 : vp! ( u -- )
     vp ! ;
 : definitions  ( -- ) \ search
-  \G Make the compilation word list the same as the word list
-  \G that is currently at the top of the search order stack.
+  \G Set the compilation word list to be the same as the word list
+  \G that is currently at the top of the search order.
   context @ current ! ;
 
 \ wordlist Vocabulary also previous                    14may93py
@@ -65,8 +65,9 @@ Variable slowvoc   0 slowvoc !
 
 : Vocabulary ( "name" -- ) \ gforth
   \G Create a definition "name" and associate a new word list with it.
-  \G The run-time effect of "name" is to push the new word list's wid
-  \G onto the top of the search order stack.
+  \G The run-time effect of "name" is to replace the @i{wid} at the
+  \G top of the search order with the @i{wid} associated with the new
+  \G word list.
   Create wordlist drop  DOES> context ! ;
 
 : check-maxvp ( n -- )
@@ -76,15 +77,14 @@ Variable slowvoc   0 slowvoc !
     \g Push @var{wid} on the search order.
     vp @ 1+ dup check-maxvp vp! context ! ;
 
-: also  ( -- ) \ search ext
-  \G Perform a @code{DUP} on the search order stack. Usually used prior
-  \G to @code{Forth}, @code{definitions} etc.
+: also  ( -- ) \ search-ext
+  \G Perform a @code{DUP} on the @var{wid} at the top of the search
+  \G order. Usually used prior to @code{Forth} etc.
   context @ push-order ;
 
-: previous ( -- ) \ search ext
-  \G Perform a @code{DROP} on the search order stack, thereby removing
-  \G the wid at the top of the (search order) stack from the search
-  \G order.
+: previous ( -- ) \ search-ext
+  \G Perform a @code{DROP} on the @i{wid} at the top of the search
+  \G order, thereby removing the @i{wid} from the search order.
   vp @ 1- dup 0= -50 and throw vp! ;
 
 \ vocabulary find                                      14may93py
@@ -131,9 +131,10 @@ slowvoc off
 
 \ Only root                                            14may93py
 
-Vocabulary Forth ( -- ) \ thisone- search-ext
-  \G Push the @i{wid} associated with @code{forth-wordlist} onto the
-  \G search order stack.
+Vocabulary Forth ( -- ) \ gforthman- search-ext
+  \G Replace the @i{wid} at the top of the search order with the
+  \G @i{wid} associated with the word list @code{forth-wordlist}.
+
 
 Vocabulary Root ( -- ) \ gforth
   \G Add the vocabulary @code{Root} to the search order stack.
@@ -160,13 +161,14 @@ lookup ! \ our dictionary search order becomes the law ( -- )
 \ get-order set-order                                  14may93py
 
 : get-order  ( -- widn .. wid1 n ) \ search
-  \G Copy the search order stack to the data stack. The current search
-  \G order has @i{n} entries, of which @i{wid1} represents the word
-  \G list that is searched first (the word list at the top of the stack) and
-  \G @i{widn} represents the word order that is searched last.
-  vp @ 0 ?DO  vp cell+ I cells + @  LOOP  vp @ ;
+  \G Copy the search order to the data stack. The current search order
+  \G has @i{n} entries, of which @i{wid1} represents the word list
+  \G that is searched first (the word list at the top of the search
+  \G order) and @i{widn} represents the word order that is searched
+  \G last.
+  vp @ 0 ?DO vp cell+ I cells + @ LOOP vp @ ;
 
-: set-order  ( widn .. wid1 n -- ) \ thisone- search
+: set-order  ( widn .. wid1 n -- ) \ gforthman- search
     \G If @var{n}=0, empty the search order.  If @var{n}=-1, set the
     \G search order to the implementation-defined minimum search order
     \G (for Gforth, this is the word list @code{Root}). Otherwise,
@@ -189,7 +191,7 @@ lookup ! \ our dictionary search order becomes the law ( -- )
 : .voc
     body> >head name>string type space ;
 
-: order ( -- )  \  thisone- search-ext
+: order ( -- )  \  gforthman- search-ext
   \G Print the search order and the compilation word list.  The
   \G word lists are printed in the order in which they are searched
   \G (which is reversed with respect to the conventional way of
@@ -222,7 +224,7 @@ Root definitions
 ' forth-wordlist alias forth-wordlist ( -- wid ) \ search
   \G @code{Constant} -- @i{wid} identifies the word list that includes all of the standard words
   \G provided by Gforth. When Gforth is invoked, this word list is the compilation word
-  \G list and is at the top of the word list stack.
+  \G list and is at the top of the search order.
 ' set-order alias set-order
 ' order alias order
 

@@ -36,10 +36,11 @@ AUser CSP
 
 \ DMIN and DMAX
 
-: dmin ( d1 d2 -- d ) \ double
+: dmin ( d1 d2 -- d ) \ double d-min
     2over 2over d> IF  2swap  THEN 2drop ;
 
-: dmax ( d1 d2 -- d ) \ double
+
+: dmax ( d1 d2 -- d ) \ double d-max
     2over 2over d< IF  2swap  THEN 2drop ;
 
 \ shell commands

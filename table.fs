@@ -28,7 +28,7 @@ require hash.fs
 Create tablesearch-map ( -- wordlist-map )
     ' table-find A, ' hash-reveal A, ' (rehash) A, ' (rehash) A,
 
-: table ( -- wid )
-    \g create a case-sensitive wordlist
+: table ( -- wid ) \ gforth
+    \g Create a case-sensitive wordlist.
     tablesearch-map mappedwordlist ;
 

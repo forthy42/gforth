@@ -24,7 +24,7 @@
 
 vocabulary assembler ( -- ) \ tools-ext
 
-: init-asm ( -- )
+: init-asm ( -- ) \ gforth
     also assembler ;
 
 : code ( "name" -- colon-sys )	\ tools-ext
@@ -53,3 +53,4 @@ interpret/compile: ;code ( compilation. colon-sys1 -- colon-sys2 )	\ tools-ext	s
     ( end a code definition )
     lastxt here over - flush-icache
     previous ?struc reveal ;
+

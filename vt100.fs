@@ -30,7 +30,7 @@ decimal
   \G row 0 is the top left-hand corner of the display).
   1+ swap 1+ swap ESC[ pn ;pn [char] H emit ;
 
-: page ( -- ) \ gforth
+: page ( -- ) \ facility
   \G Clear the display and set the cursor to the top left-hand
   \G corner.
   ESC[ ." 2J" 0 0 at-xy ;

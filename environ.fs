@@ -21,14 +21,15 @@
 \ wordlist constant environment-wordlist
 
 Create environment-wordlist ( -- wid ) \ gforth
-  \G wid identifies the word list that is searched by environmental
+  \G @i{wid} identifies the word list that is searched by environmental
   \G queries.
   wordlist drop
 
 : environment? ( c-addr u -- false / ... true ) \ core environment-query
-    \G c-addr, u specify the address and length of a string. If the string is
-    \G not recognised, return a @code{false} flag. Otherwise return a true
-    \G flag and some (string-specific) information about the queried string.
+    \G @i{c-addr, u} specify a counted string. If the string is not
+    \G recognised, return a @code{false} flag. Otherwise return a
+    \G @code{true} flag and some (string-specific) information about
+    \G the queried string.
     environment-wordlist search-wordlist if
 	execute true
     else

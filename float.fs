@@ -66,27 +66,27 @@ dofield: lastxt code-address! \ change the constant into a field
     \G @i{f} in the space.
     here 1 floats allot f! ;
 
-: fconstant  ( r "name" -- ) \ float
+: fconstant  ( r "name" -- ) \ float f-constant
     Create f,
 DOES> ( -- r )
     f@ ;
 
-: fdepth ( -- +n ) \ floating f-depth
+: fdepth ( -- +n ) \ float f-depth
     \G @i{+n} is the current number of (floating-point) values on the
     \G floating-point stack.
     fp0 @ fp@ - [ 1 floats ] Literal / ;
 
 : FLit ( -- r )  r> dup f@ float+ >r ;
-: FLiteral ( compilation r -- ; run-time -- r ) \ float
+: FLiteral ( compilation r -- ; run-time -- r ) \ float f-literal
     \G Compile appropriate code such that, at run-time, @i{r} is placed
     \G on the (floating-point) stack. Interpretation semantics are undefined.
     BEGIN  here cell+ dup faligned <>  WHILE  postpone noop  REPEAT
     postpone FLit  f, ;  immediate
 
-&15 Value precision ( -- u ) \ floating-ext
+&15 Value precision ( -- u ) \ float-ext
 \G @i{u} is the number of significant digits currently used by
 \G @code{F.} @code{FE.} and @code{FS.} 
-: set-precision ( u -- ) \ floating-ext
+: set-precision ( u -- ) \ float-ext
     \G Set the number of significant digits currently used by
     \G @code{F.} @code{FE.} and @code{FS.} to @i{u}.
     to precision ;
@@ -103,7 +103,7 @@ DOES> ( -- r )
   IF  2drop  scratch 3 min type  rdrop  EXIT  THEN
   IF  '- emit  THEN ;
 
-: f.  ( r -- ) \ floating-ext f-dot
+: f.  ( r -- ) \ float-ext f-dot
 \G Display (the floating-point number) @i{r} using fixed-point notation,
 \G followed by a space.
   f$ dup >r 0<
@@ -114,13 +114,13 @@ DOES> ( -- r )
 \ I'm afraid this does not really implement ansi semantics wrt precision.
 \ Shouldn't precision indicate the number of places shown after the point?
 
-: fe. ( r -- ) \ floating-ext f-e-dot
+: fe. ( r -- ) \ float-ext f-e-dot
 \G Display @i{r} using engineering notation, followed by a space.
   f$ 1- s>d 3 fm/mod 3 * >r 1+ >r
   scratch r@ min type '. emit  scratch r> /string type
   'E emit r> . ;
 
-: fs. ( r -- ) \ floating-ext f-s-dot
+: fs. ( r -- ) \ float-ext f-s-dot
 \G Display @i{r} using scientific notation, followed by a space.
   f$ 1-
   scratch over c@ emit '. emit 1 /string type
@@ -159,7 +159,7 @@ IS compiler-notfound
     ENDIF ;
 IS interpreter-notfound
 
-: fvariable ( "name" -- ) \ float
+: fvariable ( "name" -- ) \ float f-variable
     Create 0.0E0 f, ;
     \ does> ( -- f-addr )
 
@@ -202,7 +202,7 @@ IS interpreter-notfound
 	frot frot fover fabs fover fabs f+ frot frot
 	f- fabs frot frot f* f< ;
 
-: f~ ( r1 r2 r3 -- flag ) \ float-ext
+: f~ ( r1 r2 r3 -- flag ) \ float-ext f-proximate
     \G ANS Forth medley: r3>0: @code{f~abs}; r3=0: r1=r2; r3<0: @code{fnegate f~abs}.
     fdup f0=
     IF
