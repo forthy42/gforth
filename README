@@ -23,14 +23,14 @@ Read INSTALL for installation instructions, or INSTALL.DOS for DOS,
 Windows 95, and OS/2. Mail bug-gforth@gnu.org if you have problems.
 To start the system, just say `gforth' (after installing it).
 
-You can find new versions of Gforth at ftp.gnu.org and its mirrors
-or at
+You can find new versions of Gforth at ftp://ftp.gnu.org/gnu/gforth/
+and its mirrors or at
 
 http://www.complang.tuwien.ac.at/forth/gforth/
 or
 ftp://ftp.complang.tuwien.ac.at/pub/forth/gforth/
 
-The latter site contains binary distributions of Gforth for some
+The latter site also contains binary distributions of Gforth for some
 popular platforms.
 
 If you want to work on Gforth, mail me. Tasks to be done can be found

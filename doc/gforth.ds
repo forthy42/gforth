@@ -1043,7 +1043,8 @@ are given.
 
 In addition to the @file{gforth} engine, there is also an engine called
 @file{gforth-fast}, which is faster, but gives less informative error
-messages (@pxref{Error messages}).
+messages (@pxref{Error messages}).  You should use it for debugged,
+performance-critical programs.
 
 In general, the command line looks like this:
 

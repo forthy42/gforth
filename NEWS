@@ -1,3 +1,63 @@
+User-visible changes between 0.4.0 and 0.5.0:
+
+Changes in behaviour:
+
+There are now two engines: the fast engine (gforth-fast) is at least
+  as fast as gforth in earlier releases; the debugging engine (gforth)
+  supports precise backtracing for signals (e.g., illegal memory
+  access), but is slower by a factor of 1-2.
+Block files now start at block 0 by default (instead of block 1).  If
+  you have block files around, prepend 1024 bytes to convert them, or
+  do a "1 OFFSET !" to establish the old behaviour.
+Gforth now does not translate newlines to LFs on reading.  Instead,
+  READ-LINE now interprets LF, CR, and CRLF as newlines.  Newlines on
+  output are in the OSs favourite format.
+SEE now disassembles primitives (or hex-DUMPs the code if no
+  disassembler is available).
+>HEAD (aka >NAME) now returns 0 (instead of the nt of ???) on failure.
+Syntax of prim changed: stack effects are now surrounded by
+  parentheses, tabs are insignificant.
+
+Operating environment:
+
+Gforth now produces a backtrace when catching an exception.
+On platforms supporting the Unix 98 SA_SIGINFO semantics, you get more
+  precise error reports for SIGSEGV and SIGFPE (e.g., "stack
+  underflow" instead of "Invalid memory address").
+Gforth now produces exit code 1 if there is an error (i.e., an
+  uncaught THROW) in batch processing.
+You can use "gforthmi --application ..." to build an image that
+  processes the whole command-line when invoked directly (instead of
+  through gforth -i).
+
+Ports:
+
+AIX.
+20% speedup on 604e under powerpc-unknown-linux-gnu,
+19%-29% speedup on Celeron with gcc-2.95.
+
+New words:
+
+Missing ANS Forth words: EKEY EKEY? EKEY>CHAR
+Timing words: CPUTIME UTIME
+Vector arithmetic: V* FAXPY
+FP comparison: F~ABS F~REL
+Deferred words: <IS> [IS]
+Nested number output: <<# #>>
+Exception handling: TRY RECOVER ENDTRY
+Directory handling: OPEN-DIR READ-DIR CLOSE-DIR FILENAME-MATCH
+Other: ]L PUSH-ORDER
+
+Miscellaneous:
+
+Significant extensions to the manual (added an introduction, among
+  other things), many of them due to a new team member: Neal Crook.
+Added assemblers and disassemblers for 386, Alpha, MIPS (thanks to
+  contributions by Andrew McKewan, Bernd Thallner, and Christian
+  Pirker).  Contributions of assemblers and disassemblers for other
+  architectures are welcome.
+
+
 User-visible changes between 0.3.0 and 0.4.0:
 
 Operating environment:

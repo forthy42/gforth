@@ -5,10 +5,11 @@
 ..
 .TH GForth 1 "April 14, 1999" \" -*- nroff -*-
 .SH NAME
-gforth, gforthmi \- a fast and portable Forth system
+gforth, gforth-fast, gforthmi \- a fast and portable Forth system
 .SH SYNOPSIS
 
 \fCgforth\fR [initialization options] [image-specific options]
+\fCgforth-fast\fR [initialization options] [image-specific options]
 
 \fCgforthmi\fR \fIfilename\fR [initialization options] [image-specific options]
 .SH DESCRIPTION
@@ -41,6 +42,12 @@ starts the system and goes into interactive mode.
 
 loads and interprets the files \fCfile1\fR and \fCfile2\fR, then
 exits.
+
+\fCgforth-fast\fR
+
+is the same as \fCgforth-fast\fR, except that it does not support
+accurate backtraces for signals, and is faster by up to a factor of 2.
+Use it for debugged, performance-critical programs such as benchmarks.
 
 \fCgforthmi asm.fi \-m 1M asm.fs\fR
 
