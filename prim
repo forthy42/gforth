@@ -2750,6 +2750,9 @@ SUPER_CONTINUE;
      cell+
  THEN  >r ;
 
+\ set-next-code and call2 do not appear in images and can be
+\ renumbered arbitrarily
+
 set-next-code ( #w -- ) gforth set_next_code
 #ifdef NO_IP
 next_code = (Label)w;
@@ -2772,6 +2775,14 @@ finish-code ( -- ) gforth finish_code
 ""Perform delayed steps in code generation (branch resolution, I-cache
 flushing).""
 finish_code();
+
+forget-dyncode ( a_code -- f ) gforth-internal forget_dyncode
+f = forget_dyncode(a_code);
+
+decompile-prim ( a_code -- a_prim ) gforth-internal decompile_prim
+""a_prim is the code address of the primitive that has been
+compile_prim1ed to a_code""
+a_prim = decompile_code(a_code);
 
 \+
 

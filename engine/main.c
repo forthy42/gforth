@@ -81,10 +81,11 @@ char *progname = "gforth";
 int optind = 1;
 #endif
 
-#define CODE_BLOCK_SIZE (256*1024)
+#define CODE_BLOCK_SIZE (64*1024)
 Address code_area=0;
 Cell code_area_size = CODE_BLOCK_SIZE;
-Address code_here=0; /* does for code-area what HERE does for the dictionary */
+Address code_here=NULL+CODE_BLOCK_SIZE; /* does for code-area what HERE
+					   does for the dictionary */
 Address start_flush=0; /* start of unflushed code */
 Cell last_jump=0; /* if the last prim was compiled without jump, this
                      is it's number, otherwise this contains 0 */
@@ -374,7 +375,6 @@ void alloc_stacks(ImageHeader * header)
   header->fp_stack_base=my_alloc(fsize);
   header->return_stack_base=my_alloc(rsize);
   header->locals_stack_base=my_alloc(lsize);
-  code_here = start_flush = code_area = my_alloc(code_area_size);
 }
 
 #warning You can ignore the warnings about clobbered variables in go_forth
@@ -576,16 +576,40 @@ void append_jump(void)
   }
 }
 
+/* Gforth remembers all code blocks in this list.  On forgetting (by
+executing a marker) the code blocks are not freed (because Gforth does
+not remember how they were allocated; hmm, remembering that might be
+easier and cleaner).  Instead, code_here etc. are reset to the old
+value, and the "forgotten" code blocks are reused when they are
+needed. */
+
+struct code_block_list {
+  struct code_block_list *next;
+  Address block;
+  Cell size;
+} *code_block_list=NULL, **next_code_blockp=&code_block_list;
+
 Address append_prim(Cell p)
 {
   PrimInfo *pi = &priminfos[p];
   Address old_code_here = code_here;
 
   if (code_area+code_area_size < code_here+pi->length+pi->restlength) {
-    /* not enough space for all cases */
+    struct code_block_list *p;
     append_jump();
-    code_here = start_flush = code_area = my_alloc(code_area_size);
+    if (*next_code_blockp == NULL) {
+      code_here = start_flush = code_area = my_alloc(code_area_size);
+      p = (struct code_block_list *)malloc(sizeof(struct code_block_list));
+      *next_code_blockp = p;
+      p->next = NULL;
+      p->block = code_here;
+      p->size = code_area_size;
+    } else {
+      p = *next_code_blockp;
+      code_here = start_flush = code_area = p->block;
+    }
     old_code_here = code_here;
+    next_code_blockp = &(p->next);
   }
   memcpy(code_here, pi->start, pi->length);
   code_here += pi->length;
@@ -594,6 +618,31 @@ Address append_prim(Cell p)
   return old_code_here;
 }
 #endif
+
+int forget_dyncode(Address code)
+{
+#ifdef NO_DYNAMIC
+  return -1;
+#else
+  struct code_block_list *p, **pp;
+
+  for (pp=&code_block_list, p=*pp; p!=NULL; pp=&(p->next), p=*pp) {
+    if (code >= p->block && code < p->block+p->size) {
+      next_code_blockp = &(p->next);
+      code_here = start_flush = code;
+      code_area = p->block;
+      last_jump = 0;
+      return -1;
+    }
+  }
+  return 0;
+#endif /* !defined(NO_DYNAMIC) */
+}
+
+Label decompile_code(Label prim)
+{
+  return prim;
+}
 
 #ifdef NO_IP
 int nbranchinfos=0;

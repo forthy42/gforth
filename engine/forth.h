@@ -256,6 +256,8 @@ void vm_count_block(Xt *ip);
 Label compile_prim(Label prim);
 void compile_prim1(Cell *start);
 void finish_code(void);
+int forget_dyncode(Address code);
+Label decompile_code(Label prim);
 
 extern int offset_image;
 extern int die_on_signal;

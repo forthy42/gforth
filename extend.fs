@@ -236,7 +236,9 @@ variable span ( -- c-addr ) \ core-ext
     REPEAT
     drop
     \ remember udp
-    udp @ , ;
+    udp @ ,
+    \ remember dyncode-ptr
+    here ['] noop , compile-prim1 finish-code ;
 
 : marker! ( mark -- )
     \ reset included files count; resize will happen on next add-included-file
@@ -263,6 +265,7 @@ variable span ( -- c-addr ) \ core-ext
     REPEAT
     drop
     \ restore udp and dp
+    dup cell+ @ forget-dyncode 0= abort" gforth bug"
     @ udp !  dp !
     \ clean up vocabulary stack
     0 vp @ 0
