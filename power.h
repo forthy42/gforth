@@ -72,7 +72,7 @@
    starts. Since a branch is only a cell on Power, we can use the
    second cell of the cfa for storing the does address */
 #define DOES_CODE(cfa) \
-     ({ unsigned *_cfa=(unsigned)(cfa); \
+     ({ unsigned *_cfa=(unsigned *)(cfa); \
 	_cfa[0]==(0x48000002|&&docol) ? DOES_CODE1(_cfa) : 0; })
    
 
