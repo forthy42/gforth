@@ -1,8 +1,30 @@
 
 
+0 [IF]
+Ideas/Todo
+
+- x! x@ is only used in key.fs, we could do (emit), (key)...
+  as primtives and than drop x! and x@
+
+[THEN]
+
 UNLOCK
 >ENVIRON
 \ true SetValue PrimTrace
+
+LOCK
+
+UNLOCK
+also assembler definitions
+
+X has? PrimTrace [IF]
+: dout PC+6 X , accu X ,
+       *accu X , txd X ,
+       PC+4 X , jmp X ,
+       X , 0 X , ;
+[ELSE]
+: dout drop ;
+[THEN]
 
 LOCK
 
@@ -123,8 +145,8 @@ End-Label
 [THEN]
 
 
-Code: :docol	sym docol
-\? PrimTrace	"0" , tx ,
+Code: :docol	
+                ': dout
 		RP , accu ,
 		#1 , sub ,
 		accu , RP ,
@@ -135,8 +157,8 @@ Code: :docol	sym docol
 		"Next" , jmp ,
 end-code
 
-Code: :docon	sym docon
-\? PrimTrace	"1" , tx ,
+Code: :docon	
+                '1 dout
 		#0 , add ,
 		W , shr ,
 		#2 , add ,
@@ -148,8 +170,8 @@ Code: :docon	sym docon
 		"Next" , jmp ,
 end-code
 
-Code: :dovar	sym dovar
-\? PrimTrace	"2" , tx ,
+Code: :dovar
+                '2 dout
 		W , accu ,
 		#4 , add ,
 		accu , t0 ,
@@ -160,8 +182,8 @@ Code: :dovar	sym dovar
 		"Next" , jmp ,
 end-code
 
-Code: :douser	sym douser
-\? PrimTrace	"3" , tx ,
+Code: :douser	
+                '3 dout
 		#0 , add ,
 		W , shr ,
 		#2 , add ,
@@ -175,8 +197,8 @@ Code: :douser	sym douser
 		"Next" , jmp ,
 end-code
 
-Code: :dodefer	sym dodefer
-\? PrimTrace	"4" , tx ,
+Code: :dodefer	
+                '4 dout
 		#0 , add ,
 		W , shr ,
 		#2 , add ,
@@ -184,8 +206,8 @@ Code: :dodefer	sym dodefer
 		"Next1" , jmp ,
 end-code
 
-Code: :dofield	sym dofield
-\? PrimTrace	"5" , tx ,
+Code: :dofield
+                '5 dout
 		#0 , add ,
 		W , shr ,
 		#2 , add ,
@@ -200,8 +222,8 @@ Code: :dofield	sym dofield
 		"Next" , jmp ,
 end-code
 
-Code: :dodoes	sym dodoes
-\? PrimTrace	"6" , tx ,
+Code: :dodoes
+                '6 dout
 		RP , accu ,
 		#1 , sub ,
 		accu , RP ,
@@ -224,8 +246,27 @@ end-code
 Code: :doesjump
 end-code
 
-Code !		sym !
-\? PrimTrace	"A" , tx ,
+Code execute
+                'E dout
+		SP , accu ,
+		*accu , W ,
+		#1 , add ,
+		accu , SP ,
+		"Next1" , jmp ,
+end-code
+
+Code ;s
+                '; dout
+		RP , accu ,
+		#1 , add ,
+		accu , RP ,
+		#1 , sub ,
+		*accu , IP ,
+		"Next" , jmp ,
+end-code
+
+Code !
+                '! dout
 		SP , accu ,
 		*accu , t0 ,
 		#1 , add ,
@@ -237,8 +278,8 @@ Code !		sym !
 		"Next" , jmp ,
 end-code
 
-Code @		sym @
-\? PrimTrace	"B" , tx ,
+Code @
+                '@ dout
 		#0 , add ,
 		SP , accu ,
 		*accu , shr ,
@@ -248,8 +289,8 @@ Code @		sym @
 		"Next" , jmp ,
 end-code
 
-Code x!		sym x!
-\? PrimTrace	"C" , tx ,
+Code x!
+                'X dout
 		SP , accu ,
 		*accu , dstx ,
 		#1 , add ,
@@ -259,63 +300,42 @@ Code x!		sym x!
 		"xmov" , jmp ,
 end-code
 		
-Code x@		sym x@
-\? PrimTrace	"D" , tx ,
+Code x@
+                'x dout
 		SP , accu ,
 		*accu , srcx ,
 		accu , dstx ,
 		"xmov" , jmp ,
 end-code
 
-Code execute	sym execute
-\? PrimTrace	"E" , tx ,
-		SP , accu ,
-		*accu , W ,
-		#1 , add ,
-		accu , SP ,
-		"Next1" , jmp ,
-end-code
-
-Code ;s		sym ;s
-\? PrimTrace	"F" , tx ,
-		RP , accu ,
-		#1 , add ,
-		accu , RP ,
-		#1 , sub ,
-		*accu , IP ,
-		"Next" , jmp ,
-end-code
-
-Code ?branch	sym ?branch
-\? PrimTrace	"?" , tx ,
+Code ?branch
+                '? dout
 		#0 , add ,
 		IP , shr ,
 		accu , t0 ,
 		#1 , add ,
 		accu , add ,
 		accu , IP ,
-		SP , accu ,
-		accu , 1 m ,
+                SP , accu ,
+                *accu , t1 ,
 		#1 , add ,
 		accu , SP ,
-		1 r , accu ,
+                t1 , accu ,
 		pc+4 , jz ,
-		sym no-branch
 		"Next" , jmp ,
-\? PrimTrace	"+" , tx ,
+                '~ dout
 		t0 , accu ,
 		*accu , accu ,
-Label >branch	sym branch-o
+Label >branch
 		IP , add ,
 		#2 , sub ,
-		sym branch-to
 		accu , IP ,
 		"Next" , jmp ,
 Label "branch"	>branch ,
 end-code
 
-Code branch	sym branch
-\? PrimTrace	"/" , tx ,
+Code branch
+                'b dout
 		#0 , add ,
 		IP , shr ,
 		*accu , accu ,
@@ -324,7 +344,8 @@ Code branch	sym branch
 		"Next" , jmp ,
 end-code
 
-Code (loop)	sym (loop)
+Code (loop)	
+                'l dout
 		#0 , add ,
 		IP , shr ,
 		*accu , t0 ,
@@ -347,8 +368,8 @@ Code (loop)	sym (loop)
 		"branch" , jmp ,
 end-code
 		
-Code xor	sym xor
-\? PrimTrace	"H" , tx ,
+Code xor
+                'x dout
 		SP , accu ,
 		*accu , t0 ,
 		#1 , add ,
@@ -361,8 +382,8 @@ Code xor	sym xor
 		"Next" , jmp ,
 end-code
 
-Code or		sym or
-\? PrimTrace	"I" , tx ,
+Code or	
+                'o dout	
 		SP , accu ,
 		*accu , t0 ,
 		#1 , add ,
@@ -375,8 +396,8 @@ Code or		sym or
 		"Next" , jmp ,
 end-code
 
-Code and	sym and
-\? PrimTrace	"J" , tx ,
+Code and
+                'a dout
 		SP , accu ,
 		*accu , t0 ,
 		#1 , add ,
@@ -389,8 +410,8 @@ Code and	sym and
 		"Next" , jmp ,
 end-code
 
-Code +		sym +
-\? PrimTrace	"K" , tx ,
+Code +		
+                '+ dout
 		SP , accu ,
 		*accu , t0 ,
 		#1 , add ,
@@ -403,8 +424,8 @@ Code +		sym +
 		"Next" , jmp ,
 end-code
 
-Code -		sym -
-\? PrimTrace	"L" , tx ,
+Code -		
+                '- dout
 		SP , accu ,
 		*accu , t0 ,
 		#1 , add ,
@@ -417,8 +438,8 @@ Code -		sym -
 		"Next" , jmp ,
 end-code
 
-Code 2/		sym 2/
-\? PrimTrace	"M" , tx ,
+Code 2/		
+                '/ dout
 		#0 , add ,
 		SP , accu ,
 		*accu , accu ,
@@ -433,7 +454,8 @@ Code 2/		sym 2/
 		"Next" , jmp ,
 end-code
 
-Code 0=		sym 0=
+Code 0=		
+                '° dout
 		SP , accu ,
 		*accu , accu ,
 		ZF , accu ,
@@ -445,7 +467,8 @@ Code 0=		sym 0=
 		"Next" , jmp ,
 end-code
 
-Code 0<>	sym 0<>
+Code 0<>	
+                '% dout
 		SP , accu ,
 		*accu , accu ,
 		ZF , accu ,
@@ -456,7 +479,8 @@ Code 0<>	sym 0<>
 		"Next" , jmp ,
 end-code
 
-Code =		sym =
+Code =		
+                '= dout
 		SP , accu ,
 		*accu , t0 ,
 		#1 , add ,
@@ -472,7 +496,8 @@ Code =		sym =
 		"Next" , jmp ,
 end-code
 
-Code u<		sym u<
+Code u<		
+                '< dout
 		SP , accu ,
 		*accu , t0 ,
 		#1 , add ,
@@ -488,7 +513,8 @@ Code u<		sym u<
 		"Next" , jmp ,
 end-code
 
-Code 1+		sym 1+
+Code 1+		
+                'p dout
 		SP , accu ,
 		*accu , accu ,
 		#1 , add ,
@@ -498,7 +524,8 @@ Code 1+		sym 1+
 		"Next" , jmp ,
 end-code
 
-Code cell+	sym cell+
+Code cell+	
+                'P dout
 		SP , accu ,
 		*accu , accu ,
 		#2 , add ,
@@ -508,8 +535,8 @@ Code cell+	sym cell+
 		"Next" , jmp ,
 end-code
 
-Code 8<<	sym 8<<
-\? PrimTrace	"T" , tx ,
+Code 8<<	
+                '{ dout
 		#0 , add ,
 		SP , accu ,
 		*accu , accu ,
@@ -527,8 +554,8 @@ Code 8<<	sym 8<<
 		"Next" , jmp ,
 end-code
 
-Code 8>>	sym 8>>
-\? PrimTrace	"T" , tx ,
+Code 8>>	
+                '{ dout
 		#0 , add ,
 		SP , accu ,
 Label c-even@	*accu , shr ,
@@ -547,7 +574,8 @@ Label c-even@	*accu , shr ,
 Label "c-even@"	c-even@ ,
 end-code
 
-Code c@		sym c@
+Code c@		
+                'c dout
 		#0 , add ,
 		SP , accu ,
 		*accu , shr ,
@@ -560,8 +588,8 @@ Code c@		sym c@
 		t0 , *accu ,
 		"Next" , jmp ,
 
-Code 2*		sym 2*
-\? PrimTrace	"N" , tx ,
+Code 2*		
+                '* dout
 		SP , accu ,
 		*accu , accu ,
 		accu , add ,
@@ -571,8 +599,8 @@ Code 2*		sym 2*
 		"Next" , jmp ,
 end-code
 
-Code >r		sym >r
-\? PrimTrace	"O" , tx ,
+Code >r		
+                'R dout
 		SP , accu ,
 		*accu , t0 ,
 		#1 , add ,
@@ -584,8 +612,8 @@ Code >r		sym >r
 		"Next" , jmp ,
 end-code
 
-Code r>		sym r>
-\? PrimTrace	"P" , tx ,
+Code r>		
+                'r dout
 		RP , accu ,
 		*accu , t0 ,
 		#1 , add ,
@@ -597,8 +625,8 @@ Code r>		sym r>
 		"Next" , jmp ,
 end-code
 
-Code sp@	sym sp@
-\? PrimTrace	"Q" , tx ,
+Code sp@	
+                's dout
 		SP , accu ,
 		accu , add ,
 		accu , t0 ,
@@ -609,7 +637,8 @@ Code sp@	sym sp@
 		"Next" , jmp ,
 end-code
 
-Code sp!	sym sp!
+Code sp!	
+                'S dout
 		#0 , add ,
 		SP , accu ,
 		*accu , shr ,
@@ -617,8 +646,7 @@ Code sp!	sym sp!
 		"Next" , jmp ,
 end-code
 
-Code rp@	sym rp@
-\? PrimTrace	"R" , tx ,
+Code rp@	
 		RP , accu ,
 		accu , add ,
 		accu , t0 ,
@@ -640,16 +668,16 @@ Code rp!	sym rp!
 		"Next" , jmp ,
 end-code
 
-Code drop	sym drop
-\? PrimTrace	"S" , tx ,
+Code drop
+                'd dout	
 		SP , accu ,
 		#1 , add ,
 		accu , SP ,
 		"Next" , jmp ,
 end-code
 
-Code lit	sym lit
-\? PrimTrace	"#" , tx ,
+Code lit	
+                '# dout
 		IP , shr ,
 		*accu , t0 ,
 		#1 , add ,
@@ -662,7 +690,8 @@ Code lit	sym lit
 		"Next" , jmp ,
 end-code
 
-Code dup	sym dup
+Code dup	
+                'u dout
 		SP , accu ,
 		*accu , t0 ,
 		#1 , sub ,
@@ -671,7 +700,8 @@ Code dup	sym dup
 		"Next" , jmp ,
 end-code
 
-Code I		sym r@
+Code r@		
+                'I dout
 		RP , accu ,
 		*accu , t0 ,
 		SP , accu ,
@@ -681,7 +711,8 @@ Code I		sym r@
 		"Next" , jmp ,
 end-code
 
-Code over	sym over
+Code over	
+                'v dout
 		SP , accu ,
 		#1 , add ,
 		*accu , t0 ,
@@ -691,7 +722,8 @@ Code over	sym over
 		"Next" , jmp ,
 end-code
 
-Code swap	sym swap
+Code swap	
+                'w dout
 		SP , accu ,
 		*accu , t0 ,
 		#1 , add ,
@@ -702,7 +734,7 @@ Code swap	sym swap
 		"Next" , jmp ,
 end-code
 
-Code d+		sym d+
+Code d+		
 		SP , accu ,
 		*accu , t0 ,
 		#1 , add ,
@@ -782,17 +814,39 @@ Code /modstep ( ud c R: u -- ud-?u 0/1 )
 		#1 , sub ,
 		"d2*+" , jmp ,
 end-code
-		
-RP 2* Constant RP
-SP 2* Constant SP
-UP 2* Constant UP
-IP 2* Constant IP
 
-\ c: sp! 2/ sp ! ;
-\ c: sp@ sp @ 1+ 2* ;
-\ c: rp@ rp @ 2* ;
-\ c: rp! r> swap 2/ rp ! >r ;
+Code (key)      
+		SP , accu ,
+		#1 , sub ,
+		accu , SP ,
+                rxd , *accu ,
+		"Next" , jmp ,
+end-code
+
+Code (key?)      
+                rx? , accu ,
+		ZF , accu ,
+		#1 , sub ,
+		accu , t0 ,
+		SP , accu ,
+		#1 , sub ,
+		accu , SP ,
+		t0 , *accu ,
+		"Next" , jmp ,
+end-code
+
+Code (emit)      
+		SP , accu ,
+                *accu , txd ,
+		#1 , add ,
+		accu , SP ,
+		"Next" , jmp ,
+end-code
+		
+UP 2* Constant UP
+
 : up@ up @ ;
 : up! up ! ;
 
-include ./key.fs
+\ include ./key.fs
+include ./optcmove.fs
