@@ -92,6 +92,7 @@ KERN_SRC = \
 
 GFORTH_FI_SRC = \
 	assert.fs \
+	blockedit.fb \
 	blocks.fs \
 	bufio.fs \
 	debug.fs \
@@ -109,6 +110,7 @@ GFORTH_FI_SRC = \
 	startup.fs \
 	struct.fs \
 	stuff.fs \
+	tasker.fs \
 	termsize.fs \
 	vt100.fs \
 	vt100key.fs \

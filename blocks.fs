@@ -58,14 +58,18 @@ block-cold
 Defer flush-file
 
 : use-file ( addr u -- )
-    2dup r/w bin open-file 0<>
+    2dup ['] open-path-file catch 0<>
     if
-	drop r/w bin create-file throw
+	2drop r/w bin create-file throw
     else
-	nip nip
+	rot close-file throw  2dup file-status throw bin open-file throw
+	>r 2drop r>
     then
     block-fid @ IF  flush-file block-fid @ close-file throw  THEN
     block-fid ! ;
+
+: use ( "file" -- )
+    name use-file ;
 
 \ the file is opened as binary file, since it either will contain text
 \ without newlines or binary data

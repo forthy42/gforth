@@ -55,7 +55,10 @@ Create sleepers  sleepers A, sleepers A, 0 ,
 : activate ( task -- )  0 swap (pass) ;
 : pass ( x1 .. xn n task -- )  (pass) ;
 
-: task-key   BEGIN  pause key?  UNTIL  (key) ;
+: single-tasking? ( -- flag )
+    next-task dup @ = ;
+
+: task-key   BEGIN  pause key? single-tasking? or  UNTIL  (key) ;
 : task-emit  (emit) pause ;
 : task-type  (type) pause ;
 

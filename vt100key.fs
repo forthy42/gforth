@@ -20,16 +20,27 @@
 
 Create translate $100 allot
 translate $100 erase
+Create transcode $100 allot
+transcode $100 erase
 
-: trans:  char translate + c! ;
+: trans: ( char 'index' -- ) char translate + c! ;
+: tcode  ( char index -- ) transcode + c! ;
 
 : vt100-decode ( max span addr pos1 -- max span addr pos2 flag )
-  key '[ = IF    key translate + c@ dup IF  decode  THEN
-           ELSE  0  THEN ;
+    key '[ = IF  0  base @ >r  &10 base !
+	BEGIN  key dup digit?  WHILE  nip swap &10 * +  REPEAT
+	r> base !
+	dup '~ =  IF  drop transcode  ELSE  nip translate  THEN
+	+ c@ dup  IF  decode  THEN
+    ELSE  0  THEN ;
 
 ctrl B trans: D
 ctrl F trans: C
 ctrl P trans: A
 ctrl N trans: B
+
+ctrl A 1 tcode
+ctrl D 3 tcode
+ctrl E 4 tcode
 
 ' vt100-decode  ctrlkeys $1B cells + !

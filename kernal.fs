@@ -1284,6 +1284,9 @@ G -1 warnings T !
     #lf ( sic! ) emit ;
 
 \ : backspaces  0 ?DO  #bs emit  LOOP ;
+
+Variable ^d-mode  -1 ^d-mode ! \ ^d is "EOF" if at beginning of the line
+
 : >string  ( span addr pos1 -- span addr pos1 addr2 len )
   over 3 pick 2 pick chars /string ;
 : type-rest ( span addr pos1 -- span addr pos1 back )
@@ -1299,7 +1302,11 @@ G -1 warnings T !
 : (ret)  type-rest drop true space ;
 : back  dup  IF  1- #bs emit  ELSE  #bell emit  THEN 0 ;
 : forw 2 pick over <> IF  2dup + c@ emit 1+  ELSE  #bell emit  THEN 0 ;
-: eof  2 pick 0=  IF  bye  ELSE  (ret)  THEN ;
+: eof  ^d-mode @  IF
+        bye
+    ELSE  2 pick over <>
+	IF  forw drop (del)  ELSE  #bell emit  THEN  0
+    THEN ;
 
 Create ctrlkeys
   ] false false back  false  eof   false forw  false
@@ -1317,14 +1324,11 @@ defer everychar
   >r 2over = IF  rdrop bell 0 EXIT  THEN
   r> (ins) 0 ;
 
-\ decode should better use a table for control key actions
-\ to define keyboard bindings later
-
 : accept   ( addr len -- len ) \ core
   dup 0< IF    abs over dup 1 chars - c@ tuck type 
 \ this allows to edit given strings
          ELSE  0  THEN rot over
-  BEGIN  key decode  UNTIL
+  BEGIN  key decode dup ^d-mode !  UNTIL
   2drop nip ;
 
 \ Output                                               13feb93py
