@@ -136,7 +136,7 @@ VARIABLE SearchPointer
 \ The branchtable consists of three entrys:
 \ address of branch , branch destination , branch type
 
-CREATE BranchTable 500 allot
+CREATE BranchTable 128 cells allot
 here 3 cells -
 ACONSTANT MaxTable
 

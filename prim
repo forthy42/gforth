@@ -496,13 +496,10 @@ if (n<0)
 else if (n>0)
   n = 1;
 :
- rot 2dup - >r min swap -text dup
- IF    rdrop
- ELSE  drop r@ 0>
-       IF    rdrop -1
-       ELSE  r> 1 and
-       THEN
- THEN ;
+ rot 2dup swap - >r min swap -text dup
+ IF  rdrop  ELSE  drop r> sgn  THEN ;
+: sgn ( n -- -1/0/1 )
+ dup 0= IF EXIT THEN  0< 2* 1+ ;
 
 -text		c_addr1 u c_addr2 -- n	new	dash_text
 n = memcmp(c_addr1, c_addr2, u);
@@ -514,8 +511,8 @@ else if (n>0)
  swap bounds
  ?DO  dup c@ I c@ = WHILE  1+  LOOP  drop 0
  ELSE  c@ I c@ - unloop  THEN  -text-flag ;
-: -text-flag ( n -- -1/0/1 )
- dup 0< IF  drop -1  ELSE  0>  1 and  THEN  ;
+: sgn ( n -- -1/0/1 )
+ dup 0= IF EXIT THEN  0< 2* 1+ ;
 
 toupper	c1 -- c2	gforth
 ""If @i{c1} is a lower-case character (in the current locale), @i{c2}

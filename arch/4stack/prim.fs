@@ -385,6 +385,8 @@ Code (find-samelen)
 	nip      nop       drop     nop                               ;;
 end-code
 
+: bye  0 execute ;
+
 \ division a/b
 \ x:=a, y:=b, r:=est; iterate(x:=x*r, y:=y*r, r:=2-y*r);
 \ result: x=a/b; y=1; r=1
