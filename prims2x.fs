@@ -383,8 +383,8 @@ warnings @ [IF]
  >r
  ." FETCH_DCELL("
  r@ item-name 2@ type ." , "
- r@ item-in-index r@ item-stack @ 2dup stack-access
- ." , "                      -1 under+ stack-access
+ r@ item-in-index r@ item-stack @ 2dup ." (Cell)" stack-access
+ ." , "                      -1 under+ ." (Cell)" stack-access
  ." );" cr
  rdrop ;
 
@@ -798,7 +798,7 @@ does> ( item -- )
 
 : process-file ( addr u xt -- )
     >r
-    2dup filename 2!
+    save-mem 2dup filename 2!
     0 function-number !
     r/o open-file abort" cannot open file"
     warnings @ if
