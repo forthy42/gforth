@@ -103,10 +103,10 @@ Create hashsearch-map ( -- wordlist-map )
   HashTable Hashlen cells erase THEN
   HashIndex @ over !  1 HashIndex +!
   HashIndex @ Hashlen >=
-  IF  clearhash
+  IF  HashTable >r clearhash
       1 hashbits 1+ dup  to hashbits  lshift  to hashlen
-      HashTable free
-      addall
+      r> free >r  0 to HashTable
+      addall r> throw
   THEN ;
 
 : (initvoc) ( addr -- )
