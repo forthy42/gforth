@@ -128,7 +128,7 @@ EXEC(*(Xt *)a_addr);
 :
  @ execute ;
 
-\+has? glocals [IF]
+\+glocals
 
 branch-lp+!#	--	gforth	branch_lp_plus_store_number
 /* this will probably not be used */
@@ -136,7 +136,7 @@ branch_adjust_lp:
 lp += (Cell)(IP[1]);
 goto branch;
 
-\+[THEN]
+\+
 
 branch	--		gforth
 branch:
@@ -157,7 +157,7 @@ else
     INC_IP(1);
 $4
 
-\+has? glocals [IF]
+\+glocals
 
 $1-lp+!#	$2_lp_plus_store_number
 $3    goto branch_adjust_lp;
@@ -165,7 +165,7 @@ $3    goto branch_adjust_lp;
 else
     INC_IP(2);
 
-\+[THEN]
+\+
 )
 
 condbranch(?branch,f --		f83	question_branch,
@@ -181,7 +181,7 @@ if (f==0) {
 \ we don't need an lp_plus_store version of the ?dup-stuff, because it
 \ is only used in if's (yet)
 
-\+has? xconds [IF]
+\+xconds
 
 ?dup-?branch	f -- f	new	question_dupe_question_branch
 ""The run-time procedure compiled by @code{?DUP-IF}.""
@@ -210,7 +210,7 @@ if (f!=0) {
 else
   INC_IP(1);
 
-\+[THEN]
+\+
 
 condbranch((next),--		cmFORTH	paren_next,
 if ((*rp)--) {
@@ -250,7 +250,7 @@ if ((olddiff^(olddiff+n))>=0   /* the limit is not crossed */
  IF    >r + >r dup @ + >r
  ELSE  >r >r drop cell+ >r THEN ;)
 
-\+has? xconds [IF]
+\+xconds
 
 condbranch((-loop),u --		gforth	paren_minus_loop,
 /* !! check this thoroughly */
@@ -286,7 +286,7 @@ if (diff>=0 || newdiff<0) {
     IF_TOS(TOS = sp[0]);
 ,)
 
-\+[THEN]
+\+
 
 unloop		--	core
 rp += 2;
@@ -325,7 +325,7 @@ else {
        cell+ >r
   THEN ;				\ --> CORE-EXT
 
-\+has? xconds [IF]
+\+xconds
 
 (+do)	nlimit nstart --	gforth	paren_plus_do
 *--rp = nlimit;
@@ -407,7 +407,7 @@ else {
      cell+
  THEN  >r ;
 
-\+[THEN]
+\+
 
 \ don't make any assumptions where the return stack is!!
 \ implement this in machine code if it should run quickly!
@@ -905,13 +905,13 @@ f = FLAG($4>=$5);
 
 )
 
-\+has? dcomps [IF]
+\+dcomps
 
 dcomparisons(d, d1 d2, d_, d1, d2, double, gforth, double, gforth)
 dcomparisons(d0, d, d_zero_, d, DZERO, double, gforth, double, gforth)
 dcomparisons(du, ud1 ud2, d_u_, ud1, ud2, gforth, gforth, double-ext, gforth)
 
-\+[THEN]
+\+
 
 within	u1 u2 u3 -- f		core-ext
 f = FLAG(u1-u2 < u3-u2);
@@ -931,7 +931,7 @@ a_addr = rp;
 rp!	a_addr --		gforth		rpstore
 rp = a_addr;
 
-\+has? floating [IF]
+\+floating
 
 fp@	-- f_addr	gforth	fp_fetch
 f_addr = fp;
@@ -939,7 +939,7 @@ f_addr = fp;
 fp!	f_addr --	gforth	fp_store
 fp = f_addr;
 
-\+[THEN]
+\+
 
 ;s	--		gforth	semis
 ip = (Xt *)(*rp++);
@@ -1191,7 +1191,7 @@ f83name2=f83name1;
 : (find-samelen) ( u f83name1 -- u f83name2/0 )
     BEGIN  2dup cell+ c@ $1F and <> WHILE  @  dup 0= UNTIL  THEN ;
 
-\+has? hash [IF]
+\+hash
 
 (hashfind)	c_addr u a_addr -- f83name2	new	paren_hashfind
 struct F83Name *f83name1;
@@ -1272,7 +1272,7 @@ Create rot-values
   7 c, 5 c, 5 c, 5 c, 5 c,  6 c, 5 c, 5 c, 5 c, 5 c,
   7 c, 5 c, 5 c,
 
-\+[THEN]
+\+
 
 (parse-white)	c_addr1 u1 -- c_addr2 u2	gforth	paren_parse_white
 /* use !isgraph instead of isspace? */
@@ -1369,7 +1369,7 @@ n=1;
 :
  1 ;
 
-\+has? os [IF]
+\+os
 
 key-file	wfileid -- n		gforth	paren_key_file
 fflush(stdout);
@@ -1495,7 +1495,8 @@ fp=FP;
 IF_TOS(TOS=sp[0]);
 IF_FTOS(FTOS=fp[0]);
 
-\+[THEN] ( has? os ) has? file [IF]
+\+
+\+file
 
 close-file	wfileid -- wior		file	close_file
 wior = IOR(fclose((FILE *)wfileid)==EOF);
@@ -1583,7 +1584,8 @@ else {
   u2=0;
 }
 
-\+[THEN]  has? file [IF] -1 [ELSE] has? os [THEN] [IF]
+\+
+\+file
 
 write-file	c_addr u1 wfileid -- wior	file	write_file
 /* !! fwrite does not guarantee enough */
@@ -1599,7 +1601,8 @@ wior = FILEIO(putc(c, (FILE *)wfileid)==EOF);
 if (wior)
   clearerr((FILE *)wfileid);
 
-\+[THEN]  has? file [IF]
+\+
+\+file
 
 flush-file	wfileid -- wior		file-ext	flush_file
 wior = IOR(fflush((FILE *) wfileid)==EOF);
@@ -1628,7 +1631,8 @@ else {
   wior=0;
 }
 
-\+[THEN] ( has? file ) has? floating [IF]
+\+
+\+floating
 
 comparisons(f, r1 r2, f_, r1, r2, gforth, gforth, float, gforth)
 comparisons(f0, r, f_zero_, r, 0., float, gforth, float, gforth)
@@ -1923,7 +1927,8 @@ df_addr = (DFloat *)((((Cell)c_addr)+(sizeof(DFloat)-1))&(-sizeof(DFloat)));
 \   INDIRECT-THREADED, TOS-CACHED, FTOS-CACHED, CODEFIELD-DOES */
 
 \ local variable implementation primitives
-\+[THEN] ( has? floats ) has? glocals [IF]
+\+
+\+glocals
 
 @local#		-- w	gforth	fetch_local_number
 w = *(Cell *)(lp+(Cell)NEXT_INST);
@@ -1941,7 +1946,7 @@ w = *(Cell *)(lp+2*sizeof(Cell));
 @local3	-- w	new	fetch_local_twelve
 w = *(Cell *)(lp+3*sizeof(Cell));
 
-\+has? floating [IF]
+\+floating
 
 f@local#	-- r	gforth	f_fetch_local_number
 r = *(Float *)(lp+(Cell)NEXT_INST);
@@ -1953,7 +1958,7 @@ r = *(Float *)(lp+0*sizeof(Float));
 f@local1	-- r	new	f_fetch_local_eight
 r = *(Float *)(lp+1*sizeof(Float));
 
-\+[THEN]
+\+
 
 laddr#		-- c_addr	gforth	laddr_number
 /* this can also be used to implement lp@ */
@@ -1983,7 +1988,7 @@ lp = (Address)c_addr;
 lp -= sizeof(Cell);
 *(Cell *)lp = w;
 
-\+has? floating [IF]
+\+floating
 
 f>l	r --	gforth	f_to_l
 lp -= sizeof(Float);
@@ -1994,9 +1999,10 @@ r = fp[u+1]; /* +1, because update of fp happens before this fragment */
 :
  floats fp@ + f@ ;
 
-\+[THEN]  [THEN] \ has? glocals
+\+
+\+
 
-\+has? OS [IF]
+\+OS
 
 define(`uploop',
        `pushdef(`$1', `$2')_uploop(`$1', `$2', `$3', `$4', `$5')`'popdef(`$1')')
@@ -2060,7 +2066,7 @@ icall(20)
 uploop(i, 0, 7, `fcall(i)')
 fcall(20)
 
-\+[THEN] \ has? OS
+\+
 
 up!	a_addr --	gforth	up_store
 UP=up=(char *)a_addr;

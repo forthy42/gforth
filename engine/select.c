@@ -31,22 +31,16 @@ int select(int n, fd_set *a, fd_set *b, fd_set *c, struct timeval * timeout)
    gettimeofday(&time1,&zone1);
    time1.tv_sec += timeout->tv_sec;
    time1.tv_usec += timeout->tv_usec;
-   if(time1.tv_usec >= 1000000)
-     {
-	time1.tv_sec += time1.tv_usec / 1000000;
-	time1.tv_usec %= 1000000;
-     }
-   do
-     {
-	gettimeofday(&time2,&zone1);
-     }
-   while(time2.tv_sec < time1.tv_sec);
+   if(time1.tv_usec >= 1000000) {
+     time1.tv_sec += time1.tv_usec / 1000000;
+     time1.tv_usec %= 1000000;
+   }
+   do {
+     gettimeofday(&time2,&zone1);
+   } while(time2.tv_sec < time1.tv_sec);
 
-   do
-     {
-	gettimeofday(&time2,&zone1);
-     }
-   while(time2.tv_usec < time1.tv_usec &&
-	 time2.tv_sec == time1.tv_sec);
-
+   do {
+     gettimeofday(&time2,&zone1);
+   } while(time2.tv_usec < time1.tv_usec &&
+	   time2.tv_sec == time1.tv_sec);
 }

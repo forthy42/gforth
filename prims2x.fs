@@ -77,9 +77,16 @@ skipsynclines on
 Variable flush-comment flush-comment off
 
 : ?flush-comment
- flush-comment @ 0= ?EXIT
- f-comment 2@ nip
- IF  cr f-comment 2@ 2 /string type 0 0 f-comment 2! THEN ;
+    flush-comment @ 0= ?EXIT
+    f-comment 2@ nip
+    IF  cr f-comment 2@ 2 /string 1-
+	dup IF
+	    flush-comment @ 1 =
+	    IF    ." #ifdef HAS_" bounds ?DO  I c@ toupper emit  LOOP
+	    ELSE  ." has? " type ."  [IF]"  THEN  cr
+	ELSE    flush-comment @ 1 = IF  ." #endif"  ELSE  ." [THEN]"  THEN
+	    cr  THEN
+	0 0 f-comment 2! THEN ;
 
 : start ( -- addr )
  cookedinput @ ;
@@ -586,7 +593,8 @@ set-current
    i item-name 2@ type space
  item-descr +loop ; 
 
-: output-c ( -- )
+: output-c ( -- ) 1 flush-comment !
+    ?flush-comment
  ." I_" c-name 2@ type ." :	/* " forth-name 2@ type ."  ( " stack-string 2@ type ."  ) */" cr
  ." /* " doc 2@ type ."  */" cr
  ." NAME(" [char] " emit forth-name 2@ type [char] " emit ." )" cr \ debugging
@@ -644,13 +652,16 @@ set-current
     ." }" cr
     cr ;
 
-: output-label ( -- )
-    ." (Label)&&I_" c-name 2@ type ." ," cr ;
+: output-label ( -- )  1 flush-comment !
+    ?flush-comment
+    ." [" -2 primitive-number @ - 0 .r ." ] "
+    ." (Label)&&I_" c-name 2@ type ." ," cr
+    -1 primitive-number +! ;
 
 : output-alias ( -- )  flush-comment on
- ?flush-comment
- primitive-number @ . ." alias " forth-name 2@ type cr
- -1 primitive-number +! ;
+    ?flush-comment
+    primitive-number @ . ." alias " forth-name 2@ type cr
+    -1 primitive-number +! ;
 
 : output-forth ( -- )  flush-comment on
     ?flush-comment

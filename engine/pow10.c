@@ -24,7 +24,7 @@
 #define M_LN10      2.30258509299404568402
 #endif
 
-#ifndef _ANSI_MATH_H
+#if !defined(_ANSI_MATH_H) && !defined(exp)
 /* this should be defined by math.h; If it is not, the miranda
  *    prototype would be wrong; Since we prefer compile-time errors to
  *    run-time errors, it's declared here. */

@@ -23,7 +23,7 @@
 
 extern jmp_buf throw_jmp_buf;
 
-#ifdef MSDOS
+#if defined(MSDOS) || defined(SHARC)
 #  define prep_terminal()
 #  define deprep_terminal()
 #  include <conio.h>

@@ -70,3 +70,12 @@ typedef void **Label;
 typedef void *Label;
 #endif /* !defined(DOUBLY_INDIRECT) */
 
+/* feature defines */
+
+#define HAS_DCOMPS
+#define HAS_FILE
+#define HAS_FLOATING
+#define HAS_GLOCALS
+#define HAS_HASH
+#define HAS_OS
+#define HAS_XCONDS

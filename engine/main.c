@@ -32,12 +32,17 @@
 #include <fcntl.h>
 #include <assert.h>
 #include <stdlib.h>
+#ifndef STANDALONE
 #if HAVE_SYS_MMAN_H
 #include <sys/mman.h>
+#endif
 #endif
 #include "forth.h"
 #include "io.h"
 #include "getopt.h"
+#ifdef STANDALONE
+#include <systypes.h>
+#endif
 
 #define PRIM_VERSION 1
 /* increment this whenever the primitives change in an incompatible way */
@@ -116,6 +121,7 @@ typedef struct {
 void relocate(Cell *image, const char *bitstring, int size, Label symbols[])
 {
   int i=0, j, k, steps=(size/sizeof(Cell))/8;
+  Cell token;
   char bits;
 /*   static char bits[8]={0x80,0x40,0x20,0x10,0x08,0x04,0x02,0x01};*/
 
@@ -126,8 +132,8 @@ void relocate(Cell *image, const char *bitstring, int size, Label symbols[])
       /*      fprintf(stderr,"relocate: image[%d]\n", i);*/
       if(bits & 0x80) {
 	/* fprintf(stderr,"relocate: image[%d]=%d\n", i, image[i]);*/
-	if(image[i]<0)
-	  switch(image[i])
+	if((token=image[i])<0)
+	  switch(token)
 	    {
 	    case CF_NIL      : image[i]=0; break;
 #if !defined(DOUBLY_INDIRECT)
@@ -136,7 +142,7 @@ void relocate(Cell *image, const char *bitstring, int size, Label symbols[])
 	    case CF(DOCON)   :
 	    case CF(DOUSER)  : 
 	    case CF(DODEFER) : 
-	    case CF(DOFIELD) : MAKE_CF(image+i,symbols[CF(image[i])]); break;
+	    case CF(DOFIELD) : MAKE_CF(image+i,symbols[CF(token)]); break;
 	    case CF(DOESJUMP): MAKE_DOES_HANDLER(image+i); break;
 #endif /* !defined(DOUBLY_INDIRECT) */
 	    case CF(DODOES)  :
@@ -145,7 +151,7 @@ void relocate(Cell *image, const char *bitstring, int size, Label symbols[])
 	    default          :
 /*	      printf("Code field generation image[%x]:=CA(%x)\n",
 		     i, CF(image[i])); */
-	      image[i]=(Cell)CA(CF(image[i]));
+	      image[i]=(Cell)CA(CF(token));
 	    }
 	else
 	  image[i]+=(Cell)image;
@@ -281,6 +287,43 @@ void alloc_stacks(ImageHeader * header)
   header->locals_stack_base=my_alloc(lsize);
 }
 
+int go_forth(Address image, int stack, Cell *entries)
+{
+  Cell *sp=(Cell*)(((ImageHeader *)image)->data_stack_base + dsize);
+  Float *fp=(Float *)(((ImageHeader *)image)->fp_stack_base + fsize);
+  Cell *rp=(Cell *)(((ImageHeader *)image)->return_stack_base + rsize);
+  Address lp=((ImageHeader *)image)->locals_stack_base + lsize;
+  Xt *ip=(Xt *)(((ImageHeader *)image)->boot_entry);
+  int throw_code;
+
+  /* ensure that the cached elements (if any) are accessible */
+  IF_TOS(sp--);
+  IF_FTOS(fp--);
+  
+  for(;stack>0;stack--)
+    *--sp=entries[stack-1];
+
+#if !defined(MSDOS) && !defined(_WIN32) && !defined(__EMX__)
+  get_winsize();
+#endif
+   
+  install_signal_handlers(); /* right place? */
+  
+  if ((throw_code=setjmp(throw_jmp_buf))) {
+    static Cell signal_data_stack[8];
+    static Cell signal_return_stack[8];
+    static Float signal_fp_stack[1];
+    
+    signal_data_stack[7]=throw_code;
+    
+    return((int)engine(((ImageHeader *)image)->throw_entry,signal_data_stack+7,
+		       signal_return_stack+8,signal_fp_stack,0));
+  }
+
+  return((int)engine(ip,sp,rp,fp,lp));
+}
+
+#ifndef INCLUDE_IMAGE
 Address loader(FILE *imagefile, char* filename)
 /* returns the address of the image proper (after the preamble) */
 {
@@ -386,76 +429,6 @@ Address loader(FILE *imagefile, char* filename)
   return imp;
 }
 
-int go_forth(Address image, int stack, Cell *entries)
-{
-  Cell *sp=(Cell*)(((ImageHeader *)image)->data_stack_base + dsize);
-  Float *fp=(Float *)(((ImageHeader *)image)->fp_stack_base + fsize);
-  Cell *rp=(Cell *)(((ImageHeader *)image)->return_stack_base + rsize);
-  Address lp=((ImageHeader *)image)->locals_stack_base + lsize;
-  Xt *ip=(Xt *)(((ImageHeader *)image)->boot_entry);
-  int throw_code;
-
-  /* ensure that the cached elements (if any) are accessible */
-  IF_TOS(sp--);
-  IF_FTOS(fp--);
-  
-  for(;stack>0;stack--)
-    *--sp=entries[stack-1];
-
-#if !defined(MSDOS) && !defined(_WIN32) && !defined(__EMX__)
-  get_winsize();
-#endif
-   
-  install_signal_handlers(); /* right place? */
-  
-  if ((throw_code=setjmp(throw_jmp_buf))) {
-    static Cell signal_data_stack[8];
-    static Cell signal_return_stack[8];
-    static Float signal_fp_stack[1];
-    
-    signal_data_stack[7]=throw_code;
-    
-    return((int)engine(((ImageHeader *)image)->throw_entry,signal_data_stack+7,
-		       signal_return_stack+8,signal_fp_stack,0));
-  }
-
-  return((int)engine(ip,sp,rp,fp,lp));
-}
-
-UCell convsize(char *s, UCell elemsize)
-/* converts s of the format [0-9]+[bekMGT]? (e.g. 25k) into the number
-   of bytes.  the letter at the end indicates the unit, where e stands
-   for the element size. default is e */
-{
-  char *endp;
-  UCell n,m;
-
-  m = elemsize;
-  n = strtoul(s,&endp,0);
-  if (endp!=NULL) {
-    if (strcmp(endp,"b")==0)
-      m=1;
-    else if (strcmp(endp,"k")==0)
-      m=1024;
-    else if (strcmp(endp,"M")==0)
-      m=1024*1024;
-    else if (strcmp(endp,"G")==0)
-      m=1024*1024*1024;
-    else if (strcmp(endp,"T")==0) {
-#if (SIZEOF_CHAR_P > 4)
-      m=1024*1024*1024*1024;
-#else
-      fprintf(stderr,"%s: size specification \"%s\" too large for this machine\n", progname, endp);
-      exit(1);
-#endif
-    } else if (strcmp(endp,"e")!=0 && strcmp(endp,"")!=0) {
-      fprintf(stderr,"%s: cannot grok size specification %s: invalid unit \"%s\"\n", progname, s, endp);
-      exit(1);
-    }
-  }
-  return n*m;
-}
-
 int onlypath(char *file)
 {
   int i;
@@ -517,6 +490,42 @@ FILE * open_image_file(char * imagename, char * path)
   }
 
   return image_file;
+}
+#endif
+
+#ifdef HAS_OS
+UCell convsize(char *s, UCell elemsize)
+/* converts s of the format [0-9]+[bekMGT]? (e.g. 25k) into the number
+   of bytes.  the letter at the end indicates the unit, where e stands
+   for the element size. default is e */
+{
+  char *endp;
+  UCell n,m;
+
+  m = elemsize;
+  n = strtoul(s,&endp,0);
+  if (endp!=NULL) {
+    if (strcmp(endp,"b")==0)
+      m=1;
+    else if (strcmp(endp,"k")==0)
+      m=1024;
+    else if (strcmp(endp,"M")==0)
+      m=1024*1024;
+    else if (strcmp(endp,"G")==0)
+      m=1024*1024*1024;
+    else if (strcmp(endp,"T")==0) {
+#if (SIZEOF_CHAR_P > 4)
+      m=1024*1024*1024*1024;
+#else
+      fprintf(stderr,"%s: size specification \"%s\" too large for this machine\n", progname, endp);
+      exit(1);
+#endif
+    } else if (strcmp(endp,"e")!=0 && strcmp(endp,"")!=0) {
+      fprintf(stderr,"%s: cannot grok size specification %s: invalid unit \"%s\"\n", progname, s, endp);
+      exit(1);
+    }
+  }
+  return n*m;
 }
 
 void gforth_args(int argc, char ** argv, char ** path, char ** imagename)
@@ -589,6 +598,7 @@ SIZE arguments consist of an integer followed by a unit. The unit can be\n\
     }
   }
 }
+#endif
 
 #ifdef INCLUDE_IMAGE
 extern Cell image[];
@@ -616,14 +626,18 @@ int main(int argc, char **argv, char **env)
 #endif
 
   /* buffering of the user output device */
+#ifdef _IONBF
   if (isatty(fileno(stdout))) {
     fflush(stdout);
     setvbuf(stdout,NULL,_IONBF,0);
   }
+#endif
 
   progname = argv[0];
 
+#ifdef HAS_OS
   gforth_args(argc, argv, &path, &imagename);
+#endif
 
 #ifdef INCLUDE_IMAGE
   set_stack_sizes((ImageHeader *)image);
