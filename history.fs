@@ -75,18 +75,19 @@ Create prefix-found  0 , 0 ,
   IF  r> char+ capscomp 0<=  EXIT  THEN
   nip r> c@ $1F and < ;
 
-: search-prefix  ( addr len1 -- suffix len2 )
-  context @ @  0 >r
-  BEGIN  dup  WHILE
-         >r dup r@ cell+ c@ $1F and <=
-	 IF  2dup r@ cell+ char+ capscomp  0=
-	     IF  r> dup r@ word-lex
-		 IF  dup prefix-found @ word-lex
-		     0>= IF  rdrop dup >r  THEN
-		 THEN >r
-	     THEN
-	 THEN  r> @
-  REPEAT drop r> dup prefix-found ! ?dup
+: search-prefix  ( addr len1 -- suffix len2 )  0 >r  context
+  BEGIN  BEGIN  dup @ over  cell - @ =  WHILE  cell -  REPEAT
+         dup >r -rot r> @ @
+         BEGIN  dup  WHILE  >r dup r@ cell+ c@ $1F and <=
+                IF  2dup r@ cell+ char+ capscomp  0=
+                    IF  r> dup r@ word-lex
+                        IF  dup prefix-found @ word-lex
+                            0>= IF  rdrop dup >r  THEN
+                        THEN >r
+                    THEN
+                THEN  r> @
+         REPEAT  drop rot cell -  dup vp u> 0=
+  UNTIL  drop r> dup prefix-found ! ?dup
   IF    cell+ count $1F and rot /string rot drop
   ELSE  2drop s" "  THEN  ;
 
