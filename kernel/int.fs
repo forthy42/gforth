@@ -598,7 +598,7 @@ has? file 0= [IF]
     \G and input buffer. Interpret. When the parse area is empty,
     \G restore the input source specification.
     loadfilename# @ >r
-    1 loadfilename# ! \ "\evaluated string/"
+    1 loadfilename# ! \ "*evaluated string*"
     push-file #tib ! >tib !
     >in off
     [ has? file [IF] ]

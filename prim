@@ -1648,7 +1648,6 @@ if (wior)
 
 read-line	( c_addr u1 wfileid -- u2 flag wior )	file	read_line
 ""this is only for backward compatibility""
-#if 1
 Cell c;
 flag=-1;
 for(u2=0; u2<u1; u2++)
@@ -1667,20 +1666,6 @@ for(u2=0; u2<u1; u2++)
    c_addr[u2] = (Char)c;
 }
 wior=FILEIO(ferror((FILE *)wfileid));
-#else
-if ((flag=FLAG(!feof((FILE *)wfileid) &&
-	       fgets(c_addr,u1+1,(FILE *)wfileid) != NULL))) {
-  wior=FILEIO(ferror((FILE *)wfileid)!=0); /* !! ior? */
-  if (wior)
-    clearerr((FILE *)wfileid);
-  u2 = strlen(c_addr);
-  u2-=((u2>0) && (c_addr[u2-1]==NEWLINE));
-}
-else {
-  wior=0;
-  u2=0;
-}
-#endif
 
 \+
 

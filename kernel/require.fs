@@ -21,14 +21,17 @@
 \ Now: Kernel Module, Reloadable
 
 create included-files 0 , 0 , ( pointer to and count of included files )
-here ," \a file/" dup c@ swap 1 + swap
-here ," \a block/" dup c@ swap 1 + swap
-here ," \evaluated string/" dup c@ swap 1 + swap
-here ," \the terminal/" dup c@ swap 1 + swap
+\ note: these names must not contain a "/" or "\"; otherwise a part of
+\ that name might be used when expanding "./" (see expandtopic).
+here ," *a file*" dup c@ swap 1 + swap
+here ," *a block*" dup c@ swap 1 + swap
+here ," *evaluated string*" dup c@ swap 1 + swap
+here ," *the terminal*" dup c@ swap 1 + swap
 , A, , A, , A, , A, here 8 cells -
-create image-included-files 4 , A, ( pointer to and count of included files )
-\ included-files points to ALLOCATEd space, while image-included-files
-\ points to ALLOTed objects, so it survives a save-system
+create image-included-files 4 , A, ( pointer to and count of included
+\ files ) included-files points to ALLOCATEd space, while
+\ image-included-files points to ALLOTed objects, so it survives a
+\ save-system
 
 : sourcefilename ( -- c-addr u ) \ gforth
     \G The name of the source file which is currently the input
@@ -154,5 +157,5 @@ create image-included-files 4 , A, ( pointer to and count of included files )
     included-files 2@ .strings ;
     
 \ contains tools/newrequire.fs
-\ \I $Id: require.fs,v 1.14 2000-09-06 20:30:07 anton Exp $
+\ \I $Id: require.fs,v 1.15 2000-09-11 20:56:39 anton Exp $
 
