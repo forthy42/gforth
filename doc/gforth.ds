@@ -1901,7 +1901,7 @@ In this case the stack comment is pretty superfluous, because the word
 is simple enough.  If you think it would be a good idea to add such a
 comment to increase readability, you should also consider factoring the
 word into several simpler words (@pxref{Factoring Tutorial,,
-Factoring}), which typically eliminates the need for the stack effect;
+Factoring}), which typically eliminates the need for the stack comment;
 however, if you decide not to refactor it, then having such a comment is
 better than not having it.
 
@@ -2200,8 +2200,8 @@ Comparison words produce canonical flags:
 
 Gforth supports all combinations of the prefixes @code{0 u d d0 du} (or
 none) and the comparisons @code{= <> < > <= >=}.  Only a part of these
-combinations are standard (see the standard or !! the glossary for
-details).
+combinations are standard (for details see the standard or @ref{Word
+Glossary}).
 
 You can use @code{and or xor invert} can be used as operations on
 canonical flags.  Actually they are bitwise operations:
@@ -2553,8 +2553,8 @@ one at @code{addr cell+} etc.
 You can also reserve memory without creating a new word:
 
 @example
-here 10 cells allot
-.s
+here 10 cells allot .
+here .
 @end example
 
 @code{Here} pushes the start address of the memory area.  You should
@@ -2568,6 +2568,7 @@ you have just @code{allot}ed with
 
 @example
 -10 cells allot
+here .
 @end example
 
 Note that you cannot do this if you have created a new word in the
@@ -2587,8 +2588,9 @@ free throw
 
 The @code{throw}s deal with errors (e.g., out of memory).
 
-And there is also a garbage collector @url{!!}, which eliminates the
-need to @code{free} memory explicitly.
+And there is also a garbage collector
+@url{http://www.complang.tuwien.ac.at/forth/garbage-collection.zip},
+which eliminates the need to @code{free} memory explicitly.
 
 
 @node Characters and Strings Tutorial, Alignment Tutorial, Memory Tutorial, Tutorial
@@ -2831,7 +2833,7 @@ see foo
 : bar ( ... "word" -- ... )
   ' execute ;
 see bar
-1 2 bar +
+1 2 bar + .
 @end example
 
 You often want to parse a word during compilation and compile its XT so
@@ -2892,7 +2894,7 @@ this:
 : foo 100 throw ;
 : foo1 foo ." after foo" ;
 : bar ['] foo1 catch ;
-bar
+bar .
 @end example
 
 It is often important to restore a value upon leaving a definition, even
@@ -3015,7 +3017,8 @@ Definition and use of field offsets now look like this:
 
 @example
 2 cells simple-field field1
-( addr ) field1
+create mystruct 4 cells allot
+mystruct .s field1 .s drop
 @end example
 
 If you want to do something with the word without performing the code
@@ -3149,7 +3152,7 @@ Instead, you can use @code{LITERAL (compilation: n --; run-time: -- n )}:
 : [FOO] ( compilation: --; run-time: -- n )
   500 POSTPONE literal ; immediate
 
-: flip foo ;
+: flip [FOO] ;
 flip .
 see flip
 @end example
@@ -3266,7 +3269,7 @@ interpretation semantics:
 
 @example
 ' if
-comp' if .s
+comp' if .s 2drop
 @end example
 
 

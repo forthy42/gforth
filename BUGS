@@ -45,3 +45,7 @@ line)  anton 27apr2000
 
 The output of .included for gforth.fi does not include exboot.fs and
 exceptions.fs  anton 1jul00
+
+Typing ^C has no effect the second time (on Linux-Alpha, the first
+time was on the command line). 17jul00
+
