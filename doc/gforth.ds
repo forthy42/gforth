@@ -27,6 +27,15 @@
 @macro progstyle {}
 Programming style note:
 @end macro
+
+@macro assignment {}
+@table @i
+@item Assignment:
+@end macro
+@macro endassignment {}
+@end table
+@end macro
+
 @comment %**end of header (This is for running Texinfo on a region.)
 
 
@@ -132,6 +141,7 @@ personal machines. This manual corresponds to version @value{VERSION}.
 * License::                     The GPL
 * Goals::                       About the Gforth Project
 * Gforth Environment::          Starting (and exiting) Gforth
+* Tutorial::                    Hands-on Forth Tutorial
 * Introduction::                An introduction to ANS Forth
 * Words::                       Forth words available in Gforth
 * Error messages::              How to interpret them
@@ -151,8 +161,7 @@ personal machines. This manual corresponds to version @value{VERSION}.
 * Name Index::                  Forth words, only names listed
 * Concept Index::               A menu covering many topics
 
-@detailmenu
- --- The Detailed Node Listing ---
+@detailmenu --- The Detailed Node Listing ---
 
 Goals of Gforth
 
@@ -163,9 +172,48 @@ Gforth Environment
 * Invoking Gforth::             Getting in
 * Leaving Gforth::              Getting out
 * Command-line editing::        
-* Upper and lower case::
-* Environment variables::       ..that affect how Gforth starts up
+* Upper and lower case::        
+* Environment variables::       that affect how Gforth starts up
 * Gforth Files::                What gets installed and where
+* Startup speed::               When 35ms is not fast enough ...
+
+Forth Tutorial
+
+* Starting Gforth Tutorial::    
+* Syntax Tutorial::             
+* Crash Course Tutorial::       
+* Stack Tutorial::              
+* Arithmetics Tutorial::        
+* Stack Manipulation Tutorial::  
+* Using files for Forth code Tutorial::  
+* Comments Tutorial::           
+* Colon Definitions Tutorial::  
+* Decompilation Tutorial::      
+* Stack-Effect Comments Tutorial::  
+* Types Tutorial::              
+* Factoring Tutorial::          
+* Designing the stack effect Tutorial::  
+* Local Variables Tutorial::    
+* Conditional execution Tutorial::  
+* Flags and Comparisons Tutorial::  
+* General Loops Tutorial::      
+* Counted loops Tutorial::      
+* Recursion Tutorial::          
+* Leaving definitions or loops Tutorial::  
+* Return Stack Tutorial::       
+* Memory Tutorial::             
+* Characters and Strings Tutorial::  
+* Alignment Tutorial::          
+* Interpretation and Compilation Semantics and Immediacy Tutorial::  
+* Execution Tokens Tutorial::   
+* Exceptions Tutorial::         
+* Defining Words Tutorial::     
+* Arrays and Records Tutorial::  
+* POSTPONE Tutorial::           
+* Literal Tutorial::            
+* Advanced macros Tutorial::    
+* Compilation Tokens Tutorial::  
+* Wordlists and Search Order Tutorial::  
 
 An Introduction to ANS Forth
 
@@ -273,10 +321,13 @@ Word Lists
 
 Files
 
-* Forth source files::
-* General files::         
-* Search Paths::                 
-* Forth Search Paths::    
+* Forth source files::          
+* General files::               
+* Search Paths::                
+
+Search Paths
+
+* Forth Search Paths::          
 * General Search Paths::        
 
 Other I/O
@@ -315,11 +366,11 @@ Structures
 
 Object-oriented Forth
 
-* Why object-oriented programming?::
-* Object-Oriented Terminology::
-* Objects::
-* OOF::
-* Mini-OOF::
+* Why object-oriented programming?::  
+* Object-Oriented Terminology::  
+* Objects::                     
+* OOF::                         
+* Mini-OOF::                    
 * Comparison with other object models::  
 
 The @file{objects.fs} model
@@ -347,9 +398,10 @@ The @file{oof.fs} model
 
 The @file{mini-oof.fs} model
 
-* Basic Mini-OOF Usage::
-* Mini-OOF Example::
-* Mini-OOF Implementation::
+* Basic Mini-OOF Usage::        
+* Mini-OOF Example::            
+* Mini-OOF Implementation::     
+* Comparison with other object models::  
 
 Tools
 
@@ -925,7 +977,7 @@ on many machines.
 * Gforth Extensions Sinful?::
 @end menu
 
-@node Gforth Extensions Sinful?, , Goals, Goals
+@node Gforth Extensions Sinful?,  , Goals, Goals
 @comment node-name,     next,           previous, up
 @section Is it a Sin to use Gforth Extensions?
 @cindex Gforth extensions
@@ -970,7 +1022,7 @@ relies upon.
 
 
 @c ******************************************************************
-@node Gforth Environment, Introduction, Goals, Top
+@node Gforth Environment, Tutorial, Goals, Top
 @chapter Gforth Environment
 @cindex Gforth environment
 
@@ -981,15 +1033,16 @@ material in this chapter.
 * Invoking Gforth::             Getting in
 * Leaving Gforth::              Getting out
 * Command-line editing::        
-* Upper and lower case::
-* Environment variables::       ..that affect how Gforth starts up
+* Upper and lower case::        
+* Environment variables::       that affect how Gforth starts up
 * Gforth Files::                What gets installed and where
+* Startup speed::               When 35ms is not fast enough ...
 @end menu
 
 @xref{Image Files} for related information about the creation of images.
 
 @comment ----------------------------------------------
-@node Invoking Gforth, Leaving Gforth, ,Gforth Environment
+@node Invoking Gforth, Leaving Gforth, Gforth Environment, Gforth Environment
 @section Invoking Gforth
 @cindex invoking Gforth
 @cindex running Gforth
@@ -1178,7 +1231,7 @@ doc-bye
 
 
 @comment ----------------------------------------------
-@node Command-line editing, Upper and lower case,Leaving Gforth,Gforth Environment
+@node Command-line editing, Upper and lower case, Leaving Gforth, Gforth Environment
 @section Command-line editing
 @cindex command-line editing
 
@@ -1250,7 +1303,7 @@ periodically, if necessary.
 
 
 @comment ----------------------------------------------
-@node Upper and lower case, Environment variables,Command-line editing,Gforth Environment
+@node Upper and lower case, Environment variables, Command-line editing, Gforth Environment
 @section Upper and lower case
 @cindex case-sensitivity
 @cindex upper and lower case
@@ -1284,7 +1337,7 @@ because if you are even contemplating to do this, you'd better have
 enough knowledge of Forth systems to know this already).
 
 @comment ----------------------------------------------
-@node Environment variables, Gforth Files, Upper and lower case,Gforth Environment
+@node Environment variables, Gforth Files, Upper and lower case, Gforth Environment
 @section Environment variables
 @cindex environment variables
 
@@ -1324,7 +1377,7 @@ are not set.
 
 
 @comment ----------------------------------------------
-@node Gforth Files, ,Environment variables,Gforth Environment
+@node Gforth Files, Startup speed, Environment variables, Gforth Environment
 @section Gforth files
 @cindex Gforth files
 
@@ -1353,8 +1406,1921 @@ locations by default:
 You can select different places for installation by using
 @code{configure} options (listed with @code{configure --help}).
 
+@comment ----------------------------------------------
+@node Startup speed,  , Gforth Files, Gforth Environment
+@section Startup speed
+@cindex Startup speed
+@cindex speed, startup
+
+If Gforth is used for CGI scripts or in shell scripts, its startup
+speed may become a problem.  On a 300MHz 21064a under Linux-2.2.13 with
+glibc-2.0.7, @code{gforth -e bye} takes about 24.6ms user and 11.3ms
+system time.
+
+If startup speed is a problem, you may consider the following ways to
+improve it; or you may consider ways to reduce the number of startups
+(e.g., Fast-CGI).
+
+The first step to improve startup speed is to statically link Gforth, by
+building it with @code{XLDFLAGS=-static}.  This requires more memory for
+the code and will therefore slow down the first invocation, but
+subsequent invocations avoid the dynamic linking overhead.  Another
+disadvantage is that Gforth won't profit from library upgrades.  As a
+result, @code{gforth-static -e bye} takes about 17.1ms user and
+8.2ms system time.
+
+The next step to improve startup speed is to use a non-relocatable image
+@ref{Non-Relocatable Image Files}.  You can create this image with
+@code{gforth -e "savesystem gforthnr.fi bye"} and later use it with
+@code{gforth -i gforthnr.fi ...}.  This avoids the relocation overhead
+and a part of the copy-on-write overhead.  The disadvantage is that the
+nonrelocatable image does not work if the OS gives Gforth a different
+address for the dictionary, for whatever reason; so you better provide a
+fallback on a relocatable image.  @code{gforth-static -i gforthnr.fi -e
+bye} takes about 15.3ms user and 7.5ms system time.
+
+The final step is to disable dictionary hashing in Gforth.  Gforth
+builds the hash table on startup, which takes much of the startup
+overhead. You can do this by commenting out the @code{include hash.fs}
+in @file{startup.fs} and everything that requires @file{hash.fs} (at the
+moment @file{table.fs} and @file{ekey.fs}) and then doing @code{make}.
+The disadvantages are that functionality like @code{table} and
+@code{ekey} is missing and that text interpretation (e.g., compiling)
+now takes much longer. So, you should only use this method if there is
+no significant text interpretation to perform (the script should be
+compiled into the image, among other things).  @code{gforth-static -i
+gforthnrnh.fi -e bye} takes about 2.1ms user and 6.1ms system time.
+
 @c ******************************************************************
-@node Introduction, Words, Gforth Environment, Top
+@node Tutorial, Introduction, Gforth Environment, Top
+@chapter Forth Tutorial
+@cindex Tutorial
+@cindex Forth Tutorial
+
+This tutorial can be used with any ANS-compliant Forth; any places that
+mention features specific to Gforth are marked as such and you can skip
+them, if you work with another Forth.  This tutorial does not explain
+all features of Forth, just enough to get you started and give you some
+ideas about the facilities available in Forth.  Read the rest of the
+manual and the standard when you are through this.
+
+The intended way to use this tutorial is that you work through it while
+sitting in front of the console, take a look at the examples and predict
+what they will do, then try them out; if the outcome is not as expected,
+find out why (e.g., by trying out variations of the example), so you
+understand what's going on.  There are also some assignments that you
+should solve.
+
+This tutorial assumes that you have programmed before and know what,
+e.g., a loop is.
+
+@c !! explain compat library
+
+@menu
+* Starting Gforth Tutorial::    
+* Syntax Tutorial::             
+* Crash Course Tutorial::       
+* Stack Tutorial::              
+* Arithmetics Tutorial::        
+* Stack Manipulation Tutorial::  
+* Using files for Forth code Tutorial::  
+* Comments Tutorial::           
+* Colon Definitions Tutorial::  
+* Decompilation Tutorial::      
+* Stack-Effect Comments Tutorial::  
+* Types Tutorial::              
+* Factoring Tutorial::          
+* Designing the stack effect Tutorial::  
+* Local Variables Tutorial::    
+* Conditional execution Tutorial::  
+* Flags and Comparisons Tutorial::  
+* General Loops Tutorial::      
+* Counted loops Tutorial::      
+* Recursion Tutorial::          
+* Leaving definitions or loops Tutorial::  
+* Return Stack Tutorial::       
+* Memory Tutorial::             
+* Characters and Strings Tutorial::  
+* Alignment Tutorial::          
+* Interpretation and Compilation Semantics and Immediacy Tutorial::  
+* Execution Tokens Tutorial::   
+* Exceptions Tutorial::         
+* Defining Words Tutorial::     
+* Arrays and Records Tutorial::  
+* POSTPONE Tutorial::           
+* Literal Tutorial::            
+* Advanced macros Tutorial::    
+* Compilation Tokens Tutorial::  
+* Wordlists and Search Order Tutorial::  
+@end menu
+
+@node Starting Gforth Tutorial, Syntax Tutorial, Tutorial, Tutorial
+@section Starting Gforth
+
+You can start Gforth by typing its name:
+
+@example
+gforth
+@end example
+
+That puts you into interactive mode; you can leave Gforth by typing
+@code{bye}.  While in Gforth, you can edit the command line and access
+the command line history with cursor keys, similar to bash.
+
+
+@node Syntax Tutorial, Crash Course Tutorial, Starting Gforth Tutorial, Tutorial
+@section Syntax
+
+A @dfn{word} is a sequence of arbitrary characters (expcept white
+space).  Words are separated by white space.  E.g., each of the
+following lines contains exactly one word:
+
+@example
+word
+!@@#$%^&*()
+1234567890
+5!a
+@end example
+
+A frequent beginner's error is to leave away necessary white space,
+resulting in an error like @samp{Undefined word}; so if you see such an
+error, check if you have put spaces wherever necessary.
+
+@example
+." hello, world" \ correct
+."hello, world"  \ gives an "Undefined word" error
+@end example
+
+Gforth and most other Forth systems ignores differences in case (it is
+case-insensitive), i.e., @samp{word} is the same as @samp{Word}.  If
+your system is case-sensitive, you may have to type all the examples
+given here in upper case.
+
+
+@node Crash Course Tutorial, Stack Tutorial, Syntax Tutorial, Tutorial
+@section Crash Course
+
+Type
+
+@example
+0 0 !
+here execute
+' catch >body 20 erase abort
+' (quit) >body 20 erase
+@end example
+
+The last two examples are guaranteed to destroy parts of Gforth (and
+most other systems), so you better leave Gforth afterwards (if it has
+not finished by itself).  On some systems you may have to kill gforth
+from outside (e.g., in Unix with @code{kill}).
+
+Now that you know how to produce crashes (and that there's not much to
+them), let's learn how to produce meaningful programs.
+
+
+@node Stack Tutorial, Arithmetics Tutorial, Crash Course Tutorial, Tutorial
+@section Stack
+
+The most obvious feature of Forth is the stack.  When you type in a
+number, it is pushed on the stack.  You can display the content of the
+stack with @code{.s}.
+
+@example
+1 2 .s
+3 .s
+@end example
+
+@code{.s} displays the top-of-stack to the right, i.e., the numbers
+appear in @code{.s} output as they appeared in the input.
+
+You can print the top of stack element with @code{.}.
+
+@example
+1 2 3 . . .
+@end example
+
+In general, words consume their stack arguments (@code{.s} is an
+exception).
+
+@assignment
+What does the stack contain after @code{5 6 7 .}?
+@endassignment
+
+
+@node Arithmetics Tutorial, Stack Manipulation Tutorial, Stack Tutorial, Tutorial
+@section Arithmetics
+
+The words @code{+}, @code{-}, @code{*}, @code{/}, and @code{mod} always
+operate on the top two stack items:
+
+@example
+2 2 + .
+2 1 - .
+7 3 mod .
+@end example
+
+The operands of @code{-}, @code{/}, and @code{mod} are in the same order
+as in the corresponding infix expression (this is generally the case in
+Forth).
+
+Parentheses are superfluous (and not available), because the order of
+the words unambiguously determines the order of evaluation and the
+operands:
+
+@example
+3 4 + 5 * .
+3 4 5 * + .
+@end example
+
+@assignment
+What are the infix expressions corresponding to the Forth code above?
+Write @code{6-7*8+9} in Forth notation@footnote{This notation is also
+known as Postfix or RPN (Reverse Polish Notation).}.
+@endassignment
+
+To change the sign, use @code{negate}:
+
+@example
+2 negate .
+@end example
+
+@assignment
+Convert -(-3)*4-5 to Forth.
+@endassignment
+
+@code{/mod} performs both @code{/} and @code{mod}.
+
+@example
+7 3 /mod . .
+@end example
+
+@node Stack Manipulation Tutorial, Using files for Forth code Tutorial, Arithmetics Tutorial, Tutorial
+@section Stack Manipulation
+
+Stack manipulation words rearrange the data on the stack.
+
+@example
+1 .s drop .s
+1 .s dup .s drop drop .s
+1 2 .s over .s drop drop drop
+1 2 .s swap .s drop drop
+1 2 3 .s rot .s drop drop drop
+@end example
+
+These are the most important stack manipulation words.  There are also
+variants that manipulate twice as many stack items:
+
+@example
+1 2 3 4 .s 2swap .s 2drop 2drop
+@end example
+
+Two more stack manipulation words are:
+
+@example
+1 2 .s nip .s drop
+1 2 .s tuck .s 2drop drop
+@end example
+
+@assignment
+Replace @code{nip} and @code{tuck} with combinations of other stack
+manipulation words.
+
+@example
+Given:          How do you get:
+1 2 3           3 2 1           
+1 2 3           1 2 3 2                 
+1 2 3           1 2 3 3                 
+1 2 3           1 3 3           
+1 2 3           2 1 3           
+1 2 3 4         4 3 2 1         
+1 2 3           1 2 3 1 2 3             
+1 2 3 4         1 2 3 4 1 2             
+1 2 3
+1 2 3           1 2 3 4                 
+1 2 3           1 3             
+@end example
+@endassignment
+
+@example
+5 dup * .
+@end example
+
+@assignment
+Write 17^3 and 17^4 in Forth, without writing @code{17} more than once.
+Write a piece of Forth code that expects two numbers on the stack
+(@var{a} and @var{b}, with @var{b} on top) and computes
+@code{(a-b)(a+1)}.
+@endassignment
+
+@node Using files for Forth code Tutorial, Comments Tutorial, Stack Manipulation Tutorial, Tutorial
+@section Using files for Forth code
+
+While working at the Forth command line is convenient for one-line
+examples and short one-off code, you probably want to store your source
+code in files for convenient editing and persistence.  You can use your
+favourite editor (Gforth includes Emacs support, @pxref{Emacs and
+Gforth}) to create @var{file} and use
+
+@example
+s" @var{file}" included
+@end example
+
+to load it into your Forth system.  The file name extension I use for
+Forth files is @samp{.fs}.
+
+You can easily start Gforth with some files loaded like this:
+
+@example
+gforth @var{file1} @var{file2}
+@end example
+
+If an error occurs during loading these files, Gforth terminates,
+whereas an error during @code{INCLUDED} within Gforth usually gives you
+a Gforth command line.  Starting the Forth system every time gives you a
+clean start every time, without interference from the results of earlier
+tries.
+
+I often put all the tests in a file, then load the code and run the
+tests with
+
+@example
+gforth @var{code} @var{tests} -e bye
+@end example
+
+(often by performing this command with @kbd{C-x C-e} in Emacs).  The
+@code{-e bye} ensures that Gforth terminates afterwards so that I can
+restart this command without ado.
+
+The advantage of this approach is that the tests can be repeated easily
+every time the program ist changed, making it easy to catch bugs
+introduced by the change.
+
+
+@node Comments Tutorial, Colon Definitions Tutorial, Using files for Forth code Tutorial, Tutorial
+@section Comments
+
+@example
+\ That's a comment; it ends at the end of the line
+( Another comment; it ends here: )  .s
+@end example
+
+@code{\} and @code{(} are ordinary Forth words and therefore have to be
+separated with white space from the following text.
+
+@example
+\This gives an "Undefined word" error
+@end example
+
+The first @code{)} ends a comment started with @code{(}, so you cannot
+nest @code{(}-comments; and you cannot comment out text containing a
+@code{)} with @code{( ... )}@footnote{therefore it's a good idea to
+avoid @code{)} in word names.}.
+
+I use @code{\}-comments for descriptive text and for commenting out code
+of one or more line; I use @code{(}-comments for describing the stack
+effect, the stack contents, or for commenting out sub-line pieces of
+code.
+
+The Emacs mode @file{gforth.el} (@pxref{Emacs and Gforth}) supports
+these uses by commenting out a region with @kbd{C-x \}, uncommenting a
+region with @kbd{C-u C-x \}, and filling a @code{\}-commented region
+with @kbd{M-q}.
+
+
+@node Colon Definitions Tutorial, Decompilation Tutorial, Comments Tutorial, Tutorial
+@section Colon Definitions
+
+are similar to procedures and functions in other programming languages.
+
+@example
+: squared ( n -- n^2 )
+   dup * ;
+5 squared .
+7 squared .
+@end example
+
+@code{:} starts the colon definition; its name is @code{squared}.  The
+following comment describes its stack effect.  The words @code{dup *}
+are not executed, but compiled into the definition.  @code{;} ends the
+colon definition.
+
+The newly-defined word can be used like any other word, including using
+it in other definitions:
+
+@example
+: cubed ( n -- n^3 )
+   dup squared * ;
+-5 cubed .
+: fourth-power ( n -- n^4 )
+   squared squared ;
+3 fourth-power .
+@end example
+
+@assignment
+Write colon definitions for @code{nip}, @code{tuck}, @code{negate}, and
+@code{/mod} in terms of other Forth words, and check if they work (hint:
+test your tests on the originals first).  Don't let the
+@samp{redefined}-Messages spook you, they are just warnings.
+@endassignment
+
+
+@node Decompilation Tutorial, Stack-Effect Comments Tutorial, Colon Definitions Tutorial, Tutorial
+@section Decompilation
+
+You can decompile colon definitions with @code{see}:
+
+@example
+see squared
+see cubed
+@end example
+
+In Gforth @code{see} shows you a reconstruction of the source code from
+the executable code.  Informations that were present in the source, but
+not in the executable code, are lost (e.g., comments).
+
+@node Stack-Effect Comments Tutorial, Types Tutorial, Decompilation Tutorial, Tutorial
+@section Stack-Effect Comments
+
+By convention the comment after the name of a definition describes the
+stack effect: The part in from of the @samp{--} describes the state of
+the stack before the execution of the definition, i.e., the parameters
+that are passed into the colon definition; the part behind the @samp{--}
+is the state of the stack after the execution of the definition, i.e.,
+the results of the definition.  The stack comment only shows the top
+stack items that the definition accesses and/or changes.
+
+You should put a correct stack effect on every definition, even if it is
+just @code{( -- )}.  You should also add some descriptive comment to
+more complicated words (I usually do this in the lines following
+@code{:}).  If you don't do this, your code becomes unreadable (because
+you have to work through every definition before you can undertsand
+any).
+
+@assignment
+The stack effect of @code{swap} can be written like this: @code{x1 x2 --
+x2 x1}.  Describe the stack effect of @code{-}, @code{drop}, @code{dup},
+@code{over}, @code{rot}, @code{nip}, and @code{tuck}.  Hint: When you
+are done, you can compare your stack effects to this in this manual
+(@pxref{Word Index}).
+@endassignment
+
+Sometimes programmers put comments at various places in colon
+definitions that describe the contents of the stack at that place (stack
+comments); i.e., they are like the first part of a stack-effect
+comment. E.g.,
+
+@example
+: cubed ( n -- n^3 )
+   dup squared  ( n n^2 ) * ;
+@end example
+
+In this case the stack comment is pretty superfluous, because the word
+is simple enough.  If you think it would be a good idea to add such a
+comment to increase readability, you should also consider factoring the
+word into several simpler words (@pxref{Factoring Tutorial,,
+Factoring}), which typically eliminates the need for the stack effect;
+however, if you decide not to refactor it, then having such a comment is
+better than not having it.
+
+The names of the stack items in stack-effect and stack comments in the
+standard, in this manual, and in many programs specify the type through
+a type prefix, similar to Fortran and Hungarian notation.  The most
+frequent prefixes are:
+
+@table @code
+@item n
+signed integer
+@item u
+unsigned integer
+@item c
+character
+@item f
+Boolean flags, i.e. @code{false} or @code{true}.
+@item a-addr,a-
+Cell-aligned address
+@item c-addr,c-
+Char-aligned address (note that a Char may have two bytes in Windows NT)
+@item xt
+Execution token, same size as Cell
+@item w,x
+Cell, can contain an integer or an address.  It usually takes 32, 64 or
+16 bits (depending on your platform and Forth system). A cell is more
+commonly known as machine word, but the term @emph{word} already means
+something different in Forth.
+@item d
+signed double-cell integer
+@item ud
+unsigned double-cell integer
+@item r
+Float (on the FP stack)
+@end table
+
+You can find a more complete list in @ref{Notation}.
+
+@assignment
+Write stack-effect comments for all definitions you have written up to
+now.
+@endassignment
+
+
+@node Types Tutorial, Factoring Tutorial, Stack-Effect Comments Tutorial, Tutorial
+@section Types
+
+In Forth the names of the operations are not overloaded; so similar
+operations on different types need different names; e.g., @code{+} adds
+integers, and you have to use @code{f+} to add floating-point numbers.
+The following prefixes are often used for related operations on
+different types:
+
+@table @code
+@item (none)
+signed integer
+@item u
+unsigned integer
+@item c
+character
+@item d
+signed double-cell integer
+@item ud, du
+unsigned double-cell integer
+@item 2
+two cells (not-necessarily double-cell numbers)
+@item m, um
+mixed single-cell and double-cell operations
+@item f
+floating-point (note that in stack comments @samp{f} represents flags,
+and @samp{r} represents FP number).
+@end table
+
+If there are no differences between the signed and the unsigned variant
+(e.g., for @code{+}), there is only the prefix-less variant.
+
+Forth does not perform type checking, neither at compile time, nor at
+run time.  If you use the wrong oeration, the data are interpreted
+incorrectly:
+
+@example
+-1 u.
+@end example
+
+If you have only experience with type-checked languages until now, and
+have heard how important type-checking is, don't panic!  In my
+experience (and that of other Forthers), type errors in Forth code are
+usually easy to find (once you get used to it), the increased vigilance
+of the programmer tends to catch some harder errors in addition to most
+type errors, and you never have to work around the type system, so in
+most situations the lack of type-checking seems to be a win (projects to
+add type checking to Forth have not caught on).
+
+
+@node Factoring Tutorial, Designing the stack effect Tutorial, Types Tutorial, Tutorial
+@section Factoring
+
+If you try to write longer definitions, you will soon find it hard to
+keep track of the stack contents.  Therefore, good Forth programmers
+tend to write only short definitions (e.g., three lines).  The art of
+finding meaningful short definitions is known as factoring (as in
+factoring polynomials).
+
+Well-factored programs offer additional advantages: smaller, more
+general words, are easier to test and debug and can be reused more and
+better than larger, specialized words.
+
+So, if you run into difficulties with stack management, when writing
+code, try to define meaningful factors for the word, and define the word
+in terms of those.  Even if a factor contains only two words, it is
+often helpful.
+
+Good factoring is not easy, and even experienced Forth programmers often
+don't find the right solution right away, but only when rewriting the
+program.  So, if you don't come up with a good solution immediately,
+keep trying, don't despair.
+
+@c example !!
+
+
+@node Designing the stack effect Tutorial, Local Variables Tutorial, Factoring Tutorial, Tutorial
+@section Designing the stack effect
+
+In other languages you can use an arbitrary order of parameters for a
+function; and since ther is only one result, you don't have to deal with
+the order of results, either.
+
+In Forth (and other stack-based languages, e.g., Postscript) the
+parameter and result order of a definition is important and should be
+designed well.  The general guideline is to design the stack effect such
+that the word is simple to use in most cases, even if that complicates
+the implementation of the word.  Some concrete rules are:
+
+@itemize @bullet
+
+@item
+Words consume all of their parameters (e.g., @code{.}).
+
+@item
+If there is a convention on the order of parameters (e.g., from
+mathematics or another programming language), stick with it (e.g.,
+@code{-}).
+
+@item
+If one parameter usually requires only a short computation (e.g., it is
+a constant), pass it on the top of the stack.  Conversely, parameters
+that usually require a long sequence of code to compute should be passed
+as the bottom (i.e., first) parameter.  This makes the code easier to
+read, because reader does not need to keep track of the bottom item
+through a long sequence of code (or, alternatively, through stack
+manipulations). E.g., @code{!} (store, see @pxref{Memory}) expects the
+address on top of the stack because it is usually simpler to compute
+than the stored value (often the address is just a variable).
+
+@item
+Similarly, results that are usually consumed quickly should be returned
+on the top of stack, whereas a result that is often used in long
+computations should be passed as bottom result.  E.g., the file words
+like @code{open-file} return the error code on the top of stack, because
+it is usually consumed quickly by @code{throw}; moreover, the error code
+has to be checked before doing anything with the other results.
+
+@end itemize
+
+These rules are just general guidelines, don't lose sight of the overall
+goal to make the words easy to use.  E.g., if the convention rule
+conflicts with the computation-length rule, you might decide in favour
+of the convention if the word will be used rarely, and in favour of the
+computation-length rule if the word will be used frequently (because
+with frequent use the cost of breaking the computation-length rule would
+be quite high, and frequent use makes it easier to remember an
+unconventional order).
+
+@c example !! structure package
+
+@node Local Variables Tutorial, Conditional execution Tutorial, Designing the stack effect Tutorial, Tutorial
+@section Local Variables
+
+You can define local variables (@emph{locals}) in a colon definition:
+
+@example
+: swap @{ a b -- b a @}
+  b a ;
+1 2 swap .s 2drop
+@end example
+
+(If your Forth system does not support this syntax, include
+@file{compat/anslocals.fs} first).
+
+In this example @code{@{ a b -- b a @}} is the locals definition; it
+takes two cells from the stack, puts the top of stack in @code{b} and
+the next stack element in @code{a}.  @code{--} starts a comment ending
+with @code{@}}.  After the locals definition, using the name of the
+local will push its value on the stack.  You can leave the comment
+part (@code{-- b a}) away:
+
+@example
+: swap ( x1 x2 -- x2 x1 )
+  @{ a b @} b a ;
+@end example
+
+In Gforth you can have several locals definitions, anywhere in a colon
+definition; in contrast, in a standard program you can have only one
+locals definition per colon definition, and that locals definition must
+be outside any controll structure.
+
+With locals you can write slightly longer definitions without running
+into stack trouble.  However, I recommend trying to write colon
+definitions without locals for exercise purposes to help you gain the
+essential factoring skills.
+
+@assignment
+Rewrite your definitions until now with locals
+@endassignment
+
+
+@node Conditional execution Tutorial, Flags and Comparisons Tutorial, Local Variables Tutorial, Tutorial
+@section Conditional execution
+
+In Forth you can use control structures only inside colon definitions.
+An @code{if}-structure looks like this:
+
+@example
+: abs ( n1 -- +n2 )
+    dup 0 < if
+        negate
+    endif ;
+5 abs .
+-5 abs .
+@end example
+
+@code{if} takes a flag from the stack.  If the flag is non-zero (true),
+the following code is performed, otherwise execution continues after the
+@code{endif} (or @code{else}).  @code{<} combares the top two stack
+elements and prioduces a flag:
+
+@example
+1 2 < .
+2 1 < .
+1 1 < .
+@end example
+
+Actually the standard name for @code{endif} is @code{then}.  This
+tutorial presents the examples using @code{endif}, because this is often
+less confusing for people familiar with other programming languages
+where @code{then} has a different meaning.  If your system does not have
+@code{endif}, define it with
+
+@example
+: endif postpone then ; immediate
+@end example
+
+You can optionally use an @code{else}-part:
+
+@example
+: min ( n1 n2 -- n )
+  2dup < if
+    drop
+  else
+    nip
+  endif ;
+2 3 min .
+3 2 min .
+@end example
+
+@assignment
+Write @code{min} without @code{else}-part (hint: what's the definition
+of @code{nip}?).
+@endassignment
+
+
+@node Flags and Comparisons Tutorial, General Loops Tutorial, Conditional execution Tutorial, Tutorial
+@section Flags and Comparisons
+
+In a false-flag all bits are clear (0 when interpreted as integer).  In
+a canonical true-flag all bits are set (-1 as a twos-complement signed
+integer); in many contexts (e.g., @code{if}) any non-zero value is
+treated as true flag.
+
+@example
+false .
+true .
+true hex u. decimal
+@end example
+
+Comparison words produce canonical flags:
+
+@example
+1 1 = .
+1 0= .
+0 1 < .
+0 0 < .
+-1 1 u< . \ type error, u< interprets -1 as large unsigned number
+-1 1 < .
+@end example
+
+Gforth supports all combinations of the prefixes @code{0 u d d0 du} (or
+none) and the comparisons @code{= <> < > <= >=}.  Only a part of these
+combinations are standard (see the standard or !! the glossary for
+details).
+
+You can use @code{and or xor invert} can be used as operations on
+canonical flags.  Actually they are bitwise operations:
+
+@example
+1 2 and .
+1 2 or .
+1 3 xor .
+1 invert .
+@end example
+
+You can convert a zero/non-zero flag into a canonical flag with
+@code{0<>} (and complement it on the way with @code{0=}).
+
+@example
+1 0= .
+1 0<> .
+@end example
+
+You can use the all-bits-set feature of canonicasl flags and the bitwise
+operation of the Boolean operations to avoid @code{if}s:
+
+@example
+: foo ( n1 -- n2 )
+  0= if
+    14
+  else
+    0
+  endif ;
+0 foo .
+1 foo .
+
+: foo ( n1 -- n2 )
+  0= 14 and ;
+0 foo .
+1 foo .
+@end example
+
+@assignment
+Write @code{min} without @code{if}.
+@endassignment
+
+
+@node General Loops Tutorial, Counted loops Tutorial, Flags and Comparisons Tutorial, Tutorial
+@section General Loops
+
+The endless loop is the most simple one:
+
+@example
+: endless ( -- )
+  0 begin
+    dup . 1+
+  again ;
+endless
+@end example
+
+Terminate this loop by pressing @kbd{Ctrl-C} (in Gforth).  @code{begin}
+does nothing at run-time, @code{again} jumps back to @code{begin}.
+
+A loop with one exit at any place looks like this:
+
+@example
+: log2 ( +n1 -- n2 )
+\ logarithmus dualis of n1>0, rounded down to the next integer
+  assert( dup 0> )
+  2/ 0 begin
+    over 0> while
+      1+ swap 2/ swap
+  repeat
+  nip ;
+7 log2 .
+8 log2 .
+@end example
+
+At run-time @code{while} consumes a flag; if it is 0, execution
+continues behind the @code{repeat}; if the falg is non-zero, execution
+continues behind the @code{while}.  @code{Repeat} jumps back to
+@code{begin}, just like @code{again}.
+
+In Forth there are many combinations/abbreviations, like @code{1+}.
+However, @code{2/} is not one of them; it shifts it's argument right by
+one bit (arithmetic shift right):
+
+@example
+-5 2 / .
+-5 2/ .
+@end example
+
+@code{assert(} is no standard word, but you can get it on systems other
+then Gforth by including @file{compat/assert.fs}.  You can see what it
+does by trying
+
+@example
+0 log2 .
+@end example
+
+Here's a loop with an exit at the end:
+
+@example
+: log2 ( +n1 -- n2 )
+\ logarithmus dualis of n1>0, rounded down to the next integer
+  assert( dup 0 > )
+  -1 begin
+    1+ swap 2/ swap
+    over 0 <=
+  until
+  nip ;
+@end example
+
+@code{Until} consumes a flag; if it is non-zero, execution continues at
+the @code{begin}, otherwise after the @code{until}.
+
+@assignment
+Write a definition for computing the greatest common divisor.
+@endassignment
+
+
+@node Counted loops Tutorial, Recursion Tutorial, General Loops Tutorial, Tutorial
+@section Counted loops
+
+@example
+: ^ ( n1 u -- n )
+\ n = the uth power of u1
+  1 swap 0 u+do
+    over *
+  loop
+  nip ;
+3 2 ^ .
+4 3 ^ .
+@end example
+
+@code{U+do} (from @file{compat/loops.fs}, if your Forth system doesn't
+have it) takes two numbers of the stack @code{( u3 u4 -- )}, and then
+performs the code between @code{u+do} and @code{loop} for @code{u3-u4}
+times (or not at all, if @code{u3-u4<0}).
+
+You can see the stack effect design rules at work in the stack effect of
+the loop start words: Since the start value of the loop is more
+frequently constant than the end value, the start value is passed on
+the top-of-stack.
+
+You can access the counter of a counted loop with @code{i}:
+
+@example
+: fac ( u -- u! )
+  1 swap 1+ 1 u+do
+    i *
+  loop ;
+5 fac .
+7 fac .
+@end example
+
+There is also @code{+do}, which expects signed numbers (important for
+deciding whether to enter the loop).
+
+@assignment
+Write a definition for computing the nth Fibonacci number.
+@endassignment
+
+!! +DO...+LOOP
+!! -DO...-LOOP
+
+
+@node Recursion Tutorial, Leaving definitions or loops Tutorial, Counted loops Tutorial, Tutorial
+@section Recursion
+
+Usually the name of a definition is not visible in the definition; but
+earlier definitions are usually visible:
+
+@example
+1 0 / . \ "Floating-point unidentified fault" in Gforth on most platforms
+: / ( n1 n2 -- n )
+  dup 0= if
+    -10 throw \ report division by zero
+  endif
+  /           \ old version
+;
+1 0 /
+@end example
+
+For recursive definitions you can use @code{recursive} (non-standard) or
+@code{recurse}:
+
+@example
+: fac1 ( n -- n! ) recursive
+ dup 0> if
+   dup 1- fac1 *
+ else
+   drop 1
+ endif ;
+7 fac1 .
+
+: fac2 ( n -- n! )
+ dup 0> if
+   dup 1- recurse *
+ else
+   drop 1
+ endif ;
+8 fac2 .
+@end example
+
+@assignment
+Write a recursive definition for computing the nth Fibonacci number.
+@endassignment
+
+
+@node Leaving definitions or loops Tutorial, Return Stack Tutorial, Recursion Tutorial, Tutorial
+@section Leaving definitions or loops
+
+@code{EXIT} exits the current definition right away.  For every counted
+loop that is left in this way, an @code{UNLOOP} has to be performed
+before the @code{EXIT}:
+
+@c !! real examples
+@example
+: ...
+ ... u+do
+   ... if
+     ... unloop exit
+   endif
+   ...
+ loop
+ ... ;
+@end example
+
+@code{LEAVE} leaves the innermost counted loop right away:
+
+@example
+: ...
+ ... u+do
+   ... if
+     ... leave
+   endif
+   ...
+ loop
+ ... ;
+@end example
+
+
+@node Return Stack Tutorial, Memory Tutorial, Leaving definitions or loops Tutorial, Tutorial
+@section Return Stack
+
+In addition to the data stack Forth also has a second stack, the return
+stack; most Forth systems store the return addresses of procedure calls
+there (thus its name).  Programmers can also use this stack:
+
+@example
+: foo ( n1 n2 -- )
+ .s
+ >r .s
+ r@ .
+ >r .s
+ r@ .
+ r> .
+ r@ .
+ r> . ;
+1 2 foo
+@end example
+
+@code{>r} takes an element from the data stack and pushes it onto the
+return stack; conversely, @code{r>} moves an elementm from the return to
+the data stack; @code{r@@} pushes a copy of the top of the return stack
+on the return stack.
+
+Forth programmers usually use the return stack for storing data
+temporarily, if using the data stack alone would be too complex, and
+factoring and locals are not an option:
+
+@example
+: 2swap ( x1 x2 x3 x4 -- x3 x4 x1 x2 )
+ rot >r rot r> ;
+@end example
+
+The return address of the definition and the loop control parameters of
+counted loops usually reside on the return stack, so you have to take
+all items, that you have pushed on the return stack in a colon
+definition or counted loop, from the return stack before the definition
+or loop ends.  You cannot access items that you pushed on the return
+stack outside some definition or loop within the definition of loop.
+
+If you miscount the return stack items, this usually ends in a crash:
+
+@example
+: crash ( n -- )
+  >r ;
+5 crash
+@end example
+
+You cannot mix using locals and using the return stack (according to the
+standard; Gforth has no problem).  However, they solve the same
+problems, so this shouldn't be an issue.
+
+@assignment
+Can you rewrite any of the definitions you wrote until now in a better
+way using the return stack?
+@endassignment
+
+
+@node Memory Tutorial, Characters and Strings Tutorial, Return Stack Tutorial, Tutorial
+@section Memory
+
+You can create a global variable @code{v} with
+
+@example
+variable v ( -- addr )
+@end example
+
+@code{v} pushes the address of a cell in memory on the stack.  This cell
+was reserved by @code{variable}.  You can use @code{!} (store) to store
+values into this cell and @code{@@} (fetch) to load the value from the
+stack into memory:
+
+@example
+v .
+5 v ! .s
+v @ .
+@end example
+
+You can also reserve more memory:
+
+@example
+create v2 20 cells allot
+@end example
+
+creates a word @code{v2} and reserves 20 cells; the address pushed by
+@code{v2} points to the start of these 20 cells.  You can use address
+arithmetic to access these cells:
+
+@example
+3 v2 5 cells + !
+@end example
+
+You can reserve and initialize memory with @code{,}:
+
+@example
+create v3
+  5 , 4 , 3 , 2 , 1 ,
+v3 @ .
+v3 cell+ @ .
+v3 2 cells + @ .
+@end example
+
+@assignment
+Write a definition @code{vsum ( addr u -- n )} that computes the sum of
+@code{u} cells, with the first of these cells at @code{addr}, the next
+one at @code{addr cell+} etc.
+@endassignment
+
+You can also reserve memory without creating a new word:
+
+@example
+here 10 cells allot
+.s
+@end example
+
+@code{Here} pushes the start address of the memory area.  You should
+store it somewhere, or you will have a hard time finding the memory area
+again.
+
+@code{Allot} manages dictionary memory.  The dictionary memory contains
+the system's data structures for words etc. on Gforth and most other
+Forth systems.  It is managed like a stack: You can free the memory that
+you have just @code{allot}ed with
+
+@example
+-10 cells allot
+@end example
+
+Note that you cannot do this if you have created a new word in the
+meantime (because then your @code{allot}ed memory is no longer on the
+top of the dictionary ``stack'').
+
+Alternatively, you can use @code{allocate} and @code{free} which allow
+freeing memory in any order:
+
+@example
+10 cells allocate throw .s
+20 cells allocate throw .s
+swap
+free throw
+free throw
+@end example
+
+The @code{throw}s deal with errors (e.g., out of memory).
+
+And there is also a garbage collector @url{!!}, which eliminates the
+need to @code{free} memory explicitly.
+
+
+@node Characters and Strings Tutorial, Alignment Tutorial, Memory Tutorial, Tutorial
+@section Characters and Strings
+
+On the stack characters take up a cell, like numbers.  In memory they
+have their own size (one 8-bit byte on most systems), and therefore
+require their own words for memory access:
+
+@example
+create v4 
+  104 c, 97 c, 108 c, 108 c, 111 c,
+v4 4 chars + c@ .
+@end example
+
+The preferred representation of strings on the stack is @code{addr
+u-count}, where @code{addr} is the address of the first character and
+@code{u-count} is the number of characters in the string.
+
+@example
+v4 5 type
+@end example
+
+You get a string constant with
+
+@example
+s" hello, world" .s
+type
+@end example
+
+Make sure you have a space between @code{s"} and the string; @code{s"}
+is a normal Forth word and must be delimited with white space (try what
+happens when you remove the space).
+
+However, this interpretive use of @code{s"} is quite restricted: the
+string exists only until the next call of @code{s"} (some Forth systems
+keep more than one of these strings, but usually they still have a
+limited lifetime.
+
+@example
+s" hello," s" world" .s
+type
+type
+@end example
+
+However, you can also use @code{s"} in a definition, and the resulting
+strings then live forever (well, as long as the definition):
+
+@example
+: foo s" hello," s" world" ;
+foo .s
+type
+type
+@end example
+
+@assignment
+@code{Emit ( c -- )} types @code{c} as character (not a number).
+Implement @code{type ( addr u -- )}.
+@endassignment
+
+@node Alignment Tutorial, Interpretation and Compilation Semantics and Immediacy Tutorial, Characters and Strings Tutorial, Tutorial
+@section Alignment
+
+On many processors cells have to be aligned in memory, if you want to
+access them with @code{@@} and @code{!} (and even if the processor does
+not require alignment, access to aligned cells are faster).
+
+@code{Create} aligns @code{here} (i.e., the place where the next
+allocation will occur, and that the @code{create}d word points to).
+Likewise, the memory produced by @code{allocate} starts at an aligned
+address.  Adding a number of @code{cells} to an aligned address produces
+another aligned address.
+
+However, address arithmetic involving @code{char+} and @code{chars} can
+create an address that is not cell-aligned.  @code{Aligned ( addr --
+a-addr )} produces the next aligned address:
+
+@example
+v3 char+ aligned .s @ .
+v3 char+ .s @ .
+@end example
+
+Similarly, @code{align} advances @code{here} to the next aligned
+address:
+
+@example
+create v5 97 c,
+here .
+align here .
+1000 ,
+@end example
+
+Note that you should use aligned addresses even if your processor does
+not require them, if you want your program to be portable.
+
+
+@node Interpretation and Compilation Semantics and Immediacy Tutorial, Execution Tokens Tutorial, Alignment Tutorial, Tutorial
+@section Interpretation and Compilation Semantics and Immediacy
+
+When a word is compiled, it behaves differently from being interpreted.
+E.g., consider @code{+}:
+
+@example
+1 2 + .
+: foo + ;
+@end example
+
+These two behaviours are known as compilation and interpretation
+semantics.  For normal words (e.g., @code{+}), the compilation semantics
+is to append the interpretation semantics to the currently defined word
+(@code{foo} in the example above).  I.e., when @code{foo} is executed
+later, the interpretation semantics of @code{+} (i.e., adding two
+numbers) will be performed.
+
+However, there are words with non-default compilation semantics, e.g.,
+the control-flow words like @code{if}.  You can use @code{immediate} to
+change the compilation semantics of the last defined word to be equal to
+the interpretation semantics:
+
+@example
+: [FOO] ( -- )
+ 5 . ; immediate
+
+[FOO]
+: bar ( -- )
+  [FOO] ;
+bar
+see bar
+@end example
+
+Two conventions to mark words with non-default compilation semnatics are
+names with brackets (more frequently used) and to write them all in
+upper case (less frequently used).
+
+In Gforth (and many other systems) you can also remove the
+interpretation semantics with @code{compile-only} (the compilation
+semantics is derived from the original interpretation semantics):
+
+@example
+: flip ( -- )
+ 6 . ; compile-only \ but not immediate
+flip
+
+: flop ( -- )
+ flip ;
+flop
+@end example
+
+In this example the interpretation semantics of @code{flop} is equal to
+the original interpretation semantics of @code{flip}.
+
+The text interpreter has two states: in interpret state, it performs the
+interpretation semantics of words it encounters; in compile state, it
+performs the compilation semantics of these words.
+
+Among other things, @code{:} switches into compile state, and @code{;}
+switches back to interpret state.  They contain the factors @code{]}
+(switch to compile state) and @code{[} (switch to interpret state), that
+do nothing but switch the state.
+
+@example
+: xxx ( -- )
+  [ 5 . ]
+;
+
+xxx
+see xxx
+@end example
+
+These brackets are also the source of the naming convention mentioned
+above.
+
+
+@node Execution Tokens Tutorial, Exceptions Tutorial, Interpretation and Compilation Semantics and Immediacy Tutorial, Tutorial
+@section Execution Tokens
+
+@code{' word} gives you the execution token (XT) of a word.  The XT is a
+cell representing the interpretation semantics of a word.  You can
+execute this semantics with @code{execute}:
+
+@example
+' + .s
+1 2 rot execute .
+@end example
+
+The XT is similar to a function pointer in C.  However, parameter
+passing through the stack makes it a little more flexible:
+
+@example
+: map-array ( ... addr u xt -- ... )
+\ führt xt ( ... x -- ... ) für jedes Element des Arrays aus,
+\ das bei addr beginnt und u Elemente enthält
+  @{ xt @}
+  cells over + swap ?do
+    i @ xt execute
+  1 cells +loop ;
+
+create a 3 , 4 , 2 , -1 , 4 ,
+a 5 ' . map-array .s
+0 a 5 ' + map-array .
+s" max-n" environment? drop .s
+a 5 ' min map-array .
+@end example
+
+You can use map-array with the XTs of words that consume one element
+more than they produce.  In theory you can also use it with other XTs,
+but the stack effect then depends on the size of the array, which is
+hard to understand.
+
+Since arrays are cell-sized, you can store them in memory and manipulate
+them on the stack like other cells.  You can also compile the xt into a
+word with @code{compile,}:
+
+@example
+: foo1 ( n1 n2 -- n )
+   [ ' + compile, ] ;
+see foo
+@end example
+
+This is non-standard, because @code{compile,} has no compilation
+semantics in the standard, but it works in good Forth systems.  For the
+broken ones, use
+
+@example
+: [compile,] compile, ; immediate
+
+: foo1 ( n1 n2 -- n )
+   [ ' + ] [compile,] ;
+see foo
+@end example
+
+@code{'} is a word with default compilation semantics; it parses the
+next word when its interpretation semantics are executed, not during
+compilation:
+
+@example
+: foo ( -- xt )
+  ' ;
+see foo
+: bar ( ... "word" -- ... )
+  ' execute ;
+see bar
+1 2 bar +
+@end example
+
+You often want to parse a word during compilation and compile its XT so
+it will be pushed on the stack at run-time.  @code{[']} does this:
+
+@example
+: xt-+ ( -- xt )
+  ['] + ;
+see xt-+
+1 2 xt-+ execute .
+@end example
+
+Many programmers tend to see @code{'} and the word it parses as one
+unit, and expect it to behave like @code{[']} when compiled, and are
+confused by the actual behaviour.  If you are, just remember that the
+Forth system just takes @code{'} as one unit and has no idea that it is
+a parsing word (attempts to convenience programmers in this issue have
+usually resulted in even worse pitfalls, see
+@uref{http://www.complang.tuwien.ac.at/papers/ertl98.ps.gz}).
+
+Note that the state of the interpreter does not come into play when
+creating and executing xts.  I.e., even when you execute @code{'} in
+compile state, it still gives you the interpretation semantics.  And
+whatever that state is, @code{execute} performs the semantics
+represented by the xt (i.e., the interpretation semantics).
+
+
+@node Exceptions Tutorial, Defining Words Tutorial, Execution Tokens Tutorial, Tutorial
+@section Exceptions
+
+@code{throw ( n -- )} causes an exception unless n is zero.
+
+@example
+100 throw .s
+0 throw .s
+@end example
+
+@code{catch ( ... xt -- ... n )} behaves similar to @code{execute}, but
+it catches exceptions and pushes the number of the exception on the
+stack (or 0, if the xt executed without exception).  If there was an
+exception, the stacks have the same depth as when entering @code{catch}:
+
+@example
+.s
+3 0 ' / catch .s
+3 2 ' / catch .s
+@end example
+
+@assignment
+Try the same with @code{execute} instead of @code{catch}.
+@endassignment
+
+@code{Throw} always jumps to the dynamically next enclosing
+@code{catch}, even if it has to leave several call levels to achieve
+this:
+
+@example
+: foo 100 throw ;
+: foo1 foo ." after foo" ;
+: bar ' foo1 catch ;
+bar
+@end example
+
+It is often important to restore a value upon leaving a definition, even
+if the definition is left through an exception.  You can ensure this
+like this:
+
+@example
+: ...
+   save-x
+   ' word-changing-x catch ( ... n )
+   restore-x
+   ( ... n ) throw ;
+@end example
+
+Gforth provides an alternative syntax in addition to @code{cacth}:
+@code{try ... recover ... endtry}.  If the code between @code{try} and
+@code{recover} has an exception, the stack depths are restored, the
+exception number is pushed on the stack, and the code between
+@code{recover} and @code{endtry} is performed.  E.g., the definition for
+@code{catch} is
+
+@example
+: catch ( x1 .. xn xt -- y1 .. ym 0 / z1 .. zn error ) \ exception
+  try
+    execute 0
+  recover
+    nip
+  endtry ;
+@end example
+
+The equivalent to the restoration code above is
+
+@example
+: ...
+  save-x
+  try
+    word-changing-x
+  end-try
+  restore-x
+  throw ;
+@end example
+
+As you can see, the @code{recover} part is optional.
+
+
+@node Defining Words Tutorial, Arrays and Records Tutorial, Exceptions Tutorial, Tutorial
+@section Defining Words
+
+@code{:}, @code{create}, and @code{variable} are definition words: They
+define other words.  @code{Constant} is another definition word:
+
+@example
+5 constant foo
+foo .
+@end example
+
+You can also use the prefixes @code{2} (double-cell) and @code{f}
+(floating point) with @code{variable} and @code{constant}.
+
+You can also define your own defining words.  E.g.:
+
+@example
+: variable ( "name" -- )
+  create 0 , ;
+@end example
+
+You can also define defining words that create words that do something
+other than just producing their address:
+
+@example
+: constant ( n "name" -- )
+  create ,
+does> ( -- n )
+  ( addr ) @ ;
+
+5 constant foo
+foo .
+@end example
+
+The definition of @code{constant} above ends at the @code{does>}; i.e.,
+@code{does>} replaces @code{;}, but it also does something else: It
+changes the last defined word such that it pushes the address of the
+body of the word and then performs the code after the @code{does>}
+whenever it is called.
+
+In the example above, @code{constant} uses @code{,} to store 5 into the
+body of @code{foo}.  When @code{foo} executes, it pushes the address of
+the body onto the stack, then (in the code after the @code{does>})
+fetches the 5 from there.
+
+The stack comment near the @code{does>} reflects the stack effect of the
+defined word, not the stack effect of the code after the @code{does>}
+(the difference is that the code expects the address of the body that
+the stack comment does not show).
+
+You can use these definition words to do factoring in cases that involve
+(other) definition words.  E.g., a field offset is always added to an
+address.  Instead of defining
+
+@example
+2 cells constant offset-field1
+@end example
+
+and using this like
+
+@example
+( addr ) offset-field1 +
+@end example
+
+you can define a definition word
+
+@example
+: simple-field ( n "name" -- )
+  create ,
+does> ( n1 -- n1+n )
+  ( addr ) @ + ;
+@end example
+
+Definition and use of field offsets now look like this:
+
+@example
+2 cells simple-field field1
+( addr ) field1
+@end example
+
+If you want to do something with the word without performing the code
+after the @code{does>}, you can access the body of a @code{create}d word
+with @code{>body ( xt -- addr )}:
+
+@example
+: value ( n "name" -- )
+  create ,
+does> ( -- n1 )
+  @ ;
+: to ( n "name" -- )
+  ' >body ! ;
+
+5 value foo
+foo .
+7 to foo
+foo .
+@end example
+
+@assignment
+Define @code{defer ( "name" -- )}, which creates a word that stores an
+XT (at the start the XT of @code{abort}), and upon execution
+@code{execute}s the XT.  Define @code{is ( xt "name" -- )} that stores
+@code{xt} into @code{name}, a word defined with @code{defer}.  Indirect
+recursion is one application of @code{defer}.
+@endassignment
+
+@node Arrays and Records Tutorial, POSTPONE Tutorial, Defining Words Tutorial, Tutorial
+@section Arrays and Records
+
+Forth has no standard words for defining data structures such as arrays
+and records (structs in C terminology), but you can build them yourself
+based on address arithmetic.  You can also define words for defining
+arrays and records (@pxref{Defining Words Tutorial,, Defining Words}).
+
+One of the first projects a Forth newcomer sets out upon when learning
+about defining words is an array defining word (possibly for
+n-dimensional arrays).  Go ahead and do it, I did it, too; you will
+learn something from it.  However, don't be disappointed when you later
+learn that you have little use for these words (inappropriate use would
+be even worse).  I have not yet found a set of useful array words yet;
+the needs are just too diverse, and named, global arrays (the result of
+naive use of defining words) are often not flexible enough (e.g.,
+consider how to pass them as parameters).
+
+On the other hand, there is a useful set of record words, and it has
+been defined in @file{compat/struct.fs}; these words are predefined in
+Gforth.  They are explained in depth elsewhere in this manual (see
+@pxref{Structures}).  The @code{simple-field} example above is
+simplified variant of fields in this package.
+
+
+@node POSTPONE Tutorial, Literal Tutorial, Arrays and Records Tutorial, Tutorial
+@section @code{POSTPONE}
+
+You can compile the compilation semantics (instead of compiling the
+interpretation semantics) of a word with @code{POSTPONE}:
+
+@example
+: MY-+ ( Compilation: -- ; Run-time of compiled code: n1 n2 -- n )
+ POSTPONE + ; immediate compile-only
+: foo ( n1 n2 -- n )
+ MY-+ ;
+1 2 foo .
+see foo
+@end example
+
+During the definition of @code{foo} the text interpreter performs the
+compilation semantics of @code{MY-+}, which performs the compilation
+semantics of @code{+}, i.e., it compiles @code{+} into @code{foo}.
+
+This example also displays separate stack comments for the compilation
+semantics and for the stack effect of the compiled code.  For words with
+default compilation semantics these stack effects are usually not
+displayed; the stack effect of the compilation semantics is always
+@code{( -- )} for these words, the stack effect for the compiled code is
+the stack effect of the interpretation semantics.
+
+Note that the state of the interpreter does not come into play when
+performing the compilation semantics in this way.  You can also perform
+it interpretively, e.g.:
+
+@example
+: foo2 ( n1 n2 -- n )
+ [ MY-+ ] ;
+1 2 foo .
+see foo
+@end example
+
+However, there are some broken Forth systems where this does not always
+work, and therefore this practice has been declared non-standard in
+1999.
+@c !! repair.fs
+
+Here is another example for using @code{POSTPONE}:
+
+@example
+: MY-- ( Compilation: -- ; Run-time of compiled code: n1 n2 -- n )
+ POSTPONE negate POSTPONE + ; immediate compile-only
+: bar ( n1 n2 -- n )
+  MY-- ;
+2 1 bar .
+see bar
+@end example
+
+You can define @code{ENDIF} in this way:
+
+@example
+: ENDIF ( Compilation: orig -- )
+  POSTPONE then ; immediate
+@end example
+
+@assignment
+Write @code{MY-2DUP} that has compilation semantics equivalent to
+@code{2dup}, but compiles @code{over over}.
+@endassignment
+
+@node Literal Tutorial, Advanced macros Tutorial, POSTPONE Tutorial, Tutorial
+@section @code{Literal}
+
+You cannot @code{POSTPONE} numbers:
+
+@example
+: [FOO] POSTPONE 500 ; immediate
+@end example
+
+Instead, you can use @code{LITERAL (compilation: n --; run-time: -- n )}:
+
+@example
+: [FOO] ( compilation: --; run-time: -- n )
+  500 POSTPONE literal ; immediate
+
+: flip foo ;
+flip .
+see flip
+@end example
+
+@code{LITERAL} consumes a number at compile-time (when it's compilation
+semantics are executed) and pushes it at run-time (when the code it
+compiled is executed).  A frequent use of @code{LITERAL} is to compile a
+number computed at compile time into the current word:
+
+@example
+: bar ( -- n )
+  [ 2 2 + ] literal ;
+see bar
+@end example
+
+@assignment
+Write @code{]L} which allows writing the example above as @code{: bar (
+-- n ) [ 2 2 + ]L ;}
+@endassignment
+
+
+@node Advanced macros Tutorial, Compilation Tokens Tutorial, Literal Tutorial, Tutorial
+@section Advanced macros
+
+Reconsider @code{map-array} from @ref{Execution Tokens
+Tutorial,, Execution Tokens}.  It frequently performs @code{execute}, a
+relatively expensive operation in some implementations.  You can use
+@code{compile,} and @code{POSTPONE} to eliminate these @code{execute}s
+and produce a word that contains the word to be performed directly:
+
+@c use ]] ... [[
+@example
+: compile-map-array ( compilation: xt -- ; run-time: ... addr u -- ... )
+\ at run-time, execute xt ( ... x -- ... ) for each element of the
+\ array beginning at addr and containing u elements
+  @{ xt @}
+  POSTPONE cells POSTPONE over POSTPONE + POSTPONE swap POSTPONE ?do
+    POSTPONE i POSTPONE @ xt compile,
+  1 cells POSTPONE literal POSTPONE +loop ;
+
+: sum-array ( addr u -- n )
+ 0 rot rot [ ' + compile-map-array ] ;
+see sum-array
+a 5 sum-array .
+@end example
+
+You can use the full power of Forth for generating the code; here's an
+example where the code is generated in a loop:
+
+@example
+: compile-vmul-step ( compilation: n --; run-time: n1 addr1 -- n2 addr2 )
+\ n2=n1+(addr1)*n, addr2=addr1+cell
+  POSTPONE tuck POSTPONE @
+  POSTPONE literal POSTPONE * POSTPONE +
+  POSTPONE swap POSTPONE cell+ ;
+
+: compile-vmul ( compilation: addr1 u -- ; run-time: addr2 -- n )
+\ n=v1*v2 (inneres Produkt), wobei die v_i als addr_i u repräsentiert sind
+  0 postpone literal postpone swap
+  [ ' compile-vmul-step compile-map-array ]
+  postpone drop ;
+see compile-vmul
+
+: a-vmul ( addr -- n )
+\ n=a*v, wobei v ein Vektor ist, der so lang ist wie a und bei addr anfängt
+ [ a 5 compile-vmul ] ;
+see a-vmul
+a a-vmul .
+@end example
+
+This example uses @code{compile-map-array} to show off, but you could
+also use @code{map-array} instead (try it now).
+
+You can use this technique for efficient multiplication of large
+matrices.  In matrix multiplication, you multiply every line of one
+matrix with every column of the other matrix.  You can generate the code
+for one line once, and use it for every column.  The only downside of
+this technique is that it is cumbersome to recover the memory consumed
+by the generated code when you are done (and in more complicated cases
+it is not possible portably).
+
+@node Compilation Tokens Tutorial, Wordlists and Search Order Tutorial, Advanced macros Tutorial, Tutorial
+@section Compilation Tokens
+
+This section is Gforth-specific.  You can skip it.
+
+@code{' word compile,} compiles the interpretation semantics.  For words
+with default compilation semantics this is the same as performing the
+compilation semantics.  To represent the compilation semantics of other
+words (e.g., words like @code{if} that have no interpretation
+semantics), Gforth has the concept of a compilation token (CT,
+consisting of two cells), and words @code{comp'} and @code{[comp']}.
+You can perform the compilation semantics represented by a CT with
+@code{execute}:
+
+@example
+: foo2 ( n1 n2 -- n )
+   [ comp' + execute ] ;
+see foo
+@end example
+
+You can compile the compilation semantics represented by a CT with
+@code{postpone,}:
+
+@example
+: foo3 ( -- )
+  [ comp' + postpone, ] ;
+see foo3
+@end example
+
+@code{[ comp' wort postpone, ]} is equivalent to @code{POSTPONE word}.
+@code{comp'} is particularly useful for words that have no
+interpretation semantics:
+
+@example
+' if
+comp' if .s
+@end example
+
+
+@node Wordlists and Search Order Tutorial,  , Compilation Tokens Tutorial, Tutorial
+@section Wordlists and Search Order
+
+The dictionary is not just a memory area that allows you to allocate
+memory with @code{allot}, it also contains the Forth words, arranged in
+several wordlists.  When searching for a word in a wordlist,
+conceptually you start searching at the youngest and proceed towards
+older words (in reality most systems nowadays use hash-tables); i.e., if
+you define a word with the same name as an older word, the new word
+shadows the older word.
+
+Which wordlists are searched in which order is determined by the search
+order.  You can display the search order with @code{order}.  It displays
+first the search order, starting with the wordlist searched first, then
+it displays the wordlist that will contain newly defined words.
+
+You can create a new, empty wordlist with @code{wordlist ( -- wid )}:
+
+@example
+wordlist constant mywords
+@end example
+
+@code{Set-current ( wid -- )} sets the wordlist that will contain newly
+defined words (the @emph{current} wordlist):
+
+@example
+mywords set-current
+order
+@end example
+
+Gforth does not display a name for the wordlist in @code{mywords}
+because this wordlist was created anonymously with @code{wordlist}.
+
+You can get the current wordlist with @code{get-current ( -- wid)}.  If
+you want to put something into a specific wordlist without overall
+effect on the current wordlist, this typically looks like this:
+
+@example
+get-current mywords set-current ( wid )
+create someword
+( wid ) set-current
+@end example
+
+You can write the search order with @code{set-order ( wid1 .. widn n --
+)} and read it with @code{get-order ( -- wid1 .. widn n )}.  The first
+searched wordlist is topmost.
+
+@example
+get-order mywords swap 1+ set-order
+order
+@end example
+
+Yes, the order of wordlists in the output of @code{order} is reversed
+from stack comments and the output of @code{.s} and thus unintuitive.
+
+@assignment
+Define @code{>order ( wid -- )} with adds @code{wid} as first searched
+wordlist to the search order.  Define @code{previous ( -- )}, which
+removes the first searched wordlist from the search order.  Experiment
+with boundary conditions (you will see some crashes or situations that
+are hard or impossible to leave).
+@endassignment
+
+The search order is a powerful foundation for providing features similar
+to Modula-2 modules and C++ namespaces.  However, trying to modularize
+programs in this way has disadvantages for debugging and reuse/factoring
+that overcome the advantages in my experience (I don't do huge projects,
+though).  These disadvanategs are not so clear in other
+languages/programming environments, because these langauges are not so
+strong in debugging and reuse.
+
+
+@c ******************************************************************
+@node Introduction, Words, Tutorial, Top
 @comment node-name,     next,           previous, up
 @chapter An Introduction to ANS Forth
 @cindex Forth - an introduction
@@ -2167,7 +4133,7 @@ Many Forth systems are implemented mainly in Forth.
 
 
 @comment ----------------------------------------------
-@node Where to go next,Exercises,Review - elements of a Forth system, Introduction
+@node Where to go next, Exercises, Review - elements of a Forth system, Introduction
 @section Where To Go Next
 @cindex where to go next
 
@@ -2220,7 +4186,7 @@ When you have mastered these, there's nothing for it but to read through
 the whole of this manual and find out what you've missed.
 
 @comment ----------------------------------------------
-@node Exercises, ,Where to go next, Introduction
+@node Exercises,  , Where to go next, Introduction
 @section Exercises
 @cindex exercises
 
@@ -4615,7 +6581,7 @@ Note that ticking (@code{'}) a compile-only word gives an error
 * Combined words::
 @end menu
 
-@node Combined words, ,Interpretation and Compilation Semantics, Interpretation and Compilation Semantics
+@node Combined words,  , Interpretation and Compilation Semantics, Interpretation and Compilation Semantics
 @subsection Combined Words
 @cindex combined words
 
@@ -5348,7 +7314,7 @@ doc-2literal
 doc-fliteral
 
 
-@node Interpreter Directives, , Literals, The Text Interpreter
+@node Interpreter Directives,  , Literals, The Text Interpreter
 @subsection Interpreter Directives
 @cindex interpreter directives
 
@@ -5513,7 +7479,7 @@ any particular context by controlling the order of the word lists on the
 search order stack.
 @end itemize
 
-@node Word list examples, ,Why use word lists?, Word Lists
+@node Word list examples,  , Why use word lists?, Word Lists
 @subsection Word list examples
 @cindex word lists - examples
 
@@ -5646,11 +7612,9 @@ doc-sourcefilename
 doc-sourceline#
 
 @menu
-* Forth source files::
-* General files::         
-* Search Paths::                 
-* Forth Search Paths::    
-* General Search Paths::        
+* Forth source files::          
+* General files::               
+* Search Paths::                
 @end menu
 
 
@@ -5746,7 +7710,7 @@ doc-resize-file
 
 
 @c ---------------------------------------------------------
-@node Search Paths, Forth Search Paths, General files, Files
+@node Search Paths,  , General files, Files
 @subsection Search Paths
 @cindex path for @code{included}
 @cindex file search path
@@ -5782,8 +7746,13 @@ If the filename starts with @file{./}, the search path is not searched
 (just as with absolute filenames), and the @file{.} has the same meaning
 as described above.
 
+@menu
+* Forth Search Paths::          
+* General Search Paths::        
+@end menu
+
 @c ---------------------------------------------------------
-@node Forth Search Paths, General Search Paths, Search Paths, Files
+@node Forth Search Paths, General Search Paths, Search Paths, Search Paths
 @subsubsection Forth Search Paths
 @cindex search path control - Forth
 
@@ -5806,7 +7775,7 @@ require timer.fs
 @end example
 
 @c ---------------------------------------------------------
-@node General Search Paths,  , Forth Search Paths, Files
+@node General Search Paths,  , Forth Search Paths, Search Paths
 @subsubsection General Search Paths
 @cindex search path control - for user applications
 
@@ -5910,11 +7879,10 @@ and its state changes to @i{assigned-clean}. Data may only be
 manipulated (read or written) within the current block buffer.
 
 When the contents of the current block buffer has been modified it is
-necessary, @i{before calling} @code{block} @i{or} @code{buffer}
-@i{again}, to either abandon the changes (by doing nothing) or commit
-the changes, using @code{update}. Using @code{update} does not change
-the blocks file; it simply changes a block buffer's state to
-@i{assigned-dirty}.
+necessary, @emph{before calling @code{block} or @code{buffer} again}, to
+either abandon the changes (by doing nothing) or commit the changes,
+using @code{update}. Using @code{update} does not change the blocks
+file; it simply changes a block buffer's state to @i{assigned-dirty}.
 
 The word @code{flush} causes all @i{assigned-dirty} blocks to be
 written back to the blocks file on disk. Leaving Gforth using @code{bye}
@@ -6298,7 +8266,7 @@ definition of @code{my-char}.
 
 
 
-@node Input, , Displaying characters and strings, Other I/O
+@node Input,  , Displaying characters and strings, Other I/O
 @subsection Input
 @cindex input
 @cindex I/O - see input
@@ -6487,7 +8455,7 @@ Definitions in ANS Forth for these assertion words are provided
 in @file{compat/assert.fs}.
 
 
-@node Singlestep Debugger, , Assertions, Programming Tools
+@node Singlestep Debugger,  , Assertions, Programming Tools
 @subsection Singlestep Debugger
 @cindex singlestep Debugger
 @cindex debugging Singlestep
@@ -7533,7 +9501,7 @@ and @code{DOES>}. The body of the field contains the offset
 of the field, and the normal @code{DOES>} action is simply:
 
 @example
-@ +
+@@ +
 @end example
 
 @noindent
@@ -7585,17 +9553,17 @@ in @ref{Comparison with other object models}. All packages are written
 in ANS Forth and can be used with any other ANS Forth.
 
 @menu
-* Why object-oriented programming?::
-* Object-Oriented Terminology::
-* Objects::
-* OOF::
-* Mini-OOF::
+* Why object-oriented programming?::  
+* Object-Oriented Terminology::  
+* Objects::                     
+* OOF::                         
+* Mini-OOF::                    
 * Comparison with other object models::  
 @end menu
 
-
-@node Why object-oriented programming?, Object-Oriented Terminology, , Object-oriented Forth
-@subsubsection Why object-oriented programming?
+@c ----------------------------------------------------------------
+@node Why object-oriented programming?, Object-Oriented Terminology, Object-oriented Forth, Object-oriented Forth
+@subsection Why object-oriented programming?
 @cindex object-oriented programming motivation
 @cindex motivation for object-oriented programming
 
@@ -7624,8 +9592,9 @@ themselves object-oriented; the object-oriented packages presented here
 solve this problem (and not much else).
 @comment TODO ?list properties of oo systems.. oo vs o-based?
 
+@c ------------------------------------------------------------------------
 @node Object-Oriented Terminology, Objects, Why object-oriented programming?, Object-oriented Forth
-@subsubsection Object-Oriented Terminology
+@subsection Object-Oriented Terminology
 @cindex object-oriented terminology
 @cindex terminology for object-oriented programming
 
@@ -7694,7 +9663,7 @@ terminology: The derived class inherits from the base class.
 @c they can do most things through simple (indirect) calls. They kept the
 @c terminology.
 
-
+@c --------------------------------------------------------------
 @node Objects, OOF, Object-Oriented Terminology, Object-oriented Forth
 @subsection The @file{objects.fs} model
 @cindex objects
@@ -8711,13 +10680,14 @@ and reduces to the bare minimum of features. This is based on a posting
 of Bernd Paysan in comp.arch.
 
 @menu
-* Basic Mini-OOF Usage::
-* Mini-OOF Example::
-* Mini-OOF Implementation::
+* Basic Mini-OOF Usage::        
+* Mini-OOF Example::            
+* Mini-OOF Implementation::     
+* Comparison with other object models::  
 @end menu
 
 @c -------------------------------------------------------------
-@node Basic Mini-OOF Usage, Mini-OOF Example, , Mini-OOF
+@node Basic Mini-OOF Usage, Mini-OOF Example, Mini-OOF, Mini-OOF
 @subsubsection Basic @file{mini-oof.fs} Usage
 @cindex mini-oof usage
 
@@ -8804,7 +10774,7 @@ We can draw this new circle at (100,100) with:
 100 100 my-circle draw
 @end example
 
-@node Mini-OOF Implementation, , Mini-OOF Example, Mini-OOF
+@node Mini-OOF Implementation,  , Mini-OOF Example, Mini-OOF
 @subsubsection @file{mini-oof.fs} Implementation
 
 Object-oriented systems with late binding typically use a
@@ -8947,8 +10917,8 @@ bar draw
 @end example
 
 
-@node Comparison with other object models, , Mini-OOF, Object-oriented Forth
-@subsubsection Comparison with other object models
+@node Comparison with other object models,  , Mini-OOF, Object-oriented Forth
+@subsection Comparison with other object models
 @cindex comparison of object models
 @cindex object models, comparison
 
@@ -8968,9 +10938,8 @@ Dimensions, May 1997) by Anton Ertl.}:
 
 @itemize @bullet
 @item
-It uses a @code{@emph{selector
-object}} syntax, which makes it unnatural to pass objects on the
-stack.
+It uses a @code{@emph{selector object}} syntax, which makes it unnatural
+to pass objects on the stack.
 
 @item
 It requires that the selector parses the input stream (at
@@ -8991,18 +10960,19 @@ binding. Instead, it focuses on features like information hiding and
 overloading that are characteristic of modular languages like Ada (83).
 
 @cindex Zsoter's object-oriented model
-In @cite{Does late binding have to be slow?} (Forth Dimensions 18(1) 1996, pages 31-35)
-Andras Zsoter describes a model that makes heavy use of an active object
-(like @code{this} in @file{objects.fs}): The active object is not only
-used for accessing all fields, but also specifies the receiving object
-of every selector invocation; you have to change the active object
-explicitly with @code{@{ ... @}}, whereas in @file{objects.fs} it
-changes more or less implicitly at @code{m: ... ;m}. Such a change at
-the method entry point is unnecessary with the Zsoter's model, because
-the receiving object is the active object already. On the other hand, the explicit
-change is absolutely necessary in that model, because otherwise no one
-could ever change the active object. An ANS Forth implementation of this
-model is available at @uref{http://www.forth.org/fig/oopf.html}.
+In @cite{Does late binding have to be slow?} (Forth Dimensions 18(1)
+1996, pages 31-35) Andras Zsoter describes a model that makes heavy use
+of an active object (like @code{this} in @file{objects.fs}): The active
+object is not only used for accessing all fields, but also specifies the
+receiving object of every selector invocation; you have to change the
+active object explicitly with @code{@{ ... @}}, whereas in
+@file{objects.fs} it changes more or less implicitly at @code{m:
+... ;m}. Such a change at the method entry point is unnecessary with the
+Zsoter's model, because the receiving object is the active object
+already. On the other hand, the explicit change is absolutely necessary
+in that model, because otherwise no one could ever change the active
+object. An ANS Forth implementation of this model is available at
+@uref{http://www.forth.org/fig/oopf.html}.
 
 @cindex @file{oof.fs}, differences to other models
 The @file{oof.fs} model combines information hiding and overloading
@@ -9021,9 +10991,9 @@ essentially, you are only safe if you never tick or @code{postpone} an
 object or class (Bernd disagrees, but I (Anton) am not convinced).
 
 @cindex @file{mini-oof.fs}, differences to other models
-The @file{mini-oof.fs} model is quite similar to a very stripped-down version of
-the @file{objects.fs} model, but syntactically it is a mixture of the @file{objects.fs} and
-@file{oof.fs} models.
+The @file{mini-oof.fs} model is quite similar to a very stripped-down
+version of the @file{objects.fs} model, but syntactically it is a
+mixture of the @file{objects.fs} and @file{oof.fs} models.
 
 @c -------------------------------------------------------------
 @node Passing Commands to the OS, Keeping track of Time, Object-oriented Forth, Words
@@ -11745,7 +13715,7 @@ cell 2 = [IF] &32 [ELSE] &256 [THEN] KB DefaultValue kernel-size
 &14 KB &512 +   DefaultValue lstack-size
 @end example
 
-@node How the Cross Compiler Works, , Using the Cross Compiler, Cross Compiler
+@node How the Cross Compiler Works,  , Using the Cross Compiler, Cross Compiler
 @section How the Cross Compiler Works
 
 @node Bugs, Origin, Cross Compiler, Top
@@ -11932,7 +13902,7 @@ contact the FIG through their office email address:
 chapters in other countries and American cities
 (@uref{http://www.forth.org/chapters.html}).
 
-@node Conferences, , The Forth Interest Group, Forth-related information
+@node Conferences,  , The Forth Interest Group, Forth-related information
 @section Conferences
 @cindex Conferences
 

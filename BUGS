@@ -25,6 +25,14 @@ text files under DOS and Windows.  anton 31oct99
 
 On Irix 6.2 the second signal kills gforth. anton 31oct99
 
+gforth.el: Typing <ret> does not work when tabs separate words in a
+line, and there is a \-comment at the end of the line.  anton 19feb00
+
+If I start Gforth and type first
+: 123456789012345678901234567890 ;
+' 123456789012345678901234567890  >name name>string type    gives ??? ok
+Robert Epprecht 18mar00
+
 EKEY no longer works (does not recognize function keys etc.). anton 23feb2000
 
 SEE does not work when the control structure is too complex (e.g.,

@@ -55,3 +55,5 @@ siev	bubble	matrix	fib	machine and configuration
  6.81	 7.53	 5.10	 8.12	PPC604e (PowerMac) 200MHz; Linux; gcc-2.7.2.1; gforth-0.4.0
  8.25	10.09	 6.45	10.34	PPC604e (PowerMac) 200MHz; Linux; gcc-2.7.2.1; gforth-0.3.0 (indirect threaded)
 14.05	16.96	11.14	17.51	PPC604 (PowerMac) 132MHz 256K L2 cache; MkLinux 2.1; gcc-2.7.2.1; gforth-0.3.0
+ 7.42    8.81    5.96    8.61    PPC603 (Amiga + BlizzardPPC) 160Mhz; gcc-2.95.2 -DDIRECT_THREADED; gforth-0.4.9-19990617
+16.29   10.38   7.58    10.5    PPC603 (Amiga + BlizzardPPC) 160Mhz; gcc-2.95.2 -DINDIRECT_THREADED; gforth-0.4.9-19990617

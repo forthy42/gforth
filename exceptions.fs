@@ -60,7 +60,7 @@ Defer store-backtrace
     rdrop \ recovery address
     >r ;
 
-: recover ( compilation  orig -- ; run-time  -- ) \ gforth
+: recover ( compilation  orig1 -- orig2 ; run-time  -- ) \ gforth
     \ !! check using a special tag
     POSTPONE (recover)
     POSTPONE else ; immediate compile-only
