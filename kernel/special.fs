@@ -29,12 +29,10 @@ has? compiler 0=
 has? compiler [IF]
 :noname [char] " parse postpone SLiteral ;
 interpret/compile: S" ( compilation 'ccc"' -- ; run-time -- c-addr u )	\ core,file	s-quote
-  \G Compilation: Parse a string @var{ccc} delimited by a @code{"}
-  \G (double quote). At run-time, return the length, @var{u}, and the
-  \G start address, @var{c-addr} of the string. Interpretation: parse
-  \G the string as before, and return @var{c-addr}, @var{u}. The
-  \G string is stored in a temporary buffer which may be overwritten
-  \G by subsequent uses of @code{S"}.
+  \G Compilation: Parse a string ccc delimited by a " (double quote). At run-time,
+  \G return the length, u, and the start address, c-addr of the string. Interpretation:
+  \G parse the string as before, and return c-addr, u. The string is stored in a
+  \G temporary buffer which may be overwritten by subsequent uses of @code{S"}.
 [THEN]
 
 has? compiler [IF]
@@ -52,11 +50,11 @@ interpret/compile: What's ( "name" -- addr ) \ gforth
 :noname    [char] " parse type ;
 :noname    postpone (.") ,"  align ;
 interpret/compile: ." ( compilation 'ccc"' -- ; run-time -- )  \ core	dot-quote
-  \G Compilation: Parse a string @var{ccc} delimited by a " (double
-  \G quote). At run-time, display the string. Interpretation semantics
-  \G for this word are undefined in ANS Forth. Gforth's interpretation
-  \G semantics are to display the string. This is the simplest way to
-  \G display a string from within a definition; see examples below.
+  \G Compilation: Parse a string ccc delimited by a " (double quote). At run-time,
+  \G display the string. Interpretation semantics for this word are undefined in
+  \G the ANS Forth Standard. Gforth's interpretation semantics are to display the
+  \G string. This is the simplest way to display a string from
+  \G within a definition; see examples below.
 
 \ DOES>                                                17mar93py
 
@@ -64,7 +62,7 @@ interpret/compile: ." ( compilation 'ccc"' -- ; run-time -- )  \ core	dot-quote
     dodoes, here !does ]
     defstart :-hook ;
 :noname
-    ;-hook postpone (does>) ?struc dodoes,
+    ;-hook ?struc exit-like postpone (does>) dodoes,
     defstart :-hook ;
 interpret/compile: DOES>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ core	does
     

@@ -300,9 +300,9 @@ immediate
 
 ' ( alias ( ( compilation 'ccc<close-paren>' -- ; run-time -- ) \ core,file	paren
 \G Comment: parse and discard all subsequent characters in the parse
-\G area until "@code{)}" is encountered. During interactive input, an end-of-line
+\G area until ")" is encountered. During interactive input, an end-of-line
 \G also acts as a comment terminator. For file input, it does not; if the
-\G end-of-file is encountered whilst parsing for the "@code{)}" delimiter, Gforth
+\G end-of-file is encountered whilst parsing for the ")" delimiter, Gforth
 \G will generate a warning.
 immediate
 
@@ -335,11 +335,13 @@ create new-locals-map ( -- wordlist-map )
 ' drop A, \ rehash method
 ' drop A,
 
-slowvoc @
-slowvoc on
-vocabulary new-locals
-slowvoc !
-new-locals-map ' new-locals >body wordlist-map A! \ !! use special access words
+new-locals-map mappedwordlist Constant new-locals-wl
+
+\ slowvoc @
+\ slowvoc on
+\ vocabulary new-locals
+\ slowvoc !
+\ new-locals-map ' new-locals >body wordlist-map A! \ !! use special access words
 
 variable old-dpp
 
@@ -348,7 +350,7 @@ variable old-dpp
     dp old-dpp !
     locals-dp dpp !
     lastxt get-current
-    also new-locals
+    get-order new-locals-wl swap 1+ set-order
     also locals definitions locals-types
     0 TO locals-wordlist
     0 postpone [ ; immediate
