@@ -15,53 +15,53 @@ Variable vp
 
 \ uses a direct hash mapped cache --- idea from Heinz Schnitter
 
-: hashkey ( addr count -- key )
-  swap c@ toupper 3 * + $3F and ; \ gives a simple hash key
+\ : hashkey ( addr count -- key )
+\   swap c@ toupper 3 * + $3F and ; \ gives a simple hash key
 
-Variable hits
-Variable fails
+\ Variable hits
+\ Variable fails
 
-: hash-find  ( addr count wid -- nfa / false )
-  >r  2dup hashkey
-  cells r@ 3 cells + @ +           \ hashed addr
-  dup @
-  IF  >r r@ @ cell+ c@ over =
-      IF  2dup r@ @ cell+ char+ capscomp 0=
-          IF  2drop r> @ rdrop  1 hits +!  EXIT  THEN  THEN
-      r>
-  THEN  r> swap >r @ (f83casefind)  dup
-  IF  dup r@ !  THEN  rdrop  1 fails +! ;
+\ : hash-find  ( addr count wid -- nfa / false )
+\   >r  2dup hashkey
+\   cells r@ 3 cells + @ +           \ hashed addr
+\   dup @
+\   IF  >r r@ @ cell+ c@ over =
+\       IF  2dup r@ @ cell+ char+ capscomp 0=
+\           IF  2drop r> @ rdrop  1 hits +!  EXIT  THEN  THEN
+\       r>
+\   THEN  r> swap >r @ (f83casefind)  dup
+\   IF  dup r@ !  THEN  rdrop  1 fails +! ;
 
-: hash-reveal ( -- )
-  last?
-  IF  dup cell+ count hashkey cells
-      current @ 3 cells + @ + !
-      (reveal)
-  THEN ;
+\ : hash-reveal ( -- )
+\   last?
+\   IF  dup cell+ count hashkey cells
+\       current @ 3 cells + @ + !
+\       (reveal)
+\   THEN ;
 
-: clear-hash ( wid -- )  3 cells + @ $40 cells erase ;
+\ : clear-hash ( wid -- )  3 cells + @ $40 cells erase ;
 
-Create hashsearch
-  ' hash-find A,  ' hash-reveal A,  ' clear-hash A,
+\ Create hashsearch
+\ ' hash-find A,  ' hash-reveal A,  ' clear-hash A,
 
 \ for testing
 
-: .hash ( wid -- )  3 cells + @ ?dup 0= ?EXIT  cr
-  8 0 DO
-          8 0 DO  dup I J 8 * + cells + @ dup
-	          IF    cell+ count $1F and tuck 10 min type
-		        10 swap - spaces
-		  ELSE  drop  10 spaces  THEN
-	  LOOP
-  LOOP  drop ;
+\ : .hash ( wid -- )  3 cells + @ ?dup 0= ?EXIT  cr
+\   8 0 DO
+\           8 0 DO  dup I J 8 * + cells + @ dup
+\ 	          IF    cell+ count $1F and tuck 10 min type
+\ 		        10 swap - spaces
+\ 		  ELSE  drop  10 spaces  THEN
+\ 	  LOOP
+\   LOOP  drop ;
 
 \ wordlist Vocabulary also previous                    14may93py
 
 AVariable voclink
 
 : wordlist  ( -- wid )
-  here  0 A, hashsearch A, voclink @ A,
-  here cell+ A,  here $40 cells dup allot erase
+  here  0 A, f83search ( hashsearch ) A, voclink @ A,
+  ( here cell+ ) 0 A, \ here $40 cells dup allot erase
   dup 2 cells + voclink ! ;
 
 : Vocabulary ( -- ) Create wordlist drop  DOES> context ! ;
