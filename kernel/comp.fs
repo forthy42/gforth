@@ -191,7 +191,7 @@ DOES>
     \g interpretation semantics.
     ' postpone ALiteral ; immediate restrict
 
-: COMP'    ( "name" -- w xt ) \ gforth  c-tick
+: COMP'    ( "name" -- w xt ) \ gforth  comp-tick
     \g @var{w xt} represents @var{name}'s compilation semantics.
     (') name>comp ;
 
