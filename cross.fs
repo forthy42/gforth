@@ -381,9 +381,9 @@ VARIABLE ^imm
 s" crossdoc.fd" r/w create-file throw value doc-file-id
 \ contains the file-id of the documentation file
 
-: \G ( -- )
+: T-\G ( -- )
     source >in @ /string doc-file-id write-line throw
-    source >in ! drop ; immediate
+    postpone \ ;
 
 Variable to-doc  to-doc on
 
@@ -398,7 +398,7 @@ Variable to-doc  to-doc on
 	[char] ) parse doc-file-id write-file throw
 	s"  )" doc-file-id write-file throw
 	[char] \ parse 2drop					
-	POSTPONE \g
+	T-\G
 	>in !
     THEN ;
 
@@ -526,6 +526,8 @@ Cond: chars ;Cond
 : alit, ( n -- )  compile lit T A,  H ;
 
 >TARGET
+Cond: \G  T-\G ;Cond
+
 Cond:  Literal ( n -- )   restrict? lit, ;Cond
 Cond: ALiteral ( n -- )   restrict? alit, ;Cond
 
@@ -919,9 +921,8 @@ cell constant cell
 \ include bug5.fs
 \ only forth also minimal definitions
 
-: \  postpone \ ;
-: \G postpone \G ;
-: (  postpone ( ;
+: \  postpone \ ;  immediate
+: (  postpone ( ;  immediate
 : include bl word count included ;
 : .( [char] ) parse type ;
 : cr cr ;

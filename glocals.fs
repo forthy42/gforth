@@ -104,6 +104,21 @@ require float.fs
    ( otherwise ) dup postpone f@local# ,
  endcase ;
 
+\ locals stuff needed for control structures
+
+: compile-lp+! ( n -- ) \ gforth	compile-l-p-plus-store
+    dup negate locals-size +!
+    0 over = if
+    else -1 cells  over = if postpone lp-
+    else  1 floats over = if postpone lp+
+    else  2 floats over = if postpone lp+2
+    else postpone lp+!# dup ,
+    then then then then drop ;
+
+: adjust-locals-size ( n -- ) \ gforth
+    \ sets locals-size to n and generates an appropriate lp+!
+    locals-size @ swap - compile-lp+! ;
+
 \ the locals stack grows downwards (see primitives)
 \ of the local variables of a group (in braces) the leftmost is on top,
 \ i.e. by going onto the locals stack the order is reversed.
@@ -141,6 +156,55 @@ variable locals-dp \ so here's the special dp for locals.
     locals-size @ alignlp-w cell+ dup locals-size !
     swap !
     postpone >l ;
+
+\ locals list operations
+
+: common-list ( list1 list2 -- list3 ) \ gforth-internal
+\ list1 and list2 are lists, where the heads are at higher addresses than
+\ the tail. list3 is the largest sublist of both lists.
+ begin
+   2dup u<>
+ while
+   2dup u>
+   if
+     swap
+   then
+   @
+ repeat
+ drop ;
+
+: sub-list? ( list1 list2 -- f ) \ gforth-internal
+\ true iff list1 is a sublist of list2
+ begin
+   2dup u<
+ while
+   @
+ repeat
+ = ;
+
+: list-size ( list -- u ) \ gforth-internal
+\ size of the locals frame represented by list
+ 0 ( list n )
+ begin
+   over 0<>
+ while
+   over
+   ((name>)) >body @ max
+   swap @ swap ( get next )
+ repeat
+ faligned nip ;
+
+: set-locals-size-list ( list -- )
+ dup locals-list !
+ list-size locals-size ! ;
+
+: check-begin ( list -- )
+\ warn if list is not a sublist of locals-list
+ locals-list @ sub-list? 0= if
+   \ !! print current position
+   ." compiler was overly optimistic about locals at a BEGIN" cr
+   \ !! print assumption and reality
+ then ;
 
 : compile-pushlocal-f ( a-addr -- ) ( run-time: f -- )
     locals-size @ alignlp-f float+ dup locals-size !
@@ -257,7 +321,10 @@ previous
 create new-locals-map ( -- wordlist-map )
 ' new-locals-find A, ' new-locals-reveal A,
 
+slowvoc @
+slowvoc on
 vocabulary new-locals
+slowvoc !
 new-locals-map ' new-locals >body cell+ A! \ !! use special access words
 
 variable old-dpp
@@ -428,8 +495,70 @@ forth definitions
     lastcfa ! last !
     DEFERS ;-hook ;
 
+: (then-like) ( orig -- addr )
+    swap -rot dead-orig =
+    if
+        drop
+    else
+        dead-code @
+        if
+	    set-locals-size-list dead-code off
+	else \ both live
+	    dup list-size adjust-locals-size
+	    locals-list @ common-list dup list-size adjust-locals-size
+	    locals-list !
+	then
+    then ;
+
+: (begin-like) ( -- )
+    dead-code @ if
+	\ set up an assumption of the locals visible here.  if the
+	\ users want something to be visible, they have to declare
+	\ that using ASSUME-LIVE
+	backedge-locals @ set-locals-size-list
+    then
+    dead-code off ;
+
+\ AGAIN (the current control flow joins another, earlier one):
+\ If the dest-locals-list is not a subset of the current locals-list,
+\ issue a warning (see below). The following code is generated:
+\ lp+!# (current-local-size - dest-locals-size)
+\ branch <begin>
+
+: (again-like) ( dest -- addr )
+    over list-size adjust-locals-size
+    swap check-begin  POSTPONE unreachable ;
+
+\ UNTIL (the current control flow may join an earlier one or continue):
+\ Similar to AGAIN. The new locals-list and locals-size are the current
+\ ones. The following code is generated:
+\ ?branch-lp+!# <begin> (current-local-size - dest-locals-size)
+
+: (until-like) ( list addr xt1 xt2 -- )
+    \ list and addr are a fragment of a cs-item
+    \ xt1 is the conditional branch without lp adjustment, xt2 is with
+    >r >r
+    locals-size @ 2 pick list-size - dup if ( list dest-addr adjustment )
+	r> drop r> compile,
+	swap <resolve ( list adjustment ) ,
+    else ( list dest-addr adjustment )
+	drop
+	r> compile, <resolve
+	r> drop
+    then ( list )
+    check-begin ;
+
+: (exit-like) ( -- )
+    0 adjust-locals-size ;
+
 ' locals-:-hook IS :-hook
 ' locals-;-hook IS ;-hook
+
+' (then-like)  IS then-like
+' (begin-like) IS begin-like
+' (again-like) IS again-like
+' (until-like) IS until-like
+' (exit-like)  IS exit-like
 
 \ The words in the locals dictionary space are not deleted until the end
 \ of the current word. This is a bit too conservative, but very simple.

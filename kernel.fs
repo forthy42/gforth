@@ -51,27 +51,27 @@ HEX
 \ labels for some code addresses
 
 : docon: ( -- addr )	\ gforth
-    \ the code address of a @code{CONSTANT}
+    \G the code address of a @code{CONSTANT}
     ['] bl >code-address ;
 
 : docol: ( -- addr )	\ gforth
-    \ the code address of a colon definition
+    \G the code address of a colon definition
     ['] docon: >code-address ;
 
 : dovar: ( -- addr )	\ gforth
-    \ the code address of a @code{CREATE}d word
+    \G the code address of a @code{CREATE}d word
     ['] udp >code-address ;
 
 : douser: ( -- addr )	\ gforth
-    \ the code address of a @code{USER} variable
+    \G the code address of a @code{USER} variable
     ['] s0 >code-address ;
 
 : dodefer: ( -- addr )	\ gforth
-    \ the code address of a @code{defer}ed word
+    \G the code address of a @code{defer}ed word
     ['] source >code-address ;
 
 : dofield: ( -- addr )	\ gforth
-    \ the code address of a @code{field}
+    \G the code address of a @code{field}
     ['] reveal-method >code-address ;
 
 NIL AConstant NIL \ gforth
@@ -325,7 +325,7 @@ DOES>
 \ number? number                                       23feb93py
 
 Create bases   10 ,   2 ,   A , 100 ,
-\              16     2    10   Zeichen
+\              16     2    10   character
 \ !! this saving and restoring base is an abomination! - anton
 : getbase ( addr u -- addr' u' )
     over c@ [char] $ - dup 4 u<
@@ -464,22 +464,25 @@ hex
  laddr# [ 0 , ] ;
 
 : catch ( x1 .. xn xt -- y1 .. ym 0 / z1 .. zn error ) \ exception
-  >r sp@ r> swap >r       \ don't count xt! jaw
-  fp@ >r
-  lp@ >r
-  handler @ >r
-  rp@ handler !
-  execute
-  r> handler ! rdrop rdrop rdrop 0 ;
+    sp@ >r
+    fp@ >r
+    lp@ >r
+    handler @ >r
+    rp@ handler !
+    execute
+    r> handler ! rdrop rdrop rdrop 0 ;
 
 : throw ( y1 .. ym error/0 -- y1 .. ym / z1 .. zn error ) \ exception
     ?DUP IF
-	[ here 9 cells ! ]
-	handler @ rp!
+	[ here 9 cells ! ] \ entry point for signal handler
+	handler @ dup 0= IF
+	    2 (bye)
+	THEN
+	rp!
 	r> handler !
 	r> lp!
 	r> fp!
-	r> swap >r sp! r>
+	r> swap >r sp! drop r>
     THEN ;
 
 \ Bouncing is very fine,
@@ -487,11 +490,11 @@ hex
 : bounce ( y1 .. ym error/0 -- y1 .. ym error / y1 .. ym ) \ gforth
 \ a throw without data or fp stack restauration
   ?DUP IF
-    handler @ rp!
-    r> handler !
-    r> lp!
-    rdrop
-    rdrop
+      handler @ rp!
+      r> handler !
+      r> lp!
+      rdrop
+      rdrop
   THEN ;
 
 \ ?stack                                               23feb93py
@@ -570,22 +573,6 @@ Defer interpreter-notfound ( c-addr count -- )
 : ] ( -- ) \ core	right-bracket
     ['] compiler     IS parser state on  ;
 
-\ locals stuff needed for control structures
-
-: compile-lp+! ( n -- ) \ gforth	compile-l-p-plus-store
-    dup negate locals-size +!
-    0 over = if
-    else -1 cells  over = if postpone lp-
-    else  1 floats over = if postpone lp+
-    else  2 floats over = if postpone lp+2
-    else postpone lp+!# dup ,
-    then then then then drop ;
-
-: adjust-locals-size ( n -- ) \ gforth
-    \ sets locals-size to n and generates an appropriate lp+!
-    locals-size @ swap - compile-lp+! ;
-
-
 here 0 , \ just a dummy, the real value of locals-list is patched into it in glocals.fs
 AConstant locals-list \ acts like a variable that contains
 		      \ a linear list of locals names
@@ -609,55 +596,6 @@ variable backedge-locals
     dup orig?
     2 pick backedge-locals ! ; immediate
     
-\ locals list operations
-
-: common-list ( list1 list2 -- list3 ) \ gforth-internal
-\ list1 and list2 are lists, where the heads are at higher addresses than
-\ the tail. list3 is the largest sublist of both lists.
- begin
-   2dup u<>
- while
-   2dup u>
-   if
-     swap
-   then
-   @
- repeat
- drop ;
-
-: sub-list? ( list1 list2 -- f ) \ gforth-internal
-\ true iff list1 is a sublist of list2
- begin
-   2dup u<
- while
-   @
- repeat
- = ;
-
-: list-size ( list -- u ) \ gforth-internal
-\ size of the locals frame represented by list
- 0 ( list n )
- begin
-   over 0<>
- while
-   over
-   ((name>)) >body @ max
-   swap @ swap ( get next )
- repeat
- faligned nip ;
-
-: set-locals-size-list ( list -- )
- dup locals-list !
- list-size locals-size ! ;
-
-: check-begin ( list -- )
-\ warn if list is not a sublist of locals-list
- locals-list @ sub-list? 0= if
-   \ !! print current position
-   ." compiler was overly optimistic about locals at a BEGIN" cr
-   \ !! print assumption and reality
- then ;
-
 \ Control Flow Stack
 \ orig, etc. have the following structure:
 \ type ( defstart, live-orig, dead-orig, dest, do-dest, scopestart) ( TOS )
@@ -741,27 +679,16 @@ variable backedge-locals
  POSTPONE ?branch >mark ; immediate restrict
 
 : ?DUP-IF ( compilation -- orig ; run-time n -- n| ) \ gforth	question-dupe-if
-\ This is the preferred alternative to the idiom "?DUP IF", since it can be
-\ better handled by tools like stack checkers. Besides, it's faster.
+\G This is the preferred alternative to the idiom "?DUP IF", since it can be
+\G better handled by tools like stack checkers. Besides, it's faster.
     POSTPONE ?dup-?branch >mark ;       immediate restrict
 
 : ?DUP-0=-IF ( compilation -- orig ; run-time n -- n| ) \ gforth	question-dupe-zero-equals-if
     POSTPONE ?dup-0=-?branch >mark ;       immediate restrict
 
-: then-like ( orig -- addr )
-    swap -rot dead-orig =
-    if
-        drop
-    else
-        dead-code @
-        if
-	    set-locals-size-list dead-code off
-	else \ both live
-	    dup list-size adjust-locals-size
-	    locals-list @ common-list dup list-size adjust-locals-size
-	    locals-list !
-	then
-    then ;
+Defer then-like ( orig -- addr )
+: cs>addr ( orig/dest -- addr )  drop nip ;
+' cs>addr IS then-like
 
 : THEN ( compilation orig -- ; run-time -- ) \ core
     dup orig?  then-like  >resolve ; immediate restrict
@@ -777,47 +704,21 @@ immediate restrict
     1 cs-roll
     POSTPONE then ; immediate restrict
 
+Defer begin-like ( -- )
+' noop IS begin-like
 
 : BEGIN ( compilation -- dest ; run-time -- ) \ core
-    dead-code @ if
-	\ set up an assumption of the locals visible here.  if the
-	\ users want something to be visible, they have to declare
-	\ that using ASSUME-LIVE
-	backedge-locals @ set-locals-size-list
-    then
-    cs-push-part dest
-    dead-code off ; immediate restrict
+    begin-like cs-push-part dest ; immediate restrict
 
-\ AGAIN (the current control flow joins another, earlier one):
-\ If the dest-locals-list is not a subset of the current locals-list,
-\ issue a warning (see below). The following code is generated:
-\ lp+!# (current-local-size - dest-locals-size)
-\ branch <begin>
-
-: again-like ( dest -- addr )
-    over list-size adjust-locals-size
-    swap check-begin  POSTPONE unreachable ;
+Defer again-like ( dest -- addr )
+' nip IS again-like
 
 : AGAIN ( compilation dest -- ; run-time -- ) \ core-ext
     dest? again-like  POSTPONE branch  <resolve ; immediate restrict
 
-\ UNTIL (the current control flow may join an earlier one or continue):
-\ Similar to AGAIN. The new locals-list and locals-size are the current
-\ ones. The following code is generated:
-\ ?branch-lp+!# <begin> (current-local-size - dest-locals-size)
-: until-like ( list addr xt1 xt2 -- )
-    \ list and addr are a fragment of a cs-item
-    \ xt1 is the conditional branch without lp adjustment, xt2 is with
-    >r >r
-    locals-size @ 2 pick list-size - dup if ( list dest-addr adjustment )
-	r> drop r> compile,
-	swap <resolve ( list adjustment ) ,
-    else ( list dest-addr adjustment )
-	drop
-	r> compile, <resolve
-	r> drop
-    then ( list )
-    check-begin ;
+Defer until-like
+: until, ( list addr xt1 xt2 -- )  drop compile, <resolve drop ;
+' until, IS until-like
 
 : UNTIL ( compilation dest -- ; run-time f -- ) \ core
     dest? ['] ?branch ['] ?branch-lp+!# until-like ; immediate restrict
@@ -829,7 +730,6 @@ immediate restrict
 : REPEAT ( compilation orig dest -- ; run-time -- ) \ core
     POSTPONE again
     POSTPONE then ; immediate restrict
-
 
 \ counted loops
 
@@ -947,8 +847,11 @@ Avariable leave-sp  leave-stack 3 cells + leave-sp !
 
 \ Structural Conditionals                              12dec92py
 
+Defer exit-like ( -- )
+' noop IS exit-like
+
 : EXIT ( compilation -- ; run-time nest-sys -- ) \ core
-    0 adjust-locals-size
+    exit-like
     POSTPONE ;s
     POSTPONE unreachable ; immediate restrict
 
@@ -1028,7 +931,7 @@ defer header ( -- ) \ gforth
 ' (header) IS header
 
 : string, ( c-addr u -- ) \ gforth
-    \ puts down string as cstring
+    \G puts down string as cstring
     dup c, here swap chars dup allot move ;
 
 : header, ( c-addr u -- ) \ gforth
@@ -1042,7 +945,7 @@ defer header ( -- ) \ gforth
 : input-stream-header ( "name" -- )
     name name-too-short? header, ;
 : input-stream ( -- )  \ general
-\ switches back to getting the name from the input stream ;
+    \G switches back to getting the name from the input stream ;
     ['] input-stream-header IS (header) ;
 
 ' input-stream-header IS (header)
@@ -1124,9 +1027,9 @@ Create ???  0 , 3 c, char ? c, char ? c, char ? c,
 
 : (Constant)  Header reveal docon: cfa, ;
 : Constant ( w "name" -- ) \ core
-    \ \G Defines constant @var{name}
-    \ \G
-    \ \G @var{name} execution: @var{-- w}
+    \G Defines constant @var{name}
+    \G  
+    \G @var{name} execution: @var{-- w}
     (Constant) , ;
 : AConstant ( addr "name" -- ) \ gforth
     (Constant) A, ;
@@ -1235,7 +1138,7 @@ end-struct interpret/compile-struct
     (name>x) (x>int) ;
 
 : name?int ( nfa -- xt ) \ gforth
-    \ like name>int, but throws an error if compile-only
+    \G like name>int, but throws an error if compile-only
     (name>x) restrict-mask and
     if
 	compile-only-error \ does not return
@@ -1243,7 +1146,7 @@ end-struct interpret/compile-struct
     (cfa>int) ;
 
 : name>comp ( nfa -- w xt ) \ gforth
-    \ get compilation semantics of name
+    \G get compilation semantics of name
     (name>x) >r dup interpret/compile?
     if
 	interpret/compile-comp @
@@ -1316,7 +1219,7 @@ Variable warnings ( -- addr ) \ gforth
 G -1 warnings T !
 
 : check-shadow  ( addr count wid -- )
-\ prints a warning if the string is already present in the wordlist
+\G prints a warning if the string is already present in the wordlist
  >r 2dup 2dup r> (search-wordlist) warnings @ and ?dup if
    ." redefined " name>string 2dup type
    compare 0<> if
@@ -1429,7 +1332,7 @@ Defer key ( -- c ) \ core
   swap #tib ! 0 >in ! ;
 
 : Query  ( -- ) \ core-ext
-    \ obsolescent
+    \G obsolescent
     loadfile off  blk off  refill drop ;
 
 \ File specifiers                                       11jun93jaw
@@ -1508,9 +1411,9 @@ create pathfilenamebuf 256 chars allot \ !! make this grow on demand
 \   THEN ;
 
 : absolut-path? ( addr u -- flag ) \ gforth
-    \ a path is absolute, if it starts with a / or a ~ (~ expansion),
-    \ or if it is in the form ./* or ../*, extended regexp: [/~]|./|../
-    \ Pathes simply containing a / are not absolute!
+    \G a path is absolute, if it starts with a / or a ~ (~ expansion),
+    \G or if it is in the form ./* or ../*, extended regexp: ^[/~]|./|../
+    \G Pathes simply containing a / are not absolute!
     over c@ '/ = >r
     over c@ '~ = >r
     2dup 2 min S" ./" compare 0= >r
@@ -1519,13 +1422,13 @@ create pathfilenamebuf 256 chars allot \ !! make this grow on demand
 \   [char] / scan nip 0<> ;    
 
 : open-path-file ( c-addr1 u1 -- file-id c-addr2 u2 ) \ gforth
-    \ opens a file for reading, searching in the path for it (unless
-    \ the filename contains a slash); c-addr2 u2 is the full filename
-    \ (valid until the next call); if the file is not found (or in
-    \ case of other errors for each try), -38 (non-existant file) is
-    \ thrown. Opening for other access modes makes little sense, as
-    \ the path will usually contain dirs that are only readable for
-    \ the user
+    \G opens a file for reading, searching in the path for it (unless
+    \G the filename contains a slash); c-addr2 u2 is the full filename
+    \G (valid until the next call); if the file is not found (or in
+    \G case of other errors for each try), -38 (non-existant file) is
+    \G thrown. Opening for other access modes makes little sense, as
+    \G the path will usually contain dirs that are only readable for
+    \G the user
     \ !! use file-status to determine access mode?
     2dup absolut-path?
     if \ the filename contains a slash
@@ -1556,21 +1459,21 @@ create image-included-files  1 , A, ( pointer to and count of included files )
 \ points to ALLOTed objects, so it survives a save-system
 
 : loadfilename ( -- a-addr )
-    \ a-addr 2@ produces the current file name ( c-addr u )
+    \G a-addr 2@ produces the current file name ( c-addr u )
     included-files 2@ drop loadfilename# @ 2* cells + ;
 
 : sourcefilename ( -- c-addr u ) \ gforth
-    \ the name of the source file which is currently the input
-    \ source.  The result is valid only while the file is being
-    \ loaded.  If the current input source is no (stream) file, the
-    \ result is undefined.
+    \G the name of the source file which is currently the input
+    \G source.  The result is valid only while the file is being
+    \G loaded.  If the current input source is no (stream) file, the
+    \G result is undefined.
     loadfilename 2@ ;
 
 : sourceline# ( -- u ) \ gforth		sourceline-number
-    \ the line number of the line that is currently being interpreted
-    \ from a (stream) file. The first line has the number 1. If the
-    \ current input source is no (stream) file, the result is
-    \ undefined.
+    \G the line number of the line that is currently being interpreted
+    \G from a (stream) file. The first line has the number 1. If the
+    \G current input source is no (stream) file, the result is
+    \G undefined.
     loadline @ ;
 
 : init-included-files ( -- )
@@ -1578,7 +1481,7 @@ create image-included-files  1 , A, ( pointer to and count of included files )
     image-included-files 2@ nip included-files 2! ;
 
 : included? ( c-addr u -- f ) \ gforth
-    \ true, iff filename c-addr u is in included-files
+    \G true, iff filename c-addr u is in included-files
     included-files 2@ 0
     ?do ( c-addr u addr )
 	dup >r 2@ 2over compare 0=
@@ -1591,7 +1494,7 @@ create image-included-files  1 , A, ( pointer to and count of included files )
     2drop drop false ;
 
 : add-included-file ( c-addr u -- ) \ gforth
-    \ add name c-addr u to included-files
+    \G add name c-addr u to included-files
     included-files 2@ 2* cells 2 cells extend-mem
     2/ cell / included-files 2!
     2! ;
@@ -1600,7 +1503,7 @@ create image-included-files  1 , A, ( pointer to and count of included files )
 \    2* cells + 2! ;
 
 : included1 ( i*x file-id c-addr u -- j*x ) \ gforth
-    \ include the file file-id with the name given by c-addr u
+    \G include the file file-id with the name given by c-addr u
     loadfilename# @ >r
     save-mem add-included-file ( file-id )
     included-files 2@ nip 1- loadfilename# !
@@ -1612,14 +1515,14 @@ create image-included-files  1 , A, ( pointer to and count of included files )
     open-path-file included1 ;
 
 : required ( i*x addr u -- j*x ) \ gforth
-    \ include the file with the name given by addr u, if it is not
-    \ included already. Currently this works by comparing the name of
-    \ the file (with path) against the names of earlier included
-    \ files; however, it would probably be better to fstat the file,
-    \ and compare the device and inode. The advantages would be: no
-    \ problems with several paths to the same file (e.g., due to
-    \ links) and we would catch files included with include-file and
-    \ write a require-file.
+    \G include the file with the name given by addr u, if it is not
+    \G included already. Currently this works by comparing the name of
+    \G the file (with path) against the names of earlier included
+    \G files; however, it would probably be better to fstat the file,
+    \G and compare the device and inode. The advantages would be: no
+    \G problems with several paths to the same file (e.g., due to
+    \G links) and we would catch files included with include-file and
+    \G write a require-file.
     open-path-file 2dup included?
     if
 	2drop close-file throw

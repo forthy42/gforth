@@ -494,7 +494,7 @@ Objects definitions
 
 : implement ( interface -- )
     align here over , ob-interface @ , ob-interface !
-    :ilist + @ >r get-order r> swap 1+ set-order ;
+    :ilist + @ >r get-order r> swap 1+ set-order  1 voc# +! ;
 
 : inter-method, ( interface -- )
     :ilist + @ bl word count 2dup s" '" compare
