@@ -65,16 +65,22 @@ Variable slowvoc   0 slowvoc !
   \G onto the top of the search order stack.
   Create wordlist drop  DOES> context ! ;
 
+: check-maxvp ( n -- )
+    maxvp > -49 and throw ;
+
+: push-order ( wid -- ) \ gforth
+    \g Push @var{wid} on the search order.
+    vp @ 1+ dup check-maxvp vp! context ! ;
+
 : also  ( -- ) \ search ext
   \G Perform a @code{DUP} on the search order stack. Usually used prior
   \G to @code{Forth}, @code{definitions} etc.
-  context @ vp @ 1+ dup maxvp > abort" Vocstack full"
-  vp! context ! ;
+  context @ push-order ;
 
 : previous ( -- ) \ search ext
   \G Perform a @code{DROP} on the search order stack, thereby removing the wid at the
   \G top of the (search order) stack from the search order.
-  vp @ 1- dup 0= abort" Vocstack empty" vp! ;
+  vp @ 1- dup 0= -50 and throw vp! ;
 
 \ vocabulary find                                      14may93py
 
@@ -156,14 +162,19 @@ lookup ! \ our dictionary search order becomes the law ( -- )
   vp @ 0 ?DO  vp cell+ I cells + @  LOOP  vp @ ;
 
 : set-order  ( widn .. wid1 n -- ) \ thisone- search
-  \G If @var{n}=0, empty the search order.
-  \G If @var{n}=-1, set the search order to the implementation-defined minimum search
-  \G order (for Gforth, this is the word list @code{Root}). Otherwise, replace the
-  \G existing search order with the @var{n} wid entries such that @var{wid1} represents the
-  \G word list that will be searched first and @var{widn} represents the word list that
-  \G will be searched last.
-  dup -1 = IF  drop Only exit  THEN  dup vp!
-  ?dup IF  1- FOR  vp cell+ I cells + !  NEXT  THEN ;
+    \G If @var{n}=0, empty the search order.  If @var{n}=-1, set the
+    \G search order to the implementation-defined minimum search order
+    \G (for Gforth, this is the word list @code{Root}). Otherwise,
+    \G replace the existing search order with the @var{n} wid entries
+    \G such that @var{wid1} represents the word list that will be
+    \G searched first and @var{widn} represents the word list that will
+    \G be searched last.
+    dup -1 = IF
+	drop only exit
+    THEN
+    dup check-maxvp
+    dup vp!
+    ?dup IF 1- FOR vp cell+ I cells + !  NEXT THEN ;
 
 : seal ( -- ) \ gforth
   \G Remove all word lists from the search order stack other than the word

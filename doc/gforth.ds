@@ -8,6 +8,9 @@
 @comment 4. search for TODO for other minor and major works required.
 @comment 5. [rats] change all @var to @i in Forth source so that info
 @comment    file looks decent.
+@c          Not an improvement IMO - anton
+@c          and anyway, this should be taken up
+@c          with Karl Berry (the texinfo guy) - anton
 @comment .. would be useful to have a word that identified all deferred words
 @comment should semantics stuff in intro be moved to another section
 
@@ -5129,14 +5132,14 @@ execution token. You can produce the execution token using @code{'} or
 
 @example
 : greet ( -- )   ." Hello" ;
-: foo ( -- xt )  ['] greet ; \ ['] parses greet at compile-time
-: bar ( -- )     ' EXECUTE ; \  '  parses at run-time
+: foo ( -- xt )  ['] greet execute ; \ ['] parses greet at compile-time
+: bar ( -- )     ' execute ; \  '  parses at run-time
 
 \ the next four lines all do the same thing
-foo EXECUTE
+foo
+bar greet
 greet
 ' greet EXECUTE
-boo greet
 @end example
 
 An execution token occupies one cell.
@@ -5166,11 +5169,11 @@ At present, the @i{w} part of a compilation token is an execution token,
 and the @i{xt} part represents either @code{execute} or
 @code{compile,}@footnote{Depending upon the compilation semantics of the
 word. If the word has default compilation semantics, the @i{xt} will
-represent @code{compile,}. If the word is @code{immediate}, the @i{xt}
-will represent @code{execute}.}. However, don't rely on that knowledge,
-unless necessary; future versions of Gforth may introduce unusual
-compilation tokens (e.g., a compilation token that represents the
-compilation semantics of a literal).
+represent @code{compile,}. Otherwise (e.g., for immediate words), the
+@i{xt} will represent @code{execute}.}. However, don't rely on that
+knowledge, unless necessary; future versions of Gforth may introduce
+unusual compilation tokens (e.g., a compilation token that represents
+the compilation semantics of a literal).
 
 You can compile the compilation semantics with @code{postpone,}. I.e.,
 @code{COMP' @i{word} postpone,} is equivalent to @code{postpone
@@ -5203,31 +5206,25 @@ doc-name>string
 @cindex word lists
 @cindex header space
 
-@cindex wid
-All definitions other than those created by @code{:noname} have an entry
-in the header space. The header space is fragmented into a number
-of parts, called @dfn{word lists}. A word list is identified by a
-cell-sized word list identifier (@i{wid}) in much the same way as a
-file is identified by a file handle. The numerical value of the wid has
-no (portable) meaning, and might change from session to session.
-
-@cindex compilation word list
-At any one time, a single word list is defined as the word list to which
-all new definitions will be added -- this is called the @dfn{compilation
-word list}. When Gforth is started, the compilation word list is the
-word list called @code{FORTH-WORDLIST}.
+A wordlist is a list of named words; you can add new words and look up
+words by name (and you can remove words in a restricted way with
+markers).  Every named (and @code{reveal}ed) word is in one wordlist.
 
 @cindex search order stack
-Forth maintains a stack of word lists, representing the @dfn{search
-order}.  When the header space is searched (for example, when
-attempting to find a word's execution token during compilation), only
-those word lists that are currently in the search order are
-searched. The most recently-defined word in the word list at the top of
-the word list stack is searched first, and the search proceeds until
-either the word is located or the oldest definition in the word list at
-the bottom of the stack is reached. Definitions of the word may exist in
-more than one word lists; the search order determines which version will
-be found.
+The text interpreter searches the wordlists present in the search order
+(a stack of wordlists), from the top to the bottom.  Within each
+wordlist, the search starts conceptually at the newest word; i.e., if
+two words in a wordlist have the same name, the newer word is found.
+
+@cindex compilation word list
+New words are added to the @dfn{compilation wordlist} (aka current
+wordlist).
+
+@cindex wid
+A word list is identified by a cell-sized word list identifier (@i{wid})
+in much the same way as a file is identified by a file handle. The
+numerical value of the wid has no (portable) meaning, and might change
+from session to session.
 
 The ANS Forth ``Search order'' word set is intended to provide a set of
 low-level tools that allow various different schemes to be
@@ -5248,11 +5245,12 @@ doc-get-order
 doc---thisone-set-order
 doc-wordlist
 doc-table
+doc-push-order
+doc-previous
 doc-also
 doc---thisone-forth
 doc-only
 doc---thisone-order
-doc-previous
 
 doc-find
 doc-search-wordlist
