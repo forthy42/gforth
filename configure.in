@@ -296,7 +296,7 @@ AC_SUBST(disasm_fs)
 
 case "$host_os" in
 	*win32|cygwin)
-		DIRSEP="\\"
+		DIRSEP="\\\\"
 		;;
 	*darwin*)
 		#Darwin uses some funny preprocessor by default; eliminate it:

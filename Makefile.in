@@ -560,13 +560,13 @@ check:		gforths	gforth.fi
 		@echo "*** Check successful ***"
 
 checkone test:	gforth$(EXE) gforth.fi
-		$(FORTH) test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs test/string.fs test/float.fs test/gforth.fs -e bye | diff -c - $(srcdir)/test/coretest.out
+		$(FORTH) test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs test/string.fs test/float.fs test/gforth.fs -e bye | tr -d '\015' | diff -c - $(srcdir)/test/coretest.out
 		$(FORTH) test/other.fs -e bye
 		$(FORTHS) test/signals.fs -e bye
-		$(FORTH) code.fs test/checkans.fs -e bye | diff -c - $(srcdir)/test/checkans.out
+		$(FORTH) code.fs test/checkans.fs -e bye | tr -d '\015' | diff -c - $(srcdir)/test/checkans.out
 		$(FORTH) prims2x.fs -e \
 		  "c-flag on s\" prim.i\" out-filename 2! s\" $(srcdir)/prim.b\" ' output-c ' output-c-combined process-file bye"| \
-		  diff -c - $(srcdir)/engine/prim.i
+		  tr -d '\015' | diff -c - $(srcdir)/engine/prim.i
 
 bench:		gforth-fast$(EXE) gforth.fi
 		@echo 'Each benchmark takes about 30s on a 486-66 (gcc-2.6.3 -DFORCE_REG)'
