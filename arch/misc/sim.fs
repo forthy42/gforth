@@ -32,7 +32,8 @@ constant mem
 
 : ram>		2* mem + dup c@ 8 lshift swap char+ c@ or ;
 
-: >ram		2* mem + over 8 rshift over c! char+ c! ;
+: >ram		dup $4000 u< ABORT" Memory below $4000 is read-only"
+                2* mem + over 8 rshift over c! char+ c! ;
 
 \ IO
 

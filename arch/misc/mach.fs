@@ -35,8 +35,8 @@ false Constant NIL  \ relocating
 : asm-include    ." Include assembler" cr s" ~+/arch/misc/asm.fs" included ;
 : >boot
     hex
-    S" $6FF0 SP 2* ! $7FF0 RP 2* ! $7000 2* UP 2* ! ' boot >body IP 2* !" evaluate    
-    decimal ;
+    S" data-stack-top SP' 2* ! return-stack-top RP' 2* ! ' boot >body IP' 2* !" 
+    evaluate decimal ;
 
 >ENVIRON
 
@@ -63,6 +63,8 @@ true Constant ec
 false Constant crlf
 false SetValue new-input
 false SetValue peephole
+
+true Constant rom
 
 cell 2 = [IF] 32 [ELSE] 256 [THEN] KB Constant kernel-size
 
