@@ -88,7 +88,8 @@ FORTHK	= $(ENGINE) $(FORTHKFLAGS)
 STARTUP	= -e 3 exboot.fs startup.fs @asm_fs@ @disasm_fs@
 STRIP	= strip
 TEXI2DVI = texi2dvi -e
-DVI2PS	= dvips -t letterSize -Z
+TEXI2PDF = texi2dvi --pdf -e
+DVI2PS	= dvips -Pcmz -t letterSize -Z
 #you can get texi2html from http://wwwcn.cern.ch/dci/texi2html/
 MAKEINFO = makeinfo
 TEXI2HTML = texi2html
@@ -849,11 +850,19 @@ checkdoc:	doc/gforth.ds prim.b ds2texi.fs prims2x.fs doc/doc.fd doc/crossdoc.fd 
 
 dvi:		doc/gforth.dvi doc/vmgen.dvi
 
+pdf:		doc/gforth.pdf doc/vmgen.pdf
+
 doc/gforth.dvi doc/gforth.fns:	$(GFORTH_TEXI)
 		cd doc; $(TEXI2DVI) gforth.texi
 
+doc/gforth.pdf:	$(GFORTH_TEXI)
+		cd doc; $(TEXI2PDF) gforth.texi
+
 doc/vmgen.dvi:	$(VMGEN_TEXI)
 		cd doc; $(TEXI2DVI) vmgen.texi
+
+doc/vmgen.pdf:	$(VMGEN_TEXI)
+		cd doc; $(TEXI2PDF) vmgen.texi
 
 doc/gforth.ps:	doc/gforth.dvi
 		$(DVI2PS) doc/gforth.dvi -o $@
