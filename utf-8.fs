@@ -79,15 +79,16 @@
     restore-cursor >r 2dup swap type r> ;
 
 : <u8ins>  ( max span addr pos1 u8char -- max span addr pos2 )
-    >r >string over r@ u8len + swap move 2dup chars + r@ swap u8!+ drop
+    >r  2over r@ u8len + u< IF  rdrop bell  EXIT  THEN
+    >string over r@ u8len + swap move 2dup chars + r@ swap u8!+ drop
     r> u8len >r  rot r@ chars + -rot r> chars + ;
 : (u8ins)  ( max span addr pos1 u8char -- max span addr pos2 )
     <u8ins> .all .rest ;
 : u8back  ( max span addr pos1 -- max span addr pos2 f )
     dup  IF  over + u8<< over -  0 max .all .rest
-    ELSE  #bell emit  THEN 0 ;
+    ELSE  bell  THEN 0 ;
 : u8forw  ( max span addr pos1 -- max span addr pos2 f )
-    2 pick over <> IF  over + u8@+ u8emit over -  ELSE  #bell emit  THEN 0 ;
+    2 pick over <> IF  over + u8@+ u8emit over -  ELSE  bell  THEN 0 ;
 : (u8del)  ( max span addr pos1 -- max span addr pos2 )
     over + dup u8<< tuck - >r over -
     >string over r@ + -rot move
@@ -97,7 +98,7 @@
 : <u8del> ( max span addr pos1 -- max span addr pos2 0 )
   2 pick over <>
     IF  u8forw drop (u8del) .all 2 spaces .rest
-    ELSE  #bell emit  THEN  0 ;
+    ELSE  bell  THEN  0 ;
 : u8eof  2 pick over or 0=  IF  bye  ELSE  <u8del>  THEN ;
 
 : u8first-pos  ( max span addr pos1 -- max span addr 0 0 )

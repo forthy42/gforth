@@ -19,7 +19,8 @@
 \ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
 
 : (ins) ( max span addr pos1 key -- max span addr pos2 )
-    >r 2dup + r@ swap c! r> emit 1+ rot 1+ -rot ;
+    >r  2over = IF  rdrop bell  EXIT  THEN
+    2dup + r@ swap c! r> emit 1+ rot 1+ -rot ;
 : (bs) ( max span addr pos1 -- max span addr pos2 flag )
     dup IF
 	#bs emit space #bs emit 1- rot 1- -rot
@@ -53,8 +54,7 @@ defer everyline
     dup #del = IF  drop #bs  THEN  \ del is rubout
     dup bl u<  IF  cells ctrlkeys + perform  EXIT  THEN
     \ check for end reached
-    >r 2over = IF  rdrop bell 0 EXIT  THEN
-    r> insert-char 0 ;
+    insert-char 0 ;
 
 : edit-line ( c-addr n1 n2 -- n3 ) \ gforth
     \G edit the string with length @var{n2} in the buffer @var{c-addr
