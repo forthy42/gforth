@@ -92,7 +92,7 @@ dbindist:	$(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST) $(BINONLYDIST)
 		-$(RMTREE) gforth-$(VERSION)
 		mkdir gforth-$(VERSION)
 		$(TAR) $(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST) $(BINONLYDIST) | (cd gforth-$(VERSION); tar xf -)
-		strip gforth-$(VERSION){,/engine}/gforth{,-fast,-ditc,-itc}
+		$(STRIP) gforth-$(VERSION){,/engine}/gforth{,-fast,-ditc,-itc}$(EXE)
 		$(TAR) gforth-$(VERSION)|gzip -9 >gforth-$(VERSION).bin.@host@.tar.gz
 
 #All file names in a binary distribution
@@ -110,5 +110,5 @@ dbinonlydist:	$(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST) $(BINONLYDIST)
 		-$(RMTREE) gforth-$(VERSION)
 		mkdir gforth-$(VERSION)
 		$(TAR) $(BINONLYDIST) | (cd gforth-$(VERSION); tar xf -)
-		strip gforth-$(VERSION)/gforth
+		$(STRIP) gforth-$(VERSION)/gforth$(EXE)
 		$(TAR) gforth-$(VERSION)|gzip -9 >gforth-$(VERSION).binonly.@host@.tar.gz

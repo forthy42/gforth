@@ -295,7 +295,6 @@ CFLAGS="$CFLAGS_1"
 AC_MSG_RESULT($ac_nogcse)
 
 # Try if GCC understands -fno-strict-aliasing
-
 AC_MSG_CHECKING([if $CC understands -fno-strict-aliasing])
 CFLAGS_1="$CFLAGS"
 CFLAGS="$CFLAGS -fno-strict-aliasing"
@@ -304,7 +303,6 @@ CFLAGS="$CFLAGS_1"
 AC_MSG_RESULT($ac_nostrictaliasing)
 
 # Try if GCC understands -fno-cross-jump
-
 AC_MSG_CHECKING([if $CC understands -fno-cross-jump])
 CFLAGS_1="$CFLAGS"
 CFLAGS="$CFLAGS -fno-cross-jump"
@@ -327,7 +325,7 @@ case "$host_os" in
 	*darwin*)
 		#Darwin uses some funny preprocessor by default; eliminate it:
 		AC_MSG_NOTICE([using -traditional-cpp on Darwin])
-		CFLAGS="$CFLAGS -traditional-cpp"
+		CFLAGS="$CFLAGS -no-cpp-precomp"
 		DIRSEP="/"
 		;;
 	*)

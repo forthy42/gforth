@@ -27,8 +27,8 @@ powerpc-unknown-linux-gnu
 sparc-sun-solaris2.7
 
 Read INSTALL for installation instructions, or INSTALL.DOS for DOS,
-Windows 95, and OS/2.  To start the system, just say `gforth' (after
-installing it).
+Windows 95, and OS/2, or INSTALL.BINDIST if you have a binary package.
+To start the system, just say `gforth' (after installing it).
 
 You can find new versions of Gforth at ftp://ftp.gnu.org/gnu/gforth/
 and its mirrors or at

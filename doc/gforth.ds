@@ -1515,7 +1515,7 @@ You should put a correct stack effect on every definition, even if it is
 just @code{( -- )}.  You should also add some descriptive comment to
 more complicated words (I usually do this in the lines following
 @code{:}).  If you don't do this, your code becomes unreadable (because
-you have to work through every definition before you can undertsand
+you have to work through every definition before you can understand
 any).
 
 @assignment
@@ -1673,7 +1673,7 @@ In other languages you can use an arbitrary order of parameters for a
 function; and since there is only one result, you don't have to deal with
 the order of results, either.
 
-In Forth (and other stack-based languages, e.g., Postscript) the
+In Forth (and other stack-based languages, e.g., PostScript) the
 parameter and result order of a definition is important and should be
 designed well.  The general guideline is to design the stack effect such
 that the word is simple to use in most cases, even if that complicates
@@ -12211,11 +12211,10 @@ operating systems. Hopefully, Unicode will solve these problems one day.
 @item conditions under which control characters match a space delimiter:
 @cindex space delimiters
 @cindex control characters as delimiters
-If @code{WORD} is called with the space character as a delimiter, all
+If @code{word} is called with the space character as a delimiter, all
 white-space characters (as identified by the C macro @code{isspace()})
-are delimiters. @code{PARSE}, on the other hand, treats space like other
-delimiters. @code{SWORD} treats space like @code{WORD}, but behaves
-like @code{PARSE} otherwise. @code{Name}, which is used by the outer
+are delimiters. @code{Parse}, on the other hand, treats space like other
+delimiters.  @code{Parse-word}, which is used by the outer
 interpreter (aka text interpreter) by default, treats all white-space
 characters as delimiters.
 
