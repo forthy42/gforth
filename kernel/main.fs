@@ -48,7 +48,7 @@ decimal
 has? kernel-size makekernel
 \ create image-header
 has? header [IF]
-here dup 
+here 1802 over 
     A,                  \ base address
     0 ,                 \ checksum
     0 ,                 \ image size (without tags)
@@ -80,7 +80,7 @@ has? prims [IF]
 doc-on
 
 has? header [IF]
-depth 1 <> [IF] cr .( header start address expected!) cr uffz [THEN]
+1802 <> [IF] .s cr .( header start address expected!) cr uffz [THEN]
 AConstant image-header
 : forthstart image-header @ ;
 [THEN]
