@@ -700,8 +700,6 @@ Address append_prim(Cell p)
   }
   memcpy(code_here, pi->start, pi->length);
   code_here += pi->length;
-  if (pi->superend)
-    flush_to_here();
   return old_code_here;
 }
 #endif
