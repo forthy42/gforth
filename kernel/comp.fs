@@ -487,8 +487,8 @@ DOES>
 \ IS Defer What's Defers TO                            24feb93py
 
 defer defer-default ( -- )
-' noop is defer-default
-\ default action for deferred words, might THROW in the future
+' abort is defer-default
+\ default action for deferred words (overridden by a warning later)
     
 doer? :dodefer [IF]
 

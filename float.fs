@@ -232,5 +232,4 @@ set-current
 
 : FMOD ( r1 r2 -- r )
     \ remainder of r1/r2
-    \ !! should be implemented properly
     FOVER FOVER F/ ftrunc F* F- ;
