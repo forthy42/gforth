@@ -87,26 +87,13 @@ variable output \ xt ( -- ) of output word
 : printprim ( -- )
  output @ execute ;
 
-\ stack types
-
 struct%
     cell% 2* field stack-pointer \ stackpointer name
     cell% 2* field stack-cast \ cast string for assignments to stack elements
+    cell%    field stack-in-index-xt \ ( in-size item -- in-index )
     cell%    field stack-in  \ number of stack items in effect in
     cell%    field stack-out \ number of stack items in effect out
 end-struct stack%
-
-: make-stack ( addr-ptr u1 addr-cast u2 "stack-name" -- )
-    create stack% %allot >r
-    save-mem r@ stack-cast 2!
-    save-mem r> stack-pointer 2! ;
-
-s" sp" save-mem s" (Cell)" make-stack data-stack 
-s" fp" save-mem s" "       make-stack fp-stack
-s" rp" save-mem s" (Cell)" make-stack return-stack
-\ !! initialize stack-in and stack-out
-
-\ stack items
 
 struct%
  cell% 2* field item-name   \ name, excluding stack prefixes
@@ -114,6 +101,35 @@ struct%
  cell%    field item-type   \ descriptor for the item type
  cell%    field item-offset \ offset in stack items, 0 for the deepest element
 end-struct item%
+
+struct%
+    cell% 2* field type-c-name
+    cell%    field type-stack \ default stack
+    cell%    field type-size  \ size of type in stack items
+    cell%    field type-fetch \ xt of fetch code generator ( item -- )
+    cell%    field type-store \ xt of store code generator ( item -- )
+end-struct type%
+
+: stack-in-index ( in-size item -- in-index )
+    item-offset @ - 1- ;
+
+: inst-in-index ( in-size item -- in-index )
+    nip dup item-offset @ swap item-type @ type-size @ + 1- ;
+
+: make-stack ( addr-ptr u1 addr-cast u2 "stack-name" -- )
+    create stack% %allot >r
+    save-mem r@ stack-cast 2!
+    save-mem r@ stack-pointer 2! 
+    ['] stack-in-index r> stack-in-index-xt ! ;
+
+s" sp" save-mem s" (Cell)" make-stack data-stack 
+s" fp" save-mem s" "       make-stack fp-stack
+s" rp" save-mem s" (Cell)" make-stack return-stack
+s" ip" save-mem s" error don't use # on results" make-stack inst-stream
+' inst-in-index inst-stream stack-in-index-xt !
+\ !! initialize stack-in and stack-out
+
+\ stack items
 
 : init-item ( addr u addr1 -- )
     \ initialize item at addr1 with name addr u
@@ -332,14 +348,6 @@ warnings @ [IF]
 
 \ types
 
-struct%
-    cell% 2* field type-c-name
-    cell%    field type-stack \ default stack
-    cell%    field type-size  \ size of type in stack items
-    cell%    field type-fetch \ xt of fetch code generator ( item -- )
-    cell%    field type-store \ xt of store code generator ( item -- )
-end-struct type%
-
 : stack-access ( n stack -- )
     \ print a stack access at index n of stack
     stack-pointer 2@ type
@@ -350,9 +358,10 @@ end-struct type%
 	drop ." TOS"
     endif ;
 
-: item-in-index ( item -- n )
+: item-in-index { item -- n }
     \ n is the index of item (in the in-effect)
-    >r r@ item-stack @ stack-in @ r> item-offset @ - 1- ;
+    item item-stack @ dup >r stack-in @ ( in-size r:stack )
+    item r> stack-in-index-xt @ execute ;
 
 : fetch-single ( item -- )
  \ fetch a single stack item from its stack
@@ -531,6 +540,7 @@ s" WID"		single-type type-prefix wid
 s" struct F83Name *"	single-type type-prefix f83name
 
 return-stack stack-prefix R:
+inst-stream  stack-prefix #
 
 set-current
 
@@ -553,11 +563,12 @@ set-current
 : clear-stack { -- }
     dup stack-in off stack-out off ;
 
-
 : compute-offsets ( -- )
     data-stack clear-stack  fp-stack clear-stack return-stack clear-stack
+    inst-stream clear-stack
     effect-in  effect-in-end  @ ['] stack-in  compute-list
-    effect-out effect-out-end @ ['] stack-out compute-list ;
+    effect-out effect-out-end @ ['] stack-out compute-list
+    inst-stream stack-out @ 0<> abort" # can only be on the input side" ;
 
 : flush-a-tos { stack -- }
     stack stack-out @ 0<> stack stack-in @ 0= and
@@ -579,6 +590,7 @@ set-current
     endif ;
 
 : fill-tos ( -- )
+    \ !! inst-stream for prefetching?
     fp-stack     fill-a-tos
     data-stack   fill-a-tos
     return-stack fill-a-tos ;
@@ -599,6 +611,7 @@ set-current
     endif ;
 
 : stack-pointer-updates ( -- )
+    inst-stream  stack-pointer-update
     data-stack   stack-pointer-update
     fp-stack     stack-pointer-update
     return-stack stack-pointer-update ;
@@ -675,6 +688,7 @@ set-current
     ." {" cr
     declarations
     compute-offsets \ for everything else
+    inst-stream  stack-used? IF ." Cell *ip=IP;" cr THEN
     data-stack   stack-used? IF ." Cell *sp=SP;" cr THEN
     fp-stack     stack-used? IF ." Cell *fp=*FP;" cr THEN
     return-stack stack-used? IF ." Cell *rp=*RP;" cr THEN
