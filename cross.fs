@@ -656,83 +656,6 @@ hex
 4713 Constant <imm>             4714 Constant <do:>
 4715 Constant <skip>
 
-\  Compiler States
-
-Variable comp-state
-0 Constant interpreting
-1 Constant compiling
-2 Constant resolving
-3 Constant assembling
-
-Defer lit, ( n -- )
-Defer alit, ( n -- )
-
-Defer branch, ( target-addr -- )	\ compiles a branch
-Defer ?branch, ( target-addr -- )	\ compiles a ?branch
-Defer branchmark, ( -- branch-addr )	\ reserves room for a branch
-Defer ?branchmark, ( -- branch-addr )	\ reserves room for a ?branch
-Defer ?domark, ( -- branch-addr )	\ reserves room for a ?do branch
-Defer branchto, ( -- )			\ actual program position is target of a branch (do e.g. alignment)
-Defer branchtoresolve, ( branch-addr -- ) \ resolves a forward reference from branchmark
-Defer branchfrom, ( -- )		\ ?!
-Defer branchtomark, ( -- target-addr )	\ marks a branch destination
-
-Defer colon, ( tcfa -- )		\ compiles call to tcfa at current position
-Defer prim, ( tcfa -- )                 \ compiles a primitive invocation
-					\ at current position
-Defer colonmark, ( -- addr )		\ marks a colon call
-Defer colon-resolve ( tcfa addr -- )
-
-Defer addr-resolve ( target-addr addr -- )
-Defer doer-resolve ( ghost res-pnt target-addr addr -- ghost res-pnt )
-
-Defer do,	( -- do-token )
-Defer ?do,	( -- ?do-token )
-Defer for,	( -- for-token )
-Defer loop,	( do-token / ?do-token -- )
-Defer +loop,	( do-token / ?do-token -- )
-Defer next,	( for-token )
-
-[IFUNDEF] ca>native
-defer ca>native	
-[THEN]
-
-\ ghost structure
-
-: >magic ;		\ type of ghost
-: >link cell+ ;		\ pointer where ghost is in target, or if unresolved
-			\ points to the where we have to resolve (linked-list)
-: >exec cell+ cell+ ;	\ execution symantics (while target compiling) of ghost
-: >comp 3 cells + ;     \ compilation semantics
-: >end 4 cells + ;	\ room for additional tags
-			\ for builder (create, variable...) words the
-			\ execution symantics of words built are placed here
-
-\ resolve structure
-
-: >next ;		\ link to next field
-: >tag cell+ ;		\ indecates type of reference: 0: call, 1: address, 2: doer
-: >taddr cell+ cell+ ;	
-: >ghost 3 cells + ;
-: >file 4 cells + ;
-: >line 5 cells + ;
-
-\ refer variables
-
-Variable executed-ghost \ last executed ghost, needed in tcreate and gdoes>
-Variable last-ghost	\ last ghost that is created
-Variable last-header-ghost \ last ghost definitions with header
-
-: (refered) ( ghost addr tag -- )
-\G creates a reference to ghost at address taddr
-    rot >r here r@ >link @ , r> >link ! 
-    ( taddr tag ) ,
-    ( taddr ) , 
-    last-header-ghost @ , 
-    loadfile , 
-    sourceline# , 
-  ;
-
 \ iForth makes only immediate directly after create
 \ make atonce trick! ?
 
@@ -740,10 +663,19 @@ Variable atonce atonce off
 
 : NoExec true ABORT" CROSS: Don't execute ghost, or immediate target word" ;
 
-: is-forward   ( ghost -- )
-  colonmark, 0 (refered) ; \ compile space for call
+: GhostHeader <fwd> , 0 , ['] NoExec , ;
 
-: GhostHeader <fwd> , 0 , ['] NoExec , ['] is-forward , ;
+: >magic ;		\ type of ghost
+: >link cell+ ;		\ pointer where ghost is in target, or if unresolved
+			\ points to the where we have to resolve (linked-list)
+: >exec cell+ cell+ ;	\ execution symantics (while target compiling) of ghost
+: >end 3 cells + ;	\ room for additional tags
+			\ for builder (create, variable...) words the
+			\ execution symantics of words built are placed here
+
+Variable executed-ghost \ last executed ghost, needed in tcreate and gdoes>
+Variable last-ghost	\ last ghost that is created
+Variable last-header-ghost \ last ghost definitions with header
 
 : Make-Ghost ( "name" -- ghost )
   >in @ GhostName swap >in !
@@ -811,10 +743,9 @@ ghost (does>)   ghost noop                      2drop
 ghost (.")      ghost (S")      ghost (ABORT")  2drop drop
 ghost '                                         drop
 ghost :docol    ghost :doesjump ghost :dodoes   2drop drop
-ghost :dovar	ghost :dodefer  ghost :dofield  2drop drop
+ghost :dovar					drop
 ghost over      ghost =         ghost drop      2drop drop
-ghost call      ghost useraddr  ghost execute   2drop drop
-ghost +         ghost -         ghost @         2drop drop
+ghost - drop
 ghost 2drop drop
 ghost 2dup drop
 
@@ -871,8 +802,6 @@ false DefaultValue dcomps
 false DefaultValue hash
 false DefaultValue xconds
 false DefaultValue header
-false DefaultValue backtrace
-false DefaultValue new-input
 [THEN]
 
 true DefaultValue interpreter
@@ -944,7 +873,7 @@ Variable user-vars 0 user-vars !
 : target>bitmask-size ( u1 -- u2 )
   1- tcell>bit rshift 1+ ;
 
-: allocatetarget ( size -- adr )
+: allocatetarget ( size --- adr )
   dup allocate ABORT" CROSS: No memory for target"
   swap over swap erase ;
 
@@ -1050,7 +979,7 @@ T has? rom H
 ' dictionary ALIAS rom-dictionary
 
 
-: setup-target ( -- )   \G initialize target's memory space
+: setup-target ( -- )   \G initialize targets memory space
   s" rom" T $has? H
   IF  \ check for ram and rom...
       \ address-space area nip 0<>
@@ -1087,7 +1016,7 @@ T has? rom H
         ELSE    r> drop THEN
    REPEAT drop ;
 
-\ MakeKernel                                           		22feb99jaw
+\ MakeKernal                                           		22feb99jaw
 
 : makekernel ( targetsize -- targetsize )
   dup dictionary >rlen ! setup-target ;
@@ -1337,6 +1266,45 @@ previous
 
 \ \ --------------------        Compiler Plug Ins               01aug97jaw
 
+\  Compiler States
+
+Variable comp-state
+0 Constant interpreting
+1 Constant compiling
+2 Constant resolving
+3 Constant assembling
+
+Defer lit, ( n -- )
+Defer alit, ( n -- )
+
+Defer branch, ( target-addr -- )	\ compiles a branch
+Defer ?branch, ( target-addr -- )	\ compiles a ?branch
+Defer branchmark, ( -- branch-addr )	\ reserves room for a branch
+Defer ?branchmark, ( -- branch-addr )	\ reserves room for a ?branch
+Defer ?domark, ( -- branch-addr )	\ reserves room for a ?do branch
+Defer branchto, ( -- )			\ actual program position is target of a branch (do e.g. alignment)
+Defer branchtoresolve, ( branch-addr -- ) \ resolves a forward reference from branchmark
+Defer branchfrom, ( -- )		\ ?!
+Defer branchtomark, ( -- target-addr )	\ marks a branch destination
+
+Defer colon, ( tcfa -- )		\ compiles call to tcfa at current position
+Defer colonmark, ( -- addr )		\ marks a colon call
+Defer colon-resolve ( tcfa addr -- )
+
+Defer addr-resolve ( target-addr addr -- )
+Defer doer-resolve ( ghost res-pnt target-addr addr -- ghost res-pnt )
+
+Defer do,	( -- do-token )
+Defer ?do,	( -- ?do-token )
+Defer for,	( -- for-token )
+Defer loop,	( do-token / ?do-token -- )
+Defer +loop,	( do-token / ?do-token -- )
+Defer next,	( for-token )
+
+[IFUNDEF] ca>native
+defer ca>native	
+[THEN]
+
 >TARGET
 DEFER >body             \ we need the system >body
 			\ and the target >body
@@ -1352,9 +1320,9 @@ DEFER dodoes,
 DEFER ]comp     \ starts compilation
 DEFER comp[     \ ends compilation
 
-: (prim) T a, H ;				' (prim) IS prim,
+: (cc) T a, H ;					' (cc) IS colon,
 
-: (cr) >tempdp ]comp prim, comp[ tempdp> ; 	' (cr) IS colon-resolve
+: (cr) >tempdp ]comp colon, comp[ tempdp> ; 	' (cr) IS colon-resolve
 : (ar) T ! H ;					' (ar) IS addr-resolve
 : (dr)  ( ghost res-pnt target-addr addr )
 	>tempdp drop over 
@@ -1366,11 +1334,30 @@ DEFER comp[     \ ends compilation
 
 : (cm) ( -- addr )
     T here align H
-    -1 prim, ;					' (cm) IS colonmark,
+    -1 colon, ;					' (cm) IS colonmark,
 
 >TARGET
-: compile, prim, ;
+: compile, colon, ;
 >CROSS
+
+\ resolve structure
+
+: >next ;		\ link to next field
+: >tag cell+ ;		\ indecates type of reference: 0: call, 1: address, 2: doer
+: >taddr cell+ cell+ ;	
+: >ghost 3 cells + ;
+: >file 4 cells + ;
+: >line 5 cells + ;
+
+: (refered) ( ghost addr tag -- )
+\G creates a reference to ghost at address taddr
+    rot >r here r@ >link @ , r> >link ! 
+    ( taddr tag ) ,
+    ( taddr ) , 
+    last-header-ghost @ , 
+    loadfile , 
+    sourceline# , 
+  ;
 
 : refered ( ghost tag -- )
 \G creates a resolve structure
@@ -1441,11 +1428,6 @@ Exists-Warnings on
   ELSE  true abort" CROSS: Ghostnames inconsistent "
   THEN ;
 
-: colon-resolved   ( ghost -- )
-    >link @ colon, ; \ compile-call
-: prim-resolved  ( ghost -- )
-    >link @ prim, ;
-
 : resolve  ( ghost tcfa -- )
 \G resolve referencies to ghost with tcfa
     \ is ghost resolved?, second resolve means another definition with the
@@ -1455,8 +1437,6 @@ Exists-Warnings on
     swap >r r@ >link @ swap \ ( list tcfa R: ghost )
     \ mark ghost as resolved
     dup r@ >link ! <res> r@ >magic !
-    r@ >comp @ ['] is-forward = IF
-	['] prim-resolved  r@ >comp !  THEN
     \ loop through forward referencies
     r> -rot 
     comp-state @ >r Resolving comp-state !
@@ -1468,11 +1448,17 @@ Exists-Warnings on
 
 \ gexecute ghost,                                      01nov92py
 
+: is-forward   ( ghost -- )
+  colonmark, 0 (refered) ; \ compile space for call
+
+: is-resolved   ( ghost -- )
+  >link @ colon, ; \ compile-call
+
 : gexecute   ( ghost -- )
-    dup >comp @ execute ;
+  dup @ <fwd> = IF  is-forward  ELSE  is-resolved  THEN ;
 
 : addr,  ( ghost -- )
-  dup forward? IF  1 refered 0 T a, H ELSE >link @ T a, H THEN ;
+  dup @ <fwd> = IF  1 refered 0 T a, H ELSE >link @ T a, H THEN ;
 
 \ !! : ghost,     ghost  gexecute ;
 
@@ -1529,22 +1515,18 @@ variable ResolveFlag
 >CROSS
 \ Header states                                        12dec92py
 
+\ : flag! ( 8b -- )   tlast @ dup >r T c@ xor r> c! H ;
 bigendian [IF] 0 [ELSE] tcell 1- [THEN] Constant flag+
 : flag! ( w -- )   tlast @ flag+ + dup >r T c@ xor r> c! H ;
 
 VARIABLE ^imm
 
-\ !! should be target wordsize specific
-$80 constant alias-mask
-$40 constant immediate-mask
-$20 constant restrict-mask
-
 >TARGET
-: immediate     immediate-mask flag!
+: immediate     40 flag!
                 ^imm @ @ dup <imm> = IF  drop  EXIT  THEN
                 <res> <> ABORT" CROSS: Cannot immediate a unresolved word"
                 <imm> ^imm @ ! ;
-: restrict      restrict-mask flag! ;
+: restrict      20 flag! ;
 
 : isdoer	
 \G define a forth word as doer, this makes obviously only sence on
@@ -1556,9 +1538,11 @@ $20 constant restrict-mask
 
 >TARGET
 : string,  ( addr count -- )
-    dup T c, H bounds  ?DO  I c@ T c, H  LOOP ;
+  dup T c, H bounds  ?DO  I c@ T c, H  LOOP ; 
+
 : lstring, ( addr count -- )
-    dup T , H bounds  ?DO  I c@ T c, H  LOOP ;
+  dup T , H bounds  ?DO  I c@ T c, H  LOOP ;
+
 : name,  ( "name" -- )  bl word count T lstring, cfalign H ;
 : view,   ( -- ) ( dummy ) ;
 >CROSS
@@ -1579,7 +1563,8 @@ Variable to-doc  to-doc on
     IF
 	s" " doc-file-id write-line throw
 	s" make-doc " doc-file-id write-file throw
-        Last-Header-Ghost @ >ghostname doc-file-id write-file throw
+
+	tlast @ >image count 1F and doc-file-id write-file throw
 	>in @
 	[char] ( parse 2drop
 	[char] ) parse doc-file-id write-file throw
@@ -1713,7 +1698,7 @@ NoHeaderFlag off
     IF  dup >end tdoes !
     ELSE 0 tdoes !
     THEN
-    alias-mask flag!
+    80 flag!
     cross-doc-entry cross-tag-entry ;
 
 VARIABLE ;Resolve 1 cells allot
@@ -1730,7 +1715,7 @@ VARIABLE ;Resolve 1 cells allot
     IF
 	.sourcepos ." needs prim: " >in @ bl word count type >in ! cr
     THEN
-    (THeader over resolve T A, H alias-mask flag! ;
+    (THeader over resolve T A, H 80 flag! ;
 : Alias:   ( cfa -- ) \ name
     >in @ skip? IF  2drop  EXIT  THEN  >in !
     dup 0< s" prims" T $has? H 0= and
@@ -1776,12 +1761,6 @@ Comment (       Comment \
   ELSE  postpone literal postpone gexecute  THEN ;
                                         immediate
 
-T has? peephole H [IF]
-: (cc) compile call T >body a, H ;		' (cc) IS colon,
-[ELSE]
-    ' (prim) IS colon,
-[THEN]
-
 : [G'] 
 \G ticks a ghost and returns its address
   bl word gfind 0= ABORT" CROSS: Ghost don't exists"
@@ -1815,7 +1794,7 @@ Cond: [']  T ' H alit, ;Cond
 
 : (>body)   ( cfa -- pfa ) xt>body + ;		' (>body) T IS >body H
 
-: (doer,)   ( ghost -- ) ]comp addr, comp[ 1 fillcfa ;   ' (doer,) IS doer,
+: (doer,)   ( ghost -- ) ]comp gexecute comp[ 1 fillcfa ;   ' (doer,) IS doer,
 
 : (docol,)  ( -- ) [G'] :docol doer, ;		' (docol,) IS docol,
 
@@ -1885,27 +1864,33 @@ Cond: [Char]   ( "<char>" -- )  restrict? Char  lit, ;Cond
 \ some special literals					27jan97jaw
 
 \ !! Known Bug: Special Literals and plug-ins work only correct
-\ on targets with char = 8 bit
+\ on 16 and 32 Bit Targets and 32 Bit Hosts!
 
 Cond: MAXU
   restrict? 
-  compile lit tcell 0 ?DO FF T c, H LOOP 
+  tcell 1 cells u> 
+  IF	compile lit tcell 0 ?DO FF T c, H LOOP 
+  ELSE	ffffffff lit, THEN
   ;Cond
 
 Cond: MINI
   restrict?
-  compile lit bigendian 
-  IF	80 T c, H tcell 1 ?DO 0 T c, H LOOP 
-  ELSE  tcell 1 ?DO 0 T c, H LOOP 80 T c, H
-  THEN
+  tcell 1 cells u>
+  IF	compile lit bigendian 
+  	IF	80 T c, H tcell 1 ?DO 0 T c, H LOOP 
+  	ELSE  	tcell 1 ?DO 0 T c, H LOOP 80 T c, H
+  	THEN
+  ELSE	tcell 2 = IF 8000 ELSE 80000000 THEN lit, THEN
   ;Cond
  
 Cond: MAXI
  restrict?
- compile lit bigendian 
- IF 	7F T c, H tcell 1 ?DO FF T c, H LOOP
- ELSE 	tcell 1 ?DO FF T c, H LOOP 7F T c, H
- THEN
+ tcell 1 cells u>
+ IF	compile lit bigendian 
+	IF 	7F T c, H tcell 1 ?DO FF T c, H LOOP
+	ELSE 	tcell 1 ?DO FF T c, H LOOP 7F T c, H
+ 	THEN
+ ELSE	tcell 2 = IF 7fff ELSE 7fffffff THEN lit, THEN
  ;Cond
 
 >CROSS
@@ -1978,8 +1963,7 @@ Cond: ; ( -- ) restrict?
                comp[
                state off
                ;Resolve @
-	       IF ;Resolve @ ;Resolve cell+ @ resolve
-	          ['] colon-resolved ;Resolve @ >comp ! THEN
+               IF ;Resolve @ ;Resolve cell+ @ resolve THEN
 		Interpreting comp-state !
                ;Cond
 Cond: [  restrict? state off Interpreting comp-state ! ;Cond
@@ -1997,17 +1981,11 @@ Create GhostDummy ghostheader
     GhostDummy >link ! GhostDummy 
     tlastcfa @ >tempdp dodoes, tempdp> ;
 
-: g>body ( ghost -- body )
-    >link @ T >body H ;
-: does-resolved ( ghost -- )
-    dup g>body alit, >end @ g>body colon, ;
-
 >TARGET
 Cond: DOES> restrict?
         compile (does>) doeshandler, 
 	\ resolve words made by builders
-	tdoes @ ?dup IF  @ dup T here H resolve
-	    ['] prim-resolved swap >comp !  THEN
+	tdoes @ ?dup IF  @ T here H resolve THEN
         ;Cond
 : DOES> switchrom doeshandler, T here H !does depth T ] H ;
 
@@ -2016,15 +1994,17 @@ Cond: DOES> restrict?
 
 \ Builder                                               11may93jaw
 
-: Builder    ( Create-xt do-ghost "name" -- )
+: Builder    ( Create-xt do:-xt "name" -- )
 \ builds up a builder in current vocabulary
 \ create-xt is executed when word is interpreted
 \ do:-xt is executet when the created word from builder is executed
 \ for do:-xt an additional entry after the normal ghost-enrys is used
 
-  Make-Ghost 		( Create-xt do-ghost ghost )
-  rot swap		( do-ghost Create-xt ghost )
+  Make-Ghost 		( Create-xt do:-xt ghost )
+  rot swap		( do:-xt Create-xt ghost )
   >exec ! , ;
+\  rot swap >exec dup @ ['] NoExec <>
+\  IF 2drop ELSE ! THEN , ;
 
 : gdoes,  ( ghost -- )
 \ makes the codefield for a word that is built
@@ -2046,13 +2026,12 @@ Cond: DOES> restrict?
   executed-ghost @
   create-forward-warn
   IF ['] reswarn-forward IS resolve-warning THEN
-  Theader >r dup , dup gdoes,
+  Theader >r dup gdoes,
 \ stores execution semantic in the built word
 \ if the word already has a semantic (concerns S", IS, .", DOES>)
 \ then keep it
-  >end @
-  dup >exec @ r@ >exec dup @ ['] NoExec =  IF ! ELSE 2drop THEN
-  >comp @ r> >comp ! ;
+  >end @ >exec @ r> >exec dup @ ['] NoExec =
+  IF ! ELSE 2drop THEN ;
 
 : RTCreate ( <name> -- )
 \ creates a new word with code-field in ram
@@ -2060,7 +2039,7 @@ Cond: DOES> restrict?
   create-forward-warn
   IF ['] reswarn-forward IS resolve-warning THEN
   \ make Alias
-  (THeader there 0 T a, H alias-mask flag! ( S executed-ghost new-ghost )
+  (THeader there 0 T a, H 80 flag! ( S executed-ghost new-ghost )
   \ store  poiter to code-field
   switchram T cfalign H
   there swap T ! H
@@ -2087,35 +2066,24 @@ Cond: DOES> restrict?
 : gdoes>  ( ghost -- addr flag )
   executed-ghost @
   state @ IF  gexecute true EXIT  THEN
-  g>body false ;
+  >link @ T >body H false ;
 
 \ DO: ;DO                                               11may93jaw
 \ changed to ?EXIT                                      10may93jaw
 
-: DO:     ( -- ghost [xt] [colon-sys] )
+: DO:     ( -- addr [xt] [colon-sys] )
   here ghostheader
   :noname postpone gdoes> postpone ?EXIT ;
 
-: by:     ( -- ghost [xt] [colon-sys] ) \ name
+: by:     ( -- addr [xt] [colon-sys] ) \ name
   ghost
   :noname postpone gdoes> postpone ?EXIT ;
 
-: ;DO ( ghost [xt] [colon-sys] -- ghost )
+: ;DO ( addr [xt] [colon-sys] -- addr )
   postpone ;    ( S addr xt )
   over >exec ! ; immediate
 
-T has? peephole H [IF]
-: compile: ( ghost -- ghost [xt] [colon-sys] )
-    :noname  postpone g>body ;
-: ;compile ( ghost [xt] [colon-sys] -- ghost )
-    postpone ;  over >comp ! ; immediate
-[ELSE]
-: compile:  ( ghost -- ghost xt colon-sys )  :noname ;
-: ;compile ( ghost xt colon-sys -- ghost )
-    postpone ; drop ['] prim-resolved over >comp ! ; immediate
-[THEN]
-
-: by      ( -- ghost ) \ Name
+: by      ( -- addr ) \ Name
   ghost >end @ ;
 
 >TARGET
@@ -2123,7 +2091,6 @@ T has? peephole H [IF]
 
 Build:  ( n -- ) ;
 by: :docon ( ghost -- n ) T @ H ;DO
-compile: alit, compile @ ;compile
 Builder (Constant)
 
 Build:  ( n -- ) T , H ;
@@ -2140,7 +2107,6 @@ Builder 2Constant
 
 BuildSmart: ;
 by: :dovar ( ghost -- addr ) ;DO
-\ compile: alit, ;compile
 Builder Create
 
 T has? rom H [IF]
@@ -2150,7 +2116,6 @@ Builder Variable
 [ELSE]
 Build: T 0 , H ;
 by Create
-\ compile: alit, ;compile
 Builder Variable
 [THEN]
 
@@ -2161,7 +2126,6 @@ Builder 2Variable
 [ELSE]
 Build: T 0 , 0 , H ;
 by Create
-\ compile: alit, ;compile
 Builder 2Variable
 [THEN]
 
@@ -2172,7 +2136,6 @@ Builder AVariable
 [ELSE]
 Build: T 0 A, H ;
 by Create
-\ compile: alit, ;compile
 Builder AVariable
 [THEN]
 
@@ -2195,7 +2158,6 @@ Variable tudp 0 tudp !
 
 Build: 0 u, X , ;
 by: :douser ( ghost -- up-addr )  X @ tup @ + ;DO
-compile: compile useraddr T @ , H ;compile
 Builder User
 
 Build: 0 u, X , 0 u, drop ;
@@ -2216,7 +2178,6 @@ Builder AValue
 
 BuildSmart:  ( -- ) [T'] noop T A, H ;
 by: :dodefer ( ghost -- ) ABORT" CROSS: Don't execute" ;DO
-compile: alit, compile @ compile execute ;compile
 Builder Defer
 
 Build: ( inter comp -- ) swap T immediate A, A, H ;
@@ -2233,7 +2194,6 @@ Builder interpret/compile:
 
 Build: ;
 by: :dofield T @ H + ;DO
-compile: T @ H lit, compile + ;compile
 Builder (Field)
 
 Build: ( align1 offset1 align size "name" --  align2 offset2 )
@@ -2248,6 +2208,7 @@ Builder Field
 : cell% ( n -- size align )
     T 1 cells H dup ;
 
+
 Build: ( m v -- m' v )  dup T , cell+ H ;
 DO:  abort" Not in cross mode" ;DO
 Builder input-method
@@ -2255,6 +2216,8 @@ Builder input-method
 Build: ( m v size -- m v' )  over T , H + ;
 DO:  abort" Not in cross mode" ;DO
 Builder input-var
+
+
 
 \ structural conditionals                              17dec92py
 
@@ -2442,14 +2405,14 @@ Cond: compile ( -- ) restrict? \ name
                IF   gexecute
                ELSE compile (compile) addr, THEN THEN ;Cond
 
-Cond: [compile] ( -- ) restrict? \ name
+Cond: postpone ( -- ) restrict? \ name
       bl word gfind dup 0= ABORT" CROSS: Can't compile"
       0> IF    gexecute
          ELSE  dup >magic @ <imm> =
                IF   gexecute
-               ELSE compile (compile) addr, THEN THEN ;Cond
+	       ELSE compile (compile) addr, THEN THEN ;Cond
 
-Cond: postpone ( -- ) restrict? \ name
+Cond: [compile] ( -- ) restrict? \ name
       bl word gfind dup 0= ABORT" CROSS: Can't compile"
       0> IF    gexecute
          ELSE  dup >magic @ <imm> =
@@ -2632,6 +2595,10 @@ bigendian Constant bigendian
 : tempdp> tempdp> ;
 : const constflag on ;
 : warnings name 3 = 0= twarnings ! drop ;
+: redefinitions-start twarnings off ;
+: redefinitions-end twarnings on ;
+: group 0 word drop ;
+
 : | ;
 \ : | NoHeaderFlag on ; \ This is broken (damages the last word)
 
@@ -2705,10 +2672,6 @@ previous
 : .s            .s ;
 : bye           bye ;
 
-\ dummy
-
-: group  source >in ! drop ;
-
 \ turnkey direction
 : H forth ; immediate
 : T minimal ; immediate
@@ -2726,8 +2689,8 @@ previous
 : unlock previous forth also cross ;
 
 \ also minimal
-: [[+++ also unlock ;
-: +++]] previous previous also also ;
+: [[ also unlock ;
+: ]] previous previous also also ;
 
 unlock definitions also minimal
 : lock   lock ;
