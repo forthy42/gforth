@@ -16,11 +16,4 @@ Conditional compilation continues after the file ends. This is allowed
 by the standard (through an ambiguous condition), but the compiler
 should at least produce a warning.  anton 27jan95
 
-.1 is interpreted as floating-point number, not as double number or
-error. anton 4may95
--> All numbers ecvt converts are (by implementation) floating-point.
--> Should we add a check againgst . at the start of a number?
--> .1 isn't a double number; it's either an error or a FP number.
--> bernd 5sep95
-
 DOS and OS/2 don't like . at begin of a file (.gforth-history). bernd 6sep95py
