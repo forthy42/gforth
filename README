@@ -28,8 +28,11 @@ has been tested successfully on the following platforms:
  sparc-sun-sunos4.1.4
  sparc-unknown-linux-gnu
 
-Read INSTALL for installation instructions, or INSTALL.DOS for DOS,
-Windows, and OS/2, or INSTALL.BINDIST if you have a binary package.
+Read INSTALL for installation instructions from source, or INSTALL.DOS
+for DOS, Windows, and OS/2 from source, or INSTALL.BINDIST if you have
+a binary package distributed as .tar.gz or .zip file.  If you received
+a self-installing executable, just run it and follow the instructions.
+
 To start the system, just say `gforth' (after installing it).
 
 You can find new versions of Gforth at ftp://ftp.gnu.org/gnu/gforth/
