@@ -637,24 +637,38 @@ static char superend[]={
 
 Cell npriminfos=0;
 
-int compare_li(const void *pa, const void *pb)
+int compare_labels(const void *pa, const void *pb)
 {
+  Label a = *(Label *)pa;
+  Label b = *(Label *)pb;
+  return a-b;
+}
 
-  int a = *(int *)pa;
-  int b = *(int *)pb;
-  Cell r = vm_prims[a]-vm_prims[b];
-  if (r == 0)
-    return b - a; /* K labels should be sorted before I labels
-		     for the same address */
-  return r;
+Label bsearch_next(Label key, Label *a, UCell n)
+     /* a is sorted; return the label >=key that is the closest in a;
+        return NULL if there is no label in a >=key */
+{
+  int mid = (n-1)/2;
+  if (n<1)
+    return NULL;
+  if (n == 1) {
+    if (a[0] < key)
+      return NULL;
+    else
+      return a[0];
+  }
+  if (a[mid] < key)
+    return bsearch_next(key, a+mid+1, n-mid-1);
+  else
+    return bsearch_next(key, a, mid+1);
 }
 
 void check_prims(Label symbols1[])
 {
   int i;
 #ifndef NO_DYNAMIC
-  Label *symbols2, *symbols3, *ends1, *ends1k;
-  int *labelindexes, *sortindexes, nlabelindexes;
+  Label *symbols2, *symbols3, *ends1, *ends1k, *ends1ksorted;
+  int nends1k;
 #endif
 
   if (debug)
@@ -680,16 +694,10 @@ void check_prims(Label symbols1[])
 #endif
   ends1 = symbols1+i+1-DOESJUMP;
   ends1k =   ends1+i+1-DOESJUMP;
-
-  /* produce a sortindexes: sortindexes[i] gives the rank of symbols1[i] */
-  nlabelindexes = 3*(i+1-DOESJUMP)+DOESJUMP;
-  labelindexes = (int *)alloca(nlabelindexes*sizeof(int));
-  for (i=0; i<nlabelindexes; i++)
-    labelindexes[i] = i;
-  qsort(labelindexes, nlabelindexes, sizeof(int), compare_li);
-  sortindexes = (int *)alloca(nlabelindexes*sizeof(int));
-  for (i=0; i<nlabelindexes; i++)
-    sortindexes[labelindexes[i]] = i;
+  nends1k = i+1-DOESJUMP;
+  ends1ksorted = (Label *)alloca(nends1k*sizeof(Label));
+  memcpy(ends1ksorted,ends1k,nends1k*sizeof(Label));
+  qsort(ends1ksorted, nends1k, sizeof(Label), compare_labels);
   
   priminfos = calloc(i,sizeof(PrimInfo));
   for (i=DOESJUMP+1; symbols1[i+1]!=0; i++) {
@@ -699,8 +707,7 @@ void check_prims(Label symbols1[])
     char *s1 = (char *)symbols1[i];
     char *s2 = (char *)symbols2[i];
     char *s3 = (char *)symbols3[i];
-    int endindex = labelindexes[sortindexes[i]+2];
-    Label endlabel = symbols1[endindex];
+    Label endlabel = bsearch_next(symbols1[i]+1,ends1ksorted,nends1k);
 
     pi->start = s1;
     pi->superend = superend[i-DOESJUMP-1]|no_super;
@@ -713,17 +720,22 @@ void check_prims(Label symbols1[])
     if (debug)
       fprintf(stderr, "Prim %3d @ %p %p %p, length=%3ld restlength=%2ld superend=%1d",
 	      i, s1, s2, s3, (long)(pi->length), (long)(pi->restlength), pi->superend);
-    if (sortindexes[i]+1 != sortindexes[i+npriminfos+1-DOESJUMP]) {
+    if (endlabel == NULL) {
       pi->start = NULL; /* not relocatable */
       if (debug)
-	fprintf(stderr,"\n   non_reloc: rank[start] = %d, rank[J] = %d\n",
-		sortindexes[i], sortindexes[i+npriminfos+1-DOESJUMP]);
+	fprintf(stderr,"\n   non_reloc: no K label > start found\n");
       continue;
     }
-    if (endindex < (ends1k - symbols1)) { /* is endindex not a K-label? */
+    if (ends1[i] > endlabel && !pi->superend) {
       pi->start = NULL; /* not relocatable */
       if (debug)
-	fprintf(stderr,"\n   non_reloc: endindex = %d\n", endindex);
+	fprintf(stderr,"\n   non_reloc: there is a K label before the J label (restlength<0)\n");
+      continue;
+    }
+    if (ends1[i] < pi->start && !pi->superend) {
+      pi->start = NULL; /* not relocatable */
+      if (debug)
+	fprintf(stderr,"\n   non_reloc: J label before I label (length<0)\n");
       continue;
     }
     assert(prim_len>=0);
