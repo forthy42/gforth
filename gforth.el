@@ -390,10 +390,11 @@ TYPE might be omitted. If it's specified, the only allowed value is
    have any effect on indentation inside definitions. (:NONAME is a good 
    example for this kind of word).
 
-INDENT1 specifies how to indent a word that's located at a line's begin,
-   following any number of whitespaces.
+INDENT1 specifies how to indent a word that's located at the beginning
+   of a line, following any number of whitespaces.
 
-INDENT2 specifies how to indent words that are not located at a line's begin.
+INDENT2 specifies how to indent words that are not located at the
+   beginning of a line.
 
 INDENT1 and INDENT2 are indentation specifications of the form
    (SELF-INDENT . NEXT-INDENT), where SELF-INDENT is a numerical value, 
@@ -416,9 +417,9 @@ INDENT1 and INDENT2 are indentation specifications of the form
 	 (0 . 2) (0 . 2) non-immediate)
 	("\\S-+%$" (0 . 2) (0 . 0) non-immediate)
 	((";" ";m") (-2 . 0) (0 . -2))
-	(("again" "repeat" "then" "endif" "endtry" "endcase" "endof" 
+	(("again" "then" "endif" "endtry" "endcase" "endof" 
 	  "[then]" "[endif]" "[loop]" "[+loop]" "[next]" 
-	  "[until]" "[repeat]" "[again]" "loop")
+	  "[until]" "[again]" "loop")
 	 (-2 . 0) (0 . -2))
 	(("end-code" "end-class" "end-interface" "end-class-noname" 
 	  "end-interface-noname" "end-struct" "class;")
@@ -426,7 +427,9 @@ INDENT1 and INDENT2 are indentation specifications of the form
 	(("protected" "public" "how:") (-1 . 1) (0 . 0) non-immediate)
 	(("+loop" "-loop" "until") (-2 . 0) (-2 . 0))
 	(("else" "recover" "[else]") (-2 . 2) (0 . 0))
-	(("while" "does>" "[while]") (-1 . 1) (0 . 0))
+	(("does>") (-1 . 1) (0 . 0))
+	(("while" "[while]") (-2 . 4) (0 . 2))
+	(("repeat" "[repeat]") (-4 . 0) (0 . -4))
 	(("\\g") (-2 . 2) (0 . 0))))
 
 (defvar forth-local-indent-words nil 

@@ -162,7 +162,3 @@ has? new-input [IF]
 : .included ( -- ) \ gforth
     \G list the names of the files that have been @code{included}
     included-files 2@ .strings ;
-    
-\ contains tools/newrequire.fs
-\ \I $Id: require.fs,v 1.19 2000-10-29 20:27:03 pazsan Exp $
-

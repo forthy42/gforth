@@ -8966,6 +8966,7 @@ doc-emit
 doc-toupper
 doc-."
 doc-.(
+doc-.\"
 doc-type
 doc-typewhite
 doc-cr
@@ -8973,6 +8974,7 @@ doc-cr
 doc-at-xy
 doc-page
 doc-s"
+doc-s\"
 doc-c"
 doc-char
 doc-[char]
@@ -9068,8 +9070,10 @@ doc-pad
 @c anton: these belong in the input stream section
 doc-parse
 doc-word
-doc-sword
 doc-name
+doc-parse-word
+doc-\"-parse
+doc-sword
 doc-refill
 @comment obsolescent words..
 doc-convert

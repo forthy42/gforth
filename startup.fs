@@ -65,6 +65,7 @@ require ekey.fs
 require dosekey.fs
 [THEN]
 require backtrac.fs
+require quotes.fs
 require code.fs
 
 \ define the environmental queries for all the loaded wordsets

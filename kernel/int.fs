@@ -77,11 +77,11 @@ Defer source ( -- c-addr u ) \ core
     sword here place  bl here count + c!  here ;
 
 : parse    ( char "ccc<char>" -- c-addr u ) \ core-ext
-    \G Parse @i{ccc}, delimited by @i{char}, in the parse
-    \G area. @i{c-addr u} specifies the parsed string within the
-    \G parse area. If the parse area was empty, @i{u} is 0.
+\G Parse @i{ccc}, delimited by @i{char}, in the parse
+\G area. @i{c-addr u} specifies the parsed string within the
+\G parse area. If the parse area was empty, @i{u} is 0.
     >r  source  >in @ over min /string  over  swap r>  scan >r
-  over - dup r> IF 1+ THEN  >in +! ;
+    over - dup r> IF 1+ THEN  >in +! ;
 
 \ name                                                 13feb93py
 
