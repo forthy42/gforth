@@ -151,6 +151,9 @@ extern int gforth_memcmp(const char * s1, const char * s2, size_t n);
 #ifndef LPREG
 #define LPREG
 #endif
+#ifndef CAREG
+#define CAREG
+#endif
 #ifndef CFAREG
 #define CFAREG
 #endif
@@ -269,7 +272,7 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
   register Float *fp FPREG = fp0;
   register Address lp LPREG = lp0;
   register Xt cfa CFAREG;
-  register Label real_ca;
+  register Label real_ca CAREG;
 #ifdef MORE_VARS
   MORE_VARS
 #endif
@@ -352,10 +355,13 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
 /*  prep_terminal(); */
 #ifdef NO_IP
   goto *(*(Label *)ip0);
+  before_goto:
+  goto *real_ca;
+  after_goto:;
 #else
   SET_IP(ip);
   SUPER_END; /* count the first block, too */
-  NEXT;
+  FIRST_NEXT;
 #endif
 
 #ifdef CPU_DEP3
@@ -366,8 +372,5 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
   after_last: return (Label *)0;
   /*needed only to get the length of the last primitive */
 
-  before_goto:
-  goto *real_ca;
-  after_goto:
   return (Label *)0;
 }

@@ -96,11 +96,17 @@
 #else
 #define DO_GOTO goto *real_ca
 #endif
+#ifndef GOTO_ALIGN
+#define GOTO_ALIGN
+#endif
 
 #define GOTO(target) do {(real_ca=(target));} while(0)
 #define NEXT_P2 do {NEXT_P1_5; DO_GOTO;} while(0)
 #define EXEC(XT) do { EXEC1(XT); DO_GOTO;} while (0)
 #define NEXT do {DEF_CA NEXT_P1; NEXT_P2;} while(0)
+#define FIRST_NEXT_P2 NEXT_P1_5; GOTO_ALIGN; \
+before_goto: goto *real_ca; after_goto:
+#define FIRST_NEXT DEF_CA NEXT_P1; FIRST_NEXT_P2;
 #define IPTOS NEXT_INST
 
 

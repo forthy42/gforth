@@ -62,3 +62,5 @@
 #endif
 #define FTOSREG asm("%xmm8")
 #endif
+
+#define GOTO_ALIGN asm(".p2align 4,,7");
