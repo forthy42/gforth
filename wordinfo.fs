@@ -63,7 +63,7 @@
 
 [IFDEF] forthstart
 : xtprim? ( xt -- flag )
-    forthstart dictionary-end within ; \ !! does not work for CODE words
+    dictionary-end forthstart within ; \ !! does not work for CODE words
 [ELSE]
 : xtprim? ( xt -- flag )
     dup >body swap >code-address = ; \ !! works only for indirect threaded code

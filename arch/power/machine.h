@@ -25,7 +25,7 @@
 
 #ifndef INDIRECT_THREADED
 #ifndef DIRECT_THREADED
-/* #define DIRECT_THREADED */
+#define DIRECT_THREADED
 #endif
 #endif
 
