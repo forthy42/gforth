@@ -1,11 +1,43 @@
+
+\ FIXME: Find a place where this compiler extetions should go
+
+UNLOCK
+>ENVIRON
+\ true SetValue PrimTrace
+
+LOCK
+
 \ pie primitives
 
 $20 allot
 
-Label start	ahere $21 + , jmp ,
+Label start	ahere 2 + , jmp ,
+Label "IntoForth" 4711 ,
+
+Label RP'       0 ,
+Label SP'       0 ,
+Label UP'       0 ,
+Label IP'       0 ,
 
 Label #0	0 ,
 Label #1	1 ,
+Label #2	2 ,
+Label #4	4 ,
+Label #FF	$FF ,
+Label #$8000	$8000 ,
+Label #-1	-1 ,
+Label "Next"	1802 ,
+Label "Next1"	1802 ,
+Label ""Next""  "Next" ,
+End-Label
+
+\ The virtual machine registers an data (stacks) go
+\ to a seperate memory region (hopefully ram)
+
+UNLOCK
+current-region vm-memory activate ( saved-region )
+LOCK
+
 Label RP	0 ,
 Label SP	0 ,
 Label UP	0 ,
@@ -17,11 +49,29 @@ Label t2	0 ,
 Label t3	0 ,
 Label srcx	0 ,
 Label dstx	0 ,
+                "Next" , jmp ,
+Label data-stack     50 cells allot
+Label data-stack-top 2 cells allot
+Label return-stack     50 cells allot
+Label return-stack-top 2 cells allot
+
+End-Label
+
+UNLOCK
+( saved-region ) activate
+LOCK
 
 \ Up to here it's self modified
-\ If there's a gap here, add a jump to Next after dstx
+Label IntoForth 
+                \ Transfer VM registers initial values
+                RP' , RP ,
+                SP' , SP ,
+                IP' , IP ,
+                UP' , UP , \ useless since UP is initialized by gforth boot
+                ""Next"" , dstx 1 + ,
+                #0 , dstx 2 + ,
 
-Label Next	#0 , add ,
+Label Next	#0 , add ,  \ clear carry
 		IP , shr ,
 		sym Next
 		*accu , W ,
@@ -31,16 +81,15 @@ Label Next	#0 , add ,
 Label Next1	W , shr ,
 		*accu , shr ,
 		accu , jmp ,
-Label "Next"	Next ,
-Label "Next1"	Next1 ,
+
 Label "xmov"	srcx ,
+End-Label
 
-Label #2	2 ,
-Label #4	4 ,
-Label #FF	$FF ,
-Label #$8000	$8000 ,
-Label #-1	-1 ,
+IntoForth "IntoForth" 2* !
+Next "Next" 2* !
+Next1 "Next1" 2* !
 
+has? PrimTrace [IF]
 Label "0"	'< ,
 Label "1"	'1 ,
 Label "2"	'2 ,
@@ -71,11 +120,12 @@ Label "R"	'R ,
 Label "S"	'S ,
 Label "T"	'T ,
 Label "#"	'# ,
+End-Label
+[THEN]
 
-end-label
 
 Code: :docol	sym docol
-\		"0" , tx ,
+\? PrimTrace	"0" , tx ,
 		RP , accu ,
 		#1 , sub ,
 		accu , RP ,
@@ -87,7 +137,7 @@ Code: :docol	sym docol
 end-code
 
 Code: :docon	sym docon
-\		"1" , tx ,
+\? PrimTrace	"1" , tx ,
 		#0 , add ,
 		W , shr ,
 		#2 , add ,
@@ -100,7 +150,7 @@ Code: :docon	sym docon
 end-code
 
 Code: :dovar	sym dovar
-\		"2" , tx ,
+\? PrimTrace	"2" , tx ,
 		W , accu ,
 		#4 , add ,
 		accu , t0 ,
@@ -112,7 +162,7 @@ Code: :dovar	sym dovar
 end-code
 
 Code: :douser	sym douser
-\		"3" , tx ,
+\? PrimTrace	"3" , tx ,
 		#0 , add ,
 		W , shr ,
 		#2 , add ,
@@ -127,7 +177,7 @@ Code: :douser	sym douser
 end-code
 
 Code: :dodefer	sym dodefer
-\		"4" , tx ,
+\? PrimTrace	"4" , tx ,
 		#0 , add ,
 		W , shr ,
 		#2 , add ,
@@ -136,7 +186,7 @@ Code: :dodefer	sym dodefer
 end-code
 
 Code: :dofield	sym dofield
-\		"5" , tx ,
+\? PrimTrace	"5" , tx ,
 		#0 , add ,
 		W , shr ,
 		#2 , add ,
@@ -152,7 +202,7 @@ Code: :dofield	sym dofield
 end-code
 
 Code: :dodoes	sym dodoes
-\		"6" , tx ,
+\? PrimTrace	"6" , tx ,
 		RP , accu ,
 		#1 , sub ,
 		accu , RP ,
@@ -176,7 +226,7 @@ Code: :doesjump
 end-code
 
 Code !		sym !
-\		"A" , tx ,
+\? PrimTrace	"A" , tx ,
 		SP , accu ,
 		*accu , t0 ,
 		#1 , add ,
@@ -189,7 +239,7 @@ Code !		sym !
 end-code
 
 Code @		sym @
-\		"B" , tx ,
+\? PrimTrace	"B" , tx ,
 		#0 , add ,
 		SP , accu ,
 		*accu , shr ,
@@ -200,7 +250,7 @@ Code @		sym @
 end-code
 
 Code x!		sym x!
-\		"C" , tx ,
+\? PrimTrace	"C" , tx ,
 		SP , accu ,
 		*accu , dstx ,
 		#1 , add ,
@@ -211,7 +261,7 @@ Code x!		sym x!
 end-code
 		
 Code x@		sym x@
-\		"D" , tx ,
+\? PrimTrace	"D" , tx ,
 		SP , accu ,
 		*accu , srcx ,
 		accu , dstx ,
@@ -219,7 +269,7 @@ Code x@		sym x@
 end-code
 
 Code execute	sym execute
-\		"E" , tx ,
+\? PrimTrace	"E" , tx ,
 		SP , accu ,
 		*accu , W ,
 		#1 , add ,
@@ -228,7 +278,7 @@ Code execute	sym execute
 end-code
 
 Code ;s		sym ;s
-\		"F" , tx ,
+\? PrimTrace	"F" , tx ,
 		RP , accu ,
 		#1 , add ,
 		accu , RP ,
@@ -238,7 +288,7 @@ Code ;s		sym ;s
 end-code
 
 Code ?branch	sym ?branch
-\		"?" , tx ,
+\? PrimTrace	"?" , tx ,
 		#0 , add ,
 		IP , shr ,
 		accu , t0 ,
@@ -253,7 +303,7 @@ Code ?branch	sym ?branch
 		pc+4 , jz ,
 		sym no-branch
 		"Next" , jmp ,
-\		"+" , tx ,
+\? PrimTrace	"+" , tx ,
 		t0 , accu ,
 		*accu , accu ,
 Label >branch	sym branch-o
@@ -266,7 +316,7 @@ Label "branch"	>branch ,
 end-code
 
 Code branch	sym branch
-\		"/" , tx ,
+\? PrimTrace	"/" , tx ,
 		#0 , add ,
 		IP , shr ,
 		*accu , accu ,
@@ -299,7 +349,7 @@ Code (loop)	sym (loop)
 end-code
 		
 Code xor	sym xor
-\		"H" , tx ,
+\? PrimTrace	"H" , tx ,
 		SP , accu ,
 		*accu , t0 ,
 		#1 , add ,
@@ -313,7 +363,7 @@ Code xor	sym xor
 end-code
 
 Code or		sym or
-\		"I" , tx ,
+\? PrimTrace	"I" , tx ,
 		SP , accu ,
 		*accu , t0 ,
 		#1 , add ,
@@ -327,7 +377,7 @@ Code or		sym or
 end-code
 
 Code and	sym and
-\		"J" , tx ,
+\? PrimTrace	"J" , tx ,
 		SP , accu ,
 		*accu , t0 ,
 		#1 , add ,
@@ -341,7 +391,7 @@ Code and	sym and
 end-code
 
 Code +		sym +
-\		"K" , tx ,
+\? PrimTrace	"K" , tx ,
 		SP , accu ,
 		*accu , t0 ,
 		#1 , add ,
@@ -355,7 +405,7 @@ Code +		sym +
 end-code
 
 Code -		sym -
-\		"L" , tx ,
+\? PrimTrace	"L" , tx ,
 		SP , accu ,
 		*accu , t0 ,
 		#1 , add ,
@@ -368,8 +418,8 @@ Code -		sym -
 		"Next" , jmp ,
 end-code
 
-Code 2/		sym 2\/
-\		"M" , tx ,
+Code 2/		sym 2/
+\? PrimTrace	"M" , tx ,
 		#0 , add ,
 		SP , accu ,
 		*accu , accu ,
@@ -460,7 +510,7 @@ Code cell+	sym cell+
 end-code
 
 Code 8<<	sym 8<<
-\		"T" , tx ,
+\? PrimTrace	"T" , tx ,
 		#0 , add ,
 		SP , accu ,
 		*accu , accu ,
@@ -479,7 +529,7 @@ Code 8<<	sym 8<<
 end-code
 
 Code 8>>	sym 8>>
-\		"T" , tx ,
+\? PrimTrace	"T" , tx ,
 		#0 , add ,
 		SP , accu ,
 Label c-even@	*accu , shr ,
@@ -512,7 +562,7 @@ Code c@		sym c@
 		"Next" , jmp ,
 
 Code 2*		sym 2*
-\		"N" , tx ,
+\? PrimTrace	"N" , tx ,
 		SP , accu ,
 		*accu , accu ,
 		accu , add ,
@@ -523,7 +573,7 @@ Code 2*		sym 2*
 end-code
 
 Code >r		sym >r
-\		"O" , tx ,
+\? PrimTrace	"O" , tx ,
 		SP , accu ,
 		*accu , t0 ,
 		#1 , add ,
@@ -536,7 +586,7 @@ Code >r		sym >r
 end-code
 
 Code r>		sym r>
-\		"P" , tx ,
+\? PrimTrace	"P" , tx ,
 		RP , accu ,
 		*accu , t0 ,
 		#1 , add ,
@@ -549,7 +599,7 @@ Code r>		sym r>
 end-code
 
 Code sp@	sym sp@
-\		"Q" , tx ,
+\? PrimTrace	"Q" , tx ,
 		SP , accu ,
 		accu , add ,
 		accu , t0 ,
@@ -569,7 +619,7 @@ Code sp!	sym sp!
 end-code
 
 Code rp@	sym rp@
-\		"R" , tx ,
+\? PrimTrace	"R" , tx ,
 		RP , accu ,
 		accu , add ,
 		accu , t0 ,
@@ -592,7 +642,7 @@ Code rp!	sym rp!
 end-code
 
 Code drop	sym drop
-\		"S" , tx ,
+\? PrimTrace	"S" , tx ,
 		SP , accu ,
 		#1 , add ,
 		accu , SP ,
@@ -600,7 +650,7 @@ Code drop	sym drop
 end-code
 
 Code lit	sym lit
-\		"#" , tx ,
+\? PrimTrace	"#" , tx ,
 		IP , shr ,
 		*accu , t0 ,
 		#1 , add ,
