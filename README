@@ -1,0 +1,24 @@
+This is the current state (pre-alpha) of gforth. This is not a
+distribution for the general public, since it is not yet mature
+enough. There is no warranty of any kind; this program is
+distributed under the GNU General Public license (see COPYING).
+
+You will probably find a Linux binary included in the package and the
+configuration set up for Linux. If you want to install it on another
+system, read INSTALL and I wish you good luck (Mail us if you have
+problems).
+
+To start the system just say `gforth'. This gives you a pretty barren
+system. `gforth startup.fs' gives you most ANSI wordsets. If you miss
+a word, just grep for it in *.fs.
+
+If you want to work on gforth, mail me an encrypted UNIX password
+(i.e., what you find in /etc/passwd). Tasks to be done can be found in
+ToDo; but if you would like to do something not mentioned there, it's
+ok, too. In any case, we would like to hear what you are doing. The
+most important tasks IMO are the configuartion script, the missing ANS
+Forth words (musts before the alpha release), speeding up the loading
+of startup.fs, the documentation, adding readline and the foreign
+language interface for C.
+
+- anton

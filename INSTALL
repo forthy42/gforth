@@ -6,6 +6,10 @@ Make a symbolic link to machine.h, e.g.
 
 ln -s decstation.h machine.h
 
+Make a symbolic link from mach32l.fs or mach32b.fs to machine.fs
+
+Edit the Makefile (in particular the SWITCHES variable)
+
 Now you can type
 
 make

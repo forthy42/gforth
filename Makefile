@@ -59,7 +59,7 @@ clean:
 		-rm $(GEN)
 
 distclean:	clean
-		-rm machine.h
+		-rm machine.h machine.fs
 
 realclean:	distclean
 		-rm $(GEN_PRECIOUS)

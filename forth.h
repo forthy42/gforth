@@ -1,5 +1,4 @@
 /*
-  $Id: forth.h,v 1.10 1994-09-26 20:31:12 pazsan Exp $
   Copyright 1992 by the ANSI figForth Development Group
 */
 

@@ -1,7 +1,9 @@
-This file describes all the things left to do on ANSI figForth. The
-list is not complete, so you should add topics you miss or refine
-existing topics. If you are working on a topic, add your name to the
-right of the topic. If you have completed the work, remove the topic.
+-*- outline -*-
+
+This file describes all the things left to do on GNU Forth. The list
+is not complete, so you should add topics you miss or refine existing
+topics. If you are working on a topic, add your name to the right of
+the topic. If you have completed the work, remove the topic.
 
 This an emacs outline. Use '*' to create topics.
 
@@ -9,65 +11,81 @@ This an emacs outline. Use '*' to create topics.
 **measure the effect of some variations on different machines:
 direct/indirect, NEXT splitting, keeping the TOSses in variables
 **make it easy to put the right variation for each processor into the
-configuration.
+configuration. I.e., on installation all combinations of options
+should be measured and the fastest chosen. Knowing OS and architecture
+is not enough, the best otions depend more on the processor and the
+compiler version.
 
 * ANSI Forth
-**Core and Core Ext
-*** high-level words
-**Other Word Sets
+Add the remaining words
+
+* Configuration
+We should have a config script so people don't need to edit the
+Makefile etc.
 
 *Run-time System
+**startup.fs takes too long to load.
+Make the compiler much faster (hardly possible) or provide some way to
+make an image that includes everything loaded by startup.fs
 **Gender-independent image file format and loader
-**Memory Management
-**Stack Checking
-On most systems we could use the MMU (OS dependent).
+**Stack Checking using the MMU where the OS makes it possible.
 
 *Porting/Portability
 ** Machines/OSs
-UNIX (all machines supported by gcc)
-VMS (Vax)
-DOS Extender, 386sx and up
-DOS 8088 (16-bit or 32-bit?)
+VMS (VAX,AXP)
+DOS 8088 (16-bit or 32-bit? Note: there are no far pointers in gforth,
+so 16-bit means 64k max.)
 Windows
 OS/2
 Mac
 Atari
 Amiga
-Use gcc-generated assembly on machines without gcc
-
-*Locals
-**Concept
-**Implementation
-
-*Postponing	anton
+Use gcc-generated assembly on machines without gcc, but with
+processors supported by gcc
 
 *Foreign Language Interface
-**Concept	anton
+If anybody wants to do this, mail me
+(anton@mips.complang.tuwien.ac.at). I have given some thought to this
+and will type in my notes if you are interested.
 **C
 **FORTRAN
 **C++
 
 *Windows and Graphics
-Ask Brian Dunn and Mike Hore for their OS-independent interface
+**Ask Brian Dunn and Mike Hore for their OS-independent interface
+**use the Foreign Language Interface to make X-Windows support
 
 *Program Development Environment
 Issues: Convenience, portability across plattforms, compatibility with
 existing tools (Emacs, F-PC)
+** Decompiler and Debugger
+need debugging
+**readline
+Use the GNU readline package for convenient line editing
+** emacs support
+can be improved
 **prefix file generator
 A tool for generating a prefix file for a program that explains in
-what way the program conforms to ANSI and contains Forth definitions
-for the simple non-ANSI words.
+what way the program conforms to ANSI (i.e., which wordsets are used)
+and contains Forth definitions for the simple non-ANSI words.
+** rightcase
+A tool that converts all uses of words in a source text to the exact
+case of the definition. There's something like this out there on the
+net (Joerg Plewe has posted a reference), but I think a program that
+wires itself into the compiler (like etags.fs) is harder to fool by
+search order tricks etc.
 
 *Object-Oriented Extensions
-John Hayes (?) has a portable package
-Ask Phil Burke (phil@ntg.com), if he wants to contribute ODE
+John Hayes has a portable package
 
 *Documentation
 A texinfo file
-**glossaries of all wordsets.
-***Tool to generate glossaries benschop
-***Inclusion of glossary comments in all source files.
 
-*Distribution and Announcements
-** Ask the FSF, if they want to distribute it
+**glossaries of all wordsets.
+*** Inclusion of stack comments, glossary comments, and wordset comments
+in all source files.
+
+* Distribution and Announcements
+** add copyright notices to all the source files
+** add a package target to the Makefile
 ** Write articles for (general-purpose) magazines

@@ -1,5 +1,4 @@
 /*
-  $Id: engine.c,v 1.17 1994-09-28 17:02:46 anton Exp $
   Copyright 1992 by the ANSI figForth Development Group
 */
 
