@@ -31,4 +31,5 @@ has? new-input [IF]
     include ./input.fs
 [THEN]
 include ./license.fs
+include ./xchars.fs
 \ include ./nio.fs
