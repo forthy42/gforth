@@ -49,14 +49,60 @@
 
 ;;; Code:
 
+(setq debug-on-error t)
+
 ;; Code ripped from `version.el' for compatability with Emacs versions
 ;; prior to 19.23.
-(unless (boundp 'emacs-major-version)
-  (defconst emacs-major-version
-    (progn (string-match "^[0-9]+" emacs-version)
-	   (string-to-int (match-string 0 emacs-version)))))
+(if (not (boundp 'emacs-major-version))
+    (defconst emacs-major-version
+      (progn (string-match "^[0-9]+" emacs-version)
+	     (string-to-int (match-string 0 emacs-version)))))
 
+(defun forth-emacs-older (major minor)
+  (or (< emacs-major-version major)
+      (and (= emacs-major-version major) (< emacs-minor-version minor))))
 
+;; Code ripped from `subr.el' for compatability with Emacs versions
+;; prior to 20.1
+(eval-when-compile 
+  (if (forth-emacs-older 20 1)
+      (progn
+	(defmacro when (cond &rest body)
+	  "If COND yields non-nil, do BODY, else return nil."
+	  (list 'if cond (cons 'progn body)))
+	(defmacro unless (cond &rest body)
+	  "If COND yields nil, do BODY, else return nil."
+	  (cons 'if (cons cond (cons nil body)))))))
+
+;; `no-error' argument of require not supported in Emacs versions
+;; prior to 20.4 :-(
+(defun forth-require (feature)
+  (condition-case err (require feature) (error nil)))
+
+(require 'font-lock)
+
+;; define `font-lock-warning-face' in emacs-versions prior to 20.1
+;; (ripped from `font-lock.el')
+(unless (boundp 'font-lock-warning-face)
+  (message "defining font-lock-warning-face")
+  (make-face 'font-lock-warning-face)
+  (defvar font-lock-warning-face 'font-lock-warning-face)
+  (set-face-foreground font-lock-warning-face "red")
+  (make-face-bold font-lock-warning-face))
+
+;; define `regexp-opt' in emacs versions prior to 20.1 
+;; (this implementation is extremely inefficient, though)
+(unless (boundp 'regexp-opt)
+  (message (concat 
+	    "Warning: your Emacs version doesn't support `regexp-opt'. "
+            "Hilighting will be slow."))
+  (defun regexp-opt (STRINGS &optional PAREN)
+    (let ((open (if PAREN "\\(" "")) (close (if PAREN "\\)" "")))
+      (concat open (mapconcat 'regexp-quote STRINGS "\\|") close)))
+  (defun regexp-opt-depth (re)
+    (if (string= (substring re 0 2) "\\(") 1 0)))
+
+  
 ; todo:
 ;
 
@@ -85,8 +131,6 @@
 
 ;;; Hilighting and indentation engine				(dk)
 ;;;
-(require 'font-lock)
-
 (defvar forth-disable-parser nil
   "*Non-nil means to disable on-the-fly parsing of Forth-code.
 
@@ -671,10 +715,10 @@ Used for imenu index generation.")
     index))
 
 ;; top-level require is executed at byte-compile and load time
-(require 'speedbar nil t)
+(eval-and-compile (forth-require 'speedbar))
 
 ;; this code is executed at load-time only
-(when (require 'speedbar nil t)
+(when (memq 'speedbar features)
   (speedbar-add-supported-extension ".fs")
   (speedbar-add-supported-extension ".fb"))
 
@@ -1013,8 +1057,8 @@ exceeds 64 characters."
 (define-key forth-mode-map "\e." 'forth-find-tag)
 
 ;setup for C-h C-i to work
-(require 'info-look nil t)
-(when (require 'info-look nil t)
+(eval-and-compile (forth-require 'info-look))
+(when (memq 'info-look features)
   (info-lookup-add-help
    :topic 'symbol
    :mode 'forth-mode
