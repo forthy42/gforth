@@ -223,6 +223,7 @@ typedef struct {
 
 Label *engine(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp);
 Address my_alloc(Cell size);
+char *tilde_cstr(Char *from, UCell size, int clear);
 
 /* dblsub routines */
 DCell dnegate(DCell d1);

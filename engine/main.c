@@ -152,7 +152,7 @@ void relocate(Cell *image, const char *bitstring, int size, Label symbols[])
 	    case CF(DOESJUMP): MAKE_DOES_HANDLER(image+i); break;
 #endif /* !defined(DOUBLY_INDIRECT) */
 	    case CF(DODOES)  :
-	      MAKE_DOES_CF(image+i,image[i+1]+((Cell)image));
+	      MAKE_DOES_CF(image+i,(Xt *)(image[i+1]+((Cell)image)));
 	      break;
 	    default          :
 /*	      printf("Code field generation image[%x]:=CA(%x)\n",
@@ -205,10 +205,23 @@ Address verbose_malloc(Cell size)
   return r;
 }
 
+static Address next_address=0;
+void after_alloc(Address r, Cell size)
+{
+  if (r != (Address)-1) {
+    if (debug)
+      fprintf(stderr, "success, address=$%lx\n", (long) r);
+    if (pagesize != 1)
+      next_address = (Address)(((((Cell)r)+size-1)&-pagesize)+2*pagesize); /* leave one page unmapped */
+  } else {
+    if (debug)
+      fprintf(stderr, "failed: %s\n", strerror(errno));
+  }
+}
+
 Address my_alloc(Cell size)
 {
 #if HAVE_MMAP
-  static Address next_address=0;
   Address r;
 
 #if defined(MAP_ANON)
@@ -239,16 +252,9 @@ Address my_alloc(Cell size)
     r=mmap(next_address, size, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_FILE|MAP_PRIVATE, dev_zero, 0);
   }
 #endif /* !defined(MAP_ANON) */
-
-  if (r != (Address)-1) {
-    if (debug)
-      fprintf(stderr, "success, address=$%lx\n", (long) r);
-    if (pagesize != 1)
-      next_address = (Address)(((((Cell)r)+size-1)&-pagesize)+2*pagesize); /* leave one page unmapped */
+  after_alloc(r,size);
+  if (r!=(Address)-1)
     return r;
-  }
-  if (debug)
-    fprintf(stderr, "failed: %s\n", strerror(errno));
 #endif /* HAVE_MMAP */
   /* use malloc as fallback */
   return verbose_malloc(size);
@@ -257,10 +263,31 @@ Address my_alloc(Cell size)
 #if (defined(mips) && !defined(INDIRECT_THREADED))
 /* the 256MB jump restriction on the MIPS architecture makes the
    combination of direct threading and mmap unsafe. */
+#define mips_dict_alloc 1
 #define dict_alloc(size) verbose_malloc(size)
 #else
 #define dict_alloc(size) my_alloc(size)
 #endif
+
+Address dict_alloc_read(FILE *file, Cell size, Cell offset)
+{
+  Address image = (Address) -1;
+
+#ifndef mips_dict_alloc
+  if (offset==0) {
+    if (debug)
+      fprintf(stderr,"try mmap(0, $%lx, ..., MAP_FILE, imagefile, 0); ", (long)size);
+    image = mmap(0, size, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_FILE|MAP_PRIVATE, fileno(file), 0);
+    after_alloc(image,size);
+  }
+#endif /* defined(mips_dict_alloc) */
+  if (image == (Address)-1) {
+    image = dict_alloc(size+offset)+offset;
+    rewind(file);  /* fseek(imagefile,0L,SEEK_SET); */
+    fread(image, 1, size, file);
+  }
+  return image;
+}
 
 void set_stack_sizes(ImageHeader * header)
 {
@@ -337,12 +364,12 @@ int go_forth(Address image, int stack, Cell *entries)
     rp0 = signal_return_stack+8;
     /* fprintf(stderr, "rp=$%x\n",rp0);*/
     
-    return((int)engine(image_header->throw_entry, signal_data_stack+7,
+    return((int)(Cell)engine(image_header->throw_entry, signal_data_stack+7,
 		       rp0, signal_fp_stack, 0));
   }
 #endif
 
-  return((int)engine(ip0,sp0,rp0,fp0,lp0));
+  return((int)(Cell)engine(ip0,sp0,rp0,fp0,lp0));
 }
 
 
@@ -432,15 +459,14 @@ Address loader(FILE *imagefile, char* filename)
   if (debug)
     fprintf(stderr,"pagesize=%ld\n",(unsigned long) pagesize);
 
-  image = dict_alloc(preamblesize+dictsize+data_offset)+data_offset;
-  rewind(imagefile);  /* fseek(imagefile,0L,SEEK_SET); */
-  if (clear_dictionary)
-    memset(image, 0, dictsize);
-  fread(image, 1, preamblesize+header.image_size, imagefile);
+  image = dict_alloc_read(imagefile, preamblesize+dictsize, data_offset);
   imp=image+preamblesize;
+  if (clear_dictionary)
+    memset(imp+header.image_size, 0, dictsize-header.image_size);
   if(header.base==0) {
     Cell reloc_size=((header.image_size-1)/sizeof(Cell))/8+1;
     char reloc_bits[reloc_size];
+    fseek(imagefile, preamblesize+header.image_size, SEEK_SET);
     fread(reloc_bits, 1, reloc_size, imagefile);
     relocate((Cell *)imp, reloc_bits, header.image_size, symbols);
 #if 0
