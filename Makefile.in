@@ -88,6 +88,7 @@ KERN_SRC = \
 	aliases.fs \
 	args.fs \
 	conditionals.fs \
+	cond-old.fs \
 	cross.fs \
 	errore.fs \
 	files.fs \
@@ -158,7 +159,7 @@ SOURCES	= CVS compat Makefile.in configure.in configure config.sub config.guess 
 	ecvt.c memcmp.c strtol.c strtoul.c ansidecl.h memmove.c pow10.c atanh.c \
 	strerror.c strsignal.c dblsub.c \
 	INSTALL.DOS makefile.dos mkdosmf.sed configure.bat dosconf.h \
-	startup.dos history.dos \
+	startup.dos history.dos mkinstalldirs \
 	configure.cmd mkos2mf.sed os2conf.h makefile.os2 \
 	glosgen.glo glossaries.doc \
 	$(INCLUDES) $(FORTH_SRC)

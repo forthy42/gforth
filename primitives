@@ -1479,7 +1479,7 @@ wior =  IOR(w2 == 0);
 
 create-file	c_addr u ntype -- w2 wior	file	create_file
 Cell	fd;
-fd = open(tilde_cstr(c_addr, u, 1), O_CREAT|O_RDWR|O_TRUNC, 0666);
+fd = open(tilde_cstr(c_addr, u, 1), O_CREAT|O_TRUNC|ufileattr[ntype], 0666);
 if (fd != -1) {
   w2 = (Cell)fdopen(fd, fileattr[ntype]);
   wior = IOR(w2 == 0);
@@ -1949,7 +1949,7 @@ lp -= sizeof(Float);
 \+[THEN]  [THEN] \ has-locals
 
 up!	a_addr --	gforth	up_store
-up0=up=(char *)a_addr;
+UP=up=(char *)a_addr;
 :
  up ! ;
 Variable UP

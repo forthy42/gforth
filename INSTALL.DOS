@@ -12,23 +12,53 @@ OS/2:
 You need EMX 0.9c to compile Gforth. The EMX package provides all
 necessary Unix-like tools, tty and signal handling.
 
-If you don't want to install the DJGPP or EMX package (quite large),
-look for a binary distribution of Gforth for DOS or OS/2. You also
-must have a version of GNU make, because DOS/OS/2 make programs are
-likely to have problems with the Makefile. If you want to change
-Gforth, you may need GNU m4, too. Because DJGPP provides use of long
-filenames under Windows 95, you should unpack the gforth package with
-a Windows-95-aware archiver (those from DJGPP or the Cygnus
-Win32-package come in mind), because otherwise gforth will not find
-the necessary files. With MS-DOS versions prior 7.0 or DR-DOS, these
-names are cut due to the 8.3 rule. This might confuse DJGPP 2.0's
-make, you could use DJGPP 1.x's make instead. Gforth 0.2.0 hasn't been
-compiled with a MS-DOS prior 7.0.
+Windows 95/Windows NT:
+
+You need the Cygnus Win32 package. This package currently is only in
+beta test, so expect bugs and quirks.
+
+If you don't want to install the DJGPP, CYGWIN32 or EMX package (quite
+large), look for a binary distribution of Gforth for DOS, Win32 or
+OS/2. You also must have a version of GNU make, because DOS/Win32/OS/2
+make programs are likely to have problems with the Makefile. If you
+want to change Gforth, you may need GNU m4, too. Because DJGPP
+provides use of long filenames under Windows 95, you should unpack the
+gforth package with a Windows-95-aware archiver (those from DJGPP or
+the Cygnus Win32-package come in mind), because otherwise gforth will
+not find the necessary files. With MS-DOS versions prior 7.0 or
+DR-DOS, these names are cut due to the 8.3 rule. This might confuse
+DJGPP 2.0's make, you could use DJGPP 1.x's make instead. Gforth 0.2.0
+hasn't been compiled with a MS-DOS prior 7.0.
 
 Compiling under DOS or OS/2 has a number of quirks, and if it doesn't
 compile out of the box, you should know what you do. I therefore
-discourage unexperienced users to compile gforth themselfes. There's a
+discourage unexperienced users to compile gforth themselves. There's a
 binary package for it anyway.
+
+Compiling using CygWin32 works a bit better, but there are still
+quirks. The package allows to "mount" Windows directories under
+typical unix locations. E.g. I installed the package in E:\cygnus, and
+then I mount /usr, /usr/local and /bin with
+
+./mount e:/cygnus /usr
+./mount e:/cygnus/H-i386-cygwin32 /usr/local
+./mount e:/cygnus/H-i386-cygwin32/bin /bin
+
+once. Each time I start CygWin32's bash, I set up the following variables:
+
+export TMPDIR=/usr/tmp
+export COMPILER_PATH=/usr/local/lib/gcc-lib/i386-cygwin32/cygnus-2.7.2-961023
+export LIBRARY_PATH="/usr/lib;/usr/local/lib"
+export C_INCLUDE_PATH=/usr/local/i386-cygwin32/include
+export GCC_DEFAULT_OPTIONS="-specs=$COMPILER_PATH/specs"
+export PATH=/bin:.:$PATH
+
+Write this into a script and source it in at each bash invocation.
+
+Because Windows doesn't know about interpreters and shell scripts, you
+must run them from bash with e.g. "bash ./configure" instead just
+typing "./configure".
+
 
 If you don't bother and want to make it yourself, type
 
@@ -69,8 +99,9 @@ Add the following entry to your Autoexec.bat:
 SET GFORTHPATH=<your gforth source directory>;.
 
 Use / instead of \ in your gforth source directory. Gforth now uses
-';' as path separator, so you won't have problems with DOS pathes that
-may contain ':', which is the default path separator in Unix.
+';' as path separator for DOS and OS/2 (not for Cygwin32), so you
+won't have problems with DOS pathes that may contain ':', which is the
+default path separator in Unix.
 
 For paper documentation, print gforth.ps (a Postscript file (300dpi
 fonts, i.e., it works, but does not produce best quality on better

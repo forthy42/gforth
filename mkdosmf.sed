@@ -30,8 +30,8 @@ s%@srcdir@%.%g
 s%@LINK_KERNL@%-$(CP) kernl32l.fi kernel.fi%g
 s%@PATHSEP@%;%g
 s%-fforce-mem -fforce-addr %%g
-s%echo "static char gforth_version.*;" >$@%$(CP) VERSION.H1 version.h%g
-s%echo ": version-string.*;" >$@%$(CP) VERSION.FS1 version.fs%g
+s%echo "static char gforth_version.*;" >$@%$(CP) version.h1 version.h%g
+s%echo ": version-string.*;" >$@%$(CP) version.fs1 version.fs%g
 s%$(srcdir)/config.h.in:	stamp-h.in%#$(srcdir)/config.h.in:	stamp-h.in%g
 s%config.h:	stamp-h%#config.h:	stamp-h%g
 s%$(FORTHPATH)$(PATHSEP)%%g

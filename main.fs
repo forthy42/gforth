@@ -85,7 +85,7 @@ include files.fs               \ load file words
 has-locals [IF]
 include conditionals.fs        \ load IF and co
 [ELSE]
-include conditionals-old.fs    \ load IF and co w/o locals
+include cond-old.fs            \ load IF and co w/o locals
 [THEN]
 include tools.fs               \ load tools ( .s dump )
 include toolsext.fs

@@ -194,6 +194,7 @@ Address my_alloc(Cell size)
     perror(progname);
     exit(1);
   }
+  r = (Address)((((Cell)r)+(sizeof(Float)-1))&(-sizeof(Float)));
   if (debug)
     fprintf(stderr, "malloc succeeds, address=$%lx\n", (long)r);
   return r;
@@ -205,7 +206,7 @@ Address loader(FILE *imagefile, char* filename)
   ImageHeader header;
   Address image;
   Address imp; /* image+preamble */
-  Char magic[8];
+  Char magic[9];
   Cell preamblesize=0;
   Label *symbols=engine(0,0,0,0,0);
   UCell check_sum=checksum(symbols);
@@ -222,9 +223,11 @@ Address loader(FILE *imagefile, char* filename)
       preamblesize+=8;
     }
   while(memcmp(magic,"Gforth1",7));
-  if (debug)
-    fprintf(stderr,"Magic found: %-8s\n",magic);
-  
+  if (debug) {
+    magic[8]='\0';
+    fprintf(stderr,"Magic found: %s\n", magic);
+  }
+
   if(magic[7] != sizeof(Cell) +
 #ifdef WORDS_BIGENDIAN
        '0'
@@ -414,16 +417,16 @@ int main(int argc, char **argv, char **env)
       {"path", required_argument, NULL, 'p'},
       {"version", no_argument, NULL, 'v'},
       {"help", no_argument, NULL, 'h'},
+      {"clear-dictionary", no_argument, NULL, 'c'},
       /* put something != 0 into image_offset; it should be a
          not-too-large max-aligned number */
-      {"offset-image", no_argument, &image_offset, 28*sizeof(Cell)},
-      {"clear-dictionary", no_argument, &clear_dictionary, 1},
+      {"offset-image", no_argument, NULL, 'o'},
       {"debug", no_argument, &debug, 1},
       {0,0,0,0}
       /* no-init-file, no-rc? */
     };
     
-    c = getopt_long(argc, argv, "+i:m:d:r:f:l:p:vh", opts, &option_index);
+    c = getopt_long(argc, argv, "+i:m:d:r:f:l:p:vhco", opts, &option_index);
     
     if (c==EOF)
       break;
@@ -432,6 +435,8 @@ int main(int argc, char **argv, char **env)
       break;
     }
     switch (c) {
+    case 'c': clear_dictionary=1; break;
+    case 'o': image_offset=28*sizeof(Cell); break;
     case 'i': imagename = optarg; break;
     case 'm': dictsize = convsize(optarg,sizeof(Cell)); break;
     case 'd': dsize = convsize(optarg,sizeof(Cell)); break;
@@ -443,7 +448,7 @@ int main(int argc, char **argv, char **env)
     case 'h': 
       fprintf(stderr, "Usage: %s [engine options] [image arguments]\n\
 Engine Options:\n\
- --clear-dictionary		    Initialize the dictionary with 0 bytes\n\
+ -c, --clear-dictionary		    Initialize the dictionary with 0 bytes\n\
  -d SIZE, --data-stack-size=SIZE    Specify data stack size\n\
  --debug			    Print debugging information during startup\n\
  -f SIZE, --fp-stack-size=SIZE	    Specify floating point stack size\n\

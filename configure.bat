@@ -41,6 +41,6 @@ IF "%THREAD%"=="d" ECHO #endif >>CONFIG.H
 IF "%FREGS%"=="y" ECHO #ifndef FORCE_REG >>CONFIG.H
 IF "%FREGS%"=="y" ECHO #define FORCE_REG 1 >>CONFIG.H
 IF "%FREGS%"=="y" ECHO #endif >>CONFIG.H
-ECHO static char gforth_version[]="0.2.9"; >VERSION.H1
-ECHO : version-string s" 0.2.9" ; >VERSION.FS1
+ECHO static char gforth_version[]="0.3.0"; >version.h1
+ECHO : version-string s" 0.3.0" ; >version.fs1
 

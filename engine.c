@@ -58,6 +58,8 @@ typedef struct F83Name {
 
 Cell *SP;
 Float *FP;
+Address UP=NULL;
+
 #if 0
 /* not used currently */
 int emitcounter;
@@ -107,6 +109,8 @@ char *tilde_cstr(Char *from, UCell size, int clear)
     return cstr(from, size, clear);
   if (size<2 || from[1]=='/') {
     s1 = (char *)getenv ("HOME");
+    if(s1 == NULL)
+      s1 = "";
     s2 = from+1;
     s2_len = size-1;
   } else {
@@ -145,7 +149,17 @@ char *tilde_cstr(Char *from, UCell size, int clear)
 
 static char* fileattr[6]={"r","rb","r+","r+b","w","wb"};
 
-static Address up0=NULL;
+#ifndef O_BINARY
+#define O_BINARY 0
+#endif
+#ifndef O_TEXT
+#define O_TEXT 0
+#endif
+
+static int ufileattr[6]= {
+  O_RDONLY|O_TEXT, O_RDONLY|O_BINARY,
+  O_RDWR  |O_TEXT, O_RDWR  |O_BINARY,
+  O_WRONLY|O_TEXT, O_WRONLY|O_BINARY };
 
 /* if machine.h has not defined explicit registers, define them as implicit */
 #ifndef IPREG
@@ -197,7 +211,7 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
 #ifdef CFA_NEXT
   register Xt cfa CFAREG;
 #endif
-  register Address up UPREG = up0;
+  register Address up UPREG = UP;
   IF_TOS(register Cell TOS TOSREG;)
   IF_FTOS(register Float FTOS FTOSREG;)
   static Label symbols[]= {

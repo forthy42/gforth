@@ -28,7 +28,6 @@ Create maze  1 cells allot /maze 25 * allot  \ current maze
 Variable mazes   0 mazes !  \ root pointer
 Variable soko    0 soko !   \ player position
 Variable >maze   0 >maze !  \ current compiled maze
->maze off
 
 \ score information
 

@@ -28,7 +28,7 @@
 #include "config.h"
 #include <unistd.h>
 
-#ifdef apollo
+#if defined(apollo) || defined(_WIN32)
 #define _POSIX_VERSION
 #endif
 
