@@ -38,7 +38,7 @@ gforth-d -c -n %GFORTHPAR% tmp.fs
 echo savesystem tmp.fi2 bye >tmp.fs
 gforth-d -c -o %GFORTHPAR% tmp.fs
 echo comp-image tmp.fi1 tmp.fi2 %outfile% bye >tmp.fs
-gforth-d -i kernl32l.fi startup.fs  comp-i.fs tmp.fs
+gforth-d -i kernl32l.fi -e 3 exboot.fs startup.fs  comp-i.fs tmp.fs
 del tmp.fs
 del tmp.fi1
 del tmp.fi2

@@ -54,7 +54,7 @@ s%main-ditc%main-d%g
 s%main-fast%main-f%g
 s%@OSCLASS@%dos%g
 s%@machine@%386%g
-s%@VERSION@%0.4.9%g
+s%@VERSION@%0.5.0%g
 s%@EXE@%.exe%g
 s%--die-on-signal%-s%g
 s%cd engine && $(MAKE)%$(MAKE) -C engine%g

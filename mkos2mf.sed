@@ -66,7 +66,7 @@ s%'s"%"s\\"%g
 s%"'%\\""%g
 s%@OSCLASS@%dos%g
 s%@machine@%386%g
-s%@VERSION@%0.4.0%g
+s%@VERSION@%0.5.0%g
 s%@EXE@%.exe%g
 s%engine/$@%engine\\$@%g
 s%gforthmi gforth\$(EXE)%gforthmi.cmd gforth\$(EXE)%g
