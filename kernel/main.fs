@@ -37,20 +37,20 @@ include ../cross.fs               \ include cross-compiler
 
 decimal
 
-cell 2 = [IF] 32 [ELSE] 256 [THEN] KB makekernel ( size )
+has? kernel-size makekernel ( size )
 \ create image-header
 has? header [IF]
 0 A,	\ base address
 0 ,	\ checksum
 0 ,	\ image size (without tags)
-,	\ dict size
-16 KB ,	\ data stack size
-15 KB 512 + ,	\ FP stack size
-15 KB ,	\ return stack size
-14 KB 512 + ,	\ locals stack size
+>address ,	\ dict size
+has? stack-size ,	\ data stack size
+has? fstack-size ,	\ FP stack size
+has? rstack-size ,	\ return stack size
+has? lstack-size ,	\ locals stack size
 0 A,	\ code entry point
 0 A,	\ throw entry point
-16 KB ,	\ unused (possibly tib stack size)
+has? stack-size ,	\ unused (possibly tib stack size)
 0 ,	\ unused
 0 ,	\ data stack base
 0 ,	\ fp stack base
@@ -92,12 +92,11 @@ include cond.fs                \ load IF and co
 [ELSE]
 include cond-old.fs            \ load IF and co w/o locals
 [THEN]
-include toolsext.fs
 \ include arch/misc/tt.fs
 \ include arch/misc/sokoban.fs
 [THEN]
+include toolsext.fs
 include tools.fs               \ load tools ( .s dump )
-include doers.fs
 include getdoers.fs
 include special.fs             \ special must be last!
 
@@ -108,8 +107,10 @@ tudp H @ minimal udp !
 decimal
 
 has? header [IF]
-  here         2 cells !  \ image size
-  ' boot >body 8 cells !  \ Entry point
+\    UNLOCK
+    here >address 2 cells  !  \ image size
+    ' boot >body  8 cells A!  \ Entry point
+\    LOCK
 [ELSE]
   >boot
 [THEN]

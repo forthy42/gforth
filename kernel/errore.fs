@@ -34,9 +34,13 @@ decimal
 \ error numbers between -512 and -2047 are for OS errors and are
 \ handled with strerror
 
+has? OS [IF]
 : >stderr ( -- )
     r> outfile-id >r stderr to outfile-id
     >exec  r> to outfile-id ;
+[ELSE]
+: >stderr ;
+[THEN]
 
 : .error ( n -- )
     >stderr

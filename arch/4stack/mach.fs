@@ -31,8 +31,8 @@
 
 true  Constant NIL  \ relocating
 
-: prims-include  ." Include primitives" cr s" arch/4stack/prim.fs" included ;
-: asm-include    ." Include assembler" cr s" arch/4stack/asm.fs" included ;
+: prims-include  ." Include primitives" cr s" ~+/arch/4stack/prim.fs" included ;
+: asm-include    ." Include assembler" cr s" ~+/arch/4stack/asm.fs" included ;
 
 : >boot
     S" ' boot >body $800 ! here $804 !" evaluate ;
@@ -61,3 +61,10 @@ false Constant header		\ save a header information
 false Constant ec
 false Constant crlf
 false Constant ITC
+
+cell 2 = [IF] 32 [ELSE] 256 [THEN] KB Constant kernel-size
+
+16 KB		Constant stack-size
+15 KB 512 +	Constant fstack-size
+15 KB		Constant rstack-size
+14 KB 512 +	Constant lstack-size

@@ -23,7 +23,7 @@
 has? os [IF]
 0 Value outfile-id ( -- file-id ) \ gforth
 0 Value infile-id ( -- file-id ) \ gforth
-
+    
 : (type) ( c-addr u -- ) \ gforth
     outfile-id write-file drop \ !! use ?DUP-IF THROW ENDIF instead of DROP ?
 ;
@@ -39,22 +39,34 @@ has? os [IF]
     infile-id key?-file ;
 [THEN]
 
-[IFUNDEF] (type)
+undef-words
+    
+Defer type ( c-addr u -- ) \ core
 : (type)  BEGIN  dup  WHILE
     >r dup c@ (emit) 1+ r> 1-  REPEAT  2drop ;
-[THEN]
 
-Defer type ( c-addr u -- ) \ core
-' (type) IS Type
+[IFDEF] (type) ' (type) IS Type [THEN]
 
 Defer emit ( c -- ) \ core
-' (Emit) IS Emit
+: (emit) ( c -- ) \ gforth
+    0 emit-file drop \ !! use ?DUP-IF THROW ENDIF instead of DROP ?
+;
+
+[IFDEF] (emit) ' (emit) IS emit [THEN]
 
 Defer key ( -- c ) \ core
-' (key) IS key
+: (key) ( -- c ) \ gforth
+    0 key-file ;
+
+[IFDEF] (key) ' (key) IS key [THEN]
 
 Defer key? ( -- flag ) \ core
-' (key?) IS key?
+: (key?) ( -- flag ) \ gforth
+    0 key?-file ;
+
+[IFDEF] (key?) ' (key?) IS key? [THEN]
+
+all-words
 
 : (.")     "lit count type ;
 : (S")     "lit count ;
@@ -78,7 +90,11 @@ Defer key? ( -- flag ) \ core
 [ [THEN] ]
     ;
 
-1 [IF]
+: space bl emit ;
+has? ec [IF]
+: spaces 0 max 0 ?DO space LOOP ;
+: backspaces  0 max 0 ?DO  #bs emit  LOOP ;
+[ELSE]
 \ space spaces		                                21mar93py
 decimal
 Create spaces ( u -- ) \ core
@@ -92,11 +108,5 @@ DOES>   ( u -- )
    swap
    0 max 0 ?DO  I' I - &80 min 2dup type  +LOOP  drop ;
 hex
-: space ( -- ) \ core
-    1 spaces ;
-[ELSE]
-: space bl emit ;
-: spaces 0 max 0 ?DO space LOOP ;
-
 [THEN]
 

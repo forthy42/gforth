@@ -23,10 +23,21 @@
 
 Create magicbuf 8 allot
 
+Variable bswap?
+Variable tchars
+
+: bswap ( n -- n' )  bswap? @ 0= ?EXIT  0
+    over 24 rshift $FF       and or
+    over  8 rshift $FF00     and or
+    over  8 lshift $FF0000   and or
+    over 24 lshift $FF000000 and or nip ;
+
 : search-magic ( fd -- )  >r
     BEGIN  magicbuf 8 r@ read-file throw  8 =  WHILE
-	magicbuf s" Gforth1" tuck compare 0=  UNTIL
+	magicbuf s" Gforth" tuck compare 0=  UNTIL
     ELSE  true abort" No magic found"  THEN
+    magicbuf 6 + c@ digit? drop tchars !
+    magicbuf 7 + c@ 1 and 0= [ pad off 1 pad ! pad c@ 1 = ] Literal = bswap? !
     rdrop ;
 
 Create image-header  4 cells allot
@@ -35,7 +46,8 @@ Variable bitmap-chars
 
 : read-header ( fd -- )
     image-header 4 cells rot read-file throw drop
-    image-header 2 cells + @ dup cell / image-cells ! 1- 8 cells / 1+ bitmap-chars !
+    image-header 2 cells + @ bswap tchars @ *
+    dup cell / image-cells ! 1- 8 cells / 1+ bitmap-chars !
     image-cells @ cells allocate throw to image
     bitmap-chars @ allocate throw to bitmap ;
 
@@ -50,7 +62,7 @@ Variable bitmap-chars
 
 : .image ( -- )
     image-cells @ 0 ?DO
-	I 4 + I' min I ?DO  space image I cells + @ .08x ." ," LOOP cr
+	I 4 + I' min I ?DO  space image I cells + @ bswap .08x ." ," LOOP cr
 	4 +LOOP ;
 
 : .reloc ( -- )
@@ -65,7 +77,7 @@ Variable bitmap-chars
     r@ read-dictionary r@ read-bitmap r> close-file throw ;
 
 : .imagesize ( -- )
-    image-header 3 cells + @ 1 cells / .08x ;
+    image-header 3 cells + @ bswap 1 cells / tchars @ * .08x ;
 
 : .relocsize ( -- )
     bitmap-chars @ .08x ;

@@ -145,11 +145,13 @@ const Create bases   10 ,   2 ,   A , 100 ,
     [char] ) parse 2drop ; immediate
 
 : \ ( -- ) \ core-ext backslash
+    [ has? file [IF] ]
     blk @
     IF
 	>in @ c/l / 1+ c/l * >in !
 	EXIT
     THEN
+    [ [THEN] ]
     source >in ! drop ; immediate
 
 : \G ( -- ) \ gforth backslash
@@ -360,7 +362,7 @@ Defer interpreter-notfound ( c-addr count -- )
 \ interpreter                                 	30apr92py
 
 \ not the most efficient implementations of interpreter and compiler
-: interpreter ( c-addr u -- ) 
+| : interpreter ( c-addr u -- ) 
     2dup find-name dup
     if
 	nip nip name>int execute
@@ -379,28 +381,32 @@ Defer interpreter-notfound ( c-addr count -- )
 \ \ Query Evaluate                                 	07apr93py
 
 has? file 0= [IF]
-: sourceline# ( -- n )  loadline @ ;
+: sourceline# ( -- n )  1 ;
 [THEN]
 
 : refill ( -- flag ) \ core-ext,block-ext,file-ext
-  blk @  IF  1 blk +!  true  0 >in !  EXIT  THEN
-  tib /line
-[ has? file [IF] ]
-  loadfile @ ?dup
-  IF    read-line throw
-  ELSE
-[ [THEN] ]
-      sourceline# 0< IF 2drop false EXIT THEN
-      accept true
-[ has? file [IF] ]
-  THEN
-[ [THEN] ]
-  1 loadline +!
-  swap #tib ! 0 >in ! ;
+    [ has? file [IF] ]
+	blk @  IF  1 blk +!  true  0 >in !  EXIT  THEN
+	[ [THEN] ]
+    tib /line
+    [ has? file [IF] ]
+	loadfile @ ?dup
+	IF    read-line throw
+	ELSE
+	    [ [THEN] ]
+	sourceline# 0< IF 2drop false EXIT THEN
+	accept true
+	[ has? file [IF] ]
+	THEN
+	1 loadline +!
+	[ [THEN] ]
+    swap #tib ! 0 >in ! ;
 
 : query   ( -- ) \ core-ext
     \G obsolescent
-    blk off loadfile off
+    [ has? file [IF] ]
+	blk off loadfile off
+	[ [THEN] ]
     tib /line accept #tib ! 0 >in ! ;
 
 \ save-mem extend-mem
@@ -423,18 +429,21 @@ has? os [IF]
 
 has? file 0= [IF]
 : push-file  ( -- )  r>
-  sourceline# >r  tibstack @ >r  >tib @ >r  #tib @ >r
+  tibstack @ >r  >tib @ >r  #tib @ >r
   >tib @ tibstack @ = IF  r@ tibstack +!  THEN
   tibstack @ >tib ! >in @ >r  >r ;
 
 : pop-file   ( throw-code -- throw-code )
   r>
-  r> >in !  r> #tib !  r> >tib !  r> tibstack !  r> loadline !  >r ;
+  r> >in !  r> #tib !  r> >tib !  r> tibstack !  >r ;
 [THEN]
 
 : evaluate ( c-addr len -- ) \ core,block
   push-file  #tib ! >tib !
-  >in off blk off loadfile off -1 loadline !
+  >in off
+  [ has? file [IF] ]
+      blk off loadfile off -1 loadline !
+      [ [THEN] ]
   ['] interpret catch
   pop-file throw ;
 
@@ -447,7 +456,10 @@ Defer .status
 : prompt        state @ IF ."  compiled" EXIT THEN ."  ok" ;
 
 : (Query)  ( -- )
-    loadfile off  blk off loadline off refill drop ;
+    [ has? file [IF] ]
+	loadfile off  blk off loadline off
+	[ [THEN] ]
+    refill drop ;
 
 : (quit)  BEGIN  .status cr (query) interpret prompt  AGAIN ;
 
@@ -579,9 +591,10 @@ Variable init8
     init8 chainperform
 [ has? file [IF] ]
     process-args
+    loadline off
 [ [THEN] ]
     bootmessage
-    loadline off quit ;
+    quit ;
 
 : clear-tibstack ( -- )
 [ has? glocals [IF] ]

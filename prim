@@ -1369,15 +1369,23 @@ n=1;
 :
  1 ;
 
-\+os
-
 key-file	wfileid -- n		gforth	paren_key_file
+#ifdef HAS_FILE
 fflush(stdout);
 n = key((FILE*)wfileid);
+#else
+n = key(stdin);
+#endif
 
 key?-file	wfileid -- n		facility	key_q_file
+#ifdef HAS_FILE
 fflush(stdout);
 n = key_query((FILE*)wfileid);
+#else
+n = key_query(stdin);
+#endif
+
+\+os
 
 stdin	-- wfileid	gforth
 wfileid = (Cell)stdin;
@@ -1596,12 +1604,17 @@ write-file	c_addr u1 wfileid -- wior	file	write_file
     clearerr((FILE *)wfileid);
 }
 
+\+
+
 emit-file	c wfileid -- wior	gforth	emit_file
+#ifdef HAS_FILE
 wior = FILEIO(putc(c, (FILE *)wfileid)==EOF);
 if (wior)
   clearerr((FILE *)wfileid);
+#else
+putc(c, stdout);
+#endif
 
-\+
 \+file
 
 flush-file	wfileid -- wior		file-ext	flush_file
@@ -2073,4 +2086,3 @@ UP=up=(char *)a_addr;
 :
  up ! ;
 Variable UP
-

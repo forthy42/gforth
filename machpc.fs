@@ -43,3 +43,10 @@ true Constant header		\ save a header information
 
 false Constant ec
 false Constant crlf
+
+cell 2 = [IF] 32 [ELSE] 256 [THEN] KB Constant kernel-size
+
+16 KB		Constant stack-size
+15 KB 512 +	Constant fstack-size
+15 KB		Constant rstack-size
+14 KB 512 +	Constant lstack-size

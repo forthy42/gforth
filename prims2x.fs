@@ -81,9 +81,16 @@ Variable flush-comment flush-comment off
     f-comment 2@ nip
     IF  cr f-comment 2@ 2 /string 1-
 	dup IF
-	    flush-comment @ 1 =
-	    IF    ." #ifdef HAS_" bounds ?DO  I c@ toupper emit  LOOP
-	    ELSE  ." has? " type ."  [IF]"  THEN  cr
+	    2dup s" -" compare 0=
+	    IF
+		flush-comment @ 1 =
+		IF    ." #else"
+		ELSE  ." [ELSE]"  THEN
+	    ELSE
+		flush-comment @ 1 =
+		IF    ." #ifdef HAS_" bounds ?DO  I c@ toupper emit  LOOP
+		ELSE  ." has? " type ."  [IF]"  THEN
+	    THEN  cr
 	ELSE    flush-comment @ 1 = IF  ." #endif"  ELSE  ." [THEN]"  THEN
 	    cr  THEN
 	0 0 f-comment 2! THEN ;
@@ -269,7 +276,7 @@ nowhite ++
    (( nl || eof ))
 )) <- primitive ( -- )
 
-(( (( primitive {{ printprim }} )) **  eof ))
+(( (( primitive {{ printprim }} )) ** eof ))
 parser primitives2something
 warnings @ [IF]
 .( parser generated ok ) cr
@@ -717,4 +724,3 @@ set-current
 : process      ( xt -- )
     bl word count rot
     process-file ;
-

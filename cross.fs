@@ -52,6 +52,7 @@ Warnings off
 
 \ words that are generaly useful
 
+: KB  400 * ;
 : >wordlist ( vocabulary-xt -- wordlist-struct )
   also execute get-order swap >r 1- set-order r> ;
 
@@ -301,6 +302,7 @@ true SetValue compiler
 true  SetValue cross
 true SetValue standard-threading
 >TARGET previous
+
 
 mach-file count included hex
 
@@ -653,10 +655,11 @@ CREATE Bittable 80 c, 40 c, 20 c, 10 c, 8 c, 4 c, 2 c, 1 c,
 : c,    ( char -- )     T here    tchar allot c! H ;
 : align ( -- )          T here H align+ 0 ?DO  bl T c, H LOOP ;
 : cfalign ( -- )
-    T here H cfalign+ 0 ?DO  bl T c, H LOOP ;
+    T here H cfalign+ 0 ?DO  bl T c, tchar H +LOOP ;
 
-: A!                    dup relon T ! H ;
-: A,    ( w -- )        T here H relon T , H ;
+: >address		dup 0>= IF tchar / THEN ;
+: A!                    swap >address swap dup relon T ! H ;
+: A,    ( w -- )        >address T here H relon T , H ;
 
 >CROSS
 
@@ -1115,7 +1118,7 @@ NoHeaderFlag off
     IF  NoHeaderFlag off
     ELSE
 	T align H view,
-	tlast @ dup 0> IF  T 1 cells - THEN  A, H  there tlast !
+	tlast @ dup 0> IF  T 1 cells - H THEN T A, H  there tlast !
 	1 headers-named +!	\ Statistic
 	>in @ T name, H >in !
     THEN
@@ -1223,7 +1226,7 @@ Cond: [']  T ' H alit, ;Cond
 \ modularized						14jun97jaw
 
 : fillcfa   ( usedcells -- )
-  T cells H xt>body swap - 0 ?DO 0 T c, H LOOP ;
+  T cells H xt>body swap - 0 ?DO 0 T c, tchar H +LOOP ;
 
 : (>body)   ( cfa -- pfa ) xt>body + ;		' (>body) T IS >body H
 
@@ -1631,7 +1634,7 @@ Builder Field
 : sys?        ( sys -- sys )    dup 0= ?struc ;
 : >mark       ( -- sys )        T here  ( dup ." M" hex. ) 0 , H ;
 
-: branchoffset ( src dest -- ) - ;
+: branchoffset ( src dest -- ) - tchar / ;
 
 : >resolve    ( sys -- )        T here ( dup ." >" hex. ) over branchoffset swap ! H ;
 
@@ -1954,6 +1957,7 @@ previous
 Create magic  s" Gforth10" here over allot swap move
 
 char 1 bigendian + tcell + magic 7 + c!
+char 0 tchar + magic 6 + c!
 
 : save-cross ( "image-name" "binary-name" -- )
   bl parse ." Saving to " 2dup type cr

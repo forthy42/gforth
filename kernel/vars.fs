@@ -49,7 +49,7 @@ $20 8 2* cells + 2 + cell+ constant word-pno-size ( -- u )
 
 \ initialized by COLD
 
-Create main-task  100 cells allot
+Create main-task  has? OS [IF] 100 [ELSE] 40 [THEN] cells allot
 
 \ set user-pointer from cross-compiler right
 main-task 
@@ -79,6 +79,7 @@ AUser "error            0 "error !
  User #tib		\ chars in terminal input buffer
  User >in               0 >in ! \ char number currently processed in tib
 [THEN]
+has? file [IF]
  User blk               0 blk !
  User loadfile          0 loadfile !
 
@@ -91,6 +92,7 @@ AUser "error            0 "error !
 
 2User linestart         \ starting file postition of
                         \ the current interpreted line (in TIB)
+[THEN]
 
  User base              A base !
  User dpl               -1 dpl !
@@ -104,7 +106,8 @@ AUser dpp		normal-dp dpp !
 AUser LastCFA
 AUser Last
 
+has? glocals [IF]
 User locals-size \ this is the current size of the locals stack
 		 \ frame of the current word
-
+[THEN]
 
