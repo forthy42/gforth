@@ -2,6 +2,9 @@
 
 Vocabulary assembler
 also assembler also definitions forth
+\ [IFUNDEF] cross
+\ : X ;
+\ [THEN]
 
 \ sources
 
@@ -22,14 +25,16 @@ $7 Constant *ACCU
 $C Constant XOR		$D Constant OR
 $E Constant AND		$F Constant SHR
 
-$FFFC Constant tx
+$FFFC Constant txd
+$FFFF Constant rx?
+$FFFE Constant rxd
 \ $FFF0 Constant tx
 
 : end-label previous ;
 
 Create marks $10 cells allot
 
-: ahere s" here" evaluate 2/ ;
+: ahere X here 2/ ;
 
 : m ( n -- ) cells marks + ahere 2* swap ! 0 ;
 : r ( n -- ) cells marks + @ ahere swap s" !" evaluate 0 ;
@@ -51,11 +56,15 @@ Create marks $10 cells allot
          r> $10 /string 0 max rot $10 + -rot
   REPEAT  drop 2drop ;
 
-: sym base @ >r hex
-    cr ." sym:s/PC=" ahere 4 0.r ." /" bl word count type ." /g" cr
-    r> base ! ;
+\ : sym 
+\    base @ >r hex
+\    cr ." sym:s/PC=" ahere 4 0.r ." /" bl word count type ." /g" cr
+\    r> base ! ;
+: sym bl word drop ;
 
-: label ahere Constant ;
+: label 
+  >in @ bl word count X here symentry >in !
+  ahere Constant ;
 
 also forth definitions
 
@@ -65,3 +74,4 @@ also forth definitions
 : (end-code) previous ;
 
 previous previous previous
+
