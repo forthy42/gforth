@@ -1101,16 +1101,22 @@ defining its direct prefix (e.g., @code{ab = a b}),
 If you are using a preprocessor (e.g., @command{m4}) to generate Vmgen
 input code, you may want to create @code{#line} directives (aka sync
 lines).  This error indicates that such a line is not in th syntax
-expected by Vmgen (this should not happen).
+expected by Vmgen (this should not happen; please report the offending
+line in a bug report).
 
 @cindex @code{syntax error, wrong char} error
 @cindex syntax error, wrong char
-A syntax error.  Note that Vmgen is sometimes anal retentive about white
-space, especially about newlines.
+A syntax error.  If you do not see right away where the error is, it may
+be helpful to check the following: Did you put an empty line in a VM
+instruction where the C code is not delimited by braces (then the empty
+line ends the VM instruction)?  If you used brace-delimited C code, did
+you put the delimiting braces (and only those) at the start of the line,
+without preceding white space?  Did you forget a delimiting brace?
 
 @cindex @code{too many stacks} error
 @item too many stacks
-Vmgen currently supports 4 stacks; if you need more, let us know.
+Vmgen currently supports 3 stacks (plus the instruction stream); if you
+need more, let us know.
 
 @cindex @code{unknown prefix} error
 @item unknown prefix
