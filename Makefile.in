@@ -215,8 +215,16 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_SRC) $(EC_SRC) \
 	bubble.fs siev.fs matrix.fs fib.fs \
 	oof.fs oofsampl.fs objects.fs objexamp.fs mini-oof.fs moof-exm.fs
 
-COMPAT	= compat/README compat/control.fs compat/anslocal.fs \
-	compat/struct.fs compat/loops.fs
+COMPAT = compat/README \
+	compat/anslocal.fs \
+	compat/assert.fs \
+	compat/control.fs \
+	compat/defer.fs \
+	compat/exception.fs \
+	compat/loops.fs \
+	compat/required.fs \
+	compat/struct.fs \
+	compat/vocabulary.fs
 
 GFORTH_TEXI =  doc/gforth.texi doc/version.texi
 
@@ -270,7 +278,7 @@ ARCHS =	\
 	arch/shboom/sh.p \
 	arch/shboom/doers.fs
 
-SOURCES	= $(CVSDIRS) compat Makefile.in engine/Makefile.in gforthmi \
+SOURCES	= $(CVSDIRS) compat Makefile.in engine/Makefile.in gforthmi.in \
 	configure.in configure config.sub config.guess elisp-comp missing \
 	acconfig.h acinclude.m4 engine/config.h.in stamp-h.in \
 	install-sh INSTALL INSTALL.BINDIST NEWS README ToDo BUGS model \
@@ -372,7 +380,7 @@ distclean:	clean
 		-$(RM) config.cache config.log config.status \
 		engine/config.h Makefile engine/Makefile \
 		stamp-h engine/stamp-h \
-		doc/version.texi
+		doc/version.texi gforthmi
 
 #realclean is useless, but dangerous, so it's commented out
 #realclean:	distclean
@@ -463,20 +471,22 @@ binonlydist:	$(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST) $(BINONLYDIST)
 #install does not depend on gforth.info, because that would require
 #supplying a lot of files that can be easily generated (only info is
 #hard to generate)
-install:	gforth$(EXE) $(FORTH_SRC) $(kernel_fi) gforth.fi doc/gforth.1 prim gforth.TAGS installdirs
+install:	gforth$(EXE) $(FORTH_SRC) $(kernel_fi) gforth.fi gforthmi doc/gforth.1 prim install.TAGS installdirs
 		touch $(datadir)/gforth/site-forth/siteinit.fs
 		-$(RM) $(bindir)/gforth$(EXE) $(bindir)/gforth-$(VERSION)$(EXE)
-		$(INSTALL_PROGRAM) -s gforth$(EXE) $(bindir)
-		ln $(bindir)/gforth$(EXE) $(bindir)/gforth-$(VERSION)$(EXE)
+		$(INSTALL_PROGRAM) -s gforth$(EXE) $(bindir)/gforth-$(VERSION)$(EXE)
+		$(LN_S) $(bindir)/gforth-$(VERSION)$(EXE) $(bindir)/gforth$(EXE)
+		$(INSTALL_PROGRAM) gforthmi $(bindir)/gforthmi-$(VERSION)
+		$(LN_S) $(bindir)/gforthmi-$(VERSION) $(bindir)/gforthmi
 		-$(INSTALL_DATA) $(srcdir)/doc/gforth.1 $(man1dir)
-		-for i in $(srcdir)/gforth.info*; do $(INSTALL_DATA) $$i $(infodir); done
-		for i in $(FORTH_SRC) prim; do \
-			$(INSTALL_DATA) $(srcdir)/$$i $(datadir)/gforth/$(VERSION); \
+		-for i in $(srcdir)/doc/gforth.info*; do $(INSTALL_DATA) $$i $(infodir); done
+		for i in $(FORTH_SRC) $(COMPAT) prim; do \
+			$(INSTALL_DATA) $(srcdir)/$$i $(datadir)/gforth/$(VERSION)/$$i; \
 		done
 		$(INSTALL_DATA) $(kernel_fi) $(datadir)/gforth/$(VERSION)
 		$(RM) gforth.fi; $(MAKE) gforth.fi #gforth.fi contains some path names
 		$(INSTALL_DATA) gforth.fi $(libdir)/gforth/$(VERSION)
-		sed 's:^$(srcdir)/:$(datadir)/gforth/$(VERSION)/:' gforth.TAGS >TAGS; $(INSTALL_DATA) TAGS $(datadir)/gforth/$(VERSION)
+		$(INSTALL_DATA) install.TAGS $(datadir)/gforth/$(VERSION)/TAGS
 		@if test -d $(emacssitelispdir); then \
 			$(INSTALL_DATA) $(srcdir)/gforth.el $(emacssitelispdir); \
 		else \
@@ -489,12 +499,16 @@ install-strip:	install
 
 installdirs:	mkinstalldirs
 		$(srcdir)/mkinstalldirs $(bindir) $(man1dir) $(infodir) $(libdir)/gforth/$(VERSION) $(datadir)/gforth/$(VERSION) $(libdir)/gforth/site-forth $(datadir)/gforth/site-forth
+		for i in $(CVSDIRS); do \
+			$(srcdir)/mkinstalldirs $(datadir)/gforth/$(VERSION)/`dirname $$i`; \
+		done
+		$(RM) -rf $(datadir)/gforth/$(VERSION)/arch $(datadir)/gforth/$(VERSION)/engine
 
 #deinstall all files specific to this version of gforth
 #to uninstall version foo, type `make uninstall VERSION=foo'
 uninstall:	FORCE
-		-$(RM) -rf $(libdir)/gforth/$(VERSION) $(datadir)/gforth/$(VERSION) $(bindir)/gforth-$(VERSION)
-		@echo -e "Type\n$(RM) -rf $(bindir)/gforth $(man1dir)/gforth.1 $(infodir)/gforth.info* $(datadir)/gforth $(libdir)/gforth\nto remove Gforth completely"
+		-$(RM) -rf $(libdir)/gforth/$(VERSION) $(datadir)/gforth/$(VERSION) $(bindir)/gforth-$(VERSION)$(EXE) $(bindir)/gforthmi-$(VERSION)
+		@echo -e "To remove Gforth completely, type\n$(RM) -rf $(bindir)/gforth$(EXE) $(bindir)/gforthmi $(man1dir)/gforth.1 $(infodir)/gforth.info* $(datadir)/gforth $(libdir)/gforth"
 
 check test:	gforth$(EXE) gforth.fi
 		$(FORTH) test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs -e bye
@@ -581,7 +595,7 @@ kernl64l.fi:	$(KERNLS)
 #		-$(CP) $< $@
 
 gforth.fi:	$(kernel_fi) gforthmi gforth$(EXE) gforth-ditc$(EXE) $(GFORTH_FI_SRC)
-		GFORTHD="./gforth-ditc -p .$(PATHSEP)$(srcdir)" GFORTH="./gforth-ditc -p .$(PATHSEP)$(srcdir) -i $(kernel_fi) startup.fs" $(srcdir)/gforthmi gforth.fi $(FORTHSIZES) $(FORTHKFLAGS) startup.fs
+		GFORTHD="./gforth-ditc -p .$(PATHSEP)$(srcdir)" GFORTH="./gforth-ditc -p .$(PATHSEP)$(srcdir) -i $(kernel_fi) startup.fs" ./gforthmi gforth.fi $(FORTHSIZES) $(FORTHKFLAGS) startup.fs
 
 # -------------	Make c-engine
 
@@ -635,6 +649,9 @@ engines:	FORCE
 #TAGS is a GNU standard target
 TAGS:		gforth.TAGS
 		$(CP) gforth.TAGS $@
+
+install.TAGS:	gforth.TAGS
+		sed 's:^\$(srcdir)/:$(datadir)/gforth/$(VERSION)/:' gforth.TAGS >install.TAGS
 
 gforth.TAGS:	@kernel_fi@ gforth $(GFORTH_FI_SRC) prim.TAGS
 		$(FORTHK) etags.fs startup.fs -e bye
@@ -706,6 +723,9 @@ stamp-h:	engine/config.h.in config.status
 
 Makefile:	Makefile.in engine/Makefile.in config.status
 		CONFIG_FILES="$@ engine/$@" CONFIG_HEADERS=engine/config.h ./config.status
+
+gforthmi:	gforthmi.in config.status
+		CONFIG_FILES="$@" CONFIG_HEADERS=engine/config.h ./config.status
 
 config.status:	configure
 		./config.status --recheck

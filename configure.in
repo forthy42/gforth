@@ -303,5 +303,7 @@ AC_SUBST(machine)
 dnl AC_LINK_FILES(arch/$machine,arch/machine) #no longer needed
 AC_OUTPUT([
 Makefile
+gforthmi
 engine/Makefile
 doc/version.texi ],echo timestamp > stamp-h)
+chmod +x gforthmi

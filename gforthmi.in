@@ -1,4 +1,5 @@
 #! /bin/sh
+# @configure_input@
 #Copyright (C) 1997,1998 Free Software Foundation, Inc.
 
 #This file is part of Gforth.
@@ -17,20 +18,24 @@
 #along with this program; if not, write to the Free Software
 #Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-test "x$GFORTHD" != x || GFORTHD=@pkglibdir@/gforth-ditc
-test "x$GFORTH" != x || GFORTH=@bindir@/gforth
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+test "x$GFORTHD" != x || GFORTHD=$prefix/lib/gforth/@VERSION@/gforth-ditc
+test "x$GFORTH" != x || GFORTH=@bindir@/gforth-@VERSION@
 if test $# = 0 || test $1 = --help || test $1 = -h; then
   echo "usage: `basename $0` target-name [gforth-options]"
   echo "creates a relocatable image 'target-name'"
   echo "environment:"
-  echo " \$GFORTHD (default: $GFORTHD): System used for creating the fixed images"
-  echo " \$GFORTH (default: $GFORTH): System used for computing the relocatable image"
+  echo " \$GFORTHD (default: $GFORTHD): Engine used for creating the fixed images"
+  echo " \$GFORTH (default: $GFORTH): Engine used for computing the relocatable image"
   test $# != 0 || exit 1
   exit 0
 elif test $1 = --version || test $1 = -v; then
   echo "gforthmi (@PACKAGE@) @VERSION@"
   $GFORTH --version
-  echo FIXME: copyright
+  echo 'Copyright (C) 1998 Free Software Foundation, Inc.'
+  echo 'This program is part of Gforth'
+  $GFORTH -e "license bye"
   exit 0
 fi
 outfile=$1; shift
