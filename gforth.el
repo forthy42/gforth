@@ -1162,7 +1162,7 @@ exceeds 64 characters."
   (make-local-variable 'comment-column)
   (setq comment-column 40)
   (make-local-variable 'comment-start-skip)
-  (setq comment-start-skip "\\ ")
+  (setq comment-start-skip "\\\\ ")
   (make-local-variable 'comment-indent-function)
   (setq comment-indent-function 'forth-comment-indent)
   (make-local-variable 'parse-sexp-ignore-comments)
