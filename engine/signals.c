@@ -114,14 +114,20 @@ static void fpe_handler(int sig, siginfo_t *info, void *_)
   int code;
 
   switch(info->si_code) {
+#ifdef FPE_INTDIV
   case FPE_INTDIV: code=-10; break; /* integer divide by zero */
+#endif
+#ifdef FPE_INTOVF
   case FPE_INTOVF: code=-11; break; /* integer overflow */
+#endif
   case FPE_FLTDIV: code=-42; break; /* floating point divide by zero */
   case FPE_FLTOVF: code=-43; break; /* floating point overflow  */
   case FPE_FLTUND: code=-54; break; /* floating point underflow  */
   case FPE_FLTRES: code=-41; break; /* floating point inexact result  */
+#if 0 /* defined by Unix95, but unnecessary */
   case FPE_FLTINV: /* invalid floating point operation  */
   case FPE_FLTSUB: /* subscript out of range  */
+#endif
   default: code=-55; break;
   }
   longjmp(throw_jmp_buf,code);
