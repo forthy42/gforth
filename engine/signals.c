@@ -163,7 +163,7 @@ static void segv_handler(int sig, siginfo_t *info, void *_)
 #endif /* defined(SA_SIGINFO) */
 
 #ifdef SIGCONT
-static void termprep (int sig)
+static void termprep(int sig)
 {
   bsd_signal(sig,termprep);
   terminal_prepped=0;

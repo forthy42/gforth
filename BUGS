@@ -23,8 +23,6 @@ All I/O in DOS is unbuffered since 0.4.0.  Bruce Hoyt, early 1999.
 FILE-SIZE, FILE-POSITION, and REPOSITION-FILE don't work correctly on
 text files under DOS and Windows.  anton 31oct99
 
-On Irix 6.2 the second signal kills gforth. anton 31oct99
-
 gforth.el: Typing <ret> does not work when tabs separate words in a
 line, and there is a \-comment at the end of the line.  anton 19feb00
 
@@ -46,6 +44,6 @@ line)  anton 27apr2000
 The output of .included for gforth.fi does not include exboot.fs and
 exceptions.fs  anton 1jul00
 
-Typing ^C has no effect the second time (on Linux-Alpha, the first
-time was on the command line). 17jul00
-
+If a signal happens when waiting on the command line, the cause of the
+exception is not reported, and the backtrace is strange the first time
+on Linux (and every second time on IRIX and DU).  anton 21jul00
