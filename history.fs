@@ -185,13 +185,15 @@ Create prefix-found  0 , 0 ,
     REPEAT
     drop r> ;
 
+: prefix-off ( -- )  0 0 prefix-found 2! ;
+
 : prefix-string ( addr len nfa -- addr' len' )
     dup prefix-found !  ?dup
     IF
 	name>string rot /string rot drop
 	dup 1+ prefix-found cell+ !
     ELSE
-	2drop s" " prefix-found cell+ off
+	2drop s" " prefix-off
     THEN ;
 
 : search-prefix  ( addr1 len1 -- addr2 len2 )

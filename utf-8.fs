@@ -129,13 +129,13 @@
 : u8tab-expand ( max span addr pos1 -- max span addr pos2 0 )
     key? IF  #tab (u8ins) 0  EXIT  THEN
     u8kill-expand 2dup extract-word dup 0= IF  nip EXIT  THEN
-    search-prefix  tib-full?
-    IF    7 emit  2drop  0 0 prefix-found 2!
+    search-prefix tib-full?
+    IF    7 emit  2drop  prefix-off
     ELSE  dup >r
 	2>r >string r@ + 2r> 2swap insert
 	r@ + rot r> + -rot
     THEN
-    prefix-found @ IF  bl (u8ins)  THEN  0 ;
+    prefix-found @ IF  bl (u8ins)  ELSE  .all .rest  THEN  0 ;
 
 : utf-8-io ( -- )
     ['] u8forw       ctrl F bindkey
@@ -150,6 +150,7 @@
     ['] (u8enter)    #cr    bindkey
     ['] u8tab-expand #tab   bindkey
     ['] (u8ins)      IS insert-char
+    ['] kill-prefix  IS everychar
     ['] save-cursor  IS everyline
     ['] u8key        IS key
     ['] u8emit       IS emit ;
