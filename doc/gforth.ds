@@ -49,6 +49,7 @@ Copyright @copyright{} 1995-1997 Free Software Foundation, Inc.
 @sp 2
 @center Anton Ertl
 @center Bernd Paysan
+@center Jens Wilke
 @sp 3
 @center This manual is under construction
 
@@ -2678,13 +2679,14 @@ doc-name>string
 @menu
 * Debugging::                   Simple and quick.
 * Assertions::                  Making your programs self-checking.
+* Singlestep debugger::		Executing your program word by word.
 @end menu
 
 @node Debugging, Assertions, Programming Tools, Programming Tools
 @subsection Debugging
 @cindex debugging
 
-The simple debugging aids provided in @file{debugging.fs}
+The simple debugging aids provided in @file{debugs.fs}
 are meant to support a different style of debugging than the
 tracing/stepping debuggers used in languages with long turn-around
 times.
@@ -2713,7 +2715,7 @@ doc-~~
 doc-printdebugdata
 doc-printdebugline
 
-@node Assertions,  , Debugging, Programming Tools
+@node Assertions, Singlestep Debugger, Debugging, Programming Tools
 @subsection Assertions
 @cindex assertions
 
@@ -2772,6 +2774,74 @@ is produced and the execution is aborted (currently with @code{ABORT"}.
 If there is interest, we will introduce a special throw code. But if you
 intend to @code{catch} a specific condition, using @code{throw} is
 probably more appropriate than an assertion).
+
+@node Singlestep Debugger, , Assertions, Programming Tools
+@subsection Singlestep Debugger
+@cindex singlestep Debugger
+@cindex debugging Singlestep
+@cindex @code{dbg}
+@cindex @code{BREAK:}
+@cindex @code{BREAK"}
+
+When a new word is created there's often the need to check whether it behaves
+alright or not. You can do this by typing @code{dbg badword}. This might
+look like:
+@example
+: badword 0 DO i . LOOP ;  ok
+2 dbg badword 
+: badword  
+Scanning code...
+
+Nesting debugger ready!
+
+400D4738  8049BC4 0              -> [ 2 ] 00002 00000 
+400D4740  8049F68 DO             -> [ 0 ] 
+400D4744  804A0C8 i              -> [ 1 ] 00000 
+400D4748 400C5E60 .              -> 0 [ 0 ] 
+400D474C  8049D0C LOOP           -> [ 0 ] 
+400D4744  804A0C8 i              -> [ 1 ] 00001 
+400D4748 400C5E60 .              -> 1 [ 0 ] 
+400D474C  8049D0C LOOP           -> [ 0 ] 
+400D4758  804B384 ;              ->  ok
+@end example
+
+Each line displayed is one step. You always have to hit return to execute the next
+word that is displayed. If you don't want to execute the next word in a
+whole, you have to type 'n' for @code{nest}. Here is an overview what keys
+are available:
+
+@table @i
+
+@item<return>
+Next; Execute the next word
+
+@item n
+Nest; Single step through next word
+
+@item u
+Unnest; Stop debugging and execute rest of word. When we got to this word
+with nest, continue debugging with the upper word
+
+@item d
+Done; Stop debugging and execute rest
+
+@item s
+Stopp; Abort immediately
+
+@end table
+
+Debugging large application with this mechanism is very difficult, because
+you have to nest very deep into the program before the interesting part
+begins. This takes a lot of time. 
+
+To do it more directly put a @code{BREAK:} command into your source code.
+When program execution reaches @code{BREAK:} the single step debugger is
+invoked and you have all the features described above.
+
+If you have more than one part to debug it is useful to know where the
+program has stopped at the moment. You can do this by the 
+@code{BREAK" string"} command. This behaves like @code{BREAK:} except that
+string is typed out when the ``breakpoint'' is reached.
 
 @node Assembler and Code words, Threading Words, Programming Tools, Words
 @section Assembler and Code words
@@ -2846,7 +2916,7 @@ defined words) may require changes in @file{engine.c}, @file{kernal.fs},
 @file{prims2x.fs}, and possibly @file{cross.fs}.
 
 
-@node Threading Words,  , Assembler and Code words, Words
+@node Threading Words, Including Files, Assembler and Code Words, Words
 @section Threading Words
 @cindex threading words
 
@@ -2880,6 +2950,78 @@ You can recognize words defined by a @code{CREATE}...@code{DOES>} word
 with @code{>DOES-CODE}. If the word was defined in that way, the value
 returned is different from 0 and identifies the @code{DOES>} used by the
 defining word.
+
+@node Including Files, , Threading Words, Words
+@section Threading Words
+@cindex including files
+
+@node Include and Require, Path handling, Including Files, Words
+@subsection Include and Requrie
+
+There a two words to include the source files more intelligently.
+
+doc-include
+doc-require
+
+@node Path handling, ,Require, Words
+@subsection Path handling
+@cindex path handling
+
+In larger program projects it is often neccassary to build up a structured
+directory tree. Standard forth programs are somewhere more central because
+they must be accessed from some more other programs. To achieve this it is
+possible to manipulate the search path in which gforth trys to find the
+source file.
+
+doc-fpath+
+doc-fpath=
+doc-.fpath
+
+Using fpath and require would look like:
+
+@example
+
+fpath= /usr/lib/forth/|./
+
+require timer.fs
+
+...
+
+@end example
+
+@cindex ~+
+There is another nice feature which is similar to C's @code{include <...>}
+and @code{include "..."}. For example: You have a program seperated into
+several files in an subdirectory and you want to include some other files
+in this subdirectory from within the program. You have to tell gforth that
+you are now looking relative from the directory the current file comes from.
+You can tell this gforth by using the prefix @code{~+/} in front of the
+filename. It is also possible to add it to the search path.
+
+If you have the need to look for a file in the forth search path, you could
+use this gforth feature in your application.
+
+doc-open-fpath-file
+
+It is even possible to use your own search paths. Create a search path like
+this:
+
+@example
+
+Make a buffer for the path:
+create mypath   100 chars ,     \ maximum length (is checked)
+                0 ,             \ real len
+                100 chars allot \ space for path
+
+@end example
+
+You have the same functions for the forth search path in an generic version
+for different pathes.
+
+doc-path+
+doc-path=
+doc-.path
+doc-open-path-file
 
 @node Tools, ANS conformance, Words, Top
 @chapter Tools
