@@ -122,7 +122,6 @@ Copyright @copyright{} 1995--1999 Free Software Foundation, Inc.
      of in the original English.
 @end titlepage
 
-
 @node Top, License, (dir), (dir)
 @ifinfo
 Gforth is a free implementation of ANS Forth available on many
@@ -242,7 +241,7 @@ Control Structures
 
 Defining Words
 
-* @code{CREATE}::
+* CREATE::
 * Variables::                   Variables and user variables
 * Constants::
 * Values::                      Initialised variables
@@ -932,7 +931,7 @@ ANS (American National Standard) for Forth. As you read through the rest
 of this manual, you will see documentation for @i{Standard} words, and
 documentation for some appealing Gforth @i{extensions}. You might ask
 yourself the question: @i{``Given that there is a standard, would I be
-committing a sin to use (non-Standard) Gforth extensions?''}
+committing a sin if I use (non-Standard) Gforth extensions?''}
 
 The answer to that question is somewhat pragmatic and somewhat
 philosophical. Consider these points:
@@ -971,7 +970,7 @@ relies upon.
 @chapter Gforth Environment
 @cindex Gforth environment
 
-Note: ultimately, the gforth man page will be auto-generated from the
+Note: ultimately, the Gforth man page will be auto-generated from the
 material in this chapter.
 
 @menu
@@ -1145,9 +1144,9 @@ append @code{-e bye} to the command line.
 @cindex versions, invoking other versions of Gforth
 If you have several versions of Gforth installed, @code{gforth} will
 invoke the version that was installed last. @code{gforth-@i{version}}
-invokes a specific version. You may want to use the option
-@code{--path}, if your environment contains the variable
-@code{GFORTHPATH}.
+invokes a specific version. If your environment contains the variable
+@code{GFORTHPATH}, you may want to override it by using the
+@code{--path} option.
 
 Not yet implemented:
 On startup the system first executes the system initialization file
@@ -1181,7 +1180,7 @@ doc-bye
 
 Gforth maintains a history file that records every line that you type to
 the text interpreter. This file is preserved between sessions, and is
-used to provide a command-line recall facility; if you type ctrl-P
+used to provide a command-line recall facility; if you type @kbd{Ctrl-P}
 repeatedly you can recall successively older commands from this (or
 previous) session(s). The full list of command-line editing facilities is:
 
@@ -1662,7 +1661,7 @@ have (for example) 0 or 27 or 3.52 or -2. If you change the way you
 think about some of the cards, you can accommodate different
 numbers. For example, you could think of the Jack as representing 0,
 the Queen as representing -1 and the King as representing -2. Your
-*range* remains unchanged (you can still only represent a total of 13
+@i{range} remains unchanged (you can still only represent a total of 13
 numbers) but the numbers that you can represent are -2 through 10.
 
 In that analogy, the limit was the amount of information that a single
@@ -5415,12 +5414,14 @@ The ANS Forth ``Search order'' word set is intended to provide a set of
 low-level tools that allow various different schemes to be
 implemented. Gforth provides @code{vocabulary}, a traditional Forth
 word.  @file{compat/vocabulary.fs} provides an implementation in ANS
-Standard Forth.
+Forth.
 
 @comment TODO: locals section refers to here, saying that every word list (aka
 @comment vocabulary) has its own methods for searching etc. Need to document that.
 
-@comment the thisone- prefix is used to pick out the true definition of a
+@comment TODO: document markers, reveal, tables, mappedwordlist
+
+@comment the gforthman- prefix is used to pick out the true definition of a
 @comment word from the source files, rather than some alias.
 
 doc-forth-wordlist
@@ -5428,15 +5429,15 @@ doc-definitions
 doc-get-current
 doc-set-current
 doc-get-order
-doc---thisone-set-order
+doc---gforthman-set-order
 doc-wordlist
 doc-table
 doc-push-order
 doc-previous
 doc-also
-doc---thisone-forth
+doc---gforthman-forth
 doc-only
-doc---thisone-order
+doc---gforthman-order
 
 doc-find
 doc-search-wordlist
@@ -5528,7 +5529,7 @@ associates a name with a wid:
 vocabulary my-new-words
 
 \ add it to the search order
-my-new-words
+also my-new-words
 
 \ alternatively, add it to the search order and make it
 \ the compilation word list
@@ -5623,6 +5624,10 @@ Files that are processed by the Text Interpreter (@dfn{Forth source files}).
 Files that are processed by some other program (@dfn{general files}).
 @end itemize
 
+doc-loadfilename
+doc-sourcefilename
+doc-sourceline#
+
 @menu
 * Forth source files::
 * General files::         
@@ -5648,7 +5653,7 @@ s" mysource.fs" included
 
 Sometimes you want to include a file only if it is not included already
 (by, say, another source file). In that case, you can use one of these
-fomats:
+three formats:
 
 @example
 require mysource.fs
@@ -5658,8 +5663,8 @@ s" mysource.fs" required
 
 @cindex stack effect of included files
 @cindex including files, stack effect
-I recommend that you write your source files such that interpreting them
-does not change the stack. This allows using these files with
+It is good practice to write your source files such that interpreting them
+does not change the stack. Source files designed in this way can be used with
 @code{required} and friends without complications. For example:
 
 @example
@@ -5923,12 +5928,13 @@ end of the current 64-character ``line'' to be ignored.
 @end itemize
 
 In Gforth, when you use @code{block} with a non-existent block number,
-the current block file will be extended to the appropriate size and the
+the current blocks file will be extended to the appropriate size and the
 block buffer will be initialised with spaces.
 
-Gforth doesn't encourage the use of blocks; the mechanism is only
-provided for backward compatibility -- ANS Forth requires blocks to be
-available when files are.
+Gforth includes a simple block editor (type @code{use blocked.fb} then
+@i{0 list} for details) but doesn't encourage the use of blocks; the
+mechanism is only provided for backward compatibility -- ANS Forth
+requires blocks to be available when files are.
 
 Common techniques that are used when working with blocks include:
 
@@ -5959,7 +5965,7 @@ doc-block-position
 doc-scr
 doc-list
 
-doc---block-block
+doc---gforthman-block
 doc-buffer
 
 doc-update
@@ -5973,7 +5979,7 @@ doc-load
 doc-thru
 doc-+load
 doc-+thru
-doc---gforth--->
+doc---gforthman--->
 doc-block-included
 
 
@@ -6152,6 +6158,7 @@ strings:
 @itemize @bullet
 @item
 @cindex address of counted string
+@cindex counted string
 As a @dfn{counted string}, represented by a @i{c-addr}. The char
 addressed by @i{c-addr} contains a character-count, @i{n}, of the
 string and the string occupies the subsequent @i{n} char addresses in
@@ -6284,6 +6291,9 @@ definition of @code{my-char}.
 
 doc-key
 doc-key?
+doc-ekey
+doc-ekey?
+doc-ekey>char
 doc->number
 doc->float
 doc-accept
@@ -6460,9 +6470,6 @@ in @file{compat/assert.fs}.
 @subsection Singlestep Debugger
 @cindex singlestep Debugger
 @cindex debugging Singlestep
-@cindex @code{dbg}
-@cindex @code{BREAK:}
-@cindex @code{BREAK"}
 
 When you create a new word there's often the need to check whether it
 behaves correctly or not. You can do this by typing @code{dbg
@@ -6527,8 +6534,8 @@ string is typed out when the ``breakpoint'' is reached.
 
 
 doc-dbg
-doc-BREAK:
-doc-BREAK"
+doc-break:
+doc-break"
 
 
 
@@ -6556,6 +6563,7 @@ portable anyway.}.
 
 
 doc-assembler
+doc-init-asm
 doc-code
 doc-end-code
 doc-;code
@@ -7398,7 +7406,7 @@ then the memory alloted for @code{foo%} is
 guaranteed to start at the body of @code{@emph{name}} only if
 @code{foo%} contains only character, cell and double fields.
 
-@cindex strcutures containing structures
+@cindex structures containing structures
 You can include a structure @code{foo%} as a field of
 another structure, like this:
 @example
@@ -11274,7 +11282,7 @@ the Forth code to be executed, i.e. the code after the
 @code{DOES>} (the @code{DOES>}-code)? There are two solutions:
 
 In fig-Forth the code field points directly to the @code{dodoes} and the
-@code{DOES>}code address is stored in the cell after the code address (i.e. at
+@code{DOES>}-code address is stored in the cell after the code address (i.e. at
 @code{@i{CFA} cell+}). It may seem that this solution is illegal in
 the Forth-79 and all later standards, because in fig-Forth this address
 lies in the body (which is illegal in these standards). However, by
@@ -11292,7 +11300,7 @@ The other approach is that the code field points or jumps to the cell
 after @code{DOES>}. In this variant there is a jump to @code{dodoes} at
 this address (the @code{DOES>}-handler). @code{dodoes} can then get the
 @code{DOES>}-code address by computing the code address, i.e., the address of
-the jump to dodoes, and add the length of that jump field. A variant of
+the jump to @code{dodoes}, and add the length of that jump field. A variant of
 this is to have a call to @code{dodoes} after the @code{DOES>}; then the
 return address (which can be found in the return register on RISCs) is
 the @code{DOES>}-code address. Since the two cells available in the code field
@@ -11703,9 +11711,9 @@ information about Forth there.
 
 @cindex comp.lang.forth
 @cindex frequently asked questions
-There is an active newsgroup (comp.lang.forth) discussing Forth and
+There is an active news group (comp.lang.forth) discussing Forth and
 Forth-related issues. A frequently-asked-questions (FAQ) list
-is posted to the newsgroup regulary, and archived at these sites:
+is posted to the news group regularly, and archived at these sites:
 
 @itemize @bullet
 @item
@@ -11715,7 +11723,7 @@ is posted to the newsgroup regulary, and archived at these sites:
 @end itemize
 
 The FAQ list should be considered mandatory reading before posting to
-the newsgroup.
+the news group.
 
 Here are some other web sites holding Forth-related material:
 
@@ -11781,7 +11789,7 @@ chapters in other countries and American cities
 
 There are several regular conferences related to Forth. They are all
 well-publicised in @var{FORTH Dimensions} and on the comp.lang.forth
-newsgroup:
+news group:
 
 @itemize @bullet
 @item
