@@ -1,9 +1,12 @@
+
 \ bernd thallner 9725890 881
 \ assembler in forth for alpha
 
 \ requires code.fs
 
-also assembler definitions
+\ also assembler definitions
+
+\ register
 
  $0 constant v0
  $1 constant t0
@@ -38,18 +41,51 @@ $1d constant gp
 $1e constant sp
 $1f constant zero
 
-: shift ( a n -- a<<=n )
+\ util
+
+: right_shift ( a n -- a>>=n )
+0
+?do
+  2/
+loop
+;
+
+: left_shift ( a n -- a<<=n )
 0
 ?do
   2*
 loop
 ;
 
-: h, ( h -- )			\ 32 bit store
+: h@ ( addr -- n )		\ 32 bit fetch
+dup dup aligned = if
+  @
+  $00000000ffffffff and
+else
+  4 - @
+  $20 right_shift
+endif
+;
+
+: h! ( n addr -- )		\ 32 bit store
+dup dup aligned = if
+  dup @
+  $ffffffff00000000 and
+  rot or
+  swap !
+else
+  4 - dup @
+  $00000000ffffffff and
+  rot $20 left_shift or
+  swap !
+endif
+;
+
+: h, ( h -- )			\ 32 bit store + allot
 here here aligned = if
   here !
 else
-  32 shift 
+  32 left_shift
   here 4 - dup
   @ rot or
   swap !
@@ -57,43 +93,45 @@ endif
 4 allot
 ;
 
+\ format
+
 : Bra ( oo )			\ branch instruction format
   create ,
 does> ( ra, branch_disp, addr )
-  @ 26 shift
+  @ 26 left_shift
   swap $1fffff and or
-  swap $1f and 21 shift or h,
+  swap $1f and 21 left_shift or h,
 ;
 
 : Mbr ( oo.h )			\ memory branch instruction format
   create 2,
 does> ( ra, rb, hint, addr )
-  2@ 14 shift
-  swap 26 shift or
+  2@ 14 left_shift
+  swap 26 left_shift or
   swap $3fff and or
-  swap $1f and 16 shift or
-  swap $1f and 21 shift or
+  swap $1f and 16 left_shift or
+  swap $1f and 21 left_shift or
   h,
 ; 
 
 : F-P ( oo.fff )		\ floating-point operate instruction format
   create 2,
 does> ( fa, fb, fc, addr )
-  2@ 5 shift
-  swap 26 shift or
+  2@ 5 left_shift
+  swap 26 left_shift or
   swap $1f and or
-  swap $1f and 16 shift or
-  swap $1f and 21 shift or
+  swap $1f and 16 left_shift or
+  swap $1f and 21 left_shift or
   h,
 ;
 
 : Mem ( oo )			\ memory instruction format
   create ,
 does> ( ra, memory_disp, rb, addr )
-  @ 26 shift
-  swap $1f and 16 shift or
+  @ 26 left_shift
+  swap $1f and 16 left_shift or
   swap $ffff and or 
-  swap $1f and 21 shift or
+  swap $1f and 21 left_shift or
   h,
 ;
 
@@ -101,9 +139,9 @@ does> ( ra, memory_disp, rb, addr )
   create 2,
 does> ( ra, rb, addr )
   2@
-  swap 26 shift or
-  swap $1f and 16 shift or
-  swap $1f and 21 shift or
+  swap 26 left_shift or
+  swap $1f and 16 left_shift or
+  swap $1f and 21 left_shift or
   h,
 ;
 
@@ -111,11 +149,11 @@ does> ( ra, rb, addr )
   create 2,
 does> ( ra, rb, rc, addr )
   2@
-  5 shift
-  swap 26 shift or
+  5 left_shift
+  swap 26 left_shift or
   swap $1f and or
-  swap $1f and 16 shift or
-  swap $1f and 21 shift or
+  swap $1f and 16 left_shift or
+  swap $1f and 21 left_shift or
   h, 
 ;
 
@@ -123,22 +161,24 @@ does> ( ra, rb, rc, addr )
   create 2,
 does> ( ra, lit, rc, addr )
   2@
-  5 shift
-  swap 26 shift or
-  1 12 shift or
+  5 left_shift
+  swap 26 left_shift or
+  1 12 left_shift or
   swap $1f and or
-  swap $ff and 13 shift or
-  swap $1f and 21 shift or
+  swap $ff and 13 left_shift or
+  swap $1f and 21 left_shift or
   h, 
 ;
 
 : Pcd ( oo )			\ palcode instruction format
   create ,
 does> ( palcode, addr )
-  @ 26 shift
+  @ 26 left_shift
   swap $3ffffff and or
   h,
 ;
+
+\ instructions
 
 $15 $80   F-P  addf,
 $15 $a0   F-P  addg,
@@ -373,4 +413,87 @@ $12 $30   Opr  zap,
 $12 $30   Opr# zap#,
 $12 $31   Opr  zapnot,
 $12 $31   Opr# zapnot#,
+
+\ structures
+
+\ <register_number> if, <if_code> [ else, <else_code> ] endif,
+
+: if,
+  0 beq, here 4 -
+;
+
+: else,
+  dup here swap - 4 /
+  $1fffff and
+  over h@ or swap h!
+  31 0 br,
+  here 4 -
+;
+
+: endif,
+  dup here swap - 4 - 4 /
+  $1fffff and
+  over h@ or swap h!
+;
+
+\ begin, <code> again,
+
+: begin,
+  here
+;
+
+: again,
+  here - 4 - 4 /
+  $1fffff and
+  31 swap br,
+;
+
+\ begin, <code> <register_number> until,
+
+: until,
+  here rot swap - 4 - 4 /
+  $1fffff and
+  bne,
+;
+
+\ begin, <register_number> while, <code> repeat,
+
+: while,
+  0 beq, here 4 -
+;
+
+: repeat,
+  swap here - 4 - 4 /
+  $1fffff and
+  31 swap br,
+  dup here 4 - swap - 4 /
+  $1fffff and
+  over h@ or swap h!
+;
+
+\ labels
+
+10 constant mark_numbers
+10 constant mark_uses
+
+create mark_table
+mark_numbers mark_uses 1 + * cells allot
+
+: set_mark ( mark_number -- )
+
+;
+
+: set_branch ( mark_number -- )
+
+;
+
+: calculate_marks ( -- )
+
+;
+
+
+
+
+
+
 
