@@ -155,16 +155,18 @@ Variable table#
 : |line  s" tr" >env  table# off ;
 : line|  -env -env cr ;
 
+: next-char ( -- char )  source drop >in @ + c@ ;
+
 longtags set-current
 
 : <| s" table" >env bl sword table-format $! ;
 : |> -env ;
 : +| |line
     BEGIN
-	|h '| parse-to char? '+ =  UNTIL line| ;
+	|h '| parse-to next-char '+ =  UNTIL line| ;
 : -| |line
     BEGIN
-	|d '| parse-to char? '- =  UNTIL line| ;
+	|d '| parse-to next-char '- =  UNTIL line| ;
 
 definitions
 
