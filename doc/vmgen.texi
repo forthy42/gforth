@@ -1,8 +1,114 @@
+\input texinfo    @c -*-texinfo-*-
+@comment %**start of header
+@setfilename vmgen.info
 @include version.texi
+@settitle Vmgen (Gforth @value{VERSION})
+@c @syncodeindex pg cp
+@comment %**end of header
+@copying
+This manual is for Vmgen
+(version @value{VERSION}, @value{UPDATED}),
+the virtual machine interpreter generator
+
+Copyright @copyright{} 2002 Free Software Foundation, Inc.
+
+@quotation
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.1 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, with the Front-Cover texts being ``A GNU Manual,''
+and with the Back-Cover Texts as in (a) below.  A copy of the
+license is included in the section entitled ``GNU Free Documentation
+License.''
+
+(a) The FSF's Back-Cover Text is: ``You have freedom to copy and modify
+this GNU Manual, like GNU software.  Copies published by the Free
+Software Foundation raise funds for GNU development.''
+@end quotation
+@end copying
+
+@dircategory GNU programming tools
+@direntry
+* vmgen: (vmgen).               Interpreter generator
+@end direntry
+
+@titlepage
+@title Vmgen
+@subtitle for Gforth version @value{VERSION}, @value{UPDATED}
+@author M. Anton Ertl (@email{anton@mips.complang.tuwien.ac.at})
+@page
+@vskip 0pt plus 1filll
+@insertcopying
+@end titlepage
+
+@contents
+
+@ifnottex
+@node Top, Introduction, (dir), (dir)
+@top Vmgen
+
+@insertcopying
+@end ifnottex
+
+@menu
+* Introduction::                What can Vmgen do for you?
+* Why interpreters?::           Advantages and disadvantages
+* Concepts::                    VM interpreter background
+* Invoking vmgen::              
+* Example::                     
+* Input File Format::           
+* Using the generated code::    
+* Changes::                     from earlier versions
+* Contact::                     Bug reporting etc.
+* Copying This Manual::         Manual License
+* Index::                       
+
+@detailmenu
+ --- The Detailed Node Listing ---
+
+Concepts
+
+* Front end and VM interpreter::  Modularizing an interpretive system
+* Data handling::               Stacks, registers, immediate arguments
+* Dispatch::                    From one VM instruction to the next
+
+Example
+
+* Example overview::            
+* Using profiling to create superinstructions::  
+
+Input File Format
+
+* Input File Grammar::          
+* Simple instructions::         
+* Superinstructions::           
+
+Simple instructions
+
+* C Code Macros::               Macros recognized by Vmgen
+* C Code restrictions::         Vmgen makes assumptions about C code
+
+Using the generated code
+
+* VM engine::                   Executing VM code
+* VM instruction table::        
+* VM code generation::          Creating VM code (in the front-end)
+* Peephole optimization::       Creating VM superinstructions
+* VM disassembler::             for debugging the front end
+* VM profiler::                 for finding worthwhile superinstructions
+
+Copying This Manual
+
+* GNU Free Documentation License::  License for copying this manual.
+
+@end detailmenu
+@end menu
 
 @c @ifnottex
-This file documents vmgen (Gforth @value{VERSION}).
+This file documents Vmgen (Gforth @value{VERSION}).
 
+@c ************************************************************
+@node Introduction, Why interpreters?, Top, Top
 @chapter Introduction
 
 Vmgen is a tool for writing efficient interpreters.  It takes a simple
@@ -101,6 +207,7 @@ we will implement new features if someone asks for them; so the feature
 list above is not exhaustive.
 
 @c *********************************************************************
+@node Why interpreters?, Concepts, Introduction, Top
 @chapter Why interpreters?
 
 Interpreters are a popular language implementation technique because
@@ -129,10 +236,18 @@ Vmgen makes it even easier to implement interpreters.  It also supports
 techniques for building efficient interpreters.
 
 @c ********************************************************************
+@node Concepts, Invoking vmgen, Why interpreters?, Top
 @chapter Concepts
 
+@menu
+* Front end and VM interpreter::  Modularizing an interpretive system
+* Data handling::               Stacks, registers, immediate arguments
+* Dispatch::                    From one VM instruction to the next
+@end menu
+
 @c --------------------------------------------------------------------
-@section Front-end and virtual machine interpreter
+@node Front end and VM interpreter, Data handling, Concepts, Concepts
+@section Front end and VM interpreter
 
 @cindex front-end
 Interpretive systems are typically divided into a @emph{front end} that
@@ -164,6 +279,8 @@ Vmgen currently has no special support for such features, but the
 information in the instruction descriptions can be helpful, and we are
 open for feature requests and suggestions.
 
+@c --------------------------------------------------------------------
+@node Data handling, Dispatch, Front end and VM interpreter, Concepts
 @section Data handling
 
 @cindex stack machine
@@ -202,6 +319,8 @@ harder, but might be possible (contact us if you are interested).
 @c reference counting might be possible by including counting code in 
 @c the conversion macros.
 
+@c --------------------------------------------------------------------
+@node Dispatch,  , Data handling, Concepts
 @section Dispatch
 
 Understanding this section is probably not necessary for using vmgen,
@@ -235,6 +354,7 @@ as values}).
 @end table
 
 @c *************************************************************
+@node Invoking vmgen, Example, Concepts, Top
 @chapter Invoking vmgen
 
 The usual way to invoke vmgen is as follows:
@@ -271,8 +391,16 @@ Print version and exit
 @c env vars GFORTHDIR GFORTHDATADIR
 
 @c ****************************************************************
+@node Example, Input File Format, Invoking vmgen, Top
 @chapter Example
 
+@menu
+* Example overview::            
+* Using profiling to create superinstructions::  
+@end menu
+
+@c --------------------------------------------------------------------
+@node Example overview, Using profiling to create superinstructions, Example, Example
 @section Example overview
 
 There are two versions of the same example for using vmgen:
@@ -342,6 +470,8 @@ check}.  You can run run mini programs like this:
 
 To learn about the options, type @samp{./mini -h}.
 
+@c --------------------------------------------------------------------
+@node Using profiling to create superinstructions,  , Example overview, Example
 @section Using profiling to create superinstructions
 
 I have not added rules for this in the @file{Makefile} (there are many
@@ -392,7 +522,9 @@ preceed larger superinstructions.
 Now you can create a version of mini with superinstructions by just
 saying @samp{make}
 
+
 @c ***************************************************************
+@node Input File Format, Using the generated code, Example, Top
 @chapter Input File Format
 
 Vmgen takes as input a file containing specifications of virtual machine
@@ -400,6 +532,14 @@ instructions.  This file usually has a name ending in @file{.vmg}.
 
 Most examples are taken from the example in @file{vmgen-ex}.
 
+@menu
+* Input File Grammar::          
+* Simple instructions::         
+* Superinstructions::           
+@end menu
+
+@c --------------------------------------------------------------------
+@node Input File Grammar, Simple instructions, Input File Format, Input File Format
 @section Input File Grammar
 
 The grammar is in EBNF format, with @code{@var{a}|@var{b}} meaning
@@ -440,7 +580,7 @@ Vmgen understands a few extensions beyond the grammar given here, but
 these extensions are only useful for building Gforth.  You can find a
 description of the format used for Gforth in @file{prim}.
 
-@subsection
+@subsection Eval escapes
 @c woanders?
 The text in @code{eval-escape} is Forth code that is evaluated when
 vmgen reads the line.  If you do not know (and do not want to learn)
@@ -472,6 +612,8 @@ stack-prefix ( stack "prefix" -- )
 @end example
 
 
+@c --------------------------------------------------------------------
+@node Simple instructions, Superinstructions, Input File Grammar, Input File Format
 @section Simple instructions
 
 We will use the following simple VM instruction description as example:
@@ -548,7 +690,14 @@ arguments can only appear to the left of @code{--} in the stack effect.
 If there are multiple instruction stream arguments, the leftmost is the
 first one (just as the intuition suggests).
 
-@subsubsection C Code Macros
+@menu
+* C Code Macros::               Macros recognized by Vmgen
+* C Code restrictions::         Vmgen makes assumptions about C code
+@end menu
+
+@c --------------------------------------------------------------------
+@node C Code Macros, C Code restrictions, Simple instructions, Simple instructions
+@subsection C Code Macros
 
 Vmgen recognizes the following strings in the C code part of simple
 instructions:
@@ -605,7 +754,9 @@ presence of these strings; vmgen will not see them if they are hiding in
 a C preprocessor macro.
 
 
-@subsubsection C Code restrictions
+@c --------------------------------------------------------------------
+@node C Code restrictions,  , C Code Macros, Simple instructions
+@subsection C Code restrictions
 
 Vmgen generates code and performs some optimizations under the
 assumption that the user-supplied C code does not access the stack
@@ -656,6 +807,8 @@ macros can be implemented in several ways for best performance.
 contents.
 
 
+@c --------------------------------------------------------------------
+@node Superinstructions,  , Simple instructions, Input File Format
 @section Superinstructions
 
 Note: don't invest too much work in (static) superinstructions; a future
@@ -710,15 +863,26 @@ not be used as component at all.  Vmgen does not check these
 restrictions, they just result in bugs in your interpreter.
 
 @c ********************************************************************
+@node Using the generated code, Changes, Input File Format, Top
 @chapter Using the generated code
 
 The easiest way to create a working VM interpreter with vmgen is
 probably to start with one of the examples, and modify it for your
 purposes.  This chapter is just the reference manual for the macros
-etc. used by the generated code, and the other context expected by the
+etc. used by the generated code, the other context expected by the
 generated code, and what you can do with the various generated files.
 
+@menu
+* VM engine::                   Executing VM code
+* VM instruction table::        
+* VM code generation::          Creating VM code (in the front-end)
+* Peephole optimization::       Creating VM superinstructions
+* VM disassembler::             for debugging the front end
+* VM profiler::                 for finding worthwhile superinstructions
+@end menu
 
+@c --------------------------------------------------------------------
+@node VM engine, VM instruction table, Using the generated code, Using the generated code
 @section VM engine
 
 The VM engine is the VM interpreter that executes the VM code.  It is
@@ -878,7 +1042,9 @@ basic type of the stack.
 @end table
 
 
-@section{VM instruction table}
+@c --------------------------------------------------------------------
+@node VM instruction table, VM code generation, VM engine, Using the generated code
+@section VM instruction table
 
 For threaded code we also need to produce a table containing the labels
 of all VM instructions.  This is needed for VM code generation
@@ -918,6 +1084,8 @@ address is taken with @samp{&&} (@pxref{labels-as-values}).
 @end table
 
 
+@c --------------------------------------------------------------------
+@node VM code generation, Peephole optimization, VM instruction table, Using the generated code
 @section VM code generation
 
 Vmgen generates VM code generation functions in @file{@var{name}-gen.i}
@@ -983,6 +1151,8 @@ superinstruction at the branch), and because the branches announce
 themselves to the profiler.
 
 
+@c --------------------------------------------------------------------
+@node Peephole optimization, VM disassembler, VM code generation, Using the generated code
 @section Peephole optimization
 
 You need peephole optimization only if you want to use
@@ -1011,6 +1181,8 @@ instruction to branch to), you have to call @code{BB_BOUNDARY}
 (@pxref{VM code generation}) at branch targets.
 
 
+@c --------------------------------------------------------------------
+@node VM disassembler, VM profiler, Peephole optimization, Using the generated code
 @section VM disassembler
 
 A VM code disassembler is optional for an interpretive system, but
@@ -1044,6 +1216,8 @@ VM instruction table.
 @end table
 
 
+@c --------------------------------------------------------------------
+@node VM profiler,  , VM disassembler, Using the generated code
 @section VM profiler
 
 The VM profiler is designed for getting execution and occurence counts
@@ -1121,6 +1295,9 @@ it uses variables and functions defined in @file{vmgen-ex/profile.c},
 plus @code{VM_IS_INST} already defined for the VM disassembler
 (@pxref{VM disassembler}).
 
+
+@c **********************************************************
+@node Changes, Contact, Using the generated code, Top
 @chapter Changes
 
 Users of the gforth-0.5.9-20010501 version of vmgen need to change
@@ -1146,5 +1323,22 @@ Also some new macros have to be defined, e.g., @code{INST_ADDR}, and
 @code{LABEL}; some macros have to be defined in new contexts, e.g.,
 @code{VM_IS_INST} is now also needed in the disassembler.
 
+@node Contact, Copying This Manual, Changes, Top
 @chapter Contact
 
+@node Copying This Manual, Index, Contact, Top
+@appendix Copying This Manual
+
+@menu
+* GNU Free Documentation License::  License for copying this manual.
+@end menu
+
+@include fdl.texi
+
+
+@node Index,  , Copying This Manual, Top
+@unnumbered Index
+
+@printindex cp
+
+@bye
