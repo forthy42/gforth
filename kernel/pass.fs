@@ -19,16 +19,11 @@
 \ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
 
 
-\ Setup dictionary pointer
-
+\ Set up dictionary pointer
 >ram here normal-dp !
 UNLOCK tudp @ LOCK udp !
 
-
-\ Setup last and forth-wordlist with address of last words
+\ Set up last and forth-wordlist with the address of the last word's
 \ link field
-
 UNLOCK tlast @ LOCK
 1 cells - dup forth-wordlist wordlist-id ! Last !
-
-

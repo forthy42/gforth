@@ -21,14 +21,14 @@
 \ include ./basics.fs
 \ include ./io.fs		\ basic io functions
 has? interpreter [IF]
-include ./int.fs
-has? compiler [IF]
-include ./comp.fs
-[THEN]
+    include ./int.fs
+    has? compiler [IF]
+        include ./comp.fs
+    [THEN]
 [THEN]
 include ./accept.fs
 has? new-input [IF]
-include ./input.fs
+    include ./input.fs
 [THEN]
 include ./license.fs
 \ include ./nio.fs
