@@ -1966,6 +1966,10 @@ tcell 1 = 0 and or
 tcell 2 = 2 and or
 tcell 4 = 4 and or
 tcell 8 = 6 and or
+tchar 1 = $00 and or
+tchar 2 = $28 and or
+tchar 4 = $50 and or
+tchar 8 = $78 and or
 magic 7 + c!
 
 : save-cross ( "image-name" "binary-name" -- )

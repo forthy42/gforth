@@ -388,7 +388,12 @@ Address loader(FILE *imagefile, char* filename)
   magic7 = magic[7];
   if (debug) {
     magic[7]='\0';
-    fprintf(stderr,"Magic found: %s $%x\n", magic, magic7);
+    fprintf(stderr,"Magic found: %s %s endian, cell=%d bytes, char=%d bytes, au=%d bytes\n",
+	    magic,
+	    endianstring[!(magic[7] & 1)],
+	    1 << ((magic7 >> 1) & 3),
+	    1 << ((magic7 >> 3) & 3),
+	    1 << ((magic7 >> 5) & 3));
   }
 
   if(magic7 != (ausize << 5) + (charsize << 3) + (cellsize << 1) +
