@@ -44,6 +44,8 @@ defer insert-char
 ' (ins) IS insert-char
 defer everychar
 ' noop IS everychar
+defer everyline
+' noop IS everyline
 
 : decode ( max span addr pos1 key -- max span addr pos2 flag )
     everychar
@@ -57,6 +59,7 @@ defer everychar
 : edit-line ( c-addr n1 n2 -- n3 ) \ gforth
     \G edit the string with length @var{n2} in the buffer @var{c-addr
     \G n1}, like @code{accept}.
+    everyline
     rot over
     2dup type
     BEGIN  key decode  UNTIL
