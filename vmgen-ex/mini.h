@@ -35,6 +35,7 @@ extern char *program_name;
 extern FILE *vm_out;
 extern Inst *vmcodep;
 extern Inst *last_compiled;
+extern Inst *vmcode_end;
 
 /* generic vmgen support functions (e.g., wrappers) */
 void gen_inst(Inst **vmcodepp, Inst i);
@@ -42,6 +43,7 @@ void init_peeptable(void);
 void vm_disassemble(Inst *ip, Inst *endp, Inst prim[]);
 void vm_count_block(Inst *ip);
 struct block_count *block_insert(Inst *ip);
+void vm_print_profile(FILE *file);
 
 /* mini type-specific support functions */
 void genarg_i(Inst **vmcodepp, Cell i);
@@ -49,11 +51,11 @@ void printarg_i(Cell i);
 void genarg_target(Inst **vmcodepp, Inst *target);
 void printarg_target(Inst *target);
 void printarg_a(char *a);
+void printarg_Cell(Cell i);
 
 /* engine functions (type not fixed) */
 Cell engine(Inst *ip0, Cell *sp, char *fp);
 Cell engine_debug(Inst *ip0, Cell *sp, char *fp);
-
 
 /* other generic functions */
 int yyparse(void);

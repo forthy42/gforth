@@ -1,3 +1,4 @@
+\ mini.inst is generated automatically from mini-inst.vmg and mini-super.vmg
 \ example .vmg file
 
 \ Copyright (C) 2001 Free Software Foundation, Inc.
@@ -134,3 +135,5 @@ end ( i -- )
 block_insert(IP); /* we also do this at compile time, so this is unnecessary */
 #endif
 return i;
+
+include(mini-super.vmg)

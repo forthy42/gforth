@@ -52,6 +52,11 @@ void printarg_a(char *a)
   fprintf(vm_out, "%p ", a);
 }
 
+void printarg_Cell(Cell i)
+{
+  fprintf(vm_out, "0x%lx ", i);
+}
+
 /* This language has separate name spaces for functions and variables;
    this works because there are no function variables, and the syntax
    makes it possible to differentiate between function and variable
@@ -200,12 +205,16 @@ Options:\n
     exit(1);
 
   start=vmcodep;
-  gen_main_end();  
+  gen_main_end();
+  vmcode_end=vmcodep;
 
   if (disassembling)
     vm_disassemble(vm_code, vmcodep, vm_prim);
 
   printf("result = %ld\n",runvm(start, stack+STACK_SIZE-1, NULL));
+
+  if (profiling)
+    vm_print_profile(vm_out);
 
   return 0;
 }

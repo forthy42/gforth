@@ -27,6 +27,7 @@
 /* data structure: simple hash table with external chaining */
 
 #define HASH_SIZE (1<<20)
+#define hash(p) ((((Cell)(p))/sizeof(Inst))&(HASH_SIZE-1))
 
 typedef struct block_count {
   struct block_count *next; /* next in hash table */
@@ -39,8 +40,7 @@ typedef struct block_count {
 } block_count;
 
 block_count *blocks[HASH_SIZE];
-
-#define hash(p) ((((Cell)(p))/sizeof(Inst))&(HASH_SIZE-1))
+Inst *vmcode_end;
 
 block_count *block_lookup(Inst *ip)
 {
@@ -87,9 +87,9 @@ void vm_count_block(Inst *ip)
 void postprocess_block(block_count *b)
 {
   Inst *ip = b->ip;
-  block_count *next_block;
+  block_count *next_block=NULL;
 
-  do {
+  while (next_block == NULL && ip<vmcode_end) {
 #include "mini-profile.i"
     /* else */
     {
@@ -98,7 +98,7 @@ void postprocess_block(block_count *b)
     }
   _endif_:
     next_block = block_lookup(ip);
-  } while (next_block == NULL);
+  }
   /* we fell through, so set fallthrough and update the count */
   b->fallthrough = next_block;
   /* also update the counts of all following fallthrough blocks that

@@ -30,6 +30,8 @@
 #define vm_Cell2a(x) ((char *)(x))
 #define vm_a2Cell(x) ((Cell)(x))
 
+#define vm_Cell2Cell(x) ((Cell)(x))
+
 #define USE_spTOS 1
 
 #ifdef USE_spTOS
@@ -39,7 +41,7 @@
 #endif
 
 #ifdef VM_DEBUG
-#define NAME(_x) if (vm_debug) {fprintf(vm_out, "%lx: %-20s, ", (long)(ip-1), _x); fprintf(vm_out,"fp=%p, sp=%p", fp, sp);}
+#define NAME(_x) if (vm_debug) {fprintf(vm_out, "%p: %-20s, ", ip-1, _x); fprintf(vm_out,"fp=%p, sp=%p", fp, sp);}
 #else
 #define NAME(_x)
 #endif
@@ -177,6 +179,7 @@ Cell engine(Inst *ip0, Cell *sp, char *fp)
   IF_spTOS(spTOS = sp[0]);
 
   SET_IP(ip0);
+  SUPER_END;  /* count the BB starting at ip0 */
   NEXT;
 
 #include "mini-vm.i"
