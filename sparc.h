@@ -1,5 +1,4 @@
 /*
-  $Id: sparc.h,v 1.6 1995-01-04 21:58:54 anton Exp $
   Copyright 1992 by the ANSI figForth Development Group
 
   This is the machine-specific part for a SPARC
@@ -15,6 +14,21 @@
    tested? Therefore, DIRECT_THREADED is not defined */
 
 #ifdef DIRECT_THREADED
+#ifndef WORDS_BIGENDIAN
+#error Direct threading only supported for big-endian machines.
+/* little endian SPARCs still store instructions in big-endian format,
+   so you would have to reverse the instructions stores in the following
+*/
+#endif
+
+#ifdef undefined
+/* according to the SPARC V9 architecture manual, we have to use flush,
+   but as V2.20 does not recognize the opcode */
+/* assuming size = 8 */
+#define CACHE_FLUSH(addr,size) \
+  asm("flush %0; flush %0+4"::"r"(addr))
+#endif
+
 /* PFA gives the parameter field address corresponding to a cfa */
 #define PFA(cfa)	(((Cell *)cfa)+2)
 /* PFA1 is a special version for use just after a NEXT1 */
