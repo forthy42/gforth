@@ -31,20 +31,25 @@
 
 false Constant NIL  \ relocating
 
-false Constant has-files 
-false Constant has-OS
-false Constant has-prims
-false Constant has-floats
-false Constant has-locals
-false Constant has-dcomps
-false Constant has-hash
-false Constant has-xconds
-false Constant has-header
-true  Constant ITC
-
 : prims-include  ." Include primitives" cr s" arch/misc/prim.fs" included ;
 : asm-include    ." Include assembler" cr s" arch/misc/asm.fs" included ;
 : >boot
     hex
     S" $6FF0 SP ! $7FF0 RP ! $7000 2* UP ! ' boot >body IP !" evaluate    
     decimal ;
+
+>ENVIRON
+
+false Constant file
+false Constant OS
+false Constant prims
+false Constant floating
+false Constant glocals
+false Constant dcomps
+false Constant hash
+false Constant xconds
+false Constant header
+true  Constant ec
+true  Constant crlf
+true  Constant ITC
+

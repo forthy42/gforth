@@ -8,6 +8,7 @@ also assembler also definitions forth
 $0 Constant PC		$1 Constant PC+2
 $2 Constant PC+4	$3 Constant PC+6
 
+$7 Constant *ACCU
 $8 Constant ACCU	$9 Constant SF
 $A Constant ZF		$C Constant CF
 
@@ -17,7 +18,7 @@ $0 Constant JMP		$1 Constant JS
 $2 Constant JZ		$4 Constant JC
 
 ( $8 Constant ACCU )	$9 Constant SUB
-$A Constant SUBR	$B Constant ADD
+( $A Constant SUBR )	$B Constant ADD
 $C Constant XOR		$D Constant OR
 $E Constant AND		$F Constant SHR
 

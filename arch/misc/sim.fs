@@ -82,19 +82,22 @@ variable nesting 0 nesting !
 : accu>		accu @ ;
 : >accu		accu! ;
 
+: aind> accu @ ram> ;
+: >aind accu @ >ram ;
+
 : crash  -$200 throw ;
 
 create table>
 	' crash ,	' tx?> ,	' rxd> ,	' rx?> ,
 	' pc> ,		' pc> ,		' pc> ,		' pc> ,
-	' crash ,	' crash ,	' crash ,	' crash ,
+	' crash ,	' crash ,	' crash ,	' aind> ,
 	' accu> ,	' sf> ,		' zf> ,		' crash ,
 	' cf> ,		' crash ,	' crash ,	' crash ,
 
 create >table
 	' >txd ,	' crash ,	' crash ,	' crash ,
 	' >pc ,		' >pcsf , 	' >pczf ,	' crash ,
-	' >pccf ,	' crash ,	' crash ,	' crash ,
+	' >pccf ,	' crash ,	' crash ,	' >aind ,
 	' >accu ,	' >sub9 ,	' >suba ,	' >add ,
 	' >xor ,	' >or ,		' >and ,	' >shr ,
 	
@@ -109,7 +112,7 @@ create >table
 	src @ >special?
 	IF	table> src @ dotable
 	ELSE	src @ ram> 
-	THEN ;
+	THEN  ;
 
 : >do	( val -- )
 	dst @ >special?
