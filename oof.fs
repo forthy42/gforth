@@ -126,18 +126,20 @@ Objects definitions
 : defer?   ( addr -- flag )
   >body cell+ @ #defer  = ;
 
+false Value oset?
+
 : o+,   ( addr offset -- )
   postpone Literal postpone ^ postpone +
-  postpone >o drop ;
+  oset? IF  postpone op!  ELSE  postpone >o  THEN  drop ;
 : o*,   ( addr offset -- )
   postpone Literal postpone * postpone Literal postpone +
-  postpone >o ;
+  oset? IF  postpone op!  ELSE  postpone >o  THEN ;
 : ^+@  ( offset -- addr )  ^ + @ ;
 : o+@,  ( addr offset -- )
-    postpone Literal postpone ^+@  postpone >o drop ;
+    postpone Literal postpone ^+@  oset? IF  postpone op!  ELSE  postpone >o  THEN drop ;
 : ^*@  ( offset -- addr )  ^ + @ tuck @ :var# + @ 8aligned * + ;
 : o+@*, ( addr offset -- )
-  postpone Literal postpone ^*@  postpone >o drop ;
+  postpone Literal postpone ^*@  oset? IF  postpone op!  ELSE  postpone >o  THEN drop ;
 
 \ variables / memory allocation                        30oct94py
 
@@ -216,16 +218,18 @@ Objects definitions
     r> drop-order ;
 
 false Value method?
-false Value oset?
 
 : method,  ( object early? -- )  true to method?
     swap >o >r bl word  findo  0< state @ and
     IF  r> o,  ELSE  r> drop execute  THEN  o> false to method?  ;
 
+: cmethod,  ( object early? -- )
+    state @ >r state on  method, r> state ! ;
+
 : early, ( object -- )  true to oset?  true  method,
-  state @ IF  postpone o>  THEN  false to oset? ;
+  state @ oset? and IF  postpone o>  THEN  false to oset? ;
 : late,  ( object -- )  true to oset?  false method,
-  state @ IF  postpone o>  THEN  false to oset? ;
+  state @ oset? and IF  postpone o>  THEN  false to oset? ;
 
 \ new,                                                 29oct94py
 
@@ -306,10 +310,10 @@ Objects definitions
 \ instance creation                                    29mar94py
 
 : instance, ( o -- )  alloc @ >r static new, r> alloc ! drop
-  DOES> state @ IF  dup postpone Literal postpone >o  THEN early, ;
+  DOES> state @ IF  dup postpone Literal oset? IF  postpone op!  ELSE  postpone >o  THEN  THEN early, ;
 : ptr,      ( o -- )  0 , ,
   DOES>  state @
-    IF    dup postpone Literal postpone @ postpone >o cell+
+    IF    dup postpone Literal postpone @ oset? IF  postpone op!  ELSE  postpone >o  THEN cell+
     ELSE  @  THEN late, ;
 
 : array,  ( n o -- )  alloc @ >r static new[], r> alloc ! drop
@@ -440,6 +444,8 @@ types definitions
 : asptr ( addr -- )  cell+ @ Create immediate
   lastob @ here lastob ! , ,  instptr> ;
 
+: Fpostpone  postpone postpone ; immediate
+
 : : ( <methodname> -- )  decl @ abort" HOW: missing! "
     bl word findo 0= abort" not found"
     dup exec? over early? or over >body cell+ @ 0< or
@@ -490,6 +496,7 @@ Create object  immediate  0 (class \ do not create as subclass
 	 early     send        immediate
 	 early     with        immediate
 	 early     endwith     immediate
+	 early     postpone    immediate
 	 
 \ base object class implementation part                23mar95py
 
@@ -507,9 +514,9 @@ how:	0 parento !
         : []      ( n -- )     Create immediate o@
           decl @ IF  instarray,  ELSE  array,     THEN ;
         : new     ( -- o )     o@ state @
-          IF  postpone Literal postpone new,  ELSE  new,  THEN ;
+          IF  Fpostpone Literal Fpostpone new,  ELSE  new,  THEN ;
         : new[]   ( n -- o )   o@ state @
-          IF postpone Literal postpone new[], ELSE new[], THEN ;
+          IF Fpostpone Literal Fpostpone new[], ELSE new[], THEN ;
         : dispose ( -- )       ^ size @ dispose, ;
         : bind    ( addr -- )  (bind ;
         : bound   ( o1 o2 addr2  -- ) (bound ;
@@ -523,18 +530,14 @@ how:	0 parento !
         : init    ( -- )       ;
 
         : '       ( -- xt )  bl word findo 0= abort" not found!"
-          state @ IF  postpone Literal  THEN ;
+          state @ IF  Fpostpone Literal  THEN ;
 	: send    ( xt -- )  execute ;
+	: postpone ( -- )  o@ add-order Fpostpone Fpostpone drop-order ;
 
 	: with ( -- )
-          state @ oset? 0= and IF  postpone >o  THEN
-	  o@ add-order voc# ! false to oset?
-	  r> drop state @
-	  IF    o>
-	  ELSE  oset? IF  ^ THEN  o> postpone >o
-	  THEN
-          r> drop r> drop ;
-	: endwith  postpone o> 
+          state @ oset? 0= and IF  Fpostpone >o  THEN
+	  o@ add-order voc# ! false to oset? ;
+	: endwith  Fpostpone o> 
 	  voc# @ drop-order ;
 class; \ object
 
@@ -596,34 +599,3 @@ Forth definitions
 
 previous previous
 
-\ The program uses the following words
-\ from CORE :
-\ decimal : bl word 0= ; cells Constant POSTPONE IF EXIT THEN immediate
-\ Create , DOES> @ >r r> swap + and Variable ! allot ELSE +! dup * >body
-\ cell+ = Literal drop align here aligned execute ['] 2@ recurse 1+ over
-\ LOOP ?dup 0< rot r@ - i negate +LOOP 2drop BEGIN WHILE 2dup REPEAT 1-
-\ rshift > / ' move UNTIL or count 
-\ from CORE-EXT :
-\ nip tuck true ?DO compile, false Value erase pick :noname 0<> 
-\ from BLOCK-EXT :
-\ \ 
-\ from EXCEPTION :
-\ throw 
-\ from EXCEPTION-EXT :
-\ abort" 
-\ from FILE :
-\ ( S" 
-\ from FLOAT :
-\ faligned 
-\ from LOCAL :
-\ TO 
-\ from MEMORY :
-\ allocate free 
-\ from SEARCH :
-\ find wordlist get-order set-order definitions get-current set-current search-wordlist 
-\ from SEARCH-EXT :
-\ also Forth previous 
-\ from STRING :
-\ /string compare 
-\ from TOOLS-EXT :
-\ state [IF] [THEN] 
