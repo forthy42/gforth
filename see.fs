@@ -514,8 +514,8 @@ Defer xt-see-xt ( xt -- )
     then
     space ;
 
-Defer discode ( addr u -- )
-\  hook for the disassembler: disassemble code at addr of length u
+Defer discode ( addr u -- ) \ gforth
+\G hook for the disassembler: disassemble code at addr of length u
 ' dump IS discode
 
 : next-head ( addr1 -- addr2 ) \ gforth
@@ -535,17 +535,22 @@ Defer discode ( addr u -- )
     then
     drop ;
 	
-: next-prim ( addr1 -- addr2 )
-    \G find the next primitive after addr1
+: next-prim ( addr1 -- addr2 ) \ gforth
+    \G find the next primitive after addr1 (unreliable)
     1+ >r -1 primstart
     begin ( umin head R: boundary )
 	@ dup
     while
-	tuck name>int >code-address ( head1 umin c-addr )
+	tuck name>int >code-address ( head1 umin ca R: boundary )
 	r@ - umin
 	swap
     repeat
-    drop r> + ;
+    drop dup r@ negate u>=
+    \ "umin+boundary within [0,boundary)" = "umin within [-boundary,0)"
+    if ( umin R: boundary ) \ no primitive found behind -> use a default length
+	drop 31
+    then
+    r> + ;
 
 : seecode ( xt -- )
     dup s" Code" .defname
