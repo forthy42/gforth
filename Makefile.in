@@ -786,15 +786,18 @@ doc/vmgen.info: $(VMGEN_TEXI)
 		cd doc; $(MAKEINFO) vmgen.texi
 
 
-### need makeinfo 4.0 to generate html. Otherwise, use texi2html..
-html:		$(GFORTH_TEXI)
-		-$(RMTREE) html
-		-mkdir html
-		cd html; $(MAKEINFO) --html -I ../doc ../doc/gforth.texi
-###		cd html; $(TEXI2HTML) -menu -split_node ../doc/gforth.texi
+### need makeinfo 4.2 to generate html with these rules
+doc/gforth: $(GFORTH_TEXI)
+	cd doc; $(MAKEINFO) --html gforth.texi
+
+doc/vmgen: $(VMGEN_TEXI)
+	cd doc; $(MAKEINFO) --html vmgen.texi
 
 doc/gforth.txt:	$(GFORTH_TEXI)
 		-cd doc; $(MAKEINFO) --no-headers --no-split gforth.texi >gforth.txt
+
+doc/vmgen.txt:	$(VMGEN_TEXI)
+		-cd doc; $(MAKEINFO) --no-headers --no-split vmgen.texi >vmgen.txt
 
 doc:		info html doc/gforth.ps doc/gforth.txt TAGS
 
