@@ -27,8 +27,8 @@
 
 Create mach-file here over 1+ allot place
 
-require ./../errors.fs
 require ./../search.fs
+require ./../errors.fs
 require ./../extend.fs
 
 \ include etags.fs
@@ -67,7 +67,7 @@ has? prims [IF]
 [ELSE]
     prims-include
     undef-words
-    include ./prim.fs
+    include prim.fs
     all-words  UNLOCK LOCK
 [THEN]
 doc-on

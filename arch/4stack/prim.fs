@@ -1,10 +1,10 @@
 \ 4stack primitives
 
-Label start  ;;
-nop          ;; first opcode must be a nop!
-$80000000 ## ;;
-#,           ;;
-sr!          jmpa $818 >IP ;;
+Label start
+	nop          ;; first opcode must be a nop!
+	$80000000 ## ;;
+	#,           ;;
+	sr!          jmpa $818 >IP ;;
 
 $800 .org
 ip0:	.int 0
@@ -48,7 +48,11 @@ docon:  ;;
 	drop     nop       nop      nop                               ;;
 end-code
 
+-2 Alias: :docol
 -3 Alias: :docon
+-4 Alias: :dovar
+-8 Alias: :dodoes
+-9 Alias: :doesjump
 
 Code execute ( xt -- )
 	ip!      nop       nop      nop                               ;;
@@ -120,7 +124,7 @@ end-code
 
 \ obligatory IO
 
-Code key?
+Code (key?)
 	nop      nop       nop      nop       inb R3      3 #         ;;
 	nop      ip!       nop      nop       0 #         ld 1: R1 N+ ;;
 	0<>      nop       nop      nop                               ;;

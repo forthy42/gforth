@@ -18,6 +18,10 @@
 \ along with this program; if not, write to the Free Software
 \ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+\ !! use a separate exception stack?           anton
+
+\ user-definable rollback actions
+
 Defer 'catch
 Defer 'throw
 
@@ -32,8 +36,8 @@ Defer store-backtrace
 : (try) ( -- )
     \ inline argument: address of the handler
     r>
-    'catch
     dup dup @ + >r \ recovery address
+    rp@ 'catch >r
     sp@ >r
     fp@ >r
     lp@ >r
@@ -52,6 +56,7 @@ Defer store-backtrace
     rdrop \ lp
     rdrop \ fp
     rdrop \ sp
+    r> rp!
     rdrop \ recovery address
     >r ;
 
@@ -85,7 +90,7 @@ is catch
 	r> lp!
 	r> fp!
 	r> swap >r sp! drop r>
-	'throw
+	rdrop 'throw
     THEN ;
 is throw
 

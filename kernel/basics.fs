@@ -189,10 +189,6 @@ Constant dictionary-end
     um/mod r> ;
 
 \ catch throw                                          23feb93py
-\ bounce                                                08jun93jaw
-
-\ !! allow the user to add rollback actions    anton
-\ !! use a separate exception stack?           anton
 
 has? glocals [IF]
 : lp@ ( -- addr ) \ gforth	lp-fetch
@@ -207,8 +203,10 @@ is catch
 defer throw ( y1 .. ym error/0 -- y1 .. ym / z1 .. zn error ) \ exception
 :noname ( y1 .. ym error/0 -- y1 .. ym / z1 .. zn error )
     ?dup if
-	[ here forthstart 9 cells + ! ]
-	cr .error cr 1 (bye)
+	[ has? ec 0= [IF] here forthstart 9 cells + ! [THEN] ]
+	cr .error cr
+	[ has? file [IF] ] script? IF  1 (bye)  ELSE  quit  THEN
+	[ [ELSE] ] quit [ [THEN] ]
     then ;
 is throw
 

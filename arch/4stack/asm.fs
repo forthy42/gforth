@@ -26,8 +26,8 @@ Defer 4allot
 
 : 4there  4here ;
 
-: op,       4there '2!  2 cells 4allot ;
 : op!       '2! ;
+: op,       4there op!  2 cells 4allot ;
 : op@       '2@ ;
 : caddr  ;  immediate
 : waddr  ;  immediate
@@ -694,13 +694,13 @@ Variable old-notfound
 also Forth definitions
 
 : (code)
-    also asm4stack also
+    also asm4stack
     s" F' 2@ F' 2! F' c! F' ! F' here F' allot" evaluate
     IS 4allot  IS 4here  IS  '! IS  'c!  IS '2!  IS '2@
     What's interpreter-notfound old-notfound !
     ['] ?label IS interpreter-notfound ;
 : label (code) 4here label: drop asm4stack depth ;
-: (end-code) previous previous old-notfound @ IS interpreter-notfound ;
+: (end-code) previous old-notfound @ IS interpreter-notfound ;
 
 previous previous previous Forth
 

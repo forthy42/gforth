@@ -11,7 +11,7 @@ Variable imagesize
     BEGIN
 	8 +
 	magic 8 r@ read-file throw 8 = WHILE
-	magic 8 s" Gforth14" compare 0= UNTIL
+	magic 8 s" Gforth2" compare 0= UNTIL
     ELSE  true abort" Magic not found!"  THEN rdrop ;
 
 Create bits $80 c, $40 c, $20 c, $10 c, $08 c, $04 c, $02 c, $01 c,

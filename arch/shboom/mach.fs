@@ -21,7 +21,7 @@
     4 Constant cell
     2 Constant cell<<
     5 Constant cell>bit
-    8 Constant bits/byte
+    8 Constant bits/char
     8 Constant float
     4 Constant /maxalign
  true Constant bigendian

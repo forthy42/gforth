@@ -1222,7 +1222,7 @@ T has? relocate H
 : c@ ( taddr -- char )  >image Sc@ ;
 : c! ( char taddr -- )  >image Sc! ;
 : 2@ ( taddr -- x1 x2 ) T dup cell+ @ swap @ H ;
-: 2! ( x1 x2 taddr -- ) T swap over ! cell+ ! H ;
+: 2! ( x1 x2 taddr -- ) T tuck ! cell+ ! H ;
 
 \ Target compilation primitives                        06oct92py
 \ included A!                                          16may93jaw

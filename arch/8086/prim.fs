@@ -410,7 +410,7 @@ end-macros
 
 
  \ additon io routines
-  Code key?     ( -- f ) \ check for read sio character
+  Code (key?)     ( -- f ) \ check for read sio character
     tos push, lastkey # tos mov,
     1 tos d) ah mov,   ah ah or,
     0= IF,  $ff # dl mov,  6 # ah mov,  $21 int,
@@ -436,3 +436,4 @@ end-macros
      0 # al mov,  $4c # ah mov,  $21 int,
     End-Code
 
+-9 Alias: :doesjump

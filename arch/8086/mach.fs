@@ -8,33 +8,35 @@
     2 Constant cell
     1 Constant cell<<
     4 Constant cell>bit
-    8 Constant bits/byte
+    8 Constant bits/char
     8 Constant float
     2 Constant /maxalign
- false Constant bigendian
+false Constant bigendian
 ( true=big, false=little )
 
 : prims-include  ." Include primitives" cr s" arch/8086/prim.fs" included ;
 : asm-include    ." Include assembler" cr s" arch/8086/asm.fs" included ;
 : >boot s" ' boot >body into-forth 1+ !" evaluate ;
 
+false Constant NIL
+
 >ENVIRON
 
-false SetValue relocate
-true  SetValue ec
-false SetValue file
-false SetValue OS
-false SetValue prims
-false SetValue floating
-false SetValue glocals
-false SetValue dcomps
-false SetValue hash
-false SetValue xconds
-false SetValue header
-true  SetValue interpreter
-true  SetValue crlf
-true  SetValue ITC
-\ true SetValue has-rom
+false Constant relocate
+true  Constant ec
+false Constant file
+false Constant OS
+false Constant prims
+false Constant floating
+false Constant glocals
+false Constant dcomps
+false Constant hash
+false Constant xconds
+false Constant header
+true  Constant interpreter
+true  Constant crlf
+true  Constant ITC
+\ true Constant has-rom
 
 cell 2 = [IF] 32 [ELSE] 256 [THEN] KB Constant kernel-size
 
