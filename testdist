@@ -8,7 +8,7 @@ DIR=`pwd`
 chmod -R +w $GFORTH
 rm -rf $GFORTH
 gunzip -cd $1 | tar xf -
-if make --version|grep -q GNU
+(if make --version|grep -q GNU
 then
 	echo building in build
 	chmod -R a-w $GFORTH
@@ -19,7 +19,7 @@ else
 	echo building in $GFORTH
 	cd $GFORTH
 	./configure --prefix=$DIR/install
-fi
+fi &&
 make &&
 make check &&
 #gforth locals-test.fs
@@ -34,6 +34,6 @@ PATH=$DIR/install/bin:$PATH make check GCC="cc -O" &&
 cd .. &&
 cd .. &&
 install/bin/gforth test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs -e bye &&
-echo test ok
+echo test ok )
 chmod -R +w $GFORTH
 cd ..
