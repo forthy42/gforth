@@ -430,7 +430,20 @@ end-struct type%
 \ allocate a string
  here swap dup allot move ;
 
-: starts-with { addr u xt1 xt2 n stack -- } ( "prefix" -- )
+wordlist constant prefixes
+
+: declare ( addr "name" -- )
+\ remember that there is a stack item at addr called name
+ create , ;
+
+: !default ( w addr -- )
+    dup @ if
+	2drop \ leave nonzero alone
+    else
+	!
+    endif ;
+
+: create-type { addr u xt1 xt2 n stack -- } ( "prefix" -- )
     \ describes a type
     \ addr u specifies the C type name
     \ stack effect entries of the type start with prefix
@@ -442,58 +455,35 @@ end-struct type%
     stack r@ type-stack !
     rdrop ;
 
-wordlist constant types
-get-current
-types set-current
+: type-prefix ( addr u xt1 xt2 n stack "prefix" -- )
+    create-type
+does> ( item -- )
+    \ initialize item
+    { item typ }
+    typ item item-type !
+    typ type-stack @ item item-stack !default
+    item item-name 2@ items @ search-wordlist 0= if \ new name
+	item item-name 2@ 2dup nextname item declare
+	typ type-c-name 2@ type space type  ." ;" cr
+    else
+	drop
+    endif ;
 
-s" Bool"	single-type starts-with f
-s" Char"	single-type starts-with c
-s" Cell"	single-type starts-with n
-s" Cell"	single-type starts-with w
-s" UCell"	single-type starts-with u
-s" DCell"	double-type starts-with d
-s" UDCell"	double-type starts-with ud
-s" Float"	float-type  starts-with r
-s" Cell *"	single-type starts-with a_
-s" Char *"	single-type starts-with c_
-s" Float *"	single-type starts-with f_
-s" DFloat *"	single-type starts-with df_
-s" SFloat *"	single-type starts-with sf_
-s" Xt"		single-type starts-with xt
-s" WID"		single-type starts-with wid
-s" struct F83Name *"	single-type starts-with f83name
-
-set-current
-
-: get-type ( addr1 u1 -- type-descr )
-\ get the type of the name in addr1 u1
-\ type-descr is a pointer to a type-descriptor
- 0 swap ?do
-   dup i types search-wordlist
-   if \ ok, we have the type ( addr1 xt )
-     execute nip
-     UNLOOP EXIT
-   endif
- -1 s+loop
- \ we did not find a type, abort
- true abort" unknown type prefix" ;
-
-: declare ( addr "name" -- )
-\ remember that there is a stack item at addr called name
- create , ;
+: execute-prefix ( item addr1 u1 -- )
+    \ execute the word ( item -- ) associated with the longest prefix
+    \ of addr1 u1
+    0 swap ?do
+	dup i prefixes search-wordlist
+	if \ ok, we have the type ( item addr1 xt )
+	    nip execute
+	    UNLOOP EXIT
+	endif
+	-1 s+loop
+    \ we did not find a type, abort
+    true abort" unknown prefix" ;
 
 : declaration ( item -- )
- dup item-name 2@ items @ search-wordlist
- if \ already declared ( item xt )
-     execute @ 2dup item-type @ swap item-type !
-     item-stack @ swap item-stack ! \ !! does not generalize to stack prefixes
- else ( addr )
-   dup item-name 2@ nextname dup declare ( addr )
-   dup >r item-name 2@ 2dup get-type ( addr1 u type-descr )
-   dup type-stack @ r@ item-stack ! \ !! only if item-stack @ 0=
-   dup r> item-type ! ( addr1 u type-descr )
-   type-c-name 2@ type space type ." ;" cr
- endif ;
+    dup item-name 2@ execute-prefix ;
 
 : declaration-list ( addr1 addr2 -- )
  swap ?do
@@ -504,6 +494,28 @@ set-current
  wordlist dup items ! set-current
  effect-in effect-in-end @ declaration-list
  effect-out effect-out-end @ declaration-list ;
+
+get-current
+prefixes set-current
+
+s" Bool"	single-type type-prefix f
+s" Char"	single-type type-prefix c
+s" Cell"	single-type type-prefix n
+s" Cell"	single-type type-prefix w
+s" UCell"	single-type type-prefix u
+s" DCell"	double-type type-prefix d
+s" UDCell"	double-type type-prefix ud
+s" Float"	float-type  type-prefix r
+s" Cell *"	single-type type-prefix a_
+s" Char *"	single-type type-prefix c_
+s" Float *"	single-type type-prefix f_
+s" DFloat *"	single-type type-prefix df_
+s" SFloat *"	single-type type-prefix sf_
+s" Xt"		single-type type-prefix xt
+s" WID"		single-type type-prefix wid
+s" struct F83Name *"	single-type type-prefix f83name
+
+set-current
 
 \ offset computation
 \ the leftmost (i.e. deepest) item has offset 0
