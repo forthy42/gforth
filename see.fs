@@ -248,12 +248,6 @@ VARIABLE C-Pass
 : back? ( n -- flag ) 0< ;
 : ahead? ( n -- flag ) 0> ;
 
-: c-lit
-    Display? IF
-	dup @ dup abs 0 <# #S rot sign #> 0 .string bl cemit
-    THEN
-    cell+ ;
-
 : .word ( addr xt -- addr )
     look 0= IF
 	drop dup 1 cells - @ dup body> look
@@ -270,8 +264,40 @@ VARIABLE C-Pass
 	dup name>string rot wordinfo .string
     THEN ;
 
-: c-call
-    Display? IF  ." call " dup @ body> .word bl cemit  THEN  cell+ ;
+: c-call ( addr1 -- addr2 )
+    Display? IF
+	dup @ body> .word bl cemit
+    THEN
+    cell+ ;
+
+: c-callxt ( addr1 -- addr2 )
+    Display? IF
+	dup @ .word bl cemit
+    THEN
+    cell+ ;
+
+\ here docon: , docol: , dovar: , douser: , dodefer: , dofield: ,
+\ here over - 2constant doers
+
+: c-lit ( addr1 -- addr2 )
+    Display? IF
+	dup @ dup body> dup cfaligned over = swap in-dictionary? and if
+	    ( addr1 addr1@ )
+	    dup body> @ dovar: = if
+		drop c-call EXIT
+	    endif
+	endif
+	\ !! test for cfa here, and print "['] ..."
+	dup abs 0 <# #S rot sign #> 0 .string bl cemit
+    endif
+    cell+ ;
+
+: c-lit+ ( addr1 -- addr2 )
+    Display? if
+	dup @ dup abs 0 <# #S rot sign #> 0 .string bl cemit
+	s" + " 0 .string
+    endif
+    cell+ ;
 
 : .name-without ( addr -- addr )
 \ prints a name without () e.g. (+LOOP) or (s")
@@ -444,7 +470,12 @@ VARIABLE C-Pass
 
 CREATE C-Table
 	        ' lit A,            ' c-lit A,
+		' does-exec A,	    ' c-callxt A,
+		' lit@ A,	    ' c-call A,
 [IFDEF] call	' call A,           ' c-call A, [THEN]
+\		' useraddr A,	    ....
+		' lit-perform A,    ' c-call A,
+		' lit+ A,	    ' c-lit+ A,
 [IFDEF] (s")	' (s") A,	    ' c-c" A, [THEN]
 [IFDEF] (.")	' (.") A,	    ' c-c" A, [THEN]
 [IFDEF] "lit    ' "lit A,           ' c-c" A, [THEN]
@@ -475,20 +506,23 @@ c-extender !
 
 \ DOTABLE                                               15may93jaw
 
-: DoTable ( cfa -- flag )
-        C-Table
-        BEGIN   dup @ dup 0= 
-		IF drop cell+ @ dup 
-		  IF ( next table!) dup @ ELSE 
-			( end!) 2drop false EXIT THEN 
-		THEN
-		\ jump over to extender, if any 26jan97jaw
-		xt>threaded 2 pick <>
-        WHILE   2 cells +
-        REPEAT
-        nip cell+ perform
-        true
-	;
+: DoTable ( ca/cfa -- flag )
+    decompile-prim C-Table BEGIN ( cfa table-entry )
+	dup @ dup 0=  IF
+	    drop cell+ @ dup IF ( next table!)
+		dup @
+	    ELSE ( end!)
+		2drop false EXIT
+	    THEN 
+	THEN
+	\ jump over to extender, if any 26jan97jaw
+	xt>threaded 2 pick <>
+    WHILE
+	    2 cells +
+    REPEAT
+    nip cell+ perform
+    true
+;
 
 : BranchTo? ( a-addr -- a-addr )
         Display?  IF    dup BranchAddr?

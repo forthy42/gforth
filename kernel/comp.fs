@@ -267,15 +267,15 @@ is basic-block-end
 	\ dup >body POSTPONE literal POSTPONE call >does-code , EXIT
     then
     dup >code-address CASE
-	\ docon:   OF >body POSTPONE lit@ , EXIT ENDOF
-	docon:   OF >body POSTPONE literal POSTPONE @ EXIT ENDOF
+	docon:   OF >body POSTPONE lit@ , EXIT ENDOF
+	\ docon:   OF >body POSTPONE literal POSTPONE @ EXIT ENDOF
 	\ docon is also used by VALUEs, so don't @ at compile time
 	docol:   OF >body POSTPONE call , EXIT ENDOF
 	dovar:   OF >body POSTPONE literal EXIT ENDOF
 	douser:  OF >body @ POSTPONE useraddr , EXIT ENDOF
 	dodefer: OF >body POSTPONE lit-perform , EXIT ENDOF
-	\ dofield: OF >body @ POSTPONE lit+ , EXIT ENDOF
-	dofield: OF >body @ POSTPONE literal POSTPONE + EXIT ENDOF
+	dofield: OF >body @ POSTPONE lit+ , EXIT ENDOF
+	\ dofield: OF >body @ POSTPONE literal POSTPONE + EXIT ENDOF
     ENDCASE
     static-compile, ;
 
