@@ -28,6 +28,8 @@ char *strsignal(int sig)
   static char errbuf[16];
 
 #if defined(HAVE_SYS_SIGLIST) && defined(NSIG)
+  extern char *sys_siglist[];
+
   if (sig>0 && sig<NSIG)
     return sys_siglist[sig];
 #endif

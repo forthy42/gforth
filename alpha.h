@@ -119,12 +119,17 @@ typedef short Int16;
 /* !!do special case for docol */
 #define MAKE_CF(wa,ca)	({ \
 			     Int32 *_wa=(Int32 *)(wa); \
-			     Int32 *_ca=(Int32 *)(ca); \
-			     _wa[0]=((((Int32 *)_CPU_DEP_LABEL)[0] & 0xffff0000)| \
-				      ((((Cell)_ca)-((Cell)_DOCOL_LABEL)) & 0xffff)); \
-			     _wa[1]=((((Int32 *)_CPU_DEP_LABEL)[1] & 0xffffc000)| \
-				      (((((Cell)_ca)-((Cell)_wa)-8) & 0xffff)>>2)); \
-			 })
+			     Label _ca=(Label)(ca); \
+			     if (ca==_DOCOL_LABEL)  \
+			       _wa[0]=(((0x1a<<26)|(31<<21)|(9<<16))| \
+				       (((((Cell)_ca)-((Cell)_wa)-4) & 0xffff)>>2)); \
+			     else { \
+			       _wa[0]=((((Int32 *)_CPU_DEP_LABEL)[0] & 0xffff0000)| \
+				       ((((Cell)_ca)-((Cell)_DOCOL_LABEL)) & 0xffff)); \
+			       _wa[1]=((((Int32 *)_CPU_DEP_LABEL)[1] & 0xffffc000)| \
+				       (((((Cell)_ca)-((Cell)_wa)-8) & 0xffff)>>2));  \
+			     } \
+			})
 
 /* this is the point where the does code for the word with the xt cfa
    starts. Because the jump to the code field takes only one cell on
