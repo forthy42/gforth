@@ -1,5 +1,5 @@
 /*
-  $Id: apollo68k.h,v 1.1 1994-02-11 16:30:45 anton Exp $
+  $Id: apollo68k.h,v 1.2 1994-05-31 07:08:10 benschop Exp $
   Copyright 1992 by the ANSI figForth Development Group
 
   This is the machine-specific part for a HP/Apollo with a 680x0
@@ -39,7 +39,6 @@ typedef float SFloat;
 #define MAKE_CF(cfa,ca)		({short * _cfa = (short *)cfa; \
 				  _cfa[0] = 0x4ef9; /* jmp.l */ \
 				  *(long *)(_cfa+1) = (long)(ca);})
-#endif
 
 /* this is the point where the does code starts if label points to the
  * jump dodoes */
@@ -52,3 +51,5 @@ typedef float SFloat;
 #define MAKE_DOESJUMP(ca)	({short * _ca = (short *)ca; \
 				  _ca[0] = 0x4ef9; /* jmp.l */ \
 				  *(long *)(_ca+1) = (long)&&dodoes;})
+#endif
+
