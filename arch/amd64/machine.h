@@ -30,7 +30,11 @@
 
 #ifndef USE_FTOS
 #ifndef USE_NO_FTOS
+#if defined(FORCE_REG)
 #define USE_FTOS
+#else
+#define USE_NO_FTOS
+#endif
 #endif
 #endif
 
@@ -38,3 +42,12 @@
 
 /* The architecture requires hardware consistency */
 #define FLUSH_ICACHE(addr,size)
+
+#if defined(FORCE_REG) && !defined(DOUBLY_INDIRECT) && !defined(VM_PROFILING)
+#define RPREG asm("%r13")
+#define FPREG asm("%r12")
+#if 0
+#define LPREG asm("%r14") /* this spills TOS */
+#endif
+#define FTOSREG asm("%xmm8")
+#endif

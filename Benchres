@@ -21,7 +21,12 @@ siev	bubble	matrix	fib	machine and configuration
  1.31    1.67    2.16    1.97   Athlon 800 (Thunderbird); gcc-3.0.2; gforth-0.5.9-20011202 -DFORCE_REG -DUSE_TOS; ELF
  1.36    1.80    2.18    1.86   Athlon 800 (Thunderbird); gcc-3.0.2; gforth-0.5.9-20011202 -DFORCE_REG; ELF
  1.10    1.46    1.91    1.77   Athlon 800 (Thunderbird); gcc-2.95.1; gforth-0.5.9-20011202 -DFORCE_REG; ELF
+ 0.23	 0.28    0.19    0.34	Pentium 4 2.26 (Northwood); gcc-2.95.1; gforth-0.6.2 --enable-force-reg
+ 0.26	 0.29	 0.19	 0.37	Pentium 4 2.26 (Northwood); gcc-2.95.1; gforth-0.6.1 --enable-force-reg
  0.60    0.79    1.00    0.92   Pentium 4 2.26 (Northwood); gcc-2.95.3; gforth-0.5.0 -DFORCE_REG; ELF
+ 0.55	 0.73	 0.32	 0.66	Pentium-III 1000 (Coppermine); gcc-2.95.1; gforth-0.6.2 --enable-force-reg
+ 0.61	 0.73	 0.33	 0.67	Pentium-III 1000 (Coppermine); gcc-2.95.1; gforth-0.6.1 --enable-force-reg
+ 1.09	 1.32	 1.62	 1.62	Pentium-III 1000 (Coppermine); gcc-2.95.1; gforth-0.5.0 --enable-force-reg
  1.21	 1.64	 2.06	 2.03	Athlon 750 (Thunderbird); gcc-2.95.1; gforth-0.5.0 -DFORCE_REG; ELF
  1.27	 1.67	 1.95	 1.94	Pentium-III 750; gcc-2.95.2; gforth-0.5.0 -DFORCE_REG; ELF
  0.81	 1.09	 0.51	 1.23	Athlon 600; gcc-2.95.2; gforth-0.5.9-20011224 -DFORCE_REG; ELF with dynamic superinstructions
@@ -75,8 +80,11 @@ siev	bubble	matrix	fib	machine and configuration
 11.6	12.1	10.8	15.6	PA8000 (HP C160) 160MHz 64M RAM; gcc-2.7.2; gforth-0.3.0
 30.0	34.1	20.5	33.0	PA-RISC 1.1 (HP 720) 50MHz 64K cache; gcc-2.6.3 -DDIRECT_THREADED; gforth-0.1beta
 
+ 1.71	 2.18	 1.30	 2.24	PPC7400 (G4) 450MHz; Linux; gcc-2.95.4; gforth-0.6.2
  2.11	 2.43	 1.52	 2.66	PPC7400 (G4) 450MHz; Linux; gcc-2.95.2; gforth-0.5.0
  3.36	 4.06	 2.39	 4.33	PPC750 (PowerMac 7500, G3-upgrade) 308MHz; Linux; egcs-1.02; gforth 0.4.0-19990312
+ 4.18	 5.43	 3.37	 5.88	PPC604e (PowerMac) 200MHz; Linux; gcc-2.95.2; gforth-0.6.2
+ 5.56	 6.11	 4.29	 7.42	PPC604e (PowerMac) 200MHz; Linux; gcc-2.95.2; gforth-0.5.0
  5.68	 6.53	 4.25	 7.47	PPC604e (PowerMac) 200MHz; Linux; gcc-2.7.2.1; gforth-0.4.0-19990312
  6.81	 7.53	 5.10	 8.12	PPC604e (PowerMac) 200MHz; Linux; gcc-2.7.2.1; gforth-0.4.0
  8.25	10.09	 6.45	10.34	PPC604e (PowerMac) 200MHz; Linux; gcc-2.7.2.1; gforth-0.3.0 (indirect threaded)

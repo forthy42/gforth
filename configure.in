@@ -134,13 +134,9 @@ case "$host_cpu" in
 		machine=hppa
 		$srcdir/mkinstalldirs arch/hppa
 		AC_LIBOBJ(../arch/hppa/cache)
-		#LDFLAGS="$LDFLAGS -Xlinker -N"
+		#-N needed for --dynamic <M4U3b.3790$9d.317@news.cpqcorp.net>
+		LDFLAGS="$LDFLAGS -Xlinker -N"
 		LIBS="$LIBS -L/lib/pa1.1/"
-		#executing dynamically generated code produced segfaults on
-		#the only HPPA machine that could waste code space, so
-		#disable it by default
-		no_dynamic_default=1
-		AC_MSG_WARN(Disabling dynamic native code generation by default (speed penalty factor ~2))
 		;;
 	sparc*)
 		machine=sparc
