@@ -352,7 +352,8 @@ RCS_FILES =  ToDo model high-level
 GEN = gforth$(EXE) gforth-ditc$(EXE) gforth-fast$(EXE) gforth-prof$(EXE) kernel/version.fs
 
 # things that need a working forth system to be generated
-FORTH_GEN0 = prim.b engine/prim.i engine/prim_lab.i engine/prim_names.i engine/prim_superend.i engine/peephole.i engine/profile.i kernel/aliases.fs kernel/prim.fs
+FORTH_GEN_ENGINE=engine/prim.i engine/prim_lab.i engine/prim_names.i engine/prim_superend.i engine/peephole.i engine/profile.i
+FORTH_GEN0 = prim.b $(FORTH_GEN_ENGINE) kernel/aliases.fs kernel/prim.fs
 FORTH_GEN =  $(FORTH_GEN0) @KERNEL@ gforth.fi
 # this is used for antidependences,
 FORTH_GEN1 = $(FORTH_GEN0) @kernel_fi@ 
@@ -677,7 +678,7 @@ gforth-ditc$(EXE):	engines
 gforth-prof$(EXE):	engines
 		$(CP) engine/$@ $@
 
-engines:	FORCE engine/Makefile engine/prim.i engine/prim_lab.i engine/prim_names.i engine/peephole.i engine/profile.i
+engines:	FORCE $(FORTH_GEN_ENGINE) engine/Makefile
 		cd engine && $(MAKE) gforth$(EXE) gforth-fast$(EXE) gforth-ditc$(EXE) gforth-prof$(EXE)
 
 # ------------- additional C primitives
