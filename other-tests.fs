@@ -39,6 +39,15 @@ foo1
 0 locals-test1
 1 locals-test1
 
+\ look for primitives
+
+' + look 0= throw ( nt )
+s" +" find-name <> throw
+
+\ represent
+
+1e pad 5 represent -1 <> swap 0 <> or swap 1 <> or throw
+
 \ comments across several lines
 
 ( fjklfjlas;d
