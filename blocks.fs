@@ -182,9 +182,10 @@ User scr 0 scr !
     1 load block-fid @ close-file throw flush
     r> block-fid ! ;
 
-: include ( "name" -- )
-    name 2dup dup 3 - /string s" .fb" compare
-    0= IF  block-included  ELSE  included  THEN ;
+\ thrown out because it may provide unpleasant surprises - anton
+\ : include ( "name" -- )
+\     name 2dup dup 3 - /string s" .fb" compare
+\     0= IF  block-included  ELSE  included  THEN ;
 
 get-current environment-wordlist set-current
 true constant block

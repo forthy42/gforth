@@ -42,7 +42,7 @@ decimal
         dup 0<> ;
 
 : look ( cfa -- lfa flag )
-        dup forthstart <
+        dup dictionary-end forthstart within
 	IF
 	    PrimStart (look)
 	ELSE

@@ -75,8 +75,11 @@ decimal
 
 \ UNUSED                                                17may93jaw
 
+: dictionary-end ( -- addr )
+    forthstart dup 3 cells + @ + ;
+
 : unused ( -- u ) \ core-ext
-    forthstart dup 3 cells + @ + here - ;
+    dictionary-end here - ;
 
 \ [COMPILE]                                             17may93jaw
 

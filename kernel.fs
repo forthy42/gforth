@@ -1320,12 +1320,12 @@ Defer 'cold ( -- ) \ gforth tick-cold
 [ [THEN] ]
     'cold
 [ has-files [IF] ]
-    argc @ 1 >
+    ['] process-args catch ?dup
     IF
-	['] process-args catch ?dup
-	IF
-	    dup >r DoError cr r> negate (bye)
-	THEN
+	dup >r DoError cr r> negate (bye)
+    THEN
+    argc @ 1 >
+    IF \ there may be some unfinished line, so let's finish it
 	cr
     THEN
 [ [THEN] ]
