@@ -32,8 +32,20 @@ AUser CSP
 : ?CSP ( -- )
     sp@ csp @ <> -22 and throw ;
 
+\ DMIN and DMAX
+
 : dmin ( d1 d2 -- d ) \ double
     2over 2over d< IF  2swap  THEN 2drop ;
 
 : dmax ( d1 d2 -- d ) \ double
     2over 2over d> IF  2swap  THEN 2drop ;
+
+\ shell commands
+
+0 Value $?
+
+: system ( addr u -- ) \ gforth
+    (system) throw TO $? ;
+: sh ( "..." -- ) \ gforth
+    '# parse cr system ;
+

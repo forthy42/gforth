@@ -422,22 +422,11 @@ else if (n>0)
  dup 0< IF  drop -1  ELSE  0>  IF  1  ELSE  0  THEN  THEN  ;
 
 capscomp	c_addr1 u c_addr2 -- n	new
-Char c1, c2;
-for (;; u--, c_addr1++, c_addr2++) {
-  if (u == 0) {
-    n = 0;
-    break;
-  }
-  c1 = toupper(*c_addr1);
-  c2 = toupper(*c_addr2);
-  if (c1 != c2) {
-    if (c1 < c2)
-      n = -1;
-    else
-      n = 1;
-    break;
-  }
-}
+n = memcasecmp(c_addr1, c_addr2, u); /* !! use something that works in all locales */
+if (n<0)
+  n = -1;
+else if (n>0)
+  n = 1;
 :
  swap bounds
  ?DO  dup c@ toupper I c@ toupper = WHILE  1+  LOOP  drop 0
@@ -970,10 +959,11 @@ c_addr2 = c_addr1+1;
 (bye)	n --	gforth	paren_bye
 return (Label *)n;
 
-system	c_addr u -- n	gforth
+(system)	c_addr u -- wretval wior	gforth	peren_system
 int old_tp=terminal_prepped;
 deprep_terminal();
-n=system(cstr(c_addr,u,1)); /* ~ expansion on first part of string? */
+wretval=system(cstr(c_addr,u,1)); /* ~ expansion on first part of string? */
+wior = IOR(wretval==-1 || (wretval==127 && errno != 0));
 if (old_tp)
   prep_terminal();
 
@@ -985,8 +975,9 @@ open-pipe	c_addr u ntype -- wfileid wior	gforth	open_pipe
 wfileid=(Cell)popen(cstr(c_addr,u,1),fileattr[ntype]); /* ~ expansion of 1st arg? */
 wior = IOR(wfileid==0); /* !! the man page says that errno is not set reliably */
 
-close-pipe	wfileid -- wior		gforth	close_pipe
-wior = IOR(pclose((FILE *)wfileid)==-1);
+close-pipe	wfileid -- wretval wior		gforth	close_pipe
+wretval = pclose((FILE *)wfileid);
+wior = IOR(wretval==-1);
 
 time&date	-- nsec nmin nhour nday nmonth nyear	facility-ext	time_and_date
 struct timeval time1;
@@ -1032,7 +1023,7 @@ wior = IOR(a_addr2==NULL);	/* !! Define a return code */
 (f83find)	c_addr u f83name1 -- f83name2	new	paren_f83find
 for (; f83name1 != NULL; f83name1 = f83name1->next)
   if (F83NAME_COUNT(f83name1)==u &&
-      strncasecmp(c_addr, f83name1->name, u)== 0 /* or inline? */)
+      memcasecmp(c_addr, f83name1->name, u)== 0 /* or inline? */)
     break;
 f83name2=f83name1;
 :
@@ -1051,7 +1042,7 @@ while(a_addr != NULL)
    f83name1=(F83Name *)(a_addr[1]);
    a_addr=(Cell *)(a_addr[0]);
    if (F83NAME_COUNT(f83name1)==u &&
-       strncasecmp(c_addr, f83name1->name, u)== 0 /* or inline? */)
+       memcasecmp(c_addr, f83name1->name, u)== 0 /* or inline? */)
      {
 	f83name2=f83name1;
 	break;

@@ -176,3 +176,5 @@ UDCell umdiv (UDCell u, UCell v);
 DCell smdiv (DCell num, Cell denom);
 DCell fmdiv (DCell num, Cell denom);
 
+int memcasecmp(const char *s1, const char *s2, long n);
+

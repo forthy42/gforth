@@ -42,6 +42,7 @@
 
 warnings off
 
+require interpretation.fs
 require debugging.fs
 [IFUNDEF] vocabulary    include search-order.fs [THEN]
 [IFUNDEF] environment?  include environ.fs      [THEN]

@@ -138,7 +138,7 @@ SOURCES	= CVS compat Makefile.in configure.in configure config.sub config.guess 
 	acconfig.h config.h.in \
 	install-sh INSTALL README ToDo BUGS model COPYING Benchres \
 	gforth.ds texinfo.tex gforth.1 gforth.el \
-	primitives engine.c main.c io.c \
+	primitives engine.c main.c io.c memcasecmp.c \
 	m68k.h mips.h 386.h hppa.h cache.c sparc.h power.h alpha.h 32bit.h \
 	getopt.c getopt1.c getopt.h select.c \
 	ecvt.c memcmp.c strtol.c strtoul.c ansidecl.h memmove.c pow10.c \
@@ -152,7 +152,7 @@ RCS_FILES =  ToDo model high-level
 
 GEN = gforth version.fs
 
-OBJECTS	= engine.o io.o main.o @LIBOBJS@ @getopt_long@
+OBJECTS	= engine.o io.o main.o memcasecmp.o @LIBOBJS@ @getopt_long@
 
 # things that need a working forth system to be generated
 FORTH_GEN0 = primitives.b primitives.i prim_labels.i aliases.fs
