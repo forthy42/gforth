@@ -68,7 +68,7 @@ char o c,  char p c,  char q c,      13 c,  char s c,       9 c,  char u c,
 \G @code{\}[0-7]+ octal numerical character value, @code{\x}[0-9a-f]+
 \G hex numerical character value; a @code{\} before any other
 \G character represents that character (only ', \, ? in C99).
-    here >r 0 c,
+    here >r
     >in @ chars source chars over + >r + begin ( parse-area R: here parse-end )
 	dup r@ < while
 	    dup c@ [char] " <> while
@@ -82,16 +82,16 @@ char o c,  char p c,  char q c,      13 c,  char s c,       9 c,  char u c,
     char+ source >r - r> min char/ >in !
     r> drop
     here r> - dup negate allot
-    here swap char/ 1 /string ;
+    here swap char/ ;
 
 :noname \"-parse save-mem ;
-:noname postpone (s") \"-parse dup c, 1+ chars allot drop ;
+:noname \"-parse save-mem 2dup postpone sliteral drop free throw ;
 interpret/compile: s\" ( compilation 'ccc"' -- ; run-time -- c-addr u )	\ gforth	s-backslash-quote
 \G Like @code{S"}, but translates C-like \-escape-sequences into
 \G single characters.  See @code{\"-parse} for details.
 
 :noname \"-parse type ;
-:noname postpone (.") \"-parse dup c, 1+ chars allot drop ;
+:noname postpone s\" postpone type ;
 interpret/compile: .\" ( compilation 'ccc"' -- ; run-time -- )	\ gforth	dot-backslash-quote
 
 0 [if] \ test

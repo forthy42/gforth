@@ -445,9 +445,9 @@ VARIABLE C-Pass
 CREATE C-Table
 	        ' lit A,            ' c-lit A,
 [IFDEF] call	' call A,           ' c-call A, [THEN]
-		' (s") A,	    ' c-c" A,
-       		 ' (.") A,	    ' c-c" A,
-        	' "lit A,           ' c-c" A,
+[IFDEF] (s")	' (s") A,	    ' c-c" A, [THEN]
+[IFDEF] (.")	' (.") A,	    ' c-c" A, [THEN]
+[IFDEF] "lit    ' "lit A,           ' c-c" A, [THEN]
 [IFDEF] (c")	' (c") A,	    ' c-c" A, [THEN]
         	' (do) A,           ' c-do A,
 [IFDEF] (+do)	' (+do) A,	    ' c-do A, [THEN]
@@ -464,7 +464,7 @@ CREATE C-Table
 [IFDEF] (-loop) ' (-loop) A,        ' c-loop A, [THEN]
         	' (next) A,         ' c-loop A,
         	' ;s A,             ' c-exit A,
-        	' (abort") A,       ' c-abort" A,
+[IFDEF] (abort") ' (abort") A,      ' c-abort" A, [THEN]
 \ only defined if compiler is loaded
 [IFDEF] (compile) ' (compile) A,      ' c-(compile) A, [THEN]
 [IFDEF] (does>) ' (does>) A,        ' c-does> A, [THEN]

@@ -71,6 +71,7 @@ interpret/compile: S" ( compilation 'ccc"' -- ; run-time -- c-addr u )	\ core,fi
 
 :noname    [char] " parse type ;
 :noname    postpone (.") ,"  align ;
+\ :noname postpone s" postpone type ;
 interpret/compile: ." ( compilation 'ccc"' -- ; run-time -- )  \ core	dot-quote
   \G Compilation: Parse a string @i{ccc} delimited by a " (double
   \G quote). At run-time, display the string. Interpretation semantics
