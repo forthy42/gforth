@@ -267,15 +267,16 @@ unsigned char *branch_targets(Cell *image, const unsigned char *bitstring,
 			      int size, Cell base)
      /* produce a bitmask marking all the branch targets */
 {
-  int i=0, j, k, steps=(size/sizeof(Cell))/RELINFOBITS;
+  int i=0, j, k, steps=(((size-1)/sizeof(Cell))/RELINFOBITS)+1;
   Cell token;
   unsigned char bits;
-  unsigned char *result=malloc(steps+1);
-  
-  memset(result, 0, steps+1);
-  for(k=0; k<=steps; k++) {
+  unsigned char *result=malloc(steps);
+
+  memset(result, 0, steps);
+  for(k=0; k<steps; k++) {
     for(j=0, bits=bitstring[k]; j<RELINFOBITS; j++, i++, bits<<=1) {
-      if((i < size) && (bits & (1U << (RELINFOBITS-1)))) {
+      if(bits & (1U << (RELINFOBITS-1))) {
+	assert(i*sizeof(Cell) < size);
         token=image[i];
 	if (token>=base) { /* relocatable address */
 	  UCell bitnum=(token-base)/sizeof(Cell);
@@ -290,7 +291,7 @@ unsigned char *branch_targets(Cell *image, const unsigned char *bitstring,
 void relocate(Cell *image, const unsigned char *bitstring, 
               int size, Cell base, Label symbols[])
 {
-  int i=0, j, k, steps=(size/sizeof(Cell))/RELINFOBITS;
+  int i=0, j, k, steps=(((size-1)/sizeof(Cell))/RELINFOBITS)+1;
   Cell token;
   char bits;
   Cell max_symbols;
@@ -317,12 +318,12 @@ void relocate(Cell *image, const unsigned char *bitstring,
   for (max_symbols=0; symbols[max_symbols]!=0; max_symbols++)
     ;
   max_symbols--;
-  size/=sizeof(Cell);
 
-  for(k=0; k<=steps; k++) {
+  for(k=0; k<steps; k++) {
     for(j=0, bits=bitstring[k]; j<RELINFOBITS; j++, i++, bits<<=1) {
       /*      fprintf(stderr,"relocate: image[%d]\n", i);*/
-      if((i < size) && (bits & (1U << (RELINFOBITS-1)))) {
+      if(bits & (1U << (RELINFOBITS-1))) {
+	assert(i*sizeof(Cell) < size);
 	/* fprintf(stderr,"relocate: image[%d]=%d of %d\n", i, image[i], size/sizeof(Cell)); */
         token=image[i];
 	if(token<0) {

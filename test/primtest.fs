@@ -96,13 +96,55 @@ AConstant image-header
 : type ( addr u -- )
     stdout write-file drop ;
 
+char j constant char-j
+
+variable var-k
+char k var-k !
+defer my-emit
+' emit is my-emit
+cell% 2* 0 0 field >body
+
+variable s0
+: depth s0 @ sp@ cell+ - ;
+
+\  : myconst ( n -- )
+\      create ,
+\    does> ( -- n )
+\      @ ;
+\  char m myconst char-m
+
+: unloop-test ( -- )
+    0 >r 0 >r unloop ;
+
 : boot ( -- )
+    sp@ s0 !
     [char] a stdout emit-file drop
     [char] b emit
     s" cde" type
     ." fgh"
+    [char] i ['] emit execute
+    ['] char-j execute emit
+    ['] var-k execute @ emit
+    \ !!douser
+    [char] l ['] my-emit execute
+    [char] l ['] my-emit ['] >body execute perform
+    \ !!dodoes ['] char-m execute emit
+    noop
+    [char] m ['] my-emit ['] execute dup execute
+    [char] m ['] 1+ execute emit
+    [char] o ['] my-emit >body perform
+    unloop-test ." p"
+    [char] q my-emit
+    \ !!does-exec
+    \ !! branch-lp+!#
+    ahead ." wrong" then ." r"
+    0 if ." wrong" else ." s" then
+    1 if ." t" else ." wrong" then
+    \ !! ?dup-?branch ?dup-0=-?branch
+    \ 0 ?dup-if ." wrong" drop else ." u" then
+    \ [char] v ?dup-if emit else ." wrong" then
     cr
-    0 (bye) ;
+    depth (bye) ;
 
 \ Setup                                                13feb93py
 
