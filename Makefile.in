@@ -70,7 +70,7 @@ FORTH	= $(ENGINE) $(FORTH_ARGS)
 # the (existing) forth system to use for cross compiling and primitives tables
 # per default we use the one in this directory for a rebuild. It is also
 # possible to override this variable at the command line for an initial build (jaw)
-BUILDFORTH = $(ENGINE) --die-on-signal -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)" -i $(kernel_fi)
+BUILDFORTH = $(ENGINE) --die-on-signal -m 4M -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)" -i $(kernel_fi)
 # the forth system plus flags we use to build
 FORTHB = $(BUILDFORTH) -e 'fpath= .|~+|$(srcdir)'
 # the Forth system for running prims2x.fs
