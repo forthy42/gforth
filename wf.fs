@@ -21,6 +21,8 @@ s" " tag-option $!
 : href= ( addr u -- )  s" href" opt ;
 : src=  ( addr u -- )  s" src" opt ;
 : alt=  ( addr u -- )  s" alt" opt ;
+: width=  ( addr u -- )  s" width" opt ;
+: height=  ( addr u -- )  s" height" opt ;
 : align= ( addr u -- ) s" align" opt ;
 : mailto: ( addr u -- ) s'  href="mailto:' tag-option $+!
     tag-option $+! s' "' tag-option $+! ;
@@ -53,6 +55,53 @@ Variable envs 10 0 [DO] 0 , [LOOP]
 	'| OF  s" center" align=  ENDOF
     ENDCASE ;
 
+\ image handling
+
+Create imgbuf $20 allot
+
+Create pngsig $89 c, $50 c, $4E c, $47 c, $0D c, $0A c, $1A c, $0A c,
+Create jfif   $FF c, $D8 c, $FF c, $E0 c, $00 c, $10 c, $4A c, $46 c,
+              $49 c, $46 c,
+
+: b@ ( addr -- x )   0 swap 4 bounds ?DO  8 lshift I c@ +  LOOP ;
+: bw@ ( addr -- x )  0 swap 2 bounds ?DO  8 lshift I c@ +  LOOP ;
+
+: gif? ( -- flag )
+    s" GIF89a" imgbuf over compare 0=
+    s" GIF87a" imgbuf over compare 0= or ;
+: gif-size ( -- w h )
+    imgbuf 6 + c@ imgbuf 7 + c@ 8 lshift +
+    imgbuf 8 + c@ imgbuf 9 + c@ 8 lshift + ;
+
+: png? ( -- flag )
+    pngsig 8 imgbuf over compare 0= ;
+: png-size ( -- w h )
+    imgbuf $10 + b@ imgbuf $14 + b@ ;
+
+: jpg? ( -- flag )
+    jfif 10 imgbuf over compare 0= ;
+: jpg-size ( fd -- w h )  >r
+    2.  BEGIN
+	2dup r@ reposition-file throw
+	imgbuf $10 r@ read-file throw 0<>
+	imgbuf bw@ $FFC0 <> and  WHILE
+	imgbuf 2 + bw@ 2 + 0 d+  REPEAT
+    2drop imgbuf 5 + bw@ imgbuf 7 + bw@  rdrop ;
+
+: img-size ( fd -- w h )  >r
+    gif? IF  gif-size  rdrop EXIT  THEN
+    jpg? IF  r> jpg-size  EXIT  THEN
+    png? IF  png-size  rdrop EXIT  THEN
+    0 0 ;
+
+: .img-size ( addr u -- )
+    r/o open-file throw >r
+    imgbuf $20 r@ read-file throw drop
+    r@ img-size
+    r> close-file throw
+    ?dup IF  0 <# #S #> width=   THEN
+    ?dup IF  0 <# #S #> height=  THEN ;
+
 \ link creation
 
 Variable link
@@ -61,6 +110,12 @@ Variable iconpath
 
 Variable do-size
 
+: alt-suffix ( -- )
+    link-suffix $@len 2 - link-suffix $!len
+    s" [" link-suffix 0 $ins
+    s" ]" link-suffix $+!
+    link-suffix $@ alt= ;
+
 : get-icon ( addr u -- )  iconpath @ IF  2drop  EXIT  THEN
     link-suffix $! s" .*" link-suffix $+!
     s" icons" open-dir throw >r
@@ -68,7 +123,8 @@ Variable do-size
 	pad $100 r@ read-dir throw  WHILE
 	pad swap 2dup link-suffix $@ filename-match
 	IF  s" icons/" iconpath $! iconpath $+!
-	    iconpath $@ src= s" img" tag true
+	    iconpath $@ 2dup .img-size src=
+	    alt-suffix  s" img" tag true
 	ELSE  2drop  false  THEN
     UNTIL  ELSE  drop  THEN
     r> close-dir throw ;
@@ -94,7 +150,7 @@ Variable do-size
 : .img ( -- ) '{ parse type '} parse '| $split
     dup IF  2swap alt=  ELSE  2drop  THEN
     tag-option $@len >r over c@ >align tag-option $@len r> = 1+ /string
-    src= s" img" tag ;
+    2dup .img-size src= s" img" tag ;
 
 \ line handling
 
