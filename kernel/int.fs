@@ -283,8 +283,8 @@ $1fffffff constant lcount-mask
     \ true becomes 1, false -1
     0= 2* 1+ ;
 
-: compile-only-error ( ... -- )
-    -&14 throw ;
+: ticking-compile-only-error ( ... -- )
+    -&2048 throw ;
 
 : (cfa>int) ( cfa -- xt )
 [ has? compiler [IF] ]
@@ -298,7 +298,7 @@ $1fffffff constant lcount-mask
     \ get interpretation semantics of name
     restrict-mask and
     if
-	drop ['] compile-only-error
+	drop ['] ticking-compile-only-error
     else
 	(cfa>int)
     then ;
@@ -322,15 +322,15 @@ $1fffffff constant lcount-mask
     \G @i{xt} represents the interpretation semantics of the word
     \G @i{nt}. If @i{nt} has no interpretation semantics (i.e. is
     \G @code{compile-only}), @i{xt} is the execution token for
-    \G @code{compile-only-error}, which performs @code{-14 throw}.
+    \G @code{ticking-compile-only-error}, which performs @code{-2048 throw}.
     (name>x) (x>int) ;
 
 : name?int ( nt -- xt ) \ gforth
-    \G Like @code{name>int}, but perform @code{-14 throw} if @i{nt}
+    \G Like @code{name>int}, but perform @code{-2048 throw} if @i{nt}
     \G has no interpretation semantics.
     (name>x) restrict-mask and
     if
-	compile-only-error \ does not return
+	ticking-compile-only-error \ does not return
     then
     (cfa>int) ;
 

@@ -676,7 +676,7 @@ Defer discode ( addr u -- ) \ gforth
     if \ normal or immediate word
 	swap xt-see (.immediate)
     else
-	r@ ['] compile-only-error =
+	r@ ['] ticking-compile-only-error =
 	if \ compile-only word
 	    swap xt-see (.immediate) ."  compile-only"
 	else \ interpret/compile word

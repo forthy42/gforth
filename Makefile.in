@@ -64,9 +64,11 @@ GCC	= @CC@
 CC	= $(GCC)
 FORTHPATH = .$(PATHSEP)$(libdir)/gforth/site-forth$(PATHSEP)$(siteforthdir)$(PATHSEP)$(libdir)/gforth/$(VERSION)$(PATHSEP)$(datadir)/gforth/$(VERSION)
 FORTHSIZES = @FORTHSIZES@
-FORTH_ARGS = --die-on-signal -p $(FORTHPATH)$(PATHSEP)$(srcdir)
+FORTHS_ARGS =  -p $(FORTHPATH)$(PATHSEP)$(srcdir)
+FORTH_ARGS = --die-on-signal $(FORTHS_ARGS)
 ENGINE = ./gforth
 FORTH	= $(ENGINE) $(FORTH_ARGS)
+FORTHS	= $(ENGINE) $(FORTHS_ARGS)
 # the (existing) forth system to use for cross compiling and primitives tables
 # per default we use the one in this directory for a rebuild. It is also
 # possible to override this variable at the command line for an initial build (jaw)
@@ -235,7 +237,7 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_SRC) $(EC_SRC) \
 	tt.fs sokoban.fs \
 	unbuffer.fs wordsets.fs \
 	test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs \
-	test/string.fs test/other.fs test/checkans.fs \
+	test/string.fs test/other.fs test/signals.fs test/checkans.fs \
 	bubble.fs siev.fs matrix.fs fib.fs \
 	oof.fs oofsampl.fs objects.fs objexamp.fs mini-oof.fs moof-exm.fs \
 	moofglos.fs fixpath.fs \
@@ -530,6 +532,7 @@ uninstall:	FORCE
 check test:	gforth$(EXE) gforth.fi
 		$(FORTH) test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs test/string.fs -e bye | diff -c - $(srcdir)/test/coretest.out
 		$(FORTH) test/other.fs -e bye
+		$(FORTHS) test/signals.fs -e bye
 		$(FORTH) code.fs test/checkans.fs -e bye | diff -c - $(srcdir)/test/checkans.out
 		$(FORTH) prims2x.fs -e \
 		  "c-flag on s\" $(srcdir)/prim.b\" ' output-c ' output-c-combined process-file bye"| \

@@ -7203,8 +7203,8 @@ You can use @code{'} to get an execution token that represents the
 interpretation semantics of a named word:
 
 @example
-5 ' .
-execute
+5 ' .   ( n xt ) 
+execute ( )      \ execute the xt (i.e., ".")
 @end example
 
 doc-'

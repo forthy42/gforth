@@ -27,17 +27,6 @@
     ,
     string, align ;
 
-variable next-exception -2048 next-exception !
-
-: exception ( addr u -- n ) \ exception- gforth
-    \G @var{n} is a previously unused @code{throw} value in the range
-    \G (-4095...-256). Consecutive calls to @code{exception} return
-    \G consecutive decreasing numbers. Gforth uses the string
-    \G @var{addr u} as an error message.
-    next-exception @ errstring
-    next-exception @
-    -1 next-exception +! ;
-
 decimal
 
 -1 s" Aborted" rot errstring
@@ -97,3 +86,20 @@ decimal
 -56 s" QUIT" rot errstring
 -57 s" Error in sending or receiving a character" rot errstring
 -58 s" [IF], [ELSE], [THEN] error" rot errstring
+
+\ Gforth's errors:
+
+-2048 s" Cannot tick compile-only word (try COMP' ... DROP)" rot errstring
+
+variable next-exception -2049 next-exception !
+
+: exception ( addr u -- n ) \ exception- gforth
+    \G @var{n} is a previously unused @code{throw} value in the range
+    \G (-4095...-256). Consecutive calls to @code{exception} return
+    \G consecutive decreasing numbers. Gforth uses the string
+    \G @var{addr u} as an error message.
+    next-exception @ errstring
+    next-exception @
+    -1 next-exception +! ;
+
+
