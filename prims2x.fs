@@ -315,12 +315,13 @@ Variable c-flag
    {{ effect-out }} stack-items {{ effect-out-end ! }}
 )) <- stack-effect ( -- )
 
-(( {{ s" " doc 2! s" " forth-code 2! }}
+(( {{ s" " doc 2! s" " forth-code 2! s" " wordset 2! }}
    (( {{ line @ name-line ! filename 2@ name-filename 2! }}
       {{ start }} forth-ident {{ end 2dup forth-name 2! c-name 2! }}  white ++
       ` ( white ** {{ start }} stack-effect {{ end stack-string 2! }} ` ) white **
-        {{ start }} forth-ident {{ end wordset 2! }} white **
-        (( {{ start }}  c-ident {{ end c-name 2! }} )) ??  nl
+        (( {{ start }} forth-ident {{ end wordset 2! }} white **
+	   (( {{ start }}  c-ident {{ end c-name 2! }} )) ??
+	)) ??  nl
    ))
    (( ` " ` "  {{ start }} (( noquote ++ ` " )) ++ {{ end 1- doc 2! }} ` " nl )) ??
    {{ skipsynclines off line @ c-line ! filename 2@ c-filename 2! start }} (( nocolonnl nonl **  nl )) ** {{ end c-code 2! skipsynclines on }}
