@@ -143,9 +143,22 @@ noop	( -- )		gforth
 :
  ;
 
-lit	( #w -- w )		gforth
-:
- r> dup @ swap cell+ >r ;
+call	( #a_callee -- R:a_retaddr )	new
+""Call callee (a variant of docol with inline argument).""
+#ifdef NO_IP
+INST_TAIL;
+JUMP(a_callee);
+#else
+#ifdef DEBUG
+    {
+      CFA_TO_NAME((((Cell *)a_callee)-2));
+      fprintf(stderr,"%08lx: call %08lx %.*s\n",(Cell)ip,(Cell)a_callee,
+	      len,name);
+    }
+#endif
+a_retaddr = (Cell *)IP;
+SET_IP((Xt *)a_callee);
+#endif
 
 execute	( xt -- )		core
 ""Perform the semantics represented by the execution token, @i{xt}.""
@@ -168,37 +181,99 @@ EXEC(*(Xt *)a_addr);
 :
  @ execute ;
 
-\fhas? skipbranchprims 0= [IF]
+;s	( R:w -- )		gforth	semis
+""The primitive compiled by @code{EXIT}.""
+#ifdef NO_IP
+INST_TAIL;
+goto *(void *)w;
+#else
+SET_IP((Xt *)w);
+#endif
+
+unloop	( R:w1 R:w2 -- )	core
+/* !! alias for 2rdrop */
+:
+ r> rdrop rdrop >r ;
+
+lit-perform	( #a_addr -- )	new	lit_perform
+#ifndef NO_IP
+ip=IP;
+#endif
+SUPER_END;
+EXEC(*(Xt *)a_addr);
+
+does-exec ( #a_cfa -- R:nest a_pfa )	new	does_exec
+#ifdef NO_IP
+/* compiled to LIT CALL by compile_prim */
+assert(0);
+#else
+a_pfa = PFA(a_cfa);
+nest = (Cell)IP;
+IF_spTOS(spTOS = sp[0]);
+#ifdef DEBUG
+    {
+      CFA_TO_NAME(a_cfa);
+      fprintf(stderr,"%08lx: does %08lx %.*s\n",
+	      (Cell)ip,(Cell)a_cfa,len,name);
+    }
+#endif
+SET_IP(DOES_CODE1(a_cfa));
+#endif
+
 \+glocals
 
-branch-lp+!#	( #ndisp #nlocals -- )	gforth	branch_lp_plus_store_number
+branch-lp+!# ( #a_target #nlocals -- )	gforth	branch_lp_plus_store_number
 /* this will probably not be used */
 lp += nlocals;
-SET_IP((Xt *)(((Cell)(IP-2))+ndisp));
+#ifdef NO_IP
+INST_TAIL;
+JUMP(a_target);
+#else
+SET_IP((Xt *)a_target);
+#endif
 
 \+
 
-branch	( #ndisp -- )		gforth
-SET_IP((Xt *)(((Cell)(IP-1))+ndisp));
+branch	( #a_target -- )	gforth
+#ifdef NO_IP
+INST_TAIL;
+JUMP(a_target);
+#else
+SET_IP((Xt *)a_target);
+#endif
 :
- r> dup @ + >r ;
+ r> @ >r ;
 
-\ condbranch(forthname,stackeffect,restline,code,forthcode)
+\ condbranch(forthname,stackeffect,restline,code1,code2,forthcode)
 \ this is non-syntactical: code must open a brace that is closed by the macro
 define(condbranch,
-$1 ( `#'ndisp $2 ) $3
-$4	SET_IP((Xt *)(((Cell)(IP-1))+ndisp));
+$1 ( `#'a_target $2 ) $3
+$4	#ifdef NO_IP
 INST_TAIL;
+#endif
+$5	#ifdef NO_IP
+JUMP(a_target);
+#else
+SET_IP((Xt *)a_target);
+INST_TAIL; NEXT_P2;
+#endif
 }
 SUPER_CONTINUE;
-$5
+$6
 
 \+glocals
 
-$1-lp+!`#' ( `#'ndisp `#'nlocals $2 ) $3_lp_plus_store_number
-$4    lp += nlocals;
-SET_IP((Xt *)(((Cell)(IP-2))+ndisp));
+$1-lp+!`#' ( `#'a_target `#'nlocals $2 ) $3_lp_plus_store_number
+$4	#ifdef NO_IP
 INST_TAIL;
+#endif
+$5	lp += nlocals;
+#ifdef NO_IP
+JUMP(a_target);
+#else
+SET_IP((Xt *)a_target);
+INST_TAIL; NEXT_P2;
+#endif
 }
 SUPER_CONTINUE;
 
@@ -206,12 +281,11 @@ SUPER_CONTINUE;
 )
 
 condbranch(?branch,f --,f83	question_branch,
-if (f==0) {
+,if (f==0) {
 ,:
- 0= dup     \ !f !f
- r> dup @   \ !f !f IP branchoffset
- rot and +  \ !f IP|IP+branchoffset
- swap 0= cell and + \ IP''
+ 0= dup 0=          \ !f f
+ r> tuck cell+      \ !f branchoffset f IP+
+ and -rot @ and or  \ f&IP+|!f&branch
  >r ;)
 
 \ we don't need an lp_plus_store version of the ?dup-stuff, because it
@@ -219,17 +293,22 @@ if (f==0) {
 
 \+xconds
 
-?dup-?branch	( #ndisp f -- f )	new	question_dupe_question_branch
+?dup-?branch	( #a_target f -- f )	new	question_dupe_question_branch
 ""The run-time procedure compiled by @code{?DUP-IF}.""
 if (f==0) {
   sp++;
   IF_spTOS(spTOS = sp[0]);
-  SET_IP((Xt *)(((Cell)(IP-1))+ndisp));
-  INST_TAIL;
+#ifdef NO_IP
+INST_TAIL;
+JUMP(a_target);
+#else
+SET_IP((Xt *)a_target);
+  INST_TAIL; NEXT_P2;
+#endif
 }
 SUPER_CONTINUE;
 
-?dup-0=-?branch	( #ndisp f -- )	new	question_dupe_zero_equals_question_branch
+?dup-0=-?branch ( #a_target f -- ) new	question_dupe_zero_equals_question_branch
 ""The run-time procedure compiled by @code{?DUP-0=-IF}.""
 /* the approach taken here of declaring the word as having the stack
 effect ( f -- ) and correcting for it in the branch-taken case costs a
@@ -237,29 +316,32 @@ few cycles in that case, but is easy to convert to a CONDBRANCH
 invocation */
 if (f!=0) {
   sp--;
-  SET_IP((Xt *)(((Cell)(IP-1))+ndisp));
+#ifdef NO_IP
+  JUMP(a_target);
+#else
+  SET_IP((Xt *)a_target);
   NEXT;
+#endif
 }
 SUPER_CONTINUE;
 
 \+
-\f[THEN]
 \fhas? skiploopprims 0= [IF]
 
 condbranch((next),R:n1 -- R:n2,cmFORTH	paren_next,
 n2=n1-1;
-if (n1) {
+,if (n1) {
 ,:
  r> r> dup 1- >r
- IF dup @ + >r ELSE cell+ >r THEN ;)
+ IF @ >r ELSE cell+ >r THEN ;)
 
 condbranch((loop),R:nlimit R:n1 -- R:nlimit R:n2,gforth	paren_loop,
 n2=n1+1;
-if (n2 != nlimit) {
+,if (n2 != nlimit) {
 ,:
  r> r> 1+ r> 2dup =
  IF >r 1- >r cell+ >r
- ELSE >r >r dup @ + >r THEN ;)
+ ELSE >r >r @ >r THEN ;)
 
 condbranch((+loop),n R:nlimit R:n1 -- R:nlimit R:n2,gforth paren_plus_loop,
 /* !! check this thoroughly */
@@ -267,14 +349,14 @@ condbranch((+loop),n R:nlimit R:n1 -- R:nlimit R:n2,gforth paren_plus_loop,
 /* dependent upon two's complement arithmetic */
 Cell olddiff = n1-nlimit;
 n2=n1+n;	
-if ((olddiff^(olddiff+n))>=0   /* the limit is not crossed */
+,if ((olddiff^(olddiff+n))>=0   /* the limit is not crossed */
     || (olddiff^n)>=0          /* it is a wrap-around effect */) {
 ,:
  r> swap
  r> r> 2dup - >r
  2 pick r@ + r@ xor 0< 0=
  3 pick r> xor 0< 0= or
- IF    >r + >r dup @ + >r
+ IF    >r + >r @ >r
  ELSE  >r >r drop cell+ >r THEN ;)
 
 \+xconds
@@ -282,7 +364,7 @@ if ((olddiff^(olddiff+n))>=0   /* the limit is not crossed */
 condbranch((-loop),u R:nlimit R:n1 -- R:nlimit R:n2,gforth paren_minus_loop,
 UCell olddiff = n1-nlimit;
 n2=n1-u;
-if (olddiff>u) {
+,if (olddiff>u) {
 ,)
 
 condbranch((s+loop),n R:nlimit R:n1 -- R:nlimit R:n2,gforth	paren_symmetric_plus_loop,
@@ -297,46 +379,55 @@ if (n<0) {
     newdiff = -newdiff;
 }
 n2=n1+n;
-if (diff>=0 || newdiff<0) {
+,if (diff>=0 || newdiff<0) {
 ,)
 
 \+
 
-unloop	( R:w1 R:w2 -- )	core
-/* !! alias for 2rdrop */
-:
- r> rdrop rdrop >r ;
-
-(for)	( ncount -- R:nlimit R:ncount )		cmFORTH		paren_for
+(for)   ( ncount -- R:nlimit R:ncount )         cmFORTH         paren_for
 /* or (for) = >r -- collides with unloop! */
 nlimit=0;
 :
  r> swap 0 >r >r >r ;
 
-(do)	( nlimit nstart -- R:nlimit R:nstart )	gforth		paren_do
+(do)    ( nlimit nstart -- R:nlimit R:nstart )  gforth          paren_do
 :
  r> swap rot >r >r >r ;
 
-(?do)	( #ndisp nlimit nstart -- R:nlimit R:nstart )	gforth	paren_question_do
-if (nstart == nlimit) {
-    SET_IP((Xt *)(((Cell)(IP-1))+ndisp));
+(?do) ( #a_target nlimit nstart -- R:nlimit R:nstart ) gforth	paren_question_do
+#ifdef NO_IP
     INST_TAIL;
+#endif
+if (nstart == nlimit) {
+#ifdef NO_IP
+    JUMP(a_target);
+#else
+    SET_IP((Xt *)a_target);
+    INST_TAIL; NEXT_P2;
+#endif
 }
 SUPER_CONTINUE;
 :
   2dup =
   IF   r> swap rot >r >r
-       dup @ + >r
+       @ >r
   ELSE r> swap rot >r >r
        cell+ >r
   THEN ;				\ --> CORE-EXT
 
 \+xconds
 
-(+do)	( #ndisp nlimit nstart -- R:nlimit R:nstart )	gforth	paren_plus_do
-if (nstart >= nlimit) {
-    SET_IP((Xt *)(((Cell)(IP-1))+ndisp));
+(+do)	( #a_target nlimit nstart -- R:nlimit R:nstart ) gforth	paren_plus_do
+#ifdef NO_IP
     INST_TAIL;
+#endif
+if (nstart >= nlimit) {
+#ifdef NO_IP
+    JUMP(a_target);
+#else
+    SET_IP((Xt *)a_target);
+    INST_TAIL; NEXT_P2;
+#endif
 }
 SUPER_CONTINUE;
 :
@@ -344,15 +435,22 @@ SUPER_CONTINUE;
  r> swap >r swap >r
  >=
  IF
-     dup @ +
+     @
  ELSE
      cell+
  THEN  >r ;
 
-(u+do)	( #ndisp ulimit ustart -- R:ulimit R:ustart )	gforth	paren_u_plus_do
-if (ustart >= ulimit) {
-    SET_IP((Xt *)(((Cell)(IP-1))+ndisp));
+(u+do)	( #a_target ulimit ustart -- R:ulimit R:ustart ) gforth	paren_u_plus_do
+#ifdef NO_IP
     INST_TAIL;
+#endif
+if (ustart >= ulimit) {
+#ifdef NO_IP
+JUMP(a_target);
+#else
+SET_IP((Xt *)a_target);
+INST_TAIL; NEXT_P2;
+#endif
 }
 SUPER_CONTINUE;
 :
@@ -360,15 +458,22 @@ SUPER_CONTINUE;
  r> swap >r swap >r
  u>=
  IF
-     dup @ +
+     @
  ELSE
      cell+
  THEN  >r ;
 
-(-do)	( #ndisp nlimit nstart -- R:nlimit R:nstart )	gforth	paren_minus_do
-if (nstart <= nlimit) {
-    SET_IP((Xt *)(((Cell)(IP-1))+ndisp));
+(-do)	( #a_target nlimit nstart -- R:nlimit R:nstart ) gforth	paren_minus_do
+#ifdef NO_IP
     INST_TAIL;
+#endif
+if (nstart <= nlimit) {
+#ifdef NO_IP
+JUMP(a_target);
+#else
+SET_IP((Xt *)a_target);
+INST_TAIL; NEXT_P2;
+#endif
 }
 SUPER_CONTINUE;
 :
@@ -376,15 +481,22 @@ SUPER_CONTINUE;
  r> swap >r swap >r
  <=
  IF
-     dup @ +
+     @
  ELSE
      cell+
  THEN  >r ;
 
-(u-do)	( #ndisp ulimit ustart -- R:ulimit R:ustart )	gforth	paren_u_minus_do
-if (ustart <= ulimit) {
-    SET_IP((Xt *)(((Cell)(IP-1))+ndisp));
+(u-do)	( #a_target ulimit ustart -- R:ulimit R:ustart ) gforth	paren_u_minus_do
+#ifdef NO_IP
     INST_TAIL;
+#endif
+if (ustart <= ulimit) {
+#ifdef NO_IP
+JUMP(a_target);
+#else
+SET_IP((Xt *)a_target);
+INST_TAIL; NEXT_P2;
+#endif
 }
 SUPER_CONTINUE;
 :
@@ -392,7 +504,7 @@ SUPER_CONTINUE;
  r> swap >r swap >r
  u<=
  IF
-     dup @ +
+     @
  ELSE
      cell+
  THEN  >r ;
@@ -542,8 +654,17 @@ u2 = u1-n;
 
 \g arith
 
+lit	( #w -- w )		gforth
+:
+ r> dup @ swap cell+ >r ;
+
 +	( n1 n2 -- n )		core	plus
 n = n1+n2;
+
+\ lit+ / lit_plus = lit +
+
+lit+	( n1 #n2 -- n )		new	lit_plus
+n=n1+n2;
 
 \ PFE-0.9.14 has it differently, but the next release will have it as follows
 under+	( n1 n2 n3 -- n n2 )	gforth	under_plus
@@ -941,6 +1062,17 @@ f = FLAG(u1-u2 < u3-u2);
 :
  over - >r - r> u< ;
 
+\g stack
+
+useraddr	( #u -- a_addr )	new
+a_addr = (Cell *)(up+u);
+
+up!	( a_addr -- )	gforth	up_store
+UP=up=(char *)a_addr;
+:
+ up ! ;
+Variable UP
+
 sp@	( -- a_addr )		gforth		sp_fetch
 a_addr = sp+1;
 
@@ -963,17 +1095,6 @@ fp!	( f_addr -- )	gforth	fp_store
 fp = f_addr;
 
 \+
-
-;s	( R:w -- )		gforth	semis
-""The primitive compiled by @code{EXIT}.""
-#ifdef NO_IP
-INST_TAIL;
-goto *(void *)w;
-#else
-SET_IP((Xt *)w);
-#endif
-
-\g stack
 
 >r	( w -- R:w )		core	to_r
 :
@@ -1097,6 +1218,11 @@ w = sp[u+1];
 ""@i{w} is the cell stored at @i{a_addr}.""
 w = *a_addr;
 
+\ lit@ / lit_fetch = lit @
+
+lit@		( #a_addr -- w ) new	lit_fetch
+w = *a_addr;
+
 !	( w a_addr -- )		core	store
 ""Store @i{w} into the cell at @i{a-addr}.""
 *a_addr = w;
@@ -1216,64 +1342,64 @@ c_addr2 = c_addr1+1;
 
 \g compiler
 
-(f83find)	( c_addr u f83name1 -- f83name2 )	new	paren_f83find
-for (; f83name1 != NULL; f83name1 = (struct F83Name *)(f83name1->next))
-  if ((UCell)F83NAME_COUNT(f83name1)==u &&
-      memcasecmp(c_addr, f83name1->name, u)== 0 /* or inline? */)
+(listlfind)	( c_addr u longname1 -- longname2 )	new	paren_listlfind
+for (; longname1 != NULL; longname1 = (struct Longname *)(longname1->next))
+  if ((UCell)LONGNAME_COUNT(longname1)==u &&
+      memcasecmp(c_addr, longname1->name, u)== 0 /* or inline? */)
     break;
-f83name2=f83name1;
+longname2=longname1;
 :
-    BEGIN  dup WHILE  (find-samelen)  dup  WHILE
-	>r 2dup r@ cell+ char+ capscomp  0=
+    BEGIN  dup WHILE  (findl-samelen)  dup  WHILE
+	>r 2dup r@ cell+ cell+ capscomp  0=
 	IF  2drop r>  EXIT  THEN
 	r> @
     REPEAT  THEN  nip nip ;
-: (find-samelen) ( u f83name1 -- u f83name2/0 )
-    BEGIN  2dup cell+ c@ $1F and <> WHILE  @  dup 0= UNTIL THEN ;
+: (findl-samelen) ( u longname1 -- u longname2/0 )
+    BEGIN  2dup cell+ @ lcount-mask and <> WHILE  @  dup 0= UNTIL  THEN ;
 
 \+hash
 
-(hashfind)	( c_addr u a_addr -- f83name2 )	new	paren_hashfind
-struct F83Name *f83name1;
-f83name2=NULL;
+(hashlfind)	( c_addr u a_addr -- longname2 )	new	paren_hashlfind
+struct Longname *longname1;
+longname2=NULL;
 while(a_addr != NULL)
 {
-   f83name1=(struct F83Name *)(a_addr[1]);
+   longname1=(struct Longname *)(a_addr[1]);
    a_addr=(Cell *)(a_addr[0]);
-   if ((UCell)F83NAME_COUNT(f83name1)==u &&
-       memcasecmp(c_addr, f83name1->name, u)== 0 /* or inline? */)
+   if ((UCell)LONGNAME_COUNT(longname1)==u &&
+       memcasecmp(c_addr, longname1->name, u)== 0 /* or inline? */)
      {
-	f83name2=f83name1;
+	longname2=longname1;
 	break;
      }
 }
 :
  BEGIN  dup  WHILE
-        2@ >r >r dup r@ cell+ c@ $1F and =
-        IF  2dup r@ cell+ char+ capscomp 0=
+        2@ >r >r dup r@ cell+ @ lcount-mask and =
+        IF  2dup r@ cell+ cell+ capscomp 0=
 	    IF  2drop r> rdrop  EXIT  THEN  THEN
 	rdrop r>
  REPEAT nip nip ;
 
-(tablefind)	( c_addr u a_addr -- f83name2 )	new	paren_tablefind
+(tablelfind)	( c_addr u a_addr -- longname2 )	new	paren_tablelfind
 ""A case-sensitive variant of @code{(hashfind)}""
-struct F83Name *f83name1;
-f83name2=NULL;
+struct Longname *longname1;
+longname2=NULL;
 while(a_addr != NULL)
 {
-   f83name1=(struct F83Name *)(a_addr[1]);
+   longname1=(struct Longname *)(a_addr[1]);
    a_addr=(Cell *)(a_addr[0]);
-   if ((UCell)F83NAME_COUNT(f83name1)==u &&
-       memcmp(c_addr, f83name1->name, u)== 0 /* or inline? */)
+   if ((UCell)LONGNAME_COUNT(longname1)==u &&
+       memcmp(c_addr, longname1->name, u)== 0 /* or inline? */)
      {
-	f83name2=f83name1;
+	longname2=longname1;
 	break;
      }
 }
 :
  BEGIN  dup  WHILE
-        2@ >r >r dup r@ cell+ c@ $1F and =
-        IF  2dup r@ cell+ char+ -text 0=
+        2@ >r >r dup r@ cell+ @ lcount-mask and =
+        IF  2dup r@ cell+ cell+ -text 0=
 	    IF  2drop r> rdrop  EXIT  THEN  THEN
 	rdrop r>
  REPEAT nip nip ;
@@ -1632,17 +1758,20 @@ wior = FILEIO(u2<u1 && ferror((FILE *)wfileid));
 if (wior)
   clearerr((FILE *)wfileid);
 
-read-line	( c_addr u1 wfileid -- u2 flag wior )	file	read_line
-/* this may one day be replaced with : read-line (read-line) nip ; */
+(read-line)	( c_addr u1 wfileid -- u2 flag u3 wior )	file	paren_read_line
 Cell c;
 flag=-1;
+u3=0;
 for(u2=0; u2<u1; u2++)
 {
    c = getc((FILE *)wfileid);
+   u3++;
    if (c=='\n') break;
    if (c=='\r') {
      if ((c = getc((FILE *)wfileid))!='\n')
        ungetc(c,(FILE *)wfileid);
+     else
+       u3++;
      break;
    }
    if (c==EOF) {
@@ -1706,7 +1835,102 @@ else {
   wior=0;
 }
 
+file-eof?	( wfileid -- flag )	gforth	file_eof_query
+flag = FLAG(feof((FILE *) wfileid));
+
+open-dir	( c_addr u -- wdirid wior )	gforth	open_dir
+""Open the directory specified by @i{c-addr, u}
+and return @i{dir-id} for futher access to it.""
+wdirid = (Cell)opendir(tilde_cstr(c_addr, u, 1));
+wior =  IOR(wdirid == 0);
+
+read-dir	( c_addr u1 wdirid -- u2 flag wior )	gforth	read_dir
+""Attempt to read the next entry from the directory specified
+by @i{dir-id} to the buffer of length @i{u1} at address @i{c-addr}. 
+If the attempt fails because there is no more entries,
+@i{ior}=0, @i{flag}=0, @i{u2}=0, and the buffer is unmodified.
+If the attempt to read the next entry fails because of any other reason, 
+return @i{ior}<>0.
+If the attempt succeeds, store file name to the buffer at @i{c-addr}
+and return @i{ior}=0, @i{flag}=true and @i{u2} equal to the size of the file name.
+If the length of the file name is greater than @i{u1}, 
+store first @i{u1} characters from file name into the buffer and
+indicate "name too long" with @i{ior}, @i{flag}=true, and @i{u2}=@i{u1}.""
+struct dirent * dent;
+dent = readdir((DIR *)wdirid);
+wior = 0;
+flag = -1;
+if(dent == NULL) {
+  u2 = 0;
+  flag = 0;
+} else {
+  u2 = strlen(dent->d_name);
+  if(u2 > u1) {
+    u2 = u1;
+    wior = -512-ENAMETOOLONG;
+  }
+  memmove(c_addr, dent->d_name, u2);
+}
+
+close-dir	( wdirid -- wior )	gforth	close_dir
+""Close the directory specified by @i{dir-id}.""
+wior = IOR(closedir((DIR *)wdirid));
+
+filename-match	( c_addr1 u1 c_addr2 u2 -- flag )	gforth	match_file
+char * string = cstr(c_addr1, u1, 1);
+char * pattern = cstr(c_addr2, u2, 0);
+flag = FLAG(!fnmatch(pattern, string, 0));
+
 \+
+
+newline	( -- c_addr u )	gforth
+""String containing the newline sequence of the host OS""
+char newline[] = {
+#if defined(unix) || defined(__MACH__)
+/* Darwin/MacOS X sets __MACH__, but not unix. */
+'\n'
+#else
+'\r','\n'
+#endif
+};
+c_addr=newline;
+u=sizeof(newline);
+:
+ "newline count ;
+Create "newline e? crlf [IF] 2 c, $0D c, [ELSE] 1 c, [THEN] $0A c,
+
+\+os
+
+utime	( -- dtime )	gforth
+""Report the current time in microseconds since some epoch.""
+struct timeval time1;
+gettimeofday(&time1,NULL);
+dtime = timeval2us(&time1);
+
+cputime ( -- duser dsystem ) gforth
+""duser and dsystem are the respective user- and system-level CPU
+times used since the start of the Forth system (excluding child
+processes), in microseconds (the granularity may be much larger,
+however).  On platforms without the getrusage call, it reports elapsed
+time (since some epoch) for duser and 0 for dsystem.""
+#ifdef HAVE_GETRUSAGE
+struct rusage usage;
+getrusage(RUSAGE_SELF, &usage);
+duser = timeval2us(&usage.ru_utime);
+dsystem = timeval2us(&usage.ru_stime);
+#else
+struct timeval time1;
+gettimeofday(&time1,NULL);
+duser = timeval2us(&time1);
+#ifndef BUGGY_LONG_LONG
+dsystem = (DCell)0;
+#else
+dsystem=(DCell){0,0};
+#endif
+#endif
+
+\+
+
 \+floating
 
 \g floating
@@ -2018,13 +2242,41 @@ df_addr = (DFloat *)((((Cell)c_addr)+(sizeof(DFloat)-1))&(-sizeof(DFloat)));
 :
  [ 1 dfloats 1- ] Literal + [ -1 dfloats ] Literal and ;
 
+v*	( f_addr1 nstride1 f_addr2 nstride2 ucount -- r ) gforth v_star
+""dot-product: r=v1*v2.  The first element of v1 is at f_addr1, the
+next at f_addr1+nstride1 and so on (similar for v2). Both vectors have
+ucount elements.""
+for (r=0.; ucount>0; ucount--) {
+  r += *f_addr1 * *f_addr2;
+  f_addr1 = (Float *)(((Address)f_addr1)+nstride1);
+  f_addr2 = (Float *)(((Address)f_addr2)+nstride2);
+}
+:
+ >r swap 2swap swap 0e r> 0 ?DO
+     dup f@ over + 2swap dup f@ f* f+ over + 2swap
+ LOOP 2drop 2drop ; 
+
+faxpy	( ra f_x nstridex f_y nstridey ucount -- )	gforth
+""vy=ra*vx+vy""
+for (; ucount>0; ucount--) {
+  *f_y += ra * *f_x;
+  f_x = (Float *)(((Address)f_x)+nstridex);
+  f_y = (Float *)(((Address)f_y)+nstridey);
+}
+:
+ >r swap 2swap swap r> 0 ?DO
+     fdup dup f@ f* over + 2swap dup f@ f+ dup f! over + 2swap
+ LOOP 2drop 2drop fdrop ;
+
+\+
+
 \ The following words access machine/OS/installation-dependent
 \   Gforth internals
 \ !! how about environmental queries DIRECT-THREADED,
 \   INDIRECT-THREADED, TOS-CACHED, FTOS-CACHED, CODEFIELD-DOES */
 
 \ local variable implementation primitives
-\+
+
 \+glocals
 
 \g locals
@@ -2033,16 +2285,16 @@ df_addr = (DFloat *)((((Cell)c_addr)+(sizeof(DFloat)-1))&(-sizeof(DFloat)));
 w = *(Cell *)(lp+noffset);
 
 @local0	( -- w )	new	fetch_local_zero
-w = *(Cell *)(lp+0*sizeof(Cell));
+w = ((Cell *)lp)[0];
 
 @local1	( -- w )	new	fetch_local_four
-w = *(Cell *)(lp+1*sizeof(Cell));
+w = ((Cell *)lp)[1];
 
 @local2	( -- w )	new	fetch_local_eight
-w = *(Cell *)(lp+2*sizeof(Cell));
+w = ((Cell *)lp)[2];
 
 @local3	( -- w )	new	fetch_local_twelve
-w = *(Cell *)(lp+3*sizeof(Cell));
+w = ((Cell *)lp)[3];
 
 \+floating
 
@@ -2050,10 +2302,10 @@ f@local#	( #noffset -- r )	gforth	f_fetch_local_number
 r = *(Float *)(lp+noffset);
 
 f@local0	( -- r )	new	f_fetch_local_zero
-r = *(Float *)(lp+0*sizeof(Float));
+r = ((Float *)lp)[0];
 
 f@local1	( -- r )	new	f_fetch_local_eight
-r = *(Float *)(lp+1*sizeof(Float));
+r = ((Float *)lp)[1];
 
 \+
 
@@ -2167,12 +2419,6 @@ fcall(20)
 
 \+
 
-up!	( a_addr -- )	gforth	up_store
-UP=up=(char *)a_addr;
-:
- up ! ;
-Variable UP
-
 wcall	( u -- )	gforth
 IF_fpTOS(fp[0]=fpTOS);
 FP=fp;
@@ -2180,223 +2426,6 @@ sp=(Cell*)(SYSCALL(Cell*(*)(Cell *, void *))u)(sp, &FP);
 fp=FP;
 IF_spTOS(spTOS=sp[0];)
 IF_fpTOS(fpTOS=fp[0]);
-
-\+file
-
-open-dir	( c_addr u -- wdirid wior )	gforth	open_dir
-""Open the directory specified by @i{c-addr, u}
-and return @i{dir-id} for futher access to it.""
-wdirid = (Cell)opendir(tilde_cstr(c_addr, u, 1));
-wior =  IOR(wdirid == 0);
-
-read-dir	( c_addr u1 wdirid -- u2 flag wior )	gforth	read_dir
-""Attempt to read the next entry from the directory specified
-by @i{dir-id} to the buffer of length @i{u1} at address @i{c-addr}. 
-If the attempt fails because there is no more entries,
-@i{ior}=0, @i{flag}=0, @i{u2}=0, and the buffer is unmodified.
-If the attempt to read the next entry fails because of any other reason, 
-return @i{ior}<>0.
-If the attempt succeeds, store file name to the buffer at @i{c-addr}
-and return @i{ior}=0, @i{flag}=true and @i{u2} equal to the size of the file name.
-If the length of the file name is greater than @i{u1}, 
-store first @i{u1} characters from file name into the buffer and
-indicate "name too long" with @i{ior}, @i{flag}=true, and @i{u2}=@i{u1}.""
-struct dirent * dent;
-dent = readdir((DIR *)wdirid);
-wior = 0;
-flag = -1;
-if(dent == NULL) {
-  u2 = 0;
-  flag = 0;
-} else {
-  u2 = strlen(dent->d_name);
-  if(u2 > u1) {
-    u2 = u1;
-    wior = -512-ENAMETOOLONG;
-  }
-  memmove(c_addr, dent->d_name, u2);
-}
-
-close-dir	( wdirid -- wior )	gforth	close_dir
-""Close the directory specified by @i{dir-id}.""
-wior = IOR(closedir((DIR *)wdirid));
-
-filename-match	( c_addr1 u1 c_addr2 u2 -- flag )	gforth	match_file
-char * string = cstr(c_addr1, u1, 1);
-char * pattern = cstr(c_addr2, u2, 0);
-flag = FLAG(!fnmatch(pattern, string, 0));
-
-\+
-
-newline	( -- c_addr u )	gforth
-""String containing the newline sequence of the host OS""
-char newline[] = {
-#if defined(unix) || defined(__MACH__)
-/* Darwin/MacOS X sets __MACH__, but not unix. */
-'\n'
-#else
-'\r','\n'
-#endif
-};
-c_addr=newline;
-u=sizeof(newline);
-:
- "newline count ;
-Create "newline e? crlf [IF] 2 c, $0D c, [ELSE] 1 c, [THEN] $0A c,
-
-\+os
-
-utime	( -- dtime )	gforth
-""Report the current time in microseconds since some epoch.""
-struct timeval time1;
-gettimeofday(&time1,NULL);
-dtime = timeval2us(&time1);
-
-cputime ( -- duser dsystem ) gforth
-""duser and dsystem are the respective user- and system-level CPU
-times used since the start of the Forth system (excluding child
-processes), in microseconds (the granularity may be much larger,
-however).  On platforms without the getrusage call, it reports elapsed
-time (since some epoch) for duser and 0 for dsystem.""
-#ifdef HAVE_GETRUSAGE
-struct rusage usage;
-getrusage(RUSAGE_SELF, &usage);
-duser = timeval2us(&usage.ru_utime);
-dsystem = timeval2us(&usage.ru_stime);
-#else
-struct timeval time1;
-gettimeofday(&time1,NULL);
-duser = timeval2us(&time1);
-#ifndef BUGGY_LONG_LONG
-dsystem = (DCell)0;
-#else
-dsystem=(DCell){0,0};
-#endif
-#endif
-
-\+
-
-\+floating
-
-v*	( f_addr1 nstride1 f_addr2 nstride2 ucount -- r ) gforth v_star
-""dot-product: r=v1*v2.  The first element of v1 is at f_addr1, the
-next at f_addr1+nstride1 and so on (similar for v2). Both vectors have
-ucount elements.""
-for (r=0.; ucount>0; ucount--) {
-  r += *f_addr1 * *f_addr2;
-  f_addr1 = (Float *)(((Address)f_addr1)+nstride1);
-  f_addr2 = (Float *)(((Address)f_addr2)+nstride2);
-}
-:
- >r swap 2swap swap 0e r> 0 ?DO
-     dup f@ over + 2swap dup f@ f* f+ over + 2swap
- LOOP 2drop 2drop ; 
-
-faxpy	( ra f_x nstridex f_y nstridey ucount -- )	gforth
-""vy=ra*vx+vy""
-for (; ucount>0; ucount--) {
-  *f_y += ra * *f_x;
-  f_x = (Float *)(((Address)f_x)+nstridex);
-  f_y = (Float *)(((Address)f_y)+nstridey);
-}
-:
- >r swap 2swap swap r> 0 ?DO
-     fdup dup f@ f* over + 2swap dup f@ f+ dup f! over + 2swap
- LOOP 2drop 2drop fdrop ;
-
-\+
-
-\+file
-
-(read-line)	( c_addr u1 wfileid -- u2 flag u3 wior )	file	paren_read_line
-Cell c;
-flag=-1;
-u3=0;
-for(u2=0; u2<u1; u2++)
-{
-   c = getc((FILE *)wfileid);
-   u3++;
-   if (c=='\n') break;
-   if (c=='\r') {
-     if ((c = getc((FILE *)wfileid))!='\n')
-       ungetc(c,(FILE *)wfileid);
-     else
-       u3++;
-     break;
-   }
-   if (c==EOF) {
-	flag=FLAG(u2!=0);
-	break;
-     }
-   c_addr[u2] = (Char)c;
-}
-wior=FILEIO(ferror((FILE *)wfileid));
-
-\+
-
-(listlfind)	( c_addr u longname1 -- longname2 )	new	paren_listlfind
-for (; longname1 != NULL; longname1 = (struct Longname *)(longname1->next))
-  if ((UCell)LONGNAME_COUNT(longname1)==u &&
-      memcasecmp(c_addr, longname1->name, u)== 0 /* or inline? */)
-    break;
-longname2=longname1;
-:
-    BEGIN  dup WHILE  (findl-samelen)  dup  WHILE
-	>r 2dup r@ cell+ cell+ capscomp  0=
-	IF  2drop r>  EXIT  THEN
-	r> @
-    REPEAT  THEN  nip nip ;
-: (findl-samelen) ( u longname1 -- u longname2/0 )
-    BEGIN  2dup cell+ @ lcount-mask and <> WHILE  @  dup 0= UNTIL  THEN ;
-
-\+hash
-
-(hashlfind)	( c_addr u a_addr -- longname2 )	new	paren_hashlfind
-struct Longname *longname1;
-longname2=NULL;
-while(a_addr != NULL)
-{
-   longname1=(struct Longname *)(a_addr[1]);
-   a_addr=(Cell *)(a_addr[0]);
-   if ((UCell)LONGNAME_COUNT(longname1)==u &&
-       memcasecmp(c_addr, longname1->name, u)== 0 /* or inline? */)
-     {
-	longname2=longname1;
-	break;
-     }
-}
-:
- BEGIN  dup  WHILE
-        2@ >r >r dup r@ cell+ @ lcount-mask and =
-        IF  2dup r@ cell+ cell+ capscomp 0=
-	    IF  2drop r> rdrop  EXIT  THEN  THEN
-	rdrop r>
- REPEAT nip nip ;
-
-(tablelfind)	( c_addr u a_addr -- longname2 )	new	paren_tablelfind
-""A case-sensitive variant of @code{(hashfind)}""
-struct Longname *longname1;
-longname2=NULL;
-while(a_addr != NULL)
-{
-   longname1=(struct Longname *)(a_addr[1]);
-   a_addr=(Cell *)(a_addr[0]);
-   if ((UCell)LONGNAME_COUNT(longname1)==u &&
-       memcmp(c_addr, longname1->name, u)== 0 /* or inline? */)
-     {
-	longname2=longname1;
-	break;
-     }
-}
-:
- BEGIN  dup  WHILE
-        2@ >r >r dup r@ cell+ @ lcount-mask and =
-        IF  2dup r@ cell+ cell+ -text 0=
-	    IF  2drop r> rdrop  EXIT  THEN  THEN
-	rdrop r>
- REPEAT nip nip ;
-
-\+
 
 \+peephole
 
@@ -2418,339 +2447,8 @@ peephole-opt	( xt1 xt2 wpeeptable -- xt )	new	peephole_opt
 they cannot be combined, xt is 0.""
 xt = peephole_opt(xt1, xt2, wpeeptable);
 
-call	( #a_callee -- R:a_retaddr )	new
-""Call callee (a variant of docol with inline argument).""
-#ifdef NO_IP
-INST_TAIL;
-JUMP(a_callee);
-#else
-#ifdef DEBUG
-    {
-      CFA_TO_NAME((((Cell *)a_callee)-2));
-      fprintf(stderr,"%08lx: call %08lx %.*s\n",(Cell)ip,(Cell)a_callee,
-	      len,name);
-    }
-#endif
-a_retaddr = (Cell *)IP;
-SET_IP((Xt *)a_callee);
-#endif
-
-useraddr	( #u -- a_addr )	new
-a_addr = (Cell *)(up+u);
-
 compile-prim ( xt1 -- xt2 )	obsolete	compile_prim
 xt2 = (Xt)compile_prim((Label)xt1);
-
-\ lit@ / lit_fetch = lit @
-
-lit@		( #a_addr -- w ) new	lit_fetch
-w = *a_addr;
-
-lit-perform	( #a_addr -- )	new	lit_perform
-#ifndef NO_IP
-ip=IP;
-#endif
-SUPER_END;
-EXEC(*(Xt *)a_addr);
-
-\ lit+ / lit_plus = lit +
-
-lit+	( n1 #n2 -- n )		new	lit_plus
-n=n1+n2;
-
-does-exec ( #a_cfa -- R:nest a_pfa )	new	does_exec
-#ifdef NO_IP
-/* compiled to LIT CALL by compile_prim */
-assert(0);
-#else
-a_pfa = PFA(a_cfa);
-nest = (Cell)IP;
-IF_spTOS(spTOS = sp[0]);
-#ifdef DEBUG
-    {
-      CFA_TO_NAME(a_cfa);
-      fprintf(stderr,"%08lx: does %08lx %.*s\n",
-	      (Cell)ip,(Cell)a_cfa,len,name);
-    }
-#endif
-SET_IP(DOES_CODE1(a_cfa));
-#endif
-
-abranch-lp+!# ( #a_target #nlocals -- )	gforth	abranch_lp_plus_store_number
-/* this will probably not be used */
-lp += nlocals;
-#ifdef NO_IP
-INST_TAIL;
-JUMP(a_target);
-#else
-SET_IP((Xt *)a_target);
-#endif
-
-\+
-
-abranch	( #a_target -- )	gforth
-#ifdef NO_IP
-INST_TAIL;
-JUMP(a_target);
-#else
-SET_IP((Xt *)a_target);
-#endif
-:
- r> @ >r ;
-
-\ acondbranch(forthname,stackeffect,restline,code1,code2,forthcode)
-\ this is non-syntactical: code must open a brace that is closed by the macro
-define(acondbranch,
-$1 ( `#'a_target $2 ) $3
-$4	#ifdef NO_IP
-INST_TAIL;
-#endif
-$5	#ifdef NO_IP
-JUMP(a_target);
-#else
-SET_IP((Xt *)a_target);
-INST_TAIL; NEXT_P2;
-#endif
-}
-SUPER_CONTINUE;
-$6
-
-\+glocals
-
-$1-lp+!`#' ( `#'a_target `#'nlocals $2 ) $3_lp_plus_store_number
-$4	#ifdef NO_IP
-INST_TAIL;
-#endif
-$5	lp += nlocals;
-#ifdef NO_IP
-JUMP(a_target);
-#else
-SET_IP((Xt *)a_target);
-INST_TAIL; NEXT_P2;
-#endif
-}
-SUPER_CONTINUE;
-
-\+
-)
-
-acondbranch(a?branch,f --,f83	aquestion_branch,
-,if (f==0) {
-,:
- 0= dup 0=          \ !f f
- r> tuck cell+      \ !f branchoffset f IP+
- and -rot @ and or  \ f&IP+|!f&branch
- >r ;)
-
-\ we don't need an lp_plus_store version of the ?dup-stuff, because it
-\ is only used in if's (yet)
-
-\+xconds
-
-a?dup-?branch	( #a_target f -- f )	new	aquestion_dupe_question_branch
-""The run-time procedure compiled by @code{?DUP-IF}.""
-if (f==0) {
-  sp++;
-  IF_spTOS(spTOS = sp[0]);
-#ifdef NO_IP
-INST_TAIL;
-JUMP(a_target);
-#else
-SET_IP((Xt *)a_target);
-  INST_TAIL; NEXT_P2;
-#endif
-}
-SUPER_CONTINUE;
-
-a?dup-0=-?branch ( #a_target f -- ) new	aquestion_dupe_zero_equals_question_branch
-""The run-time procedure compiled by @code{?DUP-0=-IF}.""
-/* the approach taken here of declaring the word as having the stack
-effect ( f -- ) and correcting for it in the branch-taken case costs a
-few cycles in that case, but is easy to convert to a CONDBRANCH
-invocation */
-if (f!=0) {
-  sp--;
-#ifdef NO_IP
-  JUMP(a_target);
-#else
-  SET_IP((Xt *)a_target);
-  NEXT;
-#endif
-}
-SUPER_CONTINUE;
-
-\+
-\f[THEN]
-\fhas? skiploopprims 0= [IF]
-
-acondbranch(a(next),R:n1 -- R:n2,cmFORTH	aparen_next,
-n2=n1-1;
-,if (n1) {
-,:
- r> r> dup 1- >r
- IF @ >r ELSE cell+ >r THEN ;)
-
-acondbranch(a(loop),R:nlimit R:n1 -- R:nlimit R:n2,gforth	aparen_loop,
-n2=n1+1;
-,if (n2 != nlimit) {
-,:
- r> r> 1+ r> 2dup =
- IF >r 1- >r cell+ >r
- ELSE >r >r @ >r THEN ;)
-
-acondbranch(a(+loop),n R:nlimit R:n1 -- R:nlimit R:n2,gforth aparen_plus_loop,
-/* !! check this thoroughly */
-/* sign bit manipulation and test: (x^y)<0 is equivalent to (x<0) != (y<0) */
-/* dependent upon two's complement arithmetic */
-Cell olddiff = n1-nlimit;
-n2=n1+n;	
-,if ((olddiff^(olddiff+n))>=0   /* the limit is not crossed */
-    || (olddiff^n)>=0          /* it is a wrap-around effect */) {
-,:
- r> swap
- r> r> 2dup - >r
- 2 pick r@ + r@ xor 0< 0=
- 3 pick r> xor 0< 0= or
- IF    >r + >r @ >r
- ELSE  >r >r drop cell+ >r THEN ;)
-
-\+xconds
-
-acondbranch(a(-loop),u R:nlimit R:n1 -- R:nlimit R:n2,gforth aparen_minus_loop,
-UCell olddiff = n1-nlimit;
-n2=n1-u;
-,if (olddiff>u) {
-,)
-
-acondbranch(a(s+loop),n R:nlimit R:n1 -- R:nlimit R:n2,gforth	aparen_symmetric_plus_loop,
-""The run-time procedure compiled by S+LOOP. It loops until the index
-crosses the boundary between limit and limit-sign(n). I.e. a symmetric
-version of (+LOOP).""
-/* !! check this thoroughly */
-Cell diff = n1-nlimit;
-Cell newdiff = diff+n;
-if (n<0) {
-    diff = -diff;
-    newdiff = -newdiff;
-}
-n2=n1+n;
-,if (diff>=0 || newdiff<0) {
-,)
-
-a(?do) ( #a_target nlimit nstart -- R:nlimit R:nstart ) gforth	aparen_question_do
-#ifdef NO_IP
-    INST_TAIL;
-#endif
-if (nstart == nlimit) {
-#ifdef NO_IP
-    JUMP(a_target);
-#else
-    SET_IP((Xt *)a_target);
-    INST_TAIL; NEXT_P2;
-#endif
-}
-SUPER_CONTINUE;
-:
-  2dup =
-  IF   r> swap rot >r >r
-       @ >r
-  ELSE r> swap rot >r >r
-       cell+ >r
-  THEN ;				\ --> CORE-EXT
-
-\+xconds
-
-a(+do)	( #a_target nlimit nstart -- R:nlimit R:nstart ) gforth	aparen_plus_do
-#ifdef NO_IP
-    INST_TAIL;
-#endif
-if (nstart >= nlimit) {
-#ifdef NO_IP
-    JUMP(a_target);
-#else
-    SET_IP((Xt *)a_target);
-    INST_TAIL; NEXT_P2;
-#endif
-}
-SUPER_CONTINUE;
-:
- swap 2dup
- r> swap >r swap >r
- >=
- IF
-     @
- ELSE
-     cell+
- THEN  >r ;
-
-a(u+do)	( #a_target ulimit ustart -- R:ulimit R:ustart ) gforth	aparen_u_plus_do
-#ifdef NO_IP
-    INST_TAIL;
-#endif
-if (ustart >= ulimit) {
-#ifdef NO_IP
-JUMP(a_target);
-#else
-SET_IP((Xt *)a_target);
-INST_TAIL; NEXT_P2;
-#endif
-}
-SUPER_CONTINUE;
-:
- swap 2dup
- r> swap >r swap >r
- u>=
- IF
-     @
- ELSE
-     cell+
- THEN  >r ;
-
-a(-do)	( #a_target nlimit nstart -- R:nlimit R:nstart ) gforth	aparen_minus_do
-#ifdef NO_IP
-    INST_TAIL;
-#endif
-if (nstart <= nlimit) {
-#ifdef NO_IP
-JUMP(a_target);
-#else
-SET_IP((Xt *)a_target);
-INST_TAIL; NEXT_P2;
-#endif
-}
-SUPER_CONTINUE;
-:
- swap 2dup
- r> swap >r swap >r
- <=
- IF
-     @
- ELSE
-     cell+
- THEN  >r ;
-
-a(u-do)	( #a_target ulimit ustart -- R:ulimit R:ustart ) gforth	aparen_u_minus_do
-#ifdef NO_IP
-    INST_TAIL;
-#endif
-if (ustart <= ulimit) {
-#ifdef NO_IP
-JUMP(a_target);
-#else
-SET_IP((Xt *)a_target);
-INST_TAIL; NEXT_P2;
-#endif
-}
-SUPER_CONTINUE;
-:
- swap 2dup
- r> swap >r swap >r
- u<=
- IF
-     @
- ELSE
-     cell+
- THEN  >r ;
 
 \ set-next-code and call2 do not appear in images and can be
 \ renumbered arbitrarily
@@ -2791,5 +2489,3 @@ a_prim = decompile_code(a_code);
 include(peeprules.vmg)
 
 \g end
-
-\+

@@ -122,18 +122,18 @@ variable backedge-locals
 \ Structural Conditionals                              12dec92py
 
 : AHEAD ( compilation -- orig ; run-time -- ) \ tools-ext
-    POSTPONE abranch  >mark  POSTPONE unreachable ; immediate restrict
+    POSTPONE branch  >mark  POSTPONE unreachable ; immediate restrict
 
 : IF ( compilation -- orig ; run-time f -- ) \ core
- POSTPONE a?branch >mark ; immediate restrict
+ POSTPONE ?branch >mark ; immediate restrict
 
 : ?DUP-IF ( compilation -- orig ; run-time n -- n| ) \ gforth	question-dupe-if
 \G This is the preferred alternative to the idiom "@code{?DUP IF}", since it can be
 \G better handled by tools like stack checkers. Besides, it's faster.
-    POSTPONE a?dup-?branch >mark ;       immediate restrict
+    POSTPONE ?dup-?branch >mark ;       immediate restrict
 
 : ?DUP-0=-IF ( compilation -- orig ; run-time n -- n| ) \ gforth	question-dupe-zero-equals-if
-    POSTPONE a?dup-0=-?branch >mark ;       immediate restrict
+    POSTPONE ?dup-0=-?branch >mark ;       immediate restrict
 
 Defer then-like ( orig -- )
 : cs>addr ( orig/dest -- )  drop >resolve drop ;
@@ -164,7 +164,7 @@ Defer again-like ( dest -- addr )
 ' nip IS again-like
 
 : AGAIN ( compilation dest -- ; run-time -- ) \ core-ext
-    dest? again-like  POSTPONE abranch  <resolve ; immediate restrict
+    dest? again-like  POSTPONE branch  <resolve ; immediate restrict
 
 Defer until-like ( list addr xt1 xt2 -- )
 :noname ( list addr xt1 xt2 -- )
@@ -172,7 +172,7 @@ Defer until-like ( list addr xt1 xt2 -- )
 IS until-like
 
 : UNTIL ( compilation dest -- ; run-time f -- ) \ core
-    dest? ['] a?branch ['] a?branch-lp+!# until-like ; immediate restrict
+    dest? ['] ?branch ['] ?branch-lp+!# until-like ; immediate restrict
 
 : WHILE ( compilation dest -- orig dest ; run-time f -- ) \ core
     POSTPONE if
@@ -251,19 +251,19 @@ Avariable leave-sp  leave-stack 3 cells + leave-sp !
     POSTPONE begin drop do-dest ;
 
 : ?DO ( compilation -- do-sys ; run-time w1 w2 -- | loop-sys )	\ core-ext	question-do
-    POSTPONE a(?do) ?do-like ; immediate restrict
+    POSTPONE (?do) ?do-like ; immediate restrict
 
 : +DO ( compilation -- do-sys ; run-time n1 n2 -- | loop-sys )	\ gforth	plus-do
-    POSTPONE a(+do) ?do-like ; immediate restrict
+    POSTPONE (+do) ?do-like ; immediate restrict
 
 : U+DO ( compilation -- do-sys ; run-time u1 u2 -- | loop-sys )	\ gforth	u-plus-do
-    POSTPONE a(u+do) ?do-like ; immediate restrict
+    POSTPONE (u+do) ?do-like ; immediate restrict
 
 : -DO ( compilation -- do-sys ; run-time n1 n2 -- | loop-sys )	\ gforth	minus-do
-    POSTPONE a(-do) ?do-like ; immediate restrict
+    POSTPONE (-do) ?do-like ; immediate restrict
 
 : U-DO ( compilation -- do-sys ; run-time u1 u2 -- | loop-sys )	\ gforth	u-minus-do
-    POSTPONE a(u-do) ?do-like ; immediate restrict
+    POSTPONE (u-do) ?do-like ; immediate restrict
 
 : FOR ( compilation -- do-sys ; run-time u -- loop-sys )	\ gforth
     POSTPONE (for)
@@ -277,24 +277,24 @@ Avariable leave-sp  leave-stack 3 cells + leave-sp !
     until-like  POSTPONE done  POSTPONE unloop ;
 
 : LOOP ( compilation do-sys -- ; run-time loop-sys1 -- | loop-sys2 )	\ core
- ['] a(loop) ['] a(loop)-lp+!# loop-like ; immediate restrict
+ ['] (loop) ['] (loop)-lp+!# loop-like ; immediate restrict
 
 : +LOOP ( compilation do-sys -- ; run-time loop-sys1 n -- | loop-sys2 )	\ core	plus-loop
- ['] a(+loop) ['] a(+loop)-lp+!# loop-like ; immediate restrict
+ ['] (+loop) ['] (+loop)-lp+!# loop-like ; immediate restrict
 
 \ !! should the compiler warn about +DO..-LOOP?
 : -LOOP ( compilation do-sys -- ; run-time loop-sys1 u -- | loop-sys2 )	\ gforth	minus-loop
- ['] a(-loop) ['] a(-loop)-lp+!# loop-like ; immediate restrict
+ ['] (-loop) ['] (-loop)-lp+!# loop-like ; immediate restrict
 
 \ A symmetric version of "+LOOP". I.e., "-high -low ?DO -inc S+LOOP"
 \ will iterate as often as "high low ?DO inc S+LOOP". For positive
 \ increments it behaves like "+LOOP". Use S+LOOP instead of +LOOP for
 \ negative increments.
 : S+LOOP ( compilation do-sys -- ; run-time loop-sys1 n -- | loop-sys2 )	\ gforth	s-plus-loop
- ['] a(s+loop) ['] a(s+loop)-lp+!# loop-like ; immediate restrict
+ ['] (s+loop) ['] (s+loop)-lp+!# loop-like ; immediate restrict
 
 : NEXT ( compilation do-sys -- ; run-time loop-sys1 -- | loop-sys2 ) \ gforth
- ['] a(next) ['] a(next)-lp+!# loop-like ; immediate restrict
+ ['] (next) ['] (next)-lp+!# loop-like ; immediate restrict
 
 \ Structural Conditionals                              12dec92py
 

@@ -561,19 +561,19 @@ CREATE C-Table
 [IFDEF] "lit    ' "lit A,           ' c-c" A, [THEN]
 [IFDEF] (c")	' (c") A,	    ' c-c" A, [THEN]
         	' (do) A,           ' c-do A,
-[IFDEF] (+do)	' a(+do) A,	    ' c-?do A, [THEN]
-[IFDEF] (u+do)	' a(u+do) A,	    ' c-?do A, [THEN]
-[IFDEF] (-do)	' a(-do) A,	    ' c-?do A, [THEN]
-[IFDEF] (u-do)	' a(u-do) A,	    ' c-?do A, [THEN]
-        	' a(?do) A,         ' c-?do A,
+[IFDEF] (+do)	' (+do) A,	    ' c-?do A, [THEN]
+[IFDEF] (u+do)	' (u+do) A,	    ' c-?do A, [THEN]
+[IFDEF] (-do)	' (-do) A,	    ' c-?do A, [THEN]
+[IFDEF] (u-do)	' (u-do) A,	    ' c-?do A, [THEN]
+        	' (?do) A,          ' c-?do A,
         	' (for) A,          ' c-for A,
-        	' a?branch A,       ' c-?branch A,
-        	' abranch A,        ' c-branch A,
-        	' a(loop) A,        ' c-loop A,
-        	' a(+loop) A,       ' c-loop A,
-[IFDEF] (s+loop) ' a(s+loop) A,     ' c-loop A, [THEN]
-[IFDEF] (-loop) ' a(-loop) A,       ' c-loop A, [THEN]
-        	' a(next) A,        ' c-loop A,
+        	' ?branch A,        ' c-?branch A,
+        	' branch A,         ' c-branch A,
+        	' (loop) A,         ' c-loop A,
+        	' (+loop) A,        ' c-loop A,
+[IFDEF] (s+loop) ' (s+loop) A,      ' c-loop A, [THEN]
+[IFDEF] (-loop) ' (-loop) A,        ' c-loop A, [THEN]
+        	' (next) A,         ' c-loop A,
         	' ;s A,             ' c-exit A,
 [IFDEF] (abort") ' (abort") A,      ' c-abort" A, [THEN]
 \ only defined if compiler is loaded

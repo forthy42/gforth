@@ -97,7 +97,9 @@ Constant tib+
                        \ restore-input
 :noname  >in @ 1 ;     \ save-input
 ' false                \ source-id
-:noname  tib max#tib @ accept #tib !
+:noname [ has? file [IF] ] 
+    stdin file-eof?  IF  false  EXIT  THEN [ [THEN] ]
+    tib max#tib @ accept #tib !
     >in off true 1 loadline +! ;     \ refill
 :noname  tib #tib @ ;  \ source
 
@@ -113,6 +115,8 @@ Constant tib+
 \ file input implementation
 
 has? file [IF]
+: read-line ( c_addr u1 wfileid -- u2 flag wior ) (read-line) nip ;
+
 :noname  4 <> -12 and throw
     loadfile @ reposition-file throw
     refill 0= -36 and throw \ should never throw
@@ -121,8 +125,16 @@ has? file [IF]
     loadfile @ file-position throw #fill-bytes @ 0 d-
     4 ;                \ save-input
 :noname  loadfile @ ;  \ source-id
-:noname  tib max#tib @ loadfile @ (read-line) throw #fill-bytes !
-    swap #tib ! >in off 1 loadline +! ;
+:noname  #tib off #fill-bytes off >in off
+    BEGIN
+	tib max#tib @ #tib @ /string
+	loadfile @ (read-line) throw #fill-bytes +!
+	swap #tib +!
+	\ auto-expanding the tib
+	dup #tib @ #fill-bytes @ = and WHILE
+	    drop max#tib @ 2* expand-tib
+    REPEAT
+    1 loadline +! ;
                        \ refill
 terminal-input @       \ source -> terminal-input::source
 
@@ -137,6 +149,9 @@ terminal-input @       \ source -> terminal-input::source
     dup >r tib+ + dup allocate throw tuck swap 0 fill
     current-input @ swap current-input ! old-input ! r> max#tib !
     current-input @ ! ;
+: expand-tib ( n -- )
+    dup tib+ + current-input @ swap resize throw current-input !
+    max#tib ! tib max#tib @ #tib @ /string 0 fill ;
 has? file [IF]
 : push-file  ( -- ) \ gforth
     \G Create a new file input buffer

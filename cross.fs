@@ -2930,17 +2930,23 @@ compile: does-resolved ;compile
 
 : >mark       ( -- sys )        T here  ( dup ." M" hex. ) 0 , H ;
 
-: branchoffset ( src dest -- )  - tchar / ; \ ?? jaw
+X has? abranch [IF]
+    : branchoffset ( src dest -- )  drop ;
+    : offset, ( n -- )  X A, ;
+[ELSE]
+    : branchoffset ( src dest -- )  - tchar / ; \ ?? jaw
+    : offset, ( n -- )  X , ;
+[THEN]
 
-:noname compile branch X here branchoffset X , ;
+:noname compile branch X here branchoffset offset, ;
   IS branch, ( target-addr -- )
-:noname compile ?branch X here branchoffset X , ;
+:noname compile ?branch X here branchoffset offset, ;
   IS ?branch, ( target-addr -- )
-:noname compile branch T here 0 , H ;
+:noname compile branch T here 0 H offset, ;
   IS branchmark, ( -- branchtoken )
-:noname compile ?branch T here 0 , H ;
+:noname compile ?branch T here 0 H offset, ;
   IS ?branchmark, ( -- branchtoken )
-:noname T here 0 , H ;
+:noname T here 0 H offset, ;
   IS ?domark, ( -- branchtoken )
 :noname dup X @ ?struc X here over branchoffset swap X ! ;
   IS branchtoresolve, ( branchtoken -- )
@@ -3013,7 +3019,7 @@ Cond: ?LEAVE    ?leave, ;Cond
 
 : loop] ( target-addr -- )
   branchto, 
-  dup 	X here branchoffset X , 
+  dup 	X here branchoffset offset, 
   tcell - (done) ;
 
 : skiploop] ?dup IF branchto, branchtoresolve, THEN ;
@@ -3117,55 +3123,6 @@ Cond: FOR	for, ;Cond
 Cond: LOOP	1 ncontrols? loop, ;Cond
 Cond: +LOOP	1 ncontrols? +loop, ;Cond
 Cond: NEXT	1 ncontrols? next, ;Cond
-
-\ Absoulte branches                                     26sep02jaw
-
-\ This section defined different semantics for
-\ conditionals, using and compiling absolute branches
-
-X has? abranch [IF]
-
-Ghost abranch drop
-Ghost a?branch drop
-Ghost a(?do) drop
-Ghost a(do) drop
-Ghost a(next) drop
-Ghost a(+loop) drop
-Ghost a(loop) drop
-
-:noname compile abranch X a, ;             plugin-of branch,
-
-:noname compile a?branch X a, ;            plugin-of ?branch,
-
-:noname compile abranch T here 0  a, H ;   plugin-of branchmark,
-
-:noname compile a?branch T here 0 a, H ;   plugin-of ?branchmark,
-
-:noname 
-  dup X @ ABORT" CROSS: branch already resolved"
-  X here swap X a! ;                       plugin-of branchtoresolve,
-
-:noname 
-  0 compile a(?do) ?domark, (leave)
-  branchtomark, 2 to1 ;                    plugin-of ?do,
-
-: aloop] ( target-addr -- )
-  branchto, 
-  dup X a, 
-  tcell - (done) ;
-
-:noname 
-  1to compile a(loop) aloop] 
-  compile unloop skiploop] ;               plugin-of loop,
-
-:noname 
-  1to compile a(+loop) aloop]
-  compile unloop skiploop] ;               plugin-of +loop,
-
-:noname
-  compile a(next) aloop] compile unloop ;   plugin-of next,
-
-[THEN]
 
 \ String words                                         23feb93py
 
