@@ -126,7 +126,9 @@ int gforth_memcmp(const char * s1, const char * s2, size_t n)
  * If the word =CF(DODOES), it's a DOES> CFA
  * If the word =CF(DOESJUMP), it's a DOES JUMP (2 Cells after DOES>,
  *					possibly containing a jump to dodoes)
- * If the word is <CF(DOESJUMP), it's a primitive
+ * If the word is <CF(DOESJUMP) and bit 14 is set, it's the xt of a primitive
+ * If the word is <CF(DOESJUMP) and bit 14 is clear, 
+ *                                        it's the threaded code of a primitive
  */
 
 void relocate(Cell *image, const char *bitstring, 
@@ -175,6 +177,7 @@ void relocate(Cell *image, const char *bitstring,
 	    default          :
 /*	      printf("Code field generation image[%x]:=CA(%x)\n",
 		     i, CF(image[i])); */
+	      token |= 0x4000; /* only meaningful for hybrid engines */
 	      if (CF(token)<max_symbols)
 		image[i]=(Cell)CA(CF(token));
 	      else
