@@ -18,13 +18,6 @@
 \ along with this program; if not, write to the Free Software
 \ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
 
-\ : include bl word count included ;
-\ we want write include...
-
-\ : : ( -- colon-sys )  Header [ ' : @ ] ALiteral cfa, 0 ] ;
-\ : ; ( colon-sys -- )  ?struc postpone exit reveal postpone [ ; immediate
-\ : :noname ( -- xt colon-sys )  here [ ' : @ ] ALiteral cfa, 0 ] ;
-
 Create mach-file here over 1+ allot place
 
 0 [IF]
@@ -82,9 +75,6 @@ AConstant image-header
 : forthstart image-header @ ;
 [THEN]
 
-UNLOCK ghost - drop \ need a ghost otherwise "-" would be treated as a number
-LOCK
-
 doc-off
 has? prims [IF]
     include ./aliases.fs             \ primitive aliases
@@ -92,7 +82,7 @@ has? prims [IF]
     prims-include
     undef-words
     include prim.fs
-    all-words  UNLOCK LOCK
+    all-words  
 [THEN]
 doc-on
 
@@ -129,10 +119,10 @@ include ./getdoers.fs
 \ Setup                                                13feb93py
 
 has? header [IF]
-    \    UNLOCK
-    here image-header 2 cells + !         \ image size
-    ' boot >body  image-header 8 cells + A!         \ image entry point
-    \    LOCK
+    \ set image size
+    here image-header 2 cells + !         
+    \ set image entry point
+    ' boot >body  image-header 8 cells + A!         
 [ELSE]
     >boot
 [THEN]
