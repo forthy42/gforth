@@ -101,7 +101,7 @@ skipsynclines on
     loop
     drop ;
 
-: wordlist-insert { c-addr u wordlist xt -- }
+: insert-wordlist { c-addr u wordlist xt -- }
     \ adds name "addr u" to wordlist using defining word xt
     \ xt may cause additional stack effects
     get-current >r wordlist set-current
@@ -209,6 +209,7 @@ struct%
     cell% 2* field prim-c-code
     cell% 2* field prim-forth-code
     cell% 2* field prim-stack-string
+    cell%    field prim-num            \ ordinal number
     cell%    field prim-items-wordlist \ unique items
     item% max-effect * field prim-effect-in
     item% max-effect * field prim-effect-out
@@ -242,10 +243,7 @@ create min-depth     max-stacks cells allot
 wordlist constant primitives
 
 : create-prim ( prim -- )
-    get-current >r
-    primitives set-current
-    dup prim-name 2@ nextname constant
-    r> set-current ;
+    dup prim-name 2@ primitives ['] constant insert-wordlist ;
 
 : stack-in ( stack -- addr )
     \ address of number of stack items in effect in
@@ -525,10 +523,9 @@ s" IP" save-mem cell-type  s" error don't use # on results" make-stack inst-stre
 
 : process-simple ( -- )
     prim prim { W^ key } key cell
-    combinations ['] constant wordlist-insert
+    combinations ['] constant insert-wordlist
     declarations compute-offsets
-    output @ execute
-    1 function-number +! ;
+    output @ execute ;
 
 : flush-a-tos { stack -- }
     stack stack-out @ 0<> stack stack-in @ 0= and
@@ -759,14 +756,12 @@ s" IP" save-mem cell-type  s" error don't use # on results" make-stack inst-stre
 
 [IFDEF] documentation
 : register-doc ( -- )
-    get-current documentation set-current
-    prim prim-name 2@ nextname create
+    prim prim-name 2@ documentation ['] create insert-wordlist
     prim prim-name 2@ 2,
     prim prim-stack-string 2@ condition-stack-effect 2,
     prim prim-wordset 2@ 2,
     prim prim-c-name 2@ condition-pronounciation 2,
-    prim prim-doc 2@ 2,
-    set-current ;
+    prim prim-doc 2@ 2, ;
 [THEN]
 
 
@@ -903,7 +898,7 @@ s" IP" save-mem cell-type  s" error don't use # on results" make-stack inst-stre
 
 : process-combined ( -- )
     combined combined-prims num-combined @ cells
-    combinations ['] constant wordlist-insert
+    combinations ['] constant insert-wordlist
     prim compute-effects
     prim init-effects
     output-combined perform ;
@@ -982,9 +977,13 @@ s" IP" save-mem cell-type  s" error don't use # on results" make-stack inst-stre
 : output-pregen-combined ( -- )
     combined-prims num-combined @ 1- cells combinations search-wordlist
     s" the prefix for this combination must be defined earlier" ?print-error
-    execute prim-c-name 2@ type space
-    combined-prims num-combined @ 1- th @ prim-c-name 2@ type ."  -> "
-    combined prim-c-name 2@ type cr ;
+    ." {"
+    execute prim-num @ 5 .r ." ,"
+    combined-prims num-combined @ 1- th @ prim-num @ 5 .r ." ,"
+    combined prim-num @ 5 .r ." }, /* "
+    combined prim-c-name 2@ type ."  */"
+    cr ;
+
 
 \ the parser
 
@@ -1145,8 +1144,9 @@ Variable c-flag
 
 (( {{ make-prim to prim 0 to combined
       line @ name-line ! filename 2@ name-filename 2!
+      function-number @ prim prim-num !
       start }} forth-ident {{ end 2dup prim prim-name 2! prim prim-c-name 2! }}  white ++
-   (( simple-primitive || combined-primitive ))
+   (( simple-primitive || combined-primitive )) {{ 1 function-number +! }}
 )) <- primitive ( -- )
 
 (( (( comment || primitive || nl white ** )) ** eof ))

@@ -226,7 +226,7 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_SRC) $(EC_SRC) \
 	tt.fs sokoban.fs \
 	unbuffer.fs wordsets.fs \
 	test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs \
-	test/other.fs test/checkans.fs \
+	test/string.fs test/other.fs test/checkans.fs \
 	bubble.fs siev.fs matrix.fs fib.fs \
 	oof.fs oofsampl.fs objects.fs objexamp.fs mini-oof.fs moof-exm.fs \
 	moofglos.fs fixpath.fs \
@@ -505,7 +505,7 @@ uninstall:	FORCE
 		@echo -e "To remove Gforth completely, type\n$(RM) -rf $(bindir)/gforth$(EXE) $(bindir)/gforth-fast$(EXE) $(bindir)/gforthmi $(man1dir)/gforth.1 $(infodir)/gforth.info* $(datadir)/gforth $(libdir)/gforth"
 
 check test:	gforth$(EXE) gforth.fi
-		$(FORTH) test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs -e bye | diff -c - $(srcdir)/test/coretest.out
+		$(FORTH) test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs test/string.fs -e bye | diff -c - $(srcdir)/test/coretest.out
 		$(FORTH) test/other.fs -e bye
 		$(FORTH) code.fs test/checkans.fs -e bye | diff -c - $(srcdir)/test/checkans.out
 		$(FORTH) -m 100000 prims2x.fs -e \
