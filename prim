@@ -181,6 +181,7 @@ $1 ( `#'ndisp $2 ) $3
 $4	SET_IP((Xt *)(((Cell)(IP-1))+ndisp));
 TAIL;
 }
+SUPER_CONTINUE;
 $5
 
 \+glocals
@@ -190,6 +191,7 @@ $4    lp += nlocals;
 SET_IP((Xt *)(((Cell)(IP-2))+ndisp));
 TAIL;
 }
+SUPER_CONTINUE;
 
 \+
 )
@@ -216,6 +218,7 @@ if (f==0) {
   SET_IP((Xt *)(((Cell)(IP-1))+ndisp));
   TAIL;
 }
+SUPER_CONTINUE;
 
 ?dup-0=-?branch	( #ndisp f -- )	new	question_dupe_zero_equals_question_branch
 ""The run-time procedure compiled by @code{?DUP-0=-IF}.""
@@ -228,6 +231,7 @@ if (f!=0) {
   SET_IP((Xt *)(((Cell)(IP-1))+ndisp));
   NEXT;
 }
+SUPER_CONTINUE;
 
 \+
 \f[THEN]
@@ -309,6 +313,7 @@ if (nstart == nlimit) {
     SET_IP((Xt *)(((Cell)(IP-1))+ndisp));
     TAIL;
 }
+SUPER_CONTINUE;
 :
   2dup =
   IF   r> swap rot >r >r
@@ -324,6 +329,7 @@ if (nstart >= nlimit) {
     SET_IP((Xt *)(((Cell)(IP-1))+ndisp));
     TAIL;
 }
+SUPER_CONTINUE;
 :
  swap 2dup
  r> swap >r swap >r
@@ -339,6 +345,7 @@ if (ustart >= ulimit) {
     SET_IP((Xt *)(((Cell)(IP-1))+ndisp));
     TAIL;
 }
+SUPER_CONTINUE;
 :
  swap 2dup
  r> swap >r swap >r
@@ -354,6 +361,7 @@ if (nstart <= nlimit) {
     SET_IP((Xt *)(((Cell)(IP-1))+ndisp));
     TAIL;
 }
+SUPER_CONTINUE;
 :
  swap 2dup
  r> swap >r swap >r
@@ -369,6 +377,7 @@ if (ustart <= ulimit) {
     SET_IP((Xt *)(((Cell)(IP-1))+ndisp));
     TAIL;
 }
+SUPER_CONTINUE;
 :
  swap 2dup
  r> swap >r swap >r

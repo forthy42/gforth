@@ -65,6 +65,7 @@ UNLOCK Tlast @ swap Tlast ! LOCK
 
 : [defined] ( "<spaces>name" -- flag )   bl word find nip 0<> ; immediate
   \G returns true if name is found in current search order
+' [defined] alias defined immediate
 : [undefined] ( "<spaces>name" -- flag ) postpone [defined] 0= ; immediate
   \G returns false if name is found in current search order
 

@@ -300,6 +300,7 @@ static int ufileattr[6]= {
 #else
 #define SUPER_END
 #endif
+#define SUPER_CONTINUE
 
 #ifdef GFORTH_DEBUGGING
 /* define some VM registers as global variables, so they survive exceptions;
