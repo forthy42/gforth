@@ -33,7 +33,7 @@
 create \-escape-table
     7 c,        8 c,  char c c,  char d c,      27 c,      12 c,  char g c,
 char h c,  char i c,  char j c,  char k c,  char l c,  char m c,      10 c,
-char o c,  char p c,  char q c,      13 c,  char s c,       9 c,  char u c,
+char o c,  char p c,  char " c,      13 c,  char s c,       9 c,  char u c,
     11 c,
 
 : \-escape ( c-addr1 -- c-addr2 c )
@@ -102,7 +102,7 @@ interpret/compile: .\" ( compilation 'ccc"' -- ; run-time -- )	\ gforth	dot-back
     s" a" drop \-escape 7 <> throw drop .s
     \"-parse " s" " str= 0= throw .s
     \"-parse \a\b\c\e\f\n\r\t\v\100\x40xabcde" dump
-    s\" \a\bcd\e\fghijklm\12opq\rs\tu\v" \-escape-table over str= 0= throw
+    s\" \a\bcd\e\fghijklm\12op\"\rs\tu\v" \-escape-table over str= 0= throw
     s\" \w\0101\x041\"\\" name wAA"\ str= 0= throw
     s\" s\\\" \\" ' evaluate catch 0= throw
 [endif]
