@@ -18,24 +18,12 @@
 \	along with this program; if not, write to the Free Software
 \	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-: disasm-illegal ( addr w -- )
-    \ disassemble illegal instruction w at addr
-    hex. ." , ( illegal inst ) " drop ;
+\ this disassembler is based on data from the R4400 manual
+\ http://www.mips.com/Documentation/R4400_Uman_book_Ed2.pdf, in
+\ particular pages A3,A181,A182 (offset 468 pages in xpdf).
+\ it is limited to the R3000 (MIPS-I) architecture, though.
 
-: init-disasm-table ( n -- )
-    \ initialize table with n entries with disasm-illegal
-    0 ?do
-	['] disasm-illegal ,
-    loop ;
-
-create opc-table $40 init-disasm-table \ top-level decode table
-create funct-table $40 init-disasm-table \ special function table
-create regimm-table $20 init-disasm-table \ regim instructions rt field
-create copz-rs-table $20 init-disasm-table \ COPz instructions rs field
-create copz-rt-table $20 init-disasm-table \ COPz instructions rt field
-create cp0-table $40 init-disasm-table \ COP0 function table
-
-\ fields
+\ instruction fields
 
 : disasm-op ( w -- u )
     26 rshift ;
@@ -66,12 +54,33 @@ create cp0-table $40 init-disasm-table \ COP0 function table
     \ compute printable form of relative address n relative to addr
     nip ( + ) ;
 
+\ decode tables
+
+: disasm-illegal ( addr w -- )
+    \ disassemble illegal/unknown instruction w at addr
+    hex. ." , ( illegal inst ) " drop ;
+
+: disasm-table ( n "name" -- )
+    \ initialize table with n entries with disasm-illegal
+    create 0 ?do
+	['] disasm-illegal ,
+    loop
+does> ( u -- addr )
+    swap cells + ;
+
+$40 disasm-table opc-tab-entry     \ top-level decode table
+$40 disasm-table funct-tab-entry   \ special function table
+$20 disasm-table regimm-tab-entry  \ regim instructions rt table
+$20 disasm-table copz-rs-tab-entry \ COPz instructions rs table
+$20 disasm-table copz-rt-tab-entry \ COPz BC instructions rt table
+$40 disasm-table cp0-tab-entry     \ COP0 CO instructions funct table
+
 \ disassembler central decode cascade
 
 : disasm-inst ( addr w -- )
     \G disassemble instruction w at addr (addr is used for computing
     \G branch targets)
-    dup disasm-op cells opc-table + @ execute ;
+    dup disasm-op opc-tab-entry @ execute ;
 
 : disasm-dump ( addr u -- ) \ gforth
     \G disassemble u aus starting at addr
@@ -81,66 +90,51 @@ create cp0-table $40 init-disasm-table \ COP0 function table
 
 : disasm-special ( addr w -- )
     \ disassemble inst with opcode special
-    dup disasm-funct cells funct-table + @ execute ;
-' disasm-special 0 cells opc-table + !
+    dup disasm-funct funct-tab-entry @ execute ;
+' disasm-special 0 opc-tab-entry ! \ enter it for opcode special
 
 : disasm-regimm ( addr w -- )
     \ disassemble regimm inst
-    dup disasm-rt cells regimm-table + @ execute ;
-' disasm-regimm 1 cells opc-table + !
+    dup disasm-rt regimm-tab-entry @ execute ;
+' disasm-regimm 1 opc-tab-entry ! \ enter it for opcode regimm
 
 : disasm-copz-rs ( addr w -- )
     \ disassemble inst with opcode COPz
-    dup disasm-rs cells copz-rs-table + @ execute ;
-' disasm-copz-rs $10 cells opc-table + !
-' disasm-copz-rs $11 cells opc-table + !
-' disasm-copz-rs $12 cells opc-table + !
+    dup disasm-rs copz-rs-tab-entry @ execute ;
+' disasm-copz-rs $10 opc-tab-entry ! \ enter it for opcodes COPz
+' disasm-copz-rs $11 opc-tab-entry !
+' disasm-copz-rs $12 opc-tab-entry !
 
 : disasm-copz-rt ( addr w -- )
     \ disassemble inst with opcode COPz, rs=BC
-    dup disasm-rt cells copz-rt-table + @ execute ;
-' disasm-copz-rt $08 cells copz-rs-table + !
+    dup disasm-rt copz-rt-tab-entry @ execute ;
+' disasm-copz-rt $08 copz-rs-tab-entry ! \ into COPz-table for rs=BC
 
 : disasm-cp0 ( addr w -- )
     \ disassemble inst with opcode COPz, rs=CO
-    dup disasm-funct cells cp0-table + @ execute ;
-' disasm-cp0 $10 cells copz-rs-table + !
+    dup disasm-funct cp0-tab-entry @ execute ;
+' disasm-cp0 $10 copz-rs-tab-entry ! \ into COPz-table for rs=CO
 
-\ disassemble various formats
+\ dummy words for insts.fs (words with these names are needed by asm.fs)
 
 : asm-op ( -- ) ;
+: asm-rs ( -- ) ;
+: asm-rt ( -- ) ;
+
+\ disassemble various formats
 
 : disasm-J-target ( addr w -- )
     \ print jump target
     $3ffffff and swap $fc000000 and or hex. ;
-
-: asm-J-target ( u "inst" -- ; compiled code: addr w -- )
-    \ disassemble jump inst with opcode u
-    :noname POSTPONE disasm-J-target
-    name POSTPONE sliteral POSTPONE type POSTPONE ;
-    swap cells opc-table + ! ;
 
 : disasm-I-rs,rt,imm ( addr w -- )
     dup disasm-rs .
     dup disasm-rt .
     disasm-imm disasm-relative . ;
 
-: asm-I-rs,rt,imm ( u "name" -- ; compiled code: addr w -- )
-    :noname POSTPONE disasm-I-rs,rt,imm
-    name POSTPONE sliteral POSTPONE type POSTPONE ;
-    swap cells opc-table + ! ;
-
-: asm-rt ( -- ) ;
-
 : disasm-I-rs,imm ( addr w -- )
-    \ !! does not check for correctly set rt ( should be 0 )
     dup disasm-rs .
     disasm-imm disasm-relative . ;
-
-: asm-I-rs,imm ( u1 u2 "name" -- ; compiled code: addr w -- )
-    :noname POSTPONE disasm-I-rs,imm
-    name POSTPONE sliteral POSTPONE type POSTPONE ;
-    swap cells opc-table + ! ;
 
 : disasm-rt,rs,imm ( addr w -- )
     dup disasm-rt .
@@ -148,20 +142,10 @@ create cp0-table $40 init-disasm-table \ COP0 function table
     disasm-imm .
     drop ;
 
-: asm-I-rt,rs,imm ( u "name" -- ; compiled code: addr w -- )
-    :noname POSTPONE disasm-rt,rs,imm
-    name POSTPONE sliteral POSTPONE type POSTPONE ;
-    swap cells opc-table + ! ;
-
 : disasm-rt,imm ( addr w -- )
     dup disasm-rt .
     disasm-imm .
     drop ;
-
-: asm-I-rt,imm ( u "name" -- ; compiled code: addr w -- )
-    :noname POSTPONE disasm-rt,imm
-    name POSTPONE sliteral POSTPONE type POSTPONE ;
-    swap cells opc-table + ! ;
 
 : disasm-rt,imm,rs ( addr w -- )
     dup disasm-rt .
@@ -169,21 +153,11 @@ create cp0-table $40 init-disasm-table \ COP0 function table
     dup disasm-rs .
     2drop ;
 
-: asm-I-rt,offset,rs ( u "name" -- ; compiled code: addr w -- )
-    :noname POSTPONE disasm-rt,imm,rs
-    name POSTPONE sliteral POSTPONE type POSTPONE ;
-    swap cells opc-table + ! ;
-
 : disasm-rd,rt,sa ( addr w -- )
     dup disasm-rd .
     dup disasm-rt .
     dup disasm-shamt .
     2drop ;
-
-: asm-special-rd,rt,sa ( u "name" -- ; compiled code: addr w -- )
-    :noname POSTPONE disasm-rd,rt,sa
-    name POSTPONE sliteral POSTPONE type POSTPONE ;
-    swap cells funct-table + ! ;
 
 : disasm-rd,rt,rs ( addr w -- )
     dup disasm-rd .
@@ -191,53 +165,23 @@ create cp0-table $40 init-disasm-table \ COP0 function table
     dup disasm-rs .
     2drop ;
 
-: asm-special-rd,rt,rs ( u "name" -- ; compiled code: addr w -- )
-    :noname POSTPONE disasm-rd,rt,rs
-    name POSTPONE sliteral POSTPONE type POSTPONE ;
-    swap cells funct-table + ! ;
-
 : disasm-rs. ( addr w -- )
     dup disasm-rs .
     2drop ;
-
-: asm-special-rs ( u "name" -- ; compiled code: addr w -- )
-    :noname POSTPONE disasm-rs.
-    name POSTPONE sliteral POSTPONE type POSTPONE ;
-    swap cells funct-table + ! ;
 
 : disasm-rd,rs ( addr w -- )
     dup disasm-rd .
     dup disasm-rs .
     2drop ;
 
-: asm-special-rd,rs ( u "name" -- ; compiled code: addr w -- )
-    :noname POSTPONE disasm-rd,rs
-    name POSTPONE sliteral POSTPONE type POSTPONE ;
-    swap cells funct-table + ! ;
-
-: asm-special-nothing ( u "name" -- ; compiled code: addr w -- )
-    :noname POSTPONE 2drop
-    name POSTPONE sliteral POSTPONE type POSTPONE ;
-    swap cells funct-table + ! ;
-
 : disasm-rd. ( addr w -- )
     dup disasm-rd .
     2drop ;
-
-: asm-special-rd ( u "name" -- ; compiled code: addr w -- )
-    :noname POSTPONE disasm-rd.
-    name POSTPONE sliteral POSTPONE type POSTPONE ;
-    swap cells funct-table + ! ;
 
 : disasm-rs,rt ( addr w -- )
     dup disasm-rs .
     dup disasm-rt .
     2drop ;
-
-: asm-special-rs,rt ( u "name" -- ; compiled code: addr w -- )
-    :noname POSTPONE disasm-rs,rt
-    name POSTPONE sliteral POSTPONE type POSTPONE ;
-    swap cells funct-table + ! ;
 
 : disasm-rd,rs,rt ( addr w -- )
     dup disasm-rd .
@@ -245,54 +189,69 @@ create cp0-table $40 init-disasm-table \ COP0 function table
     dup disasm-rt .
     2drop ;
 
-: asm-special-rd,rs,rt ( u "name" -- ; compiled code: addr w -- )
-    :noname POSTPONE disasm-rd,rs,rt
-    name POSTPONE sliteral POSTPONE type POSTPONE ;
-    swap cells funct-table + ! ;
-
-: asm-regimm-rs,imm ( u "name" -- )
-    :noname POSTPONE disasm-I-rs,imm
-    name POSTPONE sliteral POSTPONE type POSTPONE ;
-    swap cells regimm-table + ! ;
-
-: asm-copz-rt,offset,rs ( u "name" -- )
-    \ ignore these insts, we disassemble using  asm-I-rt,offset,rs
-    drop name 2drop ;
-
-: asm-copz0 ( u "name" -- )
-    :noname POSTPONE 2drop
-    name POSTPONE sliteral POSTPONE type POSTPONE ;
-    swap cells cp0-table + ! ;
-
-$00 constant asm-copz-MF
-$02 constant asm-copz-CF
-$04 constant asm-copz-MT
-$06 constant asm-copz-CT
-$08 constant asm-copz-BC
-$10 constant asm-copz-C0
-
-$00 constant asm-copz-BCF
-$01 constant asm-copz-BCT
-
-: asm-rs ( -- ) ;
-
 : disasm-rt,rd,z ( addr w -- )
     dup disasm-rt .
     dup disasm-rd .
     dup disasm-copz .
     2drop ;
 
-: asm-copz-rt,rd ( u1 u2 "name" -- )
-    drop :noname POSTPONE disasm-rt,rd,z
-    name POSTPONE sliteral POSTPONE type POSTPONE ;
-    swap cells copz-rs-table + ! ;
-
 : disasm-I-imm ( addr w -- )
     disasm-imm disasm-relative . ;
 
+\ meta-defining word for instruction format disassembling definitions
+
+\ The following word defines instruction-format words, which in turn
+\ define anonymous words for disassembling specific instructions and
+\ put them in the appropriate decode table.
+
+: define-format ( disasm-xt table-xt -- )
+    \ define an instruction format that uses disasm-xt for
+    \ disassembling and enters the defined instructions into table
+    \ table-xt
+    create 2,
+does> ( u "inst" -- )
+    \ defines an anonymous word for disassembling instruction inst,
+    \ and enters it as u-th entry into table-xt
+    2@ swap here name string, ( u table-xt disasm-xt c-addr ) \ remember string
+    noname create 2,      \ define anonymous word
+    execute lastxt swap ! \ enter xt of defined word into table-xt
+does> ( addr w -- )
+    \ disassemble instruction w at addr
+    2@ >r ( addr w disasm-xt R: c-addr )
+    execute ( R: c-addr ) \ disassemble operands
+    r> count type ; \ print name 
+
+\ all the following words have the stack effect ( u "name" )
+' disasm-J-target    ' opc-tab-entry 	 define-format asm-J-target
+' disasm-I-rs,rt,imm ' opc-tab-entry 	 define-format asm-I-rs,rt,imm
+' disasm-I-rs,imm    ' opc-tab-entry 	 define-format asm-I-rs,imm1
+' disasm-rt,rs,imm   ' opc-tab-entry 	 define-format asm-I-rt,rs,imm
+' disasm-rt,imm      ' opc-tab-entry 	 define-format asm-I-rt,imm
+' disasm-rt,imm,rs   ' opc-tab-entry 	 define-format asm-I-rt,offset,rs
+' disasm-rd,rt,sa    ' funct-tab-entry 	 define-format asm-special-rd,rt,sa
+' disasm-rd,rt,rs    ' funct-tab-entry 	 define-format asm-special-rd,rt,rs
+' disasm-rs.         ' funct-tab-entry 	 define-format asm-special-rs
+' disasm-rd,rs       ' funct-tab-entry 	 define-format asm-special-rd,rs
+' 2drop              ' funct-tab-entry 	 define-format asm-special-nothing
+' disasm-rd.         ' funct-tab-entry 	 define-format asm-special-rd
+' disasm-rs,rt       ' funct-tab-entry 	 define-format asm-special-rs,rt
+' disasm-rd,rs,rt    ' funct-tab-entry 	 define-format asm-special-rd,rs,rt
+' disasm-I-rs,imm    ' regimm-tab-entry  define-format asm-regimm-rs,imm
+' 2drop              ' cp0-tab-entry     define-format asm-copz0
+' disasm-rt,rd,z     ' copz-rs-tab-entry define-format asm-copz-rt,rd1
+' disasm-I-imm       ' copz-rt-tab-entry define-format asm-copz-imm1
+
+: asm-I-rs,imm ( u1 u2 "name" -- ; compiled code: addr w -- )
+    nip asm-I-rs,imm1 ;
+
+: asm-copz-rt,rd ( u1 u2 "name" -- )
+    drop asm-copz-rt,rd1 ;
+
+: asm-copz-rt,offset,rs ( u "name" -- )
+    \ ignore these insts, we disassemble using  asm-I-rt,offset,rs
+    drop name 2drop ;
+
 : asm-copz-imm ( u1 u2 u3 "name" -- )
-    drop nip :noname POSTPONE disasm-I-imm
-    name POSTPONE sliteral POSTPONE type POSTPONE ;
-    swap cells copz-rt-table + ! ;
+    drop nip asm-copz-imm1 ;
 
 include ./insts.fs

@@ -147,16 +147,6 @@ does> ( rt offset rs z -- )
 : asm-copz-rt,offset,rs ( code -- )
     asm-op asm-I-rt,offset,rs,z ;
 
-$00 constant asm-copz-MF
-$02 constant asm-copz-CF
-$04 constant asm-copz-MT
-$06 constant asm-copz-CT
-$08 constant asm-copz-BC
-$10 constant asm-copz-C0
-
-$00 constant asm-copz-BCF
-$01 constant asm-copz-BCT
-
 : asm-J-target ( code -- )
     create ,
 does> ( target -- )
