@@ -150,6 +150,7 @@ SET_IP((Xt *)(((Cell)IP)+(Cell)NEXT_INST));
 define(condbranch,
 $1	$2
 $3	SET_IP((Xt *)(((Cell)IP)+(Cell)NEXT_INST));
+TAIL;
 }
 else
     INC_IP(1);
@@ -160,6 +161,7 @@ $4
 $1-lp+!#	$2_lp_plus_store_number
 $3    lp += (Cell)(IP[1]);
 SET_IP((Xt *)(((Cell)IP)+(Cell)NEXT_INST));
+TAIL;
 }
 else
     INC_IP(2);
@@ -169,7 +171,6 @@ else
 
 condbranch(?branch,( f -- )		f83	question_branch,
 if (f==0) {
-    IF_spTOS(spTOS = sp[0]);
 ,:
  0= dup     \ !f !f
  r> dup @   \ !f !f IP branchoffset

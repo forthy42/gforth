@@ -613,6 +613,25 @@ set-current
    i store
  item% %size +loop ; 
 
+: output-c-tail ( -- )
+    \ the final part of the generated C code
+    ." NEXT_P1;" cr
+    stores
+    fill-tos
+    ." NEXT_P2;" cr ;
+
+: type-c ( c-addr u -- )
+    \ like TYPE, but replaces "TAIL;" with tail code
+    begin ( c-addr1 u1 )
+	2dup s" TAIL;" search
+    while ( c-addr1 u1 c-addr3 u3 )
+	2dup 2>r drop nip over - type
+	output-c-tail
+	2r> 5 /string
+	\ !! resync #line missing
+    repeat
+    2drop type ;
+
 : output-c ( -- ) 
  ." I_" c-name 2@ type ." :	/* " forth-name 2@ type ."  ( " stack-string 2@ type ." ) */" cr
  ." /* " doc 2@ type ."  */" cr
@@ -627,12 +646,9 @@ set-current
  stack-pointer-updates
  ." {" cr
  ." #line " c-line @ . [char] " emit c-filename 2@ type [char] " emit cr
- c-code 2@ type
+ c-code 2@ type-c
  ." }" cr
- ." NEXT_P1;" cr
- stores
- fill-tos
- ." NEXT_P2;" cr
+ output-c-tail
  ." }" cr
  cr
 ;
