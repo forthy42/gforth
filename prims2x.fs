@@ -926,6 +926,16 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
     fill-state 
     xt execute ;
 
+: output-c-vm-jump-tail ( -- )
+    \ !! this functionality not yet implemented for superinstructions
+    output-super-end
+    print-debug-results
+    stores
+    fill-state 
+    ." LABEL2(" prim prim-c-name 2@ type ." )" cr
+    ." LABEL3(" prim prim-c-name 2@ type ." )" cr
+    ." DO_GOTO;" cr ;
+
 : output-c-tail1-no-stores { xt -- }
     \ the final part of the generated C code for combinations
     output-super-end
@@ -937,7 +947,11 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
     tail-nextp2 @ output-c-tail1 ;
 
 : output-c-tail2 ( -- )
-    ['] output-label2 output-c-tail1 ;
+    prim prim-c-code 2@ s" VM_JUMP(" search nip nip if
+	output-c-vm-jump-tail
+    else
+	['] output-label2 output-c-tail1
+    endif ;
 
 : output-c-tail-no-stores ( -- )
     tail-nextp2 @ output-c-tail1-no-stores ;

@@ -103,7 +103,7 @@
 #define GOTO(target) do {(real_ca=(target));} while(0)
 #define NEXT_P2 do {NEXT_P1_5; DO_GOTO;} while(0)
 #define EXEC(XT) do { real_ca=EXEC1(XT); DO_GOTO;} while (0)
-#define VM_JUMP(target) do {GOTO(target); DO_GOTO;} while (0)
+#define VM_JUMP(target) do {GOTO(target);} while (0)
 #define NEXT do {DEF_CA NEXT_P1; NEXT_P2;} while(0)
 #define FIRST_NEXT_P2 NEXT_P1_5; GOTO_ALIGN; \
 before_goto: goto *real_ca; after_goto:

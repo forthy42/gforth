@@ -910,7 +910,9 @@ SUPER_CONTINUE;
 @findex VM_JUMP
 @code{VM_JUMP(target)} is equivalent to @code{goto *(target)}, but
 allows Vmgen to do dynamic superinstructions and replication.  You
-still need to say @code{SUPER_END}.
+still need to say @code{SUPER_END}.  Also, the goto only happens at
+the end (wherever the VM_JUMP is).  Essentially, this just suppresses
+much of the ordinary dispatch mechanism.
 
 @end table
 
