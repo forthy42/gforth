@@ -657,17 +657,12 @@ stack inst-stream IP Cell
 : fetches ( -- )
     prim prim-effect-in prim prim-effect-in-end @ ['] fetch map-items ;
 
-: inst-pointer-update ( -- )
-    inst-stream stack-in @ ?dup-if
-	." INC_IP(" 0 .r ." );" cr
-    endif ;
-
 : stack-pointer-update { stack -- }
     \ stack grow downwards
     stack stack-diff
     ?dup-if \ this check is not necessary, gcc would do this for us
 	stack inst-stream = if
-	    inst-pointer-update
+	    ." INC_IP(" 0 .r ." );" cr
 	else
 	    stack stack-pointer 2@ type ."  += " 0 .r ." ;" cr
 	endif
@@ -718,39 +713,38 @@ stack inst-stream IP Cell
     endif
     2drop ;
 
-: output-c-tail1 ( -- )
-    \ the final part of the generated C code before stores
+: output-label2 ( -- )
+    ." LABEL2(" prim prim-c-name 2@ type ." )" cr ;
+
+: output-c-tail1 { xt -- }
+    \ the final part of the generated C code, with xt printing LABEL2 or not.
     output-super-end
     print-debug-results
-    ." NEXT_P1;" cr ;
+    ." NEXT_P1;" cr
+    stores
+    fill-tos 
+    xt execute
+    ." NEXT_P2;" cr ;
+
+: output-c-tail1-no-stores { xt -- }
+    \ the final part of the generated C code for combinations
+    output-super-end
+    ." NEXT_P1;" cr
+    fill-tos 
+    xt execute
+    ." NEXT_P2;" cr ;
 
 : output-c-tail ( -- )
-    \ the final part of the generated C code, without LABEL2
-    output-c-tail1
-    stores
-    fill-tos 
-    ." NEXT_P2;" ;
-
-: output-c-tail-no-stores ( -- )
-    \ the final part of the generated C code, without LABEL2
-    output-c-tail1
-    fill-tos 
-    ." NEXT_P2;" ;
+    ['] noop output-c-tail1 ;
 
 : output-c-tail2 ( -- )
-    \ the final part of the generated C code, including LABEL2
-    output-c-tail1
-    stores
-    fill-tos 
-    ." LABEL2(" prim prim-c-name 2@ type ." )" cr
-    ." NEXT_P2;" cr ;
+    ['] output-label2 output-c-tail1 ;
+
+: output-c-tail-no-stores ( -- )
+    ['] noop output-c-tail1-no-stores ;
 
 : output-c-tail2-no-stores ( -- )
-    \ the final part of the generated C code, including LABEL2
-    output-c-tail1
-    fill-tos 
-    ." LABEL2(" prim prim-c-name 2@ type ." )" cr
-    ." NEXT_P2;" cr ;
+    ['] output-label2 output-c-tail1-no-stores ;
 
 : type-c-code ( c-addr u xt -- )
     \ like TYPE, but replaces "INST_TAIL;" with tail code produced by xt
