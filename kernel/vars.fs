@@ -50,7 +50,7 @@ FF Constant /line
 10 Constant l/s
 400 Constant chars/block
 
-$20 8 2* cells + 2 + cell+ constant word-pno-size ( -- u )
+20 8 2* cells + 2 + cell+ constant word-pno-size ( -- u )
 create holdbuf word-pno-size chars allot
 holdbuf word-pno-size chars + aconstant holdbuf-end
 avariable holdptr holdbuf-end holdptr a!
@@ -97,8 +97,10 @@ AUser lp0 ( -- a-addr ) \ gforth
 \G OBSOLETE alias of @code{lp0}
 
 AUser handler	\ pointer to last throw frame
+has? backtrace [IF]
 User backtrace-empty \ true if the next THROW should store a backtrace
 AUser backtrace-rp0 \ rp at last call of interpret
+[THEN]
 \ AUser output
 \ AUser input
 
