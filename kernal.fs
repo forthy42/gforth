@@ -244,6 +244,9 @@ decimal
 Create spaces  bl 80 times \ times from target compiler! 11may93jaw
 DOES>   ( u -- )  swap
         0 max 0 ?DO  I' I - &80 min 2dup type  +LOOP  drop ;
+Create backspaces  08 80 times \ times from target compiler! 11may93jaw
+DOES>   ( u -- )  swap
+        0 max 0 ?DO  I' I - &80 min 2dup type  +LOOP  drop ;
 hex
 : space   1 spaces ;
 
@@ -1038,7 +1041,7 @@ Variable warnings  G -1 warnings T !
 
 : bell  #bell emit ;
 
-: backspaces  0 ?DO  #bs emit  LOOP ;
+\ : backspaces  0 ?DO  #bs emit  LOOP ;
 : >string  ( span addr pos1 -- span addr pos1 addr2 len )
   over 3 pick 2 pick chars /string ;
 : type-rest ( span addr pos1 -- span addr pos1 back )
