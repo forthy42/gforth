@@ -42,8 +42,8 @@
 
 warnings off
 
-include search.fs
-include extend.fs
+require search.fs
+require extend.fs
 
 \ require interpretation.fs
 \ require debugs.fs

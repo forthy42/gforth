@@ -391,17 +391,18 @@ Variable warnings ( -- addr ) \ gforth
 G -1 warnings T !
 
 : check-shadow  ( addr count wid -- )
-\G prints a warning if the string is already present in the wordlist
- >r 2dup 2dup r> (search-wordlist) warnings @ and ?dup if
-   ." redefined " name>string 2dup type
-   compare 0<> if
-     ."  with " type
-   else
-     2drop
-   then
-   space space EXIT
- then
- 2drop 2drop ;
+    \G prints a warning if the string is already present in the wordlist
+    >r 2dup 2dup r> (search-wordlist) warnings @ and ?dup if
+	>stderr
+	." redefined " name>string 2dup type
+	compare 0<> if
+	    ."  with " type
+	else
+	    2drop
+	then
+	space space EXIT
+    then
+    2drop 2drop ;
 
 : reveal ( -- ) \ gforth
     last?

@@ -75,9 +75,9 @@ doc-on
 0 AConstant forthstart
 
 include vars.fs                \ variables and other stuff
-include errore.fs
 include version.fs
 include kernel.fs              \ load kernel
+include errore.fs
 include doers.fs
 has? file [IF]
 include args.fs

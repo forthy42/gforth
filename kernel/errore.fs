@@ -22,7 +22,7 @@
 \ The errors are defined by a linked list, for easy adding
 \ and deleting. Speed is not neccassary at this point.
 
-AVARIABLE ErrLink              \ Linked list entry point
+AVariable ErrLink              \ Linked list entry point
 NIL ErrLink !
 
 decimal
@@ -34,24 +34,29 @@ decimal
 \ error numbers between -512 and -2047 are for OS errors and are
 \ handled with strerror
 
+: >stderr ( -- )
+    r> outfile-id >r stderr to outfile-id
+    >exec  r> to outfile-id ;
+
 : .error ( n -- )
+    >stderr
     cr ." Error: "
     ErrLink
     BEGIN @ dup
     WHILE
 	2dup cell+ @ =
-	IF 2 cells + count type drop exit THEN
+	IF
+	    2 cells + count type drop EXIT THEN
     REPEAT
     drop
 [ has? os [IF] ]
     dup -511 -255 within
     IF
-	256 + negate strsignal type exit
+	256 + negate strsignal type EXIT
     THEN
     dup -2047 -511 within
     IF
-	512 + negate strerror type exit
+	512 + negate strerror type EXIT
     THEN
 [ [THEN] ]
     . ;
-

@@ -464,7 +464,8 @@ types definitions
 
 : Fpostpone  postpone postpone ; immediate
 
-: : ( <methodname> -- )  decl @ abort" HOW: missing! "
+: : ( <methodname> -- ) \ oof- oof colon
+    decl @ abort" HOW: missing! "
     bl word findo 0= abort" not found"
     dup exec? over early? or over >body cell+ @ 0< or
     0= abort" not a method"
@@ -472,7 +473,8 @@ types definitions
 
 Forth
 
-: ; ( xt colon-sys -- )  postpone ;
+: ; ( xt colon-sys -- ) \ oof- oof
+    postpone ;
     m-name @ dup >body swap exec?
     IF    @ o@ +
     ELSE  dup cell+ @ 0< IF  2@ swap o@ + @ +  THEN
@@ -581,11 +583,11 @@ class; \ object
 
 Objects definitions
 
-: implement ( interface -- )
+: implement ( interface -- ) \ oof-interface- oof
     align here over , ob-interface @ , ob-interface !
     :ilist + @ >r get-order r> swap 1+ set-order  1 voc# +! ;
 
-: inter-method, ( interface -- )
+: inter-method, ( interface -- ) \ oof-interface- oof
     :ilist + @ bl word count 2dup s" '" compare
     0= dup >r IF  2drop bl word count  THEN
     rot search-wordlist
@@ -599,19 +601,23 @@ Variable inter#
 
 Vocabulary interfaces  interfaces definitions
 
-: method  ( -- )  mallot Create , inter# @ ,
-  DOES> 2@ swap o@ + @ + @ execute ;
+: method  ( -- ) \ oof-interface- oof
+    mallot Create , inter# @ ,
+DOES> 2@ swap o@ + @ + @ execute ;
 
-: how: ( -- )  align
+: how: ( -- ) \ oof-interface- oof
+    align
     here lastif @ !  0 decl !
     here  last-interface @ ,  last-interface !
     inter-list @ ,  methods @ ,  inter# @ ,
     methods @ :inum cell+ ?DO  ['] crash ,  LOOP ;
 
-: interface; ( -- )  old-current @ set-current
+: interface; ( -- ) \ oof-interface- oof
+    old-current @ set-current
     previous previous ;
 
-: : ( <methodname> -- ) decl @ abort" HOW: missing! "
+: : ( <methodname> -- ) \ oof-interface- oof colon
+    decl @ abort" HOW: missing! "
     bl word count lastif @ @ :ilist + @
     search-wordlist 0= abort" not found"
     dup >body cell+ @ 0< 0= abort" not a method"
@@ -619,12 +625,13 @@ Vocabulary interfaces  interfaces definitions
 
 Forth
 
-: ; ( xt colon-sys -- )  postpone ;
+: ; ( xt colon-sys -- ) \ oof-interface- oof
+  postpone ;
   m-name @ >body @ lastif @ @ + ! ; immediate
 
 Forth definitions
 
-: interface ( -- )
+: interface ( -- ) \ oof-interface- oof
     Create  here lastif !  0 ,  get-current old-current !
     last-interface @ dup  IF  :inum @  THEN  1 cells - inter# !
     get-order wordlist
