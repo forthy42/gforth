@@ -52,7 +52,7 @@ true constant count-calls? \ do some profiling of colon definitions etc.
 \ optimizing return-to-returns (tail calls), return-to-calls, call-to-calls
 
 struct
-    cell% list-next
+    cell% field list-next
 end-struct list%
 
 list%
@@ -68,20 +68,47 @@ list%
 end-struct profile% \ profile point
 
 list%
-    cell% field calls%-call \ ptr to profile point of bb containing the call
+    cell% field calls-call \ ptr to profile point of bb containing the call
 end-struct calls%
 
 variable profile-points \ linked list of profile%
 0 profile-points !
 variable next-profile-point-p \ the address where the next pp will be stored
 profile-points next-profile-point-p !
-count-calls? [if]
-    variable last-colondef-profile \ pointer to the pp of last colon definition
-[endif]
+variable last-colondef-profile \ pointer to the pp of last colon definition
+variable current-profile-point
+variable library-calls \ list of calls to library colon defs
 
 \ list stuff
 
+: map-list ( ... list xt -- ... )
+    { xt } begin { list }
+	list while
+	    list xt execute
+	    list list-next @
+    repeat ;
 
+: drop-1+ drop 1+ ;
+
+: list-length ( list -- u )
+    0 swap ['] drop-1+ map-list ;
+
+: insert-list ( listp listpp -- )
+    \ insert list node listp into list pointed to by listpp in front
+    tuck @ over list-next !
+    swap ! ;
+
+: insert-list-end ( listp listppp -- )
+    \ insert list node listp into list, with listppp indicating the
+    \ position to insert at, and indicating the position behind the
+    \ new element afterwards.
+    2dup @ insert-list
+    swap list-next swap ! ;
+
+\ calls
+
+: new-call ( profile-point -- call )
+    calls% %alloc tuck calls-call ! ;
 
 \ profile-point stuff   
 
@@ -96,9 +123,8 @@ count-calls? [if]
 	r@ profile-straight-line on
 	0 r@ profile-calls-from !
     [endif]
-    0 r@ list-next !
-    r@ next-profile-point-p @ !
-    r@ list-next next-profile-point-p !
+    r@ next-profile-point-p insert-list-end
+    r@ current-profile-point !
     r> ;
 
 : print-profile ( -- )
@@ -121,12 +147,58 @@ count-calls? [if]
 		r@ profile-char @ 3 .r ." : "
 		r@ profile-count 2@ 10 d.r
 		r@ profile-straight-line @ space 2 .r
-		r@ profile-calls @ 4 .r
+		r@ profile-calls @ list-length 4 .r
 		cr
 	    endif
 	    r> list-next @
     repeat
     drop ;
+
+: 1= ( u -- f )
+    1 = ;
+
+: 2= ( u -- f )
+    2 = ;
+
+: 3= ( u -- f )
+    3 = ;
+
+: 1u> ( u -- f )
+    1 u> ;
+
+: call-count+ ( ud1 callp -- ud2 )
+    calls-call @ profile-count 2@ d+ ;
+
+: add-calls ( ud-dyn-callee1 ud-dyn-caller1 u-stat1 xt-test profpp --
+              ud-dyn-callee2 ud-dyn-caller2 u-stat2 xt-test )
+    \ add the static and dynamic call counts to profpp up, if the
+    \ number of static calls to profpp satisfies xt-test ( u -- f )
+    { xt-test p }
+    p profile-colondef? @ if ( u-dyn1 u-stat1 )
+	p profile-calls @ { calls }
+	calls list-length { stat }
+	stat xt-test execute if ( u-dyn u-stat )
+	    stat + >r
+	    0. calls ['] call-count+ map-list d+ 2>r
+	    p profile-count 2@ d+
+	    2r> r>
+	endif
+    endif
+    xt-test ;
+
+: print-stat-line ( xt -- )
+    >r 0. 0. 0 r> profile-points @ ['] add-calls map-list drop
+    ( ud-dyn-callee ud-dyn-caller u-stat )
+    7 u.r 12 ud.r 12 ud.r space ;
+
+: print-statistics ( -- )
+    ."  static  dyn-caller  dyn-callee   condition" cr
+    ['] 0=  print-stat-line ." calls to coldefs with 0 callers" cr
+    ['] 1=  print-stat-line ." calls to coldefs with 1 callers" cr
+    ['] 2=  print-stat-line ." calls to coldefs with 2 callers" cr
+    ['] 3=  print-stat-line ." calls to coldefs with 3 callers" cr
+    ['] 1u> print-stat-line ." calls to coldefs with >1 callers" cr
+    ;
 
 : dinc ( profilep -- )
     \ increment double pointed to by d-addr
@@ -196,8 +268,8 @@ Defer before-word-profile ( -- )
 
 : note-call ( addr -- )
     \ addr is the body address of a called colon def or does handler
-    dup 3 cells + @ ['] dinc >body = if
-	1 over  cell+ @ profile-calls +!
+    dup 3 cells + @ ['] dinc >body = if ( addr )
+	current-profile-point @ new-call over cell+ @ profile-calls insert-list
     endif
     drop ;
     
