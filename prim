@@ -182,7 +182,7 @@ SET_IP((Xt *)(((Cell)(IP-1))+ndisp));
 define(condbranch,
 $1 ( `#'ndisp $2 ) $3
 $4	SET_IP((Xt *)(((Cell)(IP-1))+ndisp));
-TAIL;
+INST_TAIL;
 }
 SUPER_CONTINUE;
 $5
@@ -192,7 +192,7 @@ $5
 $1-lp+!`#' ( `#'ndisp `#'nlocals $2 ) $3_lp_plus_store_number
 $4    lp += nlocals;
 SET_IP((Xt *)(((Cell)(IP-2))+ndisp));
-TAIL;
+INST_TAIL;
 }
 SUPER_CONTINUE;
 
@@ -219,7 +219,7 @@ if (f==0) {
   sp++;
   IF_spTOS(spTOS = sp[0]);
   SET_IP((Xt *)(((Cell)(IP-1))+ndisp));
-  TAIL;
+  INST_TAIL;
 }
 SUPER_CONTINUE;
 
@@ -314,7 +314,7 @@ nlimit=0;
 (?do)	( #ndisp nlimit nstart -- R:nlimit R:nstart )	gforth	paren_question_do
 if (nstart == nlimit) {
     SET_IP((Xt *)(((Cell)(IP-1))+ndisp));
-    TAIL;
+    INST_TAIL;
 }
 SUPER_CONTINUE;
 :
@@ -330,7 +330,7 @@ SUPER_CONTINUE;
 (+do)	( #ndisp nlimit nstart -- R:nlimit R:nstart )	gforth	paren_plus_do
 if (nstart >= nlimit) {
     SET_IP((Xt *)(((Cell)(IP-1))+ndisp));
-    TAIL;
+    INST_TAIL;
 }
 SUPER_CONTINUE;
 :
@@ -346,7 +346,7 @@ SUPER_CONTINUE;
 (u+do)	( #ndisp ulimit ustart -- R:ulimit R:ustart )	gforth	paren_u_plus_do
 if (ustart >= ulimit) {
     SET_IP((Xt *)(((Cell)(IP-1))+ndisp));
-    TAIL;
+    INST_TAIL;
 }
 SUPER_CONTINUE;
 :
@@ -362,7 +362,7 @@ SUPER_CONTINUE;
 (-do)	( #ndisp nlimit nstart -- R:nlimit R:nstart )	gforth	paren_minus_do
 if (nstart <= nlimit) {
     SET_IP((Xt *)(((Cell)(IP-1))+ndisp));
-    TAIL;
+    INST_TAIL;
 }
 SUPER_CONTINUE;
 :
@@ -378,7 +378,7 @@ SUPER_CONTINUE;
 (u-do)	( #ndisp ulimit ustart -- R:ulimit R:ustart )	gforth	paren_u_minus_do
 if (ustart <= ulimit) {
     SET_IP((Xt *)(((Cell)(IP-1))+ndisp));
-    TAIL;
+    INST_TAIL;
 }
 SUPER_CONTINUE;
 :

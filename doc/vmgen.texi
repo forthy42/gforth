@@ -57,7 +57,10 @@ Software Foundation raise funds for GNU development.''
 * Invoking Vmgen::              
 * Example::                     
 * Input File Format::           
+* Error messages::              reported by Vmgen
 * Using the generated code::    
+* Hints::                       VM archictecture, efficiency
+* The future::                  
 * Changes::                     from earlier versions
 * Contact::                     Bug reporting etc.
 * Copying This Manual::         Manual License
@@ -97,6 +100,10 @@ Using the generated code
 * Peephole optimization::       Creating VM superinstructions
 * VM disassembler::             for debugging the front end
 * VM profiler::                 for finding worthwhile superinstructions
+
+Hints
+
+* Floating point::              and stacks
 
 Copying This Manual
 
@@ -151,7 +158,7 @@ In this setup, Vmgen can generate most of the code dealing with virtual
 machine instructions from a simple description of the virtual machine
 instructions (@pxref{Input File Format}), in particular:
 
-@table @asis
+@table @strong
 
 @item VM instruction execution
 
@@ -171,6 +178,10 @@ Useful for optimizing the VM interpreter with superinstructions
 (@pxref{VM profiler}).
 
 @end table
+
+To create parts of the interpretive system that do not deal with VM
+instructions, you have to use other tools (e.g., @command{bison}) and/or
+hand-code them.
 
 @cindex efficiency features overview
 @noindent
@@ -209,7 +220,7 @@ offered by Vmgen.
 
 There are many potential uses of the instruction descriptions that are
 not implemented at the moment, but we are open for feature requests, and
-we will implement new features if someone asks for them; so the feature
+we will consider new features if someone asks for them; so the feature
 list above is not exhaustive.
 
 @c *********************************************************************
@@ -300,7 +311,7 @@ interpreter, but some systems also support saving it to a file, either
 as an image file, or in a full-blown linkable file format (e.g., JVM).
 Vmgen currently has no special support for such features, but the
 information in the instruction descriptions can be helpful, and we are
-open for feature requests and suggestions.
+open to feature requests and suggestions.
 
 @c --------------------------------------------------------------------
 @node Data handling, Dispatch, Front end and VM interpreter, Concepts
@@ -310,7 +321,10 @@ open for feature requests and suggestions.
 @cindex register machine
 Most VMs use one or more stacks for passing temporary data between VM
 instructions.  Another option is to use a register machine architecture
-for the virtual machine; however, this option is either slower or
+for the virtual machine; we believe that using a stack architecture is
+usually both simpler and faster.
+
+however, this option is slower or
 significantly more complex to implement than a stack machine architecture.
 
 Vmgen has special support and optimizations for stack VMs, making their
@@ -356,7 +370,7 @@ After executing one VM instruction, the VM interpreter has to dispatch
 the next VM instruction (Vmgen calls the dispatch routine @samp{NEXT}).
 Vmgen supports two methods of dispatch:
 
-@table @asis
+@table @strong
 
 @item switch dispatch
 @cindex switch dispatch
@@ -379,6 +393,7 @@ instruction.  Threaded code cannot be implemented in ANSI C, but it can
 be implemented using GNU C's labels-as-values extension (@pxref{Labels
 as Values, , Labels as Values, gcc.info, GNU C Manual}).
 
+@c call threading
 @end table
 
 Threaded code can be twice as fast as switch dispatch, depending on the
@@ -392,16 +407,18 @@ interpreter, the benchmark, and the machine.
 The usual way to invoke Vmgen is as follows:
 
 @example
-vmgen @var{infile}
+vmgen @var{inputfile}
 @end example
 
-Here @var{infile} is the VM instruction description file, which usually
-ends in @file{.vmg}.  The output filenames are made by taking the
-basename of @file{infile} (i.e., the output files will be created in the
-current working directory) and replacing @file{.vmg} with @file{-vm.i},
-@file{-disasm.i}, @file{-gen.i}, @file{-labels.i}, @file{-profile.i},
-and @file{-peephole.i}.  E.g., @command{vmgen hack/foo.vmg} will create
-@file{foo-vm.i} etc.
+Here @var{inputfile} is the VM instruction description file, which
+usually ends in @file{.vmg}.  The output filenames are made by taking
+the basename of @file{inputfile} (i.e., the output files will be created
+in the current working directory) and replacing @file{.vmg} with
+@file{-vm.i}, @file{-disasm.i}, @file{-gen.i}, @file{-labels.i},
+@file{-profile.i}, and @file{-peephole.i}.  E.g., @command{vmgen
+hack/foo.vmg} will create @file{foo-vm.i}, @file{foo-disasm.i},
+@file{foo-gen.i}, @file{foo-labels.i}, @file{foo-profile.i} and
+@file{foo-peephole.i}.
 
 The command-line options supported by Vmgen are
 
@@ -563,14 +580,14 @@ sort -k 3 >mini-super.vmg       #sort sequences
 The file @file{peephole-blacklist} contains all instructions that
 directly access a stack or stack pointer (for mini: @code{call},
 @code{return}); the sort step is necessary to ensure that prefixes
-preceed larger superinstructions.
+precede larger superinstructions.
 
 Now you can create a version of mini with superinstructions by just
 saying @samp{make}
 
 
 @c ***************************************************************
-@node Input File Format, Using the generated code, Example, Top
+@node Input File Format, Error messages, Example, Top
 @chapter Input File Format
 @cindex input file format
 @cindex format, input file
@@ -615,7 +632,7 @@ super-inst: ident ' =' ident @{ident@}
 
 comment:      '\ '  text newline
 
-eval-escape:  '\e ' text newline
+eval-escape:  '\E ' text newline
 @end example
 @c \+ \- \g \f \c
 
@@ -636,11 +653,16 @@ description of the format used for Gforth in @file{prim}.
 @cindex escape to Forth
 @cindex eval escape
 
+
+
 @c woanders?
 The text in @code{eval-escape} is Forth code that is evaluated when
-Vmgen reads the line.  If you do not know (and do not want to learn)
-Forth, you can build the text according to the following grammar; these
-rules are normally all Forth you need for using Vmgen:
+Vmgen reads the line.  You will normally use this feature to define
+stacks and types.
+
+If you do not know (and do not want to learn) Forth, you can build the
+text according to the following grammar; these rules are normally all
+Forth you need for using Vmgen:
 
 @example
 text: stack-decl|type-prefix-decl|stack-prefix-decl
@@ -652,7 +674,8 @@ stack-prefix-decl:  ident 'stack-prefix' string
 @end example
 
 Note that the syntax of this code is not checked thoroughly (there are
-many other Forth program fragments that could be written there).
+many other Forth program fragments that could be written in an
+eval-escape).
 
 If you know Forth, the stack effects of the non-standard words involved
 are:
@@ -793,22 +816,22 @@ level, this also sets the instruction pointer.
 This ends a basic block (for profiling), even if the instruction
 contains no @code{SET_IP}.
 
-@item TAIL;
-@findex TAIL;
-Vmgen replaces @samp{TAIL;} with code for ending a VM instruction and
-dispatching the next VM instruction.  Even without a @samp{TAIL;} this
+@item INST_TAIL;
+@findex INST_TAIL;
+Vmgen replaces @samp{INST_TAIL;} with code for ending a VM instruction and
+dispatching the next VM instruction.  Even without a @samp{INST_TAIL;} this
 happens automatically when control reaches the end of the C code.  If
 you want to have this in the middle of the C code, you need to use
-@samp{TAIL;}.  A typical example is a conditional VM branch:
+@samp{INST_TAIL;}.  A typical example is a conditional VM branch:
 
 @example
 if (branch_condition) @{
-  SET_IP(target); TAIL;
+  SET_IP(target); INST_TAIL;
 @}
 /* implicit tail follows here */
 @end example
 
-In this example, @samp{TAIL;} is not strictly necessary, because there
+In this example, @samp{INST_TAIL;} is not strictly necessary, because there
 is another one implicitly after the if-statement, but using it improves
 branch prediction accuracy slightly and allows other optimizations.
 
@@ -822,7 +845,7 @@ typical application is in conditional VM branches:
 
 @example
 if (branch_condition) @{
-  SET_IP(target); TAIL; /* now this TAIL is necessary */
+  SET_IP(target); INST_TAIL; /* now this INST_TAIL is necessary */
 @}
 SUPER_CONTINUE;
 @end example
@@ -832,7 +855,7 @@ SUPER_CONTINUE;
 Note that Vmgen is not smart about C-level tokenization, comments,
 strings, or conditional compilation, so it will interpret even a
 commented-out SUPER_END as ending a basic block (or, e.g.,
-@samp{RETAIL;} as @samp{TAIL;}).  Conversely, Vmgen requires the literal
+@samp{RESET_IP;} as @samp{SET_IP;}).  Conversely, Vmgen requires the literal
 presence of these strings; Vmgen will not see them if they are hiding in
 a C preprocessor macro.
 
@@ -879,7 +902,7 @@ The Vmgen-erated code loads the stack items from stack-pointer-indexed
 memory into variables before the user-supplied C code, and stores them
 from variables to stack-pointer-indexed memory afterwards.  If you do
 any writes to the stack through its stack pointer in your C code, it
-will not affact the variables, and your write may be overwritten by the
+will not affect the variables, and your write may be overwritten by the
 stores after the C code.  Similarly, a read from a stack using a stack
 pointer will not reflect computations of stack items in the same VM
 instruction.
@@ -1013,16 +1036,70 @@ VM interpreters.  However, if you have ideas or requests in that
 direction, please let me know (@pxref{Contact}).
 
 @c ********************************************************************
-@node Using the generated code, Changes, Input File Format, Top
+@node Error messages, Using the generated code, Input File Format, Top
+@chapter Error messages
+@cindex error messages
+
+These error messages are created by Vmgen:
+
+@table @code
+
+@cindex @code{# can only be on the input side} error
+@item # can only be on the input side
+You have used an instruction-stream prefix (usually @samp{#}) after the
+@samp{--} (the output side); you can only use it before (the input
+side).
+
+@cindex @code{prefix for this combination must be defined earlier} error
+@item the prefix for this combination must be defined earlier
+You have defined a superinstruction (e.g. @code{abc = a b c}) without
+defining its direct prefix (e.g., @code{ab = a b}),
+@xref{Superinstructions}.
+
+@cindex @code{sync line syntax} error
+@item sync line syntax
+If you are using a preprocessor (e.g., @command{m4}) to generate Vmgen
+input code, you may want to create @code{#line} directives (aka sync
+lines).  This error indicates that such a line is not in th syntax
+expected by Vmgen (this should not happen).
+
+@cindex @code{syntax error, wrong char} error
+@cindex syntax error, wrong char
+A syntax error.  Note that Vmgen is sometimes anal retentive about white
+space, especially about newlines.
+
+@cindex @code{too many stacks} error
+@item too many stacks
+Vmgen currently supports 4 stacks; if you need more, let us know.
+
+@cindex @code{unknown prefix} error
+@item unknown prefix
+The stack item does not match any defined type prefix (after stripping
+away any stack prefix).  You should either declare the type prefix you
+want for that stack item, or use a different type prefix
+
+@item @code{unknown primitive} error
+@item unknown primitive
+You have used the name of a simple VM instruction in a superinstruction
+definition without defining the simple VM instruction first.
+
+@end table
+
+In addition, the C compiler can produce errors due to code produced by
+Vmgen; e.g., you need to define type cast functions.
+
+@c ********************************************************************
+@node Using the generated code, Hints, Error messages, Top
 @chapter Using the generated code
 @cindex generated code, usage
 @cindex Using vmgen-erated code
 
 The easiest way to create a working VM interpreter with Vmgen is
 probably to start with @file{vmgen-ex}, and modify it for your purposes.
-This chapter is just the reference manual for the macros etc. used by
-the generated code, the other context expected by the generated code,
-and what you can do with the various generated files.
+This chapter explains what the various wrapper and generated files do.
+It also contains reference-manual style descriptions of the macros,
+variables etc. used by the generated code, and you can skip that on
+first reading.
 
 @menu
 * VM engine::                   Executing VM code
@@ -1059,6 +1136,7 @@ In our example the engine function also includes
 @file{@var{name}-labels.i} (@pxref{VM instruction table}).
 
 @cindex tracing VM code
+@cindex superinstructions and tracing
 In addition to executing the code, the VM engine can optionally also
 print out a trace of the executed instructions, their arguments and
 results.  For superinstructions it prints the trace as if only component
@@ -1080,8 +1158,8 @@ The following macros and variables are used in @file{@var{name}-vm.i}:
 @item LABEL(@var{inst_name})
 This is used just before each VM instruction to provide a jump or
 @code{switch} label (the @samp{:} is provided by Vmgen).  For switch
-dispatch this should expand to @samp{case @var{label}}; for
-threaded-code dispatch this should just expand to @samp{@var{label}}.
+dispatch this should expand to @samp{case @var{label}:}; for
+threaded-code dispatch this should just expand to @samp{@var{label}:}.
 In either case @var{label} is usually the @var{inst_name} with some
 prefix or suffix to avoid naming conflicts.
 
@@ -1093,9 +1171,9 @@ should expand to nothing.
 @findex NAME
 @item NAME(@var{inst_name_string})
 Called on entering a VM instruction with a string containing the name of
-the VM instruction as parameter.  In normal execution this should be a
-noop, but for tracing this usually prints the name, and possibly other
-information (several VM registers in our example).
+the VM instruction as parameter.  In normal execution this should be
+expand to nothing, but for tracing this usually prints the name, and
+possibly other information (several VM registers in our example).
 
 @findex DEF_CA
 @item DEF_CA
@@ -1114,7 +1192,8 @@ different ways for best performance on various processors (see
 @samp{NEXT_P0} is invoked right at the start of the VM instruction (but
 after @samp{DEF_CA}), @samp{NEXT_P1} right after the user-supplied C
 code, and @samp{NEXT_P2} at the end.  The actual jump has to be
-performed by @samp{NEXT_P2}.
+performed by @samp{NEXT_P2} (if you would do it earlier, important parts
+of the VM instruction would not be executed).
 
 The simplest variant is if @samp{NEXT_P2} does everything and the other
 macros do nothing.  Then also related macros like @samp{IP},
@@ -1541,9 +1620,74 @@ it uses variables and functions defined in @file{vmgen-ex/profile.c},
 plus @code{VM_IS_INST} already defined for the VM disassembler
 (@pxref{VM disassembler}).
 
+@c **********************************************************
+@node Hints, The future, Using the generated code, Top
+@chapter Hints
+@cindex hints
+
+@menu
+* Floating point::              and stacks
+@end menu
+
+@c --------------------------------------------------------------------
+@node Floating point,  , Hints, Hints
+@section Floating point
+
+How should you deal with floating point values?  Should you use the same
+stack as for integers/pointers, or a different one?  This section
+discusses this issue with a view on execution speed.
+
+The simpler approach is to use a separate floating-point stack.  This
+allows you to choose FP value size without considering the size of the
+integers/pointers, and you avoid a number of performance problems.  The
+main downside is that this needs an FP stack pointer (and that may not
+fit in the register file on the 386 arhitecture, costing some
+performance, but comparatively little if you take the other option into
+account).  If you use a separate FP stack (with stack pointer @code{fp}),
+using an fpTOS is helpful on most machines, but some spill the fpTOS
+register into memory, and fpTOS should not be used there.
+
+The other approach is to share one stack (pointed to by, say, @code{sp})
+between integer/pointer and floating-point values.  This is ok if you do
+not use @code{spTOS}.  If you do use @code{spTOS}, the compiler has to
+decide whether to put that variable into an integer or a floating point
+register, and the other type of operation becomes quite expensive on
+most machines (because moving values between integer and FP registers is
+quite expensive).  If a value of one type has to be synthesized out of
+two values of the other type (@code{double} types), things are even more
+interesting.
+
+One way around this problem would be to not use the @code{spTOS}
+supported by Vmgen, but to use explicit top-of-stack variables (one for
+integers, one for FP values), and having a kind of accumulator+stack
+architecture (e.g., Ocaml bytecode uses this approach); however, this is
+a major change, and it's ramifications are not completely clear.
 
 @c **********************************************************
-@node Changes, Contact, Using the generated code, Top
+@node The future, Changes, Hints, Top
+@chapter The future
+@cindex future ideas
+
+We have a number of ideas for future versions of Gforth.  However, there
+are so many possible things to do that we would like some feedback from
+you.  What are you doing with Vmgen, what features are you missing, and
+why?
+
+One idea we are thinking about is to generate just one @file{.c} file
+instead of letting you copy and adapt all the wrapper files (you would
+still have to define stuff like the type-specific macros, and stack
+pointers etc. somewhere).  The advantage would be that, if we change the
+wrapper files between versions, you would not need to integrate your
+changes and our changes to them; Vmgen would also be easier to use for
+beginners.  The main disadvantage of that is that it would reduce the
+flexibility of Vmgen a little (well, those who like flexibility could
+still patch the resulting @file{.c} file, like they are now doing for
+the wrapper files).  In any case, if you are doing things to the wrapper
+files that would cause problems in a generated-@file{.c}-file approach,
+please let us know.
+
+@c **********************************************************
+@node Changes, Contact, The future, Top
 @chapter Changes
 @cindex Changes from old versions
 
@@ -1557,6 +1701,11 @@ in the future.
 The required changes are:
 
 @table @code
+
+@cindex @code{TAIL;}, changes
+@item TAIL;
+has been renamed into @code{INST_TAIL;} (less chance of an accidental
+match).
 
 @cindex @code{vm_@var{A}2@var{B}}, changes
 @item vm_@var{A}2@var{B}

@@ -558,9 +558,9 @@ define(enginerest,
   NEXT;
 
 #ifndef IN_ENGINE2
-#define LABEL(name) I_##name
+#define LABEL(name) I_##name:
 #else
-#define LABEL(name) J_##name: asm(".skip 16"); I_##name
+#define LABEL(name) J_##name: asm(".skip 16"); I_##name:
 #endif
 #define LABEL2(name)
 #include "prim.i"

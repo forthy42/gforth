@@ -645,20 +645,20 @@ stack inst-stream IP Cell
     ." NEXT_P2;" cr ;
 
 : type-c-code ( c-addr u xt -- )
-    \ like TYPE, but replaces "TAIL;" with tail code produced by xt
+    \ like TYPE, but replaces "INST_TAIL;" with tail code produced by xt
     { xt }
     begin ( c-addr1 u1 )
-	2dup s" TAIL;" search
+	2dup s" INST_TAIL;" search
     while ( c-addr1 u1 c-addr3 u3 )
 	2dup 2>r drop nip over - type
 	xt execute
-	2r> 5 /string
+	2r> 10 /string
 	\ !! resync #line missing
     repeat
     2drop type ;
 
 : print-entry ( -- )
-    ." LABEL(" prim prim-c-name 2@ type ." ):" ;
+    ." LABEL(" prim prim-c-name 2@ type ." )" ;
     
 : output-c ( -- ) 
  print-entry ."  /* " prim prim-name 2@ type ."  ( " prim prim-stack-string 2@ type ." ) */" cr
