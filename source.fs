@@ -32,7 +32,7 @@ end-struct sourcepos
     
 : sourcepos, ( -- )
     \ record the current source position HERE
-    loadfilename# @ , loadline @ , ;
+    loadfilename# @ , sourceline# , ;
 
 : get-sourcepos ( a-addr -- c-addr u n )
     \ c-addr u is the filename, n is the line number

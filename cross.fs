@@ -418,7 +418,7 @@ Create tag-bof 1 c,  0C c,
     loadfilename 2@ last-loadfilename 2@ d<>
     IF
 	tag-bof count tag-file-id write-line throw
-	loadfilename 2@ 2dup
+	sourcefilename 2dup
 	tag-file-id write-file throw
 	last-loadfilename 2!
 	s" ,0" tag-file-id write-line throw
@@ -432,7 +432,7 @@ Create tag-bof 1 c,  0C c,
 	tag-beg count tag-file-id write-file throw
 	tlast @ >image count $1F and tag-file-id write-file throw
 	tag-end count tag-file-id write-file throw
-	base @ decimal loadline @ 0 <# #s #> tag-file-id write-file throw
+	base @ decimal sourceline# 0 <# #s #> tag-file-id write-file throw
 \	>in @ 0 <# #s [char] , hold #> tag-file-id write-line throw
 	s" ,0" tag-file-id write-line throw
 	base !

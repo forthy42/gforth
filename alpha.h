@@ -20,9 +20,17 @@
 */
 
 /* Be careful: long long on Alpha are 64 bit :-(( */
+#define LONG_LATENCY
+
+#if !defined(USE_TOS) && !defined(USE_NO_TOS)
+#define USE_TOS
+#endif
 
 #ifdef DIRECT_THREADED
+#warning direct threading not supported on the Alpha (yet)
 #undefine DIRECT_THREADED
 #endif
+
+#define FLUSH_ICACHE(addr,size)		asm("call_pal 0x86") /* imb */
 
 #include "32bit.h"

@@ -1338,7 +1338,7 @@ Defer key ( -- c ) \ core
   tib /line
   loadfile @ ?dup
   IF    read-line throw
-  ELSE  loadline @ 0< IF 2drop false EXIT THEN
+  ELSE  sourceline# 0< IF 2drop false EXIT THEN
         accept true
   THEN
   1 loadline +!
@@ -1380,14 +1380,14 @@ create nl$ 1 c, A c, 0 c, \ gnu includes usually a cr in dos
 \ include-file                                         07apr93py
 
 : push-file  ( -- )  r>
-  loadline @ >r  loadfile @ >r
+  sourceline# >r  loadfile @ >r
   blk @ >r  tibstack @ >r  >tib @ >r  #tib @ >r
   >tib @ tibstack @ = IF  r@ tibstack +!  THEN
   tibstack @ >tib ! >in @ >r  >r ;
 
 : pop-file   ( throw-code -- throw-code )
   dup IF
-         source >in @ loadline @ loadfilename 2@
+         source >in @ sourceline# sourcefilename
 	 error-stack dup @ dup 1+
 	 max-errors 1- min error-stack !
 	 6 * cells + cell+
@@ -1462,6 +1462,20 @@ create image-included-files 0 , 0 , ( pointer to and count of included files )
 : loadfilename ( -- a-addr )
     \ a-addr 2@ produces the current file name ( c-addr u )
     included-files 2@ drop loadfilename# @ 2* cells + ;
+
+: sourcefilename ( -- c-addr u ) \ gforth
+    \ the name of the source file which is currently the input
+    \ source.  The result is valid only while the file is being
+    \ loaded.  If the current input source is no (stream) file, the
+    \ result is undefined.
+    loadfilename 2@ ;
+
+: sourceline# ( -- u ) \ gforth		sourceline-number
+    \ the line number of the line that is currently being interpreted
+    \ from a (stream) file. The first line has the number 1. If the
+    \ current input source is no (stream) file, the result is
+    \ undefined.
+    loadline @ ;
 
 : init-included-files ( -- )
     image-included-files 2@ 2* cells save-string drop ( addr )
@@ -1629,8 +1643,8 @@ DEFER DOERROR
 ;
 
 : (DoError) ( throw-code -- )
-  loadline @ IF
-               source >in @ loadline @ 0 0 .error-frame
+  sourceline# IF
+               source >in @ sourceline# 0 0 .error-frame
   THEN
   error-stack @ 0 ?DO
     -1 error-stack +!

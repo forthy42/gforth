@@ -1,5 +1,14 @@
 dnl Process this file with autoconf to produce a configure script.
+
 AC_INIT(engine.c)
+
+GCC=${GCC-gcc}
+AC_SUBST(GCC)
+
+dnl configure needs $CC to find out some parameters, and there may be
+dnl differences in what is obtained from gcc and from the default cc.
+dnl Therefore, we define $CC to be gcc:
+CC=$GCC
 
 AC_ARG_ENABLE(force-reg,
 [  --enable-force-reg	  Use explicit register declarations if they appear in

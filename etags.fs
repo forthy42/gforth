@@ -74,11 +74,11 @@ create emit-file-char 0 c,
 
 : put-load-file-name ( file-id -- )
     >r
-    loadfilename 2@ last-loadfilename 2@ d<>
+    sourcefilename last-loadfilename 2@ d<>
     if
 	#ff r@ emit-file throw
 	#lf r@ emit-file throw
-	loadfilename 2@ 2dup
+	sourcefilename 2dup
 	r@ write-file throw
 	last-loadfilename 2!
 	s" ,0" r@ write-line throw
@@ -100,7 +100,7 @@ create emit-file-char 0 c,
 	last @ name>string r@ write-file throw
 	bl r@ emit-file throw
 	1 r@ emit-file throw
-	base @ decimal loadline @ 0 <# #s #> r@ write-file throw base !
+	base @ decimal sourceline# 0 <# #s #> r@ write-file throw base !
 	s" ,0" r@ write-line throw
 	\ the character position in the file; not strictly necessary AFAIK
 	\ instead of using 0, we could use file-position and subtract

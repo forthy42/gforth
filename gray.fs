@@ -308,7 +308,7 @@ aligned constant syntax-expr   \ length of a syntax-expr )
 \ the following is just a dummy
 [ s" gforth" environment? ]
 [IF]  [ 2drop ]
- 0 loadline @ 2,
+ 0 sourceline# 2,
 [ELSE]
 [ s" bigFORTH" environment? ]
 [IF]  [ 2drop ]

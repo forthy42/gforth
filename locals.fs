@@ -83,7 +83,7 @@ Create inlocal  5 cells allot  inlocal off
 : (local)  ( addr u -- )  inlocal @ 0=
   IF  postpone <local inlocal on
       inlocal 3 cells + 2!  inlocal cell+ 2! THEN
-  dup IF    linestart @ >r loadline @ >r loadfile @ >r
+  dup IF    linestart @ >r sourceline# >r loadfile @ >r
             blk @ >r >tib @ >r  #tib @ dup >r  >in @ >r
 
             >tib +! dup #tib ! >tib @ swap move

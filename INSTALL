@@ -4,14 +4,6 @@ First, type
 
 ./configure
 
-or better
-
-CC=gcc ./configure
-
-or however your gcc is called; because configure needs cc to find out some
-parameters, and there may be differences in what is obtained from gcc and
-from ghe default cc.
-
 configure has the following useful parameters:
   --prefix=PREFIX         install architecture-independent files in PREFIX
                           [default: /usr/local]
@@ -36,21 +28,18 @@ configure has the following useful parameters:
 If you don't like the defaults for the installation directories, you
 should override them already during configure.  E.g., if you want to
 install in the /gnu hierarchy instead of in the default /usr/local
-hirarchy, say
+hierarchy, say
 
 ./configure --prefix=/gnu
+
+Moreover, if your GCC is not called gcc (but, e.g., gcc-2.7.1), you
+should say so during configuration:
+
+env GCC=gcc-2.7.1 ./configure
 
 After, configuration, type
 
 make
-
-If your make has trouble with the Makefile, "make gforth" might work.
-
-If your installed gcc isn't called "gcc" (e.g., called "gcc-2.6.1"), type
-
-make GCC=<whatever you call your gcc>
-
-instead.
 
 Now you can check whether your shiny new Forth system works. Say
 

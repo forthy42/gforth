@@ -129,14 +129,14 @@ decimal
 \ SOURCE-ID SAVE-INPUT RESTORE-INPUT                    11jun93jaw
 
 : source-id ( -- 0 | -1 | fileid ) \ core-ext source-i-d
-  loadfile @ dup 0= IF  drop loadline @ 0 min  THEN ;
+  loadfile @ dup 0= IF  drop sourceline# 0 min  THEN ;
 
 : save-input ( -- x1 .. xn n ) \ core-ext
   >in @
   loadfile @ ?dup
-  IF    dup file-position throw loadline @ >tib @ 6
+  IF    dup file-position throw sourceline# >tib @ 6
         #tib @ >tib +!
-  ELSE  loadline @ blk @ linestart @ >tib @ 5 THEN
+  ELSE  sourceline# blk @ linestart @ >tib @ 5 THEN
 ;
 
 : restore-input ( x1 .. xn n -- flag ) \ core-ext
@@ -144,7 +144,7 @@ decimal
   6 = IF   loadline ! rot dup loadfile !
            reposition-file IF drop true EXIT THEN
       ELSE linestart ! blk !
-           dup loadline @ <> IF 2drop true EXIT THEN
+           dup sourceline# <> IF 2drop true EXIT THEN
            loadline !
       THEN
   >in ! false ;

@@ -34,7 +34,7 @@ INSTALL	= @INSTALL@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_DATA = @INSTALL_DATA@
 LN_S	= @LN_S@
-GCC	= gcc
+GCC	= @GCC@
 CC	= $(GCC)
 FORTH	= ./gforth
 FORTHK	= $(FORTH) -i kernal.fi
@@ -100,7 +100,7 @@ SOURCES	= Makefile.in configure.in configure config.sub  config.guess \
 
 RCS_FILES =  ToDo model high-level
 
-GEN = gforth
+GEN = gforth first
 
 OBJECTS	= engine.o io.o main.o @LIBOBJS@ @getopt_long@
 
@@ -142,14 +142,25 @@ more:	$(FORTH_GEN) gforth
 # `distclean' also deletes the files made by config.
 # `realclean' also deletes everything that could be regenerated automatically."
 
-clean:		
-		-$(RM) $(GEN) *.o *.s gforth.fi *.fi~ *.fi+ version.fs TAGS crossdoc.fd
+mostlyclean:
+		-$(RM) -rf *.s gforth.fi *.fi~ *.fi+ version.fs TAGS \
+		crossdoc.fd doc.fd gforth.aux gforth.cp gforth.cps \
+		gforth.dvi gforth.fn gforth.ky gforth.log gforth.pg \
+		gforth.toc gforth.tp gforth.vr html 
+
+clean:		mostlyclean
+		-$(RM) -rf $(GEN) *.o 
 
 distclean:	clean
 		-$(RM) machine.h kernal.fi config.cache config.log config.status Makefile
 
 realclean:	distclean
 		-$(RM) $(GEN_PRECIOUS)
+
+#mostlyclean, but also remove some of the stuff that is distributed
+virtualclean:	mostlyclean
+		-$(RM) -rf gforth.fns gforth.texi gforth.ps gforth.info* \
+		gforth-$(VERSION).tar.gz config.cache *~
 
 dist:		$(SOURCES) $(FORTH_GEN) $(DOCDIST)
 		-rm -rf gforth-$(VERSION)
@@ -190,6 +201,7 @@ binonlydist:	$(SOURCES) $(FORTH_GEN) gforth $(OBJECTS)
 install:	gforth $(FORTH_SRC) kernal.fi gforth.fi gforth.1 gforth.info
 		$(INSTALL) -d $(bindir) $(mandir) $(infodir) $(libdir)/gforth/$(VERSION) $(datadir)/gforth/$(VERSION) $(libdir)/gforth/site-forth $(datadir)/gforth/site-forth
 		touch $(datadir)/gforth/site-forth/site-init.fs
+		-$(RM) $(bindir)/gforth
 		$(INSTALL_PROGRAM) -s gforth $(bindir)
 		ln -f $(bindir)/gforth $(bindir)/gforth-$(VERSION)
 		$(INSTALL_DATA) gforth.1 $(mandir)
@@ -197,7 +209,7 @@ install:	gforth $(FORTH_SRC) kernal.fi gforth.fi gforth.1 gforth.info
 		for i in $(FORTH_SRC); do \
 			$(INSTALL_DATA) $$i $(datadir)/gforth/$(VERSION); \
 		done
-		rm gforth.fi; make gforth.fi #gforth.fi contains some path names
+		$(RM) gforth.fi; make gforth.fi #gforth.fi contains some path names
 		$(INSTALL_DATA) kernal.fi gforth.fi $(libdir)/gforth/$(VERSION)
 
 
@@ -329,7 +341,7 @@ gforth.texi:	gforth.ds primitives.b ds2texi.fs prims2x.fs doc.fd crossdoc.fd
 checkdoc:	gforth.ds primitives.b ds2texi.fs prims2x.fs doc.fd crossdoc.fd answords.fs
 		$(FORTHK) -p . ds2texi.fs answords.fs -e bye
 
-gforth.dvi:	gforth.texi
+gforth.dvi gforth.fns:	gforth.texi
 		$(TEXI2DVI) gforth.texi
 
 gforth.ps:	gforth.dvi
