@@ -419,7 +419,13 @@ const Create ???  0 , 3 , char ? c, char ? c, char ? c,
 
 [THEN]
 
-: body> 0 >body - ;
+cell% 2* 0 0 field >body ( xt -- a_addr ) \ core
+\G Get the address of the body of the word represented by @i{xt} (the
+\G address of the word's data field).
+drop drop
+
+cell% -2 * 0 0 field body> ( xt -- a_addr )
+drop drop
 
 : (search-wordlist)  ( addr count wid -- nt | false )
     dup wordlist-map @ find-method perform ;

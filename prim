@@ -1473,13 +1473,6 @@ f_addr = (Float *)((((Cell)c_addr)+(sizeof(Float)-1))&(-sizeof(Float)));
 :
  [ 1 floats 1- ] Literal + [ -1 floats ] Literal and ;
 
->body	( xt -- a_addr )	core	to_body
-"" Get the address of the body of the word represented by @i{xt} (the address
-of the word's data field).""
-a_addr = PFA(xt);
-:
-    2 cells + ;
-
 \ threading stuff is currently only interesting if we have a compiler
 \fhas? standardthreading has? compiler and [IF]
 
