@@ -109,6 +109,7 @@ Variable link-suffix
 Variable iconpath
 
 Variable do-size
+Variable do-icon
 
 Defer parse-line
 
@@ -131,8 +132,9 @@ Defer parse-line
     UNTIL  ELSE  drop  THEN
     r> close-dir throw ;
 
-: link-icon? ( -- )  iconpath @  IF  iconpath $off  THEN
-    link $@
+: link-icon? ( -- )  do-icon @ 0= ?EXIT
+    iconpath @  IF  iconpath $off  THEN
+    link $@ + 1- c@ '/ = IF  s" index.html"  ELSE  link $@  THEN
     BEGIN  '. $split 2swap 2drop dup  WHILE
 	2dup get-icon  REPEAT  2drop ;
 
@@ -142,23 +144,26 @@ Defer parse-line
     r> close-file throw ;
 
 : link-options ( addr u -- addr' u' )
-    do-size off
-    over c@ '% = over 0> and IF  do-size on  1 /string  THEN ;
+    do-size off  do-icon on
+    over c@ '% = over 0> and IF  do-size on  1 /string  THEN
+    over c@ '\ = over 0> and IF  do-icon off 1 /string  THEN ;
 
 : parse-string ( addr u -- )
     evaluate-input cell new-tib #tib ! tib !
     ['] parse-line catch pop-file throw ;
 
-: .link ( -- )  '[ parse type '] parse '| $split
+: .link ( addr u -- ) '| $split 
     link-options link $!
     link $@len 0= IF  2dup link $! s" .html" link $+!  THEN
     link-icon? link $@ href= s" a" tag
-    parse-string s" a" /tag  link-size? ;
+    parse-string s" a" /tag link-size? ;
+: >link ( -- )  '[ parse type '] parse .link ;
 
-: .img ( -- ) '{ parse type '} parse '| $split
+: .img ( addr u -- ) '| $split 
     dup IF  2swap alt=  ELSE  2drop  THEN
     tag-option $@len >r over c@ >align tag-option $@len r> = 1+ /string
     2dup .img-size src= s" img" tag ;
+: >img ( -- )   '{ parse type '} parse .img ;
 
 \ line handling
 
@@ -168,9 +173,18 @@ Defer parse-line
     r> parse 2swap tagged ;
 
 : .text ( -- ) 	>in @ >r char drop
-    source r@ /string >in @ r> - nip type ;
+    source r@ /string >in @ r> - nip
+    bounds ?DO  I c@
+	case
+	    '& of  ." &amp;"  endof
+	    '< of  ." &lt;"   endof
+	    dup emit
+	endcase
+    LOOP ;
 
 Create do-words  $100 0 [DO] ' .text , [LOOP]
+
+:noname '( emit 1 >in +! ; '( cells do-words + !
 
 : bind-char ( xt -- )  char cells do-words + ! ;
 
@@ -182,27 +196,47 @@ char>tag * b
 char>tag _ em
 char>tag # code
 
-' .link bind-char [
-' .img  bind-char {
+' >link bind-char [
+' >img  bind-char {
 
 : do-word ( char -- )  cells do-words + perform ;
 
+: word? ( -- addr u )  >in @ >r bl sword r> >in ! ;
+
+wordlist Constant autoreplacements
+
 :noname ( -- )
-    BEGIN  char? do-word source nip >in @ = UNTIL ; is parse-line
+    BEGIN char? do-word source nip >in @ = UNTIL ; is parse-line
+
+: parse-line+ ( -- )
+    BEGIN
+	word? autoreplacements search-wordlist
+	IF    execute  bl sword 2drop
+	    source >in @ 1- /string drop c@ bl = >in +!
+	ELSE  char? do-word  THEN
+	source nip >in @ = UNTIL ;
 
 : parse-to ( char -- ) >r
     BEGIN  char? dup r@ <> WHILE
 	do-word source nip >in @ = UNTIL  ELSE  drop  THEN
     r> parse type ;
 
+\ autoreplace
+
+: autoreplace ( <[string|url]> -- )
+    get-current autoreplacements set-current
+    Create set-current
+    here 0 , '[ parse 2drop '] parse rot $!
+    DOES> $@ .link ;
+    
 \ paragraph handling
 
 : parse-par ( -- )
-    BEGIN  parse-line cr refill  WHILE
+    BEGIN  parse-line+ cr refill  WHILE
 	source nip 0= UNTIL  THEN ;
 
 : par ( addr u -- ) env? 2dup tag parse-par /tag cr cr ;
-: line ( addr u -- ) env? 2dup tag parse-line /tag cr cr ;
+: line ( addr u -- ) env? 2dup tag parse-line+ /tag cr cr ;
 
 \ handle global tags
 
@@ -230,8 +264,12 @@ longtags set-current
 : <* s" center" >env ;
 : >> -env ;
 : *> -env ;
-: :: also forth interpret previous ;
+: :: interpret ;
 : . end-sec on indentlevel off ;
+: :code s" pre" >env
+    BEGIN  source >in @ /string type cr refill  WHILE
+	source s" :endcode" compare 0= UNTIL  THEN
+  -env ;
 : \ postpone \ ;
 
 definitions
@@ -266,14 +304,14 @@ definitions
 \ parse a section
 
 : section-line ( -- )  >in off
-    bl sword find-name
-    ?dup IF  name>int execute
+    bl sword longtags search-wordlist
+    IF    execute
     ELSE  source nip IF  >in off s" p" par  THEN  THEN ;
 : refill-loop ( -- )  end-sec off
     BEGIN  refill  WHILE
 	section-line end-sec @ UNTIL  THEN ;
 : parse-section ( -- )
-    get-order  longtags 1 set-order  refill-loop set-order ;
+    refill-loop ;
 
 \ HTML head
 
