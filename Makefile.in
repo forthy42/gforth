@@ -278,12 +278,11 @@ SOURCES	= $(CVSDIRS) compat Makefile.in engine/Makefile.in gforthmi \
 	gforth.el \
 	prim engine/engine.c engine/main.c engine/io.c engine/memcmpc.c \
 	$(ARCHS) \
-	engine/32bit.h \
 	engine/getopt.c engine/getopt1.c engine/getopt.h engine/select.c \
 	engine/ecvt.c engine/memcmp.c engine/strtol.c engine/strtoul.c \
 	engine/ansidecl.h engine/memmove.c \
 	engine/pow10.c engine/atanh.c engine/cleanalign.c \
-	engine/strerror.c engine/strsignal.c engine/strsig.c engine/dblsub.c \
+	engine/strerror.c engine/strsignal.c engine/dblsub.c \
 	INSTALL.DOS makefile.dos engine/makefile.dos mkdosmf.sed config.bat \
 	dosconf.h gforthmi.bat mkinstalldirs \
 	versions.bsh \
