@@ -104,13 +104,13 @@
 #  define INC_IP(const_inc)	({cfa=IP[const_inc]; ip+=(const_inc);})
 #  define DEF_CA	Label ca;
 #  define NEXT_P1	({\
-  if (cfa<=vm_prims+DOESJUMP || cfa>=vm_prims+sizeof(routines)) \
+  if (cfa<=vm_prims+DOESJUMP || cfa>=vm_prims+npriminfos) \
     fprintf(stderr,"NEXT encountered prim %p at ip=%p\n", cfa, ip); \
   ip++; ca=**cfa;})
 #  define NEXT_P2	({goto *ca;})
 #  define EXEC(XT)	({DEF_CA cfa=(XT);\
-  if (cfa>vm_prims+DOESJUMP && cfa<vm_prims+sizeof(routines)) \
-    fprintf(stderr,"EXEC encountered xt %p at ip=%p\n", cfa, ip); \
+  if (cfa>vm_prims+DOESJUMP && cfa<vm_prims+npriminfos) \
+    fprintf(stderr,"EXEC encountered xt %p at ip=%p, vm_prims=%p, xts=%p\n", cfa, ip, vm_prims, xts); \
  ca=**cfa; goto *ca;})
 
 #else /* !defined(DOUBLY_INDIRECT) */

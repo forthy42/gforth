@@ -265,6 +265,7 @@ extern UCell pagesize;
 extern ImageHeader *gforth_header;
 extern Label *vm_prims;
 extern Label *xts;
+extern Cell npriminfos;
 
 #ifdef GFORTH_DEBUGGING
 extern Xt *ip;

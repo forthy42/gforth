@@ -61,7 +61,6 @@ jmp_buf throw_jmp_buf;
 /*#  define CA(n) (symbols[(n)])*/
 #  define CA(n)	(symbols[(n)&~0x4000UL])
 #elif defined(DOUBLY_INDIRECT)
-/* #  define CA(n)	((Cell)(symbols+((n)&~0x4000UL))) */
 #  define CA(n)	({Cell _n = (n); ((Cell)(((_n & 0x4000) ? symbols : xts)+(_n&~0x4000UL)));})
 #else
 #  define CA(n)	((Cell)(symbols+((n)&~0x4000UL)))
@@ -166,7 +165,7 @@ void relocate(Cell *image, const char *bitstring,
 	/* fprintf(stderr,"relocate: image[%d]=%d of %d\n", i, image[i], size/sizeof(Cell)); */
         token=image[i];
 	if(token<0)
-	  switch(token)
+	  switch(token|0x4000)
 	    {
 	    case CF_NIL      : image[i]=0; break;
 #if !defined(DOUBLY_INDIRECT)
@@ -184,13 +183,9 @@ void relocate(Cell *image, const char *bitstring,
 	    default          :
 /*	      printf("Code field generation image[%x]:=CA(%x)\n",
 		     i, CF(image[i])); */
-#if !defined(DOUBLY_INDIRECT)
-	      if (((token | 0x4000) >= CF(DODOES)) && (token < -0x4000))
-		fprintf(stderr,"Doer %d used in this image at $%lx is marked as Xt;\n executing this code will crash.\n",CF((token | 0x4000)),(long)&image[i],VERSION);
-#endif
-	      if (CF((token | 0x4000))<max_symbols)
+	      if (CF((token | 0x4000))<max_symbols) {
 		image[i]=(Cell)CA(CF(token));
-	      else
+	      } else
 		fprintf(stderr,"Primitive %d used in this image at $%lx is not implemented by this\n engine (%s); executing this code will crash.\n",CF(token),(long)&image[i],VERSION);
 	    }
 	else {
@@ -457,17 +452,19 @@ Cell npriminfos=0;
 
 void check_prims(Label symbols1[])
 {
-#if defined(IS_NEXT_JUMP) && !defined(DOUBLY_INDIRECT)
   int i;
-  Label *symbols2=engine2(0,0,0,0,0);
+  Label *symbols2;
   static char superend[]={
 #include "prim_superend.i"
   };
 
   for (i=DOESJUMP+1; symbols1[i+1]!=0; i++)
     ;
-  priminfos = calloc(i,sizeof(PrimInfo));
   npriminfos = i;
+
+#if defined(IS_NEXT_JUMP) && !defined(DOUBLY_INDIRECT)
+  symbols2=engine2(0,0,0,0,0);
+  priminfos = calloc(i,sizeof(PrimInfo));
   for (i=DOESJUMP+1; symbols1[i+1]!=0; i++) {
     int prim_len=symbols1[i+1]-symbols1[i];
     PrimInfo *pi=&priminfos[i];
