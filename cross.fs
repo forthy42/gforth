@@ -71,6 +71,10 @@ H
 
 >CROSS
 
+\ Test against this definitions to find out whether we are cross-compiling
+\ may be usefull for assemblers
+0 Constant gforth-cross-indicator
+
 \ find out whether we are compiling with gforth
 
 : defined? bl word find nip ;
@@ -314,6 +318,18 @@ set-order previous
   ELSE  -1 ABORT" unknown debug flag"
 	\ POSTPONE false 
   THEN ; immediate
+
+: symentry ( adr len taddr -- )
+\G Produce a symbol table (an optional symbol address
+\G map) if wanted
+    [ [IFDEF] fd-symbol-table ]
+      base @ swap hex s>d <# 8 0 DO # LOOP #> fd-symbol-table write-file throw base !
+      s" :" fd-symbol-table write-file throw
+      fd-symbol-table write-line throw
+    [ [ELSE] ]
+      2drop drop
+    [ [THEN] ] ;
+
 
 \ \ --------------------	source file
 
@@ -1258,7 +1274,7 @@ Variable mirrored-link          \ linked list for mirrored regions
   >r r@ last-defined-region !
   r@ >rlen ! dup r@ >rstart ! r> >rdp ! ;
 
-: region ( addr len -- )                
+: region ( addr len -- "name" )                
 \G create a new region
   \ check whether predefined region exists 
   save-input bl word find >r >r restore-input throw r> r> 0= 
@@ -1417,9 +1433,9 @@ variable sromdp		\ start of rom-area for forth
 
 [THEN]
 
-
-0 value tdp
-variable fixed		\ flag: true: no automatic switching
+0 Value current-region
+0 Value tdp
+Variable fixed		\ flag: true: no automatic switching
 			\	false: switching is done automatically
 
 \ Switch-Policy:
@@ -1434,7 +1450,7 @@ variable constflag constflag off
 
 : activate ( region -- )
 \G next code goes to this region
-  >rdp to tdp ;
+  dup to current-region >rdp to tdp ;
 
 : (switchram)
   fixed @ ?EXIT s" rom" T $has? H 0= ?EXIT
@@ -2150,11 +2166,7 @@ Defer setup-execution-semantics
 \    >in @ cr ." sym:s/CFA=" there 4 0.r ." /"  bl word count .sym ." /g" cr >in !
     HeaderGhost
     \ output symbol table to extra file
-    [ [IFDEF] fd-symbol-table ]
-      base @ hex there s>d <# 8 0 DO # LOOP #> fd-symbol-table write-file throw base !
-      s" :" fd-symbol-table write-file throw
-      dup >ghostname fd-symbol-table write-line throw
-    [ [THEN] ]
+    dup >ghostname there symentry
     dup Last-Header-Ghost ! dup to lastghost
     dup >magic ^imm !     \ a pointer for immediate
     alias-mask flag!
@@ -2367,6 +2379,7 @@ Defer (end-code)
 : Code:
   defempty?
     Ghost >r 
+    r@ >ghostname there symentry
     r@ there ca>native resolve-noforwards
     <do:> r@ >magic !
     r> drop
@@ -3475,18 +3488,26 @@ Cond: [IFUNDEF] postpone [IFUNDEF] ;Cond
 
 : d? d? ;
 
+: \D ( -- "debugswitch" ) 
 \G doesn't skip line when debug switch is on
-: \D D? 0= IF postpone \ THEN ;
+    D? 0= IF postpone \ THEN ;
 
+: \- ( -- "wordname" )
 \G interprets the line if word is not defined
-: \- tdefined? IF postpone \ THEN ;
+   tdefined? IF postpone \ THEN ;
 
+: \+ ( -- "wordname" )
 \G interprets the line if word is defined
-: \+ tdefined? 0= IF postpone \ THEN ;
+   tdefined? 0= IF postpone \ THEN ;
+
+: \? ( -- "envorinstring" )
+\G Skip line if environmental variable evaluates to false
+   X has? 0= IF postpone \ THEN ;
 
 Cond: \- \- ;Cond
 Cond: \+ \+ ;Cond
 Cond: \D \D ;Cond
+Cond: \? \? ;Cond
 
 : ?? bl word find IF execute ELSE drop 0 THEN ;
 
