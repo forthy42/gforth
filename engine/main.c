@@ -654,9 +654,9 @@ struct cost { /* super_info might be a more accurate name */
   char branch;	    /* is it a branch (SET_IP) */
   unsigned char state_in;    /* state on entry */
   unsigned char state_out;   /* state on exit */
+  unsigned char imm_ops;     /* number of immediate operands */
   short offset;     /* offset into super2 table */
   unsigned char length;      /* number of components */
-  unsigned char imm_ops;     /* number of immediate operands */
 };
 
 PrimNum super2[] = {

@@ -1567,21 +1567,21 @@ variable offset-super2  0 offset-super2 ! \ offset into the super2 table
     rot 2 .r ." ," swap 2 .r ." ," 2 .r ." , "
     prim prim-branch? negate . ." ,"
     state-in  state-number @ 2 .r ." ,"
-    state-out state-number @ 2 .r ." ," ;
+    state-out state-number @ 2 .r ." ,"
+    inst-stream stack-in @ 1 .r ." ,"
+;
 
 : output-costs-gforth-simple ( -- )
     output-costs-prefix
     prim output-num-part
-    1 2 .r ." ,"
-    inst-stream stack-in @ 1 .r ." },"
+    1 2 .r ." },"
     output-name-comment
     cr ;
 
 : output-costs-gforth-combined ( -- )
     output-costs-prefix
     ." N_START_SUPER+" offset-super2 @ 5 .r ." ,"
-    super2-length dup 2 .r ." ," offset-super2 +!
-    inst-stream stack-in @ 1 .r ." },"
+    super2-length dup 2 .r ." }," offset-super2 +!
     output-name-comment
     cr ;
 
