@@ -48,7 +48,7 @@ Variable HashIndex
 
 \ forward declarations
 0 Value hashsearch-map
-Defer hash-alloc
+Defer hash-alloc ( addr -- addr )
 
 \ DelFix and NewFix are from bigFORTH                  15jul94py
 
@@ -105,15 +105,24 @@ Defer hash-alloc
     HashTable Hashlen cells bounds
     DO  I @
 	BEGIN  dup  WHILE
-	       dup @ swap HashPointer DelFix
-        REPEAT  I !
-    cell +LOOP  HashIndex off 
+	    dup @ swap HashPointer DelFix
+	REPEAT
+	I !
+	cell +LOOP
+    HashIndex off 
     voclink
-    BEGIN @ dup WHILE
-	  dup 0 wordlist-link -
-	  dup wordlist-map @ hashsearch-map = 
-	  IF 0 swap wordlist-extend ! ELSE drop THEN
-    REPEAT drop ;
+    BEGIN ( wordlist-link-addr )
+	@ dup
+    WHILE ( wordlist-link )
+	dup 0 wordlist-link - ( wordlist-link wid ) 
+	dup wordlist-map @ hashsearch-map = 
+	IF ( wordlist-link wid )
+	    0 swap wordlist-extend !
+	ELSE
+	    drop
+	THEN
+    REPEAT
+    drop ;
 
 : rehashall  ( wid -- ) 
   drop revealed @ 
@@ -131,7 +140,7 @@ to hashsearch-map
 
 \ hash allocate and vocabulary initialization          10oct94py
 
-:noname ( hash-alloc ) ( addr -- addr )  
+:noname ( addr -- addr )
   HashTable 0= 
   IF  Hashlen cells reserve-mem TO HashTable
       HashTable Hashlen cells erase THEN

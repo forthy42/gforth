@@ -168,28 +168,62 @@ variable span ( -- a-addr ) \ core-ext
 \ Marker creates a mark that is removed (including everything 
 \ defined afterwards) when executing the mark.
 
-: marker, ( -- mark )  here dup A,
-  voclink @ A, voclink
-  BEGIN  @ dup WHILE  dup 0 wordlist-link - @ A,  REPEAT  drop
-  udp @ , ;
+: included-files-mark ( -- u )
+    included-files 2@ nip
+    blk @ 0=
+    if \ not input from blocks
+	source-id 1 -1 within
+	if \ input from file
+	    1- \ do not include the last file (hopefully this is the
+	       \ currently included file)
+	then
+    then ;  
+
+\ hmm, most of the saving appears to be pretty unnecessary: we could
+\ derive the wordlists and the words that have to be kept from the
+\ saved value of dp value. - anton
+
+: marker, ( -- mark )
+    here
+    included-files-mark ,
+    dup A, \ here
+    voclink @ A, \ vocabulary list start
+    \ for all wordlists, remember wordlist-id (the linked list)
+    voclink
+    BEGIN
+	@ dup
+    WHILE
+	dup 0 wordlist-link - wordlist-id @ A,
+    REPEAT
+    drop
+    \ remember udp
+    udp @ , ;
 
 : marker! ( mark -- )
-    dup @ swap cell+
+    \ reset included files count; resize will happen on next add-included-file
+    included-files 2@ drop over @ included-files 2! cell+
+    \ rest of marker!
+    dup @ swap cell+ ( here rest-of-marker )
     dup @ voclink ! cell+
+    \ restore wordlists to former words
     voclink
     BEGIN
 	@ dup 
     WHILE
-	over @ over 0 wordlist-link - !
+	over @ over 0 wordlist-link - wordlist-id !
 	swap cell+ swap
     REPEAT
-    drop  voclink
+    drop
+    \ rehash wordlists to remove forgotten words
+    \ why don't we do this in a single step? - anton
+    voclink
     BEGIN
 	@ dup
     WHILE
 	dup 0 wordlist-link - rehash
     REPEAT
     drop
+    \ restore udp and dp
     @ udp !  dp !
     \ clean up vocabulary stack
     0 vp @ 0

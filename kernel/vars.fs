@@ -55,7 +55,7 @@ Create main-task  has? OS [IF] 100 [ELSE] 40 [THEN] cells allot
 main-task 
 UNLOCK tup ! LOCK
 
-Variable udp
+Variable udp \ user area size? -anton
 
 AUser next-task        main-task next-task !
 AUser prev-task        main-task prev-task !

@@ -171,9 +171,9 @@ end-struct wordlist-map-struct
 
 struct
   cell% field wordlist-map \ pointer to a wordlist-map-struct
-  cell% field wordlist-id \ not the same as wid; representation depends on implementation
+  cell% field wordlist-id \ linked list of words (for WORDS etc.)
   cell% field wordlist-link \ link field to other wordlists
-  cell% field wordlist-extend \ points to wordlist extensions (eg hashtables)
+  cell% field wordlist-extend \ wordlist extensions (eg bucket offset)
 end-struct wordlist-struct
 
 : f83find      ( addr len wordlist -- nt / false )
