@@ -94,8 +94,8 @@
 ;; define `font-lock-constant-face' in XEmacs (just copy
 ;; `font-lock-preprocessor-face')
 (unless (boundp 'font-lock-constant-face)
-  (copy-face font-lock-preprocessor-face 'font-lock-constant-face)
-  (defvar font-lock-constant-face 'font-lock-comment-face))
+  (copy-face font-lock-preprocessor-face 'font-lock-constant-face))
+
 
 ;; define `regexp-opt' in emacs versions prior to 20.1 
 ;; (this implementation is extremely inefficient, though)
@@ -1068,15 +1068,17 @@ exceeds 64 characters."
 (define-key forth-mode-map "\M-q" 'forth-fill-paragraph)
 (define-key forth-mode-map "\e." 'forth-find-tag)
 
-;setup for C-h C-i to work
+;; setup for C-h C-i to work
 (eval-and-compile (forth-require 'info-look))
 (when (memq 'info-look features)
-  ;; info-lookup-add-help not supported in XEmacs :-(
-  (defvar forth-info-lookup '(symbol (forth-mode "\\w+" t 
+  (defvar forth-info-lookup '(symbol (forth-mode "\\S-+" t 
 						  (("(gforth)Word Index"))
-						  "\\w+")))
+						  "\\S-+")))
   (unless (memq forth-info-lookup info-lookup-alist)
-    (setq info-lookup-alist (cons forth-info-lookup info-lookup-alist))))
+    (setq info-lookup-alist (cons forth-info-lookup info-lookup-alist)))
+  ;; in X-Emacs C-h C-i is by default bound to Info-query
+  (define-key forth-mode-map "\C-h\C-i" 'info-lookup-symbol))
+
 
 ;;   (info-lookup-add-help
 ;;    :topic 'symbol
@@ -1862,30 +1864,34 @@ The region is sent terminated by a newline."
 ;;; Forth menu
 ;;; Mikael Karlsson <qramika@eras70.ericsson.se>
 
-(cond ((string-match "XEmacs\\|Lucid" emacs-version)
-       (require 'func-menu)
+;; (dk) code commented out due to complaints of XEmacs users.  After
+;; all, there's imenu/speedbar, which uses much smarter scanning
+;; rules.
 
-  (defconst fume-function-name-regexp-forth
-   "^\\(:\\)[ \t]+\\([^ \t]*\\)"
-   "Expression to get word definitions in Forth.")
+;; (cond ((string-match "XEmacs\\|Lucid" emacs-version)
+;;        (require 'func-menu)
 
-  (setq fume-function-name-regexp-alist
-      (append '((forth-mode . fume-function-name-regexp-forth) 
-             ) fume-function-name-regexp-alist))
+;;   (defconst fume-function-name-regexp-forth
+;;    "^\\(:\\)[ \t]+\\([^ \t]*\\)"
+;;    "Expression to get word definitions in Forth.")
 
-  ;; Find next forth word in the buffer
-  (defun fume-find-next-forth-function-name (buffer)
-    "Searches for the next forth word in BUFFER."
-    (set-buffer buffer)
-    (if (re-search-forward fume-function-name-regexp nil t)
-      (let ((beg (match-beginning 2))
-            (end (match-end 2)))
-        (cons (buffer-substring beg end) beg))))
+;;   (setq fume-function-name-regexp-alist
+;;       (append '((forth-mode . fume-function-name-regexp-forth) 
+;;              ) fume-function-name-regexp-alist))
 
-  (setq fume-find-function-name-method-alist
-  (append '((forth-mode    . fume-find-next-forth-function-name))))
+;;   ;; Find next forth word in the buffer
+;;   (defun fume-find-next-forth-function-name (buffer)
+;;     "Searches for the next forth word in BUFFER."
+;;     (set-buffer buffer)
+;;     (if (re-search-forward fume-function-name-regexp nil t)
+;;       (let ((beg (match-beginning 2))
+;;             (end (match-end 2)))
+;;         (cons (buffer-substring beg end) beg))))
 
-  ))
+;;   (setq fume-find-function-name-method-alist
+;;   (append '((forth-mode    . fume-find-next-forth-function-name))))
+
+;;   ))
 ;;; End Forth menu
 
 ;;; File folding of forth-files
@@ -1896,40 +1902,44 @@ The region is sent terminated by a newline."
 ;;; Works most of the times but loses sync with the cursor occasionally 
 ;;; Could be improved by also folding on comments
 
-(require 'outline)
+;; (dk) This code needs a rewrite; just too ugly and doesn't use the
+;; newer and smarter scanning rules of `imenu'. Who needs it anyway??
 
-(defun f-outline-level ()
-  (cond	((looking-at "\\`\\\\")
-	 0)
-	((looking-at "\\\\ SEC")
-	 0)
-	((looking-at "\\\\ \\\\ .*")
-	 0)
-	((looking-at "\\\\ DEFS")
-	 1)
-	((looking-at "\\/\\* ")
-	 1)
-	((looking-at ": .*")
-	 1)
-	((looking-at "\\\\G")
-	 2)
-	((looking-at "[ \t]+\\\\")
-	 3)))
+;; (require 'outline)
+
+;; (defun f-outline-level ()
+;;   (cond	((looking-at "\\`\\\\")
+;; 	 0)
+;; 	((looking-at "\\\\ SEC")
+;; 	 0)
+;; 	((looking-at "\\\\ \\\\ .*")
+;; 	 0)
+;; 	((looking-at "\\\\ DEFS")
+;; 	 1)
+;; 	((looking-at "\\/\\* ")
+;; 	 1)
+;; 	((looking-at ": .*")
+;; 	 1)
+;; 	((looking-at "\\\\G")
+;; 	 2)
+;; 	((looking-at "[ \t]+\\\\")
+;; 	 3)))
   
-(defun fold-f  ()
-   (interactive)
-   (add-hook 'outline-minor-mode-hook 'hide-body)
+;; (defun fold-f  ()
+;;    (interactive)
+;;    (add-hook 'outline-minor-mode-hook 'hide-body)
 
-   ; outline mode header start, i.e. find word definitions
-;;;   (setq  outline-regexp  "^\\(:\\)[ \t]+\\([^ \t]*\\)")
-   (setq  outline-regexp  "\\`\\\\\\|:\\|\\\\ SEC\\|\\\\G\\|[ \t]+\\\\\\|\\\\ DEFS\\|\\/\\*\\|\\\\ \\\\ .*")
-   (setq outline-level 'f-outline-level)
+;;    ; outline mode header start, i.e. find word definitions
+;; ;;;   (setq  outline-regexp  "^\\(:\\)[ \t]+\\([^ \t]*\\)")
+;;    (setq  outline-regexp  "\\`\\\\\\|:\\|\\\\ SEC\\|\\\\G\\|[ \t]+\\\\\\|\\\\ DEFS\\|\\/\\*\\|\\\\ \\\\ .*")
+;;    (setq outline-level 'f-outline-level)
 
-   (outline-minor-mode)
-   (define-key outline-minor-mode-map '(shift up) 'hide-sublevels)
-   (define-key outline-minor-mode-map '(shift right) 'show-children)
-   (define-key outline-minor-mode-map '(shift left) 'hide-subtree)
-   (define-key outline-minor-mode-map '(shift down) 'show-subtree))
+;;    (outline-minor-mode)
+;;    (define-key outline-minor-mode-map '(shift up) 'hide-sublevels)
+;;    (define-key outline-minor-mode-map '(shift right) 'show-children)
+;;    (define-key outline-minor-mode-map '(shift left) 'hide-subtree)
+;;    (define-key outline-minor-mode-map '(shift down) 'show-subtree))
+
 
 ;;(define-key global-map '(shift up) 'fold-f)
 
@@ -1941,13 +1951,13 @@ The region is sent terminated by a newline."
 ;;; for all of the recognized languages.  Scanning the buffer takes some time,
 ;;; but not much.
 ;;;
-(cond ((string-match "XEmacs\\|Lucid" emacs-version)
-       (require 'func-menu)
-;;       (define-key global-map 'f8 'function-menu)
-       (add-hook 'find-fible-hooks 'fume-add-menubar-entry)
-;       (define-key global-map "\C-cg" 'fume-prompt-function-goto)
-;       (define-key global-map '(shift button3) 'mouse-function-menu)
-))
+;; (cond ((string-match "XEmacs\\|Lucid" emacs-version)
+;;        (require 'func-menu)
+;; ;;       (define-key global-map 'f8 'function-menu)
+;;        (add-hook 'find-fible-hooks 'fume-add-menubar-entry)
+;; ;       (define-key global-map "\C-cg" 'fume-prompt-function-goto)
+;; ;       (define-key global-map '(shift button3) 'mouse-function-menu)
+;; ))
 
 (provide 'forth-mode)
 
