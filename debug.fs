@@ -20,7 +20,7 @@
 
 decimal
 
-VARIABLE dbg-ip     \ istruction pointer for debugger
+VARIABLE dbg-ip     \ instruction pointer for debugger
 
 : scanword ( body -- )
         c-init C-Output off
@@ -140,11 +140,11 @@ VARIABLE Unnest
                 THEN
         AGAIN ;
 
-: dbg \ gforth 
+: dbg ( "name" -- ) \ gforth 
     ' NestXT IF EXIT THEN (debug) Leave-D ;
 
-has? compiler [IF]
-: break: \ gforth
+has? compiler invert [IF] \ nac bugfix
+: break: ( -- ) \ gforth
     r> ['] (debug) >body >r ;
 
 : (break")
@@ -152,7 +152,7 @@ has? compiler [IF]
     ." BREAK AT: " type cr
     r> ['] (debug) >body >r ;
 
-: break" \ gforth
+: break" ( 'ccc"' -- ) \ gforth
     postpone s"
     postpone (break") ; immediate
 [THEN]
