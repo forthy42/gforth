@@ -764,7 +764,7 @@ then in @file{~}, then in the normal path (see above).
 * Blocks::                      
 * Other I/O::                   
 * Programming Tools::           
-* Assembler and Code words::    
+* Assembler and Code Words::    
 * Threading Words::             
 * Including Files::             
 @end menu
@@ -3759,7 +3759,7 @@ doc-to-this
 doc-xt-new
 
 @c -------------------------------------------------------------
-@node Object Oriented Forth, Objects, Tokens for Words, Words
+@node Object Oriented Forth, Tokens for Words, Objects, Words
 @section Object oriented Forth
 @cindex oof
 @cindex object-oriented programming
@@ -3770,7 +3770,7 @@ Gforth comes with two packets for object-oriented programming,
 @file{objects.fs} and @file{oof.fs}; none of them is preloaded, so you
 have to @code{include} them before use. This section describes the
 @file{oof.fs} packet. Both packets are written in ANS Forth and can be
-used with any other standard Forth (@exref{Objects}). This section uses
+used with any other standard Forth (@pxref{Objects}). This section uses
 the same rationale why using object-oriented programming, and the same
 terminology.
 
@@ -3782,9 +3782,11 @@ create new medicaments, and a graphic user interface library (MINOS).
 * Properties of the OOF model::
 * Basic OOF Usage::
 * The base class object::
+* Class Declaration::
+* Class Implementation::
 @end menu
 
-@node Properties of the OOF model, Object Oriented Forth, Basic OOF Usage, Object Oriented Forth
+@node Properties of the OOF model, Basic OOF Usage, Object Oriented Forth, Object Oriented Forth
 @subsection Properties of the OOF model
 @cindex @file{oof.fs} properties
 
@@ -3817,7 +3819,7 @@ An implementation in ANS Forth is available.
 @end itemize
 
 
-@node Basic OOF Usage, Properties of the OOF model, The base class object, Object Oriented Forth
+@node Basic OOF Usage, The base class object, Properties of the OOF model, Object Oriented Forth
 @subsection Basic OOF Usage
 @cindex @file{oof.fs} usage
 
@@ -3893,12 +3895,12 @@ Note: You can invoke a selector only if the receiving object belongs to
 the class where the selector was defined or one of its descendents;
 e.g., you can invoke @code{draw} only for objects belonging to
 @code{graphical} or its descendents (e.g., @code{circle}). The scoping
-mechanism will check if you try to invocate a selector that is not
+mechanism will check if you try to invoke a selector that is not
 defined in this class hierarchy, so you'll get an error at compilation
 time.
 
 
-@node The base class object, Basic OOF Usage, Tokes for Words, Object Oriented Forth
+@node The base class object, Class Declaration, Basic OOF Usage, Object Oriented Forth
 @subsection The base class @file{object}
 @cindex @file{oof.fs} base class
 
@@ -3917,6 +3919,9 @@ selectors of the class @code{object}.
 @code{class} for subclassing, @code{definitions} to add definitions
 later on, and @code{class?} to get type informations (is the class a
 subclass of the class passed on the stack?).
+doc---object-class
+doc---object-definitions
+doc---object-class?
 
 @item
 @code{init} and @code{dispose} as constructor and destroctor of the
@@ -3924,34 +3929,92 @@ object. @code{init} is invocated after the object's memory is allocated,
 while @code{dispose} also handles deallocation. Thus if you redefine
 @code{dispose}, you have to call the parent's dispose with @code{super
 dispose}, too.
+doc---object-init
+doc---object-dispose
 
 @item
-@code{new}, @code{new[]}, @code{:}, @code{ptr}, and @code{[]} to create
-named and unnamed objects and object arrays or object pointers.
+@code{new}, @code{new[]}, @code{:}, @code{ptr}, @code{asptr}, and
+@code{[]} to create named and unnamed objects and object arrays or
+object pointers.
+doc---object-new
+doc---object-new[]
+doc---object-:
+doc---object-ptr
+doc---object-asptr
+doc---object-[]
 
 @item
 @code{::} and @code{super} for expicit scoping. You should use expicit
 scoping only for super classes or classes with the same set of instance
 variables. Explicit scoped selectors use early binding.
+doc---object-::
+doc---object-super
 
 @item
 @code{self} to get the address of the object
+doc---object-self
 
 @item
 @code{bind}, @code{bound}, @code{link}, and @code{is} to assign object
 pointers and instance defers.
+doc---object-bind
+doc---object-bound
+doc---object-link
+doc---object-is
 
 @item
 @code{'} to obtain selector tokens, @code{send} to invocate selectors
 form the stack, and @code{postpone} to generate selector invocation code.
+doc---object-'
+doc---object-postpone
 
 @item
 @code{with} and @code{endwith} to select the active object from the
 stack, and enabling it's scope. Using @code{with} and @code{endwith}
 also allows to create code using selector @code{postpone} without being
 trapped bye the state-smart objects.
+doc---object-with
+doc---object-endwith
 
 @end itemize
+
+@node Class Declaration, Class Implementation, The base class object, Object Oriented Forth
+@subsection Class Declaration
+@cindex class declaration
+
+@itemize @bullet
+@item
+Instance variables
+doc---oof-var
+
+@item
+Object pointers
+doc---oof-ptr
+doc---oof-asptr
+
+@item
+Instance defers
+doc---oof-defer
+
+@item
+Method selectors
+doc---oof-early
+doc---oof-method
+
+@item
+Class wide variables
+doc---oof-static
+
+@item
+End declaration
+doc---oof-how:
+doc---oof-class;
+
+@end itemize
+
+@node Class Implementation, , Class Declaration, Object Oriented Forth
+@subsection Class Implementation
+@cindex class implementation
 
 @c -------------------------------------------------------------
 @node Tokens for Words, Wordlists, Object Oriented Forth, Words
@@ -4041,7 +4104,7 @@ doc-name>string
 @node Other I/O, Programming Tools, Blocks, Words
 @section Other I/O
 
-@node Programming Tools, Assembler and Code words, Other I/O, Words
+@node Programming Tools, Assembler and Code Words, Other I/O, Words
 @section Programming Tools
 @cindex programming tools
 
@@ -4212,8 +4275,8 @@ program has stopped at the moment. You can do this by the
 @code{BREAK" string"} command. This behaves like @code{BREAK:} except that
 string is typed out when the ``breakpoint'' is reached.
 
-@node Assembler and Code words, Threading Words, Programming Tools, Words
-@section Assembler and Code words
+@node Assembler and Code Words, Threading Words, Programming Tools, Words
+@section Assembler and Code Words
 @cindex assembler
 @cindex code words
 
@@ -4320,11 +4383,16 @@ with @code{>DOES-CODE}. If the word was defined in that way, the value
 returned is different from 0 and identifies the @code{DOES>} used by the
 defining word.
 
-@node Including Files, , Threading Words, Words
+@node Including Files, Include and Require, Threading Words, Words
 @section Including Files
 @cindex including files
 
-@node Include and Require, Path handling, Including Files, Words
+@menu
+* Include and Require::
+* Path Handling::
+@end menu
+
+@node Include and Require, Path Handling, Including Files, Including Files
 @subsection Include and Requrie
 
 There a two words to include the source files more intelligently.
@@ -4332,8 +4400,8 @@ There a two words to include the source files more intelligently.
 doc-include
 doc-require
 
-@node Path handling, ,Require, Words
-@subsection Path handling
+@node Path Handling, , Include and Require, Including Files
+@subsection Path Handling
 @cindex path handling
 
 In larger program projects it is often neccassary to build up a structured
