@@ -22,7 +22,9 @@
 #include "config.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <assert.h>
 #include "forth.h"
+
 
 /* data structure: simple hash table with external chaining */
 
@@ -65,6 +67,7 @@ block_count *block_insert(Xt *ip)
   new->ip = ip;
   new->count = 0LL;
   new->insts = malloc(0);
+  assert(new->insts != NULL);
   new->ninsts = 0;
   blocks[hash(ip)] = new;
   return new;
@@ -72,7 +75,7 @@ block_count *block_insert(Xt *ip)
 
 void add_inst(block_count *b, char *inst)
 {
-  b->insts = realloc(b->insts, b->ninsts * sizeof(char *));
+  b->insts = realloc(b->insts, (b->ninsts+1) * sizeof(char *));
   b->insts[b->ninsts++] = inst;
 }
 
@@ -81,8 +84,11 @@ void vm_count_block(Xt *ip)
   block_insert(ip)->count++;
 }
 
-/* !! fix this */
-#define VM_INST(n) NULL
+#ifdef DIRECT_THREADED
+#define VM_IS_INST(inst, n) ((inst) == vm_prims[(n)+DOESJUMP+1])
+#else
+#define VM_IS_INST(inst, n) ((inst) == &(vm_prims[(n)+DOESJUMP+1]))
+#endif
 
 void postprocess_block(block_count *b)
 {
@@ -123,7 +129,12 @@ void postprocess(void)
 
 void print_block(FILE *file, block_count *b)
 {
-  fprintf(file,"%12lld ip=%p\n",b->count,b->ip);
+  size_t i;
+
+  fprintf(file,"%14lld\t",b->count);
+  for (i=0; i<b->ninsts; i++)
+    fprintf(file, "%s ", b->insts[i]);
+  putc('\n', file);
 }
 
 void vm_print_profile(FILE *file)

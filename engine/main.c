@@ -90,6 +90,7 @@ static int debug=0;
 #endif
 
 ImageHeader *gforth_header;
+Label *vm_prims;
 
 #ifdef MEMCMP_AS_SUBROUTINE
 int gforth_memcmp(const char * s1, const char * s2, size_t n)
@@ -420,7 +421,6 @@ Address loader(FILE *imagefile, char* filename)
   Char magic[8];
   char magic7; /* size byte of magic number */
   Cell preamblesize=0;
-  Label *symbols = engine(0,0,0,0,0);
   Cell data_offset = offset_image ? 56*sizeof(Cell) : 0;
   UCell check_sum;
   Cell ausize = ((RELINFOBITS ==  8) ? 0 :
@@ -440,10 +440,11 @@ Address loader(FILE *imagefile, char* filename)
 #endif
     ;
 
+  vm_prims = engine(0,0,0,0,0);
 #ifndef DOUBLY_INDIRECT
-  check_sum = checksum(symbols);
+  check_sum = checksum(vm_prims);
 #else /* defined(DOUBLY_INDIRECT) */
-  check_sum = (UCell)symbols;
+  check_sum = (UCell)vm_prims;
 #endif /* defined(DOUBLY_INDIRECT) */
   
   do {
@@ -494,7 +495,7 @@ Address loader(FILE *imagefile, char* filename)
     char reloc_bits[reloc_size];
     fseek(imagefile, preamblesize+header.image_size, SEEK_SET);
     fread(reloc_bits, 1, reloc_size, imagefile);
-    relocate((Cell *)imp, reloc_bits, header.image_size, symbols);
+    relocate((Cell *)imp, reloc_bits, header.image_size, vm_prims);
 #if 0
     { /* let's see what the relocator did */
       FILE *snapshot=fopen("snapshot.fi","wb");

@@ -670,7 +670,7 @@ s" IP" save-mem w s" error don't use # on results" make-stack inst-stream
 
 : output-profile ( -- )
     \ generate code for postprocessing the VM block profile stuff
-    ." if (*ip == VM_INST(" function-number @ 0 .r ." )) {" cr
+    ." if (VM_IS_INST(*ip, " function-number @ 0 .r ." )) {" cr
     ."   add_inst(b, " quote  prim prim-name 2@ type quote ." );" cr
     ."   ip += " inst-stream stack-in @ 1+ 0 .r ." ;" cr
     prim prim-c-code 2@  s" SET_IP"    search nip nip

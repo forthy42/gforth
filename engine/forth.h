@@ -254,6 +254,7 @@ extern int offset_image;
 extern int die_on_signal;
 extern UCell pagesize;
 extern ImageHeader *gforth_header;
+extern Label *vm_prims;
 
 #ifdef GFORTH_DEBUGGING
 extern Xt *ip;

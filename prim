@@ -1424,6 +1424,7 @@ cache.""
 FLUSH_ICACHE(c_addr,u);
 
 (bye)	( n -- )	gforth	paren_bye
+SUPER_END;
 return (Label *)n;
 
 (system)	( c_addr u -- wretval wior )	gforth	peren_system
