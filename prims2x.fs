@@ -164,13 +164,6 @@ create stacks max-stacks cells allot \ array of stacks
     save-mem r@ stack-pointer 2! 
     ['] stack-in-index r> stack-in-index-xt ! ;
 
-s" sp" save-mem s" Cell"  save-mem s" (Cell)" make-stack data-stack 
-s" fp" save-mem s" Float" save-mem s" "       make-stack fp-stack
-s" rp" save-mem s" Cell"  save-mem s" (Cell)" make-stack return-stack
-s" IP" save-mem s" Cell"  save-mem s" error don't use # on results" make-stack inst-stream
-' inst-in-index inst-stream stack-in-index-xt !
-\ !! initialize stack-in and stack-out
-
 \ stack items
 
 : init-item ( addr u addr1 -- )
@@ -425,6 +418,13 @@ does> ( item -- )
     item item-name 2@ prefix-length /string item item-name 2!
     stack item item-stack !
     item declaration ;
+
+s" sp" save-mem s" Cell"  save-mem s" (Cell)" make-stack data-stack 
+s" fp" save-mem s" Float" save-mem s" "       make-stack fp-stack
+s" rp" save-mem s" Cell"  save-mem s" (Cell)" make-stack return-stack
+s" IP" save-mem s" Cell"  save-mem s" error don't use # on results" make-stack inst-stream
+' inst-in-index inst-stream stack-in-index-xt !
+\ !! initialize stack-in and stack-out
 
 \ offset computation
 \ the leftmost (i.e. deepest) item has offset 0
