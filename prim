@@ -1187,7 +1187,7 @@ f83name2=f83name1;
 	r> @
     REPEAT  THEN  nip nip ;
 : (find-samelen) ( u f83name1 -- u f83name2/0 )
-    BEGIN  2dup cell+ c@ $1F and <> WHILE  @  dup 0= UNTIL  THEN ;
+    BEGIN  2dup cell+ c@ $1F and <> WHILE  @  dup 0= UNTIL THEN ;
 
 \+hash
 
@@ -2288,13 +2288,13 @@ for (; longname1 != NULL; longname1 = (struct Longname *)(longname1->next))
     break;
 longname2=longname1;
 :
-    BEGIN  dup WHILE  (find-samelen)  dup  WHILE
-	>r 2dup r@ cell+ char+ capscomp  0=
+    BEGIN  dup WHILE  (findl-samelen)  dup  WHILE
+	>r 2dup r@ cell+ cell+ capscomp  0=
 	IF  2drop r>  EXIT  THEN
 	r> @
     REPEAT  THEN  nip nip ;
-: (find-samelen) ( u longname1 -- u longname2/0 )
-    BEGIN  2dup cell+ c@ $1F and <> WHILE  @  dup 0= UNTIL  THEN ;
+: (findl-samelen) ( u longname1 -- u longname2/0 )
+    BEGIN  2dup cell+ @ lcount-mask and <> WHILE  @  dup 0= UNTIL  THEN ;
 
 \+hash
 
@@ -2314,8 +2314,8 @@ while(a_addr != NULL)
 }
 :
  BEGIN  dup  WHILE
-        2@ >r >r dup r@ cell+ c@ $1F and =
-        IF  2dup r@ cell+ char+ capscomp 0=
+        2@ >r >r dup r@ cell+ @ lcount-mask and =
+        IF  2dup r@ cell+ cell+ capscomp 0=
 	    IF  2drop r> rdrop  EXIT  THEN  THEN
 	rdrop r>
  REPEAT nip nip ;
@@ -2337,10 +2337,11 @@ while(a_addr != NULL)
 }
 :
  BEGIN  dup  WHILE
-        2@ >r >r dup r@ cell+ c@ $1F and =
-        IF  2dup r@ cell+ char+ -text 0=
+        2@ >r >r dup r@ cell+ @ lcount-mask and =
+        IF  2dup r@ cell+ cell+ -text 0=
 	    IF  2drop r> rdrop  EXIT  THEN  THEN
 	rdrop r>
  REPEAT nip nip ;
 
 \+
+

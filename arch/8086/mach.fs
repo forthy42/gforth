@@ -23,8 +23,9 @@ false Constant NIL
 
 >ENVIRON
 
-true  Constant ec
-true  Constant crlf
+true  SetValue ec
+true  SetValue crlf
+false SetValue new-input     \ disables object oriented input
 \ true Constant has-rom
 
 cell 2 = [IF] 32 [ELSE] 256 [THEN] KB Constant kernel-size

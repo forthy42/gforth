@@ -802,6 +802,7 @@ false DefaultValue dcomps
 false DefaultValue hash
 false DefaultValue xconds
 false DefaultValue header
+false DefaultValue backtrace
 false DefaultValue new-input
 [THEN]
 

@@ -350,7 +350,7 @@ $1fffffff constant lcount-mask
     (name>x) tuck (x>int) ( w xt )
     swap immediate-mask and flag-sign ;
 
-const Create ???  0 , 3 c, char ? c, char ? c, char ? c,
+const Create ???  0 , 3 , char ? c, char ? c, char ? c,
 \ ??? is used by dovar:, must be created/:dovar
 
 [IFDEF] forthstart
