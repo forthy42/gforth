@@ -222,7 +222,7 @@ dnl This check is just for making later checks link with libm.
 dnl using sin here is no good idea since it is built-into gcc and typechecked
 AC_CHECK_LIB(m,asin)
 AC_FUNC_MEMCMP
-AC_REPLACE_FUNCS(memmove strtoul pow10 strerror strsignal)
+AC_REPLACE_FUNCS(memmove strtoul pow10 strerror strsignal atanh)
 AC_CHECK_FUNCS(sys_siglist)
 AC_DECL_SYS_SIGLIST
 AC_CHECK_FUNC(getopt_long,getopt_long="",getopt_long="getopt.o getopt1.o")

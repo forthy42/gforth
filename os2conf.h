@@ -36,13 +36,13 @@
 #define SIZEOF_SHORT 2
 
 /* Define if you have the expm1 function.  */
-#define HAVE_EXPM1 1
+#undef HAVE_EXPM1
 
 /* Define if you have the log1p function.  */
-#define HAVE_LOG1P 1
+#undef HAVE_LOG1P
 
 /* Define if you have the rint function.  */
-#define HAVE_RINT 1
+#undef HAVE_RINT
 
 /* Define if you have the sys_siglist function.  */
 #undef HAVE_SYS_SIGLIST
@@ -57,4 +57,3 @@
 /* Define if you want to use explicit register declarations for better
    performance or for more convenient CODE words (does not work with
    all GCC versions on all machines) */
-

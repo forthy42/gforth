@@ -47,11 +47,11 @@ command lines.
 
 Add the following entry to your Autoexec.bat:
 
-SET GFORTHPATH=<your gforth source directory>:.
+SET GFORTHPATH=<your gforth source directory>;.
 
-Use / instead of \ in your gforth source directory.  Another problem
-is, that Gforth uses : as path separator, and DOS pathes may look like
-D:/gforth.  Sorry, there is no workaround for this now.
+Use / instead of \ in your gforth source directory. Gforth now uses
+';' as path separator, so you won't have problems DOS pathes that may
+contain ':', which is the default path separator in Unix.
 
 For paper documentation, print gforth.ps (a Postscript file (300dpi
 fonts, i.e., it works, but does not produce best quality on better

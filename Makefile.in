@@ -40,7 +40,7 @@ CC	= $(GCC)
 PATHSEP = @PATHSEP@
 FORTHPATH = $(libdir)/gforth/site-forth$(PATHSEP)$(datadir)/gforth/site-forth$(PATHSEP)$(libdir)/gforth/$(VERSION)$(PATHSEP)$(datadir)/gforth/$(VERSION)$(PATHSEP).
 FORTH	= ./gforth -p $(FORTHPATH)$(PATHSEP)$(srcdir)
-FORTHK	= $(FORTH) -p .$(PATHSEP)$(srcdir) -i ./kernel.fi
+FORTHK	= ./gforth -p .$(PATHSEP)$(srcdir) -i ./kernel.fi
 FORTHP	= ./gforth -i ./kernel.fi
 STRIP	= strip
 TEXI2DVI = texi2dvi
@@ -145,10 +145,11 @@ SOURCES	= CVS compat Makefile.in configure.in configure config.sub config.guess 
 	primitives engine.c main.c io.c memcasecmp.c \
 	m68k.h mips.h 386.h hppa.h cache.c sparc.h power.h alpha.h 32bit.h \
 	getopt.c getopt1.c getopt.h select.c \
-	ecvt.c memcmp.c strtol.c strtoul.c ansidecl.h memmove.c pow10.c \
+	ecvt.c memcmp.c strtol.c strtoul.c ansidecl.h memmove.c pow10.c atanh.c \
 	strerror.c strsignal.c dblsub.c \
 	INSTALL.DOS makefile.dos mkdosmf.sed configure.bat dosconf.h \
 	startup.dos history.dos \
+	os2conf.h makefile.os2 \
 	glosgen.glo glossaries.doc \
 	$(INCLUDES) $(FORTH_SRC)
 
@@ -221,11 +222,29 @@ virtualclean:	mostlyclean
 		gforth-$(VERSION).tar.gz config.cache *~ */*~
 
 #use dist targets only when srcdir=.
-dist:		$(SOURCES) $(FORTH_GEN) $(DOCDIST)
+dist:		$(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST)
 		-rm -rf gforth-$(VERSION)
 		mkdir gforth-$(VERSION)
 		$(CP) -rp $(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST) gforth-$(VERSION)
 		tar cvf - gforth-$(VERSION)|gzip -9 >gforth-$(VERSION).tar.gz
+		-rm -rf gforth-$(VERSION)
+
+#A source distribution contains only the things needed to install gforth,
+#without the documents.
+srcdist:	$(SOURCES) $(FORTH_GEN0) @KERNEL@
+		-rm -rf gforth-$(VERSION)
+		mkdir gforth-$(VERSION)
+		$(CP) -rp $(SOURCES) $(FORTH_GEN0) @KERNEL@ gforth-$(VERSION)
+		tar cvf - gforth-$(VERSION)|gzip -9 >gforth-src-$(VERSION).tar.gz
+		-rm -rf gforth-$(VERSION)
+
+#A document distribution contains only the documents, which can be created
+#with MAKE.
+docdist:	$(DOCDIST)
+		-rm -rf gforth-$(VERSION)
+		mkdir gforth-$(VERSION)
+		$(CP) -rp $(DOCDIST) gforth-$(VERSION)
+		tar cvf - gforth-$(VERSION)|gzip -9 >gforth-doc-$(VERSION).tar.gz
 		-rm -rf gforth-$(VERSION)
 
 #a binary distribution contains the complete source distribution,
@@ -437,29 +456,34 @@ doc:		gforth.ps html
 
 # For an explanation of the following Makefile rules, see node
 # `Automatic Remaking' in GNU Autoconf documentation.
-${srcdir}/configure: configure.in 
-		cd ${srcdir} && autoconf
-     
-# autoheader might not change config.h.in, so touch a stamp file.
-${srcdir}/config.h.in: stamp-h.in
-${srcdir}/stamp-h.in: configure.in  acconfig.h
-		cd ${srcdir} && autoheader
-		echo timestamp > ${srcdir}/stamp-h.in
+$(srcdir)/configure:	configure.in 
+		cd $(srcdir) && autoconf
 
-config.h: stamp-h
-stamp-h: config.h.in config.status
+# autoheader might not change config.h.in, so touch a stamp file.
+$(srcdir)/config.h.in:	stamp-h.in
+$(srcdir)/stamp-h.in:	configure.in  acconfig.h
+		cd $(srcdir) && autoheader
+		echo timestamp > $(srcdir)/stamp-h.in
+
+config.h:	stamp-h
+stamp-h:	config.h.in config.status
 		CONFIG_FILES=$@ CONFIG_HEADERS=config.h ./config.status
 		echo > stamp-h
-Makefile: Makefile.in config.status
+Makefile:	Makefile.in config.status
 		CONFIG_FILES=$@ CONFIG_HEADERS=config.h ./config.status
      
-config.status: configure
+config.status:	configure
 		./config.status --recheck
 
 
 #create files for DOS, because DOS cannot do it itself
 makefile.dos: mkdosmf.sed Makefile.in
 	sed -f mkdosmf.sed <Makefile.in >makefile.dos
+
+makefile.os2: mkos2mf.sed Makefile.in
+	sed -f mkos2mf.sed <Makefile.in >makefile.os2
+	echo '%.o:	%.c' >>makefile.os2
+	echo '		$$(GCC) $$(CFLAGS) -c $$<' >>makefile.os2
 
 history.dos: history.fs Makefile.in
 	sed -e "s,~/\.gforth-history,/gforth.his,g" <history.fs >history.dos

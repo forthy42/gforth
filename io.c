@@ -71,7 +71,7 @@
 
 /* System V machines use termio. */
 #if !defined (_POSIX_VERSION)
-#  if defined (USG) || defined (hpux) || defined (Xenix) || defined (sgi) || defined (DGUX) || defined (ultrix) || defined (Solaris)
+#  if defined (USG) || defined (hpux) || defined (Xenix) || defined (sgi) || defined (DGUX) || defined (ultrix) || defined (Solaris) || defined(_WIN32)
 #    undef NEW_TTY_DRIVER
 #    define TERMIO_TTY_DRIVER
 #    include <termio.h>
@@ -755,7 +755,7 @@ signal_throw(int sig)
 }
 
 UCell cols=80;
-#ifdef MSDOS
+#if defined(MSDOS) || defined (_WIN32)
 UCell rows=25;
 #else
 UCell rows=24;

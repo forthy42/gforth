@@ -233,6 +233,7 @@ Address loader(FILE *imagefile, char* filename)
   /* memset(image,0,wholesize); */
 
 #ifndef __unix__
+#warning Non-Unix machine, trying to help relocate with FUZZ
   if(header.base==0) image += FUZZ/2;
   else if((UCell)(header.base - (Cell)image + preamblesize) < FUZZ)
     image = header.base - preamblesize;
@@ -279,7 +280,7 @@ int go_forth(Address image, int stack, Cell *entries)
   for(;stack>0;stack--)
     *--sp=entries[stack-1];
 
-#ifndef MSDOS
+#if !defined(MSDOS) && !defined(_WIN32) && !defined(__EMX__)
   get_winsize();
 #endif
    
@@ -341,8 +342,9 @@ int main(int argc, char **argv, char **env)
 #endif
 
   progname = argv[0];
-  if ((path=getenv("GFORTHPATH"))==NULL)
-    path = DEFAULTPATH;
+  if ((path1=getenv("GFORTHPATH"))==NULL)
+    path1 = DEFAULTPATH;
+  
   opterr=0;
   while (1) {
     int option_index=0;
@@ -357,9 +359,9 @@ int main(int argc, char **argv, char **env)
       {0,0,0,0}
       /* no-init-file, no-rc? */
     };
-
+    
     c = getopt_long(argc, argv, "+i:m:d:r:f:l:p:", opts, &option_index);
-
+    
     if (c==EOF)
       break;
     if (c=='?') {
@@ -373,11 +375,11 @@ int main(int argc, char **argv, char **env)
     case 'r': rsize = convsize(optarg,sizeof(Cell)); break;
     case 'f': fsize = convsize(optarg,sizeof(Float)); break;
     case 'l': lsize = convsize(optarg,sizeof(Cell)); break;
-    case 'p': path = optarg; break;
+    case 'p': path1 = optarg; break;
     }
   }
-  path1=path;
-
+  path=path1;
+  
   if(strchr(imagename, '/')==NULL)
     {
       do {
@@ -386,7 +388,7 @@ int main(int argc, char **argv, char **env)
 	  pend=path+strlen(path);
 	if (strlen(path)==0) {
 	  fprintf(stderr,"%s: cannot open image file %s in path %s for reading\n",
-		  progname, imagename, path1);
+		  progname, imagename, path);
 	  exit(1);
 	}
 	{
@@ -404,14 +406,10 @@ int main(int argc, char **argv, char **env)
   else
     {
       image_file=fopen(imagename,"rb");
-      if(image_file==NULL) {
-	fprintf(stderr,"%s: %s: %s\n", progname, imagename, strerror(errno));
-	exit(1);
-      }
     }
 
   {
-    char path2[strlen(path1)+1];
+    char path2[strlen(path1)+2];
     char *p1, *p2;
     Cell environ[]= {
       (Cell)argc-(optind-1),
@@ -429,6 +427,7 @@ int main(int argc, char **argv, char **env)
 	*p2 = '\0';
       else
 	*p2 = *p1;
+    *p2++='\0';
     *p2='\0';
     retvalue=go_forth(loader(image_file, imagename),4,environ);
     deprep_terminal();
