@@ -535,8 +535,8 @@ install:	gforth$(EXE) $(FORTH_SRC) $(kernel_fi) gforth.fi gforthmi vmgen doc/gfo
 		$(INSTALL_DATA) gforth.fi $(libdir)/gforth/$(VERSION)
 		$(INSTALL_DATA) install.TAGS $(datadir)/gforth/$(VERSION)/TAGS
 		$(RM) gforth.fi install.TAGS
-		@$(INSTALL_INFO) --info-dir=$(infodir) $(infodir)/gforth.info
-		@$(INSTALL_INFO) --info-dir=$(infodir) $(infodir)/vmgen.info
+		$(INSTALL_INFO) --info-dir=$(infodir) $(infodir)/gforth.info
+		$(INSTALL_INFO) --info-dir=$(infodir) $(infodir)/vmgen.info
 
 install-strip:	install
 

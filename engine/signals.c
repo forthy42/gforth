@@ -112,6 +112,14 @@ signal_throw(int sig)
 #endif
   default: code=-256-sig; break;
   }
+#ifdef __CYGWIN__
+  /* the SA_NODEFER apparently does not work on Cygwin 1.3.18(0.69/3/2) */
+  {
+    sigset_t emptyset;
+    sigemptyset(&emptyset);
+    sigprocmask(SIG_SETMASK, &emptyset, NULL);
+  }
+#endif
   longjmp(throw_jmp_buf,code); /* !! or use siglongjmp ? */
 }
 

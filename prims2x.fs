@@ -63,7 +63,7 @@ warnings off
 \ warnings on
 
 include ./gray.fs
-32 constant max-effect \ number of things on one side of a stack effect
+128 constant max-effect \ number of things on one side of a stack effect
 4 constant max-stacks  \ the max. number of stacks (including inst-stream).
 255 constant maxchar
 maxchar 1+ constant eof-char

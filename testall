@@ -7,7 +7,7 @@ if test $# = 0; then
 fi
 test "x$MACHINES" != x || 
 MACHINES="pcs d0 mips aertl@fpr.zserv.tuwien.ac.at \
-b1 b2 b3 b4 struppi \
+b1 b2 b3 b4 struppi c2 \
 samhain.ifs.tuwien.ac.at calis aertl@mail.zserv.tuwien.ac.at \
 rlwinm.ifs.tuwien.ac.at fmadd.ifs.tuwien.ac.at lfsux.ifs.tuwien.ac.at \
 s4addq.ifs.tuwien.ac.at \
