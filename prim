@@ -152,36 +152,67 @@ undefine(`symbols')
 
 (docol)	( -- R:a_retaddr )	gforth-internal	paren_docol
 ""run-time routine for colon definitions""
+#ifdef NO_IP
+a_retaddr = next_code;
+INST_TAIL;
+goto **(Label *)PFA(CFA);
+#else /* !defined(NO_IP) */
 a_retaddr = (Cell *)IP;
 SET_IP((Xt *)PFA(CFA));
+#endif /* !defined(NO_IP) */
 
 (docon) ( -- w )	gforth-internal	paren_docon
 ""run-time routine for constants""
 w = *(Cell *)PFA(CFA);
+#ifdef NO_IP
+INST_TAIL;
+goto *next_code;
+#endif /* defined(NO_IP) */
 
 (dovar) ( -- a_body )	gforth-internal	paren_dovar
 ""run-time routine for variables and CREATEd words""
 a_body = PFA(CFA);
+#ifdef NO_IP
+INST_TAIL;
+goto *next_code;
+#endif /* defined(NO_IP) */
 
 (douser) ( -- a_user )	gforth-internal	paren_douser
 ""run-time routine for constants""
 a_user = (Cell *)(up+*(Cell *)PFA(CFA));
+#ifdef NO_IP
+INST_TAIL;
+goto *next_code;
+#endif /* defined(NO_IP) */
 
 (dodefer) ( -- )	gforth-internal	paren_dodefer
 ""run-time routine for deferred words""
+#ifndef NO_IP
 ip=IP; /* undo any ip updating that may have been performed by NEXT_P0 */
+#endif /* !defined(NO_IP) */
 SUPER_END; /* !! probably unnecessary and may lead to measurement errors */
 EXEC(*(Xt *)PFA(CFA));
 
 (dofield) ( n1 -- n2 )	gforth-internal	paren_field
 ""run-time routine for fields""
 n2 = n1 + *(Cell *)PFA(CFA);
+#ifdef NO_IP
+INST_TAIL;
+goto *next_code;
+#endif /* defined(NO_IP) */
 
 (dodoes) ( -- a_body R:a_retaddr )	gforth-internal	paren_dodoes
 ""run-time routine for @code{does>}-defined words""
+#ifdef NO_IP
+a_retaddr = next_code;
+a_body = PFA(CFA);
+INST_TAIL;
+goto **(Label *)DOES_CODE1(CFA);
+#else /* !defined(NO_IP) */
 a_retaddr = (Cell *)IP;
 a_body = PFA(CFA);
 SET_IP(DOES_CODE1(CFA));
+#endif /* !defined(NO_IP) */
 
 (does-handler) ( -- )	gforth-internal	paren_does_handler
 ""just a slot to have an encoding for the DOESJUMP, 
@@ -198,6 +229,7 @@ noop	( -- )		gforth
 call	( #a_callee -- R:a_retaddr )	new
 ""Call callee (a variant of docol with inline argument).""
 #ifdef NO_IP
+assert(0);
 INST_TAIL;
 JUMP(a_callee);
 #else

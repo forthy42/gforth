@@ -58,6 +58,11 @@ tries to open gforth/kernel/gforth/kernel/aliases.fs, then
 gforth/gforth/kernel/aliases.fs, but not gforth/kernel/aliases.fs.
 anton 3 sep 2001
 
+gforth-native does not deal correctly with inline arguments in static
+superinstructions: when using lit_lit, the wrong literals are put into
+the native code (probably due to wrong assumptions about argument
+offsets).
+
 -----
 Copyright (C) 1995,1996,1997,1998,2000,2003 Free Software Foundation, Inc.
 

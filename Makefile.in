@@ -375,7 +375,7 @@ RCS_FILES =  ToDo model high-level
 
 ENGINES = gforth$(EXE) gforth-ditc$(EXE) gforth-itc$(EXE) $(PROFEXES)
 
-ENGINES_FAST = gforth-fast$(EXE) #gforth-native$(EXE) 
+ENGINES_FAST = gforth-fast$(EXE) gforth-native$(EXE) 
 
 GEN = $(ENGINES) $(ENGINES_FAST) kernel/version.fs
 
@@ -604,6 +604,10 @@ checkone test:	gforth$(EXE) gforth.fi
 		$(FORTH) prims2x.fs -e \
 		  "c-flag on s\" prim.i\" out-filename 2! s\" $(srcdir)/prim.b\" ' output-c ' output-c-combined process-file bye"| \
 		  tr -d '\015' | diff -c - $(srcdir)/engine/prim.i
+
+test/primtest.fi: test/primtest.fs mach32l.fs cross.fs
+		$(FORTHB) -e 's" mach32l.fs"' $(srcdir)/test/primtest.fs -e "save-cross $@ $(bindir)/gforth-$(VERSION) bye"
+
 
 bench:		gforth-fast$(EXE) gforth.fi
 		@echo 'Each benchmark takes about 30s on a 486-66 (gcc-2.6.3 -DFORCE_REG)'

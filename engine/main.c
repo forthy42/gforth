@@ -1057,7 +1057,7 @@ void register_branchinfo(Label source, Cell targetptr)
   nbranchinfos++;
 }
 
-Cell *compile_prim1arg(Cell p)
+Cell *compile_prim1arg(PrimNum p)
 {
   int l = priminfos[p].length;
   Address old_code_here=code_here;
@@ -1095,6 +1095,8 @@ void finish_code(void)
     set_rel_target(bi->addressptr, *(bi->targetptr));
   }
   nbranchinfos = 0;
+#else
+  compile_prim1(NULL);
 #endif
   flush_to_here();
 }
@@ -1189,7 +1191,57 @@ void compile_prim_dyn(Cell *start)
 }
 #endif /* 0 */
 
-Cell compile_prim_dyn(unsigned p)
+#ifdef NO_IP
+Cell compile_prim_dyn(PrimNum p, Cell *tcp)
+     /* compile prim #p dynamically (mod flags etc.) and return start
+	address of generated code for putting it into the threaded
+	code. This function is only called if all the associated
+	inline arguments of p are already in place (at tcp[1] etc.) */
+{
+  PrimInfo *pi=&priminfos[p];
+  Cell *next_code_target=NULL;
+  Cell codeaddr = (Cell)code_here;
+  
+  assert(p<npriminfos);
+  if (p==N_execute || p==N_perform || p==N_lit_perform) {
+    next_code_target = compile_prim1arg(N_set_next_code);
+  }
+  if (p==N_call) {
+    next_code_target = compile_call2(tcp[1]);
+  } else if (p==N_does_exec) {
+    struct doesexecinfo *dei = &doesexecinfos[ndoesexecinfos++];
+    *compile_prim1arg(N_lit) = (Cell)PFA(tcp[1]);
+    /* we cannot determine the callee now (last_start[1] may be a
+       forward reference), so just register an arbitrary target, and
+       register in dei that we need to fix this before resolving
+       branches */
+    dei->branchinfo = nbranchinfos;
+    dei->xt = (Cell *)(tcp[1]);
+    next_code_target = compile_call2(0);
+  } else if (!is_relocatable(p)) {
+    next_code_target = compile_prim1arg(N_set_next_code);
+    set_rel_target(compile_prim1arg(N_branch),vm_prims[p]);
+  } else {
+    unsigned j;
+    Address old_code_here = append_prim(p);
+    
+    for (j=0; j<pi->nimmargs; j++) {
+      struct immarg *ia = &(pi->immargs[j]);
+      Cell argval = tcp[pi->nimmargs - j]; /* !! specific to prims */
+      if (ia->rel) { /* !! assumption: relative refs are branches */
+	register_branchinfo(old_code_here + ia->offset, argval);
+      } else /* plain argument */
+	*(Cell *)(old_code_here + ia->offset) = argval;
+    }
+  }
+  if (next_code_target!=NULL)
+    *next_code_target = (Cell)code_here;
+  return codeaddr;
+}
+#else /* !defined(NO_IP) */
+Cell compile_prim_dyn(PrimNum p, Cell *tcp)
+     /* compile prim #p dynamically (mod flags etc.) and return start
+        address of generated code for putting it into the threaded code */
 {
   Cell static_prim = (Cell)vm_prims[p];
 #if defined(NO_DYNAMIC)
@@ -1208,6 +1260,7 @@ Cell compile_prim_dyn(unsigned p)
   return (Cell)old_code_here;
 #endif  /* !defined(NO_DYNAMIC) */
 }
+#endif /* !defined(NO_IP) */
 
 #ifndef NO_DYNAMIC
 int cost_codesize(int prim)
@@ -1363,7 +1416,7 @@ void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
 	struct cost *c = super_costs+p;
 	assert(trans[i][nextstate].cost != INF_COST);
 	assert(c->state_in==nextstate);
-	tc = compile_prim_dyn(p);
+	tc = compile_prim_dyn(p,NULL);
 	nextstate = c->state_out;
       }
       {
@@ -1375,7 +1428,7 @@ void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
 #if defined(GFORTH_DEBUGGING)
 	assert(p == origs[i]);
 #endif
-	tc2 = compile_prim_dyn(p);
+	tc2 = compile_prim_dyn(p,instps[i]);
 	if (no_transition || !is_relocatable(p))
 	  /* !! actually what we care about is if and where
 	   * compile_prim_dyn() puts NEXTs */
@@ -1399,7 +1452,7 @@ void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
     assert(c->state_in==nextstate);
     assert(trans[i][nextstate].cost != INF_COST);
     assert(i==nextdyn);
-    (void)compile_prim_dyn(p);
+    (void)compile_prim_dyn(p,NULL);
     nextstate = c->state_out;
   }
   assert(nextstate==CANONICAL_STATE);
@@ -1426,6 +1479,36 @@ void compile_prim1(Cell *start)
 #elif defined(INDIRECT_THREADED)
   return;
 #else /* !(defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED)) */
+#if 1
+  /* !! does not work, for unknown reasons; but something like this is
+     probably needed to ensure that we don't call compile_prim_dyn
+     before the inline arguments are there */
+  static Cell *instps[MAX_BB];
+  static PrimNum origs[MAX_BB];
+  static int ninsts=0;
+  PrimNum prim_num;
+
+  if (start==NULL || ninsts >= MAX_BB ||
+      (ninsts>0 && superend[origs[ninsts-1]])) {
+    /* after bb, or at the start of the next bb */
+    optimize_rewrite(instps,origs,ninsts);
+    /* fprintf(stderr,"optimize_rewrite(...,%d)\n",ninsts); */
+    ninsts=0;
+    if (start==NULL)
+      return;
+  }
+  prim_num = ((Xt)*start)-vm_prims;
+  if(prim_num >= npriminfos) {
+    optimize_rewrite(instps,origs,ninsts);
+    fprintf(stderr,"optimize_rewrite(...,%d)\n",ninsts);
+    ninsts=0;
+    return;
+  }    
+  assert(ninsts<MAX_BB);
+  instps[ninsts] = start;
+  origs[ninsts] = prim_num;
+  ninsts++;
+#else
   static Cell *instps[MAX_BB];
   static PrimNum origs[MAX_BB];
   static int ninsts=0;
@@ -1440,11 +1523,14 @@ void compile_prim1(Cell *start)
   instps[ninsts] = start;
   origs[ninsts] = prim_num;
   ninsts++;
-  if (ninsts >= MAX_BB || superend[prim_num]) {
+  if (ninsts >= MAX_BB || (ninsts>0 && superend[origs[ninsts-1]])) {
   end_bb:
     optimize_rewrite(instps,origs,ninsts);
+    fprintf(stderr,"optimize_rewrite(...,%d)\n",ninsts);
     ninsts=0;
+    return;
   }
+#endif
 #endif /* !(defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED)) */
 }
 

@@ -117,6 +117,7 @@
 #elif defined(NO_IP)
 
 #define NEXT_P0
+#  define CFA		cfa
 #define SET_IP(target)	assert(0)
 #define INC_IP(n)	((void)0)
 #define DEF_CA
