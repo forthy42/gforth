@@ -20,10 +20,13 @@
 
 \ wordlist constant environment-wordlist
 
-Create environment-wordlist ( -- wid ) \ gforth
+vocabulary environment ( -- ) \ gforth
+\ for win32forth compatibility
+
+' environment >body constant environment-wordlist ( -- wid ) \ gforth
   \G @i{wid} identifies the word list that is searched by environmental
   \G queries.
-  wordlist drop
+
 
 : environment? ( c-addr u -- false / ... true ) \ core environment-query
     \G @i{c-addr, u} specify a counted string. If the string is not
