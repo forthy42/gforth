@@ -21,7 +21,8 @@ Cambridge, MA 02139, USA.  */
 #include <limits.h>
 #include <stddef.h>
 #include <stdlib.h>
-
+/* errno.h is needed on SunOS 4.1.2 */
+#include <errno.h>
 
 #ifndef	UNSIGNED
 #define	UNSIGNED	0
