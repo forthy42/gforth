@@ -3,9 +3,9 @@
 \ : include bl word count included ;
 \ we want write include...
 
-: : ( -- colon-sys )  Header [ ' : @ ] ALiteral cfa, 0 ] ;
-: ; ( colon-sys -- )  ?struc postpone exit reveal postpone [ ; immediate
-: :noname ( -- xt colon-sys )  here [ ' : @ ] ALiteral cfa, 0 ] ;
+\ : : ( -- colon-sys )  Header [ ' : @ ] ALiteral cfa, 0 ] ;
+\ : ; ( colon-sys -- )  ?struc postpone exit reveal postpone [ ; immediate
+\ : :noname ( -- xt colon-sys )  here [ ' : @ ] ALiteral cfa, 0 ] ;
 
 include search-order.fs
 
