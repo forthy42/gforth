@@ -20,6 +20,11 @@
 
 warnings off
 
+include errors.fs
+include extend.fs              \ load core-extended
+\ include tools.fs               \ load tools ( .s dump )
+\ include toolsext.fs
+
 \ require interpretation.fs
 \ include float.fs
 \ include search-order.fs
@@ -30,6 +35,7 @@ include wordinfo.fs
 include vt100.fs
 \ include colorize.fs
 include see.fs
+include see-ext.fs
 include bufio.fs
 include debug.fs
 require stuff.fs

@@ -84,11 +84,12 @@ emacssitelispdir=$(datadir)/emacs/site-lisp
 INCLUDES = forth.h threading.h io.h
 
 KERN_SRC = \
-	add.fs \
+	aliases0.fs \
 	aliases.fs \
+	conditionals.fs \
 	cross.fs \
 	errore.fs \
-	extend.fs \
+	files.fs \
 	kernel.fs \
 	main.fs \
 	search-order.fs \
@@ -106,6 +107,8 @@ GFORTH_FI_SRC = \
 	debugging.fs \
 	dumpimage.fs \
 	environ.fs \
+	errors.fs \
+	extend.fs \
 	float.fs \
 	glocals.fs \
 	hash.fs \
@@ -435,8 +438,9 @@ primitives.i :	primitives.b prims2x.fs
 prim_labels.i :	primitives.b prims2x.fs
 		$(FORTHK) prims2x.fs -e "s\" primitives.b\" ' output-label process-file bye" >$@
 
-aliases.fs:	primitives.b prims2x.fs
-		$(FORTHK) prims2x.fs -e "s\" primitives.b\" ' output-alias process-file bye" >$@
+aliases.fs:	primitives.b prims2x.fs aliases0.fs
+		$(CP) aliases0.fs aliases.fs
+		$(FORTHK) prims2x.fs -e "s\" primitives.b\" ' output-alias process-file bye" >>$@
 
 primitives.fs:	primitives.b prims2x.fs
 		$(FORTHK) prims2x.fs -e "s\" primitives.b\" ' output-forth process-file bye" >$@

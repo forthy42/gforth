@@ -111,6 +111,8 @@ noop	--		gforth
 lit	-- w		gforth
 w = (Cell)NEXT_INST;
 INC_IP(1);
+:
+ r> dup @ swap cell+ >r ;
 
 execute		xt --		core
 ip=IP;
@@ -126,11 +128,15 @@ EXEC(*(Xt *)a_addr);
 :
  @ execute ;
 
+\+has-locals [IF]
+
 branch-lp+!#	--	gforth	branch_lp_plus_store_number
 /* this will probably not be used */
 branch_adjust_lp:
 lp += (Cell)(IP[1]);
 goto branch;
+
+\+[THEN]
 
 branch	--		gforth
 branch:
@@ -139,7 +145,7 @@ NEXT_P0;
 :
  r> dup @ + >r ;
 
-\ condbranch(forthname,restline,code)
+\ condbranch(forthname,restline,code,forthcode)
 \ this is non-syntactical: code must open a brace that is closed by the macro
 define(condbranch,
 $1	$2
@@ -149,6 +155,9 @@ $3	ip = (Xt *)(((Cell)IP)+(Cell)NEXT_INST);
 }
 else
     INC_IP(1);
+$4
+
+\+has-locals [IF]
 
 $1-lp+!#	$2_lp_plus_store_number
 $3    goto branch_adjust_lp;
@@ -156,12 +165,13 @@ $3    goto branch_adjust_lp;
 else
     INC_IP(2);
 
+\+[THEN]
 )
 
 condbranch(?branch,f --		f83	question_branch,
 if (f==0) {
     IF_TOS(TOS = sp[0]);
-)
+,)
 
 \ we don't need an lp_plus_store version of the ?dup-stuff, because it
 \ is only used in if's (yet)
@@ -195,14 +205,19 @@ else
 
 condbranch((next),--		cmFORTH	paren_next,
 if ((*rp)--) {
-)
+,:
+ r> r> dup 1- >r
+ IF dup @ + >r ELSE cell+ >r THEN ;)
 
 condbranch((loop),--		gforth	paren_loop,
 Cell index = *rp+1;
 Cell limit = rp[1];
 if (index != limit) {
     *rp = index;
-)
+,:
+ r> r> 1+ r> 2dup =
+ IF >r 1- >r cell+ >r
+ ELSE >r >r dup @ + >r THEN ;)
 
 condbranch((+loop),n --		gforth	paren_plus_loop,
 /* !! check this thoroughly */
@@ -210,22 +225,21 @@ Cell index = *rp;
 /* sign bit manipulation and test: (x^y)<0 is equivalent to (x<0) != (y<0) */
 /* dependent upon two's complement arithmetic */
 Cell olddiff = index-rp[1];
-#ifndef undefined
 if ((olddiff^(olddiff+n))>=0   /* the limit is not crossed */
     || (olddiff^n)>=0          /* it is a wrap-around effect */) {
-#else
-#ifndef MAXINT
-#define MAXINT ((((Cell)1)<<(8*sizeof(Cell)-1))-1)
-#endif
-if(((olddiff^MAXINT) >= n) ^ ((olddiff+n) < 0)) {
-#endif
 #ifdef i386
     *rp += n;
 #else
     *rp = index + n;
 #endif
     IF_TOS(TOS = sp[0]);
-)
+,:
+ r> swap
+ r> r> 2dup - >r
+ 2 pick r@ + r@ xor 0< 0=
+ 3 pick r> xor 0< 0= or
+ IF    >r + >r dup @ + >r
+ ELSE  >r >r drop cell+ >r THEN ;)
 
 condbranch((-loop),u --		gforth	paren_minus_loop,
 /* !! check this thoroughly */
@@ -238,7 +252,7 @@ if (olddiff>u) {
     *rp = index - u;
 #endif
     IF_TOS(TOS = sp[0]);
-)
+,)
 
 condbranch((s+loop),n --		gforth	paren_symmetric_plus_loop,
 ""The run-time procedure compiled by S+LOOP. It loops until the index
@@ -259,7 +273,7 @@ if (diff>=0 || newdiff<0) {
     *rp = index + n;
 #endif
     IF_TOS(TOS = sp[0]);
-)
+,)
 
 unloop		--	core
 rp += 2;
@@ -290,6 +304,15 @@ if (nstart == nlimit) {
 else {
     INC_IP(1);
 }
+:
+ swap 2dup
+ r> swap >r swap >r
+ =
+ IF
+     dup @ +
+ ELSE
+     cell+
+ THEN  >r ;
 
 (+do)	nlimit nstart --	gforth	paren_plus_do
 *--rp = nlimit;
@@ -301,6 +324,15 @@ if (nstart >= nlimit) {
 else {
     INC_IP(1);
 }
+:
+ swap 2dup
+ r> swap >r swap >r
+ >=
+ IF
+     dup @ +
+ ELSE
+     cell+
+ THEN  >r ;
 
 (u+do)	ulimit ustart --	gforth	paren_u_plus_do
 *--rp = ulimit;
@@ -312,6 +344,15 @@ if (ustart >= ulimit) {
 else {
     INC_IP(1);
 }
+:
+ swap 2dup
+ r> swap >r swap >r
+ u>=
+ IF
+     dup @ +
+ ELSE
+     cell+
+ THEN  >r ;
 
 (-do)	nlimit nstart --	gforth	paren_minus_do
 *--rp = nlimit;
@@ -323,6 +364,15 @@ if (nstart <= nlimit) {
 else {
     INC_IP(1);
 }
+:
+ swap 2dup
+ r> swap >r swap >r
+ <=
+ IF
+     dup @ +
+ ELSE
+     cell+
+ THEN  >r ;
 
 (u-do)	ulimit ustart --	gforth	paren_u_minus_do
 *--rp = ulimit;
@@ -334,12 +384,31 @@ if (ustart <= ulimit) {
 else {
     INC_IP(1);
 }
+:
+ swap 2dup
+ r> swap >r swap >r
+ u<=
+ IF
+     dup @ +
+ ELSE
+     cell+
+ THEN  >r ;
 
 i	-- n		core
 n = *rp;
+:
+ rp@ cell+ @ ;
+
+i'	-- w		gforth		i_tick
+""loop end value""
+w = rp[1];
+:
+ rp@ cell+ cell+ @ ;
 
 j	-- n		core
 n = rp[2];
+:
+ rp@ cell+ cell+ cell+ @ ;
 
 \ digit is high-level: 0/0%
 
@@ -419,7 +488,12 @@ else if (n>0)
  ?DO  dup c@ I c@ = WHILE  1+  LOOP  drop 0
  ELSE  c@ I c@ - unloop  THEN  -text-flag ;
 : -text-flag ( n -- -1/0/1 )
- dup 0< IF  drop -1  ELSE  0>  IF  1  ELSE  0  THEN  THEN  ;
+ dup 0< IF  drop -1  ELSE  0>  1 and  THEN  ;
+
+toupper	c1 -- c2	gforth
+c2 = toupper(c1);
+:
+ dup [char] a - [ char z char a - 1 + ] Literal u<  bl and - ;
 
 capscomp	c_addr1 u c_addr2 -- n	new
 n = memcasecmp(c_addr1, c_addr2, u); /* !! use something that works in all locales */
@@ -429,7 +503,9 @@ else if (n>0)
   n = 1;
 :
  swap bounds
- ?DO  dup c@ toupper I c@ toupper = WHILE  1+  LOOP  drop 0
+ ?DO  dup c@ I c@ <>
+     IF  dup c@ toupper I c@ toupper =
+     ELSE  true  THEN  WHILE  1+  LOOP  drop 0
  ELSE  c@ toupper I c@ toupper - unloop  THEN  -text-flag ;
 
 -trailing	c_addr u1 -- c_addr u2		string	dash_trailing
@@ -593,6 +669,15 @@ ud = ummul(u1,u2);
 #else
 ud = (UDCell)u1 * (UDCell)u2;
 #endif
+:
+   >r >r 0 0 r> r> [ 8 cells ] literal 0
+   DO
+       over >r dup >r 0< and d2*+ drop
+       r> 2* r> swap
+   LOOP 2drop ;
+: d2*+ ( ud n -- ud+n c )
+       over U-HIGHBIT
+       and >r >r 2dup d+ swap r> + swap r> ;
 
 um/mod	ud u1 -- u2 u3		core	u_m_slash_mod
 #ifdef BUGGY_LONG_LONG
@@ -604,14 +689,11 @@ u3 = ud/u1;
 u2 = ud%u1;
 #endif
 :
-  dup IF  0 (um/mod)  THEN  nip ; 
-: (um/mod)  ( ud ud -- ud u )
-  2dup >r >r  dup 0< 
-  IF    2drop 0 
-  ELSE  2dup d+  (um/mod)  2*  THEN 
-  -rot  r> r> 2over 2over  du<
-  IF    2drop rot 
-  ELSE  dnegate  d+  rot 1+  THEN ; 
+   0 swap [ 8 cells 1 + ] literal 0
+   ?DO >r /modstep r> 
+   LOOP drop swap 1 rshift or swap ;
+: /modstep ( ud c R: u -- ud-?u c R: u )
+   over I' u< 0= or IF I' - 1 ELSE 0 THEN  d2*+ ;
 
 m+	d1 n -- d2		double		m_plus
 #ifdef BUGGY_LONG_LONG
@@ -804,41 +886,55 @@ NEXT_P0;
 r>	-- w		core	r_from
 w = *rp++;
 
-r@	-- w		core	r_fetch
-/* use r as alias */
-/* make r@ an alias for i */
-w = *rp;
-
 rdrop	--		gforth
 rp++;
-
-i'	-- w		gforth		i_tick
-w=rp[1];
+:
+ r> r> drop >r ;
 
 2>r	w1 w2 --	core-ext	two_to_r
 *--rp = w1;
 *--rp = w2;
+:
+ swap r> swap >r swap >r >r ;
 
 2r>	-- w1 w2	core-ext	two_r_from
 w2 = *rp++;
 w1 = *rp++;
+:
+ r> r> swap r> swap >r swap ;
 
 2r@	-- w1 w2	core-ext	two_r_fetch
 w2 = rp[0];
 w1 = rp[1];
+:
+ i' j ;
 
 2rdrop	--		gforth	two_r_drop
 rp+=2;
+:
+ r> r> drop r> drop >r ;
 
 over	w1 w2 -- w1 w2 w1		core
+:
+ sp@ cell+ @ ;
 
 drop	w --		core
+:
+ IF THEN ;
 
 swap	w1 w2 -- w2 w1		core
+:
+ >r (swap) ! r> (swap) @ ;
+Variable (swap)
 
 dup	w -- w w		core
+:
+ sp@ @ ;
 
 rot	w1 w2 w3 -- w2 w3 w1	core	rote
+:
+ (swap) ! (rot) ! >r (rot) @ (swap) @ r> ;
+Variable (rot)
 
 -rot	w1 w2 w3 -- w3 w1 w2	gforth	not_rote
 :
@@ -846,7 +942,7 @@ rot	w1 w2 w3 -- w2 w3 w1	core	rote
 
 nip	w1 w2 -- w2		core-ext
 :
- swap drop ;
+ >r drop r> ;
 
 tuck	w1 w2 -- w2 w1 w2	core-ext
 :
@@ -881,7 +977,7 @@ w = sp[u+1];
 
 2swap	w1 w2 w3 w4 -- w3 w4 w1 w2	core	two_swap
 :
- >r -rot r> -rot ;
+ rot >r rot r> ;
 
 2rot	w1 w2 w3 w4 w5 w6 -- w3 w4 w5 w6 w1 w2	double-ext	two_rote
 :
@@ -905,6 +1001,8 @@ w = *a_addr;
 
 +!	n a_addr --		core	plus_store
 *a_addr += n;
+:
+ tuck @ + swap ! ;
 
 c@	c_addr -- c		core	cfetch
 c = *c_addr;
@@ -955,73 +1053,9 @@ c_addr2 = c_addr1+1;
 :
  dup 1+ swap c@ ;
 
-(bye)	n --	gforth	paren_bye
-return (Label *)n;
-
-(system)	c_addr u -- wretval wior	gforth	peren_system
-int old_tp=terminal_prepped;
-deprep_terminal();
-wretval=system(cstr(c_addr,u,1)); /* ~ expansion on first part of string? */
-wior = IOR(wretval==-1 || (wretval==127 && errno != 0));
-if (old_tp)
-  prep_terminal();
-
-getenv	c_addr1 u1 -- c_addr2 u2	gforth
-c_addr2 = getenv(cstr(c_addr1,u1,1));
-u2 = (c_addr2 == NULL ? 0 : strlen(c_addr2));
-
-open-pipe	c_addr u ntype -- wfileid wior	gforth	open_pipe
-wfileid=(Cell)popen(cstr(c_addr,u,1),fileattr[ntype]); /* ~ expansion of 1st arg? */
-wior = IOR(wfileid==0); /* !! the man page says that errno is not set reliably */
-
-close-pipe	wfileid -- wretval wior		gforth	close_pipe
-wretval = pclose((FILE *)wfileid);
-wior = IOR(wretval==-1);
-
-time&date	-- nsec nmin nhour nday nmonth nyear	facility-ext	time_and_date
-struct timeval time1;
-struct timezone zone1;
-struct tm *ltime;
-gettimeofday(&time1,&zone1);
-ltime=localtime((time_t *)&time1.tv_sec);
-nyear =ltime->tm_year+1900;
-nmonth=ltime->tm_mon+1;
-nday  =ltime->tm_mday;
-nhour =ltime->tm_hour;
-nmin  =ltime->tm_min;
-nsec  =ltime->tm_sec;
-
-ms	n --	facility-ext
-struct timeval timeout;
-timeout.tv_sec=n/1000;
-timeout.tv_usec=1000*(n%1000);
-(void)select(0,0,0,0,&timeout);
-
-allocate	u -- a_addr wior	memory
-a_addr = (Cell *)malloc(u?u:1);
-wior = IOR(a_addr==NULL);
-
-free		a_addr -- wior		memory
-free(a_addr);
-wior = 0;
-
-resize		a_addr1 u -- a_addr2 wior	memory
-""Change the size of the allocated area at @i{a_addr1} to @i{u}
-address units, possibly moving the contents to a different
-area. @i{a_addr2} is the address of the resulting area. If
-@code{a_addr1} is 0, Gforth's (but not the standard) @code{resize}
-@code{allocate}s @i{u} address units.""
-/* the following check is not necessary on most OSs, but it is needed
-   on SunOS 4.1.2. */
-if (a_addr1==NULL)
-  a_addr2 = (Cell *)malloc(u);
-else
-  a_addr2 = (Cell *)realloc(a_addr1, u);
-wior = IOR(a_addr2==NULL);	/* !! Define a return code */
-
 (f83find)	c_addr u f83name1 -- f83name2	new	paren_f83find
 for (; f83name1 != NULL; f83name1 = f83name1->next)
-  if (F83NAME_COUNT(f83name1)==u &&
+  if ((UCell)F83NAME_COUNT(f83name1)==u &&
       memcasecmp(c_addr, f83name1->name, u)== 0 /* or inline? */)
     break;
 f83name2=f83name1;
@@ -1040,7 +1074,7 @@ while(a_addr != NULL)
 {
    f83name1=(F83Name *)(a_addr[1]);
    a_addr=(Cell *)(a_addr[0]);
-   if (F83NAME_COUNT(f83name1)==u &&
+   if ((UCell)F83NAME_COUNT(f83name1)==u &&
        memcasecmp(c_addr, f83name1->name, u)== 0 /* or inline? */)
      {
 	f83name2=f83name1;
@@ -1063,7 +1097,7 @@ while(a_addr != NULL)
 {
    f83name1=(F83Name *)(a_addr[1]);
    a_addr=(Cell *)(a_addr[0]);
-   if (F83NAME_COUNT(f83name1)==u &&
+   if ((UCell)F83NAME_COUNT(f83name1)==u &&
        memcmp(c_addr, f83name1->name, u)== 0 /* or inline? */)
      {
 	f83name2=f83name1;
@@ -1131,6 +1165,179 @@ else {
  REPEAT  THEN  2dup
  BEGIN  dup  WHILE  over c@ bl >   WHILE  1 /string
  REPEAT  THEN  nip - ;
+
+aligned		c_addr -- a_addr	core
+a_addr = (Cell *)((((Cell)c_addr)+(sizeof(Cell)-1))&(-sizeof(Cell)));
+:
+ [ cell 1- ] Literal + [ -1 cells ] Literal and ;
+
+faligned	c_addr -- f_addr	float	f_aligned
+f_addr = (Float *)((((Cell)c_addr)+(sizeof(Float)-1))&(-sizeof(Float)));
+:
+ [ 1 floats 1- ] Literal + [ -1 floats ] Literal and ;
+
+>body		xt -- a_addr	core	to_body
+a_addr = PFA(xt);
+:
+    2 cells + ;
+
+>code-address		xt -- c_addr		gforth	to_code_address
+""c_addr is the code address of the word xt""
+/* !! This behaves installation-dependently for DOES-words */
+c_addr = CODE_ADDRESS(xt);
+:
+    @ ;
+
+>does-code	xt -- a_addr		gforth	to_does_code
+""If xt ist the execution token of a defining-word-defined word,
+a_addr is the start of the Forth code after the DOES>;
+Otherwise a_addr is 0.""
+a_addr = (Cell *)DOES_CODE(xt);
+:
+    cell+ @ ;
+
+code-address!		c_addr xt --		gforth	code_address_store
+""Creates a code field with code address c_addr at xt""
+MAKE_CF(xt, c_addr);
+CACHE_FLUSH(xt,PFA(0));
+:
+    ! ;
+
+does-code!	a_addr xt --		gforth	does_code_store
+""creates a code field at xt for a defining-word-defined word; a_addr
+is the start of the Forth code after DOES>""
+MAKE_DOES_CF(xt, a_addr);
+CACHE_FLUSH(xt,PFA(0));
+:
+    dodoes: over ! cell+ ! ;
+
+does-handler!	a_addr --	gforth	does_handler_store
+""creates a DOES>-handler at address a_addr. a_addr usually points
+just behind a DOES>.""
+MAKE_DOES_HANDLER(a_addr);
+CACHE_FLUSH(a_addr,DOES_HANDLER_SIZE);
+:
+    drop ;
+
+/does-handler	-- n	gforth	slash_does_handler
+""the size of a does-handler (includes possible padding)""
+/* !! a constant or environmental query might be better */
+n = DOES_HANDLER_SIZE;
+:
+    2 cells ;
+
+threading-method	-- n	gforth	threading_method
+""0 if the engine is direct threaded.""
+#if defined(DIRECT_THREADED)
+n=0;
+#else
+n=1;
+#endif
+:
+ 1 ;
+
+\+has-os [IF]
+
+flush-icache	c_addr u --	gforth	flush_icache
+""Make sure that the instruction cache of the processor (if there is
+one) does not contain stale data at @var{c_addr} and @var{u} bytes
+afterwards. @code{END-CODE} performs a @code{flush-icache}
+automatically. Caveat: @code{flush-icache} might not work on your
+installation; this is usually the case if direct threading is not
+supported on your machine (take a look at your @file{machine.h}) and
+your machine has a separate instruction cache. In such cases,
+@code{flush-icache} does nothing instead of flushing the instruction
+cache.""
+FLUSH_ICACHE(c_addr,u);
+
+(bye)	n --	gforth	paren_bye
+return (Label *)n;
+
+(system)	c_addr u -- wretval wior	gforth	peren_system
+int old_tp=terminal_prepped;
+deprep_terminal();
+wretval=system(cstr(c_addr,u,1)); /* ~ expansion on first part of string? */
+wior = IOR(wretval==-1 || (wretval==127 && errno != 0));
+if (old_tp)
+  prep_terminal();
+
+getenv	c_addr1 u1 -- c_addr2 u2	gforth
+c_addr2 = getenv(cstr(c_addr1,u1,1));
+u2 = (c_addr2 == NULL ? 0 : strlen(c_addr2));
+
+open-pipe	c_addr u ntype -- wfileid wior	gforth	open_pipe
+wfileid=(Cell)popen(cstr(c_addr,u,1),fileattr[ntype]); /* ~ expansion of 1st arg? */
+wior = IOR(wfileid==0); /* !! the man page says that errno is not set reliably */
+
+close-pipe	wfileid -- wretval wior		gforth	close_pipe
+wretval = pclose((FILE *)wfileid);
+wior = IOR(wretval==-1);
+
+time&date	-- nsec nmin nhour nday nmonth nyear	facility-ext	time_and_date
+struct timeval time1;
+struct timezone zone1;
+struct tm *ltime;
+gettimeofday(&time1,&zone1);
+ltime=localtime((time_t *)&time1.tv_sec);
+nyear =ltime->tm_year+1900;
+nmonth=ltime->tm_mon+1;
+nday  =ltime->tm_mday;
+nhour =ltime->tm_hour;
+nmin  =ltime->tm_min;
+nsec  =ltime->tm_sec;
+
+ms	n --	facility-ext
+struct timeval timeout;
+timeout.tv_sec=n/1000;
+timeout.tv_usec=1000*(n%1000);
+(void)select(0,0,0,0,&timeout);
+
+allocate	u -- a_addr wior	memory
+a_addr = (Cell *)malloc(u?u:1);
+wior = IOR(a_addr==NULL);
+
+free		a_addr -- wior		memory
+free(a_addr);
+wior = 0;
+
+resize		a_addr1 u -- a_addr2 wior	memory
+""Change the size of the allocated area at @i{a_addr1} to @i{u}
+address units, possibly moving the contents to a different
+area. @i{a_addr2} is the address of the resulting area. If
+@code{a_addr1} is 0, Gforth's (but not the standard) @code{resize}
+@code{allocate}s @i{u} address units.""
+/* the following check is not necessary on most OSs, but it is needed
+   on SunOS 4.1.2. */
+if (a_addr1==NULL)
+  a_addr2 = (Cell *)malloc(u);
+else
+  a_addr2 = (Cell *)realloc(a_addr1, u);
+wior = IOR(a_addr2==NULL);	/* !! Define a return code */
+
+strerror	n -- c_addr u	gforth
+c_addr = strerror(n);
+u = strlen(c_addr);
+
+strsignal	n -- c_addr u	gforth
+c_addr = strsignal(n);
+u = strlen(c_addr);
+
+call-c	w --	gforth	call_c
+""Call the C function pointed to by @i{w}. The C function has to
+access the stack itself. The stack pointers are exported in the global
+variables @code{SP} and @code{FP}.""
+/* This is a first attempt at support for calls to C. This may change in
+   the future */
+IF_FTOS(fp[0]=FTOS);
+FP=fp;
+SP=sp;
+((void (*)())w)();
+sp=SP;
+fp=FP;
+IF_TOS(TOS=sp[0]);
+IF_FTOS(FTOS=fp[0]);
+
+\+[THEN] ( has-os ) has-files [IF]
 
 close-file	wfileid -- wior		file	close_file
 wior = IOR(fclose((FILE *)wfileid)==EOF);
@@ -1213,7 +1420,7 @@ else {
 write-file	c_addr u1 wfileid -- wior	file	write_file
 /* !! fwrite does not guarantee enough */
 {
-  Cell u2 = fwrite(c_addr, sizeof(Char), u1, (FILE *)wfileid);
+  UCell u2 = fwrite(c_addr, sizeof(Char), u1, (FILE *)wfileid);
   wior = FILEIO(u2<u1 && ferror((FILE *)wfileid));
   if (wior)
     clearerr((FILE *)wfileid);
@@ -1256,6 +1463,8 @@ wfileid = (Cell)stdout;
 
 stderr	-- wfileid	gforth
 wfileid = (Cell)stderr;
+
+\+[THEN] ( has-files ) has-floats [IF]
 
 comparisons(f, r1 r2, f_, r1, r2, gforth, gforth, float, gforth)
 comparisons(f0, r, f_zero_, r, 0., float, gforth, float, gforth)
@@ -1526,16 +1735,6 @@ n2 = n1*sizeof(SFloat);
 dfloats		n1 -- n2	float-ext	d_floats
 n2 = n1*sizeof(DFloat);
 
-aligned		c_addr -- a_addr	core
-a_addr = (Cell *)((((Cell)c_addr)+(sizeof(Cell)-1))&(-sizeof(Cell)));
-:
- [ cell 1- ] Literal + [ -1 cells ] Literal and ;
-
-faligned	c_addr -- f_addr	float	f_aligned
-f_addr = (Float *)((((Cell)c_addr)+(sizeof(Float)-1))&(-sizeof(Float)));
-:
- [ 1 floats 1- ] Literal + [ -1 floats ] Literal and ;
-
 sfaligned	c_addr -- sf_addr	float-ext	s_f_aligned
 sf_addr = (SFloat *)((((Cell)c_addr)+(sizeof(SFloat)-1))&(-sizeof(SFloat)));
 :
@@ -1551,66 +1750,9 @@ df_addr = (DFloat *)((((Cell)c_addr)+(sizeof(DFloat)-1))&(-sizeof(DFloat)));
 \ !! how about environmental queries DIRECT-THREADED,
 \   INDIRECT-THREADED, TOS-CACHED, FTOS-CACHED, CODEFIELD-DOES */
 
->body		xt -- a_addr	core	to_body
-a_addr = PFA(xt);
-
->code-address		xt -- c_addr		gforth	to_code_address
-""c_addr is the code address of the word xt""
-/* !! This behaves installation-dependently for DOES-words */
-c_addr = CODE_ADDRESS(xt);
-
->does-code	xt -- a_addr		gforth	to_does_code
-""If xt ist the execution token of a defining-word-defined word,
-a_addr is the start of the Forth code after the DOES>;
-Otherwise a_addr is 0.""
-a_addr = (Cell *)DOES_CODE(xt);
-
-code-address!		c_addr xt --		gforth	code_address_store
-""Creates a code field with code address c_addr at xt""
-MAKE_CF(xt, c_addr);
-CACHE_FLUSH(xt,PFA(0));
-
-does-code!	a_addr xt --		gforth	does_code_store
-""creates a code field at xt for a defining-word-defined word; a_addr
-is the start of the Forth code after DOES>""
-MAKE_DOES_CF(xt, a_addr);
-CACHE_FLUSH(xt,PFA(0));
-
-does-handler!	a_addr --	gforth	does_handler_store
-""creates a DOES>-handler at address a_addr. a_addr usually points
-just behind a DOES>.""
-MAKE_DOES_HANDLER(a_addr);
-CACHE_FLUSH(a_addr,DOES_HANDLER_SIZE);
-
-/does-handler	-- n	gforth	slash_does_handler
-""the size of a does-handler (includes possible padding)""
-/* !! a constant or environmental query might be better */
-n = DOES_HANDLER_SIZE;
-
-threading-method	-- n	gforth	threading_method
-""0 if the engine is direct threaded.""
-#if defined(DIRECT_THREADED)
-n=0;
-#else
-n=1;
-#endif
-
-flush-icache	c_addr u --	gforth	flush_icache
-""Make sure that the instruction cache of the processor (if there is
-one) does not contain stale data at @var{c_addr} and @var{u} bytes
-afterwards. @code{END-CODE} performs a @code{flush-icache}
-automatically. Caveat: @code{flush-icache} might not work on your
-installation; this is usually the case if direct threading is not
-supported on your machine (take a look at your @file{machine.h}) and
-your machine has a separate instruction cache. In such cases,
-@code{flush-icache} does nothing instead of flushing the instruction
-cache.""
-FLUSH_ICACHE(c_addr,u);
-
-toupper	c1 -- c2	gforth
-c2 = toupper(c1);
-
 \ local variable implementation primitives
+\+[THEN] ( has-floats ) has-locals [IF]
+
 @local#		-- w	gforth	fetch_local_number
 w = *(Cell *)(lp+(Cell)NEXT_INST);
 INC_IP(1);
@@ -1627,6 +1769,8 @@ w = *(Cell *)(lp+2*sizeof(Cell));
 @local3	-- w	new	fetch_local_twelve
 w = *(Cell *)(lp+3*sizeof(Cell));
 
+\+has-floats [IF]
+
 f@local#	-- r	gforth	f_fetch_local_number
 r = *(Float *)(lp+(Cell)NEXT_INST);
 INC_IP(1);
@@ -1636,6 +1780,8 @@ r = *(Float *)(lp+0*sizeof(Float));
 
 f@local1	-- r	new	f_fetch_local_eight
 r = *(Float *)(lp+1*sizeof(Float));
+
+\+[THEN]
 
 laddr#		-- c_addr	gforth	laddr_number
 /* this can also be used to implement lp@ */
@@ -1665,32 +1811,15 @@ lp = (Address)c_addr;
 lp -= sizeof(Cell);
 *(Cell *)lp = w;
 
+\+has-floats [IF]
+
 f>l	r --	gforth	f_to_l
 lp -= sizeof(Float);
 *(Float *)lp = r;
 
+\+[THEN]  [THEN] \ has-locals
+
 up!	a_addr --	gforth	up_store
 up0=up=(char *)a_addr;
-
-call-c	w --	gforth	call_c
-""Call the C function pointed to by @i{w}. The C function has to
-access the stack itself. The stack pointers are exported in the gloabl
-variables @code{SP} and @code{FP}.""
-/* This is a first attempt at support for calls to C. This may change in
-   the future */
-IF_FTOS(fp[0]=FTOS);
-FP=fp;
-SP=sp;
-((void (*)())w)();
-sp=SP;
-fp=FP;
-IF_TOS(TOS=sp[0]);
-IF_FTOS(FTOS=fp[0]);
-
-strerror	n -- c_addr u	gforth
-c_addr = strerror(n);
-u = strlen(c_addr);
-
-strsignal	n -- c_addr u	gforth
-c_addr = strsignal(n);
-u = strlen(c_addr);
+:
+ up ! ;

@@ -50,6 +50,10 @@ HEX
 
 NIL AConstant NIL \ gforth
 
+\ Aliases
+
+' i Alias r@
+
 \ Bit string manipulation                              06oct92py
 
 \ Create bits  80 c, 40 c, 20 c, 10 c, 8 c, 4 c, 2 c, 1 c,
@@ -151,18 +155,6 @@ $20 constant restrict-mask
     over >r  rot over 1+  r> move c! ;
 : bounds ( beg count -- end beg ) \ gforth
     over + swap ;
-
-: save-mem	( addr1 u -- addr2 u ) \ gforth
-    \g copy a memory block into a newly allocated region in the heap
-    swap >r
-    dup allocate throw
-    swap 2dup r> -rot move ;
-
-: extend-mem	( addr1 u1 u -- addr addr2 u2 )
-    \ extend memory block allocated from the heap by u aus
-    \ the (possibly reallocated piece is addr2 u2, the extension is at addr
-    over >r + dup >r resize throw
-    r> over r> + -rot ;
 
 \ input stream primitives                              23feb93py
 
@@ -451,7 +443,15 @@ hex
 : lp@ ( -- addr ) \ gforth	l-p-fetch
  laddr# [ 0 , ] ;
 
+Defer 'catch
+Defer 'throw
+Defer 'bounce
+
+' noop IS 'catch
+' noop IS 'throw
+
 : catch ( x1 .. xn xt -- y1 .. ym 0 / z1 .. zn error ) \ exception
+    'catch
     sp@ >r
     fp@ >r
     lp@ >r
@@ -471,6 +471,7 @@ hex
 	r> lp!
 	r> fp!
 	r> swap >r sp! drop r>
+	'throw
     THEN ;
 
 \ Bouncing is very fine,
@@ -483,6 +484,7 @@ hex
       r> lp!
       rdrop
       rdrop
+      'throw
   THEN ;
 
 \ ?stack                                               23feb93py
@@ -572,32 +574,8 @@ Defer interpreter-notfound ( c-addr count -- )
 : SLiteral ( Compilation c-addr1 u ; run-time -- c-addr2 u ) \ string
     postpone (S") here over char+ allot  place align ;
                                              immediate restrict
-: plain-( ( 'ccc<close-paren>' -- ; )
-    [char] ) parse 2drop ;
-
-: file-( ( 'ccc<close-paren>' -- ; )
-    BEGIN
-	>in @
-	[char] ) parse nip
-	>in @ rot - = \ is there no delimter?
-    WHILE
-	refill 0=
-	IF
-	    warnings @
-	    IF
-		." warning: ')' missing" cr
-	    THEN
-	    EXIT
-	THEN
-    REPEAT ;
-
 : ( ( compilation 'ccc<close-paren>' -- ; run-time -- ) \ core,file	paren
-    loadfile @
-    IF
-	file-(
-    ELSE
-	plain-(
-    THEN ; immediate
+    [char] ) parse 2drop ; immediate
 
 : \ ( -- ) \ core-ext backslash
     blk @
@@ -1069,198 +1047,22 @@ Defer key ( -- c ) \ core
 
 : query   ( -- ) \ core-ext
     \G obsolescent
+    blk off loadfile off
     tib /line accept #tib ! 0 >in ! ;
 
-\ File specifiers                                       11jun93jaw
+\ save-mem extend-mem
 
+: save-mem	( addr1 u -- addr2 u ) \ gforth
+    \g copy a memory block into a newly allocated region in the heap
+    swap >r
+    dup allocate throw
+    swap 2dup r> -rot move ;
 
-\ 1 c, here char r c, 0 c,                0 c, 0 c, char b c, 0 c,
-\ 2 c, here char r c, char + c, 0 c,
-\ 2 c, here char w c, char + c, 0 c, align
-4 Constant w/o ( -- fam ) \ file	w-o
-2 Constant r/w ( -- fam ) \ file	r-w
-0 Constant r/o ( -- fam ) \ file	r-o
-
-\ BIN WRITE-LINE                                        11jun93jaw
-
-\ : bin           dup 1 chars - c@
-\                 r/o 4 chars + over - dup >r swap move r> ;
-
-: bin ( fam1 -- fam2 ) \ file
-    1 or ;
-
-: write-line ( c-addr u fileid -- ior ) \ file
-    dup >r write-file
-    ?dup IF
-	r> drop EXIT
-    THEN
-    #lf r> emit-file ;
-
-\ include-file                                         07apr93py
-
-: push-file  ( -- )  r>
-  sourceline# >r  loadfile @ >r
-  blk @ >r  tibstack @ >r  >tib @ >r  #tib @ >r
-  >tib @ tibstack @ = IF  r@ tibstack +!  THEN
-  tibstack @ >tib ! >in @ >r  >r ;
-
-: pop-file   ( throw-code -- throw-code )
-  dup IF
-         source >in @ sourceline# sourcefilename
-	 error-stack dup @ dup 1+
-	 max-errors 1- min error-stack !
-	 6 * cells + cell+
-	 5 cells bounds swap DO
-	                    I !
-	 -1 cells +LOOP
-  THEN
-  r>
-  r> >in !  r> #tib !  r> >tib !  r> tibstack !  r> blk !
-  r> loadfile ! r> loadline !  >r ;
-
-: read-loop ( i*x -- j*x )
-  BEGIN  refill  WHILE  interpret  REPEAT ;
-
-: include-file ( i*x fid -- j*x ) \ file
-  push-file  loadfile !
-  0 loadline ! blk off  ['] read-loop catch
-  loadfile @ close-file swap 2dup or
-  pop-file  drop throw throw ;
-
-create pathfilenamebuf 256 chars allot \ !! make this grow on demand
-
-\ : check-file-prefix  ( addr len -- addr' len' flag )
-\   dup 0=                    IF  true EXIT  THEN 
-\   over c@ '/ =              IF  true EXIT  THEN 
-\   over 2 S" ./" compare 0=  IF  true EXIT  THEN 
-\   over 3 S" ../" compare 0= IF  true EXIT  THEN
-\   over 2 S" ~/" compare 0=
-\   IF     1 /string
-\          S" HOME" getenv tuck pathfilenamebuf swap move
-\          2dup + >r pathfilenamebuf + swap move
-\          pathfilenamebuf r> true
-\   ELSE   false
-\   THEN ;
-
-: absolut-path? ( addr u -- flag ) \ gforth
-    \G a path is absolute, if it starts with a / or a ~ (~ expansion),
-    \G or if it is in the form ./* or ../*, extended regexp: ^[/~]|./|../
-    \G Pathes simply containing a / are not absolute!
-    over c@ '/ = >r
-    over c@ '~ = >r
-    2dup 2 min S" ./" compare 0= >r
-         3 min S" ../" compare 0=
-    r> r> r> or or or ;
-\   [char] / scan nip 0<> ;    
-
-: open-path-file ( c-addr1 u1 -- file-id c-addr2 u2 ) \ gforth
-    \G opens a file for reading, searching in the path for it (unless
-    \G the filename contains a slash); c-addr2 u2 is the full filename
-    \G (valid until the next call); if the file is not found (or in
-    \G case of other errors for each try), -38 (non-existant file) is
-    \G thrown. Opening for other access modes makes little sense, as
-    \G the path will usually contain dirs that are only readable for
-    \G the user
-    \ !! use file-status to determine access mode?
-    2dup absolut-path?
-    if \ the filename contains a slash
-	2dup r/o open-file throw ( c-addr1 u1 file-id )
-	-rot >r pathfilenamebuf r@ cmove ( file-id R: u1 )
-	pathfilenamebuf r> EXIT
-    then
-    pathdirs 2@ 0
-\    check-file-prefix 0= 
-\    IF  pathdirs 2@ 0
-    ?DO ( c-addr1 u1 dirnamep )
-	dup >r 2@ dup >r pathfilenamebuf swap cmove ( addr u )
-	2dup pathfilenamebuf r@ chars + swap cmove ( addr u )
-	pathfilenamebuf over r> + dup >r r/o open-file 0=
-	IF ( addr u file-id )
-	    nip nip r> rdrop 0 LEAVE
-	THEN
-	rdrop drop r> cell+ cell+
-    LOOP
-\    ELSE   2dup open-file throw -rot  THEN 
-    0<> -&38 and throw ( file-id u2 )
-    pathfilenamebuf swap ;
-
-create included-files 0 , 0 , ( pointer to and count of included files )
-here ," the terminal" dup c@ swap 1 + swap , A, here 2 cells -
-create image-included-files  1 , A, ( pointer to and count of included files )
-\ included-files points to ALLOCATEd space, while image-included-files
-\ points to ALLOTed objects, so it survives a save-system
-
-: loadfilename ( -- a-addr )
-    \G a-addr 2@ produces the current file name ( c-addr u )
-    included-files 2@ drop loadfilename# @ 2* cells + ;
-
-: sourcefilename ( -- c-addr u ) \ gforth
-    \G the name of the source file which is currently the input
-    \G source.  The result is valid only while the file is being
-    \G loaded.  If the current input source is no (stream) file, the
-    \G result is undefined.
-    loadfilename 2@ ;
-
-: sourceline# ( -- u ) \ gforth		sourceline-number
-    \G the line number of the line that is currently being interpreted
-    \G from a (stream) file. The first line has the number 1. If the
-    \G current input source is no (stream) file, the result is
-    \G undefined.
-    loadline @ ;
-
-: init-included-files ( -- )
-    image-included-files 2@ 2* cells save-mem drop ( addr )
-    image-included-files 2@ nip included-files 2! ;
-
-: included? ( c-addr u -- f ) \ gforth
-    \G true, iff filename c-addr u is in included-files
-    included-files 2@ 0
-    ?do ( c-addr u addr )
-	dup >r 2@ 2over compare 0=
-	if
-	    2drop rdrop unloop
-	    true EXIT
-	then
-	r> cell+ cell+
-    loop
-    2drop drop false ;
-
-: add-included-file ( c-addr u -- ) \ gforth
-    \G add name c-addr u to included-files
-    included-files 2@ 2* cells 2 cells extend-mem
-    2/ cell / included-files 2!
-    2! ;
-\    included-files 2@ tuck 1+ 2* cells resize throw
-\    swap 2dup 1+ included-files 2!
-\    2* cells + 2! ;
-
-: included1 ( i*x file-id c-addr u -- j*x ) \ gforth
-    \G include the file file-id with the name given by c-addr u
-    loadfilename# @ >r
-    save-mem add-included-file ( file-id )
-    included-files 2@ nip 1- loadfilename# !
-    ['] include-file catch
-    r> loadfilename# !
-    throw ;
-    
-: included ( i*x addr u -- j*x ) \ file
-    open-path-file included1 ;
-
-: required ( i*x addr u -- j*x ) \ gforth
-    \G include the file with the name given by addr u, if it is not
-    \G included already. Currently this works by comparing the name of
-    \G the file (with path) against the names of earlier included
-    \G files; however, it would probably be better to fstat the file,
-    \G and compare the device and inode. The advantages would be: no
-    \G problems with several paths to the same file (e.g., due to
-    \G links) and we would catch files included with include-file and
-    \G write a require-file.
-    open-path-file 2dup included?
-    if
-	2drop close-file throw
-    else
-	included1
-    then ;
+: extend-mem	( addr1 u1 u -- addr addr2 u2 )
+    \ extend memory block allocated from the heap by u aus
+    \ the (possibly reallocated piece is addr2 u2, the extension is at addr
+    over >r + dup >r resize throw
+    r> over r> + -rot ;
 
 \ HEX DECIMAL                                           2may93jaw
 
@@ -1275,14 +1077,6 @@ create image-included-files  1 , A, ( pointer to and count of included files )
     sp@ s0 @ swap - cell / ;
 : clearstack ( ... -- )
     s0 @ sp! ;
-
-\ INCLUDE                                               9may93jaw
-
-: include  ( "file" -- ) \ gforth
-  name included ;
-
-: require  ( "file" -- ) \ gforth
-  name required ;
 
 \ RECURSE                                               17may93jaw
 
@@ -1417,67 +1211,6 @@ DEFER DOERROR
 \ : .name ( name -- ) name>string type space ;
 \ : words  listwords @
 \          BEGIN  @ dup  WHILE  dup .name  REPEAT drop ;
-
-: cstring>sstring  ( cstring -- addr n ) \ gforth	cstring-to-sstring
-    -1 0 scan 0 swap 1+ /string ;
-: arg ( n -- addr count ) \ gforth
-    cells argv @ + @ cstring>sstring ;
-: #!       postpone \ ;  immediate
-
-Create pathstring 2 cells allot \ string
-Create pathdirs   2 cells allot \ dir string array, pointer and count
-Variable argv
-Variable argc
-
-0 Value script? ( -- flag )
-
-: process-path ( addr1 u1 -- addr2 u2 )
-    \ addr1 u1 is a path string, addr2 u2 is an array of dir strings
-    align here >r
-    BEGIN
-	over >r 0 scan
-	over r> tuck - ( rest-str this-str )
-	dup
-	IF
-	    2dup 1- chars + c@ [char] / <>
-	    IF
-		2dup chars + [char] / swap c!
-		1+
-	    THEN
-	    2,
-	ELSE
-	    2drop
-	THEN
-	dup
-    WHILE
-	1 /string
-    REPEAT
-    2drop
-    here r> tuck - 2 cells / ;
-
-: do-option ( addr1 len1 addr2 len2 -- n )
-    2swap
-    2dup s" -e"         compare  0= >r
-    2dup s" --evaluate" compare  0= r> or
-    IF  2drop dup >r ['] evaluate catch
-	?dup IF  dup >r DoError r> negate (bye)  THEN
-	r> >tib +!  2 EXIT  THEN
-    ." Unknown option: " type cr 2drop 1 ;
-
-: process-args ( -- )
-    >tib @ >r
-    argc @ 1
-    ?DO
-	I arg over c@ [char] - <>
-	IF
-	    required 1
-	ELSE
-	    I 1+ argc @ =  IF  s" "  ELSE  I 1+ arg  THEN
-	    do-option
-	THEN
-    +LOOP
-    r> >tib ! ;
-
 Defer 'cold ' noop IS 'cold
 
 : cold ( -- ) \ gforth
@@ -1487,14 +1220,12 @@ Defer 'cold ' noop IS 'cold
     'cold
     argc @ 1 >
     IF
-	true to script?
 	['] process-args catch ?dup
 	IF
 	    dup >r DoError cr r> negate (bye)
 	THEN
 	cr
     THEN
-    false to script?
     ." GForth " version-string type ." , Copyright (C) 1994-1996 Free Software Foundation, Inc." cr
     ." GForth comes with ABSOLUTELY NO WARRANTY; for details type `license'" cr
     ." Type `bye' to exit"

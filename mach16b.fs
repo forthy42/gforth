@@ -25,3 +25,13 @@
     8 Constant float
  true Constant bigendian
 ( true=big, false=little )
+
+\ feature list
+
+true Constant NIL  \ relocating
+
+true Constant has-files 
+true Constant has-OS
+true Constant has-prims
+true Constant has-floats
+true Constant has-locals

@@ -33,10 +33,11 @@ Create [struct]-voc       NIL A,       [struct]-search A,
   IF  [ [struct]-voc 3 cells + ] ALiteral @ lookup !  THEN ;
 
 UNLOCK  Tlast @ NIL Tlast !  LOCK
+\ last @  0 last !
 
 : [IF]      1 countif +! ?if ;       immediate
 : [THEN]   -1 countif +! ?if ;       immediate
-: [ELSE]   postpone [THEN] r> >exec postpone [IF] ;
+: [ELSE]   postpone [THEN] postpone [IF] ;
                                      immediate
 ' [IF]   Alias [IFDEF]               immediate
 ' [IF]   Alias [IFUNDEF]             immediate
@@ -55,6 +56,7 @@ UNLOCK  Tlast @ NIL Tlast !  LOCK
 ' \ Alias \                          immediate
 
 UNLOCK Tlast @ swap Tlast ! LOCK
+\ last @ swap last !
 1 cells - [struct]-voc !
 
 \ Interpretative Structuren                            30apr92py

@@ -25,6 +25,10 @@
 \ : ; ( colon-sys -- )  ?struc postpone exit reveal postpone [ ; immediate
 \ : :noname ( -- xt colon-sys )  here [ ' : @ ] ALiteral cfa, 0 ] ;
 
+Create mach-file here over 1+ allot place
+
+include errors.fs
+include extend.fs
 include search-order.fs
 
 \ include etags.fs
@@ -55,28 +59,27 @@ cell 2 = [IF] 32 [ELSE] 256 [THEN] KB makekernel ( size )
 UNLOCK ghost - drop \ ghost must exist because - would be treated as number
 LOCK
 
+doc-off
+has-prims [IF]
+    include aliases.fs             \ include primitive aliases
+[ELSE]
+    include primitives.fs
+[THEN]
+doc-on
+
 0 AConstant forthstart
 
-doc-off
-include aliases.fs             \ include primitive aliases
-doc-on
-\ include cond.fs                \ conditional compile
-\ include patches.fs             \ include primitive patches
-
 include vars.fs                \ variables and other stuff
-include add.fs                 \ additional things
 include errore.fs
 include version.fs
 include kernel.fs              \ load kernel
+include args.fs
+include files.fs               \ load file words
 include conditionals.fs        \ load IF and co
-include extend.fs              \ load core-extended
 include tools.fs               \ load tools ( .s dump )
 include toolsext.fs
-include special.fs
-\ include words.fs
-\ include wordinfo.fs
-\ include see.fs                 \ load see
-\ include search-order.fs
+
+include special.fs             \ special must be last!
 
 \ Setup                                                13feb93py
 

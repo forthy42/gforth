@@ -104,7 +104,7 @@ Variable tdp
 
 \ Parameter for target systems                         06oct92py
 
-included
+mach-file count included
 
 \ Create additional parameters                         19jan95py
 
@@ -131,14 +131,6 @@ H
 >TARGET
 20 CONSTANT bl
 -1 Constant NIL
--2 Constant :docol
--3 Constant :docon
--4 Constant :dovar
--5 Constant :douser
--6 Constant :dodefer
--7 Constant :dofield
--8 Constant :dodoes
--9 Constant :doesjump
 
 >CROSS
 
@@ -233,14 +225,9 @@ CREATE Bittable 80 c, 40 c, 20 c, 10 c, 8 c, 4 c, 2 c, 1 c,
 
 \ threading modell                                     13dec92py
 
-\ generic threading modell
-: docol,  ( -- ) :docol T A, 0 , H ;
-
 >TARGET
 : >body   ( cfa -- pfa ) T cell+ cell+ H ;
 >CROSS
-
-: dodoes, ( -- ) T :doesjump A, 0 , H ;
 
 \ Ghost Builder                                        06oct92py
 
@@ -252,7 +239,7 @@ VARIABLE VocTemp
 : T>  previous VocTemp @ set-current ;
 
 4711 Constant <fwd>             4712 Constant <res>
-4713 Constant <imm>
+4713 Constant <imm>             4714 Constant <do:>
 
 \ iForth makes only immediate directly after create
 \ make atonce trick! ?
@@ -464,6 +451,8 @@ VARIABLE ;Resolve 1 cells allot
 >TARGET
 : Alias    ( cfa -- ) \ name
   (THeader over resolve T A, H 80 flag! ;
+: Alias:   ( cfa -- ) \ name
+  ghost tuck swap resolve <do:> swap >magic ! ;
 >CROSS
 
 \ Conditionals and Comments                            11may93jaw
@@ -500,6 +489,7 @@ ghost lit       ghost (compile) ghost !         2drop drop
 ghost (does>)   ghost noop                      2drop
 ghost (.")      ghost (S")      ghost (ABORT")  2drop drop
 ghost '                                         drop
+ghost :docol    ghost :doesjump ghost :dodoes   2drop drop
 
 \ compile                                              10may93jaw
 
@@ -510,6 +500,11 @@ ghost '                                         drop
   IF    >exec @ compile,
   ELSE  postpone literal postpone gexecute  THEN ;
                                         immediate
+
+\ generic threading modell
+: docol,  ( -- ) compile :docol T 0 , H ;
+
+: dodoes, ( -- ) compile :doesjump T 0 , H ;
 
 >TARGET
 : '  ( -- cfa ) bl word gfind 0= ABORT" CROSS: undefined "
@@ -586,7 +581,8 @@ Cond: ; ( -- ) restrict?
 Cond: [  restrict? state off ;Cond
 
 >CROSS
-: !does  :dodoes tlastcfa @ tuck T ! cell+ ! H ;
+: !does
+    tlastcfa @ dup there >r tdp ! compile :dodoes r> tdp ! T cell+ ! H ;
 
 >TARGET
 Cond: DOES> restrict?
@@ -607,8 +603,11 @@ Cond: DOES> restrict?
 \  DOES>  dup >exec @ execute ;
 
 : gdoes,  ( ghost -- )  >end @ dup >magic @ <fwd> <>
-  IF dup >link @ dup 0< IF T A, 0 , H drop EXIT THEN drop THEN
-  :dodoes T A, H gexecute T here H cell - reloff ;
+    IF
+	dup >magic @ <do:> =
+	IF  gexecute T 0 , H  EXIT THEN
+    THEN
+    compile :dodoes gexecute T here H cell - reloff ;
 
 : TCreate ( -- )
   last-ghost @
@@ -631,6 +630,10 @@ Cond: DOES> restrict?
   here ghostheader
   :noname postpone gdoes> postpone ?EXIT ;
 
+: by:     ( -- addr [xt] [colon-sys] ) \ name
+  ghost
+  :noname postpone gdoes> postpone ?EXIT ;
+
 : ;DO ( addr [xt] [colon-sys] -- )
   postpone ;    ( S addr xt )
   over >exec ! ; immediate
@@ -642,9 +645,8 @@ Cond: DOES> restrict?
 \ Variables and Constants                              05dec92py
 
 Build:  ;
-DO: ( ghost -- addr ) ;DO
+by: :dovar ( ghost -- addr ) ;DO
 Builder Create
-by Create :dovar resolve
 
 Build: T 0 , H ;
 by Create
@@ -668,9 +670,8 @@ Variable tudp 0 tudp !
 >TARGET
 
 Build: T 0 u, , H ;
-DO: ( ghost -- up-addr )  T @ H tup @ + ;DO
+by: :douser ( ghost -- up-addr )  T @ H tup @ + ;DO
 Builder User
-by User :douser resolve
 
 Build: T 0 u, , 0 u, drop H ;
 by User
@@ -681,9 +682,8 @@ by User
 Builder AUser
 
 Build:  ( n -- ) T , H ;
-DO: ( ghost -- n ) T @ H ;DO
+by: :docon ( ghost -- n ) T @ H ;DO
 Builder Constant
-by Constant :docon resolve
 
 Build:  ( n -- ) T A, H ;
 by Constant
@@ -702,9 +702,8 @@ by Constant
 Builder AValue
 
 Build:  ( -- ) compile noop ;
-DO: ( ghost -- ) ABORT" CROSS: Don't execute" ;DO
+by: :dodefer ( ghost -- ) ABORT" CROSS: Don't execute" ;DO
 Builder Defer
-by Defer :dodefer resolve
 
 Build:  ( inter comp -- ) swap T immediate A, A, H ;
 DO: ( ghost -- ) ABORT" CROSS: Don't execute" ;DO
@@ -720,9 +719,8 @@ Builder interpret/compile:
 
 Build: 	>r rot r@ nalign  dup T , H  ( align1 size offset )
 	+ swap r> nalign ;
-DO: T @ H + ;DO
+by: :dofield T @ H + ;DO
 Builder Field
-by Field :dofield resolve
 
 : struct  T 0 1 chars H ;
 : end-struct  T 2Constant H ;
@@ -916,7 +914,9 @@ char 1 bigendian + cell + magic 7 + c!
 : drop drop ;   : =   = ;
 : lshift lshift ; : 2/ 2/ ;
 : . . ;
-cell constant cell
+\ cell constant cell
+
+mach-file count included
 
 \ include bug5.fs
 \ only forth also minimal definitions

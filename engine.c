@@ -110,7 +110,7 @@ char *tilde_cstr(Char *from, UCell size, int clear)
     s2 = from+1;
     s2_len = size-1;
   } else {
-    int i;
+    UCell i;
     for (i=1; i<size && from[i]!='/'; i++)
       ;
     {

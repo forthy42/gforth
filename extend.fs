@@ -160,26 +160,6 @@ decimal
     >in !
     false ;
 
-\ : save-input ( -- x1 .. xn n ) \ core-ext
-\   >in @
-\   loadfile @ ?dup
-\   IF    dup file-position throw sourceline# >tib @ 6
-\         #tib @ >tib +!
-\   ELSE  sourceline# blk @ linestart @ >tib @ 5 THEN
-\ ;
-
-\ : restore-input ( x1 .. xn n -- flag ) \ core-ext
-\   swap >tib !
-\   6 = IF   loadline ! rot dup loadfile !
-\            reposition-file IF drop true EXIT THEN
-\       ELSE linestart ! blk !
-\            dup sourceline# <> IF 2drop true EXIT THEN
-\            loadline !
-\       THEN
-\   >in ! false ;
-
-
-
 \ This things we don't need, but for being complete... jaw
 
 \ EXPECT SPAN                                           17may93jaw

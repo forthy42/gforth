@@ -42,6 +42,8 @@
 
 warnings off
 
+include extend.fs
+
 \ require interpretation.fs
 require debugging.fs
 [IFUNDEF] vocabulary    include search-order.fs [THEN]
@@ -66,6 +68,8 @@ variable line \ line number of char pointed to by input
 1 line !
 2variable filename \ filename of original input file
 0 0 filename 2!
+2variable f-comment
+0 0 f-comment 2!
 variable skipsynclines \ are sync lines ("#line ...") invisible to the parser?
 skipsynclines on 
 
@@ -224,7 +228,8 @@ eof-char singleton					charclass eof
 nowhite ++
 <- name ( -- )
 
-(( ` \ nonl ** nl
+(( {{ start }} ` \ nonl ** nl {{ end
+      2dup 2 min s" \+" compare 0= IF  f-comment 2!  ELSE  2drop  THEN }}
 )) <- comment ( -- )
 
 (( {{ effect-in }} (( {{ start }} c-name {{ end 2 pick item-name 2! item-descr + }} blank ** )) ** {{ effect-in-end ! }}
@@ -596,10 +601,14 @@ set-current
  ." &&I_" c-name 2@ type ." ," cr ;
 
 : output-alias ( -- )
+ f-comment 2@ nip
+ IF  cr f-comment 2@ 2 /string type 0 0 f-comment 2! THEN
  primitive-number @ . ." alias " forth-name 2@ type cr
  -1 primitive-number +! ;
 
 : output-forth ( -- )
+ f-comment 2@ 2 min s" \+" compare 0=
+ IF  cr f-comment 2@ 2 /string type 0 0 f-comment 2! THEN
  forth-code @ 0=
  IF    output-alias
  ELSE  ." : " forth-name 2@ type ."   ( "
