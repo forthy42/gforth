@@ -162,6 +162,8 @@ install:	gforth $(FORTH_SRC) gforth.fi gforth.1 gforth.info
 		for i in $(FORTH_SRC); do \
 			$(INSTALL_DATA) $$i $(libdir)/gforth; \
 		done
+
+check:		test
 		
 test:		gforth
 		@echo 'Expect to see INCORRECT RESULT: { GS1 -> <TRUE> <TRUE> }'

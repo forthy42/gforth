@@ -409,6 +409,11 @@ doc-sm/rem
 
 @node Double precision, Floating Point, Mixed precision, Arithmetic
 @subsection Double precision
+
+The outer (aka text) interpreter converts numbers containing a dot into
+a double precision number. Note that only numbers with the dot as last
+character are standard-conforming.
+
 doc-d+
 doc-d-
 doc-dnegate
@@ -418,6 +423,19 @@ doc-dmax
 
 @node Floating Point,  , Double precision, Arithmetic
 @subsection Floating Point
+
+The format of floating point numbers recognized by the outer (aka text)
+interpreter is: a signed decimal number, possibly containing a decimal
+point (@code{.}), followed by @code{E} or @code{e}, optionally followed
+by a signed integer (the exponent). E.g., @code{1e} ist the same as
+@code{+1.0e+1}. Note that a number without @code{e}
+is not interpreted as floating-point number, but as double (if the
+number contains a @code{.}) or single precision integer. Also,
+conversions between string and floating point numbers always use base
+10, irrespective of the value of @code{BASE}. If @code{BASE} contains a
+value greater then 14, the @code{E} may be interpreted as digit and the
+number will be interpreted as integer, unless it has a signed exponent
+(both @code{+} and @code{-} are allowed as signs).
 
 Angles in floating point operations are given in radians (a full circle
 has 2 pi radians). Note, that gforth has a separate floating point

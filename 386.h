@@ -43,6 +43,9 @@
 #endif
 
 #ifdef FORCE_REG
+#if (__GNUC__==2 && defined(__GNUC_MINOR__) && __GNUC_MINOR__==5)
+/* i.e. gcc-2.5.x */
+/* this works with 2.5.7; nothing works with 2.5.8 */
 #define IPREG asm("%esi")
 #define SPREG asm("%edi")
 #ifdef USE_TOS
@@ -50,4 +53,9 @@
 #else
 #define CFAREG asm("%edx")
 #endif
+#else /* gcc-version */
+/* this works with 2.6.3 (and quite well, too) */
+/* since this is not very demanding, it's the default for other gcc versions */
+#define SPREG asm("%ebx")
+#endif /* gcc-version */
 #endif /* FORCE_REG */

@@ -23,7 +23,7 @@ accept and expect: the result string can be exceeded with tab
 gforth should terminate when the input file ends. Also, C-d from the
 terminal should terminate gforth. anton 16apr95
 
-W/O currently means "w+", i.e. r/w. Maybe we should use "w" or
-"a". anton 18 apr95
-
 floating-point stack not checked.  anton 23apr95
+
+.1 is interpreted as floating-pint number, not as double number or
+error. anton 4may95
