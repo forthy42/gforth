@@ -1,0 +1,49 @@
+\G comments should appear immediately above or below the definition of
+the word it belongs to. The definition line should contain no more
+than the definition, a stack comment and a \ comment after which
+the wordset and pronounciation.
+An isolated block of \G comments is placed at the beginning of the
+glossary file.
+
+A typical glossary session may look like:
+NEWGLOS MAKEGLOS SOURCE1.STR MAKEGLOS SOURCE2.STR WRITEGLOS GLOS.GLO
+
+BUILD-HLINE   addr ---                                                         
+Build header line for glossary entry.
+
+GLOS-COMMENT?   --- flag                                                       
+Determine if line at HERE is glossary comment, if so.
+allot it, else store into oldline.
+
+INSERT-HEADER   addr ---                                                       
+Insert the header into the list at the alphabetically correct place.
+
+MAKE-GLOSENTRY   fid --- fid flag                                              
+Read lines from the file fid until \G line encountered.
+Collect all adjacent \G lines and find header line.
+then insert entry into list flag=0 if no entry found.
+
+MAKEGLOS   "name"                                                              
+This command reads a source file and builds glossary info
+for it in memory.
+
+NEWGLOS                                                                        
+This command starts a fresh glossary.
+
+PROCESS-HEADER                                                                 
+Process the header information stored in OLDLINE
+
+SCAN-WORD   ---- addr len                                                      
+Scan a word on oldline through pointer charptr
+
+WRITE-GLOSENTRY   addr fid ---                                                 
+write the glossary entry at address addr to file fid.
+
+WRITEGLOS   "name"                                                             
+This command writes the glossary info from memory to a file.
+The glossary info may be collected from more source files.
+
+\G                                                                             
+\G is an alias for \, so it is a comment till end-of-line, but
+it has a special meaning for the Glossary Generator.
+

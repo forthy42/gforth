@@ -1,0 +1,76 @@
+WRITING GLOSSARY FILES FOR FORTH WORDSETS IS DULL AND ERROR-PRONE.
+
+Maintaining them if the wordsets change, is never done accurately.
+
+Therefore, let's automate it.
+
+The file glosgen.str implements a very basic form of the glossary generator
+I like to be used as a standard tool with ANSFIG. BTW, it is written in
+standard (mostly standard?) ANS Forth, so it should be usable on many
+systems. You must first fix a small bug in WRITE-FILE (it returns bytes
+written and io result while it must return only io result 15/7/93) if you 
+want to use it on ANSFIG. This same bug affects WRITE-LINE too. Further
+CREATE-FILE creates (with me on Linux) a file with no permissions at all.
+Is this intended behaviour, or a bug?
+
+A special word (I call it \G, but now it is still open to discussion) is
+used to mark glossary comments. This word should be added to the
+kernel as all source files of ansfig should have such comments.
+
+The file glosgen.str is currently the only file with glossary comments in
+it. The file glosgen.glo is the glossary file of it. It was created by the
+following commands:
+ newglos
+ makeglos glosgen.str
+ writeglos glosgen.glo
+
+Making a file suitable for glossary generation should be possible with
+little effort. The usual stack comments should be added right after each
+definition. After that is an optional slash comment with the wordset and if
+necessary pronunciation info. The name of the new word must be the second
+word on the line, which is natural for colon definitions and most other
+words, but not for constants (should be fixed though). Directly above or
+below the header line of the definition come one or more \G comments.
+These are explanatory comments, which should be in the source file anyway.
+ORdinary ( or \ comments are not included in the glossary. A block of only
+\G comments is placed at the start of the glossary. Take for example the
+following word.
+
+\G Return the absolute value of n1.
+\G The largest negative number is returned unchanged.
+: ABS ( n1 --- n2) \ CORE  
+  DUP 0<
+  IF NEGATE \ Negate leaves the largest negative number unchanged.
+  THEN
+;
+
+This will appear in the glossary file as follows.
+
+ABS   n1 --- n2                  CORE
+Return the absolute value of n1.
+The largest negative number is returnded unchanged.
+
+All entries in the glossary files are in asciibetical order. It is possible
+to run more source files through the generator to form one glossary file.
+
+Things left to do:
+- Process the wordsets fields and pronunciation fields.
+- Select only words that occur in a particular word set.
+- Make a more sophisticated guess of the word name. Currently it is
+  the second word on the line, which is wrong with constants.
+- Process the primitives file too. Or make the primitives file
+  compatible with glosgen.
+- Generate other formats than straight ascii, (LaTeX, texinfo).
+
+Possible changes
+- Add several types of glossary comments, general and more technical 
+  comments. (\G and \T) Words of general interest get \G comments and
+  words that are used only internally have \T comments. Then it is possible
+  to generate a basic glossary for general users and a more technical 
+  glossary for programmers. Of course the source itself is the most
+  technical description.
+- If Forth gets a VIEW file system a la F83 or F-PC, it would be possible
+  to scan the words of an already compiled word list and find the defining
+  line in the source file this way. (then the name is always right).
+
+Lennart Benschop

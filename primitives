@@ -1,0 +1,940 @@
+/*
+$Id: primitives,v 1.1 1994-02-11 16:30:46 anton Exp $
+Copyright 1992 by the ANSI figForth Development Group
+
+WARNING: This file is processed by m4. Make sure your identifiers
+don't collide with m4's (e.g. by undefining them).
+
+This file contains instructions in the following format:
+
+forth name	stack effect	category	[pronounciation]
+[""glossary entry""]
+C code
+[:
+Forth code]
+
+The pronounciataion is also used for forming C names.
+
+These informations are automagically translated into C-code for the
+interpreter and into some other files. The forth name of a word is
+automatically turned into upper case. I hope that your C compiler has
+decent optimization, otherwise the automatically generated code will
+be somewhat slow. The Forth version of the code is included for manual
+compilers, so they will need to compile only the important words.
+
+Note that stack pointer adjustment is performed according to stack
+effect by automatically generated code and NEXT is automatically
+appended to the C code. Also, you can use the names in the stack
+effect in the C code. Stack access is automatic. One exception: if
+your code does not fall through, the results are not stored into the
+stack. Use different names on both sides of the '--', if you change a
+value (some stores to the stack are optimized away).
+
+The stack variables have the following types:
+name matches	type
+f.*		Bool
+c.*		Char
+[nw].*		Cell
+u.*		UCell
+d.*		DCell
+ud.*		UDCell
+r.*		Float
+a_.*		Cell *
+c_.*		Char *
+f_.*		Float *
+df_.*		DFloat *
+sf_.*		SFloat *
+xt.*		XT
+wid.*		WID
+f83name.*	F83Name *
+
+In addition the following names can be used:
+ip	the instruction pointer
+sp	the data stack pointer
+rp	the parameter stack pointer
+NEXT	executes NEXT
+cfa	
+NEXT1	executes NEXT1
+FLAG(x)	makes a Forth flag from a C flag
+
+Percentages in comments are from Koopmans book: average/maximum use
+(taken from four, not very representattive benchmarks)
+
+To do:
+make sensible error returns for file words
+
+throw execute, cfa and NEXT1 out?
+macroize *ip, ip++, *ip++ (pipelining)?
+*/
+
+/* these m4 macros would collide with identifiers */
+undefine(`index')
+undefine(`shift')
+
+noop	--		fig
+;
+
+lit	-- w		fig
+w = (Cell)*ip++;
+
+/* no clit today */
+
+execute		xt --		core,fig
+cfa = xt;
+IF_TOS(TOS = sp[0]);
+NEXT1;
+
+branch	--		fig
+branch:
+ip = (Xt *)(((int)ip)+(int)*ip);
+
+?branch		f --		f83	question_branch
+""also known as 0branch""
+if (f==0) {
+    IF_TOS(TOS = sp[0]);
+    goto branch;
+    }
+else
+    ip++;
+
+(next)	--		cmFORTH	paren_next
+if ((*rp)--) {
+    goto branch;
+} else {
+    ip++;
+}
+
+(loop)	--		fig	paren_loop
+int index = *rp+1;
+int limit = rp[1];
+if (index != limit) {
+    *rp = index;
+    goto branch;
+} else {
+    ip++;
+}
+
+(+loop)		n --		fig	paren_plus_loop
+/* !! check this thoroughly */
+int index = *rp;
+int olddiff = index-rp[1];
+/* sign bit manipulation and test: (x^y)<0 is equivalent to (x<0) != (y<0) */
+/* dependent upon two's complement arithmetic */
+if ((olddiff^(olddiff+n))<0   /* the limit is crossed */
+    && (olddiff^n)<0          /* it is not a wrap-around effect */) {
+    /* break */
+    ip++;
+} else {
+    /* continue */
+    *rp = index+n;
+    IF_TOS(TOS = sp[0]);
+    goto branch;
+}
+
+(s+loop)	n --		new	paren_symmetric_plus_loop
+""The run-time procedure compiled by S+LOOP. It loops until the index
+crosses the boundary between limit and limit-sign(n). I.e. a symmetric
+version of (+LOOP).""
+/* !! check this thoroughly */
+int oldindex = *rp;
+int diff = oldindex-rp[1];
+int newdiff = diff+n;
+if (n<0) {
+    diff = -diff;
+    newdiff = - newdiff;
+}
+if (diff>=0 || newdiff<0) {
+    *rp = oldindex+n;
+    IF_TOS(TOS = sp[0]);
+    goto branch;
+} else {
+    ip++;
+}
+
+unloop		--	core
+rp += 2;
+
+(for)	ncount --		cmFORTH		paren_for
+/* or (for) = >r -- collides with unloop! */
+*--rp = 0;
+*--rp = ncount;
+
+(do)	nlimit nstart --		fig		paren_do
+/* or do it in high-level? 0.09/0.23% */
+*--rp = nlimit;
+*--rp = nstart;
+:
+ swap >r >r ;
+
+(?do)	nlimit nstart --	core-ext	paren_question_do
+*--rp = nlimit;
+*--rp = nstart;
+if (nstart == nlimit) {
+    IF_TOS(TOS = sp[0]);
+    goto branch;
+    }
+else {
+    ip++;
+}
+
+i	-- n		core,fig
+n = *rp;
+
+j	-- n		core
+n = rp[2];
+
+/* digit is high-level: 0/0% */
+
+emit	c --		fig
+putchar(c);
+emitcounter++;
+
+key	-- n		fig
+fflush(stdout);
+/* !! noecho */
+n = key();
+
+cr	--		fig
+puts("");
+
+move	c_from c_to ucount --		core
+memmove(c_to,c_from,ucount);
+/* make an ifdef for bsd and others? */
+
+cmove	c_from c_to u --	string
+while (u-- > 0)
+  *c_to++ = *c_from++;
+
+cmove>	c_from c_to u --	string	c_move_up
+while (u-- > 0)
+  c_to[u] = c_from[u];
+
+fill	c_addr u c --	core
+memset(c_addr,c,u);
+
+compare		c_addr1 u1 c_addr2 u2 -- n	string
+n = memcmp(c_addr1, c_addr2, u1<u2 ? u1 : u2);
+if (n==0)
+  n = u1-u2;
+if (n<0)
+  n = -1;
+else if (n>0)
+  n = 1;
+
+-text		c_addr1 u c_addr2 -- n	new	dash_text
+n = memcmp(c_addr1, c_addr2, u);
+if (n<0)
+  n = -1;
+else if (n>0)
+  n = 1;
+
+capscomp	c_addr1 u c_addr2 -- n	new
+Char c1, c2;
+for (;; u--, c_addr1++, c_addr2++) {
+  if (u == 0) {
+    n = 0;
+    break;
+  }
+  c1 = toupper(*c_addr1);
+  c2 = toupper(*c_addr2);
+  if (c1 != c2) {
+    if (c1 < c2)
+      n = -1;
+    else
+      n = 1;
+    break;
+  }
+}
+
+-trailing	c_addr u1 -- c_addr u2		string	dash_trailing
+u2 = u1;
+while (c_addr[u2-1] == ' ')
+  u2--;
+
+/string		c_addr1 u1 n -- c_addr2 u2	string	slash_string
+c_addr2 = c_addr1+n;
+u2 = u1-n;
+
++	n1 n2 -- n		core,fig	plus
+n = n1+n2;
+
+-	n1 n2 -- n		core,fig	minus
+n = n1-n2;
+
+negate	n1 -- n2		core,fig
+/* use minus as alias */
+n2 = -n1;
+
+1+	n1 -- n2		core		one_plus
+n2 = n1+1;
+
+1-	n1 -- n2		core		one_minus
+n2 = n1-1;
+
+max	n1 n2 -- n	core
+if (n1<n2)
+  n = n2;
+else
+  n = n1;
+:
+ 2dup < if
+  swap drop
+ else
+  drop
+ endif ;
+
+min	n1 n2 -- n	core
+if (n1<n2)
+  n = n1;
+else
+  n = n2;
+
+abs	n1 -- n2	core
+if (n1<0)
+  n2 = -n1;
+else
+  n2 = n1;
+
+*	n1 n2 -- n		core,fig	star
+n = n1*n2;
+
+/	n1 n2 -- n		core,fig	slash
+n = n1/n2;
+
+mod	n1 n2 -- n		core
+n = n1%n2;
+
+/mod	n1 n2 -- n3 n4		core		slash_mod
+n4 = n1/n2;
+n3 = n1%n2; /* !! is this correct? look into C standard! */
+
+2*	n1 -- n2		core		two_star
+n2 = 2*n1;
+
+2/	n1 -- n2		core		two_slash
+/* !! is this still correct? */
+n2 = n1>>1;
+
+fm/mod	d1 n1 -- n2 n3		core		f_m_slash_mod
+""floored division: d1 = n3*n1+n2, n1>n2>=0 or 0>=n2>n1""
+/* assumes that the processor uses either floored or symmetric division */
+n3 = d1/n1;
+n2 = d1%n1;
+/* note that this 1%-3>0 is optimized by the compiler */
+if (1%-3>0 && (d1<0) != (n1<0) && n2!=0) {
+  n3--;
+  n2+=n1;
+}
+
+sm/rem	d1 n1 -- n2 n3		core		s_m_slash_rem
+""symmetric division: d1 = n3*n1+n2, sign(n2)=sign(d1) or 0""
+/* assumes that the processor uses either floored or symmetric division */
+n3 = d1/n1;
+n2 = d1%n1;
+/* note that this 1%-3<0 is optimized by the compiler */
+if (1%-3<0 && (d1<0) != (n1<0) && n2!=0) {
+  n3++;
+  n2-=n1;
+}
+
+m*	n1 n2 -- d		core	m_star
+d = (DCell)n1 * (DCell)n2;
+
+um*	u1 u2 -- ud		core	u_m_star
+/* use u* as alias */
+ud = (UDCell)u1 * (UDCell)u2;
+
+um/mod	ud u1 -- u2 u3		core	u_m_slash_mod
+u3 = ud/u1;
+u2 = ud%u1;
+
+m+	d1 n -- d2		double		m_plus
+d2 = d1+n;
+
+d+	d1 d2 -- d		double,fig	d_plus
+d = d1+d2;
+
+d-	d1 d2 -- d		double		d_minus
+d = d1-d2;
+
+dnegate	d1 -- d2		double
+/* use dminus as alias */
+d2 = -d1;
+
+dmax	d1 d2 -- d	double
+if (d1<d2)
+  d = d2;
+else
+  d = d1;
+
+dmin	d1 d2 -- d	double
+if (d1<d2)
+  d = d1;
+else
+  d = d2;
+
+dabs	d1 -- d2	double
+if (d1<0)
+  d2 = -d1;
+else
+  d2 = d1;
+
+d2*	d1 -- d2		double		d_two_star
+d2 = 2*d1;
+
+d2/	d1 -- d2		double		d_two_slash
+/* !! is this still correct? */
+d2 = d1/2;
+
+d>s	d -- n			double		d_to_s
+/* make this an alias for drop? */
+n = d;
+
+and	w1 w2 -- w		core,fig
+w = w1&w2;
+
+or	w1 w2 -- w		core,fig
+w = w1|w2;
+
+xor	w1 w2 -- w		core,fig
+w = w1^w2;
+
+invert	w1 -- w2		core
+w2 = ~w1;
+
+rshift	u1 n -- u2		core
+  u2 = u1>>n;
+
+lshift	u1 n -- u2		core
+  u2 = u1<<n;
+
+/* comparisons(prefix, args, prefix, arg1, arg2, wordsets...) */
+define(comparisons,
+$1=	$2 -- f		$6	$3equals
+f = FLAG($4==$5);
+
+$1<>	$2 -- f		$7	$3different
+/* use != as alias ? */
+f = FLAG($4!=$5);
+
+$1<	$2 -- f		$8	$3less
+f = FLAG($4<$5);
+
+$1>	$2 -- f		$9	$3greater
+f = FLAG($4>$5);
+
+$1<=	$2 -- f		new	$3less_or_equal
+f = FLAG($4<=$5);
+
+$1>=	$2 -- f		new	$3greater_or_equal
+f = FLAG($4>=$5);
+
+)
+
+comparisons(0, n, zero_, n, 0, core, core-ext, core, core-ext)
+comparisons(, n1 n2, , n1, n2, core, core-ext, core, core)
+comparisons(u, u1 u2, u_, u1, u2, new, new, core, core-ext)
+comparisons(d, d1 d2, d_, d1, d2, double, new, double, new)
+comparisons(d0, d, d_zero_, d, 0, double, new, double, new)
+comparisons(du, ud1 ud2, d_u_, ud1, ud2, new, new, double-ext, new)
+
+within	u1 u2 u3 -- f		core-ext
+f = FLAG(u1-u2 < u3-u2);
+
+sp@	-- a_addr		fig		spat
+a_addr = sp;
+
+sp!	a_addr --		fig		spstore
+sp = a_addr+1;
+/* works with and without TOS caching */
+
+rp@	-- a_addr		fig		rpat
+a_addr = rp;
+
+rp!	a_addr --		fig		rpstore
+rp = a_addr;
+
+fp@	-- f_addr	new	fp_fetch
+f_addr = fp;
+
+fp!	f_addr --	new	fp_store
+fp = f_addr;
+
+exit	--		core
+/* use ;s as alias */
+ip = (Xt *)(*rp++);
+
+?exit	w --		core		question_exit
+/* use ;s as alias */
+if(w)
+	ip = (Xt *)(*rp++);
+
+>r	w --		core,fig	to_r
+*--rp = w;
+
+r>	-- w		core,fig	r_from
+w = *rp++;
+
+r@	-- w		core,fig	r_fetch
+/* use r as alias */
+/* make r@ an alias for i */
+w = *rp;
+
+rdrop	--		fig
+rp++;
+
+i'	-- w		fig		i_tick
+w=rp[1];
+
+over	w1 w2 -- w1 w2 w1		core,fig
+
+drop	w --		core,fig
+
+swap	w1 w2 -- w2 w1		core,fig
+
+dup	w -- w w		core,fig
+
+rot	w1 w2 w3 -- w2 w3 w1	core	rote
+
+-rot	w1 w2 w3 -- w3 w1 w2	fig	not_rote
+
+nip	w1 w2 -- w2		core-ext
+
+tuck	w1 w2 -- w2 w1 w2	core-ext
+
+?dup	w -- w			core	question_dupe
+/* resulting C code suboptimal */
+/* make -dup an alias */
+if (w!=0) {
+  --sp;
+#ifndef USE_TOS
+  *sp = w;
+#endif
+}
+
+pick	u -- w			core-ext
+w = sp[u+1];
+
+2drop	w1 w2 --		core	two_drop
+
+2dup	w1 w2 -- w1 w2 w1 w2	core	two_dupe
+
+2over	w1 w2 w3 w4 -- w1 w2 w3 w4 w1 w2	core	two_over
+
+2swap	w1 w2 w3 w4 -- w3 w4 w1 w2	core	two_swap
+
+2rot	w1 w2 w3 w4 w5 w6 -- w3 w4 w5 w6 w1 w2	double	two_rote
+
+/* toggle is high-level: 0.11/0.42% */
+
+@	a_addr -- w		fig	fetch
+w = *a_addr;
+
+!	w a_addr --		core,fig	store
+*a_addr = w;
+
++!	n a_addr --		core,fig	plus_store
+*a_addr += n;
+
+c@	c_addr -- c		fig	cfetch
+c = *c_addr;
+
+c!	c c_addr --		fig	cstore
+*c_addr = c;
+
+2!	w1 w2 a_addr --		core	two_store
+a_addr[0] = w2;
+a_addr[1] = w1;
+
+2@	a_addr -- w1 w2		core	two_fetch
+w2 = a_addr[0];
+w1 = a_addr[1];
+
+d!	d a_addr --		double	d_store
+/* !! alignment problems on some machines */
+*(DCell *)a_addr = d;
+
+d@	a_addr -- d		double	d_fetch
+d = *(DCell *)a_addr;
+
+cell+	a_addr1 -- a_addr2	core	cell_plus
+a_addr2 = a_addr1+1;
+
+cells	n1 -- n2		core
+n2 = n1 * sizeof(Cell);
+
+char+	c_addr1 -- c_addr2	core	care_plus
+c_addr2 = c_addr1+1;
+
+chars	n1 -- n2		core	cares
+n2 = n1 * sizeof(Char);
+
+count	c_addr1 -- c_addr2 u	core
+u = *c_addr1;
+c_addr2 = c_addr1+1;
+
+(bye)	n --	toolkit-ext	paren_bye
+deprep_terminal();
+exit(n);
+
+system	c_addr u -- n	own
+char pname[u+1];
+cstr(pname,c_addr,u);
+n=system(pname);
+
+popen	c_addr u n -- wfileid	own
+char pname[u+1];
+static char* mode[2]={"r","w"};
+cstr(pname,c_addr,u);
+wfileid=(Cell)popen(pname,mode[n]);
+
+pclose	wfileid -- wior	own
+wior=pclose((FILE *)wfileid);
+
+allocate	u -- a_addr wior	memory
+a_addr = (Cell *)malloc(u);
+wior = a_addr==NULL;	/* !! define a return code */
+
+free		a_addr -- wior		memory
+free(a_addr);
+wior = 0;
+
+resize		a_addr1 u -- a_addr2 wior	memory
+a_addr2 = realloc(a_addr1, u);
+wior = a_addr2==NULL;	/* !! define a return code */
+
+(f83find)	c_addr u f83name1 -- f83name2	new	paren_f83find
+for (; f83name1 != NULL; f83name1 = f83name1->next)
+  if (F83NAME_COUNT(f83name1)==u && !F83NAME_SMUDGE(f83name1) &&
+      strncasecmp(c_addr, f83name1->name, u)== 0 /* or inline? */)
+    break;
+f83name2=f83name1;
+
+(parse-white)	c_addr1 u1 -- c_addr2 u2	new	paren_parse_white
+/* use !isgraph instead of isspace? */
+Char *endp = c_addr1+u1;
+while (c_addr1<endp && isspace(*c_addr1))
+  c_addr1++;
+if (c_addr1<endp) {
+  for (c_addr2 = c_addr1; c_addr1<endp && !isspace(*c_addr1); c_addr1++)
+    ;
+  u2 = c_addr1-c_addr2;
+}
+else {
+  c_addr2 = c_addr1;
+  u2 = 0;
+}
+
+close-file	wfileid -- wior	file	close_file
+wior = FLAG(fclose((FILE *)wfileid)==EOF);
+
+open-file	c_addr u ntype -- w2 wior	file	open_file
+char fname[u+1];
+cstr(fname, c_addr, u);
+w2 = (Cell)fopen(fname, fileattr[ntype]);
+wior = FLAG(w2 == NULL);
+
+create-file	c_addr u ntype -- w2 wior	file	create_file
+int	fd;
+char fname[u+1];
+cstr(fname, c_addr, u);
+fd = creat(fname, 0666);
+if (fd > -1) {
+  w2 = (Cell)fdopen(fd, fileattr[ntype]);
+  assert(w2 != NULL);
+  wior = 0;
+} else {
+  assert(fd == -1);
+  wior = fd;
+  w2 = 0;
+}
+
+delete-file	c_addr u -- wior		file	delete_file
+char fname[u+1];
+cstr(fname, c_addr, u);
+wior = unlink(fname);
+
+rename-file	c_addr1 u1 c_addr2 u2 -- wior	file-ext	rename_file
+char fname1[u1+1];
+char fname2[u2+1];
+cstr(fname1, c_addr1, u1);
+cstr(fname2, c_addr2, u2);
+wior = rename(fname1, fname2);
+
+file-position	wfileid -- ud wior	file	file_position
+/* !! use tell and lseek? */
+ud = ftell((FILE *)wfileid);
+wior = 0; /* !! or wior = FLAG(ud<0) */
+
+reposition-file	ud wfileid -- wior	file	reposition_file
+wior = fseek((FILE *)wfileid, (long)ud, SEEK_SET);
+
+file-size	wfileid -- ud wior	file	file_size
+struct stat buf;
+wior = fstat(fileno((FILE *)wfileid), &buf);
+ud = buf.st_size;
+
+resize-file	ud wfileid -- wior	file	resize_file
+wior = ftruncate(fileno((FILE *)wfileid), (int)ud);
+
+read-file	c_addr u1 wfileid -- u2 wior	file	read_file
+/* !! fread does not guarantee enough */
+u2 = fread(c_addr, sizeof(Char), u1, (FILE *)wfileid);
+wior = FLAG(u2<u1 && ferror((FILE *)wfileid));
+/* !! who performs clearerr((FILE *)wfileid); ? */
+
+read-line	c_addr u1 wfileid -- u2 flag wior	file	read_line
+wior=(Cell)fgets(c_addr,u1+1,(FILE *)wfileid);
+flag=FLAG(!feof((FILE *)wfileid) && wior);
+wior=FLAG(ferror((FILE *)wfileid)) & flag;
+u2=(flag & strlen(c_addr));
+u2-=((u2>0) && (c_addr[u2-1]==NEWLINE));
+
+write-file	c_addr u1 wfileid -- wior	file	write_file
+/* !! fwrite does not guarantee enough */
+{
+  int u2 = fwrite(c_addr, sizeof(Char), u1, (FILE *)wfileid);
+  wior = FLAG(u2<u1 && ferror((FILE *)wfileid));
+}
+
+flush-file	wfileid -- wior		file-ext	flush_file
+wior = fflush((FILE *)wfileid);
+
+comparisons(f, r1 r2, f_, r1, r2, new, new, float, new)
+comparisons(f0, r, f_zero_, r, 0., float, new, float, new)
+
+d>f		d -- r		float	d_to_f
+r = d;
+
+f>d		r -- d		float	f_to_d
+/* !! basis 15 is not very specific */
+d = r;
+
+f!		r f_addr --	float	f_store
+*f_addr = r;
+
+f@		f_addr -- r	float	f_fetch
+r = *f_addr;
+
+df@		df_addr -- r	float-ext	d_f_fetch
+#ifdef IEEE_FP
+r = *df_addr;
+#else
+!! df@
+#endif
+
+df!		r df_addr --	float-ext	d_f_store
+#ifdef IEEE_FP
+*df_addr = r;
+#else
+!! df!
+#endif
+
+sf@		sf_addr -- r	float-ext	s_f_fetch
+#ifdef IEEE_FP
+r = *sf_addr;
+#else
+!! sf@
+#endif
+
+sf!		r sf_addr --	float-ext	s_f_store
+#ifdef IEEE_FP
+*sf_addr = r;
+#else
+!! sf!
+#endif
+
+f+		r1 r2 -- r3	float	f_plus
+r3 = r1+r2;
+
+f-		r1 r2 -- r3	float	f_minus
+r3 = r1-r2;
+
+f*		r1 r2 -- r3	float	f_star
+r3 = r1*r2;
+
+f/		r1 r2 -- r3	float	f_slash
+r3 = r1/r2;
+
+f**		r1 r2 -- r3	float-ext	f_star_star
+r3 = pow(r1,r2);
+
+fnegate		r1 -- r2	float
+r2 = - r1;
+
+fdrop		r --		float
+
+fdup		r -- r r	float
+
+fswap		r1 r2 -- r2 r1	float
+
+fover		r1 r2 -- r1 r2 r1	float
+
+frot		r1 r2 r3 -- r2 r3 r1	float
+
+float+		f_addr1 -- f_addr2	float	float_plus
+f_addr2 = f_addr1+1;
+
+floats		n1 -- n2	float
+n2 = n1*sizeof(Float);
+
+floor		r1 -- r2	float
+/* !! unclear wording */
+r2 = floor(r1);
+
+fround		r1 -- r2	float
+/* !! unclear wording */
+r2 = rint(r1);
+
+fmax		r1 r2 -- r3	float
+if (r1<r2)
+  r3 = r2;
+else
+  r3 = r1;
+
+fmin		r1 r2 -- r3	float
+if (r1<r2)
+  r3 = r1;
+else
+  r3 = r2;
+
+represent		r c_addr u -- n f1 f2	float
+char *sig;
+int flag;
+sig=ecvt(r, u, &n, &flag);
+f1=FLAG(flag!=0);
+f2=FLAG(isdigit(sig[0])!=0);
+memmove(c_addr,sig,u);
+
+>float	c_addr u -- flag	float	to_float
+/* real signature: c_addr u -- r t / f */
+Float r;
+char number[u+1];
+char *endconv;
+cstr(number, c_addr, u);
+r=strtod(number,&endconv);
+if(flag=FLAG(!(int)*endconv))
+{
+	IF_FTOS(fp[0] = FTOS);
+	fp += -1;
+	FTOS = r;
+}
+else if(*endconv=='d' || *endconv=='D')
+{
+	*endconv='E';
+	r=strtod(number,&endconv);
+	if(flag=FLAG(!(int)*endconv))
+	{
+		IF_FTOS(fp[0] = FTOS);
+		fp += -1;
+		FTOS = r;
+	}
+}
+
+fabs		r1 -- r2	float-ext
+r2 = fabs(r1);
+
+facos		r1 -- r2	float-ext
+r2 = acos(r1);
+
+fasin		r1 -- r2	float-ext
+r2 = asin(r1);
+
+fatan		r1 -- r2	float-ext
+r2 = atan(r1);
+
+fatan2		r1 r2 -- r3	float-ext
+r3 = atan2(r1,r2);
+
+fcos		r1 -- r2	float-ext
+r2 = cos(r1);
+
+fexp		r1 -- r2	float-ext
+r2 = exp(r1);
+
+fln		r1 -- r2	float-ext
+r2 = log(r1);
+
+flog		r1 -- r2	float-ext
+r2 = log10(r1);
+
+fsin		r1 -- r2 r3	float-ext
+r2 = sin(r1);
+r3 = cos(r1);
+
+fsqrt		r1 -- r2	float-ext
+r2 = sqrt(r1);
+
+ftan		r1 -- r2	float-ext
+r2 = tan(r1);
+
+/* The following words access machine/OS/installation-dependent ANSI
+   figForth internals */
+/* !! how about environmental queries DIRECT-THREADED,
+   INDIRECT-THREADED, TOS-CACHED, FTOS-CACHED, CODEFIELD-DOES */
+
+>body		xt -- a_addr	core	to_body
+a_addr = PFA(xt);
+
+>code-address		xt -- c_addr		new	to_code_address
+""c_addr is the code address of the word xt""
+/* !! This behaves installation-dependently for DOES-words */
+c_addr = CODE_ADDRESS(xt);
+
+>does-code	xt -- a_addr		new	to_does_code
+""If xt ist the execution token of a defining-word-defined word,
+a_addr is the start of the Forth code after the DOES>; Otherwise the
+behaviour is uundefined""
+/* !! there is currently no way to determine whether a word is
+defining-word-defined */
+a_addr = DOES_CODE(xt);
+
+code-address!		c_addr xt --	new	code_address_store
+""Creates a code field with code address c_addr at xt""
+MAKE_CF(xt, c_addr);
+
+does-code!	a_addr xt --		new	does_code_store
+""creates a code field at xt for a defining-word-defined word; a_addr
+is the start of the Forth code after DOES>""
+MAKE_DOES_CF(xt, a_addr);
+
+does-handler!	a_addr --	new	does_jump_store
+""creates a DOES>-handler at address a_addr. a_addr usually points
+just behind a DOES>.""
+MAKE_DOES_HANDLER(a_addr);
+
+/does-handler	-- n	new	slash_does_handler
+""the size of a does-handler (includes possible padding)""
+/* !! a constant or environmental query might be better */
+n = DOES_HANDLER_SIZE;
+
+toupper	c1 -- c2	new
+c2 = toupper(c1);
+
+/* local variable implementation primitives */
+@local#		-- w	new	fetch_local_number
+w = *(Cell *)(lp+(int)(*ip++));
+
+f@local#	-- r	new	f_fetch_local_number
+r = *(Float *)(lp+(int)(*ip++));
+
+laddr#		-- c_addr	new	laddr_number
+/* this can also be used to implement lp@ */
+c_addr = (Char *)(lp+(int)(*ip++));
+
+lp+!#	--	new	lp_plus_store_number
+""used with negative immediate values it allocates memory on the
+local stack, a positive immediate argument drops memory from the local
+stack""
+lp += (int)(*ip++);
+
+lp!	c_addr --	new	lp_store
+lp = (Address)c_addr;
+
+>l	w --	new	to_l
+lp -= sizeof(Cell);
+*(Cell *)lp = w;
+
+f>l	r --	new	f_to_l
+lp -= sizeof(Float);
+*(Float *)lp = r;

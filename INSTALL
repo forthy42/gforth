@@ -1,0 +1,11 @@
+Very preliminary version
+
+Create a machine description file for your machine, if necessary.
+
+Make a symbolic link to machine.h, e.g.
+
+ln -s decstation.h machine.h
+
+Now you can type
+
+make

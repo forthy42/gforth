@@ -1,0 +1,41 @@
+$Id: model,v 1.1 1994-02-11 16:30:46 anton Exp $
+Copyright 1992 by the ANSI figForth Development Group
+
+This file describes the implementation model of ANSI figForth. The things
+described herein are valid in all implementations of ANSI figForth.
+
+The instruction pointer (ip) is post-incremented.
+
+Branches are relative:
+	branch
+offset:	target - offset
+	...
+target:	...
+
+The top-of return stack is in memory
+
+The top of data stack need not be in memory. Other data stack items
+are in memory.
+
+The stacks grow downward
+
+flags are represtented by 0 and -1
+
+The loop control parameters are the index on the top of return stack
+and the limit on the second item.
+
+Everything except the virtual machine registers (ip, sp, etc.) is
+addressable.
+
+The return address on the return stack occupies one cell.
+
+There is a floating point stack
+The floating point numbers are the same as C's double numbers
+
+The error returns of the file word set are FALSE or TRUE. (or should
+we use errno? Does this work with stdio functions?)
+
+No assumptions can be made about the order of fetching the xt of the
+next word wrt the other operations in a forth word. This makes a
+difference only if you want to execute code lying on the stack or if
+you store into the very next word that is executed.

@@ -1,0 +1,14 @@
+2, is accepted as a double number.  anton 5oct93
+
+after a stack underflow the stack contains 4 values. anton 5oct93
+
+The system quits on exceptions like segmentation faults. anton 5oct93
+
+compile does not have its traditional meaning. anton 5oct93
+
+include does not read the last line if it does not end with \n.  anton 6oct93
+
+No warning is given when words are redefined. This is a problem when
+using software from a case sensitive system.  anton 6oct93
+
+create-file creates a file with 000 protection  anton 22oct93
