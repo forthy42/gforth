@@ -35,7 +35,7 @@ HEX
 
 \ !! this is machine-dependent, but works on all but the strangest machines
 
-: maxaligned ( addr -- f-addr ) \ float
+: maxaligned ( addr -- f-addr ) \ gforth
     [ /maxalign 1 - ] Literal + [ 0 /maxalign - ] Literal and ;
 \ !! machine-dependent and won't work if "0 >body" <> "0 >body maxaligned"
 ' maxaligned Alias cfaligned ( addr1 -- addr2 ) \ gforth

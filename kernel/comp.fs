@@ -52,7 +52,7 @@
 	bl c,
     LOOP ;
 
-: maxalign ( -- ) \ float
+: maxalign ( -- ) \ gforth
     here dup maxaligned swap
     ?DO
 	bl c,

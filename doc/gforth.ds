@@ -7206,7 +7206,6 @@ The following ANS Standard Forth words are not currently supported by Gforth
 @code{EKEY?} 
 @code{EMIT?} 
 @code{FORGET} 
-@code{LOCALS|} 
 
 
 @c ******************************************************************
