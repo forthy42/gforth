@@ -254,6 +254,7 @@ ARCHS =	\
 	arch/sparc/machine.h \
 	arch/power/machine.h \
 	arch/power/_sync_cache_range.c \
+	arch/power/elf32ppc.x \
 	arch/alpha/machine.h \
 	arch/4stack/README \
 	arch/4stack/asm.fs \

@@ -214,8 +214,7 @@ print-token !
 
 char a char z ..  char A char Z ..  union char _ singleton union  charclass letter
 char 0 char 9 ..					charclass digit
-bl singleton						charclass blank
-tab-char singleton					charclass tab
+bl singleton tab-char over add-member			charclass white
 nl-char singleton eof-char over add-member complement	charclass nonl
 nl-char singleton eof-char over add-member char : over add-member complement  charclass nocolonnl
 bl 1+ maxchar ..					charclass nowhite
@@ -265,17 +264,17 @@ Variable c-flag
 
 (( ` \ comment-body nl )) <- comment ( -- )
 
-(( {{ effect-in }} (( {{ start }} c-name {{ end 2 pick item-name 2! item-descr + }} blank ** )) ** {{ effect-in-end ! }}
-   ` - ` - blank **
-   {{ effect-out }} (( {{ start }} c-name {{ end 2 pick item-name 2! item-descr + }} blank ** )) ** {{ effect-out-end ! }}
+(( {{ effect-in }} (( {{ start }} c-name {{ end 2 pick item-name 2! item-descr + }} white ** )) ** {{ effect-in-end ! }}
+   ` - ` - white **
+   {{ effect-out }} (( {{ start }} c-name {{ end 2 pick item-name 2! item-descr + }} white ** )) ** {{ effect-out-end ! }}
 )) <- stack-effect ( -- )
 
 (( {{ s" " doc 2! s" " forth-code 2! }}
    (( comment || nl )) **
    (( {{ line @ name-line ! filename 2@ name-filename 2! }}
-      {{ start }} name {{ end 2dup forth-name 2! c-name 2! }}  tab ++
-      {{ start }} stack-effect {{ end stack-string 2! }} tab ++
-        {{ start }} name {{ end wordset 2! }} tab **
+      {{ start }} name {{ end 2dup forth-name 2! c-name 2! }}  white ++
+      ` ( white ** {{ start }} stack-effect {{ end stack-string 2! }} ` ) white **
+        {{ start }} name {{ end wordset 2! }} white **
         (( {{ start }}  c-name {{ end c-name 2! }} )) ??  nl
    ))
    (( ` " ` "  {{ start }} (( noquote ++ ` " )) ++ {{ end 1- doc 2! }} ` " nl )) ??
@@ -611,7 +610,7 @@ set-current
  item-descr +loop ; 
 
 : output-c ( -- ) 
- ." I_" c-name 2@ type ." :	/* " forth-name 2@ type ."  ( " stack-string 2@ type ."  ) */" cr
+ ." I_" c-name 2@ type ." :	/* " forth-name 2@ type ."  ( " stack-string 2@ type ." ) */" cr
  ." /* " doc 2@ type ."  */" cr
  ." NAME(" [char] " emit forth-name 2@ type [char] " emit ." )" cr \ debugging
  ." {" cr
