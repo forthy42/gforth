@@ -1,5 +1,5 @@
 \ CROSS.FS     The Cross-Compiler                      06oct92py
-\ $Id: cross.fs,v 1.21 1995-02-02 18:13:02 pazsan Exp $
+\ $Id: cross.fs,v 1.22 1995-02-06 18:14:30 anton Exp $
 \ Idea and implementation: Bernd Paysan (py)
 \ Copyright 1992-94 by the GNU Forth Development Group
 
@@ -39,10 +39,10 @@ decimal
 VARIABLE GhostNames
 0 GhostNames !
 : GhostName ( -- addr )
-        here GhostNames @ , GhostNames ! here 0 ,
-        bl word count
-\        2dup type space
-        dup c, here over chars allot swap move align ;
+    here GhostNames @ , GhostNames ! here 0 ,
+    bl word count
+    \ 2dup type space
+    string, cfalign ;
 
 hex
 
@@ -172,10 +172,17 @@ CREATE Bittable 80 c, 40 c, 20 c, 10 c, 8 c, 4 c, 2 c, 1 c,
 
 : align+  ( taddr -- rest )
     cell tuck 1- and - [ cell 1- ] Literal and ;
+: cfalign+  ( taddr -- rest )
+    \ see kernal.fs:cfaligned
+    float tuck 1- and - [ float 1- ] Literal and ;
 
 >TARGET
 : aligned ( taddr -- ta-addr )  dup align+ + ;
 \ assumes cell alignment granularity (as GNU C)
+
+: cfaligned ( taddr1 -- taddr2 )
+    \ see kernal.fs
+    dup cfalign+ + ;
 
 >CROSS
 : >image ( taddr -- absaddr )  image @ + ;
@@ -195,6 +202,8 @@ CREATE Bittable 80 c, 40 c, 20 c, 10 c, 8 c, 4 c, 2 c, 1 c,
 : ,     ( w -- )        T here H cell T allot  ! H ;
 : c,    ( char -- )     T here    1 allot c! H ;
 : align ( -- )          T here H align+ 0 ?DO  bl T c, H LOOP ;
+: cfalign ( -- )
+    T here H cfalign+ 0 ?DO  bl T c, H LOOP ;
 
 : A!                    dup relon T ! H ;
 : A,    ( w -- )        T here H relon T , H ;
@@ -344,7 +353,7 @@ VARIABLE ^imm
 
 : string,  ( addr count -- )
   dup T c, H bounds  DO  I c@ T c, H  LOOP ; 
-: name,  ( "name" -- )  bl word count string, T align H ;
+: name,  ( "name" -- )  bl word count string, T cfalign H ;
 : view,   ( -- ) ( dummy ) ;
 
 VARIABLE CreateFlag CreateFlag off

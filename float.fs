@@ -26,20 +26,16 @@
 
 : f, ( f -- )  here 1 floats allot f! ;
 
-\ !! have create produce faligned pfas
 : fconstant  ( r -- )
-  falign here f,  Create A,
-  DOES>  @ f@ ;
-
-: fvariable
-  falign here 0. d>f f, AConstant ;
+    Create f,
+    DOES> f@ ;
 
 : fdepth  ( -- n )  f0 @ fp@ - [ 1 floats ] Literal / ;
 
 : FLit ( -- r )  r> faligned dup f@ float+ >r ;
 : FLiteral ( r -- )  postpone FLit  falign f, ;  immediate
 
-&16 Value precision
+&15 Value precision
 : set-precision  to precision ;
 
 : scratch ( r -- addr len )
@@ -82,6 +78,10 @@
     THEN ;
 
 ' sfnumber IS notfound
+
+: fvariable ( -- )
+    Create 0e0 f, ;
+    \ does> ( -- f-addr )
 
 1e0 fasin 2e0 f* fconstant pi
 

@@ -10,7 +10,7 @@ AVARIABLE ErrLink              \ Linked list entry point
        ErrLink linked
        ,
        [char] " word count
-       dup c, here over chars allot swap move align ;
+       string, align ;
 
 decimal
 

@@ -2,22 +2,13 @@ name> does not take the same argument as e.g. .name. Remedy: add cell+
 before name>, but adapt all uses.  anton 23apr94 Solved?
 
 revealing the same name several times (e.g., by using recursive)
-results in redefined messages.  anton 28jul94
+results in "redefined ..." messages.  anton 28jul94
 
 if blocks.fb does not exist, 1 block creates the file, but cannot
 read-file from it. Only if the file-id has been created with
 open-file, not create-file, read-file works. - anton 6aug94
 
 etags.fs crashes one of my applications (gs.fs). anton 12jan95
-
-f. suppresses all digits when it prints 0:
-0e0 f. .  ok
-There's also one other problem with f.:
-1e-20			 f. 0.00000000000000000001000000000000001  ok
--20e0 falog		 f. 0.00000000000000000001000000000000001  ok
-0.00000000000000000001e0 f. 0.00000000000000000001000000000000001  ok
-All this happens under Slackware Linux. On the DecStation I get a
-similar error in the other direction.  anton 17jan95
 
 not all aliases are in the etags file. Bug in etags.fs? anton 24jan95
 

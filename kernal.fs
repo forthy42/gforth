@@ -66,6 +66,15 @@ DOES> ( n -- )  + c@ ;
       bl c,
   LOOP ;
 
+\ !! this is machine-dependent, but works on all but the strangest machines
+' faligned Alias maxaligned
+' falign Alias maxalign
+
+\ the code field is aligned if its body is maxaligned
+\ !! machine-dependent and won't work if "0 >body" <> "0 >body maxaligned"
+' maxaligned Alias cfaligned
+' maxalign Alias cfalign
+
 : chars ; immediate
 
 : A!    ( addr1 addr2 -- )  dup relon ! ;
@@ -78,9 +87,11 @@ DOES> ( n -- )  + c@ ;
 
 \ name> found                                          17dec92py
 
-: (name>)  ( nfa -- cfa )    count  $1F and  +  aligned ;
-: name>    ( nfa -- cfa )    cell+
-  dup  (name>) swap  c@ $80 and 0= IF  @ THEN ;
+: (name>)  ( nfa -- cfa )
+    count  $1F and  +  cfaligned ;
+: name>    ( nfa -- cfa )
+    cell+
+    dup  (name>) swap  c@ $80 and 0= IF  @ THEN ;
 
 : found ( nfa -- cfa n )  cell+
   dup c@ >r  (name>) r@ $80 and  0= IF  @       THEN
@@ -358,7 +369,7 @@ Defer notfound ( c-addr count -- )
     IF
 	1 and
 	IF \ not restricted to compile state?
-	    nip nip execute  EXIT
+	    nip nip execute EXIT
 	THEN
 	-&14 throw
     THEN
@@ -802,10 +813,14 @@ Avariable leave-sp  leave-stack 3 cells + leave-sp !
 defer (header)
 defer header     ' (header) IS header
 
+: string, ( c-addr u -- )
+    \ puts down string as cstring
+    dup c, here swap chars dup allot move ;
+
 : name,  ( "name" -- )
     name
     dup $1F u> -&19 and throw ( is name too long? )
-    dup c,  here swap chars  dup allot  move  align ;
+    string, cfalign ;
 : input-stream-header ( "name" -- )
     \ !! this is f83-implementation-dependent
     align here last !  -1 A,
@@ -824,7 +839,7 @@ create nextname-buffer 32 chars allot
     \ !! f83-implementation-dependent
     nextname-buffer count
     align here last ! -1 A,
-    dup c,  here swap chars  dup allot  move  align
+    string, cfalign
     $80 flag!
     input-stream ;
 
@@ -836,7 +851,7 @@ create nextname-buffer 32 chars allot
     ['] nextname-header IS (header) ;
 
 : noname-header ( -- )
-    0 last !
+    0 last ! cfalign
     input-stream ;
 
 : noname ( -- ) \ general
@@ -856,7 +871,7 @@ create nextname-buffer 32 chars allot
 Create ???  0 , 3 c, char ? c, char ? c, char ? c,
 : >name ( cfa -- nfa )
  $21 cell do
-   dup i - count $9F and + aligned over $80 + = if
+   dup i - count $9F and + cfaligned over $80 + = if
      i - cell - unloop exit
    then
  cell +loop
@@ -992,7 +1007,7 @@ G forth-wordlist current T !
   dup cell+ @ @ execute ;
 
 : search-wordlist  ( addr count wid -- 0 / xt +-1 )
-  (search-wordlist) dup  IF  found  THEN ;
+    (search-wordlist) dup  IF  found  THEN ;
 
 Variable warnings  G -1 warnings T !
 
