@@ -662,6 +662,11 @@ engine/profile.i:	prim.b prims2x.fs
 		$(CP) $@- $@
 		$(RM) $@-
 
+engine/supers.i:	prim.b prims2x.fs
+		$(FORTHP) prims2x.fs -e "c-flag on s\" prim.b\" ' noop ' output-supers process-file bye" >$@-
+		$(CP) $@- $@
+		$(RM) $@-
+
 kernel/aliases.fs:	prim.b prims2x.fs kernel/aliases0.fs
 		$(CP) kernel/aliases0.fs $@-
 		$(FORTHP) prims2x.fs -e "forth-flag on s\" prim.b\" ' output-alias dup process-file bye" >>$@-
@@ -674,10 +679,8 @@ kernel/prim.fs:	prim.b prims2x.fs kernel/prim0.fs
 		$(CP) $@- $@
 		$(RM) $@-
 
-kernel/peephole.fs:	prim.b prims2x.fs
-		$(FORTHP) prims2x.fs -e "forth-flag on s\" prim.b\" ' noop ' output-forth-peephole process-file bye" >$@-
-		$(CP) $@- $@
-		$(RM) $@-
+prim-nums:	prim.b prims2x.fs
+		$(FORTHP) prims2x.fs -e "forth-flag on s\" prim.b\" ' output-prim-num dup process-file bye" >$@
 
 gforth$(EXE):		engines
 		-$(CP) gforth$(EXE) gforth~

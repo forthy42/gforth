@@ -250,6 +250,12 @@ variable in-part \ true if processing a part
 create combined-prims max-combined cells allot
 variable num-combined
 
+: map-combined { xt -- }
+    \ perform xt for all components of the current combined instruction
+    num-combined @ 0 +do
+	combined-prims i th @ xt execute
+    loop ;
+
 table constant combinations
   \ the keys are the sequences of pointers to primitives
 
@@ -733,14 +739,15 @@ stack inst-stream IP Cell
     endif
     ." }" cr ;
 
+: output-profile-part ( p )
+    ."   add_inst(b, " quote
+    prim-name 2@ type
+    quote ." );" cr ;
+    
 : output-profile-combined ( -- )
     \ generate code for postprocessing the VM block profile stuff
     ." if (VM_IS_INST(*ip, " function-number @ 0 .r ." )) {" cr
-    num-combined @ 0 +do
-	."   add_inst(b, " quote
-	combined-prims i th @ prim-name 2@ type
-	quote ." );" cr
-    loop
+    ['] output-profile-part map-combined
     ."   ip += " inst-stream stack-in @ 1+ 0 .r ." ;" cr
     combined-prims num-combined @ 1- th @ prim-c-code 2@  s" SET_IP"    search nip nip
     combined-prims num-combined @ 1- th @ prim-c-code 2@  s" SUPER_END" search nip nip or if
@@ -825,6 +832,9 @@ stack inst-stream IP Cell
 
 : output-alias ( -- ) 
     ( primitive-number @ . ." alias " ) ." Primitive " prim prim-name 2@ type cr ;
+
+: output-prim-num ( -- )
+    prim prim-num @ 8 + 4 .r space prim prim-name 2@ type cr ;
 
 : output-forth ( -- )  
     prim prim-forth-code @ 0=
@@ -1051,9 +1061,7 @@ stack inst-stream IP Cell
 : output-parts ( -- )
     prim >r in-part on
     current-depth max-stacks cells erase
-    num-combined @ 0 +do
-	combined-prims i th @ output-part
-    loop
+    ['] output-part map-combined
     in-part off
     r> to prim ;
 
@@ -1079,13 +1087,16 @@ stack inst-stream IP Cell
 
 \ peephole optimization rules
 
+\ data for a simple peephole optimizer that always tries to combine
+\ the currently compiled instruction with the last one.
+
 \ in order for this to work as intended, shorter combinations for each
 \ length must be present, and the longer combinations must follow
 \ shorter ones (this restriction may go away in the future).
   
 : output-peephole ( -- )
     combined-prims num-combined @ 1- cells combinations search-wordlist
-    s" the prefix for this combination must be defined earlier" ?print-error
+    s" the prefix for this superinstruction must be defined earlier" ?print-error
     ." {"
     execute prim-num @ 5 .r ." ,"
     combined-prims num-combined @ 1- th @ prim-num @ 5 .r ." ,"
@@ -1093,15 +1104,30 @@ stack inst-stream IP Cell
     combined prim-c-name 2@ type ."  */"
     cr ;
 
-: output-forth-peephole ( -- )
-    combined-prims num-combined @ 1- cells combinations search-wordlist
-    s" the prefix for this combination must be defined earlier" ?print-error
-    execute prim-num @ 5 .r
-    combined-prims num-combined @ 1- th @ prim-num @ 5 .r
-    combined prim-num @ 5 .r ."  prim, \ "
-    combined prim-c-name 2@ type
-    cr ;
 
+\ superinstruction data for a sophisticated combiner (e.g., shortest path)
+
+\ This is intended as initializer for a structure like this
+
+\  struct super {
+\    int super;       /* index in vm_prims */
+\    int loads;       /* number of stack loads */
+\    int stores;      /* number of stack stores */
+\    int updates;     /* number of stack pointer updates */
+\    int length;      /* number of components */
+\    int *components; /* array of vm_prim indexes of components */
+\  };
+
+
+: output-num-part ( p -- )
+    prim-num @ 4 .r ." ," ;
+
+: output-supers ( -- )
+    ." {" combined prim-num @ 4 .r
+    ." ,0,0,0," \ counting this stuff is not yet implemented
+    num-combined @ 2 .r
+    ." , ((int []){" ['] output-num-part map-combined ." })}"
+    cr ;
 
 \ the parser
 

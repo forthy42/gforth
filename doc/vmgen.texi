@@ -1163,7 +1163,7 @@ You have used an instruction-stream prefix (usually @samp{#}) after the
 side).
 
 @cindex @code{prefix for this combination must be defined earlier} error
-@item the prefix for this combination must be defined earlier
+@item the prefix for this superinstruction must be defined earlier
 You have defined a superinstruction (e.g. @code{abc = a b c}) without
 defining its direct prefix (e.g., @code{ab = a b}),
 @xref{Superinstructions}.
