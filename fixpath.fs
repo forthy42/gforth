@@ -20,10 +20,11 @@
 
 ." Fixing " 3 arg type ."  with " 2 arg type cr
 
-$7410 Constant gforth.exe
-$68D0 Constant gforth-fast.exe
-$81E0 Constant gforth-ditc.exe
-$81E0 Constant gforth-itc.exe
+$CCE0 Constant gforth.exe
+$C4F0 Constant gforth-fast.exe
+$89F0 Constant gforth-ditc.exe
+$6BF0 Constant gforth-itc.exe
+$6880 Constant gforth-prof.exe
 
 include string.fs
 
@@ -32,11 +33,11 @@ Variable pathes$  2 arg pathes$ $!
 Variable exe$
 
 pathes$ 1 1 $del
-s" //" pathes$ 0 $ins
+s" /cygdrive/" pathes$ 0 $ins
 : fixpathes ( addr u -- )
   bounds ?DO  I c@ '\ = IF  '/ I c!  THEN  LOOP ;
 pathes$ $@ fixpathes
-s" .:" pathes$ 0 $ins
+s" .;" pathes$ 0 $ins
 
 : fix-exe ( offset addr u -- )
   path$ $@ exe$ $! s" \" exe$ $+! exe$ $+!

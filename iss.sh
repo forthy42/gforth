@@ -56,6 +56,7 @@ done) | sort -u | sed \
 ;   "Source filename", "Dest. filename", Copy mode, Flags
 "README.txt", "{app}\README.txt", copy_normal, flag_isreadme
 "cygwin1.dll", "{app}\cygwin1.dll", copy_normal,
+"sh.exe", "{app}\sh.exe", copy_normal,
 "gforth.fi", "{app}\gforth.fi", copy_normal,
 $(make distfiles -f Makedist EXE=.exe | tr ' ' '\n' | (while read i; do
   if [ ! -d $i ]; then echo $i; fi
@@ -71,12 +72,14 @@ done) | sed \
 "Gforth-fast", "{app}\gforth-fast.exe", "", "{app}", , 0
 "Gforth-dict", "{app}\gforth-dict.exe", "", "{app}", , 0
 "Gforth-itc", "{app}\gforth-itc.exe", "", "{app}", , 0
+"Gforth-prof", "{app}\gforth-prof.exe", "", "{app}", , 0
 
 [Run]
-"{app}\gforth.exe", "{app}\fixpath.fs {app} gforth-fast.exe",
-"{app}\gforth.exe", "{app}\fixpath.fs {app} gforth-ditc.exe",
-"{app}\gforth.exe", "{app}\fixpath.fs {app} gforth-itc.exe",
-"{app}\gforth-fast.exe", "{app}\fixpath.fs {app} gforth.exe",
+"{app}\gforth.exe", "-i {app}\gforth.fi {app}\fixpath.fs {app} gforth-fast.exe",
+"{app}\gforth.exe", "-i {app}\gforth.fi {app}\fixpath.fs {app} gforth-ditc.exe",
+"{app}\gforth.exe", "-i {app}\gforth.fi {app}\fixpath.fs {app} gforth-itc.exe",
+"{app}\gforth.exe", "-i {app}\gforth.fi {app}\fixpath.fs {app} gforth-prof.exe",
+"{app}\gforth-fast.exe", "-i {app}\gforth.fi {app}\fixpath.fs {app} gforth.exe",
 
 ;[Registry]
 ;registry commented out
