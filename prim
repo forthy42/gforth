@@ -2277,6 +2277,10 @@ assert(0);
 
 \g static_super
 
+\C #if !defined(GFORTH_DEBUGGING) && !defined(INDIRECT_THREADED) && !defined(DOUBLY_INDIRECT) && !defined(VM_PROFILING)
+
 include(peeprules.vmg)
+
+\C #endif
 
 \g end
