@@ -2406,9 +2406,9 @@ magic 7 + c!
   bl parse ." Saving to " 2dup type cr
   w/o bin create-file throw >r
   TNIL IF
-      s" #! "   r@ write-file throw
-      bl parse  r@ write-file throw
-      s"  -i"   r@ write-file throw
+      s" #! "           r@ write-file throw
+      bl parse          r@ write-file throw
+      s"  --image-file" r@ write-file throw
       #lf       r@ emit-file throw
       r@ dup file-position throw drop 8 mod 8 swap ( file-id limit index )
       ?do

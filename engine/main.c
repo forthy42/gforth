@@ -568,6 +568,7 @@ void gforth_args(int argc, char ** argv, char ** path, char ** imagename)
   while (1) {
     int option_index=0;
     static struct option opts[] = {
+      {"appl-image", required_argument, NULL, 'a'},
       {"image-file", required_argument, NULL, 'i'},
       {"dictionary-size", required_argument, NULL, 'm'},
       {"data-stack-size", required_argument, NULL, 'd'},
@@ -589,13 +590,10 @@ void gforth_args(int argc, char ** argv, char ** path, char ** imagename)
     
     c = getopt_long(argc, argv, "+i:m:d:r:f:l:p:vh", opts, &option_index);
     
-    if (c==EOF)
-      break;
-    if (c=='?') {
-      optind--;
-      break;
-    }
     switch (c) {
+    case EOF: return;
+    case '?': optind--; return;
+    case 'a': *imagename = optarg; return;
     case 'i': *imagename = optarg; break;
     case 'm': dictsize = convsize(optarg,sizeof(Cell)); break;
     case 'd': dsize = convsize(optarg,sizeof(Cell)); break;
@@ -605,8 +603,9 @@ void gforth_args(int argc, char ** argv, char ** path, char ** imagename)
     case 'p': *path = optarg; break;
     case 'v': fprintf(stderr, "gforth %s\n", VERSION); exit(0);
     case 'h': 
-      fprintf(stderr, "Usage: %s [engine options] [image arguments]\n\
+      fprintf(stderr, "Usage: %s [engine options] ['--'] [image arguments]\n\
 Engine Options:\n\
+  --appl-image FILE		    equivalent to '--image-file=FILE --'\n\
   --clear-dictionary		    Initialize the dictionary with 0 bytes\n\
   -d SIZE, --data-stack-size=SIZE   Specify data stack size\n\
   --debug			    Print debugging information during startup\n\
@@ -626,7 +625,6 @@ SIZE arguments consist of an integer followed by a unit. The unit can be\n\
 	      argv[0]);
       optind--;
       return;
-      exit(0);
     }
   }
 }

@@ -1017,6 +1017,13 @@ line. They are:
 Loads the Forth image @i{file} instead of the default
 @file{gforth.fi} (@pxref{Image Files}).
 
+@cindex --appl-image, command-line option
+@item --appl-image @i{file}
+Loads the image @i{file} and leaves all further command-line arguments
+to the image (instead of processing them as options).  This is useful
+for building executable application images on Unix, built with
+@code{gforthmi --application ...}.
+
 @cindex --path, command-line option
 @cindex -p, command-line option
 @item --path @i{path}
@@ -10566,6 +10573,14 @@ contains $bffffa50, and the other contains $bffffa40. Since these cells
 cannot be represented correctly in the output image, you should examine
 these places in the dictionary and verify that these cells are dead
 (i.e., not read before they are written).
+
+@cindex --application, @code{gforthmi} option
+If you insert the option @code{--application} in front of the image file
+name, you will get an image that uses the @code{--appl-image} option
+instead of the @code{--image-file} option (@pxref{Invoking
+Gforth}). When you execute such an image on Unix (by typing the image
+name as command), the Gforth engine will pass all options to the image
+instead of trying to interpret them as engine options.
 
 If you type @file{gforthmi} with no arguments, it prints some usage
 instructions.

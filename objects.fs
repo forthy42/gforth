@@ -494,6 +494,8 @@ method print ( object -- ) \ objects- objects
 \g Print the object. The method for the class @var{object} prints
 \g the address of the object and the address of its class.
 
+selector equal ( object1 object2 -- flag )
+
 end-class object ( -- class ) \ objects- objects
 \g the ancestor of all classes.
 

@@ -23,7 +23,7 @@ exec_prefix=@exec_prefix@
 test "x$GFORTHD" != x || GFORTHD=$prefix/lib/gforth/@VERSION@/gforth-ditc
 test "x$GFORTH" != x || GFORTH="@bindir@/gforth-@VERSION@ --die-on-signal"
 if test $# = 0 || test $1 = --help || test $1 = -h; then
-  echo "usage: `basename $0` target-name [gforth-options]"
+  echo "usage: `basename $0` [--application] target-name [gforth-options]"
   echo "creates a relocatable image 'target-name'"
   echo "environment:"
   echo " \$GFORTHD (default: $GFORTHD): Engine used for creating the fixed images"
@@ -37,6 +37,9 @@ elif test $1 = --version || test $1 = -v; then
   echo 'This program is part of Gforth'
   $GFORTH -e "license bye"
   exit 0
+elif test $1 = --application; then
+    application=yes
+    shift
 fi
 outfile=$1; shift
 tmpfile=./temp-image.fi
@@ -46,3 +49,7 @@ $GFORTH comp-i.fs -e "comp-image $tmpfile"1" $tmpfile"2" $outfile bye"
 chmod +x $outfile
 #gforth-0.2.1 -m 100000  comp-i.fs -e "comp-image $tmpfile"1" $tmpfile"2" $outfile bye"
 rm $tmpfile"1" $tmpfile"2"
+if test x$application = xyes; then
+    $GFORTH -e "s\" '$outfile\"" make-app.fs
+fi
+
