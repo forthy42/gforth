@@ -31,24 +31,8 @@
 
 #include "../generic/machine.h"
 
-/* cache flush stuff */
-static inline void flush_icache(void *addr, size_t size)
-{
-  size_t cache_block_size=32;
-  void *p=(void *)(((long)addr)&-cache_block_size);
-
-  /* this works for a single-processor PPC 604e, but may have
-     portability problems for other machines; the ultimate solution is
-     a system call, because the architecture is pretty shoddy in this
-     area */
-  for (; p < (addr+size); p+=cache_block_size)
-    asm("dcbst 0,%0; sync; icbi 0,%0"::"r"(p));
-  asm("sync; isync"); /* PPC 604e needs the additional sync
-			 according to Tim Olson */
-}
-
-#define FLUSH_ICACHE(addr,size)   flush_icache(addr,size)
-/* this assumes size=4 */
+extern void _sync_cache_range (caddr_t eaddr, size_t count);
+#define FLUSH_ICACHE(addr,size)   _sync_cache_range(addr,size)
 
 #ifdef DIRECT_THREADED
 

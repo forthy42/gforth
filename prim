@@ -1327,7 +1327,7 @@ a_addr = (Cell *)DOES_CODE(xt);
 code-address!		c_addr xt --		gforth	code_address_store
 ""Creates a code field with code address c_addr at xt""
 MAKE_CF(xt, c_addr);
-CACHE_FLUSH(xt,PFA(0));
+CACHE_FLUSH(xt,(size_t)PFA(0));
 :
     ! ;
 
@@ -1335,7 +1335,7 @@ does-code!	a_addr xt --		gforth	does_code_store
 ""creates a code field at xt for a defining-word-defined word; a_addr
 is the start of the Forth code after DOES>""
 MAKE_DOES_CF(xt, a_addr);
-CACHE_FLUSH(xt,PFA(0));
+CACHE_FLUSH(xt,(size_t)PFA(0));
 :
     dodoes: over ! cell+ ! ;
 
@@ -1343,7 +1343,7 @@ does-handler!	a_addr --	gforth	does_handler_store
 ""creates a DOES>-handler at address a_addr. a_addr usually points
 just behind a DOES>.""
 MAKE_DOES_HANDLER(a_addr);
-CACHE_FLUSH(a_addr,DOES_HANDLER_SIZE);
+CACHE_FLUSH((caddr_t)a_addr,DOES_HANDLER_SIZE);
 :
     drop ;
 

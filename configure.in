@@ -204,6 +204,7 @@ case "$host_cpu" in
 		;;
 	power*)
 		machine=power
+		AC_CHECK_FUNC(_sync_cache_range,true,LIBOBJS="$LIBOBJS ../arch/power/_sync_cache_range.o")
 		;;
 	*)
 		echo "No direct threading support for $host_cpu, using indirect threading."

@@ -218,8 +218,10 @@ ARCHS =	arch/generic/machine.h \
 	arch/mips/machine.h \
 	arch/386/machine.h \
 	arch/hppa/machine.h \
+	arch/hppa/cache.c \
 	arch/sparc/machine.h \
 	arch/power/machine.h \
+	arch/power/_sync_cache_range.c \
 	arch/alpha/machine.h \
 	arch/4stack/README \
 	arch/4stack/asm.fs \
@@ -351,7 +353,7 @@ mostlyclean:	FORCE
 		gforth-$(VERSION).tar.gz
 
 clean:		mostlyclean
-		-$(RM) -rf $(GEN) *.o engine/*.o engine/*.a
+		-$(RM) -rf $(GEN) *.o engine/*.o arch/*/*.o
 
 distclean:	clean
 		-$(RM) config.cache config.log \
