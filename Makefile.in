@@ -37,7 +37,7 @@ LN_S	= @LN_S@
 GCC	= gcc
 CC	= $(GCC)
 FORTH	= ./gforth
-FORTHK	= $(FORTH) -p . -i kernal.fi
+FORTHK	= $(FORTH) -i kernal.fi
 STRIP	= strip
 TEXI2DVI = texi2dvi
 DVI2PS	= dvips -D300
@@ -123,11 +123,11 @@ GEN_PRECIOUS = $(FORTH_GEN) $(KERNLS) gforth.texi gforth.dvi gforth.ps Makefile 
 .SUFFIXES:
 .SUFFIXES: .c .o
 
-all:
-	if [ ! -f gforth ]; then $(MAKE) first; fi
-	$(MAKE) more
+all:	first more
 
-first:	gforth
+first:
+	$(MAKE) gforth
+	touch first
 
 more:	$(FORTH_GEN) gforth
 
@@ -231,22 +231,22 @@ gforth:		$(OBJECTS)
 		@MAKE_EXE@
 
 kernl16l.fi+:	$(KERN_SRC) mach16l.fs $(FORTH_GEN0)
-		$(FORTHK) -e 's" mach16l.fs"' main.fs
+		$(FORTHK) -p . -e 's" mach16l.fs"' main.fs
 
 kernl16b.fi+:	$(KERN_SRC) mach16b.fs $(FORTH_GEN0)
-		$(FORTHK) -e 's" mach16b.fs"' main.fs
+		$(FORTHK) -p . -e 's" mach16b.fs"' main.fs
 
 kernl32l.fi+:	$(KERN_SRC) mach32l.fs $(FORTH_GEN0)
-		$(FORTHK) -e 's" mach32l.fs"' main.fs
+		$(FORTHK) -p . -e 's" mach32l.fs"' main.fs
 
 kernl32b.fi+:	$(KERN_SRC) mach32b.fs $(FORTH_GEN0)
-		$(FORTHK) -e 's" mach32b.fs"' main.fs
+		$(FORTHK) -p . -e 's" mach32b.fs"' main.fs
 
 kernl64l.fi+:	$(KERN_SRC) mach64l.fs $(FORTH_GEN0)
-		$(FORTHK) -e 's" mach64l.fs"' main.fs
+		$(FORTHK) -p . -e 's" mach64l.fs"' main.fs
 
 kernl64b.fi+:	$(KERN_SRC) mach64b.fs $(FORTH_GEN0)
-		$(FORTHK) -e 's" mach64b.fs"' main.fs
+		$(FORTHK) -p . -e 's" mach64b.fs"' main.fs
 
 kernl16b.fi:	$(KERNLS)
 		-$(CP) kernl16b.fi kernl16b.fi~
@@ -296,16 +296,16 @@ primitives.b:	primitives
 		m4 primitives >$@ 
 
 primitives.i :	primitives.b prims2x.fs
-		$(FORTHK) prims2x.fs -e "s\" primitives.b\" ' output-c process-file bye" >$@
+		$(FORTHK) -p . prims2x.fs -e "s\" primitives.b\" ' output-c process-file bye" >$@
 
 prim_labels.i :	primitives.b prims2x.fs
-		$(FORTHK) prims2x.fs -e "s\" primitives.b\" ' output-label process-file bye" >$@
+		$(FORTHK) -p . prims2x.fs -e "s\" primitives.b\" ' output-label process-file bye" >$@
 
 aliases.fs:	primitives.b prims2x.fs
-		$(FORTHK) prims2x.fs -e "s\" primitives.b\" ' output-alias process-file bye" >$@
+		$(FORTHK) -p . prims2x.fs -e "s\" primitives.b\" ' output-alias process-file bye" >$@
 
 primitives.fs:	primitives.b prims2x.fs
-		$(FORTHK) prims2x.fs -e "s\" primitives.b\" ' output-forth process-file bye" >$@
+		$(FORTHK) -p . prims2x.fs -e "s\" primitives.b\" ' output-forth process-file bye" >$@
 
 version.fs:	Makefile.in
 		echo ": version-string s\" $(VERSION)\" ;" >$@
@@ -318,16 +318,16 @@ doc.fd:		makedoc.fs float.fs search-order.fs glocals.fs environ.fs \
 		 toolsext.fs wordinfo.fs \
 		 vt100.fs colorize.fs see.fs bufio.fs debug.fs history.fs \
 		 doskey.fs vt100key.fs startup.fs assert.fs debugging.fs code.fs
-		$(FORTHK) -e "s\" doc.fd\"" makedoc.fs startup.fs code.fs -e bye
+		$(FORTHK) -p . -e "s\" doc.fd\"" makedoc.fs startup.fs code.fs -e bye
 
 crossdoc.fd:	$(KERN_SRC) $(FORTH_GEN0)
-		$(FORTHK) -e 's" mach32l.fs"' main.fs
+		$(FORTHK) -p . -e 's" mach32l.fs"' main.fs
 
 gforth.texi:	gforth.ds primitives.b ds2texi.fs prims2x.fs doc.fd crossdoc.fd
-		$(FORTHK) ds2texi.fs -e "s\" gforth.ds\" r/o open-file throw ds2texi bye" >$@
+		$(FORTHK) -p . ds2texi.fs -e "s\" gforth.ds\" r/o open-file throw ds2texi bye" >$@
 
 checkdoc:	gforth.ds primitives.b ds2texi.fs prims2x.fs doc.fd crossdoc.fd answords.fs
-		$(FORTHK) ds2texi.fs answords.fs -e bye
+		$(FORTHK) -p . ds2texi.fs answords.fs -e bye
 
 gforth.dvi:	gforth.texi
 		$(TEXI2DVI) gforth.texi
@@ -359,4 +359,4 @@ makefile.dos: mkdosmf.sed Makefile.in
 
 startup.dos: startup.fs Makefile.in
 	sed -e "s/\\\\ include doskey/include doskey/g" \
-	    -e "s/include vt100key/\\\\ include vt100key/g" <$< >$@
+	    -e "s/include vt100key/\\\\ include vt100key/g" <startup.fs >startup.dos

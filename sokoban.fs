@@ -13,10 +13,9 @@
 \ is shown below.
 
 \ program is ANS FORTH with environmental dependency of case-insensitiv
-\ source. Tested with gforth and bigFORTH
+\ source. Tested with gforth, bigFORTH and pfe
 
-\ really uses "dump" terminal: No PAGE, no AT-XY to speed things up
-\ Even bell (7) is replaced with "Wuff!" ;-)
+\ bell (7) is replaced with "Wuff!" ;-)
 \ (this is a german joke)
 \ I don't like the keyboard interpreting CASE-statement either, but
 \ was to lazy to use a table.
@@ -42,7 +41,7 @@ Variable score     0 score !  \ total number of scores
     here mazes rot 1 ?DO  @  LOOP  !
     0 , 0 , here >maze ! 0 , ;
 : count-$ ( addr u -- n )  0 rot rot
-    bounds ?DO  I c@ [char] $ = -  LOOP ;
+    over + swap ?DO  I c@ [char] $ = -  LOOP ;
 : m: ( "string" -- )  \ add a level line (top first!)
     -1 parse tuck 2dup count-$ >maze @ 1 cells - +!
     here swap move dup allot
@@ -58,7 +57,7 @@ Variable score     0 score !  \ total number of scores
 
 : .maze ( -- )  \ display maze
     0 0 at-xy  .score
-    cr  maze-field bounds
+    cr  maze-field over + swap
     DO  I /maze type cr  /maze chars  +LOOP ;
 
 : find-soko ( -- n )
@@ -99,7 +98,7 @@ Variable score     0 score !  \ total number of scores
 
 : play-rule ( addr1 u1 addr2 u2 offset -- flag )
     >r 2swap r@  apply-rule?
-    IF  r> apply-rule! true  ELSE  rdrop 2drop false  THEN ;
+    IF  r> apply-rule! true  ELSE  r> drop 2drop false  THEN ;
 
 \ player may move up, down, left and right
 
@@ -120,7 +119,7 @@ Variable score     0 score !  \ total number of scores
 	S" &."  S" .&"  r@ play-rule  IF  r> soko +!  EXIT  THEN
 	S" &* " S" .&$" r@ play-rule
 	      IF  r> soko +!  1 rocks +! -1 score +!  EXIT  THEN
-	-1 moves +!  rdrop  ;
+	-1 moves +!  r> drop  ;
 
 1            move: soko-right
 -1           move: soko-left
@@ -155,13 +154,13 @@ Variable score     0 score !  \ total number of scores
 	    [char] C OF  soko-right false  ENDOF
 
 	    [char] q OF  true              ENDOF
-	ENDCASE
+	false swap  ENDCASE
     UNTIL ;
 
 \ start game with "sokoban"
 
 : sokoban ( -- )
-    1 level IF  play-loop ." Game finished!"  THEN ;
+    page 1 level IF  play-loop ." Game finished!"  THEN ;
     
 001 new-maze
 m:     #####

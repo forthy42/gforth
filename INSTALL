@@ -4,6 +4,14 @@ First, type
 
 ./configure
 
+or better
+
+CC=gcc ./configure
+
+or however your gcc is called; because configure needs cc to find out some
+parameters, and there may be differences in what is obtained from gcc and
+from ghe default cc.
+
 configure has the following useful parameters:
   --prefix=PREFIX         install architecture-independent files in PREFIX
                           [default: /usr/local]
