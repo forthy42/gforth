@@ -22,5 +22,13 @@
 
 require except.fs
 
-included-files 2@ image-included-files 2!
+\ the following line would be necessary to get exceptions.fs and
+\ exboot.fs into the included-files.  We would then have to ensure
+\ that image-included-files is reset to the previous state after
+\ booting (by doing "-2 image-included-files +!"), in order to treat
+\ the names correctly on SAVESYSTEM.
+
+\ included-files 2@ image-included-files 2!
+
+\ now boot
 pathstring 2@ rot argv @ over cells + argc @ rot - boot
