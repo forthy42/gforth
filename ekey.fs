@@ -41,9 +41,10 @@ keycode k-up
 keycode k-down
 keycode k-home
 keycode k-end
-\ keycode k-prior \ note: captured by xterm
-\ keycode k-next \ note: captured by xterm
+keycode k-prior \ note: captured by xterm
+keycode k-next \ note: captured by xterm
 keycode k-insert \ not in pfe
+127 constant k-delete \ not an escape sequence on my xterm, so use ASCII code
 \ function/keypad keys
 keycode k1
 keycode k2
@@ -156,8 +157,8 @@ get-current esc-sequences set-current
 ' k-down	s" [B"	esc-sequence
 ' k-home	s" [H"	esc-sequence
 ' k-end		s" [F"	esc-sequence
-\ ' k-prior	s" [5~"	esc-sequence \ from linux console
-\ ' k-next	s" [6~"	esc-sequence \ from linux console
+' k-prior	s" [5~"	esc-sequence
+' k-next	s" [6~"	esc-sequence
 ' k-insert	s" [2~"	esc-sequence
 
 ' k1	s" OP"	esc-sequence
@@ -172,6 +173,17 @@ get-current esc-sequences set-current
 ' k10	s" [21~" esc-sequence
 ' k11	s" [23~" esc-sequence
 ' k12	s" [24~" esc-sequence
+
+\ esc sequences from Linux console:
+
+' k1       s" [[A" esc-sequence
+' k2       s" [[B" esc-sequence
+' k3       s" [[C" esc-sequence
+' k4       s" [[D" esc-sequence
+' k5       s" [[E" esc-sequence
+' k-delete s" [3~" esc-sequence
+' k-home   s" [1~" esc-sequence
+' k-end    s" [4~" esc-sequence
 
 set-current
 [ENDIF]
