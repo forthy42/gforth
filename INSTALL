@@ -1,17 +1,26 @@
-Very preliminary version
+Preliminary version
 
+Create a makefile with configure.
 You need gcc version 2.0 or later to compile gforth.
 
 Create a machine description file for your machine, if necessary.
 
-Make a symbolic link to machine.h, e.g.
+configure has the following useful parameters:
+-direct-threaded: setup for a direct threaded interpreter; this is faster
+   on many machines, but needs special support. Unsupported machines will
+   ingore this switch. On some CISC machines, direct threading isn't an
+   advantage over indirect threading.
 
-ln -s decstation.h machine.h
+-without-debug: omits the -g switch and creates smaller images on machines
+   where "strip" has problems with gcc style debugging informations.
 
-Make a symbolic link from mach32l.fs or mach32b.fs to machine.fs
+Now type
 
-Edit the Makefile (in particular the SWITCHES variable)
+gmake
 
-Now you can type
+or whatever the name of GNU make on your system is.
+If your installed gcc isn't called "gcc" (eg. called "gcc-2.6.1"), type
 
-make
+gmake CC=<whatever you call your gcc>
+
+instead.

@@ -21,18 +21,22 @@ EMACS	= emacs
 
 INCLUDES = forth.h io.h
 
-FORTH_SRC = add.fs assert.fs blocks.fs bufio.fs cross.fs debug.fs \
-	debugging.fs doskey.fs ds2texi.fs environ.fs errore.fs etags.fs extend.fs filedump.fs \
-	float.fs glocals.fs glosgen.fs gray.fs hash.fs history.fs kernal.fs \
-	locals-test.fs look.fs mach32b.fs mach32l.fs main.fs other.fs \
-	prims2x.fs search-order.fs see.fs sieve.fs startup.fs struct.fs \
-	test2.fs tools.fs toolsext.fs vars.fs vt100.fs vt100key.fs wordinfo.fs
+FORTH_SRC = add.fs assert.fs ansi.fs blocks.fs bufio.fs checkans.fs \
+	colorize.fs cross.fs debug.fs debugging.fs doskey.fs ds2texi.fs \
+	dumpimage.fs environ.fs errore.fs etags.fs extend.fs filedump.fs \
+	float.fs glocals.fs glosgen.fs gray.fs hash.fs history.fs \
+	kernal.fs locals-test.fs look.fs mach32b.fs mach32l.fs main.fs \
+	other.fs prims2x.fs random.fs search-order.fs see.fs sieve.fs \
+	startup.fs struct.fs tools.fs toolsext.fs tt.fs vars.fs vt100.fs \
+	vt100key.fs wordinfo.fs wordsets.fs
 
 SOURCES	= Makefile.in configure  config.sub  config.guess \
 	INSTALL README ToDo BUGS model gforth.ds \
-	primitives primitives2c.el engine.c main.c io.c \
+	primitives engine.c main.c io.c \
 	apollo68k.h decstation.h 386.h hppa.h cache.c sparc.h \
 	getopt.c getopt1.c getopt.h \
+	makefile.dos io-dos.h configure.bat \
+	glosgen.glo glossaries.doc \
 	$(INCLUDES) $(FORTH_SRC)
 
 RCS_FILES =  ToDo model high-level
@@ -76,14 +80,14 @@ distclean:	clean
 realclean:	distclean
 		-$(RM) $(GEN_PRECIOUS)
 
-package:	$(SOURCES) $(GEN_PRECIOUS) CVS
-		-rm -rf gforth-$(VERSION)
-		mkdir gforth-$(VERSION)
-		cp -rp $^ gforth-$(VERSION)
-		touch gforth-$(VERSION)/Makefile.in
-		tar cvf gforth-$(VERSION).tar gforth-$(VERSION)
+package:	$(SOURCES) $(FORTH_GEN)
+		-rm ../gforth-$(VERSION)
+		ln -s `pwd` ../gforth-$(VERSION)
+		echo "" $(SOURCES) $(FORTH_GEN) |\
+			sed -e 's| | gforth-$(VERSION)/|g' |\
+			(cd ..; xargs tar cvf gforth/gforth-$(VERSION).tar)
 		gzip -9 -f gforth-$(VERSION).tar
-		@echo add a zip command here		
+		-rm ../gforth-$(VERSION)
 
 Makefile:	Makefile.in
 		configure
@@ -132,13 +136,6 @@ gforth.dvi:	gforth.texi
 
 gforth.ps:	gforth.dvi
 		dvips gforth.dvi -o $@
-
-#primitives.4th:	primitives.b primitives2c.el
-#		$(EMACS) -batch -load primitives2c.el -funcall make-forth
-
-#GNU make default rules
-#% ::		RCS/%,v
-#		co $@
 
 %.s :		%.c $(INCLUDES)
 		$(CC) $(CFLAGS) -S $< -o $@

@@ -93,7 +93,12 @@ addall          \ Baum aufbauen
 
 : hash-cold  ( -- ) Defers 'cold
   HashPointer off  HashTable off  HashIndex off
-  addall ;
+  voclink
+  BEGIN  @ dup @  WHILE
+         dup cell - @ >r
+         dup 'initvoc
+         r> over cell - !
+  REPEAT  drop ;
 ' hash-cold IS 'cold
 
 : .words  ( -- )
