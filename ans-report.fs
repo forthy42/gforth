@@ -133,8 +133,12 @@ ans-report-words definitions
 : replace-word ( xt cfa -- )
     \ replace word at cfa with xt. !! This is quite general-purpose
     \ and should migrate elsewhere.
-    dodefer: over code-address!
-    >body ! ;
+    \  the following no longer works with primitive-centric hybrid threading:
+    \    dodefer: over code-address!
+    \    >body ! ;
+    dup @ docol: <> -12 and throw \ for colon defs only
+    >body ['] branch compile-prim over !
+    cell+ >r >body r@ - r> ! ;
 
 forth definitions
 ans-report-words
