@@ -1084,19 +1084,19 @@ rdrop	( R:w -- )		gforth
 :
  r> r> drop >r ;
 
-2>r	( w1 w2 -- R:w1 R:w2 )	core-ext	two_to_r
+2>r	( d -- R:d )	core-ext	two_to_r
 :
  swap r> swap >r swap >r >r ;
 
-2r>	( R:w1 R:w2 -- w1 w2 )	core-ext	two_r_from
+2r>	( R:d -- d )	core-ext	two_r_from
 :
  r> r> swap r> swap >r swap ;
 
-2r@	( R:w1 R:w2 -- R:w1 R:w2 w1 w2 )	core-ext	two_r_fetch
+2r@	( R:d -- R:d d )	core-ext	two_r_fetch
 :
  i' j ;
 
-2rdrop	(  R:w1 R:w2 -- )		gforth	two_r_drop
+2rdrop	( R:d -- )		gforth	two_r_drop
 :
  r> r> drop r> drop >r ;
 
@@ -2191,69 +2191,88 @@ u3 = 0;
 
 \+FFCALL
 
-av-start-void   ( c_addr -- )    gforth  av_start_void
+av-start-void	( c_addr -- )	gforth  av_start_void
 av_start_void(alist, c_addr);
 
-av-start-int    ( c_addr -- )    gforth  av_start_int
+av-start-int	( c_addr -- )	gforth  av_start_int
 av_start_int(alist, c_addr, &irv);
 
-av-start-float    ( c_addr -- )    gforth  av_start_float
+av-start-float	( c_addr -- )	gforth  av_start_float
 av_start_float(alist, c_addr, &frv);
 
-av-start-double    ( c_addr -- )    gforth  av_start_double
+av-start-double	( c_addr -- )	gforth  av_start_double
 av_start_double(alist, c_addr, &drv);
 
-av-start-longlong    ( c_addr -- )    gforth  av_start_longlong
+av-start-longlong	( c_addr -- )	gforth  av_start_longlong
 av_start_longlong(alist, c_addr, &llrv);
 
-av-start-ptr    ( c_addr -- )    gforth  av_start_ptr
+av-start-ptr	( c_addr -- )	gforth  av_start_ptr
 av_start_ptr(alist, c_addr, void*, &prv);
 
 av-int  ( w -- )  gforth  av_int
 av_int(alist, w);
 
-av-float        ( r -- )        gforth  av_float
+av-float	( r -- )	gforth  av_float
 av_float(alist, r);
 
-av-double        ( r -- )        gforth  av_double
+av-double	( r -- )	gforth  av_double
 av_double(alist, r);
 
-av-longlong        ( d -- )        gforth  av_longlong
+av-longlong	( d -- )	gforth  av_longlong
 av_longlong(alist, d);
 
-av-ptr        ( c_addr -- )        gforth  av_ptr
+av-ptr	( c_addr -- )	gforth  av_ptr
 av_ptr(alist, void*, c_addr);
 
-av-call-void    ( -- )          gforth  av_call_void
+av-int-r  ( R:w -- )  gforth  av_int_r
+av_int(alist, w);
+
+av-float-r	( -- )	gforth  av_float_r
+float r = *(Float*)lp;
+lp += sizeof(Float);
+av_float(alist, r);
+
+av-double-r	( -- )	gforth  av_double_r
+double r = *(Float*)lp;
+lp += sizeof(Float);
+av_double(alist, r);
+
+av-longlong-r	( R:d -- )	gforth  av_longlong_r
+av_longlong(alist, d);
+
+av-ptr-r	( R:c_addr -- )	gforth  av_ptr_r
+av_ptr(alist, void*, c_addr);
+
+av-call-void	( -- )	gforth  av_call_void
 SAVE_REGS
 av_call(alist);
 REST_REGS
 
-av-call-int    ( -- w )        gforth  av_call_int
+av-call-int	( -- w )	gforth  av_call_int
 SAVE_REGS
 av_call(alist);
 REST_REGS
 w = irv;
 
-av-call-float   ( -- r )        gforth  av_call_float
+av-call-float	( -- r )	gforth  av_call_float
 SAVE_REGS
 av_call(alist);
 REST_REGS
 r = frv;
 
-av-call-double   ( -- r )        gforth  av_call_double
+av-call-double	( -- r )	gforth  av_call_double
 SAVE_REGS
 av_call(alist);
 REST_REGS
 r = drv;
 
-av-call-longlong   ( -- d )        gforth  av_call_longlong
+av-call-longlong	( -- d )	gforth  av_call_longlong
 SAVE_REGS
 av_call(alist);
 REST_REGS
 d = llrv;
 
-av-call-ptr   ( -- c_addr )        gforth  av_call_ptr
+av-call-ptr	( -- c_addr )	gforth  av_call_ptr
 SAVE_REGS
 av_call(alist);
 REST_REGS

@@ -19,11 +19,16 @@
 \ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
 
 Variable libs 0 libs !
+\ links between libraries
 Variable thisproc
 Variable thislib
-\G links between libraries
+
 Variable revdec  revdec off
 \ turn revdec on to compile bigFORTH libraries
+Variable revarg  revarg off
+\ turn revarg on to compile declarations with reverse arguments
+Variable legacy  legacy off
+\ turn legacy on to compile bigFORTH legacy libraries
 
 Vocabulary c-decl
 Vocabulary cb-decl
@@ -49,19 +54,22 @@ Vocabulary cb-decl
     swap 2 cells + dup @ A, !
     0 , 0 A, ;
 
+Defer legacy-proc  ' noop IS legacy-proc
+
 : proc:  ( lib "name" -- )
-    \G Creates a named proc stub
+\G Creates a named proc stub
     Create proc, 0 also c-decl
+    legacy @ IF  legacy-proc  THEN
 DOES> ( x1 .. xn -- r )
     dup cell+ @ swap 3 cells + >r ;
 
 : library ( "name" "file" -- )
-    \G loads library "file" and creates a proc defining word "name"
-    \G library format:
-    \G    linked list of libraries
-    \G    library handle
-    \G    linked list of library's procs
-    \G    OS name of library as counted string
+\G loads library "file" and creates a proc defining word "name"
+\G library format:
+\G    linked list of libraries
+\G    library handle
+\G    linked list of library's procs
+\G    OS name of library as counted string
     Create  here libs @ A, dup libs !
     0 , 0 A, bl sword string, @lib
 DOES> ( -- )  dup thislib ! proc: ;
@@ -77,59 +85,70 @@ DOES> ( -- )  dup thislib ! proc: ;
 
 ' init-shared-libs IS 'cold
 
-: rettype ( endxt startxt "name" -- )
-    create immediate 2,
-  DOES>
+: argtype ( revxt pushxt fwxt "name" -- )
+    Create , , , ;
+
+: arg@ ( arg -- argxt pushxt )
+    revarg @ IF  2 cells + @ ['] noop swap  ELSE  2@  THEN ;
+
+: arg, ( xt -- )
+    dup ['] noop = IF  drop  EXIT  THEN  compile, ;
+
+: decl, ( 0 arg1 .. argn call start -- )
     2@ compile, >r
     revdec @ IF  0 >r
-	BEGIN  dup  WHILE  >r  REPEAT drop
-	BEGIN  r> dup  WHILE  compile,  REPEAT  drop
-    ELSE
-	BEGIN  dup  WHILE  compile,  REPEAT drop
+	BEGIN  dup  WHILE  >r  REPEAT
+	BEGIN  r> dup  WHILE  arg@ arg,  REPEAT  drop
+	BEGIN  dup  WHILE  arg,  REPEAT drop
+    ELSE  0 >r
+	BEGIN  dup  WHILE  arg@ arg, >r REPEAT drop
+	BEGIN  r> dup  WHILE  arg,  REPEAT  drop
     THEN
-    r> compile,  postpone EXIT
+    r> compile,  postpone EXIT ;
+
+: symbol, ( "c-symbol" -- )
     here thisproc @ 2 cells + ! bl sword s,
-    thislib @ thisproc @ @proc previous ;
+    thislib @ thisproc @ @proc ;
+
+: rettype ( endxt startxt "name" -- )
+    Create 2,
+  DOES>  decl, symbol, previous revarg off ;
 
 also c-decl definitions
 
-' av-int AConstant int
-' av-float AConstant sf
-' av-double AConstant df
-' av-longlong AConstant llong
-' av-ptr AConstant ptr
+: <rev>  revarg on ;
 
-' av-call-void ' av-start-void rettype (void)
-' av-call-int ' av-start-int rettype (int)
-' av-call-float ' av-start-float rettype (sf)
-' av-call-double ' av-start-double rettype (fp)
+' av-int      ' av-int-r      ' >r  argtype int
+' av-float    ' av-float-r    ' f>l argtype sf
+' av-double   ' av-double-r   ' f>l argtype df
+' av-longlong ' av-longlong-r ' 2>r argtype llong
+' av-ptr      ' av-ptr-r      ' >r  argtype ptr
+
+' av-call-void     ' av-start-void     rettype (void)
+' av-call-int      ' av-start-int      rettype (int)
+' av-call-float    ' av-start-float    rettype (sf)
+' av-call-double   ' av-start-double   rettype (fp)
 ' av-call-longlong ' av-start-longlong rettype (llong)
-' av-call-ptr ' av-start-ptr rettype (ptr)
+' av-call-ptr      ' av-start-ptr      rettype (ptr)
 
 previous definitions
 
-\ legacy interface for old library interface
+\ legacy support for old library interfaces
+\ interface to old vararg stuff not implemented yet
 
 also c-decl
 
-: (int...) ( n -- )
-    >r ' execute r> 0 ?DO  int  LOOP
-    0 postpone Literal postpone ?DO postpone int postpone LOOP
-    postpone (int) ;
-: (void...) ( n -- )
-    >r ' execute r> 0 ?DO  int  LOOP
-    0 postpone Literal postpone ?DO postpone int postpone LOOP
-    postpone (void) ;
-: (float...) ( n -- )
-    >r ' execute r> 0 ?DO  df  LOOP
-    0 postpone Literal postpone ?DO postpone df postpone LOOP
-    postpone (fp) ;
+:noname ( n 0 -- 0 int1 .. intn )
+    legacy @ 0< revarg !
+    swap 0 ?DO  int  LOOP  (int)
+; IS legacy-proc
+
 : (int) ( n -- )
-    >r ' execute r> 0 ?DO  int  LOOP  postpone (int) ;
+    >r ' execute r> 0 ?DO  int  LOOP  (int) ;
 : (void) ( n -- )
-    >r ' execute r> 0 ?DO  int  LOOP  postpone (void) ;
+    >r ' execute r> 0 ?DO  int  LOOP  (void) ;
 : (float) ( n -- )
-    >r ' execute r> 0 ?DO  df   LOOP  postpone (fp) ;
+    >r ' execute r> 0 ?DO  df   LOOP  (fp) ;
 
 previous
 
@@ -185,7 +204,7 @@ previous definitions
 
 [ifdef] testing
 
-library libc /lib/libc.so.6
+library libc libc.so.6
                 
 libc sleep int (int) sleep
 libc open  int int ptr (int) open
@@ -193,7 +212,7 @@ libc lseek int llong int (llong) lseek
 libc read  int ptr int (int) read
 libc close int (int) close
 
-library libm /lib/libm.so.6
+library libm libm.so.6
 
 libm fmodf sf sf (sf) fmodf
 libm fmod  df df (fp) fmod
@@ -214,8 +233,19 @@ callback 2:1 (int) int int callback;
     cr ." result " + .s cr ;
 ' cb-test 2:1 c_plus
 
-: test  c_plus av-start-int av-int av-int av-call-int ;
+: test  c_plus av-start-int >r >r av-int-r av-int-r av-call-int ;
 
 \ 3 4 test
+
+\ bigFORTH legacy library test
+
+library libX11 libX11.so.6
+
+legacy on
+
+1 libX11 XOpenDisplay XOpenDisplay    ( name -- dpy )
+5 libX11 XInternAtoms XInternAtoms    ( atoms flag count names dpy -- status )
+
+legacy off
 
 [then]    
