@@ -229,7 +229,7 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_SRC) $(EC_SRC) \
 	test/other.fs test/checkans.fs \
 	bubble.fs siev.fs matrix.fs fib.fs \
 	oof.fs oofsampl.fs objects.fs objexamp.fs mini-oof.fs moof-exm.fs \
-	moofglos.fs \
+	moofglos.fs fixpath.fs \
 	add.fs lib.fs sieve.fs unix/socket.fs
 
 COMPAT = compat/README \
@@ -307,7 +307,7 @@ ARCHS =	\
 SOURCES	= $(CVSDIRS) compat Makefile.in Makedist.in engine/Makefile.in gforthmi.in \
 	configure.in configure config.sub config.guess elisp-comp missing \
 	acconfig.h acinclude.m4 engine/config.h.in stamp-h.in \
-	install-sh INSTALL INSTALL.BINDIST NEWS README ToDo BUGS model \
+	iss.sh install-sh INSTALL INSTALL.BINDIST NEWS README ToDo BUGS model \
 	COPYING AUTHORS ChangeLog Benchres aclocal.m4 \
 	doc/gforth.ds doc/texinfo.tex doc/gforth.1 doc/version.texi.in \
 	gforth.el \

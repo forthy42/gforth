@@ -94,6 +94,10 @@ dbindist:	$(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST) $(BINONLYDIST)
 		strip gforth-$(VERSION)/gforth
 		$(TAR) gforth-$(VERSION)|gzip -9 >gforth-$(VERSION).bin.@host@.tar.gz
 
+#All file names in a binary distribution
+distfiles:
+		@echo $(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST) $(BINONLYDIST)
+
 #makes a package with only the stuff not present in the source
 #package. For installation the source package is still needed!
 #This is useful if you want to distribute many binary versions in
