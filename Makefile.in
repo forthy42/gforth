@@ -23,8 +23,8 @@
 #     (which will cause the Makefiles to be regenerated when you run `make');
 # (2) otherwise, pass the desired values on the `make' command line.
 
-VERSION	=0.2.0#gforth version
-DOSVERSION=020#gforth version
+VERSION	=0.2.1#gforth version
+DOSVERSION=021#gforth version
 SHELL	= /bin/sh
 RM	= rm
 RMTREE	= rm -rf

@@ -40,6 +40,9 @@
 jmp_buf throw_jmp_buf;
 #endif
 
+/* Define FUZZ for better image positioning */
+#define FUZZ 0x4000
+
 #ifndef DEFAULTPATH
 #  define DEFAULTPATH "/usr/local/lib/gforth:."
 #endif
@@ -406,7 +409,7 @@ Arguments of default image `gforth.fi':\n\
 	  pend=path+strlen(path);
 	if (strlen(path)==0) {
 	  fprintf(stderr,"%s: cannot open image file %s in path %s for reading\n",
-		  progname, imagename, path);
+		  progname, imagename, path1);
 	  exit(1);
 	}
 	{

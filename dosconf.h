@@ -51,9 +51,6 @@
 #define HAVE_LIBM 1
 /* Of course, sys_siglist is a variable, not a function */
 
-/* Define FUZZ for better image positioning */
-#define FUZZ 0x4000
-
 /* Define if you want to force a direct threaded code implementation
    (does not work on all machines */
 /* Define if you want to force an indirect threaded code implementation */
