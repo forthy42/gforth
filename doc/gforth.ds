@@ -11830,7 +11830,7 @@ Some example of instructions are:
 @example
 ax bx mov             \ move ebx,eax
 3 # ax mov            \ mov eax,3
-100 di ) ax mov       \ mov eax,100[edi]
+100 di d) ax mov      \ mov eax,100[edi]
 4 bx cx di) ax mov    \ mov eax,4[ebx][ecx]
 .w ax bx mov          \ mov bx,ax
 @end example
