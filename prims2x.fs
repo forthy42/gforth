@@ -42,14 +42,16 @@
 
 warnings off
 
-require search.fs
-require extend.fs
+[IFUNDEF] vocabulary	\ we are executed just with kernel image
+			\ load the rest that is needed
+			\ (require fails because this file is needed from a
+			\ different directory with the wordlibraries)
+include ./search.fs			
+include ./extend.fs
+include ./environ.fs
+[THEN]
 
-\ require interpretation.fs
-\ require debugs.fs
-[IFUNDEF] vocabulary    include search.fs [THEN]
-[IFUNDEF] environment?  include environ.fs      [THEN]
-include gray.fs
+include ./gray.fs
 
 100 constant max-effect \ number of things on one side of a stack effect
 255 constant maxchar
