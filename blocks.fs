@@ -44,6 +44,10 @@ Variable last-block
 
 $20 Value buffers
 
+\ limit block files to 2GB; gforth <0.6.0 erases larger block files on
+\ 32-bit systems
+$200000 Value block-limit
+
 User block-fid
 User block-offset ( -- addr ) \ gforth
 \G User variable containing the number of the first block (default
@@ -67,15 +71,18 @@ block-cold
 Defer flush-blocks ( -- ) \ gforth
 
 : open-blocks ( c-addr u -- ) \ gforth
-    \g Use the file, whose name is given by @i{c-addr u}, as the blocks file.
-    2dup open-fpath-file 0<>
-    if
-	r/w bin create-file throw
-    else
+\g Use the file, whose name is given by @i{c-addr u}, as the blocks file.
+    try ( c-addr u )
+	2dup open-fpath-file throw
 	rot close-file throw  2dup file-status throw bin open-file throw
 	>r 2drop r>
-    then
-    block-fid @ IF  flush-blocks block-fid @ close-file throw  THEN
+    recover ( c-addr u ior )
+	>r 2dup file-status nip 0= r> and throw \ does it really not exist?
+	r/w bin create-file throw
+    endtry
+    block-fid @ IF
+	flush-blocks block-fid @ close-file throw
+    THEN
     block-fid ! ;
 
 : use ( "file" -- ) \ gforth
@@ -95,7 +102,8 @@ Defer flush-blocks ( -- ) \ gforth
     block-fid @ ;
 
 : block-position ( u -- ) \ block
-    \G Position the block file to the start of block @i{u}.
+\G Position the block file to the start of block @i{u}.
+    dup block-limit u>= -35 and throw
     offset @ - chars/block chars um* get-block-fid reposition-file throw ;
 
 : update ( -- ) \ block
@@ -108,8 +116,8 @@ Defer flush-blocks ( -- ) \ gforth
     if
 	r@ buffer-block @ block-position
 	r@ block-buffer chars/block  r@ buffer-fid @  write-file throw
-	buffer-fid @ flush-file throw
-	r@ buffer-dirty off
+	r@ buffer-fid @ flush-file throw
+	r@ buffer-dirty off 
     endif
     rdrop ;
 

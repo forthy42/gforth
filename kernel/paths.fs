@@ -217,7 +217,7 @@ Create tfile 0 c, 255 chars allot
         WHILE  5 pick 5 pick check-path
         0= IF >r 2drop 2drop r> ofile count 0 EXIT ELSE drop THEN
   REPEAT
-        2drop 2drop 2drop -&38
+        2drop 2drop 2drop -&37
   THEN ;
 
 : open-fpath-file ( addr1 u1 -- wfileid addr2 u2 0 | ior ) \ gforth
