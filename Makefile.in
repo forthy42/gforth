@@ -394,28 +394,28 @@ virtualclean:	mostlyclean
 #Some makes (Ultrix, SunOS, IRIX) are so broken, they cannot read the
 #Makefile if it contains our dist rules.  Therefore we have put these
 #rules in Makedist (you can use them with GNU make on these systems).
-dist:		Makedist 
+dist:		Makedist FORCE
 		$(MAKE) -f Makedist d$@
 
-dosdist:	Makedist 
+dosdist:	Makedist FORCE
 		$(MAKE) -f Makedist d$@
 
-srcdist:	Makedist 
+srcdist:	Makedist FORCE
 		$(MAKE) -f Makedist d$@
 
-srconlydist:	Makedist 
+srconlydist:	Makedist FORCE
 		$(MAKE) -f Makedist d$@
 
-docdist:	Makedist 
+docdist:	Makedist FORCE
 		$(MAKE) -f Makedist d$@
 
-htmldist:	Makedist 
+htmldist:	Makedist FORCE
 		$(MAKE) -f Makedist d$@
 
-bindist:	Makedist 
+bindist:	Makedist FORCE
 		$(MAKE) -f Makedist d$@
 
-binonlydist:	Makedist
+binonlydist:	Makedist FORCE
 		$(MAKE) -f Makedist d$@
 
 

@@ -63,7 +63,7 @@
         2dup c! char+ swap move ;
 [THEN]
 
-create sourcepath 256 chars , 0 , 256 chars allot
+create sourcepath 1024 chars , 0 , 1024 chars allot \ !! make this dynamic
 sourcepath avalue fpath
 
 : also-path ( adr len path^ -- )

@@ -95,6 +95,10 @@ OBJECTS_FI =  engine.o main-fi.o
 DEPS =  config.h *.h $(srcdir)/../arch/$(machine)/*.[h]
 ENGINE_DEPS = engine.c $(DEPS) prim_lab.i prim.i
 
+#some makes don't do the -o $@ correctly, so we help them
+.c.o:
+	$(GCC) -c $(CFLAGS) $(CPPFLAGS) -o $@ $<
+
 gforth$(EXE):	$(OBJECTS) $(AOBJECTS)
 	$(GCC) $(LDFLAGS) $(OBJECTS) $(AOBJECTS) $(LDLIBS) -o $@
 

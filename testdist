@@ -4,7 +4,7 @@
 #gforth-version.tar.gz must be in the working directory
 MACHINE=`hostname`
 GFORTH=`basename $1 .tar.gz`
-DIR=$PWD
+DIR=`pwd`
 rm -rf $GFORTH
 gunzip -cd $1 | tar xf -
 if make --version|grep -q GNU
