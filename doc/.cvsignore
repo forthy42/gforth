@@ -12,6 +12,7 @@ gforth.info-10
 gforth.info-11
 gforth.info-12
 gforth.info-13
+gforth.info-14
 gforth.ps
 crossdoc.fd
 gforth.fns
@@ -29,3 +30,5 @@ gforth.dvi
 gforth.log
 doc.fd
 version.texi
+gforth.txt
+gforth.kys

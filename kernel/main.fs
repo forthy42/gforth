@@ -45,8 +45,11 @@ bl word vocabulary find nip 0= [IF]
 \ so we don't include relatively to this file
 
 require search.fs
+require environ.fs
+require envos.fs
 require errors.fs
-require extend.fs
+require extend.fs              \ load core-extended
+require hash.fs
 
 [THEN]
 

@@ -32,3 +32,14 @@ html
 gforth.TAGS
 prim.TAGS
 aclocal.m4
+*.zip
+*.tar.gz
+*.tar.bz2
+*~
+kernl-*.fi
+kernl-*.fi-
+config.h.in
+Makedist
+Makefile.os2
+configure.bat
+Makefile.dos

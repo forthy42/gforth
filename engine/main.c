@@ -133,11 +133,13 @@ void relocate(Cell *image, const char *bitstring, int size, Label symbols[])
 
 /*  printf("relocating %x[%x]\n", image, size); */
    
+  size/=sizeof(Cell);
+
   for(k=0; k<=steps; k++) {
     for(j=0, bits=bitstring[k]; j<RELINFOBITS; j++, i++, bits<<=1) {
       /*      fprintf(stderr,"relocate: image[%d]\n", i);*/
-      if(bits & (1U << (RELINFOBITS-1))) {
-	/* fprintf(stderr,"relocate: image[%d]=%d\n", i, image[i]);*/
+      if((i < size) && (bits & (1U << (RELINFOBITS-1)))) {
+	/* fprintf(stderr,"relocate: image[%d]=%d of %d\n", i, image[i], size/sizeof(Cell)); */
 	if((token=image[i])<0)
 	  switch(token)
 	    {
