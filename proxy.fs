@@ -27,10 +27,8 @@ Create crlf #cr c, #lf c,
 
 : request ( host u request u proxy-host u port -- fid )
     open-socket >r
-    2dup type ."  HTTP/1.1" cr
     r@ write-file throw s"  HTTP/1.1" r@ writeln
     s" Host: " r@ write-file throw r@ writeln
-    ." Connection: close" cr
     s" Connection: close" r@ writeln
     s" User-Agent: " r@ write-file throw
     User-Agent @ IF
