@@ -18,6 +18,32 @@
 \ along with this program; if not, write to the Free Software
 \ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+\ Output                                               13feb93py
+
+has-os [IF]
+0 Value outfile-id ( -- file-id ) \ gforth
+
+: (type) ( c-addr u -- ) \ gforth
+    outfile-id write-file drop \ !! use ?DUP-IF THROW ENDIF instead of DROP ?
+;
+
+: (emit) ( c -- ) \ gforth
+    outfile-id emit-file drop \ !! use ?DUP-IF THROW ENDIF instead of DROP ?
+;
+[THEN]
+
+Defer type ( c-addr u -- ) \ core
+' (type) IS Type
+
+Defer emit ( c -- ) \ core
+' (Emit) IS Emit
+
+Defer key ( -- c ) \ core
+' (key) IS key
+
+: (.")     "lit count type ;
+: (S")     "lit count ;
+
 \ Input                                                13feb93py
 
 07 constant #bell ( -- c ) \ gforth
@@ -58,30 +84,4 @@ hex
 : spaces 0 max 0 ?DO space LOOP ;
 
 [THEN]
-
-\ Output                                               13feb93py
-
-has-os [IF]
-0 Value outfile-id ( -- file-id ) \ gforth
-
-: (type) ( c-addr u -- ) \ gforth
-    outfile-id write-file drop \ !! use ?DUP-IF THROW ENDIF instead of DROP ?
-;
-
-: (emit) ( c -- ) \ gforth
-    outfile-id emit-file drop \ !! use ?DUP-IF THROW ENDIF instead of DROP ?
-;
-[THEN]
-
-Defer type ( c-addr u -- ) \ core
-' (type) IS Type
-
-Defer emit ( c -- ) \ core
-' (Emit) IS Emit
-
-Defer key ( -- c ) \ core
-' (key) IS key
-
-: (.")     "lit count type ;
-: (S")     "lit count ;
 
