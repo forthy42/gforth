@@ -18,7 +18,7 @@
 @include version.texi
 
 @ifinfo
-This file documents Gforth @VERSION{}
+This file documents Gforth @value{VERSION}
 
 Copyright @copyright{} 1995-1997 Free Software Foundation, Inc.
 
@@ -52,7 +52,7 @@ Copyright @copyright{} 1995-1997 Free Software Foundation, Inc.
 @sp 10
 @center @titlefont{Gforth Manual}
 @sp 2
-@center for version @VERSION{}
+@center for version @value{VERSION}
 @sp 2
 @center Anton Ertl
 @center Bernd Paysan
@@ -89,7 +89,7 @@ Copyright @copyright{} 1995--1997 Free Software Foundation, Inc.
 @node Top, License, (dir), (dir)
 @ifinfo
 Gforth is a free implementation of ANS Forth available on many
-personal machines. This manual corresponds to version @VERSION{}.
+personal machines. This manual corresponds to version @value{VERSION}.
 @end ifinfo
 
 @menu

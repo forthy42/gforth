@@ -210,6 +210,8 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_SRC) $(EC_SRC) \
 COMPAT	= compat/CVS compat/README compat/control.fs compat/anslocal.fs \
 	compat/struct.fs compat/loops.fs
 
+GFORTH_TEXI =  doc/gforth.texi doc/version.texi
+
 ALLSUBDIRS = engine
 
 ARCHS =	arch/generic/machine.h \
@@ -635,7 +637,7 @@ checkdoc:	doc/gforth.ds prim.b ds2texi.fs prims2x.fs doc/doc.fd doc/crossdoc.fd 
 
 dvi:		doc/gforth.dvi
 
-doc/gforth.dvi doc/gforth.fns:	doc/gforth.texi
+doc/gforth.dvi doc/gforth.fns:	$(GFORTH_TEXI)
 		cd doc; $(TEXI2DVI) gforth.texi
 
 doc/gforth.ps:	doc/gforth.dvi
@@ -643,10 +645,10 @@ doc/gforth.ps:	doc/gforth.dvi
 
 info:		doc/gforth.info
 
-doc/gforth.info doc/gforth.info-*:	doc/gforth.texi
+doc/gforth.info doc/gforth.info-*: $(GFORTH_TEXI)
 		-cd doc; $(MAKEINFO) gforth.texi
 
-html:		doc/gforth.texi
+html:		$(GFORTH_TEXI)
 		-$(RM) html/*
 		-mkdir html
 		cd html; $(TEXI2HTML) -menu -split_node ../doc/gforth.texi
@@ -655,8 +657,11 @@ doc:		doc/gforth.ps html
 
 # For an explanation of the following Makefile rules, see node
 # `Automatic Remaking' in GNU Autoconf documentation.
-$(srcdir)/configure:	configure.in 
+$(srcdir)/configure:	configure.in aclocal.m4
 		cd $(srcdir) && autoconf
+
+aclocal.m4:	acinclude.m4 configure.in
+		aclocal
 
 # autoheader might not change config.h.in, so touch a stamp file.
 config.h.in:	stamp-h.in
