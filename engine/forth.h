@@ -97,7 +97,7 @@ typedef union {
 #else
     UCell low;
     Cell high;
-#endif;
+#endif
   } cells;
   DCell d;
   UDCell ud;
