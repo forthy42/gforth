@@ -11,7 +11,7 @@
     2dup u>
     IF
 	swap
-    ENDIF
+    THEN
     drop ;
 
 : U+DO ( compile-time: -- do-sys; run-time: u1 u2 -- )
