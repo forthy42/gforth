@@ -32,7 +32,7 @@ lastxt >does-code
 constant no-compilation-does-code
 constant no-interpretation-does-code
 
-: create-interpret/compile ( -- )
+: create-interpret/compile ( "name" -- ) \ gforth
     0 0 interpret/compile:
     here lastxt interpret/compile-comp !
     no-compilation-does-code here does-code!
@@ -53,22 +53,24 @@ constant no-interpretation-does-code
 : (interpretation>) ( -- )
     lastxt interpret/compile-int r@ fix-does-code ;
 
-: interpretation> ( -- orig colon-sys )
+: interpretation> ( compilation. -- orig colon-sys ) \ gforth
     POSTPONE (interpretation>) POSTPONE ahead
     dodoes, defstart dead-code off 0 set-locals-size-list ; immediate restrict
 
-: <interpretation ( orig colon-sys -- )
+: <interpretation ( compilation. orig colon-sys -- ) \ gforth
     ?struc POSTPONE exit
     POSTPONE then ; immediate restrict
 
 : (compilation>) ( -- )
     lastxt interpret/compile-comp r@ fix-does-code ;
 
-: compilation> ( -- orig colon-sys )
+: compilation> ( compilation. -- orig colon-sys ) \ gforth
     POSTPONE (compilation>) POSTPONE ahead
     dodoes, defstart dead-code off 0 set-locals-size-list POSTPONE >body ; immediate restrict
 
-comp' <interpretation drop Alias <compilation immediate restrict
+comp' <interpretation drop
+Alias <compilation ( compilation. orig colon-sys -- ) \ gforth
+immediate restrict
 
 \ example
 \ : constant ( n "name" -- )

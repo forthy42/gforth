@@ -27,7 +27,7 @@ vocabulary assembler ( -- ) \ tools-ext
 : init-asm ( -- )
     also assembler ;
 
-: code ( -- colon-sys )	\ tools-ext
+: code ( "name" -- colon-sys )	\ tools-ext
     \ start a native code definition
     header
     threading-method
@@ -47,7 +47,7 @@ vocabulary assembler ( -- ) \ tools-ext
     ( create the [;code] part of a low level defining word )
     ;-hook postpone (;code) ?struc postpone [
     defstart init-asm ;
-interpret/compile: ;code
+interpret/compile: ;code ( compilation. colon-sys1 -- colon-sys2 )	\ tools-ext	semicolon-code
 
 : end-code ( colon-sys -- )	\ gforth	end_code
     ( end a code definition )

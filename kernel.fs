@@ -280,7 +280,7 @@ Defer source ( -- addr count ) \ core
 : POSTPONE ( -- ) \ core
     COMP' swap POSTPONE aliteral compile, ; immediate restrict
 
-: interpret/compile: ( interp-xt comp-xt "name" -- )
+: interpret/compile: ( interp-xt comp-xt "name" -- ) \ gforth
     Create immediate swap A, A,
 DOES>
     abort" executed primary cfa of an interpret/compile: word" ;
@@ -1011,8 +1011,11 @@ Avariable leave-sp  leave-stack 3 cells + leave-sp !
     \ aborts if the last defined word was headerless
     last @ dup 0= abort" last word was headerless" cell+ ;
 
-: immediate     immediate-mask lastflags cset ;
-: restrict      restrict-mask lastflags cset ;
+: immediate ( -- ) \ core
+    immediate-mask lastflags cset ;
+: restrict ( -- ) \ gforth
+    restrict-mask lastflags cset ;
+' restrict alias compile-only ( -- ) \ gforth
 
 \ Header                                               23feb93py
 
@@ -1121,6 +1124,9 @@ Create ???  0 , 3 c, char ? c, char ? c, char ? c,
 
 : (Constant)  Header reveal docon: cfa, ;
 : Constant ( w "name" -- ) \ core
+    \ \G Defines constant @var{name}
+    \ \G
+    \ \G @var{name} execution: @var{-- w}
     (Constant) , ;
 : AConstant ( addr "name" -- ) \ gforth
     (Constant) A, ;

@@ -755,11 +755,11 @@ double sized signed integer
 @item ud
 double sized unsigned integer
 @item r
-Float
+Float (on the FP stack)
 @item a_
 Cell-aligned address
 @item c_
-Char-aligned address (note that a Char is two bytes in Windows NT)
+Char-aligned address (note that a Char may have two bytes in Windows NT)
 @item f_
 Float-aligned address
 @item df_
@@ -772,6 +772,11 @@ Execution token, same size as Cell
 Wordlist ID, same size as Cell
 @item f83name
 Pointer to a name structure
+@item "
+string in the input stream (not the stack). The terminating character is
+a blank by default. If it is not a blank, it is shown in @code{<>}
+quotes.
+
 @end table
 
 @node Arithmetic, Stack Manipulation, Notation, Words
@@ -1734,7 +1739,7 @@ E.g., a definition using @code{TO} might look like this:
 : strcmp @{ addr1 u1 addr2 u2 -- n @}
  u1 u2 min 0
  ?do
-   addr1 c@ addr2 c@ -
+   addr1 c@@ addr2 c@@ -
    ?dup-if
      unloop exit
    then
@@ -1757,7 +1762,7 @@ are initialized with the right value for the current iteration.
  addr1 addr2
  u1 u2 min 0 
  ?do @{ s1 s2 @}
-   s1 c@ s2 c@ -
+   s1 c@@ s2 c@@ -
    ?dup-if
      unloop exit
    then
@@ -2009,8 +2014,8 @@ You can create new defining words simply by wrapping defining-time code
 around existing defining words and putting the sequence in a colon
 definition.
 
-If you want the words defined by your defining words to behave
-differently than words defined with standard defining words, you can
+If you want the words defined with your defining words to behave
+differently from words defined with standard defining words, you can
 write your defining word like this:
 
 @example
@@ -2026,14 +2031,29 @@ Technically, this fragment defines a defining word @code{def-word}, and
 a word @code{name}; when you execute @code{name}, the address of the
 body of @code{name} is put on the data stack and @var{code2} is executed
 (the address of the body of @code{name} is the address @code{HERE}
-returns immediately after the @code{CREATE}). E.g., you can implement
-@code{Constant} in this way:
+returns immediately after the @code{CREATE}).
+
+In other words, if you make the following definitions:
+
+@example
+: def-word1 ( "name" -- )
+    Create @var{code1} ;
+
+: action1 ( ... -- ... )
+    @var{code2} ;
+
+def-word name1
+@end example
+
+Using @code{name1 action1} is equivalent to using @code{name}.
+
+E.g., you can implement @code{Constant} in this way:
 
 @example
 : constant ( w "name" -- )
     create ,
 DOES> ( -- w )
-    @ ;
+    @@ ;
 @end example
 
 When you create a constant with @code{5 constant five}, first a new word
@@ -2050,8 +2070,7 @@ locals declarations for stack effect specification, though).
 
 @subsubsection Applications of @code{CREATE..DOES>}
 
-You may not be sure how to use this feature. Here are some usage
-patterns:
+You may wonder how to use this feature. Here are some usage patterns:
 
 When you see a sequence of code occurring several times, and you can
 identify a meaning, you will factor it out as a colon definition. When
@@ -2070,7 +2089,7 @@ This could be factored with:
 : reg-reg-imm ( op-code -- )
     create ,
 DOES> ( reg-taget reg-source n -- )
-    @ asm-reg-reg-imm ;
+    @@ asm-reg-reg-imm ;
 
 0 reg-reg-imm ori,
 1 reg-reg-imm andi,
@@ -2085,7 +2104,7 @@ be done like this:
 : curry+ ( n1 -- )
     create ,
 DOES> ( n2 -- n1+n2 )
-    @ + ;
+    @@ + ;
 
  3 curry+ 3+
 -2 curry+ 2-
@@ -2198,10 +2217,155 @@ IS deferred
 @node Interpretation and Compilation Semantics,  , Supplying names, Defining Words
 @subsection Interpretation and Compilation Semantics
 
+The @dfn{interpretation semantics} of a word are what the text
+interpreter does when it encounters the word in interpret state. It also
+appears in some other contexts, e.g., the execution token returned by
+@code{' @var{word}} identifies the interpretation semantics of
+@var{word} (in other words, @code{' @var{word} execute} is equivalent to
+interpret-state text interpretation of @code{@var{word}}).
+
+The @dfn{compilation semantics} of a word are what the text interpreter
+does when it encounters the word in compile state. It also appears in
+other contexts, e.g, @code{POSTPONE @var{word}} compiles@footnote{In
+standard terminology, ``appends to the current definition''.} the
+compilation semantics of @var{word}.
+
+The standard also talks about @dfn{execution semantics}. They are used
+only for defining the interpretation and compilation semantics of many
+words. By default, the interpretation semantics of a word are to
+@code{execute} its execution semantics, and the compilation semantics of
+a word are to @code{compile,} its execution semantics.@footnote{In
+standard terminology: The default interpretation semantics are its
+execution semantics; the default compilation semantics are to append its
+execution semantics to the execution semantics of the current
+definition.}
+
+You can change the compilation semantics into @code{execute}ing the
+execution semantics with
+
 doc-immediate
+
+You can remove the interpretation semantics of a word with
+
+doc-compile-only
+doc-restrict
+
+Note that ticking (@code{'}) compile-only words gives an error
+(``Interpreting a compile-only word'').
+
+Gforth also allows you to define words with arbitrary combinations of
+interpretation and compilation semantics.
+
 doc-interpret/compile:
 
+This feature was introduced for implementing @code{TO} and @code{S"}. I
+recommend that you do not define such words, as cute as they may be:
+they make it hard to get at both parts of the word in some contexts.
+E.g., assume you want to get an execution token for the compilation
+part. Instead, define two words, one that embodies the interpretation
+part, and one that embodies the compilation part.
 
+There is, however, a potentially useful application of this feature:
+Providing differing implementations for the default semantics. While
+this introduces redundancy and is therefore usually a bad idea, a
+performance improvement may be worth the trouble. E.g., consider the
+word @code{foobar}:
+
+@example
+: foobar
+    foo bar ;
+@end example
+
+Let us assume that @code{foobar} is called so frequently that the
+calling overhead would take a significant amount of the run-time. We can
+optimize it with @code{interpret/compile:}:
+
+@example
+:noname
+   foo bar ;
+:noname
+   POSTPONE foo POSTPONE bar ;
+interpret/compile: foobar
+@end example
+
+This definition has the same interpretation semantics and essentially
+the same compilation semantics as the simple definition of
+@code{foobar}, but the implementation of the compilation semantics is
+more efficient with respect to run-time.
+
+Some people try to use state-smart words to emulate the feature provided
+by @code{interpret/compile:} (words are state-smart if they check
+@code{STATE} during execution). E.g., they would try to code
+@code{foobar} like this:
+
+@example
+: foobar
+  STATE @@
+  IF ( compilation state )
+    POSTPONE foo POSTPONE bar
+  ELSE
+    foo bar
+  ENDIF ; immediate
+@end example
+
+While this works if @code{foobar} is processed only by the text
+interpreter, it does not work in other contexts (like @code{'} or
+@code{POSTPONE}). E.g., @code{' foobar} will produce an execution token
+for a state-smart word, not for the interpretation semantics of the
+original @code{foobar}; when you execute this execution token (directly
+with @code{EXECUTE} or indirectly through @code{COMPILE,}) in compile
+state, the result will not be what you expected (i.e., it will not
+perform @code{foo bar}). State-smart words are a bad idea. Simply don't
+write them!
+
+It is also possible to write defining words that define words with
+arbitrary combinations of interpretation and compilation semantics (or,
+preferably, arbitrary combinations of implementations of the default
+semantics). In general, this looks like:
+
+@example
+: def-word
+    create-interpret/compile
+    @var{code1}
+interpretation>
+    @var{code2}
+<interpretation
+compilation>
+    @var{code3}
+<compilation ;
+@end example
+
+For a @var{word} defined with @code{def-word}, the interpretation
+semantics are to push the address of the body of @var{word} and perform
+@var{code2}, and the compilation semantics are to push the address of
+the body of @var{word} and perform @var{code3}. E.g., @code{constant}
+can also be defined like this:
+
+@example
+: constant ( n "name" -- )
+    create-interpret/compile
+    ,
+interpretation> ( -- n )
+    @@
+<interpretation
+compilation> ( compilation. -- ; run-time. -- n )
+    @@ postpone literal
+<compilation ;
+@end example
+
+doc-create-interpret/compile
+doc-interpretation>
+doc-<interpretation
+doc-compilation>
+doc-<compilation
+
+Note that words defined with @code{interpret/compile:} and
+@code{create-interpret/compile} have an extended header structure that
+differs from other words; however, unless you try to access them with
+plain address arithmetic, you should not notice this. Words for
+accessing the header structure usually know how to deal with this; e.g.,
+@code{' word >body} also gives you the body of a word created with
+@code{create-interpret/compile}.
 
 @node Wordlists, Files, Defining Words, Words
 @section Wordlists
@@ -2499,7 +2663,7 @@ processor-dependent. Gforth's alignment words perform natural alignment
 
 @item @code{EMIT} and non-graphic characters:
 The character is output using the C library function (actually, macro)
-@code{putchar}.
+@code{putc}.
 
 @item character editing of @code{ACCEPT} and @code{EXPECT}:
 This is modeled on the GNU readline library (@pxref{Readline
@@ -2519,18 +2683,18 @@ installation-dependent. Currently a character is represented by a C
 
 @item character-set extensions and matching of names:
 Any character except the ASCII NUL charcter can be used in a
-name. Matching is case-insensitive. The matching is performed using the
-C function @code{strncasecmp}, whose function is probably influenced by
-the locale. E.g., the @code{C} locale does not know about accents and
-umlauts, so they are matched case-sensitively in that locale. For
-portability reasons it is best to write programs such that they work in
-the @code{C} locale. Then one can use libraries written by a Polish
-programmer (who might use words containing ISO Latin-2 encoded
-characters) and by a French programmer (ISO Latin-1) in the same program
-(of course, @code{WORDS} will produce funny results for some of the
-words (which ones, depends on the font you are using)). Also, the locale
-you prefer may not be available in other operating systems. Hopefully,
-Unicode will solve these problems one day.
+name. Matching is case-insensitive (except in @code{TABLE}s. The
+matching is performed using the C function @code{strncasecmp}, whose
+function is probably influenced by the locale. E.g., the @code{C} locale
+does not know about accents and umlauts, so they are matched
+case-sensitively in that locale. For portability reasons it is best to
+write programs such that they work in the @code{C} locale. Then one can
+use libraries written by a Polish programmer (who might use words
+containing ISO Latin-2 encoded characters) and by a French programmer
+(ISO Latin-1) in the same program (of course, @code{WORDS} will produce
+funny results for some of the words (which ones, depends on the font you
+are using)). Also, the locale you prefer may not be available in other
+operating systems. Hopefully, Unicode will solve these problems one day.
 
 @item conditions under which control characters match a space delimiter:
 If @code{WORD} is called with the space character as a delimiter, all
@@ -2563,9 +2727,9 @@ The error string is stored into the variable @code{"error} and a
 @code{-2 throw} is performed.
 
 @item input line terminator:
-For interactive input, @kbd{C-m} and @kbd{C-j} terminate lines. One of
-these characters is typically produced when you type the @kbd{Enter} or
-@kbd{Return} key.
+For interactive input, @kbd{C-m} (CR) and @kbd{C-j} (LF) terminate
+lines. One of these characters is typically produced when you type the
+@kbd{Enter} or @kbd{Return} key.
 
 @item maximum size of a counted string:
 @code{s" /counted-string" environment? drop .}. Currently 255 characters
@@ -2586,11 +2750,11 @@ change it from within Gforth. However, the input can typically be
 redirected in the command line that starts Gforth.
 
 @item method of selecting the user output device:
-The user output device is the standard output. It cannot be redirected
-from within Gforth, but typically from the command line that starts
-Gforth. Gforth uses buffered output, so output on a terminal does not
-become visible before the next newline or buffer overflow. Output on
-non-terminals is invisible until the buffer overflows.
+@code{EMIT} and @code{TYPE} output to the file-id stored in the value
+@code{outfile-id} (@code{stdout} by default). Gforth uses buffered
+output, so output on a terminal does not become visible before the next
+newline or buffer overflow. Output on non-terminals is invisible until
+the buffer overflows.
 
 @item methods of dictionary compilation:
 What are we expected to document here?
@@ -2626,7 +2790,7 @@ string.
 @code{1 chars .}. 1 on all current ports.
 
 @item size of the keyboard terminal buffer:
-Varies. You can determine the size at a specific time using @code{lp@
+Varies. You can determine the size at a specific time using @code{lp@@
 tib - .}. It is shared with the locals stack and TIBs of files that
 include the current file. You can change the amount of space for TIBs
 and locals stack at Gforth startup with the command line option
@@ -2638,14 +2802,15 @@ shared with @code{WORD}.
 
 @item size of the scratch area returned by @code{PAD}:
 The remainder of dictionary space. You can even use the unused part of
-the data stack space. The current size can be computed with @code{sp@
+the data stack space. The current size can be computed with @code{sp@@
 pad - .}.
 
 @item system case-sensitivity characteristics:
-Dictionary searches are case insensitive. However, as explained above
-under @i{character-set extensions}, the matching for non-ASCII
-characters is determined by the locale you are using. In the default
-@code{C} locale all non-ASCII characters are matched case-sensitively.
+Dictionary searches are case insensitive (except in
+@code{TABLE}s). However, as explained above under @i{character-set
+extensions}, the matching for non-ASCII characters is determined by the
+locale you are using. In the default @code{C} locale all non-ASCII
+characters are matched case-sensitively.
 
 @item system prompt:
 @code{ ok} in interpret state, @code{ compiled} in compile state.
@@ -2662,7 +2827,7 @@ the choice to @code{gcc} (what to use for @code{/}) and to you (whether to use
 On two's complement machines, arithmetic is performed modulo
 2**bits-per-cell for single arithmetic and 4**bits-per-cell for double
 arithmetic (with appropriate mapping for signed types). Division by zero
-typically results in a @code{-55 throw} (floatingpoint unidentified
+typically results in a @code{-55 throw} (Floating-point unidentified
 fault), although a @code{-10 throw} (divide by zero) would be more
 appropriate.
 
@@ -2679,7 +2844,9 @@ No.
 @table @i
 
 @item a name is neither a word nor a number:
-@code{-13 throw} (Undefined word)
+@code{-13 throw} (Undefined word). Actually, @code{-13 bounce}, which
+preserves the data and FP stack, so you don't lose more work than
+necessary.
 
 @item a definition name exceeds the maximum length allowed:
 @code{-19 throw} (Word name too long)
@@ -2696,8 +2863,9 @@ flow words, and issue a @code{ABORT"} or @code{-12 THROW} (Argument type
 mismatch).
 
 @item attempting to obtain the execution token of a word with undefined execution semantics:
-You get an execution token representing the compilation semantics
-instead.
+@code{-14 throw} (Interpreting a compile-only word). In some cases, you
+get an execution token for @code{compile-only-error} (which performs a
+@code{-14 throw} when executed).
 
 @item dividing by zero:
 typically results in a @code{-55 throw} (floating point unidentified
@@ -2718,12 +2886,7 @@ error appears at a different place when one inserts or removes code.
 
 @item interpreting a word with undefined interpretation semantics:
 For some words, we defined interpretation semantics. For the others:
-@code{-14 throw} (Interpreting a compile-only word). Note that this is
-checked only by the outer (aka text) interpreter; if the word is
-@code{execute}d in some other way, it will typically perform it's
-compilation semantics even in interpret state. (We could change @code{'}
-and relatives not to give the xt of such words, but we think that would
-be too restrictive).
+@code{-14 throw} (Interpreting a compile-only word).
 
 @item modifying the contents of the input buffer or a string literal:
 These are located in writable memory and can be modified.
@@ -2750,7 +2913,7 @@ underflow) is performed. Apart from that, the stacks are not checked and
 underflows can result in similar behaviour as overflows (of adjacent
 stacks).
 
-@item unexepected end of the input buffer, resulting in an attempt to use a zero-length string as a name:
+@item unexpected end of the input buffer, resulting in an attempt to use a zero-length string as a name:
 @code{Create} and its descendants perform a @code{-16 throw} (Attempt to
 use zero-length string as a name). Words like @code{'} probably will not
 find what they search. Note that it is possible to create zero-length
@@ -2760,7 +2923,7 @@ names with @code{nextname} (should it not?).
 The next invocation of a parsing word returns a string wih length 0.
 
 @item @code{RECURSE} appears after @code{DOES>}:
-Compiles a recursive call to the defining word not to the defined word.
+Compiles a recursive call to the defining word, not to the defined word.
 
 @item argument input source different than current input source for @code{RESTORE-INPUT}:
 @code{-12 THROW}. Note that, once an input file is closed (e.g., because
@@ -2769,7 +2932,7 @@ reused. Therefore, restoring an input source specification referencing a
 closed file may lead to unpredictable results instead of a @code{-12
 THROW}.
 
-In the future, Gforth may be able to retore input source specifications
+In the future, Gforth may be able to restore input source specifications
 from other than the current input soruce.
 
 @item data space containing definitions gets de-allocated:
@@ -2797,7 +2960,8 @@ stack items are loop control parameters and behave accordingly.
 @code{abort" last word was headerless"}.
 
 @item name not defined by @code{VALUE} used by @code{TO}:
-@code{-32 throw} (Invalid name argument)
+@code{-32 throw} (Invalid name argument) (unless name was defined by
+@code{CONSTANT}; then it just changes the constant).
 
 @item name not found (@code{'}, @code{POSTPONE}, @code{[']}, @code{[COMPILE]}):
 @code{-13 throw} (Undefined word)
@@ -2807,8 +2971,8 @@ Gforth behaves as if they were of the same type. I.e., you can predict
 the behaviour by interpreting all parameters as, e.g., signed.
 
 @item @code{POSTPONE} or @code{[COMPILE]} applied to @code{TO}:
-Assume @code{: X POSTPONE TO ; IMMEDIATE}. @code{X} is equivalent to
-@code{TO}.
+Assume @code{: X POSTPONE TO ; IMMEDIATE}. @code{X} performs the
+compilation semantics of @code{TO}.
 
 @item String longer than a counted string returned by @code{WORD}:
 Not checked. The string will be ok, but the count will, of course,
@@ -2847,7 +3011,7 @@ and you can give commands to Gforth interactively. The actual facilities
 available depend on how you invoke Gforth.
 
 @item program data space available:
-@code{sp@ here - .} gives the space remaining for dictionary and data
+@code{sp@@ here - .} gives the space remaining for dictionary and data
 stack together.
 
 @item return stack space available:
@@ -2855,7 +3019,7 @@ By default 16 KBytes. The default can be overridden with the @code{-r}
 switch (@pxref{Invocation}) when Gforth starts up.
 
 @item stack space available:
-@code{sp@ here - .} gives the space remaining for dictionary and data
+@code{sp@@ here - .} gives the space remaining for dictionary and data
 stack together.
 
 @item system dictionary space required, in address units:
@@ -3466,7 +3630,7 @@ that are otherwise written in C, C++, or some other language.
 
 The Forth system ATLAST provides facilities for embedding it into
 applications; unfortunately it has several disadvantages: most
-implorantly, it is not based on ANS Forth, and it is apparently dead
+importantly, it is not based on ANS Forth, and it is apparently dead
 (i.e., not developed further and not supported). The facilities
 provided by Gforth in this area are inspired by ATLASTs facilities, so
 making the switch should not be hard.
@@ -3483,7 +3647,7 @@ prefix @code{forth_}. (Global symbols that are used internally have the
 prefix @code{gforth_}).
 
 You can include the declarations of Forth types and the functions and
-variables of the interface with @code{include <forth.h>}.
+variables of the interface with @code{#include <forth.h>}.
 
 Types.
 
