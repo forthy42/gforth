@@ -140,7 +140,7 @@ KERN_SRC = \
 	kernel/main.fs \
 	kernel/prim0.fs \
 	search.fs \
-	kernel/special.fs \
+	kernel/quotes.fs \
 	kernel/tools.fs \
 	kernel/toolsext.fs \
 	kernel/vars.fs \
