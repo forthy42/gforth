@@ -62,8 +62,13 @@
 			  pfa+2; })
 #endif
 /* CODE_ADDRESS is the address of the code jumped to through the code field */
-#define CODE_ADDRESS(cfa)	({unsigned _cfa = (unsigned)(cfa); \
+#define CODE_ADDRESS1(cfa)	({unsigned _cfa = (unsigned)(cfa); \
 				    (Label)(_cfa+((*(unsigned *)_cfa)<<2)-4);})
+#define CODE_ADDRESS(cfa)	({ \
+		  unsigned *__cfa = (unsigned *)(cfa); \
+		  (((*__cfa)>>30)==1) ? CODE_ADDRESS1(__cfa) : (Label)__cfa; \
+		})
+
 /* MAKE_CF creates an appropriate code field at the cfa; ca is the code address */
 /* we use call, since 'branch always' only has 22 bits displacement */
 #define MAKE_CF(cfa,ca)	({long *_cfa        = (long *)(cfa); \
@@ -79,14 +84,13 @@
    the +4) */
 #define DOES_CODE(cfa1) \
      ({ Xt _cfa1=(Xt)(cfa1); \
-	unsigned _ca; \
-	((*(unsigned *)_cfa1)&0xc0000000) == 0x40000000 && \
-	(_ca=((unsigned)CODE_ADDRESS(_cfa1))+4 , \
-	 ((*(unsigned *)(_ca)) == CALLD(symbols[DODOES],_ca))) \
-	? _ca+DOES_HANDLER_SIZE : 0; })
+	unsigned _ca=((unsigned)CODE_ADDRESS(_cfa1))+4; \
+	((*(unsigned *)(_ca)) == CALLD(symbols[DODOES],_ca)) \
+	? _ca+DOES_HANDLER_SIZE : 0; \
+     })
 
 /* this is a special version of DOES_CODE for use in dodoes */
-#define DOES_CODE1(label)	((Xt *)(CODE_ADDRESS(label)+4+DOES_HANDLER_SIZE))
+#define DOES_CODE1(label)	((Xt *)(CODE_ADDRESS1(label)+4+DOES_HANDLER_SIZE))
 #ifdef undefined
 #define DOES_CODE1(label)	({register Xt *_does_code asm("%o7"); \
 			  	_does_code+2; })
