@@ -31,7 +31,7 @@ extern jmp_buf throw_jmp_buf;
 #  define key(stdin)		getch()
 #  define key_query(stdin)	FLAG(kbhit())
 #else
-unsigned getkey(FILE *);
+Cell getkey(FILE *);
 long key_avail(FILE *);
 void prep_terminal(void);
 void deprep_terminal(void);

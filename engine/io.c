@@ -666,12 +666,13 @@ long key_avail (FILE * stream)
 /* When compiling and running in the `Posix' environment, Ultrix does
    not restart system calls, so this needs to do it. */
 
-unsigned getkey(FILE * stream)
+Cell getkey(FILE * stream)
 {
-  int result;
+  Cell result;
   unsigned char c;
 
-  if(!terminal_prepped)  prep_terminal();
+  if(!terminal_prepped)
+    prep_terminal();
 
   while (pending < 0)
     {
@@ -692,7 +693,9 @@ unsigned getkey(FILE * stream)
 	return (EOF);
     }
 
-  result = (int) pending;
+  /* otherwise there is a character pending;
+     return it and delete pending char */
+  result = (Cell) pending;
   pending = -1L;
 
   return result;
