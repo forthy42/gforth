@@ -5,15 +5,18 @@ warnings off
 include string.fs
 
 Variable url
+Variable posted
+Variable url-args
 Variable protocol
 Variable data
+Variable active
 Variable command?
 
 : get ( addr -- )  name rot $! ;
 : get-rest ( addr -- )  source >in @ /string dup >in +! rot $! ;
 
-Table constant values
-Table constant commands
+wordlist constant values
+wordlist constant commands
 
 : value:  ( -- )  name
   Forth definitions 2dup 1- nextname Variable
@@ -23,7 +26,7 @@ Table constant commands
 
 \ HTTP protocol commands                               26mar00py
 
-: rework-% ( -- )  base @ >r hex
+: rework-% ( add -- ) { url }  base @ >r hex
     0 url $@len 0 ?DO
 	url $@ drop I + c@ dup '% = IF
 	    drop 0. url $@ I 1+ /string
@@ -32,10 +35,17 @@ Table constant commands
     r> 1+ +LOOP  url $!len
     r> base ! ;
 
+: rework-? ( addr -- ) { url }
+    url $@ tuck '? scan tuck dup 0<> - url-args $! - url $!len ;
+
+: get-url  url get protocol get-rest
+    url rework-? url rework-% >values ;
+
 commands set-current
 
-: GET   url get rework-% protocol get-rest >values data on  ;
-: HEAD  url get rework-% protocol get-rest >values data off ;
+: GET   get-url data on  active off ;
+: POST  get-url data on  active on  ;
+: HEAD  get-url data off active off ;
 
 \ HTTP protocol values                                 26mar00py
 
@@ -53,9 +63,10 @@ value: X-Forwarded-For:
 value: Cache-Control:
 value: Connection:
 value: Referer:
+value: Content-Type:
+value: Content-Length:
 
 definitions
-
 
 Variable maxnum
 
@@ -69,7 +80,9 @@ Variable maxnum
   s" close" connection $!
   infile-id push-file loadfile !  loadline off  blk off
   commands 1 set-order  command? on  ['] refill-loop catch
-  only forth also  pop-file ;
+  active @ IF  s" " posted $! Content-Length $@ snumber? drop
+      posted $!len  posted $@ infile-id read-file throw drop
+  THEN  only forth also  pop-file ;
 
 \ Keep-Alive handling                                  26mar00py
 
@@ -113,10 +126,11 @@ Variable htmldir
   r@ file-size throw drop
   ." Accept-Ranges: bytes" cr
   ." Content-Length: " dup 0 .r cr r> ;
-: transparent ( size fd -- ) >r
-  dup allocate throw swap
-  over swap r@ read-file throw over swap type
-  free r> close-file throw throw ;
+: transparent ( size fd -- ) { fd }
+    $4000 allocate throw swap dup 0 ?DO
+	2dup over swap $4000 min fd read-file throw type
+	$4000 - $4000 +LOOP  drop
+    free fd close-file throw throw ;
 
 : transparent: ( addr u -- ) Create  here over 1+ allot place
   DOES>  >r  >file
@@ -160,7 +174,7 @@ s" text/plain" transparent: txt
 : .ok   ." HTTP/1.1 200 OK" cr .server ;
 : html-error ( n addr u -- )
     ." HTTP/1.1 " 2 pick . 2dup type cr .server
-    2 pick &405 = IF ." Allow: GET, HEAD" cr  THEN  lastrequest
+    2 pick &405 = IF ." Allow: GET, HEAD, POST" cr  THEN  lastrequest
     ." <HTML><HEAD><TITLE>" 2 pick . 2dup type ." </TITLE></HEAD>" cr
     ." <BODY><H1>" type drop ." </H1>" cr ;
 : .trailer ( -- )
@@ -187,4 +201,4 @@ s" text/plain" transparent: txt
 : httpd  ( n -- )  maxnum !
   BEGIN  ['] http catch  maxnum @ 0= or  UNTIL ;
 
-script? [IF]  &100 httpd bye  [THEN]
+script? [IF]  :noname &100 httpd bye ; is bootmessage  [THEN]
