@@ -27,9 +27,9 @@
 
 Create mach-file here over 1+ allot place
 
-include errors.fs
-include extend.fs
-include search.fs
+require errors.fs
+require extend.fs
+require search.fs
 
 \ include etags.fs
 
