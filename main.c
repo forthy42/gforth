@@ -178,7 +178,9 @@ Address my_alloc(Cell size)
   static Address next_address=0;
   Address r;
 
-#if HAVE_MMAP
+/* the 256MB jump restriction on the MIPS architecture makes the
+   combination of direct threading and mmap unsafe. */
+#if HAVE_MMAP && (!defined(mips) || defined(INDIRECT_THREADED))
 #if defined(MAP_ANON)
   if (debug)
     fprintf(stderr,"try mmap($%lx, $%lx, ..., MAP_ANON, ...); ", (long)next_address, (long)size);
