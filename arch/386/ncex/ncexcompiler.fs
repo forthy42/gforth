@@ -27,7 +27,8 @@
 : redefer ( xt "name" -- )
   my-' tuck \ name-xt xt name-xt
   >body ! \ name-xt
-  dodefer: swap code-address! 
+  >body cell+ ['] unnest swap !
+\  dodefer: swap code-address! 
   ;
 
 \ Same as normal is, but works on restricted words too.

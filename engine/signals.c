@@ -174,6 +174,7 @@ void get_winsize()
 {
 #ifdef TIOCGWINSZ
   struct winsize size;
+  size.ws_row = size.ws_col = 0;
   
   if (ioctl (1, TIOCGWINSZ, (char *) &size) >= 0) {
     rows = size.ws_row;
@@ -183,15 +184,15 @@ void get_winsize()
   char *s;
   if ((s=getenv("LINES"))) {
     rows=atoi(s);
-    if (rows==0)
-      rows=DEFAULTROWS;
   }
   if ((s=getenv("COLUMNS"))) {
     rows=atoi(s);
-    if (rows==0)
-      cols=DEFAULTCOLS;
   }
 #endif
+  if (rows==0)
+    rows=DEFAULTROWS;
+  if (rows==0)
+    cols=DEFAULTCOLS;
 }
 
 #ifdef SIGWINCH

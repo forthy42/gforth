@@ -46,11 +46,13 @@ interpret/compile: ctrl  ( "<char>" -- ctrl-code )
 	IF  forw drop (del)  ELSE  #bell emit  THEN  0 ;
 : eof  2 pick over or 0=  IF  bye  ELSE  <del>  THEN ;
 
-' forw  ctrl F cells ctrlkeys + !
-' back  ctrl B cells ctrlkeys + !
-' ?del  ctrl H cells ctrlkeys + !
-' eof   ctrl D cells ctrlkeys + !
-' <del> ctrl X cells ctrlkeys + !
+: bindkey ( xt key -- )  cells ctrlkeys + ! ;
+
+' forw  ctrl F bindkey
+' back  ctrl B bindkey
+' ?del  ctrl H bindkey
+' eof   ctrl D bindkey
+' <del> ctrl X bindkey
 
 ' (ins) IS insert-char
 
@@ -215,14 +217,14 @@ Create prefix-found  0 , 0 ,
 
 ' kill-prefix IS everychar
 
-' next-line  ctrl N cells ctrlkeys + !
-' prev-line  ctrl P cells ctrlkeys + !
-' clear-tib  ctrl K cells ctrlkeys + !
-' first-pos  ctrl A cells ctrlkeys + !
-' end-pos    ctrl E cells ctrlkeys + !
-' (enter)    #lf    cells ctrlkeys + !
-' (enter)    #cr    cells ctrlkeys + !
-' tab-expand #tab   cells ctrlkeys + !
+' next-line  ctrl N bindkey
+' prev-line  ctrl P bindkey
+' clear-tib  ctrl K bindkey
+' first-pos  ctrl A bindkey
+' end-pos    ctrl E bindkey
+' (enter)    #lf    bindkey
+' (enter)    #cr    bindkey
+' tab-expand #tab   bindkey
 
 \ initializing history
 
@@ -239,11 +241,10 @@ Create prefix-found  0 , 0 ,
 	2dup forward^ 2! 2dup backward^ 2! end^ 2!
 	['] next-line ['] prev-line ['] (enter)
     endif
-    dup
-    [ #lf    cells ctrlkeys + ]L !
-    [ #cr    cells ctrlkeys + ]L !
-    [ ctrl P cells ctrlkeys + ]L !
-    [ ctrl N cells ctrlkeys + ]L !
+    dup #lf bindkey
+        #cr bindkey
+     ctrl P bindkey
+     ctrl N bindkey
 ;
 
 : history-cold ( -- )
