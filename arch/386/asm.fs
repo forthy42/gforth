@@ -130,9 +130,9 @@ VARIABLE SIZE  1 SIZE !
 : CPU  ( op -- )  CREATE C,  DOES> C@ C, ;
 
 66 CPU 16:	\ 16-bit opcode prefix (cannot use with immedate ops)
-C3 CPU RET
-F2 CPU REP   F2 CPU REPNZ   F3 CPU REPZ
-FC CPU CLD   FD CPU STD     99 CPU CDQ
+C3 CPU RET,
+F2 CPU REP,   F2 CPU REPNZ,   F3 CPU REPZ,
+FC CPU CLD,   FD CPU STD,     99 CPU CDQ,
 
 
 : SHORT  ( op opex regop -- )
@@ -140,16 +140,16 @@ FC CPU CLD   FD CPU STD     99 CPU CDQ
     DOES>  ( reg | offset [reg] -- )  OVER R32?
     IF  C@ OP,  ELSE  1+ COUNT SWAP C@ WR/SM,  THEN ;
 
-FF 6 50 SHORT PUSH   8F 0 58 SHORT POP
-FE 0 40 SHORT INC    FE 1 48 SHORT DEC
+FF 6 50 SHORT PUSH,   8F 0 58 SHORT POP,
+FE 0 40 SHORT INC,    FE 1 48 SHORT DEC,
 
 
 : UNARY  ( opex -- )
     CREATE C,  DOES>  ( reg | offset [reg] )  C@ F6 WR/SM, ;
 
-2 UNARY INV  ( INV = Intel's NOT )
-3 UNARY NEG   4 UNARY MUL
-5 UNARY IMUL  6 UNARY DIV   7 UNARY IDIV
+2 UNARY NOT,
+3 UNARY NEG,   4 UNARY MUL,
+5 UNARY IMUL,  6 UNARY DIV,   7 UNARY IDIV,
 
 
 \ The following forms are accepted for binary operands.
@@ -171,15 +171,15 @@ FE 0 40 SHORT INC    FE 1 48 SHORT DEC
           OVER SIZE, R/M,
     THEN ;
 
-: MOV   ( operands... -- )
+: MOV,   ( operands... -- )
     OVER # =
     IF    DUP SIZE? IF  B8 OP, DROP ,  ELSE  B0 OP, DROP C,  THEN
     ELSE  DUP INDEX? IF  ROT 88  ELSE  8A  THEN  OVER SIZE, R/M,
     THEN ;
 
-: LEA   ( reg/mem reg -- )   8D C,  MEM, ;
+: LEA,   ( reg/mem reg -- )   8D C,  MEM, ;
 
-: XCHG  ( mr1 reg -- )
+: XCHG,  ( mr1 reg -- )
     OVER REG? OVER EAX = AND
     IF    DROP REG 90 OP,
     ELSE  86 OVER SIZE,  R/M,  THEN ;
@@ -205,15 +205,15 @@ FE 0 40 SHORT INC    FE 1 48 SHORT DEC
         THEN
     THEN ;
 
-0 SHIFT ROL   1 SHIFT ROR   2 SHIFT RCL   3 SHIFT RCR
-4 SHIFT SHL   5 SHIFT SHR   7 SHIFT SAR
+0 SHIFT ROL,   1 SHIFT ROR,   2 SHIFT RCL,   3 SHIFT RCR,
+4 SHIFT SHL,   5 SHIFT SHR,   7 SHIFT SAR,
 
 \ String instructions. Precede with BYTE for byte version
 : STR  ( op -- )
     CREATE C,  DOES> C@ SIZE @ OP,  1 SIZE ! ;
 
-A4 STR MOVS   A6 STR CMPS
-AA STR STOS   AC STR LODS   AE STR SCAS
+A4 STR MOVS,   A6 STR CMPS,
+AA STR STOS,   AC STR LODS,   AE STR SCAS,
 
 
 \ ---------------------------------------------------------------------
@@ -227,18 +227,18 @@ AA STR STOS   AC STR LODS   AE STR SCAS
 
 : REL  ( op -- )   CREATE C,  DOES> C@ C,  REL8, ;
 
-70 REL JO    71 REL JNO   72 REL JB    73 REL JAE
-74 REL JE    75 REL JNE   76 REL JBE   77 REL JA
-78 REL JS    79 REL JNS   7A REL JPE   7B REL JNP
-7C REL JL    7D REL JGE   7E REL JLE   7F REL JG
-E3 REL JECXZ
+70 REL JO,    71 REL JNO,   72 REL JB,    73 REL JAE,
+74 REL JE,    75 REL JNE,   76 REL JBE,   77 REL JA,
+78 REL JS,    79 REL JNS,   7A REL JPE,   7B REL JNP,
+7C REL JL,    7D REL JGE,   7E REL JLE,   7F REL JG,
+E3 REL JECXZ,
 
-: JMP  ( addr | r/m -- )
+: JMP,  ( addr | r/m -- )
    DUP 0< ( reg/index ) IF  FF C,  4 R/M,
    ELSE  DUP HERE 2 + - SHORT? IF  EB C,  REL8,
    ELSE  E9 C,  REL32,  THEN THEN ;
 
-: CALL  ( addr | r/m -- )
+: CALL,  ( addr | r/m -- )
    DUP 0< ( reg/index ) IF  FF C,  2 R/M,  ELSE  E8 C,  REL32,  THEN ;
 
 
@@ -290,21 +290,21 @@ MAX-LABELS ARRAY LABEL-LINK     ( linked list of unresolved references   )
 
 : NOT   1 XOR ;  ( reverse logic of conditional )
 
-: IF        C, HERE 0 C, ;
-: THEN      HERE OVER OFFSET  SWAP TC! ;
-: ELSE      EB IF  SWAP THEN ;
-: BEGIN     HERE ;
-: UNTIL     C, REL8, ;
-: LOOP      E2 UNTIL ;
-: AGAIN     EB UNTIL ;
-: WHILE     IF SWAP ;
-: REPEAT    AGAIN THEN ;
+: IF,        C, HERE 0 C, ;
+: THEN,      HERE OVER OFFSET  SWAP TC! ;
+: ELSE,      EB IF,  SWAP THEN, ;
+: BEGIN,     HERE ;
+: UNTIL,     C, REL8, ;
+: LOOP,      E2 UNTIL, ;
+: AGAIN,     EB UNTIL, ;
+: WHILE,     IF, SWAP ;
+: REPEAT,    AGAIN, THEN, ;
 
-0 BINARY ADD   1 BINARY OR    2 BINARY ADC   3 BINARY SBB
-4 BINARY AND   5 BINARY SUB   6 BINARY XOR   7 BINARY CMP
+0 BINARY ADD,   1 BINARY OR,    2 BINARY ADC,   3 BINARY SBB,
+4 BINARY AND,   5 BINARY SUB,   6 BINARY XOR,   7 BINARY CMP,
 
-: RET#   ( n -- )  C2 C, W, ;
-: PUSH#  ( n -- )  68 C, ,  ;
+: RET#,   ( n -- )  C2 C, W, ;
+: PUSH#,  ( n -- )  68 C, ,  ;
 
 previous set-current decimal base !
 
