@@ -1043,6 +1043,8 @@ End-Struct addr-struct
 
 \ Predefined ghosts                                    12dec92py
 
+Ghost - drop \ need a ghost otherwise "-" would be treated as a number
+
 Ghost 0=                                        drop
 Ghost branch    Ghost ?branch                   2drop
 Ghost (do)      Ghost (?do)                     2drop
@@ -1057,7 +1059,6 @@ Ghost '                                         drop
 Ghost :docol    Ghost :doesjump Ghost :dodoes   2drop drop
 Ghost :dovar					drop
 Ghost over      Ghost =         Ghost drop      2drop drop
-Ghost - drop
 Ghost 2drop drop
 Ghost 2dup drop
 
