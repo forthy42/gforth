@@ -8,7 +8,7 @@ make install
 
 and you are set. You can
 
-make test
+make check
 make bench
 
 first, to make sure that the binary works.

@@ -479,7 +479,7 @@ install:	gforth$(EXE) $(FORTH_SRC) $(kernel_fi) gforth.fi gforthmi doc/gforth.1 
 		else \
 			echo ">>>>>Please install $(srcdir)/gforth.el in your .../emacs/site-lisp directory"; \
 		fi
-		$(RM) gforth.fi
+		-$(RM) gforth.fi
 		GFORTHD="./gforth-ditc -p$(libdir)/gforth/site-forth$(PATHSEP)$(siteforthdir)$(PATHSEP)$(datadir)/gforth/$(VERSION) -i $(kernel_fi)" GFORTH="./gforth-ditc --die-on-signal -i $(kernel_fi) $(STARTUP)" ./gforthmi gforth.fi $(FORTHSIZES) $(STARTUP)
 		$(INSTALL_DATA) gforth.fi $(libdir)/gforth/$(VERSION)
 		$(INSTALL_DATA) install.TAGS $(datadir)/gforth/$(VERSION)/TAGS
@@ -648,7 +648,7 @@ TAGS:		gforth.TAGS
 install.TAGS:	gforth.TAGS
 		sed 's:^\$(srcdir)/:$(datadir)/gforth/$(VERSION)/:' gforth.TAGS >install.TAGS
 
-gforth.TAGS:	@kernel_fi@ gforth$(EXE) $(GFORTH_FI_SRC) prim.TAGS
+gforth.TAGS:	@kernel_fi@ gforth$(EXE) $(GFORTH_FI_SRC) prim.TAGS kernel.TAGS
 		$(FORTHK) etags.fs except.fs startup.fs -e bye
 		cat TAGS prim.TAGS kernel.TAGS >gforth.TAGS
 		rm TAGS
@@ -659,6 +659,9 @@ prim.TAGS: 	prim.b prims2x.fs
 		$(FORTHK) prims2x.fs -e "s\" $(srcdir)/prim.b\" ' output-tag process-file bye" | sed -f prim.TAGS.sed >$@-
 		$(CP) $@- $@
 		$(RM) $@-
+
+kernel.TAGS:
+		rm kernl16l.fi-; $(MAKE) @kernel_fi@
 
 doc/doc.fd:	doc/makedoc.fs $(GFORTH_FI_SRC) code.fs objects.fs oof.fs moofglos.fs
 		$(FORTHK) -e "s\" doc/doc.fd\"" doc/makedoc.fs except.fs startup.fs code.fs objects.fs oof.fs moofglos.fs -e bye

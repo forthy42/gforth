@@ -12,7 +12,7 @@ make
 
 Now you can check whether your shiny new Forth system works. Say
 
-make test
+make check
 
 You can run some benchmarks with
 
