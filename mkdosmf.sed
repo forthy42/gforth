@@ -2,8 +2,11 @@ s%/bin/sh%command.com%g
 s% rm% del%g
 s% cp% copy%g
 s% ln -s% copy%g
+s%-pipe %%g
 s% ./gforth% gforth%g
-s%if [ ! -f gforth ]; then $(MAKE) first; fi%-if not exist gforth.exe $(MAKE) first%g
+s%if * first; fi%-if not exist gforth.exe \$\(MAKE\) first%g
+s%io.o %%g
+s%-DDEFAULTPATH=.*"%-DDEFAULTPATH=\\".\\"%g
 s%@gforth_fi@%kernl32l.fi%g
 s%@KERNAL@%kernl16l.fi kernl16b.fi kernl32l.fi kernl32b.fi kernl64l.fi kernl64b.fi%g
 s%@LIBOBJS@%ecvt.o select.o%g
@@ -15,7 +18,7 @@ s%@INSTALL_PROGRAM@%install-sh%g
 s%@INSTALL_DATA@%install-sh%g
 s%@LN_S@%copy%g
 s%@CFLAGS@%-fforce-mem -fforce-addr -fomit-frame-pointer%g
-s%@DEFS@% -DSIZEOF_CHAR_P=4 -DHAVE_LIBM=1 -DHAVE_RINT=1 -DHAVE_EXPM1=1 -DHAVE_LOG1P=1 %g
+s%@DEFS@%%g
 s%@DEBUGFLAG@%%g
 s%@LDFLAGS@%%g
 s%@GCCLDFLAGS@%%g

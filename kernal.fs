@@ -1148,7 +1148,7 @@ Defer key
 \ Query                                                07apr93py
 
 : refill ( -- flag )
-  blk @  IF  1 blk +!  true  EXIT  THEN
+  blk @  IF  1 blk +!  true  0 >in !  EXIT  THEN
   tib /line
   loadfile @ ?dup
   IF    read-line throw

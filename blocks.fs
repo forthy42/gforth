@@ -1,30 +1,59 @@
-\ A simple immplementation of the blocks wordset. 
+\ A less simple implementation of the blocks wordset. 
 
-\ This implementation uses only a single buffer and will therefore be a
-\ little slow. An efficient implementation would use mmap on OSs that
+\ An more efficient implementation would use mmap on OSs that
 \ provide it and many buffers on OSs that do not provide mmap.
+
+\ Now, the replacement algorithm is "direct mapped"; change to LRU
+\ if too slow. Using more buffers helps, too.
 
 \ I think I avoid the assumption 1 char = 1 here, but I have not tested this
 
 \ 1024 constant chars/block \ mandated by the standard
 
-create block-buffer chars/block chars allot
+require struct.fs
 
-variable buffer-block 0 buffer-block ! \ the block currently in the buffer
-variable block-fid 0 block-fid ! \ the file id of the current block file
-variable buffer-dirty buffer-dirty off
+struct
+    1           cells: field buffer-block   \ the block number
+    1           cells: field buffer-fid     \ the block's fid
+    1           cells: field buffer-dirty   \ the block dirty flag
+    chars/block chars: field block-buffer   \ the data
+    0           cells: field next-buffer
+end-struct buffer-struct
 
+Variable block-buffers
+Variable last-block
+
+$20 Value buffers
+
+User block-fid
+
+: block-cold
+    defers 'cold  block-fid off  last-block off
+    buffers buffer-struct drop * allocate throw dup block-buffers !
+    buffers buffer-struct drop * erase ;
+
+' block-cold IS 'cold
+
+block-cold
+
+Defer flush-file
+
+: use-file ( addr u -- )
+    block-fid @  IF  flush-file block-fid @ close-file throw  THEN
+    2dup r/w bin open-file 0<>
+    if
+	drop r/w bin create-file throw
+    else
+	nip nip
+    then
+    block-fid ! ;
 
 \ the file is opened as binary file, since it either will contain text
 \ without newlines or binary data
 : get-block-fid ( -- fid )
     block-fid @ 0=
     if
-	s" blocks.fb" r/w bin open-file 0<>
-	if
-	    s" blocks.fb" r/w bin create-file throw
-	then
-	block-fid !
+	s" blocks.fb" use-file
     then
     block-fid @ ;
 
@@ -33,37 +62,52 @@ variable buffer-dirty buffer-dirty off
     1- chars/block chars um* get-block-fid reposition-file throw ;
 
 : update ( -- )
-    buffer-dirty on ;
+    last-block @ ?dup IF  buffer-dirty on  THEN ;
 
-: save-buffers ( -- )
-    buffer-dirty @ buffer-block @ 0<> and
+: save-buffer ( buffer -- ) >r
+    r@ buffer-dirty @ r@ buffer-block @ 0<> and
     if
-	buffer-block @ block-position
-	block-buffer chars/block get-block-fid write-file throw
-	buffer-dirty off
-    endif ;
+	r@ buffer-block @ block-position
+	r@ block-buffer chars/block  r@ buffer-fid @  write-file throw
+	r@ buffer-dirty off
+    endif
+    rdrop ;
 
-: empty-buffers ( -- )
-    0 buffer-block ! ;
+: empty-buffer ( buffer -- )
+    buffer-block off ;
+
+: save-buffers  ( -- )    block-buffers @
+    buffers 0 ?DO  dup save-buffer  next-buffer  LOOP  drop ;
+
+: empty-buffers ( -- )    block-buffers @
+    buffers 0 ?DO  dup empty-buffer  next-buffer  LOOP  drop ;
 
 : flush ( -- )
     save-buffers
     empty-buffers ;
 
+' flush IS flush-file
+
+: get-buffer ( n -- a-addr )
+    buffers mod buffer-struct drop * block-buffers @ + ;
+
 : block ( u -- a-addr )
     dup 0= -35 and throw
-    dup buffer-block @ <>
+    dup get-buffer >r
+    dup r@ buffer-block @ <>
+    r@ buffer-fid @ block-fid @ <> and
     if
-	save-buffers
+	r@ save-buffer
 	dup block-position
-	block-buffer chars/block get-block-fid read-file throw
+	r@ block-buffer chars/block get-block-fid read-file throw
 	\ clear the rest of the buffer if the file is too short
-	block-buffer over chars + chars/block rot - blank
-	buffer-block !    
+	r@ block-buffer over chars + chars/block rot chars - blank
+	r@ buffer-block !
+	get-block-fid r@ buffer-fid !
     else
 	drop
     then
-    block-buffer ;
+    r> dup last-block ! block-buffer ;
 
 : buffer ( u -- a-addr )
     \ reading in the block is unnecessary, but simpler
@@ -71,11 +115,15 @@ variable buffer-dirty buffer-dirty off
 
 User scr 0 scr !
 
+: updated?  ( n -- f )   scr @ buffer
+    [ 0 buffer-dirty 0 block-buffer - ] Literal + @ ;
+
 : list ( u -- )
     \ calling block again and again looks inefficient but is necessary
     \ in a multitasking environment
     dup scr !
-    ." Screen " u. cr
+    ." Screen " u.
+    updated?  0= IF ." not "  THEN  ." modified     " cr
     16 0
     ?do
 	i 2 .r space scr @ block i 64 * chars + 64 type cr
@@ -102,7 +150,20 @@ User scr 0 scr !
 : +thru ( i*x n1 n2 -- j*x )
   1+ swap 0 ?DO  I +load  LOOP ;
 
+: --> ( -- )  refill drop ; immediate
+
+: block-included ( addr u -- )
+    block-fid @ >r block-fid off use-file
+    1 load block-fid @ close-file throw flush
+    r> block-fid ! ;
+
+: include ( "name" -- )
+    name 2dup dup 3 - /string s" .fb" compare
+    0= IF  block-included  ELSE  included  THEN ;
+
 get-current environment-wordlist set-current
 true constant block
 true constant block-ext
 set-current
+
+: bye  ['] flush catch drop bye ;

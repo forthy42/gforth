@@ -1,4 +1,4 @@
-\ $Id: struct.fs,v 1.4 1995-08-27 19:56:39 pazsan Exp $
+\ $Id: struct.fs,v 1.5 1995-08-29 21:07:39 pazsan Exp $
 
 \ Usage example:
 \
@@ -47,12 +47,11 @@
 : floats: ( n -- size align )
     floats 1 floats ;
 
-\ dfoats and sfloats is not yet defined
-\ : dfloats: ( n -- size align )
-\     dfloats 1 dfloats ;
-\ 
-\ : sfloats: ( n -- size align )
-\     sfloats 1 sfloats ;
+: dfloats: ( n -- size align )
+    dfloats 1 dfloats ;
+
+: sfloats: ( n -- size align )
+    sfloats 1 sfloats ;
 
 : struct-align ( size align -- )
     dp @ swap nalign dp !
@@ -62,5 +61,5 @@
     over swap struct-align
     here swap allot ;
 
-: struct-allocate ( size align -- addr )
+: struct-allocate ( size align -- addr ior )
     drop allocate ;

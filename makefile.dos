@@ -25,11 +25,11 @@ DVI2PS	= dvips
 TEXI2HTML = texi2html
 MAKEINFO = makeinfo
 XCFLAGS	= -fforce-mem -fforce-addr -fomit-frame-pointer
-XDEFINES =  -DSIZEOF_CHAR_P=4 -DHAVE_LIBM=1 -DHAVE_RINT=1 -DHAVE_EXPM1=1 -DHAVE_LOG1P=1 
+XDEFINES = 
 SWITCHES = $(XCFLAGS) $(XDEFINES) #-DNDEBUG #turn off assertions
 ENGINE_FLAGS =  -fno-defer-pop -fcaller-saves
 DEBUGFLAG = 
-CFLAGS	= -pipe -O4 -Wall $(SWITCHES) -DDEFAULTPATH=\"$(datadir)/gforth/$(VERSION):$(libdir)/gforth/$(VERSION):.\"
+CFLAGS	= -O4 -Wall $(SWITCHES) -DDEFAULTPATH=\".\"
 
 #John Wavrik should use -Xlinker -N to get a writable text (executable)
 XLDFLAGS = 
@@ -81,7 +81,7 @@ RCS_FILES =  ToDo model high-level
 
 GEN = gforth
 
-OBJECTS	= engine.o io.o main.o ecvt.o select.o getopt.o getopt1.o
+OBJECTS	= engine.o main.o ecvt.o select.o getopt.o getopt1.o
 
 # things that need a working forth system to be generated
 FORTH_GEN0 = primitives.b primitives.i prim_labels.i aliases.fs
