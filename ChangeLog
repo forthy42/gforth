@@ -1,0 +1,4 @@
+If someone gave us a tool for converting CVS log messages into ChangeLog
+format, you would see something here. Currently this file is only present
+to make automake happy.
+

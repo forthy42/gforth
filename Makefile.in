@@ -68,7 +68,7 @@ FORTHK	= ./gforth $(FORTHKFLAGS)
 FORTHP	= ./gforth --die-on-signal -i ./$(kernel_fi)
 STRIP	= strip
 TEXI2DVI = texi2dvi
-DVI2PS	= dvips -D300
+DVI2PS	= dvips -Z
 #you can get texi2html from http://wwwcn.cern.ch/dci/texi2html/
 TEXI2HTML = texi2html
 MAKEINFO = makeinfo
@@ -651,6 +651,9 @@ html:		$(GFORTH_TEXI)
 		-$(RM) html/*
 		-mkdir html
 		cd html; $(TEXI2HTML) -menu -split_node ../doc/gforth.texi
+
+doc/gforth.txt:	$(GFORTH_TEXI)
+		-cd doc; $(MAKEINFO) --no-headers --no-split gforth.texi >gforth.txt
 
 doc:		doc/gforth.ps html
 

@@ -49,7 +49,7 @@ Variable libs 0 libs !
     \G    OS name of symbol as counted string
     here 2dup swap 2 cells + dup @ A, !
     2swap  1 and  IF  fcall-table  ELSE  icall-table  THEN  swap
-    cells 2* + , 0 , bl parse-word string, @proc ;
+    cells 2* + , 0 , bl sword string, @proc ;
 
 -1 Constant (addr)
  0 Constant (int)
@@ -99,7 +99,7 @@ DOES> ( -- addr )
     \G    linked list of library's procs
     \G    OS name of library as counted string
     Create  here libs @ A, dup libs !
-    0 , 0 A, bl parse-word string, @lib
+    0 , 0 A, bl sword string, @lib
 DOES> ( pars/ type -- )
     over -1 = IF  label:
     ELSE

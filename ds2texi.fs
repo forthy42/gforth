@@ -96,8 +96,8 @@ create description-buffer 4096 chars allot
     create
 	last @ name>string skip-prefix 2,		\ name
 	[char] ) parse save-mem 2,	\ stack-effect
-	bl parse-word condition-wordset 2,	\ wordset
-	bl parse-word dup	\ pronounciation
+	bl sword condition-wordset 2,	\ wordset
+	bl sword dup	\ pronounciation
 	if
 	    condition-pronounciation
 	else

@@ -25,13 +25,17 @@ Defer source ( -- addr count ) \ core
 
 \ word parse                                           23feb93py
 
-: parse-word  ( char -- addr len ) \ gforth
+: sword  ( char -- addr len ) \ gforth
+  \G parses like @code{word}, but the output is like @code{parse} output
+  \ this word was called PARSE-WORD until 0.3.0, but Open Firmware and
+  \ dpANS6 A.6.2.2008 have a word with that name that behaves
+  \ differently (like NAME).
   source 2dup >r >r >in @ over min /string
   rot dup bl = IF  drop (parse-white)  ELSE  (word)  THEN
   2dup + r> - 1+ r> min >in ! ;
 
 : word   ( char -- addr ) \ core
-  parse-word here place  bl here count + c!  here ;
+  sword here place  bl here count + c!  here ;
 
 : parse    ( char -- addr len ) \ core-ext
   >r  source  >in @ over min /string  over  swap r>  scan >r
