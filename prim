@@ -139,13 +139,13 @@
 \ Stack caching setup
 
 \E register IPTOS Cell
-\E register spTOS Cell
-\E register sp1 Cell
-\E register sp2 Cell
-\E register sp3 Cell
+\E register spa Cell
+\E register spb Cell
+\E register spc Cell
+\E register spd Cell
 
 \E create IPregs IPTOS ,
-\E create regs sp2 , sp1 , spTOS ,
+\E create regs spc , spb , spa ,
 
 \E IPregs 1 0 stack-state IPss1
 \E regs 3 cells + 0 0 stack-state ss0

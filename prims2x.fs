@@ -887,6 +887,17 @@ stack inst-stream IP Cell
     endif
     2drop ;
 
+
+defer output-nextp0
+:noname ( -- )
+    ." NEXT_P0;" cr ;
+is output-nextp0
+
+defer output-nextp1
+:noname ( -- )
+    ." NEXT_P1;" cr ;
+is output-nextp1
+
 : output-nextp2 ( -- )
     ." NEXT_P2;" cr ;
 
@@ -901,7 +912,7 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
     \ the final part of the generated C code, with xt printing LABEL2 or not.
     output-super-end
     print-debug-results
-    ." NEXT_P1;" cr
+    output-nextp1
     stores
     fill-state 
     xt execute ;
@@ -909,7 +920,7 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
 : output-c-tail1-no-stores { xt -- }
     \ the final part of the generated C code for combinations
     output-super-end
-    ." NEXT_P1;" cr
+    output-nextp1
     fill-state 
     xt execute ;
 
@@ -952,7 +963,7 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
     ." {" cr
     ." DEF_CA" cr
     print-declarations
-    ." NEXT_P0;" cr
+    output-nextp0
     spill-state
     fetches
     print-debug-args
@@ -1454,7 +1465,7 @@ variable reprocessed-num 0 reprocessed-num !
     ." {" cr
     ." DEF_CA" cr
     print-declarations-combined
-    ." NEXT_P0;" cr
+    output-nextp0
     spill-state
     \ fetches \ now in parts
     \ print-debug-args

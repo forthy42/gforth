@@ -26,3 +26,190 @@ super24 = dup ?branch
 super25 = @ ;s
 super26 = lit @ +
 super27 = dup @
+
+\F 0 [if]
+
+\ \E prim-states ;s                   \ 2950159
+\E prim-states lit                  \ 2802835
+\ \E prim-states call                 \ 2558373
+\E prim-states @                    \ 2244351
+\E branch-states ?branch              \ 1134432
+\E prim-states lit@                 \ 1051813
+\E prim-states swap                 \ 737988
+\E S0 S2 state-prim swap
+\E S1 S2 state-prim swap
+\E S2 S3 state-prim swap
+\E S3 S2 state-prim swap
+\E prim-states c@                   \ 651406
+\E prim-states =                    \ 590006
+\E prim-states 0=                   \ 584487
+\E prim-states dup                  \ 566855
+\E S0 S1 state-prim dup
+\E prim-states +                    \ 566003
+\E prim-states i                    \ 502908
+\E prim-states +!                   \ 448925
+\ \E prim-states branch               \ 409561
+\ \E prim-states (loop)               \ 379646
+\ \E prim-states lp!                  \ 326743
+\E prim-states and                  \ 309427
+\E prim-states useraddr             \ 303254
+\E prim-states over                 \ 283556
+\E S0 S1 state-prim over
+\E S1 S2 state-prim over
+\E S2 S1 state-prim over
+\E S3 S2 state-prim over
+\E prim-states negate               \ 257417
+\E prim-states cells                \ 254644
+\E prim-states rot                  \ 220273
+\E S3 S1 state-prim rot
+\E S2 S3 state-prim rot
+\E S1 S3 state-prim rot
+\E S0 S3 state-prim rot
+\E prim-states !                    \ 218672
+\E prim-states 2dup                 \ 211315
+\E S0 S2 state-prim 2dup
+\E S1 S3 state-prim 2dup
+\E S2 S2 state-prim 2dup
+\E S3 S1 state-prim 2dup
+\ \E branch-states lit-perform          \ 188331
+\E prim-states <>                   \ 179502
+\E prim-states c!                   \ 179332
+\E prim-states lit+                 \ 179156
+\E prim-states drop                 \ 173995
+\E S0 S0 state-prim drop
+\E prim-states lshift               \ 164671
+\E prim-states /mod                 \ 164670
+\E prim-states >r                   \ 145247
+\E prim-states r>                   \ 133792
+\ \E branch-states does-exec            \ 120944
+\E prim-states cell+                \ 116183
+\E prim-states lp+!#                \ 106697 \ --
+\E prim-states -                    \ 106245
+\E prim-states unloop               \ 98938 \ --
+\E prim-states lp+                  \ 87190 \ --
+\E prim-states >=                   \ 80994
+\E prim-states tuck                 \ 78696
+\E S2 S2 state-prim tuck
+\E prim-states /string              \ 78595
+\E prim-states char+                \ 77542
+\ \E prim-states ?dup                 \ 76850
+\E prim-states @local0              \ 75322
+\E prim-states min                  \ 75264
+\ \E prim-states compare              \ 65603
+\E branch-states (u+do)               \ 63823
+\ \E prim-states (read-line)          \ 63823
+\E prim-states 2>r                  \ 62646
+\E prim-states 2r>                  \ 62644
+\E prim-states 2r@                  \ 61338
+\E prim-states 2@                   \ 61067
+\E prim-states nip                  \ 54961
+\E S1 S1 state-prim nip
+\E S0 S1 state-prim nip
+\E prim-states within               \ 51075
+\E prim-states 1-                   \ 47441
+\E branch-states execute              \ 46674
+\E prim-states lp-                  \ 45385
+\E branch-states perform              \ 38756
+\E prim-states xor                  \ 35599
+\E prim-states @local#              \ 34586
+\ \E prim-states pick                 \ 32015
+\E prim-states u>                   \ 29373
+\E prim-states -rot                 \ 26211
+\E S3 S2 state-prim -rot
+\E S1 S3 state-prim -rot
+\E prim-states 2drop                \ 25418
+\E S0 S0 state-prim 2drop
+\E S1 S0 state-prim 2drop
+\ \E prim-states (tablelfind)         \ 22243
+\E prim-states or                   \ 21587
+\E prim-states @local2              \ 20859
+\E branch-states (+loop)              \ 20006
+\E prim-states 1+                   \ 17944
+\E prim-states rdrop                \ 17902
+\E branch-states (?do)                \ 17348
+\E prim-states max                  \ 16948
+\E prim-states 2*                   \ 15606
+\ \E prim-states filename-match       \ 15003
+\ \E prim-states (listlfind)          \ 13074
+\ \E prim-states sp@                  \ 12741
+\ \E prim-states fp@                  \ 12384
+\ \E prim-states um/mod               \ 12288
+\E prim-states 2!                   \ 11904
+\ \E prim-states fill                 \ 10781
+\ \E prim-states (parse-white)        \ 10624
+\E branch-states (do)                 \ 10516
+\ \E prim-states (hashkey1)           \ 10239
+\E prim-states u<                   \ 9602
+\ \E prim-states write-file           \ 8973
+\E prim-states count                \ 8873
+\ \E prim-states rp@                  \ 8410
+\E prim-states 0<                   \ 8380
+\E prim-states <                    \ 7741
+\E prim-states @local1              \ 7458
+\ \E prim-states move                 \ 7050
+\E prim-states u>=                  \ 6138
+\E branch-states (+do)                \ 5863
+\ \E prim-states va-return-double     \ 5517
+\E prim-states um*                  \ 5342
+\E prim-states toupper              \ 3517
+\ \E prim-states f@local1             \ 2907
+\ \E prim-states rp!                  \ 2859
+\ \E prim-states ?dup-?branch         \ 2829
+\E prim-states d+                   \ 2671
+\ \E prim-states ftuck                \ 2636
+\ \E prim-states read-file            \ 2623
+\ \E prim-states ms                   \ 2454
+\ \E prim-states (s+loop)             \ 2429
+\ \E prim-states allocate             \ 1869
+\E prim-states *                    \ 1520
+\E prim-states 0<>                  \ 925
+\ \E prim-states noop                 \ 715
+\E prim-states aligned              \ 714
+\E prim-states u<=                  \ 684
+\E prim-states i'                   \ 684
+\E prim-states >                    \ 411
+\ \E prim-states (hashlfind)          \ 397
+\E prim-states 2swap                \ 336
+\E S0 S3 state-prim 2swap
+\E S1 S3 state-prim 2swap
+\E prim-states laddr#               \ 335
+\ \E prim-states faxpy                \ 286
+\ \E prim-states (next)               \ 272
+\ \E prim-states (-loop)-lp+!#        \ 248
+\E prim-states <=                   \ 199
+\E prim-states invert               \ 170
+\E branch-states (-do)                \ 169
+\E prim-states 2over                \ 165
+\E S0 S2 state-prim 2over
+\E S1 S3 state-prim 2over
+\E prim-states under+               \ 154
+\E prim-states dnegate              \ 128
+\E prim-states u<>                  \ 128
+\E prim-states 0>                   \ 122
+\ \E prim-states (loop)-lp+!#         \ 118
+\E prim-states j                    \ 117
+\E prim-states float+               \ 78
+\ \E prim-states (for)                \ 68
+\E prim-states 2rdrop               \ 60 \ --
+\ \E prim-states f!                   \ 14
+\E prim-states >l                   \ 14
+\ \E prim-states close-file           \ 5
+\ \E prim-states call-c               \ 4
+\ \E prim-states reposition-file      \ 3
+\E prim-states /                    \ 3
+\ \E prim-states resize-file          \ 2
+\ \E prim-states free                 \ 2
+\E prim-states 2/                   \ 2
+\ \E prim-states up!                  \ 1
+\ \E prim-states stdin                \ 1
+\ \E prim-states key?-file            \ 1
+\ \E prim-states flush-icache         \ 1
+\ \E prim-states cmove                \ 1
+\ \E prim-states (system)             \ 1
+
+\E ' noop is output-nextp0
+\E ' noop is output-nextp1
+
+\E gen-transitions noop
+
+\F [ENDIF]

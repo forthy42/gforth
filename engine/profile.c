@@ -128,7 +128,7 @@ void postprocess(void)
    }
 }
 
-#if 0
+#if 1
 /* full basic blocks only */
 void print_block(FILE *file, block_count *b)
 {
@@ -158,7 +158,7 @@ void print_block(FILE *file, block_count *b)
 {
   size_t i,j,k;
 
-  for (i=2; i<12; i++)
+  for (i=1; i<2; i++)
     for (j=0; i+j<=b->ninsts; j++) {
       fprintf(file,"%14lld\t",b->count);
       for (k=j; k<i+j; k++)

@@ -156,6 +156,12 @@ extern int gforth_memcmp(const char * s1, const char * s2, size_t n);
 #ifndef TOSREG
 #define TOSREG
 #endif
+#ifndef spaREG
+#define spaREG
+#endif
+#ifndef spbREG
+#define spbREG
+#endif
 #ifndef FTOSREG
 #define FTOSREG
 #endif
@@ -267,7 +273,9 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
   void * prv;
 #endif
   register Address up UPREG = UP;
-  IF_spTOS(register Cell spTOS TOSREG;)
+  register Cell MAYBE_UNUSED spa TOSREG;
+  register Cell MAYBE_UNUSED spb spaREG;
+  register Cell MAYBE_UNUSED spc spbREG;
   IF_fpTOS(register Float fpTOS FTOSREG;)
 #if defined(DOUBLY_INDIRECT)
   static Label *symbols;
