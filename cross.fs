@@ -58,7 +58,7 @@ Warnings off
 	\ we have to set current to be topmost context wordlist
 	get-order get-order get-current swap 1+ set-order
 	r> ['] to execute
-	set-order order
+	set-order
   ELSE Value THEN ;
 
 : DefaultValue ( n -- <name> )
@@ -118,8 +118,9 @@ also forth definitions  \ these values may be predefined before
 false DefaultValue stack-warn   	 \ check on empty stack at any definition
 false DefaultValue create-forward-warn   \ warn on forward declaration of created words
 
-[IFUNDEF] DebugMaskSrouce Variable DebugMaskSource 0 DebugMaskSource ! [THEN]
-[IFUNDEF] DebugMaskCross  Variable DebugMaskCross  0 DebugMaskCross  ! [THEN]
+
+
+  
 
 previous >CROSS
 
@@ -143,7 +144,46 @@ stack-warn [IF]
 : defempty? ; immediate
 [THEN]
 
+\ debugging
 
+0 [IF]
+
+This implements debugflags for the cross compiler and the compiled
+images. It works identical to the has-flags in the environment.
+The debugflags are defined in a vocabluary. If the word exists and
+its value is true, the flag is switched on.
+
+[THEN]
+
+Vocabulary debugflags	\ debug flags for cross
+also debugflags get-order over
+Constant debugflags-wl
+set-order previous
+
+: DebugFlag
+  get-current >r debugflags-wl set-current
+  SetValue
+  r> set-current ;
+
+: Debug? ( adr u -- flag )
+\G return true if debug flag is defined or switched on
+  debugflags-wl search-wordlist
+  IF EXECUTE
+  ELSE false THEN ;
+
+: D? ( <name> -- flag )
+\G return true if debug flag is defined or switched on
+\G while compiling we do not return the current value but
+  bl word count debug? ;
+
+: [d?]
+\G compile the value-xt so the debug flag can be switched
+\G the flag must exist!
+  bl word count debugflags-wl search-wordlist
+  IF 	compile,
+  ELSE  -1 ABORT" unknown debug flag"
+	\ POSTPONE false 
+  THEN ; immediate
 
 \ \ GhostNames Ghosts                                  9may93jaw
 
@@ -748,7 +788,7 @@ T has? relocate H
 \ \ Load Assembler
 
 >TARGET
-H also Forth definitions \ ." asm: " order
+H also Forth definitions
 
 : X 	also target bl word find
 	IF	state @ IF compile,
@@ -866,8 +906,11 @@ Create NoFile ," #load-file#"
 	REPEAT
 	2drop drop false ;	
 
+false DebugFlag showincludedfiles
+
 : included 
-\	cr ." Including: " 2dup type ." ..."
+	[d?] showincludedfiles
+	IF	cr ." Including: " 2dup type ." ..." THEN
 	FileMem >r
 	2dup add-included-file included 
 	r> to FileMem ;
@@ -2020,8 +2063,10 @@ Cond: [IFUNDEF] postpone [IFUNDEF] ;Cond
 
 also minimal
 
-\G doesn't skip line when bit is set in debugmask
-: \D name evaluate debugmasksource @ and 0= IF postpone \ THEN ;
+: d? d? ;
+
+\G doesn't skip line when debug switch is on
+: \D D? 0= IF postpone \ THEN ;
 
 \G interprets the line if word is not defined
 : \- defined? IF postpone \ THEN ;
@@ -2191,7 +2236,7 @@ minimal
 \ these ones are pefered:
 
 : lock   turnkey ;
-: unlock forth also cross ;
+: unlock previous forth also cross ;
 
 : [[ also unlock ;
 : ]] previous previous ;
