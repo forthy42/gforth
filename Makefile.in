@@ -57,7 +57,8 @@ CP	= cp -p
 MV	= mv
 TAR	= tar cf -
 INSTALL	= @INSTALL@
-INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@ -s
+INSTALL_SCRIPT = @INSTALL_PROGRAM@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_INFO = @INSTALL_INFO@
 LN_S	= @LN_S@
@@ -531,14 +532,14 @@ install:	gforth$(EXE) $(FORTH_SRC) $(kernel_fi) gforth.fi gforthmi vmgen doc/gfo
 		-$(RM) $(bindir)/gforth$(EXE) $(bindir)/gforth-$(VERSION)$(EXE) $(bindir)/gforthmi $(bindir)/vmgen
 		-$(RM) $(bindir)/gforth-fast$(EXE) $(bindir)/gforth-fast-$(VERSION)$(EXE)
 		-$(RM) $(bindir)/gforth-itc$(EXE) $(bindir)/gforth-itc-$(VERSION)$(EXE)
-		$(INSTALL_PROGRAM) -s gforth$(EXE) $(bindir)/gforth-$(VERSION)$(EXE)
+		$(INSTALL_PROGRAM) gforth$(EXE) $(bindir)/gforth-$(VERSION)$(EXE)
 		(cd $(bindir) && $(LN_S) gforth-$(VERSION)$(EXE) gforth$(EXE))
-		$(INSTALL_PROGRAM) -s gforth-fast$(EXE) $(bindir)/gforth-fast-$(VERSION)$(EXE)
+		$(INSTALL_PROGRAM) gforth-fast$(EXE) $(bindir)/gforth-fast-$(VERSION)$(EXE)
 		(cd $(bindir) && $(LN_S) gforth-fast-$(VERSION)$(EXE) gforth-fast$(EXE))
-		$(INSTALL_PROGRAM) -s gforth-itc$(EXE) $(bindir)/gforth-itc-$(VERSION)$(EXE)
+		$(INSTALL_PROGRAM) gforth-itc$(EXE) $(bindir)/gforth-itc-$(VERSION)$(EXE)
 		(cd $(bindir) && $(LN_S) gforth-itc-$(VERSION)$(EXE) gforth-itc$(EXE))
-		$(INSTALL_PROGRAM) gforthmi $(bindir)/gforthmi-$(VERSION)
-		$(INSTALL_PROGRAM) vmgen $(bindir)/vmgen-$(VERSION)
+		$(INSTALL_SCRIPT) gforthmi $(bindir)/gforthmi-$(VERSION)
+		$(INSTALL_SCRIPT) vmgen $(bindir)/vmgen-$(VERSION)
 		$(INSTALL_PROGRAM) gforth-ditc $(libdir)/gforth/$(VERSION)
 		(cd $(bindir) && $(LN_S) gforthmi-$(VERSION) gforthmi)
 		(cd $(bindir) && $(LN_S) vmgen-$(VERSION) vmgen)
