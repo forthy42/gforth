@@ -1328,25 +1328,27 @@ print-token !
  getinput member? ;
 ' testchar? test-vector !
 
-: checksyncline ( -- )
+: checksynclines ( -- )
     \ when input points to a newline, check if the next line is a
     \ sync line.  If it is, perform the appropriate actions.
-    rawinput @ >r
-    s" #line " r@ over compare if
-	rdrop 1 line +! EXIT
-    endif
-    0. r> 6 chars + 20 >number drop >r drop line ! r> ( c-addr )
-    dup c@ bl = if
-	char+ dup c@ [char] " <> 0= s" sync line syntax" ?print-error
-	char+ dup 100 [char] " scan drop swap 2dup - save-mem filename 2!
-	char+
-    endif
-    dup c@ nl-char <> 0= s" sync line syntax" ?print-error
-    skipsynclines @ if
-	dup char+ rawinput !
-	rawinput @ c@ cookedinput @ c!
-    endif
-    drop ;
+    begin
+	rawinput @ >r
+	s" #line " r@ over compare if
+	    rdrop 1 line +! EXIT
+	endif
+	0. r> 6 chars + 20 >number drop >r drop line ! r> ( c-addr )
+	dup c@ bl = if
+	    char+ dup c@ [char] " <> 0= s" sync line syntax" ?print-error
+	    char+ dup 100 [char] " scan drop swap 2dup - save-mem filename 2!
+	    char+
+	endif
+	dup c@ nl-char <> 0= s" sync line syntax" ?print-error
+	skipsynclines @ if
+	    dup char+ rawinput !
+	    rawinput @ c@ cookedinput @ c!
+	endif
+	drop
+    again ;
 
 : ?nextchar ( f -- )
     s" syntax error, wrong char" ?print-error
@@ -1355,10 +1357,11 @@ print-token !
 	1 chars rawinput +!
 	1 chars cookedinput +!
 	nl-char = if
-	    checksyncline
+	    checksynclines
 	    rawinput @ line-start !
 	endif
-	rawinput @ c@ cookedinput @ c!
+	rawinput @ c@
+	cookedinput @ c!
     endif ;
 
 : charclass ( set "name" -- )
@@ -1503,13 +1506,24 @@ warnings @ [IF]
     \ process the string at addr u
     over dup rawinput ! dup line-start ! cookedinput !
     + endrawinput !
-    checksyncline
+    checksynclines
     primitives2something ;    
+
+: unixify ( c-addr u1 -- c-addr u2 )
+    \ delete crs from the string
+    bounds tuck tuck ?do ( c-addr1 )
+	i c@ dup #cr <> if
+	    over c! char+
+	else
+	    drop
+	endif
+    loop
+    over - ;
 
 : process-file ( addr u xt-simple x-combined -- )
     output-combined ! output !
     save-mem 2dup filename 2!
-    slurp-file
+    slurp-file unixify
     warnings @ if
 	." ------------ CUT HERE -------------" cr  endif
     primfilter ;

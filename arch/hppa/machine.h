@@ -28,7 +28,7 @@
 #endif
 
 /* cache flush stuff */
-extern void cacheflush(void *, int, int);
+extern void cacheflush(void *, Cell, Cell);
 #ifdef DEBUG
 #  define FLUSH_ICACHE(addr,size) \
 ({ \
@@ -38,13 +38,13 @@ extern void cacheflush(void *, int, int);
    fprintf(stderr,"Cache flushed\n");  })
 #else
 #  define FLUSH_ICACHE(addr,size) \
-     cacheflush((void *)(addr), (int)(size), 32)
+     cacheflush((void *)(addr), (Cell)(size), 32)
 #endif
 
 #include "../generic/machine.h"
 
-#undef HAVE_LOG1P
-#undef HAVE_RINT
+/* #undef HAVE_LOG1P */
+/* #undef HAVE_RINT */
 
 #ifdef FORCE_REG
 #define IPREG asm("%r10")

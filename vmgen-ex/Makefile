@@ -61,7 +61,7 @@ clean:
 	rm -f *.o mini mini-*.i lex.yy.c mini.tab.c mini.vmg xxx-bench
 
 check:  mini
-	./mini test.mini|diff - test.out
+	./mini test.mini | tr -d '\015' | diff - test.out
 
 checkall:
 	for i in 1 3 5 8 9 10; do make clean; echo $i; make check VMGEN=../vmgen GCC="gcc -O3 -fomit-frame-pointer -Wall -DTHREADING_SCHEME=$i"; echo $i >>xxx-bench; time mini fib.mini 2>>xxx-bench; done; cat xxx-bench

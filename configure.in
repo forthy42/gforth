@@ -120,7 +120,7 @@ case "$host_cpu" in
 		machine=hppa
 		$srcdir/mkinstalldirs arch/hppa
 		AC_LIBOBJ(../arch/hppa/cache)
-		LDFLAGS="$LDFLAGS -Xlinker -N"
+		#LDFLAGS="$LDFLAGS -Xlinker -N"
 		LIBS="$LIBS -L/lib/pa1.1/"
 		;;
 	sparc*)

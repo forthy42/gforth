@@ -123,7 +123,7 @@ Address code_area=0;
 Cell code_area_size = CODE_BLOCK_SIZE;
 Address code_here=NULL+CODE_BLOCK_SIZE; /* does for code-area what HERE
 					   does for the dictionary */
-Address start_flush=NULL+CODE_BLOCK_SIZE; /* start of unflushed code */
+Address start_flush=NULL; /* start of unflushed code */
 Cell last_jump=0; /* if the last prim was compiled without jump, this
                      is it's number, otherwise this contains 0 */
 
@@ -651,7 +651,8 @@ void check_prims(Label symbols1[])
 void flush_to_here(void)
 {
 #ifndef NO_DYNAMIC
-  FLUSH_ICACHE(start_flush, code_here-start_flush);
+  if (start_flush)
+    FLUSH_ICACHE(start_flush, code_here-start_flush);
   start_flush=code_here;
 #endif
 }
