@@ -488,7 +488,11 @@ the first string is smaller, @i{n} is -1; if the first string is larger, @i{n}
 is 1. Currently this is based on the machine's character
 comparison. In the future, this may change to consider the current
 locale and its collation order.""
+#ifdef MEMCMP_AS_SUBROUTINE
+n = gforth_memcmp(c_addr1, c_addr2, u1<u2 ? u1 : u2);
+#else
 n = memcmp(c_addr1, c_addr2, u1<u2 ? u1 : u2);
+#endif
 if (n==0)
   n = u1-u2;
 if (n<0)
@@ -505,7 +509,11 @@ else if (n>0)
  THEN ;
 
 -text		c_addr1 u c_addr2 -- n	new	dash_text
+#ifdef MEMCMP_AS_SUBROUTINE
+n = gforth_memcmp(c_addr1, c_addr2, u);
+#else
 n = memcmp(c_addr1, c_addr2, u);
+#endif
 if (n<0)
   n = -1;
 else if (n>0)
@@ -1266,7 +1274,11 @@ while(a_addr != NULL)
    f83name1=(struct F83Name *)(a_addr[1]);
    a_addr=(Cell *)(a_addr[0]);
    if ((UCell)F83NAME_COUNT(f83name1)==u &&
+#ifdef MEMCMP_AS_SUBROUTINE
+       gforth_memcmp(c_addr, f83name1->name, u)== 0 /* or inline? */)
+#else
        memcmp(c_addr, f83name1->name, u)== 0 /* or inline? */)
+#endif
      {
 	f83name2=f83name1;
 	break;

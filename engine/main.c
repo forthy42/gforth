@@ -78,8 +78,17 @@ char *progname;
 char *progname = "gforth";
 int optind = 1;
 #endif
+#ifdef HAS_DEBUG
 static int debug=0;
+#endif
 ImageHeader *gforth_header;
+
+#ifdef MEMCMP_AS_SUBROUTINE
+int gforth_memcmp(const char * s1, const char * s2, size_t n)
+{
+  return memcmp(s1, s2, n);
+}
+#endif
 
 /* image file format:
  *  "#! binary-path -i\n" (e.g., "#! /usr/local/bin/gforth-0.4.0 -i\n")
@@ -179,12 +188,16 @@ Address verbose_malloc(Cell size)
   Address r;
   /* leave a little room (64B) for stack underflows */
   if ((r = malloc(size+64))==NULL) {
+#ifdef HAS_DEBUG
     perror(progname);
+#endif
     exit(1);
   }
   r = (Address)((((Cell)r)+(sizeof(Float)-1))&(-sizeof(Float)));
+#ifdef HAS_DEBUG
   if (debug)
     fprintf(stderr, "malloc succeeds, address=$%lx\n", (long)r);
+#endif
   return r;
 }
 
@@ -195,8 +208,10 @@ Address my_alloc(Cell size)
   Address r;
 
 #if defined(MAP_ANON)
+#ifdef HAS_DEBUG
   if (debug)
     fprintf(stderr,"try mmap($%lx, $%lx, ..., MAP_ANON, ...); ", (long)next_address, (long)size);
+#endif
   r=mmap(next_address, size, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE, -1, 0);
 #else /* !defined(MAP_ANON) */
   /* Ultrix (at least) does not define MAP_FILE and MAP_PRIVATE (both are
@@ -213,25 +228,33 @@ Address my_alloc(Cell size)
     dev_zero = open("/dev/zero", O_RDONLY);
   if (dev_zero == -1) {
     r = (Address)-1;
+#ifdef HAS_DEBUG
     if (debug)
       fprintf(stderr, "open(\"/dev/zero\"...) failed (%s), no mmap; ", 
 	      strerror(errno));
+#endif
   } else {
+#ifdef HAS_DEBUG
     if (debug)
       fprintf(stderr,"try mmap($%lx, $%lx, ..., MAP_FILE, dev_zero, ...); ", (long)next_address, (long)size);
+#endif
     r=mmap(next_address, size, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_FILE|MAP_PRIVATE, dev_zero, 0);
   }
 #endif /* !defined(MAP_ANON) */
 
   if (r != (Address)-1) {
+#ifdef HAS_DEBUG
     if (debug)
       fprintf(stderr, "success, address=$%lx\n", (long) r);
+#endif
     if (pagesize != 1)
       next_address = (Address)(((((Cell)r)+size-1)&-pagesize)+2*pagesize); /* leave one page unmapped */
     return r;
   }
+#ifdef HAS_DEBUG
   if (debug)
     fprintf(stderr, "failed: %s\n", strerror(errno));
+#endif
 #endif /* HAVE_MMAP */
   /* use malloc as fallback */
   return verbose_malloc(size);
@@ -297,9 +320,9 @@ int go_forth(Address image, int stack, Cell *entries)
   for(;stack>0;stack--)
     *--sp0=entries[stack-1];
 
+#ifdef SYSSIGNALS
   get_winsize();
    
-#ifdef SYSSIGNALS
   install_signal_handlers(); /* right place? */
   
   if ((throw_code=setjmp(throw_jmp_buf))) {
@@ -329,6 +352,7 @@ int go_forth(Address image, int stack, Cell *entries)
 }
 
 
+#ifndef INCLUDE_IMAGE
 void print_sizes(Cell sizebyte)
      /* print size information */
 {
@@ -341,7 +365,6 @@ void print_sizes(Cell sizebyte)
 	  1 << ((sizebyte >> 5) & 3));
 }
 
-#ifndef INCLUDE_IMAGE
 Address loader(FILE *imagefile, char* filename)
 /* returns the address of the image proper (after the preamble) */
 {
@@ -386,11 +409,13 @@ Address loader(FILE *imagefile, char* filename)
     preamblesize+=8;
   } while(memcmp(magic,"Gforth2",7));
   magic7 = magic[7];
+#ifdef HAS_DEBUG
   if (debug) {
     magic[7]='\0';
     fprintf(stderr,"Magic found: %s ", magic);
     print_sizes(magic7);
   }
+#endif
 
   if (magic7 != sizebyte)
     {
@@ -412,8 +437,10 @@ Address loader(FILE *imagefile, char* filename)
 #elif PAGESIZE
   pagesize=PAGESIZE; /* in limits.h according to Gallmeister's POSIX.4 book */
 #endif
+#ifdef HAS_DEBUG
   if (debug)
     fprintf(stderr,"pagesize=%ld\n",(unsigned long) pagesize);
+#endif
 
   image = dict_alloc(preamblesize+dictsize+data_offset)+data_offset;
   rewind(imagefile);  /* fseek(imagefile,0L,SEEK_SET); */
@@ -475,8 +502,10 @@ FILE *openimage(char *fullfilename)
   char * expfilename = tilde_cstr(fullfilename, strlen(fullfilename), 1);
 
   image_file=fopen(expfilename,"rb");
+#ifdef HAS_DEBUG
   if (image_file!=NULL && debug)
     fprintf(stderr, "Opened image file: %s\n", expfilename);
+#endif
   return image_file;
 }
 
@@ -637,7 +666,11 @@ extern const char reloc_bits[];
 
 int main(int argc, char **argv, char **env)
 {
+#ifdef HAS_OS
   char *path = getenv("GFORTHPATH") ? : DEFAULTPATH;
+#else
+  char *path = DEFAULTPATH;
+#endif
 #ifndef INCLUDE_IMAGE
   char *imagename="gforth.fi";
   FILE *image_file;

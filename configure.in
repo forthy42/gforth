@@ -193,6 +193,9 @@ case "$host_cpu" in
 	i586)
 		machine=386
 		CFLAGS="$CFLAGS -fomit-frame-pointer -fforce-addr -fforce-mem"
+		CFLAGS_1="$CFLAGS"
+		CFLAGS="$CFLAGS -mpentium"
+		AC_TRY_COMPILE(,,,CFLAGS="$CFLAGS_1 -m486")
 		if test "${enable_direct_threaded+set}" = "" \
 			-a "${enable_indirect_threaded+set}" = ""
 		then
@@ -203,6 +206,9 @@ case "$host_cpu" in
 	i686)
 		machine=386
 		CFLAGS="$CFLAGS -fomit-frame-pointer -fforce-addr -fforce-mem"
+		CFLAGS_1="$CFLAGS"
+		CFLAGS="$CFLAGS -mpentiumpro"
+		AC_TRY_COMPILE(,,,CFLAGS="$CFLAGS_1 -m486")
 		if test "${enable_direct_threaded+set}" = "" \
 			-a "${enable_indirect_threaded+set}" = ""
 		then

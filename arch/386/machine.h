@@ -30,6 +30,11 @@
 #define THREADING_SCHEME 8
 #endif
 
+#if !defined(USE_TOS) && !defined(USE_NO_TOS)
+#define USE_TOS
+#define MEMCMP_AS_SUBROUTINE 1
+#endif
+
 #include "../generic/machine.h"
 
 /* indirect threading is faster on the Pentium, on the 486 direct
@@ -104,7 +109,14 @@
 /* this works with 2.6.3 (and quite well, too) */
 /* since this is not very demanding, it's the default for other gcc versions */
 #if defined(USE_TOS) && !defined(CFA_NEXT)
+#if ((__GNUC__==2 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=95) || (__GNUC__>2))
+     /* gcc 2.95 has a better register allocater */
+#define SPREG asm("%esi")
+#define RPREG asm("%edi")
+#define TOSREG asm("%ebx")
+#else
 #define IPREG asm("%ebx")
+#endif
 #else
 #define SPREG asm("%ebx")
 #endif /* USE_TOS && !CFA_NEXT */

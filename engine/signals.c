@@ -319,11 +319,11 @@ void install_signal_handlers(void)
 #endif
   };
   static short sigs_to_quit [] = {
-#ifdef SIGHUP
-    SIGHUP,
-#endif
 #ifdef SIGQUIT
     SIGQUIT,
+#endif
+#ifdef SIGHUP
+    SIGHUP,
 #endif
 #ifdef SIGABRT
     SIGABRT,

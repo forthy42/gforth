@@ -80,6 +80,10 @@ int emitcounter;
 #endif
 #define NULLC '\0'
 
+#ifdef MEMCMP_AS_SUBROUTINE
+extern int gforth_memcmp(const char * s1, const char * s2, size_t n);
+#endif
+
 #ifdef HAS_FILE
 char *cstr(Char *from, UCell size, int clear)
 /* return a C-string corresponding to the Forth string ( FROM SIZE ).
