@@ -107,12 +107,16 @@ defer header ( -- ) \ gforth
     \G puts down string as cstring
     dup c, here swap chars dup allot move ;
 
+: longstring, ( c-addr u -- ) \ gforth
+    \G puts down string as cstring
+    dup , here swap chars dup allot move ;
+
 : header, ( c-addr u -- ) \ gforth
     name-too-long?
     align here last !
     current @ 1 or A,	\ link field; before revealing, it contains the
 			\ tagged reveal-into wordlist
-    string, cfalign
+    longstring, cfalign
     alias-mask lastflags cset ;
 
 : input-stream-header ( "name" -- )
@@ -136,6 +140,7 @@ create nextname-buffer 32 chars allot
 : nextname ( c-addr u -- ) \ gforth
     \g The next defined word will have the name @var{c-addr u}; the
     \g defining word will leave the input stream alone.
+    dup 31 u> -&19 and throw \ !! make buffer variable-sized
     name-too-long?
     nextname-buffer c! ( c-addr )
     nextname-buffer count move
@@ -319,13 +324,13 @@ create nextname-buffer 32 chars allot
 \ \ Header states						23feb93py
 
 : cset ( bmask c-addr -- )
-    tuck c@ or swap c! ; 
+    tuck @ or swap ! ; 
 
 : creset ( bmask c-addr -- )
-    tuck c@ swap invert and swap c! ; 
+    tuck @ swap invert and swap ! ; 
 
 : ctoggle ( bmask c-addr -- )
-    tuck c@ xor swap c! ; 
+    tuck @ xor swap ! ; 
 
 : lastflags ( -- c-addr )
     \ the address of the flags byte in the last header

@@ -28,11 +28,14 @@ s" address-unit-bits" environment? drop constant bits/au
 : th ( addr1 n -- addr2 )
     cells + ;
 
+: bset ( bmask c-addr -- )
+    tuck c@ or swap c! ; 
+
 : set-bit { u addr -- }
     \ set bit u in bit-vector addr
     u bits/au /mod
     >r 1 bits/au 1- rot - lshift
-    r> addr +  cset ;
+    r> addr +  bset ;
 
 : compare-images { image1 image2 reloc-bits size file-id -- }
     \G compares image1 and image2 (of size cells) and sets reloc-bits.

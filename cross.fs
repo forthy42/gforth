@@ -1516,16 +1516,21 @@ variable ResolveFlag
 >CROSS
 \ Header states                                        12dec92py
 
-: flag! ( 8b -- )   tlast @ dup >r T c@ xor r> c! H ;
+: flag! ( w -- )   tlast @ dup >r T @ xor r> ! H ;
 
 VARIABLE ^imm
 
+\ !! should be target wordsize specific
+$80000000 constant alias-mask
+$40000000 constant immediate-mask
+$20000000 constant restrict-mask
+
 >TARGET
-: immediate     40 flag!
+: immediate     immediate-mask flag!
                 ^imm @ @ dup <imm> = IF  drop  EXIT  THEN
                 <res> <> ABORT" CROSS: Cannot immediate a unresolved word"
                 <imm> ^imm @ ! ;
-: restrict      20 flag! ;
+: restrict      restrict-mask flag! ;
 
 : isdoer	
 \G define a forth word as doer, this makes obviously only sence on
@@ -1537,8 +1542,10 @@ VARIABLE ^imm
 
 >TARGET
 : string,  ( addr count -- )
-  dup T c, H bounds  ?DO  I c@ T c, H  LOOP ; 
-: name,  ( "name" -- )  bl word count T string, cfalign H ;
+    dup T c, H bounds  ?DO  I c@ T c, H  LOOP ;
+: lstring, ( addr count -- )
+    dup T , H bounds  ?DO  I c@ T c, H  LOOP ;
+: name,  ( "name" -- )  bl word count T lstring, cfalign H ;
 : view,   ( -- ) ( dummy ) ;
 >CROSS
 
@@ -1693,7 +1700,7 @@ NoHeaderFlag off
     IF  dup >end tdoes !
     ELSE 0 tdoes !
     THEN
-    80 flag!
+    alias-mask flag!
     cross-doc-entry cross-tag-entry ;
 
 VARIABLE ;Resolve 1 cells allot
@@ -1710,7 +1717,7 @@ VARIABLE ;Resolve 1 cells allot
     IF
 	.sourcepos ." needs prim: " >in @ bl word count type >in ! cr
     THEN
-    (THeader over resolve T A, H 80 flag! ;
+    (THeader over resolve T A, H alias-mask flag! ;
 : Alias:   ( cfa -- ) \ name
     >in @ skip? IF  2drop  EXIT  THEN  >in !
     dup 0< s" prims" T $has? H 0= and
@@ -2034,7 +2041,7 @@ Cond: DOES> restrict?
   create-forward-warn
   IF ['] reswarn-forward IS resolve-warning THEN
   \ make Alias
-  (THeader there 0 T a, H 80 flag! ( S executed-ghost new-ghost )
+  (THeader there 0 T a, H alias-mask flag! ( S executed-ghost new-ghost )
   \ store  poiter to code-field
   switchram T cfalign H
   there swap T ! H

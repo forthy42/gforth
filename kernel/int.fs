@@ -97,7 +97,7 @@ Defer source ( -- c-addr u ) \ core
     dup 0= -&16 and throw ;
 
 : name-too-long? ( c-addr u -- c-addr u )
-    dup $1F u> -&19 and throw ;
+    dup lcount-mask u> -&19 and throw ;
 
 \ \ Number parsing					23feb93py
 
@@ -230,7 +230,7 @@ struct
 end-struct wordlist-struct
 
 : f83find      ( addr len wordlist -- nt / false )
-    wordlist-id @ (f83find) ;
+    wordlist-id @ (listlfind) ;
 
 : initvoc		( wid -- )
   dup wordlist-map @ hash-method perform ;
@@ -257,10 +257,20 @@ forth-wordlist current !
 
 \ \ header, finding, ticks                              17dec92py
 
-hex
-80 constant alias-mask \ set when the word is not an alias!
-40 constant immediate-mask
-20 constant restrict-mask
+
+\ !! these should be done using the target's operations and cell size
+\ 0 invert 1 rshift invert ( u ) \ top bit set
+\ constant alias-mask \ set when the word is not an alias!
+\ alias-mask 1 rshift constant immediate-mask
+\ alias-mask 2 rshift constant restrict-mask
+\ 0 invert 3 rshift   constant lcount-mask
+
+\ as an intermediate step, I define them correctly for 32-bit machines:
+
+$80000000 constant alias-mask
+$40000000 constant immediate-mask
+$20000000 constant restrict-mask
+$1fffffff constant lcount-mask
 
 \ higher level parts of find
 
@@ -279,7 +289,7 @@ hex
     then 
 [ [THEN] ] ;
 
-: (x>int) ( cfa b -- xt )
+: (x>int) ( cfa w -- xt )
     \ get interpretation semantics of name
     restrict-mask and
     if
@@ -290,15 +300,15 @@ hex
 
 : name>string ( nt -- addr count ) \ gforth     head-to-string
     \g @i{addr count} is the name of the word represented by @i{nt}.
-    cell+ count $1F and ;
+    cell+ dup cell+ swap @ lcount-mask and ;
 
 : ((name>))  ( nfa -- cfa )
     name>string + cfaligned ;
 
-: (name>x) ( nfa -- cfa b )
-    \ cfa is an intermediate cfa and b is the flags byte of nfa
+: (name>x) ( nfa -- cfa w )
+    \ cfa is an intermediate cfa and w is the flags cell of nfa
     dup ((name>))
-    swap cell+ c@ dup alias-mask and 0=
+    swap cell+ @ dup alias-mask and 0=
     IF
         swap @ swap
     THEN ;
@@ -332,7 +342,7 @@ hex
     ;
 
 : (name>intn) ( nfa -- xt +-1 )
-    (name>x) tuck (x>int) ( b xt )
+    (name>x) tuck (x>int) ( w xt )
     swap immediate-mask and flag-sign ;
 
 const Create ???  0 , 3 c, char ? c, char ? c, char ? c,
@@ -367,8 +377,10 @@ const Create ???  0 , 3 c, char ? c, char ? c, char ? c,
     drop true ;
 
 : >head-noprim ( cfa -- nt ) \ gforth  to-head-noprim
+    \ also heuristic; finds only names with up to 32 chars
     $25 cell do ( cfa )
-	dup i - count $9F and + cfaligned over alias-mask + =
+	dup i - dup @ [ alias-mask lcount-mask or ] literal and ( cfa len|alias )
+	swap + cell + cfaligned over alias-mask + =
 	if ( cfa )
 	    dup i - cell - dup head?
 	    if
@@ -383,7 +395,8 @@ const Create ???  0 , 3 c, char ? c, char ? c, char ? c,
 
 : >head-noprim ( cfa -- nt ) \ gforth  to-head-noprim
     $25 cell do ( cfa )
-	dup i - count $9F and + cfaligned over alias-mask + =
+	dup i - dup @ [ alias-mask lcount-mask or ] literal and ( cfa len|alias )
+	swap + cell + cfaligned over alias-mask + =
 	if ( cfa ) i - cell - unloop exit
 	then
 	cell +loop

@@ -23,7 +23,7 @@ require hash.fs
 \ table (case-sensitive wordlist)
 
 : table-find ( addr len wordlist -- nfa / false )
-    >r 2dup r> bucket @ (tablefind) ;
+    >r 2dup r> bucket @ (tablelfind) ;
 
 Create tablesearch-map ( -- wordlist-map )
     ' table-find A, ' hash-reveal A, ' (rehash) A, ' (rehash) A,

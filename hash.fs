@@ -65,7 +65,7 @@ Defer hash-alloc ( addr -- addr )
     cells HashTable + ;
 
 : hash-find ( addr len wordlist -- nfa / false )
-    >r 2dup r> bucket @ (hashfind) ;
+    >r 2dup r> bucket @ (hashlfind) ;
 
 \ hash vocabularies                                    16jul94py
 
