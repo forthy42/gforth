@@ -731,7 +731,7 @@ Defer .status
     BEGIN
 	.status
 	['] cr catch if
-	    >stderr ." can't print to stdout, leaving" cr
+	    >stderr cr ." Can't print to stdout, leaving" cr
 	    \ if stderr does not work either, already DoError causes a hang
 	    2 (bye)
 	endif
