@@ -23,9 +23,11 @@
 \ from MEMORY :
 \ allocate 
 
-: nalign ( addr1 n -- addr2 )
-\ addr2 is the aligned version of addr1 wrt the alignment size n
- 1- tuck +  swap invert and ;
+: naligned ( addr1 n -- addr2 )
+    \ addr2 is the aligned version of addr1 wrt the alignment size n
+    1- tuck +  swap invert and ;
+
+: nalign naligned ; \ old name, obsolete
 
 : dofield ( -- )
 does> ( name execution: addr1 -- addr2 )

@@ -49,6 +49,7 @@ $20 8 2* cells + 2 + cell+ constant word-pno-size ( -- u )
 create holdbuf word-pno-size chars allot
 holdbuf word-pno-size chars + aconstant holdbuf-end
 avariable holdptr holdbuf-end holdptr a!
+avariable holdend holdbuf-end holdend a!
 
 84 constant pad-minsize ( -- u )
 
@@ -141,13 +142,17 @@ has? file [IF]
  User dpl               -1 dpl !
 
  User state ( -- a-addr ) \ core,tools-ext
- \G USER VARIABLE: a-addr is the address of a cell containing
- \G the compilation state flag. 0 => interpreting, -1 => compiling.
- \G A program shall not directly alter the value of @code{state}. The
- \G following Standard words alter the value in @code{state}:
- \G @code{:} (colon) @code{;} (semicolon) @code{abort} @code{quit}
- \G @code{:noname} @code{[} (left-bracket) @code{]} (right-bracket)
- \G @code{;code}
+ \G Recommended reading: @cite{@code{State}-smartness--Why it is evil
+ \G and how to exorcise it},
+ \G @url{http://www.complang.tuwien.ac.at/papers/ertl98.ps.gz}; short
+ \G version: Don't use @code{state}! @xref{Interpretation and
+ \G Compilation Semantics} for an alternative. USER VARIABLE: a-addr
+ \G is the address of a cell containing the compilation state flag. 0
+ \G => interpreting, -1 => compiling.  A program shall not directly
+ \G alter the value of @code{state}. The following Standard words
+ \G alter the value in @code{state}: @code{:} (colon) @code{;}
+ \G (semicolon) @code{abort} @code{quit} @code{:noname} @code{[}
+ \G (left-bracket) @code{]} (right-bracket) @code{;code}
 			0 state !
 
 AUser normal-dp		\ the usual dictionary pointer

@@ -18,10 +18,12 @@
 \ along with this program; if not, write to the Free Software
 \ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-: nalign ( addr1 n -- addr2 ) \ gforth
+: naligned ( addr1 n -- addr2 ) \ gforth
 \g @code{addr2} is the aligned version of @code{addr1} wrt the
 \g alignment @code{n}.
  1- tuck +  swap invert and ;
+
+' naligned alias nalign \ old name, obsolete
 
 : dozerofield ( -- )
     \ a field that makes no change

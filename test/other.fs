@@ -129,6 +129,10 @@ end-struct my-struct%
 
 0 field2 float% %alignment <> throw
 
+\ filenames with "//"
+
+s" //jkfklfggfld/fjsjfk/hjfdjs" open-fpath-file 2drop
+
 \ comments across several lines
 
 ( fjklfjlas;d

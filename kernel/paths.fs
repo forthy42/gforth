@@ -195,6 +195,7 @@ Create tfile 0 c, 255 chars allot
   r> r> ofile +place
   open-ofile ;
 
+\ !! returns 2 stack items if file is not found, not just the ior
 : open-path-file ( adr len path-addr -- fd adr1 len2 0 | ior ) \ gforth
     \G Look in path path-addr for the file specified by adr len.
     \G If found the resulting path and an open file descriptor
@@ -212,6 +213,7 @@ Create tfile 0 c, 255 chars allot
         2drop 2drop 2drop -&38
   THEN ;
 
+\ !! returns 2 stack items if file is not found, not just the ior
 : open-fpath-file ( adr len -- fd adr1 len2 0 | ior ) \ gforth
     \G Look in the Forth search path for the file specified by adr len.
     \G If found the resulting path and an open file descriptor
