@@ -4,19 +4,18 @@
   [ 1 floats 1- ] Literal + [ -1 floats ] Literal and ;
 
 : falign ( -- )
-  here dup aligned swap
+  here dup faligned swap
   ?DO  bl c,  LOOP ;
 
 : f, ( f -- )  here 1 floats allot f! ;
 
 \ !! have create produce faligned pfas
 : fconstant  ( r -- )
-  Create falign f,
-  DOES>  faligned f@ ;
+  falign here f,  Create A,
+  DOES>  @ f@ ;
 
 : fvariable
-  Create falign 0 f,
-  DOES>  faligned ;
+  falign here 0. d>f f, AConstant ;
 
 : fdepth  ( -- n )  f0 @ fp@ - [ 1 floats ] Literal / ;
 
@@ -34,30 +33,31 @@
 : -zeros ( addr u -- addr' u' )
   BEGIN  dup  WHILE  1- 2dup + c@ '0 <>  UNTIL  1+  THEN ;
 
-: f.  ( r -- )  scratch represent 0=
-  IF  2drop  scratch 3 min type  EXIT  THEN
-  IF  '- emit  THEN  dup >r 0<=
-  IF  '0 emit
+: f$ ( f -- n )  scratch represent 0=
+  IF  2drop  scratch 3 min type  rdrop  EXIT  THEN
+  IF  '- emit  THEN ;
+
+: f.  ( r -- )  f$ dup >r 0<
+  IF    '0 emit
   ELSE  scratch r@ min type  r@ precision - zeros  THEN
   '. emit r@ negate zeros
   scratch r> 0 max /string 0 max -zeros type space ;
 \ I'm afraid this does not really implement ansi semantics wrt precision.
 \ Shouldn't precision indicate the number of places shown after the point?
 
-: fe. ( r -- )  scratch represent 0=
-  IF  2drop  scratch 3 min type  EXIT  THEN
-  IF  '- emit  THEN  1- s>d 3 fm/mod 3 * >r 1+ >r
+: fe. ( r -- )  f$ 1- s>d 3 fm/mod 3 * >r 1+ >r
   scratch r@ min type '. emit  scratch r> /string type
   'E emit r> . ;
 
-: fs. ( r -- )  scratch represent 0=
-  IF  2drop  scratch 3 min type  EXIT  THEN
-  IF  '- emit  THEN  1- >r
-  scratch 1 min type '. emit  scratch 1 /string type
-  'E emit r> . ;
+: fs. ( r -- )  f$ 1-
+  scratch over c@ emit '. emit 1 /string type
+  'E emit . ;
 
-: fnumber ( string -- r / )  dup count >float 0=
-  IF  defers notfound  ELSE  drop  THEN ;
+: fnumber ( string -- r / )
+  ?dup IF  dup count >float 0=
+           IF    defers notfound
+	   ELSE  drop state @
+	         IF  postpone FLiteral  THEN  THEN  THEN ;
 
 ' fnumber IS notfound
 
