@@ -20,6 +20,7 @@
 
 require code.fs
 
+get-current
 also assembler definitions
 
 $20 constant asm-registers
@@ -81,6 +82,7 @@ $3FFFFFF constant asm-bm1A
 
 : asm-imm ( n code -- code )
     swap asm-bm10 and or ;
+' asm-imm alias asm-uimm
 ' asm-imm alias asm-offset
 
 : asm-target ( n code -- code )
@@ -105,6 +107,11 @@ $3FFFFFF constant asm-bm1A
 does> ( rt imm -- )
     @ asm-imm asm-rt , ;
 
+: asm-I-rt,uimm ( code -- )
+    create ,
+does> ( rt uimm -- )
+    @ asm-uimm asm-rt , ;
+
 : asm-I-rs,imm ( code -- )
     create ,
 does> ( rs imm -- )
@@ -114,6 +121,11 @@ does> ( rs imm -- )
     create ,
 does> ( rt rs imm -- )
     @ asm-imm asm-rs asm-rt , ;
+
+: asm-I-rt,rs,uimm ( code -- )
+    create ,
+does> ( rt rs uimm -- )
+    @ asm-uimm asm-rs asm-rt , ;
 
 : asm-I-rs,rt,imm ( code -- )
     create ,
@@ -287,3 +299,4 @@ include ./insts.fs
     $at $zero r> beq, ;
 
 previous
+set-current

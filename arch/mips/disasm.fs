@@ -47,8 +47,11 @@
 : disasm-copz ( w -- u )
     disasm-op 3 and ;
 
+: disasm-uimm ( w -- u )
+    $ffff and ;
+
 : disasm-imm ( w -- n )
-    $ffff and dup 15 rshift negate 15 lshift or ;
+    disasm-uimm dup 15 rshift negate 15 lshift or ;
 
 : disasm-relative ( addr n -- w )
     \ compute printable form of relative address n relative to addr
@@ -142,9 +145,15 @@ $40 disasm-table cp0-tab-entry     \ COP0 CO instructions funct table
     disasm-imm .
     drop ;
 
-: disasm-rt,imm ( addr w -- )
+: disasm-rt,rs,uimm ( addr w -- )
     dup disasm-rt .
-    disasm-imm .
+    dup disasm-rs .
+    disasm-uimm hex.
+    drop ;
+
+: disasm-rt,uimm ( addr w -- )
+    dup disasm-rt .
+    disasm-uimm hex.
     drop ;
 
 : disasm-rt,imm,rs ( addr w -- )
@@ -195,8 +204,9 @@ $40 disasm-table cp0-tab-entry     \ COP0 CO instructions funct table
     dup disasm-copz .
     2drop ;
 
-: disasm-I-imm ( addr w -- )
-    disasm-imm disasm-relative . ;
+: disasm-I-imm,z ( addr w -- )
+    tuck disasm-imm disasm-relative .
+    disasm-copz . ;
 
 \ meta-defining word for instruction format disassembling definitions
 
@@ -226,7 +236,8 @@ does> ( addr w -- )
 ' disasm-I-rs,rt,imm ' opc-tab-entry 	 define-format asm-I-rs,rt,imm
 ' disasm-I-rs,imm    ' opc-tab-entry 	 define-format asm-I-rs,imm1
 ' disasm-rt,rs,imm   ' opc-tab-entry 	 define-format asm-I-rt,rs,imm
-' disasm-rt,imm      ' opc-tab-entry 	 define-format asm-I-rt,imm
+' disasm-rt,rs,uimm   ' opc-tab-entry 	 define-format asm-I-rt,rs,uimm
+' disasm-rt,uimm      ' opc-tab-entry 	 define-format asm-I-rt,uimm
 ' disasm-rt,imm,rs   ' opc-tab-entry 	 define-format asm-I-rt,offset,rs
 ' disasm-rd,rt,sa    ' funct-tab-entry 	 define-format asm-special-rd,rt,sa
 ' disasm-rd,rt,rs    ' funct-tab-entry 	 define-format asm-special-rd,rt,rs
@@ -239,7 +250,7 @@ does> ( addr w -- )
 ' disasm-I-rs,imm    ' regimm-tab-entry  define-format asm-regimm-rs,imm
 ' 2drop              ' cp0-tab-entry     define-format asm-copz0
 ' disasm-rt,rd,z     ' copz-rs-tab-entry define-format asm-copz-rt,rd1
-' disasm-I-imm       ' copz-rt-tab-entry define-format asm-copz-imm1
+' disasm-I-imm,z     ' copz-rt-tab-entry define-format asm-copz-imm1
 
 : asm-I-rs,imm ( u1 u2 "name" -- ; compiled code: addr w -- )
     nip asm-I-rs,imm1 ;
