@@ -566,6 +566,7 @@ Code c@
 		SP , accu ,
 		t0 , *accu ,
 		"Next" , jmp ,
+end-code
 
 Code 2*		
                 '* dout
@@ -737,6 +738,7 @@ Code d+
 end-code
 
 Label cf1	0 ,
+End-Label
 Code d2*+	sym d2*+
 		SP , accu ,
 Label >d2*+	*accu , t0 ,
@@ -766,6 +768,7 @@ Label >d2*+	*accu , t0 ,
 end-code
 
 Label "d2*+"	>d2*+ ,
+End-Label
 Code /modstep ( ud c R: u -- ud-?u 0/1 )
 		sym /modstep
 		SP , accu ,
