@@ -1,10 +1,10 @@
-#$Id: Makefile,v 1.1 1994-02-11 16:30:45 anton Exp $
+#$Id: Makefile,v 1.2 1994-05-03 19:10:32 pazsan Exp $
 #Copyright 1992 by the ANSI figForth Development Group
 
 RM	= echo 'Trying to remove'
 GCC	= gcc
 CC	= gcc
-SWITCHES = -DUSE_TOS -DUSE_FTOS # -DDIRECT_THREADED 
+SWITCHES = -DUSE_TOS -DUSE_FTOS -DDEFAULTBIN='"'$(PWD)'"' # -DDIRECT_THREADED 
 CFLAGS	= -O4 -Wall -g $(SWITCHES)
 
 #-Xlinker -n puts text and data into the same 256M region

@@ -1,4 +1,4 @@
-;;$Id: primitives2c.el,v 1.1 1994-02-11 16:30:46 anton Exp $
+;;$Id: primitives2c.el,v 1.2 1994-05-03 19:10:35 pazsan Exp $
 ;;Copyright 1992 by the ANSI figForth Development Group
 
 ;; To Do:
@@ -65,7 +65,7 @@
 (defun c-filter (forth-name stack-effect standards c-name doku code forth-code)
   "c code for the primitive"
   (let ((effects (parse-stack-effect stack-effect)))
-    (format "I_%s:	/* %s ( %s ) */\n/* %s */\n{\n%s\nNAME(\"%s\")\n{\n%s}\nNEXT_P1;\n%s}\nNEXT1_P2;\n"
+    (format "I_%s:	/* %s ( %s ) */\n/* %s */\n{\nLabel ca;\n%s\nNAME(\"%s\")\n{\n%s}\nNEXT_P1;\n%sNEXT1_P2;\n}\n"
 	    c-name forth-name stack-effect doku
 	    (prefix effects) forth-name code (suffix effects))))
 

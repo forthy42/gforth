@@ -386,7 +386,7 @@ CREATE C-Table
         ' (loop) A,      ' c-loop A,
         ' (+loop) A,     ' c-+loop A,
         ' (next) A,      ' c-next A,
-        ' exit A,        ' c-exit A,
+        ' ;s A,          ' c-exit A,
         ' (;code) A,     ' c-;code A,
         ' (abort") A,    ' c-abort" A,
         ' (compile) A,   ' c-(compile) A,
