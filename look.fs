@@ -66,11 +66,11 @@ has? rom
 : PrimStart ['] true >name ;
 
 : look ( cfa -- lfa flag )
-    dup dictionary-end forthstart within
+    dup in-dictionary?
     IF
-	PrimStart (look)
-    ELSE
 	>name dup ??? <>
+    ELSE
+	PrimStart (look)
     THEN ;
 
 [THEN]

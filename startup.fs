@@ -29,6 +29,7 @@ include hash.fs
 \ require interpretation.fs
 \ include float.fs
 \ include search.fs
+require stuff.fs
 include glocals.fs
 include wordinfo.fs
 include vt100.fs
@@ -37,7 +38,6 @@ include see.fs
 include see-ext.fs
 include bufio.fs
 include debug.fs
-require stuff.fs
 include history.fs
 s" os-class" environment? dup [IF] drop s" unix" compare 0= [THEN]
 [IF]

@@ -180,6 +180,9 @@ has? glocals [IF]
 ' noop IS 'catch
 ' noop IS 'throw
 
+Defer store-backtrace
+' noop IS store-backtrace
+
 : catch ( x1 .. xn xt -- y1 .. ym 0 / z1 .. zn error ) \ exception
     'catch
     sp@ >r
@@ -191,6 +194,7 @@ has? glocals [IF]
 [ [THEN] ]
     handler @ >r
     rp@ handler !
+    backtrace-empty on
     execute
     r> handler ! rdrop 
 [ has? floating [IF] ]
@@ -204,6 +208,7 @@ has? glocals [IF]
 : throw ( y1 .. ym error/0 -- y1 .. ym / z1 .. zn error ) \ exception
     ?DUP IF
 	[ has? header [IF] here 9 cells ! [THEN] ] \ entry point for signal handler
+	store-backtrace
 [ has? interpreter [IF] ]
 	handler @ dup 0= IF
 [ has? os [IF] ]
@@ -230,6 +235,7 @@ has? glocals [IF]
 : bounce ( y1 .. ym error/0 -- y1 .. ym error / y1 .. ym ) \ gforth
 \ a throw without data or fp stack restauration
   ?DUP IF
+      store-backtrace
       handler @ rp!
       r> handler !
 [ has? glocals [IF] ]

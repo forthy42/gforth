@@ -522,6 +522,8 @@ max-errors 6 * cells allot
     loop ;
 
 DEFER DOERROR
+Defer dobacktrace ( -- )
+' noop IS dobacktrace
 
 : .error-frame ( addr1 u1 n1 n2 addr2 u2 -- )
   cr error-stack @
@@ -568,6 +570,7 @@ DEFER DOERROR
   ELSE
      .error
   THEN
+  dobacktrace
   normal-dp dpp ! ;
 
 ' (DoError) IS DoError

@@ -66,6 +66,7 @@ AUser rp0	' rp0 Alias r0
 AUser fp0       \ no f0, because this leads to unexpected results
 AUser lp0	' lp0 Alias l0
 AUser handler	\ pointer to last throw frame
+AUser backtrace-empty \ true if the next THROW should store a backtrace
 \ AUser output
 \ AUser input
 

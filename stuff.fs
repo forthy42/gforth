@@ -18,6 +18,7 @@
 \ along with this program; if not, write to the Free Software
 \ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+
 ' require alias needs ( ... "name" -- ... ) \ gforth
 \G an alias for @code{require}; exists on other systems (e.g., Win32Forth).
 \ needs is an F-PC name. we will probably switch to 'needs' in the future
@@ -50,3 +51,14 @@ AUser CSP
 : sh ( "..." -- ) \ gforth
     '# parse cr system ;
 
+\ stuff
+
+: ]L ( compilation: n -- ; run-time: -- n )
+    \G equivalent to "] literal"
+    ] postpone literal ;
+
+: in-dictionary? ( x -- f )
+    forthstart dictionary-end within ;
+
+: in-return-stack? ( addr -- f )
+    rp0 @ swap - [ forthstart 6 cells + ]L @ u< ;
