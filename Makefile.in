@@ -487,7 +487,9 @@ check test:	gforth$(EXE) gforth.fi
 		@echo "Expect 'Missing: EDITOR FORGET'"
 		$(FORTH) code.fs test/checkans.fs -e bye
 		@echo 'Expect no differences'
-		$(FORTHK) -m 100000 prims2x.fs -e "s\" $(srcdir)/prim.b\"' output-c process-file bye"| diff -c - $(srcdir)/engine/prim.i
+		$(FORTHK) -m 100000 prims2x.fs -e \
+		  "c-flag on s\" $(srcdir)/prim.b\" ' output-c process-file bye"| \
+		  diff -c - $(srcdir)/engine/prim.i
 
 bench:		gforth-fast$(EXE) gforth.fi
 		@echo 'Each benchmark takes about 30s on a 486-66 (gcc-2.6.3 -DFORCE_REG)'
@@ -573,24 +575,24 @@ prim.b:		prim
 		m4 -s $(srcdir)/prim >$@ 
 
 engine/prim.i:		prim.b prims2x.fs
-		$(FORTHK) prims2x.fs -e "s\" prim.b\" ' output-c process-file bye" >$@-
+		$(FORTHK) prims2x.fs -e "c-flag on s\" prim.b\" ' output-c process-file bye" >$@-
 		$(CP) $@- $@
 		$(RM) $@-
 
 engine/prim_lab.i:	prim.b prims2x.fs
-		$(FORTHK) prims2x.fs -e "s\" prim.b\" ' output-label process-file bye" >$@-
+		$(FORTHK) prims2x.fs -e "c-flag on s\" prim.b\" ' output-label process-file bye" >$@-
 		$(CP) $@- $@
 		$(RM) $@-
 
 kernel/aliases.fs:	prim.b prims2x.fs kernel/aliases0.fs
 		$(CP) kernel/aliases0.fs $@-
-		$(FORTHK) prims2x.fs -e "s\" prim.b\" ' output-alias process-file bye" >>$@-
+		$(FORTHK) prims2x.fs -e "forth-flag on s\" prim.b\" ' output-alias process-file bye" >>$@-
 		$(CP) $@- $@
 		$(RM) $@-
 
 kernel/prim.fs:	prim.b prims2x.fs kernel/prim0.fs
 		$(CP) kernel/prim0.fs kernel/prim.fs-
-		$(FORTHK) prims2x.fs -e "s\" prim.b\" ' output-forth process-file bye" >>$@-
+		$(FORTHK) prims2x.fs -e "forth-flag on s\" prim.b\" ' output-forth process-file bye" >>$@-
 		$(CP) $@- $@
 		$(RM) $@-
 
