@@ -121,7 +121,7 @@ typedef short Int16;
 #define MAKE_CF(wa,ca)	({ \
 			     Int32 *_wa=(Int32 *)(wa); \
 			     Label _ca=(Label)(ca); \
-			     if (ca==_DOCOL_LABEL)  \
+			     if (_ca==_DOCOL_LABEL)  \
 			       _wa[0]=(((0x1a<<26)|(31<<21)|(9<<16))| \
 				       (((((Cell)_ca)-((Cell)_wa)-4) & 0xffff)>>2)); \
 			     else { \
