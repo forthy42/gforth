@@ -19,18 +19,16 @@
 \ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 warnings off
-
+include search.fs
+include environ.fs
 include errors.fs
 include extend.fs              \ load core-extended
-\ include tools.fs               \ load tools ( .s dump )
-\ include toolsext.fs
+include hash.fs
 
 \ require interpretation.fs
 \ include float.fs
 \ include search.fs
 include glocals.fs
-include environ.fs
-\ include toolsext.fs
 include wordinfo.fs
 include vt100.fs
 \ include colorize.fs

@@ -25,7 +25,7 @@ Variable countif
 : >exec  >r ; restrict ( :-)
 : scanIF   f83find  dup 0=  IF  drop ['] dummy >name  THEN  ;
 
-Create [struct]-search    ' scanIF A,  ' (reveal) A,  ' drop A,
+Create [struct]-search    ' scanIF A,  ' (reveal) A,  ' drop A, ' drop A,
 Create [struct]-voc       NIL A,       [struct]-search A,
                           NIL A,       NIL A,
 

@@ -65,5 +65,24 @@ Variable /dump
 
 : ? @ . ;
 
-\ INCLUDE see.fs
+\ words visible in roots                               14may93py
+
+include  termsize.fs
+
+: words ( -- ) \ tools
+    cr 0 context @
+    BEGIN
+	@ dup
+    WHILE
+	2dup head>string nip 2 + dup >r +
+	cols >=
+	IF
+	    cr nip 0 swap
+	THEN
+	dup head>string type space r> rot + swap
+    REPEAT
+    2drop ;
+
+' words alias vlist ( -- ) \ gforth
+\g Old (pre-Forth-83) name for @code{WORDS}.
 

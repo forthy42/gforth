@@ -18,8 +18,28 @@
 \ along with this program; if not, write to the Free Software
 \ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+[IFUNDEF] e? : e? name 2drop false ; [THEN]
+
+e? ec
+[IF]
+: reserve-mem here swap allot ;
+\ ToDo: check memory space with unused
+\ move to a kernel/memory.fs
+[ELSE]
+: reserve-mem allocate throw ;
+[THEN]
+
+[IFUNDEF] hashbits
 11 value hashbits
+[THEN]
 1 hashbits lshift Value Hashlen
+
+\ compute hash key                                     15jul94py
+
+[IFUNDEF] hash
+: hash ( addr len -- key )
+    hashbits (hashkey1) ;
+[THEN]
 
 Variable insRule        insRule on
 Variable revealed
@@ -30,20 +50,17 @@ Variable HashPointer
 Variable HashIndex
 0 Value HashTable
 
+\ forward declarations
+0 Value hashsearch-map
+Defer hash-alloc
+
 \ DelFix and NewFix are from bigFORTH                  15jul94py
 
 : DelFix ( addr root -- ) dup @ 2 pick ! ! ;
 : NewFix  ( root len # -- addr )
-  BEGIN  2 pick @ ?dup  0= WHILE  2dup * allocate throw
+  BEGIN  2 pick @ ?dup  0= WHILE  2dup * reserve-mem
          over 0 ?DO  dup 4 pick DelFix 2 pick +  LOOP  drop
   REPEAT  >r drop r@ @ rot ! r@ swap erase r> ;
-
-\ compute hash key                                     15jul94py
-
-: hash ( addr len -- key )
-    hashbits (hashkey1) ;
-\   (hashkey)
-\   Hashlen 1- and ;
 
 : bucket ( addr len wordlist -- bucket-addr )
     \ @var{bucket-addr} is the address of a cell that points to the first
@@ -60,10 +77,6 @@ Variable HashIndex
   BEGIN  dup @ dup  WHILE  nip  REPEAT  drop ! ;
 
 : (reveal ( nfa wid -- )
-    dup wordlist-extend @ 0<
-    IF
-	2drop EXIT
-    THEN
     over name>string rot bucket >r
     HashPointer 2 Cells $400 NewFix
     tuck cell+ ! r> insRule @
@@ -77,9 +90,19 @@ Variable HashIndex
 : hash-reveal ( nfa wid -- )
     2dup (reveal) (reveal ;
 
+: inithash ( wid -- )
+    wordlist-extend
+    insRule @ >r  insRule off  hash-alloc 3 cells - dup
+    BEGIN  @ dup  WHILE  2dup swap (reveal  REPEAT
+    2drop  r> insRule ! ;
+
 : addall  ( -- )
     voclink
-    BEGIN  @ dup @  WHILE  dup 'initvoc  REPEAT  drop ;
+    BEGIN  @ dup WHILE
+	   dup 0 wordlist-link -
+	   dup wordlist-map @ hashsearch-map = 
+	   IF  inithash ELSE drop THEN
+    REPEAT  drop ;
 
 : clearhash  ( -- )
     HashTable Hashlen cells bounds
@@ -87,62 +110,76 @@ Variable HashIndex
 	BEGIN  dup  WHILE
 	       dup @ swap HashPointer DelFix
         REPEAT  I !
-    cell +LOOP  HashIndex off ;
+    cell +LOOP  HashIndex off 
+    voclink
+    BEGIN @ dup WHILE
+	  dup 0 wordlist-link -
+	  dup wordlist-map @ hashsearch-map = 
+	  IF 0 swap wordlist-extend ! ELSE drop THEN
+    REPEAT drop ;
 
-: re-hash  clearhash addall ;
-: (rehash) ( addr -- )
-  drop revealed @ IF  re-hash revealed off  THEN ;
+: rehashall  ( wid -- ) 
+  drop revealed @ 
+  IF 	clearhash addall revealed off 
+  THEN ;
 
-Create hashsearch-map ( -- wordlist-map )
-    ' hash-find A, ' hash-reveal A, ' (rehash) A,
+: (rehash)   ( wid -- )
+  dup wordlist-extend @ 0=
+  IF   inithash
+  ELSE rehashall THEN ;
+
+\ >rom ?!
+align here    ' hash-find A, ' hash-reveal A, ' (rehash) A, ' (rehash) A,
+to hashsearch-map
 
 \ hash allocate and vocabulary initialization          10oct94py
 
-: hash-alloc ( addr -- addr )  HashTable 0= IF
-  Hashlen cells allocate throw TO HashTable
-  HashTable Hashlen cells erase THEN
+:noname ( hash-alloc ) ( addr -- addr )  
+  HashTable 0= 
+  IF  Hashlen cells reserve-mem TO HashTable
+      HashTable Hashlen cells erase THEN
   HashIndex @ over !  1 HashIndex +!
   HashIndex @ Hashlen >=
+  [ e? ec [IF] ]
+  ABORT" no more space in hashtable"
+  [ [ELSE] ]
   IF  HashTable >r clearhash
       1 hashbits 1+ dup  to hashbits  lshift  to hashlen
       r> free >r  0 to HashTable
       addall r> throw
-  THEN ;
-
-: (initvoc) ( addr -- )
-    cell+ dup @  0< IF  drop EXIT  THEN
-    dup 2 cells - @ hashsearch-map <> IF  drop EXIT  THEN
-    insRule @ >r  insRule off  hash-alloc 3 cells - dup
-    BEGIN  @ dup  WHILE  2dup swap (reveal  REPEAT
-    2drop  r> insRule ! ;
-
-' (initvoc) IS 'initvoc
+  THEN 
+  [ [THEN] ] ; is hash-alloc
 
 \ Hash-Find                                            01jan93py
-
+e? cross 0= 
+[IF]
 : make-hash
-  Root   hashsearch-map context @ cell+ !
-  Forth  hashsearch-map context @ cell+ !
-  addall          \ Baum aufbauen
-;
+  hashsearch-map forth-wordlist cell+ !
+  addall ;
+  make-hash \ Baumsuche ist installiert.
+[ELSE]
+  hashsearch-map forth-wordlist cell+ !
+[THEN]
 
-make-hash  \ Baumsuche ist installiert.
+\ for ec version display that vocabulary goes hashed
 
-: hash-cold  ( -- ) Defers 'cold
+: hash-cold  ( -- )
+[ e? ec [IF] ] ." Hashing..." [ [THEN] ]
   HashPointer off  0 TO HashTable  HashIndex off
-  voclink
-  BEGIN  @ dup @  WHILE
-         dup cell - @ >r
-         dup 'initvoc
-         r> over cell - !
-  REPEAT  drop ;
-' hash-cold ' 'cold >body !
+  addall
+\  voclink
+\  BEGIN  @ dup WHILE
+\         dup 0 wordlist-link - initvoc
+\  REPEAT  drop 
+[ e? ec [IF] ] ." Done" cr [ [THEN] ] ;
+
+' hash-cold INIT8 chained
 
 : .words  ( -- )
   base @ >r hex HashTable  Hashlen 0
   DO  cr  i 2 .r ." : " dup i cells +
       BEGIN  @ dup  WHILE
-             dup cell+ @ .name  REPEAT  drop
+             dup cell+ @ head>string type space  REPEAT  drop
   LOOP  drop r> base ! ;
 
 \ \ this stuff is for evaluating the hash function

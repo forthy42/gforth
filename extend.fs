@@ -78,11 +78,6 @@ decimal
 : [compile] ( compilation "name" -- ; run-time ? -- ? ) \ core-ext bracket-compile
     comp' drop compile, ; immediate
 
-\ MARKER                                                17may93jaw
-
-\ : marker here last @ create , , DOES> dup @ last ! cell+ @ dp ! ;
-\ doesn't work now. vocabularies?
-
 \ CONVERT                                               17may93jaw
 
 : convert ( ud1 c-addr1 -- ud2 c-addr2 ) \ core-ext
@@ -169,4 +164,38 @@ variable span ( -- a-addr ) \ core-ext
     UNTIL
     2 pick swap /string type
     nip span ! ;
+
+\ marker                                               18dec94py
+
+\ Marker creates a mark that is removed (including everything 
+\ defined afterwards) when executing the mark.
+
+: marker, ( -- mark )  here dup A,
+  voclink @ A, voclink
+  BEGIN  @ dup WHILE  dup 0 wordlist-link - @ A,  REPEAT  drop
+  udp @ , ;
+
+: marker! ( mark -- )
+    dup @ swap cell+
+    dup @ voclink ! cell+
+    voclink
+    BEGIN
+	@ dup 
+    WHILE
+	over @ over 0 wordlist-link - !
+	swap cell+ swap
+    REPEAT
+    drop  voclink
+    BEGIN
+	@ dup
+    WHILE
+	dup 0 wordlist-link - rehash
+    REPEAT
+    drop
+    @ udp !  dp ! ;
+
+: marker ( "mark" -- )
+    marker, Create A,
+DOES> ( -- )
+    @ marker! ;
 

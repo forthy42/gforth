@@ -55,7 +55,7 @@ Create main-task  100 cells allot
 main-task 
 UNLOCK tup ! LOCK
 
-Variable udp \ used by dovar:, must be variable
+Variable udp
 
 AUser next-task        main-task next-task !
 AUser prev-task        main-task prev-task !

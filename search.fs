@@ -26,35 +26,37 @@ Variable vp
 : get-current  ( -- wid )  current @ ;
 : set-current  ( wid -- )  current ! ;
 
-: context ( -- addr )  vp dup @ cells + ;
+\ : context ( -- addr )  vp dup @ cells + ;
+: vp! dup vp ! cells vp + to context ;
 : definitions  ( -- )  context @ current ! ;
 
 \ wordlist Vocabulary also previous                    14may93py
 
-AVariable voclink
+Variable slowvoc   0 slowvoc !
 
-Defer 'initvoc
-' drop ' 'initvoc >body !
+\ Forth-wordlist AConstant Forth-wordlist
 
-Variable slowvoc   slowvoc off
-
-Forth-wordlist AConstant Forth-wordlist
+: mappedwordlist ( map-struct -- wid )	\ gforth
+\G creates a wordlist with a special map-structure
+  here 0 A, swap A, voclink @ A, 0 A,
+  dup wordlist-link voclink !
+  dup initvoc ;
 
 : wordlist  ( -- wid )
-  here  0 A,
   slowvoc @
-  IF    [ Forth-wordlist wordlist-map @ ] ALiteral
+  IF    \ this is now f83search because hashing may be loaded already
+	\ jaw
+	f83search 
   ELSE  Forth-wordlist wordlist-map @   THEN
-  A, voclink @ A, slowvoc @ A,
-  dup wordlist-link dup voclink ! 'initvoc ;
+  mappedwordlist ;
 
 : Vocabulary ( -- ) Create wordlist drop  DOES> context ! ;
 
 : also  ( -- )
   context @ vp @ 1+ dup maxvp > abort" Vocstack full"
-  vp ! context ! ;
+  vp! context ! ;
 
-: previous ( -- )  vp @ 1- dup 0= abort" Vocstack empty" vp ! ;
+: previous ( -- )  vp @ 1- dup 0= abort" Vocstack empty" vp! ;
 
 \ vocabulary find                                      14may93py
 
@@ -88,26 +90,30 @@ Forth-wordlist AConstant Forth-wordlist
 
 \ this is the wordlist-map of the dictionary
 Create vocsearch ( -- wordlist-map )
-' (localsvocfind) A, ' (reveal) A,  ' drop A,
+' (localsvocfind) A, ' (reveal) A,  ' drop A, ' drop A,
+
+\ create dummy wordlist for kernel
+slowvoc on
+vocsearch mappedwordlist \ the wordlist structure ( -- wid )
+
+\ we don't want the dummy wordlist in our linked list
+0 Voclink !
+slowvoc off
 
 \ Only root                                            14may93py
-
-wordlist \ the wordlist structure
-vocsearch over wordlist-map ! \ patch the map into it
 
 Vocabulary Forth
 Vocabulary Root
 
-: Only  vp off  also Root also definitions ;
+: Only  0 vp! also Root also definitions ;
 
 \ set initial search order                             14may93py
 
 Forth-wordlist @ ' Forth >body !
 
-vp off  also Root also definitions
+0 vp! also Root also definitions
 Only Forth also definitions
-
-lookup ! \ our dictionary search order becomes the law
+lookup ! \ our dictionary search order becomes the law ( -- )
 
 ' Forth >body to Forth-wordlist \ "forth definitions get-current" and "forth-wordlist" should produce the same wid
 
@@ -118,39 +124,14 @@ lookup ! \ our dictionary search order becomes the law
   vp @ 0 ?DO  vp cell+ I cells + @  LOOP  vp @ ;
 
 : set-order  ( wid1 .. widn n / -1 -- )
-  dup -1 = IF  drop Only exit  THEN  dup vp !
+  dup -1 = IF  drop Only exit  THEN  dup vp!
   ?dup IF  1- FOR  vp cell+ I cells + !  NEXT  THEN ;
 
 : seal ( -- )  context @ 1 set-order ;
 
-\ words visible in roots                               14may93py
-
-: .name ( name -- ) \ gforth	dot-name
-    name>string type space ;
-
-require termsize.fs
-
-: words ( -- ) \ tools
-    cr 0 context @
-    BEGIN
-	@ dup
-    WHILE
-	2dup name>string nip 2 + dup >r +
-	cols >=
-	IF
-	    cr nip 0 swap
-	THEN
-	dup .name space r> rot + swap
-    REPEAT
-    2drop ;
-
-' words alias vlist ( -- ) \ gforth
-\g Old (pre-Forth-83) name for @code{WORDS}.
-
-: body> ( data -- cfa )  0 >body - ;
-
 : .voc
-    body> >name .name ;
+    body> >head head>string type space ;
+
 : order ( -- )  \  search-ext
     \g prints the search order and the @code{current} wordlist.  The
     \g standard requires that the wordlists are printed in the order
@@ -162,11 +143,12 @@ require termsize.fs
 	.voc
     LOOP
     4 spaces get-current .voc ;
+
 : vocs ( -- ) \ gforth
     \g prints vocabularies and wordlists defined in the system.
     voclink
     BEGIN
-	@ dup @
+	@ dup
     WHILE
 	dup 0 wordlist-link - .voc
     REPEAT
@@ -182,51 +164,3 @@ Root definitions
 
 Forth definitions
 
-include hash.fs
-
-\ table (case-sensitive wordlist)
-
-: table-find ( addr len wordlist -- nfa / false )
-    >r 2dup r> bucket @ (tablefind) ;
-
-Create tablesearch-map ( -- wordlist-map )
-    ' table-find A, ' hash-reveal A, ' (rehash) A,
-
-: table ( -- wid )
-    \g create a case-sensitive wordlist
-    wordlist
-    tablesearch-map over wordlist-map ! ;
-
-\ marker                                               18dec94py
-
-\ Marker creates a mark that is removed (including everything 
-\ defined afterwards) when executing the mark.
-
-: marker, ( -- mark )  here dup A,
-  voclink @ A, voclink
-  BEGIN  @ dup @  WHILE  dup 0 wordlist-link - @ A,  REPEAT  drop
-  udp @ , ;
-
-: marker! ( mark -- )
-    dup @ swap cell+
-    dup @ voclink ! cell+
-    voclink
-    BEGIN
-	@ dup @ 
-    WHILE
-	over @ over 0 wordlist-link - !
-	swap cell+ swap
-    REPEAT
-    drop  voclink
-    BEGIN
-	@ dup @
-    WHILE
-	dup 0 wordlist-link - rehash
-    REPEAT
-    drop
-    @ udp !  dp ! ;
-
-: marker ( "mark" -- )
-    marker, Create A,
-DOES> ( -- )
-    @ marker! ;

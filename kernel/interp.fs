@@ -13,13 +13,15 @@ doer? :docon [IF]
 doer? :dovar [IF]
 : dovar: ( -- addr )	\ gforth
     \G the code address of a @code{CREATE}d word
-    ['] udp >code-address ;
+    \ in rom-applications variable might be implemented with constant
+    \ use really a created word!
+    ['] ??? >code-address ;
 [THEN]
 
 doer? :douser [IF]
 : douser: ( -- addr )	\ gforth
     \G the code address of a @code{USER} variable
-    ['] s0 >code-address ;
+    ['] sp0 >code-address ;
 [THEN]
 
 doer? :dodefer [IF]
@@ -79,6 +81,8 @@ has-prims 0= [IF]
 
 ' , alias A, ( addr -- ) \ gforth
 
+' NOOP ALIAS const
+
 \ name> found                                          17dec92py
 
 $80 constant alias-mask \ set when the word is not an alias!
@@ -131,10 +135,13 @@ Defer source ( -- addr count ) \ core
 : capitalize ( addr len -- addr len ) \ gforth
   2dup chars chars bounds
   ?DO  I c@ toupper I c! 1 chars +LOOP ;
+
+[IFUNDEF] (name) \ name might be a primitive
 : (name) ( -- c-addr count )
     source 2dup >r >r >in @ /string (parse-white)
     2dup + r> - 1+ r> min >in ! ;
 \    name count ;
+[THEN]
 
 : name-too-short? ( c-addr u -- c-addr u )
     dup 0= -&16 and throw ;
@@ -184,8 +191,8 @@ DOES>
 \ number? number                                       23feb93py
 
 hex
-Create bases   10 ,   2 ,   A , 100 ,
-\              16     2    10   character
+const Create bases   10 ,   2 ,   A , 100 ,
+\                     16     2    10   character
 \ !! this saving and restoring base is an abomination! - anton
 : getbase ( addr u -- addr' u' )
     over c@ [char] $ - dup 4 u<
@@ -422,14 +429,24 @@ create nextname-buffer 32 chars allot
     \g @var{addr count} is the name of the word represented by @var{nt}.
     cell+ count $1F and ;
 
-Create ???  0 , 3 c, char ? c, char ? c, char ? c,
-: >name ( cfa -- nt ) \ gforth	to-name
+: head>string
+  cell+ count $1F and ;
+
+
+const Create ???  0 , 3 c, char ? c, char ? c, char ? c,
+\ ??? is used by dovar:, must be created/:dovar
+
+: >head ( cfa -- nt ) \ gforth	to-name
  $21 cell do
    dup i - count $9F and + cfaligned over alias-mask + = if
      i - cell - unloop exit
    then
  cell +loop
  drop ??? ( wouldn't 0 be better? ) ;
+
+' >head ALIAS >name 
+
+: body> 0 >body - ;
 
 \ threading                                   17mar93py
 
@@ -471,7 +488,7 @@ doer? :douser [IF]
 : AUser ( "name" -- ) \ gforth
     User ;
 [ELSE]
-: User Create uallot , DOES> @ up @ + ;
+: User Create cell uallot , DOES> @ up @ + ;
 : AUser User ;
 [THEN]
 
@@ -533,8 +550,6 @@ defer ;-hook ( sys2 -- sys1 )
 
 \ Search list handling                                 23feb93py
 
-AVariable current ( -- addr ) \ gforth
-
 : last?   ( -- false / nfa nfa )
     last @ ?dup ;
 : (reveal) ( nt wid -- )
@@ -549,7 +564,8 @@ AVariable current ( -- addr ) \ gforth
 struct
   1 cells: field find-method   \ xt: ( c_addr u wid -- nt )
   1 cells: field reveal-method \ xt: ( nt wid -- ) \ used by dofield:, must be field
-  1 cells: field rehash-method \ xt: ( wid -- )
+  1 cells: field rehash-method \ xt: ( wid -- )	   \ re-initializes a "search-data" (hashtables)
+  1 cells: field hash-method   \ xt: ( wid -- )    \ initializes ""
 \   \ !! what else
 end-struct wordlist-map-struct
 
@@ -557,19 +573,29 @@ struct
   1 cells: field wordlist-id \ not the same as wid; representation depends on implementation
   1 cells: field wordlist-map \ pointer to a wordlist-map-struct
   1 cells: field wordlist-link \ link field to other wordlists
-  1 cells: field wordlist-extend \ points to wordlist extensions (eg hash)
+  1 cells: field wordlist-extend \ points to wordlist extensions (eg hashtables)
 end-struct wordlist-struct
 
 : f83find      ( addr len wordlist -- nt / false )
     ( wid>wordlist-id ) @ (f83find) ;
 
+: initvoc		( wid -- )
+  dup wordlist-map @ hash-method perform ;
+
 \ Search list table: find reveal
 Create f83search ( -- wordlist-map )
-    ' f83find A,  ' (reveal) A,  ' drop A,
+    ' f83find A,  ' (reveal) A,  ' drop A, ' drop A,
 
-Create forth-wordlist  NIL A, G f83search T A, NIL A, NIL A,
-AVariable lookup       G forth-wordlist lookup T !
-G forth-wordlist current T !
+here NIL A, G f83search T A, NIL A, NIL A,
+AValue forth-wordlist \ variable, will be redefined by search.fs
+
+AVariable lookup       	forth-wordlist lookup !
+\ !! last is user and lookup?! jaw
+AVariable current ( -- addr ) \ gforth
+AVariable voclink	forth-wordlist wordlist-link voclink !
+lookup AValue context
+
+forth-wordlist current !
 
 \ higher level parts of find
 
@@ -894,7 +920,7 @@ DEFER DOERROR
 ' (DoError) IS DoError
 
 : quit ( ?? -- ?? ) \ core
-    r0 @ rp! handler off >tib @ >r
+    rp0 @ rp! handler off >tib @ >r
     BEGIN
 	postpone [
 	['] 'quit CATCH dup
@@ -909,11 +935,6 @@ DEFER DOERROR
 \ : words  listwords @
 \          BEGIN  @ dup  WHILE  dup .name  REPEAT drop ;
 
-Defer 'cold 
-\ hook (deferred word) for things to do right before interpreting the
-\ command-line arguments
-' noop IS 'cold
-
 : (bootmessage)
     ." GForth " version-string type 
     ." , Copyright (C) 1994-1997 Free Software Foundation, Inc." cr
@@ -926,12 +947,22 @@ defer bootmessage
 
 ' (bootmessage) IS bootmessage
 
+Defer 'cold 
+\ hook (deferred word) for things to do right before interpreting the
+\ command-line arguments
+' noop IS 'cold
+
+include chains.fs
+
+Variable init8
+
 : cold ( -- ) \ gforth
 [ has-files [IF] ]
     pathstring 2@ fpath only-path 
     init-included-files
 [ [THEN] ]
     'cold
+    init8 chainperform
 [ has-files [IF] ]
     ['] process-args catch ?dup
     IF
@@ -953,7 +984,7 @@ defer bootmessage
 [ has-files [IF] ]
     argc ! argv ! pathstring 2!
 [ [THEN] ]
-    sp@ s0 !
+    sp@ sp0 !
 [ has-locals [IF] ]
     lp@ forthstart 7 cells + @ - 
 [ [ELSE] ]
@@ -964,9 +995,9 @@ defer bootmessage
     [ [THEN] ]
 [ [THEN] ]
     dup >tib ! tibstack ! #tib off >in off
-    rp@ r0 !
+    rp@ rp0 !
 [ has-floats [IF] ]
-    fp@ f0 !
+    fp@ fp0 !
 [ [THEN] ]
     ['] cold catch DoError
 [ has-os [IF] ]

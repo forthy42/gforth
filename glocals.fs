@@ -322,6 +322,7 @@ create new-locals-map ( -- wordlist-map )
 ' new-locals-find A,
 ' new-locals-reveal A,
 ' drop A, \ rehash method
+' drop A,
 
 slowvoc @
 slowvoc on
