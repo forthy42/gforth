@@ -9475,8 +9475,8 @@ compile the right specialized version, or the general version, as
 appropriate:
 
 
-doc-compile-@local
-doc-compile-f@local
+@c doc-compile-@local
+@c doc-compile-f@local
 doc-compile-lp+!
 
 
@@ -13822,18 +13822,22 @@ Accessing the Stacks
 @cindex @file{gforth.el}
 @cindex @file{forth.el}
 @cindex Rydqvist, Goran
+@cindex Kuehling, David
 @cindex comment editing commands
 @cindex @code{\}, editing with Emacs
 @cindex debug tracer editing commands
 @cindex @code{~~}, removal with Emacs
 @cindex Forth mode in Emacs
+
 Gforth comes with @file{gforth.el}, an improved version of
 @file{forth.el} by Goran Rydqvist (included in the TILE package). The
 improvements are:
 
 @itemize @bullet
 @item
-A better (but still not perfect) handling of indentation.
+A better handling of indentation.
+@item
+A custom hilighting engine for Forth-code.
 @item
 Comment paragraph filling (@kbd{M-q})
 @item
@@ -13843,11 +13847,12 @@ Removal of debugging tracers (@kbd{C-x ~}, @pxref{Debugging}).
 @item
 Support of the @code{info-lookup} feature for looking up the
 documentation of a word.
+@item
+Support for reading and writing blocks files.
 @end itemize
 
-I left the stuff I do not use alone, even though some of it only makes
-sense for TILE. To get a description of these features, enter Forth mode
-and type @kbd{C-h m}.
+To get a basic description of these features, enter Forth mode and
+type @kbd{C-h m}.
 
 @cindex source location of error or debugging output in Emacs
 @cindex error output, finding the source location in Emacs
@@ -13860,15 +13865,58 @@ Manual}) so the source location corresponding to an error or other
 message is only a few keystrokes away (@kbd{C-x `} for the next error,
 @kbd{C-c C-c} for the error under the cursor).
 
+@cindex viewing the documentation of a word in Emacs
+@cindex context-sensitive help
+Moreover, for words documented in this manual, you can look up the
+glossary entry quickly by using @kbd{C-h TAB}
+(@code{info-lookup-symbol}, @pxref{Documentation, ,Documentation
+Commands, emacs, Emacs Manual}).  This feature requires Emacs 20.3 or
+later and does not work for words containing @code{:}.
+
+@menu
+* Installing gforth.el::        Making Emacs aware of Forth.
+* Emacs Tags::                  Viewing the source of a word in Emacs.
+* Hilighting::                  Making Forth code look prettier.
+* Auto-Indentation::            Customizing auto-indentation.
+* Blocks Files::                Reading and writing blocks files.
+@end menu
+
+@c ----------------------------------
+@node Installing gforth.el, Emacs Tags, , Emacs and Gforth
+@section Installing gforth.el
+@cindex @file{.emacs}
+@cindex @file{gforth.el}, installation
+To make the features from @file{gforth.el} available in Emacs, add
+the following lines to your @file{.emacs} file:
+
+@example
+(autoload 'forth-mode "gforth.el")
+(setq auto-mode-alist (cons '("\\.fs\\'" . forth-mode) 
+			    auto-mode-alist))
+(autoload 'forth-block-mode "gforth.el")
+(setq auto-mode-alist (cons '("\\.fb\\'" . forth-block-mode) 
+			    auto-mode-alist))
+(add-hook 'forth-mode-hook (function (lambda ()
+   ;; customize variables here:
+   (setq forth-indent-level 4)
+   (setq forth-minor-indent-level 2)
+   (setq forth-hilight-level 3)
+   ;;; ...
+)))
+@end example
+
+@c ----------------------------------
+@node Emacs Tags, Hilighting, Installing gforth.el, Emacs and Gforth
+@section Emacs Tags
 @cindex @file{TAGS} file
 @cindex @file{etags.fs}
 @cindex viewing the source of a word in Emacs
 @cindex @code{require}, placement in files
 @cindex @code{include}, placement in files
-Also, if you @code{require} @file{etags.fs}, a new @file{TAGS} file will
-be produced (@pxref{Tags, , Tags Tables, emacs, Emacs Manual}) that
+If you @code{require} @file{etags.fs}, a new @file{TAGS} file will be
+produced (@pxref{Tags, , Tags Tables, emacs, Emacs Manual}) that
 contains the definitions of all words defined afterwards. You can then
-find the source for a word using @kbd{M-.}. Note that emacs can use
+find the source for a word using @kbd{M-.}. Note that Emacs can use
 several tags files at the same time (e.g., one for the Gforth sources
 and one for your program, @pxref{Select Tags Table,,Selecting a Tags
 Table,emacs, Emacs Manual}). The TAGS file for the preloaded words is
@@ -13878,23 +13926,126 @@ with @file{etags.fs}, you should avoid putting definitions both before
 and after @code{require} etc., otherwise you will see the same file
 visited several times by commands like @code{tags-search}.
 
-@cindex viewing the documentation of a word in Emacs
-@cindex context-sensitive help
-Moreover, for words documented in this manual, you can look up the
-glossary entry quickly by using @kbd{C-h TAB}
-(@code{info-lookup-symbol}, @pxref{Documentation, ,Documentation
-Commands, emacs, Emacs Manual}).  This feature requires Emacs 20.3 or
-later and does not work for words containing @code{:}.
+@c ----------------------------------
+@node Hilighting, Auto-Indentation, Emacs Tags, Emacs and Gforth
+@section Hilighting
+@cindex hilighting Forth code in Emacs
+@cindex highlighting Forth code in Emacs
+@file{gforth.el} comes with a custom source hilighting engine.  When
+you open a file in @code{forth-mode}, it will be completely parsed,
+assigning faces to keywords, comments, strings etc.  While you edit
+the file, modified regions get parsed and updated on-the-fly. 
 
+Use the variable `forth-hilight-level' to change the level of
+decoration from 0 (no hilighting at all) to 3 (the default).  Even if
+you set the hilighting level to 0, the parser will still work in the
+background, collecting information about whether regions of text are
+``compiled'' or ``interpreted''.  Those information are required for
+auto-indentation to work properly.  Set `forth-disable-parser' to
+non-nil if your computer is too slow to handle parsing.  This will
+have an impact on the smartness of the auto-indentation engine,
+though.
 
-@cindex @file{.emacs}
-To get all these benefits, add the following lines to your @file{.emacs}
-file:
+Sometimes Forth sources define new features that should be hilighted,
+new control structures, defining-words etc.  You can use the variable
+`forth-custom-words' to make @code{forth-mode} hilight additional
+words and constructs.  See the docstring of `forth-words' for details
+(in Emacs, type @kbd{C-h v forth-words}).
+
+`forth-custom-words' is meant to be customized in your
+@file{.emacs} file.  To customize hilighing in a file-specific manner,
+set `forth-local-words' in a local-variables section at the end of
+your source file (@pxref{Local Variables in Files,, Variables, emacs, Emacs Manual}).
+
+Example:
+@example
+0 [IF]
+   Local Variables:
+   forth-local-words:
+      ((("t:") definition-starter (font-lock-keyword-face . 1)
+        "[ \t\n]" t name (font-lock-function-name-face . 3))
+       ((";t") definition-ender (font-lock-keyword-face . 1)))
+   End:
+[THEN]
+@end example
+
+@c ----------------------------------
+@node Auto-Indentation, Blocks Files, Hilighting, Emacs and Gforth
+@section Auto-Indentation
+@cindex auto-indentation of Forth code in Emacs
+@cindex indentation of Forth code in Emacs
+@code{forth-mode} automatically tries to indent lines in a smart way,
+whenever you type @key{TAB} or break a line with @kbd{C-m}.
+
+Simple customization can be achieved by setting
+`forth-indent-level' and `forth-minor-indent-level' in your
+@file{.emacs} file. For historical reasons @file{gforth.el} indents
+per default by multiples of 4 columns.  To use the more traditional
+3-column indentation, add the following lines to your @file{.emacs}:
 
 @example
-(autoload 'forth-mode "gforth.el")
-(setq auto-mode-alist (cons '("\\.fs\\'" . forth-mode) auto-mode-alist))
+(add-hook 'forth-mode-hook (function (lambda ()
+   ;; customize variables here:
+   (setq forth-indent-level 3)
+   (setq forth-minor-indent-level 1)
+)))
 @end example
+
+If you want indentation to recognize non-default words, customize it
+by setting `forth-custom-indent-words' in your @file{.emacs}.  See the
+docstring of `forth-indent-words' for details (in Emacs, type @kbd{C-h
+v forth-indent-words}).
+
+To customize indentation in a file-specific manner, set
+`forth-local-indent-words' in a local-variables section at the end of
+your source file (@pxref{Local Variables in Files, Variables,,emacs,
+Emacs Manual}).
+
+Example:
+@example
+0 [IF]
+   Local Variables:
+   forth-local-indent-words:
+      ((("t:") (0 . 2) (0 . 2))
+       ((";t") (-2 . 0) (0 . -2)))
+   End:
+[THEN]
+@end example
+
+@c ----------------------------------
+@node Blocks Files,, Auto-Indentation, Emacs and Gforth
+@section Blocks Files
+@cindex blocks files, use with Emacs
+@code{forth-mode} Autodetects blocks files by checking whether the
+length of the first line exceeds 1023 characters.  It then tries to
+convert the file into normal text format.  When you save the file, it
+will be written to disk as normal stream-source file.
+
+If you want to write blocks files, use @code{forth-blocks-mode}.  It
+inherits all the features from @code{forth-mode}, plus some additions:
+
+@itemize @bullet
+@item
+Files are written to disk in blocks file format.
+@item
+Screen numbers are displayed in the mode line (enumerated beginning
+with the value of `forth-block-base')
+@item
+Warnings are displayed when lines exceed 64 characters.
+@item
+The beginning of the currently edited block is marked with an
+overlay-arrow. 
+@end itemize
+
+There are some restrictions you should be aware of.  When you open a
+blocks file that contains tabulator or newline characters, these
+characters will be translated into spaces when the file is written
+back to disk.  If tabs or newlines are encountered during blocks file
+reading, an error is output to the echo area. So have a look at the
+`*Messages*' buffer, when Emacs' bell rings during reading.
+
+Please consult the docstring of @code{forth-blocks-mode} for more
+information by typing @kbd{C-h v forth-blocks-mode}).
 
 @c ******************************************************************
 @node Image Files, Engine, Emacs and Gforth, Top
