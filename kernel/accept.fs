@@ -28,10 +28,17 @@
     true space ;
 
 Create ctrlkeys
-  ] false false false false  false false false false
-    (bs)  false (ret) false  false (ret) false false
-    false false false false  false false false false
-    false false false false  false false false false [
+    ' false a, ' false a, ' false a, ' false a, 
+    ' false a, ' false a, ' false a, ' false a,
+
+    ' (bs)  a, ' false a, ' (ret) a, ' false a, 
+    ' false a, ' (ret) a, ' false a, ' false a,
+
+    ' false a, ' false a, ' false a, ' false a, 
+    ' false a, ' false a, ' false a, ' false a,
+
+    ' false a, ' false a, ' false a, ' false a, 
+    ' false a, ' false a, ' false a, ' false a,
 
 defer insert-char
 ' (ins) IS insert-char
@@ -42,6 +49,7 @@ defer everychar
   everychar
   dup #del = IF  drop #bs  THEN  \ del is rubout
   dup bl u<  IF  cells ctrlkeys + perform  EXIT  THEN
+  \ check for end reached
   >r 2over = IF  rdrop bell 0 EXIT  THEN
   r> insert-char 0 ;
 
