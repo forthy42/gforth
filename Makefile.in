@@ -341,7 +341,7 @@ VMGEN_EX = vmgen-ex/CVS vmgen-ex/Makefile vmgen-ex/README vmgen-ex/disasm.c \
 VMGEN_EX2 = $(VMGEN_EX:vmgen-ex/%=vmgen-ex2/%)
 
 SOURCES	= $(CVSDIRS) compat Makefile.in Makedist.in engine/Makefile.in \
-	gforthmi.in vmgen.in README.vmgen NEWS.vmgen \
+	gforthmi.in vmgen.in gfgen README.vmgen NEWS.vmgen \
 	configure.in configure config.sub config.guess elisp-comp missing \
 	engine/config.h.in stamp-h.in \
 	iss.sh install-sh INSTALL INSTALL.BINDIST NEWS README ToDo BUGS \
@@ -381,6 +381,11 @@ FORTH_GEN_ENGINE=engine/prim.i engine/prim_lab.i engine/prim_names.i \
 	engine/prim_superend.i engine/profile.i \
 	engine/prim_num.i engine/prim_grp.i \
 	engine/costs.i engine/super2.i
+FORTH_GEN_ENGINE_FAST= \
+	engine/prim-fast.i engine/prim_lab-fast.i engine/prim_names-fast.i \
+	engine/prim_superend-fast.i engine/profile-fast.i \
+	engine/prim_num-fast.i engine/prim_grp-fast.i \
+	engine/costs-fast.i engine/super2-fast.i
 FORTH_GEN_PRIMB = $(FORTH_GEN_ENGINE) kernel/aliases.fs kernel/prim.fs
 FORTH_GEN0 = prim.b $(FORTH_GEN_PRIMB)
 FORTH_GEN =  $(FORTH_GEN0) @KERNEL@ gforth.fi
@@ -700,50 +705,14 @@ prim.b:		prim peeprules.vmg
 		m4 -s $(srcdir)/prim >$@
 		sleep 1 #should make hpux-workaround unnecessary
 
-engine/prim.i:		prim.b prims2x.fs
-		$(FORTHP) prims2x.fs -e "c-flag on s\" prim.i\" save-mem out-filename 2! s\" prim.b\" ' output-c ' output-c-combined process-file bye" >$@-
-		$(CP) $@- $@
-		$(RM) $@-
+prim-fast.b:    prim.b
+		cp prim.b prim-fast.b
 
-engine/prim_lab.i:	prim.b prims2x.fs
-		$(FORTHP) prims2x.fs -e "c-flag on s\" prim.b\" ' output-label dup process-file bye" >$@-
-		$(CP) $@- $@
-		$(RM) $@-
+$(FORTH_GEN_ENGINE_FAST): prim-fast.b prims2x.fs
+		GFORTH="$(FORTHP)" gfgen -fast
 
-engine/prim_grp.i:	prim.b prims2x.fs
-		$(FORTHP) prims2x.fs -e "c-flag on s\" prim.b\" ' noop dup process-file bye" >$@-
-		$(CP) $@- $@
-		$(RM) $@-
-
-engine/prim_names.i:	prim.b prims2x.fs
-		$(FORTHP) prims2x.fs -e "c-flag on s\" prim.b\" ' output-forthname dup process-file bye" >$@-
-		$(CP) $@- $@
-		$(RM) $@-
-
-engine/prim_superend.i:	prim.b prims2x.fs
-		$(FORTHP) prims2x.fs -e "c-flag on s\" prim.b\" ' output-superend dup process-file bye" >$@-
-		$(CP) $@- $@
-		$(RM) $@-
-
-engine/peephole.i:	prim.b prims2x.fs
-		$(FORTHP) prims2x.fs -e "c-flag on s\" prim.b\" ' noop ' output-peephole process-file bye" >$@-
-		$(CP) $@- $@
-		$(RM) $@-
-
-engine/profile.i:	prim.b prims2x.fs
-		$(FORTHP) prims2x.fs -e "c-flag on s\" prim.b\" ' output-profile ' output-profile-combined process-file bye" >$@-
-		$(CP) $@- $@
-		$(RM) $@-
-
-engine/super2.i:	prim.b prims2x.fs
-		$(FORTHP) prims2x.fs -e "c-flag on s\" prim.b\" ' output-super2-simple ' output-super2-combined process-file bye" >$@-
-		$(CP) $@- $@
-		$(RM) $@-
-
-engine/costs.i:	prim.b prims2x.fs
-		$(FORTHP) prims2x.fs -e "c-flag on s\" prim.b\" ' output-costs-gforth-simple ' output-costs-gforth-combined process-file bye" >$@-
-		$(CP) $@- $@
-		$(RM) $@-
+$(FORTH_GEN_ENGINE): prim.b prims2x.fs
+		GFORTH="$(FORTHP)" gfgen
 
 kernel/aliases.fs:	prim.b prims2x.fs kernel/aliases0.fs
 		$(CP) kernel/aliases0.fs $@-
@@ -756,9 +725,6 @@ kernel/prim.fs:	prim.b prims2x.fs kernel/prim0.fs
 		$(FORTHP) prims2x.fs -e "forth-flag on s\" prim.b\" ' output-forth ' output-forth-combined process-file bye" >>$@-
 		$(CP) $@- $@
 		$(RM) $@-
-
-engine/prim_num.i:	prim.b prims2x.fs
-		$(FORTHP) prims2x.fs -e "c-flag on s\" prim.b\" ' output-c-prim-num ' noop process-file bye" >$@
 
 gforth$(EXE):		engines
 		-$(CP) gforth$(EXE) gforth~
