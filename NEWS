@@ -33,7 +33,7 @@ Keyboard input: EDIT-LINE K-PRIOR K-NEXT K-DELETE
 File input: SLURP-FILE SLURP-FID 
 Programming tools: ID. .ID WORDLIST-WORDS SIMPLE-SEE
 Conditional execution: [DEFINED] [UNDEFINED]
-Defining Words: CONST-DOES>
+Defining Words: CONST-DOES> ]]
 Input stream: PARSE-WORD EXECUTE-PARSING EXECUTE-PARSING-FILE
 String comparison: STR= STR< STRING-PREFIX?
 String literals: S\" .\" \"-PARSE
