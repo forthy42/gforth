@@ -333,9 +333,9 @@ The Text Interpreter
 
 Word Lists
 
-* Why use word lists?::         
-* Word list examples::          
 * Vocabularies::                
+* Why use word lists?::         
+* Word list example::           
 
 Files
 
@@ -345,7 +345,7 @@ Files
 
 Search Paths
 
-* Forth Search Paths::          
+* Source Search Paths::         
 * General Search Paths::        
 
 Other I/O
@@ -7749,107 +7749,12 @@ doc-context
 
 
 @menu
-* Why use word lists?::         
-* Word list examples::          
 * Vocabularies::                
+* Why use word lists?::         
+* Word list example::           
 @end menu
 
-@node Why use word lists?, Word list examples, Word Lists, Word Lists
-@subsection Why use word lists?
-@cindex word lists - why use them?
-
-Here are some reasons why people use wordlists:
-
-@itemize @bullet
-
-@c anton: Gforth's hashing implementation makes the search speed
-@c independent from the number of words.  But it is linear with the number
-@c of wordlists that have to be searched, so in effect using more wordlists
-@c actually slows down compilation.
-
-@c @item
-@c To improve compilation speed by reducing the number of header space
-@c entries that must be searched. This is achieved by creating a new
-@c word list that contains all of the definitions that are used in the
-@c definition of a Forth system but which would not usually be used by
-@c programs running on that system. That word list would be on the search
-@c list when the Forth system was compiled but would be removed from the
-@c search list for normal operation. This can be a useful technique for
-@c low-performance systems (for example, 8-bit processors in embedded
-@c systems) but is unlikely to be necessary in high-performance desktop
-@c systems.
-
-@item
-To prevent a set of words from being used outside the context in which
-they are valid. Two classic examples of this are an integrated editor
-(all of the edit commands are defined in a separate word list; the
-search order is set to the editor word list when the editor is invoked;
-the old search order is restored when the editor is terminated) and an
-integrated assembler (the op-codes for the machine are defined in a
-separate word list which is used when a @code{CODE} word is defined).
-
-@item
-To organize the words of an application or library into a user-visible
-set (in @code{forth-wordlist} or some other common wordlist) and a set
-of helper words used just for the implementation (hidden in a separate
-wordlist).  This keeps the @code{words} output cleaner, provides a
-separation of implementation and interface, and reduces the chance of
-name conflicts within the common wordlist.
-
-@item
-To prevent a name-space clash between multiple definitions with the same
-name. For example, when building a cross-compiler you might have a word
-@code{IF} that generates conditional code for your target system. By
-placing this definition in a different word list you can control whether
-the host system's @code{IF} or the target system's @code{IF} get used in
-any particular context by controlling the order of the word lists on the
-search order stack.
-
-@end itemize
-
-The downsides of using wordlists are:
-
-@itemize
-
-@item
-Debugging becomes more cumbersome.
-
-@item
-Name conflicts worked around with wordlists are still there, and you
-have to arrange the search order carefully to get the desired results;
-if you forget to do that, you get hard-to-find errors (as in any case
-where you read the code differently from the compiler; @code{see} can
-help in such cases).  Using unique names is a better approach to avoid
-name conflicts.
-
-@item
-You have to explicitly undo any changes to the search order.  In many
-cases it would be more convenient if this happened implicitly.  Gforth
-currently does not provide such a feature, but it may do so in the
-future.
-@end itemize
-
-
-@node Word list examples, Vocabularies, Why use word lists?, Word Lists
-@subsection Word list examples
-@cindex word lists - examples
-
-The following example is from the
-@uref{http://www.complang.tuwien.ac.at/forth/garbage-collection.zip,
-garbage collector} and uses wordlists to separate public words from
-helper words:
-
-@example
-get-current ( wid )
-vocabulary garbage-collector also garbage-collector definitions
-... \ define helper words
-( wid ) set-current \ restore original (i.e., public) compilation wordlist
-... \ define the public (i.e., API) words
-    \ they can refer to the helper words
-previous \ restore original search order (helper words become invisible)
-@end example
-
-@node Vocabularies,  , Word list examples, Word Lists
+@node Vocabularies, Why use word lists?, Word Lists, Word Lists
 @subsection Vocabularies
 @cindex Vocabularies, detailed explanation
 
@@ -7888,6 +7793,104 @@ also my-new-words
 \ the compilation word list
 my-new-words definitions
 \ type "order" to see that the problem is solved
+@end example
+
+
+@node Why use word lists?, Word list example, Vocabularies, Word Lists
+@subsection Why use word lists?
+@cindex word lists - why use them?
+
+Here are some reasons why people use wordlists:
+
+@itemize @bullet
+
+@c anton: Gforth's hashing implementation makes the search speed
+@c independent from the number of words.  But it is linear with the number
+@c of wordlists that have to be searched, so in effect using more wordlists
+@c actually slows down compilation.
+
+@c @item
+@c To improve compilation speed by reducing the number of header space
+@c entries that must be searched. This is achieved by creating a new
+@c word list that contains all of the definitions that are used in the
+@c definition of a Forth system but which would not usually be used by
+@c programs running on that system. That word list would be on the search
+@c list when the Forth system was compiled but would be removed from the
+@c search list for normal operation. This can be a useful technique for
+@c low-performance systems (for example, 8-bit processors in embedded
+@c systems) but is unlikely to be necessary in high-performance desktop
+@c systems.
+
+@item
+To prevent a set of words from being used outside the context in which
+they are valid. Two classic examples of this are an integrated editor
+(all of the edit commands are defined in a separate word list; the
+search order is set to the editor word list when the editor is invoked;
+the old search order is restored when the editor is terminated) and an
+integrated assembler (the op-codes for the machine are defined in a
+separate word list which is used when a @code{CODE} word is defined).
+
+@item
+To organize the words of an application or library into a user-visible
+set (in @code{forth-wordlist} or some other common wordlist) and a set
+of helper words used just for the implementation (hidden in a separate
+wordlist).  This keeps @code{words}' output smaller, separates
+implementation and interface, and reduces the chance of name conflicts
+within the common wordlist.
+
+@item
+To prevent a name-space clash between multiple definitions with the same
+name. For example, when building a cross-compiler you might have a word
+@code{IF} that generates conditional code for your target system. By
+placing this definition in a different word list you can control whether
+the host system's @code{IF} or the target system's @code{IF} get used in
+any particular context by controlling the order of the word lists on the
+search order stack.
+
+@end itemize
+
+The downsides of using wordlists are:
+
+@itemize
+
+@item
+Debugging becomes more cumbersome.
+
+@item
+Name conflicts worked around with wordlists are still there, and you
+have to arrange the search order carefully to get the desired results;
+if you forget to do that, you get hard-to-find errors (as in any case
+where you read the code differently from the compiler; @code{see} can
+help seeing which of several possible words the name resolves to in such
+cases).  @code{See} displays just the name of the words, not what
+wordlist they belong to, so it might be misleading.  Using unique names
+is a better approach to avoid name conflicts.
+
+@item
+You have to explicitly undo any changes to the search order.  In many
+cases it would be more convenient if this happened implicitly.  Gforth
+currently does not provide such a feature, but it may do so in the
+future.
+@end itemize
+
+
+@node Word list example,  , Why use word lists?, Word Lists
+@subsection Word list example
+@cindex word lists - example
+
+The following example is from the
+@uref{http://www.complang.tuwien.ac.at/forth/garbage-collection.zip,
+garbage collector} and uses wordlists to separate public words from
+helper words:
+
+@example
+get-current ( wid )
+vocabulary garbage-collector also garbage-collector definitions
+... \ define helper words
+( wid ) set-current \ restore original (i.e., public) compilation wordlist
+... \ define the public (i.e., API) words
+    \ they can refer to the helper words
+previous \ restore original search order (helper words become invisible)
 @end example
 
 @c -------------------------------------------------------------
@@ -7933,16 +7936,36 @@ Here are some examples of using environmental queries:
 s" address-unit-bits" environment? 0=
 [IF]
      cr .( environmental attribute address-units-bits unknown... ) cr
+[ELSE]
+     drop \ ensure balanced stack effect
 [THEN]
 
-s" block" environment? [IF] DROP include block.fs [THEN]
-
-s" gforth" environment? [IF] 2DROP include compat/vocabulary.fs [THEN]
+\ this might occur in the prelude of a standard program that uses THROW
+s" exception" environment? [IF]
+   0= [IF]
+      : throw abort" exception thrown" ;
+   [THEN]
+[ELSE] \ we don't know, so make sure
+   : throw abort" exception thrown" ;
+[THEN]
 
 s" gforth" environment? [IF] .( Gforth version ) TYPE
                         [ELSE] .( Not Gforth..) [THEN]
-@end example
 
+\ a program using v*
+s" gforth" environment? [IF]
+  s" 0.5.0" compare 0< [IF] \ v* is a primitive since 0.5.0
+   : v* ( f_addr1 nstride1 f_addr2 nstride2 ucount -- r )
+     >r swap 2swap swap 0e r> 0 ?DO
+       dup f@ over + 2swap dup f@ f* f+ over + 2swap
+     LOOP
+     2drop 2drop ; 
+  [THEN]
+[ELSE] \ 
+  : v* ( f_addr1 nstride1 f_addr2 nstride2 ucount -- r )
+  ...
+[THEN]
+@end example
 
 Here is an example of adding a definition to the environment word list:
 
@@ -7956,7 +7979,7 @@ set-current
 You can see what definitions are in the environment word list like this:
 
 @example
-get-order 1+ environment-wordlist swap set-order words previous
+environment-wordlist push-order words previous
 @end example
 
 
@@ -7977,16 +8000,11 @@ Files that are processed by the Text Interpreter (@dfn{Forth source files}).
 Files that are processed by some other program (@dfn{general files}).
 @end itemize
 
-doc-loadfilename
-doc-sourcefilename
-doc-sourceline#
-
 @menu
 * Forth source files::          
 * General files::               
 * Search Paths::                
 @end menu
-
 
 @c -------------------------------------------------------------
 @node Forth source files, General files, Files, Files
@@ -8002,7 +8020,7 @@ include mysource.fs
 s" mysource.fs" included
 @end example
 
-Sometimes you want to include a file only if it is not included already
+You usually want to include a file only if it is not included already
 (by, say, another source file). In that case, you can use one of these
 three formats:
 
@@ -8019,9 +8037,15 @@ does not change the stack. Source files designed in this way can be used with
 @code{required} and friends without complications. For example:
 
 @example
-1 require foo.fs drop
+1024 require foo.fs drop
 @end example
 
+Here you want to pass the argument 1024 (e.g., a buffer size) to
+@file{foo.fs}.  Interpreting @file{foo.fs} has the stack effect ( n -- n
+), which allows its use with @code{require}.  Of course with such
+parameters to required files, you have to ensure that the first
+@code{require} fits for all uses (i.e., @code{require} it early in the
+master load file).
 
 doc-include-file
 doc-included
@@ -8030,8 +8054,10 @@ doc-include
 doc-required
 doc-require
 doc-needs
-doc-init-included-files
-
+@c doc-init-included-files @c internal
+@c doc-loadfilename @c internal word
+doc-sourcefilename
+doc-sourceline#
 
 A definition in ANS Forth for @code{required} is provided in
 @file{compat/required.fs}.
@@ -8042,10 +8068,10 @@ A definition in ANS Forth for @code{required} is provided in
 @cindex general files
 @cindex file-handling
 
-Files are opened/created by name and type. The following types are
-recognised:
+Files are opened/created by name and type. The following file access
+methods (FAMs) are recognised:
 
-
+@cindex fam (file access method)
 doc-r/o
 doc-r/w
 doc-w/o
@@ -8092,82 +8118,84 @@ If you specify an absolute filename (i.e., a filename starting with
 @samp{C:...})) for @code{included} and friends, that file is included
 just as you would expect.
 
-For relative filenames, Gforth uses a search path similar to Forth's
-search order (@pxref{Word Lists}). It tries to find the given filename
-in the directories present in the path, and includes the first one it
-finds. There are separate search paths for Forth source files and
-general files.
+If the filename starts with @file{./}, this refers to the directory that
+the present file was @code{included} from.  This allows files to include
+other files relative to their own position (irrespective of the current
+working directory or the absolute position).  This feature is essential
+for libraries consisting of several files, where a file may include
+other files from the library.  It corresponds to @code{#include "..."}
+in C. If the current input source is not a file, @file{.} refers to the
+directory of the innermost file being included, or, if there is no file
+being included, to the current working directory.
 
-If the search path contains the directory @file{.} (as it should), this
-refers to the directory that the present file was @code{included}
-from. This allows files to include other files relative to their own
-position (irrespective of the current working directory or the absolute
-position).  This feature is essential for libraries consisting of
-several files, where a file may include other files from the library.
-It corresponds to @code{#include "..."} in C. If the current input
-source is not a file, @file{.} refers to the directory of the innermost
-file being included, or, if there is no file being included, to the
-current working directory.
+For relative filenames (not starting with @file{./}), Gforth uses a
+search path similar to Forth's search order (@pxref{Word Lists}). It
+tries to find the given filename in the directories present in the path,
+and includes the first one it finds. There are separate search paths for
+Forth source files and general files.  If the search path contains the
+directory @file{.}, this refers to the directory of the current file, or
+the working directory, as if the file had been specified with @file{./}.
 
 Use @file{~+} to refer to the current working directory (as in the
 @code{bash}).
 
-If the filename starts with @file{./}, the search path is not searched
-(just as with absolute filenames), and the @file{.} has the same meaning
-as described above.
+@c anton: fold the following subsubsections into this subsection?
 
 @menu
-* Forth Search Paths::          
+* Source Search Paths::         
 * General Search Paths::        
 @end menu
 
 @c ---------------------------------------------------------
-@node Forth Search Paths, General Search Paths, Search Paths, Search Paths
-@subsubsection Forth Search Paths
-@cindex search path control - Forth
+@node Source Search Paths, General Search Paths, Search Paths, Search Paths
+@subsubsection Source Search Paths
+@cindex search path control, source files
 
 The search path is initialized when you start Gforth (@pxref{Invoking
-Gforth}). You can display it and change it using these words:
+Gforth}). You can display it and change it using @code{fpath} in
+combination with the general path handling words.
 
-
-doc-.fpath
-doc-fpath+
-doc-fpath=
-doc-open-fpath-file
-
+doc-fpath
+@c the functionality of the following words is easily available through
+@c   fpath and the general path words.  The may go away.
+@c doc-.fpath
+@c doc-fpath+
+@c doc-fpath=
+@c doc-open-fpath-file
 
 @noindent
 Here is an example of using @code{fpath} and @code{require}:
 
 @example
-fpath= /usr/lib/forth/|./
+fpath path= /usr/lib/forth/|./
 require timer.fs
 @end example
 
+
 @c ---------------------------------------------------------
-@node General Search Paths,  , Forth Search Paths, Search Paths
+@node General Search Paths,  , Source Search Paths, Search Paths
 @subsubsection General Search Paths
-@cindex search path control - for user applications
+@cindex search path control, source files
 
 Your application may need to search files in several directories, like
 @code{included} does. To facilitate this, Gforth allows you to define
 and use your own search paths, by providing generic equivalents of the
 Forth search path words:
 
-
+doc-open-path-file
+doc-path-allot
+doc-clear-path
+doc-also-path
 doc-.path
 doc-path+
 doc-path=
-doc-open-path-file
 
+@c anton: better define a word for it, say "path-allot ( ucount -- path-addr )
 
-Here's an example of creating a search path:
-
+Here's an example of creating an empty search path:
+@c
 @example
-\ Make a buffer for the path:
-create mypath   100 chars ,     \ maximum length (is checked)
-                0 ,             \ real len
-                100 chars allot \ space for path
+create mypath 500 path-allot \ maximum length 500 chars (is checked)
 @end example
 
 @c -------------------------------------------------------------
@@ -8206,18 +8234,18 @@ bytes, corresponding to the number of blocks it contains. This is the
 mechanism that Gforth uses.
 
 @cindex @file{blocks.fb}
-Only 1 blocks file can be open at a time. If you use block words without
+Only one blocks file can be open at a time. If you use block words without
 having specified a blocks file, Gforth defaults to the blocks file
 @file{blocks.fb}. Gforth uses the Forth search path when attempting to
-locate a blocks file (@pxref{Forth Search Paths}).
+locate a blocks file (@pxref{Source Search Paths}).
 
 @cindex block buffers
 When you read and write blocks under program control, Gforth uses a
 number of @dfn{block buffers} as intermediate storage. These buffers are
 not used when you use @code{load} to interpret the contents of a block.
 
-The behaviour of the block buffers is directly analagous to that of a
-cache. Each block buffer has three states:
+The behaviour of the block buffers is analagous to that of a cache.
+Each block buffer has three states:
 
 @itemize @bullet
 @item
@@ -8244,19 +8272,22 @@ available. Otherwise, @code{buffer} will simply assign a new, empty
 block buffer for the block.}.
 
 Once a block has been assigned to a block buffer using @code{block} or
-@code{buffer}, that block buffer becomes the @i{current block buffer}
-and its state changes to @i{assigned-clean}. Data may only be
-manipulated (read or written) within the current block buffer.
+@code{buffer}, that block buffer becomes the @i{current block
+buffer}. Data may only be manipulated (read or written) within the
+current block buffer.
 
 When the contents of the current block buffer has been modified it is
 necessary, @emph{before calling @code{block} or @code{buffer} again}, to
-either abandon the changes (by doing nothing) or commit the changes,
-using @code{update}. Using @code{update} does not change the blocks
-file; it simply changes a block buffer's state to @i{assigned-dirty}.
+either abandon the changes (by doing nothing) or mark the block as
+changed (assigned-dirty), using @code{update}. Using @code{update} does
+not change the blocks file; it simply changes a block buffer's state to
+@i{assigned-dirty}.  The block will be written implicitly when it's
+buffer is needed for another block, or explicitly by @code{flush} or
+@code{save-buffers}.
 
-The word @code{flush} causes all @i{assigned-dirty} blocks to be
-written back to the blocks file on disk. Leaving Gforth using @code{bye}
-also causes a @code{flush} to be performed.
+word @code{Flush} writes all @i{assigned-dirty} blocks back to the
+blocks file on disk. Leaving Gforth with @code{bye} also performs a
+@code{flush}.
 
 In Gforth, @code{block} and @code{buffer} use a @i{direct-mapped}
 algorithm to assign a block buffer to a block. That means that any
@@ -8316,20 +8347,22 @@ integrated into a Forth programming environment.
 
 doc-open-blocks
 doc-use
+doc-block-offset
 doc-get-block-fid
 doc-block-position
 
-doc-scr
 doc-list
+doc-scr
 
 doc---gforthman-block
 doc-buffer
 
+doc-empty-buffers
+doc-empty-buffer
 doc-update
 doc-updated?
 doc-save-buffers
-doc-empty-buffers
-doc-empty-buffer
+doc-save-buffer
 doc-flush
 
 doc-load
@@ -8405,8 +8438,9 @@ extraction process. The completed string is specified by an address
 and length and can be manipulated (@code{TYPE}ed, copied, modified)
 under program control.
 
-All of the words described in the previous section for simple numeric
-output are implemented in Gforth using pictured numeric output.
+All of the integer output words described in the previous section
+(@pxref{Simple numeric output}) are implemented in Gforth using pictured
+numeric output.
 
 Three important things to remember about pictured numeric output:
 
@@ -8442,51 +8476,57 @@ Here are some examples of using pictured numeric output:
 : my-u. ( u -- )
   \ Simplest use of pns.. behaves like Standard u. 
   0              \ convert to unsigned double
-  <#             \ start conversion
+  <<#            \ start conversion
   #s             \ convert all digits
   #>             \ complete conversion
-  TYPE SPACE ;   \ display, with trailing space
+  TYPE SPACE     \ display, with trailing space
+  #>> ;          \ release hold area
 
 : cents-only ( u -- )
   0              \ convert to unsigned double
-  <#             \ start conversion
+  <<#            \ start conversion
   # #            \ convert two least-significant digits
   #>             \ complete conversion, discard other digits
-  TYPE SPACE ;   \ display, with trailing space
+  TYPE SPACE     \ display, with trailing space
+  #>> ;          \ release hold area
 
 : dollars-and-cents ( u -- )
   0              \ convert to unsigned double
-  <#             \ start conversion
+  <<#            \ start conversion
   # #            \ convert two least-significant digits
   [char] . hold  \ insert decimal point
   #s             \ convert remaining digits
   [char] $ hold  \ append currency symbol
   #>             \ complete conversion
-  TYPE SPACE ;   \ display, with trailing space
+  TYPE SPACE     \ display, with trailing space
+  #>> ;          \ release hold area
 
 : my-. ( n -- )
   \ handling negatives.. behaves like Standard .
   s>d            \ convert to signed double
   swap over dabs \ leave sign byte followed by unsigned double
-  <#             \ start conversion
+  <<#            \ start conversion
   #s             \ convert all digits
   rot sign       \ get at sign byte, append "-" if needed
   #>             \ complete conversion
-  TYPE SPACE ;   \ display, with trailing space
+  TYPE SPACE     \ display, with trailing space
+  #>> ;          \ release hold area
 
 : account. ( n -- )
-  \ accountants don't like minus signs, they use braces
+  \ accountants don't like minus signs, they use parentheses
   \ for negative numbers
   s>d            \ convert to signed double
   swap over dabs \ leave sign byte followed by unsigned double
-  <#             \ start conversion
+  <<#            \ start conversion
   2 pick         \ get copy of sign byte
   0< IF [char] ) hold THEN \ right-most character of output
   #s             \ convert all digits
   rot            \ get at sign byte
   0< IF [char] ( hold THEN
   #>             \ complete conversion
-  TYPE SPACE ;   \ display, with trailing space
+  TYPE SPACE     \ display, with trailing space
+  #>> ;          \ release hold area
+
 @end example
 
 Here are some examples of using these words:
@@ -8510,6 +8550,10 @@ hex -1 my-u. decimal FFFFFFFF
 @cindex strings - see character strings
 @cindex character strings - formats
 @cindex I/O - see character strings
+@cindex counted strings
+
+@c anton: this does not really belong here; maybe the memory section,
+@c  or the principles chapter
 
 Forth commonly uses two different methods for representing character
 strings:
@@ -8529,8 +8573,7 @@ first byte of the string.
 @end itemize
 
 ANS Forth encourages the use of the second format when representing
-strings on the stack, whilst conceeding that the counted string format
-remains useful as a way of storing strings in memory.
+strings.
 
 
 doc-count
@@ -8656,10 +8699,11 @@ doc->number
 doc->float
 doc-accept
 doc-pad
+@c anton: these belong in the input stream section
 doc-parse
 doc-word
 doc-sword
-doc-(name)
+doc-name
 doc-refill
 @comment obsolescent words..
 doc-convert

@@ -86,10 +86,9 @@ true constant CORE-EXT ( -- f ) \ environment
 \G Largest usable unsigned double.
 
 version-string 2constant gforth ( -- c-addr u ) \ gforth-environment
-\G Counted string representing a version string for this version of Gforth
-\G (for versions>0.3.0).
-\ the version strings of the various versions are guaranteed to be
-\ sorted lexicographically
+\G Counted string representing a version string for this version of
+\G Gforth (for versions>0.3.0).  The version strings of the various
+\G versions are guaranteed to be sorted lexicographically.
 
 : return-stack-cells ( -- n ) \ environment
     \G Maximum size of the return stack, in cells.

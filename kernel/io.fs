@@ -114,7 +114,7 @@ has? ec [IF]
 \ space spaces		                                21mar93py
 decimal
 Create spaces ( u -- ) \ core
-  \G If @var{n} > 0, display @var{n} spaces. 
+  \G Display @var{n} spaces. 
   bl 80 times \ times from target compiler! 11may93jaw
 DOES>   ( u -- )
   swap

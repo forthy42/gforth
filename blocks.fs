@@ -45,7 +45,15 @@ Variable last-block
 $20 Value buffers
 
 User block-fid
-User offset   0 offset !  \ store 1 here fore 0.4.0 compatibility
+User block-offset ( -- addr ) \ gforth
+\G User variable containing the number of the first block (default
+\G since 0.5.0: 0).  Block files created with Gforth versions before
+\G 0.5.0 have the offset 1.  If you use these files you can: @code{1
+\G offset !}; or add 1 to every block number used; or prepend 1024
+\G characters to the file.
+0 block-offset !  \ store 1 here fore 0.4.0 compatibility
+
+' block-offset alias offset \ !! eliminate this?
 
 : block-cold ( -- )
     block-fid off  last-block off
@@ -109,7 +117,7 @@ Defer flush-blocks ( -- ) \ gforth
 
 : save-buffers  ( -- ) \ block
     \G Transfer the contents of each @code{update}d block buffer to
-    \G mass storage, then mark all block buffers as unassigned.
+    \G mass storage, then mark all block buffers as assigned-clean.
     block-buffers @
     buffers 0 ?DO dup save-buffer next-buffer LOOP drop ;
 

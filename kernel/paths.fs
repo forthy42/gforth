@@ -37,10 +37,7 @@
 \ It is possible to use the search mechanism on yourself.
 
 \ Make a buffer for the path:
-\ create mypath	100 chars , 	\ maximum length (is checked)
-\ 		0 ,		\ real len
-\ 		100 chars allot \ space for path
-\ use the same functions as above with:
+\ create mypath	100 path,
 \ mypath path+ 
 \ mypath path=
 \ mypath .path
@@ -50,6 +47,10 @@
 \ the file is opened read-only; if the file is not found an error is generated
 
 \ questions to: wilke@jwdt.com
+
+: path-allot ( umax -- )
+    \G @code{Allot} a path with @i{umax} characters capacity, initially empty.
+    chars dup , 0 , allot ;
 
 [IFUNDEF] +place
 : +place ( adr len adr )
@@ -64,9 +65,11 @@
 [THEN]
 
 create sourcepath 1024 chars , 0 , 1024 chars allot \ !! make this dynamic
-sourcepath avalue fpath
+sourcepath avalue fpath ( -- path-addr ) \ gforth
+\ The path Gforth uses for @code{included} and friends.
 
-: also-path ( adr len path^ -- )
+: also-path ( c-addr len path-addr -- ) \ gforth
+    \G add the directory @i{c-addr len} to @i{path-addr}.
   >r
   \ len check
   r@ cell+ @ over + r@ @ u> ABORT" path buffer too small!"
@@ -74,10 +77,14 @@ sourcepath avalue fpath
   tuck r@ cell+ dup @ cell+ + swap cmove
   \ make delimiter
   0 r@ cell+ dup @ cell+ + 2 pick + c! 1 + r> cell+ +!
-  ;
+;
+
+: clear-path ( path-addr -- ) \ gforth
+    \G Set the path @i{path-addr} to empty.
+    0 swap cell+ ! ;
 
 : only-path ( adr len path^ -- )
-  dup 0 swap cell+ ! also-path ;
+    dup clear-path also-path ;
 
 : path+ ( path-addr  "dir" -- ) \ gforth
     \G Add the directory @var{dir} to the search path @var{path-addr}.
@@ -105,6 +112,7 @@ sourcepath avalue fpath
   r> - ;
 
 : previous-path ( path^ -- )
+    \ !! "fpath previous-path" doesn't work
   dup path>counted
   BEGIN tuck dup WHILE repeat ;
 
@@ -187,9 +195,10 @@ Create tfile 0 c, 255 chars allot
   r> r> ofile +place
   open-ofile ;
 
+\ !! allow arbitrary FAMs, not just R/O
 : open-path-file ( addr1 u1 path-addr -- wfileid addr2 u2 0 | ior ) \ gforth
     \G Look in path @var{path-addr} for the file specified by @var{addr1 u1}.
-    \G If found, the resulting path and an open file descriptor
+    \G If found, the resulting path and and (read-only) open file descriptor
     \G are returned. If the file is not found, @var{ior} is non-zero.
   >r
   2dup absolut-path?

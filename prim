@@ -1224,8 +1224,8 @@ n2 = n1 * sizeof(Char);
  ;
 
 count	( c_addr1 -- c_addr2 u )	core
-"" If @i{c-add1} is the address of a counted string return the length of
-the string, @i{u}, and the address of its first character, @i{c-addr2}.""
+""@i{c-addr2} is the first character and @i{u} the length of the
+counted string at @i{c-addr1}.""
 u = *c_addr1;
 c_addr2 = c_addr1+1;
 :
@@ -1504,8 +1504,8 @@ in length.""
 c_addr2 = getenv(cstr(c_addr1,u1,1));
 u2 = (c_addr2 == NULL ? 0 : strlen(c_addr2));
 
-open-pipe	( c_addr u ntype -- wfileid wior )	gforth	open_pipe
-wfileid=(Cell)popen(cstr(c_addr,u,1),fileattr[ntype]); /* ~ expansion of 1st arg? */
+open-pipe	( c_addr u wfam -- wfileid wior )	gforth	open_pipe
+wfileid=(Cell)popen(cstr(c_addr,u,1),fileattr[wfam]); /* ~ expansion of 1st arg? */
 wior = IOR(wfileid==0); /* !! the man page says that errno is not set reliably */
 
 close-pipe	( wfileid -- wretval wior )		gforth	close_pipe
@@ -1599,15 +1599,15 @@ IF_FTOS(FTOS=fp[0]);
 close-file	( wfileid -- wior )		file	close_file
 wior = IOR(fclose((FILE *)wfileid)==EOF);
 
-open-file	( c_addr u ntype -- wfileid wior )	file	open_file
-wfileid = (Cell)fopen(tilde_cstr(c_addr, u, 1), fileattr[ntype]);
+open-file	( c_addr u wfam -- wfileid wior )	file	open_file
+wfileid = (Cell)fopen(tilde_cstr(c_addr, u, 1), fileattr[wfam]);
 wior =  IOR(wfileid == 0);
 
-create-file	( c_addr u ntype -- wfileid wior )	file	create_file
+create-file	( c_addr u wfam -- wfileid wior )	file	create_file
 Cell	fd;
-fd = open(tilde_cstr(c_addr, u, 1), O_CREAT|O_TRUNC|ufileattr[ntype], 0666);
+fd = open(tilde_cstr(c_addr, u, 1), O_CREAT|O_TRUNC|ufileattr[wfam], 0666);
 if (fd != -1) {
-  wfileid = (Cell)fdopen(fd, fileattr[ntype]);
+  wfileid = (Cell)fdopen(fd, fileattr[wfam]);
   wior = IOR(wfileid == 0);
 } else {
   wfileid = 0;
@@ -1710,26 +1710,26 @@ PUTC(c);
 flush-file	( wfileid -- wior )		file-ext	flush_file
 wior = IOR(fflush((FILE *) wfileid)==EOF);
 
-file-status	( c_addr u -- ntype wior )	file-ext	file_status
+file-status	( c_addr u -- wfam wior )	file-ext	file_status
 char *filename=tilde_cstr(c_addr, u, 1);
 if (access (filename, F_OK) != 0) {
-  ntype=0;
+  wfam=0;
   wior=IOR(1);
 }
 else if (access (filename, R_OK | W_OK) == 0) {
-  ntype=2; /* r/w */
+  wfam=2; /* r/w */
   wior=0;
 }
 else if (access (filename, R_OK) == 0) {
-  ntype=0; /* r/o */
+  wfam=0; /* r/o */
   wior=0;
 }
 else if (access (filename, W_OK) == 0) {
-  ntype=4; /* w/o */
+  wfam=4; /* w/o */
   wior=0;
 }
 else {
-  ntype=1; /* well, we cannot access the file, but better deliver a legal
+  wfam=1; /* well, we cannot access the file, but better deliver a legal
 	    access mode (r/o bin), so we get a decent error later upon open. */
   wior=0;
 }
@@ -1877,12 +1877,12 @@ f2=FLAG(isdigit((unsigned)(sig[0]))!=0);
 memmove(c_addr,sig,u);
 
 >float	( c_addr u -- flag )	float	to_float
-""Attempt to convert the character string @i{c-addr u} to
-internal floating-point representation. If the string
-represents a valid floating-point number @i{r} is placed
-on the floating-point stack and @i{flag} is true. Otherwise,
-@i{flag} is false. A string of blanks is a special case
-and represents the floating-point number 0.""
+""Actual stack effect: ( c_addr u -- r t | f ).  Attempt to convert the
+character string @i{c-addr u} to internal floating-point
+representation. If the string represents a valid floating-point number
+@i{r} is placed on the floating-point stack and @i{flag} is
+true. Otherwise, @i{flag} is false. A string of blanks is a special
+case and represents the floating-point number 0.""
 /* real signature: c_addr u -- r t / f */
 Float r;
 char *number=cstr(c_addr, u, 1);

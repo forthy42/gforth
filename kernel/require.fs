@@ -29,7 +29,7 @@ create image-included-files  1 , A, ( pointer to and count of included files )
 \ included-files points to ALLOCATEd space, while image-included-files
 \ points to ALLOTed objects, so it survives a save-system
 
-: loadfilename ( -- a-addr ) \ gforth
+: loadfilename ( -- a-addr ) \ gforth-internal
     \G @i{a-addr} @code{2@@} produces the current file name ( @i{c-addr u} )
     included-files 2@ loadfilename# @ min 2* cells + ;
 
@@ -37,7 +37,8 @@ create image-included-files  1 , A, ( pointer to and count of included files )
     \G The name of the source file which is currently the input
     \G source.  The result is valid only while the file is being
     \G loaded.  If the current input source is no (stream) file, the
-    \G result is undefined.
+    \G result is undefined.  In Gforth, the result is valid during the
+    \G whole seesion (but not across @code{savesystem} etc.).
     loadfilename 2@ ;
 
 : sourceline# ( -- u ) \ gforth		sourceline-number
@@ -47,8 +48,7 @@ create image-included-files  1 , A, ( pointer to and count of included files )
     \G undefined.
     loadline @ ;
 
-: init-included-files ( -- ) \ gforth
-    \G Clear the list of earlier included files.
+: init-included-files ( -- ) \ gforth-internal
     image-included-files 2@ 2* cells save-mem drop ( addr )
     image-included-files 2@ nip included-files 2! ;
 
@@ -154,5 +154,5 @@ create image-included-files  1 , A, ( pointer to and count of included files )
 	cr I 2@ type  2 cells +LOOP ;  
 
 \ contains tools/newrequire.fs
-\ \I $Id: require.fs,v 1.10 2000-07-01 07:59:10 anton Exp $
+\ \I $Id: require.fs,v 1.11 2000-08-17 12:46:59 anton Exp $
 

@@ -25,10 +25,11 @@ decimal
 
 \ .(                                                    12may93jaw
 
-: .(   ( "ccc<paren>" -- ) \ core-ext dot-paren
-  \G Parse a string @i{ccc} delimited by a @code{)} (right
-  \G parenthesis). Display the string. This is often used to display
-  \G progress information during compilation; see examples below.
+: .(   ( compilation,interpretation "ccc<paren>" -- ) \ core-ext dot-paren
+  \G Compilation and interpretation semantics: Parse a string @i{ccc}
+  \G delimited by a @code{)} (right parenthesis). Display the
+  \G string. This is often used to display progress information during
+  \G compilation; see examples below.
   [char] ) parse type ; immediate
 
 \ VALUE 2>R 2R> 2R@                                     17may93jaw

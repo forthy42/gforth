@@ -472,7 +472,7 @@ has? compiler 0= [IF]	\ interpreter only version of IS and TO
 
 Defer parser ( c-addr u -- )
 Defer name ( -- c-addr count ) \ gforth
-\ get the next word from the input buffer
+\G get the next word from the input buffer
 ' (name) IS name
 Defer compiler-notfound ( c-addr count -- )
 Defer interpreter-notfound ( c-addr count -- )

@@ -18,11 +18,11 @@
 \ along with this program; if not, write to the Free Software
 \ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-4 Constant w/o ( -- ntype ) \ file	w-o
-2 Constant r/w ( -- ntype ) \ file	r-w
-0 Constant r/o ( -- ntype ) \ file	r-o
+4 Constant w/o ( -- fam ) \ file	w-o
+2 Constant r/w ( -- fam ) \ file	r-w
+0 Constant r/o ( -- fam ) \ file	r-o
 
-: bin ( ntype1 -- ntype2 ) \ file
+: bin ( fam1 -- fam2 ) \ file
     1 or ;
 
 \ BIN WRITE-LINE                                        11jun93jaw

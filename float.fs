@@ -100,7 +100,7 @@ DOES> ( -- r )
   IF  '- emit  THEN ;
 
 : f.  ( r -- ) \ float-ext f-dot
-\G Display (the floating-point number) @i{r} using fixed-point notation,
+\G Display (the floating-point number) @i{r} without exponent,
 \G followed by a space.
   f$ dup >r 0<
   IF    '0 emit
@@ -111,13 +111,15 @@ DOES> ( -- r )
 \ Shouldn't precision indicate the number of places shown after the point?
 
 : fe. ( r -- ) \ float-ext f-e-dot
-\G Display @i{r} using engineering notation, followed by a space.
+\G Display @i{r} using engineering notation (with exponent dividable
+\G by 3), followed by a space.
   f$ 1- s>d 3 fm/mod 3 * >r 1+ >r
-  scratch r@ min type '. emit  scratch r> /string type
+  scratch r@ min type '. emit scratch r> /string type
   'E emit r> . ;
 
 : fs. ( r -- ) \ float-ext f-s-dot
-\G Display @i{r} using scientific notation, followed by a space.
+\G Display @i{r} using scientific notation (with exponent), followed
+\G by a space.
   f$ 1-
   scratch over c@ emit '. emit 1 /string type
   'E emit . ;
