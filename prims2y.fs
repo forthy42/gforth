@@ -386,12 +386,19 @@ defer inst-stream-f ( -- stack )
 	drop 0
     endif ;
 
+: .reg ( reg -- )
+    register-name 2@ type ;
+
+: stack-offset ( stack state -- n )
+    \ offset for stack in state
+    state-ss ss-offset @ ;
+
 : normal-stack-access1 { n stack state -- }
     n stack state stack-reg ?dup-if
-	register-name 2@ type exit
+	.reg exit
     endif
     stack stack-pointer 2@ type
-    n stack state state-ss ss-offset @ - stack normal-stack-access0 ;
+    n stack state stack-offset - stack normal-stack-access0 ;
 
 : normal-stack-access ( n stack state -- )
     over inst-stream-f = if
@@ -733,32 +740,81 @@ stack inst-stream IP Cell
     declarations compute-offsets
     output @ execute ;
 
-: flush-a-tos { stack -- }
-    stack stack-out @ 0<> stack stack-in @ 0= and
-    if
-	." IF_" stack stack-pointer 2@ 2dup type ." TOS("
-	2dup type 0 stack normal-stack-access0 ."  = " type ." TOS);" cr
-    endif ;
+: stack-state-items ( stack state -- n )
+    state-ss ss-registers 2@ nip ;
 
-: flush-tos ( -- )
-    ['] flush-a-tos map-stacks1 ;
+: unused-stack-items { stack -- n-in n-out }
+    \ n-in  are the stack items in state-in  not used    by prim
+    \ n-out are the stack items in state-out not written by prim
+    stack state-in  stack-state-items stack stack-in  @ - 0 max
+    stack state-out stack-state-items stack stack-out @ - 0 max ;
 
-: fill-a-tos { stack -- }
-    stack stack-out @ 0= stack stack-in @ 0<> and
-    if
-	." IF_" stack stack-pointer 2@ 2dup type ." TOS("
-	2dup type ." TOS = " type 0 stack normal-stack-access0 ." );" cr
-    endif ;
+: spill-stack { stack -- }
+    \ spill regs of state-in that are not used by prim and are not in state-out
+    stack state-in stack-offset { offset }
+    stack state-in stack-state-items ( items )
+    dup stack unused-stack-items - - +do
+	\ loop through the bottom items
+	stack stack-pointer 2@ type
+	i offset - stack normal-stack-access0 ."  = "
+	i stack state-in normal-stack-access1 ." ;" cr
+    loop ;
 
-: fill-tos ( -- )
+: spill-state ( -- )
+    ['] spill-stack map-stacks1 ;
+
+: fill-stack { stack -- }
+    stack state-out stack-offset { offset }
+    stack state-out stack-state-items ( items )
+    dup stack unused-stack-items - + +do
+	\ loop through the bottom items
+	i stack state-out normal-stack-access1 ."  = "
+	stack stack-pointer 2@ type
+	i offset - stack normal-stack-access0 ." ;" cr
+    loop ;
+
+: fill-state ( -- )
     \ !! inst-stream for prefetching?
-    ['] fill-a-tos map-stacks1 ;
+    ['] fill-stack map-stacks1 ;
 
 : fetch ( addr -- )
     dup item-type @ type-fetch @ execute ;
 
 : fetches ( -- )
     prim prim-effect-in prim prim-effect-in-end @ ['] fetch map-items ;
+
+: reg-reg-move ( reg-from reg-to -- )
+    2dup = if
+	2drop
+    else
+	.reg ."  = " .reg ." ;" cr
+    endif ;
+
+: stack-bottom-reg { n stack state -- reg }
+    stack state stack-state-items n - 1- stack state stack-reg ;
+
+: stack-moves { stack -- }
+    \ generate moves between registers in state-in/state-out that are
+    \ not spilled or consumed/produced by prim.
+    \ !! this works only for a simple stack cache, not e.g., for
+    \ rotating stack caches, or registers shared between stacks (the
+    \ latter would also require a change in interface)
+    \ !! maybe place this after NEXT_P1?
+    stack unused-stack-items 2dup < if ( n-in n-out )
+	\ move registers from 0..n_in-1 to n_out-n_in..n_out-1
+	over - { diff } ( n-in )
+	-1 swap 1- -do
+	    i stack state-in stack-bottom-reg ( reg-from )
+	    i diff + stack state-out stack-bottom-reg reg-reg-move
+	1 -loop
+    else
+	\ move registers from n_in-n_out..n_in-1 to 0..n_out-1
+	swap over - { diff } ( n-out )
+	0 +do
+	    i diff + stack state-in stack-bottom-reg ( reg-from )
+	    i stack state-out stack-bottom-reg reg-reg-move
+	loop
+    endif ;
 
 : stack-update-transform ( n1 stack -- n2 )
     \ n2 is the number by which the stack pointer should be
@@ -767,8 +823,11 @@ stack inst-stream IP Cell
     0 r> execute - ;
 
 : stack-pointer-update { stack -- }
+    \ and moves
     \ stacks grow downwards
-    stack stack-diff
+    stack stack-diff ( in-out )
+    stack state-in  stack-offset -
+    stack state-out stack-offset + ( [in-in_offset]-[out-out_offset] )
     ?dup-if \ this check is not necessary, gcc would do this for us
 	stack inst-stream = if
 	    ." INC_IP(" 0 .r ." );" cr
@@ -776,7 +835,8 @@ stack inst-stream IP Cell
 	    stack stack-pointer 2@ type ."  += "
 	    stack stack-update-transform 0 .r ." ;" cr
 	endif
-    endif ;
+    endif
+    stack stack-moves ;
 
 : stack-pointer-updates ( -- )
     ['] stack-pointer-update map-stacks ;
@@ -839,14 +899,14 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
     print-debug-results
     ." NEXT_P1;" cr
     stores
-    fill-tos 
+    fill-state 
     xt execute ;
 
 : output-c-tail1-no-stores { xt -- }
     \ the final part of the generated C code for combinations
     output-super-end
     ." NEXT_P1;" cr
-    fill-tos 
+    fill-state 
     xt execute ;
 
 : output-c-tail ( -- )
@@ -889,7 +949,7 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
     ." DEF_CA" cr
     print-declarations
     ." NEXT_P0;" cr
-    flush-tos
+    spill-state
     fetches
     print-debug-args
     stack-pointer-updates
@@ -1011,7 +1071,7 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
 \      data-stack   stack-used? IF ." Cell *sp=SP;" cr THEN
 \      fp-stack     stack-used? IF ." Cell *fp=*FP;" cr THEN
 \      return-stack stack-used? IF ." Cell *rp=*RP;" cr THEN
-\      flush-tos
+\      spill-state
 \      fetches
 \      stack-pointer-updates
 \      fp-stack   stack-used? IF ." *FP=fp;" cr THEN
@@ -1020,7 +1080,7 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
 \      prim prim-c-code 2@ type
 \      ." }" cr
 \      stores
-\      fill-tos
+\      fill-state
 \      ." return (sp);" cr
 \      ." }" cr
 \      cr ;
@@ -1315,7 +1375,7 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
     ." DEF_CA" cr
     print-declarations-combined
     ." NEXT_P0;" cr
-    flush-tos
+    spill-state
     \ fetches \ now in parts
     \ print-debug-args
     \ stack-pointer-updates now in parts
