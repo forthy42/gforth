@@ -528,35 +528,37 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 
 ;;; imenu support
 ;;;
+(defvar forth-defining-words 
+  '("VARIABLE" "CONSTANT" "2VARIABLE" "2CONSTANT" "FVARIABLE" "FCONSTANT"
+   "USER" "VALUE" "field" "end-struct" "VOCABULARY" "CREATE" ":" "CODE"
+   "DEFER" "ALIAS")
+  "List of words, that define the following word.\
+ Used for imenu index generation")
+
+ 
 (defun forth-next-definition-starter ()
   (progn
-    (let* ((regexp (car forth-compiled-defining-words))
-	   (pos (re-search-forward regexp (point-max) t)))
-      (message "regexp: %s pos:%s" regexp pos)
+    (let* ((pos (re-search-forward forth-defining-words-regexp (point-max) t)))
       (if pos
 	  (if (or (text-property-not-all (match-beginning 0) (match-end 0) 
-					  'forth-parsed nil)
-		   (text-property-not-all (match-beginning 0) (match-end 0)
-					  'forth-state nil)) 
+					 'forth-parsed nil)
+		  (text-property-not-all (match-beginning 0) (match-end 0)
+					 'forth-state nil)) 
 	      (forth-next-definition-starter)
 	    t)
 	nil))))
 
 (defun forth-create-index ()
-  (let* ((defwords 
-	  (forth-filter (lambda (word) 
-			  (and (eq (nth 1 word) 'definition-starter)
-			       (> (length word) 3)))
-			forth-words))
-	 (forth-compiled-defining-words (forth-compile-wordlist defwords))
+  (let* ((forth-defining-words-regexp 
+	  (concat "\\<\\(" (regexp-opt forth-defining-words) "\\)\\>"))
 	 (index nil))
     (goto-char (point-min))
     (while (forth-next-definition-starter)
       (if (looking-at "[ \t]*\\([^ \t\n]+\\)")
 	  (setq index (cons (cons (match-string 1) (point)) index))))
-    (message "index: %s" index)
     index))
 
+(require 'speedbar)
 (speedbar-add-supported-extension ".fs")
 (speedbar-add-supported-extension ".fb")
 
@@ -990,6 +992,10 @@ exceeds 64 characters."
 
 (defun forth-find-tag (tagname &optional next-p regexp-p)
   (interactive (find-tag-interactive "Find tag: "))
+;  (when (not regexp-p)
+;      (setq tagname (concat "^\\(" (regexp-opt (list tagname)) 
+;			    "\\)$"))
+;      (setq regexp-p t))
   (switch-to-buffer
    (find-tag-noselect (concat " " tagname " ") next-p regexp-p)))
 
