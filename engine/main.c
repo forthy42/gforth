@@ -144,6 +144,7 @@ void relocate(Cell *image, const char *bitstring,
   
   for (max_symbols=DOESJUMP+1; symbols[max_symbols]!=0; max_symbols++)
     ;
+  max_symbols--;
   size/=sizeof(Cell);
 
   for(k=0; k<=steps; k++) {
@@ -427,6 +428,56 @@ void print_sizes(Cell sizebyte)
 	  1 << ((sizebyte >> 5) & 3));
 }
 
+typedef struct {
+  Label start;
+  Cell length; /* excluding the jump */
+  char super_end; /* true if primitive ends superinstruction, i.e.,
+                     unconditional branch, execute, etc. */
+} PrimInfo;
+
+PrimInfo *priminfos;
+
+void check_prims(Label symbols1[])
+{
+#ifndef DOUBLY_INDIRECT
+  int i;
+  Label *symbols2=engine2(0,0,0,0,0);
+
+  for (i=DOESJUMP+1; symbols1[i+1]!=0; i++)
+    ;
+  priminfos = calloc(i,sizeof(PrimInfo));
+  for (i=DOESJUMP+1; symbols1[i+1]!=0; i++) {
+    int prim_len=symbols1[i+1]-symbols1[i];
+    PrimInfo *pi=&priminfos[i];
+    int j;
+    for (j=prim_len-3; ; j--) {
+      if (((*(Cell *)(symbols1[i]+j)) & 0xfff8ff) == 0xfc60ff) {
+	/* jmp -4(reg), i.e., the NEXT jump */
+	prim_len = j;
+	break;
+      }
+      if (j==0) { /* NEXT jump not found, e.g., execute */
+	pi->super_end = 1;
+	break;
+      }
+    }
+    /* fprintf(stderr,"checking primitive %d: memcmp(%p, %p, %d)\n",
+       i, symbols1[i], symbols2[i], prim_len);*/
+    if (memcmp(symbols1[i],symbols2[i],prim_len)!=0) {
+      if (debug)
+	fprintf(stderr,"Primitive %d not relocatable: memcmp(%p, %p, %d)\n",
+		i, symbols1[i], symbols2[i], prim_len);
+    } else {
+      pi->start = symbols1[i];
+      pi->length = prim_len;
+      if (debug)
+	fprintf(stderr,"Primitive %d relocatable: start %p, length %ld, super_end %d\n",
+		i, pi->start, pi->length, pi->super_end);
+    }      
+  }
+#endif
+}
+
 Address loader(FILE *imagefile, char* filename)
 /* returns the address of the image proper (after the preamble) */
 {
@@ -456,6 +507,7 @@ Address loader(FILE *imagefile, char* filename)
     ;
 
   vm_prims = engine(0,0,0,0,0);
+  check_prims(vm_prims);
 #ifndef DOUBLY_INDIRECT
   check_sum = checksum(vm_prims);
 #else /* defined(DOUBLY_INDIRECT) */

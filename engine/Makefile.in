@@ -95,7 +95,7 @@ OBJECTS_FI =  engine.o main-fi.o
 # In engine subdirectory there are (or should be) only files that belong to
 # our engine, so we can make life easy
 DEPS =  config.h *.h $(srcdir)/../arch/$(machine)/*.[h]
-ENGINE_DEPS = engine.c $(DEPS) prim_lab.i prim.i
+ENGINE_DEPS = engine.b.c $(DEPS) prim_lab.i prim.i
 
 #some makes don't do the -o $@ correctly, so we help them
 .c.o:
@@ -117,19 +117,19 @@ gforth-fi$(EXE):	$(OBJECTS_FI) $(AOBJECTS)
 	$(GCC) $(LDFLAGS) $(OBJECTS_FI) $(AOBJECTS) $(LDLIBS) -o $@
 
 engine.s:	$(ENGINE_DEPS)
-		$(GCC) -fno-gcse $(CFLAGS) $(ENGINE_FLAGS) -S $(srcdir)/engine.c
+		$(GCC) -fno-gcse $(CFLAGS) $(ENGINE_FLAGS) -S engine.b.c
 
 engine.o:	$(ENGINE_DEPS)
-		$(GCC) -fno-gcse $(CFLAGS2) $(ENGINE_FLAGS) -DGFORTH_DEBUGGING -o $@ -c $(srcdir)/engine.c
+		$(GCC) -fno-gcse $(CFLAGS2) $(ENGINE_FLAGS) -DGFORTH_DEBUGGING -o $@ -c engine.b.c
 
 engine-fast.o:	$(ENGINE_DEPS)
-		$(GCC) -fno-gcse $(CFLAGS) $(ENGINE_FLAGS) -o $@ -c $(srcdir)/engine.c
+		$(GCC) -fno-gcse $(CFLAGS) $(ENGINE_FLAGS) -o $@ -c engine.b.c
 
 engine-ditc.o:	$(ENGINE_DEPS)
-		$(GCC) -fno-gcse $(CFLAGS2) $(ENGINE_FLAGS) -DDOUBLY_INDIRECT -o $@ -c $(srcdir)/engine.c
+		$(GCC) -fno-gcse $(CFLAGS2) $(ENGINE_FLAGS) -DDOUBLY_INDIRECT -o $@ -c engine.b.c
 
 engine-prof.o:	$(ENGINE_DEPS)
-		$(GCC) -fno-gcse $(CFLAGS2) $(ENGINE_FLAGS) -DVM_PROFILING -o $@ -c $(srcdir)/engine.c
+		$(GCC) -fno-gcse $(CFLAGS2) $(ENGINE_FLAGS) -DVM_PROFILING -o $@ -c engine.b.c
 
 main.o:		main.c $(DEPS) 
 		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -DGFORTH_DEBUGGING -o $@ -c $(srcdir)/main.c
@@ -162,6 +162,9 @@ profile.o:	profile.c profile.i $(DEPS)
 
 termios.o:	/usr/lib/libposix.a
 	ar x /usr/lib/libposix.a termios.o
+
+engine.b.c: engine.c
+	m4 -s $(srcdir)/engine.c >$@
 
 #duplicated rules to avoid too many recursive make invocations
 # !! No any forth stuff should be done in ../Makefile.

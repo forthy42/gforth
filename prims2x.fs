@@ -767,7 +767,7 @@ stack inst-stream IP Cell
 \      cr ;
 
 : output-label ( -- )  
-    ." (Label)&&I_" prim prim-c-name 2@ type ." ," cr ;
+    ." INST_ADDR(" prim prim-c-name 2@ type ." )," cr ;
 
 : output-alias ( -- ) 
     ( primitive-number @ . ." alias " ) ." Primitive " prim prim-name 2@ type cr ;

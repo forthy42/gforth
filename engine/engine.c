@@ -323,7 +323,9 @@ Xt *primtable(Label symbols[], Cell size)
 #endif /* !defined(DIRECT_THREADED) */
 }
 
-Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
+
+define(enginerest,
+`(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
 /* executes code at ip, if ip!=NULL
    returns array of machine code labels (for use in a loader), if ip==NULL
 */
@@ -360,10 +362,18 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
     (Label)&&dofield,
     (Label)&&dodoes,
     /* the following entry is normally unused;
-       it's there because its index indicates a does-handler */
+       it is there because its index indicates a does-handler */
     CPU_DEP1,
+#define INST_ADDR(name) (Label)&&I_##name
 #include "prim_lab.i"
-    (Label)0
+#undef INST_ADDR
+    (Label)&&after_last,
+    (Label)0,
+#ifdef IN_ENGINE2
+#define INST_ADDR(name) (Label)&&J_##name
+#include "prim_lab.i"
+#undef INST_ADDR
+#endif
   };
 #ifdef CPU_DEP2
   CPU_DEP2
@@ -544,6 +554,20 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
   }
   NEXT;
 
+#ifndef IN_ENGINE2
 #define LABEL(name) I_##name
+#else
+#define LABEL(name) J_##name: asm(".skip 16"); I_##name
+#endif
 #include "prim.i"
-}
+#undef LABEL
+  after_last: return (Label *)0;
+  /*needed only to get the length of the last primitive */
+}'
+)
+
+Label *engine enginerest
+
+#define IN_ENGINE2
+Label *engine2 enginerest
+

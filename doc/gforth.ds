@@ -3859,7 +3859,7 @@ look for a 6 and place that on the table. You now have just one item on
 the stack. What happens if you try to do a third addition? Pick up the
 first card, pick up the second card -- ah! There is no second card. This
 is called a @dfn{stack underflow} and consitutes an error. If you try to
-do the same thing with Forth it will report an error (probably a Stack
+do the same thing with Forth it often reports an error (probably a Stack
 Underflow or an Invalid Memory Address error).
 
 The opposite situation to a stack underflow is a @dfn{stack overflow},
@@ -7947,43 +7947,45 @@ Directives}).
 @c that, we can also show what's not.  In any case, I have written a
 @c section Compiling Words which also deals with [ ].
 
-@code{[} and @code{]} also give you the ability to switch into compile
-state and back, but we cannot think of any useful Standard application
-for this ability. Pre-ANS Forth textbooks have examples like this:
+@c  !! The following example does not work in Gforth 0.5.9 or later.
 
-@example
-: AA ." this is A" ;
-: BB ." this is B" ;
-: CC ." this is C" ;
+@c  @code{[} and @code{]} also give you the ability to switch into compile
+@c  state and back, but we cannot think of any useful Standard application
+@c  for this ability. Pre-ANS Forth textbooks have examples like this:
 
-create table ] aa bb cc [
+@c  @example
+@c  : AA ." this is A" ;
+@c  : BB ." this is B" ;
+@c  : CC ." this is C" ;
 
-: go ( n -- ) \ n is offset into table.. 0 for 1st entry
-  cells table + @ execute ;
-@end example
+@c  create table ] aa bb cc [
 
-This example builds a jump table; @code{0 go} will display ``@code{this
-is A}''. Using @code{[} and @code{]} in this example is equivalent to
-defining @code{table} like this:
+@c  : go ( n -- ) \ n is offset into table.. 0 for 1st entry
+@c    cells table + @@ execute ;
+@c  @end example
 
-@example
-create table ' aa COMPILE, ' bb COMPILE, ' cc COMPILE,
-@end example
+@c  This example builds a jump table; @code{0 go} will display ``@code{this
+@c  is A}''. Using @code{[} and @code{]} in this example is equivalent to
+@c  defining @code{table} like this:
 
-The problem with this code is that the definition of @code{table} is not
-portable -- it @i{compile}s execution tokens into code space. Whilst it
-@i{may} work on systems where code space and data space co-incide, the
-Standard only allows data space to be assigned for a @code{CREATE}d
-word. In addition, the Standard only allows @code{@@} to access data
-space, whilst this example is using it to access code space. The only
-portable, Standard way to build this table is to build it in data space,
-like this:
+@c  @example
+@c  create table ' aa COMPILE, ' bb COMPILE, ' cc COMPILE,
+@c  @end example
 
-@example
-create table ' aa , ' bb , ' cc ,
-@end example
+@c  The problem with this code is that the definition of @code{table} is not
+@c  portable -- it @i{compile}s execution tokens into code space. Whilst it
+@c  @i{may} work on systems where code space and data space co-incide, the
+@c  Standard only allows data space to be assigned for a @code{CREATE}d
+@c  word. In addition, the Standard only allows @code{@@} to access data
+@c  space, whilst this example is using it to access code space. The only
+@c  portable, Standard way to build this table is to build it in data space,
+@c  like this:
 
-doc-state
+@c  @example
+@c  create table ' aa , ' bb , ' cc ,
+@c  @end example
+
+@c  doc-state
 
 
 @node Interpreter Directives,  , Interpret/Compile states, The Text Interpreter
