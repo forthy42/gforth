@@ -22,6 +22,7 @@ siev	bubble	matrix	fib	machine and configuration
 39.50	45.91	36.73	44.90	i486 50MHz 256K cache; gcc-2.7.0 -DFORCE_REG -DDIRECT_THREADED; gforth-0.1beta
 42.82	46.74	38.69	48.30	i486 50MHz 256K cache; gcc-2.7.0 -DFORCE_REG; gforth-0.1beta
 
+ 2.14	 3.11	 3.20	 3.96	21264 (Compaq XP 1000) 500MHz 4M cache; egcs-1.0.3+gas; gforth-0.4.0
  3.09	 3.24	 2.39	 3.42	21164A (Alpha,164LX) 600MHz 2M cache; gcc-2.7.2.1+gas; gforth-0.3.0
  3.7	 3.8	 2.8	 4.1	21164A (Alpha,PC164) 500MHz 2M cache; gcc-2.7.2.1+as (Digital Unix); gforth-0.3.0
  7.0	 7.6	 6.2	 7.7	21064A (Alpha,Cabriolet) 300MHz 2M cache; gcc-2.7.2; gforth-0.2.0

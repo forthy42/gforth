@@ -438,12 +438,12 @@ install:	gforth$(EXE) $(FORTH_SRC) $(kernel_fi) gforth.fi gforthmi doc/gforth.1 
 		-$(RM) $(bindir)/gforth$(EXE) $(bindir)/gforth-$(VERSION)$(EXE) $(bindir)/gforthmi
 		-$(RM) $(bindir)/gforth-fast$(EXE) $(bindir)/gforth-fast-$(VERSION)$(EXE)
 		$(INSTALL_PROGRAM) -s gforth$(EXE) $(bindir)/gforth-$(VERSION)$(EXE)
-		$(LN_S) $(bindir)/gforth-$(VERSION)$(EXE) $(bindir)/gforth$(EXE)
+		(cd $(bindir) && $(LN_S) gforth-$(VERSION)$(EXE) gforth$(EXE))
 		$(INSTALL_PROGRAM) -s gforth-fast$(EXE) $(bindir)/gforth-fast-$(VERSION)$(EXE)
-		$(LN_S) $(bindir)/gforth-fast-$(VERSION)$(EXE) $(bindir)/gforth-fast$(EXE)
+		(cd $(bindir) && $(LN_S) gforth-fast-$(VERSION)$(EXE) gforth-fast$(EXE))
 		$(INSTALL_PROGRAM) gforthmi $(bindir)/gforthmi-$(VERSION)
 		$(INSTALL_PROGRAM) gforth-ditc $(libdir)/gforth/$(VERSION)
-		$(LN_S) $(bindir)/gforthmi-$(VERSION) $(bindir)/gforthmi
+		(cd $(bindir) && $(LN_S) gforthmi-$(VERSION) gforthmi)
 		-$(INSTALL_DATA) $(srcdir)/doc/gforth.1 $(man1dir)
 		-for i in $(srcdir)/doc/gforth.info*; do $(INSTALL_DATA) $$i $(infodir); done
 		for i in $(FORTH_SRC) $(COMPAT) prim; do \
@@ -497,7 +497,7 @@ bench:		gforth-fast$(EXE) gforth.fi
 
 # -------------	Make forth images
 
-# Hot to make new images:
+# How to make new images:
 # 1. Produce an image called kernlXYZ.fi-
 #    the original kernel.fi is not touched because it's needed for creation
 # 2. copy old kernlXYZ.fi to kernlXYZ.fi~

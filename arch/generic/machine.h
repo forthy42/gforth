@@ -25,6 +25,18 @@
 #define THREADING_SCHEME 6
 #endif
 
+#ifdef GFORTH_DEBUGGING
+/* schedule the ip update after the rest of the primitive;
+   never mind speed */
+#undef THREADING_SCHEME
+#ifdef DIRECT_THREADED
+#define THREADING_SCHEME 10
+#else
+#define THREADING_SCHEME 8
+#endif /* DIRECT_THREADED */
+#endif /* GFORTH_DEBUGGING */
+
+
 /* define SYSCALL */
 
 #ifndef SYSCALL

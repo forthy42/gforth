@@ -318,6 +318,7 @@ int go_forth(Address image, int stack, Cell *entries)
     else /* I love non-syntactic ifdefs :-) */
 #endif
     rp0 = signal_return_stack+8;
+    /* fprintf(stderr, "rp=$%x\n",rp0);*/
     
     return((int)engine(image_header->throw_entry, signal_data_stack+7,
 		       rp0, signal_fp_stack, 0));
