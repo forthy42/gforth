@@ -1516,14 +1516,15 @@ variable ResolveFlag
 >CROSS
 \ Header states                                        12dec92py
 
-: flag! ( w -- )   tlast @ dup >r T @ xor r> ! H ;
+bigendian [IF] 0 [ELSE] tcell 1- [THEN] Constant flag+
+: flag! ( w -- )   tlast @ flag+ + dup >r T c@ xor r> c! H ;
 
 VARIABLE ^imm
 
 \ !! should be target wordsize specific
-$80000000 constant alias-mask
-$40000000 constant immediate-mask
-$20000000 constant restrict-mask
+$80 constant alias-mask
+$40 constant immediate-mask
+$20 constant restrict-mask
 
 >TARGET
 : immediate     immediate-mask flag!

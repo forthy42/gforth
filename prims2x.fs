@@ -50,6 +50,7 @@ warnings off
 include ./search.fs			
 include ./extend.fs
 [THEN]
+include ./stuff.fs
 
 [IFUNDEF] environment?
 include ./environ.fs

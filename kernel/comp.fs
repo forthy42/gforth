@@ -130,13 +130,16 @@ defer header ( -- ) \ gforth
 
 2variable nextname-string
 
+has? OS [IF]
 : nextname-header ( -- )
     nextname-string 2@ header,
     nextname-string free-mem-var
     input-stream ;
+[THEN]
 
 \ the next name is given in the string
 
+has? OS [IF]
 : nextname ( c-addr u -- ) \ gforth
     \g The next defined word will have the name @var{c-addr u}; the
     \g defining word will leave the input stream alone.
@@ -144,6 +147,7 @@ defer header ( -- ) \ gforth
     nextname-string free-mem-var
     save-mem nextname-string 2!
     ['] nextname-header IS (header) ;
+[THEN]
 
 : noname-header ( -- )
     0 last ! cfalign

@@ -257,20 +257,25 @@ forth-wordlist current !
 
 \ \ header, finding, ticks                              17dec92py
 
-
-\ !! these should be done using the target's operations and cell size
-\ 0 invert 1 rshift invert ( u ) \ top bit set
-\ constant alias-mask \ set when the word is not an alias!
-\ alias-mask 1 rshift constant immediate-mask
-\ alias-mask 2 rshift constant restrict-mask
-\ 0 invert 3 rshift   constant lcount-mask
-
-\ as an intermediate step, I define them correctly for 32-bit machines:
+\ The constants are defined as 32 bits, but then erased
+\ and overwritten by the right ones
 
 $80000000 constant alias-mask
+1 bits/char 1 - lshift
+-1 cells allot  bigendian [IF]   c, 0 1 cells 1- times
+                          [ELSE] 0 1 cells 1- times c, [THEN]
 $40000000 constant immediate-mask
+1 bits/char 2 - lshift
+-1 cells allot  bigendian [IF]   c, 0 1 cells 1- times
+                          [ELSE] 0 1 cells 1- times c, [THEN]
 $20000000 constant restrict-mask
+1 bits/char 3 - lshift
+-1 cells allot  bigendian [IF]   c, 0 1 cells 1- times
+                          [ELSE] 0 1 cells 1- times c, [THEN]
 $1fffffff constant lcount-mask
+1 bits/char 3 - lshift 1 -
+-1 cells allot  bigendian [IF]   c, $FF 1 cells 1- times
+                          [ELSE] $FF 1 cells 1- times c, [THEN]
 
 \ higher level parts of find
 
