@@ -55,7 +55,7 @@ Defer source ( -- c-addr u ) \ core
 
 : sword  ( char -- addr len ) \ gforth s-word
     \G Parses like @code{word}, but the output is like @code{parse} output.
-    \G @xref{core-idef}
+    \G @xref{core-idef}.
   \ this word was called PARSE-WORD until 0.3.0, but Open Firmware and
   \ dpANS6 A.6.2.2008 have a word with that name that behaves
   \ differently (like NAME).

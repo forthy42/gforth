@@ -22,6 +22,13 @@
 @direntry
 * Gforth: (gforth).             A fast interpreter for the Forth language.
 @end direntry
+@c The Texinfo manual also recommends doing this, but for Gforth it may
+@c  not make much sense
+@c @dircategory Individual utilities
+@c @direntry
+@c * Gforth: (gforth)Invoking Gforth.      gforth, gforth-fast, gforthmi
+@c @end direntry
+
 @comment @setchapternewpage odd
 @comment TODO this gets left in by HTML converter
 @macro progstyle {}
@@ -62,7 +69,7 @@ Programming style note:
 
 @include version.texi
 
-@ifinfo
+@ifnottex
 This file documents Gforth @value{VERSION}
 
 Copyright @copyright{} 1995-1999 Free Software Foundation, Inc.
@@ -90,7 +97,7 @@ Copyright @copyright{} 1995-1999 Free Software Foundation, Inc.
      except that the sections entitled "Distribution" and "General Public
      License" may be included in a translation approved by the author instead
      of in the original English.
-@end ifinfo
+@end ifnottex
 
 @finalout
 @titlepage
@@ -132,10 +139,10 @@ Copyright @copyright{} 1995--1999 Free Software Foundation, Inc.
 @end titlepage
 
 @node Top, License, (dir), (dir)
-@ifinfo
+@ifnottex
 Gforth is a free implementation of ANS Forth available on many
 personal machines. This manual corresponds to version @value{VERSION}.
-@end ifinfo
+@end ifnottex
 
 @menu
 * License::                     The GPL
@@ -590,9 +597,9 @@ modification follow.
 @iftex
 @unnumberedsec TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
 @end iftex
-@ifinfo
+@ifnottex
 @center TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
-@end ifinfo
+@end ifnottex
 
 @enumerate 0
 @item
@@ -815,9 +822,9 @@ of promoting the sharing and reuse of software generally.
 @iftex
 @heading NO WARRANTY
 @end iftex
-@ifinfo
+@ifnottex
 @center NO WARRANTY
-@end ifinfo
+@end ifnottex
 
 @item
 BECAUSE THE PROGRAM IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY
@@ -845,9 +852,9 @@ POSSIBILITY OF SUCH DAMAGES.
 @iftex
 @heading END OF TERMS AND CONDITIONS
 @end iftex
-@ifinfo
+@ifnottex
 @center END OF TERMS AND CONDITIONS
-@end ifinfo
+@end ifnottex
 
 @page
 @unnumberedsec How to Apply These Terms to Your New Programs
@@ -1039,7 +1046,7 @@ material in this chapter.
 * Startup speed::               When 35ms is not fast enough ...
 @end menu
 
-@xref{Image Files} for related information about the creation of images.
+For related information about the creation of images see @ref{Image Files}.
 
 @comment ----------------------------------------------
 @node Invoking Gforth, Leaving Gforth, Gforth Environment, Gforth Environment
@@ -1224,8 +1231,8 @@ then in @file{~}, then in the normal path (see above).
 You can leave Gforth by typing @code{bye} or @kbd{Ctrl-d} (at the start
 of a line) or (if you invoked Gforth with the @code{--die-on-signal}
 option) @kbd{Ctrl-c}. When you leave Gforth, all of your definitions and
-data are discarded. @xref{Image Files} for ways of saving the state of
-the system before leaving Gforth.
+data are discarded.  For ways of saving the state of the system before
+leaving Gforth see @ref{Image Files}.
 
 doc-bye
 
@@ -1357,7 +1364,7 @@ for Forth source-code files.
 
 @item
 @cindex @code{GFORTH} -- environment variable
-@code{GFORTH} -- used by @file{gforthmi} @xref{gforthmi}.
+@code{GFORTH} -- used by @file{gforthmi}, @xref{gforthmi}.
 
 @item
 @cindex @code{GFORTHD} -- environment variable
@@ -2029,7 +2036,7 @@ that usually require a long sequence of code to compute should be passed
 as the bottom (i.e., first) parameter.  This makes the code easier to
 read, because reader does not need to keep track of the bottom item
 through a long sequence of code (or, alternatively, through stack
-manipulations). E.g., @code{!} (store, see @pxref{Memory}) expects the
+manipulations). E.g., @code{!} (store, @pxref{Memory}) expects the
 address on top of the stack because it is usually simpler to compute
 than the stored value (often the address is just a variable).
 
@@ -3328,8 +3335,8 @@ strong in debugging and reuse.
 The primary purpose of this manual is to document Gforth. However, since
 Forth is not a widely-known language and there is a lack of up-to-date
 teaching material, it seems worthwhile to provide some introductory
-material. @xref{Forth-related information} for other sources of Forth-related
-information.
+material.  For other sources of Forth-related
+information, see @ref{Forth-related information}.
 
 The examples in this section should work on any ANS Forth; the
 output shown was produced using Gforth. Each example attempts to
@@ -3385,8 +3392,8 @@ and nothing else (if you have Gforth installed on your system, try
 invoking it now, by typing @kbd{gforth@key{RET}}). Forth is now running
 its command line interpreter, which is called the @dfn{Text Interpreter}
 (also known as the @dfn{Outer Interpreter}).  (You will learn a lot
-about the text interpreter as you read through this chapter, but
-@pxref{The Text Interpreter} for more detail).
+about the text interpreter as you read through this chapter, for more
+detail @pxref{The Text Interpreter}).
 
 Although it's not obvious, Forth is actually waiting for your
 input. Type a number and press the @key{RET} key:
@@ -3413,8 +3420,8 @@ $400DBDA8 no.extensions
 The exact text, other than the ``Undefined word'' may differ slightly on
 your system, but the effect is the same; when the text interpreter
 detects an error, it discards any remaining text on a line, resets
-certain internal state and prints an error message. @xref{Error
-messages} for a detailed description of error messages.
+certain internal state and prints an error message. For a detailed description of error messages see @ref{Error
+messages}.
 
 The text interpreter waits for you to press carriage-return, and then
 processes your input line. Starting at the beginning of the line, it
@@ -4062,13 +4069,13 @@ If you have tried out the examples in this section, you will probably
 have typed them in by hand; when you leave Gforth, your definitions will
 be lost. You can avoid this by using a text editor to enter Forth source
 code into a file, and then loading code from the file using
-@code{include} (@xref{Forth source files}). A Forth source file is
+@code{include} (@pxref{Forth source files}). A Forth source file is
 processed by the text interpreter, just as though you had typed it in by
 hand@footnote{Actually, there are some subtle differences -- see
 @ref{The Text Interpreter}.}.
 
 Gforth also supports the traditional Forth alternative to using text
-files for program entry (@xref{Blocks}).
+files for program entry (@pxref{Blocks}).
 
 In common with many, if not most, Forth compilers, most of Gforth is
 actually written in Forth. All of the @file{.fs} files in the
@@ -4081,7 +4088,7 @@ the text interpreter. This file is preserved between sessions, and is
 used to provide a command-line recall facility. If you enter long
 definitions by hand, you can use a text editor to paste them out of the
 history file into a Forth source file for reuse at a later time
-(@pxref{Command-line editing} for more information).
+(for more information @pxref{Command-line editing}).
 
 
 @comment ----------------------------------------------
@@ -4423,8 +4430,8 @@ former, @pxref{Mixed precision}).
 
 By default, numbers in Forth are single-precision integers that are 1
 cell in size. They can be signed or unsigned, depending upon how you
-treat them. @xref{Number Conversion} for the rules used by the text
-interpreter for recognising single-precision integers.
+treat them. For the rules used by the text interpreter for recognising
+single-precision integers see @ref{Number Conversion}.
 
 
 doc-+
@@ -4464,8 +4471,8 @@ doc-d2/
 @subsection Double precision
 @cindex double precision arithmetic words
 
-@xref{Number Conversion} for the rules used by the text interpreter for
-recognising double-precision integers.
+For the rules used by the text interpreter for
+recognising double-precision integers, see @ref{Number Conversion}.
 
 A double precision number is represented by a cell pair, with the most
 significant cell at the TOS. It is trivial to convert an unsigned
@@ -4559,8 +4566,8 @@ doc-sm/rem
 @subsection Floating Point
 @cindex floating point arithmetic words
 
-@xref{Number Conversion} for the rules used by the text interpreter for
-recognising floating-point numbers.
+For the rules used by the text interpreter for
+recognising floating-point numbers see @ref{Number Conversion}.
 
 Gforth has a separate floating point
 stack, but the documentation uses the unified notation.
@@ -5086,9 +5093,9 @@ doc-address-unit-bits
 @cindex memory block words
 @cindex character strings - moving and copying
 
-Memory blocks often represent character strings; @xref{String Formats}
-for ways of storing character strings in memory. @xref{Displaying
-characters and strings} for other string-processing words.
+Memory blocks often represent character strings; For ways of storing
+character strings in memory see @ref{String Formats}.  For other
+string-processing words see @ref{Displaying characters and strings}.
 
 Some of these words work on address units. Others work on character
 units (increments of @code{CHAR}), and expect a @code{CHAR}-aligned
@@ -5821,8 +5828,9 @@ text-buf 3 chars c@@ \ the 4th character (offset 3)
 @end example
 
 You can build arbitrarily complex data structures by allocating
-appropriate areas of memory. @xref{Structures} for further discussions
-of this, and to learn about some Gforth tools that make it easier.
+appropriate areas of memory. For further discussions of this, and to
+learn about some Gforth tools that make it easier, see
+@xref{Structures}.
 
 
 @node Variables, Constants, CREATE, Defining Words
@@ -5896,8 +5904,8 @@ not in a Standard, portable way. It's safer to use a @code{Value} (read
 on).} so it's not necessary to supply the address -- it is more
 efficient to return the value of the constant directly. That's exactly
 what happens; the run-time effect of a constant is to put its value on
-the top of the stack (@ref{User-defined Defining Words} describes one
-way of implementing @code{Constant}).
+the top of the stack (You can find one
+way of implementing @code{Constant} in @ref{User-defined Defining Words}).
 
 Gforth also provides @code{2Constant} and @code{fconstant} for defining
 double and floating-point constants, respectively.
@@ -5942,8 +5950,8 @@ can force Gforth to in-line a constant like this:
 
 If you use @code{see} to decompile @i{this} version of
 @code{FEET-TO-INCHES}, you can see that @code{INCHES-PER-FOOT} is no
-longer present. @xref{Interpret/Compile states} and @ref{Literals} on
-how this works.
+longer present. To understand how this works, read
+@ref{Interpret/Compile states}, and @ref{Literals}.
 
 In-lining constants in this way might improve execution time
 fractionally, and can ensure that a constant is now only referenced at
@@ -5996,10 +6004,10 @@ doc-to
 Creates a word called @code{name} that, upon execution, executes
 @code{word1 word2 word3}. @code{name} is a @dfn{(colon) definition}.
 
-The explanation above is somewhat superficial. @xref{Your first
-definition} for simple examples of colon definitions, then
-@xref{Interpretation and Compilation Semantics} for an in-depth
-discussion of some of the issues involved.
+The explanation above is somewhat superficial. For simple examples of
+colon definitions see @ref{Your first definition}.  For an in-depth
+discussion of some of the issues involved, see @xref{Interpretation and
+Compilation Semantics}.
 
 doc-:
 doc-;
@@ -6437,8 +6445,8 @@ executed.  If you want to specify the name at compile time, use
 @end example
 
 A deferred word can only inherit default semantics from the xt (because
-that is all that an xt can represent -- @pxref{Tokens for Words} for
-more discussion of this). However, the semantics of the deferred word
+that is all that an xt can represent -- for more discussion of this
+@pxref{Tokens for Words}). However, the semantics of the deferred word
 itself can be modified at the time that it is defined. For example:
 
 @example
@@ -6991,8 +6999,7 @@ If an error occurs, the input source is set back to the user input
 device.
 @end itemize
 
-@ref{Input Sources} describes this in more detail.
-
+You can read about this in more detail in @ref{Input Sources}.
 
 doc->in
 doc-source
@@ -7176,8 +7183,8 @@ conversion to floating-point numbers whilst the value of
 @code{base} is not 10 is an ambiguous condition.
 @end itemize
 
-@ref{Input} describes words that you can use to read numbers into your
-programs.
+You can read numbers into your programs with the words described in
+@ref{Input}.
 
 @node Interpret/Compile states, Literals, Number Conversion, The Text Interpreter
 @subsection Interpret/Compile states
@@ -7191,9 +7198,9 @@ starts interpreting. When @code{]} is executed it switches @code{state}
 to compile state and therefore the text interpreter starts
 compiling. The most common usage for these words is for switching into
 interpret state and back from within a colon definition; this technique
-can be used to compile a literal (@pxref{Literals} for an example) or
-for conditional compilation (@pxref{Interpreter Directives} for an
-example).
+can be used to compile a literal (for an example, @pxref{Literals}) or
+for conditional compilation (for an example, @pxref{Interpreter
+Directives}).
 
 
 @c This is a bad example: It's non-standard, and it's not necessary.
@@ -8043,8 +8050,8 @@ Three important things to remember about pictured numeric output:
 @itemize @bullet
 @item
 It always operates on double-precision numbers; to display a
-single-precision number, convert it first (@pxref{Double precision} for
-ways of doing this).
+single-precision number, convert it first (for ways of doing this
+@pxref{Double precision}).
 @item
 It always treats the double-precision number as though it were
 unsigned. The examples below show ways of printing signed numbers.
@@ -8166,10 +8173,9 @@ remains useful as a way of storing strings in memory.
 doc-count
 
 
-@xref{Memory Blocks} for words that move, copy and search
-for strings. @xref{Displaying characters and strings,} for words that
-display characters and strings.
-
+For words that move, copy and search for strings see @ref{Memory
+Blocks}. For words that display characters and strings see
+@ref{Displaying characters and strings}.
 
 @node Displaying characters and strings, Input, String Formats, Other I/O
 @subsection Displaying characters and strings
@@ -8272,7 +8278,7 @@ definition of @code{my-char}.
 @cindex I/O - see input
 @cindex parsing a string
 
-@xref{String Formats} for ways of storing character strings in memory.
+For ways of storing character strings in memory see @ref{String Formats}.
 
 @comment TODO examples for >number >float accept key key? pad parse word refill
 @comment then index them
@@ -8975,7 +8981,7 @@ write the items in the order you want.
 This seems a little far-fetched and eliminating stack manipulations is
 unlikely to become a conscious programming objective. Still, the number
 of stack manipulations will be reduced dramatically if local variables
-are used liberally (e.g., compare @code{max} in @ref{Gforth locals} with
+are used liberally (e.g., compare @code{max} (@pxref{Gforth locals}) with
 a traditional implementation of @code{max}).
 
 This shows one potential benefit of locals: making Forth programs more
@@ -9208,7 +9214,7 @@ The whole definition must be in one line.
 @end itemize
 
 Locals defined in this way behave like @code{VALUE}s
-(@xref{Values}). I.e., they are initialized from the stack. Using their
+(@pxref{Values}). I.e., they are initialized from the stack. Using their
 name produces their value. Their value can be changed using @code{TO}.
 
 Since this syntax is supported by Gforth directly, you need not do
@@ -9739,8 +9745,8 @@ a separate package for achieving this.
 
 @item
 It is layered; you don't have to learn and use all features to use this
-model. Only a few features are necessary (@xref{Basic Objects Usage},
-@xref{The Objects base class}, @xref{Creating objects}.), the others
+model. Only a few features are necessary (@pxref{Basic Objects Usage},
+@pxref{The Objects base class}, @pxref{Creating objects}.), the others
 are optional and independent of each other.
 
 @item

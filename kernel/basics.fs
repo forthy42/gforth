@@ -155,7 +155,7 @@ Constant dictionary-end
   swap >r swap  base @  um* drop rot  base @  um* d+ r> ;
 
 : >number ( ud1 c-addr1 u1 -- ud2 c-addr2 u2 ) \ core to-number
-    \G Attempt to convert the character string @var{c-addr1, u1} to an
+    \G Attempt to convert the character string @var{c-addr1 u1} to an
     \G unsigned number in the current number base. The double
     \G @var{ud1} accumulates the result of the conversion to form
     \G @var{ud2}. Conversion continues, left-to-right, until the whole

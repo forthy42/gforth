@@ -49,8 +49,8 @@ AUser CSP
 \G @code{Value} -- the exit status returned by the most recently executed
 \G @code{system} command.
 
-: system ( addr u -- ) \ gforth
-\G Pass the string specified by @var{c-addr, u} to the host operating system
+: system ( c-addr u -- ) \ gforth
+\G Pass the string specified by @var{c-addr u} to the host operating system
 \G for execution in a sub-shell.
     (system) throw TO $? ;
 

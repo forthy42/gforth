@@ -73,7 +73,7 @@ FORTHKFLAGS= --die-on-signal -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)" -i $(kernel_f
 FORTHK	= $(ENGINE) $(FORTHKFLAGS)
 FORTHP	= $(ENGINE) --die-on-signal -i ./$(kernel_fi)
 STRIP	= strip
-TEXI2DVI = texi2dvi
+TEXI2DVI = texi2dvi -e
 DVI2PS	= dvips -Z
 #you can get texi2html from http://wwwcn.cern.ch/dci/texi2html/
 TEXI2HTML = texi2html

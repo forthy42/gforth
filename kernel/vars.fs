@@ -157,18 +157,18 @@ has? file [IF]
  -1 dpl !
 
  User state ( -- a-addr ) \ core,tools-ext
- \G @code{User} variable -- @i{a-addr} is the address of a cell containing the
- \G compilation state flag. 0 => interpreting, -1 => compiling.  A
- \G program shall not directly alter the value of @code{state}. The
- \G following Standard words alter the value in @code{state}: @code{:}
- \G (colon) @code{;} (semicolon) @code{abort} @code{quit}
- \G @code{:noname} @code{[} (left-bracket) @code{]} (right-bracket)
- \G @code{;code}. Don't use @code{state}! @xref{Interpretation and
- \G Compilation Semantics} for an alternative. 
- \  Recommended reading: @cite{@code{State}-smartness--Why it is evil
- \  and how to exorcise it},
- \  @url{http://www.complang.tuwien.ac.at/papers/ertl98.ps.gz}; short
- \  version: Don't use @code{state}! 
+ \G @code{User} variable -- @i{a-addr} is the address of a cell
+ \G containing the compilation state flag. 0 => interpreting, -1 =>
+ \G compiling.  A program shall not directly alter the value of
+ \G @code{state}. The following Standard words alter the value in
+ \G @code{state}: @code{:} (colon) @code{;} (semicolon) @code{abort}
+ \G @code{quit} @code{:noname} @code{[} (left-bracket) @code{]}
+ \G (right-bracket) @code{;code}. Don't use @code{state}! For an
+ \G alternative see @ref{Interpretation and Compilation Semantics}.
+ \ Recommended reading: @cite{@code{State}-smartness--Why it is evil
+ \ and how to exorcise it},
+ \ @url{http://www.complang.tuwien.ac.at/papers/ertl98.ps.gz}; short
+ \ version: Don't use @code{state}!
  0 state !
 
 AUser normal-dp		\ the usual dictionary pointer
