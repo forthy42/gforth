@@ -56,7 +56,6 @@ value: Referer:
 
 definitions
 
-s" HTTP/1.0" protocol $!
 
 Variable maxnum
 
@@ -66,9 +65,9 @@ Variable maxnum
   BEGIN  refill ?cr  WHILE  interpret  >in @ 0=  UNTIL
   true  ELSE  maxnum off false  THEN ;
 : get-input ( -- flag ior )
-  s" /nosuchfile" url $!
+  s" /nosuchfile" url $!  s" HTTP/1.0" protocol $!
   s" close" connection $!
-  infile-id push-file loadfile !  0 loadline ! blk off
+  infile-id push-file loadfile !  loadline off  blk off
   commands 1 set-order  command? on  ['] refill-loop catch
   only forth also  pop-file ;
 
@@ -186,6 +185,6 @@ s" text/plain" transparent: txt
 	THEN  THEN  THEN  outfile-id flush-file throw ;
 
 : httpd  ( n -- )  maxnum !
-  BEGIN  http  maxnum @ 0=  UNTIL ;
+  BEGIN  ['] http catch  maxnum @ 0= or  UNTIL ;
 
 script? [IF]  &100 httpd bye  [THEN]

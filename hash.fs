@@ -97,7 +97,7 @@ Defer hash-alloc ( addr -- addr )
     voclink
     BEGIN  @ dup WHILE
 	   dup 0 wordlist-link -
-	   dup wordlist-map @ hashsearch-map = 
+	   dup wordlist-map @ reveal-method @ ['] hash-reveal = 
 	   IF  inithash ELSE drop THEN
     REPEAT  drop ;
 
