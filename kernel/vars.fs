@@ -69,11 +69,11 @@ $400 Value def#tib
 
 \ initialized by COLD
 
-Create main-task  has? OS [IF] 100 [ELSE] 40 [THEN] cells allot
+Create main-task  has? OS [IF] 100 [ELSE] 40 [THEN] cells dup allot
 
 \ set user-pointer from cross-compiler right
 main-task 
-UNLOCK tup ! LOCK
+UNLOCK swap region user-region user-region setup-region LOCK
 
 Variable udp ( -- a-addr ) \ gforth
 \G user area size

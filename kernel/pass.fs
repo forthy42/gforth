@@ -21,7 +21,9 @@
 
 \ Set up dictionary pointer
 >ram here normal-dp !
-UNLOCK tudp @ LOCK udp !
+
+\ set udp
+UNLOCK user-region extent nip LOCK udp !
 
 \ Set up last and forth-wordlist with the address of the last word's
 \ link field

@@ -662,6 +662,7 @@ stack-warn [IF]
 : defempty? empty? ;
 [ELSE]
 : defempty? ; immediate
+\ : defempty? .sourcepos ; 
 [THEN]
 
 \ \ --------------------        Compiler Plug Ins               01aug97jaw
@@ -1175,13 +1176,20 @@ false DefaultValue backtrace
 false DefaultValue new-input
 false DefaultValue peephole
 false DefaultValue abranch
+true DefaultValue f83headerstring
 true  DefaultValue control-rack
 [THEN]
 
+true DefaultValue gforthcross
 true DefaultValue interpreter
 true DefaultValue ITC
 false DefaultValue rom
 true DefaultValue standardthreading
+
+\ ANSForth environment  stuff
+8 DefaultValue ADDRESS-UNIT-BITS
+255 DefaultValue MAX-CHAR
+255 DefaultValue /COUNTED-STRING
 
 >TARGET
 s" relocate" T environment? H 
@@ -1237,11 +1245,9 @@ tbits/char bits/byte /	Constant tbyte
 
 \ Variables                                            06oct92py
 
-Variable image
 Variable (tlast)    
 (tlast) Value tlast TNIL tlast !  \ Last name field
 Variable tlastcfa \ Last code field
-Variable bit$
 
 \ statistics						10jun97jaw
 
@@ -1263,7 +1269,8 @@ Variable region-link            \ linked list with all regions
 Variable mirrored-link          \ linked list for mirrored regions
 0 dup mirrored-link ! region-link !
 
-: >rname 8 cells + ;
+: >rname 9 cells + ;
+: >rtouch 8 cells + ; \ executed when region is accessed
 : >rbm   4 cells + ; \ bitfield per cell witch indicates relocation
 : >rmem  5 cells + ;
 : >rtype 6 cells + ; \ field per cell witch points to a type struct
@@ -1278,6 +1285,8 @@ Variable mirrored-link          \ linked list for mirrored regions
   >r r@ last-defined-region !
   r@ >rlen ! dup r@ >rstart ! r> >rdp ! ;
 
+: uninitialized -1 ABORT" CROSS: Region is uninitialized" ;
+
 : region ( addr len -- "name" )                
 \G create a new region
   \ check whether predefined region exists 
@@ -1287,7 +1296,9 @@ Variable mirrored-link          \ linked list for mirrored regions
 	save-input create restore-input throw
 	here last-defined-region !
 	over ( startaddr ) , ( length ) , ( dp ) ,
-	region-link linked 0 , 0 , 0 , 0 , bl word count string,
+	region-link linked 0 , 0 , 0 , 0 , 
+        ['] uninitialized ,
+        bl word count string,
   ELSE	\ store new parameters in region
         bl word drop
 	>body (region)
@@ -1304,6 +1315,9 @@ Variable mirrored-link          \ linked list for mirrored regions
 : area ( region -- startaddr totallen ) 
 \G returns the total area
   dup >rstart @ swap >rlen @ ;
+
+: dp@ ( region -- dp )
+  >rdp @ ;
 
 : mirrored ( -- )                              
 \G mark last defined region as mirrored
@@ -1350,6 +1364,10 @@ Variable mirrored-link          \ linked list for mirrored regions
 0 0 region address-space
 \ total memory addressed and used by the target system
 
+0 0 region user-region
+\ data for user variables goes here
+\ this has to be defined before dictionary or ram-dictionary
+
 0 0 region dictionary
 \ rom area for the compiler
 
@@ -1369,6 +1387,21 @@ T has? rom H
 
 ' dictionary ALIAS rom-dictionary
 
+: setup-region ( region -- )
+  >r
+  \ allocate mem
+  r@ >rlen @ allocatetarget
+  r@ >rmem !
+
+  r@ >rlen @
+  target>bitmask-size allocatetarget
+  r@ >rbm !
+
+  r@ >rlen @
+  tcell / 1+ cells allocatetarget r@ >rtype !
+
+  ['] noop r@ >rtouch !
+  rdrop ;
 
 : setup-target ( -- )   \G initialize target's memory space
   s" rom" T $has? H
@@ -1394,20 +1427,8 @@ T has? rom H
   WHILE dup
         0 >rlink - >r
         r@ >rlen @
-        IF      \ allocate mem
-                r@ >rlen @ allocatetarget dup image !
-                r@ >rmem !
-
-                r@ >rlen @
-                target>bitmask-size allocatetarget
-                dup bit$ !
-                r@ >rbm !
-
-		r@ >rlen @
-		tcell / 1+ cells allocatetarget r@ >rtype !
-
-		rdrop
-        ELSE    r> drop THEN
+        IF      r@ setup-region
+        THEN    rdrop
    REPEAT drop ;
 
 \ MakeKernel                                           		22feb99jaw
@@ -1543,7 +1564,9 @@ bigendian
         0 >rlink - >r
         r@ >rlen @
         IF      dup r@ borders within
-                IF r> r> drop nip EXIT THEN
+                IF r> r> drop nip 
+                   dup >rtouch @ EXECUTE EXIT 
+                THEN
         THEN
         r> drop
         r>
@@ -1624,8 +1647,6 @@ CREATE Bittable 80 c, 40 c, 20 c, 10 c, 8 c, 4 c, 2 c, 1 c,
   dup s>d <# #s #> fd-relocation-table write-line throw
   [ [THEN] ]
   (>regionbm) swap cell/ -bit ;
-
-: (>image) ( taddr -- absaddr ) image @ + ;
 
 DEFER >image
 DEFER >ramimage
@@ -2034,7 +2055,11 @@ $20 constant restrict-mask
   dup T , H bounds  ?DO  I c@ T c, H  LOOP ;
 
 >TARGET
+X has? f83headerstring [IF]
+: name,  ( "name" -- )  bl word count ht-string, X cfalign ;
+[ELSE]
 : name,  ( "name" -- )  bl word count ht-lstring, X cfalign ;
+[THEN]
 : view,   ( -- ) ( dummy ) ;
 >CROSS
 
@@ -2152,8 +2177,9 @@ Defer skip? ' false IS skip?
 	0=
     ELSE  drop true  THEN ;
 
-: doer? ( -- flag ) \ name
-    Ghost >magic @ <do:> = ;
+: doer? ( "name" -- 0 | addr ) \ name
+    Ghost dup >magic @ <do:> = 
+    IF >link @ ELSE drop 0 THEN ;
 
 : skip-defs ( -- )
     BEGIN  refill  WHILE  source -trailing nip 0= UNTIL  THEN ;
@@ -2437,6 +2463,15 @@ Cond: ALiteral ( n -- )   alit, ;Cond
 
 : Char ( "<char>" -- )  bl word char+ c@ ;
 Cond: [Char]   ( "<char>" -- )  Char  lit, ;Cond
+
+: (x#) ( adr len base -- )
+  base @ >r base ! 0 0 name >number 2drop drop r> base ! ;
+
+: d# $0a (x#) ;
+: h# $010 (x#) ;
+
+Cond: d# $0a (x#) lit, ;Cond
+Cond: h# $010 (x#) lit, ;Cond
 
 tchar 1 = [IF]
 Cond: chars ;Cond 
@@ -2778,20 +2813,43 @@ by Create
 
 \ User variables                                       04may94py
 
-Variable tup  0 tup !
-Variable tudp 0 tudp !
+: tup@ user-region >rstart @ ;
+
+\ Variable tup  0 tup !
+\ Variable tudp 0 tudp !
 
 : u,  ( n -- udp )
-  tup @ tudp @ + T  ! H
-  tudp @ dup T cell+ H tudp ! ;
+  current-region >r user-region activate
+  X here swap X , tup@ - 
+  r> activate ;
 
 : au, ( n -- udp )
-  tup @ tudp @ + T A! H
-  tudp @ dup T cell+ H tudp ! ;
+  current-region >r user-region activate
+  X here swap X a, tup@ - 
+  r> activate ;
+
+T has? no-userspace H [IF]
+
+: buildby
+  ghost >exec @ built >exec ! ;
+
+Builder User
+buildby Variable
+by Variable
+
+Builder 2User
+buildby 2Variable
+by 2Variable
+
+Builder AUser
+buildby AVariable
+by AVariable
+
+[ELSE]
 
 Builder User
 Build: 0 u, X , ;Build
-by: :douser ( ghost -- up-addr )  X @ tup @ + ;DO
+by: :douser ( ghost -- up-addr )  X @ tup@ + ;DO
 
 Builder 2User
 Build: 0 u, X , 0 u, drop ;Build
@@ -2800,6 +2858,8 @@ by User
 Builder AUser
 Build: 0 au, X , ;Build
 by User
+
+[THEN]
 
 Builder (Value)
 Build:  ( n -- ) ;Build
@@ -2871,6 +2931,8 @@ DO:  abort" Not in cross mode" ;DO
 
 
 T has? peephole H [IF]
+
+\ .( loading peephole optimization) cr
 
 >CROSS
 
@@ -3221,10 +3283,10 @@ magic 7 + c!
   ELSE
       bl parse 2drop
   THEN
-  image @ there 
+  dictionary >rmem @ there
   r@ write-file throw \ write image
   s" relocate" X $has? IF
-      bit$  @ there 1- tcell>bit rshift 1+
+      dictionary >rbm @ there 1- tcell>bit rshift 1+
                 r@ write-file throw \ write tags
   THEN
   r> close-file throw ;
@@ -3616,15 +3678,19 @@ previous
 : * * ;
 : / / ;
 : dup dup ;
+: ?dup ?dup ;
 : over over ;
 : swap swap ;
 : rot rot ;
 : drop drop ;
+: 2drop 2drop ;
 : =   = ;
 : <>  <> ;
 : 0=   0= ;
 : lshift lshift ;
 : 2/ 2/ ;
+: hex. base @ $10 base ! swap . base ! ;
+: invert invert ;
 \ : . . ;
 
 : all-words    ['] forced?    IS skip? ;
@@ -3640,6 +3706,11 @@ previous
 : require require ;
 : needs require ;
 : .( [char] ) parse type ;
+: ERROR" [char] " parse 
+  rot 
+  IF cr ." *** " type ."  ***" -1 ABORT" CROSS: Target error, see text above" 
+  ELSE 2drop 
+  THEN ;
 : ." [char] " parse type ;
 : cr cr ;
 
