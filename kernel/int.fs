@@ -860,8 +860,7 @@ AVariable init8 NIL init8 !
     rp@ backtrace-rp0 !
 [ [THEN] ]
 [ has? file [IF] ]
-    pathstring 2@ fpath only-path 
-    init-included-files
+    os-cold
 [ [THEN] ]
     'cold
     init8 chainperform
@@ -890,11 +889,7 @@ has? new-input 0= [IF]
 : boot ( path n **argv argc -- )
     main-task up!
 [ has? os [IF] ]
-    stdout TO outfile-id
-    stdin  TO infile-id
-\ !! [ [THEN] ]
-\ !! [ has? file [IF] ]
-    argc ! argv ! pathstring 2!
+    os-boot
 [ [THEN] ]
     sp@ sp0 !
 [ has? peephole [IF] ]

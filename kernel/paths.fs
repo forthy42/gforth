@@ -64,8 +64,15 @@
         2dup c! char+ swap move ;
 [THEN]
 
-create sourcepath 1024 chars , 0 , 1024 chars allot \ !! make this dynamic
-sourcepath avalue fpath ( -- path-addr ) \ gforth
+\ create sourcepath 1024 chars , 0 , 1024 chars allot \ !! make this dynamic
+0 avalue fpath ( -- path-addr ) \ gforth
+
+: os-cold ( -- )
+    1024 chars dup 2 cells + allocate throw to fpath
+    0 swap fpath 2!
+    pathstring 2@ fpath only-path 
+    init-included-files ;
+
 \ The path Gforth uses for @code{included} and friends.
 
 : also-path ( c-addr len path-addr -- ) \ gforth

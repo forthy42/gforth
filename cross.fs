@@ -899,10 +899,15 @@ Variable cross-space-dp-orig
   THEN ;
 
 Defer is-forward
+Defer do-refered
+
+: prim-forward   ( ghost -- )
+  colonmark, 1 do-refered ; \ compile space for call
+' prim-forward IS is-forward
 
 : (ghostheader) ( -- )
-  ghost-list linked <fwd> , 0 , ['] NoExec , ['] is-forward , 
-  0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , ;
+    ghost-list linked <fwd> , 0 , ['] NoExec , what's is-forward ,
+    0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , ;
 
 : ghostheader ( -- ) (ghostheader) 0 , ;
 
@@ -1052,40 +1057,37 @@ End-Struct addr-struct
   dup @ ?dup IF nip EXIT THEN
   addr-struct %allocerase tuck swap ! ;
 
+>cross
+
 \ Predefined ghosts                                    12dec92py
 
 Ghost - drop \ need a ghost otherwise "-" would be treated as a number
 
 Ghost 0=                                        drop
 Ghost branch    Ghost ?branch                   2drop
-Ghost (do)      Ghost (?do)                     2drop
-Ghost (for)                                     drop
-Ghost (loop)    Ghost (+loop)                   2drop
-Ghost (next)                                    drop
 Ghost unloop    Ghost ;S                        2drop
-Ghost lit       Ghost (compile) Ghost !         2drop drop
-Ghost (does>)   Ghost noop                      2drop
-Ghost (.")      Ghost (S")      Ghost (ABORT")  2drop drop
-Ghost '                                         drop
+Ghost lit       Ghost !                         2drop
+Ghost noop                                      drop
 Ghost :docol    Ghost :doesjump Ghost :dodoes   2drop drop
 Ghost :dovar					drop
 Ghost over      Ghost =         Ghost drop      2drop drop
 Ghost 2drop drop
 Ghost 2dup drop
-Ghost state drop
 Ghost call drop
 Ghost @ drop
 Ghost useraddr drop
 Ghost execute drop
 Ghost + drop
-Ghost (C") drop
 Ghost decimal drop
 Ghost hex drop
+Ghost lit@ drop
+Ghost lit-perform drop
+Ghost lit+ drop
+Ghost does-exec drop
 
 \ \ Parameter for target systems                         06oct92py
 
 
->cross
 \ we define it ans like...
 wordlist Constant target-environment
 
@@ -1637,6 +1639,28 @@ T has? relocate H
 : A!                    swap >address swap dup relon T ! H ;
 : A,    ( w -- )        >address T here H relon T , H ;
 
+\ high-level ghosts
+
+>CROSS
+
+: call-forward ( ghost -- )
+    there 0 colon, 0 do-refered ;
+' call-forward IS is-forward
+
+Ghost (do)      Ghost (?do)                     2drop
+Ghost (for)                                     drop
+Ghost (loop)    Ghost (+loop)                   2drop
+Ghost (next)                                    drop
+Ghost (does>)   Ghost (compile)                 2drop
+Ghost (.")      Ghost (S")      Ghost (ABORT")  2drop drop
+Ghost (C")                                      drop
+Ghost '                                         drop
+
+\ ' prim-forward IS is-forward
+
+\ user ghosts
+
+Ghost state drop
 
 \ \ --------------------        Host/Target copy etc.     	29aug01jaw
 
@@ -1698,7 +1722,7 @@ previous
 : (xt) T a, H ;					' (xt) plugin-of xt,
 : (prim) T a, H ;				' (prim) plugin-of prim,
 
-: (cr) >tempdp ]comp xt, comp[ tempdp> ; 	' (cr) plugin-of colon-resolve
+: (cr) >tempdp colon, tempdp> ;                 ' (cr) plugin-of colon-resolve
 : (ar) T ! H ;					' (ar) plugin-of addr-resolve
 : (dr)  ( ghost res-pnt target-addr addr )
 	>tempdp drop over 
@@ -1736,7 +1760,9 @@ previous
     loadfile , 
     sourceline# , 
     space>
-  ;
+;
+
+' (refered) IS do-refered
 
 : refered ( ghost tag -- )
 \G creates a resolve structure
@@ -1800,13 +1826,7 @@ Defer resolve-warning
 : prim-resolved  ( ghost -- )
     >link @ prim, ;
 
-\ FIXME: not used currently
-: does-resolved ( ghost -- )
-    dup g>body alit, >do:ghost @ g>xt 0 t>body - colon, ;
-
-: (is-forward)   ( ghost -- )
-  colonmark, 0 (refered) ; \ compile space for call
-' (is-forward) IS is-forward
+0 Value resolved
 
 : resolve  ( ghost tcfa -- )
 \G resolve referencies to ghost with tcfa
@@ -1827,7 +1847,10 @@ Defer resolve-warning
     swap >r r@ >link @ swap \ ( list tcfa R: ghost )
     \ mark ghost as resolved
     dup r@ >link ! <res> r@ >magic !
-    r@ >comp @ ['] is-forward = IF
+    r@ to resolved
+    r@ >comp @ ['] prim-forward = IF
+	['] prim-resolved  r@ >comp !  THEN
+    r@ >comp @ what's is-forward = IF
 	['] prim-resolved  r@ >comp !  THEN
     \ loop through forward referencies
     r> -rot 
@@ -2176,9 +2199,11 @@ Variable prim#
   IF
      .sourcepos ." needs prim: " >in @ bl word count type >in ! cr
   THEN
+\  ['] prim-forward IS is-forward
   prim# @ (THeader ( S xt ghost )
   dup >ghost-flags <primitive> set-flag
   over resolve T A, H alias-mask flag!
+\  ['] call-forward IS is-forward
   -1 prim# +! ;
 >CROSS
 
@@ -2458,8 +2483,8 @@ Cond: ; ( -- )
 	fini,
 	comp[
 	;Resolve @ 
-	IF 	;Resolve @ ;Resolve cell+ @ resolve 
-		['] colon-resolved ;Resolve @ >comp !
+	IF  ['] colon-resolved ;Resolve @ >comp !
+	    ;Resolve @ ;Resolve cell+ @ resolve 
 	THEN
 	interpreting-state
 	;Cond
@@ -2478,6 +2503,10 @@ Cond: [ ( -- ) interpreting-state ;Cond
 
 Defer instant-interpret-does>-hook
 
+: does-resolved ( ghost -- )
+    compile does-exec g>xt T a, H ;
+\    dup g>body alit, >do:ghost @ g>xt 0 t>body - colon, ;
+
 : resolve-does>-part ( -- )
 \ resolve words made by builders
   Last-Header-Ghost @ >do:ghost @ ?dup 
@@ -2489,10 +2518,11 @@ Cond: DOES>
         resolve-does>-part
         ;Cond
 
-: DOES> switchrom doeshandler, T here H !does 
-  ['] does-resolved created >comp !
-  instant-interpret-does>-hook
-  depth T ] H ;
+: DOES>
+    ['] does-resolved created >comp !
+    switchrom doeshandler, T here H !does 
+    instant-interpret-does>-hook
+    depth T ] H ;
 
 >CROSS
 \ Creation                                              01nov92py
@@ -2538,12 +2568,20 @@ Cond: DOES>
    2dup >exec @ swap >exec2 ! 
    >comp @ swap >comp ! ;
 
+0 Value createhere
+
+: create-resolve ( -- )
+    created createhere resolve 0 ;Resolve ! ;
+: create-resolve-immediate ( -- )
+    create-resolve T immediate H ;
+
 : TCreate ( <name> -- )
   create-forward-warn
   IF ['] reswarn-forward IS resolve-warning THEN
   executed-ghost @ (Theader
   dup >created on  dup to created
-  2dup takeover-x-semantics hereresolve gdoes, ;
+  2dup takeover-x-semantics
+  there to createhere drop gdoes, ;
 
 : RTCreate ( <name> -- )
 \ creates a new word with code-field in ram
@@ -2551,14 +2589,14 @@ Cond: DOES>
   IF ['] reswarn-forward IS resolve-warning THEN
   \ make Alias
   executed-ghost @ (THeader 
-  dup >created on
+  dup >created on  dup to created
   2dup takeover-x-semantics
   there 0 T a, H alias-mask flag!
   \ store poiter to code-field
   switchram T cfalign H
   there swap T ! H
   there tlastcfa ! 
-  hereresolve gdoes, ;
+  there to createhere drop gdoes, ;
 
 : Build:  ( -- [xt] [colon-sys] )
   :noname postpone TCreate ;
@@ -2572,7 +2610,11 @@ Cond: DOES>
   [ [THEN] ] ;
 
 : ;Build
-  postpone ; built >exec ! ; immediate
+  postpone create-resolve postpone ; built >exec ! ; immediate
+
+: ;Build-immediate
+    postpone create-resolve-immediate
+    postpone ; built >exec ! ; immediate
 
 : gdoes>  ( ghost -- addr flag )
   executed-ghost @ g>body ;
@@ -2697,7 +2739,7 @@ BuildSmart:  ( -- ) [T'] noop T A, H ;Build
 by: :dodefer ( ghost -- ) X @ texecute ;DO
 
 Builder interpret/compile:
-Build: ( inter comp -- ) swap T immediate A, A, H ;Build
+Build: ( inter comp -- ) swap T A, A, H ;Build-immediate
 DO: ( ghost -- ) ABORT" CROSS: Don't execute" ;DO
 
 \ Sturctures                                           23feb95py
@@ -2750,7 +2792,10 @@ DO:  abort" Not in cross mode" ;DO
 T has? peephole H [IF]
 
 >CROSS
+
 : (callc) compile call T >body a, H ;		' (callc) plugin-of colon,
+: (call-res) >tempdp resolved gexecute tempdp> drop ;
+                                                ' (call-res) plugin-of colon-resolve
 : (prim) dup 0< IF  ( $4000 - ) ELSE
     ." wrong usage of (prim) "
     dup gdiscover IF  .ghost  ELSE  .  THEN  cr -2 throw  THEN
@@ -2762,10 +2807,10 @@ T has? peephole H [IF]
 \ compile: g>body X @ lit, ;compile
 
 Builder (Constant)
-compile: g>body alit, compile @ ;compile
+compile: g>body compile lit@ T a, H ;compile
 
 Builder (Value)
-compile: g>body alit, compile @ ;compile
+compile: g>body compile lit@ T a, H ;compile
 
 \ this changes also Variable, AVariable and 2Variable
 Builder Create
@@ -2775,10 +2820,10 @@ Builder User
 compile: g>body compile useraddr T @ , H ;compile
 
 Builder Defer
-compile: g>body alit, compile @ compile execute ;compile
+compile: g>body compile lit-perform T A, H ;compile
 
 Builder (Field)
-compile: g>body T @ H lit, compile + ;compile
+compile: g>body T @ H compile lit+ T , H ;compile
 
 Builder interpret/compile:
 compile: does-resolved ;compile

@@ -230,18 +230,18 @@ has? peephole [IF]
     \G compile xt to use primitives (and their peephole optimization)
     \G instead of ","-ing the xt.
     \ !! all POSTPONEs here postpone primitives; this can be optimized
-    dup >does-code ?dup if
-	swap >body POSTPONE literal POSTPONE call , EXIT
+    dup >does-code if
+	POSTPONE does-exec , EXIT
     then
     dup >code-address CASE
-	docon:   OF >body POSTPONE literal POSTPONE @ EXIT ENDOF
+	docon:   OF >body POSTPONE lit@ , EXIT ENDOF
 	   \ docon is also used by VALUEs, so don't @ at compile time
 	docol:   OF >body POSTPONE call , EXIT ENDOF
 	dovar:   OF >body POSTPONE literal EXIT ENDOF
 	douser:  OF >body @ POSTPONE useraddr , EXIT ENDOF
-	dodefer: OF >body POSTPONE literal POSTPONE @ POSTPONE EXECUTE EXIT
+	dodefer: OF >body POSTPONE lit-perform , EXIT
 	ENDOF
-	dofield: OF >body @ POSTPONE literal POSTPONE + EXIT ENDOF
+	dofield: OF >body @ POSTPONE lit+ , EXIT ENDOF
     ENDCASE
     peephole-compile, ;
 
@@ -468,6 +468,21 @@ doer? :dofield [IF]
 [ELSE]
     : (Field)  Create DOES> @ + ;
 [THEN]
+
+\ \ interpret/compile:
+
+struct
+    >body
+    cell% field interpret/compile-int
+    cell% field interpret/compile-comp
+end-struct interpret/compile-struct
+
+: interpret/compile: ( interp-xt comp-xt "name" -- ) \ gforth
+    Create immediate swap A, A,
+DOES>
+    abort" executed primary cfa of an interpret/compile: word" ;
+\    state @ IF  cell+  THEN  perform ;
+
 \ IS Defer What's Defers TO                            24feb93py
 
 doer? :dodefer [IF]
@@ -523,20 +538,6 @@ interpret/compile: TO ( w "name" -- ) \ core-ext
 :noname    ' >body postpone ALiteral postpone @ ;
 interpret/compile: What's ( interpretation "name" -- xt; compilation "name" -- ; run-time -- xt ) \ gforth
 \G @i{Xt} is the XT that is currently assigned to @i{name}.
-
-\ \ interpret/compile:
-
-struct
-    >body
-    cell% field interpret/compile-int
-    cell% field interpret/compile-comp
-end-struct interpret/compile-struct
-
-: interpret/compile: ( interp-xt comp-xt "name" -- ) \ gforth
-    Create immediate swap A, A,
-DOES>
-    abort" executed primary cfa of an interpret/compile: word" ;
-\    state @ IF  cell+  THEN  perform ;
 
 : interpret/compile? ( xt -- flag )
     >does-code ['] DOES> >does-code = ;

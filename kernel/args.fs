@@ -74,4 +74,9 @@ Variable argc ( -- addr ) \ gforth
     false to script?
 ;
 
+: os-boot ( path n **argv argc -- )
+    stdout TO outfile-id
+    stdin  TO infile-id
+    argc ! argv ! pathstring 2! ;
+
 ' (process-args) IS process-args
