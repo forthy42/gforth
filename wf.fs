@@ -42,6 +42,7 @@ require string.fs
 	case
 	    '& of  ." &amp;"  endof
 	    '< of  ." &lt;"   endof
+	    '¤ of  ." &euro;" endof
 	    dup emit
 	endcase
     LOOP ;
@@ -92,13 +93,14 @@ Variable envs 30 0 [DO] 0 , [LOOP]
 
 : env$ ( -- addr ) envs dup @ 1+ cells + ;
 : env ( addr u -- ) env$ $! ;
-: env? ( -- ) envs @ oldenv @
+: env? ( -- ) envs @ oldenv @ over oldenv !
     2dup > IF  env$ $@ tag  THEN
     2dup < IF  env$ cell+ $@ /tag  env$ cell+ $off  THEN
-    drop oldenv ! ;
+    2drop ;
 : +env  1 envs +! ;
-: -env end-sec @ envs @ 2 > or  IF  -1 envs +! env?  THEN ;
+: -env end-sec @ envs @ 1 > or  IF  -1 envs +! env?  THEN ;
 : -envs envs @ 0 ?DO  -env cr  LOOP ;
+: -tenvs envs @ 1 ?DO  -env cr  LOOP ;
 : >env ( addr u -- ) +env env env? ;
 
 \ alignment
@@ -182,8 +184,9 @@ Create jfif   $FF c, $D8 c, $FF c, $E0 c, $00 c, $10 c, $4A c, $46 c,
   f$ dup >r 0<=
   IF    '0 emit
   ELSE  scratch r@ min type  r@ precision - zeros  THEN
-  '. emit r@ negate zeros
-  scratch r> 0 max /string 0 max -zeros type ;
+  r@ negate zeros
+  scratch r> 0 max /string 0 max -zeros
+  dup IF  '. emit  THEN  type ;
 
 : size-does> ( -- )  DOES> ( -- )
     ." img." dup body> >name .name
@@ -488,7 +491,7 @@ Variable toc-index
     1 toc-index +! toc-index @ /toc-line mod 0=
     IF  s" br" tag/ THEN ;
 
-: print-toc ( -- ) toc-index off cr s" menu" id= s" div" >env cr
+: print-toc ( -- ) toc-index off cr s" menu" class= s" div" >env cr
     0 parse
     dup 0= IF  toc-name $! 0  ELSE
 	toc-name $! toc-name $@ id= s" " s" a" tagged  2
@@ -530,19 +533,19 @@ longtags set-current
 : :   s" dl" env s" dd" par ;
 : -<< s" ul" env env? s" li" >env ;
 : +<< s" ol" env env? s" li" >env ;
-: ?<< s" dl" env env? s" dt" >env ;
+\ : ?<< s" dl" env env? s" dt" >env ; \ not allowed
 : :<< s" dl" env env? s" dd" >env ;
 : p<< s" p" >env ;
 : <<  +env ;
 : <*  s" center" class= ;
-: <red  s" #ff0000" s" color" opt s" font" >env ;
-: red> -env ;
+: <red  s" p" >env s" #ff0000" s" color" opt s" font" >env parse-par ;
+: red> -env -env ;
 : >>  -env ;
 : *> ;
 : ::  interpret ;
 : .   end-sec on 0 indent ;
 : :code s" pre" >env
-    BEGIN  source >in @ /string type cr refill  WHILE
+    BEGIN  source >in @ /string .type cr refill  WHILE
 	source s" :endcode" str= UNTIL  THEN
     -env ;
 : :code-file s" pre" >env
@@ -615,23 +618,32 @@ definitions
     ELSE  source nip IF  >in off s" p" par  THEN  THEN ;
 : parse-section ( -- )  end-sec off
     BEGIN  refill  WHILE
-	section-par end-sec @  UNTIL  THEN ;
+	section-par end-sec @  UNTIL  THEN  end-sec off ;
 
 \ HTML head
 
 Variable css-file
+Variable content
+Variable lang
 
-: .title ( addr u -- )
-    .' <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//en" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">' cr
-    s" html" >env s" head" >env cr
-    s" Content-Type" s" http-equiv" opt
-    s" text/xhtml; charset=iso-8859-1" s" content" opt
-    s" meta" tag/
+: lang@  ( -- addr u )
+    lang @ IF  lang $@  ELSE  s" en"  THEN ;
+: .css ( -- )
     css-file @ IF  css-file $@len IF
-	s" StyleSheet" s" rel" opt
-	css-file $@ href=
-	s" text/css" s" type" opt s" link" tag/
-    THEN  THEN
+	    s" StyleSheet" s" rel" opt
+	    css-file $@ href=
+	    s" text/css" s" type" opt s" link" tag/ cr
+	THEN  THEN ;
+: .title ( addr u -- )  1 envs ! oldenv off
+    .' <!DOCTYPE html' cr
+    .'   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"' cr
+    .'   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">' cr
+    s" http://www.w3.org/1999/xhtml" s" xmlns" opt
+    lang@ s" xml:lang" opt lang@ s" lang" opt
+    s" html" >env cr s" head" >env cr
+    s" Content-Type" s" http-equiv" opt
+    content $@ s" content" opt
+    s" meta" tag/ cr .css
     s" title" tagged cr
     -env ;
 
@@ -665,10 +677,17 @@ Variable orig-date
     '< sword -trailing mail-name $! '> sword mail $! ;
 : pgp-key ( -- )
     bl sword -trailing public-key $! ;
+: charset ( -- )  s" text/xhtml; charset=" content $!
+    bl sword -trailing content $+! ;
+
+charset iso-8859-1
+
 : created ( -- )
     bl sword orig-date $! ;
 : icons
     bl sword icon-prefix $! ;
+: lang
+    bl sword lang $! ;
 : expands '# sword expand-prefix $! bl sword expand-postfix $! ;
 
 icons icons
@@ -701,7 +720,7 @@ Variable style$
   s" wf-temp.wf" r/w create-file throw >r
   r@ write-file r> close-file throw
   push-file s" wf-temp.wf" r/o open-file throw loadfile !
-  parse-par parse-section
+  parse-par -env parse-section
   loadfile @ close-file swap 2dup or
   pop-file  drop throw throw
   s" wf-temp.wf" delete-file throw ;
@@ -744,4 +763,4 @@ DOES> @ cells last-entry @ + get-par ;
 
 : db-par ( -- )  LT postpone p<< postpone >r
     BEGIN  db-line refill  WHILE  next-char '. = UNTIL  1 >in +!  THEN
-    postpone rdrop LT postpone >> ; immediate
+    postpone rdrop ( LT postpone >> ) ; immediate
