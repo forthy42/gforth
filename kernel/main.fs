@@ -66,7 +66,6 @@ has? kernel-size
     0 ,                 \ fp stack base
     0 ,                 \ return stack base
     0 ,                 \ locals stack base
-AConstant image-header
 [THEN]
 
 doc-off
@@ -81,6 +80,8 @@ has? prims [IF]
 doc-on
 
 has? header [IF]
+depth 1 <> [IF] cr .( header start address expected!) cr uffz [THEN]
+AConstant image-header
 : forthstart image-header @ ;
 [THEN]
 
