@@ -1,22 +1,21 @@
 \ yet another Forth objects extension
 
 \ written by Anton Ertl 1996, 1997
-\ public domain
+\ public domain; NO WARRANTY
 
 \ This (in combination with compat/struct.fs) is in ANS Forth (with an
 \ environmental dependence on case insensitivity; convert everything
 \ to upper case for state sensitive systems).
 
-\ If you don't use Gforth, you have to load compat/struct.fs first.
 \ compat/struct.fs and this file together use the following words:
 
 \ from CORE :
-\ : 1- + swap invert and ; DOES> @ immediate drop Create >r rot r@ dup
-\ , IF ELSE THEN r> chars cells 2* here - allot over execute POSTPONE
-\ ?dup 2dup move 2! Variable 2@ ! ['] >body = 2drop ' +! Constant
-\ recurse 1+ BEGIN 0= UNTIL negate Literal ." .
+\ : 1- + swap invert and ; DOES> @ immediate drop Create rot dup , >r
+\ r> IF ELSE THEN over chars aligned cells 2* here - allot execute
+\ POSTPONE ?dup 2dup move Variable 2@ 2! ! ['] >body = 2drop ' r@ +!
+\ Constant recurse 1+ BEGIN 0= UNTIL negate Literal ." .
 \ from CORE-EXT :
-\ tuck nip true <> 0> erase Value :noname compile, 
+\ tuck pick nip true <> 0> erase Value :noname compile, 
 \ from BLOCK-EXT :
 \ \ 
 \ from DOUBLE :
@@ -28,121 +27,15 @@
 \ from FILE :
 \ ( 
 \ from FLOAT :
-\ floats 
+\ faligned floats 
 \ from FLOAT-EXT :
-\ dfloats sfloats 
+\ dfaligned dfloats sfaligned sfloats 
 \ from LOCAL :
 \ TO 
 \ from MEMORY :
 \ allocate resize free 
 \ from SEARCH :
 \ get-order set-order wordlist get-current set-current 
-
-\ ---------------------------------------
-\ MANUAL:
-
-\ A class is defined like this:
-
-\ <parent> class
-\   ... field <name>
-\   ...
-
-\   ... inst-var <name>
-\   ...
-
-\ selector <name>
-
-\ :noname ( ... object -- ... )
-\   ... ;
-\ method <name> \ new method
-\ ...
-
-\ :noname ( ... object -- ... )
-\   ... ;
-\ overrides <name> \ existing method
-\ ...
-
-\ end-class <name>
-
-\ you can write fields, inst-vars, selectors, methods and overrides in
-\ any order.
-
-\ A call of a method looks like this:
-
-\ ... <object> <method>
-
-\ (<object> just needs to reside on the stack, there's no need to name it).
-
-\ Instead of defining a method with ':noname ... ;', you can define it
-\ also with 'm: ... ;m'. The difference is that with ':noname' the
-\ "self" object is on the top of stack; with 'm:' you can get it with
-\ 'this'. You should use 'this' only in an 'm:' method even though the
-\ sample implementation does not enforce this.
-
-\ The difference between a field and and inst-var is that the field
-\ refers to an object at the top of data stack (i.e. a field has the
-\ stack effect (object -- addr), whereas the inst-var refers to this
-\ (i.e., it has the stack effect ( -- addr )); obviously, an inst-var
-\ can only be used in an 'm:' method.
-
-\ 'method' defines a new method selector and binds a method to it.
-
-\ 'selector' defines a new method selector without binding a method to
-\ it (you can use this to define abstract classes)
-
-\ 'overrides' binds a different method (than the parent class) to an
-\ existing method selector.
-
-\ If you want to perform early binding, you can do it like this:
-
-\ ... <object> [bind] <class> <method> \ compilation
-\ ... <object> bind  <class> <method> \ interpretation
-
-\ You can get at the method from the method selector and the class like
-\ this:
-
-\ bind' <class> <method>
-
-
-\ An interface is defined like this:
-
-\ interface
-\   selector <name>
-\ : noname ( ... object -- ... )
-\     ... ;
-\ method <name>
-\   ...
-\ end-interface <name>
-
-\ You can only define new selectors in an interface definition, no
-\ fields or instance variables. If you define a selector with
-\ 'method', the corresponding method becomes the default method for
-\ this selector.
-
-\ An interface is used like this:
-
-\ <parent> class
-\   <interface> implementation
-\   <interface> implementation
-
-\ :noname ( ... -- ... )
-\     ... ;
-\ overrides <selector>
-
-\ end-class name
-
-\ a class inherits all interfaces of its parent. An 'implementation'
-\ means that the class also implements the specified interface (If the
-\ interface is already implemented by the parent class, an
-\ 'implementation' phrase resets the methods to the defaults.
-
-\ 'overrides' can also be used to override interface methods. It has
-\ to be used after announcing the 'implementation' of the
-\ interface. Apart from this, 'implementation' can be freely mixed
-\ with the other stuff (but I recommend to put all 'implementation'
-\ phrases at the beginning of the class definition).
-
-\ \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
 \ needs struct.fs
 
@@ -151,7 +44,7 @@
 : -rot ( a b c -- c a b )
     rot rot ;
 
-: under+ ( a b c -- a+b c )
+: under+ ( a b c -- a+c b )
     rot + swap ;
 
 : perform ( ... addr -- ... )
@@ -176,43 +69,40 @@
 
 : extend-mem	( addr1 u1 u -- addr addr2 u2 )
     \ extend memory block allocated from the heap by u aus
-    \ the (possibly reallocated piece is addr2 u2, the extension is at addr )
+    \ the (possibly reallocated) piece is addr2 u2, the extension is at addr
     over >r + dup >r resize throw
     r> over r> + -rot ;
-
-: 2,	( w1 w2 -- ) \ gforth
-    here 2 cells allot 2! ;
 
 \ data structures
 
 struct
-    1 cells: field object-map
-end-struct object-struct
+    cell% field object-map
+end-struct object%
 
 struct
-    2 cells: field interface-map
-    1 cells: field interface-map-offset \ aus
+    cell% 2* field interface-map
+    cell%    field interface-map-offset \ aus
       \ difference between where interface-map points and where
       \ object-map points (0 for non-classes)
-    1 cells: field interface-offset \ aus
+    cell%    field interface-offset \ aus
       \ offset of interface map-pointer in class-map (0 for classes)
-end-struct interface-struct
+end-struct interface%
 
-interface-struct
-    1 cells: field class-parent
-    1 cells: field class-wordlist \ instance variables and other private words
-    2 cells: field class-inst-size \ size and alignment
-end-struct class-struct
+interface%
+    cell%    field class-parent
+    cell%    field class-wordlist \ instance variables and other private words
+    cell% 2* field class-inst-size \ size and alignment
+end-struct class%
 
 struct
-    1 cells: field selector-offset \ the offset within the (interface) map
-    1 cells: field selector-interface \ the interface offset
-end-struct selector-struct
+    cell% field selector-offset \ the offset within the (interface) map
+    cell% field selector-interface \ the interface offset
+end-struct selector%
 
 \ maps are not defined explicitly; they have the following structure:
 
 \ pointers to interface maps (for classes) <- interface-map points here
-\ interface/class-struct pointer           <- (object-)map  points here
+\ interface%/class% pointer                <- (object-)map  points here
 \ xts of methods 
 
 
@@ -298,7 +188,7 @@ does> ( ... object -- ... )
 variable last-interface-offset 0 last-interface-offset !
 
 : interface ( -- )
-    interface-struct struct-allot >r
+    interface% %allot >r
     0 0 r@ interface-map 2!
     -1 cells last-interface-offset +!
     last-interface-offset @ r@ interface-offset !
@@ -325,8 +215,8 @@ variable last-interface-offset 0 last-interface-offset !
     \ add the class's wordlist to the search-order (in front)
     >r get-order r> add-class-order set-order ;
 
-: class ( parent-class -- size align )
-    class-struct struct-allot >r
+: class ( parent-class -- align size )
+    class% %allot >r
     dup interface-map 2@ save-mem r@ interface-map 2!
     dup interface-map-offset @ r@ interface-map-offset !
     r@ dup class->map !
@@ -349,11 +239,11 @@ variable last-interface-offset 0 last-interface-offset !
     \ note: no checks, whether the wordlists are correct
     >r get-order r> remove-class-order set-order ;
 
-: end-class-noname ( size align -- class )
+: end-class-noname ( align size -- class )
     current-interface @ dup drop-order class-inst-size 2!
     end-interface-noname ;
 
-: end-class ( size align "name" -- )
+: end-class ( align size "name" -- )
     \ name execution: ( -- class )
     end-class-noname constant ;
 
@@ -361,10 +251,10 @@ variable last-interface-offset 0 last-interface-offset !
 
 variable public-wordlist
 
-: private ( -- )
+: protected ( -- )
     current-interface @ class-wordlist @
     dup get-current <>
-    if \ we are not private already
+    if \ we are not protected already
 	get-current public-wordlist !
     then
     set-current ;
@@ -432,7 +322,7 @@ variable public-wordlist
 \ disallowing to change the compilation wordlist between CREATE and
 \ DOES> (see RFI 3)
 
-: inst-something ( size1 align1 size align xt "name" -- size2 align2 )
+: inst-something ( align1 size1 align size xt "name" -- align2 size2 )
     \ xt ( -- ) typically is for a DOES>-word
     get-current >r
     current-interface @ class-wordlist @ set-current
@@ -443,7 +333,7 @@ variable public-wordlist
 does> \ name execution: ( -- addr )
     ( addr1 ) @ this + ;
 
-: inst-var ( size1 align1 size align "name" -- size2 align2 )
+: inst-var ( align1 offset1 align size "name" -- align2 offset2 )
     \ name execution: ( -- addr )
     ['] do-inst-var inst-something ;
 
@@ -451,16 +341,13 @@ does> \ name execution: ( -- addr )
 does> \ name execution: ( -- w )
     ( addr1 ) @ this + @ ;
 
-: inst-value ( size1 align1 "name" -- size2 align2 )
+: inst-value ( align1 offset1 "name" -- align2 offset2 )
     \ name execution: ( -- w )
     \ a cell-sized value-flavoured instance field
-    1 cells: ['] do-inst-value inst-something ;
+    cell% ['] do-inst-value inst-something ;
 
 : <to-inst> ( w xt -- )
     >body @ this + ! ;
-
-: to-inst ( w "name" -- )
-    ' <to-inst> ;
 
 : [to-inst] ( compile-time: "name" -- ; run-time: w -- )
     ' >body @ POSTPONE literal
@@ -468,10 +355,7 @@ does> \ name execution: ( -- w )
     POSTPONE +
     POSTPONE ! ; immediate
 
-\ early binding stuff
-
-\ this is not generally used, only where you want to do something like
-\ superclass method invocation (so that you don't have to name your methods)
+\ class binding stuff
 
 : <bind> ( class selector-xt -- xt )
     >body swap class->map over selector-interface @
@@ -489,7 +373,13 @@ does> \ name execution: ( -- w )
 : [bind] ( compile-time: "class" "selector" -- ; run-time: ... object -- ... )
     bind' compile, ; immediate
 
-: [super] ( compile-time: "selector" -- ; run-time: ... object -- ... )
+: current' ( "selector" -- xt )
+    current-interface @ ' <bind> ;
+
+: [current] ( compile-time: "selector" -- ; run-time: ... object -- ... )
+    current' compile, ; immediate
+
+: [parent] ( compile-time: "selector" -- ; run-time: ... object -- ... )
     \ same as `[bind] "parent" "selector"', where "parent" is the
     \ parent class of the current class
     current-interface @ class-parent @ ' <bind> compile, ; immediate
@@ -499,15 +389,14 @@ does> \ name execution: ( -- w )
 \ because OBJECT has no parent class, we have to build it by hand
 \ (instead of with class)
 
-wordlist
-here current-interface !
-current-interface 1 cells save-mem 2, \ map now contains a pointer to class
-0 ,
-0 , 
-0 , \ parent
-, \ wordlist
-object-struct 2, \ instance size
-object-struct
+class% %allot current-interface !
+current-interface 1 cells save-mem current-interface @ interface-map 2!
+0 current-interface @ interface-map-offset !
+0 current-interface @ interface-offset !
+0 current-interface @ class-parent !
+wordlist current-interface @ class-wordlist !
+object%
+current-interface @ push-order
 
 :noname ( object -- )
     drop ;
@@ -526,14 +415,14 @@ end-class object
     construct ;
 
 : xt-new ( ... class xt -- object )
-    \ makes a new object, using XT ( size align -- addr ) to allocate memory
+    \ makes a new object, using XT ( align size -- addr ) to allocate memory
     over class-inst-size 2@ rot execute
     dup >r init-object r> ;
 
 : dict-new ( ... class -- object )
     \ makes a new object HERE in dictionary
-    ['] struct-allot xt-new ;
+    ['] %allot xt-new ;
 
 : heap-new ( ... class -- object )
     \ makes a new object in ALLOCATEd memory
-    ['] struct-alloc xt-new ;
+    ['] %alloc xt-new ;

@@ -1,43 +1,27 @@
 \ data structures (like C structs)
 
-\ Copyright (C) 1995 Free Software Foundation, Inc.
+\ This file is in the public domain. NO WARRANTY.
 
-\ This file is part of Gforth.
-
-\ Gforth is free software; you can redistribute it and/or
-\ modify it under the terms of the GNU General Public License
-\ as published by the Free Software Foundation; either version 2
-\ of the License, or (at your option) any later version.
-
-\ This program is distributed in the hope that it will be useful,
-\ but WITHOUT ANY WARRANTY; without even the implied warranty of
-\ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-\ GNU General Public License for more details.
-
-\ You should have received a copy of the GNU General Public License
-\ along with this program; if not, write to the Free Software
-\ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-
-
-\ Usage example:
-\
-\ struct
-\     1 cells: field search-method
-\     1 cells: field reveal-method
-\ end-struct wordlist-map
-\
-\ The structure can then be extended in the following way
-\ wordlist-map
-\     1 cells: field enum-method
-\ end-struct ext-wordlist-map \ with the fields search-method,...,enum-method
-
-\ This is an ANS Forth program with an environmental dependency on
-\ alignments that are powers of 2 (rewrite nalign for other systems)
-\ and with an environmental dependence on case insensitivity (convert
-\ everything to upper case for state sensitive systems).
-
-\ The program uses the following words
-\ !!
+\ This program uses the following words
+\ from CORE :
+\ : 1- + swap invert and ; DOES> @ immediate drop Create rot dup , >r
+\ r> IF ELSE THEN over chars aligned cells 2* here - allot
+\ from CORE-EXT :
+\ tuck pick nip 
+\ from BLOCK-EXT :
+\ \ 
+\ from DOUBLE :
+\ 2Constant 
+\ from EXCEPTION :
+\ throw 
+\ from FILE :
+\ ( 
+\ from FLOAT :
+\ faligned floats 
+\ from FLOAT-EXT :
+\ dfaligned dfloats sfaligned sfloats 
+\ from MEMORY :
+\ allocate 
 
 : nalign ( addr1 n -- addr2 )
 \ addr2 is the aligned version of addr1 wrt the alignment size n
@@ -52,59 +36,45 @@ does> ( name execution: addr1 -- addr2 )
 does> ( name execution: -- )
     drop ;
 
-: create-field ( offset1 align1 size align "name" -- offset2 align2 )
-    create
-    >r rot r@ nalign  dup ,  ( align1 size offset  R: align )
-    + swap r> nalign ;
+: create-field ( align1 offset1 align size "name" --  align2 offset2 )
+    create rot dup , ( align1 align size offset1 )
+    + >r nalign r> ;
 
-: field ( offset1 align1 size align "name" -- offset2 align2 )
+: field ( align1 offset1 align size "name" --  align2 offset2 )
     \ name execution: addr1 -- addr2
-    3 pick >r \ this uglyness is just for optimizing with dozerofield
+    2 pick >r \ this uglyness is just for optimizing with dozerofield
     create-field
-    r>
-    dup if
+    r> if \ offset<>0
 	dofield
     else
 	dozerofield
     then ;
 
-: end-struct ( size align -- )
-    tuck nalign swap \ pad size to full alignment
+: end-struct ( align size "name" -- )
+    over nalign \ pad size to full alignment
     2constant ;
 
-0 1 chars end-struct struct
+\ an empty struct
+1 chars 0 end-struct struct
 
-\ I don't really like the "type:" syntax. Any other ideas? - anton
-\ Also, this seems to be somewhat general. It probably belongs to some
-\ other place
-: cells: ( n -- size align )
-    cells 1 aligned ;
+\ type descriptors, all ( -- align size )
+1 aligned   1 cells   2constant cell%
+1 chars     1 chars   2constant char%
+1 faligned  1 floats  2constant float%
+1 dfaligned 1 dfloats 2constant dfloat%
+1 sfaligned 1 sfloats 2constant sfloat%
+cell% 2*              2constant double%
 
-: doubles: ( n -- size align )
-    2* cells 1 aligned ;
+\ memory allocation words
+: %align ( align size -- )
+    drop here swap nalign here - allot ;
 
-: chars: ( n -- size align )
-    chars 1 chars ;
-
-: floats: ( n -- size align )
-    floats 1 faligned ;
-
-: dfloats: ( n -- size align )
-    dfloats 1 dfaligned ;
-
-: sfloats: ( n -- size align )
-    sfloats 1 sfaligned ;
-
-: struct-align ( size align -- )
-    here swap nalign here - allot
-    drop ;
-
-: struct-allot ( size align -- addr )
-    over swap struct-align
+: %allot ( align size -- addr )
+    tuck %align
     here swap allot ;
 
-: struct-allocate ( size align -- addr ior )
-    drop allocate ;
+: %allocate ( align size -- addr ior )
+    nip allocate ;
 
-: struct-alloc ( size align -- addr )
-    struct-allocate throw ;
+: %alloc ( size align -- addr )
+    %allocate throw ;

@@ -238,7 +238,7 @@ extern double acosh(double r1);
 extern char* ecvt(double x, int len, int* exp, int* sign);
 #endif
 #ifndef HAVE_MEMMOVE
-extern char *memmove(char *dest, const char *src, long n);
+/* extern char *memmove(char *dest, const char *src, long n); */
 #endif
 #ifndef HAVE_POW10
 extern double pow10(double x);
@@ -250,7 +250,7 @@ extern char *strerror(int err);
 extern char *strsignal(int sig);
 #endif
 #ifndef HAVE_STRTOUL
-extern unsigned long int strtol(const char *nptr, char **endptr, int base);
+extern unsigned long int strtoul(const char *nptr, char **endptr, int base);
 #endif
 
 

@@ -2848,7 +2848,7 @@ are available:
 
 @table @i
 
-@item<return>
+@item <return>
 Next; Execute the next word
 
 @item n
@@ -4945,7 +4945,7 @@ Double-Word Integers, gcc.info, GNU C Manual}) corresponds to Forth's
 double numbers@footnote{Unfortunately, long longs are not implemented
 properly on all machines (e.g., on alpha-osf1, long longs are only 64
 bits, the same size as longs (and pointers), but they should be twice as
-long according to @ref{Long Long, , Double-Word Integers, gcc.info, GNU
+long according to @pxref{Long Long, , Double-Word Integers, gcc.info, GNU
 C Manual}). So, we had to implement doubles in C after all. Still, on
 most machines we can use long longs and achieve better performance than
 with the emulation package.}. GNU C is available for free on all
@@ -5363,7 +5363,7 @@ cause similar speedups.
 The speedup of Gforth over PFE, ThisForth and TILE can be easily
 explained with the self-imposed restriction of the latter systems to
 standard C, which makes efficient threading impossible (however, the
-measured implementation of PFE uses a GNU C extension: @ref{Global Reg
+measured implementation of PFE uses a GNU C extension: @pxref{Global Reg
 Vars, , Defining Global Register Variables, gcc.info, GNU C Manual}).
 Moreover, current C compilers have a hard time optimizing other aspects
 of the ThisForth and the TILE source.
