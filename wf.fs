@@ -34,6 +34,9 @@ require string.fs
 
 \ character recoding
 
+[IFDEF] 8-bit-io  8-bit-io  [THEN]
+\ UTF-8 IO fails with .type:
+
 : .type ( addr u -- )
     bounds ?DO  I c@
 	case
@@ -47,10 +50,15 @@ require string.fs
 
 Variable indentlevel
 Variable tag-option
+Variable tag-class
 s" " tag-option $!
+s" " tag-class $!
 
-: tag ( addr u -- ) '< emit type tag-option $@ type '> emit
-    s" " tag-option $! ;
+: tag ( addr u -- ) '< emit type
+    tag-class $@len IF  .\"  class=\"" tag-class $@ type '" emit  THEN
+    tag-option $@ type
+    '> emit
+    s" " tag-option $! s" " tag-class $! ;
 : tag/ ( addr u -- )  s"  /" tag-option $+! tag ;
 : /tag ( addr u -- ) '< emit '/ emit type '> emit ;
 : tagged ( addr1 u1 addr2 u2 -- )  2dup 2>r tag .type 2r> /tag ;
@@ -59,6 +67,7 @@ s" " tag-option $!
     tag-option $+! s' ="' tag-option $+! tag-option $+!
     s' "' tag-option $+! ;
 : n>string ( n -- addr u )  0 <# #S #> ;
+: xy>string ( x y -- )  swap 0 <# #S 'x hold 2drop 0 #S 's hold #> ;
 : opt# ( n opt u -- )  rot n>string 2swap opt ;
 : href= ( addr u -- )  s" href" opt ;
 : id= ( addr u -- )  s" id" opt ;
@@ -67,7 +76,9 @@ s" " tag-option $!
 : width=  ( n -- )  s" width" opt# ;
 : height=  ( n -- )  s" height" opt# ;
 : align= ( addr u -- ) s" align" opt ;
-: class= ( addr u -- ) s" class" opt ;
+: class= ( addr u -- )
+    tag-class $@len IF  s"  " tag-class $+!  THEN
+    tag-class $+! ;
 : indent= ( -- )
     indentlevel @ 0 <# #S 'p hold #> class= ;
 : mailto: ( addr u -- ) s'  href="mailto:' tag-option $+!
@@ -126,6 +137,8 @@ Variable taligned
 
 \ image handling
 
+wordlist Constant img-sizes
+
 Create imgbuf $20 allot
 
 Create pngsig $89 c, $50 c, $4E c, $47 c, $0D c, $0A c, $1A c, $0A c,
@@ -163,13 +176,50 @@ Create jfif   $FF c, $D8 c, $FF c, $E0 c, $00 c, $10 c, $4A c, $46 c,
     png? IF  png-size  rdrop EXIT  THEN
     0 0 rdrop ;
 
+3 set-precision
+
+: f.size  ( r -- )
+  f$ dup >r 0<=
+  IF    '0 emit
+  ELSE  scratch r@ min type  r@ precision - zeros  THEN
+  '. emit r@ negate zeros
+  scratch r> 0 max /string 0 max -zeros type ;
+
+: size-does> ( -- )  DOES> ( -- )
+    ." img." dup body> >name .name
+    2@ ." { width: "
+    s>d d>f 13.8e f/ f.size ." em; height: "
+    s>d d>f 13.8e f/ f.size ." em; }" cr ;
+
+: size-css ( file< > -- )
+    outfile-id >r
+    bl sword r/w create-file throw to outfile-id
+    img-sizes wordlist-id
+    BEGIN  @ dup  WHILE
+	    dup name>int execute
+    REPEAT  drop
+    outfile-id close-file throw
+    r> to outfile-id
+    dup 0< IF  throw  ELSE  drop  THEN ;
+
+: size-class ( x y addr u -- x y )
+    2dup class=
+    2dup img-sizes search-wordlist  IF  drop 2drop
+    ELSE
+	get-current >r img-sizes set-current
+	nextname Create 2dup , , size-does>
+	r> set-current
+    THEN ;
+
 : .img-size ( addr u -- )
     r/o open-file IF  drop  EXIT  THEN  >r
     imgbuf $20 r@ read-file throw drop
     r@ img-size
     r> close-file throw
+    2dup or IF  2dup xy>string size-class  THEN  
     ?dup IF  width=   THEN
-    ?dup IF  height=  THEN ;
+    ?dup IF  height=  THEN
+;
 
 \ link creation
 
@@ -191,8 +241,8 @@ Defer parse-line
 	icon-tmp $@  THEN
     dup >r '| -$split  dup r> = IF  2swap  THEN 
     dup IF  2swap alt=  ELSE  2drop  THEN
-    tag-option $@len >r over c@ >align  tag-option $@len r> = 1+ /string
-    tag-option $@len >r over c@ >border tag-option $@len r> = 1+ /string
+    tag-class $@len >r over c@ >align  tag-class $@len r> = 1+ /string
+    tag-class $@len >r over c@ >border tag-class $@len r> = 1+ /string
     2dup .img-size src= s" img" tag/ ;
 : >img ( -- )   '{ parse type '} parse .img ;
 
@@ -571,6 +621,7 @@ Variable css-file
 
 \ HTML trailer
 
+Variable public-key
 Variable mail
 Variable mail-name
 Variable orig-date
@@ -586,12 +637,18 @@ Variable orig-date
     .lastmod
  ."  by "
     s" Mail|@/mail.gif" .img mail $@ mailto: mail-name $@ s" a" tagged
+    public-key @ IF
+	public-key $@ href=  s" a" tag
+	s" PGP key|@/gpg.asc.gif" .img s" a" /tag
+    THEN
     -envs ;
 
 \ top word
 
 : maintainer ( -- )
     '< sword -trailing mail-name $! '> sword mail $! ;
+: pgp-key ( -- )
+    bl sword -trailing public-key $! ;
 : created ( -- )
     bl sword orig-date $! ;
 : icons
