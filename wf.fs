@@ -20,6 +20,7 @@ s" " tag-option $!
     s' "' tag-option $+! ;
 : href= ( addr u -- )  s" href" opt ;
 : src=  ( addr u -- )  s" src" opt ;
+: alt=  ( addr u -- )  s" alt" opt ;
 : align= ( addr u -- ) s" align" opt ;
 : mailto: ( addr u -- ) s'  href="mailto:' tag-option $+!
     tag-option $+! s' "' tag-option $+! ;
@@ -75,8 +76,12 @@ Variable do-size
     link-icon? link $@ href= s" a" tagged
     link-size? ;
 
+: .img ( -- ) '{ parse type '} parse '| $split
+    dup IF  2swap alt=  ELSE  2drop  THEN  src= s" img" tag ;
+
 \ line handling
 
+: char? ( -- c )  >in @ char swap >in ! ;
 : parse-tag ( addr u char -- )
     >r r@ parse type
     r> parse 2swap tagged ;
@@ -84,16 +89,23 @@ Variable do-size
 : .bold ( -- )  s" b" '* parse-tag ;
 : .em   ( -- )  s" em" '_ parse-tag ;
 
+: do-word ( char -- )
+    CASE
+	'* OF .bold ENDOF
+	'_ OF .em   ENDOF
+	'[ OF .link ENDOF
+	'{ OF .img  ENDOF
+	>in @ >r char drop
+	source r@ /string >in @ r> - nip type
+    ENDCASE ;
+
 : parse-line ( -- )
-    BEGIN  >in @ >r char r> >in !
-	CASE
-	    '* OF .bold ENDOF
-	    '_ OF .em   ENDOF
-	    '[ OF .link ENDOF
-	    >in @ >r char drop
-	    source r@ /string >in @ r> - nip type
-	ENDCASE
-	source nip >in @ = UNTIL ;
+    BEGIN  char? do-word source nip >in @ = UNTIL ;
+
+: parse-to ( char -- ) >r
+    BEGIN  char? dup r@ <> WHILE
+	do-word source nip >in @ = UNTIL  ELSE  drop  THEN
+    r> parse type ;
 
 \ paragraph handling
 
@@ -149,12 +161,10 @@ longtags set-current
 : |> -env ;
 : +| |line
     BEGIN
-	|h '| parse type
-	>in @ >r char r> >in ! '+ =  UNTIL line| ;
+	|h '| parse-to char? '+ =  UNTIL line| ;
 : -| |line
     BEGIN
-	|d '| parse type
-	>in @ >r char r> >in ! '- =  UNTIL line| ;
+	|d '| parse-to char? '- =  UNTIL line| ;
 
 definitions
 
