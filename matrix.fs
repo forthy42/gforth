@@ -34,7 +34,7 @@ align create imr mat-byte-size allot
 : innerproduct ( a[row][*] b[*][column] -- int)
   0 row-size 0 do
     >r over @ over @ * r> + >r
-    cell+ swap row-byte-size + swap
+    swap cell+ swap row-byte-size +
     r>
   loop
   >r 2drop r>

@@ -32,7 +32,6 @@ char* ecvt(double x, int len, int* exp, int* sign)
 {
    int i, j;
    double z;
-   fprintf(stderr, "using own ecvt\n");
    
    if(len > (MAXCONV-1)) len = MAXCONV-1;
    
