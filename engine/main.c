@@ -874,10 +874,10 @@ Address loader(FILE *imagefile, char* filename)
   return imp;
 }
 
-/* index of last '/' or '\' in file, 0 if there is none. */
-int onlypath(char *file)
+/* pointer to last '/' or '\' in file, 0 if there is none. */
+char *onlypath(char *filename)
 {
-  return strrchr(file, DIRSEP)-file;
+  return strrchr(filename, DIRSEP);
 }
 
 FILE *openimage(char *fullfilename)
@@ -912,7 +912,7 @@ FILE * open_image_file(char * imagename, char * path)
   if(strchr(imagename, DIRSEP)==NULL) {
     /* first check the directory where the exe file is in !! 01may97jaw */
     if (onlypath(progname))
-      image_file=checkimage(progname, onlypath(progname), imagename);
+      image_file=checkimage(progname, onlypath(progname)-progname, imagename);
     if (!image_file)
       do {
 	char *pend=strchr(path, PATHSEP);
