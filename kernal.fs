@@ -145,17 +145,21 @@ HEX
 
 \ name> found                                          17dec92py
 
+$80 constant alias-mask \ set when the word is not an alias!
+$40 constant immediate-mask
+$20 constant restrict-mask
+
 : (name>)  ( nfa+cell -- cfa )
     1 cells - name>string +  cfaligned ;
 : name>    ( nfa -- cfa ) \ gforth
     cell+
-    dup  (name>) swap  c@ $80 and 0= IF  @ THEN ;
+    dup  (name>) swap  c@ alias-mask and 0= IF  @ THEN ;
 
 : found ( nfa -- cfa n ) \ gforth
     cell+
-    dup c@ >r  (name>) r@ $80 and  0= IF  @       THEN
-                    -1 r@ $40 and     IF  1-      THEN
-                       r> $20 and     IF  negate  THEN  ;
+    dup c@ >r  (name>) r@ alias-mask     and  0= IF  @       THEN
+                    -1 r@ restrict-mask  and     IF  1-      THEN
+                       r> immediate-mask and     IF  negate  THEN  ;
 
 \ (find)                                               17dec92py
 
@@ -484,11 +488,13 @@ Defer parser
 Defer name ( -- c-addr count ) \ gforth
 \ get the next word from the input buffer
 ' (name) IS name
-Defer notfound ( c-addr count -- )
+Defer compiler-notfound ( c-addr count -- )
+Defer interpreter-notfound ( c-addr count -- )
 
 : no.extensions  ( addr u -- )
     2drop -&13 bounce ;
-' no.extensions IS notfound
+' no.extensions IS compiler-notfound
+' no.extensions IS interpreter-notfound
 
 : compile-only ( ... -- )
     -&14 throw ;
@@ -521,7 +527,7 @@ Defer interpret-special ( c-addr u xt -- ) \ !! use nfa instead of xt?
     IF
 	2rdrop
     ELSE
-	2r> notfound
+	2r> interpreter-notfound
     THEN ;
 
 ' interpreter  IS  parser
@@ -546,7 +552,7 @@ Defer interpret-special ( c-addr u xt -- ) \ !! use nfa instead of xt?
 	postpone Literal
 	2drop
     ELSE
-	drop notfound
+	drop compiler-notfound
     THEN ;
 
 : [ ( -- ) \ core	left-bracket
@@ -1000,8 +1006,8 @@ create s"-buffer /line chars allot
     \ aborts if the last defined word was headerless
     last @ dup 0= abort" last word was headerless" cell+ ;
 
-: immediate     $20 lastflags cset ;
-: restrict      $40 lastflags cset ;
+: immediate     immediate-mask lastflags cset ;
+: restrict      restrict-mask lastflags cset ;
 
 \ Header                                               23feb93py
 
@@ -1017,14 +1023,16 @@ defer header ( -- ) \ gforth
     \ puts down string as cstring
     dup c, here swap chars dup allot move ;
 
-: name,  ( "name" -- ) \ gforth
-    name name-too-short? name-too-long?
-    string, cfalign ;
-: input-stream-header ( "name" -- )
-    \ !! this is f83-implementation-dependent
-    align here last !  -1 A,
-    name, $80 lastflags cset ;
+: header, ( c-addr u -- ) \ gforth
+    name-too-long?
+    align here last !
+    current @ 1 or A,	\ link field; before revealing, it contains the
+			\ tagged reveal-into wordlist
+    string, cfalign
+    alias-mask lastflags cset ;
 
+: input-stream-header ( "name" -- )
+    name name-too-short? header, ;
 : input-stream ( -- )  \ general
 \ switches back to getting the name from the input stream ;
     ['] input-stream-header IS (header) ;
@@ -1035,11 +1043,7 @@ defer header ( -- ) \ gforth
 create nextname-buffer 32 chars allot
 
 : nextname-header ( -- )
-    \ !! f83-implementation-dependent
-    nextname-buffer count
-    align here last ! -1 A,
-    string, cfalign
-    $80 lastflags cset
+    nextname-buffer count header,
     input-stream ;
 
 \ the next name is given in the string
@@ -1063,7 +1067,7 @@ create nextname-buffer 32 chars allot
 
 : Alias    ( cfa "name" -- ) \ gforth
     Header reveal
-    $80 lastflags creset
+    alias-mask lastflags creset
     dup A, lastcfa ! ;
 
 : name>string ( nfa -- addr count ) \ gforth	name-to-string
@@ -1072,7 +1076,7 @@ create nextname-buffer 32 chars allot
 Create ???  0 , 3 c, char ? c, char ? c, char ? c,
 : >name ( cfa -- nfa ) \ gforth	to-name
  $21 cell do
-   dup i - count $9F and + cfaligned over $80 + = if
+   dup i - count $9F and + cfaligned over alias-mask + = if
      i - cell - unloop exit
    then
  cell +loop
@@ -1170,16 +1174,10 @@ AVariable current ( -- addr ) \ gforth
 
 : last?   ( -- false / nfa nfa )
     last @ ?dup ;
-: (reveal) ( -- )
-    last?
-    IF
-	dup @ 0<
-	IF
-	    current @ @ over ! current @ !
-	ELSE
-	    drop
-	THEN
-    THEN ;
+: (reveal) ( nfa wid -- )
+    ( wid>wordlist-id ) dup >r
+    @ over ( name>link ) ! 
+    r> ! ;
 
 \ object oriented search list                          17mar93py
 
@@ -1187,7 +1185,7 @@ AVariable current ( -- addr ) \ gforth
 
 struct
   1 cells: field find-method   \ xt: ( c_addr u wid -- name-id )
-  1 cells: field reveal-method \ xt: ( -- ) \ used by dofield:, must be field
+  1 cells: field reveal-method \ xt: ( nfa wid -- ) \ used by dofield:, must be field
   1 cells: field rehash-method \ xt: ( wid -- )
 \   \ !! what else
 end-struct wordlist-map-struct
@@ -1199,10 +1197,12 @@ struct
   1 cells: field wordlist-extend \ points to wordlist extensions (eg hash)
 end-struct wordlist-struct
 
-: f83find      ( addr len wordlist -- nfa / false )  @ (f83find) ;
+: f83find      ( addr len wordlist -- nfa / false )
+    ( wid>wordlist-id ) @ (f83find) ;
 
 \ Search list table: find reveal
-Create f83search       ' f83find A,  ' (reveal) A,  ' drop A,
+Create f83search ( -- wordlist-map )
+    ' f83find A,  ' (reveal) A,  ' drop A,
 
 Create forth-wordlist  NIL A, G f83search T A, NIL A, NIL A,
 AVariable lookup       G forth-wordlist lookup T !
@@ -1244,10 +1244,15 @@ G -1 warnings T !
     then ;
 
 : reveal ( -- ) \ gforth
- last? if
-   name>string current @ check-shadow
- then
- current @ wordlist-map @ reveal-method perform ;
+    last?
+    if \ the last word has a header
+	dup ( name>link ) @ 1 and
+	if \ it is still hidden
+	    dup ( name>link ) @ 1 xor		( nfa wid )
+	    2dup >r name>string r> check-shadow ( nfa wid )
+	    dup wordlist-map @ reveal-method perform
+	then
+    then ;
 
 : rehash  ( wid -- )
     dup wordlist-map @ rehash-method perform ;
@@ -1572,8 +1577,8 @@ create image-included-files  1 , A, ( pointer to and count of included files )
 
 : recurse ( compilation -- ; run-time ?? -- ?? ) \ core
     lastxt compile, ; immediate restrict
-: recursive ( -- ) \ gforth
-    reveal last off ; immediate
+' reveal alias recursive ( -- ) \ gforth
+	immediate
 
 \ */MOD */                                              17may93jaw
 

@@ -3198,9 +3198,11 @@ Not implemented (yet).
 @table @i
 
 @item changing the compilation wordlist (during compilation):
-The definition is put into the wordlist that is the compilation wordlist
-when @code{REVEAL} is executed (by @code{;}, @code{DOES>},
-@code{RECURSIVE}, etc.).
+The word is entered into the wordlist that was the compilation wordlist
+at the start of the definition. Any changes to the name field (e.g.,
+@code{immediate}) or the code field (e.g., when executing @code{DOES>})
+are applied to the latest defined word (as reported by @code{last} or
+@code{lastxt}), if possible, irrespective of the compilation wordlist.
 
 @item search order empty (@code{previous}):
 @code{abort" Vocstack empty"}.
@@ -3218,7 +3220,7 @@ when @code{REVEAL} is executed (by @code{;}, @code{DOES>},
 @chapter Emacs and Gforth
 
 Gforth comes with @file{gforth.el}, an improved version of
-@file{forth.el} by Goran Rydqvist (icluded in the TILE package). The
+@file{forth.el} by Goran Rydqvist (included in the TILE package). The
 improvements are a better (but still not perfect) handling of
 indentation. I have also added comment paragraph filling (@kbd{M-q}),
 commenting (@kbd{C-x \}) and uncommenting (@kbd{C-u C-x \}) regions and
@@ -3243,7 +3245,7 @@ several tags files at the same time (e.g., one for the Gforth sources
 and one for your program, @pxref{Select Tags Table,,Selecting a Tags
 Table,emacs, Emacs Manual}). The TAGS file for the preloaded words is
 @file{$(datadir)/gforth/$(VERSION)/TAGS} (e.g.,
-@file{/usr/local/share/gforth/0.2/TAGS}).
+@file{/usr/local/share/gforth/0.2.0/TAGS}).
 
 To get all these benefits, add the following lines to your @file{.emacs}
 file:
@@ -3298,7 +3300,7 @@ limitations: GNU C, the version of C processed by the GNU C compiler
 GNU C Manual}). Its labels as values feature (@pxref{Labels as Values, ,
 Labels as Values, gcc.info, GNU C Manual}) makes direct and indirect
 threading possible, its @code{long long} type (@pxref{Long Long, ,
-Double-Word Integers, gcc.info, GNU C Manual}) corresponds to Forths
+Double-Word Integers, gcc.info, GNU C Manual}) corresponds to Forth's
 double numbers@footnote{Unfortunately, long longs are not implemented
 properly on all machines (e.g., on alpha-osf1, long longs are only 64
 bits, the same size as longs (and pointers), but they should be twice as

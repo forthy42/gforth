@@ -254,7 +254,8 @@ previous
 : new-locals-reveal ( -- )
   true abort" this should not happen: new-locals-reveal" ;
 
-create new-locals-map ' new-locals-find A, ' new-locals-reveal A,
+create new-locals-map ( -- wordlist-map )
+' new-locals-find A, ' new-locals-reveal A,
 
 vocabulary new-locals
 new-locals-map ' new-locals >body cell+ A! \ !! use special access words

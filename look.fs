@@ -32,7 +32,7 @@ decimal
 
 \ : >name ( xt -- nfa )
 \         BEGIN   1 chars -
-\                 dup c@ 128 and
+\                 dup c@ alias-mask and
 \         UNTIL ;
 
 : PrimStart ['] true >name ;

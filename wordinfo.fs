@@ -32,7 +32,7 @@ INCLUDE look.fs
 \ it in many respects - anton
 : alias? ( nfa1 -- nfa2|0 )
     \ if nfa1 is an alias, nfa2 is the name of the original word
-    cell+ dup c@ $80 and 0=
+    cell+ dup c@ alias-mask and 0=
     IF
 	(name>) @ >name ( use look instead? )
     ELSE

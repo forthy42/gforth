@@ -24,7 +24,9 @@ Create sleepers  sleepers A, sleepers A, 0 ,
 
 \ USER' computes the task offset
 : user' ( 'user' -- n )
-  ' >body @ state @ IF  postpone Literal  THEN ; immediate
+    ' >body @ postpone literal ; immediate
+interpretation:
+    ' >body @ ;
 
 \ NEWTASK creates a new, sleeping task
 : NewTask ( n -- Task )  dup 2* 2* udp @ + dup

@@ -590,8 +590,9 @@ create wordtypes
         wordtypes
         BEGIN dup @ dup
         WHILE 2 pick = IF cell+ @ nip EXECUTE
-	                  r> dup 32 and IF ."  immediate" THEN
-			         64 and IF ."  restrict" THEN EXIT THEN
+	                  r> dup immediate-mask and IF ."  immediate" THEN
+			  restrict-mask  and IF ."  restrict" THEN
+			  EXIT THEN
               2 cells +
         REPEAT
         2drop rdrop

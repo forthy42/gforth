@@ -357,11 +357,11 @@ variable ResolveFlag
 VARIABLE ^imm
 
 >TARGET
-: immediate     20 flag!
+: immediate     40 flag!
                 ^imm @ @ dup <imm> = IF  drop  EXIT  THEN
                 <res> <> ABORT" CROSS: Cannot immediate a unresolved word"
                 <imm> ^imm @ ! ;
-: restrict      40 flag! ;
+: restrict      20 flag! ;
 >CROSS
 
 \ ALIAS2 ansforth conform alias                          9may93jaw

@@ -81,7 +81,8 @@ Variable slowvoc   slowvoc off
 \  (including locals)
 
 \ this is the wordlist-map of the dictionary
-Create vocsearch       ' (localsvocfind) A, ' (reveal) A,  ' drop A,
+Create vocsearch ( -- wordlist-map )
+' (localsvocfind) A, ' (reveal) A,  ' drop A,
 
 \ Only root                                            14may93py
 

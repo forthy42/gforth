@@ -100,26 +100,36 @@ DOES> ( -- r )
 
 require debugging.fs
 
-: sfnumber ( c-addr u -- r / )
-    2dup [CHAR] e scan
+: sfnumber ( c-addr u -- r true | false )
+    2dup [CHAR] e scan ( c-addr u c-addr2 u2 )
     dup 0=
     IF
-	2drop 2dup [CHAR] E scan
+	2drop 2dup [CHAR] E scan ( c-addr u c-addr3 u3 )
     THEN
     nip
     IF
-	2dup >float
-	IF
-	    2drop state @
-	    IF
-		POSTPONE FLiteral
-	    THEN
-	    EXIT
-	THEN
-    THEN
-    defers notfound ;
+	>float
+    ELSE
+	2drop false
+    THEN ;
 
-' sfnumber IS notfound
+:noname ( c-addr u -- )
+    2dup sfnumber
+    IF
+	2drop POSTPONE FLiteral
+    ELSE
+	defers compiler-notfound
+    ENDIF ;
+IS compiler-notfound
+
+:noname ( c-addr u -- r )
+    2dup sfnumber
+    IF
+	2drop
+    ELSE
+	defers interpreter-notfound
+    ENDIF ;
+IS interpreter-notfound
 
 : fvariable ( -- )
     Create 0.0E0 f, ;

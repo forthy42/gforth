@@ -44,7 +44,7 @@ table constant interpretation-semantics
     restrict
     lastcfa cell nextname \ !! use nfa instead of cfa
     get-current >r
-    interpretation-semantics set-current : reveal
+    interpretation-semantics set-current :
     r> set-current ;
 
 \ !! split notfound and sfnumber in a compiler and an interpreter part?

@@ -37,13 +37,11 @@ vocabulary assembler ( -- ) \ tools-ext
 
 : ;code ( colon-sys1 -- colon-sys2 )	\ tools-ext	semicolon-code
     ( create the [;code] part of a low level defining word )
-    state @
-    IF
-	;-hook postpone (;code) ?struc postpone [
-    ELSE
-	align here lastxt code-address!
-    THEN
-    defstart init-asm ; immediate
+    ;-hook postpone (;code) ?struc postpone [
+    defstart init-asm ;  immediate
+interpretation: ( -- colon-sys )
+    align here lastxt code-address!
+    defstart init-asm ;
 
 : end-code ( colon-sys -- )	\ gforth	end_code
     ( end a code definition )

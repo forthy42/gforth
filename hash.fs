@@ -59,7 +59,7 @@ Variable HashIndex
 : lastlink! ( addr link -- )
   BEGIN  dup @ dup  WHILE  nip  REPEAT  drop ! ;
 
-: (reveal ( addr voc -- )
+: (reveal ( nfa wid -- )
     dup wordlist-extend @ 0<
     IF
 	2drop EXIT
@@ -74,11 +74,8 @@ Variable HashIndex
     THEN
     revealed on ;
 
-: hash-reveal ( -- )
-    (reveal) last?
-    IF
-	current @ (reveal
-    THEN ;
+: hash-reveal ( nfa wid -- )
+    2dup (reveal) (reveal ;
 
 : addall  ( -- )
     voclink
