@@ -54,7 +54,7 @@ OBS! All words in forth-negatives must be surrounded by spaces.")
 (setq forth-zero 0)
 
 (defvar forth-zup
-  " how: "
+  " how: implements "
   "Contains all words which causes zero indent level to change")
 
 (defvar forth-zdown

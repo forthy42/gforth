@@ -37,10 +37,15 @@
 \ include-file                                         07apr93py
 
 : push-file  ( -- )  r>
-  sourceline# >r  loadfile @ >r
-  blk @ >r  tibstack @ >r  >tib @ >r  #tib @ >r
-  >tib @ tibstack @ = IF  r@ tibstack +!  THEN
-  tibstack @ >tib ! >in @ >r  >r ;
+    loadline @ >r
+    loadfile @ >r
+    blk @      >r
+    tibstack @ >r
+    >tib @     >r
+    #tib @     >r
+    >in @      >r  >r
+    >tib @ tibstack @ = IF  #tib @ tibstack +!  THEN
+    tibstack @ >tib ! ;
 
 : pop-file   ( throw-code -- throw-code )
   dup IF
@@ -53,8 +58,13 @@
 	 -1 cells +LOOP
   THEN
   r>
-  r> >in !  r> #tib !  r> >tib !  r> tibstack !  r> blk !
-  r> loadfile ! r> loadline !  >r ;
+  r> >in      !
+  r> #tib     !
+  r> >tib     !
+  r> tibstack !
+  r> blk      !
+  r> loadfile !
+  r> loadline !  >r ;
 
 : read-loop ( i*x -- j*x )
   BEGIN  refill  WHILE  interpret  REPEAT ;

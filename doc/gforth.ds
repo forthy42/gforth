@@ -2947,13 +2947,14 @@ doc-struct
 
 @cindex @file{objects.fs}
 @cindex @file{oof.fs}
-Gforth comes with two packets for object-oriented programming,
-@file{objects.fs} and @file{oof.fs}; none of them is preloaded, so you
-have to @code{include} them before use. This section describes the
-@file{objects.fs} packet. You can find a description (in German) of
-@file{oof.fs} in @cite{Object oriented bigFORTH} by Bernd Paysan,
-published in @cite{Vierte Dimension} 10(2), 1994. Both packets are
-written in ANS Forth and can be used with any other standard Forth.
+Gforth comes with three packets for object-oriented programming,
+@file{objects.fs}, @file{oof.fs}, and @file{mini-oof.fs}; none of them
+is preloaded, so you have to @code{include} them before use. This
+section describes the @file{objects.fs} packet. You can find a
+description (in German) of @file{oof.fs} in @cite{Object oriented
+bigFORTH} by Bernd Paysan, published in @cite{Vierte Dimension} 10(2),
+1994. Both packets are written in ANS Forth and can be used with any
+other standard Forth.
 @c McKewan's and Zsoter's packages
 @c this section is a variant of ...
 
@@ -3759,7 +3760,7 @@ doc-to-this
 doc-xt-new
 
 @c -------------------------------------------------------------
-@node Object Oriented Forth, Tokens for Words, Objects, Words
+@node Object Oriented Forth, Mini-OOF, Objects, Words
 @section Object oriented Forth
 @cindex oof
 @cindex object-oriented programming
@@ -4016,8 +4017,31 @@ doc---oof-class;
 @subsection Class Implementation
 @cindex class implementation
 
+@node Mini-OOF, Tokens for Words, Object Oriented Forth, Words
+@section Mini-OOF
+@cindex mini-oof
+
+Gforth's third object oriented Forth package is a 12-liner. It uses a
+bit of a mixture of the @file{object.fs} and the @file{oof.fs} syntax,
+and reduces to the bare minimum of features.
+
+@example
+: method ( m v -- m' v ) Create  over , swap cell+ swap
+  DOES> ( ... o -- ... ) @ over @ + @ execute ;
+: var ( m v size -- m v' ) Create  over , +
+  DOES> ( o -- addr ) @ + ;
+: class ( class -- class methods vars ) dup 2@ ;
+: end-class  ( class methods vars -- )
+  Create  here >r , dup , 2 cells ?DO ['] noop , cell +LOOP
+  cell+ dup cell+ swap @ 2 - cells r> 2 cells + swap move ;
+: defines ( xt class -- ) ' >body @ + ! ;
+: new ( class -- o )  here over @ allot swap over ! ;
+: :: ( class "name" -- ) ' >body @ + @ compile, ;
+Create object  1 cells , 2 cells ,
+@end example
+
 @c -------------------------------------------------------------
-@node Tokens for Words, Wordlists, Object Oriented Forth, Words
+@node Tokens for Words, Wordlists, Mini-OOF, Words
 @section Tokens for Words
 @cindex tokens for words
 

@@ -27,8 +27,8 @@
 
 script? [IF]
     warnings off
-    require extend.fs
     require search.fs
+    require extend.fs
     require glocals.fs
     require float.fs
     require struct.fs

@@ -59,9 +59,9 @@ Defer flush-blocks
 
 : open-blocks ( addr u -- ) \ gforth
     \g use the file, whose name is given by @var{addr u}, as blocks file 
-    2dup ['] open-fpath-file catch 0<>
+    2dup open-fpath-file 0<>
     if
-	2drop r/w bin create-file throw
+	r/w bin create-file throw
     else
 	rot close-file throw  2dup file-status throw bin open-file throw
 	>r 2drop r>
@@ -164,8 +164,8 @@ User scr 0 scr !
 
 : load ( i*x n -- j*x )
   push-file
-  dup loadline ! blk ! >in off ( ['] ) interpret ( catch )
-  pop-file ( throw ) ;
+  dup loadline ! blk ! >in off ['] interpret catch
+  pop-file throw ;
 
 : thru ( i*x n1 n2 -- j*x )
   1+ swap ?DO  I load  LOOP ;
