@@ -601,7 +601,7 @@ f_addr = fp;
 fp!	f_addr --	new	fp_store
 fp = f_addr;
 
-;s	--		core	exit
+;s	--		fig	semis
 ip = (Xt *)(*rp++);
 
 >r	w --		core,fig	to_r

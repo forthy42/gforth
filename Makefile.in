@@ -1,5 +1,6 @@
 #Copyright 1992 by the ANSI figForth Development Group
 
+VERSION	= 0.1alpha#gforth version
 RM	= rm
 CP	= cp
 GCC	= gcc
@@ -21,28 +22,31 @@ EMACS	= emacs
 INCLUDES = forth.h io.h
 
 FORTH_SRC = add.fs assert.fs blocks.fs bufio.fs cross.fs debug.fs \
-	debugging.fs environ.fs errore.fs etags.fs extend.fs filedump.fs \
-	float.fs glocals.fs glosgen.fs gray.fs hash.fs kernal.fs \
+	debugging.fs doskey.fs ds2texi.fs environ.fs errore.fs etags.fs extend.fs filedump.fs \
+	float.fs glocals.fs glosgen.fs gray.fs hash.fs history.fs kernal.fs \
 	locals-test.fs look.fs mach32b.fs mach32l.fs main.fs other.fs \
 	prims2x.fs search-order.fs see.fs sieve.fs startup.fs struct.fs \
-	test2.fs tools.fs toolsext.fs vars.fs vt100.fs wordinfo.fs
+	test2.fs tools.fs toolsext.fs vars.fs vt100.fs vt100key.fs wordinfo.fs
 
-SOURCES	= Makefile primitives primitives2c.el engine.c main.c io.c \
-	apollo68k.h decstation.h 386.h hppa.h sparc.h gforth.ds \
+SOURCES	= Makefile.in configure  config.sub  config.guess \
+	INSTALL README ToDo BUGS model gforth.ds \
+	primitives primitives2c.el engine.c main.c io.c \
+	apollo68k.h decstation.h 386.h hppa.h cache.c sparc.h \
+	getopt.c getopt1.c getopt.h \
 	$(INCLUDES) $(FORTH_SRC)
 
-RCS_FILES = $(SOURCES) INSTALL ToDo model high-level
+RCS_FILES =  ToDo model high-level
 
 GEN = gforth
-
-GEN_PRECIOUS = primitives.i prim_labels.i primitives.b aliases.fs
 
 OBJECTS	= engine.o io.o main.o
 
 # things that need a working forth system to be generated
 # this is used for antidependences,
-FORTH_GEN = primitives.i prim_labels.i aliases.fs \
-	kernl32l.fi kernl32b.fi gforth.texi
+
+FORTH_GEN =  primitives.b primitives.i prim_labels.i aliases.fs kernl32l.fi kernl32b.fi
+
+GEN_PRECIOUS = $(FORTH_GEN) gforth.texi gforth.dvi gforth.ps Makefile
 
 all:
 	if [ ! -x gforth ]; then $(MAKE) first; fi
@@ -72,9 +76,17 @@ distclean:	clean
 realclean:	distclean
 		-$(RM) $(GEN_PRECIOUS)
 
-#does not work
-#gforth.tar.gz:	$(SOURCES) $(GEN_PRECIOUS) CVS
-#		cd ..; tar cvf gforth/gforth.tar gforth/{$^}; gzip -9 gforth/gforth.tar
+package:	$(SOURCES) $(GEN_PRECIOUS) CVS
+		-rm -rf gforth-$(VERSION)
+		mkdir gforth-$(VERSION)
+		cp -rp $^ gforth-$(VERSION)
+		touch gforth-$(VERSION)/Makefile.in
+		tar cvf gforth-$(VERSION).tar gforth-$(VERSION)
+		gzip -9 -f gforth-$(VERSION).tar
+		@echo add a zip command here		
+
+Makefile:	Makefile.in
+		configure
 
 gforth:	$(OBJECTS)
 		-$(CP) gforth gforth~
@@ -117,6 +129,9 @@ gforth.texi:	gforth.ds primitives.b ds2texi.fs prims2x.fs
 
 gforth.dvi:	gforth.texi
 		tex gforth.texi
+
+gforth.ps:	gforth.dvi
+		dvips gforth.dvi -o $@
 
 #primitives.4th:	primitives.b primitives2c.el
 #		$(EMACS) -batch -load primitives2c.el -funcall make-forth

@@ -746,14 +746,14 @@ entry represents a backward branch target. A few words are the basis for
 building any control structure possible (except control structures that
 need storage, like calls, coroutines, and backtracking).
 
-if
-ahead
-then
-begin
-until
-again
-cs-pick
-cs-roll
+doc-if
+doc-ahead
+doc-then
+doc-begin
+doc-until
+doc-again
+doc-cs-pick
+doc-cs-roll
 
 On many systems control-flow stack items take one word, in gforth they
 currently take three (this may change in the future). Therefore it is a
@@ -763,40 +763,101 @@ words.
 
 Some standard control structure words are built from these words:
 
-else
-while
-repeat
+doc-else
+doc-while
+doc-repeat
 
 Counted loop words constitute a separate group of words:
 
-?do
-do
-for
-loop
-s+loop
-+loop
-next
-leave
-?leave
-unloop
-undo
+doc-?do
+doc-do
+doc-for
+doc-loop
+doc-s+loop
+doc-+loop
+doc-next
+doc-leave
+doc-?leave
+doc-unloop
+doc-undo
 
 The standard does not allow using @code{cs-pick} and @code{cs-roll} on
 @i{do-sys}. Our system allows it, but it's your job to ensure that for
 every @code{?DO} etc. there is exactly one @code{UNLOOP} on any path
-through the program (@code{LOOP} etc. compile an @code{UNLOOP}). Also,
-you have to ensure that all @code{LEAVE}s are resolved (by using one of
-the loop-ending words or @code{UNDO}).
+through the definition (@code{LOOP} etc. compile an @code{UNLOOP} on the
+fall-through path). Also, you have to ensure that all @code{LEAVE}s are
+resolved (by using one of the loop-ending words or @code{UNDO}).
 
 Another group of control structure words are
 
-case
-endcase
-of
-endof
+doc-case
+doc-endcase
+doc-of
+doc-endof
 
 @i{case-sys} and @i{of-sys} cannot be processed using @code{cs-pick} and
 @code{cs-roll}.
+
+@subsubsection Programming Style
+
+In order to ensure readability we recommend that you do not create
+arbitrary control structures directly, but define new control structure
+words for the control structure you want and use these words in your
+program.
+
+E.g., instead of writing
+
+@example
+begin
+  ...
+if [ 1 cs-roll ]
+  ...
+again then
+@end example
+
+we recommend defining control structure words, e.g.,
+
+@example
+: while ( dest -- orig dest )
+ POSTPONE if
+ 1 cs-roll ; immediate
+
+: repeat ( orig dest -- )
+ POSTPONE again
+ POSTPONE then ; immediate
+@end example
+
+and then using these to create the control structure:
+
+@example
+begin
+  ...
+while
+  ...
+repeat
+@end example
+
+That's much easier to read, isn't it? Of course, @code{BEGIN} and
+@code{WHILE} are predefined, so in this example it would not be
+necessary to define them.
+
+@subsection Calls and returns
+
+A definition can be called simply be writing the name of the
+definition. When the end of the definition is reached, it returns. An earlier return can be forced using
+
+doc-exit
+
+Don't forget to clean up the return stack and @code{UNLOOP} any
+outstanding @code{?DO}...@code{LOOP}s before @code{EXIT}ing. The
+primitive compiled by @code{EXIT} is
+
+doc-;s
+
+@subsection Exception Handling
+
+doc-catch
+doc-throw
 
 @node Locals
 @section Locals
@@ -923,10 +984,10 @@ says. If @code{UNREACHABLE} is used where it should not (i.e., if you
 lie to the compiler), buggy code will be produced.
 
 Another problem with this rule is that at @code{BEGIN}, the compiler
-does not know which locals will be visible on the incoming back-edge
-. All problems discussed in the following are due to this ignorance of
-the compiler (we discuss the problems using @code{BEGIN} loops as
-examples; the discussion also applies to @code{?DO} and other
+does not know which locals will be visible on the incoming
+back-edge. All problems discussed in the following are due to this
+ignorance of the compiler (we discuss the problems using @code{BEGIN}
+loops as examples; the discussion also applies to @code{?DO} and other
 loops). Perhaps the most insidious example is:
 @example
 AHEAD
@@ -1298,6 +1359,355 @@ reversed with respect to the standard stack comment notation, making
 programs harder to read, and easier to misread and miswrite. The only
 merit of this syntax is that it is easy to implement using the ANS Forth
 locals wordset.
+
+@node Internals
+@chapter Internals
+
+Reading this section is not necessary for programming with gforth. It
+should be helpful for finding your way in the gforth sources.
+
+@section Portability
+
+One of the main goals of the effort is availability across a wide range
+of personal machines. fig-Forth, and, to a lesser extent, F83, achieved
+this goal by manually coding the engine in assembly language for several
+then-popular processors. This approach is very labor-intensive and the
+results are short-lived due to progress in computer architecture.
+
+Others have avoided this problem by coding in C, e.g., Mitch Bradley
+(cforth), Mikael Patel (TILE) and Dirk Zoller (pfe). This approach is
+particularly popular for UNIX-based Forths due to the large variety of
+architectures of UNIX machines. Unfortunately an implementation in C
+does not mix well with the goals of efficiency and with using
+traditional techniques: Indirect or direct threading cannot be expressed
+in C, and switch threading, the fastest technique available in C, is
+significantly slower. Another problem with C is that it's very
+cumbersome to express double integer arithmetic.
+
+Fortunately, there is a portable language that does not have these
+limitations: GNU C, the version of C processed by the GNU C compiler
+(@pxref{C Extensions, , Extensions to the C Language Family, gcc.info,
+GNU C Manual}). Its labels as values feature (@pxref{Labels as Values, ,
+Labels as Values, gcc.info, GNU C Manual}) makes direct and indirect
+threading possible, its @code{long long} type (@pxref{Long Long, ,
+Double-Word Integers, gcc.info, GNU C Manual}) corresponds to Forths
+double numbers. GNU C is available for free on all important (and many
+unimportant) UNIX machines, VMS, 80386s running MS-DOS, the Amiga, and
+the Atari ST, so a Forth written in GNU C can run on all these
+machines@footnote{Due to Apple's look-and-feel lawsuit it is not
+available on the Mac (@pxref{Boycott, , Protect Your Freedom--Fight
+``Look And Feel'', gcc.info, GNU C Manual}).}.
+
+Writing in a portable language has the reputation of producing code that
+is slower than assembly. For our Forth engine we repeatedly looked at
+the code produced by the compiler and eliminated most compiler-induced
+inefficiencies by appropriate changes in the source-code.
+
+However, register allocation cannot be portably influenced by the
+programmer, leading to some inefficiencies on register-starved
+machines. We use explicit register declarations (@pxref{Explicit Reg
+Vars, , Variables in Specified Registers, gcc.info, GNU C Manual}) to
+improve the speed on some machines. They are turned on by using the
+@code{gcc} switch @code{-DFORCE_REG}. Unfortunately, this feature not
+only depends on the machine, but also on the compiler version: On some
+machines some compiler versions produce incorrect code when certain
+explicit register declarations are used. So by default
+@code{-DFORCE_REG} is not used.
+
+@section Threading
+
+GNU C's labels as values extension (available since @code{gcc-2.0},
+@pxref{Labels as Values, , Labels as Values, gcc.info, GNU C Manual})
+makes it possible to take the address of @var{label} by writing
+@code{&&@var{label}}.  This address can then be used in a statement like
+@code{goto *@var{address}}. I.e., @code{goto *&&x} is the same as
+@code{goto x}.
+
+With this feature an indirect threaded NEXT looks like:
+@example
+cfa = *ip++;
+ca = *cfa;
+goto *ca;
+@end example
+For those unfamiliar with the names: @code{ip} is the Forth instruction
+pointer; the @code{cfa} (code-field address) corresponds to ANS Forths
+execution token and points to the code field of the next word to be
+executed; The @code{ca} (code address) fetched from there points to some
+executable code, e.g., a primitive or the colon definition handler
+@code{docol}.
+
+Direct threading is even simpler:
+@example
+ca = *ip++;
+goto *ca;
+@end example
+
+Of course we have packaged the whole thing neatly in macros called
+@code{NEXT} and @code{NEXT1} (the part of NEXT after fetching the cfa).
+
+@subsection Scheduling
+
+There is a little complication: Pipelined and superscalar processors,
+i.e., RISC and some modern CISC machines can process independent
+instructions while waiting for the results of an instruction. The
+compiler usually reorders (schedules) the instructions in a way that
+achieves good usage of these delay slots. However, on our first tries
+the compiler did not do well on scheduling primitives. E.g., for
+@code{+} implemented as
+@example
+n=sp[0]+sp[1];
+sp++;
+sp[0]=n;
+NEXT;
+@end example
+the NEXT comes strictly after the other code, i.e., there is nearly no
+scheduling. After a little thought the problem becomes clear: The
+compiler cannot know that sp and ip point to different addresses (and
+the version of @code{gcc} we used would not know it even if it could),
+so it could not move the load of the cfa above the store to the
+TOS. Indeed the pointers could be the same, if code on or very near the
+top of stack were executed. In the interest of speed we chose to forbid
+this probably unused ``feature'' and helped the compiler in scheduling:
+NEXT is divided into the loading part (@code{NEXT_P1}) and the goto part
+(@code{NEXT_P2}). @code{+} now looks like:
+@example
+n=sp[0]+sp[1];
+sp++;
+NEXT_P1;
+sp[0]=n;
+NEXT_P2;
+@end example
+This can be scheduled optimally by the compiler (see \sect{TOS}).
+
+This division can be turned off with the switch @code{-DCISC_NEXT}. This
+switch is on by default on machines that do not profit from scheduling
+(e.g., the 80386), in order to preserve registers.
+
+@subsection Direct or Indirect Threaded?
+
+Both! After packaging the nasty details in macro definitions we
+realized that we could switch between direct and indirect threading by
+simply setting a compilation flag (@code{-DDIRECT_THREADED}) and
+defining a few machine-specific macros for the direct-threading case.
+On the Forth level we also offer access words that hide the
+differences between the threading methods (@pxref{Threading Words}).
+
+Indirect threading is implemented completely
+machine-independently. Direct threading needs routines for creating
+jumps to the executable code (e.g. to docol or dodoes). These routines
+are inherently machine-dependent, but they do not amount to many source
+lines. I.e., even porting direct threading to a new machine is a small
+effort.
+
+@subsection DOES>
+One of the most complex parts of a Forth engine is @code{dodoes}, i.e.,
+the chunk of code executed by every word defined by a
+@code{CREATE}...@code{DOES>} pair. The main problem here is: How to find
+the Forth code to be executed, i.e. the code after the @code{DOES>} (the
+DOES-code)? There are two solutions:
+
+In fig-Forth the code field points directly to the dodoes and the
+DOES-code address is stored in the cell after the code address
+(i.e. at cfa cell+). It may seem that this solution is illegal in the
+Forth-79 and all later standards, because in fig-Forth this address
+lies in the body (which is illegal in these standards). However, by
+making the code field larger for all words this solution becomes legal
+again. We use this approach for the indirect threaded version. Leaving
+a cell unused in most words is a bit wasteful, but on the machines we
+are targetting this is hardly a problem. The other reason for having a
+code field size of two cells is to avoid having different image files
+for direct and indirect threaded systems (@pxref{image-format}).
+
+The other approach is that the code field points or jumps to the cell
+after @code{DOES}. In this variant there is a jump to @code{dodoes} at
+this address. @code{dodoes} can then get the DOES-code address by
+computing the code address, i.e., the address of the jump to dodoes,
+and add the length of that jump field. A variant of this is to have a
+call to @code{dodoes} after the @code{DOES>}; then the return address
+(which can be found in the return register on RISCs) is the DOES-code
+address. Since the two cells available in the code field are usually
+used up by the jump to the code address in direct threading, we use
+this approach for direct threading. We did not want to add another
+cell to the code field.
+
+@section Primitives
+
+@subsection Automatic Generation
+
+Since the primitives are implemented in a portable language, there is no
+longer any need to minimize the number of primitives. On the contrary,
+having many primitives is an advantage: speed. In order to reduce the
+number of errors in primitives and to make programming them easier, we
+provide a tool, the primitive generator (@file{prims2x.fs}), that
+automatically generates most (and sometimes all) of the C code for a
+primitive from the stack effect notation.  The source for a primitive
+has the following form:
+
+@format
+@var{Forth-name}	@var{stack-effect}	@var{category}	[@var{pronounc.}]
+[@code{""}@var{glossary entry}@code{""}]
+@var{C code}
+[@code{:}
+@var{Forth code}]
+@end format
+
+The items in brackets are optional. The category and glossary fields
+are there for generating the documentation, the Forth code is there
+for manual implementations on machines without GNU C. E.g., the source
+for the primitive @code{+} is:
+@example
++    n1 n2 -- n    core    plus
+n = n1+n2;
+@end example
+
+This looks like a specification, but in fact @code{n = n1+n2} is C
+code. Our primitive generation tool extracts a lot of information from
+the stack effect notations@footnote{We use a one-stack notation, even
+though we have separate data and floating-point stacks; The separate
+notation can be generated easily from the unified notation.}: The number
+of items popped from and pushed on the stack, their type, and by what
+name they are referred to in the C code. It then generates a C code
+prelude and postlude for each primitive. The final C code for @code{+}
+looks like this:
+
+@example
+I_plus:	/* + ( n1 n2 -- n ) */  /* label, stack effect */
+/*  */                          /* documentation */
+{
+DEF_CA                          /* definition of variable ca (indirect threading) */
+Cell n1;                        /* definitions of variables */
+Cell n2;
+Cell n;
+n1 = (Cell) sp[1];              /* input */
+n2 = (Cell) TOS;
+sp += 1;                        /* stack adjustment */
+NAME("+")                       /* debugging output (with -DDEBUG) */
+{
+n = n1+n2;                      /* C code taken from the source */
+}
+NEXT_P1;                        /* NEXT part 1 */
+TOS = (Cell)n;                  /* output */
+NEXT_P2;                        /* NEXT part 2 */
+}
+@end example
+
+This looks long and inefficient, but the GNU C compiler optimizes quite
+well and produces optimal code for @code{+} on, e.g., the R3000 and the
+HP RISC machines: Defining the @code{n}s does not produce any code, and
+using them as intermediate storage also adds no cost.
+
+There are also other optimizations, that are not illustrated by this
+example: Assignments between simple variables are usually for free (copy
+propagation). If one of the stack items is not used by the primitive
+(e.g.  in @code{drop}), the compiler eliminates the load from the stack
+(dead code elimination). On the other hand, there are some things that
+the compiler does not do, therefore they are performed by
+@file{prims2x.fs}: The compiler does not optimize code away that stores
+a stack item to the place where it just came from (e.g., @code{over}).
+
+While programming a primitive is usually easy, there are a few cases
+where the programmer has to take the actions of the generator into
+account, most notably @code{?dup}, but also words that do not (always)
+fall through to NEXT.
+
+@subsection TOS Optimization
+
+An important optimization for stack machine emulators, e.g., Forth
+engines, is keeping  one or more of the top stack items in
+registers.  If a word has the stack effect {@var{in1}...@var{inx} @code{--}
+@var{out1}...@var{outy}}, keeping the top @var{n} items in registers
+@itemize
+@item
+is better than keeping @var{n-1} items, if @var{x>=n} and @var{y>=n},
+due to fewer loads from and stores to the stack.
+@item is slower than keeping @var{n-1} items, if @var{x<>y} and @var{x<n} and
+@var{y<n}, due to additional moves between registers.
+@end itemize
+
+In particular, keeping one item in a register is never a disadvantage,
+if there are enough registers. Keeping two items in registers is a
+disadvantage for frequent words like @code{?branch}, constants,
+variables, literals and @code{i}. Therefore our generator only produces
+code that keeps zero or one items in registers. The generated C code
+covers both cases; the selection between these alternatives is made at
+C-compile time using the switch @code{-DUSE_TOS}. @code{TOS} in the C
+code for @code{+} is just a simple variable name in the one-item case,
+otherwise it is a macro that expands into @code{sp[0]}. Note that the
+GNU C compiler tries to keep simple variables like @code{TOS} in
+registers, and it usually succeeds, if there are enough registers.
+
+The primitive generator performs the TOS optimization for the
+floating-point stack, too (@code{-DUSE_FTOS}). For floating-point
+operations the benefit of this optimization is even larger:
+floating-point operations take quite long on most processors, but can be
+performed in parallel with other operations as long as their results are
+not used. If the FP-TOS is kept in a register, this works. If
+it is kept on the stack, i.e., in memory, the store into memory has to
+wait for the result of the floating-point operation, lengthening the
+execution time of the primitive considerably.
+
+The TOS optimization makes the automatic generation of primitives a
+bit more complicated. Just replacing all occurrences of @code{sp[0]} by
+@code{TOS} is not sufficient. There are some special cases to
+consider:
+@itemize
+@item In the case of @code{dup ( w -- w w )} the generator must not
+eliminate the store to the original location of the item on the stack,
+if the TOS optimization is turned on.
+@item Primitives with stack effects of the form {@code{--}
+@var{out1}...@var{outy}} must store the TOS to the stack at the start.
+Likewise, primitives with the stack effect {@var{in1}...@var{inx} @code{--}}
+must load the TOS from the stack at the end. But for the null stack
+effect @code{--} no stores or loads should be generated.
+@end itemize
+
+@subsection Produced code
+
+To see what assembly code is produced for the primitives on your machine
+with your compiler and your flag settings, type @code{make engine.s} and
+look at the resulting file @file{engine.c}.
+
+@section System Architecture
+
+Our Forth system consists not only of primitives, but also of
+definitions written in Forth. Since the Forth compiler itself belongs
+to those definitions, it is not possible to start the system with the
+primitives and the Forth source alone. Therefore we provide the Forth
+code as an image file in nearly executable form. At the start of the
+system a C routine loads the image file into memory, sets up the
+memory (stacks etc.) according to information in the image file, and
+starts executing Forth code.
+
+The image file format is a compromise between the goals of making it
+easy to generate image files and making them portable. The easiest way
+to generate an image file is to just generate a memory dump. However,
+this kind of image file cannot be used on a different machine, or on
+the next version of the engine on the same machine, it even might not
+work with the same engine compiled by a different version of the C
+compiler. We would like to have as few versions of the image file as
+possible, because we do not want to distribute many versions of the
+same image file, and to make it easy for the users to use their image
+files on many machines. We currently need to create a different image
+file for machines with different cell sizes and different byte order
+(little- or big-endian)@footnote{We consider adding information to the
+image file that enables the loader to change the byte order.}.
+
+Forth code that is going to end up in a portable image file has to
+comply to some restrictions: addresses have to be stored in memory
+with special words (@code{A!}, @code{A,}, etc.) in order to make the
+code relocatable. Cells, floats, etc., have to be stored at the
+natural alignment boundaries@footnote{E.g., store floats (8 bytes) at
+an address dividable by~8. This happens automatically in our system
+when you use the ANSI alignment words.}, in order to avoid alignment
+faults on machines with stricter alignment. The image file is produced
+by a metacompiler (@file{cross.fs}).
+
+So, unlike the image file of Mitch Bradleys @code{cforth}, our image
+file is not directly executable, but has to undergo some manipulations
+during loading. Address relocation is performed at image load-time, not
+at run-time. The loader also has to replace tokens standing for
+primitive calls with the appropriate code-field addresses (or code
+addresses in the case of direct threading).
 
 @contents
 @bye
