@@ -205,12 +205,17 @@ s" text/plain" transparent: txt
 
 \ http server                                          26mar00py
 
+Defer redirect?  ( addr u -- addr' u' t / f )
+Defer redirect ( addr u -- )
+:noname 2drop false ; IS redirect?
+
 : http ( -- )  get-input  IF  .nok  ELSE
-    IF  url $@ 1 /string rework-htmldir
+    IF  url $@ 1 /string 2dup redirect? IF  redirect 2drop  ELSE
+	rework-htmldir
 	dup 0< IF  drop .nofile
 	ELSE  .ok  2dup >mime mime search-wordlist
 	    0= IF  ['] txt  THEN  catch IF  maxnum off THEN
-	THEN  THEN  THEN  outfile-id flush-file throw ;
+	THEN  THEN  THEN  THEN  outfile-id flush-file throw ;
 
 : httpd  ( n -- )  maxnum !
   BEGIN  ['] http catch  maxnum @ 0= or  UNTIL ;
@@ -224,3 +229,7 @@ script? [IF]  :noname &100 httpd bye ; is bootmessage  [THEN]
         type cr refill  0= UNTIL  EXIT  THEN
     nip source >in @ /string rot - dup 2 + >in +! type ;
 : <HTML> ( -- )  ." <HTML>" $> ;
+
+\ provide transparent proxying
+
+include proxy.fs
