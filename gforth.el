@@ -57,8 +57,35 @@
 	   (string-to-int (match-string 0 emacs-version)))))
 
 
+; todo:
+;
+
+; Wörter ordentlich hilighten, die nicht auf Whitespace beginnen ( ..)IF
+; -- mit aktueller Konzeption nicht möglich??
+;
+; Konfiguration über customization groups
+;
+; Bereich nur auf Wortanfang/ende ausweiten, wenn Anfang bzw Ende in einem 
+; Wort liegen (?) -- speed!
+;
+; 'forth-word' property muss eindeutig sein!
+;
+; Forth-Menu 
+;
+; Interface zu GForth Prozessen (Patches von Michael Scholz)
+;
+; Byte-compile-Code rausschmeißen, Compilieren im Makefile über Emacs
+; batch-Modus
+;
+; forth-help Kram rausschmeißen
+;
+; XEmacs Kompatibilität? imenu/speedbar -> fume?
+; 
+; Folding neuschreiben (neue Parser-Informationen benutzen)
+
 ;;; Hilighting and indentation engine				(dk)
 ;;;
+(require 'font-lock)
 
 (defvar forth-disable-parser nil
   "*Non-nil means to disable on-the-fly parsing of Forth-code.
@@ -199,59 +226,58 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 
 (defvar forth-use-objects nil 
   "*Non-nil makes forth-mode also hilight words from the \"Objects\" package.")
-(defvar forth-objects-words nil
+(defvar forth-objects-words
+  '(((":m") definition-starter (font-lock-keyword-face . 1)
+     "[ \t\n]" t name (font-lock-function-name-face . 3))
+    (("m:") definition-starter (font-lock-keyword-face . 1))
+    ((";m") definition-ender (font-lock-keyword-face . 1))
+    (("[current]" "[parent]") compile-only (font-lock-keyword-face . 1)
+     "[ \t\n]" t name (font-lock-function-name-face . 3))
+    (("current" "overrides") non-immediate (font-lock-keyword-face . 2)
+     "[ \t\n]" t name (font-lock-function-name-face . 3))
+    (("[to-inst]") compile-only (font-lock-keyword-face . 2)
+     "[ \t\n]" t name (font-lock-variable-name-face . 3))
+    (("[bind]") compile-only (font-lock-keyword-face . 2)
+     "[ \t\n]" t name (font-lock-type-face . 3)
+     "[ \t\n]" t name (font-lock-function-name-face . 3))
+    (("bind") non-immediate (font-lock-keyword-face . 2)
+     "[ \t\n]" t name (font-lock-type-face . 3)
+     "[ \t\n]" t name (font-lock-function-name-face . 3))
+    (("inst-var" "inst-value") non-immediate (font-lock-type-face . 2)
+     "[ \t\n]" t name (font-lock-variable-name-face . 3))
+    (("method" "selector")
+     non-immediate (font-lock-type-face . 1)
+     "[ \t\n]" t name (font-lock-function-name-face . 3))
+    (("end-class" "end-interface")
+     non-immediate (font-lock-keyword-face . 2)
+     "[ \t\n]" t name (font-lock-type-face . 3))
+    (("public" "protected" "class" "exitm" "implementation" "interface"
+      "methods" "end-methods" "this") 
+     non-immediate (font-lock-keyword-face . 2))
+    (("object") non-immediate (font-lock-type-face . 2)))
   "Hilighting description for words of the \"Objects\" package")
-(setq forth-objects-words 
-      '(((":m") definition-starter (font-lock-keyword-face . 1)
-	 "[ \t\n]" t name (font-lock-function-name-face . 3))
-	(("m:") definition-starter (font-lock-keyword-face . 1))
-	((";m") definition-ender (font-lock-keyword-face . 1))
-	(("[current]" "[parent]") compile-only (font-lock-keyword-face . 1)
-	 "[ \t\n]" t name (font-lock-function-name-face . 3))
-	(("current" "overrides") non-immediate (font-lock-keyword-face . 2)
-	 "[ \t\n]" t name (font-lock-function-name-face . 3))
-	(("[to-inst]") compile-only (font-lock-keyword-face . 2)
-	 "[ \t\n]" t name (font-lock-variable-name-face . 3))
-	(("[bind]") compile-only (font-lock-keyword-face . 2)
-	 "[ \t\n]" t name (font-lock-type-face . 3)
-	 "[ \t\n]" t name (font-lock-function-name-face . 3))
-	(("bind") non-immediate (font-lock-keyword-face . 2)
-	 "[ \t\n]" t name (font-lock-type-face . 3)
-	 "[ \t\n]" t name (font-lock-function-name-face . 3))
-	(("inst-var" "inst-value") non-immediate (font-lock-type-face . 2)
-	 "[ \t\n]" t name (font-lock-variable-name-face . 3))
-	(("method" "selector")
-	 non-immediate (font-lock-type-face . 1)
-	 "[ \t\n]" t name (font-lock-function-name-face . 3))
-	(("end-class" "end-interface")
-	 non-immediate (font-lock-keyword-face . 2)
-	 "[ \t\n]" t name (font-lock-type-face . 3))
-	(("public" "protected" "class" "exitm" "implementation" "interface"
-	  "methods" "end-methods" "this") 
-	 non-immediate (font-lock-keyword-face . 2))
-	(("object") non-immediate (font-lock-type-face . 2))))
+
 
 (defvar forth-use-oof nil 
   "*Non-nil makes forth-mode also hilight words from the \"OOF\" package.")
-(defvar forth-oof-words nil
+(defvar forth-oof-words 
+  '((("class") non-immediate (font-lock-keyword-face . 2)
+     "[ \t\n]" t name (font-lock-type-face . 3))
+    (("var") non-immediate (font-lock-type-face . 2)
+     "[ \t\n]" t name (font-lock-variable-name-face . 3))
+    (("method" "early") non-immediate (font-lock-type-face . 2)
+     "[ \t\n]" t name (font-lock-function-name-face . 3))
+    (("::" "super" "bind" "bound" "link") 
+     immediate (font-lock-keyword-face . 2)
+     "[ \t\n]" t name (font-lock-function-name-face . 3))
+    (("ptr" "asptr" "[]") 
+     immediate (font-lock-keyword-face . 2)
+     "[ \t\n]" t name (font-lock-variable-name-face . 3))
+    (("class;" "how:" "self" "new" "new[]" "definitions" "class?" "with"
+      "endwith")
+     non-immediate (font-lock-keyword-face . 2))
+    (("object") non-immediate (font-lock-type-face . 2)))
   "Hilighting description for words of the \"OOF\" package")
-(setq forth-oof-words 
-      '((("class") non-immediate (font-lock-keyword-face . 2)
-	 "[ \t\n]" t name (font-lock-type-face . 3))
-	(("var") non-immediate (font-lock-type-face . 2)
-	 "[ \t\n]" t name (font-lock-variable-name-face . 3))
-	(("method" "early") non-immediate (font-lock-type-face . 2)
-	 "[ \t\n]" t name (font-lock-function-name-face . 3))
-	(("::" "super" "bind" "bound" "link") 
-	 immediate (font-lock-keyword-face . 2)
-	 "[ \t\n]" t name (font-lock-function-name-face . 3))
-	(("ptr" "asptr" "[]") 
-	 immediate (font-lock-keyword-face . 2)
-	 "[ \t\n]" t name (font-lock-variable-name-face . 3))
-	(("class;" "how:" "self" "new" "new[]" "definitions" "class?" "with"
-	  "endwith")
-	 non-immediate (font-lock-keyword-face . 2))
-	(("object") non-immediate (font-lock-type-face . 2))))
 
 (defvar forth-local-words nil 
   "List of Forth words to prepend to `forth-words'. Should be set by a 
@@ -266,32 +292,74 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 
 (defvar forth-compiled-words nil "Compiled representation of `forth-words'.")
 
+(defvar forth-indent-words nil 
+  "List of words that have indentation behaviour.
+Each element of `forth-indent-words' should have the form
+   (MATCHER INDENT1 INDENT2 &optional TYPE) 
+  
+MATCHER is either a list of strings to match, or a REGEXP.
+   If it's a REGEXP, it should not be surrounded by `\\<` or `\\>`, since 
+   that'll be done automatically by the search routines.
 
-; todo:
-;
+TYPE might be omitted. If it's specified, the only allowed value is 
+   currently the symbol `non-immediate', meaning that the word will not 
+   have any effect on indentation inside definitions. (:NONAME is a good 
+   example for this kind of word).
 
-; Wörter ordentlich hilighten, die nicht auf Whitespace beginnen ( ..)IF
-; -- mit aktueller Konzeption nicht möglich??
-;
-; Konfiguration über customization groups
-;
-; Bereich nur auf Wortanfang/ende ausweiten, wenn Anfang bzw Ende in einem 
-; Wort liegen (?) -- speed!
-;
-; 'forth-word' property muss eindeutig sein!
-;
-; Forth-Menu 
-;
-; Interface zu GForth Prozessen (Patches von Michael Scholz)
-;
-; Byte-compile-Code rausschmeißen, Compilieren im Makefile über Emacs
-; batch-Modus
-;
-; forth-help Kram rausschmeißen
-;
-; XEmacs Kompatibilität? imenu/speedbar -> fume?
-; 
-; Folding neuschreiben (neue Parser-Informationen benutzen)
+INDENT1 specifies how to indent a word that's located at a line's begin,
+   following any number of whitespaces.
+
+INDENT2 specifies how to indent words that are not located at a line's begin.
+
+INDENT1 and INDENT2 are indentation specifications of the form
+   (SELF-INDENT . NEXT-INDENT), where SELF-INDENT is a numerical value, 
+   specifying how the matching line and all following lines are to be 
+   indented, relative to previous lines. NEXT-INDENT specifies how to indent 
+   following lines, relative to the matching line.
+  
+   Even values of SELF-INDENT and NEXT-INDENT correspond to multiples of
+   `forth-indent-level'. Odd values get an additional 
+   `forth-minor-indent-level' added/substracted. Eg a value of -2 indents
+   1 * forth-indent-level  to the left, wheras 3 indents 
+   1 * forth-indent-level + forth-minor-indent-level  columns to the right.")
+
+(setq forth-indent-words
+      '((("if" "begin" "do" "?do" "+do" "-do" "u+do"
+	  "u-do" "?dup-if" "?dup-0=-if" "case" "of" "try" 
+	  "[if]" "[ifdef]" "[ifundef]" "[begin]" "[for]" "[do]" "[?do]")
+	 (0 . 2) (0 . 2))
+	((":" ":noname" "code" "struct" "m:" ":m" "class" "interface")
+	 (0 . 2) (0 . 2) non-immediate)
+	("\\S-+%$" (0 . 2) (0 . 0) non-immediate)
+	((";" ";m") (-2 . 0) (0 . -2))
+	(("again" "repeat" "then" "endtry" "endcase" "endof" 
+	  "[then]" "[endif]" "[loop]" "[+loop]" "[next]" 
+	  "[until]" "[repeat]" "[again]" "loop")
+	 (-2 . 0) (0 . -2))
+	(("end-code" "end-class" "end-interface" "end-class-noname" 
+	  "end-interface-noname" "end-struct" "class;")
+	 (-2 . 0) (0 . -2) non-immediate)
+	(("protected" "public" "how:") (-1 . 1) (0 . 0) non-immediate)
+	(("+loop" "-loop" "until") (-2 . 0) (-2 . 0))
+	(("else" "recover" "[else]") (-2 . 2) (0 . 0))
+	(("while" "does>" "[while]") (-1 . 1) (0 . 0))
+	(("\\g") (-2 . 2) (0 . 0))))
+
+(defvar forth-local-indent-words nil 
+  "List of Forth words to prepend to `forth-indent-words', when a forth-mode
+buffer is created. Should be set by a Forth source, using a local variables 
+list at the end of the file (\"Local Variables: ... forth-local-words: ... 
+End:\" construct).")
+
+(defvar forth-custom-indent-words nil
+  "List of Forth words to prepend to `forth-indent-words'. Should be set in
+ your .emacs.")
+
+(defvar forth-indent-level 4
+  "*Indentation of Forth statements.")
+(defvar forth-minor-indent-level 2
+  "*Minor indentation of Forth statements.")
+(defvar forth-compiled-indent-words nil)
 
 ;(setq debug-on-error t)
 
@@ -577,6 +645,8 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
   "List of words, that define the following word.
 Used for imenu index generation.")
 
+(defvar forth-defining-words-regexp nil 
+  "Regexp that's generated for matching `forth-defining-words'")
  
 (defun forth-next-definition-starter ()
   (progn
@@ -600,86 +670,19 @@ Used for imenu index generation.")
 	  (setq index (cons (cons (match-string 1) (point)) index))))
     index))
 
-(unwind-protect
-    (progn
-      (require 'speedbar)
-      (speedbar-add-supported-extension ".fs")
-      (speedbar-add-supported-extension ".fb")))
+;; top-level require is executed at byte-compile and load time
+(require 'speedbar nil t)
+
+;; this code is executed at load-time only
+(when (require 'speedbar nil t)
+  (speedbar-add-supported-extension ".fs")
+  (speedbar-add-supported-extension ".fb"))
 
 ;; (require 'profile)
 ;; (setq profile-functions-list '(forth-set-word-properties forth-next-known-forth-word forth-update-properties forth-delete-properties forth-get-regexp-branch))
 
 ;;; Indentation
 ;;;
-
-(defvar forth-indent-words nil 
-  "List of words that have indentation behaviour.
-Each element of `forth-indent-words' should have the form
-   (MATCHER INDENT1 INDENT2 &optional TYPE) 
-  
-MATCHER is either a list of strings to match, or a REGEXP.
-   If it's a REGEXP, it should not be surrounded by `\\<` or `\\>`, since 
-   that'll be done automatically by the search routines.
-
-TYPE might be omitted. If it's specified, the only allowed value is 
-   currently the symbol `non-immediate', meaning that the word will not 
-   have any effect on indentation inside definitions. (:NONAME is a good 
-   example for this kind of word).
-
-INDENT1 specifies how to indent a word that's located at a line's begin,
-   following any number of whitespaces.
-
-INDENT2 specifies how to indent words that are not located at a line's begin.
-
-INDENT1 and INDENT2 are indentation specifications of the form
-   (SELF-INDENT . NEXT-INDENT), where SELF-INDENT is a numerical value, 
-   specifying how the matching line and all following lines are to be 
-   indented, relative to previous lines. NEXT-INDENT specifies how to indent 
-   following lines, relative to the matching line.
-  
-   Even values of SELF-INDENT and NEXT-INDENT correspond to multiples of
-   `forth-indent-level'. Odd values get an additional 
-   `forth-minor-indent-level' added/substracted. Eg a value of -2 indents
-   1 * forth-indent-level  to the left, wheras 3 indents 
-   1 * forth-indent-level + forth-minor-indent-level  columns to the right.")
-
-(setq forth-indent-words
-      '((("if" "begin" "do" "?do" "+do" "-do" "u+do"
-	  "u-do" "?dup-if" "?dup-0=-if" "case" "of" "try" 
-	  "[if]" "[ifdef]" "[ifundef]" "[begin]" "[for]" "[do]" "[?do]")
-	 (0 . 2) (0 . 2))
-	((":" ":noname" "code" "struct" "m:" ":m" "class" "interface")
-	 (0 . 2) (0 . 2) non-immediate)
-	("\\S-+%$" (0 . 2) (0 . 0) non-immediate)
-	((";" ";m") (-2 . 0) (0 . -2))
-	(("again" "repeat" "then" "endtry" "endcase" "endof" 
-	  "[then]" "[endif]" "[loop]" "[+loop]" "[next]" 
-	  "[until]" "[repeat]" "[again]" "loop")
-	 (-2 . 0) (0 . -2))
-	(("end-code" "end-class" "end-interface" "end-class-noname" 
-	  "end-interface-noname" "end-struct" "class;")
-	 (-2 . 0) (0 . -2) non-immediate)
-	(("protected" "public" "how:") (-1 . 1) (0 . 0) non-immediate)
-	(("+loop" "-loop" "until") (-2 . 0) (-2 . 0))
-	(("else" "recover" "[else]") (-2 . 2) (0 . 0))
-	(("while" "does>" "[while]") (-1 . 1) (0 . 0))
-	(("\\g") (-2 . 2) (0 . 0))))
-
-(defvar forth-local-indent-words nil 
-  "List of Forth words to prepend to `forth-indent-words', when a forth-mode
-buffer is created. Should be set by a Forth source, using a local variables 
-list at the end of the file (\"Local Variables: ... forth-local-words: ... 
-End:\" construct).")
-
-(defvar forth-custom-indent-words nil
-  "List of Forth words to prepend to `forth-indent-words'. Should be set in
- your .emacs.")
-
-(defvar forth-indent-level 4
-  "*Indentation of Forth statements.")
-(defvar forth-minor-indent-level 2
-  "*Minor indentation of Forth statements.")
-(defvar forth-compiled-indent-words nil)
 
 ;; Return, whether `pos' is the first forth word on its line
 (defun forth-first-word-on-line-p (pos)
@@ -945,6 +948,7 @@ done by checking whether the first line has 1024 characters or more."
   "Non-nil means to warn about lines that are longer than 64 characters")
 
 (defvar forth-screen-marker nil)
+(defvar forth-screen-number-string nil)
 
 (defun forth-update-show-screen ()
   "If `forth-show-screen' is non-nil, put overlay arrow to start of screen, 
@@ -1009,16 +1013,17 @@ exceeds 64 characters."
 (define-key forth-mode-map "\e." 'forth-find-tag)
 
 ;setup for C-h C-i to work
-(if (fboundp 'info-lookup-add-help)
-    (info-lookup-add-help
-     :topic 'symbol
-     :mode 'forth-mode
-     :regexp "[^ 	
+(require 'info-look nil t)
+(when (require 'info-look nil t)
+  (info-lookup-add-help
+   :topic 'symbol
+   :mode 'forth-mode
+   :regexp "[^ 	
 ]+"
-     :ignore-case t
-     :doc-spec '(("(gforth)Name Index" nil "`" "'  "))))
+   :ignore-case t
+   :doc-spec '(("(gforth)Name Index" nil "`" "'  "))))
 
-(load "etags")
+(require 'etags)
 
 (defun forth-find-tag (tagname &optional next-p regexp-p)
   (interactive (find-tag-interactive "Find tag: "))
@@ -1067,8 +1072,8 @@ exceeds 64 characters."
   (setq comment-column 40)
   (make-local-variable 'comment-start-skip)
   (setq comment-start-skip "\\ ")
-  (make-local-variable 'comment-indent-hook)
-  (setq comment-indent-hook 'forth-comment-indent)
+  (make-local-variable 'comment-indent-function)
+  (setq comment-indent-function 'forth-comment-indent)
   (make-local-variable 'parse-sexp-ignore-comments)
   (setq parse-sexp-ignore-comments t)
   (setq case-fold-search t)
@@ -1779,7 +1784,7 @@ The region is sent terminated by a newline."
 
 (define-key forth-mode-map "\C-x\C-e" 'compile)
 (define-key forth-mode-map "\C-x\C-n" 'next-error)
-(require 'compile "compile")
+(require 'compile)
 
 (defvar forth-compile-command "gforth ")
 ;(defvar forth-compilation-window-percent-height 30)
@@ -1831,24 +1836,23 @@ The region is sent terminated by a newline."
 (require 'outline)
 
 (defun f-outline-level ()
-	(cond	((looking-at "\\`\\\\")
-			0)
-		((looking-at "\\\\ SEC")
-			0)
-		((looking-at "\\\\ \\\\ .*")
-			0)
-		((looking-at "\\\\ DEFS")
-			1)
-		((looking-at "\\/\\* ")
-			1)
-		((looking-at ": .*")
-			1)
-		((looking-at "\\\\G")
-			2)
-		((looking-at "[ \t]+\\\\")
-			3))
-)			
-
+  (cond	((looking-at "\\`\\\\")
+	 0)
+	((looking-at "\\\\ SEC")
+	 0)
+	((looking-at "\\\\ \\\\ .*")
+	 0)
+	((looking-at "\\\\ DEFS")
+	 1)
+	((looking-at "\\/\\* ")
+	 1)
+	((looking-at ": .*")
+	 1)
+	((looking-at "\\\\G")
+	 2)
+	((looking-at "[ \t]+\\\\")
+	 3)))
+  
 (defun fold-f  ()
    (interactive)
    (add-hook 'outline-minor-mode-hook 'hide-body)
@@ -1862,9 +1866,7 @@ The region is sent terminated by a newline."
    (define-key outline-minor-mode-map '(shift up) 'hide-sublevels)
    (define-key outline-minor-mode-map '(shift right) 'show-children)
    (define-key outline-minor-mode-map '(shift left) 'hide-subtree)
-   (define-key outline-minor-mode-map '(shift down) 'show-subtree)
-
-)
+   (define-key outline-minor-mode-map '(shift down) 'show-subtree))
 
 ;;(define-key global-map '(shift up) 'fold-f)
 
@@ -1883,5 +1885,7 @@ The region is sent terminated by a newline."
 ;       (define-key global-map "\C-cg" 'fume-prompt-function-goto)
 ;       (define-key global-map '(shift button3) 'mouse-function-menu)
 ))
+
+(provide 'forth-mode)
 
 ;;; gforth.el ends here
