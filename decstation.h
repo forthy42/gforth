@@ -1,10 +1,19 @@
 /*
-  $Id: decstation.h,v 1.2 1994-05-05 15:46:41 pazsan Exp $
+  $Id: decstation.h,v 1.3 1994-05-05 17:05:32 pazsan Exp $
   Copyright 1992 by the ANSI figForth Development Group
 
   This is the machine-specific part for a Decstation running Ultrix
 */
+/* cache flush stuff */
 
+#ifdef DIRECT_THREADED
+
+#include <mips/cachectl.h>
+
+#define CACHE_FLUSH(addr,size) \
+				cacheflush((char *)(addr), (int)(size), BCACHE)
+
+#endif
 
 /* Cell and UCell must be the same size as a pointer */
 typedef long Cell;

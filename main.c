@@ -1,5 +1,5 @@
 /*
-  $Id: main.c,v 1.2 1994-05-05 15:46:48 pazsan Exp $
+  $Id: main.c,v 1.3 1994-05-05 17:05:35 pazsan Exp $
   Copyright 1993 by the ANSI figForth Development Group
 */
 
@@ -74,6 +74,8 @@ void relocate(int *image, char *bitstring, int size, Label symbols[])
 				}
 			else
 				image[i]+=(Cell)image;
+
+	CACHE_FLUSH(image,size);
 }
 
 int* loader(const char* filename)

@@ -1,5 +1,5 @@
 /*
-  $Id: forth.h,v 1.2 1994-05-05 15:46:44 pazsan Exp $
+  $Id: forth.h,v 1.3 1994-05-05 17:05:34 pazsan Exp $
   Copyright 1992 by the ANSI figForth Development Group
 */
 
@@ -70,3 +70,7 @@ Label *engine(Xt *ip, Cell *sp, Cell *rp, Float *fp);
 #define CF(const)	(-const-2)
 
 #define CF_NIL	-1
+
+#ifndef CACHE_FLUSH
+#	define CACHE_FLUSH(addr,size)
+#endif

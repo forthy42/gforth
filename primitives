@@ -1,5 +1,5 @@
 /*
-$Id: primitives,v 1.4 1994-05-05 15:46:50 pazsan Exp $
+$Id: primitives,v 1.5 1994-05-05 17:05:37 pazsan Exp $
 Copyright 1992 by the ANSI figForth Development Group
 
 WARNING: This file is processed by m4. Make sure your identifiers
@@ -934,16 +934,19 @@ a_addr = DOES_CODE(xt);
 code-address!		n xt --	new	code_address_store
 ""Creates a code field with code address c_addr at xt""
 MAKE_CF(xt, symbols[CF(n)]);
+CACHE_FLUSH(xt,PFA(0));
 
 does-code!	a_addr xt --		new	does_code_store
 ""creates a code field at xt for a defining-word-defined word; a_addr
 is the start of the Forth code after DOES>""
 MAKE_DOES_CF(xt, a_addr);
+CACHE_FLUSH(xt,PFA(0));
 
 does-handler!	a_addr --	new	does_jump_store
 ""creates a DOES>-handler at address a_addr. a_addr usually points
 just behind a DOES>.""
 MAKE_DOES_HANDLER(a_addr);
+CACHE_FLUSH(a_addr,DOES_HANDLER_SIZE);
 
 /does-handler	-- n	new	slash_does_handler
 ""the size of a does-handler (includes possible padding)""
