@@ -177,13 +177,19 @@ Variable link
 Variable link-sig
 Variable link-suffix
 Variable iconpath
+Variable icon-prefix
+Variable icon-tmp
 
 Variable do-size
 Variable do-icon
 
 Defer parse-line
 
-: .img ( addr u -- ) dup >r '| -$split  dup r> = IF  2swap  THEN 
+: .img ( addr u -- )
+    dup >r '@ -$split  dup r> = IF  2swap 2drop
+    ELSE  2swap icon-tmp $! icon-prefix $@ icon-tmp $+! icon-tmp $+!
+	icon-tmp $@  THEN
+    dup >r '| -$split  dup r> = IF  2swap  THEN 
     dup IF  2swap alt=  ELSE  2drop  THEN
     tag-option $@len >r over c@ >align  tag-option $@len r> = 1+ /string
     tag-option $@len >r over c@ >border tag-option $@len r> = 1+ /string
@@ -198,11 +204,11 @@ Defer parse-line
 
 : get-icon ( addr u -- )  iconpath @ IF  2drop  EXIT  THEN
     link-suffix $! s" .*" link-suffix $+!
-    s" icons" open-dir throw >r
+    icon-prefix $@ open-dir throw >r
     BEGIN
 	pad $100 r@ read-dir throw  WHILE
 	pad swap 2dup link-suffix $@ filename-match
-	IF  s" icons/" iconpath $! iconpath $+!
+	IF  icon-prefix $@ iconpath $! s" /" iconpath $+! iconpath $+!
 	    iconpath $@ 2dup .img-size src= '- >border
 	    alt-suffix  s" img" tag/ true
 	ELSE  2drop  false  THEN
@@ -228,7 +234,7 @@ Defer parse-line
     link-sig $@ r/o open-file IF  drop  EXIT  THEN
     close-file throw
     ."  (" link-sig $@ href= s" a" tag
-    s" |-icons/sig.gif" .img ." sig" s" /a" tag ." )" ;
+    s" |-@/sig.gif" .img ." sig" s" /a" tag ." )" ;
 
 : link-warn? ( -- ) \ local links only
     link $@ ': scan nip ?EXIT
@@ -399,17 +405,17 @@ Variable toc-index
     $@ .img swap
     IF
 	case
-	    2 of  s" ^]|-icons/arrow_up.jpg" .img  endof
+	    2 of  s" ^]|-@/arrow_up.jpg" .img  endof
 	    3 of
-		r@ 0= IF s" *]|-icons/circle.jpg"
-		    ELSE s" v]|-icons/arrow_down.jpg"  THEN  .img  endof
+		r@ 0= IF s" *]|-@/circle.jpg"
+		    ELSE s" v]|-@/arrow_down.jpg"  THEN  .img  endof
 	endcase
     ELSE
 	case
-	    0 of  s" ^]|-icons/arrow_up.jpg" .img  endof
-	    1 of  s" >]|-icons/arrow_right.jpg" .img  endof
-	    2 of  s" *]|-icons/circle.jpg" .img  endof
-	    3 of  s" v]|-icons/arrow_down.jpg" .img  endof
+	    0 of  s" ^]|-@/arrow_up.jpg" .img  endof
+	    1 of  s" >]|-@/arrow_right.jpg" .img  endof
+	    2 of  s" *]|-@/circle.jpg" .img  endof
+	    3 of  s" v]|-@/arrow_down.jpg" .img  endof
 	endcase
     THEN
     s" a" /tag rdrop ." <!--" cr ." -->"
@@ -579,7 +585,7 @@ Variable orig-date
     orig-date @ IF  ." Created " orig-date $@ type ." . "  THEN
     .lastmod
  ."  by "
-    s" Mail|icons/mail.gif" .img mail $@ mailto: mail-name $@ s" a" tagged
+    s" Mail|@/mail.gif" .img mail $@ mailto: mail-name $@ s" a" tagged
     -envs ;
 
 \ top word
@@ -588,6 +594,9 @@ Variable orig-date
     '< sword -trailing mail-name $! '> sword mail $! ;
 : created ( -- )
     bl sword orig-date $! ;
+: icons
+    bl sword icon-prefix $! ;
+icons icons
 
 Variable style$
 : style> style$ @ 0= IF  s" " style$ $!  THEN  style$ $@ tag-option $! ;
