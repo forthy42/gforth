@@ -58,7 +58,7 @@ include ./environ.fs
 
 include ./gray.fs
 
-100 constant max-effect \ number of things on one side of a stack effect
+32 constant max-effect \ number of things on one side of a stack effect
 255 constant maxchar
 maxchar 1+ constant eof-char
 #tab constant tab-char
@@ -150,23 +150,28 @@ s" IP" save-mem s" error don't use # on results" make-stack inst-stream
 
 \ various variables for storing stuff of one primitive
 
-2variable forth-name
-2variable wordset
-2variable c-name
-2variable doc
-2variable c-code
-2variable forth-code
-2variable stack-string
-create effect-in  max-effect item% %size * allot
-create effect-out max-effect item% %size * allot
-variable effect-in-end ( pointer )
-variable effect-out-end ( pointer )
+struct%
+    cell% 2* field prim-name
+    cell% 2* field prim-wordset
+    cell% 2* field prim-c-name
+    cell% 2* field prim-doc
+    cell% 2* field prim-c-code
+    cell% 2* field prim-forth-code
+    cell% 2* field prim-stack-string
+    item% max-effect * field prim-effect-in
+    item% max-effect * field prim-effect-out
+    cell%    field prim-effect-in-end
+    cell%    field prim-effect-out-end
+end-struct prim%
+
+create prim prim% %allot
+
+\ global vars
 variable c-line
 2variable c-filename
 variable name-line
 2variable name-filename
 2variable last-name-filename
-
 Variable function-number 0 function-number !
 
 \ for several reasons stack items of a word are stored in a wordlist
@@ -340,8 +345,8 @@ does> ( item -- )
 
 : declarations ( -- )
  wordlist dup items ! set-current
- effect-in effect-in-end @ declaration-list
- effect-out effect-out-end @ declaration-list ;
+ prim prim-effect-in prim prim-effect-in-end @ declaration-list
+ prim prim-effect-out prim prim-effect-out-end @ declaration-list ;
 
 : print-declaration { item -- }
     item item-first @ if
@@ -350,8 +355,8 @@ does> ( item -- )
     endif ;
 
 : print-declarations ( -- )
-    effect-in  effect-in-end  @ ['] print-declaration map-items
-    effect-out effect-out-end @ ['] print-declaration map-items ;
+    prim prim-effect-in  prim prim-effect-in-end  @ ['] print-declaration map-items
+    prim prim-effect-out prim prim-effect-out-end @ ['] print-declaration map-items ;
     
 : stack-prefix ( stack "prefix" -- )
     name tuck nextname create ( stack length ) 2,
@@ -383,8 +388,8 @@ does> ( item -- )
 : compute-offsets ( -- )
     data-stack clear-stack  fp-stack clear-stack return-stack clear-stack
     inst-stream clear-stack
-    effect-in  effect-in-end  @ ['] compute-offset-in  map-items
-    effect-out effect-out-end @ ['] compute-offset-out map-items
+    prim prim-effect-in  prim prim-effect-in-end  @ ['] compute-offset-in  map-items
+    prim prim-effect-out prim prim-effect-out-end @ ['] compute-offset-out map-items
     inst-stream stack-out @ 0<> abort" # can only be on the input side" ;
 
 : flush-a-tos { stack -- }
@@ -416,7 +421,7 @@ does> ( item -- )
  dup item-type @ type-fetch @ execute ;
 
 : fetches ( -- )
-    effect-in effect-in-end @ ['] fetch map-items ;
+    prim prim-effect-in prim prim-effect-in-end @ ['] fetch map-items ;
 
 : stack-pointer-update { stack -- }
     \ stack grow downwards
@@ -442,7 +447,7 @@ does> ( item -- )
  dup item-type @ type-store @ execute ;
 
 : stores ( -- )
-    effect-out effect-out-end @ ['] store map-items ;
+    prim prim-effect-out prim prim-effect-out-end @ ['] store map-items ;
 
 : output-c-tail ( -- )
     \ the final part of the generated C code
@@ -474,15 +479,15 @@ does> ( item -- )
 : print-debug-args ( -- )
     ." #ifdef VM_DEBUG" cr
     ." if (vm_debug) {" cr
-    effect-in effect-in-end @ ['] print-debug-arg map-items
+    prim prim-effect-in prim prim-effect-in-end @ ['] print-debug-arg map-items
     ." fputc('\n', vm_out);" cr
     ." }" cr
     ." #endif" cr ;
     
 : output-c ( -- ) 
- ." I_" c-name 2@ type ." :	/* " forth-name 2@ type ."  ( " stack-string 2@ type ." ) */" cr
- ." /* " doc 2@ type ."  */" cr
- ." NAME(" quote forth-name 2@ type quote ." )" cr \ debugging
+ ." I_" prim prim-c-name 2@ type ." :	/* " prim prim-name 2@ type ."  ( " prim prim-stack-string 2@ type ." ) */" cr
+ ." /* " prim prim-doc 2@ type ."  */" cr
+ ." NAME(" quote prim prim-name 2@ type quote ." )" cr \ debugging
  ." {" cr
  ." DEF_CA" cr
  print-declarations
@@ -493,7 +498,7 @@ does> ( item -- )
  stack-pointer-updates
  ." {" cr
  ." #line " c-line @ . quote c-filename 2@ type quote cr
- c-code 2@ type-c
+ prim prim-c-code 2@ type-c
  ." }" cr
  output-c-tail
  ." }" cr
@@ -509,12 +514,12 @@ does> ( item -- )
     endif ;
 
 : disasm-args ( -- )
-    effect-in effect-in-end @ ['] disasm-arg map-items ;
+    prim prim-effect-in prim prim-effect-in-end @ ['] disasm-arg map-items ;
 
 : output-disasm ( -- )
     \ generate code for disassembling VM instructions
     ." if (ip[0] == prim[" function-number @ 0 .r ." ]) {" cr
-    ."   fputs(" quote forth-name 2@ type quote ." , vm_out);" cr
+    ."   fputs(" quote prim prim-name 2@ type quote ." , vm_out);" cr
     disasm-args
     ."   ip += " inst-stream stack-in @ 1+ 0 .r ." ;" cr
     ." } else " ;
@@ -526,7 +531,7 @@ does> ( item -- )
     endif ;
 
 : gen-args-parm ( -- )
-    effect-in effect-in-end @ ['] gen-arg-parm map-items ;
+    prim prim-effect-in prim prim-effect-in-end @ ['] gen-arg-parm map-items ;
 
 : gen-arg-gen { item -- }
     item item-stack @ inst-stream = if
@@ -535,11 +540,11 @@ does> ( item -- )
     endif ;
 
 : gen-args-gen ( -- )
-    effect-in effect-in-end @ ['] gen-arg-gen map-items ;
+    prim prim-effect-in prim prim-effect-in-end @ ['] gen-arg-gen map-items ;
 
 : output-gen ( -- )
     \ generate C code for generating VM instructions
-    ." void gen_" c-name 2@ type ." (Inst **ctp" gen-args-parm ." )" cr
+    ." void gen_" prim prim-c-name 2@ type ." (Inst **ctp" gen-args-parm ." )" cr
     ." {" cr
     ."   gen_inst(ctp, vm_prim[" function-number @ 0 .r ." ]);" cr
     gen-args-gen
@@ -549,17 +554,17 @@ does> ( item -- )
     stack stack-in @ stack stack-out @ or 0<> ;
 
 : output-funclabel ( -- )
-  ." &I_" c-name 2@ type ." ," cr ;
+  ." &I_" prim prim-c-name 2@ type ." ," cr ;
 
 : output-forthname ( -- )
-  '" emit forth-name 2@ type '" emit ." ," cr ;
+  '" emit prim prim-name 2@ type '" emit ." ," cr ;
 
 : output-c-func ( -- )
 \ used for word libraries
-    ." Cell * I_" c-name 2@ type ." (Cell *SP, Cell **FP)      /* " forth-name 2@ type
-    ."  ( " stack-string 2@ type ."  ) */" cr
-    ." /* " doc 2@ type ."  */" cr
-    ." NAME(" quote forth-name 2@ type quote ." )" cr
+    ." Cell * I_" prim prim-c-name 2@ type ." (Cell *SP, Cell **FP)      /* " prim prim-name 2@ type
+    ."  ( " prim prim-stack-string 2@ type ."  ) */" cr
+    ." /* " prim prim-doc 2@ type ."  */" cr
+    ." NAME(" quote prim prim-name 2@ type quote ." )" cr
     \ debugging
     ." {" cr
     print-declarations
@@ -573,7 +578,7 @@ does> ( item -- )
     fp-stack   stack-used? IF ." *FP=fp;" cr THEN
     ." {" cr
     ." #line " c-line @ . quote c-filename 2@ type quote cr
-    c-code 2@ type
+    prim prim-c-code 2@ type
     ." }" cr
     stores
     fill-tos
@@ -582,19 +587,19 @@ does> ( item -- )
     cr ;
 
 : output-label ( -- )  
-    ." (Label)&&I_" c-name 2@ type ." ," cr ;
+    ." (Label)&&I_" prim prim-c-name 2@ type ." ," cr ;
 
 : output-alias ( -- ) 
-    ( primitive-number @ . ." alias " ) ." Primitive " forth-name 2@ type cr ;
+    ( primitive-number @ . ." alias " ) ." Primitive " prim prim-name 2@ type cr ;
 
 : output-forth ( -- )  
-    forth-code @ 0=
+    prim prim-forth-code @ 0=
     IF    	\ output-alias
 	\ this is bad for ec: an alias is compiled if tho word does not exist!
 	\ JAW
-    ELSE  ." : " forth-name 2@ type ."   ( "
-	stack-string 2@ type ." )" cr
-	forth-code 2@ type cr
+    ELSE  ." : " prim prim-name 2@ type ."   ( "
+	prim prim-stack-string 2@ type ." )" cr
+	prim prim-forth-code 2@ type cr
     THEN ;
 
 : output-tag-file ( -- )
@@ -607,9 +612,9 @@ does> ( item -- )
 
 : output-tag ( -- )
     output-tag-file
-    forth-name 2@ 1+ type
+    prim prim-name 2@ 1+ type
     127 emit
-    space forth-name 2@ type space
+    space prim prim-name 2@ type space
     1 emit
     name-line @ 0 .r
     ." ,0" cr ;
@@ -617,14 +622,81 @@ does> ( item -- )
 [IFDEF] documentation
 : register-doc ( -- )
     get-current documentation set-current
-    forth-name 2@ nextname create
-    forth-name 2@ 2,
-    stack-string 2@ condition-stack-effect 2,
-    wordset 2@ 2,
-    c-name 2@ condition-pronounciation 2,
-    doc 2@ 2,
+    prim prim-name 2@ nextname create
+    prim prim-name 2@ 2,
+    prim prim-stack-string 2@ condition-stack-effect 2,
+    prim prim-wordset 2@ 2,
+    prim prim-c-name 2@ condition-pronounciation 2,
+    prim prim-doc 2@ 2,
     set-current ;
 [THEN]
+
+
+\ combining instructions
+
+\ The input should look like this:
+
+\ lit_+ = lit +
+
+\ The output should look like this:
+
+\  I_lit_+:
+\  {
+\  DEF_CA
+\  Cell _x_ip0;
+\  Cell _x_sp0;
+\  Cell _x_sp1;
+\  NEXT_P0;
+\  _x_ip0 = (Cell) IPTOS;
+\  _x_sp0 = (Cell) spTOS;
+\  INC_IP(1);
+\  /* sp += 0; */
+\  /* lit ( #w -- w ) */
+\  /*  */
+\  NAME("lit")
+\  {
+\  Cell w;
+\  w = (Cell) _x_ip0;
+\  #ifdef VM_DEBUG
+\  if (vm_debug) {
+\  fputs(" w=", vm_out); printarg_w (w);
+\  fputc('\n', vm_out);
+\  }
+\  #endif
+\  {
+\  #line 136 "./prim"
+\  }
+\  _x_sp1 = (Cell)w;
+\  }
+\  I_plus:	/* + ( n1 n2 -- n ) */
+\  /*  */
+\  NAME("+")
+\  {
+\  DEF_CA
+\  Cell n1;
+\  Cell n2;
+\  Cell n;
+\  NEXT_P0;
+\  n1 = (Cell) _x_sp0;
+\  n2 = (Cell) _x_sp1;
+\  #ifdef VM_DEBUG
+\  if (vm_debug) {
+\  fputs(" n1=", vm_out); printarg_n (n1);
+\  fputs(" n2=", vm_out); printarg_n (n2);
+\  fputc('\n', vm_out);
+\  }
+\  #endif
+\  {
+\  #line 516 "./prim"
+\  n = n1+n2;
+\  }
+\  NEXT_P1;
+\  _x_sp0 = (Cell)n;
+\  NEXT_P2;
+\  }
+\  NEXT_P1;
+\  spTOS = (Cell)_x_sp0;
+\  NEXT_P2;
 
 
 \ the parser
@@ -777,25 +849,31 @@ Variable c-flag
 (( {{ start }} stack-ident {{ end 2 pick init-item item% %size + }} white ** )) **
 <- stack-items
 
-(( {{ effect-in }}  stack-items {{ effect-in-end ! }}
+(( {{ prim prim-effect-in }}  stack-items {{ prim prim-effect-in-end ! }}
    ` - ` - white **
-   {{ effect-out }} stack-items {{ effect-out-end ! }}
+   {{ prim prim-effect-out }} stack-items {{ prim prim-effect-out-end ! }}
 )) <- stack-effect ( -- )
 
-(( {{ s" " doc 2! s" " forth-code 2! s" " wordset 2! }}
-   (( {{ line @ name-line ! filename 2@ name-filename 2! }}
-      {{ start }} forth-ident {{ end 2dup forth-name 2! c-name 2! }}  white ++
-      ` ( white ** {{ start }} stack-effect {{ end stack-string 2! }} ` ) white **
-        (( {{ start }} forth-ident {{ end wordset 2! }} white **
-	   (( {{ start }}  c-ident {{ end c-name 2! }} )) ??
-	)) ??  nl
-   ))
-   (( ` " ` "  {{ start }} (( noquote ++ ` " )) ++ {{ end 1- doc 2! }} ` " white ** nl )) ??
-   {{ skipsynclines off line @ c-line ! filename 2@ c-filename 2! start }} (( nocolonnl nonl **  nl white ** )) ** {{ end c-code 2! skipsynclines on }}
+((
+   ` ( white ** {{ start }} stack-effect {{ end prim prim-stack-string 2! }} ` ) white **
+   (( {{ start }} forth-ident {{ end prim prim-wordset 2! }} white **
+      (( {{ start }}  c-ident {{ end prim prim-c-name 2! }} )) ??
+   )) ??  nl
+   (( ` " ` "  {{ start }} (( noquote ++ ` " )) ++ {{ end 1- prim prim-doc 2! }} ` " white ** nl )) ??
+   {{ skipsynclines off line @ c-line ! filename 2@ c-filename 2! start }} (( nocolonnl nonl **  nl white ** )) ** {{ end prim prim-c-code 2! skipsynclines on }}
    (( ` :  white ** nl
-      {{ start }} (( nonl ++  nl white ** )) ++ {{ end forth-code 2! }}
+      {{ start }} (( nonl ++  nl white ** )) ++ {{ end prim prim-forth-code 2! }}
    )) ?? {{  declarations compute-offsets printprim 1 function-number +! }}
    (( nl || eof ))
+)) <- simple-primitive ( -- )
+
+(( ` = (( white ++ forth-ident )) ++ (( nl || eof ))
+)) <- combined-primitive
+
+(( {{ s" " prim prim-doc 2! s" " prim prim-forth-code 2! s" " prim prim-wordset 2!
+      line @ name-line ! filename 2@ name-filename 2!
+      start }} forth-ident {{ end 2dup prim prim-name 2! prim prim-c-name 2! }}  white ++
+   (( simple-primitive || combined-primitive ))
 )) <- primitive ( -- )
 
 (( (( comment || primitive || nl white ** )) ** eof ))
@@ -804,28 +882,20 @@ warnings @ [IF]
 .( parser generated ok ) cr
 [THEN]
 
-: primfilter ( file-id xt -- )
-\ fileid is for the input file, xt ( -- ) is for the output word
- output !
- here dup rawinput ! dup line-start ! cookedinput !
- here unused rot read-file throw
- dup here + endrawinput !
- allot
- align
- checksyncline
-\ begin
-\     getinput dup eof-char = ?EXIT emit true ?nextchar
-\ again ;
- primitives2something ;
+: primfilter ( addr u -- )
+    \ process the string at addr u
+    over dup rawinput ! dup line-start ! cookedinput !
+    + endrawinput !
+    checksyncline
+    primitives2something ;    
 
 : process-file ( addr u xt -- )
-    >r
+    output !
     save-mem 2dup filename 2!
-    0 function-number !
-    r/o open-file abort" cannot open file"
+    slurp-file
     warnings @ if
 	." ------------ CUT HERE -------------" cr  endif
-    r> primfilter ;
+    primfilter ;
 
 : process      ( xt -- )
     bl word count rot
