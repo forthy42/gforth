@@ -326,19 +326,43 @@ s" relocate" T environment? H
 
 \ \ Create additional parameters                         19jan95py
 
-1 8 lshift Constant maxbyte 
+\ currently cross only works for host machines with address-unit-bits
+\ eual to 8 because of s! and sc!
+\ but I start to query the environment just to modularize a little bit
+
+: check-address-unit-bits ( -- )	
+\	s" ADDRESS-UNIT-BITS" environment?
+\	IF 8 <> ELSE true THEN
+\	ABORT" ADDRESS-UNIT-BITS unknown or not equal to 8!"
+
+\	shit, this doesn't work because environment? is only defined for 
+\	gforth.fi and not kernl???.fi
+	;
+
+check-address-unit-bits
+8 Constant bits/byte	\ we define: byte is address-unit
+
+1 bits/byte lshift Constant maxbyte 
 \ this sets byte size for the target machine, an (probably right guess) jaw
 
 T
-NIL		   Constant TNIL
-cell               Constant tcell
-cell<<             Constant tcell<<
-cell>bit           Constant tcell>bit
-bits/char          Constant tbits/char
-bits/char 8 /      Constant tchar
-float              Constant tfloat
-1 bits/char lshift Constant tmaxchar
+NIL		   	Constant TNIL
+cell               	Constant tcell
+cell<<             	Constant tcell<<
+cell>bit           	Constant tcell>bit
+bits/char          	Constant tbits/char
+bits/char H bits/byte T /      
+			Constant tchar
+float             	Constant tfloat
+1 bits/char lshift 	Constant tmaxchar
+[IFUNDEF] bits/byte
+8			Constant tbits/byte
+[ELSE]
+bits/byte		Constant tbits/byte
+[THEN]
 H
+tbits/byte bits/byte /	Constant tbyte
+
 
 \ Variables                                            06oct92py
 
@@ -603,8 +627,8 @@ variable constflag constflag off
 
 : cell+         tcell + ;
 : cells         tcell<< lshift ;
-: chars         ;
-: char+		1 + ;
+: chars         tchar * ;
+: char+		tchar + ;
 : floats	tfloat * ;
     
 >CROSS
@@ -726,7 +750,7 @@ T has? relocate H
 : cfalign ( -- )
     T here H cfalign+ 0 ?DO  bl T c, tchar H +LOOP ;
 
-: >address		dup 0>= IF tchar / THEN ; \ ?? jaw 
+: >address		dup 0>= IF tbyte / THEN ; \ ?? jaw 
 : A!                    swap >address swap dup relon T ! H ;
 : A,    ( w -- )        >address T here H relon T , H ;
 
