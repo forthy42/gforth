@@ -42,3 +42,9 @@ decimal
 decimal
 { 'a' -> 97 }
 { 'A  -> 65 }
+
+\ represent has no trailing 0s even for inf and nan
+
+{  1e 0e f/ pad 16 represent drop 2drop pad 15 + c@ '0 = -> false }
+{  0e 0e f/ pad 16 represent drop 2drop pad 15 + c@ '0 = -> false }
+{ -1e 0e f/ pad 16 represent drop 2drop pad 15 + c@ '0 = -> false }
