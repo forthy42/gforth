@@ -41,7 +41,7 @@ s%test x'$(VERSION)' = x`cat $@` || %%g
 s%--clear-dictionary%-c%g
 s%.$(PATHSEP)$(srcdir)%.%g
 # s% -I$(srcdir)%%g
-s%GFORTHD="./gforth-ditc -p .* $(srcdir)/%%g
+s%GFORTHD=.*gforth.fi%gforthmi gforth.fi%g
 s%gforth-ditc%gforth-d%g
 s%engine-ditc%engine-d%g
 s%main-ditc%main-d%g
@@ -51,3 +51,5 @@ s%@VERSION@%0.4.0%g
 s%@EXE@%.exe%g
 s%cd engine && $(MAKE)%$(MAKE) -C engine%g
 s%\(CFLAGS2.*\) -O4%\1%g
+s%gforthmi gforth\$%gforthmi.bat gforth\$%g
+s%engine/Makefile configure%engine/Makefile%g

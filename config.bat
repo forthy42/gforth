@@ -43,4 +43,5 @@ IF "%FREGS%"=="y" ECHO #define FORCE_REG 1 >>ENGINE\CONFIG.H
 IF "%FREGS%"=="y" ECHO #endif >>ENGINE\CONFIG.H
 ECHO static char gforth_version[]="0.4.0"; >version.h1
 ECHO : version-string s" 0.4.0" ; >version.fs1
+COPY version.fs1 kernel\version.fs
 

@@ -440,6 +440,9 @@ docdist:	$(DOCDIST)
 		$(TAR) gforth-$(VERSION)|gzip -9 >gforth-doc-$(VERSION).tar.gz
 		-$(RMTREE) gforth-$(VERSION)
 
+htmldist:	html
+		$(TAR) html|gzip -9 >gforth-html-$(VERSION).tar.gz
+
 #a binary distribution contains the complete source distribution,
 # the objects, the executable and the links. the objects are there for making
 # make happy.
@@ -473,7 +476,7 @@ binonlydist:	$(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST) $(BINONLYDIST)
 #hard to generate)
 install:	gforth$(EXE) $(FORTH_SRC) $(kernel_fi) gforth.fi gforthmi doc/gforth.1 prim install.TAGS installdirs
 		touch $(datadir)/gforth/site-forth/siteinit.fs
-		-$(RM) $(bindir)/gforth$(EXE) $(bindir)/gforth-$(VERSION)$(EXE)
+		-$(RM) $(bindir)/gforth$(EXE) $(bindir)/gforth-$(VERSION)$(EXE) $(bindir)/gforthmi
 		$(INSTALL_PROGRAM) -s gforth$(EXE) $(bindir)/gforth-$(VERSION)$(EXE)
 		$(LN_S) $(bindir)/gforth-$(VERSION)$(EXE) $(bindir)/gforth$(EXE)
 		$(INSTALL_PROGRAM) gforthmi $(bindir)/gforthmi-$(VERSION)

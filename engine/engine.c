@@ -80,6 +80,7 @@ int emitcounter;
 #endif
 #define NULLC '\0'
 
+#ifdef HAS_FILE
 char *cstr(Char *from, UCell size, int clear)
 /* return a C-string corresponding to the Forth string ( FROM SIZE ).
    the C-string lives until the next call of cstr with CLEAR being true */
@@ -112,12 +113,6 @@ char *cstr(Char *from, UCell size, int clear)
   return b->buffer;
 }
 
-#ifdef STANDALONE
-char *tilde_cstr(Char *from, UCell size, int clear)
-{
-  return cstr(from, size, clear);
-}
-#else
 char *tilde_cstr(Char *from, UCell size, int clear)
 /* like cstr(), but perform tilde expansion on the string */
 {
@@ -159,7 +154,7 @@ char *tilde_cstr(Char *from, UCell size, int clear)
     return cstr(path,s1_len+s2_len,clear);
   }
 }
-#endif   
+#endif
 
 #define NEWLINE	'\n'
 
@@ -167,6 +162,7 @@ char *tilde_cstr(Char *from, UCell size, int clear)
 #define rint(x)	floor((x)+0.5)
 #endif
 
+#ifdef HAS_FILE
 static char* fileattr[6]={"r","rb","r+","r+b","w","wb"};
 
 #ifndef O_BINARY
@@ -180,6 +176,7 @@ static int ufileattr[6]= {
   O_RDONLY|O_TEXT, O_RDONLY|O_BINARY,
   O_RDWR  |O_TEXT, O_RDWR  |O_BINARY,
   O_WRONLY|O_TEXT, O_WRONLY|O_BINARY };
+#endif
 
 /* if machine.h has not defined explicit registers, define them as implicit */
 #ifndef IPREG

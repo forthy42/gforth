@@ -1,5 +1,5 @@
 REM @ECHO OFF
-REM Copyright (C) 1997 Free Software Foundation, Inc.
+REM Copyright (C) 1997-1998 Free Software Foundation, Inc.
 
 REM This file is part of Gforth.
 
@@ -21,7 +21,7 @@ if not "%1"=="" goto makeit
 if not "%1"=="--help" goto makeit
 if not "%1"=="-h" goto makeit
   echo usage: gforth-makeimage target-name [gforth-options]
-  echo   environment: GFORTHD: the Gforth binary used (default: gforth-ditc)
+  echo   environment: GFORTHD: the Gforth binary used (default: gforth-d)
   echo creates a relocatable image 'target-name'
   goto end
 :makeit
@@ -40,3 +40,4 @@ del tmp.fs
 del tmp.fi1
 del tmp.fi2
 :end
+

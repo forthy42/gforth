@@ -1420,12 +1420,16 @@ FLUSH_ICACHE(c_addr,u);
 return (Label *)n;
 
 (system)	c_addr u -- wretval wior	gforth	peren_system
+#ifndef MSDOS
 int old_tp=terminal_prepped;
 deprep_terminal();
+#endif
 wretval=system(cstr(c_addr,u,1)); /* ~ expansion on first part of string? */
 wior = IOR(wretval==-1 || (wretval==127 && errno != 0));
+#ifndef MSDOS
 if (old_tp)
   prep_terminal();
+#endif
 
 getenv	c_addr1 u1 -- c_addr2 u2	gforth
 c_addr2 = getenv(cstr(c_addr1,u1,1));

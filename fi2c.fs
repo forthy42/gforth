@@ -84,7 +84,7 @@ Variable bitmap-chars
     image-header 3 cells + @ bswap tcell @ / tchars @ * .08x ;
 
 : .relocsize ( -- )
-    bitmap-chars @ tchars @ / .08x ;
+    bitmap-chars @ 1- tchars @ / 1+ .08x ;
 
 : fi2c ( addr u -- )  base @ >r hex
     read-image

@@ -47,11 +47,12 @@
 #define PRIM_VERSION 1
 /* increment this whenever the primitives change in an incompatible way */
 
+#ifndef DEFAULTPATH
+#  define DEFAULTPATH "."
+#endif
+
 #ifdef MSDOS
 jmp_buf throw_jmp_buf;
-#  ifndef DEFAULTPATH
-#    define DEFAULTPATH "."
-#  endif
 #endif
 
 #if defined(DIRECT_THREADED) 
@@ -307,7 +308,7 @@ int go_forth(Address image, int stack, Cell *entries)
   for(;stack>0;stack--)
     *--sp=entries[stack-1];
 
-#if !defined(MSDOS) && !defined(_WIN32) && !defined(__EMX__)
+#if !defined(MSDOS) && !defined(SHARC) && !defined(_WIN32) && !defined(__EMX__)
   get_winsize();
 #endif
    
