@@ -321,16 +321,12 @@ Cell *rp;
 Xt *primtable(Label symbols[], Cell size)
      /* used in primitive primtable for peephole optimization */
 {
-#ifdef DIRECT_THREADED
-  return symbols;
-#else /* !defined(DIRECT_THREADED) */
   Xt *xts = (Xt *)malloc(size*sizeof(Xt));
   Cell i;
 
   for (i=0; i<size; i++)
     xts[i] = &symbols[i];
   return xts;
-#endif /* !defined(DIRECT_THREADED) */
 }
 
 

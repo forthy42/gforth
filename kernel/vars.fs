@@ -192,9 +192,10 @@ AUser dpp		normal-dp dpp !
 AUser LastCFA
 AUser Last
 
-AUser last-compiled \ address of the last compiled xt
-                    \ 0 if last xt cannot be combined (basic block boundary)
+AUser last-compiled \ last compile,d xt
+                    \ 0 if last xt was dyn-compiled already (basic-block-end)
 0 last-compiled !
+AUser last-compiled-here \ where LAST-COMPILED should be stored
 
 has? peephole  [IF]
 0 value peeptable \ initialized in boot

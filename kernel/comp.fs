@@ -210,11 +210,20 @@ defer compile, ( xt -- )	\ core-ext	compile-comma
 ' , is compile,
 [THEN]
 
+defer basic-block-end ( -- )
+
+: bb-end ( -- )
+    0 last-compiled ! ;
+' bb-end is basic-block-end
+
 has? peephole [IF]
-: peephole-compile, ( xt -- )
-    \ compile xt, appending its code to the current dynamic superinstruction
-    compile-prim , ;
+
+\ dynamic only    
+\  : peephole-compile, ( xt -- )
+\      \ compile xt, appending its code to the current dynamic superinstruction
+\      compile-prim , ;
     
+\ static only
 \  : peephole-compile, ( xt -- )
 \      \ compile xt, possibly combining it with the previous compiled xt
 \      \ into a superinstruction (static superinstructions)
@@ -226,6 +235,29 @@ has? peephole [IF]
 \      here last-compiled !
 \      dyn-compile, ;
 
+: dyn-compile! ( xt -- )
+    \ compile xt, appending its code to the current dynamic superinstruction
+    compile-prim last-compiled-here @ ! ;
+
+:noname ( -- )
+    last-compiled @ if
+	last-compiled @ dyn-compile!
+	0 last-compiled !
+    then ;
+is basic-block-end
+
+: static-compile, ( xt -- )
+    \ compile xt, possibly combining it with the previous compiled xt
+    \ into a superinstruction (static superinstructions)
+    last-compiled @ ?dup if
+	over peeptable peephole-opt ?dup if ( xt comb-xt )
+	    last-compiled ! drop EXIT
+	then ( xt )
+	last-compiled @ dyn-compile!
+    then ( xt )
+    last-compiled !
+    here last-compiled-here ! 0 , ;
+    
 : compile-to-prims, ( xt -- )
     \G compile xt to use primitives (and their peephole optimization)
     \G instead of ","-ing the xt.
@@ -243,7 +275,7 @@ has? peephole [IF]
 	ENDOF
 	dofield: OF >body @ POSTPONE lit+ , EXIT ENDOF
     ENDCASE
-    peephole-compile, ;
+    static-compile, ;
 
 ' compile-to-prims, IS compile,
 [ELSE]
@@ -559,7 +591,7 @@ defer ;-hook ( sys2 -- sys1 )
     \ common factor of : and :noname
     docol: cfa,
 [THEN]
-    0 last-compiled ! defstart ] :-hook ;
+    defstart ] :-hook ;
 
 : : ( "name" -- colon-sys ) \ core	colon
     Header (:noname) ;

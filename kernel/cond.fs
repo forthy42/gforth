@@ -111,7 +111,7 @@ variable backedge-locals
  cs-push-orig 0 , ;
 : >resolve    ( addr -- )
     here over - swap !
-    0 last-compiled ! ;
+    basic-block-end ;
 : <resolve    ( addr -- )        here - , ;
 
 : BUT
@@ -158,7 +158,7 @@ Defer begin-like ( -- )
 
 : BEGIN ( compilation -- dest ; run-time -- ) \ core
     begin-like cs-push-part dest
-    0 last-compiled ! ; immediate restrict
+    basic-block-end ; immediate restrict
 
 Defer again-like ( dest -- addr )
 ' nip IS again-like
@@ -302,12 +302,13 @@ Defer exit-like ( -- )
 ' noop IS exit-like
 
 : EXIT ( compilation -- ; run-time nest-sys -- ) \ core
-    \G Return to the calling definition; usually used as a way of
-    \G forcing an early return from a definition. Before
-    \G @code{EXIT}ing you must clean up the return stack and
-    \G @code{UNLOOP} any outstanding @code{?DO}...@code{LOOP}s.
+\G Return to the calling definition; usually used as a way of
+\G forcing an early return from a definition. Before
+\G @code{EXIT}ing you must clean up the return stack and
+\G @code{UNLOOP} any outstanding @code{?DO}...@code{LOOP}s.
     exit-like
     POSTPONE ;s
+    basic-block-end
     POSTPONE unreachable ; immediate restrict
 
 : ?EXIT ( -- ) ( compilation -- ; run-time nest-sys f -- | nest-sys ) \ gforth
