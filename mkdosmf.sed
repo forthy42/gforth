@@ -55,7 +55,7 @@ s%main-fast%main-f%g
 s%@OSCLASS@%dos%g
 s%@machine@%386%g
 s%@PACKAGE_VERSION@%0.5.9%g
-s%@EXE@%.exe%g
+s%@EXEEXT@%.exe%g
 s%--die-on-signal%-s%g
 s%cd engine && $(MAKE)%$(MAKE) -C engine%g
 s%\(CFLAGS2.*\) -O4%\1%g

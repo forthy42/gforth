@@ -37,7 +37,7 @@ DOSVERSION=`echo $(VERSION)|sed 's/\.//g'|sed 's/-.*//g'`
 
 machine=@machine@
 kernel_fi=@kernel_fi@
-EXE=@EXE@
+EXE=@EXEEXT@
 
 # this is the type of machine
 # used to extend the include path with ./arch/$machine

@@ -22,7 +22,7 @@
 
 VERSION =@PACKAGE_VERSION@
 DOSVERSION=`echo $VERSION|sed 's/\.//g'`
-EXE=@EXE@
+EXE=@EXEEXT@
 
 # ------------- System specific variables
 

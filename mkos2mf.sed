@@ -67,7 +67,7 @@ s%"'%\\""%g
 s%@OSCLASS@%dos%g
 s%@machine@%386%g
 s%@PACKAGE_VERSION@%0.5.9%g
-s%@EXE@%.exe%g
+s%@EXEEXT@%.exe%g
 s%engine/$@%engine\\$@%g
 s%gforthmi gforth\$(EXE)%gforthmi.cmd gforth\$(EXE)%g
 s%if test -r $@ && test x'$(VERSION)' = x`cat $@` ; then true ; else echo $(VERSION) > $@ ; fi%echo $(VERSION) > $@%g
