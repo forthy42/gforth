@@ -349,10 +349,10 @@ new-locals-map mappedwordlist Constant new-locals-wl
 variable old-dpp
 
 \ and now, finally, the user interface words
-: { ( -- lastxt wid 0 ) \ gforth open-brace
+: { ( -- latestxt wid 0 ) \ gforth open-brace
     dp old-dpp !
     locals-dp dpp !
-    lastxt get-current
+    latestxt get-current
     get-order new-locals-wl swap 1+ set-order
     also locals definitions locals-types
     0 TO locals-wordlist
@@ -360,7 +360,7 @@ variable old-dpp
 
 locals-types definitions
 
-: } ( lastxt wid 0 a-addr1 xt1 ... -- ) \ gforth close-brace
+: } ( latestxt wid 0 a-addr1 xt1 ... -- ) \ gforth close-brace
     \ ends locals definitions
     ] old-dpp @ dpp !
     begin
@@ -489,7 +489,7 @@ forth definitions
 : locals-:-hook ( sys -- sys addr xt n )
     \ addr is the nfa of the defined word, xt its xt
     DEFERS :-hook
-    last @ lastcfa @
+    latest latestxt
     clear-leave-stack
     0 locals-size !
     locals-buffer locals-dp !

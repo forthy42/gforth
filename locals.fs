@@ -35,10 +35,10 @@ Variable locals  here locals !  100 ( some) cells allot
 
 : <local ( -- sys1 )  current @ @ loffset @ locals @
   over 0= IF  postpone  ralign  THEN  ;                 immediate
-: local: ( -- )  postpone >r  last @ lastcfa @ here locals @ dp !
+: local: ( -- )  postpone >r  latest latestxt here locals @ dp !
   cell loffset +! Create  loffset @ , immediate (local
   here locals !  dp !  lastcfa ! last ! ;               immediate
-: flocal: ( -- )  last @ lastcfa @ here locals @ dp !
+: flocal: ( -- )  latest latestxt here locals @ dp !
   BEGIN  loffset @ 0 1 floats fm/mod drop  WHILE
          0 postpone Literal postpone >r  1 cells  loffset +!  REPEAT
   postpone f>r  Create  loffset @ , immediate (flocal

@@ -113,11 +113,12 @@ has? rom
 : threaded>name ( ca -- nt|0 )
     threaded>xt prim>name ;
 
-: >head ( cfa -- nt|0 ) \ gforth to-head
-    \G tries to find the name token nt of the word represented by cfa;
-    \G returns 0 if it fails.  This word is not absolutely reliable,
-    \G it may give false positives and produce wrong nts.
+: >name ( xt -- nt|0 ) \ gforth to-name
+    \G tries to find the name token @var{nt} of the word represented
+    \G by @var{xt}; returns 0 if it fails.  This word is not
+    \G absolutely reliable, it may give false positives and produce
+    \G wrong nts.
     look and ;
 
-' >head ALIAS >name \ gforth to-name
-\G old name of @code{>head}
+' >name ALIAS >head \ gforth to-head
+\G another name of @code{>name}

@@ -157,13 +157,21 @@ has? OS [IF]
 : noname ( -- ) \ gforth
     \g The next defined word will be anonymous. The defining word will
     \g leave the input stream alone. The xt of the defined word will
-    \g be given by @code{lastxt}.
+    \g be given by @code{latestxt}.
     ['] noname-header IS (header) ;
 
-: lastxt ( -- xt ) \ gforth
+: latestxt ( -- xt ) \ gforth
     \G @i{xt} is the execution token of the last word defined.
     \ The main purpose of this word is to get the xt of words defined using noname
     lastcfa @ ;
+
+' latestxt alias lastxt \ gforth-obsolete
+\G old name for @code{latestxt}.
+
+: latest ( -- nt ) \ gforth
+\G @var{nt} is the name token of the last word defined; it is 0 if the
+\G last word has no name.
+    last @ ;
 
 \ \ literals							17dec92py
 
@@ -289,7 +297,7 @@ has? peephole [IF]
 [THEN]
 
 : !does    ( addr -- ) \ gforth	store-does
-    lastxt does-code! ;
+    latestxt does-code! ;
 
 : (does>)  ( R: addr -- )
     r> cfaligned /does-handler + !does ;
@@ -351,7 +359,7 @@ has? peephole [IF]
 
 : recurse ( compilation -- ; run-time ?? -- ?? ) \ core
     \g Call the current definition.
-    lastxt compile, ; immediate restrict
+    latestxt compile, ; immediate restrict
 
 \ \ compiler loop
 
@@ -409,7 +417,7 @@ has? peephole [IF]
 : lastflags ( -- c-addr )
     \ the address of the flags byte in the last header
     \ aborts if the last defined word was headerless
-    last @ dup 0= abort" last word was headerless" cell+ ;
+    latest dup 0= abort" last word was headerless" cell+ ;
 
 : immediate ( -- ) \ core
     \G Make the compilation semantics of a word be to @code{execute}
@@ -609,7 +617,7 @@ defer ;-hook ( sys2 -- sys1 )
 \ \ Search list handling: reveal words, recursive		23feb93py
 
 : last?   ( -- false / nfa nfa )
-    last @ ?dup ;
+    latest ?dup ;
 
 : (reveal) ( nt wid -- )
     wordlist-id dup >r

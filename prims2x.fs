@@ -608,7 +608,7 @@ wordlist constant type-names \ this is here just to meet the requirement
     get-current type-names set-current
     stack-type 2dup nextname stack-type-name
     set-current
-    stack-pointer lastxt >body stack-name nextname make-stack ;
+    stack-pointer latestxt >body stack-name nextname make-stack ;
 
 stack inst-stream IP Cell
 ' inst-in-index inst-stream stack-in-index-xt !

@@ -183,7 +183,7 @@ VARIABLE Unnest
     ' NestXT IF EXIT THEN (debug) Leave-D ;
 
 : break:, ( -- )
-  lastxt postpone literal ;
+  latestxt postpone literal ;
 
 : (break:)
     r> ['] (_debug) >body >r ;

@@ -42,11 +42,11 @@
 vocabulary ans-report-words ans-report-words definitions
 
 : wordset ( "name" -- )
-    lastxt >body
+    latestxt >body
     create
     0 , \ link to next wordset
     0 0 2, \ array of nfas
-    ( lastlinkp ) last @ swap ! \ set link ptr of last wordset
+    ( lastlinkp ) latest swap ! \ set link ptr of last wordset
 ;
 
 wordlist constant wordsets wordsets set-current

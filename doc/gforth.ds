@@ -5958,29 +5958,29 @@ words:
 
 doc-noname
 @cindex execution token of last defined word
-doc-lastxt
+doc-latestxt
 
 @noindent
 The previous example can be rewritten using @code{noname} and
-@code{lastxt}:
+@code{latestxt}:
 
 @example
 Defer deferred
 noname : ( ... -- ... )
   ... ;
-lastxt IS deferred
+latestxt IS deferred
 @end example
 
 @noindent
 @code{noname} works with any defining word, not just @code{:}.
 
-@code{lastxt} also works when the last word was not defined as
+@code{latestxt} also works when the last word was not defined as
 @code{noname}.  It does not work for combined words, though.  It also has
 the useful property that is is valid as soon as the header for a
 definition has been built. Thus:
 
 @example
-lastxt . : foo [ lastxt . ] ; ' foo .
+latestxt . : foo [ latestxt . ] ; ' foo .
 @end example
 
 @noindent
@@ -6038,7 +6038,7 @@ make a call to @code{stats}. You can define and use a new version of
 : stats ( xt -- ) DUP ." (Gathering statistics for " . ." )"
   ... ;  \ other code
 
-: my: : lastxt postpone literal ['] stats compile, ;
+: my: : latestxt postpone literal ['] stats compile, ;
 
 my: foo + - ;
 @end example
@@ -6050,11 +6050,11 @@ When @code{foo} is defined using @code{my:} these steps occur:
 @code{my:} is executed.
 @item
 The @code{:} within the definition (the one between @code{my:} and
-@code{lastxt}) is executed, and does just what it always does; it parses
+@code{latestxt}) is executed, and does just what it always does; it parses
 the input stream for a name, builds a dictionary header for the name
 @code{foo} and switches @code{state} from interpret to compile.
 @item
-The word @code{lastxt} is executed. It puts the @i{xt} for the word that is
+The word @code{latestxt} is executed. It puts the @i{xt} for the word that is
 being defined -- @code{foo} -- onto the stack.
 @item
 The code that was produced by @code{postpone literal} is executed; this
@@ -6394,7 +6394,7 @@ An alternative would have been to write this using
 : @var{inst-format} ( entry-num "name" -- )
   here name string, ( entry-num c-addr ) \ parse and save "name"
   noname create , ( entry-num )
-  lastxt swap cells @var{table} + !
+  latestxt swap cells @var{table} + !
 does> ( addr w -- )
   \ disassemble instruction w at addr
   @@ >r 
@@ -6429,7 +6429,7 @@ does> ( u "inst" -- )
     \ and enters it as u-th entry into table-xt
     2@@ swap here name string, ( u table-xt disasm-xt c-addr ) \ remember string
     noname create 2,      \ define anonymous word
-    execute lastxt swap ! \ enter xt of defined word into table-xt
+    execute latestxt swap ! \ enter xt of defined word into table-xt
 does> ( addr w -- )
     \ disassemble instruction w at addr
     2@@ >r ( addr w disasm-xt R: c-addr )
@@ -6897,10 +6897,10 @@ semantics).  You might get what you want by using @code{COMP' @i{word}
 DROP} or @code{[COMP'] @i{word} DROP} (for details @pxref{Compilation
 token}).
 
-Another way to get an XT is @code{:noname} or @code{lastxt}
+Another way to get an XT is @code{:noname} or @code{latestxt}
 (@pxref{Anonymous Definitions}).  For anonymous words this gives an xt
 for the only behaviour the word has (the execution semantics).  For
-named words, @code{lastxt} produces an XT for the same behaviour it
+named words, @code{latestxt} produces an XT for the same behaviour it
 would produce if the word was defined anonymously.
 
 @example
@@ -6954,13 +6954,26 @@ doc-postpone,
 @subsection Name token
 
 @cindex name token
+Gforth represents named words by the @dfn{name token}, (@i{nt}).  Name
+token is an abstract data type that occurs as argument or result of the
+words below.
+
+@c !! put this elswhere?
 @cindex name field address
 @cindex NFA
-Gforth represents named words by the @dfn{name token}, (@i{nt}). In
-Gforth, the abstract data type @emph{name token} is implemented as a
-name field address (NFA).
+The closest thing to the nt in older Forth systems is the name field
+address (NFA), but there are significant differences: in older Forth
+systems each word had a unique NFA, LFA, CFA and PFA (in this order, or
+LFA, NFA, CFA, PFA) and there were words for getting from one to the
+next.  In contrast, in Gforth 0@dots{}n nts correspond to one xt; there
+is a link field in the structure identified by the name token, but
+searching usually uses a hash table external to these structures; the
+name in Gforth has a cell-wide count-and-flags field, and the nt is not
+implemented as the address of that count field.
 
 doc-find-name
+doc-latest
+doc->name
 doc-name>int
 doc-name?int
 doc-name>comp
@@ -11604,7 +11617,7 @@ is given in a comment before the instruction.
 because the recognition of the end of the code is unreliable.  You can
 use @code{disasm} if it did not display enough.  It may display more, if
 the code word is not immediately followed by a named word.  If you have
-something else there, you can follow the word with @code{align last @ ,}
+something else there, you can follow the word with @code{align latest ,}
 to ensure that the end is recognized.
 
 @node 386 Assembler, Alpha Assembler, Common Disassembler, Assembler and Code Words
@@ -13395,8 +13408,8 @@ Not implemented (yet).
 The word is entered into the word list that was the compilation word list
 at the start of the definition. Any changes to the name field (e.g.,
 @code{immediate}) or the code field (e.g., when executing @code{DOES>})
-are applied to the latest defined word (as reported by @code{last} or
-@code{lastxt}), if possible, irrespective of the compilation word list.
+are applied to the latest defined word (as reported by @code{latest} or
+@code{latestxt}), if possible, irrespective of the compilation word list.
 
 @item search order empty (@code{previous}):
 @cindex @code{previous}, search order empty

@@ -35,10 +35,10 @@ vocabulary assembler ( -- ) \ tools-ext
 
 : (;code) ( -- ) \ gforth
     \ execution semantics of @code{;code}
-    r> lastxt code-address! ;
+    r> latestxt code-address! ;
 
 :noname ( -- colon-sys )
-    align here lastxt code-address!
+    align here latestxt code-address!
     defstart init-asm ;
 :noname ( colon-sys1 -- colon-sys2 )	\ tools-ext	semicolon-code
     ( create the [;code] part of a low level defining word )
@@ -48,6 +48,6 @@ interpret/compile: ;code ( compilation. colon-sys1 -- colon-sys2 )	\ tools-ext	s
 
 : end-code ( colon-sys -- )	\ gforth	end_code
     ( end a code definition )
-    lastxt here over - flush-icache
+    latestxt here over - flush-icache
     previous ?struc reveal ;
 

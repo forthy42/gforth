@@ -91,10 +91,10 @@ create tags-line 128 chars allot
     \ if the input is from a file and it is not a local name
     source-id dup 0<> swap -1 <> and	\ input from a file
     current @ locals-list <> and	\ not a local name
-    last @ 0<> and	\ not an anonymous (i.e. noname) header
+    latest 0<> and	\ not an anonymous (i.e. noname) header
     if
 	tags-file-id >r 
-	last @ name>string r@ write-file throw
+	latest name>string r@ write-file throw
 	#tab r@ emit-file throw
 	r@ put-load-file-name
 	s" /^" r@ write-file throw

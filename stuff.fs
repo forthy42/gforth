@@ -106,7 +106,7 @@ AUser CSP
     POSTPONE (const-does>)
     POSTPONE ;
     noname : POSTPONE rdrop
-    lastxt r> cell+ ! \ patch the literal
+    latestxt r> cell+ ! \ patch the literal
 ; immediate
 
 \ !! rewrite slurp-file using slurp-fid

@@ -721,7 +721,7 @@ Defer discode ( addr u -- ) \ gforth
     >name ?dup-if
 	." IS " .name cr
     else
-	." lastxt >body !"
+	." latestxt >body !"
     then ;
 : see-threaded ( addr -- )
     C-Pass @ DebugMode = IF
@@ -773,7 +773,7 @@ Defer discode ( addr u -- ) \ gforth
     ENDCASE ;
 
 : (xt-see-xt) ( xt -- )
-    xt-see cr ." lastxt" ;
+    xt-see cr ." latestxt" ;
 ' (xt-see-xt) is xt-see-xt
 
 : (.immediate) ( xt -- )

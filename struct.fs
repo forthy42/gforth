@@ -29,7 +29,7 @@
     \ a field that makes no change
     \ to enable accessing the offset with "['] <field> >body @" this
     \ is not implemented with "['] noop alias"
-    last @
+    latest
     if
 	immediate
     then

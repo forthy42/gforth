@@ -26,32 +26,32 @@
 
 noname create
 does> abort" interpreting word without interpretation semantics" ;
-lastxt >does-code
+latestxt >does-code
 does> abort" compiling word without compilation semantics" ;
-lastxt >does-code
+latestxt >does-code
 constant no-compilation-does-code
 constant no-interpretation-does-code
 
 : create-interpret/compile ( "name" -- ) \ gforth
     0 0 interpret/compile:
-    here lastxt interpret/compile-comp !
+    here latestxt interpret/compile-comp !
     no-compilation-does-code here does-code!
     [ 0 >body ] literal allot
-    here lastxt interpret/compile-int !
+    here latestxt interpret/compile-int !
     no-interpretation-does-code here does-code!
     [ 0 >body ] literal allot ; \ restrict?
 
 : fix-does-code ( addr ret-addr -- )
-    lastxt [ interpret/compile-struct %size ] literal + >r
-    lastxt interpret/compile?
-    lastxt interpret/compile-int @ r@ >body = and
-    lastxt interpret/compile-comp @ r> = and
+    latestxt [ interpret/compile-struct %size ] literal + >r
+    latestxt interpret/compile?
+    latestxt interpret/compile-int @ r@ >body = and
+    latestxt interpret/compile-comp @ r> = and
     0= abort" not created with create-interpret/compile"
     cell+ cell+ maxaligned /does-handler + \ to does-code
     swap @ does-code! ;
 
 : (interpretation>) ( -- )
-    lastxt interpret/compile-int r@ fix-does-code ;
+    latestxt interpret/compile-int r@ fix-does-code ;
 
 : interpretation> ( compilation. -- orig colon-sys ) \ gforth
     POSTPONE (interpretation>) POSTPONE ahead
@@ -62,7 +62,7 @@ constant no-interpretation-does-code
     POSTPONE then ; immediate restrict
 
 : (compilation>) ( -- )
-    lastxt interpret/compile-comp r@ fix-does-code ;
+    latestxt interpret/compile-comp r@ fix-does-code ;
 
 : compilation> ( compilation. -- orig colon-sys ) \ gforth
     POSTPONE (compilation>) POSTPONE ahead

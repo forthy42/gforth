@@ -94,14 +94,14 @@ create description-buffer 4096 chars allot
 : make-doc ( -- )
     get-current documentation set-current
     create
-	last @ name>string skip-prefix 2,		\ name
+	latest name>string skip-prefix 2,		\ name
 	[char] ) parse save-mem 2,	\ stack-effect
 	bl sword condition-wordset 2,	\ wordset
 	bl sword dup	\ pronounciation
 	if
 	    condition-pronounciation
 	else
-	    2drop last @ name>string skip-prefix
+	    2drop latest name>string skip-prefix
 	endif
 	2,
 	get-description save-mem 2,
