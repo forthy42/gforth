@@ -88,7 +88,7 @@ ans-report-words definitions
 
 table constant answords answords set-current
 warnings @ warnings off
-include answords.fs
+include ./answords.fs
 warnings !
 ans-report-words definitions
 
