@@ -154,6 +154,7 @@ personal machines. This manual corresponds to version @value{VERSION}.
 * Error messages::              How to interpret them
 * Tools::                       Programming tools
 * ANS conformance::             Implementation-defined options etc.
+* Standard vs Extensions::      Should I use extensions?
 * Model::                       The abstract machine of Gforth
 * Integrating Gforth::          Forth as scripting language for applications
 * Emacs and Gforth::            The Gforth Mode
@@ -170,16 +171,11 @@ personal machines. This manual corresponds to version @value{VERSION}.
 
 @detailmenu --- The Detailed Node Listing ---
 
-Goals of Gforth
-
-* Gforth Extensions Sinful?::
-
 Gforth Environment
 
 * Invoking Gforth::             Getting in
 * Leaving Gforth::              Getting out
 * Command-line editing::        
-* Upper and lower case::        
 * Environment variables::       that affect how Gforth starts up
 * Gforth Files::                What gets installed and where
 * Startup speed::               When 35ms is not fast enough ...
@@ -236,18 +232,19 @@ An Introduction to ANS Forth
 Forth Words
 
 * Notation::                    
-* Comments::
-* Boolean Flags::
+* Case insensitivity::          
+* Comments::                    
+* Boolean Flags::               
 * Arithmetic::                  
 * Stack Manipulation::          
 * Memory::                      
 * Control Structures::          
 * Defining Words::              
-* Interpretation and Compilation Semantics::
+* Interpretation and Compilation Semantics::  
 * Tokens for Words::            
-* The Text Interpreter::
-* Word Lists::                   
-* Environmental Queries::
+* The Text Interpreter::        
+* Word Lists::                  
+* Environmental Queries::       
 * Files::                       
 * Blocks::                      
 * Other I/O::                   
@@ -257,9 +254,9 @@ Forth Words
 * Locals::                      
 * Structures::                  
 * Object-oriented Forth::       
-* Passing Commands to the OS::
-* Keeping track of Time::
-* Miscellaneous Words::
+* Passing Commands to the OS::  
+* Keeping track of Time::       
+* Miscellaneous Words::         
 
 Arithmetic
 
@@ -993,56 +990,9 @@ change. It certainly has not yet become a de facto standard, but it
 appears to be quite popular. It has some similarities to and some
 differences from previous models. It has some powerful features, but not
 yet everything that we envisioned. We certainly have achieved our
-execution speed goals (@pxref{Performance}).  It is free and available
-on many machines.
-
-@menu
-* Gforth Extensions Sinful?::
-@end menu
-
-@node Gforth Extensions Sinful?,  , Goals, Goals
-@comment node-name,     next,           previous, up
-@section Is it a Sin to use Gforth Extensions?
-@cindex Gforth extensions
-
-If you've been paying attention, you will have realised that there is an
-ANS (American National Standard) for Forth. As you read through the rest
-of this manual, you will see documentation for @i{Standard} words, and
-documentation for some appealing Gforth @i{extensions}. You might ask
-yourself the question: @i{``Given that there is a standard, would I be
-committing a sin if I use (non-Standard) Gforth extensions?''}
-
-The answer to that question is somewhat pragmatic and somewhat
-philosophical. Consider these points:
-
-@itemize @bullet
-@item
-A number of the Gforth extensions can be implemented in ANS Forth using
-files provided in the @file{compat/} directory. These are mentioned in
-the text in passing.
-@item
-Forth has a rich historical precedent for programmers taking advantage
-of implementation-dependent features of their tools (for example,
-relying on a knowledge of the dictionary structure). Sometimes these
-techniques are necessary to extract every last bit of performance from
-the hardware, sometimes they are just a programming shorthand.
-@item
-The best way to break the rules is to know what the rules are. To learn
-the rules, there is no substitute for studying the text of the Standard
-itself. In particular, Appendix A of the Standard (@var{Rationale})
-provides a valuable insight into the thought processes of the technical
-committee.
-@item
-The best reason to break a rule is because you have to; because it's
-more productive to do that, because it makes your code run fast enough
-or because you can see no Standard way to achieve what you want to
-achieve.
-@end itemize
-
-The tool @file{ans-report.fs} (@pxref{ANS Report}) makes it easy to
-analyse your program and determine what non-Standard definitions it
-relies upon.
-
+execution speed goals (@pxref{Performance})@footnote{However, in 1998
+the bar was raised when the major commercial Forth vendors switched to
+native code compilers.}.  It is free and available on many machines.
 
 @c ******************************************************************
 @node Gforth Environment, Tutorial, Goals, Top
@@ -1056,7 +1006,6 @@ material in this chapter.
 * Invoking Gforth::             Getting in
 * Leaving Gforth::              Getting out
 * Command-line editing::        
-* Upper and lower case::        
 * Environment variables::       that affect how Gforth starts up
 * Gforth Files::                What gets installed and where
 * Startup speed::               When 35ms is not fast enough ...
@@ -1109,8 +1058,8 @@ Loads the Forth image @i{file} instead of the default
 @cindex --appl-image, command-line option
 @item --appl-image @i{file}
 Loads the image @i{file} and leaves all further command-line arguments
-to the image (instead of processing them as options).  This is useful
-for building executable application images on Unix, built with
+to the image (instead of processing them as engine options).  This is
+useful for building executable application images on Unix, built with
 @code{gforthmi --application ...}.
 
 @cindex --path, command-line option
@@ -1254,7 +1203,7 @@ doc-bye
 
 
 @comment ----------------------------------------------
-@node Command-line editing, Upper and lower case, Leaving Gforth, Gforth Environment
+@node Command-line editing, Environment variables, Leaving Gforth, Gforth Environment
 @section Command-line editing
 @cindex command-line editing
 
@@ -1291,8 +1240,11 @@ line.
 @key{TAB} to step through all possible full-word completions of the word
 currently being typed.
 @item
-@kbd{Ctrl-d} at the start of the line to terminate Gforth (gracefully,
-using @code{bye}).
+@kbd{Ctrl-d} on an empty line line to terminate Gforth (gracefully,
+using @code{bye}). 
+@item
+@kbd{Ctrl-x} (or @code{Ctrl-d} on a non-empty line) to delete the
+character under the cursor.
 @end itemize
 
 When editing, displayable characters are inserted to the left of the
@@ -1324,43 +1276,8 @@ periodically, if necessary.
 @comment chosen?
 
 
-
 @comment ----------------------------------------------
-@node Upper and lower case, Environment variables, Command-line editing, Gforth Environment
-@section Upper and lower case
-@cindex case-sensitivity
-@cindex upper and lower case
-
-Gforth is case-insensitive; you can enter definitions and invoke
-Standard words using upper, lower or mixed case (however,
-@pxref{core-idef, Implementation-defined options, Implementation-defined
-options}).
-
-ANS Forth only @i{requires} implementations to recognise Standard words
-when they are typed entirely in upper case. Therefore, a Standard
-program must use upper case for all Standard words. You can use whatever
-case you like for words that you define, but in a Standard program you
-have to use the words in the same case that you defined them.
-
-Gforth supports case sensitivity through @code{table}s (case-sensitive
-wordlists, @pxref{Word Lists}).
-
-Two people have asked how to convert Gforth to be case-sensitive; while
-we think this is a bad idea, you can change all wordlists into tables
-like this:
-
-@example
-' table-find forth-wordlist wordlist-map @ !
-@end example
-
-Note that you now have to type the predefined words in the same case
-that we defined them, which are varying.  You may want to convert them
-to your favourite case before doing this operation (I won't explain how,
-because if you are even contemplating doing this, you'd better have
-enough knowledge of Forth systems to know this already).
-
-@comment ----------------------------------------------
-@node Environment variables, Gforth Files, Upper and lower case, Gforth Environment
+@node Environment variables, Gforth Files, Command-line editing, Gforth Environment
 @section Environment variables
 @cindex environment variables
 
@@ -1453,7 +1370,7 @@ result, @code{gforth-static -e bye} takes about 17.1ms user and
 8.2ms system time.
 
 The next step to improve startup speed is to use a non-relocatable image
-(@xref{Non-Relocatable Image Files}).  You can create this image with
+(@pxref{Non-Relocatable Image Files}).  You can create this image with
 @code{gforth -e "savesystem gforthnr.fi bye"} and later use it with
 @code{gforth -i gforthnr.fi ...}.  This avoids the relocation overhead
 and a part of the copy-on-write overhead.  The disadvantage is that the
@@ -1574,7 +1491,7 @@ error, check if you have put spaces wherever necessary.
 ."hello, world"  \ gives an "Undefined word" error
 @end example
 
-Gforth and most other Forth systems ignores differences in case (it is
+Gforth and most other Forth systems ignore differences in case (they are
 case-insensitive), i.e., @samp{word} is the same as @samp{Word}.  If
 your system is case-sensitive, you may have to type all the examples
 given here in upper case.
@@ -1861,6 +1778,14 @@ In Gforth @code{see} shows you a reconstruction of the source code from
 the executable code.  Informations that were present in the source, but
 not in the executable code, are lost (e.g., comments).
 
+You can also decompile the predefined words:
+
+@example
+see .
+see +
+@end example
+
+
 @node Stack-Effect Comments Tutorial, Types Tutorial, Decompilation Tutorial, Tutorial
 @section Stack-Effect Comments
 
@@ -1883,7 +1808,7 @@ any).
 The stack effect of @code{swap} can be written like this: @code{x1 x2 --
 x2 x1}.  Describe the stack effect of @code{-}, @code{drop}, @code{dup},
 @code{over}, @code{rot}, @code{nip}, and @code{tuck}.  Hint: When you
-are done, you can compare your stack effects to this in this manual
+are done, you can compare your stack effects to those in this manual
 (@pxref{Word Index}).
 @endassignment
 
@@ -2014,10 +1939,11 @@ code, try to define meaningful factors for the word, and define the word
 in terms of those.  Even if a factor contains only two words, it is
 often helpful.
 
-Good factoring is not easy, and even experienced Forth programmers often
-don't find the right solution right away, but only when rewriting the
-program.  So, if you don't come up with a good solution immediately,
-keep trying, don't despair.
+Good factoring is not easy, and it takes some practice to get the knack
+for it; but even experienced Forth programmers often don't find the
+right solution right away, but only when rewriting the program.  So, if
+you don't come up with a good solution immediately, keep trying, don't
+despair.
 
 @c example !!
 
@@ -2026,7 +1952,7 @@ keep trying, don't despair.
 @section Designing the stack effect
 
 In other languages you can use an arbitrary order of parameters for a
-function; and since ther is only one result, you don't have to deal with
+function; and since there is only one result, you don't have to deal with
 the order of results, either.
 
 In Forth (and other stack-based languages, e.g., Postscript) the
@@ -2076,6 +2002,7 @@ be quite high, and frequent use makes it easier to remember an
 unconventional order).
 
 @c example !! structure package
+
 
 @node Local Variables Tutorial, Conditional execution Tutorial, Designing the stack effect Tutorial, Tutorial
 @section Local Variables
@@ -2221,7 +2148,7 @@ You can convert a zero/non-zero flag into a canonical flag with
 1 0<> .
 @end example
 
-You can use the all-bits-set feature of canonicasl flags and the bitwise
+You can use the all-bits-set feature of canonical flags and the bitwise
 operation of the Boolean operations to avoid @code{if}s:
 
 @example
@@ -2361,8 +2288,21 @@ deciding whether to enter the loop).
 Write a definition for computing the nth Fibonacci number.
 @endassignment
 
-!! +DO...+LOOP
-!! -DO...-LOOP
+You can also use increments other than 1:
+
+@example
+: up2 ( n1 n2 -- )
+  +do
+    i .
+  2 +loop ;
+10 0 up2
+
+: down2 ( n1 n2 -- )
+  -do
+    i .
+  2 -loop ;
+0 10 down2
+@end example
 
 
 @node Recursion Tutorial, Leaving definitions or loops Tutorial, Counted loops Tutorial, Tutorial
@@ -2440,6 +2380,7 @@ before the @code{EXIT}:
  ... ;
 @end example
 
+@c !! example
 
 @node Return Stack Tutorial, Memory Tutorial, Leaving definitions or loops Tutorial, Tutorial
 @section Return Stack
@@ -2520,18 +2461,28 @@ v .
 v @@ .
 @end example
 
-You can also reserve more memory:
+You can see a raw dump of memory with @code{dump}:
+
+@example
+v 1 cells .s dump
+@end example
+
+@code{Cells ( n1 -- n2 )} gives you the number of bytes (or, more
+generally, address units (aus)) that @code{n1 cells} occupy.  You can
+also reserve more memory:
 
 @example
 create v2 20 cells allot
+v2 20 cells dump
 @end example
 
-creates a word @code{v2} and reserves 20 cells; the address pushed by
-@code{v2} points to the start of these 20 cells.  You can use address
-arithmetic to access these cells:
+creates a word @code{v2} and reserves 20 uninitialized cells; the
+address pushed by @code{v2} points to the start of these 20 cells.  You
+can use address arithmetic to access these cells:
 
 @example
 3 v2 5 cells + !
+v2 20 cells dump
 @end example
 
 You can reserve and initialize memory with @code{,}:
@@ -2542,6 +2493,7 @@ create v3
 v3 @@ .
 v3 cell+ @@ .
 v3 2 cells + @@ .
+v3 5 cells dump
 @end example
 
 @assignment
@@ -2588,9 +2540,10 @@ free throw
 
 The @code{throw}s deal with errors (e.g., out of memory).
 
-And there is also a garbage collector
-@url{http://www.complang.tuwien.ac.at/forth/garbage-collection.zip},
-which eliminates the need to @code{free} memory explicitly.
+And there is also a
+@uref{http://www.complang.tuwien.ac.at/forth/garbage-collection.zip,
+garbage collector}, which eliminates the need to @code{free} memory
+explicitly.
 
 
 @node Characters and Strings Tutorial, Alignment Tutorial, Memory Tutorial, Tutorial
@@ -2604,6 +2557,7 @@ require their own words for memory access:
 create v4 
   104 c, 97 c, 108 c, 108 c, 111 c,
 v4 4 chars + c@@ .
+v4 5 chars dump
 @end example
 
 The preferred representation of strings on the stack is @code{addr
@@ -4242,18 +4196,19 @@ the exercises in a .fs file in the distribution.
 
 @menu
 * Notation::                    
-* Comments::
-* Boolean Flags::
+* Case insensitivity::          
+* Comments::                    
+* Boolean Flags::               
 * Arithmetic::                  
 * Stack Manipulation::          
 * Memory::                      
 * Control Structures::          
 * Defining Words::              
-* Interpretation and Compilation Semantics::
+* Interpretation and Compilation Semantics::  
 * Tokens for Words::            
-* The Text Interpreter::
-* Word Lists::                   
-* Environmental Queries::
+* The Text Interpreter::        
+* Word Lists::                  
+* Environmental Queries::       
 * Files::                       
 * Blocks::                      
 * Other I/O::                   
@@ -4263,12 +4218,12 @@ the exercises in a .fs file in the distribution.
 * Locals::                      
 * Structures::                  
 * Object-oriented Forth::       
-* Passing Commands to the OS::
-* Keeping track of Time::
-* Miscellaneous Words::
+* Passing Commands to the OS::  
+* Keeping track of Time::       
+* Miscellaneous Words::         
 @end menu
 
-@node Notation, Comments, Words, Words
+@node Notation, Case insensitivity, Words, Words
 @section Notation
 @cindex notation of glossary entries
 @cindex format of glossary entries
@@ -4389,7 +4344,41 @@ is a blank by default. If it is not a blank, it is shown in @code{<>}
 quotes.
 @end table
 
-@node Comments, Boolean Flags, Notation, Words
+@comment ----------------------------------------------
+@node Case insensitivity, Comments, Notation, Words
+@section Case insensitivity
+@cindex case sensitivity
+@cindex upper and lower case
+
+Gforth is case-insensitive; you can enter definitions and invoke
+Standard words using upper, lower or mixed case (however,
+@pxref{core-idef, Implementation-defined options, Implementation-defined
+options}).
+
+ANS Forth only @i{requires} implementations to recognise Standard words
+when they are typed entirely in upper case. Therefore, a Standard
+program must use upper case for all Standard words. You can use whatever
+case you like for words that you define, but in a Standard program you
+have to use the words in the same case that you defined them.
+
+Gforth supports case sensitivity through @code{table}s (case-sensitive
+wordlists, @pxref{Word Lists}).
+
+Two people have asked how to convert Gforth to be case-sensitive; while
+we think this is a bad idea, you can change all wordlists into tables
+like this:
+
+@example
+' table-find forth-wordlist wordlist-map @ !
+@end example
+
+Note that you now have to type the predefined words in the same case
+that we defined them, which are varying.  You may want to convert them
+to your favourite case before doing this operation (I won't explain how,
+because if you are even contemplating doing this, you'd better have
+enough knowledge of Forth systems to know this already).
+
+@node Comments, Boolean Flags, Case insensitivity, Words
 @section Comments
 @cindex comments
 
@@ -8886,12 +8875,12 @@ ax.  Immediate values are indicated by postfixing them with @code{#},
 e.g., @code{3 #}.  Here are some examples of addressing modes:
 
 @example
-3 #
-ax
-100 di d)
-4 bx cx di)
-di ax *4 i)
-20 ax *4 i#)
+3 #          \ immediate
+ax           \ register
+100 di d)    \ 100[edi]
+4 bx cx di)  \ 4[ebx][ecx]
+di ax *4 i)  \ [edi][eax*4]
+20 ax *4 i#) \ 20[eax*4]
 @end example
 
 Some example of instructions are:
@@ -8924,14 +8913,24 @@ Immediate to memory is not supported.  The shift/rotate syntax is:
 Precede string instructions (@code{movs} etc.) with @code{.b} to get
 the byte version.
 
-The control structure words @code{IF} @code{UNTIL} etc. must be
-preceded by one of these conditions: 
-@code{vs vc u< u>= 0= 0<> u<= u> 0< 0>= ps pc < >= <= >}. (Note that most 
-of these words shadow some Forth words when @code{assembler} is before
-@code{forth} in the search path, e.g., in code words).  Currently the
-control structure words use one stack item, so you have to use
-@code{roll} instead of @code{cs-roll} to shuffle them (you can also use
-@code{swap} etc.).
+The control structure words @code{IF} @code{UNTIL} etc. must be preceded
+by one of these conditions: @code{vs vc u< u>= 0= 0<> u<= u> 0< 0>= ps
+pc < >= <= >}. (Note that most of these words shadow some Forth words
+when @code{assembler} is in front of @code{forth} in the search path,
+e.g., in @code{code} words).  Currently the control structure words use
+one stack item, so you have to use @code{roll} instead of @code{cs-roll}
+to shuffle them (you can also use @code{swap} etc.).
+
+Here is an example of a @code{code} word (assumes that the stack pointer
+is in esi and the TOS is in ebx):
+
+@example
+code my+ ( n1 n2 -- n )
+    4 si D) bx add
+    4 # si add
+    Next
+end-code
+@end example
 
 @node Alpha Assembler, MIPS assembler, 386 Assembler, Assembler and Code Words
 @subsection Alpha Assembler
@@ -11584,7 +11583,7 @@ compilation semantics of @code{S"}, it is a Core word; if you also use
 its interpretation semantics, it is a File word.
 
 @c ******************************************************************
-@node ANS conformance, Model, Tools, Top
+@node ANS conformance, Standard vs Extensions, Tools, Top
 @chapter ANS conformance
 @cindex ANS conformance of Gforth
 
@@ -12929,7 +12928,91 @@ are applied to the latest defined word (as reported by @code{last} or
 @end table
 
 @c ***************************************************************
-@node Model, Integrating Gforth, ANS conformance, Top
+@node Standard vs Extensions, Model, ANS conformance, Top
+@chapter Should I use Gforth extensions?
+@cindex Gforth extensions
+
+As you read through the rest of this manual, you will see documentation
+for @i{Standard} words, and documentation for some appealing Gforth
+@i{extensions}. You might ask yourself the question: @i{``Should I
+restrict myself to the standard, or should I use the extensions?''}
+
+The answer depends on the goals you have for the program you are working
+on:
+
+@itemize @bullet
+
+@item Is it just for yourself or do you want to share it with others?
+
+@item
+If you want to share it, do the others all use Gforth?
+
+@item
+If it is just for yourself, do you want to restrict yourself to Gforth?
+
+@end itemize
+
+If restricting the program to Gforth is ok, then there is no reason not
+to use extensions.  It is still a good idea to keep to the standard
+where it is easy, in case you want to reuse these parts in another
+program that you want to be portable.
+
+If you want to be able to port the program to other Forth systems, there
+are the following points to consider:
+
+@itemize @bullet
+
+@item
+Most Forth systems that are being maintained support the ANS Forth
+standard.  So if your program complies with the standard, it will be
+portable among many systems.
+
+@item
+A number of the Gforth extensions can be implemented in ANS Forth using
+public-domain files provided in the @file{compat/} directory. These are
+mentioned in the text in passing.  There is no reason not to use these
+extensions, your program will still be ANS Forth compliant; just include
+the appropriate compat files with your program.
+
+@item
+The tool @file{ans-report.fs} (@pxref{ANS Report}) makes it easy to
+analyse your program and determine what non-Standard words it relies
+upon.  However, it does not check whether you use standard words in a
+non-standard way.
+
+@item
+Some techniques are not standardized by ANS Forth, and are hard or
+impossible to implement in a standard way, but can be implemented in
+most Forth systems easily, and usually in similar ways (e.g., accessing
+word headers).  Forth has a rich historical precedent for programmers
+taking advantage of implementation-dependent features of their tools
+(for example, relying on a knowledge of the dictionary
+structure). Sometimes these techniques are necessary to extract every
+last bit of performance from the hardware, sometimes they are just a
+programming shorthand.
+
+@item
+Does using a Gforth extension save more work than the porting this part
+to other Forth systems (if any) will cost?
+
+@item
+Is the additional functionality worth the reduction in portability and
+the additional porting problems?
+
+@end itemize
+
+In order to perform these consideratios, you need to know what's
+standard and what's not.  This manual generally states if something is
+non-standard, but the authoritative source is the standard document.
+Appendix A of the Standard (@var{Rationale}) provides a valuable insight
+into the thought processes of the technical committee.
+
+Note also that portability between Forth systems is not the only
+portability issue; there is also the issue of portability between
+different platforms (processor/OS combinations).
+
+@c ***************************************************************
+@node Model, Integrating Gforth, Standard vs Extensions, Top
 @chapter Model
 
 This chapter has yet to be written. It will contain information, on
