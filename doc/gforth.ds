@@ -2805,8 +2805,8 @@ Create line-buffer  max-line 2 + allot
 @end example
 
 @code{read-line ( addr u1 fd -- u2 flag ior )} reads up to u1 bytes into
-the buffer at addr, and returns the number of bytes read, a flag that's
-true when the end of file is reached, and an error code.
+the buffer at addr, and returns the number of bytes read, a flag that is
+false when the end of file is reached, and an error code.
 
 @code{compare ( addr1 u1 addr2 u2 -- n )} compares two strings and
 returns zero if both strings are equal. It returns a positive number if

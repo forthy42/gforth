@@ -1608,7 +1608,7 @@ if (wior)
   clearerr((FILE *)wfileid);
 
 read-line	( c_addr u1 wfileid -- u2 flag wior )	file	read_line
-""this is only for backward compatibility""
+/* this may one day be replaced with : read-line (read-line) nip ; */
 Cell c;
 flag=-1;
 for(u2=0; u2<u1; u2++)

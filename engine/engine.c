@@ -544,5 +544,6 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
   }
   NEXT;
 
+#define LABEL(name) I_##name
 #include "prim.i"
 }
