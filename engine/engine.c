@@ -256,11 +256,12 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
 
   if (ip == NULL) {
 #if defined(DOUBLY_INDIRECT)
-#define MAX_SYMBOLS 1000
+#define MAX_SYMBOLS (sizeof(routines)/sizeof(routines[0]))
+#define CODE_OFFSET (22*sizeof(Cell))
     int i;
-    Cell code_offset = offset_image? 22*sizeof(Cell) : 0;
+    Cell code_offset = offset_image? CODE_OFFSET : 0;
 
-    symbols = (Label *)(malloc(MAX_SYMBOLS*sizeof(Cell)+code_offset)+code_offset);
+    symbols = (Label *)(malloc(MAX_SYMBOLS*sizeof(Cell)+CODE_OFFSET)+code_offset);
     for (i=0; i<DOESJUMP+1; i++)
       symbols[i] = (Label)routines[i];
     for (; routines[i]!=0; i++) {
