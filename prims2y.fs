@@ -201,6 +201,7 @@ struct%
 end-struct ss% \ stack-state
 
 struct%
+    cell%              field state-number
     cell% max-stacks * field state-sss
 end-struct state%
 
@@ -209,6 +210,7 @@ create stacks max-stacks cells allot \ array of stacks
 256 constant max-registers
 create registers max-registers cells allot \ array of registers
 variable nregisters 0 nregisters ! \ number of registers
+variable next-state-number 0 next-state-number ! \ next state number
 
 : stack-in-index ( in-size item -- in-index )
     item-offset @ - 1- ;
@@ -290,8 +292,7 @@ variable in-part \ true if processing a part
  in-part off
 0 value state-in  \ state on entering prim
 0 value state-out \ state on exiting prim
-0 value state-in-default  \ state on entering prim
-0 value state-out-default \ state on exiting prim
+0 value state-default  \ canonical state at bb boundaries
 
 : prim-context ( ... p xt -- ... )
     \ execute xt with prim set to p
@@ -705,9 +706,10 @@ stack inst-stream IP Cell
 
 : state ( "name" -- )
     \ create a state initialized with default-sss
-    create state% %allot state-sss { sss }
+    create state% %allot { s }
+    next-state-number @ s state-number ! 1 next-state-number +!
     max-stacks 0 ?do
-	default-ss sss i th !
+	default-ss s state-sss i th !
     loop ;
 
 : set-ss ( ss stack state -- )
@@ -1328,7 +1330,7 @@ variable reprocessed-num 0 reprocessed-num !
     primitives search-wordlist 0= -13 and throw execute ;
 
 : state-prim1 { in-state out-state prim -- }
-    in-state out-state state-in-default state-out-default d= ?EXIT
+    in-state out-state state-default dup d= ?EXIT
     in-state  to state-in
     out-state to state-out
     prim reprocess-simple ;
@@ -1361,12 +1363,12 @@ variable reprocessed-num 0 reprocessed-num !
 : prim-states ( "name" -- )
     parse-word lookup-prim gen-prim-states ;
 
-: gen-branch-states ( out-state prim -- )
-    \ generate versions that produce out-state; useful for branches
-    to prim { out-state }
+: gen-branch-states ( prim -- )
+    \ generate versions that produce state-default; useful for branches
+    to prim
     cache-states 2@ swap { states } ( nstates )
     cache-stack stack-in @ +do
-	states i th @ out-state prim state-prim1
+	states i th @ state-default prim state-prim1
     loop ;
 
 : branch-states ( out-state "name" -- )
@@ -1537,7 +1539,9 @@ variable offset-super2  0 offset-super2 ! \ offset into the super2 table
 : output-costs-prefix ( -- )
     ." {" prim compute-costs
     rot 2 .r ." ," swap 2 .r ." ," 2 .r ." , "
-    prim prim-branch? negate . ." ," ;
+    prim prim-branch? negate . ." ,"
+    state-in  state-number @ 2 .r ." ,"
+    state-out state-number @ 2 .r ." ," ;
 
 : output-costs-gforth-simple ( -- )
     output-costs-prefix
