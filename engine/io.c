@@ -32,6 +32,11 @@
 #define _POSIX_VERSION
 #endif
 
+#if !defined(Solaris) && defined(sun) && defined(__svr4__)
+#define Solaris
+typedef unsigned int uint32_t;
+#endif
+
 #include <stdio.h>
 #include <signal.h>
 #include <string.h>
