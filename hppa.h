@@ -1,9 +1,13 @@
 /*
-  $Id: hppa.h,v 1.5 1994-12-12 17:10:39 anton Exp $
+  $Id: hppa.h,v 1.6 1994-12-14 16:15:28 anton Exp $
   Copyright 1992 by the ANSI figForth Development Group
 
   This is the machine-specific part for a HPPA running HP-UX
 */
+
+#if !defined(USE_TOS) && !defined(USE_NO_TOS)
+#define USE_TOS
+#endif
 
 #ifndef INDIRECT_THREADED
 #ifndef DIRECT_THREADED

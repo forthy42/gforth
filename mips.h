@@ -3,6 +3,14 @@
 
   This is the machine-specific part for MIPS R[2346810]000 processors
 */
+
+#if !defined(USE_TOS) && !defined(USE_NO_TOS)
+/* on the mips this is a mixed blessing, since defining this spills
+   the rp with some gcc versions. This machine has 31 regs, yet that's
+   not enough for gcc-2.4.5 :-( */
+#define USE_TOS
+#endif
+
 /* cache flush stuff */
 
 #ifndef INDIRECT_THREADED

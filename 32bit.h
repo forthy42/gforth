@@ -22,6 +22,19 @@ typedef double DFloat;
 /* the IEEE single precision type */
 typedef float SFloat;
 
+#ifndef USE_FTOS
+#ifndef USE_NO_FTOS
+/* keep top of FP stack in register. Since most processors have FP
+   registers and they are hardly used in gforth, this is usually a
+   good idea.  The 88100 has no separate FP regs, but many general
+   purpose regs, so it should be ok */
+#define USE_FTOS
+#endif
+#endif
+/* I don't do the same for the data stack (i.e. USE_TOS), since this
+   loses on processors with few registers. USE_TOS might be defined in
+   the processor-specific files */
+
 #ifdef DIRECT_THREADED
 /* If you want direct threading, write a .h file for your processor! */
 /* We could put some stuff here that causes a compile error, but then

@@ -83,13 +83,14 @@ AC_PROG_LN_S
 AC_PROG_INSTALL
 
 dnl Checks for library functions
+dnl This check is just for making later checks link with libm.
+dnl using sin here is no good idea since it is built-into gcc and typechecked
+AC_CHECK_LIB(m,asin)
 AC_FUNC_MEMCMP
 AC_REPLACE_FUNCS(memmove strtoul)
 AC_CHECK_FUNC(getopt_long,getop_long="",getopt_long="getopt.o getopt1.o")
 AC_SUBST(getopt_long)
-dnl This check is just for making later checks link with libm.
-AC_CHECK_LIB(m,sin)
-AC_CHECK_FUNCS(rint)
+AC_CHECK_FUNCS(rint expm1 log1p)
 AC_REPLACE_FUNCS(ecvt)
 dnl No check for select, because our replacement is no good under
 dnl anything but DOS

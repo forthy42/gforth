@@ -671,6 +671,45 @@ test -z "$INSTALL_PROGRAM" && INSTALL_PROGRAM='${INSTALL}'
 test -z "$INSTALL_DATA" && INSTALL_DATA='${INSTALL} -m 644'
 
 
+echo $ac_n "checking for -lm""... $ac_c" 1>&4
+if eval "test \"`echo '${'ac_cv_lib_m'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&4
+else
+  ac_save_LIBS="$LIBS"
+LIBS="$LIBS -lm "
+cat > conftest.$ac_ext <<EOF
+#line 682 "configure"
+#include "confdefs.h"
+
+int main() { return 0; }
+int t() {
+asin()
+; return 0; }
+EOF
+if eval $ac_link; then
+  rm -rf conftest*
+  eval "ac_cv_lib_m=yes"
+else
+  rm -rf conftest*
+  eval "ac_cv_lib_m=no"
+fi
+rm -f conftest*
+LIBS="$ac_save_LIBS"
+
+fi
+if eval "test \"`echo '$ac_cv_lib_'m`\" = yes"; then
+  echo "$ac_t""yes" 1>&4
+    ac_tr_lib=HAVE_LIB`echo m | tr '[a-z]' '[A-Z]'`
+  cat >> confdefs.h <<EOF
+#define $ac_tr_lib 1
+EOF
+
+  LIBS="$LIBS -lm"
+
+else
+  echo "$ac_t""no" 1>&4
+fi
+
 echo $ac_n "checking for 8-bit clean memcmp""... $ac_c" 1>&4
 if eval "test \"`echo '${'ac_cv_func_memcmp'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&4
@@ -679,7 +718,7 @@ else
   ac_cv_func_memcmp=no
 else
 cat > conftest.$ac_ext <<EOF
-#line 683 "configure"
+#line 722 "configure"
 #include "confdefs.h"
 
 main()
@@ -708,7 +747,7 @@ if eval "test \"`echo '${'ac_cv_func_$ac_func'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&4
 else
   cat > conftest.$ac_ext <<EOF
-#line 712 "configure"
+#line 751 "configure"
 #include "confdefs.h"
 #include <ctype.h> /* Arbitrary system header to define __stub macros. */
 /* Override any gcc2 internal prototype to avoid an error.  */
@@ -753,7 +792,7 @@ if eval "test \"`echo '${'ac_cv_func_getopt_long'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&4
 else
   cat > conftest.$ac_ext <<EOF
-#line 757 "configure"
+#line 796 "configure"
 #include "confdefs.h"
 #include <ctype.h> /* Arbitrary system header to define __stub macros. */
 /* Override any gcc2 internal prototype to avoid an error.  */
@@ -792,46 +831,7 @@ getopt_long="getopt.o getopt1.o"
 fi
 
 
-echo $ac_n "checking for -lm""... $ac_c" 1>&4
-if eval "test \"`echo '${'ac_cv_lib_m'+set}'`\" = set"; then
-  echo $ac_n "(cached) $ac_c" 1>&4
-else
-  ac_save_LIBS="$LIBS"
-LIBS="$LIBS -lm "
-cat > conftest.$ac_ext <<EOF
-#line 803 "configure"
-#include "confdefs.h"
-
-int main() { return 0; }
-int t() {
-sin()
-; return 0; }
-EOF
-if eval $ac_link; then
-  rm -rf conftest*
-  eval "ac_cv_lib_m=yes"
-else
-  rm -rf conftest*
-  eval "ac_cv_lib_m=no"
-fi
-rm -f conftest*
-LIBS="$ac_save_LIBS"
-
-fi
-if eval "test \"`echo '$ac_cv_lib_'m`\" = yes"; then
-  echo "$ac_t""yes" 1>&4
-    ac_tr_lib=HAVE_LIB`echo m | tr '[a-z]' '[A-Z]'`
-  cat >> confdefs.h <<EOF
-#define $ac_tr_lib 1
-EOF
-
-  LIBS="$LIBS -lm"
-
-else
-  echo "$ac_t""no" 1>&4
-fi
-
-for ac_func in rint
+for ac_func in rint expm1 log1p
 do
 echo $ac_n "checking for $ac_func""... $ac_c" 1>&4
 if eval "test \"`echo '${'ac_cv_func_$ac_func'+set}'`\" = set"; then

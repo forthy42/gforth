@@ -1159,7 +1159,7 @@ r2 = exp(r1);
 
 fexpm1		r1 -- r2	float-ext
 r2 =
-#ifdef HAS_EXPM1
+#ifdef HAVE_EXPM1
 	expm1(r1);
 #else
 	exp(r1)-1;
@@ -1170,7 +1170,7 @@ r2 = log(r1);
 
 flnp1		r1 -- r2	float-ext
 r2 =
-#ifdef HAS_LOG1P
+#ifdef HAVE_LOG1P
 	log1p(r1);
 #else
 log(r1+1);
