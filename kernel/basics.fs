@@ -276,8 +276,12 @@ is throw
     sp@ sp0 @ swap - cell / ;
 
 : clearstack ( ... -- ) \ gforth clear-stack
-    \G remove and discard all/any items from the data stack.
+\G remove and discard all/any items from the data stack.
     sp0 @ sp! ;
+
+: clearstacks ( ... -- ) \ gforth clear-stacks
+\G empty data and FP stack
+    clearstack fp0 @ fp! ;
 
 \ Strings						 22feb93py
 

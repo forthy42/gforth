@@ -754,10 +754,6 @@ Defer .status
 
 : (quit) ( -- )
     \ exits only through THROW etc.
-\    sp0 @ cell - handler @ &12 + ! \ !! kludge: fix the stack pointer
-    \ stored in the system's CATCH frame, so the stack depth will be 0
-    \ after the next THROW it catches (it may be off due to BOUNCEs or
-    \ because process-args left something on the stack)
     BEGIN
 	.status
 	['] cr catch if
@@ -905,15 +901,18 @@ Defer dobacktrace ( -- )
     [ has? new-input 0= [IF] ] >tib @ >r [ [THEN] ]
     BEGIN
 	[ has? compiler [IF] ]
-	[compile] [
+	    [compile] [
 	[ [THEN] ]
+	\ stack depths may be arbitrary here
 	['] 'quit CATCH dup
     WHILE
-	<# \ reset hold area, or we may get another error
-	DoError
-	[ has? new-input [IF] ] clear-tibstack
-	[ [ELSE] ] r@ >tib ! r@ tibstack !
-	[ [THEN] ]
+	    <# \ reset hold area, or we may get another error
+	    DoError
+	    \ stack depths may be arbitrary still (or again), so clear them
+	    clearstacks
+	    [ has? new-input [IF] ] clear-tibstack
+	    [ [ELSE] ] r@ >tib ! r@ tibstack !
+	    [ [THEN] ]
     REPEAT
     drop [ has? new-input [IF] ] clear-tibstack
     [ [ELSE] ] r> >tib !

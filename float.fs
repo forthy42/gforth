@@ -221,9 +221,3 @@ set-current
     ELSE
 	fnegate f~rel
     THEN ;
-
-: f.s ( -- ) \ gforth f-dot-s
-    \G Display the number of items on the floating-point stack,
-    \G followed by a list of the items; TOS is the right-most item.
-    ." <" fdepth 0 .r ." > " fdepth 0 max maxdepth-.s @ min dup 0 
-    ?DO  dup i - 1- floats fp@ + f@ f.  LOOP  drop ; 
