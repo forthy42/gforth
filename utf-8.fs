@@ -62,8 +62,7 @@ $80 Value maxascii
 
 \ scan to next/previous character
 
-: u8>> ( u8addr -- u8addr' )  $80 >r
-    BEGIN  count r> and maxascii <> $C0 >r  UNTIL  rdrop ;
+: u8>> ( u8addr -- u8addr' )  u8@+ drop ;
 : u8<< ( u8addr -- u8addr' )
     BEGIN  1- dup c@ $C0 and maxascii <>  UNTIL ;
 
