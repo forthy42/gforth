@@ -395,7 +395,7 @@ VARIABLE C-Pass
 
 : c-does>               \ end of create part
         Display? IF S" DOES> " Com# .string THEN
-        Cell+ cell+ ;
+	maxaligned /does-handler + ;
 
 : c-abort"
         count 2dup + aligned -rot

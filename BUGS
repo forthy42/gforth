@@ -16,4 +16,4 @@ not expand "./" or provide a mechanism that allows the application to
 determine what "./" should expand to. anton 16jun98
 
 ": foo create c, does> c@ ; see foo" displays a number after DOES> on
-i386, direct threaded. Marcel Hendrix 23nov98
+i386, direct threaded. Marcel Hendrix 23nov98 -- fixed Bernd Paysan 27nov98
