@@ -55,7 +55,7 @@ void install_signal_handler(int sig, void (*handler)(int, siginfo_t *, void *))
 
   action.sa_sigaction=handler;
   sigemptyset(&action.sa_mask);
-  action.sa_flags=SA_RESTART|SA_SIGINFO; /* pass siginfo */
+  action.sa_flags=SA_RESTART|SA_NODEFER|SA_SIGINFO; /* pass siginfo */
   sigaction(sig, &action, NULL);
 }
 #endif
