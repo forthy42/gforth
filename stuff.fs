@@ -129,3 +129,38 @@ AUser CSP
     repeat
     - + dup >r resize throw r> ;
 
+\ ]] ... [[
+
+: compile-literal ( n -- )
+    postpone literal ;
+
+: [[ ( -- )
+\G switch from postpone state to compile state
+    \ this is only a marker; it is never really interpreted
+    compile-only-error ; immediate
+
+: postponer ( c-addr u -- )
+    2dup find-name dup if ( c-addr u nt )
+	nip nip name>comp
+	2dup [comp'] [[ d= if
+	    2drop ['] compiler is parser
+	else
+	    postpone,
+	endif
+    else
+	drop
+	2dup snumber? dup if
+	    0> IF
+		swap postpone literal postpone compile-literal
+	    THEN
+	    postpone Literal postpone compile-literal
+	    2drop
+	ELSE
+	    drop no.extensions
+	THEN
+    then ;
+
+: ]] ( -- )
+    \ switch into postpone state
+    ['] postponer is parser state on ; immediate restrict
+

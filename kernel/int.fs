@@ -286,6 +286,9 @@ $1fffffff constant lcount-mask
 : ticking-compile-only-error ( ... -- )
     -&2048 throw ;
 
+: compile-only-error ( ... -- )
+    -&14 throw ;
+
 : (cfa>int) ( cfa -- xt )
 [ has? compiler [IF] ]
     dup interpret/compile?
@@ -298,7 +301,7 @@ $1fffffff constant lcount-mask
     \ get interpretation semantics of name
     restrict-mask and
     if
-	drop ['] ticking-compile-only-error
+	drop ['] compile-only-error
     else
 	(cfa>int)
     then ;
