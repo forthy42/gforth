@@ -46,9 +46,35 @@ typedef struct F83Name {
 #define F83NAME_SMUDGE(np)	(((np)->countetc & 0x40) != 0)
 #define F83NAME_IMMEDIATE(np)	(((np)->countetc & 0x20) != 0)
 
+/* !!someone should organize this ifdef chaos */
+#if defined(LONG_LATENCY)
+#if defined(AUTO_INCREMENT)
+#define NEXT_P0		(cfa=*ip++)
+#define IP		(ip-1)
+#else /* AUTO_INCREMENT */
+#define NEXT_P0		(cfa=*ip)
+#define IP		ip
+#endif /* AUTO_INCREMENT */
+#define NEXT_INST	(cfa)
+#define INC_IP(const_inc)	({cfa=IP[const_inc]; ip+=(const_inc);})
+#else /* LONG_LATENCY */
 /* NEXT and NEXT1 are split into several parts to help scheduling,
    unless CISC_NEXT is defined */
-#ifdef CISC_NEXT
+#define NEXT_P0
+/* in order for execute to work correctly, NEXT_P0 (or other early
+   fetches) should not update the ip (or should we put
+   compensation-code into execute? */
+#define NEXT_INST	(*ip)
+/* the next instruction (or what is in its place, e.g., an immediate
+   argument */
+#define INC_IP(const_inc)	(ip+=(const_inc))
+/* increment the ip by const_inc and perform NEXT_P0 (or prefetching) again */
+#define IP		ip
+/* the pointer to the next instruction (i.e., NEXT_INST could be
+   defined as *IP) */
+#endif /* LONG_LATENCY */
+
+#if defined(CISC_NEXT) && !defined(LONG_LATENCY)
 #define NEXT1_P1
 #define NEXT_P1
 #define DEF_CA
@@ -58,7 +84,7 @@ typedef struct F83Name {
 #define NEXT1_P2 ({goto **cfa;})
 #endif /* DIRECT_THREADED */
 #define NEXT_P2 ({cfa = *ip++; NEXT1_P2;})
-#else /* CISC_NEXT */
+#else /* defined(CISC_NEXT) && !defined(LONG_LATENCY) */
 #ifdef DIRECT_THREADED
 #define NEXT1_P1
 #define NEXT1_P2 ({goto *cfa;})
@@ -68,9 +94,17 @@ typedef struct F83Name {
 #define NEXT1_P2 ({goto *ca;})
 #define DEF_CA	Label ca;
 #endif /* DIRECT_THREADED */
+#if defined(LONG_LATENCY)
+#if defined(AUTO_INCREMENT)
+#define NEXT_P1 NEXT1_P1
+#else /* AUTO_INCREMENT */
+#define NEXT_P1 ({ip++; NEXT1_P1;})
+#endif /* AUTO_INCREMENT */
+#else /* LONG_LATENCY */
 #define NEXT_P1 ({cfa=*ip++; NEXT1_P1;})
+#endif /* LONG_LATENCY */
 #define NEXT_P2 NEXT1_P2
-#endif /* CISC_NEXT */
+#endif /* defined(CISC_NEXT) && !defined(LONG_LATENCY) */
 
 #define NEXT1 ({DEF_CA NEXT1_P1; NEXT1_P2;})
 #define NEXT ({DEF_CA NEXT_P1; NEXT_P2;})
@@ -200,6 +234,7 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
   IF_TOS(TOS = sp[0]);
   IF_FTOS(FTOS = fp[0]);
   prep_terminal();
+  NEXT_P0;
   NEXT;
   
  docol:
@@ -210,6 +245,7 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
   /* this is the simple version */
   *--rp = (Cell)ip;
   ip = (Xt *)PFA1(cfa);
+  NEXT_P0;
   NEXT;
 #else
   /* this one is important, so we help the compiler optimizing
@@ -226,7 +262,7 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
     NEXT1_P2;
   }
 #endif
-  
+
  docon:
 #ifdef DEBUG
   fprintf(stderr,"%08x: con: %08x\n",(Cell)ip,*(Cell*)PFA1(cfa));
@@ -237,6 +273,7 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
 #else
   *--sp = *(Cell *)PFA1(cfa);
 #endif
+  NEXT_P0;
   NEXT;
   
  dovar:
@@ -249,9 +286,8 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
 #else
   *--sp = (Cell)PFA1(cfa);
 #endif
+  NEXT_P0;
   NEXT;
-  
-  /* !! user? */
   
  douser:
 #ifdef DEBUG
@@ -263,6 +299,7 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
 #else
   *--sp = (Cell)(up+*(Cell*)PFA1(cfa));
 #endif
+  NEXT_P0;
   NEXT;
   
  dodefer:
@@ -303,6 +340,7 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
 #else
   *--sp = (Cell)PFA(cfa);
 #endif
+  NEXT_P0;
   NEXT;
 
 #include "primitives.i"

@@ -86,9 +86,11 @@ noop	--		fig
  ;
 
 lit	-- w		fig
-w = (Cell)*ip++;
+w = (Cell)NEXT_INST;
+INC_IP(1);
 
 execute		xt --		core,fig
+ip=IP;
 cfa = xt;
 IF_TOS(TOS = sp[0]);
 NEXT1;
@@ -96,29 +98,32 @@ NEXT1;
 branch-lp+!#	--	new	branch_lp_plus_store_number
 /* this will probably not be used */
 branch_adjust_lp:
-lp += (Cell)(ip[1]);
+lp += (Cell)(IP[1]);
 goto branch;
 
 branch	--		fig
 branch:
-ip = (Xt *)(((Cell)ip)+(Cell)*ip);
+ip = (Xt *)(((Cell)IP)+(Cell)NEXT_INST);
+NEXT_P0;
 :
  r> dup @ + >r ;
 
 \ condbranch(forthname,restline,code)
-\ this is non-syntactical: code must open a brace that is close by the macro
+\ this is non-syntactical: code must open a brace that is closed by the macro
 define(condbranch,
 $1	$2
-$3	ip = (Xt *)(((Cell)ip)+(Cell)*ip); NEXT;
+$3	ip = (Xt *)(((Cell)IP)+(Cell)NEXT_INST);
+        NEXT_P0;
+	NEXT;
 }
 else
-    ip++;
+    INC_IP(1);
 
 $1-lp+!#	$2_lp_plus_store_number
 $3    goto branch_adjust_lp;
 }
 else
-    ip+=2;
+    INC_IP(2);
 
 )
 
@@ -209,7 +214,7 @@ if (nstart == nlimit) {
     goto branch;
     }
 else {
-    ip++;
+    INC_IP(1);
 }
 
 i	-- n		core,fig
@@ -608,6 +613,7 @@ fp = f_addr;
 
 ;s	--		fig	semis
 ip = (Xt *)(*rp++);
+NEXT_P0;
 
 >r	w --		core,fig	to_r
 *--rp = w;
@@ -1294,7 +1300,8 @@ c2 = toupper(c1);
 
 \ local variable implementation primitives
 @local#		-- w	new	fetch_local_number
-w = *(Cell *)(lp+(Cell)(*ip++));
+w = *(Cell *)(lp+(Cell)NEXT_INST);
+INC_IP(1);
 
 @local0	-- w	new	fetch_local_zero
 w = *(Cell *)(lp+0*sizeof(Cell));
@@ -1309,7 +1316,8 @@ w = *(Cell *)(lp+2*sizeof(Cell));
 w = *(Cell *)(lp+3*sizeof(Cell));
 
 f@local#	-- r	new	f_fetch_local_number
-r = *(Float *)(lp+(Cell)(*ip++));
+r = *(Float *)(lp+(Cell)NEXT_INST);
+INC_IP(1);
 
 f@local0	-- r	new	f_fetch_local_zero
 r = *(Float *)(lp+0*sizeof(Float));
@@ -1319,13 +1327,15 @@ r = *(Float *)(lp+1*sizeof(Float));
 
 laddr#		-- c_addr	new	laddr_number
 /* this can also be used to implement lp@ */
-c_addr = (Char *)(lp+(Cell)(*ip++));
+c_addr = (Char *)(lp+(Cell)NEXT_INST);
+INC_IP(1);
 
 lp+!#	--	new	lp_plus_store_number
 ""used with negative immediate values it allocates memory on the
 local stack, a positive immediate argument drops memory from the local
 stack""
-lp += (Cell)(*ip++);
+lp += (Cell)NEXT_INST;
+INC_IP(1);
 
 lp-	--	new	minus_four_lp_plus_store
 lp += -sizeof(Cell);
