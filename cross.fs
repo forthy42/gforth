@@ -712,6 +712,7 @@ Plugin branchtoresolve, ( branch-addr -- ) \ resolves a forward reference from b
 Plugin branchtomark, ( -- target-addr )	\ marks a branch destination
 
 Plugin colon, ( tcfa -- )		\ compiles call to tcfa at current position
+Plugin xt, ( tcfa -- )			\ compiles xt
 Plugin prim, ( tcfa -- )		\ compiles primitive invocation
 Plugin colonmark, ( -- addr )		\ marks a colon call
 Plugin colon-resolve ( tcfa addr -- )
@@ -1694,9 +1695,10 @@ previous
 >CROSS
 
 : (cc) T a, H ;					' (cc) plugin-of colon,
+: (xt) T a, H ;					' (xt) plugin-of xt,
 : (prim) T a, H ;				' (prim) plugin-of prim,
 
-: (cr) >tempdp ]comp prim, comp[ tempdp> ; 	' (cr) plugin-of colon-resolve
+: (cr) >tempdp ]comp xt, comp[ tempdp> ; 	' (cr) plugin-of colon-resolve
 : (ar) T ! H ;					' (ar) plugin-of addr-resolve
 : (dr)  ( ghost res-pnt target-addr addr )
 	>tempdp drop over 
@@ -1708,7 +1710,7 @@ previous
 
 : (cm) ( -- addr )
     T here align H
-    -1 prim, ;					' (cm) plugin-of colonmark,
+    -1 xt, ;					' (cm) plugin-of colonmark,
 
 >TARGET
 : compile, ( xt -- )
@@ -1800,7 +1802,7 @@ Defer resolve-warning
 
 \ FIXME: not used currently
 : does-resolved ( ghost -- )
-    dup g>body alit, >do:ghost @ g>body colon, ;
+    dup g>body alit, >do:ghost @ g>xt 0 t>body - colon, ;
 
 : (is-forward)   ( ghost -- )
   colonmark, 0 (refered) ; \ compile space for call
@@ -2122,6 +2124,7 @@ Variable aprim-nr -20 aprim-nr !
 : copy-execution-semantics ( ghost-from ghost-dest -- )
   >r
   dup >exec @ r@ >exec !
+  dup >comp @ r@ >comp !
   dup >exec2 @ r@ >exec2 !
   dup >exec-compile @ r@ >exec-compile !
   dup >ghost-xt @ r@ >ghost-xt !
@@ -2168,8 +2171,8 @@ Defer setup-prim-semantics
 Variable prim#
 : first-primitive ( n -- )  prim# ! ;
 : Primitive  ( -- ) \ name
-  >in @ skip? IF  2drop  EXIT  THEN  >in !
-  dup 0< s" prims" T $has? H 0= and
+  >in @ skip? IF  drop  EXIT  THEN  >in !
+  s" prims" T $has? H 0=
   IF
      .sourcepos ." needs prim: " >in @ bl word count type >in ! cr
   THEN
@@ -2465,26 +2468,20 @@ Cond: [ ( -- ) interpreting-state ;Cond
 
 >CROSS
 
-Create GhostDummy ghostheader
-<res> GhostDummy >magic !
+0 Value created
 
 : !does ( does-action -- )
-\ !! zusammenziehen und dodoes, machen!
     tlastcfa @ [G'] :dovar killref
-\    tlastcfa @ dup there >r tdp ! compile :dodoes r> tdp ! T cell+ ! H ;
-\ !! geht so nicht, da dodoes, ghost will!
-    GhostDummy >link ! GhostDummy 
-    tlastcfa @ >tempdp dodoes, tempdp> ;
-
+    >space here >r ghostheader space>
+    r@ created >do:ghost ! r@ swap resolve
+    r> tlastcfa @ >tempdp dodoes, tempdp> ;
 
 Defer instant-interpret-does>-hook
 
 : resolve-does>-part ( -- )
 \ resolve words made by builders
   Last-Header-Ghost @ >do:ghost @ ?dup 
-  IF    there resolve 
-        \ TODO: set special DOES> resolver action here
-  THEN ;
+  IF  there resolve  THEN ;
 
 >TARGET
 Cond: DOES>
@@ -2493,6 +2490,7 @@ Cond: DOES>
         ;Cond
 
 : DOES> switchrom doeshandler, T here H !does 
+  ['] does-resolved created >comp !
   instant-interpret-does>-hook
   depth T ] H ;
 
@@ -2512,7 +2510,6 @@ Cond: DOES>
   ghost to built 
   built >created @ 0= IF
     built >created on
-    ['] prim-resolved built >comp ! 
   THEN ;
 
 : gdoes,  ( ghost -- )
@@ -2532,8 +2529,8 @@ Cond: DOES>
   ;
 
 : takeover-x-semantics ( S constructor-ghost new-ghost -- )
-\g stores execution semantic and compilation semantic in the built word
-   swap >do:ghost @ 
+   \g stores execution semantic and compilation semantic in the built word
+   swap >do:ghost @ 2dup swap >do:ghost !
    \ we use the >exec2 field for the semantic of a created word,
    \ using exec or exec2 makes no difference for normal cross-compilation
    \ but is usefull for instant where the exec field is already
@@ -2545,7 +2542,7 @@ Cond: DOES>
   create-forward-warn
   IF ['] reswarn-forward IS resolve-warning THEN
   executed-ghost @ (Theader
-  dup >created on
+  dup >created on  dup to created
   2dup takeover-x-semantics hereresolve gdoes, ;
 
 : RTCreate ( <name> -- )
@@ -2754,6 +2751,10 @@ T has? peephole H [IF]
 
 >CROSS
 : (callc) compile call T >body a, H ;		' (callc) plugin-of colon,
+: (prim) dup 0< IF  ( $4000 - ) ELSE
+    ." wrong usage of (prim) "
+    dup gdiscover IF  .ghost  ELSE  .  THEN  cr -2 throw  THEN
+    T a, H ;					' (prim) plugin-of prim,
 
 \ if we want this, we have to spilt aconstant
 \ and constant!!
@@ -2768,7 +2769,7 @@ compile: g>body alit, compile @ ;compile
 
 \ this changes also Variable, AVariable and 2Variable
 Builder Create
-\ compile: g>body alit, ;compile
+compile: g>body alit, ;compile
 
 Builder User
 compile: g>body compile useraddr T @ , H ;compile
@@ -2778,6 +2779,15 @@ compile: g>body alit, compile @ compile execute ;compile
 
 Builder (Field)
 compile: g>body T @ H lit, compile + ;compile
+
+Builder interpret/compile:
+compile: does-resolved ;compile
+
+Builder input-method
+compile: does-resolved ;compile
+
+Builder input-var
+compile: does-resolved ;compile
 
 [THEN]
 

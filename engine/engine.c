@@ -312,6 +312,20 @@ Xt *ip;
 Cell *rp;
 #endif
 
+#ifdef DEBUG
+#define CFA_TO_NAME(__cfa) \
+      Cell len, i; \
+      char * name = __cfa; \
+      for(i=0; i<32; i+=sizeof(Cell)) { \
+        len = ((Cell*)name)[-1]; \
+        if(len < 0) { \
+	  len &= 0x1F; \
+          if((len+sizeof(Cell)) > i) break; \
+	} len = 0; \
+	name -= sizeof(Cell); \
+      }
+#endif
+
 Xt *primtable(Label symbols[], Cell size)
 {
 #ifdef DIRECT_THREADED
@@ -426,7 +440,11 @@ define(enginerest,
   {
     DOCFA;
 #ifdef DEBUG
-    fprintf(stderr,"%08lx: col: %08lx\n",(Cell)ip,(Cell)PFA1(cfa));
+    {
+      CFA_TO_NAME(cfa);
+      fprintf(stderr,"%08lx: col: %08lx %.*s\n",(Cell)ip,(Cell)PFA1(cfa),
+	      len,name);
+    }
 #endif
 #ifdef CISC_NEXT
     /* this is the simple version */

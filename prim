@@ -2396,6 +2396,13 @@ xt = peephole_opt(xt1, xt2, wpeeptable);
 
 call	( #a_callee -- R:a_retaddr )	new
 ""Call callee (a variant of docol with inline argument).""
+#ifdef DEBUG
+    {
+      CFA_TO_NAME((((Cell *)a_callee)-2));
+      fprintf(stderr,"%08lx: call %08lx %.*s\n",(Cell)ip,(Cell)a_callee,
+	      len,name);
+    }
+#endif
 a_retaddr = (Cell *)IP;
 SET_IP((Xt *)a_callee);
 

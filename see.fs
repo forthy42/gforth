@@ -271,7 +271,7 @@ VARIABLE C-Pass
     THEN ;
 
 : c-call
-    Display? IF  dup @ body> .word bl cemit  THEN  cell+ ;
+    Display? IF  ." call " dup @ body> .word bl cemit  THEN  cell+ ;
 
 : .name-without ( addr -- addr )
 \ prints a name without () e.g. (+LOOP) or (s")
