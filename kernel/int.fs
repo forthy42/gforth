@@ -100,6 +100,7 @@ const Create bases   10 ,   2 ,   A , 100 ,
     r> ;
 
 : s>unumber? ( addr u -- ud flag )
+    base @ >r  dpl on  getbase
     0. 2swap
     BEGIN ( d addr len )
 	dup >r >number dup
@@ -110,26 +111,26 @@ const Create bases   10 ,   2 ,   A , 100 ,
     WHILE \ the current char is '.'
 	1 /string
     REPEAT  THEN \ there are unparseable characters left
-	rdrop 2drop false
+	2drop false
     ELSE
 	rdrop 2drop true
-    THEN ;
+    THEN
+    r> base ! ;
 
 \ ouch, this is complicated; there must be a simpler way - anton
 : s>number? ( addr len -- d f )
     \ converts string addr len into d, flag indicates success
-    base @ >r  dpl on   sign? >r  getbase
+    sign? >r
     s>unumber?
     0= IF
-        false
+        rdrop false
     ELSE \ no characters left, all ok
 	r>
 	IF
 	    dnegate
 	THEN
 	true
-    THEN
-    r> base ! ;
+    THEN ;
 
 : s>number ( addr len -- d )
     \ don't use this, there is no way to tell success
