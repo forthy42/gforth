@@ -178,7 +178,17 @@ int gforth_memcmp(const char * s1, const char * s2, size_t n)
  * If the word is <CF(DOESJUMP) and bit 14 is set, it's the xt of a primitive
  * If the word is <CF(DOESJUMP) and bit 14 is clear, 
  *                                        it's the threaded code of a primitive
+ * bits 13..9 of a primitive token state which group the primitive belongs to,
+ * bits 8..0 of a primitive token index into the group
  */
+
+static Cell groups[32] = {
+  0,
+#define INST_ADDR(name)
+#define GROUP(x, n) DOESJUMP+1+n,
+#include "prim_lab.i"
+#define GROUP(x, n)
+};
 
 void relocate(Cell *image, const char *bitstring, 
               int size, int base, Label symbols[])
@@ -188,11 +198,12 @@ void relocate(Cell *image, const char *bitstring,
   char bits;
   Cell max_symbols;
   /* 
-   * A virtial start address that's the real start address minus 
+   * A virtual start address that's the real start address minus 
    * the one in the image 
    */
   Cell *start = (Cell * ) (((void *) image) - ((void *) base));
 
+  /* group index into table */
   
 /* printf("relocating to %x[%x] start=%x base=%x\n", image, size, start, base); */
   
@@ -207,9 +218,10 @@ void relocate(Cell *image, const char *bitstring,
       if((i < size) && (bits & (1U << (RELINFOBITS-1)))) {
 	/* fprintf(stderr,"relocate: image[%d]=%d of %d\n", i, image[i], size/sizeof(Cell)); */
         token=image[i];
-	if(token<0)
-	  switch(token|0x4000)
-	    {
+	if(token<0) {
+	  int group = (-token & 0x3E00) >> 9;
+	  if(group == 0) {
+	    switch(token|0x4000) {
 	    case CF_NIL      : image[i]=0; break;
 #if !defined(DOUBLY_INDIRECT)
 	    case CF(DOCOL)   :
@@ -223,7 +235,7 @@ void relocate(Cell *image, const char *bitstring,
 	    case CF(DODOES)  :
 	      MAKE_DOES_CF(image+i,(Xt *)(image[i+1]+((Cell)start)));
 	      break;
-	    default          :
+	    default          : /* backward compatibility */
 /*	      printf("Code field generation image[%x]:=CFA(%x)\n",
 		     i, CF(image[i])); */
 	      if (CF((token | 0x4000))<max_symbols) {
@@ -235,7 +247,22 @@ void relocate(Cell *image, const char *bitstring,
 	      } else
 		fprintf(stderr,"Primitive %d used in this image at $%lx is not implemented by this\n engine (%s); executing this code will crash.\n",CF(token),(long)&image[i],PACKAGE_VERSION);
 	    }
-	else {
+	  } else {
+	    int tok = -token & 0x1FF;
+	    if (tok < (groups[group+1]-groups[group])) {
+#if defined(DOUBLY_INDIRECT)
+	      image[i]=(Cell)CFA(((groups[group]+tok) | (CF(token) & 0x4000)));
+#else
+	      image[i]=(Cell)CFA((groups[group]+tok));
+#endif
+#ifdef DIRECT_THREADED
+	      if ((token & 0x4000) == 0) /* threade code, no CFA */
+		compile_prim1(&image[i]);
+#endif
+	    } else
+	      fprintf(stderr,"Primitive %x, %d of group %d used in this image at $%lx is not implemented by this\n engine (%s); executing this code will crash.\n", -token, tok, group, (long)&image[i],PACKAGE_VERSION);
+	  }
+	} else {
           // if base is > 0: 0 is a null reference so don't adjust
           if (token>=base) {
             image[i]+=(Cell)start;

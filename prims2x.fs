@@ -923,7 +923,7 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
 \      cr ;
 
 : output-label ( -- )  
-    ." INST_ADDR(" prim prim-c-name 2@ type ." )," cr ;
+    ." INST_ADDR(" prim prim-c-name 2@ type ." )" cr ;
 
 : output-alias ( -- ) 
     ( primitive-number @ . ." alias " ) ." Primitive " prim prim-name 2@ type cr ;
@@ -1424,7 +1424,7 @@ Variable c-flag
 (( (( ` g || ` G )) {{ start }} nonl **
    {{ end
       forth-flag @ IF  ." group " type cr  THEN
-      c-flag @     IF  ." GROUP(" type ." )" cr  THEN }}
+      c-flag @     IF  ." GROUP(" type ." , " function-number @ 0 .r ." )" cr  THEN }}
 )) <- group-comment
 
 (( (( eval-comment || forth-comment || c-comment || else-comment || if-comment || group-comment )) ?? nonl ** )) <- comment-body

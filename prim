@@ -818,6 +818,8 @@ lshift	( u1 n -- u2 )		core	l_shift
 :
     0 ?DO 2* LOOP ;
 
+\g compare
+
 \ comparisons(prefix, args, prefix, arg1, arg2, wordsets...)
 define(comparisons,
 $1=	( $2 -- f )		$6	$3equals
@@ -938,8 +940,6 @@ u2=u3); if u1 is in this range, @code{within} returns true.""
 f = FLAG(u1-u2 < u3-u2);
 :
  over - >r - r> u< ;
-
-\g internal
 
 sp@	( -- a_addr )		gforth		sp_fetch
 a_addr = sp+1;
@@ -1091,6 +1091,8 @@ w = sp[u+1];
 
 \ toggle is high-level: 0.11/0.42%
 
+\g memory
+
 @	( a_addr -- w )		core	fetch
 ""@i{w} is the cell stored at @i{a_addr}.""
 w = *a_addr;
@@ -1211,6 +1213,8 @@ u = *c_addr1;
 c_addr2 = c_addr1+1;
 :
  dup 1+ swap c@ ;
+
+\g compiler
 
 (f83find)	( c_addr u f83name1 -- f83name2 )	new	paren_f83find
 for (; f83name1 != NULL; f83name1 = (struct F83Name *)(f83name1->next))
@@ -2023,6 +2027,8 @@ df_addr = (DFloat *)((((Cell)c_addr)+(sizeof(DFloat)-1))&(-sizeof(DFloat)));
 \+
 \+glocals
 
+\g locals
+
 @local#	( #noffset -- w )	gforth	fetch_local_number
 w = *(Cell *)(lp+noffset);
 
@@ -2093,6 +2099,8 @@ r = fp[u+1]; /* +1, because update of fp happens before this fragment */
 \+
 
 \+OS
+
+\g syslib
 
 define(`uploop',
        `pushdef(`$1', `$2')_uploop(`$1', `$2', `$3', `$4', `$5')`'popdef(`$1')')
@@ -2782,5 +2790,7 @@ a_prim = decompile_code(a_code);
 \+
 
 include(peeprules.vmg)
+
+\g end
 
 \+

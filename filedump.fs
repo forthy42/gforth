@@ -19,11 +19,11 @@
 \ along with this program; if not, write to the Free Software
 \ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
 
-Create buffer $10 allot
+Create buf $10 allot
 
 : dumpline ( addr handle -- flag )
-  buffer $10 rot read-file throw
-  dup /dump !  $10 <> swap 6 u.r ." : "  buffer .line cr ;
+  buf $10 rot read-file throw
+  dup /dump !  $10 <> swap 6 u.r ." : "  buf .line cr ;
 
 : init  cr $10 base ! ;
 

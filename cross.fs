@@ -2270,6 +2270,7 @@ Defer setup-prim-semantics
 
 Variable prim#
 : first-primitive ( n -- )  prim# ! ;
+: group 0 word drop prim# @ 1- -$200 and prim# ! ;
 : Primitive  ( -- ) \ name
   >in @ skip? IF  drop  EXIT  THEN  >in !
   s" prims" T $has? H 0=
@@ -3718,7 +3719,6 @@ previous
 : bye           bye ;
 
 \ dummy
-: group 0 word drop ;
 
 \ turnkey direction
 : H forth ; immediate

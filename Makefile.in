@@ -170,7 +170,8 @@ KERN_SRC = \
 	kernel/saccept.fs \
 	kernel/doers.fs \
 	kernel/getdoers.fs \
-	kernel/pass.fs
+	kernel/pass.fs \
+	kernel/groups.fs
 
 EC_SRC = \
 	asm/README \
@@ -368,7 +369,7 @@ GEN = gforth$(EXE) gforth-ditc$(EXE) gforth-fast$(EXE) gforth-itc$(EXE) kernel/v
 FORTH_GEN_ENGINE=engine/prim.i engine/prim_lab.i engine/prim_names.i \
 	engine/prim_superend.i engine/peephole.i engine/profile.i \
 	engine/prim_num.i
-FORTH_GEN0 = prim.b $(FORTH_GEN_ENGINE) kernel/aliases.fs kernel/prim.fs
+FORTH_GEN0 = prim.b $(FORTH_GEN_ENGINE) kernel/aliases.fs kernel/prim.fs kernel/groups.fs
 FORTH_GEN =  $(FORTH_GEN0) @KERNEL@ gforth.fi
 # this is used for antidependences,
 FORTH_GEN1 = $(FORTH_GEN0) @kernel_fi@ 
@@ -555,6 +556,7 @@ check:		gforths	gforth.fi
 		make checkone ENGINE="./gforth-fast --no-dynamic" &>/dev/null
 		make checkone ENGINE="./gforth" &>/dev/null
 		make checkone ENGINE="./gforth-fast" &>/dev/null
+		@echo "*** Check successful ***"
 
 checkone test:	gforth$(EXE) gforth.fi
 		$(FORTH) test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs test/string.fs test/float.fs -e bye | diff -c - $(srcdir)/test/coretest.out
@@ -692,6 +694,9 @@ kernel/prim.fs:	prim.b prims2x.fs kernel/prim0.fs
 		$(FORTHP) prims2x.fs -e "forth-flag on s\" prim.b\" ' output-forth ' output-forth-combined process-file bye" >>$@-
 		$(CP) $@- $@
 		$(RM) $@-
+
+kernel/groups.fs:	engine/prim_lab.i
+	grep GROUP $< | cut -f2 -d, | sed -e 's/)/ ,/g' >$@
 
 engine/prim_num.i:	prim.b prims2x.fs
 		$(FORTHP) prims2x.fs -e "c-flag on s\" prim.b\" ' output-c-prim-num ' noop process-file bye" >$@

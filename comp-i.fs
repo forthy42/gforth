@@ -48,7 +48,18 @@ s" address-unit-bits" environment? drop constant bits/au
 	0 image1 i-field + ! 0 image2 i-field + !
     endif
     base offset ;
-    
+
+Create tag-offsets
+include kernel/groups.fs
+tag-offsets $20 cells + here tuck - dup allot erase
+
+: >tag ( index -- tag )
+    dup dodoes-tag 2 + > IF  dodoes-tag 2 + -
+	$21 1 DO  dup tag-offsets I cells + @ < IF
+		tag-offsets I 1- cells + @ - I 9 lshift + negate
+		UNLOOP  EXIT  THEN  LOOP
+	dodoes-tag 2 + +
+    THEN  -2 swap - ;
 
 : compare-images { image1 image2 reloc-bits size file-id -- }
     \G compares image1 and image2 (of size cells) and sets reloc-bits.
@@ -78,7 +89,7 @@ s" address-unit-bits" environment? drop constant bits/au
 		    dbase negate image1 i 1+ th +!
 		    dbase doffset + negate image2 i 1+ th +!
 		endif
-		-2 tag $4000 or - file-id write-cell throw
+		tag >tag $4000 xor file-id write-cell throw
 		i reloc-bits set-bit
 	    else
 		xoffset 0<> cell1 xoffset + cell2 = and
@@ -91,7 +102,7 @@ s" address-unit-bits" environment? drop constant bits/au
 			dbase negate image1 i 1+ th +!
 			dbase doffset + negate image2 i 1+ th +!
 		    endif
-		    -2 tag - file-id write-cell throw
+		    tag >tag file-id write-cell throw
 		    i reloc-bits set-bit
 		else
 		    cell1 file-id write-cell throw
