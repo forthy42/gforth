@@ -1,4 +1,9 @@
 
+Wordlibs integrate c-functions nicely into forth.
+With the Makefile the .pri files (that look like the prim file)
+are translatet to a library, that can be loaded with the
+code in wordlib.fs.
+
 
 
 
