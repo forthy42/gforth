@@ -60,7 +60,7 @@ dofield: lastxt code-address! \ change the constant into a field
 DOES> ( -- r )
     f@ ;
 
-: fdepth  ( -- n )  f0 @ fp@ - [ 1 floats ] Literal / ;
+: fdepth  ( -- n )  fp0 @ fp@ - [ 1 floats ] Literal / ;
 
 : FLit ( -- r )  r> dup f@ float+ >r ;
 : FLiteral ( r -- )
