@@ -113,6 +113,7 @@ defer header ( -- ) \ gforth
 
 : header, ( c-addr u -- ) \ gforth
     name-too-long?
+    dup max-name-length @ max max-name-length !
     align here last !
     current @ 1 or A,	\ link field; before revealing, it contains the
 			\ tagged reveal-into wordlist

@@ -197,9 +197,12 @@ AUser last-compiled \ last compile,d xt
 0 last-compiled !
 AUser last-compiled-here \ where LAST-COMPILED should be stored
 
-has? peephole  [IF]
-0 value peeptable \ initialized in boot
-[THEN]
+User max-name-length \ maximum length of all names defined yet
+32 max-name-length !
+    
+\  has? peephole  [IF]
+\  0 value peeptable \ initialized in boot
+\  [THEN]
 
 has? glocals [IF]
 User locals-size \ this is the current size of the locals stack
