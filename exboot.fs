@@ -1,4 +1,4 @@
-\ ( n -- ) include exceptions.fs and restart Gforth, ignoring the
+\ ( n -- ) include except.fs and restart Gforth, ignoring the
 \ first n arguments. Gforth is restarted to create an exception frame
 \ for the exception handler.
 
