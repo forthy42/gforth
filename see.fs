@@ -457,9 +457,9 @@ DEFER dosee
          here @ look 0= ABORT" SEE: No valid xt in defered word"
 	 here @ look drop dosee cr
         ." ' " .name r> ." IS " .name cr ;
-: dodoe ." Create " .name cr
-        S" DOES> " Com# .string XPos @ Level !
-        here @ dup C-Pass @ DebugMode = IF ScanMode c-pass ! EXIT THEN
+: dodoe ." Create " dup .name cr
+        S" DOES> " Com# .string XPos @ Level ! name>
+        >does-code dup C-Pass @ DebugMode = IF ScanMode c-pass ! EXIT THEN
         ScanMode c-pass ! dup makepass
         DisplayMode c-pass ! makepass ;
 : doali here @ .name ." Alias " .name cr

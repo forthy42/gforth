@@ -1,6 +1,6 @@
 #Copyright 1992 by the ANSI figForth Development Group
 
-VERSION	= 0.1alpha#gforth version
+VERSION	=#gforth version
 RM	= rm
 CP	= cp
 GCC	= gcc
@@ -33,9 +33,9 @@ FORTH_SRC = add.fs assert.fs ansi.fs blocks.fs bufio.fs checkans.fs \
 SOURCES	= Makefile.in configure  config.sub  config.guess \
 	INSTALL README ToDo BUGS model gforth.ds \
 	primitives engine.c main.c io.c \
-	apollo68k.h decstation.h 386.h hppa.h cache.c sparc.h \
+	apollo68k.h decstation.h 386.h hppa.h cache.c ecvt.c sparc.h \
 	getopt.c getopt1.c getopt.h \
-	makefile.dos io-dos.h configure.bat \
+	makefile.dos io-dos.h configure.bat startup.dos \
 	glosgen.glo glossaries.doc \
 	$(INCLUDES) $(FORTH_SRC)
 
@@ -53,7 +53,7 @@ FORTH_GEN =  primitives.b primitives.i prim_labels.i aliases.fs kernl32l.fi kern
 GEN_PRECIOUS = $(FORTH_GEN) gforth.texi gforth.dvi gforth.ps Makefile
 
 all:
-	if [ ! -x gforth ]; then $(MAKE) first; fi
+	if [ ! -f gforth ]; then $(MAKE) first; fi
 	$(MAKE) more
 
 first:	gforth
@@ -75,7 +75,7 @@ clean:
 		-$(RM) $(GEN) *.o *.s
 
 distclean:	clean
-		-$(RM) machine.h machine.fs
+		-$(RM) machine.h
 
 realclean:	distclean
 		-$(RM) $(GEN_PRECIOUS)
@@ -95,18 +95,21 @@ Makefile:	Makefile.in
 gforth:	$(OBJECTS)
 		-$(CP) gforth gforth~
 		$(GCC) $(LDFLAGS) $(OBJECTS) $(LDLIBS) -o $@
+		@MAKE-EXECUTE@
 
 kernl32l.fi:	main.fs search-order.fs cross.fs aliases.fs vars.fs add.fs \
 		errore.fs kernal.fs extend.fs tools.fs toolsext.fs \
 		mach32l.fs $(FORTH_GEN)
 		-$(CP) kernl32l.fi kernl32l.fi~
 		$(FORTH) -e 's" mach32l.fs"' main.fs
+		@LINK-KERNL32L@
 
 kernl32b.fi:	main.fs search-order.fs cross.fs aliases.fs vars.fs add.fs \
 		errore.fs kernal.fs extend.fs tools.fs toolsext.fs \
 		mach32b.fs $(FORTH_GEN)
 		-$(CP) kernl32b.fi kernl32b.fi~
 		$(FORTH) -e 's" mach32b.fs"' main.fs
+		@LINK-KERNL32B@
 
 engine.s:	engine.c primitives.i prim_labels.i machine.h $(INCLUDES)
 		$(GCC) $(CFLAGS) -S engine.c

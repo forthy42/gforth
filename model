@@ -1,4 +1,4 @@
-$Id: model,v 1.1 1994-02-11 16:30:46 anton Exp $
+$Id: model,v 1.2 1994-11-29 16:22:45 pazsan Exp $
 Copyright 1992 by the ANSI figForth Development Group
 
 This file describes the implementation model of ANSI figForth. The things

@@ -78,6 +78,7 @@ Vocabulary Root
 
 Forth-wordlist @ ' Forth >body A!
 
+vp off  also Root also definitions
 Only Forth also definitions
 
 lookup A! \ our dictionary search order becomes the law

@@ -32,15 +32,12 @@ INCLUDE look.fs
         >code-address ['] s0 >code-address = ;
 
 : does? ( nfa -- flag )
-        cell+ dup (name>)
-        >code-address ['] source >code-address =
-        dup IF swap (name>) cell+ @ here ! ELSE nip THEN ;
+        cell+ (name>)
+        >code-address ['] bits >code-address = ;
 
 : defered? ( nfa -- flag )
-        dup does?
-        IF here @ ['] source cell+ @ =
-           dup IF swap cell+ (name>) >body @ here ! ELSE nip THEN
-        ELSE drop false THEN ;
+        cell+ (name>)
+        >code-address ['] source >code-address = ;
 
 : colon? ( nfa -- flag )
         cell+ (name>)

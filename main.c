@@ -1,5 +1,5 @@
 /*
-  $Id: main.c,v 1.18 1994-11-17 15:53:16 pazsan Exp $
+  $Id: main.c,v 1.19 1994-11-29 16:22:42 pazsan Exp $
   Copyright 1993 by the ANSI figForth Development Group
 */
 

@@ -1,53 +1,59 @@
 #Copyright 1992 by the ANSI figForth Development Group
 
+VERSION	= 0.1alpha#gforth version
 RM	= xdel
 CP	= copy
 GCC	= gcc
 FORTH	= gforth
 CC	= gcc
-MAKE = make
+MAKE	= make
 XCFLAGS	=  -fforce-mem -fforce-addr -fomit-frame-pointer -fno-defer-pop -fcaller-saves
-XDEFINES	= -DDIRECT_THREADED -DUSE_GETOPT
-SWITCHES	= $(XCFLAGS) $(XDEFINES) -DDEFAULTBIN='"/forth/ansforth"' #-DNDEBUG #turn off assertions
+XDEFINES	=  -DUSE_GETOPT -DDIRECT_THREADED
+SWITCHES	= $(XCFLAGS) $(XDEFINES) -DDEFAULTBIN='"/forth/gforth-0.1alpha"' #-DNDEBUG #turn off assertions
 CFLAGS	= -g -O4 -Wall $(SWITCHES)
 
 #-Xlinker -n puts text and data into the same 256M region
 #John Wavrik should use -Xlinker -N to get a writable text (executable)
 LDFLAGS	= -g -Xlinker -N
-LDLIBS	= -lm -lpc
+LDLIBS	=  -lm -lpc
 
 EMACS	= emacs
 
-INCLUDES = forth.h io.h getopt.h
+INCLUDES = forth.h io.h
 
-MACHINES = apollo68k.h decstation.h 386.h hppa.h sparc.h
+FORTH_SRC = add.fs assert.fs ansi.fs blocks.fs bufio.fs checkans.fs \
+	colorize.fs cross.fs debug.fs debugging.fs doskey.fs ds2texi.fs \
+	dumpimage.fs environ.fs errore.fs etags.fs extend.fs filedump.fs \
+	float.fs glocals.fs glosgen.fs gray.fs hash.fs history.fs \
+	kernal.fs locals-test.fs look.fs mach32b.fs mach32l.fs main.fs \
+	other.fs prims2x.fs random.fs search-order.fs see.fs sieve.fs \
+	startup.fs struct.fs tools.fs toolsext.fs tt.fs vars.fs vt100.fs \
+	vt100key.fs wordinfo.fs wordsets.fs
 
-FORTH_SRC = add.fs assert.fs blocks.fs bufio.fs cross.fs debug.fs \
-	debugging.fs dumpimage.fs environ.fs errore.fs etags.fs \
-	extend.fs filedump.fs float.fs glocals.fs glosgen.fs gray.fs \
-	hash.fs kernal.fs locals-test.fs look.fs mach32b.fs \
-	mach32l.fs main.fs other.fs prims2x.fs search-order.fs \
-	see.fs sieve.fs startup.fs struct.fs test2.fs tools.fs \
-	toolsext.fs vars.fs vt100.fs wordinfo.fs
+SOURCES	= Makefile.in configure  config.sub  config.guess \
+	INSTALL README ToDo BUGS model gforth.ds \
+	primitives engine.c main.c io.c \
+	apollo68k.h decstation.h 386.h hppa.h cache.c ecvt.c sparc.h \
+	getopt.c getopt1.c getopt.h \
+	makefile.dos io-dos.h configure.bat startup.dos \
+	glosgen.glo glossaries.doc \
+	$(INCLUDES) $(FORTH_SRC)
 
-SOURCES	= Makefile primitives engine.c main.c ecvt.c \
-	gforth.ds $(MACHINES) $(INCLUDES) $(FORTH_SRC)
-
-RCS_FILES = $(SOURCES) INSTALL ToDo model high-level
+RCS_FILES =  ToDo model high-level
 
 GEN = gforth
 
-GEN_PRECIOUS = primitives.i prim_labels.i primitives.b aliases.fs
-
-OBJECTS	=  engine.o ecvt.o main.o getopt1.o getopt.o
+OBJECTS	=  engine.o main.o getopt1.o getopt.o ecvt.o
 
 # things that need a working forth system to be generated
 # this is used for antidependences,
-FORTH_GEN = primitives.i prim_labels.i aliases.fs \
-	kernl32l.fi kernl32b.fi gforth.texi
+
+FORTH_GEN =  primitives.b primitives.i prim_labels.i aliases.fs kernl32l.fi kernl32b.fi
+
+GEN_PRECIOUS = $(FORTH_GEN) gforth.texi gforth.dvi gforth.ps Makefile
 
 all:
-	if not exist gforth.exe $(MAKE) first
+	if [ ! -f gforth ]; then $(MAKE) first; fi
 	$(MAKE) more
 
 first:	gforth
@@ -74,9 +80,17 @@ distclean:	clean
 realclean:	distclean
 		-$(RM) $(GEN_PRECIOUS)
 
-#does not work
-#gforth.tar.gz:	$(SOURCES) $(GEN_PRECIOUS) CVS
-#		cd ..; tar cvf gforth/gforth.tar gforth/{$^}; gzip -9 gforth/gforth.tar
+package:	$(SOURCES) $(FORTH_GEN)
+		-rm ../gforth-$(VERSION)
+		ln -s `pwd` ../gforth-$(VERSION)
+		echo "" $(SOURCES) $(FORTH_GEN) |\
+			sed -e 's| | gforth-$(VERSION)/|g' |\
+			(cd ..; xargs tar cvf gforth/gforth-$(VERSION).tar)
+		gzip -9 -f gforth-$(VERSION).tar
+		-rm ../gforth-$(VERSION)
+
+Makefile:	Makefile.in
+		configure
 
 gforth:	$(OBJECTS)
 		-$(CP) gforth gforth~
@@ -88,13 +102,14 @@ kernl32l.fi:	main.fs search-order.fs cross.fs aliases.fs vars.fs add.fs \
 		mach32l.fs $(FORTH_GEN)
 		-$(CP) kernl32l.fi kernl32l.fi~
 		$(FORTH) -e 's" mach32l.fs"' main.fs
-		-$(CP) kernl32l.fi gforth.fi
+		$(CP) kernl32l.fi gforth.fi
 
 kernl32b.fi:	main.fs search-order.fs cross.fs aliases.fs vars.fs add.fs \
 		errore.fs kernal.fs extend.fs tools.fs toolsext.fs \
 		mach32b.fs $(FORTH_GEN)
 		-$(CP) kernl32b.fi kernl32b.fi~
 		$(FORTH) -e 's" mach32b.fs"' main.fs
+
 
 engine.s:	engine.c primitives.i prim_labels.i machine.h $(INCLUDES)
 		$(GCC) $(CFLAGS) -S engine.c
@@ -122,9 +137,8 @@ gforth.texi:	gforth.ds primitives.b ds2texi.fs prims2x.fs
 gforth.dvi:	gforth.texi
 		tex gforth.texi
 
-#GNU make default rules
-#% ::		RCS/%,v
-#		co $@
+gforth.ps:	gforth.dvi
+		dvips gforth.dvi -o $@
 
 %.s :		%.c $(INCLUDES)
 		$(CC) $(CFLAGS) -S $< -o $@

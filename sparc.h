@@ -1,5 +1,5 @@
 /*
-  $Id: sparc.h,v 1.1 1994-02-11 16:30:47 anton Exp $
+  $Id: sparc.h,v 1.2 1994-11-29 16:22:49 pazsan Exp $
   Copyright 1992 by the ANSI figForth Development Group
 
   This is the machine-specific part for a SPARC running SunOS
@@ -60,3 +60,13 @@ typedef float SFloat;
 /* OS dependences */
 
 #define SEEK_SET 0
+
+#define memmove(a,b,c) ({ if((long)(a)<(long)(b)) memcpy(a,b,c); \
+			  else \
+			    {  int i; \
+			       for(i=(c)-1; i>=0; i--) \
+				  (char*)a[i]=(char*)b[i]; \
+			    } \
+			})
+#define strtoul(a,b,c) strtol(a,b,c)
+
