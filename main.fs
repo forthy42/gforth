@@ -89,7 +89,6 @@ include cond-old.fs            \ load IF and co w/o locals
 [THEN]
 include tools.fs               \ load tools ( .s dump )
 include toolsext.fs
-
 include special.fs             \ special must be last!
 
 \ Setup                                                13feb93py

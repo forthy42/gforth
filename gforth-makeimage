@@ -1,4 +1,22 @@
 #! /bin/sh
+#Copyright (C) 1995-1997 Free Software Foundation, Inc.
+
+#This file is part of Gforth.
+
+#Gforth is free software; you can redistribute it and/or
+#modify it under the terms of the GNU General Public License
+#as published by the Free Software Foundation; either version 2
+#of the License, or (at your option) any later version.
+
+#This program is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.#See the
+#GNU General Public License for more details.
+
+#You should have received a copy of the GNU General Public License
+#along with this program; if not, write to the Free Software
+#Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
 if test $# = 0 || test $1 = --help || test $1 = -h; then
   echo "usage: `basename $0` target-name [gforth-options]"
   echo "  environment: GFORTHD: the Gforth binary used (default: gforth-ditc)"
@@ -7,7 +25,7 @@ if test $# = 0 || test $1 = --help || test $1 = -h; then
 fi
 outfile=$1; shift
 tmpfile=./temp-image.fi
-test x$GFORTHD != x || GFORTHD=gforth-ditc
+test "x$GFORTHD" != x || GFORTHD=gforth-ditc
 $GFORTHD --clear-dictionary --no-offset-im $* -e "savesystem $tmpfile"1" bye"
 $GFORTHD --clear-dictionary --offset-image $* -e "savesystem $tmpfile"2" bye"
 $GFORTHD -i kernel.fi startup.fs  comp-image.fs -e "comp-image $tmpfile"1" $tmpfile"2" $outfile bye"

@@ -419,7 +419,7 @@ kernl%.fi:	kernl%.fi- $(KERNLS)
 		-$(CP) $< $@
 
 gforth.fi:	@kernel_fi@ gforth-makeimage gforth gforth-ditc $(GFORTH_FI_SRC)
-		GFORTHD=./gforth-ditc $(srcdir)/gforth-makeimage gforth.fi $(FORTHSIZES) $(FORTHKFLAGS) startup.fs
+		GFORTHD="./gforth-ditc -p ." $(srcdir)/gforth-makeimage gforth.fi $(FORTHSIZES) $(FORTHKFLAGS) startup.fs
 
 #TAGS is a GNU standard target
 TAGS:		gforth.TAGS
