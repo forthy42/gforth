@@ -27,6 +27,8 @@ EXE=@EXE@
 # ------------- System specific variables
 
 machine=@machine@
+kernel_fi=@kernel_fi@
+include_fi=gforth.fi
 # this is the type of machine
 # used to extend the include path with ./arch/$machine
 # so we could include a machine specific
@@ -73,6 +75,8 @@ SWITCHES = $(XCFLAGS) $(XDEFINES)
 ENGINE_FLAGS = @ENGINE_FLAGS@ -fno-defer-pop -fcaller-saves
 DEBUGFLAG = @DEBUGFLAG@
 CFLAGS	= $(DEBUGFLAG) -I$(srcdir)/../arch/$(machine) -O4 -Wall $(SWITCHES) -DDEFAULTPATH=\"$(FORTHPATH)\"
+FORTHKFLAGS= --die-on-signal -p ..$(PATHSEP)$(srcdir) -i ../$(kernel_fi)
+FORTHK	= ../gforth $(FORTHKFLAGS)
 
 #John Wavrik should use -Xlinker -N to get a writable text (executable)
 XLDFLAGS = @LDFLAGS@
@@ -83,6 +87,7 @@ AOBJECTS = io.o memcmpc.o @LIBOBJS@
 
 OBJECTS = engine.o main.o
 OBJECTS_DITC =  engine-ditc.o main-ditc.o
+OBJECTS_FI =  engine.o main-fi.o
 
 # In engine subdirectory there are (or should be) only files that belong to
 # our engine, so we can make life easy
@@ -94,6 +99,9 @@ gforth$(EXE):	$(OBJECTS) $(AOBJECTS)
 
 gforth-ditc$(EXE): $(OBJECTS_DITC) $(AOBJECTS)
 	$(GCC) $(LDFLAGS) $(OBJECTS_DITC) $(AOBJECTS) $(LDLIBS) -o $@
+
+gforth-fi$(EXE):	$(OBJECTS_FI) $(AOBJECTS)
+	$(GCC) $(LDFLAGS) $(OBJECTS_FI) $(AOBJECTS) $(LDLIBS) -o $@
 
 engine.s:	$(ENGINE_DEPS)
 		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -S engine.c
@@ -110,6 +118,9 @@ main.o:		main.c $(DEPS)
 main-ditc.o:	main.c $(DEPS)
 		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -DDOUBLY_INDIRECT -o $@ -c main.c
 
+main-fi.o:	main.c $(DEPS)
+		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -DINCLUDE_IMAGE -o $@ -c main.c
+
 engine:		$(OBJECTS) $(OBJECTS0) ;
 
 engine_ditc:	$(OBJECTS_DITC) $(OBJECTS0) ;
@@ -119,14 +130,28 @@ engine_ditc:	$(OBJECTS_DITC) $(OBJECTS0) ;
 termios.o:	/usr/lib/libposix.a
 	ar x /usr/lib/libposix.a termios.o
 
-prim.i: FORCE
-	cd ..; $(MAKE) engine/$@
+#duplicated rules to avoid too many recursive make invocations
 
-prim_lab.i: FORCE
-	cd ..; $(MAKE) engine/$@
+prim.i:		../prim.b ../prims2x.fs
+		$(FORTHK) prims2x.fs -e "s\" ../prim.b\" ' output-c process-file bye" >$@-
+		$(CP) $@- $@
+		$(RM) $@-
 
-config.h: FORCE
-	cd .. && $(MAKE) engine/$@
+prim_lab.i:	../prim.b ../prims2x.fs
+		$(FORTHK) prims2x.fs -e "s\" ../prim.b\" ' output-label process-file bye" >$@-
+		$(CP) $@- $@
+		$(RM) $@-
+
+config.h:	stamp-h
+stamp-h:	../config.h.in ../config.status
+		cd .. && CONFIG_FILES=$@ CONFIG_HEADERS=engine/config.h ./config.status
+		echo timestamp > stamp-h
+
+image.c:	../fi2c.fs ../$(include_fi)
+		$(FORTHK) fi2c.fs -e "s\" ../$(include_fi)\" fi2c bye" >$@
+
+../$(include_fi):	FORCE
+		cd .. && $(MAKE) $(include_fi)
 
 #phony targets depend on FORCE; this is more portable than .PHONY
 FORCE:

@@ -39,11 +39,11 @@ include bufio.fs
 include debug.fs
 require stuff.fs
 include history.fs
-s" os-class" environment? dup [IF] drop s" dos" compare 0= [THEN]
+s" os-class" environment? dup [IF] drop s" unix" compare 0= [THEN]
 [IF]
-include doskey.fs
-[ELSE]
 include vt100key.fs
+[ELSE]
+include doskey.fs
 [THEN]
 require debugs.fs
 require assert.fs

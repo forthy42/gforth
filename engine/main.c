@@ -113,7 +113,7 @@ typedef struct {
 } ImageHeader;
 /* the image-header is created in main.fs */
 
-void relocate(Cell *image, char *bitstring, int size, Label symbols[])
+void relocate(Cell *image, const char *bitstring, int size, Label symbols[])
 {
   int i=0, j, k, steps=(size/sizeof(Cell))/8;
   char bits;
@@ -248,6 +248,39 @@ Address my_alloc(Cell size)
 #define dict_alloc(size) my_alloc(size)
 #endif
 
+void set_stack_sizes(ImageHeader * header)
+{
+  if (dictsize==0)
+    dictsize = header->dict_size;
+  if (dsize==0)
+    dsize = header->data_stack_size;
+  if (rsize==0)
+    rsize = header->return_stack_size;
+  if (fsize==0)
+    fsize = header->fp_stack_size;
+  if (lsize==0)
+    lsize = header->locals_stack_size;
+  dictsize=maxaligned(dictsize);
+  dsize=maxaligned(dsize);
+  rsize=maxaligned(rsize);
+  lsize=maxaligned(lsize);
+  fsize=maxaligned(fsize);
+}
+
+void alloc_stacks(ImageHeader * header)
+{
+  header->dict_size=dictsize;
+  header->data_stack_size=dsize;
+  header->fp_stack_size=fsize;
+  header->return_stack_size=rsize;
+  header->locals_stack_size=lsize;
+
+  header->data_stack_base=my_alloc(dsize);
+  header->fp_stack_base=my_alloc(fsize);
+  header->return_stack_base=my_alloc(rsize);
+  header->locals_stack_base=my_alloc(lsize);
+}
+
 Address loader(FILE *imagefile, char* filename)
 /* returns the address of the image proper (after the preamble) */
 {
@@ -266,17 +299,15 @@ Address loader(FILE *imagefile, char* filename)
 #else /* defined(DOUBLY_INDIRECT) */
   check_sum = (UCell)symbols;
 #endif /* defined(DOUBLY_INDIRECT) */
-
-  do
-    {
-      if(fread(magic,sizeof(Char),8,imagefile) < 8) {
-	fprintf(stderr,"%s: image %s doesn't seem to be a Gforth (>=0.2) image.\n",
-		progname, filename);
-	exit(1);
-      }
-      preamblesize+=8;
+  
+  do {
+    if(fread(magic,sizeof(Char),8,imagefile) < 8) {
+      fprintf(stderr,"%s: image %s doesn't seem to be a Gforth (>=0.2) image.\n",
+	      progname, filename);
+      exit(1);
     }
-  while(memcmp(magic,"Gforth1",7));
+    preamblesize+=8;
+  } while(memcmp(magic,"Gforth1",7));
   if (debug) {
     magic[8]='\0';
     fprintf(stderr,"Magic found: %s\n", magic);
@@ -302,21 +333,8 @@ Address loader(FILE *imagefile, char* filename)
     };
 
   fread((void *)&header,sizeof(ImageHeader),1,imagefile);
-  if (dictsize==0)
-    dictsize = header.dict_size;
-  if (dsize==0)
-    dsize=header.data_stack_size;
-  if (rsize==0)
-    rsize=header.return_stack_size;
-  if (fsize==0)
-    fsize=header.fp_stack_size;
-  if (lsize==0)
-    lsize=header.locals_stack_size;
-  dictsize=maxaligned(dictsize);
-  dsize=maxaligned(dsize);
-  rsize=maxaligned(rsize);
-  lsize=maxaligned(lsize);
-  fsize=maxaligned(fsize);
+
+  set_stack_sizes(&header);
   
 #if HAVE_GETPAGESIZE
   pagesize=getpagesize(); /* Linux/GNU libc offers this */
@@ -331,14 +349,14 @@ Address loader(FILE *imagefile, char* filename)
   image = dict_alloc(preamblesize+dictsize+data_offset)+data_offset;
   rewind(imagefile);  /* fseek(imagefile,0L,SEEK_SET); */
   if (clear_dictionary)
-    memset(image,0,dictsize);
-  fread(image,1,preamblesize+header.image_size,imagefile);
+    memset(image, 0, dictsize);
+  fread(image, 1, preamblesize+header.image_size, imagefile);
   imp=image+preamblesize;
   if(header.base==0) {
     Cell reloc_size=((header.image_size-1)/sizeof(Cell))/8+1;
     char reloc_bits[reloc_size];
-    fread(reloc_bits,1,reloc_size,imagefile);
-    relocate((Cell *)imp,reloc_bits,header.image_size,symbols);
+    fread(reloc_bits, 1, reloc_size, imagefile);
+    relocate((Cell *)imp, reloc_bits, header.image_size, symbols);
 #if 0
     { /* let's see what the relocator did */
       FILE *snapshot=fopen("snapshot.fi","wb");
@@ -361,16 +379,7 @@ Address loader(FILE *imagefile, char* filename)
   }
   fclose(imagefile);
 
-  ((ImageHeader *)imp)->dict_size=dictsize;
-  ((ImageHeader *)imp)->data_stack_size=dsize;
-  ((ImageHeader *)imp)->fp_stack_size=fsize;
-  ((ImageHeader *)imp)->return_stack_size=rsize;
-  ((ImageHeader *)imp)->locals_stack_size=lsize;
-
-  ((ImageHeader *)imp)->data_stack_base=my_alloc(dsize);
-  ((ImageHeader *)imp)->fp_stack_base=my_alloc(fsize);
-  ((ImageHeader *)imp)->return_stack_base=my_alloc(rsize);
-  ((ImageHeader *)imp)->locals_stack_base=my_alloc(lsize);
+  alloc_stacks((ImageHeader *)imp);
 
   CACHE_FLUSH(imp, header.image_size);
 
@@ -448,57 +457,72 @@ UCell convsize(char *s, UCell elemsize)
 }
 
 int onlypath(char *file)
-{ int i;
+{
+  int i;
   i=strlen(file);
-  while (i) { 	if (file[i]=='\\' || file[i]=='/') break;
-  		i--; }
-  return (i);
+  while (i) {
+    if (file[i]=='\\' || file[i]=='/') break;
+    i--;
+  }
+  return i;
 }
 
 FILE *openimage(char *fullfilename)
-{ FILE *image_file;
+{
+  FILE *image_file;
+
   image_file=fopen(fullfilename,"rb");
   if (image_file!=NULL && debug)
-     fprintf(stderr, "Opened image file: %s\n", fullfilename);
-  return (image_file);
+    fprintf(stderr, "Opened image file: %s\n", fullfilename);
+  return image_file;
 }
 
 FILE *checkimage(char *path, int len, char *imagename)
-{ int dirlen=len;
+{
+  int dirlen=len;
   char fullfilename[dirlen+strlen(imagename)+2];
+
   memcpy(fullfilename, path, dirlen);
   if (fullfilename[dirlen-1]!='/')
     fullfilename[dirlen++]='/';
   strcpy(fullfilename+dirlen,imagename);
-  return (openimage(fullfilename));
+  return openimage(fullfilename);
 }
 
-int main(int argc, char **argv, char **env)
+FILE * open_image_file(char * imagename, char * path)
 {
-  char *path, *path1;
-  char *imagename="gforth.fi";
-  FILE *image_file;
-  int c, retvalue;
-	  
-#if defined(i386) && defined(ALIGNMENT_CHECK) && !defined(DIRECT_THREADED)
-  /* turn on alignment checks on the 486.
-   * on the 386 this should have no effect. */
-  __asm__("pushfl; popl %eax; orl $0x40000, %eax; pushl %eax; popfl;");
-  /* this is unusable with Linux' libc.4.6.27, because this library is
-     not alignment-clean; we would have to replace some library
-     functions (e.g., memcpy) to make it work */
-#endif
-
-  /* buffering of the user output device */
-  if (isatty(fileno(stdout))) {
-    fflush(stdout);
-    setvbuf(stdout,NULL,_IONBF,0);
+  FILE * image_file=NULL;
+  
+  if(strchr(imagename, '/')==NULL) {
+    /* first check the directory where the exe file is in !! 01may97jaw */
+    if (onlypath(progname))
+      image_file=checkimage(progname, onlypath(progname), imagename);
+    if (!image_file)
+      do {
+	char *pend=strchr(path, PATHSEP);
+	if (pend==NULL)
+	  pend=path+strlen(path);
+	if (strlen(path)==0) break;
+	image_file=checkimage(path, pend-path, imagename);
+	path=pend+(*pend==PATHSEP);
+      } while (image_file==NULL);
+  } else {
+    image_file=openimage(imagename);
   }
 
-  progname = argv[0];
-  if ((path1=getenv("GFORTHPATH"))==NULL)
-    path1 = DEFAULTPATH;
-  
+  if (!image_file) {
+    fprintf(stderr,"%s: cannot open image file %s in path %s for reading\n",
+	    progname, imagename, path);
+    exit(1);
+  }
+
+  return image_file;
+}
+
+void gforth_args(int argc, char ** argv, char ** path, char ** imagename)
+{
+  int c;
+
   opterr=0;
   while (1) {
     int option_index=0;
@@ -531,76 +555,92 @@ int main(int argc, char **argv, char **env)
       break;
     }
     switch (c) {
-    case 'i': imagename = optarg; break;
+    case 'i': *imagename = optarg; break;
     case 'm': dictsize = convsize(optarg,sizeof(Cell)); break;
     case 'd': dsize = convsize(optarg,sizeof(Cell)); break;
     case 'r': rsize = convsize(optarg,sizeof(Cell)); break;
     case 'f': fsize = convsize(optarg,sizeof(Float)); break;
     case 'l': lsize = convsize(optarg,sizeof(Cell)); break;
-    case 'p': path1 = optarg; break;
+    case 'p': *path = optarg; break;
     case 'v': fprintf(stderr, "gforth %s\n", VERSION); exit(0);
     case 'h': 
       fprintf(stderr, "Usage: %s [engine options] [image arguments]\n\
 Engine Options:\n\
- --clear-dictionary		    Initialize the dictionary with 0 bytes\n\
- -d SIZE, --data-stack-size=SIZE    Specify data stack size\n\
- --debug			    Print debugging information during startup\n\
- --die-on-signal		    exit instead of CATCHing some signals\n\
- -f SIZE, --fp-stack-size=SIZE	    Specify floating point stack size\n\
- -h, --help			    Print this message and exit\n\
- -i FILE, --image-file=FILE	    Use image FILE instead of `gforth.fi'\n\
- -l SIZE, --locals-stack-size=SIZE  Specify locals stack size\n\
- -m SIZE, --dictionary-size=SIZE    Specify Forth dictionary size\n\
- --no-offset-im			    Load image at normal position\n\
- --offset-image			    Load image at a different position\n\
- -p PATH, --path=PATH		    Search path for finding image and sources\n\
- -r SIZE, --return-stack-size=SIZE  Specify return stack size\n\
- -v, --version			    Print version and exit\n\
+  --clear-dictionary		    Initialize the dictionary with 0 bytes\n\
+  -d SIZE, --data-stack-size=SIZE   Specify data stack size\n\
+  --debug			    Print debugging information during startup\n\
+  --die-on-signal		    exit instead of CATCHing some signals\n\
+  -f SIZE, --fp-stack-size=SIZE	    Specify floating point stack size\n\
+  -h, --help			    Print this message and exit\n\
+  -i FILE, --image-file=FILE	    Use image FILE instead of `gforth.fi'\n\
+  -l SIZE, --locals-stack-size=SIZE Specify locals stack size\n\
+  -m SIZE, --dictionary-size=SIZE   Specify Forth dictionary size\n\
+  --no-offset-im		    Load image at normal position\n\
+  --offset-image		    Load image at a different position\n\
+  -p PATH, --path=PATH		    Search path for finding image and sources\n\
+  -r SIZE, --return-stack-size=SIZE Specify return stack size\n\
+  -v, --version			    Print version and exit\n\
 SIZE arguments consist of an integer followed by a unit. The unit can be\n\
-  `b' (byte), `e' (element; default), `k' (KB), `M' (MB), `G' (GB) or `T' (TB).\n\
-\n\
-Arguments of default image `gforth.fi':\n\
- FILE				    load FILE (with `require')\n\
- -e STRING, --evaluate STRING       interpret STRING (with `EVALUATE')\n\n\
-Report bugs to <bug-gforth@gnu.ai.mit.edu>\n",
-	      argv[0]); exit(0);
+  `b' (byte), `e' (element; default), `k' (KB), `M' (MB), `G' (GB) or `T' (TB).\n",
+	      argv[0]);
+      optind--;
+      return;
+      exit(0);
     }
   }
-  path=path1;
-  image_file=NULL;
-  
-  if(strchr(imagename, '/')==NULL)
-  {
-    /* first check the directory where the exe file is in !! 01may97jaw */
-    if (onlypath(progname))
-      image_file=checkimage(progname, onlypath(progname), imagename);
-    if (!image_file)
-      do {
-	char *pend=strchr(path, PATHSEP);
-	if (pend==NULL)
-	  pend=path+strlen(path);
-	if (strlen(path)==0) break;
-	image_file=checkimage(path, pend-path, imagename);
-	path=pend+(*pend==PATHSEP);
-      } while (image_file==NULL);
-  }
-  else
-  {  image_file=openimage(imagename);
+}
+
+#ifdef INCLUDE_IMAGE
+extern Cell image[];
+extern const char reloc_bits[];
+#endif
+
+int main(int argc, char **argv, char **env)
+{
+  char *path = getenv("GFORTHPATH") ? : DEFAULTPATH;
+  char *imagename="gforth.fi";
+  FILE *image_file;
+#ifndef INCLUDE_IMAGE
+  Address image;
+#endif
+  int retvalue;
+	  
+#if defined(i386) && defined(ALIGNMENT_CHECK) && !defined(DIRECT_THREADED)
+  /* turn on alignment checks on the 486.
+   * on the 386 this should have no effect. */
+  __asm__("pushfl; popl %eax; orl $0x40000, %eax; pushl %eax; popfl;");
+  /* this is unusable with Linux' libc.4.6.27, because this library is
+     not alignment-clean; we would have to replace some library
+     functions (e.g., memcpy) to make it work. Also GCC doesn't try to keep
+     the stack FP-aligned. */
+#endif
+
+  /* buffering of the user output device */
+  if (isatty(fileno(stdout))) {
+    fflush(stdout);
+    setvbuf(stdout,NULL,_IONBF,0);
   }
 
-  if (!image_file)
-  { fprintf(stderr,"%s: cannot open image file %s in path %s for reading\n",
-		  progname, imagename, path1);
-    exit(1);
-  }
+  progname = argv[0];
+
+  gforth_args(argc, argv, &path, &imagename);
+
+#ifdef INCLUDE_IMAGE
+  set_stack_sizes((ImageHeader *)image);
+  relocate(image, reloc_bits, ((ImageHeader*)&image)->image_size, (Label*)engine(0, 0, 0, 0, 0));
+  alloc_stacks((ImageHeader *)image);
+#else
+  image_file = open_image_file(imagename, path);
+  image = loader(image_file, imagename);
+#endif
 
   {
-    char path2[strlen(path1)+1];
+    char path2[strlen(path)+1];
     char *p1, *p2;
     Cell environ[]= {
       (Cell)argc-(optind-1),
       (Cell)(argv+(optind-1)),
-      (Cell)strlen(path1),
+      (Cell)strlen(path),
       (Cell)path2};
     argv[optind-1] = progname;
     /*
@@ -608,13 +648,13 @@ Report bugs to <bug-gforth@gnu.ai.mit.edu>\n",
        printf("%s\n", ((char **)(environ[1]))[i]);
        */
     /* make path OS-independent by replacing path separators with NUL */
-    for (p1=path1, p2=path2; *p1!='\0'; p1++, p2++)
+    for (p1=path, p2=path2; *p1!='\0'; p1++, p2++)
       if (*p1==PATHSEP)
 	*p2 = '\0';
       else
 	*p2 = *p1;
     *p2='\0';
-    retvalue=go_forth(loader(image_file, imagename),4,environ);
+    retvalue = go_forth(image, 4, environ);
     deprep_terminal();
     exit(retvalue);
   }

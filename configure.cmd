@@ -55,26 +55,23 @@ end
 
 copy makefile.os2 makefile
 copy kernl32l.fi kernel.fi
-copy 386.h machine.h
-copy os2conf.h csrc\config.h
-copy startup.fs startup.unx
-copy startup.dos startup.fs
-copy history.dos history.fs
+copy envos.os2 envos.fs
+copy os2conf.h engine\config.h
 if THREAD="i" THEN DO
-	call lineout csrc\config.h, "#ifndef INDIRECT_THREADED"
-	call lineout csrc\config.h, "#define INDIRECT_THREADED 1"
-	call lineout csrc\config.h, "#endif"
+	call lineout engine\config.h, "#ifndef INDIRECT_THREADED"
+	call lineout engine\config.h, "#define INDIRECT_THREADED 1"
+	call lineout engine\config.h, "#endif"
 end
 IF THREAD="d" THEN do
-	call lineout csrc\config.h, "#ifndef DIRECT_THREADED"
-	call lineout csrc\config.h, "#define DIRECT_THREADED 1" 
-	call lineout csrc\config.h, "#endif"
+	call lineout engine\config.h, "#ifndef DIRECT_THREADED"
+	call lineout engine\config.h, "#define DIRECT_THREADED 1" 
+	call lineout engine\config.h, "#endif"
 end
 IF FREGS="y" THEN do
-	call lineout csrc\config.h, "#ifndef FORCE_REG"
-	call lineout csrc\config.h, "#define FORCE_REG 1"
-	call lineout csrc\config.h, "#endif"
+	call lineout engine\config.h, "#ifndef FORCE_REG"
+	call lineout engine\config.h, "#define FORCE_REG 1"
+	call lineout engine\config.h, "#endif"
 end
-call lineout version.h1, 'static char gforth_version[]="0.3.0";'
-call lineout version.fs1, ': version-string s" 0.3.0" ;'
-call lineout 'version-stamp', '0.3.0'
+call lineout version.h1, 'static char gforth_version[]="0.4.0";'
+call lineout version.fs1, ': version-string s" 0.4.0" ;'
+call lineout 'version-stamp', '0.4.0'

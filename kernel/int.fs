@@ -489,11 +489,10 @@ DEFER DOERROR
 
 : (DoError) ( throw-code -- )
   [ has? os [IF] ]
-      outfile-id dup flush-file drop >r
-      stderr to outfile-id
+      >stderr
   [ [THEN] ] 
   sourceline# IF
-               source >in @ sourceline# 0 0 .error-frame
+      source >in @ sourceline# 0 0 .error-frame
   THEN
   error-stack @ 0 ?DO
     -1 error-stack +!
@@ -513,9 +512,7 @@ DEFER DOERROR
   ELSE
      .error
   THEN
-  normal-dp dpp ! 
-  [ has? os [IF] ] r> to outfile-id [ [THEN] ]
-  ;
+  normal-dp dpp ! ;
 
 ' (DoError) IS DoError
 
@@ -563,14 +560,7 @@ Variable init8
     'cold
     init8 chainperform
 [ has? file [IF] ]
-    ['] process-args catch ?dup
-    IF
-      dup >r DoError cr r> negate (bye)
-    THEN
-    argc @ 1 >
-    IF	\ there may be some unfinished line, so let's finish it
-	cr
-    THEN
+    process-args
 [ [THEN] ]
     bootmessage
     loadline off quit ;
@@ -580,7 +570,7 @@ Variable init8
     lp@ forthstart 7 cells + @ - 
 [ [ELSE] ]
     [ has? os [IF] ]
-    sp@ $1040 +
+    r0 @ forthstart 6 cells + @ -
     [ [ELSE] ]
     sp@ $40 +
     [ [THEN] ]
@@ -602,7 +592,7 @@ Variable init8
 [ has? floating [IF] ]
     fp@ fp0 !
 [ [THEN] ]
-    ['] cold catch DoError
+    ['] cold catch DoError cr
 [ has? os [IF] ]
     bye
 [ [THEN] ]

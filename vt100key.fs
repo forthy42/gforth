@@ -1,4 +1,4 @@
-\ MS-DOS key interpreter                               17oct94py
+\ vt100 key interpreter                                17oct94py
 
 \ Copyright (C) 1995 Free Software Foundation, Inc.
 

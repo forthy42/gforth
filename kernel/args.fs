@@ -42,25 +42,33 @@ Variable argc ( -- addr ) \ gforth
     2swap
     2dup s" -e"         compare  0= >r
     2dup s" --evaluate" compare  0= r> or
-    IF  2drop dup >r ['] evaluate catch
-	?dup IF  dup >r DoError r> negate (bye)  THEN
+    IF  2drop dup >r evaluate
 	r> >tib +!  2 EXIT  THEN
+    2dup s" -h"         compare  0= >r
+    2dup s" --help"     compare  0= r> or
+    IF  ." Image Options:" cr
+	."   FILE				    load FILE (with `require')" cr
+	."   -e STRING, --evaluate STRING      interpret STRING (with `EVALUATE')" cr
+	." Report bugs to <bug-gforth@gnu.ai.mit.edu>" cr
+	bye
+    THEN
     ." Unknown option: " type cr 2drop 1 ;
 
 : (process-args) ( -- )
     true to script?
-    >tib @ >r
+    >tib @ >r #tib @ >r >in @ >r
     argc @ 1
     ?DO
 	I arg over c@ [char] - <>
 	IF
+	    2dup dup #tib ! >in ! >tib !
 	    required 1
 	ELSE
 	    I 1+ argc @ =  IF  s" "  ELSE  I 1+ arg  THEN
 	    do-option
 	THEN
     +LOOP
-    r> >tib !
+    r> >in ! r> #tib ! r> >tib !
     false to script?
 ;
 

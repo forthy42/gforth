@@ -106,10 +106,17 @@ man1ext= .1
 #older emacses have their site-lisp in $(libdir)/emacs/
 emacssitelispdir=@lispdir@
 
-INCLUDES = engine/CVS engine/forth.h engine/threaded.h engine/io.h
+CVSDIRS = CVS engine/CVS kernel/CVS doc/CVS asm/CVS ec/CVS test/CVS \
+	compat/CVS \
+	arch/CVS arch/generic/CVS arch/m68k/CVS arch/mips/CVS \
+	arch/386/CVS arch/hppa/CVS arch/sparc/CVS arch/power/CVS \
+	arch/alpha/CVS arch/4stack/CVS arch/misc/CVS arch/6502/CVS \
+	arch/8086/CVS arch/avr/CVS arch/c165/CVS arch/h8/CVS \
+	arch/shboom/CVS \
+
+INCLUDES = engine/forth.h engine/threaded.h engine/io.h
 
 KERN_SRC = \
-	kernel/CVS \
 	kernel/aliases0.fs \
 	kernel/aliases.fs \
 	kernel/args.fs \
@@ -141,14 +148,12 @@ KERN_SRC = \
 	kernel/getdoers.fs
 
 EC_SRC = \
-	asm/CVS \
 	asm/README \
 	asm/bitmask.fs \
 	asm/numref.fs \
 	asm/basic.fs \
 	asm/generic.fs \
 	asm/target.fs \
-	ec/CVS \
 	ec/README \
 	ec/mirror.fs \
 	ec/mirrors.fs \
@@ -196,7 +201,7 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_SRC) $(EC_SRC) \
 	ans-report.fs ansi.fs answords.fs \
 	code.fs colorize.fs comp-i.fs \
 	doskey.fs ds2texi.fs \
-	envos.fs envos.dos envos.os2 etags.fs filedump.fs \
+	envos.fs envos.dos envos.os2 etags.fs filedump.fs fi2c.fs \
 	glosgen.fs gray.fs \
 	doc/makedoc.fs \
 	mach16b.fs mach16l.fs mach32b.fs mach32l.fs mach64b.fs mach64l.fs \
@@ -205,11 +210,11 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_SRC) $(EC_SRC) \
 	tt.fs sokoban.fs \
 	unbuffered.fs wordsets.fs \
 	test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs \
-	test/other.fs test/checkans.fs test/CVS \
+	test/other.fs test/checkans.fs \
 	bubble.fs siev.fs matrix.fs fib.fs \
 	oof.fs oofsampl.fs objects.fs objexamp.fs mini-oof.fs moof-exm.fs
 
-COMPAT	= compat/CVS compat/README compat/control.fs compat/anslocal.fs \
+COMPAT	= compat/README compat/control.fs compat/anslocal.fs \
 	compat/struct.fs compat/loops.fs
 
 GFORTH_TEXI =  doc/gforth.texi doc/version.texi
@@ -217,33 +222,22 @@ GFORTH_TEXI =  doc/gforth.texi doc/version.texi
 ALLSUBDIRS = engine
 
 ARCHS =	\
-	arch/CVS \
-	arch/generic/CVS \
 	arch/generic/machine.h \
-	arch/m68k/CVS \
 	arch/m68k/machine.h \
-	arch/mips/CVS \
 	arch/mips/machine.h \
-	arch/386/CVS \
 	arch/386/machine.h \
-	arch/hppa/CVS \
 	arch/hppa/machine.h \
 	arch/hppa/cache.c \
-	arch/sparc/CVS \
 	arch/sparc/machine.h \
-	arch/power/CVS \
 	arch/power/machine.h \
 	arch/power/_sync_cache_range.c \
-	arch/alpha/CVS \
 	arch/alpha/machine.h \
-	arch/4stack/CVS \
 	arch/4stack/README \
 	arch/4stack/asm.fs \
 	arch/4stack/mach.fs \
 	arch/4stack/prim.fs \
 	arch/4stack/mach.sh \
 	arch/4stack/relocate.fs \
-	arch/misc/CVS \
 	arch/misc/README \
 	arch/misc/asm.fs \
 	arch/misc/mach.fs \
@@ -251,27 +245,21 @@ ARCHS =	\
 	arch/misc/sim.fs \
 	arch/misc/sokoban.fs \
 	arch/misc/tt.fs \
-	arch/6502/CVS \
 	arch/6502/asm.fs \
 	arch/6502/prim.fs \
 	arch/6502/mach.fs \
 	arch/6502/zero.fs \
 	arch/6502/softuart.fs \
 	arch/6502/cold.fs \
-	arch/8086/CVS \
 	arch/8086/asm.fs \
 	arch/8086/mach.fs \
 	arch/8086/mach.sh \
 	arch/8086/prim.fs \
-	arch/avr/CVS \
 	arch/avr/asm.fs \
-	arch/c165/CVS \
 	arch/c165/asm.fs \
 	arch/c165/mach.fs \
 	arch/c165/prim.fs \
-	arch/h8/CVS \
 	arch/h8/asm.fs \
-	arch/shboom/CVS \
 	arch/shboom/asm.fs \
 	arch/shboom/compiler.fs \
 	arch/shboom/dis.fs \
@@ -281,13 +269,13 @@ ARCHS =	\
 	arch/shboom/sh.p \
 	arch/shboom/doers.fs
 
-SOURCES	= CVS engine/CVS compat Makefile.in engine/Makefile.in gforthmi \
+SOURCES	= $(CVSDIRS) compat Makefile.in engine/Makefile.in gforthmi \
 	configure.in configure config.sub config.guess elisp-comp missing \
 	acconfig.h acinclude.m4 engine/config.h.in stamp-h.in \
 	install-sh INSTALL INSTALL.BINDIST NEWS README ToDo BUGS model \
 	COPYING AUTHORS ChangeLog Benchres aclocal.m4 \
 	doc/gforth.ds doc/texinfo.tex doc/gforth.1 doc/version.texi.in \
-	doc/CVS gforth.el \
+	gforth.el \
 	prim engine/engine.c engine/main.c engine/io.c engine/memcmpc.c \
 	$(ARCHS) \
 	engine/32bit.h \

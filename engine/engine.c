@@ -250,7 +250,7 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
     (Label)&&dodoes,
     /* the following entry is normally unused;
        it's there because its index indicates a does-handler */
-    CPU_DEP1,
+    (Label)CPU_DEP1,
 #include "prim_lab.i"
     (Label)0
   };
@@ -270,24 +270,24 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
 #define CODE_OFFSET (22*sizeof(Cell))
     int i;
     Cell code_offset = offset_image? CODE_OFFSET : 0;
-
+    
     symbols = (Label *)(malloc(MAX_SYMBOLS*sizeof(Cell)+CODE_OFFSET)+code_offset);
     for (i=0; i<DOESJUMP+1; i++)
-      symbols[i] = (Label)routines[i];
+    symbols[i] = routines[i];
     for (; routines[i]!=0; i++) {
       if (i>=MAX_SYMBOLS) {
 	fprintf(stderr,"gforth-ditc: more than %d primitives\n",MAX_SYMBOLS);
 	exit(1);
+      }
+      symbols[i] = &routines[i];
     }
-    symbols[i] = &routines[i];
-  }
 #endif /* defined(DOUBLY_INDIRECT) */
-  return symbols;
-}
+    return symbols;
+  }
 
   IF_TOS(TOS = sp[0]);
   IF_FTOS(FTOS = fp[0]);
-/*  prep_terminal(); */
+  /*  prep_terminal(); */
   NEXT_P0;
   NEXT;
 
