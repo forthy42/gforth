@@ -173,16 +173,26 @@ define? faligned 0= [IF]
 
 types definitions
 
-: static   ( -- )  mallot Create , #static ,
-  DOES> @ o@ + ;
-: method   ( -- )  mallot Create , #method ,
-  DOES> @ o@ + @ execute ;
-: early    ( -- )  Create ['] crash , #early ,
-  DOES> @ execute ;
-: var ( size -- )  vallot Create , #var ,
-  DOES> @ ^ + ;
-: defer    ( -- )  valign cell vallot Create , #defer ,
-  DOES> @ ^ + @ execute ;
+: static   ( -- ) \ oof- oof
+    \G Create a class-wide cell sized variable
+    mallot Create , #static ,
+DOES> @ o@ + ;
+: method   ( -- ) \ oof- oof
+    \G Create a method selector
+    mallot Create , #method ,
+DOES> @ o@ + @ execute ;
+: early    ( -- ) \ oof- oof
+    \G Create a method selector for early binding
+    Create ['] crash , #early ,
+DOES> @ execute ;
+: var ( size -- ) \ oof- oof
+    \G Create an instance variable
+    vallot Create , #var ,
+DOES> @ ^ + ;
+: defer    ( -- ) \ oof- oof
+    \G Create an instance defer
+    valign cell vallot Create , #defer ,
+DOES> @ ^ + @ execute ;
 
 \ dealing with threads                                 29oct94py
 
@@ -430,19 +440,27 @@ Variable last-interface  0 last-interface !
 
 types definitions
 
-: how:  ( -- )  decl @ 0= abort" not twice!" 0 decl !
+: how:  ( -- ) \ oof- oof how-to
+\G End declaration, start implementation
+    decl @ 0= abort" not twice!" 0 decl !
     align  interface,
     lastob! thread, parent, var, 'link, 0 , cells, interfaces,
     dup
     IF    dup :method# + @ >r :init + swap r> :init /string move
     ELSE  2drop  THEN ;
 
-: class; ( -- ) decl @ IF  how:  THEN  0 'link !
-  voc# @ drop-order old-current @ set-current ;
+: class; ( -- ) \ oof- oof end-class
+\G End class declaration or implementation
+    decl @ IF  how:  THEN  0 'link !
+    voc# @ drop-order old-current @ set-current ;
 
-: ptr ( -- ) Create immediate lastob @ here lastob ! instptr, ;
-: asptr ( addr -- )  cell+ @ Create immediate
-  lastob @ here lastob ! , ,  instptr> ;
+: ptr ( -- ) \ oof- oof
+    \G Create an instance pointer
+    Create immediate lastob @ here lastob ! instptr, ;
+: asptr ( class -- ) \ oof- oof
+    \G Create an alias to an instance pointer, casted to another class
+    cell+ @ Create immediate
+    lastob @ here lastob ! , ,  instptr> ;
 
 : Fpostpone  postpone postpone ; immediate
 
@@ -474,30 +492,42 @@ Create object  immediate  0 (class \ do not create as subclass
          static    size         \ number of variables (bytes)
 	 static    newlink      \ ptr to allocated space
 	 static    ilist        \ interface list
-         method    init
-         method    dispose
+	 method    init ( ... -- ) \ object- oof
+         method    dispose ( -- ) \ object- oof
 
-         early     class
-         early     new         immediate
-         early     new[]       immediate
-         early     :
-         early     ptr
-         early     asptr
-         early     []
-         early     ::          immediate
-         early     class?
-         early     super       immediate
-         early     self
-         early     bind        immediate
-         early     bound
-         early     link        immediate
-         early     is          immediate
-	 early     send        immediate
-	 early     with        immediate
-	 early     endwith     immediate
-	 early     '           immediate
-	 early     postpone    immediate
-	 early     definitions
+         early     class ( "name" -- ) \ object- oof
+	 early     new ( -- o ) \ object- oof
+	 			immediate
+	 early     new[] ( n -- o ) \ object- oof new-array
+				immediate
+         early     : ( "name" -- ) \ object- oof define
+         early     ptr ( "name" -- ) \ object- oof
+         early     asptr ( o "name" -- ) \ object- oof
+         early     [] ( n "name" -- ) \ object- oof array
+	 early     ::  ( "name" -- ) \ object- oof scope
+	 			immediate
+         early     class? ( o -- flag ) \ object- oof class-query
+	 early     super  ( "name" -- ) \ object- oof
+				immediate
+         early     self ( -- o ) \ object- oof
+	 early     bind ( o "name" -- ) \ object- oof
+				immediate
+         early     bound ( class addr "name" -- ) \ object- oof
+	 early     link ( "name" -- class addr ) \ object- oof
+				immediate
+	 early     is  ( xt "name" -- ) \ object- oof
+				immediate
+	 early     send ( xt -- ) \ object- oof
+				immediate
+	 early     with ( o -- ) \ object- oof
+				immediate
+	 early     endwith ( -- ) \ object- oof
+				immediate
+	 early     ' ( "name" -- xt ) \ object- oof tick
+				immediate
+	 early     postpone ( "name" -- ) \ object- oof
+				immediate
+	 early     definitions ( -- ) \ object- oof
 	 
 \ base object class implementation part                23mar95py
 

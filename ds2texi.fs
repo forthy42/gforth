@@ -60,6 +60,12 @@ create description-buffer 4096 chars allot
     repeat then
     description-buffer tuck - ;
 
+: skip-prefix ( c-addr1 u1 -- c-addr2 u2 )
+    2dup 2 min s" --" compare 0=
+    IF
+	[char] - skip [char] - scan [char] - skip
+    THEN ;
+
 : replace-_ ( c-addr u -- )
     \ replaces _ with -
     chars bounds
@@ -88,14 +94,14 @@ create description-buffer 4096 chars allot
 : make-doc ( -- )
     get-current documentation set-current
     create
-	last @ name>string 2,		\ name
+	last @ name>string skip-prefix 2,		\ name
 	[char] ) parse save-mem 2,	\ stack-effect
 	bl parse-word condition-wordset 2,	\ wordset
-	bl parse-word dup		\ pronounciation
+	bl parse-word dup	\ pronounciation
 	if
 	    condition-pronounciation
 	else
-	    2drop last @ name>string
+	    2drop last @ name>string skip-prefix
 	endif
 	2,
 	get-description save-mem 2,
