@@ -126,16 +126,21 @@ int gforth_memcmp(const char * s1, const char * s2, size_t n)
  * If the word is <CF(DOESJUMP), it's a primitive
  */
 
-void relocate(Cell *image, const char *bitstring, int size, int base, Label symbols[])
+void relocate(Cell *image, const char *bitstring, 
+              int size, int base, Label symbols[])
 {
   int i=0, j, k, steps=(size/sizeof(Cell))/RELINFOBITS;
   Cell token;
   char bits;
   Cell max_symbols;
-  /** A virtial start address that's the real start address minus the one in the image */
+  /* 
+   * A virtial start address that's the real start address minus 
+   * the one in the image 
+   */
   Cell *start = (Cell * ) (((void *) image) - ((void *) base));
 
-  /* printf("relocating to %x[%x] start=%x base=%x\n", image, size, start, base); */
+  
+/* printf("relocating to %x[%x] start=%x base=%x\n", image, size, start, base); */
   
   for (max_symbols=DOESJUMP+1; symbols[max_symbols]!=0; max_symbols++)
     ;
@@ -171,11 +176,12 @@ void relocate(Cell *image, const char *bitstring, int size, int base, Label symb
 	      else
 		fprintf(stderr,"Primitive %d used in this image at $%lx is not implemented by this\n engine (%s); executing this code will crash.\n",CF(token),(long)&image[i],VERSION);
 	    }
-	else
+	else {
           // if base is > 0: 0 is a null reference so don't adjust
           if (token>=base) {
             image[i]+=(Cell)start;
           }
+        }
       }
     }
   }
@@ -499,7 +505,7 @@ Address loader(FILE *imagefile, char* filename)
   imp=image+preamblesize;
   if (clear_dictionary)
     memset(imp+header.image_size, 0, dictsize-header.image_size);
-  {
+  if(header.base==0 || header.base  == 0x100) {
     Cell reloc_size=((header.image_size-1)/sizeof(Cell))/8+1;
     char reloc_bits[reloc_size];
     fseek(imagefile, preamblesize+header.image_size, SEEK_SET);
@@ -512,6 +518,11 @@ Address loader(FILE *imagefile, char* filename)
       fclose(snapshot);
     }
 #endif
+  }
+  else if(header.base!=imp) {
+    fprintf(stderr,"%s: Cannot load nonrelocatable image (compiled for address $%lx) at address $%lx\n",
+	    progname, (unsigned long)header.base, (unsigned long)imp);
+    exit(1);
   }
   if (header.checksum==0)
     ((ImageHeader *)imp)->checksum=check_sum;
