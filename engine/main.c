@@ -154,7 +154,7 @@ int gforth_memcmp(const char * s1, const char * s2, size_t n)
 /* image file format:
  *  "#! binary-path -i\n" (e.g., "#! /usr/local/bin/gforth-0.4.0 -i\n")
  *   padding to a multiple of 8
- *   magic: "Gforth2x" means format 0.4,
+ *   magic: "Gforth3x" means format 0.6,
  *              where x is a byte with
  *              bit 7:   reserved = 0
  *              bit 6:5: address unit size 2^n octets
@@ -941,12 +941,12 @@ Address loader(FILE *imagefile, char* filename)
   
   do {
     if(fread(magic,sizeof(Char),8,imagefile) < 8) {
-      fprintf(stderr,"%s: image %s doesn't seem to be a Gforth (>=0.4) image.\n",
+      fprintf(stderr,"%s: image %s doesn't seem to be a Gforth (>=0.6) image.\n",
 	      progname, filename);
       exit(1);
     }
     preamblesize+=8;
-  } while(memcmp(magic,"Gforth2",7));
+  } while(memcmp(magic,"Gforth3",7));
   magic7 = magic[7];
   if (debug) {
     magic[7]='\0';
