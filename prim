@@ -1869,6 +1869,12 @@ and represents the floating-point number 0.""
 Float r;
 char *number=cstr(c_addr, u, 1);
 char *endconv;
+int sign = 0;
+if(number[0]=='-') {
+   sign = 1;
+   number++;
+   u--;
+}
 while(isspace((unsigned)(number[--u])) && u>0);
 switch(number[u])
 {
@@ -1884,7 +1890,7 @@ if((flag=FLAG(!(Cell)*endconv)))
 {
    IF_FTOS(fp[0] = FTOS);
    fp += -1;
-   FTOS = r;
+   FTOS = sign ? -r : r;
 }
 else if(*endconv=='d' || *endconv=='D')
 {
@@ -1894,7 +1900,7 @@ else if(*endconv=='d' || *endconv=='D')
      {
 	IF_FTOS(fp[0] = FTOS);
 	fp += -1;
-	FTOS = r;
+	FTOS = sign ? -r : r;
      }
 }
 
