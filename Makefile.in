@@ -369,7 +369,8 @@ GEN = gforth$(EXE) gforth-ditc$(EXE) gforth-fast$(EXE) gforth-itc$(EXE) kernel/v
 # things that need a working forth system to be generated
 FORTH_GEN_ENGINE=engine/prim.i engine/prim_lab.i engine/prim_names.i \
 	engine/prim_superend.i engine/profile.i \
-	engine/prim_num.i engine/prim_grp.i
+	engine/prim_num.i engine/prim_grp.i \
+	engine/costs.i engine/super2.i
 FORTH_GEN0 = prim.b $(FORTH_GEN_ENGINE) kernel/aliases.fs kernel/prim.fs kernel/groups.fs
 FORTH_GEN =  $(FORTH_GEN0) @KERNEL@ gforth.fi
 # this is used for antidependences,
@@ -706,6 +707,11 @@ engine/peephole.i:	prim.b prims2x.fs
 
 engine/profile.i:	prim.b prims2x.fs
 		$(FORTHP) prims2x.fs -e "c-flag on s\" prim.b\" ' output-profile ' output-profile-combined process-file bye" >$@-
+		$(CP) $@- $@
+		$(RM) $@-
+
+engine/super2.i:	prim.b prims2x.fs
+		$(FORTHP) prims2x.fs -e "c-flag on s\" prim.b\" ' output-super2 dup process-file bye" >$@-
 		$(CP) $@- $@
 		$(RM) $@-
 

@@ -516,6 +516,87 @@ void print_sizes(Cell sizebyte)
 	  1 << ((sizebyte >> 5) & 3));
 }
 
+/* static superinstruction stuff */
+
+struct cost {
+  char loads;       /* number of stack loads */
+  char stores;      /* number of stack stores */
+  char updates;     /* number of stack pointer updates */
+  short offset;      /* offset into super2 table */
+  char length;      /* number of components */
+};
+
+short super2[] = {
+#include "super2.i"
+};
+
+struct cost super_costs[] = {
+#include "costs.i"
+};
+
+#define HASH_SIZE 256
+
+struct super_table_entry {
+  struct super_table_entry *next;
+  short *start;
+  short length;
+  short super;
+} *super_table[HASH_SIZE];
+int max_super=2;
+
+int hash_super(short *start, int length)
+{
+  int i, r;
+  
+  for (i=0, r=0; i<length; i++) {
+    r <<= 1;
+    r += start[i];
+  }
+  return r & (HASH_SIZE-1);
+}
+
+int lookup_super(short *start, int length)
+{
+  int hash=hash_super(start,length);
+  struct super_table_entry *p = super_table[hash];
+
+  assert(length >= 2);
+  for (; p!=NULL; p = p->next) {
+    if (length == p->length &&
+	memcmp((char *)p->start, (char *)start, length*sizeof(short))==0)
+      return p->super;
+  }
+  return -1;
+}
+
+void prepare_super_table()
+{
+  int i;
+
+  for (i=0; i<sizeof(super_costs)/sizeof(super_costs[0]); i++) {
+    struct cost *c = &super_costs[i];
+    if (c->length > 1) {
+      int hash = hash_super(super2+c->offset, c->length);
+      struct super_table_entry **p = &super_table[hash];
+      struct super_table_entry *e = malloc(sizeof(struct super_table_entry));
+      e->next = *p;
+      e->start = super2 + c->offset;
+      e->length = c->length;
+      e->super = i;
+      *p = e;
+      if (c->length > max_super)
+	max_super = c->length;
+    }
+  }
+}
+
+int mycost(int prim)
+{
+  return 1;
+}
+
+/* dynamic replication/superinstruction stuff */
+
 #define MAX_IMMARGS 2
 
 #ifndef NO_DYNAMIC
@@ -551,15 +632,15 @@ int compare_priminfo_length(const void *_a, const void *_b)
 #endif /* defined(NO_DYNAMIC) */
 Cell npriminfos=0;
 
+static char superend[]={
+#include "prim_superend.i"
+};
 
 void check_prims(Label symbols1[])
 {
   int i;
 #ifndef NO_DYNAMIC
   Label *symbols2, *symbols3, *ends1;
-  static char superend[]={
-#include "prim_superend.i"
-  };
 #endif
 
   if (debug)
@@ -736,7 +817,7 @@ int forget_dyncode(Address code)
 long dyncodesize(void)
 {
 #ifndef NO_DYNAMIC
-  struct code_block_list *p, **pp;
+  struct code_block_list *p;
   long size=0;
   for (p=code_block_list; p!=NULL; p=p->next) {
     if (code_here >= p->block && code_here < p->block+p->size)
@@ -945,11 +1026,64 @@ void compile_prim_dyn(Cell *start)
 #endif /* !defined(DOUBLY_INDIRECT) */
 }
 
+#define MAX_BB 128 /* maximum number of instructions in BB */
+
 /* compile *start, possibly rewriting it into a static and/or dynamic
    superinstruction */
 void compile_prim1(Cell *start)
 {
+#if defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED)
   compile_prim_dyn(start);
+#else
+  static struct {
+    Cell *instp;
+    int superinst; /* best superinst for instp */
+    int cost;       /* cost from here to end of bb */
+  } best[MAX_BB+1], *p;
+  static int ninsts=0;
+  int i,j, nextdyn;
+  unsigned prim_num;
+
+  if (start==NULL)
+    goto end_bb;
+  prim_num = ((Xt)*start)-vm_prims;
+  if (prim_num >= npriminfos)
+    goto end_bb;
+  assert(ninsts<MAX_BB);
+  best[ninsts++].instp = start;
+  if (ninsts >= MAX_BB || superend[prim_num-DOESJUMP-1]) {
+  end_bb:
+    best[ninsts].cost=0;
+    for (i=ninsts-1; i>=0; i--) {
+      short components[max_super];
+      p=&best[i];
+      p->superinst = ((Xt)*(p->instp))-vm_prims-DOESJUMP-1;
+      p->cost = p[1].cost + mycost(p->superinst);
+      components[0] = p->superinst;
+      for (j=2; j<=max_super && i+j<=ninsts ; j++) {
+	int super, jcost;
+	components[j-1] = ((Xt)*(p[j-1].instp))-vm_prims-DOESJUMP-1;
+	super = lookup_super(components,j);
+	if (super >= 0) {
+	  jcost = p[j].cost + mycost(super);
+	  if (jcost <= p->cost) {
+	    p->superinst = super;
+	    p->cost = jcost;
+	  }
+	}
+      }
+    }
+    for (i=0, nextdyn=0; i<ninsts; i++) {
+      p=&best[i];
+      *(p->instp) = vm_prims[p->superinst+DOESJUMP+1];
+      if (i==nextdyn) {
+	nextdyn += super_costs[p->superinst].length;
+	/* !! *(p->instp) = compile_prim_dyn(p->superinst); */
+      }
+    }
+    ninsts=0;
+  }
+#endif /* defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED) */
 }
 
 #if defined(PRINT_SUPER_LENGTHS) && !defined(NO_DYNAMIC)
@@ -989,6 +1123,7 @@ Address loader(FILE *imagefile, char* filename)
 
   vm_prims = engine(0,0,0,0,0);
   check_prims(vm_prims);
+  prepare_super_table();
 #ifndef DOUBLY_INDIRECT
 #ifdef PRINT_SUPER_LENGTHS
   print_super_lengths();

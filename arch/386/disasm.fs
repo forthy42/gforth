@@ -762,7 +762,7 @@ inh ud1 ud1
         THEN ;
 
 : ent  ( addr op -- addr' )
-        .s" enter   " w@+ . ., count h.>s ;
+        .s" enter   " drop w@+ h.>s ., count h.>s ;
 
 : cis   ( addr op -- addr' )
         $9a =

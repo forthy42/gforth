@@ -1271,8 +1271,8 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
 \    int loads;       /* number of stack loads */
 \    int stores;      /* number of stack stores */
 \    int updates;     /* number of stack pointer updates */
+\    int offset;      /* offset into super2 table */
 \    int length;      /* number of components */
-\    int *components; /* array of vm_prim indexes of components */
 \  };
 
 \ How do you know which primitive or combined instruction this
@@ -1297,17 +1297,36 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
 : output-num-part ( p -- )
     prim-num @ 4 .r ." ," ;
 
+: super2-length ( -- n )
+    combined if
+	num-combined @
+    else
+	1
+    endif ;
+
+: output-name-comment ( -- )
+    ."  /* " prim prim-name 2@ type ."  */" ;
+
+variable offset-super2  0 offset-super2 ! \ offset into the super2 table
+
 : output-costs ( -- )
+    \ description of superinstructions and simple instructions
     ." {" prim compute-costs
     rot 2 .r ." ," swap 2 .r ." ," 2 .r ." ,"
-    combined if
-	num-combined @ 2 .r
-	." , ((int []){" ['] output-num-part map-combined ." })}, /* "
-    else
-	."  1, ((int []){" prim prim-num @ 4 .r ." })}, /* "
-    endif
-    prim prim-name 2@ type ."  */"
+    offset-super2 @ 5 .r ." ,"
+    super2-length dup 2 .r ." }," offset-super2 +!
+    output-name-comment
     cr ;
+
+: output-super2 ( -- )
+    \ table of superinstructions without requirement for existing prefixes
+    combined if
+	['] output-num-part map-combined 
+    else
+	prim output-num-part
+    endif
+    output-name-comment
+    cr ;   
 
 \ the parser
 
@@ -1484,7 +1503,8 @@ Variable c-flag
       start }} [ifdef] vmgen c-ident [else] forth-ident [then] {{ end
       2dup prim prim-name 2! prim prim-c-name 2! }}  white **
    (( ` / white ** {{ start }} c-ident {{ end prim prim-c-name 2! }} white ** )) ??
-   (( simple-primitive || combined-primitive )) {{ 1 function-number +! }}
+   (( simple-primitive || combined-primitive ))
+   {{ 1 function-number +! }}
 )) <- primitive ( -- )
 
 (( (( comment || primitive || nl white ** )) ** eof ))
