@@ -20,6 +20,8 @@
 
 \ this file comes last, because these words override cross' words.
 
+require ./vars.fs
+
 create s"-buffer /line chars allot
 has? compiler 0= 
 [IF] : s" [ELSE] :noname [THEN]

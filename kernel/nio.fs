@@ -18,6 +18,8 @@
 \ along with this program; if not, write to the Free Software
 \ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+require ./io.fs
+
 : pad    ( -- c-addr ) \ core-ext
     \G @var{c-addr} is the address of a transient region that can be
     \G used as temporary data storage. At least 84 characters of space

@@ -27,13 +27,13 @@
 
 Create mach-file here over 1+ allot place
 
-require ../errors.fs
-require ../search.fs
-require ../extend.fs
+require ./../errors.fs
+require ./../search.fs
+require ./../extend.fs
 
 \ include etags.fs
 
-include ../cross.fs               \ include cross-compiler
+include ./../cross.fs               \ include cross-compiler
 
 decimal
 
@@ -63,21 +63,21 @@ LOCK
 
 doc-off
 has? prims [IF]
-    include aliases.fs             \ include primitive aliases
+    include ./aliases.fs             \ include primitive aliases
 [ELSE]
     prims-include
     undef-words
-    include prim.fs
+    include ./prim.fs
     all-words  UNLOCK LOCK
 [THEN]
 doc-on
 
 0 AConstant forthstart
 
-include ./vars.fs                \ variables and other stuff
-include kernel/version.fs \ is in $(build)/kernel
+\ include ./vars.fs                \ variables and other stuff
+\ include kernel/version.fs \ is in $(build)/kernel
 include ./kernel.fs              \ load kernel
-include ./errore.fs
+\ include ./errore.fs
 include ./doers.fs
 has? file [IF]
 include ./args.fs
@@ -103,7 +103,7 @@ include ./special.fs             \ special must be last!
 \ Setup                                                13feb93py
 
 here normal-dp !
-tudp H @ minimal udp !
+UNLOCK tudp @ LOCK udp !
 decimal
 
 has? header [IF]
@@ -117,5 +117,5 @@ has? header [IF]
 
 UNLOCK Tlast @
 LOCK
-1 cells - dup forth-wordlist cell+ ! Last !
+1 cells - dup forth-wordlist wordlist-id ! Last !
 .unresolved

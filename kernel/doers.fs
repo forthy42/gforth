@@ -48,7 +48,7 @@ doer? :docon 0= [IF] \D compileddofillers .( DOCON )
 [THEN]
 
 doer? :douser 0= [IF] \D compileddofillers .( DOUSER )
-| : User DOES> @ up @ + ;
+| : User DOES> @ [IFDEF] up@ up@ [ELSE] up @ [THEN] + ;
 [THEN]
 
 doer? :dovar 0= [IF] \D compileddofillers .( DOVAR )
@@ -57,4 +57,3 @@ doer? :dovar 0= [IF] \D compileddofillers .( DOVAR )
 
 \D compileddofillers .( .)
 [THEN]
-

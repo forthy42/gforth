@@ -18,6 +18,8 @@
 \ along with this program; if not, write to the Free Software
 \ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+require ./io.fs
+
 : accept ( adr len -- len )
   over + over ( start end pnt )
   BEGIN

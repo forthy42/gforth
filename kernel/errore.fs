@@ -22,6 +22,9 @@
 \ The errors are defined by a linked list, for easy adding
 \ and deleting. Speed is not neccassary at this point.
 
+require ./io.fs
+require ./nio.fs
+
 AVariable ErrLink              \ Linked list entry point
 NIL ErrLink !
 

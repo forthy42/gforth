@@ -20,6 +20,10 @@
 
 \ May be cross-compiled
 
+require ./io.fs		\ type ...
+require ./nio.fs	\ . <# ...
+require ./int.fs	\ wordlist-id ..
+
 hex
 
 \ .S            CORE / CORE EXT                         9may93jaw

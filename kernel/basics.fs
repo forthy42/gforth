@@ -20,7 +20,11 @@
 
 \ Idea and implementation: Bernd Paysan (py)
 
-HEX
+\ Needs:
+
+require ./vars.fs
+
+hex
 
 \ labels for some code addresses
 
@@ -137,7 +141,7 @@ Constant dictionary-end
     true EXIT
   THEN
   toupper [char] 0 - dup 9 u> IF
-    [ 'A '9 1 + -  ] literal -
+    [ char A char 9 1 + -  ] literal -
     dup 9 u<= IF
       drop false EXIT
     THEN
@@ -201,8 +205,10 @@ has? glocals [IF]
 ' noop IS 'catch
 ' noop IS 'throw
 
+has? backtrace [IF]
 Defer store-backtrace
 ' noop IS store-backtrace
+[THEN]
 
 : catch ( x1 .. xn xt -- y1 .. ym 0 / z1 .. zn error ) \ exception
     'catch
@@ -215,7 +221,9 @@ Defer store-backtrace
 [ [THEN] ]
     handler @ >r
     rp@ handler !
+[ has? backtrace [IF] ]
     backtrace-empty on
+[ [THEN] ]
     execute
     r> handler ! rdrop 
 [ has? floating [IF] ]
@@ -229,7 +237,9 @@ Defer store-backtrace
 : throw ( y1 .. ym error/0 -- y1 .. ym / z1 .. zn error ) \ exception
     ?DUP IF
 	[ has? header [IF] here 9 cells ! [THEN] ] \ entry point for signal handler
+[ has? backtrace [IF] ]
 	store-backtrace
+[ [THEN] ]
 [ has? interpreter [IF] ]
 	handler @ dup 0= IF
 [ has? os [IF] ]
@@ -256,7 +266,9 @@ Defer store-backtrace
 : bounce ( y1 .. ym error/0 -- y1 .. ym error / y1 .. ym ) \ gforth
 \ a throw without data or fp stack restauration
   ?DUP IF
+[ has? backtrace [IF] ]
       store-backtrace
+[ [THEN] ]
       handler @ rp!
       r> handler !
 [ has? glocals [IF] ]

@@ -24,6 +24,13 @@
 
 \ \ input stream primitives                       	23feb93py
 
+require ./basics.fs 	\ bounds decimal hex ...
+require ./io.fs		\ type ...
+require ./nio.fs	\ . <# ...
+require ./errore.fs	\ .error ...
+require ./version.fs	\ version-string
+require ./../chains.fs
+
 : tib ( -- c-addr ) \ core-ext
     \G @var{c-addr} is the address of the Terminal Input Buffer.
     \G OBSOLESCENT: @code{source} superceeds the function of this word.
@@ -107,7 +114,7 @@ const Create bases   10 ,   2 ,   A , 100 ,
     THEN ;
 
 : sign? ( addr u -- addr u flag )
-    over c@ '- =  dup >r
+    over c@ [char] - =  dup >r
     IF
 	1 /string
     THEN
@@ -245,9 +252,10 @@ forth-wordlist current !
 
 \ \ header, finding, ticks                              17dec92py
 
-$80 constant alias-mask \ set when the word is not an alias!
-$40 constant immediate-mask
-$20 constant restrict-mask
+hex
+80 constant alias-mask \ set when the word is not an alias!
+40 constant immediate-mask
+20 constant restrict-mask
 
 \ higher level parts of find
 
@@ -453,7 +461,9 @@ Defer interpreter-notfound ( c-addr count -- )
 
 : interpret ( ?? -- ?? ) \ gforth
     \ interpret/compile the (rest of the) input buffer
+[ has? backtrace [IF] ]
     rp@ backtrace-rp0 !
+[ [THEN] ]
     BEGIN
 	?stack name dup
     WHILE
@@ -464,7 +474,7 @@ Defer interpreter-notfound ( c-addr count -- )
 \ interpreter                                 	30apr92py
 
 \ not the most efficient implementations of interpreter and compiler
-| : interpreter ( c-addr u -- ) 
+: interpreter ( c-addr u -- ) 
     2dup find-name dup
     if
 	nip nip name>int execute
@@ -583,7 +593,8 @@ Defer .status
 	[ [THEN] ]
     refill drop ;
 
-: (quit)  BEGIN  .status cr (query) interpret prompt  AGAIN ;
+: (quit)  
+  BEGIN  .status cr (query) interpret prompt  AGAIN ;
 
 ' (quit) IS 'quit
 
@@ -611,7 +622,7 @@ max-errors 6 * cells allot
     \G Display @var{u} as an unsigned hex number, prefixed with a "$" and
     \G followed by a space.
     \G !! not used...
-    '$ emit base @ swap hex u. base ! ;
+    [char] $ emit base @ swap hex u. base ! ;
 
 : typewhite ( addr u -- ) \ gforth
     \ like type, but white space is printed instead of the characters
@@ -625,8 +636,11 @@ max-errors 6 * cells allot
     loop ;
 
 DEFER DOERROR
+
+has? backtrace [IF]
 Defer dobacktrace ( -- )
 ' noop IS dobacktrace
+[THEN]
 
 : .error-string ( throw-code -- )
   dup -2 = 
@@ -673,7 +687,10 @@ Defer dobacktrace ( -- )
     cell +LOOP
     .error-frame
   LOOP
-  drop dobacktrace
+  drop 
+[ has? backtrace [IF] ]
+  dobacktrace
+[ [THEN] ]
   normal-dp dpp ! ;
 
 ' (DoError) IS DoError
@@ -714,7 +731,6 @@ Defer 'cold ( -- ) \ gforth  tick-cold
 \ command-line arguments
 ' noop IS 'cold
 
-include ./../chains.fs
 
 Variable init8
 
