@@ -36,7 +36,7 @@ AC_ARG_ENABLE(force-reg,
 			  the machine.h file. This can cause a good speedup,
 			  but also incorrect code with some gcc versions on
 			  some processors (default disabled).],
-AC_DEFINE(FORCE_REG))
+AC_DEFINE(FORCE_REG,,[Define if you want to use explicit register declarations for better performance or for more convenient CODE words (does not work with all GCC versions on all machines)]))
 
 AC_ARG_WITH(debug,
 [  --with-debug     specifies option -g to compile with debug info (default)
@@ -117,7 +117,7 @@ if test "$ac_cv_int_type_cell" != int; then
 	echo "Since you don't have a proper C on this machine, that's one more reason"
 	echo "to use Forth;-)"
 fi
-AC_DEFINE_UNQUOTED(CELL_TYPE,$ac_cv_int_type_cell)
+AC_DEFINE_UNQUOTED(CELL_TYPE,$ac_cv_int_type_cell,[an integer type that is as long as a pointer])
 
 ac_cv_int_type_double_cell=none
 case `expr 2 '*' "$ac_cv_sizeof_char_p"` in
@@ -140,9 +140,9 @@ if test "$ac_cv_int_type_double_cell" = none; then
 	echo 'long longs for your machine (the GCC manual states that they \"are twice as'
 	echo "long as \`long int\'\")."
 	AC_LIBOBJ(dblsub)
-	AC_DEFINE(BUGGY_LONG_LONG)
+	AC_DEFINE(BUGGY_LONG_LONG,,[define this if there is no working DOUBLE_CELL_TYPE on your machine])
 else
-  AC_DEFINE_UNQUOTED(DOUBLE_CELL_TYPE,$ac_cv_int_type_double_cell)
+  AC_DEFINE_UNQUOTED(DOUBLE_CELL_TYPE,$ac_cv_int_type_double_cell,[an integer type that is twice as long as a pointer])
 fi
 
 AC_MSG_CHECKING([whether the linker accepts -export-dynamic])
@@ -205,7 +205,7 @@ case "$host_cpu" in
 		AC_MSG_RESULT($ac_link_mips_t)
 		fixme #dynamically generated code should be in the same 256MB
 		# region as the text segment; no indirect threading necessary
-		test $ac_link_mips_t = yes||(echo cannot link text and data into same 256M region, using indirect threading; AC_DEFINE(INDIRECT_THREADED))
+		test $ac_link_mips_t = yes||(echo cannot link text and data into same 256M region, using indirect threading; AC_DEFINE(INDIRECT_THREADED,,[Define if you want to force an indirect threaded code implementation]))
 		AC_MSG_CHECKING([whether the linker accepts -D])
 		OLDLDFLAGS=$LDFLAGS
 		LDFLAGS="$LDFLAGS -Xlinker -D -Xlinker 10400000"
@@ -257,7 +257,7 @@ case "$host_os" in
 esac
 AC_SUBST(EXE)
 AC_SUBST(DIRSEP)
-AC_DEFINE_UNQUOTED(DIRSEP,'$DIRSEP')
+AC_DEFINE_UNQUOTED(DIRSEP,'$DIRSEP',[a directory separator character])
 
 dnl Now a little support for DOS/DJGCC
 AC_SUBST(GFORTH_EXE)
@@ -271,14 +271,14 @@ GFORTHDITC_EXE=""
 
 PATHSEP=":"
 AC_SUBST(PATHSEP)
-AC_DEFINE_UNQUOTED(PATHSEP,'$PATHSEP')
+AC_DEFINE_UNQUOTED(PATHSEP,'$PATHSEP',[a path separator character])
 
 AC_SUBST(FORTHSIZES)
 
 if test "$PEEPHOLE" = "yes"
 then
    PEEPHOLEFLAG="true"
-   AC_DEFINE(HAS_PEEPHOLE)
+   AC_DEFINE(HAS_PEEPHOLE,,[Define if you want to use peephole optimization])
 else
    PEEPHOLEFLAG="false"
 fi
