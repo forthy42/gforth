@@ -67,7 +67,6 @@ has? kernel-size
     0 ,                 \ return stack base
     0 ,                 \ locals stack base
 AConstant image-header
-: forthstart image-header @ ;
 [THEN]
 
 doc-off
@@ -81,11 +80,16 @@ has? prims [IF]
 [THEN]
 doc-on
 
+has? header [IF]
+: forthstart image-header @ ;
+[THEN]
+
 \ 0 AConstant forthstart
 
 \ include ./vars.fs                  \ variables and other stuff
 \ include kernel/version.fs          \ is in $(build)/kernel
 include ./kernel.fs                  \ kernel
+udp .s drop
 \ include ./errore.fs
 include ./doers.fs
 has? file [IF]
