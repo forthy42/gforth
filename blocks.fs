@@ -91,7 +91,7 @@ Defer flush-blocks ( -- ) \ gforth
     offset @ - chars/block chars um* get-block-fid reposition-file throw ;
 
 : update ( -- ) \ block
-    \G Mark the current block buffer as dirty.
+    \G Mark the state of the current block buffer as assigned-dirty.
     last-block @ ?dup IF  buffer-dirty on  THEN ;
 
 : save-buffer ( buffer -- ) \ gforth
@@ -176,7 +176,8 @@ User scr ( -- a-addr ) \ block-ext s-c-r
 
 \ nac31Mar1999 moved "scr @" to list to make the stack comment correct
 : updated?  ( n -- f ) \ gforth
-    \G Return true if block @i{n} has been marked as dirty.
+    \G Return true if @code{updated} has been used to mark block @i{n}
+    \G as assigned-dirty.
     buffer
     [ 0 buffer-dirty 0 block-buffer - ] Literal + @ ;
 
