@@ -32,11 +32,10 @@ Variable path$  2 arg path$ $!
 Variable pathes$  2 arg pathes$ $!
 Variable exe$
 
-pathes$ 1 1 $del
-s" /cygdrive/" pathes$ 0 $ins
-: fixpathes ( addr u -- )
-  bounds ?DO  I c@ '\ = IF  '/ I c!  THEN  LOOP ;
-pathes$ $@ fixpathes
+\ pathes$ 1 1 $del s" /cygdrive/" pathes$ 0 $ins
+\ : fixpathes ( addr u -- )
+\   bounds ?DO  I c@ '\ = IF  '/ I c!  THEN  LOOP ;
+\ pathes$ $@ fixpathes
 s" .;" pathes$ 0 $ins
 
 : fix-exe ( offset addr u -- )

@@ -76,6 +76,12 @@ char *tilde_cstr(Char *from, UCell size, int clear)
   if (size<2 || from[1]=='/') {
     s1 = (char *)getenv ("HOME");
     if(s1 == NULL)
+#if defined(_WIN32) || defined (MSDOS)
+      s1 = (char *)getenv ("TEMP");
+      if(s1 == NULL)
+         s1 = (char *)getenv ("TMP");
+         if(s1 == NULL)
+#endif
       s1 = "";
     s2 = from+1;
     s2_len = size-1;

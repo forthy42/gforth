@@ -50,6 +50,8 @@ $(make distfiles -f Makedist | tr ' ' '\n' | (while read i; do
 done) | sort -u | sed \
   -e 's:/:\\:g' \
   -e 's:^\(..*\)$:{app}\\\1:g')
+{app}\doc\gforth
+{app}\doc\vmgen
 
 [Files]
 ; Parameter quick reference:
@@ -58,6 +60,8 @@ done) | sort -u | sed \
 "cygwin1.dll", "{app}\cygwin1.dll", copy_normal,
 "sh.exe", "{app}\sh.exe", copy_normal,
 "gforth.fi", "{app}\gforth.fi", copy_normal,
+$(make html >/dev/null; ls doc/gforth | sed -e 's:/:\\:g' -e 's:^\(..*\)$:"doc\\gforth\\\1", "{app}\\doc\\gforth\\\1", copy_normal,:g')
+$(ls doc/vmgen | sed -e 's:/:\\:g' -e 's:^\(..*\)$:"doc\\vmgen\\\1", "{app}\\doc\\vmgen\\\1", copy_normal,:g')
 $(make distfiles -f Makedist EXE=.exe | tr ' ' '\n' | (while read i; do
   if [ ! -d $i ]; then echo $i; fi
 done) | sed \
@@ -73,6 +77,8 @@ done) | sed \
 "Gforth-dict", "{app}\gforth-dict.exe", "", "{app}", , 0
 "Gforth-itc", "{app}\gforth-itc.exe", "", "{app}", , 0
 "Gforth-prof", "{app}\gforth-prof.exe", "", "{app}", , 0
+"Gforth Manual", "{app}\doc\gforth\index.html", "", "{app}", , 0
+"VMgen Manual", "{app}\doc\vmgen\index.html", "", "{app}", , 0
 
 [Run]
 "{app}\gforth.exe", "-i {app}\gforth.fi {app}\fixpath.fs {app} gforth-fast.exe",
