@@ -141,6 +141,45 @@ undefine(`index')
 undefine(`shift')
 undefine(`symbols')
 
+\ run-time routines for non-primitives.  They are defined as
+\ primitives, because that simplifies things.
+
+(docol)	( -- R:a_retaddr )	gforth-internal	paren_docol
+""run-time routine for colon definitions""
+a_retaddr = (Cell *)ip;
+SET_IP((Xt *)PFA(CFA));
+
+(docon) ( -- w )	gforth-internal	paren_docon
+""run-time routine for constants""
+w = *(Cell *)PFA(CFA);
+
+(dovar) ( -- a_body )	gforth-internal	paren_dovar
+""run-time routine for variables and CREATEd words""
+a_body = PFA(CFA);
+
+(douser) ( -- a_user )	gforth-internal	paren_douser
+""run-time routine for constants""
+a_user = (Cell *)(up+*(Cell *)PFA(CFA));
+
+(dodefer) ( -- )	gforth-internal	paren_dodefer
+""run-time routine for deferred words""
+SUPER_END;
+EXEC(*(Xt *)PFA(CFA));
+
+(dofield) ( n1 -- n2 )	gforth-internal	paren_field
+""run-time routine for fields""
+n2 = n1 + *(Cell *)PFA(CFA);
+
+(dodoes) ( -- a_body R:a_retaddr )	gforth-internal	paren_dodoes
+""run-time routine for @code{does>}-defined words""
+a_retaddr = (Cell *)ip;
+a_body = PFA(CFA);
+SET_IP(DOES_CODE1(CFA));
+
+(does-handler) ( -- )	gforth-internal	paren_does_handler
+""just a slot to have an encoding for the DOESJUMP, 
+which is no longer used anyway (!! eliminate this)""
+
 \g control
 
 noop	( -- )		gforth

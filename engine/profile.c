@@ -85,9 +85,9 @@ void vm_count_block(Xt *ip)
 }
 
 #ifdef DIRECT_THREADED
-#define VM_IS_INST(inst, n) ((inst) == vm_prims[(n)+DOESJUMP+1])
+#define VM_IS_INST(inst, n) ((inst) == vm_prims[n])
 #else
-#define VM_IS_INST(inst, n) ((inst) == &(vm_prims[(n)+DOESJUMP+1]))
+#define VM_IS_INST(inst, n) ((inst) == &(vm_prims[n]))
 #endif
 
 void postprocess_block(block_count *b)

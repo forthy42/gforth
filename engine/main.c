@@ -47,11 +47,11 @@
 #include <systypes.h>
 #endif
 
-enum {
+typedef enum prim_num {
 /* definitions of N_execute etc. */
 #include "prim_num.i"
   N_START_SUPER
-};
+} PrimNum;
 
 /* global variables for engine.c 
    We put them here because engine.c is compiled several times in
@@ -209,7 +209,7 @@ int gforth_memcmp(const char * s1, const char * s2, size_t n)
 
 Cell groups[32] = {
   0,
-DOESJUMP+1
+  0
 #undef GROUP
 #undef GROUPADD
 #define GROUPADD(n) +n
@@ -247,7 +247,7 @@ void relocate(Cell *image, const unsigned char *bitstring,
   
 /* printf("relocating to %x[%x] start=%x base=%x\n", image, size, start, base); */
   
-  for (max_symbols=DOESJUMP+1; symbols[max_symbols]!=0; max_symbols++)
+  for (max_symbols=0; symbols[max_symbols]!=0; max_symbols++)
     ;
   max_symbols--;
   size/=sizeof(Cell);
@@ -563,7 +563,7 @@ struct cost {
   char length;      /* number of components */
 };
 
-short super2[] = {
+PrimNum super2[] = {
 #include "super2.i"
 };
 
@@ -575,13 +575,13 @@ struct cost super_costs[] = {
 
 struct super_table_entry {
   struct super_table_entry *next;
-  short *start;
+  PrimNum *start;
   short length;
-  short super;
+  PrimNum super;
 } *super_table[HASH_SIZE];
 int max_super=2;
 
-int hash_super(short *start, int length)
+int hash_super(PrimNum *start, int length)
 {
   int i, r;
   
@@ -592,7 +592,7 @@ int hash_super(short *start, int length)
   return r & (HASH_SIZE-1);
 }
 
-int lookup_super(short *start, int length)
+int lookup_super(PrimNum *start, int length)
 {
   int hash=hash_super(start,length);
   struct super_table_entry *p = super_table[hash];
@@ -600,7 +600,7 @@ int lookup_super(short *start, int length)
   assert(length >= 2);
   for (; p!=NULL; p = p->next) {
     if (length == p->length &&
-	memcmp((char *)p->start, (char *)start, length*sizeof(short))==0)
+	memcmp((char *)p->start, (char *)start, length*sizeof(PrimNum))==0)
       return p->super;
   }
   return -1;
@@ -714,7 +714,7 @@ void check_prims(Label symbols1[])
 #define str(s) #s
   fprintf(stderr, "Compiled with gcc-" xstr(__GNUC__) "." xstr(__GNUC_MINOR__) "\n"); 
 #endif
-  for (i=DOESJUMP+1; symbols1[i+1]!=0; i++)
+  for (i=0; symbols1[i]!=0; i++)
     ;
   npriminfos = i;
   
@@ -727,15 +727,15 @@ void check_prims(Label symbols1[])
 #else
   symbols3=symbols1;
 #endif
-  ends1 = symbols1+i+1-DOESJUMP;
+  ends1 = symbols1+i+1;
   ends1j =   ends1+i;
-  nends1j = i-DOESJUMP;
+  nends1j = i+1;
   ends1jsorted = (Label *)alloca(nends1j*sizeof(Label));
   memcpy(ends1jsorted,ends1j,nends1j*sizeof(Label));
   qsort(ends1jsorted, nends1j, sizeof(Label), compare_labels);
   
   priminfos = calloc(i,sizeof(PrimInfo));
-  for (i=DOESJUMP+1; symbols1[i+1]!=0; i++) {
+  for (i=0; symbols1[i]!=0; i++) {
     int prim_len = ends1[i]-symbols1[i];
     PrimInfo *pi=&priminfos[i];
     int j=0;
@@ -745,7 +745,7 @@ void check_prims(Label symbols1[])
     Label endlabel = bsearch_next(symbols1[i]+1,ends1jsorted,nends1j);
 
     pi->start = s1;
-    pi->superend = superend[i-DOESJUMP-1]|no_super;
+    pi->superend = superend[i]|no_super;
     if (pi->superend)
       pi->length = endlabel-symbols1[i];
     else
@@ -764,7 +764,7 @@ void check_prims(Label symbols1[])
     if (ends1[i] > endlabel && !pi->superend) {
       pi->start = NULL; /* not relocatable */
       if (debug)
-	fprintf(stderr,"\n   non_reloc: there is a J label before the J label (restlength<0)\n");
+	fprintf(stderr,"\n   non_reloc: there is a J label before the K label (restlength<0)\n");
       continue;
     }
     if (ends1[i] < pi->start && !pi->superend) {
@@ -938,7 +938,7 @@ Label decompile_code(Label _code)
   for (i=npriminfos-1; i>DOESJUMP; i--) {
     PrimInfo *pi=decomp_prims[i];
     if (pi->start==code || (pi->start && memcmp(code,pi->start,pi->length)==0))
-      return vm_prims[super2[super_costs[pi-priminfos-DOESJUMP-1].offset]+DOESJUMP+1];
+      return vm_prims[super2[super_costs[pi-priminfos].offset]];
     /* return pi->start;*/
   }
   return code;
@@ -1107,7 +1107,7 @@ void compile_prim_dyn(Cell *start)
 
 Cell compile_prim_dyn(unsigned p)
 {
-  Cell static_prim = (Cell)vm_prims[p+DOESJUMP+1];
+  Cell static_prim = (Cell)vm_prims[p];
 #if defined(NO_DYNAMIC)
   return static_prim;
 #else /* !defined(NO_DYNAMIC) */
@@ -1115,7 +1115,6 @@ Cell compile_prim_dyn(unsigned p)
 
   if (no_dynamic)
     return static_prim;
-  p += DOESJUMP+1;
   if (p>=npriminfos || priminfos[p].start == 0) { /* not a relocatable prim */
     append_jump();
     return static_prim;
@@ -1129,7 +1128,7 @@ Cell compile_prim_dyn(unsigned p)
 #ifndef NO_DYNAMIC
 int cost_codesize(int prim)
 {
-  return priminfos[prim+DOESJUMP+1].length;
+  return priminfos[prim].length;
 }
 #endif
 
@@ -1178,7 +1177,7 @@ struct {
 /* use dynamic programming to find the shortest paths within the basic
    block origs[0..ninsts-1]; optimals[i] contains the superinstruction
    on the shortest path to the end of the BB */
-void optimize_bb(short origs[], short optimals[], int ninsts)
+void optimize_bb(PrimNum origs[], PrimNum optimals[], int ninsts)
 {
   int i,j, mincost;
   static int costs[MAX_BB+1];
@@ -1207,7 +1206,7 @@ void optimize_bb(short origs[], short optimals[], int ninsts)
 
 /* rewrite the instructions pointed to by instps to use the
    superinstructions in optimals */
-void rewrite_bb(Cell *instps[], short *optimals, int ninsts)
+void rewrite_bb(Cell *instps[], PrimNum *optimals, int ninsts)
 {
   int i,j, nextdyn;
   Cell inst;
@@ -1219,7 +1218,7 @@ void rewrite_bb(Cell *instps[], short *optimals, int ninsts)
       for (j=0; j<sizeof(cost_sums)/sizeof(cost_sums[0]); j++)
 	cost_sums[j].sum += cost_sums[j].costfunc(optimals[i]);
     } else { /* compile statically */
-      inst = (Cell)vm_prims[optimals[i]+DOESJUMP+1];
+      inst = (Cell)vm_prims[optimals[i]];
     }
     *(instps[i]) = inst;
   }
@@ -1243,10 +1242,10 @@ void compile_prim1(Cell *start)
   return;
 #else /* !(defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED)) */
   static Cell *instps[MAX_BB];
-  static short origs[MAX_BB];
-  static short optimals[MAX_BB];
+  static PrimNum origs[MAX_BB];
+  static PrimNum optimals[MAX_BB];
   static int ninsts=0;
-  unsigned prim_num;
+  PrimNum prim_num;
 
   if (start==NULL)
     goto end_bb;
@@ -1255,9 +1254,9 @@ void compile_prim1(Cell *start)
     goto end_bb;
   assert(ninsts<MAX_BB);
   instps[ninsts] = start;
-  origs[ninsts] = prim_num-DOESJUMP-1;
+  origs[ninsts] = prim_num;
   ninsts++;
-  if (ninsts >= MAX_BB || superend[prim_num-DOESJUMP-1]) {
+  if (ninsts >= MAX_BB || superend[prim_num]) {
   end_bb:
     optimize_bb(origs,optimals,ninsts);
     rewrite_bb(instps,optimals,ninsts);
@@ -1269,7 +1268,7 @@ void compile_prim1(Cell *start)
 #if defined(PRINT_SUPER_LENGTHS) && !defined(NO_DYNAMIC)
 Cell prim_length(Cell prim)
 {
-  return priminfos[prim+DOESJUMP+1].length;
+  return priminfos[prim].length;
 }
 #endif
 
