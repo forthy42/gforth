@@ -433,8 +433,9 @@ condbranch((+loop),n R:nlimit R:n1 -- R:nlimit R:n2,gforth paren_plus_loop,
 /* dependent upon two's complement arithmetic */
 Cell olddiff = n1-nlimit;
 n2=n1+n;	
-,if ((olddiff^(olddiff+n))>=0   /* the limit is not crossed */
-    || (olddiff^n)>=0          /* it is a wrap-around effect */) {
+,if (((olddiff^(olddiff+n))    /* the limit is not crossed */
+     &(olddiff^n))	       /* OR it is a wrap-around effect */
+    >=0) { /* & is used to avoid having two branches for gforth-native */
 ,:
  r> swap
  r> r> 2dup - >r
@@ -463,7 +464,7 @@ if (n<0) {
     newdiff = -newdiff;
 }
 n2=n1+n;
-,if (diff>=0 || newdiff<0) {
+,if (((~diff)|newdiff)<0) { /* use | to avoid two branches for gforth-native */
 ,)
 
 \+
@@ -2526,7 +2527,10 @@ compile_prim1(a_prim);
 finish-code ( -- ) gforth finish_code
 ""Perform delayed steps in code generation (branch resolution, I-cache
 flushing).""
+IF_spTOS(sp[0]=spTOS); /* workaround for failing to save spTOS
+			  (gcc-2.95.1, gforth-fast --enable-force-reg) */
 finish_code();
+IF_spTOS(spTOS=sp[0]);
 
 forget-dyncode ( c_code -- f ) gforth-internal forget_dyncode
 f = forget_dyncode(c_code);

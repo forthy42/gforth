@@ -608,6 +608,9 @@ checkone test:	gforth$(EXE) gforth.fi
 test/primtest.fi: test/primtest.fs mach32l.fs cross.fs
 		$(FORTHB) -e 's" mach32l.fs"' $(srcdir)/test/primtest.fs -e "save-cross $@ $(bindir)/gforth-$(VERSION) bye"
 
+primtest:	gforth gforth-native test/primtest.fi FORCE
+		(echo rs|ENVVAR=bla gforth -i test/primtest.fi) && (echo rs|ENVVAR=bla gforth-native -i test/primtest.fi); echo $$?
+		
 
 bench:		gforth-fast$(EXE) gforth.fi
 		@echo 'Each benchmark takes about 30s on a 486-66 (gcc-2.6.3 -DFORCE_REG)'
