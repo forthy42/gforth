@@ -594,10 +594,13 @@ EOF
 
 fi
 
+
 if test $ac_cv_c_bigendian = yes; then
   bytesex=b
+  KERNAL="kernl32b.fi kernl32l.fi"
 else
   bytesex=l
+  KERNAL="kernl32l.fi kernl32b.fi"
 fi
 
 echo $ac_n "checking whether ln -s works""... $ac_c" 1>&4
@@ -679,7 +682,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="$LIBS -lm "
 cat > conftest.$ac_ext <<EOF
-#line 683 "configure"
+#line 686 "configure"
 #include "confdefs.h"
 
 int main() { return 0; }
@@ -719,7 +722,7 @@ else
   ac_cv_func_memcmp=no
 else
 cat > conftest.$ac_ext <<EOF
-#line 723 "configure"
+#line 726 "configure"
 #include "confdefs.h"
 
 main()
@@ -748,7 +751,7 @@ if eval "test \"`echo '${'ac_cv_func_$ac_func'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&4
 else
   cat > conftest.$ac_ext <<EOF
-#line 752 "configure"
+#line 755 "configure"
 #include "confdefs.h"
 #include <ctype.h> /* Arbitrary system header to define __stub macros. */
 /* Override any gcc2 internal prototype to avoid an error.  */
@@ -793,7 +796,7 @@ if eval "test \"`echo '${'ac_cv_func_getopt_long'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&4
 else
   cat > conftest.$ac_ext <<EOF
-#line 797 "configure"
+#line 800 "configure"
 #include "confdefs.h"
 #include <ctype.h> /* Arbitrary system header to define __stub macros. */
 /* Override any gcc2 internal prototype to avoid an error.  */
@@ -839,7 +842,7 @@ if eval "test \"`echo '${'ac_cv_func_$ac_func'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&4
 else
   cat > conftest.$ac_ext <<EOF
-#line 843 "configure"
+#line 846 "configure"
 #include "confdefs.h"
 #include <ctype.h> /* Arbitrary system header to define __stub macros. */
 /* Override any gcc2 internal prototype to avoid an error.  */
@@ -888,7 +891,7 @@ if eval "test \"`echo '${'ac_cv_func_$ac_func'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&4
 else
   cat > conftest.$ac_ext <<EOF
-#line 892 "configure"
+#line 895 "configure"
 #include "confdefs.h"
 #include <ctype.h> /* Arbitrary system header to define __stub macros. */
 /* Override any gcc2 internal prototype to avoid an error.  */
@@ -1046,6 +1049,7 @@ s%@host_os@%$host_os%g
 s%@MAKE_EXE@%$MAKE_EXE%g
 s%@LINK_KERNL32L@%$LINK_KERNL32L%g
 s%@LINK_KERNL32B@%$LINK_KERNL32B%g
+s%@KERNAL@%$KERNAL%g
 s%@LN_S@%$LN_S%g
 s%@INSTALL_PROGRAM@%$INSTALL_PROGRAM%g
 s%@INSTALL_DATA@%$INSTALL_DATA%g

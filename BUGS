@@ -10,13 +10,4 @@ if blocks.fb does not exist, 1 block creates the file, but cannot
 read-file from it. Only if the file-id has been created with
 open-file, not create-file, read-file works. - anton 6aug94
 
-gforth.el: doing a forth-fill-paragraph on the following piece of code
-uncomments the first comment line. This may be a bug in
-fill-paragraph, but documentation says that a paragraph can start
-without prefix (hanging indentation), so I guess it's all right. -
-anton 19aug94
-
-: bb-shortest-paths recursive { bb bb-from start-path -- }
-    \ compute the
-    \ paths from bb-from through bb, start-path is the path from
-    \ bb-from to bb
+etags.fs crashes one of my applications (gs.fs). anton 12jan95

@@ -1496,7 +1496,12 @@ locals wordset.
 @node Programming Tools, Threading Words, Other I/O, Words
 @section Programming Tools
 
-@node
+@menu
+* Debugging::                   Simple and quick.
+* Assertions::                  Making your programs self-checking.
+@end menu
+
+@node Debugging, Assertions, Programming Tools, Programming Tools
 @subsection Debugging
 
 The simple debugging aids provided in @file{debugging.fs}
@@ -1516,7 +1521,9 @@ query-replace them with nothing). The deferred words
 @code{printdebugdata} and @code{printdebugline} control the output of
 @code{~~}. The default source location output format works well with
 Emacs' compilation mode, so you can step through the program at the
-source level using @kbd{C-x `}.
+source level using @kbd{C-x `} (the advantage over a stepping debugger
+is that you can step in any direction and you know where the crash has
+happened or where the strange data has occurred).
 
 Note that the default actions clobber the contents of the pictured
 numeric output string, so you should not use @code{~~}, e.g., between
@@ -1526,8 +1533,64 @@ doc-~~
 doc-printdebugdata
 doc-printdebugline
 
-@node
+@node Assertions,  , Debugging, Programming Tools
 @subsection Assertions
+
+It is a good idea to make your programs self-checking, in particular, if
+you use an assumption (e.g., that a certain field of a data structure is
+never zero) that may become wrong during maintenance. GForth supports
+assertions for this purpose. They are used like this:
+
+@example
+assert( @var{flag} )
+@end example
+
+The code between @code{assert(} and @code{)} should compute a flag, that
+should be true if everything is alright and false otherwise. It should
+not change anything else on the stack. The overall stack effect of the
+assertion is @code{( -- )}. E.g.
+
+@example
+assert( 1 1 + 2 = ) \ what we learn in school
+assert( dup 0<> ) \ assert that the top of stack is not zero
+assert( false ) \ this code should not be reached
+@end example
+
+The need for assertions is different at different times. During
+debugging, we want more checking, in production we sometimes care more
+for speed. Therefore, assertions can be turned off, i.e., the assertion
+becomes a comment. Depending on the importance of an assertion and the
+time it takes to check it, you may want to turn off some assertions and
+keep others turned on. GForth provides several levels of assertions for
+this purpose:
+
+doc-assert0(
+doc-assert1(
+doc-assert2(
+doc-assert3(
+doc-assert(
+doc-)
+
+@code{Assert(} is the same as @code{assert1(}. The variable
+@code{assert-level} specifies the highest assertions that are turned
+on. I.e., at the default @code{assert-level} of one, @code{assert0(} and
+@code{assert1(} assertions perform checking, while @code{assert2(} and
+@code{assert3(} assertions are treated as comments.
+
+Note that the @code{assert-level} is evaluated at compile-time, not at
+run-time. I.e., you cannot turn assertions on or off at run-time, you
+have to set the @code{assert-level} appropriately before compiling a
+piece of code. You can compile several pieces of code at several
+@code{assert-level}s (e.g., a trusted library at level 1 and newly
+written code at level 3).
+
+doc-assert-level
+
+If an assertion fails, a message compatible with Emacs' compilation mode
+is produced and the execution is aborted (currently with @code{ABORT"}.
+If there is interest, we will introduce a special throw code. But if you
+intend to @code{catch} a specific condition, using @code{throw} is
+probably more appropriate than an assertion).
 
 @node Threading Words,  , Programming Tools, Words
 @section Threading Words
@@ -1631,7 +1694,7 @@ double numbers. GNU C is available for free on all important (and many
 unimportant) UNIX machines, VMS, 80386s running MS-DOS, the Amiga, and
 the Atari ST, so a Forth written in GNU C can run on all these
 machines@footnote{Due to Apple's look-and-feel lawsuit it is not
-available on the Mac (@pxref{Boycott, , Protect Your Freedom--Fight
+available on the Mac (@pxref{Boycott, , Protect Your Freedom---Fight
 ``Look And Feel'', gcc.info, GNU C Manual}).}.
 
 Writing in a portable language has the reputation of producing code that

@@ -20,7 +20,7 @@
 ;; file named COPYING.  Among other things, the copyright notice
 ;; and this notice must be preserved on all copies.
 
-;;; $Header: /usr/local/lib/cvs-repository/src-master/gforth/gforth.el,v 1.8 1994-08-25 15:25:26 anton Exp $
+;;; $Header: /usr/local/lib/cvs-repository/src-master/gforth/gforth.el,v 1.9 1995-01-12 18:37:53 anton Exp $
 
 ;;-------------------------------------------------------------------
 ;; A Forth indentation, documentation search and interaction library
@@ -71,7 +71,7 @@ OBS! All words in forth-negatives must be surrounded by spaces.")
 (global-set-key "\C-x\C-m" 'forth-split)
 (global-set-key "\e " 'forth-reload)
 
-(define-key forth-mode-map "\M-\C-x" 'compile)
+;(define-key forth-mode-map "\M-\C-x" 'compile)
 (define-key forth-mode-map "\C-x\\" 'comment-region)
 (define-key forth-mode-map "\C-x|" 'uncomment-region)
 (define-key forth-mode-map "\C-x~" 'forth-remove-tracers)
@@ -143,8 +143,8 @@ OBS! All words in forth-negatives must be surrounded by spaces.")
 (defun forth-mode ()
   "
 Major mode for editing Forth code. Tab indents for Forth code. Comments
-are delimited with ( ). Paragraphs are separated by blank lines only.
-Delete converts tabs to spaces as it moves back.
+are delimited with \\ and newline. Paragraphs are separated by blank lines
+only. Delete converts tabs to spaces as it moves back.
 \\{forth-mode-map}
  Forth-split
     Positions the current buffer on top and a forth-interaction window
@@ -216,20 +216,32 @@ Variables controling documentation search
   (run-hooks 'forth-mode-hook))
 
 (setq forth-mode-hook
-      '(lambda () (setq compile-command "gforth ")))
+      '(lambda () 
+	 (make-local-variable 'compile-command)
+	 (setq compile-command "gforth ")))
 
 (defun forth-fill-paragraph () 
   "Fill comments (starting with '\'; do not fill code (block style
 programmers who tend to fill code won't use emacs anyway:-)."
-  ; currently only comments at the start of the line are
-  ; filled. something like lisp-fill-paragraph may be better
+  ; Currently only comments at the start of the line are filled.
+  ; Something like lisp-fill-paragraph may be better.  We cannot use
+  ; fill-paragraph, because it removes the \ from the first comment
+  ; line. Therefore we have to look for the first line of the comment
+  ; and use fill-region.
   (interactive)
   (save-excursion
     (beginning-of-line)
-    (if (looking-at "[ \t]*\\\\[ \t]+")
-	(progn (goto-char (match-end 0))
-	       (set-fill-prefix)
-	       (fill-paragraph nil)))))
+    (while (and
+	     (= (forward-line -1) 0)
+	     (looking-at "[ \t]*\\\\[ \t]+")))
+    (if (not (looking-at "[ \t]*\\\\[ \t]+"))
+	(forward-line 1))
+    (let ((from (point))
+	  (to (save-excursion (forward-paragraph) (point))))
+      (if (looking-at "[ \t]*\\\\[ \t]+")
+	  (progn (goto-char (match-end 0))
+		 (set-fill-prefix)
+		 (fill-region from to nil))))))
 
 (defun forth-comment-indent ()
   (save-excursion
@@ -431,7 +443,7 @@ When called, the current buffer will be the Forth process-buffer.")
 (defvar forth-signal-death-message nil
   "If non-nil, causes a message to be generated when the Forth process dies.")
 
-(defvar forth-percent-height 62
+(defvar forth-percent-height 50
   "Tells run-forth how high the upper window should be in percent.")
 
 (defconst forth-runlight:input ?I
@@ -840,12 +852,12 @@ The region is sent terminated by a newline."
     res))
 
 
-(define-key forth-mode-map "\C-x\C-e" 'forth-compile)
+(define-key forth-mode-map "\C-x\C-e" 'compile)
 (define-key forth-mode-map "\C-x\C-n" 'next-error)
 (require 'compile "compile")
 
 (defvar forth-compile-command "gforth ")
-(defvar forth-compilation-window-percent-height 30)
+;(defvar forth-compilation-window-percent-height 30)
 
 (defun forth-compile (command)
   (interactive (list (setq forth-compile-command (read-string "Compile command: " forth-compile-command))))
