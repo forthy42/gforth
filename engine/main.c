@@ -1109,13 +1109,15 @@ Cell compile_prim_dyn(PrimNum p, Cell *tcp)
 {
   PrimInfo *pi=&priminfos[p];
   Cell *next_code_target=NULL;
-  Cell codeaddr = (Cell)code_here;
+  Address codeaddr;
+  Address primstart;
   
   assert(p<npriminfos);
   if (p==N_execute || p==N_perform || p==N_lit_perform) {
     codeaddr = compile_prim1arg(N_set_next_code, &next_code_target);
-  }
-  if (p==N_call) {
+    primstart = append_prim(p);
+    goto other_prim;
+  } else if (p==N_call) {
     codeaddr = compile_call2(tcp[1], &next_code_target);
   } else if (p==N_does_exec) {
     struct doesexecinfo *dei = &doesexecinfos[ndoesexecinfos++];
@@ -1136,20 +1138,21 @@ Cell compile_prim_dyn(PrimNum p, Cell *tcp)
     set_rel_target(branch_target,vm_prims[p]);
   } else {
     unsigned j;
-    Address old_code_here = append_prim(p);
-    
+
+    codeaddr = primstart = append_prim(p);
+  other_prim:
     for (j=0; j<pi->nimmargs; j++) {
       struct immarg *ia = &(pi->immargs[j]);
       Cell argval = tcp[pi->nimmargs - j]; /* !! specific to prims */
       if (ia->rel) { /* !! assumption: relative refs are branches */
-	register_branchinfo(old_code_here + ia->offset, argval);
+	register_branchinfo(primstart + ia->offset, argval);
       } else /* plain argument */
-	*(Cell *)(old_code_here + ia->offset) = argval;
+	*(Cell *)(primstart + ia->offset) = argval;
     }
   }
   if (next_code_target!=NULL)
     *next_code_target = (Cell)code_here;
-  return codeaddr;
+  return (Cell)codeaddr;
 }
 #else /* !defined(NO_IP) */
 Cell compile_prim_dyn(PrimNum p, Cell *tcp)
