@@ -238,10 +238,11 @@ include ./insts.fs
 : move, ( rd rs -- )
     $zero addu, ;
 
-: abs, ( rd rs -- )
-    dup $0008 bgez,
-    2dup move,
-    $zero swap subu, ;
+\ commented out to reduce delay slot exceptions
+\  : abs, ( rd rs -- )
+\      dup $0008 bgez,
+\      2dup move,
+\      $zero swap subu, ;
 
 : neg, ( rd rs -- )
     $zero swap subu, ;
@@ -311,6 +312,49 @@ include ./insts.fs
 : bgeu, ( rs rt imm -- )	\ >= unsigned
     >r $at rot rot sltu,
     $at $zero r> beq, ;
+
+\ control structures
+
+\ conditions; they are reversed because of the if and until logic (the
+\ stuff enclosed by if is performed if the branch around has the
+\ inverse condition).
+
+' beq,  constant ne
+' bne,  constant eq
+' blez, constant gtz
+' bgtz, constant lez
+' bltz, constant gez
+' bgez, constant ltz
+\ bczf, bczt,
+' blt,  constant ge
+' ble,  constant gt
+' bgt,  constant le
+' bge,  constant lt
+' bltu, constant geu
+' bleu, constant gtu
+' bgtu, constant leu
+' bgeu, constant ltu
+
+\ an asm-cs-item consists of ( addr magic ).  addr is the address
+\ behind the branch or the destination. magic is LIVE-ORIG or DEST
+\ xored with asm-magic to make it harder to confuse with a register
+\ number or immediate value.
+
+: magic-asm ( u1 -- u2 )
+    \ turns a magic number into an asm-magic number or back
+    $87654321 xor ;
+
+: if, ( ... xt -- asm-orig )
+    \ xt is for a branch word ( ... addr -- )
+    0 swap execute
+    here live-orig magic-asm ;
+
+: ahead, ( -- asm-orig )
+    $zero $zero ne if, ;
+
+: then, ( asm-orig -- )
+    magic-asm orig?
+    here backpatch-asm ;
 
 previous
 set-current
