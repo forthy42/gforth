@@ -71,16 +71,6 @@ configure has the following useful parameters:
                           the machine.h file. This can cause a good speedup,
                           but also incorrect code with some gcc versions on
                           some processors (default disabled).
-  --enable-direct-threaded      Force direct threading. This may not work on
-                                some machines and may cause slowdown on others.
-                                (default processor-dependent)
-  --enable-indirect-threaded    Force indirect threading. This can cause a
-                                slowdown on some machines.
-                                (default processor-dependent)
-  --with-debug     specifies option -g to compile with debug info (default)
-  --without-debug  omits the -g switch and creates smaller images on
-                   machines where strip has problems with gcc style
-                   debugging informations.
   --help: tells you about other parameters.
 
 The file Benchres shows which combination of the -enable options we
@@ -129,7 +119,7 @@ few tests made by the configure script do not work in a
 cross-compilation situation. You have to provide the results of these
 tests by hand. E.g., if you compile for a 386 architecture processor:
 
-env ac_cv_sizeof_char_p=4 ac_cv_sizeof_char=1 ac_cv_sizeof_short=2 ac_cv_sizeof_int=4 ac_cv_sizeof_long=4 ac_cv_sizeof_long_long=8 ac_cv_c_bigendian=no ./configure
+env ac_cv_sizeof_char_p=4 ac_cv_sizeof_char=1 ac_cv_sizeof_short=2 ac_cv_sizeof_int=4 ac_cv_sizeof_long=4 ac_cv_sizeof_long_long=8 ac_cv_sizeof_intptr_t=4 ac_cv_sizeof_int128_t=0 ac_cv_c_bigendian=no ./configure
 
 The ac_cv_sizeof_... variables give the sizes of various C types;
 ac_cv_sizeof_char_p is the same as "sizeof(char*)" in C code. The

@@ -45,12 +45,25 @@ AC_ARG_WITH(debug,
                    debugging informations.],
 if test "$withval" = "yes"; then DEBUGFLAG=-g; fi)
 
-PEEPHOLE="yes"
-AC_ARG_WITH(peephole,
-[  --with-peephole	Enable peephole optimization (default)
-  --without-peephole	disables peephole optimization. Creates smaller,
-			but slower images.],
-PEEPHOLE="$withval")
+dnl PEEPHOLE="yes"
+dnl AC_ARG_WITH(peephole,
+dnl [  --with-peephole	Enable peephole optimization (default)
+dnl   --without-peephole	disables peephole optimization. Creates smaller,
+dnl 			but slower images.],
+dnl PEEPHOLE="$withval")
+
+#variables mentioned in INSTALL
+AC_ARG_VAR(CC, [The C compiler (must support GNU C 2.x).])
+AC_ARG_VAR(FORTHSIZES, [Gforth command line options for the default stack and dictionary sizes (see INSTALL).])
+AC_ARG_VAR(ac_cv_sizeof_char_p, [sizeof(char *)])
+AC_ARG_VAR(ac_cv_sizeof_char, [sizeof(char)])
+AC_ARG_VAR(ac_cv_sizeof_short, [sizeof(short)])
+AC_ARG_VAR(ac_cv_sizeof_int, [sizeof(int)])
+AC_ARG_VAR(ac_cv_sizeof_long, [sizeof(long)])
+AC_ARG_VAR(ac_cv_sizeof_long_long, [sizeof(long long)])
+AC_ARG_VAR(ac_cv_sizeof_intptr_t, [sizeof(intptr_t)])
+AC_ARG_VAR(ac_cv_sizeof_int128_t, [sizeof(int128_t)])
+AC_ARG_VAR(ac_cv_c_bigendian, [Is the target big-endian ("yes" or "no)?])
 
 #set up feature test macros, so the tests get them right:
 # turn on all POSIX, SUSv3, and GNU features if available
@@ -167,7 +180,7 @@ case "$host_cpu" in
 		$srcdir/mkinstalldirs arch/power
 		AC_CHECK_FUNC(_sync_cache_range,true,AC_LIBOBJ(../arch/power/_sync_cache_range))
 		#long long is broken on (at least) gcc-2.95.* for PPC
-		ac_cv_sizeof_long_long=0
+		test x$ac_cv_sizeof_long_long = x && ac_cv_sizeof_long_long=0
 		;;
 	*)
 		AC_MSG_WARN([Using a generic machine description])
@@ -317,13 +330,14 @@ AC_DEFINE_UNQUOTED(PATHSEP,'$PATHSEP',[a path separator character])
 
 AC_SUBST(FORTHSIZES)
 
-if test "$PEEPHOLE" = "yes"
-then
-   PEEPHOLEFLAG="true"
-   AC_DEFINE(HAS_PEEPHOLE,,[Define if you want to use peephole optimization])
-else
-   PEEPHOLEFLAG="false"
-fi
+dnl if test "$PEEPHOLE" = "yes"
+dnl then
+dnl    PEEPHOLEFLAG="true"
+dnl    AC_DEFINE(HAS_PEEPHOLE,,[Define if you want to use peephole optimization])
+dnl else
+dnl    PEEPHOLEFLAG="false"
+dnl fi
+PEEPHOLEFLAG="true"
 AC_SUBST(PEEPHOLEFLAG)
 
 dnl copy commands for systems that don't have links
