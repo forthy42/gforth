@@ -644,7 +644,7 @@ prim.b:		prim peeprules.vmg
 		m4 -s $(srcdir)/prim >$@ 
 
 engine/prim.i:		prim.b prims2x.fs
-		$(FORTHP) prims2x.fs -e "c-flag on s\" prim.i\" out-filename 2! s\" prim.b\" ' output-c ' output-c-combined process-file bye" >$@-
+		$(FORTHP) prims2x.fs -e "c-flag on s\" prim.i\" save-mem out-filename 2! s\" prim.b\" ' output-c ' output-c-combined process-file bye" >$@-
 		$(CP) $@- $@
 		$(RM) $@-
 

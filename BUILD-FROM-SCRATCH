@@ -32,11 +32,13 @@
 
 if [ "$GFORTH"xx = "xx" ];
 then
+	rm -f gforth
 	GFORTH=`which gforth`
 	if [ "$GFORTH"xx = "xx" ]; then
 		echo 'BUILD-FROM-SCRATCH needs a working gforth (in environment variable GFORTH)'
                 exit 1
         fi
+	GFORTH="$GFORTH -m4M"
 fi
 
 # makes a aclocal.m4 which includes the automake macros for autconf
@@ -58,11 +60,14 @@ autoheader
 # if you have specified a previous Gforth, you can savely run make now
 # with FORTHK and FORTHP changed appropriate.
 
+#a local gforth.fi probably does not work with $GFORTH
+rm gforth.fi
+
 echo xz
 if [ "$GFORTH"xx != "xx" ]
 then
  echo Running: make BUILDFORTH="$GFORTH" gforth...
- make BUILDFORTH="$GFORTH" gforth
+ make BUILDFORTH="$GFORTH" FORTHP="$GFORTH" gforth
  echo Running: make BUILDFORTH="$GFORTH" all...
- make BUILDFORTH="$GFORTH" all
+ make BUILDFORTH="$GFORTH" FORTHP="$GFORTH" all
 fi
