@@ -160,8 +160,8 @@ OBS! All words in forth-negatives must be surrounded by spaces.")
   (setq comment-column 40)
   (make-local-variable 'comment-start-skip)
   (setq comment-start-skip "\\ ")
-  (make-local-variable 'comment-indent-hook)
-  (setq comment-indent-hook 'forth-comment-indent)
+  (make-local-hook 'comment-indent-hook)
+  (add-hook comment-indent-hook 'forth-comment-indent)
   (make-local-variable 'parse-sexp-ignore-comments)
   (setq parse-sexp-ignore-comments t))
   
@@ -241,7 +241,7 @@ Variables controling documentation search
 ;      (run-forth forth-program-name))
   (run-hooks 'forth-mode-hook))
 
-(setq forth-mode-hook
+(add-hook 'forth-mode-hook
       '(lambda () 
 	 (make-local-variable 'compile-command)
 	 (setq compile-command "gforth ")))
