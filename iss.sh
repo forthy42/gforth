@@ -31,17 +31,29 @@ cat <<EOT
 ; Setup program is Inno Setup
 
 [Setup]
-Bits=32
 AppName=Gforth
 AppVerName=$(./gforth -v 2>&1)
 AppCopyright=Copyright © 1995,1996,1997,1998,2000,2003 Free Software Foundation
-DefaultDirName=gforth
+DefaultDirName={pf}\gforth
 DefaultGroupName=Gforth
 AllowNoIcons=1
-LicenseFile=COPYING
+InfoBeforeFile=COPYING
+Compression=bzip
+DisableStartupPrompt=yes
+
+[Messages]
+WizardInfoBefore=License Agreement
+InfoBeforeLabel=Gforth is free software.
+InfoBeforeClickLabel=You don't have to accept the GPL to run the program. You only have to accept this license if you want to modify, copy, or distribute this program.
+
+[Components]
+Name: "help"; Description: "HTML Documentation"; Types: full
+Name: "info"; Description: "GNU info Documentation"; Types: full
+Name: "print"; Description: "Postscript Documentation for printout"; Types: full
+Name: "objects"; Description: "Compiler generated intermediate stuff"; Types: full
 
 [Dirs]
-$(make distfiles -f Makedist | tr ' ' '\n' | (while read i; do
+$(make distfiles -f Makedist | tr ' ' '\n' | grep -v CVS | (while read i; do
   while [ ! -z "$i" ]
   do
     if [ -d $i ]; then echo $i; fi
@@ -49,58 +61,63 @@ $(make distfiles -f Makedist | tr ' ' '\n' | (while read i; do
   done
 done) | sort -u | sed \
   -e 's:/:\\:g' \
-  -e 's:^\(..*\)$:{app}\\\1:g')
-{app}\doc\gforth
-{app}\doc\vmgen
+  -e 's,^\(..*\)$,Name: "{app}\\\1",g')
+Name: "{app}\doc\gforth"
+Name: "{app}\doc\vmgen"
 
 [Files]
 ; Parameter quick reference:
 ;   "Source filename", "Dest. filename", Copy mode, Flags
-"README.txt", "{app}\README.txt", copy_normal, flag_isreadme
-"cygwin1.dll", "{app}\cygwin1.dll", copy_normal,
-"sh.exe", "{app}\sh.exe", copy_normal,
-"gforth.fi", "{app}\gforth.fi", copy_normal,
-$(make html >/dev/null; ls doc/gforth | sed -e 's:/:\\:g' -e 's:^\(..*\)$:"doc\\gforth\\\1", "{app}\\doc\\gforth\\\1", copy_normal,:g')
-$(ls doc/vmgen | sed -e 's:/:\\:g' -e 's:^\(..*\)$:"doc\\vmgen\\\1", "{app}\\doc\\vmgen\\\1", copy_normal,:g')
-$(make distfiles -f Makedist EXE=.exe | tr ' ' '\n' | (while read i; do
+Source: "README.txt"; DestDir: "{app}"; Flags: isreadme
+Source: "cygwin1.dll"; DestDir: "{app}"
+Source: "sh.exe"; DestDir: "{app}"
+Source: "gforth.fi"; DestDir: "{app}"
+$(ls doc/gforth | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "doc\\gforth\\\1"; DestDir: "{app}\\doc\\gforth"; Components: help,g')
+$(ls doc/vmgen | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "doc\\vmgen\\\1"; DestDir: "{app}\\doc\\vmgen"; Components: help,g')
+$(make distfiles -f Makedist EXE=.exe | tr ' ' '\n' | grep -v engine.*exe | (while read i; do
   if [ ! -d $i ]; then echo $i; fi
 done) | sed \
   -e 's:/:\\:g' \
-  -e 's:^\(..*\)$:"\1", "{app}\\\1", copy_normal,:g')
+  -e 's,^\(..*\)\\\([^\\]*\)$,Source: "\1\\\2"; DestDir: "{app}\\\1",g' \
+  -e 's,^\([^\\]*\)$,Source: "\1"; DestDir: "{app}",g' \
+  -e 's,^\(.*\.[oib]".*\),\1; Components: objects,g' \
+  -e 's,^\(.*\.ps".*\),\1; Components: print,g' \
+  -e 's,^\(.*\.info.*".*\),\1; Components: info,g')
 
 [Icons]
 ; Parameter quick reference:
 ;   "Icon title", "File name", "Parameters", "Working dir (can leave blank)",
 ;   "Custom icon filename (leave blank to use the default icon)", Icon index
-"Gforth", "{app}\gforth.exe", "", "{app}", , 0
-"Gforth-fast", "{app}\gforth-fast.exe", "", "{app}", , 0
-"Gforth-dict", "{app}\gforth-dict.exe", "", "{app}", , 0
-"Gforth-itc", "{app}\gforth-itc.exe", "", "{app}", , 0
-"Gforth-prof", "{app}\gforth-prof.exe", "", "{app}", , 0
-"Gforth Manual", "{app}\doc\gforth\index.html", "", "{app}", , 0
-"VMgen Manual", "{app}\doc\vmgen\index.html", "", "{app}", , 0
+Name: "{group}\Gforth"; Filename: "{app}\gforth.exe"; WorkingDir: "{app}"
+Name: "{group}\Gforth-fast"; Filename: "{app}\gforth-fast.exe"; WorkingDir: "{app}"
+Name: "{group}\Gforth-dict"; Filename: "{app}\gforth-dict.exe"; WorkingDir: "{app}"
+Name: "{group}\Gforth-itc"; Filename: "{app}\gforth-itc.exe"; WorkingDir: "{app}"
+Name: "{group}\Gforth-prof"; Filename: "{app}\gforth-prof.exe"; WorkingDir: "{app}"
+Name: "{group}\Gforth Manual"; Filename: "{app}\doc\gforth\index.html"; WorkingDir: "{app}"; Components: help
+Name: "{group}\VMgen Manual"; Filename: "{app}\doc\vmgen\index.html"; WorkingDir: "{app}"; Components: help
+Name: "{group}\Uninstall Gforth"; Filename: "{uninstallexe}"
 
 [Run]
-"{app}\gforth.exe", "-i {app}\gforth.fi {app}\fixpath.fs {app} gforth-fast.exe",
-"{app}\gforth.exe", "-i {app}\gforth.fi {app}\fixpath.fs {app} gforth-ditc.exe",
-"{app}\gforth.exe", "-i {app}\gforth.fi {app}\fixpath.fs {app} gforth-itc.exe",
-"{app}\gforth.exe", "-i {app}\gforth.fi {app}\fixpath.fs {app} gforth-prof.exe",
-"{app}\gforth-fast.exe", "-i {app}\gforth.fi {app}\fixpath.fs {app} gforth.exe",
+Filename: "{app}\gforth.exe"; WorkingDir: "{app}"; Parameters: "fixpath.fs {app} gforth-fast.exe"
+Filename: "{app}\gforth.exe"; WorkingDir: "{app}"; Parameters: "fixpath.fs {app} gforth-ditc.exe"
+Filename: "{app}\gforth.exe"; WorkingDir: "{app}"; Parameters: "fixpath.fs {app} gforth-itc.exe"
+Filename: "{app}\gforth.exe"; WorkingDir: "{app}"; Parameters: "fixpath.fs {app} gforth-prof.exe"
+Filename: "{app}\gforth-fast.exe"; WorkingDir: "{app}"; Parameters: "fixpath.fs {app} gforth.exe"
 
 ;[Registry]
 ;registry commented out
-; Parameter quick reference:
+; WorkingDir: "{app}"; Parameter quick reference:
 ;   "Root key", "Subkey", "Value name", Data type, "Data", Flags
-;HKCR, ".fs", "", STRING, "forthstream",
+;HKCR, ".fs"; STRING, "forthstream",
 ;HKCR, ".fs", "Content Type", STRING, "application/forth",
-;HKCR, ".fb", "", STRING, "forthblock",
+;HKCR, ".fb"; STRING, "forthblock",
 ;HKCR, ".fb", "Content Type", STRING, "application/forth-block",
-;HKCR, "forthstream", "", STRING, "Forth Source",
+;HKCR, "forthstream"; STRING, "Forth Source",
 ;HKCR, "forthstream", "EditFlags", DWORD, "00000000",
-;HKCR, "forthstream\DefaultIcon", "", STRING, "{sys}\System32\shell32.dll,61"
-;HKCR, "forthstream\Shell", "", STRING, ""
-;HKCR, "forthstream\Shell\Open\command", "", STRING, "{app}\gforth.exe %1"
-;HKCR, "forthblock", "", STRING, "Forth Block",
+;HKCR, "forthstream\DefaultIcon"; STRING, "{sys}\System32\shell32.dll,61"
+;HKCR, "forthstream\Shell"; STRING, ""
+;HKCR, "forthstream\Shell\Open\command"; STRING, "{app}\gforth.exe %1"
+;HKCR, "forthblock"; STRING, "Forth Block",
 ;HKCR, "forthblock", "EditFlags", DWORD, "00000000",
-;HKCR, "forthblock\DefaultIcon", "", STRING, "{sys}\System32\shell32.dll,61"
+;HKCR, "forthblock\DefaultIcon"; STRING, "{sys}\System32\shell32.dll,61"
 EOT
