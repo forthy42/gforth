@@ -294,7 +294,6 @@ void vm_print_profile(FILE *file);
 void vm_count_block(Xt *ip);
 
 /* dynamic superinstruction stuff */
-Label compile_prim(Label prim);
 void compile_prim1(Cell *start);
 void finish_code(void);
 int forget_dyncode(Address code);

@@ -976,14 +976,16 @@ str scs scas
         S" fcmovb fcmove fcmovbefcmovu ???    ???    ???    ???    "
         7 ss. ;
 
-: fda   ( addr op -- )
-        drop count dup $c0 <
-        IF      dup falu3 .s" dword " mod-r/m
-        ELSE    $e9 =
-                IF      .s" fucompp" drop
-                ELSE    dup fcmova sti.
-                THEN
-        THEN ;
+: fda   ( addr op -- addr' )
+    drop count dup $c0 < IF ( addr1 op1 )
+	dup falu3 .s" dword " mod-r/m
+    ELSE
+	dup $e9 = IF ( addr1 op1 )
+	    drop .s" fucompp"
+	ELSE
+	    dup fcmova sti.
+	THEN
+    THEN ;
 
 : falu7  ( op -- )
         3 rshift 7 and

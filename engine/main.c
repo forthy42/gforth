@@ -846,7 +846,8 @@ void finish_code(void)
   flush_to_here();
 }
 
-void compile_prim1(Cell *start)
+/* compile *start into a dynamic superinstruction, updating *start */
+void compile_prim_dyn(Cell *start)
 {
 #if defined(DOUBLY_INDIRECT)
   Label prim=(Label)*start;
@@ -944,12 +945,11 @@ void compile_prim1(Cell *start)
 #endif /* !defined(DOUBLY_INDIRECT) */
 }
 
-Label compile_prim(Label prim)
+/* compile *start, possibly rewriting it into a static and/or dynamic
+   superinstruction */
+void compile_prim1(Cell *start)
 {
-  Cell x=(Cell)prim;
-  assert(0);
-  compile_prim1(&x);
-  return (Label)x;
+  compile_prim_dyn(start);
 }
 
 #if defined(PRINT_SUPER_LENGTHS) && !defined(NO_DYNAMIC)
