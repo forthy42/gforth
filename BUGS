@@ -1,6 +1,6 @@
-The system quits on exceptions like segmentation faults. anton 5oct93
-
 name> does not take the same argument as e.g. .name. Remedy: add cell+
 before name>, but adapt all uses.  anton 23apr94
 
+revealing the same name several times (e.g., by using refcursive)
+results in redefined messages.  anton 28jul94
 

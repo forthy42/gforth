@@ -1,5 +1,9 @@
 ;; This file is part of GNU Emacs.
 ;; Changes by anton
+;; This is a variant of forth.el that came with TILE
+;; I left most of this stuff untouched and made just a few changes for 
+;; the things I use.
+;; So there is still a lot of work to do to adapt this to gforth
 
 ;; GNU Emacs is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY.  No author or distributor
@@ -16,7 +20,7 @@
 ;; file named COPYING.  Among other things, the copyright notice
 ;; and this notice must be preserved on all copies.
 
-;;; $Header: /usr/local/lib/cvs-repository/src-master/gforth/gforth.el,v 1.4 1994-07-21 10:52:42 pazsan Exp $
+;;; $Header: /usr/local/lib/cvs-repository/src-master/gforth/gforth.el,v 1.5 1994-07-29 11:16:21 anton Exp $
 
 ;;-------------------------------------------------------------------
 ;; A Forth indentation, documentation search and interaction library
@@ -33,19 +37,19 @@
 
 
 (defvar forth-positives
-  " : begin do ?do while if ?dup-if ?dup-not-if else case create does> exception> "
+  " : :noname begin do ?do while if ?dup-if ?dup-not-if else case create does> exception> struct "
   "Contains all words which will cause the indent-level to be incremented
 on the next line.
 OBS! All words in forth-positives must be surrounded by spaces.")
 
 (defvar forth-negatives
-  " ; until repeat while +loop loop else then endif again endcase does> "
+  " ; until repeat while +loop loop s+loop else then endif again endcase does> end-struct "
   "Contains all words which will cause the indent-level to be decremented
 on the current line.
 OBS! All words in forth-negatives must be surrounded by spaces.")
 
 (defvar forth-zeroes
-  " : "
+  " : :noname "
   "Contains all words which causes the indent to go to zero")
 
 (defvar forth-mode-abbrev-table nil
@@ -314,7 +318,7 @@ Variables controling documentation search
 
 ;; Forth commands
 
-(defvar forth-program-name "forth"
+(defvar forth-program-name "gforth"
   "*Program invoked by the `run-forth' command.")
 
 (defvar forth-band-name nil

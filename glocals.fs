@@ -87,8 +87,11 @@ include search-order.fs
 \ lp must have the strictest alignment (usually float) across calls;
 \ for simplicity we align it strictly for every group.
 
+slowvoc @
+slowvoc on \ we want a linked list for the vocabulary locals
 vocabulary locals \ this contains the local variables
 ' locals >body ' locals-list >body !
+slowvoc !
 
 create locals-buffer 1000 allot \ !! limited and unsafe
     \ here the names of the local variables are stored

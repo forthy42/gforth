@@ -4,7 +4,7 @@ RM	= echo 'Trying to remove'
 GCC	= gcc
 FORTH	= ansforth
 CC	= gcc
-SWITCHES = -D_POSIX_VERSION -DUSE_TOS -DUSE_FTOS -DDEFAULTBIN='"'`pwd`'"' -DDIRECT_THREADED #-DNDEBUG #turn off assertions
+SWITCHES = -D_POSIX_VERSION -DUSE_FTOS -DDEFAULTBIN='"'`pwd`'"' -DDIRECT_THREADED -fcaller-saves #-DNDEBUG #turn off assertions
 CFLAGS	= -O4 -Wall -g $(SWITCHES)
 
 #-Xlinker -n puts text and data into the same 256M region
