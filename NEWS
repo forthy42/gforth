@@ -1,3 +1,21 @@
+User-visible changes between 0.5.0 and 0.6.0:
+
+added words: EDIT-LINE ID. .ID CONST-DOES> K-PRIOR K-NEXT K-DELETE SLURP-FILE SLURP-FID WORDLIST-WORDS
+
+Long word names (512MB on 32-bit systems) are now supported (change to
+  the header format).
+
+Generalized prims2x.fs into Vmgen (see README.vmgen etc.); used the
+  new capabilities in prims (e.g., automatic handling of the return
+  stack and instruction stream).
+
+New threaded code execution method: primitive-centric (allows the
+  following), hybrid direct/indirect threaded (easier portability),
+  with dynamic superinstructions (typical speedup on Athlon: factor
+  2).  New engine gforth-itc for dealing with some
+  backwards-compatibility problems (see "Invoking Gforth" in the
+  manual).
+
 User-visible changes between 0.4.0 and 0.5.0:
 
 Changes in behaviour:

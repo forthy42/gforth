@@ -511,6 +511,14 @@ The optional Search-Order word set
 * search-idef::                 Implementation Defined Options                 
 * search-ambcond::              Ambiguous Conditions              
 
+Emacs and Gforth
+
+* Installing gforth.el::        Making Emacs aware of Forth.
+* Emacs Tags::                  Viewing the source of a word in Emacs.
+* Hilighting::                  Making Forth code look prettier.
+* Auto-Indentation::            Customizing auto-indentation.
+* Blocks Files::                Reading and writing blocks files.
+
 Image Files
 
 * Image Licensing Issues::      Distribution terms for images.
@@ -538,6 +546,7 @@ Threading
 
 * Scheduling::                  
 * Direct or Indirect Threaded?::  
+* Dynamic Superinstructions::   
 * DOES>::                       
 
 Primitives
@@ -1032,7 +1041,7 @@ For related information about the creation of images see @ref{Image Files}.
 @cindex flags on the command line
 
 Gforth is made up of two parts; an executable ``engine'' (named
-@file{gforth} or @file{gforth-fast}) and an image file. To start it, you
+@command{gforth} or @command{gforth-fast}) and an image file. To start it, you
 will usually just say @code{gforth} -- this automatically loads the
 default image file @file{gforth.fi}. In many other cases the default
 Gforth image will be invoked like this:
@@ -1043,10 +1052,15 @@ gforth [file | -e forth-code] ...
 This interprets the contents of the files and the Forth code in the order they
 are given.
 
-In addition to the @file{gforth} engine, there is also an engine called
-@file{gforth-fast}, which is faster, but gives less informative error
-messages (@pxref{Error messages}) and may catch fewer stack underflows.
-You should use it for debugged, performance-critical programs.
+In addition to the @command{gforth} engine, there is also an engine
+called @command{gforth-fast}, which is faster, but gives less
+informative error messages (@pxref{Error messages}) and may catch some
+stack underflows later or not at all.  You should use it for debugged,
+performance-critical programs.
+
+Moreover, there is an engine called @command{gforth-itc}, which is
+useful in some backwards-compatibility situations (@pxref{Direct or
+Indirect Threaded?}).
 
 In general, the command line looks like this:
 
@@ -1165,6 +1179,16 @@ or the segmentation violation SIGSEGV) by translating it into a Forth
 signal. This option is useful when the engine and/or the image might be
 severely broken (such that it causes another signal before recovering
 from the first); this option avoids endless loops in such cases.
+
+@item --no-dynamic
+@item --dynamic
+Disable or enable dynamic superinstructions with replication
+(@pxref{Dynamic Superinstructions}).
+
+@item --no-super
+Disable dynamic superinstructions, use just dynamic replication
+(@pxref{Dynamic Superinstructions}).
+
 @end table
 
 @cindex loading files at startup
@@ -7297,6 +7321,9 @@ doc-name>int
 doc-name?int
 doc-name>comp
 doc-name>string
+doc-id.
+doc-.name
+doc-.id
 
 @c ----------------------------------------------------------
 @node Compiling words, The Text Interpreter, Tokens for Words, Words
@@ -9066,6 +9093,7 @@ doc-ekey>char
 doc->number
 doc->float
 doc-accept
+doc-edit-line
 doc-pad
 @c anton: these belong in the input stream section
 doc-parse
@@ -13882,7 +13910,7 @@ later and does not work for words containing @code{:}.
 @end menu
 
 @c ----------------------------------
-@node Installing gforth.el, Emacs Tags, , Emacs and Gforth
+@node Installing gforth.el, Emacs Tags, Emacs and Gforth, Emacs and Gforth
 @section Installing gforth.el
 @cindex @file{.emacs}
 @cindex @file{gforth.el}, installation
@@ -14013,7 +14041,7 @@ Example:
 @end example
 
 @c ----------------------------------
-@node Blocks Files,, Auto-Indentation, Emacs and Gforth
+@node Blocks Files,  , Auto-Indentation, Emacs and Gforth
 @section Blocks Files
 @cindex blocks files, use with Emacs
 @code{forth-mode} Autodetects blocks files by checking whether the
@@ -14470,10 +14498,14 @@ doc-arg
 Reading this chapter is not necessary for programming with Gforth. It
 may be helpful for finding your way in the Gforth sources.
 
-The ideas in this section have also been published in Bernd Paysan,
-@cite{ANS fig/GNU/??? Forth} (in German), Forth-Tagung '93 and M. Anton
-Ertl, @cite{@uref{http://www.complang.tuwien.ac.at/papers/ertl93.ps.Z, A
-Portable Forth Engine}}, EuroForth '93.
+The ideas in this section have also been published in the following
+papers: Bernd Paysan, @cite{ANS fig/GNU/??? Forth} (in German),
+Forth-Tagung '93; M. Anton Ertl,
+@cite{@uref{http://www.complang.tuwien.ac.at/papers/ertl93.ps.Z, A
+Portable Forth Engine}}, EuroForth '93; M. Anton Ertl,
+@cite{@uref{http://www.complang.tuwien.ac.at/papers/ertl02.ps.gz,
+Threaded code variations and optimizations (extended version)}},
+Forth-Tagung '02.
 
 @menu
 * Portability::                 
@@ -14513,13 +14545,7 @@ GNU C Manual}). Its labels as values feature (@pxref{Labels as Values, ,
 Labels as Values, gcc.info, GNU C Manual}) makes direct and indirect
 threading possible, its @code{long long} type (@pxref{Long Long, ,
 Double-Word Integers, gcc.info, GNU C Manual}) corresponds to Forth's
-double numbers@footnote{Unfortunately, long longs are not implemented
-properly on all machines (e.g., on alpha-osf1, long longs are only 64
-bits, the same size as longs (and pointers), but they should be twice as
-long according to @pxref{Long Long, , Double-Word Integers, gcc.info, GNU
-C Manual}). So, we had to implement doubles in C after all. Still, on
-most machines we can use long longs and achieve better performance than
-with the emulation package.}. GNU C is available for free on all
+double numbers on many systems.  GNU C is freely available on all
 important (and many unimportant) UNIX machines, VMS, 80386s running
 MS-DOS, the Amiga, and the Atari ST, so a Forth written in GNU C can run
 on all these machines.
@@ -14588,6 +14614,7 @@ Of course we have packaged the whole thing neatly in macros called
 @menu
 * Scheduling::                  
 * Direct or Indirect Threaded?::  
+* Dynamic Superinstructions::   
 * DOES>::                       
 @end menu
 
@@ -14632,37 +14659,172 @@ There are various schemes that distribute the different operations of
 NEXT between these parts in several ways; in general, different schemes
 perform best on different processors.  We use a scheme for most
 architectures that performs well for most processors of this
-architecture; in the furture we may switch to benchmarking and chosing
+architecture; in the future we may switch to benchmarking and chosing
 the scheme on installation time.
 
 
-@node Direct or Indirect Threaded?, DOES>, Scheduling, Threading
+@node Direct or Indirect Threaded?, Dynamic Superinstructions, Scheduling, Threading
 @subsection Direct or Indirect Threaded?
 @cindex threading, direct or indirect?
 
-@cindex -DDIRECT_THREADED
-Both! After packaging the nasty details in macro definitions we
-realized that we could switch between direct and indirect threading by
-simply setting a compilation flag (@code{-DDIRECT_THREADED}) and
-defining a few machine-specific macros for the direct-threading case.
-On the Forth level we also offer access words that hide the
-differences between the threading methods (@pxref{Threading Words}).
+Threaded forth code consists of references to primitives (simple machine
+code routines like @code{+}) and to non-primitives (e.g., colon
+definitions, variables, constants); for a specific class of
+non-primitives (e.g., variables) there is one code routine (e.g.,
+@code{dovar}), but each variable needs a separate reference to its data.
 
-Indirect threading is implemented completely machine-independently.
-Direct threading needs routines for creating jumps to the executable
-code (e.g. to @code{docol} or @code{dodoes}). These routines are inherently
-machine-dependent, but they do not amount to many source lines. Therefore,
-even porting direct threading to a new machine requires little effort.
+Traditionally Forth has been implemented as indirect threaded code,
+because this allows to use only one cell to reference a non-primitive
+(basically you point to the data, and find the code address there).
 
-@cindex --enable-indirect-threaded, configuration flag
-@cindex --enable-direct-threaded, configuration flag
-The default threading method is machine-dependent. You can enforce a
-specific threading method when building Gforth with the configuration
-flag @code{--enable-direct-threaded} or
-@code{--enable-indirect-threaded}. Note that direct threading is not
-supported on all machines.
+@cindex primitive-centric threaded code
+However, threaded code in Gforth (since 0.6.0) uses two cells for
+non-primitives, one for the code address, and one for the data address;
+the data pointer is an immediate argument for the virtual machine
+instruction represented by the code address.  We call this
+@emph{primitive-centric} threaded code, because all code addresses point
+to simple primitives.  E.g., for a variable, the code address is for
+@code{lit} (also used for integer literals like @code{99}).
 
-@node DOES>,  , Direct or Indirect Threaded?, Threading
+Primitive-centric threaded code allows us to use (faster) direct
+threading as dispatch method, completely portably (direct threaded code
+in Gforth before 0.6.0 required architecture-specific code).  It also
+eliminates the performance problems related to I-cache consistency that
+386 implementations have with direct threaded code, and allows
+additional optimizations.
+
+@cindex hybrid direct/indirect threaded code
+There is a catch, however: the @var{xt} parameter of @code{execute} can
+occupy only one cell, so how do we pass non-primitives with their code
+@emph{and} data addresses to them?  Our answer is to use indirect
+threaded dispatch for @code{execute} and other words that use a
+single-cell xt.  So, normal threaded code in colon definitions uses
+direct threading, and @code{execute} and similar words, which dispatch
+to xts on the data stack, use indirect threaded code.  We call this
+@emph{hybrid direct/indirect} threaded code.
+
+@cindex engines, gforth vs. gforth-fast vs. gforth-itc
+@cindex gforth engine
+@cindex gforth-fast engine
+The engines @command{gforth} and @command{gforth-fast} use hybrid
+direct/indirect threaded code.  This means that with these engines you
+cannot use @code{,} to compile an xt.  Instead, you have to use
+@code{compile,}.
+
+@cindex gforth-itc engine
+If you want to compile xts with @code{,}, use @command{gforth-itc}.  This
+engine uses plain old indirect threaded code.  It still compiles in a
+primitive-centric style, so you cannot use @code{compile,} instead of
+@code{,} (e.g., for producing tables of xts with @code{] word1 word2
+... [}.  If you want to do that, you have to use @command{gforth-itc}
+and execute @code{' , is compile,}.  Your program can check if it is
+running on a hybrid direct/indirect threaded engine or a pure indirect
+threaded engine with @code{threading-method} (@pxref{Threading Words}).
+
+
+@node Dynamic Superinstructions, DOES>, Direct or Indirect Threaded?, Threading
+@subsection Dynamic Superinstructions
+@cindex Dynamic superinstructions with replication
+@cindex Superinstructions
+@cindex Replication
+
+The engines @command{gforth} and @command{gforth-fast} use another
+optimization: Dynamic superinstructions with replication.  As an
+example, consider the following colon definition:
+
+@example
+: squared ( n1 -- n2 )
+  dup * ;
+@end example
+
+Gforth compiles this into the threaded code sequence
+
+@example
+dup
+*
+;s
+@end example
+
+In normal direct threaded code there is a code address occupying one
+cell for each of these primitives.  Each code address points to a
+machine code routine, and the interpreter jumps to this machine code in
+order to execute the primitive.  The routines for these three
+primitives are (in @command{gforth-fast} on the 386):
+
+@example
+Code dup  
+( $804B950 )  add     esi , # -4  \ $83 $C6 $FC 
+( $804B953 )  add     ebx , # 4  \ $83 $C3 $4 
+( $804B956 )  mov     dword ptr 4 [esi] , ecx  \ $89 $4E $4 
+( $804B959 )  jmp     dword ptr FC [ebx]  \ $FF $63 $FC 
+end-code
+Code *  
+( $804ACC4 )  mov     eax , dword ptr 4 [esi]  \ $8B $46 $4 
+( $804ACC7 )  add     esi , # 4  \ $83 $C6 $4 
+( $804ACCA )  add     ebx , # 4  \ $83 $C3 $4 
+( $804ACCD )  imul    ecx , eax  \ $F $AF $C8 
+( $804ACD0 )  jmp     dword ptr FC [ebx]  \ $FF $63 $FC 
+end-code
+Code ;s  
+( $804A693 )  mov     eax , dword ptr [edi]  \ $8B $7 
+( $804A695 )  add     edi , # 4  \ $83 $C7 $4 
+( $804A698 )  lea     ebx , dword ptr 4 [eax]  \ $8D $58 $4 
+( $804A69B )  jmp     dword ptr FC [ebx]  \ $FF $63 $FC 
+end-code
+@end example
+
+With dynamic superinstructions and replication the compiler does not
+just lay down the threaded code, but also copies the machine code
+fragments, usually without the jump at the end.
+
+@example
+( $4057D27D )  add     esi , # -4  \ $83 $C6 $FC 
+( $4057D280 )  add     ebx , # 4  \ $83 $C3 $4 
+( $4057D283 )  mov     dword ptr 4 [esi] , ecx  \ $89 $4E $4 
+( $4057D286 )  mov     eax , dword ptr 4 [esi]  \ $8B $46 $4 
+( $4057D289 )  add     esi , # 4  \ $83 $C6 $4 
+( $4057D28C )  add     ebx , # 4  \ $83 $C3 $4 
+( $4057D28F )  imul    ecx , eax  \ $F $AF $C8 
+( $4057D292 )  mov     eax , dword ptr [edi]  \ $8B $7 
+( $4057D294 )  add     edi , # 4  \ $83 $C7 $4 
+( $4057D297 )  lea     ebx , dword ptr 4 [eax]  \ $8D $58 $4 
+( $4057D29A )  jmp     dword ptr FC [ebx]  \ $FF $63 $FC 
+@end example
+
+Only when a threaded-code control-flow change happens (e.g., in
+@code{;s}), the jump is appended.  This optimization eliminates many of
+these jumps and makes the rest much more predictable.  The speedup
+depends on the processor and the application; on the Athlon and Pentium
+III this optimization typically produces a speedup by a factor of 2.
+
+The code addresses in the direct-threaded code are set to point to the
+appropriate points in the copied machine code, in this example like
+this:
+
+@example
+primitive  code address
+   dup       $4057D27D
+   *         $4057D286
+   ;s        $4057D292
+@end example
+
+Thus there can be threaded-code jumps to any place in this piece of
+code.  This also simplifies decompilation quite a bit.
+
+@cindex --no-dynamic command-line option
+@cindex --no-super command-line option
+You can disable this optimization with @option{--no-dynamic}.  You can
+use the copying without eliminating the jumps (i.e., dynamic
+replication, but without superinstructions) with @option{--no-super};
+this gives the branch prediction benefit alone; the effect on
+performance depends on the CPU.
+
+@cindex --dynamic command-line option
+On some machines this optimization is disabled by default, because it is
+unsafe on these machines.  However, if you feel adventurous, you can
+enable it with @option{--dynamic}.
+
+@node DOES>,  , Dynamic Superinstructions, Threading
 @subsection DOES>
 @cindex @code{DOES>} implementation
 
@@ -14670,36 +14832,22 @@ supported on all machines.
 @cindex @code{DOES>}-code
 One of the most complex parts of a Forth engine is @code{dodoes}, i.e.,
 the chunk of code executed by every word defined by a
-@code{CREATE}...@code{DOES>} pair. The main problem here is: How to find
-the Forth code to be executed, i.e. the code after the
-@code{DOES>} (the @code{DOES>}-code)? There are two solutions:
+@code{CREATE}...@code{DOES>} pair; actually with primitive-centric code,
+this is only needed if the xt of the word is @code{execute}d. The main
+problem here is: How to find the Forth code to be executed, i.e. the
+code after the @code{DOES>} (the @code{DOES>}-code)? There are two
+solutions:
 
 In fig-Forth the code field points directly to the @code{dodoes} and the
-@code{DOES>}-code address is stored in the cell after the code address (i.e. at
-@code{@i{CFA} cell+}). It may seem that this solution is illegal in
-the Forth-79 and all later standards, because in fig-Forth this address
-lies in the body (which is illegal in these standards). However, by
-making the code field larger for all words this solution becomes legal
-again. We use this approach for the indirect threaded version and for
-direct threading on some machines. Leaving a cell unused in most words
-is a bit wasteful, but on the machines we are targeting this is hardly a
-problem. The other reason for having a code field size of two cells is
-to avoid having different image files for direct and indirect threaded
-systems (direct threaded systems require two-cell code fields on many
-machines).
+@code{DOES>}-code address is stored in the cell after the code address
+(i.e. at @code{@i{CFA} cell+}). It may seem that this solution is
+illegal in the Forth-79 and all later standards, because in fig-Forth
+this address lies in the body (which is illegal in these
+standards). However, by making the code field larger for all words this
+solution becomes legal again.  We use this approach.  Leaving a cell
+unused in most words is a bit wasteful, but on the machines we are
+targeting this is hardly a problem.
 
-@cindex @code{DOES>}-handler
-The other approach is that the code field points or jumps to the cell
-after @code{DOES>}. In this variant there is a jump to @code{dodoes} at
-this address (the @code{DOES>}-handler). @code{dodoes} can then get the
-@code{DOES>}-code address by computing the code address, i.e., the address of
-the jump to @code{dodoes}, and add the length of that jump field. A variant of
-this is to have a call to @code{dodoes} after the @code{DOES>}; then the
-return address (which can be found in the return register on RISCs) is
-the @code{DOES>}-code address. Since the two cells available in the code field
-are used up by the jump to the code address in direct threading on many
-architectures, we use this approach for direct threading on these
-architectures. We did not want to add another cell to the code field.
 
 @node Primitives, Performance, Threading, Engine
 @section Primitives
@@ -14717,14 +14865,16 @@ architectures. We did not want to add another cell to the code field.
 @cindex primitives, automatic generation
 
 @cindex @file{prims2x.fs}
+
 Since the primitives are implemented in a portable language, there is no
 longer any need to minimize the number of primitives. On the contrary,
 having many primitives has an advantage: speed. In order to reduce the
 number of errors in primitives and to make programming them easier, we
-provide a tool, the primitive generator (@file{prims2x.fs}), that
-automatically generates most (and sometimes all) of the C code for a
-primitive from the stack effect notation.  The source for a primitive
-has the following form:
+provide a tool, the primitive generator (@file{prims2x.fs} aka Vmgen,
+@pxref{Top, Vmgen, Introduction, vmgen, Vmgen}), that automatically
+generates most (and sometimes all) of the C code for a primitive from
+the stack effect notation.  The source for a primitive has the following
+form:
 
 @cindex primitive source format
 @format
@@ -14794,6 +14944,8 @@ While programming a primitive is usually easy, there are a few cases
 where the programmer has to take the actions of the generator into
 account, most notably @code{?dup}, but also words that do not (always)
 fall through to @code{NEXT}.
+
+For more information
 
 @node TOS Optimization, Produced code, Automatic Generation, Primitives
 @subsection TOS Optimization

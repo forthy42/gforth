@@ -1786,7 +1786,7 @@ a major change, and it's ramifications are not completely clear.
 @chapter The future
 @cindex future ideas
 
-We have a number of ideas for future versions of Gforth.  However, there
+We have a number of ideas for future versions of Vmgen.  However, there
 are so many possible things to do that we would like some feedback from
 you.  What are you doing with Vmgen, what features are you missing, and
 why?
