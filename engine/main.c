@@ -170,12 +170,17 @@ static int static_super_number = 10000000; /* number of ss used if available */
 #define MAX_STATE 4 /* maximum number of states */
 static int maxstates = MAX_STATE; /* number of states for stack caching */
 static int ss_greedy = 0; /* if true: use greedy, not optimal ss selection */
+static int diag = 0; /* if true: print diagnostic informations */
+static int relocs = 0;
+static int nonrelocs = 0;
 
 #ifdef HAS_DEBUG
 int debug=0;
+# define debugp(x...) if (debug) fprintf(x);
 #else
 # define perror(x...)
 # define fprintf(x...)
+# define debugp(x...)
 #endif
 
 ImageHeader *gforth_header;
@@ -440,8 +445,7 @@ Address verbose_malloc(Cell size)
     exit(1);
   }
   r = (Address)((((Cell)r)+(sizeof(Float)-1))&(-sizeof(Float)));
-  if (debug)
-    fprintf(stderr, "malloc succeeds, address=$%lx\n", (long)r);
+  debugp(stderr, "malloc succeeds, address=$%lx\n", (long)r);
   return r;
 }
 
@@ -449,13 +453,11 @@ static Address next_address=0;
 void after_alloc(Address r, Cell size)
 {
   if (r != (Address)-1) {
-    if (debug)
-      fprintf(stderr, "success, address=$%lx\n", (long) r);
+    debugp(stderr, "success, address=$%lx\n", (long) r);
     if (pagesize != 1)
       next_address = (Address)(((((Cell)r)+size-1)&-pagesize)+2*pagesize); /* leave one page unmapped */
   } else {
-    if (debug)
-      fprintf(stderr, "failed: %s\n", strerror(errno));
+    debugp(stderr, "failed: %s\n", strerror(errno));
   }
 }
 
@@ -478,8 +480,7 @@ static Address alloc_mmap(Cell size)
   Address r;
 
 #if defined(MAP_ANON)
-  if (debug)
-    fprintf(stderr,"try mmap($%lx, $%lx, ..., MAP_ANON, ...); ", (long)next_address, (long)size);
+  debugp(stderr,"try mmap($%lx, $%lx, ..., MAP_ANON, ...); ", (long)next_address, (long)size);
   r = mmap(next_address, size, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE, -1, 0);
 #else /* !defined(MAP_ANON) */
   /* Ultrix (at least) does not define MAP_FILE and MAP_PRIVATE (both are
@@ -490,12 +491,10 @@ static Address alloc_mmap(Cell size)
     dev_zero = open("/dev/zero", O_RDONLY);
   if (dev_zero == -1) {
     r = MAP_FAILED;
-    if (debug)
-      fprintf(stderr, "open(\"/dev/zero\"...) failed (%s), no mmap; ", 
+    debugp(stderr, "open(\"/dev/zero\"...) failed (%s), no mmap; ", 
 	      strerror(errno));
   } else {
-    if (debug)
-      fprintf(stderr,"try mmap($%lx, $%lx, ..., MAP_FILE, dev_zero, ...); ", (long)next_address, (long)size);
+    debugp(stderr,"try mmap($%lx, $%lx, ..., MAP_FILE, dev_zero, ...); ", (long)next_address, (long)size);
     r=mmap(next_address, size, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_FILE|MAP_PRIVATE, dev_zero, 0);
   }
 #endif /* !defined(MAP_ANON) */
@@ -524,8 +523,7 @@ Address dict_alloc_read(FILE *file, Cell imagesize, Cell dictsize, Cell offset)
 #if defined(HAVE_MMAP)
   if (offset==0) {
     image=alloc_mmap(dictsize);
-    if (debug)
-      fprintf(stderr,"try mmap($%lx, $%lx, ..., MAP_FIXED|MAP_FILE, imagefile, 0); ", (long)image, (long)imagesize);
+    debugp(stderr,"try mmap($%lx, $%lx, ..., MAP_FIXED|MAP_FILE, imagefile, 0); ", (long)image, (long)imagesize);
     image = mmap(image, imagesize, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_FIXED|MAP_FILE|MAP_PRIVATE, fileno(file), 0);
     after_alloc(image,dictsize);
   }
@@ -607,8 +605,7 @@ int go_forth(Address image, int stack, Cell *entries)
     signal_data_stack[7]=throw_code;
 
 #ifdef GFORTH_DEBUGGING
-    if (debug)
-      fprintf(stderr,"\ncaught signal, throwing exception %d, ip=%p rp=%p\n",
+    debugp(stderr,"\ncaught signal, throwing exception %d, ip=%p rp=%p\n",
 	      throw_code, saved_ip, rp);
     if (rp <= orig_rp0 && rp > (Cell *)(image_header->return_stack_base+5)) {
       /* no rstack overflow or underflow */
@@ -618,8 +615,7 @@ int go_forth(Address image, int stack, Cell *entries)
     else /* I love non-syntactic ifdefs :-) */
       rp0 = signal_return_stack+8;
 #else  /* !defined(GFORTH_DEBUGGING) */
-    if (debug)
-      fprintf(stderr,"\ncaught signal, throwing exception %d\n", throw_code);
+    debugp(stderr,"\ncaught signal, throwing exception %d\n", throw_code);
       rp0 = signal_return_stack+8;
 #endif /* !defined(GFORTH_DEBUGGING) */
     /* fprintf(stderr, "rp=$%x\n",rp0);*/
@@ -746,8 +742,7 @@ void prepare_super_table()
 	nsupers++;
     }
   }
-  if (debug)
-    fprintf(stderr, "Using %d static superinsts\n", nsupers);
+  debugp(stderr, "Using %d static superinsts\n", nsupers);
 }
 
 /* dynamic replication/superinstruction stuff */
@@ -853,28 +848,31 @@ void check_prims(Label symbols1[])
       pi->length = prim_len;
     pi->restlength = endlabel - symbols1[i] - pi->length;
     pi->nimmargs = 0;
-    if (debug)
-      fprintf(stderr, "%-15s %3d %p %p %p len=%3ld restlen=%2ld s-end=%1d",
+    relocs++;
+    debugp(stderr, "%-15s %3d %p %p %p len=%3ld restlen=%2ld s-end=%1d",
 	      prim_names[i], i, s1, s2, s3, (long)(pi->length), (long)(pi->restlength), pi->superend);
     if (endlabel == NULL) {
       pi->start = NULL; /* not relocatable */
       if (pi->length<0) pi->length=100;
-      if (debug)
-	fprintf(stderr,"\n   non_reloc: no J label > start found\n");
+      debugp(stderr,"\n   non_reloc: no J label > start found\n");
+      relocs--;
+      nonrelocs++;
       continue;
     }
     if (ends1[i] > endlabel && !pi->superend) {
       pi->start = NULL; /* not relocatable */
       pi->length = endlabel-symbols1[i];
-      if (debug)
-	fprintf(stderr,"\n   non_reloc: there is a J label before the K label (restlength<0)\n");
+      debugp(stderr,"\n   non_reloc: there is a J label before the K label (restlength<0)\n");
+      relocs--;
+      nonrelocs++;
       continue;
     }
     if (ends1[i] < pi->start && !pi->superend) {
       pi->start = NULL; /* not relocatable */
       pi->length = endlabel-symbols1[i];
-      if (debug)
-	fprintf(stderr,"\n   non_reloc: K label before I label (length<0)\n");
+      debugp(stderr,"\n   non_reloc: K label before I label (length<0)\n");
+      relocs--;
+      nonrelocs++;
       continue;
     }
     assert(pi->length>=0);
@@ -883,9 +881,10 @@ void check_prims(Label symbols1[])
       if (s1[j]==s3[j]) {
 	if (s1[j] != s2[j]) {
 	  pi->start = NULL; /* not relocatable */
-	  if (debug)
-	    fprintf(stderr,"\n   non_reloc: engine1!=engine2 offset %3d",j);
+	  debugp(stderr,"\n   non_reloc: engine1!=engine2 offset %3d",j);
 	  /* assert(j<prim_len); */
+	  relocs--;
+	  nonrelocs++;
 	  break;
 	}
 	j++;
@@ -896,25 +895,23 @@ void check_prims(Label symbols1[])
 	ia->offset=j;
 	if ((~*(Cell *)&(s1[j]))==*(Cell *)&(s3[j])) {
 	  ia->rel=0;
-	  if (debug)
-	    fprintf(stderr,"\n   absolute immarg: offset %3d",j);
+	  debugp(stderr,"\n   absolute immarg: offset %3d",j);
 	} else if ((&(s1[j]))+(*(Cell *)&(s1[j]))+4 ==
 		   symbols1[DOESJUMP+1]) {
 	  ia->rel=1;
-	  if (debug)
-	    fprintf(stderr,"\n   relative immarg: offset %3d",j);
+	  debugp(stderr,"\n   relative immarg: offset %3d",j);
 	} else {
 	  pi->start = NULL; /* not relocatable */
-	  if (debug)
-	    fprintf(stderr,"\n   non_reloc: engine1!=engine3 offset %3d",j);
+	  debugp(stderr,"\n   non_reloc: engine1!=engine3 offset %3d",j);
 	  /* assert(j<prim_len);*/
+	  relocs--;
+	  nonrelocs++;
 	  break;
 	}
 	j+=4;
       }
     }
-    if (debug)
-      fprintf(stderr,"\n");
+    debugp(stderr,"\n");
   }
   decomp_prims = calloc(i,sizeof(PrimInfo *));
   for (i=DOESJUMP+1; i<npriminfos; i++)
@@ -1522,8 +1519,7 @@ Address loader(FILE *imagefile, char* filename)
 #elif PAGESIZE
   pagesize=PAGESIZE; /* in limits.h according to Gallmeister's POSIX.4 book */
 #endif
-  if (debug)
-    fprintf(stderr,"pagesize=%ld\n",(unsigned long) pagesize);
+  debugp(stderr,"pagesize=%ld\n",(unsigned long) pagesize);
 
   image = dict_alloc_read(imagefile, preamblesize+header.image_size,
 			  preamblesize+dictsize, data_offset);
@@ -1698,6 +1694,7 @@ void gforth_args(int argc, char ** argv, char ** path, char ** imagename)
       {"clear-dictionary", no_argument, &clear_dictionary, 1},
       {"die-on-signal", no_argument, &die_on_signal, 1},
       {"debug", no_argument, &debug, 1},
+      {"diag", no_argument, &diag, 1},
       {"no-super", no_argument, &no_super, 1},
       {"no-dynamic", no_argument, &no_dynamic, 1},
       {"dynamic", no_argument, &no_dynamic, 0},
@@ -1749,6 +1746,7 @@ Engine Options:\n\
   --clear-dictionary		    Initialize the dictionary with 0 bytes\n\
   -d SIZE, --data-stack-size=SIZE   Specify data stack size\n\
   --debug			    Print debugging information during startup\n\
+  --diag			    Print diagnostic information during startup\n\
   --die-on-signal		    exit instead of CATCHing some signals\n\
   --dynamic			    use dynamic native code\n\
   -f SIZE, --fp-stack-size=SIZE	    Specify floating point stack size\n\
@@ -1780,6 +1778,67 @@ SIZE arguments consist of an integer followed by a unit. The unit can be\n\
   }
 }
 #endif
+
+void print_diag()
+{
+  /* prints something like:
+missing functionality:
+    no getrusage -> CPUTIME broken
+    no ffcall -> only old-style foreign function calls (no fflib.fs)
+    Alpha, no ffcall -> only integer args for foreign function calls
+    Other functionality checked ok
+  performance problems:
+    gcc PR 15242 -> no dynamic code generation (use gcc-2.95 instead)
+    double-cell integer type buggy -> 
+       CMP, MUL, DIV, ADD, SHIFT, D2F, F2D, SIZE slow */
+
+#if !defined(HAVE_GETRUSAGE) || !defined(HAS_FFCALL)
+  fprintf(stderr, "missing functionality:\n"
+#ifndef HAVE_GETRUSAGE
+	  "    no getrusage -> CPUTIME broken\n"
+#endif
+#ifndef HAS_FFCALL
+	  "    no ffcall -> only old-style foreign function calls (no fflib.fs)\n"
+#endif
+	  );
+#endif
+  if((relocs < nonrelocs) ||
+#if defined(BUGGY_LL_CMP) || defined(BUGGY_LL_MUL) || defined(BUGGY_LL_DIV) || defined(BUGGY_LL_ADD) || defined(BUGGY_LL_SHIFT) || defined(BUGGY_LL_D2F) || defined(BUGGY_LL_F2D)
+     1
+#else
+     0
+#endif
+     )
+    debugp(stderr, "relocs: %d:%d\n", relocs, nonrelocs);
+    fprintf(stderr, "performance problems:\n%s"
+#if defined(BUGGY_LL_CMP) || defined(BUGGY_LL_MUL) || defined(BUGGY_LL_DIV) || defined(BUGGY_LL_ADD) || defined(BUGGY_LL_SHIFT) || defined(BUGGY_LL_D2F) || defined(BUGGY_LL_F2D)
+	    "    double-cell integer type buggy ->\n        "
+#ifdef BUGGY_LL_CMP
+	    "CMP, "
+#endif
+#ifdef BUGGY_LL_MUL
+	    "MUL, "
+#endif
+#ifdef BUGGY_LL_DIV
+	    "DIV, "
+#endif
+#ifdef BUGGY_LL_ADD
+	    "ADD, "
+#endif
+#ifdef BUGGY_LL_SHIFT
+	    "SHIFT, "
+#endif
+#ifdef BUGGY_LL_D2F
+	    "D2F, "
+#endif
+#ifdef BUGGY_LL_F2D
+	    "F2D, "
+#endif
+	    "\b\b slow\n"
+#endif
+	    ,
+	    (relocs < nonrelocs) ? "    gcc PR 15242 -> no dynamic code generation (use gcc-2.95 instead)\n" : "");
+}
 
 #ifdef INCLUDE_IMAGE
 extern Cell image[];
@@ -1826,8 +1885,7 @@ int main(int argc, char **argv, char **env)
   if (no_dynamic && ss_cost == cost_codesize) {
     ss_cost = cost_nexts;
     cost_sums[0] = cost_sums[1]; /* don't use cost_codesize for print-metrics */
-    if (debug)
-      fprintf(stderr, "--no-dynamic conflicts with --ss-min-codesize, reverting to --ss-min-nexts\n");
+    debugp(stderr, "--no-dynamic conflicts with --ss-min-codesize, reverting to --ss-min-nexts\n");
   }
 #endif /* !defined(NO_DYNAMIC) */
 #endif /* defined(HAS_OS) */
@@ -1844,6 +1902,8 @@ int main(int argc, char **argv, char **env)
 #endif
   gforth_header=(ImageHeader *)image; /* used in SIGSEGV handler */
 
+  if (diag)
+    print_diag();
   {
     char path2[strlen(path)+1];
     char *p1, *p2;

@@ -444,6 +444,8 @@ kernel/version.fs:	version
 	echo ": version-string s\" $(VERSION)\" ;" > kernel/version.fs
 
 more:	engines $(FORTH_GEN) $(GEN)
+	@make check
+	@$(FORTH_FAST) --diag -e bye
 
 #from the gcc Makefile: 
 #"Deletion of files made during compilation.
