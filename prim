@@ -2178,3 +2178,12 @@ UP=up=(char *)a_addr;
 :
  up ! ;
 Variable UP
+
+wcall	u --	gforth
+IF_FTOS(fp[0]=FTOS);
+FP=fp;
+sp=(SYSCALL(Cell(*)(Cell *, void *))u)(sp, &FP);
+fp=FP;
+IF_TOS(TOS=sp[0];)
+IF_FTOS(FTOS=fp[0]);
+
