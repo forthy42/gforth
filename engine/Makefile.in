@@ -75,6 +75,7 @@ SWITCHES = $(XCFLAGS) $(XDEFINES)
 ENGINE_FLAGS = @ENGINE_FLAGS@ -fno-defer-pop -fcaller-saves
 DEBUGFLAG = @DEBUGFLAG@
 CFLAGS	= $(DEBUGFLAG) -I$(srcdir)/../arch/$(machine) -O4 -Wall $(SWITCHES) -DDEFAULTPATH=\"$(FORTHPATH)\"
+CFLAGS2	= $(DEBUGFLAG) -I$(srcdir)/../arch/$(machine) -O4 -Wall $(SWITCHES) -DDEFAULTPATH=\"$(FORTHPATH)\"
 FORTHKFLAGS= --die-on-signal -p ..$(PATHSEP)$(srcdir) -i ../$(kernel_fi)
 FORTHK	= ../gforth $(FORTHKFLAGS)
 
@@ -110,7 +111,7 @@ engine.o:	$(ENGINE_DEPS)
 		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -c engine.c -o $@
 
 engine-ditc.o:	$(ENGINE_DEPS)
-		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -DDOUBLY_INDIRECT -o $@ -c engine.c
+		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -DDOUBLY_INDIRECT -o $@ -c engine.c
 
 main.o:		main.c $(DEPS) 
 		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -o $@ -c main.c

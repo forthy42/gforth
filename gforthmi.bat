@@ -1,4 +1,4 @@
-@ECHO OFF
+REM @ECHO OFF
 REM Copyright (C) 1997 Free Software Foundation, Inc.
 
 REM This file is part of Gforth.
@@ -30,9 +30,13 @@ shift
 if not "%GFORTHD%"=="" goto doit
 set GFORTHD=gforth-d
 :doit
-%GFORTHD% --clear-dictionary --no-offset-im %1 %2 %3 %4 %5 -e "savesystem tmp.fi1 bye"
-%GFORTHD% --clear-dictionary --offset-image %1 %2 %3 %4 %5 -e "savesystem tmp.fi2 bye"
-%GFORTHD% -i kernel.fi startup.fs  comp-i.fs -e "comp-image tmp.fi1 tmp.fi2 %outfile% bye"
+echo savesystem tmp.fi1 bye >tmp.fs
+%GFORTHD% --clear-dictionary --no-offset-im %1 %2 %3 %4 %5 %6 tmp.fs
+echo savesystem tmp.fi2 bye >tmp.fs
+%GFORTHD% --clear-dictionary --offset-image %1 %2 %3 %4 %5 %6 tmp.fs
+echo comp-image tmp.fi1 tmp.fi2 %outfile% bye >tmp.fs
+%GFORTHD% -i kernl32l.fi startup.fs  comp-i.fs tmp.fs
+del tmp.fs
 del tmp.fi1
 del tmp.fi2
 :end

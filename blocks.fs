@@ -75,21 +75,22 @@ Defer flush-blocks
 
 \ the file is opened as binary file, since it either will contain text
 \ without newlines or binary data
-: get-block-fid ( -- fid )
+: get-block-fid ( -- fid ) \ gforth
     block-fid @ 0=
     if
 	s" blocks.fb" open-blocks
     then
     block-fid @ ;
 
-: block-position ( u -- )
-    \ positions the block file to the start of block u
+: block-position ( u -- ) \ block
+    \G positions the block file to the start of block u
     1- chars/block chars um* get-block-fid reposition-file throw ;
 
-: update ( -- )
+: update ( -- ) \ block
     last-block @ ?dup IF  buffer-dirty on  THEN ;
 
-: save-buffer ( buffer -- ) >r
+: save-buffer ( buffer -- ) \ gforth
+    >r
     r@ buffer-dirty @ r@ buffer-block @ 0<> and
     if
 	r@ buffer-block @ block-position
@@ -98,25 +99,27 @@ Defer flush-blocks
     endif
     rdrop ;
 
-: empty-buffer ( buffer -- )
+: empty-buffer ( buffer -- ) \ gforth
     buffer-block off ;
 
-: save-buffers  ( -- )    block-buffers @
+: save-buffers  ( -- ) \ block
+    block-buffers @
     buffers 0 ?DO  dup save-buffer  next-buffer  LOOP  drop ;
 
-: empty-buffers ( -- )    block-buffers @
+: empty-buffers ( -- ) \ block
+    block-buffers @
     buffers 0 ?DO  dup empty-buffer  next-buffer  LOOP  drop ;
 
-: flush ( -- )
+: flush ( -- ) \ block
     save-buffers
     empty-buffers ;
 
 ' flush IS flush-blocks
 
-: get-buffer ( n -- a-addr )
+: get-buffer ( n -- a-addr ) \ gforth
     buffers mod buffer-struct %size * block-buffers @ + ;
 
-: block ( u -- a-addr )
+: block ( u -- a-addr ) \ block
     dup 0= -35 and throw
     dup get-buffer >r
     dup r@ buffer-block @ <>
@@ -134,16 +137,17 @@ Defer flush-blocks
     then
     r> dup last-block ! block-buffer ;
 
-: buffer ( u -- a-addr )
+: buffer ( u -- a-addr ) \ block
     \ reading in the block is unnecessary, but simpler
     block ;
 
 User scr 0 scr !
 
-: updated?  ( n -- f )   scr @ buffer
+: updated?  ( n -- f ) \ gforth
+    scr @ buffer
     [ 0 buffer-dirty 0 block-buffer - ] Literal + @ ;
 
-: list ( u -- )
+: list ( u -- ) \ block
     \ calling block again and again looks inefficient but is necessary
     \ in a multitasking environment
     dup scr !
@@ -162,22 +166,24 @@ User scr 0 scr !
 
 ' (source) IS source
 
-: load ( i*x n -- j*x )
+: load ( i*x n -- j*x ) \ block
   push-file
   dup loadline ! blk ! >in off ['] interpret catch
   pop-file throw ;
 
-: thru ( i*x n1 n2 -- j*x )
+: thru ( i*x n1 n2 -- j*x ) \ block
   1+ swap ?DO  I load  LOOP ;
 
-: +load ( i*x n -- j*x )  blk @ + load ;
+: +load ( i*x n -- j*x ) \ block
+    blk @ + load ;
 
-: +thru ( i*x n1 n2 -- j*x )
+: +thru ( i*x n1 n2 -- j*x ) \ block
   1+ swap ?DO  I +load  LOOP ;
 
-: --> ( -- )  refill drop ; immediate
+: --> ( -- ) \ block- block
+    refill drop ; immediate
 
-: block-included ( addr u -- )
+: block-included ( addr u -- ) \ gforth
     block-fid @ >r block-fid off open-blocks
     1 load block-fid @ close-file throw flush
     r> block-fid ! ;

@@ -10,7 +10,7 @@ s%io.o %%g
 s%-DDEFAULTPATH=\\".*"%%g
 s%@kernel_fi@%kernl32l.fi%g
 s%@KERNEL@%kernl16l.fi kernl16b.fi kernl32l.fi kernl32b.fi kernl64l.fi kernl64b.fi%g
-s%@LIBOBJS@%ecvt.o io.o strsig.o getopt.o getopt1.o%g
+s%@LIBOBJS@%ecvt.o io.o strsig.o getopt.o getopt1.o select.o%g
 s%@host@%dos%g
 s%@CC@%gcc%g
 s%@GFORTH_EXE@%coff2exe $@%g
@@ -50,3 +50,4 @@ s%@machine@%386%g
 s%@VERSION@%0.4.0%g
 s%@EXE@%.exe%g
 s%cd engine && $(MAKE)%$(MAKE) -C engine%g
+s%\(CFLAGS2.*\) -O4%\1%g

@@ -63,7 +63,7 @@ create description-buffer 4096 chars allot
 : skip-prefix ( c-addr1 u1 -- c-addr2 u2 )
     2dup 2 min s" --" compare 0=
     IF
-	[char] - skip [char] - scan [char] - skip
+	[char] - skip [char] - scan 1 /string
     THEN ;
 
 : replace-_ ( c-addr u -- )

@@ -499,6 +499,8 @@ uninstall:	FORCE
 check test:	gforth$(EXE) gforth.fi
 		$(FORTH) test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs -e bye
 		$(FORTH) test/other.fs -e bye
+		@echo "Expect 'Missing: EKEY EKEY>CHAR EKEY? EMIT?'"
+		@echo "Expect 'Missing: EDITOR FORGET'"
 		$(FORTH) code.fs test/checkans.fs -e bye
 		@echo 'Expect no differences'
 		$(FORTHK) -m 100000 prims2x.fs -e "s\" $(srcdir)/prim.b\"' output-c process-file bye"| diff -c - $(srcdir)/engine/prim.i
@@ -608,16 +610,17 @@ kernel/prim.fs:	prim.b prims2x.fs kernel/prim0.fs
 		$(CP) $@- $@
 		$(RM) $@-
 
-gforth$(EXE):		FORCE
+gforth$(EXE):		engines
 		-$(CP) gforth$(EXE) gforth~
-		cd engine && $(MAKE) gforth$(EXE)
 		$(CP) engine/$@ $@
 		@GFORTH_EXE@
 
-gforth-ditc$(EXE):	FORCE
-		cd engine && $(MAKE) gforth-ditc$(EXE)
+gforth-ditc$(EXE):	engines
 		$(CP) engine/$@ $@
 		@GFORTHDITC_EXE@
+
+engines:	FORCE
+		cd engine && $(MAKE) gforth$(EXE) gforth-ditc$(EXE)
 
 # ------------- additional C primitives
 

@@ -69,9 +69,11 @@ static UCell fsize=0;
 static UCell lsize=0;
 int offset_image=0;
 int die_on_signal=0;
+#ifndef INCLUDE_IMAGE
 static int clear_dictionary=0;
-static int debug=0;
 static size_t pagesize=0;
+#endif
+static int debug=0;
 char *progname;
 
 /* image file format:
@@ -128,9 +130,9 @@ void relocate(Cell *image, const char *bitstring, int size, Label symbols[])
 /*  printf("relocating %x[%x]\n", image, size); */
    
   for(k=0; k<=steps; k++)
-    for(j=0, bits=bitstring[k]; j<8; j++, i++, bits<<=1) {
+    for(j=0, bits=bitstring[k]; j<RELINFOBITS; j++, i++, bits<<=1) {
       /*      fprintf(stderr,"relocate: image[%d]\n", i);*/
-      if(bits & 0x80) {
+      if(bits & (1U << (RELINFOBITS-1))) {
 	/* fprintf(stderr,"relocate: image[%d]=%d\n", i, image[i]);*/
 	if((token=image[i])<0)
 	  switch(token)
@@ -294,7 +296,9 @@ int go_forth(Address image, int stack, Cell *entries)
   Cell *rp=(Cell *)(((ImageHeader *)image)->return_stack_base + rsize);
   Address lp=((ImageHeader *)image)->locals_stack_base + lsize;
   Xt *ip=(Xt *)(((ImageHeader *)image)->boot_entry);
+#ifdef SYSSIGNALS
   int throw_code;
+#endif
 
   /* ensure that the cached elements (if any) are accessible */
   IF_TOS(sp--);
@@ -307,18 +311,20 @@ int go_forth(Address image, int stack, Cell *entries)
   get_winsize();
 #endif
    
+#ifdef SYSSIGNALS
   install_signal_handlers(); /* right place? */
   
   if ((throw_code=setjmp(throw_jmp_buf))) {
     static Cell signal_data_stack[8];
     static Cell signal_return_stack[8];
     static Float signal_fp_stack[1];
-    
+
     signal_data_stack[7]=throw_code;
     
     return((int)engine(((ImageHeader *)image)->throw_entry,signal_data_stack+7,
 		       signal_return_stack+8,signal_fp_stack,0));
   }
+#endif
 
   return((int)engine(ip,sp,rp,fp,lp));
 }
@@ -608,9 +614,9 @@ extern const char reloc_bits[];
 int main(int argc, char **argv, char **env)
 {
   char *path = getenv("GFORTHPATH") ? : DEFAULTPATH;
+#ifndef INCLUDE_IMAGE
   char *imagename="gforth.fi";
   FILE *image_file;
-#ifndef INCLUDE_IMAGE
   Address image;
 #endif
   int retvalue;
@@ -670,6 +676,6 @@ int main(int argc, char **argv, char **env)
     *p2='\0';
     retvalue = go_forth(image, 4, environ);
     deprep_terminal();
-    exit(retvalue);
   }
+  return retvalue;
 }

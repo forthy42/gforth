@@ -104,7 +104,7 @@ sourcepath avalue fpath
   >r 1+ -rot r@ 1- -rot
   r> - ;
 
-: privous-path ( path^ -- )
+: previous-path ( path^ -- )
   dup path>counted
   BEGIN tuck dup WHILE repeat ;
 
@@ -199,7 +199,7 @@ Create tfile 0 c, 255 chars allot
   nip ofile c! ;
 
 : open-ofile ( -- fid ior )
-    \ opens the file whose name is in ofile
+    \G opens the file whose name is in ofile
     expandtopic reworkdir
     ofile count r/o open-file ;
 

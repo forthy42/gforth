@@ -1536,6 +1536,7 @@ delete-file	c_addr u -- wior		file	delete_file
 wior = IOR(unlink(tilde_cstr(c_addr, u, 1))==-1);
 
 rename-file	c_addr1 u1 c_addr2 u2 -- wior	file-ext	rename_file
+""rename file c_addr1 u1 to new name c_addr2 u2""
 char *s1=tilde_cstr(c_addr2, u2, 1);
 wior = IOR(rename(tilde_cstr(c_addr1, u1, 0), s1)==-1);
 

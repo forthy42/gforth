@@ -4311,6 +4311,7 @@ of Bernd Paysan in comp.arch.
 @menu
 * Mini-OOF Usage::
 * Mini-OOF Example::
+* Mini-OOF Implementation::
 @end menu
 
 @c -------------------------------------------------------------
@@ -4356,7 +4357,7 @@ doc-object
 Is the base class of all objects
 
 @c -------------------------------------------------------------
-@node Mini-OOF Example, , Mini-OOF Usage, Mini-OOF
+@node Mini-OOF Example, Mini-OOF Implementation, Mini-OOF Usage, Mini-OOF
 @subsubsection Mini-OOF Example
 @cindex mini-oof example
 
@@ -4417,6 +4418,140 @@ with
 
 @example
 100 100 my-circle draw
+@end example
+
+@node Mini-OOF Implementation, , Mini-OOF Example, Mini-OOF
+@subsubsection Mini-OOF Implementation
+
+Object oriented system with late binding typically use a
+"vtable"-approach: the first variable in each object is a pointer to a
+table, which contains the methods as function pointers. This vtable
+may contain some other informations, too.
+
+So first, let's declare methods:
+
+@example
+: method ( m v -- m' v ) Create  over , swap cell+ swap
+  DOES> ( ... o -- ... ) @ over @ + @ execute ;
+@end example
+
+During method declaration, the number of methods and instance
+variables is on the stack (in address units). @code{method} creates
+one method and increments the method number. To execute a method, it
+takes the object, fetches the vtable pointer, adds the offset, and
+executes the xt stored there. Each method takes the object it is
+invoked from as top of stack parameter. The method itself should
+consume that object.
+
+Now, we also have to declare instance variables
+
+@example
+: var ( m v size -- m v' ) Create  over , +
+  DOES> ( o -- addr ) @ + ;
+@end example
+
+Same as above, a word is created with the current offset. Instance
+variables can have different sizes (cells, floats, doubles, chars), so
+all we do is take the size and add it to the offset. If your machine
+has alignment restrictions, put the proper @code{aligned} or
+@code{faligned} before the variable, it will adjust the variable
+offset. That's why it is on the top of stack.
+
+We need a starting point (the empty object) and some syntactic sugar:
+
+@example
+Create object  1 cells , 2 cells ,
+: class ( class -- class methods vars ) dup 2@ ;
+@end example
+
+Now, for inheritance, the vtable of the parent object has to be
+copied, when a new, derived class is declared. This gives all the
+methods of the parent class, which can be overridden, though.
+
+@example
+: end-class  ( class methods vars -- )
+  Create  here >r , dup , 2 cells ?DO ['] noop , 1 cells +LOOP
+  cell+ dup cell+ r> rot @ 2 cells /string move ;
+@end example
+
+The first line creates the vtable, initialized with
+@code{noop}s. The second line is the inheritance mechanism, it
+copies the xts from the parent vtable.
+
+We still have no way to define new methods, let's do that now:
+
+@example
+: defines ( xt class -- ) ' >body @ + ! ;
+@end example
+
+To allocate a new object, we need a word, too:
+
+@example
+: new ( class -- o )  here over @ allot swap over ! ;
+@end example
+
+And sometimes derived classes want to access the method of the
+parent object. There are two ways to achieve this with this OOF:
+first, you could use named words, and second, you could look up the
+vtable of the parent object.
+
+@example
+: :: ( class "name" -- ) ' >body @ + @ compile, ;
+@end example
+
+<H2>An Example</H2>
+
+Nothing can be more confusing than a good example, so here is
+one. First let's declare a text object (further called
+@code{button}), that stores text and position:
+
+@example
+object class
+  cell var text
+  cell var len
+  cell var x
+  cell var y
+  method init
+  method draw
+end-class button
+@end example
+
+Now, implement the two methods, @code{draw} and @code{init}:
+
+@example
+:noname ( o -- ) >r
+ r@ x @ r@ y @ at-xy  r@ text @ r> len @ type ;
+ button defines draw
+:noname ( addr u o -- ) >r
+ 0 r@ x ! 0 r@ y ! r@ len ! r> text ! ;
+ button defines init
+@end example
+
+For inheritance, we define a class @code{bold-button}, with no
+new data and no new methods.
+
+@example
+button class
+end-class bold-button
+
+: bold   27 emit ." [1m" ;
+: normal 27 emit ." [0m" ;
+
+:noname bold [ button :: draw ] normal ; bold-button defines draw
+@end example
+
+And finally, some code to demonstrate how to create objects and
+apply methods:
+
+@example
+button new Constant foo
+s" thin foo" foo init
+page
+foo draw
+bold-button new Constant bar
+s" fat bar" bar init
+1 bar y !
+bar draw
 @end example
 
 @c -------------------------------------------------------------
@@ -4500,6 +4635,38 @@ doc-name>string
 
 @node Files, Including Files, Wordlists, Words
 @section Files
+
+This chapter describes how to operate on files from Forth.
+
+Files have the following types for opening and creating:
+
+doc-r/o
+doc-r/w
+doc-w/o
+doc-bin
+
+Files are opened/created by name and type, and return a file
+identifier.
+
+doc-open-file
+doc-create-file
+
+This identifier is used for all other file commands.
+
+doc-close-file
+doc-delete-file
+doc-rename-file
+doc-read-file
+doc-read-line
+doc-write-file
+doc-emit-file
+doc-flush-file
+
+doc-file-status
+doc-file-position
+doc-reposition-file
+doc-file-size
+doc-resize-file
 
 @node Including Files, Blocks, Files, Words
 @section Including Files
@@ -4598,7 +4765,6 @@ use this Gforth feature in your application.
 
 doc-open-fpath-file
 
-
 @node General Search Paths,  , Changing the Search Path, Including Files
 @subsection General Search Paths
 @cindex search paths for user applications
@@ -4626,6 +4792,34 @@ doc-open-path-file
 
 @node Blocks, Other I/O, Including Files, Words
 @section Blocks
+
+This chapter describes how to use block files within Gforth.
+
+Block files are traditionally means of data and source storage in
+Forth. They have been very important in resource-starved computers
+without OS in the past. Gforth doesn't encourage to use blocks as
+source, and provides blocks only for backward compatibility. The ANS
+standard requires blocks to be available when files are.
+
+doc-open-blocks
+doc-use
+doc-get-block-fid
+doc-block-position
+doc-update
+doc-save-buffer
+doc-empty-buffer
+doc-flush
+doc-get-buffer
+doc-block
+doc-buffer
+doc-updated?
+doc-list
+doc-load
+doc-thru
+doc-+load
+doc-+thru
+doc---block--->
+doc-block-included
 
 @node Other I/O, Programming Tools, Blocks, Words
 @section Other I/O
@@ -7327,16 +7521,16 @@ through my mailbox to extract your names is on my to-do list).
 Gforth also owes a lot to the authors of the tools we used (GCC, CVS,
 and autoconf, among others), and to the creators of the Internet: Gforth
 was developed across the Internet, and its authors have not met
-physically yet.
+physically for the first 4 years of development.
 
 @section Pedigree
 @cindex Pedigree of Gforth
 
-Gforth descends from BigForth (1993) and fig-Forth. Gforth and PFE (by
+Gforth descends from bigFORTH (1993) and fig-Forth. Gforth and PFE (by
 Dirk Zoller) will cross-fertilize each other. Of course, a significant
 part of the design of Gforth was prescribed by ANS Forth.
 
-Bernd Paysan wrote BigForth, a descendent from TurboForth, an unreleased
+Bernd Paysan wrote bigFORTH, a descendent from TurboForth, an unreleased
 32 bit native code version of VolksForth for the Atari ST, written
 mostly by Dietrich Weineck.
 

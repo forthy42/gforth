@@ -27,6 +27,10 @@
 #define SYSCALL
 #endif
 
+#ifndef SYSSIGNALS
+#define SYSSIGNALS
+#endif
+
 #ifndef USE_FTOS
 #ifndef USE_NO_FTOS
 /* keep top of FP stack in register. Since most processors have FP
@@ -79,3 +83,5 @@ typedef void *Label;
 #define HAS_HASH
 #define HAS_OS
 #define HAS_XCONDS
+
+#define RELINFOBITS	8
