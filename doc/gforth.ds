@@ -8751,9 +8751,6 @@ The following ANS Forth words are not currently supported by Gforth
 (@pxref{ANS conformance}):
 
 @code{EDITOR} 
-@code{EKEY} 
-@code{EKEY>CHAR} 
-@code{EKEY?} 
 @code{EMIT?} 
 @code{FORGET} 
 
@@ -8901,7 +8898,7 @@ ANS Forth System
 @item providing the Exception word set
 @item providing the Exception Extensions word set
 @item providing the Facility word set
-@item providing @code{MS} and @code{TIME&DATE} from the Facility Extensions word set
+@item providing @code{EKEY}, @code{EKEY>CHAR}, @code{EKEY?}, @code{MS} and @code{TIME&DATE} from the Facility Extensions word set
 @item providing the File Access word set
 @item providing the File Access Extensions word set
 @item providing the Floating-Point word set
@@ -9653,7 +9650,12 @@ undefined OS errors produce a message with a strange number; e.g.,
 @item encoding of keyboard events (@code{EKEY}):
 @cindex keyboard events, encoding in @code{EKEY}
 @cindex @code{EKEY}, encoding of keyboard events
-Not yet implemented.
+Keys corresponding to ASCII characters are encoded as ASCII characters.
+Other keys are encoded with the constants \code{k-left}, \code{k-right},
+\code{k-up}, \code{k-down}, \code{k-home}, \code{k-end}, \code{k1},
+\code{k2}, \code{k3}, \code{k4}, \code{k5}, \code{k6}, \code{k7},
+\code{k8}, \code{k9}, \code{k10}, \code{k11}, \code{k12}.
+
 
 @item duration of a system clock tick:
 @cindex duration of a system clock tick
@@ -11168,7 +11170,11 @@ registers as well as a human, even with explicit register declarations;
 e.g., Bernd Beuster wrote a Forth system fragment in assembly language
 and hand-tuned it for the 486; this system is 1.19 times faster on the
 Sieve benchmark on a 486DX2/66 than Gforth compiled with
-@code{gcc-2.6.3} with @code{-DFORCE_REG}.
+@code{gcc-2.6.3} with @code{-DFORCE_REG}.  The situation has improved
+with gcc-2.95 and gforth-0.4.9; now the most important virtual machine
+registers fit in real registers (and we can even afford to use the TOS
+optimization), resulting in a speedup of 1.14 on the sieve over the
+earlier results.
 
 @cindex Win32Forth performance
 @cindex NT Forth performance
@@ -11176,9 +11182,9 @@ Sieve benchmark on a 486DX2/66 than Gforth compiled with
 @cindex ThisForth performance
 @cindex PFE performance
 @cindex TILE performance
-However, this potential advantage of assembly language implementations
+The potential advantage of assembly language implementations
 is not necessarily realized in complete Forth systems: We compared
-Gforth (direct threaded, compiled with @code{gcc-2.6.3} and
+Gforth-0.4.9 (direct threaded, compiled with @code{gcc-2.95.1} and
 @code{-DFORCE_REG}) with Win32Forth 1.2093, LMI's NT Forth (Beta, May
 1994) and Eforth (with and without peephole (aka pinhole) optimization
 of the threaded code); all these systems were written in assembly
@@ -11194,7 +11200,7 @@ O'Heskin kindly provided the results for Win32Forth and NT Forth on a
 Hendrix ported Eforth to Linux, then extended it to run the benchmarks,
 added the peephole optimizer, ran the benchmarks and reported the
 results.
- 
+
 We used four small benchmarks: the ubiquitous Sieve; bubble-sorting and
 matrix multiplication come from the Stanford integer benchmarks and have
 been translated into Forth by Martin Fraeman; we used the versions
@@ -11205,12 +11211,12 @@ scaled by the time taken by Gforth (in other words, it shows the speedup
 factor that Gforth achieved over the other systems).
 
 @example
-relative      Win32-    NT       eforth       This-
+relative      Win32-    NT       eforth       This-      
   time  Gforth Forth Forth eforth  +opt   PFE Forth  TILE
-sieve     1.00  1.39  1.14   1.39  0.85  1.58  3.18  8.58
-bubble    1.00  1.31  1.41   1.48  0.88  1.50        3.88
-matmul    1.00  1.47  1.35   1.46  0.74  1.58        4.09
-fib       1.00  1.52  1.34   1.22  0.86  1.74  2.99  4.30
+sieve     1.00  1.58  1.30   1.58  0.97  1.80  3.63  9.79
+bubble    1.00  1.55  1.67   1.75  1.04  1.78        4.59
+matmul    1.00  1.67  1.53   1.66  0.84  1.79        4.63
+fib       1.00  1.75  1.53   1.40  0.99  1.99  3.43  4.93
 @end example
 
 You may be quite surprised by the good performance of Gforth when
@@ -11222,10 +11228,10 @@ but costly method for relocating the Forth image: like @code{cforth}, it
 computes the actual addresses at run time, resulting in two address
 computations per @code{NEXT} (@pxref{Image File Background}).
 
-Only Eforth with the peephole optimizer has a performance that is
-comparable to Gforth. The speedups achieved with peephole optimization
-of threaded code are quite remarkable. Adding a peephole optimizer to
-Gforth should cause similar speedups.
+Only Eforth with the peephole optimizer performs comparable to
+Gforth. The speedups achieved with peephole optimization of threaded
+code are quite remarkable. Adding a peephole optimizer to Gforth should
+cause similar speedups.
 
 The speedup of Gforth over PFE, ThisForth and TILE can be easily
 explained with the self-imposed restriction of the latter systems to
@@ -11239,19 +11245,20 @@ The performance of Gforth on 386 architecture processors varies widely
 with the version of @code{gcc} used. E.g., @code{gcc-2.5.8} failed to
 allocate any of the virtual machine registers into real machine
 registers by itself and would not work correctly with explicit register
-declarations, giving a 1.3 times slower engine (on a 486DX2/66 running
+declarations, giving a 1.5 times slower engine (on a 486DX2/66 running
 the Sieve) than the one measured above.
 
 Note that there have been several releases of Win32Forth since the
 release presented here, so the results presented above may have little
-predictive value for the performance of Win32Forth today.
+predictive value for the performance of Win32Forth today (results for
+the current release on an i486DX2/66 are welcome).
 
 @cindex @file{Benchres}
 In @cite{Translating Forth to Efficient C} by M. Anton Ertl and Martin
 Maierhofer (presented at EuroForth '95), an indirect threaded version of
 Gforth is compared with Win32Forth, NT Forth, PFE, and ThisForth; that
-version of Gforth is 2%@minus{}8% slower on a 486 than the direct
-threaded version used here. The paper available at
+version of Gforth is slower on a 486 than the direct threaded version
+used here. The paper available at
 @*@url{http://www.complang.tuwien.ac.at/papers/ertl&maierhofer95.ps.gz};
 it also contains numbers for some native code systems. You can find a
 newer version of these measurements at
