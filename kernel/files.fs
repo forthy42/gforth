@@ -88,7 +88,7 @@ has? new-input 0= [IF]
     
 \ additional words only needed if there is file support
 
-Warnings off
+Redefinitions-start
 
 : ( ( compilation 'ccc<close-paren>' -- ; run-time -- ) \ core,file	paren
     loadfile @ 0= IF  postpone (  EXIT  THEN
@@ -107,4 +107,4 @@ Warnings off
 	THEN
     REPEAT ; immediate
 
-Warnings on
+Redefinitions-end
