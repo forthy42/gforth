@@ -1,0 +1,168 @@
+\ Gforth primitives
+
+\ Copyright (C) 1995,1996,1997,1998,2000,2003 Free Software Foundation, Inc.
+
+\ This file is part of Gforth.
+
+\ Gforth is free software; you can redistribute it and/or
+\ modify it under the terms of the GNU General Public License
+\ as published by the Free Software Foundation; either version 2
+\ of the License, or (at your option) any later version.
+
+\ This program is distributed in the hope that it will be useful,
+\ but WITHOUT ANY WARRANTY; without even the implied warranty of
+\ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+\ GNU General Public License for more details.
+
+\ You should have received a copy of the GNU General Public License
+\ along with this program; if not, write to the Free Software
+\ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
+
+
+\ WARNING: This file is processed by m4. Make sure your identifiers
+\ don't collide with m4's (e.g. by undefining them).
+\ 
+\ 
+\ 
+\ This file contains primitive specifications in the following format:
+\ 
+\ forth name	( stack effect )	category	[pronunciation]
+\ [""glossary entry""]
+\ C code
+\ [:
+\ Forth code]
+\ 
+\ Note: Fields in brackets are optional.  Word specifications have to
+\ be separated by at least one empty line
+\
+\ Both pronounciation and stack items (in the stack effect) must
+\ conform to the C identifier syntax or the C compiler will complain.
+\ If you don't have a pronounciation field, the Forth name is used,
+\ and has to conform to the C identifier syntax.
+\ 
+\ These specifications are automatically translated into C-code for the
+\ interpreter and into some other files. I hope that your C compiler has
+\ decent optimization, otherwise the automatically generated code will
+\ be somewhat slow. The Forth version of the code is included for manual
+\ compilers, so they will need to compile only the important words.
+\ 
+\ Note that stack pointer adjustment is performed according to stack
+\ effect by automatically generated code and NEXT is automatically
+\ appended to the C code. Also, you can use the names in the stack
+\ effect in the C code. Stack access is automatic. One exception: if
+\ your code does not fall through, the results are not stored into the
+\ stack. Use different names on both sides of the '--', if you change a
+\ value (some stores to the stack are optimized away).
+\
+\ For superinstructions the syntax is:
+\
+\ forth-name [/ c-name] = forth-name forth-name ...
+\
+\ 
+\ The stack variables have the following types:
+\ 
+\ name matches	type
+\ f.*		Bool
+\ c.*		Char
+\ [nw].*	Cell
+\ u.*		UCell
+\ d.*		DCell
+\ ud.*		UDCell
+\ r.*		Float
+\ a_.*		Cell *
+\ c_.*		Char *
+\ f_.*		Float *
+\ df_.*		DFloat *
+\ sf_.*		SFloat *
+\ xt.*		XT
+\ f83name.*	F83Name *
+
+\E stack data-stack   sp Cell
+\E stack fp-stack     fp Float
+\E stack return-stack rp Cell
+\E
+\E get-current prefixes set-current
+\E 
+\E s" Bool"		single data-stack type-prefix f
+\E s" Char"		single data-stack type-prefix c
+\E s" Cell"		single data-stack type-prefix n
+\E s" Cell"		single data-stack type-prefix w
+\E s" UCell"		single data-stack type-prefix u
+\E s" DCell"		double data-stack type-prefix d
+\E s" UDCell"		double data-stack type-prefix ud
+\E s" Float"		single fp-stack   type-prefix r
+\E s" Cell *"		single data-stack type-prefix a_
+\E s" Char *"		single data-stack type-prefix c_
+\E s" Float *"		single data-stack type-prefix f_
+\E s" DFloat *"		single data-stack type-prefix df_
+\E s" SFloat *"		single data-stack type-prefix sf_
+\E s" Xt"		single data-stack type-prefix xt
+\E s" struct F83Name *"	single data-stack type-prefix f83name
+\E s" struct Longname *" single data-stack type-prefix longname
+\E 
+\E return-stack stack-prefix R:
+\E inst-stream  stack-prefix #
+\E 
+\E set-current
+\E store-optimization on
+\E ' noop tail-nextp2 ! \ now INST_TAIL just stores, but does not jump
+\E
+\E include-skipped-insts on \ static superinsts include cells for components
+\E                          \ useful for dynamic programming and
+\E                          \ superinsts across entry points
+
+\ 
+\ 
+\ 
+\ In addition the following names can be used:
+\ ip	the instruction pointer
+\ sp	the data stack pointer
+\ rp	the parameter stack pointer
+\ lp	the locals stack pointer
+\ NEXT	executes NEXT
+\ cfa	
+\ NEXT1	executes NEXT1
+\ FLAG(x)	makes a Forth flag from a C flag
+\ 
+\ 
+\ 
+\ Percentages in comments are from Koopmans book: average/maximum use
+\ (taken from four, not very representative benchmarks)
+\ 
+\ 
+\ 
+\ To do:
+\ 
+\ throw execute, cfa and NEXT1 out?
+\ macroize *ip, ip++, *ip++ (pipelining)?
+
+\ set up stack caching states
+
+\E register sp0 Cell
+\E register sp1 Cell
+\E register sp2 Cell
+\E register sp3 Cell
+
+\E create regs sp0 , sp1 , sp2 , sp3 ,
+
+\E regs 0 0 stack-state ss0
+\E regs 1 1 stack-state ss1
+\E regs 2 2 stack-state ss2
+\E regs 3 3 stack-state ss3
+
+\E state S0
+\E state S1
+\E state S2
+\E state S3
+
+\E ss0 data-stack s0 set-ss
+\E ss1 data-stack s1 set-ss
+\E ss2 data-stack s2 set-ss
+\E ss3 data-stack s3 set-ss
+
++	( n1 n2 -- n )		core	plus
+n = n1+n2;
+
+lit	( #w -- w )		gforth
+:
+ r> dup @ swap cell+ >r ;

@@ -188,8 +188,26 @@ struct%
     cell%    field type-store \ xt of store code generator ( item -- )
 end-struct type%
 
+struct%
+    cell%    field register-number
+    cell%    field register-type \ pointer to type
+    cell% 2* field register-name \ c name
+end-struct register%
+
+struct%
+    cell% 2* field ss-registers  \ addr u; ss-registers[0] is TOS
+    cell%    field ss-offset     \ stack pointer offset: sp[-offset] is TOS
+end-struct ss% \ stack-state
+
+struct%
+    cell% max-stacks * field state-sss
+end-struct state%
+
 variable next-stack-number 0 next-stack-number !
 create stacks max-stacks cells allot \ array of stacks
+256 constant max-registers
+create registers max-registers cells allot \ array of registers
+variable nregisters 0 nregisters ! \ number of registers
 
 : stack-in-index ( in-size item -- in-index )
     item-offset @ - 1- ;
@@ -614,20 +632,66 @@ does> ( item -- )
 wordlist constant type-names \ this is here just to meet the requirement
                     \ that a type be a word; it is never used for lookup
 
+: define-type ( addr u -- xt )
+    \ define single type with name addr u, without stack
+    get-current type-names set-current >r
+    2dup nextname stack-type-name
+    r> set-current
+    latestxt ;
+
 : stack ( "name" "stack-pointer" "type" -- )
     \ define stack
     name { d: stack-name }
     name { d: stack-pointer }
     name { d: stack-type }
-    get-current type-names set-current
-    stack-type 2dup nextname stack-type-name
-    set-current
-    stack-pointer latestxt >body stack-name nextname make-stack ;
+    stack-type define-type
+    stack-pointer rot >body stack-name nextname make-stack ;
 
 stack inst-stream IP Cell
 ' inst-in-index inst-stream stack-in-index-xt !
 ' inst-stream <is> inst-stream-f
 \ !! initialize stack-in and stack-out
+
+\ registers
+
+: make-register ( type addr u -- )
+    \ define register with type TYPE and name ADDR U.
+    nregisters @ max-registers < s" too many registers" ?print-error
+    2dup nextname create register% %allot >r
+    r@ register-name 2!
+    r@ register-type !
+    nregisters @ r@ register-number !
+    1 nregisters +!
+    rdrop ;
+
+: register ( "name" "type" -- )
+    \ define register
+    name { d: reg-name }
+    name { d: reg-type }
+    reg-type define-type >body
+    reg-name make-register ;
+
+\ stack-states
+
+: stack-state ( a-addr u uoffset "name" -- )
+    create ss% %allot >r
+    r@ ss-offset !
+    r@ ss-registers 2!
+    rdrop ;
+
+0 0 0 stack-state default-ss
+
+\ state
+
+: state ( "name" -- )
+    \ create a state initialized with default-sss
+    create state% %allot state-sss { sss }
+    max-stacks 0 ?do
+	default-ss sss i th !
+    loop ;
+
+: set-ss ( ss stack state -- )
+    state-sss swap stack-number @ th ! ;
 
 \ offset computation
 \ the leftmost (i.e. deepest) item has offset 0
