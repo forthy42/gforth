@@ -755,6 +755,10 @@ Defer 'cold ( -- ) \ gforth  tick-cold
 Variable init8
 
 : cold ( -- ) \ gforth
+[ has? backtrace [IF] ]
+    rp@ backtrace-rp0 !
+[ [THEN] ]
+    handler off
 [ has? file [IF] ]
     pathstring 2@ fpath only-path 
     init-included-files

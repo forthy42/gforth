@@ -135,9 +135,9 @@ is catch
 	store-backtrace
 \ [ [THEN] ]
 \ [ has? interpreter [IF] ]
-	handler @ dup 0= IF
+	handler @ ?dup-0=-IF
 \ [ has? os [IF] ]
-	    cr ." error " .
+	    cr ." error " dec. cr
 	    2 (bye)
 \ [ [ELSE] ]
 	    quit

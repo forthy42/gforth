@@ -65,7 +65,7 @@ interpret/compile: ctrl  ( "<char>" -- ctrl-code )
 : force-open ( addr len -- fid )
   2dup r/w open-file 0<
   IF  drop r/w create-file
-      throw  ELSE  nip nip  THEN ;
+      throw ELSE  nip nip  THEN ;
 
 s" os-class" environment? [IF] s" unix" compare 0= [ELSE] true [THEN] 
 [IF]

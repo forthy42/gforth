@@ -205,7 +205,13 @@ defer catch ( x1 .. xn xt -- y1 .. ym 0 / z1 .. zn error ) \ exception
 is catch
 
 defer throw ( y1 .. ym error/0 -- y1 .. ym / z1 .. zn error ) \ exception
-' drop is throw
+:noname ( y1 .. ym error/0 -- y1 .. ym / z1 .. zn error )
+    ?dup if
+	[ here forthstart 9 cells + ! ]
+	cr ." error " decimal . cr 1 (bye)
+    then ;
+is throw
+
 \ (abort")
 
 : (abort")

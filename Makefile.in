@@ -569,7 +569,7 @@ kernl64l.fi:	$(KERNLS)
 #		-$(CP) $< $@
 
 gforth.fi:	$(kernel_fi) gforthmi gforth$(EXE) gforth-ditc$(EXE) $(GFORTH_FI_SRC)
-		GFORTHD="./gforth-ditc -p .$(PATHSEP)$(srcdir)" GFORTH="./gforth-ditc -p .$(PATHSEP)$(srcdir) -i $(kernel_fi) startup.fs" ./gforthmi gforth.fi $(FORTHSIZES) $(FORTHKFLAGS) startup.fs
+		GFORTHD="./gforth-ditc -p .$(PATHSEP)$(srcdir)" GFORTH="./gforth-ditc --die-on-signal -p .$(PATHSEP)$(srcdir) -i $(kernel_fi) startup.fs" ./gforthmi gforth.fi $(FORTHSIZES) $(FORTHKFLAGS) startup.fs
 
 # -------------	Make c-engine
 
