@@ -7,12 +7,21 @@ indirect or direct threaded.  Gforth is distributed under the GNU
 General Public license (see COPYING).
 
 Gforth runs under Unix and DOS and should not be hard to port to other
-systems supported by GCC. This version has been tested on Linux (for
-Intel), SunOS (SPARC), Ultrix (MIPS) before release.
+systems supported by GCC. This version has been tested successfully on
+Linux (for Intel), SunOS (SPARC) and Ultrix (MIPS).
 
 Read INSTALL for installation instructions. Mail
 gforth-bugs@mips.complang.tuwien.ac.at if you have problems.  To start
 the system, just say `gforth' (after installing it).
+
+You can find new versions of Gforth at
+
+http://www.complang.tuwien.ac.at/forth
+or
+ftp://ftp.complang.tuwien.ac.at/pub/forth
+
+This site will also contain binary distributions of Gforth for some
+popular platforms when it has proved stable.
 
 If you want to work on Gforth, mail me. Tasks to be done can be found
 in ToDo; but if you would like to do something not mentioned there,

@@ -27,6 +27,8 @@ AC_ARG_WITH(debug,
                     debugging informations.],
 if test "$withval" = "yes"; then DEBUGFLAG=-g; fi)
 
+CFLAGS=$CFLAGS
+
 AC_PROG_CC
 
 if test "$GCC" = "yes"
@@ -34,9 +36,9 @@ then
    echo "Fine, gcc is available"
 else
    cat <<'EOF'
-Gforth uses the GNU-C extensions for better performance. It does not work
-with other C compilers. Please install a new version of the GNU-C compiler, and
-try again.
+Gforth requires GCC-2.0 or higher (it uses GNU C extensions).
+It does not work with other C compilers. Please install the GNU C compiler,
+and try again (or search for a binary distribution for your platform).
 EOF
    exit 1
 fi
@@ -80,12 +82,9 @@ case "$host_cpu" in
 		;;
 	i386|i486|i586)
 		mach_h=386
-		CFLAGS="-fomit-frame-pointer -fforce-addr -fforce-mem"
+		CFLAGS="$CFLAGS -fomit-frame-pointer -fforce-addr -fforce-mem"
 		#!! direct/indirect threading switch
 		#!! -m486 flag
-		;;
-	m68*)
-		mach_h=m68k
 		;;
 	mips*)
 		mach_h=mips
@@ -98,10 +97,11 @@ case "$host_cpu" in
 		;;
 	*)
 		echo "No direct threading support for $host_cpu, using indirect threading."
-		echo "Using a generic 32-bit machine description. It will only work if char * AND"
-		echo "long values have 32 bits."
+		echo "Using a generic machine description. It will only work if char * AND"
+		echo "long values have the same size and long long is twice as long."
 		echo "I'll assume that C floats and doubles are represented by IEEE single and"
 		echo "double numbers. If this is not so, SF@ etc. will not work correctly."
+		echo "FLUSH-ICACHE will do nothing, so END-CODE may not work properly!"
 		mach_h=32bit
 esac
 AC_SUBST(host)

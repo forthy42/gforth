@@ -28,7 +28,7 @@
 
 #ifndef INDIRECT_THREADED
 #ifndef DIRECT_THREADED
-/* #define DIRECT_THREADED */
+#define DIRECT_THREADED
 #endif
 #endif
 
@@ -54,7 +54,14 @@
    Another way is to use a special DOES_HANDLER, like most other CPUs */
 #endif
 
-#warning Direct threading for Alpha may not work with all compiler versions
+#warning Direct threading for Alpha may not work with all gcc versions
+#warning CODE does not (yet) work on the Alpha with direct threading
+/* Currently CODE tries to put a jump to the PFA into the code field.
+   Since the PFA is far away from docol, the present code generated
+   for the jump does not work. The solution would be, of course, to do
+   away with this foolish jump.  ";CODE" is harder to get right,
+   however.
+*/
 
 typedef int Int32;
 typedef short Int16;
@@ -82,7 +89,7 @@ typedef short Int16;
    How do we tell gcc all this? We declare the registers as variables:
    _alpha_docol as explicit variable, to avoid spilling; _alpha_ca is
    so short-lived, so it hopefully won't be spilled. A
-   pseudo-primitive cpu_dep is created with code that let's gcc's data
+   pseudo-primitive cpu_dep is created with code that lets gcc's data
    flow analysis know that _alpha_docol is used and that _alpha_ca may
    be defined and used after any NEXT and before any primitive.  We
    let gcc choose the register for _alpha_ca and simply change the
@@ -107,7 +114,9 @@ typedef short Int16;
 #define _DOCOL_LABEL	(symbols[DOCOL])
 
 /* MAKE_CF creates an appropriate code field at the wa; ca is the
-   code address. For the Alpha, this is a lda followed by a jmp */
+   code address. For the Alpha, this is a lda followed by a jmp.
+   We patch the jmp with a good hint (on the 21064a this save 5 cycles!) */
+/* !!do special case for docol */
 #define MAKE_CF(wa,ca)	({ \
 			     Int32 *_wa=(Int32 *)(wa); \
 			     Int32 *_ca=(Int32 *)(ca); \

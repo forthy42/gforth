@@ -33,6 +33,7 @@ CP	= copy
 INSTALL	= install-sh
 INSTALL_PROGRAM = install-sh
 INSTALL_DATA = install-sh
+INSTALL_DIR = ./install-sh -d
 LN_S	= copy
 GCC	= gcc
 CC	= $(GCC)
@@ -79,14 +80,14 @@ FORTH_SRC = anslocal.fs add.fs assert.fs ansi.fs answords.fs blocks.fs bufio.fs 
 	dumpimage.fs environ.fs errore.fs etags.fs extend.fs filedump.fs \
 	float.fs glocals.fs glosgen.fs gray.fs hash.fs history.fs \
 	kernal.fs locals-test.fs look.fs main.fs makedoc.fs \
- 	mach16b.fs mach16l.fs mach32b.fs mach32l.fs mach64b.fs mach64l.fs \
+	mach16b.fs mach16l.fs mach32b.fs mach32l.fs mach64b.fs mach64l.fs \
 	other.fs prims2x.fs random.fs search-order.fs see.fs sieve.fs source.fs \
 	startup.fs site-init.fs struct.fs tools.fs toolsext.fs tt.fs vars.fs \
 	vt100.fs vt100key.fs wordinfo.fs wordsets.fs \
 	tester.fs coretest.fs \
 	bubble.fs siev.fs matrix.fs fib.fs
 
-SOURCES	= Makefile.in configure.in configure config.sub  config.guess \
+SOURCES	= CVS Makefile.in configure.in configure config.sub  config.guess \
 	install-sh INSTALL README ToDo BUGS model COPYING Benchres \
 	gforth.ds texinfo.tex gforth.1 gforth.el \
 	primitives engine.c main.c io.c \
@@ -169,7 +170,7 @@ virtualclean:	mostlyclean
 dist:		$(SOURCES) $(FORTH_GEN) $(DOCDIST)
 		-rm -rf gforth-$(VERSION)
 		mkdir gforth-$(VERSION)
-		cp -p $(SOURCES) $(FORTH_GEN0) kernl16l.fi kernl16b.fi kernl32l.fi kernl32b.fi kernl64l.fi kernl64b.fi $(DOCDIST) gforth-$(VERSION)
+		$(CP) -rp $(SOURCES) $(FORTH_GEN0) kernl16l.fi kernl16b.fi kernl32l.fi kernl32b.fi kernl64l.fi kernl64b.fi $(DOCDIST) gforth-$(VERSION)
 		tar cvf - gforth-$(VERSION)|gzip -9 >gforth-$(VERSION).tar.gz
 		-rm -rf gforth-$(VERSION)
 
@@ -179,7 +180,7 @@ dist:		$(SOURCES) $(FORTH_GEN) $(DOCDIST)
 bindist:	$(SOURCES) $(FORTH_GEN) gforth $(OBJECTS) config.status Makefile
 		-rm -rf gforth-$(VERSION)
 		mkdir gforth-$(VERSION)
-		cp -p -d $(SOURCES) config.status Makefile $(FORTH_GEN) gforth $(OBJECTS) machine.h kernal.fi gforth-$(VERSION)
+		$(CP) -rp -d $(SOURCES) config.status Makefile $(FORTH_GEN) gforth $(OBJECTS) machine.h kernal.fi gforth-$(VERSION)
 		strip gforth-$(VERSION)/gforth
 		tar cvf - gforth-$(VERSION)|gzip -9 >gforth-$(VERSION)-dos.tar.gz
 
@@ -193,7 +194,7 @@ bindist:	$(SOURCES) $(FORTH_GEN) gforth $(OBJECTS) config.status Makefile
 binonlydist:	$(SOURCES) $(FORTH_GEN) gforth $(OBJECTS)
 		-rm -rf gforth-$(VERSION)
 		mkdir gforth-$(VERSION)
-		cp -p -d  config.status Makefile gforth $(OBJECTS) machine.h kernal.fi gforth-$(VERSION)
+		$(CP) -p -d  config.status Makefile gforth $(OBJECTS) machine.h kernal.fi gforth-$(VERSION)
 		strip gforth-$(VERSION)/gforth
 		tar cvf - gforth-$(VERSION)|gzip -9 >gforth-$(VERSION)-binonly-dos.tar.gz
 
@@ -202,14 +203,16 @@ binonlydist:	$(SOURCES) $(FORTH_GEN) gforth $(OBJECTS)
 #strip gforth, because the debugging stuff is hardly useful once
 # gforth manages to execute more than a few primitives
 
-install:	gforth $(FORTH_SRC) kernal.fi gforth.fi gforth.1 gforth.info
-		$(INSTALL) -d $(bindir) $(mandir) $(infodir) $(libdir)/gforth/$(VERSION) $(datadir)/gforth/$(VERSION) $(libdir)/gforth/site-forth $(datadir)/gforth/site-forth
+install:	gforth $(FORTH_SRC) kernal.fi gforth.fi gforth.1 gforth.info*
+		for i in $(bindir) $(mandir) $(infodir) $(libdir)/gforth/$(VERSION) $(datadir)/gforth/$(VERSION) $(libdir)/gforth/site-forth $(datadir)/gforth/site-forth; do \
+			$(INSTALL_DIR) $$i; \
+		done
 		touch $(datadir)/gforth/site-forth/site-init.fs
-		-$(RM) $(bindir)/gforth
+		-$(RM) $(bindir)/gforth $(bindir)/gforth-$(VERSION)
 		$(INSTALL_PROGRAM) -s gforth $(bindir)
-		ln -f $(bindir)/gforth $(bindir)/gforth-$(VERSION)
+		ln $(bindir)/gforth $(bindir)/gforth-$(VERSION)
 		$(INSTALL_DATA) gforth.1 $(mandir)
-		$(INSTALL_DATA) gforth.info* $(infodir)
+		for i in gforth.info*; do $(INSTALL_DATA) $$i $(infodir); done
 		for i in $(FORTH_SRC); do \
 			$(INSTALL_DATA) $$i $(datadir)/gforth/$(VERSION); \
 		done
@@ -345,9 +348,7 @@ gforth.dvi gforth.fns:	gforth.texi
 gforth.ps:	gforth.dvi
 		$(DVI2PS) gforth.dvi -o $@
 
-gforth.info*:	gforth.info
-
-gforth.info:	gforth.texi
+gforth.info*:	gforth.texi
 		-$(MAKEINFO) gforth.texi
 
 html:		gforth.texi

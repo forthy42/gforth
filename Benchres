@@ -1,6 +1,7 @@
 Some benchmark results for various combinations of hardware, Gforth
-version, and Gforth configuration. You can measure your combination
-with `make bench'. You can find a table comparing Gforth with four
+version, and Gforth configuration. Unless specified otherwise, the
+default configurations were used. You can measure your combination
+with `make bench'. You can find a table comparing Gforth with six
 interpretive Forth systems in the manual (Section Performance), and a
 comparison with more systems in
 http://www.complang.tuwien.ac.at/pub/papers/ertl&maierhofer95.ps.gz.
@@ -9,12 +10,12 @@ All times are given in seconds of user time.
 
 siev	bubble	matrix	fib	machine and configuration
 10.91	11.94	11.24	13.13	Pentium 133MHz 256K PB cache; gcc-2.6.3 -DFORCE_REG; gforth-0.1beta
-31.90	35.60	28.30	36.70	i486 66MHz 256K cache; gcc-2.6.3 -DFORCE_REG; gforth-0.1alpha
+29.89	35.42	26.96	34.59	i486 66MHz 256K cache; gcc-2.6.3 -DFORCE_REG -DDIRECT_THREADED; gforth-0.1alpha
 39.50	45.91	36.73	44.90	i486 50MHz 256K cache; gcc-2.7.0 -DFORCE_REG -DDIRECT_THREADED; gforth-0.1beta
 42.82	46.74	38.69	48.30	i486 50MHz 256K cache; gcc-2.7.0 -DFORCE_REG; gforth-0.1beta
- 8.4	 8.3	 7.2	 9.4	21064A (Alpha) 300MHz 2M cache; gcc-2.7.1; gforth-0.1beta
- 7.2	 7.6	 6.2	 8.0	21064A (Alpha) 300MHz 2M cache; gcc-2.7.2 -DDIRECT_THREADED; gforth-0.1beta
+ 7.2	 7.6	 6.2	 8.0	21064A (Alpha) 300MHz 2M cache; gcc-2.7.2; gforth-0.1beta
 17.3	19.0	14.1	18.3	R4000 100MHz 1M cache; gcc-2.4.5; gforth-0.1beta
 50.9	56.8	42.4	52.0	R3000 25MHz 64K+64K cache; gcc-2.5.8 -DFORCE_REG; gforth-0.1beta
-63.0	73.3	74.6	65.7	FJMB86903 (SPARC ELC) 33MHz; gcc-2.5.8; gforth-0.1beta
-30.0	34.1	20.5	33.0	PA-RISC 1.1 50MHz 64K cache; gcc-2.6.3 -DDIRECT_THREADED; gforth-0.1beta
+59.5	65.8	69.5	61.9	FJMB86903 (SPARC ELC) 33MHz; gcc-2.5.8; gforth-0.1beta
+30.0	34.1	20.5	33.0	PA-RISC 1.1 (HP 720) 50MHz 64K cache; gcc-2.6.3 -DDIRECT_THREADED; gforth-0.1beta
+
