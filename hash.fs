@@ -18,6 +18,10 @@
 \ along with this program; if not, write to the Free Software
 \ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
 
+[IFUNDEF] erase
+: erase ( addr len -- ) 0 fill ;
+[THEN]
+
 [IFUNDEF] allocate
 : reserve-mem here swap allot ;
 \ move to a kernel/memory.fs
@@ -32,6 +36,12 @@
 
 \ compute hash key                                     15jul94py
 
+has? ec [IF] [IFUNDEF] hash
+: hash ( addr len -- key )
+  over c@ swap 1- IF swap char+ c@ + ELSE nip THEN
+  [ Hashlen 1- ] literal and ;
+[THEN] [THEN]
+
 [IFUNDEF] hash
 : hash ( addr len -- key )
     hashbits (hashkey1) ;
@@ -42,12 +52,12 @@ Variable revealed
 
 \ Memory handling                                      10oct94py
 
-Variable HashPointer
+AVariable HashPointer
 Variable HashIndex
-0 Value HashTable
+0 AValue HashTable
 
 \ forward declarations
-0 Value hashsearch-map
+0 AValue hashsearch-map
 Defer hash-alloc ( addr -- addr )
 
 \ DelFix and NewFix are from bigFORTH                  15jul94py
@@ -134,9 +144,9 @@ Defer hash-alloc ( addr -- addr )
   IF   inithash
   ELSE rehashall THEN ;
 
-\ >rom ?!
-align here    ' hash-find A, ' hash-reveal A, ' (rehash) A, ' (rehash) A,
-to hashsearch-map
+const Create (hashsearch-map)
+' hash-find A, ' hash-reveal A, ' (rehash) A, ' (rehash) A,
+(hashsearch-map) to hashsearch-map
 
 \ hash allocate and vocabulary initialization          10oct94py
 
