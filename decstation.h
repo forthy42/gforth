@@ -1,5 +1,5 @@
 /*
-  $Id: decstation.h,v 1.1 1994-02-11 16:30:46 anton Exp $
+  $Id: decstation.h,v 1.1.1.1 1994-02-11 16:30:47 anton Exp $
   Copyright 1992 by the ANSI figForth Development Group
 
   This is the machine-specific part for a Decstation running Ultrix

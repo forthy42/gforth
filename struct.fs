@@ -1,4 +1,4 @@
-\ $Id: struct.fs,v 1.1 1994-02-11 16:30:47 anton Exp $
+\ $Id: struct.fs,v 1.1.1.1 1994-02-11 16:30:48 anton Exp $
 
 \ Usage example:
 \

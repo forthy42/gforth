@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.1 1994-02-11 16:30:45 anton Exp $
+#$Id: Makefile,v 1.1.1.1 1994-02-11 16:30:46 anton Exp $
 #Copyright 1992 by the ANSI figForth Development Group
 
 RM	= echo 'Trying to remove'

@@ -1,4 +1,4 @@
-;;$Id: primitives2c.el,v 1.1 1994-02-11 16:30:46 anton Exp $
+;;$Id: primitives2c.el,v 1.1.1.1 1994-02-11 16:30:47 anton Exp $
 ;;Copyright 1992 by the ANSI figForth Development Group
 
 ;; To Do:

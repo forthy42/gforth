@@ -1,5 +1,5 @@
 /*
-  $Id: apollo68k.h,v 1.1 1994-02-11 16:30:45 anton Exp $
+  $Id: apollo68k.h,v 1.1.1.1 1994-02-11 16:30:46 anton Exp $
   Copyright 1992 by the ANSI figForth Development Group
 
   This is the machine-specific part for a HP/Apollo with a 680x0

@@ -1,5 +1,5 @@
 \ CROSS.FS     The Cross-Compiler                      06oct92py
-\ $Id: cross.fs,v 1.1 1994-02-11 16:30:45 anton Exp $
+\ $Id: cross.fs,v 1.1.1.1 1994-02-11 16:30:46 anton Exp $
 \ Idea and implementation: Bernd Paysan (py)
 \ Copyright 1992 by the ANSI figForth Development Group
 

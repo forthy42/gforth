@@ -1,5 +1,5 @@
 /*
-  $Id: 386.h,v 1.1 1994-02-11 16:30:45 anton Exp $
+  $Id: 386.h,v 1.1.1.1 1994-02-11 16:30:46 anton Exp $
   Copyright 1992 by the ANSI figForth Development Group
 
   This is the machine-specific part for Intel 386 compatible processors

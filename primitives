@@ -1,5 +1,5 @@
 /*
-$Id: primitives,v 1.1 1994-02-11 16:30:46 anton Exp $
+$Id: primitives,v 1.1.1.1 1994-02-11 16:30:47 anton Exp $
 Copyright 1992 by the ANSI figForth Development Group
 
 WARNING: This file is processed by m4. Make sure your identifiers
