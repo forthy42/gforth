@@ -169,6 +169,19 @@ typedef short Int16;
 				    _cfa[1] = (doesp); })
 #endif
 
+/* dynamic superinstruction stuff */
+
+#define INST_GRANULARITY 4
+#define IND_JUMP_LENGTH 4
+#define IS_NEXT_JUMP(_addr) (((*(unsigned *)(_addr))&0xffe00000) == 0x6be00000)
+#define ALIGN_CODE   { \
+    int align_diff; \
+    old_code_here = (Address)(((((Cell)old_code_here)-1)|0xf)+1); \
+    align_diff = old_code_here - code_here; \
+    memcpy(code_here, ((char *)(int []){0x47ff041f,0x2fe00000,0x47ff041f,0x2fe00000})+16-align_diff,align_diff); \
+    code_here = old_code_here; \
+  }
+
 #ifdef FORCE_REG
 /* $9-$14 are callee-saved, $1-$8 and $22-$25 are caller-saved */
 #define IPREG asm("$10")

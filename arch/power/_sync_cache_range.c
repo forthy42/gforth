@@ -34,7 +34,7 @@ void _sync_cache_range(caddr_t addr, size_t size)
      a system call, because the architecture is pretty shoddy in this
      area */
   for (; p < (addr+size); p+=cache_block_size)
-    asm("dcbst 0,%0; sync; icbi 0,%0"::"r"(p));
-  asm("sync; isync"); /* PPC 604e needs the additional sync
+    asm("dcbst 0,%0\n sync\n icbi 0,%0"::"r"(p));
+  asm("sync\n isync"); /* PPC 604e needs the additional sync
 			 according to Tim Olson */
 }

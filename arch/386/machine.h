@@ -111,6 +111,12 @@
 			  *(long *)(_addr+1) = _dodo-(_addr+5);})
 #endif
 
+/* dynamic superinstruction stuff */
+#define INST_GRANULARITY 1
+#define IND_JUMP_LENGTH 3
+#define IS_NEXT_JUMP(_addr) (((*(Cell *)(symbols1[i]+j))&0xfff8ff) == 0xfc60ff)
+	/* jmp -4(reg), i.e., the NEXT jump */
+
 #ifdef FORCE_REG
 #if (__GNUC__==2 && defined(__GNUC_MINOR__) && __GNUC_MINOR__==5)
 /* i.e. gcc-2.5.x */

@@ -444,7 +444,7 @@ Cell npriminfos=0;
 
 void check_prims(Label symbols1[])
 {
-#ifndef DOUBLY_INDIRECT
+#if defined(IS_NEXT_JUMP) && !defined(DOUBLY_INDIRECT)
   int i;
   Label *symbols2=engine2(0,0,0,0,0);
   static char superend[]={
@@ -460,12 +460,11 @@ void check_prims(Label symbols1[])
     PrimInfo *pi=&priminfos[i];
     int j;
     pi->super_end = superend[i-DOESJUMP-1];
-    for (j=prim_len-3; ; j--) {
-      if (((*(Cell *)(symbols1[i]+j)) & 0xfff8ff) == 0xfc60ff) {
-	/* jmp -4(reg), i.e., the NEXT jump */
+    for (j=prim_len-IND_JUMP_LENGTH; ; j--) {
+      if (IS_NEXT_JUMP(symbols1[i]+j)) {
 	prim_len = j;
 	if (pi->super_end)
-	  prim_len += 3; /* include the jump */
+	  prim_len += IND_JUMP_LENGTH; /* include the jump */
 	break;
       }
       if (j==0) { /* NEXT jump not found, e.g., execute */
@@ -494,6 +493,7 @@ void check_prims(Label symbols1[])
 
 Label compile_prim(Label prim)
 {
+#ifdef IND_JUMP_LENGTH
   int i;
   Address old_code_here=code_here;
   static Address last_jump=0;
@@ -501,8 +501,8 @@ Label compile_prim(Label prim)
   for (i=0; ; i++) {
     if (i>=npriminfos) { /* not a relocatable prim */
       if (last_jump) { /* make sure the last sequence is complete */
-	memcpy(code_here, last_jump, 3);
-	code_here += 3;
+	memcpy(code_here, last_jump, IND_JUMP_LENGTH);
+	code_here += IND_JUMP_LENGTH;
 	last_jump = 0;
       }
       return prim;
@@ -510,10 +510,16 @@ Label compile_prim(Label prim)
     if (priminfos[i].start==prim)
       break;
   }
+#ifdef ALIGN_CODE
+  ALIGN_CODE;
+#endif
   memcpy(code_here, (Address)prim, priminfos[i].length);
   code_here += priminfos[i].length;
   last_jump = (priminfos[i].super_end) ? 0 : (prim+priminfos[i].length);
   return (Label)old_code_here;
+#else
+  return prim;
+#endif
 }
 
 Address loader(FILE *imagefile, char* filename)

@@ -72,12 +72,12 @@ FORTH	= $(ENGINE) $(FORTH_ARGS)
 # possible to override this variable at the command line for an initial build (jaw)
 BUILDFORTH = $(ENGINE) --die-on-signal -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)" -i $(kernel_fi)
 # the forth system plus flags we use to build
-FORTHB = $(BUILDFORTH) -m 1000000 -e 'fpath= .|~+|$(srcdir)'
+FORTHB = $(BUILDFORTH) -e 'fpath= .|~+|$(srcdir)'
 # the Forth system for running prims2x.fs
 FORTHP = $(FORTHB)
 ENGINE_FAST = $(ENGINE)-fast
 FORTH_FAST	= $(ENGINE_FAST) $(FORTH_ARGS)
-FORTHKFLAGS= --die-on-signal -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)" -m 1000000 -i $(kernel_fi)
+FORTHKFLAGS= --die-on-signal -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)" -i $(kernel_fi)
 FORTHK	= $(ENGINE) $(FORTHKFLAGS)
 #FORTHP	= $(ENGINE) --die-on-signal -i ./$(kernel_fi)
 #the "-2 image-included-files +!" undoes the change to image-included-files
@@ -529,7 +529,7 @@ check test:	gforth$(EXE) gforth.fi
 		$(FORTH) test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs test/string.fs -e bye | diff -c - $(srcdir)/test/coretest.out
 		$(FORTH) test/other.fs -e bye
 		$(FORTH) code.fs test/checkans.fs -e bye | diff -c - $(srcdir)/test/checkans.out
-		$(FORTH) -m 100000 prims2x.fs -e \
+		$(FORTH) prims2x.fs -e \
 		  "c-flag on s\" $(srcdir)/prim.b\" ' output-c ' output-c-combined process-file bye"| \
 		  diff -c - $(srcdir)/engine/prim.i
 
@@ -537,7 +537,7 @@ bench:		gforth-fast$(EXE) gforth.fi
 		@echo 'Each benchmark takes about 30s on a 486-66 (gcc-2.6.3 -DFORCE_REG)'
 		time $(FORTH_FAST) siev.fs -e "main bye"
 		time $(FORTH_FAST) bubble.fs -e "main bye"
-		time $(FORTH_FAST) --dictionary-size 1M matrix.fs -e "main bye"
+		time $(FORTH_FAST) matrix.fs -e "main bye"
 		time $(FORTH_FAST) fib.fs -e "main bye"
 
 # -------------	Make forth images
@@ -740,7 +740,7 @@ doc/gforth.texi:	doc/gforth.ds prim.b ds2texi.fs prims2x.fs \
 		$(RM) $@-
 
 checkdoc:	doc/gforth.ds prim.b ds2texi.fs prims2x.fs doc/doc.fd doc/crossdoc.fd answords.fs doc/gforth.texi
-		$(FORTH) -m 1M ds2texi.fs prims2x.fs -e "s\" $(srcdir)/prim.b\" ' register-doc ' noop process-file" doc/crossdoc.fd doc/doc.fd answords.fs -e bye
+		$(FORTH) ds2texi.fs prims2x.fs -e "s\" $(srcdir)/prim.b\" ' register-doc ' noop process-file" doc/crossdoc.fd doc/doc.fd answords.fs -e bye
 		-grep unknown doc/gforth.texi
 
 dvi:		doc/gforth.dvi

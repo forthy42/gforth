@@ -38,11 +38,19 @@ siev	bubble	matrix	fib	machine and configuration
 39.50	45.91	36.73	44.90	i486 50MHz 256K cache; gcc-2.7.0 -DFORCE_REG -DDIRECT_THREADED; gforth-0.1beta
 42.82	46.74	38.69	48.30	i486 50MHz 256K cache; gcc-2.7.0 -DFORCE_REG; gforth-0.1beta
 
+ 0.790	 1.375	 0.850	 1.118	21264B (UP1500) 800MHz 8MB cache; gcc-2.95.2; gforth-0.5.9-20011229 with alignment
+ 0.891	 1.646	 0.729	 1.289  21264B (UP1500) 800MHz 8MB cache; gcc-2.95.2; gforth-0.5.9-20011229 without eliminating jumps
+ 1.383	 1.769	 2.415	 2.139  21264B (UP1500) 800MHz 8MB cache; gcc-2.96; gforth-0.5.9-20011229
  2.14	 3.11	 3.20	 3.96	21264 (Compaq XP 1000) 500MHz 4M cache; egcs-1.0.3+gas; gforth-0.4.0
  2.03	 2.91	 3.45	 4.39	21264 (Compaq XP 1000) 500MHz 4M cache; gcc-2.95.1 -mcpu=21164a -DFORCE_REG; gforth-0.4.9
+ 1.86	 2.09	 1.58	 2.17	21164a (Alpha,164LX) 600MHz 2M cache; gcc-2.95.1; gforth-0.5.9-20011229 with alignment
+ 1.79	 2.24	 1.52	 2.06	21164a (Alpha,164LX) 600MHz 2M cache; gcc-2.95.1; gforth-0.5.9-20011229 without alignment
+ 2.65	 2.87	 2.28	 3.09	21164a (Alpha,164LX) 600MHz 2M cache; gcc-2.95.1; gforth-0.5.9-20011229 without eliminating jumps
  3.09	 3.24	 2.39	 3.42	21164A (Alpha,164LX) 600MHz 2M cache; gcc-2.7.2.1+gas; gforth-0.3.0
  2.74	 2.95	 2.20	 3.45	21164a (Alpha,164LX) 600MHz 2M cache; gcc-2.95.1 -mcpu=21164a -DFORCE_REG; gforth-0.4.9
  3.7	 3.8	 2.8	 4.1	21164A (Alpha,PC164) 500MHz 2M cache; gcc-2.7.2.1+as (Digital Unix); gforth-0.3.0
+ 6.28	 5.94	 4.92	 5.92	21064A (Alpha,Cabriolet) 300MHz 2M cache; gcc-2.95.2; gforth-0.5.9-20011229 with alignment
+ 6.18	 6.07	 4.94	 5.61	21064A (Alpha,Cabriolet) 300MHz 2M cache; gcc-2.95.2; gforth-0.5.9-20011229 without alignment
  7.0	 7.6	 6.2	 7.7	21064A (Alpha,Cabriolet) 300MHz 2M cache; gcc-2.7.2; gforth-0.2.0
 
  7.49	 7.85	 6.21	 8.07	R4400 250 Mhz 2Mb cache; gcc-2.7.2.2

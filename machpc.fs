@@ -1,3 +1,4 @@
+\ machpc.fs is generated; source: machpc.fs.in
 \ generic mach file for pc gforth				03sep97jaw
 
 \ Copyright (C) 1995,1996,1997,2000 Free Software Foundation, Inc.
@@ -50,7 +51,7 @@ true DefaultValue peephole      \ enables peephole optimizer
 false DefaultValue ec
 false DefaultValue crlf
 
-cell 2 = [IF] &32 [ELSE] &256 [THEN] KB DefaultValue kernel-size
+cell 2 = [IF] &32 KB [ELSE] $100000 cells [THEN] DefaultValue kernel-size
 
 &16 KB		DefaultValue stack-size
 &16 KB		DefaultValue fstack-size
