@@ -70,8 +70,8 @@ decimal
 
 \ ERASE                                                 17may93jaw
 
-: erase ( 0 1 chars um/mod nip )  0 fill ;
-: blank ( 0 1 chars um/mod nip ) bl fill ;
+: erase ( addr len -- )  ( 0 1 chars um/mod nip )  0 fill ;
+: blank ( addr len -- )  ( 0 1 chars um/mod nip ) bl fill ;
 
 \ SEARCH                                                02sep94py
 
@@ -85,8 +85,9 @@ decimal
 
 \ ROLL                                                  17may93jaw
 
-: roll  dup 1+ pick >r
-        cells sp@ cell+ dup cell+ rot move drop r> ;
+: roll  ( x0 x1 .. xn n -- x1 .. xn x0 ) 
+  dup 1+ pick >r
+  cells sp@ cell+ dup cell+ rot move drop r> ;
 
 \ SOURCE-ID SAVE-INPUT RESTORE-INPUT                    11jun93jaw
 

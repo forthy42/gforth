@@ -134,6 +134,7 @@ create docline doclinelength chars allot
 script? [IF]
 include prims2x.fs
 s" primitives.b" ' register-doc process-file
-require doc.fs
+require doc.fd
+require crossdoc.fd
 s" gforth.ds" r/o open-file throw ds2texi bye
 [THEN]

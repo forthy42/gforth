@@ -1,5 +1,5 @@
 \ CROSS.FS     The Cross-Compiler                      06oct92py
-\ $Id: cross.fs,v 1.24 1995-02-23 20:17:16 pazsan Exp $
+\ $Id: cross.fs,v 1.25 1995-07-06 15:57:25 pazsan Exp $
 \ Idea and implementation: Bernd Paysan (py)
 \ Copyright 1992-94 by the GNU Forth Development Group
 
@@ -361,6 +361,32 @@ VARIABLE ^imm
 : name,  ( "name" -- )  bl word count string, T cfalign H ;
 : view,   ( -- ) ( dummy ) ;
 
+\ Target Document Creation (goes to crossdoc.fd)       05jul95py
+
+s" crossdoc.fd" r/w create-file throw value doc-file-id
+\ contains the file-id of the documentation file
+
+: \G ( -- )
+    source >in @ /string doc-file-id write-line throw
+    source >in ! drop ; immediate
+
+Variable to-doc
+
+: cross-doc-entry  ( -- )
+    to-doc @ tlast @ 0<> and	\ not an anonymous (i.e. noname) header
+    IF
+	s" " doc-file-id write-line throw
+	s" make-doc " doc-file-id write-file throw
+	tlast @ >image count $1F and doc-file-id write-file throw
+	>in @
+	[char] ( parse 2drop
+	[char] ) parse doc-file-id write-file throw
+	s"  )" doc-file-id write-file throw
+	[char] \ parse 2drop					
+	POSTPONE \g
+	>in !
+    THEN  to-doc on ;
+
 VARIABLE CreateFlag CreateFlag off
 
 : (Theader ( "name" -- ghost ) T align H view,
@@ -375,7 +401,8 @@ VARIABLE CreateFlag CreateFlag off
   dup >magic ^imm !     \ a pointer for immediate
   Already @ IF  dup >end tdoes !
   ELSE 0 tdoes ! THEN
-  80 flag! ;
+  80 flag!
+  cross-doc-entry ;
 
 VARIABLE ;Resolve 1 cells allot
 
@@ -384,6 +411,7 @@ VARIABLE ;Resolve 1 cells allot
 
 >TARGET
 : Alias    ( cfa -- ) \ name
+  dup 0< IF  to-doc off  THEN
   (THeader over resolve T A, H 80 flag! ;
 >CROSS
 
@@ -816,8 +844,9 @@ cell constant cell
 \ include bug5.fs
 \ only forth also minimal definitions
 
-: \ postpone \ ;
-: ( postpone ( ;
+: \  postpone \ ;
+: \G postpone \G ;
+: (  postpone ( ;
 : include bl word count included ;
 : .( [char] ) parse type ;
 : cr cr ;

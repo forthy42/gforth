@@ -61,7 +61,7 @@ FORTH_SRC = anslocal.fs add.fs assert.fs ansi.fs blocks.fs bufio.fs checkans.fs 
 
 SOURCES	= Makefile.in configure.in configure config.sub  config.guess \
 	install-sh INSTALL README ToDo BUGS model COPYING \
-	gforth.ds texinfo.tex gforth.1 \
+	gforth.ds texinfo.tex gforth.1 gforth.el \
 	primitives engine.c main.c io.c \
 	m68k.h mips.h 386.h hppa.h cache.c sparc.h power.h alpha.h 32bit.h \
 	getopt.c getopt1.c getopt.h select.c \
@@ -252,13 +252,13 @@ version.c:	Makefile.in
 		echo "char gforth_version[]=\"$(VERSION)\" ;" >$@
 
 
-doc.fs:		makedoc.fs float.fs search-order.fs glocals.fs environ.fs \
+doc.fd:		makedoc.fs float.fs search-order.fs glocals.fs environ.fs \
 		 toolsext.fs wordinfo.fs \
 		 vt100.fs colorize.fs see.fs bufio.fs debug.fs history.fs \
 		 doskey.fs vt100key.fs startup.fs assert.fs debugging.fs
-		$(FORTH) -e "s\" doc.fs\"" makedoc.fs startup.fs -e bye
+		$(FORTH) -e "s\" doc.fd\"" makedoc.fs startup.fs -e bye
 
-gforth.texi:	gforth.ds primitives.b ds2texi.fs prims2x.fs doc.fs
+gforth.texi:	gforth.ds primitives.b ds2texi.fs prims2x.fs doc.fd crossdoc.fd
 		$(FORTH) ds2texi.fs >$@
 
 gforth.dvi:	gforth.texi
