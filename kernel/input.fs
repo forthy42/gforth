@@ -193,18 +193,23 @@ has? file [IF]
     terminal-input def#tib new-tib ;
     \ s" *the terminal*" loadfilename 2!
 
-: evaluate ( addr u -- ) \ core,block
-    \G Save the current input source specification. Store @code{-1} in
-    \G @code{source-id} and @code{0} in @code{blk}. Set @code{>IN} to
-    \G @code{0} and make the string @i{c-addr u} the input source
-    \G and input buffer. Interpret. When the parse area is empty,
-    \G restore the input source specification.
-    evaluate-input cell new-tib
+: execute-parsing ( ... addr u xt -- ... )
+\G Make @i{addr u} the current input source, execute @i{xt @code{(
+\G ... -- ... )}}, then restore the previous input source.
+    >r evaluate-input cell new-tib
 [ has? file [IF] ]
     s" *evaluated string*" loadfilename 2!
 [ [THEN] ]
     -1 loadline ! #tib ! tib !
-    ['] interpret catch pop-file throw ;
+    r> catch pop-file throw ;
+
+: evaluate ( ... addr u -- ... ) \ core,block
+\G Save the current input source specification. Store @code{-1} in
+\G @code{source-id} and @code{0} in @code{blk}. Set @code{>IN} to
+\G @code{0} and make the string @i{c-addr u} the input source and
+\G input buffer. Interpret. When the parse area is empty, restore the
+\G input source specification.
+    ['] interpret execute-parsing ;
 
 \ clear tibstack
 
