@@ -249,7 +249,7 @@ execute	( xt -- )		core
 #ifndef NO_IP
 ip=IP;
 #endif
-IF_spTOS(spTOS = sp[0]);
+IF_spTOS(spTOS = sp[0]); /* inst_tail would produce a NEXT_P1 */
 SUPER_END;
 EXEC(xt);
 
@@ -259,7 +259,7 @@ perform	( a_addr -- )	gforth
 #ifndef NO_IP
 ip=IP;
 #endif
-IF_spTOS(spTOS = sp[0]);
+IF_spTOS(spTOS = sp[0]); /* inst_tail would produce a NEXT_P1 */
 SUPER_END;
 EXEC(*(Xt *)a_addr);
 :

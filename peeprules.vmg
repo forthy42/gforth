@@ -63,8 +63,8 @@ super27 = dup @
 \E branch-states ?branch              \ 1134432
 \E prim-states lit@                 \ 1051813
 \E prim-states swap                 \ 737988
-\  \E S0 S2 state-prim swap
-\  \E S1 S2 state-prim swap
+\E S0 S2 state-prim swap
+\E S1 S2 state-prim swap
 \  \E S2 S3 state-prim swap
 \  \E S3 S2 state-prim swap
 \E prim-states c@                   \ 651406
@@ -82,8 +82,8 @@ super27 = dup @
 \E prim-states useraddr             \ 303254
 \E prim-states over                 \ 283556
 \E S0 S1 state-prim over
-\  \E S1 S2 state-prim over
-\  \E S2 S1 state-prim over
+\E S1 S2 state-prim over
+\E S2 S1 state-prim over
 \  \E S3 S2 state-prim over
 \E prim-states negate               \ 257417
 \E prim-states cells                \ 254644
@@ -95,9 +95,9 @@ super27 = dup @
 \E prim-states !                    \ 218672
 \E prim-states 2dup                 \ 211315
 \E S0 S1 state-prim 2dup
-\  \E S0 S2 state-prim 2dup
+\E S0 S2 state-prim 2dup
 \  \E S1 S3 state-prim 2dup
-\  \E S2 S2 state-prim 2dup
+\E S2 S2 state-prim 2dup
 \  \E S3 S1 state-prim 2dup
 \ \E branch-states lit-perform          \ 188331
 \E prim-states <>                   \ 179502
@@ -117,7 +117,7 @@ super27 = dup @
 \E prim-states lp+                  \ 87190 \ --
 \E prim-states >=                   \ 80994
 \E prim-states tuck                 \ 78696
-\ \E S2 S2 state-prim tuck
+\E S2 S2 state-prim tuck
 \E prim-states /string              \ 78595
 \E prim-states char+                \ 77542
 \ \E prim-states ?dup                 \ 76850
@@ -135,9 +135,9 @@ super27 = dup @
 \E S0 S1 state-prim nip
 \E prim-states within               \ 51075
 \E prim-states 1-                   \ 47441
-\E branch-states execute              \ 46674
+\ \E branch-states execute              \ 46674 \ !! if_spTOS problem
 \E prim-states lp-                  \ 45385
-\E branch-states perform              \ 38756
+\ \E branch-states perform              \ 38756 \ !! if_spTOS problem
 \E prim-states xor                  \ 35599
 \E prim-states @local#              \ 34586
 \ \E prim-states pick                 \ 32015
@@ -208,7 +208,7 @@ super27 = dup @
 \E prim-states invert               \ 170
 \E branch-states (-do)                \ 169
 \E prim-states 2over                \ 165
-\  \E S0 S2 state-prim 2over
+\E S0 S2 state-prim 2over
 \  \E S1 S3 state-prim 2over
 \E prim-states under+               \ 154
 \E prim-states dnegate              \ 128

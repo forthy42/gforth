@@ -724,7 +724,7 @@ $(FORTH_GEN_ENGINE_FAST): prim-fast.b prims2x.fs
 		GFORTH="$(FORTHP)" $(srcdir)/gfgen -fast
 
 $(FORTH_GEN_ENGINE): prim.b prims2x.fs
-		GFORTH="$(FORTHP)" gfgen
+		GFORTH="$(FORTHP)" $(srcdir)/gfgen
 
 kernel/aliases.fs:	prim.b prims2x.fs kernel/aliases0.fs
 		$(CP) kernel/aliases0.fs $@-
