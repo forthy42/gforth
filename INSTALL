@@ -67,19 +67,19 @@ You need to read this only if you see a message like
 "gforth: Cannot load nonrelocatable image (compiled for address 0x1234) at address 0x5678
 The Gforth installer should look into the INSTALL file"
 
-Gforth supports relocatable and fixed-address images. If you load
+Gforth supports both relocatable and fixed-address images. If you load
 normal Forth code and save the image, you get a fixed-address
 image. Producing a relocatable image is more difficult.
 
-Consequently, Gforth has only a relocatable image of the kernel
+Therefore, Gforth has only a relocatable image of the kernel
 (kernal.fi), which is powerful enough to load the rest of
 Gforth. However, loading the rest takes a noticable amount of time. To
-avoid this delay on every startup,the installation procedure produces
-an image fixed at an address determined at the Gforth run that
-produced the image. This fixed-address image is loaded by default. On
-most OSs this works, because the first chunk of memory is always
-allocated at the same address. If the address changes, you get the
-message above.
+avoid this delay (which would occur on every startup), the
+installation procedure produces an image fixed at an address
+determined at the Gforth run that produced the image. This
+fixed-address image is loaded by default. On most OSs this works,
+because the first chunk of memory is always allocated at the same
+address. If the address changes, you get the message above.
 
 An image address change can be caused by a change of the gforth
 executable, or by a change (upgrade) of the OS; in these cases you

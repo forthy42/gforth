@@ -1,5 +1,23 @@
 \ VARS.FS      Kernal variables
 
+\ Copyright (C) 1995 Free Software Foundation, Inc.
+
+\ This file is part of Gforth.
+
+\ Gforth is free software; you can redistribute it and/or
+\ modify it under the terms of the GNU General Public License
+\ as published by the Free Software Foundation; either version 2
+\ of the License, or (at your option) any later version.
+
+\ This program is distributed in the hope that it will be useful,
+\ but WITHOUT ANY WARRANTY; without even the implied warranty of
+\ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+\ GNU General Public License for more details.
+
+\ You should have received a copy of the GNU General Public License
+\ along with this program; if not, write to the Free Software
+\ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
 hex \ everything now hex!                               11may93jaw
 
 \ important constants                                  17dec92py
@@ -52,8 +70,11 @@ AUser "error            0 "error !
  User >in               0 >in !
  User blk               0 blk !
  User loadfile          0 loadfile !
- 2User loadfilename	0 0 loadfilename 2!
- 
+\  2User loadfilename	0 0 loadfilename 2!
+\ here ," the terminal" align here swap count 2, Value loadfilename
+\ align here 0 , 0 , Value loadfilename \ !! should be a `user-value'
+ User loadfilename#	0 loadfilename# !
+
  User loadline          \ number of the currently interpreted
                         \ (in TIB) line if the interpretation
                         \ is in a textfile

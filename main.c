@@ -1,6 +1,23 @@
-/*
-  $Id: main.c,v 1.29 1995-10-26 22:48:41 pazsan Exp $
-  Copyright 1993 by the ANSI figForth Development Group
+/* command line interpretation, image loading etc. for Gforth
+
+
+  Copyright (C) 1995 Free Software Foundation, Inc.
+
+  This file is part of Gforth.
+
+  Gforth is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License
+  as published by the Free Software Foundation; either version 2
+  of the License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
 #include <ctype.h>
@@ -246,9 +263,12 @@ int main(int argc, char **argv, char **env)
   int c, retvalue;
 	  
 #if defined(i386) && defined(ALIGNMENT_CHECK) && !defined(DIRECT_THREADED)
-	/* turn on alignment checks on the 486.
-	 * on the 386 this should have no effect. */
-	__asm__("pushfl; popl %eax; orl $0x40000, %eax; pushl %eax; popfl;");
+  /* turn on alignment checks on the 486.
+   * on the 386 this should have no effect. */
+  __asm__("pushfl; popl %eax; orl $0x40000, %eax; pushl %eax; popfl;");
+  /* this is unusable with Linux' libc.4.6.27, because this library is
+     not alignment-clean; we would have to replace some library
+     functions (e.g., memcpy) to make it work */
 #endif
 
   progname = argv[0];

@@ -1,7 +1,28 @@
 /* This file defines a number of threading schemes.
-   To organize the former ifdef chaos, each path is separated
-   This gives a quite impressive number of paths, but you clearly
-   find things that go together. */
+
+  Copyright (C) 1995 Free Software Foundation, Inc.
+
+  This file is part of Gforth.
+
+  Gforth is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License
+  as published by the Free Software Foundation; either version 2
+  of the License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+
+  To organize the former ifdef chaos, each path is separated
+  This gives a quite impressive number of paths, but you clearly
+  find things that go together.
+*/
 
 #ifndef GETCFA
 #  define CFA_NEXT
@@ -81,7 +102,7 @@
 #  define NEXT_P0
 #  define IP		(ip)
 #  define NEXT_INST	(*ip)
-#  define INC_IP(const_inc)	(ip+=(const_inc);})
+#  define INC_IP(const_inc)	({ip+=(const_inc);})
 #  define DEF_CA
 #  define NEXT_P1	(ip++)
 #  define NEXT_P2	({goto **(ip-1);})

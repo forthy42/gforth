@@ -1,7 +1,24 @@
 \ KERNAL.FS    GForth kernal                        17dec92py
-\ $ID:
+
+\ Copyright (C) 1995 Free Software Foundation, Inc.
+
+\ This file is part of Gforth.
+
+\ Gforth is free software; you can redistribute it and/or
+\ modify it under the terms of the GNU General Public License
+\ as published by the Free Software Foundation; either version 2
+\ of the License, or (at your option) any later version.
+
+\ This program is distributed in the hope that it will be useful,
+\ but WITHOUT ANY WARRANTY; without even the implied warranty of
+\ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+\ GNU General Public License for more details.
+
+\ You should have received a copy of the GNU General Public License
+\ along with this program; if not, write to the Free Software
+\ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
 \ Idea and implementation: Bernd Paysan (py)
-\ Copyright 1992 by the ANSI figForth Development Group
 
 \ Log:  ', '- usw. durch [char] ... ersetzt
 \       man sollte die unterschiedlichen zahlensysteme
@@ -1440,6 +1457,10 @@ create image-included-files 0 , 0 , ( pointer to and count of included files )
 \ included-files points to ALLOCATEd space, while image-included-files
 \ points to ALLOTed objects, so it survives a save-system
 
+: loadfilename ( -- a-addr )
+    \ a-addr 2@ produces the current file name ( c-addr u )
+    included-files 2@ drop loadfilename# @ 2* cells + ;
+
 : init-included-files ( -- )
     image-included-files 2@ 2* cells save-string drop ( addr )
     image-included-files 2@ nip included-files 2! ;
@@ -1471,10 +1492,12 @@ create image-included-files 0 , 0 , ( pointer to and count of included files )
 
 : included1 ( i*x file-id c-addr u -- j*x ) \ gforth
     \ include the file file-id with the name given by c-addr u
-    loadfilename 2@ >r >r
-    save-string 2dup loadfilename 2! add-included-file ( file-id )
+    loadfilename# @ >r
+    save-string add-included-file ( file-id )
+    included-files 2@ nip 1- loadfilename# !
     ['] include-file catch
-    r> r> loadfilename 2!  throw ;
+    r> loadfilename# !
+    throw ;
     
 : included ( i*x addr u -- j*x ) \ file
     open-path-file included1 ;

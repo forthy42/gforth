@@ -1,5 +1,7 @@
 \ This implements a subset of the gforth locals syntax in pure ANS Forth
 
+\ This file is in the public domain. NO WARRANTY.
+
 \ This implementation technique has been described by John Hayes in
 \ the SigForth Newsletter 4(2), Fall '92. He did not do the complete
 \ job, but left some more mundane parts as an exercise to the reader.

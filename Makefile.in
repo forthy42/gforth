@@ -1,4 +1,23 @@
-#Copyright 1992 by the ANSI figForth Development Group
+#Makefile for Gforth
+
+#Copyright (C) 1995 Free Software Foundation, Inc.
+
+#This file is part of Gforth.
+
+#Gforth is free software; you can redistribute it and/or
+#modify it under the terms of the GNU General Public License
+#as published by the Free Software Foundation; either version 2
+#of the License, or (at your option) any later version.
+
+#This program is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.#See the
+#GNU General Public License for more details.
+
+#You should have received a copy of the GNU General Public License
+#along with this program; if not, write to the Free Software
+#Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
 # To change the values of `make' variables: instead of editing Makefiles,
 # (1) if the variable is set in `config.status', edit `config.status'
 #     (which will cause the Makefiles to be regenerated when you run `make');
@@ -21,7 +40,7 @@ FORTH	= ./gforth
 FORTHK	= $(FORTH) -p . -i kernal.fi
 STRIP	= strip
 TEXI2DVI = texi2dvi
-DVI2PS	= dvips
+DVI2PS	= dvips -D300
 #you can get texi2html from http://asis01.cern.ch/infohtml/texi2html.html
 TEXI2HTML = texi2html
 MAKEINFO = makeinfo
@@ -50,7 +69,7 @@ infodir = $(prefix)/info
 mandir = $(prefix)/man/man1
 
 
-INCLUDES = forth.h threading.h io.h
+INCLUDES = forth.h threading.h io.h io-dos.h
 
 KERN_SRC = main.fs search-order.fs cross.fs aliases.fs vars.fs add.fs \
 	errore.fs kernal.fs version.fs extend.fs tools.fs toolsext.fs
@@ -61,7 +80,7 @@ FORTH_SRC = anslocal.fs add.fs assert.fs ansi.fs answords.fs blocks.fs bufio.fs 
 	float.fs glocals.fs glosgen.fs gray.fs hash.fs history.fs \
 	kernal.fs locals-test.fs look.fs main.fs makedoc.fs \
  	mach16b.fs mach16l.fs mach32b.fs mach32l.fs mach64b.fs mach64l.fs \
-	other.fs prims2x.fs random.fs search-order.fs see.fs sieve.fs \
+	other.fs prims2x.fs random.fs search-order.fs see.fs sieve.fs source.fs \
 	startup.fs struct.fs tools.fs toolsext.fs tt.fs vars.fs vt100.fs \
 	vt100key.fs wordinfo.fs wordsets.fs \
 	tester.fs coretest.fs	
@@ -90,6 +109,8 @@ FORTH_GEN =  $(FORTH_GEN0) @KERNAL@ gforth.fi
 # this is used for antidependences,
 FORTH_GEN1 = $(FORTH_GEN0) @kernal_fi@ 
 
+#distributed documentation
+DOCDIST = gforth.texi gforth.fns gforth.ps gforth.info*
 
 KERNLS = kernl16b.fi+ kernl16l.fi+ \
 	 kernl32b.fi+ kernl32l.fi+ \
@@ -129,10 +150,10 @@ distclean:	clean
 realclean:	distclean
 		-$(RM) $(GEN_PRECIOUS)
 
-dist:		$(SOURCES) $(FORTH_GEN)
+dist:		$(SOURCES) $(FORTH_GEN) $(DOCDIST)
 		-rm -rf gforth-$(VERSION)
 		mkdir gforth-$(VERSION)
-		cp -p $(SOURCES) $(FORTH_GEN) gforth-$(VERSION)
+		cp -p $(SOURCES) $(FORTH_GEN0) @KERNAL@ $(DOCDIST) gforth-$(VERSION)
 		tar cvf - gforth-$(VERSION)|gzip -9 >gforth-$(VERSION).tar.gz
 		-rm -rf gforth-$(VERSION)
 
@@ -183,7 +204,7 @@ test:		gforth
 		@echo 'Expect to see INCORRECT RESULT: { GS1 -> <TRUE> <TRUE> }'
 		@echo 'This is a bug of the testing program'
 		$(FORTH) tester.fs coretest.fs -e bye
-		$(FORTH) startup.fs blocks.fs code.fs checkans.fs -e bye
+		$(FORTH) code.fs checkans.fs -e bye
 		@echo 'Expect no differences'
 		$(FORTH) prims2x.fs -e "s\" primitives.b\" ' output-c process-file bye"| diff -c - primitives.i
 
@@ -242,7 +263,7 @@ kernl64l.fi:	$(KERNLS)
 		-$(CP) kernl64l.fi+ kernl64l.fi
 		@LINK_KERNL64L@
 
-gforth.fi:	@kernal_fi@ gforth startup.fs glocals.fs search-order.fs hash.fs float.fs debugging.fs environ.fs wordinfo.fs look.fs vt100.fs see.fs bufio.fs debug.fs history.fs vt100key.fs assert.fs blocks.fs struct.fs dumpimage.fs
+gforth.fi:	@kernal_fi@ gforth startup.fs glocals.fs search-order.fs hash.fs float.fs debugging.fs environ.fs wordinfo.fs look.fs vt100.fs see.fs bufio.fs debug.fs history.fs vt100key.fs assert.fs source.fs blocks.fs struct.fs dumpimage.fs
 		$(FORTHK) startup.fs dumpimage.fs -e "savesystem gforth.fi bye"
 
 engine.s:	engine.c primitives.i prim_labels.i machine.h threading.h $(INCLUDES)

@@ -1,11 +1,12 @@
-;; This file is part of GNU Emacs.
+;; Forth mode for Emacs
+;; This file is part of GForth.
 ;; Changes by anton
 ;; This is a variant of forth.el that came with TILE.
 ;; I left most of this stuff untouched and made just a few changes for 
 ;; the things I use (mainly indentation and syntax tables).
 ;; So there is still a lot of work to do to adapt this to gforth.
 
-;; GNU Emacs is distributed in the hope that it will be useful,
+;; GForth is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY.  No author or distributor
 ;; accepts responsibility to anyone for the consequences of using it
 ;; or for whether it serves any particular purpose or works at all,
@@ -15,12 +16,10 @@
 ;; Everyone is granted permission to copy, modify and redistribute
 ;; GNU Emacs, but only under the conditions described in the
 ;; GNU Emacs General Public License.   A copy of this license is
-;; supposed to have been given to you along with GNU Emacs so you
+;; supposed to have been given to you along with Gforth so you
 ;; can know your rights and responsibilities.  It should be in a
 ;; file named COPYING.  Among other things, the copyright notice
 ;; and this notice must be preserved on all copies.
-
-;;; $Header: /usr/local/lib/cvs-repository/src-master/gforth/gforth.el,v 1.16 1995-10-16 18:33:09 anton Exp $
 
 ;;-------------------------------------------------------------------
 ;; A Forth indentation, documentation search and interaction library

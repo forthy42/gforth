@@ -9,7 +9,7 @@
 @ifinfo
 This file documents Gforth 0.1
 
-Copyright @copyright{} 1994 Gforth Development Group
+Copyright @copyright{} 1995 Free Software Foundation, Inc.
 
      Permission is granted to make and distribute verbatim copies of
      this manual provided the copyright notice and this permission notice
@@ -49,7 +49,7 @@ Copyright @copyright{} 1994 Gforth Development Group
 @comment  The following two commands start the copyright page.
 @page
 @vskip 0pt plus 1filll
-Copyright @copyright{} 1994 Gforth Development Group
+Copyright @copyright{} 1995 Free Software Foundation, Inc.
 
 @comment !! Published by ... or You can get a copy of this manual ...
 
@@ -75,7 +75,7 @@ Copyright @copyright{} 1994 Gforth Development Group
 @node Top, License, (dir), (dir)
 @ifinfo
 Gforth is a free implementation of ANS Forth available on many
-personal machines. This manual corresponds to version 0.0.
+personal machines. This manual corresponds to version 0.1.
 @end ifinfo
 
 @menu
@@ -557,7 +557,7 @@ format, and it has been converted to HTML. Some pointers to these
 versions can be found through
 http://www.complang.tuwien.ac.at/projects/forth.html.
 
-@cite{Forth: The new model} by Jack Woehr (!! Publisher) is an
+@cite{Forth: The new model} by Jack Woehr (Prentice-Hall, 1993) is an
 introductory book based on a draft version of the standard. It does not
 cover the whole standard. It also contains interesting background
 information (Jack Woehr was in the ANS Forth Technical Committe). It is
