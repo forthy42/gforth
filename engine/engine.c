@@ -213,7 +213,7 @@ static int ufileattr[6]= {
 
 /* declare and compute cfa for certain threading variants */
 /* warning: this is nonsyntactical; it will not work in place of a statement */
-#ifdef CFA_NEXT
+#ifndef GETCFA
 #define DOCFA
 #else
 #define DOCFA	Xt cfa; GETCFA(cfa)
