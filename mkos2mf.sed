@@ -66,3 +66,6 @@ s%GFORTHD="./gforth-ditc -p .* $(srcdir)/%%g
 s%'s"%"s\\"%g
 s%"'%\\""%g
 s%@OSCLASS@%dos%g
+s%@machine@%386%g
+s%@VERSION@%0.4.0%g
+s%@EXE@%exe%g

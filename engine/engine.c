@@ -45,6 +45,9 @@
 #if defined(HAVE_LIBDL) || defined(HAVE_DLOPEN) /* what else? */
 #include <dlfcn.h>
 #endif
+#if defined(_WIN32)
+#include <windows.h>
+#endif
 #ifdef hpux
 #include <dl.h>
 #endif

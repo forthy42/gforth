@@ -280,7 +280,6 @@ dnl using sin here is no good idea since it is built-into gcc and typechecked
 AC_CHECK_LIB(m,asin)
 AC_CHECK_FUNCS(dlopen)
 AC_CHECK_LIB(dl,dlopen)
-AC_CHECK_LIB(kernel32,GetModuleHandle)
 if test "$host_os" != "nextstep3"
 then
 	AC_FUNC_MEMCMP

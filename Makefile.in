@@ -31,7 +31,7 @@
 # ------------- gforth version
 
 VERSION	= @VERSION@
-DOSVERSION=`echo $VERSION|sed 's/\.//g'`
+DOSVERSION=`echo $(VERSION)|sed 's/\.//g'`
 
 # -------------	System specific variables	
 
@@ -54,6 +54,7 @@ SHELL	= /bin/sh
 RM	= rm
 RMTREE	= rm -rf
 CP	= cp
+MV	= mv
 TAR	= tar cf -
 INSTALL	= @INSTALL@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
@@ -338,7 +339,7 @@ version:	Makefile.in
 
 kernel/version.fs:	version
 	$(MAKE) gforth$(EXE)
-	$(SHELL) versions.bsh $(VERSION)
+	echo ": version-string s\" $(VERSION)\" ;" > kernel/version.fs
 
 more:	engine $(FORTH_GEN) gforth$(EXE)
 
@@ -397,6 +398,10 @@ dosdist:	$(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST)
 		mkdir gforth.$(DOSVERSION)
 		$(TAR) $(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST) | \
 			(cd gforth.$(DOSVERSION); tar xf -)
+		$(MV) gforth.$(DOSVERSION)/engine/strsignal.c gforth.$(DOSVERSION)/engine/strsig.c
+		for i in 1 2 3 4 5 6 7 8; do \
+			$(MV) gforth.$(DOSVERSION)/doc/gforth.info-$$i gforth.$(DOSVERSION)/doc/gforth.i$$i; \
+		done
 		zip -r9 gf$(DOSVERSION)dos.zip gforth.$(DOSVERSION)/*
 		-$(RMTREE) gforth.$(DOSVERSION)
 

@@ -2054,7 +2054,7 @@ open-lib	c_addr1 u1 -- u2	gforth	open_lib
 #endif
 u2=(UCell) dlopen(cstr(c_addr1, u1, 1), RTLD_GLOBAL | RTLD_LAZY);
 #else
-#  ifdef HAVE_LIBKERNEL32
+#  ifdef _WIN32
 u2 = (Cell) GetModuleHandle(cstr(c_addr1, u1, 1));
 #  else
 #warning Define open-lib!
@@ -2066,7 +2066,7 @@ lib-sym	c_addr1 u1 u2 -- u3	gforth	lib_sym
 #if defined(HAVE_LIBDL) || defined(HAVE_DLOPEN)
 u3 = (UCell) dlsym((void*)u2,cstr(c_addr1, u1, 1));
 #else
-#  ifdef HAVE_LIBKERNEL32
+#  ifdef _WIN32
 u3 = (Cell) GetProcAddress((HMODULE)u2, cstr(c_addr1, u1, 1));
 #  else
 #warning Define lib-sym!
