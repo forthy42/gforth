@@ -47,7 +47,8 @@ Defer store-backtrace
 
 : try ( compilation  -- orig ; run-time  -- ) \ gforth
     \ !! does not work correctly for gforth-native
-    POSTPONE lit >mark POSTPONE (try) ; immediate compile-only
+    POSTPONE ahead here >r >mark 1 cs-roll POSTPONE then
+    r> POSTPONE literal POSTPONE @ POSTPONE (try) ; immediate compile-only
 
 : (recover) ( -- )
     \ normal end of try block: restore handler, forget rest
