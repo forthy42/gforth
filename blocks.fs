@@ -57,7 +57,8 @@ block-cold
 
 Defer flush-file
 
-: use-file ( addr u -- )
+: use-file ( addr u -- ) \ gforth
+    \g use the file, whose name is given by @var{addr u}, as blocks file 
     2dup ['] open-path-file catch 0<>
     if
 	2drop r/w bin create-file throw
@@ -68,7 +69,8 @@ Defer flush-file
     block-fid @ IF  flush-file block-fid @ close-file throw  THEN
     block-fid ! ;
 
-: use ( "file" -- )
+: use ( "file" -- ) \ gforth
+    \g use @var{file} as blocks file
     name use-file ;
 
 \ the file is opened as binary file, since it either will contain text

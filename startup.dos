@@ -20,6 +20,7 @@
 
 warnings off
 
+\ require interpretation.fs
 \ include float.fs
 \ include search-order.fs
 include glocals.fs
@@ -31,15 +32,15 @@ include vt100.fs
 include see.fs
 include bufio.fs
 include debug.fs
+require stuff.fs
 include history.fs
 include doskey.fs
 \ include vt100key.fs
 require debugging.fs
 require assert.fs
 require blocks.fs
-
-0 Value $?
-: sh  '# parse cr system  to $? ;
+require intcomp.fs
+require dumpimage.fs
 
 \ define the environmental queries for all the loaded wordsets
 \ since the blocks wordset is loaded in a single file, its queries

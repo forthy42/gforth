@@ -179,7 +179,7 @@ $20 constant restrict-mask
     over + swap ;
 
 : save-mem	( addr1 u -- addr2 u ) \ gforth
-    \ copy a memory block into a newly allocated region in the heap
+    \g copy a memory block into a newly allocated region in the heap
     swap >r
     dup allocate throw
     swap 2dup r> -rot move ;
@@ -549,7 +549,7 @@ Defer interpreter-notfound ( c-addr count -- )
 
 : compiler ( c-addr u -- )
     2dup find-name dup
-    if ( c-addr u nfa )
+    if ( c-addr u nt )
 	nip nip name>comp execute
     else
 	drop
@@ -981,11 +981,12 @@ create nextname-buffer 32 chars allot
     alias-mask lastflags creset
     dup A, lastcfa ! ;
 
-: name>string ( nfa -- addr count ) \ gforth	name-to-string
- cell+ count $1F and ;
+: name>string ( nt -- addr count ) \ gforth	name-to-string
+    \g @var{addr count} is the name of the word represented by @var{nt}.
+    cell+ count $1F and ;
 
 Create ???  0 , 3 c, char ? c, char ? c, char ? c,
-: >name ( cfa -- nfa ) \ gforth	to-name
+: >name ( cfa -- nt ) \ gforth	to-name
  $21 cell do
    dup i - count $9F and + cfaligned over alias-mask + = if
      i - cell - unloop exit
@@ -1074,7 +1075,7 @@ AVariable current ( -- addr ) \ gforth
 
 : last?   ( -- false / nfa nfa )
     last @ ?dup ;
-: (reveal) ( nfa wid -- )
+: (reveal) ( nt wid -- )
     ( wid>wordlist-id ) dup >r
     @ over ( name>link ) ! 
     r> ! ;
@@ -1084,8 +1085,8 @@ AVariable current ( -- addr ) \ gforth
 \ word list structure:
 
 struct
-  1 cells: field find-method   \ xt: ( c_addr u wid -- name-id )
-  1 cells: field reveal-method \ xt: ( nfa wid -- ) \ used by dofield:, must be field
+  1 cells: field find-method   \ xt: ( c_addr u wid -- nt )
+  1 cells: field reveal-method \ xt: ( nt wid -- ) \ used by dofield:, must be field
   1 cells: field rehash-method \ xt: ( wid -- )
 \   \ !! what else
 end-struct wordlist-map-struct
@@ -1097,7 +1098,7 @@ struct
   1 cells: field wordlist-extend \ points to wordlist extensions (eg hash)
 end-struct wordlist-struct
 
-: f83find      ( addr len wordlist -- nfa / false )
+: f83find      ( addr len wordlist -- nt / false )
     ( wid>wordlist-id ) @ (f83find) ;
 
 \ Search list table: find reveal
@@ -1134,19 +1135,22 @@ end-struct interpret/compile-struct
 	(cfa>int)
     then ;
 
-: name>int ( nfa -- xt ) \ gforth
+: name>int ( nt -- xt ) \ gforth
+    \G @var{xt} represents the interpretation semantics of the word
+    \G @var{nt}. Produces @code{' compile-only-error} if
+    \G @var{nt} is compile-only.
     (name>x) (x>int) ;
 
-: name?int ( nfa -- xt ) \ gforth
-    \G like name>int, but throws an error if compile-only
+: name?int ( nt -- xt ) \ gforth
+    \G Like name>int, but throws an error if compile-only.
     (name>x) restrict-mask and
     if
 	compile-only-error \ does not return
     then
     (cfa>int) ;
 
-: name>comp ( nfa -- w xt ) \ gforth
-    \G get compilation semantics of name
+: name>comp ( nt -- w xt ) \ gforth
+    \G @var{w xt} is the compilation token wor the word @var{nt}.
     (name>x) >r dup interpret/compile?
     if
 	interpret/compile-comp @
@@ -1157,7 +1161,7 @@ end-struct interpret/compile-struct
 	['] compile,
     then ;
 
-: (search-wordlist)  ( addr count wid -- nfa / false )
+: (search-wordlist)  ( addr count wid -- nt / false )
     dup wordlist-map @ find-method perform ;
 
 : flag-sign ( f -- 1|-1 )
@@ -1174,12 +1178,14 @@ end-struct interpret/compile-struct
 	(name>intn)
     then ;
 
-: find-name ( c-addr u -- nfa/0 )
+: find-name ( c-addr u -- nt/0 ) \ gforth
+    \g Find the name @var{c-addr u} in the current search
+    \g order. Return its nt, if found, otherwise 0.
     lookup @ (search-wordlist) ;
 
 : sfind ( c-addr u -- 0 / xt +-1  ) \ gforth-obsolete
     find-name dup
-    if ( nfa )
+    if ( nt )
 	state @
 	if
 	    name>comp ['] execute = flag-sign
@@ -1194,23 +1200,31 @@ end-struct interpret/compile-struct
 	rot drop
     then ;
 
-: (') ( "name" -- nfa ) \ gforth
+: (') ( "name" -- nt ) \ gforth
     name find-name dup 0=
     IF
 	drop -&13 bounce
     THEN  ;
 
-: [(')]  ( compilation "name" -- ; run-time -- nfa ) \ gforth	bracket-paren-tick
+: [(')]  ( compilation "name" -- ; run-time -- nt ) \ gforth	bracket-paren-tick
     (') postpone ALiteral ; immediate restrict
 
 : '    ( "name" -- xt ) \ core	tick
+    \g @var{xt} represents @var{name}'s interpretation
+    \g semantics. Performs @code{-14 throw} if the word has no
+    \g interpretation semantics.
     (') name?int ;
-: [']  ( compilation "name" -- ; run-time -- xt ) \ core	bracket-tick
+: [']  ( compilation. "name" -- ; run-time. -- xt ) \ core	bracket-tick
+    \g @var{xt} represents @var{name}'s interpretation
+    \g semantics. Performs @code{-14 throw} if the word has no
+    \g interpretation semantics.
     ' postpone ALiteral ; immediate restrict
 
 : COMP'    ( "name" -- w xt ) \ gforth	c-tick
+    \g @var{w xt} represents @var{name}'s compilation semantics.
     (') name>comp ;
 : [COMP']  ( compilation "name" -- ; run-time -- w xt ) \ gforth	bracket-comp-tick
+    \g @var{w xt} represents @var{name}'s compilation semantics.
     COMP' swap POSTPONE Aliteral POSTPONE ALiteral ; immediate restrict
 
 \ reveal words
@@ -1236,8 +1250,8 @@ G -1 warnings T !
     if \ the last word has a header
 	dup ( name>link ) @ 1 and
 	if \ it is still hidden
-	    dup ( name>link ) @ 1 xor		( nfa wid )
-	    2dup >r name>string r> check-shadow ( nfa wid )
+	    dup ( name>link ) @ 1 xor		( nt wid )
+	    2dup >r name>string r> check-shadow ( nt wid )
 	    dup wordlist-map @ reveal-method perform
 	then
     then ;
@@ -1783,7 +1797,7 @@ Defer 'cold ' noop IS 'cold
  ." Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA." cr ;
 
 : boot ( path **argv argc -- )
-  argc ! argv ! cstring>sstring pathstring 2!  main-task up!
+  argc ! argv ! cstring>sstring save-mem pathstring 2!  main-task up!
   sp@ dup s0 ! $10 + dup >tib ! tibstack ! #tib off >in off
   rp@ r0 !  fp@ f0 !  ['] cold catch DoError bye ;
 

@@ -18,7 +18,7 @@
 
 : {helper ( -- final-offset )
     >in @
-    bl parse
+    bl word count
     2dup s" --" compare 0= if
 	2drop [char] } parse 2drop true
     else

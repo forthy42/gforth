@@ -217,10 +217,3 @@ create docline doclinelength chars allot
     else
 	." undocumented: " wordname type cr
     endif ;
-
-script? [IF]
-require prims2x.fs
-s" primitives.b" ' register-doc process-file
-require crossdoc.fd
-require doc.fd
-[THEN]

@@ -1,6 +1,6 @@
 #Makefile for Gforth
 
-#Copyright (C) 1995 Free Software Foundation, Inc.
+#Copyright (C) 1995, 1996 Free Software Foundation, Inc.
 
 #This file is part of Gforth.
 
@@ -26,7 +26,7 @@
 #To do:
 #use $(srcdir) to make compilation in a non-srcdir possible
 
-VERSION	=0.1beta#gforth version
+VERSION	=0.2.0#gforth version
 SHELL	= command.com
 RM	= del
 CP	= copy
@@ -37,8 +37,10 @@ INSTALL_DIR = ./install-sh -d
 LN_S	= copy
 GCC	= gcc
 CC	= $(GCC)
-FORTH	= gforth
-FORTHK	= $(FORTH) -i ./kernal.fi
+FORTHPATH = $(libdir)/gforth/site-forth:$(datadir)/gforth/site-forth:$(libdir)/gforth/$(VERSION):$(datadir)/gforth/$(VERSION):.
+FORTH	= gforth -p $(FORTHPATH):$(srcdir)
+FORTHK	= $(FORTH) -p .:$(srcdir) -i ./kernel.fi
+FORTHP	= gforth -i ./kernel.fi
 STRIP	= strip
 TEXI2DVI = texi2dvi
 DVI2PS	= dvips -D300
@@ -50,7 +52,7 @@ XDEFINES =
 SWITCHES = $(XCFLAGS) $(XDEFINES) #-DNDEBUG #turn off assertions
 ENGINE_FLAGS =  -fno-defer-pop -fcaller-saves
 DEBUGFLAG = 
-CFLAGS	= $(DEBUGFLAG) -O4 -Wall $(SWITCHES) -DDEFAULTPATH=\".\"
+CFLAGS	= $(DEBUGFLAG) -I. -I$(srcdir) -O4 -Wall $(SWITCHES) -DDEFAULTPATH=\".\"
 
 #John Wavrik should use -Xlinker -N to get a writable text (executable)
 XLDFLAGS = 
@@ -58,6 +60,7 @@ GCCLDFLAGS =
 LDFLAGS	=  $(DEBUGFLAG) $(XLDFLAGS) $(GCCLDFLAGS)
 LDLIBS	= -lm -lpc
 
+VPATH = 
 prefix = 
 exec_prefix = 
 srcdir = 
@@ -67,35 +70,83 @@ datadir = $(prefix)/share
 #read-only architecture-dependent non-ascii files
 libdir = $(prefix)/lib
 infodir = $(prefix)/info
-mandir = $(prefix)/man/man1
+mandir = $(prefix)/man
+man1dir= $(mandir)/man1
+man1ext= .1
+#older emacses have their site-lisp in $(libdir)/emacs/
+emacssitelispdir=$(datadir)/emacs/site-lisp
 
+INCLUDES = forth.h threading.h io.h
 
-INCLUDES = forth.h threading.h io.h io-dos.h
+KERN_SRC = \
+	add.fs \
+	aliases.fs \
+	cross.fs \
+	errore.fs \
+	extend.fs \
+	kernel.fs \
+	main.fs \
+	search-order.fs \
+	special.fs \
+	tools.fs \
+	toolsext.fs \
+	vars.fs
 
-KERN_SRC = main.fs search-order.fs cross.fs aliases.fs vars.fs add.fs \
-	errore.fs kernal.fs version.fs extend.fs tools.fs toolsext.fs
+GFORTH_FI_SRC = \
+	assert.fs \
+	blockedit.fb \
+	blocks.fs \
+	bufio.fs \
+	debug.fs \
+	debugging.fs \
+	dumpimage.fs \
+	environ.fs \
+	float.fs \
+	glocals.fs \
+	hash.fs \
+	history.fs \
+	intcomp.fs \
+	look.fs \
+	search-order.fs \
+	see.fs \
+	source.fs \
+	startup.fs \
+	struct.fs \
+	stuff.fs \
+	tasker.fs \
+	termsize.fs \
+	vt100.fs \
+	vt100key.fs \
+	wordinfo.fs
 
-FORTH_SRC = anslocal.fs add.fs assert.fs ansi.fs answords.fs blocks.fs bufio.fs checkans.fs \
-	code.fs colorize.fs cross.fs debug.fs debugging.fs doskey.fs ds2texi.fs \
-	dumpimage.fs environ.fs errore.fs etags.fs extend.fs filedump.fs \
-	float.fs glocals.fs glosgen.fs gray.fs hash.fs history.fs \
-	kernal.fs locals-test.fs look.fs main.fs makedoc.fs \
+FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_SRC) \
+	ansi.fs answords.fs \
+	checkans.fs \
+	code.fs colorize.fs \
+	doskey.fs ds2texi.fs \
+	etags.fs filedump.fs \
+	glosgen.fs gray.fs \
+	makedoc.fs \
 	mach16b.fs mach16l.fs mach32b.fs mach32l.fs mach64b.fs mach64l.fs \
-	other.fs prims2x.fs random.fs search-order.fs see.fs sieve.fs source.fs \
-	startup.fs site-init.fs struct.fs tools.fs toolsext.fs tt.fs vars.fs \
-	vt100.fs vt100key.fs wordinfo.fs wordsets.fs \
-	tester.fs coretest.fs \
-	bubble.fs siev.fs matrix.fs fib.fs
+	more.fs other.fs prims2x.fs random.fs \
+	sieve.fs \
+	site-init.fs \
+	tt.fs sokoban.fs \
+	wordsets.fs \
+	tester.fs coretest.fs postponetest.fs dbltest.fs \
+	bubble.fs siev.fs matrix.fs fib.fs \
+	oof.fs oofsampl.fs
 
-SOURCES	= CVS Makefile.in configure.in configure config.sub  config.guess \
+SOURCES	= CVS compat Makefile.in configure.in configure config.sub config.guess \
+	acconfig.h config_h.in stamp-h.in \
 	install-sh INSTALL README ToDo BUGS model COPYING Benchres \
 	gforth.ds texinfo.tex gforth.1 gforth.el \
-	primitives engine.c main.c io.c \
+	primitives engine.c main.c io.c memcasecmp.c \
 	m68k.h mips.h 386.h hppa.h cache.c sparc.h power.h alpha.h 32bit.h \
 	getopt.c getopt1.c getopt.h select.c \
 	ecvt.c memcmp.c strtol.c strtoul.c ansidecl.h memmove.c pow10.c \
-	strerror.c strsignal.c \
-	INSTALL.DOS makefile.dos mkdosmf.sed configure.bat \
+	strerror.c strsignal.c dblsub.c \
+	INSTALL.DOS makefile.dos mkdosmf.sed configure.bat dosconf.h \
 	startup.dos history.dos \
 	glosgen.glo glossaries.doc \
 	$(INCLUDES) $(FORTH_SRC)
@@ -104,7 +155,7 @@ RCS_FILES =  ToDo model high-level
 
 GEN = gforth version.fs
 
-OBJECTS	= engine.o main.o ecvt.o select.o strsignal.o getopt.o getopt1.o
+OBJECTS	= engine.o main.o memcasecmp.o ecvt.o io.o strsignal.o getopt.o getopt1.o
 
 # things that need a working forth system to be generated
 FORTH_GEN0 = primitives.b primitives.i prim_labels.i aliases.fs
@@ -157,16 +208,18 @@ clean:		mostlyclean
 		-$(RM) -rf $(GEN) *.o 
 
 distclean:	clean
-		-$(RM) machine.h kernal.fi config.cache config.log config.status Makefile
+		-$(RM) machine.h kernel.fi config.cache config.log config.status config.h Makefile
 
-realclean:	distclean
-		-$(RM) $(GEN_PRECIOUS)
+#realclean is useless, but dangerous, so it's commented out
+#realclean:	distclean
+#		-$(RM) $(GEN_PRECIOUS)
 
 #mostlyclean, but also remove some of the stuff that is distributed
 virtualclean:	mostlyclean
 		-$(RM) -rf gforth.fns gforth.texi gforth.ps gforth.info* \
-		gforth-$(VERSION).tar.gz config.cache *~
+		gforth-$(VERSION).tar.gz config.cache *~ */*~
 
+#use dist targets only when srcdir=.
 dist:		$(SOURCES) $(FORTH_GEN) $(DOCDIST)
 		-rm -rf gforth-$(VERSION)
 		mkdir gforth-$(VERSION)
@@ -180,7 +233,7 @@ dist:		$(SOURCES) $(FORTH_GEN) $(DOCDIST)
 bindist:	$(SOURCES) $(FORTH_GEN) gforth $(OBJECTS) config.status Makefile
 		-rm -rf gforth-$(VERSION)
 		mkdir gforth-$(VERSION)
-		$(CP) -rp -d $(SOURCES) config.status Makefile $(FORTH_GEN) gforth $(OBJECTS) machine.h kernal.fi gforth-$(VERSION)
+		$(CP) -rp -d $(SOURCES) config.status Makefile $(FORTH_GEN) gforth $(OBJECTS) machine.h kernel.fi gforth-$(VERSION)
 		strip gforth-$(VERSION)/gforth
 		tar cvf - gforth-$(VERSION)|gzip -9 >gforth-$(VERSION)-dos.tar.gz
 
@@ -194,7 +247,7 @@ bindist:	$(SOURCES) $(FORTH_GEN) gforth $(OBJECTS) config.status Makefile
 binonlydist:	$(SOURCES) $(FORTH_GEN) gforth $(OBJECTS)
 		-rm -rf gforth-$(VERSION)
 		mkdir gforth-$(VERSION)
-		$(CP) -p -d  config.status Makefile gforth $(OBJECTS) machine.h kernal.fi gforth-$(VERSION)
+		$(CP) -p -d  config.status Makefile gforth $(OBJECTS) machine.h kernel.fi gforth-$(VERSION)
 		strip gforth-$(VERSION)/gforth
 		tar cvf - gforth-$(VERSION)|gzip -9 >gforth-$(VERSION)-binonly-dos.tar.gz
 
@@ -203,7 +256,7 @@ binonlydist:	$(SOURCES) $(FORTH_GEN) gforth $(OBJECTS)
 #strip gforth, because the debugging stuff is hardly useful once
 # gforth manages to execute more than a few primitives
 
-install:	gforth $(FORTH_SRC) kernal.fi gforth.fi gforth.1 gforth.info*
+install:	gforth $(FORTH_SRC) kernel.fi gforth.fi gforth.1 gforth.info primitives gforth.TAGS
 		for i in $(bindir) $(mandir) $(infodir) $(libdir)/gforth/$(VERSION) $(datadir)/gforth/$(VERSION) $(libdir)/gforth/site-forth $(datadir)/gforth/site-forth; do \
 			$(INSTALL_DIR) $$i; \
 		done
@@ -211,14 +264,21 @@ install:	gforth $(FORTH_SRC) kernal.fi gforth.fi gforth.1 gforth.info*
 		-$(RM) $(bindir)/gforth $(bindir)/gforth-$(VERSION)
 		$(INSTALL_PROGRAM) -s gforth $(bindir)
 		ln $(bindir)/gforth $(bindir)/gforth-$(VERSION)
-		$(INSTALL_DATA) gforth.1 $(mandir)
-		for i in gforth.info*; do $(INSTALL_DATA) $$i $(infodir); done
-		for i in $(FORTH_SRC); do \
-			$(INSTALL_DATA) $$i $(datadir)/gforth/$(VERSION); \
+		$(INSTALL_DATA) $(srcdir)/gforth.1 $(mandir)
+		for i in $(srcdir)/gforth.info*; do $(INSTALL_DATA) $$i $(infodir); done
+		for i in $(FORTH_SRC) primitives; do \
+			$(INSTALL_DATA) $(srcdir)/$$i $(datadir)/gforth/$(VERSION); \
 		done
-		$(INSTALL_DATA) kernal.fi $(libdir)/gforth/$(VERSION)
-		$(FORTHK) startup.fs dumpimage.fs -e "savesystem $(libdir)/gforth/$(VERSION)/gforth.fi bye" #gforth.fi contains some path names
+		$(INSTALL_DATA) kernel.fi $(libdir)/gforth/$(VERSION)
+		$(FORTHP) startup.fs -e "savesystem $(libdir)/gforth/$(VERSION)/gforth.fi bye" #gforth.fi contains some path names
+		sed s:$(srcdir)/:$(datadir)/gforth/$(VERSION)/: gforth.TAGS >TAGS; $(INSTALL_DATA) TAGS $(datadir)/gforth/$(VERSION)
+		if test -d $(emacssitelispdir); then \
+			$(INSTALL_DATA) $(srcdir)/gforth.el $(emacssitelispdir); \
+		else \
+			echo "please install $(srcdir)/gforth.el in your .../emacs/site-lisp directory"; \
+		fi
 
+install-strip:	install
 
 #deinstall all files specific to this version of gforth
 #to uninstall version foo, type `make uninstall VERSION=foo'
@@ -230,10 +290,10 @@ check:		test
 		touch test
 
 test:		gforth gforth.fi
-		$(FORTH) tester.fs coretest.fs -e bye
+		$(FORTH) tester.fs coretest.fs postponetest.fs dbltest.fs -e bye
 		$(FORTH) code.fs checkans.fs -e bye
 		@echo 'Expect no differences'
-		$(FORTH) prims2x.fs -e "s\" primitives.b\" ' output-c process-file bye"| diff -c - primitives.i
+		$(FORTH) prims2x.fs -e "s\" $(srcdir)/primitives.b\" ' output-c process-file bye"| diff -c - $(srcdir)/primitives.i
 
 bench:		gforth gforth.fi
 		@echo 'Each benchmark takes about 30s on a 486-66 (gcc-2.6.3 -DFORCE_REG)'
@@ -249,23 +309,23 @@ gforth:		$(OBJECTS)
 		$(GCC) $(LDFLAGS) $(OBJECTS) $(LDLIBS) -o $@
 		coff2exe $@
 
-kernl16l.fi-:	$(KERN_SRC) mach16l.fs $(FORTH_GEN0)
-		$(FORTHK) -p . -e 's" mach16l.fs"' main.fs
+kernl16l.fi-:	$(KERN_SRC) version.fs mach16l.fs $(FORTH_GEN0)
+		$(FORTHK) -e 's" mach16l.fs"' main.fs -e "save-cross kernl16l.fi- $(bindir)/gforth-$(VERSION) bye"
 
-kernl16b.fi-:	$(KERN_SRC) mach16b.fs $(FORTH_GEN0)
-		$(FORTHK) -p . -e 's" mach16b.fs"' main.fs
+kernl16b.fi-:	$(KERN_SRC) version.fs mach16b.fs $(FORTH_GEN0)
+		$(FORTHK) -e 's" mach16b.fs"' main.fs -e "save-cross kernl16b.fi- $(bindir)/gforth-$(VERSION) bye"
 
-kernl32l.fi-:	$(KERN_SRC) mach32l.fs $(FORTH_GEN0)
-		$(FORTHK) -p . -e 's" mach32l.fs"' main.fs
+kernl32l.fi-:	$(KERN_SRC) version.fs mach32l.fs $(FORTH_GEN0)
+		$(FORTHK) -e 's" mach32l.fs"' main.fs -e "save-cross kernl32l.fi- $(bindir)/gforth-$(VERSION) bye"
 
-kernl32b.fi-:	$(KERN_SRC) mach32b.fs $(FORTH_GEN0)
-		$(FORTHK) -p . -e 's" mach32b.fs"' main.fs
+kernl32b.fi-:	$(KERN_SRC) version.fs mach32b.fs $(FORTH_GEN0)
+		$(FORTHK) -e 's" mach32b.fs"' main.fs -e "save-cross kernl32b.fi- $(bindir)/gforth-$(VERSION) bye"
 
-kernl64l.fi-:	$(KERN_SRC) mach64l.fs $(FORTH_GEN0)
-		$(FORTHK) -p . -e 's" mach64l.fs"' main.fs
+kernl64l.fi-:	$(KERN_SRC) version.fs mach64l.fs $(FORTH_GEN0)
+		$(FORTHK) -e 's" mach64l.fs"' main.fs -e "save-cross kernl64l.fi- $(bindir)/gforth-$(VERSION) bye"
 
-kernl64b.fi-:	$(KERN_SRC) mach64b.fs $(FORTH_GEN0)
-		$(FORTHK) -p . -e 's" mach64b.fs"' main.fs
+kernl64b.fi-:	$(KERN_SRC) version.fs mach64b.fs $(FORTH_GEN0)
+		$(FORTHK) -e 's" mach64b.fs"' main.fs -e "save-cross kernl64b.fi- $(bindir)/gforth-$(VERSION) bye"
 
 kernl16b.fi:	$(KERNLS)
 		-$(CP) kernl16b.fi kernl16b.fi~
@@ -285,7 +345,7 @@ kernl32b.fi:	$(KERNLS)
 kernl32l.fi:	$(KERNLS)
 		-$(CP) kernl32l.fi kernl32l.fi~
 		-$(CP) kernl32l.fi- kernl32l.fi
-		-$(CP) kernl32l.fi kernal.fi
+		-$(CP) kernl32l.fi kernel.fi
 
 kernl64b.fi:	$(KERNLS)
 		-$(CP) kernl64b.fi kernl64b.fi~
@@ -297,58 +357,68 @@ kernl64l.fi:	$(KERNLS)
 		-$(CP) kernl64l.fi- kernl64l.fi
 		
 
-gforth.fi:	kernl32l.fi gforth startup.fs glocals.fs search-order.fs hash.fs float.fs debugging.fs environ.fs wordinfo.fs look.fs vt100.fs see.fs bufio.fs debug.fs history.fs vt100key.fs assert.fs source.fs blocks.fs struct.fs dumpimage.fs
-		$(FORTHK) startup.fs dumpimage.fs -e "savesystem gforth.fi bye"
+gforth.fi:	kernl32l.fi gforth $(GFORTH_FI_SRC)
+		$(FORTHK) startup.fs -e "savesystem gforth.fi bye"
 
-engine.s:	engine.c primitives.i prim_labels.i machine.h threading.h $(INCLUDES)
-		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -S engine.c
+gforth.TAGS:	kernl32l.fi gforth $(GFORTH_FI_SRC) primitives.TAGS
+		$(FORTHK) etags.fs startup.fs -e bye
+		cat TAGS primitives.TAGS kernel.TAGS >gforth.TAGS
 
-engine.o:	engine.c primitives.i prim_labels.i machine.h threading.h $(INCLUDES)
-		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -c engine.c
+engine.s:	engine.c primitives.i prim_labels.i machine.h threading.h $(INCLUDES) config.h
+		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -S $(srcdir)/engine.c
 
-main.o:		main.c machine.h threading.h $(INCLUDES)
-		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -c main.c
+engine.o:	engine.c primitives.i prim_labels.i machine.h threading.h $(INCLUDES) config.h
+		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -c $(srcdir)/engine.c
+
+main.o:		main.c machine.h threading.h $(INCLUDES) config.h
+		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -c $(srcdir)/main.c
 
 strtoul.o:	strtoul.c strtol.c
 
 primitives.b:	primitives
-		m4 primitives >$@ 
+		m4 -s $(srcdir)/primitives >$@ 
 
 primitives.i :	primitives.b prims2x.fs
-		$(FORTHK) -p . prims2x.fs -e "s\" primitives.b\" ' output-c process-file bye" >$@
+		$(FORTHK) prims2x.fs -e "s\" primitives.b\" ' output-c process-file bye" >$@
 
 prim_labels.i :	primitives.b prims2x.fs
-		$(FORTHK) -p . prims2x.fs -e "s\" primitives.b\" ' output-label process-file bye" >$@
+		$(FORTHK) prims2x.fs -e "s\" primitives.b\" ' output-label process-file bye" >$@
 
 aliases.fs:	primitives.b prims2x.fs
-		$(FORTHK) -p . prims2x.fs -e "s\" primitives.b\" ' output-alias process-file bye" >$@
+		$(FORTHK) prims2x.fs -e "s\" primitives.b\" ' output-alias process-file bye" >$@
 
 primitives.fs:	primitives.b prims2x.fs
-		$(FORTHK) -p . prims2x.fs -e "s\" primitives.b\" ' output-forth process-file bye" >$@
+		$(FORTHK) prims2x.fs -e "s\" primitives.b\" ' output-forth process-file bye" >$@
 
+primitives.TAGS: primitives.b prims2x.fs
+		$(FORTHK) prims2x.fs -e "s\" primitives.b\" ' output-tag process-file bye" >$@
 
 doc.fd:		makedoc.fs float.fs search-order.fs glocals.fs environ.fs \
 		 toolsext.fs wordinfo.fs \
 		 vt100.fs colorize.fs see.fs bufio.fs debug.fs history.fs \
 		 doskey.fs vt100key.fs startup.fs assert.fs debugging.fs code.fs
-		$(FORTHK) -p . -e "s\" doc.fd\"" makedoc.fs startup.fs code.fs -e bye
+		$(FORTHK) -e "s\" doc.fd\"" makedoc.fs startup.fs code.fs -e bye
 
-crossdoc.fd:	$(KERN_SRC) $(FORTH_GEN0)
-		$(FORTHK) -p . -e 's" mach32l.fs"' main.fs
+crossdoc.fd:	$(KERN_SRC) version.fs $(FORTH_GEN0)
+		$(FORTHK) -e 's" mach32l.fs"' main.fs -e bye
 
 gforth.texi:	gforth.ds primitives.b ds2texi.fs prims2x.fs doc.fd crossdoc.fd
-		$(FORTHK) -p . ds2texi.fs -e "s\" gforth.ds\" r/o open-file throw ds2texi bye" >$@
+		$(FORTHK) ds2texi.fs -e "s\" gforth.ds\" r/o open-file throw ds2texi bye" >$@
 
 checkdoc:	gforth.ds primitives.b ds2texi.fs prims2x.fs doc.fd crossdoc.fd answords.fs
-		$(FORTHK) -p . ds2texi.fs answords.fs -e bye
+		$(FORTHK) ds2texi.fs answords.fs -e bye
+
+dvi:		gforth.dvi
 
 gforth.dvi gforth.fns:	gforth.texi
-		$(TEXI2DVI) gforth.texi
+		$(TEXI2DVI) $(srcdir)/gforth.texi
 
 gforth.ps:	gforth.dvi
 		$(DVI2PS) gforth.dvi -o $@
 
-gforth.info*:	gforth.texi
+info:		gforth.info
+
+gforth.info:	gforth.texi
 		-$(MAKEINFO) gforth.texi
 
 html:		gforth.texi
@@ -356,15 +426,31 @@ html:		gforth.texi
 		-mkdir html
 		cd html; $(TEXI2HTML) -menu -split_node ../gforth.texi
 
+doc:		gforth.ps html
+
 # For an explanation of the following Makefile rules, see node
 # `Automatic Remaking' in GNU Autoconf documentation.
-Makefile: Makefile.in config.status
-	CONFIG_FILES=$@ CONFIG_HEADERS= ./config.status
-config.status: configure
-	./config.status --recheck
-configure: configure.in
-	cd $(srcdir) && autoconf
+${srcdir}/configure: configure.in 
+		cd ${srcdir} && autoconf
+     
+# autoheader might not change config_h.in, so touch a stamp file.
+${srcdir}/config_h.in: stamp-h.in
+${srcdir}/stamp-h.in: configure.in  acconfig.h
+		cd ${srcdir} && autoheader
+		echo timestamp > ${srcdir}/stamp-h.in
 
+config.h: stamp-h
+stamp-h: config_h.in config.status
+		CONFIG_FILES=$@ CONFIG_HEADERS=config.h ./config.status
+		echo > stamp-h
+Makefile: Makefile.in config.status
+		CONFIG_FILES=$@ CONFIG_HEADERS=config.h ./config.status
+     
+config.status: configure
+		./config.status --recheck
+
+
+#create files for DOS, because DOS cannot do it itself
 makefile.dos: mkdosmf.sed Makefile.in
 	sed -f mkdosmf.sed <Makefile.in >makefile.dos
 
@@ -374,3 +460,4 @@ history.dos: history.fs Makefile.in
 startup.dos: startup.fs Makefile.in
 	sed -e "s/\\\\ include doskey/include doskey/g" \
 	    -e "s/include vt100key/\\\\ include vt100key/g" <startup.fs >startup.dos
+

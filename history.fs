@@ -56,13 +56,13 @@ interpret/compile: ctrl  ( "<char>" -- ctrl-code )
 
 \ history support                                       16oct94py
 
-0 Value history
+0 Value history \ history file fid
 
 2Variable forward^
 2Variable backward^
 2Variable end^
 
-: force-open ( addr len -- handle )
+: force-open ( addr len -- fid )
   2dup r/w open-file 0<
   IF  drop r/w create-file throw  ELSE  nip nip  THEN ;
 

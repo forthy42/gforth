@@ -39,10 +39,6 @@
 jmp_buf throw_jmp_buf;
 #endif
 
-#ifndef FUZZ
-#  define FUZZ 0x4000
-#endif
-
 #ifndef DEFAULTPATH
 #  define DEFAULTPATH "/usr/local/lib/gforth:."
 #endif
@@ -169,7 +165,6 @@ Address loader(FILE *imagefile, char* filename)
   Cell preamblesize=0;
   Label *symbols=engine(0,0,0,0,0);
   UCell check_sum=checksum(symbols);
-  Cell fuzz=FUZZ; /* 16 k fuzz to move fixed size images around */
 
   static char* endianstring[]= { "big","little" };
 
@@ -225,14 +220,9 @@ Address loader(FILE *imagefile, char* filename)
   
   wholesize = preamblesize+dictsize+dsize+rsize+fsize+lsize;
   imagesize = preamblesize+header.image_size+((header.image_size-1)/sizeof(Cell))/8+1;
-  image=malloc((wholesize>imagesize?wholesize:imagesize)+fuzz);
+  image=malloc((wholesize>imagesize?wholesize:imagesize)/*+sizeof(Float)*/);
   /*image = maxaligned(image);*/
-/*  memset(image,0,wholesize); */ /* why? - anton */
-
-  if(header.base==0) image += fuzz/2;
-  else if((UCell)(header.base - (Cell)image + preamblesize) < fuzz)
-    image = header.base - preamblesize;
-
+  memset(image,0,wholesize); /* why? - anton */
   rewind(imagefile);  /* fseek(imagefile,0L,SEEK_SET); */
   fread(image,1,imagesize,imagefile);
   fclose(imagefile);
@@ -338,7 +328,7 @@ int main(int argc, char **argv, char **env)
 
   progname = argv[0];
   if ((path=getenv("GFORTHPATH"))==NULL)
-    path = strcpy(malloc(strlen(DEFAULTPATH)+1),DEFAULTPATH);
+    path = DEFAULTPATH;
   opterr=0;
   while (1) {
     int option_index=0;

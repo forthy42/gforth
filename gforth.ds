@@ -673,6 +673,7 @@ then in @file{~}, then in the normal path (see above).
 * Control Structures::          
 * Locals::                      
 * Defining Words::              
+* Tokens for Words::            
 * Wordlists::                   
 * Files::                       
 * Blocks::                      
@@ -1962,7 +1963,7 @@ programs harder to read, and easier to misread and miswrite. The only
 merit of this syntax is that it is easy to implement using the ANS Forth
 locals wordset.
 
-@node Defining Words, Wordlists, Locals, Words
+@node Defining Words, Tokens for Words, Locals, Words
 @section Defining Words
 
 @menu
@@ -2367,7 +2368,68 @@ accessing the header structure usually know how to deal with this; e.g.,
 @code{' word >body} also gives you the body of a word created with
 @code{create-interpret/compile}.
 
-@node Wordlists, Files, Defining Words, Words
+@node Tokens for Words, Wordlists, Defining Words, Words
+@section Tokens for Words
+
+This chapter describes the creation and use of tokens that represent
+words on the stack (and in data space).
+
+Named words have interpretation and compilation semantics. Unnamed words
+just have execution semantics.
+
+An @dfn{execution token} represents the execution semantics of an
+unnamed word. An execution token occupies one cell. As explained in
+section @ref{Supplying names}, the execution token of the last words
+defined can be produced with
+
+short-lastxt
+
+You can perform the semantics represented by an execution token with
+doc-execute
+You can compile the word with
+doc-compile,
+
+In Gforth, the abstract data type @emph{execution token} is implemented
+as CFA (code field address).
+
+The interpretation semantics of a named word are also represented by an
+execution token. You can get it with
+
+doc-[']
+doc-'
+
+For literals, you use @code{'} in interpreted code and @code{[']} in
+compiled code. Gforth's @code{'} and @code{[']} behave somewhat unusual
+by complaining about compile-only words. To get an execution token for a
+compiling word @var{X}, use @code{COMP' @var{X} drop} or @code{[COMP']
+@var{X} drop}.
+
+The compilation semantics are represented by a @dfn{compilation token}
+consisting of two cells: @var{w xt}. The top cell @var{xt} is an
+execution token. The compilation semantics represented by the
+compilation token can be performed with @code{execute}, which consumes
+the whole compilation token, with an additional stack effect determined
+by the represented compilation semantics.
+
+doc-[comp']
+doc-comp'
+
+At present, the @var{w} part of a compilation token is an execution
+token, and the @var{xt} part represents either @code{execute} or
+@code{compile,}. However, don't rely on that kowledge, unless necessary;
+we may introduce unusual compilation tokens in the future (e.g.,
+compilation tokens representing the compilation semantics of literals).
+
+Named words are also represented by the @dfn{name token}. The abstract
+data type @emph{name token} is implemented as NFA (name field address).
+
+doc-find-name
+doc-name>int
+doc-name?int
+doc-name>comp
+doc-name>string
+
+@node Wordlists, Files, Tokens for Words, Words
 @section Wordlists
 
 @node Files, Blocks, Wordlists, Words
@@ -3145,7 +3207,7 @@ The least significant cell of @var{d} is produced.
 The codes -256@minus{}-511 are used for reporting signals (see
 @file{errore.fs}). The codes -512@minus{}-2047 are used for OS errors
 (for file and memory allocation operations). The mapping from OS error
-numbers to throw code is -512@minus{}@var{errno}. One side effect of
+numbers to throw code is -512@minus{}@code{errno}. One side effect of
 this mapping is that undefined OS errors produce a message with a
 strange number; e.g., @code{-1000 THROW} results in @code{Unknown error
 488} on my system.
@@ -3262,9 +3324,8 @@ of open files available. This should not give you troubles.
 @code{/line}. Currently 255.
 
 @item methods of mapping block ranges to files:
-Currently, the block words automatically access the file
-@file{blocks.fb} in the currend working directory. More sophisticated
-methods could be implemented if there is demand (and a volunteer).
+By default, blocks are accessed in the file @file{blocks.fb} in the
+current working directory. The file can be switched with @code{USE}.
 
 @item number of string buffers provided by @code{S"}:
 1
@@ -3360,11 +3421,11 @@ with the command-line option @code{-f}.
 @table @i
 
 @item @code{df@@} or @code{df!} used with an address that is not double-float  aligned:
-System-dependent. Typically results in an alignment fault like other
+System-dependent. Typically results in a @code{-23 THROW} like other
 alignment violations.
 
 @item @code{f@@} or @code{f!} used with an address that is not float  aligned:
-System-dependent. Typically results in an alignment fault like other
+System-dependent. Typically results in a @code{-23 THROW} like other
 alignment violations.
 
 @item Floating-point result out of range:
@@ -3512,14 +3573,15 @@ intended as throw codes. They typically are in the range
 @table @i
 
 @item ending sequence for input following @code{;code} and @code{code}:
-Not implemented (yet).
+@code{end-code}
 
 @item manner of processing input following @code{;code} and @code{code}:
-Not implemented (yet).
+The @code{assembler} vocabulary is pushed on the search order stack, and
+the input is processed by the text interpreter, (starting) in interpret
+state.
 
 @item search order capability for @code{EDITOR} and @code{ASSEMBLER}:
-Not implemented (yet). If they were implemented, they would use the
-search order wordset.
+The ANS Forth search order word set.
 
 @item source and format of display by @code{SEE}:
 The source for @code{see} is the intermediate code used by the inner
@@ -3548,9 +3610,9 @@ unlucky, this ambiguous condition is not caught.
 Not implemented (yet).
 
 @item @var{name} not defined via @code{CREATE}:
-@code{;code} is not implemented (yet). If it were, it would behave like
-@code{DOES>} in this respect, i.e., change the execution semantics of
-the last defined word no matter how it was defined.
+@code{;code} behaves like @code{DOES>} in this respect, i.e., it changes
+the execution semantics of the last defined word no matter how it was
+defined.
 
 @item @code{POSTPONE} applied to @code{[IF]}:
 After defining @code{: X POSTPONE [IF] ; IMMEDIATE}. @code{X} is
@@ -4218,7 +4280,8 @@ one of Gforth's first users, in mid-1993) and Stuart Ramsden inspired us
 with their continuous feedback. Lennart Benshop contributed
 @file{glosgen.fs}, while Stuart Ramsden has been working on automatic
 support for calling C libraries. Helpful comments also came from Paul
-Kleinrubatscher, Christian Pirker, Dirk Zoller and Marcel Hendrix.
+Kleinrubatscher, Christian Pirker, Dirk Zoller, Marcel Hendrix, John
+Wavrik, Stott Bolton and Marc de Groot.
 
 Gforth also owes a lot to the authors of the tools we used (GCC, CVS,
 and autoconf, among others), and to the creators of the Internet: Gforth

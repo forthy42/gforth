@@ -448,20 +448,7 @@ forth definitions
 
 \ If this assumption is too optimistic, the compiler will warn the user.
 
-\ Implementation: migrated to kernel.fs
-
-\ THEN (another control flow from before joins the current one):
-\ The new locals-list is the intersection of the current locals-list and
-\ the orig-local-list. The new locals-size is the (alignment-adjusted)
-\ size of the new locals-list. The following code is generated:
-\ lp+!# (current-locals-size - orig-locals-size)
-\ <then>:
-\ lp+!# (orig-locals-size - new-locals-size)
-
-\ Of course "lp+!# 0" is not generated. Still this is admittedly a bit
-\ inefficient, e.g. if there is a locals declaration between IF and
-\ ELSE. However, if ELSE generates an appropriate "lp+!#" before the
-\ branch, there will be none after the target <then>.
+\ Implementation:
 
 \ explicit scoping
 
@@ -494,6 +481,19 @@ forth definitions
     0 adjust-locals-size ( not every def ends with an exit )
     lastcfa ! last !
     DEFERS ;-hook ;
+
+\ THEN (another control flow from before joins the current one):
+\ The new locals-list is the intersection of the current locals-list and
+\ the orig-local-list. The new locals-size is the (alignment-adjusted)
+\ size of the new locals-list. The following code is generated:
+\ lp+!# (current-locals-size - orig-locals-size)
+\ <then>:
+\ lp+!# (orig-locals-size - new-locals-size)
+
+\ Of course "lp+!# 0" is not generated. Still this is admittedly a bit
+\ inefficient, e.g. if there is a locals declaration between IF and
+\ ELSE. However, if ELSE generates an appropriate "lp+!#" before the
+\ branch, there will be none after the target <then>.
 
 : (then-like) ( orig -- addr )
     swap -rot dead-orig =
@@ -570,10 +570,6 @@ forth definitions
 \ things above are not control flow joins. Everything should be taken
 \ over from the live flow. No lp+!# is generated.
 
-\ !! The lp gymnastics for UNTIL are also a real problem: locals cannot be
-\ used in signal handlers (or anything else that may be called while
-\ locals live beyond the lp) without changing the locals stack.
-
 \ About warning against uses of dead locals. There are several options:
 
 \ 1) Do not complain (After all, this is Forth;-)
@@ -643,7 +639,7 @@ forth definitions
     endif ;
 :noname
     0 0 0. 0.0e0 { c: clocal w: wlocal d: dlocal f: flocal }
-    ' dup >definer
+    comp' drop dup >definer
     case
 	[ ' locals-wordlist >definer ] literal \ value
 	OF >body POSTPONE Aliteral POSTPONE ! ENDOF

@@ -4,45 +4,9 @@ First, type
 
 ./configure
 
-configure has the following useful parameters:
-  --prefix=PREFIX         install architecture-independent files in PREFIX
-                          [default: /usr/local]
-  --exec-prefix=PREFIX    install architecture-dependent files in PREFIX
-                          [default: same as prefix]
-  --enable-force-reg      Use explicit register declarations if they appear in
-                          the machine.h file. This can cause a good speedup,
-                          but also incorrect code with some gcc versions on
-                          some processors (default disabled).
-  --enable-direct-threaded      Force direct threading. This may not work on
-                                some machines and may cause slowdown on others.
-                                (default processor-dependent)
-  --enable-indirect-threaded    Force indirect threading. This can cause a
-                                slowdown on some machines.
-                                (default processor-dependent)
-  --with-debug     specifies option -g to compile with debug info (default)
-   --without-debug  omits the -g switch and creates smaller images on
-                    machines where strip has problems with gcc style
-                    debugging informations.
-  --help: tells you about other parameters.
+(see Section Configuration Options below for details).
 
-If you don't like the defaults for the installation directories, you
-should override them already during configure.  E.g., if you want to
-install in the /gnu hierarchy instead of in the default /usr/local
-hierarchy, say
-
-./configure --prefix=/gnu
-
-Moreover, if your GCC is not called gcc (but, e.g., gcc-2.7.1), you
-should say so during configuration. E.g.:
-
-env CC=gcc-2.7.1 ./configure
-
-You can also pass additional options to gcc in this way, e.g., if you
-want to generate an a.out executable under Linux with gcc-2.7.0:
-
-env "CC=gcc -b i486-linuxaout -V 2.7.0" ./configure
-
-After, configuration, type
+After configuration, type
 
 make
 
@@ -75,6 +39,60 @@ make html
 
 If you prefer plain ASCII documentation, just concatenate the files
 gforth.info-* ('cat gforth.info-*' under Unix).
+
+
+		Configuration Options
+
+You can build in a directory different from the source directory by
+changing to the build directory and invoking configure thus:
+
+$srcdir/configure
+
+where $srcdir is the source directory (Note that we tested this only
+for installation; i.e., if you want to hack the Gforth sources, you
+should probably build in the source directory).
+
+configure has the following useful parameters:
+  --prefix=PREFIX         install architecture-independent files in PREFIX
+                          [default: /usr/local]
+  --exec-prefix=PREFIX    install architecture-dependent files in PREFIX
+                          [default: same as prefix]
+  --enable-force-reg      Use explicit register declarations if they appear in
+                          the machine.h file. This can cause a good speedup,
+                          but also incorrect code with some gcc versions on
+                          some processors (default disabled).
+  --enable-direct-threaded      Force direct threading. This may not work on
+                                some machines and may cause slowdown on others.
+                                (default processor-dependent)
+  --enable-indirect-threaded    Force indirect threading. This can cause a
+                                slowdown on some machines.
+                                (default processor-dependent)
+  --with-debug     specifies option -g to compile with debug info (default)
+   --without-debug  omits the -g switch and creates smaller images on
+                    machines where strip has problems with gcc style
+                    debugging informations.
+  --help: tells you about other parameters.
+
+The file Benchres shows which combination of the -enable options we
+tried gave the best results for various machines.
+
+If you don't like the defaults for the installation directories, you
+should override them already during configure.  E.g., if you want to
+install in the /gnu hierarchy instead of in the default /usr/local
+hierarchy, say
+
+./configure --prefix=/gnu
+
+Moreover, if your GCC is not called gcc (but, e.g., gcc-2.7.1), you
+should say so during configuration. E.g.:
+
+env CC=gcc-2.7.1 ./configure
+
+You can also pass additional options to gcc in this way, e.g., if you
+want to generate an a.out executable under Linux with gcc-2.7.0:
+
+env "CC=gcc -b i486-linuxaout -V 2.7.0" ./configure
+
 
 		Preloading installation-specific code
 
@@ -162,7 +180,7 @@ trying to run an image produced for a direct threading system on an
 indirect threaded system.
 
 Chances are that you unintentionally tried to execute an image from
-the wrong directory. As a remedy, you can determine Gforth's search
+the wrong directory. As a remedy, you can specify Gforth's search
 path with the "-p" command line option and with the GFORTHPATH
 environment variable.
 
