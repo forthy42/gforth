@@ -366,6 +366,8 @@ Create nav-buf 0 c,
 : new-toc  toc-link off ;
 
 Variable toc-name
+Variable toc-index
+6 Value /toc-line
 
 : .toc-entry ( toc flag -- )
     swap cell+ dup @ swap cell+ dup cell+ $@ 2dup href= s" a" tag
@@ -386,29 +388,32 @@ Variable toc-name
 	    3 of  s" v]|-icons/arrow_down.jpg" .img  endof
 	endcase
     THEN
-    s" a" /tag rdrop
-    ;
-: print-toc ( -- ) cr s" menu" id= s" div" tag cr 0 parse
+    s" a" /tag rdrop ." <!--" cr ." -->"
+    1 toc-index +! toc-index @ /toc-line mod 0=
+    IF  s" br" tag/ THEN ;
+
+: print-toc ( -- ) toc-index off cr s" menu" id= s" div" >env cr
+    0 parse
     dup 0= IF  toc-name $! 0  ELSE
 	toc-name $! toc-name $@ id= s" " s" a" tagged  2
     THEN  >r
     toc-link  BEGIN  @ dup  WHILE
 	dup cell+ @ 3 = r@ 0= and IF  rdrop 1 >r ( s" br" tag/ cr )  THEN
 	dup cell+ @ r@ >= IF  dup r@ 2 = .toc-entry  THEN
-	dup cell+ @ 2 = r@ 2 = and IF  s" br" tag/ cr  THEN
-    REPEAT  drop rdrop  cr s" div" /tag cr ;
+	dup cell+ @ 2 = r@ 2 = and IF  s" br" tag/ toc-index off THEN
+    REPEAT  drop rdrop -env cr ;
 
 \ handle global tags
 
 : indent ( n -- )
-\    indentlevel @ over
+    indentlevel @ over
     indentlevel !
-\    2dup < IF swap DO  -env -env  LOOP  EXIT THEN
-\    2dup > IF      DO  s" dl" >env s" dt" >env  LOOP EXIT THEN
-\    2dup = IF drop IF  -env  s" dt" >env  THEN THEN
+    2dup < IF swap DO  -env -env  LOOP  EXIT THEN
+    2dup > IF      DO  s" dl" >env s" dt" >env  LOOP EXIT THEN
+    2dup = IF drop IF  -env  s" dt" >env  THEN THEN
 ;
 : +indent ( -- )
-\    indentlevel @ IF  -env s" dd" >env  THEN
+    indentlevel @ IF  -env s" dd" >env  THEN
 ;
 
 wordlist constant longtags

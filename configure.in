@@ -336,6 +336,14 @@ AC_TRY_COMPILE(,,ac_nocrossjumping=yes;ENGINE_FLAGS="$ENGINE_FLAGS -fno-crossjum
 CFLAGS="$CFLAGS_1"
 AC_MSG_RESULT($ac_nocrossjumping)
 
+# Try if GCC understands -fno-reorder-blocks
+AC_MSG_CHECKING([if $CC understands -fno-reorder-blocks])
+CFLAGS_1="$CFLAGS"
+CFLAGS="$CFLAGS -fno-reorder-blocks"
+AC_TRY_COMPILE(,,ac_noreorder_blocks=yes;ENGINE_FLAGS="$ENGINE_FLAGS -fno-reorder-blocks",ac_noreorder_blocks=no)
+CFLAGS="$CFLAGS_1"
+AC_MSG_RESULT($ac_noreorder_blocks)
+
 # Try if GCC understands __attribute__((unused))
 AC_MSG_CHECKING([how to suppress 'unused variable' warnings])
 AC_TRY_COMPILE(,[int __attribute__((unused)) foo;], MAYBE_UNUSED='__attribute__((unused))',)
