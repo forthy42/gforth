@@ -58,7 +58,8 @@
   "List of words for hilighting and recognition of parsed text areas. 
 You can enable hilighting of object-oriented Forth code, by appending either
 `forth-objects-words' or `forth-oof-words' to the list, depending on which
-OOP package you're using.
+OOP package you're using. After `forth-words' changed, `forth-compile-words' 
+must be called to make the changes take effect.
 
 Each item of `forth-words' has the form 
    (MATCHER TYPE HILIGHT . &optional PARSED-TEXT ...)
@@ -224,6 +225,11 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 	(("object") non-immediate (font-lock-type-face . 2))))
 ; (nconc forth-words forth-oof-words)
 
+(defvar forth-local-words nil 
+  "List of Forth words to prepend to `forth-words'. Should be set by a 
+forth source, using a local variables list at the end of the file 
+(\"Local Variables: ... forth-local-words: ... End:\" construct).")
+
 (defvar forth-hilight-level 3 "*Level of hilighting of Forth code.")
 (defvar forth-compiled-words nil "Compiled representation of `forth-words'.")
 
@@ -231,21 +237,11 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 ;
 
 ; Wörter ordentlich hilighten, die nicht auf whitespace beginning ( ..)IF
-;
-; Buffer-local variables can be set via "Local Variables:" or -*-
-; Setting hilighting/indentation specifications requires multi-line variables,
-; can only be done in 0 [IF] ... [ENDIF] blocks.
-; Additional variable `forth-local-words'/`forth-local-indent-words' required.
-; Should be appended to `forth-words'. Additional `forth-use-objects' or
+; Additional `forth-use-objects' or
 ; `forth-use-oof' could be set to non-nil for automatical adding of those
-; word-lists.
+; word-lists. Using local variable list?
 ;
-; How to use block files with conversion? Use an additional mode? File-ending
-; cannot be used for specifying encoding.
-; -- Introduce a second mode `forth-blocked-mode', that decodes the buffer
-; `decode-coding-region' ands set `buffer-coding-system'. *Warning* block
-; conversion might not work well with regions, since it's a linewise 
-; conversion
+; Anzeige von Screen-Nummern in Status-Zeile (S???)
 ;
 ; Konfiguration über customization groups
 ;
@@ -296,7 +292,7 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 ;; parsing of the form  
 ;; (regexp (subexp-count word-description) (subexp-count2 word-description2)
 ;;  ...)
-(defun forth-compile-words (words)
+(defun forth-compile-wordlist (words)
   (let* ((mapped (mapcar 'forth-compile-words-mapper words))
 	 (regexp (concat "\\<\\(" 
 			 (mapconcat 'car mapped "\\|")
@@ -312,6 +308,26 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
     (let ((result (cons regexp sub-list)))
       (byte-compile 'result)
       result)))
+
+(defun forth-compile-words ()
+  "Compile the the words from `forth-words' and `forth-indent-words' into
+ the format that's later used for doing the actual hilighting/indentation.
+Store the resulting compiled wordlists in `forth-compiled-words' and 
+`forth-compiled-indent-words', respective"
+  (setq forth-compiled-words 
+	(forth-compile-wordlist 
+	 (forth-filter 'forth-words-filter forth-words)))
+  (setq forth-compiled-indent-words 
+	(forth-compile-wordlist forth-indent-words)))
+
+(defun forth-hack-local-variables ()
+  "Parse and bind local variables, set in the contens of the current 
+forth-mode buffer. Prepend `forth-local-words' to `forth-words' and 
+`forth-local-indent-words' to `forth-local-words'."
+  (hack-local-variables)
+  (setq forth-words (append forth-local-words forth-words))
+  (setq forth-indent-words (append forth-local-indent-words 
+				   forth-indent-words)))
 
 ;; get location of first character of previous forth word that's got 
 ;; properties
@@ -525,7 +541,7 @@ INDENT1 and INDENT2 are indentation specifications of the form
 	  "[if]" "[ifdef]" "[ifundef]" "[begin]" "[for]" "[do]" "[?do]"
 	  "class" "interface" "m:" ":m")
 	 (0 . 2) (0 . 2))
-	((";" ";m") (0 . -2) (0 . -2))
+	((";" ";m") (-2 . 0) (0 . -2))
 	(("end-code" "again" "repeat" "then" "endtry" "endcase" "endof" 
 	  "end-struct" "[then]" "[endif]" "[loop]" "[+loop]" "[next]" 
 	  "[until]" "[repeat]" "[again]" "end-class" "end-interface"
@@ -537,6 +553,12 @@ INDENT1 and INDENT2 are indentation specifications of the form
 	(("else" "recover" "[else]") (-2 . 2) (0 . 0))
 	(("while" "does>" "[while]") (-1 . 1) (0 . 0))
 	(("\\g") (-2 . 2) (0 . 0))))
+
+(defvar forth-local-indent-words nil 
+  "List of Forth words to prepend to `forth-indent-words', when a forth-mode
+buffer is created. Should be set by a Forth source, using a local variables 
+list at the end of the file (\"Local Variables: ... forth-local-words: ... 
+End:\" construct).")
 
 (defvar forth-indent-level 4
   "Indentation of Forth statements.")
@@ -627,9 +649,15 @@ INDENT1 and INDENT2 are indentation specifications of the form
 	 (column-incr (forth-get-column-incr 0)))
     (forth-indent-to (if column-incr (+ anchor column-incr) anchor))))
 
+(defun forth-current-column ()
+  (- (point) (save-excursion (beginning-of-line) (point))))
+(defun forth-current-indentation ()
+  (- (save-excursion (beginning-of-line) (forward-to-indentation 0) (point))
+     (save-excursion (beginning-of-line) (point))))
+
 (defun forth-indent-to (x)
   (let ((p nil))
-    (setq p (- (current-column) (current-indentation)))
+    (setq p (- (forth-current-column) (forth-current-indentation)))
     (forth-delete-indentation)
     (beginning-of-line)
     (indent-to x)
@@ -653,10 +681,13 @@ INDENT1 and INDENT2 are indentation specifications of the form
 
 ;; insert newline, removing any trailing whitespaces in the current line
 (defun forth-newline-remove-trailing ()
-  (newline)
   (save-excursion
-    (forward-line -1)
-    (forth-remove-trailing)))
+    (delete-region (point) (progn (skip-chars-backward " \t") (point))))
+  (newline))
+;  (let ((was-point (point-marker)))
+;    (unwind-protect 
+;	(progn (forward-line -1) (forth-remove-trailing))
+;      (goto-char (was-point)))))
 
 ;; workaround for bug in `reindent-then-newline-and-indent'
 (defun forth-reindent-then-newline-and-indent ()
@@ -944,7 +975,6 @@ exceeds 64 characters."
   (setq comment-indent-hook 'forth-comment-indent)
   (make-local-variable 'parse-sexp-ignore-comments)
   (setq parse-sexp-ignore-comments t)
-
   (setq case-fold-search t)
   (make-local-variable 'forth-words)
   (make-local-variable 'forth-compiled-words)
@@ -955,21 +985,15 @@ exceeds 64 characters."
   (make-local-variable 'forth-screen-marker)
   (make-local-variable 'forth-warn-long-lines)
   (setq forth-screen-marker (copy-marker 0))
-)
+  (add-hook 'after-change-functions 'forth-change-function))
 
-(defun forth-mode-hook-dependent-variables ()
-  (setq forth-compiled-words 
-	(forth-compile-words (forth-filter 'forth-words-filter forth-words)))
-  (setq forth-compiled-indent-words 
-	(forth-compile-words forth-indent-words)))
-  
 ;;;###autoload
 (defun forth-mode ()
   "
 Major mode for editing Forth code. Tab indents for Forth code. Comments
 are delimited with \\ and newline. Paragraphs are separated by blank lines
-only. Block files are autodetected, when read, and converted to normal stream
-source format. See also `forth-block-mode'.
+only. Block files are autodetected, when read, and converted to normal 
+stream source format. See also `forth-block-mode'.
 \\{forth-mode-map}
  Forth-split
     Positions the current buffer on top and a forth-interaction window
@@ -1001,18 +1025,32 @@ Variables controlling syntax hilighting/recognition of parsed text:
  `forth-words'
     List of words that have a special parsing behaviour and/or should be
     hilighted.
+ forth-local-words
+    List of words to prepend to `forth-words', whenever a forth-mode
+    buffer is created. That variable should be set by Forth sources, using
+    a local variables list at the end of file, to get file-specific
+    hilighting.
+    0 [IF]
+       Local Variables: ... 
+       forth-local-words: ...
+       End:
+    [THEN]
  forth-objects-words
     Hilighting information for the words of the \"Objects\" package for 
-    object-oriented programming. Append it to `forth-words', if required.
+    object-oriented programming. Append it to `forth-words', if you need 
+    it.
  forth-oof-words
     Hilighting information for the words of the \"OOF\" package.
  forth-hilight-level
     Controls how much syntax hilighting is done. Should be in the range 
-    0 (no hilighting) up to 3.
 
 Variables controlling indentation style:
  `forth-indent-words'
     List of words that influence indentation.
+ `forth-local-indent-words'
+    List of words to prepend to `forth-indent-words', similar to 
+    `forth-local-words'. Should be used for specifying file-specific 
+    indentation, using a local variables list.
  forth-indent-level
     Indentation increment/decrement of Forth statements.
  forth-minor-indent-level
@@ -1064,10 +1102,7 @@ Variables controling documentation search
   (forth-mode-variables)
 ;  (if (not (forth-process-running-p))
 ;      (run-forth forth-program-name))
-  (run-hooks 'forth-mode-hook)
-  (forth-mode-hook-dependent-variables)
-  (forth-change-function (point-min) (point-max) nil)
-  (add-hook 'after-change-functions 'forth-change-function))
+  (run-hooks 'forth-mode-hook))
 
 (define-derived-mode forth-block-mode forth-mode "Forth Block Source" 
   "Major mode for editing Forth block source files, derived from 
@@ -1095,7 +1130,10 @@ bell during block file read/write operations."
 (add-hook 'forth-mode-hook
       '(lambda () 
 	 (make-local-variable 'compile-command)
-	 (setq compile-command "gforth ")))
+	 (setq compile-command "gforth ")
+	 (forth-hack-local-variables)
+	 (forth-compile-words)
+	 (forth-change-function (point-min) (point-max) nil)))
 
 (defun forth-fill-paragraph () 
   "Fill comments (starting with '\'; do not fill code (block style
