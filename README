@@ -1,3 +1,8 @@
+This snapshot is mainly intended as a Vmgen release.  The Gforth part
+has known bugs, and likely has portability problems (which Vmgen
+inherits, of course) on anything but 386 and Alpha platforms.  A
+full-blown and portable release will be released Real Soon Now:-).
+
 Gforth is a fast and portable implementation of the ANS Forth
 language. It works nicely with the Emacs editor, offers some nice
 features such as input completion and history and a powerful locals

@@ -87,6 +87,10 @@ Input File Format
 * Superinstructions::           
 * Register Machines::           How to define register VM instructions
 
+Input File Grammar
+
+* Eval escapes::                what follows \E
+
 Simple instructions
 
 * C Code Macros::               Macros recognized by Vmgen
@@ -683,6 +687,11 @@ Vmgen understands a few extensions beyond the grammar given here, but
 these extensions are only useful for building Gforth.  You can find a
 description of the format used for Gforth in @file{prim}.
 
+@menu
+* Eval escapes::                what follows \E
+@end menu
+
+@node Eval escapes,  , Input File Grammar, Input File Grammar
 @subsection Eval escapes
 @cindex escape to Forth
 @cindex eval escape
@@ -1737,6 +1746,17 @@ please let us know.
 @chapter Changes
 @cindex Changes from old versions
 
+Use-visible changes between 0.5.9-20010501 and 0.5.9-20020822:
+
+There is now a manual (in info, HTML, Postscript, or plain text format).
+
+There is the vmgen-ex2 variant of the vmgen-ex example; the new
+variant uses a union type instead of lots of casting.
+
+Both variants of the example can now be compiled with an ANSI C compiler
+(using switch dispatch and losing quite a bit of performance); tested
+with @command{lcc}.
+
 Users of the gforth-0.5.9-20010501 version of Vmgen need to change
 several things in their source code to use the current version.  I
 recommend keeping the gforth-0.5.9-20010501 version until you have
@@ -1770,6 +1790,16 @@ Also some new macros have to be defined, e.g., @code{INST_ADDR}, and
 @c *********************************************************
 @node Contact, Copying This Manual, Changes, Top
 @chapter Contact
+
+To report a bug, use
+@url{https://savannah.gnu.org/bugs/?func=addbug&group_id=2672}.
+
+For discussion on Vmgen (e.g., how to use it), use the mailing list
+@email{bug-vmgen@@mail.freesoftware.fsf.org} (use
+@url{http://mail.gnu.org/mailman/listinfo/help-vmgen} to subscribe).
+
+You can find vmgen information at
+@url{http://www.complang.tuwien.ac.at/anton/vmgen/}.
 
 @c ***********************************************************
 @node Copying This Manual, Index, Contact, Top

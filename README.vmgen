@@ -1,9 +1,15 @@
-Vmgen generates much of the code for efficient virtual machine (VM)
-interpreters from simple descriptions of the VM instructions.  It
-generates code for executing VM instructions (with optional tracing),
-for generating VM code, for disassembling VM code, and for profiling
-VM instruction sequences.  A VM instruction description looks like
-this:
+Vmgen supports the construction of interpretive systems by generating
+the code for executing and dealing with virtual machine (VM)
+instructions from simple descriptions of the VM instructions.
+
+This file is about Vmgen-specific issues.  Issues affecting both
+Gforth and Vmgen (e.g., platform compatibility) are discussed in
+README.
+
+Vmgen generates code for executing VM instructions (with optional
+tracing), for generating VM code, for disassembling VM code, and for
+profiling VM instruction sequences.  A VM instruction description
+looks like this:
 
 add  ( i1 i2 -- i )
 i = i1+i2;
@@ -19,28 +25,26 @@ faster than competing interpreters and are typically only a factor of
 Vmgen has special support for stack-based VMs (but it can also be
 used to advantage when implementing a register-based VM).
 
-The main shortcoming in the current release is the lack of a user
-manual; however, there is a paper describing vmgen's operation (at
-http://www.complang.tuwien.ac.at/anton/vmgen/), and there is a simple,
-working and somewhat commented example of using vmgen.
+Changes in Vmgen from earlier releases are explained in NEWS.vmgen.
 
-There are two versions of the example: in directory vmgen-ex you find
-a version using many casts; in directory vmgen-ex2 you find a version
-using unions instead of casts.
+After installation the documentation is available in info form and in
+printable form (doc/vmgen.ps).
 
-The current release requires GCC both for building and for compiling
-the resulting interpreters (threaded code cannot be implemented in
-ANSI C).
+There is a simple usage example in vmgen-ex (and a variation on that
+in vmgen-ex2).  See the documentation for more information on that.
 
-If you have bugs to report, suggestions to make, questions, or any
-other feedback, mail me (anton@mips.complang.tuwien.ac.at).
+To report a bug, use
+<https://savannah.gnu.org/bugs/?func=addbug&group_id=2672>.  For
+discussion on Vmgen (e.g., how to use it), use the
+bug-vmgen@mail.freesoftware.fsf.org mailing list (use
+<http://mail.gnu.org/mailman/listinfo/help-vmgen> to subscribe).
 
 You can find vmgen at http://www.complang.tuwien.ac.at/anton/vmgen/.
 
 Vmgen is currently distributed with Gforth (because it needs Gforth to
 run, and Gforth needs it to build), and is installed together with
-Gforth (read INSTALL for instructions).  
+Gforth (read INSTALL for instructions).
 
-Note that future versions of vmgen will probably require small changes
-in programs written for the present version (e.g., requiring a few
+Note that future versions of vmgen may require small changes in
+programs written for the present version (e.g., requiring a few
 additional macro definitions).

@@ -3631,12 +3631,12 @@ previous
 : doc-on        true  to-doc ! ;
 
 : declareunique ( "name" -- )
-\G Sets the unique flag for a ghost. The assembler output
-\G generates labels with the ghostname concatenated with the address
-\G while cross-compiling. The address is concatenated
-\G because we have double occurences of the same name.
-\G If we want to reference the labels from the assembler or C
-\G code we declare them unique, so the address is skipped.
+\ Sets the unique flag for a ghost. The assembler output
+\ generates labels with the ghostname concatenated with the address
+\ while cross-compiling. The address is concatenated
+\ because we have double occurences of the same name.
+\ If we want to reference the labels from the assembler or C
+\ code we declare them unique, so the address is skipped.
   Ghost >ghost-flags dup @ <unique> or swap ! ;
 
 \ [IFDEF] dbg : dbg dbg ; [THEN]

@@ -76,7 +76,7 @@ BUILDFORTH = $(ENGINE) --die-on-signal -m 4M -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir
 # the forth system plus flags we use to build
 FORTHB = $(BUILDFORTH) -e 'fpath= .|~+|$(srcdir)'
 # the Forth system for running prims2x.fs
-FORTHP = $(FORTHB)
+FORTHP = $(FORTH)
 ENGINE_FAST = $(ENGINE)-fast
 FORTH_FAST	= $(ENGINE_FAST) $(FORTH_ARGS)
 FORTHKFLAGS= --die-on-signal -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)" -i $(kernel_fi)
@@ -326,8 +326,10 @@ VMGEN_EX = vmgen-ex/CVS vmgen-ex/Makefile vmgen-ex/README vmgen-ex/disasm.c \
 	vmgen-ex/simple.mini vmgen-ex/stat.awk vmgen-ex/support.c \
 	vmgen-ex/test.mini vmgen-ex/test.out
 
+VMGEN_EX2 = $(VMGEN_EX:vmgen-ex/%=vmgen-ex2/%)
+
 SOURCES	= $(CVSDIRS) compat Makefile.in Makedist.in engine/Makefile.in \
-	gforthmi.in vmgen.in README.vmgen \
+	gforthmi.in vmgen.in README.vmgen NEWS.vmgen \
 	configure.in configure config.sub config.guess elisp-comp missing \
 	acconfig.h acinclude.m4 engine/config.h.in stamp-h.in \
 	iss.sh install-sh INSTALL INSTALL.BINDIST NEWS README ToDo BUGS model \
@@ -349,7 +351,7 @@ SOURCES	= $(CVSDIRS) compat Makefile.in Makedist.in engine/Makefile.in \
 	versions.bsh \
 	configure.cmd mkos2mf.sed os2conf.h makefile.os2 engine/makefile.os2 \
 	gforthmi.cmd glosgen.glo doc/glossaries.doc \
-	$(INCLUDES) $(FORTH_SRC) $(COMPAT) $(VMGEN_EX) \
+	$(INCLUDES) $(FORTH_SRC) $(COMPAT) $(VMGEN_EX) $(VMGEN_EX2) \
 	timings.sc \
 	test/coretest.out test/checkans.out
 
@@ -777,6 +779,9 @@ doc/vmgen.dvi:	$(VMGEN_TEXI)
 doc/gforth.ps:	doc/gforth.dvi
 		$(DVI2PS) doc/gforth.dvi -o $@
 
+doc/vmgen.ps:	doc/vmgen.dvi
+		$(DVI2PS) doc/vmgen.dvi -o $@
+
 info:		doc/gforth.info doc/vmgen.info
 
 doc/gforth.info: $(GFORTH_TEXI)
@@ -799,7 +804,7 @@ doc/gforth.txt:	$(GFORTH_TEXI)
 doc/vmgen.txt:	$(VMGEN_TEXI)
 		-cd doc; $(MAKEINFO) --no-headers --no-split vmgen.texi >vmgen.txt
 
-doc:		info html doc/gforth.ps doc/gforth.txt TAGS
+doc:		info doc/gforth doc/vmgen doc/gforth.ps doc/vmgen.ps doc/gforth.txt doc/vmgen.txt TAGS
 
 # For an explanation of the following Makefile rules, see node
 # `Automatic Remaking' in GNU Autoconf documentation.
@@ -820,11 +825,11 @@ stamp-h.in:	configure.in  acconfig.h
 
 engine/config.h:	stamp-h
 stamp-h:	engine/config.h.in config.status
-		CONFIG_FILES=$@ CONFIG_HEADERS=engine/config.h ./config.status
+		CONFIG_FILES=$@ CONFIG_HEADERS="engine/config.h" ./config.status
 		echo timestamp > stamp-h
 
-Makefile Makedist engine/Makefile gforthmi vmgen machpc.fs:	Makefile.in Makedist.in engine/Makefile.in gforthmi.in vmgen.in machpc.fs.in config.status
-		CONFIG_FILES="$@" CONFIG_HEADERS=engine/config.h ./config.status
+Makefile Makedist engine/Makefile gforthmi vmgen machpc.fs doc/version.texi:	Makefile.in Makedist.in engine/Makefile.in gforthmi.in vmgen.in machpc.fs.in doc/version.texi.in config.status configure.in
+		CONFIG_FILES="$@" CONFIG_HEADERS="engine/config.h" ./config.status
 
 config.status:	configure
 		./config.status --recheck
