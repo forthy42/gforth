@@ -5,6 +5,7 @@
 MACHINE=`hostname`
 GFORTH=`basename $1 .tar.gz`
 DIR=`cygpath -m \`pwd\` 2>/dev/null` || DIR=`pwd`
+PATHDIR=`pwd`
 test -z "$CC" && CC=cc
 chmod -R +w $GFORTH
 rm -rf $GFORTH
@@ -30,7 +31,7 @@ make install &&
 #make all-bench &&
 chmod -R +w ../$GFORTH/vmgen-ex ../$GFORTH/vmgen-ex2 &&
 cd ../$GFORTH/vmgen-ex &&
-PATH=$DIR/install/bin:$PATH make check GCC="$CC -O" YACC=yacc LEX=lex &&
+PATH=$PATHDIR/install/bin:$PATH make check GCC="$CC -O" YACC=yacc LEX=lex &&
 cd ../vmgen-ex2 &&
 PATH=$DIR/install/bin:$PATH make check GCC="$CC -O" YACC=yacc LEX=lex &&
 cd .. &&

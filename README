@@ -13,21 +13,21 @@ Gforth runs under Unix, Win95, OS/2, and DOS and should not be hard to
 port to other systems supported by GCC. This version has been tested
 successfully on the following platforms:
 
-alpha-dec-osf4.0d
-alphapca56-unknown-linux-gnu
-alpha-unknown-linux-gnu
-hppa1.1-unknown-linux-gnu
-hppa2.0w-hp-hpux11.11
-i386-unknown-freebsd5.0
-i486-pc-linux-gnulibc1
-i686-pc-cygwin
-i686-pc-linux-gnu
-mips-dec-ultrix4.3
-mipsel-pc-linux-gnu
-mips-sgi-irix6.5
-powerpc-apple-darwin5.4
-powerpc-unknown-linux-gnu
-sparc-sun-solaris2.7
+ alpha-dec-osf4.0d
+ alpha-unknown-linux-gnu
+ alphapca56-unknown-linux-gnu
+ hppa1.1-unknown-linux-gnu
+ hppa2.0n-hp-hpux11.00
+ hppa2.0w-hp-hpux11.11
+ i386-unknown-freebsd5.1
+ i686-pc-cygwin
+ i686-pc-linux-gnu
+ mips-sgi-irix6.5
+ mipsel-pc-linux-gnu
+ powerpc-apple-darwin5.4
+ powerpc-unknown-linux-gnu
+ sparc-sun-sunos4.1.4
+ sparc-unknown-linux-gnu
 
 Read INSTALL for installation instructions, or INSTALL.DOS for DOS,
 Windows 95, and OS/2, or INSTALL.BINDIST if you have a binary package.
