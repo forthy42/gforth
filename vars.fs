@@ -65,6 +65,7 @@ AUser errorhandler
 
 AUser "error            0 "error !
 
+ User tibstack
  User >tib
  User #tib
  User >in               0 >in !

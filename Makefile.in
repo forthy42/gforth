@@ -201,8 +201,6 @@ check:		test
 		touch test
 
 test:		gforth
-		@echo 'Expect to see INCORRECT RESULT: { GS1 -> <TRUE> <TRUE> }'
-		@echo 'This is a bug of the testing program'
 		$(FORTH) tester.fs coretest.fs -e bye
 		$(FORTH) code.fs checkans.fs -e bye
 		@echo 'Expect no differences'

@@ -1380,8 +1380,10 @@ create nl$ 1 c, A c, 0 c, \ gnu includes usually a cr in dos
 \ include-file                                         07apr93py
 
 : push-file  ( -- )  r>
-  loadline @ >r loadfile @ >r
-  blk @ >r >tib @ >r  #tib @ dup >r  >tib +!  >in @ >r  >r ;
+  loadline @ >r  loadfile @ >r
+  blk @ >r  tibstack @ >r  >tib @ >r  #tib @ >r
+  >tib @ tibstack @ = IF  r@ tibstack +!  THEN
+  tibstack @ >tib ! >in @ >r  >r ;
 
 : pop-file   ( throw-code -- throw-code )
   dup IF
@@ -1394,7 +1396,7 @@ create nl$ 1 c, A c, 0 c, \ gnu includes usually a cr in dos
 	 -1 cells +LOOP
   THEN
   r>
-  r> >in !  r> #tib !  r> >tib !  r> blk !
+  r> >in !  r> #tib !  r> >tib !  r> tibstack !  r> blk !
   r> loadfile ! r> loadline !  >r ;
 
 : read-loop ( i*x -- j*x )
@@ -1559,9 +1561,8 @@ create image-included-files 0 , 0 , ( pointer to and count of included files )
 \ EVALUATE                                              17may93jaw
 
 : evaluate ( c-addr len -- ) \ core,block
-  push-file  dup #tib ! >tib @ swap move
+  push-file  #tib ! >tib !
   >in off blk off loadfile off -1 loadline !
-\  BEGIN  interpret  >in @ #tib @ u>= UNTIL
   ['] interpret catch
   pop-file throw ;
 
@@ -1659,7 +1660,7 @@ DEFER DOERROR
 	postpone [
 	['] 'quit CATCH dup
     WHILE
-	DoError r@ >tib !
+	DoError r@ >tib ! r@ tibstack !
     REPEAT
     drop r> >tib ! ;
 
@@ -1768,7 +1769,7 @@ Defer 'cold ' noop IS 'cold
 
 : boot ( path **argv argc -- )
   argc ! argv ! cstring>sstring pathstring 2!  main-task up!
-  sp@ dup s0 ! $10 + >tib ! #tib off >in off
+  sp@ dup s0 ! $10 + dup >tib ! tibstack ! #tib off >in off
   rp@ r0 !  fp@ f0 !  cold ;
 
 : bye ( -- ) \ tools-ext
