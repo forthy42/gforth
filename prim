@@ -2175,7 +2175,8 @@ flag = FLAG(!fnmatch(pattern, string, 0));
 newline	( -- c_addr u )	gforth
 ""String containing the newline sequence of the host OS""
 char newline[] = {
-#ifdef unix
+#if defined(unix) || defined(__MACH__)
+/* Darwin/MacOS X sets __MACH__, but not unix. */
 '\n'
 #else
 '\r','\n'

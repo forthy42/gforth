@@ -82,6 +82,9 @@ skipsynclines on
 : end ( addr -- addr u )
  cookedinput @ over - ;
 
+: quote ( -- )
+    [char] " emit ;
+
 variable output \ xt ( -- ) of output word
 
 : printprim ( -- )
@@ -626,10 +629,28 @@ does> ( item -- )
     repeat
     2drop type ;
 
+: print-type-prefix ( type -- )
+    body> >head .name ;
+
+: print-debug-arg { item -- }
+    ." fputs(" quote space item item-name 2@ type ." =" quote ." , vm_out); "
+    ." printarg_" item item-type @ print-type-prefix
+    ." (" item item-name 2@ type ." );" cr ;
+    
+: print-debug-args ( -- )
+    ." #ifdef VM_DEBUG" cr
+    ." if (vm_debug) {" cr
+    effect-in-end @ effect-in ?do
+	i print-debug-arg
+	item% %size +loop
+    ." fputc('\n', vm_out);" cr
+    ." }" cr
+    ." #endif" cr ;
+    
 : output-c ( -- ) 
  ." I_" c-name 2@ type ." :	/* " forth-name 2@ type ."  ( " stack-string 2@ type ." ) */" cr
  ." /* " doc 2@ type ."  */" cr
- ." NAME(" [char] " emit forth-name 2@ type [char] " emit ." )" cr \ debugging
+ ." NAME(" quote forth-name 2@ type quote ." )" cr \ debugging
  ." {" cr
  ." DEF_CA" cr
  declarations
@@ -637,9 +658,10 @@ does> ( item -- )
  ." NEXT_P0;" cr
  flush-tos
  fetches
+ print-debug-args
  stack-pointer-updates
  ." {" cr
- ." #line " c-line @ . [char] " emit c-filename 2@ type [char] " emit cr
+ ." #line " c-line @ . quote c-filename 2@ type quote cr
  c-code 2@ type-c
  ." }" cr
  output-c-tail
@@ -647,13 +669,12 @@ does> ( item -- )
  cr
 ;
 
-: print-type-prefix ( type -- )
-    body> >head .name ;
-
 : disasm-arg { item -- }
     item item-stack @ inst-stream = if
-	."   printarg_" item item-type @ print-type-prefix
-	." (ip[" item item-offset @ 1+ 0 .r ." ]);" cr
+	."   fputc(' ', vm_out); "
+	." printarg_" item item-type @ print-type-prefix
+	." ((" item item-type @ type-c-name 2@ type ." )"
+	." ip[" item item-offset @ 1+ 0 .r ." ]);" cr
     endif ;
 
 : disasm-args ( -- )
@@ -664,16 +685,13 @@ does> ( item -- )
 : output-disasm ( -- )
     \ generate code for disassembling VM instructions
     ." if (ip[0] == prim[" function-number @ 0 .r ." ]) {" cr
-    ."   fputs(" [char] " emit forth-name 2@ type [char] " emit ." ,stdout);" cr
+    ."   fputs(" quote forth-name 2@ type quote ." , vm_out);" cr
     ." /* " declarations ." */" cr
     compute-offsets
     disasm-args
     ."   ip += " inst-stream stack-in @ 1+ 0 .r ." ;" cr
     ." } else "
     1 function-number +! ;
-
-
-
 
 : gen-arg-parm { item -- }
     item item-stack @ inst-stream = if
@@ -725,7 +743,7 @@ does> ( item -- )
     ." Cell * I_" c-name 2@ type ." (Cell *SP, Cell **FP)      /* " forth-name 2@ type
     ."  ( " stack-string 2@ type ."  ) */" cr
     ." /* " doc 2@ type ."  */" cr
-    ." NAME(" [char] " emit forth-name 2@ type [char] " emit ." )" cr
+    ." NAME(" quote forth-name 2@ type quote ." )" cr
     \ debugging
     ." {" cr
     declarations
@@ -739,7 +757,7 @@ does> ( item -- )
     stack-pointer-updates
     fp-stack   stack-used? IF ." *FP=fp;" cr THEN
     ." {" cr
-    ." #line " c-line @ . [char] " emit c-filename 2@ type [char] " emit cr
+    ." #line " c-line @ . quote c-filename 2@ type quote cr
     c-code 2@ type
     ." }" cr
     stores
