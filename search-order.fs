@@ -117,3 +117,25 @@ Root definitions
 Forth definitions
 
 include hash.fs
+
+\ marker                                               18dec94py
+
+\ Marker creates a mark that is removed (including everything 
+\ defined afterwards) when executing the mark.
+
+: marker, ( -- mark )  here dup A,
+  voclink @ A, voclink
+  BEGIN  @ dup @  WHILE  dup 2 cells - @ A,  REPEAT  drop
+  udp @ , ;
+
+: marker! ( mark -- )  dup @ swap cell+
+  dup @ voclink ! cell+
+  voclink
+  BEGIN  @ dup @  WHILE  over @ over 2 cells - !
+	 swap cell+ swap
+  REPEAT  drop  voclink
+  BEGIN  @ dup @  WHILE  dup 2 cells - rehash  REPEAT  drop
+  @ udp !  dp ! ;
+
+: marker ( "mark" -- )
+  marker, Create A,  DOES>  @ marker! ;

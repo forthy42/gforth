@@ -23,7 +23,7 @@ DVI2PS	= dvips
 XCFLAGS	= @CFLAGS@
 XDEFINES = @DEFS@
 SWITCHES = $(XCFLAGS) $(XDEFINES) -D_POSIX_VERSION#-DNDEBUG #turn off assertions
-ENGINE_FLAGS =  -fforce-mem -fforce-addr -fomit-frame-pointer -fno-defer-pop -fcaller-saves -DUSE_FTOS
+ENGINE_FLAGS =  -fforce-mem -fforce-addr -fomit-frame-pointer -fno-defer-pop -fcaller-saves
 CFLAGS	= -g -O4 -Wall $(SWITCHES)
 
 #-Xlinker -n puts text and data into the same 256M region
@@ -54,7 +54,7 @@ FORTH_SRC = add.fs assert.fs ansi.fs blocks.fs bufio.fs checkans.fs \
 	startup.fs struct.fs tools.fs toolsext.fs tt.fs vars.fs vt100.fs \
 	vt100key.fs wordinfo.fs wordsets.fs
 
-SOURCES	= Makefile.in configure.in  config.sub  config.guess \
+SOURCES	= Makefile.in configure.in configure config.sub  config.guess \
 	INSTALL README ToDo BUGS model gforth.ds \
 	primitives engine.c main.c io.c \
 	m68k.h mips.h 386.h hppa.h cache.c sparc.h 32bit.h \
@@ -73,7 +73,7 @@ OBJECTS	= engine.o io.o main.o @LIBOBJS@ @getopt_long@
 # things that need a working forth system to be generated
 # this is used for antidependences,
 
-FORTH_GEN =  primitives.b primitives.i prim_labels.i aliases.fs kernl32l.fi kernl32b.fi
+FORTH_GEN =  primitives.b primitives.i prim_labels.i aliases.fs @KERNAL@ 
 
 GEN_PRECIOUS = $(FORTH_GEN) gforth.texi gforth.dvi gforth.ps Makefile configure
 
@@ -110,13 +110,13 @@ realclean:	distclean
 		-$(RM) $(GEN_PRECIOUS)
 
 dist:		$(SOURCES) $(FORTH_GEN)
-		-rm ../gforth-$(VERSION)
-		ln -s `pwd` ../gforth-$(VERSION)
+		-rm gforth-$(VERSION)
+		ln -s `pwd` gforth-$(VERSION)
 		echo "" $(SOURCES) $(FORTH_GEN) |\
 			sed -e 's| | gforth-$(VERSION)/|g' |\
-			(cd ..; xargs tar cvf gforth/gforth-$(VERSION).tar)
+			xargs tar cvf gforth-$(VERSION).tar
 		gzip -9 -f gforth-$(VERSION).tar
-		-rm ../gforth-$(VERSION)
+		-rm gforth-$(VERSION)
 
 install:	gforth $(FORTH_SRC) gforth.fi gforth.1 gforth.info
 		$(INSTALL) -d $(bindir) $(mandir) $(infodir) $(libdir)/gforth $(datadir)/gforth	

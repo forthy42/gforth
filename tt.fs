@@ -11,7 +11,7 @@
 \
 
 only forth also definitions
-\ s" forget-tt" drop 1- find nip [if] forget-tt [then] marker forget-tt
+s" forget-tt" sfind [if] forget-tt [then] marker forget-tt
 
 vocabulary tetris  tetris also definitions
 

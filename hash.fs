@@ -58,9 +58,9 @@ Variable HashIndex
         REPEAT  I !
     cell +LOOP  HashIndex off ;
 
-: rehash  clearhash addall ;
+: re-hash  clearhash addall ;
 : (rehash) ( addr -- )
-  drop revealed @ IF  rehash revealed off  THEN ;
+  drop revealed @ IF  re-hash revealed off  THEN ;
 
 Create hashsearch  ' hash-find A, ' hash-reveal A, ' (rehash) A,
 

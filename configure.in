@@ -72,11 +72,14 @@ LINK_KERNL32B=""
 
 dnl the following macro produces a warning with autoconf-2.1
 AC_C_BIGENDIAN
+AC_SUBST(KERNAL)
 dnl ac_cv_c_bigendian is an undocumented variable of autoconf-2.1
 if test $ac_cv_c_bigendian = yes; then
   bytesex=b
+  KERNAL="kernl32b.fi kernl32l.fi"
 else
   bytesex=l
+  KERNAL="kernl32l.fi kernl32b.fi"
 fi
 
 dnl Checks for programs.

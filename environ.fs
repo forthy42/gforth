@@ -33,7 +33,7 @@ true constant CORE
 -1 MAX-N 2constant MAX-D
 -1. 2constant MAX-UD
 
-0 0 2constant gforth \ minor mayor version
+0 1 2constant gforth \ minor mayor version
 
 \ !! RETURN-STACK-CELLS
 \ !! STACK-CELLS
