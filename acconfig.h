@@ -45,6 +45,9 @@
 /* an integer type that is twice as long as a pointer */
 #define DOUBLE_CELL_TYPE none
 
+/* a path separator character */
+#define PATHSEP ':'
+
 /* define this if there is no working DOUBLE_CELL_TYPE on your machine */
 #undef BUGGY_LONG_LONG
 

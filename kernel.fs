@@ -1811,7 +1811,7 @@ Defer 'cold ' noop IS 'cold
  ." Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA." cr ;
 
 : boot ( path **argv argc -- )
-  argc ! argv ! save-mem pathstring 2!  main-task up!
+  argc ! argv ! pathstring 2!  main-task up!
   sp@ dup s0 ! $10 + dup >tib ! tibstack ! #tib off >in off
   rp@ r0 !  fp@ f0 !  ['] cold catch DoError bye ;
 

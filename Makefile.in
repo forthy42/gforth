@@ -37,7 +37,7 @@ INSTALL_DIR = $(srcdir)/install-sh -d
 LN_S	= @LN_S@
 GCC	= @CC@
 CC	= $(GCC)
-PATHSEP = :
+PATHSEP = @PATHSEP@
 FORTHPATH = $(libdir)/gforth/site-forth$(PATHSEP)$(datadir)/gforth/site-forth$(PATHSEP)$(libdir)/gforth/$(VERSION)$(PATHSEP)$(datadir)/gforth/$(VERSION)$(PATHSEP).
 FORTH	= ./gforth -p $(FORTHPATH)$(PATHSEP)$(srcdir)
 FORTHK	= $(FORTH) -p .$(PATHSEP)$(srcdir) -i ./kernel.fi
@@ -165,7 +165,7 @@ FORTH_GEN =  $(FORTH_GEN0) @KERNEL@ gforth.fi
 FORTH_GEN1 = $(FORTH_GEN0) @kernel_fi@ 
 
 #distributed documentation
-DOCDIST = gforth.ps gforth.info*
+DOCDIST = gforth.info* gforth.ps
 
 KERNLS = kernl16b.fi- kernl16l.fi- \
 	 kernl32b.fi- kernl32l.fi- \
@@ -203,7 +203,7 @@ mostlyclean:
 		-$(RM) -rf *.s gforth.fi *.fi~ *.fi- version.fs *TAGS \
 		crossdoc.fd doc.fd gforth.texi gforth.fns gforth.aux gforth.cp gforth.cps \
 		gforth.dvi gforth.fn gforth.ky gforth.log gforth.pg \
-		gforth.toc gforth.tp gforth.vr html 
+		gforth.toc gforth.tp gforth.vr html gforth-$(VERSION).tar.gz
 
 clean:		mostlyclean
 		-$(RM) -rf $(GEN) *.o 
@@ -253,11 +253,13 @@ binonlydist:	$(SOURCES) $(FORTH_GEN) gforth $(OBJECTS)
 		tar cvf - gforth-$(VERSION)|gzip -9 >gforth-$(VERSION)-binonly-@host@.tar.gz
 
 
-
 #strip gforth, because the debugging stuff is hardly useful once
 # gforth manages to execute more than a few primitives
 
-install:	gforth $(FORTH_SRC) kernel.fi gforth.fi gforth.1 gforth.info primitives gforth.TAGS
+#install does not depend on gforth.info, because that would require
+#supplying a lot of files that can be easily generated (only info is
+#hard to generate)
+install:	gforth $(FORTH_SRC) kernel.fi gforth.fi gforth.1 primitives gforth.TAGS
 		for i in $(bindir) $(mandir) $(infodir) $(libdir)/gforth/$(VERSION) $(datadir)/gforth/$(VERSION) $(libdir)/gforth/site-forth $(datadir)/gforth/site-forth; do \
 			$(INSTALL_DIR) $$i; \
 		done
@@ -278,6 +280,8 @@ install:	gforth $(FORTH_SRC) kernel.fi gforth.fi gforth.1 gforth.info primitives
 		else \
 			echo ">>>>>Please install $(srcdir)/gforth.el in your .../emacs/site-lisp directory"; \
 		fi
+		echo ">>>>> Please make an entry for Gforth in your info dir file; e.g.:"; \
+		echo "* Gforth: (gforth).	A fast implementation of the Forth language."
 
 install-strip:	install
 
@@ -414,7 +418,7 @@ checkdoc:	gforth.ds primitives.b ds2texi.fs prims2x.fs doc.fd crossdoc.fd answor
 dvi:		gforth.dvi
 
 gforth.dvi gforth.fns:	gforth.texi
-		$(TEXI2DVI) $(srcdir)/gforth.texi
+		$(TEXI2DVI) gforth.texi
 
 gforth.ps:	gforth.dvi
 		$(DVI2PS) gforth.dvi -o $@
@@ -427,7 +431,7 @@ gforth.info:	gforth.texi
 html:		gforth.texi
 		-$(RM) html/*
 		-mkdir html
-		cd html; $(TEXI2HTML) -menu -split_node ../gforth.texi
+		cd html; $(TEXI2HTML) -menu -split_node gforth.texi
 
 doc:		gforth.ps html
 

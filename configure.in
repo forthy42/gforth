@@ -176,6 +176,10 @@ dnl Now a little support for DOS/DJGCC
 AC_SUBST(MAKE_EXE)
 MAKE_EXE=""
 
+PATHSEP=":"
+AC_SUBST(PATHSEP)
+AC_DEFINE_UNQUOTED(PATHSEP,'$PATHSEP')
+
 dnl copy commands for systems that don't have links
 AC_SUBST(LINK_KERNL16L)
 LINK_KERNL16L=""

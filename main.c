@@ -326,15 +326,10 @@ int convsize(char *s, int elemsize)
 
 int main(int argc, char **argv, char **env)
 {
-  char *path, *path1, *p;
+  char *path, *path1;
   char *imagename="gforth.fi";
   FILE *image_file;
   int c, retvalue;
-#ifdef __unix__
-  char pathsep=':';
-#else
-  char pathsep=';';
-#endif
 	  
 #if defined(i386) && defined(ALIGNMENT_CHECK) && !defined(DIRECT_THREADED)
   /* turn on alignment checks on the 486.
@@ -386,7 +381,7 @@ int main(int argc, char **argv, char **env)
   if(strchr(imagename, '/')==NULL)
     {
       do {
-	char *pend=strchr(path, pathsep);
+	char *pend=strchr(path, PATHSEP);
 	if (pend==NULL)
 	  pend=path+strlen(path);
 	if (strlen(path)==0) {
@@ -403,7 +398,7 @@ int main(int argc, char **argv, char **env)
 	  strcpy(fullfilename+dirlen,imagename);
 	  image_file=fopen(fullfilename,"rb");
 	}
-	path=pend+(*pend==pathsep);
+	path=pend+(*pend==PATHSEP);
       } while (image_file==NULL);
     }
   else
@@ -416,20 +411,25 @@ int main(int argc, char **argv, char **env)
     }
 
   {
+    char path2[strlen(path1)+1];
+    char *p1, *p2;
     Cell environ[]= {
       (Cell)argc-(optind-1),
       (Cell)(argv+(optind-1)),
       (Cell)strlen(path1),
-      (Cell)path1};
+      (Cell)path2};
     argv[optind-1] = progname;
     /*
        for (i=0; i<environ[0]; i++)
        printf("%s\n", ((char **)(environ[1]))[i]);
        */
     /* make path OS-independent by replacing path separators with NUL */
-    for (p=path1; *p!='\0'; p++)
-      if (*p==pathsep)
-	*p='\0';
+    for (p1=path1, p2=path2; *p1!='\0'; p1++, p2++)
+      if (*p1==PATHSEP)
+	*p2 = '\0';
+      else
+	*p2 = *p1;
+    *p2='\0';
     retvalue=go_forth(loader(image_file, imagename),4,environ);
     deprep_terminal();
     exit(retvalue);
