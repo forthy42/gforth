@@ -18,5 +18,13 @@ There's also one other problem with f.:
 1e-20			 f. 0.00000000000000000001000000000000001  ok
 -20e0 falog		 f. 0.00000000000000000001000000000000001  ok
 0.00000000000000000001e0 f. 0.00000000000000000001000000000000001  ok
-All this happens under Slackware Linux. Maybe the ecvt in the library
-is not so good?  anton 17jan95
+All this happens under Slackware Linux. On the DecStation I get a
+similar error in the other direction.  anton 17jan95
+
+not all aliases are in the etags file. Bug in etags.fs? anton 24jan95
+
+emacs often finds the wrong tag. anton 24jan95
+
+source after a locals definition is ignored, e.g., in
+{ a } ." xxx"
+the `." xxx"' is not executed.  anton 24jan95

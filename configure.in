@@ -106,14 +106,17 @@ dnl using sin here is no good idea since it is built-into gcc and typechecked
 AC_CHECK_LIB(m,asin)
 AC_FUNC_MEMCMP
 AC_REPLACE_FUNCS(memmove strtoul)
-AC_CHECK_FUNC(getopt_long,getop_long="",getopt_long="getopt.o getopt1.o")
+AC_CHECK_FUNC(getopt_long,getopt_long="",getopt_long="getopt.o getopt1.o")
 AC_SUBST(getopt_long)
 AC_CHECK_FUNCS(rint expm1 log1p pow10)
 AC_REPLACE_FUNCS(ecvt)
 dnl No check for select, because our replacement is no good under
 dnl anything but DOS
 
+gforth_fi=kernl32${bytesex}.fi
+AC_SUBST(gforth_fi)
+
 dnl autoconf requires (implicitly) that AC_LINK_FILES is used only once
-AC_LINK_FILES(${mach_h}.h kernl32${bytesex}.fi,machine.h gforth.fi)
+AC_LINK_FILES(${mach_h}.h $gforth_fi,machine.h gforth.fi)
 AC_OUTPUT(Makefile)
 

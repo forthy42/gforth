@@ -1625,10 +1625,11 @@ GForth comes with @file{gforth.el}, an improved version of
 @file{forth.el} by Goran Rydqvist (icluded in the TILE package). The
 improvements are a better (but still not perfect) handling of
 indentation. I have also added comment paragraph filling (@kbd{M-q}),
-commenting (@kbd{C-x \}) and uncommenting (@kbd{C-x |}) regions and
-removing debugging tracers (@kbd{C-x ~}). I left the stuff I do not use
-alone, even though some of it only makes sense for TILE. To get a
-description of these features, enter Forth mode and type @kbd{C-h m}.
+commenting (@kbd{C-x \}) and uncommenting (@kbd{C-u C-x \}) regions and
+removing debugging tracers (@kbd{C-x ~}, @pxref{Debugging}). I left the
+stuff I do not use alone, even though some of it only makes sense for
+TILE. To get a description of these features, enter Forth mode and type
+@kbd{C-h m}.
 
 In addition, GForth supports Emacs quite well: The source code locations
 given in error messages, debugging output (from @code{~~}) and failed

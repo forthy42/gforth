@@ -20,7 +20,7 @@
 ;; file named COPYING.  Among other things, the copyright notice
 ;; and this notice must be preserved on all copies.
 
-;;; $Header: /usr/local/lib/cvs-repository/src-master/gforth/gforth.el,v 1.9 1995-01-12 18:37:53 anton Exp $
+;;; $Header: /usr/local/lib/cvs-repository/src-master/gforth/gforth.el,v 1.10 1995-01-25 18:53:48 anton Exp $
 
 ;;-------------------------------------------------------------------
 ;; A Forth indentation, documentation search and interaction library
@@ -73,7 +73,6 @@ OBS! All words in forth-negatives must be surrounded by spaces.")
 
 ;(define-key forth-mode-map "\M-\C-x" 'compile)
 (define-key forth-mode-map "\C-x\\" 'comment-region)
-(define-key forth-mode-map "\C-x|" 'uncomment-region)
 (define-key forth-mode-map "\C-x~" 'forth-remove-tracers)
 (define-key forth-mode-map "\e\C-m" 'forth-send-paragraph)
 (define-key forth-mode-map "\eo" 'forth-send-buffer)

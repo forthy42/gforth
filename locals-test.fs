@@ -287,4 +287,23 @@ teststrcmp1
 
 1 2 3 4 puke . . . . cr
 
+\ just some other stuff
+
+: life1 { b0 b1 b23 old -- new }
+    b23 invert old b1 b0 xor and old invert b1 and b0 and or and ;
+
+: life2 { b0 b1 b23 old -- new }
+    b0 b1 or old b0 xor b1 xor b23 or invert and ;
+
+$5555 $3333 $0f0f $00ff life1 .
+$5555 $3333 $0f0f $00ff life2 .
+.s
+cr
+
+: test
+    1 { a }  ." after }" cr
+    2 { b -- } ." after --" cr
+;
+.s cr
+
 bye

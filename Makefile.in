@@ -20,6 +20,8 @@ FORTH	= ./gforth
 CC	= gcc
 TEXI2DVI = tex
 DVI2PS	= dvips
+#you can get texi2html from http://asis01.cern.ch/infohtml/texi2html.html
+TEXI2HTML = texi2html
 MAKEINFO = makeinfo
 XCFLAGS	= @CFLAGS@
 XDEFINES = @DEFS@
@@ -72,9 +74,11 @@ GEN = gforth
 OBJECTS	= engine.o io.o main.o @LIBOBJS@ @getopt_long@
 
 # things that need a working forth system to be generated
+FORTH_GEN0 = primitives.b primitives.i prim_labels.i aliases.fs
+FORTH_GEN =  $(FORTH_GEN0) @KERNAL@ 
 # this is used for antidependences,
+FORTH_GEN1 = $(FORTH_GEN0) @gforth_fi@ 
 
-FORTH_GEN =  primitives.b primitives.i prim_labels.i aliases.fs @KERNAL@ 
 
 GEN_PRECIOUS = $(FORTH_GEN) gforth.texi gforth.dvi gforth.ps Makefile configure
 
@@ -119,9 +123,12 @@ dist:		$(SOURCES) $(FORTH_GEN)
 		gzip -9 -f gforth-$(VERSION).tar
 		-rm gforth-$(VERSION)
 
+#strip gforth, because the debugging stuff is hardly useful once
+# gforth manages to execute more than a few primitives
+
 install:	gforth $(FORTH_SRC) gforth.fi gforth.1 gforth.info
 		$(INSTALL) -d $(bindir) $(mandir) $(infodir) $(libdir)/gforth $(datadir)/gforth	
-		$(INSTALL_PROGRAM) gforth $(bindir)
+		$(INSTALL_PROGRAM) -s gforth $(bindir)
 		$(INSTALL_DATA) gforth.1 $(mandir)
 		$(INSTALL_DATA) gforth.info* $(infodir)
 		$(INSTALL_DATA) gforth.fi $(libdir)/gforth
@@ -139,42 +146,42 @@ gforth:	$(OBJECTS)
 
 kernl16l.fi:	main.fs search-order.fs cross.fs aliases.fs vars.fs add.fs \
 		errore.fs kernal.fs extend.fs tools.fs toolsext.fs \
-		mach16l.fs $(FORTH_GEN)
+		mach16l.fs $(FORTH_GEN1)
 		-$(CP) kernl16l.fi kernl16l.fi~
 		$(FORTH) -e 's" mach16l.fs"' main.fs
 		@LINK_KERNL16L@
 
 kernl16b.fi:	main.fs search-order.fs cross.fs aliases.fs vars.fs add.fs \
 		errore.fs kernal.fs extend.fs tools.fs toolsext.fs \
-		mach16b.fs $(FORTH_GEN)
+		mach16b.fs $(FORTH_GEN1)
 		-$(CP) kernl16b.fi kernl16b.fi~
 		$(FORTH) -e 's" mach16b.fs"' main.fs
 		@LINK_KERNL16B@
 
 kernl32l.fi:	main.fs search-order.fs cross.fs aliases.fs vars.fs add.fs \
 		errore.fs kernal.fs extend.fs tools.fs toolsext.fs \
-		mach32l.fs $(FORTH_GEN)
+		mach32l.fs $(FORTH_GEN1)
 		-$(CP) kernl32l.fi kernl32l.fi~
 		$(FORTH) -e 's" mach32l.fs"' main.fs
 		@LINK_KERNL32L@
 
 kernl32b.fi:	main.fs search-order.fs cross.fs aliases.fs vars.fs add.fs \
 		errore.fs kernal.fs extend.fs tools.fs toolsext.fs \
-		mach32b.fs $(FORTH_GEN)
+		mach32b.fs $(FORTH_GEN1)
 		-$(CP) kernl32b.fi kernl32b.fi~
 		$(FORTH) -e 's" mach32b.fs"' main.fs
 		@LINK_KERNL32B@
 
 kernl64l.fi:	main.fs search-order.fs cross.fs aliases.fs vars.fs add.fs \
 		errore.fs kernal.fs extend.fs tools.fs toolsext.fs \
-		mach64l.fs $(FORTH_GEN)
+		mach64l.fs $(FORTH_GEN1)
 		-$(CP) kernl64l.fi kernl64l.fi~
 		$(FORTH) -e 's" mach64l.fs"' main.fs
 		@LINK_KERNL64L@
 
 kernl64b.fi:	main.fs search-order.fs cross.fs aliases.fs vars.fs add.fs \
 		errore.fs kernal.fs extend.fs tools.fs toolsext.fs \
-		mach64b.fs $(FORTH_GEN)
+		mach64b.fs $(FORTH_GEN1)
 		-$(CP) kernl64b.fi kernl64b.fi~
 		$(FORTH) -e 's" mach64b.fs"' main.fs
 		@LINK_KERNL64B@
@@ -213,6 +220,11 @@ gforth.ps:	gforth.dvi
 
 gforth.info:	gforth.texi
 		-$(MAKEINFO) gforth.texi
+
+html:		gforth.texi
+		-$(RM) html/*
+		-mkdir html
+		cd html; $(TEXI2HTML) -menu -split_node ../gforth.texi
 
 # For an explanation of the following Makefile rules, see node
 # `Automatic Remaking' in GNU Autoconf documentation.
