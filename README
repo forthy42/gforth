@@ -73,14 +73,15 @@ bubble.fs siev.fs matrix.fs fib.fs
 ANS Forth implementations of Gforth extensions:
 compat/*.fs other.fs
 
-There's a mailing list for things around Gforth that aren't bugs
-(suggestions, discussions, etc.). To post, send your mail to
-GForth@ChaosSolutions.com. To subscribe, send a mail to
+For discussions about Gforth, use the Usenet newsgroup
+comp.lang.forth.  If you prefer not to post on Usenet, there is also a
+mailing list: GForth@ChaosSolutions.com.  To subscribe, send a mail to
 Mdaemon@ChaosSolutions.com with:
 
 subscribe GForth
 
-as the first and only line within the message body.
+as the first and only line within the message body.  Send bug reports
+to bug-gforth@gnu.ai.mit.edu (whether you post them or not).
 
 
 - anton
