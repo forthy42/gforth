@@ -34,7 +34,7 @@ require string.fs
 
 \ character recoding
 
-[IFDEF] 8-bit-io  8-bit-io  [THEN]
+[IFDEF] maxascii $100 to maxascii 8-bit-io [THEN]
 \ UTF-8 IO fails with .type:
 
 : .type ( addr u -- )
@@ -388,7 +388,8 @@ wordlist Constant autoreplacements
 \ paragraph handling
 
 : parse-par ( -- )
-    BEGIN  parse-line+ cr refill  WHILE
+    BEGIN
+	parse-line+ cr refill  WHILE
 	source nip 0= UNTIL  THEN ;
 
 : par ( addr u -- ) env?
@@ -599,7 +600,7 @@ definitions
     ELSE  source nip IF  >in off s" p" par  THEN  THEN ;
 : parse-section ( -- )  end-sec off
     BEGIN  refill  WHILE
-	section-par end-sec @ UNTIL  THEN ;
+	section-par end-sec @  UNTIL  THEN ;
 
 \ HTML head
 

@@ -22,14 +22,16 @@
 
 s" malformed UTF-8 character" exception Constant UTF-8-err
 
+$80 Value maxascii
+
 : u8len ( u8 -- n )
-    dup      $80 u< IF  drop 1  EXIT  THEN \ special case ASCII
+    dup      maxascii u< IF  drop 1  EXIT  THEN \ special case ASCII
     $800  2 >r
     BEGIN  2dup u>=  WHILE  5 lshift r> 1+ >r  REPEAT
     2drop r> ;
 
 : u8@+ ( u8addr -- u8addr' u )
-    count  dup $80 and 0= ?EXIT  \ special case ASCII
+    count  dup maxascii u< ?EXIT  \ special case ASCII
     $7F and  $40 >r
     BEGIN  dup r@ and  WHILE  r@ xor
 	    6 lshift r> 5 lshift >r >r count
@@ -38,7 +40,7 @@ s" malformed UTF-8 character" exception Constant UTF-8-err
     REPEAT  rdrop ;
 
 : u8!+ ( u u8addr -- u8addr' )
-    over $80 < IF  tuck c! 1+  EXIT  THEN \ special case ASCII
+    over maxascii u< IF  tuck c! 1+  EXIT  THEN \ special case ASCII
     >r 0 swap  $3F
     BEGIN  2dup u>  WHILE
 	    2/ >r  dup $3F and $80 or swap 6 rshift r>
@@ -61,14 +63,14 @@ s" malformed UTF-8 character" exception Constant UTF-8-err
 \ scan to next/previous character
 
 : u8>> ( u8addr -- u8addr' )
-    BEGIN  count $C0 and $80 <>  UNTIL ;
+    BEGIN  count $C0 and maxascii <>  UNTIL ;
 : u8<< ( u8addr -- u8addr' )
-    BEGIN  1- dup c@ $C0 and $80 <>  UNTIL ;
+    BEGIN  1- dup c@ $C0 and maxascii <>  UNTIL ;
 
 \ utf key and emit
 
 : u8key ( -- u )
-    defers key dup $80 and 0= ?EXIT  \ special case ASCII
+    defers key dup maxascii u< ?EXIT  \ special case ASCII
     $7F and  $40 >r
     BEGIN  dup r@ and  WHILE  r@ xor
 	    6 lshift r> 5 lshift >r >r defers key
@@ -77,7 +79,7 @@ s" malformed UTF-8 character" exception Constant UTF-8-err
     REPEAT  rdrop ;
 
 : u8emit ( u -- )
-    dup $80 < IF  defers emit  EXIT  THEN \ special case ASCII
+    dup maxascii u< IF  defers emit  EXIT  THEN \ special case ASCII
     0 swap  $3F
     BEGIN  2dup u>  WHILE
 	    2/ >r  dup $3F and $80 or swap 6 rshift r>
