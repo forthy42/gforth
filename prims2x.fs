@@ -60,9 +60,9 @@ include startup.fs
 : struct% struct ; \ struct is redefined in gray
 
 warnings off
+\ warnings on
 
 include ./gray.fs
-
 32 constant max-effect \ number of things on one side of a stack effect
 4 constant max-stacks  \ the max. number of stacks (including inst-stream).
 255 constant maxchar
@@ -1165,6 +1165,8 @@ bl singleton tab-char over add-member			charclass white
 nl-char singleton eof-char over add-member complement	charclass nonl
 nl-char singleton eof-char over add-member
     char : over add-member complement                   charclass nocolonnl
+nl-char singleton eof-char over add-member
+    char } over add-member complement                   charclass nobracenl
 bl 1+ maxchar .. char \ singleton complement intersection
                                                         charclass nowhitebq
 bl 1+ maxchar ..                                        charclass nowhite
@@ -1176,7 +1178,7 @@ nl-char singleton eof-char over add-member		charclass nleof
 (( letter (( letter || digit )) **
 )) <- c-ident ( -- )
 
-(( ` # ?? (( letter || digit || ` : )) **
+(( ` # ?? (( letter || digit || ` : )) ++
 )) <- stack-ident ( -- )
 
 (( nowhitebq nowhite ** ))
@@ -1239,7 +1241,10 @@ Variable c-flag
       (( {{ start }}  c-ident {{ end prim prim-c-name 2! }} )) ??
    )) ??  nleof
    (( ` " ` "  {{ start }} (( noquote ++ ` " )) ++ {{ end 1- prim prim-doc 2! }} ` " white ** nleof )) ??
-   {{ skipsynclines off line @ c-line ! filename 2@ c-filename 2! start }} (( nocolonnl nonl **  nleof white ** )) ** {{ end prim prim-c-code 2! skipsynclines on }}
+   {{ skipsynclines off line @ c-line ! filename 2@ c-filename 2! start }}
+   (( (( ` { nonl ** nleof (( (( nobracenl {{ line @ drop }} nonl ** )) ?? nleof )) ** ` } white ** nleof white ** ))
+   || (( nocolonnl nonl **  nleof white ** )) ** ))
+   {{ end prim prim-c-code 2! skipsynclines on }}
    (( ` :  white ** nleof
       {{ start }} (( nonl ++  nleof white ** )) ++ {{ end prim prim-forth-code 2! }}
    )) ?? {{ process-simple }}
@@ -1254,7 +1259,8 @@ Variable c-flag
 (( {{ make-prim to prim 0 to combined
       line @ name-line ! filename 2@ name-filename 2!
       function-number @ prim prim-num !
-      start }} forth-ident {{ end 2dup prim prim-name 2! prim prim-c-name 2! }}  white ++
+      start }} [ifdef] vmgen c-ident [else] forth-ident [then] {{ end
+      2dup prim prim-name 2! prim prim-c-name 2! }}  white **
    (( ` / white ** {{ start }} c-ident {{ end prim prim-c-name 2! }} white ** )) ??
    (( simple-primitive || combined-primitive )) {{ 1 function-number +! }}
 )) <- primitive ( -- )

@@ -132,10 +132,9 @@
 
 #define NEXT ({DEF_CA NEXT_P1; NEXT_P2;})
 #define IPTOS NEXT_INST
-#define CASE
 
 #define INST_ADDR(name) (Label)&&I_##name
-#define LABEL(name) I_##name
+#define LABEL(name) I_##name:
 #else /* !defined(__GNUC__) */
 /* use switch dispatch */
 #define DEF_CA
@@ -148,9 +147,11 @@
 #define INC_IP(const_inc)	(ip+=(const_inc))
 #define IPTOS NEXT_INST
 #define INST_ADDR(name) I_##name
-#define LABEL(name) case I_##name
+#define LABEL(name) case I_##name:
 
 #endif /* !defined(__GNUC__) */
+
+#define LABEL2(x)
 
 #ifdef VM_PROFILING
 #define SUPER_END  vm_count_block(IP)

@@ -677,6 +677,12 @@ Note that the syntax of this code is not checked thoroughly (there are
 many other Forth program fragments that could be written in an
 eval-escape).
 
+A stack prefix can contain letters, digits, or @samp{:}, and may start
+with an @samp{#}; e.g., in Gforth the return stack has the stack prefix
+@samp{R:}.  This restriction is not checked during the stack prefix
+definition, but it is enforced by the parsing rules for stack items
+later.
+
 If you know Forth, the stack effects of the non-standard words involved
 are:
 @findex stack
@@ -687,12 +693,13 @@ are:
 @example
 stack        ( "name" "pointer" "type" -- )
              ( name execution: -- stack )
-type-prefix  ( addr u xt1 xt2 n stack "prefix" -- )
-single       ( -- xt1 xt2 n )
-double       ( -- xt1 xt2 n )
+type-prefix  ( addr u item-size stack "prefix" -- )
+single       ( -- item-size )
+double       ( -- item-size )
 stack-prefix ( stack "prefix" -- )
 @end example
 
+An @var{item-size} takes three cells on the stack.
 
 @c --------------------------------------------------------------------
 @node Simple instructions, Superinstructions, Input File Grammar, Input File Format

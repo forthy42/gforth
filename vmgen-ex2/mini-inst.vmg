@@ -38,7 +38,7 @@
 \E s" Inst *" single data-stack type-prefix target
 
 \ simple VM instructions:
-add  ( i1 i2 -- i )
+add ( i1 i2 -- i )
 i = i1+i2;
 
 sub ( i1 i2 -- i )
@@ -78,7 +78,7 @@ SET_IP(target);
 zbranch ( #target i -- )
 if (i==0) {
   SET_IP(target);
-  TAIL;
+  INST_TAIL;
 }
 
 \  The stack is organized as follows:
