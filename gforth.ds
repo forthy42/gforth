@@ -642,6 +642,12 @@ Forth words, you have to quote them or use several @code{-e}s. To exit
 after processing the command line (instead of entering interactive mode)
 append @code{-e bye} to the command line.
 
+If you have several versions of Gforth installed, @code{gforth} will
+invoke the version that was installed last. @code{gforth-@var{version}}
+invokes a specific version. You may want to use the option
+@code{--path}, if your environment contains the variable
+@code{GFORTHPATH}.
+
 Not yet implemented:
 On startup the system first executes the system initialization file
 (unless the option @code{--no-init-file} is given; note that the system

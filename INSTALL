@@ -48,19 +48,40 @@ Now you can check whether your shiny new Forth system works. Say
 
 make test
 
-To make the documentation, type
+You can run some benchmarks with
 
-make -k gforth.info gforth.ps html
+make bench
+
+and compare them with the results in Benchres and in the manual.
 
 If everything is allright, you may want to install gforth. Type
 
 make install
 
-You have to make an entry in the info directory file manually. Also,
-you have to install gforth.ps and html yourself.
+You have to make an entry in the info directory file manually.
 
+For paper documentation, print gforth.ps (a Postscript file (300dpi
+fonts, i.e., it works, but does not produce best quality on better
+printers)), or say
 
-A possible problem:
+make gforth.dvi
+
+and print the resulting file gforth.dvi. You can also get the
+documentation in HTML format by typing
+
+make html
+
+		Multiple Versions and Deinstallation
+
+Several versions of Gforth can be installed and used at the same
+time. Version `foo' can be invoked with `gforth-foo'. We recommend to
+keep the old version for some time after a new one has been installed.
+
+You can deinstall this version of Gforth with 'make uninstall' and
+version foo with 'make uninstall VERSION=foo'. 'make uninstall' also
+tells you how to uninstall Gforth completely.
+
+			A Possible Problem
 
 You need to read this only if you see a message like
 

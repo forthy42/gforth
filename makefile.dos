@@ -40,7 +40,7 @@ FORTH	= gforth
 FORTHK	= $(FORTH) -p . -i kernal.fi
 STRIP	= strip
 TEXI2DVI = texi2dvi
-DVI2PS	= dvips
+DVI2PS	= dvips -D300
 #you can get texi2html from http://asis01.cern.ch/infohtml/texi2html.html
 TEXI2HTML = texi2html
 MAKEINFO = makeinfo
@@ -83,7 +83,8 @@ FORTH_SRC = anslocal.fs add.fs assert.fs ansi.fs answords.fs blocks.fs bufio.fs 
 	other.fs prims2x.fs random.fs search-order.fs see.fs sieve.fs source.fs \
 	startup.fs struct.fs tools.fs toolsext.fs tt.fs vars.fs vt100.fs \
 	vt100key.fs wordinfo.fs wordsets.fs \
-	tester.fs coretest.fs	
+	tester.fs coretest.fs \
+	bubble.fs siev.fs matrix.fs fib.fs
 
 SOURCES	= Makefile.in configure.in configure config.sub  config.guess \
 	install-sh INSTALL README ToDo BUGS model COPYING \
@@ -189,6 +190,7 @@ binonlydist:	$(SOURCES) $(FORTH_GEN) gforth $(OBJECTS)
 install:	gforth $(FORTH_SRC) kernal.fi gforth.fi gforth.1 gforth.info
 		$(INSTALL) -d $(bindir) $(mandir) $(infodir) $(libdir)/gforth/$(VERSION) $(datadir)/gforth/$(VERSION)	
 		$(INSTALL_PROGRAM) -s gforth $(bindir)
+		ln -f $(bindir)/gforth $(bindir)/gforth-$(VERSION)
 		$(INSTALL_DATA) gforth.1 $(mandir)
 		$(INSTALL_DATA) gforth.info* $(infodir)
 		for i in $(FORTH_SRC); do \
@@ -197,16 +199,28 @@ install:	gforth $(FORTH_SRC) kernal.fi gforth.fi gforth.1 gforth.info
 		rm gforth.fi; make gforth.fi #gforth.fi contains some path names
 		$(INSTALL_DATA) kernal.fi gforth.fi $(libdir)/gforth/$(VERSION)
 
+
+#deinstall all files specific to this version of gforth
+#to uninstall version foo, type `make uninstall VERSION=foo'
+uninstall:	
+		-$(RM) -rf $(libdir)/gforth/$(VERSION) $(datadir)/gforth/$(VERSION) $(bindir)/gforth-$(VERSION)
+		@echo "Type \n$(RM) -rf $(bindir)/gforth $(mandir)/gforth.1 $(infodir)/gforth.info* $(datadir)/gforth $(libdir)/gforth\n to remove gforth completely"
+
 check:		test
 		touch test
 
 test:		gforth
-		@echo 'Expect to see INCORRECT RESULT: { GS1 -> <TRUE> <TRUE> }'
-		@echo 'This is a bug of the testing program'
 		$(FORTH) tester.fs coretest.fs -e bye
 		$(FORTH) code.fs checkans.fs -e bye
 		@echo 'Expect no differences'
 		$(FORTH) prims2x.fs -e "s\" primitives.b\" ' output-c process-file bye"| diff -c - primitives.i
+
+bench:		gforth
+		@echo 'Each benchmark takes about 30s on a 486-66 (gcc-2.6.3 -DFORCE_REG)'
+		time gforth/gforth siev.fs -e "main bye"
+		time gforth/gforth bubble.fs -e "main bye"
+		time gforth/gforth -m 1M matrix.fs -e "main bye"
+		time gforth/gforth fib.fs -e "main bye"
 
 dvi:		gforth.dvi
 
@@ -319,6 +333,8 @@ gforth.dvi:	gforth.texi
 
 gforth.ps:	gforth.dvi
 		$(DVI2PS) gforth.dvi -o $@
+
+gforth.info*:	gforth.info
 
 gforth.info:	gforth.texi
 		-$(MAKEINFO) gforth.texi
