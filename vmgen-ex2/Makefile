@@ -19,7 +19,7 @@
 #Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
 
 LEX=flex -l
-YACC=bison
+YACC=bison -y
 #YACC=yacc
 VMGEN=vmgen
 #GCC=gcc -g -Wall
@@ -36,7 +36,7 @@ lex.yy.c: mini.l
 	$(LEX) mini.l
 
 mini.tab.c: mini.y
-	$(YACC) -b mini mini.y
+	$(YACC) mini.y && mv y.tab.c $@
 
 mini-vm.i mini-disasm.i mini-gen.i mini-labels.i mini-profile.i mini-peephole.i: mini.vmg
 	$(VMGEN) mini.vmg

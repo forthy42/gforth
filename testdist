@@ -4,7 +4,8 @@
 #gforth-version.tar.gz must be in the working directory
 MACHINE=`hostname`
 GFORTH=`basename $1 .tar.gz`
-DIR=`pwd`
+DIR=`cygpath -m \`pwd\` 2>/dev/null` || DIR=`pwd`
+test -z "$CC" && CC=cc
 chmod -R +w $GFORTH
 rm -rf $GFORTH
 gunzip -cd $1 | tar xf -
@@ -29,9 +30,9 @@ make install &&
 #make all-bench &&
 chmod -R +w ../$GFORTH/vmgen-ex ../$GFORTH/vmgen-ex2 &&
 cd ../$GFORTH/vmgen-ex &&
-PATH=$DIR/install/bin:$PATH make check GCC="cc -O" YACC=yacc &&
+PATH=$DIR/install/bin:$PATH make check GCC="$CC -O" YACC=yacc &&
 cd ../vmgen-ex2 &&
-PATH=$DIR/install/bin:$PATH make check GCC="cc -O" YACC=yacc &&
+PATH=$DIR/install/bin:$PATH make check GCC="$CC -O" YACC=yacc &&
 cd .. &&
 cd .. &&
 install/bin/gforth test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs -e bye &&

@@ -175,6 +175,19 @@ extern int gforth_memcmp(const char * s1, const char * s2, size_t n);
 #endif
 #define SUPER_CONTINUE
 
+#ifdef GFORTH_DEBUGGING
+#define NAME(string) { saved_ip=ip; asm(""); }
+/* the asm here is to avoid reordering of following stuff above the
+   assignment; this is an old-style asm (no operands), and therefore
+   is treated like "asm volatile ..."; i.e., it prevents most
+   reorderings across itself.  We want the assignment above first,
+   because the stack loads may already cause a stack underflow. */
+#elif DEBUG
+#       define  NAME(string)    fprintf(stderr,"%08lx depth=%3ld: "string"\n",(Cell)ip,sp0+3-sp);
+#else
+#	define	NAME(string)
+#endif
+
 #ifdef DEBUG
 #define CFA_TO_NAME(__cfa) \
       Cell len, i; \

@@ -148,7 +148,7 @@ undefine(`symbols')
 
 (docol)	( -- R:a_retaddr )	gforth-internal	paren_docol
 ""run-time routine for colon definitions""
-a_retaddr = (Cell *)ip;
+a_retaddr = (Cell *)IP;
 SET_IP((Xt *)PFA(CFA));
 
 (docon) ( -- w )	gforth-internal	paren_docon
@@ -165,7 +165,8 @@ a_user = (Cell *)(up+*(Cell *)PFA(CFA));
 
 (dodefer) ( -- )	gforth-internal	paren_dodefer
 ""run-time routine for deferred words""
-SUPER_END;
+ip=IP; /* undo any ip updating that may have been performed by NEXT_P0 */
+SUPER_END; /* !! probably unnecessary and may lead to measurement errors */
 EXEC(*(Xt *)PFA(CFA));
 
 (dofield) ( n1 -- n2 )	gforth-internal	paren_field
@@ -174,7 +175,7 @@ n2 = n1 + *(Cell *)PFA(CFA);
 
 (dodoes) ( -- a_body R:a_retaddr )	gforth-internal	paren_dodoes
 ""run-time routine for @code{does>}-defined words""
-a_retaddr = (Cell *)ip;
+a_retaddr = (Cell *)IP;
 a_body = PFA(CFA);
 SET_IP(DOES_CODE1(CFA));
 
