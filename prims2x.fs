@@ -42,6 +42,7 @@
 
 warnings off
 
+include search.fs
 include extend.fs
 
 \ require interpretation.fs

@@ -91,7 +91,7 @@ DOES> ( x1 .. xn n -- )
 DOES> ( -- addr )
     [ 2 cells ] Literal + @ ;
 
-: lib: ( "name" "file" -- )
+: library ( "name" "file" -- )
     \G loads library "file" and creates a proc defining word "name"
     \G library format:
     \G    linked list of libraries
@@ -112,10 +112,11 @@ DOES> ( pars/ type -- )
 
 : init-shared-libs ( -- )
     defers 'cold  libs
-    BEGIN  @ dup  WHILE  >r
+    0  libs  BEGIN  @ dup  WHILE  dup  REPEAT  drop
+    BEGIN  dup  WHILE  >r
 	r@ @lib
 	r@ 2 cells +  BEGIN  @ dup  WHILE  r@ over @proc  REPEAT
-	drop r>
-    REPEAT   drop ;
+	drop rdrop
+    REPEAT  drop ;
 
 ' init-shared-libs IS 'cold
