@@ -10,3 +10,5 @@ config.h
 version.h
 gforth
 gforth-ditc
+config.h.in
+stamp-h

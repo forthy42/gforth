@@ -26,3 +26,9 @@ kernl64b.fi-
 kernl64l.fi-
 gforth-ditc
 gforth.fi
+html
+gforth.TAGS
+prim.TAGS
+elisp-comp
+config.h.in
+missing
