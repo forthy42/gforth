@@ -132,22 +132,56 @@ decimal
   loadfile @ dup 0= IF  drop sourceline# 0 min  THEN ;
 
 : save-input ( -- x1 .. xn n ) \ core-ext
-  >in @
-  loadfile @ ?dup
-  IF    dup file-position throw sourceline# >tib @ 6
-        #tib @ >tib +!
-  ELSE  sourceline# blk @ linestart @ >tib @ 5 THEN
-;
+    >in @
+    loadfile @
+    if
+	loadfile @ file-position throw
+    else
+	blk @
+	linestart @
+    then
+    sourceline#
+    >tib @
+    source-id
+    6 ;
 
 : restore-input ( x1 .. xn n -- flag ) \ core-ext
-  swap >tib !
-  6 = IF   loadline ! rot dup loadfile !
-           reposition-file IF drop true EXIT THEN
-      ELSE linestart ! blk !
-           dup sourceline# <> IF 2drop true EXIT THEN
-           loadline !
-      THEN
-  >in ! false ;
+    6 <> -12 and throw
+    source-id <> -12 and throw
+    >tib !
+    >r ( line# )
+    loadfile @ 0<>
+    if
+	loadfile @ reposition-file throw
+    else
+	linestart !
+	blk !
+	sourceline# r@ <> blk @ 0= and loadfile @ 0= and
+	if
+	    drop rdrop true EXIT
+	then
+    then
+    r> loadline !
+    >in !
+    false ;
+
+\ : save-input ( -- x1 .. xn n ) \ core-ext
+\   >in @
+\   loadfile @ ?dup
+\   IF    dup file-position throw sourceline# >tib @ 6
+\         #tib @ >tib +!
+\   ELSE  sourceline# blk @ linestart @ >tib @ 5 THEN
+\ ;
+
+\ : restore-input ( x1 .. xn n -- flag ) \ core-ext
+\   swap >tib !
+\   6 = IF   loadline ! rot dup loadfile !
+\            reposition-file IF drop true EXIT THEN
+\       ELSE linestart ! blk !
+\            dup sourceline# <> IF 2drop true EXIT THEN
+\            loadline !
+\       THEN
+\   >in ! false ;
 
 
 

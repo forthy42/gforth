@@ -79,7 +79,7 @@ FORTH_SRC = anslocal.fs add.fs assert.fs ansi.fs answords.fs blocks.fs bufio.fs 
 	dumpimage.fs environ.fs errore.fs etags.fs extend.fs filedump.fs \
 	float.fs glocals.fs glosgen.fs gray.fs hash.fs history.fs \
 	kernal.fs locals-test.fs look.fs main.fs makedoc.fs \
- 	mach16b.fs mach16l.fs mach32b.fs mach32l.fs mach64b.fs mach64l.fs \
+	mach16b.fs mach16l.fs mach32b.fs mach32l.fs mach64b.fs mach64l.fs \
 	other.fs prims2x.fs random.fs search-order.fs see.fs sieve.fs source.fs \
 	startup.fs site-init.fs struct.fs tools.fs toolsext.fs tt.fs vars.fs \
 	vt100.fs vt100key.fs wordinfo.fs wordsets.fs \
@@ -360,9 +360,9 @@ html:		gforth.texi
 # For an explanation of the following Makefile rules, see node
 # `Automatic Remaking' in GNU Autoconf documentation.
 Makefile: Makefile.in config.status
-	CONFIG_FILES=$@ CONFIG_HEADERS= ./config.status
+	CONFIG_FILES=$@ CONFIG_HEADERS= GCC=$(GCC) ./config.status
 config.status: configure
-	./config.status --recheck
+	GCC=$(GCC) ./config.status --recheck
 configure: configure.in
 	cd $(srcdir) && autoconf
 

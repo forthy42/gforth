@@ -2528,9 +2528,14 @@ The next invocation of a parsing word returns a string wih length 0.
 Compiles a recursive call to the defining word not to the defined word.
 
 @item argument input source different than current input source for @code{RESTORE-INPUT}:
-If the argument input source is a valid input source then it gets
-restored. Otherwise the result is undefined.
-@comment causes @code{-12 THROW}, which, unless caught, issues the message "argument type mismatch" and aborts. !! not all of the state is restored (e.g., sourcefilename).
+@code{-12 THROW}. Note that, once an input file is closed (e.g., because
+the end of the file was reached), its source-id may be
+reused. Therefore, restoring an input source specification referencing a
+closed file may lead to unpredictable results instead of a @code{-12
+THROW}.
+
+In the future, Gforth may be able to retore input source specifications
+from other than the current input soruce.
 
 @item data space containing definitions gets de-allocated:
 Deallocation with @code{allot} is not checked. This typically resuls in
