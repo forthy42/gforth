@@ -98,7 +98,7 @@ You can change the sizes of the various areas used in the default
 image `gforth.fi' by passing the appropriate Gforth command line
 options in the FORTHSIZES environment variable:
 
-env "FORTHSIZES=--dictionary-size=256k --data-stack-size=16k --fp-stack-size=16k --return-stack-size=16k --locals-stack-size=16k" ./configure
+env "FORTHSIZES=--dictionary-size=256k --data-stack-size=16k --fp-stack-size=15872b --return-stack-size=15k --locals-stack-size=14848b" ./configure
 
 The line above reaffirms the default sizes. Note that the locals
 stack area is also used as input buffer stack.

@@ -59,7 +59,7 @@ decimal
 -25 ERR" Return stack imbalance"
 -26 ERR" Loop parameters unavailable"
 -27 ERR" Invalid recursion"
--28 ERR" User interupt"
+-28 ERR" User interrupt"
 -29 ERR" Compiler nesting"
 -30 ERR" Obsolescent feature"
 -31 ERR" >BODY used on non-CREATEd definition"
@@ -91,22 +91,10 @@ decimal
 -57 ERR" Error in sending or receiving a character"
 -58 ERR" [IF], [ELSE], [THEN] error"
 
+\ error numbers between -256 and -511 represent signals
 \ signals are handled with strsignal
 \ but some signals produce throw-codes > -256, e.g., -28
-\ signals: ( We list them all, except those already present, just in case )
-\ -256 ERR" Hangup signal"
-\ -257 ERR" Quit signal"
-\ -258 ERR" Illegal Instruction"
-\ -259 ERR" Trace Trap"
-\ -260 ERR" IOT instruction"
-\ -261 ERR" EMT instruction" \ abort() call?
-\ -262 ERR" Kill signal" \ cannot be caught but so what
-\ -263 ERR" Bad arg to system call"
-\ -264 ERR" Broken pipe"
-\ -265 ERR" Alarm signal"
-\ -266 ERR" Terminate signal"
-\ -267 ERR" User signal 1"
-\ -268 ERR" User signal 2"
+
 \ error numbers between -512 and -2047 are for OS errors and are
 \ handled with strerror
 

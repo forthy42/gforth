@@ -7,9 +7,9 @@
 @comment %**end of header (This is for running Texinfo on a region.)
 
 @ifinfo
-This file documents Gforth 0.2
+This file documents Gforth 0.3
 
-Copyright @copyright{} 1995,1996 Free Software Foundation, Inc.
+Copyright @copyright{} 1995-1997 Free Software Foundation, Inc.
 
      Permission is granted to make and distribute verbatim copies of
      this manual provided the copyright notice and this permission notice
@@ -41,7 +41,7 @@ Copyright @copyright{} 1995,1996 Free Software Foundation, Inc.
 @sp 10
 @center @titlefont{Gforth Manual}
 @sp 2
-@center for version 0.2
+@center for version 0.3
 @sp 2
 @center Anton Ertl
 @center Bernd Paysan
@@ -51,7 +51,7 @@ Copyright @copyright{} 1995,1996 Free Software Foundation, Inc.
 @comment  The following two commands start the copyright page.
 @page
 @vskip 0pt plus 1filll
-Copyright @copyright{} 1995,1996 Free Software Foundation, Inc.
+Copyright @copyright{} 1995--1997 Free Software Foundation, Inc.
 
 @comment !! Published by ... or You can get a copy of this manual ...
 
@@ -77,28 +77,29 @@ Copyright @copyright{} 1995,1996 Free Software Foundation, Inc.
 @node Top, License, (dir), (dir)
 @ifinfo
 Gforth is a free implementation of ANS Forth available on many
-personal machines. This manual corresponds to version 0.2.
+personal machines. This manual corresponds to version 0.3.
 @end ifinfo
 
 @menu
 * License::                     
 * Goals::                       About the Gforth Project
 * Other Books::                 Things you might want to read
-* Invocation::                  Starting Gforth
+* Invoking Gforth::             Starting Gforth
 * Words::                       Forth words available in Gforth
 * Tools::                       Programming tools
 * ANS conformance::             Implementation-defined options etc.
 * Model::                       The abstract machine of Gforth
-* Integrating Gforth::          Forth as scripting language for applications.
+* Integrating Gforth::          Forth as scripting language for applications
 * Emacs and Gforth::            The Gforth Mode
-* Internals::                   Implementation details
+* Image Files::                 @code{.fi} files contain compiled code
+* Engine::                      The inner interpreter and the primitives
 * Bugs::                        How to report them
 * Origin::                      Authors and ancestors of Gforth
 * Word Index::                  An item for each Forth word
-* Node Index::                  An item for each node
+* Concept Index::               A menu covering many topics
 @end menu
 
-@node License, Goals, Top, Top
+@node License, Preface, Top, Top
 @unnumbered GNU GENERAL PUBLIC LICENSE
 @center Version 2, June 1991
 
@@ -491,7 +492,7 @@ library.  If this is what you want to do, use the GNU Library General
 Public License instead of this License.
 
 @iftex
-@node    Preface
+@node    Preface, Goals, License, Top
 @comment node-name,     next,           previous, up
 @unnumbered Preface
 @cindex Preface
@@ -500,16 +501,16 @@ Forth. This manual is primarily a reference manual. @xref{Other Books}
 for introductory material.
 @end iftex
 
-@node    Goals, Other Books, License, Top
+@node    Goals, Other Books, Preface, Top
 @comment node-name,     next,           previous, up
 @chapter Goals of Gforth
 @cindex Goals
 The goal of the Gforth Project is to develop a standard model for
-ANSI Forth. This can be split into several subgoals:
+ANS Forth. This can be split into several subgoals:
 
 @itemize @bullet
 @item
-Gforth should conform to the ANSI Forth standard.
+Gforth should conform to the Forth standard (ANS Forth).
 @item
 It should be a model, i.e. it should define all the
 implementation-dependent things.
@@ -543,14 +544,17 @@ powerful features, but not yet everything that we envisioned. We
 certainly have achieved our execution speed goals (@pxref{Performance}).
 It is free and available on many machines.
 
-@node Other Books, Invocation, Goals, Top
+@node Other Books, Invoking Gforth, Goals, Top
 @chapter Other books on ANS Forth
+@cindex books on Forth
 
 As the standard is relatively new, there are not many books out yet. It
 is not recommended to learn Forth by using Gforth and a book that is
 not written for ANS Forth, as you will not know your mistakes from the
 deviations of the book.
 
+@cindex standard document for ANS Forth
+@cindex ANS Forth document
 There is, of course, the standard, the definite reference if you want to
 write ANS Forth programs. It is available in printed form from the
 National Standards Institute Sales Department (Tel.: USA (212) 642-4900;
@@ -564,15 +568,24 @@ format, and it has been converted to HTML. Some pointers to these
 versions can be found through
 @*@file{http://www.complang.tuwien.ac.at/projects/forth.html}.
 
-@cite{Forth: The new model} by Jack Woehr (Prentice-Hall, 1993) is an
+@cindex introductory book
+@cindex book, introductory
+@cindex Woehr, Jack: @cite{Forth: The New Model}
+@cindex @cite{Forth: The new model} (book)
+@cite{Forth: The New Model} by Jack Woehr (Prentice-Hall, 1993) is an
 introductory book based on a draft version of the standard. It does not
 cover the whole standard. It also contains interesting background
 information (Jack Woehr was in the ANS Forth Technical Committee). It is
 not appropriate for complete newbies, but programmers experienced in
 other languages should find it ok.
 
-@node Invocation, Words, Other Books, Top
-@chapter Invocation
+@node Invoking Gforth, Words, Other Books, Top
+@chapter Invoking Gforth
+@cindex invoking Gforth
+@cindex running Gforth
+@cindex command-line options
+@cindex options on the command line
+@cindex flags on the command line
 
 You will usually just say @code{gforth}. In many other cases the default
 Gforth image will be invoked like this:
@@ -594,21 +607,29 @@ The initialization options must come before the rest of the command
 line. They are:
 
 @table @code
+@cindex -i, command-line option
+@cindex --image-file, command-line option
 @item --image-file @var{file}
-@item -i @var{file}
+@itemx -i @var{file}
 Loads the Forth image @var{file} instead of the default
-@file{gforth.fi}.
+@file{gforth.fi} (@pxref{Image Files}).
 
+@cindex --path, command-line option
+@cindex -p, command-line option
 @item --path @var{path}
-@item -p @var{path}
+@itemx -p @var{path}
 Uses @var{path} for searching the image file and Forth source code files
 instead of the default in the environment variable @code{GFORTHPATH} or
 the path specified at installation time (e.g.,
 @file{/usr/local/share/gforth/0.2.0:.}). A path is given as a list of
 directories, separated by @samp{:} (on Unix) or @samp{;} (on other OSs).
 
+@cindex --dictionary-size, command-line option
+@cindex -m, command-line option
+@cindex @var{size} parameters for command-line options
+@cindex size of the dictionary and the stacks
 @item --dictionary-size @var{size}
-@item -m @var{size}
+@itemx -m @var{size}
 Allocate @var{size} space for the Forth dictionary space instead of
 using the default specified in the image (typically 256K). The
 @var{size} specification consists of an integer and a unit (e.g.,
@@ -616,29 +637,66 @@ using the default specified in the image (typically 256K). The
 size, in this case Cells), @code{k} (kilobytes), and @code{M}
 (Megabytes). If no unit is specified, @code{e} is used.
 
+@cindex --data-stack-size, command-line option
+@cindex -d, command-line option
 @item --data-stack-size @var{size}
-@item -d @var{size}
+@itemx -d @var{size}
 Allocate @var{size} space for the data stack instead of using the
 default specified in the image (typically 16K).
 
+@cindex --return-stack-size, command-line option
+@cindex -r, command-line option
 @item --return-stack-size @var{size}
-@item -r @var{size}
+@itemx -r @var{size}
 Allocate @var{size} space for the return stack instead of using the
-default specified in the image (typically 16K).
+default specified in the image (typically 15K).
 
+@cindex --fp-stack-size, command-line option
+@cindex -f, command-line option
 @item --fp-stack-size @var{size}
-@item -f @var{size}
+@itemx -f @var{size}
 Allocate @var{size} space for the floating point stack instead of
-using the default specified in the image (typically 16K). In this case
+using the default specified in the image (typically 15.5K). In this case
 the unit specifier @code{e} refers to floating point numbers.
 
+@cindex --locals-stack-size, command-line option
+@cindex -l, command-line option
 @item --locals-stack-size @var{size}
-@item -l @var{size}
+@itemx -l @var{size}
 Allocate @var{size} space for the locals stack instead of using the
-default specified in the image (typically 16K).
+default specified in the image (typically 14.5K).
 
+@cindex -h, command-line option
+@cindex --help, command-line option
+@item --help
+@itemx -h
+Print a message about the command-line options
+
+@cindex -v, command-line option
+@cindex --version, command-line option
+@item --version
+@itemx -v
+Print version and exit
+
+@cindex --debug, command-line option
+@item --debug
+Print some information useful for debugging on startup.
+
+@cindex --offset-image, command-line option
+@item --offset-image
+Start the dictionary at a slightly different position than would be used
+otherwise (useful for creating data-relocatable images,
+@pxref{Data-Relocatable Image Files}).
+
+@cindex --clear-dictionary, command-line option
+@item --clear-dictionary
+Initialize all bytes in the dictionary to 0 before loading the image
+(@pxref{Data-Relocatable Image Files}).
 @end table
 
+@cindex loading files at startup
+@cindex executing code on startup
+@cindex batch processing with Gforth
 As explained above, the image-specific command-line arguments for the
 default image @file{gforth.fi} consist of a sequence of filenames and
 @code{-e @var{forth-code}} options that are interpreted in the sequence
@@ -649,6 +707,7 @@ Forth words, you have to quote them or use several @code{-e}s. To exit
 after processing the command line (instead of entering interactive mode)
 append @code{-e bye} to the command line.
 
+@cindex versions, invoking other versions of Gforth
 If you have several versions of Gforth installed, @code{gforth} will
 invoke the version that was installed last. @code{gforth-@var{version}}
 invokes a specific version. You may want to use the option
@@ -663,14 +722,15 @@ the user initialization file @file{.gforth.fs} is executed, unless the
 option @code{--no-rc} is given; this file is first searched in @file{.},
 then in @file{~}, then in the normal path (see above).
 
-@node Words, Tools, Invocation, Top
+@node Words, Tools, Invoking Gforth, Top
 @chapter Forth Words
+@cindex Words
 
 @menu
 * Notation::                    
 * Arithmetic::                  
 * Stack Manipulation::          
-* Memory access::               
+* Memory::               
 * Control Structures::          
 * Locals::                      
 * Defining Words::              
@@ -686,9 +746,13 @@ then in @file{~}, then in the normal path (see above).
 
 @node Notation, Arithmetic, Words, Words
 @section Notation
+@cindex notation of glossary entries
+@cindex format of glossary entries
+@cindex glossary notation format
+@cindex word glossary entry format
 
 The Forth words are described in this section in the glossary notation
-that has become a de-facto standard for Forth texts, i.e.
+that has become a de-facto standard for Forth texts, i.e.,
 
 @format
 @var{word}     @var{Stack effect}   @var{wordset}   @var{pronunciation}
@@ -697,10 +761,12 @@ that has become a de-facto standard for Forth texts, i.e.
 
 @table @var
 @item word
+@cindex case insensitivity
 The name of the word. BTW, Gforth is case insensitive, so you can
 type the words in in lower case (However, @pxref{core-idef}).
 
 @item Stack effect
+@cindex stack effect
 The stack effect is written in the notation @code{@var{before} --
 @var{after}}, where @var{before} and @var{after} describe the top of
 stack entries before and after the execution of the word. The rest of
@@ -719,9 +785,11 @@ this standard behaviour, or the word does other unusual things at
 compile time, both stack effects are shown; otherwise only the run-time
 stack effect is shown.
 
+@cindex pronounciation of words
 @item pronunciation
-How the word is pronounced
+How the word is pronounced.
 
+@cindex wordset
 @item wordset
 The ANS Forth standard is divided into several wordsets. A standard
 system need not support all of them. So, the fewer wordsets your program
@@ -738,51 +806,72 @@ strings are also displayed like words; you can recognize them by the
 A description of the behaviour of the word.
 @end table
 
+@cindex types of stack items
+@cindex stack item types
 The type of a stack item is specified by the character(s) the name
 starts with:
 
 @table @code
 @item f
-Bool, i.e. @code{false} or @code{true}.
+@cindex @code{f}, stack item type
+Boolean flags, i.e. @code{false} or @code{true}.
 @item c
+@cindex @code{c}, stack item type
 Char
 @item w
+@cindex @code{w}, stack item type
 Cell, can contain an integer or an address
 @item n
+@cindex @code{n}, stack item type
 signed integer
 @item u
+@cindex @code{u}, stack item type
 unsigned integer
 @item d
+@cindex @code{d}, stack item type
 double sized signed integer
 @item ud
+@cindex @code{ud}, stack item type
 double sized unsigned integer
 @item r
+@cindex @code{r}, stack item type
 Float (on the FP stack)
 @item a_
+@cindex @code{a_}, stack item type
 Cell-aligned address
 @item c_
+@cindex @code{c_}, stack item type
 Char-aligned address (note that a Char may have two bytes in Windows NT)
 @item f_
+@cindex @code{f_}, stack item type
 Float-aligned address
 @item df_
+@cindex @code{df_}, stack item type
 Address aligned for IEEE double precision float
 @item sf_
+@cindex @code{sf_}, stack item type
 Address aligned for IEEE single precision float
 @item xt
+@cindex @code{xt}, stack item type
 Execution token, same size as Cell
 @item wid
+@cindex @code{wid}, stack item type
 Wordlist ID, same size as Cell
 @item f83name
+@cindex @code{f83name}, stack item type
 Pointer to a name structure
 @item "
+@cindex @code{"}, stack item type
 string in the input stream (not the stack). The terminating character is
 a blank by default. If it is not a blank, it is shown in @code{<>}
 quotes.
-
 @end table
 
 @node Arithmetic, Stack Manipulation, Notation, Words
 @section Arithmetic
+@cindex arithmetic words
+
+@cindex division with potentially negative operands
 Forth arithmetic is not checked, i.e., you will not hear about integer
 overflow on addition or multiplication, you may hear about division by
 zero if you are lucky. The operator is written after the operands, but
@@ -803,6 +892,8 @@ former, @pxref{Mixed precision}).
 
 @node Single precision, Bitwise operations, Arithmetic, Arithmetic
 @subsection Single precision
+@cindex single precision arithmetic words
+
 doc-+
 doc--
 doc-*
@@ -816,6 +907,8 @@ doc-max
 
 @node Bitwise operations, Mixed precision, Single precision, Arithmetic
 @subsection Bitwise operations
+@cindex bitwise operation words
+
 doc-and
 doc-or
 doc-xor
@@ -825,6 +918,8 @@ doc-2/
 
 @node Mixed precision, Double precision, Bitwise operations, Arithmetic
 @subsection Mixed precision
+@cindex mixed precision arithmetic words
+
 doc-m+
 doc-*/
 doc-*/mod
@@ -837,7 +932,10 @@ doc-sm/rem
 
 @node Double precision, Floating Point, Mixed precision, Arithmetic
 @subsection Double precision
+@cindex double precision arithmetic words
 
+@cindex double-cell numbers, input format
+@cindex input format for double-cell numbers
 The outer (aka text) interpreter converts numbers containing a dot into
 a double precision number. Note that only numbers with the dot as last
 character are standard-conforming.
@@ -851,7 +949,10 @@ doc-dmax
 
 @node Floating Point,  , Double precision, Arithmetic
 @subsection Floating Point
+@cindex floating point arithmetic words
 
+@cindex floating-point numbers, input format
+@cindex input format for floating-point numbers
 The format of floating point numbers recognized by the outer (aka text)
 interpreter is: a signed decimal number, possibly containing a decimal
 point (@code{.}), followed by @code{E} or @code{e}, optionally followed
@@ -865,10 +966,13 @@ value greater then 14, the @code{E} may be interpreted as digit and the
 number will be interpreted as integer, unless it has a signed exponent
 (both @code{+} and @code{-} are allowed as signs).
 
+@cindex angles in trigonometric operations
+@cindex trigonometric operations
 Angles in floating point operations are given in radians (a full circle
 has 2 pi radians). Note, that Gforth has a separate floating point
 stack, but we use the unified notation.
 
+@cindex floating-point arithmetic, pitfalls
 Floating point numbers have a number of unpleasant surprises for the
 unwary (e.g., floating point addition is not associative) and even a few
 for the wary. You should not use them unless you know what you are doing
@@ -911,9 +1015,11 @@ doc-fasinh
 doc-facosh
 doc-fatanh
 
-@node Stack Manipulation, Memory access, Arithmetic, Words
+@node Stack Manipulation, Memory, Arithmetic, Words
 @section Stack Manipulation
+@cindex stack manipulation words
 
+@cindex floating-point stack in the standard
 Gforth has a data stack (aka parameter stack) for characters, cells,
 addresses, and double cells, a floating point stack for floating point
 numbers, a return stack for storing the return addresses of colon
@@ -927,6 +1033,8 @@ they work also for a unified stack model, but we do not recommend trying
 it. Instead, just say that your program has an environmental dependency
 on a separate FP stack.
 
+@cindex return stack and locals
+@cindex locals and return stack
 Also, a Forth system is allowed to keep the local variables on the
 return stack. This is reasonable, as local variables usually eliminate
 the need to use the return stack explicitly. So, if you want to produce
@@ -944,6 +1052,9 @@ standard document for the exact rules).
 
 @node Data stack, Floating point stack, Stack Manipulation, Stack Manipulation
 @subsection Data stack
+@cindex data stack manipulation words
+@cindex stack manipulations words, data stack
+
 doc-drop
 doc-nip
 doc-dup
@@ -965,6 +1076,9 @@ doc-2rot
 
 @node Floating point stack, Return stack, Data stack, Stack Manipulation
 @subsection Floating point stack
+@cindex floating-point stack manipulation words
+@cindex stack manipulation words, floating-point stack
+
 doc-fdrop
 doc-fnip
 doc-fdup
@@ -975,6 +1089,9 @@ doc-frot
 
 @node Return stack, Locals stack, Floating point stack, Stack Manipulation
 @subsection Return stack
+@cindex return stack manipulation words
+@cindex stack manipulation words, return stack
+
 doc->r
 doc-r>
 doc-r@
@@ -989,6 +1106,8 @@ doc-2rdrop
 
 @node Stack pointer manipulation,  , Locals stack, Stack Manipulation
 @subsection Stack pointer manipulation
+@cindex stack pointer manipulation words
+
 doc-sp@
 doc-sp!
 doc-fp@
@@ -998,17 +1117,19 @@ doc-rp!
 doc-lp@
 doc-lp!
 
-@node Memory access, Control Structures, Stack Manipulation, Words
-@section Memory access
+@node Memory, Control Structures, Stack Manipulation, Words
+@section Memory
+@cindex Memory words
 
 @menu
-* Stack-Memory transfers::      
+* Memory Access::      
 * Address arithmetic::          
-* Memory block access::         
+* Memory Blocks::         
 @end menu
 
-@node Stack-Memory transfers, Address arithmetic, Memory access, Memory access
-@subsection Stack-Memory transfers
+@node Memory Access, Address arithmetic, Memory, Memory
+@subsection Memory Access
+@cindex memory access words
 
 doc-@
 doc-!
@@ -1024,8 +1145,9 @@ doc-sf!
 doc-df@
 doc-df!
 
-@node Address arithmetic, Memory block access, Stack-Memory transfers, Memory access
+@node Address arithmetic, Memory Blocks, Memory Access, Memory
 @subsection Address arithmetic
+@cindex address arithmetic words
 
 ANS Forth does not specify the sizes of the data types. Instead, it
 offers a number of words for computing sizes and doing address
@@ -1034,8 +1156,9 @@ address units (aus); on most systems the address unit is one byte. Note
 that a character may have more than one au, so @code{chars} is no noop
 (on systems where it is a noop, it compiles to nothing).
 
+@cindex alignment of addresses for types
 ANS Forth also defines words for aligning addresses for specific
-addresses. Many computers require that accesses to specific data types
+types. Many computers require that accesses to specific data types
 must only occur at specific addresses; e.g., that cells may only be
 accessed at addresses divisible by 4. Even if a machine allows unaligned
 accesses, it can usually perform aligned accesses faster. 
@@ -1049,6 +1172,7 @@ an oversight, but reflects the fact that addresses that are not
 char-aligned have no use in the standard and therefore will not be
 created.
 
+@cindex @code{CREATE} and alignment
 The standard guarantees that addresses returned by @code{CREATE}d words
 are cell-aligned; in addition, Gforth guarantees that these addresses
 are aligned for all purposes.
@@ -1060,10 +1184,12 @@ doc-chars
 doc-char+
 doc-cells
 doc-cell+
+doc-cell
 doc-align
 doc-aligned
 doc-floats
 doc-float+
+doc-float
 doc-falign
 doc-faligned
 doc-sfloats
@@ -1080,8 +1206,9 @@ doc-cfalign
 doc-cfaligned
 doc-address-unit-bits
 
-@node Memory block access,  , Address arithmetic, Memory access
-@subsection Memory block access
+@node Memory Blocks,  , Address arithmetic, Memory
+@subsection Memory Blocks
+@cindex memory block words
 
 doc-move
 doc-erase
@@ -1094,13 +1221,15 @@ doc-cmove>
 doc-fill
 doc-blank
 
-@node Control Structures, Locals, Memory access, Words
+@node Control Structures, Locals, Memory, Words
 @section Control Structures
+@cindex control structures
 
 Control structures in Forth cannot be used in interpret state, only in
-compile state, i.e., in a colon definition. We do not like this
-limitation, but have not seen a satisfying way around it yet, although
-many schemes have been proposed.
+compile state@footnote{More precisely, they have no interpretation
+semantics (@pxref{Interpretation and Compilation Semantics})}, i.e., in
+a colon definition. We do not like this limitation, but have not seen a
+satisfying way around it yet, although many schemes have been proposed.
 
 @menu
 * Selection::                   
@@ -1113,7 +1242,10 @@ many schemes have been proposed.
 
 @node Selection, Simple Loops, Control Structures, Control Structures
 @subsection Selection
+@cindex selection control structures
+@cindex control structures for selection
 
+@cindex @code{IF} control structure
 @example
 @var{flag}
 IF
@@ -1155,6 +1287,7 @@ efficient than using @code{?dup}. Definitions in plain standard Forth
 for @code{ENDIF}, @code{?DUP-IF} and @code{?DUP-0=-IF} are provided in
 @file{compat/control.fs}.
 
+@cindex @code{CASE} control structure
 @example
 @var{n}
 CASE
@@ -1171,7 +1304,10 @@ but must not consume it.
 
 @node Simple Loops, Counted Loops, Selection, Control Structures
 @subsection Simple Loops
+@cindex simple loops
+@cindex loops without count 
 
+@cindex @code{WHILE} loop
 @example
 BEGIN
   @var{code1}
@@ -1182,8 +1318,10 @@ REPEAT
 @end example
 
 @var{code1} is executed and @var{flag} is computed. If it is true,
-@var{code2} is executed and the loop is restarted; If @var{flag} is false, execution continues after the @code{REPEAT}.
+@var{code2} is executed and the loop is restarted; If @var{flag} is
+false, execution continues after the @code{REPEAT}.
 
+@cindex @code{UNTIL} loop
 @example
 BEGIN
   @var{code}
@@ -1193,6 +1331,8 @@ UNTIL
 
 @var{code} is executed. The loop is restarted if @code{flag} is false.
 
+@cindex endless loop
+@cindex loops, endless
 @example
 BEGIN
   @var{code}
@@ -1203,6 +1343,9 @@ This is an endless loop.
 
 @node Counted Loops, Arbitrary control structures, Simple Loops, Control Structures
 @subsection Counted Loops
+@cindex counted loops
+@cindex loops, counted
+@cindex @code{DO} loops
 
 The basic counted loop is:
 @example
@@ -1255,6 +1398,8 @@ between @var{limit-1} and @var{limit} is crossed. E.g.:
 
 @code{4 1 +DO  i .  2 +LOOP}   prints @code{1 3}
 
+@cindex negative increment for counted loops
+@cindex counted loops with negative increment
 The behaviour of @code{@var{n} +LOOP} is peculiar when @var{n} is negative:
 
 @code{-1 0 ?DO  i .  -1 +LOOP}  prints @code{0 -1}
@@ -1288,6 +1433,7 @@ to become invalid during maintenance of a program, and then the
 @code{EXIT}. @code{UNLOOP} removes the loop control parameters from the
 return stack so @code{EXIT} can get to its return address.
 
+@cindex @code{FOR} loops
 Another counted loop is
 @example
 @var{n}
@@ -1304,12 +1450,16 @@ loops.
 
 @node Arbitrary control structures, Calls and returns, Counted Loops, Control Structures
 @subsection Arbitrary control structures
+@cindex control structures, user-defined
 
+@cindex control-flow stack
 ANS Forth permits and supports using control structures in a non-nested
 way. Information about incomplete control structures is stored on the
 control-flow stack. This stack may be implemented on the Forth data
 stack, and this is what we have done in Gforth.
 
+@cindex @code{orig}, control-flow stack item
+@cindex @code{dest}, control-flow stack item
 An @i{orig} entry represents an unresolved forward branch, a @i{dest}
 entry represents a backward branch target. A few words are the basis for
 building any control structure possible (except control structures that
@@ -1422,6 +1572,8 @@ necessary to define them.
 
 @node Calls and returns, Exception Handling, Arbitrary control structures, Control Structures
 @subsection Calls and returns
+@cindex calling a definition
+@cindex returning from a definition
 
 A definition can be called simply be writing the name of the
 definition. When the end of the definition is reached, it returns. An
@@ -1437,12 +1589,14 @@ doc-;s
 
 @node Exception Handling,  , Calls and returns, Control Structures
 @subsection Exception Handling
+@cindex Exceptions
 
 doc-catch
 doc-throw
 
 @node Locals, Defining Words, Control Structures, Words
 @section Locals
+@cindex locals
 
 Local variables can make Forth programming more enjoyable and Forth
 programs easier to read. Unfortunately, the locals of ANS Forth are
@@ -1462,6 +1616,8 @@ at EuroForth '94; it is available at
 
 @node Gforth locals, ANS Forth locals, Locals, Locals
 @subsection Gforth locals
+@cindex Gforth locals
+@cindex locals, Gforth style
 
 Locals can be defined with
 
@@ -1494,6 +1650,8 @@ find. However, this problem can be avoided by appropriate coding
 conventions: Do not use both notations in the same program. If you do,
 they should be distinguished using additional means, e.g. by position.
 
+@cindex types of locals
+@cindex locals types
 The name of the local may be preceded by a type specifier, e.g.,
 @code{F:} for a floating point value:
 
@@ -1504,6 +1662,10 @@ The name of the local may be preceded by a type specifier, e.g.,
  Ar Bi f* Ai Br f* f+ ;
 @end example
 
+@cindex flavours of locals
+@cindex locals flavours
+@cindex value-flavoured locals
+@cindex variable-flavoured locals
 Gforth currently supports cells (@code{W:}, @code{W^}), doubles
 (@code{D:}, @code{D^}), floats (@code{F:}, @code{F^}) and characters
 (@code{C:}, @code{C^}) in two flavours: a value-flavoured local (defined
@@ -1518,6 +1680,8 @@ left). E.g., the standard word @code{emit} can be defined in terms of
     char* 1 type ;
 @end example
 
+@cindex default type of locals
+@cindex locals, default type
 A local without type specifier is a @code{W:} local. Both flavours of
 locals are initialized with values from the data or FP stack.
 
@@ -1536,6 +1700,9 @@ poses the following questions:
 
 @node Where are locals visible by name?, How long do locals live?, Gforth locals, Gforth locals
 @subsubsection Where are locals visible by name?
+@cindex locals visibility
+@cindex visibility of locals
+@cindex scope of locals
 
 Basically, the answer is that locals are visible where you would expect
 it in block-structured languages, and sometimes a little longer. If you
@@ -1581,6 +1748,8 @@ compiler that the control flow never reaches that place. If
 that the visibility of some locals is more limited than the rule above
 says. If @code{UNREACHABLE} is used where it should not (i.e., if you
 lie to the compiler), buggy code will be produced.
+
+doc-unreachable
 
 Another problem with this rule is that at @code{BEGIN}, the compiler
 does not know which locals will be visible on the incoming
@@ -1695,6 +1864,8 @@ REPEAT
 
 @node How long do locals live?, Programming Style, Where are locals visible by name?, Gforth locals
 @subsubsection How long do locals live?
+@cindex locals lifetime
+@cindex lifetime of locals
 
 The right answer for the lifetime question would be: A local lives at
 least as long as it can be accessed. For a value-flavoured local this
@@ -1709,6 +1880,8 @@ afterwards are erroneous).
 
 @node Programming Style, Implementation, How long do locals live?, Gforth locals
 @subsubsection Programming Style
+@cindex locals programming style
+@cindex programming style, locals
 
 The freedom to define locals anywhere has the potential to change
 programming styles dramatically. In particular, the need to use the
@@ -1729,6 +1902,7 @@ readable. Of course, this benefit will only be realized if the
 programmers continue to honour the principle of factoring instead of
 using the added latitude to make the words longer.
 
+@cindex single-assignment style for locals
 Using @code{TO} can and should be avoided.  Without @code{TO},
 every value-flavoured local has only a single assignment and many
 advantages of functional languages apply to Forth. I.e., programs are
@@ -1778,7 +1952,10 @@ in every loop iteration.
 
 @node Implementation,  , Programming Style, Gforth locals
 @subsubsection Implementation
+@cindex locals implementation
+@cindex implementation of locals
 
+@cindex locals stack
 Gforth uses an extra locals stack. The most compelling reason for
 this is that the return stack is not float-aligned; using an extra stack
 also eliminates the problems and restrictions of using the return stack
@@ -1814,6 +1991,7 @@ area and @code{@}} switches it back and generates the locals
 initializing code. @code{W:} etc.@ are normal defining words. This
 special area is cleared at the start of every colon definition.
 
+@cindex wordlist for defining locals
 A special feature of Gforth's dictionary is used to implement the
 definition of locals without type specifiers: every wordlist (aka
 vocabulary) has its own methods for searching
@@ -1860,6 +2038,8 @@ level to the level at the orig point, so the complete effect is an
 adjustment from the current level to the right level after the
 @code{THEN}.
 
+@cindex locals information on the control-flow stack
+@cindex control-flow stack items, locals information
 In a conventional Forth implementation a dest control-flow stack entry
 is just the target address and an orig entry is just the address to be
 patched. Our locals implementation adds a wordlist to every orig or dest
@@ -1906,6 +2086,7 @@ usually less than reclaiming this space would cost in code size.
 
 @node ANS Forth locals,  , Gforth locals, Locals
 @subsection ANS Forth locals
+@cindex locals, ANS Forth style
 
 The ANS Forth locals wordset does not define a syntax for locals, but
 words that make it possible to define various syntaxes. One of the
@@ -1966,6 +2147,7 @@ locals wordset.
 
 @node Defining Words, Tokens for Words, Locals, Words
 @section Defining Words
+@cindex defining words
 
 @menu
 * Simple Defining Words::       
@@ -1977,6 +2159,8 @@ locals wordset.
 
 @node Simple Defining Words, Colon Definitions, Defining Words, Defining Words
 @subsection Simple Defining Words
+@cindex simple defining words
+@cindex defining words, simple
 
 doc-constant
 doc-2constant
@@ -1993,6 +2177,7 @@ doc-is
 
 @node Colon Definitions, User-defined Defining Words, Simple Defining Words, Defining Words
 @subsection Colon Definitions
+@cindex colon definitions
 
 @example
 : name ( ... -- ... )
@@ -2011,11 +2196,14 @@ doc-;
 
 @node User-defined Defining Words, Supplying names, Colon Definitions, Defining Words
 @subsection User-defined Defining Words
+@cindex user-defined defining words
+@cindex defining words, user-defined
 
 You can create new defining words simply by wrapping defining-time code
 around existing defining words and putting the sequence in a colon
 definition.
 
+@cindex @code{CREATE} ... @code{DOES>}
 If you want the words defined with your defining words to behave
 differently from words defined with standard defining words, you can
 write your defining word like this:
@@ -2063,6 +2251,8 @@ When you create a constant with @code{5 constant five}, first a new word
 @code{five} with @code{,}. When @code{five} is invoked, the address of
 the body is put on the stack, and @code{@@} retrieves the value 5.
 
+@cindex stack effect of @code{DOES>}-parts
+@cindex @code{DOES>}-parts, stack effect
 In the example above the stack comment after the @code{DOES>} specifies
 the stack effect of the defined words, not the stack effect of the
 following code (the following code expects the address of the body on
@@ -2071,9 +2261,11 @@ the convention that I use and recommend (it clashes a bit with using
 locals declarations for stack effect specification, though).
 
 @subsubsection Applications of @code{CREATE..DOES>}
+@cindex @code{CREATE} ... @code{DOES>}, applications
 
 You may wonder how to use this feature. Here are some usage patterns:
 
+@cindex factoring similar colon definitions
 When you see a sequence of code occurring several times, and you can
 identify a meaning, you will factor it out as a colon definition. When
 you see similar colon definitions, you can factor them using
@@ -2097,6 +2289,7 @@ DOES> ( reg-target reg-source n -- )
 1 reg-reg-imm andi,
 @end example
 
+@cindex currying
 Another view of @code{CREATE..DOES>} is to consider it as a crude way to
 supply a part of the parameters for a word (known as @dfn{currying} in
 the functional language community). E.g., @code{+} needs two
@@ -2113,9 +2306,11 @@ DOES> ( n2 -- n1+n2 )
 @end example
 
 @subsubsection The gory details of @code{CREATE..DOES>}
+@cindex @code{CREATE} ... @code{DOES>}, details
 
 doc-does>
 
+@cindex @code{DOES>} in a separate definition
 This means that you need not use @code{CREATE} and @code{DOES>} in the
 same definition; E.g., you can put the @code{DOES>}-part in a separate
 definition. This allows us to, e.g., select among different DOES>-parts:
@@ -2137,6 +2332,7 @@ DOES> ( ... -- ... )
     ENDIF ;
 @end example
 
+@cindex @code{DOES>} in interpretation state
 In a standard program you can apply a @code{DOES>}-part only if the last
 word was defined with @code{CREATE}. In Gforth, the @code{DOES>}-part
 will override the behaviour of the last word defined in any case. In a
@@ -2164,7 +2360,10 @@ doc->body
 
 @node Supplying names, Interpretation and Compilation Semantics, User-defined Defining Words, Defining Words
 @subsection Supplying names for the defined words
+@cindex names for defined words
+@cindex defining words, name parameter
 
+@cindex defining words, name given in a string
 By default, defining words take the names for the defined words from the
 input stream. Sometimes you want to supply the name from a string. You
 can do this with
@@ -2181,10 +2380,12 @@ is equivalent to
 create foo
 @end example
 
+@cindex defining words without name
 Sometimes you want to define a word without a name. You can do this with
 
 doc-noname
 
+@cindex execution token of last defined word
 To make any use of the newly defined word, you need its execution
 token. You can get it with
 
@@ -2218,7 +2419,9 @@ IS deferred
 
 @node Interpretation and Compilation Semantics,  , Supplying names, Defining Words
 @subsection Interpretation and Compilation Semantics
+@cindex semantics, interpretation and compilation
 
+@cindex interpretation semantics
 The @dfn{interpretation semantics} of a word are what the text
 interpreter does when it encounters the word in interpret state. It also
 appears in some other contexts, e.g., the execution token returned by
@@ -2226,12 +2429,14 @@ appears in some other contexts, e.g., the execution token returned by
 @var{word} (in other words, @code{' @var{word} execute} is equivalent to
 interpret-state text interpretation of @code{@var{word}}).
 
+@cindex compilation semantics
 The @dfn{compilation semantics} of a word are what the text interpreter
 does when it encounters the word in compile state. It also appears in
 other contexts, e.g, @code{POSTPONE @var{word}} compiles@footnote{In
 standard terminology, ``appends to the current definition''.} the
 compilation semantics of @var{word}.
 
+@cindex execution semantics
 The standard also talks about @dfn{execution semantics}. They are used
 only for defining the interpretation and compilation semantics of many
 words. By default, the interpretation semantics of a word are to
@@ -2242,11 +2447,13 @@ execution semantics; the default compilation semantics are to append its
 execution semantics to the execution semantics of the current
 definition.}
 
+@cindex immediate words
 You can change the compilation semantics into @code{execute}ing the
 execution semantics with
 
 doc-immediate
 
+@cindex compile-only words
 You can remove the interpretation semantics of a word with
 
 doc-compile-only
@@ -2295,6 +2502,7 @@ the same compilation semantics as the simple definition of
 @code{foobar}, but the implementation of the compilation semantics is
 more efficient with respect to run-time.
 
+@cindex state-smart words are a bad idea
 Some people try to use state-smart words to emulate the feature provided
 by @code{interpret/compile:} (words are state-smart if they check
 @code{STATE} during execution). E.g., they would try to code
@@ -2320,6 +2528,7 @@ state, the result will not be what you expected (i.e., it will not
 perform @code{foo bar}). State-smart words are a bad idea. Simply don't
 write them!
 
+@cindex defining words with arbitrary semantics combinations
 It is also possible to write defining words that define words with
 arbitrary combinations of interpretation and compilation semantics (or,
 preferably, arbitrary combinations of implementations of the default
@@ -2371,6 +2580,7 @@ accessing the header structure usually know how to deal with this; e.g.,
 
 @node Tokens for Words, Wordlists, Defining Words, Words
 @section Tokens for Words
+@cindex tokens for words
 
 This chapter describes the creation and use of tokens that represent
 words on the stack (and in data space).
@@ -2378,6 +2588,7 @@ words on the stack (and in data space).
 Named words have interpretation and compilation semantics. Unnamed words
 just have execution semantics.
 
+@cindex execution token
 An @dfn{execution token} represents the execution semantics of an
 unnamed word. An execution token occupies one cell. As explained in
 section @ref{Supplying names}, the execution token of the last words
@@ -2390,6 +2601,8 @@ doc-execute
 You can compile the word with
 doc-compile,
 
+@cindex code field address
+@cindex CFA
 In Gforth, the abstract data type @emph{execution token} is implemented
 as CFA (code field address).
 
@@ -2405,6 +2618,7 @@ by complaining about compile-only words. To get an execution token for a
 compiling word @var{X}, use @code{COMP' @var{X} drop} or @code{[COMP']
 @var{X} drop}.
 
+@cindex compilation token
 The compilation semantics are represented by a @dfn{compilation token}
 consisting of two cells: @var{w xt}. The top cell @var{xt} is an
 execution token. The compilation semantics represented by the
@@ -2427,6 +2641,9 @@ token, and the @var{xt} part represents either @code{execute} or
 we may introduce unusual compilation tokens in the future (e.g.,
 compilation tokens representing the compilation semantics of literals).
 
+@cindex name token
+@cindex name field address
+@cindex NFA
 Named words are also represented by the @dfn{name token}. The abstract
 data type @emph{name token} is implemented as NFA (name field address).
 
@@ -2450,6 +2667,7 @@ doc-name>string
 
 @node Programming Tools, Assembler and Code words, Other I/O, Words
 @section Programming Tools
+@cindex programming tools
 
 @menu
 * Debugging::                   Simple and quick.
@@ -2458,6 +2676,7 @@ doc-name>string
 
 @node Debugging, Assertions, Programming Tools, Programming Tools
 @subsection Debugging
+@cindex debugging
 
 The simple debugging aids provided in @file{debugging.fs}
 are meant to support a different style of debugging than the
@@ -2490,6 +2709,7 @@ doc-printdebugline
 
 @node Assertions,  , Debugging, Programming Tools
 @subsection Assertions
+@cindex assertions
 
 It is a good idea to make your programs self-checking, in particular, if
 you use an assumption (e.g., that a certain field of a data structure is
@@ -2549,6 +2769,8 @@ probably more appropriate than an assertion).
 
 @node Assembler and Code words, Threading Words, Programming Tools, Words
 @section Assembler and Code words
+@cindex assembler
+@cindex code words
 
 Gforth provides some words for defining primitives (words written in
 machine code), and for defining the the machine-code equivalent of
@@ -2576,6 +2798,7 @@ These words are rarely used. Therefore they reside in @code{code.fs},
 which is usually not loaded (except @code{flush-icache}, which is always
 present). You can load them with @code{require code.fs}.
 
+@cindex registers of the inner interpreter
 In the assembly code you will want to refer to the inner interpreter's
 registers (e.g., the data stack pointer) and you may want to use other
 registers for temporary storage. Unfortunately, the register allocation
@@ -2608,6 +2831,7 @@ actual register allocation. E.g., if the data stack pointer resides in
 register @code{$17}, create an alias for this register called @code{sp},
 and use that in your assembly code.
 
+@cindex code words, portable
 Another option for implementing normal and defining words efficiently
 is: adding the wanted functionality to the source of Gforth. For normal
 words you just have to edit @file{primitives} (@pxref{Automatic
@@ -2618,13 +2842,15 @@ defined words) may require changes in @file{engine.c}, @file{kernal.fs},
 
 @node Threading Words,  , Assembler and Code words, Words
 @section Threading Words
+@cindex threading words
 
+@cindex code address
 These words provide access to code addresses and other threading stuff
 in Gforth (and, possibly, other interpretive Forths). It more or less
 abstracts away the differences between direct and indirect threading
 (and, for direct threading, the machine dependences). However, at
-present this wordset is still inclomplete. It is also pretty low-level;
-some day it will hopefully be made unnecessary by an internals words set
+present this wordset is still incomplete. It is also pretty low-level;
+some day it will hopefully be made unnecessary by an internals wordset
 that abstracts implementation details away completely.
 
 doc->code-address
@@ -2653,13 +2879,16 @@ defining word.
 @chapter Tools
 
 @menu
-* ANS Report::                  Report the words used, sorted by wordset
+* ANS Report::                  Report the words used, sorted by wordset.
 @end menu
 
 See also @ref{Emacs and Gforth}.
 
 @node ANS Report,  , Tools, Tools
 @section @file{ans-report.fs}: Report the words used, sorted by wordset
+@cindex @file{ans-report.fs}
+@cindex report the words used in your program
+@cindex words used in your program
 
 If you want to label a Forth program as ANS Forth Program, you must
 document which wordsets the program uses; for extension wordsets, it is
@@ -2699,9 +2928,10 @@ which wordset is the right one to specify. E.g., if you only use the
 compilation semantics of @code{S"}, it is a Core word; if you also use
 its interpretation semantics, it is a File word.
 
-
+@c ******************************************************************
 @node ANS conformance, Model, Tools, Top
 @chapter ANS conformance
+@cindex ANS conformance of Gforth
 
 To the best of our knowledge, Gforth is an
 
@@ -2732,6 +2962,7 @@ ANS Forth System
 @item providing the String Extensions word set (another easy one)
 @end itemize
 
+@cindex system documentation
 In addition, ANS Forth systems are required to document certain
 implementation choices. This chapter tries to meet these
 requirements. In many cases it gives a way to ask the system for the
@@ -2762,6 +2993,8 @@ change during the maintenance of Gforth.
 @comment  node-name,  next,  previous,  up
 @section The Core Words
 @c =====================================================================
+@cindex core words, system documentation
+@cindex system documentation, core words
 
 @menu
 * core-idef::                   Implementation Defined Options                   
@@ -2773,19 +3006,29 @@ change during the maintenance of Gforth.
 @node core-idef, core-ambcond, The Core Words, The Core Words
 @subsection Implementation Defined Options
 @c ---------------------------------------------------------------------
+@cindex core words, implementation-defined options
+@cindex implementation-defined options, core words
+
 
 @table @i
-
 @item (Cell) aligned addresses:
+@cindex cell-aligned addresses
+@cindex aligned addresses
 processor-dependent. Gforth's alignment words perform natural alignment
 (e.g., an address aligned for a datum of size 8 is divisible by
 8). Unaligned accesses usually result in a @code{-23 THROW}.
 
 @item @code{EMIT} and non-graphic characters:
+@cindex @code{EMIT} and non-graphic characters
+@cindex non-graphic characters and @code{EMIT}
 The character is output using the C library function (actually, macro)
 @code{putc}.
 
 @item character editing of @code{ACCEPT} and @code{EXPECT}:
+@cindex character editing of @code{ACCEPT} and @code{EXPECT}
+@cindex editing in @code{ACCEPT} and @code{EXPECT}
+@cindex @code{ACCEPT}, editing
+@cindex @code{EXPECT}, editing
 This is modeled on the GNU readline library (@pxref{Readline
 Interaction, , Command Line Editing, readline, The GNU Readline
 Library}) with Emacs-like key bindings. @kbd{Tab} deviates a little by
@@ -2793,17 +3036,23 @@ producing a full word completion every time you type it (instead of
 producing the common prefix of all completions).
 
 @item character set:
+@cindex character set
 The character set of your computer and display device. Gforth is
 8-bit-clean (but some other component in your system may make trouble).
 
 @item Character-aligned address requirements:
+@cindex character-aligned address requirements
 installation-dependent. Currently a character is represented by a C
 @code{unsigned char}; in the future we might switch to @code{wchar_t}
 (Comments on that requested).
 
 @item character-set extensions and matching of names:
+@cindex character-set extensions and matching of names
+@cindex case sensitivity for name lookup
+@cindex name lookup, case sensitivity
+@cindex locale and case sensitivity
 Any character except the ASCII NUL charcter can be used in a
-name. Matching is case-insensitive (except in @code{TABLE}s. The
+name. Matching is case-insensitive (except in @code{TABLE}s). The
 matching is performed using the C function @code{strncasecmp}, whose
 function is probably influenced by the locale. E.g., the @code{C} locale
 does not know about accents and umlauts, so they are matched
@@ -2817,6 +3066,8 @@ are using)). Also, the locale you prefer may not be available in other
 operating systems. Hopefully, Unicode will solve these problems one day.
 
 @item conditions under which control characters match a space delimiter:
+@cindex space delimiters
+@cindex control characters as delimiters
 If @code{WORD} is called with the space character as a delimiter, all
 white-space characters (as identified by the C macro @code{isspace()})
 are delimiters. @code{PARSE}, on the other hand, treats space like other
@@ -2826,6 +3077,7 @@ interpreter (aka text interpreter) by default, treats all white-space
 characters as delimiters.
 
 @item format of the control flow stack:
+@cindex control flow stack, format
 The data stack is used as control flow stack. The size of a control flow
 stack item in cells is given by the constant @code{cs-item-size}. At the
 time of this writing, an item consists of a (pointer to a) locals list
@@ -2835,41 +3087,59 @@ item (TOS). The following tags are used: @code{defstart},
 @code{scopestart}.
 
 @item conversion of digits > 35
+@cindex digits > 35
 The characters @code{[\]^_'} are the digits with the decimal value
 36@minus{}41. There is no way to input many of the larger digits.
 
 @item display after input terminates in @code{ACCEPT} and @code{EXPECT}:
+@cindex @code{EXPECT}, display after end of input
+@cindex @code{ACCEPT}, display after end of input
 The cursor is moved to the end of the entered string. If the input is
 terminated using the @kbd{Return} key, a space is typed.
 
 @item exception abort sequence of @code{ABORT"}:
+@cindex exception abort sequence of @code{ABORT"}
+@cindex @code{ABORT"}, exception abort sequence
 The error string is stored into the variable @code{"error} and a
 @code{-2 throw} is performed.
 
 @item input line terminator:
+@cindex input line terminator
+@cindex line terminator on input
+@cindex newline charcter on input
 For interactive input, @kbd{C-m} (CR) and @kbd{C-j} (LF) terminate
 lines. One of these characters is typically produced when you type the
 @kbd{Enter} or @kbd{Return} key.
 
 @item maximum size of a counted string:
+@cindex maximum size of a counted string
+@cindex counted string, maximum size
 @code{s" /counted-string" environment? drop .}. Currently 255 characters
 on all ports, but this may change.
 
 @item maximum size of a parsed string:
+@cindex maximum size of a parsed string
+@cindex parsed string, maximum size
 Given by the constant @code{/line}. Currently 255 characters.
 
 @item maximum size of a definition name, in characters:
+@cindex maximum size of a definition name, in characters
+@cindex name, maximum length
 31
 
 @item maximum string length for @code{ENVIRONMENT?}, in characters:
+@cindex maximum string length for @code{ENVIRONMENT?}, in characters
+@cindex @code{ENVIRONMENT?} string length, maximum
 31
 
 @item method of selecting the user input device:
+@cindex user input device, method of selecting
 The user input device is the standard input. There is currently no way to
 change it from within Gforth. However, the input can typically be
 redirected in the command line that starts Gforth.
 
 @item method of selecting the user output device:
+@cindex user output device, method of selecting
 @code{EMIT} and @code{TYPE} output to the file-id stored in the value
 @code{outfile-id} (@code{stdout} by default). Gforth uses buffered
 output, so output on a terminal does not become visible before the next
@@ -2880,13 +3150,18 @@ the buffer overflows.
 What are we expected to document here?
 
 @item number of bits in one address unit:
+@cindex number of bits in one address unit
+@cindex address unit, size in bits
 @code{s" address-units-bits" environment? drop .}. 8 in all current
 ports.
 
 @item number representation and arithmetic:
+@cindex number representation and arithmetic
 Processor-dependent. Binary two's complement on all current ports.
 
 @item ranges for integer types:
+@cindex ranges for integer types
+@cindex integer types, ranges
 Installation-dependent. Make environmental queries for @code{MAX-N},
 @code{MAX-U}, @code{MAX-D} and @code{MAX-UD}. The lower bounds for
 unsigned (and positive) types is 0. The lower bound for signed types on
@@ -2894,9 +3169,13 @@ two's complement and one's complement machines machines can be computed
 by adding 1 to the upper bound.
 
 @item read-only data space regions:
+@cindex read-only data space regions
+@cindex data-space, read-only regions
 The whole Forth data space is writable.
 
 @item size of buffer at @code{WORD}:
+@cindex size of buffer at @code{WORD}
+@cindex @code{WORD} buffer size
 @code{PAD HERE - .}. 104 characters on 32-bit machines. The buffer is
 shared with the pictured numeric output string. If overwriting
 @code{PAD} is acceptable, it is as large as the remaining dictionary
@@ -2904,12 +3183,16 @@ space, although only as much can be sensibly used as fits in a counted
 string.
 
 @item size of one cell in address units:
+@cindex cell size
 @code{1 cells .}.
 
 @item size of one character in address units:
+@cindex char size
 @code{1 chars .}. 1 on all current ports.
 
 @item size of the keyboard terminal buffer:
+@cindex size of the keyboard terminal buffer
+@cindex terminal buffer, size
 Varies. You can determine the size at a specific time using @code{lp@@
 tib - .}. It is shared with the locals stack and TIBs of files that
 include the current file. You can change the amount of space for TIBs
@@ -2917,15 +3200,18 @@ and locals stack at Gforth startup with the command line option
 @code{-l}.
 
 @item size of the pictured numeric output buffer:
+@cindex size of the pictured numeric output buffer
+@cindex pictured numeric output buffer, size
 @code{PAD HERE - .}. 104 characters on 32-bit machines. The buffer is
 shared with @code{WORD}.
 
 @item size of the scratch area returned by @code{PAD}:
-The remainder of dictionary space. You can even use the unused part of
-the data stack space. The current size can be computed with @code{sp@@
-pad - .}.
+@cindex size of the scratch area returned by @code{PAD}
+@cindex @code{PAD} size
+The remainder of dictionary space. @code{unused pad here - - .}.
 
 @item system case-sensitivity characteristics:
+@cindex case-sensitivity characteristics
 Dictionary searches are case insensitive (except in
 @code{TABLE}s). However, as explained above under @i{character-set
 extensions}, the matching for non-ASCII characters is determined by the
@@ -2933,14 +3219,18 @@ locale you are using. In the default @code{C} locale all non-ASCII
 characters are matched case-sensitively.
 
 @item system prompt:
+@cindex system prompt
+@cindex prompt
 @code{ ok} in interpret state, @code{ compiled} in compile state.
 
 @item division rounding:
+@cindex division rounding
 installation dependent. @code{s" floored" environment? drop .}. We leave
-the choice to @code{gcc} (what to use for @code{/}) and to you (whether to use
-@code{fm/mod}, @code{sm/rem} or simply @code{/}).
+the choice to @code{gcc} (what to use for @code{/}) and to you (whether
+to use @code{fm/mod}, @code{sm/rem} or simply @code{/}).
 
 @item values of @code{STATE} when true:
+@cindex @code{STATE} values
 -1.
 
 @item values returned after arithmetic overflow:
@@ -2952,6 +3242,7 @@ fault), although a @code{-10 throw} (divide by zero) would be more
 appropriate.
 
 @item whether the current definition can be found after @t{DOES>}:
+@cindex @t{DOES>}, visibility of current definition
 No.
 
 @end table
@@ -2960,64 +3251,101 @@ No.
 @node core-ambcond, core-other, core-idef, The Core Words
 @subsection Ambiguous conditions
 @c ---------------------------------------------------------------------
+@cindex core words, ambiguous conditions
+@cindex ambiguous conditions, core words
 
 @table @i
 
 @item a name is neither a word nor a number:
+@cindex name not found
+@cindex Undefined word
 @code{-13 throw} (Undefined word). Actually, @code{-13 bounce}, which
 preserves the data and FP stack, so you don't lose more work than
 necessary.
 
 @item a definition name exceeds the maximum length allowed:
+@cindex Word name too long
 @code{-19 throw} (Word name too long)
 
 @item addressing a region not inside the various data spaces of the forth system:
+@cindex Invalid memory address
 The stacks, code space and name space are accessible. Machine code space is
 typically readable. Accessing other addresses gives results dependent on
 the operating system. On decent systems: @code{-9 throw} (Invalid memory
 address).
 
 @item argument type incompatible with parameter:
+@cindex Argument type mismatch
 This is usually not caught. Some words perform checks, e.g., the control
 flow words, and issue a @code{ABORT"} or @code{-12 THROW} (Argument type
 mismatch).
 
 @item attempting to obtain the execution token of a word with undefined execution semantics:
+@cindex Interpreting a compile-only word, for @code{'} etc.
+@cindex execution token of words with undefined execution semantics
 @code{-14 throw} (Interpreting a compile-only word). In some cases, you
 get an execution token for @code{compile-only-error} (which performs a
 @code{-14 throw} when executed).
 
 @item dividing by zero:
+@cindex dividing by zero
+@cindex floating point unidentified fault, integer division
+@cindex divide by zero
 typically results in a @code{-55 throw} (floating point unidentified
 fault), although a @code{-10 throw} (divide by zero) would be more
 appropriate.
 
 @item insufficient data stack or return stack space:
-Not checked. This typically results in mysterious illegal memory
-accesses, producing @code{-9 throw} (Invalid memory address) or
-@code{-23 throw} (Address alignment exception).
+@cindex insufficient data stack or return stack space
+@cindex stack overflow
+@cindex Address alignment exception, stack overflow
+@cindex Invalid memory address, stack overflow
+Depending on the operating system, the installation, and the invocation
+of Gforth, this is either checked by the memory management hardware, or
+it is not checked. If it is checked, you typically get a @code{-9 throw}
+(Invalid memory address) as soon as the overflow happens. If it is not
+check, overflows typically result in mysterious illegal memory accesses,
+producing @code{-9 throw} (Invalid memory address) or @code{-23 throw}
+(Address alignment exception); they might also destroy the internal data
+structure of @code{ALLOCATE} and friends, resulting in various errors in
+these words.
 
 @item insufficient space for loop control parameters:
+@cindex insufficient space for loop control parameters
 like other return stack overflows.
 
 @item insufficient space in the dictionary:
-Not checked. Similar results as stack overflows. However, typically the
-error appears at a different place when one inserts or removes code.
+@cindex insufficient space in the dictionary
+@cindex dictionary overflow
+Depending on the operating system, the installation, and the invocation
+of Gforth, this is either checked by the memory management hardware, or
+it is not checked. Similar results as stack overflows. However,
+typically the error appears at a different place when one inserts or
+removes code. Also, the @code{THROW} does not relieve the situation (it
+does for stack overflows).
 
 @item interpreting a word with undefined interpretation semantics:
-For some words, we defined interpretation semantics. For the others:
-@code{-14 throw} (Interpreting a compile-only word).
+@cindex interpreting a word with undefined interpretation semantics
+@cindex Interpreting a compile-only word
+For some words, we have defined interpretation semantics. For the
+others: @code{-14 throw} (Interpreting a compile-only word).
 
 @item modifying the contents of the input buffer or a string literal:
+@cindex modifying the contents of the input buffer or a string literal
 These are located in writable memory and can be modified.
 
 @item overflow of the pictured numeric output string:
-Not checked.
+@cindex overflow of the pictured numeric output string
+@cindex pictured numeric output string, overflow
+Not checked. Runs into the dictionary and destroys it (at least,
+partially).
 
 @item parsed string overflow:
+@cindex parsed string overflow
 @code{PARSE} cannot overflow. @code{WORD} does not check for overflow.
 
 @item producing a result out of range:
+@cindex result out of range
 On two's complement machines, arithmetic is performed modulo
 2**bits-per-cell for single arithmetic and 4**bits-per-cell for double
 arithmetic (with appropriate mapping for signed types). Division by zero
@@ -3027,25 +3355,39 @@ appropriate. @code{convert} and @code{>number} currently overflow
 silently.
 
 @item reading from an empty data or return stack:
+@cindex stack empty
+@cindex stack underflow
 The data stack is checked by the outer (aka text) interpreter after
 every word executed. If it has underflowed, a @code{-4 throw} (Stack
-underflow) is performed. Apart from that, the stacks are not checked and
-underflows can result in similar behaviour as overflows (of adjacent
-stacks).
+underflow) is performed. Apart from that, stacks may be checked or not,
+depending on operating system, installation, and invocation. The
+consequences of stack underflows are similar to the consequences of
+stack overflows. Note that even if the system uses checking (through the
+MMU), your program may have to underflow by a significant number of
+stack items to trigger the reaction (the reason for this is that the
+MMU, and therefore the checking, works with a page-size granularity).
 
 @item unexpected end of the input buffer, resulting in an attempt to use a zero-length string as a name:
+@cindex unexpected end of the input buffer
+@cindex zero-length string as a name
+@cindex Attempt to use zero-length string as a name
 @code{Create} and its descendants perform a @code{-16 throw} (Attempt to
 use zero-length string as a name). Words like @code{'} probably will not
 find what they search. Note that it is possible to create zero-length
 names with @code{nextname} (should it not?).
 
 @item @code{>IN} greater than input buffer:
+@cindex @code{>IN} greater than input buffer
 The next invocation of a parsing word returns a string with length 0.
 
 @item @code{RECURSE} appears after @code{DOES>}:
+@cindex @code{RECURSE} appears after @code{DOES>}
 Compiles a recursive call to the defining word, not to the defined word.
 
 @item argument input source different than current input source for @code{RESTORE-INPUT}:
+@cindex argument input source different than current input source for @code{RESTORE-INPUT}
+@cindex Argument type mismatch, @code{RESTORE-INPUT}
+@cindex @code{RESTORE-INPUT}, Argument type mismatch
 @code{-12 THROW}. Note that, once an input file is closed (e.g., because
 the end of the file was reached), its source-id may be
 reused. Therefore, restoring an input source specification referencing a
@@ -3056,10 +3398,14 @@ In the future, Gforth may be able to restore input source specifications
 from other than the current input source.
 
 @item data space containing definitions gets de-allocated:
+@cindex data space containing definitions gets de-allocated
 Deallocation with @code{allot} is not checked. This typically results in
 memory access faults or execution of illegal instructions.
 
 @item data space read/write with incorrect alignment:
+@cindex data space read/write with incorrect alignment
+@cindex alignment faults
+@cindex Address alignment exception
 Processor-dependent. Typically results in a @code{-23 throw} (Address
 alignment exception). Under Linux on a 486 or later processor with
 alignment turned on, incorrect alignment results in a @code{-9 throw}
@@ -3067,44 +3413,61 @@ alignment turned on, incorrect alignment results in a @code{-9 throw}
 alignment restrictions that do not report them.
 
 @item data space pointer not properly aligned, @code{,}, @code{C,}:
+@cindex data space pointer not properly aligned, @code{,}, @code{C,}
 Like other alignment errors.
 
 @item less than u+2 stack items (@code{PICK} and @code{ROLL}):
-Not checked. May cause an illegal memory access.
+Like other stack underflows.
 
 @item loop control parameters not available:
+@cindex loop control parameters not available
 Not checked. The counted loop words simply assume that the top of return
 stack items are loop control parameters and behave accordingly.
 
 @item most recent definition does not have a name (@code{IMMEDIATE}):
+@cindex most recent definition does not have a name (@code{IMMEDIATE})
+@cindex last word was headerless
 @code{abort" last word was headerless"}.
 
 @item name not defined by @code{VALUE} used by @code{TO}:
-@code{-32 throw} (Invalid name argument) (unless name was defined by
-@code{CONSTANT}; then it just changes the constant).
+@cindex name not defined by @code{VALUE} used by @code{TO}
+@cindex @code{TO} on non-@code{VALUE}s
+@cindex Invalid name argument, @code{TO}
+@code{-32 throw} (Invalid name argument) (unless name is a local or was
+defined by @code{CONSTANT}; in the latter case it just changes the constant).
 
 @item name not found (@code{'}, @code{POSTPONE}, @code{[']}, @code{[COMPILE]}):
+@cindex name not found (@code{'}, @code{POSTPONE}, @code{[']}, @code{[COMPILE]})
+@cindex Undefined word, @code{'}, @code{POSTPONE}, @code{[']}, @code{[COMPILE]}
 @code{-13 throw} (Undefined word)
 
 @item parameters are not of the same type (@code{DO}, @code{?DO}, @code{WITHIN}):
+@cindex parameters are not of the same type (@code{DO}, @code{?DO}, @code{WITHIN})
 Gforth behaves as if they were of the same type. I.e., you can predict
 the behaviour by interpreting all parameters as, e.g., signed.
 
 @item @code{POSTPONE} or @code{[COMPILE]} applied to @code{TO}:
+@cindex @code{POSTPONE} or @code{[COMPILE]} applied to @code{TO}
 Assume @code{: X POSTPONE TO ; IMMEDIATE}. @code{X} performs the
 compilation semantics of @code{TO}.
 
 @item String longer than a counted string returned by @code{WORD}:
+@cindex String longer than a counted string returned by @code{WORD}
+@cindex @code{WORD}, string overflow
 Not checked. The string will be ok, but the count will, of course,
 contain only the least significant bits of the length.
 
 @item u greater than or equal to the number of bits in a cell (@code{LSHIFT}, @code{RSHIFT}):
+@cindex @code{LSHIFT}, large shift counts
+@cindex @code{RSHIFT}, large shift counts
 Processor-dependent. Typical behaviours are returning 0 and using only
 the low bits of the shift count.
 
 @item word not defined via @code{CREATE}:
+@cindex @code{>BODY} of non-@code{CREATE}d words
 @code{>BODY} produces the PFA of the word no matter how it was defined.
 
+@cindex @code{DOES>} of non-@code{CREATE}d words
 @code{DOES>} changes the execution semantics of the last defined word no
 matter how it was defined. E.g., @code{CONSTANT DOES>} is equivalent to
 @code{CREATE , DOES>}.
@@ -3119,33 +3482,41 @@ Not checked. As usual, you can expect memory faults.
 @node core-other,  , core-ambcond, The Core Words
 @subsection Other system documentation
 @c ---------------------------------------------------------------------
+@cindex other system documentation, core words
+@cindex core words, other system documentation
 
 @table @i
-
 @item nonstandard words using @code{PAD}:
+@cindex @code{PAD} use by nonstandard words
 None.
 
 @item operator's terminal facilities available:
+@cindex operator's terminal facilities available
 After processing the command line, Gforth goes into interactive mode,
 and you can give commands to Gforth interactively. The actual facilities
 available depend on how you invoke Gforth.
 
 @item program data space available:
+@cindex program data space available
+@cindex data space available
 @code{UNUSED .} gives the remaining dictionary space. The total
 dictionary space can be specified with the @code{-m} switch
-(@pxref{Invocation}) when Gforth starts up.
+(@pxref{Invoking Gforth}) when Gforth starts up.
 
 @item return stack space available:
+@cindex return stack space available
 You can compute the total return stack space in cells with
 @code{s" RETURN-STACK-CELLS" environment? drop .}. You can specify it at
-startup time with the @code{-r} switch (@pxref{Invocation}).
+startup time with the @code{-r} switch (@pxref{Invoking Gforth}).
 
 @item stack space available:
+@cindex stack space available
 You can compute the total data stack space in cells with
 @code{s" STACK-CELLS" environment? drop .}. You can specify it at
-startup time with the @code{-d} switch (@pxref{Invocation}).
+startup time with the @code{-d} switch (@pxref{Invoking Gforth}).
 
 @item system dictionary space required, in address units:
+@cindex system dictionary space required, in address units
 Type @code{here forthstart - .} after startup. At the time of this
 writing, this gives 80080 (bytes) on a 32-bit system.
 @end table
@@ -3155,9 +3526,11 @@ writing, this gives 80080 (bytes) on a 32-bit system.
 @node The optional Block word set, The optional Double Number word set, The Core Words, ANS conformance
 @section The optional Block word set
 @c =====================================================================
+@cindex system documentation, block words
+@cindex block words, system documentation
 
 @menu
-* block-idef::                  Implementation Defined Options                  
+* block-idef::                  Implementation Defined Options
 * block-ambcond::               Ambiguous Conditions               
 * block-other::                 Other System Documentation                 
 @end menu
@@ -3167,14 +3540,18 @@ writing, this gives 80080 (bytes) on a 32-bit system.
 @node block-idef, block-ambcond, The optional Block word set, The optional Block word set
 @subsection Implementation Defined Options
 @c ---------------------------------------------------------------------
+@cindex implementation-defined options, block words
+@cindex block words, implementation-defined options
 
 @table @i
-
 @item the format for display by @code{LIST}:
+@cindex @code{LIST} display format
 First the screen number is displayed, then 16 lines of 64 characters,
 each line preceded by the line number.
 
 @item the length of a line affected by @code{\}:
+@cindex length of a line affected by @code{\}
+@cindex @code{\}, line length in blocks
 64 characters.
 @end table
 
@@ -3183,39 +3560,47 @@ each line preceded by the line number.
 @node block-ambcond, block-other, block-idef, The optional Block word set
 @subsection Ambiguous conditions
 @c ---------------------------------------------------------------------
+@cindex block words, ambiguous conditions
+@cindex ambiguous conditions, block words
 
 @table @i
-
 @item correct block read was not possible:
+@cindex block read not possible
 Typically results in a @code{throw} of some OS-derived value (between
 -512 and -2048). If the blocks file was just not long enough, blanks are
 supplied for the missing portion.
 
 @item I/O exception in block transfer:
+@cindex I/O exception in block transfer
+@cindex block transfer, I/O exception
 Typically results in a @code{throw} of some OS-derived value (between
 -512 and -2048).
 
 @item invalid block number:
+@cindex invalid block number
+@cindex block number invalid
 @code{-35 throw} (Invalid block number)
 
 @item a program directly alters the contents of @code{BLK}:
+@cindex @code{BLK}, altering @code{BLK}
 The input stream is switched to that other block, at the same
 position. If the storing to @code{BLK} happens when interpreting
 non-block input, the system will get quite confused when the block ends.
 
 @item no current block buffer for @code{UPDATE}:
+@cindex @code{UPDATE}, no current block buffer
 @code{UPDATE} has no effect.
 
 @end table
-
 
 @c ---------------------------------------------------------------------
 @node block-other,  , block-ambcond, The optional Block word set
 @subsection Other system documentation
 @c ---------------------------------------------------------------------
+@cindex other system documentation, block words
+@cindex block words, other system documentation
 
 @table @i
-
 @item any restrictions a multiprogramming system places on the use of buffer addresses:
 No restrictions (yet).
 
@@ -3229,6 +3614,8 @@ depends on your disk space.
 @node The optional Double Number word set, The optional Exception word set, The optional Block word set, ANS conformance
 @section The optional Double Number word set
 @c =====================================================================
+@cindex system documentation, double words
+@cindex double words, system documentation
 
 @menu
 * double-ambcond::              Ambiguous Conditions              
@@ -3239,10 +3626,12 @@ depends on your disk space.
 @node double-ambcond,  , The optional Double Number word set, The optional Double Number word set
 @subsection Ambiguous conditions
 @c ---------------------------------------------------------------------
+@cindex double words, ambiguous conditions
+@cindex ambiguous conditions, double words
 
 @table @i
-
 @item @var{d} outside of range of @var{n} in @code{D>S}:
+@cindex @code{D>S}, @var{d} out of range of @var{n} 
 The least significant cell of @var{d} is produced.
 
 @end table
@@ -3252,6 +3641,8 @@ The least significant cell of @var{d} is produced.
 @node The optional Exception word set, The optional Facility word set, The optional Double Number word set, ANS conformance
 @section The optional Exception word set
 @c =====================================================================
+@cindex system documentation, exception words
+@cindex exception words, system documentation
 
 @menu
 * exception-idef::              Implementation Defined Options              
@@ -3262,22 +3653,27 @@ The least significant cell of @var{d} is produced.
 @node exception-idef,  , The optional Exception word set, The optional Exception word set
 @subsection Implementation Defined Options
 @c ---------------------------------------------------------------------
+@cindex implementation-defined options, exception words
+@cindex exception words, implementation-defined options
 
 @table @i
 @item @code{THROW}-codes used in the system:
-The codes -256@minus{}-511 are used for reporting signals (see
-@file{errore.fs}). The codes -512@minus{}-2047 are used for OS errors
-(for file and memory allocation operations). The mapping from OS error
-numbers to throw code is -512@minus{}@code{errno}. One side effect of
-this mapping is that undefined OS errors produce a message with a
-strange number; e.g., @code{-1000 THROW} results in @code{Unknown error
-488} on my system.
+@cindex @code{THROW}-codes used in the system
+The codes -256@minus{}-511 are used for reporting signals. The mapping
+from OS signal numbers to throw codes is -256@minus{}@var{signal}. The
+codes -512@minus{}-2047 are used for OS errors (for file and memory
+allocation operations). The mapping from OS error numbers to throw codes
+is -512@minus{}@code{errno}. One side effect of this mapping is that
+undefined OS errors produce a message with a strange number; e.g.,
+@code{-1000 THROW} results in @code{Unknown error 488} on my system.
 @end table
 
 @c =====================================================================
 @node The optional Facility word set, The optional File-Access word set, The optional Exception word set, ANS conformance
 @section The optional Facility word set
 @c =====================================================================
+@cindex system documentation, facility words
+@cindex facility words, system documentation
 
 @menu
 * facility-idef::               Implementation Defined Options               
@@ -3289,18 +3685,25 @@ strange number; e.g., @code{-1000 THROW} results in @code{Unknown error
 @node facility-idef, facility-ambcond, The optional Facility word set, The optional Facility word set
 @subsection Implementation Defined Options
 @c ---------------------------------------------------------------------
+@cindex implementation-defined options, facility words
+@cindex facility words, implementation-defined options
 
 @table @i
-
 @item encoding of keyboard events (@code{EKEY}):
+@cindex keyboard events, encoding in @code{EKEY}
+@cindex @code{EKEY}, encoding of keyboard events
 Not yet implemented.
 
-@item duration of a system clock tick
+@item duration of a system clock tick:
+@cindex duration of a system clock tick
+@cindex clock tick duration
 System dependent. With respect to @code{MS}, the time is specified in
 microseconds. How well the OS and the hardware implement this, is
 another question.
 
 @item repeatability to be expected from the execution of @code{MS}:
+@cindex repeatability to be expected from the execution of @code{MS}
+@cindex @code{MS}, repeatability to be expected
 System dependent. On Unix, a lot depends on load. If the system is
 lightly loaded, and the delay is short enough that Gforth does not get
 swapped out, the performance should be acceptable. Under MS-DOS and
@@ -3313,10 +3716,12 @@ other single-tasking systems, it should be good.
 @node facility-ambcond,  , facility-idef, The optional Facility word set
 @subsection Ambiguous conditions
 @c ---------------------------------------------------------------------
+@cindex facility words, ambiguous conditions
+@cindex ambiguous conditions, facility words
 
 @table @i
-
 @item @code{AT-XY} can't be performed on user output device:
+@cindex @code{AT-XY} can't be performed on user output device
 Largely terminal dependent. No range checks are done on the arguments.
 No errors are reported. You may see some garbage appearing, you may see
 simply nothing happen.
@@ -3328,70 +3733,88 @@ simply nothing happen.
 @node The optional File-Access word set, The optional Floating-Point word set, The optional Facility word set, ANS conformance
 @section The optional File-Access word set
 @c =====================================================================
+@cindex system documentation, file words
+@cindex file words, system documentation
 
 @menu
-* file-idef::                   Implementation Defined Options                   
+* file-idef::                   Implementation Defined Options
 * file-ambcond::                Ambiguous Conditions                
 @end menu
-
 
 @c ---------------------------------------------------------------------
 @node file-idef, file-ambcond, The optional File-Access word set, The optional File-Access word set
 @subsection Implementation Defined Options
 @c ---------------------------------------------------------------------
+@cindex implementation-defined options, file words
+@cindex file words, implementation-defined options
 
 @table @i
-
-@item File access methods used:
+@item file access methods used:
+@cindex file access methods used
 @code{R/O}, @code{R/W} and @code{BIN} work as you would
 expect. @code{W/O} translates into the C file opening mode @code{w} (or
 @code{wb}): The file is cleared, if it exists, and created, if it does
-not (both with @code{open-file} and @code{create-file}).  Under Unix
+not (with both @code{open-file} and @code{create-file}).  Under Unix
 @code{create-file} creates a file with 666 permissions modified by your
 umask.
 
 @item file exceptions:
+@cindex file exceptions
 The file words do not raise exceptions (except, perhaps, memory access
 faults when you pass illegal addresses or file-ids).
 
 @item file line terminator:
+@cindex file line terminator
 System-dependent. Gforth uses C's newline character as line
 terminator. What the actual character code(s) of this are is
 system-dependent.
 
-@item file name format
+@item file name format:
+@cindex file name format
 System dependent. Gforth just uses the file name format of your OS.
 
 @item information returned by @code{FILE-STATUS}:
+@cindex @code{FILE-STATUS}, returned information
 @code{FILE-STATUS} returns the most powerful file access mode allowed
 for the file: Either @code{R/O}, @code{W/O} or @code{R/W}. If the file
 cannot be accessed, @code{R/O BIN} is returned. @code{BIN} is applicable
 along with the returned mode.
 
 @item input file state after an exception when including source:
+@cindex exception when including source
 All files that are left via the exception are closed.
 
 @item @var{ior} values and meaning:
+@cindex @var{ior} values and meaning
 The @var{ior}s returned by the file and memory allocation words are
 intended as throw codes. They typically are in the range
 -512@minus{}-2047 of OS errors.  The mapping from OS error numbers to
 @var{ior}s is -512@minus{}@var{errno}.
 
 @item maximum depth of file input nesting:
+@cindex maximum depth of file input nesting
+@cindex file input nesting, maximum depth
 limited by the amount of return stack, locals/TIB stack, and the number
 of open files available. This should not give you troubles.
 
 @item maximum size of input line:
+@cindex maximum size of input line
+@cindex input line size, maximum
 @code{/line}. Currently 255.
 
 @item methods of mapping block ranges to files:
+@cindex mapping block ranges to files
+@cindex files containing blocks
+@cindex blocks in files
 By default, blocks are accessed in the file @file{blocks.fb} in the
 current working directory. The file can be switched with @code{USE}.
 
 @item number of string buffers provided by @code{S"}:
+@cindex @code{S"}, number of string buffers
 1
 
 @item size of string buffer used by @code{S"}:
+@cindex @code{S"}, size of string buffer
 @code{/line}. currently 255.
 
 @end table
@@ -3400,33 +3823,42 @@ current working directory. The file can be switched with @code{USE}.
 @node file-ambcond,  , file-idef, The optional File-Access word set
 @subsection Ambiguous conditions
 @c ---------------------------------------------------------------------
+@cindex file words, ambiguous conditions
+@cindex ambiguous conditions, file words
 
 @table @i
-
-@item attempting to position a file outside it's boundaries:
+@item attempting to position a file outside its boundaries:
+@cindex @code{REPOSITION-FILE}, outside the file's boundaries
 @code{REPOSITION-FILE} is performed as usual: Afterwards,
 @code{FILE-POSITION} returns the value given to @code{REPOSITION-FILE}.
 
 @item attempting to read from file positions not yet written:
+@cindex reading from file positions not yet written
 End-of-file, i.e., zero characters are read and no error is reported.
 
 @item @var{file-id} is invalid (@code{INCLUDE-FILE}):
+@cindex @code{INCLUDE-FILE}, @var{file-id} is invalid 
 An appropriate exception may be thrown, but a memory fault or other
 problem is more probable.
 
-@item I/O exception reading or closing @var{file-id} (@code{include-file}, @code{included}):
+@item I/O exception reading or closing @var{file-id} (@code{INCLUDE-FILE}, @code{INCLUDED}):
+@cindex @code{INCLUDE-FILE}, I/O exception reading or closing @var{file-id}
+@cindex @code{INCLUDED}, I/O exception reading or closing @var{file-id}
 The @var{ior} produced by the operation, that discovered the problem, is
 thrown.
 
-@item named file cannot be opened (@code{included}):
+@item named file cannot be opened (@code{INCLUDED}):
+@cindex @code{INCLUDED}, named file cannot be opened
 The @var{ior} produced by @code{open-file} is thrown.
 
 @item requesting an unmapped block number:
+@cindex unmapped block numbers
 There are no unmapped legal block numbers. On some operating systems,
 writing a block with a large number may overflow the file system and
 have an error message as consequence.
 
 @item using @code{source-id} when @code{blk} is non-zero:
+@cindex @code{SOURCE-ID}, behaviour when @code{BLK} is non-zero
 @code{source-id} performs its function. Typically it will give the id of
 the source which loaded the block. (Better ideas?)
 
@@ -3437,6 +3869,8 @@ the source which loaded the block. (Better ideas?)
 @node  The optional Floating-Point word set, The optional Locals word set, The optional File-Access word set, ANS conformance
 @section The optional Floating-Point word set
 @c =====================================================================
+@cindex system documentation, floating-point words
+@cindex floating-point words, system documentation
 
 @menu
 * floating-idef::               Implementation Defined Options
@@ -3448,28 +3882,37 @@ the source which loaded the block. (Better ideas?)
 @node floating-idef, floating-ambcond, The optional Floating-Point word set, The optional Floating-Point word set
 @subsection Implementation Defined Options
 @c ---------------------------------------------------------------------
+@cindex implementation-defined options, floating-point words
+@cindex floating-point words, implementation-defined options
 
 @table @i
-
 @item format and range of floating point numbers:
+@cindex format and range of floating point numbers
+@cindex floating point numbers, format and range
 System-dependent; the @code{double} type of C.
 
 @item results of @code{REPRESENT} when @var{float} is out of range:
+@cindex  @code{REPRESENT}, results when @var{float} is out of range
 System dependent; @code{REPRESENT} is implemented using the C library
 function @code{ecvt()} and inherits its behaviour in this respect.
 
 @item rounding or truncation of floating-point numbers:
+@cindex rounding of floating-point numbers
+@cindex truncation of floating-point numbers
+@cindex floating-point numbers, rounding or truncation
 System dependent; the rounding behaviour is inherited from the hosting C
 compiler. IEEE-FP-based (i.e., most) systems by default round to
 nearest, and break ties by rounding to even (i.e., such that the last
 bit of the mantissa is 0).
 
 @item size of floating-point stack:
+@cindex floating-point stack size
 @code{s" FLOATING-STACK" environment? drop .} gives the total size of
 the floating-point stack (in floats). You can specify this on startup
-with the command-line option @code{-f} (@pxref{Invocation}).
+with the command-line option @code{-f} (@pxref{Invoking Gforth}).
 
 @item width of floating-point stack:
+@cindex floating-point stack width 
 @code{1 floats}.
 
 @end table
@@ -3479,79 +3922,110 @@ with the command-line option @code{-f} (@pxref{Invocation}).
 @node floating-ambcond,  , floating-idef, The optional Floating-Point word set
 @subsection Ambiguous conditions
 @c ---------------------------------------------------------------------
+@cindex floating-point words, ambiguous conditions
+@cindex ambiguous conditions, floating-point words
 
 @table @i
-
 @item @code{df@@} or @code{df!} used with an address that is not double-float  aligned:
+@cindex @code{df@@} or @code{df!} used with an address that is not double-float  aligned
 System-dependent. Typically results in a @code{-23 THROW} like other
 alignment violations.
 
 @item @code{f@@} or @code{f!} used with an address that is not float  aligned:
+@cindex @code{f@@} used with an address that is not float aligned
+@cindex @code{f!} used with an address that is not float aligned
 System-dependent. Typically results in a @code{-23 THROW} like other
 alignment violations.
 
-@item Floating-point result out of range:
+@item floating-point result out of range:
+@cindex floating-point result out of range
 System-dependent. Can result in a @code{-55 THROW} (Floating-point
 unidentified fault), or can produce a special value representing, e.g.,
 Infinity.
 
 @item @code{sf@@} or @code{sf!} used with an address that is not single-float  aligned:
+@cindex @code{sf@@} or @code{sf!} used with an address that is not single-float  aligned
 System-dependent. Typically results in an alignment fault like other
 alignment violations.
 
-@item BASE is not decimal (@code{REPRESENT}, @code{F.}, @code{FE.}, @code{FS.}):
+@item @code{BASE} is not decimal (@code{REPRESENT}, @code{F.}, @code{FE.}, @code{FS.}):
+@cindex @code{BASE} is not decimal (@code{REPRESENT}, @code{F.}, @code{FE.}, @code{FS.})
 The floating-point number is converted into decimal nonetheless.
 
 @item Both arguments are equal to zero (@code{FATAN2}):
+@cindex @code{FATAN2}, both arguments are equal to zero
 System-dependent. @code{FATAN2} is implemented using the C library
 function @code{atan2()}.
 
-@item Using ftan on an argument @var{r1} where cos(@var{r1}) is zero:
+@item Using @code{FTAN} on an argument @var{r1} where cos(@var{r1}) is zero:
+@cindex @code{FTAN} on an argument @var{r1} where cos(@var{r1}) is zero
 System-dependent. Anyway, typically the cos of @var{r1} will not be zero
 because of small errors and the tan will be a very large (or very small)
 but finite number.
 
 @item @var{d} cannot be presented precisely as a float in @code{D>F}:
+@cindex @code{D>F}, @var{d} cannot be presented precisely as a float
 The result is rounded to the nearest float.
 
 @item dividing by zero:
+@cindex dividing by zero, floating-point
+@cindex floating-point dividing by zero
+@cindex floating-point unidentified fault, FP divide-by-zero
 @code{-55 throw} (Floating-point unidentified fault)
 
 @item exponent too big for conversion (@code{DF!}, @code{DF@@}, @code{SF!}, @code{SF@@}):
+@cindex exponent too big for conversion (@code{DF!}, @code{DF@@}, @code{SF!}, @code{SF@@})
 System dependent. On IEEE-FP based systems the number is converted into
 an infinity.
 
-@item @var{float}<1 (@code{facosh}):
+@item @var{float}<1 (@code{FACOSH}):
+@cindex @code{FACOSH}, @var{float}<1
+@cindex floating-point unidentified fault, @code{FACOSH}
 @code{-55 throw} (Floating-point unidentified fault)
 
-@item @var{float}=<-1 (@code{flnp1}):
+@item @var{float}=<-1 (@code{FLNP1}):
+@cindex @code{FLNP1}, @var{float}=<-1
+@cindex floating-point unidentified fault, @code{FLNP1}
 @code{-55 throw} (Floating-point unidentified fault). On IEEE-FP systems
 negative infinity is typically produced for @var{float}=-1.
 
-@item @var{float}=<0 (@code{fln}, @code{flog}):
+@item @var{float}=<0 (@code{FLN}, @code{FLOG}):
+@cindex @code{FLN}, @var{float}=<0
+@cindex @code{FLOG}, @var{float}=<0
+@cindex floating-point unidentified fault, @code{FLN} or @code{FLOG}
 @code{-55 throw} (Floating-point unidentified fault). On IEEE-FP systems
 negative infinity is typically produced for @var{float}=0.
 
-@item @var{float}<0 (@code{fasinh}, @code{fsqrt}):
+@item @var{float}<0 (@code{FASINH}, @code{FSQRT}):
+@cindex @code{FASINH}, @var{float}<0
+@cindex @code{FSQRT}, @var{float}<0
+@cindex floating-point unidentified fault, @code{FASINH} or @code{FSQRT}
 @code{-55 throw} (Floating-point unidentified fault). @code{fasinh}
 produces values for these inputs on my Linux box (Bug in the C library?)
 
-@item |@var{float}|>1 (@code{facos}, @code{fasin}, @code{fatanh}):
+@item |@var{float}|>1 (@code{FACOS}, @code{FASIN}, @code{FATANH}):
+@cindex @code{FACOS}, |@var{float}|>1
+@cindex @code{FASIN}, |@var{float}|>1
+@cindex @code{FATANH}, |@var{float}|>1
+@cindex floating-point unidentified fault, @code{FACOS}, @code{FASIN} or @code{FATANH}
 @code{-55 throw} (Floating-point unidentified fault).
 
-@item integer part of float cannot be represented by @var{d} in @code{f>d}:
+@item integer part of float cannot be represented by @var{d} in @code{F>D}:
+@cindex @code{F>D}, integer part of float cannot be represented by @var{d}
+@cindex floating-point unidentified fault, @code{F>D}
 @code{-55 throw} (Floating-point unidentified fault).
 
 @item string larger than pictured numeric output area (@code{f.}, @code{fe.}, @code{fs.}):
+@cindex string larger than pictured numeric output area (@code{f.}, @code{fe.}, @code{fs.})
 This does not happen.
 @end table
-
-
 
 @c =====================================================================
 @node  The optional Locals word set, The optional Memory-Allocation word set, The optional Floating-Point word set, ANS conformance
 @section The optional Locals word set
 @c =====================================================================
+@cindex system documentation, locals words
+@cindex locals words, system documentation
 
 @menu
 * locals-idef::                 Implementation Defined Options                 
@@ -3563,10 +4037,13 @@ This does not happen.
 @node locals-idef, locals-ambcond, The optional Locals word set, The optional Locals word set
 @subsection Implementation Defined Options
 @c ---------------------------------------------------------------------
+@cindex implementation-defined options, locals words
+@cindex locals words, implementation-defined options
 
 @table @i
-
 @item maximum number of locals in a definition:
+@cindex maximum number of locals in a definition
+@cindex locals, maximum number in a definition
 @code{s" #locals" environment? drop .}. Currently 15. This is a lower
 bound, e.g., on a 32-bit machine there can be 41 locals of up to 8
 characters. The number of locals in a definition is bounded by the size
@@ -3579,13 +4056,22 @@ of locals-buffer, which contains the names of the locals.
 @node locals-ambcond,  , locals-idef, The optional Locals word set
 @subsection Ambiguous conditions
 @c ---------------------------------------------------------------------
+@cindex locals words, ambiguous conditions
+@cindex ambiguous conditions, locals words
 
 @table @i
-
 @item executing a named local in interpretation state:
-@code{-14 throw} (Interpreting a compile-only word).
+@cindex local in interpretation state
+@cindex Interpreting a compile-only word, for a local
+Locals have no interpretation semantics. If you try to perform the
+interpretation semantics, you will get a @code{-14 throw} somewhere
+(Interpreting a compile-only word). If you perform the compilation
+semantics, the locals access will be compiled (irrespective of state).
 
 @item @var{name} not defined by @code{VALUE} or @code{(LOCAL)} (@code{TO}):
+@cindex name not defined by @code{VALUE} or @code{(LOCAL)} used by @code{TO}
+@cindex @code{TO} on non-@code{VALUE}s and non-locals
+@cindex Invalid name argument, @code{TO}
 @code{-32 throw} (Invalid name argument)
 
 @end table
@@ -3595,6 +4081,8 @@ of locals-buffer, which contains the names of the locals.
 @node  The optional Memory-Allocation word set, The optional Programming-Tools word set, The optional Locals word set, ANS conformance
 @section The optional Memory-Allocation word set
 @c =====================================================================
+@cindex system documentation, memory-allocation words
+@cindex memory-allocation words, system documentation
 
 @menu
 * memory-idef::                 Implementation Defined Options                 
@@ -3605,10 +4093,12 @@ of locals-buffer, which contains the names of the locals.
 @node memory-idef,  , The optional Memory-Allocation word set, The optional Memory-Allocation word set
 @subsection Implementation Defined Options
 @c ---------------------------------------------------------------------
+@cindex implementation-defined options, memory-allocation words
+@cindex memory-allocation words, implementation-defined options
 
 @table @i
-
 @item values and meaning of @var{ior}:
+@cindex  @var{ior} values and meaning
 The @var{ior}s returned by the file and memory allocation words are
 intended as throw codes. They typically are in the range
 -512@minus{}-2047 of OS errors.  The mapping from OS error numbers to
@@ -3620,6 +4110,8 @@ intended as throw codes. They typically are in the range
 @node  The optional Programming-Tools word set, The optional Search-Order word set, The optional Memory-Allocation word set, ANS conformance
 @section The optional Programming-Tools word set
 @c =====================================================================
+@cindex system documentation, programming-tools words
+@cindex programming-tools words, system documentation
 
 @menu
 * programming-idef::            Implementation Defined Options            
@@ -3631,21 +4123,28 @@ intended as throw codes. They typically are in the range
 @node programming-idef, programming-ambcond, The optional Programming-Tools word set, The optional Programming-Tools word set
 @subsection Implementation Defined Options
 @c ---------------------------------------------------------------------
+@cindex implementation-defined options, programming-tools words
+@cindex programming-tools words, implementation-defined options
 
 @table @i
+@item ending sequence for input following @code{;CODE} and @code{CODE}:
+@cindex @code{;CODE} ending sequence
+@cindex @code{CODE} ending sequence
+@code{END-CODE}
 
-@item ending sequence for input following @code{;code} and @code{code}:
-@code{end-code}
-
-@item manner of processing input following @code{;code} and @code{code}:
-The @code{assembler} vocabulary is pushed on the search order stack, and
+@item manner of processing input following @code{;CODE} and @code{CODE}:
+@cindex @code{;CODE}, processing input
+@cindex @code{CODE}, processing input
+The @code{ASSEMBLER} vocabulary is pushed on the search order stack, and
 the input is processed by the text interpreter, (starting) in interpret
 state.
 
 @item search order capability for @code{EDITOR} and @code{ASSEMBLER}:
+@cindex @code{ASSEMBLER}, search order capability
 The ANS Forth search order word set.
 
 @item source and format of display by @code{SEE}:
+@cindex @code{SEE}, source and format of output
 The source for @code{see} is the intermediate code used by the inner
 interpreter.  The current @code{see} tries to output Forth source code
 as well as possible.
@@ -3656,35 +4155,47 @@ as well as possible.
 @node programming-ambcond,  , programming-idef, The optional Programming-Tools word set
 @subsection Ambiguous conditions
 @c ---------------------------------------------------------------------
+@cindex programming-tools words, ambiguous conditions
+@cindex ambiguous conditions, programming-tools words
 
 @table @i
 
 @item deleting the compilation wordlist (@code{FORGET}):
+@cindex @code{FORGET}, deleting the compilation wordlist
 Not implemented (yet).
 
 @item fewer than @var{u}+1 items on the control flow stack (@code{CS-PICK}, @code{CS-ROLL}):
+@cindex @code{CS-PICK}, fewer than @var{u}+1 items on the control flow stack
+@cindex @code{CS-ROLL}, fewer than @var{u}+1 items on the control flow stack
+@cindex control-flow stack underflow
 This typically results in an @code{abort"} with a descriptive error
 message (may change into a @code{-22 throw} (Control structure mismatch)
 in the future). You may also get a memory access error. If you are
 unlucky, this ambiguous condition is not caught.
 
-@item @var{name} can't be found (@code{forget}):
+@item @var{name} can't be found (@code{FORGET}):
+@cindex @code{FORGET}, @var{name} can't be found
 Not implemented (yet).
 
 @item @var{name} not defined via @code{CREATE}:
-@code{;code} behaves like @code{DOES>} in this respect, i.e., it changes
+@cindex @code{;CODE}, @var{name} not defined via @code{CREATE}
+@code{;CODE} behaves like @code{DOES>} in this respect, i.e., it changes
 the execution semantics of the last defined word no matter how it was
 defined.
 
 @item @code{POSTPONE} applied to @code{[IF]}:
+@cindex @code{POSTPONE} applied to @code{[IF]}
+@cindex @code{[IF]} and @code{POSTPONE}
 After defining @code{: X POSTPONE [IF] ; IMMEDIATE}. @code{X} is
 equivalent to @code{[IF]}.
 
 @item reaching the end of the input source before matching @code{[ELSE]} or @code{[THEN]}:
+@cindex @code{[IF]}, end of the input source before matching @code{[ELSE]} or @code{[THEN]}
 Continue in the same state of conditional compilation in the next outer
 input source. Currently there is no warning to the user about this.
 
 @item removing a needed definition (@code{FORGET}):
+@cindex @code{FORGET}, removing a needed definition
 Not implemented (yet).
 
 @end table
@@ -3694,6 +4205,8 @@ Not implemented (yet).
 @node  The optional Search-Order word set,  , The optional Programming-Tools word set, ANS conformance
 @section The optional Search-Order word set
 @c =====================================================================
+@cindex system documentation, search-order words
+@cindex search-order words, system documentation
 
 @menu
 * search-idef::                 Implementation Defined Options                 
@@ -3705,13 +4218,18 @@ Not implemented (yet).
 @node search-idef, search-ambcond, The optional Search-Order word set, The optional Search-Order word set
 @subsection Implementation Defined Options
 @c ---------------------------------------------------------------------
+@cindex implementation-defined options, search-order words
+@cindex search-order words, implementation-defined options
 
 @table @i
-
 @item maximum number of word lists in search order:
+@cindex maximum number of word lists in search order
+@cindex search order, maximum depth
 @code{s" wordlists" environment? drop .}. Currently 16.
 
 @item minimum search order:
+@cindex minimum search order
+@cindex search order, minimum
 @code{root root}.
 
 @end table
@@ -3720,10 +4238,13 @@ Not implemented (yet).
 @node search-ambcond,  , search-idef, The optional Search-Order word set
 @subsection Ambiguous conditions
 @c ---------------------------------------------------------------------
+@cindex search-order words, ambiguous conditions
+@cindex ambiguous conditions, search-order words
 
 @table @i
-
 @item changing the compilation wordlist (during compilation):
+@cindex changing the compilation wordlist (during compilation)
+@cindex compilation wordlist, change before definition ends
 The word is entered into the wordlist that was the compilation wordlist
 at the start of the definition. Any changes to the name field (e.g.,
 @code{immediate}) or the code field (e.g., when executing @code{DOES>})
@@ -3731,19 +4252,25 @@ are applied to the latest defined word (as reported by @code{last} or
 @code{lastxt}), if possible, irrespective of the compilation wordlist.
 
 @item search order empty (@code{previous}):
+@cindex @code{previous}, search order empty
+@cindex Vocstack empty, @code{previous}
 @code{abort" Vocstack empty"}.
 
 @item too many word lists in search order (@code{also}):
+@cindex @code{also}, too many word lists in search order
+@cindex Vocstack full, @code{also}
 @code{abort" Vocstack full"}.
 
 @end table
 
+@c ***************************************************************
 @node Model, Integrating Gforth, ANS conformance, Top
 @chapter Model
 
 This chapter has yet to be written. It will contain information, on
 which internal structures you can rely.
 
+@c ***************************************************************
 @node Integrating Gforth, Emacs and Gforth, Model, Top
 @chapter Integrating Gforth into C programs
 
@@ -3794,9 +4321,18 @@ Signals?
 
 Accessing the Stacks
 
-@node Emacs and Gforth, Internals, Integrating Gforth, Top
+@node Emacs and Gforth, Image Files, Integrating Gforth, Top
 @chapter Emacs and Gforth
+@cindex Emacs and Gforth
 
+@cindex @file{gforth.el}
+@cindex @file{forth.el}
+@cindex Rydqvist, Goran
+@cindex comment editing commands
+@cindex @code{\}, editing with Emacs
+@cindex debug tracer editing commands
+@cindex @code{~~}, removal with Emacs
+@cindex Forth mode in Emacs
 Gforth comes with @file{gforth.el}, an improved version of
 @file{forth.el} by Goran Rydqvist (included in the TILE package). The
 improvements are a better (but still not perfect) handling of
@@ -3807,6 +4343,9 @@ stuff I do not use alone, even though some of it only makes sense for
 TILE. To get a description of these features, enter Forth mode and type
 @kbd{C-h m}.
 
+@cindex source location of error or debugging output in Emacs
+@cindex error output, finding the source location in Emacs
+@cindex debugging output, finding the source location in Emacs
 In addition, Gforth supports Emacs quite well: The source code locations
 given in error messages, debugging output (from @code{~~}) and failed
 assertion messages are in the right format for Emacs' compilation mode
@@ -3815,6 +4354,9 @@ Manual}) so the source location corresponding to an error or other
 message is only a few keystrokes away (@kbd{C-x `} for the next error,
 @kbd{C-c C-c} for the error under the cursor).
 
+@cindex @file{TAGS} file
+@cindex @file{etags.fs}
+@cindex viewing the source of a word in Emacs
 Also, if you @code{include} @file{etags.fs}, a new @file{TAGS} file
 (@pxref{Tags, , Tags Tables, emacs, Emacs Manual}) will be produced that
 contains the definitions of all words defined afterwards. You can then
@@ -3825,6 +4367,7 @@ Table,emacs, Emacs Manual}). The TAGS file for the preloaded words is
 @file{$(datadir)/gforth/$(VERSION)/TAGS} (e.g.,
 @file{/usr/local/share/gforth/0.2.0/TAGS}).
 
+@cindex @file{.emacs}
 To get all these benefits, add the following lines to your @file{.emacs}
 file:
 
@@ -3833,11 +4376,302 @@ file:
 (setq auto-mode-alist (cons '("\\.fs\\'" . forth-mode) auto-mode-alist))
 @end example
 
-@node Internals, Bugs, Emacs and Gforth, Top
-@chapter Internals
+@node Image Files, Engine, Emacs and Gforth, Top
+@chapter Image Files
+@cindex image files
+@cindex @code{.fi} files
+@cindex precompiled Forth code
+@cindex dictionary in persistent form
+@cindex persistent form of dictionary
+
+An image file is a file containing an image of the Forth dictionary,
+i.e., compiled Forth code and data residing in the dictionary.  By
+convention, we use the extension @code{.fi} for image files.
+
+@menu
+* Image File Background::          Why have image files?
+* Non-Relocatable Image Files::    don't always work.
+* Data-Relocatable Image Files::   are better.
+* Fully Relocatable Image Files::  are hard to create.
+* Stack and Dictionary Sizes::     Setting the default sizes for an image.
+* Running Image Files::            @code{gforth -i @var{file}} or @var{file}.
+* Modifying the Startup Sequence:: and turnkey applications.
+@end menu
+
+@node Image File Background, Non-Relocatable Image Files, Image Files, Image Files
+@section Image File Background
+@cindex image file background
+
+Our Forth system consists not only of primitives, but also of
+definitions written in Forth. Since the Forth compiler itself belongs
+to those definitions, it is not possible to start the system with the
+primitives and the Forth source alone. Therefore we provide the Forth
+code as an image file in nearly executable form. At the start of the
+system a C routine loads the image file into memory, sets up the
+memory (stacks etc.) according to information in the image file, and
+starts executing Forth code.
+
+The image file variants represent different compromises between the
+goals of making it easy to generate image files and making them
+portable.
+
+@cindex relocation at run-time
+Win32Forth 3.4 and Mitch Bradleys @code{cforth} use relocation at
+run-time. This avoids many of the complications discussed below (image
+files are data relocatable without further ado), but costs performance
+(one addition per memory access).
+
+@cindex relocation at load-time
+Our loader performs relocation at image load time. The loader also has
+to replace tokens standing for primitive calls with the appropriate
+code-field addresses (or code addresses in the case of direct
+threading).
+
+There are three kinds of image files, with different degrees of
+relocatability: non-relocatable, data-relocatable, and fully relocatable
+image files.
+
+@cindex image file loader
+@cindex relocating loader
+@cindex loader for image files
+These image file variants have several restrictions in common; they are
+caused by the design of the image file loader:
+
+@itemize @bullet
+@item
+There is only one segment; in particular, this means, that an image file
+cannot represent @code{ALLOCATE}d memory chunks (and pointers to
+them). And the contents of the stacks are not represented, either.
+
+@item
+The only kinds of relocation supported are: the addition of the same
+offset to all cells that represent data addresses; and the replacement of
+special tokens with code addresses.
+
+If any complex computations involving addresses are performed, the
+results cannot be represented in the image file. Several applications that
+use such computations come to mind:
+@itemize @minus
+@item
+Hashing addresses (or data structures which contain addresses) for table
+lookup. If you use Gforth's @code{table}s or @code{wordlist}s for this
+purpose, you will have no problem, because the hash tables are
+recomputed automatically when the system is started. If you use your own
+hash tables, you will have to do something similar.
+
+@item
+There's a cute implementation of doubly-linked lists that uses
+@code{XOR}ed addresses. You could represent such lists as singly-linked
+in the image file, and restore the doubly-linked representation on
+startup.@footnote{In my opinion, though, you should think thrice before
+using a doubly-linked list (whatever implementation).}
+
+@item
+On many architectures addresses are represented in machine code in some
+shifted or mangled form. You cannot put @code{CODE} words that contain
+absolute addresses in this form in a relocatable image file. Workarounds
+are representing the address in some relative form (e.g., relative to
+the CFA, which is present in some register), or loading the address from
+a place where it is stored in a non-mangled form.
+@end itemize
+@end itemize
+
+@node  Non-Relocatable Image Files, Data-Relocatable Image Files, Image File Background, Image Files
+@section Non-Relocatable Image Files
+@cindex non-relocatable image files
+@cindex image files, non-relocatable
+
+These files are simple memory dumps of the dictionary. They are specific
+to the executable (i.e., @file{gforth} file) they were created
+with. What's worse, they are specific to the place on which the
+dictionary resided when the image was created. Now, there is no
+guarantee that the dictionary will reside at the same place the next
+time you start Gforth, so there's no guarantee that a non-relocatable
+image will work the next time (Gforth will complain instead of crashing,
+though).
+
+You can create a non-relocatable image file with
+
+doc-savesystem
+
+@node Data-Relocatable Image Files, Fully Relocatable Image Files, Non-Relocatable Image Files, Image Files
+@section Data-Relocatable Image Files
+@cindex data-relocatable image files
+@cindex image files, data-relocatable
+
+@cindex @file{gforth.fi}, relocatability
+These files contain relocatable data addresses, but fixed code addresses
+(instead of tokens). They are specific to the executable (i.e.,
+@file{gforth} file) they were created with. E.g., the image
+@code{gforth.fi} is a data-relocatable image file.
+
+@cindex @file{comp-image.fs}
+You can create a data-relocatable image file by creating two
+non-relocatable image files for different base addresses and processing
+them with @file{comp-image.fs}, which generates the relocation
+information by comparing the images.
+
+After loading @file{comp-image.fs}, you can invoke the word
+@code{comp-image}, which reads the names of the two input files and the
+name of the output file from the input stream. This program also
+produces some output on the standard output: It displays the offset
+(i.e., the difference between the base addresses of the images);
+moreover, for each cell that cannot be represented correctly in the
+image files, it displays a line like the following one:
+
+@example
+     78DC         BFFFFA50         BFFFFA40
+@end example
+
+This means that at offset $78dc from @code{forthstart}, one input image
+contains $bffffa50, and the other contains $bffffa40. Since these cells
+cannot be represented correctly in the output image, you should examine
+these places in the dictionary and verify that these cells are dead
+(i.e., not read before they are written).
+
+E.g., if you want to create an image @file{asm.fi} that has the file
+@file{asm.fs} loaded in addition to the usual stuff, you could do it
+like this:
+
+@example
+gforth --clear-dictionary asm.fs "savesystem asm.fi1 bye"
+gforth --clear-dictionary --offset-image asm.fs "savesystem asm.fi2 bye"
+gforth -m 100000 comp-image.fs -e "comp-image asm.fi1 asm.fi2 asm.fi bye"
+@end example
+
+@cindex --clear-dictionary, creating image files
+@cindex --offset-image, creating image files
+The flag @code{--clear-dictionary} ensures that the dictionary memory is
+cleared at the start (so you won't see @code{comp-image} messages about
+spurious differences). The flag @code{--offset-image} loads the image at
+a small offset from its normal position, ensuring that the resulting
+nonrelocatable images have different bases (otherwise @code{comp-image}
+cannot work).
+
+@node Fully Relocatable Image Files, Stack and Dictionary Sizes, Data-Relocatable Image Files, Image Files
+@section Fully Relocatable Image Files
+@cindex fully relocatable image files
+@cindex image files, fully relocatable
+
+@cindex @file{kern*.fi}, relocatability
+These image files have relocatable data addresses, and tokens for code
+addresses. They are still a bit machine dependent with respect to the
+size and format (byte order, floating point format) of their data. The
+@file{kernlxxx.fi} files are fully relocatable.
+
+@cindex cross-compiler
+@cindex metacompiler
+At present a fully relocatable image file can only be produced by
+@code{cross}, a batch compiler that accepts a Forth-like programming
+language. This @code{cross} language has to be documented
+yet.
+
+@cindex target compiler
+@code{cross} not only allows the programmer to create fully relocatable
+image files, but also to create image files for machines with different
+data sizes and data formats than the one used for generating the image
+file. This convenience is bought with restrictions and inconveniences in
+programming. E.g., addresses have to be stored in memory with special
+words (@code{A!}, @code{A,}, etc.) in order to make the code
+relocatable.
+
+@node Stack and Dictionary Sizes, Running Image Files, Fully Relocatable Image Files, Image Files
+@section Stack and Dictionary Sizes
+@cindex image file, stack and dictionary sizes
+@cindex dictionary size default
+@cindex stack size default
+
+If you invoke Gforth with a command line flag for the size
+(@pxref{Invoking Gforth}), the size you specify is stored in the
+dictionary. If you save the dictionary with @code{savesystem}, this size
+will become the default for the resulting image file. E.g., the
+following will create a non-relocatable version of gforth.fi with a 1MB
+dictionary:
+
+@example
+gforth -m 1M -e "savesystem gforth1M.fi bye"
+@end example
+
+In other words, if you want to set the default size for the dictionary
+and the stacks of an image, just invoke Gforth with the appropriate
+options when creating the image. When creating a data-relocatable image,
+you have to use the same size options for both @code{savesystem}s.
+
+@cindex stack size, cache-friendly
+Note: For cache-friendly behaviour (i.e., good performance), you should
+make the sizes of the stacks modulo, say, 2K, somewhat different. E.g.,
+the default stack sizes are: data: 16k (mod 2k=0); fp: 15.5k (mod
+2k=1.5k); return: 15k(mod 2k=1k); locals: 14.5k (mod 2k=0.5k).
+
+@node Running Image Files, Modifying the Startup Sequence, Stack and Dictionary Sizes, Image Files
+@section Running Image Files
+@cindex running image files
+@cindex invoking image files
+@cindex image file invocation
+
+@cindex -i, invoke image file
+@cindex --image file, invoke image file
+You can invoke Gforth with an image file @var{image} instead of the
+default @file{gforth.fi} with the @code{-i} flag (@pxref{Invoking Gforth}):
+@example
+gforth -i @var{image}
+@end example
+
+@cindex executable image file
+@cindex image files, executable
+If your operating system supports starting scripts with a line of the
+form @code{#! ...}, you can make your image file executable, and you'll
+just have to type the image file name to start Gforth with this image
+file (note that the file extension @code{.fi} is just a convention).
+
+I.e., in most Unix systems, you just have to make the image file
+@var{image} executable with
+
+@example
+chmod +x @var{image}
+@end example
+
+and then you can invoke it by simply typing @var{image} instead of
+@code{gforth -i @var{image}}.
+
+@node Modifying the Startup Sequence,  , Running Image Files, Image Files
+@section Modifying the Startup Sequence
+@cindex startup sequence for image file
+@cindex image file initialization sequence
+@cindex initialization sequence of image file
+
+You can add your own initialization to the startup sequence through the
+deferred word
+
+doc-'cold
+
+@code{'cold} is invoked just before the image-specific command line
+processing (by default, loading files and evaluating (@code{-e}) strings
+starts.
+
+A sequence for adding your initialization usually looks like this:
+
+@example
+:noname
+    Defers 'cold \ do other initialization stuff (e.g., rehashing wordlists)
+    ... \ your stuff
+; IS 'cold
+@end example
+
+@cindex turnkey image files
+@cindex image files, turnkey applications
+You can make a turnkey image by letting @code{'cold} execute a word
+(your turnkey application) that never returns; instead, it exits Gforth
+via @code{bye} or @code{throw}.
+
+@c ******************************************************************
+@node Engine, Bugs, Image Files, Top
+@chapter Engine
+@cindex engine
+@cindex virtual machine
 
 Reading this section is not necessary for programming with Gforth. It
-should be helpful for finding your way in the Gforth sources.
+may be helpful for finding your way in the Gforth sources.
 
 The ideas in this section have also been published in the papers
 @cite{ANS fig/GNU/??? Forth} (in German) by Bernd Paysan, presented at
@@ -3849,12 +4683,12 @@ Ertl, presented at EuroForth '93; the latter is available at
 * Portability::                 
 * Threading::                   
 * Primitives::                  
-* System Architecture::         
 * Performance::                 
 @end menu
 
-@node Portability, Threading, Internals, Internals
+@node Portability, Threading, Engine, Engine
 @section Portability
+@cindex engine portability
 
 One of the main goals of the effort is availability across a wide range
 of personal machines. fig-Forth, and, to a lesser extent, F83, achieved
@@ -3862,6 +4696,7 @@ this goal by manually coding the engine in assembly language for several
 then-popular processors. This approach is very labor-intensive and the
 results are short-lived due to progress in computer architecture.
 
+@cindex C, using C for the engine
 Others have avoided this problem by coding in C, e.g., Mitch Bradley
 (cforth), Mikael Patel (TILE) and Dirk Zoller (pfe). This approach is
 particularly popular for UNIX-based Forths due to the large variety of
@@ -3869,9 +4704,11 @@ architectures of UNIX machines. Unfortunately an implementation in C
 does not mix well with the goals of efficiency and with using
 traditional techniques: Indirect or direct threading cannot be expressed
 in C, and switch threading, the fastest technique available in C, is
-significantly slower. Another problem with C is that it's very
+significantly slower. Another problem with C is that it is very
 cumbersome to express double integer arithmetic.
 
+@cindex GNU C for the engine
+@cindex long long
 Fortunately, there is a portable language that does not have these
 limitations: GNU C, the version of C processed by the GNU C compiler
 (@pxref{C Extensions, , Extensions to the C Language Family, gcc.info,
@@ -3893,22 +4730,28 @@ on all these machines.
 Writing in a portable language has the reputation of producing code that
 is slower than assembly. For our Forth engine we repeatedly looked at
 the code produced by the compiler and eliminated most compiler-induced
-inefficiencies by appropriate changes in the source-code.
+inefficiencies by appropriate changes in the source code.
 
+@cindex explicit register declarations
+@cindex --enable-force-reg, configuration flag
+@cindex -DFORCE_REG
 However, register allocation cannot be portably influenced by the
 programmer, leading to some inefficiencies on register-starved
 machines. We use explicit register declarations (@pxref{Explicit Reg
 Vars, , Variables in Specified Registers, gcc.info, GNU C Manual}) to
 improve the speed on some machines. They are turned on by using the
-@code{gcc} switch @code{-DFORCE_REG}. Unfortunately, this feature not
-only depends on the machine, but also on the compiler version: On some
-machines some compiler versions produce incorrect code when certain
-explicit register declarations are used. So by default
-@code{-DFORCE_REG} is not used.
+configuration flag @code{--enable-force-reg} (@code{gcc} switch
+@code{-DFORCE_REG}). Unfortunately, this feature not only depends on the
+machine, but also on the compiler version: On some machines some
+compiler versions produce incorrect code when certain explicit register
+declarations are used. So by default @code{-DFORCE_REG} is not used.
 
-@node Threading, Primitives, Portability, Internals
+@node Threading, Primitives, Portability, Engine
 @section Threading
+@cindex inner interpreter implementation
+@cindex threaded code implementation
 
+@cindex labels as values
 GNU C's labels as values extension (available since @code{gcc-2.0},
 @pxref{Labels as Values, , Labels as Values, gcc.info, GNU C Manual})
 makes it possible to take the address of @var{label} by writing
@@ -3916,12 +4759,16 @@ makes it possible to take the address of @var{label} by writing
 @code{goto *@var{address}}. I.e., @code{goto *&&x} is the same as
 @code{goto x}.
 
+@cindex NEXT, indirect threaded
+@cindex indirect threaded inner interpreter
+@cindex inner interpreter, indirect threaded
 With this feature an indirect threaded NEXT looks like:
 @example
 cfa = *ip++;
 ca = *cfa;
 goto *ca;
 @end example
+@cindex instruction pointer
 For those unfamiliar with the names: @code{ip} is the Forth instruction
 pointer; the @code{cfa} (code-field address) corresponds to ANS Forths
 execution token and points to the code field of the next word to be
@@ -3929,6 +4776,9 @@ executed; The @code{ca} (code address) fetched from there points to some
 executable code, e.g., a primitive or the colon definition handler
 @code{docol}.
 
+@cindex NEXT, direct threaded
+@cindex direct threaded inner interpreter
+@cindex inner interpreter, direct threaded
 Direct threading is even simpler:
 @example
 ca = *ip++;
@@ -3946,6 +4796,7 @@ Of course we have packaged the whole thing neatly in macros called
 
 @node Scheduling, Direct or Indirect Threaded?, Threading, Threading
 @subsection Scheduling
+@cindex inner interpreter optimization
 
 There is a little complication: Pipelined and superscalar processors,
 i.e., RISC and some modern CISC machines can process independent
@@ -3985,7 +4836,9 @@ switch is on by default on machines that do not profit from scheduling
 
 @node Direct or Indirect Threaded?, DOES>, Scheduling, Threading
 @subsection Direct or Indirect Threaded?
+@cindex threading, direct or indirect?
 
+@cindex -DDIRECT_THREADED
 Both! After packaging the nasty details in macro definitions we
 realized that we could switch between direct and indirect threading by
 simply setting a compilation flag (@code{-DDIRECT_THREADED}) and
@@ -3993,47 +4846,63 @@ defining a few machine-specific macros for the direct-threading case.
 On the Forth level we also offer access words that hide the
 differences between the threading methods (@pxref{Threading Words}).
 
-Indirect threading is implemented completely
-machine-independently. Direct threading needs routines for creating
-jumps to the executable code (e.g. to docol or dodoes). These routines
-are inherently machine-dependent, but they do not amount to many source
-lines. I.e., even porting direct threading to a new machine is a small
-effort.
+Indirect threading is implemented completely machine-independently.
+Direct threading needs routines for creating jumps to the executable
+code (e.g. to docol or dodoes). These routines are inherently
+machine-dependent, but they do not amount to many source lines. I.e.,
+even porting direct threading to a new machine is a small effort.
+
+@cindex --enable-indirect-threaded, configuration flag
+@cindex --enable-direct-threaded, configuration flag
+The default threading method is machine-dependent. You can enforce a
+specific threading method when building Gforth with the configuration
+flag @code{--enable-direct-threaded} or
+@code{--enable-indirect-threaded}. Note that direct threading is not
+supported on all machines.
 
 @node DOES>,  , Direct or Indirect Threaded?, Threading
 @subsection DOES>
+@cindex @code{DOES>} implementation
+
+@cindex dodoes routine
+@cindex DOES-code
 One of the most complex parts of a Forth engine is @code{dodoes}, i.e.,
 the chunk of code executed by every word defined by a
 @code{CREATE}...@code{DOES>} pair. The main problem here is: How to find
-the Forth code to be executed, i.e. the code after the @code{DOES>} (the
-DOES-code)? There are two solutions:
+the Forth code to be executed, i.e. the code after the
+@code{DOES>} (the DOES-code)? There are two solutions:
 
 In fig-Forth the code field points directly to the dodoes and the
-DOES-code address is stored in the cell after the code address
-(i.e. at cfa cell+). It may seem that this solution is illegal in the
-Forth-79 and all later standards, because in fig-Forth this address
+DOES-code address is stored in the cell after the code address (i.e. at
+@code{@var{cfa} cell+}). It may seem that this solution is illegal in
+the Forth-79 and all later standards, because in fig-Forth this address
 lies in the body (which is illegal in these standards). However, by
 making the code field larger for all words this solution becomes legal
-again. We use this approach for the indirect threaded version. Leaving
-a cell unused in most words is a bit wasteful, but on the machines we
-are targeting this is hardly a problem. The other reason for having a
-code field size of two cells is to avoid having different image files
-for direct and indirect threaded systems (@pxref{System Architecture}).
+again. We use this approach for the indirect threaded version and for
+direct threading on some machines. Leaving a cell unused in most words
+is a bit wasteful, but on the machines we are targeting this is hardly a
+problem. The other reason for having a code field size of two cells is
+to avoid having different image files for direct and indirect threaded
+systems (direct threaded systems require two-cell code fields on many
+machines).
 
+@cindex DOES-handler
 The other approach is that the code field points or jumps to the cell
 after @code{DOES}. In this variant there is a jump to @code{dodoes} at
-this address. @code{dodoes} can then get the DOES-code address by
-computing the code address, i.e., the address of the jump to dodoes,
-and add the length of that jump field. A variant of this is to have a
-call to @code{dodoes} after the @code{DOES>}; then the return address
-(which can be found in the return register on RISCs) is the DOES-code
-address. Since the two cells available in the code field are usually
-used up by the jump to the code address in direct threading, we use
-this approach for direct threading. We did not want to add another
-cell to the code field.
+this address (the DOES-handler). @code{dodoes} can then get the
+DOES-code address by computing the code address, i.e., the address of
+the jump to dodoes, and add the length of that jump field. A variant of
+this is to have a call to @code{dodoes} after the @code{DOES>}; then the
+return address (which can be found in the return register on RISCs) is
+the DOES-code address. Since the two cells available in the code field
+are used up by the jump to the code address in direct threading on many
+architectures, we use this approach for direct threading on these
+architectures. We did not want to add another cell to the code field.
 
-@node Primitives, System Architecture, Threading, Internals
+@node Primitives, Performance, Threading, Engine
 @section Primitives
+@cindex primitives, implementation
+@cindex virtual machine instructions, implementation
 
 @menu
 * Automatic Generation::        
@@ -4043,16 +4912,19 @@ cell to the code field.
 
 @node Automatic Generation, TOS Optimization, Primitives, Primitives
 @subsection Automatic Generation
+@cindex primitives, automatic generation
 
+@cindex @file{prims2x.fs}
 Since the primitives are implemented in a portable language, there is no
 longer any need to minimize the number of primitives. On the contrary,
-having many primitives is an advantage: speed. In order to reduce the
+having many primitives has an advantage: speed. In order to reduce the
 number of errors in primitives and to make programming them easier, we
 provide a tool, the primitive generator (@file{prims2x.fs}), that
 automatically generates most (and sometimes all) of the C code for a
 primitive from the stack effect notation.  The source for a primitive
 has the following form:
 
+@cindex primitive source format
 @format
 @var{Forth-name}	@var{stack-effect}	@var{category}	[@var{pronounc.}]
 [@code{""}@var{glossary entry}@code{""}]
@@ -4122,6 +4994,8 @@ fall through to NEXT.
 
 @node TOS Optimization, Produced code, Automatic Generation, Primitives
 @subsection TOS Optimization
+@cindex TOS optimization for primitives
+@cindex primitives, keeping the TOS in a register
 
 An important optimization for stack machine emulators, e.g., Forth
 engines, is keeping  one or more of the top stack items in
@@ -4135,6 +5009,8 @@ due to fewer loads from and stores to the stack.
 @var{y<n}, due to additional moves between registers.
 @end itemize
 
+@cindex -DUSE_TOS
+@cindex -DUSE_NO_TOS
 In particular, keeping one item in a register is never a disadvantage,
 if there are enough registers. Keeping two items in registers is a
 disadvantage for frequent words like @code{?branch}, constants,
@@ -4147,6 +5023,8 @@ otherwise it is a macro that expands into @code{sp[0]}. Note that the
 GNU C compiler tries to keep simple variables like @code{TOS} in
 registers, and it usually succeeds, if there are enough registers.
 
+@cindex -DUSE_FTOS
+@cindex -DUSE_NO_FTOS
 The primitive generator performs the TOS optimization for the
 floating-point stack, too (@code{-DUSE_FTOS}). For floating-point
 operations the benefit of this optimization is even larger:
@@ -4174,56 +5052,19 @@ effect @code{--} no stores or loads should be generated.
 
 @node Produced code,  , TOS Optimization, Primitives
 @subsection Produced code
+@cindex primitives, assembly code listing
 
+@cindex @file{engine.s}
 To see what assembly code is produced for the primitives on your machine
 with your compiler and your flag settings, type @code{make engine.s} and
 look at the resulting file @file{engine.s}.
 
-@node System Architecture, Performance, Primitives, Internals
-@section System Architecture
-
-Our Forth system consists not only of primitives, but also of
-definitions written in Forth. Since the Forth compiler itself belongs
-to those definitions, it is not possible to start the system with the
-primitives and the Forth source alone. Therefore we provide the Forth
-code as an image file in nearly executable form. At the start of the
-system a C routine loads the image file into memory, sets up the
-memory (stacks etc.) according to information in the image file, and
-starts executing Forth code.
-
-The image file format is a compromise between the goals of making it
-easy to generate image files and making them portable. The easiest way
-to generate an image file is to just generate a memory dump. However,
-this kind of image file cannot be used on a different machine, or on
-the next version of the engine on the same machine, it even might not
-work with the same engine compiled by a different version of the C
-compiler. We would like to have as few versions of the image file as
-possible, because we do not want to distribute many versions of the
-same image file, and to make it easy for the users to use their image
-files on many machines. We currently need to create a different image
-file for machines with different cell sizes and different byte order
-(little- or big-endian)@footnote{We are considering adding information to the
-image file that enables the loader to change the byte order.}.
-
-Forth code that is going to end up in a portable image file has to
-comply to some restrictions: addresses have to be stored in memory with
-special words (@code{A!}, @code{A,}, etc.) in order to make the code
-relocatable. Cells, floats, etc., have to be stored at the natural
-alignment boundaries@footnote{E.g., store floats (8 bytes) at an address
-divisible by~8. This happens automatically in our system when you use
-the ANS Forth alignment words.}, in order to avoid alignment faults on
-machines with stricter alignment. The image file is produced by a
-metacompiler (@file{cross.fs}).
-
-So, unlike the image file of Mitch Bradleys @code{cforth}, our image
-file is not directly executable, but has to undergo some manipulations
-during loading. Address relocation is performed at image load-time, not
-at run-time. The loader also has to replace tokens standing for
-primitive calls with the appropriate code-field addresses (or code
-addresses in the case of direct threading).
-
-@node  Performance,  , System Architecture, Internals
+@node  Performance,  , Primitives, Engine
 @section Performance
+@cindex performance of some Forth interpreters
+@cindex engine performance
+@cindex benchmarking Forth systems
+@cindex Gforth performance
 
 On RISCs the Gforth engine is very close to optimal; i.e., it is usually
 impossible to write a significantly faster engine.
@@ -4236,6 +5077,12 @@ and hand-tuned it for the 486; this system is 1.19 times faster on the
 Sieve benchmark on a 486DX2/66 than Gforth compiled with
 @code{gcc-2.6.3} with @code{-DFORCE_REG}.
 
+@cindex Win32Forth performance
+@cindex NT Forth performance
+@cindex eforth performance
+@cindex ThisForth performance
+@cindex PFE performance
+@cindex TILE performance
 However, this potential advantage of assembly language implementations
 is not necessarily realized in complete Forth systems: We compared
 Gforth (direct threaded, compiled with @code{gcc-2.6.3} and
@@ -4280,7 +5127,7 @@ not written optimally for the 486 (e.g., they use the @code{lods}
 instruction). In addition, Win32Forth uses a comfortable, but costly
 method for relocating the Forth image: like @code{cforth}, it computes
 the actual addresses at run time, resulting in two address computations
-per NEXT (@pxref{System Architecture}).
+per NEXT (@pxref{Image File Background}).
 
 Only Eforth with the peephole optimizer performs comparable to
 Gforth. The speedups achieved with peephole optimization of threaded
@@ -4288,12 +5135,12 @@ code are quite remarkable. Adding a peephole optimizer to Gforth should
 cause similar speedups.
 
 The speedup of Gforth over PFE, ThisForth and TILE can be easily
-explained with the self-imposed restriction to standard C, which makes
-efficient threading impossible (however, the measured implementation of
-PFE uses a GNU C extension: @ref{Global Reg Vars, , Defining Global
-Register Variables, gcc.info, GNU C Manual}).  Moreover, current C
-compilers have a hard time optimizing other aspects of the ThisForth
-and the TILE source.
+explained with the self-imposed restriction of the latter systems to
+standard C, which makes efficient threading impossible (however, the
+measured implementation of PFE uses a GNU C extension: @ref{Global Reg
+Vars, , Defining Global Register Variables, gcc.info, GNU C Manual}).
+Moreover, current C compilers have a hard time optimizing other aspects
+of the ThisForth and the TILE source.
 
 Note that the performance of Gforth on 386 architecture processors
 varies widely with the version of @code{gcc} used. E.g., @code{gcc-2.5.8}
@@ -4302,17 +5149,25 @@ machine registers by itself and would not work correctly with explicit
 register declarations, giving a 1.3 times slower engine (on a 486DX2/66
 running the Sieve) than the one measured above.
 
+Note also that there have been several releases of Win32Forth since the
+release presented here, so the results presented here may have little
+predictive value for the performance of Win32Forth today.
+
+@cindex @file{Benchres}
 In @cite{Translating Forth to Efficient C} by M. Anton Ertl and Martin
 Maierhofer (presented at EuroForth '95), an indirect threaded version of
 Gforth is compared with Win32Forth, NT Forth, PFE, and ThisForth; that
 version of Gforth is 2\%@minus{}8\% slower on a 486 than the version
 used here. The paper available at
 @*@file{http://www.complang.tuwien.ac.at/papers/ertl&maierhofer95.ps.gz};
-it also contains numbers for some native code systems. You can find
-numbers for Gforth on various machines in @file{Benchres}.
+it also contains numbers for some native code systems. You can find a
+newer version of these measurements at
+@file{http://www.complang.tuwien.ac.at/forth/performance.html}. You can
+find numbers for Gforth on various machines in @file{Benchres}.
 
-@node Bugs, Origin, Internals, Top
+@node Bugs, Origin, Engine, Top
 @chapter Bugs
+@cindex bug reporting
 
 Known bugs are described in the file BUGS in the Gforth distribution.
 
@@ -4321,7 +5176,7 @@ If you find a bug, please send a bug report to
 describe the Gforth version used (it is announced at the start of an
 interactive Gforth session), the machine and operating system (on Unix
 systems you can use @code{uname -a} to produce this information), the
-installation options (send the @code{config.status} file), and a
+installation options (send the @file{config.status} file), and a
 complete list of changes you (or your installer) have made to the Gforth
 sources (if any); it should contain a program (or a sequence of keyboard
 commands) that reproduces the bug and a description of what you think
@@ -4335,6 +5190,8 @@ to Report Bugs, gcc.info, GNU C Manual}.
 @chapter Authors and Ancestors of Gforth
 
 @section Authors and Contributors
+@cindex authors of Gforth
+@cindex contributors to Gforth
 
 The Gforth project was started in mid-1992 by Bernd Paysan and Anton
 Ertl. The third major author was Jens Wilke.  Lennart Benschop (who was
@@ -4351,6 +5208,7 @@ was developed across the Internet, and its authors have not met
 physically yet.
 
 @section Pedigree
+@cindex Pedigree of Gforth
 
 Gforth descends from BigForth (1993) and fig-Forth. Gforth and PFE (by
 Dirk Zoller) will cross-fertilize each other. Of course, a significant
@@ -4386,18 +5244,22 @@ H. Moore, presented at the HOPL-II conference and preprinted in SIGPLAN
 Notices 28(3), 1993.  You can find more historical and genealogical
 information about Forth there.
 
-@node Word Index, Node Index, Origin, Top
-@chapter Word Index
+@node Word Index, Concept Index, Origin, Top
+@unnumbered Word Index
 
 This index is as incomplete as the manual. Each word is listed with
 stack effect and wordset.
 
 @printindex fn
 
-@node Node Index,  , Word Index, Top
-@chapter Node Index
+@node Concept Index,  , Word Index, Top
+@unnumbered Concept and Word Index
 
-This index is even less complete than the manual.
+This index is as incomplete as the manual. Not all entries listed are
+present verbatim in the text. Only the names are listed for the words
+here.
+
+@printindex cp
 
 @contents
 @bye

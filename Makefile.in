@@ -331,7 +331,7 @@ installdirs:	mkinstalldirs
 #to uninstall version foo, type `make uninstall VERSION=foo'
 uninstall:	
 		-$(RM) -rf $(libdir)/gforth/$(VERSION) $(datadir)/gforth/$(VERSION) $(bindir)/gforth-$(VERSION)
-		@echo -e "Type\n$(RM) -rf $(bindir)/gforth $(mandir)/gforth.1 $(infodir)/gforth.info* $(datadir)/gforth $(libdir)/gforth\nto remove Gforth completely"
+		@echo -e "Type\n$(RM) -rf $(bindir)/gforth $(man1dir)/gforth.1 $(infodir)/gforth.info* $(datadir)/gforth $(libdir)/gforth\nto remove Gforth completely"
 
 check test:	gforth gforth.fi
 		$(FORTH) tester.fs coretest.fs postponetest.fs dbltest.fs -e bye

@@ -14,3 +14,10 @@ foo1
 ( fjklfjlas;d
 abort" ( does not work across lines"
 )
+
+s" ( testing ( without delimited by newline in non-files" evaluate
+
+\ last test!
+\ testing '(' without ')' at end-of-file
+." expect ``warning: ')' missing''" cr
+(

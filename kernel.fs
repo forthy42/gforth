@@ -572,14 +572,33 @@ Defer interpreter-notfound ( c-addr count -- )
 : SLiteral ( Compilation c-addr1 u ; run-time -- c-addr2 u ) \ string
     postpone (S") here over char+ allot  place align ;
                                              immediate restrict
-: ( ( compilation 'ccc<close-paren>' -- ; run-time -- ) \ core,file	paren
+: plain-( ( 'ccc<close-paren>' -- ; )
+    [char] ) parse 2drop ;
+
+: file-( ( 'ccc<close-paren>' -- ; )
     BEGIN
-	>in @ [char] ) parse nip >in @ rot - =
+	>in @
+	[char] ) parse nip
+	>in @ rot - = \ is there no delimter?
     WHILE
-	loadfile @ IF
-	    refill 0= abort" missing ')' in paren comment"
+	refill 0=
+	IF
+	    warnings @
+	    IF
+		." warning: ')' missing" cr
+	    THEN
+	    EXIT
 	THEN
-    REPEAT ;                       immediate
+    REPEAT ;
+
+: ( ( compilation 'ccc<close-paren>' -- ; run-time -- ) \ core,file	paren
+    loadfile @
+    IF
+	file-(
+    ELSE
+	plain-(
+    THEN ; immediate
+
 : \ ( -- ) \ core-ext backslash
     blk @
     IF

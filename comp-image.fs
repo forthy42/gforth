@@ -37,6 +37,7 @@ s" address-unit-bits" environment? drop constant bits/au
     \ compares image1 and image2 (of size cells) and sets reloc-bits.
     \ offset is the difference for relocated addresses
     image1 @ image2 @ over - { base offset }
+    offset 0= abort" images have the same base"
     ." offset=" offset . cr
     size 0
     u+do
