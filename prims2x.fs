@@ -164,7 +164,12 @@ struct%
     cell%    field prim-effect-out-end
 end-struct prim%
 
-create prim prim% %allot
+: make-prim ( -- prim )
+    prim% %alloc { p }
+    s" " p prim-doc 2! s" " p prim-forth-code 2! s" " p prim-wordset 2!
+    p ;
+
+0 value prim
 
 \ global vars
 variable c-line
@@ -870,7 +875,7 @@ Variable c-flag
 (( ` = (( white ++ forth-ident )) ++ (( nl || eof ))
 )) <- combined-primitive
 
-(( {{ s" " prim prim-doc 2! s" " prim prim-forth-code 2! s" " prim prim-wordset 2!
+(( {{ make-prim to prim
       line @ name-line ! filename 2@ name-filename 2!
       start }} forth-ident {{ end 2dup prim prim-name 2! prim prim-c-name 2! }}  white ++
    (( simple-primitive || combined-primitive ))
