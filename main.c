@@ -247,8 +247,8 @@ int convsize(char *s, int elemsize)
       m=1024;
     else if (strcmp(endp,"M")==0)
       m=1024*1024;
-    else if (strcmp(endp,"e")!=0) {
-      fprintf(stderr,"%s: cannot grok size specification %s\n", progname, s);
+    else if (strcmp(endp,"e")!=0 && strcmp(endp,"")!=0) {
+      fprintf(stderr,"%s: cannot grok size specification %s: invalid unit \"%s\"\n", progname, s, endp);
       exit(1);
     }
   }

@@ -36,6 +36,7 @@ Copyright @copyright{} 1995 Free Software Foundation, Inc.
      of in the original English.
 @end ifinfo
 
+@finalout
 @titlepage
 @sp 10
 @center @titlefont{Gforth Manual}
@@ -558,7 +559,7 @@ can also get it from Global Engineering Documents (Tel.: USA (800)
 for publication is available electronically and for free in some MS Word
 format, and it has been converted to HTML. Some pointers to these
 versions can be found through
-http://www.complang.tuwien.ac.at/projects/forth.html.
+@*@file{http://www.complang.tuwien.ac.at/projects/forth.html}.
 
 @cite{Forth: The new model} by Jack Woehr (Prentice-Hall, 1993) is an
 introductory book based on a draft version of the standard. It does not
@@ -1442,6 +1443,11 @@ programs easier to read. Unfortunately, the locals of ANS Forth are
 laden with restrictions. Therefore, we provide not only the ANS Forth
 locals wordset, but also our own, more powerful locals wordset (we
 implemented the ANS Forth locals wordset through our locals wordset).
+
+The ideas in this section have also been published in the paper
+@cite{Automatic Scoping of Local Variables} by M. Anton Ertl, presented
+at EuroForth '94; it is available at
+@*@file{http://www.complang.tuwien.ac.at/papers/ertl94l.ps.gz}.
 
 @menu
 * Gforth locals::               
@@ -3209,6 +3215,12 @@ file:
 Reading this section is not necessary for programming with Gforth. It
 should be helpful for finding your way in the Gforth sources.
 
+The ideas in this section have also been published in the papers
+@cite{ANS fig/GNU/??? Forth} (in German) by Bernd Paysan, presented at
+the Forth-Tagung '93 and @cite{A Portable Forth Engine} by M. Anton
+Ertl, presented at EuroForth '93; the latter is available at
+@*@file{http://www.complang.tuwien.ac.at/papers/ertl93.ps.Z}.
+
 @menu
 * Portability::                 
 * Threading::                   
@@ -3610,7 +3622,7 @@ We used four small benchmarks: the ubiquitous Sieve; bubble-sorting and
 matrix multiplication come from the Stanford integer benchmarks and have
 been translated into Forth by Martin Fraeman; we used the versions
 included in the TILE Forth package; and a recursive Fibonacci number
-computation for benchmark calling performance. The following table shows
+computation for benchmarking calling performance. The following table shows
 the time taken for the benchmarks scaled by the time taken by Gforth (in
 other words, it shows the speedup factor that Gforth achieved over the
 other systems).
@@ -3647,20 +3659,28 @@ machine registers by itself and would not work correctly with explicit
 register declarations, giving a 1.3 times slower engine (on a 486DX2/66
 running the Sieve) than the one measured above.
 
+The numbers in this section have also been published in the paper
+@cite{Translating Forth to Efficient C} by M. Anton Ertl and Martin
+Maierhofer, presented at EuroForth '95. It is available at
+@*@file{http://www.complang.tuwien.ac.at/papers/ertl&maierhofer95.ps.gz};
+it also contains numbers for some native code systems. You can find
+numbers for Gforth on various machines in @file{Benchres}.
+
 @node Bugs, Pedigree, Internals, Top
 @chapter Bugs
 
 Known bugs are described in the file BUGS in the Gforth distribution.
 
-If you find a bug, please send a bug report to !!. A bug report should
+If you find a bug, please send a bug report to
+@code{gforth-bugs@@mips.complang.tuwien.ac.at}. A bug report should
 describe the Gforth version used (it is announced at the start of an
 interactive Gforth session), the machine and operating system (on Unix
 systems you can use @code{uname -a} to produce this information), the
-installation options (!! a way to find them out), and a complete list of
-changes you (or your installer) have made to the Gforth sources (if
-any); it should contain a program (or a sequence of keyboard commands)
-that reproduces the bug and a description of what you think constitutes
-the buggy behaviour.
+installation options (send the @code{config.status} file), and a
+complete list of changes you (or your installer) have made to the Gforth
+sources (if any); it should contain a program (or a sequence of keyboard
+commands) that reproduces the bug and a description of what you think
+constitutes the buggy behaviour.
 
 For a thorough guide on reporting bugs read @ref{Bug Reporting, , How
 to Report Bugs, gcc.info, GNU C Manual}.
@@ -3670,7 +3690,8 @@ to Report Bugs, gcc.info, GNU C Manual}.
 @chapter Pedigree
 
 Gforth descends from BigForth (1993) and fig-Forth. Gforth and PFE (by
-Dirk Zoller) will cross-fertilize each other. Of course, a significant part of the design of Gforth was prescribed by ANS Forth.
+Dirk Zoller) will cross-fertilize each other. Of course, a significant
+part of the design of Gforth was prescribed by ANS Forth.
 
 Bernd Paysan wrote BigForth, a descendent from TurboForth, an unreleased
 32 bit native code version of VolksForth for the Atari ST, written
@@ -3678,18 +3699,22 @@ mostly by Dietrich Weineck.
 
 VolksForth descends from F83. It was written by Klaus Schleisiek, Bernd
 Pennemann, Georg Rehfeld and Dietrich Weineck for the C64 (called
-UltraForth there) in the midth of the 80th and ported to Atari ST in
-1986.
+UltraForth there) in the mid-80s and ported to the Atari ST in 1986.
 
 Laxen and Perry wrote F83 as a model implementation of the
 Forth-83 standard. !! Pedigree? When?
 
 A team led by Bill Ragsdale implemented fig-Forth on many processors in
-1979. Dean Sanderson and Bill Ragsdale developed the original
-implementation of fig-Forth based on microForth.
+1979. Robert Selzer and Bill Ragsdale developed the original
+implementation of fig-Forth for the 6502 based on microForth.
 
-microForth appears to be a downsized version of polyForth from Forth
-Inc. for the 8080 written in the midth of the 70th.
+The principal architect of microForth was Dean Sanderson. microForth was
+FORTH, Inc.'s first off-the-shelf product. It was developped in 1976 for
+the 1802, and subsequently implemented on the 8080, the 6800 and the
+Z80.
+
+All earlier Forth systems were custom-made, usually by Charles Moore,
+who discovered (as he puts it) Forth in the late 60s.
 
 A part of the information in this section comes from @cite{The Evolution
 of Forth} by Elizabeth D. Rather, Donald R. Colburn and Charles

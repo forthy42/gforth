@@ -19,6 +19,9 @@
 \ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 
+\ More documentation can be found in the manual and in
+\ http://www.complang.tuwien.ac.at/papers/ertl94l.ps.gz
+
 \ Local variables are quite important for writing readable programs, but
 \ IMO (anton) they are the worst part of the standard. There they are very
 \ restricted and have an ugly interface.

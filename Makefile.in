@@ -219,7 +219,7 @@ bench:		gforth
 		@echo 'Each benchmark takes about 30s on a 486-66 (gcc-2.6.3 -DFORCE_REG)'
 		time $(FORTH) siev.fs -e "main bye"
 		time $(FORTH) bubble.fs -e "main bye"
-		time $(FORTH) -m 1M matrix.fs -e "main bye"
+		time $(FORTH) -m 160000 matrix.fs -e "main bye"
 		time $(FORTH) fib.fs -e "main bye"
 
 dvi:		gforth.dvi
