@@ -876,10 +876,14 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
     endif
     ." }" cr ;
 
+: prim-branch? { prim -- f }
+    \ true if prim is a branch or super-end
+    prim prim-c-code 2@  s" SET_IP" search nip nip 0<> ;
+
 : output-superend ( -- )
     \ output flag specifying whether the current word ends a dynamic superinst
-    prim prim-c-code 2@  s" SET_IP"    search nip nip
-    prim prim-c-code 2@  s" SUPER_END" search nip nip or 0<>
+    prim prim-branch?
+    prim prim-c-code 2@  s" SUPER_END" search nip nip 0<> or
     prim prim-c-code 2@  s" SUPER_CONTINUE" search nip nip 0= and
     negate 0 .r ." , /* " prim prim-name 2@ type ."  */" cr ;
 
@@ -1317,17 +1321,20 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
 
 variable offset-super2  0 offset-super2 ! \ offset into the super2 table
 
-: output-costs-gforth-simple ( -- )
-     ." {" prim compute-costs
+: output-costs-prefix ( -- )
+    ." {" prim compute-costs
     rot 2 .r ." ," swap 2 .r ." ," 2 .r ." , "
+    prim prim-branch? negate . ." ," ;
+
+: output-costs-gforth-simple ( -- )
+    output-costs-prefix
     prim output-num-part
     1 2 .r ." },"
     output-name-comment
     cr ;
 
 : output-costs-gforth-combined ( -- )
-    ." {" prim compute-costs
-    rot 2 .r ." ," swap 2 .r ." ," 2 .r ." , "
+    output-costs-prefix
     ." N_START_SUPER+" offset-super2 @ 5 .r ." ,"
     super2-length dup 2 .r ." }," offset-super2 +!
     output-name-comment

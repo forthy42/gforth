@@ -151,7 +151,7 @@
 #define KILLS asm("":"=X"(cfa));
 
 #ifndef THREADING_SCHEME
-#define THREADING_SCHEME 6
+#define THREADING_SCHEME 7
 #endif
 
 #if THREADING_SCHEME==1

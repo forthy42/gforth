@@ -13,7 +13,8 @@ aertl@stat.zserv.tuwien.ac.at \
 rlwinm.ifs.tuwien.ac.at fmadd.ifs.tuwien.ac.at lfsux.ifs.tuwien.ac.at \
 s4addq.ifs.tuwien.ac.at \
 128.130.204.24 128.130.204.25 128.130.204.26 \
-cdbook jupiter"
+cdbook jupiter \
+complang@red.a-business.co.at"
 #taken out: hpws03.infosys.tuwien.ac.at aertl@fbma.tuwien.ac.at w4.infosys.tuwien.ac.at d0 struppi pcs
 SSH_PROTOCOL=-oProtocol=1,2
 for i in $MACHINES

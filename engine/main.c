@@ -559,7 +559,8 @@ struct cost {
   char loads;       /* number of stack loads */
   char stores;      /* number of stack stores */
   char updates;     /* number of stack pointer updates */
-  short offset;      /* offset into super2 table */
+  char branch;	    /* is it a branch (SET_IP) */
+  short offset;     /* offset into super2 table */
   char length;      /* number of components */
 };
 
