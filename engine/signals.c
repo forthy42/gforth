@@ -52,6 +52,10 @@ UCell rows=DEFAULTROWS;
 /* systems that don't have SA_NODEFER hopefully don't block anyway */
 #endif
 
+#ifndef SA_ONSTACK
+#define SA_ONSTACK 0
+#endif
+
 #ifdef SA_SIGINFO
 void install_signal_handler(int sig, void (*handler)(int, siginfo_t *, void *))
      /* installs three-argument signal handler for sig */
@@ -362,6 +366,7 @@ void install_signal_handlers(void)
   };
   int i;
   void (*throw_handler)() = die_on_signal ? graceful_exit : signal_throw;
+#ifdef SIGSTKSZ 
   stack_t sigstack;
   int sas_retval=-1;
 
@@ -372,6 +377,7 @@ void install_signal_handlers(void)
   }
   if (debug)
     fprintf(stderr,"sigaltstack: %s\n",strerror(sas_retval));
+#endif
 
 #define DIM(X)		(sizeof (X) / sizeof *(X))
 /*

@@ -1799,8 +1799,9 @@ floor	( r1 -- r2 )	float
 /* !! unclear wording */
 r2 = floor(r1);
 
-fround	( r1 -- r2 )	float	f_round
-""Round to the nearest integral value.""
+(fround)	( r1 -- r2 )	gforth	paren_f_round
+""Round to the nearest integral value.  Primitive variant (unused)""
+/* !! eliminate this as primitive? */
 /* !! unclear wording */
 #ifdef HAVE_RINT
 r2 = rint(r1);
