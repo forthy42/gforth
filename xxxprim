@@ -138,12 +138,12 @@
 
 \ set up stack caching states
 
-\E register sp0 Cell
+\E register spTOS Cell
 \E register sp1 Cell
 \E register sp2 Cell
 \E register sp3 Cell
 
-\E create regs sp0 , sp1 , sp2 , sp3 ,
+\E create regs spTOS , sp1 , sp2 , sp3 ,
 
 \E regs 0 0 stack-state ss0
 \E regs 1 1 stack-state ss1
@@ -159,6 +159,9 @@
 \E ss1 data-stack s1 set-ss
 \E ss2 data-stack s2 set-ss
 \E ss3 data-stack s3 set-ss
+
+\E S1 to state-in
+\E S1 to state-out
 
 +	( n1 n2 -- n )		core	plus
 n = n1+n2;

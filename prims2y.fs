@@ -196,6 +196,7 @@ end-struct register%
 
 struct%
     cell% 2* field ss-registers  \ addr u; ss-registers[0] is TOS
+                                 \ 0 means: use memory
     cell%    field ss-offset     \ stack pointer offset: sp[-offset] is TOS
 end-struct ss% \ stack-state
 
@@ -287,6 +288,8 @@ end-struct prim%
 0 value combined \ in combined prims the combined prim
 variable in-part \ true if processing a part
  in-part off
+0 value state-in  \ state on entering prim
+0 value state-out \ state on exiting prim
 
 : prim-context ( ... p xt -- ... )
     \ execute xt with prim set to p
@@ -369,18 +372,23 @@ defer inst-stream-f ( -- stack )
 \ stack access stuff
 
 : normal-stack-access0 { n stack -- }
+    \ n has the ss-offset already applied (see ...-access1)
     n stack stack-access-transform @ execute ." [" 0 .r ." ]" ;
     
-: normal-stack-access1 { n stack -- }
+: normal-stack-access1 { n stack state -- }
+    state state-sss stack stack-number @ th @ { ss }
+    ss ss-registers 2@ n u> if ( addr ) \ in ss-registers?
+	n th @ dup if ( register ) \ and is ss-registers[n] a register?
+	    \ then use the register
+	    register-name 2@ type exit
+	endif
+    endif
+    drop
     stack stack-pointer 2@ type
-    n if
-	n stack normal-stack-access0
-    else
-	." TOS"
-    endif ;
+    n ss ss-offset @ - stack normal-stack-access0 ;
 
-: normal-stack-access ( n stack -- )
-    dup inst-stream-f = if
+: normal-stack-access ( n stack state -- )
+    over inst-stream-f = if
 	." IMM_ARG(" normal-stack-access1 ." ," immarg ? ." )"
 	1 immarg +!
     else
@@ -409,7 +417,7 @@ defer inst-stream-f ( -- stack )
     stack stack-number @ part-num @ s-c-max-depth @
 \    max-depth stack stack-number @ th @ ( ndepth nmaxdepth )
     over <= if ( ndepth ) \ load from memory
-	stack normal-stack-access
+	stack state-in normal-stack-access
     else
 	drop n stack part-stack-access
     endif ;
@@ -423,7 +431,7 @@ defer inst-stream-f ( -- stack )
     stack stack-number @ part-num @ s-c-max-back-depth @
     over <= if ( ndepth )
 	stack combined ['] stack-diff prim-context -
-	stack normal-stack-access
+	stack state-out normal-stack-access
     else
 	drop n stack part-stack-access
     endif ;
@@ -433,7 +441,7 @@ defer inst-stream-f ( -- stack )
     in-part @ if
 	part-stack-read
     else
-	normal-stack-access
+	state-in normal-stack-access
     endif ;
 
 : stack-write ( n stack -- )
@@ -441,7 +449,7 @@ defer inst-stream-f ( -- stack )
     in-part @ if
 	part-stack-write
     else
-	normal-stack-access
+	state-out normal-stack-access
     endif ;
 
 : item-in-index { item -- n }
