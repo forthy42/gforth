@@ -20,7 +20,7 @@
 
 decimal
 
-VARIABLE IP     \ istruction pointer for debugger
+VARIABLE dbg-ip     \ istruction pointer for debugger
 
 \ Formated debugger words                               12jun93jaw
 
@@ -97,7 +97,7 @@ VARIABLE Body
 \        dup D-TableL + C@ dup Level ! dup XPos ! spaces 0 YPos !
 \        D-LineIP + @ C-Stop off
 \        BEGIN
-\        [IFDEF] Green IP @ over =
+\        [IFDEF] Green dbg-ip @ over =
 \                IF hig# C-Highlight ! ELSE C-Highlight off THEN
 \        [THEN]
 \                Analyse
@@ -134,7 +134,7 @@ VARIABLE LastIP
 
 : Watcher ( -- )
         TopLine
-        IP @ SearchLine dup D-Line @ dup D-MaxLines @ +
+        dbg-ip @ SearchLine dup D-Line @ dup D-MaxLines @ +
         within
         IF      drop D-Line @ Display
         ELSE    D-MaxLines @ 2/ - 0 max dup D-Line !
@@ -143,7 +143,7 @@ VARIABLE LastIP
         C-Formated off Colors on
 \        LastIP @ ?DUP IF DispIP THEN
         Hig# C-Highlight !
-        IP @ DispIP IP @ LastIP !
+        dbg-ip @ DispIP dbg-ip @ LastIP !
         C-Formated on C-Highlight off
         BottomLine ;
 
@@ -153,7 +153,7 @@ VARIABLE LastIP
 \ end formated debugger words
 
 [ELSE]
-' \ alias \w immediate
+\ ' \ alias \w immediate
 
 : scanword ( body -- )
         c-init C-Output off
@@ -174,7 +174,7 @@ VARIABLE LastIP
 : NoFine        XPos off YPos off
                 NLFlag off Level off
                 C-Formated off
-[IFDEF] Colors  Colors off [THEN]
+[ [IFDEF] Colors ] Colors off [ [THEN] ]
                 ;
 
 : disp-step
@@ -182,20 +182,20 @@ VARIABLE LastIP
 \       Branches Off                    \ don't display
 \                                       \ BEGIN and THEN
         cr
-\w      YPos @ 1+ D-BugLine !
-\w      Watcher
+\      YPos @ 1+ D-BugLine !
+\ w      Watcher
         c-stop off
-\w      0 D-BugLine @ at-xy
-        Base @ hex IP @ 8 u.r space IP @ @ 8 u.r space
+\ w     0 D-BugLine @ at-xy
+        Base @ hex dbg-ip @ 8 u.r space dbg-ip @ @ 8 u.r space
         Base !
         NoFine 10 XPos !
-\w      D-Bugline @ YPos !
-        ip @ DisplayMode c-pass ! Analyse drop
+\ w      D-Bugline @ YPos !
+        dbg-ip @ DisplayMode c-pass ! Analyse drop
         25 XPos @ - 0 max spaces ." -> " ;
 
 : get-next ( -- n | n n )
         DebugMode c-pass !
-        ip @ Analyse ;
+        dbg-ip @ Analyse ;
 
 : jump          ( addr -- )
                 r> drop \ discard last ip
@@ -203,7 +203,7 @@ VARIABLE LastIP
 
 AVARIABLE DebugLoop
 
-: breaker      r> 1 cells - IP ! DebugLoop @ jump ;
+: breaker      r> 1 cells - dbg-ip ! DebugLoop @ jump ;
 
 CREATE BP 0 , 0 ,
 CREATE DT 0 , 0 ,
@@ -232,7 +232,7 @@ VARIABLE Body
 VARIABLE Nesting
 
 : Leave-D
-[IFDEF] Colors  Colors on [THEN]
+[ [IFDEF] Colors ] Colors on [ [THEN] ]
                 C-Formated on
                 C-Output on ;
 
@@ -241,7 +241,7 @@ VARIABLE Unnest
 : D-KEY         ( -- flag )
         BEGIN
                 Unnest @ IF 0 ELSE key THEN
-                CASE    [char] n OF     IP @ @ NestXT EXIT ENDOF
+                CASE    [char] n OF     dbg-ip @ @ NestXT EXIT ENDOF
                         [char] s OF     Leave-D
                                         -128 THROW ENDOF
                         [char] a OF     Leave-D
@@ -249,7 +249,7 @@ VARIABLE Unnest
                         [char] d OF     Leave-D
                                         cr ." Done..." cr
                                         Nesting off
-                                        r> drop IP @ >r
+                                        r> drop dbg-ip @ >r
                                         EXIT ENDOF
                         [char] ? OF     cr ." Nest Stop Done Unnest" cr
                                         ENDOF
@@ -262,25 +262,25 @@ VARIABLE Unnest
         0 Nesting !
         BEGIN   Unnest off
                 cr ." Scanning code..." cr C-Formated on
-                dup scanword IP !
+                dup scanword dbg-ip !
                 cr ." Nesting debugger ready!" cr
-                \w WatcherInit 0 CT@ attr! page
+                \ WatcherInit 0 CT@ attr! page
                 BEGIN   disp-step D-Key
                 WHILE   C-Stop @ 0=
                 WHILE   0 get-next set-bp
-                        IP @ jump
+                        dbg-ip @ jump
                         [ here DebugLoop ! ]
                         restore-bp
                         d.s
                 REPEAT
-                Nesting @ 0= ?EXIT
+                Nesting @ 0= IF EXIT THEN
                 -1 Nesting +! r>
                 ELSE
-                IP @ 1 cells + >r 1 Nesting +!
+                dbg-ip @ 1 cells + >r 1 Nesting +!
                 THEN
         AGAIN ;
 
-: dbg   ' NestXT ?EXIT (debug) Leave-D ;
+: dbg   ' NestXT IF EXIT THEN (debug) Leave-D ;
 
 : break:
         r> ['] (debug) >body >r ;
