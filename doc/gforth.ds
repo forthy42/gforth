@@ -1045,8 +1045,8 @@ are given.
 
 In addition to the @file{gforth} engine, there is also an engine called
 @file{gforth-fast}, which is faster, but gives less informative error
-messages (@pxref{Error messages}).  You should use it for debugged,
-performance-critical programs.
+messages (@pxref{Error messages}) and may catch fewer stack underflows.
+You should use it for debugged, performance-critical programs.
 
 In general, the command line looks like this:
 
@@ -11829,6 +11829,10 @@ do this is to jump to @code{' noop >code-address} (of course, this is
 less efficient than integrating the @code{next} code and scheduling it
 well).
 
+Another difference between Gforth version is that the top of stack is
+kept in memory in @code{gforth} and, on most platforms, in a register in
+@code{gforth-fast}.
+
 @node  Common Disassembler, 386 Assembler, Common Assembler, Assembler and Code Words
 @subsection Common Disassembler
 
@@ -12232,9 +12236,7 @@ case.
 @code{Gforth} is able to do a return stack dump for throws generated
 from primitives (e.g., invalid memory address, stack empty etc.);
 @code{gforth-fast} is only able to do a return stack dump from a
-directly called @code{throw} (including @code{abort} etc.).  This is the
-only difference (apart from a speed factor of between 1.15 (K6-2) and
-2 (21264)) between @code{gforth} and @code{gforth-fast}.  Given an
+directly called @code{throw} (including @code{abort} etc.).  Given an
 exception caused by a primitive in @code{gforth-fast}, you will
 typically see no return stack dump at all; however, if the exception is
 caught by @code{catch} (e.g., for restoring some state), and then

@@ -30,6 +30,13 @@
 #  define INDIRECT_THREADED
 #endif
 
+#if defined(GFORTH_DEBUGGING)
+#  undef USE_TOS
+#  undef USE_FTOS
+#  define USE_NO_TOS
+#  define USE_NO_FTOS
+#endif
+
 #include <limits.h>
 
 #if defined(NeXT)

@@ -53,6 +53,6 @@ false DefaultValue crlf
 cell 2 = [IF] &32 [ELSE] &256 [THEN] KB DefaultValue kernel-size
 
 &16 KB		DefaultValue stack-size
-&15 KB &512 +	DefaultValue fstack-size
+&16 KB		DefaultValue fstack-size
 &15 KB		DefaultValue rstack-size
 &14 KB &512 +	DefaultValue lstack-size

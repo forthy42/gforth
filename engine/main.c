@@ -447,7 +447,7 @@ void check_prims(Label symbols1[])
 #ifndef DOUBLY_INDIRECT
   int i;
   Label *symbols2=engine2(0,0,0,0,0);
-  char superend[]={
+  static char superend[]={
 #include "prim_superend.i"
   };
 
