@@ -183,197 +183,6 @@ variable items
 : complement ( set1 -- set2 )
  empty ['] bit-equivalent binary-set-operation ;
 
-\ the parser
-
-eof-char max-member \ the whole character set + EOF
-
-: getinput ( -- n )
- rawinput @ endrawinput @ =
- if
-   eof-char
- else
-   cookedinput @ c@
- endif ;
-
-:noname ( n -- )
- dup bl > if
-  emit space
- else
-  .
- endif ;
-print-token !
-
-: testchar? ( set -- f )
- getinput member? ;
-' testchar? test-vector !
-
-: checksyncline ( -- )
-    \ when input points to a newline, check if the next line is a
-    \ sync line.  If it is, perform the appropriate actions.
-    rawinput @ >r
-    s" #line " r@ over compare 0<> if
-	rdrop 1 line +! EXIT
-    endif
-    0. r> 6 chars + 20 >number drop >r drop line ! r> ( c-addr )
-    dup c@ bl = if
-	char+ dup c@ [char] " <> abort" sync line syntax"
-	char+ dup 100 [char] " scan drop swap 2dup - save-mem filename 2!
-	char+
-    endif
-    dup c@ nl-char <> abort" sync line syntax"
-    skipsynclines @ if
-	dup char+ rawinput !
-	rawinput @ c@ cookedinput @ c!
-    endif
-    drop ;
-
-: print-error-line ( -- )
-    \ print the current line and position
-    line-start @ endrawinput @ over - 2dup nl-char scan drop nip ( start end )
-    over - type cr
-    line-start @ rawinput @ over - typewhite ." ^" cr ;
-    
-: ?nextchar ( f -- )
-    ?not? if
-	outfile-id >r try
-	    stderr to outfile-id
-	    filename 2@ type ." :" line @ 0 .r ." : syntax error, wrong char:"
-	    getinput . cr
-	    print-error-line
-	    0
-	recover endtry
-	r> to outfile-id throw
-	abort
-    endif
-    rawinput @ endrawinput @ <> if
-	rawinput @ c@
-	1 chars rawinput +!
-	1 chars cookedinput +!
-	nl-char = if
-	    checksyncline
-	    rawinput @ line-start !
-	endif
-	rawinput @ c@ cookedinput @ c!
-    endif ;
-
-: charclass ( set "name" -- )
- ['] ?nextchar terminal ;
-
-: .. ( c1 c2 -- set )
- ( creates a set that includes the characters c, c1<=c<=c2 )
- empty copy-set
- swap 1+ rot do
-  i over add-member
- loop ;
-
-: ` ( -- terminal ) ( use: ` c )
- ( creates anonymous terminal for the character c )
- char singleton ['] ?nextchar make-terminal ;
-
-char a char z ..  char A char Z ..  union char _ singleton union  charclass letter
-char 0 char 9 ..					charclass digit
-bl singleton tab-char over add-member			charclass white
-nl-char singleton eof-char over add-member complement	charclass nonl
-nl-char singleton eof-char over add-member
-    char : over add-member complement                   charclass nocolonnl
-bl 1+ maxchar .. char \ singleton complement intersection
-                                                        charclass nowhitebq
-bl 1+ maxchar ..                                        charclass nowhite
-char " singleton eof-char over add-member complement	charclass noquote
-nl-char singleton					charclass nl
-eof-char singleton					charclass eof
-
-
-(( letter (( letter || digit )) **
-)) <- c-ident ( -- )
-
-(( ` # ?? (( letter || digit || ` : )) **
-)) <- stack-ident ( -- )
-
-(( nowhitebq nowhite ** ))
-<- forth-ident ( -- )
-
-Variable forth-flag
-Variable c-flag
-
-(( (( ` e || ` E )) {{ start }} nonl ** 
-   {{ end evaluate }}
-)) <- eval-comment ( ... -- ... )
-
-(( (( ` f || ` F )) {{ start }} nonl ** 
-   {{ end forth-flag @ IF type cr ELSE 2drop THEN }}
-)) <- forth-comment ( -- )
-
-(( (( ` c || ` C )) {{ start }} nonl ** 
-   {{ end c-flag @ IF type cr ELSE 2drop THEN }}
-)) <- c-comment ( -- )
-
-(( ` - nonl ** {{ 
-	forth-flag @ IF ." [ELSE]" cr THEN
-	c-flag @ IF ." #else" cr THEN }}
-)) <- else-comment
-
-(( ` + {{ start }} nonl ** {{ end
-	dup
-	IF	c-flag @
-		IF    ." #ifdef HAS_" bounds ?DO  I c@ toupper emit  LOOP cr
-		THEN
-		forth-flag @
-		IF  ." has? " type ."  [IF]"  cr THEN
-	ELSE	2drop
-	    c-flag @      IF  ." #endif"  cr THEN
-	    forth-flag @  IF  ." [THEN]"  cr THEN
-	THEN }}
-)) <- if-comment
-
-(( (( eval-comment || forth-comment || c-comment || else-comment || if-comment )) ?? nonl ** )) <- comment-body
-
-(( ` \ comment-body nl )) <- comment ( -- )
-
-(( {{ start }} stack-ident {{ end 2 pick init-item item% %size + }} white ** )) **
-<- stack-items
-
-(( {{ effect-in }}  stack-items {{ effect-in-end ! }}
-   ` - ` - white **
-   {{ effect-out }} stack-items {{ effect-out-end ! }}
-)) <- stack-effect ( -- )
-
-(( {{ s" " doc 2! s" " forth-code 2! s" " wordset 2! }}
-   (( {{ line @ name-line ! filename 2@ name-filename 2! }}
-      {{ start }} forth-ident {{ end 2dup forth-name 2! c-name 2! }}  white ++
-      ` ( white ** {{ start }} stack-effect {{ end stack-string 2! }} ` ) white **
-        (( {{ start }} forth-ident {{ end wordset 2! }} white **
-	   (( {{ start }}  c-ident {{ end c-name 2! }} )) ??
-	)) ??  nl
-   ))
-   (( ` " ` "  {{ start }} (( noquote ++ ` " )) ++ {{ end 1- doc 2! }} ` " white ** nl )) ??
-   {{ skipsynclines off line @ c-line ! filename 2@ c-filename 2! start }} (( nocolonnl nonl **  nl white ** )) ** {{ end c-code 2! skipsynclines on }}
-   (( ` :  white ** nl
-      {{ start }} (( nonl ++  nl white ** )) ++ {{ end forth-code 2! }}
-   )) ?? {{ printprim }}
-   (( nl || eof ))
-)) <- primitive ( -- )
-
-(( (( comment || primitive || nl white ** )) ** eof ))
-parser primitives2something
-warnings @ [IF]
-.( parser generated ok ) cr
-[THEN]
-
-: primfilter ( file-id xt -- )
-\ fileid is for the input file, xt ( -- ) is for the output word
- output !
- here dup rawinput ! dup line-start ! cookedinput !
- here unused rot read-file throw
- dup here + endrawinput !
- allot
- align
- checksyncline
-\ begin
-\     getinput dup eof-char = ?EXIT emit true ?nextchar
-\ again ;
- primitives2something ;
-
 \ types
 
 : stack-access ( n stack -- )
@@ -833,6 +642,198 @@ does> ( item -- )
     doc 2@ 2,
     set-current ;
 [THEN]
+
+
+\ the parser
+
+eof-char max-member \ the whole character set + EOF
+
+: getinput ( -- n )
+ rawinput @ endrawinput @ =
+ if
+   eof-char
+ else
+   cookedinput @ c@
+ endif ;
+
+:noname ( n -- )
+ dup bl > if
+  emit space
+ else
+  .
+ endif ;
+print-token !
+
+: testchar? ( set -- f )
+ getinput member? ;
+' testchar? test-vector !
+
+: checksyncline ( -- )
+    \ when input points to a newline, check if the next line is a
+    \ sync line.  If it is, perform the appropriate actions.
+    rawinput @ >r
+    s" #line " r@ over compare 0<> if
+	rdrop 1 line +! EXIT
+    endif
+    0. r> 6 chars + 20 >number drop >r drop line ! r> ( c-addr )
+    dup c@ bl = if
+	char+ dup c@ [char] " <> abort" sync line syntax"
+	char+ dup 100 [char] " scan drop swap 2dup - save-mem filename 2!
+	char+
+    endif
+    dup c@ nl-char <> abort" sync line syntax"
+    skipsynclines @ if
+	dup char+ rawinput !
+	rawinput @ c@ cookedinput @ c!
+    endif
+    drop ;
+
+: print-error-line ( -- )
+    \ print the current line and position
+    line-start @ endrawinput @ over - 2dup nl-char scan drop nip ( start end )
+    over - type cr
+    line-start @ rawinput @ over - typewhite ." ^" cr ;
+    
+: ?nextchar ( f -- )
+    ?not? if
+	outfile-id >r try
+	    stderr to outfile-id
+	    filename 2@ type ." :" line @ 0 .r ." : syntax error, wrong char:"
+	    getinput . cr
+	    print-error-line
+	    0
+	recover endtry
+	r> to outfile-id throw
+	abort
+    endif
+    rawinput @ endrawinput @ <> if
+	rawinput @ c@
+	1 chars rawinput +!
+	1 chars cookedinput +!
+	nl-char = if
+	    checksyncline
+	    rawinput @ line-start !
+	endif
+	rawinput @ c@ cookedinput @ c!
+    endif ;
+
+: charclass ( set "name" -- )
+ ['] ?nextchar terminal ;
+
+: .. ( c1 c2 -- set )
+ ( creates a set that includes the characters c, c1<=c<=c2 )
+ empty copy-set
+ swap 1+ rot do
+  i over add-member
+ loop ;
+
+: ` ( -- terminal ) ( use: ` c )
+ ( creates anonymous terminal for the character c )
+ char singleton ['] ?nextchar make-terminal ;
+
+char a char z ..  char A char Z ..  union char _ singleton union  charclass letter
+char 0 char 9 ..					charclass digit
+bl singleton tab-char over add-member			charclass white
+nl-char singleton eof-char over add-member complement	charclass nonl
+nl-char singleton eof-char over add-member
+    char : over add-member complement                   charclass nocolonnl
+bl 1+ maxchar .. char \ singleton complement intersection
+                                                        charclass nowhitebq
+bl 1+ maxchar ..                                        charclass nowhite
+char " singleton eof-char over add-member complement	charclass noquote
+nl-char singleton					charclass nl
+eof-char singleton					charclass eof
+
+
+(( letter (( letter || digit )) **
+)) <- c-ident ( -- )
+
+(( ` # ?? (( letter || digit || ` : )) **
+)) <- stack-ident ( -- )
+
+(( nowhitebq nowhite ** ))
+<- forth-ident ( -- )
+
+Variable forth-flag
+Variable c-flag
+
+(( (( ` e || ` E )) {{ start }} nonl ** 
+   {{ end evaluate }}
+)) <- eval-comment ( ... -- ... )
+
+(( (( ` f || ` F )) {{ start }} nonl ** 
+   {{ end forth-flag @ IF type cr ELSE 2drop THEN }}
+)) <- forth-comment ( -- )
+
+(( (( ` c || ` C )) {{ start }} nonl ** 
+   {{ end c-flag @ IF type cr ELSE 2drop THEN }}
+)) <- c-comment ( -- )
+
+(( ` - nonl ** {{ 
+	forth-flag @ IF ." [ELSE]" cr THEN
+	c-flag @ IF ." #else" cr THEN }}
+)) <- else-comment
+
+(( ` + {{ start }} nonl ** {{ end
+	dup
+	IF	c-flag @
+		IF    ." #ifdef HAS_" bounds ?DO  I c@ toupper emit  LOOP cr
+		THEN
+		forth-flag @
+		IF  ." has? " type ."  [IF]"  cr THEN
+	ELSE	2drop
+	    c-flag @      IF  ." #endif"  cr THEN
+	    forth-flag @  IF  ." [THEN]"  cr THEN
+	THEN }}
+)) <- if-comment
+
+(( (( eval-comment || forth-comment || c-comment || else-comment || if-comment )) ?? nonl ** )) <- comment-body
+
+(( ` \ comment-body nl )) <- comment ( -- )
+
+(( {{ start }} stack-ident {{ end 2 pick init-item item% %size + }} white ** )) **
+<- stack-items
+
+(( {{ effect-in }}  stack-items {{ effect-in-end ! }}
+   ` - ` - white **
+   {{ effect-out }} stack-items {{ effect-out-end ! }}
+)) <- stack-effect ( -- )
+
+(( {{ s" " doc 2! s" " forth-code 2! s" " wordset 2! }}
+   (( {{ line @ name-line ! filename 2@ name-filename 2! }}
+      {{ start }} forth-ident {{ end 2dup forth-name 2! c-name 2! }}  white ++
+      ` ( white ** {{ start }} stack-effect {{ end stack-string 2! }} ` ) white **
+        (( {{ start }} forth-ident {{ end wordset 2! }} white **
+	   (( {{ start }}  c-ident {{ end c-name 2! }} )) ??
+	)) ??  nl
+   ))
+   (( ` " ` "  {{ start }} (( noquote ++ ` " )) ++ {{ end 1- doc 2! }} ` " white ** nl )) ??
+   {{ skipsynclines off line @ c-line ! filename 2@ c-filename 2! start }} (( nocolonnl nonl **  nl white ** )) ** {{ end c-code 2! skipsynclines on }}
+   (( ` :  white ** nl
+      {{ start }} (( nonl ++  nl white ** )) ++ {{ end forth-code 2! }}
+   )) ?? {{ printprim }}
+   (( nl || eof ))
+)) <- primitive ( -- )
+
+(( (( comment || primitive || nl white ** )) ** eof ))
+parser primitives2something
+warnings @ [IF]
+.( parser generated ok ) cr
+[THEN]
+
+: primfilter ( file-id xt -- )
+\ fileid is for the input file, xt ( -- ) is for the output word
+ output !
+ here dup rawinput ! dup line-start ! cookedinput !
+ here unused rot read-file throw
+ dup here + endrawinput !
+ allot
+ align
+ checksyncline
+\ begin
+\     getinput dup eof-char = ?EXIT emit true ?nextchar
+\ again ;
+ primitives2something ;
 
 : process-file ( addr u xt -- )
     >r
