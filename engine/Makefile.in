@@ -86,9 +86,9 @@ LDLIBS  = @LIBS@
 
 AOBJECTS = io.o signals.o support.o memcmpc.o peephole.o @LIBOBJS@
 
-OBJECTS = engine.o main.o
-OBJECTS_NATIVE = engine-native.o main-native.o
-OBJECTS_FAST = engine-fast.o main-fast.o
+OBJECTS = engine.o engine2.o main.o
+OBJECTS_NATIVE = engine-native.o engine-native2.o engine-native3.o main-native.o
+OBJECTS_FAST = engine-fast.o engine-fast2.o main-fast.o
 OBJECTS_ITC = engine-itc.o main-itc.o
 OBJECTS_DITC = engine-ditc.o main-ditc.o
 OBJECTS_PROF = engine-prof.o main-prof.o
@@ -97,7 +97,7 @@ OBJECTS_FI =  engine.o main-fi.o
 # In engine subdirectory there are (or should be) only files that belong to
 # our engine, so we can make life easy
 DEPS =  config.h *.h $(srcdir)/../arch/$(machine)/*.[h]
-ENGINE_DEPS = engine.b.c $(DEPS) prim_lab.i prim.i
+ENGINE_DEPS = engine.c $(DEPS) prim_lab.i prim.i
 MAIN_DEPS = main.c $(DEPS) prim_superend.i prim_num.i
 
 #some makes don't do the -o $@ correctly, so we help them
@@ -126,25 +126,37 @@ gforth-fi$(EXE):	$(OBJECTS_FI) $(AOBJECTS)
 	$(GCC) $(LDFLAGS) $(OBJECTS_FI) $(AOBJECTS) $(LDLIBS) -o $@
 
 engine.s:	$(ENGINE_DEPS)
-		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -fno-gcse -S engine.b.c
+		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -fno-gcse -S engine.c
 
 engine.o:	$(ENGINE_DEPS)
-		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -fno-gcse -fno-strict-aliasing -DGFORTH_DEBUGGING -o $@ -c engine.b.c
+		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -fno-gcse -fno-strict-aliasing -DGFORTH_DEBUGGING -o $@ -c engine.c
+
+engine2.o:	$(ENGINE_DEPS)
+		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -fno-gcse -fno-strict-aliasing -DGFORTH_DEBUGGING -DENGINE=2 -o $@ -c engine.c
 
 engine-native.o:$(ENGINE_DEPS)
-		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -fno-gcse -DNO_IP -o $@ -c engine.b.c
+		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -fno-gcse -DNO_IP -o $@ -c engine.c
+
+engine-native2.o:$(ENGINE_DEPS)
+		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -fno-gcse -DNO_IP -DENGINE=2 -o $@ -c engine.c
+
+engine-native3.o:$(ENGINE_DEPS)
+		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -fno-gcse -DNO_IP -DENGINE=3 -o $@ -c engine.c
 
 engine-fast.o:	$(ENGINE_DEPS)
-		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -fno-gcse -o $@ -c engine.b.c
+		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -fno-gcse -o $@ -c engine.c
+
+engine-fast2.o:	$(ENGINE_DEPS)
+		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -fno-gcse -DENGINE=2 -o $@ -c engine.c
 
 engine-itc.o:	$(ENGINE_DEPS)
-		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -fno-gcse -DINDIRECT_THREADED -DGFORTH_DEBUGGING -o $@ -c engine.b.c
+		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -fno-gcse -DINDIRECT_THREADED -DGFORTH_DEBUGGING -o $@ -c engine.c
 
 engine-ditc.o:	$(ENGINE_DEPS)
-		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -fno-gcse -DDOUBLY_INDIRECT -o $@ -c engine.b.c
+		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -fno-gcse -DDOUBLY_INDIRECT -o $@ -c engine.c
 
 engine-prof.o:	$(ENGINE_DEPS)
-		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -fno-gcse -DVM_PROFILING -o $@ -c engine.b.c
+		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -fno-gcse -DVM_PROFILING -o $@ -c engine.c
 
 main.o:		$(MAIN_DEPS) 
 		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -DGFORTH_DEBUGGING -o $@ -c $(srcdir)/main.c
@@ -183,9 +195,6 @@ profile.o:	profile.c profile.i $(DEPS)
 
 termios.o:	/usr/lib/libposix.a
 	ar x /usr/lib/libposix.a termios.o
-
-engine.b.c: engine.c
-	m4 -s $(srcdir)/engine.c >$@
 
 #duplicated rules to avoid too many recursive make invocations
 # !! No any forth stuff should be done in ../Makefile.

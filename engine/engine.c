@@ -19,8 +19,6 @@
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
 */
 
-undefine(`symbols')
-
 #include "config.h"
 #include "forth.h"
 #include <ctype.h>
@@ -196,8 +194,36 @@ extern int gforth_memcmp(const char * s1, const char * s2, size_t n);
       }
 #endif
 
-define(enginerest,
-`(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
+#if !defined(ENGINE)
+/* normal engine */
+#define VARIANT(v)	(v)
+#define JUMP(target)	goto I_noop
+#define LABEL(name) I_##name:
+
+#elif ENGINE==2
+/* variant with padding between VM instructions for finding out
+   cross-inst jumps (for dynamic code) */
+#define engine engine2
+#define VARIANT(v)	(v)
+#define JUMP(target)	goto I_noop
+#define LABEL(name) J_##name: asm(".skip 16"); I_##name:
+#define IN_ENGINE2
+
+#elif ENGINE==3
+/* variant with different immediate arguments for finding out
+   immediate arguments (for native code) */
+#define engine engine3
+#define VARIANT(v)	((v)^0xffffffff)
+#define JUMP(target)	goto K_lit
+#define LABEL(name) I_##name:
+#else
+#error illegal ENGINE value
+#endif /* ENGINE */
+
+#define LABEL2(name) K_##name:
+
+
+Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
 /* executes code at ip, if ip!=NULL
    returns array of machine code labels (for use in a loader), if ip==NULL
 */
@@ -459,38 +485,7 @@ define(enginerest,
   NEXT;
 #endif
 
-#ifndef IN_ENGINE2
-#define LABEL(name) I_##name:
-#else
-#define LABEL(name) J_##name: asm(".skip 16"); I_##name:
-#endif
-#define LABEL2(name) K_##name:
 #include "prim.i"
-#undef LABEL
   after_last: return (Label *)0;
   /*needed only to get the length of the last primitive */
-}'
-)
-
-#define VARIANT(v)	(v)
-#define JUMP(target)	goto I_noop
-
-Label *engine enginerest
-
-#ifndef NO_DYNAMIC
-
-#ifdef NO_IP
-#undef VARIANT
-#define VARIANT(v)	((v)^0xffffffff)
-#undef JUMP
-#define JUMP(target)	goto K_lit
-Label *engine3 enginerest
-#endif
-
-#undef VARIANT
-#define VARIANT(v)	(v)
-#undef JUMP
-#define JUMP(target)	goto I_noop
-#define IN_ENGINE2
-Label *engine2 enginerest
-#endif
+}
