@@ -1682,7 +1682,7 @@ wior = FILEIO(putc(c, (FILE *)wfileid)==EOF);
 if (wior)
   clearerr((FILE *)wfileid);
 #else
-putc(c, stdout);
+PUTC(c);
 #endif
 
 \+file

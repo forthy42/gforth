@@ -26,6 +26,7 @@ Create magicbuf 8 allot
 Variable bswap?
 Variable tchars
 Variable tcell
+Variable au
 
 : bswap ( n -- n' )  bswap? @ 0= ?EXIT  0
     over 24 rshift $FF       and or
@@ -39,8 +40,10 @@ Variable tcell
     ELSE  true abort" No magic found"  THEN
     1 magicbuf 7 + c@ 5 rshift 3 and lshift tchars !
     1 magicbuf 7 + c@ 1 rshift 3 and lshift tcell !
+    1 magicbuf 7 + c@ 3 rshift 3 and lshift au !
     magicbuf 7 + c@ 1 and 0=
     [ pad off 1 pad ! pad c@ 1 = ] Literal = bswap? !
+    ." /* Image with " tcell @ . ." bytes cell, " tchars @ . ." bytes per char and " au @ . ." bytes per address unit */" cr
     rdrop ;
 
 Create image-header  4 cells allot
@@ -49,7 +52,7 @@ Variable bitmap-chars
 
 : read-header ( fd -- )
     image-header 4 cells rot read-file throw drop
-    image-header 2 cells + @ bswap tchars @ *
+    image-header 2 cells + @ bswap tchars @ * au @ /
     dup cell / image-cells ! 1- 8 cells / 1+ bitmap-chars !
     image-cells @ cells allocate throw to image
     bitmap-chars @ allocate throw to bitmap ;
@@ -82,7 +85,7 @@ Variable bitmap-chars
     r@ read-dictionary r@ read-bitmap r> close-file throw ;
 
 : .imagesize ( -- )
-    image-header 3 cells + @ bswap tcell @ / tchars @ * .08x ;
+    image-header 3 cells + @ bswap tcell @ / tchars @ * au @ / .08x ;
 
 : .relocsize ( -- )
     bitmap-chars @ 1- tchars @ / 1+ .08x ;
