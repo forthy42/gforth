@@ -233,6 +233,12 @@ esac
 AC_SUBST(host)
 AC_SUBST(ENGINE_FLAGS)
 
+# Try if GCC understands -fno-cross-jump
+
+CFLAGS_1="$CFLAGS"
+CFLAGS="$CFLAGS -fno-cross-jump"
+AC_TRY_COMPILE(,,,CFLAGS="$CFLAGS_1")
+
 AC_CHECK_PROG(asm_fs,asm.fs,arch/$machine/asm.fs,,$srcdir/arch/$machine)
 AC_SUBST(asm_fs)
 
@@ -242,12 +248,16 @@ AC_SUBST(disasm_fs)
 case "$host_os" in
 	*win32)
 		EXE=".exe"
+		DIRSEP="\\"
 		;;
 	*)
 		EXE=""
+		DIRSEP="/"
 		;;
 esac
 AC_SUBST(EXE)
+AC_SUBST(DIRSEP)
+AC_DEFINE_UNQUOTED(DIRSEP,'$DIRSEP')
 
 dnl Now a little support for DOS/DJGCC
 AC_SUBST(GFORTH_EXE)

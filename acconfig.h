@@ -59,6 +59,9 @@
 /* a path separator character */
 #define PATHSEP ':'
 
+/* a directory separator character */
+#define DIRSEP '/'
+
 /* define this if there is no working DOUBLE_CELL_TYPE on your machine */
 #undef BUGGY_LONG_LONG
 

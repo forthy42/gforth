@@ -874,18 +874,10 @@ Address loader(FILE *imagefile, char* filename)
   return imp;
 }
 
-/* index of last '/' or '\' in file, 0 if there is none. !! Hmm, could
-   be implemented with strrchr and the separator should be
-   OS-dependent */
+/* index of last '/' or '\' in file, 0 if there is none. */
 int onlypath(char *file)
 {
-  int i;
-  i=strlen(file);
-  while (i) {
-    if (file[i]=='\\' || file[i]=='/') break;
-    i--;
-  }
-  return i;
+  return strrchr(file, DIRSEP)-file;
 }
 
 FILE *openimage(char *fullfilename)
@@ -906,8 +898,8 @@ FILE *checkimage(char *path, int len, char *imagename)
   char fullfilename[dirlen+strlen(imagename)+2];
 
   memcpy(fullfilename, path, dirlen);
-  if (fullfilename[dirlen-1]!='/')
-    fullfilename[dirlen++]='/';
+  if (fullfilename[dirlen-1]!=DIRSEP)
+    fullfilename[dirlen++]=DIRSEP;
   strcpy(fullfilename+dirlen,imagename);
   return openimage(fullfilename);
 }
@@ -917,7 +909,7 @@ FILE * open_image_file(char * imagename, char * path)
   FILE * image_file=NULL;
   char *origpath=path;
   
-  if(strchr(imagename, '/')==NULL) {
+  if(strchr(imagename, DIRSEP)==NULL) {
     /* first check the directory where the exe file is in !! 01may97jaw */
     if (onlypath(progname))
       image_file=checkimage(progname, onlypath(progname), imagename);
