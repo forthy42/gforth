@@ -206,6 +206,7 @@ Create prefix-found  0 , 0 ,
     5 pick over 4 pick + prefix-found @ 0<> - < ;
 
 : tab-expand ( max span addr pos1 -- max span addr pos2 0 )
+    key? IF  #tab (ins) 0  EXIT  THEN
     kill-expand  2dup extract-word dup 0= IF  nip EXIT  THEN
     search-prefix  tib-full?
     IF    7 emit  2drop  0 0 prefix-found 2!
