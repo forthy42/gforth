@@ -2071,8 +2071,8 @@ s" kernel.TAGS" r/w create-file throw value tag-file-id
 s" kernel.tags" r/w create-file throw value vi-tag-file-id
 \ contains the file-id of the tags file
 
-Create tag-beg 2 c,  7F c, bl c,
-Create tag-end 2 c,  bl c, 01 c,
+Create tag-beg 1 c,  7F c,
+Create tag-end 1 c,  01 c,
 Create tag-bof 1 c,  0C c,
 Create tag-tab 1 c,  09 c,
 
