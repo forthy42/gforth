@@ -78,6 +78,7 @@ profile-points next-profile-point-p !
 variable last-colondef-profile \ pointer to the pp of last colon definition
 variable current-profile-point
 variable library-calls \ list of calls to library colon defs
+variable in-compile,? in-compile,? off
 
 \ list stuff
 
@@ -205,7 +206,9 @@ variable library-calls \ list of calls to library colon defs
     profile-count dup 2@ 1. d+ rot 2! ;
 
 : profile-this ( -- )
-    new-profile-point POSTPONE literal POSTPONE dinc ;
+    in-compile,? @ in-compile,? on
+    new-profile-point POSTPONE literal POSTPONE dinc
+    in-compile,? ! ;
 
 \ Various words trigger PROFILE-THIS.  In order to avoid getting
 \ several calls to PROFILE-THIS from a compiling word (like ?EXIT), we
@@ -232,32 +235,32 @@ variable library-calls \ list of calls to library colon defs
 \ better if we had a way of knowing whether we are in a colon def or
 \ not (and used that knowledge instead of STATE).
 
-Defer before-word-profile ( -- )
-' noop IS before-word-profile
+\ Defer before-word-profile ( -- )
+\ ' noop IS before-word-profile
 
-: before-word1 ( -- )
-    before-word-profile defers before-word ;
+\ : before-word1 ( -- )
+\     before-word-profile defers before-word ;
 
-' before-word1 IS before-word
+\ ' before-word1 IS before-word
 
-: profile-this-compiling ( -- )
-    state @ if
-	profile-this
-	['] noop IS before-word-profile
-    endif ;
+\ : profile-this-compiling ( -- )
+\     state @ if
+\ 	profile-this
+\ 	['] noop IS before-word-profile
+\     endif ;
 
-: cock-profiler ( -- )
-    \ as in cock the gun - pull the trigger
-    ['] profile-this-compiling IS before-word-profile
-    [ count-calls? ] [if] \ we are at a non-colondef profile point
-	last-colondef-profile @ profile-straight-line off
-    [endif]
-;
+\ : cock-profiler ( -- )
+\     \ as in cock the gun - pull the trigger
+\     ['] profile-this-compiling IS before-word-profile
+\     [ count-calls? ] [if] \ we are at a non-colondef profile point
+\ 	last-colondef-profile @ profile-straight-line off
+\     [endif]
+\ ;
 
 : hook-profiling-into ( "name" -- )
     \ make (deferred word) "name" call cock-profiler, too
     ' >body >r :noname
-    POSTPONE cock-profiler
+    POSTPONE profile-this
     r@ @ compile, \ old hook behaviour
     POSTPONE ;
     r> ! ; \ change hook behaviour
@@ -269,31 +272,25 @@ Defer before-word-profile ( -- )
 : note-call ( addr -- )
     \ addr is the body address of a called colon def or does handler
     dup 3 cells + @ ['] dinc >body = if ( addr )
+	profile-this
 	current-profile-point @ new-call over cell+ @ profile-calls insert-list
     endif
     drop ;
-    
+
 : prof-compile, ( xt -- )
+    in-compile,? @ if
+	DEFERS compile, EXIT
+    endif
     dup >does-code if
 	dup >does-code note-call
     then
     dup >code-address CASE
 	docol:   OF dup >body note-call ENDOF
 	dodefer: OF note-execute ENDOF
-	dofield: OF >body @ ['] lit+ peephole-compile, , EXIT ENDOF
 	\ dofield: OF >body @ POSTPONE literal ['] + peephole-compile, EXIT ENDOF
 	\ code words and ;code-defined words (code words could be optimized):
-	dup in-dictionary? IF drop POSTPONE literal ['] execute peephole-compile, EXIT THEN
     ENDCASE
     DEFERS compile, ;
-
-\ hook-profiling-into then-like
-\ \ hook-profiling-into if-like    \ subsumed by other-control-flow
-\ \ hook-profiling-into ahead-like \ subsumed by other-control-flow
-\ hook-profiling-into other-control-flow
-\ hook-profiling-into begin-like
-\ hook-profiling-into again-like
-\ hook-profiling-into until-like
 
 : :-hook-profile ( -- )
     defers :-hook
@@ -302,5 +299,12 @@ Defer before-word-profile ( -- )
     @ dup last-colondef-profile !
     profile-colondef? on ;
 
+\ hook-profiling-into then-like
+\ \ hook-profiling-into if-like    \ subsumed by other-control-flow
+\ \ hook-profiling-into ahead-like \ subsumed by other-control-flow
+\ hook-profiling-into other-control-flow
+\ hook-profiling-into begin-like
+\ hook-profiling-into again-like
+\ hook-profiling-into until-like
 ' :-hook-profile IS :-hook
 ' prof-compile, IS compile,
