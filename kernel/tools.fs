@@ -100,4 +100,3 @@ include  ./../termsize.fs
 
 ' words alias vlist ( -- ) \ gforth
 \g Old (pre-Forth-83) name for @code{WORDS}.
-

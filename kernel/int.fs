@@ -32,13 +32,13 @@ require ~+/kernel/version.fs	\ version-string
 require ./../chains.fs
 
 : tib ( -- c-addr ) \ core-ext
-    \G @var{c-addr} is the address of the Terminal Input Buffer.
+    \G @i{c-addr} is the address of the Terminal Input Buffer.
     \G OBSOLESCENT: @code{source} superceeds the function of this word.
     >tib @ ;
 
 Defer source ( -- c-addr u ) \ core
 \ used by dodefer:, must be defer
-\G @var{c-addr} is the address of the input buffer and @var{u} is the
+\G @i{c-addr} is the address of the input buffer and @i{u} is the
 \G number of characters in it.
 
 : (source) ( -- c-addr u )
@@ -54,7 +54,8 @@ Defer source ( -- c-addr u ) \ core
 \ word parse                                           23feb93py
 
 : sword  ( char -- addr len ) \ gforth s-word
-  \G Parses like @code{word}, but the output is like @code{parse} output
+    \G Parses like @code{word}, but the output is like @code{parse} output.
+    \G @xref{core-idef}
   \ this word was called PARSE-WORD until 0.3.0, but Open Firmware and
   \ dpANS6 A.6.2.2008 have a word with that name that behaves
   \ differently (like NAME).
@@ -63,10 +64,10 @@ Defer source ( -- c-addr u ) \ core
   2dup + r> - 1+ r> min >in ! ;
 
 : word   ( char "<chars>ccc<char>-- c-addr ) \ core
-    \G Skip leading delimiters. Parse @var{ccc}, delimited by
-    \G @var{char}, in the parse area. @var{c-addr} is the addres of a
+    \G Skip leading delimiters. Parse @i{ccc}, delimited by
+    \G @i{char}, in the parse area. @i{c-addr} is the address of a
     \G transient region containing the parsed string in
-    \G counted-strinng format. If the parse area was empty or
+    \G counted-string format. If the parse area was empty or
     \G contained no characters other than delimiters, the resulting
     \G string has zero length. A program may replace characters within
     \G the counted string. OBSOLESCENT: the counted string has a
@@ -74,9 +75,9 @@ Defer source ( -- c-addr u ) \ core
     sword here place  bl here count + c!  here ;
 
 : parse    ( char "ccc<char>" -- c-addr u ) \ core-ext
-    \G Parse @var{ccc}, delimited by @var{char}, in the parse
-    \G area. @var{c-addr u} specifies the parsed string within the
-    \G parse area. If the parse area was empty, @var{u} is 0.
+    \G Parse @i{ccc}, delimited by @i{char}, in the parse
+    \G area. @i{c-addr u} specifies the parsed string within the
+    \G parse area. If the parse area was empty, @i{u} is 0.
     >r  source  >in @ over min /string  over  swap r>  scan >r
   over - dup r> IF 1+ THEN  >in +! ;
 
@@ -84,7 +85,7 @@ Defer source ( -- c-addr u ) \ core
 
 [IFUNDEF] (name) \ name might be a primitive
 
-: (name) ( -- c-addr count )
+: (name) ( -- c-addr count ) \ gforth
     source 2dup >r >r >in @ /string (parse-white)
     2dup + r> - 1+ r> min >in ! ;
 \    name count ;
@@ -242,7 +243,7 @@ AValue forth-wordlist \ variable, will be redefined by search.fs
 AVariable lookup       	forth-wordlist lookup !
 \ !! last is user and lookup?! jaw
 AVariable current ( -- addr ) \ gforth
-\G VARIABLE: holds the wid of the current compilation word list.
+\G @code{Variable} -- holds the wid of the current compilation word list.
 AVariable voclink	forth-wordlist wordlist-link voclink !
 \ lookup AValue context ( -- addr ) \ gforth
 Defer context ( -- addr ) \ gforth
@@ -286,7 +287,7 @@ hex
     then ;
 
 : name>string ( nt -- addr count ) \ gforth     head-to-string
-    \g @var{addr count} is the name of the word represented by @var{nt}.
+    \g @i{addr count} is the name of the word represented by @i{nt}.
     cell+ count $1F and ;
 
 : ((name>))  ( nfa -- cfa )
@@ -575,12 +576,12 @@ has? file 0= [IF]
 [THEN]
 
 : evaluate ( c-addr u -- ) \ core,block
-    \G Save the current input source specification. Store -1 in
-    \G @code{source-id} and 0 in @code{blk}. Set @code{>IN} to 0 and
-    \G make the string @var{c-addr u} the input source and input
-    \G buffer. Interpret. When the parse area is empty, restore the
-    \G input source specification.
-    push-file  #tib ! >tib !
+    \G Save the current input source specification. Store @code{-1} in
+    \G @code{source-id} and @code{0} in @code{blk}. Set @code{>IN} to
+    \G @code{0} and make the string @i{c-addr u} the input source
+    \G and input buffer. Interpret. When the parse area is empty,
+    \G restore the input source specification.
+    push-file #tib ! >tib !
     >in off
     [ has? file [IF] ]
 	blk off loadfile off -1 loadline !
@@ -626,22 +627,22 @@ max-errors 6 * cells allot
 \ Loadfilename ( addr u )
 
 : dec. ( n -- ) \ gforth
-    \G Display @var{n} as a signed decimal number, followed by a space.
-    \G !! not used...
+    \G Display @i{n} as a signed decimal number, followed by a space.
+    \ !! not used...
     base @ decimal swap . base ! ;
 
 : dec.r ( u -- ) \ gforth
-    \G Display @var{u} as a unsigned decimal number
+    \G Display @i{u} as a unsigned decimal number
     base @ decimal swap 0 .r base ! ;
 
 : hex. ( u -- ) \ gforth
-    \G Display @var{u} as an unsigned hex number, prefixed with a "$" and
+    \G Display @i{u} as an unsigned hex number, prefixed with a "$" and
     \G followed by a space.
-    \G !! not used...
+    \ !! not used...
     [char] $ emit base @ swap hex u. base ! ;
 
 : typewhite ( addr u -- ) \ gforth
-    \ like type, but white space is printed instead of the characters
+    \G Like type, but white space is printed instead of the characters.
     bounds ?do
 	i c@ #tab = if \ check for tab
 	    #tab

@@ -26,7 +26,7 @@ decimal
 \ .(                                                    12may93jaw
 
 : .(   ( "ccc<paren>" -- ) \ core-ext dot-paren
-  \G Parse a string @var{ccc} delimited by a @code{)} (right
+  \G Parse a string @i{ccc} delimited by a @code{)} (right
   \G parenthesis). Display the string. This is often used to display
   \G progress information during compilation; see examples below.
   [char] ) parse type ; immediate
@@ -36,7 +36,7 @@ decimal
 \ !! 2value
 
 : 2Literal ( compilation w1 w2 -- ; run-time  -- w1 w2 ) \ double two-literal
-    \G Compile appropriate code such that, at run-time, cell pair @var{w1, w2} are
+    \G Compile appropriate code such that, at run-time, cell pair @i{w1, w2} are
     \G placed on the stack. Interpretation semantics are undefined.
     swap postpone Literal  postpone Literal ; immediate restrict
 
@@ -76,9 +76,9 @@ decimal
     postpone (c") here over char+ allot  place align ; immediate restrict
 
 : C" ( compilation "ccc<quote>" -- ; run-time  -- c-addr ) \ core-ext c-quote
-    \G Compilation: parse a string @var{ccc} delimited by a @code{"}
-    \G (double quote). At run-time, return @var{c-addr} which
-    \G specifies the counted string @var{ccc}.  Interpretation
+    \G Compilation: parse a string @i{ccc} delimited by a @code{"}
+    \G (double quote). At run-time, return @i{c-addr} which
+    \G specifies the counted string @i{ccc}.  Interpretation
     \G semantics are undefined.
     [char] " parse postpone CLiteral ; immediate restrict
 
@@ -96,23 +96,23 @@ decimal
 \ ERASE                                                 17may93jaw
 
 : erase ( addr len -- ) \ core-ext
-    \G If @var{len}>0, clear all bits in each location of a memory region
-    \G of @var{len} address units starting at address @var{addr}.
+    \G If @i{len}>0, clear all bits in each location of a memory region
+    \G of @i{len} address units starting at address @i{addr}.
     \ !! dependence on "1 chars 1 ="
     ( 0 1 chars um/mod nip )  0 fill ;
 : blank ( c-addr u -- ) \ string
-    \G If @var{u}>0, store the character value for a space in each
+    \G If @i{u}>0, store the character value for a space in each
     \G location of a memory region
-    \G of @var{u} character units starting at address @var{c-addr}.
+    \G of @i{u} character units starting at address @i{c-addr}.
     bl fill ;
 
 \ SEARCH                                                02sep94py
 
 : search ( c-addr1 u1 c-addr2 u2 -- c-addr3 u3 flag ) \ string
-    \G Search the string specified by @var{c-addr1, u1} for the string
-    \G specified by @var{c-addr2, u2}. If @var{flag} is true: match was found
-    \G at @var{c-addr3} with @var{u3} characters remaining. If @var{flag} is false:
-    \G no match was found; @var{c-addr3, u3} are equal to @var{c-addr1, u1}.
+    \G Search the string specified by @i{c-addr1, u1} for the string
+    \G specified by @i{c-addr2, u2}. If @i{flag} is true: match was found
+    \G at @i{c-addr3} with @i{u3} characters remaining. If @i{flag} is false:
+    \G no match was found; @i{c-addr3, u3} are equal to @i{c-addr1, u1}.
     \ not very efficient; but if we want efficiency, we'll do it as primitive
     2>r 2dup
     begin
@@ -130,12 +130,12 @@ decimal
 : source-id ( -- 0 | -1 | fileid ) \ core-ext,file source-i-d
     \G Return 0 (the input source is the user input device), -1 (the
     \G input source is a string being processed by @code{evaluate}) or
-    \G a @var{fileid} (the input source is the file specified by
-    \G @var{fileid}).
+    \G a @i{fileid} (the input source is the file specified by
+    \G @i{fileid}).
     loadfile @ dup 0= IF  drop sourceline# 0 min  THEN ;
 
 : save-input ( -- xn .. x1 n ) \ core-ext
-    \G The @var{n} entries @var{xn - x1} describe the current state of the
+    \G The @i{n} entries @i{xn - x1} describe the current state of the
     \G input source specification, in some platform-dependent way that can
     \G be used by @code{restore-input}.
     >in @
@@ -153,7 +153,7 @@ decimal
 
 : restore-input ( xn .. x1 n -- flag ) \ core-ext
     \G Attempt to restore the input source specification to the state
-    \G described by the @var{n} entries @var{xn - x1}. @var{flag} is
+    \G described by the @i{n} entries @i{xn - x1}. @i{flag} is
     \G true if the restore fails.  In Gforth it fails pretty often
     \G (and sometimes with a @code{throw}).
     6 <> -12 and throw
@@ -180,14 +180,14 @@ decimal
 \ EXPECT SPAN                                           17may93jaw
 
 variable span ( -- c-addr ) \ core-ext
-\ VARIABLE: @var{c-addr} is the address of a cell that stores the
-\ length of the last string received by @code{expect}. OBSOLESCENT.
+\G @code{Variable} -- @i{c-addr} is the address of a cell that stores the
+\G length of the last string received by @code{expect}. OBSOLESCENT.
 
 : expect ( c-addr +n -- ) \ core-ext
-    \G Receive a string of at most @var{+n} characters, and store it
-    \G in memory starting at @var{c-addr}. The string is
+    \G Receive a string of at most @i{+n} characters, and store it
+    \G in memory starting at @i{c-addr}. The string is
     \G displayed. Input terminates when the <return> key is pressed or
-    \G @var{+n} characters have been received. The normal Gforth line
+    \G @i{+n} characters have been received. The normal Gforth line
     \G editing capabilites are available. The length of the string is
     \G stored in @code{span}; it does not include the <return>
     \G character. OBSOLESCENT: superceeded by @code{accept}.
@@ -273,7 +273,7 @@ variable span ( -- c-addr ) \ core-ext
     THEN ;
 
 : marker ( "<spaces> name" -- ) \ core-ext
-    \G Create a definition, @var{name} (called a @var{mark}) whose
+    \G Create a definition, @i{name} (called a @i{mark}) whose
     \G execution semantics are to remove itself and everything 
     \G defined after it.
     marker, Create A,

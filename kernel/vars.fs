@@ -26,19 +26,19 @@ hex \ everything now hex!                               11may93jaw
 \ "a true flag ... [is] a single-cell value with all bits set"
 \ better definition: 0 0= constant true ( no dependence on 2's compl)
  -1 Constant true ( -- f ) \ core-ext
-\G CONSTANT: @i{f} is a cell with all bits set.
+\G @code{Constant} -- @i{f} is a cell with all bits set.
 \ see starts looking for primitives after this word!
 
   0 Constant false ( -- f ) \ core-ext
-\G CONSTANT: @i{f} is a cell with all bits clear.
+\G @code{Constant} -- @i{f} is a cell with all bits clear.
 
 [IFUNDEF] cell 
 1 cells Constant cell ( -- u ) \ gforth
-\G CONSTANT: the number of address units corresponding to 1 cell.
+\G @code{Constant} -- the number of address units corresponding to 1 cell.
 [THEN]
 
 1 floats Constant float ( -- u ) \ gforth
-\G CONSTANT: the number of address units corresponding to a floating-point number.
+\G @code{Constant} -- the number of address units corresponding to a floating-point number.
 
 20 Constant bl ( -- c-char ) \ core
 \G @i{c-char} is the character value for a space.
@@ -71,28 +71,29 @@ Create main-task  has? OS [IF] 100 [ELSE] 40 [THEN] cells allot
 main-task 
 UNLOCK tup ! LOCK
 
-Variable udp \ user area size? -anton
+Variable udp ( -- a-addr ) \ gforth
+\ user area size? -anton
 
 AUser next-task        main-task next-task !
 AUser prev-task        main-task prev-task !
 AUser save-task        0 save-task !
 AUser sp0 ( -- a-addr ) \ gforth
-\G USER VARIABLE: Initial value of the data stack pointer.
+\G @code{User} variable -- initial value of the data stack pointer.
 \ sp0 is used by douser:, must be user
     ' sp0 Alias s0 ( -- a-addr ) \ gforth
 \G OBSOLETE alias of @code{sp0}
 
 AUser rp0 ( -- a-addr ) \ gforth
-\G USER VARIABLE: Initial value of the return stack pointer.
+\G @code{User} variable -- initial value of the return stack pointer.
     ' rp0 Alias r0 ( -- a-addr ) \ gforth
 \G OBSOLETE alias of @code{rp0}
 
 AUser fp0 ( -- a-addr ) \ gforth
-\G USER VARIABLE: Initial value of the floating-point stack pointer.
+\G @code{User} variable -- initial value of the floating-point stack pointer.
 \ no f0, because this leads to unexpected results when using hex
 
 AUser lp0 ( -- a-addr ) \ gforth
-\G USER VARIABLE: Initial value of the locals stack pointer.
+\G @code{User} variable -- initial value of the locals stack pointer.
     ' lp0 Alias l0 ( -- a-addr ) \ gforth
 \G OBSOLETE alias of @code{lp0}
 
@@ -112,19 +113,19 @@ AUser "error            0 "error !
  User tibstack		\ saves >tib in execute
  User >tib		\ pointer to terminal input buffer
  User #tib ( -- a-addr ) \ core-ext
- \G USER VARIABLE: @i{a-addr} is the address of a cell containing
+ \G @code{User} variable -- @i{a-addr} is the address of a cell containing
  \G the number of characters in the terminal input buffer.
  \G OBSOLESCENT: @code{source} superceeds the function of this word.
 
  User >in ( -- a-addr ) \ core
- \G USER VARIABLE: @i{a-addr} is the address of a cell containing the
+ \G @code{User} variable -- @i{a-addr} is the address of a cell containing the
  \G char offset from the start of the input buffer to the start of the
  \G parse area.
                         0 >in ! \ char number currently processed in tib
 [THEN]
 has? file [IF]
  User blk ( -- a-addr ) \ block
- \G USER VARIABLE: @i{a-addr} is the address of a cell containing zero
+ \G @code{User} variable -- @i{a-addr} is the address of a cell containing zero
  \G (in which case the input source is not a block and can be identified
  \G by @code{source-id}) or the number of the block currently being
  \G interpreted. A Standard program should not alter @code{blk} directly.
@@ -144,11 +145,11 @@ has? file [IF]
 [THEN]
 
  User base ( -- a-addr ) \ core
- \G USER VARIABLE: @i{a-addr} is the address of a cell that stores the
+ \G @code{User} variable -- @i{a-addr} is the address of a cell that stores the
  \G number base used by default for number conversion during input and output.
                         A base !
  User dpl ( -- a-addr ) \ gforth
- \G USER VARIABLE: @i{a-addr} is the address of a cell that stores the 		
+ \G @code{User} variable -- @i{a-addr} is the address of a cell that stores the 		
  \G position of the decimal point in the most recent numeric conversion.
  \G Initialised to -1. After the conversion of a number containing no
  \G decimal point, @code{@ dpl} is -1. After the conversion of @code{2.} it holds
@@ -156,7 +157,7 @@ has? file [IF]
  -1 dpl !
 
  User state ( -- a-addr ) \ core,tools-ext
- \G USER VARIABLE: @i{a-addr} is the address of a cell containing the
+ \G @code{User} variable -- @i{a-addr} is the address of a cell containing the
  \G compilation state flag. 0 => interpreting, -1 => compiling.  A
  \G program shall not directly alter the value of @code{state}. The
  \G following Standard words alter the value in @code{state}: @code{:}

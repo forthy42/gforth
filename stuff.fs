@@ -45,7 +45,7 @@ AUser CSP
 \ shell commands
 
 0 Value $? ( -- n ) \ gforth dollar-question
-\G VALUE: The exit status returned by the most recently executed
+\G @code{Value} -- the exit status returned by the most recently executed
 \G @code{system} command.
 
 : system ( addr u -- ) \ gforth

@@ -24,11 +24,11 @@ Variable vp
   0 A, 0 A,  0 A, 0 A,   0 A, 0 A,   0 A, 0 A, 
 
 : get-current  ( -- wid ) \ search
-  \G @var{wid} is the identifier of the current compilation word list.
+  \G @i{wid} is the identifier of the current compilation word list.
   current @ ;
 
 : set-current  ( wid -- )  \ search
-  \G Set the compilation word list to the word list identified by @var{wid}.
+  \G Set the compilation word list to the word list identified by @i{wid}.
   current ! ;
 
 :noname ( -- addr )
@@ -55,7 +55,7 @@ Variable slowvoc   0 slowvoc !
   dup initvoc ;
 
 : wordlist  ( -- wid ) \ search
-  \G Create a new, empty word list represented by @var{wid}.
+  \G Create a new, empty word list represented by @i{wid}.
   slowvoc @
   IF    \ this is now f83search because hashing may be loaded already
 	\ jaw
@@ -132,7 +132,7 @@ slowvoc off
 \ Only root                                            14may93py
 
 Vocabulary Forth ( -- ) \ thisone- search-ext
-  \G Push the @var{wid} associated with @code{forth-wordlist} onto the
+  \G Push the @i{wid} associated with @code{forth-wordlist} onto the
   \G search order stack.
 
 Vocabulary Root ( -- ) \ gforth
@@ -161,9 +161,9 @@ lookup ! \ our dictionary search order becomes the law ( -- )
 
 : get-order  ( -- widn .. wid1 n ) \ search
   \G Copy the search order stack to the data stack. The current search
-  \G order has @var{n} entries, of which @var{wid1} represents the word
+  \G order has @i{n} entries, of which @i{wid1} represents the word
   \G list that is searched first (the word list at the top of the stack) and
-  \G @var{widn} represents the word order that is searched last.
+  \G @i{widn} represents the word order that is searched last.
   vp @ 0 ?DO  vp cell+ I cells + @  LOOP  vp @ ;
 
 : set-order  ( widn .. wid1 n -- ) \ thisone- search
@@ -220,7 +220,7 @@ Root definitions
 \G of the search order.
 ' Forth Alias Forth
 ' forth-wordlist alias forth-wordlist ( -- wid ) \ search
-  \G CONSTANT: @var{wid} identifies the word list that includes all of the standard words
+  \G @code{Constant} -- @i{wid} identifies the word list that includes all of the standard words
   \G provided by Gforth. When Gforth is invoked, this word list is the compilation word
   \G list and is at the top of the word list stack.
 ' set-order alias set-order

@@ -364,7 +364,8 @@ doer? :dovar [IF]
 : 2Variable ( "name" -- ) \ double
     create 0 , 0 , ;
 
-: uallot ( n -- )  udp @ swap udp +! ;
+: uallot ( n -- ) \ gforth
+    udp @ swap udp +! ;
 
 doer? :douser [IF]
 
@@ -451,6 +452,7 @@ interpret/compile: DOES>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest
 ' <IS>
 ' [IS]
 interpret/compile: IS ( xt "name" -- ) \ gforth
+\G A combined word made up from @code{<IS>} and @code{[IS]}.
 
 ' <IS>
 ' [IS]

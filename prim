@@ -1349,6 +1349,8 @@ f_addr = (Float *)((((Cell)c_addr)+(sizeof(Float)-1))&(-sizeof(Float)));
  [ 1 floats 1- ] Literal + [ -1 floats ] Literal and ;
 
 >body		xt -- a_addr	core	to_body
+"" Get the address of the body of the word represented by @i{xt} (the address
+of the word's data field).""
 a_addr = PFA(xt);
 :
     2 cells + ;
@@ -1862,7 +1864,7 @@ internal floating-point representation. If the string
 represents a valid floating-point number @i{r} is placed
 on the floating-point stack and @i{flag} is true. Otherwise,
 @i{flag} is false. A string of blanks is a special case
-and represents the flotaing-point number 0.""
+and represents the floating-point number 0.""
 /* real signature: c_addr u -- r t / f */
 Float r;
 char *number=cstr(c_addr, u, 1);

@@ -169,7 +169,7 @@ Defer flush-blocks ( -- ) \ gforth
     block ;
 
 User scr ( -- a-addr ) \ block-ext
-    \G USER VARIABLE: @i{a-addr} is the address of a cell containing
+    \G @code{User} variable -- @i{a-addr} is the address of a cell containing
     \G the block number of the block most recently processed by
     \G @code{list}.
 0 scr !
