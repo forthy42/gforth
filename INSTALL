@@ -4,6 +4,15 @@ First, type
 
 ./configure
 
+or
+
+CC=<whatever you call your gcc> ./configure
+
+if your local gcc installation uses a different name (e.g. gcc-2.7.2),
+or you want to generate for a different binary format (e.g.  "gcc -b
+i486-linuxaout -V 2.7.0" to generate an a.out executable under Linux
+which you may give your friends who don't have ELF libraries).
+
 configure has the following useful parameters:
   --prefix=PREFIX         install architecture-independent files in PREFIX
                           [default: /usr/local]
@@ -32,14 +41,18 @@ hierarchy, say
 
 ./configure --prefix=/gnu
 
-Moreover, if your GCC is not called gcc (but, e.g., gcc-2.7.1), you
-should say so during configuration:
-
-env GCC=gcc-2.7.1 ./configure
-
 After, configuration, type
 
 make
+
+If your make has trouble with the Makefile, "make gforth" might work.
+
+If your installed gcc isn't called "gcc" (e.g., called "gcc-2.7.2"), type
+
+make GCC=<whatever you call your gcc>
+
+instead. The more appropriate place to select your compiler is when
+running configure.
 
 Now you can check whether your shiny new Forth system works. Say
 
@@ -51,7 +64,7 @@ make bench
 
 and compare them with the results in Benchres and in the manual.
 
-If everything is all right, you may want to install gforth. Type
+If everything is allright, you may want to install gforth. Type
 
 make install
 
@@ -68,29 +81,6 @@ documentation in HTML format by typing
 
 make html
 
-
-		Preloading installation-specific code
-
-If you want to have some installation-specific files loaded when
-Gforth starts (e.g., an assembler for your processor), put commands
-for loading them into /usr/local/share/gforth/site-forth/site-init.fs
-(if the commands work for all architectures) or
-/usr/local/lib/gforth/site-forth/site-init.fs (for
-architecture-specific commands);
-/usr/local/lib/gforth/site-forth/site-init.fs takes precedence if both
-files are present (unless you change the search path). The file names
-given above are the defaults; if you have changed the prefix, you have
-to replace "/usr/local" in these names with your prefix.
-
-By default, the installation procedure creates an empty
-/usr/local/share/gforth/site-forth/site-init.fs if there is no such
-file.
-
-If you change the site-init.fs file, you should run "make install"
-again for the changes to take effect (Actually, the part of "make
-install" starting with "rm gforth.fi" is sufficient).
-
-
 		Multiple Versions and Deinstallation
 
 Several versions of Gforth can be installed and used at the same
@@ -100,7 +90,6 @@ keep the old version for some time after a new one has been installed.
 You can deinstall this version of Gforth with 'make uninstall' and
 version foo with 'make uninstall VERSION=foo'. 'make uninstall' also
 tells you how to uninstall Gforth completely.
-
 
 			A Possible Problem
 

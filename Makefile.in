@@ -34,10 +34,10 @@ INSTALL	= @INSTALL@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_DATA = @INSTALL_DATA@
 LN_S	= @LN_S@
-GCC	= @GCC@
+GCC	= @CC@
 CC	= $(GCC)
 FORTH	= ./gforth
-FORTHK	= $(FORTH) -i kernal.fi
+FORTHK	= $(FORTH) -i ./kernal.fi
 STRIP	= strip
 TEXI2DVI = texi2dvi
 DVI2PS	= dvips -D300
@@ -47,7 +47,7 @@ MAKEINFO = makeinfo
 XCFLAGS	= @CFLAGS@
 XDEFINES = @DEFS@
 SWITCHES = $(XCFLAGS) $(XDEFINES) #-DNDEBUG #turn off assertions
-ENGINE_FLAGS =  -fno-defer-pop -fcaller-saves
+ENGINE_FLAGS = @ENGINE_FLAGS@ -fno-defer-pop -fcaller-saves
 DEBUGFLAG = @DEBUGFLAG@
 CFLAGS	= $(DEBUGFLAG) -O4 -Wall $(SWITCHES) -DDEFAULTPATH=\"$(libdir)/gforth/site-forth:$(datadir)/gforth/site-forth:$(libdir)/gforth/$(VERSION):$(datadir)/gforth/$(VERSION):.\"
 
@@ -79,7 +79,7 @@ FORTH_SRC = anslocal.fs add.fs assert.fs ansi.fs answords.fs blocks.fs bufio.fs 
 	dumpimage.fs environ.fs errore.fs etags.fs extend.fs filedump.fs \
 	float.fs glocals.fs glosgen.fs gray.fs hash.fs history.fs \
 	kernal.fs locals-test.fs look.fs main.fs makedoc.fs \
-	mach16b.fs mach16l.fs mach32b.fs mach32l.fs mach64b.fs mach64l.fs \
+ 	mach16b.fs mach16l.fs mach32b.fs mach32l.fs mach64b.fs mach64l.fs \
 	other.fs prims2x.fs random.fs search-order.fs see.fs sieve.fs source.fs \
 	startup.fs site-init.fs struct.fs tools.fs toolsext.fs tt.fs vars.fs \
 	vt100.fs vt100key.fs wordinfo.fs wordsets.fs \
@@ -94,13 +94,14 @@ SOURCES	= Makefile.in configure.in configure config.sub  config.guess \
 	getopt.c getopt1.c getopt.h select.c \
 	ecvt.c memcmp.c strtol.c strtoul.c ansidecl.h memmove.c pow10.c \
 	strerror.c strsignal.c \
-	makefile.dos mkdosmf.sed configure.bat startup.dos \
+	INSTALL.DOS makefile.dos mkdosmf.sed configure.bat \
+	startup.dos history.dos \
 	glosgen.glo glossaries.doc \
 	$(INCLUDES) $(FORTH_SRC)
 
 RCS_FILES =  ToDo model high-level
 
-GEN = gforth first
+GEN = gforth version.fs
 
 OBJECTS	= engine.o io.o main.o @LIBOBJS@ @getopt_long@
 
@@ -113,9 +114,9 @@ FORTH_GEN1 = $(FORTH_GEN0) @kernal_fi@
 #distributed documentation
 DOCDIST = gforth.texi gforth.fns gforth.ps gforth.info*
 
-KERNLS = kernl16b.fi+ kernl16l.fi+ \
-	 kernl32b.fi+ kernl32l.fi+ \
-	 kernl64b.fi+ kernl64l.fi+
+KERNLS = kernl16b.fi- kernl16l.fi- \
+	 kernl32b.fi- kernl32l.fi- \
+	 kernl64b.fi- kernl64l.fi-
 
 GEN_PRECIOUS = $(FORTH_GEN) $(KERNLS) gforth.texi gforth.dvi gforth.ps Makefile configure
 
@@ -123,11 +124,14 @@ GEN_PRECIOUS = $(FORTH_GEN) $(KERNLS) gforth.texi gforth.dvi gforth.ps Makefile 
 .SUFFIXES:
 .SUFFIXES: .c .o
 
-all:	first more
+all:	version.fs more
 
-first:
-	$(MAKE) gforth
-	touch first
+version.c:	Makefile.in
+		echo "char gforth_version[]=\"$(VERSION)\" ;" >$@
+
+version.fs:	Makefile.in
+		$(MAKE) gforth
+		echo ": version-string s\" $(VERSION)\" ;" >$@
 
 more:	$(FORTH_GEN) gforth
 
@@ -143,7 +147,7 @@ more:	$(FORTH_GEN) gforth
 # `realclean' also deletes everything that could be regenerated automatically."
 
 mostlyclean:
-		-$(RM) -rf *.s gforth.fi *.fi~ *.fi+ version.fs TAGS \
+		-$(RM) -rf *.s gforth.fi *.fi~ *.fi- version.fs TAGS \
 		crossdoc.fd doc.fd gforth.aux gforth.cp gforth.cps \
 		gforth.dvi gforth.fn gforth.ky gforth.log gforth.pg \
 		gforth.toc gforth.tp gforth.vr html 
@@ -209,8 +213,8 @@ install:	gforth $(FORTH_SRC) kernal.fi gforth.fi gforth.1 gforth.info
 		for i in $(FORTH_SRC); do \
 			$(INSTALL_DATA) $$i $(datadir)/gforth/$(VERSION); \
 		done
-		$(RM) gforth.fi; make gforth.fi #gforth.fi contains some path names
-		$(INSTALL_DATA) kernal.fi gforth.fi $(libdir)/gforth/$(VERSION)
+		$(INSTALL_DATA) kernal.fi $(libdir)/gforth/$(VERSION)
+		$(FORTHK) startup.fs dumpimage.fs -e "savesystem $(libdir)/gforth/$(VERSION)/gforth.fi bye" #gforth.fi contains some path names
 
 
 #deinstall all files specific to this version of gforth
@@ -242,52 +246,52 @@ gforth:		$(OBJECTS)
 		$(GCC) $(LDFLAGS) $(OBJECTS) $(LDLIBS) -o $@
 		@MAKE_EXE@
 
-kernl16l.fi+:	$(KERN_SRC) mach16l.fs $(FORTH_GEN0)
+kernl16l.fi-:	$(KERN_SRC) mach16l.fs $(FORTH_GEN0)
 		$(FORTHK) -p . -e 's" mach16l.fs"' main.fs
 
-kernl16b.fi+:	$(KERN_SRC) mach16b.fs $(FORTH_GEN0)
+kernl16b.fi-:	$(KERN_SRC) mach16b.fs $(FORTH_GEN0)
 		$(FORTHK) -p . -e 's" mach16b.fs"' main.fs
 
-kernl32l.fi+:	$(KERN_SRC) mach32l.fs $(FORTH_GEN0)
+kernl32l.fi-:	$(KERN_SRC) mach32l.fs $(FORTH_GEN0)
 		$(FORTHK) -p . -e 's" mach32l.fs"' main.fs
 
-kernl32b.fi+:	$(KERN_SRC) mach32b.fs $(FORTH_GEN0)
+kernl32b.fi-:	$(KERN_SRC) mach32b.fs $(FORTH_GEN0)
 		$(FORTHK) -p . -e 's" mach32b.fs"' main.fs
 
-kernl64l.fi+:	$(KERN_SRC) mach64l.fs $(FORTH_GEN0)
+kernl64l.fi-:	$(KERN_SRC) mach64l.fs $(FORTH_GEN0)
 		$(FORTHK) -p . -e 's" mach64l.fs"' main.fs
 
-kernl64b.fi+:	$(KERN_SRC) mach64b.fs $(FORTH_GEN0)
+kernl64b.fi-:	$(KERN_SRC) mach64b.fs $(FORTH_GEN0)
 		$(FORTHK) -p . -e 's" mach64b.fs"' main.fs
 
 kernl16b.fi:	$(KERNLS)
 		-$(CP) kernl16b.fi kernl16b.fi~
-		-$(CP) kernl16b.fi+ kernl16b.fi
+		-$(CP) kernl16b.fi- kernl16b.fi
 		@LINK_KERNL16B@
 
 kernl16l.fi:	$(KERNLS)
 		-$(CP) kernl16l.fi kernl16l.fi~
-		-$(CP) kernl16l.fi+ kernl16l.fi
+		-$(CP) kernl16l.fi- kernl16l.fi
 		@LINK_KERNL16L@
 
 kernl32b.fi:	$(KERNLS)
 		-$(CP) kernl32b.fi kernl32b.fi~
-		-$(CP) kernl32b.fi+ kernl32b.fi
+		-$(CP) kernl32b.fi- kernl32b.fi
 		@LINK_KERNL32B@
 
 kernl32l.fi:	$(KERNLS)
 		-$(CP) kernl32l.fi kernl32l.fi~
-		-$(CP) kernl32l.fi+ kernl32l.fi
+		-$(CP) kernl32l.fi- kernl32l.fi
 		@LINK_KERNL32L@
 
 kernl64b.fi:	$(KERNLS)
 		-$(CP) kernl64b.fi kernl64b.fi~
-		-$(CP) kernl64b.fi+ kernl64b.fi
+		-$(CP) kernl64b.fi- kernl64b.fi
 		@LINK_KERNL64B@
 
 kernl64l.fi:	$(KERNLS)
 		-$(CP) kernl64l.fi kernl64l.fi~
-		-$(CP) kernl64l.fi+ kernl64l.fi
+		-$(CP) kernl64l.fi- kernl64l.fi
 		@LINK_KERNL64L@
 
 gforth.fi:	@kernal_fi@ gforth startup.fs glocals.fs search-order.fs hash.fs float.fs debugging.fs environ.fs wordinfo.fs look.fs vt100.fs see.fs bufio.fs debug.fs history.fs vt100key.fs assert.fs source.fs blocks.fs struct.fs dumpimage.fs
@@ -318,12 +322,6 @@ aliases.fs:	primitives.b prims2x.fs
 
 primitives.fs:	primitives.b prims2x.fs
 		$(FORTHK) -p . prims2x.fs -e "s\" primitives.b\" ' output-forth process-file bye" >$@
-
-version.fs:	Makefile.in
-		echo ": version-string s\" $(VERSION)\" ;" >$@
-
-version.c:	Makefile.in
-		echo "char gforth_version[]=\"$(VERSION)\" ;" >$@
 
 
 doc.fd:		makedoc.fs float.fs search-order.fs glocals.fs environ.fs \
@@ -360,14 +358,17 @@ html:		gforth.texi
 # For an explanation of the following Makefile rules, see node
 # `Automatic Remaking' in GNU Autoconf documentation.
 Makefile: Makefile.in config.status
-	CONFIG_FILES=$@ CONFIG_HEADERS= GCC=$(GCC) ./config.status
+	CONFIG_FILES=$@ CONFIG_HEADERS= ./config.status
 config.status: configure
-	GCC=$(GCC) ./config.status --recheck
+	./config.status --recheck
 configure: configure.in
 	cd $(srcdir) && autoconf
 
 makefile.dos: mkdosmf.sed Makefile.in
 	sed -f mkdosmf.sed <Makefile.in >makefile.dos
+
+history.dos: history.fs Makefile.in
+	sed -e "s,~/\.gforth-history,/gforth.his,g" <history.fs >history.dos
 
 startup.dos: startup.fs Makefile.in
 	sed -e "s/\\\\ include doskey/include doskey/g" \

@@ -1,0 +1,76 @@
+You need DJ Delorie's port of GCC to DOS (DJGPP) to compile Gforth. DJGPP
+provides a DOS extender (GO32) that allows to use the 32-bit features of
+the 80386, but on the other hand it requires at least an 386.
+
+Gforth hasn't been tested with EMX, using EMX will require some changes in
+the console IO part. If you don't want to install this package (quite
+large), look for a binary distribution of Gforth for DOS. You must have a
+version of GNU make, because DOS make programs are likely to have problems
+with the Makefile. If you want to change Gforth, you may need GNU m4, too.
+
+If you don't bother and want to make it yourself, type
+
+configure
+
+There are no options for configure, because DOS can't execute a real
+configure script, all the configuring stuff is done on a real operating
+system. If you want to change something (e.g. use FORCE_REG or
+DIRECT_THREADED), you have to change the makefile yourself. Be careful! DOS
+command line arguments are limited to an overall size of 126 bytes, so
+adding a new define in the makefile will make it too long. In this case add
+the define at the beginning of machine.h instead, or create a file
+containing all extra options, and add @<filename> to the defines (move the
+-DDEFAULTPATH-define into this file, and it will fit into the command line).
+
+After covering all inconveniences, type
+
+make gforth
+
+and after this finishes, type
+
+make
+
+We apologize for the inconveniences, we did not invent the 640k limit
+that prevents doing make straight forward. You may run out of memory
+anyway, because GCC eats up lots of it while compiling engine.c. Keep
+enough space free on your harddisk to allow GCC to swap.
+
+If you want to add some defines like -DFORCE_REG, type
+
+make gforth XDEFINES=-DFORCE_REG
+
+instead.
+
+Now you can check whether your shiny new Forth system works. Say
+
+make test
+
+You can run some benchmarks with
+
+make bench
+
+and compare them with the results in Benchres and in the manual.
+
+Don't try to do "make install", it won't work, either. It is not possible to
+"make dist" or "make bindist", too, because of the limitations of DOS
+command lines.
+
+Add the following entry to your Autoexec.bat:
+
+SET GFORTHPATH=<your gforth source directory>:.
+
+Use / instead of \ in your gforth source directory.  Another problem
+is, that Gforth uses : as path separator, and DOS pathes may look like
+D:/gforth.  Sorry, there is no workaround for this now.
+
+For paper documentation, print gforth.ps (a Postscript file (300dpi
+fonts, i.e., it works, but does not produce best quality on better
+printers)), or say
+
+make gforth.dvi
+
+and print the resulting file gforth.dvi (you need TeX for that! But
+with TeX you can print it even if you don't have a Postscript printer
+nor Ghostscript).  You could be able to make a html version of the
+document, but AFAIK there is no texi2html for DOS available, as there
+is no perl available.
