@@ -35,7 +35,7 @@
 #define AUTO_INCREMENT
 
 
-#include "../../engine/32bit.h"
+#include "../generic/machine.h"
 
 /* Clearing the whole cache is a bit drastic, but this is the only
  *    cache control available on the apollo and NeXT

@@ -54,8 +54,8 @@ s%@getopt_long@%getopt.o getopt1.o%g
 s%@kernel_fi@%kernl32l.fi%g
 s%@PATHSEP@%;%g
 s%-fforce-mem -fforce-addr %%g
-s%echo "static char gforth_version.*;" >$@%$(CP) version.h1 engine\version.h%g
-s%echo ": version-string.*;" >$@%$(CP) version.fs1 kernel\version.fs%g
+# s%echo "static char gforth_version.*;" >$@%$(CP) version.h1 engine\version.h%g
+# s%echo ": version-string.*;" >$@%$(CP) version.fs1 kernel\version.fs%g
 s%$(srcdir)/config.h.in:	stamp-h.in%#$(srcdir)/config.h.in:	stamp-h.in%g
 s%engine/config.h:	stamp-h%#engine/config.h:	stamp-h%g
 s%$(FORTHPATH)$(PATHSEP)%%g
@@ -65,3 +65,4 @@ s%test x'$(VERSION)' = x`cat $@` || %%g
 s%GFORTHD="./gforth-ditc -p .* $(srcdir)/%%g
 s%'s"%"s\\"%g
 s%"'%\\""%g
+s%@OSCLASS@%dos%g

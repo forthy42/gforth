@@ -23,12 +23,33 @@
 #     (which will cause the Makefiles to be regenerated when you run `make');
 # (2) otherwise, pass the desired values on the `make' command line.
 
-#gforth version
+# Warning:
+# For some stupid reason setting SHELL to bash does not work properly with
+# DOS. If you want to use shell-specific things that must run with DOS make
+# an external batch file and call it with bash (see versions.bsh).
+
+# ------------- gforth version
+
 VERSION_MAJOR=0
 VERSION_MINOR=3
 VERSION_RELEASE=1
 VERSION	=$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_RELEASE)
 DOSVERSION=$(VERSION_MAJOR)$(VERSION_MINOR)$(VERSION_RELEASE)
+
+# -------------	System specific variables	
+
+machine=@mach_h@
+# this is the type of machine
+# used to extend the include path with ./arch/$machine
+# so we could include a machine specific 
+# machine.h file
+
+PATHSEP = @PATHSEP@
+
+osclass = @OSCLASS@
+
+# -------------	Utility programs
+
 SHELL	= /bin/sh
 RM	= rm
 RMTREE	= rm -rf
@@ -40,7 +61,6 @@ INSTALL_DATA = @INSTALL_DATA@
 LN_S	= @LN_S@
 GCC	= @CC@
 CC	= $(GCC)
-PATHSEP = @PATHSEP@
 FORTHPATH = $(libdir)/gforth/site-forth$(PATHSEP)$(datadir)/gforth/site-forth$(PATHSEP)$(libdir)/gforth/$(VERSION)$(PATHSEP)$(datadir)/gforth/$(VERSION)$(PATHSEP).
 FORTHSIZES = @FORTHSIZES@
 FORTH	= ./gforth -p $(FORTHPATH)$(PATHSEP)$(srcdir)
@@ -53,18 +73,23 @@ DVI2PS	= dvips -D300
 #you can get texi2html from http://wwwcn.cern.ch/dci/texi2html/
 TEXI2HTML = texi2html
 MAKEINFO = makeinfo
+
+# -------------	Compiler Flags
+
 XCFLAGS	= @CFLAGS@
 XDEFINES = @DEFS@
 SWITCHES = $(XCFLAGS) $(XDEFINES) #-DNDEBUG #turn off assertions
 ENGINE_FLAGS = @ENGINE_FLAGS@ -fno-defer-pop -fcaller-saves
 DEBUGFLAG = @DEBUGFLAG@
-CFLAGS	= $(DEBUGFLAG) -I$(srcdir)/engine -I$(srcdir) -O4 -Wall $(SWITCHES) -DDEFAULTPATH=\"$(FORTHPATH)\"
+CFLAGS	= $(DEBUGFLAG) -I$(srcdir)/engine -I$(srcdir)/arch/$(machine) -O4 -Wall $(SWITCHES) -DDEFAULTPATH=\"$(FORTHPATH)\"
 
 #John Wavrik should use -Xlinker -N to get a writable text (executable)
 XLDFLAGS = @LDFLAGS@
 GCCLDFLAGS = @GCCLDFLAGS@
 LDFLAGS	=  $(DEBUGFLAG) $(XLDFLAGS) $(GCCLDFLAGS)
 LDLIBS	= @LIBS@
+
+# ------------	Install Directorys
 
 VPATH = @srcdir@
 prefix = @prefix@
@@ -168,7 +193,8 @@ COMPAT	= compat/CVS compat/README compat/control.fs compat/anslocal.fs \
 
 ALLSUBDIRS = engine
 
-ARCHS =	arch/m68k/machine.h \
+ARCHS =	arch/generic/machine.h \
+	arch/m68k/machine.h \
 	arch/mips/machine.h \
 	arch/386/machine.h \
 	arch/hppa/machine.h \
@@ -230,7 +256,7 @@ DOCDIST = doc/gforth.info doc/gforth.info-* doc/gforth.ps
 #stuff in a binonly distribution 
 BINONLYDIST = config.status Makefile gforth gforth-ditc \
 	$(OBJECTS0) $(OBJECTS) $(OBJECTS_DITC)\
-	machine/machine.h engine/config.h kernel.fi \
+	arch/$(machine)/machine.h engine/config.h kernel.fi \
 	stamp-h engine/version.h kernel/version.fs version-stamp \
 	INSTALL.BINDIST
 
@@ -244,20 +270,29 @@ GEN_PRECIOUS = $(FORTH_GEN) $(KERNLS) doc/gforth.texi doc/gforth.dvi doc/gforth.
 .SUFFIXES:
 .SUFFIXES: .c .o
 
+
 all:	kernel/version.fs more
+
+# use this dependency for phony targets just as mostlyclean,...
+FORCE: ;
 
 #this rule avoids remaking everything after minor changes in Makefile.in
 version:	Makefile.in
 		if test -r $@ && test x'$(VERSION)' = x`cat $@` ; then true ; else echo $(VERSION) > $@ ; fi
 
+# With dos we use normal dos echo
+# we cannot pipe the output to engine/version.h directly because
+# of the "/ and \" problem. Copying works because we use the
+# shell und file utilities.
+
 engine/version.h:	version
-		echo "static char gforth_version[]=\"$(VERSION)\" ;" >$@
+		bash versions.bsh $(VERSION)
 
 kernel/version.fs:	version
 		$(MAKE) gforth
-		echo ": version-string s\" $(VERSION)\" ;" >$@
+		bash versions.bsh $(VERSION)
 
-more:	$(OBJECTS) $(FORTH_GEN) gforth
+more:	engine $(FORTH_GEN) gforth
 
 #from the gcc Makefile: 
 #"Deletion of files made during compilation.
@@ -270,7 +305,7 @@ more:	$(OBJECTS) $(FORTH_GEN) gforth
 # `distclean' also deletes the files made by config.
 # `realclean' also deletes everything that could be regenerated automatically."
 
-mostlyclean:
+mostlyclean:	FORCE
 		-$(RM) -rf *.s gforth.fi *.fi~ *.fi- kernel/version.fs *TAGS \
 		doc/crossdoc.fd doc/doc.fd doc/gforth.texi doc/gforth.fns \
 		doc/gforth.aux doc/gforth.cp doc/gforth.cps \
@@ -401,7 +436,7 @@ installdirs:	mkinstalldirs
 
 #deinstall all files specific to this version of gforth
 #to uninstall version foo, type `make uninstall VERSION=foo'
-uninstall:	
+uninstall:	FORCE
 		-$(RM) -rf $(libdir)/gforth/$(VERSION) $(datadir)/gforth/$(VERSION) $(bindir)/gforth-$(VERSION)
 		@echo -e "Type\n$(RM) -rf $(bindir)/gforth $(man1dir)/gforth.1 $(infodir)/gforth.info* $(datadir)/gforth $(libdir)/gforth\nto remove Gforth completely"
 
@@ -419,14 +454,15 @@ bench:		gforth gforth.fi
 		time $(FORTH) -m 160000 matrix.fs -e "main bye"
 		time $(FORTH) fib.fs -e "main bye"
 
-gforth:		$(OBJECTS) $(OBJECTS0)
-		-$(CP) gforth gforth~
-		$(GCC) $(LDFLAGS) $(OBJECTS) $(OBJECTS0) $(LDLIBS) -o $@
-		@GFORTH_EXE@
+# -------------	Make forth images
 
-gforth-ditc:	$(OBJECTS_DITC) $(OBJECTS0)
-		$(GCC) $(LDFLAGS) $(OBJECTS_DITC) $(OBJECTS0) $(LDLIBS) -o $@
-		@GFORTHDITC_EXE@
+# Hot to make new images:
+# 1. Produce an image called kernlXYZ.fi-
+#    the original kernel.fi is not touched because it's needed for creation
+# 2. copy old kernlXYZ.fi to kernlXYZ.fi~
+#    that's a backup copy in case the new kernels don't work
+# 3. copy new kernels to kernlXYZ.fi
+#    these are the ones we want to use now
 
 kernl16l.fi-:	$(KERN_SRC) kernel/version.fs mach16l.fs $(FORTH_GEN0)
 		$(FORTHK) -e 's" mach16l.fs"' kernel/main.fs -e "save-cross kernl16l.fi- $(bindir)/gforth-$(VERSION) bye"
@@ -482,37 +518,17 @@ kernl64l.fi:	$(KERNLS)
 #		-$(CP) $@ $@~
 #		-$(CP) $< $@
 
-gforth.fi:	@kernel_fi@ gforthmi gforth gforth-ditc $(GFORTH_FI_SRC)
+# If we want a new kernel.fi we should use "kernel.fi:" this makes
+# a link or a copy from kernl....fi to kernel.fi 
+# works for dos-computers, too!!
+
+kernel.fi:	 @kernel_fi@
+		@LINK_KERNL@
+
+gforth.fi:	kernel.fi gforthmi gforth gforth-ditc $(GFORTH_FI_SRC)
 		GFORTHD="./gforth-ditc -p .$(PATHSEP)$(srcdir)" GFORTH="./gforth-ditc -p .$(PATHSEP)$(srcdir) -i kernel.fi startup.fs" $(srcdir)/gforthmi gforth.fi $(FORTHSIZES) $(FORTHKFLAGS) startup.fs
 
-#TAGS is a GNU standard target
-TAGS:		gforth.TAGS
-		$(CP) gforth.TAGS $@
-
-gforth.TAGS:	@kernel_fi@ gforth $(GFORTH_FI_SRC) prim.TAGS
-		$(FORTHK) etags.fs startup.fs -e bye
-		cat TAGS prim.TAGS kernel.TAGS >gforth.TAGS
-		rm TAGS
-
-engine/replace.a:
-		cd engine; $(MAKE) replace.a
-
-engine.s:	engine/engine.c engine/prim.i engine/prim_lab.i machine/machine.h engine/threaded.h $(INCLUDES) engine/config.h
-		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -S $(srcdir)/engine/engine.c
-
-engine/engine.o:	engine/engine.c engine/prim.i engine/prim_lab.i machine/machine.h engine/threaded.h $(INCLUDES) engine/config.h
-		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -c $(srcdir)/engine/engine.c -o $@
-
-engine/engine-ditc.o:	engine/engine.c engine/prim.i engine/prim_lab.i machine/machine.h engine/threaded.h $(INCLUDES) engine/config.h
-		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -DDOUBLY_INDIRECT -o $@ -c $(srcdir)/engine/engine.c
-
-engine/main.o:		engine/main.c machine/machine.h engine/threaded.h $(INCLUDES) engine/config.h engine/version.h
-		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -o $@ -c $(srcdir)/engine/main.c
-
-engine/main-ditc.o:	engine/main.c machine/machine.h engine/threaded.h $(INCLUDES) engine/config.h engine/version.h
-		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -DDOUBLY_INDIRECT -o $@ -c $(srcdir)/engine/main.c
-
-engine/strtoul.o:	strtoul.c strtol.c
+# -------------	Make c-engine
 
 prim.b:		prim
 		m4 -s $(srcdir)/prim >$@ 
@@ -538,6 +554,32 @@ kernel/prim.fs:	prim.b prims2x.fs kernel/prim0.fs
 		$(FORTHK) prims2x.fs -e "s\" prim.b\" ' output-forth process-file bye" >>$@-
 		$(CP) $@- $@
 		$(RM) $@-
+
+engine:		engine/prim_lab.i engine/prim.i engine/version.h FORCE
+		bash makein.bsh engine engine
+
+engine_ditc:	engine/prim_lab.i engine/prim.i engine/version.h FORCE
+		bash makein.bsh engine engine_ditc
+
+gforth:		engine
+		-$(CP) gforth gforth~
+		$(GCC) $(LDFLAGS) $(OBJECTS) $(OBJECTS0) $(LDLIBS) -o $@
+		@GFORTH_EXE@
+
+gforth-ditc:	engine_ditc
+		$(GCC) $(LDFLAGS) $(OBJECTS_DITC) $(OBJECTS0) $(LDLIBS) -o $@
+		@GFORTHDITC_EXE@
+
+# -------------	Make Documentation
+
+#TAGS is a GNU standard target
+TAGS:		gforth.TAGS
+		$(CP) gforth.TAGS $@
+
+gforth.TAGS:	@kernel_fi@ gforth $(GFORTH_FI_SRC) prim.TAGS
+		$(FORTHK) etags.fs startup.fs -e bye
+		cat TAGS prim.TAGS kernel.TAGS >gforth.TAGS
+		rm TAGS
 
 prim.TAGS: 	prim.b prims2x.fs
 		$(FORTHK) prims2x.fs -e "s\" $(srcdir)/prim.b\" ' output-tag process-file bye" >$@-
@@ -603,11 +645,11 @@ config.status:	configure
 
 
 #create files for DOS, because DOS cannot do it itself
-makefile.dos: mkdosmf.sed Makefile.in
+makefile.dos: mkdosmf.sed Makefile.in engine/Makefile.in
 	sed -f mkdosmf.sed <Makefile.in >makefile.dos
 	sed -f mkdosmf.sed <engine/Makefile.in >engine/makefile.dos
 
-makefile.os2: mkos2mf.sed Makefile.in
+makefile.os2: mkos2mf.sed Makefile.in engine/Makefile.in
 	sed -f mkos2mf.sed <Makefile.in >makefile.os2
 	sed -f mkos2mf.sed <engine/Makefile.in >engine/makefile.os2
 	echo '%.o:	%.c' >>makefile.os2
@@ -615,10 +657,13 @@ makefile.os2: mkos2mf.sed Makefile.in
 	echo '%.o:	%.c' >>engine/makefile.os2
 	echo '		$$(GCC) $$(CFLAGS) -c $$<' >>engine/makefile.os2
 
+# Garbage:
+# to be deleted!
+
 # history is a little bit different now! JAW
-#history.dos: history.fs Makefile.in
+# history.dos: history.fs Makefile.in
 #	sed -e "s,~/\.gforth-history,/gforth.his,g" <history.fs >history.dos
 
-startup.dos: startup.fs Makefile.in
-	sed -e "s/\\\\ include doskey/include doskey/g" \
-	    -e "s/include vt100key/\\\\ include vt100key/g" <startup.fs >startup.dos
+# startup.dos: startup.fs Makefile.in
+# 	sed -e "s/\\\\ include doskey/include doskey/g" \
+#	    -e "s/include vt100key/\\\\ include vt100key/g" <startup.fs >startup.dos

@@ -18,6 +18,8 @@
 #along with this program; if not, write to the Free Software
 #Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+machine = @mach_h@
+
 SHELL	= /bin/sh
 RM	= rm
 RMTREE	= rm -rf
@@ -26,20 +28,51 @@ TAR	= tar cf -
 GCC	= @CC@
 CC	= $(GCC)
 STRIP	= strip
+
+
 XCFLAGS	= @CFLAGS@
 XDEFINES = @DEFS@
 SWITCHES = $(XCFLAGS) $(XDEFINES)
+ENGINE_FLAGS = @ENGINE_FLAGS@ -fno-defer-pop -fcaller-saves
 DEBUGFLAG = @DEBUGFLAG@
-CFLAGS	= $(DEBUGFLAG) -I$(srcdir) -O4 -Wall $(SWITCHES)
+CFLAGS	= $(DEBUGFLAG) -I../arch/$(machine) -O4 -Wall $(SWITCHES) -DDEFAULTPATH=\"$(FORTHPATH)\"
 
-OBJECTS = io.o memcmpc.o @LIBOBJS@ @getopt_long@
+AOBJECTS = io.o memcmpc.o @LIBOBJS@ @getopt_long@
+
+OBJECTS0 = replace.a
+OBJECTS = engine.o main.o
+OBJECTS_DITC =  engine-ditc.o main-ditc.o
+
+# In engine subdirectory there are (or should be) only files that belong to
+# our engine, so we can make life easy
+ENGINE_DEPS = *.c *.h *.i ../arch/$(machine)/*
 
 all:	replace.a
 
-replace.a:	$(OBJECTS)
-	ar r $@ $(OBJECTS)
+replace.a:	$(AOBJECTS)
+		ar r $@ $(AOBJECTS)
+
+engine.s:	$(ENGINE_DEPS)
+		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -S engine.c
+
+engine.o:	$(ENGINE_DEPS)
+		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -c engine.c -o $@
+
+engine-ditc.o:	$(ENGINE_DEPS)
+		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -DDOUBLY_INDIRECT -o $@ -c engine.c
+
+main.o:		$(ENGINE_DEPS) 
+		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -o $@ -c main.c
+
+main-ditc.o:	$(ENGINE_DEPS)
+		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -DDOUBLY_INDIRECT -o $@ -c main.c
+
+engine:		$(OBJECTS) $(OBJECTS0) ;
+
+engine_ditc:	$(OBJECTS_DITC) $(OBJECTS0) ;
 
 #NeXTstep hack
 
 termios.o:	/usr/lib/libposix.a
 	ar x /usr/lib/libposix.a termios.o
+

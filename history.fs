@@ -71,17 +71,32 @@ interpret/compile: ctrl  ( "<char>" -- ctrl-code )
   history file-size throw
   2dup forward^ 2! 2dup backward^ 2! end^ 2! ;
 
-s" GFORTHHIST" getenv dup 0= [IF]
-    2drop s" ~/.gforth-history"
-[THEN] get-history
-
+s" os-class" environment? [IF] s" unix" compare 0= [ELSE] true [THEN] 
+[IF]
 : history-cold
-    Defers 'cold
     s" GFORTHHIST" getenv dup 0= IF
 	2drop s" ~/.gforth-history"
     THEN  get-history ;
+[ELSE]
 
-' history-cold IS 'cold
+: history-dir
+  s" TMP" getenv ?dup ?EXIT drop
+  s" TEMP" getenv ?dup ?EXIT drop
+  s" c:/" ;
+
+: history-file
+  s" GFORTHHIST" getenv ?dup ?EXIT
+  drop
+  history-dir pad place
+  s" /ghist.txt" pad +place pad count ;
+
+: history-cold
+        history-file
+        get-history ;
+[THEN]
+
+' history-cold INIT8 chained
+history-cold
 
 \ moving in history file                               16oct94py
 

@@ -21,6 +21,7 @@
 warnings off
 include search.fs
 include environ.fs
+include envos.fs
 include errors.fs
 include extend.fs              \ load core-extended
 include hash.fs
@@ -38,8 +39,12 @@ include bufio.fs
 include debug.fs
 require stuff.fs
 include history.fs
-\ include doskey.fs
+s" os-class" environment? dup [IF] drop s" dos" compare 0= [THEN]
+[IF]
+include doskey.fs
+[ELSE]
 include vt100key.fs
+[THEN]
 require debugs.fs
 require assert.fs
 require blocks.fs
@@ -73,8 +78,6 @@ true constant search-order-ext
 true constant string
 true constant string-ext
 set-current
-
-
 
 warnings on
 

@@ -45,7 +45,7 @@ extern void cacheflush(void *, int, int);
      cacheflush((void *)(addr), (int)(size), 32)
 #endif
 
-#include "../../engine/32bit.h"
+#include "../generic/machine.h"
 
 #ifdef DIRECT_THREADED
    /* PFA gives the parameter field address corresponding to a cfa */

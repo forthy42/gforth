@@ -19,7 +19,7 @@
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-#include "../../engine/32bit.h"
+#include "../generic/machine.h"
 
 #if !defined(USE_TOS) && !defined(USE_NO_TOS)
 #define USE_TOS

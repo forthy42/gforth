@@ -194,10 +194,10 @@ Address verbose_malloc(Cell size)
 
 Address my_alloc(Cell size)
 {
+#if HAVE_MMAP
   static Address next_address=0;
   Address r;
 
-#if HAVE_MMAP
 #if defined(MAP_ANON)
   if (debug)
     fprintf(stderr,"try mmap($%lx, $%lx, ..., MAP_ANON, ...); ", (long)next_address, (long)size);
@@ -292,7 +292,7 @@ Address loader(FILE *imagefile, char* filename)
        )
     { fprintf(stderr,"This image is %d bit %s-endian, whereas the machine is %d bit %s-endian.\n", 
 	      ((magic[7]-'0')&~1)*8, endianstring[magic[7]&1],
-	      sizeof(Cell)*8, endianstring[
+	      (int) sizeof(Cell)*8, endianstring[
 #ifdef WORDS_BIGENDIAN
 		      0
 #else
@@ -327,7 +327,7 @@ Address loader(FILE *imagefile, char* filename)
   pagesize=PAGESIZE; /* in limits.h according to Gallmeister's POSIX.4 book */
 #endif
   if (debug)
-    fprintf(stderr,"pagesize=%d\n",pagesize);
+    fprintf(stderr,"pagesize=%ld\n",(unsigned long) pagesize);
 
   image = dict_alloc(preamblesize+dictsize+data_offset)+data_offset;
   rewind(imagefile);  /* fseek(imagefile,0L,SEEK_SET); */

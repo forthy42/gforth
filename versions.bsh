@@ -1,0 +1,2 @@
+echo "static char gforth_version[]=\"$1\" ;" > engine/version.h
+echo ": version-string s\" $1\" ;" > kernel/version.fs

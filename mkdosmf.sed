@@ -1,7 +1,10 @@
-s%/bin/sh%command.com%g
-s% rm% del%g
-s% cp% copy%g
-s% ln -s% copy%g
+# We use the bash and shell and file utilities with dos
+s%SHELL%# SHELL%g
+# s% rm% del%g
+# s% cp% copy%g
+s% ln -s% cp%g
+
+s%@mach_h@%386%g
 s%-pipe %%g
 s% ./gforth% gforth%g
 s%io.o %%g
@@ -31,8 +34,8 @@ s%@srcdir@%.%g
 s%@LINK_KERNL@%-$(CP) kernl32l.fi kernel.fi%g
 s%@PATHSEP@%;%g
 s%-fforce-mem -fforce-addr %%g
-s%echo "static char gforth_version.*;" >$@%$(CP) version.h1 engine\version.h%g
-s%echo ": version-string.*;" >$@%$(CP) version.fs1 kernel\version.fs%g
+# s%echo "static char gforth_version.*;" >$@%$(CP) version.h1 engine\version.h%g
+# s%echo ": version-string.*;" >$@%$(CP) version.fs1 kernel\version.fs%g
 s%$(srcdir)/config.h.in:	stamp-h.in%#$(srcdir)/config.h.in:	stamp-h.in%g
 s%engine/config.h:	stamp-h%#engine/config.h:	stamp-h%g
 s%$(FORTHPATH)$(PATHSEP)%%g
@@ -40,8 +43,9 @@ s%@FORTHSIZES@%%g
 s%test x'$(VERSION)' = x`cat $@` || %%g
 s%--clear-dictionary%-c%g
 s%.$(PATHSEP)$(srcdir)%.%g
-s% -I$(srcdir)%%g
+# s% -I$(srcdir)%%g
 s%GFORTHD="./gforth-ditc -p .* $(srcdir)/%%g
 s%gforth-ditc%gforth-d%g
 s%engine-ditc%engine-d%g
 s%main-ditc%main-d%g
+s%@OSCLASS@%dos%g

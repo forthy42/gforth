@@ -276,7 +276,8 @@ AC_CHECK_FUNCS(mmap sysconf getpagesize)
 kernel_fi=kernl${wordsize}${bytesex}.fi
 AC_SUBST(kernel_fi)
 
-AC_LINK_FILES(arch/${mach_h} $kernel_fi,machine kernel.fi)
+AC_SUBST(mach_h)
+AC_LINK_FILES($kernel_fi,kernel.fi)
 AC_OUTPUT([
 Makefile
 engine/Makefile ],echo timestamp > stamp-h)

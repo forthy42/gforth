@@ -20,7 +20,7 @@
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-#include "../../engine/32bit.h"
+#include "../generic/machine.h"
 
 /* indirect threading is faster on the 486, on the 386 direct
    threading is probably faster. Therefore we leave defining

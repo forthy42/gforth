@@ -29,7 +29,7 @@
 #endif
 #endif
 
-#include "../../engine/32bit.h"
+#include "../generic/machine.h"
 
 /* cache flush stuff */
 #warning If you get assembly errors, here is the reason why

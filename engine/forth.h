@@ -53,7 +53,7 @@ typedef void *Label;
 /* the size of the DOESJUMP, which resides between DOES> and the does-code */
 #define DOES_HANDLER_SIZE	(2*sizeof(Cell))
 
-#include "../machine/machine.h"
+#include "machine.h"
 
 /* Forth data types */
 /* Cell and UCell must be the same size as a pointer */

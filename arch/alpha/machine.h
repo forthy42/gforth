@@ -34,7 +34,7 @@
 
 #define FLUSH_ICACHE(addr,size)		asm("call_pal 0x86") /* imb (instruction-memory barrier) */
 
-#include "../../engine/32bit.h"
+#include "../generic/machine.h"
 
 #ifdef DIRECT_THREADED
 #ifdef WORDS_BIGENDIAN
