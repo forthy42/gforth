@@ -658,6 +658,12 @@ contents.
 
 @section Superinstructions
 
+Note: don't invest too much work in (static) superinstructions; a future
+version of vmgen will support dynamic superinstructions (see Ian
+Piumarta and Fabio Riccardi, @cite{Optimizing Direct Threaded Code by
+Selective Inlining}, PLDI'98), and static superinstructions have much
+less benefit in that context.
+
 Here is an example of a superinstruction definition:
 
 @example
@@ -781,7 +787,10 @@ extreme variant is to pull code up even further, into, e.g., NEXT_P1 of
 the previous VM instruction (prefetching, useful on PowerPCs).
 
 @item INC_IP(@var{n})
-This increments IP by @var{n}.
+This increments @code{IP} by @var{n}.
+
+@item SET_IP(@var{target})
+This sets @code{IP} to @var{target}.
 
 @item vm_@var{A}2@var{B}(a,b)
 Type casting macro that assigns @samp{a} (of type @var{A}) to @samp{b}
@@ -830,6 +839,14 @@ Macro for executing @var{expr}, if top-of-stack caching is used for the
 @var{stackpointer} stack.  I.e., this should do @var{expr} if there is
 top-of-stack caching for @var{stackpointer}; otherwise it should do
 nothing.
+
+@item SUPER_END
+This is used by the VM profiler (@pxref{VM profiler}); it should not do
+anything in normal operation, and call @code{vm_count_block(IP)} for
+profiling.
+
+@item SUPER_CONTINUE
+This is just a hint to vmgen and does nothing at the C level.
 
 @item VM_DEBUG
 If this is defined, the tracing code will be compiled in (slower
@@ -1028,28 +1045,102 @@ VM instruction table.
 The VM profiler is designed for getting execution and occurence counts
 for VM instruction sequences, and these counts can then be used for
 selecting sequences as superinstructions.  The VM profiler is probably
-not useful as profiling tool for the interpretive system (i.e., the VM
+not useful as profiling tool for the interpretive system.  I.e., the VM
 profiler is useful for the developers, but not the users of the
-interpretive system).
+interpretive system.
 
+The output of the profiler is: for each basic block (executed at least
+once), it produces the dynamic execution count of that basic block and
+all its subsequences; e.g.,
 
+@example
+       9227465  lit storelocal 
+       9227465  storelocal branch 
+       9227465  lit storelocal branch 
+@end example
 
+I.e., a basic block consisting of @samp{lit storelocal branch} is
+executed 9227465 times.
 
+This output can be combined in various ways.  E.g.,
+@file{vmgen/stat.awk} adds up the occurences of a given sequence wrt
+dynamic execution, static occurence, and per-program occurence.  E.g.,
 
+@example
+      2      16        36910041 loadlocal lit 
+@end example
 
+indicates that the sequence @samp{loadlocal lit} occurs in 2 programs,
+in 16 places, and has been executed 36910041 times.  Now you can select
+superinstructions in any way you like (note that compile time and space
+typically limit the number of superinstructions to 100--1000).  After
+you have done that, @file{vmgen/seq2rule.awk} turns lines of the form
+above into rules for inclusion in a vmgen input file.  Note that this
+script does not ensure that all prefixes are defined, so you have to do
+that in other ways.  So, an overall script for turning profiles into
+superinstructions can look like this:
 
+@example
+awk -f stat.awk fib.prof test.prof|
+awk '$3>=10000'|                #select sequences
+fgrep -v -f peephole-blacklist| #eliminate wrong instructions
+awk -f seq2rule.awk|            #turn into superinstructions
+sort -k 3 >mini-super.vmg       #sort sequences
+@end example
 
-Invocation
+Here the dynamic count is used for selecting sequences (preliminary
+results indicate that the static count gives better results, though);
+the third line eliminats sequences containing instructions that must not
+occur in a superinstruction, because they access a stack directly.  The
+dynamic count selection ensures that all subsequences (including
+prefixes) of longer sequences occur (because subsequences have at least
+the same count as the longer sequences); the sort in the last line
+ensures that longer superinstructions occur after their prefixes.
 
-Input Syntax
+But before using it, you have to have the profiler.  Vmgen supports its
+creation by generating @file{@var{file}-profile.i}; you also need the
+wrapper file @file{vmgen-ex/profile.c} that you can use almost verbatim.
 
-Concepts: Front end, VM, Stacks,  Types, input stream
+The profiler works by recording the targets of all VM control flow
+changes (through @code{SUPER_END} during execution, and through
+@code{BB_BOUNDARY} in the front end), and counting (through
+@code{SUPER_END}) how often they were targeted.  After the program run,
+the numbers are corrected such that each VM basic block has the correct
+count (originally entering a block without executing a branch does not
+increase the count), then the subsequences of all basic blocks are
+printed.  To get all this, you just have to define @code{SUPER_END} (and
+@code{BB_BOUNDARY}) appropriately, and call @code{vm_print_profile(FILE
+*file)} when you want to output the profile on @code{file}.
 
-Contact
+The @file{@var{file}-profile.i} is simular to the disassembler file, and
+it uses variables and functions defined in @file{vmgen-ex/profile.c},
+plus @code{VM_IS_INST} already defined for the VM disassembler
+(@pxref{VM disassembler}).
 
+@chapter Changes
 
-Required changes:
-vm_...2... -> two arguments
-"vm_two...2...(arg1,arg2,arg3);" -> "vm_two...2...(arg3,arg1,arg2)" (no ";").
-define INST_ADDR and LABEL
-define VM_IS_INST also for disassembler
+Users of the gforth-0.5.9-20010501 version of vmgen need to change
+several things in their source code to use the current version.  I
+recommend keeping the gforth-0.5.9-20010501 version until you have
+completed the change (note that you can have several versions of Gforth
+installed at the same time).  I hope to avoid such incompatible changes
+in the future.
+
+The required changes are:
+
+@table @code
+
+@item vm_@var{A}2@var{B}
+now takes two arguments.
+
+@item vm_two@var{A}2@var{B}(b,a1,a2);
+changed to vm_two@var{A}2@var{B}(a1,a2,b) (note the absence of the @samp{;}).
+
+@end table
+
+Also some new macros have to be defined, e.g., @code{INST_ADDR}, and
+@code{LABEL}; some macros have to be defined in new contexts, e.g.,
+@code{VM_IS_INST} is now also needed in the disassembler.
+
+@chapter Contact
+
