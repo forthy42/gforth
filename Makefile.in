@@ -599,19 +599,19 @@ engine/prim.i:		prim.b prims2x.fs
 		$(RM) $@-
 
 engine/prim_lab.i:	prim.b prims2x.fs
-		$(FORTH) prims2x.fs -e "c-flag on s\" prim.b\" ' output-label process-file bye" >$@-
+		$(FORTH) -m 1000000 prims2x.fs -e "c-flag on s\" prim.b\" ' output-label process-file bye" >$@-
 		$(CP) $@- $@
 		$(RM) $@-
 
 kernel/aliases.fs:	prim.b prims2x.fs kernel/aliases0.fs
 		$(CP) kernel/aliases0.fs $@-
-		$(FORTH) prims2x.fs -e "forth-flag on s\" prim.b\" ' output-alias process-file bye" >>$@-
+		$(FORTH) -m 1000000 prims2x.fs -e "forth-flag on s\" prim.b\" ' output-alias process-file bye" >>$@-
 		$(CP) $@- $@
 		$(RM) $@-
 
 kernel/prim.fs:	prim.b prims2x.fs kernel/prim0.fs
 		$(CP) kernel/prim0.fs kernel/prim.fs-
-		$(FORTH) prims2x.fs -e "forth-flag on s\" prim.b\" ' output-forth process-file bye" >>$@-
+		$(FORTH) -m 1000000 prims2x.fs -e "forth-flag on s\" prim.b\" ' output-forth process-file bye" >>$@-
 		$(CP) $@- $@
 		$(RM) $@-
 
@@ -656,7 +656,7 @@ gforth.TAGS:	@kernel_fi@ gforth$(EXE) $(GFORTH_FI_SRC) prim.TAGS kernel.TAGS
 prim.TAGS: 	prim.b prims2x.fs
 		echo '2c\' >prim.TAGS.sed
 		echo $(srcdir)/prim >>prim.TAGS.sed
-		$(FORTH) prims2x.fs -e "s\" $(srcdir)/prim.b\" ' output-tag process-file bye" | sed -f prim.TAGS.sed >$@-
+		$(FORTH) -m 1000000 prims2x.fs -e "s\" $(srcdir)/prim.b\" ' output-tag process-file bye" | sed -f prim.TAGS.sed >$@-
 		$(CP) $@- $@
 		$(RM) $@-
 

@@ -18,6 +18,7 @@
 \ along with this program; if not, write to the Free Software
 \ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
 
+require glocals.fs
 
 ' require alias needs ( ... "name" -- ... ) \ gforth
 \G An alias for @code{require}; exists on other systems (e.g., Win32Forth).
@@ -70,3 +71,31 @@ AUser CSP
 
 : in-return-stack? ( addr -- f )
     rp0 @ swap - [ forthstart 6 cells + ]L @ u< ;
+
+\ const-does>
+
+: compile-literals ( w*u u -- ; run-time: -- w*u ) recursive
+    ?dup-if
+	swap >r 1- compile-literals
+	r> POSTPONE literal
+    endif ;
+
+: compile-fliterals ( r*u u -- ; run-time: -- w*u ) recursive
+    ?dup-if
+	{ F: r } 1- compile-fliterals
+	r POSTPONE fliteral
+    endif ;
+
+: (const-does>) ( w*uw r*ur uw ur target "name" -- )
+    { uw ur target }
+    header docol: cfa, \ start colon def without stack junk
+    ur compile-fliterals uw compile-literals
+    target compile, POSTPONE exit reveal ;
+
+: const-does> ( run-time: w*uw r*ur uw ur "name" -- )
+    here >r 0 POSTPONE literal
+    POSTPONE (const-does>)
+    POSTPONE ;
+    noname : POSTPONE rdrop
+    lastxt r> cell+ ! \ patch the literal
+; immediate

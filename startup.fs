@@ -33,8 +33,8 @@ include hash.fs
 \ require interpretation.fs
 \ include float.fs
 \ include search.fs
-require stuff.fs
 include glocals.fs
+require stuff.fs
 include wordinfo.fs
 include vt100.fs
 \ include colorize.fs

@@ -492,7 +492,7 @@ c-extender !
         dup cell+ swap @
         dup >r DoTable r> swap IF drop EXIT THEN
         Display?
-        IF look 0= IF  drop dup 1 cells - @ .  \ ABORT" SEE: Bua!"
+        IF look 0= IF  drop dup 1 cells - @ ." <" 0 .r ." >"
 	ELSE
 	    dup cell+ count dup immediate-mask and
 	    IF  bl cemit  ." POSTPONE " THEN

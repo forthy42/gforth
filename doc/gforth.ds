@@ -2275,7 +2275,7 @@ continues behind the @code{while}.  @code{Repeat} jumps back to
 @code{begin}, just like @code{again}.
 
 In Forth there are many combinations/abbreviations, like @code{1+}.
-However, @code{2/} is not one of them; it shifts it's argument right by
+However, @code{2/} is not one of them; it shifts its argument right by
 one bit (arithmetic shift right):
 
 @example

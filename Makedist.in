@@ -92,7 +92,7 @@ dbindist:	$(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST) $(BINONLYDIST)
 		mkdir gforth-$(VERSION)
 		$(TAR) $(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST) $(BINONLYDIST) | (cd gforth-$(VERSION); tar xf -)
 		strip gforth-$(VERSION)/gforth
-		$(TAR) gforth-$(VERSION)|gzip -9 >gforth-$(VERSION)-@host@.tar.gz
+		$(TAR) gforth-$(VERSION)|gzip -9 >gforth-$(VERSION).bin.@host@.tar.gz
 
 #makes a package with only the stuff not present in the source
 #package. For installation the source package is still needed!
@@ -106,4 +106,4 @@ dbinonlydist:	$(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST) $(BINONLYDIST)
 		mkdir gforth-$(VERSION)
 		$(TAR) $(BINONLYDIST) | (cd gforth-$(VERSION); tar xf -)
 		strip gforth-$(VERSION)/gforth
-		$(TAR) gforth-$(VERSION)|gzip -9 >gforth-$(VERSION)-binonly-@host@.tar.gz
+		$(TAR) gforth-$(VERSION)|gzip -9 >gforth-$(VERSION).binonly.@host@.tar.gz
