@@ -11842,9 +11842,10 @@ The following forms are supported for binary instructions:
 <n> # <reg> <inst>
 <mem> <reg> <inst>
 <reg> <mem> <inst>
+<n> # <mem> <inst>
 @end example
 
-Immediate to memory is not supported.  The shift/rotate syntax is:
+The shift/rotate syntax is:
 
 @example
 <reg/mem> 1 # shl \ shortens to shift without immediate
