@@ -41,9 +41,10 @@ interpret/compile: ctrl  ( "<char>" -- ctrl-code )
 : (ret)  type-rest drop true space ;
 : back  dup  IF  1- #bs emit  ELSE  #bell emit  THEN 0 ;
 : forw 2 pick over <> IF  2dup + c@ emit 1+  ELSE  #bell emit  THEN 0 ;
-: eof ( max span addr pos1 -- max span addr pos2 0 )
-    2 pick over <>
-    IF  forw drop (del)  ELSE  #bell emit  THEN  0 ;
+: <del> ( max span addr pos1 -- max span addr pos2 0 )
+  2 pick over <>
+	IF  forw drop (del)  ELSE  #bell emit  THEN  0 ;
+: eof  2 pick over or 0=  IF  bye  ELSE  <del>  THEN ;
 
 ' forw  ctrl F cells ctrlkeys + !
 ' back  ctrl B cells ctrlkeys + !
@@ -202,8 +203,8 @@ Create prefix-found  0 , 0 ,
     5 pick over 4 pick + prefix-found @ 0<> - < ;
 
 : tab-expand ( max span addr pos1 -- max span addr pos2 0 )
-    kill-expand  2dup extract-word search-prefix
-    tib-full?
+    kill-expand  2dup extract-word dup 0= IF  nip EXIT  THEN
+    search-prefix  tib-full?
     IF    7 emit  2drop  0 0 prefix-found 2!
     ELSE  bounds ?DO  I c@ (ins)  LOOP  THEN
     prefix-found @ IF  bl (ins)  THEN  0 ;

@@ -8852,42 +8852,59 @@ to ensure that the end is recognized.
 @node 386 Assembler, Alpha Assembler, Common Disassembler, Assembler and Code Words
 @subsection 386 Assembler
 
-The 386 assembler and disassembler included in Gforth was written by
-Andrew McKewan; it is in the public domain.
+The 386 assembler included in Gforth was written by Bernd Paysan, it's
+available under GPL, and originally part of bigFORTH.
+
+The 386 disassembler included in Gforth was written by Andrew McKewan
+and is in the public domain.
 
 The disassembler displays code in prefix Intel syntax.
 
-The assembler uses an Intel-inspired postfix syntax with reversed
-parameters.  As usual, a @code{,} is appended to the instruction names
-(including @code{rep,} etc.).
+The assembler uses a postfix syntax with reversed parameters.
 
-The assembler is somewhat meager, missing a number of instructions
-(including FP) and absolute memory addressing modes.
+The assembler includes all instruction of the Athlon, i.e. 486 core
+instructions, Pentium and PPro extensions, floating point, MMX, 3Dnow!,
+but not ISSE. It's an integrated 16- and 32-bit assembler. Default is 32
+bit, you can switch to 16 bit with .86 and back to 32 bit with .386.
 
-The registers have their usual names @code{eax} etc.  Immediate values
-are indicated by postfixing them with @code{#}, e.g., @code{3 #}.  Here
-are some examples of addressing modes:
+There are several prefixes to switch between different operation sizes,
+@code{.b} for byte accesses, @code{.w} for word accesses, @code{.d} for
+double-word accesses. Addressing modes can be switched with @code{.wa}
+for 16 bit addresses, and @code{.da} for 32 bit addresses. You don't
+need a prefix for byte register names (@code{AL} et al).
+
+For floating point operations, the prefixes are @code{.fs} (IEEE
+single), @code{.fl} (IEEE double), @code{.fx} (extended), @code{.fw}
+(word), @code{.fd} (double-word), and @code{.fq} (quad-word).
+
+The MMX opcodes don't have size prefixes, they are spelled out like in
+the Intel assembler. Instead of move from and to memory, there are
+PLDQ/PLDD and PSTQ/PSTD.
+
+The registers lack the 'e' prefix; even in 32 bit mode, eax is called
+ax.  Immediate values are indicated by postfixing them with @code{#},
+e.g., @code{3 #}.  Here are some examples of addressing modes:
 
 @example
 3 #
-eax
-100 [edi]
-4 [ebx] [ecx]
-0 [edi] [eax] *4 \ base register required!
+ax
+100 di d)
+4 bx cx di)
+di ax *4 i)
+20 ax *4 i#)
 @end example
 
 Some example of instructions are:
 
 @example
-EAX EBX MOV,             \ move ebx,eax
-3 # EAX MOV,             \ mov eax,3
-100 [EDI] EAX MOV,       \ mov eax,100[edi]
-4 [EBX] [ECX] EAX MOV,   \ mov eax,4[ebx][ecx]
-16: EAX EBX MOV,         \ mov bx,ax
+ax bx mov             \ move ebx,eax
+3 # ax mov            \ mov eax,3
+100 di ) ax mov       \ mov eax,100[edi]
+4 bx cx di) ax mov    \ mov eax,4[ebx][ecx]
+.w ax bx mov          \ mov bx,ax
 @end example
 
-You cannot use the prefix @code{16:} with immediate operands.  The
-following forms are supported for binary instructions:
+The following forms are supported for binary instructions:
 
 @example
 <reg> <reg> <inst>
@@ -8899,18 +8916,18 @@ following forms are supported for binary instructions:
 Immediate to memory is not supported.  The shift/rotate syntax is:
 
 @example
-<reg/mem> shl,
-<reg/mem> 4 shl,
-<reg/mem> cl shl,
+<reg/mem> 1 # shl \ shortens to shift without immediate
+<reg/mem> 4 # shl
+<reg/mem> cl shl
 @end example
 
-Precede string instructions (@code{movs,} etc.) with @code{byte} to get
+Precede string instructions (@code{movs} etc.) with @code{.b} to get
 the byte version.
 
-The control structure words @code{if,} @code{until,} etc. must be
-preceded by one of these conditions: @code{0= 0< u< u> < > ov ecx0<>}.
-You can invert the condition with @code{not} (Note that most of these
-words shadow some Forth words when @code{assembler} is before
+The control structure words @code{IF} @code{UNTIL} etc. must be
+preceded by one of these conditions: 
+@code{vs vc u< u>= 0= 0<> u<= u> 0< 0>= ps pc < >= <= >}. (Note that most 
+of these words shadow some Forth words when @code{assembler} is before
 @code{forth} in the search path, e.g., in code words).  Currently the
 control structure words use one stack item, so you have to use
 @code{roll} instead of @code{cs-roll} to shuffle them (you can also use
