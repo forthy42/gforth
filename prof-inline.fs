@@ -1,4 +1,4 @@
-\ count execution of control-flow edges
+\ get some data on potential (partial) inlining
 
 \ Copyright (C) 2004 Free Software Foundation, Inc.
 
@@ -99,22 +99,22 @@ count-calls? [if]
 	    dup >r
 	    r@ profile-colondef? @ if
 		r@ profile-sourcepos 2@ .sourcepos ." :"
-		r@ profile-char @ 0 .r ." : "
-		r@ profile-count 2@ 0 d.r
-		r@ profile-straight-line @ space .
+		r@ profile-char @ 3 .r ." : "
+		r@ profile-count 2@ 10 d.r
+		r@ profile-straight-line @ space 2 .r
+		r@ profile-calls @ 4 .r
 		cr
 	    endif
 	    r> profile-next @
     repeat
     drop ;
 
-
-: dinc ( d-addr -- )
+: dinc ( profilep -- )
     \ increment double pointed to by d-addr
-    dup 2@ 1. d+ rot 2! ;
+    profile-count dup 2@ 1. d+ rot 2! ;
 
 : profile-this ( -- )
-    new-profile-point profile-count POSTPONE literal POSTPONE dinc ;
+    new-profile-point POSTPONE literal POSTPONE dinc ;
 
 \ Various words trigger PROFILE-THIS.  In order to avoid getting
 \ several calls to PROFILE-THIS from a compiling word (like ?EXIT), we
@@ -171,24 +171,45 @@ Defer before-word-profile ( -- )
     POSTPONE ;
     r> ! ; \ change hook behaviour
 
-hook-profiling-into then-like
-\ hook-profiling-into if-like    \ subsumed by other-control-flow
-\ hook-profiling-into ahead-like \ subsumed by other-control-flow
-hook-profiling-into other-control-flow
-hook-profiling-into begin-like
-hook-profiling-into again-like
-hook-profiling-into until-like
+: note-execute ( -- )
+    \ end of BB due to execute
+;
 
-count-calls? [if]
-    : :-hook-profile ( -- )
-	defers :-hook
-	next-profile-point-p @
-	profile-this
-	@ dup last-colondef-profile !
-	profile-colondef? on ;
+: note-call ( addr -- )
+    \ addr is the body address of a called colon def or does handler
+    dup 3 cells + @ ['] dinc >body = if
+	1 over  cell+ @ profile-calls +!
+    endif
+    drop ;
+    
+: prof-compile, ( xt -- )
+    dup >does-code if
+	dup >does-code note-call
+    then
+    dup >code-address CASE
+	docol:   OF dup >body note-call ENDOF
+	dodefer: OF note-execute ENDOF
+	dofield: OF >body @ ['] lit+ peephole-compile, , EXIT ENDOF
+	\ dofield: OF >body @ POSTPONE literal ['] + peephole-compile, EXIT ENDOF
+	\ code words and ;code-defined words (code words could be optimized):
+	dup in-dictionary? IF drop POSTPONE literal ['] execute peephole-compile, EXIT THEN
+    ENDCASE
+    DEFERS compile, ;
 
-    ' :-hook-profile IS :-hook
-[else]
-    hook-profiling-into exit-like
-    hook-profiling-into :-hook
-[endif]
+\ hook-profiling-into then-like
+\ \ hook-profiling-into if-like    \ subsumed by other-control-flow
+\ \ hook-profiling-into ahead-like \ subsumed by other-control-flow
+\ hook-profiling-into other-control-flow
+\ hook-profiling-into begin-like
+\ hook-profiling-into again-like
+\ hook-profiling-into until-like
+
+: :-hook-profile ( -- )
+    defers :-hook
+    next-profile-point-p @
+    profile-this
+    @ dup last-colondef-profile !
+    profile-colondef? on ;
+
+' :-hook-profile IS :-hook
+' prof-compile, IS compile,
