@@ -156,7 +156,7 @@ extern int gforth_memcmp(const char * s1, const char * s2, size_t n);
 # define CPU_DEP1 0
 #endif
 
-/* instructions containing these must be the last instruction of a
+/* instructions containing SUPER_END must be the last instruction of a
    super-instruction (e.g., branches, EXECUTE, and other instructions
    ending the basic block). Instructions containing SET_IP get this
    automatically, so you usually don't have to write it.  If you have

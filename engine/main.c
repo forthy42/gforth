@@ -637,11 +637,24 @@ static char superend[]={
 
 Cell npriminfos=0;
 
+int compare_li(const void *pa, const void *pb)
+{
+
+  int a = *(int *)pa;
+  int b = *(int *)pb;
+  Cell r = vm_prims[a]-vm_prims[b];
+  if (r == 0)
+    return b - a; /* K labels should be sorted before I labels
+		     for the same address */
+  return r;
+}
+
 void check_prims(Label symbols1[])
 {
   int i;
 #ifndef NO_DYNAMIC
-  Label *symbols2, *symbols3, *ends1;
+  Label *symbols2, *symbols3, *ends1, *ends1k;
+  int *labelindexes, *sortindexes, nlabelindexes;
 #endif
 
   if (debug)
@@ -666,6 +679,18 @@ void check_prims(Label symbols1[])
   symbols3=symbols1;
 #endif
   ends1 = symbols1+i+1-DOESJUMP;
+  ends1k =   ends1+i+1-DOESJUMP;
+
+  /* produce a sortindexes: sortindexes[i] gives the rank of symbols1[i] */
+  nlabelindexes = 3*(i+1-DOESJUMP)+DOESJUMP;
+  labelindexes = (int *)alloca(nlabelindexes*sizeof(int));
+  for (i=0; i<nlabelindexes; i++)
+    labelindexes[i] = i;
+  qsort(labelindexes, nlabelindexes, sizeof(int), compare_li);
+  sortindexes = (int *)alloca(nlabelindexes*sizeof(int));
+  for (i=0; i<nlabelindexes; i++)
+    sortindexes[labelindexes[i]] = i;
+  
   priminfos = calloc(i,sizeof(PrimInfo));
   for (i=DOESJUMP+1; symbols1[i+1]!=0; i++) {
     int prim_len = ends1[i]-symbols1[i];
@@ -674,19 +699,35 @@ void check_prims(Label symbols1[])
     char *s1 = (char *)symbols1[i];
     char *s2 = (char *)symbols2[i];
     char *s3 = (char *)symbols3[i];
+    int endindex = labelindexes[sortindexes[i]+2];
+    Label endlabel = symbols1[endindex];
 
     pi->start = s1;
     pi->superend = superend[i-DOESJUMP-1]|no_super;
     if (pi->superend)
-      pi->length = symbols1[i+1]-symbols1[i];
+      pi->length = endlabel-symbols1[i];
     else
       pi->length = prim_len;
-    pi->restlength = symbols1[i+1] - symbols1[i] - pi->length;
+    pi->restlength = endlabel - symbols1[i] - pi->length;
     pi->nimmargs = 0;
     if (debug)
       fprintf(stderr, "Prim %3d @ %p %p %p, length=%3ld restlength=%2ld superend=%1d",
 	      i, s1, s2, s3, (long)(pi->length), (long)(pi->restlength), pi->superend);
+    if (sortindexes[i]+1 != sortindexes[i+npriminfos+1-DOESJUMP]) {
+      pi->start = NULL; /* not relocatable */
+      if (debug)
+	fprintf(stderr,"\n   non_reloc: rank[start] = %d, rank[J] = %d\n",
+		sortindexes[i], sortindexes[i+npriminfos+1-DOESJUMP]);
+      continue;
+    }
+    if (endindex < (ends1k - symbols1)) { /* is endindex not a K-label? */
+      pi->start = NULL; /* not relocatable */
+      if (debug)
+	fprintf(stderr,"\n   non_reloc: endindex = %d\n", endindex);
+      continue;
+    }
     assert(prim_len>=0);
+    assert(pi->restlength >=0);
     while (j<(pi->length+pi->restlength)) {
       if (s1[j]==s3[j]) {
 	if (s1[j] != s2[j]) {
