@@ -119,7 +119,7 @@ end-macros
 
   Code ?branch   ( f -- ) \ jump on f<>0
     tos tos or,   tos pop,                      \ check and get new tos
-    0= IF,  fip ) fip add,      next,           \ jump
+    0= IF,  fip ) fip mov,      next,           \ jump
     ELSE,   fip inc,  fip inc,  next,  THEN,    \ skip
    End-Code
 
@@ -258,7 +258,7 @@ end-macros
 
  \ branch and literal
   Code branch   ( -- ) \ unconditional branch
-    fip ) fip add,
+    fip ) fip mov,
     next,
    End-Code
 

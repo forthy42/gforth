@@ -2026,7 +2026,7 @@ variable ResolveFlag
 \ Header states                                        12dec92py
 
 \ : flag! ( 8b -- )   tlast @ dup >r T c@ xor r> c! H ;
-bigendian [IF] 0 [ELSE] tcell 1- [THEN] Constant flag+
+X has? f83headerstring bigendian or [IF] 0 [ELSE] tcell 1- [THEN] Constant flag+
 : flag! ( w -- )   tlast @ flag+ + dup >r T c@ xor r> c! H ;
 
 VARIABLE ^imm
