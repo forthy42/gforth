@@ -503,23 +503,21 @@ Label compile_prim(Label prim)
     return prim-((Label)xts)+((Label)vm_prims);
 #else /* !defined(DOUBLY_INDIRECT) */
 #ifdef IND_JUMP_LENGTH
-  int i;
+  unsigned i;
   Address old_code_here=code_here;
   static Address last_jump=0;
 
+  i = ((Xt)prim)-vm_prims;
   prim = *(Xt)prim;
-  for (i=0; ; i++) {
-    if (i>=npriminfos) { /* not a relocatable prim */
-      if (last_jump) { /* make sure the last sequence is complete */
-	memcpy(code_here, last_jump, IND_JUMP_LENGTH);
-	code_here += IND_JUMP_LENGTH;
-	last_jump = 0;
-      }
-      return prim;
+  if (i>=npriminfos || priminfos[i].start == 0) { /* not a relocatable prim */
+    if (last_jump) { /* make sure the last sequence is complete */
+      memcpy(code_here, last_jump, IND_JUMP_LENGTH);
+      code_here += IND_JUMP_LENGTH;
+      last_jump = 0;
     }
-    if (priminfos[i].start==prim)
-      break;
+    return prim;
   }
+  assert(priminfos[i].start = prim); 
 #ifdef ALIGN_CODE
   ALIGN_CODE;
 #endif
