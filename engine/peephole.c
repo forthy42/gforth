@@ -21,7 +21,7 @@
 
 #include "config.h"
 #include "forth.h"
-#include "stdlib.h"
+#include <stdlib.h>
 
 /* the numbers in this struct are primitive indices */
 typedef struct Combination {

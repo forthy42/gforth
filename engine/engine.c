@@ -285,6 +285,19 @@ static int ufileattr[6]= {
 #define DOCFA	Xt cfa; GETCFA(cfa)
 #endif
 
+/* instructions containing these must be the last instruction of a
+   super-instruction (e.g., branches, EXECUTE, and other instructions
+   ending the basic block). Instructions containing SET_IP get this
+   automatically, so you usually don't have to write it.  If you have
+   to write it, write it after IP points to the next instruction.
+   Used for profiling.  Don't write it in a word containing SET_IP, or
+   the following block will be counted twice. */
+#ifdef VM_PROFILING
+#define SUPER_END  vm_count_block(IP)
+#else
+#define SUPER_END
+#endif
+
 #ifdef GFORTH_DEBUGGING
 /* define some VM registers as global variables, so they survive exceptions;
    global register variables are not up to the task (according to the 
@@ -371,6 +384,7 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
   IF_fpTOS(fpTOS = fp[0]);
 /*  prep_terminal(); */
   SET_IP(ip);
+  SUPER_END; /* count the first block, too */
   NEXT;
 
 
@@ -388,6 +402,7 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
     /* this is the simple version */
     *--rp = (Cell)ip;
     SET_IP((Xt *)PFA1(cfa));
+    SUPER_END;
     NEXT;
 #else
     /* this one is important, so we help the compiler optimizing */
@@ -395,6 +410,7 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
       DEF_CA
       rp[-1] = (Cell)ip;
       SET_IP((Xt *)PFA1(cfa));
+      SUPER_END;
       NEXT_P1;
       rp--;
       NEXT_P2;
@@ -456,6 +472,7 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
 #ifdef DEBUG
     fprintf(stderr,"%08lx: defer: %08lx\n",(Cell)ip,*(Cell*)PFA1(cfa));
 #endif
+    SUPER_END;
     EXEC(*(Xt *)PFA1(cfa));
   }
 
@@ -505,6 +522,7 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
     *--sp = (Cell)PFA(cfa);
 #endif
     SET_IP(DOES_CODE1(cfa));
+    SUPER_END;
     /*    fprintf(stderr,"TOS = %08lx, IP=%08lx\n", spTOS, IP);*/
   }
   NEXT;

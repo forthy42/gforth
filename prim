@@ -139,6 +139,7 @@ execute	( xt -- )		core
 ""Perform the semantics represented by the execution token, @i{xt}.""
 ip=IP;
 IF_spTOS(spTOS = sp[0]);
+SUPER_END;
 EXEC(xt);
 
 perform	( a_addr -- )	gforth
@@ -146,6 +147,7 @@ perform	( a_addr -- )	gforth
 /* and pfe */
 ip=IP;
 IF_spTOS(spTOS = sp[0]);
+SUPER_END;
 EXEC(*(Xt *)a_addr);
 :
  @ execute ;

@@ -585,8 +585,15 @@ s" IP" save-mem w s" error don't use # on results" make-stack inst-stream
 : stores ( -- )
     prim prim-effect-out prim prim-effect-out-end @ ['] store map-items ;
 
+: output-super-end ( -- )
+    prim prim-c-code 2@ s" SET_IP" search if
+	." SUPER_END;" cr
+    endif
+    2drop ;
+
 : output-c-tail ( -- )
     \ the final part of the generated C code
+    output-super-end
     ." NEXT_P1;" cr
     stores
     fill-tos
@@ -660,6 +667,17 @@ s" IP" save-mem w s" error don't use # on results" make-stack inst-stream
     disasm-args
     ."   ip += " inst-stream stack-in @ 1+ 0 .r ." ;" cr
     ." } else " ;
+
+: output-profile ( -- )
+    \ generate code for postprocessing the VM block profile stuff
+    ." if (*ip == VM_INST(" function-number @ 0 .r ." )) {" cr
+    ."   add_inst(b, " quote  prim prim-name 2@ type quote ." );" cr
+    ."   ip += " inst-stream stack-in @ 1+ 0 .r ." ;" cr
+    prim prim-c-code 2@  s" SET_IP"    search nip nip
+    prim prim-c-code 2@  s" SUPER_END" search nip nip or if
+	."   return;" cr
+    endif
+    ." } else " cr ;
 
 : gen-arg-parm { item -- }
     item item-stack @ inst-stream = if
@@ -901,6 +919,8 @@ s" IP" save-mem w s" error don't use # on results" make-stack inst-stream
 : process-combined ( -- )
     combined combined-prims num-combined @ cells
     combinations ['] constant insert-wordlist
+    combined-prims num-combined @ 1- th ( last-part )
+    @ prim-c-code 2@ prim prim-c-code 2! \ used by output-super-end
     prim compute-effects
     prim init-effects
     output-combined perform ;

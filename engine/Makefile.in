@@ -88,7 +88,8 @@ AOBJECTS = io.o signals.o memcmpc.o peephole.o @LIBOBJS@
 
 OBJECTS = engine.o main.o
 OBJECTS_FAST = engine-fast.o main-fast.o
-OBJECTS_DITC =  engine-ditc.o main-ditc.o
+OBJECTS_DITC = engine-ditc.o main-ditc.o
+OBJECTS_PROF = engine-prof.o main-prof.o
 OBJECTS_FI =  engine.o main-fi.o
 
 # In engine subdirectory there are (or should be) only files that belong to
@@ -109,6 +110,9 @@ gforth-fast$(EXE):	$(OBJECTS_FAST) $(AOBJECTS)
 gforth-ditc$(EXE): $(OBJECTS_DITC) $(AOBJECTS)
 	$(GCC) $(LDFLAGS) $(OBJECTS_DITC) $(AOBJECTS) $(LDLIBS) -o $@
 
+gforth-prof$(EXE): $(OBJECTS_PROF) $(AOBJECTS) profile.o
+	$(GCC) $(LDFLAGS) $(OBJECTS_PROF) $(AOBJECTS) profile.o $(LDLIBS) -o $@
+
 gforth-fi$(EXE):	$(OBJECTS_FI) $(AOBJECTS)
 	$(GCC) $(LDFLAGS) $(OBJECTS_FI) $(AOBJECTS) $(LDLIBS) -o $@
 
@@ -124,6 +128,9 @@ engine-fast.o:	$(ENGINE_DEPS)
 engine-ditc.o:	$(ENGINE_DEPS)
 		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -DDOUBLY_INDIRECT -o $@ -c $(srcdir)/engine.c
 
+engine-prof.o:	$(ENGINE_DEPS)
+		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -DVM_PROFILING -o $@ -c $(srcdir)/engine.c
+
 main.o:		main.c $(DEPS) 
 		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -DGFORTH_DEBUGGING -o $@ -c $(srcdir)/main.c
 
@@ -133,11 +140,17 @@ main-fast.o:	main.c $(DEPS)
 main-ditc.o:	main.c $(DEPS)
 		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -DDOUBLY_INDIRECT -o $@ -c $(srcdir)/main.c
 
+main-prof.o:	main.c $(DEPS)
+		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -DVM_PROFILING -o $@ -c $(srcdir)/main.c
+
 main-fi.o:	main.c $(DEPS)
 		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -DINCLUDE_IMAGE -o $@ -c $(srcdir)/main.c
 
 peephole.o:	peephole.c peephole.i $(DEPS)
 		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -o $@ -c $(srcdir)/peephole.c
+
+profile.o:	profile.c profile.i $(DEPS)
+		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -o $@ -c $(srcdir)/profile.c
 
 #The next two rules seem to be superfluous:
 

@@ -780,6 +780,9 @@ int main(int argc, char **argv, char **env)
 	*p2 = *p1;
     *p2='\0';
     retvalue = go_forth(image, 4, environ);
+#ifdef VM_PROFILING
+    vm_print_profile(stderr);
+#endif
     deprep_terminal();
   }
   return retvalue;

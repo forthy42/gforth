@@ -77,23 +77,31 @@ IS 'cold
     then ;
 IS store-backtrace
 
+: print-bt-entry ( return-stack-item -- )
+    cell - dup in-dictionary? over dup aligned = and
+    if
+	@ dup look
+	if
+	    .name drop
+	else
+	    drop body> look \ !! check for "call" in cell before?
+	    if
+		.name
+	    else
+		drop
+	    then
+	then
+    else
+	drop
+    then ;
+
 : print-backtrace ( addr1 addr2 -- )
     \G print a backtrace for the return stack addr1..addr2
     cr ." Backtrace:"
     swap u+do
 	cr
 	i @ dup hex. ( return-addr? )
-	cell - dup in-dictionary? over dup aligned = and
-	if
-	    @ look
-	    if
-		.name
-	    else
-		drop
-	    then
-	else
-	    drop
-	then
+	print-bt-entry
 	cell +loop ;
 
 :noname ( -- )

@@ -22,6 +22,7 @@
 #define _GNU_SOURCE
 
 #include "config.h"
+#include <stdio.h>
 
 #if defined(DOUBLY_INDIRECT)
 #  undef DIRECT_THREADED
@@ -245,6 +246,8 @@ Cell memcasecmp(const Char *s1, const Char *s2, Cell n);
 Xt *primtable(Label symbols[], Cell size);
 Cell prepare_peephole_table(Xt xts[]);
 Xt peephole_opt(Xt xt1, Xt xt2, Cell peeptable);
+void vm_print_profile(FILE *file);
+void vm_count_block(Xt *ip);
 
 
 extern int offset_image;
