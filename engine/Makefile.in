@@ -146,6 +146,8 @@ termios.o:	/usr/lib/libposix.a
 	ar x /usr/lib/libposix.a termios.o
 
 #duplicated rules to avoid too many recursive make invocations
+# !! No any forth stuff should be done in ../Makefile.
+# !! I added the dependencies on prim.i and prim_lab.i in the main Makefile, jens
 
 prim.i:		../prim.b ../prims2x.fs
 		$(FORTHK) prims2x.fs -e "s\" ../prim.b\" ' output-c process-file bye" >$@-

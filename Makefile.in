@@ -608,7 +608,7 @@ gforth-ditc$(EXE):	engines
 		$(CP) engine/$@ $@
 		@GFORTHDITC_EXE@
 
-engines:	FORCE engine/Makefile
+engines:	FORCE engine/Makefile engine/prim.i engine/prim_lab.i
 		cd engine && $(MAKE) gforth$(EXE) gforth-fast$(EXE) gforth-ditc$(EXE)
 
 # ------------- additional C primitives
