@@ -131,6 +131,7 @@ Defer source
   dup count chars bounds
   ?DO  I c@ toupper I c! 1 chars +LOOP ;
 : (name)  ( -- addr )  bl word ;
+: (cname) ( -- addr )  bl word capitalize ;
 
 \ Literal                                              17dec92py
 
@@ -594,27 +595,35 @@ AVariable current
 
 \ word list structure:
 \ struct
-\   1 cells: field find-method \ xt: ( c_addr u w1 -- name-id ) w1 is a method-\ specific wordlist-id (not the same as wid)
+\   1 cells: field find-method   \ xt: ( c_addr u wid -- name-id )
 \   1 cells: field reveal-method \ xt: ( -- )
+\   1 cells: field rehash-method \ xt: ( wid -- )
 \   \ !! what else
 \ end-struct wordlist-map-struct
 
 \ struct
 \   1 cells: field wordlist-id \ not the same as wid; representation depends on implementation
 \   1 cells: field wordlist-map \ pointer to a wordlist-map-struct
-\   1 cells: field ????
-\   1 cells: field ????
+\   1 cells: field wordlist-link \ link field to other wordlists
+\   1 cells: field wordlist-extend \ points to wordlist extensions (eg hash)
 \ end-struct wordlist-struct
 
+: f83find      ( addr len wordlist -- nfa / false )  @ (f83find) ;
+: f83casefind  ( addr len wordlist -- nfa / false )  @ (f83casefind) ;
 
 \ Search list table: find reveal
-Create f83search    ' (f83find) A,  ' (reveal) A,
+Create f83search       ' f83casefind A,  ' (reveal) A,  ' drop A,
+
+: caps-name       ['] (cname) IS name  ['] f83find     f83search ! ;
+: case-name       ['] (name)  IS name  ['] f83casefind f83search ! ;
+: case-sensitive  ['] (name)  IS name  ['] f83find     f83search ! ;
+
 Create forth-wordlist  NIL A, G f83search T A, NIL A, NIL A,
 AVariable search       G forth-wordlist search T !
 G forth-wordlist current T !
 
 : (search-wordlist)  ( addr count wid -- nfa / false )
-  dup @ swap cell+ @ @ execute ;
+  dup ( @ swap ) cell+ @ @ execute ;
 
 : search-wordlist  ( addr count wid -- 0 / xt +-1 )
   (search-wordlist) dup  IF  found  THEN ;
@@ -643,6 +652,8 @@ Variable warnings  G -1 warnings T !
    name>string current @ check-shadow
  then
  current @ cell+ @ cell+ @ execute ;
+
+: rehash  ( wid -- )  dup cell+ @ cell+ cell+ @ execute ;
 
 : '    ( "name" -- addr )  name find 0= no.extensions ;
 : [']  ( "name" -- addr )  ' postpone ALiteral ; immediate

@@ -1,5 +1,5 @@
 \ CROSS.FS     The Cross-Compiler                      06oct92py
-\ $Id: cross.fs,v 1.4 1994-05-18 17:29:50 pazsan Exp $
+\ $Id: cross.fs,v 1.5 1994-06-01 10:05:14 pazsan Exp $
 \ Idea and implementation: Bernd Paysan (py)
 \ Copyright 1992 by the ANSI figForth Development Group
 
@@ -22,6 +22,12 @@
 \       added: 2user and value                11jun93jaw
 
 include other.fs       \ ansforth extentions for cross
+
+: comment? ( c-addr u -- c-addr u )
+        2dup s" (" compare 0=
+        IF    postpone (
+        ELSE  2dup s" \" compare 0= IF postpone \ THEN
+        THEN ;
 
 decimal
 
@@ -155,10 +161,10 @@ endian  0 pad ! -1 pad c! pad @ 0<
 \ Fixed bug in else part                               11may93jaw
 
 [IFDEF] Memory \ Memory is a bigFORTH feature
-   Memory
+   also Memory
    : initmem ( var len -- )
      2dup swap handle! >r @ r> erase ;
-   Target
+   toss
 [ELSE]
    : initmem ( var len -- )
      tuck allocate abort" CROSS: No memory for target"
@@ -263,8 +269,10 @@ Variable atonce atonce off
 : gfind   ( string -- ghost true/1 / string false )
 \ searches for string in word-list ghosts
 \ !! wouldn't it be simpler to just use search-wordlist ? ae
-  >r get-order  0 set-order also ghosts  r> find >r >r
-  set-order  r> r@  IF  >body  THEN  r> ;
+  dup count [ ' ghosts >body ] ALiteral search-wordlist
+\ >r get-order  0 set-order also ghosts  r> find >r >r
+  >r r@ IF  >body nip  THEN  r> ;
+\ set-order  r> r@  IF  >body  THEN  r> ;
 
 VARIABLE Already
 

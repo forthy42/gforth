@@ -621,7 +621,14 @@ wior = a_addr2==NULL;	/* !! Define a return code */
 
 (f83find)	c_addr u f83name1 -- f83name2	new	paren_f83find
 for (; f83name1 != NULL; f83name1 = f83name1->next)
-  if (F83NAME_COUNT(f83name1)==u && !F83NAME_SMUDGE(f83name1) &&
+  if (F83NAME_COUNT(f83name1)==u &&
+      strncmp(c_addr, f83name1->name, u)== 0 /* or inline? */)
+    break;
+f83name2=f83name1;
+
+(f83casefind)	c_addr u f83name1 -- f83name2	new	paren_f83casefind
+for (; f83name1 != NULL; f83name1 = f83name1->next)
+  if (F83NAME_COUNT(f83name1)==u &&
       strncasecmp(c_addr, f83name1->name, u)== 0 /* or inline? */)
     break;
 f83name2=f83name1;
@@ -817,7 +824,7 @@ else
 represent		r c_addr u -- n f1 f2	float
 char *sig;
 int flag;
-sig=ecvt(r, u, &n, &flag);
+sig=ecvt(r, u, (int *)&n, &flag);
 f1=FLAG(flag!=0);
 f2=FLAG(isdigit(sig[0])!=0);
 memmove(c_addr,sig,u);
@@ -829,7 +836,7 @@ char number[u+1];
 char *endconv;
 cstr(number, c_addr, u);
 r=strtod(number,&endconv);
-if(flag=FLAG(!(int)*endconv))
+if((flag=FLAG(!(int)*endconv)))
 {
 	IF_FTOS(fp[0] = FTOS);
 	fp += -1;
@@ -839,7 +846,7 @@ else if(*endconv=='d' || *endconv=='D')
 {
 	*endconv='E';
 	r=strtod(number,&endconv);
-	if(flag=FLAG(!(int)*endconv))
+	if((flag=FLAG(!(int)*endconv)))
 	{
 		IF_FTOS(fp[0] = FTOS);
 		fp += -1;
@@ -978,4 +985,4 @@ lp -= sizeof(Float);
 *(Float *)lp = r;
 
 up!	a_addr --	new	up_store
-up=a_addr;
+up=(char *)a_addr;

@@ -74,6 +74,7 @@ include search-order.fs
 vocabulary locals \ this contains the local variables
 ' locals >body Constant locals-list \ acts like a variable that contains
 				    \ a linear list of locals names
+: locals-list! ( list -- )  locals-list ! locals-list rehash ;
 
 create locals-buffer 1000 allot \ !! limited and unsafe
     \ here the names of the local variables are stored
@@ -412,7 +413,7 @@ variable dead-code \ true if normal code at "here" would be dead
  else
    0 0
  endif
- locals-list !
+ locals-list!
  locals-size ! ;
 
 : check-begin ( list -- )
@@ -446,12 +447,12 @@ variable dead-code \ true if normal code at "here" would be dead
  dead-code @
  if
    >resolve
-   locals-list !
+   locals-list!
    locals-size !
  else
    locals-size @ 3 roll - compile-lp+!#
    >resolve
-   locals-list @ common-list locals-list !
+   locals-list @ common-list locals-list!
    locals-size @  locals-list @ list-size - compile-lp+!#
  endif
  dead-code off ; immediate
@@ -461,7 +462,7 @@ variable dead-code \ true if normal code at "here" would be dead
 
 : endscope ( dest -- )
  drop
- locals-list @ common-list locals-list !
+ locals-list @ common-list locals-list!
  locals-size @  locals-list @ list-size - compile-lp+!#
  drop ; immediate
 
@@ -622,7 +623,7 @@ variable leave-sp  leave-stack leave-sp !
     clear-leave-stack
     0 locals-size !
     locals-buffer locals-dp !
-    0 locals-list ! ; ( clear locals vocabulary )
+    0 locals-list! ; ( clear locals vocabulary )
 
 : locals-;-hook ( sys addr xt -- sys )
     0 TO locals-wordlist

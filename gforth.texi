@@ -327,7 +327,7 @@ standard complying program and if you are using local variables in a
 word, forget about return stack manipulations in that word (see the
 standard document for the exact rules).
 
-@subsetion Data stack
+@subsection Data stack
 drop
 nip
 dup
