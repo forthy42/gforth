@@ -32,6 +32,6 @@ ctrl P trans: H
 ctrl N trans: P
 ctrl A trans: G
 ctrl E trans: O
-ctrl D trans: S
+ctrl X trans: S
 
 ' dos-decode  ctrlkeys !

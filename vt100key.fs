@@ -40,7 +40,7 @@ ctrl P trans: A
 ctrl N trans: B
 
 ctrl A 1 tcode
-ctrl D 3 tcode
+ctrl X 3 tcode
 ctrl E 4 tcode
 
 ' vt100-decode  ctrlkeys $1B cells + !

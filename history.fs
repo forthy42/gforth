@@ -50,6 +50,7 @@ interpret/compile: ctrl  ( "<char>" -- ctrl-code )
 ' back  ctrl B cells ctrlkeys + !
 ' ?del  ctrl H cells ctrlkeys + !
 ' eof   ctrl D cells ctrlkeys + !
+' <del> ctrl X cells ctrlkeys + !
 
 ' (ins) IS insert-char
 
