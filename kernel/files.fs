@@ -34,9 +34,6 @@
     THEN
     newline r> write-file ;
 
-: read-line ( c_addr u1 wfileid -- u2 flag wior )
-    (read-line) drop ;
-
 \ include-file                                         07apr93py
 
 : push-file  ( -- )  r>

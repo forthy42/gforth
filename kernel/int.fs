@@ -542,7 +542,7 @@ Variable #fill-bytes
     tib /line
     [ has? file [IF] ]
 	loadfile @ ?dup
-	IF    (read-line) #fill-bytes ! throw
+	IF    (read-line) throw #fill-bytes !
 	ELSE
 	    [ [THEN] ]
 	sourceline# 0< IF 2drop false EXIT THEN

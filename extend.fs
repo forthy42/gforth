@@ -146,7 +146,8 @@ decimal
     >in @
     loadfile @
     if
-	loadfile @ file-position throw #fill-bytes @ 0 d- \ !! bug for CRLF and EOF
+	loadfile @ file-position throw
+	[IFDEF] #fill-bytes #fill-bytes @ [ELSE] #tib @ 1+ [THEN] 0 d-
     else
 	blk @
 	linestart @

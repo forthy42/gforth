@@ -1646,21 +1646,18 @@ wior = FILEIO(u2<u1 && ferror((FILE *)wfileid));
 if (wior)
   clearerr((FILE *)wfileid);
 
-(read-line)	( c_addr u1 wfileid -- u2 flag wior u3 )	file	read_line
+read-line	( c_addr u1 wfileid -- u2 flag wior )	file	read_line
+""this is only for backward compatibility""
 #if 1
 Cell c;
 flag=-1;
-u3=0;
 for(u2=0; u2<u1; u2++)
 {
    c = getc((FILE *)wfileid);
-   u3++;
    if (c=='\n') break;
    if (c=='\r') {
      if ((c = getc((FILE *)wfileid))!='\n')
        ungetc(c,(FILE *)wfileid);
-     else
-       u3++;
      break;
    }
    if (c==EOF) {
@@ -2326,5 +2323,33 @@ for (; ucount>0; ucount--) {
  >r swap 2swap swap r> 0 ?DO
      fdup dup f@ f* over + 2swap dup f@ f+ dup f! over + 2swap
  LOOP 2drop 2drop fdrop ;
+
+\+
+
+\+file
+
+(read-line)	( c_addr u1 wfileid -- u2 flag u3 wior )	file	paren_read_line
+Cell c;
+flag=-1;
+u3=0;
+for(u2=0; u2<u1; u2++)
+{
+   c = getc((FILE *)wfileid);
+   u3++;
+   if (c=='\n') break;
+   if (c=='\r') {
+     if ((c = getc((FILE *)wfileid))!='\n')
+       ungetc(c,(FILE *)wfileid);
+     else
+       u3++;
+     break;
+   }
+   if (c==EOF) {
+	flag=FLAG(u2!=0);
+	break;
+     }
+   c_addr[u2] = (Char)c;
+}
+wior=FILEIO(ferror((FILE *)wfileid));
 
 \+
