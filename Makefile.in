@@ -257,6 +257,8 @@ COMPAT = compat/README \
 
 GFORTH_TEXI =  doc/gforth.texi doc/version.texi
 
+VMGEN_TEXI = doc/vmgen.texi doc/version.texi doc/fdl.texi
+
 ALLSUBDIRS = engine
 
 ARCHS =	\
@@ -369,7 +371,10 @@ KERNLS = kernl16b.fi- kernl16l.fi- \
 	 kernl32b.fi- kernl32l.fi- \
 	 kernl64b.fi- kernl64l.fi-
 
-GEN_PRECIOUS = $(FORTH_GEN) $(KERNLS) doc/gforth.texi doc/gforth.dvi doc/gforth.ps Makefile Makedist engine/Makefile configure
+GEN_PRECIOUS = $(FORTH_GEN) $(KERNLS) \
+	doc/gforth.texi doc/gforth.dvi doc/gforth.ps \
+	doc/vmgen.dvi doc/vmgen.ps \
+	Makefile Makedist engine/Makefile configure
 
 #standards.info recommends this:
 .SUFFIXES:
@@ -761,18 +766,25 @@ checkdoc:	doc/gforth.ds prim.b ds2texi.fs prims2x.fs doc/doc.fd doc/crossdoc.fd 
 		$(FORTH) ds2texi.fs prims2x.fs -e "s\" $(srcdir)/prim.b\" ' register-doc ' noop process-file" doc/crossdoc.fd doc/doc.fd answords.fs -e bye
 		-grep unknown doc/gforth.texi
 
-dvi:		doc/gforth.dvi
+dvi:		doc/gforth.dvi doc/vmgen.dvi
 
 doc/gforth.dvi doc/gforth.fns:	$(GFORTH_TEXI)
 		cd doc; $(TEXI2DVI) gforth.texi
 
+doc/vmgen.dvi:	$(VMGEN_TEXI)
+		cd doc; $(TEXI2DVI) vmgen.texi
+
 doc/gforth.ps:	doc/gforth.dvi
 		$(DVI2PS) doc/gforth.dvi -o $@
 
-info:		doc/gforth.info
+info:		doc/gforth.info doc/vmgen.info
 
-doc/gforth.info doc/gforth.info-*: $(GFORTH_TEXI)
-		-cd doc; $(MAKEINFO) gforth.texi
+doc/gforth.info: $(GFORTH_TEXI)
+		cd doc; $(MAKEINFO) gforth.texi
+
+doc/vmgen.info: $(VMGEN_TEXI)
+		cd doc; $(MAKEINFO) vmgen.texi
+
 
 ### need makeinfo 4.0 to generate html. Otherwise, use texi2html..
 html:		$(GFORTH_TEXI)
