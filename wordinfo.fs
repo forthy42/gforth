@@ -13,33 +13,33 @@ INCLUDE look.fs
 : alias? ( nfa -- flag )
         dup name> look
         0= ABORT" WINFO: CFA not found"
-        cell+
+\       cell+
         2dup <>
         IF   nip dup 1 cells - here !
              count $1f and here cell+ place true
         ELSE 2drop false THEN ;
 
 : var?  ( nfa -- flag )
-        (name>)
+        cell+ (name>)
         >code-address ['] udp >code-address = ;
 
 : con?  ( nfa -- flag )
-        (name>)
+        cell+ (name>)
         >code-address ['] bl >code-address = ;
 
 : does? ( nfa -- flag )
-        dup (name>)
+        cell+ dup (name>)
         >code-address ['] source >code-address =
         dup IF swap (name>) cell+ @ here ! ELSE nip THEN ;
 
 : defered? ( nfa -- flag )
         dup does?
         IF here @ ['] source cell+ @ =
-           dup IF swap (name>) >body @ here ! ELSE nip THEN
+           dup IF swap cell+ (name>) >body @ here ! ELSE nip THEN
         ELSE drop false THEN ;
 
 : colon? ( nfa -- flag )
-        (name>)
+        cell+ (name>)
         >code-address ['] does? >code-address = ;
 
 \ VALUE VCheck
@@ -76,6 +76,7 @@ INCLUDE look.fs
 10 CONSTANT Com#        \ Compiler directives : ; POSTPONE
 
 CREATE InfoTable
+        ' Prim? A, Pri# ,
         ' Alias? A, Ali# ,
         ' Con?   A, Con# ,
         ' Var?   A, Var# ,
@@ -83,7 +84,6 @@ CREATE InfoTable
         ' Defered? A, Def# ,
         ' Does? A, Doe# ,
         ' Colon? A, Col# ,
-        ' Prim? A, Pri# ,
         0 ,
 
 : WordInfo ( nfa --- code )

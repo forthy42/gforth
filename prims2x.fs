@@ -543,4 +543,4 @@ set-current
  endif
  warnings @ if
  ." ------------ CUT HERE -------------" cr  endif
- r> primfilter ;
+ r> [ ] primfilter [ 0 ] ;

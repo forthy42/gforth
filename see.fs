@@ -427,8 +427,8 @@ CREATE C-Table
         dup cell+ swap @
         dup >r DoTable r> swap IF drop EXIT THEN
         Display?
-        IF look 0= ABORT" SEE: Bua!"
-           cell+ dup count 31 and rot wordinfo .string bl cemit
+        IF look 0= IF  drop dup 1 cells - @ .  \ ABORT" SEE: Bua!"
+           ELSE  dup cell+ count 31 and rot wordinfo .string  THEN  bl cemit
         ELSE drop
         THEN ;
 
@@ -465,7 +465,7 @@ DEFER dosee
         here @ .name cr
         here @ dosee ;
 : docol S" : " Com# .string
-        cell+ dup count $1F and 2 pick wordinfo .string bl cemit bl cemit
+        dup cell+ count $1F and 2 pick wordinfo .string bl cemit bl cemit
         ( XPos @ ) 2 Level !
         name> >body
         C-Pass @ DebugMode = IF ScanMode c-pass ! EXIT THEN
@@ -484,7 +484,7 @@ create wordtypes
         0 ,
 
 : (dosee) ( lfa -- )
-        dup cell+ dup c@ 32 and IF over .name ." is an immediate word" cr THEN
+        dup dup cell+ c@ 32 and IF over .name ." is an immediate word" cr THEN
         wordinfo
         wordtypes
         BEGIN dup @ dup
@@ -496,14 +496,13 @@ create wordtypes
 
 ' (dosee) IS dosee
 
-: see   name find cr 0= IF ." Word unknown" cr drop exit THEN
-        >name c-init
-        dosee ;
-
 : xtc ( xt -- )       \ do see at xt
         Look 0= ABORT" SEE: No valid XT"
         cr c-init
         dosee ;
+
+: see   name find 0= IF ." Word unknown" cr drop exit THEN
+        xtc ;
 
 : lfc   cr c-init cell+ dosee ;
 : nfc   cr c-init dosee ;

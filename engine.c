@@ -1,5 +1,5 @@
 /*
-  $Id: engine.c,v 1.10 1994-07-08 15:00:35 anton Exp $
+  $Id: engine.c,v 1.11 1994-07-13 19:21:02 pazsan Exp $
   Copyright 1992 by the ANSI figForth Development Group
 */
 
@@ -80,13 +80,15 @@ int emitcounter;
 
 static char* fileattr[6]={"r","rb","r+","r+b","w+","w+b"};
 
+static Address up0=NULL;
+
 Label *engine(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp)
 /* executes code at ip, if ip!=NULL
    returns array of machine code labels (for use in a loader), if ip==NULL
 */
 {
   Xt cfa;
-  Address up=NULL;
+  Address up=up0;
   static Label symbols[]= {
     &&docol,
     &&docon,
@@ -96,7 +98,6 @@ Label *engine(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp)
     &&dodoes,  /* dummy for does handler address */
 #include "prim_labels.i"
   };
-  int throw_code;
   IF_TOS(register Cell TOS;)
   IF_FTOS(Float FTOS;)
 #ifdef CPU_DEP
@@ -105,19 +106,6 @@ Label *engine(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp)
 
   if (ip == NULL)
     return symbols;
-  
-  if ((throw_code=setjmp(throw_jmp_buf))) {
-    static Cell signal_data_stack[8];
-
-     /* AFAIK, it's not guarateed that the registers have the right value
-	after a longjump, so we avoid using the current values.
-	If it were guaranteed that the registers keep their values, we could
-	call a signal handler in Forth instead of doing the throw from C */
-    sp = &signal_data_stack[7];
-    TOS = throw_code;
-    ip = throw_ip;
-    NEXT;
-  }
 
   IF_TOS(TOS = sp[0]);
   IF_FTOS(FTOS = fp[0]);

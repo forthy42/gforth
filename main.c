@@ -1,5 +1,5 @@
 /*
-  $Id: main.c,v 1.7 1994-07-08 15:00:55 anton Exp $
+  $Id: main.c,v 1.8 1994-07-13 19:21:04 pazsan Exp $
   Copyright 1993 by the ANSI figForth Development Group
 */
 
@@ -112,12 +112,23 @@ int go_forth(int *image, int stack, Cell *entries)
 	Address lp=(Address)((void *)fp-image[2]);
 	Cell* sp=(Cell*)((void *)lp-image[2]);
 	Cell* ip=(Cell*)(image[3]);
+	int throw_code;
 	
 	throw_ip = (Xt *)(image[4]);
 	for(;stack>0;stack--)
 		*--sp=entries[stack-1];
 
 	install_signal_handlers(); /* right place? */
+
+	if ((throw_code=setjmp(throw_jmp_buf))) {
+		static Cell signal_data_stack[8];
+		static Cell signal_return_stack[8];
+
+		signal_data_stack[7]=throw_code;
+
+		return((int)engine(image[4],signal_data_stack+7,
+		                            signal_return_stack+8,0,0));
+	}
 
 	return((int)engine(ip,sp,rp,fp,lp));
 }

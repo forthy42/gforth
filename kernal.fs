@@ -385,7 +385,7 @@ variable dead-code \ true if normal code at "here" would be dead
    over 0<>
  while
    over
-   cell+ name> >body @ max
+   name> >body @ max
    swap @ swap ( get next )
  repeat
  faligned nip ;

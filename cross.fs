@@ -1,5 +1,5 @@
 \ CROSS.FS     The Cross-Compiler                      06oct92py
-\ $Id: cross.fs,v 1.7 1994-07-08 15:00:30 anton Exp $
+\ $Id: cross.fs,v 1.8 1994-07-13 19:20:59 pazsan Exp $
 \ Idea and implementation: Bernd Paysan (py)
 \ Copyright 1992 by the ANSI figForth Development Group
 
@@ -350,7 +350,7 @@ VARIABLE ^imm
                 ^imm @ @ dup <imm> = ?EXIT
                 <res> <> ABORT" CROSS: Cannot immediate a unresolved word"
                 <imm> ^imm @ ! ;
-: restrict      ;
+: restrict      40 flag! ;
 >CROSS
 
 \ ALIAS2 ansforth conform alias                          9may93jaw

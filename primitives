@@ -1023,3 +1023,4 @@ lp -= sizeof(Float);
 
 up!	a_addr --	new	up_store
 up=(char *)a_addr;
+up0=(char *)a_addr;
