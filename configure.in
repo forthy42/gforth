@@ -42,6 +42,12 @@ AC_ARG_ENABLE(force-reg,
 			  but also incorrect code with some gcc versions on
 			  some processors (default disabled).],
 AC_DEFINE(FORCE_REG,,[Define if you want to use explicit register declarations for better performance or for more convenient CODE words (does not work with all GCC versions on all machines)]))
+AC_SUBST(PROFEXES)
+AC_SUBST(PROFOBJS)
+AC_ARG_ENABLE(prof,
+[  --enable-prof          Build gforth-prof, which outputs frequently occuring
+                          sequences of primitives.],
+PROFEXES="gforth-prof\$(EXE)"; PROFOBJS="engine-prof.o main-prof.o profile.o")
 
 AC_ARG_WITH(debug,
 [  --with-debug		  specifies option -g to compile with debug info
