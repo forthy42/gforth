@@ -190,6 +190,10 @@ typedef struct {
 PrimInfo *priminfos;
 PrimInfo **decomp_prims;
 
+const char const* const prim_names[]={
+#include PRIM_NAMES_I
+};
+
 static int is_relocatable(int p)
 {
   return !no_dynamic && priminfos[p].start != NULL;
@@ -836,8 +840,8 @@ void check_prims(Label symbols1[])
     pi->restlength = endlabel - symbols1[i] - pi->length;
     pi->nimmargs = 0;
     if (debug)
-      fprintf(stderr, "Prim %3d @ %p %p %p, length=%3ld restlength=%2ld superend=%1d",
-	      i, s1, s2, s3, (long)(pi->length), (long)(pi->restlength), pi->superend);
+      fprintf(stderr, "%-15s %3d %p %p %p len=%3ld restlen=%2ld s-end=%1d",
+	      prim_names[i], i, s1, s2, s3, (long)(pi->length), (long)(pi->restlength), pi->superend);
     if (endlabel == NULL) {
       pi->start = NULL; /* not relocatable */
       if (pi->length<0) pi->length=100;

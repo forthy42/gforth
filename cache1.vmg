@@ -54,7 +54,7 @@
 
 \E data-stack to cache-stack
 \  \E here 4 cache-states 2! s0 , s1 , s2 , s3 ,
-\E here 1 cache-states 2! s0 , s1 ,
+\E here 2 cache-states 2! s0 , s1 ,
 
 \ !! the following should be automatic
 \E S1 to state-default

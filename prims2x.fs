@@ -716,6 +716,9 @@ stack inst-stream IP Cell
 	default-ss s state-sss i th !
     loop ;
 
+: .state ( state -- )
+    0 >body - >name .name ;
+
 : set-ss ( ss stack state -- )
     state-sss swap stack-number @ th ! ;
 
@@ -961,7 +964,9 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
     ." LABEL(" prim prim-c-name 2@ type ." )" ;
     
 : output-c ( -- ) 
-    print-entry ."  /* " prim prim-name 2@ type ."  ( " prim prim-stack-string 2@ type ." ) */" cr
+    print-entry ."  /* " prim prim-name 2@ type
+    ."  ( " prim prim-stack-string 2@ type ." ) "
+    state-in .state ." -- " state-out .state ."  */" cr
     ." /* " prim prim-doc 2@ type ."  */" cr
     ." NAME(" quote prim prim-name 2@ type quote ." )" cr \ debugging
     ." {" cr
