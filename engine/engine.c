@@ -72,10 +72,15 @@ struct F83Name {
   char		name[0];
 };
 
-/* are macros for setting necessary? */
 #define F83NAME_COUNT(np)	((np)->countetc & 0x1f)
-#define F83NAME_SMUDGE(np)	(((np)->countetc & 0x40) != 0)
-#define F83NAME_IMMEDIATE(np)	(((np)->countetc & 0x20) != 0)
+
+struct Longname {
+  struct Longname *next;  /* the link field for old hands */
+  Cell		countetc;
+  char		name[0];
+};
+
+#define LONGNAME_COUNT(np)	((np)->countetc & (((~((UCell)0))<<3)>>3))
 
 Cell *SP;
 Float *FP;

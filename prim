@@ -93,6 +93,7 @@
 \E s" Xt"		single data-stack type-prefix xt
 \E s" WID"		single data-stack type-prefix wid
 \E s" struct F83Name *"	single data-stack type-prefix f83name
+\E s" struct Longname *" single data-stack type-prefix longname
 \E 
 \E return-stack stack-prefix R:
 \E inst-stream  stack-prefix #
@@ -2277,5 +2278,69 @@ for(u2=0; u2<u1; u2++)
    c_addr[u2] = (Char)c;
 }
 wior=FILEIO(ferror((FILE *)wfileid));
+
+\+
+
+(listlfind)	( c_addr u longname1 -- longname2 )	new	paren_listlfind
+for (; longname1 != NULL; longname1 = (struct Longname *)(longname1->next))
+  if ((UCell)LONGNAME_COUNT(longname1)==u &&
+      memcasecmp(c_addr, longname1->name, u)== 0 /* or inline? */)
+    break;
+longname2=longname1;
+:
+    BEGIN  dup WHILE  (find-samelen)  dup  WHILE
+	>r 2dup r@ cell+ char+ capscomp  0=
+	IF  2drop r>  EXIT  THEN
+	r> @
+    REPEAT  THEN  nip nip ;
+: (find-samelen) ( u longname1 -- u longname2/0 )
+    BEGIN  2dup cell+ c@ $1F and <> WHILE  @  dup 0= UNTIL  THEN ;
+
+\+hash
+
+(hashlfind)	( c_addr u a_addr -- longname2 )	new	paren_hashlfind
+struct Longname *longname1;
+longname2=NULL;
+while(a_addr != NULL)
+{
+   longname1=(struct Longname *)(a_addr[1]);
+   a_addr=(Cell *)(a_addr[0]);
+   if ((UCell)LONGNAME_COUNT(longname1)==u &&
+       memcasecmp(c_addr, longname1->name, u)== 0 /* or inline? */)
+     {
+	longname2=longname1;
+	break;
+     }
+}
+:
+ BEGIN  dup  WHILE
+        2@ >r >r dup r@ cell+ c@ $1F and =
+        IF  2dup r@ cell+ char+ capscomp 0=
+	    IF  2drop r> rdrop  EXIT  THEN  THEN
+	rdrop r>
+ REPEAT nip nip ;
+
+(tablelfind)	( c_addr u a_addr -- longname2 )	new	paren_tablelfind
+""A case-sensitive variant of @code{(hashfind)}""
+struct Longname *longname1;
+longname2=NULL;
+while(a_addr != NULL)
+{
+   longname1=(struct Longname *)(a_addr[1]);
+   a_addr=(Cell *)(a_addr[0]);
+   if ((UCell)LONGNAME_COUNT(longname1)==u &&
+       memcmp(c_addr, longname1->name, u)== 0 /* or inline? */)
+     {
+	longname2=longname1;
+	break;
+     }
+}
+:
+ BEGIN  dup  WHILE
+        2@ >r >r dup r@ cell+ c@ $1F and =
+        IF  2dup r@ cell+ char+ -text 0=
+	    IF  2drop r> rdrop  EXIT  THEN  THEN
+	rdrop r>
+ REPEAT nip nip ;
 
 \+
