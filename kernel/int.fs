@@ -950,7 +950,7 @@ Defer mark-end
 
 : (bootmessage)
     ." Gforth " version-string type 
-    ." , Copyright (C) 1995-2003,2004 Free Software Foundation, Inc." cr
+    ." , Copyright (C) 1995-2004 Free Software Foundation, Inc." cr
     ." Gforth comes with ABSOLUTELY NO WARRANTY; for details type `license'"
 [ has? os [IF] ]
      cr ." Type `bye' to exit"

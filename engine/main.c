@@ -768,6 +768,9 @@ static char MAYBE_UNUSED superend[]={
 
 Cell npriminfos=0;
 
+Label goto_start;
+Cell goto_len;
+
 int compare_labels(const void *pa, const void *pb)
 {
   Label a = *(Label *)pa;
@@ -798,7 +801,7 @@ void check_prims(Label symbols1[])
 {
   int i;
 #ifndef NO_DYNAMIC
-  Label *symbols2, *symbols3, *ends1, *ends1j, *ends1jsorted;
+  Label *symbols2, *symbols3, *ends1, *ends1j, *ends1jsorted, *goto_p;
   int nends1j;
 #endif
 
@@ -825,10 +828,22 @@ void check_prims(Label symbols1[])
 #endif
   ends1 = symbols1+i+1;
   ends1j =   ends1+i;
+  goto_p = ends1j+i+1; /* goto_p[0]==before; ...[1]==after;*/
   nends1j = i+1;
   ends1jsorted = (Label *)alloca(nends1j*sizeof(Label));
   memcpy(ends1jsorted,ends1j,nends1j*sizeof(Label));
   qsort(ends1jsorted, nends1j, sizeof(Label), compare_labels);
+
+  /* check whether the "goto *" is relocatable */
+  goto_len = goto_p[1]-goto_p[0];
+  debugp(stderr, "goto * %p %p len=%ld\n",
+	 goto_p[0],symbols2[goto_p-symbols1],goto_len);
+  if (memcmp(goto_p[0],symbols2[goto_p-symbols1],goto_len)!=0) { /* unequal */
+    no_dynamic=1;
+    debugp(stderr,"  not relocatable, disabling dynamic code generation\n");
+    return;
+  }
+  goto_start = goto_p[0];
   
   priminfos = calloc(i,sizeof(PrimInfo));
   for (i=0; symbols1[i]!=0; i++) {
