@@ -797,13 +797,10 @@ max-errors has? file [IF] 6 [ELSE] 4 [THEN] * cells allot
 \G Adjust the string specified by @i{c-addr, u1} to remove all
 \G trailing spaces. @i{u2} is the length of the modified string.
     BEGIN
-	1- 2dup + c@ bl =
+	dup
     WHILE
-	    dup 0=
-	UNTIL
-    ELSE
-	1+
-    THEN ;
+	1- 2dup + c@ bl <>
+    UNTIL  1+  THEN ;
 
 DEFER DOERROR
 
