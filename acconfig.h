@@ -45,6 +45,11 @@
 #undef FORCE_REG
 #endif
 
+/* Define if you want to use peephole optimization */
+#ifndef HAS_PEEPHOLE
+#undef HAS_PEEPHOLE
+#endif
+
 /* an integer type that is as long as a pointer */
 #define CELL_TYPE long
 

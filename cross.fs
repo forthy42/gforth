@@ -808,7 +808,7 @@ ghost (next)                                    drop
 ghost unloop    ghost ;S                        2drop
 ghost lit       ghost (compile) ghost !         2drop drop
 ghost (does>)   ghost noop                      2drop
-ghost (.")      ghost (S")      ghost (ABORT")  2drop drop ( " )
+ghost (.")      ghost (S")      ghost (ABORT")  2drop drop
 ghost '                                         drop
 ghost :docol    ghost :doesjump ghost :dodoes   2drop drop
 ghost :dovar	ghost :dodefer  ghost :dofield  2drop drop
@@ -2405,9 +2405,9 @@ Cond: NEXT	restrict? sys? next, ;Cond
 
 : ,"            [char] " parse T string, align H ;
 
-Cond: ."        restrict? compile (.")     T ," H ;Cond ( " )
-Cond: S"        restrict? compile (S")     T ," H ;Cond ( " )
-Cond: ABORT"    restrict? compile (ABORT") T ," H ;Cond ( " )
+Cond: ."        restrict? compile (.")     T ," H ;Cond
+Cond: S"        restrict? compile (S")     T ," H ;Cond
+Cond: ABORT"    restrict? compile (ABORT") T ," H ;Cond
 
 Cond: IS        T ' >body H compile ALiteral compile ! ;Cond
 : IS            T >address ' >body ! H ;

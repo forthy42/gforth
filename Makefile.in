@@ -127,7 +127,7 @@ INCLUDES = engine/forth.h engine/threaded.h engine/io.h
 
 KERN_SRC = \
 	mach16b.fs mach16l.fs mach32b.fs mach32l.fs mach64b.fs mach64l.fs \
-	machpc.fs \
+	machpc.fs.in \
 	kernel/aliases0.fs \
 	kernel/aliases.fs \
 	kernel/args.fs \
@@ -529,22 +529,22 @@ bench:		gforth-fast$(EXE) gforth.fi
 # 3. copy new kernels to kernlXYZ.fi
 #    these are the ones we want to use now
 
-kernl16l.fi-:	$(KERN_SRC) kernel/version.fs mach16l.fs $(FORTH_GEN0)
+kernl16l.fi-:	$(KERN_SRC) kernel/version.fs mach16l.fs machpc.fs $(FORTH_GEN0)
 		$(FORTHK) -e 's" mach16l.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl16l.fi- $(bindir)/gforth-$(VERSION) bye"
 
-kernl16b.fi-:	$(KERN_SRC) kernel/version.fs mach16b.fs $(FORTH_GEN0)
+kernl16b.fi-:	$(KERN_SRC) kernel/version.fs mach16b.fs machpc.fs $(FORTH_GEN0)
 		$(FORTHK) -e 's" mach16b.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl16b.fi- $(bindir)/gforth-$(VERSION) bye"
 
-kernl32l.fi-:	$(KERN_SRC) kernel/version.fs mach32l.fs $(FORTH_GEN0)
+kernl32l.fi-:	$(KERN_SRC) kernel/version.fs mach32l.fs machpc.fs $(FORTH_GEN0)
 		$(FORTHK) -e 's" mach32l.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl32l.fi- $(bindir)/gforth-$(VERSION) bye"
 
-kernl32b.fi-:	$(KERN_SRC) kernel/version.fs mach32b.fs $(FORTH_GEN0)
+kernl32b.fi-:	$(KERN_SRC) kernel/version.fs mach32b.fs machpc.fs $(FORTH_GEN0)
 		$(FORTHK) -e 's" mach32b.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl32b.fi- $(bindir)/gforth-$(VERSION) bye"
 
-kernl64l.fi-:	$(KERN_SRC) kernel/version.fs mach64l.fs $(FORTH_GEN0)
+kernl64l.fi-:	$(KERN_SRC) kernel/version.fs mach64l.fs machpc.fs $(FORTH_GEN0)
 		$(FORTHK) -e 's" mach64l.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl64l.fi- $(bindir)/gforth-$(VERSION) bye"
 
-kernl64b.fi-:	$(KERN_SRC) kernel/version.fs mach64b.fs $(FORTH_GEN0)
+kernl64b.fi-:	$(KERN_SRC) kernel/version.fs mach64b.fs machpc.fs $(FORTH_GEN0)
 		$(FORTHK) -e 's" mach64b.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl64b.fi- $(bindir)/gforth-$(VERSION) bye"
 
 kernl-%.fi:	arch/%/mach.fs $(KERN_SRC) kernel/version.fs $(FORTH_GEN0)
@@ -745,7 +745,7 @@ stamp-h:	engine/config.h.in config.status
 		CONFIG_FILES=$@ CONFIG_HEADERS=engine/config.h ./config.status
 		echo timestamp > stamp-h
 
-Makefile Makedist engine/Makefile gforthmi:	Makefile.in Makedist.in engine/Makefile.in gforthmi.in config.status
+Makefile Makedist engine/Makefile gforthmi machpc.fs:	Makefile.in Makedist.in engine/Makefile.in gforthmi.in machpc.fs.in config.status
 		CONFIG_FILES="$@" CONFIG_HEADERS=engine/config.h ./config.status
 
 config.status:	configure

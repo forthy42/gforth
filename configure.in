@@ -34,7 +34,6 @@ AC_ARG_ENABLE(force-reg,
 			  the machine.h file. This can cause a good speedup,
 			  but also incorrect code with some gcc versions on
 			  some processors (default disabled).],
-
 AC_DEFINE(FORCE_REG))
 dnl this is not quite according to the autoconf manual, it causes a replacement
 AC_ARG_ENABLE(direct-threaded,
@@ -54,6 +53,13 @@ AC_ARG_WITH(debug,
                    machines where "strip" has problems with gcc style
                    debugging informations.],
 if test "$withval" = "yes"; then DEBUGFLAG=-g; fi)
+
+PEEPHOLE="yes"
+AC_ARG_WITH(peephole,
+[  --with-peephole	Enable peephole optimization (default)
+  --without-peephole	disables peephole optimization. Creates smaller,
+			but slower images.],
+PEEPHOLE="$withval")
 
 CFLAGS=$CFLAGS
 
@@ -296,6 +302,15 @@ AC_DEFINE_UNQUOTED(PATHSEP,'$PATHSEP')
 
 AC_SUBST(FORTHSIZES)
 
+if test "$PEEPHOLE" = "yes"
+then
+   PEEPHOLEFLAG="true"
+   AC_DEFINE(HAS_PEEPHOLE)
+else
+   PEEPHOLEFLAG="false"
+fi
+AC_SUBST(PEEPHOLEFLAG)
+
 dnl copy commands for systems that don't have links
 AC_SUBST(LINK_KERNL)
 LINK_KERNL=""
@@ -360,6 +375,7 @@ AC_OUTPUT([
 Makefile
 Makedist
 gforthmi
+machpc.fs
 engine/Makefile
 doc/version.texi ],
 echo timestamp > stamp-h

@@ -444,7 +444,7 @@ VARIABLE C-Pass
 
 CREATE C-Table
 	        ' lit A,            ' c-lit A,
-		' call A,           ' c-call A,
+[IFDEF] call	' call A,           ' c-call A, [THEN]
 		' (s") A,	    ' c-c" A,
        		 ' (.") A,	    ' c-c" A,
         	' "lit A,           ' c-c" A,
