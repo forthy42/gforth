@@ -75,7 +75,7 @@ SWITCHES = $(XCFLAGS) $(XDEFINES)
 ENGINE_FLAGS = @ENGINE_FLAGS@ -fno-defer-pop -fcaller-saves
 DEBUGFLAG = @DEBUGFLAG@
 CFLAGS	= $(DEBUGFLAG) -I$(srcdir)/../arch/$(machine) -I. -O3 -Wall $(SWITCHES) -DDEFAULTPATH=\"$(FORTHPATH)\"
-CFLAGS2	= $(DEBUGFLAG) -I$(srcdir)/../arch/$(machine) -I. -O3 -Wall $(SWITCHES) -DDEFAULTPATH=\"$(FORTHPATH)\"
+CFLAGS2	= $(DEBUGFLAG) -I$(srcdir)/../arch/$(machine) -I. -O2 -Wall $(SWITCHES) -DDEFAULTPATH=\"$(FORTHPATH)\"
 FORTHKFLAGS= --die-on-signal -p "..$(PATHSEP)$(srcdir)" -i ../$(kernel_fi)
 FORTHK	= ../gforth $(FORTHKFLAGS)
 
@@ -122,22 +122,22 @@ gforth-fi$(EXE):	$(OBJECTS_FI) $(AOBJECTS)
 	$(GCC) $(LDFLAGS) $(OBJECTS_FI) $(AOBJECTS) $(LDLIBS) -o $@
 
 engine.s:	$(ENGINE_DEPS)
-		$(GCC) -fno-gcse $(CFLAGS2) $(ENGINE_FLAGS) -S engine.b.c
+		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -fno-gcse -S engine.b.c
 
 engine.o:	$(ENGINE_DEPS)
-		$(GCC) -fno-gcse $(CFLAGS2) $(ENGINE_FLAGS) -fno-strict-aliasing -DGFORTH_DEBUGGING -o $@ -c engine.b.c
+		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -fno-gcse -fno-strict-aliasing -DGFORTH_DEBUGGING -o $@ -c engine.b.c
 
 engine-fast.o:	$(ENGINE_DEPS)
-		$(GCC) -fno-gcse $(CFLAGS2) $(ENGINE_FLAGS) -o $@ -c engine.b.c
+		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -fno-gcse -o $@ -c engine.b.c
 
 engine-itc.o:	$(ENGINE_DEPS)
-		$(GCC) -fno-gcse $(CFLAGS2) $(ENGINE_FLAGS) -DINDIRECT_THREADED -DGFORTH_DEBUGGING -o $@ -c engine.b.c
+		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -fno-gcse -DINDIRECT_THREADED -DGFORTH_DEBUGGING -o $@ -c engine.b.c
 
 engine-ditc.o:	$(ENGINE_DEPS)
-		$(GCC) -fno-gcse $(CFLAGS2) $(ENGINE_FLAGS) -DDOUBLY_INDIRECT -o $@ -c engine.b.c
+		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -fno-gcse -DDOUBLY_INDIRECT -o $@ -c engine.b.c
 
 engine-prof.o:	$(ENGINE_DEPS)
-		$(GCC) -fno-gcse $(CFLAGS2) $(ENGINE_FLAGS) -DVM_PROFILING -o $@ -c engine.b.c
+		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -fno-gcse -DVM_PROFILING -o $@ -c engine.b.c
 
 main.o:		$(MAIN_DEPS) 
 		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -DGFORTH_DEBUGGING -o $@ -c $(srcdir)/main.c

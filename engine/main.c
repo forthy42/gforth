@@ -86,7 +86,13 @@ Address code_here=0; /* does for code-area what HERE does for the dictionary */
 Address start_flush=0; /* start of unflushed code */
 
 static int no_super=0;   /* true if compile_prim should not fuse prims */
+/* --no-dynamic by default on gcc versions >=3.1 (it works with 3.0.4,
+   but not with 3.2) */
+#if (__GNUC__>2 && __GNUC_MINOR__>=1)
 static int no_dynamic=1; /* true if compile_prim should not generate code */
+#else
+static int no_dynamic=0; /* true if compile_prim should not generate code */
+#endif
 
 #ifdef HAS_DEBUG
 static int debug=0;
@@ -454,11 +460,21 @@ void check_prims(Label symbols1[])
 #include "prim_superend.i"
   };
 
+  if (debug)
+#ifdef __VERSION__
+    fprintf(stderr, "Compiled with gcc-" __VERSION__ "\n");
+#else
+#define xstr(s) str(s)
+#define str(s) #s
+  fprintf(stderr, "Compiled with gcc-" xstr(__GNUC__) "." xstr(__GNUC_MINOR__) "\n"); 
+#endif
   for (i=DOESJUMP+1; symbols1[i+1]!=0; i++)
     ;
   npriminfos = i;
 
-#if 0 && defined(IS_NEXT_JUMP) && !defined(DOUBLY_INDIRECT)
+#if defined(IS_NEXT_JUMP) && !defined(DOUBLY_INDIRECT)
+  if (no_dynamic)
+    return;
   symbols2=engine2(0,0,0,0,0);
   priminfos = calloc(i,sizeof(PrimInfo));
   for (i=DOESJUMP+1; symbols1[i+1]!=0; i++) {
@@ -483,7 +499,7 @@ void check_prims(Label symbols1[])
     pi->length = prim_len;
     /* fprintf(stderr,"checking primitive %d: memcmp(%p, %p, %d)\n",
        i, symbols1[i], symbols2[i], prim_len);*/
-    if (no_dynamic||memcmp(symbols1[i],symbols2[i],prim_len)!=0) {
+    if (memcmp(symbols1[i],symbols2[i],prim_len)!=0) {
       if (debug)
 	fprintf(stderr,"Primitive %d not relocatable: memcmp(%p, %p, %d)\n",
 		i, symbols1[i], symbols2[i], prim_len);
@@ -505,13 +521,15 @@ Label compile_prim(Label prim)
     return prim;
   } else
     return prim-((Label)xts)+((Label)vm_prims);
-#elif 0 && defined(IND_JUMP_LENGTH) && !defined(VM_PROFILING) && !defined(INDIRECT_THREADED)
+#elif defined(IND_JUMP_LENGTH) && !defined(VM_PROFILING) && !defined(INDIRECT_THREADED)
   unsigned i;
   Address old_code_here=code_here;
   static Address last_jump=0;
 
   i = ((Xt)prim)-vm_prims;
   prim = *(Xt)prim;
+  if (no_dynamic)
+    return prim;
   if (i>=npriminfos || priminfos[i].start == 0) { /* not a relocatable prim */
     if (last_jump) { /* make sure the last sequence is complete */
       memcpy(code_here, last_jump, IND_JUMP_LENGTH);
@@ -800,6 +818,7 @@ void gforth_args(int argc, char ** argv, char ** path, char ** imagename)
       {"debug", no_argument, &debug, 1},
       {"no-super", no_argument, &no_super, 1},
       {"no-dynamic", no_argument, &no_dynamic, 1},
+      {"dynamic", no_argument, &no_dynamic, 0},
       {0,0,0,0}
       /* no-init-file, no-rc? */
     };
@@ -831,6 +850,7 @@ Engine Options:\n\
   -d SIZE, --data-stack-size=SIZE   Specify data stack size\n\
   --debug			    Print debugging information during startup\n\
   --die-on-signal		    exit instead of CATCHing some signals\n\
+  --dynamic			    use dynamic native code\n\
   -f SIZE, --fp-stack-size=SIZE	    Specify floating point stack size\n\
   -h, --help			    Print this message and exit\n\
   -i FILE, --image-file=FILE	    Use image FILE instead of `gforth.fi'\n\
@@ -842,7 +862,7 @@ Engine Options:\n\
   --offset-image		    Load image at a different position\n\
   -p PATH, --path=PATH		    Search path for finding image and sources\n\
   -r SIZE, --return-stack-size=SIZE Specify return stack size\n\
-  -v, --version			    Print version and exit\n\
+  -v, --version			    Print engine version and exit\n\
 SIZE arguments consist of an integer followed by a unit. The unit can be\n\
   `b' (byte), `e' (element; default), `k' (KB), `M' (MB), `G' (GB) or `T' (TB).\n",
 	      argv[0]);
