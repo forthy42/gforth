@@ -36,13 +36,13 @@
 
 
 (defvar forth-positives
-  " : :noname code interpretation: ;code does> begin do ?do +do -do u+do u-do while if ?dup-if ?dup-0=-if else case struct [if] [else] "
+  " : :noname code interpretation: ;code does> begin do ?do +do -do u+do u-do while if ?dup-if ?dup-0=-if else case of struct [if] [else] "
   "Contains all words which will cause the indent-level to be incremented
 on the next line.
 OBS! All words in forth-positives must be surrounded by spaces.")
 
 (defvar forth-negatives
-  " ; end-code ;code does> until repeat while +loop loop -loop s+loop else then endif again endcase end-struct [then] [else] [endif] "
+  " ; end-code ;code does> until repeat while +loop loop -loop s+loop else then endif again endcase endof end-struct [then] [else] [endif] "
   "Contains all words which will cause the indent-level to be decremented
 on the current line.
 OBS! All words in forth-negatives must be surrounded by spaces.")

@@ -489,7 +489,7 @@ Defer 'throw
 
 : throw ( y1 .. ym error/0 -- y1 .. ym / z1 .. zn error ) \ exception
     ?DUP IF
-	[ here 9 cells ! ] \ entry point for signal handler
+	[ has-header [IF] here 9 cells ! [THEN] ] \ entry point for signal handler
 	handler @ dup 0= IF
 [ has-os [IF] ]
 	    2 (bye)
@@ -747,9 +747,9 @@ Create ???  0 , 3 c, char ? c, char ? c, char ? c,
 : !does    ( addr -- ) \ gforth	store-does
     lastxt does-code! ;
 : (does>)  ( R: addr -- )
-    r> /does-handler + !does ;
+    r> cfaligned /does-handler + !does ;
 : dodoes,  ( -- )
-  here /does-handler allot does-handler! ;
+  cfalign here /does-handler allot does-handler! ;
 
 doer? :dovar [IF]
 : Create ( "name" -- ) \ core
@@ -1308,7 +1308,7 @@ Defer 'cold ' noop IS 'cold
     pathstring 2@ process-path pathdirs 2!
     init-included-files
 [ [THEN] ]
-    'cold
+\    'cold
 [ has-files [IF] ]
     argc @ 1 >
     IF

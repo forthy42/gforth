@@ -31,9 +31,6 @@ interpret/compile: S" ( compilation 'ccc"' -- ; run-time -- c-addr u )	\ core,fi
 :noname    ' >body postpone ALiteral postpone ! ;
 interpret/compile: IS ( addr "name" -- ) \ gforth
 
-' IS Alias TO ( addr "name" -- ) \ core-ext
-immediate
-
 :noname    ' >body @ ;
 :noname    ' >body postpone ALiteral postpone @ ;
 interpret/compile: What's ( "name" -- addr ) \ gforth
@@ -45,11 +42,14 @@ interpret/compile: ." ( compilation 'ccc"' -- ; run-time -- )  \ core	dot-quote
 \ DOES>                                                17mar93py
 
 :noname
-    align dodoes, here !does ]
+    dodoes, here !does ]
     defstart :-hook ;
 :noname
     ;-hook postpone (does>) ?struc dodoes,
     defstart :-hook ;
 interpret/compile: DOES>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ core	does
     
+' IS Alias TO ( addr "name" -- ) \ core-ext
+immediate
+
 

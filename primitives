@@ -600,7 +600,7 @@ n2 = 2*n1;
 /* !! is this still correct? */
 n2 = n1>>1;
 :
- dup U-HIGHBIT and IF 1 ELSE 0 THEN
+ dup MINI and IF 1 ELSE 0 THEN
  [ bits/byte cell * 1- ] literal 
  0 DO 2* swap dup 2* >r U-HIGHBIT and 
      IF 1 ELSE 0 THEN or r> swap

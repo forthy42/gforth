@@ -68,7 +68,7 @@ has-prims [IF]
     prims-include
     undef-words
     include primitives.fs
-    all-words
+    all-words  UNLOCK LOCK
 [THEN]
 doc-on
 

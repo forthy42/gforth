@@ -100,6 +100,7 @@ also Forth definitions
 [IFDEF] asm-include asm-include [THEN]
 
 previous
+hex
 
 >CROSS
 
@@ -245,6 +246,7 @@ VARIABLE VocTemp
 : <T  get-current VocTemp ! also Ghosts definitions ;
 : T>  previous VocTemp @ set-current ;
 
+hex
 4711 Constant <fwd>             4712 Constant <res>
 4713 Constant <imm>             4714 Constant <do:>
 
@@ -543,7 +545,7 @@ ghost over      ghost =         ghost drop      2drop drop
 \ generic threading modell
 : docol,  ( -- ) compile :docol T 0 , H ;
 
-: dodoes, ( -- ) compile :doesjump T 0 , H ;
+: dodoes, ( -- ) T cfalign H compile :doesjump T 0 , H ;
 
 [IFUNDEF] (code) 
 Defer (code)
@@ -553,7 +555,9 @@ Defer (end-code)
 >TARGET
 : Code
     (THeader there resolve
-    there 2 T cells H + T a, 0 , H
+    [ has-prims 0= [IF] ITC [ELSE] true [THEN] ] [IF]
+	there 2 T cells H + T a, 0 , H
+    [THEN]
     depth (code) ;
 
 : Code:
@@ -648,7 +652,7 @@ Cond: MAXI
   docol, depth T ] H ;
 
 : :noname ( -- colon-sys )
-  T align H there docol, depth T ] H ;
+  T cfalign H there docol, depth T ] H ;
 
 Cond: EXIT ( -- )  restrict?  compile ;S  ;Cond
 
@@ -669,7 +673,7 @@ Cond: [  restrict? state off ;Cond
 
 >TARGET
 Cond: DOES> restrict?
-        compile (does>) dodoes, tdoes @ ?dup IF  @ T here H resolve THEN
+	compile (does>) dodoes, tdoes @ ?dup IF  @ T here H resolve THEN
         ;Cond
 : DOES> dodoes, T here H !does depth T ] H ;
 
