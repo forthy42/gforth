@@ -50,18 +50,22 @@ $20 8 2* cells + 2 + cell+ constant word-pno-size ( -- u )
 \ initialized by COLD
 
 Create main-task  100 cells allot
-main-task tup H ! minimal
+
+\ set user-pointer from cross-compiler right
+main-task 
+UNLOCK tup ! LOCK
 
 Variable udp \ used by dovar:, must be variable
 
 AUser next-task        main-task next-task !
 AUser prev-task        main-task prev-task !
 AUser save-task        0 save-task !
-AUser s0 \ used by douser:, must be user
-AUser r0
-AUser f0
-AUser l0
-AUser handler
+AUser sp0 	\ used by douser:, must be user
+		' sp0 Alias s0
+AUser rp0	' rp0 Alias r0
+AUser fp0	' fp0 Alias f0
+AUser lp0	' lp0 Alias l0
+AUser handler	\ pointer to last throw frame
 \ AUser output
 \ AUser input
 
@@ -69,10 +73,12 @@ AUser errorhandler
 
 AUser "error            0 "error !
 
- User tibstack
- User >tib
- User #tib
- User >in               0 >in !
+[IFUNDEF] #tib		\ in ec-Version we may define this ourself
+ User tibstack		\ saves >tib in execute
+ User >tib		\ pointer to terminal input buffer
+ User #tib		\ chars in terminal input buffer
+ User >in               0 >in ! \ char number currently processed in tib
+[THEN]
  User blk               0 blk !
  User loadfile          0 loadfile !
 
