@@ -1,5 +1,5 @@
 \ CROSS.FS     The Cross-Compiler                      06oct92py
-\ $Id: cross.fs,v 1.2 1994-05-03 15:24:11 pazsan Exp $
+\ $Id: cross.fs,v 1.3 1994-05-05 15:46:38 pazsan Exp $
 \ Idea and implementation: Bernd Paysan (py)
 \ Copyright 1992 by the ANSI figForth Development Group
 
@@ -117,13 +117,6 @@ Variable bit$
 Variable tdp
 : there  tdp @ ;
 
-\ Constants                                            06apr93py
-
--2 Constant :docol
--3 Constant :docon
--4 Constant :dovar
--5 Constant :dodoes
-
 \ Parameter for target systems                         06oct92py
 
 include machine.fs
@@ -144,7 +137,9 @@ include machine.fs
 -2 Constant :docol
 -3 Constant :docon
 -4 Constant :dovar
--5 Constant :dodoes
+-5 Constant :douser
+-6 Constant :dodoes
+-7 Constant :doesjump
 
 >CROSS
 
@@ -228,7 +223,7 @@ CREATE Bittable 80 c, 40 c, 20 c, 10 c, 8 c, 4 c, 2 c, 1 c,
 : >body   ( cfa -- pfa ) T cell+ cell+ H ;
 >CROSS
 
-: dodoes, ( -- ) T 0 , 0 , H ;
+: dodoes, ( -- ) T :doesjump A, 0 , H ;
 
 \ Ghost Builder                                        06oct92py
 
@@ -562,16 +557,30 @@ Build: T 0 A, H ;
 by Create
 Builder AVariable
 
-Build: T 0 , H ;
-by Create
-Builder User
+\ User variables                                       04may94py
 
-Build: T 0 , 0 , H ;
-by Create
+>CROSS
+Variable tup  0 tup !
+Variable tudp 0 tudp !
+: u,  ( n -- udp )
+  tup @ tudp @ + T  ! H
+  tudp @ dup cell+ tudp ! ;
+: au, ( n -- udp )
+  tup @ tudp @ + T A! H
+  tudp @ dup cell+ tudp ! ;
+>TARGET
+
+Build: T 0 u, , H ;
+DO: ( ghost -- up-addr )  T @ H tup @ + ;DO
+Builder User
+by User :douser resolve
+
+Build: T 0 u, , 0 u, drop H ;
+by User
 Builder 2User
 
-Build: T 0 A, H ;
-by Create
+Build: T 0 au, , H ;
+by User
 Builder AUser
 
 Build:  ( n -- ) T , H ;
@@ -771,6 +780,8 @@ only forth also minimal definitions
 : decimal       decimal ;
 : hex           hex ;
 
+: tudp          T tudp H ;
+: tup           T tup H ;  minimal
 
 \ for debugging...
 : order         order ;

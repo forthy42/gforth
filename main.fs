@@ -40,6 +40,7 @@ include toolsext.fs
 \ Setup                                                13feb93py
 
 here dp !
+tudp H @ minimal udp !
 decimal
 
 \ 64 KB       0 cells !  \ total Space... defined above!

@@ -1,5 +1,5 @@
 /*
-  $Id: engine.c,v 1.3 1994-05-03 19:10:34 pazsan Exp $
+  $Id: engine.c,v 1.4 1994-05-05 15:46:42 pazsan Exp $
   Copyright 1992 by the ANSI figForth Development Group
 */
 
@@ -45,16 +45,18 @@ typedef struct F83Name {
 
 /* NEXT and NEXT1 are split into several parts to help scheduling */
 #ifdef DIRECT_THREADED
-#define NEXT1_P1 
-#define NEXT1_P2 ({goto *cfa;})
+#	define NEXT1_P1 
+#	define NEXT1_P2 ({goto *cfa;})
+#	define DEF_CA
 #else
-#define NEXT1_P1 ({ca = *cfa;})
-#define NEXT1_P2 ({goto *ca;})
+#	define NEXT1_P1 ({ca = *cfa;})
+#	define NEXT1_P2 ({goto *ca;})
+#	define DEF_CA	Label ca;
 #endif
 #define NEXT_P1 ({cfa = *ip++; NEXT1_P1;})
 
-#define NEXT1 ({Label ca; NEXT1_P1; NEXT1_P2;})
-#define NEXT ({Label ca; NEXT_P1; NEXT1_P2;})
+#define NEXT1 ({DEF_CA NEXT1_P1; NEXT1_P2;})
+#define NEXT ({DEF_CA NEXT_P1; NEXT1_P2;})
 
 #ifdef USE_TOS
 #define IF_TOS(x) x
@@ -70,7 +72,9 @@ typedef struct F83Name {
 #define FTOS (fp[0])
 #endif
 
-#define DODOES	(symbols[3])
+/*
+#define CA_DODOES	(symbols[DODOES])
+*/
 
 int emitcounter;
 #define NULLC '\0'
@@ -90,16 +94,16 @@ Label *engine(Xt *ip, Cell *sp, Cell *rp, Float *fp)
 {
   Xt cfa;
   Address lp=NULL;
+  Address up=NULL;
   static Label symbols[]= {
     &&docol,
     &&docon,
     &&dovar,
+    &&douser,
     &&dodoes,
+    &&docol,  /* dummy for does handler address */
 #include "prim_labels.i"
   };
-#ifndef DIRECT_THREADED
-/*  Label ca; */
-#endif
   IF_TOS(register Cell TOS;)
   IF_FTOS(Float FTOS;)
 #ifdef CPU_DEP
@@ -129,7 +133,7 @@ Label *engine(Xt *ip, Cell *sp, Cell *rp, Float *fp)
      problems with code fields employing calls and delay slots
   */
   {
-    Label ca;
+    DEF_CA
     Xt *current_ip = (Xt *)PFA1(cfa);
     cfa = *current_ip;
     NEXT1_P1;
@@ -164,6 +168,18 @@ Label *engine(Xt *ip, Cell *sp, Cell *rp, Float *fp)
   
   /* !! user? */
   
+ douser:
+#ifdef DEBUG
+  printf("user: %x\n",(Cell)PFA1(cfa));
+#endif
+#ifdef USE_TOS
+  *sp-- = TOS;
+  TOS = up+*(Cell*)PFA1(cfa);
+#else
+  *--sp = up+*(Cell*)PFA1(cfa);
+#endif
+  NEXT;
+  
  dodoes:
   /* this assumes the following structure:
      defining-word:
@@ -183,7 +199,7 @@ Label *engine(Xt *ip, Cell *sp, Cell *rp, Float *fp)
      
      */
 #ifdef DEBUG
-  printf("does: %x\n",(Cell)PFA(cfa));
+  printf("does: %x\n",(Cell)PFA(cfa)); fflush(stdout);
 #endif
   *--rp = (Cell)ip;
   /* PFA1 might collide with DOES_CODE1 here, so we use PFA */

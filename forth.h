@@ -1,11 +1,20 @@
 /*
-  $Id: forth.h,v 1.1 1994-02-11 16:30:46 anton Exp $
+  $Id: forth.h,v 1.2 1994-05-05 15:46:44 pazsan Exp $
   Copyright 1992 by the ANSI figForth Development Group
 */
 
 /* common header file */
 
 typedef void *Label;
+
+/* symbol indexed constants */
+
+#define DOCOL	0
+#define DOCON	1
+#define DOVAR	2
+#define DOUSER	3
+#define DODOES	4
+#define DOESJUMP	5
 
 #include "machine.h"
 
@@ -45,7 +54,7 @@ Label *engine(Xt *ip, Cell *sp, Cell *rp, Float *fp);
    ca is the code address */
 #define MAKE_CF(cfa,ca) ((*(Label *)(cfa)) = ((Label)ca))
 /* make a code field for a defining-word-defined word */
-#define MAKE_DOES_CF(cfa,does_code)	({MAKE_CF(cfa,DODOES);	\
+#define MAKE_DOES_CF(cfa,does_code)	({MAKE_CF(cfa,symbols[DODOES]);	\
 					  ((Cell *)cfa)[1] = (Cell)does_code;})
 /* the does handler resides between DOES> and the following Forth code */
 #define DOES_HANDLER_SIZE	8
@@ -53,7 +62,11 @@ Label *engine(Xt *ip, Cell *sp, Cell *rp, Float *fp);
 #endif
 
 #ifdef DEBUG
-#	define	NAME(string)	puts(string);
+#	define	NAME(string)	printf("%08x: %s\n",(int)ip,string);
 #else
 #	define	NAME(string)
 #endif
+
+#define CF(const)	(-const-2)
+
+#define CF_NIL	-1

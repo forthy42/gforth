@@ -1,5 +1,5 @@
 /*
-  $Id: decstation.h,v 1.1 1994-02-11 16:30:46 anton Exp $
+  $Id: decstation.h,v 1.2 1994-05-05 15:46:41 pazsan Exp $
   Copyright 1992 by the ANSI figForth Development Group
 
   This is the machine-specific part for a Decstation running Ultrix
@@ -51,9 +51,9 @@ typedef float SFloat;
 		/* CODE_ADDRESS is the address of the code jumped to through the code field */
 #		define CODE_ADDRESS(cfa)	((Label)(((*(unsigned *)(cfa))^JAL_PATTERN^(SEGMENT_NUM<<26))<<2))
 #		define MAKE_CF(cfa,ca)	({long *_cfa = (long *)(cfa); \
-					  long _ca = (long)(ca);
-						  _cfa[0] = JAL_PATTERN|(((((long)_ca)>>2)+4)&JUMP_MASK), /* JAL ca+4 */ \
-						  _cfa[1] = *(long *)_ca; /* delay slot */})
+					  long _ca = (long)(ca); \
+						  _cfa[0] = JAL_PATTERN|(((((long)_ca)>>2))&JUMP_MASK); /* JAL ca+4 */ \
+						  _cfa[1] = 0; /* *(long *)_ca; delay slot */})
 #	endif /* undefined */
 
 	/* this is the point where the does code starts if label points to the
@@ -64,13 +64,19 @@ typedef float SFloat;
 #	define DOES_CODE1(cfa)	DOES_CODE(cfa)
 
 #	define DOES_HANDLER_SIZE	8
+#	define MAKE_DOES_CF(cfa,does_code) \
+			({long does_handlerp=((long)(does_code))-DOES_HANDLER_SIZE; \
+			  long *_cfa = (long*)(cfa); \
+			  _cfa[0] = J_PATTERN|((does_handlerp&JUMP_MASK)>>2); /* J ca */ \
+			  _cfa[1] = 0; /* nop */})
+/*
 #	define MAKE_DOES_CF(cfa, does_code)	({char *does_handlerp=((char *)does_code)-DOES_HANDLER_SIZE;	\
 						  MAKE_CF(cfa,does_handlerp);	\
-						  MAKE_DOES_HANDLER(does_handlerp);})
+						  MAKE_DOES_HANDLER(does_handlerp) ;})
+*/
 	/* this stores a jump dodoes at addr */
-#	define MAKE_DOES_HANDLER(addr)	({long * _addr = (long *)addr; \
-					  _addr[0] = J_PATTERN|((((long)DODOES)>>2)&JUMP_MASK); /* J dodoes */ \
-					  _addr[1] = 0; /* nop */})
+#	define MAKE_DOES_HANDLER(addr)	MAKE_CF(addr,symbols[DODOES])
+
 #endif
 #ifdef undefined
 /* and here are some more efficient versions that can be tried later */
@@ -80,17 +86,19 @@ typedef float SFloat;
 */
 
 #define MAKE_DOESJUMP(addr)	({long * _addr = (long *)addr; \
-				  _addr[0] = J_PATTERN|(((((long)symbols[3])>>2)+4)&JUMP_MASK), /* J dodoes+4 */ \
-				  _addr[1] = *(long *)symbols[3]; /* delay */})
+				  _addr[0] = J_PATTERN|(((((long)symbols[DODOES])>>2)+4)&JUMP_MASK), /* J dodoes+4 */ \
+				  _addr[1] = *(long *)symbols[DODOES]; /* delay */})
 
 /* the following version uses JAL to make DOES_CODE1 faster */
 /* !! does the declaration clear the register ? */
 /* it's ok to use the same reg as in PFA1:
    dodoes is the only potential problem and I have taken care of it */
+
 #define DOES_CODE1(cfa)	({register Code *_does_code asm("$31"); \
 				    _does_code; })
 #define MAKE_DOESJUMP(addr)	({long * _addr = (long *)addr; \
-				  _addr[0] = JAL_PATTERN|(((((long)symbols[3])>>2)+4)&JUMP_MASK), /* JAL dodoes+4 */ \
-				  _addr[1] = *(long *)symbols[3]; /* delay */})
+				  _addr[0] = JAL_PATTERN|(((((long)symbols[DODOES])>>2)+4)&JUMP_MASK), /* JAL dodoes+4 */ \
+				  _addr[1] = *(long *)symbols[DODOES]; /* delay */})
 
 #endif
+

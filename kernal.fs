@@ -466,7 +466,7 @@ Create ???  ," ???"
 
 \ direct threading is implementation dependent
 
-: Create    Header reveal [ :dovar ] ALiteral cfa, ;
+: Create    Header reveal [ :dovar ] Literal cfa, ;
 
 \ DOES>                                                17mar93py
 
@@ -483,7 +483,7 @@ Create ???  ," ???"
 : User      Variable ;
 : AUser     AVariable ;
 
-: (Constant)  Header reveal [ :docon ] ALiteral cfa, ;
+: (Constant)  Header reveal [ :docon ] Literal cfa, ;
 : Constant  (Constant) , ;
 : AConstant (Constant) A, ;
 : 2Constant ( w1 w2 "name" -- ) \ double
@@ -511,10 +511,10 @@ Create ???  ," ???"
 
 : EXIT  ( -- )  postpone ;s ;  immediate
 
-: : ( -- colon-sys )  Header [ :docol ] ALiteral cfa, 0 ] ;
+: : ( -- colon-sys )  Header [ :docol ] Literal cfa, 0 ] ;
 : ; ( colon-sys -- )  ?struc postpone exit reveal postpone [ ;
   immediate restrict
-: :noname ( -- xt colon-sys )  here [ ' : @ ] ALiteral cfa, 0 ] ;
+: :noname ( -- xt colon-sys )  here [ :docol ] Literal cfa, 0 ] ;
 
 \ Search list handling                                 23feb93py
 
@@ -794,7 +794,7 @@ Variable argc
   ." ANS FORTH-93 (c) 1993 by the ANS FORTH-93 Team" cr quit ;
 
 : boot ( **env **argv argc -- )
-  argc ! argv ! env !
+  argc ! argv ! env !  main-task up!
   sp@ dup s0 ! $10 + >tib ! rp@ r0 !  fp@ f0 !  cold ;
 
 : bye  cr 0 (bye) ;

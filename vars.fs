@@ -23,6 +23,11 @@ FF Constant /line
 
 \ doesn't produce real user variables now, but normal variables
 
+Create main-task  100 cells allot
+main-task tup H ! minimal
+
+Variable udp
+
 AUser s0
 AUser r0
 AUser f0
@@ -48,7 +53,7 @@ AUser "error            0 "error !
  2User linestart        \ starting file postition of
                         \ the current interpreted line (in TIB)
 
- User base              $A base !
+ User base              A base !
  User dpl               -1 dpl !
 
  User state             0 state !

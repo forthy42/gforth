@@ -1,5 +1,5 @@
 /*
-  $Id: main.c,v 1.1 1994-02-11 16:30:46 anton Exp $
+  $Id: main.c,v 1.2 1994-05-05 15:46:48 pazsan Exp $
   Copyright 1993 by the ANSI figForth Development Group
 */
 
@@ -14,10 +14,14 @@
 #include <stdlib.h>
 #include "forth.h"
 
+#ifndef DEFAULTBIN
+#	define DEFAULTBIN ""
+#endif
+
 #ifdef DIRECT_THREADED
-#define CA(n)	(symbols[(n)])
+#	define CA(n)	(symbols[(n)])
 #else
-#define CA(n)	((int)(symbols+(n)))
+#	define CA(n)	((int)(symbols+(n)))
 #endif
 
 /* image file format:
@@ -32,31 +36,42 @@
  * If the word is >=0, the address is within the image;
  * addresses within the image are given relative to the start of the image.
  * If the word is =-1, the address is NIL,
- * If the word is between -2 and -4, it's a CFA (:, Create, Constant)
- * If the word is -5, it's a DOES> CFA
- * If the word is <-5, it's a primitive
+ * If the word is between -2 and -5, it's a CFA (:, Create, Constant, User)
+ * If the word is -6, it's a DOES> CFA
+ * If the word is -7, it's a DOES JUMP
+ * If the word is <-7, it's a primitive
  */
 
 void relocate(int *image, char *bitstring, int size, Label symbols[])
 {
 	int i;
 	static char bits[8]={0x80,0x40,0x20,0x10,0x08,0x04,0x02,0x01};
-	Label DODOES=symbols[3];
+
+#ifdef DEBUG
+	printf("Dodoes-Adresse: %08x\n",(int)symbols[DODOES]);
+#endif
 
 	for(i=0;i<size/sizeof(Cell);i++)
 		if(bitstring[i >> 3] & bits[i & 7])
 			if(image[i]<0)
-				if(image[i]==-1)
-					image[i]=0;
-				else if(image[i]>-5)
-					MAKE_CF(image+i,symbols[-image[i]-2]);
-				else if(image[i]==-5)
+				switch(image[i])
 				{
-					MAKE_DOES_CF(image+i,image[i+1]+((int)image));
-					i++; /* is this necessary? */
+					case CF_NIL     :
+						image[i]=0; break;
+					case CF(DOCOL)  :
+					case CF(DOVAR)  :
+					case CF(DOCON)  :
+					case CF(DOUSER) :
+						MAKE_CF(image+i,symbols[CF(image[i])]); break;
+					case CF(DODOES) :
+						MAKE_DOES_CF(image+i,image[i+1]+((int)image));
+						i++; break; /* is this necessary? */
+					case CF(DOESJUMP):
+						MAKE_DOES_HANDLER(image+i);
+						break;
+					default:
+						image[i]=(Cell)CA(CF(image[i]));
 				}
-				else
-					image[i]=(Cell)CA(-image[i]-2);
 			else
 				image[i]+=(Cell)image;
 }
@@ -120,7 +135,12 @@ int main(int argc, char **argv, char **env)
 			imagefile[strlen(imagefile)]='/';
 	}
 	else
-		imagefile[0]='\0';
+	{
+		strcpy(imagefile,DEFAULTBIN);
+
+		if(imagefile[0]!=0 && imagefile[strlen(imagefile)-1]!='/')
+			imagefile[strlen(imagefile)]='/';
+	}
 
 	if(argc>1 && argv[1][0]=='@')
 	{
