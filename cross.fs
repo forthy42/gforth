@@ -992,7 +992,7 @@ VARIABLE ^imm
 
 \ Target Document Creation (goes to crossdoc.fd)       05jul95py
 
-s" doc/crossdoc.fd" r/w create-file throw value doc-file-id
+s" ./doc/crossdoc.fd" r/w create-file throw value doc-file-id
 \ contains the file-id of the documentation file
 
 : T-\G ( -- )

@@ -18,14 +18,14 @@
 \ along with this program; if not, write to the Free Software
 \ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-include ~+/basics.fs
-include ~+/io.fs		\ basic io functions
+include ./basics.fs
+include ./io.fs		\ basic io functions
 has? interpreter [IF]
-include ~+/int.fs
+include ./int.fs
 has? compiler [IF]
-include ~+/comp.fs
+include ./comp.fs
 [THEN]
 [THEN]
-include ~+/accept.fs
-include ~+/license.fs
-include ~+/nio.fs
+include ./accept.fs
+include ./license.fs
+include ./nio.fs

@@ -73,7 +73,7 @@ The structure of one entry is:
 
 [THEN]
 
-require ~+/basic.fs
+require ./basic.fs
 
 also assembler definitions
 

@@ -744,4 +744,4 @@ c: rp! r> swap 2/ rp ! >r ;
 c: up@ up @ ;
 c: up! up ! ;
 
-include ~+/key.fs
+include ./key.fs

@@ -26,8 +26,9 @@ fpath= <path>|<path>	makes complete now searchpath
 			seperator is |
 .fpath			displays the search path
 remark I: 
-a ~+ in the beginning of filename is expanded to the directory the
-current file comes from. ~+ can also be included in the search-path!
+a ./ in the beginning of filename is expanded to the directory the
+current file comes from. ./ can also be included in the search-path!
+~+/ loads from the current directory
 
 remark II:
 if there is no sufficient space for the search path increase it!
@@ -142,9 +143,15 @@ Create tfile 0 c, 255 chars allot
         2dup + c@ pathsep? IF EXIT THEN
   REPEAT ;
 
+: remove~+ ( -- )
+    ofile count 3 min s" ~+/" compare 0=
+    IF
+	ofile count 3 /string ofile place
+    THEN ;
+
 : expandtopic
-  ofile count 2 min s" ~+" compare 0=
-  IF 	ofile count 2 /string tfile place
+  ofile count 2 min s" ./" compare 0=
+  IF 	ofile count 1 /string tfile place
 	0 ofile c! sourcefilename extractpath ofile place need/
 	tfile count over c@ pathsep? IF 1 /string THEN
 	ofile +place
@@ -187,7 +194,7 @@ Create tfile 0 c, 255 chars allot
   drop r> tuck - ;
 
 : reworkdir
-  expandtopic
+  remove~+
   ofile count compact// compact..
   nip ofile c! ;
 
@@ -204,7 +211,7 @@ Create tfile 0 c, 255 chars allot
   >r
   2dup absolut-path?
   IF    rdrop
-        ofile place reworkdir ofile count r/o open-file
+        ofile place expandtopic reworkdir ofile count r/o open-file
 	dup 0= IF >r ofile count r> THEN EXIT
   ELSE  r> path>counted
         BEGIN  next-path dup

@@ -1,7 +1,7 @@
 \ asmbasic.fs basic assebmler definitions
 
 [IFUNDEF] assembler Vocabulary assembler [THEN]
-require ~+/target.fs
+require ./target.fs
 [IFUNDEF] chained require chains.fs [THEN]
 
 \ ---------- Basic Definitions

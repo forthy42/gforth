@@ -353,6 +353,10 @@ constant type-description
 \ true if item has the same offset as the input TOS
  item-d-offset @ 1+ effect-in-size 2@ drop = ;
 
+: is-out-tos? ( item -- f )
+\ true if item has the same offset as the input TOS
+ item-d-offset @ 1+ effect-out-size 2@ drop = ;
+
 : really-store-single ( item -- )
  >r
  r@ item-d-offset @ effect-out-size 2@ data-stack-access ."  = (Cell)"
@@ -363,7 +367,7 @@ constant type-description
  >r
  r@ d-same-as-in?
  if
-   r@ is-in-tos?
+   r@ is-in-tos? r@ is-out-tos? xor
    if
      ." IF_TOS(" r@ really-store-single ." );" cr
    endif

@@ -1,5 +1,5 @@
 
-require ~+/zero.fs
+require ./zero.fs
 
 hex
 

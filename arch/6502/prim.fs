@@ -143,7 +143,7 @@ Code: :dodefer
 	Next1		JMP,
 end-code
 
-require ~+/zero.fs
+require ./zero.fs
 
 code: :douser
 	'3 dout
@@ -160,7 +160,7 @@ code: :douser
 			Next,
 end-code
 
-require ~+/softuart.fs
+require ./softuart.fs
 
 : up! up ! ;
 
