@@ -228,7 +228,7 @@ extern int gforth_memcmp(const char * s1, const char * s2, size_t n);
 /* normal engine */
 #define VARIANT(v)	(v)
 #define JUMP(target)	goto I_noop
-#define LABEL(name) I_##name:
+#define LABEL(name) H_##name: I_##name:
 
 #elif ENGINE==2
 /* variant with padding between VM instructions for finding out
@@ -236,7 +236,7 @@ extern int gforth_memcmp(const char * s1, const char * s2, size_t n);
 #define engine engine2
 #define VARIANT(v)	(v)
 #define JUMP(target)	goto I_noop
-#define LABEL(name) SKIP16; I_##name:
+#define LABEL(name) H_##name: SKIP16; I_##name:
 #define IN_ENGINE2
 
 #elif ENGINE==3
@@ -245,7 +245,7 @@ extern int gforth_memcmp(const char * s1, const char * s2, size_t n);
 #define engine engine3
 #define VARIANT(v)	((v)^0xffffffff)
 #define JUMP(target)	goto K_lit
-#define LABEL(name) I_##name:
+#define LABEL(name) H_##name: I_##name:
 #else
 #error illegal ENGINE value
 #endif /* ENGINE */
@@ -307,7 +307,11 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
 #undef INST_ADDR
     (Label)&&after_last,
     (Label)&&before_goto,
-    (Label)&&after_goto
+    (Label)&&after_goto,
+/* just mention the H_ labels, so the SKIP16s are not optimized away */
+#define INST_ADDR(name) ((Label)&&H_##name)
+#include PRIM_LAB_I
+#undef INST_ADDR
   };
 #ifdef CPU_DEP2
   CPU_DEP2
@@ -358,11 +362,12 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
   CPU_DEP3
 #endif
 
-  before_goto:
-  goto *real_ca;
-  after_goto:
-
 #include PRIM_I
   after_last: return (Label *)0;
   /*needed only to get the length of the last primitive */
+
+  before_goto:
+  goto *real_ca;
+  after_goto:
+  return (Label *)0;
 }

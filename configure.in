@@ -47,6 +47,18 @@ AC_ARG_ENABLE(force-ll,
 AC_DEFINE(FORCE_LL,,[Define if you want to use explicit long long declarations for better performance (does not work with all GCC versions on all machines)]))
 AC_SUBST(PROFEXES)
 AC_SUBST(PROFOBJS)
+
+AC_ARG_ENABLE(gcc-pr15242-workaround,
+              AC_HELP_STRING([--disable-gcc-pr15242-workaround],[Disables
+                             dynamic code generation on some versions of gcc
+                             (slowdown~2 on Athlon) and causes slower building
+                             of gforth (but gforth speedups) on others.
+                             (default enabled)]),
+		,enable_gcc_pr15242_workaround=yes)
+test "$enable_gcc_pr15242_workaround" = "no"||
+AC_DEFINE(GCC_PR15242_WORKAROUND,,[Define if you want to get dynamic code
+generation on gccs affected by PR15242])
+
 AC_ARG_ENABLE(prof,
 [  --enable-prof          Build gforth-prof, which outputs frequently occuring
                           sequences of primitives.],

@@ -91,8 +91,13 @@
 
 */
 
-#define GOTO(target) do {(real_ca=(target));} while(0)
+#ifdef GCC_PR15242_WORKAROUND
 #define DO_GOTO goto before_goto
+#else
+#define DO_GOTO goto *real_ca
+#endif
+
+#define GOTO(target) do {(real_ca=(target));} while(0)
 #define NEXT_P2 do {NEXT_P1_5; DO_GOTO;} while(0)
 #define EXEC(XT) do { EXEC1(XT); DO_GOTO;} while (0)
 #define NEXT do {DEF_CA NEXT_P1; NEXT_P2;} while(0)

@@ -212,6 +212,8 @@ const char const* const prim_names[]={
 #include PRIM_NAMES_I
 };
 
+void init_ss_cost(void);
+
 static int is_relocatable(int p)
 {
   return !no_dynamic && priminfos[p].start != NULL;
@@ -841,6 +843,7 @@ void check_prims(Label symbols1[])
   if (memcmp(goto_p[0],symbols2[goto_p-symbols1],goto_len)!=0) { /* unequal */
     no_dynamic=1;
     debugp(stderr,"  not relocatable, disabling dynamic code generation\n");
+    init_ss_cost();
     return;
   }
   goto_start = goto_p[0];
@@ -1258,6 +1261,16 @@ struct {
   { cost_lsu,      "lsu",      0 },
   { cost_nexts,    "nexts",    0 }
 };
+
+#ifndef NO_DYNAMIC
+void init_ss_cost(void) {
+  if (no_dynamic && ss_cost == cost_codesize) {
+    ss_cost = cost_nexts;
+    cost_sums[0] = cost_sums[1]; /* don't use cost_codesize for print-metrics */
+    debugp(stderr, "--no-dynamic conflicts with --ss-min-codesize, reverting to --ss-min-nexts\n");
+  }
+}
+#endif
 
 #define MAX_BB 128 /* maximum number of instructions in BB */
 #define INF_COST 1000000 /* infinite cost */
@@ -1901,11 +1914,7 @@ int main(int argc, char **argv, char **env)
 #ifdef HAS_OS
   gforth_args(argc, argv, &path, &imagename);
 #ifndef NO_DYNAMIC
-  if (no_dynamic && ss_cost == cost_codesize) {
-    ss_cost = cost_nexts;
-    cost_sums[0] = cost_sums[1]; /* don't use cost_codesize for print-metrics */
-    debugp(stderr, "--no-dynamic conflicts with --ss-min-codesize, reverting to --ss-min-nexts\n");
-  }
+  init_ss_cost();
 #endif /* !defined(NO_DYNAMIC) */
 #endif /* defined(HAS_OS) */
 

@@ -108,7 +108,7 @@ $100 cells allot
     repeat
     drop rdrop ;
 
-' disasm is discode
+\ ' disasm is discode \ disable it while it's not working
 
 
 : print-rep ( -- )
