@@ -19,7 +19,8 @@
 \ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
 
 
-\ This is not very nice (hard limits, no checking, assumes 1 chars = 1)
+\ This is not very nice (hard limits, no checking, assumes 1 chars = 1).
+\ And it grew even worse when it aged.
 
 \ Optimizations:
 \ superfluous stores are removed. GCC removes the superfluous loads by itself
@@ -59,6 +60,7 @@ include ./environ.fs
 include ./gray.fs
 
 32 constant max-effect \ number of things on one side of a stack effect
+4 constant max-stacks  \ the max. number of stacks (including inst-stream).
 255 constant maxchar
 maxchar 1+ constant eof-char
 #tab constant tab-char
@@ -77,11 +79,31 @@ variable line-start \ pointer to start of current line (for error messages)
 variable skipsynclines \ are sync lines ("#line ...") invisible to the parser?
 skipsynclines on 
 
+variable next-stack-number 0 next-stack-number !
+
 : start ( -- addr )
  cookedinput @ ;
 
 : end ( addr -- addr u )
  cookedinput @ over - ;
+
+: print-error-line ( -- )
+    \ print the current line and position
+    line-start @ endrawinput @ over - 2dup nl-char scan drop nip ( start end )
+    over - type cr
+    line-start @ rawinput @ over - typewhite ." ^" cr ;
+
+: ?print-error { f addr u -- }
+    f ?not? if
+	outfile-id >r try
+	    stderr to outfile-id
+	    filename 2@ type ." :" line @ 0 .r ." : " addr u type cr
+	    print-error-line
+	    0
+	recover endtry
+	r> to outfile-id throw
+	abort
+    endif ;
 
 : quote ( -- )
     [char] " emit ;
@@ -92,11 +114,10 @@ variable output \ xt ( -- ) of output word
  output @ execute ;
 
 struct%
+    cell%    field stack-number \ the number of this stack
     cell% 2* field stack-pointer \ stackpointer name
     cell% 2* field stack-cast \ cast string for assignments to stack elements
     cell%    field stack-in-index-xt \ ( in-size item -- in-index )
-    cell%    field stack-in  \ number of stack items in effect in
-    cell%    field stack-out \ number of stack items in effect out
 end-struct stack%
 
 struct%
@@ -123,6 +144,7 @@ end-struct type%
 
 : make-stack ( addr-ptr u1 addr-cast u2 "stack-name" -- )
     create stack% %allot >r
+    next-stack-number @ r@ stack-number !  1 next-stack-number +!
     save-mem r@ stack-cast 2!
     save-mem r@ stack-pointer 2! 
     ['] stack-in-index r> stack-in-index-xt ! ;
@@ -162,6 +184,8 @@ struct%
     item% max-effect * field prim-effect-out
     cell%    field prim-effect-in-end
     cell%    field prim-effect-out-end
+    cell% max-stacks * field prim-stacks-in  \ number of in items per stack
+    cell% max-stacks * field prim-stacks-out \ number of out items per stack
 end-struct prim%
 
 : make-prim ( -- prim )
@@ -170,6 +194,22 @@ end-struct prim%
     p ;
 
 0 value prim
+
+wordlist constant primitives
+
+: create-prim ( prim -- )
+    get-current >r
+    primitives set-current
+    dup prim-name 2@ nextname constant
+    r> set-current ;
+
+: stack-in ( stack -- addr )
+    \ address of number of stack items in effect in
+    stack-number @ cells prim prim-stacks-in + ;
+
+: stack-out ( stack -- addr )
+    \ address of number of stack items in effect out
+    stack-number @ cells prim prim-stacks-out + ;
 
 \ global vars
 variable c-line
@@ -703,6 +743,50 @@ does> ( item -- )
 \  spTOS = (Cell)_x_sp0;
 \  NEXT_P2;
 
+1000 constant max-combined
+create combined-prims max-combined cells allot
+variable num-combined
+
+create current-depth max-stacks cells allot
+create max-depth     max-stacks cells allot
+
+: init-combined ( -- )
+    0 num-combined !
+    current-depth max-stacks cells erase
+    max-depth     max-stacks cells erase ;
+
+: max! ( n addr -- )
+    tuck @ max swap ! ;
+
+: add-depths { p -- }
+    \ combine stack effect of p with *-depths
+    max-stacks 0 ?do
+	current-depth i cells + @
+	p prim-stacks-in  i cells + @ +
+	dup max-depth i cells + max!
+	p prim-stacks-out i cells + @ -
+	current-depth i cells + !
+    loop ;
+
+: add-prim ( addr u -- )
+    \ add primitive given by "addr u" to combined-prims
+    primitives search-wordlist s" unknown primitive" ?print-error
+    execute { p }
+    p combined-prims num-combined @ cells + !
+    1 num-combined +!
+    p add-depths ;
+
+: compute-effects { q -- }
+    \ compute the stack effects of q from the depths
+    max-stacks 0 ?do
+	max-depth i cells + @ dup
+	q prim-stacks-in i cells + !
+	current-depth i cells + @ -
+	q prim-stacks-out i cells + !
+    loop ;
+
+: process-combined ( -- )
+    prim compute-effects ;
 
 \ the parser
 
@@ -748,24 +832,8 @@ print-token !
     endif
     drop ;
 
-: print-error-line ( -- )
-    \ print the current line and position
-    line-start @ endrawinput @ over - 2dup nl-char scan drop nip ( start end )
-    over - type cr
-    line-start @ rawinput @ over - typewhite ." ^" cr ;
-    
 : ?nextchar ( f -- )
-    ?not? if
-	outfile-id >r try
-	    stderr to outfile-id
-	    filename 2@ type ." :" line @ 0 .r ." : syntax error, wrong char:"
-	    getinput . cr
-	    print-error-line
-	    0
-	recover endtry
-	r> to outfile-id throw
-	abort
-    endif
+    s" syntax error, wrong char" ?print-error
     rawinput @ endrawinput @ <> if
 	rawinput @ c@
 	1 chars rawinput +!
@@ -859,7 +927,7 @@ Variable c-flag
    {{ prim prim-effect-out }} stack-items {{ prim prim-effect-out-end ! }}
 )) <- stack-effect ( -- )
 
-((
+(( {{ prim create-prim }}
    ` ( white ** {{ start }} stack-effect {{ end prim prim-stack-string 2! }} ` ) white **
    (( {{ start }} forth-ident {{ end prim prim-wordset 2! }} white **
       (( {{ start }}  c-ident {{ end prim prim-c-name 2! }} )) ??
@@ -872,7 +940,9 @@ Variable c-flag
    (( nl || eof ))
 )) <- simple-primitive ( -- )
 
-(( ` = (( white ++ forth-ident )) ++ (( nl || eof ))
+(( {{ init-combined }}
+   ` = (( white ++ {{ start }} forth-ident {{ end add-prim }} )) ++
+   (( nl || eof )) {{ process-combined }}
 )) <- combined-primitive
 
 (( {{ make-prim to prim
