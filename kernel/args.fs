@@ -57,8 +57,8 @@ Variable argc ( -- addr ) \ gforth
     
 : shift-args ( -- ) \ gforth
 \g @code{1 arg} is deleted, shifting all following OS command line
-\g parameters to the left by 1, and reducing @code{argc @}.  This word
-\g can change @code{argv @}.
+\g parameters to the left by 1, and reducing @code{argc @@}.  This word
+\g can change @code{argv @@}.
     argc @ 1 > if
 	argv @ @ ( arg0 )
 	-1 argc +!

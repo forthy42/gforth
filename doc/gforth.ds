@@ -8528,7 +8528,7 @@ doc-block-included
 
 
 @c -------------------------------------------------------------
-@node Other I/O, Locals, Blocks, Words
+@node Other I/O, OS command line arguments, Blocks, Words
 @section Other I/O
 @cindex I/O - keyboard and display
 
@@ -8941,7 +8941,7 @@ doc-argc
 doc-argv
 
 @c -------------------------------------------------------------
-@node Locals, Structures, Other I/O, Words
+@node Locals, Structures, OS command line arguments, Words
 @section Locals
 @cindex locals
 
@@ -12134,11 +12134,12 @@ caught by @code{catch} (e.g., for restoring some state), and then
 
 @menu
 * ANS Report::                  Report the words used, sorted by wordset.
+* Stack depth changes::         Reports stack depth changes during interpretation
 @end menu
 
 See also @ref{Emacs and Gforth}.
 
-@node ANS Report,  , Tools, Tools
+@node ANS Report, Stack depth changes, Tools, Tools
 @section @file{ans-report.fs}: Report the words used, sorted by wordset
 @cindex @file{ans-report.fs}
 @cindex report the words used in your program
@@ -12183,7 +12184,7 @@ compilation semantics of @code{S"}, it is a Core word; if you also use
 its interpretation semantics, it is a File word.
 
 
-@node Stack depth changes
+@node Stack depth changes, , ANS Report, Tools
 @section Stack depth changes during interpretation
 @cindex @file{depth-changes.fs}
 @cindex depth changes during interpretation
