@@ -117,19 +117,19 @@ gforth-fi$(EXE):	$(OBJECTS_FI) $(AOBJECTS)
 	$(GCC) $(LDFLAGS) $(OBJECTS_FI) $(AOBJECTS) $(LDLIBS) -o $@
 
 engine.s:	$(ENGINE_DEPS)
-		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -S $(srcdir)/engine.c
+		$(GCC) -fno-gcse $(CFLAGS) $(ENGINE_FLAGS) -S $(srcdir)/engine.c
 
 engine.o:	$(ENGINE_DEPS)
-		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -DGFORTH_DEBUGGING -o $@ -c $(srcdir)/engine.c
+		$(GCC) -fno-gcse $(CFLAGS2) $(ENGINE_FLAGS) -DGFORTH_DEBUGGING -o $@ -c $(srcdir)/engine.c
 
 engine-fast.o:	$(ENGINE_DEPS)
-		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -o $@ -c $(srcdir)/engine.c
+		$(GCC) -fno-gcse $(CFLAGS) $(ENGINE_FLAGS) -o $@ -c $(srcdir)/engine.c
 
 engine-ditc.o:	$(ENGINE_DEPS)
-		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -DDOUBLY_INDIRECT -o $@ -c $(srcdir)/engine.c
+		$(GCC) -fno-gcse $(CFLAGS2) $(ENGINE_FLAGS) -DDOUBLY_INDIRECT -o $@ -c $(srcdir)/engine.c
 
 engine-prof.o:	$(ENGINE_DEPS)
-		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -DVM_PROFILING -o $@ -c $(srcdir)/engine.c
+		$(GCC) -fno-gcse $(CFLAGS2) $(ENGINE_FLAGS) -DVM_PROFILING -o $@ -c $(srcdir)/engine.c
 
 main.o:		main.c $(DEPS) 
 		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -DGFORTH_DEBUGGING -o $@ -c $(srcdir)/main.c

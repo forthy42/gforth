@@ -30,7 +30,7 @@
 #define THREADING_SCHEME 8
 #endif
 
-#if ((__GNUC__==2 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=95) || (__GNUC__>2))
+#if ((__GNUC__==2 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=95))
 #if !defined(USE_TOS) && !defined(USE_NO_TOS)
 #define USE_TOS
 #endif
@@ -129,15 +129,24 @@
 #if ((__GNUC__==2 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=95) || (__GNUC__>2))
      /* gcc 2.95 has a better register allocater */
 #define SPREG asm("%esi")
-#define RPREG asm("%edi")
 #define TOSREG asm("%ebx")
+#if (__GNUC__>2)
+#define IPREG asm("%edi")
+/* ebp leads to broken code; eax, ecx, edx produce compile errors */
 #else
+/* gcc-2.95 manages to fit ip into ebp by itself */
+#define RPREG asm("%edi")
+#endif
+#else /* gcc-2.95 or later */
 #define IPREG asm("%ebx")
 #endif
 #else
 #if ((__GNUC__==2 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=95) || (__GNUC__>2))
 #define SPREG asm("%esi")
 #define RPREG asm("%edi")
+#if (__GNUC__>2)
+#define IPREG asm("%ebx")
+#endif
 #else
 #define SPREG asm("%ebx")
 #endif
