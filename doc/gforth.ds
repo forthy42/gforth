@@ -411,6 +411,7 @@ Assembler and Code Words
 Tools
 
 * ANS Report::                  Report the words used, sorted by wordset.
+* Stack depth changes::         Where does this stack item come from?
 
 ANS conformance
 
@@ -11713,20 +11714,39 @@ kept in memory in @code{gforth} and, on most platforms, in a register in
 
 @node  Common Disassembler, 386 Assembler, Common Assembler, Assembler and Code Words
 @subsection Common Disassembler
+@cindex disassembler, general
+@cindex gdb disassembler
 
 You can disassemble a @code{code} word with @code{see}
 (@pxref{Debugging}).  You can disassemble a section of memory with
 
-doc-disasm
+doc-discode
 
-The disassembler generally produces output that can be fed into the
+There are two kinds of disassembler for Gforth: The Forth disassembler
+(available on some CPUs) and the gdb disassembler (available on
+platforms with @command{gdb} and @command{mktemp}).  If both are
+available, the Forth disassembler is used by default.  If you prefer
+the gdb disassembler, say
+
+@example
+' disasm-gdb is discode
+@end example
+
+If neither is available, @code{discode} performs @code{dump}.
+
+The Forth disassembler generally produces output that can be fed into the
 assembler (i.e., same syntax, etc.).  It also includes additional
 information in comments.  In particular, the address of the instruction
 is given in a comment before the instruction.
 
+The gdb disassembler produces output in the same format as the gdb
+@code{disassemble} command (@pxref{Machine Code,,Source and machine
+code,gdb,Debugging with GDB}), in the default flavour (AT&T syntax for
+the 386 and AMD64 architectures).
+
 @code{See} may display more or less than the actual code of the word,
 because the recognition of the end of the code is unreliable.  You can
-use @code{disasm} if it did not display enough.  It may display more, if
+use @code{discode} if it did not display enough.  It may display more, if
 the code word is not immediately followed by a named word.  If you have
 something else there, you can follow the word with @code{align latest ,}
 to ensure that the end is recognized.
@@ -12134,7 +12154,7 @@ caught by @code{catch} (e.g., for restoring some state), and then
 
 @menu
 * ANS Report::                  Report the words used, sorted by wordset.
-* Stack depth changes::         Reports stack depth changes during interpretation
+* Stack depth changes::         Where does this stack item come from?
 @end menu
 
 See also @ref{Emacs and Gforth}.
@@ -12184,7 +12204,7 @@ compilation semantics of @code{S"}, it is a Core word; if you also use
 its interpretation semantics, it is a File word.
 
 
-@node Stack depth changes, , ANS Report, Tools
+@node Stack depth changes,  , ANS Report, Tools
 @section Stack depth changes during interpretation
 @cindex @file{depth-changes.fs}
 @cindex depth changes during interpretation

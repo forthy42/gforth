@@ -98,8 +98,9 @@ AUser CSP
     ur compile-fliterals uw compile-literals
     target compile, POSTPONE exit reveal ;
 
-: const-does> ( run-time: w*uw r*ur uw ur "name" -- )
-    \G Defines @var{name} and returns.@sp 0
+: const-does> ( run-time: w*uw r*ur uw ur "name" -- ) \ gforth
+    \G Defines @var{name} and returns.
+    \G  
     \G @var{name} execution: pushes @var{w*uw r*ur}, then performs the
     \G code following the @code{const-does>}.
     here >r 0 POSTPONE literal
