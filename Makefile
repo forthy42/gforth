@@ -5,9 +5,9 @@ GCC	= gcc
 FORTH	= gforth
 CC	= gcc
 SWITCHES = \
-	-fno-defer-pop -fcaller-saves \
-	-D_POSIX_VERSION -DUSE_TOS -DUSE_FTOS -DDEFAULTBIN='"'`pwd`'"' \
-	#-DDIRECT_THREADED #-DNDEBUG #turn off assertions
+	-fno-defer-pop -fcaller-saves -m486 \
+	-D_POSIX_VERSION -DUSE_FTOS \
+	#-DDIRECT_THREADED #-DFORCE_REG #-DNDEBUG #turn off assertions
 CFLAGS	= -O4 -Wall -g $(SWITCHES)
 
 #-Xlinker -n puts text and data into the same 256M region

@@ -15,7 +15,6 @@
 \ 5) Words that call NEXT themselves have to be done very carefully.
 \
 \ To do:
-\ add the store optimization for doubles
 \ regarding problem 1 above: It would be better (for over) to implement
 \ 	the alternative
 
@@ -524,7 +523,7 @@ set-current
  ." NEXT_P1;" cr
  stores
  fill-tos
- ." NEXT1_P2;" cr
+ ." NEXT_P2;" cr
  ." }" cr
  cr
 ;

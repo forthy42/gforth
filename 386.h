@@ -1,5 +1,5 @@
 /*
-  $Id: 386.h,v 1.2 1994-05-18 17:32:59 pazsan Exp $
+  $Id: 386.h,v 1.3 1994-09-08 17:20:03 anton Exp $
   Copyright 1992 by the ANSI figForth Development Group
 
   This is the machine-specific part for Intel 386 compatible processors
@@ -25,6 +25,10 @@ typedef float SFloat;
 
 /* define this if the least-significant byte is at the largets address */
 /* #define BIG_ENDIAN */
+
+/* define this if the processor cannot exploit instruction-level
+   parallelism and/or has few registers */
+#define CISC_NEXT
 
 #ifdef DIRECT_THREADED
 /* PFA gives the parameter field address corresponding to a cfa */
@@ -55,6 +59,3 @@ typedef float SFloat;
 #endif
 
 #define rint(x)	floor((x)+0.5)
-/*
-#define CISC_NEXT
-*/

@@ -1,5 +1,5 @@
 /*
-  $Id: engine.c,v 1.13 1994-08-31 19:42:44 pazsan Exp $
+  $Id: engine.c,v 1.14 1994-09-08 17:20:05 anton Exp $
   Copyright 1992 by the ANSI figForth Development Group
 */
 
@@ -41,29 +41,34 @@ typedef struct F83Name {
 #define F83NAME_SMUDGE(np)	(((np)->countetc & 0x40) != 0)
 #define F83NAME_IMMEDIATE(np)	(((np)->countetc & 0x20) != 0)
 
-/* NEXT and NEXT1 are split into several parts to help scheduling */
+/* NEXT and NEXT1 are split into several parts to help scheduling,
+   unless CISC_NEXT is defined */
+#ifdef CISC_NEXT
+#define NEXT1_P1
+#define NEXT_P1
+#define DEF_CA
 #ifdef DIRECT_THREADED
-#	define NEXT1_P1
-#	ifdef i386
-#		define NEXT1_P2 ({cfa=*ip++; goto *cfa;})
-#	else
-#		define NEXT1_P2 ({goto *cfa;})
-#	endif
-#	define DEF_CA
+#define NEXT1_P2 ({goto *cfa;})
 #else
-#	define NEXT1_P1 ({ca = *cfa;})
-#	define NEXT1_P2 ({goto *ca;})
-#	define DEF_CA	Label ca;
-#endif
-#if defined(i386) && defined(DIRECT_THREADED)
-#	define NEXT_P1
-#	define NEXT1 ({goto *cfa;})
-#else
-#	define NEXT_P1 ({cfa = *ip++; NEXT1_P1;})
-#	define NEXT1 ({DEF_CA NEXT1_P1; NEXT1_P2;})
-#endif
+#define NEXT1_P2 ({goto **cfa;})
+#endif /* DIRECT_THREADED */
+#define NEXT_P2 ({cfa = *ip++; NEXT1_P2;})
+#else /* CISC_NEXT */
+#ifdef DIRECT_THREADED
+#define NEXT1_P1
+#define NEXT1_P2 ({goto *cfa;})
+#define DEF_CA
+#else /* DIRECT_THREADED */
+#define NEXT1_P1 ({ca = *cfa;})
+#define NEXT1_P2 ({goto *ca;})
+#define DEF_CA	Label ca;
+#endif /* DIRECT_THREADED */
+#define NEXT_P1 ({cfa=*ip++; NEXT1_P1;})
+#define NEXT_P2 NEXT1_P2
+#endif /* CISC_NEXT */
 
-#define NEXT ({DEF_CA NEXT_P1; NEXT1_P2;})
+#define NEXT1 ({DEF_CA NEXT1_P1; NEXT1_P2;})
+#define NEXT ({DEF_CA NEXT_P1; NEXT_P2;})
 
 #ifdef USE_TOS
 #define IF_TOS(x) x
@@ -82,28 +87,34 @@ typedef struct F83Name {
 int emitcounter;
 #define NULLC '\0'
 
-#ifdef copycstr
-#   define cstr(to,from,size)\
-	{	memcpy(to,from,size);\
-		to[size]=NULLC;}
-#else
-char scratch[1024];
-int soffset;
-#   define cstr(from,size) \
-           ({ char * to = scratch; \
-	      memcpy(to,from,size); \
-	      to[size] = NULLC; \
-	      soffset = size+1; \
-	      to; \
-	   })
-#   define cstr1(from,size) \
-           ({ char * to = scratch+soffset; \
-	      memcpy(to,from,size); \
-	      to[size] = NULLC; \
-	      soffset += size+1; \
-	      to; \
-	   })
-#endif
+char *cstr(Char *from, UCell size, int clear)
+/* if clear is true, scratch can be reused, otherwise we want more of
+   the same */
+{
+  static char *scratch=NULL;
+  static unsigned scratchsize=0;
+  static char *nextscratch;
+  char *oldnextscratch;
+
+  if (clear)
+    nextscratch=scratch;
+  if (scratch==NULL) {
+    scratch=malloc(size+1);
+    nextscratch=scratch;
+    scratchsize=size;
+  }
+  else if (nextscratch+size>scratch+scratchsize) {
+    char *oldscratch=scratch;
+    scratch = realloc(scratch, (nextscratch-scratch)+size+1);
+    nextscratch=scratch+(nextscratch-oldscratch);
+    scratchsize=size;
+  }
+  memcpy(nextscratch,from,size);
+  nextscratch[size]='\0';
+  oldnextscratch = nextscratch;
+  nextscratch += size+1;
+  return oldnextscratch;
+}
 
 #define NEWLINE	'\n'
 

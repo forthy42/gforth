@@ -1,5 +1,5 @@
 /*
-  $Id: main.c,v 1.10 1994-09-05 17:36:22 anton Exp $
+  $Id: main.c,v 1.11 1994-09-08 17:20:09 anton Exp $
   Copyright 1993 by the ANSI figForth Development Group
 */
 
@@ -15,10 +15,6 @@
 #include "forth.h"
 #include "io.h"
 #include "getopt.h"
-
-#ifndef DEFAULTBIN
-#	define DEFAULTBIN ""
-#endif
 
 #ifndef DEFAULTPATH
 #	define DEFAULTPATH "/usr/local/lib/gforth:."

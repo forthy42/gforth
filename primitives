@@ -608,15 +608,15 @@ deprep_terminal();
 return (Label *)n;
 
 system	c_addr u -- n	own
-n=system(cstr(c_addr,u));
+n=system(cstr(c_addr,u,1));
 
 getenv	c_addr1 u1 -- c_addr2 u2	new
-c_addr2 = getenv(cstr(c_addr1,u1));
+c_addr2 = getenv(cstr(c_addr1,u1,1));
 u2=strlen(c_addr2);
 
 popen	c_addr u n -- wfileid	own
 static char* mode[2]={"r","w"};
-wfileid=(Cell)popen(cstr(c_addr,u),mode[n]);
+wfileid=(Cell)popen(cstr(c_addr,u,1),mode[n]);
 
 pclose	wfileid -- wior		own
 wior=pclose((FILE *)wfileid);
@@ -713,12 +713,12 @@ close-file	wfileid -- wior	file	close_file
 wior = FILEIO(fclose((FILE *)wfileid)==EOF);
 
 open-file	c_addr u ntype -- w2 wior	file	open_file
-w2 = (Cell)fopen(cstr(c_addr, u), fileattr[ntype]);
+w2 = (Cell)fopen(cstr(c_addr, u,1), fileattr[ntype]);
 wior =  FILEEXIST(w2 == NULL);
 
 create-file	c_addr u ntype -- w2 wior	file	create_file
 int	fd;
-fd = creat(cstr(c_addr, u), 0644);
+fd = creat(cstr(c_addr, u,1), 0644);
 if (fd > -1) {
   w2 = (Cell)fdopen(fd, fileattr[ntype]);
   assert(w2 != NULL);
@@ -730,10 +730,11 @@ if (fd > -1) {
 }
 
 delete-file	c_addr u -- wior		file	delete_file
-wior = FILEEXIST(unlink(cstr(c_addr, u)));
+wior = FILEEXIST(unlink(cstr(c_addr, u,1)));
 
 rename-file	c_addr1 u1 c_addr2 u2 -- wior	file-ext	rename_file
-wior = FILEEXIST(rename(cstr1(c_addr1, u1), cstr(c_addr2, u2)));
+char *s1=cstr(c_addr2, u2,1);
+wior = FILEEXIST(rename(cstr(c_addr1, u1, 0), s1));
 
 file-position	wfileid -- ud wior	file	file_position
 /* !! use tell and lseek? */
@@ -905,7 +906,7 @@ memmove(c_addr,sig,u);
 >float	c_addr u -- flag	float	to_float
 /* real signature: c_addr u -- r t / f */
 Float r;
-char *number=cstr(c_addr, u);
+char *number=cstr(c_addr, u, 1);
 char *endconv;
 r=strtod(number,&endconv);
 if((flag=FLAG(!(int)*endconv)))
