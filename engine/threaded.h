@@ -105,8 +105,8 @@
 #  define NEXT_P1	({\
   if (DEBUG_DITC && (cfa<=vm_prims+DOESJUMP || cfa>=vm_prims+npriminfos)) \
     fprintf(stderr,"NEXT encountered prim %p at ip=%p\n", cfa, ip); \
-  ip++; ca=**cfa;})
-#  define NEXT_P2	({goto *ca;})
+  ip++;})
+#  define NEXT_P2	({ca=**cfa; goto *ca;})
 #  define EXEC(XT)	({DEF_CA cfa=(XT);\
   if (DEBUG_DITC && (cfa>vm_prims+DOESJUMP && cfa<vm_prims+npriminfos)) \
     fprintf(stderr,"EXEC encountered xt %p at ip=%p, vm_prims=%p, xts=%p\n", cfa, ip, vm_prims, xts); \

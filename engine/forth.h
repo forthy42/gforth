@@ -171,7 +171,7 @@ typedef Label *Xt;
 #if defined(DOUBLY_INDIRECT)
 #define MAKE_DOES_HANDLER(addr)	MAKE_CF(addr, ((Label)&symbols[DOESJUMP]))
 #else /* !defined(DOUBLY_INDIRECT) */
-#define MAKE_DOES_HANDLER(addr)	0
+#define MAKE_DOES_HANDLER(addr)	((void)0)
 #endif /* !defined(DOUBLY_INDIRECT) */
 
 #ifdef GFORTH_DEBUGGING
@@ -236,6 +236,8 @@ typedef struct {
 /* the image-header is created in main.fs */
 
 Label *engine(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp);
+Label *engine2(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp);
+Label *engine3(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp);
 Address my_alloc(Cell size);
 char *cstr(Char *from, UCell size, int clear);
 char *tilde_cstr(Char *from, UCell size, int clear);

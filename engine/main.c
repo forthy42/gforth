@@ -184,13 +184,15 @@ int gforth_memcmp(const char * s1, const char * s2, size_t n)
 
 static Cell groups[32] = {
   0,
+#undef GROUP
 #define GROUP(x, n) DOESJUMP+1+n,
 #include "prim_grp.i"
+#undef GROUP
 #define GROUP(x, n)
 };
 
 void relocate(Cell *image, const char *bitstring, 
-              int size, int base, Label symbols[])
+              int size, Cell base, Label symbols[])
 {
   int i=0, j, k, steps=(size/sizeof(Cell))/RELINFOBITS;
   Cell token;
@@ -522,8 +524,10 @@ typedef struct {
 PrimInfo *priminfos;
 PrimInfo **decomp_prims;
 
-int compare_priminfo_length(PrimInfo **a, PrimInfo **b)
+int compare_priminfo_length(const void *_a, const void *_b)
 {
+  PrimInfo **a = (PrimInfo **)_a;
+  PrimInfo **b = (PrimInfo **)_b;
   Cell diff = (*a)->length - (*b)->length;
   if (diff)
     return diff;
@@ -540,10 +544,12 @@ Cell npriminfos=0;
 void check_prims(Label symbols1[])
 {
   int i;
+#ifndef NO_DYNAMIC
   Label *symbols2, *symbols3, *ends1;
   static char superend[]={
 #include "prim_superend.i"
   };
+#endif
 
   if (debug)
 #ifdef __VERSION__
@@ -715,13 +721,14 @@ int forget_dyncode(Address code)
 #endif /* !defined(NO_DYNAMIC) */
 }
 
-Label decompile_code(Label code)
+Label decompile_code(Label _code)
 {
 #ifdef NO_DYNAMIC
-  return code;
+  return _code;
 #else /* !defined(NO_DYNAMIC) */
   Cell i;
   struct code_block_list *p;
+  Address code=_code;
 
   /* first, check if we are in code at all */
   for (p = code_block_list;; p = p->next) {
@@ -822,7 +829,7 @@ void compile_prim1(Cell *start)
     *start=(Cell)prim;
     return;
   } else {
-    *start = prim-((Label)xts)+((Label)vm_prims);
+    *start = (Cell)(prim-((Label)xts)+((Label)vm_prims));
     return;
   }
 #elif defined(NO_IP)
@@ -1009,12 +1016,12 @@ Address loader(FILE *imagefile, char* filename)
   alloc_stacks((ImageHeader *)imp);
   if (clear_dictionary)
     memset(imp+header.image_size, 0, dictsize-header.image_size);
-  if(header.base==0 || header.base  == 0x100) {
+  if(header.base==0 || header.base  == (Address)0x100) {
     Cell reloc_size=((header.image_size-1)/sizeof(Cell))/8+1;
     char reloc_bits[reloc_size];
     fseek(imagefile, preamblesize+header.image_size, SEEK_SET);
     fread(reloc_bits, 1, reloc_size, imagefile);
-    relocate((Cell *)imp, reloc_bits, header.image_size, header.base, vm_prims);
+    relocate((Cell *)imp, reloc_bits, header.image_size, (Cell)header.base, vm_prims);
 #if 0
     { /* let's see what the relocator did */
       FILE *snapshot=fopen("snapshot.fi","wb");
