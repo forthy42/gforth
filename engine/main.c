@@ -140,7 +140,7 @@ char *progname = "gforth";
 int optind = 1;
 #endif
 
-#define CODE_BLOCK_SIZE (256*1024)
+#define CODE_BLOCK_SIZE (4096*1024) /* !! overflow handling for -native */
 Address code_area=0;
 Cell code_area_size = CODE_BLOCK_SIZE;
 Address code_here=NULL+CODE_BLOCK_SIZE; /* does for code-area what HERE
@@ -1060,7 +1060,6 @@ void register_branchinfo(Label source, Cell targetptr)
 
 Cell *compile_prim1arg(PrimNum p)
 {
-  int l = priminfos[p].length;
   Address old_code_here=code_here;
 
   assert(vm_prims[p]==priminfos[p].start);
