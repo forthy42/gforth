@@ -1528,6 +1528,8 @@ bigendian
   2drop 0 ;
 
 : taddr>region-abort ( taddr -- region | 0 )
+\G Same as taddr>region but aborts if taddr is not
+\G a valid address in the target address space
   dup taddr>region dup 0= 
   IF    drop cr ." Wrong address: " .addr
         -1 ABORT" Address out of range!"
@@ -1830,25 +1832,28 @@ Defer resolve-warning
 
 0 Value resolved
 
-: resolve  ( ghost tcfa -- )
-\G resolve referencies to ghost with tcfa
-    dup taddr>region 0<> IF
-      2dup (>regiontype) define-addr-struct addr-xt-ghost 
+: resolve-forward-references ( ghost resolve-list -- )
+    \ loop through forward referencies
+    comp-state @ >r Resolving comp-state !
+    over >link @ resolve-loop 
+    r> comp-state !
 
+    ['] noop IS resolve-warning ;
+
+
+: (resolve) ( ghost tcfa -- ghost resolve-list )
+    \ check for a valid address, it is a primitive reference
+    \ otherwise
+    dup taddr>region 0<> IF
+      \ define this address in the region address type table
+      2dup (>regiontype) define-addr-struct addr-xt-ghost 
       \ we define new address only if empty
       \ this is for not to take over the alias ghost
       \ (different ghost, but identical xt)
       \ but the very first that really defines it
       dup @ 0= IF ! ELSE 2drop THEN
     THEN
-
-    \ is ghost resolved?, second resolve means another 
-    \ definition with the same name
-    over undefined? 0= IF  exists EXIT THEN
-    \ get linked-list
-    swap >r r@ >link @ swap \ ( list tcfa R: ghost )
-    \ mark ghost as resolved
-    dup r@ >link ! <res> r@ >magic !
+    swap >r
     r@ to resolved
 
 \    r@ >comp @ ['] is-forward =
@@ -1858,16 +1863,33 @@ Defer resolve-warning
     \ if this is not right something must be set before
     \ calling resolve
     r@ >comp @ ['] is-forward = IF
-        ['] colon-resolved r@ >comp !
-    THEN
-    \ loop through forward referencies
-    r> -rot 
-    comp-state @ >r Resolving comp-state !
-    resolve-loop 
-    r> comp-state !
+       ['] colon-resolved r@ >comp !
+   THEN
+    r@ >link @ swap \ ( list tcfa R: ghost )
+    \ mark ghost as resolved
+    r@ >link ! <res> r@ >magic !
+    r> swap ;
 
-    ['] noop IS resolve-warning 
-  ;
+: resolve  ( ghost tcfa -- )
+\G resolve referencies to ghost with tcfa
+    \ is ghost resolved?, second resolve means another 
+    \ definition with the same name
+    over undefined? 0= IF  exists EXIT THEN
+    (resolve)
+    ( ghost resolve-list )
+    resolve-forward-references ;
+
+: resolve-noforwards ( ghost tcfa -- )
+\G Same as resolve but complain if there are any
+\G forward references on this ghost
+   \ is ghost resolved?, second resolve means another 
+   \ definition with the same name
+   over undefined? 0= IF  exists EXIT THEN
+   (resolve)
+   IF cr ." No forward references allowed on: " .ghost cr
+      -1 ABORT" Illegal forward reference"
+   THEN
+   drop ;
 
 \ gexecute ghost,                                      01nov92py
 
@@ -2188,7 +2210,7 @@ Defer setup-prim-semantics
 
 : mapprim:   ( "forthname" "asmlabel" -- ) 
   -1 aprim-nr +! aprim-nr @
-  Ghost tuck swap resolve <do:> swap tuck >magic !
+  Ghost tuck swap resolve-noforwards <do:> swap tuck >magic !
   asmprimname, ;
 
 : Doer:   ( cfa -- ) \ name
@@ -2198,7 +2220,7 @@ Defer setup-prim-semantics
       .sourcepos ." needs doer: " >in @ bl word count type >in ! cr
   THEN
   Ghost
-  tuck swap resolve <do:> swap >magic ! ;
+  tuck swap resolve-noforwards <do:> swap >magic ! ;
 
 Variable prim#
 : first-primitive ( n -- )  prim# ! ;
@@ -2211,7 +2233,7 @@ Variable prim#
   prim# @ (THeader ( S xt ghost )
   ['] prim-resolved over >comp !
   dup >ghost-flags <primitive> set-flag
-  over resolve T A, H alias-mask flag!
+  over resolve-noforwards T A, H alias-mask flag!
   -1 prim# +! ;
 >CROSS
 
@@ -2333,7 +2355,7 @@ Defer (end-code)
   defempty?
   (THeader ( ghost )
   ['] prim-resolved over >comp !
-  there resolve
+  there resolve-noforwards
   
   [ T e? prims H 0= [IF] T e? ITC H [ELSE] true [THEN] ] [IF]
   doprim, 
@@ -2345,7 +2367,7 @@ Defer (end-code)
 : Code:
   defempty?
     Ghost >r 
-    r@ there ca>native resolve  
+    r@ there ca>native resolve-noforwards
     <do:> r@ >magic !
     r> drop
     depth (code) ;
@@ -3533,6 +3555,7 @@ previous
 : rot rot ;
 : drop drop ;
 : =   = ;
+: <>  <> ;
 : 0=   0= ;
 : lshift lshift ;
 : 2/ 2/ ;
@@ -3587,6 +3610,7 @@ previous
 \ : words 	also ghosts 
 \                words previous ;
 : .s            .s ;
+: depth         depth ;
 : bye           bye ;
 
 \ dummy
