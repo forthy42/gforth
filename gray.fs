@@ -1,64 +1,60 @@
-\ Copyright 1990 Martin Anton Ertl
-\
-\ TERMS AND CONDITIONS FOR USE, COPYING, MODIFICATION AND DISTRIBUTION
-\ 
-\ 1. You may use this product provided that
-\    a) you DO NOT USE IT FOR MILITARY PURPOSES; and
-\    b) cause the terms of parapraph 1 to apply to any products
-\    developed using this product and make these terms known to all
-\    users of such product;
-\ By using this product, you indicate the acceptance of the terms of
-\ this paragraph.
-\ 
-\ 2. Except for the restrictions mentioned in paragraph 1, you may use
-\ the Program.
-\ 
-\ 3. You may distribute verbatim or modified copies of this program,
-\ provided that
-\    a) you keep intact all copyright notices, this license, and the notices
-\    referring to this license and to the absence of warranty; and
-\    b) you cause any work that you distribute or publish that contains the
-\    Program or part of it to be licensed to all third parties under the
-\    terms of this license. You may not impose any further restriction
-\    on the recipients exercise of the rights granted herein. Mere
-\    aggregation of another independent work with the Program or its
-\    derivative on a volume of storage or distribution medium does not
-\    bring the other work under the scope of these terms; and
-\    c) you cause the derivative to carry prominent notices saying that
-\    you changed the Program.
-\ 
-\ 4. You may distribute the Program or its derivative in intermediate,
-\ object or executable code, if you accompany it with the complete
-\ machine-readable source code.
-\ 
-\ 5. By using, modifying, copying or distributing the Program you
-\ indicate your acceptance of this license and all its terms and
-\ conditions.
-\ 
-\ 6. This Program is provided WITHOUT WARRANTY of any kind, either
-\ express or implied, including, but not limited to, the implied
-\ warranties of merchantability and fitness for a particular purpose. In
-\ no event, unless required by applicable law or agreed to in writing,
-\ will any copyright holder, or any other party who may modify and or
-\ redistribute the Program, be liable to you for any damages, even if
-\ such holder or other party has been advised of the possibility of such
-\ damages.
-\ END OF TERMS AND CONDITIONS )
+\ Copyright 1990, 1991, 1994 Martin Anton Ertl
+
+\     This program is free software; you can redistribute it and/or modify
+\     it under the terms of the GNU General Public License as published by
+\     the Free Software Foundation; either version 2 of the License, or
+\     (at your option) any later version.
+
+\     This program is distributed in the hope that it will be useful,
+\     but WITHOUT ANY WARRANTY; without even the implied warranty of
+\     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+\     GNU General Public License for more details.
+
+\     You should have received a copy of the GNU General Public License
+\     along with this program; if not, write to the Free Software
+\     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 \ recursive descent parser generator )
 
+\ ANS FORTH prolog
+
+: defined? ( "word" -- flag )  bl word find nip ;
+defined? WARNINGS 0=
+[IF]
+Variable warnings
+warnings on
+[THEN]
+
+\ end of ANS FORTH prolog
+
 warnings @ [IF]
-.( Loading Gray ... Copyright 1990 Martin Anton Ertl; NO WARRANTY ) cr
+.( Loading Gray ... Copyright 1990-1994 Martin Anton Ertl; NO WARRANTY ) cr
 [THEN]
 
 \ misc )
 : noop ;
 
 1 cells constant cell
-cell 8 * constant bits/cell \ !! implementation dependent )
+s" address-unit-bits" environment? 0=
+[IF]
+  warnings @ [IF]
+     cr .( environmental attribute address-units-bits unknown, computing... ) cr
+  [THEN]
+  \ if your machine has more bits/au, this assumption wastes space
+  \ if your machine has fewer bits/au, gray will not work
+  : (bits/cell)  ( -- n )  1 0 invert dup 1 rshift xor
+    BEGIN  dup 1 = 0=  WHILE  1 rshift  swap 1+ swap  REPEAT  drop ;
+  (bits/cell)
+  warnings @ [IF]
+    .( You seem to have ) dup 1 cells / . .( bits/address unit) cr
+  [THEN]
+[ELSE]
+  cells
+[THEN]
+constant bits/cell \ !! implementation dependent )
 
 : ?not? ( f -- f )
- 0= ;
+ postpone 0= ; immediate
 
 : 2, ( w1 w2 -- )
  here 2 cells allot 2! ;
@@ -138,6 +134,11 @@ variable empty-ptr 0 empty-ptr ! \ updatd by max-member )
  bits/cell /mod
  cells rot +
  swap ;
+\ the /mod could be optimized into a RSHIFT and an AND, if bits/cell is
+\ a power of 2, but in an interpreted implementation this would only be
+\ faster if the machine has very slow division and in a native code
+\ implementation the compiler should be intelligent enough to optimize
+\ without help.
 
 : add-member \ u set -- )
 \ changes set to include u )
@@ -280,18 +281,42 @@ struct
         \ true if the syntax-expr can derive eps )
  aligned cell context-var follow-set
 	\ the tokens of the terminals that can follow the syntax-expr )
+s" gforth" environment?
+[IF]  2drop \ clear gforth's version numbers )
  aligned 2 cells context-var source-location \ for error msgs )
-constant syntax-expr   \ length of a syntax-expr )
+[ELSE]
+s" bigFORTH" environment?
+[IF]  2drop \ clear bigFORTH' version numbers )
+ aligned cell context-var source-location
+        \ for error msgs
+[ELSE]
+ \ !! replace the stuff until constant with something working on your system
+ aligned 3 cells context-var source-location
+        \ for error msgs
+ 80 chars context-var error-info
+        \ string
+[THEN] [THEN]
+aligned constant syntax-expr   \ length of a syntax-expr )
 
 : make-syntax-expr \ map -- syntax-expr )
 \ allocate a syntax-expr and initialize it )
  here swap , false c, false c,
  align 0 , false c, align empty ,
-\ source location  !! implementation dependent )
+\ source location. !! replace the stuff until `;' with your stuff
 \ if you use blocks, use:
 \  blk @ >in @ 2,
 \ the following is just a dummy
+[ s" gforth" environment? ]
+[IF]  [ 2drop ]
  0 loadline @ 2,
+[ELSE]
+[ s" bigFORTH" environment? ]
+[IF]  [ 2drop ]
+ makeview w, >in @ w,
+[ELSE]
+ source 80 min >r  here 3 cells + r@ cmove
+ here 3 cells + ,  r@ ,  >in @ 80 min ,  r> chars allot align
+[THEN] [THEN]
  ;
 
 
@@ -300,8 +325,17 @@ constant syntax-expr   \ length of a syntax-expr )
 \ !! implementation dependent )
 \ prints the info stored in source-location in a usable way )
 \ prints where the error happened )
+[ s" gforth" environment? ]
+[IF]  [ 2drop ]
  source-location 2@ ." line" . drop ." :" ;
-
+[ELSE]
+[ s" bigFORTH" environment? ]
+[IF]  [ 2drop ]
+ source-location dup w@ $3FF and scr ! 2+ w@ r# ! ;
+[ELSE]
+ source-location 2@ swap cr type cr
+ error-info @ 2 - spaces ." ^" cr  ." ::: " ;
+[THEN] [THEN]
  
 : gray-error abort ;
 

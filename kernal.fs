@@ -1421,7 +1421,7 @@ Defer 'cold ' noop IS 'cold
     ." GNU Forth 0.0alpha, Copyright (C) 1994 Free Software Foundation, Inc." cr
     ." GNU Forth comes with ABSOLUTELY NO WARRANTY; for details type `license'" cr
     ." Type `bye' to exit"
-    quit ;
+    loadline off quit ;
 
 : license ( -- ) cr
  ." This program is free software; you can redistribute it and/or modify" cr

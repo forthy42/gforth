@@ -1,6 +1,8 @@
 \ environmental queries
 
-wordlist constant environment-wordlist
+\ wordlist constant environment-wordlist
+
+Create environment-wordlist  wordlist drop
 
 : environment? ( c-addr u -- false / ... true )
     environment-wordlist search-wordlist if
@@ -30,6 +32,8 @@ true constant CORE
 
 -1 MAX-N 2constant MAX-D
 -1. 2constant MAX-UD
+
+0 0 2constant gforth \ minor mayor version
 
 \ !! RETURN-STACK-CELLS
 \ !! STACK-CELLS

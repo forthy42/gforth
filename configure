@@ -392,11 +392,18 @@ else
 	ln -s kernl32l.fi gforth.fi
 fi
 
+if [ x$bigendian = x1 ]
+then
+   kernalswap='s|kernl32l.fi kernl32b.fi|kernl32b.fi kernl32l.fi|'
+   kernalexec='-e'
+fi
+
 sed -e "s|^XCFLAGS[	 ]*=*\(.*\)$|XCFLAGS	= \1 $flags|" \
     -e "s|^XDEFINES[	 ]*=*\(.*\)$|XDEFINES	= \1 $defines|" \
     -e "s|^OBJECTS[	 ]*=*\(.*\)$|OBJECTS	= \1 $extra_obs|" \
     -e "s|^CFLAGS[	 ]*=*\(.*\)$|CFLAGS	= $debugging\1|" \
     -e "s|^LDFLAGS[	 ]*=*\(.*\)$|LDFLAGS	= $debugging\1|" \
+    $kernalexec "$kernalswap" \
     Makefile.in > Makefile
 
 exit 0

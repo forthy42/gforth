@@ -1,5 +1,5 @@
 \ CROSS.FS     The Cross-Compiler                      06oct92py
-\ $Id: cross.fs,v 1.15 1994-11-15 15:55:34 pazsan Exp $
+\ $Id: cross.fs,v 1.16 1994-11-17 15:53:07 pazsan Exp $
 \ Idea and implementation: Bernd Paysan (py)
 \ Copyright 1992-94 by the GNU Forth Development Group
 
@@ -738,8 +738,10 @@ bigendian Constant bigendian
 : save-cross ( "name" -- )
   bl parse ." Saving to " 2dup type
   w/o bin create-file throw >r
-  image @ there r@ write-file throw
-  bit$  @ there 1- cell>bit rshift 1+ r@ write-file throw
+  s" gforth00"  r@ write-file throw \ write magic
+  image @ there r@ write-file throw \ write image
+  bit$  @ there 1- cell>bit rshift 1+
+                r@ write-file throw \ write tags
   r> close-file throw ;
 
 \ words that should be in minimal

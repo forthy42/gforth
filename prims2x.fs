@@ -21,7 +21,8 @@
 
 warnings off
 
-[IFUNDEF] vocabulary  include search-order.fs [THEN]
+[IFUNDEF] vocabulary    include search-order.fs [THEN]
+[IFUNDEF] environment?  include environ.fs      [THEN]
 include gray.fs
 
 100 constant max-effect \ number of things on one side of a stack effect

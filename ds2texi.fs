@@ -7,6 +7,13 @@
 \ The glossary entries are generated from data present in the wordlist
 \ `documentation'. Each word resides there under its own name.
 
+script? [IF]
+warnings off
+include search-order.fs
+include struct.fs
+include debugging.fs
+[THEN]
+
 wordlist constant documentation
 
 struct
@@ -92,3 +99,9 @@ create docline doclinelength chars allot
 	docline swap process-line
     repeat
     drop rdrop ;
+
+script? [IF]
+include prims2x.fs
+s" primitives.b" ' register-doc process-file
+s" gforth.ds" r/o open-file throw ds2texi bye
+[THEN]

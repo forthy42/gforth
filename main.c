@@ -1,5 +1,5 @@
 /*
-  $Id: main.c,v 1.17 1994-11-15 16:54:57 pazsan Exp $
+  $Id: main.c,v 1.18 1994-11-17 15:53:16 pazsan Exp $
   Copyright 1993 by the ANSI figForth Development Group
 */
 
@@ -44,6 +44,8 @@ char *progname;
 
 
 /* image file format:
+ *   preamble (is skipped off), size multiple of 8
+ *   magig: "gforth00" (means format version 0.0)
  *   size of image with stacks without tags (in bytes)
  *   size of image without stacks and tags (in bytes)
  *   size of data and FP stack (in bytes)
@@ -94,10 +96,23 @@ Cell *loader(FILE *imagefile)
 {
   Cell header[3];
   Cell *image;
+  Char magic[8];
   int wholesize;
   int imagesize; /* everything needed by the image */
-  
-  fread(header,1,3*sizeof(Cell),imagefile);
+
+  do
+    {
+      if(fread(magic,sizeof(Char),8,imagefile) < 8) {
+	fprintf(stderr,"This file doesn't seam to be a gforth image\n");
+	exit(1);
+      }
+#ifdef DEBUG
+      printf("Magic found: %s\n",magic);
+#endif
+    }
+  while(memcmp(magic,"gforth00",8));
+
+  fread(header,sizeof(Cell),3,imagefile);
   if (dictsize==0)
     dictsize = header[0];
   if (dsize==0)
