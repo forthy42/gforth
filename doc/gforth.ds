@@ -13596,7 +13596,7 @@ has the following form:
 
 @cindex primitive source format
 @format
-@i{Forth-name}  @i{stack-effect}        @i{category}    [@i{pronounc.}]
+@i{Forth-name}  ( @i{stack-effect} )        @i{category}    [@i{pronounc.}]
 [@code{""}@i{glossary entry}@code{""}]
 @i{C code}
 [@code{:}
@@ -13608,7 +13608,7 @@ are there for generating the documentation, the Forth code is there
 for manual implementations on machines without GNU C. E.g., the source
 for the primitive @code{+} is:
 @example
-+    n1 n2 -- n    core    plus
++    ( n1 n2 -- n )   core    plus
 n = n1+n2;
 @end example
 
@@ -14027,11 +14027,12 @@ with their continuous feedback. Lennart Benshop contributed
 @file{glosgen.fs}, while Stuart Ramsden has been working on automatic
 support for calling C libraries. Helpful comments also came from Paul
 Kleinrubatscher, Christian Pirker, Dirk Zoller, Marcel Hendrix, John
-Wavrik, Barrie Stott, Marc de Groot, and Jorge Acerada. Since the
-release of Gforth-0.2.1 there were also helpful comments from many
-others; thank you all, sorry for not listing you here (but digging
-through my mailbox to extract your names is on my to-do list). Since the
-release of Gforth-0.4.0 Neal Crook worked on the manual.
+Wavrik, Barrie Stott, Marc de Groot, Jorge Acerada, Bruce Hoyt, and
+Robert Epprecht. Since the release of Gforth-0.2.1 there were also
+helpful comments from many others; thank you all, sorry for not listing
+you here (but digging through my mailbox to extract your names is on my
+to-do list). Since the release of Gforth-0.4.0 Neal Crook worked on the
+manual.
 
 Gforth also owes a lot to the authors of the tools we used (GCC, CVS,
 and autoconf, among others), and to the creators of the Internet: Gforth

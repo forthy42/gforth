@@ -36,8 +36,9 @@
 \ be separated by at least one empty line
 \
 \ Both pronounciation and stack items (in the stack effect) must
-\ conform to the C name syntax or the C compiler will complain.
-\ 
+\ conform to the C identifier syntax or the C compiler will complain.
+\ If you don't have a pronounciation field, the Forth name is used,
+\ and has to conform to the C identifier syntax.
 \ 
 \ These specifications are automatically translated into C-code for the
 \ interpreter and into some other files. I hope that your C compiler has
