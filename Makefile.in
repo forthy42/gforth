@@ -69,7 +69,7 @@ ENGINE = ./gforth
 FORTH	= $(ENGINE) $(FORTH_ARGS)
 ENGINE_FAST = $(ENGINE)-fast
 FORTH_FAST	= $(ENGINE_FAST) $(FORTH_ARGS)
-FORTHKFLAGS= --die-on-signal -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)" -i $(kernel_fi)
+FORTHKFLAGS= --die-on-signal -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)" -m 1000000 -i $(kernel_fi)
 FORTHK	= $(ENGINE) $(FORTHKFLAGS)
 FORTHP	= $(ENGINE) --die-on-signal -i ./$(kernel_fi)
 #the "-2 image-included-files +!" undoes the change to image-included-files

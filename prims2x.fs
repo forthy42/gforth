@@ -60,8 +60,8 @@ warnings off
 			\ different directory with the wordlibraries)
 include ./search.fs			
 include ./extend.fs
-[THEN]
 include ./stuff.fs
+[THEN]
 
 [IFUNDEF] environment?
 include ./environ.fs
