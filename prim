@@ -445,8 +445,9 @@ n = rp[4];
 \ digit is high-level: 0/0%
 
 move	( c_from c_to ucount -- )		core
-""Copy the contents of @i{ucount} address units at @i{c-from} to
+""Copy the contents of @i{ucount} aus at @i{c-from} to
 @i{c-to}. @code{move} works correctly even if the two areas overlap.""
+/* !! note that the standard specifies addr, not c-addr */
 memmove(c_to,c_from,ucount);
 /* make an Ifdef for bsd and others? */
 :
@@ -475,8 +476,7 @@ while (u-- > 0)
  DO  1- dup c@ I c!  -1 +LOOP  drop ;
 
 fill	( c_addr u c -- )	core
-"" If @i{u}>0, store character @i{c} in each of @i{u} consecutive
-@code{char} addresses in memory, starting at address @i{c-addr}.""
+""Store @i{c} in @i{u} chars starting at @i{c-addr}.""
 memset(c_addr,c,u);
 :
  -rot bounds
@@ -600,11 +600,11 @@ else
 :
  2dup > IF swap THEN drop ;
 
-abs	( n1 -- n2 )	core
-if (n1<0)
-  n2 = -n1;
+abs	( n -- u )	core
+if (n<0)
+  u = -n;
 else
-  n2 = n1;
+  u = n;
 :
  dup 0< IF negate THEN ;
 
@@ -630,12 +630,14 @@ n3 = n1%n2; /* !! is this correct? look into C standard! */
  >r s>d r> fm/mod ;
 
 2*	( n1 -- n2 )		core		two_star
+""Shift left by 1; also works on unsigned numbers""
 n2 = 2*n1;
 :
  dup + ;
 
 2/	( n1 -- n2 )		core		two_slash
-/* !! is this still correct? */
+""Arithmetic shift right by 1.  For signed numbers this is a floored
+division by 2 (note that @code{/} not necessarily floors).""
 n2 = n1>>1;
 :
  dup MINI and IF 1 ELSE 0 THEN
@@ -777,6 +779,7 @@ d2 = -d1;
  invert swap negate tuck 0= - ;
 
 d2*	( d1 -- d2 )		double		d_two_star
+""Shift left by 1; also works on unsigned numbers""
 #ifdef BUGGY_LONG_LONG
 d2.lo = d1.lo<<1;
 d2.hi = (d1.hi<<1) | (d1.lo>>(CELL_BITS-1));
@@ -787,6 +790,8 @@ d2 = 2*d1;
  2dup d+ ;
 
 d2/	( d1 -- d2 )		double		d_two_slash
+""Arithmetic shift right by 1.  For signed numbers this is a floored
+division by 2.""
 #ifdef BUGGY_LONG_LONG
 d2.hi = d1.hi>>1;
 d2.lo= (d1.lo>>1) | (d1.hi<<(CELL_BITS-1));
@@ -939,7 +944,7 @@ about this word is to consider the numbers as a circle (wrapping
 around from @code{max-u} to 0 for unsigned, and from @code{max-n} to
 min-n for signed numbers); now consider the range from u2 towards
 increasing numbers up to and excluding u3 (giving an empty range if
-u2=u3; if u1 is in this range, @code{within} returns true.""
+u2=u3); if u1 is in this range, @code{within} returns true.""
 f = FLAG(u1-u2 < u3-u2);
 :
  over - >r - r> u< ;
@@ -972,41 +977,48 @@ fp = f_addr;
 SET_IP((Xt *)(*rp++));
 
 >r	( w -- )		core	to_r
+""@code{( R: -- w )}""
 *--rp = w;
 :
  (>r) ;
 : (>r)  rp@ cell+ @ rp@ ! rp@ cell+ ! ;
 
 r>	( -- w )		core	r_from
+""@code{( R: w -- )}""
 w = *rp++;
 :
  rp@ cell+ @ rp@ @ rp@ cell+ ! (rdrop) rp@ ! ;
 Create (rdrop) ' ;s A,
 
 rdrop	( -- )		gforth
+""@code{( R: w -- )}""
 rp++;
 :
  r> r> drop >r ;
 
 2>r	( w1 w2 -- )	core-ext	two_to_r
+""@code{( R: -- w1 w2 )}""
 *--rp = w1;
 *--rp = w2;
 :
  swap r> swap >r swap >r >r ;
 
 2r>	( -- w1 w2 )	core-ext	two_r_from
+""@code{( R: w1 w2 -- )}""
 w2 = *rp++;
 w1 = *rp++;
 :
  r> r> swap r> swap >r swap ;
 
 2r@	( -- w1 w2 )	core-ext	two_r_fetch
+""@code{( R: w1 w2 -- w1 w2 )}""
 w2 = rp[0];
 w1 = rp[1];
 :
  i' j ;
 
 2rdrop	( -- )		gforth	two_r_drop
+""@code{( R: w1 w2 -- )}""
 rp+=2;
 :
  r> r> drop r> drop >r ;
@@ -1050,6 +1062,8 @@ tuck	( w1 w2 -- w2 w1 w2 )	core-ext
  swap over ;
 
 ?dup	( w -- w )			core	question_dupe
+""Actually the stack effect is: @code{( w -- 0 | w w )}.  It performs a
+@code{dup} if w is nonzero.""
 if (w!=0) {
   IF_TOS(*sp-- = w;)
 #ifndef USE_TOS
@@ -1060,6 +1074,7 @@ if (w!=0) {
  dup IF dup THEN ;
 
 pick	( u -- w )			core-ext
+""Actually the stack effect is @code{ x0 ... xu u -- x0 ... xu x0 }.""
 w = sp[u+1];
 :
  1+ cells sp@ + @ ;
@@ -1095,21 +1110,21 @@ w = sp[u+1];
 \ toggle is high-level: 0.11/0.42%
 
 @	( a_addr -- w )		core	fetch
-"" Read from the cell at address @i{a-addr}, and return its contents, @i{w}.""
+""@i{w} is the cell stored at @i{a_addr}.""
 w = *a_addr;
 
 !	( w a_addr -- )		core	store
-"" Write the value @i{w} to the cell at address @i{a-addr}.""
+""Store @i{w} into the cell at @i{a-addr}.""
 *a_addr = w;
 
 +!	( n a_addr -- )		core	plus_store
-"" Add @i{n} to the value stored in the cell at address @i{a-addr}.""
+""Add @i{n} to the cell at @i{a-addr}.""
 *a_addr += n;
 :
  tuck @ + swap ! ;
 
 c@	( c_addr -- c )		core	c_fetch
-"" Read from the char at address @i{c-addr}, and return its contents, @i{c}.""
+""@i{c} is the char stored at @i{c_addr}.""
 c = *c_addr;
 :
 [ bigendian [IF] ]
@@ -1135,7 +1150,7 @@ c = *c_addr;
 : 8>> 2/ 2/ 2/ 2/  2/ 2/ 2/ 2/ ;
 
 c!	( c c_addr -- )		core	c_store
-"" Write the value @i{c} to the char at address @i{c-addr}.""
+""Store @i{c} into the char at @i{c-addr}.""
 *c_addr = c;
 :
 [ bigendian [IF] ]
@@ -1165,28 +1180,28 @@ c!	( c c_addr -- )		core	c_store
 : 8<< 2* 2* 2* 2*  2* 2* 2* 2* ;
 
 2!	( w1 w2 a_addr -- )		core	two_store
-"" Write the value @i{w1, w2} to the double at address @i{a-addr}.""
+""Store @i{w2} into the cell at @i{c-addr} and @i{w1} into the next cell.""
 a_addr[0] = w2;
 a_addr[1] = w1;
 :
  tuck ! cell+ ! ;
 
 2@	( a_addr -- w1 w2 )		core	two_fetch
-"" Read from the double at address @i{a-addr}, and return its contents, @i{w1, w2}.""
+""@i{w2} is the content of the cell stored at @i{a-addr}, @i{w1} is
+the content of the next cell.""
 w2 = a_addr[0];
 w1 = a_addr[1];
 :
  dup cell+ @ swap @ ;
 
 cell+	( a_addr1 -- a_addr2 )	core	cell_plus
-"" Increment @i{a-addr1} by the number of address units corresponding to the size of
-one cell, to give @i{a-addr2}.""
+""@code{1 cells +}""
 a_addr2 = a_addr1+1;
 :
  cell + ;
 
 cells	( n1 -- n2 )		core
-"" @i{n2} is the number of address units corresponding to @i{n1} cells.""
+"" @i{n2} is the number of address units of @i{n1} cells.""
 n2 = n1 * sizeof(Cell);
 :
  [ cell
@@ -1197,8 +1212,7 @@ n2 = n1 * sizeof(Cell);
  drop ] ;
 
 char+	( c_addr1 -- c_addr2 )	core	char_plus
-"" Increment @i{c-addr1} by the number of address units corresponding to the size of
-one char, to give @i{c-addr2}.""
+""@code{1 chars +}.""
 c_addr2 = c_addr1 + 1;
 :
  1+ ;
@@ -1526,16 +1540,15 @@ allocate	( u -- a_addr wior )	memory
 contents of the data space is undefined. If the allocation is successful,
 @i{a-addr} is the start address of the allocated region and @i{wior}
 is 0. If the allocation fails, @i{a-addr} is undefined and @i{wior}
-is an implementation-defined I/O result code.""
+is a non-zero I/O result code.""
 a_addr = (Cell *)malloc(u?u:1);
 wior = IOR(a_addr==NULL);
 
 free	( a_addr -- wior )		memory
 ""Return the region of data space starting at @i{a-addr} to the system.
-The regon must originally have been obtained using @code{allocate} or
+The region must originally have been obtained using @code{allocate} or
 @code{resize}. If the operational is successful, @i{wior} is 0.
-If the operation fails, @i{wior} is an implementation-defined
-I/O result code.""
+If the operation fails, @i{wior} is a non-zero I/O result code.""
 free(a_addr);
 wior = 0;
 
@@ -1543,8 +1556,8 @@ resize	( a_addr1 u -- a_addr2 wior )	memory
 ""Change the size of the allocated area at @i{a-addr1} to @i{u}
 address units, possibly moving the contents to a different
 area. @i{a-addr2} is the address of the resulting area.
-If the operational is successful, @i{wior} is 0.
-If the operation fails, @i{wior} is an implementation-defined
+If the operation is successful, @i{wior} is 0.
+If the operation fails, @i{wior} is a non-zero
 I/O result code. If @i{a-addr1} is 0, Gforth's (but not the Standard)
 @code{resize} @code{allocate}s @i{u} address units.""
 /* the following check is not necessary on most OSs, but it is needed
@@ -1743,15 +1756,15 @@ d = r;
 #endif
 
 f!	( r f_addr -- )	float	f_store
-"" Store the floating-point value @i{r} to address @i{f-addr}.""
+""Store @i{r} into the float at address @i{f-addr}.""
 *f_addr = r;
 
 f@	( f_addr -- r )	float	f_fetch
-"" Fetch floating-point value @i{r} from address @i{f-addr}.""
+""@i{r} is the float at address @i{f-addr}.""
 r = *f_addr;
 
 df@	( df_addr -- r )	float-ext	d_f_fetch
-"" Fetch the double-precision IEEE floating-point value @i{r} from the address @i{df-addr}.""
+""Fetch the double-precision IEEE floating-point value @i{r} from the address @i{df-addr}.""
 #ifdef IEEE_FP
 r = *df_addr;
 #else
@@ -1759,7 +1772,8 @@ r = *df_addr;
 #endif
 
 df!	( r df_addr -- )	float-ext	d_f_store
-"" Store the double-precision IEEE floating-point value @i{r} to the address @i{df-addr}.""
+""Store @i{r} as double-precision IEEE floating-point value to the
+address @i{df-addr}.""
 #ifdef IEEE_FP
 *df_addr = r;
 #else
@@ -1767,7 +1781,7 @@ df!	( r df_addr -- )	float-ext	d_f_store
 #endif
 
 sf@	( sf_addr -- r )	float-ext	s_f_fetch
-"" Fetch the single-precision IEEE floating-point value @i{r} from the address @i{sf-addr}.""
+""Fetch the single-precision IEEE floating-point value @i{r} from the address @i{sf-addr}.""
 #ifdef IEEE_FP
 r = *sf_addr;
 #else
@@ -1775,7 +1789,8 @@ r = *sf_addr;
 #endif
 
 sf!	( r sf_addr -- )	float-ext	s_f_store
-"" Store the single-precision IEEE floating-point value @i{r} to the address @i{sf-addr}.""
+""Store @i{r} as single-precision IEEE floating-point value to the
+address @i{sf-addr}.""
 #ifdef IEEE_FP
 *sf_addr = r;
 #else
@@ -1816,12 +1831,11 @@ fnip	( r1 r2 -- r2 )	gforth	f_nip
 ftuck	( r1 r2 -- r2 r1 r2 )	gforth	f_tuck
 
 float+	( f_addr1 -- f_addr2 )	float	float_plus
-"" Increment @i{f-addr1} by the number of address units corresponding to the size of
-one floating-point number, to give @i{f-addr2}.""
+""@code{1 floats +}.""
 f_addr2 = f_addr1+1;
 
 floats	( n1 -- n2 )	float
-""@i{n2} is the number of address units corresponding to @i{n1} floating-point numbers.""
+""@i{n2} is the number of address units of @i{n1} floats.""
 n2 = n1*sizeof(Float);
 
 floor	( r1 -- r2 )	float
@@ -2016,24 +2030,24 @@ r2 = atanh(r1);
  r> IF  fnegate  THEN ;
 
 sfloats	( n1 -- n2 )	float-ext	s_floats
-""@i{n2} is the number of address units corresponding to @i{n1}
+""@i{n2} is the number of address units of @i{n1}
 single-precision IEEE floating-point numbers.""
 n2 = n1*sizeof(SFloat);
 
 dfloats	( n1 -- n2 )	float-ext	d_floats
-""@i{n2} is the number of address units corresponding to @i{n1}
+""@i{n2} is the number of address units of @i{n1}
 double-precision IEEE floating-point numbers.""
 n2 = n1*sizeof(DFloat);
 
 sfaligned	( c_addr -- sf_addr )	float-ext	s_f_aligned
-"" @i{sf-addr} is the first single-float-aligned address greater
+""@i{sf-addr} is the first single-float-aligned address greater
 than or equal to @i{c-addr}.""
 sf_addr = (SFloat *)((((Cell)c_addr)+(sizeof(SFloat)-1))&(-sizeof(SFloat)));
 :
  [ 1 sfloats 1- ] Literal + [ -1 sfloats ] Literal and ;
 
 dfaligned	( c_addr -- df_addr )	float-ext	d_f_aligned
-"" @i{df-addr} is the first double-float-aligned address greater
+""@i{df-addr} is the first double-float-aligned address greater
 than or equal to @i{c-addr}.""
 df_addr = (DFloat *)((((Cell)c_addr)+(sizeof(DFloat)-1))&(-sizeof(DFloat)));
 :
@@ -2113,6 +2127,7 @@ lp -= sizeof(Float);
 *(Float *)lp = r;
 
 fpick	( u -- r )		gforth
+""Actually the stack effect is @code{ r0 ... ru u -- r0 ... ru r0 }.""
 r = fp[u+1]; /* +1, because update of fp happens before this fragment */
 :
  floats fp@ + f@ ;

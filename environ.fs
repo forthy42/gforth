@@ -71,7 +71,7 @@ true constant CORE-EXT ( -- f ) \ environment
 \G True if the complete core extension word set is present. Always true for Gforth.
 
 1 -3 mod 0< constant FLOORED ( -- f ) \ environment
-\G True if division is floored by default.
+\G True if @code{/} etc. perform floored division
 
 1 ADDRESS-UNIT-BITS cells 1- lshift 1- constant MAX-N ( -- n ) \ environment
 \G Largest usable signed integer.

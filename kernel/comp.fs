@@ -35,11 +35,12 @@
 \ we default to this version if we have nothing else 05May99jaw
 [IFUNDEF] allot
 : allot ( n -- ) \ core
-    \G Reserve or release @i{n} address units of data space without
-    \G initialization; @i{n} is a signed number.  In ANS Forth you can
-    \G only deallocate memory from the current contiguous region in
-    \G this way.  In Gforth you can deallocate anything in this way
-    \G but named words.  The system does not check this restriction.
+    \G Reserve @i{n} address units of data space without
+    \G initialization. @i{n} is a signed number, passing a negative
+    \G @i{n} releases memory.  In ANS Forth you can only deallocate
+    \G memory from the current contiguous region in this way.  In
+    \G Gforth you can deallocate anything in this way but named words.
+    \G The system does not check this restriction.
     here +
     dup 1- usable-dictionary-end forthstart within -8 and throw
     dp ! ;
@@ -77,6 +78,7 @@
     LOOP ;
 
 : maxalign ( -- ) \ gforth
+    \G Align data-space pointer for all alignment requirements.
     here dup maxaligned swap
     ?DO
 	bl c,
@@ -84,6 +86,8 @@
 
 \ the code field is aligned if its body is maxaligned
 ' maxalign Alias cfalign ( -- ) \ gforth
+\G Align data-space pointer for code field (i.e., such that the
+\G corresponding body is maxaligned).
 
 ' , alias A, ( addr -- ) \ gforth
 

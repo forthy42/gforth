@@ -43,6 +43,8 @@ decimal
 ' drop alias d>s ( d -- n ) \ double		d_to_s
 
 : m*/ ( d1 n2 u3 -- dquot ) \ double m-star-slash
+    \G dquot=(d1*n2)/u3, with the intermediate result being triple-precision.
+    \G In ANS Forth u3 can only be a positive signed number.
     >r s>d >r abs -rot
     s>d r> xor r> swap >r >r dabs rot tuck um* 2swap um*
     swap >r 0 d+ r> -rot r@ um/mod -rot r> um/mod nip swap
@@ -100,15 +102,12 @@ decimal
 
 \ ERASE                                                 17may93jaw
 
-: erase ( addr len -- ) \ core-ext
-    \G If @i{len}>0, clear all bits in each location of a memory region
-    \G of @i{len} address units starting at address @i{addr}.
+: erase ( addr u -- ) \ core-ext
+    \G Clear all bits in @i{u} aus starting at @i{addr}.
     \ !! dependence on "1 chars 1 ="
     ( 0 1 chars um/mod nip )  0 fill ;
 : blank ( c-addr u -- ) \ string
-    \G If @i{u}>0, store the character value for a space in each
-    \G location of a memory region
-    \G of @i{u} character units starting at address @i{c-addr}.
+    \G Store the space character into @i{u} chars starting at @i{c-addr}.
     bl fill ;
 
 \ SEARCH                                                02sep94py

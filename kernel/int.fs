@@ -190,7 +190,7 @@ const Create bases   10 ,   2 ,   A , 100 ,
     \G by cross.fs which doesn't have the same functionalty as makedoc.fs
     [char] ) parse 2drop ; immediate
 
-: \ ( -- ) \ thisone- core-ext,block-ext backslash
+: \ ( compilation 'ccc<newline>' -- ; run-time -- ) \ thisone- core-ext,block-ext backslash
     \G ** this will not get annotated. The alias in glocals.fs will instead ** 
     \G It does not work to use "wordset-" prefix since this file is glossed
     \G by cross.fs which doesn't have the same functionalty as makedoc.fs
@@ -203,7 +203,7 @@ const Create bases   10 ,   2 ,   A , 100 ,
     [ [THEN] ]
     source >in ! drop ; immediate
 
-: \G ( -- ) \ gforth backslash-gee
+: \G ( compilation 'ccc<newline>' -- ; run-time -- ) \ gforth backslash-gee
     \G Equivalent to @code{\} but used as a tag to annotate definition
     \G comments into documentation.
     POSTPONE \ ; immediate

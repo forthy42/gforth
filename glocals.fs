@@ -292,7 +292,7 @@ locals-types definitions
 	postpone laddr# @ lp-offset, ;
 
 \ you may want to make comments in a locals definitions group:
-' \ alias \ ( -- ) \ core-ext,block-ext backslash
+' \ alias \ ( compilation 'ccc<newline>' -- ; run-time -- ) \ core-ext,block-ext backslash
 \G Comment till the end of the line if @code{BLK} contains 0 (i.e.,
 \G while not loading a block), parse and discard the remainder of the
 \G parse area. Otherwise, parse and discard all subsequent characters

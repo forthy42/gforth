@@ -34,18 +34,22 @@ hex
 
 [IFUNDEF] r@
 ' i Alias r@ ( -- w ; R: w -- w ) \ core r-fetch
-\G Copy @var{w} from the return stack to the data stack.
 [THEN]
 
 \ !! this is machine-dependent, but works on all but the strangest machines
 
-: maxaligned ( addr -- f-addr ) \ gforth
+: maxaligned ( addr1 -- addr2 ) \ gforth
+    \G @i{addr2} is the first address after @i{addr1} that satisfies
+    \G all alignment restrictions.
     [ /maxalign 1 - ] Literal + [ 0 /maxalign - ] Literal and ;
-\ !! machine-dependent and won't work if "0 >body" <> "0 >body maxaligned"
+\ !! machine-dependent and won't work if "0 >body" <> "0 >body
+    \G maxaligned"
 ' maxaligned Alias cfaligned ( addr1 -- addr2 ) \ gforth
+\G @i{addr2} is the first address after @i{addr1} that is aligned for
+\G a code field (i.e., such that the corresponding body is maxaligned).
 
 : chars ( n1 -- n2 ) \ core
-\G @i{n2} is the number of address units corresponding to @i{n1} chars.""
+\G @i{n2} is the number of address units of @i{n1} chars.""
 ; immediate
 
 
@@ -255,9 +259,11 @@ is throw
 
 \ !! I think */mod should have the same rounding behaviour as / - anton
 : */mod ( n1 n2 n3 -- n4 n5 ) \ core	star-slash-mod
+    \G n1*n2=n3*n5+n4, with the intermediate result (n1*n1) being double.
     >r m* r> sm/rem ;
 
 : */ ( n1 n2 n3 -- n4 ) \ core	star-slash
+    \G n4=(n1*n2)/n3, with the intermediate result being double.
     */mod nip ;
 
 \ HEX DECIMAL                                           2may93jaw

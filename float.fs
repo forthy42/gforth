@@ -52,12 +52,10 @@
     here dup dfaligned swap ?DO  bl c,  LOOP ;
 
 1 sfloats (Field) sfloat+ , ( sf-addr1 -- sf-addr2 ) \ float-ext s-float-plus
-\G Increment @i{sf-addr1} by the number of address units corresponding to the size of
-\G a single-precision IEEE floating-point number, to give @i{sf-addr2}.""
+\G @code{1 sfloats +}.
 
 1 dfloats (Field) dfloat+ , ( df-addr1 -- df-addr2 ) \ float-ext d-float-plus
-\G Increment @i{df-addr1} by the number of address units corresponding to the size of
-\G a double-precision IEEE floating-point number, to give @i{df-addr2}.""
+\G @code{1 dfloats +}.
 
 : f, ( f -- ) \ gforth
     \G Reserve data space for one floating-point number and store
@@ -201,12 +199,12 @@ IS interpreter-notfound
 	f- fabs frot frot f* f< ;
 
 : f~ ( r1 r2 r3 -- flag ) \ float-ext f-proximate
-    \G ANS Forth medley: r3>0: @code{f~abs}; r3=0: r1=r2; r3<0: @code{fnegate f~rel}.
+    \G ANS Forth medley for comparing r1 and r2 for equality: r3>0:
+    \G @code{f~abs}; r3=0: bitwise comparison; r3<0: @code{fnegate f~rel}.
     fdup f0=
-    IF
-	fdrop f=  \ !! this does not work, because 0=-0 with f= on Linux-Intel
-	          \ the standard says they should compare unequal
-		  \ the comparison should be done with COMPARE
+    IF \ bitwise comparison
+	fp@ float+ 1 floats over float+ -text 0=
+	fdrop fdrop fdrop
 	EXIT
     THEN
     fdup f0>
