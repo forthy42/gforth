@@ -444,6 +444,8 @@ defer :-hook ( sys1 -- sys2 )
 
 defer ;-hook ( sys2 -- sys1 )
 
+0 Constant defstart
+
 [IFDEF] docol,
 : (:noname) ( -- colon-sys )
     \ common factor of : and :noname

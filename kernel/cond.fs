@@ -48,7 +48,9 @@ variable backedge-locals
 \ locals-list (valid at address) (third)
 
 \ types
-0 constant defstart
+[IFUNDEF] defstart 
+0 constant defstart	\ usally defined in comp.fs
+[THEN]
 1 constant live-orig
 2 constant dead-orig
 3 constant dest \ the loopback branch is always assumed live
