@@ -1,6 +1,3 @@
-This snapshot has been tested quite well for portability.  The main
-thing missing before the release is an update to the documentation.
-
 Gforth is a fast and portable implementation of the ANS Forth
 language. It works nicely with the Emacs editor, offers some nice
 features such as input completion and history and a powerful locals

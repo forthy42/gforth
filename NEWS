@@ -17,7 +17,7 @@ Operating environment:
 Default dictionary size is now 4MB.
 Large file support on OSs that support them (i.e., files with more
   than 2GB on 32-bit machines).
-Gforth can now deal with well with broken pipes in most situations.
+Gforth can now deal well with broken pipes in most situations.
 vi tags files can be built with tags.fs (usage like etags.fs).
 gforth.el mostly rewritten.
 New image file format.
