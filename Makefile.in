@@ -136,7 +136,9 @@ KERN_SRC = \
 	kernel/io.fs \
 	kernel/license.fs \
 	kernel/nio.fs \
-	kernel/saccept.fs
+	kernel/saccept.fs \
+	kernel/doers.fs \
+	kernel/getdoers.fs
 
 EC_SRC = \
 	asm/00-readme \
@@ -462,12 +464,12 @@ install:	gforth $(FORTH_SRC) kernel.fi gforth.fi doc/gforth.1 prim gforth.TAGS i
 		$(RM) gforth.fi; $(MAKE) gforth.fi #gforth.fi contains some path names
 		$(INSTALL_DATA) gforth.fi $(libdir)/gforth/$(VERSION)
 		sed 's:^$(srcdir)/:$(datadir)/gforth/$(VERSION)/:' gforth.TAGS >TAGS; $(INSTALL_DATA) TAGS $(datadir)/gforth/$(VERSION)
-		if test -d $(emacssitelispdir); then \
+		@if test -d $(emacssitelispdir); then \
 			$(INSTALL_DATA) $(srcdir)/gforth.el $(emacssitelispdir); \
 		else \
 			echo ">>>>>Please install $(srcdir)/gforth.el in your .../emacs/site-lisp directory"; \
 		fi
-		echo ">>>>> Please make an entry for Gforth in your info dir file; e.g.:"; \
+		@echo ">>>>> Please make an entry for Gforth in your info dir file; e.g.:"; \
 		echo "* Gforth: (gforth).	A fast interpreter for the Forth language."
 
 install-strip:	install
