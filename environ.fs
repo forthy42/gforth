@@ -22,7 +22,7 @@
 
 Create environment-wordlist  wordlist drop
 
-: environment? ( c-addr u -- false / ... true )
+: environment? ( c-addr u -- false / ... true ) \ core environment-query
     environment-wordlist search-wordlist if
 	execute true
     else
@@ -53,9 +53,15 @@ true constant CORE-EXT
 
 0 1 2constant gforth \ minor major version
 
-\ !! RETURN-STACK-CELLS
-\ !! STACK-CELLS
-\ !! floating-stack
+: return-stack-cells ( -- n )
+    [ forthstart 6 cells + ] literal @ cell / ;
+
+: stack-cells ( -- n )
+    [ forthstart 4 cells + ] literal @ cell / ;
+
+: floating-stack ( -- n )
+    [ forthstart 5 cells + ] literal @ float / ;
+
 \ !! max-float
 15 constant #locals \ 1000 64 /
     \ One local can take up to 64 bytes, the size of locals-buffer is 1000

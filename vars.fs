@@ -30,6 +30,7 @@ hex \ everything now hex!                               11may93jaw
   0 Constant false
 
 1 cells Constant cell
+1 floats Constant float
 
 20 Constant bl \ used by docon:, must be constant
 

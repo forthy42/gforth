@@ -39,6 +39,9 @@
 #include "getopt.h"
 #include "version.h"
 
+#define PRIM_VERSION 1
+/* increment this whenever the primitives change in an incompatible way */
+
 #ifdef MSDOS
 jmp_buf throw_jmp_buf;
 #endif
@@ -145,7 +148,7 @@ void relocate(Cell *image, char *bitstring, int size, Label symbols[])
 
 UCell checksum(Label symbols[])
 {
-  UCell r=0;
+  UCell r=PRIM_VERSION;
   Cell i;
 
   for (i=DOCOL; i<=DOESJUMP; i++) {

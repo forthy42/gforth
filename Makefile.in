@@ -337,7 +337,7 @@ check test:	gforth gforth.fi
 		$(FORTH) tester.fs coretest.fs postponetest.fs dbltest.fs -e bye
 		$(FORTH) code.fs checkans.fs -e bye
 		@echo 'Expect no differences'
-		$(FORTH) prims2x.fs -e "s\" $(srcdir)/primitives.b\" ' output-c process-file bye"| diff -c - $(srcdir)/primitives.i
+		$(FORTH) -m 100000 prims2x.fs -e "s\" $(srcdir)/primitives.b\" ' output-c process-file bye"| diff -c - $(srcdir)/primitives.i
 
 bench:		gforth gforth.fi
 		@echo 'Each benchmark takes about 30s on a 486-66 (gcc-2.6.3 -DFORCE_REG)'

@@ -3131,20 +3131,23 @@ and you can give commands to Gforth interactively. The actual facilities
 available depend on how you invoke Gforth.
 
 @item program data space available:
-@code{sp@@ here - .} gives the space remaining for dictionary and data
-stack together.
+@code{UNUSED .} gives the remaining dictionary space. The total
+dictionary space can be specified with the @code{-m} switch
+(@pxref{Invocation}) when Gforth starts up.
 
 @item return stack space available:
-By default 16 KBytes. The default can be overridden with the @code{-r}
-switch (@pxref{Invocation}) when Gforth starts up.
+You can compute the total return stack space in cells with
+@code{s" RETURN-STACK-CELLS" environment? drop .}. You can specify it at
+startup time with the @code{-r} switch (@pxref{Invocation}).
 
 @item stack space available:
-@code{sp@@ here - .} gives the space remaining for dictionary and data
-stack together.
+You can compute the total data stack space in cells with
+@code{s" STACK-CELLS" environment? drop .}. You can specify it at
+startup time with the @code{-d} switch (@pxref{Invocation}).
 
 @item system dictionary space required, in address units:
 Type @code{here forthstart - .} after startup. At the time of this
-writing, this gives 70108 (bytes) on a 32-bit system.
+writing, this gives 80080 (bytes) on a 32-bit system.
 @end table
 
 
@@ -3462,8 +3465,9 @@ nearest, and break ties by rounding to even (i.e., such that the last
 bit of the mantissa is 0).
 
 @item size of floating-point stack:
-@code{s" FLOATING-STACK" environment? drop .}. Can be changed at startup
-with the command-line option @code{-f}.
+@code{s" FLOATING-STACK" environment? drop .} gives the total size of
+the floating-point stack (in floats). You can specify this on startup
+with the command-line option @code{-f} (@pxref{Invocation}).
 
 @item width of floating-point stack:
 @code{1 floats}.
