@@ -20,6 +20,7 @@ FORTH	= ./gforth
 CC	= gcc
 TEXI2DVI = tex
 DVI2PS	= dvips
+MAKEINFO = makeinfo
 XCFLAGS	= @CFLAGS@
 XDEFINES = @DEFS@
 SWITCHES = $(XCFLAGS) $(XDEFINES) -D_POSIX_VERSION#-DNDEBUG #turn off assertions
@@ -122,7 +123,7 @@ install:	gforth $(FORTH_SRC) gforth.fi gforth.1 gforth.info
 		$(INSTALL) -d $(bindir) $(mandir) $(infodir) $(libdir)/gforth $(datadir)/gforth	
 		$(INSTALL_PROGRAM) gforth $(bindir)
 		$(INSTALL_DATA) gforth.1 $(mandir)
-		$(INSTALL_DATA) gforth.info $(infodir)
+		$(INSTALL_DATA) gforth.info* $(infodir)
 		$(INSTALL_DATA) gforth.fi $(libdir)/gforth
 		for i in $(FORTH_SRC); do \
 			$(CP) $$i $(datadir)/gforth; \
@@ -181,6 +182,9 @@ gforth.dvi:	gforth.texi
 
 gforth.ps:	gforth.dvi
 		$(DVI2PS) gforth.dvi -o $@
+
+gforth.info:	gforth.texi
+		-$(MAKEINFO) gforth.texi
 
 # For an explanation of the following Makefile rules, see node
 # `Automatic Remaking' in GNU Autoconf documentation.

@@ -1046,6 +1046,7 @@ f/		r1 r2 -- r3	float	f_slash
 r3 = r1/r2;
 
 f**		r1 r2 -- r3	float-ext	f_star_star
+""@i{r3} is @i{r1} raised to the @i{r2}th power""
 r3 = pow(r1,r2);
 
 fnegate		r1 -- r2	float
@@ -1068,10 +1069,12 @@ floats		n1 -- n2	float
 n2 = n1*sizeof(Float);
 
 floor		r1 -- r2	float
+""round towards the next smaller integral value, i.e., round toward negative infinity""
 /* !! unclear wording */
 r2 = floor(r1);
 
 fround		r1 -- r2	float
+""round to the nearest integral value""
 /* !! unclear wording */
 #ifdef HAVE_RINT
 r2 = rint(r1);
@@ -1149,6 +1152,8 @@ fatan		r1 -- r2	float-ext
 r2 = atan(r1);
 
 fatan2		r1 r2 -- r3	float-ext
+""@i{r1/r2}=tan@i{r3}. The standard does not require, but probably
+intends this to be the inverse of @code{fsincos}. In gforth it is.""
 r3 = atan2(r1,r2);
 
 fcos		r1 -- r2	float-ext
@@ -1158,25 +1163,28 @@ fexp		r1 -- r2	float-ext
 r2 = exp(r1);
 
 fexpm1		r1 -- r2	float-ext
+""@i{r2}=@i{e}**@i{r1}@minus{}1""
 r2 =
 #ifdef HAVE_EXPM1
 	expm1(r1);
 #else
-	exp(r1)-1;
+	exp(r1)-1.;
 #endif
 
 fln		r1 -- r2	float-ext
 r2 = log(r1);
 
 flnp1		r1 -- r2	float-ext
+""@i{r2}=ln(@i{r1}+1)""
 r2 =
 #ifdef HAVE_LOG1P
 	log1p(r1);
 #else
-log(r1+1);
+log(r1+1.);
 #endif
 
 flog		r1 -- r2	float-ext
+""the decimal logarithm""
 r2 = log10(r1);
 
 fsin		r1 -- r2	float-ext
@@ -1208,7 +1216,7 @@ c_addr = CODE_ADDRESS(xt);
 >does-code	xt -- a_addr		new	to_does_code
 ""If xt ist the execution token of a defining-word-defined word,
 a_addr is the start of the Forth code after the DOES>; Otherwise the
-behaviour is uundefined""
+behaviour is undefined""
 /* !! there is currently no way to determine whether a word is
 defining-word-defined */
 a_addr = (Cell *)DOES_CODE(xt);

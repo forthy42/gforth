@@ -1,9 +1,9 @@
 \input texinfo   @c -*-texinfo-*-
 @comment The source is gforth.ds, from which gforth.texi is generated
 @comment %**start of header (This is for running Texinfo on a region.)
-@setfilename gforth-info
+@setfilename gforth.info
 @settitle GNU Forth Manual
-@setchapternewpage odd
+@comment @setchapternewpage odd
 @comment %**end of header (This is for running Texinfo on a region.)
 
 @ifinfo
@@ -15,13 +15,13 @@ Copyright @copyright{} 1994 GNU Forth Development Group
      this manual provided the copyright notice and this permission notice
      are preserved on all copies.
      
-     @ignore
+@ignore
      Permission is granted to process this file through TeX and print the
      results, provided the printed document carries a copying permission
      notice identical to this one except for the removal of this paragraph
      (this paragraph not being relevant to the printed manual).
      
-     @end ignore
+@end ignore
      Permission is granted to copy and distribute modified versions of this
      manual under the conditions for verbatim copying, provided also that the
      sections entitled "Distribution" and "General Public License" are
@@ -77,19 +77,19 @@ personal machines. This manual corresponds to version 0.0.
 @end ifinfo
 
 @menu
-* License::             
-* Goals::               About the GNU Forth Project
-* Other Books::         Things you might want to read
-* Invocation::          Starting GNU Forth
-* Words::               Forth words available in GNU Forth
-* ANS conformance::     Implementation-defined options etc.
-* Model::               The abstract machine of GNU Forth
-* Emacs and GForth::    The GForth Mode
-* Internals::           Implementation details
-* Bugs::                How to report them
-* Pedigree::            Ancestors of GNU Forth
-* Word Index::          An item for each Forth word
-* Node Index::          An item for each node
+* License::                     
+* Goals::                       About the GNU Forth Project
+* Other Books::                 Things you might want to read
+* Invocation::                  Starting GNU Forth
+* Words::                       Forth words available in GNU Forth
+* ANS conformance::             Implementation-defined options etc.
+* Model::                       The abstract machine of GNU Forth
+* Emacs and GForth::            The GForth Mode
+* Internals::                   Implementation details
+* Bugs::                        How to report them
+* Pedigree::                    Ancestors of GNU Forth
+* Word Index::                  An item for each Forth word
+* Node Index::                  An item for each node
 @end menu
 
 @node License, Goals, Top, Top
@@ -253,22 +253,23 @@ the user initialization file @file{.gforth.fs} is executed, unless the
 option @code{--no-rc} is given; this file is first searched in @file{.},
 then in @file{~}, then in the normal path (see above).
 
-@node Words,  , Invocation, Top
+@node Words, ANS conformance, Invocation, Top
 @chapter Forth Words
 
 @menu
-* Notation::
-* Arithmetic::
-* Stack Manipulation::
-* Memory access::
-* Control Structures::
-* Local Variables::
-* Defining Words::
-* Vocabularies::
-* Files::
-* Blocks::
-* Other I/O::
-* Programming Tools::
+* Notation::                    
+* Arithmetic::                  
+* Stack Manipulation::          
+* Memory access::               
+* Control Structures::          
+* Locals::                      
+* Defining Words::              
+* Wordlists::                   
+* Files::                       
+* Blocks::                      
+* Other I/O::                   
+* Programming Tools::           
+* Threading Words::             
 @end menu
 
 @node Notation, Arithmetic, Words, Words
@@ -277,10 +278,10 @@ then in @file{~}, then in the normal path (see above).
 The Forth words are described in this section in the glossary notation
 that has become a de-facto standard for Forth texts, i.e.
 
-@quotation
+@format
 @var{word}     @var{Stack effect}   @var{wordset}   @var{pronunciation}
+@end format
 @var{Description}
-@end quotation
 
 @table @var
 @item word
@@ -314,11 +315,10 @@ wordsets. Words that are not defined in the ANS standard have
 A description of the behaviour of the word.
 @end table
 
-The name of a stack item corresponds in the following way with its type:
+The type of a stack item is specified by the character(s) the name
+starts with:
 
 @table @code
-@item name starts with
-Type
 @item f
 Bool, i.e. @code{false} or @code{true}.
 @item c
@@ -353,7 +353,7 @@ Wordlist ID, same size as Cell
 Pointer to a name structure
 @end table
 
-@node Arithmetic,  , Notation, Words
+@node Arithmetic, Stack Manipulation, Notation, Words
 @section Arithmetic
 Forth arithmetic is not checked, i.e., you will not hear about integer
 overflow on addition or multiplication, you may hear about division by
@@ -363,8 +363,17 @@ corresponds to @code{2 1 -}. Forth offers a variety of division
 operators. If you perform division with potentially negative operands,
 you do not want to use @code{/} or @code{/mod} with its undefined
 behaviour, but rather @code{fm/mod} or @code{sm/mod} (probably the
-former).
+former, @pxref{Mixed precision}).
 
+@menu
+* Single precision::            
+* Bitwise operations::          
+* Mixed precision::             operations with single and double-cell integers
+* Double precision::            Double-cell integer arithmetic
+* Floating Point::              
+@end menu
+
+@node Single precision, Bitwise operations, Arithmetic, Arithmetic
 @subsection Single precision
 doc-+
 doc--
@@ -377,6 +386,7 @@ doc-abs
 doc-min
 doc-max
 
+@node Bitwise operations, Mixed precision, Single precision, Arithmetic
 @subsection Bitwise operations
 doc-and
 doc-or
@@ -385,6 +395,7 @@ doc-invert
 doc-2*
 doc-2/
 
+@node Mixed precision, Double precision, Bitwise operations, Arithmetic
 @subsection Mixed precision
 doc-m+
 doc-*/
@@ -396,6 +407,7 @@ doc-um/mod
 doc-fm/mod
 doc-sm/rem
 
+@node Double precision, Floating Point, Mixed precision, Arithmetic
 @subsection Double precision
 doc-d+
 doc-d-
@@ -404,7 +416,55 @@ doc-dabs
 doc-dmin
 doc-dmax
 
-@node Stack Manipulation,,,
+@node Floating Point,  , Double precision, Arithmetic
+@subsection Floating Point
+
+Angles in floating point operations are given in radians (a full circle
+has 2 pi radians). Note, that gforth has a separate floating point
+stack, but we use the unified notation.
+
+Floating point numbers have a number of unpleasant surprises for the
+unwary (e.g., floating point addition is not associative) and even a few
+for the wary. You should not use them unless you know what you are doing
+or you don't care that the results you get are totally bogus. If you
+want to learn about the problems of floating point numbers (and how to
+avoid them), you might start with @cite{Goldberg, What every computer
+scientist should know about floating-point numbers, Computing Surveys
+?}.
+
+doc-f+
+doc-f-
+doc-f*
+doc-f/
+doc-fnegate
+doc-fabs
+doc-fmax
+doc-fmin
+doc-floor
+doc-fround
+doc-f**
+doc-fsqrt
+doc-fexp
+doc-fexpm1
+doc-fln
+doc-flnp1
+doc-flog
+doc-fsin
+doc-fcos
+doc-fsincos
+doc-ftan
+doc-fasin
+doc-facos
+doc-fatan
+doc-fatan2
+doc-fsinh
+doc-fcosh
+doc-ftanh
+doc-fasinh
+doc-facosh
+doc-fatanh
+
+@node Stack Manipulation, Memory access, Arithmetic, Words
 @section Stack Manipulation
 
 gforth has a data stack (aka parameter stack) for characters, cells,
@@ -417,13 +477,25 @@ theoretically keep floating point numbers on the data stack. As an
 additional difficulty, you don't know how many cells a floating point
 number takes. It is reportedly possible to write words in a way that
 they work also for a unified stack model, but we do not recommend trying
-it. Also, a Forth system is allowed to keep the local variables on the
+it. Instead, just say that your program has an environmental dependency
+on a separate FP stack.
+
+Also, a Forth system is allowed to keep the local variables on the
 return stack. This is reasonable, as local variables usually eliminate
 the need to use the return stack explicitly. So, if you want to produce
 a standard complying program and if you are using local variables in a
 word, forget about return stack manipulations in that word (see the
 standard document for the exact rules).
 
+@menu
+* Data stack::                  
+* Floating point stack::        
+* Return stack::                
+* Locals stack::                
+* Stack pointer manipulation::  
+@end menu
+
+@node Data stack, Floating point stack, Stack Manipulation, Stack Manipulation
 @subsection Data stack
 doc-drop
 doc-nip
@@ -444,6 +516,7 @@ doc-2tuck
 doc-2swap
 doc-2rot
 
+@node Floating point stack, Return stack, Data stack, Stack Manipulation
 @subsection Floating point stack
 doc-fdrop
 doc-fnip
@@ -453,6 +526,7 @@ doc-ftuck
 doc-fswap
 doc-frot
 
+@node Return stack, Locals stack, Floating point stack, Stack Manipulation
 @subsection Return stack
 doc->r
 doc-r>
@@ -463,8 +537,10 @@ doc-2r>
 doc-2r@
 doc-2rdrop
 
+@node Locals stack, Stack pointer manipulation, Return stack, Stack Manipulation
 @subsection Locals stack
 
+@node Stack pointer manipulation,  , Locals stack, Stack Manipulation
 @subsection Stack pointer manipulation
 doc-sp@
 doc-sp!
@@ -475,9 +551,16 @@ doc-rp!
 doc-lp@
 doc-lp!
 
-@node Memory access
+@node Memory access, Control Structures, Stack Manipulation, Words
 @section Memory access
 
+@menu
+* Stack-Memory transfers::      
+* Address arithmetic::          
+* Memory block access::         
+@end menu
+
+@node Stack-Memory transfers, Address arithmetic, Memory access, Memory access
 @subsection Stack-Memory transfers
 
 doc-@
@@ -494,6 +577,7 @@ doc-sf!
 doc-df@
 doc-df!
 
+@node Address arithmetic, Memory block access, Stack-Memory transfers, Memory access
 @subsection Address arithmetic
 
 ANS Forth does not specify the sizes of the data types. Instead, it
@@ -542,6 +626,7 @@ doc-dfalign
 doc-dfaligned
 doc-address-unit-bits
 
+@node Memory block access,  , Address arithmetic, Memory access
 @subsection Memory block access
 
 doc-move
@@ -555,7 +640,7 @@ doc-cmove>
 doc-fill
 doc-blank
 
-@node Control Structures
+@node Control Structures, Locals, Memory access, Words
 @section Control Structures
 
 Control structures in Forth cannot be used in interpret state, only in
@@ -563,6 +648,16 @@ compile state, i.e., in a colon definition. We do not like this
 limitation, but have not seen a satisfying way around it yet, although
 many schemes have been proposed.
 
+@menu
+* Selection::                   
+* Simple Loops::                
+* Counted Loops::               
+* Arbitrary control structures::  
+* Calls and returns::           
+* Exception Handling::          
+@end menu
+
+@node Selection, Simple Loops, Control Structures, Control Structures
 @subsection Selection
 
 @example
@@ -581,7 +676,7 @@ ELSE
 ENDIF
 @end example
 
-You can use @code{THEN} instead of {ENDIF}. Indeed, @code{THEN} is
+You can use @code{THEN} instead of @code{ENDIF}. Indeed, @code{THEN} is
 standard, and @code{ENDIF} is not, although it is quite popular. We
 recommend using @code{ENDIF}, because it is less confusing for people
 who also know other languages (and is not prone to reinforcing negative
@@ -608,7 +703,7 @@ can avoid using @code{?dup}.
 CASE
   @var{n1} OF @var{code1} ENDOF
   @var{n2} OF @var{code2} ENDOF
-  @dots
+  @dots{}
 ENDCASE
 @end example
 
@@ -617,6 +712,7 @@ Executes the first @var{codei}, where the @var{ni} is equal to
 the last @code{ENDOF}. It may use @var{n}, which is on top of the stack,
 but must not consume it.
 
+@node Simple Loops, Counted Loops, Selection, Control Structures
 @subsection Simple Loops
 
 @example
@@ -648,6 +744,7 @@ AGAIN
 
 This is an endless loop.
 
+@node Counted Loops, Arbitrary control structures, Simple Loops, Control Structures
 @subsection Counted Loops
 
 The basic counted loop is:
@@ -734,6 +831,7 @@ iterates @var{n+1} times; @code{i} produces values starting with @var{n}
 and ending with 0. Other Forth systems may behave differently, even if
 they support @code{FOR} loops.
 
+@node Arbitrary control structures, Calls and returns, Counted Loops, Control Structures
 @subsection Arbitrary control structures
 
 ANS Forth permits and supports using control structures in a non-nested
@@ -841,6 +939,7 @@ That's much easier to read, isn't it? Of course, @code{BEGIN} and
 @code{WHILE} are predefined, so in this example it would not be
 necessary to define them.
 
+@node Calls and returns, Exception Handling, Arbitrary control structures, Control Structures
 @subsection Calls and returns
 
 A definition can be called simply be writing the name of the
@@ -854,12 +953,13 @@ primitive compiled by @code{EXIT} is
 
 doc-;s
 
+@node Exception Handling,  , Calls and returns, Control Structures
 @subsection Exception Handling
 
 doc-catch
 doc-throw
 
-@node Locals
+@node Locals, Defining Words, Control Structures, Words
 @section Locals
 
 Local variables can make Forth programming more enjoyable and Forth
@@ -869,8 +969,11 @@ locals wordset, but also our own, more powerful locals wordset (we
 implemented the ANS Forth locals wordset through our locals wordset).
 
 @menu
+* gforth locals::               
+* ANS Forth locals::            
 @end menu
 
+@node gforth locals, ANS Forth locals, Locals, Locals
 @subsection gforth locals
 
 Locals can be defined with
@@ -936,6 +1039,14 @@ structures, but we are working on it.
 
 GNU Forth allows defining locals everywhere in a colon definition. This poses the following questions:
 
+@menu
+* Where are locals visible by name?::  
+* How long do locals live? ::   
+* Programming Style::           
+* Implementation::              
+@end menu
+
+@node Where are locals visible by name?, How long do locals live?, gforth locals, gforth locals
 @subsubsection Where are locals visible by name?
 
 Basically, the answer is that locals are visible where you would expect
@@ -994,7 +1105,7 @@ AHEAD
 BEGIN
   x
 [ 1 CS-ROLL ] THEN
-  { x }
+  @{ x @}
   ...
 UNTIL
 @end example
@@ -1026,7 +1137,7 @@ compiler. When the branch to the @code{BEGIN} is finally generated by
 warns the user if it was too optimisitic:
 @example
 IF
-  { x }
+  @{ x @}
 BEGIN
   \ x ? 
 [ 1 cs-roll ] THEN
@@ -1042,7 +1153,7 @@ is not used in the wrong area by using explicit scoping:
 @example
 IF
   SCOPE
-  { x }
+  @{ x @}
   ENDSCOPE
 BEGIN
 [ 1 cs-roll ] THEN
@@ -1065,7 +1176,7 @@ doc-assume-live
 
 E.g.,
 @example
-{ x }
+@{ x @}
 AHEAD
 ASSUME-LIVE
 BEGIN
@@ -1086,13 +1197,14 @@ rearranging the loop. E.g., the ``most insidious'' example above can be
 arranged into:
 @example
 BEGIN
-  { x }
+  @{ x @}
   ... 0=
 WHILE
   x
 REPEAT
 @end example
 
+@node How long do locals live?, Programming Style, Where are locals visible by name?, gforth locals
 @subsubsection How long do locals live?
 
 The right answer for the lifetime question would be: A local lives at
@@ -1106,6 +1218,7 @@ languages (e.g., C): The local lives only as long as it is visible;
 afterwards its address is invalid (and programs that access it
 afterwards are erroneous).
 
+@node Programming Style, Implementation, How long do locals live?, gforth locals
 @subsubsection Programming Style
 
 The freedom to define locals anywhere has the potential to change
@@ -1117,10 +1230,10 @@ wrong order, just write a locals definition for all of them; then
 write the items in the order you want.
 
 This seems a little far-fetched and eliminating stack manipulations is
-unlikely to become a conscious programming objective. Still, the
-number of stack manipulations will be reduced dramatically if local
-variables are used liberally (e.g., compare @code{max} in \sect{misc}
-with a traditional implementation of @code{max}).
+unlikely to become a conscious programming objective. Still, the number
+of stack manipulations will be reduced dramatically if local variables
+are used liberally (e.g., compare @code{max} in @ref{gforth locals} with
+a traditional implementation of @code{max}).
 
 This shows one potential benefit of locals: making Forth programs more
 readable. Of course, this benefit will only be realized if the
@@ -1174,6 +1287,7 @@ are initialized with the right value for the current iteration.
 Here it is clear from the start that @code{s1} has a different value
 in every loop iteration.
 
+@node Implementation,  , Programming Style, gforth locals
 @subsubsection Implementation
 
 GNU Forth uses an extra locals stack. The most compelling reason for
@@ -1214,7 +1328,7 @@ special area is cleared at the start of every colon definition.
 A special feature of GNU Forths dictionary is used to implement the
 definition of locals without type specifiers: every wordlist (aka
 vocabulary) has its own methods for searching
-etc. (@xref{dictionary}). For the present purpose we defined a wordlist
+etc. (@pxref{Wordlists}). For the present purpose we defined a wordlist
 with a special search method: When it is searched for a word, it
 actually creates that word using @code{W:}. @code{@{} changes the search
 order to first search the wordlist containing @code{@}}, @code{W:} etc.,
@@ -1251,7 +1365,7 @@ The locals stack pointer is only adjusted if the branch is taken.
 @code{lp+!#} orig-locals-size @minus{} new-locals-size
 @end format
 The second @code{lp+!#} adjusts the locals stack pointer from the
-level at the {\em orig} point to the level after the @code{THEN}. The
+level at the @var{orig} point to the level after the @code{THEN}. The
 first @code{lp+!#} adjusts the locals stack pointer from the current
 level to the level at the orig point, so the complete effect is an
 adjustment from the current level to the right level after the
@@ -1301,6 +1415,7 @@ this may lead to increased space needs for the locals name area, but
 usually less than reclaiming this space would cost in code size.
 
 
+@node ANS Forth locals,  , gforth locals, Locals
 @subsection ANS Forth locals
 
 The ANS Forth locals wordset does not define a syntax for locals, but
@@ -1335,7 +1450,7 @@ The whole definition must be in one line.
 @end itemize
 
 Locals defined in this way behave like @code{VALUE}s
-(@xref{values}). I.e., they are initialized from the stack. Using their
+(@xref{Values}). I.e., they are initialized from the stack. Using their
 name produces their value. Their value can be changed using @code{TO}.
 
 Since this syntax is supported by gforth directly, you need not do
@@ -1360,12 +1475,133 @@ programs harder to read, and easier to misread and miswrite. The only
 merit of this syntax is that it is easy to implement using the ANS Forth
 locals wordset.
 
-@node Internals
+@node Defining Words, Wordlists, Locals, Words
+@section Defining Words
+
+@node Values,  , Defining Words, Defining Words
+@subsection Values
+
+@node Wordlists, Files, Defining Words, Words
+@section Wordlists
+
+@node Files, Blocks, Wordlists, Words
+@section Files
+
+@node Blocks, Other I/O, Files, Words
+@section Blocks
+
+@node Other I/O, Programming Tools, Blocks, Words
+@section Other I/O
+
+@node Programming Tools, Threading Words, Other I/O, Words
+@section Programming Tools
+
+@node
+@subsection Debugging
+
+The simple debugging aids provided in @file{debugging.fs}
+are meant to support a different style of debugging than the
+tracing/stepping debuggers used in languages with long turn-around
+times.
+
+A much better (faster) way in fast-compilig languages is to add
+printing code at well-selected places, let the program run, look at
+the output, see where things went wrong, add more printing code, etc.,
+until the bug is found.
+
+The word @code{~~} is easy to insert. It just prints debugging
+information (by default the source location and the stack contents). It
+is also easy to remove (@kbd{C-x ~} in the Emacs Forth mode to
+query-replace them with nothing). The deferred words
+@code{printdebugdata} and @code{printdebugline} control the output of
+@code{~~}. The default source location output format works well with
+Emacs' compilation mode, so you can step through the program at the
+source level using @kbd{C-x `}.
+
+Note that the default actions clobber the contents of the pictured
+numeric output string, so you should not use @code{~~}, e.g., between
+@code{<#} and @code{#>}.
+
+doc-~~
+doc-printdebugdata
+doc-printdebugline
+
+@node
+@subsection Assertions
+
+@node Threading Words,  , Programming Tools, Words
+@section Threading Words
+
+These words provide access to code addresses and other threading stuff
+in gforth (and, possibly, other interpretive Forths). It more or less
+abstracts away the differences between direct and indirect threading
+(and, for direct threading, the machine dependences). However, at
+present this wordset is still inclomplete. It is also pretty low-level;
+some day it will hopefully be made unnecessary by an internals words set
+that abstracts implementation details away completely.
+
+doc->code-address
+doc->does-code
+doc-code-address!
+doc-does-code!
+doc-does-handler!
+doc-/does-handler
+
+@node ANS conformance, Model, Words, Top
+@chapter ANS conformance
+
+@node Model, Emacs and GForth, ANS conformance, Top
+@chapter Model
+
+@node Emacs and GForth, Internals, Model, Top
+@chapter Emacs and GForth
+
+GForth comes with @file{gforth.el}, an improved version of
+@file{forth.el} by Goran Rydqvist (icluded in the TILE package). The
+improvements are a better (but still not perfect) handling of
+indentation. I have also added comment paragraph filling (@kbd{M-q}),
+commenting (@kbd{C-x \}) and uncommenting (@kbd{C-x |}) regions and
+removing debugging tracers (@kbd{C-x ~}). I left the stuff I do not use
+alone, even though some of it only makes sense for TILE. To get a
+description of these features, enter Forth mode and type @kbd{C-h m}.
+
+In addition, GForth supports Emacs quite well: The source code locations
+given in error messages, debugging output (from @code{~~}) and failed
+assertion messages are in the right format for Emacs' compilation mode
+(@pxref{Compilation, , Running Compilations under Emacs, emacs, Emacs
+Manual}) so the source location corresponding to an error or other
+message is only a few keystrokes away (@kbd{C-x `} for the next error,
+@kbd{C-c C-c} for the error under the cursor).
+
+Also, if you @code{include} @file{etags.fs}, a new @file{TAGS} file
+(@pxref{Tags, , Tags Tables, emacs, Emacs Manual}) will be produced that
+contains the definitions of all words defined afterwards. You can then
+find the source for a word using @kbd{M-.}. Note that emacs can use
+several tags files at the same time (e.g., one for the gforth sources
+and one for your program).
+
+To get all these benefits, add the following lines to your @file{.emacs}
+file:
+
+@example
+(autoload 'forth-mode "gforth.el")
+(setq auto-mode-alist (cons '("\\.fs\\'" . forth-mode) auto-mode-alist))
+@end example
+
+@node Internals, Bugs, Emacs and GForth, Top
 @chapter Internals
 
 Reading this section is not necessary for programming with gforth. It
 should be helpful for finding your way in the gforth sources.
 
+@menu
+* Portability::                 
+* Threading::                   
+* Primitives::                  
+* System Architecture::         
+@end menu
+
+@node Portability, Threading, Internals, Internals
 @section Portability
 
 One of the main goals of the effort is availability across a wide range
@@ -1414,6 +1650,7 @@ machines some compiler versions produce incorrect code when certain
 explicit register declarations are used. So by default
 @code{-DFORCE_REG} is not used.
 
+@node Threading, Primitives, Portability, Internals
 @section Threading
 
 GNU C's labels as values extension (available since @code{gcc-2.0},
@@ -1445,6 +1682,13 @@ goto *ca;
 Of course we have packaged the whole thing neatly in macros called
 @code{NEXT} and @code{NEXT1} (the part of NEXT after fetching the cfa).
 
+@menu
+* Scheduling::                  
+* Direct or Indirect Threaded?::  
+* DOES>::                       
+@end menu
+
+@node Scheduling, Direct or Indirect Threaded?, Threading, Threading
 @subsection Scheduling
 
 There is a little complication: Pipelined and superscalar processors,
@@ -1463,13 +1707,13 @@ NEXT;
 the NEXT comes strictly after the other code, i.e., there is nearly no
 scheduling. After a little thought the problem becomes clear: The
 compiler cannot know that sp and ip point to different addresses (and
-the version of @code{gcc} we used would not know it even if it could),
-so it could not move the load of the cfa above the store to the
-TOS. Indeed the pointers could be the same, if code on or very near the
-top of stack were executed. In the interest of speed we chose to forbid
-this probably unused ``feature'' and helped the compiler in scheduling:
-NEXT is divided into the loading part (@code{NEXT_P1}) and the goto part
-(@code{NEXT_P2}). @code{+} now looks like:
+the version of @code{gcc} we used would not know it even if it was
+possible), so it could not move the load of the cfa above the store to
+the TOS. Indeed the pointers could be the same, if code on or very near
+the top of stack were executed. In the interest of speed we chose to
+forbid this probably unused ``feature'' and helped the compiler in
+scheduling: NEXT is divided into the loading part (@code{NEXT_P1}) and
+the goto part (@code{NEXT_P2}). @code{+} now looks like:
 @example
 n=sp[0]+sp[1];
 sp++;
@@ -1477,12 +1721,13 @@ NEXT_P1;
 sp[0]=n;
 NEXT_P2;
 @end example
-This can be scheduled optimally by the compiler (see \sect{TOS}).
+This can be scheduled optimally by the compiler.
 
 This division can be turned off with the switch @code{-DCISC_NEXT}. This
 switch is on by default on machines that do not profit from scheduling
 (e.g., the 80386), in order to preserve registers.
 
+@node Direct or Indirect Threaded?, DOES>, Scheduling, Threading
 @subsection Direct or Indirect Threaded?
 
 Both! After packaging the nasty details in macro definitions we
@@ -1499,6 +1744,7 @@ are inherently machine-dependent, but they do not amount to many source
 lines. I.e., even porting direct threading to a new machine is a small
 effort.
 
+@node DOES>,  , Direct or Indirect Threaded?, Threading
 @subsection DOES>
 One of the most complex parts of a Forth engine is @code{dodoes}, i.e.,
 the chunk of code executed by every word defined by a
@@ -1516,7 +1762,7 @@ again. We use this approach for the indirect threaded version. Leaving
 a cell unused in most words is a bit wasteful, but on the machines we
 are targetting this is hardly a problem. The other reason for having a
 code field size of two cells is to avoid having different image files
-for direct and indirect threaded systems (@pxref{image-format}).
+for direct and indirect threaded systems (@pxref{System Architecture}).
 
 The other approach is that the code field points or jumps to the cell
 after @code{DOES}. In this variant there is a jump to @code{dodoes} at
@@ -1530,8 +1776,16 @@ used up by the jump to the code address in direct threading, we use
 this approach for direct threading. We did not want to add another
 cell to the code field.
 
+@node Primitives, System Architecture, Threading, Internals
 @section Primitives
 
+@menu
+* Automatic Generation::        
+* TOS Optimization::            
+* Produced code::               
+@end menu
+
+@node Automatic Generation, TOS Optimization, Primitives, Primitives
 @subsection Automatic Generation
 
 Since the primitives are implemented in a portable language, there is no
@@ -1573,7 +1827,7 @@ looks like this:
 @example
 I_plus:	/* + ( n1 n2 -- n ) */  /* label, stack effect */
 /*  */                          /* documentation */
-{
+@{
 DEF_CA                          /* definition of variable ca (indirect threading) */
 Cell n1;                        /* definitions of variables */
 Cell n2;
@@ -1582,13 +1836,13 @@ n1 = (Cell) sp[1];              /* input */
 n2 = (Cell) TOS;
 sp += 1;                        /* stack adjustment */
 NAME("+")                       /* debugging output (with -DDEBUG) */
-{
+@{
 n = n1+n2;                      /* C code taken from the source */
-}
+@}
 NEXT_P1;                        /* NEXT part 1 */
 TOS = (Cell)n;                  /* output */
 NEXT_P2;                        /* NEXT part 2 */
-}
+@}
 @end example
 
 This looks long and inefficient, but the GNU C compiler optimizes quite
@@ -1610,12 +1864,13 @@ where the programmer has to take the actions of the generator into
 account, most notably @code{?dup}, but also words that do not (always)
 fall through to NEXT.
 
+@node TOS Optimization, Produced code, Automatic Generation, Primitives
 @subsection TOS Optimization
 
 An important optimization for stack machine emulators, e.g., Forth
 engines, is keeping  one or more of the top stack items in
-registers.  If a word has the stack effect {@var{in1}...@var{inx} @code{--}
-@var{out1}...@var{outy}}, keeping the top @var{n} items in registers
+registers.  If a word has the stack effect @var{in1}...@var{inx} @code{--}
+@var{out1}...@var{outy}, keeping the top @var{n} items in registers
 @itemize
 @item
 is better than keeping @var{n-1} items, if @var{x>=n} and @var{y>=n},
@@ -1654,19 +1909,21 @@ consider:
 @item In the case of @code{dup ( w -- w w )} the generator must not
 eliminate the store to the original location of the item on the stack,
 if the TOS optimization is turned on.
-@item Primitives with stack effects of the form {@code{--}
-@var{out1}...@var{outy}} must store the TOS to the stack at the start.
-Likewise, primitives with the stack effect {@var{in1}...@var{inx} @code{--}}
+@item Primitives with stack effects of the form @code{--}
+@var{out1}...@var{outy} must store the TOS to the stack at the start.
+Likewise, primitives with the stack effect @var{in1}...@var{inx} @code{--}
 must load the TOS from the stack at the end. But for the null stack
 effect @code{--} no stores or loads should be generated.
 @end itemize
 
+@node Produced code,  , TOS Optimization, Primitives
 @subsection Produced code
 
 To see what assembly code is produced for the primitives on your machine
 with your compiler and your flag settings, type @code{make engine.s} and
-look at the resulting file @file{engine.c}.
+look at the resulting file @file{engine.s}.
 
+@node System Architecture,  , Primitives, Internals
 @section System Architecture
 
 Our Forth system consists not only of primitives, but also of
@@ -1693,14 +1950,14 @@ file for machines with different cell sizes and different byte order
 image file that enables the loader to change the byte order.}.
 
 Forth code that is going to end up in a portable image file has to
-comply to some restrictions: addresses have to be stored in memory
-with special words (@code{A!}, @code{A,}, etc.) in order to make the
-code relocatable. Cells, floats, etc., have to be stored at the
-natural alignment boundaries@footnote{E.g., store floats (8 bytes) at
-an address dividable by~8. This happens automatically in our system
-when you use the ANSI alignment words.}, in order to avoid alignment
-faults on machines with stricter alignment. The image file is produced
-by a metacompiler (@file{cross.fs}).
+comply to some restrictions: addresses have to be stored in memory with
+special words (@code{A!}, @code{A,}, etc.) in order to make the code
+relocatable. Cells, floats, etc., have to be stored at the natural
+alignment boundaries@footnote{E.g., store floats (8 bytes) at an address
+dividable by~8. This happens automatically in our system when you use
+the ANS Forth alignment words.}, in order to avoid alignment faults on
+machines with stricter alignment. The image file is produced by a
+metacompiler (@file{cross.fs}).
 
 So, unlike the image file of Mitch Bradleys @code{cforth}, our image
 file is not directly executable, but has to undergo some manipulations
@@ -1708,6 +1965,18 @@ during loading. Address relocation is performed at image load-time, not
 at run-time. The loader also has to replace tokens standing for
 primitive calls with the appropriate code-field addresses (or code
 addresses in the case of direct threading).
+
+@node Bugs, Pedigree, Internals, Top
+@chapter Bugs
+
+@node Pedigree, Word Index, Bugs, Top
+@chapter Pedigree
+
+@node Word Index, Node Index, Pedigree, Top
+@chapter Word Index
+
+@node Node Index,  , Word Index, Top
+@chapter Node Index
 
 @contents
 @bye

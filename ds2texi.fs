@@ -41,11 +41,11 @@ end-struct doc-entry
     drop ;
 
 : print-short ( doc-entry -- )
-    >r ." @format"
+    >r ." @format" cr
     ." @code{" r@ doc-name 2@ typetexi ." }       "
     ." @i{" r@ doc-stack-effect 2@ type ." }       "
     r@ doc-wordset 2@ type ."        ``"
-    r@ doc-pronounciation 2@ type ." ''@end format" cr
+    r@ doc-pronounciation 2@ type ." ''" cr ." @end format" cr
     rdrop ;
 
 : print-doc ( doc-entry -- )
