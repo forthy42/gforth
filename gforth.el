@@ -990,5 +990,35 @@ The region is sent terminated by a newline."
 ;       (define-key global-map '(shift button3) 'mouse-function-menu)
 ))
 
+;;; Highlighting
+
+(if (not (file-exists-p "/usr/share/emacs/site-lisp/hl319.el"))
+    (require 'hilit19)
+  (require 'hl319))
+
+(hilit-set-mode-patterns
+ '(forth-mode)
+ (append
+  '(("\\\\ \\(.*\\)$" nil comment)) ; comments
+  '(("( [^)]* -- [^)]* )" nil decl))
+  '(("( -- [^)]* )" nil decl))
+  '(("( [^)]* -- )" nil decl))
+  '(("( -- )" nil decl))
+  '(("( " ")" comment))
+  '(("\" [^\"]*\"" nil string))
+  '(("\\(IF\\|ELSE\\|THEN\\|BEGIN\\|WHILE\\|REPEAT\\|UNTIL\\)" nil keyword))
+  '((": *[^ ]*" nil defun))
+  '(("Defer *[^ ]*" nil defun))
+  '(("Variable *[^ ]*" nil define))
+  '(("Constant *[^ ]*" nil define))
+  '(("include *[^ ]*" nil include))
+  '(("require *[^ ]*" nil include))
+  '(("[ 	]\\$[0-9A-Fa-f]+" nil formula))
+  '(("[ 	]&[0-9]+" nil formula))
+  '(("[ 	][0-9]+" nil formula))
+  '(("[ 	]%[01]+" nil formula))
+  '(("[ 	]'[^ ]+" nil formula))
+  '((":noname" nil defun))))
+
 ;; end
 
