@@ -44,7 +44,11 @@ does> ( name execution: -- )
     create field, ;
 
 : field ( align1 offset1 align size "name" --  align2 offset2 ) \ gforth
-    \G @code{name} execution: @var{addr1} -- @var{addr2}.
+    \g Create a field @var{name} with offset @var{offset1}, and the type
+    \g given by @var{align size}. @var{offset2} is the offset of the
+    \g next field, and @var{align2} is the alignment of all fields.@*
+    \g @code{name} execution: @var{addr1} -- @var{addr2}.@*
+    \g @var{addr2}=@var{addr1}+@var{offset1}
     2 pick 
     if \ field offset <> 0
 	[IFDEF]  (Field)
@@ -58,10 +62,10 @@ does> ( name execution: -- )
     field, ;
 
 : end-struct ( align size "name" -- ) \ gforth
-\g @code{name} execution: @var{addr1} -- @var{addr1+offset1}@*
-\g Create a field @var{name} with offset @var{offset1}, and the type
-\g given by @var{size align}. @var{offset2} is the offset of the
-\g next field, and @var{align2} is the alignment of all fields.
+\g Define a structure/type descriptor @var{name} with alignment
+\g @var{align} and size @var{size1} (@var{size} rounded up to be a
+\g multiple of @var{align}).@*
+\g @code{name} execution: -- @var{align size1}@*
     over nalign \ pad size to full alignment
     2constant ;
 

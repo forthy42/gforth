@@ -1379,7 +1379,7 @@ c_addr = (Address)CODE_ADDRESS(xt);
     @ ;
 
 >does-code	( xt -- a_addr )		gforth	to_does_code
-""If @i{xt} is the execution token of a defining-word-defined word,
+""If @i{xt} is the execution token of a child of a @code{DOES>} word,
 @i{a-addr} is the start of the Forth code after the @code{DOES>};
 Otherwise @i{a-addr} is 0.""
 a_addr = (Cell *)DOES_CODE(xt);
@@ -1394,16 +1394,16 @@ CACHE_FLUSH(xt,(size_t)PFA(0));
     ! ;
 
 does-code!	( a_addr xt -- )		gforth	does_code_store
-""Create a code field at @i{xt} for a defining-word-defined word; @i{a-addr}
-is the start of the Forth code after @code{DOES>}.""
+""Create a code field at @i{xt} for a child of a @code{DOES>}-word;
+@i{a-addr} is the start of the Forth code after @code{DOES>}.""
 MAKE_DOES_CF(xt, a_addr);
 CACHE_FLUSH(xt,(size_t)PFA(0));
 :
     dodoes: over ! cell+ ! ;
 
 does-handler!	( a_addr -- )	gforth	does_handler_store
-""Create a @code{DOES>}-handler at address @i{a-addr}. Usually, @i{a-addr} points
-just behind a @code{DOES>}.""
+""Create a @code{DOES>}-handler at address @i{a-addr}. Normally,
+@i{a-addr} points just behind a @code{DOES>}.""
 MAKE_DOES_HANDLER(a_addr);
 CACHE_FLUSH((caddr_t)a_addr,DOES_HANDLER_SIZE);
 :
