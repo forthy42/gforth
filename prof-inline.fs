@@ -45,18 +45,31 @@ true constant count-calls? \ do some profiling of colon definitions etc.
 \ how many static calls are there to a word?  How many of the dynamic
 \ calls call just a single word?
 
+\ how much does inlining called-once words help?
+\ how much does inlining words without control flow help?
+\ how much does partial inlining help?
+\ what's the overlap?
+\ optimizing return-to-returns (tail calls), return-to-calls, call-to-calls
+
 struct
-    cell%    field profile-next
+    cell% list-next
+end-struct list%
+
+list%
     cell% 2* field profile-count
     cell% 2* field profile-sourcepos
     cell%    field profile-char \ character position in line
     count-calls? [if]
 	cell% field profile-colondef? \ is this a colon definition start
-	cell% field profile-calls \ static calls to the colon def
+	cell% field profile-calls \ static calls to the colon def (calls%)
 	cell% field profile-straight-line \ may contain calls, but no other CF
 	cell% field profile-calls-from \ static calls in the colon def
     [endif]
 end-struct profile% \ profile point
+
+list%
+    cell% field calls%-call \ ptr to profile point of bb containing the call
+end-struct calls%
 
 variable profile-points \ linked list of profile%
 0 profile-points !
@@ -65,7 +78,13 @@ profile-points next-profile-point-p !
 count-calls? [if]
     variable last-colondef-profile \ pointer to the pp of last colon definition
 [endif]
-    
+
+\ list stuff
+
+
+
+\ profile-point stuff   
+
 : new-profile-point ( -- addr )
     profile% %alloc >r
     0. r@ profile-count 2!
@@ -77,9 +96,9 @@ count-calls? [if]
 	r@ profile-straight-line on
 	0 r@ profile-calls-from !
     [endif]
-    0 r@ profile-next !
+    0 r@ list-next !
     r@ next-profile-point-p @ !
-    r@ profile-next next-profile-point-p !
+    r@ list-next next-profile-point-p !
     r> ;
 
 : print-profile ( -- )
@@ -89,7 +108,7 @@ count-calls? [if]
 	    r@ profile-sourcepos 2@ .sourcepos ." :"
 	    r@ profile-char @ 0 .r ." : "
 	    r@ profile-count 2@ 0 d.r cr
-	    r> profile-next @
+	    r> list-next @
     repeat
     drop ;
 
@@ -105,7 +124,7 @@ count-calls? [if]
 		r@ profile-calls @ 4 .r
 		cr
 	    endif
-	    r> profile-next @
+	    r> list-next @
     repeat
     drop ;
 

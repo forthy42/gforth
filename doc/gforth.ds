@@ -972,7 +972,7 @@ for Forth source-code files.
 
 @code{GFORTHSYSTEMPREFIX} -- specifies what to prepend to the argument
 of @code{system} before passing it to C's @code{system()}.  Default:
-@code{"command.com /c "} on Windows, @code{""} on other OSs.  The prefix
+@code{"./$COMSPEC /c "} on Windows, @code{""} on other OSs.  The prefix
 and the command are directly concatenated, so if a space between them is
 necessary, append it to the prefix.
 

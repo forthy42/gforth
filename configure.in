@@ -362,9 +362,12 @@ case "$host_os" in
 	*win32|cygwin)
 		DIRSEP="\\\\"
 		PATHSEP=";"
-		#we want the builtins of command.com and its handling of .com files
-		#on some Windows versions "cmd.exe /c " is an alternative
-		DEFAULTSYSTEMPREFIX="command.com /c "
+		#we want the builtins of command.com/cmd.exe and its
+		# handling of .com files.
+		#$COMSPEC contains the name of the Windows shell;
+		# the ./ is there, because the bash does not recognize
+		# absolute DOS filenames
+		DEFAULTSYSTEMPREFIX="./$COMSPEC /c "
 		;;
 	*darwin*)
 		#Darwin uses some funny preprocessor by default; eliminate it:
