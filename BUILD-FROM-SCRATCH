@@ -21,12 +21,14 @@
 
 # created: 2may00jaw
 
-# To build gforth from scratch you need autoconf and automake.
+# To build gforth from scratch you need autoconf, automake and a 
+# gforth0.5.0
 # This file can be used as shell script. If you make the environment
 # variable GFORTH point to an existing gforth installation, this
-# script takes over kernel and primitve files.
+# script takes over the whole build process and will produce the
+# kernel kernel images from the sources as well
 
-# try to guess a previous version of Gforth
+# try to guess a installed gforth
 
 if [ "$GFORTH" == "" ]
 then
@@ -54,5 +56,5 @@ autoheader
 
 if [ "$GFORTH" != "" ]
 then
-	make BUILDGFORTH="$GFORTH"
+	make all BUILDFORTH="$GFORTH"
 fi
