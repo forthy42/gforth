@@ -91,6 +91,8 @@
 
 */
 
+
+
 #ifdef DOUBLY_INDIRECT
 #  define NEXT_P0	({cfa=*ip;})
 #  define IP		(ip)
@@ -108,7 +110,18 @@
     fprintf(stderr,"EXEC encountered xt %p at ip=%p, vm_prims=%p, xts=%p\n", cfa, ip, vm_prims, xts); \
  ca=**cfa; goto *ca;})
 
-#else /* !defined(DOUBLY_INDIRECT) */
+#elif defined(NO_IP)
+
+#define NEXT_P0
+#define SET_IP(target)	assert(0)
+#define INC_IP(n)	((void)0)
+#define DEF_CA
+#define NEXT_P1
+#define NEXT_P2		({goto *next_code;})
+/* set next_code to the return address before performing EXEC */
+#define EXEC(XT)	({cfa=(XT); goto **cfa;})
+
+#else  /* !defined(DOUBLY_INDIRECT) && !defined(NO_IP) */
 
 #if defined(DIRECT_THREADED)
 
@@ -361,7 +374,7 @@
 /* indirect threaded */
 #endif
 
-#endif /* !defined(DOUBLY_INDIRECT) */
+#endif /* !defined(DOUBLY_INDIRECT) && !defined(NO_IP) */
 
 #define NEXT ({DEF_CA NEXT_P1; NEXT_P2;})
 #define IPTOS NEXT_INST

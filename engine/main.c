@@ -193,7 +193,7 @@ void relocate(Cell *image, const char *bitstring,
 		image[i]=(Cell)CFA(CF(token));
 #ifdef DIRECT_THREADED
 		if ((token & 0x4000) == 0) /* threade code, no CFA */
-		  image[i] = (Cell)compile_prim((Label)image[i]);
+		  compile_prim1(&image[i]);
 #endif
 	      } else
 		fprintf(stderr,"Primitive %d used in this image at $%lx is not implemented by this\n engine (%s); executing this code will crash.\n",CF(token),(long)&image[i],VERSION);
@@ -207,6 +207,7 @@ void relocate(Cell *image, const char *bitstring,
       }
     }
   }
+  finish_code();
   ((ImageHeader*)(image))->base = (Address) image;
 }
 
@@ -441,23 +442,29 @@ void print_sizes(Cell sizebyte)
 	  1 << ((sizebyte >> 5) & 3));
 }
 
+#define MAX_IMMARGS 2
+
 #ifndef NO_DYNAMIC
 typedef struct {
   Label start;
   Cell length; /* excluding the jump */
-  char super_end; /* true if primitive ends superinstruction, i.e.,
+  char superend; /* true if primitive ends superinstruction, i.e.,
                      unconditional branch, execute, etc. */
+  Cell nimmargs;
+  struct immarg {
+    Cell offset; /* offset of immarg within prim */
+    char rel;    /* true if immarg is relative */
+  } immargs[MAX_IMMARGS];
 } PrimInfo;
 
 PrimInfo *priminfos;
 #endif /* defined(NO_DYNAMIC) */
 Cell npriminfos=0;
 
-
 void check_prims(Label symbols1[])
 {
   int i;
-  Label *symbols2;
+  Label *symbols2, *symbols3, *ends1;
   static char superend[]={
 #include "prim_superend.i"
   };
@@ -473,65 +480,232 @@ void check_prims(Label symbols1[])
   for (i=DOESJUMP+1; symbols1[i+1]!=0; i++)
     ;
   npriminfos = i;
-
-#if defined(IS_NEXT_JUMP) && !defined(NO_DYNAMIC)
+  
+#ifndef NO_DYNAMIC
   if (no_dynamic)
     return;
   symbols2=engine2(0,0,0,0,0);
+#if NO_IP
+  symbols3=engine3(0,0,0,0,0);
+#else
+  symbols3=symbols1;
+#endif
+  ends1 = symbols1+i+1-DOESJUMP;
   priminfos = calloc(i,sizeof(PrimInfo));
   for (i=DOESJUMP+1; symbols1[i+1]!=0; i++) {
-    int prim_len=symbols1[i+1]-symbols1[i];
+    int prim_len = ends1[i]-symbols1[i];
     PrimInfo *pi=&priminfos[i];
-    int j;
-    pi->super_end = superend[i-DOESJUMP-1]|no_super;
-    for (j=prim_len-IND_JUMP_LENGTH; ; j--) {
-      if (IS_NEXT_JUMP(symbols1[i]+j)) {
-	prim_len = j;
-	if (pi->super_end)
-	  prim_len += IND_JUMP_LENGTH; /* include the jump */
-	break;
-      }
-      if (j==0) { /* NEXT jump not found, e.g., execute */
-	if (!pi->super_end && debug)
-	  fprintf(stderr, "NEXT jump not found for primitive %d, making it super_end\n", i);
-        pi->super_end = 1;
-	break;
+    int j=0;
+    char *s1 = (char *)symbols1[i];
+    char *s2 = (char *)symbols2[i];
+    char *s3 = (char *)symbols3[i];
+
+    pi->start = s1;
+    pi->superend = superend[i-DOESJUMP-1]|no_super;
+    if (pi->superend)
+      pi->length = symbols1[i+1]-symbols1[i];
+    else
+      pi->length = prim_len;
+    pi->nimmargs = 0;
+    if (debug)
+      fprintf(stderr, "Prim %3d @ %p %p %p, length=%3d superend=%1d",
+	      i, s1, s2, s3, prim_len, pi->superend);
+    assert(prim_len>=0);
+    while (j<prim_len) {
+      if (s1[j]==s3[j]) {
+	if (s1[j] != s2[j]) {
+	  pi->start = NULL; /* not relocatable */
+	  if (debug)
+	    fprintf(stderr,"\n   non_reloc: engine1!=engine2 offset %3d",j);
+	  break;
+	}
+	j++;
+      } else {
+	struct immarg *ia=&pi->immargs[pi->nimmargs];
+
+	pi->nimmargs++;
+	ia->offset=j;
+	if ((~*(Cell *)&(s1[j]))==*(Cell *)&(s3[j])) {
+	  ia->rel=0;
+	  if (debug)
+	    fprintf(stderr,"\n   absolute immarg: offset %3d",j);
+	} else if ((&(s1[j]))+(*(Cell *)&(s1[j]))+4 ==
+		   symbols1[DOESJUMP+1]) {
+	  ia->rel=1;
+	  if (debug)
+	    fprintf(stderr,"\n   relative immarg: offset %3d",j);
+	} else {
+	  pi->start = NULL; /* not relocatable */
+	  if (debug)
+	    fprintf(stderr,"\n   non_reloc: engine1!=engine3 offset %3d",j);
+	  break;
+	}
+	j+=4;
       }
     }
-    pi->length = prim_len;
-    /* fprintf(stderr,"checking primitive %d: memcmp(%p, %p, %d)\n",
-       i, symbols1[i], symbols2[i], prim_len);*/
-    if (memcmp(symbols1[i],symbols2[i],prim_len)!=0) {
-      if (debug)
-	fprintf(stderr,"Primitive %d not relocatable: memcmp(%p, %p, %d)\n",
-		i, symbols1[i], symbols2[i], prim_len);
-    } else {
-      pi->start = symbols1[i];
-      if (debug)
-	fprintf(stderr,"Primitive %d relocatable: start %p, length %ld, super_end %d\n",
-		i, pi->start, pi->length, pi->super_end);
-    }      
-  }  
+    if (debug)
+      fprintf(stderr,"\n");
+  }
 #endif
 }
 
-Label compile_prim(Label prim)
+#ifdef NO_IP
+int nbranchinfos=0;
+
+struct branchinfo {
+  Label *targetptr; /* *(bi->targetptr) is the target */
+  Cell *addressptr; /* store the target here */
+} branchinfos[100000];
+
+int ndoesexecinfos=0;
+struct doesexecinfo {
+  int branchinfo; /* fix the targetptr of branchinfos[...->branchinfo] */
+  Cell *xt; /* cfa of word whose does-code needs calling */
+} doesexecinfos[10000];
+
+#define N_EXECUTE 10
+#define N_PERFORM 11
+#define N_LIT_PERFORM 337
+#define N_CALL 333
+#define N_DOES_EXEC 339
+#define N_LIT 9
+#define N_CALL2 362
+#define N_ABRANCH 341
+#define N_SET_NEXT_CODE 361
+
+void set_rel_target(Cell *source, Label target)
+{
+  *source = ((Cell)target)-(((Cell)source)+4);
+}
+
+void register_branchinfo(Label source, Cell targetptr)
+{
+  struct branchinfo *bi = &(branchinfos[nbranchinfos]);
+  bi->targetptr = (Label *)targetptr;
+  bi->addressptr = (Cell *)source;
+  nbranchinfos++;
+}
+
+Cell *compile_prim1arg(Cell p)
+{
+  int l = priminfos[p].length;
+  Address old_code_here=code_here;
+
+  memcpy(code_here, vm_prims[p], l);
+  code_here+=l;
+  return (Cell*)(old_code_here+priminfos[p].immargs[0].offset);
+}
+
+Cell *compile_call2(Cell targetptr)
+{
+  Cell *next_code_target;
+  PrimInfo *pi = &priminfos[N_CALL2];
+
+  memcpy(code_here, pi->start, pi->length);
+  next_code_target = (Cell *)(code_here + pi->immargs[0].offset);
+  register_branchinfo(code_here + pi->immargs[1].offset, targetptr);
+  code_here += pi->length;
+  return next_code_target;
+}
+#endif
+
+void finish_code(void)
+{
+#ifdef NO_IP
+  Cell i;
+
+  compile_prim1(NULL);
+  for (i=0; i<ndoesexecinfos; i++) {
+    struct doesexecinfo *dei = &doesexecinfos[i];
+    branchinfos[dei->branchinfo].targetptr = DOES_CODE1((dei->xt));
+  }
+  ndoesexecinfos = 0;
+  for (i=0; i<nbranchinfos; i++) {
+    struct branchinfo *bi=&branchinfos[i];
+    set_rel_target(bi->addressptr, *(bi->targetptr));
+  }
+  nbranchinfos = 0;
+  FLUSH_ICACHE(start_flush, code_here-start_flush);
+  start_flush=code_here;
+#endif
+}
+
+void compile_prim1(Cell *start)
 {
 #if defined(DOUBLY_INDIRECT)
+  Label prim=(Label)*start;
   if (prim<((Label)(xts+DOESJUMP)) || prim>((Label)(xts+npriminfos))) {
     fprintf(stderr,"compile_prim encountered xt %p\n", prim);
-    return prim;
-  } else
-    return prim-((Label)xts)+((Label)vm_prims);
-#elif defined(IND_JUMP_LENGTH) && !defined(NO_DYNAMIC)
+    *start=(Cell)prim;
+    return;
+  } else {
+    *start = prim-((Label)xts)+((Label)vm_prims);
+    return;
+  }
+#elif defined(NO_IP)
+  static Cell *last_start=NULL;
+  static Xt last_prim=NULL;
+  /* delay work by one call in order to get relocated immargs */
+
+  if (last_start) {
+    unsigned i = last_prim-vm_prims;
+    PrimInfo *pi=&priminfos[i];
+    Cell *next_code_target=NULL;
+
+    assert(i<npriminfos);
+    if (i==N_EXECUTE||i==N_PERFORM||i==N_LIT_PERFORM) {
+      next_code_target = compile_prim1arg(N_SET_NEXT_CODE);
+    }
+    if (i==N_CALL) {
+      next_code_target = compile_call2(last_start[1]);
+    } else if (i==N_DOES_EXEC) {
+      struct doesexecinfo *dei = &doesexecinfos[ndoesexecinfos++];
+      *compile_prim1arg(N_LIT) = (Cell)PFA(last_start[1]);
+      /* we cannot determine the callee now (last_start[1] may be a
+         forward reference), so just register an arbitrary target, and
+         register in dei that we need to fix this before resolving
+         branches */
+      dei->branchinfo = nbranchinfos;
+      dei->xt = (Cell *)(last_start[1]);
+      next_code_target = compile_call2(NULL);
+    } else if (pi->start == NULL) { /* non-reloc */
+      next_code_target = compile_prim1arg(N_SET_NEXT_CODE);
+      set_rel_target(compile_prim1arg(N_ABRANCH),*(Xt)last_prim);
+    } else {
+      unsigned j;
+
+      memcpy(code_here, *last_prim, pi->length);
+      for (j=0; j<pi->nimmargs; j++) {
+	struct immarg *ia = &(pi->immargs[j]);
+	Cell argval = last_start[pi->nimmargs - j]; /* !! specific to prims */
+	if (ia->rel) { /* !! assumption: relative refs are branches */
+	  register_branchinfo(code_here + ia->offset, argval);
+	} else /* plain argument */
+	  *(Cell *)(code_here + ia->offset) = argval;
+      }
+      code_here += pi->length;
+    }
+    if (next_code_target!=NULL)
+      *next_code_target = (Cell)code_here;
+  }
+  if (start) {
+    last_prim = (Xt)*start;
+    *start = (Cell)code_here;
+  }
+  last_start = start;
+  return;
+#elif !defined(NO_DYNAMIC)
+  Label prim=(Label)*start;
   unsigned i;
   Address old_code_here=code_here;
   static Address last_jump=0;
 
   i = ((Xt)prim)-vm_prims;
   prim = *(Xt)prim;
-  if (no_dynamic)
-    return prim;
+  if (no_dynamic) {
+    *start = (Cell)prim;
+    return;
+  }
   if (i>=npriminfos || priminfos[i].start == 0) { /* not a relocatable prim */
     if (last_jump) { /* make sure the last sequence is complete */
       memcpy(code_here, last_jump, IND_JUMP_LENGTH);
@@ -540,7 +714,8 @@ Label compile_prim(Label prim)
       FLUSH_ICACHE(start_flush, code_here-start_flush);
       start_flush=code_here;
     }
-    return prim;
+    *start = (Cell)prim;
+    return;
   }
   assert(priminfos[i].start = prim); 
 #ifdef ALIGN_CODE
@@ -548,18 +723,28 @@ Label compile_prim(Label prim)
 #endif
   memcpy(code_here, (Address)prim, priminfos[i].length);
   code_here += priminfos[i].length;
-  last_jump = (priminfos[i].super_end) ? 0 : (prim+priminfos[i].length);
+  last_jump = (priminfos[i].superend) ? 0 : (prim+priminfos[i].length);
   if (last_jump == 0) {
     FLUSH_ICACHE(start_flush, code_here-start_flush);
     start_flush=code_here;
   }
-  return (Label)old_code_here;
+  *start = (Cell)old_code_here;
+  return;
 #else /* !defined(DOUBLY_INDIRECT), no code replication */
+  Label prim=(Label)*start;
 #if !defined(INDIRECT_THREADED)
   prim = *(Xt)prim;
 #endif
-  return prim;
+  *start = (Cell)prim;
+  return;
 #endif /* !defined(DOUBLY_INDIRECT) */
+}
+
+Label compile_prim(Label prim)
+{
+  Cell x=(Cell)prim;
+  compile_prim1(&x);
+  return (Label)x;
 }
 
 #if defined(PRINT_SUPER_LENGTHS) && !defined(NO_DYNAMIC)

@@ -95,6 +95,9 @@ variable include-skipped-insts
 \ inline arguments (false)
 include-skipped-insts off
 
+variable immarg \ values for immediate arguments (to be used in IMM_ARG macros)
+$12340000 immarg !
+
 : th ( addr1 n -- addr2 )
     cells + ;
 
@@ -325,9 +328,12 @@ Variable function-number 0 function-number !
 : complement ( set1 -- set2 )
  empty ['] bit-equivalent binary-set-operation ;
 
+\ forward declaration for inst-stream (breaks cycle in definitions)
+defer inst-stream-f ( -- stack )
+
 \ stack access stuff
 
-: normal-stack-access ( n stack -- )
+: normal-stack-access1 ( n stack -- )
     stack-pointer 2@ type
     dup
     if
@@ -336,8 +342,13 @@ Variable function-number 0 function-number !
 	drop ." TOS"
     endif ;
 
-\ forward declaration for inst-stream (breaks cycle in definitions)
-defer inst-stream-f ( -- stack )
+: normal-stack-access ( n stack -- )
+    dup inst-stream-f = if
+	." IMM_ARG(" normal-stack-access1 ." ," immarg ? ." )"
+	1 immarg +!
+    else
+	normal-stack-access1
+    endif ;
 
 : stack-depth { stack -- n }
     current-depth stack stack-number @ th @ ;
@@ -714,7 +725,8 @@ stack inst-stream IP Cell
     2drop ;
 
 : output-label2 ( -- )
-    ." LABEL2(" prim prim-c-name 2@ type ." )" cr ;
+    ." LABEL2(" prim prim-c-name 2@ type ." )" cr
+    ." NEXT_P2;" cr ;
 
 : output-c-tail1 { xt -- }
     \ the final part of the generated C code, with xt printing LABEL2 or not.
@@ -723,16 +735,14 @@ stack inst-stream IP Cell
     ." NEXT_P1;" cr
     stores
     fill-tos 
-    xt execute
-    ." NEXT_P2;" cr ;
+    xt execute ;
 
 : output-c-tail1-no-stores { xt -- }
     \ the final part of the generated C code for combinations
     output-super-end
     ." NEXT_P1;" cr
     fill-tos 
-    xt execute
-    ." NEXT_P2;" cr ;
+    xt execute ;
 
 : output-c-tail ( -- )
     ['] noop output-c-tail1 ;

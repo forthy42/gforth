@@ -74,7 +74,7 @@ XDEFINES = @DEFS@
 SWITCHES = $(XCFLAGS) $(XDEFINES)
 ENGINE_FLAGS = @ENGINE_FLAGS@ -fno-defer-pop -fcaller-saves
 DEBUGFLAG = @DEBUGFLAG@
-CFLAGS	= $(DEBUGFLAG) -I$(srcdir)/../arch/$(machine) -I. -O3 -Wall $(SWITCHES) -DDEFAULTPATH=\"$(FORTHPATH)\"
+CFLAGS	= $(DEBUGFLAG) -I$(srcdir)/../arch/$(machine) -I. -O2 -Wall $(SWITCHES) -DDEFAULTPATH=\"$(FORTHPATH)\"
 CFLAGS2	= $(DEBUGFLAG) -I$(srcdir)/../arch/$(machine) -I. -O2 -Wall $(SWITCHES) -DDEFAULTPATH=\"$(FORTHPATH)\"
 FORTHKFLAGS= --die-on-signal -p "..$(PATHSEP)$(srcdir)" -i ../$(kernel_fi)
 FORTHK	= ../gforth $(FORTHKFLAGS)
@@ -87,6 +87,7 @@ LDLIBS  = @LIBS@
 AOBJECTS = io.o signals.o memcmpc.o peephole.o @LIBOBJS@
 
 OBJECTS = engine.o main.o
+OBJECTS_NATIVE = engine-native.o main-native.o
 OBJECTS_FAST = engine-fast.o main-fast.o
 OBJECTS_ITC = engine-itc.o main-itc.o
 OBJECTS_DITC = engine-ditc.o main-ditc.o
@@ -105,6 +106,9 @@ MAIN_DEPS = main.c $(DEPS) prim_superend.i
 
 gforth$(EXE):	$(OBJECTS) $(AOBJECTS)
 	$(GCC) $(LDFLAGS) $(OBJECTS) $(AOBJECTS) $(LDLIBS) -o $@
+
+gforth-native$(EXE):	$(OBJECTS_NATIVE) $(AOBJECTS)
+	$(GCC) $(LDFLAGS) $(OBJECTS_NATIVE) $(AOBJECTS) $(LDLIBS) -o $@
 
 gforth-fast$(EXE):	$(OBJECTS_FAST) $(AOBJECTS)
 	$(GCC) $(LDFLAGS) $(OBJECTS_FAST) $(AOBJECTS) $(LDLIBS) -o $@
@@ -127,6 +131,9 @@ engine.s:	$(ENGINE_DEPS)
 engine.o:	$(ENGINE_DEPS)
 		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -fno-gcse -fno-strict-aliasing -DGFORTH_DEBUGGING -o $@ -c engine.b.c
 
+engine-native.o:$(ENGINE_DEPS)
+		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -fno-gcse -DNO_IP -o $@ -c engine.b.c
+
 engine-fast.o:	$(ENGINE_DEPS)
 		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -fno-gcse -o $@ -c engine.b.c
 
@@ -141,6 +148,9 @@ engine-prof.o:	$(ENGINE_DEPS)
 
 main.o:		$(MAIN_DEPS) 
 		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -DGFORTH_DEBUGGING -o $@ -c $(srcdir)/main.c
+
+main-native.o:	$(MAIN_DEPS) 
+		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -DNO_IP -o $@ -c $(srcdir)/main.c
 
 main-fast.o:	$(MAIN_DEPS) 
 		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -o $@ -c $(srcdir)/main.c

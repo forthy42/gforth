@@ -359,7 +359,7 @@ SOURCES	= $(CVSDIRS) compat Makefile.in Makedist.in engine/Makefile.in \
 
 RCS_FILES =  ToDo model high-level
 
-GEN = gforth$(EXE) gforth-ditc$(EXE) gforth-fast$(EXE) gforth-itc$(EXE) gforth-prof$(EXE) kernel/version.fs
+GEN = gforth$(EXE) gforth-ditc$(EXE) gforth-fast$(EXE) gforth-native$(EXE) gforth-itc$(EXE) gforth-prof$(EXE) kernel/version.fs
 
 # things that need a working forth system to be generated
 FORTH_GEN_ENGINE=engine/prim.i engine/prim_lab.i engine/prim_names.i engine/prim_superend.i engine/peephole.i engine/profile.i
@@ -439,7 +439,7 @@ docclean:	FORCE
 
 clean:		mostlyclean
 		-$(RM) -rf $(GEN) engine/gforth$(EXE) \
-		engine/gforth-fast$(EXE) engine/gforth-itc$(EXE) \
+		engine/gforth-fast$(EXE) engine/gforth-native$(EXE) engine/gforth-itc$(EXE) \
 		engine/gforth-ditc$(EXE) engine/gforth-prof$(EXE) \
 		*.o engine/*.o arch/*/*.o version
 
@@ -692,6 +692,10 @@ gforth-fast$(EXE):	engines
 		$(CP) engine/$@ $@
 		@GFORTHFAST_EXE@
 
+gforth-native$(EXE):	engines
+		$(CP) engine/$@ $@
+#@GFORTHX_EXE@
+
 gforth-itc$(EXE):	engines
 		$(CP) engine/$@ $@
 		@GFORTHITC_EXE@
@@ -703,10 +707,10 @@ gforth-ditc$(EXE):	engines
 gforth-prof$(EXE):	engines
 		$(CP) engine/$@ $@
 
-gforths: gforth$(EXE) gforth-fast$(EXE) gforth-itc$(EXE) gforth-ditc$(EXE) gforth-prof$(EXE)
+gforths: gforth$(EXE) gforth-fast$(EXE) gforth-native$(EXE) gforth-itc$(EXE) gforth-ditc$(EXE) gforth-prof$(EXE)
 
 engines:	FORCE $(FORTH_GEN_ENGINE) engine/Makefile
-		cd engine && $(MAKE) gforth$(EXE) gforth-fast$(EXE) gforth-itc$(EXE) gforth-ditc$(EXE) gforth-prof$(EXE)
+		cd engine && $(MAKE) gforth$(EXE) gforth-fast$(EXE) gforth-native$(EXE) gforth-itc$(EXE) gforth-ditc$(EXE) gforth-prof$(EXE)
 
 # ------------- additional C primitives
 

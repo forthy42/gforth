@@ -22,6 +22,27 @@
 
 require ./vars.fs
 
+: CLiteral ( Compilation c-addr1 u ; run-time -- c-addr )
+    here 4 cells + postpone literal
+    2>r postpone ahead 2r> s, postpone then ; immediate restrict
+
+: SLiteral ( Compilation c-addr1 u ; run-time -- c-addr2 u ) \ string
+\G Compilation: compile the string specified by @i{c-addr1},
+\G @i{u} into the current definition. Run-time: return
+\G @i{c-addr2 u} describing the address and length of the
+\G string.
+    \ !! limited to 255 chars
+    postpone cliteral postpone count ; immediate restrict
+
+\ \ abort"							22feb93py
+
+: abort" ( compilation 'ccc"' -- ; run-time f -- ) \ core,exception-ext	abort-quote
+\G If any bit of @i{f} is non-zero, perform the function of @code{-2 throw},
+\G displaying the string @i{ccc} if there is no exception frame on the
+\G exception stack.
+    postpone if [char] " parse postpone cliteral postpone c(abort")
+    postpone then ; immediate restrict
+
 \ create s"-buffer /line chars allot
 has? compiler 0= 
 [IF] : s" [ELSE] :noname [THEN]

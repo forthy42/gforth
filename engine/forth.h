@@ -254,6 +254,8 @@ void vm_count_block(Xt *ip);
 
 /* dynamic superinstruction stuff */
 Label compile_prim(Label prim);
+void compile_prim1(Cell *start);
+void finish_code(void);
 
 extern int offset_image;
 extern int die_on_signal;

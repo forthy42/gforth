@@ -249,6 +249,12 @@ static int ufileattr[6]= {
 
 #define vm_Cell2Cell(_x,_y)		(_y=_x)
 
+#ifdef NO_IP
+#define IMM_ARG(access,value)		(VARIANT(value))
+#else
+#define IMM_ARG(access,value)		(access)
+#endif
+
 /* if machine.h has not defined explicit registers, define them as implicit */
 #ifndef IPREG
 #define IPREG
@@ -304,6 +310,10 @@ Xt *saved_ip;
 Cell *rp;
 #endif
 
+#ifdef NO_IP
+static Label next_code;
+#endif
+
 #ifdef DEBUG
 #define CFA_TO_NAME(__cfa) \
       Cell len, i; \
@@ -329,7 +339,6 @@ Xt *primtable(Label symbols[], Cell size)
   return xts;
 }
 
-
 define(enginerest,
 `(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
 /* executes code at ip, if ip!=NULL
@@ -339,7 +348,9 @@ define(enginerest,
 #ifndef GFORTH_DEBUGGING
   register Cell *rp RPREG;
 #endif
-  register Xt *ip IPREG;
+#ifndef NO_IP
+  register Xt *ip IPREG = ip0;
+#endif
   register Cell *sp SPREG = sp0;
   register Float *fp FPREG = fp0;
   register Address lp LPREG = lp0;
@@ -373,6 +384,9 @@ define(enginerest,
 #undef INST_ADDR
     (Label)&&after_last,
     (Label)0,
+#define INST_ADDR(name) (Label)&&K_##name
+#include "prim_lab.i"
+#undef INST_ADDR
 #ifdef IN_ENGINE2
 #define INST_ADDR(name) (Label)&&J_##name
 #include "prim_lab.i"
@@ -383,15 +397,14 @@ define(enginerest,
   CPU_DEP2
 #endif
 
-  ip = ip0;
   rp = rp0;
 #ifdef DEBUG
   fprintf(stderr,"ip=%x, sp=%x, rp=%x, fp=%x, lp=%x, up=%x\n",
-          (unsigned)ip,(unsigned)sp,(unsigned)rp,
+          (unsigned)ip0,(unsigned)sp,(unsigned)rp,
 	  (unsigned)fp,(unsigned)lp,(unsigned)up);
 #endif
 
-  if (ip == NULL) {
+  if (ip0 == NULL) {
 #if defined(DOUBLY_INDIRECT)
 #define CODE_OFFSET (26*sizeof(Cell))
 #define XT_OFFSET (22*sizeof(Cell))
@@ -417,10 +430,13 @@ define(enginerest,
   IF_spTOS(spTOS = sp[0]);
   IF_fpTOS(fpTOS = fp[0]);
 /*  prep_terminal(); */
+#ifdef NO_IP
+  goto *(*(Label *)ip0);
+#else
   SET_IP(ip);
   SUPER_END; /* count the first block, too */
   NEXT;
-
+#endif
 
 #ifdef CPU_DEP3
   CPU_DEP3
@@ -428,6 +444,10 @@ define(enginerest,
   
  docol:
   {
+#ifdef NO_IP
+    *--rp = next_code;
+    goto **(Label *)PFA1(cfa);
+#else
 #ifdef DEBUG
     {
       CFA_TO_NAME(cfa);
@@ -453,6 +473,7 @@ define(enginerest,
       NEXT_P2;
     }
 #endif
+#endif
   }
 
  docon:
@@ -467,8 +488,12 @@ define(enginerest,
     *--sp = *(Cell *)PFA1(cfa);
 #endif
   }
+#ifdef NO_IP
+  goto *next_code;
+#else
   NEXT_P0;
   NEXT;
+#endif
   
  dovar:
   {
@@ -482,8 +507,12 @@ define(enginerest,
     *--sp = (Cell)PFA1(cfa);
 #endif
   }
+#ifdef NO_IP
+  goto *next_code;
+#else
   NEXT_P0;
   NEXT;
+#endif
   
  douser:
   {
@@ -497,8 +526,12 @@ define(enginerest,
     *--sp = (Cell)(up+*(Cell*)PFA1(cfa));
 #endif
   }
+#ifdef NO_IP
+  goto *next_code;
+#else
   NEXT_P0;
   NEXT;
+#endif
   
  dodefer:
   {
@@ -516,8 +549,12 @@ define(enginerest,
 #endif
     spTOS += *(Cell*)PFA1(cfa);
   }
+#ifdef NO_IP
+  goto *next_code;
+#else
   NEXT_P0;
   NEXT;
+#endif
 
  dodoes:
   /* this assumes the following structure:
@@ -537,6 +574,13 @@ define(enginerest,
      pfa:
      
      */
+#ifdef NO_IP
+  *--rp = next_code;
+  IF_spTOS(spTOS = sp[0]);
+  sp--;
+  spTOS = (Cell)PFA(cfa);
+  goto **(Label *)DOES_CODE1(cfa);
+#else
   {
     /*    fprintf(stderr, "Got CFA %08lx at doescode %08lx/%08lx: does: %08lx\n",cfa,(Cell)ip,(Cell)PFA(cfa),(Cell)DOES_CODE1(cfa));*/
 #ifdef DEBUG
@@ -556,13 +600,14 @@ define(enginerest,
     /*    fprintf(stderr,"TOS = %08lx, IP=%08lx\n", spTOS, IP);*/
   }
   NEXT;
+#endif
 
 #ifndef IN_ENGINE2
 #define LABEL(name) I_##name:
 #else
 #define LABEL(name) J_##name: asm(".skip 16"); I_##name:
 #endif
-#define LABEL2(name)
+#define LABEL2(name) K_##name:
 #include "prim.i"
 #undef LABEL
   after_last: return (Label *)0;
@@ -570,9 +615,25 @@ define(enginerest,
 }'
 )
 
+#define VARIANT(v)	(v)
+#define JUMP(target)	goto I_noop
+
 Label *engine enginerest
 
 #ifndef NO_DYNAMIC
+
+#ifdef NO_IP
+#undef VARIANT
+#define VARIANT(v)	((v)^0xffffffff)
+#undef JUMP
+#define JUMP(target)	goto K_lit
+Label *engine3 enginerest
+#endif
+
+#undef VARIANT
+#define VARIANT(v)	(v)
+#undef JUMP
+#define JUMP(target)	goto I_noop
 #define IN_ENGINE2
 Label *engine2 enginerest
 #endif

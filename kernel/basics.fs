@@ -231,6 +231,9 @@ is throw
 
 \ (abort")
 
+: c(abort") ( c-addr -- )
+    "error ! -2 throw ;
+
 : (abort")
     "lit >r
     IF

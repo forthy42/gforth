@@ -380,24 +380,11 @@ is basic-block-end
 
 \ \ Strings							22feb93py
 
-: ," ( "string"<"> -- ) [char] " parse
-  here over char+ allot  place align ;
+: S, ( addr u -- )
+    here over char+ allot  place align ;
 
-: SLiteral ( Compilation c-addr1 u ; run-time -- c-addr2 u ) \ string
-    \G Compilation: compile the string specified by @i{c-addr1},
-    \G @i{u} into the current definition. Run-time: return
-    \G @i{c-addr2 u} describing the address and length of the
-    \G string.
-    postpone (S") here over char+ allot  place align ;
-                                             immediate restrict
-
-\ \ abort"							22feb93py
-
-: abort" ( compilation 'ccc"' -- ; run-time f -- ) \ core,exception-ext	abort-quote
-    \G If any bit of @i{f} is non-zero, perform the function of @code{-2 throw},
-    \G displaying the string @i{ccc} if there is no exception frame on the
-    \G exception stack.
-    postpone (abort") ," ;        immediate restrict
+: ," ( "string"<"> -- )
+    [char] " parse s, ;
 
 \ \ Header states						23feb93py
 

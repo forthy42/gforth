@@ -113,7 +113,7 @@
 #define IS_NEXT_JUMP(_addr) (((*(Cell *)(symbols1[i]+j))&0xfff8ff) == 0xfc60ff)
 	/* jmp -4(reg), i.e., the NEXT jump */
 
-#ifdef FORCE_REG
+#if defined(FORCE_REG) && !defined(DOUBLY_INDIRECT)
 #if (__GNUC__==2 && defined(__GNUC_MINOR__) && __GNUC_MINOR__==5)
 /* i.e. gcc-2.5.x */
 /* this works with 2.5.7; nothing works with 2.5.8 */
@@ -151,6 +151,6 @@
 #endif  /* !(gcc-2.95 or later) */
 #endif /* !defined(USE_TOS) || defined(CFA_NEXT) */
 #endif /* !gcc-2.5.x */
-#endif /* FORCE_REG */
+#endif /* defined(FORCE_REG) && !defined(DOUBLY_INDIRECT) */
 
 /* #define ALIGNMENT_CHECK 1 */
