@@ -33,7 +33,7 @@ cat <<EOT
 [Setup]
 Bits=32
 AppName=Gforth
-AppVerName=gforth 0.5.0
+AppVerName=$(./gforth -v 2>&1)
 AppCopyright=Copyright © 1995,1996,1997,1998,2000,2003 Free Software Foundation
 DefaultDirName=gforth
 DefaultGroupName=Gforth
@@ -57,7 +57,7 @@ done) | sort -u | sed \
 "README.txt", "{app}\README.txt", copy_normal, flag_isreadme
 "cygwin1.dll", "{app}\cygwin1.dll", copy_normal,
 "gforth.fi", "{app}\gforth.fi", copy_normal,
-$(make distfiles -f Makedist | tr ' ' '\n' | (while read i; do
+$(make distfiles -f Makedist EXE=.exe | tr ' ' '\n' | (while read i; do
   if [ ! -d $i ]; then echo $i; fi
 done) | sed \
   -e 's:/:\\:g' \
@@ -69,10 +69,13 @@ done) | sed \
 ;   "Custom icon filename (leave blank to use the default icon)", Icon index
 "Gforth", "{app}\gforth.exe", "", "{app}", , 0
 "Gforth-fast", "{app}\gforth-fast.exe", "", "{app}", , 0
+"Gforth-dict", "{app}\gforth-dict.exe", "", "{app}", , 0
+"Gforth-itc", "{app}\gforth-itc.exe", "", "{app}", , 0
 
 [Run]
 "{app}\gforth.exe", "{app}\fixpath.fs {app} gforth-fast.exe",
 "{app}\gforth.exe", "{app}\fixpath.fs {app} gforth-ditc.exe",
+"{app}\gforth.exe", "{app}\fixpath.fs {app} gforth-itc.exe",
 "{app}\gforth-fast.exe", "{app}\fixpath.fs {app} gforth.exe",
 
 [Registry]

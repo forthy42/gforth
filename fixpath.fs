@@ -23,6 +23,7 @@
 $7410 Constant gforth.exe
 $68D0 Constant gforth-fast.exe
 $81E0 Constant gforth-ditc.exe
+$81E0 Constant gforth-itc.exe
 
 include string.fs
 
