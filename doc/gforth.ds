@@ -95,7 +95,7 @@ Copyright @copyright{} 1995-1999 Free Software Foundation, Inc.
 @center Bernd Paysan
 @center Jens Wilke
 @sp 3
-@center This manual is permanently under construction and was last updated on 31-Dec-1999
+@center This manual is permanently under construction and was last updated on 15-Mar-2000
 
 @comment  The following two commands start the copyright page.
 @page
@@ -188,8 +188,9 @@ Forth Words
 * Memory::                      
 * Control Structures::          
 * Defining Words::              
-* The Text Interpreter::
+* Interpretation and Compilation Semantics::
 * Tokens for Words::            
+* The Text Interpreter::
 * Word Lists::                   
 * Environmental Queries::
 * Files::                       
@@ -202,6 +203,7 @@ Forth Words
 * Structures::                  
 * Object-oriented Forth::       
 * Passing Commands to the OS::
+* Keeping track of Time::
 * Miscellaneous Words::
 
 Arithmetic
@@ -251,7 +253,9 @@ Defining Words
 * Deferred words::              Allow forward references
 * Aliases::
 * Supplying names::
-* Interpretation and Compilation Semantics::
+
+Interpretation and Compilation Semantics
+
 * Combined words::
 
 The Text Interpreter
@@ -2253,8 +2257,9 @@ the exercises in a .fs file in the distribution.
 * Memory::                      
 * Control Structures::          
 * Defining Words::              
-* The Text Interpreter::
+* Interpretation and Compilation Semantics::
 * Tokens for Words::            
+* The Text Interpreter::
 * Word Lists::                   
 * Environmental Queries::
 * Files::                       
@@ -2267,6 +2272,7 @@ the exercises in a .fs file in the distribution.
 * Structures::                  
 * Object-oriented Forth::       
 * Passing Commands to the OS::
+* Keeping track of Time::
 * Miscellaneous Words::
 @end menu
 
@@ -2602,7 +2608,7 @@ want to learn about the problems of floating point numbers (and how to
 avoid them), you might start with @cite{David Goldberg, What Every
 Computer Scientist Should Know About Floating-Point Arithmetic, ACM
 Computing Surveys 23(1):5@minus{}48, March 1991}
-(@url{http://www.validgh.com/goldberg/paper.ps}).
+(@uref{http://www.validgh.com/goldberg/paper.ps}).
 
 
 doc-d>f
@@ -2793,7 +2799,8 @@ doc-2rdrop
 @node Locals stack, Stack pointer manipulation, Return stack, Stack Manipulation
 @subsection Locals stack
 
-@comment TODO
+Gforth uses an extra locals stack. It is described, along with the
+reasons for its existence, in @ref{Implementation,Implementation of locals}.
 
 @node Stack pointer manipulation,  , Locals stack, Stack Manipulation
 @subsection Stack pointer manipulation
@@ -3179,6 +3186,10 @@ yet, although many schemes have been proposed.
 @c two behave differently in info format so I decided to standardize on @i.
 @c Logical markup would be better but texi isn't really upto it, and
 @c texi2html just ignores macros.
+@c nac02dec1999-> update: the latest texinfo release can spit out html
+@c and it handles macros, so we could do some logical markup. Unfortunately
+@c texinfo will not split html output, which would be a big pain if you
+@c wanted to put the document on the web, which would be nice.
 
 @cindex @code{IF} control structure
 @example
@@ -3539,6 +3550,8 @@ doc-endof
 @code{CS-ROLL}.
 
 @subsubsection Programming Style
+@cindex control structures programming style
+@cindex programming style, arbitrary control structures
 
 In order to ensure readability we recommend that you do not create
 arbitrary control structures directly, but define new control structure
@@ -3773,9 +3786,11 @@ doc---exception-exception
 
 
 @c -------------------------------------------------------------
-@node Defining Words, The Text Interpreter, Control Structures, Words
+@node Defining Words, Interpretation and Compilation Semantics, Control Structures, Words
 @section Defining Words
 @cindex defining words
+
+Defining words are used to extend Forth by creating new entries in the dictionary.
 
 @menu
 * CREATE::
@@ -3788,8 +3803,6 @@ doc---exception-exception
 * Deferred words::              Allow forward references
 * Aliases::
 * Supplying names::
-* Interpretation and Compilation Semantics::
-* Combined words::
 @end menu
 
 @node CREATE, Variables, Defining Words, Defining Words
@@ -3873,13 +3886,14 @@ require a @code{Variable} to be initialised when it is created (i.e., it
 behaves like @code{myvariableX}). In contrast, Gforth's @code{Variable}
 initialises the variable to 0 (i.e., it behaves exactly like
 @code{myvariable0}). Forth also provides @code{2Variable} and
-@code{fvariable} for double and floating-point variables,
-respectively -- both are initialised to 0 in Gforth.
+@code{fvariable} for double and floating-point variables, respectively
+-- both are initialised to 0 in Gforth. If you use a @code{Variable} to
+store a boolean, you can use @code{on} and @code{off} to toggle its
+state.
 
 doc-variable
 doc-2variable
 doc-fvariable
-
 
 @cindex user variables
 @cindex user space
@@ -4524,7 +4538,7 @@ combined words with @code{interpret/compile:} -- see @ref{Combined words}.
 doc-alias
 
 
-@node Supplying names, Interpretation and Compilation Semantics, Aliases, Defining Words
+@node Supplying names, , Aliases, Defining Words
 @subsection Supplying the name of a defined word
 @cindex names for defined words
 @cindex defining words, name given in a string
@@ -4552,8 +4566,8 @@ create foo
 @code{nextname} works with any defining word, not just @code{:}.
 
 
-@node Interpretation and Compilation Semantics, Combined words, Supplying names, Defining Words
-@subsection Interpretation and Compilation Semantics
+@node Interpretation and Compilation Semantics, Tokens for Words, Defining Words, Words
+@section Interpretation and Compilation Semantics
 @cindex semantics, interpretation and compilation
 
 @cindex interpretation semantics
@@ -4597,8 +4611,11 @@ doc-restrict
 Note that ticking (@code{'}) a compile-only word gives an error
 (``Interpreting a compile-only word'').
 
+@menu
+* Combined words::
+@end menu
 
-@node Combined words, ,Interpretation and Compilation Semantics, Defining Words
+@node Combined words, ,Interpretation and Compilation Semantics, Interpretation and Compilation Semantics
 @subsection Combined Words
 @cindex combined words
 
@@ -4670,7 +4687,7 @@ perform @code{foo bar}). State-smart words are a bad idea. Simply don't
 write them@footnote{For a more detailed discussion of this topic, see
 @cite{@code{State}-smartness -- Why it is Evil and How to Exorcise it} by Anton
 Ertl; presented at EuroForth '98 and available from
-@url{http://www.complang.tuwien.ac.at/papers/ertl98.ps.gz}}!
+@*@uref{http://www.complang.tuwien.ac.at/papers/ertl98.ps.gz}}!
 
 @cindex defining words with arbitrary semantics combinations
 It is also possible to write defining words that define words with
@@ -4729,8 +4746,111 @@ doc-postpone
 
 @comment TODO -- expand glossary text for POSTPONE
 
+
+@c -------------------------------------------------------------
+@node Tokens for Words, The Text Interpreter, Interpretation and Compilation Semantics, Words
+@section Tokens for Words
+@cindex tokens for words
+
+This section describes the creation and use of tokens that represent
+words.
+
+Named words have information stored in their header space entries to
+indicate any non-default semantics (@pxref{Interpretation and
+Compilation Semantics}). The semantics can be modified, using
+@code{immediate} and/or @code{compile-only}, at the time that the words
+are defined. Unnamed words have (by definition) no header space
+entry, and therefore must have default semantics.
+
+Named words have interpretation and compilation semantics. Unnamed words
+just have execution semantics.
+
+@cindex xt
+@cindex execution token
+The execution semantics of an unnamed word are represented by an
+@dfn{execution token} (@i{xt}). As explained in @ref{Supplying names},
+the execution token of the last word defined can be produced with
+@code{lastxt}.
+
+The interpretation semantics of a named word are also represented by an
+execution token. You can produce the execution token using @code{'} or
+@code{[']}. A simple example shows the difference between the two:
+
+@example
+: greet ( -- )   ." Hello" ;
+: foo ( -- xt )  ['] greet execute ; \ ['] parses greet at compile-time
+: bar ( -- )     ' execute ; \  '  parses at run-time
+
+\ the next four lines all do the same thing
+foo
+bar greet
+greet
+' greet EXECUTE
+@end example
+
+An execution token occupies one cell.
+@cindex code field address
+@cindex CFA
+In Gforth, the abstract data type @i{execution token} is implemented
+as a code field address (CFA).
+@comment TODO note that the standard does not say what it represents..
+@comment and you cannot necessarily compile it in all Forths (eg native
+@comment compilers?).
+
+For literals, use @code{'} in interpreted code and @code{[']} in
+compiled code. Gforth's @code{'} and @code{[']} behave somewhat
+unusually by complaining about compile-only words. To get the execution
+token for a compile-only word @i{name}, use @code{COMP' @i{name} DROP}
+or @code{[COMP'] @i{name} DROP}.
+
+@cindex compilation token
+The compilation semantics of a named word are represented by a
+@dfn{compilation token} consisting of two cells: @i{w xt}. The top cell
+@i{xt} is an execution token. The compilation semantics represented by
+the compilation token can be performed with @code{execute}, which
+consumes the whole compilation token, with an additional stack effect
+determined by the represented compilation semantics.
+
+At present, the @i{w} part of a compilation token is an execution token,
+and the @i{xt} part represents either @code{execute} or
+@code{compile,}@footnote{Depending upon the compilation semantics of the
+word. If the word has default compilation semantics, the @i{xt} will
+represent @code{compile,}. Otherwise (e.g., for immediate words), the
+@i{xt} will represent @code{execute}.}. However, don't rely on that
+knowledge, unless necessary; future versions of Gforth may introduce
+unusual compilation tokens (e.g., a compilation token that represents
+the compilation semantics of a literal).
+
+You can compile the compilation semantics with @code{postpone,}. I.e.,
+@code{COMP' @i{word} postpone,} is equivalent to @code{postpone
+@i{word}}.
+
+@cindex name token
+@cindex name field address
+@cindex NFA
+Named words are also represented by the @dfn{name token}, (@i{nt}). In
+Gforth, the abstract data type @emph{name token} is implemented as a
+name field address (NFA).
+
+
+doc-execute
+doc-perform
+doc-compile,
+doc-[']
+doc-'
+doc-[comp']
+doc-comp'
+doc-postpone,
+
+doc-find-name
+doc-name>int
+doc-name?int
+doc-name>comp
+doc-name>string
+
+
 @c ----------------------------------------------------------
-@node The Text Interpreter, Tokens for Words, Defining Words, Words
+@node The Text Interpreter, Word Lists, Tokens for Words, Words
 @section  The Text Interpreter
 @cindex interpreter - outer
 @cindex text interpreter
@@ -5281,111 +5401,8 @@ doc-[WHILE]
 doc-[REPEAT]
 
 
-
-
 @c -------------------------------------------------------------
-@node Tokens for Words, Word Lists, The Text Interpreter, Words
-@section Tokens for Words
-@cindex tokens for words
-
-This section describes the creation and use of tokens that represent
-words.
-
-Named words have information stored in their header space entries to
-indicate any non-default semantics (@pxref{Interpretation and
-Compilation Semantics}). The semantics can be modified, using
-@code{immediate} and/or @code{compile-only}, at the time that the words
-are defined. Unnamed words have (by definition) no header space
-entry, and therefore must have default semantics.
-
-Named words have interpretation and compilation semantics. Unnamed words
-just have execution semantics.
-
-@cindex xt
-@cindex execution token
-The execution semantics of an unnamed word are represented by an
-@dfn{execution token} (@i{xt}). As explained in @ref{Supplying names},
-the execution token of the last word defined can be produced with
-@code{lastxt}.
-
-The interpretation semantics of a named word are also represented by an
-execution token. You can produce the execution token using @code{'} or
-@code{[']}. A simple example shows the difference between the two:
-
-@example
-: greet ( -- )   ." Hello" ;
-: foo ( -- xt )  ['] greet execute ; \ ['] parses greet at compile-time
-: bar ( -- )     ' execute ; \  '  parses at run-time
-
-\ the next four lines all do the same thing
-foo
-bar greet
-greet
-' greet EXECUTE
-@end example
-
-An execution token occupies one cell.
-@cindex code field address
-@cindex CFA
-In Gforth, the abstract data type @i{execution token} is implemented
-as a code field address (CFA).
-@comment TODO note that the standard does not say what it represents..
-@comment and you cannot necessarily compile it in all Forths (eg native
-@comment compilers?).
-
-For literals, use @code{'} in interpreted code and @code{[']} in
-compiled code. Gforth's @code{'} and @code{[']} behave somewhat
-unusually by complaining about compile-only words. To get the execution
-token for a compile-only word @i{name}, use @code{COMP' @i{name} DROP}
-or @code{[COMP'] @i{name} DROP}.
-
-@cindex compilation token
-The compilation semantics of a named word are represented by a
-@dfn{compilation token} consisting of two cells: @i{w xt}. The top cell
-@i{xt} is an execution token. The compilation semantics represented by
-the compilation token can be performed with @code{execute}, which
-consumes the whole compilation token, with an additional stack effect
-determined by the represented compilation semantics.
-
-At present, the @i{w} part of a compilation token is an execution token,
-and the @i{xt} part represents either @code{execute} or
-@code{compile,}@footnote{Depending upon the compilation semantics of the
-word. If the word has default compilation semantics, the @i{xt} will
-represent @code{compile,}. Otherwise (e.g., for immediate words), the
-@i{xt} will represent @code{execute}.}. However, don't rely on that
-knowledge, unless necessary; future versions of Gforth may introduce
-unusual compilation tokens (e.g., a compilation token that represents
-the compilation semantics of a literal).
-
-You can compile the compilation semantics with @code{postpone,}. I.e.,
-@code{COMP' @i{word} postpone,} is equivalent to @code{postpone
-@i{word}}.
-
-@cindex name token
-@cindex name field address
-@cindex NFA
-Named words are also represented by the @dfn{name token}, (@i{nt}). In
-Gforth, the abstract data type @emph{name token} is implemented as a
-name field address (NFA).
-
-
-doc-execute
-doc-compile,
-doc-[']
-doc-'
-doc-[comp']
-doc-comp'
-doc-postpone,
-
-doc-find-name
-doc-name>int
-doc-name?int
-doc-name>comp
-doc-name>string
-
-
-@c -------------------------------------------------------------
-@node Word Lists, Environmental Queries, Tokens for Words, Words
+@node Word Lists, Environmental Queries, The Text Interpreter, Words
 @section Word Lists
 @cindex word lists
 @cindex header space
@@ -5887,15 +5904,17 @@ buffer and the existing contents of the block will be
 available. Otherwise, @code{buffer} will simply assign a new, empty
 block buffer for the block.}.
 
-Once a block has been assigned to a block buffer, the block buffer state
-becomes @i{assigned-clean}. Data can now be manipulated within the
-block buffer.
+Once a block has been assigned to a block buffer using @code{block} or
+@code{buffer}, that block buffer becomes the @i{current block buffer}
+and its state changes to @i{assigned-clean}. Data may only be
+manipulated (read or written) within the current block buffer.
 
-When the contents of a block buffer is changed it is necessary,
-@i{before calling} @code{block} @i{or} @code{buffer} @i{again}, to
-either abandon the changes (by doing nothing) or commit the changes,
-using @code{update}. Using @code{update} does not change the blocks
-file; it simply changes a block buffer's state to @i{assigned-dirty}.
+When the contents of the current block buffer has been modified it is
+necessary, @i{before calling} @code{block} @i{or} @code{buffer}
+@i{again}, to either abandon the changes (by doing nothing) or commit
+the changes, using @code{update}. Using @code{update} does not change
+the blocks file; it simply changes a block buffer's state to
+@i{assigned-dirty}.
 
 The word @code{flush} causes all @i{assigned-dirty} blocks to be
 written back to the blocks file on disk. Leaving Gforth using @code{bye}
@@ -5905,9 +5924,9 @@ In Gforth, @code{block} and @code{buffer} use a @i{direct-mapped}
 algorithm to assign a block buffer to a block. That means that any
 particular block can only be assigned to one specific block buffer,
 called (for the particular operation) the @i{victim buffer}. If the
-victim buffer is @i{unassigned} or @i{assigned-clean} it can be
-allocated to the new block immediately. If it is @i{assigned-dirty}
-its current contents must be written out to disk before it can be
+victim buffer is @i{unassigned} or @i{assigned-clean} it is allocated to
+the new block immediately. If it is @i{assigned-dirty} its current
+contents are written back to the blocks file on disk before it is
 allocated to the new block.
 
 Although no structure is imposed on the contents of a block, it is
@@ -5931,10 +5950,10 @@ In Gforth, when you use @code{block} with a non-existent block number,
 the current blocks file will be extended to the appropriate size and the
 block buffer will be initialised with spaces.
 
-Gforth includes a simple block editor (type @code{use blocked.fb} then
-@i{0 list} for details) but doesn't encourage the use of blocks; the
-mechanism is only provided for backward compatibility -- ANS Forth
-requires blocks to be available when files are.
+Gforth includes a simple block editor (type @code{use blocked.fb 0 list}
+for details) but doesn't encourage the use of blocks; the mechanism is
+only provided for backward compatibility -- ANS Forth requires blocks to
+be available when files are.
 
 Common techniques that are used when working with blocks include:
 
@@ -6051,7 +6070,7 @@ under program control.
 All of the words described in the previous section for simple numeric
 output are implemented in Gforth using pictured numeric output.
 
-Three important things to remember about Pictured Numeric Output:
+Three important things to remember about pictured numeric output:
 
 @itemize @bullet
 @item
@@ -6067,11 +6086,13 @@ The string is built up from right to left; least significant digit first.
 
 
 doc-<#
+doc-<<#
 doc-#
 doc-#s
 doc-hold
 doc-sign
 doc-#>
+doc-#>>
 
 doc-represent
 
@@ -6692,7 +6713,7 @@ implemented the ANS Forth locals wordset through our locals wordset).
 The ideas in this section have also been published in the paper
 @cite{Automatic Scoping of Local Variables} by M. Anton Ertl, presented
 at EuroForth '94; it is available at
-@*@url{http://www.complang.tuwien.ac.at/papers/ertl94l.ps.gz}.
+@*@uref{http://www.complang.tuwien.ac.at/papers/ertl94l.ps.gz}.
 
 @menu
 * Gforth locals::               
@@ -7685,7 +7706,7 @@ terminology: The derived class inherits from the base class.
 This section describes the @file{objects.fs} package. This material also
 has been published in @cite{Yet Another Forth Objects Package} by Anton
 Ertl and appeared in Forth Dimensions 19(2), pages 37--43
-(@url{http://www.complang.tuwien.ac.at/forth/objects/objects.html}).
+(@uref{http://www.complang.tuwien.ac.at/forth/objects/objects.html}).
 @c McKewan's and Zsoter's packages
 
 This section assumes that you have read @ref{Structures}.
@@ -7887,6 +7908,7 @@ it with @code{init-object} ( ... class object -- );
 @node Object-Oriented Programming Style, Class Binding, Creating objects, Objects
 @subsubsection Object-Oriented Programming Style
 @cindex object-oriented programming style
+@cindex programming style, object-oriented
 
 This section is not exhaustive.
 
@@ -8980,7 +9002,7 @@ the method entry point is unnecessary with the Zsoter's model, because
 the receiving object is the active object already. On the other hand, the explicit
 change is absolutely necessary in that model, because otherwise no one
 could ever change the active object. An ANS Forth implementation of this
-model is available at @url{http://www.forth.org/fig/oopf.html}.
+model is available at @uref{http://www.forth.org/fig/oopf.html}.
 
 @cindex @file{oof.fs}, differences to other models
 The @file{oof.fs} model combines information hiding and overloading
@@ -9004,7 +9026,7 @@ the @file{objects.fs} model, but syntactically it is a mixture of the @file{obje
 @file{oof.fs} models.
 
 @c -------------------------------------------------------------
-@node Passing Commands to the OS, Miscellaneous Words, Object-oriented Forth, Words
+@node Passing Commands to the OS, Keeping track of Time, Object-oriented Forth, Words
 @section Passing Commands to the Operating System
 @cindex operating system - passing commands
 @cindex shell commands
@@ -9020,7 +9042,20 @@ doc-getenv
 
 
 @c -------------------------------------------------------------
-@node Miscellaneous Words,  , Passing Commands to the OS, Words
+@node Keeping track of Time, Miscellaneous Words, Passing Commands to the OS, Words
+@section Keeping track of Time
+@cindex time-related words
+
+Gforth implements time-related operations by making calls to the C
+library function, @code{gettimeofday}.
+
+doc-ms
+doc-time&date
+
+
+
+@c -------------------------------------------------------------
+@node Miscellaneous Words,  , Keeping track of Time, Words
 @section Miscellaneous Words
 @cindex miscellaneous words
 
@@ -9028,12 +9063,6 @@ doc-getenv
 
 These section lists the ANS Forth words that are not documented
 elsewhere in this manual. Ultimately, they all need proper homes.
-
-
-doc-ms
-doc-time&date
-
-
 
 doc-[compile]
 
@@ -9297,7 +9326,7 @@ installation-dependent. Currently a character is represented by a C
 @cindex locale and case-sensitivity
 Any character except the ASCII NUL character can be used in a
 name. Matching is case-insensitive (except in @code{TABLE}s). The
-matching is performed using the C function @code{strncasecmp}, whose
+matching is performed using the C library function @code{strncasecmp}, whose
 function is probably influenced by the locale. E.g., the @code{C} locale
 does not know about accents and umlauts, so they are matched
 case-sensitively in that locale. For portability reasons it is best to
@@ -10921,13 +10950,12 @@ environment variable @code{GFORTH}.
 @cindex @file{cross.fs}
 @cindex cross-compiler
 @cindex metacompiler
+@cindex target compiler
 
 You can also use @code{cross}, a batch compiler that accepts a Forth-like
-programming language. This @code{cross} language has to be documented
-yet.
+programming language (@pxref{Cross Compiler}).
 
-@cindex target compiler
-@code{cross} also allows you to create image files for machines with
+@code{cross} allows you to create image files for machines with
 different data sizes and data formats than the one used for generating
 the image file. You can also use it to create an application image that
 does not contain a Forth compiler. These features are bought with
@@ -11085,7 +11113,7 @@ The ideas in this section have also been published in the papers
 @cite{ANS fig/GNU/??? Forth} (in German) by Bernd Paysan, presented at
 the Forth-Tagung '93 and @cite{A Portable Forth Engine} by M. Anton
 Ertl, presented at EuroForth '93; the latter is available at
-@*@url{http://www.complang.tuwien.ac.at/papers/ertl93.ps.Z}.
+@*@uref{http://www.complang.tuwien.ac.at/papers/ertl93.ps.Z}.
 
 @menu
 * Portability::                 
@@ -11573,10 +11601,10 @@ Maierhofer (presented at EuroForth '95), an indirect threaded version of
 Gforth is compared with Win32Forth, NT Forth, PFE, and ThisForth; that
 version of Gforth is slower on a 486 than the direct threaded version
 used here. The paper available at
-@*@url{http://www.complang.tuwien.ac.at/papers/ertl&maierhofer95.ps.gz};
+@*@uref{http://www.complang.tuwien.ac.at/papers/ertl&maierhofer95.ps.gz};
 it also contains numbers for some native code systems. You can find a
 newer version of these measurements at
-@url{http://www.complang.tuwien.ac.at/forth/performance.html}. You can
+@uref{http://www.complang.tuwien.ac.at/forth/performance.html}. You can
 find numbers for Gforth on various machines in @file{Benchres}.
 
 @c ******************************************************************
@@ -11585,6 +11613,10 @@ find numbers for Gforth on various machines in @file{Benchres}.
 
 @node Cross Compiler, Bugs, Binding to System Library, Top
 @chapter Cross Compiler
+@cindex @file{cross.fs}
+@cindex cross-compiler
+@cindex metacompiler
+@cindex target compiler
 
 The cross compiler is used to bootstrap a Forth kernel. Since Gforth is
 mostly written in Forth, including crucial parts like the outer
@@ -11834,9 +11866,9 @@ is posted to the news group regularly, and archived at these sites:
 
 @itemize @bullet
 @item
-@url{ftp://rtfm.mit.edu/pub/usenet-by-group/comp.lang.forth/}
+@uref{ftp://rtfm.mit.edu/pub/usenet-by-group/comp.lang.forth/}
 @item
-@url{ftp://ftp.forth.org/pub/Forth/FAQ/}
+@uref{ftp://ftp.forth.org/pub/Forth/FAQ/}
 @end itemize
 
 The FAQ list should be considered mandatory reading before posting to
@@ -11846,13 +11878,13 @@ Here are some other web sites holding Forth-related material:
 
 @itemize @bullet
 @item
-@url{http://www.taygeta.com/forth.html} -- Skip Carter's Forth pages.
+@uref{http://www.taygeta.com/forth.html} -- Skip Carter's Forth pages.
 @item
-@url{http://www.jwdt.com/~paysan/gforth.html} -- the Gforth home page.
+@uref{http://www.jwdt.com/~paysan/gforth.html} -- the Gforth home page.
 @item
-@url{http://www.minerva.com/uathena.htm} -- home of ANS Forth Standard.
+@uref{http://www.minerva.com/uathena.htm} -- home of ANS Forth Standard.
 @item
-@url{http://dec.bournemouth.ac.uk/forth/index.html} -- the Forth
+@uref{http://dec.bournemouth.ac.uk/forth/index.html} -- the Forth
 Research page, including links to the Journal of Forth Application and
 Research (JFAR) and a searchable Forth bibliography.
 @end itemize
@@ -11881,10 +11913,10 @@ $200. You can also get it from Global Engineering Documents (Tel.: USA
 @cite{dpANS6}, the last draft of the standard, which was then submitted
 to ANSI for publication is available electronically and for free in some
 MS Word format, and it has been converted to HTML
-(@url{http://www.taygeta.com/forth/dpans.html}; this HTML version also
+(@uref{http://www.taygeta.com/forth/dpans.html}; this HTML version also
 includes the answers to Requests for Interpretation (RFIs). Some
 pointers to these versions can be found through
-@*@url{http://www.complang.tuwien.ac.at/projects/forth.html}.
+@*@uref{http://www.complang.tuwien.ac.at/projects/forth.html}.
 
 
 @node The Forth Interest Group, Conferences, Books, Forth-related information
@@ -11896,9 +11928,9 @@ member-supported organisation. It publishes a regular magazine,
 @var{FORTH Dimensions}, and offers other benefits of membership. You can
 contact the FIG through their office email address:
 @email{office@@forth.org} or by visiting their web site at
-@url{http://www.forth.org/}. This web site also includes links to FIG
+@uref{http://www.forth.org/}. This web site also includes links to FIG
 chapters in other countries and American cities
-(@url{http://www.forth.org/chapters.html}).
+(@uref{http://www.forth.org/chapters.html}).
 
 @node Conferences, , The Forth Interest Group, Forth-related information
 @section Conferences
