@@ -137,7 +137,7 @@ ans-report-words definitions
     \    dodefer: over code-address!
     \    >body ! ;
     dup @ docol: <> -12 and throw \ for colon defs only
-    >body ['] branch compile-prim over !
+    >body ['] branch xt>threaded over !
     cell+ >r >body r@ - r> ! ;
 
 forth definitions

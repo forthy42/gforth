@@ -337,6 +337,9 @@ void after_alloc(Address r, Cell size)
 #ifndef MAP_PRIVATE
 # define MAP_PRIVATE 0
 #endif
+#if !defined(MAP_ANON) && defined(MAP_ANONYMOUS)
+# define MAP_ANON MAP_ANONYMOUS
+#endif
 
 #if defined(HAVE_MMAP)
 static Address alloc_mmap(Cell size)

@@ -1404,13 +1404,6 @@ while(a_addr != NULL)
 	rdrop r>
  REPEAT nip nip ;
 
-(hashkey)	( c_addr u1 -- u2 )		gforth	paren_hashkey
-u2=0;
-while(u1--)
-   u2+=(Cell)toupper(*c_addr++);
-:
- 0 -rot bounds ?DO  I c@ toupper +  LOOP ;
-
 (hashkey1)	( c_addr u ubits -- ukey )		gforth	paren_hashkey1
 ""ukey is the hash key for the string c_addr u fitting in ubits bits""
 /* this hash function rotates the key at every step by rot bits within
@@ -2412,23 +2405,6 @@ xt = peephole_opt(xt1, xt2, wpeeptable);
 compile-prim ( xt1 -- xt2 )	obsolete	compile_prim
 xt2 = (Xt)compile_prim((Label)xt1);
 
-\ set-next-code and call2 do not appear in images and can be
-\ renumbered arbitrarily
-
-set-next-code ( #w -- ) gforth set_next_code
-#ifdef NO_IP
-next_code = (Label)w;
-#endif
-
-call2 ( #a_callee #a_ret_addr -- R:a_ret_addr ) gforth
-/* call with explicit return address */
-#ifdef NO_IP
-INST_TAIL;
-JUMP(a_callee);
-#else
-assert(0);
-#endif
-
 compile-prim1 ( a_prim -- ) gforth compile_prim1
 ""compile prim (incl. immargs) at @var{a_prim}""
 compile_prim1(a_prim);
@@ -2445,6 +2421,23 @@ decompile-prim ( a_code -- a_prim ) gforth-internal decompile_prim
 ""a_prim is the code address of the primitive that has been
 compile_prim1ed to a_code""
 a_prim = (Label)decompile_code((Label)a_code);
+
+\ set-next-code and call2 do not appear in images and can be
+\ renumbered arbitrarily
+
+set-next-code ( #w -- ) gforth set_next_code
+#ifdef NO_IP
+next_code = (Label)w;
+#endif
+
+call2 ( #a_callee #a_ret_addr -- R:a_ret_addr ) gforth
+/* call with explicit return address */
+#ifdef NO_IP
+INST_TAIL;
+JUMP(a_callee);
+#else
+assert(0);
+#endif
 
 \+
 
