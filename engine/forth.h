@@ -151,7 +151,7 @@ typedef Label *Xt;
 #if !defined(DOUBLY_INDIRECT)
 #  define DOES_CA (symbols[DODOES])
 #else /* defined(DOUBLY_INDIRECT) */
-#  define DOES_CA ((Label)&symbols[DODOES])
+#  define DOES_CA ((Label)&xts[DODOES])
 #endif /* defined(DOUBLY_INDIRECT) */
 
 
@@ -226,7 +226,7 @@ typedef struct {
   Xt *boot_entry;	/* initial ip for booting (in BOOT) */
   Xt *throw_entry;	/* ip after signal (in THROW) */
   Cell unused1;		/* possibly tib stack size */
-  Cell unused2;
+  Label *xt_base;         /* base of DOUBLE_INDIRECT xts[], for comp-i.fs */
   Address data_stack_base; /* this and the following fields are initialized by the loader */
   Address fp_stack_base;
   Address return_stack_base;
@@ -264,6 +264,7 @@ extern int die_on_signal;
 extern UCell pagesize;
 extern ImageHeader *gforth_header;
 extern Label *vm_prims;
+extern Label *xts;
 
 #ifdef GFORTH_DEBUGGING
 extern Xt *ip;

@@ -406,19 +406,22 @@ define(enginerest,
 
   if (ip == NULL) {
 #if defined(DOUBLY_INDIRECT)
-#define CODE_OFFSET (22*sizeof(Cell))
+#define CODE_OFFSET (26*sizeof(Cell))
+#define XT_OFFSET (22*sizeof(Cell))
     int i;
     Cell code_offset = offset_image? CODE_OFFSET : 0;
+    Cell xt_offset = offset_image? XT_OFFSET : 0;
 
     symbols = (Label *)(malloc(MAX_SYMBOLS*sizeof(Cell)+CODE_OFFSET)+code_offset);
+    xts = (Label *)(malloc(MAX_SYMBOLS*sizeof(Cell)+XT_OFFSET)+xt_offset);
     for (i=0; i<DOESJUMP+1; i++)
-      symbols[i] = (Label)routines[i];
+      xts[i] = symbols[i] = (Label)routines[i];
     for (; routines[i]!=0; i++) {
       if (i>=MAX_SYMBOLS) {
 	fprintf(stderr,"gforth-ditc: more than %d primitives\n",MAX_SYMBOLS);
 	exit(1);
       }
-      symbols[i] = &routines[i];
+      xts[i] = symbols[i] = &routines[i];
     }
 #endif /* defined(DOUBLY_INDIRECT) */
     return symbols;

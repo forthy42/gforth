@@ -37,6 +37,19 @@ s" address-unit-bits" environment? drop constant bits/au
     >r 1 bits/au 1- rot - lshift
     r> addr +  bset ;
 
+: image-data { image1 image2 i-field expected-offset -- base offset }
+    image1 i-field + @ image2 i-field + @ over - { base offset }
+    offset 0=
+    if
+	." : images have the same base address; producing only a data-relocatable image" cr
+    else
+	offset abs expected-offset <> abort" images produced by different engines"
+	."  offset=" offset . cr
+	0 image1 i-field + ! 0 image2 i-field + !
+    endif
+    base offset ;
+    
+
 : compare-images { image1 image2 reloc-bits size file-id -- }
     \G compares image1 and image2 (of size cells) and sets reloc-bits.
     \G offset is the difference for relocated addresses
@@ -45,15 +58,8 @@ s" address-unit-bits" environment? drop constant bits/au
     image1 @ image2 @ over - { dbase doffset }
     doffset 0= abort" images have the same dictionary base address"
     ." data offset=" doffset . cr
-    image1 cell+ @ image2 cell+ @ over - { cbase coffset }
-    coffset 0=
-    if
-	." images have the same code base address; producing only a data-relocatable image" cr
-    else
-	coffset abs 22 cells <> abort" images produced by different engines"
-	." code offset=" coffset . cr
-	0 image1 cell+ ! 0 image2 cell+ !
-    endif
+    ." code" image1 image2 cell     26 cells image-data { cbase coffset }
+    ."   xt" image1 image2 11 cells 22 cells image-data { xbase xoffset }
     size 0
     u+do
 	image1 i th @ image2 i th @ { cell1 cell2 }
@@ -68,16 +74,31 @@ s" address-unit-bits" environment? drop constant bits/au
 		tag dodoes-tag =
 		if
 		    \ make sure that the next cell will not be tagged
+		    \ !! can probably be optimized away with hybrid threading
 		    dbase negate image1 i 1+ th +!
 		    dbase doffset + negate image2 i 1+ th +!
 		endif
-		-2 tag - file-id write-cell throw
+		-2 tag $4000 or - file-id write-cell throw
 		i reloc-bits set-bit
 	    else
-		cell1 file-id write-cell throw
-		cell1 cell2 <>
+		xoffset 0<> cell1 xoffset + cell2 = and
 		if
-		    0 i th 9 u.r cell1 17 u.r cell2 17 u.r cr
+		    cell1 xbase - cell / { tag }
+		    tag dodoes-tag =
+		    if
+			\ make sure that the next cell will not be tagged
+			\ !! can probably be optimized away with hybrid threading
+			dbase negate image1 i 1+ th +!
+			dbase doffset + negate image2 i 1+ th +!
+		    endif
+		    -2 tag - file-id write-cell throw
+		    i reloc-bits set-bit
+		else
+		    cell1 file-id write-cell throw
+		    cell1 cell2 <>
+		    if
+			0 i th 9 u.r cell1 17 u.r cell2 17 u.r cr
+		    endif
 		endif
 	    endif
 	endif

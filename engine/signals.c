@@ -367,8 +367,10 @@ void install_signal_handlers(void)
   for (i = 0; i < DIM (sigs_to_quit); i++)
     bsd_signal(sigs_to_quit [i], graceful_exit);
 #ifdef SA_SIGINFO
-  install_signal_handler(SIGFPE, die_on_signal ? graceful_exit : fpe_handler);
-  install_signal_handler(SIGSEGV, die_on_signal ? graceful_exit : segv_handler);
+  if (!die_on_signal) {
+    install_signal_handler(SIGFPE, fpe_handler);
+    install_signal_handler(SIGSEGV, segv_handler);
+  }
 #endif
 #ifdef SIGCONT
     bsd_signal(SIGCONT, termprep);

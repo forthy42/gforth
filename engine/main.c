@@ -57,10 +57,14 @@
 jmp_buf throw_jmp_buf;
 #endif
 
-#if defined(DIRECT_THREADED) 
-#  define CA(n)	(symbols[(n)])
+#if defined(DIRECT_THREADED)
+/*#  define CA(n) (symbols[(n)])*/
+#  define CA(n)	(symbols[(n)&~0x4000UL])
+#elif defined(DOUBLY_INDIRECT)
+/* #  define CA(n)	((Cell)(symbols+((n)&~0x4000UL))) */
+#  define CA(n)	({Cell _n = (n); ((Cell)(((_n & 0x4000) ? symbols : xts)+(_n&~0x4000UL)));})
 #else
-#  define CA(n)	((Cell)(symbols+(n)))
+#  define CA(n)	((Cell)(symbols+((n)&~0x4000UL)))
 #endif
 
 #define maxaligned(n)	(typeof(n))((((Cell)n)+sizeof(Float)-1)&-sizeof(Float))
@@ -94,6 +98,9 @@ static int debug=0;
 
 ImageHeader *gforth_header;
 Label *vm_prims;
+#ifdef DOUBLY_INDIRECT
+Label *xts; /* same content as vm_prims, but should only be used for xts */
+#endif
 
 #ifdef MEMCMP_AS_SUBROUTINE
 int gforth_memcmp(const char * s1, const char * s2, size_t n)
@@ -179,10 +186,9 @@ void relocate(Cell *image, const char *bitstring,
 		     i, CF(image[i])); */
 #if !defined(DOUBLY_INDIRECT)
 	      if (((token | 0x4000) >= CF(DODOES)) && (token < -0x4000))
-		fprintf(stderr,"Doer %d used in this image at $%lx is marked as Xt; executing this code will crash.\n",CF((token | 0x4000)),(long)&image[i],VERSION);
+		fprintf(stderr,"Doer %d used in this image at $%lx is marked as Xt;\n executing this code will crash.\n",CF((token | 0x4000)),(long)&image[i],VERSION);
 #endif
-	      token |= 0x4000; /* only meaningful for hybrid engines */
-	      if (CF(token)<max_symbols)
+	      if (CF((token | 0x4000))<max_symbols)
 		image[i]=(Cell)CA(CF(token));
 	      else
 		fprintf(stderr,"Primitive %d used in this image at $%lx is not implemented by this\n engine (%s); executing this code will crash.\n",CF(token),(long)&image[i],VERSION);
@@ -634,6 +640,9 @@ Address loader(FILE *imagefile, char* filename)
 	    progname, (unsigned long)(header.checksum),(unsigned long)check_sum);
     exit(1);
   }
+#ifdef DOUBLY_INDIRECT
+  ((ImageHeader *)imp)->xt_base = xts;
+#endif
   fclose(imagefile);
 
   alloc_stacks((ImageHeader *)imp);
