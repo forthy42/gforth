@@ -228,6 +228,28 @@ variable last-interface-offset 0 last-interface-offset !
     \g @var{interface}.
     end-interface-noname constant ;
 
+\ visibility control
+
+variable public-wordlist
+
+: protected ( -- ) \ objects- objects
+    \g Set the compilation wordlist to the current class's wordlist
+    current-interface @ class-wordlist @
+    dup get-current <>
+    if \ we are not protected already
+	get-current public-wordlist !
+    then
+    set-current ;
+
+: public ( -- ) \ objects- objects
+    \g Restore the compilation wordlist that was in effect before the
+    \g last @code{protected} that actually changed the compilation
+    \g wordlist.
+    current-interface @ class-wordlist @ get-current =
+    if \ we are protected
+	public-wordlist @ set-current
+    then ;
+
 \ classes
 
 : add-class-order ( n1 class -- wid1 ... widn n+n1 )
@@ -272,6 +294,7 @@ variable last-interface-offset 0 last-interface-offset !
 
 : end-class-noname ( align offset -- class ) \ objects- objects
     \g End a class definition. The resulting class is @var{class}.
+    public
     current-interface @ dup drop-order class-inst-size 2!
     end-interface-noname ;
 
@@ -280,25 +303,6 @@ variable last-interface-offset 0 last-interface-offset !
     \g End a class definition. The resulting class is @var{class}.
     \ name execution: ( -- class )
     end-class-noname constant ;
-
-\ visibility control
-
-variable public-wordlist
-
-: protected ( -- ) \ objects- objects
-    \g Set the compilation wordlist to the current class's wordlist
-    current-interface @ class-wordlist @
-    dup get-current <>
-    if \ we are not protected already
-	get-current public-wordlist !
-    then
-    set-current ;
-
-: public ( -- ) \ objects- objects
-    \g Restore the compilation wordlist that was in effect before the
-    \g last @code{protected} that actually changed the compilation
-    \g wordlist.
-    public-wordlist @ set-current ;
 
 \ classes that implement interfaces
 

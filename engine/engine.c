@@ -132,6 +132,8 @@ char *tilde_cstr(Char *from, UCell size, int clear)
     UCell i;
     for (i=1; i<size && from[i]!='/'; i++)
       ;
+    if (i==2 && from[1]=='+') /* deal with "~+", i.e., the wd */
+      return cstr(from+3, size<3?0:size-3,clear);
     {
       char user[i];
       memcpy(user,from+1,i-1);

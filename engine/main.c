@@ -455,6 +455,9 @@ Address loader(FILE *imagefile, char* filename)
   return imp;
 }
 
+/* index of last '/' or '\' in file, 0 if there is none. !! Hmm, could
+   be implemented with strrchr and the separator should be
+   OS-dependent */
 int onlypath(char *file)
 {
   int i;
@@ -469,13 +472,15 @@ int onlypath(char *file)
 FILE *openimage(char *fullfilename)
 {
   FILE *image_file;
+  char * expfilename = tilde_cstr(fullfilename, strlen(fullfilename), 1);
 
-  image_file=fopen(fullfilename,"rb");
+  image_file=fopen(expfilename,"rb");
   if (image_file!=NULL && debug)
-    fprintf(stderr, "Opened image file: %s\n", fullfilename);
+    fprintf(stderr, "Opened image file: %s\n", expfilename);
   return image_file;
 }
 
+/* try to open image file concat(path[0:len],imagename) */
 FILE *checkimage(char *path, int len, char *imagename)
 {
   int dirlen=len;
@@ -491,6 +496,7 @@ FILE *checkimage(char *path, int len, char *imagename)
 FILE * open_image_file(char * imagename, char * path)
 {
   FILE * image_file=NULL;
+  char *origpath=path;
   
   if(strchr(imagename, '/')==NULL) {
     /* first check the directory where the exe file is in !! 01may97jaw */
@@ -511,7 +517,7 @@ FILE * open_image_file(char * imagename, char * path)
 
   if (!image_file) {
     fprintf(stderr,"%s: cannot open image file %s in path %s for reading\n",
-	    progname, imagename, path);
+	    progname, imagename, origpath);
     exit(1);
   }
 
