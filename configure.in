@@ -204,7 +204,7 @@ case "$host_cpu" in
 	power*|rs6000)
 		machine=power
 		$srcdir/mkinstalldirs arch/power
-		AC_CHECK_FUNC(_sync_cache_range,true,AC_LIBOBJ(../arch/power/_sync_cache_range))
+		AC_CHECK_FUNC(_sync_cache_range,[true],[AC_LIBOBJ(../arch/power/_sync_cache_range)])
 		#long long is broken on (at least) gcc-2.95.* for PPC
 		test x$ac_cv_sizeof_long_long = x && ac_cv_sizeof_long_long=0
 		;;
@@ -500,7 +500,7 @@ AC_FUNC_FSEEKO
 AC_CHECK_FUNCS(ftello dlopen sys_siglist getrusage)
 AC_CHECK_TYPES(stack_t,,,[#include <signal.h>])
 AC_DECL_SYS_SIGLIST
-AC_CHECK_FUNC(getopt_long,true,AC_LIBOBJ(getopt); AC_LIBOBJ(getopt1))
+AC_CHECK_FUNC(getopt_long,[true],[AC_LIBOBJ(getopt) AC_LIBOBJ(getopt1)])
 AC_CHECK_FUNCS(expm1 log1p)
 AC_REPLACE_FUNCS(rint ecvt)
 dnl No check for select, because our replacement is no good under
