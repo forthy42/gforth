@@ -8809,7 +8809,7 @@ specific @code{throw} was executed.  In programs that make use of
 @code{catch}, it is not necessarily clear which @code{throw} should be
 used for the return stack dump (e.g., consider one @code{throw} that
 indicates an error, which is caught, and during recovery another error
-happens; which @code{throw} should be used for the stack dump).  Gforth
+happens; which @code{throw} should be used for the stack dump?).  Gforth
 presents the return stack dump for the first @code{throw} after the last
 executed (not returned-to) @code{catch}; this works well in the usual
 case.
@@ -10352,7 +10352,7 @@ Moreover, for words documented in this manual, you can look up the
 glossary entry quickly by using @kbd{C-h TAB}
 (@code{info-lookup-symbol}, see @pxref{Documentation, ,Documentation
 Commands, emacs, Emacs Manual}).  This feature requires Emacs 20.3 or
-later.
+later and does not work for words containing @code{:}.
 
 
 @cindex @file{.emacs}

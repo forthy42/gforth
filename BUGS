@@ -14,3 +14,11 @@ points to the current SOURCE, and QUERY puts its result there.  anton
 open-path-file expands "./" into the sourcefilename. It should either
 not expand "./" or provide a mechanism that allows the application to
 determine what "./" should expand to. anton 16jun98
+
+TAGS contains references to development (not install, not build)
+directories (for prim).  Probably a Makefile bug.  anton 20oct99
+
+I/O in DOS is unbuffered since 0.4.0.  Bruce Hoyt, early 1999.
+
+>HEAD and HEAD? crashes on machines with alignment restrictions if an
+assumed link field contains an unaligned address.  anton 20oct99

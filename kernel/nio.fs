@@ -74,7 +74,7 @@ require ./io.fs
     \G is converted to the appropriate display code (eg ASCII code) and appended
     \G to the string. If the number has been fully converted, ud1 will be 0 and
     \G @code{#} will append a "0" to the string.
-    base @ 2 max ud/mod rot 9 over <
+    base @ ud/mod rot 9 over <
     IF
 	[ char A char 9 - 1- ] Literal +
     THEN

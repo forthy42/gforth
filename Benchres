@@ -37,7 +37,7 @@ siev	bubble	matrix	fib	machine and configuration
  7.0	 7.6	 6.2	 7.7	21064A (Alpha,Cabriolet) 300MHz 2M cache; gcc-2.7.2; gforth-0.2.0
 
  7.49	 7.85	 6.21	 8.07	R4400 250 Mhz 2Mb cache; gcc-2.7.2.2
- 8.17	 9.01	 6.24	 9.35	R10000 (SGI PowerChallenge XL) 195MHz 2M cache; gcc-2.7.2 -DFORCE_REG; gforth-0.3.0
+ 7.45	 7.98	 5.82	 9.44	R10000 (SGI PowerChallenge XL) 195MHz 2M cache; egcs-1.1.2 -DFORCE_REG; gforth-0.4.9
 17.3	19.0	14.1	18.3	R4000 (DecStation 5000/150) 100MHz 1M cache; gcc-2.4.5; gforth-0.1beta
 50.9	56.8	42.4	52.0	R3000 (DecStation 5000/200) 25MHz 64K+64K cache; gcc-2.5.8 -DFORCE_REG; gforth-0.1beta
 
