@@ -140,6 +140,12 @@ s" IP" save-mem s" error don't use # on results" make-stack inst-stream
     dup item% %size erase
     item-name 2! ;
 
+: map-items { addr end xt -- }
+    \ perform xt for all items in array addr...end
+    end addr ?do
+	i xt execute
+    item% %size +loop ;
+
 \ various variables for storing stuff of one primitive
 
 2variable forth-name
@@ -505,6 +511,14 @@ does> ( item -- )
 : declaration ( item -- )
     dup item-name 2@ execute-prefix ;
 
+: declaration-list ( addr1 addr2 -- )
+    ['] declaration map-items ;
+
+: declarations ( -- )
+ wordlist dup items ! set-current
+ effect-in effect-in-end @ declaration-list
+ effect-out effect-out-end @ declaration-list ;
+
 : stack-prefix ( stack "prefix" -- )
     name tuck nextname create ( stack length ) 2,
 does> ( item -- )
@@ -512,16 +526,6 @@ does> ( item -- )
     item item-name 2@ prefix-length /string item item-name 2!
     stack item item-stack !
     item declaration ;
-    
-: declaration-list ( addr1 addr2 -- )
- swap ?do
-  i declaration
- item% %size +loop ;
-
-: declarations ( -- )
- wordlist dup items ! set-current
- effect-in effect-in-end @ declaration-list
- effect-out effect-out-end @ declaration-list ;
 
 \ offset computation
 \ the leftmost (i.e. deepest) item has offset 0
@@ -533,11 +537,11 @@ does> ( item -- )
     item item-stack @ xt execute dup @ >r +!
     r> item item-offset ! ;
 
-: compute-list ( addr1 addr2 xt -- )
-    { xt }
-    swap u+do
-	i xt compute-offset
-    item% %size +loop ;
+: compute-offset-in ( addr1 addr2 -- )
+    ['] stack-in compute-offset ;
+
+: compute-offset-out ( addr1 addr2 -- )
+    ['] stack-out compute-offset ;
 
 : clear-stack { -- }
     dup stack-in off stack-out off ;
@@ -545,8 +549,8 @@ does> ( item -- )
 : compute-offsets ( -- )
     data-stack clear-stack  fp-stack clear-stack return-stack clear-stack
     inst-stream clear-stack
-    effect-in  effect-in-end  @ ['] stack-in  compute-list
-    effect-out effect-out-end @ ['] stack-out compute-list
+    effect-in  effect-in-end  @ ['] compute-offset-in  map-items
+    effect-out effect-out-end @ ['] compute-offset-out map-items
     inst-stream stack-out @ 0<> abort" # can only be on the input side" ;
 
 : flush-a-tos { stack -- }
@@ -578,9 +582,7 @@ does> ( item -- )
  dup item-type @ type-fetch @ execute ;
 
 : fetches ( -- )
- effect-in-end @ effect-in ?do
-   i fetch
- item% %size +loop ; 
+    effect-in effect-in-end @ ['] fetch map-items ;
 
 : stack-pointer-update { stack -- }
     \ stack grow downwards
@@ -606,9 +608,7 @@ does> ( item -- )
  dup item-type @ type-store @ execute ;
 
 : stores ( -- )
- effect-out-end @ effect-out ?do
-   i store
- item% %size +loop ; 
+    effect-out effect-out-end @ ['] store map-items ;
 
 : output-c-tail ( -- )
     \ the final part of the generated C code
@@ -640,9 +640,7 @@ does> ( item -- )
 : print-debug-args ( -- )
     ." #ifdef VM_DEBUG" cr
     ." if (vm_debug) {" cr
-    effect-in-end @ effect-in ?do
-	i print-debug-arg
-	item% %size +loop
+    effect-in effect-in-end @ ['] print-debug-arg map-items
     ." fputc('\n', vm_out);" cr
     ." }" cr
     ." #endif" cr ;
@@ -678,9 +676,7 @@ does> ( item -- )
     endif ;
 
 : disasm-args ( -- )
- effect-in-end @ effect-in ?do
-   i disasm-arg
- item% %size +loop ; 
+    effect-in effect-in-end @ ['] disasm-arg map-items ;
 
 : output-disasm ( -- )
     \ generate code for disassembling VM instructions
@@ -700,9 +696,7 @@ does> ( item -- )
     endif ;
 
 : gen-args-parm ( -- )
- effect-in-end @ effect-in ?do
-   i gen-arg-parm
- item% %size +loop ; 
+    effect-in effect-in-end @ ['] gen-arg-parm map-items ;
 
 : gen-arg-gen { item -- }
     item item-stack @ inst-stream = if
@@ -711,9 +705,7 @@ does> ( item -- )
     endif ;
 
 : gen-args-gen ( -- )
- effect-in-end @ effect-in ?do
-   i gen-arg-gen
- item% %size +loop ; 
+    effect-in effect-in-end @ ['] gen-arg-gen map-items ;
 
 : output-gen ( -- )
     \ generate C code for generating VM instructions
