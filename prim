@@ -2354,7 +2354,11 @@ av-double	( r -- )	gforth  av_double
 av_double(alist, r);
 
 av-longlong	( d -- )	gforth  av_longlong
+#ifdef BUGGY_LONG_LONG
+av_longlong(alist, d.lo);
+#else
 av_longlong(alist, d);
+#endif
 
 av-ptr	( c_addr -- )	gforth  av_ptr
 av_ptr(alist, void*, c_addr);
@@ -2373,7 +2377,11 @@ lp += sizeof(Float);
 av_double(alist, r);
 
 av-longlong-r	( R:d -- )	gforth  av_longlong_r
+#ifdef BUGGY_LONG_LONG
+av_longlong(alist, d.lo);
+#else
 av_longlong(alist, d);
+#endif
 
 av-ptr-r	( R:c_addr -- )	gforth  av_ptr_r
 av_ptr(alist, void*, c_addr);
@@ -2405,7 +2413,12 @@ av-call-longlong	( -- d )	gforth  av_call_longlong
 SAVE_REGS
 av_call(alist);
 REST_REGS
+#ifdef BUGGY_LONG_LONG
 d = llrv;
+#else
+d.lo = llrv;
+d.hi = 0;
+#endif
 
 av-call-ptr	( -- c_addr )	gforth  av_call_ptr
 SAVE_REGS
@@ -2438,7 +2451,12 @@ va-arg-int	( -- w )	gforth	va_arg_int
 w = va_arg_int(clist);
 
 va-arg-longlong	( -- d )	gforth	va_arg_longlong
+#ifdef BUGGY_LONG_LONG
+d.lo = va_arg_longlong(clist);
+d.hi = 0;
+#else
 d = va_arg_longlong(clist);
+#endif
 
 va-arg-ptr	( -- c_addr )	gforth	va_arg_ptr
 c_addr = (char *)va_arg_ptr(clist,char*);
@@ -2462,7 +2480,11 @@ va_return_ptr(clist, void *, c_addr);
 return 0;
 
 va-return-longlong ( d -- )	gforth va_return_longlong
+#ifdef BUGGY_LONG_LONG
+va_return_longlong(clist, d.lo);
+#else
 va_return_longlong(clist, d);
+#endif
 return 0;
 
 va-return-float ( r -- )	gforth va_return_float
