@@ -542,11 +542,17 @@ max-errors 6 * cells allot
 
 : dec. ( n -- ) \ gforth
     \G Display n as a signed decimal number, followed by a space.
+    \G !! not used...
     base @ decimal swap . base ! ;
+
+: dec.r ( u -- ) \ gforth
+    \G Display u as a unsigned decimal number
+    base @ decimal swap 0 .r base ! ;
 
 : hex. ( u -- ) \ gforth
     \G Display u as an unsigned hex number, prefixed with a "$" and
     \G followed by a space.
+    \G !! not used...
     '$ emit base @ swap hex u. base ! ;
 
 : typewhite ( addr u -- ) \ gforth
@@ -564,14 +570,25 @@ DEFER DOERROR
 Defer dobacktrace ( -- )
 ' noop IS dobacktrace
 
-: .error-frame ( addr1 u1 n1 n2 addr2 u2 -- )
+: .error-string ( throw-code -- )
+  dup -2 = 
+  IF 	"error @ ?dup IF count type  THEN drop
+  ELSE	.error
+  THEN ;
+
+: .error-frame ( throwcode addr1 u1 n1 n2 addr2 u2 -- throwcode )
+\ addr2 u2: 	filename of included file
+\ n2:		line number
+\ n1:		error position in input line
+\ addr1 u1:	input line
+
   cr error-stack @
   IF
      ." in file included from "
-     type ." :" dec.  drop 2drop
+     type ." :" dec.r  drop 2drop
   ELSE
-     type ." :" dec.
-     cr dup 2over type cr drop
+     type ." :" dec.r ." : " 3 pick .error-string cr
+     dup 2over type cr drop
      nip -trailing 1- ( line-start index2 )
      0 >r  BEGIN
                   2dup + c@ bl >  WHILE
@@ -581,8 +598,7 @@ Defer dobacktrace ( -- )
      r> 1 max 0 ?do \ we want at least one "^", even if the length is 0
                   [char] ^ emit
      loop
-  THEN
-;
+  THEN ;
 
 : (DoError) ( throw-code -- )
   [ has? os [IF] ]
@@ -599,16 +615,7 @@ Defer dobacktrace ( -- )
     cell +LOOP
     .error-frame
   LOOP
-  dup -2 =
-  IF 
-     "error @ ?dup
-     IF
-        cr count type 
-     THEN
-     drop
-  ELSE
-     .error
-  THEN
+  cr ." Error: " .error-string
   dobacktrace
   normal-dp dpp ! ;
 

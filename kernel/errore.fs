@@ -44,7 +44,6 @@ has? OS [IF]
 
 : .error ( n -- )
     >stderr
-    cr ." Error: "
     ErrLink
     BEGIN @ dup
     WHILE
