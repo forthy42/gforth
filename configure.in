@@ -153,6 +153,10 @@ case "$host_cpu" in
 		#!! direct/indirect threading switch
 		#!! -m486 flag
 		;;
+        m68k)
+		mach_h=m68k
+		CFLAGS="$CFLAGS -fomit-frame-pointer -traditional-cpp"
+		;;
 	mips*)
 		mach_h=mips
 		#link text and data segment into the same 256M region!

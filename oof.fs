@@ -372,7 +372,7 @@ Variable last-interface  0 last-interface !
 
 : lastob!  ( -- )  lastob @ dup
     BEGIN  nip dup @ here cell+ 2 pick ! dup 0= UNTIL  drop
-    dup , op! o@ lastob ! ;
+    dup , [ order ] op! o@ lastob ! ;
 
 : thread,  ( -- )  classlist @ , ;
 : var,     ( -- )  methods @ , vars @ , ;

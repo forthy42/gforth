@@ -24,10 +24,13 @@
 #define M_LN10      2.30258509299404568402
 #endif
 
+#ifndef _ANSI_MATH_H
 /* this should be defined by math.h; If it is not, the miranda
-   prototype would be wrong; Since we prefer compile-time errors to
-   run-time errors, it's declared here. */
+ *    prototype would be wrong; Since we prefer compile-time errors to
+ *    run-time errors, it's declared here. */
 extern double exp(double);
+
+#endif /* _ANSI_MATH_H */
 
 double pow10(double x)
 {

@@ -21,6 +21,9 @@
 
 #include "config.h"
 #include <limits.h>
+#if defined(NeXT)
+#  include <libc.h>
+#endif /* NeXT */
 
 typedef void *Label;
 

@@ -21,10 +21,16 @@
 
 #include "32bit.h"
 
-#define FLUSH_ICACHE(addr,size)    cache_$clear()
 /* Clearing the whole cache is a bit drastic, but this is the only
-   cache control available on the apollo.
-*/
+ *    cache control available on the apollo and NeXT
+ */
+#if defined(apollo)
+#  define FLUSH_ICACHE(addr,size)    cache_$clear()
+#else
+#  if defined(NeXT)
+#    define FLUSH_ICACHE(addr,size)     asm("trap #2");
+#  endif
+#endif
 
 #ifdef DIRECT_THREADED
 #warning untested
