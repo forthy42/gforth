@@ -12,6 +12,7 @@ gunzip -cd $1 | tar xf -
 then
 	echo building in build
 	chmod -R a-w $GFORTH
+	rm -rf build
 	mkdir build
 	cd build
 	../$GFORTH/configure --prefix=$DIR/install
@@ -28,9 +29,9 @@ make install &&
 #make all-bench &&
 chmod -R +w ../$GFORTH/vmgen-ex ../$GFORTH/vmgen-ex2 &&
 cd ../$GFORTH/vmgen-ex &&
-PATH=$DIR/install/bin:$PATH make check GCC="cc -O" &&
+PATH=$DIR/install/bin:$PATH make check GCC="cc -O" YACC=yacc &&
 cd ../vmgen-ex2 &&
-PATH=$DIR/install/bin:$PATH make check GCC="cc -O" &&
+PATH=$DIR/install/bin:$PATH make check GCC="cc -O" YACC=yacc &&
 cd .. &&
 cd .. &&
 install/bin/gforth test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs -e bye &&

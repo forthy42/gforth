@@ -1,3 +1,8 @@
+User-visible changes between 0.6.1 and 0.6.2:
+
+bugfixes (in particular, gforth-0.6.2 compiles with gcc-3.3)
+
+
 User-visible changes between 0.6.0 and 0.6.1:
 
 Bug fixes (installation on big-endian machines sometimes did not work)

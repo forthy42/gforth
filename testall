@@ -6,23 +6,27 @@ if test $# = 0; then
   exit 1
 fi
 test "x$MACHINES" != x || 
-MACHINES="pcs d0 mips aertl@fpr.zserv.tuwien.ac.at \
-b1 b2 b3 b4 struppi c2 \
+MACHINES="mips aertl@fpr.zserv.tuwien.ac.at \
+b1 b2 b3 b4 c2 \
 samhain.ifs.tuwien.ac.at calis aertl@mail.zserv.tuwien.ac.at \
+aertl@stat.zserv.tuwien.ac.at \
 rlwinm.ifs.tuwien.ac.at fmadd.ifs.tuwien.ac.at lfsux.ifs.tuwien.ac.at \
 s4addq.ifs.tuwien.ac.at \
 128.130.204.24 128.130.204.25 128.130.204.26 \
-cdbook c2.complang.tuwien.ac.at"
-#taken out: hpws03.infosys.tuwien.ac.at aertl@fbma.tuwien.ac.at w4.infosys.tuwien.ac.at jupiter aertl@stat.zserv.tuwien.ac.at 
+cdbook jupiter"
+#taken out: hpws03.infosys.tuwien.ac.at aertl@fbma.tuwien.ac.at w4.infosys.tuwien.ac.at d0 struppi pcs
 SSH_PROTOCOL=-oProtocol=1,2
 for i in $MACHINES
 do
-#    echo; echo $i
-#    /usr/bin/ssh $SSH_PROTOCOL -x $i echo ok
+  if false; then
+    echo; echo $i
+    /usr/bin/ssh $SSH_PROTOCOL -x $i echo ok
+  else
     ( ssh $SSH_PROTOCOL -q -x $i "test -d xxxgforthtest||mkdir xxxgforthtest; cd xxxgforthtest; test -d $i||mkdir $i; rm -rf $i/*" >$i 2>&1; \
       scp $SSH_PROTOCOL -p -q $1 ../testdist $i:xxxgforthtest/$i >>$i 2>&1; \
       ssh $SSH_PROTOCOL -q -x $i "cd xxxgforthtest/$i; ./testdist `basename $1`" >>$i 2>&1; \
       echo "$i done" "`tail -1 $i`") &
+  fi
 done
 wait
 echo all done
