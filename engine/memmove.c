@@ -19,9 +19,11 @@
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-char *memmove(char *dest, const char *src, long n)
+#include "forth.h"
+
+Char *memmove(Char *dest, const Char *src, Cell n)
 {
-  int i;
+  Cell i;
 
   if (dest<src)
     for (i=0; i<n; i++)

@@ -334,14 +334,16 @@ s" relocate" T environment? H
 
 \ \ Create additional parameters                         19jan95py
 
+1 8 lshift Constant maxbyte
 T
 NIL		   Constant TNIL
 cell               Constant tcell
 cell<<             Constant tcell<<
 cell>bit           Constant tcell>bit
 bits/byte          Constant tbits/byte
+bits/byte 8 /      Constant tchar
 float              Constant tfloat
-1 bits/byte lshift Constant maxbyte
+1 bits/byte lshift Constant tmaxbyte
 H
 
 \ Variables                                            06oct92py
@@ -589,10 +591,18 @@ bigendian
      DO  maxbyte ud/mod rot I c!  -1 +LOOP  2drop ;
    : S@  ( addr -- n )  >r 0 0 r> tcell bounds
      DO  maxbyte * swap maxbyte um* rot + swap I c@ + swap  LOOP d>s ;
+   : Sc!  ( n addr -- )  >r s>d r> tchar bounds swap 1-
+     DO  maxbyte ud/mod rot I c!  -1 +LOOP  2drop ;
+   : Sc@  ( addr -- n )  >r 0 0 r> tchar bounds
+     DO  maxbyte * swap maxbyte um* rot + swap I c@ + swap  LOOP d>s ;
 [ELSE]
    : S!  ( n addr -- )  >r s>d r> tcell bounds
      DO  maxbyte ud/mod rot I c!  LOOP  2drop ;
    : S@  ( addr -- n )  >r 0 0 r> tcell bounds swap 1-
+     DO  maxbyte * swap maxbyte um* rot + swap I c@ + swap  -1 +LOOP d>s ;
+   : Sc!  ( n addr -- )  >r s>d r> tchar bounds
+     DO  maxbyte ud/mod rot I c!  LOOP  2drop ;
+   : Sc@  ( addr -- n )  >r 0 0 r> tchar bounds swap 1-
      DO  maxbyte * swap maxbyte um* rot + swap I c@ + swap  -1 +LOOP d>s ;
 [THEN]
 
@@ -629,8 +639,8 @@ CREATE Bittable 80 c, 40 c, 20 c, 10 c, 8 c, 4 c, 2 c, 1 c,
 >TARGET
 : @  ( taddr -- w )     >image S@ ;
 : !  ( w taddr -- )     >image S! ;
-: c@ ( taddr -- char )  >image c@ ;
-: c! ( char taddr -- )  >image c! ;
+: c@ ( taddr -- char )  >image Sc@ ;
+: c! ( char taddr -- )  >image Sc! ;
 : 2@ ( taddr -- x1 x2 ) T dup cell+ @ swap @ H ;
 : 2! ( x1 x2 taddr -- ) T swap over ! cell+ ! H ;
 
@@ -640,7 +650,7 @@ CREATE Bittable 80 c, 40 c, 20 c, 10 c, 8 c, 4 c, 2 c, 1 c,
 : here  ( -- there )    there ;
 : allot ( n -- )        tdp +! ;
 : ,     ( w -- )        T here H tcell T allot  ! H T here drop H ;
-: c,    ( char -- )     T here    1 allot c! H ;
+: c,    ( char -- )     T here    tchar allot c! H ;
 : align ( -- )          T here H align+ 0 ?DO  bl T c, H LOOP ;
 : cfalign ( -- )
     T here H cfalign+ 0 ?DO  bl T c, H LOOP ;
@@ -652,9 +662,9 @@ CREATE Bittable 80 c, 40 c, 20 c, 10 c, 8 c, 4 c, 2 c, 1 c,
 
 : tcmove ( source dest len -- )
 \G cmove in target memory
-  bounds
+  tchar * bounds
   ?DO  dup T c@ H I T c! H 1+
-  LOOP  drop ;
+  tchar +LOOP  drop ;
 
 >TARGET
 H also Forth definitions \ ." asm: " order
@@ -1263,7 +1273,7 @@ Defer (end-code)
     ELSE true ABORT" CROSS: Stack empty" THEN
     ;
 
-Cond: chars ;Cond
+( Cond ) : chars tchar * ; ( Cond )
 
 >CROSS
 

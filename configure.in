@@ -85,6 +85,7 @@ case "$ac_cv_sizeof_char_p" in
     ;;
 esac
 
+AC_CHECK_SIZEOF(char)
 AC_CHECK_SIZEOF(short)
 AC_CHECK_SIZEOF(int)
 AC_CHECK_SIZEOF(long)
@@ -92,11 +93,14 @@ AC_CHECK_SIZEOF(long long)
 
 ac_cv_int_type_cell=none
 case "$ac_cv_sizeof_char_p" in
+  $ac_cv_sizeof_int)
+    ac_cv_int_type_cell=int
+    ;;
   $ac_cv_sizeof_short)
     ac_cv_int_type_cell=short
     ;;
-  $ac_cv_sizeof_int)
-    ac_cv_int_type_cell=int
+  $ac_cv_sizeof_char)
+    ac_cv_int_type_cell=char
     ;;
   $ac_cv_sizeof_long)
     ac_cv_int_type_cell=long

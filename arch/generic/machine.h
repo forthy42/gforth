@@ -21,15 +21,6 @@
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-/* define this if IEEE singles and doubles are available as C data types */
-#define IEEE_FP
-
-/* the IEEE types are used only for loading and storing */
-/* the IEEE double precision type */
-typedef double DFloat;
-/* the IEEE single precision type */
-typedef float SFloat;
-
 /* define SYSCALL */
 
 #ifndef SYSCALL
@@ -54,4 +45,28 @@ typedef float SFloat;
 /* We could put some stuff here that causes a compile error, but then
    we could not use this file in the other machine.h files */
 #endif
+
+/* Types: these types are used as Forth's internal types */
+
+/* define this if IEEE singles and doubles are available as C data types */
+#define IEEE_FP
+
+/* the IEEE types are used only for loading and storing */
+/* the IEEE double precision type */
+typedef double DFloat;
+/* the IEEE single precision type */
+typedef float SFloat;
+
+typedef CELL_TYPE Cell;
+typedef unsigned CELL_TYPE UCell;
+typedef Cell Bool;
+typedef unsigned char Char;
+typedef double Float;
+typedef Char *Address;
+
+#if defined(DOUBLY_INDIRECT)
+typedef void **Label;
+#else /* !defined(DOUBLY_INDIRECT) */
+typedef void *Label;
+#endif /* !defined(DOUBLY_INDIRECT) */
 

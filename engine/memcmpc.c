@@ -24,14 +24,15 @@
    have to work with strcoll and some hackery */
 
 #include <ctype.h>
+#include "forth.h"
 
-int memcasecmp(const char *s1, const char *s2, long n)
+Cell memcasecmp(const Char *s1, const Char *s2, Cell n)
 {
-  int i;
+  Cell i;
 
   for (i=0; i<n; i++) {
-    char c1=toupper(s1[i]);
-    char c2=toupper(s2[i]);
+    Char c1=toupper(s1[i]);
+    Char c2=toupper(s2[i]);
     if (c1 != c2)
       return c1-c2;
   }

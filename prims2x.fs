@@ -466,7 +466,7 @@ s" DFloat *"	single-type starts-with df_
 s" SFloat *"	single-type starts-with sf_
 s" Xt"		single-type starts-with xt
 s" WID"		single-type starts-with wid
-s" F83Name *"	single-type starts-with f83name
+s" struct F83Name *"	single-type starts-with f83name
 
 set-current
 
@@ -645,7 +645,7 @@ set-current
     cr ;
 
 : output-label ( -- )
-    ." &&I_" c-name 2@ type ." ," cr ;
+    ." (Label)&&I_" c-name 2@ type ." ," cr ;
 
 : output-alias ( -- )  flush-comment on
  ?flush-comment

@@ -33,12 +33,6 @@
 #  include <libc.h>
 #endif /* NeXT */
 
-#if defined(DOUBLY_INDIRECT)
-typedef void **Label;
-#else /* !defined(DOUBLY_INDIRECT) */
-typedef void *Label;
-#endif /* !defined(DOUBLY_INDIRECT) */
-
 /* symbol indexed constants */
 
 #define DOCOL	0
@@ -57,20 +51,13 @@ typedef void *Label;
 
 /* Forth data types */
 /* Cell and UCell must be the same size as a pointer */
-typedef CELL_TYPE Cell;
-typedef unsigned CELL_TYPE UCell;
 #define CELL_BITS	(sizeof(Cell) * CHAR_BIT)
-typedef Cell Bool;
 #define FLAG(b) (-(b))
 #define FILEIO(error)	(FLAG(error) & -37)
 #define FILEEXIST(error)	(FLAG(error) & -38)
 
 #define F_TRUE (FLAG(0==0))
 #define F_FALSE (FLAG(0!=0))
-
-typedef unsigned char Char;
-typedef double Float;
-typedef char *Address;
 
 #ifdef BUGGY_LONG_LONG
 typedef struct {
@@ -224,7 +211,7 @@ UDCell umdiv (UDCell u, UCell v);
 DCell smdiv (DCell num, Cell denom);
 DCell fmdiv (DCell num, Cell denom);
 
-int memcasecmp(const char *s1, const char *s2, long n);
+Cell memcasecmp(const Char *s1, const Char *s2, Cell n);
 
 extern int offset_image;
 extern int die_on_signal;

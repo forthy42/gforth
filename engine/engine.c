@@ -24,19 +24,23 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 #include <assert.h>
 #include <stdlib.h>
-#include <time.h>
-#include <sys/time.h>
-#include <unistd.h>
 #include <errno.h>
-#include <pwd.h>
 #include "forth.h"
 #include "io.h"
 #include "threaded.h"
+#ifndef STANDALONE
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <time.h>
+#include <sys/time.h>
+#include <unistd.h>
+#include <pwd.h>
+#else
+#include "systypes.h"
+#endif
 
 #if defined(HAVE_LIBDL) || defined(HAVE_DLOPEN) /* what else? */
 #include <dlfcn.h>
@@ -52,11 +56,11 @@
 
 #define IOR(flag)	((flag)? -512-errno : 0)
 
-typedef struct F83Name {
-  struct F83Name	*next;  /* the link field for old hands */
-  char			countetc;
-  Char			name[0];
-} F83Name;
+struct F83Name {
+  struct F83Name *next;  /* the link field for old hands */
+  char		countetc;
+  char		name[0];
+};
 
 /* are macros for setting necessary? */
 #define F83NAME_COUNT(np)	((np)->countetc & 0x1f)
@@ -105,6 +109,12 @@ char *cstr(Char *from, UCell size, int clear)
   return b->buffer;
 }
 
+#ifdef STANDALONE
+char *tilde_cstr(Char *from, UCell size, int clear)
+{
+  return cstr(from, size, clear);
+}
+#else
 char *tilde_cstr(Char *from, UCell size, int clear)
 /* like cstr(), but perform tilde expansion on the string */
 {
@@ -146,7 +156,7 @@ char *tilde_cstr(Char *from, UCell size, int clear)
     return cstr(path,s1_len+s2_len,clear);
   }
 }
-   
+#endif   
 
 #define NEWLINE	'\n'
 
@@ -231,18 +241,18 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
 #else /* !defined(DOUBLY_INDIRECT) */
   static Label symbols[]= {
 #endif /* !defined(DOUBLY_INDIRECT) */
-    &&docol,
-    &&docon,
-    &&dovar,
-    &&douser,
-    &&dodefer,
-    &&dofield,
-    &&dodoes,
+    (Label)&&docol,
+    (Label)&&docon,
+    (Label)&&dovar,
+    (Label)&&douser,
+    (Label)&&dodefer,
+    (Label)&&dofield,
+    (Label)&&dodoes,
     /* the following entry is normally unused;
        it's there because its index indicates a does-handler */
     CPU_DEP1,
 #include "prim_lab.i"
-    0
+    (Label)0
   };
 #ifdef CPU_DEP2
   CPU_DEP2

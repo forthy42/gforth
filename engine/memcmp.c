@@ -19,9 +19,11 @@
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-int memcmp(const char *s1, const char *s2, long n)
+#include "forth.h"
+
+Cell memcmp(const Char *s1, const Char *s2, Cell n)
 {
-  int i;
+  Cell i;
 
   for (i=0; i<n; i++)
     if (s1[i] != s2[i])
