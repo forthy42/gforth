@@ -41,6 +41,8 @@ true Constant xconds		\ used together with glocals,
 				\ local variables
 true Constant header		\ save a header information
 
+true Constant backtrace		\ enables backtrace code
+
 false Constant ec
 false Constant crlf
 
