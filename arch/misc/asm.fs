@@ -66,6 +66,9 @@ Create marks $10 cells allot
   >in @ bl word count X here symentry >in !
   ahere Constant ;
 
+: code
+  -1 ABORT" Need end-code or end-label before a new code definition" ;
+
 also forth definitions
 
 : label also assembler label ;
