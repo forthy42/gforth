@@ -1137,7 +1137,7 @@ Create ???  0 , 3 c, char ? c, char ? c, char ? c,
 \     Create ( -- ) 
 \ 	['] noop A,
 \     DOES> ( ??? )
-\ 	@ execute ;
+\ 	perform ;
 
 : IS ( addr "name" -- ) \ gforth
     ' >body
@@ -1218,7 +1218,7 @@ AVariable lookup       G forth-wordlist lookup T !
 G forth-wordlist current T !
 
 : (search-wordlist)  ( addr count wid -- nfa / false )
-  dup wordlist-map @ find-method @ execute ;
+  dup wordlist-map @ find-method perform ;
 
 : search-wordlist  ( addr count wid -- 0 / xt +-1 ) \ search
     (search-wordlist) dup  IF  found  THEN ;
@@ -1253,10 +1253,10 @@ G -1 warnings T !
  last? if
    name>string current @ check-shadow
  then
- current @ wordlist-map @ reveal-method @ execute ;
+ current @ wordlist-map @ reveal-method perform ;
 
 : rehash  ( wid -- )
-    dup wordlist-map @ rehash-method @ execute ;
+    dup wordlist-map @ rehash-method perform ;
 
 : '    ( "name" -- addr ) \ core	tick
     name sfind 0= if -&13 bounce then ;
@@ -1308,7 +1308,7 @@ defer everychar
 : decode ( max span addr pos1 key -- max span addr pos2 flag )
   everychar
   dup #del = IF  drop #bs  THEN  \ del is rubout
-  dup bl <   IF  cells ctrlkeys + @ execute  EXIT  THEN
+  dup bl <   IF  cells ctrlkeys + perform  EXIT  THEN
   >r 2over = IF  rdrop bell 0 EXIT  THEN
   r> (ins) 0 ;
 

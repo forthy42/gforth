@@ -495,7 +495,7 @@ CREATE C-Table
         WHILE   2 pick <>
         WHILE   2 cells +
         REPEAT
-        nip cell+ @ EXECUTE
+        nip cell+ perform
         true
         ELSE
         2drop drop false
