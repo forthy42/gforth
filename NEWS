@@ -20,7 +20,10 @@ Direct threading now works on PowerPC (20% speedup on 604e).
 Better support for m68k (thanks to Andreas Schwab and Jorge Acereda).
 It is possible to create executables that contain the image (for
   non-OS systems).
-Added a lot of embedded control (EC) stuff.
+
+Added a lot of embedded control (EC) stuff. Supported controllers and
+small CPUs are Siemens C16x, 8086, 6502, Mixed-Mode's FPGA MISC, Bernd Paysan's
+4stack processor. Not finished: ShBoom alias PSC1000, H8, AVR.
 
 New, changed, and removed words:
 
@@ -45,6 +48,9 @@ Reorganized files: added directories and reorganized many files into
   systems (but there are again some files that won't work there).
 Bug fixes.
 Various changes without log information only known as mega-patches.
+Cross compiler now also supports compilation only for undefined or forward
+referenced words. Plugins to support some native code generation
+(for PSC1000).
 More files in the compat library.
 
 
