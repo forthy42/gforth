@@ -49,6 +49,7 @@ doc/gpl.texi
 doc/objects-implementation.obj
 doc/texinfo.tex
 doc/version.texi.in
+doc/vmgen.1
 engine/.cvsignore
 engine/ansidecl.h
 engine/fnmatch.c
@@ -79,3 +80,5 @@ vmgen-ex2/peephole-blacklist
 vmgen-ex2/seq2rule.awk
 vmgen-ex2/simple.mini
 vmgen-ex2/stat.awk
+vmgen-ex2/test.mini
+vmgen-ex2/test.out
