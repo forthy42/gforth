@@ -32,6 +32,6 @@ Create buf $10 allot
   r> close-file throw ;
 
 script? [IF]
-   : alldump argc @ 2 ?DO I arg 2dup type ." :" filedump LOOP ;
+   : alldump argc @ 1 ?DO I arg 2dup type ." :" filedump LOOP ;
    alldump bye
 [THEN]

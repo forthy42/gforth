@@ -26,6 +26,7 @@ require string.fs
 : -$split ( addr u char -- addr1 u1 addr2 u2 )
   >r 2dup r@ -scan 2dup + c@ r> = negate over + >r
   2swap r> /string ;
+: parse" ( -- addr u ) '" parse 2drop '" parse ;
 
 \ tag handling
 
@@ -85,11 +86,11 @@ Variable table-start
     CASE
 	'l OF  s" left"      class=  ENDOF
 	'r OF  s" right"     class=  ENDOF
-	'c OF  s" center"    class=  ENDOF
+	'c OF  s" center"    align=  ENDOF
 	'< OF  s" left"      class=  ENDOF
 	'> OF  s" right"     class=  ENDOF
-	'= OF  s" center"    class=  ENDOF
-	'~ OF  s" absmiddle" class=  ENDOF
+	'= OF  s" center"    align=  ENDOF
+	'~ OF  s" absmiddle" align=  ENDOF
     ENDCASE ;
 
 : >talign ( c -- )
@@ -409,11 +410,12 @@ Variable toc-index
     indentlevel @ over
     indentlevel !
     2dup < IF swap DO  -env -env  LOOP  EXIT THEN
+    over 1 = IF  = IF  -env -env  THEN  EXIT  THEN
     2dup > IF      DO  s" dl" >env s" dt" >env  LOOP EXIT THEN
     2dup = IF drop IF  -env  s" dt" >env  THEN THEN
 ;
 : +indent ( -- )
-    indentlevel @ IF  -env s" dd" >env  THEN
+    indentlevel @ IF  -env -env s" dl" >env s" dd" >env  THEN
 ;
 
 wordlist constant longtags
@@ -428,21 +430,27 @@ longtags set-current
 : *** 2 indent s" h3" line +indent ;
 : -- 0 indent cr print-toc ;
 : && ( -- ) divs @ IF  -env  THEN  +env
-    0 parse id= s" div" env  divs on ;
+    0 parse id= s" div" env env? divs on ;
 : - s" ul" env s" li" par ;
 : + s" ol" env s" li" par ;
 : << +env ;
-: <* s" center" class= s" p" >env ;
+: <* s" center" class= ;
 : <red  s" #ff0000" s" color" opt s" font" >env ;
 : red> -env ;
 : >> -env ;
-: *> -env ;
+: *> ;
 : :: interpret ;
 : . end-sec on 0 indent ;
 : :code indent= s" pre" >env
     BEGIN  source >in @ /string type cr refill  WHILE
 	source s" :endcode" str= UNTIL  THEN
-  -env ;
+    -env ;
+: :code-file indent= s" pre" >env
+    parse" r/o open-file throw >r
+    r@ file-size throw drop dup allocate throw
+    2dup swap r@ read-file throw 2dup type drop
+    -env free throw drop
+    r> close-file throw ;
 : \ postpone \ ;
 
 definitions
@@ -489,16 +497,16 @@ definitions
 Variable css-file
 
 : .title ( addr u -- )
-    .' <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//en" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">' cr
+    .' <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//en" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">' cr
     s" html" >env s" head" >env cr
     s" Content-Type" s" http-equiv" opt
     s" text/xhtml; charset=iso-8859-1" s" content" opt
     s" meta" tag/
-    css-file $@len IF
+    css-file @ IF css-file $@len IF
 	s" StyleSheet" s" rel" opt
 	css-file $@ href=
 	s" text/css" s" type" opt s" link" tag/
-    THEN
+    THEN THEN
     s" title" tagged cr
     -env ;
 
@@ -522,8 +530,6 @@ Variable orig-date
     -envs ;
 
 \ top word
-
-: parse" ( -- addr u ) '" parse 2drop '" parse ;
 
 : maintainer ( -- )
     bl sword mail $! parse" mail-name $! ;
