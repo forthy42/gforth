@@ -27,7 +27,6 @@ ToDo:
   cross.fs is used seperately. jaw
 - Do we need this char translation with >address and in branchoffset? 
   (>body also affected) jaw
-- MAXU etc. can be done with dlit,
 
 [THEN]
 
@@ -2439,35 +2438,24 @@ Cond: chars ;Cond
 
 \ some special literals					27jan97jaw
 
-\ !! Known Bug: Special Literals and plug-ins work only correct
-\ on 16 and 32 Bit Targets and 32 Bit Hosts!
-
-\ This section could be done with dlit, now. But first I need
-\ some test code JAW
-
 Cond: MAXU
-  tcell 1 cells u> 
-  IF	compile lit tcell 0 ?DO FF T c, H LOOP 
-  ELSE	ffffffff lit, THEN
+  -1 s>d dlit,
   ;Cond
 
+tcell 2 = tcell 4 = or tcell 8 = or 0=
+[IF]
+.( Warning: MINI and MAXI may not work with this host) cr
+[THEN]
+
 Cond: MINI
-  tcell 1 cells u>
-  IF	compile lit bigendian 
-  	IF	80 T c, H tcell 1 ?DO 0 T c, H LOOP 
-  	ELSE  	tcell 1 ?DO 0 T c, H LOOP 80 T c, H
-  	THEN
-  ELSE	tcell 2 = IF 8000 ELSE 80000000 THEN lit, THEN
+  tcell 2 = IF $8000 ELSE $80000000 THEN 0
+  tcell 8 = IF swap THEN dlit,
   ;Cond
  
 Cond: MAXI
- tcell 1 cells u>
- IF	compile lit bigendian 
-	IF 	7F T c, H tcell 1 ?DO FF T c, H LOOP
-	ELSE 	tcell 1 ?DO FF T c, H LOOP 7F T c, H
- 	THEN
- ELSE	tcell 2 = IF 7fff ELSE 7fffffff THEN lit, THEN
- ;Cond
+  tcell 2 = IF $7fff ELSE $7fffffff THEN 0
+  tcell 8 = IF drop -1 swap THEN dlit,
+  ;Cond
 
 >CROSS
 
