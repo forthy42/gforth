@@ -100,7 +100,10 @@ typedef short Int16;
    code gcc produces for the cpu_dep routine.
 */
 
-#define CPU_DEP2	register Label _alpha_docol asm("$9")=&&docol; \
+/* if you change this, also change _DOCOL_LABEL below */
+#define DO_BASE		(&&docol)
+
+#define CPU_DEP2	register Label _alpha_docol asm("$9")=DO_BASE; \
 			register Label _alpha_ca;
 
 #define CPU_DEP3	cpu_dep: asm("lda %0, 500(%1)":"=r"(_alpha_ca):"r"(_alpha_docol)); goto *_alpha_ca;
@@ -109,31 +112,35 @@ typedef short Int16;
 
 
 /* CODE_ADDRESS is the address of the code jumped to through the code field */
-#define CODE_ADDRESS(wa)	({Int32 *_wa=(Int32 *)(wa); \
-				    (_wa[0]&0xfc000000)==0x68000000 ? /*JMP?*/\
-				    &&docol : \
-				    &&docol+((Int16 *)_wa)[0]; })
+#define CODE_ADDRESS(wa) ({ \
+	Int32 *_wa=(Int32 *)(wa); \
+	(_wa[0]&0xfc000000)==0x68000000 ? /*JMP?*/\
+	 DO_BASE : \
+	 ((((_wa[0]^((Int32 *)_CPU_DEP_LABEL)[0]) & 0xffff0000)==0 && \
+	   ((_wa[1]^((Int32 *)_CPU_DEP_LABEL)[1]) & 0xffffc000)==0 ) ? \
+	  (DO_BASE+((Int16 *)_wa)[0]) : \
+	  (Label)_wa); })
 
 #define _CPU_DEP_LABEL	(symbols[DOESJUMP])
 #define _DOCOL_LABEL	(symbols[DOCOL])
 
 /* MAKE_CF creates an appropriate code field at the wa; ca is the code
    address. For the Alpha, this is a lda followed by a jmp (or just a
-   jmp, if ca==&&docol).  We patch the jmp with a good hint (on the
+   jmp, if ca==DO_BASE).  We patch the jmp with a good hint (on the
    21064A this saves 5 cycles!) */
 #define MAKE_CF(wa,ca)	({ \
-			     Int32 *_wa=(Int32 *)(wa); \
-			     Label _ca=(Label)(ca); \
-			     if (_ca==_DOCOL_LABEL)  \
-			       _wa[0]=(((0x1a<<26)|(31<<21)|(9<<16))| \
-				       (((((Cell)_ca)-((Cell)_wa)-4) & 0xffff)>>2)); \
-			     else { \
-			       _wa[0]=((((Int32 *)_CPU_DEP_LABEL)[0] & 0xffff0000)| \
-				       ((((Cell)_ca)-((Cell)_DOCOL_LABEL)) & 0xffff)); \
-			       _wa[1]=((((Int32 *)_CPU_DEP_LABEL)[1] & 0xffffc000)| \
-				       (((((Cell)_ca)-((Cell)_wa)-8) & 0xffff)>>2));  \
-			     } \
-			})
+	Int32 *_wa=(Int32 *)(wa); \
+	Label _ca=(Label)(ca); \
+	if (_ca==_DOCOL_LABEL)  \
+	    _wa[0]=(((0x1a<<26)|(31<<21)|(9<<16))| \
+	            (((((Cell)_ca)-((Cell)_wa)-4) & 0xffff)>>2)); \
+	else { \
+	    _wa[0]=((((Int32 *)_CPU_DEP_LABEL)[0] & 0xffff0000)| \
+		    ((((Cell)_ca)-((Cell)_DOCOL_LABEL)) & 0xffff)); \
+	    _wa[1]=((((Int32 *)_CPU_DEP_LABEL)[1] & 0xffffc000)| \
+		    (((((Cell)_ca)-((Cell)_wa)-8) & 0xffff)>>2));  \
+	} \
+    })
 
 /* this is the point where the does code for the word with the xt cfa
    starts. Because the jump to the code field takes only one cell on
@@ -142,7 +149,7 @@ typedef short Int16;
 #define DOES_CODE(cfa) \
      ({ Int32 *_wa=(cfa); \
 	(_wa[0] == ((((Int32 *)_CPU_DEP_LABEL)[0] & 0xffff0000)| \
-		    ((((Cell)&&dodoes)-((Cell)&&docol)) & 0xffff)) && \
+		    ((((Cell)&&dodoes)-((Cell)DO_BASE)) & 0xffff)) && \
 	 (_wa[1]&0xffffc000) == (((Int32 *)_CPU_DEP_LABEL)[1] & 0xffffc000)) \
 	? DOES_CODE1(_wa) : 0; })
 
