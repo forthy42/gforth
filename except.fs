@@ -36,7 +36,7 @@ Defer store-backtrace
 : (try) ( -- )
     \ inline argument: address of the handler
     r>
-    dup dup @ + >r \ recovery address
+    dup @ >r \ recovery address
     rp@ 'catch >r
     sp@ >r
     fp@ >r
