@@ -24,6 +24,19 @@
 
 \ \ here allot , c, A,						17dec92py
 
+[IFUNDEF] allot
+[IFUNDEF] forthstart
+: allot ( n -- ) \ core
+    \G Reserve or release @var{n} address units of data space; @var{n}
+    \G is a signed number. There are restrictions on releasing data
+    \G space.
+    dup unused u> -8 and throw
+    dp +! ;
+[THEN]
+[THEN]
+
+\ we default to this version if we have nothing else 05May99jaw
+[IFUNDEF] allot
 : allot ( n -- ) \ core
     \G Reserve or release @var{n} address units of data space; @var{n}
     \G is a signed number. There are restrictions on releasing data
@@ -31,6 +44,7 @@
     here +
     dup 1- usable-dictionary-end forthstart within -8 and throw
     dp ! ;
+[THEN]
 
 : c,    ( c -- ) \ core
     \G Reserve data space for one char and store @var{c} in the space.
@@ -137,10 +151,18 @@ create nextname-buffer 32 chars allot
 : Literal  ( compilation n -- ; run-time -- n ) \ core
     \G Compile appropriate code such that, at run-time, @var{n} is placed
     \G on the stack. Interpretation semantics are undefined.
-    postpone lit  , ; immediate restrict
+[ [IFDEF] lit, ]
+    lit,
+[ [ELSE] ]
+    postpone lit , 
+[ [THEN] ] ; immediate restrict
 
 : ALiteral ( compilation addr -- ; run-time -- addr ) \ gforth
-    postpone lit A, ; immediate restrict
+[ [IFDEF] alit, ]
+    alit,
+[ [ELSE] ]
+    postpone lit A, 
+[ [THEN] ] ; immediate restrict
 
 : char   ( '<spaces>ccc' -- c ) \ core
     \G Skip leading spaces. Parse the string @var{ccc} and return @var{c}, the
@@ -161,9 +183,11 @@ create nextname-buffer 32 chars allot
     dup lastcfa !
     0 A, 0 ,  code-address! ;
 
+[IFUNDEF] compile,
 : compile, ( xt -- )	\ core-ext	compile-comma
     \G  Compile the word represented by the execution token, @var{xt}.
     A, ;
+[THEN]
 
 : !does    ( addr -- ) \ gforth	store-does
     lastxt does-code! ;
@@ -185,7 +209,7 @@ create nextname-buffer 32 chars allot
     else
 	dup ['] compile, =
 	if
-	    drop POSTPONE (compile) compile,
+	    drop POSTPONE (compile) a,
 	else
 	    swap POSTPONE aliteral compile,
 	then
@@ -413,9 +437,15 @@ defer :-hook ( sys1 -- sys2 )
 
 defer ;-hook ( sys2 -- sys1 )
 
+[IFDEF] docol,
+: (:noname) ( -- colon-sys )
+    \ common factor of : and :noname
+    docol, ]comp defstart ] :-hook ;
+[ELSE]
 : (:noname) ( -- colon-sys )
     \ common factor of : and :noname
     docol: cfa, defstart ] :-hook ;
+[THEN]
 
 : : ( "name" -- colon-sys ) \ core	colon
     Header (:noname) ;
@@ -424,8 +454,13 @@ defer ;-hook ( sys2 -- sys1 )
     0 last !
     cfalign here (:noname) ;
 
+[IFDEF] fini,
+: ; ( compilation colon-sys -- ; run-time nest-sys ) \ core   semicolon
+    ;-hook ?struc fini, comp[ reveal postpone [ ; immediate restrict
+[ELSE]
 : ; ( compilation colon-sys -- ; run-time nest-sys ) \ core	semicolon
     ;-hook ?struc postpone exit reveal postpone [ ; immediate restrict
+[THEN]
 
 \ \ Search list handling: reveal words, recursive		23feb93py
 
