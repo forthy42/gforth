@@ -20,6 +20,8 @@
 
 require string.fs
 
+\ basic stuff
+
 : -scan ( addr u char -- addr' u' )
   >r  BEGIN  dup  WHILE  1- 2dup + c@ r@ =  UNTIL  THEN
   rdrop ;
@@ -27,15 +29,10 @@ require string.fs
   >r 2dup r@ -scan 2dup + c@ r> = negate over + >r
   2swap r> /string ;
 : parse" ( -- addr u ) '" parse 2drop '" parse ;
-
-\ tag handling
-
 : .' '' parse postpone SLiteral postpone type ; immediate
 : s' '' parse postpone SLiteral ; immediate
 
-Variable indentlevel
-Variable tag-option
-s" " tag-option $!
+\ character recoding
 
 : .type ( addr u -- )
     bounds ?DO  I c@
@@ -46,6 +43,12 @@ s" " tag-option $!
 	endcase
     LOOP ;
 
+\ tag handling
+
+Variable indentlevel
+Variable tag-option
+s" " tag-option $!
+
 : tag ( addr u -- ) '< emit type tag-option $@ type '> emit
     s" " tag-option $! ;
 : tag/ ( addr u -- )  s"  /" tag-option $+! tag ;
@@ -55,12 +58,14 @@ s" " tag-option $!
 : opt ( addr u opt u -- )  s"  " tag-option $+!
     tag-option $+! s' ="' tag-option $+! tag-option $+!
     s' "' tag-option $+! ;
+: n>string ( n -- addr u )  0 <# #S #> ;
+: opt# ( n opt u -- )  rot n>string 2swap opt ;
 : href= ( addr u -- )  s" href" opt ;
 : id= ( addr u -- )  s" id" opt ;
 : src=  ( addr u -- )  s" src" opt ;
 : alt=  ( addr u -- )  s" alt" opt ;
-: width=  ( addr u -- )  s" width" opt ;
-: height=  ( addr u -- )  s" height" opt ;
+: width=  ( n -- )  s" width" opt# ;
+: height=  ( n -- )  s" height" opt# ;
 : align= ( addr u -- ) s" align" opt ;
 : class= ( addr u -- ) s" class" opt ;
 : indent= ( -- )
@@ -89,17 +94,18 @@ Variable envs 30 0 [DO] 0 , [LOOP]
 
 Variable table-format
 Variable table#
-Variable table-start
+Create table-starts &10 0 [DO] 0 c, 0 c, [LOOP]
+Variable taligned
 
 : >align ( c -- )
     CASE
 	'l OF  s" left"      class=  ENDOF
 	'r OF  s" right"     class=  ENDOF
-	'c OF  s" center"    align=  ENDOF
+	'c OF  s" center"    class=  ENDOF
 	'< OF  s" left"      class=  ENDOF
 	'> OF  s" right"     class=  ENDOF
-	'= OF  s" center"    align=  ENDOF
-	'~ OF  s" absmiddle" align=  ENDOF
+	'= OF  s" center"    class=  ENDOF
+	'~ OF  s" middle"    class=  ENDOF
     ENDCASE ;
 
 : >talign ( c -- )
@@ -110,9 +116,7 @@ Variable table-start
 	'< OF  s" left"   align=  ENDOF
 	'> OF  s" right"  align=  ENDOF
 	'= OF  s" center" align=  ENDOF
-	digit? IF  0 <# #S #> s" rowspan" opt
-	    table# @ 1+ table-start ! THEN 0
-    ENDCASE ;
+    ENDCASE  taligned on ;
 
 : >border ( c -- )
     case
@@ -164,8 +168,8 @@ Create jfif   $FF c, $D8 c, $FF c, $E0 c, $00 c, $10 c, $4A c, $46 c,
     imgbuf $20 r@ read-file throw drop
     r@ img-size
     r> close-file throw
-    ?dup IF  0 <# #S #> width=   THEN
-    ?dup IF  0 <# #S #> height=  THEN ;
+    ?dup IF  width=   THEN
+    ?dup IF  height=  THEN ;
 
 \ link creation
 
@@ -214,7 +218,9 @@ Defer parse-line
 
 : link-size? ( -- )  do-size @ 0= ?EXIT
     link $@ r/o open-file IF  drop  EXIT  THEN >r
-    r@ file-size throw $400 um/mod nip ."  (" 0 u.r ." k)"
+    r@ file-size throw $400 um/mod nip
+    dup $800 < IF  ."  (" 0 u.r ." k)"
+	ELSE  $400 / ."  (" 0 u.r ." M)" THEN
     r> close-file throw ;
 
 : link-sig? ( -- )
@@ -223,6 +229,14 @@ Defer parse-line
     close-file throw
     ."  (" link-sig $@ href= s" a" tag
     s" |-icons/sig.gif" .img ." sig" s" /a" tag ." )" ;
+
+: link-warn? ( -- ) \ local links only
+    link $@ ': scan nip ?EXIT
+    link $@ r/o open-file nip IF
+	s" Dead Link '" stderr write-file throw
+	link $@ stderr write-file throw
+	s\" ' !!!\n" stderr write-file throw
+    THEN ;
 
 : link-options ( addr u -- addr' u' )
     do-size off  do-icon on
@@ -246,7 +260,7 @@ s" Gforth" environment? [IF] s" 0.5.0" str= [IF]
     link-options link $!
     link $@len 0= IF  2dup link $! ( s" .html" link $+! ) THEN
     link $@ href= s" a" tag link-icon?
-    parse-string s" a" /tag link-size? link-sig? ;
+    parse-string s" a" /tag link-size? link-sig? link-warn? ;
 : >link ( -- )  '[ parse type '] parse .link ;
 
 \ line handling
@@ -275,6 +289,7 @@ Create do-words  $100 0 [DO] ' .text , [LOOP]
 char>tag * b
 char>tag _ em
 char>tag # code
+:noname  '~ parse .type '~ parse .type ; '~ cells do-words + !
 
 ' >link bind-char [
 ' >img  bind-char {
@@ -298,7 +313,11 @@ wordlist Constant autoreplacements
 	source nip >in @ = UNTIL ;
 
 : parse-to ( char -- ) >r
-    BEGIN  char? dup r@ <> WHILE
+    BEGIN
+	word? autoreplacements search-wordlist
+	IF    execute  bl sword 2drop
+	    source >in @ 1- /string drop c@ bl = >in +! bl true
+	ELSE  char? dup r@ <>  THEN  WHILE
 	do-word source nip >in @ = UNTIL  ELSE  drop  THEN
     r> parse type ;
 
@@ -316,9 +335,8 @@ wordlist Constant autoreplacements
     BEGIN  parse-line+ cr refill  WHILE
 	source nip 0= UNTIL  THEN ;
 
-: par ( addr u -- ) env? indent=
+: par ( addr u -- ) env?
     2dup tag parse-par /tag cr cr ;
-: line ( addr u -- ) env? 2dup tag parse-line+ /tag cr cr ;
 
 \ scan strings
 
@@ -344,18 +362,20 @@ Variable nav-file
 Create nav-buf 0 c,
 : nav+ ( char -- )  nav-buf c! nav-buf 1 nav-file $+! ;
 
-: >nav ( addr u -- addr' u' )
-    nav-name $!  create-navs @ 0=
-    IF  s" navigate/nav.scm" r/w create-file throw create-navs !  THEN
-    s' (script-fu-nav-file "' nav$ $! nav-name $@ nav$ $+!
-    s' " "./navigate/' nav$ $+!  s" " nav-file $!
-    nav-name $@ bounds ?DO
+: filenamize ( addr u -- )
+    bounds ?DO
 	I c@  dup 'A 'Z 1+ within IF  bl + nav+
 	ELSE  dup 'a 'z 1+ within IF  nav+
 	ELSE  dup '0 '9 1+ within IF  nav+
 	ELSE  dup  bl = swap '- = or IF  '- nav+
 	THEN  THEN  THEN  THEN
-	LOOP
+    LOOP ;
+: >nav ( addr u -- addr' u' )
+    nav-name $!  create-navs @ 0=
+    IF  s" navigate/nav.scm" r/w create-file throw create-navs !  THEN
+    s' (script-fu-nav-file "' nav$ $! nav-name $@ nav$ $+!
+    s' " "./navigate/' nav$ $+!  s" " nav-file $!
+    nav-name $@ filenamize
     nav-file $@ nav$ $+! s' .jpg")' nav$ $+!
     nav$ $@ create-navs @ write-line throw
     s" [" nav$ $! nav-name $@ nav$ $+!
@@ -412,13 +432,12 @@ Variable toc-index
 : indent ( n -- )
     indentlevel @ over
     indentlevel !
-    2dup < IF swap DO  -env -env  LOOP  EXIT THEN
-    over 1 = IF  = IF  -env -env  THEN  EXIT  THEN
-    2dup > IF      DO  s" dl" >env s" dt" >env  LOOP EXIT THEN
-    2dup = IF drop IF  -env  s" dt" >env  THEN THEN
+    2dup < IF swap DO  -env   LOOP  EXIT THEN
+    2dup > IF      DO   s" div" >env  LOOP EXIT THEN
+    2dup = IF drop IF  -env  s" div" >env  THEN THEN
 ;
 : +indent ( -- )
-    indentlevel @ IF  -env -env s" dl" >env s" dd" >env  THEN
+    indentlevel @ IF  -env indent= s" div" >env  THEN
 ;
 
 wordlist constant longtags
@@ -427,73 +446,104 @@ Variable divs
 
 longtags set-current
 
-: --- 0 indent cr s" hr" tag/ cr +indent ;
-: *   1 indent s" h1" line +indent ;
-: **  1 indent s" h2" line +indent ;
-: *** 2 indent s" h3" line +indent ;
-: -- 0 indent cr print-toc ;
-: && ( -- ) divs @ IF  -env  THEN  +env
-    0 parse id= s" div" env env? divs on ;
-: - s" ul" env s" li" par ;
-: + s" ol" env s" li" par ;
-: << +env ;
-: <* s" center" class= ;
+: --- 0 indent cr s" hr" tag/ cr ;
+: *   1 indent s" h1" par +indent ;
+: **  1 indent s" h2" par +indent ;
+: *** 2 indent s" h3" par +indent ;
+: --  0 indent cr print-toc ;
+: &&  0 parse id= ;
+: -   s" ul" env s" li" par ;
+: +   s" ol" env s" li" par ;
+: ?   s" dl" env s" dt" par ;
+: :   s" dl" env s" dd" par ;
+: -<< s" ul" env env? s" li" >env ;
+: +<< s" ol" env env? s" li" >env ;
+: ?<< s" dl" env env? s" dt" >env ;
+: :<< s" dl" env env? s" dd" >env ;
+: p<< s" p" >env ;
+: <<  +env ;
+: <*  s" center" class= ;
 : <red  s" #ff0000" s" color" opt s" font" >env ;
 : red> -env ;
-: >> -env ;
+: >>  -env ;
 : *> ;
-: :: interpret ;
-: . end-sec on 0 indent ;
-: :code indent= s" pre" >env
+: ::  interpret ;
+: .   end-sec on 0 indent ;
+: :code s" pre" >env
     BEGIN  source >in @ /string type cr refill  WHILE
 	source s" :endcode" str= UNTIL  THEN
     -env ;
-: :code-file indent= s" pre" >env
-    parse" r/o open-file throw >r
-    r@ file-size throw drop dup allocate throw
-    2dup swap r@ read-file throw 2dup type drop
-    -env free throw drop
-    r> close-file throw ;
-: \ postpone \ ;
+: :code-file s" pre" >env
+    parse" slurp-file type -env ;
+: \   postpone \ ;
 
 definitions
-    
+
+: LT  get-order longtags swap 1+ set-order
+    bl sword parser previous ; immediate
+
 \ Table
 
-: |tag  table-format $@ table# @ /string drop c@ >talign
-    >env  1 table# +! ;
-: |d  table# @ table-start @ > IF  -env  THEN  s" td" |tag ;
-: |h  table# @ table-start @ > IF  -env  THEN  s" th" |tag ;
-: |line  s" tr" >env  table-start @ table# ! ;
-: line|  -env -env cr ;
-
 : next-char ( -- char )  source drop >in @ + c@ ;
+: next-table ( -- )
+    BEGIN
+	table-starts table# @ 2* + dup c@ dup
+	IF    1- over c! 1+ c@ 1+  ELSE  swap 1+ c! 0  THEN
+	dup WHILE  table# +!  REPEAT  drop
+    table-format $@ table# @ /string drop c@ taligned ! ;
+: next>align ( -- )
+    next-char dup bl <> over '\ <> and
+    IF  taligned ! 1 >in +!  ELSE  drop  THEN ;
+
+: |tag ( addr u -- )
+    next-table
+    next-char '/ = IF  1 >in +!
+	next-char digit?  IF
+	    dup 1- table-starts table# @ 2* + c!
+	    s" rowspan" opt# 1 >in +!  THEN
+	next>align
+    THEN
+    next-char '\ = IF  1 >in +!
+	next-char digit?  IF
+	    dup 1- table-starts table# @ 2* + 1+ c!
+	    dup 1- table# +!
+	    s" colspan" opt# 1 >in +!  THEN
+	next>align
+    THEN
+    taligned @ >talign >env
+    1 table# +! ;
+: |d  table# @ 0> IF  -env  THEN  s" td" |tag ;
+: |h  table# @ 0> IF  -env  THEN  s" th" |tag ;
+: |line  s" tr" >env table# off ;
+: line|  1 >in +! -env -env cr ;
 
 longtags set-current
 
-: <| bl sword table-format $! table-start off bl sword
-    dup IF  s" border" opt  ELSE  2drop  THEN s" table" >env ;
+: <| ( -- )  table-starts &20 erase
+    s" table" class= s" div" >env
+    bl sword table-format $! bl sword
+    dup IF  s" border" opt  ELSE  2drop  THEN
+    s" table" >env ;
 : |> -env -env cr cr ;
-: +| |line
-    BEGIN
-	|h '| parse-to next-char '+ =  UNTIL line| ;
-: -| |line
-    BEGIN
-	|d '| parse-to next-char '- =  UNTIL line| ;
+: +| ( -- )
+    |line  BEGIN  |h '| parse-to next-char '+ =  UNTIL line| ;
+: -| ( -- )
+    |line  BEGIN  |d '| parse-to next-char '- =  UNTIL line| ;
+: =| ( -- )
+    |line  |h '| parse-to
+           BEGIN  |d '| parse-to next-char '= =  UNTIL line| ;
 
 definitions
 
 \ parse a section
 
-: section-line ( -- )  >in off
+: section-par ( -- )  >in off
     bl sword longtags search-wordlist
     IF    execute
     ELSE  source nip IF  >in off s" p" par  THEN  THEN ;
-: refill-loop ( -- )  end-sec off
+: parse-section ( -- )  end-sec off
     BEGIN  refill  WHILE
-	section-line end-sec @ UNTIL  THEN ;
-: parse-section ( -- )
-    refill-loop ;
+	section-par end-sec @ UNTIL  THEN ;
 
 \ HTML head
 
@@ -535,7 +585,7 @@ Variable orig-date
 \ top word
 
 : maintainer ( -- )
-    bl sword mail $! parse" mail-name $! ;
+    '< sword -trailing mail-name $! '> sword mail $! ;
 : created ( -- )
     bl sword orig-date $! ;
 
@@ -577,8 +627,8 @@ Variable style$
 Variable last-entry
 Variable field#
 
-: table: ( xt n -- )  Create , ,  1 field# !
-    DOES> 2@ >in @ >r longtags set-current
+: table: ( xt n -- )  Create 0 , ['] type , , ,  1 field# !
+    DOES> 2 cells + 2@ >in @ >r longtags set-current
     Create definitions swap , r> >in !
     here last-entry !
     dup 0 DO  0 ,  LOOP
@@ -586,9 +636,28 @@ Variable field#
     last-entry @ get-rest
     DOES> dup cell+ swap perform ;
 
-: field:  Create field# @ , 1 field# +!
+: field:  Create field# @ , ['] type , 1 field# +!
 DOES> @ cells last-entry @ + get-rest ;
-: par:  Create field# @ , 1 field# +!
+: par:  Create field# @ , ['] eval-par , 1 field# +!
 DOES> @ cells last-entry @ + get-par ;
 
-: >field  ' >body @ cells postpone Literal postpone + ; immediate
+: >field-rest >body @ cells postpone Literal postpone + ;
+: >field ' >field-rest ; immediate
+
+: db-line ( -- )
+    BEGIN
+	source >in @ /string nip  WHILE
+	    '% parse  postpone SLiteral postpone type
+	    '% parse dup IF
+		'| $split 2swap
+		sfind 0= abort" Field not found"
+		dup postpone r@ >field-rest  postpone $@
+		over IF  drop evaluate  ELSE
+		    nip nip >body cell+ @ compile,
+		THEN
+	    ELSE  2drop  postpone cr  THEN
+    REPEAT ;
+
+: db-par ( -- )  LT postpone p<< postpone >r
+    BEGIN  db-line refill  WHILE  next-char '. = UNTIL  1 >in +!  THEN
+    postpone rdrop LT postpone >> ; immediate
