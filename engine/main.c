@@ -131,8 +131,9 @@ Cell last_jump=0; /* if the last prim was compiled without jump, this
 static int no_super=0;   /* true if compile_prim should not fuse prims */
 static int no_dynamic=NO_DYNAMIC_DEFAULT; /* if true, no code is generated
 					     dynamically */
-static int print_codesize=0; /* if true, print code size on exit */
+static int print_metrics=0; /* if true, print metrics on exit */
 static int static_super_number = 10000000; /* number of ss used if available */
+static int ss_greedy = 0; /* if true: use greedy, not optimal ss selection */
 
 #ifdef HAS_DEBUG
 int debug=0;
@@ -1073,6 +1074,19 @@ cost_lsu;
 cost_codesize;
 #endif
 
+struct {
+  Costfunc *costfunc;
+  char *metricname;
+  long sum;
+} cost_sums[] = {
+#ifndef NO_DYNAMIC
+  { cost_codesize, "codesize", 0 },
+#endif
+  { cost_ls,       "ls",       0 },
+  { cost_lsu,      "lsu",      0 },
+  { cost_nexts,    "nexts",    0 }
+};
+
 #define MAX_BB 128 /* maximum number of instructions in BB */
 
 /* use dynamic programming to find the shortest paths within the basic
@@ -1080,23 +1094,25 @@ cost_codesize;
    on the shortest path to the end of the BB */
 void optimize_bb(short origs[], short optimals[], int ninsts)
 {
-  int i,j;
+  int i,j, mincost;
   static int costs[MAX_BB+1];
 
   assert(ninsts<MAX_BB);
   costs[ninsts]=0;
   for (i=ninsts-1; i>=0; i--) {
     optimals[i] = origs[i];
-    costs[i] = costs[i+1] + ss_cost(optimals[i]);
+    costs[i] = mincost = costs[i+1] + ss_cost(optimals[i]);
     for (j=2; j<=max_super && i+j<=ninsts ; j++) {
       int super, jcost;
 
       super = lookup_super(origs+i,j);
       if (super >= 0) {
 	jcost = costs[i+j] + ss_cost(super);
-	if (jcost <= costs[i]) {
+	if (jcost <= mincost) {
 	  optimals[i] = super;
-	  costs[i] = jcost;
+	  mincost = jcost;
+	  if (!ss_greedy)
+	    costs[i] = jcost;
 	}
       }
     }
@@ -1107,13 +1123,15 @@ void optimize_bb(short origs[], short optimals[], int ninsts)
    superinstructions in optimals */
 void rewrite_bb(Cell *instps[], short *optimals, int ninsts)
 {
-  int i, nextdyn;
+  int i,j, nextdyn;
   Cell inst;
 
   for (i=0, nextdyn=0; i<ninsts; i++) {
     if (i==nextdyn) { /* compile dynamically */
       nextdyn += super_costs[optimals[i]].length;
       inst = compile_prim_dyn(optimals[i]);
+      for (j=0; j<sizeof(cost_sums)/sizeof(cost_sums[0]); j++)
+	cost_sums[j].sum += cost_sums[j].costfunc(optimals[i]);
     } else { /* compile statically */
       inst = (Cell)vm_prims[optimals[i]+DOESJUMP+1];
     }
@@ -1422,7 +1440,7 @@ void gforth_args(int argc, char ** argv, char ** path, char ** imagename)
       {"no-super", no_argument, &no_super, 1},
       {"no-dynamic", no_argument, &no_dynamic, 1},
       {"dynamic", no_argument, &no_dynamic, 0},
-      {"print-codesize", no_argument, &print_codesize, 1},
+      {"print-metrics", no_argument, &print_metrics, 1},
       {"ss-number", required_argument, NULL, ss_number},
 #ifndef NO_DYNAMIC
       {"ss-min-codesize", no_argument, NULL, ss_min_codesize},
@@ -1430,6 +1448,7 @@ void gforth_args(int argc, char ** argv, char ** path, char ** imagename)
       {"ss-min-ls",       no_argument, NULL, ss_min_ls},
       {"ss-min-lsu",      no_argument, NULL, ss_min_lsu},
       {"ss-min-nexts",    no_argument, NULL, ss_min_nexts},
+      {"ss-greedy",       no_argument, &ss_greedy, 1},
       {0,0,0,0}
       /* no-init-file, no-rc? */
     };
@@ -1479,13 +1498,14 @@ Engine Options:\n\
   --no-super                        No dynamically formed superinstructions\n\
   --offset-image		    Load image at a different position\n\
   -p PATH, --path=PATH		    Search path for finding image and sources\n\
-  --print-codesize		    Print size of generated native code on exit\n\
+  --print-metrics		    Print some code generation metrics on exit\n\
   -r SIZE, --return-stack-size=SIZE Specify return stack size\n\
-  --ss-number=N                     use N static superinsts (default max)\n
+  --ss-greedy                       greedy, not optimal superinst selection\n
   --ss-min-codesize                 select superinsts for smallest native code\n
   --ss-min-ls                       minimize loads and stores\n
   --ss-min-lsu                      minimize loads, stores, and pointer updates\n
   --ss-min-nexts                    minimize the number of static superinsts\n
+  --ss-number=N                     use N static superinsts (default max)\n
   -v, --version			    Print engine version and exit\n\
 SIZE arguments consist of an integer followed by a unit. The unit can be\n\
   `b' (byte), `e' (element; default), `k' (KB), `M' (MB), `G' (GB) or `T' (TB).\n",
@@ -1541,6 +1561,7 @@ int main(int argc, char **argv, char **env)
 #ifndef NO_DYNAMIC
   if (no_dynamic && ss_cost == cost_codesize) {
     ss_cost = cost_lsu;
+    cost_sums[0] = cost_sums[1];
     if (debug)
       fprintf(stderr, "--no-dynamic conflicts with --ss-min-codesize, reverting to --ss-min-lsu\n");
   }
@@ -1588,8 +1609,12 @@ int main(int argc, char **argv, char **env)
 #endif
     deprep_terminal();
   }
-  if (print_codesize) {
-    fprintf(stderr, "code size = %ld\n", dyncodesize());
+  if (print_metrics) {
+    int i;
+    fprintf(stderr, "code size = %8ld\n", dyncodesize());
+    for (i=0; i<sizeof(cost_sums)/sizeof(cost_sums[0]); i++)
+      fprintf(stderr, "metric %8s: %8ld\n",
+	      cost_sums[i].metricname, cost_sums[i].sum);
   }
   return retvalue;
 }
