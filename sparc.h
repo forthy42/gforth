@@ -1,9 +1,11 @@
 /*
-  $Id: sparc.h,v 1.4 1994-12-14 16:15:33 anton Exp $
+  $Id: sparc.h,v 1.5 1994-12-16 18:14:57 anton Exp $
   Copyright 1992 by the ANSI figForth Development Group
 
   This is the machine-specific part for a SPARC
 */
+
+#include "32bit.h"
 
 #if !defined(USE_TOS) && !defined(USE_NO_TOS)
 #define USE_TOS
