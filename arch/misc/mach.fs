@@ -61,6 +61,8 @@ false Constant header		\ save a header information
 
 true Constant ec
 false Constant crlf
+false SetValue new-input
+false SetValue peephole
 
 cell 2 = [IF] 32 [ELSE] 256 [THEN] KB Constant kernel-size
 
