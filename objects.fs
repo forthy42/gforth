@@ -177,10 +177,10 @@ does> ( ... object -- ... )
     \ copy it to make it unique; used for implementing a copy-on-write policy
     over @ class-parent @ class->map ( class-map offset parent-map )
     over + @ >r  \ the map for the interface for the parent
-    + dup @ ( mapp map )
+    + dup @ ( interface-mapp interface-map )
     dup r> =
     if
-	@ interface-map 2@ save-mem drop
+	dup @ interface-map 2@ nip save-mem drop	
 	swap !
     else
 	2drop

@@ -155,6 +155,8 @@ z print cr
 z val . cr
 z inc
 z val . cr
+1 z add
+z val . cr
 
 \ test inst-value
 object class
