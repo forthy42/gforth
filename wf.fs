@@ -2,6 +2,13 @@
 
 require string.fs
 
+: -scan ( addr u char -- addr' u' )
+  >r  BEGIN  dup  WHILE  1- 2dup + c@ r@ =  UNTIL  THEN
+  rdrop ;
+: -$split ( addr u char -- addr1 u1 addr2 u2 )
+  >r 2dup r@ -scan 2dup + c@ r> = negate over + >r
+  2swap r> /string ;
+
 \ tag handling
 
 : .' '' parse postpone SLiteral postpone type ; immediate
@@ -30,6 +37,7 @@ s" " tag-option $!
 
 \ environment handling
 
+Variable end-sec
 Variable oldenv
 Variable envs 30 0 [DO] 0 , [LOOP]
 
@@ -40,7 +48,7 @@ Variable envs 30 0 [DO] 0 , [LOOP]
     2dup < IF  env$ cell+ $@ /tag  env$ cell+ $off  THEN
     drop oldenv ! ;
 : +env  1 envs +! ;
-: -env -1 envs +! env? ;
+: -env end-sec @ envs @ 2 > or  IF  -1 envs +! env?  THEN ;
 : -envs envs @ 0 ?DO  -env cr  LOOP ;
 : >env ( addr u -- ) +env env env? ;
 
@@ -53,7 +61,7 @@ Variable envs 30 0 [DO] 0 , [LOOP]
 	'c OF  s" center" align=  ENDOF
 	'< OF  s" left"   align=  ENDOF
 	'> OF  s" right"  align=  ENDOF
-	'| OF  s" center" align=  ENDOF
+	'= OF  s" center" align=  ENDOF
     ENDCASE ;
 
 : >border ( c -- )
@@ -121,6 +129,13 @@ Variable do-icon
 
 Defer parse-line
 
+: .img ( addr u -- ) dup >r '| -$split  dup r> = IF  2swap  THEN 
+    dup IF  2swap alt=  ELSE  2drop  THEN
+    tag-option $@len >r over c@ >align  tag-option $@len r> = 1+ /string
+    tag-option $@len >r over c@ >border tag-option $@len r> = 1+ /string
+    2dup .img-size src= s" img" tag ;
+: >img ( -- )   '{ parse type '} parse .img ;
+
 : alt-suffix ( -- )
     link-suffix $@len 2 - link-suffix $!len
     s" [" link-suffix 0 $ins
@@ -156,7 +171,7 @@ Defer parse-line
     link-sig $@ r/o open-file IF  drop  EXIT  THEN
     close-file throw
     ."  (" link-sig $@ href= s" a" tag
-    s" icons/sig.gif" '- >border src= s" img" tag ." sig" s" /a" tag ." )" ;
+    s" |-icons/sig.gif" .img ." sig" s" /a" tag ." )" ;
 
 : link-options ( addr u -- addr' u' )
     do-size off  do-icon on
@@ -167,19 +182,12 @@ Defer parse-line
     evaluate-input cell new-tib #tib ! tib !
     ['] parse-line catch pop-file throw ;
 
-: .link ( addr u -- ) '| $split 
+: .link ( addr u -- ) dup >r '| -$split  dup r> = IF  2swap  THEN 
     link-options link $!
     link $@len 0= IF  2dup link $! s" .html" link $+!  THEN
     link $@ href= s" a" tag link-icon?
     parse-string s" a" /tag link-size? link-sig? ;
 : >link ( -- )  '[ parse type '] parse .link ;
-
-: .img ( addr u -- ) '| $split 
-    dup IF  2swap alt=  ELSE  2drop  THEN
-    tag-option $@len >r over c@ >align  tag-option $@len r> = 1+ /string
-    tag-option $@len >r over c@ >border tag-option $@len r> = 1+ /string
-    2dup .img-size src= s" img" tag ;
-: >img ( -- )   '{ parse type '} parse .img ;
 
 \ line handling
 
@@ -271,7 +279,7 @@ Variable toc-link
 : >last ( addr link -- link' )
     BEGIN  dup @  WHILE  @  REPEAT  ! 0 ;
 
-: toc, ( n -- ) , '| parse here 0 , $! here 0 , get-rest ;
+: toc, ( n -- ) , 0 parse '| -$split 2swap here 0 , $! here 0 , $! ;
 : up-toc   align here toc-link >last , 0 toc, ;
 : top-toc  align here toc-link >last , 1 toc, ;
 : this-toc align here toc-link >last , 2 toc, ;
@@ -281,21 +289,21 @@ Variable toc-name
 
 : .toc-entry ( toc flag -- )
     swap cell+ dup @ swap cell+ dup cell+ $@ 2dup href= s" a" tag
-    1 /string toc-name $@ compare >r
+    '# scan 1 /string toc-name $@ compare >r
     $@ .img swap
     IF
 	case
-	    2 of  s" -icons/arrow_up.jpg" .img  endof
+	    2 of  s" ^]|-icons/arrow_up.jpg" .img  endof
 	    3 of
-		r@ 0= IF s" -icons/circle.jpg"
-		    ELSE s" -icons/arrow_down.jpg"  THEN  .img  endof
+		r@ 0= IF s" *]|-icons/circle.jpg"
+		    ELSE s" v]|-icons/arrow_down.jpg"  THEN  .img  endof
 	endcase
     ELSE
 	case
-	    0 of  s" -icons/arrow_up.jpg" .img  endof
-	    1 of  s" -icons/arrow_right.jpg" .img  endof
-	    2 of  s" -icons/circle.jpg" .img  endof
-	    3 of  s" -icons/arrow_down.jpg" .img  endof
+	    0 of  s" ^]|-icons/arrow_up.jpg" .img  endof
+	    1 of  s" >]|-icons/arrow_right.jpg" .img  endof
+	    2 of  s" *]|-icons/circle.jpg" .img  endof
+	    3 of  s" v]|-icons/arrow_down.jpg" .img  endof
 	endcase
     THEN
     s" a" /tag rdrop
@@ -305,9 +313,9 @@ Variable toc-name
 	toc-name $! toc-name $@ name= s" " s" a" tagged  2
     THEN  >r
     toc-link  BEGIN  @ dup  WHILE
-	dup cell+ @ 3 = r@ 0= and IF  rdrop 1 >r s" br" tag  THEN
+	dup cell+ @ 3 = r@ 0= and IF  rdrop 1 >r s" br" tag cr  THEN
 	dup cell+ @ r@ >= IF  dup r@ 2 = .toc-entry  THEN
-	dup cell+ @ 2 = r@ 2 = and IF  s" br" tag  THEN
+	dup cell+ @ 2 = r@ 2 = and IF  s" br" tag cr  THEN
     REPEAT  drop rdrop  cr ;
 
 \ handle global tags
@@ -317,11 +325,9 @@ Variable indentlevel
     2dup < IF swap DO  -env -env  LOOP  EXIT THEN
     2dup > IF      DO  s" dl" >env s" dt" >env  LOOP EXIT THEN
     2dup = IF drop IF  -env  s" dt" >env  THEN THEN ;
-: +indent ( -- )  -env s" dd" >env ;
+: +indent ( -- )  indentlevel @ IF  -env s" dd" >env  THEN ;
 
 wordlist constant longtags
-
-Variable end-sec
 
 longtags set-current
 
@@ -339,7 +345,7 @@ longtags set-current
 : >> -env ;
 : *> -env ;
 : :: interpret ;
-: . end-sec on indentlevel off ;
+: . end-sec on 0 indent ;
 : :code s" pre" >env
     BEGIN  source >in @ /string type cr refill  WHILE
 	source s" :endcode" compare 0= UNTIL  THEN
