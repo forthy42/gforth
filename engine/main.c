@@ -857,10 +857,7 @@ void check_prims(Label symbols1[])
 
     pi->start = s1;
     pi->superend = superend[i]|no_super;
-    if (pi->superend)
-      pi->length = endlabel-symbols1[i];
-    else
-      pi->length = prim_len;
+    pi->length = prim_len;
     pi->restlength = endlabel - symbols1[i] - pi->length;
     pi->nimmargs = 0;
     relocs++;
@@ -953,6 +950,8 @@ void append_jump(void)
     
     memcpy(code_here, pi->start+pi->length, pi->restlength);
     code_here += pi->restlength;
+    memcpy(code_here, goto_start, goto_len);
+    code_here += goto_len;
     last_jump=0;
   }
 }
@@ -1205,7 +1204,9 @@ Cell compile_prim_dyn(PrimNum p, Cell *tcp)
     return static_prim;
   }
   old_code_here = append_prim(p);
-  last_jump = (priminfos[p].superend) ? 0 : p;
+  last_jump = p;
+  if (priminfos[p].superend)
+    append_jump();
   return (Cell)old_code_here;
 #endif  /* !defined(NO_DYNAMIC) */
 }

@@ -228,7 +228,7 @@ extern int gforth_memcmp(const char * s1, const char * s2, size_t n);
 /* normal engine */
 #define VARIANT(v)	(v)
 #define JUMP(target)	goto I_noop
-#define LABEL(name) J_##name: asm(""); I_##name:
+#define LABEL(name) I_##name:
 
 #elif ENGINE==2
 /* variant with padding between VM instructions for finding out
@@ -236,7 +236,7 @@ extern int gforth_memcmp(const char * s1, const char * s2, size_t n);
 #define engine engine2
 #define VARIANT(v)	(v)
 #define JUMP(target)	goto I_noop
-#define LABEL(name) J_##name: SKIP16; I_##name:
+#define LABEL(name) SKIP16; I_##name:
 #define IN_ENGINE2
 
 #elif ENGINE==3
@@ -245,13 +245,14 @@ extern int gforth_memcmp(const char * s1, const char * s2, size_t n);
 #define engine engine3
 #define VARIANT(v)	((v)^0xffffffff)
 #define JUMP(target)	goto K_lit
-#define LABEL(name) J_##name: asm(""); I_##name:
+#define LABEL(name) I_##name:
 #else
 #error illegal ENGINE value
 #endif /* ENGINE */
 
 /* the asm(""); is there to get a stop compiled on Itanium */
 #define LABEL2(name) K_##name: asm("");
+#define LABEL3(name) J_##name: asm("");
 
 Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
 /* executes code at ip, if ip!=NULL
