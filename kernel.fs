@@ -1038,7 +1038,10 @@ G -1 warnings T !
 0C constant #ff ( -- c ) \ gforth
 0A constant #lf ( -- c ) \ gforth
 
-: bell  #bell emit ;
+: bell ( -- ) \ gforth
+    \g makes a beep and flushes the output buffer
+    #bell emit
+    outfile-id flush-file drop ;
 : cr ( -- ) \ core
     \ emit a newline
     #lf ( sic! ) emit ;

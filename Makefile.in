@@ -168,7 +168,7 @@ SOURCES	= CVS compat Makefile.in gforth-makeimage \
 
 RCS_FILES =  ToDo model high-level
 
-GEN = gforth version.fs
+GEN = gforth gforth-ditc version.fs version-stamp
 
 OBJECTS0 = io.o memcasecmp.o @LIBOBJS@ @getopt_long@
 OBJECTS	= engine.o main.o
@@ -186,7 +186,8 @@ DOCDIST = gforth.info* gforth.ps
 #stuff in a binonly distribution 
 BINONLYDIST = config.status Makefile gforth gforth-ditc \
 	$(OBJECTS0) $(OBJECTS) $(OBJECTS_DITC)\
-	machine.h config.h kernel.fi stamp-h version.h version.fs \
+	machine.h config.h kernel.fi \
+	stamp-h version.h version.fs version-stamp \
 	INSTALL.BINDIST
 
 KERNLS = kernl16b.fi- kernl16l.fi- \
@@ -203,7 +204,7 @@ all:	version.fs more
 
 #this rule avoids remaking everything after minor changes in Makefile.in
 version-stamp:	Makefile.in
-		test x'$(VERSION)' = x`cat $@` || echo $(VERSION) >$@
+		(test -r $@ && test x'$(VERSION)' = x`cat $@`) || echo $(VERSION) >$@
 
 version.h:	version-stamp
 		echo "static char gforth_version[]=\"$(VERSION)\" ;" >$@
@@ -421,7 +422,7 @@ kernl%.fi:	kernl%.fi- $(KERNLS)
 		-$(CP) $< $@
 
 gforth.fi:	@kernel_fi@ gforth-makeimage gforth gforth-ditc $(GFORTH_FI_SRC)
-		GFORTHD="./gforth-ditc -p ." $(srcdir)/gforth-makeimage gforth.fi $(FORTHSIZES) $(FORTHKFLAGS) startup.fs
+		GFORTHD="./gforth-ditc -p .$(PATHSEP)$(srcdir)" $(srcdir)/gforth-makeimage gforth.fi $(FORTHSIZES) $(FORTHKFLAGS) startup.fs
 
 #TAGS is a GNU standard target
 TAGS:		gforth.TAGS

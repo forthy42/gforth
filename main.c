@@ -338,7 +338,7 @@ Address loader(FILE *imagefile, char* filename)
   if (header.checksum==0)
     ((ImageHeader *)imp)->checksum=check_sum;
   else if (header.checksum != check_sum) {
-    fprintf(stderr,"%s: Checksum of image ($%lx) does not match the executable ($%lx)\nThe Gforth installer should look into the INSTALL file\n",
+    fprintf(stderr,"%s: Checksum of image ($%lx) does not match the executable ($%lx)\n",
 	    progname, (unsigned long)(header.checksum),(unsigned long)check_sum);
     exit(1);
   }

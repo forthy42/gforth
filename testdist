@@ -1,6 +1,7 @@
 #tests that dist works
 #call this with gforth-$(version).tar.gz in the working directory
-GFORTH=gforth-0.2.1
+#use this if your make handles VPATH ok
+GFORTH=gforth-0.3.0
 mkdir test
 cd test
 DIR=$PWD

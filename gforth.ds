@@ -99,7 +99,7 @@ personal machines. This manual corresponds to version 0.3.
 * Concept Index::               A menu covering many topics
 @end menu
 
-@node License, Preface, Top, Top
+@node License, Goals, Top, Top
 @unnumbered GNU GENERAL PUBLIC LICENSE
 @center Version 2, June 1991
 
@@ -492,8 +492,6 @@ library.  If this is what you want to do, use the GNU Library General
 Public License instead of this License.
 
 @iftex
-@node    Preface, Goals, License, Top
-@comment node-name,     next,           previous, up
 @unnumbered Preface
 @cindex Preface
 This manual documents Gforth. The reader is expected to know
@@ -501,7 +499,7 @@ Forth. This manual is primarily a reference manual. @xref{Other Books}
 for introductory material.
 @end iftex
 
-@node    Goals, Other Books, Preface, Top
+@node    Goals, Other Books, License, Top
 @comment node-name,     next,           previous, up
 @chapter Goals of Gforth
 @cindex Goals

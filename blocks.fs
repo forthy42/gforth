@@ -55,7 +55,7 @@ User block-fid
 
 block-cold
 
-Defer flush-file
+Defer flush-blocks
 
 : open-blocks ( addr u -- ) \ gforth
     \g use the file, whose name is given by @var{addr u}, as blocks file 
@@ -66,7 +66,7 @@ Defer flush-file
 	rot close-file throw  2dup file-status throw bin open-file throw
 	>r 2drop r>
     then
-    block-fid @ IF  flush-file block-fid @ close-file throw  THEN
+    block-fid @ IF  flush-blocks block-fid @ close-file throw  THEN
     block-fid ! ;
 
 : use ( "file" -- ) \ gforth
@@ -111,7 +111,7 @@ Defer flush-file
     save-buffers
     empty-buffers ;
 
-' flush IS flush-file
+' flush IS flush-blocks
 
 : get-buffer ( n -- a-addr )
     buffers mod buffer-struct drop * block-buffers @ + ;

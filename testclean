@@ -1,4 +1,5 @@
-GFORTH=gforth-0.2.0
+#usage: invoke this in the gforth directory
+GFORTH=gforth-0.3.0
 make dist
 mkdir test
 cd test
