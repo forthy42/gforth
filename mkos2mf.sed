@@ -58,3 +58,5 @@ s%config.h:	stamp-h%#config.h:	stamp-h%g
 s%$(FORTHPATH)$(PATHSEP)%%g
 s%@FORTHSIZES@%%g
 s%$(PATHSEP)$(srcdir)%%g
+s%test x'$(VERSION)' = x`cat $@` || %%g
+s%--clear-dictionary%-c%g

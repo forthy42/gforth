@@ -528,6 +528,7 @@ ghost (does>)   ghost noop                      2drop
 ghost (.")      ghost (S")      ghost (ABORT")  2drop drop
 ghost '                                         drop
 ghost :docol    ghost :doesjump ghost :dodoes   2drop drop
+ghost over      ghost =         ghost drop      2drop drop
 
 \ compile                                              10may93jaw
 
@@ -779,11 +780,11 @@ Build:  ( d -- ) T , , H ;
 DO: ( ghost -- d ) T dup cell+ @ swap @ H ;DO
 Builder 2Constant
 
-Build: T 0 , H ;
+Build: T , H ;
 by (Constant)
 Builder Value
 
-Build: T 0 A, H ;
+Build: T A, H ;
 by (Constant)
 Builder AValue
 
@@ -863,6 +864,12 @@ Cond: WHILE     restrict? sys? compile IF swap ;Cond
 Cond: AGAIN     restrict? sys? compile branch <resolve ;Cond
 Cond: UNTIL     restrict? sys? compile ?branch <resolve ;Cond
 Cond: REPEAT    restrict? over 0= ?struc compile AGAIN compile THEN ;Cond
+
+Cond: CASE      restrict? 0 ;Cond
+Cond: OF        restrict? 1+ >r compile over compile = compile IF compile drop
+                r> ;Cond
+Cond: ENDOF     restrict? >r compile ELSE r> ;Cond
+Cond: ENDCASE   restrict? compile drop 0 ?DO  compile THEN  LOOP ;Cond
 
 \ Structural Conditionals                              12dec92py
 

@@ -86,6 +86,7 @@ INCLUDES = forth.h threading.h io.h
 KERN_SRC = \
 	aliases0.fs \
 	aliases.fs \
+	args.fs \
 	conditionals.fs \
 	cross.fs \
 	errore.fs \
@@ -118,6 +119,7 @@ GFORTH_FI_SRC = \
 	look.fs \
 	search-order.fs \
 	see.fs \
+	see-ext.fs \
 	source.fs \
 	startup.fs \
 	struct.fs \
@@ -135,7 +137,7 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_SRC) \
 	doskey.fs ds2texi.fs \
 	etags.fs filedump.fs \
 	glosgen.fs gray.fs \
-	makedoc.fs \
+	makedoc.fs comp-image.fs \
 	mach16b.fs mach16l.fs mach32b.fs mach32l.fs mach64b.fs mach64l.fs \
 	more.fs other.fs prims2x.fs random.fs \
 	sieve.fs \
@@ -252,7 +254,7 @@ dist:		$(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST)
 dosdist:	$(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST)
 		-$(RMTREE) gforth.$(DOSVERSION)
 		mkdir gforth.$(DOSVERSION)
-		$(CP) -rp $(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST) gforth.$(DOSVERSION)
+		$(CP) -rp $(SOURCES) $(FORTH_GEN) $(DOCDIST) gforth.$(DOSVERSION)
 		zip -r9 gforth.zip gforth.$(DOSVERSION)/*
 		-$(RMTREE) gforth.$(DOSVERSION)
 

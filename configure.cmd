@@ -75,5 +75,5 @@ IF FREGS="y" THEN do
 	call lineout config.h, "#define FORCE_REG 1"
 	call lineout config.h, "#endif"
 end
-call lineout version.h1, 'static char gforth_version[]="0.2.0";'
-call lineout version.fs1, ': version-string s" 0.2.0" ;'
+call lineout version.h1, 'static char gforth_version[]="0.2.9";'
+call lineout version.fs1, ': version-string s" 0.2.9" ;'

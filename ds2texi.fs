@@ -26,12 +26,13 @@
 \ `documentation'. Each word resides there under its own name.
 
 script? [IF]
-warnings off
-require search-order.fs
-require glocals.fs
-require float.fs
-require struct.fs
-require debugging.fs
+    warnings off
+    require extend.fs
+    require search-order.fs
+    require glocals.fs
+    require float.fs
+    require struct.fs
+    require debugging.fs
 [THEN]
 
 wordlist constant documentation
