@@ -32,6 +32,7 @@ PATH=$DIR/install/bin:$PATH make check &&
 cd ../vmgen-ex2 &&
 PATH=$DIR/install/bin:$PATH make check &&
 cd .. &&
+make all-bench &&
 cd .. &&
 install/bin/gforth test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs -e bye &&
 echo test ok

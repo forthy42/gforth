@@ -22,10 +22,13 @@
 /* %option yylineno (flex option, implied by flex -l) */
 
 %{
-#ifndef __GNUC__
+#include <stdlib.h>
 #include <string.h>
-char *strdup(const char *s);
-#endif
+char *mystrdup(const char *s)
+{
+  char *t=malloc(strlen(s)+1);
+  return strcpy(t,s);
+}
 %}
 
 %%
@@ -42,7 +45,7 @@ while	return WHILE;
 do	return DO;
 print	return PRINT;
 [0-9]+			{ yylval.num=strtol(yytext,NULL,10); return NUM; }
-[a-zA-Z\_][a-zA-Z0-9\_]*	{ yylval.string=strdup(yytext); return IDENT; }
+[a-zA-Z\_][a-zA-Z0-9\_]*	{ yylval.string=mystrdup(yytext); return IDENT; }
 [ \t\n]	;
 [/][/].*	;
 .		yyerror("illegal character"); exit(1);
