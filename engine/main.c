@@ -506,6 +506,13 @@ void check_prims(Label symbols1[])
 
 Label compile_prim(Label prim)
 {
+#ifdef DOUBLY_INDIRECT
+  if (prim<((Label)(xts+DOESJUMP)) || prim>((Label)(xts+npriminfos))) {
+    fprintf(stderr,"compile_prim encountered xt %p\n", prim);
+    return prim;
+  } else
+    return prim-((Label)xts)+((Label)vm_prims);
+#else /* !defined(DOUBLY_INDIRECT) */
 #ifdef IND_JUMP_LENGTH
   int i;
   Address old_code_here=code_here;
@@ -533,6 +540,7 @@ Label compile_prim(Label prim)
 #else
   return prim;
 #endif
+#endif /* !defined(DOUBLY_INDIRECT) */
 }
 
 Address loader(FILE *imagefile, char* filename)
