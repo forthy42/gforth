@@ -22,7 +22,7 @@
 \ If you want check values then exclude comments,
 \ but keep in mind that this can't be cross-compiled
 
-\ INCLUDE look.fs
+require look.fs
 
 \ Wordinfo is a tool that checks a nfa
 \ and finds out what wordtype we have

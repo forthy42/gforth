@@ -364,7 +364,7 @@ const Create ???  0 , 3 c, char ? c, char ? c, char ? c,
     \ in dubio pro:
     drop true ;
 
-: >head ( cfa -- nt ) \ gforth  to-head
+: >head-noprim ( cfa -- nt ) \ gforth  to-head-noprim
     $25 cell do ( cfa )
 	dup i - count $9F and + cfaligned over alias-mask + =
 	if ( cfa )
@@ -379,7 +379,7 @@ const Create ???  0 , 3 c, char ? c, char ? c, char ? c,
 
 [ELSE]
 
-: >head ( cfa -- nt ) \ gforth  to-head
+: >head-noprim ( cfa -- nt ) \ gforth  to-head-noprim
     $25 cell do ( cfa )
 	dup i - count $9F and + cfaligned over alias-mask + =
 	if ( cfa ) i - cell - unloop exit
@@ -388,8 +388,6 @@ const Create ???  0 , 3 c, char ? c, char ? c, char ? c,
     drop ??? ( wouldn't 0 be better? ) ;
 
 [THEN]
-
-' >head ALIAS >name
 
 : body> 0 >body - ;
 

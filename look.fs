@@ -52,26 +52,35 @@ has? rom
     dup [ unlock rom-dictionary area lock ] 
     literal literal within
     IF
-	>name dup ?? <>
+	>head-noprim dup ?? <>
     ELSE
 	forth-wordlist @ (look)
     THEN ;
 [ELSE]
 : look ( cfa -- lfa flag )
-    >name dup ??? <> ;
+    >head-noprim dup ??? <> ;
 [THEN]
 
 [ELSE]
 
-: PrimStart ['] true >name ;
+: PrimStart ['] true >head-noprim ;
 
 : look ( cfa -- lfa flag )
     dup in-dictionary?
     IF
-	>name dup ??? <>
+	>head-noprim dup ??? <>
     ELSE
 	PrimStart (look)
     THEN ;
 
 [THEN]
 [THEN]
+
+: >head ( cfa -- nt|0 ) \ gforth to-head
+    \G tries to find the name token nt of the word represented by cfa;
+    \G returns 0 if it fails.  This word is not absolutely reliable,
+    \G it may give false positives and produce wrong nts.
+    look and ;
+
+' >head ALIAS >name \ gforth to-name
+\G old name of @code{>head}

@@ -324,7 +324,7 @@ also locals-types
 \ the returned nfa denotes a word that produces what W: produces
 \ !! do the whole thing without nextname
     drop nextname
-    ['] W: >name ;
+    ['] W: >head-noprim ;
 
 previous
 

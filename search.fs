@@ -189,7 +189,7 @@ lookup ! \ our dictionary search order becomes the law ( -- )
   context @ 1 set-order ;
 
 : .voc
-    body> >head name>string type space ;
+    body> >head-noprim name>string type space ;
 
 : order ( -- )  \  gforthman- search-ext
   \G Print the search order and the compilation word list.  The
