@@ -542,6 +542,11 @@ if (1%-3>0 && (d1<0) != (n1<0) && n2!=0) {
   n2+=n1;
 }
 #endif
+:
+ dup >r dup 0< IF  negate >r dnegate r>  THEN
+ over       0< IF  tuck + swap  THEN
+ um/mod
+ r> 0< IF  swap negate swap  THEN ;
 
 sm/rem	d1 n1 -- n2 n3		core		s_m_slash_rem
 ""symmetric division: d1 = n3*n1+n2, sign(n2)=sign(d1) or 0""
@@ -562,8 +567,8 @@ if (1%-3<0 && (d1<0) != (n1<0) && n2!=0) {
 :
  over >r dup >r abs -rot
  dabs rot um/mod
- r> 0< IF       negate       THEN
- r> 0< IF  swap negate swap  THEN ;
+ r> r@ xor 0< IF       negate       THEN
+ r>        0< IF  swap negate swap  THEN ;
 
 m*	n1 n2 -- d		core	m_star
 #ifdef BUGGY_LONG_LONG
@@ -595,7 +600,7 @@ u2 = ud%u1;
 #endif
 :
   dup IF  0 (um/mod)  THEN  nip ; 
-: (um/mod)  ( ud ud--ud u)
+: (um/mod)  ( ud ud -- ud u )
   2dup >r >r  dup 0< 
   IF    2drop 0 
   ELSE  2dup d+  (um/mod)  2*  THEN 
@@ -621,8 +626,7 @@ d.hi = d1.hi + d2.hi + (d.lo<d1.lo);
 d = d1+d2;
 #endif
 :
- >r swap >r over 2/ over 2/ + >r over 1 and over 1 and + 2/
- r> + >r + r> 0< r> r> + swap - ;
+ rot + >r tuck + swap over u> r> swap - ;
 
 d-	d1 d2 -- d		double		d_minus
 #ifdef BUGGY_LONG_LONG

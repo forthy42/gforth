@@ -64,17 +64,13 @@ UDCell ummul (UCell a, UCell b)	/* unsigned multiply, mixed precision */
 DCell mmul (Cell a, Cell b)		/* signed multiply, mixed precision */
 {
   DCell res;
-  Cell sign = a^b;
 
-  if (a < 0)
-    a = -a;
-  if (b < 0)
-    b = -b;
   res = UD2D(ummul (a, b));
-  if (sign < 0)
-    return dnegate (res);
-  else
-    return res;
+  if (a < 0)
+    res.hi -= b;
+  if (b < 0)
+    res.hi -= a;
+  return res;
 }
 
 UDCell umdiv (UDCell u, UCell v)

@@ -115,7 +115,7 @@ GFORTH_FI_SRC = \
 	wordinfo.fs
 
 FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_SRC) \
-	anslocal.fs ansi.fs answords.fs \
+	ansi.fs answords.fs \
 	checkans.fs \
 	code.fs colorize.fs \
 	doskey.fs ds2texi.fs \
@@ -128,10 +128,10 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_SRC) \
 	site-init.fs \
 	tt.fs sokoban.fs \
 	wordsets.fs \
-	tester.fs coretest.fs \
+	tester.fs coretest.fs dbltest.fs \
 	bubble.fs siev.fs matrix.fs fib.fs
 
-SOURCES	= CVS Makefile.in configure.in configure config.sub config.guess \
+SOURCES	= CVS compat Makefile.in configure.in configure config.sub config.guess \
 	acconfig.h config.h.in \
 	install-sh INSTALL README ToDo BUGS model COPYING Benchres \
 	gforth.ds texinfo.tex gforth.1 gforth.el \
@@ -139,7 +139,7 @@ SOURCES	= CVS Makefile.in configure.in configure config.sub config.guess \
 	m68k.h mips.h 386.h hppa.h cache.c sparc.h power.h alpha.h 32bit.h \
 	getopt.c getopt1.c getopt.h select.c \
 	ecvt.c memcmp.c strtol.c strtoul.c ansidecl.h memmove.c pow10.c \
-	strerror.c strsignal.c \
+	strerror.c strsignal.c dblsub.c \
 	INSTALL.DOS makefile.dos mkdosmf.sed configure.bat \
 	startup.dos history.dos \
 	glosgen.glo glossaries.doc \
@@ -278,10 +278,10 @@ uninstall:
 		@echo -e "Type\n$(RM) -rf $(bindir)/gforth $(mandir)/gforth.1 $(infodir)/gforth.info* $(datadir)/gforth $(libdir)/gforth\nto remove Gforth completely"
 
 check:		test
-		#touch test
+		touch test
 
 test:		gforth gforth.fi
-		$(FORTH) tester.fs coretest.fs dbltest.fs -e bye
+		$(FORTH) tester.fs coretest.fs -e bye
 		$(FORTH) code.fs checkans.fs -e bye
 		@echo 'Expect no differences'
 		$(FORTH) prims2x.fs -e "s\" primitives.b\" ' output-c process-file bye"| diff -c - primitives.i
@@ -349,10 +349,10 @@ kernl64l.fi:	$(KERNLS)
 		@LINK_KERNL64L@
 
 gforth.fi:	@kernal_fi@ gforth $(GFORTH_FI_SRC)
-		$(FORTHK) startup.fs -e "savesystem gforth.fi bye"
+		$(FORTHK) -p . startup.fs -e "savesystem gforth.fi bye"
 
 gforth.TAGS:	@kernal_fi@ gforth $(GFORTH_FI_SRC) primitives.TAGS
-		$(FORTHK) etags.fs startup.fs -e bye
+		$(FORTHK) -p . etags.fs startup.fs -e bye
 		cat TAGS primitives.TAGS kernal.TAGS >gforth.TAGS
 
 engine.s:	engine.c primitives.i prim_labels.i machine.h threading.h $(INCLUDES)
