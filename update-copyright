@@ -21,7 +21,7 @@
 #along with this program; if not, write to the Free Software
 #Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
 
-for i in `cvs -q status|grep 'Repository revision:'|sed 's|^.*/usr/local/lib/cvs-repository/src-master/gforth/||'|sed 's/,v$//'`; do
+for i in `cvs -q status|grep 'Repository revision:'|sed 's|^.*/usr/local/lib/cvs-repository/src-master/gforth/||'|sed 's/,v$//'|fgrep -v -f update-copyright-blacklist`; do
     if grep -q "[0-9]  *Free Software Foundation" $i; then
 	year=`cvs log -rHEAD $i|grep date: |sed 's/date: //'|sed 's|/.*$||'`
 	if grep "[0-9]  *Free Software Foundation" $i|grep -q $year; then
