@@ -107,11 +107,22 @@ AUser CSP
     lastxt r> cell+ ! \ patch the literal
 ; immediate
 
+\ !! rewrite slurp-file using slurp-fid
 : slurp-file ( c-addr1 u1 -- c-addr2 u2 )
-    \ c-addr1 u1 is the filename, c-addr2 u2 is the file's contents
+    \G @var{c-addr1 u1} is the filename, @var{c-addr2 u2} is the file's contents
     r/o bin open-file throw >r
     r@ file-size throw abort" file too large"
     dup allocate throw swap
     2dup r@ read-file throw over <> abort" could not read whole file"
     r> close-file throw ;
 
+: slurp-fid { fid -- addr u }
+    \G @var{addr u} is the content of the file @var{fid}
+    0 0 begin ( awhole uwhole )
+	dup 1024 + dup >r extend-mem ( anew awhole uwhole R: unew )
+	rot r@ fid read-file throw ( awhole uwhole uread R: unew )
+	r> 2dup =
+    while ( awhole uwhole uread unew )
+	2drop
+    repeat
+    - + dup >r resize throw r> ;

@@ -8467,6 +8467,8 @@ doc-reposition-file
 doc-file-size
 doc-resize-file
 
+doc-slurp-file
+doc-slurp-fid
 
 @c ---------------------------------------------------------
 @node Search Paths,  , General files, Files

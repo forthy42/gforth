@@ -34,3 +34,26 @@ Hendrix 3oct00 <8rdcmd$j96$1@news.IAEhv.nl>
 
 Newline has only LF (instead of CRLF) in DOS.  Bruce Hoyt 25oct2000
 <39f7b14b$2@clear.net.nz>
+
+SIGPIPE can make Gforth hard to stop (e.g., 
+gforth -m 2M wordfreq.fs -e bye|head
+anton 30may01
+
+F. does not print trailing zeroes (e.g., "10 SET-PRECISION 125e f.")
+anton 31may01
+
+It may be useful for printing tables of FP numbers to have ways to
+control the number of digits before and after the decimal point.
+anton 31may01
+
+Block 0 does not work as it should: "0 block drop update save-buffers"
+does not write to the blocks file.  "0 block 1024 dump" seems to give
+the previous contents of the buffer.  Travis Bemann 10jul2001
+<3b4b4f57$0$42883$272ea4a1@news.execpc.com>
+
+When accessing a block beyond the end of the block file, the result is
+filled with spaces (this is also documented).  However, when accessing
+a previously unwritten block before the end of the block file, we will
+get a block full of zeroes on most (all?) OSs.  This inconsistency
+should be eliminated and the documentation fixed.  anton 14jul2001
+

@@ -102,7 +102,7 @@ DOES> ( -- r )
 : f.  ( r -- ) \ float-ext f-dot
 \G Display (the floating-point number) @i{r} without exponent,
 \G followed by a space.
-  f$ dup >r 0<
+  f$ dup >r 0<=
   IF    '0 emit
   ELSE  scratch r@ min type  r@ precision - zeros  THEN
   '. emit r@ negate zeros
