@@ -4,26 +4,11 @@
   This is the machine-specific part for Intel 386 compatible processors
 */
 
+#include "32bit.h"
 
-/* Cell and UCell must be the same size as a pointer */
-typedef long Cell;
-typedef unsigned long UCell;
-
-/* DCell and UDCell must be twice as large as Cell */
-typedef long long DCell;
-typedef unsigned long long UDCell;
-
-/* define this if IEEE singles and doubles are available as C data types */
-#define IEEE_FP
-
-/* the IEEE types are used only for loading and storing */
-/* the IEEE double precision type */
-typedef double DFloat;
-/* the IEEE single precision type */
-typedef float SFloat;
-
-/* define this if the least-significant byte is at the largets address */
-/* #define BIG_ENDIAN */
+/* indirect threading is faster on the 486, on the 386 direct
+   threading is probably faster. Therefore we leave defining
+   DIRECT_THREADED to configure */
 
 /* define this if the processor cannot exploit instruction-level
    parallelism (no pipelining or too few registers) */
@@ -66,5 +51,3 @@ typedef float SFloat;
 #define CFAREG asm("%edx")
 #endif
 #endif /* FORCE_REG */
-
-#define rint(x)	floor((x)+0.5)

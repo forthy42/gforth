@@ -1,5 +1,5 @@
 /*
-  $Id: main.c,v 1.19 1994-11-29 16:22:42 pazsan Exp $
+  $Id: main.c,v 1.20 1994-12-12 17:10:42 anton Exp $
   Copyright 1993 by the ANSI figForth Development Group
 */
 
@@ -14,14 +14,7 @@
 #include <stdlib.h>
 #include "forth.h"
 #include "io.h"
-#ifdef USE_GETOPT
-#  include "getopt.h"
-#else
-   extern int getopt (int , char * const [], const char *);
-
-   extern char *optarg;
-   extern int optind, opterr;
-#endif
+#include "getopt.h"
 
 #ifndef DEFAULTPATH
 #  define DEFAULTPATH "/usr/local/lib/gforth:."
@@ -227,7 +220,6 @@ int main(int argc, char **argv, char **env)
   opterr=0;
   while (1) {
     int option_index=0;
-#ifdef USE_GETOPT
     static struct option opts[] = {
       {"image-file", required_argument, NULL, 'i'},
       {"dictionary-size", required_argument, NULL, 'm'},
@@ -241,9 +233,6 @@ int main(int argc, char **argv, char **env)
     };
 
     c = getopt_long(argc, argv, "+i:m:d:r:f:l:p:", opts, &option_index);
-#else
-    c = getopt(argc, argv, "+i:m:d:r:f:l:p:");
-#endif
 
     if (c==EOF)
       break;

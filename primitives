@@ -269,6 +269,11 @@ memset(c_addr,c,u);
  ?DO  dup I c!  LOOP  drop ;
 
 compare		c_addr1 u1 c_addr2 u2 -- n	string
+""Compare the strings lexicographically. If they are equal, n is 0; if
+the first string is smaller, n is -1; if the first string is larger, n
+is 1. Currently this is based on the machine's character
+comparison. In the future, this may change to considering the current
+locale and its collation order.""
 n = memcmp(c_addr1, c_addr2, u1<u2 ? u1 : u2);
 if (n==0)
   n = u1-u2;
@@ -1068,7 +1073,12 @@ r2 = floor(r1);
 
 fround		r1 -- r2	float
 /* !! unclear wording */
+#ifdef HAVE_RINT
 r2 = rint(r1);
+#else
+r2 = floor(r1+0.5);
+/* !! This is not quite true to the rounding rules given in the standard */
+#endif
 
 fmax		r1 r2 -- r3	float
 if (r1<r2)

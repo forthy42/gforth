@@ -1,11 +1,17 @@
 /*
-  $Id: hppa.h,v 1.4 1994-11-29 16:22:39 pazsan Exp $
+  $Id: hppa.h,v 1.5 1994-12-12 17:10:39 anton Exp $
   Copyright 1992 by the ANSI figForth Development Group
 
   This is the machine-specific part for a HPPA running HP-UX
 */
-/* cache flush stuff */
 
+#ifndef INDIRECT_THREADED
+#ifndef DIRECT_THREADED
+#define DIRECT_THREADED
+#endif
+#endif
+
+/* cache flush stuff */
 #ifdef DIRECT_THREADED
 
 extern void * cacheflush(void *, int, int);
@@ -21,26 +27,7 @@ extern void * cacheflush(void *, int, int);
 #  endif
 #endif
 
-
-/* Cell and UCell must be the same size as a pointer */
-typedef long Cell;
-typedef unsigned long UCell;
-
-/* DCell and UDCell must be twice as large as Cell */
-typedef long long DCell;
-typedef unsigned long long UDCell;
-
-/* define this if IEEE singles and doubles are available as C data types */
-#define IEEE_FP
-
-/* the IEEE types are used only for loading and storing */
-/* the IEEE double precision type */
-typedef double DFloat;
-/* the IEEE single precision type */
-typedef float SFloat;
-
-/* define this if the least-significant byte is at the largets address */
-#define BIG_ENDIAN
+#include "32bit.h"
 
 #ifdef DIRECT_THREADED
 	/* PFA gives the parameter field address corresponding to a cfa */
@@ -235,10 +222,4 @@ typedef float SFloat;
 	})
 	/* this stores a call dodoes at addr */
 #endif
-
-/* OS dependences */
-
-#define SEEK_SET 0
-#define rint(x)	floor((x)+0.5)
-
 

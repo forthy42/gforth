@@ -1,0 +1,100 @@
+dnl Process this file with autoconf to produce a configure script.
+AC_INIT(engine.c)
+
+AC_ARG_ENABLE(force-reg,
+[  --enable-force-reg	  Use explicit register declarations if they appear in
+			  the machine.h file. This can cause a good speedup,
+			  but also incorrect code with some gcc versions on
+			  some processors (default disabled).],
+
+AC_DEFINE(FORCE_REG))
+dnl this is not quite according to the autoconf manual, it causes a replacement
+AC_ARG_ENABLE(direct-threaded,
+[  --enable-direct-threaded	Force direct threading. This may not work on
+				some machines and may cause slowdown on others.
+				(default processor-dependent)],
+AC_DEFINE(DIRECT_THREADED))
+AC_ARG_ENABLE(indirect-threaded,
+[  --enable-indirect-threaded	Force indirect threading. This can cause a
+				slowdown on some machines.
+				(default processor-dependent)],
+AC_DEFINE(INDIRECT_THREADED))
+
+#terminology is a bit unusual here: The host is the system on which
+#gforth will run; the system on which configure will run is the `build'
+AC_CANONICAL_HOST
+case "$host_cpu" in
+	hppa*)
+		mach_h=hppa
+		;;
+	sparc*)
+		mach_h=sparc
+		;;
+	i386|i486|i586)
+		mach_h=386
+		#!! direct/indirect threading switch
+		#!! -m486 flag
+		;;
+	m68*)
+		mach_h=m68k
+		;;
+	mips*)
+		mach_h=mips
+		#!! link text and data segment into the same 256M region!
+		#!! does cacheflush work on OSs other than Ultrix?
+		;;
+	*)
+		echo "No direct threading support for $host_cpu, using indirect threading."
+		echo "Using a generic 32-bit machine description. It will only work if char * AND"
+		echo "long values have 32 bits."
+		echo "I'll assume that C floats and doubles are represented by IEEE single and"
+		echo "double numbers. If this is not so, SF@ etc. will not work correctly."
+		mach_h=32bit
+esac
+
+dnl Now a little support for DOS/DJGCC
+AC_SUBST(MAKE_EXE)
+MAKE_EXE=""
+
+dnl copy commands for systems that don't have links
+AC_SUBST(LINK_KERNL32L)
+LINK_KERNL32L=""
+AC_SUBST(LINK_KERNL32B)
+LINK_KERNL32B=""
+
+#if test $host_os=dos
+#then
+#  echo Configuring for DOS!!!
+#  MAKE_EXE="coff2exe gforth"
+#  LINK_KERNL32L='$(CP) kernl32l.fi gforth.fi'
+#fi
+
+dnl the following macro produces a warning with autoconf-2.1
+AC_C_BIGENDIAN
+dnl ac_cv_c_bigendian is an undocumented variable of autoconf-2.1
+if test $ac_cv_c_bigendian = yes; then
+  bytesex=b
+else
+  bytesex=l
+fi
+
+dnl Checks for programs.
+AC_PROG_LN_S
+AC_PROG_INSTALL
+
+dnl Checks for library functions
+AC_FUNC_MEMCMP
+AC_REPLACE_FUNCS(memmove strtoul)
+AC_CHECK_FUNC(getopt_long,getop_long="",getopt_long="getopt.o getopt1.o")
+AC_SUBST(getopt_long)
+dnl This check is just for making later checks link with libm.
+AC_CHECK_LIB(m,sin)
+AC_CHECK_FUNCS(rint)
+AC_REPLACE_FUNCS(ecvt)
+dnl No check for select, because our replacement is no good under
+dnl anything but DOS
+
+dnl autoconf requires (implicitly) that AC_LINK_FILES is used only once
+AC_LINK_FILES(${mach_h}.h kernl32${bytesex}.fi,machine.h gforth.fi)
+AC_OUTPUT(Makefile)
+

@@ -16,9 +16,14 @@
 #include "forth.h"
 #include "io.h"
 
+#ifndef SEEK_SET
+/* should be defined in stdio.h, but some systems don't have it */
+#define SEEK_SET 0
+#endif
+
 typedef union {
   struct {
-#ifdef BIG_ENDIAN
+#ifdef WORDS_BIGENDIAN
     Cell high;
     Cell low;
 #else
