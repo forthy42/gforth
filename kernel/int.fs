@@ -104,14 +104,14 @@ Defer source ( -- c-addr u ) \ core
 \ number? number                                       23feb93py
 
 hex
-const Create bases   0A , 10 ,   2 ,   0A
+const Create bases   0A , 10 ,   2 ,   0A ,
 \                    10   16     2     10
 
 \ !! protect BASE saving wrapper against exceptions
 : getbase ( addr u -- addr' u' )
     2dup s" 0x" string-prefix? >r
     2dup s" 0X" string-prefix? r> or
-    base @ #33 < and if
+    base @ #34 < and if
 	hex 2 /string
     endif
     over c@ [char] # - dup 4 u<
