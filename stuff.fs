@@ -166,47 +166,64 @@ AUser CSP
 
 \ f.rdp
 
-: move-right ( c-addr u1 u2 cfill -- )
+: push-right ( c-addr u1 u2 cfill -- )
     \ move string at c-addr u1 right by u2 chars (without exceeding
     \ the original bound); fill the gap with cfill
-    >r dup >r rot dup >r ( u1 u2 c-addr R: cfill u2 c-addr )
+    >r over min dup >r rot dup >r ( u1 u2 c-addr R: cfill u2 c-addr )
     dup 2swap /string cmove>
     r> r> r> fill ;
 
-: f>buf-rdp { f: rf c-addr ur nd up -- } \ gforth
-\G Convert @i{rf} into a string at @i{c-addr ur}.  The conversion
-\G rules and the meanings of @i{ur nd up} are the same as for
-\G @code{f.rdp}.
-    rf c-addr ur represent if { nexp fsign }
+: f>buf-rdp-try { f: rf c-addr ur nd up um1 -- um2 }
+    \ um1 is the mantissa length to try, um2 is the actual mantissa length
+    c-addr ur um1 /string '0 fill
+    rf c-addr um1 represent if { nexp fsign }
 	nd nexp + up >=
 	ur nd - 1- dup { beforep } fsign + nexp 0 max >= and if
 	    \ fixed-point notation
-	    c-addr ur beforep nexp - dup { befored } '0 move-right
+	    c-addr ur beforep nexp - dup { befored } '0 push-right
 	    c-addr beforep 1- befored min dup { beforez } 0 max bl fill
 	    fsign if
 		'- c-addr beforez 1- 0 max + c!
 	    endif
-	    c-addr ur beforep /string 1 '. move-right
+	    c-addr ur beforep /string 1 '. push-right
+	    nexp nd +
 	else \ exponential notation
-	    c-addr ur 1 /string 1 '. move-right
+	    c-addr ur 1 /string 1 '. push-right
 	    fsign if
-		c-addr ur 1 '- move-right
+		c-addr ur 1 '- push-right
 	    endif
 	    nexp 1- s>d tuck dabs <<# #s rot sign 'E hold #> { explen }
-	    explen 1+ fsign - ur > if \ exponent too large
+	    ur explen - 1- fsign + { mantlen }
+	    mantlen 0< if \ exponent too large
 		drop c-addr ur '* fill
 	    else
 		c-addr ur + 0 explen negate /string move
 	    endif
-	    #>>
+	    #>> mantlen
 	endif
     else \ inf or nan
 	if \ negative
-	    c-addr ur 1 '- move-right
+	    c-addr ur 1 '- push-right
 	endif
-	drop
+	drop ur
 	\ !! align in some way?
-    endif ;
+    endif
+    1 max ur min ;
+
+: f>buf-rdp ( rf c-addr ur nd up -- ) \ gforth
+\G Convert @i{rf} into a string at @i{c-addr ur}.  The conversion
+\G rules and the meanings of @i{ur nd up} are the same as for
+\G @code{f.rdp}.
+    \ first, get the mantissa length, then convert for real.  The
+    \ mantissa length is wrong in a few cases because of different
+    \ rounding; In most cases this does not matter, because the
+    \ mantissa is shorter than expected and the final digits are 0;
+    \ but in a few cases the mantissa gets longer.  Then it is
+    \ conceivable that you will see a result that is rounded too much.
+    \ However, I have not been able to construct an example where this
+    \ leads to an unexpected result.
+    swap 0 max swap 0 max
+    fdup 2over 2over 2 pick f>buf-rdp-try f>buf-rdp-try drop ;
 
 : f>str-rdp ( rf ur +nd up -- c-addr ur ) \ gforth
 \G Convert @i{rf} into a string at @i{c-addr ur}.  The conversion
@@ -232,7 +249,7 @@ AUser CSP
 \G fixed-point notation would have too few significant digits, yet
 \G exponential notation offers fewer significant digits.  We recomment
 \G @i{ur}>=@i{nd}+2, if you want to have fixed-point notation for some
-\G numbers.  Currently, trailing digits are cut off.
+\G numbers.
     f>str-rdp type ;
 
 0 [if]

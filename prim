@@ -2012,6 +2012,8 @@ n=(r==0. ? 1 : decpt);
 f1=FLAG(flag!=0);
 f2=FLAG(isdigit((unsigned)(sig[0]))!=0);
 siglen=strlen(sig);
+if (siglen>u) /* happens in glibc-2.1.3 if 999.. is rounded up */
+  siglen=u;
 memcpy(c_addr,sig,siglen);
 memset(c_addr+siglen,f2?'0':' ',u-siglen);
 
