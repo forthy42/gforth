@@ -16,6 +16,7 @@ include bufio.fs
 include debug.fs
 include history.fs
 \ include doskey.fs
+include vt100key.fs
 
 0 Value $?
 : sh  '# parse cr system  to $? ;

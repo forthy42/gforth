@@ -36,12 +36,12 @@ s" gforth.history" get-history
 
 : prev-line  ( max span addr pos1 -- max span addr pos2 false )
   clear-line over 2 + negate s>d backward^ 2@ d+ 0. dmax
-  history reposition-file throw  0.
-  BEGIN   2over swap history read-line throw nip  WHILE
-          history file-position throw
-	  2dup backward^ 2@ d<  WHILE  2swap 2drop
-  REPEAT  2drop  THEN
-  history reposition-file throw get-line 0 ;
+  2dup history reposition-file throw
+  BEGIN   2over swap history read-line throw  WHILE
+          >r history file-position throw
+	  2dup backward^ 2@ d<  WHILE  2swap 2drop rdrop
+  REPEAT  ELSE  >r history file-position throw  THEN
+  forward^ 2!  backward^ 2!  r> tuck 2dup type 0 ;
 
 : ctrl  ( "<char>" -- ctrl-code )
   char [char] @ - postpone Literal ; immediate

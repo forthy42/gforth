@@ -3,19 +3,22 @@
 \ WARNING: This file is processed by m4. Make sure your identifiers
 \ don't collide with m4's (e.g. by undefining them).
 \ 
+\ 
+\ 
 \ This file contains instructions in the following format:
 \ 
-\ forth name	stack effect	category	[pronounciation]
+\ forth name	stack effect	category	[pronunciation]
 \ [""glossary entry""]
 \ C code
 \ [:
 \ Forth code]
 \ 
-\ The pronounciataion is also used for forming C names.
+\ The pronunciation is also used for forming C names.
 \ 
-\ These informations are automagically translated into C-code for the
-\ interpreter and into some other files. The forth name of a word is
-\ automatically turned into upper case. I hope that your C compiler has
+\ 
+\ 
+\ These informations are automatically translated into C-code for the
+\ interpreter and into some other files. I hope that your C compiler has
 \ decent optimization, otherwise the automatically generated code will
 \ be somewhat slow. The Forth version of the code is included for manual
 \ compilers, so they will need to compile only the important words.
@@ -28,7 +31,10 @@
 \ stack. Use different names on both sides of the '--', if you change a
 \ value (some stores to the stack are optimized away).
 \ 
+\ 
+\ 
 \ The stack variables have the following types:
+\ 
 \ name matches	type
 \ f.*		Bool
 \ c.*		Char
@@ -46,20 +52,26 @@
 \ wid.*		WID
 \ f83name.*	F83Name *
 \ 
+\ 
+\ 
 \ In addition the following names can be used:
 \ ip	the instruction pointer
 \ sp	the data stack pointer
 \ rp	the parameter stack pointer
+\ lp	the locals stack pointer
 \ NEXT	executes NEXT
 \ cfa	
 \ NEXT1	executes NEXT1
 \ FLAG(x)	makes a Forth flag from a C flag
 \ 
+\ 
+\ 
 \ Percentages in comments are from Koopmans book: average/maximum use
-\ (taken from four, not very representattive benchmarks)
+\ (taken from four, not very representative benchmarks)
+\ 
+\ 
 \ 
 \ To do:
-\ make sensible error returns for file words
 \ 
 \ throw execute, cfa and NEXT1 out?
 \ macroize *ip, ip++, *ip++ (pipelining)?
@@ -737,7 +749,7 @@ c_addr2 = c_addr1 + 1;
 :
  1+ ;
 
-(chars)		n1 -- n2	core	cares
+(chars)	n1 -- n2		core	cares
 n2 = n1 * sizeof(Char);
 :
  ;
@@ -1085,6 +1097,16 @@ memmove(c_addr,sig,u);
 Float r;
 char *number=cstr(c_addr, u, 1);
 char *endconv;
+while(isspace(number[u-1])) u--;
+switch(number[u-1])
+{
+	case 'd':
+	case 'D':
+	case 'e':
+	case 'E': u--; break;
+	default: break;
+}
+number[u]='\0';
 r=strtod(number,&endconv);
 if((flag=FLAG(!(int)*endconv)))
 {

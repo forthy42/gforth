@@ -99,3 +99,6 @@
            r> IF  fnegate  THEN ;
 : facosh   fdup fdup f* 1e0 f- fsqrt f+ fln ;
 : fasinh   fdup fdup f* 1e0 f+ fsqrt f/ fatanh ;
+
+: f.s  ." <" fdepth 0 .r ." > " fdepth 0 max maxdepth-.s @ min dup 0 
+  ?DO  dup i - 1- floats fp@ + f@ f.  LOOP  drop ; 
