@@ -84,7 +84,7 @@ XLDFLAGS = @LDFLAGS@
 LDFLAGS =  $(DEBUGFLAG) $(XLDFLAGS)
 LDLIBS  = @LIBS@
 
-AOBJECTS = io.o signals.o memcmpc.o @LIBOBJS@
+AOBJECTS = io.o signals.o memcmpc.o peephole.o @LIBOBJS@
 
 OBJECTS = engine.o main.o
 OBJECTS_FAST = engine-fast.o main-fast.o
@@ -136,9 +136,14 @@ main-ditc.o:	main.c $(DEPS)
 main-fi.o:	main.c $(DEPS)
 		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -DINCLUDE_IMAGE -o $@ -c $(srcdir)/main.c
 
-engine:		$(OBJECTS) $(OBJECTS0) ;
+peephole.o:	peephole.c peephole.i $(DEPS)
+		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -o $@ -c $(srcdir)/peephole.c
 
-engine_ditc:	$(OBJECTS_DITC) $(OBJECTS0) ;
+#The next two rules seem to be superfluous:
+
+# engine:		$(OBJECTS) $(OBJECTS0) ;
+
+# engine_ditc:	$(OBJECTS_DITC) $(OBJECTS0) ;
 
 #NeXTstep hack
 

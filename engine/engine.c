@@ -317,8 +317,10 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
 #if defined(DOUBLY_INDIRECT)
   static Label *symbols;
   static void *routines[]= {
+#define MAX_SYMBOLS (sizeof(routines)/sizeof(routines[0]))
 #else /* !defined(DOUBLY_INDIRECT) */
   static Label symbols[]= {
+#define MAX_SYMBOLS (sizeof(symbols)/sizeof(symbols[0]))
 #endif /* !defined(DOUBLY_INDIRECT) */
     (Label)&&docol,
     (Label)&&docon,
@@ -347,7 +349,6 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
 
   if (ip == NULL) {
 #if defined(DOUBLY_INDIRECT)
-#define MAX_SYMBOLS (sizeof(routines)/sizeof(routines[0]))
 #define CODE_OFFSET (22*sizeof(Cell))
     int i;
     Cell code_offset = offset_image? CODE_OFFSET : 0;

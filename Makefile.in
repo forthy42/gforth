@@ -333,7 +333,7 @@ RCS_FILES =  ToDo model high-level
 GEN = gforth$(EXE) gforth-ditc$(EXE) gforth-fast$(EXE) kernel/version.fs
 
 # things that need a working forth system to be generated
-FORTH_GEN0 = prim.b engine/prim.i engine/prim_lab.i kernel/aliases.fs kernel/prim.fs
+FORTH_GEN0 = prim.b engine/prim.i engine/prim_lab.i engine/peephole.i kernel/aliases.fs kernel/prim.fs
 FORTH_GEN =  $(FORTH_GEN0) @KERNEL@ gforth.fi
 # this is used for antidependences,
 FORTH_GEN1 = $(FORTH_GEN0) @kernel_fi@ 
@@ -603,6 +603,11 @@ engine/prim_lab.i:	prim.b prims2x.fs
 		$(CP) $@- $@
 		$(RM) $@-
 
+engine/peephole.i:	prim.b prims2x.fs
+		$(FORTH) -m 1000000 prims2x.fs -e "c-flag on s\" prim.b\" ' noop ' output-peephole process-file bye" >$@-
+		$(CP) $@- $@
+		$(RM) $@-
+
 kernel/aliases.fs:	prim.b prims2x.fs kernel/aliases0.fs
 		$(CP) kernel/aliases0.fs $@-
 		$(FORTH) -m 1000000 prims2x.fs -e "forth-flag on s\" prim.b\" ' output-alias dup process-file bye" >>$@-
@@ -628,7 +633,7 @@ gforth-ditc$(EXE):	engines
 		$(CP) engine/$@ $@
 		@GFORTHDITC_EXE@
 
-engines:	FORCE engine/Makefile engine/prim.i engine/prim_lab.i
+engines:	FORCE engine/Makefile engine/prim.i engine/prim_lab.i engine/peephole.i
 		cd engine && $(MAKE) gforth$(EXE) gforth-fast$(EXE) gforth-ditc$(EXE)
 
 # ------------- additional C primitives

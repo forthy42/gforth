@@ -484,13 +484,14 @@ does> ( item -- )
     item declaration ;
 
 \ types pointed to by stacks for use in combined prims
-s" Cell"  single 0 create-type cell-type
-s" Float" single 0 create-type float-type
+\ !! output-c-combined shouldn't use these names!
+s" Cell"  single 0 create-type w
+s" Float" single 0 create-type r
 
-s" sp" save-mem cell-type  s" (Cell)" make-stack data-stack 
-s" fp" save-mem float-type s" "       make-stack fp-stack
-s" rp" save-mem cell-type  s" (Cell)" make-stack return-stack
-s" IP" save-mem cell-type  s" error don't use # on results" make-stack inst-stream
+s" sp" save-mem w s" (Cell)" make-stack data-stack 
+s" fp" save-mem r s" "       make-stack fp-stack
+s" rp" save-mem w s" (Cell)" make-stack return-stack
+s" IP" save-mem w s" error don't use # on results" make-stack inst-stream
 ' inst-in-index inst-stream stack-in-index-xt !
 ' inst-stream <is> inst-stream-f
 \ !! initialize stack-in and stack-out
@@ -968,13 +969,13 @@ s" IP" save-mem cell-type  s" error don't use # on results" make-stack inst-stre
 ;
 
 
-\ compile VM insts
+\ peephole optimization rules
 
 \ in order for this to work as intended, shorter combinations for each
 \ length must be present, and the longer combinations must follow
 \ shorter ones (this restriction may go away in the future).
   
-: output-pregen-combined ( -- )
+: output-peephole ( -- )
     combined-prims num-combined @ 1- cells combinations search-wordlist
     s" the prefix for this combination must be defined earlier" ?print-error
     ." {"

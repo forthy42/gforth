@@ -2343,3 +2343,20 @@ while(a_addr != NULL)
 
 \+
 
+primtable	( -- wprimtable )	new
+""wprimtable is a table containing the xts of the primitives indexed
+by sequence-number in prim (for use in prepare-peephole-table).""
+wprimtable = (Cell)primtable(symbols+DOESJUMP+1,MAX_SYMBOLS);
+
+prepare-peephole-table	( wprimtable -- wpeeptable ) new prepare_peephole_opt
+""wpeeptable is a data structure used by @code{peephole-opt}; it is
+constructed by combining a primitives table with a simple peephole
+optimization table.""
+wpeeptable = prepare_peephole_table((Xt *)wprimtable);
+
+peephole-opt	( xt1 xt2 wpeeptable -- xt )	new	peephole_opt
+""xt is the combination of xt1 and xt2 (according to wpeeptable); if
+they cannot be combined, xt is 0.""
+xt = peephole_opt(xt1, xt2, wpeeptable);
+
+lit_plus = lit +

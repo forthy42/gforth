@@ -240,6 +240,13 @@ DCell fmdiv (DCell num, Cell denom);
 
 Cell memcasecmp(const Char *s1, const Char *s2, Cell n);
 
+/* peephole routines */
+
+Xt *primtable(Label symbols[], Cell size);
+Cell prepare_peephole_table(Xt xts[]);
+Xt peephole_opt(Xt xt1, Xt xt2, Cell peeptable);
+
+
 extern int offset_image;
 extern int die_on_signal;
 extern UCell pagesize;
