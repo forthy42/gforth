@@ -28,7 +28,7 @@ XCFLAGS	= @CFLAGS@
 XDEFINES = @DEFS@
 SWITCHES = $(XCFLAGS) $(XDEFINES) #-DNDEBUG #turn off assertions
 ENGINE_FLAGS =  -fno-defer-pop -fcaller-saves
-CFLAGS	= @DEBUGFLAG@ -O4 -Wall $(SWITCHES) -DDEFAULTPATH=\"$(datadir)/gforth/$(VERSION):$(libdir)/gforth/$(VERSION):.\"
+CFLAGS	= @DEBUGFLAG@ -pipe -O4 -Wall $(SWITCHES) -DDEFAULTPATH=\"$(datadir)/gforth/$(VERSION):$(libdir)/gforth/$(VERSION):.\"
 
 #John Wavrik should use -Xlinker -N to get a writable text (executable)
 LDFLAGS	=  @DEBUGFLAG@ @LDFLAGS@ @GCCLDFLAGS@

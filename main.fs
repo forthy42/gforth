@@ -14,7 +14,8 @@ include cross.fs               \ include cross-compiler
 
 decimal
 
-256 KB makekernal , 0 , 0 , 0 A, 0 A, 0 A,
+cell 2 = [IF] 32 [ELSE] 256 [THEN] KB
+makekernal , 0 , 0 , 0 A, 0 A, 0 A,
 
 UNLOCK ghost - drop \ ghost must exist because - would be treated as number
 LOCK

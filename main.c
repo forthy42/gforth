@@ -1,5 +1,5 @@
 /*
-  $Id: main.c,v 1.24 1995-02-23 20:17:22 pazsan Exp $
+  $Id: main.c,v 1.25 1995-07-25 15:28:07 pazsan Exp $
   Copyright 1993 by the ANSI figForth Development Group
 */
 
@@ -43,6 +43,9 @@ char *progname;
 /* image file format:
  *   preamble (is skipped off), size multiple of 8
  *   magig: "gforth00" (means format version 0.0)
+ *   "gforth0x" means format 0.1,
+ *              whereas x in 2 4 8 for big endian and 3 5 9 for little endian
+ *              and x & -2 is the size of the cell in byte.
  *   size of image with stacks without tags (in bytes)
  *   size of image without stacks and tags (in bytes)
  *   size of data and FP stack (in bytes)
@@ -98,17 +101,45 @@ Cell *loader(FILE *imagefile)
   int wholesize;
   int imagesize; /* everything needed by the image */
 
+  static char* endsize[10]=
+    {
+      "no size information", "",
+      "16 bit big endian", "16 bit little endian",
+      "32 bit big endian", "32 bit little endian",
+      "n/n", "n/n",
+      "64 bit big endian", "64 bit little endian",
+    };
+
   do
     {
       if(fread(magic,sizeof(Char),8,imagefile) < 8) {
-	fprintf(stderr,"This file doesn't seem to be a gforth image\n");
+	fprintf(stderr,"This image doesn't seem to be a gforth image.\n");
 	exit(1);
       }
 #ifdef DEBUG
       printf("Magic found: %s\n",magic);
 #endif
     }
-  while(memcmp(magic,"gforth00",8));
+  while(memcmp(magic,"gforth0",7));
+  
+  if(!(magic[7]=='0' || magic[7] == sizeof(Cell) +
+#ifdef WORDS_BIGENDIAN
+       '0'
+#else
+       '1'
+#endif
+       ))
+    { fprintf(stderr,"This image is %s, whereas the machine is %s.\n",
+	      endsize[magic[7]-'0'],
+	      endsize[sizeof(Cell) +
+#ifdef WORDS_BIGENDIAN
+		      0
+#else
+		      1
+#endif
+		      ]);
+      exit(-2);
+    };
 
   fread(header,sizeof(Cell),3,imagefile);
   if (dictsize==0)

@@ -1,5 +1,5 @@
 \ CROSS.FS     The Cross-Compiler                      06oct92py
-\ $Id: cross.fs,v 1.25 1995-07-06 15:57:25 pazsan Exp $
+\ $Id: cross.fs,v 1.26 1995-07-25 15:28:04 pazsan Exp $
 \ Idea and implementation: Bernd Paysan (py)
 \ Copyright 1992-94 by the GNU Forth Development Group
 
@@ -820,10 +820,14 @@ Cond: [ELSE]    [ELSE] ;Cond
 
 bigendian Constant bigendian
 
+Create magic  s" gforth00" here over allot swap move
+
+[char] 1 bigendian + cell + magic 7 + c!
+
 : save-cross ( "name" -- )
   bl parse ." Saving to " 2dup type
   w/o bin create-file throw >r
-  s" gforth00"  r@ write-file throw \ write magic
+  magic 8       r@ write-file throw \ write magic
   image @ there r@ write-file throw \ write image
   bit$  @ there 1- cell>bit rshift 1+
                 r@ write-file throw \ write tags
