@@ -197,6 +197,12 @@ create stacks max-stacks cells allot \ array of stacks
     ['] stack-in-index r> stack-in-index-xt ! ;
 
 : map-stacks { xt -- }
+    \ perform xt for all stacks
+    next-stack-number @ 0 +do
+	stacks i th @ xt execute
+    loop ;
+
+: map-stacks1 { xt -- }
     \ perform xt for all stacks except inst-stream
     next-stack-number @ 1 +do
 	stacks i th @ xt execute
@@ -251,9 +257,18 @@ end-struct prim%
 variable in-part \ true if processing a part
  in-part off
 
+: prim-context ( ... p xt -- ... )
+    \ execute xt with prim set to p
+    prim >r
+    swap to prim
+    catch
+    r> to prim
+    throw ;
+
 1000 constant max-combined
 create combined-prims max-combined cells allot
 variable num-combined
+variable part-num \ current part number during process-combined
 
 : map-combined { xt -- }
     \ perform xt for all components of the current combined instruction
@@ -267,6 +282,14 @@ table constant combinations
 create current-depth max-stacks cells allot
 create max-depth     max-stacks cells allot
 create min-depth     max-stacks cells allot
+
+create sp-update-in max-stacks cells allot
+\ where max-depth occured the first time
+create max-depths max-stacks max-combined 1+ * cells allot
+\ maximum depth at start of each component: array[components] of array[stack]
+
+: s-c-max-depth ( nstack ncomponent -- addr )
+    max-stacks * + cells max-depths + ;
 
 wordlist constant primitives
 
@@ -311,11 +334,14 @@ Variable function-number 0 function-number !
 \ forward declaration for inst-stream (breaks cycle in definitions)
 defer inst-stream-f ( -- stack )
 
+: stack-depth { stack -- n }
+    current-depth stack stack-number @ th @ ;
+
 : part-stack-access { n stack -- }
     \ print _<stack><x>, x=inst-stream? n : maxdepth-currentdepth-n-1
     ." _" stack stack-pointer 2@ type
     stack stack-number @ { stack# }
-    current-depth stack# th @ n + { access-depth }
+    stack stack-depth n + { access-depth }
     stack inst-stream-f = if
 	access-depth
     else
@@ -325,10 +351,31 @@ defer inst-stream-f ( -- stack )
     endif
     0 .r ;
 
-: stack-access ( n stack -- )
+: part-stack-read { n stack -- }
+    stack stack-depth n + ( ndepth )
+    stack stack-number @ part-num @ s-c-max-depth @
+\    max-depth stack stack-number @ th @ ( ndepth nmaxdepth )
+    over <= if ( ndepth ) \ load from memory
+	stack normal-stack-access
+    else
+	drop n stack part-stack-access
+    endif ;
+
+: part-stack-write ( n stack -- )
+    part-stack-access ;
+
+: stack-read ( n stack -- )
     \ print a stack access at index n of stack
     in-part @ if
-	part-stack-access
+	part-stack-read
+    else
+	normal-stack-access
+    endif ;
+
+: stack-write ( n stack -- )
+    \ print a stack access at index n of stack
+    in-part @ if
+	part-stack-write
     else
 	normal-stack-access
     endif ;
@@ -346,7 +393,7 @@ defer inst-stream-f ( -- stack )
     >r
     ." vm_" r@ item-stack-type-name type
     ." 2" r@ item-type @ print-type-prefix ." ("
-    r@ item-in-index r@ item-stack @ stack-access ." ,"
+    r@ item-in-index r@ item-stack @ stack-read ." ,"
     r@ item-name 2@ type
     ." );" cr
     rdrop ; 
@@ -357,8 +404,8 @@ defer inst-stream-f ( -- stack )
     ." vm_two"
     r@ item-stack-type-name type ." 2"
     r@ item-type @ print-type-prefix ." ("
-    r@ item-in-index r@ item-stack @ 2dup ." (Cell)" stack-access
-    ." , "                      -1 under+ ." (Cell)" stack-access
+    r@ item-in-index r@ item-stack @ 2dup ." (Cell)" stack-read
+    ." , "                      -1 under+ ." (Cell)" stack-read
     ." , " r@ item-name 2@ type
     ." )" cr
     rdrop ;
@@ -390,12 +437,12 @@ defer inst-stream-f ( -- stack )
     r@ item-type @ print-type-prefix ." 2"
     r@ item-stack-type-name type ." ("
     r@ item-name 2@ type ." ,"
-    r@ item-out-index r@ item-stack @ stack-access ." );"
+    r@ item-out-index r@ item-stack @ stack-write ." );"
     rdrop ;
 
 : store-single ( item -- )
     >r
-    store-optimization @ r@ same-as-in? and if
+    store-optimization @ in-part @ 0= and r@ same-as-in? and if
 	r@ item-in-index 0= r@ item-out-index 0= xor if
 	    ." IF_" r@ item-stack @ stack-pointer 2@ type
 	    ." TOS(" r@ really-store-single ." );" cr
@@ -412,8 +459,8 @@ defer inst-stream-f ( -- stack )
  r@ item-type @ print-type-prefix ." 2two"
  r@ item-stack-type-name type ." ("
  r@ item-name 2@ type ." , "
- r@ item-out-index r@ item-stack @ 2dup stack-access
- ." , "                       -1 under+ stack-access
+ r@ item-out-index r@ item-stack @ 2dup stack-write
+ ." , "                       -1 under+ stack-write
  ." )" cr
  rdrop ;
 
@@ -552,12 +599,11 @@ stack inst-stream IP Cell
 : compute-offset-out ( addr1 addr2 -- )
     ['] stack-out compute-offset ;
 
-: clear-stack { -- }
+: clear-stack ( stack -- )
     dup stack-in off stack-out off ;
 
 : compute-offsets ( -- )
     ['] clear-stack map-stacks
-    inst-stream clear-stack
     prim prim-effect-in  prim prim-effect-in-end  @ ['] compute-offset-in  map-items
     prim prim-effect-out prim prim-effect-out-end @ ['] compute-offset-out map-items
     inst-stream stack-out @ 0= s" # can only be on the input side" ?print-error ;
@@ -576,7 +622,7 @@ stack inst-stream IP Cell
     endif ;
 
 : flush-tos ( -- )
-    ['] flush-a-tos map-stacks ;
+    ['] flush-a-tos map-stacks1 ;
 
 : fill-a-tos { stack -- }
     stack stack-out @ 0= stack stack-in @ 0<> and
@@ -587,7 +633,7 @@ stack inst-stream IP Cell
 
 : fill-tos ( -- )
     \ !! inst-stream for prefetching?
-    ['] fill-a-tos map-stacks ;
+    ['] fill-a-tos map-stacks1 ;
 
 : fetch ( addr -- )
     dup item-type @ type-fetch @ execute ;
@@ -595,20 +641,23 @@ stack inst-stream IP Cell
 : fetches ( -- )
     prim prim-effect-in prim prim-effect-in-end @ ['] fetch map-items ;
 
-: stack-pointer-update { stack -- }
-    \ stack grow downwards
-    stack stack-in @ stack stack-out @ -
-    ?dup-if \ this check is not necessary, gcc would do this for us
-	stack stack-pointer 2@ type ."  += " 0 .r ." ;" cr
-    endif ;
-
 : inst-pointer-update ( -- )
     inst-stream stack-in @ ?dup-if
 	." INC_IP(" 0 .r ." );" cr
     endif ;
 
+: stack-pointer-update { stack -- }
+    \ stack grow downwards
+    stack stack-in @ stack stack-out @ -
+    ?dup-if \ this check is not necessary, gcc would do this for us
+	stack inst-stream = if
+	    inst-pointer-update
+	else
+	    stack stack-pointer 2@ type ."  += " 0 .r ." ;" cr
+	endif
+    endif ;
+
 : stack-pointer-updates ( -- )
-    inst-pointer-update
     ['] stack-pointer-update map-stacks ;
 
 : store ( item -- )
@@ -980,13 +1029,18 @@ stack inst-stream IP Cell
 	current-depth i th !
     loop ;
 
+: copy-maxdepths ( n -- )
+    max-depth max-depths rot max-stacks * th max-stacks cells move ;
+
 : add-prim ( addr u -- )
     \ add primitive given by "addr u" to combined-prims
     primitives search-wordlist s" unknown primitive" ?print-error
     execute { p }
     p combined-prims num-combined @ th !
+    num-combined @ copy-maxdepths
     1 num-combined +!
-    p add-depths ;
+    p add-depths
+    num-combined @ copy-maxdepths ;
 
 : compute-effects { q -- }
     \ compute the stack effects of q from the depths
@@ -1051,10 +1105,20 @@ stack inst-stream IP Cell
 
 : output-combined-tail ( -- )
     part-output-c-tail
-    prim >r combined to prim
     in-part @ >r in-part off
-    output-c-tail
-    r> in-part ! r> to prim ;
+    combined ['] output-c-tail prim-context
+    r> in-part ! ;
+
+: part-stack-pointer-updates ( -- )
+    max-stacks 0 +do
+	i part-num @ 1+ s-c-max-depth @ dup
+	i num-combined @ s-c-max-depth @ =    \ final depth
+	swap i part-num @ s-c-max-depth @ <> \ just reached now
+	part-num @ 0= \ first part
+	or and if
+	    stacks i th @ stack-pointer-update
+	endif
+    loop ;
 
 : output-part ( p -- )
     to prim
@@ -1064,6 +1128,8 @@ stack inst-stream IP Cell
     print-declarations
     part-fetches
     print-debug-args
+    combined ['] part-stack-pointer-updates prim-context
+    1 part-num +!
     prim add-depths \ !! right place?
     prim prim-c-code 2@ ['] output-combined-tail type-c-code
     part-output-c-tail
@@ -1072,6 +1138,7 @@ stack inst-stream IP Cell
 : output-parts ( -- )
     prim >r in-part on
     current-depth max-stacks cells erase
+    0 part-num !
     ['] output-part map-combined
     in-part off
     r> to prim ;
@@ -1084,9 +1151,9 @@ stack inst-stream IP Cell
     print-declarations-combined
     ." NEXT_P0;" cr
     flush-tos
-    fetches
+    \ fetches \ now in parts
     \ print-debug-args
-    stack-pointer-updates
+    \ stack-pointer-updates now in parts
     output-parts
     output-c-tail2
     ." }" cr
