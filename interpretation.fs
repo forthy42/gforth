@@ -20,7 +20,9 @@
 
 
 \ This file defines a mechanism for specifying special interpretation
-\ semantics as well as the interpretation semantics of several words.
+\ semantics and the interpretation semantics of several words.
+
+require search-order.fs
 
 table constant interpretation-semantics
 
@@ -32,7 +34,7 @@ table constant interpretation-semantics
     else
 	defers interpret-special
     endif ;
-IS interpret-special
+' interpret-special >body !
 
 : interpretation: ( -- colon-sys ) \ gforth
     \G make the last word one with special interpretation semantics and
@@ -44,6 +46,48 @@ IS interpret-special
     get-current >r
     interpretation-semantics set-current : reveal
     r> set-current ;
+
+\ !! split notfound and sfnumber in a compiler and an interpreter part?
+
+\ ' [']
+
+\ !! or keep it state-smart?
+' [char] Alias Ascii immediate
+interpretation: ( "char" -- c )
+    \ currently also the interpretation semantics of [char]
+    char ;
+
+\ [I]
+
+\ the following interpretation semantics definitions restrict the
+\ preceeding word. However, this does not matter because these
+\ restricted words are in interpretation-semantics and are never
+\ interpreted like regular words.
+
+\ we cannot use s" interpretively yet (to make a string for (sfind), so:
+' S" lastcfa !
+interpretation: ( "ccc<">" -- c-addr u )
+    [char] " parse
+    /line min >r s"-buffer r@ cmove
+    s"-buffer r> ;
+
+' ." lastcfa !
+interpretation: ( "ccc<">" -- )
+    [char] " parse type ;
+
+' does> lastcfa !
+interpretation: ( -- colon-sys ) ( name execution: -- addr )
+    align dodoes, here !does ]
+    defstart :-hook ;
+
+' is lastcfa !
+interpretation: ( addr "name" -- )
+    ' >body ! ;
+
+' what's lastcfa !
+interpretation: ( "name" -- addr )
+    ' >body @ ;
+
 
 \ : foo
 \     ." compilation semantics" ; immediate

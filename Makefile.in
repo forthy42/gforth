@@ -103,6 +103,7 @@ GFORTH_FI_SRC = \
 	glocals.fs \
 	hash.fs \
 	history.fs \
+	interpretation.fs \
 	look.fs \
 	search-order.fs \
 	see.fs \
@@ -130,7 +131,7 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_SRC) \
 	site-init.fs \
 	tt.fs sokoban.fs \
 	wordsets.fs \
-	tester.fs coretest.fs dbltest.fs \
+	tester.fs coretest.fs postponetest.fs dbltest.fs \
 	bubble.fs siev.fs matrix.fs fib.fs
 
 SOURCES	= CVS compat Makefile.in configure.in configure config.sub config.guess \
@@ -283,7 +284,7 @@ check:		test
 		touch test
 
 test:		gforth gforth.fi
-		$(FORTH) tester.fs coretest.fs dbltest.fs -e bye
+		$(FORTH) tester.fs coretest.fs postponetest.fs dbltest.fs -e bye
 		$(FORTH) code.fs checkans.fs -e bye
 		@echo 'Expect no differences'
 		$(FORTH) prims2x.fs -e "s\" primitives.b\" ' output-c process-file bye"| diff -c - primitives.i
@@ -303,22 +304,22 @@ gforth:		$(OBJECTS)
 		@MAKE_EXE@
 
 kernl16l.fi-:	$(KERN_SRC) mach16l.fs $(FORTH_GEN0)
-		$(FORTHK) -p . -e 's" mach16l.fs"' main.fs -e "save-cross kernl16l.fi- $(bindir)/gforth-$(VERSION) bye"
+		$(FORTHK) -p . interpretation.fs -e 's" mach16l.fs"' main.fs -e "save-cross kernl16l.fi- $(bindir)/gforth-$(VERSION) bye"
 
 kernl16b.fi-:	$(KERN_SRC) mach16b.fs $(FORTH_GEN0)
-		$(FORTHK) -p . -e 's" mach16b.fs"' main.fs -e "save-cross kernl16b.fi- $(bindir)/gforth-$(VERSION) bye"
+		$(FORTHK) -p . interpretation.fs -e 's" mach16b.fs"' main.fs -e "save-cross kernl16b.fi- $(bindir)/gforth-$(VERSION) bye"
 
 kernl32l.fi-:	$(KERN_SRC) mach32l.fs $(FORTH_GEN0)
-		$(FORTHK) -p . -e 's" mach32l.fs"' main.fs -e "save-cross kernl32l.fi- $(bindir)/gforth-$(VERSION) bye"
+		$(FORTHK) -p . interpretation.fs -e 's" mach32l.fs"' main.fs -e "save-cross kernl32l.fi- $(bindir)/gforth-$(VERSION) bye"
 
 kernl32b.fi-:	$(KERN_SRC) mach32b.fs $(FORTH_GEN0)
-		$(FORTHK) -p . -e 's" mach32b.fs"' main.fs -e "save-cross kernl32b.fi- $(bindir)/gforth-$(VERSION) bye"
+		$(FORTHK) -p . interpretation.fs -e 's" mach32b.fs"' main.fs -e "save-cross kernl32b.fi- $(bindir)/gforth-$(VERSION) bye"
 
 kernl64l.fi-:	$(KERN_SRC) mach64l.fs $(FORTH_GEN0)
-		$(FORTHK) -p . -e 's" mach64l.fs"' main.fs -e "save-cross kernl64l.fi- $(bindir)/gforth-$(VERSION) bye"
+		$(FORTHK) -p . interpretation.fs -e 's" mach64l.fs"' main.fs -e "save-cross kernl64l.fi- $(bindir)/gforth-$(VERSION) bye"
 
 kernl64b.fi-:	$(KERN_SRC) mach64b.fs $(FORTH_GEN0)
-		$(FORTHK) -p . -e 's" mach64b.fs"' main.fs -e "save-cross kernl64b.fi- $(bindir)/gforth-$(VERSION) bye"
+		$(FORTHK) -p . interpretation.fs -e 's" mach64b.fs"' main.fs -e "save-cross kernl64b.fi- $(bindir)/gforth-$(VERSION) bye"
 
 kernl16b.fi:	$(KERNLS)
 		-$(CP) kernl16b.fi kernl16b.fi~
@@ -393,7 +394,7 @@ doc.fd:		makedoc.fs float.fs search-order.fs glocals.fs environ.fs \
 		$(FORTHK) -p . -e "s\" doc.fd\"" makedoc.fs startup.fs code.fs -e bye
 
 crossdoc.fd:	$(KERN_SRC) $(FORTH_GEN0)
-		$(FORTHK) -p . -e 's" mach32l.fs"' main.fs
+		$(FORTHK) -p . interpretation.fs -e 's" mach32l.fs"' main.fs
 
 gforth.texi:	gforth.ds primitives.b ds2texi.fs prims2x.fs doc.fd crossdoc.fd
 		$(FORTHK) -p . ds2texi.fs -e "s\" gforth.ds\" r/o open-file throw ds2texi bye" >$@

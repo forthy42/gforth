@@ -72,8 +72,10 @@ s" ~/.gforth-history" get-history
   REPEAT  2drop  THEN
   tuck 2dup type 0 ;
 
-: ctrl  ( "<char>" -- ctrl-code )
-  char [char] @ - postpone Literal ; immediate
+: ctrl ( compilation: "<char>" -- ) ( run-time: -- ctrl-code )
+    char [char] @ - postpone Literal ; immediate
+interpretation: ( "<char>" -- ctrl-code )
+    char [char] @ - ;
 
 Create lfpad #lf c,
 

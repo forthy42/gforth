@@ -247,16 +247,14 @@ Defer source ( -- addr count ) \ core
 \ Literal                                              17dec92py
 
 : Literal  ( compilation n -- ; run-time -- n ) \ core
-    state @ IF postpone lit  , THEN ; immediate
+    postpone lit  , ; immediate restrict
 : ALiteral ( compilation addr -- ; run-time -- addr ) \ gforth
-    state @ IF postpone lit A, THEN ;
-                                                      immediate
+    postpone lit A, ; immediate restrict
 
 : char   ( 'char' -- n ) \ core
     bl word char+ c@ ;
 : [char] ( compilation 'char' -- ; run-time -- n )
-    char postpone Literal ; immediate
-' [char] Alias Ascii immediate
+    char postpone Literal ; immediate restrict
 
 : (compile) ( -- ) \ gforth
     r> dup cell+ >r @ compile, ;
@@ -953,18 +951,10 @@ Avariable leave-sp  leave-stack 3 cells + leave-sp !
                                              immediate restrict
 create s"-buffer /line chars allot
 : S" ( compilation 'ccc"' -- ; run-time -- c-addr u )	\ core,file	s-quote
-    [char] " parse
-    state @
-    IF
-	postpone SLiteral
-    ELSE
-	/line min >r s"-buffer r@ cmove
-	s"-buffer r>
-    THEN ; immediate
+    [char] " parse postpone SLiteral ; immediate restrict
 
 : ." ( compilation 'ccc"' -- ; run-time -- )  \ core	dot-quote
-    state @  IF    postpone (.") ,"  align
-                    ELSE  [char] " parse type  THEN  ;  immediate
+    postpone (.") ,"  align ; immediate restrict
 : ( ( compilation 'ccc<close-paren>' -- ; run-time -- ) \ core,file	paren
     BEGIN
 	>in @ [char] ) parse nip >in @ rot - =
@@ -998,12 +988,20 @@ create s"-buffer /line chars allot
 
 \ Header states                                        23feb93py
 
-: flag! ( 8b -- )
-    last @ dup 0= abort" last word was headerless"
-    cell+ tuck c@ xor swap c! ;
-: immediate     $20 flag! ;
-: restrict      $40 flag! ;
-\ ' noop alias restrict
+: cset ( bmask c-addr -- )
+    tuck c@ or swap c! ; 
+: creset ( bmask c-addr -- )
+    tuck c@ swap invert and swap c! ; 
+: ctoggle ( bmask c-addr -- )
+    tuck c@ xor swap c! ; 
+
+: lastflags ( -- c-addr )
+    \ the address of the flags byte in the last header
+    \ aborts if the last defined word was headerless
+    last @ dup 0= abort" last word was headerless" cell+ ;
+
+: immediate     $20 lastflags cset ;
+: restrict      $40 lastflags cset ;
 
 \ Header                                               23feb93py
 
@@ -1025,7 +1023,7 @@ defer header ( -- ) \ gforth
 : input-stream-header ( "name" -- )
     \ !! this is f83-implementation-dependent
     align here last !  -1 A,
-    name, $80 flag! ;
+    name, $80 lastflags cset ;
 
 : input-stream ( -- )  \ general
 \ switches back to getting the name from the input stream ;
@@ -1041,7 +1039,7 @@ create nextname-buffer 32 chars allot
     nextname-buffer count
     align here last ! -1 A,
     string, cfalign
-    $80 flag!
+    $80 lastflags cset
     input-stream ;
 
 \ the next name is given in the string
@@ -1064,7 +1062,9 @@ create nextname-buffer 32 chars allot
     lastcfa @ ;
 
 : Alias    ( cfa "name" -- ) \ gforth
-  Header reveal , $80 flag! ;
+    Header reveal
+    $80 lastflags creset
+    dup A, lastcfa ! ;
 
 : name>string ( nfa -- addr count ) \ gforth	name-to-string
  cell+ count $1F and ;
@@ -1099,13 +1099,8 @@ Create ???  0 , 3 c, char ? c, char ? c, char ? c,
 \ DOES>                                                17mar93py
 
 : DOES>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ core	does
-    state @
-    IF
-	;-hook postpone (does>) ?struc dodoes,
-    ELSE
-	align dodoes, here !does ]
-    THEN 
-    defstart :-hook ; immediate
+    ;-hook postpone (does>) ?struc dodoes,
+    defstart :-hook ; immediate restrict
 
 \ Create Variable User Constant                        17mar93py
 
@@ -1145,22 +1140,13 @@ Create ???  0 , 3 c, char ? c, char ? c, char ? c,
 \ 	perform ;
 
 : IS ( addr "name" -- ) \ gforth
-    ' >body
-    state @
-    IF    postpone ALiteral postpone !  
-    ELSE  !
-    THEN ;  immediate
+    ' >body postpone ALiteral postpone ! ; immediate restrict
 ' IS Alias TO ( addr "name" -- ) \ core-ext
-immediate
+immediate restrict
 
 : What's ( "name" -- addr ) \ gforth
-    ' >body
-    state @
-    IF
-	postpone ALiteral postpone @
-    ELSE
-	@
-    THEN ; immediate
+    ' >body postpone ALiteral postpone @ ; immediate restrict
+
 : Defers ( "name" -- ) \ gforth
     ' >body @ compile, ; immediate
 
@@ -1245,6 +1231,9 @@ G -1 warnings T !
  then
  2drop 2drop ;
 
+: (sfind) ( c-addr u -- nfa | 0 )
+    lookup @ (search-wordlist) ;
+
 : sfind ( c-addr u -- xt n / 0 ) \ gforth
     lookup @ search-wordlist ;
 
@@ -1266,7 +1255,7 @@ G -1 warnings T !
 : '    ( "name" -- addr ) \ core	tick
     name sfind 0= if -&13 bounce then ;
 : [']  ( compilation "name" -- ; run-time --addr ) \ core	bracket-tick
-    ' postpone ALiteral ; immediate
+    ' postpone ALiteral ; immediate restrict
 \ Input                                                13feb93py
 
 07 constant #bell ( -- c ) \ gforth

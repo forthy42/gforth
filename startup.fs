@@ -20,6 +20,7 @@
 
 warnings off
 
+require interpretation.fs
 \ include float.fs
 \ include search-order.fs
 include glocals.fs

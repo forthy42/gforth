@@ -27,8 +27,8 @@ Variable revealed
 \ Memory handling                                      10oct94py
 
 Variable HashPointer
-Variable HashTable
 Variable HashIndex
+0 Value HashTable
 
 \ DelFix and NewFix are from bigFORTH                  15jul94py
 
@@ -49,7 +49,7 @@ Variable HashIndex
     \ @var{bucket-addr} is the address of a cell that points to the first
     \ element in the list of the bucket for the string @var{addr len}
     wordlist-extend @ -rot hash xor ( bucket# )
-    cells HashTable @ + ;
+    cells HashTable + ;
 
 : hash-find ( addr len wordlist -- nfa / false )
     >r 2dup r> bucket @ (hashfind) ;
@@ -85,7 +85,7 @@ Variable HashIndex
     BEGIN  @ dup @  WHILE  dup 'initvoc  REPEAT  drop ;
 
 : clearhash  ( -- )
-    HashTable @ Hashlen cells bounds
+    HashTable Hashlen cells bounds
     DO  I @
         BEGIN  dup  WHILE
                dup @ swap HashPointer DelFix
@@ -101,14 +101,14 @@ Create hashsearch-map ( -- wordlist-map )
 
 \ hash allocate and vocabulary initialization          10oct94py
 
-: hash-alloc ( addr -- addr )  HashTable @ 0= IF
-  Hashlen cells allocate throw HashTable !
-  HashTable @ Hashlen cells erase THEN
+: hash-alloc ( addr -- addr )  HashTable 0= IF
+  Hashlen cells allocate throw TO HashTable
+  HashTable Hashlen cells erase THEN
   HashIndex @ over !  1 HashIndex +!
   HashIndex @ Hashlen >=
   IF  clearhash
       1 hashbits 1+ dup  to hashbits  lshift  to hashlen
-      HashTable @ free
+      HashTable free
       addall
   THEN ;
 
@@ -119,7 +119,7 @@ Create hashsearch-map ( -- wordlist-map )
     BEGIN  @ dup  WHILE  2dup swap (reveal  REPEAT
     2drop  r> insRule ! ;
 
-' (initvoc) IS 'initvoc
+' (initvoc) ' 'initvoc >body !
 
 \ Hash-Find                                            01jan93py
 
@@ -127,17 +127,17 @@ addall          \ Baum aufbauen
 \ Baumsuche ist installiert.
 
 : hash-cold  ( -- ) Defers 'cold
-  HashPointer off  HashTable off  HashIndex off
+  HashPointer off  0 TO HashTable  HashIndex off
   voclink
   BEGIN  @ dup @  WHILE
          dup cell - @ >r
          dup 'initvoc
          r> over cell - !
   REPEAT  drop ;
-' hash-cold IS 'cold
+' hash-cold ' 'cold >body !
 
 : .words  ( -- )
-  base @ >r hex HashTable @  Hashlen 0
+  base @ >r hex HashTable  Hashlen 0
   DO  cr  i 2 .r ." : " dup i cells +
       BEGIN  @ dup  WHILE
              dup cell+ @ .name  REPEAT  drop
@@ -150,7 +150,7 @@ addall          \ Baum aufbauen
 \     \ gives the number of words in the current wordlist
 \     \ and the sum of squares for the sublist lengths
 \     0 0
-\     hashtable @ Hashlen cells bounds DO
+\     hashtable Hashlen cells bounds DO
 \        0 i BEGIN
 \            @ dup WHILE
 \            swap 1+ swap

@@ -203,7 +203,7 @@ print-token !
 
 : ` ( -- terminal ) ( use: ` c )
  ( creates anonymous terminal for the character c )
- [compile] ascii singleton ['] ?nextchar make-terminal ;
+ char singleton ['] ?nextchar make-terminal ;
 
 char a char z ..  char A char Z ..  union char _ singleton union  charclass letter
 char 0 char 9 ..					charclass digit

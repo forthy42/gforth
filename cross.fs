@@ -879,7 +879,7 @@ bigendian Constant bigendian
 
 Create magic  s" Gforth10" here over allot swap move
 
-[char] 1 bigendian + cell + magic 7 + c!
+char 1 bigendian + cell + magic 7 + c!
 
 : save-cross ( "image-name" "binary-name" -- )
   bl parse ." Saving to " 2dup type cr

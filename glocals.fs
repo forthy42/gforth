@@ -505,35 +505,32 @@ forth definitions
     then ;
 
 : TO ( c|w|d|r "name" -- ) \ core-ext,local
- 0 0 0. 0.0e0 { c: clocal w: wlocal d: dlocal f: flocal }
- ' dup >definer
- state @ 
- if
-   case
-     [ ' locals-wordlist >definer ] literal \ value
-     OF >body POSTPONE Aliteral POSTPONE ! ENDOF
-     [ ' clocal >definer ] literal
-     OF POSTPONE laddr# >body @ lp-offset, POSTPONE c! ENDOF
-     [ ' wlocal >definer ] literal
-     OF POSTPONE laddr# >body @ lp-offset, POSTPONE ! ENDOF
-     [ ' dlocal >definer ] literal
-     OF POSTPONE laddr# >body @ lp-offset, POSTPONE 2! ENDOF
-     [ ' flocal >definer ] literal
-     OF POSTPONE laddr# >body @ lp-offset, POSTPONE f! ENDOF
-     -&32 throw
-   endcase
- else
-   [ ' locals-wordlist >definer ] literal =
-   if
-     >body !
-   else
-     -&32 throw
-   endif
- endif ; immediate
+    0 0 0. 0.0e0 { c: clocal w: wlocal d: dlocal f: flocal }
+    ' dup >definer
+    case
+	[ ' locals-wordlist >definer ] literal \ value
+	OF >body POSTPONE Aliteral POSTPONE ! ENDOF
+	[ ' clocal >definer ] literal
+	OF POSTPONE laddr# >body @ lp-offset, POSTPONE c! ENDOF
+	[ ' wlocal >definer ] literal
+	OF POSTPONE laddr# >body @ lp-offset, POSTPONE ! ENDOF
+	[ ' dlocal >definer ] literal
+	OF POSTPONE laddr# >body @ lp-offset, POSTPONE 2! ENDOF
+	[ ' flocal >definer ] literal
+	OF POSTPONE laddr# >body @ lp-offset, POSTPONE f! ENDOF
+	-&32 throw
+    endcase ; immediate
+interpretation:
+    ' dup >definer [ ' locals-wordlist >definer ] literal =
+    if
+	>body !
+    else
+	-&32 throw
+    endif ;
 
 : locals|
     \ don't use 'locals|'! use '{'! A portable and free '{'
-    \ implementation is anslocals.fs
+    \ implementation is compat/anslocals.fs
     BEGIN
 	name 2dup s" |" compare 0<>
     WHILE

@@ -34,7 +34,7 @@ Variable vp
 AVariable voclink
 
 Defer 'initvoc
-' drop IS 'initvoc
+' drop ' 'initvoc >body !
 
 Variable slowvoc   slowvoc off
 
