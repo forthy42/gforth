@@ -81,12 +81,22 @@ sourcepath avalue fpath
 : only-path ( adr len path^ -- )
   dup 0 swap cell+ ! also-path ;
 
-: path+		name rot also-path ;
-: fpath+	fpath path+ ;
+: path+ ( path-addr  "dir" -- ) \ gforth
+\G adds a directory to the search path path-addr
+  name rot also-path ;
 
-: path=        	name 2dup bounds ?DO i c@ '| = IF 0 i c! THEN LOOP
-               	rot only-path ;
-: fpath=	fpath path= ;
+: fpath+ ( "dir" ) \ gforth
+\G adds a directory to the forth search path
+  fpath path+ ;
+
+: path= ( path-addr "dir1|dir2|dir3" ) \ gforth
+\G makes complete new searchpath, seperator is |
+  name 2dup bounds ?DO i c@ '| = IF 0 i c! THEN LOOP
+  rot only-path ;
+
+: fpath= ( "dir1|dir2|dir3" ) \ gforth
+\G makes complete new searchpath, serpeator is |
+  fpath path= ;
 
 : path>counted  cell+ dup cell+ swap @ ;
 
@@ -100,11 +110,14 @@ sourcepath avalue fpath
   dup path>counted
   BEGIN tuck dup WHILE repeat ;
 
-: .path
+: .path ( path-addr -- ) \ gforth
+\G displays the contents of the search path path-addr
   path>counted
   BEGIN next-path dup WHILE type space REPEAT 2drop 2drop ;
 
-: .fpath fpath .path ;
+: .fpath ( ) \ gforth
+\G displays the contents of the forth search patch
+  fpath .path ;
 
 : absolut-path? ( addr u -- flag ) \ gforth
     \G a path is absolute, if it starts with a / or a ~ (~ expansion),
@@ -124,35 +137,43 @@ Create tfile 0 c, 255 chars allot
 
 : need/   ofile dup c@ + c@ pathsep? 0= IF s" /" ofile +place THEN ;
 
-: check-path ( adr1 len1 adr2 len2 -- fd 0 | 0 <>0 )
-  0 ofile ! >r >r ofile place need/
-  r> r> ofile +place
-  ofile count r/o open-file ;
-
-: expandtopic
-  ofile count 2 min s" ~+" compare 0=
-  IF 	ofile count 2 /string tfile place
-	0 ofile c! sourcefilename onlypath ofile place need/
-	tfile count ofile +place
-  THEN ;
-	
-: onlypath ( adr len -- adr len2 )
+: extractpath ( adr len -- adr len2 )
   BEGIN dup WHILE 1-
         2dup + c@ pathsep? IF EXIT THEN
   REPEAT ;
 
-: open-path-file ( adr len path -- fd adr1 len2 )
+: expandtopic
+  ofile count 2 min s" ~+" compare 0=
+  IF 	ofile count 2 /string tfile place
+	0 ofile c! sourcefilename extractpath ofile place need/
+	tfile count ofile +place
+  THEN ;
+	
+: check-path ( adr1 len1 adr2 len2 -- fd 0 | 0 <>0 )
+  0 ofile ! >r >r ofile place need/
+  r> r> ofile +place
+  expandtopic
+  ofile count r/o open-file ;
+
+: open-path-file ( adr len path-addr -- fd adr1 len2 0 | ior ) \ gforth
+\G looks in path path-addr for the file specified by adr len
+\G when found the resulting path and an open file descriptor
+\G is returned. If the file is not found ior is non zero
   >r
   2dup absolut-path?
   IF    rdrop
         ofile place expandtopic ofile count r/o open-file throw
-        ofile count EXIT
+        ofile count 0 EXIT
   ELSE  r> path>counted
         BEGIN  next-path dup
         WHILE  5 pick 5 pick check-path
-        0= IF >r 2drop 2drop r> ofile count EXIT ELSE drop THEN
+        0= IF >r 2drop 2drop r> ofile count 0 EXIT ELSE drop THEN
   REPEAT
-        2drop 2drop 2drop -&38 throw
+        2drop 2drop 2drop -&38
   THEN ;
 
-: open-fpath-file fpath open-path-file ;
+: open-fpath-file ( adr len -- fd adr1 len2 0 | ior ) \ gforth
+\G looks in the forth search path for the file specified by adr len
+\G when found the resulting path and an open file descriptor
+\G is returned. If the file is not found ior is non zero
+  fpath open-path-file ;

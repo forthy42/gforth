@@ -20,7 +20,7 @@
 
 \ Now: Kernel Module, Reloadable
 
-\ $Id: require.fs,v 1.2 1997-05-29 19:43:39 pazsan Exp $
+\ $Id: require.fs,v 1.3 1997-06-01 20:55:22 jwilke Exp $
 
 create included-files 0 , 0 , ( pointer to and count of included files )
 here ," the terminal" dup c@ swap 1 + swap , A, here 2 cells -
@@ -79,7 +79,7 @@ create image-included-files  1 , A, ( pointer to and count of included files )
     throw ;
     
 : included ( i*x addr u -- j*x ) \ file
-    open-fpath-file included1 ;
+    open-fpath-file throw included1 ;
 
 : required ( i*x addr u -- j*x ) \ gforth
     \G include the file with the name given by addr u, if it is not
@@ -90,7 +90,7 @@ create image-included-files  1 , A, ( pointer to and count of included files )
     \G problems with several paths to the same file (e.g., due to
     \G links) and we would catch files included with include-file and
     \G write a require-file.
-    open-fpath-file 2dup included?
+    open-fpath-file throw 2dup included?
     if
 	2drop close-file throw
     else
@@ -100,9 +100,11 @@ create image-included-files  1 , A, ( pointer to and count of included files )
 \ INCLUDE                                               9may93jaw
 
 : include  ( "file" -- ) \ gforth
+\G includes a file and keeps in mind that this file is loaded
   name included ;
 
 : require  ( "file" -- ) \ gforth
+\G load a file only when it is not included already
   name required ;
 
 0 [IF]
@@ -140,5 +142,5 @@ create image-included-files  1 , A, ( pointer to and count of included files )
 	cr I 2@ type  2 cells +LOOP ;  
 
 \ contains tools/newrequire.fs
-\ \I $Id: require.fs,v 1.2 1997-05-29 19:43:39 pazsan Exp $
+\ \I $Id: require.fs,v 1.3 1997-06-01 20:55:22 jwilke Exp $
 
