@@ -1475,32 +1475,12 @@ f_addr = (Float *)((((Cell)c_addr)+(sizeof(Float)-1))&(-sizeof(Float)));
 
 \ threading stuff is currently only interesting if we have a compiler
 \fhas? standardthreading has? compiler and [IF]
-code-address!	( c_addr xt -- )		gforth	code_address_store
-""Create a code field with code address @i{c-addr} at @i{xt}.""
-MAKE_CF(xt, c_addr);
-:
-    ! ;
-
-does-code!	( a_addr xt -- )		gforth	does_code_store
-""Create a code field at @i{xt} for a child of a @code{DOES>}-word;
-@i{a-addr} is the start of the Forth code after @code{DOES>}.""
-MAKE_DOES_CF(xt, a_addr);
-:
-    dodoes: over ! cell+ ! ;
-
 does-handler!	( a_addr -- )	gforth	does_handler_store
 ""Create a @code{DOES>}-handler at address @i{a-addr}. Normally,
 @i{a-addr} points just behind a @code{DOES>}.""
 MAKE_DOES_HANDLER(a_addr);
 :
     drop ;
-
-/does-handler	( -- n )	gforth	slash_does_handler
-""The size of a @code{DOES>}-handler (includes possible padding).""
-/* !! a constant or environmental query might be better */
-n = DOES_HANDLER_SIZE;
-:
-    2 cells ;
 
 threading-method	( -- n )	gforth	threading_method
 ""0 if the engine is direct threaded. Note that this may change during
