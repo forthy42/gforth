@@ -75,24 +75,31 @@ AUser CSP
 \ const-does>
 
 : compile-literals ( w*u u -- ; run-time: -- w*u ) recursive
+    \ compile u literals, starting with the bottommost one
     ?dup-if
 	swap >r 1- compile-literals
 	r> POSTPONE literal
     endif ;
 
 : compile-fliterals ( r*u u -- ; run-time: -- w*u ) recursive
+    \ compile u fliterals, starting with the bottommost one
     ?dup-if
 	{ F: r } 1- compile-fliterals
 	r POSTPONE fliteral
     endif ;
 
 : (const-does>) ( w*uw r*ur uw ur target "name" -- )
+    \ define a colon definition "name" containing w*uw r*ur as
+    \ literals and a call to target.
     { uw ur target }
     header docol: cfa, \ start colon def without stack junk
     ur compile-fliterals uw compile-literals
     target compile, POSTPONE exit reveal ;
 
 : const-does> ( run-time: w*uw r*ur uw ur "name" -- )
+    \G Defines @var{name} and returns.@sp 0
+    \G @var{name} execution: pushes @var{w*uw r*ur}, then performs the
+    \G code following the @code{const-does>}.
     here >r 0 POSTPONE literal
     POSTPONE (const-does>)
     POSTPONE ;

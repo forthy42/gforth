@@ -169,7 +169,8 @@ personal machines. This manual corresponds to version @value{VERSION}.
 * Word Index::                  An item for each Forth word
 * Concept Index::               A menu covering many topics
 
-@detailmenu --- The Detailed Node Listing ---
+@detailmenu
+ --- The Detailed Node Listing ---
 
 Gforth Environment
 
@@ -313,6 +314,7 @@ User-defined Defining Words
 * CREATE..DOES> applications::  
 * CREATE..DOES> details::       
 * Advanced does> usage example::  
+* @code{Const-does>}::          
 
 Interpretation and Compilation Semantics
 
@@ -6565,6 +6567,7 @@ locals declarations for stack effect specification, though).
 * CREATE..DOES> applications::  
 * CREATE..DOES> details::       
 * Advanced does> usage example::  
+* @code{Const-does>}::          
 @end menu
 
 @node CREATE..DOES> applications, CREATE..DOES> details, User-defined Defining Words, User-defined Defining Words
@@ -6614,6 +6617,7 @@ DOES> ( n2 -- n1+n2 )
  3 curry+ 3+
 -2 curry+ 2-
 @end example
+
 
 @node CREATE..DOES> details, Advanced does> usage example, CREATE..DOES> applications, User-defined Defining Words
 @subsubsection The gory details of @code{CREATE..DOES>}
@@ -6673,7 +6677,7 @@ CREATE name EXECUTE ( ... -- ... )
 
 doc->body
 
-@node Advanced does> usage example,  , CREATE..DOES> details, User-defined Defining Words
+@node Advanced does> usage example, @code{Const-does>}, CREATE..DOES> details, User-defined Defining Words
 @subsubsection Advanced does> usage example
 
 The MIPS disassembler (@file{arch/mips/disasm.fs}) contains many words
@@ -6795,6 +6799,46 @@ Forth; and if I did not have @file{insts.fs} to start with, I may well
 have elected to use just a one-level defining word (with some repeating
 of parameters when using the defining word). So it is not necessary to
 understand this, but it may improve your understanding of Forth.
+
+
+@node @code{Const-does>},  , Advanced does> usage example, User-defined Defining Words
+@subsubsection @code{Const-does>}
+
+A frequent use of @code{create}...@code{does>} is for transferring some
+values from definition-time to run-time.  Gforth supports this use with
+
+doc-const-does>
+
+A typical use of this word is:
+
+@example
+: curry+ ( n1 "name" -- )
+1 0 CONST-DOES> ( n2 -- n1+n2 )
+    + ;
+
+3 curry+ 3+
+@end example
+
+Here the @code{1 0} means that 1 cell and 0 floats are transferred from
+definition to run-time.
+
+The advantages of using @code{const-does>} are:
+
+@itemize
+
+@item
+You don't have to deal with storing and retrieving the values, i.e.,
+your program becomes more writable and readable.
+
+@item
+When using @code{does>}, you have to introduce a @code{@@} that cannot
+be optimized away (because you could change the data using
+@code{>body}...@code{!}); @code{const-does>} avoids this problem.
+
+@end itemize
+
+An ANS Forth implementation of @code{const-does>} is available in
+@file{compat/const-does.fs}.
 
 
 @node Deferred words, Aliases, User-defined Defining Words, Defining Words
@@ -11809,7 +11853,7 @@ available under GPL, and originally part of bigFORTH.
 The 386 disassembler included in Gforth was written by Andrew McKewan
 and is in the public domain.
 
-The disassembler displays code in prefix Intel syntax.
+The disassembler displays code in an Intel-like prefix syntax.
 
 The assembler uses a postfix syntax with reversed parameters.
 
@@ -11834,17 +11878,26 @@ PLDQ/PLDD and PSTQ/PSTD.
 
 The registers lack the 'e' prefix; even in 32 bit mode, eax is called
 ax.  Immediate values are indicated by postfixing them with @code{#},
-e.g., @code{3 #}.  Here are some examples of addressing modes:
+e.g., @code{3 #}.  Here are some examples of addressing modes in various
+syntaxes:
 
 @example
-3 #          \ immediate
-1000 #)      \ absolute
-ax           \ register
-100 di d)    \ 100[edi]
-4 bx cx di)  \ 4[ebx][ecx]
-di ax *4 i)  \ [edi][eax*4]
-20 ax *4 i#) \ 20[eax*4]
+Gforth          Intel (NASM)   AT&T (gas)      Name
+.w ax           ax             %ax             register (16 bit)
+ax              eax            %eax            register (32 bit)
+3 #             offset 3       $3              immediate
+1000 #)         byte ptr 1000  1000            displacement
+bx )            [ebx]          (%ebx)          base
+100 di d)       100[edi]       100(%edi)       base+displacement
+20 ax *4 i#)    20[eax*4]      20(,%eax,4)     (index*scale)+displacement
+di ax *4 i)     [edi][eax*4]   (%edi,%eax,4)   base+(index*scale)
+4 bx cx di)     4[ebx][ecx]    4(%ebx,%ecx)    base+index+displacement
+12 sp ax *2 di) 12[esp][eax*2] 12(%esp,%eax,2) base+(index*scale)+displacement
 @end example
+
+You can use @code{L)} and @code{LI)} instead of @code{D)} and
+@code{DI)} to enforce 32-bit displacement fields (useful for
+later patching).
 
 Some example of instructions are:
 
