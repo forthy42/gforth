@@ -143,6 +143,7 @@ VARIABLE Unnest
 : dbg \ gforth 
     ' NestXT IF EXIT THEN (debug) Leave-D ;
 
+has? compiler [IF]
 : break: \ gforth
     r> ['] (debug) >body >r ;
 
@@ -154,3 +155,4 @@ VARIABLE Unnest
 : break" \ gforth
     postpone s"
     postpone (break") ; immediate
+[THEN]

@@ -236,15 +236,6 @@ VARIABLE C-Pass
 : back? ( n -- flag ) 0< ;
 : ahead? ( n -- flag ) 0> ;
 
-: c-(compile)
-    Display?
-    IF
-	s" POSTPONE " Com# .string
-	dup @ look 0= ABORT" SEE: No valid XT"
-	name>string 0 .string bl cemit
-    THEN
-    cell+ ;
-
 : c-lit
     Display? IF
 	dup @ dup abs 0 <# #S rot sign #> 0 .string bl cemit
@@ -394,10 +385,6 @@ VARIABLE C-Pass
         THEN
         Debug? IF drop THEN ;
 
-: c-does>               \ end of create part
-        Display? IF S" DOES> " Com# .string THEN
-	maxaligned /does-handler + ;
-
 : c-abort"
         count 2dup + aligned -rot
         Display?
@@ -407,6 +394,22 @@ VARIABLE C-Pass
         ELSE    2drop
         THEN ;
 
+[IFDEF] (does>)
+: c-does>               \ end of create part
+        Display? IF S" DOES> " Com# .string THEN
+	maxaligned /does-handler + ;
+[THEN]
+
+[IFDEF] (compile)
+: c-(compile)
+    Display?
+    IF
+	s" POSTPONE " Com# .string
+	dup @ look 0= ABORT" SEE: No valid XT"
+	name>string 0 .string bl cemit
+    THEN
+    cell+ ;
+[THEN]
 
 CREATE C-Table
 	        ' lit A,            ' c-lit A,
@@ -429,9 +432,10 @@ CREATE C-Table
 [IFDEF] (-loop) ' (-loop) A,        ' c-loop A, [THEN]
         	' (next) A,         ' c-loop A,
         	' ;s A,             ' c-exit A,
-        	' (does>) A,        ' c-does> A,
         	' (abort") A,       ' c-abort" A,
-        	' (compile) A,      ' c-(compile) A,
+\ only defined if compiler is loaded
+[IFDEF] (compile) ' (compile) A,      ' c-(compile) A, [THEN]
+[IFDEF] (does>) ' (does>) A,        ' c-does> A, [THEN]
         	0 ,		here 0 ,
 
 avariable c-extender
