@@ -1,3 +1,4 @@
+also assembler
 create test_asm
 1 2 3 addf,
 1 2 3 addg,
@@ -232,3 +233,13 @@ create test_asm
 1 2 3 zap#,
 1 2 3 zapnot,
 1 2 3 zapnot#,
+5 gt if,
+begin,
+ahead,
+2 cs-roll
+else,
+endif,
+endif,
+6 lbs while,
+repeat,
+previous

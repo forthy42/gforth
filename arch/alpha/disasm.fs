@@ -1,6 +1,24 @@
-
-\ bernd thallner 9725890 e881
 \ disassembler in forth for alpha
+
+\ Copyright (C) 1999,2000 Free Software Foundation, Inc.
+
+\ This file is part of Gforth.
+
+\ Gforth is free software; you can redistribute it and/or
+\ modify it under the terms of the GNU General Public License
+\ as published by the Free Software Foundation; either version 2
+\ of the License, or (at your option) any later version.
+
+\ This program is distributed in the hope that it will be useful,
+\ but WITHOUT ANY WARRANTY; without even the implied warranty of
+\ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+\ GNU General Public License for more details.
+
+\ You should have received a copy of the GNU General Public License
+\ along with this program; if not, write to the Free Software
+\ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+\ contributed by Bernd Thallner
 
 \ util
 
@@ -264,10 +282,10 @@ create decode_code
   print_string drop
 ;
 
-: decode_Bra ( instruction tbentry -- )
+: decode_Bra ( addr instruction tbentry -- addr )
   swap
   dup $03e00000 and 21 rshift decode_register
-  $001fffff and hex.
+  $001fffff and 2* 2* 2 pick + 4 + hex.
   print_string
 ;
 
@@ -424,7 +442,7 @@ drop \ string_table end
 
 set-current
 
-: disasm-inst ( n -- )  \ instruction decoder
+: disasm-inst ( addr n -- addr )  \ instruction decoder
   dup $fc000000 and
   26 rshift cells
   opcode_table +
@@ -437,8 +455,8 @@ set-current
     \G disassemble u aus starting at addr
     cr bounds
     u+do
-	." ( " i hex. ."  ) "
-	i h@ disasm-inst
+	." ( " i hex. ." ) "
+	i i h@ disasm-inst drop
 	4
     +loop ;
 

@@ -389,5 +389,8 @@ include ./insts.fs
 : repeat, ( asm-orig asm-dest -- )
     again, delayed-then, ;
 
+: endif, ( asm-orig -- )
+    then, ;
+
 previous
 set-current

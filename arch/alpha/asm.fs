@@ -1,8 +1,26 @@
-
-\ bernd thallner 9725890 881
 \ assembler in forth for alpha
 
-\ require ../../code.fs
+\ Copyright (C) 1999,2000 Free Software Foundation, Inc.
+
+\ This file is part of Gforth.
+
+\ Gforth is free software; you can redistribute it and/or
+\ modify it under the terms of the GNU General Public License
+\ as published by the Free Software Foundation; either version 2
+\ of the License, or (at your option) any later version.
+
+\ This program is distributed in the hope that it will be useful,
+\ but WITHOUT ANY WARRANTY; without even the implied warranty of
+\ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+\ GNU General Public License for more details.
+
+\ You should have received a copy of the GNU General Public License
+\ along with this program; if not, write to the Free Software
+\ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+\ contributed by Bernd Thallner
+
+require ../../code.fs
 
 get-current
 also assembler definitions
@@ -106,11 +124,14 @@ endif
     swap dup -$8000 $8000 check-range
     $ffff and or ;
 
-: branch-disp ( addr code -- code )
-    swap here 4 + -
-    dup 3 and 0<> -24 and throw
+: branch-rel ( n code -- code )
+    swap dup 3 and 0<> -24 and throw
+    2/ 2/
     dup -$100000 $100000 check-range
     $1fffff and or ;
+
+: branch-disp ( addr code -- code )
+    swap here 4 + - swap branch-rel ;
 
 : imm ( u code -- code )
     swap dup 0 $100 check-range
@@ -397,7 +418,9 @@ $12 $30   Opr# zap#,
 $12 $31   Opr  zapnot,
 $12 $31   Opr# zapnot#,
 
-\ conditions
+\ conditions; they are reversed because of the if and until logic (the
+\ stuff enclosed by if is performed if the branch around has the
+\ inverse condition).
 
 ' beq,  constant ne
 ' bge, 	constant lt
@@ -416,74 +439,52 @@ $12 $31   Opr# zapnot#,
 
 \ control structures
 
-\ <register_number> if, <if_code> [ else, <else_code> ] endif,
+: magic-asm ( u1 u2 -- u3 u4 )
+    \ turns a magic number into an asm-magic number or back
+    $fedcba0987654321 xor ;
 
-\  : magic-asm ( u1 u2 -- u3 u4 )
-\      \ turns a magic number into an asm-magic number or back
-\      $fedcba0987654321 xor ;
+: patch-branch ( behind-branch-addr target-addr -- )
+    \ there is a branch just before behind-branch-addr; PATCH-BRANCH
+    \ patches this branch to branch to target-addr
+    over - ( behind-branch-addr rel )
+    swap 4 - dup >r ( rel branch-addr R:branch-addr )
+    h@ branch-rel r> h! ; \ !! relies on the imm field being 0 before
 
-\  : patch-branch ( branch-delay-addr target-addr -- )
-\      \ there is a branch just before branch-delay-addr; PATCH-BRANCH
-\      \ patches this branch to branch to target-addr
-\      over - ( branch-delay-addr rel )
-\      swap cell - dup >r ( rel branch-addr R:branch-addr )
-\      @ asm-rel r> ! ; \ !! relies on the imm field being 0 before
+: if, ( reg xt -- asm-orig )
+    \ xt is for a branch word ( reg addr -- )
+    here 4 + swap execute \ put 0 into the disp field
+    here live-orig magic-asm live-orig ;
 
+: ahead, ( -- asm-orig )
+    zero ['] br, if, ;
 
+: then, ( asm-orig -- )
+    orig? magic-asm orig?
+    here patch-branch ;
 
-: ahead, ( -- asmorig )
-    31 0 br,
-    here 4 -
-;
+: begin, ( -- asm-dest )
+    here dest magic-asm dest ;
 
-: if, ( -- asmorig )
-  0 beq,
-  here 4 -
-;
+: until, ( asm-dest reg xt -- )
+    \ xt is a condition ( reg addr -- )
+    here 4 + swap execute
+    dest? magic-asm dest?
+    here swap patch-branch ;
 
-: endif, ( asmorig -- )
-  dup here swap - 4 - 4 /
-  $1fffff and
-  over h@ or swap h!
-;
+: again, ( asm-dest -- )
+    zero ['] br, until, ;
 
-: else, ( asmorig1 -- asmorig2 )
-    ahead,
-    swap
-    endif,
-;
+: while, ( asm-dest -- asm-orig asm-dest )
+    if, 1 cs-roll ;
 
-\ begin, <code> again,
+: else, ( asm-orig1 -- asm-orig2 )
+    ahead, 1 cs-roll then, ;
 
-: begin, ( -- asmdest )
-  here
-;
+: repeat, ( asm-orig asm-dest -- )
+    again, then, ;
 
-: again, ( asmdest -- )
-  here - 4 - 4 /
-  $1fffff and
-  31 swap br,
-;
-
-\ begin, <code> <register_number> until,
-
-: until, ( asmdest -- )
-  here rot swap - 4 - 4 /
-  $1fffff and
-  bne,
-;
-
-\ begin, <register_number> while, <code> repeat,
-
-: while, ( asmdest -- asmorig asmdest )
-  if,
-  swap
-;
-
-: repeat, ( asmorig asmdest -- )
-  again,
-  endif,
-;
+: endif, ( asm-orig -- )
+    then, ;
 
 \  \ jump marks
 
