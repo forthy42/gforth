@@ -26,6 +26,7 @@ AC_CANONICAL_HOST
 case "$host_cpu" in
 	hppa*)
 		mach_h=hppa
+		LIBOBJS="cache.o"
 		;;
 	sparc*)
 		mach_h=sparc

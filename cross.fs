@@ -1,5 +1,5 @@
 \ CROSS.FS     The Cross-Compiler                      06oct92py
-\ $Id: cross.fs,v 1.17 1994-11-29 16:22:37 pazsan Exp $
+\ $Id: cross.fs,v 1.18 1994-12-15 12:35:12 pazsan Exp $
 \ Idea and implementation: Bernd Paysan (py)
 \ Copyright 1992-94 by the GNU Forth Development Group
 
@@ -256,7 +256,7 @@ VARIABLE Already
   BEGIN @ dup
   WHILE 2dup cell+ @ =
   UNTIL
-        nip 2 cells + count cr ." CROSS: Exists: " type 4 spaces
+        2 cells + count cr ." CROSS: Exists: " type 4 spaces drop
         swap cell+ !
   ELSE true ABORT" CROSS: Ghostnames inconsistent"
   THEN ;
@@ -312,7 +312,7 @@ VARIABLE ^imm
 
 >TARGET
 : immediate     20 flag!
-                ^imm @ @ dup <imm> = ?EXIT
+                ^imm @ @ dup <imm> = IF  drop  EXIT  THEN
                 <res> <> ABORT" CROSS: Cannot immediate a unresolved word"
                 <imm> ^imm @ ! ;
 : restrict      40 flag! ;
@@ -322,7 +322,7 @@ VARIABLE ^imm
 
 : ALIAS2 create here 0 , DOES> @ execute ;
 \ usage:
-\ ' alias2 bla !
+\ ' <name> alias2 bla !
 
 \ Target Header Creation                               01nov92py
 
@@ -337,10 +337,10 @@ VARIABLE CreateFlag CreateFlag off
   tlast @ dup 0> IF  T 1 cells - THEN  A, H  there tlast !
   >in @ name, >in ! T here H tlastcfa !
   CreateFlag @ IF
-  >in @ alias2 swap >in !         \ create alias in target
-  >in @ ghost swap >in !
-  swap also ghosts ' previous swap !        \ tick ghost and store in alias
-  CreateFlag off
+       >in @ alias2 swap >in !         \ create alias in target
+       >in @ ghost swap >in !
+       swap also ghosts ' previous swap !     \ tick ghost and store in alias
+       CreateFlag off
   ELSE ghost THEN
   dup >magic ^imm !     \ a pointer for immediate
   Already @ IF  dup >end tdoes !

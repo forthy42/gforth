@@ -122,6 +122,9 @@ char *cstr(Char *from, UCell size, int clear)
 
 #define NEWLINE	'\n'
 
+#ifndef HAVE_RINT
+#define rint(x)	floor((x)+0.5)
+#endif
 
 static char* fileattr[6]={"r","rb","r+","r+b","w+","w+b"};
 

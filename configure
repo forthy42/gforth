@@ -489,6 +489,7 @@ echo "$ac_t""$host" 1>&4
 case "$host_cpu" in
 	hppa*)
 		mach_h=hppa
+		LIBOBJS="cache.o"
 		;;
 	sparc*)
 		mach_h=sparc
@@ -539,7 +540,7 @@ else
   ac_cv_cross=yes
 else
 cat > conftest.$ac_ext <<EOF
-#line 543 "configure"
+#line 544 "configure"
 #include "confdefs.h"
 main(){return(0);}
 EOF
@@ -563,7 +564,7 @@ else
     { echo "configure: error: can not run test program while cross compiling" 1>&2; exit 1; }
 else
 cat > conftest.$ac_ext <<EOF
-#line 567 "configure"
+#line 568 "configure"
 #include "confdefs.h"
 main () {
   /* Are we little or big endian?  From Harbison&Steele.  */
@@ -678,7 +679,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="$LIBS -lm "
 cat > conftest.$ac_ext <<EOF
-#line 682 "configure"
+#line 683 "configure"
 #include "confdefs.h"
 
 int main() { return 0; }
@@ -718,7 +719,7 @@ else
   ac_cv_func_memcmp=no
 else
 cat > conftest.$ac_ext <<EOF
-#line 722 "configure"
+#line 723 "configure"
 #include "confdefs.h"
 
 main()
@@ -747,7 +748,7 @@ if eval "test \"`echo '${'ac_cv_func_$ac_func'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&4
 else
   cat > conftest.$ac_ext <<EOF
-#line 751 "configure"
+#line 752 "configure"
 #include "confdefs.h"
 #include <ctype.h> /* Arbitrary system header to define __stub macros. */
 /* Override any gcc2 internal prototype to avoid an error.  */
@@ -792,7 +793,7 @@ if eval "test \"`echo '${'ac_cv_func_getopt_long'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&4
 else
   cat > conftest.$ac_ext <<EOF
-#line 796 "configure"
+#line 797 "configure"
 #include "confdefs.h"
 #include <ctype.h> /* Arbitrary system header to define __stub macros. */
 /* Override any gcc2 internal prototype to avoid an error.  */
@@ -838,7 +839,7 @@ if eval "test \"`echo '${'ac_cv_func_$ac_func'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&4
 else
   cat > conftest.$ac_ext <<EOF
-#line 842 "configure"
+#line 843 "configure"
 #include "confdefs.h"
 #include <ctype.h> /* Arbitrary system header to define __stub macros. */
 /* Override any gcc2 internal prototype to avoid an error.  */
@@ -887,7 +888,7 @@ if eval "test \"`echo '${'ac_cv_func_$ac_func'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&4
 else
   cat > conftest.$ac_ext <<EOF
-#line 891 "configure"
+#line 892 "configure"
 #include "confdefs.h"
 #include <ctype.h> /* Arbitrary system header to define __stub macros. */
 /* Override any gcc2 internal prototype to avoid an error.  */
