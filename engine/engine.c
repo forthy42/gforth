@@ -190,7 +190,7 @@ extern int gforth_memcmp(const char * s1, const char * s2, size_t n);
 
 #ifdef GFORTH_DEBUGGING
 #if DEBUG
-#define NAME(string) { saved_ip=ip; asm(""); fprintf(stderr,"%08lx depth=%3ld: "string"\n",(Cell)ip,sp0+3-sp);}
+#define NAME(string) { saved_ip=ip; asm("# "string); fprintf(stderr,"%08lx depth=%3ld: "string"\n",(Cell)ip,sp0+3-sp);}
 #else /* !DEBUG */
 #define NAME(string) { saved_ip=ip; asm(""); }
 /* the asm here is to avoid reordering of following stuff above the
@@ -202,7 +202,7 @@ extern int gforth_memcmp(const char * s1, const char * s2, size_t n);
 #elif DEBUG
 #       define  NAME(string)    {Cell __depth=sp0+3-sp; int i; fprintf(stderr,"%08lx depth=%3ld: "string,(Cell)ip,sp0+3-sp); for (i=__depth-1; i>0; i--) fprintf(stderr, " $%lx",sp[i]); fprintf(stderr, " $%lx\n",spTOS); }
 #else
-#	define	NAME(string)
+#	define	NAME(string) asm("# "string);
 #endif
 
 #ifdef DEBUG

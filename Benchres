@@ -29,6 +29,7 @@ siev	bubble	matrix	fib	machine and configuration
  1.09	 1.32	 1.62	 1.62	Pentium-III 1000 (Coppermine); gcc-2.95.1; gforth-0.5.0 --enable-force-reg
  1.21	 1.64	 2.06	 2.03	Athlon 750 (Thunderbird); gcc-2.95.1; gforth-0.5.0 -DFORCE_REG; ELF
  1.27	 1.67	 1.95	 1.94	Pentium-III 750; gcc-2.95.2; gforth-0.5.0 -DFORCE_REG; ELF
+ 0.85    1.15    0.55    1.29   Athlon 600; gcc-3.4-snapshot; gforth-0.6.2-20030910 --enable-force-reg; ELF with dynamic superinstructions
  0.81	 1.09	 0.51	 1.23	Athlon 600; gcc-2.95.2; gforth-0.5.9-20011224 -DFORCE_REG; ELF with dynamic superinstructions
  1.07	 1.25	 0.58	 1.34	Athlon 600; gcc-3.0.1; gforth-0.5.9-20011224 -DFORCE_REG; ELF with dynamic superinstructions
  1.52	 2.09	 2.56	 2.59	Athlon 600; gcc-2.95.2; gforth-0.4.9 -DFORCE_REG; ELF

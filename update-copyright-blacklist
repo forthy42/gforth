@@ -6,6 +6,8 @@ blocked.fb
 bubble.fs
 config.guess
 config.sub
+dosconf.h
+os2conf.h
 elisp-comp
 fib.fs
 gforth.lsm
@@ -30,6 +32,12 @@ timings.sc
 tt.fs
 update-copyright-blacklist
 arch/386/disasm.fs
+arch/4stack/README
+arch/misc/README
+arch/misc/optcmove.fs
+arch/sharc/g21k-3.3.4-bp1.diff
+arch/shboom/asm.fs
+asm/README
 compat/README
 compat/anslocal.fs
 compat/assert.fs
@@ -50,6 +58,7 @@ doc/objects-implementation.obj
 doc/texinfo.tex
 doc/version.texi.in
 doc/vmgen.1
+ec/README
 engine/.cvsignore
 engine/ansidecl.h
 engine/fnmatch.c
@@ -60,6 +69,7 @@ engine/getopt1.c
 engine/strtol.c
 engine/strtoul.c
 kernel/.cvsignore
+netlib/README
 test/checkans.fs
 test/checkans.out
 test/coretest.fs
@@ -82,3 +92,4 @@ vmgen-ex2/simple.mini
 vmgen-ex2/stat.awk
 vmgen-ex2/test.mini
 vmgen-ex2/test.out
+wordlibs/README
