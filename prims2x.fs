@@ -647,7 +647,7 @@ stack inst-stream IP Cell
     2drop type ;
 
 : print-entry ( -- )
-    ." I_" prim prim-c-name 2@ type ." :" ;
+    ." CASE I_" prim prim-c-name 2@ type ." :" ;
     
 : output-c ( -- ) 
  print-entry ."  /* " prim prim-name 2@ type ."  ( " prim prim-stack-string 2@ type ." ) */" cr

@@ -142,6 +142,7 @@
 
 #define NEXT ({DEF_CA NEXT_P1; NEXT_P2;})
 #define IPTOS NEXT_INST
+#define CASE
 
 #ifdef VM_PROFILING
 #define SUPER_END  vm_count_block(IP)
