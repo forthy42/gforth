@@ -36,8 +36,8 @@ Create crlf #cr c, #lf c,
     ELSE  s" Gforth Proxy 0.1"  THEN  r@ writeln
     s" " r@ writeln r> ;
 
-Variable proxy s" localhost" proxy $!
-Variable proxy-port     3128 proxy-port !
+Variable proxy          s" proxy" proxy $! \ replace that with your proxy host
+Variable proxy-port     3128 proxy-port !  \ replace that with your proxy port
 
 : proxy-open ( host u request u -- fid )
     proxy $@ proxy-port @ request ;
@@ -158,14 +158,7 @@ Variable data-buffer
 
 \ handle proxy request
 
-: proxy-request ( host u request u -- )
-    proxy-open
-    dup >r get-response throw
-    r@ read-data r> close-file throw
-    convert-data write-response write-data ;
-
-: http-request ( host u request u -- )
-    http-open
+: handle-request ( fid -- )
     dup >r get-response throw
     r@ read-data r> close-file throw
     convert-data write-response write-data ;
@@ -191,12 +184,12 @@ DOES> ( -- addr u )
 : (redirect?) ( addr u -- addr' u' t / f )
     htmldir $! htmldir $@ bounds ?DO
 	I c@ '/ = IF  #lf I c!  THEN  LOOP
-    redirects 1 set-order
+    redirects 1 set-order redir$ $off
     htmldir $@ ['] evaluate catch
-    IF  2drop false  ELSE  true  THEN ;
+    IF  false  ELSE  redir$ @ 0<>  THEN ;
 
-: (redirect) ( addr u -- )
-    host$ $@ 2swap proxy-request maxnum off ;
+: (redirect) ( -- )
+    host$ $@ redir$ $@ proxy-open handle-request maxnum off ;
 
 ' (redirect?) IS redirect?
 ' (redirect) IS redirect
@@ -210,6 +203,6 @@ Vocabulary systems
 
 also systems definitions
 
-redirect: bigforth www.jwdt.com"http://www.jwdt.com/~paysan/"
+redirect: bigforth bigforth.sourceforge.net"http://bigforth.sourceforge.net/"
 
 previous previous definitions

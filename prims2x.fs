@@ -799,6 +799,11 @@ stack inst-stream IP Cell
     name-line @ 0 .r
     ." ,0" cr ;
 
+: output-vi-tag ( -- )
+    name-filename 2@ type #tab emit
+    prim prim-name 2@ type #tab emit
+    ." /^" prim prim-name 2@ type ."  *(/" cr ;
+
 [IFDEF] documentation
 : register-doc ( -- )
     prim prim-name 2@ documentation ['] create insert-wordlist

@@ -5,13 +5,12 @@
 p: ;s ( -- )
    regalloc-reset
    regalloc-flush
-   esi pop,
    ret,
 p;
 
 p: @                     ( addr -- n )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   #tos-cache #USEREGS = IF
     req-any 
     0 [tos0] tos0 mov, 
@@ -25,7 +24,7 @@ p: @                     ( addr -- n )
 
 p: !                     ( n addr -- )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any
   req-any
   tos1 0 [tos0] mov, 
@@ -33,37 +32,37 @@ p: !                     ( n addr -- )
 
 p: 1+                    ( n -- n+1 )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any 
   tos0 inc, p;
 
 p: CHAR+  			( addr -- addr+char)
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any 
   tos0 inc, p; 
 
 p: 1-
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any 
   tos0 dec, p;
 
 p: 2*
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any 
   1 ## tos0 shl, p;
 
 p: 2/
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any 
   1 ## tos0 sar, p;
 
 p: AND
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any
   req-any
   0 1 tos-swap
@@ -72,7 +71,7 @@ p: AND
 
 p: OR
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any
   req-any
   0 1 tos-swap
@@ -81,7 +80,7 @@ p: OR
 
 p: XOR
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any
   req-any
   0 1 tos-swap
@@ -90,7 +89,7 @@ p: XOR
 
 p: * 					( t1 t0 -- t1*t0 )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-edx 			\ tos0
   req-eax 			\ tos1
   tos0 mul, 
@@ -98,7 +97,7 @@ p: * 					( t1 t0 -- t1*t0 )
 
 p: +
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any req-any
   0 1 tos-swap
   tos0 tos1 add, 
@@ -106,26 +105,26 @@ p: +
 
 p: -
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any req-any
   tos0 tos1 sub, 
   1 reg-free p;
 
 p: INVERT
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any 
   tos0 not, p;
 
 p: NEGATE
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any 
   tos0 neg, p;
 
 p: C@
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any
   a-d-free
   free0 free0 xor,
@@ -135,14 +134,14 @@ p: C@
 
 p: C! ( c addr -- )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any req-a-d
   tos1l 0 [tos0] mov, 
   2 reg-free p;
 
 p: +!
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any
   req-any
   tos1 0 [tos0] add, 
@@ -150,7 +149,7 @@ p: +!
 
 p: 2!
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any
   req-any
   req-any
@@ -160,7 +159,7 @@ p: 2!
 
 p: 2@
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any
   req-free
   req-free
@@ -172,7 +171,7 @@ p: 2@
 
 p: 2OVER 		( n1 n2 n3 n4 --- n1 n2 n3 n4 n1 n2 )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any req-any req-any req-any
   req-free req-free
   tos3 free0 mov,
@@ -182,14 +181,14 @@ p: 2OVER 		( n1 n2 n3 n4 --- n1 n2 n3 n4 n1 n2 )
 
 p: 2SWAP 			( n1 n2 n3 n4 --- n3 n4 n1 2n )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any req-any req-any req-any
   1 3 tos-swap 
   0 2 tos-swap p;
 
 p: 2DUP 		( n1 n2 -- n1 n2 n1 n2 )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any req-any 
   req-free req-free
   tos1 free0 mov,
@@ -199,25 +198,25 @@ p: 2DUP 		( n1 n2 -- n1 n2 n1 n2 )
 
 p: DROP 			( n -- )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any 
   1 reg-free p;
 
 p: NIP 				( a b -- b )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any req-any 
   0 1 tos-swap 1 reg-free p;
 
 p: 2DROP 			( n1 n2 -- )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any req-any
   2 reg-free p;
 
 p: DUP 				( n -- n  n)
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any
   req-free
   tos0 free0 mov, 
@@ -226,7 +225,7 @@ p: DUP 				( n -- n  n)
 
 p: OVER 			( n1 n2 -- n1 n2 n1 )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any
   req-any
   req-free
@@ -235,7 +234,7 @@ p: OVER 			( n1 n2 -- n1 n2 n1 )
 
 p: ROT 				( n1 n2 n3 --- n2 n3 n1 )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any req-any req-any
   0 1 tos-swap 		\ t2 t0 t1 
   0 2 tos-swap p; 	\ t1 t0 t2 
@@ -244,7 +243,7 @@ p: ROT 				( n1 n2 n3 --- n2 n3 n1 )
 \ to ROT.
 p: -ROT 			( n1 n2 n3 --- n3 n1 n2 )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any req-any 
   req-any 		\ t2 t1 t0
   0 1 tos-swap 		\ t2 t0 t1 
@@ -252,7 +251,7 @@ p: -ROT 			( n1 n2 n3 --- n3 n1 n2 )
 
 p: TUCK 			( t1 t0 -- t0 t1 t0 )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any req-any 
   req-free
   tos0 free0 mov,
@@ -262,7 +261,7 @@ p;
 
 p: D0=
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any req-any
   tos0 tos1 or,
   tos1l setz,
@@ -272,7 +271,7 @@ p: D0=
   
 p: SWAP
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any
   req-any 
   0 1 tos-swap p;
@@ -283,7 +282,7 @@ p: SWAP
 \ back.
 p: 2>R 			
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any req-any req-free
   free0 pop,
   tos1 push,
@@ -294,7 +293,7 @@ p;
 
 p: 2R>
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-free req-free req-free
   free2 pop,
   free0 pop,
@@ -305,7 +304,7 @@ p: 2R>
 p;
 
 p: 2R@
-  ~~ regalloc-reset
+  regalloc-reset
   req-free req-free
   4 [esp] free0 mov,
   8 [esp] free1 mov,
@@ -314,7 +313,7 @@ p: 2R@
 
 p: >R
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any req-free
   free0 pop,
   tos0 push, 
@@ -324,7 +323,7 @@ p: >R
 
 p: R>
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-free req-free
   free1 pop,
   free0 pop,
@@ -332,7 +331,7 @@ p: R>
   0 free>tos p;
 
 p: R@
-  ~~ regalloc-reset
+  regalloc-reset
   req-free req-free
   free1 pop,
   0 [esp] free0 mov,
@@ -341,7 +340,7 @@ p: R@
   p;
 
 opt( '' DUP '' >R )opt:
-  ~~ regalloc-reset
+  regalloc-reset
   req-any req-free
   free0 pop,
   tos0 push,
@@ -350,7 +349,7 @@ opt( '' DUP '' >R )opt:
 ;opt
 
 opt( '' R> '' DROP )opt:
-  ~~ regalloc-reset
+  regalloc-reset
   req-free req-free
   free1 pop,
   free0 pop,
@@ -359,7 +358,7 @@ opt( '' R> '' DROP )opt:
 ;opt
 
 opt( '' DROP '' R> )opt:
-  ~~ regalloc-reset
+  regalloc-reset
   req-any req-free
   free0 pop,
   tos0 pop,
@@ -369,7 +368,7 @@ opt( '' DROP '' R> )opt:
 
 p: LSHIFT 				( x1 u -- x2 )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-ecx
   req-any
   tos0 tos1 shl, 
@@ -377,7 +376,7 @@ p: LSHIFT 				( x1 u -- x2 )
 
 p: RSHIFT 				( x1 u -- x2 )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-ecx 				\ tos0
   req-any 				\ tos1
   tos0 tos1 shr, 
@@ -385,7 +384,7 @@ p: RSHIFT 				( x1 u -- x2 )
 
 p: 0= 					( n -- f )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-a-d
   tos0 tos0 or,
   tos0l setz,
@@ -394,7 +393,7 @@ p: 0= 					( n -- f )
 
 p: 0< 					( n -- f )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-a-d
   tos0 tos0 or,
   tos0l setl,
@@ -403,7 +402,7 @@ p: 0< 					( n -- f )
 
 p: 0> 					( n -- f )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-a-d
   tos0 tos0 or,
   tos0l setg,
@@ -412,7 +411,7 @@ p: 0> 					( n -- f )
 
 p: 0<> 					( n -- f )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-a-d
   tos0 tos0 or,
   tos0l setnz,
@@ -421,7 +420,7 @@ p: 0<> 					( n -- f )
  
 p: = 					( n1 n2 -- f )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any
   req-any
   a-d-free
@@ -434,7 +433,7 @@ p: = 					( n1 n2 -- f )
 
 p: <> 					( n1 n2 -- f )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any
   req-any
   a-d-free
@@ -447,7 +446,7 @@ p: <> 					( n1 n2 -- f )
 
 p: < 					( n1 n2 -- f )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any
   req-any
   a-d-free
@@ -461,7 +460,7 @@ p: < 					( n1 n2 -- f )
 \ Perform a less or equal comparison. Equivalent to > INVERT
 p: <= 					( n1 n2 -- f )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any
   req-any
   a-d-free
@@ -474,7 +473,7 @@ p: <= 					( n1 n2 -- f )
 
 p: > 					( n1 n2 -- f )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any
   req-any
   a-d-free
@@ -488,7 +487,7 @@ p: > 					( n1 n2 -- f )
 \ Perform a greater or equal comparison. Equivalent to < INVERT
 p: >= 					( n1 n2 -- f )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any
   req-any
   a-d-free
@@ -501,7 +500,7 @@ p: >= 					( n1 n2 -- f )
 
 p: U< 					( n1 n2 -- f )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any
   req-a-d
   tos0 tos1 cmp,
@@ -512,7 +511,7 @@ p: U< 					( n1 n2 -- f )
 
 p: U> 					( n1 n2 -- f )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any
   req-a-d
   tos0 tos1 cmp,
@@ -523,7 +522,7 @@ p: U> 					( n1 n2 -- f )
 
 p: 2ROT ( x1 x2 x3 x4 x5 x6 -- x3 x4 x5 x6 x1 x2 )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any req-any req-any
   req-any req-any req-any 		\ t5 t4 t3 t2 t1 t0
   0 4 tos-swap 				\ t5 t0 t3 t2 t1 t4
@@ -533,7 +532,7 @@ p: 2ROT ( x1 x2 x3 x4 x5 x6 -- x3 x4 x5 x6 x1 x2 )
 
 p: FILL 				( addr cnt char -- )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-eax 				\ eax=char
   req-ecx 				\ ecx=cnt
   req-edi 				\ edi=addr
@@ -542,7 +541,7 @@ p: FILL 				( addr cnt char -- )
 
 p: D+ 					( d1 d2 -- d1+d2 )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any req-any req-any req-any
   tos1 tos3 add,
   tos0 tos2 adc,
@@ -550,7 +549,7 @@ p: D+ 					( d1 d2 -- d1+d2 )
 
 p: D- 					( d1 d2 -- d1-d2 )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any req-any req-any req-any
   tos1 tos3 sub,
   tos0 tos2 sbb,
@@ -558,7 +557,7 @@ p: D- 					( d1 d2 -- d1-d2 )
 
 p: D2* 					( d1 -- d2 )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any req-any
   clc,
   1 ## tos1 rcl,
@@ -566,7 +565,7 @@ p: D2* 					( d1 -- d2 )
 
 p: D2/ 					( d1l d1h -- d2l d2h )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any req-any req-free
   tos0 free0 mov,
   1 ## free0 rcl,
@@ -575,7 +574,7 @@ p: D2/ 					( d1l d1h -- d2l d2h )
 
 p: D0< 					( dl dh -- flag )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any req-any
   tos0 tos1 mov,
   31 ## tos1 sar,
@@ -583,7 +582,7 @@ p: D0< 					( dl dh -- flag )
 
 p: DNEGATE 				( dl dh -- d1l d1h )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any req-any
   tos0 neg,
   tos1 neg,
@@ -591,7 +590,7 @@ p: DNEGATE 				( dl dh -- d1l d1h )
 
 p: CMOVE 				( a1 a2 cnt -- )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-ecx 				\ ecx=cnt
   req-edi 				\ edi=a2
   req-esi 				\ esi=a1
@@ -600,7 +599,7 @@ p: CMOVE 				( a1 a2 cnt -- )
 
 p: CMOVE> 				( a1 a2 cnt -- )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-ecx 				\ ecx=cnt
   req-edi 				\ edi=a2
   req-esi 				\ esi=a1
@@ -615,21 +614,21 @@ p: CMOVE> 				( a1 a2 cnt -- )
 
 p: M* 					( n1 n2 -- d )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-edx
   req-eax
   edx imul, p;
 
 p: UM* 					( u1 u2 -- ud )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-edx
   req-eax
   edx mul, p;
 
 p: UM/MOD 				( ud un -- ur uq )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any 				\ un=tos0
   req-edx 				\ udh=edx=tos1=rem
   req-eax 				\ udl=eax=tos2=quot
@@ -639,7 +638,7 @@ p: UM/MOD 				( ud un -- ur uq )
 
 p: SM/REM 				( d1l d1h n1 -- nrem nquot )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-ebx
   req-edx
   req-eax
@@ -649,7 +648,7 @@ p: SM/REM 				( d1l d1h n1 -- nrem nquot )
 
 p: SP@ 				( -- sp )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-free
   ebp free0 mov,
   offs-ebp ## free0 add,
@@ -657,7 +656,7 @@ p: SP@ 				( -- sp )
 
 p: SP! 				( sp -- )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   regalloc-flush
   req-any
   1 reg-free
@@ -667,7 +666,7 @@ p: SP! 				( sp -- )
 \ Retrieve the current return stack pointer.
 p: RP@ 				( -- rp )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-free
   esp free0 mov,
   0 free>tos p;
@@ -676,14 +675,14 @@ p: RP@ 				( -- rp )
 \ segmentation fault immediate, but at the next call or return.
 p: RP! 				( rp -- )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any
   tos0 esp mov,
   1 reg-free p;
 
 p: DU< 				( d1l d1h d2l d2h -- flag )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any 			\ tos0=d2h
   req-any 			\ tos1=d2l
   req-any 			\ tos2=d1h
@@ -695,7 +694,7 @@ p: DU< 				( d1l d1h d2l d2h -- flag )
 
 p: PICK 			( n -- tos+n )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   regalloc-flush
   req-any
   tos0 inc,
@@ -705,7 +704,7 @@ p: PICK 			( n -- tos+n )
 
 p: COUNT 				( c-addr1 -- c-addr2 u )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any
   a-d-free
   free0 free0 xor,
@@ -715,19 +714,19 @@ p: COUNT 				( c-addr1 -- c-addr2 u )
 
 p: CELLS 				( x -- x*4 )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any
   2 ## tos0 shl, p;
 
 p: CELL+ 				( x -- x+4)
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-any
   4 ## tos0 add, p;
 
 p: / 					( n1 n2 -- n3 )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-edx 				\ n2=tos0=edx
   req-eax 				\ n1=tos1=eax
   req-free
@@ -739,7 +738,7 @@ p: / 					( n1 n2 -- n3 )
   
 p: MOD 					( n1 n2 -- n3 )
 ( OK )
-  ~~ regalloc-reset
+  regalloc-reset
   req-edx 				\ n2=tos0=edx
   req-eax 				\ n1=tos1=eax
   req-free
@@ -752,7 +751,7 @@ p: MOD 					( n1 n2 -- n3 )
   
 p: M+ 					( dl dh n -- dl dh )
 ( OK )
-   ~~ regalloc-reset
+   regalloc-reset
    req-any 				\ tos0=n
    req-any 				\ tos1=dh
    req-any 				\ tos2=dl
@@ -762,14 +761,14 @@ p: M+ 					( dl dh n -- dl dh )
 
 p: ALIGNED 				( addr -- addr2 )
 ( OK )
-   ~~ regalloc-reset
+   regalloc-reset
    req-any
    3 ## tos0 add,
    3 INVERT ## tos0 and, p;
 
 p: MAX 					( n1 n2 -- n3 )
 ( OK )
-   ~~ regalloc-reset
+   regalloc-reset
    req-any req-any
    tos0 tos1 cmp,
    0 jg,
@@ -779,7 +778,7 @@ p: MAX 					( n1 n2 -- n3 )
 
 p: MIN 					( n1 n2 -- n3 )
 ( OK )
-   ~~ regalloc-reset
+   regalloc-reset
    req-any req-any
    tos0 tos1 cmp,
    0 jl,
@@ -789,7 +788,7 @@ p: MIN 					( n1 n2 -- n3 )
 
 p: ABS 					( n1 -- n2 )
 ( OK )
-   ~~ regalloc-reset
+   regalloc-reset
    req-any
    tos0 tos0 or,
    0 jns,
@@ -813,7 +812,7 @@ opt( ''# '' 2/    )opt: ['] 2/    (_sizing) ;opt
 : (#arith) 				( xt -- )
   0 opt-getlit 				\ xt x
   0 2 opt-remove
-~~  regalloc-reset
+  regalloc-reset
   req-any
   ## tos0 EXECUTE ;
   
@@ -841,7 +840,7 @@ opt( ''# ''# '' XOR )opt: ['] XOR (##arith) ;opt
 opt( ''# '' @ )opt:
    0 opt-getlit  			\ addr
    0 2 opt-remove 
-   ~~ regalloc-reset
+   regalloc-reset
    req-free
    #[] free0 mov,
    0 free>tos ;opt
@@ -850,7 +849,7 @@ opt( ''# '' @ )opt:
 opt( ''# '' ! )opt:
    0 opt-getlit  			\ addr
    0 2 opt-remove 
-   ~~ regalloc-reset
+   regalloc-reset
    req-any
    tos0 #[] mov,
    1 reg-free ;opt
@@ -859,7 +858,7 @@ opt( ''# '' ! )opt:
 opt( ''# '' +! )opt:
    0 opt-getlit  			\ addr
    0 2 opt-remove 
-   ~~ regalloc-reset
+   regalloc-reset
    req-any
    tos0 #[] add,
    1 reg-free ;opt
@@ -867,14 +866,14 @@ opt( ''# '' +! )opt:
 \ Optimizer of + @ sequence.
 opt( ''# '' + '' @ )opt: 
     0 opt-getlit 			\ x
-~~    regalloc-reset
+   regalloc-reset
     req-any 				\ tos0=offs
     [tos0] tos0 mov, 
     0 3 opt-remove
     ;opt
     
 opt( '' + '' @ )opt:     
-    ~~ regalloc-reset
+    regalloc-reset
     req-any 				\ tos0=offs
     req-any 				\ tos1=addr
     0 [tos0+tos1] tos1 mov,
@@ -883,7 +882,7 @@ opt( '' + '' @ )opt:
     ;opt
 
 opt( '' OVER '' @ )opt: 
-  ~~ regalloc-reset
+  regalloc-reset
   req-any
   req-any
   req-free
@@ -892,7 +891,7 @@ opt( '' OVER '' @ )opt:
   0 2 opt-remove ;opt
 
 opt( '' OVER '' ! )opt:
-  ~~ regalloc-reset
+  regalloc-reset
   req-any 				\ tos0=x
   req-any 				\ tos1=addr
   tos0 0 [tos1] mov,
@@ -901,7 +900,7 @@ opt( '' OVER '' ! )opt:
 ;opt
 
 opt( '' DUP '' 1- )opt:
-  ~~ regalloc-reset
+  regalloc-reset
   req-any
   req-free
   -1 [tos0] free0 lea,
@@ -910,7 +909,7 @@ opt( '' DUP '' 1- )opt:
 ;opt
 
 opt( '' DUP '' CELL+ '' @ )opt:
-  ~~ regalloc-reset
+  regalloc-reset
   req-any
   req-free
   4 [tos0] free0 mov,
@@ -919,7 +918,7 @@ opt( '' DUP '' CELL+ '' @ )opt:
 ;opt
 
 \ opt( '' 0= '' ?branch )opt:
-\   ~~ regalloc-reset
+\   regalloc-reset
 \   req-any
 \   tos0 tos0 test,
 \   1 reg-free
@@ -929,7 +928,7 @@ opt( '' DUP '' CELL+ '' @ )opt:
 \ 
 \ : (#-rel-IF) 				( jmp-xt n-free -- orig )
 \   0 opt-getlit 				\ xt nf x rel?
-\   ~~ regalloc-reset
+\   regalloc-reset
 \   req-any
 \   ## tos0 cmp,
 \   reg-free
@@ -938,7 +937,7 @@ opt( '' DUP '' CELL+ '' @ )opt:
 \ ;
 \ 
 \ : (rel-IF) 				( jmp-xt nfree -- orig )
-\   ~~ regalloc-reset
+\   regalloc-reset
 \   req-any req-any
 \   tos0 tos1 cmp,
 \   1+ reg-free
@@ -976,7 +975,7 @@ opt( '' DUP '' CELL+ '' @ )opt:
 \ 
 \ 
 \ : (2DUP-rel-IF) 			( jmp-xt -- )
-\   ~~ regalloc-reset
+\   regalloc-reset
 \   req-any
 \   req-any
 \   tos0 tos1 cmp, 			\ jxt
@@ -1022,7 +1021,7 @@ opt( '' DUP '' CELL+ '' @ )opt:
 \ 
 \ : (#_log_IF) 				( log-xt -- )
 \   0 opt-getlit 				\ xt x rel?
-\   ~~ regalloc-reset
+\   regalloc-reset
 \   req-any
 \   ?+relocate
 \   ## tos0 EXECUTE
@@ -1032,7 +1031,7 @@ opt( '' DUP '' CELL+ '' @ )opt:
 \   ;
 \ 
 \ : (_log_IF) 				( log-xt -- )
-\   ~~ regalloc-reset 			\ xt
+\   regalloc-reset 			\ xt
 \   req-any
 \   req-any
 \   tos0 tos1 EXECUTE

@@ -2,8 +2,8 @@
 
 : tc-ahead POSTPONE branch >mark POSTPONE unreachable ; 
 : tc-if POSTPONE ?branch >mark ;
-: tc-else sys? POSTPONE ahead 1 cs-roll POSTPONE then ;
-: tc-then sys? dup orig? then-like ;
+: tc-else POSTPONE ahead  1 cs-roll  POSTPONE then ;
+: tc-then  dup orig?  then-like ;
 
 : nc-ahead (opt-flush) regalloc-flush tc-ahead ;
 : nc-if (opt-flush) regalloc-flush tc-if ;

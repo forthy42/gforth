@@ -123,7 +123,7 @@ CREATE free-cache #USEREGS CHARS ALLOT
 : (add-ebp) 			( n -- )
   offs-ebp + 			\ no
   DUP ABS 124 >= IF 		\ no
-    ## ebp add,
+    [ebp] ebp lea,
     0
   THEN
   TO offs-ebp ;
@@ -541,7 +541,7 @@ CREATE a-d-table VREG-EAX , VREG-EBX , VREG-ECX , VREG-EDX ,
     (flushreg) DROP
   REPEAT
   offs-ebp IF
-    offs-ebp ## ebp add,
+    BOFFS offs-ebp [ebp] ebp lea,
   THEN 0 TO offs-ebp ;
 
 \ flush all except 2 registers to stack and correct ebp
@@ -552,7 +552,7 @@ CREATE a-d-table VREG-EAX , VREG-EBX , VREG-ECX , VREG-EDX ,
     (flushreg) DROP
   REPEAT
   offs-ebp -8 <> IF
-    offs-ebp 8 + ## ebp add,
+    BOFFS offs-ebp 8 + [ebp] ebp lea,
   THEN
   -8 TO offs-ebp 
   ;
@@ -769,7 +769,7 @@ CREATE a-d-table VREG-EAX , VREG-EBX , VREG-ECX , VREG-EDX ,
   ELSE 					\ save? dest-offs
     OVER IF pushf, THEN 		\ save? dest-offs
     offs-ebp OVER - 
-    ## ebp add,
+    BOFFS [ebp] ebp lea,
     TO offs-ebp 			\ save?
     IF popf, THEN
   THEN ;

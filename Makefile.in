@@ -684,6 +684,9 @@ engines:	FORCE engine/Makefile engine/prim.i engine/prim_lab.i engine/peephole.i
 TAGS:		gforth.TAGS
 		$(CP) gforth.TAGS $@
 
+tags:		gforth.tags
+		$(CP) gforth.tags $@
+
 install.TAGS:	gforth.TAGS
 		sed 's:^\$(srcdir)/:$(datadir)/gforth/$(VERSION)/:' gforth.TAGS >install.TAGS
 
@@ -691,6 +694,11 @@ gforth.TAGS:	@kernel_fi@ gforth$(EXE) $(GFORTH_FI_SRC) prim.TAGS kernel.TAGS
 		$(FORTHK) etags.fs except.fs startup.fs -e bye
 		cat TAGS prim.TAGS kernel.TAGS >gforth.TAGS
 		rm TAGS
+
+gforth.tags:	@kernel_fi@ gforth$(EXE) $(GFORTH_FI_SRC) prim.tags kernel.tags
+		$(FORTHK) tags.fs except.fs startup.fs -e bye
+		cat tags prim.tags kernel.tags >gforth.tags
+		rm tags
 
 prim.TAGS: 	prim.b prims2x.fs
 		#echo '2c\' >prim.TAGS.sed
@@ -700,7 +708,18 @@ prim.TAGS: 	prim.b prims2x.fs
 		$(CP) $@- $@
 		$(RM) $@-
 
+prim.tags: 	prim.b prims2x.fs
+		#echo '2c\' >prim.TAGS.sed
+		#echo $(srcdir)/prim >>prim.TAGS.sed
+		#$(FORTHP) prims2x.fs -e "s\" $(srcdir)/prim.b\" ' output-tag dup process-file bye" | sed -f prim.TAGS.sed >$@-
+		$(FORTHP) prims2x.fs -e "s\" $(srcdir)/prim.b\" ' output-vi-tag dup process-file bye" >$@-
+		$(CP) $@- $@
+		$(RM) $@-
+
 kernel.TAGS:
+		rm kernl16l.fi-; $(MAKE) @kernel_fi@
+
+kernel.tags:
 		rm kernl16l.fi-; $(MAKE) @kernel_fi@
 
 doc/doc.fd:	doc/makedoc.fs $(GFORTH_FI_SRC) code.fs objects.fs oof.fs moofglos.fs

@@ -1964,11 +1964,13 @@ Variable to-doc  to-doc on
 \ Target TAGS creation
 
 s" kernel.TAGS" r/w create-file throw value tag-file-id
+s" kernel.tags" r/w create-file throw value vi-tag-file-id
 \ contains the file-id of the tags file
 
 Create tag-beg 2 c,  7F c, bl c,
 Create tag-end 2 c,  bl c, 01 c,
 Create tag-bof 1 c,  0C c,
+Create tag-tab 1 c,  09 c,
 
 2variable last-loadfilename 0 0 last-loadfilename 2!
 	    
@@ -1982,19 +1984,35 @@ Create tag-bof 1 c,  0C c,
 	s" ,0" tag-file-id write-line throw
     THEN ;
 
-: cross-tag-entry  ( -- )
+: cross-gnu-tag-entry  ( -- )
     tlast @ 0<>	\ not an anonymous (i.e. noname) header
     IF
 	put-load-file-name
 	source >in @ min tag-file-id write-file throw
 	tag-beg count tag-file-id write-file throw
-	tlast @ >image count 1F and tag-file-id write-file throw
+	Last-Header-Ghost @ >ghostname tag-file-id write-file throw
 	tag-end count tag-file-id write-file throw
 	base @ decimal sourceline# 0 <# #s #> tag-file-id write-file throw
 \	>in @ 0 <# #s [char] , hold #> tag-file-id write-line throw
 	s" ,0" tag-file-id write-line throw
 	base !
     THEN ;
+
+: cross-vi-tag-entry ( -- )
+    tlast @ 0<>	\ not an anonymous (i.e. noname) header
+    IF
+	sourcefilename vi-tag-file-id write-file throw
+	tag-tab count vi-tag-file-id write-file throw
+	Last-Header-Ghost @ >ghostname vi-tag-file-id write-file throw
+	tag-tab count vi-tag-file-id write-file throw
+	s" /^" vi-tag-file-id write-file throw
+	source vi-tag-file-id write-file throw
+	s" $/" vi-tag-file-id write-line throw
+    THEN ;
+
+: cross-tag-entry ( -- )
+    cross-gnu-tag-entry
+    cross-vi-tag-entry ;
 
 \ Check for words
 

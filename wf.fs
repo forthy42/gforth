@@ -299,7 +299,32 @@ Variable toc-link
 : >last ( addr link -- link' )
     BEGIN  dup @  WHILE  @  REPEAT  ! 0 ;
 
-: toc, ( n -- ) , 0 parse '| -$split 2swap here 0 , $! here 0 , $! ;
+Variable create-navs
+Variable nav$
+Variable nav-name
+Variable nav-file
+Create nav-buf 0 c,
+: nav+ ( char -- )  nav-buf c! nav-buf 1 nav-file $+! ;
+
+: >nav ( addr u -- addr' u' )
+    nav-name $!  create-navs @ 0=
+    IF  s" navigate/nav.scm" r/w create-file throw create-navs !  THEN
+    s' (script-fu-nav-file "' nav$ $! nav-name $@ nav$ $+!
+    s' " "./navigate/' nav$ $+!  s" " nav-file $!
+    nav-name $@ bounds ?DO
+	I c@  dup 'A 'Z 1+ within IF  bl + nav+
+	ELSE  dup 'a 'z 1+ within IF  nav+
+	ELSE  dup '0 '9 1+ within IF  nav+
+	ELSE  dup  bl = swap '- = or IF  '- nav+
+	THEN  THEN  THEN  THEN
+	LOOP
+    nav-file $@ nav$ $+! s' .jpg")' nav$ $+!
+    nav$ $@ create-navs @ write-line throw
+    s" [" nav$ $! nav-name $@ nav$ $+!
+    s" |-navigate/" nav$ $+! nav-file $@ nav$ $+! s" .jpg" nav$ $+!
+    nav$ $@ ;
+
+: toc, ( n -- ) , '| parse >nav here 0 , $! 0 parse here 0 , $! ;
 : up-toc   align here toc-link >last , 0 toc, ;
 : top-toc  align here toc-link >last , 1 toc, ;
 : this-toc align here toc-link >last , 2 toc, ;

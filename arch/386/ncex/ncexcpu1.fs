@@ -19,9 +19,7 @@
 \ and just setting IP to the return-to-nc code
 \ 
 \ The native code uses ebp as stack pointer and esp as return pointer. All
-\ other registers are free to be used by the code. The top of the return
-\ stack contains the address of the C stack frame. This value is preserved
-\ across calls.
+\ other registers are free to be used by the code.
 \ 
 \ A call to theaded code therefore has to normalize the stack. We then put
 \ SP and RP into place, set up IP to our return word, and restore C's stack
@@ -34,7 +32,6 @@
 \ and call directly into the data field.
 
 Variable c-stack \ C's stack
-Variable t-ip    \ threaded IP
 
 \ Native code literal compiler.
 : nc-literal ( x -- )
@@ -53,34 +50,34 @@ Variable t-ip    \ threaded IP
 \ contains the address of the native code in the first cell.
 
 Create return-to-nc
-    esi DWORD c-stack #[] mov,
+    esp DWORD c-stack #[] mov,
     edi esp mov,
-    ebx -4 [esi] mov,
-    -4 [esi] ebp lea,
+    ebx 0 [esi] mov,
+    esi ebp mov,
     ret,
 
 Create call-tc return-to-nc ,
 
 Create nc-to-tc ( xt -- )
+  eax pop,  4 ## eax add,  eax push,
   esp edi mov,
-  0 [ebp] eax mov,
-  4 [ebp] ebx mov, \ restore TOS
-  4 [ebp] esi lea,
+  0 [ebp] ebx mov, \ restore TOS
+  ebp esi mov,
   ( Fake an execute )
   DWORD c-stack #[] esp mov,
   call-tc ## ebp mov,
-  eax jmp,
+  DWORD -4 [eax] jmp,
 
 Create wrapper
   eax pop, \ that's were the native code will start
   esp DWORD c-stack #[] mov,
   edi esp mov,
   ebp push, \ save IP
-  ebx -4 [esi] mov,
-  -4 [esi] ebp lea,
+  ebx 0 [esi] mov,
+  esi ebp mov,
   3 ## eax add,
-  eax call,
-  0 [ebp] ebx mov,
+  eax call, \ call native code word
+  0 [ebp] ebx mov, \ that's where we return
   ebp esi mov,
   ebp pop,
   esp edi mov,
@@ -92,17 +89,14 @@ Create wrapper
 : nc-to-nc, ( xt -- )      
   regalloc-reset
   regalloc-flush
-  esi pop,
   >body ## call,
-  esi push,
   ;
 
-: nc-to-tc, ( -- )
-    ['] nc-to-tc nc-to-nc, ;
+: nc-to-tc, ( xt -- )
+    ['] nc-to-tc nc-to-nc, , ;
     
 \ Compile the prefix code of a colon definition.
 : (nc-:), ( -- ) ( rt: esi: csf -- )
-  esi push,
   ;
   
 \ Calling gateway. Generates native code to call threaded or native code

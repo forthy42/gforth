@@ -27,8 +27,8 @@
 : redefer ( xt "name" -- )
   my-' tuck \ name-xt xt name-xt
   >body ! \ name-xt
-  >body cell+ ['] unnest swap !
-\  dodefer: swap code-address! 
+  dup >body cell+ ['] unnest swap !
+  dodefer: swap code-address! 
   ;
 
 \ Same as normal is, but works on restricted words too.
@@ -41,55 +41,61 @@
 \ load sp and rp from the variables which are either registers or in a stack
 \ frame. Since this is system and CPU dependent, the code for the generation
 \ of that is in ncexcpu1.fs . 
-: generate-wrapper ( xt -- )
-  wrapper \ xt code-addr
-  swap code-address! \ xt
+: generate-wrapper ( -- )
+  wrapper cfa, \ xt code-addr
   ;
 
 \ --------------------------- threaded code compiler ---------------------------
 : (tc-literal) postpone lit , ;
-: (tc-aliteral) postpone lit a, ;
+\ : (tc-aliteral) postpone lit a, ;
 
-: (tc-:) ( "name" -- colon-sys )
-  Header docol: cfa, defstart ] :-hook ;
+: (tc-:noname) ( -- xt colon-sys ) \ core-ext	colon-no-name
+    0 last !  cfalign here (:noname) ;
+: (tc-:) ( "name" -- colon-sys ) \ core	colon
+    Header (:noname) ;
 
-: (tc-;) ( compilation colon-sys -- ; run-time nest-sys )
-  ;-hook ?struc postpone exit reveal postpone [ ;
+: (tc-;) ( compilation colon-sys -- ; run-time nest-sys ) \ core semicolon
+    ;-hook ?struc postpone exit reveal postpone [ ;
 
-: (tc-:noname) ( -- xt colon-sys )
-  0 last ! cfalign here docol: cfa, 0 ] :-hook ;
-
-: (tc-compile,) ( xt -- )
-  , ;
+what's compile, Alias (tc-compile,) ( xt -- )
 
 : (tc-SLiteral) ( Compilation c-addr1 u ; run-time -- c-addr2 u ) \ string
     postpone (S") here over char+ allot  place align ;
 
-' (tc-literal) redefer literal
-' (tc-aliteral) redefer aliteral
-' (tc-;) redefer ;
-' (tc-:) redefer :
-' (tc-:noname) redefer :noname
-' (tc-compile,) redefer compile,
-' (tc-SLiteral) redefer sliteral
-
-' tc-ahead redefer ahead
-' tc-if redefer if
-' tc-else redefer else
-' tc-then redefer then
-  
 \ ---------------------------- native code compiler ----------------------------
+
 : (nc-literal) ( x -- )
   (opt-add-const) ;
 
 : (nc-compile,) ( xt -- )
-  (opt-add-xt) 
-  ;
+  (opt-add-xt) ;
+
+: nc-compiler ( addr u -- )
+    2dup find-name dup
+    if ( c-addr u nt )
+	nip nip name>comp execute
+    else
+	drop
+	2dup snumber? dup
+	IF
+	    0>
+	    IF
+		swap (nc-literal)
+	    THEN
+	    (nc-literal)
+	    2drop
+	ELSE
+	    drop compiler-notfound
+	THEN
+    then ;
+
+: nc-] ( -- ) \ core	right-bracket
+    \G Enter compilation state.
+    ['] nc-compiler     IS parser state on  ;
 
 : ((nc-:)) ( -- xt colon-sys )
   here \ xt
-  dup >body cfa,
-  defstart ] 
+  generate-wrapper nc-] 
   regalloc-init
   (nc-:),
   ;
@@ -102,10 +108,9 @@
 
 : (nc-;) ( compilation colon-sys -- ; run-time nest-sys )
   (opt-flush) 
-  ?struc 
-  postpone exit (opt-flush)
-  lastxt 
-  generate-wrapper
+\  ?struc 
+  postpone exit
+  (opt-flush)
   reveal postpone [ 
   ; 
 
@@ -156,5 +161,18 @@
 
 : init-ncex ( -- )
   threaded (asm-reset)
-  threading-method 1 <> abort" NCEX supportss only ITC."
+\  threading-method 1 <> abort" NCEX supportss only ITC."
   ; 
+
+' (tc-literal) redefer literal
+' (tc-literal) redefer aliteral
+' (tc-;) redefer ;
+' (tc-:) redefer :
+' (tc-:noname) redefer :noname
+' (tc-SLiteral) redefer sliteral
+
+' tc-ahead redefer ahead
+' tc-if redefer if
+' tc-else redefer else
+' tc-then redefer then
+  
