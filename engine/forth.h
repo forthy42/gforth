@@ -84,8 +84,13 @@ typedef struct {
   UCell lo;
 } UDCell;
 
-#define OFF2UD(o) ({UDCell _ud; _ud.hi=(o)>>CELL_BITS; _ud.lo=(Cell)(o); _ud;})
+#if SMALL_OFF_T
+#define OFF2UD(o) ({UDCell _ud; _ud.hi=0; _ud.lo=(Cell)(o); _ud;})
+#define UD2OFF(ud) ((ud).lo)
+#else /* !SMALL_OFF_T */
+#define OFF2UD(o) ({UDCell _ud; off_t _o=(o); _ud.hi=_o>>CELL_BITS; _ud.lo=(Cell)_o; _ud;})
 #define UD2OFF(ud) ({UDCell _ud=(ud); (((off_t)_ud.hi)<<CELL_BITS)+_ud.lo;})
+#endif /* !SMALL_OFF_T */
 #define DZERO		((DCell){0,0})
 
 #else /* ! defined(BUGGY_LONG_LONG) */
