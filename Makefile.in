@@ -72,6 +72,7 @@ FORTH_FAST	= $(ENGINE_FAST) $(FORTH_ARGS)
 FORTHKFLAGS= --die-on-signal -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)" -i $(kernel_fi)
 FORTHK	= $(ENGINE) $(FORTHKFLAGS)
 FORTHP	= $(ENGINE) --die-on-signal -i ./$(kernel_fi)
+STARTUP	= -e 3 exboot.fs startup.fs
 STRIP	= strip
 TEXI2DVI = texi2dvi -e
 DVI2PS	= dvips -Z
@@ -455,7 +456,7 @@ install:	gforth$(EXE) $(FORTH_SRC) $(kernel_fi) gforth.fi gforthmi doc/gforth.1 
 		done
 		$(INSTALL_DATA) $(kernel_fi) $(datadir)/gforth/$(VERSION)
 		$(RM) gforth.fi
-		GFORTHD="./gforth-ditc -p$(libdir)/gforth/site-forth$(PATHSEP)$(siteforthdir)$(PATHSEP)$(datadir)/gforth/$(VERSION) -i $(kernel_fi)" GFORTH="./gforth-ditc --die-on-signal -i $(kernel_fi) startup.fs" ./gforthmi gforth.fi $(FORTHSIZES) startup.fs #gforth.fi contains some path names
+		GFORTHD="./gforth-ditc -p$(libdir)/gforth/site-forth$(PATHSEP)$(siteforthdir)$(PATHSEP)$(datadir)/gforth/$(VERSION) -i $(kernel_fi)" GFORTH="./gforth-ditc --die-on-signal -i $(kernel_fi) $(STARTUP)" ./gforthmi gforth.fi $(FORTHSIZES) $(STARTUP) #gforth.fi contains some path names
 		$(INSTALL_DATA) gforth.fi $(libdir)/gforth/$(VERSION)
 		$(INSTALL_DATA) install.TAGS $(datadir)/gforth/$(VERSION)/TAGS
 		# after install, remove these because they are owned by ROOT
@@ -566,7 +567,7 @@ kernl64l.fi:	$(KERNLS)
 #		-$(CP) $< $@
 
 gforth.fi:	$(kernel_fi) gforthmi gforth$(EXE) gforth-ditc$(EXE) $(GFORTH_FI_SRC)
-		GFORTHD="./gforth-ditc -p .$(PATHSEP)$(srcdir)" GFORTH="./gforth-ditc --die-on-signal -p .$(PATHSEP)$(srcdir) -i $(kernel_fi) startup.fs" ./gforthmi gforth.fi $(FORTHSIZES) $(FORTHKFLAGS) startup.fs
+		GFORTHD="./gforth-ditc -p .$(PATHSEP)$(srcdir)" GFORTH="./gforth-ditc --die-on-signal -p .$(PATHSEP)$(srcdir) -i $(kernel_fi) $(STARTUP)" ./gforthmi gforth.fi $(FORTHSIZES) $(FORTHKFLAGS) $(STARTUP)
 
 # -------------	Make c-engine
 
@@ -629,7 +630,7 @@ install.TAGS:	gforth.TAGS
 		sed 's:^\$(srcdir)/:$(datadir)/gforth/$(VERSION)/:' gforth.TAGS >install.TAGS
 
 gforth.TAGS:	@kernel_fi@ gforth $(GFORTH_FI_SRC) prim.TAGS
-		$(FORTHK) etags.fs startup.fs -e bye
+		$(FORTHK) etags.fs exceptions.fs startup.fs -e bye
 		cat TAGS prim.TAGS kernel.TAGS >gforth.TAGS
 		rm TAGS
 
@@ -639,7 +640,7 @@ prim.TAGS: 	prim.b prims2x.fs
 		$(RM) $@-
 
 doc/doc.fd:	doc/makedoc.fs $(GFORTH_FI_SRC) code.fs objects.fs oof.fs moofglos.fs
-		$(FORTHK) -e "s\" doc/doc.fd\"" doc/makedoc.fs startup.fs code.fs objects.fs oof.fs moofglos.fs -e bye
+		$(FORTHK) -e "s\" doc/doc.fd\"" doc/makedoc.fs exceptions.fs startup.fs code.fs objects.fs oof.fs moofglos.fs -e bye
 
 doc/crossdoc.fd:	$(KERN_SRC) kernel/version.fs $(FORTH_GEN0)
 		$(FORTHK) -e 's" mach32l.fs"' kernel/main.fs -e bye

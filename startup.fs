@@ -18,9 +18,9 @@
 \ along with this program; if not, write to the Free Software
 \ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+\ require exceptions.fs \ included on command line
 warnings off
 include search.fs
-require exceptions.fs
 include environ.fs
 include envos.fs
 include errors.fs
