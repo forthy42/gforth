@@ -141,7 +141,7 @@ Constant dictionary-end
 : accumulate ( +d0 addr digit - +d1 addr )
   swap >r swap  base @  um* drop rot  base @  um* d+ r> ;
 
-: >number ( d addr count -- d addr count ) \ core
+: >number ( d1 addr1 count1 -- d2 addr2 count2 ) \ core
     0
     ?DO
 	count digit?

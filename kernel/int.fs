@@ -82,8 +82,8 @@ Defer source ( -- addr count ) \ core
 hex
 const Create bases   10 ,   2 ,   A , 100 ,
 \                     16     2    10   character
-\ !! this saving and restoring base is an abomination! - anton
 
+\ !! protect BASE saving wrapper against exceptions
 : getbase ( addr u -- addr' u' )
     over c@ [char] $ - dup 4 u<
     IF
@@ -92,38 +92,47 @@ const Create bases   10 ,   2 ,   A , 100 ,
 	drop
     THEN ;
 
-: s>number ( addr len -- d )
+\ ouch, this is complicated; there must be a simpler way - anton
+: s>number? ( addr len -- d f )
+    \ converts string addr len into d, flag indicates success
     base @ >r  dpl on
     over c@ '- =  dup >r
     IF
 	1 /string
     THEN
-    getbase  dpl on  0 0 2swap
-    BEGIN
+    getbase  dpl on  0. 2swap
+    BEGIN ( d addr len )
 	dup >r >number dup
-    WHILE
+    WHILE \ there are characters left
 	dup r> -
-    WHILE
-	dup dpl ! over c@ [char] . =
-    WHILE
+    WHILE \ the last >number parsed something
+	dup 1- dpl ! over c@ [char] . =
+    WHILE \ the current char is '.'
 	1 /string
-    REPEAT  THEN
-        2drop rdrop dpl off
-    ELSE
+    REPEAT  THEN \ there are unparseable characters left
+        2drop rdrop false
+    ELSE \ no characters left, all ok
 	2drop rdrop r>
 	IF
 	    dnegate
 	THEN
+	true
     THEN
     r> base ! ;
 
+: s>number ( addr len -- d )
+    \ don't use this, there is no way to tell success
+    s>number? drop ;
+
 : snumber? ( c-addr u -- 0 / n -1 / d 0> )
-    s>number dpl @ 0=
+    s>number? 0=
     IF
 	2drop false  EXIT
     THEN
-    dpl @ dup 0> 0= IF
+    dpl @ dup 0< IF
 	nip
+    ELSE
+	1+
     THEN ;
 
 : number? ( string -- string 0 / n -1 / d 0> )
