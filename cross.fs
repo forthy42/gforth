@@ -864,7 +864,7 @@ float             	Constant tfloat
 bits/byte		Constant tbits/byte
 [THEN]
 H
-tbits/byte bits/byte /	Constant tbyte
+tbits/char bits/byte /	Constant tbyte
 
 
 \ Variables                                            06oct92py

@@ -42,12 +42,16 @@ has? os [IF]
 [THEN]
 
 undef-words
-    
+
 Defer type ( c-addr u -- ) \ core
   \G If @var{u}>0, display @var{u} characters from a string starting
   \G with the character stored at @var{c-addr}.
+[IFDEF] write-file
+: (type) 0 write-file drop ;
+[ELSE]
 : (type) BEGIN dup WHILE
     >r dup c@ (emit) 1+ r> 1- REPEAT 2drop ;
+[THEN]
 
 [IFDEF] (type) ' (type) IS Type [THEN]
 

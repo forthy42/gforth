@@ -53,7 +53,7 @@ Variable bitmap-chars
 : read-header ( fd -- )
     image-header 4 cells rot read-file throw drop
     image-header 2 cells + @ bswap tchars @ * au @ /
-    dup cell / image-cells ! 1- 8 cells / 1+ bitmap-chars !
+    dup image-cells ! 1- 8 / tchars @ / 1+ bitmap-chars !
     image-cells @ cells allocate throw to image
     bitmap-chars @ allocate throw to bitmap ;
 
@@ -61,7 +61,7 @@ Variable bitmap-chars
     image image-cells @ cells r> read-file throw drop ;
 
 : read-bitmap ( fd -- )  >r
-    bitmap bitmap-chars @ r> read-file throw drop ;
+    bitmap bitmap-chars @ tchars @ * r> read-file throw drop ;
 
 : .08x ( n -- ) 0 <# tcell  @ 0 ?DO # # LOOP 'x hold '0 hold #> type ;
 : .02x ( n -- ) 0 <# tchars @ 0 ?DO # # LOOP 'x hold '0 hold #> type ;
@@ -72,7 +72,7 @@ Variable bitmap-chars
 	4 +LOOP ;
 
 : .reloc ( -- )
-    bitmap-chars @ 0 ?DO
+    bitmap-chars @ tchars @ * 0 ?DO
 	I $10 + I' min I ?DO  space
 	    0 I tchars @ bounds ?DO  8 lshift bitmap I + c@ +  LOOP
 	    .02x ." ," tchars @ +LOOP cr
@@ -85,10 +85,10 @@ Variable bitmap-chars
     r@ read-dictionary r@ read-bitmap r> close-file throw ;
 
 : .imagesize ( -- )
-    image-header 3 cells + @ bswap tcell @ / tchars @ * au @ / .08x ;
+    image-header 3 cells + @ bswap .08x ;
 
 : .relocsize ( -- )
-    bitmap-chars @ 1- tchars @ / 1+ .08x ;
+    bitmap-chars @ .08x ;
 
 : fi2c ( addr u -- )  base @ >r hex
     read-image

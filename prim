@@ -1663,18 +1663,19 @@ else {
 }
 
 \+
-\+file
 
 write-file	c_addr u1 wfileid -- wior	file	write_file
 /* !! fwrite does not guarantee enough */
+#ifdef HAS_FILE
 {
   UCell u2 = fwrite(c_addr, sizeof(Char), u1, (FILE *)wfileid);
   wior = FILEIO(u2<u1 && ferror((FILE *)wfileid));
   if (wior)
     clearerr((FILE *)wfileid);
 }
-
-\+
+#else
+TYPE(c_addr, u1);
+#endif
 
 emit-file	c wfileid -- wior	gforth	emit_file
 #ifdef HAS_FILE

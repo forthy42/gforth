@@ -45,6 +45,7 @@ Variable last-block
 $20 Value buffers
 
 User block-fid
+User offset   0 offset !  \ store 1 here fore 0.4.0 compatibility
 
 : block-cold ( -- )
     block-fid off  last-block off
@@ -87,7 +88,7 @@ Defer flush-blocks ( -- ) \ gforth
 
 : block-position ( u -- ) \ block
     \G Position the block file to the start of block @i{u}.
-    1- chars/block chars um* get-block-fid reposition-file throw ;
+    offset @ - chars/block chars um* get-block-fid reposition-file throw ;
 
 : update ( -- ) \ block
     \G Mark the current block buffer as dirty.
@@ -127,8 +128,8 @@ Defer flush-blocks ( -- ) \ gforth
 
 ' flush IS flush-blocks
 
-: get-buffer ( n -- a-addr ) \ gforth
-    buffers mod buffer-struct %size * block-buffers @ + ;
+: get-buffer ( u -- a-addr ) \ gforth
+    0 buffers um/mod drop buffer-struct %size * block-buffers @ + ;
 
 : block ( u -- a-addr ) \ block- block
     \G If a block buffer is assigned for block @i{u}, return its
@@ -137,7 +138,7 @@ Defer flush-blocks ( -- ) \ gforth
     \G @code{update}d, transfer the contents to mass storage), read
     \G the block into the block buffer and return its start address,
     \G @i{a-addr}.
-    dup 0= -35 and throw
+    dup offset @ u< -35 and throw
     dup get-buffer >r
     dup r@ buffer-block @ <>
     r@ buffer-fid @ block-fid @ <> or
