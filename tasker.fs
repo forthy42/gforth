@@ -20,47 +20,58 @@
 
 Create sleepers  sleepers A, sleepers A, 0 ,
 
-\ LINK-TASK links task1 into the task chain of task2
 : link-task ( task1 task2 -- )
-  over 2@  2dup cell+ ! swap !  \ unlink task1
-  2dup @ cell+ !  2dup dup @ rot 2!  ! ;
+    \G LINK-TASK links task1 into the task chain of task2
+    over 2@  2dup cell+ ! swap !  \ unlink task1
+    2dup @ cell+ !  2dup dup @ rot 2!  ! ;
 
-: sleep ( task -- )  sleepers  link-task ;
-: wake  ( task -- )  next-task link-task ;
+: sleep ( task -- )
+    \G deactivates task
+    sleepers  link-task ;
+: wake  ( task -- )
+    \G activates task
+    next-task link-task ;
 
-\ PAUSE is the task-switcher
 : pause ( -- )
-  rp@ fp@ lp@ sp@ save-task !
-  next-task @ up! save-task @ sp!
-  lp! fp! rp! ;
+    \G PAUSE is the task-switcher
+    rp@ fp@ lp@ sp@ save-task !
+    next-task @ up! save-task @ sp!
+    lp! fp! rp! ;
 
-\ STOP sleeps a task and switches to the next
 : stop ( -- )
-  rp@ fp@ lp@ sp@ save-task !
-  next-task @ up! save-task @ sp!
-  lp! fp! rp! prev-task @ sleep ;
+    \G STOP sleeps a task and switches to the next
+    rp@ fp@ lp@ sp@ save-task !
+    next-task @ up! save-task @ sp!
+    lp! fp! rp! prev-task @ sleep ;
 
-\ USER' computes the task offset
 :noname    ' >body @ ;
 :noname    ' >body @ postpone literal ; 
 interpret/compile: user' ( 'user' -- n )
+\G USER' computes the task offset of a user variable
 
-\ NEWTASK creates a new, sleeping task
-: NewTask ( n -- Task )  dup 2* 2* udp @ + dup
-  allocate throw  + >r
-  r@ over - udp @ - next-task over udp @ move
-  r> over user' rp0 + ! dup >r
-  dup r@ user' lp0   + ! over -
-  dup r@ user' fp0   + ! over -
-  dup r@ user' sp0   + ! over -
-  dup r@ user' normal-dp + dup >r !
-   r> r@ user' dpp  + ! 2drop
+: NewTask ( stacksize -- Task )  dup 2* 2* udp @ + dup
+    \G NEWTASK creates a new, sleeping task
+    allocate throw  + >r
+    r@ over - udp @ - next-task over udp @ move
+    r> over user' rp0 + ! dup >r
+    dup r@ user' lp0   + ! over -
+    dup r@ user' fp0   + ! over -
+    dup r@ user' sp0   + ! over -
+    dup r@ user' normal-dp + dup >r !
+    r> r@ user' dpp  + ! 2drop
     0 r@ user' current-input + !
-  r> dup 2dup 2! dup sleep ;
+    r> dup 2dup 2! dup sleep ;
 
-: kill-task
-  next-task @ up! save-task @ sp!
-  lp! fp! rp! prev-task @ dup dup link-task user' normal-dp + @ free throw ;
+Create killer killer A, killer A,
+: kill ( task -- )
+    \G kills a task - deactivate and free task area
+    dup killer link-task  killer dup dup 2!
+    user' normal-dp + @ free throw ;
+
+: kill-task ( -- )
+    \G kills the current task, also on bottom of return stack of a new task
+    next-task @ up! save-task @ sp!
+    lp! fp! rp! prev-task @ kill ;
 
 : (pass) ( x1 .. xn n task -- )  rdrop
   [ ' kill-task >body ] ALiteral r>
@@ -71,10 +82,17 @@ interpret/compile: user' ( 'user' -- n )
   cells r@ user' sp0 + @ tuck swap - dup r@ user' save-task + !
   ?DO  I !  cell  +LOOP  r> wake ;
 
-: activate ( task -- )  0 swap (pass) ;
-: pass ( x1 .. xn n task -- )  (pass) ;
+: activate ( task -- )
+    \G activates the task.
+    \G Continues execution with the caller of ACTIVATE.
+    0 swap (pass) ;
+: pass ( x1 .. xn n task -- )
+    \G passes n parameters to the task and activates that task.
+    \G Continues execution with the caller of PASS.
+    (pass) ;
 
 : single-tasking? ( -- flag )
+    \G checks if only one task is running
     next-task dup @ = ;
 
 : task-key   BEGIN  pause key? single-tasking? or  UNTIL  (key) ;
