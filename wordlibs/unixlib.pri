@@ -1,9 +1,7 @@
 alarm	u --	unixlib
-#include <unistd.h>
 alarm(u);
 
 timeusec	-- u_usec u_sec	unixlib
-#include <time.h>
 struct timeval tv;
 struct timezone zone1;
  gettimeofday(&tv,&zone1);
@@ -53,7 +51,7 @@ if (BT[i]!=1)
 setttyraw	u -- wior	unixlib
 struct termios tm;
 tcgetattr(u,&tm);
-cfmakeraw(&tm);
+/* cfmakeraw(&tm); !!!!???? worked with linux, but nut on solaris */
 tcsetattr(u,TCSANOW,&tm);
 wior=0;
 

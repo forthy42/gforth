@@ -1,7 +1,7 @@
 
-require ~+wordlib.fs
+require ./../wordlib.fs
 
-WordLibrary unixlib ~+/unixlib.so
+WordLibrary unixlib ./unixlib.so
 
 : cconst"
   '" word count
