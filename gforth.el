@@ -1,6 +1,6 @@
 ;;; gforth.el --- major mode for editing (G)Forth sources
 
-;; Copyright (C) 1995,1996,1997,1998,2000 Free Software Foundation, Inc.
+;; Copyright (C) 1995,1996,1997,1998,2000,2001 Free Software Foundation, Inc.
 
 ;; This file is part of Gforth.
 
@@ -161,6 +161,7 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 	  "create-interpret/compile")
 	 non-immediate (font-lock-type-face . 2)
 	 "[ \t\n]" t name (font-lock-variable-name-face . 3))
+	("\\S-+%" non-immediate (font-lock-type-face . 2))
 	(("defer" "alias" "create-interpret/compile:") 
 	 non-immediate (font-lock-type-face . 1)
 	 "[ \t\n]" t name (font-lock-function-name-face . 3))
@@ -571,11 +572,16 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 (defvar forth-indent-words nil 
   "List of words that have indentation behaviour.
 Each element of `forth-indent-words' should have the form
-   (MATCHER INDENT1 INDENT2) 
+   (MATCHER INDENT1 INDENT2 &optional TYPE) 
   
 MATCHER is either a list of strings to match, or a REGEXP.
    If it's a REGEXP, it should not be surrounded by `\\<` or `\\>`, since 
    that'll be done automatically by the search routines.
+
+TYPE might be omitted. If it's specified, the only allowed value is 
+   currently the symbol `non-immediate', meaning that the word will not 
+   have any effect on indentation inside definitions. (:NONAME is a good 
+   example for this kind of word).
 
 INDENT1 specifies how to indent a word that's located at a line's begin,
    following any number of whitespaces.
@@ -595,19 +601,22 @@ INDENT1 and INDENT2 are indentation specifications of the form
    1 * forth-indent-level + forth-minor-indent-level  columns to the right.")
 
 (setq forth-indent-words
-      '(((":" ":noname" "code" "if" "begin" "do" "?do" "+do" "-do" "u+do"
-	  "u-do" "?dup-if" "?dup-0=-if" "case" "of" "try" "struct" 
-	  "[if]" "[ifdef]" "[ifundef]" "[begin]" "[for]" "[do]" "[?do]"
-	  "class" "interface" "m:" ":m")
+      '((("if" "begin" "do" "?do" "+do" "-do" "u+do"
+	  "u-do" "?dup-if" "?dup-0=-if" "case" "of" "try" 
+	  "[if]" "[ifdef]" "[ifundef]" "[begin]" "[for]" "[do]" "[?do]")
 	 (0 . 2) (0 . 2))
+	((":" ":noname" "code" "struct" "m:" ":m" "class" "interface")
+	 (0 . 2) (0 . 2) non-immediate)
+	("\\S-+%$" (0 . 2) (0 . 0) non-immediate)
 	((";" ";m") (-2 . 0) (0 . -2))
-	(("end-code" "again" "repeat" "then" "endtry" "endcase" "endof" 
-	  "end-struct" "[then]" "[endif]" "[loop]" "[+loop]" "[next]" 
-	  "[until]" "[repeat]" "[again]" "end-class" "end-interface"
-	  "end-class-noname" "end-interface-noname" "loop"
-	  "class;")
+	(("again" "repeat" "then" "endtry" "endcase" "endof" 
+	  "[then]" "[endif]" "[loop]" "[+loop]" "[next]" 
+	  "[until]" "[repeat]" "[again]" "loop")
 	 (-2 . 0) (0 . -2))
-	(("protected" "public" "how:") (-1 . 1) (0 . 0))
+	(("end-code" "end-class" "end-interface" "end-class-noname" 
+	  "end-interface-noname" "end-struct" "class;")
+	 (-2 . 0) (0 . -2) non-immediate)
+	(("protected" "public" "how:") (-1 . 1) (0 . 0) non-immediate)
 	(("+loop" "-loop" "until") (-2 . 0) (-2 . 0))
 	(("else" "recover" "[else]") (-2 . 2) (0 . 0))
 	(("while" "does>" "[while]") (-1 . 1) (0 . 0))
@@ -646,12 +655,19 @@ End:\" construct).")
 	(let* ((regexp (car forth-compiled-indent-words))
 	       (pos (re-search-forward regexp to t)))
 	  (if pos
-	      (if (text-property-not-all (match-beginning 0) (match-end 0) 
-					 'forth-parsed nil)
-		  (forth-next-known-indent-word to)
-		(let* ((branch (forth-get-regexp-branch))
-		       (descr (cdr forth-compiled-indent-words))
-		       (indent (cdr (assoc branch descr))))
+	      (let* ((start (match-beginning 0))
+		     (end (match-end 0))
+		     (branch (forth-get-regexp-branch))
+		     (descr (cdr forth-compiled-indent-words))
+		     (indent (cdr (assoc branch descr)))
+		     (type (nth 2 indent)))
+		;; skip words that are parsed (strings/comments) and 
+		;; non-immediate words inside definitions
+		(if (or (text-property-not-all start end 'forth-parsed nil)
+			(and (eq type 'non-immediate) 
+			     (text-property-not-all start end 
+						    'forth-state nil)))
+		    (forth-next-known-indent-word to)
 		  (if (forth-first-word-on-line-p (match-beginning 0))
 		      (nth 0 indent) (nth 1 indent))))
 	    nil)))
@@ -699,8 +715,7 @@ End:\" construct).")
 (defun forth-get-anchor-column ()
   (save-excursion
     (if (/= 0 (forward-line -1)) 0
-      (let ((next-indent)
-	    (self-indent))
+      (let ((indent))
 	(while (not (or (setq indent (forth-get-column-incr 1))
 			(<= (point) (point-min))))
 	  (forward-line -1))
@@ -863,7 +878,7 @@ done by checking whether the first line has 1024 characters or more."
   (save-restriction 
     (widen)
     (save-excursion
-       (beginning-of-buffer)
+       (goto-char (point-min))
        (end-of-line)
        (>= (current-column) 1024))))
 
