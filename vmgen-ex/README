@@ -6,7 +6,7 @@ in this directory:
 
 make
 
-You can check that it works with
+Ignore the warnings.  You can check that it works with
 
 make check
 
@@ -71,7 +71,7 @@ scripts, and here's an example:
 Suppose you want to use fib.mini and test.mini as training programs,
 you get the profiles like this:
 
-make fib.prof test.prof
+make fib.prof test.prof #takes a few seconds
 
 You can aggregate these profiles with stat.awk:
 

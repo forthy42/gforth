@@ -207,6 +207,7 @@ GFORTH_FI_SRC = \
 	search.fs \
 	see.fs \
 	see-ext.fs \
+	simp-see.fs \
 	source.fs \
 	startup.fs \
 	struct.fs \
@@ -326,8 +327,9 @@ SOURCES	= $(CVSDIRS) compat Makefile.in Makedist.in engine/Makefile.in \
 	COPYING AUTHORS ChangeLog Benchres aclocal.m4 \
 	doc/gforth.ds doc/texinfo.tex doc/gforth.1 doc/version.texi.in \
 	gforth.el \
-	prim peeprules.vmg engine/engine.c engine/main.c
+	prim peeprules.vmg engine/engine.c engine/main.c \
 	engine/io.c engine/memcmpc.c engine/signals.c $(ARCHS) \
+	engine/peephole.c engine/profile.c \
 	engine/getopt.c engine/getopt1.c engine/getopt.h engine/select.c \
 	engine/ecvt.c engine/memcmp.c engine/strtol.c engine/strtoul.c \
 	engine/ansidecl.h engine/memmove.c \
@@ -373,7 +375,7 @@ all:	kernel/version.fs more
 FORCE: ;
 
 #this rule avoids remaking everything after minor changes in Makefile.in
-version:	Makefile.in
+version:	Makefile.in configure.in
 		if test -r $@ && test x'$(VERSION)' = x`cat $@` ; then true ; else echo $(VERSION) > $@ ; fi
 
 # With dos we use normal dos echo
