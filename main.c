@@ -61,7 +61,7 @@ char *progname;
 /* image file format:
  *  "#! binary-path -i\n" (e.g., "#! /usr/local/bin/gforth-0.2.0 -i\n")
  *   padding to a multiple of 8
- *   magic: "gforth1x" means format 0.2,
+ *   magic: "Gforth1x" means format 0.2,
  *              where x is even for big endian and odd for little endian
  *              and x & ~1 is the size of the cell in bytes.
  *  padding to max alignment (no padding necessary on current machines)
@@ -166,7 +166,7 @@ Address loader(FILE *imagefile)
   do
     {
       if(fread(magic,sizeof(Char),8,imagefile) < 8) {
-	fprintf(stderr,"%s: image doesn't seem to be a Gforth image.\n",progname);
+	fprintf(stderr,"%s: image doesn't seem to be a Gforth (>=0.2) image.\n",progname);
 	exit(1);
       }
       preamblesize+=8;
@@ -227,11 +227,11 @@ Address loader(FILE *imagefile)
     ((ImageHeader *)imp)->checksum=check_sum;
   }
   else if(header.base!=imp) {
-    fprintf(stderr,"%s: Cannot load nonrelocatable image (compiled for address 0x%lx) at address 0x%lx\nThe Gforth installer should look into the INSTALL file\n",
+    fprintf(stderr,"%s: Cannot load nonrelocatable image (compiled for address $%lx) at address $%lx\nThe Gforth installer should look into the INSTALL file\n",
 	    progname, (unsigned long)header.base, (unsigned long)imp);
     exit(1);
   } else if (header.checksum != check_sum) {
-    fprintf(stderr,"%s: Checksum of image (0x%lx) does not match the executable (0x%lx)\nThe Gforth installer should look into the INSTALL file\n",
+    fprintf(stderr,"%s: Checksum of image ($%lx) does not match the executable ($%lx)\nThe Gforth installer should look into the INSTALL file\n",
 	    progname, (unsigned long)(header.checksum),(unsigned long)check_sum);
     exit(1);
   }

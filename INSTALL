@@ -113,7 +113,10 @@ tells you how to uninstall Gforth completely.
 
 You need to read this only if you see a message like
 
-"gforth: Cannot load nonrelocatable image (compiled for address 0x1234) at address 0x5678
+...
+The Gforth installer should look into the INSTALL file
+
+1) "gforth: Cannot load nonrelocatable image (compiled for address $1234) at address $5678
 The Gforth installer should look into the INSTALL file"
 
 Gforth supports both relocatable and fixed-address images. If you load
@@ -137,10 +140,33 @@ just have to rebuild and reinstall the fixed address image with
 rm gforth.fi; make gforth.fi; make install
 
 If you get such a message with a different address in place of the
-0x5678 each time you try to start gforth, you cannot use fixed-address
+$5678 each time you try to start gforth, you cannot use fixed-address
 images on your OS. In this case, send us a message so that we start
 searching for a comfortable solution to this problem. In the
 meantime, start gforth with
 
 gforth -i kernal.fi startup.fs
+
+
+2) "%s: Checksum of image ($13579b) does not match the executable ($2468a)
+The Gforth installer should look into the INSTALL file"
+
+A fixed-address image is not only fixed with respect to its base
+address, but also with respect to certain addresses in the gforth
+executable and the threading method. These things are encoded in a
+checksum.
+
+If the checksum of the executable and the checksum of the image are
+not equal, you get the message above. This can be caused, e.g., by
+trying to run an image produced for a direct threading system on an
+indirect threaded system.
+
+Chances are that you unintentionally tried to execute an image from
+the wrong directory. As a remedy, you can determine Gforth's search
+path with the "-p" command line option and with the GFORTHPATH
+environment variable.
+
+On the other hand, if you need to solve the problem by creating a new
+fixed-address image, you can use the steps described above.
+
 

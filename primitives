@@ -117,6 +117,15 @@ ip=IP;
 IF_TOS(TOS = sp[0]);
 EXEC(xt);
 
+perform		a_addr --	gforth
+""equivalent to @code{@ execute}""
+/* and pfe */
+ip=IP;
+IF_TOS(TOS = sp[0]);
+EXEC(*(Xt *)a_addr);
+:
+ @ execute ;
+
 branch-lp+!#	--	gforth	branch_lp_plus_store_number
 /* this will probably not be used */
 branch_adjust_lp:
@@ -450,6 +459,14 @@ u2 = u1-n;
 
 +	n1 n2 -- n		core	plus
 n = n1+n2;
+
+\ PFE has it differently, so let's better not define it
+\ under+	n1 n2 n3 -- n n2	gforth	under_plus
+\ ""add @var{n3} to @var{n1} (giving @var{n})""
+\ /* and pfe */
+\ n = n1+n3;
+\ :
+\  rot + swap ;
 
 -	n1 n2 -- n		core	minus
 n = n1-n2;
