@@ -32,11 +32,13 @@ require string.fs
 : .' '' parse postpone SLiteral postpone type ; immediate
 : s' '' parse postpone SLiteral ; immediate
 
+Variable indentlevel
 Variable tag-option
 s" " tag-option $!
 
 : tag ( addr u -- ) '< emit type tag-option $@ type '> emit
     s" " tag-option $! ;
+: tag/ ( addr u -- )  s"  /" tag-option $+! tag ;
 : /tag ( addr u -- ) '< emit '/ emit type '> emit ;
 : tagged ( addr1 u1 addr2 u2 -- )  2dup 2>r tag type 2r> /tag ;
 
@@ -44,12 +46,15 @@ s" " tag-option $!
     tag-option $+! s' ="' tag-option $+! tag-option $+!
     s' "' tag-option $+! ;
 : href= ( addr u -- )  s" href" opt ;
-: name= ( addr u -- )  s" name" opt ;
+: id= ( addr u -- )  s" id" opt ;
 : src=  ( addr u -- )  s" src" opt ;
 : alt=  ( addr u -- )  s" alt" opt ;
 : width=  ( addr u -- )  s" width" opt ;
 : height=  ( addr u -- )  s" height" opt ;
 : align= ( addr u -- ) s" align" opt ;
+: class= ( addr u -- ) s" class" opt ;
+: indent= ( -- )
+    indentlevel @ 0 <# #S 'p hold #> class= ;
 : mailto: ( addr u -- ) s'  href="mailto:' tag-option $+!
     tag-option $+! s' "' tag-option $+! ;
 
@@ -78,13 +83,13 @@ Variable table-start
 
 : >align ( c -- )
     CASE
-	'l OF  s" left"      align=  ENDOF
-	'r OF  s" right"     align=  ENDOF
-	'c OF  s" center"    align=  ENDOF
-	'< OF  s" left"      align=  ENDOF
-	'> OF  s" right"     align=  ENDOF
-	'= OF  s" center"    align=  ENDOF
-	'~ OF  s" absmiddle" align=  ENDOF
+	'l OF  s" left"      class=  ENDOF
+	'r OF  s" right"     class=  ENDOF
+	'c OF  s" center"    class=  ENDOF
+	'< OF  s" left"      class=  ENDOF
+	'> OF  s" right"     class=  ENDOF
+	'= OF  s" center"    class=  ENDOF
+	'~ OF  s" absmiddle" class=  ENDOF
     ENDCASE ;
 
 : >talign ( c -- )
@@ -101,8 +106,8 @@ Variable table-start
 
 : >border ( c -- )
     case
-	'- of  s" 0" s" border" opt endof
-	'+ of  s" 1" s" border" opt endof
+	'- of  s" border0" class= endof
+	'+ of  s" border1" class= endof
     endcase ;
 
 \ image handling
@@ -168,7 +173,7 @@ Defer parse-line
     dup IF  2swap alt=  ELSE  2drop  THEN
     tag-option $@len >r over c@ >align  tag-option $@len r> = 1+ /string
     tag-option $@len >r over c@ >border tag-option $@len r> = 1+ /string
-    2dup .img-size src= s" img" tag ;
+    2dup .img-size src= s" img" tag/ ;
 : >img ( -- )   '{ parse type '} parse .img ;
 
 : alt-suffix ( -- )
@@ -185,7 +190,7 @@ Defer parse-line
 	pad swap 2dup link-suffix $@ filename-match
 	IF  s" icons/" iconpath $! iconpath $+!
 	    iconpath $@ 2dup .img-size src= '- >border
-	    alt-suffix  s" img" tag true
+	    alt-suffix  s" img" tag/ true
 	ELSE  2drop  false  THEN
     UNTIL  ELSE  drop  THEN
     r> close-dir throw ;
@@ -307,7 +312,8 @@ wordlist Constant autoreplacements
     BEGIN  parse-line+ cr refill  WHILE
 	source nip 0= UNTIL  THEN ;
 
-: par ( addr u -- ) env? 2dup tag parse-par /tag cr cr ;
+: par ( addr u -- ) env? indent=
+    2dup tag parse-par /tag cr cr ;
 : line ( addr u -- ) env? 2dup tag parse-line+ /tag cr cr ;
 
 \ scan strings
@@ -382,46 +388,53 @@ Variable toc-name
     THEN
     s" a" /tag rdrop
     ;
-: print-toc ( -- ) cr 0 parse
+: print-toc ( -- ) cr s" menu" id= s" div" tag cr 0 parse
     dup 0= IF  toc-name $! 0  ELSE
-	toc-name $! toc-name $@ name= s" " s" a" tagged  2
+	toc-name $! toc-name $@ id= s" " s" a" tagged  2
     THEN  >r
     toc-link  BEGIN  @ dup  WHILE
-	dup cell+ @ 3 = r@ 0= and IF  rdrop 1 >r s" br" tag cr  THEN
+	dup cell+ @ 3 = r@ 0= and IF  rdrop 1 >r ( s" br" tag/ cr )  THEN
 	dup cell+ @ r@ >= IF  dup r@ 2 = .toc-entry  THEN
-	dup cell+ @ 2 = r@ 2 = and IF  s" br" tag cr  THEN
-    REPEAT  drop rdrop  cr ;
+	dup cell+ @ 2 = r@ 2 = and IF  s" br" tag/ cr  THEN
+    REPEAT  drop rdrop  cr s" div" /tag cr ;
 
 \ handle global tags
 
-Variable indentlevel
-: indent ( n -- )  indentlevel @ over indentlevel !
-    2dup < IF swap DO  -env -env  LOOP  EXIT THEN
-    2dup > IF      DO  s" dl" >env s" dt" >env  LOOP EXIT THEN
-    2dup = IF drop IF  -env  s" dt" >env  THEN THEN ;
-: +indent ( -- )  indentlevel @ IF  -env s" dd" >env  THEN ;
+: indent ( n -- )
+\    indentlevel @ over
+    indentlevel !
+\    2dup < IF swap DO  -env -env  LOOP  EXIT THEN
+\    2dup > IF      DO  s" dl" >env s" dt" >env  LOOP EXIT THEN
+\    2dup = IF drop IF  -env  s" dt" >env  THEN THEN
+;
+: +indent ( -- )
+\    indentlevel @ IF  -env s" dd" >env  THEN
+;
 
 wordlist constant longtags
 
+Variable divs
+
 longtags set-current
 
-: --- 0 indent cr s" hr" tag cr +indent ;
+: --- 0 indent cr s" hr" tag/ cr +indent ;
 : *   1 indent s" h1" line +indent ;
 : **  1 indent s" h2" line +indent ;
 : *** 2 indent s" h3" line +indent ;
 : -- 0 indent cr print-toc ;
-: && 0 parse name= s" " s" a" tagged ;
+: && ( -- ) divs @ IF  -env  THEN  +env
+    0 parse id= s" div" env  divs on ;
 : - s" ul" env s" li" par ;
 : + s" ol" env s" li" par ;
 : << +env ;
-: <* s" center" >env ;
+: <* s" center" class= s" p" >env ;
 : <red  s" #ff0000" s" color" opt s" font" >env ;
 : red> -env ;
 : >> -env ;
 : *> -env ;
 : :: interpret ;
 : . end-sec on 0 indent ;
-: :code s" pre" >env
+: :code indent= s" pre" >env
     BEGIN  source >in @ /string type cr refill  WHILE
 	source s" :endcode" str= UNTIL  THEN
   -env ;
@@ -468,10 +481,19 @@ definitions
 
 \ HTML head
 
+Variable css-file
+
 : .title ( addr u -- )
-    .' <!doctype html public "-//w3c//dtd html 4.0 transitional//en">' cr
-    s" html" >env s" head" >env
-    .'   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">' cr
+    .' <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//en" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">' cr
+    s" html" >env s" head" >env cr
+    s" Content-Type" s" http-equiv" opt
+    s" text/xhtml; charset=iso-8859-1" s" content" opt
+    s" meta" tag/
+    css-file $@len IF
+	s" StyleSheet" s" rel" opt
+	css-file $@ href=
+	s" text/css" s" type" opt s" link" tag/
+    THEN
     s" title" tagged cr
     -env ;
 
@@ -487,7 +509,7 @@ Variable orig-date
     0 u.r ;
 
 : .trailer
-    s" address" >env s" center" >env
+    s" center" class= s" address" >env
     orig-date @ IF  ." Created " orig-date $@ type ." . "  THEN
     .lastmod
  ."  by "
@@ -515,6 +537,7 @@ Variable style$
     warnings !
 : vlink ( -- ) parse" s" vlink" style ;
 : marginheight ( -- ) parse" s" marginheight" style ;
+: css ( -- ) parse" css-file $! ;
 
 : wf ( -- )
     outfile-id >r
