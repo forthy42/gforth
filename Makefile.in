@@ -542,7 +542,7 @@ check test:	gforth$(EXE) gforth.fi
 		$(FORTHS) test/signals.fs -e bye
 		$(FORTH) code.fs test/checkans.fs -e bye | diff -c - $(srcdir)/test/checkans.out
 		$(FORTH) prims2x.fs -e \
-		  "c-flag on s\" $(srcdir)/prim.b\" ' output-c ' output-c-combined process-file bye"| \
+		  "c-flag on s\" prim.i\" out-filename 2! s\" $(srcdir)/prim.b\" ' output-c ' output-c-combined process-file bye"| \
 		  diff -c - $(srcdir)/engine/prim.i
 
 bench:		gforth-fast$(EXE) gforth.fi
@@ -627,7 +627,7 @@ prim.b:		prim peeprules.vmg
 		m4 -s $(srcdir)/prim >$@ 
 
 engine/prim.i:		prim.b prims2x.fs
-		$(FORTHP) prims2x.fs -e "c-flag on s\" prim.b\" ' output-c ' output-c-combined process-file bye" >$@-
+		$(FORTHP) prims2x.fs -e "c-flag on s\" prim.i\" out-filename 2! s\" prim.b\" ' output-c ' output-c-combined process-file bye" >$@-
 		$(CP) $@- $@
 		$(RM) $@-
 

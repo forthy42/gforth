@@ -615,35 +615,69 @@ The grammar is in EBNF format, with @code{@var{a}|@var{b}} meaning
 of @var{c} and @code{[@var{d}]} meaning 0 or 1 repetitions of @var{d}.
 
 @cindex free-format, not
+@cindex newlines, significance in syntax
 Vmgen input is not free-format, so you have to take care where you put
-spaces and especially newlines; it's not as bad as makefiles, though:
-any sequence of spaces and tabs is equivalent to a single space.
+newlines (and, in a few cases, white space).
 
 @example
-description: @{instruction|comment|eval-escape@}
+description: @{instruction|comment|eval-escape|c-escape@}
 
 instruction: simple-inst|superinst
 
-simple-inst: ident ' (' stack-effect ' )' newline c-code newline newline
+simple-inst: ident '(' stack-effect ')' newline c-code newline newline
 
-stack-effect: @{ident@} ' --' @{ident@}
+stack-effect: @{ident@} '--' @{ident@}
 
-super-inst: ident ' =' ident @{ident@}  
+super-inst: ident '=' ident @{ident@}  
 
 comment:      '\ '  text newline
 
 eval-escape:  '\E ' text newline
+
+c-escape:     '\C ' text newline
 @end example
 @c \+ \- \g \f \c
 
 Note that the @code{\}s in this grammar are meant literally, not as
 C-style encodings for non-printable characters.
 
-The C code in @code{simple-inst} must not contain empty lines (because
-Vmgen would mistake that as the end of the simple-inst.  The text in
-@code{comment} and @code{eval-escape} must not contain a newline.
-@code{Ident} must conform to the usual conventions of C identifiers
-(otherwise the C compiler would choke on the Vmgen output).
+There are two ways to delimit the C code in @code{simple-inst}:
+
+@itemize @bullet
+
+@item
+If you start it with a @samp{@{} at the start of a line (i.e., not even
+white space before it), you have to end it with a @samp{@}} at the start
+of a line (followed by a newline).  In this case you may have empty
+lines within the C code (typically used between variable definitions and
+statements).
+
+@item
+You do not start it with @samp{@{}.  Then the C code ends at the first
+empty line, so you cannot have empty lines within this code.
+
+@end itemize
+
+The text in @code{comment}, @code{eval-escape} and @code{c-escape} must
+not contain a newline.  @code{Ident} must conform to the usual
+conventions of C identifiers (otherwise the C compiler would choke on
+the Vmgen output), except that idents in @code{stack-effect} may have a
+stack prefix (for stack prefix syntax, @pxref{Eval escapes}).
+
+@cindex C escape
+@cindex @code{\C}
+@cindex conditional compilation of Vmgen output
+The @code{c-escape} passes the text through to each output file (without
+the @samp{\C}).  This is useful mainly for conditional compilation
+(i.e., you write @samp{\C #if ...} etc.).
+
+@cindex sync lines
+@cindex @code{#line}
+In addition to the syntax given in the grammer, Vmgen also processes
+sync lines (lines starting with @samp{#line}), as produced by @samp{m4
+-s} (@pxref{Invoking m4, , Invoking m4, m4.info, GNU m4}) and similar
+tools.  This allows associating C compiler error messages with the
+original source of the C code.
 
 Vmgen understands a few extensions beyond the grammar given here, but
 these extensions are only useful for building Gforth.  You can find a
@@ -652,8 +686,7 @@ description of the format used for Gforth in @file{prim}.
 @subsection Eval escapes
 @cindex escape to Forth
 @cindex eval escape
-
-
+@cindex @code{\E}
 
 @c woanders?
 The text in @code{eval-escape} is Forth code that is evaluated when

@@ -78,10 +78,14 @@ variable line-start \ pointer to start of current line (for error messages)
 0 line !
 2variable filename \ filename of original input file
 0 0 filename 2!
+2variable out-filename \ filename of the output file (for sync lines)
+0 0 out-filename 2!
 2variable f-comment
 0 0 f-comment 2!
 variable skipsynclines \ are sync lines ("#line ...") invisible to the parser?
-skipsynclines on 
+skipsynclines on
+variable out-nls \ newlines in output (for output sync lines)
+0 out-nls !
 
 : th ( addr1 n -- addr2 )
     cells + ;
@@ -121,11 +125,23 @@ skipsynclines on
 	    0
 	recover endtry
 	r> to outfile-id throw
-	abort
+	1 (bye) \ abort
     endif ;
 
 : quote ( -- )
     [char] " emit ;
+
+\ count output lines to generate sync lines for output
+
+: count-nls ( addr u -- )
+    bounds u+do
+	i c@ nl-char = negate out-nls +!
+    loop ;
+
+:noname ( addr u -- )
+    2dup count-nls
+    defers type ;
+is type
 
 variable output          \ xt ( -- ) of output word for simple primitives
 variable output-combined \ xt ( -- ) of output word for combined primitives
@@ -647,6 +663,8 @@ stack inst-stream IP Cell
 : type-c-code ( c-addr u xt -- )
     \ like TYPE, but replaces "INST_TAIL;" with tail code produced by xt
     { xt }
+    ." {" cr
+    ." #line " c-line @ . quote c-filename 2@ type quote cr
     begin ( c-addr1 u1 )
 	2dup s" INST_TAIL;" search
     while ( c-addr1 u1 c-addr3 u3 )
@@ -655,30 +673,29 @@ stack inst-stream IP Cell
 	2r> 10 /string
 	\ !! resync #line missing
     repeat
-    2drop type ;
+    2drop type
+    ." #line " out-nls @ 2 + . quote out-filename 2@ type quote cr
+    ." }" cr ;
 
 : print-entry ( -- )
     ." LABEL(" prim prim-c-name 2@ type ." )" ;
     
 : output-c ( -- ) 
- print-entry ."  /* " prim prim-name 2@ type ."  ( " prim prim-stack-string 2@ type ." ) */" cr
- ." /* " prim prim-doc 2@ type ."  */" cr
- ." NAME(" quote prim prim-name 2@ type quote ." )" cr \ debugging
- ." {" cr
- ." DEF_CA" cr
- print-declarations
- ." NEXT_P0;" cr
- flush-tos
- fetches
- print-debug-args
- stack-pointer-updates
- ." {" cr
- ." #line " c-line @ . quote c-filename 2@ type quote cr
- prim prim-c-code 2@ ['] output-c-tail type-c-code
- ." }" cr
- output-c-tail2
- ." }" cr
- cr
+    print-entry ."  /* " prim prim-name 2@ type ."  ( " prim prim-stack-string 2@ type ." ) */" cr
+    ." /* " prim prim-doc 2@ type ."  */" cr
+    ." NAME(" quote prim prim-name 2@ type quote ." )" cr \ debugging
+    ." {" cr
+    ." DEF_CA" cr
+    print-declarations
+    ." NEXT_P0;" cr
+    flush-tos
+    fetches
+    print-debug-args
+    stack-pointer-updates
+    prim prim-c-code 2@ ['] output-c-tail type-c-code
+    output-c-tail2
+    ." }" cr
+    cr
 ;
 
 : disasm-arg { item -- }
@@ -1026,10 +1043,7 @@ stack inst-stream IP Cell
     part-fetches
     print-debug-args
     prim add-depths \ !! right place?
-    ." {" cr
-    ." #line " c-line @ . quote c-filename 2@ type quote cr
     prim prim-c-code 2@ ['] output-combined-tail type-c-code
-    ." }" cr
     part-output-c-tail
     ." }" cr ;
 

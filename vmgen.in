@@ -36,7 +36,7 @@ else
     true #old shells require this
 fi
 file=`basename $1 .vmg`
-$GFORTH -m 1000000 -e "create vmgen" $GFORTHDATADIR/prims2x.fs -e "c-flag on s\" $1\" ' output-c ' output-c-combined process-file bye" > $file-vm.i &&
+$GFORTH -m 1000000 -e "create vmgen" $GFORTHDATADIR/prims2x.fs -e "c-flag on s\" $file-vm.i\" out-filename 2! s\" $1\" ' output-c ' output-c-combined process-file bye" > $file-vm.i &&
 $GFORTH -m 1000000 -e "create vmgen" $GFORTHDATADIR/prims2x.fs -e "c-flag on s\" $1\" ' output-disasm dup process-file bye" > $file-disasm.i &&
 $GFORTH -m 1000000 -e "create vmgen" $GFORTHDATADIR/prims2x.fs -e "c-flag on s\" $1\" ' output-gen ' noop process-file bye" > $file-gen.i &&
 $GFORTH -m 1000000 -e "create vmgen" $GFORTHDATADIR/prims2x.fs -e "c-flag on s\" $1\" ' output-label dup process-file bye" > $file-labels.i &&
