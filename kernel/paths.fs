@@ -152,7 +152,9 @@ Create tfile 0 c, 255 chars allot
     ofile count 2 min s" ./" compare 0=
     IF
 	ofile count 1 /string tfile place
-	0 ofile c! sourcefilename extractpath ofile place need/
+	0 ofile c! sourcefilename extractpath ofile place
+	\ care of / only if there is a directory
+	ofile c@ IF need/ THEN
 	tfile count over c@ pathsep? IF 1 /string THEN
 	ofile +place
     THEN ;
@@ -195,7 +197,6 @@ Create tfile 0 c, 255 chars allot
   r> r> ofile +place
   open-ofile ;
 
-\ !! returns 2 stack items if file is not found, not just the ior
 : open-path-file ( addr1 u1 path-addr -- wfileid addr2 u2 0 | ior ) \ gforth
     \G Look in path @var{path-addr} for the file specified by @var{addr1 u1}.
     \G If found, the resulting path and an open file descriptor
@@ -213,7 +214,6 @@ Create tfile 0 c, 255 chars allot
         2drop 2drop 2drop -&38
   THEN ;
 
-\ !! returns 2 stack items if file is not found, not just the ior
 : open-fpath-file ( addr1 u1 -- wfileid addr2 u2 0 | ior ) \ gforth
     \G Look in the Forth search path for the file specified by @var{addr1 u1}.
     \G If found, the resulting path and an open file descriptor

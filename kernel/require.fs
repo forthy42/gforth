@@ -21,7 +21,10 @@
 \ Now: Kernel Module, Reloadable
 
 create included-files 0 , 0 , ( pointer to and count of included files )
-here ," ./the terminal" dup c@ swap 1 + swap , A, here 2 cells -
+\ here ," ./the terminal" dup c@ swap 1 + swap , A, here 2 cells -
+\ ./ is confusing for the search path stuff! There should be never a .
+\ in sourcefilename....
+here ," #terminal#" dup c@ swap 1 + swap , A, here 2 cells -
 create image-included-files  1 , A, ( pointer to and count of included files )
 \ included-files points to ALLOCATEd space, while image-included-files
 \ points to ALLOTed objects, so it survives a save-system
@@ -149,5 +152,5 @@ create image-included-files  1 , A, ( pointer to and count of included files )
 	cr I 2@ type  2 cells +LOOP ;  
 
 \ contains tools/newrequire.fs
-\ \I $Id: require.fs,v 1.7 1999-04-16 22:19:54 crook Exp $
+\ \I $Id: require.fs,v 1.8 1999-05-17 14:55:50 jwilke Exp $
 
