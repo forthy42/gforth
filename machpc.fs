@@ -50,6 +50,8 @@ true DefaultValue peephole      \ enables peephole optimizer
 
 true DefaultValue abranch       \ enables absolute branches
 
+false DefaultValue control-rack \ disable return stack use for control flow
+
 false DefaultValue ec
 false DefaultValue crlf
 

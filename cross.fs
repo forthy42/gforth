@@ -1175,6 +1175,7 @@ false DefaultValue backtrace
 false DefaultValue new-input
 false DefaultValue peephole
 false DefaultValue abranch
+true  DefaultValue control-rack
 [THEN]
 
 true DefaultValue interpreter
@@ -1703,7 +1704,7 @@ Ghost (loop)    Ghost (+loop)                   2drop
 Ghost (next)                                    drop
 Ghost (does>)   Ghost (compile)                 2drop
 Ghost (.")      Ghost (S")      Ghost (ABORT")  2drop drop
-Ghost (C")                                      drop
+Ghost (C")      Ghost c(abort") Ghost type      2drop drop
 Ghost '                                         drop
 
 \ user ghosts
@@ -1732,7 +1733,9 @@ Ghost state drop
 
 : ht-string,  ( addr count -- )
   dup there swap last-string 2!
-  dup T c, H bounds  ?DO  I c@ T c, H  LOOP ; 
+    dup T c, H bounds  ?DO  I c@ T c, H  LOOP ;
+: ht-mem, ( addr count )
+    bounds ?DO  I c@  T c, H  LOOP ;
 
 >TARGET
 
@@ -3167,10 +3170,21 @@ Ghost a(loop) drop
 
 : ,"            [char] " parse ht-string, X align ;
 
+X has? control-rack [IF]
 Cond: ."        compile (.")     T ," H ;Cond
 Cond: S"        compile (S")     T ," H ;Cond
 Cond: C"        compile (C")     T ," H ;Cond
 Cond: ABORT"    compile (ABORT") T ," H ;Cond
+[ELSE]
+Cond: ."        '" parse tuck 2>r ahead, there 2r> ht-mem, X align
+                >r then, r> compile ALiteral compile Literal compile type ;Cond
+Cond: S"        '" parse tuck 2>r ahead, there 2r> ht-mem, X align
+                >r then, r> compile ALiteral compile Literal ;Cond
+Cond: C"        ahead, there [char] " parse ht-string, X align
+                >r then, r> compile ALiteral ;Cond
+Cond: ABORT"    if, ahead, there [char] " parse ht-string, X align
+                >r then, r> compile ALiteral compile c(abort") then, ;Cond
+[THEN]
 
 Cond: IS        T ' >body H compile ALiteral compile ! ;Cond
 : IS            T >address ' >body ! H ;
