@@ -32,6 +32,9 @@ include errors.fs
 include extend.fs              \ load core-extended
 include hash.fs
 
+[ifundef] xemit
+    require kernel/xchars.fs
+[then]
 \ require interpretation.fs
 \ include float.fs
 \ include search.fs
