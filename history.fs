@@ -41,11 +41,9 @@ interpret/compile: ctrl  ( "<char>" -- ctrl-code )
 : (ret)  type-rest drop true space ;
 : back  dup  IF  1- #bs emit  ELSE  #bell emit  THEN 0 ;
 : forw 2 pick over <> IF  2dup + c@ emit 1+  ELSE  #bell emit  THEN 0 ;
-: eof  2 pick over or 0=  IF
-        bye
-    ELSE  2 pick over <>
-	IF  forw drop (del)  ELSE  #bell emit  THEN  0
-    THEN ;
+: eof ( max span addr pos1 -- max span addr pos2 0 )
+    2 pick over <>
+    IF  forw drop (del)  ELSE  #bell emit  THEN  0 ;
 
 ' forw  ctrl F cells ctrlkeys + !
 ' back  ctrl B cells ctrlkeys + !
