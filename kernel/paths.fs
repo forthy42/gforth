@@ -68,7 +68,7 @@
 0 avalue fpath ( -- path-addr ) \ gforth
 
 : os-cold ( -- )
-    1024 chars dup 2 cells + allocate throw to fpath
+    $400 chars dup 2 cells + allocate throw to fpath
     0 swap fpath 2!
     pathstring 2@ fpath only-path 
     init-included-files ;
@@ -110,22 +110,25 @@
     \G Make a complete new Forth search path; the path separator is |.
     fpath path= ;
 
-: path>counted  cell+ dup cell+ swap @ ;
+: path>string ( path -- c-addr u )
+    \ string contains NULs to separate/terminate components
+    cell+ dup cell+ swap @ ;
 
-: next-path ( adr len -- adr2 len2 )
-  2dup 0 scan
-  dup 0= IF     2drop 0 -rot 0 -rot EXIT THEN
-  >r 1+ -rot r@ 1- -rot
-  r> - ;
+: next-path ( addr u -- addr1 u1 addr2 u2 )
+    \ addr2 u2 is the first component of the path, addr1 u1 is the rest
+    2dup 0 scan
+    dup 0= IF     2drop 0 -rot 0 -rot EXIT THEN
+    >r 1+ -rot r@ 1- -rot
+    r> - ;
 
 : previous-path ( path^ -- )
     \ !! "fpath previous-path" doesn't work
-  dup path>counted
+  dup path>string
   BEGIN tuck dup WHILE repeat ;
 
 : .path ( path-addr -- ) \ gforth
     \G Display the contents of the search path @var{path-addr}.
-    path>counted
+    path>string
     BEGIN next-path dup WHILE type space REPEAT 2drop 2drop ;
 
 : .fpath ( -- ) \ gforth
@@ -174,22 +177,55 @@ Create tfile 0 c, 255 chars allot
 	ofile +place
     THEN ;
 
-: compact.. ( adr len -- adr2 len2 )
-    \ deletes phrases like "xy/.." out of our directory name 2dec97jaw
-    over swap
-    BEGIN  dup  WHILE
-        dup >r '/ scan 2dup s" /../" string-prefix?
-        IF
-            dup r> - >r 4 /string over r> + 4 -
-            swap 2dup + >r move dup r> over -
-        ELSE
-            rdrop dup 1 min /string
-        THEN
-    REPEAT  drop over - ;
+: del-string ( addr u u1 -- addr u2 )
+    \ delete u1 characters from string by moving stuff from further up
+    2 pick >r /string r@ over >r swap cmove 2r> ;
+
+: del-./s ( addr u -- addr u2 )
+    \ deletes (/*./)* at the start of the string
+    BEGIN ( current-addr u )
+	BEGIN ( current-addr u )
+	    over c@ '/ = WHILE
+		1 del-string
+	REPEAT
+	2dup s" ./" string-prefix? WHILE
+	    2 del-string
+    REPEAT ;
+
+: preserve-root ( addr1 u1 -- addr2 u2 )
+    over c@ '/ = if \ preserve / at start
+	1 /string
+    endif ;
+
+
+: skip-..-prefixes ( addr1 u1 -- addr2 u2 )
+    \ deal with ../ at start
+    begin ( current-addr u )
+	del-./s 2dup s" ../" string-prefix? while
+	    3 /string
+    repeat ;
+    
+: compact-filename ( addr u1 -- addr u2 )
+    \ rewrite filename in place, eliminating multiple slashes, "./", and "x/.."
+    over swap preserve-root skip-..-prefixes
+    ( start current-addr u )
+    over swap '/ scan dup if ( start addr3 addr4 u4 )
+	1 /string del-./s recurse
+	2dup s" ../" string-prefix? if ( start addr3 addr4 u4 )
+	    3 /string ( start to from count )
+	    >r swap 2dup r@ cmove r>
+	endif
+    endif
+    + nip over - ;
+
+\ test cases:
+\ s" z/../../../a" compact-filename type cr
+\ s" ../z/../../../a/c" compact-filename type cr
+\ s" /././//./../..///x/y/../z/.././..//..//a//b/../c" compact-filename type cr
 
 : reworkdir ( -- )
   remove~+
-  ofile count compact..
+  ofile count compact-filename
   nip ofile c! ;
 
 : open-ofile ( -- fid ior )
@@ -212,7 +248,7 @@ Create tfile 0 c, 255 chars allot
   IF    rdrop
         ofile place open-ofile
 	dup 0= IF >r ofile count r> THEN EXIT
-  ELSE  r> path>counted
+  ELSE  r> path>string
         BEGIN  next-path dup
         WHILE  5 pick 5 pick check-path
         0= IF >r 2drop 2drop r> ofile count 0 EXIT ELSE drop THEN

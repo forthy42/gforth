@@ -133,7 +133,7 @@ has? ec [IF]
 \ (word)                                               22feb93py
 
 : scan   ( addr1 n1 char -- addr2 n2 ) \ gforth
-    \ skip all characters not equal to char
+    \G skip all characters not equal to char
     >r
     BEGIN
 	dup
@@ -144,7 +144,7 @@ has? ec [IF]
     REPEAT  THEN
     rdrop ;
 : skip   ( addr1 n1 char -- addr2 n2 ) \ gforth
-    \ skip all characters equal to char
+    \G skip all characters equal to char
     >r
     BEGIN
 	dup

@@ -112,7 +112,7 @@ Variable maxnum
 Variable htmldir
 
 : rework-htmldir ( addr u -- addr' u' / ior )
-  htmldir $! htmldir $@ compact.. htmldir $!len drop
+  htmldir $! htmldir $@ compact-filename htmldir $!len drop
   htmldir $@ s" ../" string-prefix?
   IF    -1 EXIT  THEN  \ can't access below current directory
   htmldir $@ s" ~" string-prefix?

@@ -447,7 +447,7 @@ sourcepath value fpath
     \G Make a complete new Forth search path; the path separator is |.
     fpath path= ;
 
-: path>counted  cell+ dup cell+ swap @ ;
+: path>string  cell+ dup cell+ swap @ ;
 
 : next-path ( adr len -- adr2 len2 )
   2dup 0 scan
@@ -456,12 +456,12 @@ sourcepath value fpath
   r> - ;
 
 : previous-path ( path^ -- )
-  dup path>counted
+  dup path>string
   BEGIN tuck dup WHILE repeat ;
 
 : .path ( path-addr -- ) \ gforth
     \G Display the contents of the search path @var{path-addr}.
-    path>counted
+    path>string
     BEGIN next-path dup WHILE type space REPEAT 2drop 2drop ;
 
 : .fpath ( -- ) \ gforth
@@ -546,7 +546,7 @@ Create tfile 0 c, 255 chars allot
   IF    rdrop
         ofile place open-ofile
 	dup 0= IF >r ofile count r> THEN EXIT
-  ELSE  r> path>counted
+  ELSE  r> path>string
         BEGIN  next-path dup
         WHILE  5 pick 5 pick check-path
         0= IF >r 2drop 2drop r> ofile count 0 EXIT ELSE drop THEN
