@@ -423,7 +423,7 @@ const Create ???  0 , 3 c, char ? c, char ? c, char ? c,
 \ ticks
 
 : (') ( "name" -- nt ) \ gforth
-    name dup 0= -&16 and throw \ test for length 0
+    name name-too-short?
     find-name dup 0=
     IF
 	drop -&13 bounce

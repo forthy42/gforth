@@ -1636,7 +1636,7 @@ wior=FILEIO(ferror((FILE *)wfileid));
 */
 if ((flag=FLAG(!feof((FILE *)wfileid) &&
 	       fgets(c_addr,u1+1,(FILE *)wfileid) != NULL))) {
-  wior=FILEIO(ferror((FILE *)wfileid)); /* !! ior? */
+  wior=FILEIO(ferror((FILE *)wfileid)!=0); /* !! ior? */
   if (wior)
     clearerr((FILE *)wfileid);
   u2 = strlen(c_addr);
