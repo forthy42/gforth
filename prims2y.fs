@@ -374,18 +374,24 @@ defer inst-stream-f ( -- stack )
 : normal-stack-access0 { n stack -- }
     \ n has the ss-offset already applied (see ...-access1)
     n stack stack-access-transform @ execute ." [" 0 .r ." ]" ;
-    
+
+: state-ss { stack state -- ss }
+    state state-sss stack stack-number @ th @ ;
+
+: stack-reg { n stack state -- reg }
+    \ n is the index (TOS=0); reg is 0 if the access is to memory
+    stack state state-ss ss-registers 2@ n u> if ( addr ) \ in ss-registers?
+	n th @
+    else
+	drop 0
+    endif ;
+
 : normal-stack-access1 { n stack state -- }
-    state state-sss stack stack-number @ th @ { ss }
-    ss ss-registers 2@ n u> if ( addr ) \ in ss-registers?
-	n th @ dup if ( register ) \ and is ss-registers[n] a register?
-	    \ then use the register
-	    register-name 2@ type exit
-	endif
+    n stack state stack-reg ?dup-if
+	register-name 2@ type exit
     endif
-    drop
     stack stack-pointer 2@ type
-    n ss ss-offset @ - stack normal-stack-access0 ;
+    n stack state state-ss ss-offset @ - stack normal-stack-access0 ;
 
 : normal-stack-access ( n stack state -- )
     over inst-stream-f = if
@@ -500,7 +506,7 @@ defer inst-stream-f ( -- stack )
  rdrop ;
 
 : item-out-index ( item -- n )
-    \ n is the index of item (in the in-effect)
+    \ n is the index of item (in the out-effect)
     >r r@ item-stack @ stack-out @ r> item-offset @ - 1- ;
 
 : really-store-single ( item -- )
@@ -512,17 +518,14 @@ defer inst-stream-f ( -- stack )
     r@ item-out-index r@ item-stack @ stack-write ." );"
     rdrop ;
 
-: store-single ( item -- )
-    >r
-    store-optimization @ in-part @ 0= and r@ same-as-in? and if
-	r@ item-in-index 0= r@ item-out-index 0= xor if
-	    ." IF_" r@ item-stack @ stack-pointer 2@ type
-	    ." TOS(" r@ really-store-single ." );" cr
-	endif
-    else
-	r@ really-store-single cr
-    endif
-    rdrop ;
+: store-single { item -- }
+    item item-stack @ { stack }
+    store-optimization @ in-part @ 0= and item same-as-in? and
+    item item-in-index  stack state-in  stack-reg 0= and \  in in memory?
+    item item-out-index stack state-out stack-reg 0= and \ out in memory?
+    0= if
+	item really-store-single cr
+    endif ;
 
 : store-double ( item -- )
 \ !! store optimization is not performed, because it is not yet needed

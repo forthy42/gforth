@@ -169,3 +169,5 @@ n = n1+n2;
 lit	( #w -- w )		gforth
 :
  r> dup @ swap cell+ >r ;
+
+over ( n1 n2 -- n1 n2 n1 )
