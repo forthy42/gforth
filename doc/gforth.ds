@@ -7224,10 +7224,10 @@ newer version of these measurements at
 find numbers for Gforth on various machines in @file{Benchres}.
 
 @node Binding to System Library, Cross Compiler, Engine, Top
-@section Binding to System Library
+@chapter Binding to System Library
 
 @node Cross Compiler, Bugs, Binding to System Library, Top
-@section Cross Compiler
+@chapter Cross Compiler
 
 Cross Compiler
 
@@ -7237,10 +7237,10 @@ Cross Compiler
 @end menu
 
 @node Using the Cross Compiler, , How the Cross Compiler Works, Cross Compiler
-@subsection Using the Cross Compiler
+@section Using the Cross Compiler
 
 @node How the Cross Compiler Works, Using the Cross Compiler, , Cross Compiler
-@subsection How the Cross Compiler Works
+@section How the Cross Compiler Works
 
 @node Bugs, Origin, Cross Compiler, Top
 @chapter Bugs

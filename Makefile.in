@@ -648,7 +648,7 @@ doc/gforth.info doc/gforth.info-*: $(GFORTH_TEXI)
 		-cd doc; $(MAKEINFO) gforth.texi
 
 html:		$(GFORTH_TEXI)
-		-$(RM) html/*
+		-$(RMTREE) html
 		-mkdir html
 		cd html; $(TEXI2HTML) -menu -split_node ../doc/gforth.texi
 
