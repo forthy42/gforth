@@ -406,7 +406,7 @@ int go_forth(Address image, int stack, Cell *entries)
     if (rp <= orig_rp0 && rp > (Cell *)(image_header->return_stack_base+5)) {
       /* no rstack overflow or underflow */
       rp0 = rp;
-      *--rp0 = (Cell)ip;
+      *--rp0 = (Cell)saved_ip;
     }
     else /* I love non-syntactic ifdefs :-) */
 #endif
@@ -465,10 +465,6 @@ void check_prims(Label symbols1[])
     PrimInfo *pi=&priminfos[i];
     int j;
     pi->super_end = superend[i-DOESJUMP-1]|no_super;
-    /* !! enable superinstructions for GFORTH_DEBUGGING) */
-#ifdef GFORTH_DEBUGGING
-    pi->super_end = 1;
-#endif
     for (j=prim_len-IND_JUMP_LENGTH; ; j--) {
       if (IS_NEXT_JUMP(symbols1[i]+j)) {
 	prim_len = j;

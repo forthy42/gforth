@@ -165,7 +165,14 @@ typedef Label *Xt;
 #define MAKE_DOES_HANDLER(addr)	0
 #endif /* !defined(DOUBLY_INDIRECT) */
 
-#ifdef DEBUG
+#ifdef GFORTH_DEBUGGING
+/* #define NAME(string) saved_ip=ip;*/
+#define NAME(string) *(Cell *)&saved_ip=(Cell)ip;
+/* the casting is there to get aliasing with loads at the start of the
+   primitives, so the store is not moved down across them; does not
+   work for FP-stack loads; ideally the -fno-strict-aliasing flag
+   should do this for us, but at least in gcc-2.95 it does not */
+#elif DEBUG
 #	define	NAME(string)	fprintf(stderr,"%08lx: "string"\n",(Cell)ip);
 #else
 #	define	NAME(string)
@@ -253,7 +260,7 @@ extern Label *xts;
 extern Cell npriminfos;
 
 #ifdef GFORTH_DEBUGGING
-extern Xt *ip;
+extern Xt *saved_ip;
 extern Cell *rp;
 #endif
 

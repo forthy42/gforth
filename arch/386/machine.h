@@ -126,7 +126,7 @@
 #define CFAREG asm("%edx")
 #endif
 #endif
-#else /* gcc-version */
+#else /* !gcc-2.5.x */
 /* this works with 2.6.3 (and quite well, too) */
 /* since this is not very demanding, it's the default for other gcc versions */
 #if defined(USE_TOS) && !defined(CFA_NEXT)
@@ -134,30 +134,23 @@
      /* gcc 2.95 has a better register allocater */
 #define SPREG asm("%esi")
 #define RPREG asm("%edi")
-#if (__GNUC__>2)
 #define IPREG asm("%ebx")
-/* ebp leads to broken code; eax, ecx, edx produce compile errors */
+/* ebp leads to broken code (gcc-3.0); eax, ecx, edx produce compile errors */
 #define TOSREG asm("%ecx")
-/* ecx works only for TOS, and eax, edx don't work for anything */
-#else
-/* gcc-2.95 manages to fit ip into ebp by itself */
-#define TOSREG asm("%ebx")
-#endif
-#else /* gcc-2.95 or later */
+/* ecx works only for TOS, and eax, edx don't work for anything (gcc-3.0) */
+#else /* !(gcc-2.95 or later) */
 #define IPREG asm("%ebx")
-#endif
-#else
+#endif /* !(gcc-2.95 or later) */
+#else /* !defined(USE_TOS) || defined(CFA_NEXT) */
 #if ((__GNUC__==2 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=95) || (__GNUC__>2))
 #define SPREG asm("%esi")
 #define RPREG asm("%edi")
-#if (__GNUC__>2)
 #define IPREG asm("%ebx")
-#endif
-#else
+#else /* !(gcc-2.95 or later) */
 #define SPREG asm("%ebx")
-#endif
-#endif /* USE_TOS && !CFA_NEXT */
-#endif /* gcc-version */
+#endif  /* !(gcc-2.95 or later) */
+#endif /* !defined(USE_TOS) || defined(CFA_NEXT) */
+#endif /* !gcc-2.5.x */
 #endif /* FORCE_REG */
 
 /* #define ALIGNMENT_CHECK 1 */

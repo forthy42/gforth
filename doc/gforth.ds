@@ -11749,11 +11749,12 @@ registers for temporary storage. Unfortunately, the register allocation
 is installation-dependent.
 
 In particular, @code{ip} (Forth instruction pointer) and @code{rp}
-(return stack pointer) are in different places in @code{gforth} and
-@code{gforth-fast}.  This means that you cannot write a @code{NEXT}
-routine that works on both versions; so for doing @code{NEXT}, I
-recomment jumping to @code{' noop >code-address}, which contains nothing
-but a @code{NEXT}.
+(return stack pointer) may be in different places in @code{gforth} and
+@code{gforth-fast}, or different installations.  This means that you
+cannot write a @code{NEXT} routine that works reliably on both versions
+or different installations; so for doing @code{NEXT}, I recommend
+jumping to @code{' noop >code-address}, which contains nothing but a
+@code{NEXT}.
 
 For general accesses to the inner interpreter's registers, the easiest
 solution is to use explicit register declarations (@pxref{Explicit Reg
@@ -11825,13 +11826,10 @@ registers, and using them later on; then you can easily adapt to a
 changed register assignment.  The stability of the register assignment
 is usually better if you build Gforth with @code{--enable-force-reg}.
 
-In particular, the return stack pointer and the instruction pointer are
-in memory in @code{gforth}, and usually in registers in
-@code{gforth-fast}.  The most common use of these registers is to
-dispatch to the next word (the @code{next} routine).  A portable way to
-do this is to jump to @code{' noop >code-address} (of course, this is
-less efficient than integrating the @code{next} code and scheduling it
-well).
+The most common use of these registers is to dispatch to the next word
+(the @code{next} routine).  A portable way to do this is to jump to
+@code{' noop >code-address} (of course, this is less efficient than
+integrating the @code{next} code and scheduling it well).
 
 Another difference between Gforth version is that the top of stack is
 kept in memory in @code{gforth} and, on most platforms, in a register in

@@ -125,7 +125,7 @@ engine.s:	$(ENGINE_DEPS)
 		$(GCC) -fno-gcse $(CFLAGS2) $(ENGINE_FLAGS) -S engine.b.c
 
 engine.o:	$(ENGINE_DEPS)
-		$(GCC) -fno-gcse $(CFLAGS2) $(ENGINE_FLAGS) -DGFORTH_DEBUGGING -o $@ -c engine.b.c
+		$(GCC) -fno-gcse $(CFLAGS2) $(ENGINE_FLAGS) -fno-strict-aliasing -DGFORTH_DEBUGGING -o $@ -c engine.b.c
 
 engine-fast.o:	$(ENGINE_DEPS)
 		$(GCC) -fno-gcse $(CFLAGS2) $(ENGINE_FLAGS) -o $@ -c engine.b.c

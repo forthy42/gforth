@@ -300,7 +300,7 @@ static int ufileattr[6]= {
 /* define some VM registers as global variables, so they survive exceptions;
    global register variables are not up to the task (according to the 
    GNU C manual) */
-Xt *ip;
+Xt *saved_ip;
 Cell *rp;
 #endif
 
@@ -337,9 +337,9 @@ define(enginerest,
 */
 {
 #ifndef GFORTH_DEBUGGING
-  register Xt *ip IPREG;
   register Cell *rp RPREG;
 #endif
+  register Xt *ip IPREG;
   register Cell *sp SPREG = sp0;
   register Float *fp FPREG = fp0;
   register Address lp LPREG = lp0;

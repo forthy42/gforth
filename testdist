@@ -26,11 +26,14 @@ make check &&
 #gforth test-counted-loops.fs
 make install &&
 #make bench
-chmod -R +w ../$GFORTH/vmgen-ex &&
+chmod -R +w ../$GFORTH/vmgen-ex ../$GFORTH/vmgen-ex2 &&
 cd ../$GFORTH/vmgen-ex &&
 PATH=$DIR/install/bin:$PATH make check &&
-cd ..
-cd ..
-install/bin/gforth test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs -e bye && echo test ok
+cd ../vmgen-ex2 &&
+PATH=$DIR/install/bin:$PATH make check &&
+cd .. &&
+cd .. &&
+install/bin/gforth test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs -e bye &&
+echo test ok
 chmod -R +w $GFORTH
 cd ..
