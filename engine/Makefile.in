@@ -85,7 +85,8 @@ OBJECTS_DITC =  engine-ditc.o main-ditc.o
 
 # In engine subdirectory there are (or should be) only files that belong to
 # our engine, so we can make life easy
-ENGINE_DEPS = *.c *.h *.i ../arch/$(machine)/*.[ch]
+DEPS =  config.h *.h ../arch/$(machine)/*.[h]
+ENGINE_DEPS = engine.c $(DEPS) prim_lab.i prim.i
 
 gforth:	$(OBJECTS) $(AOBJECTS)
 	$(GCC) $(LDFLAGS) $(OBJECTS) $(AOBJECTS) $(LDLIBS) -o $@
@@ -102,10 +103,10 @@ engine.o:	$(ENGINE_DEPS)
 engine-ditc.o:	$(ENGINE_DEPS)
 		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -DDOUBLY_INDIRECT -o $@ -c engine.c
 
-main.o:		$(ENGINE_DEPS) 
+main.o:		main.c $(DEPS) 
 		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -o $@ -c main.c
 
-main-ditc.o:	$(ENGINE_DEPS)
+main-ditc.o:	main.c $(DEPS)
 		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -DDOUBLY_INDIRECT -o $@ -c main.c
 
 engine:		$(OBJECTS) $(OBJECTS0) ;
@@ -122,6 +123,9 @@ prim.i: FORCE
 
 prim_lab.i: FORCE
 	cd ..; $(MAKE) engine/$@
+
+config.h: FORCE
+	cd .. && $(MAKE) engine/$@
 
 #phony targets depend on FORCE; this is more portable than .PHONY
 FORCE:

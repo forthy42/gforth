@@ -112,6 +112,7 @@ KERN_SRC = \
 	kernel/aliases0.fs \
 	kernel/aliases.fs \
 	kernel/args.fs \
+	chains.fs \
 	kernel/cond.fs \
 	kernel/cond-old.fs \
 	cross.fs \
@@ -139,13 +140,15 @@ KERN_SRC = \
 	kernel/getdoers.fs
 
 EC_SRC = \
-	asm/00-readme \
+	asm/CVS \
+	asm/README \
 	asm/bitmask.fs \
 	asm/numref.fs \
 	asm/basic.fs \
 	asm/generic.fs \
 	asm/target.fs \
-	ec/00-readme \
+	ec/CVS \
+	ec/README \
 	ec/mirror.fs \
 	ec/mirrors.fs \
 	ec/shex.fs \
@@ -192,18 +195,18 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_SRC) $(EC_SRC) \
 	ans-report.fs ansi.fs answords.fs \
 	code.fs colorize.fs comp-i.fs \
 	doskey.fs ds2texi.fs \
-	etags.fs filedump.fs \
+	envos.fs envos.dos envos.os2 etags.fs filedump.fs \
 	glosgen.fs gray.fs \
 	doc/makedoc.fs \
 	mach16b.fs mach16l.fs mach32b.fs mach32l.fs mach64b.fs mach64l.fs \
-	more.fs other.fs prims2x.fs random.fs \
-	siteinit.fs \
+	machpc.fs more.fs other.fs prims2x.fs random.fs \
+	siteinit.fs table.fs \
 	tt.fs sokoban.fs \
-	wordsets.fs \
+	unbuffered.fs wordsets.fs \
 	test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs \
 	test/other.fs test/checkans.fs test/CVS \
 	bubble.fs siev.fs matrix.fs fib.fs \
-	oof.fs oofsampl.fs objects.fs
+	oof.fs oofsampl.fs objects.fs objexamp.fs mini-oof.fs moof-exm.fs
 
 COMPAT	= compat/CVS compat/README compat/control.fs compat/anslocal.fs \
 	compat/struct.fs compat/loops.fs
@@ -212,22 +215,34 @@ GFORTH_TEXI =  doc/gforth.texi doc/version.texi
 
 ALLSUBDIRS = engine
 
-ARCHS =	arch/generic/machine.h \
+ARCHS =	\
+	arch/CVS \
+	arch/generic/CVS \
+	arch/generic/machine.h \
+	arch/m68k/CVS \
 	arch/m68k/machine.h \
+	arch/mips/CVS \
 	arch/mips/machine.h \
+	arch/386/CVS \
 	arch/386/machine.h \
+	arch/hppa/CVS \
 	arch/hppa/machine.h \
 	arch/hppa/cache.c \
+	arch/sparc/CVS \
 	arch/sparc/machine.h \
+	arch/power/CVS \
 	arch/power/machine.h \
 	arch/power/_sync_cache_range.c \
+	arch/alpha/CVS \
 	arch/alpha/machine.h \
+	arch/4stack/CVS \
 	arch/4stack/README \
 	arch/4stack/asm.fs \
 	arch/4stack/mach.fs \
 	arch/4stack/prim.fs \
 	arch/4stack/mach.sh \
 	arch/4stack/relocate.fs \
+	arch/misc/CVS \
 	arch/misc/README \
 	arch/misc/asm.fs \
 	arch/misc/mach.fs \
@@ -235,21 +250,27 @@ ARCHS =	arch/generic/machine.h \
 	arch/misc/sim.fs \
 	arch/misc/sokoban.fs \
 	arch/misc/tt.fs \
+	arch/6502/CVS \
 	arch/6502/asm.fs \
 	arch/6502/prim.fs \
 	arch/6502/mach.fs \
 	arch/6502/zero.fs \
 	arch/6502/softuart.fs \
 	arch/6502/cold.fs \
+	arch/8086/CVS \
 	arch/8086/asm.fs \
 	arch/8086/mach.fs \
 	arch/8086/mach.sh \
 	arch/8086/prim.fs \
+	arch/avr/CVS \
 	arch/avr/asm.fs \
+	arch/c165/CVS \
 	arch/c165/asm.fs \
 	arch/c165/mach.fs \
 	arch/c165/prim.fs \
+	arch/h8/CVS \
 	arch/h8/asm.fs \
+	arch/shboom/CVS \
 	arch/shboom/asm.fs \
 	arch/shboom/compiler.fs \
 	arch/shboom/dis.fs \
@@ -259,15 +280,16 @@ ARCHS =	arch/generic/machine.h \
 	arch/shboom/sh.p \
 	arch/shboom/doers.fs
 
-SOURCES	= CVS compat Makefile.in engine/Makefile.in gforthmi \
-	configure.in configure config.sub config.guess \
-	acconfig.h engine/config.h.in stamp-h.in \
+SOURCES	= CVS engine/CVS compat Makefile.in engine/Makefile.in gforthmi \
+	configure.in configure config.sub config.guess elisp-comp missing \
+	acconfig.h acinclude.m4 engine/config.h.in stamp-h.in \
 	install-sh INSTALL INSTALL.BINDIST NEWS README ToDo BUGS model \
-	COPYING Benchres aclocal.m4 \
-	doc/gforth.ds doc/texinfo.tex doc/gforth.1 gforth.el \
+	COPYING AUTHORS ChangeLog Benchres aclocal.m4 \
+	doc/gforth.ds doc/texinfo.tex doc/gforth.1 doc/version.texi.in \
+	doc/CVS gforth.el \
 	prim engine/engine.c engine/main.c engine/io.c engine/memcmpc.c \
 	$(ARCHS) \
-	engine/cache.c engine/32bit.h \
+	engine/32bit.h \
 	engine/getopt.c engine/getopt1.c engine/getopt.h engine/select.c \
 	engine/ecvt.c engine/memcmp.c engine/strtol.c engine/strtoul.c \
 	engine/ansidecl.h engine/memmove.c \
@@ -275,10 +297,11 @@ SOURCES	= CVS compat Makefile.in engine/Makefile.in gforthmi \
 	engine/strerror.c engine/strsignal.c engine/strsig.c engine/dblsub.c \
 	INSTALL.DOS makefile.dos engine/makefile.dos mkdosmf.sed config.bat \
 	dosconf.h gforthmi.bat startup.dos history.dos mkinstalldirs \
+	versions.bsh \
 	configure.cmd mkos2mf.sed os2conf.h makefile.os2 engine/makefile.os2 \
 	gforthmi.cmd glosgen.glo doc/glossaries.doc \
 	$(INCLUDES) $(FORTH_SRC) $(COMPAT) \
-	testclean testdist testdist1 timings.sc
+	timings.sc
 
 RCS_FILES =  ToDo model high-level
 
@@ -343,7 +366,8 @@ more:	engine $(FORTH_GEN) gforth
 # `realclean' also deletes everything that could be regenerated automatically."
 
 mostlyclean:	FORCE
-		-$(RM) -rf *.s gforth.fi *.fi~ *.fi- kernel/version.fs *TAGS \
+		-$(RM) -rf engine/*.s gforth.fi *.fi~ *.fi- kernel/version.fs \
+		*TAGS gforth~ \
 		doc/crossdoc.fd doc/doc.fd doc/gforth.texi doc/gforth.fns \
 		doc/gforth.aux doc/gforth.cp doc/gforth.cps \
 		doc/gforth.dvi doc/gforth.fn doc/gforth.ky doc/gforth.log \
@@ -356,8 +380,10 @@ clean:		mostlyclean
 		*.o engine/*.o arch/*/*.o
 
 distclean:	clean
-		-$(RM) config.cache config.log \
-		config.status engine/config.h Makefile engine/Makefile stamp-h
+		-$(RM) config.cache config.log config.status \
+		engine/config.h Makefile engine/Makefile \
+		stamp-h engine/stamp-h \
+		doc/version.texi version
 
 #realclean is useless, but dangerous, so it's commented out
 #realclean:	distclean

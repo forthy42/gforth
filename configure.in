@@ -144,7 +144,7 @@ AC_CANONICAL_HOST
 case "$host_cpu" in
 	hppa*)
 		machine=hppa
-		LIBOBJS="$LIBOBJS cache.o"
+		LIBOBJS="$LIBOBJS ../arch/hppa/cache.o"
 		LDFLAGS="-Xlinker -N"
 		LIBS="-L/lib/pa1.1/"
 		if test "${enable_direct_threaded+set}" = ""

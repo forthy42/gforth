@@ -48,4 +48,3 @@ s%gforth-ditc%gforth-d%g
 s%engine-ditc%engine-d%g
 s%main-ditc%main-d%g
 s%@OSCLASS@%dos%g
-s%$(MAKE) -C%bash makein.bsh%g
