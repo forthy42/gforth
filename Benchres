@@ -11,8 +11,9 @@ All times are given in seconds of user time.
 siev	bubble	matrix	fib	machine and configuration
  2.39	 3.38	 4.13	 4.18	Celeron 450 (Mendocino); gcc-2.7.2.3 -DFORCE-REG -DDIRECT-THREADED; gforth-0.3.0; ELF
  6.88	 7.43	 5.80	 8.15	AMD K6-2 300MHz 1M PB cache 100MHz; gcc-2.7.2.3 -DFORCE-REG; gforth-0.4.0; ELF
- 5.91    6.89    5.99    7.63	Pentium-MMX 200MHz 512K PB cache; gcc 2.95 -DFORCE-REG -DUSE_TOS; gforth-0.4.9; ELF
- 7.09	 7.70	 7.20	 8.74	Pentium-MMX 200MHz 512K PB cache; gcc 2.95 -DFORCE-REG; gforth-0.4.9; ELF
+ 5.91    6.89    5.99    7.63	Pentium-MMX 200MHz 512K PB cache; gcc-2.95 -DFORCE-REG -DUSE_TOS; gforth-0.4.9; ELF
+ 6.68    7.95    6.41    7.99	Pentium-MMX 200MHz 512K PB cache; egcs-1.1b -DFORCE-REG -DUSE_TOS; gforth-0.4.9; ELF
+ 7.09	 7.70	 7.20	 8.74	Pentium-MMX 200MHz 512K PB cache; gcc-2.95 -DFORCE-REG; gforth-0.4.9; ELF
  7.23	 7.81	 7.22	 8.47	Pentium-MMX 200MHz 512K PB cache; gcc-2.7.2.3 -DFORCE-REG; gforth-0.3.0; ELF
  7.36	 8.16	 7.73	 9.04	Pentium-MMX 200MHz 512K PB cache; egcs-1.1b -DFORCE-REG; gforth-0.4.0; ELF
 10.91	11.94	11.24	13.13	Pentium 133MHz 256K PB cache; gcc-2.6.3 -DFORCE_REG; gforth-0.1beta; a.out

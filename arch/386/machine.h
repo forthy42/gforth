@@ -30,10 +30,12 @@
 #define THREADING_SCHEME 8
 #endif
 
+#if ((__GNUC__==2 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=95) || (__GNUC__>2))
 #if !defined(USE_TOS) && !defined(USE_NO_TOS)
 #define USE_TOS
-#define MEMCMP_AS_SUBROUTINE 1
 #endif
+#endif
+#define MEMCMP_AS_SUBROUTINE 1
 
 #include "../generic/machine.h"
 
@@ -118,7 +120,12 @@
 #define IPREG asm("%ebx")
 #endif
 #else
+#if ((__GNUC__==2 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=95) || (__GNUC__>2))
+#define SPREG asm("%esi")
+#define RPREG asm("%edi")
+#else
 #define SPREG asm("%ebx")
+#endif
 #endif /* USE_TOS && !CFA_NEXT */
 #endif /* gcc-version */
 #endif /* FORCE_REG */
