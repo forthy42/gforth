@@ -54,6 +54,10 @@ Variable envs 30 0 [DO] 0 , [LOOP]
 
 \ alignment
 
+Variable table-format
+Variable table#
+Variable table-start
+
 : >align ( c -- )
     CASE
 	'l OF  s" left"   align=  ENDOF
@@ -62,6 +66,8 @@ Variable envs 30 0 [DO] 0 , [LOOP]
 	'< OF  s" left"   align=  ENDOF
 	'> OF  s" right"  align=  ENDOF
 	'= OF  s" center" align=  ENDOF
+	digit? IF  0 <# #S #> s" rowspan" opt
+	    table# @ 1+ table-start ! THEN 0
     ENDCASE ;
 
 : >border ( c -- )
@@ -216,12 +222,15 @@ Create do-words  $100 0 [DO] ' .text , [LOOP]
 :noname bl sword postpone SLiteral r@ postpone Literal
     postpone parse-tag postpone ; r> cells do-words + ! ;
 
+: >tag '\ parse type '\ parse tag ;
+
 char>tag * b
 char>tag _ em
 char>tag # code
 
 ' >link bind-char [
 ' >img  bind-char {
+' >tag  bind-char \
 
 : do-word ( char -- )  cells do-words + perform ;
 
@@ -284,6 +293,7 @@ Variable toc-link
 : top-toc  align here toc-link >last , 1 toc, ;
 : this-toc align here toc-link >last , 2 toc, ;
 : sub-toc  align here toc-link >last , 3 toc, ;
+: new-toc  toc-link off ;
 
 Variable toc-name
 
@@ -336,6 +346,7 @@ longtags set-current
 : **  1 indent s" h2" line +indent ;
 : *** 2 indent s" h3" line +indent ;
 : -- 0 indent cr print-toc ;
+: && 0 parse name= s" " s" a" tagged ;
 : - s" ul" env s" li" par ;
 : + s" ol" env s" li" par ;
 : << +env ;
@@ -356,22 +367,20 @@ definitions
     
 \ Table
 
-Variable table-format
-Variable table#
-
 : |tag  table-format $@ table# @ /string drop c@ >align
     >env  1 table# +! ;
-: |d  table# @ IF  -env  THEN  s" td" |tag ;
-: |h  table# @ IF  -env  THEN  s" th" |tag ;
-: |line  s" tr" >env  table# off ;
+: |d  table# @ table-start @ > IF  -env  THEN  s" td" |tag ;
+: |h  table# @ table-start @ > IF  -env  THEN  s" th" |tag ;
+: |line  s" tr" >env  table-start @ table# ! ;
 : line|  -env -env cr ;
 
 : next-char ( -- char )  source drop >in @ + c@ ;
 
 longtags set-current
 
-: <| s" table" >env bl sword table-format $! ;
-: |> -env ;
+: <| bl sword table-format $! table-start off bl sword
+    dup IF  s" border" opt  ELSE  2drop  THEN s" table" >env ;
+: |> -env -env cr cr ;
 : +| |line
     BEGIN
 	|h '| parse-to next-char '+ =  UNTIL line| ;
@@ -406,9 +415,11 @@ definitions
 
 Variable mail
 Variable mail-name
+Variable orig-date
 
 : .trailer
     s" address" >env s" center" >env
+    orig-date @ IF  ." Created " orig-date $@ type ." . "  THEN
     ." Last modified: " time&date rot 0 u.r swap 1-
     s" janfebmaraprmayjunjulaugsepoctnovdec" rot 3 * /string 3 min type
     0 u.r ."  by "
@@ -419,8 +430,10 @@ Variable mail-name
 
 : parse" ( -- addr u ) '" parse 2drop '" parse ;
 
-: maintainer
+: maintainer ( -- )
     bl sword mail $! parse" mail-name $! ;
+: created ( -- )
+    bl sword orig-date $! ;
 
 Variable style$
 : style> style$ @ 0= IF  s" " style$ $!  THEN  style$ $@ tag-option $! ;

@@ -54,7 +54,7 @@ base @ get-current ALSO ASSEMBLER DEFINITIONS also
 
 Variable >codes
 : (+rel      ;
-Create nrc  ] c,   here  allot  c! (+rel [
+Create nrc  ' c, A, ' here A, ' allot A, ' c! A, ' (+rel A,
 
 : nonrelocate   nrc >codes ! ;      nonrelocate
 
