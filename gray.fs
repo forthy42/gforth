@@ -1,6 +1,6 @@
 \ recursive descent parser generator )
 
-\ Copyright (C) 1995,1996,1997 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,2000 Free Software Foundation, Inc.
 \ Copyright 1990, 1991, 1994 Martin Anton Ertl
 
 \     This program is free software; you can redistribute it and/or modify

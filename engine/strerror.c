@@ -1,6 +1,6 @@
 /* a strerror implemenation
 
-  Copyright (C) 1995 Free Software Foundation, Inc.
+  Copyright (C) 1995,2000 Free Software Foundation, Inc.
 
   This file is part of Gforth.
 

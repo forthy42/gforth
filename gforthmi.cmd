@@ -1,5 +1,5 @@
 /*
-Copyright 1997 Free Software Foundation, Inc.
+Copyright 1997,2000 Free Software Foundation, Inc.
 
 This file is part of Gforth.
 

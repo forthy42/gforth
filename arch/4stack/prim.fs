@@ -1,6 +1,6 @@
 \ 4stack primitives
 
-\ Copyright (C) 2000 Free Software Foundation, Inc.
+\ Copyright (C) 2000,2003 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

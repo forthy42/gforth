@@ -1,6 +1,6 @@
 \ pass.fs pass pointers from cross to target		20May99jaw
 
-\ Copyright (C) 1999 Free Software Foundation, Inc.
+\ Copyright (C) 1999,2001 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

@@ -1,6 +1,6 @@
 # Generic Makefile for word libraries			11may99jaw
 
-#Copyright (C) 1999 Free Software Foundation, Inc.
+#Copyright (C) 1999,2000 Free Software Foundation, Inc.
 
 #This file is part of Gforth.
 

@@ -59,7 +59,7 @@ gforth/gforth/kernel/aliases.fs, but not gforth/kernel/aliases.fs.
 anton 3 sep 2001
 
 -----
-Copyright (C) 1995,1996,1997,1998,2000 Free Software Foundation, Inc.
+Copyright (C) 1995,1996,1997,1998,2000,2003 Free Software Foundation, Inc.
 
 This file is part of Gforth.
 

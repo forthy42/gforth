@@ -1,6 +1,6 @@
 \ Parameter for target systems                         06oct92py
 
-\ Copyright (C) 1995,2000 Free Software Foundation, Inc.
+\ Copyright (C) 1995,2000,2003 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

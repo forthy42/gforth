@@ -1,6 +1,6 @@
 /* direct key io driver
 
-  Copyright (C) 1995,1996,1997,1998,1999 Free Software Foundation, Inc.
+  Copyright (C) 1995,1996,1997,1998,1999,2002 Free Software Foundation, Inc.
 
   This file is part of Gforth.
 

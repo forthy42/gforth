@@ -2,7 +2,7 @@
 \ first n arguments. Gforth is restarted to create an exception frame
 \ for the exception handler.
 
-\ Copyright (C) 2000 Free Software Foundation, Inc.
+\ Copyright (C) 2000,2001 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
