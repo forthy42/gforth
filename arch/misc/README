@@ -1,0 +1,28 @@
+This directory contains simulator, assembler and primitives for the
+MISC-chip. Create an gforth image for the misc simulator with
+
+make kernl-misc.fi
+
+Load this image into the simulator and run the simulator with
+
+gforth arch/misc/sim.fs -e "load kernl-misc.fi g"
+
+Additonally, there are two more complex examples (two terminal games,
+Sokoban and Tetris). To create the image games-misc.fi, do the
+following:
+
+Add
+
+include arch/misc/sokoban.fs
+include arch/misc/tt.fs
+
+in main.fs just before "include special.fs". Perform a make
+kernl-misc.fi like above. Move the result to games-misc.fi, and start
+the simulator with
+
+gforth arch/misc/sim.fs -e "load games-misc.fi g"
+
+Now type in "sokoban" <return> or "tt" <return> to play sokoban or
+tetris (be aware: both are very slow!). To stop either game, type "q".
+
+More infos about the MISC processor can be found at www.mixed-mode.de
