@@ -512,8 +512,8 @@ else if (n>0)
  dup 0< IF  drop -1  ELSE  0>  1 and  THEN  ;
 
 toupper	c1 -- c2	gforth
-""For a character a-z, convert to the equivalent upper-case
-character. All other characters are unchanged.""
+""If @var{c1} is a lower-case character (in the current locale), @var{c2}
+is the equivalent upper-case character. All other characters are unchanged.""
 c2 = toupper(c1);
 :
  dup [char] a - [ char z char a - 1 + ] Literal u<  bl and - ;

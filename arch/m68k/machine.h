@@ -37,6 +37,7 @@
 #endif
 
 #include "../generic/machine.h"
+#include <sys/types.h>
 
 /* Clearing the whole cache is a bit drastic, but this is the only
  *    cache control available on the apollo and NeXT

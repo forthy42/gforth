@@ -26,11 +26,11 @@
 #endif
 #endif
 
-#include "../generic/machine.h"
-
 #ifndef THREADING_SCHEME
 #define THREADING_SCHEME 8
 #endif
+
+#include "../generic/machine.h"
 
 /* indirect threading is faster on the Pentium, on the 486 direct
    threading is faster. Therefore we leave defining
