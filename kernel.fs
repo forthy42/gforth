@@ -1359,9 +1359,9 @@ Defer key ( -- c ) \ core
   1 loadline +!
   swap #tib ! 0 >in ! ;
 
-: Query  ( -- ) \ core-ext
+: query   ( -- ) \ core-ext
     \G obsolescent
-    loadfile off  blk off  refill drop ;
+    tib /line accept #tib ! 0 >in ! ;
 
 \ File specifiers                                       11jun93jaw
 
@@ -1615,7 +1615,9 @@ create image-included-files  1 , A, ( pointer to and count of included files )
 Defer 'quit
 Defer .status
 : prompt        state @ IF ."  compiled" EXIT THEN ."  ok" ;
-: (quit)        BEGIN .status cr query interpret prompt AGAIN ;
+: (Query)  ( -- )
+    loadfile off  blk off  refill drop ;
+: (quit)        BEGIN .status cr (query) interpret prompt AGAIN ;
 ' (quit) IS 'quit
 
 \ DOERROR (DOERROR)                                     13jun93jaw
