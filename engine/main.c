@@ -128,13 +128,8 @@ Cell last_jump=0; /* if the last prim was compiled without jump, this
                      is it's number, otherwise this contains 0 */
 
 static int no_super=0;   /* true if compile_prim should not fuse prims */
-/* --no-dynamic by default on gcc versions >=3.1 (it works with 3.0.4,
-   but not with 3.2) */
-#if (__GNUC__>2 && __GNUC_MINOR__>=1)
-static int no_dynamic=1; /* true if compile_prim should not generate code */
-#else
-static int no_dynamic=0; /* true if compile_prim should not generate code */
-#endif
+static int no_dynamic=NO_DYNAMIC_DEFAULT; /* if true, no code is generated
+					     dynamically */
 
 #ifdef HAS_DEBUG
 int debug=0;
