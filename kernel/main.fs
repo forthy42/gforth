@@ -39,7 +39,7 @@ decimal
 
 cell 2 = [IF] 32 [ELSE] 256 [THEN] KB makekernel ( size )
 \ create image-header
-has-header [IF]
+has? header [IF]
 0 A,	\ base address
 0 ,	\ checksum
 0 ,	\ image size (without tags)
@@ -62,7 +62,7 @@ UNLOCK ghost - drop \ ghost must exist because - would be treated as number
 LOCK
 
 doc-off
-has-prims [IF]
+has? prims [IF]
     include kernel/aliases.fs             \ include primitive aliases
 [ELSE]
     prims-include
@@ -78,13 +78,13 @@ include kernel/vars.fs                \ variables and other stuff
 include kernel/errore.fs
 include kernel/version.fs
 include kernel/kernel.fs              \ load kernel
-has-files [IF]
+has? file [IF]
 include kernel/args.fs
 include kernel/files.fs               \ load file words
 include kernel/paths.fs
 include kernel/require.fs
 [THEN]
-has-locals [IF]
+has? glocals [IF]
 include kernel/cond.fs                \ load IF and co
 [ELSE]
 include kernel/cond-old.fs            \ load IF and co w/o locals
@@ -101,7 +101,7 @@ here normal-dp !
 tudp H @ minimal udp !
 decimal
 
-has-header [IF]
+has? header [IF]
   here         2 cells !  \ image size
   ' boot >body 8 cells !  \ Entry point
 [ELSE]

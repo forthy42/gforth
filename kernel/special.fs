@@ -21,12 +21,17 @@
 \ this file comes last, because these words override cross' words.
 
 create s"-buffer /line chars allot
-:noname    [char] " parse
-    /line min >r s"-buffer r@ cmove
-    s"-buffer r> ;
-:noname    [char] " parse postpone SLiteral ;
+has? ionly 
+[IF] : s" [ELSE] :noname [THEN]
+	[char] " parse
+    	/line min >r s"-buffer r@ cmove
+    	s"-buffer r> ;
+has? ionly 0= [IF]
+:noname [char] " parse postpone SLiteral ;
 interpret/compile: S" ( compilation 'ccc"' -- ; run-time -- c-addr u )	\ core,file	s-quote
+[THEN]
 
+has? ionly 0= [IF]
 : [IS] ( compilation "name" -- ; run-time xt -- ) \ possibly-gforth bracket-is
     ' >body postpone ALiteral postpone ! ; immediate restrict
 
@@ -55,6 +60,7 @@ interpret/compile: DOES>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest
 ' IS Alias TO ( addr "name" -- ) \ core-ext
 immediate
 
+[THEN]
 
 doer? :docon [IF]
 : docon: ( -- addr )	\ gforth
@@ -93,7 +99,7 @@ doer? :dofield [IF]
     ['] reveal-method >code-address ;
 [THEN]
 
-has-prims 0= [IF]
+has? prims 0= [IF]
 : dodoes: ( -- addr )	\ gforth
     \G the code address of a @code{field}
     ['] spaces >code-address ;

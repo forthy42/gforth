@@ -169,7 +169,7 @@ Constant dictionary-end
 \ !! allow the user to add rollback actions    anton
 \ !! use a separate exception stack?           anton
 
-has-locals [IF]
+has? glocals [IF]
 : lp@ ( -- addr ) \ gforth	l-p-fetch
  laddr# [ 0 , ] ;
 [THEN]
@@ -183,30 +183,30 @@ has-locals [IF]
 : catch ( x1 .. xn xt -- y1 .. ym 0 / z1 .. zn error ) \ exception
     'catch
     sp@ >r
-[ has-floats [IF] ]
+[ has? floating [IF] ]
     fp@ >r
 [ [THEN] ]
-[ has-locals [IF] ]
+[ has? glocals [IF] ]
     lp@ >r
 [ [THEN] ]
     handler @ >r
     rp@ handler !
     execute
     r> handler ! rdrop 
-[ has-floats [IF] ]
+[ has? floating [IF] ]
     rdrop
 [ [THEN] ]
-[ has-locals [IF] ]
+[ has? glocals [IF] ]
     rdrop
 [ [THEN] ]
     0 ;
 
 : throw ( y1 .. ym error/0 -- y1 .. ym / z1 .. zn error ) \ exception
     ?DUP IF
-	[ has-header [IF] here 9 cells ! [THEN] ] ] \ entry point for signal handler
-[ has-interpreter [IF] ]
+	[ has? header [IF] here 9 cells ! [THEN] ] ] \ entry point for signal handler
+[ has? interpreter [IF] ]
 	handler @ dup 0= IF
-[ has-os [IF] ]
+[ has? os [IF] ]
 	    2 (bye)
 [ [ELSE] ]
 	    quit
@@ -215,10 +215,10 @@ has-locals [IF]
 [ [THEN] ]
 	rp!
 	r> handler !
-[ has-locals [IF] ]
+[ has? glocals [IF] ]
         r> lp!
 [ [THEN] ]
-[ has-floats [IF] ]
+[ has? floating [IF] ]
 	r> fp!
 [ [THEN] ]
 	r> swap >r sp! drop r>
@@ -232,10 +232,10 @@ has-locals [IF]
   ?DUP IF
       handler @ rp!
       r> handler !
-[ has-locals [IF] ]
+[ has? glocals [IF] ]
       r> lp!
 [ [THEN] ]
-[ has-floats [IF] ]
+[ has? floating [IF] ]
       rdrop
 [ [THEN] ]
       rdrop
@@ -255,7 +255,7 @@ has-locals [IF]
 
 : ?stack ( ?? -- ?? ) \ gforth
     sp@ sp0 @ u> IF    -4 throw  THEN
-[ has-floats [IF] ]
+[ has? floating [IF] ]
     fp@ fp0 @ u> IF  -&45 throw  THEN
 [ [THEN] ]
 ;

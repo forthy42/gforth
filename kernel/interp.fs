@@ -3,7 +3,7 @@
 \ here allot , c, A,                                   17dec92py
 
 : allot ( n -- ) \ core
-    dup unused > -8 and throw
+    dup unused u> -8 and throw
     dp +! ;
 : c,    ( c -- ) \ core
     here 1 chars allot c! ;
@@ -702,21 +702,21 @@ G -1 warnings T !
 
 \ Query                                                07apr93py
 
-has-files 0= [IF]
+has? file 0= [IF]
 : sourceline# ( -- n )  loadline @ ;
 [THEN]
 
 : refill ( -- flag ) \ core-ext,block-ext,file-ext
   blk @  IF  1 blk +!  true  0 >in !  EXIT  THEN
   tib /line
-[ has-files [IF] ]
+[ has? file [IF] ]
   loadfile @ ?dup
   IF    read-line throw
   ELSE
 [ [THEN] ]
       sourceline# 0< IF 2drop false EXIT THEN
       accept true
-[ has-files [IF] ]
+[ has? file [IF] ]
   THEN
 [ [THEN] ]
   1 loadline +!
@@ -729,7 +729,7 @@ has-files 0= [IF]
 
 \ save-mem extend-mem
 
-has-os [IF]
+has? os [IF]
 : save-mem	( addr1 u -- addr2 u ) \ gforth
     \g copy a memory block into a newly allocated region in the heap
     swap >r
@@ -755,7 +755,7 @@ has-os [IF]
 
 \ EVALUATE                                              17may93jaw
 
-has-files 0= [IF]
+has? file 0= [IF]
 : push-file  ( -- )  r>
   sourceline# >r  tibstack @ >r  >tib @ >r  #tib @ >r
   >tib @ tibstack @ = IF  r@ tibstack +!  THEN
@@ -841,7 +841,7 @@ DEFER DOERROR
 ;
 
 : (DoError) ( throw-code -- )
-  [ has-os [IF] ]
+  [ has? os [IF] ]
       outfile-id dup flush-file drop >r
       stderr to outfile-id
   [ [THEN] ] 
@@ -867,7 +867,7 @@ DEFER DOERROR
      .error
   THEN
   normal-dp dpp ! 
-  [ has-os [IF] ] r> to outfile-id [ [THEN] ]
+  [ has? os [IF] ] r> to outfile-id [ [THEN] ]
   ;
 
 ' (DoError) IS DoError
@@ -892,7 +892,7 @@ DEFER DOERROR
     ." GForth " version-string type 
     ." , Copyright (C) 1994-1997 Free Software Foundation, Inc." cr
     ." GForth comes with ABSOLUTELY NO WARRANTY; for details type `license'"
-[ has-os [IF] ]
+[ has? os [IF] ]
      cr ." Type `bye' to exit"
 [ [THEN] ] ;
 
@@ -911,13 +911,13 @@ include chains.fs
 Variable init8
 
 : cold ( -- ) \ gforth
-[ has-files [IF] ]
+[ has? file [IF] ]
     pathstring 2@ fpath only-path 
     init-included-files
 [ [THEN] ]
     'cold
     init8 chainperform
-[ has-files [IF] ]
+[ has? file [IF] ]
     ['] process-args catch ?dup
     IF
       dup >r DoError cr r> negate (bye)
@@ -932,17 +932,17 @@ Variable init8
 
 : boot ( path **argv argc -- )
     main-task up!
-[ has-os [IF] ]
+[ has? os [IF] ]
     stdout TO outfile-id
 [ [THEN] ]
-[ has-files [IF] ]
+[ has? file [IF] ]
     argc ! argv ! pathstring 2!
 [ [THEN] ]
     sp@ sp0 !
-[ has-locals [IF] ]
+[ has? glocals [IF] ]
     lp@ forthstart 7 cells + @ - 
 [ [ELSE] ]
-    [ has-os [IF] ]
+    [ has? os [IF] ]
     sp@ $1040 +
     [ [ELSE] ]
     sp@ $40 +
@@ -950,18 +950,18 @@ Variable init8
 [ [THEN] ]
     dup >tib ! tibstack ! #tib off >in off
     rp@ rp0 !
-[ has-floats [IF] ]
+[ has? floating [IF] ]
     fp@ fp0 !
 [ [THEN] ]
     ['] cold catch DoError
-[ has-os [IF] ]
+[ has? os [IF] ]
     bye
 [ [THEN] ]
 ;
 
-has-os [IF]
+has? os [IF]
 : bye ( -- ) \ tools-ext
-[ has-files [IF] ]
+[ has? file [IF] ]
     script? 0= IF  cr  THEN
 [ [ELSE] ]
     cr

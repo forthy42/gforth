@@ -20,7 +20,7 @@
 
 include ~+/basics.fs
 include ~+/io.fs		\ basic io functions
-has-interpreter [IF]
+has? interpreter [IF]
 include ~+/interp.fs
 [THEN]
 include ~+/accept.fs

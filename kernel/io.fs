@@ -20,7 +20,7 @@
 
 \ Output                                               13feb93py
 
-has-os [IF]
+has? os [IF]
 0 Value outfile-id ( -- file-id ) \ gforth
 
 : (type) ( c-addr u -- ) \ gforth
@@ -55,10 +55,10 @@ Defer key ( -- c ) \ core
 0C constant #ff ( -- c ) \ gforth
 0A constant #lf ( -- c ) \ gforth
 
-: bell  #bell emit [ has-os [IF] ] outfile-id flush-file drop [ [THEN] ] ;
+: bell  #bell emit [ has? os [IF] ] outfile-id flush-file drop [ [THEN] ] ;
 : cr ( -- ) \ core
     \ emit a newline
-[ ?? has-crlf [IF] ]	#cr emit #lf emit 
+[ has? crlf [IF] ]	#cr emit #lf emit 
 [ [ELSE] ]		#lf emit
 [ [THEN] ]
     ;
