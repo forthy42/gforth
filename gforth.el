@@ -48,7 +48,7 @@ on the current line.
 OBS! All words in forth-negatives must be surrounded by spaces.")
 
 (defvar forth-zeroes
-  " : :noname code interpretation: public: private: how: class class; "
+  " : :noname code interpretation: public: private: how: implements class class; "
   "Contains all words which causes the indent to go to zero")
 
 (setq forth-zero 0)
@@ -75,6 +75,10 @@ OBS! All words in forth-negatives must be surrounded by spaces.")
 
 (if (not forth-mode-map)
     (setq forth-mode-map (make-sparse-keymap)))
+
+(global-set-key "\e\C-m" 'forth-send-paragraph)
+(global-set-key "\C-x\C-m" 'forth-split)
+(global-set-key "\e " 'forth-reload)
 
 ;(define-key forth-mode-map "\M-\C-x" 'compile)
 (define-key forth-mode-map "\C-x\\" 'comment-region)
@@ -417,10 +421,6 @@ part of the screen."
   (forth-split)
   (forth-set-runlight forth-runlight:input))
 
-(defun run-forth-if-not ()
-  (if (not (forth-process-running-p))
-      (run-forth forth-program-name)))
-
 (defun reset-forth ()
   "Reset the Forth process."
   (interactive)
@@ -714,7 +714,7 @@ The region is sent terminated by a newline."
   (interactive)
   (let ((process (get-process forth-program-name)))
     (if process (kill-process process t)))
-  (sleep-for 0 100)
+  (sleep-for-millisecs 100)
   (forth-mode))
 
 
@@ -922,18 +922,44 @@ The region is sent terminated by a newline."
 
 (require 'outline)
 
-;;(define-key outline-minor-mode-map 'f9 'show-entry)
-;;(define-key outline-minor-mode-map 'f10 'hide-entry)
+(defun f-outline-level ()
+	(cond	((looking-at "\\`\\\\")
+			0)
+		((looking-at "\\\\ SEC")
+			0)
+		((looking-at "\\\\ \\\\ .*")
+			0)
+		((looking-at "\\\\ DEFS")
+			1)
+		((looking-at "\\/\\* ")
+			1)
+		((looking-at ":")
+			1)
+		((looking-at "\\\\G")
+			2)
+		((looking-at "[ \t]+\\\\")
+			3))
+)			
 
 (defun fold-f  ()
    (interactive)
    (add-hook 'outline-minor-mode-hook 'hide-body)
 
    ; outline mode header start, i.e. find word definitions
-   (setq  outline-regexp  "^\\(:\\)[ \t]+\\([^ \t]*\\)")
+;;;   (setq  outline-regexp  "^\\(:\\)[ \t]+\\([^ \t]*\\)")
+   (setq  outline-regexp  "\\`\\\\\\|:\\|\\\\ SEC\\|\\\\G\\|[ \t]+\\\\\\|\\\\ DEFS\\|\\/\\*\\|\\\\ \\\\ .*")
+   (setq outline-level 'f-outline-level)
 
    (outline-minor-mode)
+(define-key outline-minor-mode-map '(shift up) 'hide-sublevels)
+(define-key outline-minor-mode-map '(shift right) 'show-children)
+(define-key outline-minor-mode-map '(shift left) 'hide-subtree)
+(define-key outline-minor-mode-map '(shift down) 'show-subtree)
+
 )
+
+(define-key global-map '(shift up) 'fold-f)
+
 ;;; end file folding
 
 ;;; func-menu is a package that scans your source file for function definitions
@@ -948,4 +974,7 @@ The region is sent terminated by a newline."
        (add-hook 'find-fible-hooks 'fume-add-menubar-entry)
        (define-key global-map "\C-cg" 'fume-prompt-function-goto)
        (define-key global-map '(shift button3) 'mouse-function-menu)
-       ))
+))
+
+;; end
+
