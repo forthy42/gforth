@@ -35,15 +35,18 @@ decimal
 
 \ rename to discover!!!
 
+: xt>threaded ( xt -- x )
+\G produces the threaded-code cell for the primitive xt
+    threading-method 0= if
+	@
+    then ;
+
 : (look)  ( xt startlfa -- lfa flag )
     false swap
     BEGIN
 	@ dup
     WHILE
-	    dup name>int
-	    threading-method 0= if
-		@
-	    then
+	    dup name>int xt>threaded
 	    3 pick = IF
 		nip dup
 	    THEN

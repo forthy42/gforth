@@ -483,7 +483,7 @@ c-extender !
 			( end!) 2drop false EXIT THEN 
 		THEN
 		\ jump over to extender, if any 26jan97jaw
-       		2 pick <>
+		xt>threaded 2 pick <>
         WHILE   2 cells +
         REPEAT
         nip cell+ perform
