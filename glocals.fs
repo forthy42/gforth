@@ -319,7 +319,9 @@ previous
   true abort" this should not happen: new-locals-reveal" ;
 
 create new-locals-map ( -- wordlist-map )
-' new-locals-find A, ' new-locals-reveal A,
+' new-locals-find A,
+' new-locals-reveal A,
+' drop A, \ rehash method
 
 slowvoc @
 slowvoc on

@@ -58,11 +58,11 @@ jmp_buf throw_jmp_buf;
 
 #define maxaligned(n)	(typeof(n))((((Cell)n)+sizeof(Float)-1)&-sizeof(Float))
 
-static Cell dictsize=0;
-static Cell dsize=0;
-static Cell rsize=0;
-static Cell fsize=0;
-static Cell lsize=0;
+static UCell dictsize=0;
+static UCell dsize=0;
+static UCell rsize=0;
+static UCell fsize=0;
+static UCell lsize=0;
 static int image_offset=0;
 static int clear_dictionary=0;
 static int debug=0;
@@ -361,13 +361,13 @@ int go_forth(Address image, int stack, Cell *entries)
   return((int)engine(ip,sp,rp,fp,lp));
 }
 
-int convsize(char *s, int elemsize)
+UCell convsize(char *s, UCell elemsize)
 /* converts s of the format #+u (e.g. 25k) into the number of bytes.
    the unit u can be one of bekM, where e stands for the element
    size. default is e */
 {
   char *endp;
-  int n,m;
+  UCell n,m;
 
   m = elemsize;
   n = strtoul(s,&endp,0);

@@ -207,14 +207,26 @@ Create tablesearch-map ( -- wordlist-map )
   BEGIN  @ dup @  WHILE  dup 0 wordlist-link - @ A,  REPEAT  drop
   udp @ , ;
 
-: marker! ( mark -- )  dup @ swap cell+
-  dup @ voclink ! cell+
-  voclink
-  BEGIN  @ dup @  WHILE  over @ over 0 wordlist-link - !
-	 swap cell+ swap
-  REPEAT  drop  voclink
-  BEGIN  @ dup @  WHILE  dup 0 wordlist-link - rehash  REPEAT  drop
-  @ udp !  dp ! ;
+: marker! ( mark -- )
+    dup @ swap cell+
+    dup @ voclink ! cell+
+    voclink
+    BEGIN
+	@ dup @ 
+    WHILE
+	over @ over 0 wordlist-link - !
+	swap cell+ swap
+    REPEAT
+    drop  voclink
+    BEGIN
+	@ dup @
+    WHILE
+	dup 0 wordlist-link - rehash
+    REPEAT
+    drop
+    @ udp !  dp ! ;
 
 : marker ( "mark" -- )
-  marker, Create A,  DOES>  @ marker! ;
+    marker, Create A,
+DOES> ( -- )
+    @ marker! ;

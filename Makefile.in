@@ -191,7 +191,7 @@ all:	version.fs more
 
 #this rule avoids remaking everything after minor changes in Makefile.in
 version-stamp:	Makefile.in
-		if test x'$(VERSION)' != x`cat $@`; then echo $(VERSION) >$@; fi
+		test x'$(VERSION)' = x`cat $@` || echo $(VERSION) >$@
 
 version.h:	version-stamp
 		echo "static char gforth_version[]=\"$(VERSION)\" ;" >$@

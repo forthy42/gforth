@@ -40,9 +40,9 @@ cell 2 = [IF] 32 [ELSE] 256 [THEN] KB makekernel ( size )
 0 ,	\ image size (without tags)
 ,	\ dict size
 16 KB ,	\ data stack size
-16 KB ,	\ FP stack size
-16 KB ,	\ return stack size
-16 KB ,	\ locals stack size
+15 KB 512 + ,	\ FP stack size
+15 KB ,	\ return stack size
+14 KB 512 + ,	\ locals stack size
 0 A,	\ code entry point
 0 A,	\ throw entry point
 16 KB ,	\ unused (possibly tib stack size)
