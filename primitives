@@ -441,6 +441,15 @@ ud = (UDCell)u1 * (UDCell)u2;
 um/mod	ud u1 -- u2 u3		core	u_m_slash_mod
 u3 = ud/u1;
 u2 = ud%u1;
+:
+  dup IF  0 (um/mod)  THEN  nip ; 
+: (um/mod)  ( ud ud--ud u)
+  2dup >r >r  dup 0< 
+  IF    2drop 0 
+  ELSE  2dup d+  (um/mod)  2*  THEN 
+  -rot  r> r> 2over 2over  du<
+  IF    2drop rot 
+  ELSE  dnegate  d+  rot 1+  THEN ; 
 
 m+	d1 n -- d2		double		m_plus
 d2 = d1+n;

@@ -1,5 +1,5 @@
 /*
-  $Id: forth.h,v 1.9 1994-09-05 17:36:17 anton Exp $
+  $Id: forth.h,v 1.10 1994-09-26 20:31:12 pazsan Exp $
   Copyright 1992 by the ANSI figForth Development Group
 */
 
@@ -71,7 +71,7 @@ Label *engine(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp);
 #endif
 
 #ifdef DEBUG
-#	define	NAME(string)	printf("%08x: "string"\n",(int)ip);
+#	define	NAME(string)	fprintf(stderr,"%08x: "string"\n",(int)ip);
 #else
 #	define	NAME(string)
 #endif

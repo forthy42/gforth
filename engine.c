@@ -1,5 +1,5 @@
 /*
-  $Id: engine.c,v 1.15 1994-09-09 16:27:18 anton Exp $
+  $Id: engine.c,v 1.16 1994-09-26 20:31:10 pazsan Exp $
   Copyright 1992 by the ANSI figForth Development Group
 */
 
@@ -180,6 +180,11 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
   CPU_DEP;
 #endif
 
+#ifdef DEBUG
+  fprintf(stderr,"ip=%x, sp=%x, rp=%x, fp=%x, lp=%x, up=%x\n",
+          ip,sp,rp,fp,lp,up);
+#endif
+
   if (ip == NULL)
     return symbols;
 
@@ -190,7 +195,7 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
   
  docol:
 #ifdef DEBUG
-  printf("%08x: col: %08x\n",(Cell)ip,(Cell)PFA1(cfa));
+  fprintf(stderr,"%08x: col: %08x\n",(Cell)ip,(Cell)PFA1(cfa));
 #endif
 #ifdef CISC_NEXT
   /* this is the simple version */
@@ -215,7 +220,7 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
   
  docon:
 #ifdef DEBUG
-  printf("%08x: con: %08x\n",(Cell)ip,*(Cell*)PFA1(cfa));
+  fprintf(stderr,"%08x: con: %08x\n",(Cell)ip,*(Cell*)PFA1(cfa));
 #endif
 #ifdef USE_TOS
   *sp-- = TOS;
@@ -227,7 +232,7 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
   
  dovar:
 #ifdef DEBUG
-  printf("%08x: var: %08x\n",(Cell)ip,(Cell)PFA1(cfa));
+  fprintf(stderr,"%08x: var: %08x\n",(Cell)ip,(Cell)PFA1(cfa));
 #endif
 #ifdef USE_TOS
   *sp-- = TOS;
@@ -241,7 +246,7 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
   
  douser:
 #ifdef DEBUG
-  printf("%08x: user: %08x\n",(Cell)ip,(Cell)PFA1(cfa));
+  fprintf(stderr,"%08x: user: %08x\n",(Cell)ip,(Cell)PFA1(cfa));
 #endif
 #ifdef USE_TOS
   *sp-- = TOS;
@@ -253,7 +258,7 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
   
  dodefer:
 #ifdef DEBUG
-  printf("%08x: defer: %08x\n",(Cell)ip,(Cell)PFA1(cfa));
+  fprintf(stderr,"%08x: defer: %08x\n",(Cell)ip,(Cell)PFA1(cfa));
 #endif
   cfa = *(Xt *)PFA1(cfa);
   NEXT1;
@@ -277,8 +282,8 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
      
      */
 #ifdef DEBUG
-  printf("%08x/%08x: does: %08x\n",(Cell)ip,(Cell)cfa,*(Cell)PFA(cfa));
-  fflush(stdout);
+  fprintf(stderr,"%08x/%08x: does: %08x\n",(Cell)ip,(Cell)cfa,DOES_CODE1(cfa));
+  fflush(stderr);
 #endif
   *--rp = (Cell)ip;
   /* PFA1 might collide with DOES_CODE1 here, so we use PFA */
@@ -290,6 +295,6 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
   *--sp = (Cell)PFA(cfa);
 #endif
   NEXT;
-  
+
 #include "primitives.i"
 }
