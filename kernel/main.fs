@@ -89,7 +89,6 @@ has? header [IF]
 \ include ./vars.fs                  \ variables and other stuff
 \ include kernel/version.fs          \ is in $(build)/kernel
 include ./kernel.fs                  \ kernel
-udp .s drop
 \ include ./errore.fs
 include ./doers.fs
 has? file [IF]
