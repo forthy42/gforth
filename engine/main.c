@@ -642,13 +642,15 @@ void check_prims(Label symbols1[])
 #endif
 }
 
-#ifndef NO_DYNAMIC
 void flush_to_here(void)
 {
+#ifndef NO_DYNAMIC
   FLUSH_ICACHE(start_flush, code_here-start_flush);
   start_flush=code_here;
+#endif
 }
 
+#ifndef NO_DYNAMIC
 void append_jump(void)
 {
   if (last_jump) {
@@ -657,7 +659,6 @@ void append_jump(void)
     memcpy(code_here, pi->start+pi->length, pi->restlength);
     code_here += pi->restlength;
     last_jump=0;
-    flush_to_here();
   }
 }
 
@@ -682,6 +683,7 @@ Address append_prim(Cell p)
   if (code_area+code_area_size < code_here+pi->length+pi->restlength) {
     struct code_block_list *p;
     append_jump();
+    flush_to_here();
     if (*next_code_blockp == NULL) {
       code_here = start_flush = code_area = my_alloc(code_area_size);
       p = (struct code_block_list *)malloc(sizeof(struct code_block_list));
@@ -818,9 +820,8 @@ void finish_code(void)
     set_rel_target(bi->addressptr, *(bi->targetptr));
   }
   nbranchinfos = 0;
-  FLUSH_ICACHE(start_flush, code_here-start_flush);
-  start_flush=code_here;
 #endif
+  flush_to_here();
 }
 
 void compile_prim1(Cell *start)

@@ -185,6 +185,9 @@ typedef Label *Xt;
 #ifndef FLUSH_ICACHE
 #warning flush-icache probably will not work (see manual)
 #	define FLUSH_ICACHE(addr,size)
+#warning no FLUSH_ICACHE, turning off dynamic native code by default
+#undef NO_DYNAMIC_DEFAULT
+#define NO_DYNAMIC_DEFAULT 1
 #endif
 
 #ifdef USE_TOS

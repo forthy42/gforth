@@ -42,7 +42,7 @@ vocabulary assembler ( -- ) \ tools-ext
     defstart init-asm ;
 :noname ( colon-sys1 -- colon-sys2 )	\ tools-ext	semicolon-code
     ( create the [;code] part of a low level defining word )
-    ;-hook postpone (;code) basic-block-end ?struc postpone [
+    ;-hook postpone (;code) basic-block-end finish-code ?struc postpone [
     defstart init-asm ;
 interpret/compile: ;code ( compilation. colon-sys1 -- colon-sys2 )	\ tools-ext	semicolon-code
 

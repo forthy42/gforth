@@ -211,9 +211,6 @@ case "$host_cpu" in
 		then
 			AC_LIBOBJ(termios)
 		fi
-		#I-cache flushing would be needed for dynamic code generation
-		no_dynamic_default=1
-		AC_MSG_WARN(Disabling dynamic native code generation by default (speed penalty factor ~2))
 		;;
 	mips*)
 		machine=mips
@@ -232,19 +229,6 @@ case "$host_cpu" in
 		#Therefore we disable dynamic native code by default:
 		no_dynamic_default=1
 		AC_MSG_WARN(Disabling dynamic native code generation by default (speed penalty factor ~2))
-		#link text and data segment into the same 256M region!
-		AC_MSG_CHECKING([whether the linker accepts -T])
-		OLDLDFLAGS=$LDFLAGS
-		LDFLAGS="$LDFLAGS -Xlinker -T -Xlinker 10000000"
-		AC_TRY_LINK(,,ac_link_mips_t=yes,ac_link_mips_t=no)
-		test $ac_link_mips_t = yes||LDFLAGS=$OLDLDFLAGS
-		AC_MSG_RESULT($ac_link_mips_t)
-		AC_MSG_CHECKING([whether the linker accepts -D])
-		OLDLDFLAGS=$LDFLAGS
-		LDFLAGS="$LDFLAGS -Xlinker -D -Xlinker 10400000"
-		AC_TRY_LINK(,,ac_link_mips_d=yes,ac_link_mips_d=no)
-		test $ac_link_mips_d = yes||LDFLAGS=$OLDLDFLAGS
-		AC_MSG_RESULT($ac_link_mips_d)
 		;;
 	alpha*)
 		machine=alpha
