@@ -108,6 +108,7 @@ Defer flush-blocks ( -- ) \ gforth
     if
 	r@ buffer-block @ block-position
 	r@ block-buffer chars/block  r@ buffer-fid @  write-file throw
+	buffer-fid @ flush-file throw
 	r@ buffer-dirty off
     endif
     rdrop ;

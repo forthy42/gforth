@@ -8,7 +8,7 @@
 \ and following.
 
 s" gforth" environment? [if]
-    defined str=
+    2drop defined str=
 [else]
     0
 [then]
