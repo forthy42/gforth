@@ -142,6 +142,11 @@ s" //jkfklfggfld/fjsjfk/hjfdjs" open-fpath-file 2drop
 
 here 1+ head? throw
 
+\ [compile] exit = exit
+
+: foo [compile] exit abort" '[compile] exit' broken" ;
+foo
+
 \ comments across several lines
 
 ( fjklfjlas;d

@@ -85,7 +85,12 @@ decimal
 \ [COMPILE]                                             17may93jaw
 
 : [compile] ( compilation "name" -- ; run-time ? -- ? ) \ core-ext bracket-compile
-    comp' drop compile, ; immediate
+    comp' drop
+    dup [ comp' exit drop ] literal = if
+	execute \ EXIT has default compilation semantics, perform them
+    else
+	compile,
+    then ; immediate
 
 \ CONVERT                                               17may93jaw
 

@@ -243,6 +243,8 @@ case "$host_cpu" in
 		;;
 	alpha*)
 		machine=alpha
+		#full IEEE FP support for more uniformity across platforms:
+		CFLAGS="$CFLAGS -mieee"
 		;;
 	power*)
 		machine=power
