@@ -21,10 +21,12 @@
 \       16: EAX EBX MOV         \ mov bx,ax
 
 
-ONLY FORTH ALSO DEFINITIONS
+\ additional words for Gforth port
 
-VOCABULARY ASSEMBLER   ASSEMBLER ALSO DEFINITIONS   HEX
+: w, ( x -- )
+    here ! 2 allot ;
 
+base @ get-current ALSO ASSEMBLER DEFINITIONS   HEX
 
 \ ---------------------------------------------------------------------
 \ Defer memory-access words for the metacompiler
@@ -304,28 +306,5 @@ MAX-LABELS ARRAY LABEL-LINK     ( linked list of unresolved references   )
 : RET#   ( n -- )  C2 C, W, ;
 : PUSH#  ( n -- )  68 C, ,  ;
 
-: NEXT   ( -- )
-   LODS   0 [EAX] [EDI] ECX MOV   EDI ECX ADD   ECX JMP ;
+previous set-current decimal base !
 
-: XCALL  ( n -- )
-    EDX EBX MOV
-    6 CELLS [EDI] EAX MOV
-    ( n ) CELLS [EAX] CALL
-    EBX EDX MOV  ;
-
-VARIABLE AVOC
-: ASM-INIT   CONTEXT @ AVOC !  ASSEMBLER  CLEAR-LABELS  !CSP ;
-
-: END-CODE  ?CSP  CHECK-LABELS  AVOC @ CONTEXT !  REVEAL ;
-: C;   END-CODE ;
-
-FORTH DEFINITIONS
-
-: LABEL   CREATE HIDE  ASM-INIT ;
-: CODE    LABEL  HERE DUP CELL - !  ;
-
-: ;CODE   ( -- )
-   ?COMP ?CSP  COMPILE (;CODE)  [COMPILE] [  ASM-INIT ; IMMEDIATE
-
-
-ONLY FORTH ALSO DEFINITIONS DECIMAL
