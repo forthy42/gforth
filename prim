@@ -191,7 +191,7 @@ goto *next_code;
 ip=IP; /* undo any ip updating that may have been performed by NEXT_P0 */
 #endif /* !defined(NO_IP) */
 SUPER_END; /* !! probably unnecessary and may lead to measurement errors */
-EXEC(*(Xt *)PFA(CFA));
+VM_JUMP(EXEC1(*(Xt *)PFA(CFA)));
 
 (dofield) ( n1 -- n2 )	gforth-internal	paren_field
 ""run-time routine for fields""
@@ -251,7 +251,7 @@ ip=IP;
 #endif
 IF_spTOS(spTOS = sp[0]); /* inst_tail would produce a NEXT_P1 */
 SUPER_END;
-EXEC(xt);
+VM_JUMP(EXEC1(xt));
 
 perform	( a_addr -- )	gforth
 ""@code{@@ execute}.""
@@ -261,7 +261,7 @@ ip=IP;
 #endif
 IF_spTOS(spTOS = sp[0]); /* inst_tail would produce a NEXT_P1 */
 SUPER_END;
-EXEC(*(Xt *)a_addr);
+VM_JUMP(EXEC1(*(Xt *)a_addr));
 :
  @ execute ;
 
@@ -284,7 +284,7 @@ lit-perform	( #a_addr -- )	new	lit_perform
 ip=IP;
 #endif
 SUPER_END;
-EXEC(*(Xt *)a_addr);
+VM_JUMP(EXEC1(*(Xt *)a_addr));
 
 does-exec ( #a_cfa -- R:nest a_pfa )	new	does_exec
 #ifdef NO_IP

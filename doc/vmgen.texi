@@ -10,7 +10,7 @@ This manual is for Vmgen
 (version @value{VERSION}, @value{UPDATED}),
 the virtual machine interpreter generator
 
-Copyright @copyright{} 2002, 03,2003 Free Software Foundation, Inc.
+Copyright @copyright{} 2002,2003,2005 Free Software Foundation, Inc.
 
 @quotation
 Permission is granted to copy, distribute and/or modify this document
@@ -906,6 +906,12 @@ if (branch_condition) @{
 SUPER_CONTINUE;
 @end example
 
+@item VM_JUMP
+@findex VM_JUMP
+@code{VM_JUMP(target)} is equivalent to @code{goto *(target)}, but
+allows Vmgen to do dynamic superinstructions and replication.  You
+still need to say @code{SUPER_END}.
+
 @end table
 
 Note that Vmgen is not smart about C-level tokenization, comments,
@@ -1108,7 +1114,7 @@ n++;
 Instead, you have to use different names, i.e.:
 
 @example
-add1 ( n1 -- n1 )
+add1 ( n1 -- n2 )
 n2=n1+1;
 @end example
 

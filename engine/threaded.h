@@ -102,7 +102,8 @@
 
 #define GOTO(target) do {(real_ca=(target));} while(0)
 #define NEXT_P2 do {NEXT_P1_5; DO_GOTO;} while(0)
-#define EXEC(XT) do { EXEC1(XT); DO_GOTO;} while (0)
+#define EXEC(XT) do { real_ca=EXEC1(XT); DO_GOTO;} while (0)
+#define VM_JUMP(target) do {GOTO(target); DO_GOTO;} while (0)
 #define NEXT do {DEF_CA NEXT_P1; NEXT_P2;} while(0)
 #define FIRST_NEXT_P2 NEXT_P1_5; GOTO_ALIGN; \
 before_goto: goto *real_ca; after_goto:
@@ -128,10 +129,10 @@ before_goto: goto *real_ca; after_goto:
     fprintf(stderr,"NEXT encountered prim %p at ip=%p\n", cfa, ip); \
   ip++;} while(0)
 #  define NEXT_P1_5	do {ca=**cfa; GOTO(ca);} while(0)
-#  define EXEC1(XT)	do {DEF_CA cfa=(XT);\
+#  define EXEC1(XT)	({DEF_CA cfa=(XT);\
   if (DEBUG_DITC && (cfa>vm_prims+DOESJUMP && cfa<vm_prims+npriminfos)) \
     fprintf(stderr,"EXEC encountered xt %p at ip=%p, vm_prims=%p, xts=%p\n", cfa, ip, vm_prims, xts); \
- ca=**cfa; GOTO(ca);} while(0)
+ ca=**cfa; ca;})
 
 #elif defined(NO_IP)
 
@@ -143,7 +144,10 @@ before_goto: goto *real_ca; after_goto:
 #define NEXT_P1
 #define NEXT_P1_5		do {goto *next_code;} while(0)
 /* set next_code to the return address before performing EXEC */
-#define EXEC1(XT)	do {cfa=(XT); goto **cfa;} while(0)
+/* original: */
+/* #define EXEC1(XT)	do {cfa=(XT); goto **cfa;} while(0) */
+/* fake, to make syntax check work */
+#define EXEC1(XT)	({cfa=(XT); *cfa;})
 
 #else  /* !defined(DOUBLY_INDIRECT) && !defined(NO_IP) */
 
@@ -186,7 +190,7 @@ before_goto: goto *real_ca; after_goto:
 #  define DEF_CA
 #  define NEXT_P1
 #  define NEXT_P1_5	do {GOTO(cfa);} while(0)
-#  define EXEC1(XT)	do {cfa=(XT); GOTO(*cfa);} while(0)
+#  define EXEC1(XT)	({cfa=(XT); *cfa;})
 #endif
 
 #if THREADING_SCHEME==2
@@ -200,7 +204,7 @@ before_goto: goto *real_ca; after_goto:
 #  define DEF_CA
 #  define NEXT_P1
 #  define NEXT_P1_5	do {KILLS GOTO(*(ip-1));} while(0)
-#  define EXEC1(XT)	do {cfa=(XT); GOTO(*cfa);} while(0)
+#  define EXEC1(XT)	({cfa=(XT); *cfa;})
 #endif
 
 
@@ -215,7 +219,7 @@ before_goto: goto *real_ca; after_goto:
 #  define DEF_CA
 #  define NEXT_P1	do {cfa=*ip++;} while(0)
 #  define NEXT_P1_5	do {GOTO(cfa);} while(0)
-#  define EXEC1(XT)	do {cfa=(XT); GOTO(*cfa);} while(0)
+#  define EXEC1(XT)	({cfa=(XT); *cfa;})
 #endif
 
 #if THREADING_SCHEME==4
@@ -229,7 +233,7 @@ before_goto: goto *real_ca; after_goto:
 #  define DEF_CA
 #  define NEXT_P1
 #  define NEXT_P1_5	do {KILLS GOTO(*(ip++));} while(0)
-#  define EXEC1(XT)	do {cfa=(XT); GOTO(*cfa);} while(0)
+#  define EXEC1(XT)	({cfa=(XT); *cfa;})
 #endif
 
 #if THREADING_SCHEME==5
@@ -244,7 +248,7 @@ before_goto: goto *real_ca; after_goto:
 #  define DEF_CA
 #  define NEXT_P1	(ip++)
 #  define NEXT_P1_5	do {GOTO(cfa);} while(0)
-#  define EXEC1(XT)	do {cfa=(XT); GOTO(*cfa);} while(0)
+#  define EXEC1(XT)	({cfa=(XT); *cfa;})
 #endif
 
 #if THREADING_SCHEME==6
@@ -258,7 +262,7 @@ before_goto: goto *real_ca; after_goto:
 #  define DEF_CA
 #  define NEXT_P1	(ip++)
 #  define NEXT_P1_5	do {KILLS GOTO(*(ip-1));} while(0)
-#  define EXEC1(XT)	do {cfa=(XT); GOTO(*cfa);} while(0)
+#  define EXEC1(XT)	({cfa=(XT); *cfa;})
 #endif
 
 
@@ -273,7 +277,7 @@ before_goto: goto *real_ca; after_goto:
 #  define DEF_CA
 #  define NEXT_P1	do {cfa=*ip++;} while(0)
 #  define NEXT_P1_5	do {GOTO(cfa);} while(0)
-#  define EXEC1(XT)	do {cfa=(XT); GOTO(*cfa);} while(0)
+#  define EXEC1(XT)	({cfa=(XT); *cfa;})
 #endif
 
 #if THREADING_SCHEME==8
@@ -287,7 +291,7 @@ before_goto: goto *real_ca; after_goto:
 #  define DEF_CA
 #  define NEXT_P1	(ip++)
 #  define NEXT_P1_5	do {KILLS GOTO(*(ip-1));} while(0)
-#  define EXEC1(XT)	do {cfa=(XT); GOTO(*cfa);} while(0)
+#  define EXEC1(XT)	({cfa=(XT); *cfa;})
 #endif
 
 #if THREADING_SCHEME==9
@@ -304,7 +308,7 @@ before_goto: goto *real_ca; after_goto:
 #  define DEF_CA	
 #  define NEXT_P1	do {cfa=next_cfa; ip++; next_cfa=*ip;} while(0)
 #  define NEXT_P1_5	do {GOTO(cfa);} while(0)
-#  define EXEC1(XT)	do {cfa=(XT); GOTO(*cfa);} while(0)
+#  define EXEC1(XT)	({cfa=(XT); *cfa;})
 #  define MORE_VARS	Xt next_cfa;
 #endif
 
@@ -319,7 +323,7 @@ before_goto: goto *real_ca; after_goto:
 #  define DEF_CA
 #  define NEXT_P1
 #  define NEXT_P1_5	do {cfa=*ip++; GOTO(cfa);} while(0)
-#  define EXEC1(XT)	do {cfa=(XT); GOTO(*cfa);} while(0)
+#  define EXEC1(XT)	({cfa=(XT); *cfa;})
 #endif
 
 /* direct threaded */
@@ -342,7 +346,7 @@ before_goto: goto *real_ca; after_goto:
 #  define DEF_CA
 #  define NEXT_P1
 #  define NEXT_P1_5	do {GOTO(*cfa);} while(0)
-#  define EXEC1(XT)	do {cfa=(XT); GOTO(*cfa);} while(0)
+#  define EXEC1(XT)	({cfa=(XT); *cfa;})
 #endif
 
 #if THREADING_SCHEME==2
@@ -357,7 +361,7 @@ before_goto: goto *real_ca; after_goto:
 #  define DEF_CA	Label ca;
 #  define NEXT_P1	do {ca=*cfa;} while(0)
 #  define NEXT_P1_5	do {GOTO(ca);} while(0)
-#  define EXEC1(XT)	do {DEF_CA cfa=(XT); ca=*cfa; GOTO(ca);} while(0)
+#  define EXEC1(XT)	({DEF_CA cfa=(XT); ca=*cfa; ca;})
 #endif
 
 
@@ -372,7 +376,7 @@ before_goto: goto *real_ca; after_goto:
 #  define DEF_CA
 #  define NEXT_P1
 #  define NEXT_P1_5	do {cfa=*ip++; GOTO(*cfa);} while(0)
-#  define EXEC1(XT)	do {cfa=(XT); GOTO(*cfa);} while(0)
+#  define EXEC1(XT)	({cfa=(XT); *cfa;})
 #endif
 
 #if THREADING_SCHEME==4
@@ -387,7 +391,7 @@ before_goto: goto *real_ca; after_goto:
 #  define DEF_CA	Label ca;
 #  define NEXT_P1	do {ca=*cfa;} while(0)
 #  define NEXT_P1_5	do {GOTO(ca);} while(0)
-#  define EXEC1(XT)	do {DEF_CA cfa=(XT); ca=*cfa; GOTO(ca);} while(0)
+#  define EXEC1(XT)	({DEF_CA cfa=(XT); ca=*cfa; ca;})
 #endif
 
 
@@ -403,7 +407,7 @@ before_goto: goto *real_ca; after_goto:
 #  define DEF_CA
 #  define NEXT_P1	(ip++)
 #  define NEXT_P1_5	do {GOTO(*cfa);} while(0)
-#  define EXEC1(XT)	do {cfa=(XT); GOTO(*cfa);} while(0)
+#  define EXEC1(XT)	({cfa=(XT); *cfa;})
 #endif
 
 #if THREADING_SCHEME==6
@@ -418,7 +422,7 @@ before_goto: goto *real_ca; after_goto:
 #  define DEF_CA	Label ca;
 #  define NEXT_P1	do {ip++; ca=*cfa;} while(0)
 #  define NEXT_P1_5	do {GOTO(ca);} while(0)
-#  define EXEC1(XT)	do {DEF_CA cfa=(XT); ca=*cfa; GOTO(ca);} while(0)
+#  define EXEC1(XT)	({DEF_CA cfa=(XT); ca=*cfa; ca;})
 #endif
 
 #if THREADING_SCHEME==7
@@ -433,7 +437,7 @@ before_goto: goto *real_ca; after_goto:
 #  define DEF_CA	Label ca;
 #  define NEXT_P1	do {ip++; ca=*cfa;} while(0)
 #  define NEXT_P1_5	do {GOTO(ca);} while(0)
-#  define EXEC1(XT)	do {DEF_CA cfa=(XT); ca=*cfa; GOTO(ca);} while(0)
+#  define EXEC1(XT)	({DEF_CA cfa=(XT); ca=*cfa; ca;})
 #endif
 
 #if THREADING_SCHEME==8
@@ -447,7 +451,7 @@ before_goto: goto *real_ca; after_goto:
 #  define DEF_CA
 #  define NEXT_P1
 #  define NEXT_P1_5	do {cfa=*ip++; GOTO(*cfa);} while(0)
-#  define EXEC1(XT)	do {cfa=(XT); GOTO(*cfa);} while(0)
+#  define EXEC1(XT)	({cfa=(XT); *cfa;})
 #endif
 
 /* indirect threaded */
