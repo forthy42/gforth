@@ -757,16 +757,17 @@ then in @file{~}, then in the normal path (see above).
 * Defining Words::              
 * Structures::                  
 * Objects::
-* Object Oriented Forth::                     
-* Tokens for Words::            
-* Wordlists::                   
-* Files::                       
-* Blocks::                      
-* Other I/O::                   
-* Programming Tools::           
-* Assembler and Code Words::    
-* Threading Words::             
-* Including Files::             
+* Object Oriented Forth::
+* Mini-OOF::
+* Tokens for Words::
+* Wordlists::
+* Files::
+* Blocks::
+* Other I/O::
+* Programming Tools::
+* Assembler and Code Words::
+* Threading Words::
+* Including Files::
 @end menu
 
 @node Notation, Arithmetic, Words, Words
