@@ -27,9 +27,28 @@
 
 Create mach-file here over 1+ allot place
 
-require ./../search.fs
-require ./../errors.fs
-require ./../extend.fs
+0 [IF]
+\ debugging: produce a relocation and a symbol table
+s" rel-table" r/w create-file throw
+Constant fd-relocation-table
+
+\ debuggging: produce a symbol table
+s" sym-table" r/w create-file throw
+Constant fd-symbol-table
+[THEN]
+
+
+bl word vocabulary find nip 0= [IF]
+\ if search order stuff is missing assume we compile on a gforth
+\ system and include it
+\ We want the files taken from out current gforth installation
+\ so we don't include relatively to this file
+
+require search.fs
+require errors.fs
+require extend.fs
+
+[THEN]
 
 \ include etags.fs
 
