@@ -32,7 +32,7 @@
     ?dup IF
 	r> drop EXIT
     THEN
-    #lf r> emit-file ;
+    newline r> write-file ;
 
 \ include-file                                         07apr93py
 

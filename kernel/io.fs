@@ -95,12 +95,8 @@ all-words
 
 : bell  #bell emit [ has? os [IF] ] outfile-id flush-file drop [ [THEN] ] ;
 : cr ( -- ) \ core c-r
-  \G Output a carriage-return and (if appropriate for the host operating system)
-  \G a line feed.
-[ has? crlf [IF] ]	#cr emit #lf emit 
-[ [ELSE] ]		#lf emit
-[ [THEN] ]
-    ;
+  \G Output a newline (of the favourite kind of the host OS)
+  newline type ;
 
 : space ( -- ) \ core
   \G Display one space.
