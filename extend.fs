@@ -72,6 +72,16 @@ decimal
 : erase ( 0 1 chars um/mod nip )  0 fill ;
 : blank ( 0 1 chars um/mod nip ) bl fill ;
 
+\ SEARCH                                                02sep94py
+
+: search   ( buf buflen text textlen -- restbuf restlen flag )
+  2over  2 pick - 1+ 3 pick c@ >r
+  BEGIN  r@ scan dup  WHILE
+         >r >r  2dup r@ -text
+         0= IF  >r drop 2drop r> r> r> rot + 1- rdrop true  EXIT  THEN
+	 r> r>  1 /string   REPEAT
+  2drop 2drop  rdrop false ;
+
 \ ROLL                                                  17may93jaw
 
 : roll  dup 1+ pick >r

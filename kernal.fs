@@ -781,8 +781,7 @@ Avariable leave-sp  leave-stack 3 cells + leave-sp !
 \ information through global variables), but they are useful for dealing
 \ with existing/independent defining words
 
-defer (header)
-defer header ' (header) IS header
+defer header
 
 : name,  ( "name" -- )
     name c@
@@ -795,9 +794,9 @@ defer header ' (header) IS header
 
 : input-stream ( -- )  \ general
 \ switches back to getting the name from the input stream ;
-    ['] input-stream-header IS (header) ;
+    ['] input-stream-header IS header ;
 
-' input-stream-header IS (header)
+' input-stream-header IS header
 
 \ !! make that a 2variable
 create nextname-buffer 32 chars allot
@@ -815,7 +814,7 @@ create nextname-buffer 32 chars allot
     dup $1F u> -&19 and throw ( is name too long? )
     nextname-buffer c! ( c-addr )
     nextname-buffer count move
-    ['] nextname-header IS (header) ;
+    ['] nextname-header IS header ;
 
 : noname-header ( -- )
     0 last !
@@ -823,7 +822,7 @@ create nextname-buffer 32 chars allot
 
 : noname ( -- ) \ general
 \ the next defined word remains anonymous. The xt of that word is given by lastxt
-    ['] noname-header IS (header) ;
+    ['] noname-header IS header ;
 
 : lastxt ( -- xt ) \ general
 \ xt is the execution token of the last word defined. The main purpose of this word is to get the xt of words defined using noname
@@ -967,11 +966,11 @@ AVariable current
 Create f83search       ' f83find A,  ' (reveal) A,  ' drop A,
 
 Create forth-wordlist  NIL A, G f83search T A, NIL A, NIL A,
-AVariable search       G forth-wordlist search T !
+AVariable lookup       G forth-wordlist lookup T !
 G forth-wordlist current T !
 
 : (search-wordlist)  ( addr count wid -- nfa / false )
-  dup ( @ swap ) cell+ @ @ execute ;
+  dup cell+ @ @ execute ;
 
 : search-wordlist  ( addr count wid -- 0 / xt +-1 )
   (search-wordlist) dup  IF  found  THEN ;
@@ -993,7 +992,7 @@ Variable warnings  G -1 warnings T !
  2drop 2drop ;
 
 : sfind ( c-addr u -- xt n / 0 )
-    search @ search-wordlist ;
+    lookup @ search-wordlist ;
 
 : find   ( addr -- cfa +-1 / string false )
     \ !! not ANS conformant: returns +-2 for restricted words
@@ -1017,8 +1016,8 @@ Variable warnings  G -1 warnings T !
 08 constant #bs
 09 constant #tab
 7F constant #del
-0C constant #ff
 0D constant #cr                \ the newline key code
+0C constant #ff
 0A constant #lf
 
 : bell  #bell emit ;
@@ -1129,7 +1128,17 @@ create nl$ 1 c, A c, 0 c, \ gnu includes usually a cr in dos
   loadline @ >r loadfile @ >r
   blk @ >r >tib @ >r  #tib @ dup >r  >tib +!  >in @ >r  >r ;
 
-: pop-file   ( -- )  r>
+: pop-file   ( throw-code -- throw-code )
+  dup IF
+         source >in @ loadline @ loadfilename 2@
+	 error-stack dup @ dup 1+
+	 max-errors 1- min error-stack !
+	 6 * cells + cell+
+	 5 cells bounds swap DO
+	                    I !
+	 -1 cells +LOOP
+  THEN
+  r>
   r> >in !  r> #tib !  r> >tib !  r> blk !
   r> loadfile ! r> loadline !  >r ;
 
@@ -1139,7 +1148,7 @@ create nl$ 1 c, A c, 0 c, \ gnu includes usually a cr in dos
 : include-file ( i*x fid -- j*x )
   push-file  loadfile !
   0 loadline ! blk off  ['] read-loop catch
-  loadfile @ close-file
+  loadfile @ close-file swap
   pop-file  throw throw ;
 
 : included ( i*x addr u -- j*x )
@@ -1205,47 +1214,76 @@ Defer .status
 
 \ DOERROR (DOERROR)                                     13jun93jaw
 
+8 Constant max-errors
+Variable error-stack  0 error-stack !
+max-errors 6 * cells allot
+\ format of one cell:
+\ source ( addr u )
+\ >in
+\ line-number
+\ Loadfilename ( addr u )
+
 : dec. ( n -- )
     \ print value in decimal representation
     base @ decimal swap . base ! ;
 
 : typewhite ( addr u -- )
     \ like type, but white space is printed instead of the characters
-    0 ?do
-	dup i + c@ 9 = if \ check for tab
+    bounds ?do
+	i c@ 9 = if \ check for tab
 	    9
 	else
 	    bl
 	then
 	emit
     loop
-    drop ;
+;
 
 DEFER DOERROR
 
+: .error-frame ( addr1 u1 n1 n2 addr2 u2 -- )
+  cr error-stack @
+  IF
+     ." in file included from "
+     type ." :" dec.  drop 2drop
+  ELSE
+     type ." :" dec.
+     cr dup 2over type cr drop
+     nip -trailing ( line-start index2 )
+     0 >r  BEGIN
+                  1- 2dup + c@ bl >  WHILE
+		  r> 1+ >r  dup 0<  UNTIL  THEN  1+
+     ( line-start index1 )
+     typewhite
+     r> 1 max 0 ?do \ we want at least one "^", even if the length is 0
+                  [char] ^ emit
+     loop
+  THEN
+;
+
 : (DoError) ( throw-code -- )
-    LoadFile @
-    IF
-	cr loadfilename 2@ type ." :" Loadline @ dec.
-    THEN
-    cr source type cr
-    source drop >in @ -trailing ( throw-code line-start index2 )
-    here c@ 1F min dup >r - 0 max ( throw-code line-start index1 )
-    typewhite
-    r> 1 max 0 ?do \ we want at least one "^", even if the length is 0
-	." ^"
-    loop
-    dup -2 =
-    IF 
-	"error @ ?dup
-	IF
-	    cr count type 
-	THEN
-	drop
-    ELSE
-	.error
-    THEN
-    normal-dp dpp ! ;
+  loadline @ IF
+               source >in @ loadline @ 0 0 .error-frame
+  THEN
+  error-stack @ 0 ?DO
+    -1 error-stack +!
+    error-stack dup @ 6 * cells + cell+
+    6 cells bounds DO
+      I @
+    cell +LOOP
+    .error-frame
+  LOOP
+  dup -2 =
+  IF 
+     "error @ ?dup
+     IF
+        cr count type 
+     THEN
+     drop
+  ELSE
+     .error
+  THEN
+  normal-dp dpp ! ;
 
 ' (DoError) IS DoError
 

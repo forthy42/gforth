@@ -1,5 +1,5 @@
 \ CROSS.FS     The Cross-Compiler                      06oct92py
-\ $Id: cross.fs,v 1.10 1994-08-25 15:25:20 anton Exp $
+\ $Id: cross.fs,v 1.11 1994-09-02 15:23:33 pazsan Exp $
 \ Idea and implementation: Bernd Paysan (py)
 \ Copyright 1992 by the ANSI figForth Development Group
 
@@ -220,11 +220,12 @@ Variable atonce atonce off
 : >magic ; : >link cell+ ; : >exec cell+ cell+ ;
 : >end 3 cells + ;
 
+Variable last-ghost
 : Make-Ghost ( "name" -- ghost )
   >in @ GhostName swap >in !
   <T Create atonce @ IF immediate atonce off THEN
   here tuck swap ! ghostheader T>
-  DOES>  >exec @ execute ;
+  DOES> dup last-ghost ! >exec @ execute ;
 
 \ ghost words                                          14oct92py
 \                                          changed:    10may93py/jaw
@@ -298,7 +299,7 @@ variable ResolveFlag
   WHILE dup ?resolved
   REPEAT drop ResolveFlag @
   IF
-      1 (bye)
+      abort" Unresolved words!"
   ELSE
       ." Nothing!"
   THEN
@@ -350,7 +351,8 @@ VARIABLE CreateFlag CreateFlag off
 
 VARIABLE ;Resolve 1 cells allot
 
-: Theader  ( "name" -- )     (THeader there resolve 0 ;Resolve ! ;
+: Theader  ( "name" -- ghost )
+  (THeader dup there resolve 0 ;Resolve ! ;
 
 >TARGET
 : Alias    ( cfa -- ) \ name
@@ -487,34 +489,33 @@ Cond: DOES> restrict?
   >in @ alias2 swap dup >in ! >r >r
   Make-Ghost rot swap >exec ! ,
   r> r> >in !
-  also ghosts ' previous swap !
-  DOES> dup >exec @ execute ;
+  also ghosts ' previous swap ! ;
+\  DOES>  dup >exec @ execute ;
 
 : gdoes,  ( ghost -- )  >end @ dup >magic @ <fwd> <>
   IF dup >link @ dup 0< IF T A, 0 , H drop EXIT THEN drop THEN
   :dodoes T A, H gexecute T here H cell - reloff ;
 
-: TCreate ( ghost -- )
+: TCreate ( -- )
+  last-ghost @
   CreateFlag on
-  Theader dup gdoes,
-  >end @ >exec @ execute ;
+  Theader >r dup gdoes,
+  >end @ >exec @ r> >exec ! ;
 
 : Build:  ( -- [xt] [colon-sys] )
   :noname  postpone TCreate ;
 
 : gdoes>  ( ghost -- addr flag )
+  last-ghost @
   state @ IF  gexecute true EXIT  THEN
   cell+ @ T >body H false ;
 
 \ DO: ;DO                                               11may93jaw
 \ changed to ?EXIT                                      10may93jaw
 
-: (does>)        postpone does> ; immediate \ second level does>
-
 : DO:     ( -- addr [xt] [colon-sys] )
   here ghostheader
-  :noname
-  postpone (does>) postpone gdoes> postpone ?EXIT ;
+  :noname postpone gdoes> postpone ?EXIT ;
 
 : ;DO ( addr [xt] [colon-sys] -- )
   postpone ;    ( S addr xt )
@@ -745,6 +746,7 @@ endian Constant endian
 
 : + + ;         : 1- 1- ;
 : - - ;         : 2* 2* ;
+: * * ;         : / / ;
 : dup dup ;     : over over ;
 : swap swap ;   : rot rot ;
 

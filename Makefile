@@ -4,10 +4,10 @@ RM	= echo 'Trying to remove'
 GCC	= gcc
 FORTH	= gforth
 CC	= gcc
-SWITCHES = -fforce-addr -fforce-mem -fomit-frame-pointer \
+SWITCHES = \
 	-fno-defer-pop -fcaller-saves \
 	-D_POSIX_VERSION -DUSE_TOS -DUSE_FTOS -DDEFAULTBIN='"'`pwd`'"' \
-	-DDIRECT_THREADED #-DNDEBUG #turn off assertions
+	#-DDIRECT_THREADED #-DNDEBUG #turn off assertions
 CFLAGS	= -O4 -Wall -g $(SWITCHES)
 
 #-Xlinker -n puts text and data into the same 256M region
@@ -65,19 +65,19 @@ realclean:	distclean
 current:	$(RCS_FILES)
 
 gforth:	$(OBJECTS) $(FORTH_GEN)
-		-cp gforth gforth.old
+		-cp gforth gforth~
 		$(GCC) $(LDFLAGS) $(OBJECTS) $(LDLIBS) -o $@
 
 kernl32l.fi:	main.fs search-order.fs cross.fs aliases.fs vars.fs add.fs \
 		errore.fs kernal.fs extend.fs tools.fs toolsext.fs \
 		mach32l.fs $(FORTH_GEN)
-		-cp kernl32l.fi kernl32l.fi.old
+		-cp kernl32l.fi kernl32l.fi~
 		$(FORTH) -e 's" mach32l.fs" r/o open-file throw' main.fs
 
 kernl32b.fi:	main.fs search-order.fs cross.fs aliases.fs vars.fs add.fs \
 		errore.fs kernal.fs extend.fs tools.fs toolsext.fs \
 		mach32b.fs $(FORTH_GEN)
-		-cp kernl32b.fi kernl32b.fi.old
+		-cp kernl32b.fi kernl32b.fi~
 		$(FORTH) -e 's" mach32b.fs" r/o open-file throw' main.fs
 
 engine.s:	engine.c primitives.i prim_labels.i machine.h $(INCLUDES)

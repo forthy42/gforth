@@ -80,7 +80,7 @@ Forth-wordlist @ ' Forth >body A!
 
 Only Forth also definitions
 
-search A! \ our dictionary search order becomes the law
+lookup A! \ our dictionary search order becomes the law
 
 \ get-order set-order                                  14may93py
 
