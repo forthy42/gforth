@@ -97,16 +97,38 @@ CREATE DT 0 , 0 ,
 
 VARIABLE Body
 
-: NestXT        ( xt -- true | body false )
-		\ special deal for create does> words
-		\ leaves body address on the stack
-		dup >does-code IF dup >body swap THEN
+: nestXT-checkSpecial ( xt -- xt2 | cfa xt2 ) 
+  dup >does-code IF
+    \ if nest into a does> we must leave
+    \ the body address on stack as does> does...
+    dup >body swap EXIT
+  THEN
+  dup ['] EXECUTE = IF   
+    \ xt to EXECUTE is next stack item...
+    drop EXIT 
+  THEN
+  dup ['] PERFORM = IF
+    \ xt to EXECUTE is addressed by next stack item
+    drop @ EXIT 
+  THEN
+  BEGIN
+    dup >code-address dodefer: =
+    WHILE
+      \ load xt of DEFERed word
+      cr ." nesting defered..." 
+      >body @    
+  REPEAT ;
 
-                DebugMode c-pass ! C-Output off
-                xt-see C-Output on
-                c-pass @ DebugMode = dup
-                IF      ." Cannot debug" cr
-                THEN ;         
+: nestXT ( xt -- true | body false )
+\G return true if we are not able to debug this, 
+\G body and false otherwise
+  nestXT-checkSpecial 
+  \ scan code with xt-see
+  DebugMode c-pass ! C-Output off
+  xt-see C-Output on
+  c-pass @ DebugMode = dup
+  IF      cr ." Cannot debug!!"
+  THEN ;
 
 VARIABLE Nesting
 
@@ -115,7 +137,7 @@ VARIABLE Unnest
 : D-KEY         ( -- flag )
         BEGIN
                 Unnest @ IF 0 ELSE key THEN
-                CASE    [char] n OF     dbg-ip @ @ NestXT EXIT ENDOF
+                CASE    [char] n OF     dbg-ip @ @ nestXT EXIT ENDOF
                         [char] s OF     Leave-D
                                         -128 THROW ENDOF
                         [char] a OF     Leave-D
