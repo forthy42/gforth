@@ -91,6 +91,8 @@ include kernel/cond-old.fs            \ load IF and co w/o locals
 [THEN]
 include kernel/tools.fs               \ load tools ( .s dump )
 include kernel/toolsext.fs
+\ include arch/misc/tt.fs
+\ include arch/misc/sokoban.fs
 include kernel/special.fs             \ special must be last!
 
 \ Setup                                                13feb93py

@@ -20,7 +20,7 @@
 
 \ Now: Kernel Module, Reloadable
 
-\ $Id: require.fs,v 1.1 1997-05-21 20:40:17 anton Exp $
+\ $Id: require.fs,v 1.2 1997-05-29 19:43:39 pazsan Exp $
 
 create included-files 0 , 0 , ( pointer to and count of included files )
 here ," the terminal" dup c@ swap 1 + swap , A, here 2 cells -
@@ -140,5 +140,5 @@ create image-included-files  1 , A, ( pointer to and count of included files )
 	cr I 2@ type  2 cells +LOOP ;  
 
 \ contains tools/newrequire.fs
-\ \I $Id: require.fs,v 1.1 1997-05-21 20:40:17 anton Exp $
+\ \I $Id: require.fs,v 1.2 1997-05-29 19:43:39 pazsan Exp $
 
