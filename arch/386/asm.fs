@@ -2,7 +2,7 @@
 
 \ Copyright (C) 1992-2000 by Bernd Paysan
 
-\ Copyright (C) 2000,2001 Free Software Foundation, Inc.
+\ Copyright (C) 2000,2001,2003 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

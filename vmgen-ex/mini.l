@@ -1,3 +1,4 @@
+%{
 /* front-end scanner for vmgen example
 
   Copyright (C) 2001,2003 Free Software Foundation, Inc.
@@ -19,9 +20,8 @@
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
 */
 
-/* %option yylineno (flex option, implied by flex -l) */
+/* % option yylineno (flex option, implied by flex -l) */
 
-%{
 #include <stdlib.h>
 #include <string.h>
 char *mystrdup(const char *s)

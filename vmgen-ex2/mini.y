@@ -1,6 +1,6 @@
 /* front-end compiler for vmgen example
 
-  Copyright (C) 2001,2002 Free Software Foundation, Inc.
+  Copyright (C) 2001,2002,2003 Free Software Foundation, Inc.
 
   This file is part of Gforth.
 
@@ -40,7 +40,13 @@ int vm_debug;
 
 void yyerror(char *s)
 {
-    fprintf (stderr, "%s: %d: %s\n", program_name, yylineno, s);
+#if 1
+  /* for pure flex call */
+  fprintf(stderr, "%s: %s\n", program_name, s);
+#else
+  /* lex or flex -l supports yylineno */
+  fprintf (stderr, "%s: %d: %s\n", program_name, yylineno, s);
+#endif
 }
 
 #include "mini-gen.i"

@@ -1,6 +1,6 @@
 \ create a documentation file
 
-\ Copyright (C) 1995,1999,2000 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1999,2000,2003 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

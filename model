@@ -2,7 +2,7 @@ This file describes the implementation model of Gforth. The things
 described herein are valid in all implementations of Gforth.
 !! needs updating
 
-\ Copyright (C) 1995,2000 Free Software Foundation, Inc.
+\ Copyright (C) 1995,2000,2003 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

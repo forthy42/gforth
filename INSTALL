@@ -2,7 +2,20 @@ Copyright (C) 2003 Free Software Foundation, Inc.
 This file is free documentation; the Free Software Foundation gives
 unlimited permission to copy, distribute and modify it.
 
-You need gcc version 2.0 or later to compile gforth.
+
+		Prerequisites
+
+You need gcc version 2.0 or later to compile gforth.  Recommended:
+gcc-2.95.* (other versions produce slower code).
+
+To use the new C interface, you need to install the ffcall libraries
+before configuring Gforth.  You can find them on
+
+   ftp://ftp.santafe.edu/pub/gnu/ffcall-1.8.tar.gz (USA) 
+   ftp://ftp.ilog.fr/pub/Users/haible/gnu/ffcall-1.8.tar.gz (Europe) 
+
+
+		Building and Installing
 
 First, type
 
@@ -87,18 +100,18 @@ hierarchy, say
 Moreover, if your GCC is not called gcc (but, e.g., gcc-2.7.1), you
 should say so during configuration. E.g.:
 
-env CC=gcc-2.7.1 ./configure
+./configure CC=gcc-2.7.1
 
 You can also pass additional options to gcc in this way, e.g., if you
 want to generate an a.out executable under Linux with gcc-2.7.0:
 
-env "CC=gcc -b i486-linuxaout -V 2.7.0" ./configure
+./configure CC="gcc -b i486-linuxaout -V 2.7.0"
 
 You can change the sizes of the various areas used in the default
 image `gforth.fi' by passing the appropriate Gforth command line
 options in the FORTHSIZES environment variable:
 
-env "FORTHSIZES=--dictionary-size=256k --data-stack-size=16k --fp-stack-size=15872b --return-stack-size=15k --locals-stack-size=14848b" ./configure
+./configure "FORTHSIZES=--dictionary-size=256k --data-stack-size=16k --fp-stack-size=15872b --return-stack-size=15k --locals-stack-size=14848b"
 
 The line above reaffirms the default sizes. Note that the locals
 stack area is also used as input buffer stack.
@@ -107,7 +120,7 @@ If C's "long long" do not work properly on your machine (i.e., if the
 tests involving double-cell numbers fail), you can build Gforth such
 that it does not use "long long":
 
-env ac_cv_sizeof_long_long=0 ./configure
+./configure ac_cv_sizeof_long_long=0
 
 
 			Cross-Installation
@@ -212,4 +225,3 @@ INFOPATH=/usr/local/info:/usr/info
 2. Create a file called 'dir' in 'usr/local/info'. Use the file
 '/usr/info/dir' as a template. You can add the line for gforth
 manually, or use '/sbin/install-info' (man install-info for details).
-

@@ -1,7 +1,7 @@
 /* some routines for double-cell arithmetic
    only used if BUGGY_LONG_LONG
 
-   Copyright (C) 1996,2000 Free Software Foundation, Inc.
+   Copyright (C) 1996,2000,2003 Free Software Foundation, Inc.
  * Copyright (C) 1995  Dirk Uwe Zoller
  *
  * This library is free software; you can redistribute it and/or

@@ -762,15 +762,65 @@ signal. This option is useful when the engine and/or the image might be
 severely broken (such that it causes another signal before recovering
 from the first); this option avoids endless loops in such cases.
 
+@cindex --no-dynamic, command-line option
+@cindex --dynamic, command-line option
 @item --no-dynamic
 @item --dynamic
 Disable or enable dynamic superinstructions with replication
 (@pxref{Dynamic Superinstructions}).
 
+@cindex --no-super, command-line option
 @item --no-super
 Disable dynamic superinstructions, use just dynamic replication; this is
 useful if you want to patch threaded code (@pxref{Dynamic
 Superinstructions}).
+
+@cindex --ss-number, command-line option
+@item --ss-number=@var{N}
+Use only the first @var{N} static superinstructions compiled into the
+engine (default: use them all; note that only @code{gforth-fast} has
+any).  This option is useful for measuring the performance impact of
+static superinstructions.
+
+@cindex --ss-min-..., command-line options
+@item --ss-min-codesize
+@item --ss-min-ls
+@item --ss-min-lsu
+@item --ss-min-nexts
+Use specified metric for determining the cost of a primitive or static
+superinstruction for static superinstruction selection.  @code{Codesize}
+is the native code size of the primive or static superinstruction,
+@code{ls} is the number of loads and stores, @code{lsu} is the number of
+loads, stores, and updates, and @code{nexts} is the number of dispatches
+(not taking dynamic superinstructions into account), i.e. every
+primitive or static superinstruction has cost 1. Default:
+@code{codesize} if you use dynamic code generation, otherwise
+@code{nexts}.
+
+@cindex --ss-greedy, command-line option
+@item --ss-greedy
+This option is useful for measuring the performance impact of static
+superinstructions.  By default, an optimal shortest-path algorithm is
+used for selecting static superinstructions.  With @option{--ss-greedy}
+this algorithm is modified to assume that anything after the static
+superinstruction currently under consideration is not combined into
+static superinstructions.  With @option{--ss-min-nexts} this produces
+the same result as a greedy algorithm that always selects the longest
+superinstruction available at the moment.  E.g., if there are
+superinstructions AB and BCD, then for the sequence A B C D the optimal
+algorithm will select A BCD and the greedy algorithm will select AB C D.
+
+@cindex --print-metrics, command-line option
+@item --print-metrics
+Prints some metrics used during static superinstruction selection:
+@code{code size} is the actual size of the dynamically generated code.
+@code{Metric codesize} is the sum of the codesize metrics as seen by
+static superinstruction selection; there is a difference from @code{code
+size}, because not all primitives and static superinstructions are
+compiled into dynamically generated code, and because of markers.  The
+other metrics correspond to the @option{ss-min-...} options.  This
+option is useful for evaluating the effects of the @option{--ss-...}
+options.
 
 @end table
 

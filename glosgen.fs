@@ -3,7 +3,7 @@
 
 \ This file is part of Gforth.
 
-\ Copyright (C) 1995,1997,2000 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1997,2000,2003 Free Software Foundation, Inc.
 \ Copyright (c)1993 L.C. Benschop Eindhoven.
 
 \ Gforth is free software; you can redistribute it and/or

@@ -1,5 +1,5 @@
 @ECHO OFF
-REM Copyright (C) 1995,1996,1997,1998,2000 Free Software Foundation, Inc.
+REM Copyright (C) 1995,1996,1997,1998,2000,2003 Free Software Foundation, Inc.
 REM
 REM This file is part of Gforth.
 REM

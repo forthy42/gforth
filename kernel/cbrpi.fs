@@ -1,6 +1,6 @@
 \ Structural Conditionals, branches with plugins		10May99jaw
 
-\ Copyright (C) 1995-1997,1999,2000 Free Software Foundation, Inc.
+\ Copyright (C) 1995-1997,1999,2000,2003 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
