@@ -10,7 +10,9 @@ decimal
 
 \ VALUE 2>R 2R> 2R@                                     17may93jaw
 
-: value ( n -- )  (constant) , ;
+: value ( n -- )
+  (constant) , ;
+\ !! 2value
 
 : 2>r   postpone >r postpone >r ; immediate restrict
 : 2r>   postpone r> postpone r> ; immediate restrict

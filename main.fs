@@ -39,13 +39,13 @@ include toolsext.fs
 
 \ Setup                                                13feb93py
 
-here dp !
+here normal-dp !
 tudp H @ minimal udp !
 decimal
 
 \ 64 KB       0 cells !  \ total Space... defined above!
 here         1 cells !  \ Size of the system
-  2 KB       2 cells !  \ Return stack size
+  2 KB       2 cells !  \ Return and fp stack size
 ' boot >body 3 cells !  \ Entry point
 
 UNLOCK Tlast @

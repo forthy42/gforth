@@ -1,5 +1,5 @@
 /*
-  $Id: main.c,v 1.3 1994-05-05 17:05:35 pazsan Exp $
+  $Id: main.c,v 1.4 1994-05-07 14:56:01 anton Exp $
   Copyright 1993 by the ANSI figForth Development Group
 */
 
@@ -27,7 +27,8 @@
 /* image file format:
  *   size of image with stacks without tags (in bytes)
  *   size of image without stacks and tags (in bytes)
- *   size of data and FP stack (in bytes)
+ *   size of return, FP and locals stack (in bytes, just one entry)
+ *       !! have a different number for each one!
  *   pointer to start of code
  *   data (size in image[1])
  *   tags (1 bit/data cell)
@@ -103,7 +104,7 @@ int* loader(const char* filename)
 	      imagefile);
 	fclose(imagefile);
 
-	relocate(image,(char *)image+header[0],header[1],engine(0,0,0,0));
+	relocate(image,(char *)image+header[0],header[1],engine(0,0,0,0,0));
 
 	return(image);
 }
@@ -112,7 +113,8 @@ int go_forth(int *image, int stack, Cell *entries)
 {
 	Cell* rp=(Cell*)((void *)image+image[0]);
 	double* fp=(double*)((void *)rp-image[2]);
-	Cell* sp=(Cell*)((void *)fp-image[2]);
+	Address lp=(Address)((void *)fp-image[2]);
+	Cell* sp=(Cell*)((void *)lp-image[2]);
 	Cell* ip=(Cell*)(image[3]);
 
 	for(;stack>0;stack--)
@@ -120,7 +122,7 @@ int go_forth(int *image, int stack, Cell *entries)
 
 	install_signal_handlers(); /* right place? */
 
-	return((int)engine(ip,sp,rp,fp));
+	return((int)engine(ip,sp,rp,fp,lp));
 }
 
 int main(int argc, char **argv, char **env)

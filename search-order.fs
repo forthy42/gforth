@@ -29,16 +29,40 @@ AVariable voclink
 
 \ vocabulary find                                      14may93py
 
-: (vocfind)  ( addr count nfa1 -- nfa2 / false )  drop
-  1 vp @ DO  2dup vp I cells + @ (search-wordlist)
-             dup IF  nip nip UNLOOP exit  THEN  drop
-          -1 +LOOP  2drop false ;
+: (vocfind)  ( addr count nfa1 -- nfa2|false )
+    \ !! generalize this to be independent of vp
+    drop 1 vp @
+    DO  2dup vp I cells + @ (search-wordlist) dup
+	IF  nip nip
+	    UNLOOP EXIT
+	THEN  drop
+    -1 +LOOP
+    2drop false ;
 
-Create vocsearch       ] (vocfind) (reveal) [
+0 value locals-wordlist
+
+: (localsvocfind)  ( addr count nfa1 -- nfa2|false )
+    \ !! use generalized (vocfind)
+    drop locals-wordlist
+    IF 2dup locals-wordlist (search-wordlist) dup
+	IF nip nip
+	    EXIT
+	THEN drop
+    THEN
+    0 (vocfind) ;
+
+\ In the kernal the dictionary search works on only one wordlist.
+\ The following stuff builds a thing that looks to the kernal like one
+\ wordlist, but when searched it searches the whole search order
+\  (including locals)
+
+\ this is the wordlist-map of the dictionary
+Create vocsearch       ' (localsvocfind) A, ' (reveal) A,
 
 \ Only root                                            14may93py
 
-wordlist vocsearch over cell+ A!
+wordlist \ the wordlist structure
+vocsearch over cell+ A! \ patch the map into it
 
 Vocabulary Forth
 Vocabulary Root
@@ -51,7 +75,7 @@ Forth-wordlist @ ' Forth >body A!
 
 Only Forth also definitions
 
-search A!
+search A! \ our dictionary search order becomes the law
 
 \ get-order set-order                                  14may93py
 

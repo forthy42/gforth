@@ -1,5 +1,5 @@
 /*
-  $Id: engine.c,v 1.4 1994-05-05 15:46:42 pazsan Exp $
+  $Id: engine.c,v 1.5 1994-05-07 14:55:47 anton Exp $
   Copyright 1992 by the ANSI figForth Development Group
 */
 
@@ -86,14 +86,13 @@ int emitcounter;
 
 static char* fileattr[6]={"r","rb","r+","r+b","w+","w+b"};
 
-Label *engine(Xt *ip, Cell *sp, Cell *rp, Float *fp)
+Label *engine(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp)
 /* executes code at ip, if ip!=NULL
    returns array of machine code labels (for use in a loader), if ip==NULL
    This is very preliminary, as the bootstrap architecture is not yet decided
 */
 {
   Xt cfa;
-  Address lp=NULL;
   Address up=NULL;
   static Label symbols[]= {
     &&docol,
@@ -174,9 +173,9 @@ Label *engine(Xt *ip, Cell *sp, Cell *rp, Float *fp)
 #endif
 #ifdef USE_TOS
   *sp-- = TOS;
-  TOS = up+*(Cell*)PFA1(cfa);
+  TOS = (Cell)(up+*(Cell*)PFA1(cfa));
 #else
-  *--sp = up+*(Cell*)PFA1(cfa);
+  *--sp = (Cell)(up+*(Cell*)PFA1(cfa));
 #endif
   NEXT;
   

@@ -45,6 +45,7 @@ DOES> ( n -- )  + c@ ;
 
 \ here allot , c, A,                                   17dec92py
 
+: dp	( -- addr )  dpp @ ;
 : here  ( -- here )  dp @ ;
 : allot ( n -- )     dp +! ;
 : c,    ( c -- )     here 1 chars allot c! ;
@@ -243,19 +244,36 @@ hex
 \ !! allow the user to add rollback actions    anton
 \ !! use a separate exception stack?           anton
 
+: lp@ ( -- addr )
+ laddr# [ 0 , ] ;
+
 : catch ( x1 .. xn xt -- y1 .. ym 0 / z1 .. zn error )
-  >r sp@ r> swap        \ don't count xt! jaw
-  >r handler @ >r rp@ handler ! execute
-  r> handler ! rdrop 0 ;
-: throw ( y1 .. ym error/0 -- y1 .. ym / z1 .. zn )
-  dup 0= IF  drop EXIT  THEN
-  handler @ rp!  r> handler ! r> swap >r sp! r> ;
+  >r sp@ r> swap >r       \ don't count xt! jaw
+  fp@ >r
+  lp@ >r
+  handler @ >r
+  rp@ handler !
+  execute
+  r> handler ! rdrop rdrop 0 ;
+: throw ( y1 .. ym error/0 -- y1 .. ym / z1 .. zn error )
+  ?DUP IF
+    handler @ rp!
+    r> handler !
+    r> lp!
+    r> fp!
+    r> swap >r sp! r>
+  THEN ;
 \ Bouncing is very fine,
 \ programming without wasting time...   jaw
-: bounce ( y1 .. ym error/0 -- y1 .. ym / z1 .. zn )
-\ a throw without data stack restauration? anton !! stack diagram bad
-  dup 0= IF  drop EXIT  THEN
-  handler @ rp!  r> handler ! r> drop ;
+: bounce ( y1 .. ym error/0 -- y1 .. ym error / y1 .. ym )
+\ a throw without data or fp stack restauration
+  ?DUP IF
+    handler @ rp!
+    r> handler !
+    r> lp!
+    rdrop
+    rdrop
+  THEN ;
 
 \ ?stack                                               23feb93py
 
@@ -330,15 +348,33 @@ Defer notfound
 
 \ Structural Conditionals                              12dec92py
 
+variable locals-size \ this is the current size of the locals stack
+		     \ frame of the current word
+
+: compile-lp+!# ( n -- )
+    ?DUP IF
+	dup negate locals-size +!
+	postpone lp+!#  ,
+    THEN ;
+
+\ : EXIT ( -- )
+\     locals-size @ compile-lp+!# POSTPONE ;s ; immediate restrict
+\ : ?EXIT ( -- )
+\     postpone IF postpone EXIT postpone THEN ; immediate restrict
+
 Variable leavings
 
 : (leave)   here  leavings @ ,  leavings ! ;
 : LEAVE     postpone branch  (leave) ;  immediate restrict
 : ?LEAVE    postpone 0= postpone ?branch  (leave) ;
                                              immediate restrict
-
-: DONE   ( addr -- )  leavings @
-  BEGIN  2dup u<=  WHILE  dup @ swap >resolve  REPEAT
+: DONE   ( addr -- )
+  leavings @
+  BEGIN
+    2dup u<=
+  WHILE
+    dup @ swap >resolve
+  REPEAT
   leavings ! drop ;                          immediate restrict
 
 \ Structural Conditionals                              12dec92py
@@ -411,11 +447,11 @@ defer header
 ' input-stream-header IS header
 
 \ !! make that a 2variable
-create nextname-string 2 cells allot \ should we use a buffer that keeps the name?
+create nextname-buffer 32 chars allot
 
 : nextname-header ( -- )
     \ !! f83-implementation-dependent
-    nextname-string 2@
+    nextname-buffer count
     align here last ! -1 A,
     dup c,  here swap chars  dup allot  move  align
     $80 flag!
@@ -423,7 +459,9 @@ create nextname-string 2 cells allot \ should we use a buffer that keeps the nam
 
 \ the next name is given in the string
 : nextname ( c-addr u -- ) \ general
-    nextname-string 2!
+    dup 31 u> -19 and throw ( is name too long? )
+    nextname-buffer c! ( c-addr )
+    nextname-buffer count move
     ['] nextname-header IS header ;
 
 : noname-header ( -- )
@@ -470,8 +508,14 @@ Create ???  ," ???"
 
 \ DOES>                                                17mar93py
 
-: DOES>  state @ IF    postpone (;code) dodoes,
-                 ELSE  dodoes, here !does 0 ] THEN ; immediate
+: DOES>  ( compilation: -- )
+    state @
+    IF
+	;-hook postpone (;code) dodoes,
+    ELSE
+	dodoes, here !does 0 ]
+    THEN 
+    :-hook ; immediate
 
 \ Create Variable User Constant                        17mar93py
 
@@ -486,12 +530,20 @@ Create ???  ," ???"
 : (Constant)  Header reveal [ :docon ] Literal cfa, ;
 : Constant  (Constant) , ;
 : AConstant (Constant) A, ;
-: 2Constant ( w1 w2 "name" -- ) \ double
-  Create 2, DOES> 2@ ;
+
+: 2CONSTANT
+    create ( w1 w2 "name" -- )
+        2,
+    does> ( -- w1 w2 )
+        2@ ;
     
 \ IS Defer What's Defers TO                            24feb93py
 
-: Defer  Create ['] noop A,  DOES> @ execute ;
+: Defer
+  Create ( -- ) 
+    ['] noop A,
+  DOES> ( ??? )
+    @ execute ;
 
 : IS ( addr "name" -- )
     ' >body
@@ -509,27 +561,51 @@ Create ???  ," ???"
 
 \ : ;                                                  24feb93py
 
+defer :-hook ( sys1 -- sys2 )
+defer ;-hook ( sys2 -- sys1 )
+
 : EXIT  ( -- )  postpone ;s ;  immediate
 
-: : ( -- colon-sys )  Header [ :docol ] Literal cfa, 0 ] ;
-: ; ( colon-sys -- )  ?struc postpone exit reveal postpone [ ;
+: : ( -- colon-sys )  Header [ :docol ] Literal cfa, 0 ] :-hook ;
+: ; ( colon-sys -- )  ;-hook ?struc postpone exit reveal postpone [ ;
   immediate restrict
-: :noname ( -- xt colon-sys )  here [ :docol ] Literal cfa, 0 ] ;
+
+: :noname ( -- xt colon-sys )  here [ :docol ] Literal cfa, 0 ] :-hook ;
 
 \ Search list handling                                 23feb93py
 
 AVariable current
 
 : last?   ( -- false / nfa nfa )    last @ ?dup ;
-: (reveal) ( -- ) last?
-  IF  dup @ 0<
-      IF    current @ @ over ! current @ !
-      ELSE  drop  THEN THEN ;
+: (reveal) ( -- )
+  last?
+  IF
+      dup @ 0<
+      IF
+	current @ @ over ! current @ !
+      ELSE
+	drop
+      THEN
+  THEN ;
 
 \ object oriented search list                          17mar93py
 
-\ Search list table: find reveal
+\ word list structure:
+\ struct
+\   1 cells: field find-method \ xt: ( c_addr u w1 -- name-id ) w1 is a method-\ specific wordlist-id (not the same as wid)
+\   1 cells: field reveal-method \ xt: ( -- )
+\   \ !! what else
+\ end-struct wordlist-map-struct
 
+\ struct
+\   1 cells: field wordlist-id \ not the same as wid; representation depends on implementation
+\   1 cells: field wordlist-map \ pointer to a wordlist-map-struct
+\   1 cells: field ????
+\   1 cells: field ????
+\ end-struct wordlist-struct
+
+
+\ Search list table: find reveal
 Create f83search    ' (f83find) A,  ' (reveal) A,
 Create forth-wordlist  NIL A, G f83search T A, NIL A, NIL A,
 AVariable search       G forth-wordlist search T !
@@ -750,21 +826,43 @@ Defer .status
 DEFER DOERROR
 
 : (DoError) ( throw-code -- )
-         LoadFile @ IF ." Error in line: " Loadline @ . cr THEN
+         LoadFile @
+         IF
+         	." Error in line: " Loadline @ . cr
+         THEN
          cr source type cr
          source drop >in @ -trailing
          here c@ 1F min dup >r - 1- 0 max nip
-         dup spaces IF ." ^" THEN r> 0 ?DO ." -" LOOP ." ^"
+         dup spaces 
+	 IF
+		." ^"
+	 THEN
+	 r> 0 ?DO
+		." -" 
+	 LOOP
+	 ." ^"
          dup -2 =
-         IF "error @ ?dup IF cr count type THEN drop
-         ELSE .error THEN ;
+         IF 
+		"error @ ?dup
+		IF
+			cr count type 
+		THEN
+		drop
+         ELSE
+		.error
+	 THEN
+         normal-dp dpp ! ;
 
 ' (DoError) IS DoError
 
 : quit   r0 @ rp! handler off >tib @ >r
-  BEGIN  postpone [  ['] 'quit catch dup  WHILE
-         DoError r@ >tib !
-  REPEAT  drop r> >tib ! ;
+  BEGIN
+    postpone [
+    ['] 'quit CATCH dup
+  WHILE
+    DoError r@ >tib !
+  REPEAT
+  drop r> >tib ! ;
 
 \ Cold                                                 13feb93py
 
@@ -787,7 +885,8 @@ Variable argc
 
 : script? ( -- flag )  0 arg 1 arg dup 3 pick - /string compare 0= ;
 
-: cold ( -- )  argc @ 1 >
+: cold ( -- )  
+  argc @ 1 >
   IF  script?
       IF  1 arg ['] included  ELSE   get-args ['] interpret  THEN
       catch ?dup IF  dup >r DoError cr r> (bye)  THEN THEN

@@ -1,73 +1,70 @@
-/*
-$Id: primitives,v 1.5 1994-05-05 17:05:37 pazsan Exp $
-Copyright 1992 by the ANSI figForth Development Group
+\ Copyright 1992 by the ANSI figForth Development Group
+\ 
+\ WARNING: This file is processed by m4. Make sure your identifiers
+\ don't collide with m4's (e.g. by undefining them).
+\ 
+\ This file contains instructions in the following format:
+\ 
+\ forth name	stack effect	category	[pronounciation]
+\ [""glossary entry""]
+\ C code
+\ [:
+\ Forth code]
+\ 
+\ The pronounciataion is also used for forming C names.
+\ 
+\ These informations are automagically translated into C-code for the
+\ interpreter and into some other files. The forth name of a word is
+\ automatically turned into upper case. I hope that your C compiler has
+\ decent optimization, otherwise the automatically generated code will
+\ be somewhat slow. The Forth version of the code is included for manual
+\ compilers, so they will need to compile only the important words.
+\ 
+\ Note that stack pointer adjustment is performed according to stack
+\ effect by automatically generated code and NEXT is automatically
+\ appended to the C code. Also, you can use the names in the stack
+\ effect in the C code. Stack access is automatic. One exception: if
+\ your code does not fall through, the results are not stored into the
+\ stack. Use different names on both sides of the '--', if you change a
+\ value (some stores to the stack are optimized away).
+\ 
+\ The stack variables have the following types:
+\ name matches	type
+\ f.*		Bool
+\ c.*		Char
+\ [nw].*		Cell
+\ u.*		UCell
+\ d.*		DCell
+\ ud.*		UDCell
+\ r.*		Float
+\ a_.*		Cell *
+\ c_.*		Char *
+\ f_.*		Float *
+\ df_.*		DFloat *
+\ sf_.*		SFloat *
+\ xt.*		XT
+\ wid.*		WID
+\ f83name.*	F83Name *
+\ 
+\ In addition the following names can be used:
+\ ip	the instruction pointer
+\ sp	the data stack pointer
+\ rp	the parameter stack pointer
+\ NEXT	executes NEXT
+\ cfa	
+\ NEXT1	executes NEXT1
+\ FLAG(x)	makes a Forth flag from a C flag
+\ 
+\ Percentages in comments are from Koopmans book: average/maximum use
+\ (taken from four, not very representattive benchmarks)
+\ 
+\ To do:
+\ make sensible error returns for file words
+\ 
+\ throw execute, cfa and NEXT1 out?
+\ macroize *ip, ip++, *ip++ (pipelining)?
 
-WARNING: This file is processed by m4. Make sure your identifiers
-don't collide with m4's (e.g. by undefining them).
-
-This file contains instructions in the following format:
-
-forth name	stack effect	category	[pronounciation]
-[""glossary entry""]
-C code
-[:
-Forth code]
-
-The pronounciataion is also used for forming C names.
-
-These informations are automagically translated into C-code for the
-interpreter and into some other files. The forth name of a word is
-automatically turned into upper case. I hope that your C compiler has
-decent optimization, otherwise the automatically generated code will
-be somewhat slow. The Forth version of the code is included for manual
-compilers, so they will need to compile only the important words.
-
-Note that stack pointer adjustment is performed according to stack
-effect by automatically generated code and NEXT is automatically
-appended to the C code. Also, you can use the names in the stack
-effect in the C code. Stack access is automatic. One exception: if
-your code does not fall through, the results are not stored into the
-stack. Use different names on both sides of the '--', if you change a
-value (some stores to the stack are optimized away).
-
-The stack variables have the following types:
-name matches	type
-f.*		Bool
-c.*		Char
-[nw].*		Cell
-u.*		UCell
-d.*		DCell
-ud.*		UDCell
-r.*		Float
-a_.*		Cell *
-c_.*		Char *
-f_.*		Float *
-df_.*		DFloat *
-sf_.*		SFloat *
-xt.*		XT
-wid.*		WID
-f83name.*	F83Name *
-
-In addition the following names can be used:
-ip	the instruction pointer
-sp	the data stack pointer
-rp	the parameter stack pointer
-NEXT	executes NEXT
-cfa	
-NEXT1	executes NEXT1
-FLAG(x)	makes a Forth flag from a C flag
-
-Percentages in comments are from Koopmans book: average/maximum use
-(taken from four, not very representattive benchmarks)
-
-To do:
-make sensible error returns for file words
-
-throw execute, cfa and NEXT1 out?
-macroize *ip, ip++, *ip++ (pipelining)?
-*/
-
-/* these m4 macros would collide with identifiers */
+\ these m4 macros would collide with identifiers
 undefine(`index')
 undefine(`shift')
 
@@ -76,8 +73,6 @@ noop	--		fig
 
 lit	-- w		fig
 w = (Cell)*ip++;
-
-/* no clit today */
 
 execute		xt --		core,fig
 cfa = xt;
@@ -183,7 +178,7 @@ n = *rp;
 j	-- n		core
 n = rp[2];
 
-/* digit is high-level: 0/0% */
+\ digit is high-level: 0/0%
 
 emit	c --		fig
 putchar(c);
@@ -203,7 +198,7 @@ puts("");
 
 move	c_from c_to ucount --		core
 memmove(c_to,c_from,ucount);
-/* make an ifdef for bsd and others? */
+/* make an Ifdef for bsd and others? */
 
 cmove	c_from c_to u --	string
 while (u-- > 0)
@@ -412,7 +407,7 @@ rshift	u1 n -- u2		core
 lshift	u1 n -- u2		core
   u2 = u1<<n;
 
-/* comparisons(prefix, args, prefix, arg1, arg2, wordsets...) */
+\ comparisons(prefix, args, prefix, arg1, arg2, wordsets...)
 define(comparisons,
 $1=	$2 -- f		$6	$3equals
 f = FLAG($4==$5);
@@ -529,7 +524,7 @@ w = sp[u+1];
 
 2rot	w1 w2 w3 w4 w5 w6 -- w3 w4 w5 w6 w1 w2	double	two_rote
 
-/* toggle is high-level: 0.11/0.42% */
+\ toggle is high-level: 0.11/0.42%
 
 @	a_addr -- w		fig	fetch
 w = *a_addr;
@@ -616,7 +611,7 @@ timeout.tv_usec=1000*(n%1000);
 
 allocate	u -- a_addr wior	memory
 a_addr = (Cell *)malloc(u);
-wior = a_addr==NULL;	/* !! define a return code */
+wior = a_addr==NULL;	/* !! Define a return code */
 
 free		a_addr -- wior		memory
 free(a_addr);
@@ -624,7 +619,7 @@ wior = 0;
 
 resize		a_addr1 u -- a_addr2 wior	memory
 a_addr2 = realloc(a_addr1, u);
-wior = a_addr2==NULL;	/* !! define a return code */
+wior = a_addr2==NULL;	/* !! Define a return code */
 
 (f83find)	c_addr u f83name1 -- f83name2	new	paren_f83find
 for (; f83name1 != NULL; f83name1 = f83name1->next)
@@ -910,10 +905,10 @@ r2 = sqrt(r1);
 ftan		r1 -- r2	float-ext
 r2 = tan(r1);
 
-/* The following words access machine/OS/installation-dependent ANSI
-   figForth internals */
-/* !! how about environmental queries DIRECT-THREADED,
-   INDIRECT-THREADED, TOS-CACHED, FTOS-CACHED, CODEFIELD-DOES */
+\ The following words access machine/OS/installation-dependent ANSI
+\   figForth internals
+\ !! how about environmental queries DIRECT-THREADED,
+\   INDIRECT-THREADED, TOS-CACHED, FTOS-CACHED, CODEFIELD-DOES */
 
 >body		xt -- a_addr	core	to_body
 a_addr = PFA(xt);
@@ -956,7 +951,7 @@ n = DOES_HANDLER_SIZE;
 toupper	c1 -- c2	new
 c2 = toupper(c1);
 
-/* local variable implementation primitives */
+\ local variable implementation primitives
 @local#		-- w	new	fetch_local_number
 w = *(Cell *)(lp+(int)(*ip++));
 

@@ -57,7 +57,11 @@ AUser "error            0 "error !
  User dpl               -1 dpl !
 
  User state             0 state !
-AUser dp
+AUser normal-dp		\ the usual dictionary pointer
+AUser dpp		normal-dp dpp !
+			\ the pointer to the current dictionary pointer
+                        \ ist reset to normal-dp on (doerror)
+                        \  (i.e. any throw caught by quit)
 AUser LastCFA
 AUser Last
 
