@@ -39,6 +39,19 @@ foo1
 0 locals-test1
 1 locals-test1
 
+
+\ recurse and locals
+
+: fac { n -- n! }
+    n 0>
+    if
+	n 1- recurse n *
+    else
+	1
+    endif ;
+
+5 fac 120 <> throw
+
 \ look for primitives
 
 ' + look 0= throw ( nt )
@@ -47,6 +60,7 @@ s" +" find-name <> throw
 \ represent
 
 1e pad 5 represent -1 <> swap 0 <> or swap 1 <> or throw
+
 
 \ comments across several lines
 

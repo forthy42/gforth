@@ -3,6 +3,10 @@
 @comment %**start of header (This is for running Texinfo on a region.)
 @setfilename gforth.info
 @settitle Gforth Manual
+@dircategory GNU programming tools
+@direntry
+* Gforth: (gforth).             A fast interpreter for the Forth language.
+@end direntry
 @comment @setchapternewpage odd
 @comment %**end of header (This is for running Texinfo on a region.)
 
@@ -564,7 +568,7 @@ can also get it from Global Engineering Documents (Tel.: USA (800)
 for publication is available electronically and for free in some MS Word
 format, and it has been converted to HTML. Some pointers to these
 versions can be found through
-@*@file{http://www.complang.tuwien.ac.at/projects/forth.html}.
+@*@url{http://www.complang.tuwien.ac.at/projects/forth.html}.
 
 @cindex introductory book
 @cindex book, introductory
@@ -1609,7 +1613,7 @@ implemented the ANS Forth locals wordset through our locals wordset).
 The ideas in this section have also been published in the paper
 @cite{Automatic Scoping of Local Variables} by M. Anton Ertl, presented
 at EuroForth '94; it is available at
-@*@file{http://www.complang.tuwien.ac.at/papers/ertl94l.ps.gz}.
+@*@url{http://www.complang.tuwien.ac.at/papers/ertl94l.ps.gz}.
 
 @menu
 * Gforth locals::               
@@ -4578,12 +4582,12 @@ cannot be represented correctly in the output image, you should examine
 these places in the dictionary and verify that these cells are dead
 (i.e., not read before they are written).
 
-\cindex @code{savesystem} during @file{gforth-makeimage}
-\cindex @code{bye} during @file{gforth-makeimage}
-\cindex doubly indirect threaded code
-\cindex environment variable @code{GFORTHD}
-\cindex @code{GFORTHD} environment variable
-\cindex @code{gforth-ditc}
+@cindex @code{savesystem} during @file{gforth-makeimage}
+@cindex @code{bye} during @file{gforth-makeimage}
+@cindex doubly indirect threaded code
+@cindex environment variable @code{GFORTHD}
+@cindex @code{GFORTHD} environment variable
+@cindex @code{gforth-ditc}
 There are a few wrinkles: After processing the passed @var{options}, the
 words @code{savesystem} and @code{bye} must be visible. A special doubly
 indirect threaded version of the @file{gforth} executable is used for
@@ -4657,19 +4661,12 @@ gforth -i @var{image}
 @cindex executable image file
 @cindex image files, executable
 If your operating system supports starting scripts with a line of the
-form @code{#! ...}, you can make your image file executable, and you'll
-just have to type the image file name to start Gforth with this image
-file (note that the file extension @code{.fi} is just a convention).
+form @code{#! ...}, you just have to type the image file name to start
+Gforth with this image file (note that the file extension @code{.fi} is
+just a convention). I.e., to run Gforth with the image file @var{image},
+you can just type @var{image} instead of @code{gforth -i @var{image}}.
 
-I.e., in most Unix systems, you just have to make the image file
-@var{image} executable with
-
-@example
-chmod +x @var{image}
-@end example
-
-and then you can invoke it by simply typing @var{image} instead of
-@code{gforth -i @var{image}}.
+doc-#!
 
 @node Modifying the Startup Sequence,  , Running Image Files, Image Files
 @section Modifying the Startup Sequence
@@ -4701,6 +4698,20 @@ You can make a turnkey image by letting @code{'cold} execute a word
 (your turnkey application) that never returns; instead, it exits Gforth
 via @code{bye} or @code{throw}.
 
+@cindex command-line arguments, access
+@cindex arguments on the command line, access
+You can access the (image-specific) command-line arguments through the
+variables @code{argc} and @code{argv}. @code{arg} provides conventient
+access to @code{argv}.
+
+doc-argc
+doc-argv
+doc-arg
+
+If @code{'cold} exits normally, Gforth processes the command-line
+arguments as files to be loaded and strings to be evaluated.  Therefore,
+@code{'cold} should remove the arguments it has used in this case.
+
 @c ******************************************************************
 @node Engine, Bugs, Image Files, Top
 @chapter Engine
@@ -4714,7 +4725,7 @@ The ideas in this section have also been published in the papers
 @cite{ANS fig/GNU/??? Forth} (in German) by Bernd Paysan, presented at
 the Forth-Tagung '93 and @cite{A Portable Forth Engine} by M. Anton
 Ertl, presented at EuroForth '93; the latter is available at
-@*@file{http://www.complang.tuwien.ac.at/papers/ertl93.ps.Z}.
+@*@url{http://www.complang.tuwien.ac.at/papers/ertl93.ps.Z}.
 
 @menu
 * Portability::                 
@@ -5196,10 +5207,10 @@ Maierhofer (presented at EuroForth '95), an indirect threaded version of
 Gforth is compared with Win32Forth, NT Forth, PFE, and ThisForth; that
 version of Gforth is 2%@minus{}8% slower on a 486 than the direct
 threaded version used here. The paper available at
-@*@file{http://www.complang.tuwien.ac.at/papers/ertl&maierhofer95.ps.gz};
+@*@url{http://www.complang.tuwien.ac.at/papers/ertl&maierhofer95.ps.gz};
 it also contains numbers for some native code systems. You can find a
 newer version of these measurements at
-@file{http://www.complang.tuwien.ac.at/forth/performance.html}. You can
+@url{http://www.complang.tuwien.ac.at/forth/performance.html}. You can
 find numbers for Gforth on various machines in @file{Benchres}.
 
 @node Bugs, Origin, Engine, Top
@@ -5209,7 +5220,7 @@ find numbers for Gforth on various machines in @file{Benchres}.
 Known bugs are described in the file BUGS in the Gforth distribution.
 
 If you find a bug, please send a bug report to
-@code{bug-gforth@@gnu.ai.mit.edu}. A bug report should
+@email{bug-gforth@@gnu.ai.mit.edu}. A bug report should
 describe the Gforth version used (it is announced at the start of an
 interactive Gforth session), the machine and operating system (on Unix
 systems you can use @code{uname -a} to produce this information), the

@@ -332,17 +332,18 @@ new-locals-map ' new-locals >body cell+ A! \ !! use special access words
 variable old-dpp
 
 \ and now, finally, the user interface words
-: { ( -- addr wid 0 ) \ gforth open-brace
+: { ( -- lastxt wid 0 ) \ gforth open-brace
     dp old-dpp !
     locals-dp dpp !
+    lastxt get-current
     also new-locals
-    also get-current locals definitions  locals-types
+    also locals definitions locals-types
     0 TO locals-wordlist
     0 postpone [ ; immediate
 
 locals-types definitions
 
-: } ( addr wid 0 a-addr1 xt1 ... -- ) \ gforth close-brace
+: } ( lastxt wid 0 a-addr1 xt1 ... -- ) \ gforth close-brace
     \ ends locals definitions
     ] old-dpp @ dpp !
     begin
@@ -352,8 +353,8 @@ locals-types definitions
     repeat
     drop
     locals-size @ alignlp-f locals-size ! \ the strictest alignment
-    set-current
     previous previous
+    set-current lastcfa !
     locals-list TO locals-wordlist ;
 
 : -- ( addr wid 0 ... -- ) \ gforth dash-dash

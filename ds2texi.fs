@@ -139,8 +139,9 @@ create description-buffer 4096 chars allot
     r@ print-short
     r@ doc-description 2@ dup 0<>
     if
-	." @iftex" cr ." @vskip-3ex" cr ." @end iftex" cr
-	type cr cr \ ." @ifinfo" cr ." @*" cr ." @end ifinfo" cr cr
+	\ ." @iftex" cr ." @vskip-0ex" cr ." @end iftex" cr
+	type cr cr
+	\ ." @ifinfo" cr ." @*" cr ." @end ifinfo" cr cr
     else
 	2drop cr
     endif

@@ -3,7 +3,7 @@
 .ns
 .IP "\fB\\$1\fI\\$2" 9
 ..
-.TH GForth 1 "October 29, 1995" \" -*- nroff -*-
+.TH GForth 1 "April 10, 1997" \" -*- nroff -*-
 .SH NAME
 gforth, gforth-ditc, gforth-makeimage \- a fast and portable Forth system
 .SH SYNOPSIS
@@ -21,8 +21,13 @@ programming language. For details read the manual.
 
 \fCGFORTHPATH\fR contains the search path for source and image files.
 
-\fCGFORTHD\fR gives the gforth executable to be used in creating the
-image (default: \fCgforth-ditc\fR).
+\fCGFORTHD\fR gives the gforth executable used by
+\fCgforth-makeimage\fR for creating the base images. It should be a
+double indirect threaded system.  Default: \fCgforth-ditc\fR.
+
+\fCGFORTH\fR gives the gforth executable used by
+\fCgforth-makeimage\fR for computing the relocatable image from the
+base images. Default: \fCgforth\fR.
 
 .SH EXAMPLES
 

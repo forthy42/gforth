@@ -26,7 +26,7 @@
 #gforth version
 VERSION_MAJOR=0
 VERSION_MINOR=3
-VERSION_RELEASE=0
+VERSION_RELEASE=1
 VERSION	=$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_RELEASE)
 DOSVERSION=$(VERSION_MAJOR)$(VERSION_MINOR)$(VERSION_RELEASE)
 SHELL	= /bin/sh
@@ -422,7 +422,7 @@ kernl%.fi:	kernl%.fi- $(KERNLS)
 		-$(CP) $< $@
 
 gforth.fi:	@kernel_fi@ gforth-makeimage gforth gforth-ditc $(GFORTH_FI_SRC)
-		GFORTHD="./gforth-ditc -p .$(PATHSEP)$(srcdir)" $(srcdir)/gforth-makeimage gforth.fi $(FORTHSIZES) $(FORTHKFLAGS) startup.fs
+		GFORTHD="./gforth-ditc -p .$(PATHSEP)$(srcdir)" GFORTH="./gforth-ditc -p .$(PATHSEP)$(srcdir) -i kernel.fi startup.fs" $(srcdir)/gforth-makeimage gforth.fi $(FORTHSIZES) $(FORTHKFLAGS) startup.fs
 
 #TAGS is a GNU standard target
 TAGS:		gforth.TAGS

@@ -21,13 +21,20 @@
 : cstring>sstring  ( cstring -- addr n ) \ gforth	cstring-to-sstring
     -1 0 scan 0 swap 1+ /string ;
 : arg ( n -- addr count ) \ gforth
+    \g returns the string for the @var{n}th command-line argument.
     cells argv @ + @ cstring>sstring ;
-: #!       postpone \ ;  immediate
+: #! ( -- ) \ gforth	hash-bang
+    \g an alias for @code{\}
+    postpone \ ;  immediate
 
 Create pathstring 2 cells allot \ string
 Create pathdirs   2 cells allot \ dir string array, pointer and count
-Variable argv
-Variable argc
+Variable argv ( -- addr ) \ gforth
+\ \g contains a pointer to a vector of pointers to the command-line
+\ \g arguments (including the command-name). Each argument is
+\ \g represented as a C-style string.
+Variable argc ( -- addr ) \ gforth
+\ \g contains the number of command-line arguments (including the command name)
 
 0 Value script? ( -- flag )
 
