@@ -2455,6 +2455,217 @@ IF_spTOS(spTOS = sp[0]);
 #endif
 SET_IP(DOES_CODE1(a_cfa));
 
+abranch-lp+!# ( #a_target #nlocals -- )	gforth	abranch_lp_plus_store_number
+/* this will probably not be used */
+lp += nlocals;
+SET_IP((Xt *)a_target);
+
+\+
+
+abranch	( #a_target -- )	gforth
+SET_IP((Xt *)a_target);
+:
+ r> @ >r ;
+
+\ acondbranch(forthname,stackeffect,restline,code,forthcode)
+\ this is non-syntactical: code must open a brace that is closed by the macro
+define(acondbranch,
+$1 ( `#'a_target $2 ) $3
+$4	SET_IP((Xt *)a_target);
+INST_TAIL;
+}
+SUPER_CONTINUE;
+$5
+
+\+glocals
+
+$1-lp+!`#' ( `#'a_target `#'nlocals $2 ) $3_lp_plus_store_number
+$4    lp += nlocals;
+SET_IP((Xt *)a_target);
+INST_TAIL;
+}
+SUPER_CONTINUE;
+
+\+
+)
+
+acondbranch(a?branch,f --,f83	aquestion_branch,
+if (f==0) {
+,:
+ 0= dup     \ !f !f \ !! still uses relative addresses
+ r> dup @   \ !f !f IP branchoffset
+ rot and +  \ !f IP|IP+branchoffset
+ swap 0= cell and + \ IP''
+ >r ;)
+
+\ we don't need an lp_plus_store version of the ?dup-stuff, because it
+\ is only used in if's (yet)
+
+\+xconds
+
+a?dup-?branch	( #a_target f -- f )	new	aquestion_dupe_question_branch
+""The run-time procedure compiled by @code{?DUP-IF}.""
+if (f==0) {
+  sp++;
+  IF_spTOS(spTOS = sp[0]);
+  SET_IP((Xt *)a_target);
+  INST_TAIL;
+}
+SUPER_CONTINUE;
+
+a?dup-0=-?branch ( #a_target f -- ) new	aquestion_dupe_zero_equals_question_branch
+""The run-time procedure compiled by @code{?DUP-0=-IF}.""
+/* the approach taken here of declaring the word as having the stack
+effect ( f -- ) and correcting for it in the branch-taken case costs a
+few cycles in that case, but is easy to convert to a CONDBRANCH
+invocation */
+if (f!=0) {
+  sp--;
+  SET_IP((Xt *)a_target);
+  NEXT;
+}
+SUPER_CONTINUE;
+
+\+
+\f[THEN]
+\fhas? skiploopprims 0= [IF]
+
+acondbranch(a(next),R:n1 -- R:n2,cmFORTH	aparen_next,
+n2=n1-1;
+if (n1) {
+,:
+ r> r> dup 1- >r
+ IF @ >r ELSE cell+ >r THEN ;)
+
+acondbranch(a(loop),R:nlimit R:n1 -- R:nlimit R:n2,gforth	aparen_loop,
+n2=n1+1;
+if (n2 != nlimit) {
+,:
+ r> r> 1+ r> 2dup =
+ IF >r 1- >r cell+ >r
+ ELSE >r >r @ >r THEN ;)
+
+acondbranch(a(+loop),n R:nlimit R:n1 -- R:nlimit R:n2,gforth aparen_plus_loop,
+/* !! check this thoroughly */
+/* sign bit manipulation and test: (x^y)<0 is equivalent to (x<0) != (y<0) */
+/* dependent upon two's complement arithmetic */
+Cell olddiff = n1-nlimit;
+n2=n1+n;	
+if ((olddiff^(olddiff+n))>=0   /* the limit is not crossed */
+    || (olddiff^n)>=0          /* it is a wrap-around effect */) {
+,:
+ r> swap
+ r> r> 2dup - >r
+ 2 pick r@ + r@ xor 0< 0=
+ 3 pick r> xor 0< 0= or
+ IF    >r + >r @ >r
+ ELSE  >r >r drop cell+ >r THEN ;)
+
+\+xconds
+
+acondbranch(a(-loop),u R:nlimit R:n1 -- R:nlimit R:n2,gforth aparen_minus_loop,
+UCell olddiff = n1-nlimit;
+n2=n1-u;
+if (olddiff>u) {
+,)
+
+acondbranch(a(s+loop),n R:nlimit R:n1 -- R:nlimit R:n2,gforth	aparen_symmetric_plus_loop,
+""The run-time procedure compiled by S+LOOP. It loops until the index
+crosses the boundary between limit and limit-sign(n). I.e. a symmetric
+version of (+LOOP).""
+/* !! check this thoroughly */
+Cell diff = n1-nlimit;
+Cell newdiff = diff+n;
+if (n<0) {
+    diff = -diff;
+    newdiff = -newdiff;
+}
+n2=n1+n;
+if (diff>=0 || newdiff<0) {
+,)
+
+a(?do) ( #a_target nlimit nstart -- R:nlimit R:nstart ) gforth	aparen_question_do
+if (nstart == nlimit) {
+    SET_IP((Xt *)a_target);
+    INST_TAIL;
+}
+SUPER_CONTINUE;
+:
+  2dup =
+  IF   r> swap rot >r >r
+       @ >r
+  ELSE r> swap rot >r >r
+       cell+ >r
+  THEN ;				\ --> CORE-EXT
+
+\+xconds
+
+a(+do)	( #a_target nlimit nstart -- R:nlimit R:nstart ) gforth	aparen_plus_do
+if (nstart >= nlimit) {
+    SET_IP((Xt *)a_target);
+    INST_TAIL;
+}
+SUPER_CONTINUE;
+:
+ swap 2dup
+ r> swap >r swap >r
+ >=
+ IF
+     @
+ ELSE
+     cell+
+ THEN  >r ;
+
+a(u+do)	( #a_target ulimit ustart -- R:ulimit R:ustart ) gforth	aparen_u_plus_do
+if (ustart >= ulimit) {
+    SET_IP((Xt *)a_target);
+    INST_TAIL;
+}
+SUPER_CONTINUE;
+:
+ swap 2dup
+ r> swap >r swap >r
+ u>=
+ IF
+     @
+ ELSE
+     cell+
+ THEN  >r ;
+
+a(-do)	( #a_target nlimit nstart -- R:nlimit R:nstart ) gforth	aparen_minus_do
+if (nstart <= nlimit) {
+    SET_IP((Xt *)a_target);
+    INST_TAIL;
+}
+SUPER_CONTINUE;
+:
+ swap 2dup
+ r> swap >r swap >r
+ <=
+ IF
+     @
+ ELSE
+     cell+
+ THEN  >r ;
+
+a(u-do)	( #a_target ulimit ustart -- R:ulimit R:ustart ) gforth	aparen_u_minus_do
+if (ustart <= ulimit) {
+    SET_IP((Xt *)a_target);
+    INST_TAIL;
+}
+SUPER_CONTINUE;
+:
+ swap 2dup
+ r> swap >r swap >r
+ u<=
+ IF
+     @
+ ELSE
+     cell+
+ THEN  >r ;
+
+\+
+
 include(peeprules.vmg)
 
 \+
