@@ -21,7 +21,7 @@ INCLUDE look.fs
 
 : var?  ( nfa -- flag )
         (name>)
-        >code-address ['] leavings >code-address = ;
+        >code-address ['] udp >code-address = ;
 
 : con?  ( nfa -- flag )
         (name>)
