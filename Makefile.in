@@ -284,7 +284,7 @@ clean:		mostlyclean
 		-$(RM) -rf $(GEN) *.o engine/*.o engine/*.a
 
 distclean:	clean
-		-$(RM) machine/machine.h kernel.fi config.cache config.log \
+		-$(RM) machine kernel.fi config.cache config.log \
 		config.status engine/config.h Makefile stamp-h
 
 #realclean is useless, but dangerous, so it's commented out

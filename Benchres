@@ -15,10 +15,17 @@ siev	bubble	matrix	fib	machine and configuration
 29.89	35.42	26.96	34.59	i486 66MHz 256K cache; gcc-2.6.3 -DFORCE_REG -DDIRECT_THREADED; gforth-0.1beta; a.out
 39.50	45.91	36.73	44.90	i486 50MHz 256K cache; gcc-2.7.0 -DFORCE_REG -DDIRECT_THREADED; gforth-0.1beta
 42.82	46.74	38.69	48.30	i486 50MHz 256K cache; gcc-2.7.0 -DFORCE_REG; gforth-0.1beta
+
  7.0	 7.6	 6.2	 7.7	21064A (Alpha) 300MHz 2M cache; gcc-2.7.2; gforth-0.2.0
-17.3	19.0	14.1	18.3	R4000 100MHz 1M cache; gcc-2.4.5; gforth-0.1beta
-50.9	56.8	42.4	52.0	R3000 25MHz 64K+64K cache; gcc-2.5.8 -DFORCE_REG; gforth-0.1beta
+
+ 8.17	 9.01	 6.24	 9.35	R10000 (SGI PowerChallenge XL) 195MHz 2M cache; gcc-2.7.2 -DFORCE_REG; gforth-0.3.0
+17.3	19.0	14.1	18.3	R4000 (DecStation 5000/150) 100MHz 1M cache; gcc-2.4.5; gforth-0.1beta
+50.9	56.8	42.4	52.0	R3000 (DecStation 5000/200) 25MHz 64K+64K cache; gcc-2.5.8 -DFORCE_REG; gforth-0.1beta
+
 59.5	65.8	69.5	61.9	FJMB86903 (SPARC ELC) 33MHz; gcc-2.5.8; gforth-0.1beta
 84.34	91.49	76.16	88.83	L64801 25MHz (SPARC IPC) 64K WT cache; gcc-2.4.5; gforth-0.1beta
+
+11.6	12.1	10.8	15.6	PA8000 (HP C160) 160MHz 64M RAM; gcc-2.7.2; gforth-0.3.0
 30.0	34.1	20.5	33.0	PA-RISC 1.1 (HP 720) 50MHz 64K cache; gcc-2.6.3 -DDIRECT_THREADED; gforth-0.1beta
 
+14.05	16.96	11.14	17.51	PPC604 (PowerMac) 132MHz 256K L2 cache; MkLinux 2.1; gcc-2.7.2.1; gforth-0.3.0
