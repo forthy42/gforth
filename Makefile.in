@@ -394,16 +394,16 @@ kernl%.fi-:	mach%.fs $(KERN_SRC) version.fs $(FORTH_GEN0)
 		$(FORTHK) -e 's" $<"' main.fs -e "save-cross $@ $(bindir)/gforth-$(VERSION) bye"
 
 kernl16b.fi:	$(KERNLS)
-		-$(CP) $@ $@~
-		-$(CP) $@- $@
+		-$(CP) kernl16b.fi kernl16b.fi~
+		-$(CP) kernl16b.fi- kernl16b.fi
 
 kernl16l.fi:	$(KERNLS)
-		-$(CP) $@ $@~
-		-$(CP) $@- $@
+		-$(CP) kernl16l.fi kernl16l.fi~
+		-$(CP) kernl16l.fi- kernl16l.fi
 
 kernl32b.fi:	$(KERNLS)
-		-$(CP) $@ $@~
-		-$(CP) $@- $@
+		-$(CP) kernl32b.fi kernl32b.fi~
+		-$(CP) kernl32b.fi- kernl32b.fi
 
 kernl32l.fi:	$(KERNLS)
 		-$(CP) kernl32l.fi kernl32l.fi~
