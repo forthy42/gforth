@@ -20,7 +20,18 @@ AC_ARG_ENABLE(indirect-threaded,
 				(default processor-dependent)],
 AC_DEFINE(INDIRECT_THREADED))
 
+AC_ARG_WITH(debug,
+[  --with-debug     specifys option -g to compile with debug info (default)
+   --without-debug  omits the -g switch and creates smaller images on
+                    machines where "strip" has problems with gcc style
+                    debugging informations.],
+if test "$withval" = "yes"; then DEBUGFLAG=-g; fi)
+
+
 AC_SUBST(GCCLDFLAGS)
+AC_SUBST(DEBUGFLAG)
+
+wordsize=32
 
 #terminology is a bit unusual here: The host is the system on which
 #gforth will run; the system on which configure will run is the `build'
@@ -37,6 +48,7 @@ case "$host_cpu" in
 		;;
 	i386|i486|i586)
 		mach_h=386
+		CFLAGS="-fforce-mem -fforce-addr -fomit-frame-pointer"
 		#!! direct/indirect threading switch
 		#!! -m486 flag
 		;;
@@ -49,6 +61,11 @@ case "$host_cpu" in
 		GCCLDFLAGS="-Xlinker -T -Xlinker 10000000 -Xlinker -D -Xlinker 10400000"
 		#this works on Ultrix, but not on Irix
 		#for now use indirect threading under Irix
+		;;
+	alpha*)
+		mach_h=alpha
+		wordsize=64
+		echo Very Preliminary Support for Alpha!!!
 		;;
 	*)
 		echo "No direct threading support for $host_cpu, using indirect threading."
@@ -113,10 +130,9 @@ AC_REPLACE_FUNCS(ecvt)
 dnl No check for select, because our replacement is no good under
 dnl anything but DOS
 
-gforth_fi=kernl32${bytesex}.fi
+gforth_fi=kernl${wordsize}${bytesex}.fi
 AC_SUBST(gforth_fi)
 
-dnl autoconf requires (implicitly) that AC_LINK_FILES is used only once
 AC_LINK_FILES(${mach_h}.h $gforth_fi,machine.h gforth.fi)
 AC_OUTPUT(Makefile)
 

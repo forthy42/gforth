@@ -1,5 +1,5 @@
 /*
-  $Id: main.c,v 1.21 1995-01-19 17:48:08 pazsan Exp $
+  $Id: main.c,v 1.22 1995-02-02 18:13:06 pazsan Exp $
   Copyright 1993 by the ANSI figForth Development Group
 */
 
@@ -15,6 +15,10 @@
 #include "forth.h"
 #include "io.h"
 #include "getopt.h"
+
+#ifdef MSDOS
+jmp_buf throw_jmp_buf;
+#endif
 
 #ifndef DEFAULTPATH
 #  define DEFAULTPATH "/usr/local/lib/gforth:."

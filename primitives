@@ -109,7 +109,7 @@ ip = (Xt *)(((Cell)ip)+(Cell)*ip);
 \ this is non-syntactical: code must open a brace that is close by the macro
 define(condbranch,
 $1	$2
-$3    goto branch;
+$3	ip = (Xt *)(((Cell)ip)+(Cell)*ip); NEXT;
 }
 else
     ip++;
@@ -144,7 +144,7 @@ Cell index = *rp;
 /* sign bit manipulation and test: (x^y)<0 is equivalent to (x<0) != (y<0) */
 /* dependent upon two's complement arithmetic */
 Cell olddiff = index-rp[1];
-#ifdef undefined
+#ifndef undefined
 if ((olddiff^(olddiff+n))>=0   /* the limit is not crossed */
     || (olddiff^n)>=0          /* it is a wrap-around effect */) {
 #else
@@ -911,15 +911,10 @@ w2 = (Cell)fopen(cstr(c_addr, u, 1), fileattr[ntype]);
 wior =  FILEEXIST(w2 == NULL);
 
 create-file	c_addr u ntype -- w2 wior	file	create_file
-int	fd;
+Cell	fd;
 fd = creat(cstr(c_addr, u, 1), 0644);
 if (fd > -1) {
-#ifdef __osf__
-  (void)close(fd);
-  w2 = (Cell)fopen(cstr(c_addr, u, 1), fileattr[ntype]);
-#else
   w2 = (Cell)fdopen(fd, fileattr[ntype]);
-#endif
   assert(w2 != NULL);
   wior = 0;
 } else {
@@ -1102,10 +1097,10 @@ else
 
 represent		r c_addr u -- n f1 f2	float
 char *sig;
-int flag;
-int decpt;
+Cell flag;
+Cell decpt;
 sig=ecvt(r, u, &decpt, &flag);
-n=(Cell)(r==0 ? 1 : decpt);
+n=(r==0 ? 1 : decpt);
 f1=FLAG(flag!=0);
 f2=FLAG(isdigit(sig[0])!=0);
 memmove(c_addr,sig,u);

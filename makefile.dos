@@ -1,23 +1,48 @@
 #Copyright 1992 by the ANSI figForth Development Group
+# To change the values of `make' variables: instead of editing Makefiles,
+# (1) if the variable is set in `config.status', edit `config.status'
+#     (which will cause the Makefiles to be regenerated when you run `make');
+# (2) otherwise, pass the desired values on the `make' command line.
 
-VERSION	= 0.1alpha#gforth version
-RM	= xdel
+#To do:
+#use $(srcdir) to make compilation in a non-srcdir possible
+
+VERSION	=0.1alpha#gforth version
+SHELL	= command.com
+RM	= del
 CP	= copy
+INSTALL	= install-sh
+INSTALL_PROGRAM = install-sh
+INSTALL_DATA = install-sh
+LN_S	= copy
 GCC	= gcc
 FORTH	= gforth
 CC	= gcc
 MAKE	= make
-XCFLAGS	=  -fforce-mem -fforce-addr -fomit-frame-pointer -fno-defer-pop -fcaller-saves
-XDEFINES	=  -DUSE_GETOPT -DDIRECT_THREADED
-SWITCHES	= $(XCFLAGS) $(XDEFINES) -DDEFAULTBIN='"/forth/gforth-0.1alpha"' #-DNDEBUG #turn off assertions
+TEXI2DVI = tex
+DVI2PS	= dvips
+MAKEINFO = makeinfo
+XCFLAGS	= 
+XDEFINES = -DDIRECT_THREADED
+SWITCHES = $(XCFLAGS) $(XDEFINES) #-DNDEBUG #turn off assertions
+ENGINE_FLAGS =  -fforce-mem -fforce-addr -fomit-frame-pointer -fno-defer-pop -fcaller-saves
 CFLAGS	= -g -O4 -Wall $(SWITCHES)
 
-#-Xlinker -n puts text and data into the same 256M region
 #John Wavrik should use -Xlinker -N to get a writable text (executable)
-LDFLAGS	= -g -Xlinker -N
-LDLIBS	=  -lm -lpc
+LDFLAGS	= -g
+LDLIBS	= -lm -lpc
 
-EMACS	= emacs
+prefix = .\
+exec_prefix = .\
+srcdir = .\
+bindir = $(exec_prefix)\bin
+#read-only architecture-independent files
+datadir = $(prefix)\share
+#read-only architecture-dependent non-ascii files
+libdir = $(prefix)\lib
+infodir = $(prefix)\info
+mandir = $(prefix)\man\man1
+
 
 INCLUDES = forth.h io.h
 
@@ -25,17 +50,19 @@ FORTH_SRC = add.fs assert.fs ansi.fs blocks.fs bufio.fs checkans.fs \
 	colorize.fs cross.fs debug.fs debugging.fs doskey.fs ds2texi.fs \
 	dumpimage.fs environ.fs errore.fs etags.fs extend.fs filedump.fs \
 	float.fs glocals.fs glosgen.fs gray.fs hash.fs history.fs \
-	kernal.fs locals-test.fs look.fs mach32b.fs mach32l.fs main.fs \
+	kernal.fs locals-test.fs look.fs main.fs \
+ 	mach16b.fs mach16l.fs mach32b.fs mach32l.fs mach64b.fs mach64l.fs \
 	other.fs prims2x.fs random.fs search-order.fs see.fs sieve.fs \
 	startup.fs struct.fs tools.fs toolsext.fs tt.fs vars.fs vt100.fs \
 	vt100key.fs wordinfo.fs wordsets.fs
 
-SOURCES	= Makefile.in configure  config.sub  config.guess \
-	INSTALL README ToDo BUGS model gforth.ds \
+SOURCES	= Makefile.in configure.in configure config.sub  config.guess \
+	install-sh INSTALL README ToDo BUGS model copying gforth.ds \
 	primitives engine.c main.c io.c \
-	apollo68k.h decstation.h 386.h hppa.h cache.c ecvt.c sparc.h \
-	getopt.c getopt1.c getopt.h \
-	makefile.dos io-dos.h configure.bat startup.dos \
+	m68k.h mips.h 386.h hppa.h cache.c sparc.h power.h alpha.h 32bit.h \
+	getopt.c getopt1.c getopt.h select.c \
+	ecvt.c memcmp.c strtol.c strtoul.c memmove.c \
+	makefile.dos configure.bat startup.dos \
 	glosgen.glo glossaries.doc \
 	$(INCLUDES) $(FORTH_SRC)
 
@@ -43,17 +70,21 @@ RCS_FILES =  ToDo model high-level
 
 GEN = gforth
 
-OBJECTS	=  engine.o main.o getopt1.o getopt.o ecvt.o
+OBJECTS	= engine.o main.o ecvt.o select.o getopt.o getopt1.o
 
 # things that need a working forth system to be generated
 # this is used for antidependences,
 
-FORTH_GEN =  primitives.b primitives.i prim_labels.i aliases.fs kernl32l.fi kernl32b.fi
+FORTH_GEN =  primitives.b primitives.i prim_labels.i aliases.fs kernl16l.fi kernl16b.fi kernl32l.fi kernl32b.fi kernl64l.fi kernl64b.fi
 
-GEN_PRECIOUS = $(FORTH_GEN) gforth.texi gforth.dvi gforth.ps Makefile
+GEN_PRECIOUS = $(FORTH_GEN) gforth.texi gforth.dvi gforth.ps Makefile configure
+
+#standards.info recommends this:
+.SUFFIXES:
+.SUFFIXES: .c .o
 
 all:
-	if [ ! -f gforth ]; then $(MAKE) first; fi
+	-if not exist gforth.exe $(MAKE) first
 	$(MAKE) more
 
 first:	gforth
@@ -75,27 +106,52 @@ clean:
 		-$(RM) $(GEN) *.o *.s
 
 distclean:	clean
-		-$(RM) machine.h
+		-$(RM) machine.h gforth.fi config.cache config.log
 
 realclean:	distclean
 		-$(RM) $(GEN_PRECIOUS)
 
-package:	$(SOURCES) $(FORTH_GEN)
-		-rm ../gforth-$(VERSION)
-		ln -s `pwd` ../gforth-$(VERSION)
+dist:		$(SOURCES) $(FORTH_GEN)
+		-$(RM) gforth-$(VERSION)
+		ln -s `pwd` gforth-$(VERSION)
 		echo "" $(SOURCES) $(FORTH_GEN) |\
 			sed -e 's| | gforth-$(VERSION)/|g' |\
-			(cd ..; xargs tar cvf gforth/gforth-$(VERSION).tar)
+			xargs tar cvf gforth-$(VERSION).tar
 		gzip -9 -f gforth-$(VERSION).tar
-		-rm ../gforth-$(VERSION)
+		-$(RM) gforth-$(VERSION)
 
-Makefile:	Makefile.in
-		configure
+install:	gforth $(FORTH_SRC) gforth.fi gforth.1 gforth.info
+		$(INSTALL) -d $(bindir) $(mandir) $(infodir) $(libdir)/gforth $(datadir)/gforth	
+		$(INSTALL_PROGRAM) gforth $(bindir)
+		$(INSTALL_DATA) gforth.1 $(mandir)
+		$(INSTALL_DATA) gforth.info* $(infodir)
+		$(INSTALL_DATA) gforth.fi $(libdir)/gforth
+		for i in $(FORTH_SRC); do \
+			$(CP) $$i $(datadir)/gforth; \
+			$(LN_S) $(datadir)/gforth/$$i $(libdir)/gforth \
+		done
+		
+dvi:		gforth.dvi
 
 gforth:	$(OBJECTS)
 		-$(CP) gforth gforth~
 		$(GCC) $(LDFLAGS) $(OBJECTS) $(LDLIBS) -o $@
+		strip gforth
 		coff2exe gforth
+
+kernl16l.fi:	main.fs search-order.fs cross.fs aliases.fs vars.fs add.fs \
+		errore.fs kernal.fs extend.fs tools.fs toolsext.fs \
+		mach16l.fs $(FORTH_GEN)
+		-$(CP) kernl16l.fi kernl16l.fi~
+		$(FORTH) -e 's" mach16l.fs"' main.fs
+		
+
+kernl16b.fi:	main.fs search-order.fs cross.fs aliases.fs vars.fs add.fs \
+		errore.fs kernal.fs extend.fs tools.fs toolsext.fs \
+		mach16b.fs $(FORTH_GEN)
+		-$(CP) kernl16b.fi kernl16b.fi~
+		$(FORTH) -e 's" mach16b.fs"' main.fs
+		
 
 kernl32l.fi:	main.fs search-order.fs cross.fs aliases.fs vars.fs add.fs \
 		errore.fs kernal.fs extend.fs tools.fs toolsext.fs \
@@ -109,12 +165,29 @@ kernl32b.fi:	main.fs search-order.fs cross.fs aliases.fs vars.fs add.fs \
 		mach32b.fs $(FORTH_GEN)
 		-$(CP) kernl32b.fi kernl32b.fi~
 		$(FORTH) -e 's" mach32b.fs"' main.fs
+		
 
+kernl64l.fi:	main.fs search-order.fs cross.fs aliases.fs vars.fs add.fs \
+		errore.fs kernal.fs extend.fs tools.fs toolsext.fs \
+		mach64l.fs $(FORTH_GEN)
+		-$(CP) kernl64l.fi kernl64l.fi~
+		$(FORTH) -e 's" mach64l.fs"' main.fs
+		
+
+kernl64b.fi:	main.fs search-order.fs cross.fs aliases.fs vars.fs add.fs \
+		errore.fs kernal.fs extend.fs tools.fs toolsext.fs \
+		mach64b.fs $(FORTH_GEN)
+		-$(CP) kernl64b.fi kernl64b.fi~
+		$(FORTH) -e 's" mach64b.fs"' main.fs
+		
 
 engine.s:	engine.c primitives.i prim_labels.i machine.h $(INCLUDES)
-		$(GCC) $(CFLAGS) -S engine.c
+		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -S engine.c
 
 engine.o:	engine.c primitives.i prim_labels.i machine.h $(INCLUDES)
+		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -c engine.c
+
+strtoul.o:	strtoul.c strtol.c
 
 primitives.b:	primitives
 		m4 primitives >$@ 
@@ -135,14 +208,27 @@ gforth.texi:	gforth.ds primitives.b ds2texi.fs prims2x.fs
 		$(FORTH) ds2texi.fs >$@
 
 gforth.dvi:	gforth.texi
-		tex gforth.texi
+		$(TEXI2DVI) gforth.texi
 
 gforth.ps:	gforth.dvi
-		dvips gforth.dvi -o $@
+		$(DVI2PS) gforth.dvi -o $@
 
-%.s :		%.c $(INCLUDES)
-		$(CC) $(CFLAGS) -S $< -o $@
+gforth.info:	gforth.texi
+		-$(MAKEINFO) gforth.texi
 
-%.o :		%.s
-		$(CC) $(CFLAGS) -c $< -o $@
+# For an explanation of the following Makefile rules, see node
+# `Automatic Remaking' in GNU Autoconf documentation.
+Makefile: Makefile.in config.status
+	CONFIG_FILES=$@ CONFIG_HEADERS= ./config.status
+config.status: configure
+	./config.status --recheck
+configure: configure.in
+	cd $(srcdir) && autoconf
+
+#unnecessary and does not work with all makes
+#%.s :		%.c $(INCLUDES)
+#		$(CC) $(CFLAGS) -S $< -o $@
+
+#%.o :		%.s
+#		$(CC) $(CFLAGS) -c $< -o $@
 

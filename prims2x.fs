@@ -463,14 +463,16 @@ set-current
 
 : flush-tos ( -- )
  effect-in-size 2@ effect-out-size 2@
+ rot - swap rot - ( -f-diff -d-diff ) >r >r
+ effect-in-size 2@ effect-out-size 2@
  0<> rot 0= and
  if
-   ." IF_FTOS(fp[0] = FTOS);" cr
- endif
+   ." IF_FTOS(fp[" r@ 0 .r ." ] = FTOS);" cr
+ endif  rdrop
  0<> swap 0= and
  if
-   ." IF_TOS(sp[0] = TOS);" cr
- endif ;
+   ." IF_TOS(sp[" r@ 0 .r ." ] = TOS);" cr
+ endif  rdrop ;
 
 : fill-tos ( -- )
  effect-in-size 2@ effect-out-size 2@
@@ -519,7 +521,6 @@ set-current
  ." DEF_CA" cr
  declarations
  compute-offsets \ for everything else
- flush-tos
  fetches
  stack-pointer-updates cr
  ." NAME(" [char] " emit forth-name 2@ type [char] " emit ." )" cr \ debugging
@@ -527,6 +528,7 @@ set-current
  c-code 2@ type
  ." }" cr
  ." NEXT_P1;" cr
+ flush-tos
  stores
  fill-tos
  ." NEXT_P2;" cr

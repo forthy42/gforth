@@ -26,11 +26,11 @@ MAKEINFO = makeinfo
 XCFLAGS	= @CFLAGS@
 XDEFINES = @DEFS@
 SWITCHES = $(XCFLAGS) $(XDEFINES) #-DNDEBUG #turn off assertions
-ENGINE_FLAGS =  -fforce-mem -fforce-addr -fomit-frame-pointer -fno-defer-pop -fcaller-saves
-CFLAGS	= -g -O4 -Wall $(SWITCHES)
+ENGINE_FLAGS =  -fno-defer-pop -fcaller-saves
+CFLAGS	= @DEBUGFLAG@ -O4 -Wall $(SWITCHES)
 
 #John Wavrik should use -Xlinker -N to get a writable text (executable)
-LDFLAGS	=  @LDFLAGS@ @GCCLDFLAGS@
+LDFLAGS	=  @DEBUGFLAG@ @LDFLAGS@ @GCCLDFLAGS@
 LDLIBS	= @LIBS@
 
 prefix = @prefix@
@@ -57,13 +57,13 @@ FORTH_SRC = add.fs assert.fs ansi.fs blocks.fs bufio.fs checkans.fs \
 	startup.fs struct.fs tools.fs toolsext.fs tt.fs vars.fs vt100.fs \
 	vt100key.fs wordinfo.fs wordsets.fs
 
-SOURCES	= CVS Makefile.in configure.in configure config.sub  config.guess \
-	install-sh INSTALL README ToDo BUGS model gforth.ds texinfo.tex \
+SOURCES	= Makefile.in configure.in configure config.sub  config.guess \
+	install-sh INSTALL README ToDo BUGS model COPYING gforth.ds texinfo.tex \
 	primitives engine.c main.c io.c \
-	m68k.h mips.h 386.h hppa.h cache.c sparc.h power.h 32bit.h \
+	m68k.h mips.h 386.h hppa.h cache.c sparc.h power.h alpha.h 32bit.h \
 	getopt.c getopt1.c getopt.h select.c \
 	ecvt.c memcmp.c strtol.c strtoul.c memmove.c \
-	makefile.dos io-dos.h configure.bat startup.dos \
+	makefile.dos configure.bat startup.dos \
 	glosgen.glo glossaries.doc \
 	$(INCLUDES) $(FORTH_SRC)
 

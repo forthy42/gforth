@@ -19,14 +19,7 @@ compiler version.
 * ANSI Forth
 Add the remaining words
 
-* Configuration
-We should have a config script so people don't need to edit the
-Makefile etc.
-
 *Run-time System
-**startup.fs takes too long to load.
-Make the compiler much faster (hardly possible) or provide some way to
-make an image that includes everything loaded by startup.fs
 **Gender-independent image file format and loader
 **Stack Checking using the MMU where the OS makes it possible.
 
@@ -60,8 +53,6 @@ Issues: Convenience, portability across plattforms, compatibility with
 existing tools (Emacs, F-PC)
 ** Decompiler and Debugger
 need debugging
-**readline
-Use the GNU readline package for convenient line editing
 ** emacs support
 can be improved
 **prefix file generator
@@ -87,5 +78,4 @@ in all source files.
 
 * Distribution and Announcements
 ** add copyright notices to all the source files
-** add a package target to the Makefile
 ** Write articles for (general-purpose) magazines

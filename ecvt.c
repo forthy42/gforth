@@ -1,3 +1,5 @@
+/* cheap ecvt replacement */
+
 #include <math.h>
 
 #define MAXCONV 0x40

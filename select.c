@@ -29,6 +29,3 @@ void select(int n, int a, int b, int c, struct timeval * timeout)
 	 time2.tv_sec == time1.tv_sec);
 
 }
-
-/* cheap ecvt replacement */
-
