@@ -5,10 +5,24 @@ require string.fs
 \ tag handling
 
 : .' '' parse postpone SLiteral postpone type ; immediate
+: s' '' parse postpone SLiteral ; immediate
 
-: tag ( addr u -- ) '< emit type '> emit ;
+Variable tag-option
+s" " tag-option $!
+
+: tag ( addr u -- ) '< emit type tag-option $@ type '> emit
+    s" " tag-option $! ;
 : /tag ( addr u -- ) '< emit '/ emit type '> emit ;
 : tagged ( addr1 u1 addr2 u2 -- )  2dup 2>r tag type 2r> /tag ;
+
+: opt ( addr u opt u -- )  s"  " tag-option $+!
+    tag-option $+! s' ="' tag-option $+! tag-option $+!
+    s' "' tag-option $+! ;
+: href= ( addr u -- )  s" href" opt ;
+: src=  ( addr u -- )  s" src" opt ;
+: align= ( addr u -- ) s" align" opt ;
+: mailto: ( addr u -- ) s'  href="mailto:' tag-option $+!
+    tag-option $+! s' "' tag-option $+! ;
 
 \ environment handling
 
@@ -30,19 +44,20 @@ Variable envs 10 0 [DO] 0 , [LOOP]
 
 Variable link
 Variable link-suffix
+Variable iconpath
 
-Variable do-icon
 Variable do-size
 
-: link-icon? ( -- )  do-icon @ 0= ?EXIT
+: link-icon? ( -- )
     link $@ '. $split link-suffix $! 2drop s" .*" link-suffix $+!
     s" icons" open-dir throw >r
     BEGIN
 	pad $100 r@ read-dir throw  WHILE
 	pad swap 2dup link-suffix $@ filename-match
-	IF  .' <img src="icons/' type .' ">'  true
+	IF  s" icons/" iconpath $! iconpath $+!
+	    iconpath $@ src= s" img" tag true
 	ELSE  2drop  false  THEN
-    UNTIL  ELSE  '( emit link-suffix $@ 2 - type ') emit  THEN
+    UNTIL  ELSE  drop  THEN \ ELSE  '( emit link-suffix $@ 2 - type ') emit  THEN
     r> close-dir throw ;
 
 : link-size? ( -- )  do-size @ 0= ?EXIT
@@ -51,19 +66,13 @@ Variable do-size
     r> close-file throw ;
 
 : link-options ( addr u -- addr' u' )
-    do-icon off  do-size off
-    BEGIN  dup 1 >=  WHILE
-	over c@ CASE
-	    '% OF  do-size on 1 /string  ENDOF
-	    '& OF  do-icon on 1 /string  ENDOF
-	    drop  EXIT
-	ENDCASE
-    REPEAT ;
+    do-size off
+    over c@ '% = over 0> and IF  do-size on  1 /string  THEN ;
 
 : .link ( -- )  '[ parse type '] parse '| $split
     link-options link $!
     link $@len 0= IF  2dup link $! s" .html" link $+!  THEN
-    link-icon? .' <a href="' link $@ type .' ">' type s" a" /tag
+    link-icon? link $@ href= s" a" tagged
     link-size? ;
 
 \ line handling
@@ -103,16 +112,49 @@ Variable end-sec
 
 longtags set-current
 
-: --- cr s" hr" tag ;
+: --- cr s" hr" tag cr ;
 : * s" h1" line ;
 : ** s" h2" line ;
 : *** s" h3" line ;
 : - s" ul" env s" li" par ;
 : + s" ol" env s" li" par ;
 : << +env ;
+: <* s" center" >env ;
 : >> -env ;
+: *> -env ;
 : . end-sec on ;
 : \ postpone \ ;
+
+definitions
+    
+\ Table
+
+Variable table-format
+Variable table#
+
+: |tag  table-format $@ table# @ /string drop c@
+    CASE
+	'l OF  s" left"   align=  ENDOF
+	'r OF  s" right"  align=  ENDOF
+	'c OF  s" center" align=  ENDOF
+    ENDCASE  >env  1 table# +! ;
+: |d  table# @ IF  -env  THEN  s" td" |tag ;
+: |h  table# @ IF  -env  THEN  s" th" |tag ;
+: |line  s" tr" >env  table# off ;
+: line|  -env -env cr ;
+
+longtags set-current
+
+: <| s" table" >env bl sword table-format $! ;
+: |> -env ;
+: +| |line
+    BEGIN
+	|h '| parse type
+	>in @ >r char r> >in ! '+ =  UNTIL line| ;
+: -| |line
+    BEGIN
+	|d '| parse type
+	>in @ >r char r> >in ! '- =  UNTIL line| ;
 
 definitions
 
@@ -145,8 +187,8 @@ Variable mail-name
     s" address" >env s" center" >env
     ." Last modified: " time&date rot 0 u.r swap 1-
     s" janfebmaraprmayjunjulaugsepoctnovdec" rot 3 * /string 3 min type
-    0 u.r
-    .'  by <a href="mailto:' mail $@ type .' ">' mail-name $@ type s" a" /tag
+    0 u.r ."  by "
+    mail $@ mailto: mail-name $@ s" a" tagged
     -envs ;
 
 \ top word
@@ -182,3 +224,5 @@ Variable field#
 
 : field:  Create field# @ , 1 field# +!
 DOES> @ cells last-entry @ + get-rest ;
+
+: >field  ' >body @ cells postpone Literal postpone + ; immediate
