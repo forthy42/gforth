@@ -432,7 +432,6 @@ int go_forth(Address image, int stack, Cell *entries)
   return((int)(Cell)engine(ip0,sp0,rp0,fp0,lp0));
 }
 
-
 #ifndef INCLUDE_IMAGE
 void print_sizes(Cell sizebyte)
      /* print size information */
@@ -467,7 +466,13 @@ PrimInfo **decomp_prims;
 
 int compare_priminfo_length(PrimInfo **a, PrimInfo **b)
 {
-  return (*a)->length - (*b)->length;
+  Cell diff = (*a)->length - (*b)->length;
+  if (diff)
+    return diff;
+  else /* break ties by start address; thus the decompiler produces
+          the earliest primitive with the same code (e.g. noop instead
+          of (char) and @ instead of >code-address */
+    return (*b)->start - (*a)->start;
 }
 
 #endif /* defined(NO_DYNAMIC) */
@@ -658,7 +663,15 @@ Label decompile_code(Label code)
   return code;
 #else /* !defined(NO_DYNAMIC) */
   Cell i;
+  struct code_block_list *p;
 
+  /* first, check if we are in code at all */
+  for (p = code_block_list;; p = p->next) {
+    if (p == NULL)
+      return code;
+    if (code >= p->block && code < p->block+p->size)
+      break;
+  }
   /* reverse order because NOOP might match other prims */
   for (i=npriminfos-1; i>DOESJUMP; i--) {
     PrimInfo *pi=decomp_prims[i];
