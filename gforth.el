@@ -164,7 +164,7 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 
 	(("true" "false" "c/l" "bl" "cell" "pi" "w/o" "r/o" "r/w") 
 	 non-immediate (font-lock-constant-face . 2))
-	(("~~" "break:") compile-only (font-lock-warning-face . 2))
+	(("~~" "break:" "dbg") compile-only (font-lock-warning-face . 2))
 	(("break\"") compile-only (font-lock-warning-face . 1)
 	 "[\"\n]" nil string (font-lock-string-face . 1))
 	(("postpone" "[is]" "defers" "[']" "[compile]") 
@@ -172,7 +172,7 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 	 "[ \t\n]" t name (font-lock-function-name-face . 3))
 	(("is" "what's") immediate (font-lock-keyword-face . 2)
 	 "[ \t\n]" t name (font-lock-function-name-face . 3))
-	(("<is>" "'") non-immediate (font-lock-keyword-face . 2)
+	(("<is>" "'" "see") non-immediate (font-lock-keyword-face . 2)
 	 "[ \t\n]" t name (font-lock-function-name-face . 3))
 	(("[to]") compile-only (font-lock-keyword-face . 2)
 	 "[ \t\n]" t name (font-lock-variable-name-face . 3))
@@ -676,9 +676,9 @@ End:\" construct).")
  your .emacs.")
 
 (defvar forth-indent-level 4
-  "Indentation of Forth statements.")
+  "*Indentation of Forth statements.")
 (defvar forth-minor-indent-level 2
-  "Minor indentation of Forth statements.")
+  "*Minor indentation of Forth statements.")
 (defvar forth-compiled-indent-words nil)
 
 ;; Return, whether `pos' is the first forth word on its line

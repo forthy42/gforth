@@ -18,10 +18,13 @@
 \ along with this program; if not, write to the Free Software
 \ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
 
-$10 constant maxvp
-Variable vp
+$10 value maxvp			\ current size of search order stack
+$400 constant maxvp-limit	\ upper limit for resizing search order stack
+Variable static-vp
   0 A, 0 A,  0 A, 0 A,   0 A, 0 A,   0 A, 0 A, 
-  0 A, 0 A,  0 A, 0 A,   0 A, 0 A,   0 A, 0 A, 
+  0 A, 0 A,  0 A, 0 A,   0 A, 0 A,   0 A, 0 A,
+0 Value vp
+static-vp ' vp >body A!
 
 : get-current  ( -- wid ) \ search
   \G @i{wid} is the identifier of the current compilation word list.
@@ -71,7 +74,22 @@ Variable slowvoc   0 slowvoc !
   Create wordlist drop  DOES> context ! ;
 
 : check-maxvp ( n -- )
-    maxvp > -49 and throw ;
+   dup maxvp-limit > -49 and throw
+   dup maxvp > IF
+      vp static-vp = -49 and throw
+      BEGIN  dup  maxvp 2* dup TO maxvp  > 0= UNTIL
+      vp  maxvp 1+ cells resize throw TO vp
+   THEN drop ;
+
+: init-vp  ( n -- )
+   $10 TO maxvp
+   maxvp 1+ cells allocate throw TO vp
+   static-vp dup @ 1+ cells  vp swap move ;
+
+:noname
+   DEFERS 'cold
+   init-vp ;
+IS 'cold
 
 : >order ( wid -- ) \ gforth to-order
     \g Push @var{wid} on the search order.
