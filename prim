@@ -1665,7 +1665,7 @@ r = d;
 
 f>d		r -- d		float	f_to_d
 #ifdef BUGGY_LONG_LONG
-d.hi = ldexp(r,-CELL_BITS) - (r<0);
+d.hi = ldexp(r,-(int)(CELL_BITS)) - (r<0);
 d.lo = r-ldexp((Float)d.hi,CELL_BITS);
 #else
 d = r;
@@ -1778,7 +1778,7 @@ int decpt;
 sig=ecvt(r, u, &decpt, &flag);
 n=(r==0 ? 1 : decpt);
 f1=FLAG(flag!=0);
-f2=FLAG(isdigit(sig[0])!=0);
+f2=FLAG(isdigit((unsigned)(sig[0]))!=0);
 memmove(c_addr,sig,u);
 
 >float	c_addr u -- flag	float	to_float
@@ -1786,7 +1786,7 @@ memmove(c_addr,sig,u);
 Float r;
 char *number=cstr(c_addr, u, 1);
 char *endconv;
-while(isspace(number[--u]) && u>0);
+while(isspace((unsigned)(number[--u])) && u>0);
 switch(number[u])
 {
    case 'd':

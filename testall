@@ -1,0 +1,13 @@
+#! /usr/local/bin/bash
+#test dist on all MACHINES given in MACHINES
+#usage: MACHINES="..." testall dirs/gforth-version.tar.gz
+test "x$MACHINES" != x || MACHINES="jupiter pcs d0 mips calis a5 w3.infosys.tuwien.ac.at hpws01.infosys.tuwien.ac.at aertl@fpr.zserv.tuwien.ac.at samhain.unix.cslab.tuwien.ac.at"
+for i in $MACHINES
+do
+	( ssh $i "test -d xxxgforthtest||mkdir xxxgforthtest; cd xxxgforthtest; test -d $i||mkdir $i; rm -rf $i/*"; \
+	 scp -pq $1 testdist $i:xxxgforthtest/$i; \
+	 ssh $i "cd xxxgforthtest/$i; ./testdist `basename $1`" >$i 2>&1; \
+	 echo "$i done" ) &
+done
+wait
+echo all done

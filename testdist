@@ -1,23 +1,31 @@
+#! /bin/sh
 #tests that dist works
-#call this with gforth-$(version).tar.gz in the working directory
-#use this if your make handles VPATH ok
-GFORTH=gforth-0.3.1
-mkdir test-dist
-cd test-dist
+#usage: testdist gforth-version.tar.gz
+#gforth-version.tar.gz must be in the working directory
+MACHINE=`hostname`
+GFORTH=`basename $1 .tar.gz`
 DIR=$PWD
-gunzip -cd ../$GFORTH.tar.gz|tar xf -
-chmod -R a-w $GFORTH
-mkdir build
-cd build
-../$GFORTH/configure --prefix=$DIR/install
+rm -rf $GFORTH
+gunzip -cd $1 | tar xf -
+if make --version|grep -q GNU
+then
+	echo building in build
+	chmod -R a-w $GFORTH
+	mkdir build
+	cd build
+	../$GFORTH/configure --prefix=$DIR/install
+else
+	echo building in $GFORTH
+	cd $GFORTH
+	./configure --prefix=$DIR/install
+fi
 make
 make check
 #gforth locals-test.fs
 #gforth test-counted-loops.fs
 make install
-make bench
+#make bench
 cd ..
-install/bin/gforth tester.fs coretest.fs postponetest.fs dbltest.fs -e bye
+install/bin/gforth test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs -e bye && echo test ok
 chmod -R +w $GFORTH
 cd ..
-rm -rf test-dist
