@@ -21,7 +21,7 @@ super16 = + @
 \ super17 = lit @ ?branch
 super18 = lit ! ;s
 super19 = lit @ and
-super20 = = ?branch
+\ super20 = = ?branch
 \ super21 = lit lit !
 \ super22 = @ ?branch
 super23 = useraddr !
