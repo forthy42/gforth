@@ -852,7 +852,7 @@ stack inst-stream IP Cell
     THEN ;
 
 : output-tag-file ( -- )
-    name-filename 2@ last-name-filename 2@ str= 0= if
+    name-filename 2@ last-name-filename 2@ compare if
 	name-filename 2@ last-name-filename 2!
 	#ff emit cr
 	name-filename 2@ type
@@ -1191,7 +1191,7 @@ print-token !
     \ when input points to a newline, check if the next line is a
     \ sync line.  If it is, perform the appropriate actions.
     rawinput @ >r
-    s" #line " r@ over str= 0= if
+    s" #line " r@ over compare if
 	rdrop 1 line +! EXIT
     endif
     0. r> 6 chars + 20 >number drop >r drop line ! r> ( c-addr )

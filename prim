@@ -1708,12 +1708,8 @@ r = d;
 #endif
 
 f>d	( r -- d )		float	f_to_d
-#ifdef BUGGY_LONG_LONG
-d.hi = ldexp(r,-(int)(CELL_BITS)) - (r<0);
-d.lo = r-ldexp((Float)d.hi,CELL_BITS);
-#else
-d = r;
-#endif
+extern DCell double2ll(Float r);
+d = double2ll(r);
 
 f!	( r f_addr -- )	float	f_store
 ""Store @i{r} into the float at address @i{f-addr}.""
