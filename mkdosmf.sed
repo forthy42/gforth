@@ -6,9 +6,9 @@ s%-pipe %%g
 s% ./gforth% gforth%g
 s%io.o %%g
 s%-DDEFAULTPATH=\\".*"%-DDEFAULTPATH=\\".\\"%g
-s%@kernal_fi@%kernl32l.fi%g
-s%@KERNAL@%kernl16l.fi kernl16b.fi kernl32l.fi kernl32b.fi kernl64l.fi kernl64b.fi%g
-s%@LIBOBJS@%ecvt.o select.o strsignal.o%g
+s%@kernel_fi@%kernl32l.fi%g
+s%@KERNEL@%kernl16l.fi kernl16b.fi kernl32l.fi kernl32b.fi kernl64l.fi kernl64b.fi%g
+s%@LIBOBJS@%ecvt.o io.o strsignal.o%g
 s%@getopt_long@%getopt.o getopt1.o%g
 s%@host@%dos%g
 s%@CC@%gcc%g
@@ -30,7 +30,7 @@ s%@srcdir@%%g
 s%@LINK_KERNL16B@%%g
 s%@LINK_KERNL16L@%%g
 s%@LINK_KERNL32B@%%g
-s%@LINK_KERNL32L@%-$(CP) kernl32l.fi kernal.fi%g
+s%@LINK_KERNL32L@%-$(CP) kernl32l.fi kernel.fi%g
 s%@LINK_KERNL64B@%%g
 s%@LINK_KERNL64L@%%g
 s%\": version-string s\\\" $(VERSION)\\\" ;\"%: version-string s\" $(VERSION)\" ;%g

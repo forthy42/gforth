@@ -17,11 +17,29 @@ REM You should have received a copy of the GNU General Public License
 REM along with this program; if not, write to the Free Software
 REM Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 ECHO *** Configuring for MS-DOS with DJGPP GNU C ***
+THREAD=d
+FREGS=y
+:SWITCHES
+IF "%1"=="--enable-direct-threaded" THREAD=d
+IF "%1"=="--enable-indirect-threaded" THREAD=i
+IF "%1"=="--enable-force-reg" FREGS=y
+shift
+IF NOT "%1"=="" GOTO SWITCHES
 COPY MAKEFILE.DOS MAKEFILE
 COPY KERNL32L.FI KERNEL.FI
 COPY 386.H MACHINE.H
+COPY DOSCONF.H CONFIG.H
 COPY STARTUP.FS STARTUP.UNX
 COPY STARTUP.DOS STARTUP.FS
 COPY HISTORY.DOS HISTORY.FS
 COPY KERNL32L.FI KERNAL.FI
+IF "%THREAD%"=="i" ECHO "#ifndef INDIRECT_THREADED" >>CONFIG.H
+IF "%THREAD%"=="i" ECHO "#define INDIRECT_THREADED 1" >>CONFIG.H
+IF "%THREAD%"=="i" ECHO "#endif" >>CONFIG.H
+IF "%THREAD%"=="d" ECHO "#ifndef DIRECT_THREADED" >>CONFIG.H
+IF "%THREAD%"=="d" ECHO "#define DIRECT_THREADED 1" >>CONFIG.H
+IF "%THREAD%"=="d" ECHO "#endif" >>CONFIG.H
+IF "%FREGS%"=="y" ECHO "#ifndef FORCE_REG" >>CONFIG.H
+IF "%FREGS%"=="y" ECHO "#define FORCE_REG 1" >>CONFIG.H
+IF "%FREGS%"=="y" ECHO "#endif" >>CONFIG.H
 

@@ -81,20 +81,57 @@ case "$ac_cv_sizeof_char_p" in
     ;;
 esac
 
-AC_CHECK_INT_TYPE(sizeof(char *),cell,long)
+AC_CHECK_SIZEOF(short)
+AC_CHECK_SIZEOF(int)
+AC_CHECK_SIZEOF(long)
+AC_CHECK_SIZEOF(long long)
+
+ac_cv_int_type_cell=none
+case "$ac_cv_sizeof_char_p" in
+  $ac_cv_sizeof_short)
+    ac_cv_int_type_cell=short
+    ;;
+  $ac_cv_sizeof_int)
+    ac_cv_int_type_cell=int
+    ;;
+  $ac_cv_sizeof_long)
+    ac_cv_int_type_cell=long
+    ;;
+  $ac_cv_sizeof_long_long)
+    ac_cv_int_type_cell="long long"
+    ;;
+esac
 if test "$ac_cv_int_type_cell" != int; then
 	echo "So, sizeof(pointer)!=sizeof(int); looks like a DOS C compiler to me."
 	echo "Since you don't have a proper C on this machine, that's one more reason"
 	echo "to use Forth;-)"
 fi
-AC_CHECK_INT_TYPE(2*sizeof(char *),double cell,long long)
+AC_DEFINE_UNQUOTED(CELL_TYPE,$ac_cv_int_type_cell)
+
+ac_cv_int_type_double_cell=none
+case `expr 2 '*' "$ac_cv_sizeof_char_p"` in
+  $ac_cv_sizeof_short)
+    ac_cv_int_type_double_cell=short
+    ;;
+  $ac_cv_sizeof_int)
+    ac_cv_int_type_double_cell=int
+    ;;
+  $ac_cv_sizeof_long)
+    ac_cv_int_type_double_cell=long
+    ;;
+  $ac_cv_sizeof_long_long)
+    ac_cv_int_type_double_cell="long long"
+    ;;
+esac
 if test "$ac_cv_int_type_double_cell" = none; then
 	echo "Emulating double-cell arithmetic. This may be slow."
 	echo "If you find this unacceptable, ask the GCC maintainers to provide proper"
-	echo 'long longs for your machine (the GCC manual states that they "are twice as'
-	echo "long as \`long int'\")."
+	echo 'long longs for your machine (the GCC manual states that they \"are twice as'
+	echo "long as \`long int\'\")."
 	LIBOBJS="$LIBOBJS dblsub.o"
 	AC_DEFINE(BUGGY_LONG_LONG)
+else
+  AC_DEFINE_UNQUOTED(DOUBLE_CELL_TYPE,$ac_cv_int_type_double_cell)
 fi
 
 #terminology is a bit unusual here: The host is the system on which
@@ -103,7 +140,7 @@ AC_CANONICAL_HOST
 case "$host_cpu" in
 	hppa*)
 		mach_h=hppa
-		LIBOBJS="$LIBOBJS cache.o"
+		LIBOBJS="cache.o"
 		LDFLAGS="-Xlinker -N"
 		LIBS="-L/lib/pa1.1/"
 		;;
@@ -157,19 +194,19 @@ LINK_KERNL64B=""
 #then
 #  echo Configuring for DOS!!!
 #  MAKE_EXE="coff2exe gforth"
-#  LINK_KERNL32L='$(CP) kernl32l.fi kernal.fi'
+#  LINK_KERNL32L='$(CP) kernl32l.fi kernel.fi'
 #fi
 
 dnl the following macro produces a warning with autoconf-2.1
 AC_C_BIGENDIAN
-AC_SUBST(KERNAL)
+AC_SUBST(KERNEL)
 dnl ac_cv_c_bigendian is an undocumented variable of autoconf-2.1
 if test $ac_cv_c_bigendian = yes; then
   bytesex=b
-  KERNAL="kernl16b.fi kernl16l.fi kernl32b.fi kernl32l.fi kernl64b.fi kernl64l.fi"
+  KERNEL="kernl16b.fi kernl16l.fi kernl32b.fi kernl32l.fi kernl64b.fi kernl64l.fi"
 else
   bytesex=l
-  KERNAL="kernl16l.fi kernl16b.fi kernl32l.fi kernl32b.fi kernl64l.fi kernl64b.fi"
+  KERNEL="kernl16l.fi kernl16b.fi kernl32l.fi kernl32b.fi kernl64l.fi kernl64b.fi"
 fi
 
 dnl Checks for programs.
@@ -191,9 +228,9 @@ AC_REPLACE_FUNCS(ecvt)
 dnl No check for select, because our replacement is no good under
 dnl anything but DOS
 
-kernal_fi=kernl${wordsize}${bytesex}.fi
-AC_SUBST(kernal_fi)
+kernel_fi=kernl${wordsize}${bytesex}.fi
+AC_SUBST(kernel_fi)
 
-AC_LINK_FILES(${mach_h}.h $kernal_fi,machine.h kernal.fi)
+AC_LINK_FILES(${mach_h}.h $kernel_fi,machine.h kernel.fi)
 AC_OUTPUT(Makefile,echo timestamp > stamp-h)
 

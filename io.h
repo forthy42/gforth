@@ -26,24 +26,23 @@ extern jmp_buf throw_jmp_buf;
 #ifdef MSDOS
 #  define prep_terminal()
 #  define deprep_terminal()
-#  define install_signal_handlers()
-
 #  include <conio.h>
 
 #  define key()		getch()
-#  define key_query       FLAG(kbhit())
+#  define key_query	FLAG(kbhit())
 #else
 unsigned char getkey(FILE *);
 long key_avail(FILE *);
 void prep_terminal();
 void deprep_terminal();
-void install_signal_handlers(void);
 void get_winsize(void);
 
 extern int terminal_prepped;
-extern UCell rows, cols;
 
 #  define key()		getkey(stdin)
 #  define key_query	-(!!key_avail(stdin)) /* !! FLAG(...)? - anton */
          		/* flag was originally wrong -- lennart */
 #endif
+
+void install_signal_handlers(void);
+extern UCell rows, cols;

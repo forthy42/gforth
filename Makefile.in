@@ -38,7 +38,7 @@ LN_S	= @LN_S@
 GCC	= @CC@
 CC	= $(GCC)
 FORTH	= ./gforth
-FORTHK	= $(FORTH) -i ./kernal.fi
+FORTHK	= $(FORTH) -i ./kernel.fi
 STRIP	= strip
 TEXI2DVI = texi2dvi
 DVI2PS	= dvips -D300
@@ -74,7 +74,7 @@ man1ext= .1
 #older emacses have their site-lisp in $(libdir)/emacs/
 emacssitelispdir=$(datadir)/emacs/site-lisp
 
-INCLUDES = forth.h threading.h io.h io-dos.h config.h
+INCLUDES = forth.h threading.h io.h
 
 KERN_SRC = \
 	add.fs \
@@ -82,14 +82,13 @@ KERN_SRC = \
 	cross.fs \
 	errore.fs \
 	extend.fs \
-	kernal.fs \
+	kernel.fs \
 	main.fs \
 	search-order.fs \
 	special.fs \
 	tools.fs \
 	toolsext.fs \
-	vars.fs \
-	version.fs
+	vars.fs
 
 GFORTH_FI_SRC = \
 	assert.fs \
@@ -133,10 +132,11 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_SRC) \
 	tt.fs sokoban.fs \
 	wordsets.fs \
 	tester.fs coretest.fs postponetest.fs dbltest.fs \
-	bubble.fs siev.fs matrix.fs fib.fs
+	bubble.fs siev.fs matrix.fs fib.fs \
+	oof.fs oofsampl.fs
 
 SOURCES	= CVS compat Makefile.in configure.in configure config.sub config.guess \
-	acconfig.h config.h.in \
+	acconfig.h config.h.in stamp-h.in \
 	install-sh INSTALL README ToDo BUGS model COPYING Benchres \
 	gforth.ds texinfo.tex gforth.1 gforth.el \
 	primitives engine.c main.c io.c memcasecmp.c \
@@ -144,7 +144,7 @@ SOURCES	= CVS compat Makefile.in configure.in configure config.sub config.guess 
 	getopt.c getopt1.c getopt.h select.c \
 	ecvt.c memcmp.c strtol.c strtoul.c ansidecl.h memmove.c pow10.c \
 	strerror.c strsignal.c dblsub.c \
-	INSTALL.DOS makefile.dos mkdosmf.sed configure.bat \
+	INSTALL.DOS makefile.dos mkdosmf.sed configure.bat dosconf.h \
 	startup.dos history.dos \
 	glosgen.glo glossaries.doc \
 	$(INCLUDES) $(FORTH_SRC)
@@ -157,9 +157,9 @@ OBJECTS	= engine.o io.o main.o memcasecmp.o @LIBOBJS@ @getopt_long@
 
 # things that need a working forth system to be generated
 FORTH_GEN0 = primitives.b primitives.i prim_labels.i aliases.fs
-FORTH_GEN =  $(FORTH_GEN0) @KERNAL@ gforth.fi
+FORTH_GEN =  $(FORTH_GEN0) @KERNEL@ gforth.fi
 # this is used for antidependences,
-FORTH_GEN1 = $(FORTH_GEN0) @kernal_fi@ 
+FORTH_GEN1 = $(FORTH_GEN0) @kernel_fi@ 
 
 #distributed documentation
 DOCDIST = gforth.texi gforth.fns gforth.ps gforth.info*
@@ -206,7 +206,7 @@ clean:		mostlyclean
 		-$(RM) -rf $(GEN) *.o 
 
 distclean:	clean
-		-$(RM) machine.h kernal.fi config.cache config.log config.status config.h Makefile
+		-$(RM) machine.h kernel.fi config.cache config.log config.status config.h Makefile
 
 #realclean is useless, but dangerous, so it's commented out
 #realclean:	distclean
@@ -220,7 +220,7 @@ virtualclean:	mostlyclean
 dist:		$(SOURCES) $(FORTH_GEN) $(DOCDIST)
 		-rm -rf gforth-$(VERSION)
 		mkdir gforth-$(VERSION)
-		$(CP) -rp $(SOURCES) $(FORTH_GEN0) @KERNAL@ $(DOCDIST) gforth-$(VERSION)
+		$(CP) -rp $(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST) gforth-$(VERSION)
 		tar cvf - gforth-$(VERSION)|gzip -9 >gforth-$(VERSION).tar.gz
 		-rm -rf gforth-$(VERSION)
 
@@ -230,7 +230,7 @@ dist:		$(SOURCES) $(FORTH_GEN) $(DOCDIST)
 bindist:	$(SOURCES) $(FORTH_GEN) gforth $(OBJECTS) config.status Makefile
 		-rm -rf gforth-$(VERSION)
 		mkdir gforth-$(VERSION)
-		$(CP) -rp -d $(SOURCES) config.status Makefile $(FORTH_GEN) gforth $(OBJECTS) machine.h kernal.fi gforth-$(VERSION)
+		$(CP) -rp -d $(SOURCES) config.status Makefile $(FORTH_GEN) gforth $(OBJECTS) machine.h kernel.fi gforth-$(VERSION)
 		strip gforth-$(VERSION)/gforth
 		tar cvf - gforth-$(VERSION)|gzip -9 >gforth-$(VERSION)-@host@.tar.gz
 
@@ -244,7 +244,7 @@ bindist:	$(SOURCES) $(FORTH_GEN) gforth $(OBJECTS) config.status Makefile
 binonlydist:	$(SOURCES) $(FORTH_GEN) gforth $(OBJECTS)
 		-rm -rf gforth-$(VERSION)
 		mkdir gforth-$(VERSION)
-		$(CP) -p -d  config.status Makefile gforth $(OBJECTS) machine.h kernal.fi gforth-$(VERSION)
+		$(CP) -p -d  config.status Makefile gforth $(OBJECTS) machine.h kernel.fi gforth-$(VERSION)
 		strip gforth-$(VERSION)/gforth
 		tar cvf - gforth-$(VERSION)|gzip -9 >gforth-$(VERSION)-binonly-@host@.tar.gz
 
@@ -253,7 +253,7 @@ binonlydist:	$(SOURCES) $(FORTH_GEN) gforth $(OBJECTS)
 #strip gforth, because the debugging stuff is hardly useful once
 # gforth manages to execute more than a few primitives
 
-install:	gforth $(FORTH_SRC) kernal.fi gforth.fi gforth.1 gforth.info* primitives gforth.TAGS
+install:	gforth $(FORTH_SRC) kernel.fi gforth.fi gforth.1 gforth.info* primitives gforth.TAGS
 		for i in $(bindir) $(mandir) $(infodir) $(libdir)/gforth/$(VERSION) $(datadir)/gforth/$(VERSION) $(libdir)/gforth/site-forth $(datadir)/gforth/site-forth; do \
 			$(INSTALL_DIR) $$i; \
 		done
@@ -266,7 +266,7 @@ install:	gforth $(FORTH_SRC) kernal.fi gforth.fi gforth.1 gforth.info* primitive
 		for i in $(FORTH_SRC) primitives; do \
 			$(INSTALL_DATA) $$i $(datadir)/gforth/$(VERSION); \
 		done
-		$(INSTALL_DATA) kernal.fi $(libdir)/gforth/$(VERSION)
+		$(INSTALL_DATA) kernel.fi $(libdir)/gforth/$(VERSION)
 		$(FORTHK) startup.fs dumpimage.fs -e "savesystem $(libdir)/gforth/$(VERSION)/gforth.fi bye" #gforth.fi contains some path names
 		sed s:$(srcdir)/:$(datadir)/gforth/$(VERSION)/: gforth.TAGS >TAGS; $(INSTALL_DATA) TAGS $(datadir)/gforth/$(VERSION)
 		if test -d $(emacssitelispdir); then \
@@ -304,22 +304,22 @@ gforth:		$(OBJECTS)
 		$(GCC) $(LDFLAGS) $(OBJECTS) $(LDLIBS) -o $@
 		@MAKE_EXE@
 
-kernl16l.fi-:	$(KERN_SRC) mach16l.fs $(FORTH_GEN0)
+kernl16l.fi-:	$(KERN_SRC) version.fs mach16l.fs $(FORTH_GEN0)
 		$(FORTHK) -p . -e 's" mach16l.fs"' main.fs -e "save-cross kernl16l.fi- $(bindir)/gforth-$(VERSION) bye"
 
-kernl16b.fi-:	$(KERN_SRC) mach16b.fs $(FORTH_GEN0)
+kernl16b.fi-:	$(KERN_SRC) version.fs mach16b.fs $(FORTH_GEN0)
 		$(FORTHK) -p . -e 's" mach16b.fs"' main.fs -e "save-cross kernl16b.fi- $(bindir)/gforth-$(VERSION) bye"
 
-kernl32l.fi-:	$(KERN_SRC) mach32l.fs $(FORTH_GEN0)
+kernl32l.fi-:	$(KERN_SRC) version.fs mach32l.fs $(FORTH_GEN0)
 		$(FORTHK) -p . -e 's" mach32l.fs"' main.fs -e "save-cross kernl32l.fi- $(bindir)/gforth-$(VERSION) bye"
 
-kernl32b.fi-:	$(KERN_SRC) mach32b.fs $(FORTH_GEN0)
+kernl32b.fi-:	$(KERN_SRC) version.fs mach32b.fs $(FORTH_GEN0)
 		$(FORTHK) -p . -e 's" mach32b.fs"' main.fs -e "save-cross kernl32b.fi- $(bindir)/gforth-$(VERSION) bye"
 
-kernl64l.fi-:	$(KERN_SRC) mach64l.fs $(FORTH_GEN0)
+kernl64l.fi-:	$(KERN_SRC) version.fs mach64l.fs $(FORTH_GEN0)
 		$(FORTHK) -p . -e 's" mach64l.fs"' main.fs -e "save-cross kernl64l.fi- $(bindir)/gforth-$(VERSION) bye"
 
-kernl64b.fi-:	$(KERN_SRC) mach64b.fs $(FORTH_GEN0)
+kernl64b.fi-:	$(KERN_SRC) version.fs mach64b.fs $(FORTH_GEN0)
 		$(FORTHK) -p . -e 's" mach64b.fs"' main.fs -e "save-cross kernl64b.fi- $(bindir)/gforth-$(VERSION) bye"
 
 kernl16b.fi:	$(KERNLS)
@@ -352,20 +352,20 @@ kernl64l.fi:	$(KERNLS)
 		-$(CP) kernl64l.fi- kernl64l.fi
 		@LINK_KERNL64L@
 
-gforth.fi:	@kernal_fi@ gforth $(GFORTH_FI_SRC)
+gforth.fi:	@kernel_fi@ gforth $(GFORTH_FI_SRC)
 		$(FORTHK) -p . startup.fs -e "savesystem gforth.fi bye"
 
-gforth.TAGS:	@kernal_fi@ gforth $(GFORTH_FI_SRC) primitives.TAGS
+gforth.TAGS:	@kernel_fi@ gforth $(GFORTH_FI_SRC) primitives.TAGS
 		$(FORTHK) -p . etags.fs startup.fs -e bye
-		cat TAGS primitives.TAGS kernal.TAGS >gforth.TAGS
+		cat TAGS primitives.TAGS kernel.TAGS >gforth.TAGS
 
-engine.s:	engine.c primitives.i prim_labels.i machine.h threading.h $(INCLUDES)
+engine.s:	engine.c primitives.i prim_labels.i machine.h threading.h $(INCLUDES) config.h
 		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -S engine.c
 
-engine.o:	engine.c primitives.i prim_labels.i machine.h threading.h $(INCLUDES)
+engine.o:	engine.c primitives.i prim_labels.i machine.h threading.h $(INCLUDES) config.h
 		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -c engine.c
 
-main.o:		main.c machine.h threading.h $(INCLUDES)
+main.o:		main.c machine.h threading.h $(INCLUDES) config.h
 		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -c main.c
 
 strtoul.o:	strtoul.c strtol.c
@@ -394,7 +394,7 @@ doc.fd:		makedoc.fs float.fs search-order.fs glocals.fs environ.fs \
 		 doskey.fs vt100key.fs startup.fs assert.fs debugging.fs code.fs
 		$(FORTHK) -p . -e "s\" doc.fd\"" makedoc.fs startup.fs code.fs -e bye
 
-crossdoc.fd:	$(KERN_SRC) $(FORTH_GEN0)
+crossdoc.fd:	$(KERN_SRC) version.fs $(FORTH_GEN0)
 		$(FORTHK) -p . -e 's" mach32l.fs"' main.fs -e bye
 
 gforth.texi:	gforth.ds primitives.b ds2texi.fs prims2x.fs doc.fd crossdoc.fd

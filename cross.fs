@@ -173,7 +173,7 @@ bigendian
 \ MakeKernal                                           12dec92py
 
 >MINIMAL
-: makekernal ( targetsize -- targetsize )
+: makekernel ( targetsize -- targetsize )
   bit$  over 1- cell>bit rshift 1+ initmem
   image over initmem tdp off ;
 
@@ -194,7 +194,7 @@ CREATE Bittable 80 c, 40 c, 20 c, 10 c, 8 c, 4 c, 2 c, 1 c,
 : align+  ( taddr -- rest )
     cell tuck 1- and - [ cell 1- ] Literal and ;
 : cfalign+  ( taddr -- rest )
-    \ see kernal.fs:cfaligned
+    \ see kernel.fs:cfaligned
     float tuck 1- and - [ float 1- ] Literal and ;
 
 >TARGET
@@ -202,7 +202,7 @@ CREATE Bittable 80 c, 40 c, 20 c, 10 c, 8 c, 4 c, 2 c, 1 c,
 \ assumes cell alignment granularity (as GNU C)
 
 : cfaligned ( taddr1 -- taddr2 )
-    \ see kernal.fs
+    \ see kernel.fs
     dup cfalign+ + ;
 
 >CROSS
@@ -385,7 +385,7 @@ s" crossdoc.fd" r/w create-file throw value doc-file-id
     source >in @ /string doc-file-id write-line throw
     source >in ! drop ; immediate
 
-Variable to-doc
+Variable to-doc  to-doc on
 
 : cross-doc-entry  ( -- )
     to-doc @ tlast @ 0<> and	\ not an anonymous (i.e. noname) header
@@ -400,11 +400,11 @@ Variable to-doc
 	[char] \ parse 2drop					
 	POSTPONE \g
 	>in !
-    THEN  to-doc on ;
+    THEN ;
 
 \ Target TAGS creation
 
-s" kernal.TAGS" r/w create-file throw value tag-file-id
+s" kernel.TAGS" r/w create-file throw value tag-file-id
 \ contains the file-id of the tags file
 
 Create tag-beg 2 c,  7F c, bl c,
@@ -463,7 +463,6 @@ VARIABLE ;Resolve 1 cells allot
 
 >TARGET
 : Alias    ( cfa -- ) \ name
-  dup 0< IF  to-doc off  THEN
   (THeader over resolve T A, H 80 flag! ;
 >CROSS
 
@@ -936,7 +935,12 @@ only forth also minimal definitions
 : hex           hex ;
 
 : tudp          T tudp H ;
-: tup           T tup H ;  minimal
+: tup           T tup H ;
+
+: doc-off       false T to-doc H ! ;
+: doc-on        true  T to-doc H ! ;
+
+minimal
 
 \ for debugging...
 : order         order ;

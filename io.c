@@ -45,6 +45,7 @@
 #include "forth.h"
 #include "io.h"
 
+#ifndef MSDOS
 #if defined (__GNUC__)
 #  define alloca __builtin_alloca
 #else
@@ -283,6 +284,11 @@ void prep_terminal ()
   if (terminal_prepped)
     return;
 
+  if (!isatty(tty)) {      /* added by MdG */
+    terminal_prepped = 1;      /* added by MdG */
+    return;      /* added by MdG */
+  }      /* added by MdG */
+   
   oldmask = sigblock (sigmask (SIGINT));
 
   /* We always get the latest tty values.  Maybe stty changed them. */
@@ -389,6 +395,12 @@ void deprep_terminal ()
   if (!terminal_prepped)
     return;
 
+/* Added by MdG */
+  if (!isatty(tty)) {
+    terminal_prepped = 0;
+    return;
+  }
+   
   oldmask = sigblock (sigmask (SIGINT));
 
   the_ttybuff.sg_flags = original_tty_flags;
@@ -443,6 +455,11 @@ void prep_terminal ()
   if (terminal_prepped)
     return;
 
+  if (!isatty(tty))  {     /* added by MdG */
+    terminal_prepped = 1;      /* added by MdG */
+    return;      /* added by MdG */
+  }      /* added by MdG */
+   
   /* Try to keep this function from being INTerrupted.  We can do it
      on POSIX and systems with BSD-like signal handling. */
 #if defined (HAVE_POSIX_SIGNALS)
@@ -546,6 +563,12 @@ void deprep_terminal ()
 
   if (!terminal_prepped)
     return;
+
+/* Added by MdG */
+  if (!isatty(tty)) {
+    terminal_prepped = 0;
+    return;
+  }
 
 #if defined (HAVE_POSIX_SIGNALS)
   sigemptyset (&set);
@@ -693,7 +716,7 @@ int main()
 	puts("");
 }
 #endif
-
+#endif /* MSDOS */
 
 /* signal handling adapted from pfe by Dirk Zoller (Copylefted) - anton */
 
@@ -717,7 +740,9 @@ signal_throw(int sig)
   } *p, throwtable[] = {
     { SIGINT, -28 },
     { SIGFPE, -55 },
+#ifdef SIGBUS
     { SIGBUS, -23 },
+#endif
     { SIGSEGV, -9 },
   };
   signal(sig,signal_throw);
@@ -729,15 +754,22 @@ signal_throw(int sig)
   longjmp(throw_jmp_buf,code); /* or use siglongjmp ? */
 }
 
+UCell cols=80;
+#ifdef MSDOS
+UCell rows=25;
+#else
+UCell rows=24;
+#endif
+
+#ifdef SIGCONT
 static void termprep (int sig)
 {
   signal(sig,termprep);
   terminal_prepped=0;
 }
+#endif
 
-UCell rows=24;
-UCell cols=80;
-
+#ifdef SIGWINCH
 void get_winsize()
 {
 #ifdef TIOCGWINSZ
@@ -770,6 +802,7 @@ static void change_winsize(int sig)
   get_winsize();
 #endif
 }
+#endif
 
 void install_signal_handlers (void)
 {

@@ -33,7 +33,7 @@ include cross.fs               \ include cross-compiler
 
 decimal
 
-cell 2 = [IF] 32 [ELSE] 256 [THEN] KB makekernal ( size )
+cell 2 = [IF] 32 [ELSE] 256 [THEN] KB makekernel ( size )
 \ create image-header
 0 A,	\ base address
 0 ,	\ checksum
@@ -53,7 +53,9 @@ LOCK
 
 0 AConstant forthstart
 
+doc-off
 include aliases.fs             \ include primitive aliases
+doc-on
 \ include cond.fs                \ conditional compile
 \ include patches.fs             \ include primitive patches
 
@@ -61,7 +63,7 @@ include vars.fs                \ variables and other stuff
 include add.fs                 \ additional things
 include errore.fs
 include version.fs
-include kernal.fs              \ load kernal
+include kernel.fs              \ load kernel
 include extend.fs              \ load core-extended
 include tools.fs               \ load tools ( .s dump )
 include toolsext.fs

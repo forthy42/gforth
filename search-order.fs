@@ -75,8 +75,8 @@ Variable slowvoc   slowvoc off
     THEN
     0 (vocfind) ;
 
-\ In the kernal the dictionary search works on only one wordlist.
-\ The following stuff builds a thing that looks to the kernal like one
+\ In the kernel the dictionary search works on only one wordlist.
+\ The following stuff builds a thing that looks to the kernel like one
 \ wordlist, but when searched it searches the whole search order
 \  (including locals)
 

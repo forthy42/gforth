@@ -1,4 +1,4 @@
-\ KERNAL.FS    GForth kernal                        17dec92py
+\ kernel.fs    GForth kernel                        17dec92py
 
 \ Copyright (C) 1995 Free Software Foundation, Inc.
 
@@ -1157,7 +1157,7 @@ defer ;-hook ( sys2 -- sys1 )
 
 : :noname ( -- xt colon-sys ) \ core-ext	colon-no-name
     0 last !
-    here docol: cfa, 0 ] :-hook ;
+    cfalign here docol: cfa, 0 ] :-hook ;
 
 \ Search list handling                                 23feb93py
 

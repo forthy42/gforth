@@ -19,7 +19,7 @@
 \ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 
-\ related stuff can be found in kernal.fs
+\ related stuff can be found in kernel.fs
 
 \ this stuff is used by (at least) assert.fs and debugging.fs
 

@@ -381,7 +381,7 @@ forth definitions
 
 \ If this assumption is too optimistic, the compiler will warn the user.
 
-\ Implementation: migrated to kernal.fs
+\ Implementation: migrated to kernel.fs
 
 \ THEN (another control flow from before joins the current one):
 \ The new locals-list is the intersection of the current locals-list and
