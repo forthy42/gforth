@@ -1235,7 +1235,8 @@ tbits/char bits/byte /	Constant tbyte
 \ Variables                                            06oct92py
 
 Variable image
-Variable tlast    TNIL tlast !  \ Last name field
+Variable (tlast)    
+(tlast) Value tlast TNIL tlast !  \ Last name field
 Variable tlastcfa \ Last code field
 Variable bit$
 
@@ -1259,11 +1260,11 @@ Variable region-link            \ linked list with all regions
 Variable mirrored-link          \ linked list for mirrored regions
 0 dup mirrored-link ! region-link !
 
-
-: >rname 7 cells + ;
-: >rbm   4 cells + ;
+: >rname 8 cells + ;
+: >rbm   4 cells + ; \ bitfield per cell witch indicates relocation
 : >rmem  5 cells + ;
-: >rtype 6 cells + ;
+: >rtype 6 cells + ; \ field per cell witch points to a type struct
+: >rrom 7 cells + ;  \ a -1 indicates that this region is rom
 : >rlink 3 cells + ;
 : >rdp 2 cells + ;
 : >rlen cell+ ;
@@ -1283,7 +1284,7 @@ Variable mirrored-link          \ linked list for mirrored regions
 	save-input create restore-input throw
 	here last-defined-region !
 	over ( startaddr ) , ( length ) , ( dp ) ,
-	region-link linked 0 , 0 , 0 , bl word count string,
+	region-link linked 0 , 0 , 0 , 0 , bl word count string,
   ELSE	\ store new parameters in region
         bl word drop
 	>body (region)
@@ -1301,10 +1302,14 @@ Variable mirrored-link          \ linked list for mirrored regions
 \G returns the total area
   dup >rstart @ swap >rlen @ ;
 
-: mirrored                              
-\G mark a region as mirrored
+: mirrored ( -- )                              
+\G mark last defined region as mirrored
   mirrored-link
   align linked last-defined-region @ , ;
+
+: writeprotected
+\G mark a region as write protected
+  -1 last-defined-region @ >rrom ! ;
 
 : .addr ( u -- )
 \G prints a 16 or 32 Bit nice hex value
@@ -1561,6 +1566,18 @@ bigendian
   \ add regions real address in our memory
   r> >rmem @ + ;
 
+: (>regionramimage) ( taddr -- 'taddr )
+\G same as (>regionimage) but aborts if the region is rom
+  dup
+  \ find region we want to address
+  taddr>region-abort
+  >r
+  r@ >rrom @ ABORT" CROSS: region is write-protected!"
+  \ calculate offset in region
+  r@ >rstart @ -
+  \ add regions real address in our memory
+  r> >rmem @ + ;
+
 : (>regionbm) ( taddr -- 'taddr bitmaskbaseaddr )
   dup
   \ find region we want to address
@@ -1609,6 +1626,7 @@ CREATE Bittable 80 c, 40 c, 20 c, 10 c, 8 c, 4 c, 2 c, 1 c,
 : (>image) ( taddr -- absaddr ) image @ + ;
 
 DEFER >image
+DEFER >ramimage
 DEFER relon
 DEFER reloff
 DEFER correcter
@@ -1618,11 +1636,22 @@ T has? relocate H
 ' (relon) IS relon
 ' (reloff) IS reloff
 ' (>regionimage) IS >image
+' (>regionimage) IS >ramimage
 [ELSE]
 ' drop IS relon
 ' drop IS reloff
 ' (>regionimage) IS >image
+' (>regionimage) IS >ramimage
 [THEN]
+
+: enforce-writeprotection ( -- )
+  ['] (>regionramimage) IS >ramimage ;
+
+: relax-writeprotection ( -- )
+  ['] (>regionimage) IS >ramimage ;
+
+: writeprotection-relaxed? ( -- )
+  ['] >ramimage >body @ ['] (>regionimage) = ;
 
 \ Target memory access                                 06oct92py
 
@@ -1641,9 +1670,9 @@ T has? relocate H
     dup cfalign+ + ;
 
 : @  ( taddr -- w )     >image S@ ;
-: !  ( w taddr -- )     >image S! ;
+: !  ( w taddr -- )     >ramimage S! ;
 : c@ ( taddr -- char )  >image Sc@ ;
-: c! ( char taddr -- )  >image Sc! ;
+: c! ( char taddr -- )  >ramimage Sc! ;
 : 2@ ( taddr -- x1 x2 ) T dup cell+ @ swap @ H ;
 : 2! ( x1 x2 taddr -- ) T tuck ! cell+ ! H ;
 
