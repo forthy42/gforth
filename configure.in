@@ -438,7 +438,7 @@ AC_CHECK_LIB(callback,__vacall_r)
 AC_CHECK_LIB(vacall,vacall)
 AC_CHECK_LIB(trampoline,alloc_trampoline)
 FFCALLFLAG="false"
-test $ac_cv_lib_avcall___builtin_avcall = yes && FFCALLFLAG="true"
+test $ac_cv_lib_avcall___builtin_avcall = yes && FFCALLFLAG="true" && AC_DEFINE(HAS_FFCALL,,[define this if you want to use the ffcall libraries])
 AC_SUBST(FFCALLFLAG)
 if test "$host_os" != "nextstep3"
 then
