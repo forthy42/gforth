@@ -300,7 +300,7 @@ xchar-history
 ;
 
 : history-cold ( -- )
-    history-file get-history ;
+    history-file get-history xchar-history ;
 
 ' history-cold INIT8 chained
 history-cold

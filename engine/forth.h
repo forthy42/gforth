@@ -109,7 +109,11 @@
 #define F_FALSE (FLAG(0!=0))
 
 /* define this false if you want native division */
+#ifdef FORCE_CDIV
+#define FLOORED_DIV 0
+#else
 #define FLOORED_DIV ((1%-3)>0)
+#endif
 
 #ifdef BUGGY_LONG_LONG
 
