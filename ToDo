@@ -64,9 +64,8 @@ intended).
 ** emacs support
 can be improved
 **prefix file generator
-A tool for generating a prefix file for a program that explains in
-what way the program conforms to ANSI (i.e., which wordsets are used)
-and contains Forth definitions for the simple non-ANSI words.
+extend or complement ans-report.fs to provide Forth definitions for
+the simple non-ANSI words.
 ** rightcase
 A tool that converts all uses of words in a source text to the exact
 case of the definition. There's something like this out there on the

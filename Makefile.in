@@ -122,7 +122,7 @@ GFORTH_FI_SRC = \
 	wordinfo.fs
 
 FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_SRC) \
-	ansi.fs answords.fs \
+	ans-report.fs ansi.fs answords.fs \
 	checkans.fs \
 	code.fs colorize.fs \
 	doskey.fs ds2texi.fs \
@@ -137,7 +137,7 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_SRC) \
 	wordsets.fs \
 	tester.fs coretest.fs postponetest.fs dbltest.fs \
 	bubble.fs siev.fs matrix.fs fib.fs \
-	oof.fs oofsampl.fs
+	oof.fs oofsampl.fs objects.fs
 
 SOURCES	= CVS compat Makefile.in configure.in configure config.sub config.guess \
 	acconfig.h config.h.in stamp-h.in \

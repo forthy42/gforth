@@ -86,6 +86,7 @@ personal machines. This manual corresponds to version 0.2.
 * Other Books::                 Things you might want to read
 * Invocation::                  Starting Gforth
 * Words::                       Forth words available in Gforth
+* Tools::                       Programming tools
 * ANS conformance::             Implementation-defined options etc.
 * Model::                       The abstract machine of Gforth
 * Integrating Gforth::          Forth as scripting language for applications.
@@ -662,7 +663,7 @@ the user initialization file @file{.gforth.fs} is executed, unless the
 option @code{--no-rc} is given; this file is first searched in @file{.},
 then in @file{~}, then in the normal path (see above).
 
-@node Words, ANS conformance, Invocation, Top
+@node Words, Tools, Invocation, Top
 @chapter Forth Words
 
 @menu
@@ -2552,7 +2553,7 @@ probably more appropriate than an assertion).
 Gforth provides some words for defining primitives (words written in
 machine code), and for defining the the machine-code equivalent of
 @code{DOES>}-based defining words. However, the machine-independent
-nature of Gforth poses a few problems: First of all. Gforth runs on
+nature of Gforth poses a few problems: First of all, Gforth runs on
 several architectures, so it can provide no standard assembler. What's
 worse is that the register allocation not only depends on the processor,
 but also on the @code{gcc} version and options used.
@@ -2648,7 +2649,58 @@ with @code{>DOES-CODE}. If the word was defined in that way, the value
 returned is different from 0 and identifies the @code{DOES>} used by the
 defining word.
 
-@node ANS conformance, Model, Words, Top
+@node Tools, ANS conformance, Words, Top
+@chapter Tools
+
+@menu
+* ANS Report::                  Report the words used, sorted by wordset
+@end menu
+
+See also @ref{Emacs and Gforth}.
+
+@node ANS Report,  , Tools, Tools
+@section @file{ans-report.fs}: Report the words used, sorted by wordset
+
+If you want to label a Forth program as ANS Forth Program, you must
+document which wordsets the program uses; for extension wordsets, it is
+helpful to list the words the program requires from these wordsets
+(because Forth systems are allowed to provide only some words of them).
+
+The @file{ans-report.fs} tool makes it easy for you to determine which
+words from which wordset and which non-ANS words your application
+uses. You simply have to include @file{ans-report.fs} before loading the
+program you want to check. After loading your program, you can get the
+report with @code{print-ans-report}. A typical use is to run this as
+batch job like this:
+@example
+gforth ans-report.fs myprog.fs -e "print-ans-report bye"
+@end example
+
+The output looks like this (for @file{compat/control.fs}):
+@example
+The program uses the following words
+from CORE :
+: POSTPONE THEN ; immediate ?dup IF 0= 
+from BLOCK-EXT :
+\ 
+from FILE :
+( 
+@end example
+
+@subsection Caveats
+
+Note that @file{ans-report.fs} just checks which words are used, not whether
+they are used in an ANS Forth conforming way!
+
+Some words are defined in several wordsets in the
+standard. @file{ans-report.fs} reports them for only one of the
+wordsets, and not necessarily the one you expect. It depends on usage
+which wordset is the right one to specify. E.g., if you only use the
+compilation semantics of @code{S"}, it is a Core word; if you also use
+its interpretation semantics, it is a File word.
+
+
+@node ANS conformance, Model, Tools, Top
 @chapter ANS conformance
 
 To the best of our knowledge, Gforth is an

@@ -7,6 +7,7 @@ indirect or direct threaded.  Gforth is distributed under the GNU
 General Public license (see COPYING).
 
 Gforth runs under Unix and DOS and should not be hard to port to other
+systems supported by GCC. This version has been tested successfully on
 the following platforms: i486-unknown-linuxaout, i586-unknown-linux,
 alpha-dec-osf3.2, mips-dec-ultrix4.3, sparc-sun-sunos4.1.3_U1,
 sparc-unknown-netbsd1.2 (configured with ac_cv_sizeof_long_long=0, see
@@ -47,15 +48,16 @@ the rest of the documentation, so here's a short overview:
 
 Add-ons:
 code.fs random.fs more.fs ansi.fs colorize.fs
+oof.fs oofsampl.fs objects.fs
 
 Utilities:
-etags.fs glosgen.fs filedump.fs
+ans-report.fs etags.fs glosgen.fs filedump.fs
 
 Games:
 tt.fs sokoban.fs
 
-Test programs:
-tester.fs coretest.fs
+Test programs (for testing Forth systems):
+tester.fs coretest.fs postponetest.fs dbltest.fs
 checkans.fs wordsets.fs
 
 Benchmarks:
