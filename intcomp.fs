@@ -50,22 +50,22 @@ constant no-interpretation-does-code
     cell+ cell+ maxaligned /does-handler + \ to does-code
     swap @ does-code! ;
 
-: (interpretation>) ( -- )
-    latestxt interpret/compile-int r@ fix-does-code ;
+: (interpretation>1) ( addr R:retaddr -- )
+    latestxt interpret/compile-int swap fix-does-code ;
 
 : interpretation> ( compilation. -- orig colon-sys ) \ gforth
-    POSTPONE (interpretation>) POSTPONE ahead
+    here 4 cells +  POSTPONE literal POSTPONE (interpretation>1) POSTPONE ahead
     dodoes, defstart dead-code off 0 set-locals-size-list ; immediate restrict
 
 : <interpretation ( compilation. orig colon-sys -- ) \ gforth
     ?struc POSTPONE exit
     POSTPONE then ; immediate restrict
 
-: (compilation>) ( -- )
-    latestxt interpret/compile-comp r@ fix-does-code ;
+: (compilation>1) ( addr R:retaddr -- )
+    latestxt interpret/compile-comp swap fix-does-code ;
 
 : compilation> ( compilation. -- orig colon-sys ) \ gforth
-    POSTPONE (compilation>) POSTPONE ahead
+    here 4 cells + POSTPONE literal POSTPONE (compilation>1) POSTPONE ahead
     dodoes, defstart dead-code off 0 set-locals-size-list POSTPONE >body ; immediate restrict
 
 comp' <interpretation drop
