@@ -6422,16 +6422,41 @@ i.e., compiled Forth code and data residing in the dictionary.  By
 convention, we use the extension @code{.fi} for image files.
 
 @menu
-* Image File Background::          Why have image files?
-* Non-Relocatable Image Files::    don't always work.
-* Data-Relocatable Image Files::   are better.
+* Image Licensing Issues::      Distribution terms for images.
+* Image File Background::       Why have image files?
+* Non-Relocatable Image Files::  don't always work.
+* Data-Relocatable Image Files::  are better.
 * Fully Relocatable Image Files::  better yet.
-* Stack and Dictionary Sizes::     Setting the default sizes for an image.
-* Running Image Files::            @code{gforth -i @var{file}} or @var{file}.
-* Modifying the Startup Sequence:: and turnkey applications.
+* Stack and Dictionary Sizes::  Setting the default sizes for an image.
+* Running Image Files::         @code{gforth -i @var{file}} or @var{file}.
+* Modifying the Startup Sequence::  and turnkey applications.
 @end menu
 
-@node Image File Background, Non-Relocatable Image Files, Image Files, Image Files
+@node Image Licensing Issues, Image File Background, Image Files, Image Files
+@section Image Licensing Issues
+@cindex license for images
+@cindex image license
+
+An image created with @code{gforthmi} (@pxref{gforthmi}) or
+@code{savesystem} (@pxref{Non-Relocatable Image Files}) includes the
+original image; i.e., according to copyright law it is a derived work of
+the original image.
+
+Since Gforth is distributed under the GNU GPL, the newly created image
+falls under the GNU GPL, too. In particular, this means that if you
+distribute the image, you have to make all of the sources for the image
+available, including those you wrote.  For details see @ref{License, ,
+GNU General Public License (Section 3)}.
+
+If you create an image with @code{cross} (@pxref{cross.fs}), the image
+contains only code compiled from the sources you gave it; if none of
+these sources is under the GPL, the terms discussed above do not apply
+to the image. However, if your image needs an engine (a gforth binary)
+that is under the GPL, you should make sure that you distribute both in
+a way that is at most a @emph{mere aggregation}, if you don't want the
+terms of the GPL to apply to the image.
+
+@node Image File Background, Non-Relocatable Image Files, Image Licensing Issues, Image Files
 @section Image File Background
 @cindex image file background
 
