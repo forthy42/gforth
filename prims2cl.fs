@@ -51,7 +51,7 @@ Create 	InputFile 130 chars allot
 	.\ #undef IF_TOS
 	.\ #define IF_TOS(x)
 	.\ #undef NEXT_P2
-	.\ #define NEXT_P2 return
+	.\ #define NEXT_P2 
 	.\ #undef NEXT_P1
 	.\ #define NEXT_P1
 	.\ #undef NEXT_P0
@@ -62,11 +62,6 @@ Create 	InputFile 130 chars allot
 	.\ #define DEF_CA
 	.\ #undef I_
 	.\ #define I_ I_
-	.\
-	.\ extern int *FP;
-	.\ extern int *SP;
-	.\ #define sp SP
-	.\ #define fp FP
 	.\
 	.\ #define NAME_LEN 32
 	.\ #define NULL 0

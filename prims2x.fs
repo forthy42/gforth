@@ -634,6 +634,14 @@ set-current
  cr
 ;
 
+: dstack-used?
+  effect-in-size 2@ drop
+  effect-out-size 2@ drop max 0<> ;
+
+: fstack-used?
+  effect-in-size 2@ nip
+  effect-out-size 2@ nip max 0<> ;
+
 : output-funclabel ( -- )
   1 function-number +!
   ." &I_" c-name 2@ type ." ," cr ;
@@ -643,28 +651,29 @@ set-current
   '" emit forth-name 2@ type '" emit ." ," cr ;
 
 : output-c-func ( -- )
+\ used for word libraries
     1 function-number +!
-    ." void I_" c-name 2@ type ." ()      /* " forth-name 2@ type
+    ." Cell * I_" c-name 2@ type ." (Cell *SP, Cell **FP)      /* " forth-name 2@ type
     ."  ( " stack-string 2@ type ."  ) */" cr
     ." /* " doc 2@ type ."  */" cr
     ." NAME(" [char] " emit forth-name 2@ type [char] " emit ." )" cr
     \ debugging
     ." {" cr
-    ." DEF_CA" cr
     declarations
     compute-offsets \ for everything else
-    ." NEXT_P0;" cr
+    dstack-used? IF ." Cell *sp=SP;" cr THEN
+    fstack-used? IF ." Cell *fp=*FP;" cr THEN
     flush-tos
     fetches
     stack-pointer-updates
+    fstack-used? IF ." *FP=fp;" cr THEN
     ." {" cr
     ." #line " c-line @ . [char] " emit c-filename 2@ type [char] " emit cr
     c-code 2@ type
     ." }" cr
-    ." NEXT_P1;" cr
     stores
     fill-tos
-    ." NEXT_P2;" cr
+    ." return (sp);" cr
     ." }" cr
     cr ;
 
