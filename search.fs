@@ -18,6 +18,8 @@
 \ along with this program; if not, write to the Free Software
 \ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
 
+require struct.fs
+
 $10 Value maxvp		\ current size of search order stack
 $400 Value maxvp-limit	\ upper limit for resizing search order stack
 0 AValue vp		\ will be initialized later (dynamic)
@@ -208,8 +210,30 @@ lookup ! \ our dictionary search order becomes the law ( -- )
   \G list that is currently on the top of the search order stack.
   context @ 1 set-order ;
 
-: .voc
-    body> >head-noprim name>string type space ;
+[IFUNDEF] .name
+: id. ( nt -- ) \ gforth
+    \G Print the name of the word represented by @var{nt}.
+    \ this name comes from fig-Forth
+    name>string type space ;
+
+' id. alias .id ( nt -- )
+\G F83 name for @code{id.}.
+
+' id. alias .name ( nt -- )
+\G Gforth <=0.5.0 name for @code{id.}.
+
+[THEN]
+
+: .voc ( wid -- ) \ gforth
+\G print the name of the wordlist represented by @var{wid}.  Can
+\G only print names defined with @code{vocabulary} or
+\G @code{wordlist constant}, otherwise prints @samp{???}.
+    dup >r wordlist-struct %size + dup head? if ( wid nt )
+	dup name>int dup >code-address docon: = swap >body @ r@ = and if
+	    id. rdrop exit
+	endif
+    endif
+    drop r> body> >head-noprim id. ;
 
 : order ( -- )  \  gforthman- search-ext
   \G Print the search order and the compilation word list.  The
