@@ -986,7 +986,6 @@ Exists-Warnings on
 
 Variable reuse-ghosts reuse-ghosts off
 
-1 [IF] \ FIXME: define when vocs are ready
 : HeaderGhost ( "name" -- ghost )
   >in @ 
   bl word count 
@@ -1003,8 +1002,6 @@ Variable reuse-ghosts reuse-ghosts off
   \ defined words, this is a workaround
   \ for the redefined \ until vocs work
   Make-Ghost ;
-[THEN] 
-
  
 : .ghost ( ghost -- ) >ghostname type ;
 
@@ -1640,8 +1637,8 @@ T has? relocate H
 >TARGET
 
 : count dup X c@ swap X char+ swap ;
-\ FIXME -1 on 64 bit machines?!?!
-: on		T -1 swap ! H ; 
+
+: on		-1 -1 rot TD!  ; 
 : off   	T 0 swap ! H ;
 
 : tcmove ( source dest len -- )
@@ -1774,7 +1771,7 @@ Defer resolve-warning
 : prim-resolved  ( ghost -- )
     >link @ prim, ;
 
-\ FIXME: not activated
+\ FIXME: not used currently
 : does-resolved ( ghost -- )
     dup g>body alit, >do:ghost @ g>body colon, ;
 
@@ -1814,21 +1811,15 @@ Defer resolve-warning
 
 \ gexecute ghost,                                      01nov92py
 
-\ FIXME cleanup
-\ : is-resolved   ( ghost -- )
-\  >link @ colon, ; \ compile-call
-
 : (gexecute)   ( ghost -- )
   dup >comp @ EXECUTE ;
 
 : gexecute ( ghost -- )
-\  dup >magic @ <imm> = IF -1 ABORT" CROSS: gexecute on immediate word" THEN
+  dup >magic @ <imm> = IF -1 ABORT" CROSS: gexecute on immediate word" THEN
   (gexecute) ;
 
 : addr,  ( ghost -- )
   dup forward? IF  1 refered 0 T a, H ELSE >link @ T a, H THEN ;
-
-\ !! : ghost,     ghost  gexecute ;
 
 \ .unresolved                                          11may93jaw
 
@@ -2288,7 +2279,7 @@ Cond: ALiteral ( n -- )   alit, ;Cond
 Cond: [Char]   ( "<char>" -- )  Char  lit, ;Cond
 
 tchar 1 = [IF]
-\ Cond: chars ;Cond 
+Cond: chars ;Cond 
 [THEN]
 
 \ some special literals					27jan97jaw
@@ -2376,22 +2367,23 @@ Cond: MAXI
 \ by the way: defining a second interpreter (a compiler-)loop
 \             is not allowed if a system should be ans conform
 
+: (:) ( ghost -- ) 
+\ common factor of : and :noname. Prepare ;Resolve and start definition
+   ;Resolve ! there ;Resolve cell+ !
+   docol, ]comp  colon-start depth T ] H ;
+
 : : ( -- colon-sys ) \ Name
   defempty?
   constflag off \ don't let this flag work over colon defs
 		\ just to go sure nothing unwanted happens
   >in @ skip? IF  drop skip-defs  EXIT  THEN  >in !
-  (THeader ;Resolve ! there ;Resolve cell+ !
-   docol, ]comp  colon-start depth T ] H ;
+  (THeader (:) ;
 
 : :noname ( -- colon-sys )
-  X cfalign
-  \ FIXME: cleanup!!!!!!!!
-  \ idtentical to : with dummy ghost?!
-  here ghostheader dup ;Resolve ! dup last-header-ghost ! to lastghost
-  there ;Resolve cell+ !
-  there docol, ]comp 
-  colon-start depth T ] H ;
+  X cfalign there 
+  \ define a nameless ghost
+  here ghostheader dup last-header-ghost ! dup to lastghost
+  (:) ;  
 
 Cond: EXIT ( -- )   compile ;S  ;Cond
 
@@ -2492,19 +2484,13 @@ Cond: DOES>
 
 : takeover-x-semantics ( S constructor-ghost new-ghost -- )
 \g stores execution semantic and compilation semantic in the built word
-\g if the word already has a semantic (concerns S", IS, .", DOES>)
-\g then keep it
    swap >do:ghost @ 
-   \ we use the >exec2 field for the semantic of a crated word,
-   \ so predefined semantics e.g. for ....
-   \ FIXME: find an example in the normal kernel!!!
+   \ we use the >exec2 field for the semantic of a created word,
+   \ using exec or exec2 makes no difference for normal cross-compilation
+   \ but is usefull for instant where the exec field is already
+   \ defined (e.g. Vocabularies)
    2dup >exec @ swap >exec2 ! 
-\   cr ." XXX" over .ghost
-\   dup >comp @ xt-see
    >comp @ swap >comp ! ;
-\ old version of this:
-\  >exec dup @ ['] NoExec = 
-\  IF swap >do:ghost @ >exec @ swap ! ELSE 2drop THEN ;
 
 : TCreate ( <name> -- )
   create-forward-warn
@@ -2543,25 +2529,20 @@ Cond: DOES>
   postpone ; built >exec ! ; immediate
 
 : gdoes>  ( ghost -- addr flag )
-  executed-ghost @
-\ FIXME: cleanup
-\  compiling? ABORT" CROSS: Executing gdoes> while compiling"
-\ ?! compiling? IF  gexecute true EXIT  THEN
-  g>body ( false ) ;
+  executed-ghost @ g>body ;
 
 \ DO: ;DO                                               11may93jaw
-\ changed to ?EXIT                                      10may93jaw
 
 : do:ghost! ( ghost -- ) built >do:ghost ! ;
 : doexec! ( xt -- ) built >do:ghost @ >exec ! ;
 
 : DO:     ( -- [xt] [colon-sys] )
   here ghostheader do:ghost!
-  :noname postpone gdoes> ( postpone ?EXIT ) ;
+  :noname postpone gdoes> ;
 
 : by:     ( -- [xt] [colon-sys] ) \ name
   Ghost do:ghost!
-  :noname postpone gdoes> ( postpone ?EXIT ) ;
+  :noname postpone gdoes> ;
 
 : ;DO ( [xt] [colon-sys] -- )
   postpone ; doexec! ; immediate
@@ -3050,7 +3031,7 @@ magic 7 + c!
   swap >image swap r@ write-file throw
   r> close-file throw ;
 
-1 [IF]
+\ save-asm-region                         		29aug01jaw
 
 Variable name-ptr
 Create name-buf 200 chars allot
@@ -3256,8 +3237,6 @@ Variable outfile-fd
 
 : save-asm-region ( region adr len -- )
   create-outfile (save-asm-region) close-outfile ;
-
-[THEN]
 
 \ \ minimal definitions
 	   
