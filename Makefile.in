@@ -442,7 +442,7 @@ install:	gforth$(EXE) $(FORTH_SRC) $(kernel_fi) gforth.fi gforthmi doc/gforth.1 
 		GFORTHD="./gforth-ditc -i $(kernel_fi)" GFORTH="./gforth-ditc -i $(kernel_fi) startup.fs" ./gforthmi gforth.fi $(FORTHSIZES) startup.fs #gforth.fi contains some path names
 		$(INSTALL_DATA) gforth.fi $(libdir)/gforth/$(VERSION)
 		$(INSTALL_DATA) install.TAGS $(datadir)/gforth/$(VERSION)/TAGS
-		@if test -d $(emacssitelispdir); then \
+		@if test -d "$(emacssitelispdir)"; then \
 			$(INSTALL_DATA) $(srcdir)/gforth.el $(emacssitelispdir); \
 		else \
 			echo ">>>>>Please install $(srcdir)/gforth.el in your .../emacs/site-lisp directory"; \
