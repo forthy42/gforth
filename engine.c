@@ -1,5 +1,5 @@
 /*
-  $Id: engine.c,v 1.11 1994-07-13 19:21:02 pazsan Exp $
+  $Id: engine.c,v 1.12 1994-08-25 15:25:21 anton Exp $
   Copyright 1992 by the ANSI figForth Development Group
 */
 
@@ -94,6 +94,7 @@ Label *engine(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp)
     &&docon,
     &&dovar,
     &&douser,
+    &&dodefer,
     &&dodoes,
     &&dodoes,  /* dummy for does handler address */
 #include "prim_labels.i"
@@ -174,6 +175,13 @@ Label *engine(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp)
 #endif
   NEXT;
   
+ dodefer:
+#ifdef DEBUG
+  printf("%08x: defer: %08x\n",(Cell)ip,(Cell)PFA1(cfa));
+#endif
+  cfa = *(Xt *)PFA1(cfa);
+  NEXT1;
+
  dodoes:
   /* this assumes the following structure:
      defining-word:

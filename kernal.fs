@@ -142,7 +142,10 @@ Defer source
   dup count chars bounds
   ?DO  I c@ toupper I c! 1 chars +LOOP ;
 : (name)  ( -- addr )  bl word ;
-\ : (cname) ( -- addr )  bl word capitalize ;
+: sname ( -- c-addr count )
+    source 2dup >r >r >in @ /string (parse-white)
+    2dup + r> - 1+ r> min >in ! ;
+\    name count ;
 
 \ Literal                                              17dec92py
 
@@ -203,9 +206,20 @@ Create bases   10 ,   2 ,   A , 100 ,
   REPEAT  THEN  2drop rdrop dpl off  ELSE
   2drop rdrop r> IF  dnegate  THEN
   THEN r> base ! ;
+: snumber? ( c-addr u -- 0 / n -1 / d 0> )
+    s>number dpl @ 0=
+    IF
+	2drop false  EXIT
+    THEN
+    dpl @ dup 0> 0= IF
+	nip
+    THEN ;
 : number? ( string -- string 0 / n -1 / d 0> )
-  dup count s>number dpl @ 0= IF  2drop false  EXIT  THEN
-  rot drop dpl @ dup 0> 0= IF  nip  THEN ;
+    dup >r count snumber? dup if
+	rdrop
+    else
+	r> swap
+    then ;
 : s>d ( n -- d ) dup 0< ;
 : number ( string -- d )
   number? ?dup 0= abort" ?"  0< IF s>d THEN ;
@@ -304,30 +318,67 @@ hex
 
 Defer parser
 Defer name      ' (name) IS name
-Defer notfound
+Defer notfound ( c-addr count -- )
 
-: no.extensions  ( string -- )  IF  -&13 bounce  THEN ;
+: no.extensions  ( addr u -- )  2drop -&13 bounce ;
 
 ' no.extensions IS notfound
 
 : interpret
-  BEGIN  ?stack name dup c@  WHILE  parser  REPEAT drop ;
+    BEGIN
+	?stack sname dup
+    WHILE
+	parser
+    REPEAT
+    2drop ;
 
-\ interpreter compiler                                 30apr92py
+\ sinterpreter scompiler                                 30apr92py
 
-: interpreter  ( name -- ) find ?dup
-  IF  1 and  IF execute  EXIT THEN  -&14 throw  THEN
-  number? 0= IF  notfound THEN ;
+: sinterpreter  ( c-addr u -- ) 
+    \ interpretation semantics for the name/number c-addr u
+    2dup sfind dup
+    IF
+	1 and
+	IF \ not restricted to compile state?
+	    nip nip execute  EXIT
+	THEN
+	-&14 throw
+    THEN
+    drop
+    2dup 2>r snumber?
+    IF
+	2rdrop
+    ELSE
+	2r> notfound
+    THEN ;
 
-' interpreter  IS  parser
+' sinterpreter  IS  parser
 
-: compiler     ( name -- ) find  ?dup
-  IF  0> IF  execute EXIT THEN compile, EXIT THEN number? dup
-  IF  0> IF  swap postpone Literal  THEN  postpone Literal
-  ELSE  drop notfound  THEN ;
+: scompiler     ( c-addr u -- )
+    \ compilation semantics for the name/number c-addr u
+    2dup sfind dup
+    IF
+	0>
+	IF
+	    nip nip execute EXIT
+	THEN
+	compile, 2drop EXIT
+    THEN
+    drop
+    2dup snumber? dup
+    IF
+	0>
+	IF
+	    swap postpone Literal
+	THEN
+	postpone Literal
+	2drop
+    ELSE
+	drop notfound
+    THEN ;
 
-: [     ['] interpreter  IS parser state off ; immediate
-: ]     ['] compiler     IS parser state on  ;
+: [     ['] sinterpreter  IS parser state off ; immediate
+: ]     ['] scompiler     IS parser state on  ;
 
 \ locals stuff needed for control structures
 
@@ -839,11 +890,14 @@ Create ???  0 , 3 c, char ? c, char ? c, char ? c,
     
 \ IS Defer What's Defers TO                            24feb93py
 
-: Defer
-  Create ( -- ) 
-    ['] noop A,
-  DOES> ( ??? )
-    @ execute ;
+: Defer ( -- )
+    \ !! shouldn't it be initialized with abort or something similar?
+    Header Reveal [ :dodefer ] Literal cfa,
+    ['] noop A, ;
+\     Create ( -- ) 
+\ 	['] noop A,
+\     DOES> ( ??? )
+\ 	@ execute ;
 
 : IS ( addr "name" -- )
     ' >body
@@ -936,8 +990,14 @@ Variable warnings  G -1 warnings T !
  then
  2drop 2drop ;
 
-: find   ( addr -- cfa +-1 / string false )  dup
-  count search @ search-wordlist  dup IF  rot drop  THEN ;
+: sfind ( c-addr u -- xt n / 0 )
+    search @ search-wordlist ;
+
+: find   ( addr -- cfa +-1 / string false )
+    \ !! not ANS conformant: returns +-2 for restricted words
+    dup count sfind dup if
+	rot drop
+    then ;
 
 : reveal ( -- )
  last? if
@@ -947,7 +1007,7 @@ Variable warnings  G -1 warnings T !
 
 : rehash  ( wid -- )  dup cell+ @ cell+ cell+ @ execute ;
 
-: '    ( "name" -- addr )  name find 0= no.extensions ;
+: '    ( "name" -- addr )  name find 0= if drop -&13 bounce then ;
 : [']  ( "name" -- addr )  ' postpone ALiteral ; immediate
 \ Input                                                13feb93py
 

@@ -14,10 +14,6 @@ decimal
   (constant) , ;
 \ !! 2value
 
-: 2>r   postpone swap postpone >r postpone >r ; immediate restrict
-: 2r>   postpone r> postpone r> postpone swap ; immediate restrict
-: 2r@   postpone 2r> postpone 2dup postpone 2>r ; immediate restrict
-
 : 2Literal  swap postpone Literal  postpone Literal ;
   immediate restrict
 

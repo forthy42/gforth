@@ -115,4 +115,4 @@ Root definitions
 
 Forth definitions
 
-[IFDEF] (hashkey) include hash.fs [THEN]
+include hash.fs

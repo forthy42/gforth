@@ -20,7 +20,7 @@
 ;; file named COPYING.  Among other things, the copyright notice
 ;; and this notice must be preserved on all copies.
 
-;;; $Header: /usr/local/lib/cvs-repository/src-master/gforth/gforth.el,v 1.7 1994-08-19 17:47:20 anton Exp $
+;;; $Header: /usr/local/lib/cvs-repository/src-master/gforth/gforth.el,v 1.8 1994-08-25 15:25:26 anton Exp $
 
 ;;-------------------------------------------------------------------
 ;; A Forth indentation, documentation search and interaction library

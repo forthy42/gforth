@@ -35,7 +35,7 @@ OBJECTS = engine.o io.o main.o
 
 # things that need a working forth system to be generated
 # this is used for antidependences,
-FORTH_GEN = primitives.i prim_labels.i prim_alias.4th kernal.fi
+FORTH_GEN = primitives.i prim_labels.i prim_alias.4th kernl32l.fi kernl32b.fi
 
 all:	gforth aliases.fs
 
@@ -65,12 +65,17 @@ gforth:	$(OBJECTS) $(FORTH_GEN)
 		-cp gforth gforth.old
 		$(GCC) $(LDFLAGS) $(OBJECTS) $(LDLIBS) -o $@
 
-kernal.fi:	main.fs search-order.fs cross.fs aliases.fs vars.fs add.fs \
+kernl32l.fi:	main.fs search-order.fs cross.fs aliases.fs vars.fs add.fs \
 		errore.fs kernal.fs extend.fs tools.fs toolsext.fs \
-                $(FORTH_GEN)
-		-cp kernal.32limg kernal.32limg.old
-		$(FORTH) main.fs
+		machine32l.fs $(FORTH_GEN)
+		-cp kernl32l.fi kernl32l.fi.old
+		$(FORTH) -e 's" machine32l.fs" r/o open-file throw' main.fs
 
+kernl32b.fi:	main.fs search-order.fs cross.fs aliases.fs vars.fs add.fs \
+		errore.fs kernal.fs extend.fs tools.fs toolsext.fs \
+		machine32b.fs $(FORTH_GEN)
+		-cp kernl32b.fi kernl32b.fi.old
+		$(FORTH) -e 's" machine32b.fs" r/o open-file throw' main.fs
 
 engine.s:	engine.c primitives.i prim_labels.i machine.h $(INCLUDES)
 		$(GCC) $(CFLAGS) -S engine.c
@@ -93,7 +98,8 @@ aliases.fs:	primitives.b prims2x.fs
 #		$(EMACS) -batch -load primitives2c.el -funcall make-forth
 
 #GNU make default rules
-% ::		RCS/%,v
-		co $@
-%.o :		%.c $(INCLUDES)
-		$(CC) $(CFLAGS) -c $< -o $@
+#% ::		RCS/%,v
+#		co $@
+#%.o :		%.c $(INCLUDES)
+#		$(CC) $(CFLAGS) -c $< -o $@
+

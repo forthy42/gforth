@@ -70,13 +70,18 @@
   scratch over c@ emit '. emit 1 /string type
   'E emit . ;
 
-: fnumber ( string -- r / )
-  ?dup IF  dup count >float 0=
-           IF    defers notfound
-	   ELSE  drop state @
-	         IF  postpone FLiteral  THEN  THEN  THEN ;
+: sfnumber ( c-addr u -- r / )
+    2dup >float
+    IF
+	2drop state @
+	IF
+	    postpone FLiteral
+	THEN
+    ELSE
+	defers notfound
+    THEN ;
 
-' fnumber IS notfound
+' sfnumber IS notfound
 
 1e0 fasin 2e0 f* fconstant pi
 

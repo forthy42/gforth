@@ -488,6 +488,21 @@ rp++;
 i'	-- w		fig		i_tick
 w=rp[1];
 
+2>r	w1 w2 --	core-ext	two_to_r
+*--rp = w1;
+*--rp = w2;
+
+2r>	-- w1 w2	core-ext	two_r_from
+w2 = *rp++;
+w1 = *rp++;
+
+2r@	-- w1 w2	core-ext	two_r_fetch
+w2 = rp[0];
+w1 = rp[1];
+
+2rdrop	--		new	two_r_drop
+rp+=2;
+
 over	w1 w2 -- w1 w2 w1		core,fig
 
 drop	w --		core,fig
@@ -644,10 +659,25 @@ while(a_addr != NULL)
      }
 }
 
-(hashkey)	c_addr u1 -- u2	new	paren_hashkey
+(hashkey)	c_addr u1 -- u2		new	paren_hashkey
 u2=0;
 while(u1--)
    u2+=(int)toupper(*c_addr++);
+
+(hashkey1)	c_addr u ubits -- ukey		new	paren_hashkey1
+""ukey is the hash key for the string c_addr u fitting in ubits bits""
+/* this hash function rotates the key at every step by rot bits within
+   ubits bits and xors it with the character. This function does ok in
+   the chi-sqare-test.  Rot should be <=7 (preferably <=5) for
+   ASCII strings (larger if ubits is large), and should share no
+   divisors with ubits.
+*/
+unsigned rot = ((char []){5,0,1,2,3,4,5,5,5,5,3,5,5,5,5,7,5,5,5,5,7,5,5,5,5,6,5,5,5,5,7,5,5})[ubits];
+Char *cp = c_addr;
+for (ukey=0; cp<c_addr+u; cp++)
+    ukey = ((((ukey<<rot) | (ukey>>(ubits-rot))) 
+	     ^ toupper(*cp))
+	    & ((1<<ubits)-1));
 
 (parse-white)	c_addr1 u1 -- c_addr2 u2	new	paren_parse_white
 /* use !isgraph instead of isspace? */

@@ -54,9 +54,9 @@ LOCK
 
 cr cr 
 endian [IF]
-   save-cross kernal.32bimg
+   save-cross kernl32b.fi
 [ELSE]
-   save-cross kernal.32limg
+   save-cross kernl32l.fi
 [THEN] cr
 
 bye

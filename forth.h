@@ -1,5 +1,5 @@
 /*
-  $Id: forth.h,v 1.7 1994-07-08 15:00:39 anton Exp $
+  $Id: forth.h,v 1.8 1994-08-25 15:25:24 anton Exp $
   Copyright 1992 by the ANSI figForth Development Group
 */
 
@@ -13,8 +13,9 @@ typedef void *Label;
 #define DOCON	1
 #define DOVAR	2
 #define DOUSER	3
-#define DODOES	4
-#define DOESJUMP	5
+#define DODEFER	4
+#define DODOES	5
+#define DOESJUMP	6
 
 /* Some versions of some unices (Linux) have the symbol BIG_ENDIAN defined
    in their standard headers. Make sure it's undefined -- Lennart */
