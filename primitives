@@ -710,11 +710,16 @@ wior = FILEIO(u2<u1 && ferror((FILE *)wfileid));
 /* !! who performs clearerr((FILE *)wfileid); ? */
 
 read-line	c_addr u1 wfileid -- u2 flag wior	file	read_line
-wior=(Cell)fgets(c_addr,u1+1,(FILE *)wfileid);
-flag=FLAG(!feof((FILE *)wfileid) && wior);
-wior=FILEIO(ferror((FILE *)wfileid)) & flag;
-u2=(flag & strlen(c_addr));
-u2-=((u2>0) && (c_addr[u2-1]==NEWLINE));
+if ((flag=FLAG(!feof((FILE *)wfileid)))) {
+  char *s = fgets(c_addr,u1+1,(FILE *)wfileid);
+  wior=FILEIO(ferror((FILE *)wfileid));
+  u2=strlen(c_addr);
+  u2-=((u2>0) && (c_addr[u2-1]==NEWLINE));
+}
+else {
+  wior=0;
+  u2=0;
+}
 
 write-file	c_addr u1 wfileid -- wior	file	write_file
 /* !! fwrite does not guarantee enough */

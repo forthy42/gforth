@@ -19,6 +19,9 @@
 #endif
 #include <fcntl.h>
 #include <sys/file.h>
+#include <setjmp.h>
+#include "forth.h"
+#include "io.h"
 
 #if defined (__GNUC__)
 #  define alloca __builtin_alloca
@@ -706,7 +709,35 @@ graceful_exit (int sig)
     fprintf (stderr, "\n\n%s.\n", sigmsg (sig));
   else
     fprintf (stderr, "\n\nSignal %d received, terminated.\n", sig);
-  exit (sig);
+  exit (0x80|sig);
+}
+
+jmp_buf throw_jmp_buf;
+
+static void 
+signal_throw(int sig)
+{
+  static int throw_codes[] = {
+    -256,
+    -28,
+    -257,
+    -258,
+    -259,
+    -260,
+    -261,
+    -55,
+    -262,
+    -23,
+    -9,
+    -263,
+    -264,
+    -265,
+    -266,
+    -267,
+    -268,
+  };
+  signal(sig,signal_throw);
+  longjmp(throw_jmp_buf,throw_codes[sig-1]); /* or use siglongjmp ? */
 }
 
 void
@@ -731,7 +762,7 @@ install_signal_handlers (void)
     if (sigs_to_ignore [i])
       signal (sigs_to_ignore [i], SIG_IGN);
   for (i = 0; i < DIM (sigs_to_abort); i++)
-    signal (sigs_to_abort [i], graceful_exit); /* !! change to throw */
+    signal (sigs_to_abort [i], signal_throw); /* !! change to throw */
   for (i = 0; i < DIM (sigs_to_quit); i++)
     signal (sigs_to_quit [i], graceful_exit);
 }

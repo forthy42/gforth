@@ -448,6 +448,7 @@ forth definitions
 : (local) ( addr u -- )
     \ a little space-inefficient, but well deserved ;-)
     \ In exchange, there are no restrictions whatsoever on using (local)
+    \ as long as you use it in a definition
     dup
     if
 	nextname POSTPONE { [ also locals-types ] W: } [ previous ]
@@ -455,34 +456,54 @@ forth definitions
 	2drop
     endif ;
 
-\ \ !! untested
-\ : TO ( c|w|d|r "name" -- )
-\ \ !! state smart
-\  0 0 0. 0.0e0 { c: clocal w: wlocal d: dlocal f: flocal }
-\  ' dup >definer
-\  state @ 
-\  if
-\    case
-\      [ ' locals-wordlist >definer ] literal \ value
-\      OF >body POSTPONE Aliteral POSTPONE ! ENDOF
-\      [ ' clocal >definer ] literal
-\      OF POSTPONE laddr# >body @ lp-offset, POSTPONE c! ENDOF
-\      [ ' wlocal >definer ] literal
-\      OF POSTPONE laddr# >body @ lp-offset, POSTPONE ! ENDOF
-\      [ ' dlocal >definer ] literal
-\      OF POSTPONE laddr# >body @ lp-offset, POSTPONE d! ENDOF
-\      [ ' flocal >definer ] literal
-\      OF POSTPONE laddr# >body @ lp-offset, POSTPONE f! ENDOF
-\      abort" can only store TO value or local value"
-\    endcase
-\  else
-\    [ ' locals-wordlist >definer ] literal =
-\    if
-\      >body !
-\    else
-\      abort" can only store TO value"
-\    endif
-\  endif ;   
+: >definer ( xt -- definer )
+    \ this gives a unique identifier for the way the xt was defined
+    \ words defined with different does>-codes have different definers
+    \ the definer can be used for comparison and in definer!
+    dup >code-address [ ' bits >code-address ] Literal =
+    \ !! this definition will not work on some implementations for `bits'
+    if  \ if >code-address delivers the same value for all does>-def'd words
+	>does-code 1 or \ bit 0 marks special treatment for does codes
+    else
+	>code-address
+    then ;
+
+: definer! ( definer xt -- )
+    \ gives the word represented by xt the behaviour associated with definer
+    over 1 and if
+	does-code!
+    else
+	code-address!
+    then ;
+
+\ !! untested
+: TO ( c|w|d|r "name" -- )
+\ !! state smart
+ 0 0 0. 0.0e0 { c: clocal w: wlocal d: dlocal f: flocal }
+ ' dup >definer
+ state @ 
+ if
+   case
+     [ ' locals-wordlist >definer ] literal \ value
+     OF >body POSTPONE Aliteral POSTPONE ! ENDOF
+     [ ' clocal >definer ] literal
+     OF POSTPONE laddr# >body @ lp-offset, POSTPONE c! ENDOF
+     [ ' wlocal >definer ] literal
+     OF POSTPONE laddr# >body @ lp-offset, POSTPONE ! ENDOF
+     [ ' dlocal >definer ] literal
+     OF POSTPONE laddr# >body @ lp-offset, POSTPONE d! ENDOF
+     [ ' flocal >definer ] literal
+     OF POSTPONE laddr# >body @ lp-offset, POSTPONE f! ENDOF
+     abort" can only store TO value or local value"
+   endcase
+ else
+   [ ' locals-wordlist >definer ] literal =
+   if
+     >body !
+   else
+     abort" can only store TO value"
+   endif
+ endif ; immediate
 
 \ : locals|
 \ !! should lie around somewhere

@@ -271,13 +271,14 @@ hex
   r> handler ! rdrop rdrop rdrop 0 ;
 
 : throw ( y1 .. ym error/0 -- y1 .. ym / z1 .. zn error )
-  ?DUP IF
-    handler @ rp!
-    r> handler !
-    r> lp!
-    r> fp!
-    r> swap >r sp! r>
-  THEN ;
+    ?DUP IF
+	[ here 4 cells ! ]
+	handler @ rp!
+	r> handler !
+	r> lp!
+	r> fp!
+	r> swap >r sp! r>
+    THEN ;
 
 \ Bouncing is very fine,
 \ programming without wasting time...   jaw
@@ -327,9 +328,6 @@ Defer notfound
 
 \ locals stuff needed for control structures
 
-variable locals-size \ this is the current size of the locals stack
-		     \ frame of the current word
-
 : compile-lp+! ( n -- )
     dup negate locals-size +!
     0 over = if
@@ -346,7 +344,7 @@ variable locals-size \ this is the current size of the locals stack
 
 here 0 , \ just a dummy, the real value of locals-list is patched into it in glocals.fs
 AConstant locals-list \ acts like a variable that contains
-		     \ a linear list of locals names
+		      \ a linear list of locals names
 
 
 variable dead-code \ true if normal code at "here" would be dead
@@ -715,7 +713,9 @@ Avariable leave-sp  leave-stack 3 cells + leave-sp !
 
 \ Header states                                        23feb93py
 
-: flag! ( 8b -- )   last @ cell+ tuck c@ xor swap c! ;
+: flag! ( 8b -- )
+    last @ dup 0= abort" last word was headerless"
+    cell+ tuck c@ xor swap c! ;
 : immediate     $20 flag! ;
 : restrict      $40 flag! ;
 \ ' noop alias restrict
@@ -729,7 +729,9 @@ Avariable leave-sp  leave-stack 3 cells + leave-sp !
 defer header
 
 : name,  ( "name" -- )
-    name c@ 1+ chars allot align ;
+    name c@
+    dup $1F u> &-19 and throw ( is name too long? )
+    1+ chars allot align ;
 : input-stream-header ( "name" -- )
     \ !! this is f83-implementation-dependent
     align here last !  -1 A,
@@ -754,7 +756,7 @@ create nextname-buffer 32 chars allot
 
 \ the next name is given in the string
 : nextname ( c-addr u -- ) \ general
-    dup 31 u> -19 and throw ( is name too long? )
+    dup $1F u> &-19 and throw ( is name too long? )
     nextname-buffer c! ( c-addr )
     nextname-buffer count move
     ['] nextname-header IS header ;
@@ -863,7 +865,9 @@ defer ;-hook ( sys2 -- sys1 )
 : ; ( colon-sys -- )  ;-hook ?struc postpone exit reveal postpone [ ;
   immediate restrict
 
-: :noname ( -- xt colon-sys )  here [ :docol ] Literal cfa, 0 ] :-hook ;
+: :noname ( -- xt colon-sys )
+    0 last !
+    here [ :docol ] Literal cfa, 0 ] :-hook ;
 
 \ Search list handling                                 23feb93py
 
@@ -1026,9 +1030,9 @@ DEFER Emit
         accept true
   THEN
   1 loadline +!
-  swap #tib ! >in off ;
+  swap #tib ! 0 >in ! ;
 
-: Query  ( -- )  loadfile off refill drop ;
+: Query  ( -- )  0 loadfile ! refill drop ;
 
 \ File specifiers                                       11jun93jaw
 
@@ -1069,7 +1073,13 @@ create nl$ 1 c, A c, 0 c, \ gnu includes usually a cr in dos
   r> loadfile ! r> loadline ! r> linestart ! ;
 
 : included ( i*x addr u -- j*x )
-  r/o open-file throw include-file ;
+    loadfilename 2@ >r >r
+    dup allocate throw over loadfilename 2!
+    over loadfilename 2@ move
+    r/o open-file throw include-file
+    \ don't free filenames; they don't take much space
+    \ and are used for debugging
+    r> r> loadfilename 2! ;
 
 \ HEX DECIMAL                                           2may93jaw
 
@@ -1087,8 +1097,10 @@ create nl$ 1 c, A c, 0 c, \ gnu includes usually a cr in dos
 
 \ RECURSE                                               17may93jaw
 
-: recurse  last @ ( cell+ ) name> a, ; immediate restrict
-\ !! does not work with anonymous words; use lastxt compile,
+: recurse ( -- )
+    lastxt compile, ; immediate restrict
+: recursive ( -- )
+    reveal ; immediate
 
 \ */MOD */                                              17may93jaw
 
@@ -1126,35 +1138,47 @@ Defer .status
 
 \ DOERROR (DOERROR)                                     13jun93jaw
 
+: dec. ( n -- )
+    \ print value in decimal representation
+    base @ decimal swap . base ! ;
+
+: typewhite ( addr u -- )
+    \ like type, but white space is printed instead of the characters
+    0 ?do
+	dup i + c@ 9 = if \ check for tab
+	    9
+	else
+	    bl
+	then
+	emit
+    loop
+    drop ;
+
 DEFER DOERROR
 
 : (DoError) ( throw-code -- )
-         LoadFile @
-         IF
-         	." Error in line: " Loadline @ . cr
-         THEN
-         cr source type cr
-         source drop >in @ -trailing
-         here c@ 1F min dup >r - 1- 0 max nip
-         dup spaces 
-	 IF
-		." ^"
-	 THEN
-	 r> 0 ?DO
-		." -" 
-	 LOOP
-	 ." ^"
-         dup -2 =
-         IF 
-		"error @ ?dup
-		IF
-			cr count type 
-		THEN
-		drop
-         ELSE
-		.error
-	 THEN
-         normal-dp dpp ! ;
+    LoadFile @
+    IF
+	cr loadfilename 2@ type ." :" Loadline @ dec.
+    THEN
+    cr source type cr
+    source drop >in @ -trailing ( throw-code line-start index2 )
+    here c@ 1F min dup >r - 0 max ( throw-code line-start index1 )
+    typewhite
+    r> 1 max 0 ?do \ we want at least one "^", even if the length is 0
+	." ^"
+    loop
+    dup -2 =
+    IF 
+	"error @ ?dup
+	IF
+	    cr count type 
+	THEN
+	drop
+    ELSE
+	.error
+    THEN
+    normal-dp dpp ! ;
 
 ' (DoError) IS DoError
 
@@ -1189,11 +1213,21 @@ Variable argc
 : script? ( -- flag )  0 arg 1 arg dup 3 pick - /string compare 0= ;
 
 : cold ( -- )  
-  argc @ 1 >
-  IF  script?
-      IF  1 arg ['] included  ELSE   get-args ['] interpret  THEN
-      catch ?dup IF  dup >r DoError cr r> (bye)  THEN THEN
-  ." ANS FORTH-93 (c) 1993 by the ANS FORTH-93 Team" cr quit ;
+    argc @ 1 >
+    IF  script?
+	IF
+	    1 arg ['] included
+	ELSE
+	    get-args ['] interpret
+	THEN
+	catch ?dup
+	IF
+	    dup >r DoError cr r> (bye)
+	THEN
+    THEN
+    cr ." GNU Forth 0.0alpha, Copyright (C) 1994 Free Software Foundation"
+    cr ." GNU Forth comes with ABSOLUTELY NO WARRANTY; for details type `license'" 
+    cr quit ;
 
 : boot ( **env **argv argc -- )
   argc ! argv ! env !  main-task up!

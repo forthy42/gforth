@@ -15,6 +15,7 @@ AVARIABLE ErrLink              \ Linked list entry point
 decimal
 
 -1 ERR" Aborted"
+ErrLink @ unlock reloff lock \ make sure that the terminating 0 is not relocated
 -3 ERR" Stack overflow"                 -4 ERR" Stack underflow"
 -5 ERR" Return stack overflow"          -6 ERR" Return stack undeflow"
 -7 ERR" Do-loops nested too deeply"     -8 ERR" Dictionary overflow"
@@ -46,6 +47,20 @@ decimal
 -55 ERR" Floating-point unidentified fault"
 -56 ERR" QUIT"                          -57 ERR" Error in sending or receiving a character"
 -58 ERR" [IF], [ELSE], [THEN] error"
+\ signals: ( We list them all, execpt those already present, just in case )
+-256 ERR" Hangup signal"
+-257 ERR" Quit signal"
+-258 ERR" Illegal Instruction"
+-259 ERR" Trace Trap"
+-260 ERR" IOT instruction"
+-261 ERR" EMT instruction" \ abort() call?
+-262 ERR" Kill signal" \ cannot be caught but so what
+-263 ERR" Bad arg to system call"
+-264 ERR" Broken pipe"
+-265 ERR" Alarm signal"
+-266 ERR" Terminate signal"
+-267 ERR" User signal 1"
+-268 ERR" User signal 2"
 
 : .error ( n -- )
         cr ." Error: "

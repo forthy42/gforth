@@ -3,7 +3,7 @@
 RM	= echo 'Trying to remove'
 GCC	= gcc
 CC	= gcc
-SWITCHES = -D_POSIX_VERSION -DDEFAULTBIN='"'$(PWD)'"' -DUSE_TOS -DUSE_FTOS # -DDIRECT_THREADED 
+SWITCHES = -D_POSIX_VERSION -DDEFAULTBIN='"'`pwd`'"' #-DNDEBUG #turn off assertions
 CFLAGS	= -O4 -Wall -g $(SWITCHES)
 
 #-Xlinker -n puts text and data into the same 256M region

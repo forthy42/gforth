@@ -1,5 +1,5 @@
 \ CROSS.FS     The Cross-Compiler                      06oct92py
-\ $Id: cross.fs,v 1.6 1994-06-17 12:34:58 anton Exp $
+\ $Id: cross.fs,v 1.7 1994-07-08 15:00:30 anton Exp $
 \ Idea and implementation: Bernd Paysan (py)
 \ Copyright 1992 by the ANSI figForth Development Group
 
@@ -208,6 +208,8 @@ CREATE Bittable 80 c, 40 c, 20 c, 10 c, 8 c, 4 c, 2 c, 1 c,
 : !  ( w taddr -- )     >r bswap r> >image ! ;
 : c@ ( taddr -- char )  >image c@ ;
 : c! ( char taddr -- )  >image c! ;
+: 2@ ( taddr -- x1 x2 ) T dup cell+ @ swap @ H ;
+: 2! ( x1 x2 taddr -- ) T swap over ! cell+ ! H ;
 
 \ Target compilation primitives                        06oct92py
 \ included A!                                          16may93jaw

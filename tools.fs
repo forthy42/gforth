@@ -6,9 +6,17 @@ hex
 
 \ .S            CORE / CORE EXT                         9may93jaw
 
+variable maxdepth-.s
+9 maxdepth-.s !
+
 : .s ( -- )
-\ depth 0= IF ." <empty> " THEN
-  depth 0 ?DO  I pick . LOOP ;
+    ." <" depth 0 .r ." > "
+    depth 0 max maxdepth-.s @ min
+    dup 0
+    ?do
+	dup i - pick .
+    loop
+    drop ;
 
 \ DUMP                       2may93jaw - 9may93jaw    06jul93py
 \ looks very nice, I know

@@ -1,5 +1,5 @@
 /*
-  $Id: main.c,v 1.6 1994-06-17 12:35:13 anton Exp $
+  $Id: main.c,v 1.7 1994-07-08 15:00:55 anton Exp $
   Copyright 1993 by the ANSI figForth Development Group
 */
 
@@ -14,6 +14,9 @@
 #include <stdlib.h>
 #include "forth.h"
 #include "io.h"
+
+Xt *throw_ip;
+
 
 #ifndef DEFAULTBIN
 #	define DEFAULTBIN ""
@@ -30,6 +33,7 @@
  *   size of image without stacks and tags (in bytes)
  *   size of data and FP stack (in bytes)
  *   pointer to start of code
+ *   pointer into throw (for signal handling)
  *   data (size in image[1])
  *   tags (1 bit/data cell)
  *
@@ -108,7 +112,8 @@ int go_forth(int *image, int stack, Cell *entries)
 	Address lp=(Address)((void *)fp-image[2]);
 	Cell* sp=(Cell*)((void *)lp-image[2]);
 	Cell* ip=(Cell*)(image[3]);
-
+	
+	throw_ip = (Xt *)(image[4]);
 	for(;stack>0;stack--)
 		*--sp=entries[stack-1];
 

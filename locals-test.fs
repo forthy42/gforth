@@ -1,4 +1,5 @@
 include glocals.fs
+include debugging.fs
 
 : localsinfo \ !! only debugging
  ." stack: " .s ." locals-size: " locals-size ? ." locals-list"
@@ -28,20 +29,20 @@ depth . cr
 ." testing part 2" cr
 
 : xxxx
-    [ ." starting xxxx" .s cr ]
+   [ ." starting xxxx" .s cr ]
 { f } f
 if
-  { a b }
-  b a
+ { a b }
+ b a
 [ ." before else" .s cr ]
 else
 [ ." after else" .s cr ]
-  { c d }
-  c d
+ { c d }
+ c d
 then
 [ ." locals-size after then:" locals-size @ . cr ]
-f drop
-    [ ." ending xxxx" .s cr ]
+~~ f ~~ drop
+[ ." ending xxxx" .s cr ]
 ;
 
 2 3 1 xxxx . . cr
@@ -64,8 +65,8 @@ begin
 [ ." after { a }" .s cr ]
 1 while
 [ ." after while" .s cr ]
-  { b }
-  a b
+ { b }
+ a b
 [ ." after a" .s cr ]
 repeat
 [ ." after repeat" .s cr
@@ -248,6 +249,34 @@ until
     then
     [ ." after xthen" localsinfo ]
 ;
+
+." strcmp1 coming up" cr
+: strcmp1 { addr1 u1 addr2 u2 -- n }
+ u1 u2 min 0 ?do
+   addr1 c@ addr2 c@ - ?dup if
+     unloop exit
+   then
+   addr1 char+ TO addr1
+   addr2 char+ TO addr2
+ loop
+ u1 u2 - ;
+
+: teststrcmp1
+." lp@:" lp@ . cr
+s" xxx" s" yyy" strcmp1 . cr
+." lp@:" lp@ . cr
+s" xxx" s" xxx" strcmp1 . cr
+." lp@:" lp@ . cr
+s" xxx" s" xxxx" strcmp1 . cr
+." lp@:" lp@ . cr
+s" xxx3" s" xxx2" strcmp1 . cr
+." lp@:" lp@ . cr
+s" " s" " strcmp1 . cr
+." lp@:" lp@ . cr
+." lp@:" lp@ . cr
+." stack:" .s cr
+;
+teststrcmp1
 
 
 bye

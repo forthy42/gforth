@@ -16,7 +16,7 @@
 ;; file named COPYING.  Among other things, the copyright notice
 ;; and this notice must be preserved on all copies.
 
-;;; $Header: /usr/local/lib/cvs-repository/src-master/gforth/gforth.el,v 1.2 1994-06-17 12:35:01 anton Exp $
+;;; $Header: /usr/local/lib/cvs-repository/src-master/gforth/gforth.el,v 1.3 1994-07-08 15:00:41 anton Exp $
 
 ;;-------------------------------------------------------------------
 ;; A Forth indentation, documentation search and interaction library
@@ -109,13 +109,13 @@ OBS! All words in forth-negatives must be surrounded by spaces.")
   (make-local-variable 'require-final-newline)
   (setq require-final-newline t)
   (make-local-variable 'comment-start)
-  (setq comment-start "( ")
-  (make-local-variable 'comment-end)
-  (setq comment-end " )")
+  (setq comment-start "\\ ")
+  ;(make-local-variable 'comment-end)
+  ;(setq comment-end " )")
   (make-local-variable 'comment-column)
   (setq comment-column 40)
   (make-local-variable 'comment-start-skip)
-  (setq comment-start-skip "( ")
+  (setq comment-start-skip "\\ ")
   (make-local-variable 'comment-indent-hook)
   (setq comment-indent-hook 'forth-comment-indent)
   (make-local-variable 'parse-sexp-ignore-comments)

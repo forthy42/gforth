@@ -1,5 +1,5 @@
 /*
-  $Id: forth.h,v 1.6 1994-05-31 07:25:12 benschop Exp $
+  $Id: forth.h,v 1.7 1994-07-08 15:00:39 anton Exp $
   Copyright 1992 by the ANSI figForth Development Group
 */
 
@@ -44,6 +44,7 @@ typedef Label *Xt;
 #endif
 
 Label *engine(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp);
+extern Xt *throw_ip;
 
 #ifndef DIRECT_THREADED
 /* i.e. indirect threaded */

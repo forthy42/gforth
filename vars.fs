@@ -44,7 +44,8 @@ AUser "error            0 "error !
  User >in               0 >in !
  User blk               0 blk !
  User loadfile          0 loadfile !
-
+ 2User loadfilename	0 0 loadfilename 2!
+ 
  User loadline          \ number of the currently interpreted
                         \ (in TIB) line if the interpretation
                         \ is in a textfile
@@ -64,5 +65,8 @@ AUser dpp		normal-dp dpp !
                         \  (i.e. any throw caught by quit)
 AUser LastCFA
 AUser Last
+
+User locals-size \ this is the current size of the locals stack
+		 \ frame of the current word
 
 
