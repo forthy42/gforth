@@ -12232,8 +12232,7 @@ On two's complement machines, arithmetic is performed modulo
 2**bits-per-cell for single arithmetic and 4**bits-per-cell for double
 arithmetic (with appropriate mapping for signed types). Division by zero
 typically results in a @code{-55 throw} (Floating-point unidentified
-fault), although a @code{-10 throw} (divide by zero) would be more
-appropriate.
+fault) or @code{-10 throw} (divide by zero).
 
 @item whether the current definition can be found after @t{DOES>}:
 @cindex @t{DOES>}, visibility of current definition
@@ -12253,9 +12252,7 @@ No.
 @item a name is neither a word nor a number:
 @cindex name not found
 @cindex undefined word
-@code{-13 throw} (Undefined word). Actually, @code{-13 bounce}, which
-preserves the data and FP stack, so you don't lose more work than
-necessary.
+@code{-13 throw} (Undefined word).
 
 @item a definition name exceeds the maximum length allowed:
 @cindex word name too long
@@ -12284,7 +12281,7 @@ get an execution token for @code{compile-only-error} (which performs a
 @item dividing by zero:
 @cindex dividing by zero
 @cindex floating point unidentified fault, integer division
-On better platforms, this produces a @code{-10 throw} (Division by
+On some platforms, this produces a @code{-10 throw} (Division by
 zero); on other systems, this typically results in a @code{-55 throw}
 (Floating-point unidentified fault).
 
@@ -12307,7 +12304,7 @@ various errors in these words.
 
 @item insufficient space for loop control parameters:
 @cindex insufficient space for loop control parameters
-like other return stack overflows.
+Like other return stack overflows.
 
 @item insufficient space in the dictionary:
 @cindex insufficient space in the dictionary
@@ -12363,7 +12360,7 @@ number of stack items to trigger the reaction (the reason for this is
 that the MMU, and therefore the checking, works with a page-size
 granularity).  If there is no checking, the symptoms resulting from an
 underflow are similar to those from an overflow.  Unbalanced return
-stack errors result in a variaty of symptoms, including @code{-9 throw}
+stack errors can result in a variety of symptoms, including @code{-9 throw}
 (Invalid memory address) and Illegal Instruction (typically @code{-260
 throw}).
 
@@ -12492,7 +12489,7 @@ None.
 
 @item operator's terminal facilities available:
 @cindex operator's terminal facilities available
-After processing the command line, Gforth goes into interactive mode,
+After processing the OS's command line, Gforth goes into interactive mode,
 and you can give commands to Gforth interactively. The actual facilities
 available depend on how you invoke Gforth.
 
@@ -12945,7 +12942,9 @@ alignment violations.
 
 @item floating-point result out of range:
 @cindex floating-point result out of range
-System-dependent. Can result in a @code{-55 THROW} (Floating-point
+System-dependent. Can result in a @code{-43 throw} (floating point
+overflow), @code{-54 throw} (floating point underflow), @code{-41 throw}
+(floating point inexact result), @code{-55 THROW} (Floating-point
 unidentified fault), or can produce a special value representing, e.g.,
 Infinity.
 
@@ -12977,7 +12976,9 @@ The result is rounded to the nearest float.
 @cindex dividing by zero, floating-point
 @cindex floating-point dividing by zero
 @cindex floating-point unidentified fault, FP divide-by-zero
-@code{-55 throw} (Floating-point unidentified fault)
+Platform-dependent; can produce an Infinity, NaN, @code{-42 throw}
+(floating point divide by zero) or @code{-55 throw} (Floating-point
+unidentified fault).
 
 @item exponent too big for conversion (@code{DF!}, @code{DF@@}, @code{SF!}, @code{SF@@}):
 @cindex exponent too big for conversion (@code{DF!}, @code{DF@@}, @code{SF!}, @code{SF@@})
@@ -12987,43 +12988,47 @@ an infinity.
 @item @i{float}<1 (@code{FACOSH}):
 @cindex @code{FACOSH}, @i{float}<1
 @cindex floating-point unidentified fault, @code{FACOSH}
-@code{-55 throw} (Floating-point unidentified fault)
+Platform-dependent; on IEEE-FP systems typically produces a NaN.
 
 @item @i{float}=<-1 (@code{FLNP1}):
 @cindex @code{FLNP1}, @i{float}=<-1
 @cindex floating-point unidentified fault, @code{FLNP1}
-@code{-55 throw} (Floating-point unidentified fault). On IEEE-FP systems
-negative infinity is typically produced for @i{float}=-1.
+Platform-dependent; on IEEE-FP systems typically produces a NaN (or a
+negative infinity for @i{float}=-1).
 
 @item @i{float}=<0 (@code{FLN}, @code{FLOG}):
 @cindex @code{FLN}, @i{float}=<0
 @cindex @code{FLOG}, @i{float}=<0
 @cindex floating-point unidentified fault, @code{FLN} or @code{FLOG}
-@code{-55 throw} (Floating-point unidentified fault). On IEEE-FP systems
-negative infinity is typically produced for @i{float}=0.
+Platform-dependent; on IEEE-FP systems typically produces a NaN (or a
+negative infinity for @i{float}=0).
 
 @item @i{float}<0 (@code{FASINH}, @code{FSQRT}):
 @cindex @code{FASINH}, @i{float}<0
 @cindex @code{FSQRT}, @i{float}<0
 @cindex floating-point unidentified fault, @code{FASINH} or @code{FSQRT}
-@code{-55 throw} (Floating-point unidentified fault). @code{fasinh}
-produces values for these inputs on my Linux box (Bug in the C library?)
+Platform-dependent; for @code{fsqrt} this typically gives a NaN, for
+@code{fasinh} some platforms produce a NaN, others a number (bug in the
+C library?).
 
 @item |@i{float}|>1 (@code{FACOS}, @code{FASIN}, @code{FATANH}):
 @cindex @code{FACOS}, |@i{float}|>1
 @cindex @code{FASIN}, |@i{float}|>1
 @cindex @code{FATANH}, |@i{float}|>1
 @cindex floating-point unidentified fault, @code{FACOS}, @code{FASIN} or @code{FATANH}
-@code{-55 throw} (Floating-point unidentified fault).
+Platform-dependent; IEEE-FP systems typically produce a NaN.
 
 @item integer part of float cannot be represented by @i{d} in @code{F>D}:
 @cindex @code{F>D}, integer part of float cannot be represented by @i{d}
 @cindex floating-point unidentified fault, @code{F>D}
-@code{-55 throw} (Floating-point unidentified fault).
+Platform-dependent; typically, some double number is produced and no
+error is reported.
 
 @item string larger than pictured numeric output area (@code{f.}, @code{fe.}, @code{fs.}):
 @cindex string larger than pictured numeric output area (@code{f.}, @code{fe.}, @code{fs.})
-This does not happen.
+@code{Precision} characters of the numeric output area are used.  If
+@code{precision} is too high, these words will smash the data or code
+close to @code{here}.
 @end table
 
 @c =====================================================================
@@ -13151,9 +13156,10 @@ The ANS Forth search order word set.
 
 @item source and format of display by @code{SEE}:
 @cindex @code{SEE}, source and format of output
-The source for @code{see} is the intermediate code used by the inner
+The source for @code{see} is the executable code used by the inner
 interpreter.  The current @code{see} tries to output Forth source code
-as well as possible.
+(and on some platforms, assembly code for primitives) as well as
+possible.
 
 @end table
 
@@ -13479,7 +13485,7 @@ visited several times by commands like @code{tags-search}.
 @cindex context-sensitive help
 Moreover, for words documented in this manual, you can look up the
 glossary entry quickly by using @kbd{C-h TAB}
-(@code{info-lookup-symbol}, see @pxref{Documentation, ,Documentation
+(@code{info-lookup-symbol}, @pxref{Documentation, ,Documentation
 Commands, emacs, Emacs Manual}).  This feature requires Emacs 20.3 or
 later and does not work for words containing @code{:}.
 
@@ -13545,10 +13551,10 @@ terms of the GPL to apply to the image.
 @section Image File Background
 @cindex image file background
 
-Our Forth system consists not only of primitives, but also of
+Gforth consists not only of primitives (in the engine), but also of
 definitions written in Forth. Since the Forth compiler itself belongs to
 those definitions, it is not possible to start the system with the
-primitives and the Forth source alone. Therefore we provide the Forth
+engine and the Forth source alone. Therefore we provide the Forth
 code as an image file in nearly executable form. When Gforth starts up,
 a C routine loads the image file into memory, optionally relocates the
 addresses, then sets up the memory (stacks etc.) according to
@@ -13616,7 +13622,7 @@ represented in the image file (because their tokens would be replaced by
 machine code in direct threaded implementations). As a workaround,
 compute these addresses at run-time with @code{>code-address} from the
 executions tokens of appropriate words (see the definitions of
-@code{docol:} and friends in @file{kernel.fs}).
+@code{docol:} and friends in @file{kernel/getdoers.fs}).
 
 @item
 On many architectures addresses are represented in machine code in some
@@ -13852,12 +13858,12 @@ line of the file, starting with the sequence #!. There may be a small
 limit (e.g., 32) on the number of characters that may be specified on
 the interpreter line.} secondly it is treated as a comment character by
 Gforth. Because of the second usage, a space is required between
-@code{#!} and the path to the executable.
+@code{#!} and the path to the executable (moreover, some Unixes
+require the sequence @code{#! /}).
 
 The disadvantage of this latter technique, compared with using
-@file{gforthmi}, is that it is slower; the Forth source code is compiled
-on-the-fly, each time the program is invoked.
-
+@file{gforthmi}, is that it is slightly slower; the Forth source code is
+compiled on-the-fly, each time the program is invoked.
 
 doc-#!
 
@@ -13870,7 +13876,7 @@ doc-#!
 
 You can add your own initialization to the startup sequence through the
 deferred word @code{'cold}. @code{'cold} is invoked just before the
-image-specific command line processing (by default, loading files and
+image-specific command line processing (i.e., loading files and
 evaluating (@code{-e}) strings) starts.
 
 A sequence for adding your initialization usually looks like this:
