@@ -21,9 +21,9 @@ checking host system type... powerpc-unknown-linux-gnu
 checking host system type... sparc-sun-solaris2.5.1
 checking host system type... sparc-sun-sunos4.1.4
 
-Read INSTALL for installation instructions, or INSTALL.DOS for DOS, Windows
-95, and OS/2. Mail bug-gforth@gnu.ai.mit.edu if you have problems.  To start
-the system, just say `gforth' (after installing it).
+Read INSTALL for installation instructions, or INSTALL.DOS for DOS,
+Windows 95, and OS/2. Mail bug-gforth@gnu.org if you have problems.
+To start the system, just say `gforth' (after installing it).
 
 You can find new versions of Gforth at prep.ai.mit.edu and its mirrors
 or at

@@ -2781,7 +2781,7 @@ buffers.
 In ANS Forth data space is also divided into contiguous regions.  You
 can only use address arithmetic within a contiguous region, not between
 them.  Usually each allocation gives you one contiguous region, but the
-Dictionary allocation words have additional rules (@pxref{Dictionary
+dictionary allocation words have additional rules (@pxref{Dictionary
 allocation}).
 
 Gforth provides one big address space, and address arithmetic can be
@@ -3080,15 +3080,15 @@ doc-/string
 @section Control Structures
 @cindex control structures
 
-Control structures in Forth cannot be used in interpret state, only in
-compile state@footnote{To be precise, they have no interpretation
-semantics (@pxref{Interpretation and Compilation Semantics}).}, i.e., in
-a colon definition. We do not like this limitation, but have not seen a
-satisfying way around it yet, although many schemes have been proposed.
+Control structures in Forth cannot be used interpretively, only in a
+colon definition@footnote{To be precise, they have no interpretation
+semantics (@pxref{Interpretation and Compilation Semantics}).}. We do
+not like this limitation, but have not seen a satisfying way around it
+yet, although many schemes have been proposed.
 
 @menu
-* Selection::                   IF.. ELSE.. ENDIF
-* Simple Loops::                BEGIN..
+* Selection::                   IF ... ELSE ... ENDIF
+* Simple Loops::                BEGIN ...
 * Counted Loops::               DO
 * Arbitrary control structures::
 * Calls and returns::
@@ -3100,6 +3100,9 @@ satisfying way around it yet, although many schemes have been proposed.
 @cindex selection control structures
 @cindex control structures for selection
 
+@c what's the purpose of all these @i? Maybe we should define a macro
+@c so we can produce logical markup.  - anton
+
 @cindex @code{IF} control structure
 @example
 @i{flag}
@@ -3108,7 +3111,10 @@ IF
 ENDIF
 @end example
 @noindent
-or
+
+@var{code} is executed if @var{flag} is non-zero (that's truth as far as
+@code{IF} etc. are concerned).
+
 @example
 @i{flag}
 IF
@@ -3117,6 +3123,8 @@ ELSE
   @i{code2}
 ENDIF
 @end example
+
+If @var{flag} is true, perform @var{code1}, otherwise @var{code2}.
 
 You can use @code{THEN} instead of @code{ENDIF}. Indeed, @code{THEN} is
 standard, and @code{ENDIF} is not, although it is quite popular. We
@@ -3518,10 +3526,11 @@ Defer foo
 IS foo
 @end example
 
-The current definition returns control to the calling definition when
-the end of the definition is reached or @code{EXIT} is
-encountered. Deferred words are discussed in more detail in @ref{Simple
+Deferred words are discussed in more detail in @ref{Simple
 Defining Words}.
+
+The current definition returns control to the calling definition when
+the end of the definition is reached or @code{EXIT} is encountered.
 
 doc-exit
 doc-;s
@@ -3570,16 +3579,17 @@ would be:
 ... ['] foo catch IF ...
 @end example
 
+@c TOS is undefined. - anton
 Whilst @code{foo} executes, it can call other words to any level of
 nesting, as usual.  If @code{foo} (and all the words that it calls)
-execute successfully, control will ultimately passes to the word following
-the @code{catch}, and there will be a @code{true} flag (0) at
-TOS. However, if any word detects an error, it can terminate the
-execution of @code{foo} by pushing an error code onto the stack and then
-performing a @code{throw}. The execution of @code{throw} will pass 
-control to the word following the @code{catch}, but this time the TOS
-will hold the error code. Therefore, the @code{IF} in the example
-can be used to determine whether @code{foo} executed successfully.
+execute successfully, control will ultimately pass to the word following
+the @code{catch}, and there will be a 0 at TOS.  However, if any word
+detects an error, it can terminate the execution of @code{foo} by
+pushing a non-zero error code onto the stack and then performing a
+@code{throw}. The execution of @code{throw} will pass control to the
+word following the @code{catch}, but this time the TOS will hold the
+error code. Therefore, the @code{IF} in the example can be used to
+determine whether @code{foo} executed successfully.
 
 This simple example shows how you can use @code{throw} and @code{catch}
 to ``take over'' exception handling from the system:
@@ -3680,6 +3690,8 @@ doc---exception-exception
 @cindex simple defining words
 @cindex defining words, simple
 
+@c split this section?
+
 Defining words are used to create new entries in the dictionary. The
 simplest defining word is @code{CREATE}. @code{CREATE} is used like
 this:
@@ -3716,7 +3728,7 @@ defining word (pre-empting the subject of the next section), making it
 easier to create new variables:
 
 @example
-: myvariable ( "name" -- a-addr ) CREATE 1 cells allot ;
+: myvariable ( "name" -- a-addr ) CREATE 0 , ;
 
 myvariable foo
 myvariable joe
@@ -3728,9 +3740,9 @@ myvariable joe
 
 Not surprisingly, there is no need to define @code{myvariable}, since
 Forth already has a definition @code{Variable}. It behaves in exactly
-the same way as @code{myvariable} but it is implemented in an optimised
-way. Forth also provides @code{2Variable} and @code{fvariable} for
-double and floating-point variables, respectively.
+the same way as @code{myvariable}. Forth also provides @code{2Variable}
+and @code{fvariable} for double and floating-point variables,
+respectively.
 
 @cindex arrays
 A similar mechanism can be used to create arrays. For example, an
@@ -3797,6 +3809,7 @@ since it has run-time duties to perform. For example:
 : FEET-TO-INCHES ( n1 -- n2 ) INCHES-PER-FOOT * ;
 @end example
 
+@c that's too deep, and it's not necessarily true for all ANS Forths. - anton
 @cindex in-lining of constants
 When @code{FEET-TO-INCHES} is executed, it will in turn execute the xt
 associated with the constant @code{INCHES-PER-FOOT}. If you use
@@ -3811,8 +3824,8 @@ can force Gforth to in-line a constant like this:
 
 If you use @code{see} to decompile @i{this} version of
 @code{FEET-TO-INCHES}, you can see that @code{INCHES-PER-FOOT} is no
-longer present. @xref{Interpret/Compile states} and @xref{Literals}
-explain to this works.
+longer present. @xref{Interpret/Compile states} and @ref{Literals} on
+how this works.
 
 In-lining constants in this way might improve execution time
 fractionally, and can ensure that a constant is now only referenced at
@@ -3924,6 +3937,7 @@ follows that words that are aliases have different name tokens and may
 have the same or different compilation tokens. Once again, see
 @ref{Tokens for Words} for more discussions of this.
 
+@c distribute this to the appropriate paragraphs? - anton
 doc-create
 doc-variable
 doc-2variable
@@ -4038,6 +4052,7 @@ see foo
 @end example
 
 
+@c a deferred word is not neccessary for these examples. - anton
 Rather than edit your application's source code to change every @code{:}
 to a @code{my:}, use a deferred word:
 
@@ -4083,7 +4098,7 @@ of @code{name} is the address @code{HERE} returns immediately after the
 @code{CREATE}).
 
 @cindex atavism in child words
-You can use @code{def-word} to define a set of child word that behave
+You can use @code{def-word} to define a set of child words that behave
 differently, though atavistically; they all have a common run-time
 behaviour determined by @i{code2}. Typically, the @i{code1} sequence
 builds a data area in the body of the child word. The structure of the
@@ -4110,19 +4125,24 @@ the child word.
 @c rather than emphasising the fact that some important stuff happens
 @c at define time, and other important stuff happens at child-invocation
 @c time, and that those two times are potentially very different.
-@c
-@c In other words, if you make the following definitions:
-@c @example
-@c : def-word1 ( "name" -- )
-@c     CREATE @i{code1} ;
-@c 
-@c : action1 ( ... -- ... )
-@c     @i{code2} ;
-@c 
-@c def-word1 name1
-@c @end example
-@c 
-@c Using @code{name1 action1} is equivalent to using @code{name}.
+
+@c Well, IMO CREATE-DOES> is usually presented with much ado, making
+@c people think that it's hard to understand, and making those people who
+@c understand it easily think that it's hyped.  I prefer presenting it in a
+@c diminished way and only emphasize the special issues later. - anton
+
+In other words, if you make the following definitions:
+@example
+: def-word1 ( "name" -- )
+    CREATE @i{code1} ;
+
+: action1 ( ... -- ... )
+    @i{code2} ;
+
+def-word1 name1
+@end example
+
+Using @code{name1 action1} is equivalent to using @code{name}.
 
 The classic example is that you can define @code{CONSTANT} in this way:
 
@@ -4157,7 +4177,7 @@ and @code{TO} -- if you get stuck, investigate the behaviour of @code{'} and
 : foo ( "name" -- )
     CREATE -1 ,
 DOES> ( -- )
-    @@ .;
+    @@ . ;
 
 foo first-word
 foo second-word
@@ -4347,6 +4367,9 @@ lastxt IS deferred
 @end example
 
 @noindent
+@code{noname} and @code{nextname} work with any defining word, not just
+@code{:}.
+
 @code{lastxt} also works when the last word was not defined as
 @code{noname}. It also has the useful property that is is valid as soon
 as the header for a definition has been build. Thus:
@@ -4468,7 +4491,7 @@ perform @code{foo bar}). State-smart words are a bad idea. Simply don't
 write them@footnote{For a more detailed discussion of this topic, see
 @cite{@code{State}-smartness -- Why it is Evil and How to Exorcise it} by Anton
 Ertl; presented at EuroForth '98 and available from
-@url{http://www.complang.tuwien.ac.at/papers/}}!
+@url{http://www.complang.tuwien.ac.at/papers/ertl98.ps.gz}}!
 
 @cindex defining words with arbitrary semantics combinations
 It is also possible to write defining words that define words with
@@ -11167,7 +11190,7 @@ Cross Compiler
 Known bugs are described in the file @file{BUGS} in the Gforth distribution.
 
 If you find a bug, please send a bug report to
-@email{bug-gforth@@gnu.ai.mit.edu}. A bug report should include this
+@email{bug-gforth@@gnu.org}. A bug report should include this
 information:
 
 @itemize @bullet
