@@ -51,7 +51,7 @@ Variable argc ( -- addr ) \ gforth
     IF  ." Image Options:" cr
 	."   FILE				    load FILE (with `require')" cr
 	."   -e STRING, --evaluate STRING      interpret STRING (with `EVALUATE')" cr
-	." Report bugs to <bug-gforth@gnu.ai.mit.edu>" cr
+	." Report bugs to <bug-gforth@gnu.org>" cr
 	bye
     THEN
     ." Unknown option: " type cr 2drop 1 ;

@@ -783,9 +783,9 @@ Variable init8
     'cold
     init8 chainperform
 [ has? file [IF] ]
+    loadfilename# off
     process-args
     loadline off
-    loadfilename# off
 [ [THEN] ]
     bootmessage
     quit ;

@@ -450,11 +450,13 @@ binonlydist:	Makedist FORCE
 
 
 #strip gforth, because the debugging stuff is hardly useful once
-# gforth manages to execute more than a few primitives
+# gforth manages to execute more than a few primitives.
 
 #install does not depend on gforth.info, because that would require
 #supplying a lot of files that can be easily generated (only info is
-#hard to generate)
+#hard to generate).
+#we rebuild gforth.fi, because it contains some path names.
+#we delete $build/gforth.fi and $build/install.TAGS after installation because of ownership.
 install:	gforth$(EXE) $(FORTH_SRC) $(kernel_fi) gforth.fi gforthmi doc/gforth.1 prim install.TAGS installdirs
 		touch $(siteforthdir)/siteinit.fs
 		-$(RM) $(bindir)/gforth$(EXE) $(bindir)/gforth-$(VERSION)$(EXE) $(bindir)/gforthmi
@@ -478,10 +480,10 @@ install:	gforth$(EXE) $(FORTH_SRC) $(kernel_fi) gforth.fi gforthmi doc/gforth.1 
 			echo ">>>>>Please install $(srcdir)/gforth.el in your .../emacs/site-lisp directory"; \
 		fi
 		$(RM) gforth.fi
-		GFORTHD="./gforth-ditc -p$(libdir)/gforth/site-forth$(PATHSEP)$(siteforthdir)$(PATHSEP)$(datadir)/gforth/$(VERSION) -i $(kernel_fi)" GFORTH="./gforth-ditc --die-on-signal -i $(kernel_fi) $(STARTUP)" ./gforthmi gforth.fi $(FORTHSIZES) $(STARTUP) #gforth.fi contains some path names
+		GFORTHD="./gforth-ditc -p$(libdir)/gforth/site-forth$(PATHSEP)$(siteforthdir)$(PATHSEP)$(datadir)/gforth/$(VERSION) -i $(kernel_fi)" GFORTH="./gforth-ditc --die-on-signal -i $(kernel_fi) $(STARTUP)" ./gforthmi gforth.fi $(FORTHSIZES) $(STARTUP)
 		$(INSTALL_DATA) gforth.fi $(libdir)/gforth/$(VERSION)
 		$(INSTALL_DATA) install.TAGS $(datadir)/gforth/$(VERSION)/TAGS
-		$(RM) gforth.fi install.TAGS #delete because of ownership
+		$(RM) gforth.fi install.TAGS
 		@echo ">>>>> Please make an entry for Gforth in your info dir file; e.g.:"; \
 		echo "* Gforth: (gforth).	A fast interpreter for the Forth language."
 
@@ -687,10 +689,10 @@ info:		doc/gforth.info
 doc/gforth.info doc/gforth.info-*: $(GFORTH_TEXI)
 		-cd doc; $(MAKEINFO) gforth.texi
 
+### need makeinfo 4.0 to generate html. Otherwise, use texi2html..
 html:		$(GFORTH_TEXI)
 		-$(RMTREE) html
 		-mkdir html
-### need makeinfo 4.0 to generate html. Otherwise, use texi2html..
 		cd html; $(MAKEINFO) --html -I ../doc ../doc/gforth.texi
 ###		cd html; $(TEXI2HTML) -menu -split_node ../doc/gforth.texi
 
