@@ -53,13 +53,13 @@ Vocabulary Minimal
 only Forth also Target also also
 definitions Forth
 
-: T  previous Cross also Target ; immediate
+: T  previous Ghosts also Target ; immediate
 : G  Ghosts ; immediate
 : H  previous Forth also Cross ; immediate
 
 forth definitions
 
-: T  previous Cross also Target ; immediate
+: T  previous Ghosts also Target ; immediate
 : G  Ghosts ; immediate
 
 : >cross  also Cross definitions previous ;
@@ -135,6 +135,10 @@ Create bases   10 ,   2 ,   A , 100 ,
     r> ;
 
 : s>unumber? ( addr u -- ud flag )
+    over [char] ' =
+    IF 	\ a ' alone is rather unusual :-)
+	drop char+ c@ 0 true EXIT 
+    THEN
     base @ >r  dpl on  getbase
     0. 2swap
     BEGIN ( d addr len )
@@ -198,7 +202,7 @@ Create bases   10 ,   2 ,   A , 100 ,
 [THEN]
 
 hex     \ the defualt base for the cross-compiler is hex !!
-Warnings off
+\ Warnings off
 
 \ words that are generaly useful
 
@@ -585,6 +589,8 @@ false DebugFlag showincludedfiles
 
 : require bl word count required ;
 
+0 [IF]
+
 also forth definitions previous
 
 : included ( adr len -- ) included ;
@@ -594,6 +600,8 @@ also forth definitions previous
 : include include ;
 
 : require require ;
+
+[THEN]
 
 >CROSS
 hex
@@ -720,6 +728,8 @@ VARIABLE Already
 	\ true abort" CROSS: Ghostnames inconsistent"
 	s" ?!?!?!"
   THEN ;
+
+: .ghost ( ghost -- ) >ghostname type ;
 
 \ ' >ghostname ALIAS @name
 
@@ -1219,11 +1229,11 @@ T has? relocate H
 
 : here  ( -- there )    there ;
 : allot ( n -- )        tdp +! ;
-: ,     ( w -- )        T here H tcell T allot  ! H T here drop H ;
-: c,    ( char -- )     T here    tchar allot c! H ;
-: align ( -- )          T here H align+ 0 ?DO  bl T c, tchar H +LOOP ;
+: ,     ( w -- )        T here H tcell T allot  ! H ;
+: c,    ( char -- )     T here H tchar T allot c! H ;
+: align ( -- )          T here H align+ 0 ?DO  bl T c, H tchar +LOOP ;
 : cfalign ( -- )
-    T here H cfalign+ 0 ?DO  bl T c, tchar H +LOOP ;
+    T here H cfalign+ 0 ?DO  bl T c, H tchar +LOOP ;
 
 : >address		dup 0>= IF tbyte / THEN ; \ ?? jaw 
 : A!                    swap >address swap dup relon T ! H ;
@@ -1368,11 +1378,11 @@ DEFER comp[     \ ends compilation
 Defer resolve-warning
 
 : reswarn-test ( ghost res-struct -- ghost res-struct )
-  over cr ." Resolving " >ghostname type dup ."  in " >ghost @ >ghostname type ;
+  over cr ." Resolving " .ghost dup ."  in " >ghost @ .ghost ;
 
 : reswarn-forward ( ghost res-struct -- ghost res-struct )
-  over warnhead >ghostname type dup ."  is referenced in " 
-  >ghost @ >ghostname type ;
+  over warnhead .ghost dup ."  is referenced in " 
+  >ghost @ .ghost ;
 
 \ ' reswarn-test IS resolve-warning
  
@@ -1465,7 +1475,7 @@ variable ResolveFlag
 	>link
 	BEGIN	@ dup
 	WHILE	cr 5 spaces
-		dup >ghost @ >ghostname type
+		dup >ghost @ .ghost
 		."  file " dup >file @ ?dup IF count type ELSE ." CON" THEN
 		."  line " dup >line @ .dec
 	REPEAT 
@@ -1517,12 +1527,6 @@ VARIABLE ^imm
 \G forth processors such as the PSC1000
 		<do:> last-header-ghost @ >magic ! ;
 >CROSS
-
-\ ALIAS2 ansforth conform alias                          9may93jaw
-
-: ALIAS2 create here 0 , DOES> @ execute ;
-\ usage:
-\ ' <name> alias2 bla !
 
 \ Target Header Creation                               01nov92py
 
@@ -1632,9 +1636,6 @@ Defer skip? ' false IS skip?
 
 \ Target header creation
 
-Variable CreateFlag
-CreateFlag off
-
 Variable NoHeaderFlag
 NoHeaderFlag off
 
@@ -1660,25 +1661,14 @@ NoHeaderFlag off
     IF  NoHeaderFlag off
     ELSE
 	T align H view,
-	tlast @ dup 0> IF  T 1 cells - H THEN T A, H  there tlast !
+	tlast @ dup 0> IF tcell - THEN T A, H  there tlast !
 	1 headers-named +!	\ Statistic
 	>in @ T name, H >in !
     THEN
     T cfalign here H tlastcfa !
     \ Symbol table
 \    >in @ cr ." sym:s/CFA=" there 4 0.r ." /"  bl word count .sym ." /g" cr >in !
-    CreateFlag @
-    IF	\ for a created word we need also a definition in target
-	\ to execute the created word while compile time
-	\ dont mind if a alias is defined twice
-	Warnings @ >r Warnings off
-	>in @ alias2 swap >in !         \ create alias in target
-	r> Warnings !
-	>in @ ghost swap >in !
-	swap also ghosts ' previous swap !     \ tick ghost and store in alias
-	CreateFlag off
-    ELSE ghost
-    THEN
+    ghost
     dup Last-Header-Ghost !
     dup >magic ^imm !     \ a pointer for immediate
     Already @
@@ -1777,7 +1767,7 @@ Cond: [']  T ' H alit, ;Cond
 \ modularized						14jun97jaw
 
 : fillcfa   ( usedcells -- )
-  T cells H xt>body swap - 0 ?DO 0 T c, tchar H +LOOP ;
+  T cells H xt>body swap - 0 ?DO 0 X c, tchar +LOOP ;
 
 : (>body)   ( cfa -- pfa ) xt>body + ;		' (>body) T IS >body H
 
@@ -1832,8 +1822,6 @@ Defer (end-code)
     depth ?dup IF   1- <> ABORT" CROSS: Stack changed"
     ELSE true ABORT" CROSS: Stack empty" THEN
     ;
-
-( Cond ) : chars tchar * ; ( Cond )
 
 >CROSS
 
@@ -1987,14 +1975,11 @@ Cond: DOES> restrict?
 \ do:-xt is executet when the created word from builder is executed
 \ for do:-xt an additional entry after the normal ghost-enrys is used
 
-  >in @ alias2 swap dup >in ! >r >r
-  Make-Ghost 
-  rot swap >exec dup @ ['] NoExec <>
-  IF 2drop ELSE ! THEN
-  ,
-  r> r> >in !
-  also ghosts ' previous swap ! ;
-\  DOES>  dup >exec @ execute ;
+  Make-Ghost 		( Create-xt do:-xt ghost )
+  rot swap		( do:-xt Create-xt ghost )
+  >exec ! , ;
+\  rot swap >exec dup @ ['] NoExec <>
+\  IF 2drop ELSE ! THEN , ;
 
 : gdoes,  ( ghost -- )
 \ makes the codefield for a word that is built
@@ -2014,17 +1999,18 @@ Cond: DOES> restrict?
 
 : TCreate ( <name> -- )
   executed-ghost @
-  CreateFlag on
   create-forward-warn
   IF ['] reswarn-forward IS resolve-warning THEN
   Theader >r dup gdoes,
 \ stores execution semantic in the built word
-  >end @ >exec @ r> >exec ! ;
+\ if the word already has a semantic (concerns S", IS, .", DOES>)
+\ then keep it
+  >end @ >exec @ r> >exec dup @ ['] NoExec =
+  IF ! ELSE 2drop THEN ;
 
 : RTCreate ( <name> -- )
 \ creates a new word with code-field in ram
   executed-ghost @
-  CreateFlag on
   create-forward-warn
   IF ['] reswarn-forward IS resolve-warning THEN
   \ make Alias
@@ -2035,7 +2021,11 @@ Cond: DOES> restrict?
   there tlastcfa ! 
   dup there resolve 0 ;Resolve !
   >r dup gdoes,
-  >end @ >exec @ r> >exec ! ;
+\ stores execution semantic in the built word
+\ if the word already has a semantic (concerns S", IS, .", DOES>)
+\ then keep it
+  >end @ >exec @ r> >exec dup @ ['] NoExec =
+  IF ! ELSE 2drop THEN ;
 
 : Build:  ( -- [xt] [colon-sys] )
   :noname postpone TCreate ;
@@ -2127,25 +2117,29 @@ Builder AVariable
 \ User variables                                       04may94py
 
 >CROSS
+
 Variable tup  0 tup !
 Variable tudp 0 tudp !
+
 : u,  ( n -- udp )
   tup @ tudp @ + T  ! H
   tudp @ dup T cell+ H tudp ! ;
+
 : au, ( n -- udp )
   tup @ tudp @ + T A! H
   tudp @ dup T cell+ H tudp ! ;
+
 >TARGET
 
-Build: T 0 u, , H ;
-by: :douser ( ghost -- up-addr )  T @ H tup @ + ;DO
+Build: 0 u, X , ;
+by: :douser ( ghost -- up-addr )  X @ tup @ + ;DO
 Builder User
 
-Build: T 0 u, , 0 u, drop H ;
+Build: 0 u, X , 0 u, drop ;
 by User
 Builder 2User
 
-Build: T 0 au, , H ;
+Build: 0 au, X , ;
 by User
 Builder AUser
 
@@ -2161,7 +2155,7 @@ BuildSmart:  ( -- ) [T'] noop T A, H ;
 by: :dodefer ( ghost -- ) ABORT" CROSS: Don't execute" ;DO
 Builder Defer
 
-BuildSmart:  ( inter comp -- ) swap T immediate A, A, H ;
+Build: ( inter comp -- ) swap T immediate A, A, H ;
 DO: ( ghost -- ) ABORT" CROSS: Don't execute" ;DO
 Builder interpret/compile:
 
@@ -2189,9 +2183,6 @@ Builder Field
 : cell% ( n -- size align )
     T 1 cells H dup ;
 
-\ ' 2Constant Alias2 end-struct
-\ 0 1 T Chars H 2Constant struct
-
 \ structural conditionals                              17dec92py
 
 >CROSS
@@ -2199,15 +2190,17 @@ Builder Field
 : sys?        ( sys -- sys )    dup 0= ?struc ;
 : >mark       ( -- sys )        T here  ( dup ." M" hex. ) 0 , H ;
 
-: branchoffset ( src dest -- ) - tchar / ; \ ?? jaw
+: branchoffset ( src dest -- )  - tchar / ; \ ?? jaw
 
-: >resolve    ( sys -- )        T here ( dup ." >" hex. ) over branchoffset swap ! H ;
+: >resolve    ( sys -- )        
+	X here ( dup ." >" hex. ) over branchoffset swap X ! ;
 
-: <resolve    ( sys -- )        T here ( dup ." <" hex. ) branchoffset , H ;
+: <resolve    ( sys -- )
+	X here ( dup ." <" hex. ) branchoffset X , ;
 
-:noname compile branch T here branchoffset , H ;
+:noname compile branch X here branchoffset X , ;
   IS branch, ( target-addr -- )
-:noname compile ?branch T here branchoffset , H ;
+:noname compile ?branch X here branchoffset X , ;
   IS ?branch, ( target-addr -- )
 :noname compile branch T here 0 , H ;
   IS branchmark, ( -- branchtoken )
@@ -2215,9 +2208,9 @@ Builder Field
   IS ?branchmark, ( -- branchtoken )
 :noname T here 0 , H ;
   IS ?domark, ( -- branchtoken )
-:noname dup T @ H ?struc T here over branchoffset swap ! H ;
+:noname dup X @ ?struc X here over branchoffset swap X ! ;
   IS branchtoresolve, ( branchtoken -- )
-:noname branchto, T here H ;
+:noname branchto, X here ;
   IS branchtomark, ( -- target-addr )
 
 >TARGET
@@ -2227,29 +2220,10 @@ Builder Field
 Cond: BUT       restrict? sys? swap ;Cond
 Cond: YET       restrict? sys? dup ;Cond
 
-0 [IF]
 >CROSS
-Variable tleavings
->TARGET
 
-Cond: DONE   ( addr -- )  restrict? tleavings @
-      BEGIN  2dup u> 0=  WHILE  dup T @ H swap >resolve REPEAT
-      tleavings ! drop ;Cond
-
->CROSS
-: (leave)  T here H tleavings @ T , H  tleavings ! ;
->TARGET
-
-Cond: LEAVE     restrict? compile branch (leave) ;Cond
-Cond: ?LEAVE    restrict? compile 0=  compile ?branch (leave)  ;Cond
-
-[ELSE]
-    \ !! This is WIP
-    \ The problem is (?DO)!
-    \ perhaps we need a plug-in for (?DO)
-    
->CROSS
 Variable tleavings 0 tleavings !
+
 : (done) ( addr -- )
     tleavings @
     BEGIN  dup
@@ -2278,8 +2252,6 @@ Cond: DONE   ( addr -- )  restrict? (done) ;Cond
 
 Cond: LEAVE     restrict? branchmark, (leave) ;Cond
 Cond: ?LEAVE    restrict? compile 0=  ?branchmark, (leave)  ;Cond
-
-[THEN]
 
 >CROSS
 \ !!JW ToDo : Move to general tools section
@@ -2659,9 +2631,9 @@ previous
 : G ghosts ; immediate
 
 : turnkey 
-   \GFORTH 0 set-order also Target 
-   \ANSI [ ' target >wordlist ] Literal 1 set-order
-   definitions
+   \GFORTH 0 set-order also ghosts
+   \ANSI [ ' ghosts >wordlist ] Literal 1 set-order
+   also target definitions
    also Minimal also ;
 
 \ these ones are pefered:
@@ -2671,7 +2643,7 @@ previous
 
 \ also minimal
 : [[ also unlock ;
-: ]] previous previous ;
+: ]] previous previous also also ;
 
 unlock definitions also minimal
 : lock   lock ;
