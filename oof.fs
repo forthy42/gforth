@@ -241,7 +241,7 @@ Create chunks here 16 cells dup allot erase
   >r drop r@ @ rot ! r@ swap erase r> ;
 
 : >chunk ( n -- root n' )
-  8aligned dup 3 rshift cells chunks + swap ;
+  1- -8 and dup 3 rshift cells chunks + swap 8 + ;
 
 : Dalloc ( size -- addr )
   dup 128 > IF  allocate throw EXIT  THEN
@@ -515,7 +515,8 @@ Vocabulary interfaces  interfaces definitions
 
 : how: ( -- )  align
     here lastif @ !  0 decl !
-    last-interface @ ,  inter-list @ ,  methods @ ,  inter# @ ,
+    here  last-interface @ ,  last-interface !
+    inter-list @ ,  methods @ ,  inter# @ ,
     methods @ :inum cell+ ?DO  ['] crash ,  LOOP ;
 
 : interface; ( -- )  old-current @ set-current
