@@ -62,11 +62,6 @@ maxchar 1+ constant eof-char
 #tab constant tab-char
 #lf constant nl-char
 
-: read-whole-file ( c-addr1 file-id -- c-addr2 )
-\ reads the contents of the file file-id puts it into memory at c-addr1
-\ c-addr2 is the first address after the file block
-  >r dup $7fffffff r> read-file throw + ;
-
 variable rawinput \ pointer to next character to be scanned
 variable endrawinput \ pointer to the end of the input (the char after the last)
 variable cookedinput \ pointer to the next char to be parsed
@@ -291,9 +286,9 @@ warnings @ [IF]
 \ fileid is for the input file, xt ( -- ) is for the output word
  output !
  here dup rawinput ! cookedinput !
- here swap read-whole-file
- dup endrawinput !
- here - allot
+ here unused rot read-file throw
+ dup here + endrawinput !
+ allot
  align
  checksyncline
 \ begin
