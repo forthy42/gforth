@@ -6,7 +6,36 @@
 \ 06-21-95 SMuB removed redundant COUNT calls from txb, lxs.
 \ 04-??-97 Extended by C.L. to include P6 and MMX instructions
 
-cr .( Loading 80486 Disassembler...)
+\ cr .( Loading 80486 Disassembler...)
+
+\ Gforth stuff
+
+260 chars constant maxstring
+
+128 CONSTANT SPCS-MAX  ( optimization for SPACES )
+
+CREATE SPCS         SPCS-MAX ALLOT
+       SPCS         SPCS-MAX BLANK
+
+      255 CONSTANT MAXCOUNTED   \ maximum length of contents of a counted string
+
+\ : cincr ( c-addr -- )
+\     dup c@ 1+ swap c! ;
+       
+\ : C+PLACE       ( c1 a1 -- )    \ append char c1 to the counted string at a1
+\     dup cincr count + 1- c! ;
+
+: (D.)          ( d -- addr len )       TUCK DABS  <# #S ROT SIGN #> ;
+
+\ : nfa-count ( nfa -- addr u )
+\     name>string ;
+
+: w@ ( addr -- w )
+    @ $ffff and ;
+
+: col ( n -- ) drop space ;
+
+\ original stuff
 
 only forth also definitions
 
@@ -18,7 +47,8 @@ only forth also definitions
 : default-32bit ( -- )
                 false to default-16bit? ;
 
-      defer show-name   ( cfa -- )      \ display nearest symbol
+defer show-name   ( cfa -- )      \ display nearest symbol
+' abort is show-name
 
 0 value base-addr
 
@@ -41,17 +71,14 @@ create s-buf MAXSTRING allot
 : sspace        ( -- )
                 1 sspaces ;
 
-: emit>s        ( c1 -- )
-                s-buf c+place ;
+\ : emit>s        ( c1 -- )
+\                 s-buf c+place ;
 
-: s>            ( -- a1 n1 )
-                s-buf count ;
-
-: (.s")         ( -- )
-                ((")) count s-buf +place ;
+\ : s>            ( -- a1 n1 )
+\                 s-buf count ;
 
 : .s"           ( 'text' -- )
-                compile (.s")  ,"  ; immediate
+    [char] " parse POSTPONE sliteral POSTPONE s-buf POSTPONE +place ; immediate
 
 : d.r>s         ( d w -- )
                 >r (d.) r> over - sspaces >s ;
@@ -59,34 +86,35 @@ create s-buf MAXSTRING allot
 : .r>s          ( n w -- )
                 >r  s>d  r>  d.r>s ;
 
-: u.r>s         ( u w -- )
-                0 swap d.r>s ;
+\ : u.r>s         ( u w -- )
+\                 0 swap d.r>s ;
 
 : h.>s          ( u -- )
                 base @ swap  hex 0 (d.) >s sspace   base ! ;
 
-: h.r>s           ( n1 n2 -- )
-                base @ >r hex >r
-                0 <# #s #> r> over - sspaces >s
-                r> base ! ;
+\ : h.r>s           ( n1 n2 -- )
+\                 base @ >r hex >r
+\                 0 <# #s #> r> over - sspaces >s
+\                 r> base ! ;
 
-: .id>s         ( nfa -- )
-                nfa-count >s sspace ;
+\ : .id>s         ( nfa -- )
+\                 nfa-count >s sspace ;
 
-: .name>s       ( xt -- )
-                dup >name dup name> ['] [unknown] =     \ if not found
-                if      drop [char] " emit>s .s" 0x" 1 h.r>s [char] " emit>s sspace
-                else    .id>s drop
-                then    ;
+\ : .name>s       ( xt -- )
+\                 dup >name dup 0=     \ if not found
+\                 if      drop [char] " emit>s .s" 0x" 1 h.r>s [char] " emit>s sspace
+\                 else    .id>s drop
+\                 then    ;
 
-: ?.name>s      ( cfa -- )
-\ eliminate " 0x"
-                dup ?name ?dup
-                if      .name>s
-                else    dup 1 h.r>s sspace
-                then    drop ;
+\ : ?.name>s      ( cfa -- )
+\ \ eliminate " 0x"
+\                 dup ?name ?dup
+\                 if      .name>s
+\                 else    dup 1 h.r>s sspace
+\                 then    drop ;
 
-' ?.name>s is show-name
+\ ' ?.name>s is show-name
+' h.>s is show-name
 
 32 constant comment-col
 
@@ -99,7 +127,7 @@ create s-buf MAXSTRING allot
 : @+  ( addr -- addr n )  dup cell+ swap @ ;
 : W@+ ( addr -- addr n )  dup 2 + swap W@ ;
 
-: sext  ( byte -- n )  dup 0x80 and if 0xFFFFFF00 or then ;
+: sext  ( byte -- n )  dup $80 and if $FFFFFF00 or then ;
 : mod/sib ( mod-r-r/m -- r/m r mod ) \ r including general, special, segment, MMX
           ( mod-op-r/m -- r/m op mod )
           ( s-i-b -- b i s )
@@ -216,7 +244,7 @@ create s-buf MAXSTRING allot
 \        r> dup 7 and dup 5 =
 \        if      drop [*]
 \        else    [reg]
-\                dup 0x38 and 0x20 =
+\                dup $38 and $20 =
 \                if      drop
 \                else    .s" [" dup 3 rshift reg32 -1 s-buf c+!
 \                        5 rshift 6 and
@@ -687,7 +715,7 @@ inh ud1 ud1
 
 : mli   ( addr op -- addr' )
         1 to size
-        .s" imul    " 0x69 =
+        .s" imul    " $69 =
         IF      r,r/m imm16/32
         ELSE    r,r/m imm8
         THEN ;
@@ -735,7 +763,7 @@ inh ud1 ud1
         .s" enter   " w@+ . ., count h.>s ;
 
 : cis   ( addr op -- addr' )
-        0x9a =
+        $9a =
         IF      .s" call    "
         ELSE    .s" jmp     "
         THEN
@@ -785,18 +813,18 @@ str scs scas
         >r count
         dup 3 rshift .shift
         mod-r/m .,
-        r> 0xD2 and
+        r> $D2 and
         case
-           0xC0 of count h.>s      endof
-           0xD0 of 1 h.>s          endof
-           0xD2 of 1 reg8          endof
+           $C0 of count h.>s      endof
+           $D0 of 1 h.>s          endof
+           $D2 of 1 reg8          endof
         endcase ;
 
 \ -------------------- Extended Opcodes --------------------
 
 : wf1  ( addr -- addr' )
         1+ count dup
-        0x0c0 <
+        $0c0 <
         IF      dup
                 3 rshift 7 and
                 case 6 of     .s" fstenv  "      mod-r/m   endof
@@ -808,8 +836,8 @@ str scs scas
 
 : wf2  ( addr -- addr' )
         1+ count
-        case 0xe2 of   .s" fclex   "  endof
-             0xe3 of   .s" finit   "  endof
+        case $e2 of   .s" fclex   "  endof
+             $e3 of   .s" finit   "  endof
              swap 2 - swap .s" fwait   "
         endcase ;
 
@@ -821,21 +849,21 @@ str scs scas
         endcase ;
 
 : wf4  ( addr -- addr' )
-        1+ count 0xe0 =
+        1+ count $e0 =
         IF      .s" fstsw   ax "
         ELSE    2 - .s" fwait   "
         THEN ;
 
 : fwaitops   ( addr op -- addr' )
-        case 0xd9 of    wf1     endof
-             0xdb of    wf2     endof
-             0xdd of    wf3     endof
-             0xdf of    wf4     endof
+        case $d9 of    wf1     endof
+             $db of    wf2     endof
+             $dd of    wf3     endof
+             $df of    wf4     endof
              .s" fwait   "
         endcase ;
 
 : w8f   ( addr op -- addr' )
-        drop dup c@ dup 0xf8 and 0xd8 =
+        drop dup c@ dup $f8 and $d8 =
         IF      fwaitops
         ELSE    drop .s" wait    "
         THEN ;
@@ -859,9 +887,9 @@ str scs scas
 
 : fd8   ( addr opcode -- addr' )
         drop count dup falu1
-        dup 0xc0 <
+        dup $c0 <
         IF      .s" float " mod-r/m
-        ELSE    dup 0xf0 and 0xd0 =
+        ELSE    dup $f0 and $d0 =
                 IF      sti.
                 ELSE    .s" ST , " sti.
                 THEN
@@ -869,13 +897,13 @@ str scs scas
 
 : fdc   ( addr opcode -- addr' )
         drop count
-        dup dup 0xc0 <
+        dup dup $c0 <
         IF      falu1 .s" double " mod-r/m
         ELSE    falu5 sti. .s"  , ST"
         THEN ;
 
 : fnullary-f   ( op -- )
-        0x0f and dup 8 <
+        $0f and dup 8 <
         IF
            S" f2xm1  fyl2x  fptan  fpatan fxtractfprem1 fdecstpfincstp"
         ELSE  8 -
@@ -884,7 +912,7 @@ str scs scas
         7 ss. ;
 
 : fnullary-e   ( op -- )
-        0x0f and dup 8 <
+        $0f and dup 8 <
         IF
            S" fchs   fabs   ???    ???    ftst   fxam   ???    ???    "
         ELSE  8 -
@@ -893,11 +921,11 @@ str scs scas
         7 ss. ;
 
 : fnullary   ( op -- )
-        dup 0xef >
+        dup $ef >
         IF      fnullary-f EXIT
         THEN
-        dup 0xe0 <
-        IF      0xd0 =
+        dup $e0 <
+        IF      $d0 =
                 IF      .s" fnop"
                 ELSE    dup ???
                 THEN
@@ -912,22 +940,22 @@ str scs scas
 \        7 ss. ;
 
 : fd9   ( addr op -- addr' )
-        drop count dup 0xc0 <
-        IF      dup 0x38 and
+        drop count dup $c0 <
+        IF      dup $38 and
                 CASE
-                        0x00 OF .s" fld     float "  endof
-                        0x10 OF .s" fst     float "  endof
-                        0x18 OF .s" fstp    float "  endof
-                        0x20 OF .s" fldenv  "        endof
-                        0x28 OF .s" fldcw   word "   endof
-                        0x30 OF .s" fnstenv "        endof
-                        0x38 OF .s" fnstcw  word "   endof
+                        $00 OF .s" fld     float "  endof
+                        $10 OF .s" fst     float "  endof
+                        $18 OF .s" fstp    float "  endof
+                        $20 OF .s" fldenv  "        endof
+                        $28 OF .s" fldcw   word "   endof
+                        $30 OF .s" fnstenv "        endof
+                        $38 OF .s" fnstcw  word "   endof
                             dup ???
                 ENDCASE
                 mod-r/m
         ELSE
-                dup 0xd0 <
-                IF      dup 0xc8 <
+                dup $d0 <
+                IF      dup $c8 <
                         IF      .s" fld     "
                         ELSE    .s" fxch    "
                         THEN
@@ -947,9 +975,9 @@ str scs scas
         7 ss. ;
 
 : fda   ( addr op -- )
-        drop count dup 0xc0 <
+        drop count dup $c0 <
         IF      dup falu3 .s" dword " mod-r/m
-        ELSE    0xe9 =
+        ELSE    $e9 =
                 IF      .s" fucompp" drop
                 ELSE    dup fcmova sti.
                 THEN
@@ -961,9 +989,9 @@ str scs scas
         6 ss. sspace ;
 
 : fde   ( addr op -- addr' )
-        drop count dup 0xc0 <
+        drop count dup $c0 <
         IF      dup falu3 .s" word " mod-r/m
-        ELSE    dup 0xd9 =
+        ELSE    dup $d9 =
                 if    .s" fcompp" drop
                 else  dup falu7 sti.
                 then
@@ -975,19 +1003,19 @@ str scs scas
         8 ss. ;
 
 : fdb   ( addr op -- addr' )
-        drop count dup 0xc0 <
-        IF      dup 0x38 and
-                CASE    0x00 OF .s" fild    dword "    endof
-                        0x10 OF .s" fist    dword "    endof
-                        0x18 OF .s" fistp   dword "    endof
-                        0x28 OF .s" fld     extended " endof
-                        0x38 OF .s" fstp    extended " endof
+        drop count dup $c0 <
+        IF      dup $38 and
+                CASE    $00 OF .s" fild    dword "    endof
+                        $10 OF .s" fist    dword "    endof
+                        $18 OF .s" fistp   dword "    endof
+                        $28 OF .s" fld     extended " endof
+                        $38 OF .s" fstp    extended " endof
                             dup ???
                 ENDCASE
                 mod-r/m
         ELSE
-                CASE    0xe2 OF .s" fnclex" endof
-                        0xe3 OF .s" fninit" endof
+                CASE    $e2 OF .s" fnclex" endof
+                        $e3 OF .s" fninit" endof
                             dup dup fcmovb sti.
                 ENDCASE
         THEN ;
@@ -998,14 +1026,14 @@ str scs scas
         6 ss. sspace ;
 
 : fdd   ( addr op -- addr' )
-        drop count dup 0xc0 <
-        IF      dup 0x38 and
-                CASE    0x00 OF .s" fld     double "  endof
-                        0x10 OF .s" fst     double "  endof
-                        0x18 OF .s" fstp    double "  endof
-                        0x20 OF .s" frstor  "         endof
-                        0x30 OF .s" fnsave  "         endof
-                        0x38 OF .s" fnstsw  word   "  endof
+        drop count dup $c0 <
+        IF      dup $38 and
+                CASE    $00 OF .s" fld     double "  endof
+                        $10 OF .s" fst     double "  endof
+                        $18 OF .s" fstp    double "  endof
+                        $20 OF .s" frstor  "         endof
+                        $30 OF .s" fnsave  "         endof
+                        $38 OF .s" fnstsw  word   "  endof
                             dup ???
                 ENDCASE
                 mod-r/m
@@ -1013,23 +1041,23 @@ str scs scas
         THEN ;
 
 : fdf   ( addr op -- addr' )
-        drop count dup 0xc0 <
-        IF      dup 0x38 and
-                CASE    0x00 OF .s" fild    word "   endof
-                        0x10 OF .s" fist    word "   endof
-                        0x18 OF .s" fistp   word "   endof
-                        0x20 OF .s" fbld    tbyte "  endof
-                        0x28 OF .s" fild    qword "  endof
-                        0x30 OF .s" fbstp   tbyte "  endof
-                        0x38 OF .s" fistp   qword "  endof
+        drop count dup $c0 <
+        IF      dup $38 and
+                CASE    $00 OF .s" fild    word "   endof
+                        $10 OF .s" fist    word "   endof
+                        $18 OF .s" fistp   word "   endof
+                        $20 OF .s" fbld    tbyte "  endof
+                        $28 OF .s" fild    qword "  endof
+                        $30 OF .s" fbstp   tbyte "  endof
+                        $38 OF .s" fistp   qword "  endof
                             dup ???
                 ENDCASE
                 mod-r/m
-        ELSE    dup 0xe0 =
+        ELSE    dup $e0 =
                 IF      .s" fnstsw  ax " drop
-                ELSE    dup 0x38 and
-                        CASE    0x28 OF .s" fucomip " sti. endof
-                                0x30 OF .s" fcomip  " sti. endof
+                ELSE    dup $38 and
+                        CASE    $28 OF .s" fucomip " sti. endof
+                                $30 OF .s" fcomip  " sti. endof
                                         ???
                         ENDCASE
                 THEN
@@ -1284,11 +1312,11 @@ str scs scas
         .s" pcmpeq" mmx-size r,r/m ;
 
 : psh.  ( op -- )
-        0x30 and
+        $30 and
         case
-             0x10 of .s" psrl" endof
-             0x20 of .s" psra" endof
-             0x30 of .s" psll" endof
+             $10 of .s" psrl" endof
+             $20 of .s" psra" endof
+             $30 of .s" psll" endof
         endcase ;
 
 : gpa   ( adr op -- adr' )
@@ -1367,7 +1395,7 @@ str scs scas
 
 \ -------------------- Opcode Table --------------------
 
-: ops 0x10 0 do ' , loop ;
+: ops $10 0 do ' , loop ;
 
 create op-table2
 
@@ -1397,7 +1425,7 @@ ops  ??? ??? shx shx  ??? mad ??? ???  sub sub sub ???  add add add ???  \ F
 
 : 0F.  ( adr code -- )
         drop count dup
-        dup 0x70 and 0x50 0x80 within to mmx-reg
+        dup $70 and $50 $80 within to mmx-reg
         cells op-table2 + @ execute
         0 to mmx-reg ;
 
@@ -1446,88 +1474,29 @@ ops  lok ??? rpz rep  hlt cmc F6. F6.  clc stc cli sti  cld std FE. FF.  \ F
 
 : inst  ( adr -- adr' )
         dup to next-inst
-        cols 0x29 <
+        cols $29 <
         if      dis-op
                 s-buf count type
         else    dup dis-op
-                over base-addr - 6 h.r space
+                over base-addr - hex. ( 6 h.r ) space
                 dup rot
-                2dup - 0x10 u> abort" decompiler error"
-                do i c@ 2 h.n loop
+                2dup - $10 u> abort" decompiler error"
+                do i c@ hex. ( 2 h.n ) loop
                 comment-col col s-buf count type
         then    dup to next-inst ;
 
-
-: dis-db   cr .s" db " count h.>s ;
-: dis-dw   cr .s" dw " W@+ h.>s ;
-: dis-dd   cr .s" dd " @+ h.>s ;
-: dis-ds   cr .s" string " 0x22 emit>s count 2dup >s + 0x22 emit>s ;
-
-: dis  ( adr -- )
-        begin
-                dup
-                cr inst
-                key upc dup 0x1B = over ascii Q = or not
-        while
-                case
-                  'B' of drop dis-db endof
-                  'W' of drop dis-dw endof
-                  'D' of drop dis-dd endof
-                  'S' of drop dis-ds endof
-                         rot drop
-                endcase
-
-        repeat 2drop drop ;
-
-\ create stopcode 8 C,                           \ count of length
-\                 0xAD C, 0x8B C, 0x0C C, 0x38 C,
-\                 0x03 C, 0xCF C, 0xFF C, 0xE1 C,
-
-: next?         ( a1 -- f1 )
-                next-seq count tuck compare 0= ;
-
-0 value show-next?      \ default to not showing next instructions
-
-: rest          ( adr -- )
-                begin   tabing-on 0tab
-                        cr
-                        dup next-seq c@ - next? 0=      \ NEXT, behind us?
-                while   dup next?
-                        if      comment-col col
-                                0xD right-margin - ?line
-                                .s"  \ NEXT, MACRO"
-                                show-next?
-                                if      cr inst
-                                else    next-seq c@ +   \ skip over it
-                                then
-                        else    inst
-                        then
-                        tabing-off
-                        start/stop
-                repeat  drop .s" END-CODE  "
-                tabing-off ;
-
-hidden
-
-\in-system-ok ' rest is discode       \ link into high level decompiler
-
-decimal
-
 forth definitions
 
-: show-next-on  ( -- )
-                TRUE to show-next? ;
-
-: show-next-off ( -- )
-                FALSE to show-next? ;
-
-: rest rest ;
-
-: seemore       ( -- )
-                tabing-on 0tab
-                next-inst
-                cr inst
-                rest ;
+: disasm ( addr u -- ) \ gforth
+    over + >r
+    begin
+	dup r@ u<
+    while
+	cr inst
+    repeat
+    rdrop ;
+    
+' disasm is discode
 
 only forth also definitions
 
