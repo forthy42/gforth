@@ -6268,6 +6268,13 @@ the top of stack, which is not reflected in the stack comment). This is
 the convention that I use and recommend (it clashes a bit with using
 locals declarations for stack effect specification, though).
 
+@menu
+* CREATE..DOES> applications::  
+* CREATE..DOES> details::       
+* Advanced does> usage::        
+@end menu
+
+@node CREATE..DOES> applications, CREATE..DOES> details, User-defined Defining Words, User-defined Defining Words
 @subsubsection Applications of @code{CREATE..DOES>}
 @cindex @code{CREATE} ... @code{DOES>}, applications
 
@@ -6314,6 +6321,7 @@ DOES> ( n2 -- n1+n2 )
 -2 curry+ 2-
 @end example
 
+@node CREATE..DOES> details, Advanced does> usage, CREATE..DOES> applications, User-defined Defining Words
 @subsubsection The gory details of @code{CREATE..DOES>}
 @cindex @code{CREATE} ... @code{DOES>}, details
 
@@ -6369,8 +6377,11 @@ CREATE name EXECUTE ( ... -- ... )
     @i{initialization}
 @end example
 
-
 doc->body
+
+@node Advanced does> usage,  , CREATE..DOES> details, User-defined Defining Words
+@subsubsection Advanced does> usage
+
 
 
 @node Deferred words, Aliases, User-defined Defining Words, Defining Words
@@ -8541,15 +8552,17 @@ doc-break"
 @cindex code words
 
 @menu
-* Common Assembler::            
+* Code and ;code::              
+* Common Assembler::            Assembler Syntax
 * Common Disassembler::         
 * 386 Assembler::               Deviations and special cases
 * Alpha Assembler::             Deviations and special cases
 * MIPS assembler::              Deviations and special cases
+* Other assemblers::            How to write them
 @end menu
 
-@node Common Assembler, Common Disassembler, Assembler and Code Words, Assembler and Code Words
-@subsection Common Assembler
+@node Code and ;code, Common Assembler, Assembler and Code Words, Assembler and Code Words
+@subsection @code{Code} and @code{;code}
 
 Gforth provides some words for defining primitives (words written in
 machine code), and for defining the machine-code equivalent of
@@ -8583,17 +8596,17 @@ The typical usage of these @code{code} words can be shown most easily by
 analogy to the equivalent high-level defining words:
 
 @example
-: foo                                        code foo
-   <high-level Forth words>                        <assembler>
-;                                            end-code
-
-: bar                                        : bar
-   <high-level Forth words>                     <high-level Forth words>
-   CREATE                                       CREATE
-      <high-level Forth words>                     <high-level Forth words>
-   DOES>                                        ;code
-      <high-level Forth words>                     <assembler>
-;                                            end-code
+: foo                              code foo
+   <high-level Forth words>              <assembler>
+;                                  end-code
+                                
+: bar                              : bar
+   <high-level Forth words>           <high-level Forth words>
+   CREATE                             CREATE
+      <high-level Forth words>           <high-level Forth words>
+   DOES>                              ;code
+      <high-level Forth words>           <assembler>
+;                                  end-code
 @end example
 
 @code{flush-icache} is always present. The other words are rarely used
@@ -8641,6 +8654,27 @@ Generation}). Defining words (equivalent to @code{;CODE} words, for fast
 defined words) may require changes in @file{engine.c}, @file{kernel.fs},
 @file{prims2x.fs}, and possibly @file{cross.fs}.
 
+@node Common Assembler, Common Disassembler, Code and ;code, Assembler and Code Words
+@subsection Common Assembler
+
+The assemblers in Gforth generally use a postfix syntax, i.e., the
+instruction name follows the operands.
+
+The operands are passed in the usual order (the same that is used in the
+manual of the architecture).  Since they all are Forth words, they have
+to be separated by spaces; you can also use Forth words to compute the
+operands.
+
+The instruction names usually end with a @code{,}.  This makes it easier
+to visually separate instructions if you put several of them on one
+line; it also avoids shadowing other Forth words (e.g., @code{and}).
+
+Control flow is specified similar to normal Forth code (@pxref{Arbitrary
+control structures}), with @code{if,}, @code{ahead,}, @code{then,},
+@code{begin,}, @code{until,}, @code{again,}, @code{cs-roll},
+@code{cs-pick}, @code{else,}, @code{while,}, and @code{repeat,}.  The
+conditions are specified in a way specific to each assembler.
+
 @node  Common Disassembler, 386 Assembler, Common Assembler, Assembler and Code Words
 @subsection Common Disassembler
 
@@ -8651,7 +8685,15 @@ doc-disasm
 
 The disassembler generally produces output that can be fed into the
 assembler (i.e., same syntax, etc.).  It also includes additional
-information in comments.
+information in comments.  In particular, the address of the instruction
+is given in a comment before the instruction.
+
+@code{See} may display more or less than the actual code of the word,
+because the recognition of the end of the code is unreliable.  You can
+use @code{disasm} if it did not display enough.  It may display more, if
+the code word is not immediately followed by a named word.  If you have
+something else there, you can follow the word with @code{align last @ ,}
+to ensure that the end is recognized.
 
 @node 386 Assembler, Alpha Assembler, Common Disassembler, Assembler and Code Words
 @subsection 386 Assembler
@@ -8662,9 +8704,9 @@ Andrew McKewan; it is in the public domain.
 @node Alpha Assembler, MIPS assembler, 386 Assembler, Assembler and Code Words
 @subsection Alpha Assembler
 
-The Alpha assembler and disassembler were written by Bernd Thallner.
+The Alpha assembler and disassembler was written by Bernd Thallner.
 
-@node MIPS assembler,  , Alpha Assembler, Assembler and Code Words
+@node MIPS assembler, Other assemblers, Alpha Assembler, Assembler and Code Words
 @subsection MIPS assembler
 
 The MIPS assembler was originally written by Christian Pirker.
@@ -8687,16 +8729,54 @@ If the architecture manual specifies several formats for the instruction
 arguments (i.e., two for @code{jalr,}).  When in doubt, see
 @code{arch/mips/testasm.fs} for an example of correct use.
 
-Branches in the MIPS architecture have a delay slot.  You have to fill
-it yourself (the simplest way is to use @code{nop,}), the assembler does
-not do it for you (unlike @command{as}).  Even @code{if,},
-@code{ahead,}, @code{until,}, @code{again,} and @code{while,} need a
-delay slot.  For the branches produced by @code{else,} and
-@code{repeat,}, an @code{nop,} is in the delay slot.
+Branches and jumps in the MIPS architecture have a delay slot.  You have
+to fill it yourself (the simplest way is to use @code{nop,}), the
+assembler does not do it for you (unlike @command{as}).  Even
+@code{if,}, @code{ahead,}, @code{until,}, @code{again,}, @code{while,},
+@code{else,} and @code{repeat,} need a delay slot.  Since @code{begin,}
+and @code{then,} just specify branch targets, they are not affected.
+
+Note that you must not put branches, jumps, or @code{li,} into the delay
+slot: @code{li,} may expand to several instructions, and control flow
+instructions may not be put into the branch delay slot in any case.
 
 For branches the argument specifying the target is a relative address;
 You have to add the address of the delay slot to get the absolute
 address.
+
+The MIPS architecture also has load delay slots and restrictions on
+using @code{mfhi,} and @code{mflo,}; you have to order the instructions
+yourself to satisfy these restrictions, the assembler does not do it for
+you.
+
+You can specify the conditions for @code{if,} etc. by taking a
+conditional branch and leaving away the @code{b} at the start and the
+@code{,} at the end.  E.g.,
+
+@example
+4 5 eq if,
+  ... \ do something if $4 equals $5
+then,
+@end example
+
+@node Other assemblers,  , MIPS assembler, Assembler and Code Words
+@subsection Other assemblers
+
+If you want to contribute another assembler/disassembler, please contact
+us (@email{bug-gforth@@gnu.org}) to check if we have such an assembler
+already.  If you are writing them from scratch, please use a similar
+syntax style as the one we use (i.e., postfix, commas at the end of the
+instruction names, @pxref{Common Assembler}); make the output of the
+disassembler be valid input for the assembler, and keep the style
+similar to the style we used.
+
+Hints on implementation: The most important part is to have a good test
+suite that contains all instructions.  Once you have that, the rest is
+easy.  For actual coding you can take a look at
+@file{arch/mips/disasm.fs} to get some ideas on how to use data for both
+the assembler and disassembler, avoiding redundancy and some potential
+bugs.  You can also look at that file (and @pxref{Advanced does> usage})
+to get ideas how to factor a disassembler.
 
 @c -------------------------------------------------------------
 @node Threading Words, Locals, Assembler and Code Words, Words

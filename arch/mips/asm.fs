@@ -376,14 +376,18 @@ include ./insts.fs
 : again, ( asm-dest -- )
     $zero $zero ne until, ;
 
-: else, ( asm-orig1 -- asm-orig2 )
-    ahead, nop, 1 cs-roll then, ;
-
 : while, ( asm-dest -- asm-orig asm-dest )
     if, 1 cs-roll ;
 
+: delayed-then, ( asm-orig -- )
+    \ set the target of asm-orig to one instruction after the current one
+    0 , then, -1 cells allot ;
+
+: else, ( asm-orig1 -- asm-orig2 )
+    ahead, 1 cs-roll delayed-then, ;
+
 : repeat, ( asm-orig asm-dest -- )
-    again, nop, then, ;
+    again, delayed-then, ;
 
 previous
 set-current
