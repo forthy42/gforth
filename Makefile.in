@@ -1,10 +1,11 @@
 #Copyright 1992 by the ANSI figForth Development Group
 
-RM	= echo 'Trying to remove'
+RM	= rm
+CP	= cp
 GCC	= gcc
 FORTH	= gforth
 CC	= gcc
-MAKE = gmake
+MAKE	= gmake
 XCFLAGS	=
 XDEFINES	=
 SWITCHES	= $(XCFLAGS) $(XDEFINES) -DDEFAULTBIN='"'`pwd`'"' #-DNDEBUG #turn off assertions
@@ -63,32 +64,32 @@ more:	$(FORTH_GEN) gforth
 # `realclean' also deletes everything that could be regenerated automatically."
 
 clean:		
-		-rm $(GEN) *.o *.s
+		-$(RM) $(GEN) *.o *.s
 
 distclean:	clean
-		-rm machine.h machine.fs
+		-$(RM) machine.h machine.fs
 
 realclean:	distclean
-		-rm $(GEN_PRECIOUS)
+		-$(RM) $(GEN_PRECIOUS)
 
 #does not work
 #gforth.tar.gz:	$(SOURCES) $(GEN_PRECIOUS) CVS
 #		cd ..; tar cvf gforth/gforth.tar gforth/{$^}; gzip -9 gforth/gforth.tar
 
 gforth:	$(OBJECTS)
-		-cp gforth gforth~
+		-$(CP) gforth gforth~
 		$(GCC) $(LDFLAGS) $(OBJECTS) $(LDLIBS) -o $@
 
 kernl32l.fi:	main.fs search-order.fs cross.fs aliases.fs vars.fs add.fs \
 		errore.fs kernal.fs extend.fs tools.fs toolsext.fs \
 		mach32l.fs $(FORTH_GEN)
-		-cp kernl32l.fi kernl32l.fi~
+		-$(CP) kernl32l.fi kernl32l.fi~
 		$(FORTH) -e 's" mach32l.fs"' main.fs
 
 kernl32b.fi:	main.fs search-order.fs cross.fs aliases.fs vars.fs add.fs \
 		errore.fs kernal.fs extend.fs tools.fs toolsext.fs \
 		mach32b.fs $(FORTH_GEN)
-		-cp kernl32b.fi kernl32b.fi~
+		-$(CP) kernl32b.fi kernl32b.fi~
 		$(FORTH) -e 's" mach32b.fs"' main.fs
 
 engine.s:	engine.c primitives.i prim_labels.i machine.h $(INCLUDES)
@@ -112,7 +113,7 @@ primitives.fs:	primitives.b prims2x.fs
 		$(FORTH) prims2x.fs -e "s\" primitives.b\" ' output-forth process-file bye" >$@
 
 gforth.texi:	gforth.ds primitives.b ds2texi.fs prims2x.fs
-		$(FORTH) -e "warnings off" search-order.fs struct.fs debugging.fs ds2texi.fs prims2x.fs -e "s\" primitives.b\" ' register-doc process-file s\" gforth.ds\" r/o open-file throw ds2texi bye" >$@
+		$(FORTH) ds2texi.fs >$@
 
 gforth.dvi:	gforth.texi
 		tex gforth.texi
