@@ -318,6 +318,12 @@ AC_SUBST(asm_fs)
 AC_CHECK_PROG(disasm_fs,disasm.fs,arch/$machine/disasm.fs,,$srcdir/arch/$machine)
 AC_SUBST(disasm_fs)
 
+AC_PATH_PROG(INSTALL_INFO,install-info,false,$PATH:/sbin:/usr/sbin:/usr/local/sbin)
+if $INSTALL_INFO --version|grep -i debian >/dev/null; then
+  INSTALL_INFO=false
+  AC_MSG_WARN([Debian install-info; disabling it])
+fi
+
 case "$host_os" in
 	*win32|cygwin)
 		DIRSEP="\\\\"

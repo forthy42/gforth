@@ -29,7 +29,7 @@ Software Foundation raise funds for GNU development.''
 
 @dircategory Software development
 @direntry
-* Vmgen: (vmgen).               Interpreter generator
+* Vmgen: (vmgen).               Virtual machine interpreter generator
 @end direntry
 
 @titlepage

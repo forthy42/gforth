@@ -93,6 +93,7 @@ Software Foundation raise funds for GNU development.''
 @subtitle for version @value{VERSION}, @value{UPDATED}
 @author Neal Crook
 @author Anton Ertl
+@author David Kuehling
 @author Bernd Paysan
 @author Jens Wilke
 @page
