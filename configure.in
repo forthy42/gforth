@@ -54,10 +54,15 @@ PEEPHOLE="$withval")
 
 #set up feature test macros, so the tests get them right:
 # turn on all POSIX, SUSv3, and GNU features if available
-AC_DEFINE_UNQUOTED([_GNU_SOURCE],1,[feature test macro])
-AC_DEFINE_UNQUOTED([_POSIX_SOURCE],1,[feature test macro])
-AC_DEFINE_UNQUOTED([_POSIX_C_SOURCE],199506L,[feature test macro])
-AC_DEFINE_UNQUOTED([_XOPEN_SOURCE],600,[feature test macro])
+AC_GNU_SOURCE
+dnl AC_DEFINE_UNQUOTED([_GNU_SOURCE],1,[feature test macro])
+
+dnl Don't define _POSIX_SOURCE etc. because some OSs (in particular
+dnl MacOSX) disable some features then (MacOSX checks for _POSIX_SOURCE,
+dnl but not for _XOPEN_SOURCE)
+dnl AC_DEFINE_UNQUOTED([_POSIX_SOURCE],1,[feature test macro])
+dnl AC_DEFINE_UNQUOTED([_POSIX_C_SOURCE],199506L,[feature test macro])
+dnl AC_DEFINE_UNQUOTED([_XOPEN_SOURCE],600,[feature test macro])
 # turn on large file support with 64-bit off_t where available
 AC_DEFINE_UNQUOTED([_LARGEFILE_SOURCE],1,[feature test macro])
 AC_DEFINE_UNQUOTED([_FILE_OFFSET_BITS],64,[feature test macro])
@@ -74,14 +79,15 @@ test "$GCC" = "yes" || AC_MSG_ERROR(Gforth uses GNU C extensions and requires GC
 AC_SUBST(CC)
 AC_SUBST(DEBUGFLAG)
 
-AC_MSG_CHECKING(gcc version)
-gcc_version=`$CC -v 2>&1|grep 'gcc version'|sed 's/.*gcc version //'`
-AC_MSG_RESULT($gcc_version)
-if expr "$gcc_version" \> 3.0.4 >/dev/null && expr "$gcc_version" \< 3.2.1 >/dev/null
-then
-    no_dynamic_default=1
-    AC_MSG_WARN(Disabling dynamic native code generation by default (speed penalty factor ~2))
-fi
+dnl gcc-3.2 seems to work fine now
+dnl AC_MSG_CHECKING(gcc version)
+dnl gcc_version=`$CC -v 2>&1|grep 'gcc version'|sed 's/.*gcc version //'`
+dnl AC_MSG_RESULT($gcc_version)
+dnl if expr "$gcc_version" \> 3.0.4 >/dev/null && expr "$gcc_version" \< 3.2.1 >/dev/null
+dnl then
+dnl    no_dynamic_default=1
+dnl    AC_MSG_WARN(Disabling dynamic native code generation by default (speed penalty factor ~2))
+dnl fi
 
 dnl the following macro produces a warning with autoconf-2.1
 AC_CHECK_SIZEOF(char *)
@@ -194,9 +200,10 @@ case "$host_cpu" in
 		CFLAGS="$CFLAGS -march=pentium"
 		AC_TRY_COMPILE(,,,CFLAGS="$CFLAGS_1 -m486")
 		;;
-	ia64*)
-		machine=ia64
-		;;
+#generic should work for IA64
+#	ia64*)
+#		machine=ia64
+#		;;
         m68k)
 		machine=m68k
 		CFLAGS="$CFLAGS -fomit-frame-pointer"
@@ -204,6 +211,9 @@ case "$host_cpu" in
 		then
 			AC_LIBOBJ(termios)
 		fi
+		#I-cache flushing would be needed for dynamic code generation
+		no_dynamic_default=1
+		AC_MSG_WARN(Disabling dynamic native code generation by default (speed penalty factor ~2))
 		;;
 	mips*)
 		machine=mips
@@ -251,6 +261,9 @@ case "$host_cpu" in
 		AC_MSG_WARN([Assuming C floats and doubles are IEEE floats and doubles (for SF@ DF@ SF! DF!)])
 		AC_MSG_WARN([FLUSH-ICACHE will do nothing, so END-CODE may not work properly!])
 		machine=generic
+		#I-cache flushing would be needed for dynamic code generation
+		no_dynamic_default=1
+		AC_MSG_WARN(Disabling dynamic native code generation by default (speed penalty factor ~2))
 esac
 AC_SUBST(host)
 AC_SUBST(ENGINE_FLAGS)
@@ -272,6 +285,11 @@ case "$host_os" in
 		EXE=".exe"
 		DIRSEP="\\"
 		;;
+	*darwin*)
+		#Darwin uses some funny preprocessor by default; eliminate it:
+		AC_MSG_WARN([using -traditional-cpp on Darwin])
+		CFLAGS="$CFLAGS -traditional-cpp"
+                ;;
 	*)
 		EXE=""
 		DIRSEP="/"
@@ -378,7 +396,9 @@ then
 	AC_FUNC_MEMCMP
 fi
 AC_REPLACE_FUNCS(memmove strtoul pow10 strerror strsignal atanh)
-AC_CHECK_FUNCS(dlopen sys_siglist getrusage fseeko ftello)
+AC_FUNC_FSEEKO
+AC_CHECK_FUNCS(ftello dlopen sys_siglist getrusage)
+
 AC_DECL_SYS_SIGLIST
 AC_CHECK_FUNC(getopt_long,true,AC_LIBOBJ(getopt); AC_LIBOBJ(getopt1))
 AC_CHECK_FUNCS(expm1 log1p)

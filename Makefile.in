@@ -368,7 +368,8 @@ GEN = gforth$(EXE) gforth-ditc$(EXE) gforth-fast$(EXE) gforth-itc$(EXE) kernel/v
 # things that need a working forth system to be generated
 FORTH_GEN_ENGINE=engine/prim.i engine/prim_lab.i engine/prim_names.i \
 	engine/prim_superend.i engine/peephole.i engine/profile.i \
-	engine/prim_num.i engine/prim_grp.i
+	engine/prim_num.i engine/prim_grp.i \
+	engine/config.h
 FORTH_GEN0 = prim.b $(FORTH_GEN_ENGINE) kernel/aliases.fs kernel/prim.fs kernel/groups.fs
 FORTH_GEN =  $(FORTH_GEN0) @KERNEL@ gforth.fi
 # this is used for antidependences,
