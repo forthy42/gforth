@@ -55,7 +55,7 @@
 #endif
 /* CODE_ADDRESS is the address of the code jumped to through the code field */
 #define CODE_ADDRESS(cfa)	({unsigned _cfa = (unsigned)(cfa); \
-				    (Label)(_cfa+((*(unsigned *)_cfa)<<2));})
+				    (Label)(_cfa+((*(unsigned *)_cfa)<<2)-4);})
 /* MAKE_CF creates an appropriate code field at the cfa; ca is the code address */
 /* we use call, since 'branch always' only has 22 bits displacement */
 #define MAKE_CF(cfa,ca)	({long *_cfa        = (long *)(cfa); \
@@ -65,7 +65,11 @@
 
 /* this is the point where the does code starts if label points to the
  * jump dodoes */
-#define DOES_CODE(label)	((Xt *)(CODE_ADDRESS(label)+DOES_HANDLER_SIZE))
+/* the +4 is due to the fact, that the does_cf jumps directly to the
+   code address, whereas CODE_ADDRESS expects a jump to
+   code_address+4, and corrects for that (which is countercorrected by
+   the +4) */
+#define DOES_CODE(label)	((Xt *)(CODE_ADDRESS(label)+4+DOES_HANDLER_SIZE))
 
 /* this is a special version of DOES_CODE for use in dodoes */
 #define DOES_CODE1(label)	DOES_CODE(label)
