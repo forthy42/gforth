@@ -208,6 +208,7 @@ GFORTH_FI_SRC = \
 	intcomp.fs \
 	locals.fs \
 	look.fs \
+	quotes.fs \
 	search.fs \
 	see.fs \
 	see-ext.fs \

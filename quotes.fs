@@ -94,7 +94,7 @@ interpret/compile: s\" ( compilation 'ccc"' -- ; run-time -- c-addr u )	\ gforth
 :noname postpone (.") \"-parse dup c, 1+ chars allot drop ;
 interpret/compile: .\" ( compilation 'ccc"' -- ; run-time -- )	\ gforth	dot-backslash-quote
 
-1 [if] \ test
+0 [if] \ test
     s" 123" drop 10 parse-num-x 123 <> throw drop .s
     s" 123a" drop 10 parse-num   123 <> throw drop .s
     s" x1fg" drop \-escape 31 <> throw drop .s
