@@ -488,6 +488,7 @@ the first string is smaller, @i{n} is -1; if the first string is larger, @i{n}
 is 1. Currently this is based on the machine's character
 comparison. In the future, this may change to consider the current
 locale and its collation order.""
+/* close ' to keep fontify happy */ 
 n = memcmp(c_addr1, c_addr2, u1<u2 ? u1 : u2);
 if (n==0)
   n = u1-u2;
@@ -1484,6 +1485,7 @@ getenv	c_addr1 u1 -- c_addr2 u2	gforth
 is the host operating system's expansion of that environment variable. If the
 environment variable does not exist, @i{c-addr2 u2} specifies a string 0 characters
 in length.""
+/* close ' to keep fontify happy */
 c_addr2 = getenv(cstr(c_addr1,u1,1));
 u2 = (c_addr2 == NULL ? 0 : strlen(c_addr2));
 
@@ -1545,6 +1547,7 @@ I/O result code. If @i{a-addr1} is 0, Gforth's (but not the Standard)
 @code{resize} @code{allocate}s @i{u} address units.""
 /* the following check is not necessary on most OSs, but it is needed
    on SunOS 4.1.2. */
+/* close ' to keep fontify happy */
 if (a_addr1==NULL)
   a_addr2 = (Cell *)malloc(u);
 else
@@ -2154,6 +2157,7 @@ rret = (SYSCALL(Float(*)(argdlist($1)))u)(argclist($1));
 
 ')
 
+\ close ' to keep fontify happy
 
 open-lib	c_addr1 u1 -- u2	gforth	open_lib
 #if defined(HAVE_LIBDL) || defined(HAVE_DLOPEN)
@@ -2202,6 +2206,37 @@ sp=(SYSCALL(Cell(*)(Cell *, void *))u)(sp, &FP);
 fp=FP;
 IF_TOS(TOS=sp[0];)
 IF_FTOS(FTOS=fp[0]);
+
+\+file
+
+open-dir	c_addr u -- wdirid wior	gforth	open_dir
+wdirid = (Cell)opendir(tilde_cstr(c_addr, u, 1));
+wior =  IOR(wdirid == 0);
+
+read-dir	c_addr u1 wdirid -- u2 flag wior	gforth	read_dir
+struct dirent * dent;
+dent = readdir((DIR *)wdirid);
+wior = 0;
+flag = -1;
+if(dent == NULL) {
+  u2 = 0;
+  flag = 0;
+} else {
+  u2 = strlen(dent->d_name);
+  if(u2 > u1)
+    u2 = u1;
+  memmove(c_addr, dent->d_name, u2);
+}
+
+close-dir	wdirid -- wior	gforth	close_dir
+wior = IOR(closedir((DIR *)wdirid));
+
+filename-match	c_addr1 u1 c_addr2 u2 -- flag	gforth	match_file
+char * string = cstr(c_addr1, u1, 1);
+char * pattern = cstr(c_addr2, u2, 0);
+flag = FLAG(!fnmatch(pattern, string, 0));
+
+\+
 
 newline	-- c_addr u	gforth
 ""String containing the newline sequence of the host OS""

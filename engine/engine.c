@@ -38,6 +38,7 @@
 #include <sys/time.h>
 #include <unistd.h>
 #include <pwd.h>
+#include <dirent.h>
 #else
 #include "systypes.h"
 #endif
