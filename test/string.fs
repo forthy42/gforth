@@ -19,5 +19,5 @@
 \ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
 
 \ compare
-{ here 0 c, 1 chars here 128 c, 1 chars compare -> -1 }
+{ here 0 c, 1 chars here 255 c, 1 chars compare -> -1 }
 

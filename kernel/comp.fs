@@ -219,7 +219,26 @@ defer compile, ( xt -- )	\ core-ext	compile-comma
     here last-compiled !
     , ;
 
-' peephole-compile, IS compile,
+: compile-to-prims, ( xt -- )
+    \G compile xt to use primitives (and their peephole optimization)
+    \G instead of ","-ing the xt.
+    \ !! all POSTPONEs here postpone primitives; this can be optimized
+    dup >does-code ?dup if
+	swap >body POSTPONE literal POSTPONE call , EXIT
+    then
+    dup >code-address CASE
+	docon:   OF >body POSTPONE literal POSTPONE @ EXIT ENDOF
+	   \ docon is also used by VALUEs, so don't @ at compile time
+	docol:   OF >body POSTPONE call , EXIT ENDOF
+	dovar:   OF >body POSTPONE literal EXIT ENDOF
+	douser:  OF >body @ POSTPONE useraddr , EXIT ENDOF
+	dodefer: OF >body POSTPONE literal POSTPONE @ POSTPONE EXECUTE EXIT
+	ENDOF
+	dofield: OF >body @ POSTPONE literal POSTPONE + EXIT ENDOF
+    ENDCASE
+    peephole-compile, ;
+
+' compile-to-prims, IS compile,
 
 : !does    ( addr -- ) \ gforth	store-does
     lastxt does-code! ;
