@@ -232,6 +232,7 @@ Variable icon-tmp
 
 Variable do-size
 Variable do-icon
+Variable do-expand
 
 Defer parse-line
 
@@ -295,9 +296,10 @@ Defer parse-line
     THEN ;
 
 : link-options ( addr u -- addr' u' )
-    do-size off  do-icon on
-    over c@ '% = over 0> and IF  do-size on  1 /string  THEN
-    over c@ '\ = over 0> and IF  do-icon off 1 /string  THEN ;
+    do-size off  do-icon on  do-expand off
+    over c@ '% = over 0> and IF  do-size on   1 /string  THEN
+    over c@ '\ = over 0> and IF  do-icon off  1 /string  THEN
+    over c@ '* = over 0> and IF  do-expand on 1 /string  THEN ;
 
 s" Gforth" environment? [IF] s" 0.5.0" str= [IF] 
 : parse-string ( c-addr u -- ) \ core,block
@@ -312,10 +314,21 @@ s" Gforth" environment? [IF] s" 0.5.0" str= [IF]
     ['] parse-line catch pop-file throw ;
 [THEN] [THEN]
 
+Variable expand-link
+Variable expand-prefix
+Variable expand-postfix
+
+: ?expand ( addr u -- )  expand-link $!
+    do-expand @ IF
+	expand-prefix $@ expand-link 0 $ins
+	expand-postfix $@ expand-link $+!  THEN
+    expand-link $@ ;
+
 : .link ( addr u -- ) dup >r '| -$split  dup r> = IF  2swap  THEN 
     link-options link $!
     link $@len 0= IF  2dup link $! ( s" .html" link $+! ) THEN
-    link $@ href= s" a" tag link-icon?
+    link $@ ?expand
+    href= s" a" tag link-icon?
     parse-string s" a" /tag link-size? link-sig? link-warn? ;
 : >link ( -- )  '[ parse type '] parse .link ;
 
@@ -654,6 +667,8 @@ Variable orig-date
     bl sword orig-date $! ;
 : icons
     bl sword icon-prefix $! ;
+: expands '# sword expand-prefix $! bl sword expand-postfix $! ;
+
 icons icons
 
 Variable style$
