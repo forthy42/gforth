@@ -1120,8 +1120,8 @@ exceeds 64 characters."
 (defun forth-find-tag (tagname &optional next-p regexp-p)
   (interactive (find-tag-interactive "Find tag: "))
   (unless (or regexp-p next-p)
-    (setq tagname (concat "\\(^\\|\\s-\\)\\(" (regexp-quote tagname) 
-			    "\\)\\(\\s-\\|$\\)")))
+    (setq tagname (concat "\\(^\\|\\s-+\\)\\(" (regexp-quote tagname) 
+			    "\\)\\s-*\x7f")))
   (switch-to-buffer
    (find-tag-noselect tagname next-p t)))
 
