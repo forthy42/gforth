@@ -1,22 +1,20 @@
-This is the current state (alpha) of gforth. This is not a
-distribution for the general public, since it is not yet mature
-enough. There is no warranty of any kind; this program is
-distributed under the GNU General Public license (see COPYING).
+Gforth is a fast and portable implementation of the ANS Forth
+language. This represents the present state of the Gforth project
+whose goal is the development of a standard implementation model for
+ANS Forth. Gforth supports indirect threading on every machine
+supported by GCC, and direct threading on several popular
+architectures. Gforth is distributed under the GNU General Public
+license (see COPYING).
 
-Read INSTALL for installation instructions. Mail us
-(anton@mips.complang.tuwien.ac.at,paysan@informatik.tu-muenchen.de) if
-you have problems.
+Read INSTALL for installation instructions. Mail
+gforth-bugs@mips.complang.tuwien.ac.at if you have problems.  To start
+the system, just say `gforth' (after installing it).
 
-To start the system just say `gforth'. This gives you a pretty barren
-system. `gforth startup.fs' gives you most ANSI wordsets. If you miss
-a word, just grep for it in *.fs.
-
-If you want to work on gforth, mail me. Tasks to be done can be found in
-ToDo; but if you would like to do something not mentioned there, it's
-ok, too. In any case, we would like to hear what you are doing. The
-most important tasks IMO are the missing ANS Forth words (musts before
-the alpha release), the documentation and the foreign language
-interface for C.
+If you want to work on Gforth, mail me. Tasks to be done can be found
+in ToDo; but if you would like to do something not mentioned there,
+it's ok, too. In any case, we would like to hear what you are
+doing. The most important tasks IMO are the missing ANS Forth words,
+the documentation and the foreign language interface for C.
 
 On popular request, here are the meanings of unusual file extensions:
 

@@ -54,7 +54,7 @@ make bench
 
 and compare them with the results in Benchres and in the manual.
 
-If everything is allright, you may want to install gforth. Type
+If everything is all right, you may want to install gforth. Type
 
 make install
 
@@ -71,6 +71,29 @@ documentation in HTML format by typing
 
 make html
 
+
+		Preloading installation-specific code
+
+If you want to have some installation-specific files loaded when
+Gforth starts (e.g., an assembler for your processor), put commands
+for loading them into /usr/local/share/gforth/site-forth/site-init.fs
+(if the commands work for all architectures) or
+/usr/local/lib/gforth/site-forth/site-init.fs (for
+architecture-specific commands);
+/usr/local/lib/gforth/site-forth/site-init.fs takes precedence if both
+files are present (unless you change the search path). The file names
+given above are the defaults; if you have changed the prefix, you have
+to replace "/usr/local" in these names with your prefix.
+
+By default, the installation procedure creates an empty
+/usr/local/share/gforth/site-forth/site-init.fs if there is no such
+file.
+
+If you change the site-init.fs file, you should run "make install"
+again for the changes to take effect (Actually, the part of "make
+install" starting with "rm gforth.fi" is sufficient).
+
+
 		Multiple Versions and Deinstallation
 
 Several versions of Gforth can be installed and used at the same
@@ -80,6 +103,7 @@ keep the old version for some time after a new one has been installed.
 You can deinstall this version of Gforth with 'make uninstall' and
 version foo with 'make uninstall VERSION=foo'. 'make uninstall' also
 tells you how to uninstall Gforth completely.
+
 
 			A Possible Problem
 

@@ -72,3 +72,5 @@ set-current
 
 
 warnings on
+
+require site-init.fs

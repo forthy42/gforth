@@ -30,9 +30,9 @@
 #endif
 
 #define FLUSH_ICACHE(addr,size) \
-  ({void *_addr=(addr); void *_end=_addr+(size); \
+  ({void *_addr=(addr); void *_end=_addr+((Cell)(size)); \
     for (_addr=((long)_addr)&~7; _addr<_end; _addr += 8) \
-       asm("iflush %0"::"r"(_addr)) \
+       asm("iflush %0"::"r"(_addr)); \
    })
 
 #ifdef DIRECT_THREADED

@@ -72,7 +72,7 @@ A tool that converts all uses of words in a source text to the exact
 case of the definition. There's something like this out there on the
 net (Joerg Plewe has posted a reference), but I think a program that
 wires itself into the compiler (like etags.fs) is harder to fool by
-search order tricks etc.
+search order tricks etc. EVALUATE is a problem.
 
 *Object-Oriented Extensions
 John Hayes has a portable package
@@ -84,5 +84,4 @@ A texinfo file
 in all source files.
 
 * Distribution and Announcements
-** add copyright notices to all the source files
 ** Write articles for (general-purpose) magazines

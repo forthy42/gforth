@@ -27,7 +27,7 @@
 */
 
 #ifdef DIRECT_THREADED
-
+#warning untested
 /* PFA gives the parameter field address corresponding to a cfa */
 #define PFA(cfa)	(((Cell *)cfa)+2)
 /* PFA1 is a special version for use just after a NEXT1 */
