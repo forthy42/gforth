@@ -157,14 +157,16 @@ deviations of the book.
 
 There is, of course, the standard, the definite reference if you want to
 write ANS Forth programs. It will be available in printed form from
-!! somtime in spring or summer 1994. If you are lucky, you can still get
-dpANS6 (the draft that was approved as standard) by aftp from
-ftp.uu.net:/vendor/minerva/x3j14.
+Global Engineering Documents !! somtime in spring or summer 1994. If you
+are lucky, you can still get dpANS6 (the draft that was approved as
+standard) by aftp from ftp.uu.net:/vendor/minerva/x3j14.
 
-@cite{Forth: The new model} by Jack Woehr (!! Publisher) is an introductory
-book based on a draft version of the standard. It does not cover the
-whole standard. It also contains interesting background information
-(Jack Woehr was in the ANS Forth Technical Committe).
+@cite{Forth: The new model} by Jack Woehr (!! Publisher) is an
+introductory book based on a draft version of the standard. It does not
+cover the whole standard. It also contains interesting background
+information (Jack Woehr was in the ANS Forth Technical Committe). It is
+not appropriate for complete newbies, but programmers experienced in
+other languages should find it ok.
 
 @node Invocation, Words, Other Books, Top
 @chapter Invocation
@@ -357,11 +359,11 @@ variables. Note that while every sane Forth has a separate floating
 point stack, this is not strictly required; an ANS Forth system could
 theoretically keep floating point numbers on the data stack. As an
 additional difficulty, you don't know how many cells a floating point
-numkber takes. It is reportedly possible to write words in a way that
+number takes. It is reportedly possible to write words in a way that
 they work also for a unified stack model, but we do not recommend trying
 it. Also, a Forth system is allowed to keep the local variables on the
 return stack. This is reasonable, as local variables usually eliminate
-the need to use the return stack explicitely. So, if you want to produce
+the need to use the return stack explicitly. So, if you want to produce
 a standard complying program and if you are using local variables in a
 word, forget about return stack manipulations in that word (see the
 standard document for the exact rules).
@@ -402,6 +404,8 @@ r@
 rdrop
 2>r
 2r>
+2r@
+2rdrop
 
 @subsection Locals stack
 

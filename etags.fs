@@ -1,0 +1,94 @@
+\ Etags support for GNU Forth.
+
+\ This does not work like etags; instead, the TAGS file is updated
+\ during the normal Forth interpretation/compilation process.
+
+\ The present version has several shortcomings: It always overwrites
+\ the TAGS file instead of just the parts corresponding to the loaded
+\ files, but you can have several tag tables in emacs. Every load
+\ creates a new etags file and the user has to confirm that she wants
+\ to use it.
+
+\ Communication of interactive programs like emacs and Forth over
+\ files is clumsy. There should be better cooperation between them
+\ (e.g. via shared memory)
+
+\ This is ANS Forth with the following serious environmental
+\ dependences: the variable LAST must contain a pointer to the last
+\ header, NAME>STRING must convert that pointer to a string, and
+\ HEADER must be a deferred word that is called to create the name.
+
+: tags-file-name ( -- c-addr u )
+    \ for now I use just TAGS; this may become more flexible in the
+    \ future
+    s" TAGS" ;
+
+variable tags-file 0 tags-file !
+
+create tags-line 128 chars allot
+    
+: skip-tags ( file-id -- )
+    \ reads in file until it finds the end or the loadfilename
+    drop ;
+
+: tags-file-id ( -- file-id )
+    tags-file @ 0= if
+	tags-file-name w/o create-file throw
+\ 	2dup file-status
+\ 	if \ the file does not exist
+\ 	    drop w/o create-file throw
+\ 	else
+\ 	    drop r/w open-file throw
+\ 	    dup skip-tags
+\ 	endif
+	tags-file !
+    endif
+    tags-file @ ;
+
+create emit-file-char 0 c,
+
+: emit-file ( c file-id -- )
+    swap emit-file-char c!
+    emit-file-char 1 chars rot write-file ;
+
+2variable last-loadfilename 0 0 last-loadfilename 2!
+
+: put-load-file-name ( file-id -- )
+    >r
+    loadfilename 2@ last-loadfilename 2@ d<>
+    if
+	#ff r@ emit-file throw
+	#lf r@ emit-file throw
+	loadfilename 2@ 2dup
+	r@ write-file throw
+	last-loadfilename 2!
+	s" ,0" r@ write-line throw
+    endif
+    rdrop ;
+
+: put-tags-entry ( -- )
+    \ write the entry for the last name to the TAGS file
+    \ if the input is from a file and it is not a local name
+    source-id dup 0<> swap -1 <> and	\ input from a file
+    get-current locals-list <> and	\ not a local name
+    last @ 0<> and	\ not an anonymous (i.e. noname) header
+    if
+	tags-file-id >r 
+	r@ put-load-file-name
+	source drop >in @ r@ write-file throw
+	127 r@ emit-file throw
+	last @ name>string r@ write-file throw
+	1 r@ emit-file throw
+	base @ decimal loadline @ 0 <# #s #> r@ write-file throw base !
+	s" ,0" r@ write-line throw
+	\ the character position in the file; not strictly necessary AFAIK
+	\ instead of using 0, we could use file-position and subtract
+	\ the line length
+	rdrop
+    endif ;
+
+: (tags-header) ( -- )
+    defers header
+    put-tags-entry ;
+
+' (tags-header) IS header

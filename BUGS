@@ -20,3 +20,7 @@ anton 19aug94
     \ compute the
     \ paths from bb-from through bb, start-path is the path from
     \ bb-from to bb
+
+
+etags.fs: The TAGS file for the kernal is strange: there are no tahs
+for some aliases; many constants and variables appear twice.

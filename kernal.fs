@@ -780,12 +780,14 @@ Avariable leave-sp  leave-stack 3 cells + leave-sp !
 \ information through global variables), but they are useful for dealing
 \ with existing/independent defining words
 
-defer header
+defer (header)
+defer header ' (header) IS header
 
 : name,  ( "name" -- )
     name c@
     dup $1F u> -&19 and throw ( is name too long? )
     1+ chars allot align ;
+
 : input-stream-header ( "name" -- )
     \ !! this is f83-implementation-dependent
     align here last !  -1 A,
@@ -793,9 +795,9 @@ defer header
 
 : input-stream ( -- )  \ general
 \ switches back to getting the name from the input stream ;
-    ['] input-stream-header IS header ;
+    ['] input-stream-header IS (header) ;
 
-' input-stream-header IS header
+' input-stream-header IS (header)
 
 \ !! make that a 2variable
 create nextname-buffer 32 chars allot
@@ -813,7 +815,7 @@ create nextname-buffer 32 chars allot
     dup $1F u> -&19 and throw ( is name too long? )
     nextname-buffer c! ( c-addr )
     nextname-buffer count move
-    ['] nextname-header IS header ;
+    ['] nextname-header IS (header) ;
 
 : noname-header ( -- )
     0 last !
@@ -821,7 +823,7 @@ create nextname-buffer 32 chars allot
 
 : noname ( -- ) \ general
 \ the next defined word remains anonymous. The xt of that word is given by lastxt
-    ['] noname-header IS header ;
+    ['] noname-header IS (header) ;
 
 : lastxt ( -- xt ) \ general
 \ xt is the execution token of the last word defined. The main purpose of this word is to get the xt of words defined using noname
@@ -1013,9 +1015,11 @@ Variable warnings  G -1 warnings T !
 
 07 constant #bell
 08 constant #bs
+09 constant #tab
 7F constant #del
 0D constant #cr                \ the newline key code
 0A constant #lf
+0C constant #ff
 
 : bell  #bell emit ;
 
