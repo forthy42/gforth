@@ -54,8 +54,8 @@ interpret/compile: user' ( 'user' -- n )
   dup r@ user' fp0   + ! over -
   dup r@ user' sp0   + ! over -
   dup r@ user' normal-dp + dup >r !
-   r> r@ user' dpp  + ! + $10 +
-      r@ user' >tib + !
+   r> r@ user' dpp  + ! 2drop
+    0 r@ user' current-input + !
   r> dup 2dup 2! dup sleep ;
 
 : kill-task
