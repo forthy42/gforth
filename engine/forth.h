@@ -99,7 +99,6 @@ typedef struct {
 typedef DOUBLE_CELL_TYPE DCell;
 typedef unsigned DOUBLE_CELL_TYPE UDCell;
 
-#define IOR(flag)	((flag)? -512-errno : 0)
 #define OFF2UD(o)	((UDCell)(o))
 #define UD2OFF(ud)	((off_t)(ud))
 #define DZERO		((DCell)0)
@@ -249,6 +248,8 @@ struct Cellquad {
   Cell n3;
   Cell n4;
 };
+
+#define IOR(flag)	((flag)? -512-errno : 0)
 
 Label *engine(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp);
 Label *engine2(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp);

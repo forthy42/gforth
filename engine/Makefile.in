@@ -104,6 +104,8 @@ MAIN_DEPS = main.c $(DEPS) prim_superend.i prim_num.i prim_grp.i
 .c.o:
 	$(GCC) -c $(CFLAGS) $(CPPFLAGS) -o $@ $<
 
+support.o: support.c config.h forth.h
+
 gforth$(EXE):	$(OBJECTS) $(AOBJECTS)
 	$(GCC) $(LDFLAGS) $(OBJECTS) $(AOBJECTS) $(LDLIBS) -o $@
 

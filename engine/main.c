@@ -246,7 +246,7 @@ void relocate(Cell *image, const char *bitstring,
 		  compile_prim1(&image[i]);
 #endif
 	      } else
-		fprintf(stderr,"Primitive %d used in this image at $%lx is not implemented by this\n engine (%s); executing this code will crash.\n",CF(token),(long)&image[i],PACKAGE_VERSION);
+		fprintf(stderr,"Primitive %ld used in this image at $%lx is not implemented by this\n engine (%s); executing this code will crash.\n",(long)CF(token),(long)&image[i],PACKAGE_VERSION);
 	    }
 	  } else {
 	    int tok = -token & 0x1FF;
@@ -261,7 +261,7 @@ void relocate(Cell *image, const char *bitstring,
 		compile_prim1(&image[i]);
 #endif
 	    } else
-	      fprintf(stderr,"Primitive %x, %d of group %d used in this image at $%lx is not implemented by this\n engine (%s); executing this code will crash.\n", -token, tok, group, (long)&image[i],PACKAGE_VERSION);
+	      fprintf(stderr,"Primitive %lx, %d of group %d used in this image at $%lx is not implemented by this\n engine (%s); executing this code will crash.\n", (long)-token, tok, group, (long)&image[i],PACKAGE_VERSION);
 	  }
 	} else {
           // if base is > 0: 0 is a null reference so don't adjust
@@ -600,8 +600,8 @@ void check_prims(Label symbols1[])
     pi->restlength = symbols1[i+1] - symbols1[i] - pi->length;
     pi->nimmargs = 0;
     if (debug)
-      fprintf(stderr, "Prim %3d @ %p %p %p, length=%3d restlength=%2d superend=%1d",
-	      i, s1, s2, s3, pi->length, pi->restlength, pi->superend);
+      fprintf(stderr, "Prim %3d @ %p %p %p, length=%3ld restlength=%2ld superend=%1d",
+	      i, s1, s2, s3, (long)(pi->length), (long)(pi->restlength), pi->superend);
     assert(prim_len>=0);
     while (j<(pi->length+pi->restlength)) {
       if (s1[j]==s3[j]) {

@@ -289,7 +289,7 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
       xts[i] = symbols[i] = (Label)routines[i];
     for (; routines[i]!=0; i++) {
       if (i>=MAX_SYMBOLS) {
-	fprintf(stderr,"gforth-ditc: more than %d primitives\n",MAX_SYMBOLS);
+	fprintf(stderr,"gforth-ditc: more than %ld primitives\n",(long)MAX_SYMBOLS);
 	exit(1);
       }
       xts[i] = symbols[i] = &routines[i];

@@ -246,17 +246,16 @@ struct Cellpair parse_white(Char *c_addr1, UCell u1)
   /* use !isgraph instead of isspace? */
   struct Cellpair result;
   Char *c_addr2;
-  UCell u2;
   Char *endp = c_addr1+u1;
   while (c_addr1<endp && isspace(*c_addr1))
     c_addr1++;
   if (c_addr1<endp) {
     for (c_addr2 = c_addr1; c_addr1<endp && !isspace(*c_addr1); c_addr1++)
       ;
-    result.n1 = c_addr2;
+    result.n1 = (Cell)c_addr2;
     result.n2 = c_addr1-c_addr2;
   } else {
-    result.n1 = c_addr1;
+    result.n1 = (Cell)c_addr1;
     result.n2 = 0;
   }
   return result;
@@ -333,6 +332,7 @@ struct Cellpair file_status(Char *c_addr, UCell u)
   }
   r.n1 = wfam;
   r.n2 = wior;
+  return r;
 }
 
 Cell to_float(Char *c_addr, UCell u, Float *rp)
