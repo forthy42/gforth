@@ -1,0 +1,23 @@
+User-visible changes between 0.1beta and 0.2.0
+
+Improved etags support.
+more.fs allows output paging.
+Changed popen and pclose to open-pipe and close-pipe.
+Added form, rows, and cols.
+Added compat/ directory containing ANS implementations of Gforth features.
+added primitives EMIT-FILE, STDOUT, STDERR; EMIT and TYPE now work
+through file words (and are redirectable).
+Support architectures with buggy long longs (alpha-dec-osf).
+Added tiny multitasker.
+Size changes through the command line are passed to the image (and
+saved with savesystem); the preamble specifies an interpreter and is
+propagated by save-system.
+Added tables (case-sensitive wordlists)
+HEADER now stores the compilation wordlist in the header and REVEAL
+reveals into that wordlist.
+changed bahviour of system (no longer returns wretval, but puts it in
+$?)  added (system) ( c_addr u -- wretval wior ).
+Added the ability to combine arbitrary interpretation and compilation
+semantics; state-smart words were generally rewritten to use that
+mechanism.
+' and ['] now give an error for compile-only words.
