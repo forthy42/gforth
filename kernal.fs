@@ -1197,15 +1197,57 @@ create pathfilenamebuf 256 chars allot \ !! make this grow on demand
     0<> -&38 and throw ( file-id u2 )
     pathfilenamebuf swap ;
 
-: included ( i*x addr u -- j*x )
+create included-files 0 , 0 , ( pointer to and count of included files )
+
+: included? ( c-addr u -- f )
+    \ true, iff filename c-addr u is in included-files
+    included-files 2@ 0
+    ?do ( c-addr u addr )
+	dup >r 2@ 2over compare 0=
+	if
+	    2drop rdrop unloop
+	    true EXIT
+	then
+	r> cell+ cell+
+    loop
+    2drop drop false ;
+
+: add-included-file ( c-addr u -- )
+    \ add name c-addr u to included-files
+    included-files 2@ tuck 1+ 2* cells resize throw
+    swap 2dup 1+ included-files 2!
+    2* cells + 2! ;
+
+: save-string		( addr1 u -- addr2 u )
+    swap >r
+    dup allocate throw
+    swap 2dup r> -rot move ;
+
+: included1 ( i*x file-id c-addr u -- j*x )
+    \ include the file file-id with the name given by c-addr u
     loadfilename 2@ >r >r
-    open-path-file ( file-id c-addr2 u2 )
-    dup allocate throw over loadfilename 2! ( file-id c-addr2 u2 )
-    drop loadfilename 2@ move
+    save-string 2dup loadfilename 2! add-included-file ( file-id )
     ['] include-file catch
-    \ don't free filenames; they don't take much space
-    \ and are used for debugging
     r> r> loadfilename 2!  throw ;
+    
+: included ( i*x addr u -- j*x )
+    open-path-file included1 ;
+
+: required ( i*x addr u -- j*x )
+    \ include the file with the name given by addr u, if it is not
+    \ included already. Currently this works by comparing the name of
+    \ the file (with path) against the names of earlier included
+    \ files; however, it would probably be better to fstat the file,
+    \ and compare the device and inode. The advantages would be: no
+    \ problems with several paths to the same file (e.g., due to
+    \ links) and we would catch files included with include-file and
+    \ write a require-file.
+    open-path-file 2dup included?
+    if
+	2drop close-file throw
+    else
+	included1
+    then ;
 
 \ HEX DECIMAL                                           2may93jaw
 
@@ -1221,6 +1263,9 @@ create pathfilenamebuf 256 chars allot \ !! make this grow on demand
 
 : include  ( "file" -- )
   name included ;
+
+: require  ( "file" -- )
+  name required ;
 
 \ RECURSE                                               17may93jaw
 

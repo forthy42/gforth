@@ -302,8 +302,9 @@ cr
 
 : test
     1 { a }  ." after }" cr
-    2 { b -- } ." after --" cr
+    2 { b -- }  ." after --" cr
 ;
+test
 .s cr
 
 bye

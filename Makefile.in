@@ -58,7 +58,7 @@ FORTH_SRC = add.fs assert.fs ansi.fs blocks.fs bufio.fs checkans.fs \
 	vt100key.fs wordinfo.fs wordsets.fs
 
 SOURCES	= CVS Makefile.in configure.in configure config.sub  config.guess \
-	install-sh INSTALL README ToDo BUGS model gforth.ds \
+	install-sh INSTALL README ToDo BUGS model gforth.ds texinfo.tex \
 	primitives engine.c main.c io.c \
 	m68k.h mips.h 386.h hppa.h cache.c sparc.h power.h 32bit.h \
 	getopt.c getopt1.c getopt.h select.c \

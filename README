@@ -12,12 +12,20 @@ To start the system just say `gforth'. This gives you a pretty barren
 system. `gforth startup.fs' gives you most ANSI wordsets. If you miss
 a word, just grep for it in *.fs.
 
-If you want to work on gforth, mail me an encrypted UNIX password
-(i.e., what you find in /etc/passwd). Tasks to be done can be found in
-ToDo; but if you would like to do something not mentioned there, it's
-ok, too. In any case, we would like to hear what you are doing. The
-most important tasks IMO are the missing ANS Forth words (musts before
-the alpha release), the documentation, adding readline and the foreign
+If you want to work on gforth, mail me. Tasks to be done can be found
+in ToDo; but if you would like to do something not mentioned there,
+it's ok, too. In any case, we would like to hear what you are
+doing. The most important tasks IMO are the missing ANS Forth words
+(musts before the alpha release), the documentation and the foreign
 language interface for C.
+
+On popular request, here are the meanings of unusual file extensions:
+
+*.fs	Forth stream source file
+*.fi	Forth image files
+*.fb	Forth blocks file
+*.i	C include files
+*.ds	documenation source
+*TAGS	etags files
 
 - anton

@@ -134,7 +134,8 @@ variable locals-dp \ so here's the special dp for locals.
     postpone lp@ postpone c! ;
 
 : create-local ( " name" -- a-addr )
-	\ defines the local "name"; the offset of the local shall be stored in a-addr
+    \ defines the local "name"; the offset of the local shall be
+    \ stored in a-addr
     create
 	immediate
 	here 0 , ( place for the offset ) ;
@@ -263,7 +264,7 @@ locals-types definitions
 
 : -- ( addr wid 0 ... -- )
     }
-    [char] } word drop ;
+    [char] } parse 2drop ;
 
 forth definitions
 

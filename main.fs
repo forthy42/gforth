@@ -8,6 +8,7 @@
 \ : :noname ( -- xt colon-sys )  here [ ' : @ ] ALiteral cfa, 0 ] ;
 
 [IFUNDEF] vocabulary include search-order.fs [THEN]
+\ include etags.fs
 
 include cross.fs               \ include cross-compiler
 

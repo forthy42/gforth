@@ -607,6 +607,9 @@ The standard guarantees that addresses returned by @code{CREATE}d words
 are cell-aligned; in addition, gforth guarantees that these addresses
 are aligned for all purposes.
 
+Note that the standard defines a word @code{char}, which has nothing to
+do with address arithmetic.
+
 doc-chars
 doc-char+
 doc-cells

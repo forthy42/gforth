@@ -21,6 +21,7 @@ UNLOCK Tlast @ NIL Tlast ! LOCK
                                      immediate
 ' [IF]   Alias [IFDEF]               immediate
 ' [IF]   Alias [IFUNDEF]             immediate
+' [THEN] Alias [ENDIF]                immediate
 ' [IF]   Alias [BEGIN]               immediate
 ' [IF]   Alias [WHILE]               immediate
 ' [THEN] Alias [UNTIL]               immediate
@@ -48,6 +49,7 @@ UNLOCK Tlast @ swap Tlast ! LOCK
 : [IFUNDEF] postpone defined 0= postpone [IF] ;       immediate
 : [ELSE] 0 postpone [IF] ;                            immediate
 : [THEN] ;                                            immediate
+: [ENDIF] ;                                           immediate
 
 \ Structs for interpreter                              28nov92py
 

@@ -6,7 +6,8 @@ decimal
 
 \ .(                                                    12may93jaw
 
-: .(    [char] ) parse type ;
+: .(   ( -- )
+    [char] ) parse type ; immediate
 
 \ VALUE 2>R 2R> 2R@                                     17may93jaw
 

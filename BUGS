@@ -1,10 +1,8 @@
 name> does not take the same argument as e.g. .name. Remedy: add cell+
-before name>, but adapt all uses.  anton 23apr94
+before name>, but adapt all uses.  anton 23apr94 Solved?
 
 revealing the same name several times (e.g., by using recursive)
 results in redefined messages.  anton 28jul94
-
-[IF] is case-sensitive.  anton 2aug94
 
 if blocks.fb does not exist, 1 block creates the file, but cannot
 read-file from it. Only if the file-id has been created with
@@ -25,6 +23,9 @@ not all aliases are in the etags file. Bug in etags.fs? anton 24jan95
 
 emacs often finds the wrong tag. anton 24jan95
 
-source after a locals definition is ignored, e.g., in
-{ a } ." xxx"
-the `." xxx"' is not executed.  anton 24jan95
+gforth.el: indentation does not work right on the first line of a
+buffer. anton 27jan95
+
+Conditional compilation continues after the file ends. This is allowed
+by the standard (through an ambiguous condition), but the compiler
+should at least produce a warning.  anton 27jan95
