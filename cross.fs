@@ -2007,7 +2007,8 @@ bigendian Constant bigendian
 : tempdp> tempdp> ;
 : const constflag on ;
 : warnings name 3 = 0= twarnings ! drop ;
-: | NoHeaderFlag on ;
+: | ;
+\ : | NoHeaderFlag on ; \ This is broken (damages the last word)
 
 : save-cross save-cross ;
 : save-region save-region ;
