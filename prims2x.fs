@@ -312,26 +312,26 @@ defer inst-stream-f ( -- stack )
     item-stack @ stack-type @ type-c-name 2@ ;
 
 : fetch-single ( item -- )
- \ fetch a single stack item from its stack
- >r
- r@ item-name 2@ type
- ."  = vm_" r@ item-stack-type-name type
- ." 2" r@ item-type @ print-type-prefix ." ("
- r@ item-in-index r@ item-stack @ stack-access
- ." );" cr
- rdrop ; 
+    \ fetch a single stack item from its stack
+    >r
+    ." vm_" r@ item-stack-type-name type
+    ." 2" r@ item-type @ print-type-prefix ." ("
+    r@ item-in-index r@ item-stack @ stack-access ." ,"
+    r@ item-name 2@ type
+    ." );" cr
+    rdrop ; 
 
 : fetch-double ( item -- )
- \ fetch a double stack item from its stack
- >r
- ." vm_two"
- r@ item-stack-type-name type ." 2"
- r@ item-type @ print-type-prefix ." ("
- r@ item-name 2@ type ." , "
- r@ item-in-index r@ item-stack @ 2dup ." (Cell)" stack-access
- ." , "                      -1 under+ ." (Cell)" stack-access
- ." );" cr
- rdrop ;
+    \ fetch a double stack item from its stack
+    >r
+    ." vm_two"
+    r@ item-stack-type-name type ." 2"
+    r@ item-type @ print-type-prefix ." ("
+    r@ item-in-index r@ item-stack @ 2dup ." (Cell)" stack-access
+    ." , "                      -1 under+ ." (Cell)" stack-access
+    ." , " r@ item-name 2@ type
+    ." )" cr
+    rdrop ;
 
 : same-as-in? ( item -- f )
  \ f is true iff the offset and stack of item is the same as on input
@@ -355,12 +355,13 @@ defer inst-stream-f ( -- stack )
     >r r@ item-stack @ stack-out @ r> item-offset @ - 1- ;
 
 : really-store-single ( item -- )
- >r
- r@ item-out-index r@ item-stack @ stack-access ."  = vm_"
- r@ item-type @ print-type-prefix ." 2"
- r@ item-stack-type-name type ." ("
- r@ item-name 2@ type ." );"
- rdrop ;
+    >r
+    ." vm_"
+    r@ item-type @ print-type-prefix ." 2"
+    r@ item-stack-type-name type ." ("
+    r@ item-name 2@ type ." ,"
+    r@ item-out-index r@ item-stack @ stack-access ." );"
+    rdrop ;
 
 : store-single ( item -- )
  >r
@@ -385,7 +386,7 @@ defer inst-stream-f ( -- stack )
  r@ item-name 2@ type ." , "
  r@ item-out-index r@ item-stack @ 2dup stack-access
  ." , "                       -1 under+ stack-access
- ." );" cr
+ ." )" cr
  rdrop ;
 
 : single ( -- xt1 xt2 n )
@@ -673,9 +674,11 @@ stack inst-stream IP Cell
 : disasm-arg { item -- }
     item item-stack @ inst-stream = if
 	."   fputc(' ', vm_out); "
-	." printarg_" item item-type @ print-type-prefix
+	\ !! change this to first convert args to the right type and
+	\ then print them
+	." /* printarg_" item item-type @ print-type-prefix
 	." ((" item item-type @ type-c-name 2@ type ." )"
-	." ip[" item item-offset @ 1+ 0 .r ." ]);" cr
+	." ip[" item item-offset @ 1+ 0 .r ." ]); */" cr
     endif ;
 
 : disasm-args ( -- )
@@ -683,7 +686,7 @@ stack inst-stream IP Cell
 
 : output-disasm ( -- )
     \ generate code for disassembling VM instructions
-    ." if (ip[0] == prim[" function-number @ 0 .r ." ]) {" cr
+    ." if (VM_IS_INST(*ip, " function-number @ 0 .r ." )) {" cr
     ."   fputs(" quote prim prim-name 2@ type quote ." , vm_out);" cr
     disasm-args
     ."   ip += " inst-stream stack-in @ 1+ 0 .r ." ;" cr

@@ -27,7 +27,7 @@
 /* data structure: simple hash table with external chaining */
 
 #define HASH_SIZE (1<<20)
-#define hash(p) ((((Cell)(p))/sizeof(Inst))&(HASH_SIZE-1))
+#define hash(p) ((((long)(p))/sizeof(Inst))&(HASH_SIZE-1))
 
 typedef struct block_count {
   struct block_count *next; /* next in hash table */

@@ -1,0 +1,24 @@
+      18454929	loadlocal lit 
+      18454929	lit lessthan 
+      18454929	lessthan zbranch 
+      18454929	loadlocal lit lessthan 
+      18454929	lit lessthan zbranch 
+      18454929	loadlocal lit lessthan zbranch 
+       9227465	lit storelocal 
+       9227465	storelocal branch 
+       9227465	lit storelocal branch 
+       9227464	loadlocal lit 
+       9227464	lit sub 
+       9227464	sub call 
+       9227464	loadlocal lit sub 
+       9227464	lit sub call 
+       9227464	loadlocal lit sub call 
+       9227464	loadlocal lit 
+       9227464	lit sub 
+       9227464	sub call 
+       9227464	loadlocal lit sub 
+       9227464	lit sub call 
+       9227464	loadlocal lit sub call 
+       9227464	add storelocal 
+      18454929	loadlocal return 
+             1	lit call 

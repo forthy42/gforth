@@ -124,11 +124,11 @@ typedef union {
 				     (hi) = _d.cells.high; \
 				 })
 
-#define vm_twoCell2d(d_,lo,hi)  FETCH_DCELL_T(d_,lo,hi,d)
-#define vm_twoCell2ud(d_,lo,hi) FETCH_DCELL_T(d_,lo,hi,ud)
+#define vm_twoCell2d(lo,hi,d_)  FETCH_DCELL_T(d_,lo,hi,d);
+#define vm_twoCell2ud(lo,hi,d_) FETCH_DCELL_T(d_,lo,hi,ud);
 
-#define vm_d2twoCell(d_,lo,hi)  STORE_DCELL_T(d_,lo,hi,d)
-#define vm_ud2twoCell(d_,lo,hi) STORE_DCELL_T(d_,lo,hi,ud)
+#define vm_d2twoCell(d_,lo,hi)  STORE_DCELL_T(d_,lo,hi,d);
+#define vm_ud2twoCell(d_,lo,hi) STORE_DCELL_T(d_,lo,hi,ud);
 
 typedef Label *Xt;
 

@@ -407,3 +407,10 @@ Input Syntax
 Concepts: Front end, VM, Stacks,  Types, input stream
 
 Contact
+
+
+Required changes:
+vm_...2... -> two arguments
+"vm_two...2...(arg1,arg2,arg3);" -> "vm_two...2...(arg3,arg1,arg2)" (no ";").
+define INST_ADDR and LABEL
+define VM_IS_INST also for disassembler

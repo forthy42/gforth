@@ -1,0 +1,139 @@
+\ mini.inst is generated automatically from mini-inst.vmg and mini-super.vmg
+\ example .vmg file
+
+\ Copyright (C) 2001 Free Software Foundation, Inc.
+
+\ This file is part of Gforth.
+
+\ Gforth is free software; you can redistribute it and/or
+\ modify it under the terms of the GNU General Public License
+\ as published by the Free Software Foundation; either version 2
+\ of the License, or (at your option) any later version.
+
+\ This program is distributed in the hope that it will be useful,
+\ but WITHOUT ANY WARRANTY; without even the implied warranty of
+\ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+\ GNU General Public License for more details.
+
+\ You should have received a copy of the GNU General Public License
+\ along with this program; if not, write to the Free Software
+\ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
+
+
+\ WARNING: This file is processed by m4. Make sure your identifiers
+\ don't collide with m4's (e.g. by undefining them).
+
+
+\ comments start with "\ "
+
+\ stack definitions:
+\E stack data-stack sp Cell
+
+\ stack prefix definitions
+\E inst-stream stack-prefix #
+
+\ type prefix definitions:
+\E s" long"   single data-stack type-prefix i
+\E s" char *" single data-stack type-prefix a
+\E s" Inst *" single data-stack type-prefix target
+
+\ simple VM instructions:
+add  ( i1 i2 -- i )
+i = i1+i2;
+
+sub ( i1 i2 -- i )
+i = i1-i2;
+
+mul ( i1 i2 -- i )
+i = i1*i2;
+
+and ( i1 i2 -- i )
+i = i1 & i2;
+
+or ( i1 i2 -- i )
+i = i1 | i2;
+
+lessthan ( i1 i2 -- i )
+i = i1<i2;
+
+equals ( i1 i2 -- i )
+i = i1==i2;
+
+not ( i1 -- i2 )
+i2 = !i1;
+
+negate ( i1 -- i2 )
+i2 = -i1;
+
+lit ( #i -- i )
+
+drop ( i -- )
+
+print ( i -- )
+printf("%ld\n", i);
+
+branch ( #target -- )
+SET_IP(target);
+
+zbranch ( #target i -- )
+if (i==0) {
+  SET_IP(target);
+  TAIL;
+}
+
+\  The stack is organized as follows:
+\  The stack grows downwards; a stack usually looks like this:
+
+\  higher addresses
+\  --------------------- bottom of stack
+\     locals of main
+\     return address (points to VM code after call)
+\  +->oldfp (NULL)
+\  |  intermediate results (e.g., 1 for a call like 1+foo(...))
+\  |  arguments passed to the called function
+\  |  locals of the called function
+\  |  return address (points to VM code after call)
+\  +--oldfp                <-- fp
+\     intermediate results <-- sp
+\  ---------------------- top of stack
+\  lower addresses
+
+\ The following VM instructions also explicitly reference sp and
+\ therefore may have to do something about spTOS caching.
+
+call ( #target #iadjust -- targetret aoldfp )
+/* IF_spTOS(sp[2] = spTOS);*/ /* unnecessary; vmgen inserts a flush anyway */
+targetret = IP;
+SET_IP(target);
+aoldfp = fp;
+sp = (Cell *)(((char *)sp)+iadjust);
+fp = (char *)sp;
+/* IF_spTOS(spTOS = sp[0]); */ /* dead, thus unnecessary; vmgen copies aoldfp there */
+
+return ( #iadjust target afp i1 -- i2 )
+/* IF_spTOS(sp[-2] = spTOS); */ /* unnecessary; that stack item is dead */
+SET_IP(target);
+sp = (Cell *)(((char *)sp)+iadjust);
+fp = afp;
+i2=i1;
+/* IF_spTOS(spTOS = sp[0]); */ /* dead, thus unnecessary; vmgen copies i2 there */
+
+\ loadlocal and storelocal access stack items below spTOS, so we can
+\ ignore spTOS caching.
+
+loadlocal ( #ioffset -- i )
+vm_Cell2i(*(Cell *)(fp+ioffset),i);
+
+storelocal ( #ioffset i -- )
+vm_i2Cell(i,*(Cell *)(fp+ioffset));
+
+end ( i -- )
+/* SUPER_END would increment the next BB count (because IP points there);
+   this would be a problem if there is no following BB.
+   Instead, we do the following to add an end point for the current BB: */
+#ifdef VM_PROFILING
+block_insert(IP); /* we also do this at compile time, so this is unnecessary */
+#endif
+return i;
+
+include(mini-super.vmg)

@@ -21,16 +21,7 @@
 
 #include "mini.h"
 
-/* type change macros; these are specific to the types you use, so you
-   have to change this part */
-#define vm_Cell2i(_cell,x)	((x)=(long)(_cell))
-#define vm_Cell2target(_cell,x)	((x)=(Inst *)(_cell))
-#define vm_Cell2a(_cell,x)	((x)=(char *)(_cell))
-#define vm_i2Cell(x,_cell)	((_cell)=(Cell)(x))
-#define vm_target2Cell(x,_cell)	((_cell)=(Cell)(x))
-#define vm_a2Cell(x,_cell)	((_cell)=(Cell)(x))
-
-#define vm_Cell2Cell(x) ((Cell)(x))
+#define vm_Cell2Cell(_x,_y) ((_y)=(_x))
 
 #define USE_spTOS 1
 
@@ -108,7 +99,7 @@
 #  define INC_IP(const_inc)	({ ip+=(const_inc);})
 #  define DEF_CA
 #  define NEXT_P1	(ip++)
-#  define NEXT_P2	({goto **(ip-1);})
+#  define NEXT_P2	({goto *((*(ip-1)).inst);})
 #endif
 
 #if THREADING_SCHEME==9
@@ -141,7 +132,7 @@
 
 
 #define NEXT ({DEF_CA NEXT_P1; NEXT_P2;})
-#define IPTOS NEXT_INST
+#define IPTOS ((Cell)(NEXT_INST))
 #define CASE
 
 #ifdef VM_PROFILING
@@ -154,17 +145,17 @@
 #define LABEL(name) I_##name
 
 /* the return type can be anything you want it to */
-Cell engine(Inst *ip0, Cell *sp, char *fp)
+long engine(Cell *ip0, Cell *sp, char *fp)
 {
   /* VM registers (you may want to use gcc's "Explicit Reg Vars" here) */
-  Inst * ip;
-  Inst * cfa;
+  Cell * ip;
+  Cell * cfa;
 #ifdef USE_spTOS
   Cell   spTOS;
 #else
 #define spTOS (sp[0])
 #endif
-  static Inst   labels[] = {
+  static Label   labels[] = {
 #include "mini-labels.i"
   };
 #ifdef MORE_VARS
