@@ -37,6 +37,13 @@
 \ include-file                                         07apr93py
 
 has? new-input 0= [IF]
+: loadfilename>r ( addr1 u1 -- R: addr2 u2 )
+    r> loadfilename 2@ 2>r >r
+    loadfilename 2! ;
+
+: r>loadfilename ( R: addr u -- )
+    r> 2r> loadfilename 2! >r ;
+
 : push-file  ( -- )  r>
     #fill-bytes @ >r
     loadline @    >r
@@ -79,10 +86,9 @@ has? new-input 0= [IF]
     include-file1 throw throw ;
 
 : include-file ( i*x wfileid -- j*x ) \ file
-    loadfilename 2@ 2>r
-    s" *a file*" loadfilename 2! \ "*a file*"
+    s" *a file*" loadfilename>r
     include-file1
-    2r> loadfilename 2!
+    r>loadfilename
     throw throw ;
 [THEN]
     

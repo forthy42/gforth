@@ -81,11 +81,10 @@ has? new-input [IF]
 [ELSE]
 : included1 ( i*x file-id c-addr u -- j*x ) \ gforth
 \G Include the file file-id with the name given by @var{c-addr u}.
-    loadfilename 2@ 2>r
-    save-mem 2dup loadfilename 2!
+    save-mem 2dup loadfilename>r
     add-included-file ( file-id )
     ['] include-file2 catch
-    2r> loadfilename 2!
+    r>loadfilename
     throw ;
 [THEN]
 

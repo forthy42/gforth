@@ -696,8 +696,7 @@ has? new-input 0= [IF]
     \G and input buffer. Interpret. When the parse area is empty,
     \G restore the input source specification.
 [ has? file [IF] ]
-    loadfilename 2@ 2>r
-    s" *evaluated string*" loadfilename 2!
+    s" *evaluated string*" loadfilename>r
 [ [THEN] ]
     push-file #tib ! >tib !
     >in off
@@ -707,7 +706,7 @@ has? new-input 0= [IF]
     ['] interpret catch
     pop-file
 [ has? file [IF] ]
-    2r> loadfilename 2!
+    r>loadfilename
 [ [THEN] ]
     throw ;
 [THEN]

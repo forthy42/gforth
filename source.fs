@@ -37,7 +37,7 @@
 : compile-sourcepos ( compile-time: -- ; run-time: -- nfile nline )
     \ compile the current source position as literals: nfile is the
     \ source file index, nline the line number within the file.
-    loadfilename 2@ str>loadfilename# postpone literal
+    sourcefilename str>loadfilename# postpone literal
     sourceline# postpone literal ;
 
 : .sourcepos ( nfile nline -- )
