@@ -18,6 +18,8 @@
 \ along with this program; if not, write to the Free Software
 \ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
 
+\ usage: gforth tags.fs your_files.fs ...
+\  then: vi -t word_name
 
 \ This does not work like etags; instead, the TAGS file is updated
 \ during the normal Forth interpretation/compilation process.
@@ -42,7 +44,12 @@
 \ fact those blanks are not necessary, since search is performed on
 \ the tag-text, rather than the tag name.
 
-require search.fs
+\ Changes by Erik Rossen: Reversed the order of the tagname and tagfile
+\ and got rid of the trailing "$" in the address regexp.  I also needed
+\ to comment out search.fs since it sets the search order destructively
+\ on my system.  Added a bit more explanation on how to use tags.fs.
+
+\ require search.fs
 require extend.fs
 
 : tags-file-name ( -- c-addr u )
@@ -87,12 +94,12 @@ create tags-line 128 chars allot
     last @ 0<> and	\ not an anonymous (i.e. noname) header
     if
 	tags-file-id >r 
-	r@ put-load-file-name
 	last @ name>string r@ write-file throw
 	#tab r@ emit-file throw
+	r@ put-load-file-name
 	s" /^" r@ write-file throw
 	source drop >in @ r@ write-file throw
-	s" $/" r@ write-line throw
+	s" /" r@ write-line throw
 	rdrop
     endif ;
 
