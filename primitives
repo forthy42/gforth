@@ -893,7 +893,7 @@ timeout.tv_usec=1000*(n%1000);
 (void)select(0,0,0,0,&timeout);
 
 allocate	u -- a_addr wior	memory
-a_addr = (Cell *)malloc(u);
+a_addr = (Cell *)malloc(u?u:1);
 wior = IOR(a_addr==NULL);
 
 free		a_addr -- wior		memory

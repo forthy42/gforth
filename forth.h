@@ -35,7 +35,7 @@ typedef void *Label;
 #include "machine.h"
 
 /* Forth data types */
-typedef int Bool;
+typedef Cell Bool;
 #define FLAG(b) (-(b))
 #define FILEIO(error)	(FLAG(error) & -37)
 #define FILEEXIST(error)	(FLAG(error) & -38)
