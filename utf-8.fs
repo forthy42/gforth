@@ -141,7 +141,11 @@ $80 Value max-single-byte
 ;
 
 : utf-8-cold ( -- )
-    s" LANG" getenv s" .UTF-8" search nip nip
+    s" LC_ALL" getenv 2dup d0= IF  2drop
+	s" LC_CTYPE" getenv 2dup d0= IF  2drop
+	    s" LANG" getenv 2dup d0= IF  2drop
+		s" C"  THEN THEN THEN
+    s" UTF-8" search nip nip
     IF  set-encoding-utf-8  ELSE  set-encoding-fixed-width  THEN ;
 
 ' utf-8-cold INIT8 chained
