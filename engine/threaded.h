@@ -393,4 +393,4 @@
 #endif /* !defined(DOUBLY_INDIRECT) */
 
 #define NEXT ({DEF_CA NEXT_P1; NEXT_P2;})
-
+#define ipTOS NEXT_INST

@@ -129,13 +129,10 @@ undefine(`index')
 undefine(`shift')
 
 noop	( -- )		gforth
-;
 :
  ;
 
-lit	( -- w )		gforth
-w = (Cell)NEXT_INST;
-INC_IP(1);
+lit	( #w -- w )		gforth
 :
  r> dup @ swap cell+ >r ;
 
@@ -157,44 +154,39 @@ EXEC(*(Xt *)a_addr);
 \fhas? skipbranchprims 0= [IF]
 \+glocals
 
-branch-lp+!#	( -- )	gforth	branch_lp_plus_store_number
+branch-lp+!#	( #ndisp #nlocals -- )	gforth	branch_lp_plus_store_number
 /* this will probably not be used */
-lp += (Cell)(IP[1]);
-goto branch;
+lp += nlocals;
+SET_IP((Xt *)(((Cell)(IP-2))+ndisp));
 
 \+
 
-branch	( -- )		gforth
-branch:
-SET_IP((Xt *)(((Cell)IP)+(Cell)NEXT_INST));
+branch	( #ndisp -- )		gforth
+SET_IP((Xt *)(((Cell)(IP-1))+ndisp));
 :
  r> dup @ + >r ;
 
-\ condbranch(forthname,restline,code,forthcode)
+\ condbranch(forthname,stackeffect,restline,code,forthcode)
 \ this is non-syntactical: code must open a brace that is closed by the macro
 define(condbranch,
-$1	$2
-$3	SET_IP((Xt *)(((Cell)IP)+(Cell)NEXT_INST));
+$1 ( `#'ndisp $2 ) $3
+$4	SET_IP((Xt *)(((Cell)(IP-1))+ndisp));
 TAIL;
 }
-else
-    INC_IP(1);
-$4
+$5
 
 \+glocals
 
-$1-lp+!#	$2_lp_plus_store_number
-$3    lp += (Cell)(IP[1]);
-SET_IP((Xt *)(((Cell)IP)+(Cell)NEXT_INST));
+$1-lp+!`#' ( `#'ndisp `#'nlocals $2 ) $3_lp_plus_store_number
+$4    lp += nlocals;
+SET_IP((Xt *)(((Cell)(IP-2))+ndisp));
 TAIL;
 }
-else
-    INC_IP(2);
 
 \+
 )
 
-condbranch(?branch,( f -- )		f83	question_branch,
+condbranch(?branch,f --,f83	question_branch,
 if (f==0) {
 ,:
  0= dup     \ !f !f
@@ -208,18 +200,16 @@ if (f==0) {
 
 \+xconds
 
-?dup-?branch	( f -- f )	new	question_dupe_question_branch
+?dup-?branch	( #ndisp f -- f )	new	question_dupe_question_branch
 ""The run-time procedure compiled by @code{?DUP-IF}.""
 if (f==0) {
   sp++;
   IF_spTOS(spTOS = sp[0]);
-  SET_IP((Xt *)(((Cell)IP)+(Cell)NEXT_INST));
-  NEXT;
+  SET_IP((Xt *)(((Cell)(IP-1))+ndisp));
+  TAIL;
 }
-else
-  INC_IP(1);
 
-?dup-0=-?branch	( f -- )	new	question_dupe_zero_equals_question_branch
+?dup-0=-?branch	( #ndisp f -- )	new	question_dupe_zero_equals_question_branch
 ""The run-time procedure compiled by @code{?DUP-0=-IF}.""
 /* the approach taken here of declaring the word as having the stack
 effect ( f -- ) and correcting for it in the branch-taken case costs a
@@ -227,24 +217,22 @@ few cycles in that case, but is easy to convert to a CONDBRANCH
 invocation */
 if (f!=0) {
   sp--;
-  SET_IP((Xt *)(((Cell)IP)+(Cell)NEXT_INST));
+  SET_IP((Xt *)(((Cell)(IP-1))+ndisp));
   NEXT;
 }
-else
-  INC_IP(1);
 
 \+
 \f[THEN]
 \fhas? skiploopprims 0= [IF]
 
-condbranch((next),( R:n1 -- R:n2 )		cmFORTH	paren_next,
+condbranch((next),R:n1 -- R:n2,cmFORTH	paren_next,
 n2=n1-1;
 if (n1) {
 ,:
  r> r> dup 1- >r
  IF dup @ + >r ELSE cell+ >r THEN ;)
 
-condbranch((loop),( R:nlimit R:n1 -- R:nlimit R:n2 )	gforth	paren_loop,
+condbranch((loop),R:nlimit R:n1 -- R:nlimit R:n2,gforth	paren_loop,
 n2=n1+1;
 if (n2 != nlimit) {
 ,:
@@ -252,7 +240,7 @@ if (n2 != nlimit) {
  IF >r 1- >r cell+ >r
  ELSE >r >r dup @ + >r THEN ;)
 
-condbranch((+loop),( n R:nlimit R:n1 -- R:nlimit R:n2 )	gforth paren_plus_loop,
+condbranch((+loop),n R:nlimit R:n1 -- R:nlimit R:n2,gforth paren_plus_loop,
 /* !! check this thoroughly */
 /* sign bit manipulation and test: (x^y)<0 is equivalent to (x<0) != (y<0) */
 /* dependent upon two's complement arithmetic */
@@ -270,13 +258,13 @@ if ((olddiff^(olddiff+n))>=0   /* the limit is not crossed */
 
 \+xconds
 
-condbranch((-loop),( u R:nlimit R:n1 -- R:nlimit R:n2 )	gforth	paren_minus_loop,
+condbranch((-loop),u R:nlimit R:n1 -- R:nlimit R:n2,gforth paren_minus_loop,
 UCell olddiff = n1-nlimit;
 n2=n1-u;
 if (olddiff>u) {
 ,)
 
-condbranch((s+loop),( n R:nlimit R:n1 -- R:nlimit R:n2 )		gforth	paren_symmetric_plus_loop,
+condbranch((s+loop),n R:nlimit R:n1 -- R:nlimit R:n2,gforth	paren_symmetric_plus_loop,
 ""The run-time procedure compiled by S+LOOP. It loops until the index
 crosses the boundary between limit and limit-sign(n). I.e. a symmetric
 version of (+LOOP).""
@@ -308,13 +296,10 @@ nlimit=0;
 :
  r> swap rot >r >r >r ;
 
-(?do)	( nlimit nstart -- R:nlimit R:nstart )	gforth	paren_question_do
+(?do)	( #ndisp nlimit nstart -- R:nlimit R:nstart )	gforth	paren_question_do
 if (nstart == nlimit) {
-    IF_spTOS(spTOS = sp[0]);
-    goto branch;
-    }
-else {
-    INC_IP(1);
+    SET_IP((Xt *)(((Cell)(IP-1))+ndisp));
+    TAIL;
 }
 :
   2dup =
@@ -326,13 +311,10 @@ else {
 
 \+xconds
 
-(+do)	( nlimit nstart -- R:nlimit R:nstart )	gforth	paren_plus_do
+(+do)	( #ndisp nlimit nstart -- R:nlimit R:nstart )	gforth	paren_plus_do
 if (nstart >= nlimit) {
-    IF_spTOS(spTOS = sp[0]);
-    goto branch;
-    }
-else {
-    INC_IP(1);
+    SET_IP((Xt *)(((Cell)(IP-1))+ndisp));
+    TAIL;
 }
 :
  swap 2dup
@@ -344,13 +326,10 @@ else {
      cell+
  THEN  >r ;
 
-(u+do)	( ulimit ustart -- R:ulimit R:ustart )	gforth	paren_u_plus_do
+(u+do)	( #ndisp ulimit ustart -- R:ulimit R:ustart )	gforth	paren_u_plus_do
 if (ustart >= ulimit) {
-    IF_spTOS(spTOS = sp[0]);
-    goto branch;
-    }
-else {
-    INC_IP(1);
+    SET_IP((Xt *)(((Cell)(IP-1))+ndisp));
+    TAIL;
 }
 :
  swap 2dup
@@ -362,13 +341,10 @@ else {
      cell+
  THEN  >r ;
 
-(-do)	( nlimit nstart -- R:nlimit R:nstart )	gforth	paren_minus_do
+(-do)	( #ndisp nlimit nstart -- R:nlimit R:nstart )	gforth	paren_minus_do
 if (nstart <= nlimit) {
-    IF_spTOS(spTOS = sp[0]);
-    goto branch;
-    }
-else {
-    INC_IP(1);
+    SET_IP((Xt *)(((Cell)(IP-1))+ndisp));
+    TAIL;
 }
 :
  swap 2dup
@@ -380,13 +356,10 @@ else {
      cell+
  THEN  >r ;
 
-(u-do)	( ulimit ustart -- R:ulimit R:ustart )	gforth	paren_u_minus_do
+(u-do)	( #ndisp ulimit ustart -- R:ulimit R:ustart )	gforth	paren_u_minus_do
 if (ustart <= ulimit) {
-    IF_spTOS(spTOS = sp[0]);
-    goto branch;
-    }
-else {
-    INC_IP(1);
+    SET_IP((Xt *)(((Cell)(IP-1))+ndisp));
+    TAIL;
 }
 :
  swap 2dup
@@ -2018,9 +1991,8 @@ df_addr = (DFloat *)((((Cell)c_addr)+(sizeof(DFloat)-1))&(-sizeof(DFloat)));
 \+
 \+glocals
 
-@local#	( -- w )	gforth	fetch_local_number
-w = *(Cell *)(lp+(Cell)NEXT_INST);
-INC_IP(1);
+@local#	( #noffset -- w )	gforth	fetch_local_number
+w = *(Cell *)(lp+noffset);
 
 @local0	( -- w )	new	fetch_local_zero
 w = *(Cell *)(lp+0*sizeof(Cell));
@@ -2036,9 +2008,8 @@ w = *(Cell *)(lp+3*sizeof(Cell));
 
 \+floating
 
-f@local#	( -- r )	gforth	f_fetch_local_number
-r = *(Float *)(lp+(Cell)NEXT_INST);
-INC_IP(1);
+f@local#	( #noffset -- r )	gforth	f_fetch_local_number
+r = *(Float *)(lp+noffset);
 
 f@local0	( -- r )	new	f_fetch_local_zero
 r = *(Float *)(lp+0*sizeof(Float));
@@ -2048,17 +2019,15 @@ r = *(Float *)(lp+1*sizeof(Float));
 
 \+
 
-laddr#	( -- c_addr )	gforth	laddr_number
+laddr#	( #noffset -- c_addr )	gforth	laddr_number
 /* this can also be used to implement lp@ */
-c_addr = (Char *)(lp+(Cell)NEXT_INST);
-INC_IP(1);
+c_addr = (Char *)(lp+noffset);
 
-lp+!#	( -- )	gforth	lp_plus_store_number
+lp+!#	( #noffset -- )	gforth	lp_plus_store_number
 ""used with negative immediate values it allocates memory on the
 local stack, a positive immediate argument drops memory from the local
 stack""
-lp += (Cell)NEXT_INST;
-INC_IP(1);
+lp += noffset;
 
 lp-	( -- )	new	minus_four_lp_plus_store
 lp += -sizeof(Cell);

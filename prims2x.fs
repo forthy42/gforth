@@ -585,8 +585,13 @@ does> ( item -- )
 	stack stack-pointer 2@ type ."  += " 0 .r ." ;" cr
     endif ;
 
+: inst-pointer-update ( -- )
+    inst-stream stack-in @ ?dup-if
+	." INC_IP(" 0 .r ." );" cr
+    endif ;
+
 : stack-pointer-updates ( -- )
-    inst-stream  stack-pointer-update
+    inst-pointer-update
     data-stack   stack-pointer-update
     fp-stack     stack-pointer-update
     return-stack stack-pointer-update ;
