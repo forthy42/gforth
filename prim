@@ -2537,10 +2537,9 @@ SUPER_CONTINUE;
 acondbranch(a?branch,f --,f83	aquestion_branch,
 ,if (f==0) {
 ,:
- 0= dup     \ !f !f \ !! still uses relative addresses
- r> dup @   \ !f !f IP branchoffset
- rot and +  \ !f IP|IP+branchoffset
- swap 0= cell and + \ IP''
+ 0= dup 0=          \ !f f
+ r> tuck cell+      \ !f branchoffset f IP+
+ and -rot @ and or  \ f&IP+|!f&branch
  >r ;)
 
 \ we don't need an lp_plus_store version of the ?dup-stuff, because it
