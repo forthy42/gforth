@@ -239,13 +239,135 @@ Print version and exit
 
 @c env vars GFORTHDIR GFORTHDATADIR
 
+@c ****************************************************************
+@chapter Example
+
+@section Example overview
+
+There are two versions of the same example for using vmgen:
+@file{vmgen-ex} and @file{vmgen-ex2} (you can also see Gforth as
+example, but it uses additional (undocumented) features, and also
+differs in some other respects).  The example implements @emph{mini}, a
+tiny Modula-2-like language with a small JavaVM-like virtual machine.
+The difference between the examples is that @file{vmgen-ex} uses many
+casts, and @file{vmgen-ex2} tries to avoids most casts and uses unions
+instead.
+
+The files provided with each example are:
+
+@example
+Makefile
+README
+disasm.c           wrapper file
+engine.c           wrapper file
+peephole.c         wrapper file
+profile.c          wrapper file
+mini-inst.vmg      simple VM instructions
+mini-super.vmg     superinstructions (empty at first)
+mini.h             common declarations
+mini.l             scanner
+mini.y             front end (parser, VM code generator)
+support.c          main() and other support functions
+fib.mini           example mini program
+simple.mini        example mini program
+test.mini          example mini program (tests everything)
+test.out           test.mini output
+stat.awk           script for aggregating profile information
+peephole-blacklist list of instructions not allowed in superinstructions
+seq2rule.awk       script for creating superinstructions
+@end example
+
+For your own interpreter, you would typically copy the following files
+and change little, if anything:
+
+@example
+disasm.c           wrapper file
+engine.c           wrapper file
+peephole.c         wrapper file
+profile.c          wrapper file
+stat.awk           script for aggregating profile information
+seq2rule.awk       script for creating superinstructions
+@end example
+
+You would typically change much in or replace the following files:
+
+@example
+Makefile
+mini-inst.vmg      simple VM instructions
+mini.h             common declarations
+mini.l             scanner
+mini.y             front end (parser, VM code generator)
+support.c          main() and other support functions
+peephole-blacklist list of instructions not allowed in superinstructions
+@end example
+
+You can build the example by @code{cd}ing into the example's directory,
+and then typing @samp{make}; you can check that it works with @samp{make
+check}.  You can run run mini programs like this:
+
+@example
+./mini fib.mini
+@end example
+
+To learn about the options, type @samp{./mini -h}.
+
+@section Using profiling to create superinstructions
+
+I have not added rules for this in the @file{Makefile} (there are many
+options for selecting superinstructions, and I did not want to hardcode
+one into the @file{Makefile}), but there are some supporting scripts, and
+here's an example:
+
+Suppose you want to use @file{fib.mini} and @file{test.mini} as training
+programs, you get the profiles like this:
+
+@example
+make fib.prof test.prof #takes a few seconds
+@end example
+
+You can aggregate these profiles with @file{stat.awk}:
+
+@example
+awk -f stat.awk fib.prof test.prof
+@end example
+
+The result contains lines like:
+
+@example
+      2      16        36910041 loadlocal lit
+@end example
+
+This means that the sequence @code{loadlocal lit} statically occurs a
+total of 16 times in 2 profiles, with a dynamic execution count of
+36910041.
+
+The numbers can be used in various ways to select superinstructions.
+E.g., if you just want to select all sequences with a dynamic
+execution count exceeding 10000, you would use the following pipeline:
+
+@example
+awk -f stat.awk fib.prof test.prof|
+awk '$3>=10000'|                #select sequences
+fgrep -v -f peephole-blacklist| #eliminate wrong instructions
+awk -f seq2rule.awk|      #transform sequences into superinstruction rules
+sort -k 3 >mini-super.vmg       #sort sequences
+@end example
+
+The file @file{peephole-blacklist} contains all instructions that
+directly access a stack or stack pointer (for mini: @code{call},
+@code{return}); the sort step is necessary to ensure that prefixes
+preceed larger superinstructions.
+
+Now you can create a version of mini with superinstructions by just
+saying @samp{make}
+
 @c ***************************************************************
 @chapter Input File Format
 
 Vmgen takes as input a file containing specifications of virtual machine
 instructions.  This file usually has a name ending in @file{.vmg}.
 
-The examples are taken from the example in @file{vmgen-ex}.
+Most examples are taken from the example in @file{vmgen-ex}.
 
 @section Input File Grammar
 
@@ -275,7 +397,7 @@ eval-escape:  "\e " text newline
 @c \+ \- \g \f \c
 
 Note that the @code{\}s in this grammar are meant literally, not as
-C-style encodings for no-printable characters.
+C-style encodings for non-printable characters.
 
 The C code in @code{simple-inst} must not contain empty lines (because
 vmgen would mistake that as the end of the simple-inst.  The text in
@@ -318,6 +440,7 @@ double       ( -- xt1 xt2 n )
 stack-prefix ( stack "prefix" -- )
 @end example
 
+
 @section Simple instructions
 
 We will use the following simple VM instruction description as example:
@@ -333,7 +456,7 @@ just plain C code.
 
 @cindex stack effect
 The stack effect specifies that @code{sub} pulls two integers from the
-data stack and puts them in the C variable @code{i1} and @code{i2} (with
+data stack and puts them in the C variables @code{i1} and @code{i2} (with
 the rightmost item (@code{i2}) taken from the top of stack) and later
 pushes one integer (@code{i)) on the data stack (the rightmost item is
 on the top afterwards).
@@ -364,7 +487,7 @@ types have to fit into one or two @code{Cell}s (depending on whether the
 type is @code{single} or @code{double} wide), and are converted from and
 to Cells on accessing the @code{data-stack) with conversion macros
 (@pxref{Conversion macros}).  Stacks grow towards lower addresses in
-vmgen.
+vmgen-erated interpreters.
 
 We can override the default stack of a stack item by using a stack
 prefix.  E.g., consider the following instruction:
@@ -374,7 +497,7 @@ lit ( #i -- i )
 @end example
 
 The VM instruction @code{lit} takes the item @code{i} from the
-instruction stream (indicated by the prefix @code{#}, and pushes it on
+instruction stream (indicated by the prefix @code{#}), and pushes it on
 the (default) data stack.  The stack prefix is not part of the variable
 name.  Stack prefixes are defined like this:
 
@@ -382,7 +505,7 @@ name.  Stack prefixes are defined like this:
 \E inst-stream stack-prefix #
 @end example
 
-This definition defines that the stack prefix @code{#} to specifies the
+This definition defines that the stack prefix @code{#} specifies the
 ``stack'' @code{inst-stream}.  Since the instruction stream behaves a
 little differently than an ordinary stack, it is predefined, and you do
 not need to define it.
@@ -394,7 +517,317 @@ arguments can only appear to the left of @code{--} in the stack effect.
 If there are multiple instruction stream arguments, the leftmost is the
 first one (just as the intuition suggests).
 
+@subsubsection C Code Macros
+
+Vmgen recognizes the following strings in the C code part of simple
+instructions:
+
+@table @samp
+
+@item SET_IP
+As far as vmgen is concerned, a VM instruction containing this ends a VM
+basic block (used in profiling to delimit profiled sequences).  On the C
+level, this also sets the instruction pointer.
+
+@item SUPER_END
+This ends a basic block (for profiling), without a SET_IP.
+
+@item TAIL;
+Vmgen replaces @samp{TAIL;} with code for ending a VM instruction and
+dispatching the next VM instruction.  This happens automatically when
+control reaches the end of the C code.  If you want to have this in the
+middle of the C code, you need to use @samp{TAIL;}.  A typical example
+is a conditional VM branch:
+
+@example
+if (branch_condition) {
+  SET_IP(target); TAIL;
+}
+/* implicit tail follows here */
+@end example
+
+In this example, @samp{TAIL;} is not strictly necessary, because there
+is another one implicitly after the if-statement, but using it improves
+branch prediction accuracy slightly and allows other optimizations.
+
+@item SUPER_CONTINUE
+This indicates that the implicit tail at the end of the VM instruction
+dispatches the sequentially next VM instruction even if there is a
+@code{SET_IP} in the VM instruction.  This enables an optimization that
+is not yet implemented in the vmgen-ex code (but in Gforth).  The
+typical application is in conditional VM branches:
+
+@example
+if (branch_condition) {
+  SET_IP(target); TAIL; /* now this TAIL is necessary */
+}
+SUPER_CONTINUE;
+@end example
+
+@end table
+
+Note that vmgen is not smart about C-level tokenization, comments,
+strings, or conditional compilation, so it will interpret even a
+commented-out SUPER_END as ending a basic block (or, e.g.,
+@samp{RETAIL;} as @samp{TAIL;}).  Conversely, vmgen requires the literal
+presence of these strings; vmgen will not see them if they are hiding in
+a C preprocessor macro.
+
+
+@subsubsection C Code restrictions
+
+Vmgen generates code and performs some optimizations under the
+assumption that the user-supplied C code does not access the stack
+pointers or stack items, and that accesses to the instruction pointer
+only occur through special macros.  In general you should heed these
+restrictions.  However, if you need to break these restrictions, read
+the following.
+
+Accessing a stack or stack pointer directly can be a problem for several
+reasons: 
+
+@itemize
+
+@item
+You may cache the top-of-stack item in a local variable (that is
+allocated to a register).  This is the most frequent source of trouble.
+You can deal with it either by not using top-of-stack caching (slowdown
+factor 1-1.4, depending on machine), or by inserting flushing code
+(e.g., @samp{IF_spTOS(sp[...] = spTOS);}) at the start and reloading
+code (e.g., @samp{IF_spTOS(spTOS = sp[0])}) at the end of problematic C
+code.  Vmgen inserts a stack pointer update before the start of the
+user-supplied C code, so the flushing code has to use an index that
+corrects for that.  In the future, this flushing may be done
+automatically by mentioning a special string in the C code.
+@c sometimes flushing and/or reloading unnecessary
+
+@item
+The vmgen-erated code loads the stack items from stack-pointer-indexed
+memory into variables before the user-supplied C code, and stores them
+from variables to stack-pointer-indexed memory afterwards.  If you do
+any writes to the stack through its stack pointer in your C code, it
+will not affact the variables, and your write may be overwritten by the
+stores after the C code.  Similarly, a read from a stack using a stack
+pointer will not reflect computations of stack items in the same VM
+instruction.
+
+@item
+Superinstructions keep stack items in variables across the whole
+superinstruction.  So you should not include VM instructions, that
+access a stack or stack pointer, as components of superinstructions.
+
+@end itemize
+
+You should access the instruction pointer only through its special
+macros (@samp{IP}, @samp{SET_IP}, @samp{IPTOS}); this ensure that these
+macros can be implemented in several ways for best performance.
+@samp{IP} points to the next instruction, and @samp{IPTOS} is its
+contents.
+
+
 @section Superinstructions
+
+Here is an example of a superinstruction definition:
+
+@example
+lit_sub = lit sub
+@end example
+
+@code{lit_sub} is the name of the superinstruction, and @code{lit} and
+@code{sub} are its components.  This superinstruction performs the same
+action as the sequence @code{lit} and @code{sub}.  It is generated
+automatically by the VM code generation functions whenever that sequence
+occurs, so you only need to add this definition if you want to use this
+superinstruction (and even that can be partially automatized,
+@pxref{...}).
+
+Vmgen requires that the component instructions are simple instructions
+defined before superinstructions using the components.  Currently, vmgen
+also requires that all the subsequences at the start of a
+superinstruction (prefixes) must be defined as superinstruction before
+the superinstruction.  I.e., if you want to define a superinstruction
+
+@example
+sumof5 = add add add add
+@end example
+
+you first have to define
+
+@example
+add ( n1 n2 -- n )
+n = n1+n2;
+
+sumof3 = add add
+sumof4 = add add add
+@end example
+
+Here, @code{sumof4} is the longest prefix of @code{sumof5}, and @code{sumof3}
+is the longest prefix of @code{sumof4}.
+
+Note that vmgen assumes that only the code it generates accesses stack
+pointers, the instruction pointer, and various stack items, and it
+performs optimizations based on this assumption.  Therefore, VM
+instructions that change the instruction pointer should only be used as
+last component; a VM instruction that accesses a stack pointer should
+not be used as component at all.  Vmgen does not check these
+restrictions, they just result in bugs in your interpreter.
+
+@c ********************************************************************
+@chapter Using the generated code
+
+The easiest way to create a working VM interpreter with vmgen is
+probably to start with one of the examples, and modify it for your
+purposes.  This chapter is just the reference manual for the macros
+etc. used by the generated code, and the other context expected by the
+generated code, and what you can do with the various generated files.
+
+@section VM engine
+
+The VM engine is the VM interpreter that executes the VM code.  It is
+essential for an interpretive system.
+
+The main file generated for the VM interpreter is
+@file{@var{name}-vm.i}.  It uses the following macros and variables (and
+you have to define them):
+
+@table @code
+
+@item LABEL(@var{inst_name})
+This is used just before each VM instruction to provide a jump or
+@code{switch} label (the @samp{:} is provided by vmgen).  For switch
+dispatch this should expand to @samp{case @var{label}}; for
+threaded-code dispatch this should just expand to @samp{case
+@var{label}}.  In either case @var{label} is usually the @var{inst_name}
+with some prefix or suffix to avoid naming conflicts.
+
+@item NAME(@var{inst_name_string})
+Called on entering a VM instruction with a string containing the name of
+the VM instruction as parameter.  In normal execution this should be a
+noop, but for tracing this usually prints the name, and possibly other
+information (several VM registers in our example).
+
+@item DEF_CA
+Usually empty.  Called just inside a new scope at the start of a VM
+instruction.  Can be used to define variables that should be visible
+during every VM instruction.  If you define this macro as non-empty, you
+have to provide the finishing @samp{;} in the macro.
+
+@item NEXT_P0 NEXT_P1 NEXT_P2
+The three parts of instruction dispatch.  They can be defined in
+different ways for best performance on various processors (see
+@file{engine.c} in the example or @file{engine/threaded.h} in Gforth).
+@samp{NEXT_P0} is invoked right at the start of the VM isntruction (but
+after @samp{DEF_CA}), @samp{NEXT_P1} right after the user-supplied C
+code, and @samp{NEXT_P2} at the end.  The actual jump has to be
+performed by @samp{NEXT_P2}.
+
+The simplest variant is if @samp{NEXT_P2} does everything and the other
+macros do nothing.  Then also related macros like @samp{IP},
+@samp{SET_IP}, @samp{IP}, @samp{INC_IP} and @samp{IPTOS} are very
+straightforward to define.  For switch dispatch this code consists just
+of a jump to the dispatch code (@samp{goto next_inst;} in our example;
+for direct threaded code it consists of something like
+@samp{({cfa=*ip++; goto *cfa;})}.
+
+Pulling code (usually the @samp{cfa=*ip;}) up into @samp{NEXT_P1}
+usually does not cause problems, but pulling things up into
+@samp{NEXT_P0} usually requires changing the other macros (and, at least
+for Gforth on Alpha, it does not buy much, because the compiler often
+manages to schedule the relevant stuff up by itself).  An even more
+extreme variant is to pull code up even further, into, e.g., NEXT_P1 of
+the previous VM instruction (prefetching, useful on PowerPCs).
+
+@item INC_IP(@var{n})
+This increments IP by @var{n}.
+
+@item vm_@var{A}2@var{B}(a,b)
+Type casting macro that assigns @samp{a} (of type @var{A}) to @samp{b}
+(of type @var{B}).  This is mainly used for getting stack items into
+variables and back.  So you need to define macros for every combination
+of stack basic type (@code{Cell} in our example) and type-prefix types
+used with that stack (in both directions).  For the type-prefix type,
+you use the type-prefix (not the C type string) as type name (e.g.,
+@samp{vm_Cell2i}, not @samp{vm_Cell2Cell}).  In addition, you have to
+define a vm_@var{X}2@var{X} macro for the stack basic type (used in
+superinstructions).
+
+The stack basic type for the predefined @samp{inst-stream} is
+@samp{Cell}.  If you want a stack with the same item size, making its
+basic type @samp{Cell} usually reduces the number of macros you have to
+define.
+
+Here our examples differ a lot: @file{vmgen-ex} uses casts in these
+macros, whereas @file{vmgen-ex2} uses union-field selection (or
+assignment to union fields).
+
+@item vm_two@var{A}2@var{B}(a1,a2,b)
+@item vm_@var{B}2two@var{A}(b,a1,a2)
+Conversions between two stack items (@code{a1}, @code{a2}) and a
+variable @code{b} of a type that takes two stack items.  This does not
+occur in our small examples, but you can look at Gforth for examples.
+
+@item @var{stackpointer}
+For each stack used, the stackpointer name given in the stack
+declaration is used.  For a regular stack this must be an l-expression;
+typically it is a variable declared as a pointer to the stack's basic
+type.  For @samp{inst-stream}, the name is @samp{IP}, and it can be a
+plain r-value; typically it is a macro that abstracts away the
+differences between the various implementations of NEXT_P*.
+
+@item @var{stackpointer}TOS
+The top-of-stack for the stack pointed to by @var{stackpointer}.  If you
+are using top-of-stack caching for that stack, this should be defined as
+variable; if you are not using top-of-stack caching for that stack, this
+should be a macro expanding to @samp{@var{stackpointer}[0]}.  The stack
+pointer for the predefined @samp{inst-stream} is called @samp{IP}, so
+the top-of-stack is called @samp{IPTOS}.
+
+@item IF_@var{stackpointer}TOS(@var{expr})
+Macro for executing @var{expr}, if top-of-stack caching is used for the
+@var{stackpointer} stack.  I.e., this should do @var{expr} if there is
+top-of-stack caching for @var{stackpointer}; otherwise it should do
+nothing.
+
+@item VM_DEBUG
+If this is defined, the tracing code will be compiled in (slower
+interpretation, but better debugging).  Our example compiles two
+versions of the engine, a fast-running one that cannot trace, and one
+with potential tracing and profiling.
+
+@item vm_debug
+Needed only if @samp{VM_DEBUG} is defined.  If this variable contains
+true, the VM instructions produce trace output.  It can be turned on or
+off at any time.
+
+@item vm_out
+Needed only if @samp{VM_DEBUG} is defined.  Specifies the file on which
+to print the trace output (type @samp{FILE *}).
+
+@item printarg_@var{type}(@var{value})
+Needed only if @samp{VM_DEBUG} is defined.  Macro or function for
+printing @var{value} in a way appropriate for the @var{type}.  This is
+used for printing the values of stack items during tracing.  @var{Type}
+is normally the type prefix specified in a @code{type-prefix} definition
+(e.g., @samp{printarg_i}); in superinstructions it is currently the
+basic type of the stack.
+
+@end table
+
+The file @file{@var{name}-labels.i} is used for enumerating or listing
+all virtual machine instructions and uses the following macro:
+
+@table @samp
+
+@item INST_ADDR(@var{inst_name})
+For switch dispatch, this is just the name of the switch label (the same
+name as used in @samp{LABEL(@var{inst_name})}).  For threaded-code
+dispatch, this is the address of the label defined in
+@samp{LABEL(@var{inst_name})}); the address is taken with @samp{&&}
+(@pxref{labels-as-values}).
+
+@end table
+
+
 
 @section Stacks, types, and prefixes
 
