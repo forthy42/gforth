@@ -79,6 +79,9 @@ AConstant dictionary-end
     \G the region addressed by @code{here}.
     usable-dictionary-end here - ;
 
+: in-dictionary? ( x -- f )
+    forthstart dictionary-end within ;
+
 \ here is used for pad calculation!
 
 : dp    ( -- addr ) \ gforth

@@ -212,9 +212,9 @@ defer compile, ( xt -- )	\ core-ext	compile-comma
 
 defer basic-block-end ( -- )
 
-: bb-end ( -- )
+:noname ( -- )
     0 last-compiled ! ;
-' bb-end is basic-block-end
+is basic-block-end
 
 has? peephole [IF]
 
@@ -243,7 +243,8 @@ has? peephole [IF]
     last-compiled @ if
 	last-compiled @ dyn-compile!
 	0 last-compiled !
-    then ;
+    then
+    finish-code ;
 is basic-block-end
 
 : static-compile, ( xt -- )
@@ -276,6 +277,8 @@ is basic-block-end
 	dodefer: OF >body POSTPONE lit-perform , EXIT ENDOF
 	dofield: OF >body @ POSTPONE lit+ , EXIT ENDOF
 	\ dofield: OF >body @ POSTPONE literal POSTPONE + EXIT ENDOF
+	\ code words and ;code-defined words (code words could be optimized):
+	dup in-dictionary? IF drop POSTPONE literal POSTPONE execute EXIT THEN
     ENDCASE
     static-compile, ;
 
@@ -341,7 +344,7 @@ is basic-block-end
 
 : POSTPONE ( "name" -- ) \ core
     \g Compiles the compilation semantics of @i{name}.
-    COMP' postpone, ; immediate restrict
+    COMP' postpone, ; immediate
 
 \ \ recurse							17may93jaw
 

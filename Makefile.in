@@ -192,6 +192,7 @@ GFORTH_FI_SRC = \
 	blocked.fb \
 	blocks.fs \
 	bufio.fs \
+	code.fs \
 	debug.fs \
 	debugs.fs \
 	ekey.fs \
@@ -228,7 +229,7 @@ GFORTH_FI_SRC = \
 
 FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_SRC) $(EC_SRC) \
 	ans-report.fs ansi.fs answords.fs \
-	code.fs colorize.fs comp-i.fs \
+	colorize.fs comp-i.fs \
 	doskey.fs ds2texi.fs \
 	envos.fs envos.dos envos.os2 etags.fs filedump.fs fi2c.fs \
 	glosgen.fs gray.fs httpd.fs proxy.fs \

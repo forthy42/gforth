@@ -66,8 +66,10 @@ AUser CSP
     \G equivalent to @code{] literal}
     ] postpone literal ;
 
+[ifundef] in-dictionary?
 : in-dictionary? ( x -- f )
     forthstart dictionary-end within ;
+[endif]
 
 : in-return-stack? ( addr -- f )
     rp0 @ swap - [ forthstart 6 cells + ]L @ u< ;

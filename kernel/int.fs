@@ -358,14 +358,15 @@ const Create ???  0 , 3 , char ? c, char ? c, char ? c,
 \ otherwise leave out the head? check
 
 : head? ( addr -- f )
-    \G heuristic check whether addr is a name token; may deliver false
-    \G positives; addr must be a valid address; returns 1 for
-    \G particularly unsafe positives
+\G heuristic check whether addr is a name token; may deliver false
+\G positives; addr must be a valid address; returns 1 for
+\G particularly unsafe positives
     \ we follow the link fields and check for plausibility; two
     \ iterations should catch most false addresses: on the first
     \ iteration, we may get an xt, on the second a code address (or
     \ some code), which is typically not in the dictionary.
-    2 0 do
+    \ we added a third iteration for working with code and ;code words.
+    3 0 do
 	dup dup aligned <> if \ protect @ against unaligned accesses
 	    drop false unloop exit
 	then
