@@ -1,0 +1,37 @@
+User-visible changes between 0.5.9-20020901 and 0.6.0:
+
+Support for upward-growing stacks (see "Stack growth direction" in the
+  manual)
+New macro in output: IMM_ARG.
+New input flag: include-skipped-insts (currently pointless).
+Lazy loading and eager storing of stack items in superinstructiuons;
+  this reduces register pressure (useful on 386), but causes compiler
+  warnings about unused variables.
+
+
+User-visible changes between 0.5.9-20020822 and 0.5.9-20020901:
+
+The store optimization is now disabled by default, but can be enabled
+by the user.  Documentation for this optimization is also new.
+
+
+Use-visible changes between 0.5.9-20010501 and 0.5.9-20020822:
+
+There is now a manual (in info, HTML, Postscript, or plain text format).
+
+There is the vmgen-ex2 variant of the vmgen-ex example; the new
+variant uses a union type instead of lots of casting.
+
+Both variants of the example can now be compiled with an ANSI C
+compiler (using switch dispatch and losing quite a bit of
+performance); tested with lcc.
+
+There are several changes in the way you have to define macros (see
+node/section "Changes" in the manual).  I recommend keeping the
+gforth-0.5.9-20010501 version until you have completed the changes
+(note that you can have several versions of Gforth installed at the
+same time).
+
+
+% Local Variables:
+% fill-prefix: "  "
