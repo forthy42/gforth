@@ -54,3 +54,6 @@ engine-debug.o: engine.c mini-vm.i mini-labels.i mini.h
 
 clean:
 	rm -f *.o mini mini-*.i lex.yy.c mini.tab.c
+
+check:  mini
+	./mini test.mini|diff - test.out

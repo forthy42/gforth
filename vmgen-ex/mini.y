@@ -126,7 +126,7 @@ term: '(' expr ')'
     | NUM		 { gen_lit(&vmcodep, $1); }
     ;
 
-/* missing: argument counting and checking against calling function */
+/* missing: argument counting and checking against called function */
 args: expr ',' args
     | expr 
     | ;
