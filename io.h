@@ -7,4 +7,6 @@ void deprep_terminal();
 void install_signal_handlers(void);
 
 #define key()		getkey(stdin)
-#define key_query	-(!key_avail(stdin)) /* !! FLAG(...)? - anton */
+#define key_query	-(!!key_avail(stdin)) /* !! FLAG(...)? - anton */
+         		/* flag was originally wrong -- lennart */
+
