@@ -694,6 +694,10 @@ Build: T 0 , H ;
 by Constant
 Builder Value
 
+Build: T 0 A, H ;
+by Constant
+Builder AValue
+
 Build:  ( -- ) compile noop ;
 DO: ( ghost -- ) ABORT" CROSS: Don't execute" ;DO
 Builder Defer

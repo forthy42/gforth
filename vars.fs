@@ -71,9 +71,7 @@ AUser "error            0 "error !
  User >in               0 >in !
  User blk               0 blk !
  User loadfile          0 loadfile !
-\  2User loadfilename	0 0 loadfilename 2!
-\ here ," the terminal" align here swap count 2, Value loadfilename
-\ align here 0 , 0 , Value loadfilename \ !! should be a `user-value'
+
  User loadfilename#	0 loadfilename# !
 
  User loadline          \ number of the currently interpreted

@@ -1455,7 +1455,8 @@ create pathfilenamebuf 256 chars allot \ !! make this grow on demand
     pathfilenamebuf swap ;
 
 create included-files 0 , 0 , ( pointer to and count of included files )
-create image-included-files 0 , 0 , ( pointer to and count of included files )
+here ," the terminal" dup c@ swap 1 + swap , A, here 2 cells -
+create image-included-files  1 , A, ( pointer to and count of included files )
 \ included-files points to ALLOCATEd space, while image-included-files
 \ points to ALLOTed objects, so it survives a save-system
 
@@ -1784,7 +1785,7 @@ Defer 'cold ' noop IS 'cold
 : boot ( path **argv argc -- )
   argc ! argv ! cstring>sstring pathstring 2!  main-task up!
   sp@ dup s0 ! $10 + dup >tib ! tibstack ! #tib off >in off
-  rp@ r0 !  fp@ f0 !  cold ;
+  rp@ r0 !  fp@ f0 !  ['] cold catch DoError bye ;
 
 : bye ( -- ) \ tools-ext
     script? 0= IF  cr  THEN  0 (bye) ;
