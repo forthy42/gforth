@@ -33,7 +33,7 @@
 create \-escape-table
     7 c,        8 c,  char c c,  char d c,      27 c,      12 c,  char g c,
 char h c,  char i c,  char j c,  char k c,  char l c,  char m c,      10 c,
-char o c,  char p c,  char q c,      13 c,  char s c,       8 c,  char u c,
+char o c,  char p c,  char q c,      13 c,  char s c,       9 c,  char u c,
     11 c,
 
 : \-escape ( c-addr1 -- c-addr2 c )
