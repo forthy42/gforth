@@ -22,7 +22,7 @@ do
     ( ssh $SSH_PROTOCOL -q -x $i "test -d xxxgforthtest||mkdir xxxgforthtest; cd xxxgforthtest; test -d $i||mkdir $i; rm -rf $i/*" >$i 2>&1; \
       scp $SSH_PROTOCOL -p -q $1 ../testdist $i:xxxgforthtest/$i >>$i 2>&1; \
       ssh $SSH_PROTOCOL -q -x $i "cd xxxgforthtest/$i; ./testdist `basename $1`" >>$i 2>&1; \
-      echo "$i done" `tail -1 $i`) &
+      echo "$i done" "`tail -1 $i`") &
 done
 wait
 echo all done

@@ -775,9 +775,10 @@ max-errors has? file [IF] 6 [ELSE] 4 [THEN] * cells allot
     \ !! not used...
     [char] $ emit base @ swap hex u. base ! ;
 
-: typewhite ( addr u -- ) \ gforth
-    \G Like type, but white space is printed instead of the characters.
-    bounds ?do
+: typewhite ( addr n -- ) \ gforth
+\G Like type, but white space is printed instead of the characters.
+    \ bounds u+do
+    0 max bounds ?do
 	i c@ #tab = if \ check for tab
 	    #tab
 	else

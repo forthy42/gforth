@@ -25,6 +25,8 @@ VMGEN=vmgen
 #GCC=gcc -g -Wall
 GCC=gcc -O3 -fomit-frame-pointer -Wall
 CC=$(GCC)
+#M4=m4 -s #recommended if supported
+M4=m4
 OBJECTS_MINI=mini.tab.o support.o peephole.o profile.o disasm.o engine.o engine-debug.o
 
 mini: $(OBJECTS_MINI)
@@ -40,7 +42,7 @@ mini-vm.i mini-disasm.i mini-gen.i mini-labels.i mini-profile.i mini-peephole.i:
 	$(VMGEN) mini.vmg
 
 mini.vmg: mini-inst.vmg mini-super.vmg
-	m4 -s mini-inst.vmg >$@
+	$(M4) mini-inst.vmg >$@
 
 mini.tab.o: mini.tab.c mini-gen.i lex.yy.c mini.h
 

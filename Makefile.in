@@ -74,7 +74,7 @@ FORTHS	= $(ENGINE) $(FORTHS_ARGS)
 # possible to override this variable at the command line for an initial build (jaw)
 BUILDFORTH = $(ENGINE) --die-on-signal -m 4M -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)" -i $(kernel_fi)
 # the forth system plus flags we use to build
-FORTHB = $(BUILDFORTH) -e 'fpath= .|~+|$(srcdir)'
+FORTHB = $(BUILDFORTH) -e 'fpath= .|~+|$(srcdir)' except.fs
 # the Forth system for running prims2x.fs
 FORTHP = $(FORTH)
 ENGINE_FAST = $(ENGINE)-fast
@@ -622,12 +622,13 @@ kernl64l.fi-:	$(KERN_DEPS) mach64l.fs
 kernl64b.fi-:	$(KERN_DEPS) mach64b.fs
 		$(FORTHB) -e 's" mach64b.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl64b.fi- $(bindir)/gforth-$(VERSION) bye"
 
-kernl-%.fi:	arch/%/mach.fs arch/%/prim.fs arch/%/asm.fs $(KERN_SRC) kernel/version.fs $(FORTH_GEN0)
-		$(FORTHB) -e 's" $<"' $(srcdir)/kernel/main.fs -e "save-cross $@- $(bindir)/gforth-$(VERSION) bye"
-		if [ -f `echo $< | sed s/fs/sh/` ]; \
-		then sh `echo $< | sed s/fs/sh/` $@; \
-		else $(CP) $@- $@; \
-		fi
+#Solaris make does not like that:
+#kernl-%.fi:	arch/%/mach.fs arch/%/prim.fs arch/%/asm.fs $(KERN_SRC) kernel/version.fs $(FORTH_GEN0)
+#		$(FORTHB) -e 's" $<"' $(srcdir)/kernel/main.fs -e "save-cross $@- $(bindir)/gforth-$(VERSION) bye"
+#		if [ -f `echo $< | sed s/fs/sh/` ]; \
+#		then sh `echo $< | sed s/fs/sh/` $@; \
+#		else $(CP) $@- $@; \
+#		fi
 
 #SunOS make does not like that
 #arch/%/mach.fs:	arch/%/prim.fs arch/%/asm.fs

@@ -264,7 +264,7 @@ void relocate(Cell *image, const char *bitstring,
 	      fprintf(stderr,"Primitive %lx, %d of group %d used in this image at $%lx is not implemented by this\n engine (%s); executing this code will crash.\n", (long)-token, tok, group, (long)&image[i],PACKAGE_VERSION);
 	  }
 	} else {
-          // if base is > 0: 0 is a null reference so don't adjust
+          /* if base is > 0: 0 is a null reference so don't adjust*/
           if (token>=base) {
             image[i]+=(Cell)start;
           }

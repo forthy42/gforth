@@ -19,10 +19,11 @@
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
 */
 
-void cacheflush(void * address, Cell size, Cell linewidth)
+#include <stddef.h>
+
+void cacheflush(void * address, size_t size, size_t linewidth)
 {
-  Cell i;
-  void *p=(void *)((Cell)address & (-linewidth));
+  void *p=(void *)((size_t)address & (-linewidth));
 
   for(; p<address+size;)
     asm volatile("fdc (%0)\n\t"

@@ -70,7 +70,7 @@ block_count *block_insert(Inst *ip)
   new->fallthrough = NULL;
   new->ip = ip;
   new->count = (long_long)0;
-  new->insts = malloc(0);
+  new->insts = malloc(1);
   assert(new->insts != NULL);
   new->ninsts = 0;
   blocks[hash(ip)] = new;

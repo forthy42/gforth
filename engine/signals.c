@@ -374,7 +374,12 @@ void install_signal_handlers(void)
   int sas_retval=-1;
 
   sigstack.ss_size=SIGSTKSZ;
-  if ((sigstack.ss_sp = my_alloc(sigstack.ss_size)) != NULL) {
+  /* Actually the stack should only be ss_size large, and according to
+     SUSv2 ss_sp should point to the start of the stack, but
+     unfortunately Irix 6.5 (at least) expects ss_sp to point to the
+     end, so we work around this issue by accomodating everyone. */
+  if ((sigstack.ss_sp = my_alloc(sigstack.ss_size*2)) != NULL) {
+    sigstack.ss_sp += sigstack.ss_size;
     sigstack.ss_flags=0;
     sas_retval=sigaltstack(&sigstack,(stack_t *)0);
   }

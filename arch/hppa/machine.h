@@ -30,17 +30,17 @@
 #include "../generic/machine.h"
 
 /* cache flush stuff */
-extern void cacheflush(void *, Cell, Cell);
+extern void cacheflush(void *, size_t, size_t);
 #ifdef DEBUG
 #  define FLUSH_ICACHE(addr,size) \
 ({ \
    fprintf(stderr,"Flushing Cache at %08x:%08x\n",(int) addr, size); \
    fflush(stderr); \
-   cacheflush((void *)(addr), (int)(size), 32); \
+   cacheflush((void *)(addr), (size_t)(size), 32); \
    fprintf(stderr,"Cache flushed\n");  })
 #else
 #  define FLUSH_ICACHE(addr,size) \
-     cacheflush((void *)(addr), (Cell)(size), 32)
+     cacheflush((void *)(addr), (size_t)(size), 32)
 #endif
 
 /* #undef HAVE_LOG1P */

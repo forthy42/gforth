@@ -631,11 +631,9 @@ stack inst-stream IP Cell
 : compute-offset-out ( addr1 addr2 -- )
     ['] stack-out compute-offset ;
 
-: clear-stack ( stack -- )
-    dup stack-in off stack-out off ;
-
 : compute-offsets ( -- )
-    ['] clear-stack map-stacks
+    prim prim-stacks-in  max-stacks cells erase
+    prim prim-stacks-out max-stacks cells erase
     prim prim-effect-in  prim prim-effect-in-end  @ ['] compute-offset-in  map-items
     prim prim-effect-out prim prim-effect-out-end @ ['] compute-offset-out map-items
     inst-stream stack-out @ 0= s" # can only be on the input side" ?print-error ;
