@@ -26,34 +26,35 @@
 has? compiler 0= [IF]
 
 \ fillers for interpreter only mode
-.( Do-Fillers: )
+\D compileddofillers .( Do-Fillers: )
 
 : (does>) ;    
 
-doer? :dofield 0= [IF] .( DOFIELD )
+doer? :dofield 0= [IF] \D compileddofillers .( DOFIELD )
 | : (Field)  DOES> @ + ;
 [THEN]
 
-doer? :dodefer 0= [IF] .( DODEFER )
+doer? :dodefer 0= [IF] \D compileddofillers .( DODEFER )
 | : Defer ( "name" -- ) DOES> @ execute ;
 [THEN]
 
-| : 2Constant ( w1 w2 "name" -- ) \ double
+\D compileddofillers .( DO2CON )
+| : 2Constant ( w1 w2 "name" -- ) 
     DOES> ( -- w1 w2 )
         2@ ;
 
-doer? :docon 0= [IF] .( DOCON )
+doer? :docon 0= [IF] \D compileddofillers .( DOCON )
 | : (Constant)  DOES> @ ;
 [THEN]
 
-doer? :douser 0= [IF] .( DOUSER )
+doer? :douser 0= [IF] \D compileddofillers .( DOUSER )
 | : User DOES> @ up @ + ;
 [THEN]
 
-doer? :dovar 0= [IF] .( DOVAR )
+doer? :dovar 0= [IF] \D compileddofillers .( DOVAR )
 | : Create ( "name" -- ) \ core
     DOES> ;
 
-.( .)
+\D compileddofillers .( .)
 [THEN]
 
