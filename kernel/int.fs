@@ -895,9 +895,9 @@ Defer dobacktrace ( -- )
 \ \ Cold Boot                                    	13feb93py
 
 : (bootmessage)
-    ." GForth " version-string type 
+    ." Gforth " version-string type 
     ." , Copyright (C) 1995-2003 Free Software Foundation, Inc." cr
-    ." GForth comes with ABSOLUTELY NO WARRANTY; for details type `license'"
+    ." Gforth comes with ABSOLUTELY NO WARRANTY; for details type `license'"
 [ has? os [IF] ]
      cr ." Type `bye' to exit"
 [ [THEN] ] ;

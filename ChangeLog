@@ -1,3 +1,71 @@
+2003-02-25  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* kernel/int.fs, doc/gforth.ds, doc/vmgen.texi, Makefile.in, NEWS, compat/strcomp.fs, simp-see.fs:
+	Documentation changes (new: The Input Stream (gforth), Stack growth
+	direction (Vmgen)
+
+2003-02-24  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* doc/gforth.ds: Documentation changes
+
+2003-02-23  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* doc/vmgen.texi, NEWS, doc/gforth.ds:
+	documented threaded code variations and dynamic superinstructions
+	other documentation changes
+
+2003-02-22  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* doc/gforth.ds: minor doc changes
+
+2003-02-17  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* kernel/int.fs: minor change
+
+	* engine/forth.h, engine/io.h, engine/main.c, engine/signals.c, except.fs, kernel/int.fs, errors.fs:
+	Gforth now works properly when its stdout is to a broken pipe (but not stderr)
+	special SIGPIPE throw code (-2049)
+	minor bugfix ("uncaught exception" is now printed on stderr)
+
+2003-02-08  dvdkhlng  <dvdkhlng@TK147097.tuwien.teleweb.at>
+
+	* doc/gforth.ds:
+	Updated the "Emacs and Gforth" chapter of the documentation.
+
+	* gforth.el: Updated docstrings.
+
+	Ripped out (unusable) forth-process code, replaced it with a
+	comint-based implementation which is mostly copied from Emacs'
+	`cmuscheme.el'.  Tested with Emacs 21 and 20, XEmacs 21.
+
+	* gforth.el:
+	Fixed `uncomment-region' (C-u C-x C-\) which didn't work, since
+	regexp `comment-start-skip' was buggy.
+
+2003-02-06  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* kernel/comp.fs, kernel/int.fs, kernel/vars.fs:
+	>name now works for names of arbitrary length
+
+	* Makefile.in, configure.in: minor fixes
+
+	* kernel/int.fs, savesys.fs, search.fs:
+	>name etc now works for names with up to 32 chars
+	the search order is now preserved across savesystem
+
+2003-02-03  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* Makefile.in, stuff.fs, BUGS, ChangeLog: updated ChangeLog and BUGS
+	now gforth-itc is installed and uninstalled
+	documentation changes
+
+2003-02-02  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
+
+	* vmgen-ex/support.c, vmgen-ex2/support.c, README, engine/signals.c, test/signals.fs:
+	portability bugfixes
+	use SA_ONSTACK for all program-generated signals
+	updated README
+
 2003-02-02  Anton Ertl  <anton@TK147097.tuwien.teleweb.at>
 
 	* vmgen-ex/support.c, vmgen-ex2/support.c, README, engine/signals.c, test/signals.fs:
@@ -5091,7 +5159,7 @@
 
 	* getopt1.c, getopt.h, getopt.c, forth.h, engine.c, ToDo, README, Makefile, INSTALL, COPYING, 386.h:
 	Updated ToDo and INSTALL; Wrote README; Lifted COPYING and getopt*
-	from other packages;  removed $Id: ChangeLog,v 1.4 2003-02-03 08:59:28 anton Exp $ lines from some files
+	from other packages;  removed $Id: ChangeLog,v 1.5 2003-02-28 10:59:10 anton Exp $ lines from some files
 
 1994-09-28  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
 

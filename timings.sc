@@ -26,7 +26,6 @@ format V 7 2 0
 format Y 10 0 0
 format Z 10 0 0
 format AC 10 0 0
-format AD 10 0 0
 hide M
 hide N
 hide V
@@ -62,7 +61,7 @@ let H1 = 11.2
 let I1 = 12.01
 let J1 = 6.61
 let K1 = 7.64
-let L1 = 25.87
+let L1 = 19.18
 let M1 = 31.9
 let N1 = 10.91
 let O1 = 41.49
@@ -83,7 +82,7 @@ let H2 = 11.1
 let I2 = 10.53
 let J2 = 34.12
 let K2 = 7.71
-let L2 = 29.96
+let L2 = 24.09
 let M2 = 35.6
 let N2 = 11.94
 let O2 = 46.397
@@ -103,7 +102,7 @@ let H3 = 8.8
 let I3 = 9.29
 let J3 = 16.66
 let K3 = 7.98
-let L3 = 23.2500000000536
+let L3 = 20.7
 let M3 = 28.3
 let N3 = 11.24
 let O3 = 39.677
@@ -123,7 +122,7 @@ let H4 = 10.5000000004768
 let I4 = 7.56
 let J4 = 11.74
 let K4 = 6.6
-let L4 = 29.98
+let L4 = 22.75
 let M4 = 36.7
 let N4 = 13.13
 let O4 = 52.725
@@ -591,4 +590,4 @@ let U28 = U4/$L4
 let V28 = V4/$L4
 let W28 = C4
 fmt W28 "##0.00s"
-goto D25
+goto L8 B0

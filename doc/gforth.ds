@@ -112,7 +112,6 @@ Copyright @copyright{} 1995, 1996, 1997, 1998, 2000, 2003 Free Software Foundati
 @center Bernd Paysan
 @center Jens Wilke
 @sp 3
-@center This manual is permanently under construction and was last updated on 15-Mar-2000
 
 @comment  The following two commands start the copyright page.
 @page
@@ -179,6 +178,7 @@ Gforth Environment
 * Command-line editing::        
 * Environment variables::       that affect how Gforth starts up
 * Gforth Files::                What gets installed and where
+* Gforth in pipes::             
 * Startup speed::               When 35ms is not fast enough ...
 
 Forth Tutorial
@@ -363,6 +363,7 @@ Other I/O
 * String Formats::              How Forth stores strings in memory
 * Displaying characters and strings::  Other stuff
 * Input::                       Input
+* Pipes::                       How to create your own pipes
 
 Locals
 
@@ -1027,6 +1028,7 @@ material in this chapter.
 * Command-line editing::        
 * Environment variables::       that affect how Gforth starts up
 * Gforth Files::                What gets installed and where
+* Gforth in pipes::             
 * Startup speed::               When 35ms is not fast enough ...
 @end menu
 
@@ -1353,7 +1355,7 @@ are not set.
 
 
 @comment ----------------------------------------------
-@node Gforth Files, Startup speed, Environment variables, Gforth Environment
+@node Gforth Files, Gforth in pipes, Environment variables, Gforth Environment
 @section Gforth files
 @cindex Gforth files
 
@@ -1383,7 +1385,59 @@ You can select different places for installation by using
 @code{configure} options (listed with @code{configure --help}).
 
 @comment ----------------------------------------------
-@node Startup speed,  , Gforth Files, Gforth Environment
+@node Gforth in pipes, Startup speed, Gforth Files, Gforth Environment
+@section Gforth in pipes
+@cindex pipes, Gforth as part of
+
+Gforth can be used in pipes created elsewhere (described here).  It can
+also create pipes on its own (@pxref{Pipes}).
+
+@cindex input from pipes
+If you pipe into Gforth, your program should read with @code{read-file}
+or @code{read-line} from @code{stdin} (@pxref{General files}).
+@code{Key} does not recognize the end of input.  Words like
+@code{accept} echo the input and are therefore usually not useful for
+reading from a pipe.  You have to invoke the Forth program with an OS
+command-line option, as you have no chance to use the Forth command line
+(the text interpreter would try to interpret the pipe input).
+
+@cindex output in pipes
+You can output to a pipe with @code{type}, @code{emit}, @code{cr} etc.
+
+@cindex silent exiting from Gforth
+When you write to a pipe that has been closed at the other end, Gforth
+receives a SIGPIPE signal (``pipe broken'').  Gforth translates this
+into the exception @code{broken-pipe-error}.  If your application does
+not catch that exception, the system catches it and exits, usually
+silently (unless you were working on the Forth command line; then it
+prints an error message and exits).  This is usually the desired
+behaviour.
+
+If you do not like this behaviour, you have to catch the exception
+yourself, and react to it.
+
+Here's an example of an invocation of Gforth that is usable in a pipe:
+
+@example
+gforth -e ": foo begin pad dup 10 stdin read-file throw dup while \
+ type repeat ; foo bye"
+@end example
+
+This example just copies the input verbatim to the output.  A very
+simple pipe containing this example looks like this:
+
+@example
+cat startup.fs |
+gforth -e ": foo begin pad dup 80 stdin read-file throw dup while \
+ type repeat ; foo bye"|
+head
+@end example
+
+@cindex stderr and pipes
+Pipes involving Gforth's @code{stderr} output do not work.
+
+@comment ----------------------------------------------
+@node Startup speed,  , Gforth in pipes, Gforth Environment
 @section Startup speed
 @cindex Startup speed
 @cindex speed, startup
@@ -1397,7 +1451,11 @@ If startup speed is a problem, you may consider the following ways to
 improve it; or you may consider ways to reduce the number of startups
 (for example, by using Fast-CGI).
 
-The first step to improve startup speed is to statically link Gforth, by
+An easy step that influences Gforth startup speed is the use of the
+@option{--no-dynamic} option; this decreases image loading speed, but
+increases compile-time and run-time.
+
+Another step to improve startup speed is to statically link Gforth, by
 building it with @code{XLDFLAGS=-static}.  This requires more memory for
 the code and will therefore slow down the first invocation, but
 subsequent invocations avoid the dynamic linking overhead.  Another
@@ -8550,6 +8608,9 @@ doc-resize-file
 
 doc-slurp-file
 doc-slurp-fid
+doc-stdin
+doc-stdout
+doc-stderr
 
 @c ---------------------------------------------------------
 @node Search Paths,  , General files, Files
@@ -8830,6 +8891,7 @@ doc-block-included
 * String Formats::              How Forth stores strings in memory
 * Displaying characters and strings::  Other stuff
 * Input::                       Input
+* Pipes::                       How to create your own pipes
 @end menu
 
 @node Simple numeric output, Formatted numeric output, Other I/O, Other I/O
@@ -9127,7 +9189,7 @@ definition of @code{my-char}.
 
 
 
-@node Input,  , Displaying characters and strings, Other I/O
+@node Input, Pipes, Displaying characters and strings, Other I/O
 @subsection Input
 @cindex input
 @cindex I/O - see input
@@ -9153,6 +9215,27 @@ doc-pad
 doc-convert
 doc-expect
 doc-span
+
+
+@node Pipes,  , Input, Other I/O
+@subsection Pipes
+@cindex pipes, creating your own
+
+In addition to using Gforth in pipes created by other processes
+(@pxref{Gforth in pipes}), you can create your own pipe with
+@code{open-pipe}, and read from or write to it.
+
+doc-open-pipe
+doc-close-pipe
+
+If you write to a pipe, Gforth can throw a @code{broken-pipe-error}; if
+you don't catch this exception, Gforth will catch it and exit, usually
+silently (@pxref{Gforth in pipes}).  Since you probably do not want
+this, you should wrap a @code{catch} or @code{try} block around the code
+from @code{open-pipe} to @code{close-pipe}, so you can deal with the
+problem yourself, and then return to regular processing.
+
+doc-broken-pipe-error
 
 
 @c -------------------------------------------------------------
@@ -11695,6 +11778,8 @@ in @file{compat/assert.fs}.
 @subsection Singlestep Debugger
 @cindex singlestep Debugger
 @cindex debugging Singlestep
+
+The singlestep debugger does not work in this release.
 
 When you create a new word there's often the need to check whether it
 behaves correctly or not. You can do this by typing @code{dbg
@@ -15078,7 +15163,7 @@ disassemble the code of primitives with @code{see} on some architectures.
 @cindex Gforth performance
 
 On RISCs the Gforth engine is very close to optimal; i.e., it is usually
-impossible to write a significantly faster engine.
+impossible to write a significantly faster threaded-code engine.
 
 On register-starved machines like the 386 architecture processors
 improvements are possible, because @code{gcc} does not utilize the
@@ -15090,7 +15175,8 @@ Sieve benchmark on a 486DX2/66 than Gforth compiled with
 with gcc-2.95 and gforth-0.4.9; now the most important virtual machine
 registers fit in real registers (and we can even afford to use the TOS
 optimization), resulting in a speedup of 1.14 on the sieve over the
-earlier results.
+earlier results.  And dynamic superinstructions provide another speedup
+(but only around a factor 1.2 on the 486).
 
 @cindex Win32Forth performance
 @cindex NT Forth performance
@@ -15099,7 +15185,7 @@ earlier results.
 @cindex PFE performance
 @cindex TILE performance
 The potential advantage of assembly language implementations is not
-necessarily realized in complete Forth systems: We compared Gforth-0.4.9
+necessarily realized in complete Forth systems: We compared Gforth-0.5.9
 (direct threaded, compiled with @code{gcc-2.95.1} and
 @code{-DFORCE_REG}) with Win32Forth 1.2093 (newer versions are
 reportedly much faster), LMI's NT Forth (Beta, May 1994) and Eforth
@@ -15127,12 +15213,12 @@ scaled by the time taken by Gforth (in other words, it shows the speedup
 factor that Gforth achieved over the other systems).
 
 @example
-relative      Win32-    NT       eforth       This-      
-  time  Gforth Forth Forth eforth  +opt   PFE Forth  TILE
-sieve     1.00  1.60  1.32   1.60  0.98  1.82  3.67  9.91
-bubble    1.00  1.55  1.66   1.75  1.04  1.78        4.58
-matmul    1.00  1.71  1.57   1.69  0.86  1.83        4.74
-fib       1.00  1.76  1.54   1.41  1.00  2.01  3.45  4.96
+relative       Win32-    NT       eforth       This-      
+time     Gforth Forth Forth eforth  +opt   PFE Forth  TILE
+sieve      1.00  2.16  1.78   2.16  1.32  2.46  4.96 13.37
+bubble     1.00  1.93  2.07   2.18  1.29  2.21        5.70
+matmul     1.00  1.92  1.76   1.90  0.96  2.06        5.32
+fib        1.00  2.32  2.03   1.86  1.31  2.64  4.55  6.54
 @end example
 
 You may be quite surprised by the good performance of Gforth when
@@ -15143,11 +15229,6 @@ that they are not written optimally for the 486 (e.g., they use the
 but costly method for relocating the Forth image: like @code{cforth}, it
 computes the actual addresses at run time, resulting in two address
 computations per @code{NEXT} (@pxref{Image File Background}).
-
-Only Eforth with the peephole optimizer performs comparable to
-Gforth. The speedups achieved with peephole optimization of threaded
-code are quite remarkable. Adding a peephole optimizer to Gforth should
-cause similar speedups.
 
 The speedup of Gforth over PFE, ThisForth and TILE can be easily
 explained with the self-imposed restriction of the latter systems to
@@ -15161,8 +15242,8 @@ The performance of Gforth on 386 architecture processors varies widely
 with the version of @code{gcc} used. E.g., @code{gcc-2.5.8} failed to
 allocate any of the virtual machine registers into real machine
 registers by itself and would not work correctly with explicit register
-declarations, giving a 1.5 times slower engine (on a 486DX2/66 running
-the Sieve) than the one measured above.
+declarations, giving a significantly slower engine (on a 486DX2/66
+running the Sieve) than the one measured above.
 
 Note that there have been several releases of Win32Forth since the
 release presented here, so the results presented above may have little
@@ -15176,8 +15257,8 @@ Translating Forth to Efficient C}} by M. Anton Ertl and Martin
 Maierhofer (presented at EuroForth '95), an indirect threaded version of
 Gforth is compared with Win32Forth, NT Forth, PFE, ThisForth, and
 several native code systems; that version of Gforth is slower on a 486
-than the direct threaded version used here. You can find a newer version
-of these measurements at
+than the version used here. You can find a newer version of these
+measurements at
 @uref{http://www.complang.tuwien.ac.at/forth/performance.html}. You can
 find numbers for Gforth on various machines in @file{Benchres}.
 

@@ -8,6 +8,8 @@ added words: EDIT-LINE ID. .ID CONST-DOES> K-PRIOR K-NEXT K-DELETE
 Large file support on OSs that support them (i.e., files with more
   than 2GB on 32-bit machines).
 
+Gforth can now deal with well with broken pipes in most situations.
+
 Default dictionary size is now 4MB.
 
 vi tags files can be built with tags.fs (usage like etags.fs).
