@@ -49,17 +49,40 @@
 
 ;;; Code:
 
- 
+;; Code ripped from `version.el' for compatability with Emacs versions
+;; prior to 19.23.
+(unless (boundp 'emacs-major-version)
+  (defconst emacs-major-version
+    (progn (string-match "^[0-9]+" emacs-version)
+	   (string-to-int (match-string 0 emacs-version)))))
+
 
 ;;; Hilighting and indentation engine				(dk)
 ;;;
 
+(defvar forth-disable-parser nil
+  "*Non-nil means to disable on-the-fly parsing of Forth-code.
+
+This will disable hilighting of forth-mode buffers and will decrease
+the smartness of the indentation engine. Only set it to non-nil, if
+your computer is very slow. To disable hilighting, set
+`forth-hilight-level' to zero.")
+
+(defvar forth-jit-parser nil
+  "*Non-nil means to parse Forth-code just-in-time.
+
+This eliminates the need for initially parsing forth-mode buffers and
+thus speeds up loading of Forth files. That feature is only available
+in Emacs21 (and newer versions).")
+
 (defvar forth-words nil 
   "List of words for hilighting and recognition of parsed text areas. 
-You can enable hilighting of object-oriented Forth code, by appending either
-`forth-objects-words' or `forth-oof-words' to the list, depending on which
-OOP package you're using. After `forth-words' changed, `forth-compile-words' 
-must be called to make the changes take effect.
+
+Hilighting of object-oriented Forth code is achieved, by appending either
+`forth-objects-words' or `forth-oof-words' to the list, depending on the values of `forth-use-objects' or `forth-use-oof'.
+
+After `forth-words' changed, `forth-compile-words' must be called to
+make the changes take effect.
 
 Each item of `forth-words' has the form 
    (MATCHER TYPE HILIGHT . &optional PARSED-TEXT ...)
@@ -141,7 +164,9 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 
 	(("true" "false" "c/l" "bl" "cell" "pi" "w/o" "r/o" "r/w") 
 	 non-immediate (font-lock-constant-face . 2))
-	(("~~") compile-only (font-lock-warning-face . 2))
+	(("~~" "break:") compile-only (font-lock-warning-face . 2))
+	(("break\"") compile-only (font-lock-warning-face . 1)
+	 "[\"\n]" nil string (font-lock-string-face . 1))
 	(("postpone" "[is]" "defers" "[']" "[compile]") 
 	 compile-only (font-lock-keyword-face . 2)
 	 "[ \t\n]" t name (font-lock-function-name-face . 3))
@@ -215,7 +240,7 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 	 "[ \t\n]" t name (font-lock-type-face . 3))
 	(("var") non-immediate (font-lock-type-face . 2)
 	 "[ \t\n]" t name (font-lock-variable-name-face . 3))
-	(("method") non-immediate (font-lock-type-face . 2)
+	(("method" "early") non-immediate (font-lock-type-face . 2)
 	 "[ \t\n]" t name (font-lock-function-name-face . 3))
 	(("::" "super" "bind" "bound" "link") 
 	 immediate (font-lock-keyword-face . 2)
@@ -245,23 +270,30 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 ; todo:
 ;
 
-; Wörter ordentlich hilighten, die nicht auf whitespace beginning ( ..)IF
-; Additional `forth-use-objects' or
-; `forth-use-oof' could be set to non-nil for automatical adding of those
-; word-lists. Using local variable list?
+; Wörter ordentlich hilighten, die nicht auf Whitespace beginnen ( ..)IF
+; -- mit aktueller Konzeption nicht möglich??
 ;
 ; Konfiguration über customization groups
 ;
-; Bereich nur auf Wortanfang/ende ausweiten, wenn anfang bzw ende in einem 
+; Bereich nur auf Wortanfang/ende ausweiten, wenn Anfang bzw Ende in einem 
 ; Wort liegen (?) -- speed!
-;
-; User interface
 ;
 ; 'forth-word' property muss eindeutig sein!
 ;
-; imenu support schlauer machen
+; Forth-Menu 
+;
+; Interface zu GForth Prozessen (Patches von Michael Scholz)
+;
+; Byte-compile-Code rausschmeißen, Compilieren im Makefile über Emacs
+; batch-Modus
+;
+; forth-help Kram rausschmeißen
+;
+; XEmacs Kompatibilität? imenu/speedbar -> fume?
+; 
+; Folding neuschreiben (neue Parser-Informationen benutzen)
 
-(setq debug-on-error t)
+;(setq debug-on-error t)
 
 ;; Filter list by predicate. This is a somewhat standard function for 
 ;; functional programming languages. So why isn't it already implemented 
@@ -391,7 +423,8 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 ;; Delete all properties, used by Forth mode, from `from' to `to'.
 (defun forth-delete-properties (from to)
   (remove-text-properties 
-   from to '(face nil forth-parsed nil forth-word nil forth-state nil)))
+   from to '(face nil fontified nil 
+		  forth-parsed nil forth-word nil forth-state nil)))
 
 ;; Get the index of the branch of the most recently evaluated regular 
 ;; expression that matched. (used for identifying branches "a\\|b\\|c...")
@@ -470,6 +503,7 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
       (setq state (get-text-property (point) 'forth-state))
       (setq last-location (point))
       (forth-delete-properties (point) to)
+      (put-text-property (point) to 'fontified t)
       ;; hilight loop...
       (while (setq word-descr (forth-next-known-forth-word to))
 	(when loudly
@@ -513,12 +547,19 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 ;; and stuff like that.
 (defun forth-change-function (from to len &optional loudly)
   (save-match-data
-    (forth-save-buffer-state () 
-     (unwind-protect 
-	 (progn 
-	   (forth-update-properties from to loudly)
-	   (forth-update-show-screen)
-	   (forth-update-warn-long-lines))))))
+    (forth-save-buffer-state 
+     () 
+     (unless forth-disable-parser (forth-update-properties from to loudly))
+     (forth-update-warn-long-lines))))
+
+(defun forth-fontification-function (from)
+  "Function to be called from `fontification-functions' of Emacs 21."
+  (save-match-data
+    (forth-save-buffer-state
+     ((to (min (point-max) (+ from 100))))
+     (unless (or forth-disable-parser (not forth-jit-parser)
+		 (get-text-property from 'fontified))
+       (forth-update-properties from to)))))
 
 (eval-when-compile
   (byte-compile 'forth-set-word-properties)
@@ -534,7 +575,7 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
    "USER" "VALUE" "field" "end-struct" "VOCABULARY" "CREATE" ":" "CODE"
    "DEFER" "ALIAS")
   "List of words, that define the following word.
- Used for imenu index generation")
+Used for imenu index generation.")
 
  
 (defun forth-next-definition-starter ()
@@ -559,9 +600,11 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 	  (setq index (cons (cons (match-string 1) (point)) index))))
     index))
 
-(require 'speedbar)
-(speedbar-add-supported-extension ".fs")
-(speedbar-add-supported-extension ".fb")
+(unwind-protect
+    (progn
+      (require 'speedbar)
+      (speedbar-add-supported-extension ".fs")
+      (speedbar-add-supported-extension ".fb")))
 
 ;; (require 'profile)
 ;; (setq profile-functions-list '(forth-set-word-properties forth-next-known-forth-word forth-update-properties forth-delete-properties forth-get-regexp-branch))
@@ -931,6 +974,13 @@ exceeds 64 characters."
 	       forth-c/l))))
 
 (add-hook 'forth-motion-hooks 'forth-update-warn-long-lines)
+
+(defvar forth-was-point nil)
+(defun forth-check-motion ()
+  "Run `forth-motion-hooks', if `point' changed since last call."
+  (when (or (eq forth-was-point nil) (/= forth-was-point (point)))
+    (setq forth-was-point (point))
+    (run-hooks 'forth-motion-hooks)))
     
 ;;; End block file editing
 
@@ -957,41 +1007,6 @@ exceeds 64 characters."
 (define-key forth-mode-map "\C-m" 'forth-reindent-then-newline-and-indent)
 (define-key forth-mode-map "\M-q" 'forth-fill-paragraph)
 (define-key forth-mode-map "\e." 'forth-find-tag)
-
-;;; hook into motion events (realy ugly!)  (dk)
-(define-key forth-mode-map "\C-n" 'forth-next-line)
-(define-key forth-mode-map "\C-p" 'forth-previous-line)
-(define-key forth-mode-map [down] 'forth-next-line)
-(define-key forth-mode-map [up] 'forth-previous-line)
-(define-key forth-mode-map "\C-f" 'forth-forward-char)
-(define-key forth-mode-map "\C-b" 'forth-backward-char)
-(define-key forth-mode-map [right] 'forth-forward-char)
-(define-key forth-mode-map [left] 'forth-backward-char)
-(define-key forth-mode-map "\M-f" 'forth-forward-word)
-(define-key forth-mode-map "\M-b" 'forth-backward-word)
-(define-key forth-mode-map [C-right] 'forth-forward-word)
-(define-key forth-mode-map [C-left] 'forth-backward-word)
-(define-key forth-mode-map "\M-v" 'forth-scroll-down)
-(define-key forth-mode-map "\C-v" 'forth-scroll-up)
-(define-key forth-mode-map [prior] 'forth-scroll-down)
-(define-key forth-mode-map [next] 'forth-scroll-up)
-
-(defun forth-next-line (arg) 
-  (interactive "p") (next-line arg) (run-hooks 'forth-motion-hooks))
-(defun forth-previous-line (arg)
-  (interactive "p") (previous-line arg) (run-hooks 'forth-motion-hooks))
-(defun forth-backward-char (arg)
-  (interactive "p") (backward-char arg) (run-hooks 'forth-motion-hooks))
-(defun forth-forward-char (arg)
-  (interactive "p") (forward-char arg) (run-hooks 'forth-motion-hooks))
-(defun forth-forward-word (arg)
-  (interactive "p") (forward-word arg) (run-hooks 'forth-motion-hooks))
-(defun forth-backward-word (arg)
-  (interactive "p") (backward-word arg) (run-hooks 'forth-motion-hooks))
-(defun forth-scroll-down (arg)
-  (interactive "P") (scroll-down arg) (run-hooks 'forth-motion-hooks))
-(defun forth-scroll-up (arg)
-  (interactive "P") (scroll-up arg) (run-hooks 'forth-motion-hooks))
 
 ;setup for C-h C-i to work
 (if (fboundp 'info-lookup-add-help)
@@ -1057,11 +1072,14 @@ exceeds 64 characters."
   (make-local-variable 'parse-sexp-ignore-comments)
   (setq parse-sexp-ignore-comments t)
   (setq case-fold-search t)
+  (make-local-variable 'forth-was-point)
+  (setq forth-was-point -1)
   (make-local-variable 'forth-words)
   (make-local-variable 'forth-compiled-words)
   (make-local-variable 'forth-compiled-indent-words)
   (make-local-variable 'forth-hilight-level)
   (make-local-variable 'after-change-functions)
+  (make-local-variable 'post-command-hook)
   (make-local-variable 'forth-show-screen)
   (make-local-variable 'forth-screen-marker)
   (make-local-variable 'forth-warn-long-lines)
@@ -1070,6 +1088,9 @@ exceeds 64 characters."
   (make-local-variable 'forth-use-objects) 
   (setq forth-screen-marker (copy-marker 0))
   (add-hook 'after-change-functions 'forth-change-function)
+  (add-hook 'post-command-hook 'forth-check-motion)
+  (if (>= emacs-major-version 21)
+      (add-hook 'fontification-functions 'forth-fontification-function))
   (setq imenu-create-index-function 'forth-create-index))
 
 ;;;###autoload
@@ -1113,7 +1134,7 @@ Variables controlling syntax hilighting/recognition of parsed text:
     .emacs, or by setting forth-local-words, in source-files' local 
     variables lists.
  forth-use-objects
-    Set this variable to non-nil in your .emacs, or a local variables 
+    Set this variable to non-nil in your .emacs, or in a local variables 
     list, to hilight and recognize the words from the \"Objects\" package 
     for object-oriented programming.
  forth-use-oof
@@ -1232,7 +1253,8 @@ bell during block file read/write operations."
 	 (forth-hack-local-variables)
 	 (forth-customize-words)
 	 (forth-compile-words)
-	 (forth-change-function (point-min) (point-max) nil t)))
+	 (unless (and forth-jit-parser (>= emacs-major-version 21))
+	   (forth-change-function (point-min) (point-max) nil t))))
 
 (defun forth-fill-paragraph () 
   "Fill comments (starting with '\'; do not fill code (block style
