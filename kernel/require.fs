@@ -76,8 +76,7 @@ has? new-input [IF]
 : included1 ( i*x file-id c-addr u -- j*x ) \ gforth
     \G Include the file file-id with the name given by @var{c-addr u}.
     save-mem 2dup add-included-file ( file-id )
-    ['] include-file2 catch
-    throw ;
+    ['] read-loop execute-parsing-named-file ;
 [ELSE]
 : included1 ( i*x file-id c-addr u -- j*x ) \ gforth
 \G Include the file file-id with the name given by @var{c-addr u}.

@@ -232,15 +232,20 @@ has? file [IF]
     \G refill and interpret a file until EOF
     BEGIN  refill  WHILE  interpret  REPEAT ;
 
-: include-file2 ( i*x wfileid filename-addr filename-u -- j*x )
-    push-file \ dup 2* cells included-files 2@ drop + 2@ type
+: execute-parsing-named-file ( i*x wfileid filename-addr filename-u xt -- j*x )
+    >r push-file \ dup 2* cells included-files 2@ drop + 2@ type
     loadfilename 2!  loadfile !
-    ['] read-loop catch
+    r> catch
     loadfile @ close-file swap 2dup or
     pop-file  drop throw throw ;
+
+: execute-parsing-file ( i*x fileid xt -- j*x )
+\G Make @i{fileid} the current input source, execute @i{xt @code{( i*x
+\G -- j*x )}}, then restore the previous input source.
+    s" *a file*" rot execute-parsing-named-file ;
 
 : include-file ( i*x wfileid -- j*x )
     \G Interpret (process using the text interpreter) the contents of
     \G the file @var{wfileid}.
-    s" * a file*" include-file2 ;
+    ['] read-loop execute-parsing-file ;
 [THEN]

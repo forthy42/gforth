@@ -89,6 +89,98 @@ dnl    no_dynamic_default=1
 dnl    AC_MSG_WARN(Disabling dynamic native code generation by default (speed penalty factor ~2))
 dnl fi
 
+AC_MSG_CHECKING([whether the linker accepts -export-dynamic])
+OLDLDFLAGS=$LDFLAGS
+LDFLAGS="$LDFLAGS -export-dynamic"
+dnl AC_TRY_LINK gives false positive on rs6000-ibm-aix4.2.1.0
+dnl AC_TRY_LINK(,,ac_export_dynamic=yes,ac_export_dynamic=no)
+AC_TRY_RUN(main(){exit(0);},ac_export_dynamic=yes,ac_export_dynamic=no,ac_export_dynamic=no)
+test $ac_export_dynamic = yes|| LDFLAGS=$OLDLDFLAGS
+AC_MSG_RESULT($ac_export_dynamic)
+
+#terminology is a bit unusual here: The host is the system on which
+#gforth will run; the system on which configure will run is the `build'
+AC_CANONICAL_HOST
+case "$host_cpu" in
+	hppa*)
+		machine=hppa
+		$srcdir/mkinstalldirs arch/hppa
+		AC_LIBOBJ(../arch/hppa/cache)
+		LDFLAGS="$LDFLAGS -Xlinker -N"
+		LIBS="$LIBS -L/lib/pa1.1/"
+		;;
+	sparc*)
+		machine=sparc
+		;;
+	i386)
+		machine=386
+		CFLAGS="$CFLAGS -fomit-frame-pointer -fforce-addr -fforce-mem"
+		;;
+	i486)
+		machine=386
+		CFLAGS="$CFLAGS -fomit-frame-pointer -fforce-addr -fforce-mem -m486"
+		;;
+	i*86)
+		machine=386
+		CFLAGS="$CFLAGS -fomit-frame-pointer -fforce-addr -fforce-mem"
+		CFLAGS_1="$CFLAGS"
+		CFLAGS="$CFLAGS -march=pentium"
+		AC_TRY_COMPILE(,,,CFLAGS="$CFLAGS_1 -m486")
+		;;
+#generic should work for IA64
+#	ia64*)
+#		machine=ia64
+#		;;
+        m68k)
+		machine=m68k
+		CFLAGS="$CFLAGS -fomit-frame-pointer"
+		if test "$host_os" = "nextstep3"
+		then
+			AC_LIBOBJ(termios)
+		fi
+		;;
+	mips*)
+		machine=mips
+		#dynamic native code has the following problems on MIPS:
+		#
+		#1) J/JAL seems relocatable, but is are only
+		#relocatable within a 256MB-segment.  While we try to
+		#get the linker to arrange this, there is no guarantee
+		#that this will succeed (and if the user uses a lot of
+		#memory, it is likely to fail).
+		#
+		#2) The way we generate dynamic native code may
+		#violate MIPS architectural restrictions (in
+		#particular, the delay slots of LW, MFLO, etc.)
+		#
+		#Therefore we disable dynamic native code by default:
+		no_dynamic_default=1
+		AC_MSG_WARN(Disabling dynamic native code generation by default (speed penalty factor ~2))
+		;;
+	alpha*)
+		machine=alpha
+		#full IEEE FP support for more uniformity across platforms:
+		CFLAGS="$CFLAGS -mieee"
+		;;
+	power*|rs6000)
+		machine=power
+		$srcdir/mkinstalldirs arch/power
+		AC_CHECK_FUNC(_sync_cache_range,true,AC_LIBOBJ(../arch/power/_sync_cache_range))
+		#long long is broken on (at least) gcc-2.95.* for PPC
+		ac_cv_sizeof_long_long=0
+		;;
+	*)
+		AC_MSG_WARN([Using a generic machine description])
+		AC_MSG_WARN([Assuming C floats and doubles are IEEE floats and doubles (for SF@ DF@ SF! DF!)])
+		AC_MSG_WARN([FLUSH-ICACHE will do nothing, so END-CODE may not work properly!])
+		machine=generic
+		#I-cache flushing would be needed for dynamic code generation
+		no_dynamic_default=1
+		AC_MSG_WARN(Disabling dynamic native code generation by default (speed penalty factor ~2))
+esac
+AC_SUBST(host)
+AC_SUBST(ENGINE_FLAGS)
+
 dnl the following macro produces a warning with autoconf-2.1
 AC_CHECK_SIZEOF(char *)
 case "$ac_cv_sizeof_char_p" in
@@ -175,96 +267,6 @@ AC_CHECK_SIZEOF(off_t)
 test $ac_cv_sizeof_off_t -gt $ac_cv_sizeof_char_p
 ac_small_off_t=$?
 AC_DEFINE_UNQUOTED(SMALL_OFF_T,$ac_small_off_t,[1 if off_t fits in a Cell])
-
-AC_MSG_CHECKING([whether the linker accepts -export-dynamic])
-OLDLDFLAGS=$LDFLAGS
-LDFLAGS="$LDFLAGS -export-dynamic"
-dnl AC_TRY_LINK gives false positive on rs6000-ibm-aix4.2.1.0
-dnl AC_TRY_LINK(,,ac_export_dynamic=yes,ac_export_dynamic=no)
-AC_TRY_RUN(main(){exit(0);},ac_export_dynamic=yes,ac_export_dynamic=no,ac_export_dynamic=no)
-test $ac_export_dynamic = yes|| LDFLAGS=$OLDLDFLAGS
-AC_MSG_RESULT($ac_export_dynamic)
-
-#terminology is a bit unusual here: The host is the system on which
-#gforth will run; the system on which configure will run is the `build'
-AC_CANONICAL_HOST
-case "$host_cpu" in
-	hppa*)
-		machine=hppa
-		$srcdir/mkinstalldirs arch/hppa
-		AC_LIBOBJ(../arch/hppa/cache)
-		LDFLAGS="$LDFLAGS -Xlinker -N"
-		LIBS="$LIBS -L/lib/pa1.1/"
-		;;
-	sparc*)
-		machine=sparc
-		;;
-	i386)
-		machine=386
-		CFLAGS="$CFLAGS -fomit-frame-pointer -fforce-addr -fforce-mem"
-		;;
-	i486)
-		machine=386
-		CFLAGS="$CFLAGS -fomit-frame-pointer -fforce-addr -fforce-mem -m486"
-		;;
-	i*86)
-		machine=386
-		CFLAGS="$CFLAGS -fomit-frame-pointer -fforce-addr -fforce-mem"
-		CFLAGS_1="$CFLAGS"
-		CFLAGS="$CFLAGS -march=pentium"
-		AC_TRY_COMPILE(,,,CFLAGS="$CFLAGS_1 -m486")
-		;;
-#generic should work for IA64
-#	ia64*)
-#		machine=ia64
-#		;;
-        m68k)
-		machine=m68k
-		CFLAGS="$CFLAGS -fomit-frame-pointer"
-		if test "$host_os" = "nextstep3"
-		then
-			AC_LIBOBJ(termios)
-		fi
-		;;
-	mips*)
-		machine=mips
-		#dynamic native code has the following problems on MIPS:
-		#
-		#1) J/JAL seems relocatable, but is are only
-		#relocatable within a 256MB-segment.  While we try to
-		#get the linker to arrange this, there is no guarantee
-		#that this will succeed (and if the user uses a lot of
-		#memory, it is likely to fail).
-		#
-		#2) The way we generate dynamic native code may
-		#violate MIPS architectural restrictions (in
-		#particular, the delay slots of LW, MFLO, etc.)
-		#
-		#Therefore we disable dynamic native code by default:
-		no_dynamic_default=1
-		AC_MSG_WARN(Disabling dynamic native code generation by default (speed penalty factor ~2))
-		;;
-	alpha*)
-		machine=alpha
-		#full IEEE FP support for more uniformity across platforms:
-		CFLAGS="$CFLAGS -mieee"
-		;;
-	power*|rs6000)
-		machine=power
-		$srcdir/mkinstalldirs arch/power
-		AC_CHECK_FUNC(_sync_cache_range,true,AC_LIBOBJ(../arch/power/_sync_cache_range))
-		;;
-	*)
-		AC_MSG_WARN([Using a generic machine description])
-		AC_MSG_WARN([Assuming C floats and doubles are IEEE floats and doubles (for SF@ DF@ SF! DF!)])
-		AC_MSG_WARN([FLUSH-ICACHE will do nothing, so END-CODE may not work properly!])
-		machine=generic
-		#I-cache flushing would be needed for dynamic code generation
-		no_dynamic_default=1
-		AC_MSG_WARN(Disabling dynamic native code generation by default (speed penalty factor ~2))
-esac
-AC_SUBST(host)
-AC_SUBST(ENGINE_FLAGS)
 
 # Try if GCC understands -fno-cross-jump
 
