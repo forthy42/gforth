@@ -48,6 +48,8 @@ true DefaultValue new-input	\ enables object oriented input
 
 @PEEPHOLEFLAG@ DefaultValue peephole      \ enables peephole optimizer
 
+true DefaultValue abranch       \ enables absolute branches
+
 false DefaultValue ec
 false DefaultValue crlf
 
