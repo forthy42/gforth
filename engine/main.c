@@ -95,9 +95,8 @@ static int no_dynamic=0; /* true if compile_prim should not generate code */
 #endif
 
 #ifdef HAS_DEBUG
-static int debug=0;
+int debug=0;
 #else
-# define debug 0
 # define perror(x...)
 # define fprintf(x...)
 #endif

@@ -259,6 +259,12 @@ extern Label *vm_prims;
 extern Label *xts;
 extern Cell npriminfos;
 
+#ifdef HAS_DEBUG
+extern int debug;
+#else
+# define debug 0
+#endif
+
 #ifdef GFORTH_DEBUGGING
 extern Xt *saved_ip;
 extern Cell *rp;

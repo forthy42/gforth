@@ -60,7 +60,7 @@ void install_signal_handler(int sig, void (*handler)(int, siginfo_t *, void *))
 
   action.sa_sigaction=handler;
   sigemptyset(&action.sa_mask);
-  action.sa_flags=SA_RESTART|SA_NODEFER|SA_SIGINFO; /* pass siginfo */
+  action.sa_flags=SA_RESTART|SA_NODEFER|SA_SIGINFO|SA_ONSTACK; /* pass siginfo */
   sigaction(sig, &action, NULL);
 }
 #endif
@@ -73,7 +73,7 @@ Sigfunc *bsd_signal(int signo, Sigfunc *func)
 
   act.sa_handler=func;
   sigemptyset(&act.sa_mask);
-  act.sa_flags=SA_NODEFER;
+  act.sa_flags=SA_NODEFER|SA_ONSTACK;
   if (sigaction(signo,&act,&oact) < 0)
     return SIG_ERR;
   else
@@ -356,6 +356,16 @@ void install_signal_handlers(void)
   };
   int i;
   void (*throw_handler)() = die_on_signal ? graceful_exit : signal_throw;
+  stack_t sigstack;
+  int sas_retval=-1;
+
+  sigstack.ss_size=SIGSTKSZ;
+  if ((sigstack.ss_sp = my_alloc(sigstack.ss_size)) != NULL) {
+    sigstack.ss_flags=0;
+    sas_retval=sigaltstack(&sigstack,(stack_t *)0);
+  }
+  if (debug)
+    fprintf(stderr,"sigaltstack: %s\n",strerror(sas_retval));
 
 #define DIM(X)		(sizeof (X) / sizeof *(X))
 /*
