@@ -160,27 +160,17 @@ Create tfile 0 c, 255 chars allot
     THEN ;
 
 : compact.. ( adr len -- adr2 len2 )
-\ deletes phrases like "xy/.." out of our directory name 2dec97jaw
-  over >r -1 >r
-  BEGIN dup WHILE
-	over c@ pathsep? 
-	IF 	r@ -1 =
-		IF	r> drop dup >r
-		ELSE	2dup 1 /string 
-			3 min s" ../" compare
-			0=
-			IF	r@ over - ( diff )
-				2 pick swap - ( dest-adr )
-				>r 3 /string r> swap 2dup >r >r
-				move r> r>
-			ELSE	r> drop dup >r
-			THEN
-		THEN
-	THEN
-	1 /string
-  REPEAT 
-  r> drop 
-  drop r> tuck - ;
+    \ deletes phrases like "xy/.." out of our directory name 2dec97jaw
+    over swap
+    BEGIN  dup  WHILE
+        dup >r '/ scan 2dup 4 min s" /../" compare 0=
+        IF
+            dup r> - >r 4 /string over r> + 4 -
+            swap 2dup + >r move dup r> over -
+        ELSE
+            rdrop dup 1 min /string
+        THEN
+    REPEAT  drop over - ;
 
 : reworkdir ( -- )
   remove~+
