@@ -484,10 +484,8 @@ Defer interpreter-notfound ( c-addr count -- )
 ' no.extensions IS compiler-notfound
 ' no.extensions IS interpreter-notfound
 
-: interpret ( ?? -- ?? ) \ gforth
-    \ interpret/compile the (rest of the) input buffer
+: interpret1 ( ... -- ... )
 [ has? backtrace [IF] ]
-    backtrace-rp0 @ >r	
     rp@ backtrace-rp0 !
 [ [THEN] ]
     BEGIN
@@ -495,11 +493,18 @@ Defer interpreter-notfound ( c-addr count -- )
     WHILE
 	parser
     REPEAT
-    2drop
+    2drop ;
+    
+: interpret ( ?? -- ?? ) \ gforth
+    \ interpret/compile the (rest of the) input buffer
+[ has? backtrace [IF] ]
+    backtrace-rp0 @ >r	
+[ [THEN] ]
+    ['] interpret1 catch
 [ has? backtrace [IF] ]
     r> backtrace-rp0 !
-[ [THEN] ]
-;
+    [ [THEN] ]
+    throw ;
 
 \ interpreter                                 	30apr92py
 
