@@ -362,9 +362,10 @@ AM_PATH_LISPDIR
 kernel_fi=kernl${wordsize}${bytesex}.fi
 AC_SUBST(kernel_fi)
 
-dnl replace srource directory by absolute value
-if test $srcdir = "."; then srcdir=`pwd` 
-fi
+#this breaks bindists
+#dnl replace srource directory by absolute value
+#if test $srcdir = "."; then srcdir=`pwd` 
+#fi
 
 AC_SUBST(machine)
 dnl AC_LINK_FILES(arch/$machine,arch/machine) #no longer needed
