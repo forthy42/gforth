@@ -29,29 +29,29 @@
 
 0 Value wlib 	\ temporary library handle to make live easy
 
-: wl-catalog ( n -- addr | u )
-    s" catalog" wlib lib-sym dup 0=
+: wl-catalog ( n lib-addr -- addr | u )
+    s" catalog" rot lib-sym dup 0=
     ABORT" No word catalog"
     icall1 ;
 
 : wl-words ( lib-addr -- )
-    to wlib 0 
-    BEGIN dup wl-catalog ?dup
+    0 
+    BEGIN 2dup swap wl-catalog ?dup
     WHILE cell+ count type space
 	  1+
-    REPEAT drop ;
+    REPEAT 2drop ;
 
 : wl-create ( adr adr2 len2 -- )
     nextname
     Create ,
-    DOES> @ call-c ;
+    DOES> @ wcall ;
 
-: wl-tovoc ( -- )
+: wl-tovoc ( lib-addr -- )
     0 
-    BEGIN dup wl-catalog ?dup
+    BEGIN 2dup swap wl-catalog ?dup
     WHILE dup @ swap cell+ count wl-create
 	  1+
-    REPEAT drop ;
+    REPEAT 2drop ;
 
 : (WordLibrary)
     Create DOES> @ ;
@@ -62,6 +62,6 @@
     bl word count open-fpath-file throw rot close-file throw
     \ open library with correct path
     open-lib
-    dup 0= ABORT" Library not found"
-    dup to wlib ,
+    dup 0= ABORT" Library load error"
+    dup ,
     wl-tovoc ;
