@@ -22,139 +22,6 @@ decimal
 
 VARIABLE dbg-ip     \ istruction pointer for debugger
 
-\ Formated debugger words                               12jun93jaw
-
-false [IF]
-
-Color: Men#
-<A red >b yellow >f bold A> Men# CT!
-
-CREATE D-LineIP 80 cells allot
-CREATE D-XPos   300 chars allot align
-CREATE D-LineA  80 cells allot
-VARIABLE ^LineA
-
-VARIABLE D-Lines
-VARIABLE D-Line
-VARIABLE D-MaxLines 10 D-MaxLines !
-VARIABLE D-Bugline
-
-: WatcherInit
-        D-MaxLines @ 3 + YPos ! 0 D-Line ! ;
-
-: (lines)
-        1 cells ^LineA +!
-        O-PNT@ ^LineA @ ! ;
-
-VARIABLE Body
-
-: ScanWord ( body -- )
-        dup body !
-        c-init
-        ScanMode c-pass !
-        C-Formated on   0 Level !
-        C-ClearLine on
-        Colors on
-        0 XPos ! 0 YPos !
-        O-INIT
-        dup MakePass
-        DisplayMode c-pass !
-        c-stop off
-        D-LineIP 80 cells erase
-        0 D-Lines ! dup D-LineIP !
-        O-PNT@ D-LineA ! D-LineA ^LineA !
-        ['] (lines) IS nlcount
-        XPos @ D-XPos c!
-        BEGIN   analyse
-                D-Lines @ YPos @ <>
-                IF      YPos @ D-Lines !
-                        dup YPos @ cells D-LineIP + !
-                THEN
-                XPos @ over Body @ - 0 1 cells um/mod nip chars
-                D-XPos + c!
-                C-Stop @
-        UNTIL drop
-        O-PNT@ YPos @ 1+ cells D-LineA + !
-        -1 YPos @ 1+ cells D-LineIP + !
-        O-DEINIT
-        C-Formated off
-        0 D-Line !
-        ['] noop IS nlcount ;
-
-: SearchLine ( addr -- n )
-        D-LineIP D-Lines @ 0
-        ?DO     dup @ 2 pick U> IF 2drop I 1- UNLOOP EXIT THEN
-                cell+
-        LOOP    2drop 0 ;
-
-: Display ( n -- )
-        dup cells D-LineA + @ O-Buffer +
-        swap D-MaxLines @ + D-Lines @ min 1+
-             cells D-LineA + @ O-Buffer +
-        over - type ;
-
-\ [IFDEF] Green Colors on [THEN]
-\        dup D-TableL + C@ dup Level ! dup XPos ! spaces 0 YPos !
-\        D-LineIP + @ C-Stop off
-\        BEGIN
-\        [IFDEF] Green dbg-ip @ over =
-\                IF hig# C-Highlight ! ELSE C-Highlight off THEN
-\        [THEN]
-\                Analyse
-\                C-Stop @ YPos @ D-MaxLines @ u>= or
-\        UNTIL   drop ;
-
-: TopLine
-        0 0 at-xy
-        Men# CT@ attr!
-        ." OSB-DEBUG (C) 1993 by Jens A. Wilke" cr cr
-        \ one step beyond
-        0 CT@ attr! ;
-
-: BottomLine
-        0 D-MaxLines @ 3 + at-xy
-        Men# CT@ attr!
-        ." U-nnest D-one N-est A-bort" cr
-        0 CT@ attr! ;
-
-VARIABLE LastIP
-
-: (supress)
-        YPos @ D-MaxLines @ U>=
-        IF c-output off THEN ;
-
-: DispIP
-        ['] (supress) IS nlcount
-        dup SearchLine D-Line @ - dup YPos ! 2 +
-        over Body @ - 0 1 cells um/mod nip chars D-XPos + c@
-        swap AT-XY
-        Analyse drop
-        ['] noop IS nlcount
-        c-output on ;
-
-: Watcher ( -- )
-        TopLine
-        dbg-ip @ SearchLine dup D-Line @ dup D-MaxLines @ +
-        within
-        IF      drop D-Line @ Display
-        ELSE    D-MaxLines @ 2/ - 0 max dup D-Line !
-                Display
-        THEN
-        C-Formated off Colors on
-\        LastIP @ ?DUP IF DispIP THEN
-        Hig# C-Highlight !
-        dbg-ip @ DispIP dbg-ip @ LastIP !
-        C-Formated on C-Highlight off
-        BottomLine ;
-
-
-' noop ALIAS \w immediate
-
-\ end formated debugger words
-
-[ELSE]
-\ ' \ alias \w immediate
-
 : scanword ( body -- )
         c-init C-Output off
         ScanMode c-pass !
@@ -164,7 +31,6 @@ VARIABLE LastIP
         DisplayMode c-pass !
         MakePass
         C-Output on ;
-[THEN]
 
 : .n    0 <# # # # # #S #> ctype bl cemit ;
 
@@ -174,22 +40,15 @@ VARIABLE LastIP
 : NoFine        XPos off YPos off
                 NLFlag off Level off
                 C-Formated off
-[ [IFDEF] Colors ] Colors off [ [THEN] ]
                 ;
 
 : disp-step
         DisplayMode c-pass !            \ change to displaymode
-\       Branches Off                    \ don't display
-\                                       \ BEGIN and THEN
         cr
-\      YPos @ 1+ D-BugLine !
-\ w      Watcher
         c-stop off
-\ w     0 D-BugLine @ at-xy
         Base @ hex dbg-ip @ 8 u.r space dbg-ip @ @ 8 u.r space
         Base !
         NoFine 10 XPos !
-\ w      D-Bugline @ YPos !
         dbg-ip @ DisplayMode c-pass ! Analyse drop
         25 XPos @ - 0 max spaces ." -> " ;
 
@@ -223,6 +82,10 @@ CREATE DT 0 , 0 ,
 VARIABLE Body
 
 : NestXT        ( xt -- true | body false )
+		\ special deal for create does> words
+		\ leaves body address on the stack
+		dup >does-code IF dup >body swap THEN
+
                 DebugMode c-pass ! C-Output off
                 xt-see C-Output on
                 c-pass @ DebugMode = dup
@@ -232,7 +95,6 @@ VARIABLE Body
 VARIABLE Nesting
 
 : Leave-D
-[ [IFDEF] Colors ] Colors on [ [THEN] ]
                 C-Formated on
                 C-Output on ;
 
@@ -264,14 +126,12 @@ VARIABLE Unnest
                 cr ." Scanning code..." cr C-Formated on
                 dup scanword dbg-ip !
                 cr ." Nesting debugger ready!" cr
-                \ WatcherInit 0 CT@ attr! page
-                BEGIN   disp-step D-Key
+                BEGIN   d.s disp-step D-Key
                 WHILE   C-Stop @ 0=
                 WHILE   0 get-next set-bp
                         dbg-ip @ jump
                         [ here DebugLoop ! ]
                         restore-bp
-                        d.s
                 REPEAT
                 Nesting @ 0= IF EXIT THEN
                 -1 Nesting +! r>
