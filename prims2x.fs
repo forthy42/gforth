@@ -922,7 +922,8 @@ s" IP" save-mem w s" error don't use # on results" make-stack inst-stream
     fetches ;
 
 : part-output-c-tail ( -- )
-    output-c-tail ;
+    stores
+    fill-tos ;
 
 : output-part ( p -- )
     to prim

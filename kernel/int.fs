@@ -892,6 +892,7 @@ has? new-input 0= [IF]
     argc ! argv ! pathstring 2!
 [ [THEN] ]
     sp@ sp0 !
+    primtable prepare-peephole-table TO peeptable
 [ has? new-input [IF] ]
     current-input off
 [ [THEN] ]

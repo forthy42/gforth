@@ -88,7 +88,7 @@ s" address-unit-bits" environment? drop constant bits/au
     image1 size1 s" Gforth2" search 0= abort" not a Gforth image"
     drop 8 + image1 - { header-offset }
     size1 aligned size1 <> abort" unaligned image size"
-    size1 image1 header-offset + 2 cells + @ header-offset + <> abort" header gives wrong size"
+    image1 header-offset + 2 cells + @ header-offset + size1 <> abort" header gives wrong size"
     name slurp-file { image2 size2 }
     size1 size2 <> abort" image sizes differ"
     name ( "new-image" ) w/o bin create-file throw { outfile }

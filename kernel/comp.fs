@@ -203,11 +203,23 @@ has? OS [IF]
     0 A, 0 ,  code-address! ;
 
 [IFUNDEF] compile,
-: compile, ( xt -- )	\ core-ext	compile-comma
-    \G  Compile the word represented by the execution token @i{xt}
-    \G  into the current definition.
-    A, ;
+defer compile, ( xt -- )	\ core-ext	compile-comma
+\G  Compile the word represented by the execution token @i{xt}
+\G  into the current definition.
+
+' , is compile,
 [THEN]
+
+: peephole-compile, ( xt -- )
+    last-compiled @ ?dup if
+	@ over peeptable peephole-opt ?dup if
+	    last-compiled @ ! drop EXIT
+	then
+    then
+    here last-compiled !
+    , ;
+
+' peephole-compile, IS compile,
 
 : !does    ( addr -- ) \ gforth	store-does
     lastxt does-code! ;
@@ -508,12 +520,13 @@ defer ;-hook ( sys2 -- sys1 )
 [IFDEF] docol,
 : (:noname) ( -- colon-sys )
     \ common factor of : and :noname
-    docol, ]comp defstart ] :-hook ;
+    docol, ]comp
 [ELSE]
 : (:noname) ( -- colon-sys )
     \ common factor of : and :noname
-    docol: cfa, defstart ] :-hook ;
+    docol: cfa,
 [THEN]
+    0 last-compiled ! defstart ] :-hook ;
 
 : : ( "name" -- colon-sys ) \ core	colon
     Header (:noname) ;

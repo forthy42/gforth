@@ -109,7 +109,9 @@ variable backedge-locals
 : sys?        ( sys -- )        dup 0= ?struc ;
 : >mark ( -- orig )
  cs-push-orig 0 , ;
-: >resolve    ( addr -- )        here over - swap ! ;
+: >resolve    ( addr -- )
+    here over - swap !
+    0 last-compiled ! ;
 : <resolve    ( addr -- )        here - , ;
 
 : BUT
@@ -155,7 +157,8 @@ Defer begin-like ( -- )
 ' noop IS begin-like
 
 : BEGIN ( compilation -- dest ; run-time -- ) \ core
-    begin-like cs-push-part dest ; immediate restrict
+    begin-like cs-push-part dest
+    0 last-compiled ! ; immediate restrict
 
 Defer again-like ( dest -- addr )
 ' nip IS again-like

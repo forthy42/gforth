@@ -157,32 +157,32 @@ has? file [IF]
 [THEN]
 [THEN]
 
- User base ( -- a-addr ) \ core
- \G @code{User} variable -- @i{a-addr} is the address of a cell that stores the
- \G number base used by default for number conversion during input and output.
-                        A base !
- User dpl ( -- a-addr ) \ gforth
- \G @code{User} variable -- @i{a-addr} is the address of a cell that stores the 		
- \G position of the decimal point in the most recent numeric conversion.
- \G Initialised to -1. After the conversion of a number containing no
- \G decimal point, @code{@ dpl} is -1. After the conversion of @code{2.} it holds
- \G 0. After the conversion of 234123.9 it contains 1, and so forth.
- -1 dpl !
+User base ( -- a-addr ) \ core
+\G @code{User} variable -- @i{a-addr} is the address of a cell that stores the
+\G number base used by default for number conversion during input and output.
+                       A base !
+User dpl ( -- a-addr ) \ gforth
+\G @code{User} variable -- @i{a-addr} is the address of a cell that stores the 		
+\G position of the decimal point in the most recent numeric conversion.
+\G Initialised to -1. After the conversion of a number containing no
+\G decimal point, @code{@ dpl} is -1. After the conversion of @code{2.} it holds
+\G 0. After the conversion of 234123.9 it contains 1, and so forth.
+-1 dpl !
 
- User state ( -- a-addr ) \ core,tools-ext
- \G @code{User} variable -- @i{a-addr} is the address of a cell
- \G containing the compilation state flag. 0 => interpreting, -1 =>
- \G compiling.  A program shall not directly alter the value of
- \G @code{state}. The following Standard words alter the value in
- \G @code{state}: @code{:} (colon) @code{;} (semicolon) @code{abort}
- \G @code{quit} @code{:noname} @code{[} (left-bracket) @code{]}
- \G (right-bracket) @code{;code}. Don't use @code{state}! For an
- \G alternative see @ref{Interpretation and Compilation Semantics}.
- \ Recommended reading: @cite{@code{State}-smartness--Why it is evil
- \ and how to exorcise it},
- \ @url{http://www.complang.tuwien.ac.at/papers/ertl98.ps.gz}; short
- \ version: Don't use @code{state}!
- 0 state !
+User state ( -- a-addr ) \ core,tools-ext
+\G @code{User} variable -- @i{a-addr} is the address of a cell
+\G containing the compilation state flag. 0 => interpreting, -1 =>
+\G compiling.  A program shall not directly alter the value of
+\G @code{state}. The following Standard words alter the value in
+\G @code{state}: @code{:} (colon) @code{;} (semicolon) @code{abort}
+\G @code{quit} @code{:noname} @code{[} (left-bracket) @code{]}
+\G (right-bracket) @code{;code}. Don't use @code{state}! For an
+\G alternative see @ref{Interpretation and Compilation Semantics}.
+\ Recommended reading: @cite{@code{State}-smartness--Why it is evil
+\ and how to exorcise it},
+\ @url{http://www.complang.tuwien.ac.at/papers/ertl98.ps.gz}; short
+\ version: Don't use @code{state}!
+0 state !
 
 AUser normal-dp		\ the usual dictionary pointer
 AUser dpp		normal-dp dpp !
@@ -191,6 +191,12 @@ AUser dpp		normal-dp dpp !
                         \  (i.e. any throw caught by quit)
 AUser LastCFA
 AUser Last
+
+AUser last-compiled \ address of the last compiled xt
+                    \ 0 if last xt cannot be combined (basic block boundary)
+0 last-compiled !
+
+0 value peeptable \ initialized in boot
 
 has? glocals [IF]
 User locals-size \ this is the current size of the locals stack
