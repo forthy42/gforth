@@ -219,30 +219,34 @@ void after_alloc(Address r, Cell size)
   }
 }
 
-Address my_alloc(Cell size)
-{
-#if HAVE_MMAP
-  Address r;
-
-#if defined(MAP_ANON)
-  if (debug)
-    fprintf(stderr,"try mmap($%lx, $%lx, ..., MAP_ANON, ...); ", (long)next_address, (long)size);
-  r=mmap(next_address, size, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE, -1, 0);
-#else /* !defined(MAP_ANON) */
-  /* Ultrix (at least) does not define MAP_FILE and MAP_PRIVATE (both are
-     apparently defaults) */
+#ifndef MAP_FAILED
+#define MAP_FAILED ((Address) -1)
+#endif
 #ifndef MAP_FILE
 # define MAP_FILE 0
 #endif
 #ifndef MAP_PRIVATE
 # define MAP_PRIVATE 0
 #endif
+
+#if defined(HAVE_MMAP)
+static Address alloc_mmap(Cell size)
+{
+  Address r;
+
+#if defined(MAP_ANON)
+  if (debug)
+    fprintf(stderr,"try mmap($%lx, $%lx, ..., MAP_ANON, ...); ", (long)next_address, (long)size);
+  r = mmap(next_address, size, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE, -1, 0);
+#else /* !defined(MAP_ANON) */
+  /* Ultrix (at least) does not define MAP_FILE and MAP_PRIVATE (both are
+     apparently defaults) */
   static int dev_zero=-1;
 
   if (dev_zero == -1)
     dev_zero = open("/dev/zero", O_RDONLY);
   if (dev_zero == -1) {
-    r = (Address)-1;
+    r = MAP_FAILED;
     if (debug)
       fprintf(stderr, "open(\"/dev/zero\"...) failed (%s), no mmap; ", 
 	      strerror(errno));
@@ -252,8 +256,18 @@ Address my_alloc(Cell size)
     r=mmap(next_address, size, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_FILE|MAP_PRIVATE, dev_zero, 0);
   }
 #endif /* !defined(MAP_ANON) */
-  after_alloc(r,size);
-  if (r!=(Address)-1)
+  after_alloc(r, size);
+  return r;  
+}
+#endif
+
+Address my_alloc(Cell size)
+{
+#if HAVE_MMAP
+  Address r;
+
+  r=alloc_mmap(size);
+  if (r!=MAP_FAILED)
     return r;
 #endif /* HAVE_MMAP */
   /* use malloc as fallback */
@@ -269,22 +283,23 @@ Address my_alloc(Cell size)
 #define dict_alloc(size) my_alloc(size)
 #endif
 
-Address dict_alloc_read(FILE *file, Cell size, Cell offset)
+Address dict_alloc_read(FILE *file, Cell imagesize, Cell dictsize, Cell offset)
 {
-  Address image = (Address) -1;
+  Address image = MAP_FAILED;
 
-#ifndef mips_dict_alloc
+#if defined(HAVE_MMAP) && !defined(mips_dict_alloc)
   if (offset==0) {
+    image=alloc_mmap(dictsize);
     if (debug)
-      fprintf(stderr,"try mmap(0, $%lx, ..., MAP_FILE, imagefile, 0); ", (long)size);
-    image = mmap(0, size, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_FILE|MAP_PRIVATE, fileno(file), 0);
-    after_alloc(image,size);
+      fprintf(stderr,"try mmap($%lx, $%lx, ..., MAP_FIXED|MAP_FILE, imagefile, 0); ", (long)image, (long)imagesize);
+    image = mmap(image, imagesize, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_FIXED|MAP_FILE|MAP_PRIVATE, fileno(file), 0);
+    after_alloc(image,dictsize);
   }
-#endif /* defined(mips_dict_alloc) */
-  if (image == (Address)-1) {
-    image = dict_alloc(size+offset)+offset;
+#endif /* defined(MAP_ANON) && !defined(mips_dict_alloc) */
+  if (image == MAP_FAILED) {
+    image = dict_alloc(dictsize+offset)+offset;
     rewind(file);  /* fseek(imagefile,0L,SEEK_SET); */
-    fread(image, 1, size, file);
+    fread(image, 1, imagesize, file);
   }
   return image;
 }
@@ -459,7 +474,8 @@ Address loader(FILE *imagefile, char* filename)
   if (debug)
     fprintf(stderr,"pagesize=%ld\n",(unsigned long) pagesize);
 
-  image = dict_alloc_read(imagefile, preamblesize+dictsize, data_offset);
+  image = dict_alloc_read(imagefile, preamblesize+header.image_size,
+			  preamblesize+dictsize, data_offset);
   imp=image+preamblesize;
   if (clear_dictionary)
     memset(imp+header.image_size, 0, dictsize-header.image_size);
