@@ -20,8 +20,6 @@
 #endif
 #endif
 
-#ifdef DIRECT_THREADED
-
 #ifdef ultrix
 #include <mips/cachectl.h>
 #else
@@ -29,10 +27,8 @@
 #include <sys/cachectl.h>
 #endif
 
-#define CACHE_FLUSH(addr,size) \
+#define FLUSH_ICACHE(addr,size) \
 			cacheflush((char *)(addr), (int)(size), BCACHE)
-
-#endif
 
 #include "32bit.h"
 

@@ -84,6 +84,9 @@ Only Forth also definitions
 
 lookup A! \ our dictionary search order becomes the law
 
+' Forth >body constant forth-wordlist \ "forth definitions get-current" and "forth-wordlist" should produce the same wid
+
+
 \ get-order set-order                                  14may93py
 
 : get-order  ( -- wid1 .. widn n )
@@ -106,10 +109,26 @@ lookup A! \ our dictionary search order becomes the law
 : body> ( data -- cfa )  0 >body - ;
 
 : .voc  body> >name .name ;
-: order  1 vp @  DO  vp I cells + @ .voc  -1 +LOOP  2 spaces
-  current @ .voc ;
-: vocs   voclink  BEGIN  @ dup @  WHILE  dup 0 wordlist-link - .voc  REPEAT
-  drop ;
+: order ( -- )  \  search-ext
+    \g prints the search order and the @code{current} wordlist.  The
+    \g standard requires that the wordlists are printed in the order
+    \g in which they are searched. Therefore, the output is reversed
+    \g with respect to the conventional way of displaying stacks. The
+    \g @code{current} wordlist is displayed last.
+    get-order 0
+    ?DO
+	.voc
+    LOOP
+    4 spaces get-current .voc ;
+: vocs ( -- ) \ gforth
+    \g prints vocabularies and wordlists defined in the system.
+    voclink
+    BEGIN
+	@ dup @
+    WHILE
+	dup 0 wordlist-link - .voc
+    REPEAT
+    drop ;
 
 Root definitions
 

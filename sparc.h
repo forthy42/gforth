@@ -1,5 +1,5 @@
 /*
-  $Id: sparc.h,v 1.10 1995-01-18 18:41:44 anton Exp $
+  $Id: sparc.h,v 1.11 1995-10-07 17:38:20 anton Exp $
   Copyright 1992 by the ANSI figForth Development Group
 
   This is the machine-specific part for a SPARC
@@ -15,6 +15,12 @@
 #define DIRECT_THREADED
 #endif
 
+#define FLUSH_ICACHE(addr,size) \
+  ({void *_addr=(addr); void *_end=_addr+(size); \
+    for (_addr=((long)_addr)&~7; _addr<_end; _addr += 8) \
+       asm("iflush %0"::"r"(_addr)) \
+   })
+
 #ifdef DIRECT_THREADED
 #ifndef WORDS_BIGENDIAN
 #error Direct threading only supported for big-endian SPARCs.
@@ -22,10 +28,6 @@
    so you would have to reverse the instructions stores in the following
 */
 #endif
-
-/* assuming size = 8 */
-#define CACHE_FLUSH(addr,size) \
-  asm("iflush %0; iflush %0+4"::"r"(addr))
 
 /* PFA gives the parameter field address corresponding to a cfa */
 #define PFA(cfa)	(((Cell *)cfa)+2)

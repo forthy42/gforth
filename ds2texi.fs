@@ -9,9 +9,10 @@
 
 script? [IF]
 warnings off
-include search-order.fs
-include struct.fs
-include debugging.fs
+require search-order.fs
+require float.fs
+require struct.fs
+require debugging.fs
 [THEN]
 
 wordlist constant documentation
@@ -72,12 +73,17 @@ create description-buffer 4096 chars allot
     drop ;
 
 : print-short ( doc-entry -- )
-    >r ." @format" cr
+    >r
+    ." @findex "
+    r@ doc-name 2@ typetexi
+    ."  @var{ " r@ doc-stack-effect 2@ type ."  }  "
+    r@ doc-wordset 2@ type
+    cr
+    ." @format" cr
     ." @code{" r@ doc-name 2@ typetexi ." }       "
     ." @i{" r@ doc-stack-effect 2@ type ." }       "
     r@ doc-wordset 2@ type ."        ``"
     r@ doc-pronounciation 2@ type ." ''" cr ." @end format" cr
-    ." @findex " r@ doc-name 2@ typetexi cr
     rdrop ;
 
 : print-doc ( doc-entry -- )
@@ -85,7 +91,8 @@ create description-buffer 4096 chars allot
     r@ print-short
     r@ doc-description 2@ dup 0<>
     if
-	type ." @*" cr
+	." @iftex" cr ." @vskip-3ex" cr ." @end iftex" cr
+	type cr cr \ ." @ifinfo" cr ." @*" cr ." @end ifinfo" cr cr
     else
 	2drop cr
     endif
@@ -133,7 +140,7 @@ create docline doclinelength chars allot
     drop rdrop ;
 
 script? [IF]
-include prims2x.fs
+require prims2x.fs
 s" primitives.b" ' register-doc process-file
 require doc.fd
 require crossdoc.fd

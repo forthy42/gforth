@@ -17,16 +17,16 @@
 #include "32bit.h"
 
 /* cache flush stuff */
-#ifdef DIRECT_THREADED
-#warning Direct threading for Power has not been tested
-
 #warning If you get assembly errors, here is the reason why
-#define CACHE_FLUSH(addr,size)   asm("icbi (%0); isync"::"b"(addr))
+#define FLUSH_ICACHE(addr,size)   asm("icbi (%0); isync"::"b"(addr))
 /* this assumes size=4 */
 /* the mnemonics are for the PPC and the syntax is a wild guess; for
    Power the mnemonic for the isync instruction is "ics" and I have
    not found an equivalent for the icbi instruction in my reference.
 */
+
+#ifdef DIRECT_THREADED
+#warning Direct threading for Power has not been tested
 
 /* PFA gives the parameter field address corresponding to a cfa */
 #define PFA(cfa)	(((Cell *)cfa)+2)

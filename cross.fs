@@ -1,5 +1,5 @@
 \ CROSS.FS     The Cross-Compiler                      06oct92py
-\ $Id: cross.fs,v 1.28 1995-09-06 21:00:11 pazsan Exp $
+\ $Id: cross.fs,v 1.29 1995-10-07 17:38:11 anton Exp $
 \ Idea and implementation: Bernd Paysan (py)
 \ Copyright 1992-94 by the GNU Forth Development Group
 
@@ -120,7 +120,7 @@ H
 -4 Constant :dovar
 -5 Constant :douser
 -6 Constant :dodefer
--7 Constant :dostruc
+-7 Constant :dofield
 -8 Constant :dodoes
 -9 Constant :doesjump
 
@@ -483,7 +483,7 @@ ghost (loop)    ghost (+loop)                   2drop
 ghost (next)                                    drop
 ghost unloop    ghost ;S                        2drop
 ghost lit       ghost (compile) ghost !         2drop drop
-ghost (;code)   ghost noop                      2drop
+ghost (does>)   ghost noop                      2drop
 ghost (.")      ghost (S")      ghost (ABORT")  2drop drop
 ghost '
 
@@ -571,7 +571,7 @@ Cond: [  restrict? state off ;Cond
 
 >TARGET
 Cond: DOES> restrict?
-        compile (;code) dodoes, tdoes @ ?dup IF  @ T here H resolve THEN
+        compile (does>) dodoes, tdoes @ ?dup IF  @ T here H resolve THEN
         ;Cond
 : DOES> dodoes, T here H !does depth T ] H ;
 
@@ -695,7 +695,7 @@ Build: 	>r rot r@ nalign  dup T , H  ( align1 size offset )
 	+ swap r> nalign ;
 DO: T @ H + ;DO
 Builder Field
-by Field :dostruc resolve
+by Field :dofield resolve
 
 : struct  T 0 1 chars H ;
 : end-struct  T 2Constant H ;

@@ -55,7 +55,7 @@ KERN_SRC = main.fs search-order.fs cross.fs aliases.fs vars.fs add.fs \
 	errore.fs kernal.fs version.fs extend.fs tools.fs toolsext.fs
 
 FORTH_SRC = anslocal.fs add.fs assert.fs ansi.fs blocks.fs bufio.fs checkans.fs \
-	colorize.fs cross.fs debug.fs debugging.fs doskey.fs ds2texi.fs \
+	code.fs colorize.fs cross.fs debug.fs debugging.fs doskey.fs ds2texi.fs \
 	dumpimage.fs environ.fs errore.fs etags.fs extend.fs filedump.fs \
 	float.fs glocals.fs glosgen.fs gray.fs hash.fs history.fs \
 	kernal.fs locals-test.fs look.fs main.fs makedoc.fs \
@@ -181,7 +181,7 @@ test:		gforth
 		@echo 'Expect to see INCORRECT RESULT: { GS1 -> <TRUE> <TRUE> }'
 		@echo 'This is a bug of the testing program'
 		$(FORTH) tester.fs coretest.fs -e bye
-		$(FORTH) startup.fs blocks.fs checkans.fs -e bye
+		$(FORTH) startup.fs blocks.fs code.fs checkans.fs -e bye
 		@echo 'Expect no differences'
 		$(FORTH) prims2x.fs -e "s\" primitives.b\" ' output-c process-file bye"| diff -c - primitives.i
 
@@ -273,8 +273,8 @@ version.c:	Makefile.in
 doc.fd:		makedoc.fs float.fs search-order.fs glocals.fs environ.fs \
 		 toolsext.fs wordinfo.fs \
 		 vt100.fs colorize.fs see.fs bufio.fs debug.fs history.fs \
-		 doskey.fs vt100key.fs startup.fs assert.fs debugging.fs
-		$(FORTH) -e "s\" doc.fd\"" makedoc.fs startup.fs -e bye
+		 doskey.fs vt100key.fs startup.fs assert.fs debugging.fs code.fs
+		$(FORTH) -e "s\" doc.fd\"" makedoc.fs startup.fs code.fs -e bye
 
 gforth.texi:	gforth.ds primitives.b ds2texi.fs prims2x.fs doc.fd crossdoc.fd
 		$(FORTH) ds2texi.fs >$@

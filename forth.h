@@ -74,6 +74,12 @@ Label *engine(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp);
 
 #define CF_NIL	-1
 
-#ifndef CACHE_FLUSH
-#	define CACHE_FLUSH(addr,size)
+#ifndef FLUSH_ICACHE
+#	define FLUSH_ICACHE(addr,size) 0
+#endif
+
+#ifdef DIRECT_THREADED
+#define CACHE_FLUSH(addr,size) FLUSH_ICACHE(addr,size)
+#else
+#define CACHE_FLUSH(addr,size) 0
 #endif

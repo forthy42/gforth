@@ -367,7 +367,7 @@ VARIABLE C-Pass
         THEN
         Debug? IF drop THEN ;
 
-: c-;code               \ end of create part
+: c-does>               \ end of create part
         Display? IF S" DOES> " Com# .string THEN
         Cell+ cell+ ;
 
@@ -398,7 +398,7 @@ CREATE C-Table
         ' (+loop) A,     ' c-+loop A,
         ' (next) A,      ' c-next A,
         ' ;s A,          ' c-exit A,
-        ' (;code) A,     ' c-;code A,
+        ' (does>) A,     ' c-does> A,
         ' (abort") A,    ' c-abort" A,
         ' (compile) A,   ' c-(compile) A,
         0 ,

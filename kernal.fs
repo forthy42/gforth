@@ -31,6 +31,32 @@
 
 HEX
 
+\ labels for some code addresses
+
+: docon: ( -- addr )	\ gforth
+    \ the code address of a @code{CONSTANT}
+    ['] bl >code-address ;
+
+: docol: ( -- addr )	\ gforth
+    \ the code address of a colon definition
+    ['] docon: >code-address ;
+
+: dovar: ( -- addr )	\ gforth
+    \ the code address of a @code{CREATE}d word
+    ['] udp >code-address ;
+
+: douser: ( -- addr )	\ gforth
+    \ the code address of a @code{USER} variable
+    ['] s0 >code-address ;
+
+: dodefer: ( -- addr )	\ gforth
+    \ the code address of a @code{defer}ed word
+    ['] source >code-address ;
+
+: dofield: ( -- addr )	\ gforth
+    \ the code address of a @code{field}
+    ['] reveal-method >code-address ;
+
 \ Bit string manipulation                              06oct92py
 
 Create bits  80 c, 40 c, 20 c, 10 c, 8 c, 4 c, 2 c, 1 c,
@@ -115,7 +141,7 @@ DOES> ( n -- )  + c@ ;
 \ input stream primitives                              23feb93py
 
 : tib   >tib @ ;
-Defer source
+Defer source \ used by dodefer:, must be defer
 : (source) ( -- addr count ) tib #tib @ ;
 ' (source) IS source
 
@@ -736,11 +762,25 @@ Avariable leave-sp  leave-stack 3 cells + leave-sp !
     POSTPONE begin drop do-dest
     ( 0 0 0 >leave ) ; immediate restrict
 
-: ?DO ( -- do-sys )
+: ?do-like ( -- do-sys )
     ( 0 0 0 >leave )
-    POSTPONE (?do)
     >mark >leave
-    POSTPONE begin drop do-dest ; immediate restrict
+    POSTPONE begin drop do-dest ;
+
+: ?DO ( -- do-sys )	\ core-ext	question-do
+    POSTPONE (?do) ?do-like ; immediate restrict
+
+: +DO ( -- do-sys )	\ gforth	plus-do
+    POSTPONE (+do) ?do-like ; immediate restrict
+
+: U+DO ( -- do-sys )	\ gforth	u-plus-do
+    POSTPONE (u+do) ?do-like ; immediate restrict
+
+: -DO ( -- do-sys )	\ gforth	minus-do
+    POSTPONE (-do) ?do-like ; immediate restrict
+
+: U-DO ( -- do-sys )	\ gforth	u-minus-do
+    POSTPONE (u-do) ?do-like ; immediate restrict
 
 : FOR ( -- do-sys )
     POSTPONE (for)
@@ -753,17 +793,21 @@ Avariable leave-sp  leave-stack 3 cells + leave-sp !
     >r >r 0 cs-pick swap cell - swap 1 cs-roll r> r> rot do-dest?
     until-like  POSTPONE done  POSTPONE unloop ;
 
-: LOOP ( do-sys -- )
+: LOOP ( do-sys -- )	\ core
  ['] (loop) ['] (loop)-lp+!# loop-like ; immediate restrict
 
-: +LOOP ( do-sys -- )
+: +LOOP ( do-sys -- )	\ core	plus-loop
  ['] (+loop) ['] (+loop)-lp+!# loop-like ; immediate restrict
+
+\ !! should the compiler warn about +DO..-LOOP?
+: -LOOP ( do-sys -- )	\ gforth	minus-loop
+ ['] (-loop) ['] (-loop)-lp+!# loop-like ; immediate restrict
 
 \ A symmetric version of "+LOOP". I.e., "-high -low ?DO -inc S+LOOP"
 \ will iterate as often as "high low ?DO inc S+LOOP". For positive
 \ increments it behaves like "+LOOP". Use S+LOOP instead of +LOOP for
 \ negative increments.
-: S+LOOP ( do-sys -- )
+: S+LOOP ( do-sys -- )	\ gforth	s-plus-loop
  ['] (s+loop) ['] (s+loop)-lp+!# loop-like ; immediate restrict
 
 : NEXT ( do-sys -- )
@@ -902,31 +946,31 @@ Create ???  0 , 3 c, char ? c, char ? c, char ? c,
  cell +loop
  drop ??? ( wouldn't 0 be better? ) ;
 
-\ indirect threading                                   17mar93py
+\ threading                                   17mar93py
 
-: cfa,     ( code-address -- )
-    here lastcfa !
-    here  0 A, 0 ,  code-address! ;
-: compile, ( xt -- )		A, ;
-: !does    ( addr -- )		lastcfa @ does-code! ;
-: (;code)  ( R: addr -- )	r> /does-handler + !does ;
+: cfa,     ( code-address -- )  \ gforth
+    here
+    dup lastcfa !
+    0 A, 0 ,  code-address! ;
+: compile, ( xt -- ) \ core-ext
+    A, ;
+: !does    ( addr -- )		lastxt does-code! ;
+: (does>)  ( R: addr -- )	r> /does-handler + !does ;
 : dodoes,  ( -- )
   here /does-handler allot does-handler! ;
 
-\ direct threading is implementation dependent
-
-: Create    Header reveal [ :dovar ] Literal cfa, ;
+: Create    Header reveal dovar: cfa, ;
 
 \ DOES>                                                17mar93py
 
-: DOES>  ( compilation: -- )
+: DOES>  ( compilation: -- ) \ core
     state @
     IF
-	;-hook postpone (;code) dodoes,
+	;-hook postpone (does>) ?struc dodoes,
     ELSE
-	dodoes, here !does 0 ]
+	align dodoes, here !does ]
     THEN 
-    :-hook ; immediate
+    defstart :-hook ; immediate
 
 \ Create Variable User Constant                        17mar93py
 
@@ -938,7 +982,7 @@ Create ???  0 , 3 c, char ? c, char ? c, char ? c,
 : User      Variable ;
 : AUser     AVariable ;
 
-: (Constant)  Header reveal [ :docon ] Literal cfa, ;
+: (Constant)  Header reveal docon: cfa, ;
 : Constant  (Constant) , ;
 : AConstant (Constant) A, ;
 
@@ -952,7 +996,7 @@ Create ???  0 , 3 c, char ? c, char ? c, char ? c,
 
 : Defer ( -- )
     \ !! shouldn't it be initialized with abort or something similar?
-    Header Reveal [ :dodefer ] Literal cfa,
+    Header Reveal dodefer: cfa,
     ['] noop A, ;
 \     Create ( -- ) 
 \ 	['] noop A,
@@ -978,13 +1022,13 @@ Create ???  0 , 3 c, char ? c, char ? c, char ? c,
 defer :-hook ( sys1 -- sys2 )
 defer ;-hook ( sys2 -- sys1 )
 
-: : ( -- colon-sys )  Header [ :docol ] Literal cfa, defstart ] :-hook ;
+: : ( -- colon-sys )  Header docol: cfa, defstart ] :-hook ;
 : ; ( colon-sys -- )  ;-hook ?struc postpone exit reveal postpone [ ;
   immediate restrict
 
 : :noname ( -- xt colon-sys )
     0 last !
-    here [ :docol ] Literal cfa, 0 ] :-hook ;
+    here docol: cfa, 0 ] :-hook ;
 
 \ Search list handling                                 23feb93py
 
@@ -1008,7 +1052,7 @@ AVariable current
 
 struct
   1 cells: field find-method   \ xt: ( c_addr u wid -- name-id )
-  1 cells: field reveal-method \ xt: ( -- )
+  1 cells: field reveal-method \ xt: ( -- ) \ used by dofield:, must be field
   1 cells: field rehash-method \ xt: ( wid -- )
 \   \ !! what else
 end-struct wordlist-map-struct

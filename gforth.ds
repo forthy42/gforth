@@ -269,6 +269,7 @@ then in @file{~}, then in the normal path (see above).
 * Blocks::                      
 * Other I/O::                   
 * Programming Tools::           
+* Assembler and Code words::    
 * Threading Words::             
 @end menu
 
@@ -808,13 +809,27 @@ There are several variations on the counted loop:
 
 @code{LEAVE} leaves the innermost counted loop immediately.
 
+If @var{start} is greater than @var{limit}, a @code{?DO} loop is entered
+(and @code{LOOP} iterates until they become equal by wrap-around
+arithmetic). This behaviour is usually not what you want. Therefore,
+Gforth offers @code{+DO} and @code{U+DO} (as replacements for
+@code{?DO}), which do not enter the loop if @var{start} is greater than
+@var{limit}; @code{+DO} is for signed loop parameters, @code{U+DO} for
+unsigned loop parameters. These words can be implemented easily on
+standard systems, so using them does not make your programs hard to
+port; e.g.:
+@example
+: +DO ( compile-time: -- do-sys; run-time: n1 n2 -- )
+    POSTPONE over POSTPONE min POSTPONE ?DO ; immediate
+@end example
+
 @code{LOOP} can be replaced with @code{@var{n} +LOOP}; this updates the
 index by @var{n} instead of by 1. The loop is terminated when the border
 between @var{limit-1} and @var{limit} is crossed. E.g.:
 
-@code{4 0 ?DO  i .  2 +LOOP}   prints @code{0 2}
+@code{4 0 +DO  i .  2 +LOOP}   prints @code{0 2}
 
-@code{4 1 ?DO  i .  2 +LOOP}   prints @code{1 3}
+@code{4 1 +DO  i .  2 +LOOP}   prints @code{1 3}
 
 The behaviour of @code{@var{n} +LOOP} is peculiar when @var{n} is negative:
 
@@ -822,23 +837,34 @@ The behaviour of @code{@var{n} +LOOP} is peculiar when @var{n} is negative:
 
 @code{ 0 0 ?DO  i .  -1 +LOOP}  prints nothing
 
-Therefore we recommend avoiding using @code{@var{n} +LOOP} with negative
-@var{n}. One alternative is @code{@var{n} S+LOOP}, where the negative
+Therefore we recommend avoiding @code{@var{n} +LOOP} with negative
+@var{n}. One alternative is @code{@var{u} -LOOP}, which reduces the
+index by @var{u} each iteration. The loop is terminated when the border
+between @var{limit+1} and @var{limit} is crossed. Gforth also provides
+@code{-DO} and @code{U-DO} for down-counting loops. E.g.:
+
+@code{-2 0 -DO  i .  1 -LOOP}  prints @code{0 -1}
+
+@code{-1 0 -DO  i .  1 -LOOP}  prints @code{0}
+
+@code{ 0 0 -DO  i .  1 -LOOP}  prints nothing
+
+Another alternative is @code{@var{n} S+LOOP}, where the negative
 case behaves symmetrical to the positive case:
 
-@code{-2 0 ?DO  i .  -1 S+LOOP}  prints @code{0 -1}
+@code{-2 0 -DO  i .  -1 S+LOOP}  prints @code{0 -1}
 
-@code{-1 0 ?DO  i .  -1 S+LOOP}  prints @code{0}
+The loop is terminated when the border between @var{limit@minus{}sgn(n)}
+and @var{limit} is crossed. Unfortunately, neither @code{-LOOP} nor
+@code{S+LOOP} are part of the ANS Forth standard, and they are not easy
+to implement using standard words. If you want to write standard
+programs, just avoid counting down.
 
-@code{ 0 0 ?DO  i .  -1 S+LOOP}  prints nothing
-
-The loop is terminated when the border between @var{limit@minus{}sgn(n)} and
-@var{limit} is crossed. However, @code{S+LOOP} is not part of the ANS
-Forth standard.
-
-@code{?DO} can be replaced by @code{DO}. @code{DO} enters the loop even
-when the start and the limit value are equal. We do not recommend using
-@code{DO}. It will just give you maintenance troubles.
+@code{?DO} can also be replaced by @code{DO}. @code{DO} always enters
+the loop, independent of the loop parameters. Do not use @code{DO}, even
+if you know that the loop is entered in any case. Such knowledge tends
+to become invalid during maintenance of a program, and then the
+@code{DO} will make trouble.
 
 @code{UNLOOP} is used to prepare for an abnormal loop exit, e.g., via
 @code{EXIT}. @code{UNLOOP} removes the loop control parameters from the
@@ -894,11 +920,16 @@ doc-repeat
 Counted loop words constitute a separate group of words:
 
 doc-?do
+doc-+do
+doc-u+do
+doc--do
+doc-u-do
 doc-do
 doc-for
 doc-loop
 doc-s+loop
 doc-+loop
+doc--loop
 doc-next
 doc-leave
 doc-?leave
@@ -1526,7 +1557,7 @@ locals wordset.
 @node Other I/O, Programming Tools, Blocks, Words
 @section Other I/O
 
-@node Programming Tools, Threading Words, Other I/O, Words
+@node Programming Tools, Assembler and Code words, Other I/O, Words
 @section Programming Tools
 
 @menu
@@ -1625,7 +1656,43 @@ If there is interest, we will introduce a special throw code. But if you
 intend to @code{catch} a specific condition, using @code{throw} is
 probably more appropriate than an assertion).
 
-@node Threading Words,  , Programming Tools, Words
+@node Assembler and Code words, Threading Words, Programming Tools, Words
+@section Assembler and Code words
+
+Gforth provides some words for defining primitives (words written in
+machine code), and for defining the the machine-code equivalent of
+@code{DOES>}-based defining words. However, the machine-independent
+nature of Gforth poses a few problems: First of all. Gforth runs on
+several architectures, so it can provide no standard assembler. What's
+worse is that the register allocation not only depends on the processor,
+but also on the gcc version and options used.
+
+The words Gforth offers encapsulate some system dependences (e.g., the
+header structure), so a system-independent assembler may be used in
+Gforth. If you do not have an assembler, you can compile machine code
+directly with @code{,} and @code{c,}.
+
+doc-assembler
+doc-code
+doc-end-code
+doc-;code
+doc-flush-icache
+
+If @code{flush-icache} does not work correctly, @code{code} words
+etc. will not work (reliably), either.
+
+These words are rarely used. Therefore they reside in @code{code.fs},
+which is usually not loaded (except @code{flush-icache}, which is always
+present). You can load it with @code{require code.fs}.
+
+Another option for implementing normal and defining words efficiently
+is: adding the wanted functionality to the source of Gforth. For normal
+words you just have to edit @file{primitives}, defining words (for fast
+defined words) probably require changes in @file{engine.c},
+@file{kernal.fs}, @file{prims2x.fs}, and possibly @file{cross.fs}.
+
+
+@node Threading Words,  , Assembler and Code words, Words
 @section Threading Words
 
 These words provide access to code addresses and other threading stuff
@@ -1643,7 +1710,20 @@ doc-does-code!
 doc-does-handler!
 doc-/does-handler
 
+The code addresses produced by various defining words are produced by
+the following words:
 
+doc-docol:
+doc-docon:
+doc-dovar:
+doc-douser:
+doc-dodefer:
+doc-dofield:
+
+Currently there is no installation-independent way for recogizing words
+defined by a @code{CREATE}...@code{DOES>} word; however, once you know
+that a word is defined by a @code{CREATE}...@code{DOES>} word, you can
+use @code{>DOES-CODE}.
 
 @node ANS conformance, Model, Words, Top
 @chapter ANS conformance
@@ -1670,7 +1750,7 @@ ANS Forth System
 @item providing the Memory-Allocation word set
 @item providing the Memory-Allocation Extensions word set (that one's easy)
 @item providing the Programming-Tools word set
-@item providing @code{AHEAD}, @code{BYE}, @code{CS-PICK}, @code{CS-ROLL}, @code{STATE}, @code{[ELSE]}, @code{[IF]}, @code{[THEN]} from the Programming-Tools Extensions word set
+@item providing @code{;code}, @code{AHEAD}, @code{ASSEMBLER}, @code{BYE}, @code{CODE}, @code{CS-PICK}, @code{CS-ROLL}, @code{STATE}, @code{[ELSE]}, @code{[IF]}, @code{[THEN]} from the Programming-Tools Extensions word set
 @item providing the Search-Order word set
 @item providing the Search-Order Extensions word set
 @item providing the String word set
@@ -3100,14 +3180,14 @@ Sieve benchmark on a 486DX2/66 than Gforth compiled with
 However, this potential advantage of assembly language implementations
 is not necessarily realized in complete Forth systems: We compared
 Gforth (compiled with @code{gcc-2.6.3} and @code{-DFORCE_REG}) with
-Win32Forth and LMI's NT Forth, two systems written in assembly, and with
-two systems written in C: PFE-0.9.11 (compiled with @code{gcc-2.6.3}
-with the default configuration for Linux: @code{-O2 -fomit-frame-pointer
--DUSE_REGS}) and ThisForth Beta (compiled with gcc-2.6.3 -O3
--fomit-frame-pointer). We benchmarked Gforth, PFE and ThisForth on a
-486DX2/66 under Linux. Kenneth O'Heskin kindly provided the results for
-Win32Forth and NT Forth on a 486DX2/66 with similar memory performance
-under Windows NT.
+Win32Forth 1.2093 and LMI's NT Forth (Beta, May 1994), two systems
+written in assembly, and with two systems written in C: PFE-0.9.11
+(compiled with @code{gcc-2.6.3} with the default configuration for
+Linux: @code{-O2 -fomit-frame-pointer -DUSE_REGS}) and ThisForth Beta
+(compiled with gcc-2.6.3 -O3 -fomit-frame-pointer). We benchmarked
+Gforth, PFE and ThisForth on a 486DX2/66 under Linux. Kenneth O'Heskin
+kindly provided the results for Win32Forth and NT Forth on a 486DX2/66
+with similar memory performance under Windows NT.
  
 We used four small benchmarks: the ubiquitous Sieve; bubble-sorting and
 matrix multiplication come from the Stanford integer benchmarks and have
@@ -3197,7 +3277,8 @@ information about Forth there.
 @node Word Index, Node Index, Pedigree, Top
 @chapter Word Index
 
-This index is as incomplete as the manual.
+This index is as incomplete as the manual. Each word is listed with
+stack effect and wordset.
 
 @printindex fn
 

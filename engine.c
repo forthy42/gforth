@@ -261,7 +261,7 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
     &&dovar,
     &&douser,
     &&dodefer,
-    &&dostruc,
+    &&dofield,
     &&dodoes,
     &&dodoes,  /* dummy for does handler address */
 #include "prim_labels.i"
@@ -357,9 +357,9 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
   cfa = *(Xt *)PFA1(cfa);
   NEXT1;
 
- dostruc:
+ dofield:
 #ifdef DEBUG
-  fprintf(stderr,"%08x: struc: %08x\n",(Cell)ip,(Cell)PFA1(cfa));
+  fprintf(stderr,"%08x: field: %08x\n",(Cell)ip,(Cell)PFA1(cfa));
 #endif
   TOS += *(Cell*)PFA1(cfa); 
   NEXT_P0;

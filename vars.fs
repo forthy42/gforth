@@ -13,7 +13,7 @@ hex \ everything now hex!                               11may93jaw
 
 1 cells Constant cell
 
-20 Constant bl
+20 Constant bl \ used by docon:, must be constant
 
 FF Constant /line
 
@@ -30,12 +30,12 @@ FF Constant /line
 Create main-task  100 cells allot
 main-task tup H ! minimal
 
-Variable udp
+Variable udp \ used by dovar:, must be variable
 
 AUser next-task        main-task next-task !
 AUser prev-task        main-task prev-task !
 AUser save-task        0 save-task !
-AUser s0
+AUser s0 \ used by douser:, must be user
 AUser r0
 AUser f0
 AUser l0

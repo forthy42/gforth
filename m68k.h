@@ -1,5 +1,5 @@
 /*
-  $Id: m68k.h,v 1.2 1995-01-18 18:41:41 anton Exp $
+  $Id: m68k.h,v 1.3 1995-10-07 17:38:17 anton Exp $
   Copyright 1992 by the ANSI figForth Development Group
 
   This is the machine-specific part for the 68000 and family
@@ -7,12 +7,12 @@
 
 #include "32bit.h"
 
-#ifdef DIRECT_THREADED
-
-#define CACHE_FLUSH(addr,size)    cache_$clear()
+#define FLUSH_ICACHE(addr,size)    cache_$clear()
 /* Clearing the whole cache is a bit drastic, but this is the only
    cache control available on the apollo.
 */
+
+#ifdef DIRECT_THREADED
 
 /* PFA gives the parameter field address corresponding to a cfa */
 #define PFA(cfa)	(((Cell *)cfa)+2)

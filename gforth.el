@@ -20,7 +20,7 @@
 ;; file named COPYING.  Among other things, the copyright notice
 ;; and this notice must be preserved on all copies.
 
-;;; $Header: /usr/local/lib/cvs-repository/src-master/gforth/gforth.el,v 1.13 1995-09-06 21:00:15 pazsan Exp $
+;;; $Header: /usr/local/lib/cvs-repository/src-master/gforth/gforth.el,v 1.14 1995-10-07 17:38:15 anton Exp $
 
 ;;-------------------------------------------------------------------
 ;; A Forth indentation, documentation search and interaction library
@@ -37,19 +37,19 @@
 
 
 (defvar forth-positives
-  " : :noname begin do ?do while if ?dup-if ?dup-not-if else case struct [if] [else] "
+  " : :noname code does> begin do ?do while if ?dup-if ?dup-not-if else case struct [if] [else] "
   "Contains all words which will cause the indent-level to be incremented
 on the next line.
 OBS! All words in forth-positives must be surrounded by spaces.")
 
 (defvar forth-negatives
-  " ; until repeat while +loop loop s+loop else then endif again endcase end-struct [then] [else] [endif]"
+  " ; end-code does> until repeat while +loop loop s+loop else then endif again endcase end-struct [then] [else] [endif]"
   "Contains all words which will cause the indent-level to be decremented
 on the current line.
 OBS! All words in forth-negatives must be surrounded by spaces.")
 
 (defvar forth-zeroes
-  " : :noname "
+  " : :noname code "
   "Contains all words which causes the indent to go to zero")
 
 (defvar forth-prefixes
@@ -240,12 +240,12 @@ programmers who tend to fill code won't use emacs anyway:-)."
     (beginning-of-line)
     (while (and
 	     (= (forward-line -1) 0)
-	     (looking-at "[ \t]*\\\\[ \t]+")))
-    (if (not (looking-at "[ \t]*\\\\[ \t]+"))
+	     (looking-at "[ \t]*\\\\g?[ \t]+")))
+    (if (not (looking-at "[ \t]*\\\\g?[ \t]+"))
 	(forward-line 1))
     (let ((from (point))
 	  (to (save-excursion (forward-paragraph) (point))))
-      (if (looking-at "[ \t]*\\\\[ \t]+")
+      (if (looking-at "[ \t]*\\\\g?[ \t]+")
 	  (progn (goto-char (match-end 0))
 		 (set-fill-prefix)
 		 (fill-region from to nil))))))

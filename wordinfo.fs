@@ -20,28 +20,27 @@ INCLUDE look.fs
         ELSE 2drop false THEN ;
 
 : var?  ( nfa -- flag )
-        cell+ (name>)
-        >code-address ['] udp >code-address = ;
+    cell+ (name>) >code-address dovar: = ;
 
 : con?  ( nfa -- flag )
-        cell+ (name>)
-        >code-address ['] bl >code-address = ;
+    cell+ (name>) >code-address docon: = ;
 
 : user?  ( nfa -- flag )
-        cell+ (name>)
-        >code-address ['] s0 >code-address = ;
+    cell+ (name>) >code-address douser: = ;
 
 : does? ( nfa -- flag )
-        cell+ (name>)
-        >code-address ['] bits >code-address = ;
+    \ !! does not work on all installations
+    cell+ (name>)
+    >code-address ['] bits >code-address = ;
 
 : defered? ( nfa -- flag )
-        cell+ (name>)
-        >code-address ['] source >code-address = ;
+    cell+ (name>) >code-address dodefer: = ;
 
 : colon? ( nfa -- flag )
-        cell+ (name>)
-        >code-address ['] does? >code-address = ;
+    cell+ (name>) >code-address docol: = ;
+
+\ the above words could be factored with create-does>, but this would
+\ probably make this file incompatible with cross.
 
 \ VALUE VCheck
 

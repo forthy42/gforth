@@ -475,7 +475,7 @@ forth definitions
 : definer! ( definer xt -- )
     \ gives the word represented by xt the behaviour associated with definer
     over 1 and if
-	does-code!
+	swap [ 1 invert ] literal and does-code!
     else
 	code-address!
     then ;

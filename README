@@ -3,19 +3,20 @@ distribution for the general public, since it is not yet mature
 enough. There is no warranty of any kind; this program is
 distributed under the GNU General Public license (see COPYING).
 
-Read INSTALL for installation instructions. Mail us if you have
-problems.
+Read INSTALL for installation instructions. Mail us
+(anton@mips.complang.tuwien.ac.at,paysan@informatik.tu-muenchen.de) if
+you have problems.
 
 To start the system just say `gforth'. This gives you a pretty barren
 system. `gforth startup.fs' gives you most ANSI wordsets. If you miss
 a word, just grep for it in *.fs.
 
-If you want to work on gforth, mail me. Tasks to be done can be found
-in ToDo; but if you would like to do something not mentioned there,
-it's ok, too. In any case, we would like to hear what you are
-doing. The most important tasks IMO are the missing ANS Forth words
-(musts before the alpha release), the documentation and the foreign
-language interface for C.
+If you want to work on gforth, mail me. Tasks to be done can be found in
+ToDo; but if you would like to do something not mentioned there, it's
+ok, too. In any case, we would like to hear what you are doing. The
+most important tasks IMO are the missing ANS Forth words (musts before
+the alpha release), the documentation and the foreign language
+interface for C.
 
 On popular request, here are the meanings of unusual file extensions:
 
@@ -27,3 +28,5 @@ On popular request, here are the meanings of unusual file extensions:
 *TAGS	etags files
 
 - anton
+anton@mips.complang.tuwien.ac.at
+http://www.complang.tuwien.ac.at/anton/home.html

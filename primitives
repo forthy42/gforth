@@ -166,6 +166,17 @@ if(((olddiff^MAXINT) >= n) ^ ((olddiff+n) < 0)) {
     IF_TOS(TOS = sp[0]);
 )
 
+condbranch((-loop),u --		new	paren_minus_loop,
+/* !! check this thoroughly */
+Cell index = *rp;
+/* sign bit manipulation and test: (x^y)<0 is equivalent to (x<0) != (y<0) */
+/* dependent upon two's complement arithmetic */
+UCell olddiff = index-rp[1];
+if (olddiff>u) {
+    *rp = index - u;
+    IF_TOS(TOS = sp[0]);
+)
+
 condbranch((s+loop),n --		new	paren_symmetric_plus_loop,
 ""The run-time procedure compiled by S+LOOP. It loops until the index
 crosses the boundary between limit and limit-sign(n). I.e. a symmetric
@@ -206,10 +217,54 @@ rp += 2;
 :
  r> -rot swap >r >r >r ;
 
-(?do)	nlimit nstart --	core-ext	paren_question_do
+(?do)	nlimit nstart --	new	paren_question_do
 *--rp = nlimit;
 *--rp = nstart;
 if (nstart == nlimit) {
+    IF_TOS(TOS = sp[0]);
+    goto branch;
+    }
+else {
+    INC_IP(1);
+}
+
+(+do)	nlimit nstart --	new	paren_plus_do
+*--rp = nlimit;
+*--rp = nstart;
+if (nstart >= nlimit) {
+    IF_TOS(TOS = sp[0]);
+    goto branch;
+    }
+else {
+    INC_IP(1);
+}
+
+(u+do)	ulimit ustart --	new	paren_u_plus_do
+*--rp = ulimit;
+*--rp = ustart;
+if (ustart >= ulimit) {
+    IF_TOS(TOS = sp[0]);
+    goto branch;
+    }
+else {
+    INC_IP(1);
+}
+
+(-do)	nlimit nstart --	new	paren_minus_do
+*--rp = nlimit;
+*--rp = nstart;
+if (nstart <= nlimit) {
+    IF_TOS(TOS = sp[0]);
+    goto branch;
+    }
+else {
+    INC_IP(1);
+}
+
+(u-do)	ulimit ustart --	new	paren_u_minus_do
+*--rp = ulimit;
+*--rp = ustart;
+if (ustart <= ulimit) {
     IF_TOS(TOS = sp[0]);
     goto branch;
     }
@@ -1304,9 +1359,9 @@ behaviour is undefined""
 defining-word-defined */
 a_addr = (Cell *)DOES_CODE(xt);
 
-code-address!		n xt --	new	code_address_store
+code-address!		c_addr xt --		new	code_address_store
 ""Creates a code field with code address c_addr at xt""
-MAKE_CF(xt, symbols[CF(n)]);
+MAKE_CF(xt, c_addr);
 CACHE_FLUSH(xt,PFA(0));
 
 does-code!	a_addr xt --		new	does_code_store
@@ -1315,7 +1370,7 @@ is the start of the Forth code after DOES>""
 MAKE_DOES_CF(xt, a_addr);
 CACHE_FLUSH(xt,PFA(0));
 
-does-handler!	a_addr --	new	does_jump_store
+does-handler!	a_addr --	new	does_handler_store
 ""creates a DOES>-handler at address a_addr. a_addr usually points
 just behind a DOES>.""
 MAKE_DOES_HANDLER(a_addr);
@@ -1325,6 +1380,18 @@ CACHE_FLUSH(a_addr,DOES_HANDLER_SIZE);
 ""the size of a does-handler (includes possible padding)""
 /* !! a constant or environmental query might be better */
 n = DOES_HANDLER_SIZE;
+
+flush-icache	c_addr u --	gforth	flush_icache
+""Make sure that the instruction cache of the processor (if there is
+one) does not contain stale data at @var{c_addr} and @var{u} bytes
+afterwards. @code{END-CODE} performs a @code{flush-icache}
+automatically. Caveat: @code{flush-icache} might not work on your
+installation; this is usually the case if direct threading is not
+supported on your machine (take a look at your @file{machine.h}) and
+your machine has a separate instruction cache. In such cases,
+@code{flush-icache} does nothing instead of flushing the instruction
+cache.""
+FLUSH_ICACHE(c_addr,u);
 
 toupper	c1 -- c2	new
 c2 = toupper(c1);
