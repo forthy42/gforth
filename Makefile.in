@@ -436,12 +436,13 @@ binonlydist:	Makedist FORCE
 install:	gforth$(EXE) $(FORTH_SRC) $(kernel_fi) gforth.fi gforthmi doc/gforth.1 prim install.TAGS installdirs
 		touch $(siteforthdir)/siteinit.fs
 		-$(RM) $(bindir)/gforth$(EXE) $(bindir)/gforth-$(VERSION)$(EXE) $(bindir)/gforthmi
-		-$(RM) $(bindir)/gforth-fast$(EXE) $(bindir)/gforth-fast-$(VERSION)$(EXE) $(bindir)/gforthmi
+		-$(RM) $(bindir)/gforth-fast$(EXE) $(bindir)/gforth-fast-$(VERSION)$(EXE)
 		$(INSTALL_PROGRAM) -s gforth$(EXE) $(bindir)/gforth-$(VERSION)$(EXE)
 		$(LN_S) $(bindir)/gforth-$(VERSION)$(EXE) $(bindir)/gforth$(EXE)
 		$(INSTALL_PROGRAM) -s gforth-fast$(EXE) $(bindir)/gforth-fast-$(VERSION)$(EXE)
 		$(LN_S) $(bindir)/gforth-fast-$(VERSION)$(EXE) $(bindir)/gforth-fast$(EXE)
 		$(INSTALL_PROGRAM) gforthmi $(bindir)/gforthmi-$(VERSION)
+		$(INSTALL_PROGRAM) gforth-ditc $(libdir)/gforth/$(VERSION)
 		$(LN_S) $(bindir)/gforthmi-$(VERSION) $(bindir)/gforthmi
 		-$(INSTALL_DATA) $(srcdir)/doc/gforth.1 $(man1dir)
 		-for i in $(srcdir)/doc/gforth.info*; do $(INSTALL_DATA) $$i $(infodir); done

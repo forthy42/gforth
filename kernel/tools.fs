@@ -45,7 +45,7 @@ Variable /dump
 
 : .4 ( addr -- addr' )
     3 FOR  -1 /dump +!  /dump @ 0<
-        IF  ."    "  ELSE  dup c@ 0 <# # # #> type space  THEN
+        IF  ."    "  ELSE  dup c@ 0 <<# >r # # r> #>> type space  THEN
     char+ NEXT ;
 : .chars ( addr -- )
     /dump @ bounds

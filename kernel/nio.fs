@@ -26,18 +26,38 @@
 : hold    ( char -- ) \ core
     \G Used within @code{<#} and @code{#>}. Append the character char
     \G to the pictured numeric output string.
-    pad cell - -1 chars over +! @ c! ;
+    -1 chars holdptr +!
+    holdptr @ dup holdbuf u< -&17 and throw
+    c! ;
 
 : <# ( -- ) \ core	less-number-sign
     \G Initialise/clear the pictured numeric output string.
-    pad cell - dup ! ;
+    holdbuf-end holdptr ! ;
 
 : #>      ( xd -- addr u ) \ core	number-sign-greater
     \G Complete the pictured numeric output string by
     \G discarding xd and returning addr u; the address and length
     \G of the formatted string. A Standard program may modify characters
     \G within the string.
-    2drop pad cell - dup @ tuck - ;
+    2drop holdptr @ holdbuf-end over - ;
+
+: <<# ( -- addr ) \ gforth	less-less-number-sign
+    \G starts a hold area that ends with @code{#>>}. Can be nested in
+    \G each other and in @code{<#}.  Note: if you do not match up the
+    \G @code{<<#}s with @code{#>>}s, you will eventually run out of
+    \G hold area; you can reset the hold area to empty with @code{<#}.
+    holdptr @ ;
+
+: #>> ( xd addr1 -- addr u ) \ gforth	number-sign-greater-greater
+    \G Completes a numeric output string started with
+    \G @code{<<#}. @var{xd} is discarded, @var{addr1} is the value
+    \G produced by @code{<<#}, @var{addr u} represents the output
+    \G string.
+    \ this stack effect has been chosen to make it conventient to
+    \ replace @code{<# ... #>} with @code{<<# >r ... r> #>>}
+    >r 2drop
+    holdptr @ r@ over -
+    r> holdptr ! ;
 
 : sign    ( n -- ) \ core
     \G Used within @code{<#} and @code{#>}. If n (a @var{single} number)
@@ -75,13 +95,13 @@
     \G Display d right-aligned in a field n characters wide. If more than
     \G n characters are needed to display the number, all digits are displayed.
     \G If appropriate, n must include a character for a leading "-".
-    >r tuck  dabs  <# #s  rot sign #>
+    >r tuck  dabs  <<# >r #s  rot sign r> #>>
     r> over - spaces  type ;
 
 : ud.r ( ud n -- ) \ gforth	u-d-dot-r
     \G Display ud right-aligned in a field n characters wide. If more than
     \G n characters are needed to display the number, all digits are displayed.
-    >r <# #s #> r> over - spaces type ;
+    >r <<# >r #s r> #>> r> over - spaces type ;
 
 : .r ( n1 n2 -- ) \ core-ext	dot-r
     \G Display n1 right-aligned in a field n2 characters wide. If more than

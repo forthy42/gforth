@@ -46,7 +46,12 @@ FF Constant /line
 400 Constant chars/block
 
 $20 8 2* cells + 2 + cell+ constant word-pno-size ( -- u )
+create holdbuf word-pno-size chars allot
+holdbuf word-pno-size chars + aconstant holdbuf-end
+avariable holdptr holdbuf-end holdptr a!
+
 84 constant pad-minsize ( -- u )
+
 
 \ that's enough so long
 

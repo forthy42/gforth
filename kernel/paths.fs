@@ -156,19 +156,6 @@ Create tfile 0 c, 255 chars allot
 	tfile count over c@ pathsep? IF 1 /string THEN
 	ofile +place
     THEN ;
-	
-: compact// ( adr len -- adr2 len2 )
-\ deletes phrases like "//" out of our directory name 2dec97jaw
-  over >r
-  BEGIN	dup WHILE
-	over c@ pathsep? over 1- 0<> and
-	IF over 1+ c@ pathsep?
-	   IF 	1- over 1+ swap move
-	   THEN
-	THEN
-	1 /string
-   REPEAT 
-   drop r> tuck - ;
 
 : compact.. ( adr len -- adr2 len2 )
 \ deletes phrases like "xy/.." out of our directory name 2dec97jaw
@@ -195,7 +182,7 @@ Create tfile 0 c, 255 chars allot
 
 : reworkdir ( -- )
   remove~+
-  ofile count compact// compact..
+  ofile count compact..
   nip ofile c! ;
 
 : open-ofile ( -- fid ior )

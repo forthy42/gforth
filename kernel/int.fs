@@ -622,6 +622,7 @@ Defer dobacktrace ( -- )
 	[ [THEN] ]
 	['] 'quit CATCH dup
     WHILE
+	<# \ reset hold area, or we may get another error
 	DoError r@ >tib ! r@ tibstack !
     REPEAT
     drop r> >tib ! ;

@@ -83,8 +83,14 @@ IS store-backtrace
     swap u+do
 	cr
 	i @ dup hex. ( return-addr? )
-	cell - dup in-dictionary? if
-	    @ look drop .name
+	cell - dup in-dictionary? over dup aligned = and
+	if
+	    @ look
+	    if
+		.name
+	    else
+		drop
+	    then
 	else
 	    drop
 	then
