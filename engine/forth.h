@@ -288,3 +288,4 @@ extern unsigned long int strtoul(const char *nptr, char **endptr, int base);
 #endif
 
 
+#define GROUP(x)

@@ -59,6 +59,8 @@ include startup.fs
 
 : struct% struct ; \ struct is redefined in gray
 
+warnings off
+
 include ./gray.fs
 
 32 constant max-effect \ number of things on one side of a stack effect
@@ -1174,7 +1176,13 @@ Variable c-flag
 	THEN }}
 )) <- if-comment
 
-(( (( eval-comment || forth-comment || c-comment || else-comment || if-comment )) ?? nonl ** )) <- comment-body
+(( (( ` g || ` G )) {{ start }} nonl **
+   {{ end
+      forth-flag @ IF  ." group " type cr  THEN
+      c-flag @     IF  ." GROUP(" type ." )" cr  THEN }}
+)) <- group-comment
+
+(( (( eval-comment || forth-comment || c-comment || else-comment || if-comment || group-comment )) ?? nonl ** )) <- comment-body
 
 (( ` \ comment-body nleof )) <- comment ( -- )
 

@@ -132,6 +132,8 @@ undefine(`index')
 undefine(`shift')
 undefine(`symbols')
 
+\g control
+
 noop	( -- )		gforth
 :
  ;
@@ -409,6 +411,8 @@ k	( R:n R:d1 R:d2 -- n R:n R:d1 R:d2 )		gforth
 
 \ digit is high-level: 0/0%
 
+\g strings
+
 move	( c_from c_to ucount -- )		core
 ""Copy the contents of @i{ucount} aus at @i{c-from} to
 @i{c-to}. @code{move} works correctly even if the two areas overlap.""
@@ -517,6 +521,8 @@ c_addr2 = c_addr1+n;
 u2 = u1-n;
 :
  tuck - >r + r> dup 0< IF  - 0  THEN ;
+
+\g arith
 
 +	( n1 n2 -- n )		core	plus
 n = n1+n2;
@@ -915,6 +921,8 @@ f = FLAG(u1-u2 < u3-u2);
 :
  over - >r - r> u< ;
 
+\g internal
+
 sp@	( -- a_addr )		gforth		sp_fetch
 a_addr = sp+1;
 
@@ -941,6 +949,8 @@ fp = f_addr;
 ;s	( R:w -- )		gforth	semis
 ""The primitive compiled by @code{EXIT}.""
 SET_IP((Xt *)w);
+
+\g stack
 
 >r	( w -- R:w )		core	to_r
 :
@@ -1381,6 +1391,8 @@ n=1;
 
 \f[THEN]
 
+\g hostos
+
 key-file	( wfileid -- n )		gforth	paren_key_file
 #ifdef HAS_FILE
 fflush(stdout);
@@ -1671,6 +1683,8 @@ else {
 
 \+
 \+floating
+
+\g floating
 
 comparisons(f, r1 r2, f_, r1, r2, gforth, gforth, float, gforth)
 comparisons(f0, r, f_zero_, r, 0., float, gforth, float, gforth)
@@ -2352,6 +2366,8 @@ while(a_addr != NULL)
 \+
 
 \+peephole
+
+\g peephole
 
 primtable	( -- wprimtable )	new
 ""wprimtable is a table containing the xts of the primitives indexed

@@ -346,13 +346,16 @@ void alloc_stacks(ImageHeader * header)
   header->locals_stack_base=my_alloc(lsize);
 }
 
+#warning You can ignore the warnings about clobbered variables in go_forth
 int go_forth(Address image, int stack, Cell *entries)
 {
   volatile ImageHeader *image_header = (ImageHeader *)image;
   Cell *sp0=(Cell*)(image_header->data_stack_base + dsize);
-  Float *fp0=(Float *)(image_header->fp_stack_base + fsize);
   Cell *rp0=(Cell *)(image_header->return_stack_base + rsize);
+  Float *fp0=(Float *)(image_header->fp_stack_base + fsize);
+#ifdef GFORTH_DEBUGGING
   volatile Cell *orig_rp0=rp0;
+#endif
   Address lp0=image_header->locals_stack_base + lsize;
   Xt *ip0=(Xt *)(image_header->boot_entry);
 #ifdef SYSSIGNALS

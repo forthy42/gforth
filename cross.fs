@@ -2112,7 +2112,7 @@ T has? peephole H [IF]
 [ELSE]
 : compile:  ( ghost -- ghost xt colon-sys )  :noname ;
 : ;compile ( ghost xt colon-sys -- ghost )
-    postpone ; drop ; immediate
+    postpone ; drop ['] prim-resolved over >comp ! ; immediate
 [THEN]
 
 : by      ( -- ghost ) \ Name
@@ -2697,6 +2697,10 @@ previous
 : words 	also ghosts words previous ;
 : .s            .s ;
 : bye           bye ;
+
+\ dummy
+
+: group  source >in ! drop ;
 
 \ turnkey direction
 : H forth ; immediate

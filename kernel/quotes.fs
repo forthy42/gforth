@@ -25,7 +25,11 @@ require ./vars.fs
 \ create s"-buffer /line chars allot
 has? compiler 0= 
 [IF] : s" [ELSE] :noname [THEN]
-	[char] " parse save-mem ;
+	[char] " parse
+[ has? OS [IF] ]
+    save-mem
+[ [THEN] ]
+;
 \    	/line min >r s"-buffer r@ cmove
 \    	s"-buffer r> ;
 has? compiler [IF]

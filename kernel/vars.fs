@@ -76,7 +76,7 @@ main-task
 UNLOCK tup ! LOCK
 
 Variable udp ( -- a-addr ) \ gforth
-\ user area size? -anton
+\G user area size
 
 AUser next-task        main-task next-task !
 AUser prev-task        main-task prev-task !

@@ -301,10 +301,7 @@ CREATE free-cache #USEREGS CHARS ALLOT
 
 \ Is register eax, ebx, ecx or edx?
 : (is-a-d) 				( vreg -- flag )
-  DUP VREG-EAX = 
-  OVER VREG-EBX = OR
-  OVER VREG-ECX = OR
-  SWAP VREG-EDX = OR ;
+    VREG-EAX VREG-ESI within ;
   
 \ Request the register if unused.
 : (#req-unused) 			( vreg -- ok? )

@@ -6,13 +6,37 @@
 \ First of all we define the register mapping of the VM. If you change
 \ machine.h you have to change code here too.
 \
-\ The 386 calling sequence in C uses esp as the frame pointer. ebx is used
-\ as the VM-register sp. All other registers are stored in the stack frame. 
+\ The 386 calling sequence in C uses esp as the frame pointer.
+\ gforth 0.5.x-fast uses the following registers:
+\ esi as SP
+\ edi as RP
+\ ebp as IP
+\ ebx as TOS
+\ there's no CFA, since it is direct theaded code
+\ All other registers are stored in the stack frame. 
 \
 \ The native code uses ebp as stack pointer and esp as return pointer. All
 \ other registers are free to be used by the code. The top of the return
 \ stack contains the address of the C stack frame. This value is preserved
 \ across calls.
+\
+\ A call to theaded code therefore has to normalize the stack. We then put
+\ SP and RP into place, set up IP to our return word, and restore C's stack
+\ pointer. It is then sufficient to jump into the threaded code, the rest is
+\ handled by this code.
+\
+\ IP and C's stack are preserved when entering the native code domain from
+\ threaded code, and are restored on exit. We use Gforth's code field to
+\ store the appropriate code there. Native calls will skip the code field
+\ and call directly into the data field.
+
+Variable c-stack \ C's stack
+Variable t-ip    \ threaded IP
+
+3 Constant csfo-tos
+5 Constant csfo-ip
+6 Constant csfo-sp
+7 Constant csfo-rp
 
 \ Native code literal compiler.
 : nc-literal ( x -- )
@@ -27,7 +51,7 @@
 
 \ Compile a call to the threaded code xt. As the threaded code expects to
 \ return to a threaded, we have to create one. It just needs to be 1 cell
-\ long. This cell must contain the address of a fakked xt . This faked xt
+\ long. This cell must contain the address of a faked xt . This faked xt
 \ contains the address of the native code in the first cell.
 : nc-to-tc, ( xt -- )
   regalloc-reset
