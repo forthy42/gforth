@@ -71,40 +71,32 @@ extern void cacheflush(void *, int, int);
 
 #  define ASS17(n)(((((n) >> 13) & 0x1F) << 16)| /* first 5 bits */ \
 		   ((((n) >>  2) & 0x3FF) << 3)| /* second 11 bits */ \
-		   ((((n) >> 12) & 0x1) << 2)  | /* lo sign (aaarg!) */ \
-		   (((n) < 0) << 0)) /* sign bit */
+		   ((((n) >> 12) & 0x1) << 2)  | /* intermediate bit */ \
+		   (((n) < 0) << 0)) /* low sign bit (aaarg!) */
 
 #  define DIS17(n)(((((n) >> 16) & 0x1F) << 13)| /* first 5 bits */ \
 		   ((((n) >>  3) & 0x3FF) << 2)| /* second 11 bits */ \
-		   ((((n) >>  2) & 0x1) << 12) | /* lo sign (aaarg!) */ \
-		   (-((n) & 1) << 18)) /* sign bit */
+		   ((((n) >>  2) & 0x1) << 12) | /* intermediate bit */ \
+		   (-((n) & 1) << 18)) /* low sign bit (aaarg!) */
 
 #  define CODE_ADDRESS(cfa)\
 ((Label)({ \
-	     unsigned int *_cfa=(unsigned int *)(cfa); unsigned _ca; \
-	     if((_cfa[0] & 0xFFE0E002) == 0xE8000000) /* relative branch */ \
+	     unsigned int *_cfa=(unsigned int *)(cfa); \
+	     unsigned int _ca = DIS17(_cfa[0]); \
+	     if((_cfa[0] & 0xFFE0E000) == 0xE8000000) /* relative branch */ \
 	     { \
-		 _ca = _cfa[0]; \
-		 _ca = DIS17(_ca); \
 		 _ca += (int) (_cfa + 1); \
 	     } \
-	     else if((_cfa[0] & 0xFFE0E002) == 0xE0000000) /* absolute branch */ \
+	     else if((_cfa[0] & 0xFFE0E000) == 0xE0000000) /* absolute branch */ \
 	     { \
-		 _ca = _cfa[0]; \
-		 _ca = DIS17(_ca)-4; \
+		 _ca = _ca-4; \
 	     } \
 	     else \
 	     { \
-		 _ca = _cfa[0]; \
-		 _ca = (_ca<<31) | \
-		 ((_ca>>1 ) & 0x00001800) | \
-		 ((_ca>>3 ) & 0x0003E000) | \
-		 ((_ca<<4 ) & 0x000C0000) | \
-		 ((_ca<<19) & 0x7FF00000) |  \
-		 ((_cfa[1]>>1) & 0xFFC); \
+		 _ca = (int)_cfa; \
 	     } \
 	     /* printf("code-address at %08x: %08x\n",_ca,_cfa); */ \
-	     _ca; \
+	     _ca + ((_cfa[0] & 2) << 1); \
 	 }))
 
 #  define MAKE_CF(cfa,ca) \
@@ -120,7 +112,7 @@ extern void cacheflush(void *, int, int);
 		   (   0 << 13) | /* space register */ \
 		   (   0 <<  1) | /* if 1, don't execute delay slot */ \
 		   ASS17(_ca)); \
-	 _cfa[1] = ((long *)(_ca))[-1]; /* or %r0,%r0,%r0 */; \
+	 _cfa[1] = ((long *)(_ca))[-1]; /* fill delay slot with first inst */ \
      } \
      else if(_dp < 0x40000 || _dp >= -0x40000) \
      { \
@@ -129,23 +121,11 @@ extern void cacheflush(void *, int, int);
 		   (   0 << 13) | /* space register */ \
 		   (   0 <<  1) | /* if 1, don't execute delay slot */ \
 		   ASS17(_dp)); \
-	 _cfa[1] = ((long *)(_ca))[-1]; /* 0x08000240 or %r0,%r0,%r0 */; \
+	 _cfa[1] = ((long *)(_ca))[-1]; /* fill delay slot with first inst */ \
      } \
      else \
      { \
-	 _ca -= 4; \
-	 _cfa[0] = (0x08 << 26) | \
-	 ((int)_ca<0) | \
-	 (_ca & 0x00001800)<<1 | \
-	 (_ca & 0x0003E000)<<3 | \
-	 (_ca & 0x000C0000)>>4 | \
-	 (_ca & 0x7FF00000)>>19; \
-	 _ca &= 0x3FF; \
-	 _cfa[1] =((0x38 << 26) | /* major opcode */ \
-		   (   1 << 21) | /* register */ \
-		   (   0 << 13) | /* space register */ \
-		   (   1 <<  1) | /* if 1, don't execute delay slot */ \
-		   ASS17(_ca)); \
+	 fprintf(stderr,"CODE FIELD assignment failed, use ITC instead of DTC\n"); exit(1); \
      } \
      DOUT("%08x: %08x,%08x\n",(int)_cfa,_cfa[0],_cfa[1]); \
  })
@@ -158,8 +138,8 @@ extern void cacheflush(void *, int, int);
 #  define DOES_CODE1(cfa)	((Xt *)(((long *)(cfa))[1]))
 
 #  define DOES_CODE(cfa) \
-   (((((*(long *)(cfa)) & 0xF7E0E002) == 0xE0000000) && \
-     ((long)(CODE_ADDRESS(CODE_ADDRESS(cfa))) == (long)symbols[DODOES])) ? \
+   (((((*(long *)(cfa)) & 0xF7E0E002) == 0xE0000002) && \
+     ((long)(CODE_ADDRESS(cfa)) == (long)symbols[DODOES])) ? \
     DOES_CODE1(cfa) : 0L)
 
 /*	({register Xt * _ret asm("%r31"); _ret;}) */
@@ -167,51 +147,7 @@ extern void cacheflush(void *, int, int);
 /* HPPA uses register 2 for branch and link */
 
 #  define DOES_HANDLER_SIZE 8
-#  define MAKE_DOES_HANDLER(cfa)  ({ *(long *)(cfa)=DODOES; })
-#ifdef undefined
-#  define MAKE_DOES_HANDLER(cfa) \
-({ \
-     long *_cfa   = (long *)(cfa); \
-     int _ca      = (int)symbols[DODOES]; \
-     int _dp      = _ca-(int)(_cfa+2); \
-     \
-     if(_ca < 0x40000) /* Branch absolute */ \
-     { \
-	 _cfa[0] =((0x38 << 26) | /* major opcode */ \
-		   (   0 << 21) | /* register */ \
-		   (   0 << 13) | /* space register */ \
-		   (   0 <<  1) | /* if 1, don't execute delay slot */ \
-		   ASS17(_ca)); \
-	 _cfa[1] = 0x08000240 /* or %r0,%r0,%r0 */; \
-     } \
-     else if(_dp < 0x40000 || _dp >= -0x40000) \
-     { \
-	 _cfa[0] =((0x3A << 26) | /* major opcode */ \
-		   (   0 << 21) | /* register */ \
-		   (   0 << 13) | /* space register */ \
-		   (   0 <<  1) | /* if 1, don't execute delay slot */ \
-		   ASS17(_dp)); \
-	 _cfa[1] = 0x08000240 /* or %r0,%r0,%r0 */; \
-     } \
-     else \
-     { \
-	 _ca -= 4; \
-	 _cfa[0] = ((0x08 << 26) | \
-		    ((int)_ca<0) | \
-		    (_ca & 0x00001800)<<1 | \
-		    (_ca & 0x0003E000)<<3 | \
-		    (_ca & 0x000C0000)>>4 | \
-		    (_ca & 0x7FF00000)>>19); \
-	 _ca &= 0x3FF; \
-	 _cfa[1] =((0x38 << 26) | /* major opcode */ \
-		   (   1 << 21) | /* register */ \
-		   (   0 << 13) | /* space register */ \
-		   (   1 <<  1) | /* if 1, don't execute delay slot */ \
-		   ASS17(_ca)); \
-     } \
-     DOUT("%08x: %08x,%08x\n",(int)_cfa,_cfa[0],_cfa[1]); \
- })
-#endif
+#  define MAKE_DOES_HANDLER(cfa)
 
 #  define MAKE_DOES_CF(cfa,ca) \
 ({ \
