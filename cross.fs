@@ -118,10 +118,6 @@ also forth definitions  \ these values may be predefined before
 false DefaultValue stack-warn   	 \ check on empty stack at any definition
 false DefaultValue create-forward-warn   \ warn on forward declaration of created words
 
-
-
-  
-
 previous >CROSS
 
 : .dec
@@ -218,7 +214,7 @@ hex
 
 Variable atonce atonce off
 
-: NoExec true ABORT" CROSS: Don't execute ghost" ;
+: NoExec true ABORT" CROSS: Don't execute ghost, or immediate target word" ;
 
 : GhostHeader <fwd> , 0 , ['] NoExec , ;
 
@@ -263,7 +259,7 @@ VARIABLE Already
 
 : ghost   ( "name" -- ghost )
   Already off
-  >in @  bl word gfind   IF  Already on nip EXIT  THEN
+  >in @  bl word gfind   IF  atonce off Already on nip EXIT  THEN
   drop  >in !  Make-Ghost ;
 
 : >ghostname ( ghost -- adr len )
@@ -1262,8 +1258,12 @@ NoHeaderFlag off
     \ Symbol table
 \    >in @ cr ." sym:s/CFA=" there 4 0.r ." /"  bl word count .sym ." /g" cr >in !
     CreateFlag @
-    IF
+    IF	\ for a created word we need also a definition in target
+	\ to execute the created word while compile time
+	\ dont mind if a alias is defined twice
+	Warnings @ >r Warnings off
 	>in @ alias2 swap >in !         \ create alias in target
+	r> Warnings !
 	>in @ ghost swap >in !
 	swap also ghosts ' previous swap !     \ tick ghost and store in alias
 	CreateFlag off
