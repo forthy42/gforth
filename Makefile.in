@@ -75,7 +75,7 @@ FORTHS	= $(ENGINE) $(FORTHS_ARGS)
 # possible to override this variable at the command line for an initial build (jaw)
 BUILDFORTH = $(ENGINE) --die-on-signal -m 4M -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)" -i $(kernel_fi)
 # the forth system plus flags we use to build
-FORTHB = $(BUILDFORTH) -e 'fpath= .|~+|$(srcdir)' except.fs
+FORTHB = $(BUILDFORTH) -e 3 exboot.fs -e 'fpath= .|~+|$(srcdir)'
 # the Forth system for running prims2x.fs
 FORTHP = $(FORTH)
 ENGINE_FAST = $(ENGINE)-fast
@@ -537,7 +537,7 @@ install:	gforth$(EXE) $(FORTH_SRC) $(kernel_fi) gforth.fi gforthmi vmgen doc/gfo
 		$(RM) gforth.fi install.TAGS
 		@$(INSTALL_INFO) --info-dir=$(infodir) $(infodir)/gforth.info || \
 		echo ">>>>> Please make an entry for Gforth in your info dir file; e.g.:"; \
-		echo "* Gforth: (gforth).	A fast interpreter for the Forth language."
+		echo "* Gforth: (gforth).             A fast interpreter for the Forth language."
 		@$(INSTALL_INFO) --info-dir=$(infodir) $(infodir)/vmgen.info || \
 		echo ">>>>> Please make an entry for Vmgen in your info dir file; e.g.:"; \
 		echo "* Vmgen: (vmgen).               Virtual machine interpreter generator"
