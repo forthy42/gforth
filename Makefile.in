@@ -352,7 +352,7 @@ RCS_FILES =  ToDo model high-level
 GEN = gforth$(EXE) gforth-ditc$(EXE) gforth-fast$(EXE) gforth-prof$(EXE) kernel/version.fs
 
 # things that need a working forth system to be generated
-FORTH_GEN0 = prim.b engine/prim.i engine/prim_lab.i engine/peephole.i engine/profile.i kernel/aliases.fs kernel/prim.fs
+FORTH_GEN0 = prim.b engine/prim.i engine/prim_lab.i engine/prim_superend.i engine/peephole.i engine/profile.i kernel/aliases.fs kernel/prim.fs
 FORTH_GEN =  $(FORTH_GEN0) @KERNEL@ gforth.fi
 # this is used for antidependences,
 FORTH_GEN1 = $(FORTH_GEN0) @kernel_fi@ 
@@ -621,6 +621,11 @@ engine/prim.i:		prim.b prims2x.fs
 
 engine/prim_lab.i:	prim.b prims2x.fs
 		$(FORTHP) prims2x.fs -e "c-flag on s\" prim.b\" ' output-label dup process-file bye" >$@-
+		$(CP) $@- $@
+		$(RM) $@-
+
+engine/prim_superend.i:	prim.b prims2x.fs
+		$(FORTHP) prims2x.fs -e "c-flag on s\" prim.b\" ' output-superend dup process-file bye" >$@-
 		$(CP) $@- $@
 		$(RM) $@-
 

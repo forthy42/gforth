@@ -81,6 +81,9 @@ char *progname = "gforth";
 int optind = 1;
 #endif
 
+Address code_area=0;
+Address code_here=0; /* does for code-area what HERE does for the dictionary */
+
 #ifdef HAS_DEBUG
 static int debug=0;
 #else
@@ -357,6 +360,7 @@ void alloc_stacks(ImageHeader * header)
   header->fp_stack_base=my_alloc(fsize);
   header->return_stack_base=my_alloc(rsize);
   header->locals_stack_base=my_alloc(lsize);
+  code_here = code_area = my_alloc(dictsize);
 }
 
 #warning You can ignore the warnings about clobbered variables in go_forth
@@ -436,28 +440,38 @@ typedef struct {
 } PrimInfo;
 
 PrimInfo *priminfos;
+Cell npriminfos=0;
 
 void check_prims(Label symbols1[])
 {
 #ifndef DOUBLY_INDIRECT
   int i;
   Label *symbols2=engine2(0,0,0,0,0);
+  char superend[]={
+#include "prim_superend.i"
+  };
 
   for (i=DOESJUMP+1; symbols1[i+1]!=0; i++)
     ;
   priminfos = calloc(i,sizeof(PrimInfo));
+  npriminfos = i;
   for (i=DOESJUMP+1; symbols1[i+1]!=0; i++) {
     int prim_len=symbols1[i+1]-symbols1[i];
     PrimInfo *pi=&priminfos[i];
     int j;
+    pi->super_end = superend[i-DOESJUMP-1];
     for (j=prim_len-3; ; j--) {
       if (((*(Cell *)(symbols1[i]+j)) & 0xfff8ff) == 0xfc60ff) {
 	/* jmp -4(reg), i.e., the NEXT jump */
 	prim_len = j;
+	if (pi->super_end)
+	  prim_len += 3; /* include the jump */
 	break;
       }
       if (j==0) { /* NEXT jump not found, e.g., execute */
-	pi->super_end = 1;
+	if (!pi->super_end && debug)
+	  fprintf(stderr, "NEXT jump not found for primitive %d, making it super_end\n", i);
+        pi->super_end = 1;
 	break;
       }
     }
@@ -474,8 +488,32 @@ void check_prims(Label symbols1[])
 	fprintf(stderr,"Primitive %d relocatable: start %p, length %ld, super_end %d\n",
 		i, pi->start, pi->length, pi->super_end);
     }      
-  }
+  }  
 #endif
+}
+
+Label compile_prim(Label prim)
+{
+  int i;
+  Address old_code_here=code_here;
+  static Address last_jump=0;
+
+  for (i=0; ; i++) {
+    if (i>=npriminfos) { /* not a relocatable prim */
+      if (last_jump) { /* make sure the last sequence is complete */
+	memcpy(code_here, last_jump, 3);
+	code_here += 3;
+	last_jump = 0;
+      }
+      return prim;
+    }
+    if (priminfos[i].start==prim)
+      break;
+  }
+  memcpy(code_here, (Address)prim, priminfos[i].length);
+  code_here += priminfos[i].length;
+  last_jump = (priminfos[i].super_end) ? 0 : (prim+priminfos[i].length);
+  return (Label)old_code_here;
 }
 
 Address loader(FILE *imagefile, char* filename)

@@ -249,6 +249,8 @@ Xt peephole_opt(Xt xt1, Xt xt2, Cell peeptable);
 void vm_print_profile(FILE *file);
 void vm_count_block(Xt *ip);
 
+/* dynamic superinstruction stuff */
+Label compile_prim(Label prim);
 
 extern int offset_image;
 extern int die_on_signal;

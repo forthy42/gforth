@@ -96,6 +96,7 @@ OBJECTS_FI =  engine.o main-fi.o
 # our engine, so we can make life easy
 DEPS =  config.h *.h $(srcdir)/../arch/$(machine)/*.[h]
 ENGINE_DEPS = engine.b.c $(DEPS) prim_lab.i prim.i
+MAIN_DEPS = main.c $(DEPS) prim_superend.i
 
 #some makes don't do the -o $@ correctly, so we help them
 .c.o:
@@ -131,19 +132,19 @@ engine-ditc.o:	$(ENGINE_DEPS)
 engine-prof.o:	$(ENGINE_DEPS)
 		$(GCC) -fno-gcse $(CFLAGS2) $(ENGINE_FLAGS) -DVM_PROFILING -o $@ -c engine.b.c
 
-main.o:		main.c $(DEPS) 
+main.o:		$(MAIN_DEPS) 
 		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -DGFORTH_DEBUGGING -o $@ -c $(srcdir)/main.c
 
-main-fast.o:	main.c $(DEPS) 
+main-fast.o:	$(MAIN_DEPS) 
 		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -o $@ -c $(srcdir)/main.c
 
-main-ditc.o:	main.c $(DEPS)
+main-ditc.o:	$(MAIN_DEPS)
 		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -DDOUBLY_INDIRECT -o $@ -c $(srcdir)/main.c
 
-main-prof.o:	main.c $(DEPS)
+main-prof.o:	$(MAIN_DEPS)
 		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -DVM_PROFILING -o $@ -c $(srcdir)/main.c
 
-main-fi.o:	main.c $(DEPS)
+main-fi.o:	$(MAIN_DEPS)
 		$(GCC) $(CFLAGS) $(ENGINE_FLAGS) -DINCLUDE_IMAGE -o $@ -c $(srcdir)/main.c
 
 peephole.o:	peephole.c peephole.i $(DEPS)

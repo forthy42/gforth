@@ -212,13 +212,19 @@ defer compile, ( xt -- )	\ core-ext	compile-comma
 
 has? peephole [IF]
 : peephole-compile, ( xt -- )
-    last-compiled @ ?dup if
-	@ over peeptable peephole-opt ?dup if
-	    last-compiled @ ! drop EXIT
-	then
-    then
-    here last-compiled !
-    , ;
+    \ compile xt, appending its code to the current dynamic superinstruction
+    compile-prim , ;
+    
+\  : peephole-compile, ( xt -- )
+\      \ compile xt, possibly combining it with the previous compiled xt
+\      \ into a superinstruction (static superinstructions)
+\      last-compiled @ ?dup if
+\  	@ over peeptable peephole-opt ?dup if
+\  	    last-compiled @ ! drop EXIT
+\  	then
+\      then
+\      here last-compiled !
+\      dyn-compile, ;
 
 : compile-to-prims, ( xt -- )
     \G compile xt to use primitives (and their peephole optimization)

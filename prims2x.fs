@@ -703,6 +703,13 @@ stack inst-stream IP Cell
     endif
     ." }" cr ;
 
+: output-superend ( -- )
+    \ output flag specifying whether the current word ends a dynamic superinst
+    prim prim-c-code 2@  s" SET_IP"    search nip nip
+    prim prim-c-code 2@  s" SUPER_END" search nip nip or 0<>
+    prim prim-c-code 2@  s" SUPER_CONTINUE" search nip nip 0= and
+    negate 0 .r ." , /* " prim prim-name 2@ type ."  */" cr ;
+
 : gen-arg-parm { item -- }
     item item-stack @ inst-stream = if
 	." , " item item-type @ type-c-name 2@ type space
