@@ -222,19 +222,6 @@ set-current
 	fnegate f~rel
     THEN ;
 
-1e 53 0 [do] f2* [loop] fconstant fround-offset \ 2^53
-
-: fround ( r1 -- r2 ) \ float f-round
-\G Round to nearest integral value.  Break ties with round-to-even.
-    \ assumes IEEE DP FP in round-to-even mode.
-    \ for an explanation of this code read
-    \ <2002Oct26.113823@a0.complang.tuwien.ac.at> ff.
-    fdup f0> if
-	fround-offset f- fround-offset f+
-    else fdup f0< if \ leave 0e and -0e as is
-	    fround-offset f+ fround-offset f-
-    then then ;
-
 : f.s ( -- ) \ gforth f-dot-s
     \G Display the number of items on the floating-point stack,
     \G followed by a list of the items; TOS is the right-most item.

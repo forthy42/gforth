@@ -1808,16 +1808,9 @@ floor	( r1 -- r2 )	float
 /* !! unclear wording */
 r2 = floor(r1);
 
-(fround)	( r1 -- r2 )	gforth	paren_f_round
-""Round to the nearest integral value.  Primitive variant (unused)""
-/* !! eliminate this as primitive? */
-/* !! unclear wording */
-#ifdef HAVE_RINT
+fround	( r1 -- r2 )	gforth	f_round
+""Round to the nearest integral value.""
 r2 = rint(r1);
-#else
-r2 = floor(r1+0.5);
-/* !! This is not quite true to the rounding rules given in the standard */
-#endif
 
 fmax	( r1 r2 -- r3 )	float	f_max
 if (r1<r2)
@@ -2776,8 +2769,8 @@ finish-code ( -- ) gforth finish_code
 flushing).""
 finish_code();
 
-forget-dyncode ( a_code -- f ) gforth-internal forget_dyncode
-f = forget_dyncode(a_code);
+forget-dyncode ( c_code -- f ) gforth-internal forget_dyncode
+f = forget_dyncode(c_code);
 
 decompile-prim ( a_code -- a_prim ) gforth-internal decompile_prim
 ""a_prim is the code address of the primitive that has been

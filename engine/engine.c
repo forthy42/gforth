@@ -192,10 +192,6 @@ DCell timeval2us(struct timeval *tvp)
 
 #define NEWLINE	'\n'
 
-#ifndef HAVE_RINT
-#define rint(x)	floor((x)+0.5)
-#endif
-
 #ifdef HAS_FILE
 static char* fileattr[6]={"rb","rb","r+b","r+b","wb","wb"};
 static char* pfileattr[6]={"r","r","r+","r+","w","w"};

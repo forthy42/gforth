@@ -42,3 +42,4 @@ decimal
 { -4503599627370495. d>f  0.5e f+ fround -4503599627370494. d>f f= -> true }
 { -4503599627370497. d>f fdup fround f= -> true }
 { -9007199254740991. d>f fdup fround f= -> true }
+{ 1.49999e fround 1e f= -> true }
