@@ -295,7 +295,7 @@ SOURCES	= CVS engine/CVS compat Makefile.in engine/Makefile.in gforthmi \
 	engine/ansidecl.h engine/memmove.c \
 	engine/pow10.c engine/atanh.c engine/cleanalign.c \
 	engine/strerror.c engine/strsignal.c engine/strsig.c engine/dblsub.c \
-	INSTALL.DOS makefile.dos engine/makefile.dos mkdosmf.sed configure.bat \
+	INSTALL.DOS makefile.dos engine/makefile.dos mkdosmf.sed config.bat \
 	dosconf.h gforthmi.bat mkinstalldirs \
 	versions.bsh \
 	configure.cmd mkos2mf.sed os2conf.h makefile.os2 engine/makefile.os2 \
