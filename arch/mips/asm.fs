@@ -317,7 +317,7 @@ include ./insts.fs
 
 \ conditions; they are reversed because of the if and until logic (the
 \ stuff enclosed by if is performed if the branch around has the
-\ inverse condition).
+\ inverse condition, cf. 0branch).
 
 ' beq,  constant ne
 ' bne,  constant eq
@@ -325,7 +325,7 @@ include ./insts.fs
 ' bgtz, constant lez
 ' bltz, constant gez
 ' bgez, constant ltz
-\ bczf, bczt,
+\ bczf, bczt, \ these don't teke the relative address as last argument
 ' blt,  constant ge
 ' ble,  constant gt
 ' bgt,  constant le
@@ -335,26 +335,55 @@ include ./insts.fs
 ' bgtu, constant leu
 ' bgeu, constant ltu
 
-\ an asm-cs-item consists of ( addr magic ).  addr is the address
-\ behind the branch or the destination. magic is LIVE-ORIG or DEST
-\ xored with asm-magic to make it harder to confuse with a register
-\ number or immediate value.
+\ an asm-cs-item consists of ( addr magic1 magic2 ).  addr is the
+\ address behind the branch or the destination. magic2 is LIVE-ORIG or
+\ DEST xored with asm-magic to make it harder to confuse with a
+\ register number or immediate value. magic1 is LIVE-orig or DEST.
+\ It's there to make CS-ROLL etc. work.
 
-: magic-asm ( u1 -- u2 )
+: magic-asm ( u1 u2 -- u3 u4 )
     \ turns a magic number into an asm-magic number or back
     $87654321 xor ;
+
+: patch-branch ( branch-delay-addr target-addr -- )
+    \ there is a branch just before branch-delay-addr; PATCH-BRANCH
+    \ patches this branch to branch to target-addr
+    over - ( branch-delay-addr rel )
+    swap cell - dup >r ( rel branch-addr R:branch-addr )
+    @ asm-rel r> ! ; \ !! relies on the imm field being 0 before
 
 : if, ( ... xt -- asm-orig )
     \ xt is for a branch word ( ... addr -- )
     0 swap execute
-    here live-orig magic-asm ;
+    here live-orig magic-asm live-orig ;
 
 : ahead, ( -- asm-orig )
     $zero $zero ne if, ;
 
 : then, ( asm-orig -- )
-    magic-asm orig?
-    here backpatch-asm ;
+    orig? magic-asm orig?
+    here patch-branch ;
+
+: begin, ( -- asm-dest )
+    here dest magic-asm dest ;
+
+: until, ( asm-dest ... xt -- )
+    \ xt is a condition and ... are its arguments
+    0 swap execute
+    dest? magic-asm dest?
+    here swap patch-branch ;
+
+: again, ( asm-dest -- )
+    $zero $zero ne until, ;
+
+: else, ( asm-orig1 -- asm-orig2 )
+    ahead, nop, 1 cs-roll then, ;
+
+: while, ( asm-dest -- asm-orig asm-dest )
+    if, 1 cs-roll ;
+
+: repeat, ( asm-orig asm-dest -- )
+    again, nop, then, ;
 
 previous
 set-current

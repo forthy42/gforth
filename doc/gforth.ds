@@ -6512,7 +6512,7 @@ combined words with @code{interpret/compile:} -- see @ref{Combined words}.
 doc-alias
 
 
-@node Supplying names, , Aliases, Defining Words
+@node Supplying names,  , Aliases, Defining Words
 @subsection Supplying the name of a defined word
 @cindex names for defined words
 @cindex defining words, name given in a string
@@ -8540,6 +8540,17 @@ doc-break"
 @cindex assembler
 @cindex code words
 
+@menu
+* Common Assembler::            
+* Common Disassembler::         
+* 386 Assembler::               Deviations and special cases
+* Alpha Assembler::             Deviations and special cases
+* MIPS assembler::              Deviations and special cases
+@end menu
+
+@node Common Assembler, Common Disassembler, Assembler and Code Words, Assembler and Code Words
+@subsection Common Assembler
+
 Gforth provides some words for defining primitives (words written in
 machine code), and for defining the machine-code equivalent of
 @code{DOES>}-based defining words. However, the machine-independent
@@ -8630,6 +8641,62 @@ Generation}). Defining words (equivalent to @code{;CODE} words, for fast
 defined words) may require changes in @file{engine.c}, @file{kernel.fs},
 @file{prims2x.fs}, and possibly @file{cross.fs}.
 
+@node  Common Disassembler, 386 Assembler, Common Assembler, Assembler and Code Words
+@subsection Common Disassembler
+
+You can disassemble a @code{code} word with @code{see}
+(@pxref{Debugging}).  You can disassemble a section of memory with
+
+doc-disasm
+
+The disassembler generally produces output that can be fed into the
+assembler (i.e., same syntax, etc.).  It also includes additional
+information in comments.
+
+@node 386 Assembler, Alpha Assembler, Common Disassembler, Assembler and Code Words
+@subsection 386 Assembler
+
+The 386 assembler and disassembler included in Gforth was written by
+Andrew McKewan; it is in the public domain.
+
+@node Alpha Assembler, MIPS assembler, 386 Assembler, Assembler and Code Words
+@subsection Alpha Assembler
+
+The Alpha assembler and disassembler were written by Bernd Thallner.
+
+@node MIPS assembler,  , Alpha Assembler, Assembler and Code Words
+@subsection MIPS assembler
+
+The MIPS assembler was originally written by Christian Pirker.
+
+Currently the assembler and disassembler only cover the MIPS-I
+architecture (R3000), and don't support FP instructions.
+
+Registers are specified by numbers, e.g., @code{1} (without preceding
+@code{$}).  You can also specify them by name, e.g. @code{$at}; however,
+@code{$a0}--@code{$a3} are not available, to avoid shadowing hex
+numbers.
+
+Because there is no way to distinguish registers from immediate values,
+you have to explicitly use the immediate forms of instructions, i.e.,
+@code{addiu,}, not just @code{addu,} (@command{as} does this
+implicitly).
+
+If the architecture manual specifies several formats for the instruction
+(e.g., for @code{jalr,}), you usually have to use the one with more
+arguments (i.e., two for @code{jalr,}).  When in doubt, see
+@code{arch/mips/testasm.fs} for an example of correct use.
+
+Branches in the MIPS architecture have a delay slot.  You have to fill
+it yourself (the simplest way is to use @code{nop,}), the assembler does
+not do it for you (unlike @command{as}).  Even @code{if,},
+@code{ahead,}, @code{until,}, @code{again,} and @code{while,} need a
+delay slot.  For the branches produced by @code{else,} and
+@code{repeat,}, an @code{nop,} is in the delay slot.
+
+For branches the argument specifying the target is a relative address;
+You have to add the address of the delay slot to get the absolute
+address.
 
 @c -------------------------------------------------------------
 @node Threading Words, Locals, Assembler and Code Words, Words

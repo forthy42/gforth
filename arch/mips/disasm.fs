@@ -24,7 +24,7 @@
 \ it is limited to the R3000 (MIPS-I) architecture, though.
 
 \ test this with
-\ gforth arch/mips/disasm.fs -e "here" arch/mips/testdisasm.fs -e "here over - disasm-dump bye" |sed 's/([^)]*) //'|diff -u - arch/mips/testasm.fs
+\ gforth arch/mips/disasm.fs -e "here" arch/mips/testdisasm.fs -e "here over - disasm bye" |sed 's/([^)]*) //'|diff -u - arch/mips/testasm.fs
 
 get-current
 vocabulary disassembler
@@ -94,7 +94,7 @@ dup set-current
     \G branch targets)
     dup disasm-op opc-tab-entry @ execute ;
 
-: disasm-dump ( addr u -- ) \ gforth
+: disasm ( addr u -- ) \ gforth
     \G disassemble u aus starting at addr
     bounds u+do
 	cr ." ( " i hex. ." ) " i i @ disasm-inst
