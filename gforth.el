@@ -136,7 +136,39 @@
 ; 
 ; Folding neuschreiben (neue Parser-Informationen benutzen)
 
-;;; Hilighting and indentation engine				(dk)
+;;; Motion-hooking (dk)
+;;;
+(defun forth-idle-function ()
+  "Function that is called when Emacs is idle to detect cursor motion
+in forth-block-mode buffers (which is mainly used for screen number
+display in).  Currently ignores forth-mode buffers but that may change
+in the future."
+  (if (eq major-mode 'forth-block-mode)
+      (forth-check-motion)))
+
+(defvar forth-idle-function-timer nil 
+  "Timer that runs `forth-idle-function' or nil if no timer installed.")
+
+(defun forth-install-motion-hook ()
+  "Install the motion-hooking mechanism.  Currently uses idle timers
+but might be transparently changed in the future."
+  (unless forth-idle-function-timer
+    ;; install idle function only once (first time forth-mode is used)
+    (setq forth-idle-function-timer 
+	  (run-with-idle-timer .05 t 'forth-idle-function))))
+
+(defvar forth-was-point nil)
+
+(defun forth-check-motion ()
+  "Run `forth-motion-hooks', if `point' changed since last call.  This
+used to be called via `post-command-hook' but uses idle timers now as
+users complaint about lagging performance."
+  (when (or (eq forth-was-point nil) (/= forth-was-point (point)))
+    (setq forth-was-point (point))
+    (run-hooks 'forth-motion-hooks)))
+
+
+;;; Hilighting and indentation engine (dk)
 ;;;
 (defvar forth-disable-parser nil
   "*Non-nil means to disable on-the-fly parsing of Forth-code.
@@ -876,7 +908,6 @@ Used for imenu index generation.")
   (forth-newline-remove-trailing)
   (indent-according-to-mode))
 
-;;; end hilighting/indentation
 
 ;;; Block file encoding/decoding  (dk)
 ;;;
@@ -1035,13 +1066,6 @@ exceeds 64 characters."
 
 (add-hook 'forth-motion-hooks 'forth-update-warn-long-lines)
 
-(defvar forth-was-point nil)
-(defun forth-check-motion ()
-  "Run `forth-motion-hooks', if `point' changed since last call."
-  (when (or (eq forth-was-point nil) (/= forth-was-point (point)))
-    (setq forth-was-point (point))
-    (run-hooks 'forth-motion-hooks)))
-    
 ;;; End block file editing
 
 
@@ -1117,7 +1141,6 @@ exceeds 64 characters."
 	  (setq char (1+ char))))
       ))
 
-
 (defun forth-mode-variables ()
   (set-syntax-table forth-mode-syntax-table)
   (setq local-abbrev-table forth-mode-abbrev-table)
@@ -1149,7 +1172,6 @@ exceeds 64 characters."
   (make-local-variable 'forth-compiled-indent-words)
   (make-local-variable 'forth-hilight-level)
   (make-local-variable 'after-change-functions)
-  (make-local-variable 'post-command-hook)
   (make-local-variable 'forth-show-screen)
   (make-local-variable 'forth-screen-marker)
   (make-local-variable 'forth-warn-long-lines)
@@ -1158,8 +1180,7 @@ exceeds 64 characters."
   (make-local-variable 'forth-use-objects) 
   (setq forth-screen-marker (copy-marker 0))
   (add-hook 'after-change-functions 'forth-change-function)
-  (add-hook 'post-command-hook 'forth-check-motion)
-  (if (>= emacs-major-version 21)
+  (if (and forth-jit-parser (>= emacs-major-version 21))
       (add-hook 'fontification-functions 'forth-fontification-function))
   (setq imenu-create-index-function 'forth-create-index))
 
@@ -1274,6 +1295,7 @@ Variables controling documentation search
   (use-local-map forth-mode-map)
   (setq mode-name "Forth")
   (setq major-mode 'forth-mode)
+  (forth-install-motion-hook)
   ;; convert buffer contents from block file format, if necessary
   (when (forth-detect-block-file-p)
     (widen)
