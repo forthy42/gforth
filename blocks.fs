@@ -47,11 +47,11 @@ $20 Value buffers
 User block-fid
 
 : block-cold
-    defers 'cold  block-fid off  last-block off
+    block-fid off  last-block off
     buffers buffer-struct drop * allocate throw dup block-buffers !
     buffers buffer-struct drop * erase ;
 
-' block-cold IS 'cold
+' block-cold INIT8 chained
 
 block-cold
 
