@@ -79,7 +79,15 @@ variable line-start \ pointer to start of current line (for error messages)
 variable skipsynclines \ are sync lines ("#line ...") invisible to the parser?
 skipsynclines on 
 
-variable next-stack-number 0 next-stack-number !
+: th ( addr1 n -- addr2 )
+    cells + ;
+
+: holds ( addr u -- )
+    \ like HOLD, but for a string
+    tuck + swap 0 +do
+	1- dup c@ hold
+    loop
+    drop ;
 
 : start ( -- addr )
  cookedinput @ ;
@@ -108,7 +116,8 @@ variable next-stack-number 0 next-stack-number !
 : quote ( -- )
     [char] " emit ;
 
-variable output \ xt ( -- ) of output word
+variable output          \ xt ( -- ) of output word for simple primitives
+variable output-combined \ xt ( -- ) of output word for combined primitives
 
 : printprim ( -- )
  output @ execute ;
@@ -116,6 +125,7 @@ variable output \ xt ( -- ) of output word
 struct%
     cell%    field stack-number \ the number of this stack
     cell% 2* field stack-pointer \ stackpointer name
+    cell% 2* field stack-typename \ name for default type of stack items
     cell% 2* field stack-cast \ cast string for assignments to stack elements
     cell%    field stack-in-index-xt \ ( in-size item -- in-index )
 end-struct stack%
@@ -136,23 +146,28 @@ struct%
     cell%    field type-store \ xt of store code generator ( item -- )
 end-struct type%
 
+variable next-stack-number 0 next-stack-number !
+create stacks max-stacks cells allot \ array of stacks
+
 : stack-in-index ( in-size item -- in-index )
     item-offset @ - 1- ;
 
 : inst-in-index ( in-size item -- in-index )
     nip dup item-offset @ swap item-type @ type-size @ + 1- ;
 
-: make-stack ( addr-ptr u1 addr-cast u2 "stack-name" -- )
+: make-stack ( addr-ptr u1 addr-stack u2 addr-cast u3 "stack-name" -- )
     create stack% %allot >r
+    r@ stacks next-stack-number @ th !
     next-stack-number @ r@ stack-number !  1 next-stack-number +!
     save-mem r@ stack-cast 2!
+    save-mem r@ stack-typename 2!
     save-mem r@ stack-pointer 2! 
     ['] stack-in-index r> stack-in-index-xt ! ;
 
-s" sp" save-mem s" (Cell)" make-stack data-stack 
-s" fp" save-mem s" "       make-stack fp-stack
-s" rp" save-mem s" (Cell)" make-stack return-stack
-s" IP" save-mem s" error don't use # on results" make-stack inst-stream
+s" sp" save-mem s" Cell"  save-mem s" (Cell)" make-stack data-stack 
+s" fp" save-mem s" Float" save-mem s" "       make-stack fp-stack
+s" rp" save-mem s" Cell"  save-mem s" (Cell)" make-stack return-stack
+s" IP" save-mem s" Cell"  save-mem s" error don't use # on results" make-stack inst-stream
 ' inst-in-index inst-stream stack-in-index-xt !
 \ !! initialize stack-in and stack-out
 
@@ -463,7 +478,7 @@ does> ( item -- )
     return-stack fill-a-tos ;
 
 : fetch ( addr -- )
- dup item-type @ type-fetch @ execute ;
+    dup item-type @ type-fetch @ execute ;
 
 : fetches ( -- )
     prim prim-effect-in prim prim-effect-in-end @ ['] fetch map-items ;
@@ -528,9 +543,12 @@ does> ( item -- )
     ." fputc('\n', vm_out);" cr
     ." }" cr
     ." #endif" cr ;
+
+: print-entry ( -- )
+    ." I_" prim prim-c-name 2@ type ." :" ;
     
 : output-c ( -- ) 
- ." I_" prim prim-c-name 2@ type ." :	/* " prim prim-name 2@ type ."  ( " prim prim-stack-string 2@ type ." ) */" cr
+ print-entry ."  /* " prim prim-name 2@ type ."  ( " prim prim-stack-string 2@ type ." ) */" cr
  ." /* " prim prim-doc 2@ type ."  */" cr
  ." NAME(" quote prim prim-name 2@ type quote ." )" cr \ debugging
  ." {" cr
@@ -749,44 +767,104 @@ variable num-combined
 
 create current-depth max-stacks cells allot
 create max-depth     max-stacks cells allot
+create min-depth     max-stacks cells allot
 
 : init-combined ( -- )
     0 num-combined !
     current-depth max-stacks cells erase
-    max-depth     max-stacks cells erase ;
+    max-depth     max-stacks cells erase
+    min-depth     max-stacks cells erase
+    prim prim-effect-in  prim prim-effect-in-end  !
+    prim prim-effect-out prim prim-effect-out-end ! ;
 
 : max! ( n addr -- )
     tuck @ max swap ! ;
 
+: min! ( n addr -- )
+    tuck @ min swap ! ;
+
 : add-depths { p -- }
     \ combine stack effect of p with *-depths
     max-stacks 0 ?do
-	current-depth i cells + @
-	p prim-stacks-in  i cells + @ +
-	dup max-depth i cells + max!
-	p prim-stacks-out i cells + @ -
-	current-depth i cells + !
+	current-depth i th @
+	p prim-stacks-in  i th @ +
+	dup max-depth i th max!
+	p prim-stacks-out i th @ -
+	dup min-depth i th min!
+	current-depth i th !
     loop ;
 
 : add-prim ( addr u -- )
     \ add primitive given by "addr u" to combined-prims
     primitives search-wordlist s" unknown primitive" ?print-error
     execute { p }
-    p combined-prims num-combined @ cells + !
+    p combined-prims num-combined @ th !
     1 num-combined +!
     p add-depths ;
 
 : compute-effects { q -- }
     \ compute the stack effects of q from the depths
     max-stacks 0 ?do
-	max-depth i cells + @ dup
-	q prim-stacks-in i cells + !
-	current-depth i cells + @ -
-	q prim-stacks-out i cells + !
+	max-depth i th @ dup
+	q prim-stacks-in i th !
+	current-depth i th @ -
+	q prim-stacks-out i th !
+    loop ;
+
+: make-effect-items { stack# items effect-endp -- }
+    \ effect-endp points to a pointer to the end of the current item-array
+    \ and has to be updated
+    stacks stack# th @ { stack }
+    items 0 +do
+	effect-endp @ { item }
+	i 0 <# #s stack stack-pointer 2@ holds [char] _ hold #> save-mem
+	item item-name 2!
+	stack item item-stack !
+	0 item item-type !
+	i item item-offset !
+	item item-first on
+	item% %size effect-endp +!
+    loop ;
+
+: init-effects { q -- }
+    \ initialize effects field for FETCHES and STORES
+    max-stacks 0 ?do
+	i q prim-stacks-in  i th @ q prim-effect-in-end  make-effect-items
+	i q prim-stacks-out i th @ q prim-effect-out-end make-effect-items
     loop ;
 
 : process-combined ( -- )
-    prim compute-effects ;
+    prim compute-effects
+    prim init-effects
+    output-combined perform ;
+
+\ C output
+
+: print-item { n stack -- }
+    \ print nth stack item name
+    ." _" stack stack-typename 2@ type space
+    stack stack-pointer 2@ type n 0 .r ;
+
+: print-declarations-combined ( -- )
+    max-stacks 0 ?do
+	max-depth i th @ min-depth i th @ - 0 +do
+	    i stacks j th @ print-item ." ;" cr
+	loop
+    loop ;
+    
+: output-c-combined ( -- )
+    print-entry cr
+    \ debugging messages just in constituents
+    ." {" cr
+    ." DEF_CA" cr
+    print-declarations-combined
+    ." NEXT_P0;" cr
+    flush-tos
+    fetches
+    ;
+
+: output-forth-combined ( -- )
+    ;
 
 \ the parser
 
@@ -964,14 +1042,14 @@ warnings @ [IF]
     checksyncline
     primitives2something ;    
 
-: process-file ( addr u xt -- )
-    output !
+: process-file ( addr u xt-simple x-combined -- )
+    output-combined ! output !
     save-mem 2dup filename 2!
     slurp-file
     warnings @ if
 	." ------------ CUT HERE -------------" cr  endif
     primfilter ;
 
-: process      ( xt -- )
-    bl word count rot
-    process-file ;
+\  : process      ( xt -- )
+\      bl word count rot
+\      process-file ;

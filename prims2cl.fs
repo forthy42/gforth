@@ -27,15 +27,15 @@ include ./prims2x.fs
 Create 	InputFile 130 chars allot
 
 : c-code
-    InputFile count ['] output-c-func process-file
+    InputFile count ['] output-c-func ['] abort process-file
     ;
 
 : c-names
-    InputFile count ['] output-funclabel process-file
+    InputFile count ['] output-funclabel ['] abort process-file
     ;
 
 : forth-names
-    InputFile count ['] output-forthname process-file
+    InputFile count ['] output-forthname dup process-file
     ;
 
 : .\ 
