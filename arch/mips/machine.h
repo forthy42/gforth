@@ -64,15 +64,25 @@
 /* this provides the first 4 bits of a jump address, i.e. it must be <16 */
 #define SEGMENT_NUM	1
 
-#define JUMP(addr)	(J_PATTERN|((((unsigned)(addr))&JUMP_MASK)>>2))
-#define CALL(addr)	(JAL_PATTERN|((((unsigned)(addr))&JUMP_MASK)>>2))
+#define JUMP(addr)	(J_PATTERN|((((unsigned)(addr))>>2)&JUMP_MASK))
+#define CALL(addr)	(JAL_PATTERN|((((unsigned)(addr))>>2)&JUMP_MASK))
 
 	/* PFA gives the parameter field address corresponding to a cfa */
 #	define PFA(cfa)	(((Cell *)cfa)+2)
 	/* PFA1 is a special version for use just after a NEXT1 */
 #	define PFA1(cfa)	PFA(cfa)
-	/* CODE_ADDRESS is the address of the code jumped to through the code field */
-#	define CODE_ADDRESS(cfa)	((Label)(((*(unsigned *)(cfa))^J_PATTERN^(SEGMENT_NUM<<26))<<2))
+
+/* the address of the code, if we know the code field contains a jump */ 
+#define CODE_ADDRESS1(cfa)	((Label)(((*(unsigned *)(cfa))^J_PATTERN^(SEGMENT_NUM<<26))<<2))
+/* CODE_ADDRESS is the address of the code jumped to through the code field */
+#define CODE_ADDRESS(cfa) ({ \
+			       int *__cfa=((int *)(cfa)); \
+			       unsigned _code=*__cfa; \
+			       (((_code>>26)==(J_PATTERN>>26)) ? \
+				CODE_ADDRESS1(__cfa) : \
+				((Label)__cfa)); \
+			   })
+
 	/* MAKE_CF creates an appropriate code field at the cfa; ca is the code address */
 #	define MAKE_CF(cfa,ca)	({long * _cfa = (long *)(cfa); \
 					  _cfa[0] = JUMP(ca); \
@@ -94,13 +104,11 @@
 #define DOES_CODE(cfa)	\
      ({ Xt _cfa=(Xt)(cfa); \
 	Label _ca=CODE_ADDRESS(_cfa); \
-	((*(unsigned *)_cfa)&(~JUMP_MASK)) == J_PATTERN && \
-	(*(unsigned *)_ca) == JUMP(symbols[DODOES]) \
-	? _ca+DOES_HANDLER_SIZE : 0; })
+	((*(unsigned *)_ca) == JUMP(symbols[DODOES])) ? _ca+DOES_HANDLER_SIZE : 0; })
 
 
 /* this is a special version of DOES_CODE for use in dodoes */
-#define DOES_CODE1(cfa)	((Xt *)(((char *)CODE_ADDRESS(cfa))+DOES_HANDLER_SIZE))
+#define DOES_CODE1(cfa)	((Xt *)(((char *)CODE_ADDRESS1(cfa))+DOES_HANDLER_SIZE))
 
 
 #	define MAKE_DOES_CF(cfa,does_code) \

@@ -40,6 +40,8 @@ elif test $1 = --version || test $1 = -v; then
 elif test $1 = --application; then
     application=yes
     shift
+else
+    true #old shells require this
 fi
 outfile=$1; shift
 tmpfile=./temp-image.fi
@@ -51,5 +53,7 @@ chmod +x $outfile
 rm $tmpfile"1" $tmpfile"2"
 if test x$application = xyes; then
     $GFORTH -e "s\" '$outfile\"" make-app.fs
+else
+    true #old shells require this
 fi
 

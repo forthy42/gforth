@@ -336,7 +336,8 @@ AC_CHECK_FUNCS(rint expm1 log1p)
 AC_REPLACE_FUNCS(ecvt)
 dnl No check for select, because our replacement is no good under
 dnl anything but DOS
-AC_CHECK_HEADERS(sys/mman.h)
+AC_CHECK_HEADERS(sys/mman.h fnmatch.h)
+AC_CHECK_FUNC(fnmatch,true,LIBOBJS="$LIBOBJS fnmatch.o strchrnul.o")
 AC_CHECK_FUNCS(mmap sysconf getpagesize)
 AM_PATH_LISPDIR
 

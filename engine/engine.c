@@ -39,7 +39,11 @@
 #include <unistd.h>
 #include <pwd.h>
 #include <dirent.h>
+#ifdef HAVE_FNMATCH_H
 #include <fnmatch.h>
+#else
+#include "fnmatch.h"
+#endif
 #else
 #include "systypes.h"
 #endif

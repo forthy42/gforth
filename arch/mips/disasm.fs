@@ -98,7 +98,10 @@ dup set-current
     \G disassemble u aus starting at addr
     bounds u+do
 	cr ." ( " i hex. ." ) " i i @ disasm-inst
-	1 cells +loop ;
+	1 cells +loop
+    cr ;
+
+' disasm IS discode
 
 definitions
 

@@ -21,7 +21,7 @@
 \ test this with
 \ gforth arch/mips/asm.fs -e "also assembler here" arch/mips/testasm.fs -e "here over - here" arch/mips/testdisasm.fs -e "here over - compare throw bye"
 
-require code.fs
+require ../../code.fs
 
 get-current
 also assembler definitions

@@ -312,6 +312,7 @@ SOURCES	= $(CVSDIRS) compat Makefile.in Makedist.in engine/Makefile.in gforthmi.
 	engine/ansidecl.h engine/memmove.c \
 	engine/pow10.c engine/atanh.c engine/cleanalign.c \
 	engine/strerror.c engine/strsignal.c engine/dblsub.c \
+	engine/fnmatch.h engine/fnmatch.c engine/strchrnul.c \
 	INSTALL.DOS makefile.dos engine/makefile.dos mkdosmf.sed config.bat \
 	dosconf.h gforthmi.bat mkinstalldirs siteinit.fs \
 	versions.bsh \
