@@ -74,27 +74,6 @@ variable line \ line number of char pointed to by input
 variable skipsynclines \ are sync lines ("#line ...") invisible to the parser?
 skipsynclines on 
 
-Variable flush-comment flush-comment off
-
-: ?flush-comment
-    flush-comment @ 0= ?EXIT
-    f-comment 2@ nip
-    IF  cr f-comment 2@ 2 /string 1-
-	dup IF
-	    2dup s" -" compare 0=
-	    IF
-		flush-comment @ 1 =
-		IF    ." #else"
-		ELSE  ." [ELSE]"  THEN
-	    ELSE
-		flush-comment @ 1 =
-		IF    ." #ifdef HAS_" bounds ?DO  I c@ toupper emit  LOOP
-		ELSE  ." has? " type ."  [IF]"  THEN
-	    THEN  cr
-	ELSE    flush-comment @ 1 = IF  ." #endif"  ELSE  ." [THEN]"  THEN
-	    cr  THEN
-	0 0 f-comment 2! THEN ;
-
 : start ( -- addr )
  cookedinput @ ;
 
@@ -262,11 +241,29 @@ Variable c-flag
    {{ end c-flag @ IF type cr ELSE 2drop THEN }}
 )) <- c-comment ( -- )
 
-(( (( forth-comment || c-comment )) ?? nonl ** )) <- comment-body
+(( ` - nonl ** {{ 
+	forth-flag @ IF ." [ELSE]" cr THEN
+	c-flag @ IF ." #else" cr THEN }}
+)) <- else-comment
 
-(( {{ ?flush-comment start }} ` \ comment-body nl {{ end
-      2dup 2 min s" \+" compare 0= IF  f-comment 2!  ELSE  2drop  THEN }}
-)) <- comment ( -- )
+(( ` + {{ start }} nonl ** {{ end
+	dup
+	IF	c-flag @
+		IF    ." #ifdef HAS_" bounds ?DO  I c@ toupper emit  LOOP cr
+		THEN
+		forth-flag @
+		IF  ." has? " type ."  [IF]"  cr THEN
+	ELSE	2drop
+		c-flag @
+		IF  ." #endif"  cr THEN
+		forth-flag @
+		IF  ." [THEN]"  cr THEN
+	THEN }}
+)) <- if-comment
+
+(( (( forth-comment || c-comment || else-comment || if-comment )) ?? nonl ** )) <- comment-body
+
+(( ` \ comment-body nl )) <- comment ( -- )
 
 (( {{ effect-in }} (( {{ start }} c-name {{ end 2 pick item-name 2! item-descr + }} blank ** )) ** {{ effect-in-end ! }}
    ` - ` - blank **
@@ -613,8 +610,7 @@ set-current
    i item-name 2@ type space
  item-descr +loop ; 
 
-: output-c ( -- ) 1 flush-comment !
-    ?flush-comment
+: output-c ( -- ) 
  ." I_" c-name 2@ type ." :	/* " forth-name 2@ type ."  ( " stack-string 2@ type ."  ) */" cr
  ." /* " doc 2@ type ."  */" cr
  ." NAME(" [char] " emit forth-name 2@ type [char] " emit ." )" cr \ debugging
@@ -672,18 +668,15 @@ set-current
     ." }" cr
     cr ;
 
-: output-label ( -- )  1 flush-comment !
-    ?flush-comment
+: output-label ( -- )  
     ." (Label)&&I_" c-name 2@ type ." ," cr
     -1 primitive-number +! ;
 
-: output-alias ( -- )  flush-comment on
-    ?flush-comment
+: output-alias ( -- ) 
     ( primitive-number @ . ." alias " ) ." Primitive " forth-name 2@ type cr
     -1 primitive-number +! ;
 
-: output-forth ( -- )  flush-comment on
-    ?flush-comment
+: output-forth ( -- )  
     forth-code @ 0=
     IF    	\ output-alias
 	\ this is bad for ec: an alias is compiled if tho word does not exist!
