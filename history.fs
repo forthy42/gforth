@@ -111,15 +111,17 @@ s" os-class" environment? [IF] s" unix" compare 0= [ELSE] true [THEN]
   hist-pos  forward^ 2!
   tuck 2dup type 0 ;
 
-: prev-line  ( max span addr pos1 -- max span addr pos2 false )
-  clear-line  backward^ 2@ forward^ 2!
+: find-prev-line ( max addr -- max span addr pos2 )
+  backward^ 2@ forward^ 2!
   over 2 + negate s>d backward^ 2@ d+ 0. dmax 2dup hist-setpos
   BEGIN
       backward^ 2!   2dup get-line  WHILE
       hist-pos 2dup forward^ 2@ d<  WHILE
       rot drop
-  REPEAT  2drop  THEN
-  tuck 2dup type 0 ;
+  REPEAT  2drop  THEN  tuck ;
+
+: prev-line  ( max span addr pos1 -- max span addr pos2 false )
+    clear-line find-prev-line 2dup type 0 ;
 
 Create lfpad #lf c,
 

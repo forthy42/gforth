@@ -6,39 +6,56 @@ include string.fs
 
 Variable url
 Variable protocol
+Variable data
+Variable command?
 
 : get ( addr -- )  name rot $! ;
 : get-rest ( addr -- )  source >in @ /string dup >in +! rot $! ;
 
-Table constant http/1.0
+Table constant values
+Table constant commands
 
-: rest:  ( -- )  name
+: value:  ( -- )  name
   Forth definitions 2dup 1- nextname Variable
-  http/1.0 set-current nextname here cell - Create ,
+  values set-current nextname here cell - Create ,
   DOES> @ get-rest ;
+: >values  values 1 set-order command? off ;
 
-\ HTTP protocol                                        26mar00py
+\ HTTP protocol commands                               26mar00py
 
-http/1.0 set-current
+: rework-% ( -- )  base @ >r hex
+    0 url $@len 0 ?DO
+	url $@ drop I + c@ dup '% = IF
+	    drop 0. url $@ I 1+ /string
+	    2 min dup >r >number r> swap - >r 2drop
+	ELSE  0 >r  THEN  over url $@ drop + c!  1+
+    r> 1+ +LOOP  url $!len
+    r> base ! ;
 
-: GET               url get protocol get-rest ;
-rest: User-Agent:
-rest: Pragma:
-rest: Host:
-rest: Accept:
-rest: Accept-Encoding:
-rest: Accept-Language:
-rest: Accept-Charset:
-rest: Via:
-rest: X-Forwarded-For:
-rest: Cache-Control:
-rest: Connection:
-rest: Referer:
+commands set-current
+
+: GET   url get rework-% protocol get-rest >values data on  ;
+: HEAD  url get rework-% protocol get-rest >values data off ;
+
+\ HTTP protocol values                                 26mar00py
+
+values set-current
+
+value: User-Agent:
+value: Pragma:
+value: Host:
+value: Accept:
+value: Accept-Encoding:
+value: Accept-Language:
+value: Accept-Charset:
+value: Via:
+value: X-Forwarded-For:
+value: Cache-Control:
+value: Connection:
+value: Referer:
 
 definitions
 
-s" close" connection $!
-s" /nosuchfile" url $!
 s" HTTP/1.0" protocol $!
 
 Variable maxnum
@@ -49,8 +66,10 @@ Variable maxnum
   BEGIN  refill ?cr  WHILE  interpret  >in @ 0=  UNTIL
   true  ELSE  maxnum off false  THEN ;
 : get-input ( -- flag ior )
+  s" /nosuchfile" url $!
+  s" close" connection $!
   infile-id push-file loadfile !  0 loadline ! blk off
-  http/1.0 1 set-order  ['] refill-loop catch
+  commands 1 set-order  command? on  ['] refill-loop catch
   only forth also  pop-file ;
 
 \ Keep-Alive handling                                  26mar00py
@@ -100,12 +119,21 @@ Variable htmldir
   over swap r@ read-file throw over swap type
   free r> close-file throw throw ;
 
-: transparent:  Create ,"  DOES>  >r  >file
+: transparent: ( addr u -- ) Create  here over 1+ allot place
+  DOES>  >r  >file
   .connection
   ." Content-Type: "  r> count type cr cr
-  transparent ;
+  data @ IF  transparent  ELSE  nip close-file throw  THEN ;
 
 \ mime types                                           26mar00py
+
+: mime-read ( addr u -- )  r/o open-file throw
+    push-file loadfile !  0 loadline ! blk off
+    BEGIN  refill  WHILE  name
+	BEGIN  >in @ >r name nip  WHILE
+	    r> >in ! 2dup transparent:  REPEAT
+	2drop rdrop
+    REPEAT  loadfile @ close-file pop-file throw ;
 
 : lastrequest
   ." Connection: close" cr maxnum off
@@ -114,34 +142,33 @@ Variable htmldir
 wordlist constant mime
 mime set-current
 
-: shtml ( addr u -- )  lastrequest  included ;
+: shtml ( addr u -- )  lastrequest
+    data @ IF  included  ELSE  2drop  THEN ;
 
-transparent: html text/html"
-transparent: gif image/gif"
-transparent: jpg image/jpeg"
-transparent: png image/png"
-transparent: gz application/x-gzip"
-transparent: bz2 application/x-bzip2"
-transparent: exe application/octet-stream"
-transparent: class application/octet-stream"
-transparent: sig application/pgp-signature"
-transparent: txt text/plain"
+s" application/pgp-signature" transparent: sig
+s" application/x-bzip2" transparent: bz2
+s" application/x-gzip" transparent: gz
+s" /etc/mime.types" mime-read
 
 definitions
 
-lastxt @ Alias txt
+s" text/plain" transparent: txt
 
 \ http errors                                          26mar00py
 
-: .ok   ." HTTP/1.1 200 OK" cr ;
+: .server ." Server: Gforth httpd/0.1 ("
+    s" os-class" environment? IF  type  THEN  ." )" cr ;
+: .ok   ." HTTP/1.1 200 OK" cr .server ;
 : html-error ( n addr u -- )
-    ." HTTP/1.1 " 2 pick . 2dup type cr lastrequest
+    ." HTTP/1.1 " 2 pick . 2dup type cr .server
+    2 pick &405 = IF ." Allow: GET, HEAD" cr  THEN  lastrequest
     ." <HTML><HEAD><TITLE>" 2 pick . 2dup type ." </TITLE></HEAD>" cr
     ." <BODY><H1>" type drop ." </H1>" cr ;
 : .trailer ( -- )
     ." <HR><ADDRESS>Gforth httpd 0.1</ADDRESS>" cr
     ." </BODY></HTML>" cr ;
-: .nok  &400 s" Bad Request" html-error
+: .nok  command? @ IF  &405 s" Method Not Allowed"
+    ELSE  &400 s" Bad Request"  THEN  html-error
     ." <P>Your browser sent a request that this server could not understand.</P>" cr
     ." <P>Invalid request in: <CODE>" error-stack cell+ 2@ swap type
     ." </CODE></P>" cr .trailer ;
@@ -155,10 +182,10 @@ lastxt @ Alias txt
     IF  url $@ 1 /string rework-htmldir
 	dup 0< IF  drop .nofile
 	ELSE  .ok  2dup >mime mime search-wordlist
-	    IF  catch IF  maxnum off THEN  ELSE  txt  THEN
+	    0= IF  ['] txt  THEN  catch IF  maxnum off THEN
 	THEN  THEN  THEN  outfile-id flush-file throw ;
 
 : httpd  ( n -- )  maxnum !
   BEGIN  http  maxnum @ 0=  UNTIL ;
 
-( script? [IF] ) &100 httpd bye ( [THEN] )
+script? [IF]  &100 httpd bye  [THEN]
