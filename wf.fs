@@ -52,14 +52,16 @@ require string.fs
 Variable indentlevel
 Variable tag-option
 Variable tag-class
+Variable default-class
 s" " tag-option $!
 s" " tag-class $!
+s" " default-class $!
 
 : tag ( addr u -- ) '< emit type
     tag-class $@len IF  .\"  class=\"" tag-class $@ type '" emit  THEN
     tag-option $@ type
     '> emit
-    s" " tag-option $! s" " tag-class $! ;
+    s" " tag-option $! default-class $@ tag-class $! ;
 : tag/ ( addr u -- )  s"  /" tag-option $+! tag ;
 : /tag ( addr u -- ) '< emit '/ emit type '> emit ;
 : tagged ( addr1 u1 addr2 u2 -- )  2dup 2>r tag .type 2r> /tag ;
@@ -80,6 +82,8 @@ s" " tag-class $!
 : class= ( addr u -- )
     tag-class $@len IF  s"  " tag-class $+!  THEN
     tag-class $+! ;
+: dclass= ( addr u -- )  2dup class=
+    default-class $! ;
 : indent= ( -- )
     indentlevel @ 0 <# #S 'p hold #> class= ;
 : mailto: ( addr u -- ) s'  href="mailto:' tag-option $+!
@@ -522,9 +526,9 @@ Variable divs
 longtags set-current
 
 : --- 0 indent cr s" hr" tag/ cr ;
-: *   1 indent s" h1" par +indent ;
-: **  1 indent s" h2" par +indent ;
-: *** 2 indent s" h3" par +indent ;
+: *   1 indent s" h1" dclass= s" h1" par +indent s" " dclass= ;
+: **  1 indent s" h2" dclass= s" h2" par +indent s" " dclass= ;
+: *** 2 indent s" h3" dclass= s" h3" par +indent s" " dclass= ;
 : --  0 indent cr print-toc ;
 : &&  0 parse id= ;
 : -   s" ul" env s" li" par ;
