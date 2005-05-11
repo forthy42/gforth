@@ -587,13 +587,16 @@ has? compiler 0= [IF]	\ interpreter only version of IS and TO
 \ interpret                                            10mar92py
 
 Defer parser ( c-addr u -- )
-Defer parse-word ( "name" -- c-addr u ) \ gforth
+Defer parse-name ( "name" -- c-addr u ) \ gforth
 \G Get the next word from the input buffer
-' (name) IS parse-word
+' (name) IS parse-name
 
-' parse-word alias name ( -- c-addr u ) \ gforth-obsolete
-\G old name for @code{parse-word}
-
+' parse-name alias parse-word ( -- c-addr u ) \ gforth-obsolete
+\G old name for @code{parse-name}
+    
+' parse-name alias name ( -- c-addr u ) \ gforth-obsolete
+\G old name for @code{parse-name}
+    
 Defer compiler-notfound ( c-addr count -- )
 Defer interpreter-notfound ( c-addr count -- )
 

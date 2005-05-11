@@ -7829,6 +7829,7 @@ words:
 
 @c anton: these belong in the input stream section
 doc-parse
+doc-parse-name
 doc-parse-word
 doc-name
 doc-word
@@ -12431,7 +12432,7 @@ operating systems. Hopefully, Unicode will solve these problems one day.
 If @code{word} is called with the space character as a delimiter, all
 white-space characters (as identified by the C macro @code{isspace()})
 are delimiters. @code{Parse}, on the other hand, treats space like other
-delimiters.  @code{Parse-word}, which is used by the outer
+delimiters.  @code{Parse-name}, which is used by the outer
 interpreter (aka text interpreter) by default, treats all white-space
 characters as delimiters.
 
