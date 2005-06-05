@@ -471,31 +471,52 @@ Create nav-buf 0 c,
 Variable toc-name
 Variable toc-index
 6 Value /toc-line
+true Value toc-image
 
 : .toc-entry ( toc flag -- )
-    swap cell+ dup @ swap cell+ dup cell+ $@ 2dup href= s" a" tag
+    swap cell+ dup @ swap cell+ dup cell+ $@ 2dup href=
     '# scan 1 /string toc-name $@ compare >r
-    $@ .img swap
-    IF
-	case
-	    2 of  s" ^]|-@/arrow_up.jpg" .img  endof
-	    3 of
-		r@ 0= IF s" *]|-@/circle.jpg"
+    $@ toc-image IF  s" a" tag .img swap
+	IF
+	    case
+		2 of  s" ^]|-@/arrow_up.jpg" .img  endof
+		3 of
+		    r@ 0= IF s" *]|-@/circle.jpg"
 		    ELSE s" v]|-@/arrow_down.jpg"  THEN  .img  endof
-	endcase
+	    endcase
+	ELSE
+	    case
+		0 of  s" ^]|-@/arrow_up.jpg" .img  endof
+		1 of  s" >]|-@/arrow_right.jpg" .img  endof
+		2 of  s" *]|-@/circle.jpg" .img  endof
+		3 of  s" v]|-@/arrow_down.jpg" .img  endof
+	    endcase
+	THEN
+	s" a" /tag ." <!--" cr ." -->"
     ELSE
-	case
-	    0 of  s" ^]|-@/arrow_up.jpg" .img  endof
-	    1 of  s" >]|-@/arrow_right.jpg" .img  endof
-	    2 of  s" *]|-@/circle.jpg" .img  endof
-	    3 of  s" v]|-@/arrow_down.jpg" .img  endof
-	endcase
+	'[ skip  2dup '| scan nip - 2swap swap
+	IF
+	    CASE
+		2 OF  s" up" class=  ENDOF
+		3 OF  r@ 0= IF  s" circle" ELSE  s" down"  THEN class=  ENDOF
+	    ENDCASE
+	ELSE
+	    CASE
+		0  OF  s" up" class=  ENDOF
+		1  OF  s" right" class=  ENDOF
+		2  OF  s" circle" class=  ENDOF
+		3  OF  s" down" class=  ENDOF
+	    ENDCASE
+	THEN
+	s" a" tagged
     THEN
-    s" a" /tag rdrop ." <!--" cr ." -->"
+    rdrop
     1 toc-index +! toc-index @ /toc-line mod 0=
-    IF  s" br" tag/ THEN ;
+    IF  -env cr s" p" >env  THEN ;
 
-: print-toc ( -- ) toc-index off cr s" menu" class= s" div" >env cr
+: print-toc ( -- ) toc-index off cr
+    toc-image IF  s" img-menu"  ELSE  s" menu"  THEN id=
+    s" div" >env cr s" p" >env
     0 parse
     dup 0= IF  toc-name $! 0  ELSE
 	toc-name $! toc-name $@ id= s" " s" a" tagged  2
@@ -504,7 +525,7 @@ Variable toc-index
 	dup cell+ @ 3 = r@ 0= and IF  rdrop 1 >r ( s" br" tag/ cr )  THEN
 	dup cell+ @ r@ >= IF  dup r@ 2 = .toc-entry  THEN
 	dup cell+ @ 2 = r@ 2 = and IF  s" br" tag/ toc-index off THEN
-    REPEAT  drop rdrop -env cr ;
+    REPEAT  drop rdrop -env -env cr ;
 
 \ handle global tags
 
@@ -671,7 +692,7 @@ Variable orig-date
     s" Mail|@/mail.gif" .img mail $@ mailto: mail-name $@ s" a" tagged
     public-key @ IF
 	public-key $@ href=  s" a" tag
-	s" PGP key|@/gpg.asc.gif" .img s" a" /tag
+	s" PGP key|-@/gpg.asc.gif" .img s" a" /tag
     THEN
     -envs ;
 
