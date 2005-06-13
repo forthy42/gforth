@@ -192,11 +192,13 @@ Create jfif   $FF c, $D8 c, $FF c, $E0 c, $00 c, $10 c, $4A c, $46 c,
   scratch r> 0 max /string 0 max -zeros
   dup IF  '. emit  THEN  type ;
 
+12.9e FConstant pixels
+
 : size-does> ( -- )  DOES> ( -- )
     ." img." dup body> >name .name
     2@ ." { width: "
-    s>d d>f 13.8e f/ f.size ." em; height: "
-    s>d d>f 13.8e f/ f.size ." em; }" cr ;
+    s>d d>f pixels f/ f.size ." em; height: "
+    s>d d>f pixels f/ f.size ." em; }" cr ;
 
 : size-css ( file< > -- )
     outfile-id >r
