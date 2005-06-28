@@ -510,7 +510,7 @@ true Value toc-image
 		3  OF  s" down" class=  ENDOF
 	    ENDCASE
 	THEN
-	s" a" tagged
+	s" a" tag parse-string s" a" /tag
     THEN
     rdrop
     1 toc-index +! toc-index @ /toc-line mod 0=

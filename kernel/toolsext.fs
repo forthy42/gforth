@@ -135,16 +135,16 @@ User (i)
                                                       immediate
 
 : [+LOOP] ( n -- ) \ gforth bracket-question-plus-loop
-  rdrop rdrop ;                                       immediate
+  rdrop ;                                             immediate
 
 : [LOOP] ( -- ) \ gforth bracket-loop
-  1 rdrop rdrop ;                                     immediate
+  1 rdrop ;                                           immediate
 
 : [FOR] ( n -- ) \ gforth bracket-for
   0 swap postpone [DO] ;                              immediate
 
 : [NEXT] ( n -- ) \ gforth bracket-next
-  -1 rdrop rdrop ;                                    immediate
+  -1 rdrop ;                                          immediate
 
 :noname (i) @ ;
 :noname (i) @ postpone Literal ;
@@ -157,13 +157,13 @@ interpret/compile: [I] ( -- n ) \ gforth bracket-i
                                                       immediate
 
 : [REPEAT]  ( -- ) \ gforth bracket-repeat
-  false rdrop rdrop ;                                 immediate
+  false rdrop ;                                       immediate
 
 ' [REPEAT] Alias [AGAIN] ( -- ) \ gforth bracket-again
                                                       immediate
 
 : [WHILE]   ( flag -- ) \ gforth bracket-while
-  0= IF   postpone [ELSE] true rdrop rdrop 1 countif +!  THEN ;
+  0= IF   postpone [ELSE] true rdrop 1 countif +!  THEN ;
                                                       immediate
 
 Warnings on
