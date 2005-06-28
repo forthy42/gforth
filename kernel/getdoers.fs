@@ -46,7 +46,7 @@ doer? :douser [IF]
 doer? :dodefer [IF]
 : dodefer: ( -- addr )	\ gforth
     \G The code address of a @code{defer}ed word.
-    ['] parser >code-address ;
+    ['] parser1 >code-address ;
 [THEN]
 
 doer? :dofield [IF]

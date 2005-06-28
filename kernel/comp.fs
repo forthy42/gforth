@@ -185,6 +185,11 @@ has? OS [IF]
     postpone lit ,
 [ [THEN] ] ; immediate restrict
 
+: 2Literal ( compilation w1 w2 -- ; run-time  -- w1 w2 ) \ double two-literal
+    \G Compile appropriate code such that, at run-time, @i{w1 w2} are
+    \G placed on the stack. Interpretation semantics are undefined.
+    swap postpone Literal  postpone Literal ; immediate restrict
+
 : ALiteral ( compilation addr -- ; run-time -- addr ) \ gforth
 [ [IFDEF] alit, ]
     alit,
@@ -329,32 +334,33 @@ has? peephole [IF]
 
 \ \ compiler loop
 
-: compiler ( c-addr u -- )
+: compiler1 ( c-addr u -- ... xt )
     2dup find-name dup
     if ( c-addr u nt )
-	nip nip name>comp execute
+	nip nip name>comp
     else
 	drop
-	2dup snumber? dup
+	2dup 2>r snumber? dup
 	IF
 	    0>
 	    IF
-		swap postpone Literal
+		['] 2literal
+	    ELSE
+		['] literal
 	    THEN
-	    postpone Literal
-	    2drop
+	    2rdrop
 	ELSE
-	    drop compiler-notfound
+	    drop 2r> compiler-notfound1
 	THEN
     then ;
 
 : [ ( -- ) \  core	left-bracket
     \G Enter interpretation state. Immediate word.
-    ['] interpreter  IS parser state off ; immediate
+    ['] interpreter1  IS parser1 state off ; immediate
 
 : ] ( -- ) \ core	right-bracket
     \G Enter compilation state.
-    ['] compiler     IS parser state on  ;
+    ['] compiler1     IS parser1 state on  ;
 
 \ \ Strings							22feb93py
 

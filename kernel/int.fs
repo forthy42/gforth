@@ -586,7 +586,13 @@ has? compiler 0= [IF]	\ interpreter only version of IS and TO
 
 \ interpret                                            10mar92py
 
-Defer parser ( c-addr u -- )
+Defer parser1 ( c-addr u -- ... xt)
+\ "... xt" is the action to be performed by the text-interpretation of c-addr u
+
+: parser ( c-addr u -- ... )
+\ text-interpret the word/number c-addr u, possibly producing a number
+    parser1 execute ;
+
 Defer parse-name ( "name" -- c-addr u ) \ gforth
 \G Get the next word from the input buffer
 ' (name) IS parse-name
@@ -597,13 +603,13 @@ Defer parse-name ( "name" -- c-addr u ) \ gforth
 ' parse-name alias name ( -- c-addr u ) \ gforth-obsolete
 \G old name for @code{parse-name}
     
-Defer compiler-notfound ( c-addr count -- )
-Defer interpreter-notfound ( c-addr count -- )
+Defer compiler-notfound1 ( c-addr count -- ... xt )
+Defer interpreter-notfound1 ( c-addr count -- ... xt )
 
 : no.extensions  ( addr u -- )
     2drop -&13 throw ;
-' no.extensions IS compiler-notfound
-' no.extensions IS interpreter-notfound
+' no.extensions IS compiler-notfound1
+' no.extensions IS interpreter-notfound1
 
 Defer before-word ( -- ) \ gforth
 \ called before the text interpreter parses the next word
@@ -616,7 +622,7 @@ Defer before-word ( -- ) \ gforth
     BEGIN
 	?stack before-word name dup
     WHILE
-	parser
+	parser1 execute
     REPEAT
     2drop ;
     
@@ -634,21 +640,21 @@ Defer before-word ( -- ) \ gforth
 \ interpreter                                 	30apr92py
 
 \ not the most efficient implementations of interpreter and compiler
-: interpreter ( c-addr u -- ) 
+: interpreter1 ( c-addr u -- ... xt ) 
     2dup find-name dup
     if
-	nip nip name>int execute
+	nip nip name>int
     else
 	drop
 	2dup 2>r snumber?
 	IF
-	    2rdrop
+	    2rdrop ['] noop
 	ELSE
-	    2r> interpreter-notfound
+	    2r> interpreter-notfound1
 	THEN
     then ;
 
-' interpreter  IS  parser
+' interpreter1  IS  parser1
 
 \ \ Query Evaluate                                 	07apr93py
 

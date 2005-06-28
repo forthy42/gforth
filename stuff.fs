@@ -139,35 +139,45 @@ AUser CSP
 : compile-literal ( n -- )
     postpone literal ;
 
+: compile-compile-literal ( n -- )
+    compile-literal postpone compile-literal ;
+
+: compile-2literal ( n1 n2 -- )
+    postpone 2literal ;
+
+: compile-compile-2literal ( n1 n2 -- )
+    compile-2literal postpone compile-2literal ;
+
 : [[ ( -- )
 \G switch from postpone state to compile state
     \ this is only a marker; it is never really interpreted
     compile-only-error ; immediate
 
-: postponer ( c-addr u -- )
+: postponer1 ( c-addr u -- ... xt )
     2dup find-name dup if ( c-addr u nt )
 	nip nip name>comp
 	2dup [comp'] [[ d= if
-	    2drop ['] compiler is parser
+	    2drop ['] compiler1 is parser1
 	else
-	    postpone,
+	    ['] postpone,
 	endif
     else
 	drop
-	2dup snumber? dup if
+	2dup 2>r snumber? dup if
 	    0> IF
-		swap postpone literal postpone compile-literal
+		['] compile-compile-2literal
+            ELSE
+                ['] compile-compile-literal
 	    THEN
-	    postpone Literal postpone compile-literal
-	    2drop
+	    2rdrop
 	ELSE
-	    drop no.extensions
+	    drop 2r> no.extensions
 	THEN
     then ;
 
 : ]] ( -- )
     \ switch into postpone state
-    ['] postponer is parser state on ; immediate restrict
+    ['] postponer1 is parser1 state on ; immediate restrict
 
 \ f.rdp
 

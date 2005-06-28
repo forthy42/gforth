@@ -142,23 +142,35 @@ require debugs.fs
 	2drop false
     THEN ;
 
-:noname ( c-addr u -- )
-    2dup sfnumber
-    IF
-	2drop POSTPONE FLiteral
-    ELSE
-	defers compiler-notfound
-    ENDIF ;
-IS compiler-notfound
+[ifundef] compiler-notfound1
+defer compiler-notfound1
+' no.extensions IS compiler-notfound1
 
-:noname ( c-addr u -- r )
+:noname compiler-notfound1 execute ; is compiler-notfound
+
+defer interpreter-notfound1
+' no.extensions IS interpreter-notfound1
+
+:noname interpreter-notfound1 execute ; is interpreter-notfound
+[then]
+
+:noname ( c-addr u -- ... xt )
     2dup sfnumber
     IF
-	2drop
+	2drop [comp'] FLiteral
     ELSE
-	defers interpreter-notfound
+	defers compiler-notfound1
     ENDIF ;
-IS interpreter-notfound
+IS compiler-notfound1
+
+:noname ( c-addr u -- ... xt )
+    2dup sfnumber
+    IF
+	2drop ['] noop
+    ELSE
+	defers interpreter-notfound1
+    ENDIF ;
+IS interpreter-notfound1
 
 : fvariable ( "name" -- ) \ float f-variable
     Create 0.0E0 f, ;

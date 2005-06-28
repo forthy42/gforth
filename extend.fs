@@ -36,10 +36,12 @@ decimal
 
 \ !! 2value
 
+[ifundef] 2literal
 : 2Literal ( compilation w1 w2 -- ; run-time  -- w1 w2 ) \ double two-literal
     \G Compile appropriate code such that, at run-time, cell pair @i{w1, w2} are
     \G placed on the stack. Interpretation semantics are undefined.
     swap postpone Literal  postpone Literal ; immediate restrict
+[then]
 
 ' drop alias d>s ( d -- n ) \ double		d_to_s
 
