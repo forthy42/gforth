@@ -153,6 +153,7 @@ AUser CSP
     \ this is only a marker; it is never really interpreted
     compile-only-error ; immediate
 
+[ifdef] compiler1
 : postponer1 ( c-addr u -- ... xt )
     2dup find-name dup if ( c-addr u nt )
 	nip nip name>comp
@@ -178,6 +179,8 @@ AUser CSP
 : ]] ( -- )
     \ switch into postpone state
     ['] postponer1 is parser1 state on ; immediate restrict
+
+[then]
 
 \ f.rdp
 
