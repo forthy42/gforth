@@ -10757,7 +10757,7 @@ You can define a class for graphical objects like this:
 @cindex @code{method} usage
 @example
 object class graphical \ "object" is the parent class
-  method draw ( x y graphical -- )
+  method draw ( x y -- )
 class;
 @end example
 
@@ -10791,7 +10791,7 @@ how:
   : draw ( x y -- )
     circle-radius @@ draw-circle ;
 
-  : init ( n-radius -- (
+  : init ( n-radius -- )
     circle-radius ! ;
 class;
 @end example
