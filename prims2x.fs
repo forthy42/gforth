@@ -246,7 +246,7 @@ variable next-state-number 0 next-state-number ! \ next state number
 
 : init-item ( addr u addr1 -- )
     \ initialize item at addr1 with name addr u
-    \ !! remove stack prefix
+    \ the stack prefix is removed by the stack-prefix
     dup item% %size erase
     item-name 2! ;
 
@@ -280,6 +280,7 @@ struct%
     cell%    field prim-effect-out-end
     cell% max-stacks * field prim-stacks-in  \ number of in items per stack
     cell% max-stacks * field prim-stacks-out \ number of out items per stack
+    cell% max-stacks * field prim-stacks-sync \ sync flag per stack
 end-struct prim%
 
 : make-prim ( -- prim )
@@ -649,6 +650,33 @@ does> ( item -- )
     stack item item-stack !
     item declaration ;
 
+get-current prefixes set-current
+: ... ( item -- )
+    \ this "prefix" ensures that the appropriate stack is synced with memory
+    dup item-name 2@ s" ..." str= 0= abort" '...' must end the item name"
+    item-stack @ dup if
+	stack-number @ prim prim-stacks-sync swap th on
+    else \ prefixless "..." syncs all stacks
+	max-stacks 0 +do
+	    prim prim-stacks-sync i th on
+	loop
+    endif ;
+set-current
+
+create ...-item ( -- addr ) \ just used for letting stack-prefixes work on it
+item% %allot                \ stores the stack temporarily until used by ...
+
+: init-item1 ( addr1 addr u -- addr2 )
+    \ initialize item at addr1 with name addr u, next item is at addr2
+    \ !! make sure that any mention of "..." is only stack-prefixed
+    2dup s" ..." search nip nip if ( addr1 addr u )
+	0 ...-item item-stack ! \ initialize to prefixless
+	2dup ...-item item-name 2!
+	...-item rot rot execute-prefix ( addr1 )
+    else
+	2 pick init-item item% %size +
+    endif ;
+
 \ types pointed to by stacks for use in combined prims
 \ !! output-c-combined shouldn't use these names!
 : stack-type-name ( addr u "name" -- )
@@ -745,7 +773,14 @@ stack inst-stream IP Cell
     prim prim-effect-out prim prim-effect-out-end @ ['] compute-offset-out map-items
     inst-stream stack-out @ 0= s" # can only be on the input side" ?print-error ;
 
+: init-simple { prim -- }
+    \ much of the initialization is elsewhere
+    max-stacks 0 +do
+	prim prim-stacks-sync i th off
+    loop ;
+
 : process-simple ( -- )
+    prim init-simple
     prim prim { W^ key } key cell
     combinations ['] constant insert-wordlist
     declarations compute-offsets
@@ -1720,7 +1755,7 @@ nl-char singleton eof-char over add-member		charclass nleof
 (( letter (( letter || digit )) **
 )) <- c-ident ( -- )
 
-(( ` # ?? (( letter || digit || ` : )) ++
+(( ` # ?? (( letter || digit || ` : )) ++ (( ` . ` . ` . )) ??
 )) <- stack-ident ( -- )
 
 (( nowhitebq nowhite ** ))
@@ -1775,8 +1810,8 @@ Variable c-flag
 
 (( ` \ comment-body nleof )) <- comment ( -- )
 
-(( {{ start }} stack-ident {{ end 2 pick init-item item% %size + }} white ** )) **
-<- stack-items
+(( {{ start }} stack-ident {{ end init-item1 }} white ** )) **
+<- stack-items ( addr1 -- addr2 )
 
 (( {{ prim prim-effect-in }}  stack-items {{ prim prim-effect-in-end ! }}
    ` - ` - white **

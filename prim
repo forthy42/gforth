@@ -291,7 +291,6 @@ assert(0);
 #else
 a_pfa = PFA(a_cfa);
 nest = (Cell)IP;
-IF_spTOS(spTOS = sp[0]);
 #ifdef DEBUG
     {
       CFA_TO_NAME(a_cfa);
