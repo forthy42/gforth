@@ -6157,7 +6157,7 @@ see foo
 : foo
   107645672 stats + - ;
 
-\ use ' stats . to show that 107645672 is the xt for stats
+\ use ' foo . to show that 107645672 is the xt for foo
 @end example
 
 You can use techniques like this to make new defining words in terms of
