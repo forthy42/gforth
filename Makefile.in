@@ -618,7 +618,7 @@ checkone test:	gforth$(EXE) gforth.fi
 		  tr -d '\015' | diff -c - $(srcdir)/engine/prim.i
 
 test/primtest.fi: test/primtest.fs mach32l.fs cross.fs
-		$(FORTHB) -e 's" mach32l.fs"' $(srcdir)/test/primtest.fs -e "save-cross $@ $(bindir)/gforth-$(VERSION) bye"
+		$(FORTHB) -e 's" mach32b.fs"' $(srcdir)/test/primtest.fs -e "save-cross $@ $(bindir)/gforth-$(VERSION) bye"
 
 primtest:	gforth gforth-native test/primtest.fi FORCE
 		(echo rs|ENVVAR=bla ./gforth -i test/primtest.fi) && (echo rs|ENVVAR=bla ./gforth-native -i test/primtest.fi); echo $$?

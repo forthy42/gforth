@@ -100,6 +100,8 @@
 \E s" struct F83Name *"	single data-stack type-prefix f83name
 \E s" struct Longname *" single data-stack type-prefix longname
 \E 
+\E data-stack   stack-prefix S:
+\E fp-stack     stack-prefix F:
 \E return-stack stack-prefix R:
 \E inst-stream  stack-prefix #
 \E 
@@ -407,11 +409,9 @@ condbranch(?branch,f --,f83	question_branch,
 
 \+xconds
 
-?dup-?branch	( #a_target f -- f )	new	question_dupe_question_branch
+?dup-?branch	( #a_target f -- S:... )	new	question_dupe_question_branch
 ""The run-time procedure compiled by @code{?DUP-IF}.""
 if (f==0) {
-  sp++;
-  IF_spTOS(spTOS = sp[0]);
 #ifdef NO_IP
 INST_TAIL;
 JUMP(a_target);
@@ -420,16 +420,15 @@ SET_IP((Xt *)a_target);
   INST_TAIL; NEXT_P2;
 #endif
 }
+sp--;
+sp[0]=f;
 SUPER_CONTINUE;
 
-?dup-0=-?branch ( #a_target f -- ) new	question_dupe_zero_equals_question_branch
+?dup-0=-?branch ( #a_target f -- S:... ) new	question_dupe_zero_equals_question_branch
 ""The run-time procedure compiled by @code{?DUP-0=-IF}.""
-/* the approach taken here of declaring the word as having the stack
-effect ( f -- ) and correcting for it in the branch-taken case costs a
-few cycles in that case, but is easy to convert to a CONDBRANCH
-invocation */
 if (f!=0) {
   sp--;
+  sp[0]=f;
 #ifdef NO_IP
   JUMP(a_target);
 #else
@@ -1238,12 +1237,11 @@ UP=up=(char *)a_addr;
  up ! ;
 Variable UP
 
-sp@	( -- a_addr )		gforth		sp_fetch
-a_addr = sp+1;
+sp@	( S:... -- a_addr )		gforth		sp_fetch
+a_addr = sp;
 
-sp!	( a_addr -- )		gforth		sp_store
+sp!	( a_addr -- S:... )		gforth		sp_store
 sp = a_addr;
-/* works with and without spTOS caching */
 
 rp@	( -- a_addr )		gforth		rp_fetch
 a_addr = rp;
@@ -1253,10 +1251,10 @@ rp = a_addr;
 
 \+floating
 
-fp@	( -- f_addr )	gforth	fp_fetch
+fp@	( f:... -- f_addr )	gforth	fp_fetch
 f_addr = fp;
 
-fp!	( f_addr -- )	gforth	fp_store
+fp!	( f_addr -- f:... )	gforth	fp_store
 fp = f_addr;
 
 \+
@@ -1329,21 +1327,18 @@ tuck	( w1 w2 -- w2 w1 w2 )	core-ext
 :
  swap over ;
 
-?dup	( w -- w )			core	question_dupe
+?dup	( w -- S:... w )	core	question_dupe
 ""Actually the stack effect is: @code{( w -- 0 | w w )}.  It performs a
 @code{dup} if w is nonzero.""
 if (w!=0) {
-  IF_spTOS(*sp-- = w;)
-#ifndef USE_TOS
   *--sp = w;
-#endif
 }
 :
  dup IF dup THEN ;
 
-pick	( u -- w )			core-ext
+pick	( S:... u -- S:... w )		core-ext
 ""Actually the stack effect is @code{ x0 ... xu u -- x0 ... xu x0 }.""
-w = sp[u+1];
+w = sp[u];
 :
  1+ cells sp@ + @ ;
 
@@ -1790,20 +1785,17 @@ strsignal	( n -- c_addr u )	gforth
 c_addr = (Address)strsignal(n);
 u = strlen(c_addr);
 
-call-c	( w -- )	gforth	call_c
+call-c	( ... w -- ... )	gforth	call_c
 ""Call the C function pointed to by @i{w}. The C function has to
 access the stack itself. The stack pointers are exported in the global
 variables @code{SP} and @code{FP}.""
 /* This is a first attempt at support for calls to C. This may change in
    the future */
-IF_fpTOS(fp[0]=fpTOS);
 FP=fp;
 SP=sp;
 ((void (*)())w)();
 sp=SP;
 fp=FP;
-IF_spTOS(spTOS=sp[0]);
-IF_fpTOS(fpTOS=fp[0]);
 
 \+
 \+file
@@ -2155,7 +2147,7 @@ if (!f2) /* workaround Cygwin trailing 0s for Inf and Nan */
 memcpy(c_addr,sig,siglen);
 memset(c_addr+siglen,f2?'0':' ',u-siglen);
 
->float	( c_addr u -- flag )	float	to_float
+>float	( c_addr u -- f:... flag )	float	to_float
 ""Actual stack effect: ( c_addr u -- r t | f ).  Attempt to convert the
 character string @i{c-addr u} to internal floating-point
 representation. If the string represents a valid floating-point number
@@ -2165,9 +2157,8 @@ case and represents the floating-point number 0.""
 Float r;
 flag = to_float(c_addr, u, &r);
 if (flag) {
-  IF_fpTOS(fp[0] = fpTOS);
-  fp += -1;
-  fpTOS = r;
+  fp--;
+  fp[0]=r;
 }
 
 fabs	( r1 -- r2 )	float-ext	f_abs
@@ -2393,9 +2384,9 @@ f>l	( r -- )	gforth	f_to_l
 lp -= sizeof(Float);
 *(Float *)lp = r;
 
-fpick	( u -- r )		gforth
+fpick	( f:... u -- f:... r )		gforth
 ""Actually the stack effect is @code{ r0 ... ru u -- r0 ... ru r0 }.""
-r = fp[u+1]; /* +1, because update of fp happens before this fragment */
+r = fp[u];
 :
  floats fp@ + f@ ;
 
@@ -2433,13 +2424,10 @@ u3 = 0;
 #  endif
 #endif
 
-wcall	( u -- )	gforth
-IF_fpTOS(fp[0]=fpTOS);
+wcall	( ... u -- ... )	gforth
 FP=fp;
 sp=(Cell*)(SYSCALL(Cell*(*)(Cell *, void *))u)(sp, &FP);
 fp=FP;
-IF_spTOS(spTOS=sp[0];)
-IF_fpTOS(fpTOS=fp[0]);
 
 \+FFCALL
 
@@ -2663,13 +2651,12 @@ compile-prim1 ( a_prim -- ) gforth compile_prim1
 ""compile prim (incl. immargs) at @var{a_prim}""
 compile_prim1(a_prim);
 
-finish-code ( -- ) gforth finish_code
+finish-code ( ... -- ... ) gforth finish_code
 ""Perform delayed steps in code generation (branch resolution, I-cache
 flushing).""
-IF_spTOS(sp[0]=spTOS); /* workaround for failing to save spTOS
-			  (gcc-2.95.1, gforth-fast --enable-force-reg) */
+/* The ... above are a workaround for a bug in gcc-2.95, which fails
+   to save spTOS (gforth-fast --enable-force-reg) */
 finish_code();
-IF_spTOS(spTOS=sp[0]);
 
 forget-dyncode ( c_code -- f ) gforth-internal forget_dyncode
 f = forget_dyncode(c_code);

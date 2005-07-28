@@ -351,6 +351,9 @@ wordlist constant primitives
     \ address of number of stack items in effect out
     stack-number @ cells prim prim-stacks-out + ;
 
+: stack-prim-stacks-sync ( stack -- addr )
+    prim prim-stacks-sync swap stack-number @ th ;
+
 \ global vars
 variable c-line
 2variable c-filename
@@ -504,21 +507,24 @@ defer inst-stream-f ( -- stack )
     rdrop ;
 
 : same-as-in? ( item -- f )
- \ f is true iff the offset and stack of item is the same as on input
- >r
- r@ item-first @ if
-     rdrop false exit
- endif
- r@ item-name 2@ prim prim-items-wordlist @ search-wordlist 0= abort" bug"
- execute @
- dup r@ =
- if \ item first appeared in output
-   drop false
- else
-   dup  item-stack  @ r@ item-stack  @ = 
-   swap item-offset @ r@ item-offset @ = and
- endif
- rdrop ;
+    \ f is true iff the offset and stack of item is the same as on input
+    >r
+    r@ item-stack @ stack-prim-stacks-sync @ if
+	rdrop false exit
+    endif
+    r@ item-first @ if
+	rdrop false exit
+    endif
+    r@ item-name 2@ prim prim-items-wordlist @ search-wordlist 0= abort" bug"
+    execute @
+    dup r@ =
+    if \ item first appeared in output
+	drop false
+    else
+	dup  item-stack  @ r@ item-stack  @ = 
+	swap item-offset @ r@ item-offset @ = and
+    endif
+    rdrop ;
 
 : item-out-index ( item -- n )
     \ n is the index of item (in the out-effect)
@@ -616,7 +622,8 @@ does> ( item -- )
 	    UNLOOP EXIT
 	endif
 	-1 s+loop
-    \ we did not find a type, abort
+	\ we did not find a type, abort
+	abort
     false s" unknown prefix" ?print-error ;
 
 : declaration ( item -- )
@@ -650,9 +657,6 @@ does> ( item -- )
     stack item item-stack !
     item declaration ;
 
-: stack-prim-stacks-sync ( stack -- addr )
-    prim prim-stacks-sync swap stack-number @ th ;
-
 : set-prim-stacks-sync ( stack -- )
     stack-prim-stacks-sync on ;
 
@@ -667,7 +671,7 @@ get-current prefixes set-current
     item-stack @ dup if
 	set-prim-stacks-sync
     else \ prefixless "..." syncs all stacks
-	['] set-prim-stacks-sync map-stacks1
+	drop ['] set-prim-stacks-sync map-stacks1
     endif ;
 set-current
 
@@ -1800,7 +1804,11 @@ nl-char singleton eof-char over add-member		charclass nleof
 (( letter (( letter || digit )) **
 )) <- c-ident ( -- )
 
-(( ` # ?? (( letter || digit || ` : )) ++ (( ` . ` . ` . )) ??
+(( ` . ` . ` .
+)) <- sync-stack ( -- )
+
+(( ` # ?? (( letter || digit || ` : )) ++ sync-stack ??
+|| sync-stack
 )) <- stack-ident ( -- )
 
 (( nowhitebq nowhite ** ))
