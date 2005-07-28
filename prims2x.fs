@@ -231,13 +231,13 @@ variable next-state-number 0 next-state-number ! \ next state number
     rdrop ;
 
 : map-stacks { xt -- }
-    \ perform xt for all stacks
+    \ perform xt ( stack -- ) for all stacks
     next-stack-number @ 0 +do
 	stacks i th @ xt execute
     loop ;
 
 : map-stacks1 { xt -- }
-    \ perform xt for all stacks except inst-stream
+    \ perform xt ( stack -- ) for all stacks except inst-stream
     next-stack-number @ 1 +do
 	stacks i th @ xt execute
     loop ;
@@ -650,16 +650,24 @@ does> ( item -- )
     stack item item-stack !
     item declaration ;
 
+: stack-prim-stacks-sync ( stack -- addr )
+    prim prim-stacks-sync swap stack-number @ th ;
+
+: set-prim-stacks-sync ( stack -- )
+    stack-prim-stacks-sync on ;
+
+: clear-prim-stacks-sync ( stack -- )
+    stack-prim-stacks-sync off ;
+
+
 get-current prefixes set-current
 : ... ( item -- )
     \ this "prefix" ensures that the appropriate stack is synced with memory
     dup item-name 2@ s" ..." str= 0= abort" '...' must end the item name"
     item-stack @ dup if
-	stack-number @ prim prim-stacks-sync swap th on
+	set-prim-stacks-sync
     else \ prefixless "..." syncs all stacks
-	max-stacks 0 +do
-	    prim prim-stacks-sync i th on
-	loop
+	['] set-prim-stacks-sync map-stacks1
     endif ;
 set-current
 
@@ -775,12 +783,9 @@ stack inst-stream IP Cell
 
 : init-simple { prim -- }
     \ much of the initialization is elsewhere
-    max-stacks 0 +do
-	prim prim-stacks-sync i th off
-    loop ;
+    ['] clear-prim-stacks-sync map-stacks ;
 
 : process-simple ( -- )
-    prim init-simple
     prim prim { W^ key } key cell
     combinations ['] constant insert-wordlist
     declarations compute-offsets
@@ -795,11 +800,19 @@ stack inst-stream IP Cell
     stack state-in  stack-state-items stack stack-in  @ - 0 max
     stack state-out stack-state-items stack stack-out @ - 0 max ;
 
+: spill-stack-items { stack -- u }
+    \ there are u items to spill in stack
+    stack unused-stack-items
+    stack stack-prim-stacks-sync @ if
+	drop 0
+    endif
+    swap - ;
+
 : spill-stack { stack -- }
     \ spill regs of state-in that are not used by prim and are not in state-out
     stack state-in stack-offset { offset }
     stack state-in stack-state-items ( items )
-    dup stack unused-stack-items - - +do
+    dup stack spill-stack-items + +do
 	\ loop through the bottom items
 	stack stack-pointer 2@ type
 	i offset - stack normal-stack-access0 ."  = "
@@ -809,10 +822,18 @@ stack inst-stream IP Cell
 : spill-state ( -- )
     ['] spill-stack map-stacks1 ;
 
+: fill-stack-items { stack -- u }
+    \ there are u items to fill in stack
+    stack unused-stack-items
+    stack stack-prim-stacks-sync @ if
+	swap drop 0 swap
+    endif
+    - ;
+
 : fill-stack { stack -- }
     stack state-out stack-offset { offset }
     stack state-out stack-state-items ( items )
-    dup stack unused-stack-items - + +do
+    dup stack fill-stack-items + +do
 	\ loop through the bottom items
 	i stack state-out normal-stack-access1 ."  = "
 	stack stack-pointer 2@ type
@@ -868,24 +889,44 @@ stack inst-stream IP Cell
     stack-access-transform @ dup >r execute
     0 r> execute - ;
 
+: update-stack-pointer { stack n -- }
+    n if \ this check is not necessary, gcc would do this for us
+	stack inst-stream = if
+	    ." INC_IP(" n 0 .r ." );" cr
+	else
+	    stack stack-pointer 2@ type ."  += "
+	    n stack stack-update-transform 0 .r ." ;" cr
+	endif
+    endif ;
+
 : stack-pointer-update { stack -- }
     \ and moves
     \ stacks grow downwards
-    stack stack-diff ( in-out )
-    stack state-in  stack-offset -
-    stack state-out stack-offset + ( [in-in_offset]-[out-out_offset] )
-    ?dup-if \ this check is not necessary, gcc would do this for us
-	stack inst-stream = if
-	    ." INC_IP(" 0 .r ." );" cr
-	else
-	    stack stack-pointer 2@ type ."  += "
-	    stack stack-update-transform 0 .r ." ;" cr
-	endif
-    endif
-    stack stack-moves ;
+    stack stack-prim-stacks-sync @ if
+	stack stack-in @
+	stack state-in  stack-offset -
+	stack swap update-stack-pointer
+    else
+	stack stack-diff ( in-out )
+	stack state-in  stack-offset -
+	stack state-out stack-offset + ( [in-in_offset]-[out-out_offset] )
+	stack swap update-stack-pointer
+	stack stack-moves
+    endif ;
 
 : stack-pointer-updates ( -- )
     ['] stack-pointer-update map-stacks ;
+
+: stack-pointer-update2 { stack -- }
+    stack stack-prim-stacks-sync @ if
+	stack state-out stack-offset
+	stack stack-out @ -
+	stack swap update-stack-pointer
+    endif ;
+
+: stack-pointer-updates2 ( -- )
+    \ update stack pointers after C code, where necessary
+    ['] stack-pointer-update2 map-stacks ;
 
 : store ( item -- )
 \ f is true if the item should be stored
@@ -957,6 +998,7 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
     output-super-end
     print-debug-results
     output-nextp1
+    stack-pointer-updates2
     stores
     fill-state 
     xt execute ;
@@ -1020,7 +1062,7 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
 	bounds ?DO  I c@ dup '* = IF  drop 'x  THEN  emit  LOOP
     ELSE  type  THEN ;
 
-: output-c ( -- ) 
+: output-c ( -- )
     print-entry ."  /* " prim prim-name 2@ prim-type
     ."  ( " prim prim-stack-string 2@ type ." ) "
     state-in .state ." -- " state-out .state ."  */" cr
@@ -1429,6 +1471,9 @@ variable reprocessed-num 0 reprocessed-num !
 : compute-default-state-out ( n-in -- n-out )
     \ for the current prim
     cache-stack stack-in @ - 0 max
+    cache-stack stack-prim-stacks-sync @ if
+	drop 0
+    endif
     cache-stack stack-out @ + cache-states 2@ nip 1- min ;
 
 : gen-prim-states ( prim -- )
@@ -1818,7 +1863,7 @@ Variable c-flag
    {{ prim prim-effect-out }} stack-items {{ prim prim-effect-out-end ! }}
 )) <- stack-effect ( -- )
 
-(( {{ prim create-prim }}
+(( {{ prim create-prim prim init-simple }}
    ` ( white ** {{ start }} stack-effect {{ end prim prim-stack-string 2! }} ` ) white **
    (( {{ start }} forth-ident {{ end prim prim-wordset 2! }} white **
       (( {{ start }}  c-ident {{ end 2dup prim-c-name-2! }} )) ??
