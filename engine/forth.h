@@ -243,11 +243,10 @@ typedef Label *Xt;
 #define NO_DYNAMIC_DEFAULT 1
 #endif
 
-#ifdef USE_TOS
-#define IF_spTOS(x) x
+#if defined(GFORTH_DEBUGGING) || defined(INDIRECT_THREADED) || defined(DOUBLY_INDIRECT) || defined(VM_PROFILING)
+#define STACK_CACHE_DEFAULT 0
 #else
-#define IF_spTOS(x)
-#define spTOS (sp[0])
+#define STACK_CACHE_DEFAULT STACK_CACHE_DEFAULT_FAST
 #endif
 
 #ifdef USE_FTOS

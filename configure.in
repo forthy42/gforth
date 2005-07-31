@@ -100,6 +100,7 @@ dnl PEEPHOLE="$withval")
 #variables mentioned in INSTALL
 AC_ARG_VAR(CC, [The C compiler (must support GNU C 2.x); gcc-2.95 recommended.])
 AC_ARG_VAR(FORTHSIZES, [Gforth command line options for the default stack and dictionary sizes (see INSTALL).])
+AC_ARG_VAR(STACK_CACHE_DEFAULT_FAST, [number of registers in the default stack cache state for gforth-fast and gforth-native (default 1).])
 AC_ARG_VAR(ac_cv_sizeof_char_p, [sizeof(char *)])
 AC_ARG_VAR(ac_cv_sizeof_char, [sizeof(char)])
 AC_ARG_VAR(ac_cv_sizeof_short, [sizeof(short)])
@@ -258,6 +259,10 @@ case "$host_cpu" in
 		fi
 esac
 AC_SUBST(host)
+
+test x$STACK_CACHE_DEFAULT_FAST = x && STACK_CACHE_DEFAULT_FAST=1
+AC_DEFINE_UNQUOTED(STACK_CACHE_DEFAULT_FAST, $STACK_CACHE_DEFAULT_FAST,
+		   [number of registers in the default stack cache state for gforth-fast and gforth-native])
 
 if test "${enable_force_ll+set}" = set; then
    ac_includes_default="$ac_includes_default

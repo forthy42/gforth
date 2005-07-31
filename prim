@@ -140,7 +140,7 @@
 
 \ Stack caching setup
 
-ifdef(`M4_ENGINE_FAST', `include(cache1.vmg)', `include(cache0.vmg)')
+ifdef(`STACK_CACHE_FILE', `include(STACK_CACHE_FILE)', `include(cache0.vmg)')
 
 \ these m4 macros would collide with identifiers
 undefine(`index')
@@ -2491,30 +2491,30 @@ av_longlong(alist, d);
 av-ptr-r	( R:c_addr -- )	gforth  av_ptr_r
 av_ptr(alist, void*, c_addr);
 
-av-call-void	( -- )	gforth  av_call_void
+av-call-void	( ... -- ... )	gforth  av_call_void
 SAVE_REGS
 av_call(alist);
 REST_REGS
 
-av-call-int	( -- w )	gforth  av_call_int
+av-call-int	( ... -- ... w )	gforth  av_call_int
 SAVE_REGS
 av_call(alist);
 REST_REGS
 w = irv;
 
-av-call-float	( -- r )	gforth  av_call_float
+av-call-float	( ... -- ... r )	gforth  av_call_float
 SAVE_REGS
 av_call(alist);
 REST_REGS
 r = frv;
 
-av-call-double	( -- r )	gforth  av_call_double
+av-call-double	( ... -- ... r )	gforth  av_call_double
 SAVE_REGS
 av_call(alist);
 REST_REGS
 r = drv;
 
-av-call-longlong	( -- d )	gforth  av_call_longlong
+av-call-longlong	( ... -- ... d )	gforth  av_call_longlong
 SAVE_REGS
 av_call(alist);
 REST_REGS
@@ -2525,7 +2525,7 @@ DHI_IS(d, 0);
 d = llrv;
 #endif
 
-av-call-ptr	( -- c_addr )	gforth  av_call_ptr
+av-call-ptr	( ... -- ... c_addr )	gforth  av_call_ptr
 SAVE_REGS
 av_call(alist);
 REST_REGS
@@ -2691,7 +2691,7 @@ a_addr = groups;
 
 \g static_super
 
-ifdef(`M4_ENGINE_FAST',
+ifdef(`STACK_CACHE_FILE',
 `include(peeprules.vmg)')
 
 \g end

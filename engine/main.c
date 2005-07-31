@@ -594,7 +594,9 @@ int go_forth(Address image, int stack, Cell *entries)
 #endif
 
   /* ensure that the cached elements (if any) are accessible */
-  IF_spTOS(sp0--);
+#if !(defined(GFORTH_DEBUGGING) || defined(INDIRECT_THREADED) || defined(DOUBLY_INDIRECT) || defined(VM_PROFILING))
+  sp0 -= 8; /* make stuff below bottom accessible for stack caching */
+#endif
   IF_fpTOS(fp0--);
   
   for(;stack>0;stack--)

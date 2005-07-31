@@ -169,6 +169,12 @@ extern int gforth_memcmp(const char * s1, const char * s2, size_t n);
 #ifndef spcREG
 #define spcREG
 #endif
+#ifndef spdREG
+#define spdREG
+#endif
+#ifndef speREG
+#define speREG
+#endif
 #ifndef FTOSREG
 #define FTOSREG
 #endif
@@ -223,8 +229,8 @@ extern int gforth_memcmp(const char * s1, const char * s2, size_t n);
 #endif
 
 #ifdef HAS_FFCALL
-#define SAVE_REGS IF_spTOS(sp[0]=spTOS); IF_fpTOS(fp[0]=fpTOS); SP=sp; FP=fp; RP=rp; LP=lp;
-#define REST_REGS sp=SP; fp=FP; rp=RP; lp=LP; IF_spTOS(spTOS=sp[0]); IF_fpTOS(fpTOS=fp[0]);
+#define SAVE_REGS IF_fpTOS(fp[0]=fpTOS); SP=sp; FP=fp; RP=rp; LP=lp;
+#define REST_REGS sp=SP; fp=FP; rp=RP; lp=LP; IF_fpTOS(fpTOS=fp[0]);
 #endif
 
 #if !defined(ENGINE)
@@ -286,9 +292,11 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
   void * prv;
 #endif
   register Address up UPREG = UP;
-  IF_spTOS(register Cell MAYBE_UNUSED spTOS TOSREG;)
+  register Cell MAYBE_UNUSED spTOS TOSREG;
   register Cell MAYBE_UNUSED spb spbREG;
   register Cell MAYBE_UNUSED spc spcREG;
+  register Cell MAYBE_UNUSED spd spdREG;
+  register Cell MAYBE_UNUSED spe speREG;
   IF_fpTOS(register Float fpTOS FTOSREG;)
 #if defined(DOUBLY_INDIRECT)
   static Label *symbols;
@@ -350,7 +358,26 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
     return symbols;
   }
 
-  IF_spTOS(spTOS = sp[0]);
+#if STACK_CACHE_DEFAULT>0
+  sp += STACK_CACHE_DEFAULT-1;
+#endif
+
+#if STACK_CACHE_DEFAULT>0
+  spTOS = sp[0];
+#endif
+#if STACK_CACHE_DEFAULT>1
+  spb = sp[-1];
+#endif
+#if STACK_CACHE_DEFAULT>2
+  spc = sp[-2];
+#endif
+#if STACK_CACHE_DEFAULT>3
+  spd = sp[-3];
+#endif
+#if STACK_CACHE_DEFAULT>4
+  spe = sp[-4];
+#endif
+
   IF_fpTOS(fpTOS = fp[0]);
 /*  prep_terminal(); */
 #ifdef NO_IP

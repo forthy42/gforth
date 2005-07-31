@@ -727,7 +727,7 @@ prim.b:		prim cache0.vmg
 		sleep 1 #should make hpux-workaround unnecessary
 
 prim-fast.b:	prim cache1.vmg peeprules.vmg
-		m4 -DM4_ENGINE_FAST -s $(srcdir)/prim >$@
+		m4 -DSTACK_CACHE_FILE=cache@STACK_CACHE_DEFAULT_FAST@.vmg -s $(srcdir)/prim >$@
 		sleep 1 #should make hpux-workaround unnecessary
 
 $(FORTH_GEN_ENGINE_FAST): prim-fast.b prims2x.fs
