@@ -417,12 +417,11 @@ INST_TAIL;
 JUMP(a_target);
 #else
 SET_IP((Xt *)a_target);
-  INST_TAIL; NEXT_P2;
 #endif
-}
+} else {
 sp--;
 sp[0]=f;
-SUPER_CONTINUE;
+}
 
 ?dup-0=-?branch ( #a_target f -- S:... ) new	question_dupe_zero_equals_question_branch
 ""The run-time procedure compiled by @code{?DUP-0=-IF}.""
@@ -433,10 +432,8 @@ if (f!=0) {
   JUMP(a_target);
 #else
   SET_IP((Xt *)a_target);
-  NEXT;
 #endif
 }
-SUPER_CONTINUE;
 
 \+
 \fhas? skiploopprims 0= [IF]

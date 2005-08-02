@@ -167,7 +167,7 @@ static int no_dynamic=NO_DYNAMIC_DEFAULT; /* if true, no code is generated
 					     dynamically */
 static int print_metrics=0; /* if true, print metrics on exit */
 static int static_super_number = 10000000; /* number of ss used if available */
-#define MAX_STATE 4 /* maximum number of states */
+#define MAX_STATE 9 /* maximum number of states */
 static int maxstates = MAX_STATE; /* number of states for stack caching */
 static int ss_greedy = 0; /* if true: use greedy, not optimal ss selection */
 static int diag = 0; /* if true: print diagnostic informations */
@@ -608,11 +608,11 @@ int go_forth(Address image, int stack, Cell *entries)
   install_signal_handlers(); /* right place? */
   
   if ((throw_code=setjmp(throw_jmp_buf))) {
-    static Cell signal_data_stack[8];
-    static Cell signal_return_stack[8];
+    static Cell signal_data_stack[24];
+    static Cell signal_return_stack[16];
     static Float signal_fp_stack[1];
 
-    signal_data_stack[7]=throw_code;
+    signal_data_stack[15]=throw_code;
 
 #ifdef GFORTH_DEBUGGING
     debugp(stderr,"\ncaught signal, throwing exception %d, ip=%p rp=%p\n",
@@ -623,14 +623,14 @@ int go_forth(Address image, int stack, Cell *entries)
       *--rp0 = (Cell)saved_ip;
     }
     else /* I love non-syntactic ifdefs :-) */
-      rp0 = signal_return_stack+8;
+      rp0 = signal_return_stack+16;
 #else  /* !defined(GFORTH_DEBUGGING) */
     debugp(stderr,"\ncaught signal, throwing exception %d\n", throw_code);
-      rp0 = signal_return_stack+8;
+      rp0 = signal_return_stack+16;
 #endif /* !defined(GFORTH_DEBUGGING) */
     /* fprintf(stderr, "rp=$%x\n",rp0);*/
     
-    return((int)(Cell)engine(image_header->throw_entry, signal_data_stack+7,
+    return((int)(Cell)engine(image_header->throw_entry, signal_data_stack+15,
 		       rp0, signal_fp_stack, 0));
   }
 #endif

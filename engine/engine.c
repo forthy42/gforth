@@ -175,6 +175,15 @@ extern int gforth_memcmp(const char * s1, const char * s2, size_t n);
 #ifndef speREG
 #define speREG
 #endif
+#ifndef spfREG
+#define spfREG
+#endif
+#ifndef spgREG
+#define spgREG
+#endif
+#ifndef sphREG
+#define sphREG
+#endif
 #ifndef FTOSREG
 #define FTOSREG
 #endif
@@ -297,6 +306,9 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
   register Cell MAYBE_UNUSED spc spcREG;
   register Cell MAYBE_UNUSED spd spdREG;
   register Cell MAYBE_UNUSED spe speREG;
+  register Cell MAYBE_UNUSED spf speREG;
+  register Cell MAYBE_UNUSED spg speREG;
+  register Cell MAYBE_UNUSED sph speREG;
   IF_fpTOS(register Float fpTOS FTOSREG;)
 #if defined(DOUBLY_INDIRECT)
   static Label *symbols;
@@ -358,24 +370,16 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
     return symbols;
   }
 
-#if STACK_CACHE_DEFAULT>0
+#if !(defined(GFORTH_DEBUGGING) || defined(INDIRECT_THREADED) || defined(DOUBLY_INDIRECT) || defined(VM_PROFILING))
   sp += STACK_CACHE_DEFAULT-1;
-#endif
-
-#if STACK_CACHE_DEFAULT>0
-  spTOS = sp[0];
-#endif
-#if STACK_CACHE_DEFAULT>1
+  /* some of those registers are dead, but its simpler to initialize them all */  spTOS = sp[0];
   spb = sp[-1];
-#endif
-#if STACK_CACHE_DEFAULT>2
   spc = sp[-2];
-#endif
-#if STACK_CACHE_DEFAULT>3
   spd = sp[-3];
-#endif
-#if STACK_CACHE_DEFAULT>4
   spe = sp[-4];
+  spf = sp[-5];
+  spg = sp[-6];
+  sph = sp[-7];
 #endif
 
   IF_fpTOS(fpTOS = fp[0]);

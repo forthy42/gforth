@@ -166,4 +166,4 @@ interpret/compile: [I] ( -- n ) \ gforth bracket-i
   0= IF   postpone [ELSE] true rdrop 1 countif +!  THEN ;
                                                       immediate
 
-Warnings on
+\ Warnings on

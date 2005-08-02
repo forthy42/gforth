@@ -116,8 +116,14 @@ has? ec [IF]
     dup 0< IF dnegate THEN ;
 
 : roll  ( x0 x1 .. xn n -- x1 .. xn x0 ) \ core-ext
-  dup 1+ pick >r
-  cells sp@ cell+ dup cell+ rot move drop r> ;
+    \  dup 1+ pick >r
+    \  cells sp@ cell+ dup cell+ rot move drop r> ;
+    recursive
+    dup 0<= if
+	drop
+    else
+	swap >r 1- roll r> swap 
+    then ;
 
 \ place bounds                                         13feb93py
 

@@ -109,7 +109,9 @@ XLDFLAGS = @LDFLAGS@
 LDFLAGS	=  $(DEBUGFLAG) $(XLDFLAGS)
 LDLIBS	= @LIBS@
 
-# ------------	Install Directorys
+STACK_CACHE_DEFAULT_FAST = @STACK_CACHE_DEFAULT_FAST@
+
+# ------------	Install Directories
 
 VPATH = @srcdir@
 prefix = @prefix@
@@ -253,7 +255,7 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_SRC) $(EC_SRC) \
 	test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs \
 	test/string.fs test/float.fs test/gforth.fs \
 	test/other.fs test/signals.fs test/checkans.fs \
-	test/primtest.fs \
+	test/primtest.fs test/coreext.fs \
 	bubble.fs siev.fs matrix.fs fib.fs \
 	oof.fs oofsampl.fs objects.fs objexamp.fs mini-oof.fs moof-exm.fs \
 	moofglos.fs fixpath.fs \
@@ -487,7 +489,8 @@ distclean:	clean
 		-$(RM) -rf config.cache config.log config.status \
 		engine/config.h Makefile Makedist engine/Makefile \
 		stamp-h engine/stamp-h \
-		doc/version.texi gforthmi vmgen
+		doc/version.texi gforthmi vmgen \
+		prim-fast.b $(FORTH_GEN_ENGINE_FAST)
 
 #realclean is useless, but dangerous, so it's commented out
 realclean:	distclean
@@ -609,7 +612,7 @@ check:		gforths	gforth.fi
 		@echo "*** Check successful ***"
 
 checkone test:	gforth$(EXE) gforth.fi
-		$(FORTH) test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs test/string.fs test/float.fs test/gforth.fs test/deferred.fs -e bye | tr -d '\015' | diff -c - $(srcdir)/test/coretest.out
+		$(FORTH) test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs test/string.fs test/float.fs test/gforth.fs test/deferred.fs test/coreext.fs -e bye | tr -d '\015' | diff -c - $(srcdir)/test/coretest.out
 		$(FORTH) test/other.fs -e bye
 		$(FORTHS) test/signals.fs -e bye
 		$(FORTH) code.fs test/checkans.fs -e bye | tr -d '\015' | diff -c - $(srcdir)/test/checkans.out
@@ -726,8 +729,8 @@ prim.b:		prim cache0.vmg
 		m4 -s $(srcdir)/prim >$@
 		sleep 1 #should make hpux-workaround unnecessary
 
-prim-fast.b:	prim cache1.vmg peeprules.vmg
-		m4 -DSTACK_CACHE_FILE=cache@STACK_CACHE_DEFAULT_FAST@.vmg -s $(srcdir)/prim >$@
+prim-fast.b:	prim cache-fast$(STACK_CACHE_DEFAULT_FAST).vmg peeprules.vmg
+		m4 -DSTACK_CACHE_FILE=cache-fast$(STACK_CACHE_DEFAULT_FAST).vmg -s $(srcdir)/prim >$@
 		sleep 1 #should make hpux-workaround unnecessary
 
 $(FORTH_GEN_ENGINE_FAST): prim-fast.b prims2x.fs
