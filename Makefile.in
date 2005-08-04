@@ -387,7 +387,7 @@ RCS_FILES =  ToDo model high-level
 
 ENGINES = gforth$(EXE) gforth-ditc$(EXE) gforth-itc$(EXE) $(PROFEXES)
 
-ENGINES_FAST = gforth-fast$(EXE) gforth-native$(EXE) 
+ENGINES_FAST = gforth-fast$(EXE) #gforth-native$(EXE) 
 
 GEN = $(ENGINES) $(ENGINES_FAST) kernel/version.fs
 

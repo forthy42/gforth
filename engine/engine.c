@@ -246,7 +246,7 @@ extern int gforth_memcmp(const char * s1, const char * s2, size_t n);
 /* normal engine */
 #define VARIANT(v)	(v)
 #define JUMP(target)	goto I_noop
-#define LABEL(name) H_##name: I_##name:
+#define LABEL(name) H_##name: asm(""); I_##name:
 
 #elif ENGINE==2
 /* variant with padding between VM instructions for finding out
