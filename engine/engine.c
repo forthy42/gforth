@@ -263,7 +263,7 @@ extern int gforth_memcmp(const char * s1, const char * s2, size_t n);
 #define engine engine3
 #define VARIANT(v)	((v)^0xffffffff)
 #define JUMP(target)	goto K_lit
-#define LABEL(name) H_##name: I_##name:
+#define LABEL(name) H_##name: asm(""); I_##name:
 #else
 #error illegal ENGINE value
 #endif /* ENGINE */
