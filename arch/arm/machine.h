@@ -20,11 +20,6 @@
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
 */
 
-#ifndef THREADING_SCHEME
-
-#define THREADING_SCHEME 8
-#endif
-
 #if !defined(USE_TOS) && !defined(USE_NO_TOS)
 #define USE_TOS
 #endif

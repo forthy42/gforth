@@ -26,13 +26,5 @@
 #include "../generic/machine.h"
 #include <sys/types.h>
 
-#ifndef THREADING_SCHEME
-#ifdef DIRECT_THREADED
-#define THREADING_SCHEME 5
-#else
-#define THREADING_SCHEME 6
-#endif
-#endif
-
 extern void _sync_cache_range (caddr_t eaddr, size_t count);
 #define FLUSH_ICACHE(addr,size)   _sync_cache_range(addr,size)

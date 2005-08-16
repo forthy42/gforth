@@ -19,14 +19,6 @@
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
 */
 
-#ifndef THREADING_SCHEME
-#define THREADING_SCHEME 3
-#endif
-
-/* define this if the processor cannot exploit instruction-level
-   parallelism (no pipelining or too few registers) */
-#define CISC_NEXT
-
 #if !defined USE_NO_TOS && !defined USE_TOS
 #define USE_TOS
 #endif

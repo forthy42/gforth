@@ -26,10 +26,6 @@
 #define SYSCALL
 #endif
 
-#ifndef THREADING_SCHEME
-#define THREADING_SCHEME 1
-#endif
-
 #ifdef SYSSIGNALS
 #undef SYSSIGNALS
 #endif

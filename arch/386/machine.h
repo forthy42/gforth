@@ -26,10 +26,6 @@
 #endif
 #endif
 
-#ifndef THREADING_SCHEME
-#define THREADING_SCHEME 8
-#endif
-
 #if (((__GNUC__==2 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=95) || (__GNUC__>2))) && defined(FORCE_REG)
 #if !defined(USE_TOS) && !defined(USE_NO_TOS)
 #define USE_TOS
@@ -51,10 +47,6 @@
 	asm("div %3": "=a"(n3),"=d"(n2) : "A"(d1),"g"(n1):"cc");
 
 #include "../generic/machine.h"
-
-/* define this if the processor cannot exploit instruction-level
-   parallelism (no pipelining or too few registers) */
-#define CISC_NEXT
 
 /* 386 and below have no cache, 486 has a shared cache, and the
    Pentium and later employ hardware cache consistency, so
