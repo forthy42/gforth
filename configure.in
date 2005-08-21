@@ -571,16 +571,28 @@ dnl This check is just for making later checks link with libm.
 dnl using sin here is no good idea since it is built-into gcc and typechecked
 AC_CHECK_LIB(m,asin)
 AC_CHECK_LIB(dl,dlopen)
+dnl check for libffi 2.x
+AC_CHECK_LIB(ffi,ffi_call)
+if test $ac_cv_lib_ffi_ffi_call = yes
+then
+LIBFFIFLAG="true"
+FFCALLFLAG="false"
+OLDCALLFLAG="false"
+AC_DEFINE(HAS_LIBFFI,,[define this if you want to use the ffcall interface with libffi 2.0])
+else
 dnl check for ffcall libraries
 dnl unfortunately, these four calls are separated out into a library each.
 AC_CHECK_LIB(avcall,__builtin_avcall)
 AC_CHECK_LIB(callback,__vacall_r)
 AC_CHECK_LIB(vacall,vacall)
 AC_CHECK_LIB(trampoline,alloc_trampoline)
+LIBFFIFLAG="false"
 FFCALLFLAG="false"
 OLDCALLFLAG="true"
 test $ac_cv_lib_avcall___builtin_avcall = yes && FFCALLFLAG="true" && OLDCALLFLAG="false" && AC_DEFINE(HAS_FFCALL,,[define this if you want to use the ffcall libraries])
 test $ac_cv_lib_avcall___builtin_avcall = no && AC_DEFINE(HAS_OLDCALL,,[define this if you want to use the old call libraries])
+fi
+AC_SUBST(LIBFFIFLAG)
 AC_SUBST(FFCALLFLAG)
 AC_SUBST(OLDCALLFLAG)
 if test "$host_os" != "nextstep3"

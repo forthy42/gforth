@@ -88,6 +88,35 @@ void engine_callback(Xt* fcall, void * alist)
 }
 #endif
 
+#ifdef HAS_LIBFFI
+Cell *RP;
+Address LP;
+
+#include <ffi.h>
+
+void ** clist;
+void * ritem;
+
+void ffi_callback(ffi_cif * cif, void * resp, void ** args, Xt * ip)
+{
+  Cell *rp = RP;
+  Cell *sp = SP;
+  Float *fp = FP;
+  Address lp = LP;
+
+  clist = args;
+  ritem = resp;
+
+  engine(ip, sp, rp, fp, lp);
+
+  /* restore global variables */
+  RP = rp;
+  SP = sp;
+  FP = fp;
+  LP = lp;
+}
+#endif
+
 #ifdef GFORTH_DEBUGGING
 /* define some VM registers as global variables, so they survive exceptions;
    global register variables are not up to the task (according to the 
@@ -1819,12 +1848,12 @@ SIZE arguments consist of an integer followed by a unit. The unit can be\n\
 void print_diag()
 {
 
-#if !defined(HAVE_GETRUSAGE) || !defined(HAS_FFCALL)
+#if !defined(HAVE_GETRUSAGE) || (!defined(HAS_FFCALL) && !defined(HAS_LIBFFI))
   fprintf(stderr, "*** missing functionality ***\n"
 #ifndef HAVE_GETRUSAGE
 	  "    no getrusage -> CPUTIME broken\n"
 #endif
-#ifndef HAS_FFCALL
+#if !defined(HAS_FFCALL) && !defined(HAS_LIBFFI)
 	  "    no ffcall -> only old-style foreign function calls (no fflib.fs)\n"
 #endif
 	  );

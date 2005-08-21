@@ -2599,6 +2599,89 @@ return 0;
 
 \+
 
+\+LIBFFI
+
+ffi-type ( n -- a_type )	gforth ffi_type
+static void* ffi_types[] =
+    { &ffi_type_void,
+      &ffi_type_uint8, &ffi_type_sint8,
+      &ffi_type_uint16, &ffi_type_sint16,
+      &ffi_type_uint32, &ffi_type_sint32,
+      &ffi_type_uint64, &ffi_type_sint64,
+      &ffi_type_float, &ffi_type_double, &ffi_type_longdouble,
+      &ffi_type_pointer };
+a_type = ffi_types[n];
+
+ffi-size ( n1 -- n2 )	gforth ffi_size
+static int ffi_sizes[] =
+    { sizeof(ffi_cif), sizeof(ffi_closure) };
+n2 = ffi_sizes[n1];
+
+ffi-prep-cif ( a_atypes n a_rtype a_cif -- w )	gforth ffi_prep_cif
+w = ffi_prep_cif(a_cif, FFI_DEFAULT_ABI, n, a_rtype, a_atypes);
+
+ffi-call ( a_avalues a_rvalue a_ip a_cif -- )	gforth ffi_call
+ffi_call(a_cif, a_ip, a_rvalue, a_avalues);
+
+ffi-prep-closure ( a_ip a_cif a_closure -- w )	gforth ffi_prep_closure
+w = ffi_prep_closure(a_closure, a_cif, ffi_callback, a_ip);
+
+ffi-2@ ( a_addr -- d )	gforth ffi_2fetch
+#ifdef BUGGY_LONG_LONG
+DLO_IS(d, (Cell*)(*a_addr));
+DHI_IS(d, 0);
+#else
+d = *(DCell*)(*a_addr);
+#endif
+
+ffi-2! ( d a_addr -- )	gforth ffi_2store
+#ifdef BUGGY_LONG_LONG
+*(Cell*)(a_addr) = DLO(d);
+#else
+*(DCell*)(a_addr) = d;
+#endif
+
+ffi-arg-int ( -- w )	gforth ffi_arg_int
+w = *(Cell*)(*clist++);
+
+ffi-arg-longlong ( -- d )	gforth ffi_arg_longlong
+#ifdef BUGGY_LONG_LONG
+DLO_IS(d, (Cell*)(*clist++));
+DHI_IS(d, 0);
+#else
+d = *(DCell*)(*clist++);
+#endif
+
+ffi-arg-ptr ( -- c_addr )	gforth ffi_arg_ptr
+c_addr = *(char **)(*clist++);
+
+ffi-arg-float ( -- r )	gforth ffi_arg_float
+r = *(float*)(*clist++);
+
+ffi-arg-double ( -- r )	gforth ffi_arg_double
+r = *(double*)(*clist++);
+
+ffi-ret-int ( -- w )	gforth ffi_ret_int
+*(int*)(ritem) = w;
+
+ffi-ret-longlong ( -- d )	gforth ffi_ret_longlong
+#ifdef BUGGY_LONG_LONG
+*(Cell*)(ritem) = DLO(d);
+#else
+*(DCell*)(ritem) = d;
+#endif
+
+ffi-ret-ptr ( -- c_addr )	gforth ffi_ret_ptr
+*(char **)(ritem) = c_addr;
+
+ffi-ret-float ( -- r )	gforth ffi_ret_float
+*(float*)(ritem) = r;
+
+ffi-ret-double ( -- r )	gforth ffi_ret_double
+*(double*)(ritem) = r;
+
+\+
+
 \+OLDCALL
 
 define(`uploop',

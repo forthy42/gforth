@@ -1762,7 +1762,7 @@ Ghost state drop
 
 : count dup X c@ swap X char+ swap ;
 
-: on		-1 -1 rot TD!  ; 
+: on		>r -1 -1 r> TD!  ; 
 : off   	T 0 swap ! H ;
 
 : tcmove ( source dest len -- )

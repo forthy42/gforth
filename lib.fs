@@ -21,6 +21,10 @@
 [IFDEF] av-call-int
     include fflib.fs
 [ELSE]
-    include oldlib.fs
+    [IFDEF] ffi-call
+	include libffi.fs
+    [ELSE]
+	include oldlib.fs
+    [THEN]
 [THEN]
 

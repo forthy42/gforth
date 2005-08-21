@@ -71,6 +71,10 @@
 #include <callback.h>
 #endif
 
+#ifdef HAS_LIBFFI
+#include <ffi.h>
+#endif
+
 #ifndef SEEK_SET
 /* should be defined in stdio.h, but some systems don't have it */
 #define SEEK_SET 0
@@ -299,6 +303,11 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
   double drv;
   long long llrv;
   void * prv;
+#endif
+#ifdef HAS_LIBFFI
+  extern void * ritem;
+  extern void ** clist;
+  extern void ffi_callback(ffi_cif * cif, void * resp, void ** args, Xt * ip);
 #endif
   register Address up UPREG = UP;
   register Cell MAYBE_UNUSED spTOS TOSREG;
