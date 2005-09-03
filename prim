@@ -1645,7 +1645,7 @@ n = key((FILE*)wfileid);
 n = key(stdin);
 #endif
 
-key?-file	( wfileid -- n )		facility	key_q_file
+key?-file	( wfileid -- n )	        gforth	key_q_file
 #ifdef HAS_FILE
 fflush(stdout);
 n = key_query((FILE*)wfileid);

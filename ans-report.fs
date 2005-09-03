@@ -140,6 +140,18 @@ ans-report-words definitions
     >body ['] branch xt>threaded over !
     cell+ >r >body r> ! ;
 
+: print-names ( endaddr startaddr -- )
+    space 1 -rot
+    u+do ( pos )
+        i @ name>string nip 1+ { len }
+        len + ( newpos )
+        dup cols 4 - >= if
+            cr space drop len 1+
+        endif
+        i @ .name
+    cell +loop
+    drop ;
+
 forth definitions
 ans-report-words
 
@@ -153,12 +165,7 @@ ans-report-words
 	dup >r name>int >body dup @ swap cell+ 2@ dup
 	if
 	    ." from " r@ .name ." :" cr
-	    bounds
-	    u+do
-		i @ .name
-		cell
-	    +loop
-	    cr
+	    bounds print-names cr
 	else
 	    2drop
 	endif
