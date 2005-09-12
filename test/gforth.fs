@@ -42,6 +42,7 @@ decimal
 decimal
 { 'a' -> 97 }
 { 'A  -> 65 }
+{ 1. '1 -> 1. 49 }
 
 \ represent has no trailing 0s even for inf and nan
 

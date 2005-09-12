@@ -199,6 +199,11 @@ AUser CSP
 	ur nd - 1- dup { beforep } fsign + nexp 0 max >= and if
 	    \ fixed-point notation
 	    c-addr ur beforep nexp - dup { befored } '0 push-right
+            befored 1+ ur >= if \ <=1 digit left, will be pushed out by '.'
+                rf fabs f2* 0.1e nd s>d d>f f** f> if \ round last digit
+                    '1 c-addr befored + 1- c!
+                endif
+            endif
 	    c-addr beforep 1- befored min dup { beforez } 0 max bl fill
 	    fsign if
 		'- c-addr beforez 1- 0 max + c!

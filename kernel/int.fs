@@ -136,10 +136,11 @@ const Create bases   0A , 10 ,   2 ,   0A ,
     x@+/string 0 s" '" 2rot string-prefix? ;
 
 : s>unumber? ( addr u -- ud flag )
+    dpl on
     over c@ '' = if
 	1 /string s'>unumber? exit
     endif
-    base @ >r  dpl on  getbase
+    base @ >r  getbase
     0. 2swap
     BEGIN ( d addr len )
 	dup >r >number dup
