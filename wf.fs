@@ -42,7 +42,7 @@ require string.fs
 	case
 	    '& of  ." &amp;"  endof
 	    '< of  ." &lt;"   endof
-	    '¤ of  ." &euro;" endof
+\	    '¤ of  ." &euro;" endof
 	    dup emit
 	endcase
     LOOP ;
@@ -193,6 +193,7 @@ Create jfif   $FF c, $D8 c, $FF c, $E0 c, $00 c, $10 c, $4A c, $46 c,
   dup IF  '. emit  THEN  type ;
 
 12.9e FConstant pixels
+FVariable factor  1e factor f!
 
 : size-does> ( -- )  DOES> ( -- )
     ." img." dup body> >name .name
@@ -216,7 +217,10 @@ Create jfif   $FF c, $D8 c, $FF c, $E0 c, $00 c, $10 c, $4A c, $46 c,
     2dup img-sizes search-wordlist  IF  drop 2drop
     ELSE
 	get-current >r img-sizes set-current
-	nextname Create 2dup , , size-does>
+	nextname Create 2dup
+	s>d d>f factor f@ f* f>d d>s ,
+	s>d d>f factor f@ f* f>d d>s ,
+	size-does>
 	r> set-current
     THEN ;
 

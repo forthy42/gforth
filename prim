@@ -2002,6 +2002,9 @@ dsystem = DZERO;
 comparisons(f, r1 r2, f_, r1, r2, gforth, gforth, float, gforth)
 comparisons(f0, r, f_zero_, r, 0., float, gforth, float, gforth)
 
+s>f	( n -- r )		float	s_to_f
+r = n;
+
 d>f	( d -- r )		float	d_to_f
 #ifdef BUGGY_LL_D2F
 extern double ldexp(double x, int exp);
@@ -2021,6 +2024,9 @@ r = d;
 f>d	( r -- d )		float	f_to_d
 extern DCell double2ll(Float r);
 d = double2ll(r);
+
+f>s	( r -- n )		float	f_to_s
+n = (Cell)r;
 
 f!	( r f_addr -- )	float	f_store
 ""Store @i{r} into the float at address @i{f-addr}.""
@@ -2079,6 +2085,18 @@ r3 = r1/r2;
 f**	( r1 r2 -- r3 )	float-ext	f_star_star
 ""@i{r3} is @i{r1} raised to the @i{r2}th power.""
 r3 = pow(r1,r2);
+
+fm*	( r1 n -- r2 )	gforth	fm_star
+r2 = r1*n;
+
+fm/	( r1 n -- r2 )	gforth	fm_slash
+r2 = r1/n;
+
+fm*/	( r1 n1 n2 -- r2 )	gforth	fm_star_slash
+r2 = (r1*n1)/n2;
+
+f**2	( r1 -- r2 )	gforth	fm_square
+r2 = r1*r1;
 
 fnegate	( r1 -- r2 )	float	f_negate
 r2 = - r1;

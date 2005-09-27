@@ -203,6 +203,7 @@ GFORTH_FI_SRC = \
 	blocks.fs \
 	bufio.fs \
 	code.fs \
+	complex.fs \
 	debug.fs \
 	debugs.fs \
 	dis-gdb.fs \
@@ -214,6 +215,7 @@ GFORTH_FI_SRC = \
 	except.fs \
 	extend.fs \
 	float.fs \
+	fft.fs \
 	glocals.fs \
 	hash.fs \
 	history.fs \
