@@ -48,7 +48,7 @@
 
 \ questions to: wilke@jwdt.com
 
-: path-allot ( umax -- )
+: path-allot ( umax -- ) \ gforth
     \G @code{Allot} a path with @i{umax} characters capacity, initially empty.
     chars dup , 0 , allot ;
 

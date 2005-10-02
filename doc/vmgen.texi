@@ -94,6 +94,7 @@ Input File Grammar
 
 Simple instructions
 
+* Explicit stack access::       If the C code accesses a stack pointer
 * C Code Macros::               Macros recognized by Vmgen
 * C Code restrictions::         Vmgen makes assumptions about C code
 * Stack growth direction::      is configurable per stack
@@ -829,6 +830,7 @@ name.  Stack prefixes are defined like this:
 
 @example
 \E inst-stream stack-prefix #
+\E data-stack  stack-prefix S:
 @end example
 
 This definition defines that the stack prefix @code{#} specifies the
@@ -845,13 +847,68 @@ If there are multiple instruction stream arguments, the leftmost is the
 first one (just as the intuition suggests).
 
 @menu
+* Explicit stack access::       If the C code accesses a stack pointer
 * C Code Macros::               Macros recognized by Vmgen
 * C Code restrictions::         Vmgen makes assumptions about C code
 * Stack growth direction::      is configurable per stack
 @end menu
 
 @c --------------------------------------------------------------------
-@node C Code Macros, C Code restrictions, Simple instructions, Simple instructions
+@node  Explicit stack access, C Code Macros, Simple instructions, Simple instructions
+@subsection Explicit stack access
+@cindex stack access, explicit
+@cindex Stack pointer access
+@cindex explicit stack access
+
+Not all stack effects can be specified using the stack effect
+specifications above.  For VM instructions that have other stack
+effects, you can specify them explicitly by accessing the stack
+pointer in the C code; however, you have to notify Vmgen of such
+explicit stack accesses, otherwise Vmgens optimizations could conflict
+with your explicit stack accesses.
+
+You notify Vmgen by putting @code{...} with the appropriate stack
+prefix into the stack comment.  Then the VM instruction will first
+take the other stack items specified in the stack effect into C
+variables, then make sure that all other stack items for that stack
+are in memory, and that the stack pointer for the stack points to the
+top-of-stack (by default, unless you change the stack access
+transformation: @pxref{Stack growth direction}).
+
+The general rule is: If you mention a stack pointer in the C code of a
+VM instruction, you should put a @code{...} for that stack in the stack
+effect.
+
+Consider this example:
+
+@example
+return ( #iadjust S:... target afp i1 -- i2 )
+SET_IP(target);
+sp = (Cell *)(((char *)sp)+iadjust);
+fp = afp;
+i2=i1;
+@end example
+
+First the variables @code{target afp i1} are popped off the stack,
+then the stack pointer @code{sp} is set correctly for the new stack
+depth, then the C code changes the stack depth and does other things,
+and finally @code{i2} is pushed on the stack with the new depth.
+
+The position of the @code{...} within the stack effect does not
+matter.  You can use several @code{...}s, for different stacks, and
+also several for the same stack (that has no additional effect).  If
+you use @code{...} without a stack prefix, this specifies all the
+stacks except the instruction stream.
+
+You cannot use @code{...} for the instruction stream, but that is not
+necessary: At the start of the C code, @code{IP} points to the start
+of the next VM instruction (i.e., right beyond the end of the current
+VM instruction), and you can change the instruction pointer with
+@code{SET_IP} (@pxref{VM engine}).
+
+
+@c --------------------------------------------------------------------
+@node C Code Macros, C Code restrictions, Explicit stack access, Simple instructions
 @subsection C Code Macros
 @cindex macros recognized by Vmgen
 @cindex basic block, VM level

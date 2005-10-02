@@ -1294,9 +1294,9 @@ You can print the top of stack element with @code{.}.
 In general, words consume their stack arguments (@code{.s} is an
 exception).
 
-@assignment
+@quotation Assignment
 What does the stack contain after @code{5 6 7 .}?
-@endassignment
+@end quotation
 
 
 @node Arithmetics Tutorial, Stack Manipulation Tutorial, Stack Tutorial, Tutorial
@@ -1327,11 +1327,11 @@ operands:
 3 4 5 * + .
 @end example
 
-@assignment
+@quotation Assignment
 What are the infix expressions corresponding to the Forth code above?
 Write @code{6-7*8+9} in Forth notation@footnote{This notation is also
 known as Postfix or RPN (Reverse Polish Notation).}.
-@endassignment
+@end quotation
 
 To change the sign, use @code{negate}:
 
@@ -1339,9 +1339,9 @@ To change the sign, use @code{negate}:
 2 negate .
 @end example
 
-@assignment
+@quotation Assignment
 Convert -(-3)*4-5 to Forth.
-@endassignment
+@end quotation
 
 @code{/mod} performs both @code{/} and @code{mod}.
 
@@ -1380,7 +1380,7 @@ Two more stack manipulation words are:
 1 2 .s tuck .s 2drop drop
 @end example
 
-@assignment
+@quotation Assignment
 Replace @code{nip} and @code{tuck} with combinations of other stack
 manipulation words.
 
@@ -1398,18 +1398,18 @@ Given:          How do you get:
 1 2 3           1 2 3 4                 
 1 2 3           1 3             
 @end example
-@endassignment
+@end quotation
 
 @example
 5 dup * .
 @end example
 
-@assignment
+@quotation Assignment
 Write 17^3 and 17^4 in Forth, without writing @code{17} more than once.
 Write a piece of Forth code that expects two numbers on the stack
 (@var{a} and @var{b}, with @var{b} on top) and computes
 @code{(a-b)(a+1)}.
-@endassignment
+@end quotation
 
 Reference: @ref{Stack Manipulation}.
 
@@ -1529,12 +1529,12 @@ it in other definitions:
 3 fourth-power .
 @end example
 
-@assignment
+@quotation Assignment
 Write colon definitions for @code{nip}, @code{tuck}, @code{negate}, and
 @code{/mod} in terms of other Forth words, and check if they work (hint:
 test your tests on the originals first).  Don't let the
 @samp{redefined}-Messages spook you, they are just warnings.
-@endassignment
+@end quotation
 
 Reference: @ref{Colon Definitions}.
 
@@ -1582,13 +1582,13 @@ more complicated words (I usually do this in the lines following
 you have to work through every definition before you can understand
 any).
 
-@assignment
+@quotation Assignment
 The stack effect of @code{swap} can be written like this: @code{x1 x2 --
 x2 x1}.  Describe the stack effect of @code{-}, @code{drop}, @code{dup},
 @code{over}, @code{rot}, @code{nip}, and @code{tuck}.  Hint: When you
 are done, you can compare your stack effects to those in this manual
 (@pxref{Word Index}).
-@endassignment
+@end quotation
 
 Sometimes programmers put comments at various places in colon
 definitions that describe the contents of the stack at that place (stack
@@ -1643,10 +1643,10 @@ Float (on the FP stack)
 
 You can find a more complete list in @ref{Notation}.
 
-@assignment
+@quotation Assignment
 Write stack-effect comments for all definitions you have written up to
 now.
-@endassignment
+@end quotation
 
 
 @node Types Tutorial, Factoring Tutorial, Stack-Effect Comments Tutorial, Tutorial
@@ -1823,9 +1823,9 @@ into stack trouble.  However, I recommend trying to write colon
 definitions without locals for exercise purposes to help you gain the
 essential factoring skills.
 
-@assignment
+@quotation Assignment
 Rewrite your definitions until now with locals
-@endassignment
+@end quotation
 
 Reference: @ref{Locals}.
 
@@ -1881,10 +1881,10 @@ You can optionally use an @code{else}-part:
 3 2 min .
 @end example
 
-@assignment
+@quotation Assignment
 Write @code{min} without @code{else}-part (hint: what's the definition
 of @code{nip}?).
-@endassignment
+@end quotation
 
 Reference: @ref{Selection}.
 
@@ -1958,9 +1958,9 @@ operation of the Boolean operations to avoid @code{if}s:
 1 foo .
 @end example
 
-@assignment
+@quotation Assignment
 Write @code{min} without @code{if}.
-@endassignment
+@end quotation
 
 For reference, see @ref{Boolean Flags}, @ref{Numeric comparison}, and
 @ref{Bitwise operations}.
@@ -2036,9 +2036,9 @@ Here's a loop with an exit at the end:
 @code{Until} consumes a flag; if it is non-zero, execution continues at
 the @code{begin}, otherwise after the @code{until}.
 
-@assignment
+@quotation Assignment
 Write a definition for computing the greatest common divisor.
-@endassignment
+@end quotation
 
 Reference: @ref{Simple Loops}.
 
@@ -2082,9 +2082,9 @@ You can access the counter of a counted loop with @code{i}:
 There is also @code{+do}, which expects signed numbers (important for
 deciding whether to enter the loop).
 
-@assignment
+@quotation Assignment
 Write a definition for computing the nth Fibonacci number.
-@endassignment
+@end quotation
 
 You can also use increments other than 1:
 
@@ -2144,9 +2144,9 @@ For recursive definitions you can use @code{recursive} (non-standard) or
 8 fac2 .
 @end example
 
-@assignment
+@quotation Assignment
 Write a recursive definition for computing the nth Fibonacci number.
-@endassignment
+@end quotation
 
 Reference (including indirect recursion): @xref{Calls and returns}.
 
@@ -2244,10 +2244,10 @@ You cannot mix using locals and using the return stack (according to the
 standard; Gforth has no problem).  However, they solve the same
 problems, so this shouldn't be an issue.
 
-@assignment
+@quotation Assignment
 Can you rewrite any of the definitions you wrote until now in a better
 way using the return stack?
-@endassignment
+@end quotation
 
 Reference: @ref{Return stack}.
 
@@ -2308,11 +2308,11 @@ v3 2 cells + @@ .
 v3 5 cells dump
 @end example
 
-@assignment
+@quotation Assignment
 Write a definition @code{vsum ( addr u -- n )} that computes the sum of
 @code{u} cells, with the first of these cells at @code{addr}, the next
 one at @code{addr cell+} etc.
-@endassignment
+@end quotation
 
 You can also reserve memory without creating a new word:
 
@@ -2416,10 +2416,10 @@ type
 type
 @end example
 
-@assignment
+@quotation Assignment
 @code{Emit ( c -- )} types @code{c} as character (not a number).
 Implement @code{type ( addr u -- )}.
-@endassignment
+@end quotation
 
 Reference: @ref{Memory Blocks}.
 
@@ -2575,11 +2575,11 @@ Likewise, you can put that into definitions, too:
 : close-output ( -- )  fd-out close-file throw ;
 @end example
 
-@assignment
+@quotation Assignment
 How could you modify @code{copy-file} so that it copies until a second line is
 matched? Can you write a program that extracts a section of a text file,
 given the line that starts and the line that terminates that section?
-@endassignment
+@end quotation
 
 @node Interpretation and Compilation Semantics and Immediacy Tutorial, Execution Tokens Tutorial, Files Tutorial, Tutorial
 @section Interpretation and Compilation Semantics and Immediacy
@@ -2789,9 +2789,9 @@ exception, the stacks have the same depth as when entering @code{catch}:
 3 2 ' / catch .s
 @end example
 
-@assignment
+@quotation Assignment
 Try the same with @code{execute} instead of @code{catch}.
-@endassignment
+@end quotation
 
 @code{Throw} always jumps to the dynamically next enclosing
 @code{catch}, even if it has to leave several call levels to achieve
@@ -2955,13 +2955,13 @@ foo .
 foo .
 @end example
 
-@assignment
+@quotation Assignment
 Define @code{defer ( "name" -- )}, which creates a word that stores an
 XT (at the start the XT of @code{abort}), and upon execution
 @code{execute}s the XT.  Define @code{is ( xt "name" -- )} that stores
 @code{xt} into @code{name}, a word defined with @code{defer}.  Indirect
 recursion is one application of @code{defer}.
-@endassignment
+@end quotation
 
 Reference: @ref{User-defined Defining Words}.
 
@@ -3056,10 +3056,10 @@ You can define @code{ENDIF} in this way:
   POSTPONE then ; immediate
 @end example
 
-@assignment
+@quotation Assignment
 Write @code{MY-2DUP} that has compilation semantics equivalent to
 @code{2dup}, but compiles @code{over over}.
-@endassignment
+@end quotation
 
 @c !! @xref{Macros} for reference
 
@@ -3096,10 +3096,10 @@ number computed at compile time into the current word:
 see bar
 @end example
 
-@assignment
+@quotation Assignment
 Write @code{]L} which allows writing the example above as @code{: bar (
 -- n ) [ 2 2 + ]L ;}
-@endassignment
+@end quotation
 
 @c !! @xref{Macros} for reference
 
@@ -3269,13 +3269,13 @@ order
 Yes, the order of wordlists in the output of @code{order} is reversed
 from stack comments and the output of @code{.s} and thus unintuitive.
 
-@assignment
+@quotation Assignment
 Define @code{>order ( wid -- )} with adds @code{wid} as first searched
 wordlist to the search order.  Define @code{previous ( -- )}, which
 removes the first searched wordlist from the search order.  Experiment
 with boundary conditions (you will see some crashes or situations that
 are hard or impossible to leave).
-@endassignment
+@end quotation
 
 The search order is a powerful foundation for providing features similar
 to Modula-2 modules and C++ namespaces.  However, trying to modularize
@@ -5096,7 +5096,7 @@ doc-search
 doc--trailing
 doc-/string
 doc-bounds
-
+doc-pad
 
 @comment TODO examples
 
@@ -8872,14 +8872,69 @@ For ways of storing character strings in memory see @ref{String Formats}.
 doc-key
 doc-key?
 doc-ekey
-doc-ekey?
 doc-ekey>char
-doc->number
-doc->float
+doc-ekey?
+
+Gforth recognizes various keys available on ANSI terminals (in MS-DOS
+you need the ANSI.SYS driver to get that behaviour).  These are the
+keyboard events produced by various common keys:
+
+doc-k-left
+doc-k-right
+doc-k-up	
+doc-k-down	
+doc-k-home	
+doc-k-end	
+doc-k-prior
+doc-k-next
+doc-k-insert
+doc-k-delete
+
+The function keys (aka keypad keys) are:
+
+doc-k1
+doc-k2
+doc-k3
+doc-k4
+doc-k5
+doc-k6
+doc-k7
+doc-k8
+doc-k9
+doc-k10
+doc-k11
+doc-k12
+
+Note that K11 and K12 are not as widely available.  The shifted
+function keys are also not very widely available:
+
+doc-s-k8
+doc-s-k1
+doc-s-k2
+doc-s-k3
+doc-s-k4
+doc-s-k5
+doc-s-k6
+doc-s-k7
+doc-s-k8
+doc-s-k9
+doc-s-k10
+doc-s-k11
+doc-s-k12
+
+Words for inputting one line from the keyboard:
+
 doc-accept
 doc-edit-line
-doc-pad
+
+Conversion words:
+
+doc->number
+doc->float
+
 @comment obsolescent words..
+Obsolescent input and conversion words:
+
 doc-convert
 doc-expect
 doc-span

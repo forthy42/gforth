@@ -638,7 +638,7 @@ forth definitions
 	2drop
     endif ;
 
-: >definer ( xt -- definer )
+: >definer ( xt -- definer ) \ gforth
     \G @var{Definer} is a unique identifier for the way the @var{xt}
     \G was defined.  Words defined with different @code{does>}-codes
     \G have different definers.  The definer can be used for
@@ -650,7 +650,7 @@ forth definitions
 	>code-address
     then ;
 
-: definer! ( definer xt -- )
+: definer! ( definer xt -- ) \ gforth
     \G The word represented by @var{xt} changes its behaviour to the
     \G behaviour associated with @var{definer}.
     over 1 and if

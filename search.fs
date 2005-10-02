@@ -211,20 +211,20 @@ lookup ! \ our dictionary search order becomes the law ( -- )
   context @ 1 set-order ;
 
 [IFUNDEF] .name
-: id. ( nt -- ) \ gforth
+: id. ( nt -- ) \ gforth  i-d-dot
     \G Print the name of the word represented by @var{nt}.
     \ this name comes from fig-Forth
     name>string type space ;
 
-' id. alias .id ( nt -- )
+' id. alias .id ( nt -- ) \ F83  dot-i-d
 \G F83 name for @code{id.}.
 
-' id. alias .name ( nt -- )
+' id. alias .name ( nt -- ) \ gforth-obsolete  dot-name
 \G Gforth <=0.5.0 name for @code{id.}.
 
 [THEN]
 
-: .voc ( wid -- ) \ gforth
+: .voc ( wid -- ) \ gforth  dot-voc
 \G print the name of the wordlist represented by @var{wid}.  Can
 \G only print names defined with @code{vocabulary} or
 \G @code{wordlist constant}, otherwise prints @samp{???}.

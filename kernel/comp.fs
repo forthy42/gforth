@@ -538,7 +538,7 @@ DOES> @ execute ;
     defstart :-hook ;
 interpret/compile: DOES>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ core        does
 
-: defer! ( xt xt-deferred -- )
+: defer! ( xt xt-deferred -- ) \ gforth  defer-store
 \G Changes the @code{defer}red word @var{xt-deferred} to execute @var{xt}.
     >body ! ;
     

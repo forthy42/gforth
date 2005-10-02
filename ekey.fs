@@ -35,43 +35,51 @@
 : keycode ( "name" -- ; name execution: -- u )
     create ;
 
-keycode k-left
-keycode k-right
-keycode k-up
-keycode k-down
-keycode k-home
-keycode k-end
-keycode k-prior \ note: captured by xterm
-keycode k-next \ note: captured by xterm
-keycode k-insert \ not in pfe
-127 constant k-delete \ not an escape sequence on my xterm, so use ASCII code
+\ most of the keys are also in pfe, except:
+\ k-insert, k-delete, k11, k12, s-k11, s-k12
+
+keycode k-left   ( -- u ) \ gforth  
+keycode k-right  ( -- u ) \ gforth
+keycode k-up	 ( -- u ) \ gforth
+keycode k-down	 ( -- u ) \ gforth
+keycode k-home	 ( -- u ) \ gforth
+\G aka Pos1
+keycode k-end	 ( -- u ) \ gforth
+keycode k-prior  ( -- u ) \ gforth
+\G aka PgUp
+keycode k-next   ( -- u ) \ gforth
+\G aka PgDn    
+keycode k-insert ( -- u ) \ gforth
+127 constant k-delete ( -- u ) \ gforth
+\ not an escape sequence on my xterm, so use ASCII code
+
 \ function/keypad keys
-keycode k1
-keycode k2
-keycode k3
-keycode k4
-keycode k5
-keycode k6
-keycode k7
-keycode k8
-keycode k9
-keycode k10
-keycode k11 \ not in pfe
-keycode k12 \ not in pfe
+keycode k1  ( -- u ) \ gforth
+keycode k2  ( -- u ) \ gforth
+keycode k3  ( -- u ) \ gforth
+keycode k4  ( -- u ) \ gforth
+keycode k5  ( -- u ) \ gforth
+keycode k6  ( -- u ) \ gforth
+keycode k7  ( -- u ) \ gforth
+keycode k8  ( -- u ) \ gforth
+keycode k9  ( -- u ) \ gforth
+keycode k10 ( -- u ) \ gforth
+keycode k11 ( -- u ) \ gforth
+keycode k12 ( -- u ) \ gforth
 \ shifted fuinction keys (don't work in xterm (same as unshifted, but
 \ s-k1..s-k8 work in the Linux console)
-keycode s-k1
-keycode s-k2
-keycode s-k3
-keycode s-k4
-keycode s-k5
-keycode s-k6
-keycode s-k7
-keycode s-k8
-keycode s-k9
-keycode s-k10
-keycode s-k11 \ not in pfe
-keycode s-k12 \ not in pfe
+keycode s-k1  ( -- u ) \ gforth 
+keycode s-k2  ( -- u ) \ gforth 
+keycode s-k3  ( -- u ) \ gforth 
+keycode s-k4  ( -- u ) \ gforth 
+keycode s-k5  ( -- u ) \ gforth 
+keycode s-k6  ( -- u ) \ gforth 
+keycode s-k7  ( -- u ) \ gforth 
+keycode s-k8  ( -- u ) \ gforth 
+keycode s-k9  ( -- u ) \ gforth 
+keycode s-k10 ( -- u ) \ gforth 
+keycode s-k11 ( -- u ) \ gforth
+keycode s-k12 ( -- u ) \ gforth
 
 \ helper word
 \ print a key sequence:
@@ -199,9 +207,10 @@ set-current
 [ENDIF]
 
 : clear-ekey-buffer ( -- )
-      ekey-buffer 0 ekey-buffered 2! ;
+    ekey-buffer 0 ekey-buffered 2! ;
 
 : ekey ( -- u ) \ facility-ext e-key
+    \G Receive a keyboard event @var{u} (encoding implementation-defined).
     key dup #esc =
     if
 	drop clear-ekey-buffer
@@ -209,9 +218,11 @@ set-current
     then ;
 
 : ekey>char ( u -- u false | c true ) \ facility-ext e-key-to-char
+    \G Convert keyboard event @var{u} into character @code{c} if possible.
     dup 256 u< ;
 
-' key? alias ekey? ( -- flag )
+' key? alias ekey? ( -- flag ) \ facility-ext e-key-question
+\G True if a keyboard even is available.
 
 \  : esc? ( -- flag ) recursive
 \      key? 0=

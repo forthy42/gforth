@@ -123,8 +123,9 @@ AUser CSP
     2dup r@ read-file throw over <> abort" could not read whole file"
     r> close-file throw ;
 
-: slurp-fid { fid -- addr u } \ gforth
-    \G @var{addr u} is the content of the file @var{fid}
+: slurp-fid ( fid -- addr u ) \ gforth
+\G @var{addr u} is the content of the file @var{fid}
+    { fid }
     0 0 begin ( awhole uwhole )
 	dup 1024 + dup >r extend-mem ( anew awhole uwhole R: unew )
 	rot r@ fid read-file throw ( awhole uwhole uread R: unew )

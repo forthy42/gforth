@@ -53,39 +53,39 @@ input-method source-id ( -- 0 | -1 | fileid ) \ core-ext,file source-i-d
 drop
 
 cell \ the first cell points to the method table
-cell input-var >in \ core to-in
+cell input-var >in ( -- addr ) \ core to-in
     \G @code{input-var} variable -- @i{a-addr} is the address of a
     \G cell containing the char offset from the start of the input
     \G buffer to the start of the parse area.
-cell input-var #tib \ core-ext number-t-i-b
+cell input-var #tib ( -- addr ) \ core-ext number-t-i-b
     \G @code{input-var} variable -- @i{a-addr} is the address of a
     \G cell containing the number of characters in the terminal input
     \G buffer. OBSOLESCENT: @code{source} superceeds the function of
     \G this word.
-cell input-var max#tib \ gforth max-number-t-i-b
+cell input-var max#tib ( -- addr ) \ gforth max-number-t-i-b
     \G @code{input-var} variable -- This cell contains the maximum
     \G size of the current tib.
-cell input-var old-input \ gforth
+cell input-var old-input ( -- addr ) \ gforth
     \G @code{input-var} variable -- This cell contains the pointer to
     \G the previous input buffer
-cell input-var loadline \ gforth
+cell input-var loadline ( -- addr ) \ gforth
     \G @code{input-var} variable -- This cell contains the line that's
     \G currently loaded from
 has? file [IF]
-cell input-var loadfile \ gforth
+cell input-var loadfile ( -- addr ) \ gforth
     \G @code{input-var} variable -- This cell contains the file the
     \G input buffer is associated with (0 if none)
-cell input-var blk \ block
+cell input-var blk ( -- addr ) \ block
     \G @code{input-var} variable -- This cell contains the current
     \G block number
-cell input-var #fill-bytes \ gforth
+cell input-var #fill-bytes ( -- addr ) \ gforth
     \G @code{input-var} variable -- number of bytes read via
     \G (read-line) by the last refill
-2 cells input-var loadfilename \ gforth
+2 cells input-var loadfilename ( -- addr ) \ gforth
     \G @code{input-var} variable -- addr u describes name of currently
     \G interpreted input (file name or somesuch)
 [THEN]
-0 input-var tib
+0 input-var tib ( -- addr ) \ core
 
 Constant tib+
 
@@ -113,7 +113,8 @@ Constant tib+
 \ file input implementation
 
 has? file [IF]
-: read-line ( c_addr u1 wfileid -- u2 flag wior ) (read-line) nip ;
+: read-line ( c_addr u1 wfileid -- u2 flag wior ) \ file
+    (read-line) nip ;
 
 :noname  ( in line# udpos 4 -- ) 4 <> -12 and throw
     loadfile @ reposition-file throw
@@ -193,7 +194,7 @@ has? file [IF]
     terminal-input def#tib new-tib ;
     \ s" *the terminal*" loadfilename 2!
 
-: execute-parsing ( ... addr u xt -- ... )
+: execute-parsing ( ... addr u xt -- ... ) \ gforth
 \G Make @i{addr u} the current input source, execute @i{xt @code{(
 \G ... -- ... )}}, then restore the previous input source.
     >r evaluate-input cell new-tib
@@ -244,12 +245,12 @@ defer line-end-hook ( -- ) \ gforth
     loadfile @ close-file swap 2dup or
     pop-file  drop throw throw ;
 
-: execute-parsing-file ( i*x fileid xt -- j*x )
+: execute-parsing-file ( i*x fileid xt -- j*x ) \ gforth
 \G Make @i{fileid} the current input source, execute @i{xt @code{( i*x
 \G -- j*x )}}, then restore the previous input source.
     s" *a file*" rot execute-parsing-named-file ;
 
-: include-file ( i*x wfileid -- j*x )
+: include-file ( i*x wfileid -- j*x ) \ file
     \G Interpret (process using the text interpreter) the contents of
     \G the file @var{wfileid}.
     ['] read-loop execute-parsing-file ;

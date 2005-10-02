@@ -59,7 +59,7 @@ char o c,  char p c,  char " c,      13 c,  char s c,       9 c,  char u c,
     endif
     1 chars under+ ;
 
-: \"-parse ( "string"<"> -- c-addr u )
+: \"-parse ( "string"<"> -- c-addr u ) \ gforth  backslash-quote-parse
 \G parses string, translating @code{\}-escapes to characters (as in
 \G C).  The resulting string resides at @code{here char+}.  The
 \G supported @code{\-escapes} are: @code{\a} BEL (alert), @code{\b}
