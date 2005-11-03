@@ -17,7 +17,8 @@
 \	              added Send File function  KM
 \       2004-09-17  Ported to gforth from kForth; use WRITE-FILE instead
 \                     of "write" to store data in capture file  KM
-
+\       2005-09-28  Fixed problem associated with read-line  KM
+\
 include strings.fs
 include ansi.fs
 include syscalls386.fs
@@ -205,16 +206,27 @@ FALSE VALUE ?sending
 
 	  ?sending ms@ last-send-time @ - LINE-DELAY >= AND IF
 	    ms@ last-send-time !
-	    send-line-buffer 256 txfid @ read-line nip 0= IF
-	      com @ swap send-line-buffer swap serial_write drop
-	    ELSE
-	      txfid @ close-file drop
-	      FALSE to ?sending
+	    send-line-buffer 256 txfid @ read-line IF
+	      \ error reading file
+	      2drop txfid @ close-file drop FALSE to ?sending
 	      save_cursor
 	      HELP_ROW HELP_BACK_COLOR clear-line
 	      HELP_TEXT_COLOR foreground
-	      ." <<Terminal: Send Completed!>>"
-	      restore_cursor set-terminal-colors
+	      ." Error reading file!"
+	        restore_cursor set-terminal-colors
+	    ELSE
+	      FALSE = IF
+	        \ reached EOF
+		drop txfid @ close-file drop
+	        FALSE to ?sending
+	        save_cursor
+	        HELP_ROW HELP_BACK_COLOR clear-line
+	        HELP_TEXT_COLOR foreground
+	        ." <<Terminal: Send Completed!>>"
+	        restore_cursor set-terminal-colors
+	      ELSE
+	        com @ swap send-line-buffer swap serial_write drop
+	      THEN
 	    THEN
 	  THEN
 
