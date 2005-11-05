@@ -9,7 +9,7 @@
 \ All regexp stuff is compiled into one function as forward branching
 \ state machine
 
-\ bulk-postponing
+\ special control structure
 
 : FORK ( compilation -- orig ; run-time f -- ) \ core
     POSTPONE call >mark ; immediate restrict
