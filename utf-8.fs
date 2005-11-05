@@ -27,11 +27,12 @@ $80 Value max-single-byte
 : u8len ( u8 -- n )
     dup      max-single-byte u< IF  drop 1  EXIT  THEN \ special case ASCII
     $800  2 >r
-    BEGIN  2dup u>=  WHILE  5 lshift r> 1+ >r  REPEAT
+    BEGIN  2dup u>=  WHILE  5 lshift r> 1+ >r  dup 0= UNTIL  THEN
     2drop r> ;
 
 : u8@+ ( u8addr -- u8addr' u )
     count  dup max-single-byte u< ?EXIT  \ special case ASCII
+    dup $C2 u< IF  UTF-8-err throw  THEN  \ malformed character
     $7F and  $40 >r
     BEGIN  dup r@ and  WHILE  r@ xor
 	    6 lshift r> 5 lshift >r >r count
@@ -72,6 +73,7 @@ $80 Value max-single-byte
 
 : u8key ( -- u )
     defers key dup max-single-byte u< ?EXIT  \ special case ASCII
+    dup $C2 u< IF  UTF-8-err throw  THEN  \ malformed character
     $7F and  $40 >r
     BEGIN  dup r@ and  WHILE  r@ xor
 	    6 lshift r> 5 lshift >r >r defers key

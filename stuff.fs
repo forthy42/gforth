@@ -159,7 +159,7 @@ AUser CSP
     2dup find-name dup if ( c-addr u nt )
 	nip nip name>comp
 	2dup [comp'] [[ d= if
-	    2drop ['] compiler1 is parser1
+	    2drop ['] compiler1 is parser1 ['] noop
 	else
 	    ['] postpone,
 	endif
