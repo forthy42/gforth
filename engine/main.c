@@ -333,7 +333,8 @@ unsigned char *branch_targets(Cell *image, const unsigned char *bitstring,
         token=image[i];
 	if (token>=base) { /* relocatable address */
 	  UCell bitnum=(token-base)/sizeof(Cell);
-	  result[bitnum/RELINFOBITS] |= 1U << ((~bitnum)&(RELINFOBITS-1));
+	  if (bitnum/RELINFOBITS < (UCell)steps)
+	    result[bitnum/RELINFOBITS] |= 1U << ((~bitnum)&(RELINFOBITS-1));
 	}
       }
     }
@@ -889,6 +890,7 @@ void check_prims(Label symbols1[])
   for (i=0; symbols1[i]!=0; i++) {
     int prim_len = ends1[i]-symbols1[i];
     PrimInfo *pi=&priminfos[i];
+    struct cost *sc=&super_costs[i];
     int j=0;
     char *s1 = (char *)symbols1[i];
     char *s2 = (char *)symbols2[i];
@@ -901,8 +903,10 @@ void check_prims(Label symbols1[])
     pi->restlength = endlabel - symbols1[i] - pi->length;
     pi->nimmargs = 0;
     relocs++;
-    debugp(stderr, "%-15s %3d %p %p %p len=%3ld restlen=%2ld s-end=%1d",
-	      prim_names[i], i, s1, s2, s3, (long)(pi->length), (long)(pi->restlength), pi->superend);
+    debugp(stderr, "%-15s %d-%d %4d %p %p %p len=%3ld rest=%2ld send=%1d",
+	   prim_names[i], sc->state_in, sc->state_out,
+	   i, s1, s2, s3, (long)(pi->length), (long)(pi->restlength),
+	   pi->superend);
     if (endlabel == NULL) {
       pi->start = NULL; /* not relocatable */
       if (pi->length<0) pi->length=100;
