@@ -1325,13 +1325,13 @@ struct waypoint {
 		       * or this transition (does not change state) */
 };
 
-struct tpastate { /* tree parsing automaton (like) state */
+struct tpa_state { /* tree parsing automaton (like) state */
   /* labeling is back-to-front */
   struct waypoint *inst;  /* in front of instruction */
   struct waypoint *trans; /* in front of instruction and transition */
 }; 
 
-struct tpastate *termstate = NULL; /* initialized in loader() */
+struct tpa_state *termstate = NULL; /* initialized in loader() */
 
 void init_waypoints(struct waypoint ws[])
 {
@@ -1341,9 +1341,9 @@ void init_waypoints(struct waypoint ws[])
     ws[k].cost=INF_COST;
 }
 
-struct tpastate *empty_tpastate()
+struct tpa_state *empty_tpa_state()
 {
-  struct tpastate *s = malloc(sizeof(struct tpastate));
+  struct tpa_state *s = malloc(sizeof(struct tpa_state));
 
   s->inst  = malloc(maxstates*sizeof(struct waypoint));
   init_waypoints(s->inst);
@@ -1352,7 +1352,7 @@ struct tpastate *empty_tpastate()
   return s;
 }
 
-void transitions(struct tpastate *t)
+void transitions(struct tpa_state *t)
 {
   int k;
   struct super_state *l;
@@ -1380,13 +1380,46 @@ void transitions(struct tpastate *t)
   }
 }
 
-struct tpastate *make_termstate()
+struct tpa_state *make_termstate()
 {
-  struct tpastate *s=empty_tpastate();
+  struct tpa_state *s=empty_tpa_state();
 
   s->inst[CANONICAL_STATE].cost = 0;
   transitions(s);
   return s;
+}
+
+#define TPA_SIZE 16384
+
+struct tpa_entry {
+  struct tpa_entry *next;
+  PrimNum inst;
+  struct tpa_state *state_behind;  /* note: brack-to-front labeling */
+  struct tpa_state *state_infront; /* note: brack-to-front labeling */
+} *tpa_table[TPA_SIZE];
+
+int hash_tpa(PrimNum p, struct tpa_state *t)
+{
+  UCell it = (UCell )t;
+  return (p+it+(it>>14))&(TPA_SIZE-1);
+}
+
+struct tpa_state **lookup_tpa(PrimNum p, struct tpa_state *t2)
+{
+  int hash=hash_tpa(p, t2);
+  struct tpa_entry *te = tpa_table[hash];
+
+  for (; te!=NULL; te = te->next) {
+    if (p == te->inst && t2 == te->state_behind)
+      return &(te->state_infront);
+  }
+  te = (struct tpa_entry *)malloc(sizeof(struct tpa_entry));
+  te->next = tpa_table[hash];
+  te->inst = p;
+  te->state_behind = t2;
+  te->state_infront = NULL;
+  tpa_table[hash] = te;
+  return &(te->state_infront);
 }
 
 /* use dynamic programming to find the shortest paths within the basic
@@ -1395,41 +1428,48 @@ struct tpastate *make_termstate()
 void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
 {
   int i,j;
-  struct tpastate *ts[ninsts+1];
+  struct tpa_state *ts[ninsts+1];
   int nextdyn, nextstate, no_transition;
   
   ts[ninsts] = termstate;
   for (i=ninsts-1; i>=0; i--) {
-    ts[i] = empty_tpastate();
-    for (j=1; j<=max_super && i+j<=ninsts; j++) {
-      struct super_state **superp = lookup_super(origs+i, j);
-      if (superp!=NULL) {
-	struct super_state *supers = *superp;
-	for (; supers!=NULL; supers = supers->next) {
-	  PrimNum s = supers->super;
-	  int jcost;
-	  struct cost *c=super_costs+s;
-	  struct waypoint *wi=&(ts[i]->inst[c->state_in]);
-	  struct waypoint *wo=&(ts[i+j]->trans[c->state_out]);
-	  int no_transition = wo->no_transition;
-	  if (!(is_relocatable(s)) && !wo->relocatable) {
-	    wo=&(ts[i+j]->inst[c->state_out]);
-	    no_transition=1;
-	  }
-	  if (wo->cost == INF_COST) 
-	    continue;
-	  jcost = wo->cost + ss_cost(s);
-	  if (jcost <= wi->cost) {
-	    wi->cost = jcost;
-	    wi->inst = s;
-	    wi->relocatable = is_relocatable(s);
-	    wi->no_transition = no_transition;
-	    /* if (ss_greedy) wi->cost = wo->cost ? */
+    struct tpa_state **tp = lookup_tpa(origs[i],ts[i+1]);
+    struct tpa_state *t = *tp;
+    if (t)
+      ts[i] = t;
+    else {
+      ts[i] = empty_tpa_state();
+      for (j=1; j<=max_super && i+j<=ninsts; j++) {
+	struct super_state **superp = lookup_super(origs+i, j);
+	if (superp!=NULL) {
+	  struct super_state *supers = *superp;
+	  for (; supers!=NULL; supers = supers->next) {
+	    PrimNum s = supers->super;
+	    int jcost;
+	    struct cost *c=super_costs+s;
+	    struct waypoint *wi=&(ts[i]->inst[c->state_in]);
+	    struct waypoint *wo=&(ts[i+j]->trans[c->state_out]);
+	    int no_transition = wo->no_transition;
+	    if (!(is_relocatable(s)) && !wo->relocatable) {
+	      wo=&(ts[i+j]->inst[c->state_out]);
+	      no_transition=1;
+	    }
+	    if (wo->cost == INF_COST) 
+	      continue;
+	    jcost = wo->cost + ss_cost(s);
+	    if (jcost <= wi->cost) {
+	      wi->cost = jcost;
+	      wi->inst = s;
+	      wi->relocatable = is_relocatable(s);
+	      wi->no_transition = no_transition;
+	      /* if (ss_greedy) wi->cost = wo->cost ? */
+	    }
 	  }
 	}
       }
+      transitions(ts[i]);
+      *tp = ts[i];
     }
-    transitions(ts[i]);
   }
   /* now rewrite the instructions */
   nextdyn=0;
