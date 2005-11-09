@@ -195,7 +195,7 @@ static int no_super=0;   /* true if compile_prim should not fuse prims */
 static int no_dynamic=NO_DYNAMIC_DEFAULT; /* if true, no code is generated
 					     dynamically */
 static int print_metrics=0; /* if true, print metrics on exit */
-static int static_super_number = 10000000; /* number of ss used if available */
+static int static_super_number = 0; /*10000000;*/ /* number of ss used if available */
 #define MAX_STATE 9 /* maximum number of states */
 static int maxstates = MAX_STATE; /* number of states for stack caching */
 static int ss_greedy = 0; /* if true: use greedy, not optimal ss selection */
@@ -1345,9 +1345,9 @@ struct tpa_state *empty_tpa_state()
 {
   struct tpa_state *s = malloc(sizeof(struct tpa_state));
 
-  s->inst  = malloc(maxstates*sizeof(struct waypoint));
+  s->inst  = calloc(maxstates,sizeof(struct waypoint));
   init_waypoints(s->inst);
-  s->trans = malloc(maxstates*sizeof(struct waypoint));
+  s->trans = calloc(maxstates,sizeof(struct waypoint));
   /* init_waypoints(s->trans);*/
   return s;
 }
@@ -1382,7 +1382,7 @@ void transitions(struct tpa_state *t)
 
 struct tpa_state *make_termstate()
 {
-  struct tpa_state *s=empty_tpa_state();
+  struct tpa_state *s = empty_tpa_state();
 
   s->inst[CANONICAL_STATE].cost = 0;
   transitions(s);
@@ -1398,7 +1398,7 @@ struct tpa_entry {
   struct tpa_state *state_infront; /* note: brack-to-front labeling */
 } *tpa_table[TPA_SIZE];
 
-int hash_tpa(PrimNum p, struct tpa_state *t)
+Cell hash_tpa(PrimNum p, struct tpa_state *t)
 {
   UCell it = (UCell )t;
   return (p+it+(it>>14))&(TPA_SIZE-1);
@@ -1420,6 +1420,65 @@ struct tpa_state **lookup_tpa(PrimNum p, struct tpa_state *t2)
   te->state_infront = NULL;
   tpa_table[hash] = te;
   return &(te->state_infront);
+}
+
+void tpa_state_normalize(struct tpa_state *t)
+{
+  /* normalize so cost of canonical state=0; this may result in
+     negative states for some states */
+  int d = t->inst[CANONICAL_STATE].cost;
+  int i;
+
+  for (i=0; i<maxstates; i++) {
+    if (t->inst[i].cost != INF_COST)
+      t->inst[i].cost -= d;
+    if (t->trans[i].cost != INF_COST)
+      t->trans[i].cost -= d;
+  }
+}
+
+int tpa_state_equivalent(struct tpa_state *t1, struct tpa_state *t2)
+{
+  return (memcmp(t1->inst, t2->inst, maxstates*sizeof(struct waypoint)) == 0 &&
+	  memcmp(t1->trans,t2->trans,maxstates*sizeof(struct waypoint)) == 0);
+}
+
+struct tpa_state_entry {
+  struct tpa_state_entry *next;
+  struct tpa_state *state;
+} *tpa_state_table[TPA_SIZE];
+
+Cell hash_tpa_state(struct tpa_state *t)
+{
+  int *ti = (int *)(t->inst);
+  int *tt = (int *)(t->trans);
+  int r=0;
+  int i;
+
+  for (i=0; ti+i < (int *)(t->inst+maxstates); i++)
+    r += ti[i]+tt[i];
+  return (r+(r>>14)+(r>>22)) & (TPA_SIZE-1);
+}
+
+struct tpa_state *lookup_tpa_state(struct tpa_state *t)
+{
+  Cell hash = hash_tpa_state(t);
+  struct tpa_state_entry *te = tpa_state_table[hash];
+  struct tpa_state_entry *tn;
+
+  for (; te!=NULL; te = te->next) {
+    if (tpa_state_equivalent(t, te->state)) {
+      free(t->inst);
+      free(t->trans);
+      free(t);
+      return te->state;
+    }
+  }
+  tn = (struct tpa_state_entry *)malloc(sizeof(struct tpa_state_entry));
+  tn->next = te;
+  tn->state = t;
+  tpa_state_table[hash] = tn;
+  return t;
 }
 
 /* use dynamic programming to find the shortest paths within the basic
@@ -1468,7 +1527,8 @@ void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
 	}
       }
       transitions(ts[i]);
-      *tp = ts[i];
+      tpa_state_normalize(ts[i]);
+      *tp = ts[i] = lookup_tpa_state(ts[i]);
     }
   }
   /* now rewrite the instructions */
