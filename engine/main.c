@@ -1325,6 +1325,14 @@ struct waypoint {
 		       * or this transition (does not change state) */
 };
 
+struct tpastate { /* tree parsing automaton (like) state */
+  /* labeling is back-to-front */
+  struct waypoint *inst;  /* in front of instruction */
+  struct waypoint *trans; /* in front of instruction and transition */
+}; 
+
+struct tpastate *termstate = NULL; /* initialized in loader() */
+
 void init_waypoints(struct waypoint ws[])
 {
   int k;
@@ -1333,21 +1341,32 @@ void init_waypoints(struct waypoint ws[])
     ws[k].cost=INF_COST;
 }
 
-void transitions(struct waypoint inst[], struct waypoint trans[])
+struct tpastate *empty_tpastate()
+{
+  struct tpastate *s = malloc(sizeof(struct tpastate));
+
+  s->inst  = malloc(maxstates*sizeof(struct waypoint));
+  init_waypoints(s->inst);
+  s->trans = malloc(maxstates*sizeof(struct waypoint));
+  /* init_waypoints(s->trans);*/
+  return s;
+}
+
+void transitions(struct tpastate *t)
 {
   int k;
   struct super_state *l;
   
   for (k=0; k<maxstates; k++) {
-    trans[k] = inst[k];
-    trans[k].no_transition = 1;
+    t->trans[k] = t->inst[k];
+    t->trans[k].no_transition = 1;
   }
   for (l = state_transitions; l != NULL; l = l->next) {
     PrimNum s = l->super;
     int jcost;
     struct cost *c=super_costs+s;
-    struct waypoint *wi=&(trans[c->state_in]);
-    struct waypoint *wo=&(inst[c->state_out]);
+    struct waypoint *wi=&(t->trans[c->state_in]);
+    struct waypoint *wo=&(t->inst[c->state_out]);
     if (wo->cost == INF_COST)
       continue;
     jcost = wo->cost + ss_cost(s);
@@ -1361,21 +1380,27 @@ void transitions(struct waypoint inst[], struct waypoint trans[])
   }
 }
 
+struct tpastate *make_termstate()
+{
+  struct tpastate *s=empty_tpastate();
+
+  s->inst[CANONICAL_STATE].cost = 0;
+  transitions(s);
+  return s;
+}
+
 /* use dynamic programming to find the shortest paths within the basic
    block origs[0..ninsts-1] and rewrite the instructions pointed to by
    instps to use it */
 void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
 {
   int i,j;
-  static struct waypoint inst[MAX_BB+1][MAX_STATE];  /* before instruction*/
-  static struct waypoint trans[MAX_BB+1][MAX_STATE]; /* before transition */
+  struct tpastate *ts[ninsts+1];
   int nextdyn, nextstate, no_transition;
   
-  init_waypoints(inst[ninsts]);
-  inst[ninsts][CANONICAL_STATE].cost=0;
-  transitions(inst[ninsts],trans[ninsts]);
+  ts[ninsts] = termstate;
   for (i=ninsts-1; i>=0; i--) {
-    init_waypoints(inst[i]);
+    ts[i] = empty_tpastate();
     for (j=1; j<=max_super && i+j<=ninsts; j++) {
       struct super_state **superp = lookup_super(origs+i, j);
       if (superp!=NULL) {
@@ -1384,11 +1409,11 @@ void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
 	  PrimNum s = supers->super;
 	  int jcost;
 	  struct cost *c=super_costs+s;
-	  struct waypoint *wi=&(inst[i][c->state_in]);
-	  struct waypoint *wo=&(trans[i+j][c->state_out]);
+	  struct waypoint *wi=&(ts[i]->inst[c->state_in]);
+	  struct waypoint *wo=&(ts[i+j]->trans[c->state_out]);
 	  int no_transition = wo->no_transition;
 	  if (!(is_relocatable(s)) && !wo->relocatable) {
-	    wo=&(inst[i+j][c->state_out]);
+	    wo=&(ts[i+j]->inst[c->state_out]);
 	    no_transition=1;
 	  }
 	  if (wo->cost == INF_COST) 
@@ -1404,31 +1429,31 @@ void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
 	}
       }
     }
-    transitions(inst[i],trans[i]);
+    transitions(ts[i]);
   }
   /* now rewrite the instructions */
   nextdyn=0;
   nextstate=CANONICAL_STATE;
-  no_transition = ((!trans[0][nextstate].relocatable) 
-		   ||trans[0][nextstate].no_transition);
+  no_transition = ((!ts[0]->trans[nextstate].relocatable) 
+		   ||ts[0]->trans[nextstate].no_transition);
   for (i=0; i<ninsts; i++) {
     Cell tc=0, tc2;
     if (i==nextdyn) {
       if (!no_transition) {
 	/* process trans */
-	PrimNum p = trans[i][nextstate].inst;
+	PrimNum p = ts[i]->trans[nextstate].inst;
 	struct cost *c = super_costs+p;
-	assert(trans[i][nextstate].cost != INF_COST);
+	assert(ts[i]->trans[nextstate].cost != INF_COST);
 	assert(c->state_in==nextstate);
 	tc = compile_prim_dyn(p,NULL);
 	nextstate = c->state_out;
       }
       {
 	/* process inst */
-	PrimNum p = inst[i][nextstate].inst;
+	PrimNum p = ts[i]->inst[nextstate].inst;
 	struct cost *c=super_costs+p;
 	assert(c->state_in==nextstate);
-	assert(inst[i][nextstate].cost != INF_COST);
+	assert(ts[i]->inst[nextstate].cost != INF_COST);
 #if defined(GFORTH_DEBUGGING)
 	assert(p == origs[i]);
 #endif
@@ -1437,7 +1462,7 @@ void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
 	  /* !! actually what we care about is if and where
 	   * compile_prim_dyn() puts NEXTs */
 	  tc=tc2;
-	no_transition = inst[i][nextstate].no_transition;
+	no_transition = ts[i]->inst[nextstate].no_transition;
 	nextstate = c->state_out;
 	nextdyn += c->length;
       }
@@ -1446,15 +1471,15 @@ void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
       assert(0);
 #endif
       tc=0;
-      /* tc= (Cell)vm_prims[inst[i][CANONICAL_STATE].inst]; */
+      /* tc= (Cell)vm_prims[ts[i]->inst[CANONICAL_STATE].inst]; */
     }
     *(instps[i]) = tc;
   }      
   if (!no_transition) {
-    PrimNum p = trans[i][nextstate].inst;
+    PrimNum p = ts[i]->trans[nextstate].inst;
     struct cost *c = super_costs+p;
     assert(c->state_in==nextstate);
-    assert(trans[i][nextstate].cost != INF_COST);
+    assert(ts[i]->trans[nextstate].cost != INF_COST);
     assert(i==nextdyn);
     (void)compile_prim_dyn(p,NULL);
     nextstate = c->state_out;
@@ -1553,6 +1578,9 @@ Address loader(FILE *imagefile, char* filename)
 #else /* defined(DOUBLY_INDIRECT) */
   check_sum = (UCell)vm_prims;
 #endif /* defined(DOUBLY_INDIRECT) */
+#if !(defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED))
+  termstate = make_termstate();
+#endif /* !(defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED)) */
   
   do {
     if(fread(magic,sizeof(Char),8,imagefile) < 8) {
