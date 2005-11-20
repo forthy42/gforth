@@ -112,8 +112,7 @@ Create argptr maxargs 0 [DO]  argbuf [I] 2* cells + A, [LOOP]
 
 \ "backward" when revarg is off
 
-\ : >c-  ( char buf -- buf' )  tuck   c!    2 cells - ;
-: >i-  ( n buf -- buf' )     2 cells - tuck    ! ;
+: >i-  ( n buf -- buf' )     2 cells - tuck   ffi-i! ;
 : >p-  ( addr buf -- buf' )  2 cells - tuck    ! ;
 : >d-  ( d buf -- buf' )     2 cells - dup >r ffi-2! r> ;
 : >sf- ( r buf -- buf' )     2 cells - dup   sf! ;
@@ -121,8 +120,7 @@ Create argptr maxargs 0 [DO]  argbuf [I] 2* cells + A, [LOOP]
 
 \ return value
 
-\ : c>   ( -- c )  retbuf c@ ;
-: i>x   ( -- n )  retbuf @ ;
+: i>x   ( -- n )  retbuf ffi-i@ ;
 : p>x   ( -- addr ) retbuf @ ;
 : d>x   ( -- d )  retbuf ffi-2@ ;
 : sf>x  ( -- r )  retbuf sf@ ;
@@ -131,7 +129,8 @@ Create argptr maxargs 0 [DO]  argbuf [I] 2* cells + A, [LOOP]
 wordlist constant cifs
 
 Variable cifbuf $40 allot \ maximum: 64 parameters
-cifbuf cell+ cifbuf !
+: cifreset  cifbuf cell+ cifbuf ! ;
+cifreset
 Variable args args off
 
 : argtype ( bkxt fwxt type "name" -- )
@@ -171,7 +170,7 @@ Variable args args off
     r> r> set-current ;
 
 : decl, ( 0 arg1 .. argn call rtype start -- )
-    start, { retxt rtype }
+    start, { retxt rtype } cifreset
     revdec @ IF  0 >r
 	BEGIN  dup  WHILE  >r  REPEAT
 	BEGIN  r> dup  WHILE  arg@ arg,  REPEAT
@@ -227,26 +226,37 @@ previous
 
 \ callback stuff
 
-0 [IF]
 Variable callbacks
 \G link between callbacks
 
+Variable rtype
+
+: alloc-callback ( -- addr )
+    rtype @ cif,
+    here >r
+    cif@ 1- bounds ?DO  I c@ ffi-type ,  LOOP
+    r> cif@ 1- tuck + c@ ffi-type here dup >r 1 ffi-size allot
+    ffi-prep-closure throw r> ;
+
 : callback ( -- )
-    Create  0 ] postpone >r also cb-decl
+    Create  0 ] postpone >r also cb-decl cifreset
   DOES>
     Create here >r 0 , callbacks @ A, r@ callbacks !
     swap postpone Literal postpone call , postpone EXIT
     r> dup cell+ cell+ alloc-callback swap !
   DOES> @ ;
 
-: callback; ( 0 xt1 .. xtn -- )
+: callback; ( 0 arg1 .. argn -- )
     BEGIN  over  WHILE  compile,  REPEAT
     postpone r> postpone execute compile, drop
     postpone EXIT postpone [ previous ; immediate
 
-: va-ret ( xt xt -- )
-    Create A, A, immediate
-  DOES> 2@ compile, ;
+: rettype' ( xt n -- )
+    Create , A, immediate
+  DOES> 2@ rtype ! ;
+: argtype' ( xt n -- )
+    Create , A, immediate
+  DOES> 2@ cif, ;
 
 : init-callbacks ( -- )
     defers 'cold  callbacks cell -
@@ -259,69 +269,18 @@ also cb-decl definitions
 
 \ arguments
 
-' va-arg-int      Alias int
-' va-arg-float    Alias sf
-' va-arg-double   Alias df
-' va-arg-longlong Alias llong
-' va-arg-ptr      Alias ptr
+' ffi-arg-int        6 argtype' int
+' ffi-arg-float      9 argtype' sf
+' ffi-arg-double   &10 argtype' df
+' ffi-arg-longlong   8 argtype' llong
+' ffi-arg-ptr      &12 argtype' ptr
 
-' va-return-void     ' va-start-void     va-ret (void)
-' va-return-int      ' va-start-int      va-ret (int)
-' va-return-float    ' va-start-float    va-ret (sf)
-' va-return-double   ' va-start-double   va-ret (fp)
-' va-return-longlong ' va-start-longlong va-ret (llong)
-' va-return-ptr      ' va-start-ptr      va-ret (ptr)
+' ffi-ret-void       0 rettype' (void)
+' ffi-ret-int        6 rettype' (int)
+' ffi-ret-float      9 rettype' (sf)
+' ffi-ret-double   &10 rettype' (fp)
+' ffi-ret-longlong   8 rettype' (llong)
+' ffi-ret-ptr      &12 rettype' (ptr)
 
 previous definitions
-
-[THEN]
     
-\ testing stuff
-
-[ifdef] testing
-
-library libc libc.so.6
-                
-libc sleep int (int) sleep
-libc open  int int ptr (int) open
-libc lseek int llong int (llong) lseek64
-libc read  int ptr int (int) read
-libc close int (int) close
-
-library libm libm.so.6
-
-libm fmodf sf sf (sf) fmodf
-libm fmod  df df (fp) fmod
-
-\ example for a windows callback
-    
-callback wincall (int) int int int int callback;
-
-:noname ( a b c d -- e )  2drop 2drop 0 ; wincall do_timer
-
-\ test a callback
-
-callback 2:1 (int) int int callback;
-
-: cb-test ( a b -- c )
-    cr ." Testing callback"
-    cr ." arguments: " .s
-    cr ." result " + .s cr ;
-' cb-test 2:1 c_plus
-
-: test  c_plus av-start-int >r >r av-int-r av-int-r av-call-int ;
-
-\ 3 4 test
-
-\ bigFORTH legacy library test
-
-library libX11 libX11.so.6
-
-legacy on
-
-1 libX11 XOpenDisplay XOpenDisplay    ( name -- dpy )
-5 libX11 XInternAtoms XInternAtoms    ( atoms flag count names dpy -- status )
-
-legacy off
-
-[then]    

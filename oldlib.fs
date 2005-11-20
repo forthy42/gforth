@@ -30,6 +30,8 @@ Create fcall-table
 Variable libs 0 libs !
 \G links between libraries
 
+Variable legacy  legacy off
+
 : @lib ( lib -- )
     \G obtains library handle
     cell+ dup 2 cells + count open-lib
@@ -40,17 +42,6 @@ Variable libs 0 libs !
     cell+ tuck 2 cells + count rot cell+ @
     lib-sym  dup 0= abort" Proc not found!" swap cell+ ! ;
 
-: proc, ( pars type lib addr -- )
-    \G allocates and initializes proc stub
-    \G stub format:
-    \G    linked list in library
-    \G    address of proc
-    \G    offset in lcall1-table to call proc
-    \G    OS name of symbol as counted string
-    here 2dup swap 2 cells + dup @ A, !
-    2swap  1 and  IF  fcall-table  ELSE  icall-table  THEN  swap
-    cells 2* + , 0 , bl sword string, @proc ;
-
 -1 Constant (addr)
  0 Constant (int)
  1 Constant (float)
@@ -58,6 +49,18 @@ Variable libs 0 libs !
  4 Constant (int...)
  5 Constant (float...)
  6 Constant (void...)
+
+: proc, ( pars type lib addr -- )
+    \G allocates and initializes proc stub
+    \G stub format:
+    \G    linked list in library
+    \G    address of proc
+    \G    offset in lcall1-table to call proc
+    \G    OS name of symbol as counted string
+    legacy @ IF  (int) -rot  THEN
+    here 2dup swap 2 cells + dup @ A, !
+    2swap  1 and  IF  fcall-table  ELSE  icall-table  THEN  swap
+    cells 2* + , 0 , bl sword string, @proc ;
 
 : proc:  ( pars type lib "name" "string" -- )
     \G Creates a named proc stub

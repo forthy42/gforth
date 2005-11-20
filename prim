@@ -2644,6 +2644,12 @@ ffi_call(a_cif, a_ip, a_rvalue, a_avalues);
 ffi-prep-closure ( a_ip a_cif a_closure -- w )	gforth ffi_prep_closure
 w = ffi_prep_closure(a_closure, a_cif, ffi_callback, a_ip);
 
+ffi-i@ ( a_addr -- n )	gforth ffi_ifetch
+n = *(int*)(*a_addr);
+
+ffi-i! ( n a_addr -- )	gforth ffi_istore
+*(int*)(a_addr) = n;
+
 ffi-2@ ( a_addr -- d )	gforth ffi_2fetch
 #ifdef BUGGY_LONG_LONG
 DLO_IS(d, (Cell*)(*a_addr));
@@ -2660,7 +2666,7 @@ ffi-2! ( d a_addr -- )	gforth ffi_2store
 #endif
 
 ffi-arg-int ( -- w )	gforth ffi_arg_int
-w = *(Cell*)(*clist++);
+w = *(int *)(*clist++);
 
 ffi-arg-longlong ( -- d )	gforth ffi_arg_longlong
 #ifdef BUGGY_LONG_LONG
@@ -2679,24 +2685,32 @@ r = *(float*)(*clist++);
 ffi-arg-double ( -- r )	gforth ffi_arg_double
 r = *(double*)(*clist++);
 
-ffi-ret-int ( -- w )	gforth ffi_ret_int
-*(int*)(ritem) = w;
+ffi-ret-void ( -- )	gforth ffi_ret_void
+return 0;
 
-ffi-ret-longlong ( -- d )	gforth ffi_ret_longlong
+ffi-ret-int ( w -- )	gforth ffi_ret_int
+*(int*)(ritem) = w;
+return 0;
+
+ffi-ret-longlong ( d -- )	gforth ffi_ret_longlong
 #ifdef BUGGY_LONG_LONG
 *(Cell*)(ritem) = DLO(d);
 #else
 *(DCell*)(ritem) = d;
 #endif
+return 0;
 
-ffi-ret-ptr ( -- c_addr )	gforth ffi_ret_ptr
+ffi-ret-ptr ( c_addr -- )	gforth ffi_ret_ptr
 *(char **)(ritem) = c_addr;
+return 0;
 
-ffi-ret-float ( -- r )	gforth ffi_ret_float
+ffi-ret-float ( r -- )	gforth ffi_ret_float
 *(float*)(ritem) = r;
+return 0;
 
-ffi-ret-double ( -- r )	gforth ffi_ret_double
+ffi-ret-double ( r -- )	gforth ffi_ret_double
 *(double*)(ritem) = r;
+return 0;
 
 \+
 

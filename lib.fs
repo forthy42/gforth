@@ -28,3 +28,52 @@
     [THEN]
 [THEN]
 
+\ testing stuff
+
+[ifdef] testing
+
+library libc libc.so.6
+                
+libc sleep int (int) sleep
+libc open  int int ptr (int) open
+libc lseek int llong int (llong) lseek64
+libc read  int ptr int (int) read
+libc close int (int) close
+
+library libm libm.so.6
+
+libm fmodf sf sf (sf) fmodf
+libm fmod  df df (fp) fmod
+
+\ example for a windows callback
+    
+callback wincall (int) int int int int callback;
+
+:noname ( a b c d -- e )  2drop 2drop 0 ; wincall do_timer
+
+\ test a callback
+
+callback 2:1 (int) int int callback;
+
+: cb-test ( a b -- c )
+    cr ." Testing callback"
+    cr ." arguments: " .s
+    cr ." result " + .s cr ;
+' cb-test 2:1 c_plus
+
+: test  c_plus av-start-int >r >r av-int-r av-int-r av-call-int ;
+
+\ 3 4 test
+
+\ bigFORTH legacy library test
+
+library libX11 libX11.so.6
+
+legacy on
+
+1 libX11 XOpenDisplay XOpenDisplay    ( name -- dpy )
+5 libX11 XInternAtoms XInternAtoms    ( atoms flag count names dpy -- status )
+
+legacy off
+
+[then]    
