@@ -204,7 +204,7 @@ also c-decl definitions
 ' df>x &10 rettype (fp)
 
 : (addr) thisproc @ cell+ postpone Literal postpone @ postpone EXIT
-    symbol, previous revarg off args off ;
+    drop symbol, previous revarg off args off ;
 
 previous definitions
 
