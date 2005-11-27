@@ -203,6 +203,9 @@ also c-decl definitions
 ' sf>x   9 rettype (sf)
 ' df>x &10 rettype (fp)
 
+: (addr) thisproc @ cell+ postpone Literal postpone @ postpone EXIT
+    symbol, previous revarg off args off ;
+
 previous definitions
 
 \ legacy support for old library interfaces

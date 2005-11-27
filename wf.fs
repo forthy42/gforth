@@ -655,10 +655,11 @@ definitions
 
 Variable css-file
 Variable content
-Variable lang
+Variable _lang
+Variable _favicon
 
 : lang@  ( -- addr u )
-    lang @ IF  lang $@  ELSE  s" en"  THEN ;
+    _lang @ IF  _lang $@  ELSE  s" en"  THEN ;
 : .css ( -- )
     css-file @ IF  css-file $@len IF
 	    s" StyleSheet" s" rel" opt
@@ -675,6 +676,11 @@ Variable lang
     s" Content-Type" s" http-equiv" opt
     content $@ s" content" opt
     s" meta" tag/ cr .css
+    _favicon @ IF
+	s" shortcut icon" s" rel" opt
+	_favicon $@ href=
+	s" image/x-icon" s" type" opt
+	s" link" tag/ cr  THEN
     s" title" tagged cr
     -env ;
 
@@ -718,7 +724,9 @@ charset iso-8859-1
 : icons
     bl sword icon-prefix $! ;
 : lang
-    bl sword lang $! ;
+    bl sword _lang $! ;
+: favicon
+    bl sword _favicon $! ;
 : expands '# sword expand-prefix $! bl sword expand-postfix $! ;
 
 icons icons

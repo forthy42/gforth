@@ -131,6 +131,8 @@ also c-decl definitions
 ' av-call-longlong ' av-start-longlong rettype (llong)
 ' av-call-ptr      ' av-start-ptr      rettype (ptr)
 
+: (addr)  postpone EXIT  symbol, previos revarg off ;
+
 previous definitions
 
 \ legacy support for old library interfaces

@@ -2645,7 +2645,7 @@ ffi-prep-closure ( a_ip a_cif a_closure -- w )	gforth ffi_prep_closure
 w = ffi_prep_closure(a_closure, a_cif, ffi_callback, a_ip);
 
 ffi-i@ ( a_addr -- n )	gforth ffi_ifetch
-n = *(int*)(*a_addr);
+n = *(int*)(a_addr);
 
 ffi-i! ( n a_addr -- )	gforth ffi_istore
 *(int*)(a_addr) = n;
@@ -2655,7 +2655,7 @@ ffi-2@ ( a_addr -- d )	gforth ffi_2fetch
 DLO_IS(d, (Cell*)(*a_addr));
 DHI_IS(d, 0);
 #else
-d = *(DCell*)(*a_addr);
+d = *(DCell*)(a_addr);
 #endif
 
 ffi-2! ( d a_addr -- )	gforth ffi_2store
