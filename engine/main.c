@@ -200,6 +200,9 @@ static int static_super_number = 0; /*10000000;*/ /* number of ss used if availa
 static int maxstates = MAX_STATE; /* number of states for stack caching */
 static int ss_greedy = 0; /* if true: use greedy, not optimal ss selection */
 static int diag = 0; /* if true: print diagnostic informations */
+static int tpa_noequiv = 0;     /* if true: no state equivalence checking */
+static int tpa_noautomaton = 0; /* if true: no tree parsing automaton */
+static int tpa_trace = 0; /* if true: data for line graph of new states etc. */
 static int relocs = 0;
 static int nonrelocs = 0;
 
@@ -1333,6 +1336,16 @@ struct tpa_state { /* tree parsing automaton (like) state */
 
 struct tpa_state *termstate = NULL; /* initialized in loader() */
 
+/* statistics about tree parsing (lazyburg) stuff */
+long lb_basic_blocks = 0;
+long lb_labeler_steps = 0;
+long lb_labeler_automaton = 0;
+long lb_labeler_dynprog = 0;
+long lb_newstate_equiv = 0;
+long lb_newstate_new = 0;
+long lb_applicable_base_rules = 0;
+long lb_applicable_chain_rules = 0;
+
 void init_waypoints(struct waypoint ws[])
 {
   int k;
@@ -1367,6 +1380,7 @@ void transitions(struct tpa_state *t)
     struct cost *c=super_costs+s;
     struct waypoint *wi=&(t->trans[c->state_in]);
     struct waypoint *wo=&(t->inst[c->state_out]);
+    lb_applicable_chain_rules++;
     if (wo->cost == INF_COST)
       continue;
     jcost = wo->cost + ss_cost(s);
@@ -1409,6 +1423,11 @@ struct tpa_state **lookup_tpa(PrimNum p, struct tpa_state *t2)
   int hash=hash_tpa(p, t2);
   struct tpa_entry *te = tpa_table[hash];
 
+  if (tpa_noautomaton) {
+    static struct tpa_state *t;
+    t = NULL;
+    return &t;
+  }
   for (; te!=NULL; te = te->next) {
     if (p == te->inst && t2 == te->state_behind)
       return &(te->state_infront);
@@ -1466,18 +1485,24 @@ struct tpa_state *lookup_tpa_state(struct tpa_state *t)
   struct tpa_state_entry *te = tpa_state_table[hash];
   struct tpa_state_entry *tn;
 
-  for (; te!=NULL; te = te->next) {
-    if (tpa_state_equivalent(t, te->state)) {
-      free(t->inst);
-      free(t->trans);
-      free(t);
-      return te->state;
+  if (!tpa_noequiv) {
+    for (; te!=NULL; te = te->next) {
+      if (tpa_state_equivalent(t, te->state)) {
+	lb_newstate_equiv++;
+	free(t->inst);
+	free(t->trans);
+	free(t);
+	return te->state;
+      }
     }
+    tn = (struct tpa_state_entry *)malloc(sizeof(struct tpa_state_entry));
+    tn->next = te;
+    tn->state = t;
+    tpa_state_table[hash] = tn;
   }
-  tn = (struct tpa_state_entry *)malloc(sizeof(struct tpa_state_entry));
-  tn->next = te;
-  tn->state = t;
-  tpa_state_table[hash] = tn;
+  lb_newstate_new++;
+  if (tpa_trace)
+    fprintf(stderr, "%ld %ld lb_states\n", lb_labeler_steps, lb_newstate_new);
   return t;
 }
 
@@ -1490,13 +1515,18 @@ void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
   struct tpa_state *ts[ninsts+1];
   int nextdyn, nextstate, no_transition;
   
+  lb_basic_blocks++;
   ts[ninsts] = termstate;
   for (i=ninsts-1; i>=0; i--) {
     struct tpa_state **tp = lookup_tpa(origs[i],ts[i+1]);
     struct tpa_state *t = *tp;
-    if (t)
+    lb_labeler_steps++;
+    if (t) {
       ts[i] = t;
+      lb_labeler_automaton++;
+    }
     else {
+      lb_labeler_dynprog++;
       ts[i] = empty_tpa_state();
       for (j=1; j<=max_super && i+j<=ninsts; j++) {
 	struct super_state **superp = lookup_super(origs+i, j);
@@ -1509,6 +1539,7 @@ void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
 	    struct waypoint *wi=&(ts[i]->inst[c->state_in]);
 	    struct waypoint *wo=&(ts[i+j]->trans[c->state_out]);
 	    int no_transition = wo->no_transition;
+	    lb_applicable_base_rules++;
 	    if (!(is_relocatable(s)) && !wo->relocatable) {
 	      wo=&(ts[i+j]->inst[c->state_out]);
 	      no_transition=1;
@@ -1529,6 +1560,8 @@ void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
       transitions(ts[i]);
       tpa_state_normalize(ts[i]);
       *tp = ts[i] = lookup_tpa_state(ts[i]);
+      if (tpa_trace)
+	fprintf(stderr, "%ld %ld lb_table_entries\n", lb_labeler_steps, lb_labeler_dynprog);
     }
   }
   /* now rewrite the instructions */
@@ -1906,6 +1939,9 @@ void gforth_args(int argc, char ** argv, char ** path, char ** imagename)
       {"ss-min-lsu",      no_argument, NULL, ss_min_lsu},
       {"ss-min-nexts",    no_argument, NULL, ss_min_nexts},
       {"ss-greedy",       no_argument, &ss_greedy, 1},
+      {"tpa-noequiv",     no_argument, &tpa_noequiv, 1},
+      {"tpa-noautomaton", no_argument, &tpa_noautomaton, 1},
+      {"tpa-trace",	  no_argument, &tpa_trace, 1},
       {0,0,0,0}
       /* no-init-file, no-rc? */
     };
@@ -1966,6 +2002,9 @@ Engine Options:\n\
   --ss-min-nexts                    minimize the number of static superinsts\n\
   --ss-number=N                     use N static superinsts (default max)\n\
   --ss-states=N                     N states for stack caching (default max)\n\
+  --tpa-noequiv                     automaton without state equivalence\n\
+  --tpa-noautomaton                 dynamic programming only\n\
+  --tpa-trace                       report new states etc.\n\
   -v, --version			    Print engine version and exit\n\
 SIZE arguments consist of an integer followed by a unit. The unit can be\n\
   `b' (byte), `e' (element; default), `k' (KB), `M' (MB), `G' (GB) or `T' (TB).\n",
@@ -2136,6 +2175,18 @@ int main(int argc, char **argv, char **env)
     for (i=0; i<sizeof(cost_sums)/sizeof(cost_sums[0]); i++)
       fprintf(stderr, "metric %8s: %8ld\n",
 	      cost_sums[i].metricname, cost_sums[i].sum);
+    fprintf(stderr,"lb_basic_blocks = %ld\n", lb_basic_blocks);
+    fprintf(stderr,"lb_labeler_steps = %ld\n", lb_labeler_steps);
+    fprintf(stderr,"lb_labeler_automaton = %ld\n", lb_labeler_automaton);
+    fprintf(stderr,"lb_labeler_dynprog = %ld\n", lb_labeler_dynprog);
+    fprintf(stderr,"lb_newstate_equiv = %ld\n", lb_newstate_equiv);
+    fprintf(stderr,"lb_newstate_new = %ld\n", lb_newstate_new);
+    fprintf(stderr,"lb_applicable_base_rules = %ld\n", lb_applicable_base_rules);
+    fprintf(stderr,"lb_applicable_chain_rules = %ld\n", lb_applicable_chain_rules);
+  }
+  if (tpa_trace) {
+    fprintf(stderr, "%ld %ld lb_states\n", lb_labeler_steps, lb_newstate_new);
+    fprintf(stderr, "%ld %ld lb_table_entries\n", lb_labeler_steps, lb_labeler_dynprog);
   }
   return retvalue;
 }
