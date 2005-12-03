@@ -261,7 +261,7 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_SRC) $(EC_SRC) \
 	bubble.fs siev.fs matrix.fs fib.fs \
 	oof.fs oofsampl.fs objects.fs objexamp.fs mini-oof.fs moof-exm.fs \
 	moofglos.fs fixpath.fs \
-	add.fs lib.fs oldlib.fs fflib.fs sieve.fs unix/socket.fs
+	add.fs lib.fs oldlib.fs fflib.fs libffi.fs sieve.fs unix/socket.fs
 
 COMPAT = compat/README \
 	compat/anslocal.fs \

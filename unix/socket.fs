@@ -61,8 +61,8 @@ sockaddr-tmp sockaddr_in %size dup allot erase
 
 : open-socket ( addr u port -- fid )
     htonl PF_INET [ base c@ 0= ] [IF] $10 lshift [THEN]
-    or sockaddr-tmp family+port ffi-i!
-    host>addr sockaddr-tmp sin_addr ffi-i!
+    or sockaddr-tmp family+port t!
+    host>addr sockaddr-tmp sin_addr t!
     PF_INET SOCK_STREAM IPPROTO_TCP socket
     dup 0<= abort" no free socket" >r
     r@ sockaddr-tmp $10 connect 0< abort" can't connect"

@@ -2444,6 +2444,18 @@ FP=fp;
 sp=(Cell*)(SYSCALL(Cell*(*)(Cell *, void *))u)(sp, &FP);
 fp=FP;
 
+w@ ( a_addr -- n )	gforth wfetch
+n = *(short*)(a_addr);
+
+w! ( n a_addr -- )	gforth wstore
+*(short*)(a_addr) = n;
+
+t@ ( a_addr -- n )	gforth tfetch
+n = *(int*)(a_addr);
+
+t! ( n a_addr -- )	gforth tstore
+*(int*)(a_addr) = n;
+
 \+FFCALL
 
 av-start-void	( c_addr -- )	gforth  av_start_void
@@ -2643,12 +2655,6 @@ ffi_call(a_cif, a_ip, a_rvalue, a_avalues);
 
 ffi-prep-closure ( a_ip a_cif a_closure -- w )	gforth ffi_prep_closure
 w = ffi_prep_closure(a_closure, a_cif, ffi_callback, a_ip);
-
-ffi-i@ ( a_addr -- n )	gforth ffi_ifetch
-n = *(int*)(a_addr);
-
-ffi-i! ( n a_addr -- )	gforth ffi_istore
-*(int*)(a_addr) = n;
 
 ffi-2@ ( a_addr -- d )	gforth ffi_2fetch
 #ifdef BUGGY_LONG_LONG
