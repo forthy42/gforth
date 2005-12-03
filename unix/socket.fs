@@ -21,23 +21,25 @@
 require lib.fs
 [IFUNDEF] libc  library libc libc.so.6  [THEN]
 
-1 (int) libc gethostbyname gethostbyname ( name -- hostent )
-3 (int) libc socket socket ( class type proto -- fd )
-3 (int) libc connect connect ( fd sock size -- err )
-2 (int) libc fdopen fdopen ( fd fileattr -- file )
-1 (int) libc htonl htonl ( x -- x' )
+libc gethostbyname ptr (ptr) gethostbyname ( name -- hostent )
+libc socket int int int (int) socket ( class type proto -- fd )
+libc connect int ptr int (int) connect ( fd sock size -- err )
+libc fdopen int ptr (ptr) fdopen ( fd fileattr -- file )
+libc htonl int (int) htonl ( x -- x' )
+
+4 4 2Constant int%
 
 struct
     cell% field h_name
     cell% field h_aliases
-    cell% field h_addrtype
-    cell% field h_length
+    int% field h_addrtype
+    int% field h_length
     cell% field h_addr_list
 end-struct hostent
 
 struct
-    cell% field family+port
-    cell% field sin_addr
+    int% field family+port
+    int% field sin_addr
     cell% 2* field padding
 end-struct sockaddr_in
 
@@ -59,8 +61,8 @@ sockaddr-tmp sockaddr_in %size dup allot erase
 
 : open-socket ( addr u port -- fid )
     htonl PF_INET [ base c@ 0= ] [IF] $10 lshift [THEN]
-    or sockaddr-tmp family+port !
-    host>addr sockaddr-tmp sin_addr !
+    or sockaddr-tmp family+port ffi-i!
+    host>addr sockaddr-tmp sin_addr ffi-i!
     PF_INET SOCK_STREAM IPPROTO_TCP socket
     dup 0<= abort" no free socket" >r
     r@ sockaddr-tmp $10 connect 0< abort" can't connect"
