@@ -98,6 +98,13 @@
 
 #include "machine.h"
 
+/* C interface data types */
+
+typedef WYDE_TYPE Wyde;
+typedef TETRABYTE_TYPE Tetrabyte;
+typedef unsigned WYDE_TYPE UWyde;
+typedef unsigned TETRABYTE_TYPE UTetrabyte;
+
 /* Forth data types */
 /* Cell and UCell must be the same size as a pointer */
 #define CELL_BITS	(sizeof(Cell) * CHAR_BIT)

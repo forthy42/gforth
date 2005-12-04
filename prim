@@ -2444,17 +2444,23 @@ FP=fp;
 sp=(Cell*)(SYSCALL(Cell*(*)(Cell *, void *))u)(sp, &FP);
 fp=FP;
 
-w@ ( a_addr -- n )	gforth wfetch
-n = *(short*)(a_addr);
+w@ ( a_addr -- u )	gforth wfetch
+u = *(UWyde*)(a_addr);
 
-w! ( n a_addr -- )	gforth wstore
-*(short*)(a_addr) = n;
+wx@ ( a_addr -- u )	gforth wxfetch
+u = *(Wyde*)(a_addr);
 
-t@ ( a_addr -- n )	gforth tfetch
-n = *(int*)(a_addr);
+w! ( u a_addr -- )	gforth wstore
+*(Wyde*)(a_addr) = u;
 
-t! ( n a_addr -- )	gforth tstore
-*(int*)(a_addr) = n;
+t@ ( a_addr -- u )	gforth tfetch
+u = *(UTetrabyte*)(a_addr);
+
+tx@ ( a_addr -- u )	gforth txfetch
+u = *(Tetrabyte*)(a_addr);
+
+t! ( u a_addr -- )	gforth tstore
+*(Tetrabyte*)(a_addr) = u;
 
 \+FFCALL
 

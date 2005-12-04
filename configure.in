@@ -320,6 +320,62 @@ esac
 AC_MSG_RESULT($ac_cv_int_type_cell)
 AC_DEFINE_UNQUOTED(CELL_TYPE,$ac_cv_int_type_cell,[an integer type that is as long as a pointer])
 
+AC_MSG_CHECKING([for a C type for wydes])
+ac_cv_wyde_type_cell=none
+case 2 in
+  $ac_cv_sizeof_int)
+    ac_cv_wyde_type_cell=int
+    ;;
+  $ac_cv_sizeof_short)
+    ac_cv_wyde_type_cell=short
+    ;;
+  $ac_cv_sizeof_char)
+    ac_cv_wyde_type_cell=char
+    ;;
+  $ac_cv_sizeof_long)
+    ac_cv_wyde_type_cell=long
+    ;;
+  $ac_cv_sizeof_long_long)
+    ac_cv_wyde_type_cell="long long"
+    ;;
+  $ac_cv_sizeof_intptr_t)
+    ac_cv_wyde_type_cell="intptr_t"
+    ;;
+  $ac_cv_sizeof_int128_t)
+    ac_cv_wyde_type_cell="int128_t"
+    ;;
+esac
+AC_MSG_RESULT($ac_cv_wyde_type_cell)
+AC_DEFINE_UNQUOTED(WYDE_TYPE,$ac_cv_wyde_type_cell,[an integer type that is 2 bytes long])
+
+AC_MSG_CHECKING([for a C type for tetrabytes])
+ac_cv_tetrabyte_type_cell=none
+case 4 in
+  $ac_cv_sizeof_int)
+    ac_cv_tetrabyte_type_cell=int
+    ;;
+  $ac_cv_sizeof_short)
+    ac_cv_tetrabyte_type_cell=short
+    ;;
+  $ac_cv_sizeof_char)
+    ac_cv_tetrabyte_type_cell=char
+    ;;
+  $ac_cv_sizeof_long)
+    ac_cv_tetrabyte_type_cell=long
+    ;;
+  $ac_cv_sizeof_long_long)
+    ac_cv_tetrabyte_type_cell="long long"
+    ;;
+  $ac_cv_sizeof_intptr_t)
+    ac_cv_tetrabyte_type_cell="intptr_t"
+    ;;
+  $ac_cv_sizeof_int128_t)
+    ac_cv_tetrabyte_type_cell="int128_t"
+    ;;
+esac
+AC_MSG_RESULT($ac_cv_tetrabyte_type_cell)
+AC_DEFINE_UNQUOTED(TETRABYTE_TYPE,$ac_cv_tetrabyte_type_cell,[an integer type that is 4 bytes long])
+
 AC_MSG_CHECKING([for a C type for double-cells])
 ac_cv_int_type_double_cell=none
 case `expr 2 '*' "$ac_cv_sizeof_char_p"` in

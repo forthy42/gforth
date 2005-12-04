@@ -121,6 +121,7 @@ Create argptr maxargs 0 [DO]  argbuf [I] 2* cells + A, [LOOP]
 \ return value
 
 : i>x   ( -- n )  retbuf t@ ;
+: is>x   ( -- n )  retbuf tx@ ;
 : p>x   ( -- addr ) retbuf @ ;
 : d>x   ( -- d )  retbuf ffi-2@ ;
 : sf>x  ( -- r )  retbuf sf@ ;
@@ -159,15 +160,17 @@ Variable args args off
 : cif@ ( -- addr u )
     cifbuf cell+ cifbuf @ over - ;
 
-: make-cif ( rtype -- addr ) cif,
+: create-cif ( rtype -- addr ) cif,
     cif@ cifs search-wordlist
     IF  execute  EXIT  THEN
     get-current >r cifs set-current
     cif@ nextname Create  here >r
-    cif@ 1- bounds ?DO  I c@ ffi-type ,  LOOP
-    r> cif@ 1- tuck + c@ ffi-type here dup >r 0 ffi-size allot
-    ffi-prep-cif throw
-    r> r> set-current ;
+    cif@ 1- bounds ?DO  I c@ ffi-type ,  LOOP  r>
+    r> set-current ;
+
+: make-cif ( rtype -- addr )  create-cif
+    cif@ 1- tuck + c@ ffi-type here 0 ffi-size allot
+    dup >r ffi-prep-cif throw r> ;
 
 : decl, ( 0 arg1 .. argn call rtype start -- )
     start, { retxt rtype } cifreset
@@ -197,7 +200,8 @@ also c-decl definitions
 ' >df+ ' >df- &10 argtype df
 
 ' noop   0 rettype (void)
-' i>x    6 rettype (int)
+' is>x   6 rettype (int)
+' i>x    6 rettype (uint)
 ' p>x  &12 rettype (ptr)
 ' d>x    8 rettype (llong)
 ' sf>x   9 rettype (sf)
@@ -235,10 +239,8 @@ Variable callbacks
 Variable rtype
 
 : alloc-callback ( -- addr )
-    rtype @ cif,
-    here >r
-    cif@ 1- bounds ?DO  I c@ ffi-type ,  LOOP
-    r> cif@ 1- tuck + c@ ffi-type here dup >r 1 ffi-size allot
+    rtype @ create-cif
+    cif@ 1- tuck + c@ ffi-type here dup >r 1 ffi-size allot
     ffi-prep-closure throw r> ;
 
 : callback ( -- )
