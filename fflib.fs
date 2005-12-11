@@ -63,6 +63,11 @@ Defer legacy-proc  ' noop IS legacy-proc
 DOES> ( x1 .. xn -- r )
     dup cell+ @ swap 3 cells + >r ;
 
+Variable ind-call ind-call off
+: fptr: ( "name" -- )
+    Create here thisproc ! 0 , 0 , 0 ,  0 also c-decl  ind-call on
+    DOES>  3 cells + >r ;
+
 : library ( "name" "file" -- )
 \G loads library "file" and creates a proc defining word "name"
 \G library format:
@@ -112,7 +117,8 @@ DOES> ( -- )  dup thislib ! proc: ;
 
 : rettype ( endxt startxt "name" -- )
     Create 2,
-  DOES>  decl, symbol, previous revarg off ;
+  DOES>  decl, ind-call @ 0= IF  symbol,  THEN
+    previous revarg off ind-call off ;
 
 also c-decl definitions
 
