@@ -386,6 +386,13 @@ extern Address LP;
 extern void engine_callback(Xt* fcall, void * alist);
 #endif
 
+#ifdef HAS_LIBFFI
+extern Cell *RP;
+extern Address LP;
+#include <ffi.h>
+extern void ffi_callback(ffi_cif * cif, void * resp, void ** args, Xt * ip);
+#endif
+
 #ifdef GFORTH_DEBUGGING
 extern Xt *saved_ip;
 extern Cell *rp;

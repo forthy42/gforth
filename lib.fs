@@ -61,7 +61,9 @@ callback 2:1 (int) int int callback;
     cr ." result " + .s cr ;
 ' cb-test 2:1 c_plus
 
-: test  c_plus av-start-int >r >r av-int-r av-int-r av-call-int ;
+ind: 2:1call int int (int)
+
+: test  c_plus 2:1call ;
 
 \ 3 4 test
 

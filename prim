@@ -2657,7 +2657,9 @@ ffi-prep-cif ( a_atypes n a_rtype a_cif -- w )	gforth ffi_prep_cif
 w = ffi_prep_cif(a_cif, FFI_DEFAULT_ABI, n, a_rtype, a_atypes);
 
 ffi-call ( a_avalues a_rvalue a_ip a_cif -- )	gforth ffi_call
+SAVE_REGS
 ffi_call(a_cif, a_ip, a_rvalue, a_avalues);
+REST_REGS
 
 ffi-prep-closure ( a_ip a_cif a_closure -- w )	gforth ffi_prep_closure
 w = ffi_prep_closure(a_closure, a_cif, ffi_callback, a_ip);

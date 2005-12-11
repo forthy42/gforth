@@ -104,7 +104,7 @@ Create argptr maxargs 0 [DO]  argbuf [I] 2* cells + A, [LOOP]
 \ "forward" when revarg is on
 
 \ : >c+  ( char buf -- buf' )  tuck   c!    cell+ cell+ ;
-: >i+  ( n buf -- buf' )     tuck    !    cell+ cell+ ;
+: >i+  ( n buf -- buf' )     tuck   l!    cell+ cell+ ;
 : >p+  ( addr buf -- buf' )  tuck    !    cell+ cell+ ;
 : >d+  ( d buf -- buf' )     dup >r ffi-2! r> cell+ cell+ ;
 : >sf+ ( r buf -- buf' )     dup   sf!    cell+ cell+ ;
@@ -148,6 +148,10 @@ Variable args args off
     revarg @ IF  drop 0  ELSE  2* cells  THEN  argbuf +
     postpone Literal ;
 
+Variable ind-call  ind-call off
+: ind:  ind-call on  Create  here thisproc !
+    0 , 0 , 0 , 0 also c-decl  DOES>  cell+ dup cell+ cell+ >r ! ;
+
 : ffi-call, ( -- lit-cif )
     postpone drop postpone argptr postpone retbuf
     thisproc @ cell+ postpone literal postpone @
@@ -187,7 +191,8 @@ Variable args args off
 
 : rettype ( endxt n "name" -- )
     Create 2,
-  DOES>  2@ args @ decl, symbol, previous revarg off args off ;
+  DOES>  2@ args @ decl, ind-call @ 0= IF  symbol,  THEN
+    previous revarg off args off ind-call off ;
 
 also c-decl definitions
 
@@ -238,18 +243,17 @@ Variable callbacks
 
 Variable rtype
 
-: alloc-callback ( -- addr )
-    rtype @ create-cif
-    cif@ 1- tuck + c@ ffi-type here dup >r 1 ffi-size allot
-    ffi-prep-closure throw r> ;
+: alloc-callback ( ip -- addr )
+    rtype @ make-cif here 1 ffi-size allot
+    dup >r ffi-prep-closure throw r> ;
 
 : callback ( -- )
     Create  0 ] postpone >r also cb-decl cifreset
   DOES>
-    Create here >r 0 , callbacks @ A, r@ callbacks !
+    0 Value  -1 cells allot
+    here >r 0 , callbacks @ A, r@ callbacks !
     swap postpone Literal postpone call , postpone EXIT
-    r> dup cell+ cell+ alloc-callback swap !
-  DOES> @ ;
+    r@ cell+ cell+ alloc-callback r> ! ;
 
 : callback; ( 0 arg1 .. argn -- )
     BEGIN  over  WHILE  compile,  REPEAT

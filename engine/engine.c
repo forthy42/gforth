@@ -241,7 +241,7 @@ extern int gforth_memcmp(const char * s1, const char * s2, size_t n);
       }
 #endif
 
-#ifdef HAS_FFCALL
+#if defined(HAS_FFCALL) || defined(HAS_LIBFFI)
 #define SAVE_REGS IF_fpTOS(fp[0]=fpTOS); SP=sp; FP=fp; RP=rp; LP=lp;
 #define REST_REGS sp=SP; fp=FP; rp=RP; lp=LP; IF_fpTOS(fpTOS=fp[0]);
 #endif
