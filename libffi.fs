@@ -112,7 +112,7 @@ Create argptr maxargs 0 [DO]  argbuf [I] 2* cells + A, [LOOP]
 
 \ "backward" when revarg is off
 
-: >i-  ( n buf -- buf' )     2 cells - tuck   t! ;
+: >i-  ( n buf -- buf' )     2 cells - tuck   l! ;
 : >p-  ( addr buf -- buf' )  2 cells - tuck    ! ;
 : >d-  ( d buf -- buf' )     2 cells - dup >r ffi-2! r> ;
 : >sf- ( r buf -- buf' )     2 cells - dup   sf! ;
@@ -120,8 +120,8 @@ Create argptr maxargs 0 [DO]  argbuf [I] 2* cells + A, [LOOP]
 
 \ return value
 
-: i>x   ( -- n )  retbuf t@ ;
-: is>x   ( -- n )  retbuf tx@ ;
+: i>x   ( -- n )  retbuf l@ ;
+: is>x   ( -- n )  retbuf sl@ ;
 : p>x   ( -- addr ) retbuf @ ;
 : d>x   ( -- d )  retbuf ffi-2@ ;
 : sf>x  ( -- r )  retbuf sf@ ;

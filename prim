@@ -2447,19 +2447,19 @@ fp=FP;
 w@ ( a_addr -- u )	gforth wfetch
 u = *(UWyde*)(a_addr);
 
-wx@ ( a_addr -- u )	gforth wxfetch
+sw@ ( a_addr -- u )	gforth swfetch
 u = *(Wyde*)(a_addr);
 
 w! ( u a_addr -- )	gforth wstore
 *(Wyde*)(a_addr) = u;
 
-t@ ( a_addr -- u )	gforth tfetch
+l@ ( a_addr -- u )	gforth lfetch
 u = *(UTetrabyte*)(a_addr);
 
-tx@ ( a_addr -- u )	gforth txfetch
+sl@ ( a_addr -- u )	gforth slfetch
 u = *(Tetrabyte*)(a_addr);
 
-t! ( u a_addr -- )	gforth tstore
+l! ( u a_addr -- )	gforth lstore
 *(Tetrabyte*)(a_addr) = u;
 
 \+FFCALL
