@@ -64,7 +64,7 @@ DOES> ( x1 .. xn -- r )
     dup cell+ @ swap 3 cells + >r ;
 
 Variable ind-call ind-call off
-: fptr: ( "name" -- )
+: fptr ( "name" -- )
     Create here thisproc ! 0 , 0 , 0 ,  0 also c-decl  ind-call on
     DOES>  3 cells + >r ;
 
