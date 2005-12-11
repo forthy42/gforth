@@ -149,7 +149,7 @@ Variable args args off
     postpone Literal ;
 
 Variable ind-call  ind-call off
-: ind:  ind-call on  Create  here thisproc !
+: fptr:  ind-call on  Create  here thisproc !
     0 , 0 , 0 , 0 also c-decl  DOES>  cell+ dup cell+ cell+ >r ! ;
 
 : ffi-call, ( -- lit-cif )
