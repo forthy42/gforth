@@ -224,7 +224,7 @@ has? file [IF]
     \G Make the user input device the input source. Receive input into
     \G the Terminal Input Buffer. Set @code{>IN} to zero. OBSOLESCENT:
     \G superceeded by @code{accept}.
-    clear-tibstack  refill drop ;
+    clear-tibstack  refill 0= -39 and throw ;
 
 \ load a file
 

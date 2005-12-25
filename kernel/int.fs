@@ -790,8 +790,10 @@ Defer .status
 	    \ if stderr does not work either, already DoError causes a hang
 	    2 (bye)
 	endif
-	query interpret prompt
-    AGAIN ;
+	refill WHILE
+	    interpret prompt
+    REPEAT
+    bye ;
 
 ' (quit) IS 'quit
 
