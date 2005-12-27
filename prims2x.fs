@@ -51,6 +51,7 @@
 \ (stack-in-index-xt and a test for stack==instruction-stream); there
 \ should be only one.
 
+
 \ for backwards compatibility, jaw
 require compat/strcomp.fs
 
@@ -101,6 +102,9 @@ variable include-skipped-insts
 \ for the component instructions (true) or only the cells for the
 \ inline arguments (false)
 include-skipped-insts off
+
+2variable threaded-code-pointer-type \ type used for geninst etc.
+s" Inst **" threaded-code-pointer-type 2!
 
 variable immarg \ values for immediate arguments (to be used in IMM_ARG macros)
 $12340000 immarg !
@@ -1169,9 +1173,10 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
 
 : output-gen ( -- )
     \ generate C code for generating VM instructions
-    ." void gen_" prim prim-c-name 2@ type ." (Inst **ctp" gen-args-parm ." )" cr
+    ." void gen_" prim prim-c-name 2@ type ." ("
+    threaded-code-pointer-type 2@ type ." ctp" gen-args-parm ." )" cr
     ." {" cr
-    ."   gen_inst(ctp, vm_prim[" function-number @ 0 .r ." ]);" cr
+    ."   gen_inst(ctp, " function-number @ 0 .r ." );" cr
     gen-args-gen
     ." }" cr ;
 
