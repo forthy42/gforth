@@ -1021,7 +1021,7 @@ Address append_prim(Cell p)
   PrimInfo *pi = &priminfos[p];
   Address old_code_here = code_here;
 
-  if (code_area+code_area_size < code_here+pi->length+pi->restlength) {
+  if (code_area+code_area_size < code_here+pi->length+pi->restlength+goto_len) {
     struct code_block_list *p;
     append_jump();
     flush_to_here();

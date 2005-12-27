@@ -259,7 +259,6 @@ extern int gforth_memcmp(const char * s1, const char * s2, size_t n);
 #define VARIANT(v)	(v)
 #define JUMP(target)	goto I_noop
 #define LABEL(name) H_##name: SKIP16; I_##name:
-#define IN_ENGINE2
 
 #elif ENGINE==3
 /* variant with different immediate arguments for finding out

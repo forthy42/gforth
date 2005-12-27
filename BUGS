@@ -67,6 +67,18 @@ finish-code changes the stack for gforth-fast with --enable-force-reg
 (probably for gforth-native too).  Apparently ecx (spTOS) is neither
 saved by engine, nor by finish_code().
 
+Wrong decompilation:
+create foo
+5 constant bar
+: xxx foo bar ;
+simple-see xxx
+16 nov 2005
+
+Debian's gforth's etags.fs crashes (probably due to path problems)
+on b3:
+gforth etags.fs
+16 nov 2005
+
 -----
 Copyright (C) 1995,1996,1997,1998,2000,2003 Free Software Foundation, Inc.
 
