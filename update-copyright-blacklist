@@ -10,6 +10,7 @@ dosconf.h
 os2conf.h
 elisp-comp
 fib.fs
+fsl-util.4th
 gforth.lsm
 glosgen.glo
 install-sh

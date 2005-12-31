@@ -61,7 +61,7 @@ a fast and portable implementation of the ANS Forth language.  It
 serves as reference manual, but it also contains an introduction to
 Forth and a Forth tutorial.
 
-Copyright @copyright{} 1995, 1996, 1997, 1998, 2000, 2003, 2004 Free Software Foundation, Inc.
+Copyright @copyright{} 1995, 1996, 1997, 1998, 2000, 2003, 2004,2005 Free Software Foundation, Inc.
 
 @quotation
 Permission is granted to copy, distribute and/or modify this document
