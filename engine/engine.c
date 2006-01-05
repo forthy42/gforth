@@ -242,8 +242,8 @@ extern int gforth_memcmp(const char * s1, const char * s2, size_t n);
 #endif
 
 #if defined(HAS_FFCALL) || defined(HAS_LIBFFI)
-#define SAVE_REGS IF_fpTOS(fp[0]=fpTOS); SP=sp; FP=fp; RP=rp; LP=lp;
-#define REST_REGS sp=SP; fp=FP; rp=RP; lp=LP; IF_fpTOS(fpTOS=fp[0]);
+#define SAVE_REGS IF_fpTOS(fp[0]=fpTOS); gforth_SP=sp; gforth_FP=fp; gforth_RP=rp; gforth_LP=lp;
+#define REST_REGS sp=gforth_SP; fp=gforth_FP; rp=gforth_RP; lp=gforth_LP; IF_fpTOS(fpTOS=fp[0]);
 #endif
 
 #if !defined(ENGINE)
@@ -308,7 +308,7 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
   extern void ** clist;
   extern void ffi_callback(ffi_cif * cif, void * resp, void ** args, Xt * ip);
 #endif
-  register Address up UPREG = UP;
+  register Address up UPREG = gforth_UP;
   register Cell MAYBE_UNUSED spTOS TOSREG;
   register Cell MAYBE_UNUSED spb spbREG;
   register Cell MAYBE_UNUSED spc spcREG;

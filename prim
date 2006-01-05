@@ -1229,7 +1229,7 @@ useraddr	( #u -- a_addr )	new
 a_addr = (Cell *)(up+u);
 
 up!	( a_addr -- )	gforth	up_store
-UP=up=(char *)a_addr;
+gforth_UP=up=(char *)a_addr;
 :
  up ! ;
 Variable UP
@@ -1788,11 +1788,11 @@ access the stack itself. The stack pointers are exported in the global
 variables @code{SP} and @code{FP}.""
 /* This is a first attempt at support for calls to C. This may change in
    the future */
-FP=fp;
-SP=sp;
+gforth_FP=fp;
+gforth_SP=sp;
 ((void (*)())w)();
-sp=SP;
-fp=FP;
+sp=gforth_SP;
+fp=gforth_FP;
 
 \+
 \+file
@@ -2440,9 +2440,9 @@ u3 = 0;
 #endif
 
 wcall	( ... u -- ... )	gforth
-FP=fp;
-sp=(Cell*)(SYSCALL(Cell*(*)(Cell *, void *))u)(sp, &FP);
-fp=FP;
+gforth_FP=fp;
+sp=(Cell*)(SYSCALL(Cell*(*)(Cell *, void *))u)(sp, &gforth_FP);
+fp=gforth_FP;
 
 w@ ( a_addr -- u )	gforth wfetch
 u = *(UWyde*)(a_addr);
@@ -2565,7 +2565,7 @@ REST_REGS
 c_addr = prv;
 
 alloc-callback	( a_ip -- c_addr )	gforth	alloc_callback
-c_addr = (char *)alloc_callback(engine_callback, (Xt *)a_ip);
+c_addr = (char *)alloc_callback(gforth_callback, (Xt *)a_ip);
 
 va-start-void	( -- )	gforth	va_start_void
 va_start_void(clist);
@@ -2662,7 +2662,7 @@ ffi_call(a_cif, a_ip, a_rvalue, a_avalues);
 REST_REGS
 
 ffi-prep-closure ( a_ip a_cif a_closure -- w )	gforth ffi_prep_closure
-w = ffi_prep_closure(a_closure, a_cif, ffi_callback, a_ip);
+w = ffi_prep_closure(a_closure, a_cif, gforth_callback, a_ip);
 
 ffi-2@ ( a_addr -- d )	gforth ffi_2fetch
 #ifdef BUGGY_LONG_LONG

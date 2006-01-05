@@ -315,7 +315,7 @@ Label *engine2(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp);
 Label *engine3(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp);
 
 /* engine/prim support routines */
-Address my_alloc(Cell size);
+Address gforth_alloc(Cell size);
 char *cstr(Char *from, UCell size, int clear);
 char *tilde_cstr(Char *from, UCell size, int clear);
 DCell timeval2us(struct timeval *tvp);
@@ -376,21 +376,21 @@ extern int debug;
 # define debug 0
 #endif
 
-extern Cell *SP;
-extern Float *FP;
-extern Address UP;
+extern Cell *gforth_SP;
+extern Float *gforth_FP;
+extern Address gforth_UP;
 
 #ifdef HAS_FFCALL
-extern Cell *RP;
-extern Address LP;
-extern void engine_callback(Xt* fcall, void * alist);
+extern Cell *gforth_RP;
+extern Address gforth_LP;
+extern void gforth_callback(Xt* fcall, void * alist);
 #endif
 
 #ifdef HAS_LIBFFI
-extern Cell *RP;
-extern Address LP;
+extern Cell *gforth_RP;
+extern Address gforth_LP;
 #include <ffi.h>
-extern void ffi_callback(ffi_cif * cif, void * resp, void ** args, Xt * ip);
+extern void gforth_callback(ffi_cif * cif, void * resp, void ** args, Xt * ip);
 #endif
 
 #ifdef GFORTH_DEBUGGING

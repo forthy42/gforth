@@ -56,53 +56,53 @@ typedef enum prim_num {
 /* global variables for engine.c 
    We put them here because engine.c is compiled several times in
    different ways for the same engine. */
-Cell *SP;
-Float *FP;
-Address UP=NULL;
+Cell *gforth_SP;
+Float *gforth_FP;
+Address gforth_UP=NULL;
 
 #ifdef HAS_FFCALL
-Cell *RP;
-Address LP;
+Cell *gforth_RP;
+Address gforth_LP;
 
 #include <callback.h>
 
-va_alist clist;
+va_alist gforth_clist;
 
-void engine_callback(Xt* fcall, void * alist)
+void gforth_callback(Xt* fcall, void * alist)
 {
   /* save global valiables */
-  Cell *rp = RP;
-  Cell *sp = SP;
-  Float *fp = FP;
-  Address lp = LP;
+  Cell *rp = gforth_RP;
+  Cell *sp = gforth_SP;
+  Float *fp = gforth_FP;
+  Address lp = gforth_LP;
 
-  clist = (va_alist)alist;
+  gforth_clist = (va_alist)alist;
 
-  engine(fcall, sp, rp, fp, lp);
+  gforth_engine(fcall, sp, rp, fp, lp);
 
   /* restore global variables */
-  RP = rp;
-  SP = sp;
-  FP = fp;
-  LP = lp;
+  gforth_RP = rp;
+  gforth_SP = sp;
+  gforth_FP = fp;
+  gforth_LP = lp;
 }
 #endif
 
 #ifdef HAS_LIBFFI
-Cell *RP;
-Address LP;
+Cell *gforth_RP;
+Address gforth_LP;
 
 #include <ffi.h>
 
 void ** clist;
 void * ritem;
 
-void ffi_callback(ffi_cif * cif, void * resp, void ** args, Xt * ip)
+void gforth_callback(ffi_cif * cif, void * resp, void ** args, Xt * ip)
 {
-  Cell *rp = RP;
-  Cell *sp = SP;
-  Float *fp = FP;
-  Address lp = LP;
+  Cell *rp = gforth_RP;
+  Cell *sp = gforth_SP;
+  Float *fp = gforth_FP;
+  Address lp = gforth_LP;
 
   clist = args;
   ritem = resp;
@@ -110,10 +110,10 @@ void ffi_callback(ffi_cif * cif, void * resp, void ** args, Xt * ip)
   engine(ip, sp, rp, fp, lp);
 
   /* restore global variables */
-  RP = rp;
-  SP = sp;
-  FP = fp;
-  LP = lp;
+  gforth_RP = rp;
+  gforth_SP = sp;
+  gforth_FP = fp;
+  gforth_LP = lp;
 }
 #endif
 
@@ -319,7 +319,7 @@ Cell groups[32] = {
 #define GROUPADD(n)
 };
 
-unsigned char *branch_targets(Cell *image, const unsigned char *bitstring,
+static unsigned char *branch_targets(Cell *image, const unsigned char *bitstring,
 			      int size, Cell base)
      /* produce a bitmask marking all the branch targets */
 {
@@ -345,8 +345,8 @@ unsigned char *branch_targets(Cell *image, const unsigned char *bitstring,
   return result;
 }
 
-void relocate(Cell *image, const unsigned char *bitstring, 
-              int size, Cell base, Label symbols[])
+void gforth_relocate(Cell *image, const unsigned char *bitstring, 
+		     int size, Cell base, Label symbols[])
 {
   int i=0, j, k, steps=(((size-1)/sizeof(Cell))/RELINFOBITS)+1;
   Cell token;
@@ -447,7 +447,7 @@ void relocate(Cell *image, const unsigned char *bitstring,
   ((ImageHeader*)(image))->base = (Address) image;
 }
 
-UCell checksum(Label symbols[])
+static UCell checksum(Label symbols[])
 {
   UCell r=PRIM_VERSION;
   Cell i;
@@ -471,7 +471,7 @@ UCell checksum(Label symbols[])
   return r;
 }
 
-Address verbose_malloc(Cell size)
+static Address verbose_malloc(Cell size)
 {
   Address r;
   /* leave a little room (64B) for stack underflows */
@@ -485,7 +485,7 @@ Address verbose_malloc(Cell size)
 }
 
 static Address next_address=0;
-void after_alloc(Address r, Cell size)
+static void after_alloc(Address r, Cell size)
 {
   if (r != (Address)-1) {
     debugp(stderr, "success, address=$%lx\n", (long) r);
@@ -538,7 +538,7 @@ static Address alloc_mmap(Cell size)
 }
 #endif
 
-Address my_alloc(Cell size)
+Address gforth_alloc(Cell size)
 {
 #if HAVE_MMAP
   Address r;
@@ -551,7 +551,7 @@ Address my_alloc(Cell size)
   return verbose_malloc(size);
 }
 
-Address dict_alloc_read(FILE *file, Cell imagesize, Cell dictsize, Cell offset)
+static Address dict_alloc_read(FILE *file, Cell imagesize, Cell dictsize, Cell offset)
 {
   Address image = MAP_FAILED;
 
@@ -569,7 +569,7 @@ Address dict_alloc_read(FILE *file, Cell imagesize, Cell dictsize, Cell offset)
   }
 #endif /* defined(HAVE_MMAP) */
   if (image == (Address)MAP_FAILED) {
-    image = my_alloc(dictsize+offset)+offset;
+    image = gforth_alloc(dictsize+offset)+offset;
   read_image:
     rewind(file);  /* fseek(imagefile,0L,SEEK_SET); */
     fread(image, 1, imagesize, file);
@@ -604,14 +604,14 @@ void alloc_stacks(ImageHeader * header)
   header->return_stack_size=rsize;
   header->locals_stack_size=lsize;
 
-  header->data_stack_base=my_alloc(dsize);
-  header->fp_stack_base=my_alloc(fsize);
-  header->return_stack_base=my_alloc(rsize);
-  header->locals_stack_base=my_alloc(lsize);
+  header->data_stack_base=gforth_alloc(dsize);
+  header->fp_stack_base=gforth_alloc(fsize);
+  header->return_stack_base=gforth_alloc(rsize);
+  header->locals_stack_base=gforth_alloc(lsize);
 }
 
-#warning You can ignore the warnings about clobbered variables in go_forth
-int go_forth(Address image, int stack, Cell *entries)
+#warning You can ignore the warnings about clobbered variables in gforth_go
+int gforth_go(Address image, int stack, Cell *entries)
 {
   volatile ImageHeader *image_header = (ImageHeader *)image;
   Cell *sp0=(Cell*)(image_header->data_stack_base + dsize);
@@ -672,7 +672,7 @@ int go_forth(Address image, int stack, Cell *entries)
 }
 
 #ifndef INCLUDE_IMAGE
-void print_sizes(Cell sizebyte)
+static void print_sizes(Cell sizebyte)
      /* print size information */
 {
   static char* endianstring[]= { "   big","little" };
@@ -723,7 +723,7 @@ int max_super=2;
 
 struct super_state *state_transitions=NULL;
 
-int hash_super(PrimNum *start, int length)
+static int hash_super(PrimNum *start, int length)
 {
   int i, r;
   
@@ -734,7 +734,7 @@ int hash_super(PrimNum *start, int length)
   return r & (HASH_SIZE-1);
 }
 
-struct super_state **lookup_super(PrimNum *start, int length)
+static struct super_state **lookup_super(PrimNum *start, int length)
 {
   int hash=hash_super(start,length);
   struct super_table_entry *p = super_table[hash];
@@ -748,7 +748,7 @@ struct super_state **lookup_super(PrimNum *start, int length)
   return NULL;
 }
 
-void prepare_super_table()
+static void prepare_super_table()
 {
   int i;
   int nsupers = 0;
@@ -791,7 +791,7 @@ void prepare_super_table()
 /* dynamic replication/superinstruction stuff */
 
 #ifndef NO_DYNAMIC
-int compare_priminfo_length(const void *_a, const void *_b)
+static int compare_priminfo_length(const void *_a, const void *_b)
 {
   PrimInfo **a = (PrimInfo **)_a;
   PrimInfo **b = (PrimInfo **)_b;
@@ -814,14 +814,14 @@ Cell npriminfos=0;
 Label goto_start;
 Cell goto_len;
 
-int compare_labels(const void *pa, const void *pb)
+static int compare_labels(const void *pa, const void *pb)
 {
   Label a = *(Label *)pa;
   Label b = *(Label *)pb;
   return a-b;
 }
 
-Label bsearch_next(Label key, Label *a, UCell n)
+static Label bsearch_next(Label key, Label *a, UCell n)
      /* a is sorted; return the label >=key that is the closest in a;
         return NULL if there is no label in a >=key */
 {
@@ -840,7 +840,7 @@ Label bsearch_next(Label key, Label *a, UCell n)
     return bsearch_next(key, a, mid+1);
 }
 
-void check_prims(Label symbols1[])
+static void check_prims(Label symbols1[])
 {
   int i;
 #ifndef NO_DYNAMIC
@@ -980,7 +980,7 @@ void check_prims(Label symbols1[])
 #endif
 }
 
-void flush_to_here(void)
+static void flush_to_here(void)
 {
 #ifndef NO_DYNAMIC
   if (start_flush)
@@ -990,7 +990,7 @@ void flush_to_here(void)
 }
 
 #ifndef NO_DYNAMIC
-void append_jump(void)
+static void append_jump(void)
 {
   if (last_jump) {
     PrimInfo *pi = &priminfos[last_jump];
@@ -1016,7 +1016,7 @@ struct code_block_list {
   Cell size;
 } *code_block_list=NULL, **next_code_blockp=&code_block_list;
 
-Address append_prim(Cell p)
+static Address append_prim(Cell p)
 {
   PrimInfo *pi = &priminfos[p];
   Address old_code_here = code_here;
@@ -1026,7 +1026,7 @@ Address append_prim(Cell p)
     append_jump();
     flush_to_here();
     if (*next_code_blockp == NULL) {
-      code_here = start_flush = code_area = my_alloc(code_area_size);
+      code_here = start_flush = code_area = gforth_alloc(code_area_size);
       p = (struct code_block_list *)malloc(sizeof(struct code_block_list));
       *next_code_blockp = p;
       p->next = NULL;
@@ -1065,7 +1065,7 @@ int forget_dyncode(Address code)
 #endif /* !defined(NO_DYNAMIC) */
 }
 
-long dyncodesize(void)
+static long dyncodesize(void)
 {
 #ifndef NO_DYNAMIC
   struct code_block_list *p;
@@ -1122,12 +1122,12 @@ struct doesexecinfo {
   Cell *xt; /* cfa of word whose does-code needs calling */
 } doesexecinfos[10000];
 
-void set_rel_target(Cell *source, Label target)
+static void set_rel_target(Cell *source, Label target)
 {
   *source = ((Cell)target)-(((Cell)source)+4);
 }
 
-void register_branchinfo(Label source, Cell *targetpp)
+static void register_branchinfo(Label source, Cell *targetpp)
 {
   struct branchinfo *bi = &(branchinfos[nbranchinfos]);
   bi->targetpp = (Label **)targetpp;
@@ -1135,7 +1135,7 @@ void register_branchinfo(Label source, Cell *targetpp)
   nbranchinfos++;
 }
 
-Address compile_prim1arg(PrimNum p, Cell **argp)
+static Address compile_prim1arg(PrimNum p, Cell **argp)
 {
   Address old_code_here=append_prim(p);
 
@@ -1144,7 +1144,7 @@ Address compile_prim1arg(PrimNum p, Cell **argp)
   return old_code_here;
 }
 
-Address compile_call2(Cell *targetpp, Cell **next_code_targetp)
+static Address compile_call2(Cell *targetpp, Cell **next_code_targetp)
 {
   PrimInfo *pi = &priminfos[N_call2];
   Address old_code_here = append_prim(N_call2);
@@ -1179,7 +1179,7 @@ void finish_code(void)
 }
 
 #ifdef NO_IP
-Cell compile_prim_dyn(PrimNum p, Cell *tcp)
+static Cell compile_prim_dyn(PrimNum p, Cell *tcp)
      /* compile prim #p dynamically (mod flags etc.) and return start
 	address of generated code for putting it into the threaded
 	code. This function is only called if all the associated
@@ -1234,7 +1234,7 @@ Cell compile_prim_dyn(PrimNum p, Cell *tcp)
   return (Cell)codeaddr;
 }
 #else /* !defined(NO_IP) */
-Cell compile_prim_dyn(PrimNum p, Cell *tcp)
+static Cell compile_prim_dyn(PrimNum p, Cell *tcp)
      /* compile prim #p dynamically (mod flags etc.) and return start
         address of generated code for putting it into the threaded code */
 {
@@ -1260,27 +1260,27 @@ Cell compile_prim_dyn(PrimNum p, Cell *tcp)
 #endif /* !defined(NO_IP) */
 
 #ifndef NO_DYNAMIC
-int cost_codesize(int prim)
+static int cost_codesize(int prim)
 {
   return priminfos[prim].length;
 }
 #endif
 
-int cost_ls(int prim)
+static int cost_ls(int prim)
 {
   struct cost *c = super_costs+prim;
 
   return c->loads + c->stores;
 }
 
-int cost_lsu(int prim)
+static int cost_lsu(int prim)
 {
   struct cost *c = super_costs+prim;
 
   return c->loads + c->stores + c->updates;
 }
 
-int cost_nexts(int prim)
+static int cost_nexts(int prim)
 {
   return 1;
 }
@@ -1346,7 +1346,7 @@ long lb_newstate_new = 0;
 long lb_applicable_base_rules = 0;
 long lb_applicable_chain_rules = 0;
 
-void init_waypoints(struct waypoint ws[])
+static void init_waypoints(struct waypoint ws[])
 {
   int k;
 
@@ -1354,7 +1354,7 @@ void init_waypoints(struct waypoint ws[])
     ws[k].cost=INF_COST;
 }
 
-struct tpa_state *empty_tpa_state()
+static struct tpa_state *empty_tpa_state()
 {
   struct tpa_state *s = malloc(sizeof(struct tpa_state));
 
@@ -1365,7 +1365,7 @@ struct tpa_state *empty_tpa_state()
   return s;
 }
 
-void transitions(struct tpa_state *t)
+static void transitions(struct tpa_state *t)
 {
   int k;
   struct super_state *l;
@@ -1394,7 +1394,7 @@ void transitions(struct tpa_state *t)
   }
 }
 
-struct tpa_state *make_termstate()
+static struct tpa_state *make_termstate()
 {
   struct tpa_state *s = empty_tpa_state();
 
@@ -1412,13 +1412,13 @@ struct tpa_entry {
   struct tpa_state *state_infront; /* note: brack-to-front labeling */
 } *tpa_table[TPA_SIZE];
 
-Cell hash_tpa(PrimNum p, struct tpa_state *t)
+static Cell hash_tpa(PrimNum p, struct tpa_state *t)
 {
   UCell it = (UCell )t;
   return (p+it+(it>>14))&(TPA_SIZE-1);
 }
 
-struct tpa_state **lookup_tpa(PrimNum p, struct tpa_state *t2)
+static struct tpa_state **lookup_tpa(PrimNum p, struct tpa_state *t2)
 {
   int hash=hash_tpa(p, t2);
   struct tpa_entry *te = tpa_table[hash];
@@ -1441,7 +1441,7 @@ struct tpa_state **lookup_tpa(PrimNum p, struct tpa_state *t2)
   return &(te->state_infront);
 }
 
-void tpa_state_normalize(struct tpa_state *t)
+static void tpa_state_normalize(struct tpa_state *t)
 {
   /* normalize so cost of canonical state=0; this may result in
      negative states for some states */
@@ -1456,7 +1456,7 @@ void tpa_state_normalize(struct tpa_state *t)
   }
 }
 
-int tpa_state_equivalent(struct tpa_state *t1, struct tpa_state *t2)
+static int tpa_state_equivalent(struct tpa_state *t1, struct tpa_state *t2)
 {
   return (memcmp(t1->inst, t2->inst, maxstates*sizeof(struct waypoint)) == 0 &&
 	  memcmp(t1->trans,t2->trans,maxstates*sizeof(struct waypoint)) == 0);
@@ -1467,7 +1467,7 @@ struct tpa_state_entry {
   struct tpa_state *state;
 } *tpa_state_table[TPA_SIZE];
 
-Cell hash_tpa_state(struct tpa_state *t)
+static Cell hash_tpa_state(struct tpa_state *t)
 {
   int *ti = (int *)(t->inst);
   int *tt = (int *)(t->trans);
@@ -1479,7 +1479,7 @@ Cell hash_tpa_state(struct tpa_state *t)
   return (r+(r>>14)+(r>>22)) & (TPA_SIZE-1);
 }
 
-struct tpa_state *lookup_tpa_state(struct tpa_state *t)
+static struct tpa_state *lookup_tpa_state(struct tpa_state *t)
 {
   Cell hash = hash_tpa_state(t);
   struct tpa_state_entry *te = tpa_state_table[hash];
@@ -1509,7 +1509,7 @@ struct tpa_state *lookup_tpa_state(struct tpa_state *t)
 /* use dynamic programming to find the shortest paths within the basic
    block origs[0..ninsts-1] and rewrite the instructions pointed to by
    instps to use it */
-void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
+static void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
 {
   int i,j;
   struct tpa_state *ts[ninsts+1];
@@ -1672,7 +1672,7 @@ void compile_prim1(Cell *start)
 #endif /* !(defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED)) */
 }
 
-Address loader(FILE *imagefile, char* filename)
+Address gforth_loader(FILE *imagefile, char* filename)
 /* returns the address of the image proper (after the preamble) */
 {
   ImageHeader header;
@@ -1763,7 +1763,7 @@ Address loader(FILE *imagefile, char* filename)
     char reloc_bits[reloc_size];
     fseek(imagefile, preamblesize+header.image_size, SEEK_SET);
     fread(reloc_bits, 1, reloc_size, imagefile);
-    relocate((Cell *)imp, reloc_bits, header.image_size, (Cell)header.base, vm_prims);
+    gforth_relocate((Cell *)imp, reloc_bits, header.image_size, (Cell)header.base, vm_prims);
 #if 0
     { /* let's see what the relocator did */
       FILE *snapshot=fopen("snapshot.fi","wb");
@@ -1796,12 +1796,12 @@ Address loader(FILE *imagefile, char* filename)
 }
 
 /* pointer to last '/' or '\' in file, 0 if there is none. */
-char *onlypath(char *filename)
+static char *onlypath(char *filename)
 {
   return strrchr(filename, DIRSEP);
 }
 
-FILE *openimage(char *fullfilename)
+static FILE *openimage(char *fullfilename)
 {
   FILE *image_file;
   char * expfilename = tilde_cstr(fullfilename, strlen(fullfilename), 1);
@@ -1813,7 +1813,7 @@ FILE *openimage(char *fullfilename)
 }
 
 /* try to open image file concat(path[0:len],imagename) */
-FILE *checkimage(char *path, int len, char *imagename)
+static FILE *checkimage(char *path, int len, char *imagename)
 {
   int dirlen=len;
   char fullfilename[dirlen+strlen(imagename)+2];
@@ -1825,7 +1825,7 @@ FILE *checkimage(char *path, int len, char *imagename)
   return openimage(fullfilename);
 }
 
-FILE * open_image_file(char * imagename, char * path)
+static FILE * open_image_file(char * imagename, char * path)
 {
   FILE * image_file=NULL;
   char *origpath=path;
@@ -1858,7 +1858,7 @@ FILE * open_image_file(char * imagename, char * path)
 #endif
 
 #ifdef HAS_OS
-UCell convsize(char *s, UCell elemsize)
+static UCell convsize(char *s, UCell elemsize)
 /* converts s of the format [0-9]+[bekMGT]? (e.g. 25k) into the number
    of bytes.  the letter at the end indicates the unit, where e stands
    for the element size. default is e */
@@ -2016,7 +2016,7 @@ SIZE arguments consist of an integer followed by a unit. The unit can be\n\
 }
 #endif
 
-void print_diag()
+static void print_diag()
 {
 
 #if !defined(HAVE_GETRUSAGE) || (!defined(HAS_FFCALL) && !defined(HAS_LIBFFI))
@@ -2129,12 +2129,12 @@ int main(int argc, char **argv, char **env)
 #ifdef INCLUDE_IMAGE
   set_stack_sizes((ImageHeader *)image);
   if(((ImageHeader *)image)->base != image)
-    relocate(image, reloc_bits, ((ImageHeader *)image)->image_size,
-	     (Label*)engine(0, 0, 0, 0, 0));
+    gforth_relocate(image, reloc_bits, ((ImageHeader *)image)->image_size,
+		    (Label*)engine(0, 0, 0, 0, 0));
   alloc_stacks((ImageHeader *)image);
 #else
   image_file = open_image_file(imagename, path);
-  image = loader(image_file, imagename);
+  image = gforth_loader(image_file, imagename);
 #endif
   gforth_header=(ImageHeader *)image; /* used in SIGSEGV handler */
 
@@ -2160,7 +2160,7 @@ int main(int argc, char **argv, char **env)
       else
 	*p2 = *p1;
     *p2='\0';
-    retvalue = go_forth(image, 4, environ);
+    retvalue = gforth_go(image, 4, environ);
 #ifdef SIGPIPE
     bsd_signal(SIGPIPE, SIG_IGN);
 #endif
