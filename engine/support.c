@@ -349,29 +349,39 @@ Cell to_float(Char *c_addr, UCell u, Float *rp)
   char *number=cstr(c_addr, u, 1);
   char *endconv;
   int sign = 0;
+  if(number[0]==' ') {
+    UCell i;
+    for (i=1; i<u; i++)
+      if (number[i] != ' ')
+	return 0;
+    return -1;
+  }
   if(number[0]=='-') {
     sign = 1;
     number++;
     u--;
+    if (u==0)
+      return 0;
   }
-  while(isspace((unsigned)(number[--u])) && u>0)
-    ;
-  switch(number[u]) {
+  switch(number[u-1]) {
   case 'd':
   case 'D':
   case 'e':
-  case 'E':  break;
-  default :  u++; break;
+  case 'E':  
+    u--;
+    break;
   }
   number[u]='\0';
   r=strtod(number,&endconv);
-  if((flag=FLAG(!(Cell)*endconv))) {
+  flag=FLAG((*endconv)=='\0');
+  if(flag) {
     if (sign)
       r = -r;
   } else if(*endconv=='d' || *endconv=='D') {
     *endconv='E';
     r=strtod(number,&endconv);
-    if((flag=FLAG(!(Cell)*endconv))) {
+    flag=FLAG((*endconv)=='\0');
+    if (flag) {
       if (sign)
 	r = -r;
     }

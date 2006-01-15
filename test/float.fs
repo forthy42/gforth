@@ -43,3 +43,9 @@ decimal
 { -4503599627370497. d>f fdup fround f= -> true }
 { -9007199254740991. d>f fdup fround f= -> true }
 { 1.49999e fround 1e f= -> true }
+
+\ >float (very incomplete, just a regression test)
+{ s" -" >float -> false }
+{ s" +" >float -> false }
+{ s"   " >float 0e f= -> true true }
+
