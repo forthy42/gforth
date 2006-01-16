@@ -354,6 +354,7 @@ Cell to_float(Char *c_addr, UCell u, Float *rp)
     for (i=1; i<u; i++)
       if (number[i] != ' ')
 	return 0;
+    *rp = 0.0;
     return -1;
   }
   if(number[0]=='-') {
