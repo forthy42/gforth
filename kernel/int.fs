@@ -121,7 +121,7 @@ const Create bases   0A , 10 ,   2 ,   0A ,
 	drop
     THEN ;
 
-: sign? ( addr u -- addr u flag )
+: sign? ( addr u -- addr1 u1 flag )
     over c@ [char] - =  dup >r
     IF
 	1 /string
@@ -135,7 +135,8 @@ const Create bases   0A , 10 ,   2 ,   0A ,
     endif
     x@+/string 0 s" '" 2rot string-prefix? ;
 
-: s>unumber? ( addr u -- ud flag )
+: s>unumber? ( addr u -- ud flag ) \ gforth
+    \G converts string addr len into ud, flag indicates success
     dpl on
     over c@ '' = if
 	1 /string s'>unumber? exit
@@ -158,8 +159,8 @@ const Create bases   0A , 10 ,   2 ,   0A ,
     r> base ! ;
 
 \ ouch, this is complicated; there must be a simpler way - anton
-: s>number? ( addr len -- d f )
-    \ converts string addr len into d, flag indicates success
+: s>number? ( addr len -- d f ) \ gforth
+    \G converts string addr len into d, flag indicates success
     sign? >r
     s>unumber?
     0= IF

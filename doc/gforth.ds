@@ -8929,8 +8929,11 @@ doc-edit-line
 
 Conversion words:
 
+doc-s>number?
+doc-s>unumber?
 doc->number
 doc->float
+
 
 @comment obsolescent words..
 Obsolescent input and conversion words:
