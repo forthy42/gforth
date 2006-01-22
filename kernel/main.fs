@@ -45,8 +45,10 @@ include ./../cross.fs              \ cross-compiler
 
 decimal
 
-has? kernel-start has? kernel-size makekernel
-\ create image-header
+has? rom 0= [IF]
+    has? kernel-start has? kernel-size makekernel
+[THEN]
+    \ create image-header
 has? header [IF]
 here 1802 over 
     A,                  \ base address
@@ -113,8 +115,10 @@ has? compiler [IF]
     [THEN]
 [THEN]
 include ./quotes.fs
+has? ec 0= [IF]
 include ./toolsext.fs
 include ./tools.fs               \ load tools ( .s dump )
+[THEN]
 include ./getdoers.fs
 
 \ Setup                                                13feb93py

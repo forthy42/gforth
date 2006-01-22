@@ -9,11 +9,11 @@
 \ - R8C.ASM supports OPCodes of Renesas R8C Microcomputer in
 \   postfix notation.
 
- only forth definitions
+\ only forth definitions
 
- VOCABULARY R8C-ASSEMBLER
+require asm/basic.fs
 
- also R8C-ASSEMBLER definitions
+ also ASSEMBLER definitions
 
 \ for tests only                hfs 07:47 04/24/92
 
@@ -134,8 +134,8 @@
    DUP 1+  C@ <OPC> 1+  C!    ( opc from GROUP2: )
    2 + @ DUP @                ( tableaddr )
    SWAP 1 cells +             ( end+2 begin )
-   ?DO [ forth ] I [ r8c-assembler ] @ <M> @ =
-       IF [ forth ] I [ r8c-assembler ] 1 cells + @ swap 0= LEAVE THEN
+   ?DO [ forth ] I [ assembler ] @ <M> @ =
+       IF [ forth ] I [ assembler ] 1 cells + @ swap 0= LEAVE THEN
    2 cells +LOOP ABORT" Addressmode failed" ;
 
  : SEARCH.MODE.4 ( addr -- xt )
@@ -146,8 +146,8 @@
    DUP 3 + C@ <OPC> 3 + C!    ( opc from GROUP4: )
    4 + @ DUP @                ( tableaddr )
    SWAP 1 cells +             ( end+2 begin )
-   ?DO [ forth ] I [ r8c-assembler ] @ <M> @ =
-       IF [ forth ] I [ r8c-assembler ] 1 cells + @ swap 0= LEAVE THEN
+   ?DO [ forth ] I [ assembler ] @ <M> @ =
+       IF [ forth ] I [ assembler ] 1 cells + @ swap 0= LEAVE THEN
    2 cells +LOOP ABORT" Addressmode failed" ;
 
 \ GROUPS                                     hfs 07:18 04/24/92
@@ -915,8 +915,28 @@
 
 \ ----------------------------------------------------------------------------------------------
 
-include asm-test.fs
+	 $68 Constant u>=
+	 $69 Constant u>
+	 $6A Constant 0=
+	 $6B Constant 0<
+	 $6C Constant u<
+	 $6D Constant u<=
+	 $6E Constant 0<>
+	 $6F Constant 0>=
+	 
+: IF          >r reset r> X c,   X here  0 X c, ;
+: THEN        >r reset r> X here  over - swap X c!  ;
+: ELSE        >r reset r> $FE IF swap THEN ;
+: WHILE       >r reset r> IF swap ;
+: BEGIN       reset X here  ;
+: UNTIL       >r reset r> X c,   X here -  X c,  ;
+: AGAIN       >r reset r> $FE UNTIL ;
+: REPEAT      >r >r reset r> r> AGAIN THEN ;
+
+	 
+\ include asm-test.fs
 
  HERE  SWAP -
  CR .( Length of Assembler: ) . .( Bytes ) CR
+
 

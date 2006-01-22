@@ -34,6 +34,7 @@ start-macros
  \ register definition
   ' R3 Alias rp
   ' R0 Alias tos
+  ' R0L Alias tos.b
   ' A1 Alias ip
   ' A0 Alias w
   ' [A1] Alias [ip]
@@ -54,8 +55,11 @@ start-macros
 end-macros
 
   unlock
-    $0000 $3000 region dictionary
-    setup-target
+    $0000 $FFFF region address-space
+    $C000 $4000 region rom-dictionary
+    $0400 $0400  region ram-dictionary
+  .regions
+  setup-target
   lock
 
 \ ==============================================================
@@ -63,7 +67,7 @@ end-macros
 \ ==============================================================
   Label into-forth
     # $ffff , ip mov.w:g            \ ip will be patched
-    # $fef0 , sp mov.w:g            \ sp at $FD80...$FEF0
+    # $fef0 , sp ldc                \ sp at $FD80...$FEF0
     # $fd80 , rp mov.w:g            \ rp at $F.00...$FD80
     next,
   End-Label
@@ -84,7 +88,7 @@ end-macros
 
   Code: :dovar
 \    '2 dout,                    \ only for debugging
-    tos push.w
+    tos push.w:g
     # 4 , w add.w:q
     w , tos mov.w:g
     next,
@@ -107,75 +111,141 @@ end-macros
   Code execute   ( xt -- ) \ execute colon definition
 \    'E dout,                    \ only for debugging
     tos , w mov.w:g                             \ copy tos to w
-    tos pop.w                                   \ get new tos
-    [w] jmpi                                    \ execute
+    tos pop.w:g                                 \ get new tos
+    [w] jmpi.w                                  \ execute
   End-Code
 
   Code ?branch   ( f -- ) \ jump on f<>0
-      \ TBD
+      [ip] , w mov.w:g
+      tos , tos tst.w   0<> IF  w , ip mov.w:g   THEN
+      next,
   End-Code
 
 
  \ memory access
   Code @        ( addr -- n ) \ read cell
-      tos , w mov.w:g  [w] tos mov.w:g
+      tos , w mov.w:g  [w] , tos mov.w:g
       next,
    End-Code
 
   Code !        ( n addr -- ) \ write cell
-      tos , w mov.w:g  tos pop.w  tos , [w] mov.w:g
-      tos pop.w
+      tos , w mov.w:g  tos pop.w:g  tos , [w] mov.w:g
+      tos pop.w:g
       next,
    End-Code
 
-   0 [IF]
-       things not done yet
- \ datastack and returnstack address
-  Code sp@      ( -- sp ) \ get stack address
-    tos push,
-    fsp tos mov,
-    next,
+  Code c@        ( addr -- n ) \ read cell
+      tos , w mov.w:g  tos , tos xor.w  [w] , tos.b mov.b:g
+      next,
    End-Code
 
+  Code c!        ( n addr -- ) \ write cell
+      tos , w mov.w:g  tos pop.w:g  tos.b , [w] mov.b:g
+      tos pop.w:g
+      next,
+   End-Code
+
+ \ arithmetic and logic
+  Code +        ( n1 n2 -- n3 ) \ addition
+      r1 pop.w:g
+      r1 , tos add.w:g
+      next,
+  End-Code
+  
+  Code -        ( n1 n2 -- n3 ) \ addition
+      r1 pop.w:g
+      tos , r1 sub.w:g
+      r1 , tos mov.w:g
+      next,
+  End-Code
+
+  Code and        ( n1 n2 -- n3 ) \ addition
+      r1 pop.w:g
+      r1 , tos and.w:g
+      next,
+  End-Code
+  
+  Code or       ( n1 n2 -- n3 ) \ addition
+      r1 pop.w:g
+      r1 , tos or.w:g
+      next,
+  End-Code
+  
+  Code xor      ( n1 n2 -- n3 ) \ addition
+      r1 pop.w:g
+      r1 , tos xor.w
+      next,
+   End-Code
+
+ \ moving datas between stacks
+  Code r>       ( -- n ; R: n -- )
+      tos push.w:g
+      rp , w mov.w:g
+      [w] , tos mov.w:g
+      # 2 , rp add.w:g
+      next,
+   End-Code
+
+   Code >r       ( n -- ; R: -- n )
+       # -2 , rp add.w:g
+       rp , w mov.w:g
+       tos , [w] mov.w:g
+       tos pop.w:g
+       next,
+   End-Code
+
+ \ datastack and returnstack address
+  Code sp@      ( -- sp ) \ get stack address
+      tos push.w:g
+      sp , tos stc
+      next,
+  End-Code
+
   Code sp!      ( sp -- ) \ set stack address
-    tos fsp mov,
-    tos pop,
-    next,
+      tos , sp ldc
+      tos pop.w:g
+      next,
   End-Code
 
   Code rp@      ( -- rp ) \ get returnstack address
-    tos push,
-    frp tos mov,
+    tos push.w:g
+    rp , tos mov.w:g
     next,
   End-Code
 
   Code rp!      ( rp -- ) \ set returnstack address
-    tos frp mov,
-    tos pop,
-    next,
+      tos , rp mov.w:g
+      tos pop.w:g
+      next,
   End-Code
 
+  Code: :docon
+      tos push.w:g
+      4 [w] , tos mov.w:g
+      next,
+  End-Code
 
- \ arithmetic and logic
-  Code +        ( n1 n2 -- n3 ) \ addition
-    ax pop,
-    ax tos add,
-    next,
+  Code: :dodefer
+      4 [w] , w mov.w:g
+      [w] jmpi.w
+  End-Code
+
+  Code branch   ( -- ) \ unconditional branch
+      [ip] , ip mov.w:g
+      next,
    End-Code
 
-  Code xor      ( n1 n2 -- n3 ) \ logic XOR
-    ax pop,
-    ax tos xor,
-    next,
+  Code lit     ( -- n ) \ inline literal
+      tos push.w:g
+      [ip] , tos mov.w:g
+      # 2 , ip add.w:g
+      next,
    End-Code
 
-  Code and      ( n1 n2 -- n3 ) \ logic AND
-    ax pop,
-    ax tos and,
-    next,
-   End-Code
+Code: :doesjump
+end-code
 
-
+0 [IF]
  \ i/o
   Variable lastkey      \ Flag und Zeichencode der letzen Taste
 
@@ -199,54 +269,9 @@ end-macros
   End-Code
 
 \ ==============================================================
-\ additional words (for awaitable response)
-\ ==============================================================
- \ memory character access
-  Code c@       ( addr -- c ) \ read character
-    tos ) tosl mov,
-    tosh tosh xor,
-    next,
-   End-Code
-
-  Code c!       ( c addr -- ) \ write character
-    ax pop,
-    al tos ) mov,
-    tos pop,
-    next,
-   End-Code
-
-
- \ moving datas between stacks
-  Code r>       ( -- n ; R: n -- )
-    tos push,
-    frp ) tos mov,  frp inc,  frp inc,
-    next,
-   End-Code
-
-  Code >r       ( n -- ; R: -- n )
-    frp dec,  frp dec,  tos frp ) mov,
-    tos pop,
-    next,
-   End-Code
-
-\ ==============================================================
 \ usefull lowlevel words
 \ ==============================================================
  \ word definitions
-
-  Code: :docon
-    '1 dout,                    \ only for debugging
-    tos push,
-    4 w d) tos lea,
-    tos ) tos mov,
-    next,
-  End-Code
-
-  Code: :dodefer
-    '4 dout,                    \ only for debugging
-    4 w d) w mov,
-    [w] jmp,
-  End-Code
 
 
  \ branch and literal
@@ -419,12 +444,6 @@ end-macros
     next,
    End-Code
 
-\ ======================== not ready ============================
-0 [IF]  \ not jet adapted
-
-\ ======================== not ready ============================
-[ENDIF]
-
   Code (bye)     ( -- ) \ back to DOS
      ax pop,  $4c # ah mov,  $21 int,
     End-Code
@@ -434,3 +453,10 @@ end-macros
 Code: :doesjump
 end-code
 [then]
+
+Code (bye)     ( 0 -- ) \ back to DOS
+    tos pop.w:g
+    next,
+End-Code
+
+: bye ( -- )  0 (bye) ;

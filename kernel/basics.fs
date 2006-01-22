@@ -283,7 +283,11 @@ is throw
 
 : clearstacks ( ... -- ) \ gforth clear-stacks
 \G empty data and FP stack
-    clearstack fp0 @ fp! ;
+    clearstack
+[ has? floating [IF] ]
+    fp0 @ fp!
+[ [THEN] ]
+;
 
 \ Strings						 22feb93py
 
