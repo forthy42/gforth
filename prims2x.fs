@@ -205,6 +205,7 @@ struct%
 end-struct ss% \ stack-state
 
 struct%
+    cell%              field state-enabled
     cell%              field state-number
     cell% max-stacks * field state-sss
 end-struct state%
@@ -755,10 +756,17 @@ stack inst-stream IP Cell
 : state ( "name" -- )
     \ create a state initialized with default-sss
     create state% %allot { s }
+    s state-enabled on
     next-state-number @ s state-number ! 1 next-state-number +!
     max-stacks 0 ?do
 	default-ss s state-sss i th !
     loop ;
+
+: state-disable ( state -- )
+    state-enabled off ;
+
+: state-enabled? ( state -- f )
+    state-enabled @ ;
 
 : .state ( state -- )
     0 >body - >name .name ;
@@ -1462,6 +1470,7 @@ variable reprocessed-num 0 reprocessed-num !
 
 : state-prim1 { in-state out-state prim -- }
     in-state out-state state-default dup d= ?EXIT
+    in-state state-enabled? out-state state-enabled? and 0= ?EXIT
     in-state  to state-in
     out-state to state-out
     prim reprocess-simple ;
