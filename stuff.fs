@@ -337,10 +337,10 @@ interpret/compile: what's ( interpretation "name" -- xt; compilation "name" -- ;
 
 environment-wordlist >order
 
-16 address-unit-bits / 1 max constant /w ( -- u ) \ gforth
+16 address-unit-bits / 1 max constant /w ( -- u ) \ gforth slash-w
 \G address units for a 16-bit value
     
-32 address-unit-bits / 1 max constant /l ( -- u ) \ gforth
+32 address-unit-bits / 1 max constant /l ( -- u ) \ gforth slash-l
 \G address units for a 32-bit value
 
 previous
