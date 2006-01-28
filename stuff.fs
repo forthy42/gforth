@@ -333,10 +333,21 @@ interpret/compile: what's ( interpretation "name" -- xt; compilation "name" -- ;
 	emit
     loop ;
 
-\ w@ and l@
+\ w and l stuff
+
+environment-wordlist >order
+
+16 address-unit-bits / 1 max constant /w ( -- u ) \ gforth
+\G address units for a 16-bit value
+    
+32 address-unit-bits / 1 max constant /l ( -- u ) \ gforth
+\G address units for a 32-bit value
+
+previous
 
 [ifdef] uw@
+\ Open firmware names
 ' uw@ alias w@ ( addr -- u )
 ' ul@ alias l@ ( addr -- u )
-\ ' sw@ alias <w@ ( addr -- n ) \ Open Firmware name
+\ ' sw@ alias <w@ ( addr -- n )
 [then]

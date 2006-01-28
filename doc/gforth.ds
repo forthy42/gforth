@@ -5067,7 +5067,8 @@ doc-dfaligned
 doc-maxaligned
 doc-cfaligned
 doc-address-unit-bits
-
+doc-/w
+doc-/l
 
 @node Memory Blocks,  , Address arithmetic, Memory
 @subsection Memory Blocks
