@@ -4982,7 +4982,12 @@ doc-sf@
 doc-sf!
 doc-df@
 doc-df!
-
+doc-sw@
+doc-uw@
+doc-w!
+doc-sl@
+doc-ul@
+doc-l!
 
 @node Address arithmetic, Memory Blocks, Memory Access, Memory
 @subsection Address arithmetic

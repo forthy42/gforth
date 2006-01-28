@@ -2444,23 +2444,29 @@ gforth_FP=fp;
 sp=(Cell*)(SYSCALL(Cell*(*)(Cell *, void *))u)(sp, &gforth_FP);
 fp=gforth_FP;
 
-w@ ( a_addr -- u )	gforth wfetch
-u = *(UWyde*)(a_addr);
+uw@ ( c_addr -- u )	gforth u_w_fetch
+""@i{u} is the zero-extended 16-bit value stored at @i{c_addr}.""
+u = *(UWyde*)(c_addr);
 
-sw@ ( a_addr -- u )	gforth swfetch
-u = *(Wyde*)(a_addr);
+sw@ ( c_addr -- n )	gforth s_w_fetch
+""@i{n} is the sign-extended 16-bit value stored at @i{c_addr}.""
+n = *(Wyde*)(c_addr);
 
-w! ( u a_addr -- )	gforth wstore
-*(Wyde*)(a_addr) = u;
+w! ( w c_addr -- )	gforth w_store
+""Store the bottom 16 bits of @i{w} at @i{c_addr}.""
+*(Wyde*)(c_addr) = w;
 
-l@ ( a_addr -- u )	gforth lfetch
-u = *(UTetrabyte*)(a_addr);
+ul@ ( c_addr -- u )	gforth u_l_fetch
+""@i{u} is the zero-extended 32-bit value stored at @i{c_addr}.""
+u = *(UTetrabyte*)(c_addr);
 
-sl@ ( a_addr -- u )	gforth slfetch
-u = *(Tetrabyte*)(a_addr);
+sl@ ( c_addr -- n )	gforth s_l_fetch
+""@i{n} is the sign-extended 32-bit value stored at @i{c_addr}.""
+n = *(Tetrabyte*)(c_addr);
 
-l! ( u a_addr -- )	gforth lstore
-*(Tetrabyte*)(a_addr) = u;
+l! ( w c_addr -- )	gforth l_store
+""Store the bottom 32 bits of @i{w} at @i{c_addr}.""
+*(Tetrabyte*)(c_addr) = w;
 
 \+FFCALL
 

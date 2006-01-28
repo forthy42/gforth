@@ -333,3 +333,10 @@ interpret/compile: what's ( interpretation "name" -- xt; compilation "name" -- ;
 	emit
     loop ;
 
+\ w@ and l@
+
+[ifdef] uw@
+' uw@ alias w@ ( addr -- u )
+' ul@ alias l@ ( addr -- u )
+\ ' sw@ alias <w@ ( addr -- n ) \ Open Firmware name
+[then]
