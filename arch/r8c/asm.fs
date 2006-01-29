@@ -15,11 +15,13 @@ require asm/basic.fs
 
  also ASSEMBLER definitions
 
+require asm/target.fs
+
 \ for tests only                hfs 07:47 04/24/92
 
- : TC, base @ >r hex 0 <# # # #>       type r> base ! ;
- : T,  base @ >r hex 0 <# # # # # #>   type r> base ! ;
- : ta, base @ >r hex 0 <# # # # # # #> type r> base ! ;
+\ : TC, base @ >r hex 0 <# # # #>       type r> base ! ;
+\ : T,  base @ >r hex 0 <# # # # # #>   type r> base ! ;
+: ta, base @ >r hex 0 <# # # # # # #> type r> base ! ;
 
 
  HERE                   ( Begin )
@@ -74,7 +76,7 @@ require asm/basic.fs
  : >abs8? ( n -- n f ) abs8? 0= ;
 
  : >opc <M> 1+ C@ <OPC> 1+ C! ;
- : OPC, <OPC> C@ TC, <OPC> 1+ C@ TC, ;
+ : OPC, <OPC> C@ X C, <OPC> 1+ C@ X C, ;
 
  : M: CREATE  C, C,
        DOES> ,?
@@ -153,25 +155,25 @@ require asm/basic.fs
 \ GROUPS                                     hfs 07:18 04/24/92
 
  : GROUP1.B: CREATE C,              ( opc  -- )
-             DOES>  c@ TC,
+             DOES>  c@ X C,
              opnd?
-             IF >8B?  ABORT" displacement > 8 Bit" TC, THEN
+             IF >8B?  ABORT" displacement > 8 Bit" X C, THEN
              RESET ;
 
  : GROUP1.W: CREATE C,              ( opc  -- )
-             DOES>  c@ TC,
+             DOES>  c@ X C,
              opnd?
-             IF T, THEN
+             IF X , THEN
              RESET ;
 
  : GROUP2.B: CREATE C, C,           ( opc opc  -- )
-             DOES>  dup c@ TC, 1+ c@ TC,
+             DOES>  dup c@ X C, 1+ c@ X C,
              opnd?
-             IF >8B?  ABORT" displacement > 8 Bit" TC, THEN
+             IF >8B?  ABORT" displacement > 8 Bit" X C, THEN
              RESET ;
 
  : GROUP2.F: CREATE C, C,           ( opc opc  -- )
-             DOES>   dup c@ TC, 1+ c@ <M> 1+ C@ or TC,
+             DOES>   dup c@ X C, 1+ c@ <M> 1+ C@ or X C,
              RESET ;
 
  : GROUP2:   CREATE C, C,  ,        ( xt opc opc  -- )
@@ -273,7 +275,7 @@ require asm/basic.fs
              ctrl, ,[An]
              >opc OPC,
              d-opnd?
-             IF abs8? IF TC, ELSE T, THEN THEN ;
+             IF abs8? IF X C, ELSE X , THEN THEN ;
 
  : ctrl,[SB] opnd? <d-opnd> !
              ctrl, ,[SB]
@@ -281,7 +283,7 @@ require asm/basic.fs
              d-opnd?
              IF >abs8? IF %1110 <M> 1+ C@ $F0 AND OR <M> 1+ C! THEN
              ELSE ." displacement expected" ABORT THEN
-             abs8? IF TC, ELSE T, THEN ;
+             abs8? IF X C, ELSE X , THEN ;
 
  : ctrl,[FB] opnd? <d-opnd> !
              ctrl, ,[An]
@@ -289,14 +291,14 @@ require asm/basic.fs
              d-opnd?
              IF >8B? ABORT" displacement > 8 Bit"
              ELSE ." displacement expected" ABORT THEN
-             TC, ;
+             X C, ;
 
  : ctrl,abs:16 opnd? <d-opnd> !
              ctrl, ,abs:16
              >opc OPC,
              d-opnd?
              0= ABORT" operand expected"
-             T, ;
+             X , ;
 
  Table: st-control-reg
         INTBL , R0     ' ctrl,R TAB,        INTBL , R1     ' ctrl,R TAB,
@@ -354,23 +356,23 @@ require asm/basic.fs
              [An], ,ctrl
              >opc OPC,
              s-opnd?
-             IF abs8? IF TC, ELSE T, THEN THEN ;
+             IF abs8? IF X C, ELSE X , THEN THEN ;
 
  : [SB],ctrl opnd? <d-opnd> !
              [SB], ,ctrl
              >opc OPC,
-             abs8? IF TC, ELSE T, THEN ;
+             abs8? IF X C, ELSE X , THEN ;
 
  : [FB],ctrl opnd? <d-opnd> !
              [FB], ,ctrl
              >opc OPC,
              >8B? ABORT" displacement > 8 Bit"
-             TC, ;
+             X C, ;
 
  : #,ctrl    #, ,ctrl
              <M> 1+ C@ %01111111 and <M> 1+ C!
              >opc OPC,
-             T, ;
+             X , ;
 
  Table: ld-control-reg
         R0   , INTBL ' R,ctrl TAB,        R0   , INTBH  ' R,ctrl TAB,
@@ -424,7 +426,7 @@ require asm/basic.fs
 \ ----------------------------------------------------------------------------------------------
  : (R)    <OPC> 1+ c@ <M> 1+ c@ 4 rshift or <M> 1+ c!
           >opc OPC,
-          opnd? IF 8B? IF TC, ELSE T, THEN THEN ;
+          opnd? IF 8B? IF X C, ELSE X , THEN THEN ;
 
 
  : ([An]) <OPC> 1+ c@ <M> 1+ c@ 4 rshift or <M> 1+ c!
@@ -443,27 +445,40 @@ require asm/basic.fs
            <opc> c@ %01111101 = <opc> 1+ c@ %00101100 = and   \ $12345 [ao] jmpi.w
            <opc> c@ %01111101 = <opc> 1+ c@ %00101101 = and   \ $12345 [a1] jmpi.w
            or
-           IF   opnd? IF 8B? IF TC, ELSE ta, THEN THEN
-           ELSE opnd? IF 8B? IF TC, ELSE T,  THEN THEN THEN ;
+           IF   opnd? IF 8B? IF X C, ELSE ta, THEN THEN
+           ELSE opnd? IF 8B? IF X C, ELSE X ,  THEN THEN THEN ;
 
  : ([SB])  <OPC> 1+ c@ <M> 1+ c@ 4 rshift or <M> 1+ c!
            opnd?
            IF >abs8? IF %1110 <M> 1+ C@ $F0 AND OR <M> 1+ C! THEN
            ELSE ." displacement expected" ABORT THEN
            >opc OPC,
-           8B? IF TC, ELSE T, THEN ;
+           8B? IF X C, ELSE X , THEN ;
 
  : ([FB])  <OPC> 1+ c@ <M> 1+ c@ 4 rshift or <M> 1+ c!
            opnd?
            IF >8B? ABORT" displacement > 8 Bit"
            ELSE ." displacement expected" ABORT THEN
            >opc OPC,
-           TC, ;
+           X C, ;
 
  : (abs:16) <OPC> 1+ c@ <M> 1+ c@ 4 rshift or <M> 1+ c!
            opnd? 0= ABORT" operand expected"
            >opc OPC,
-           T, ;
+           X , ;
+
+ : (#)     opnd? 0= ABORT" operand expected"
+           <OPC> 1+ c@ %01000000 =
+           IF   <OPC> c@
+                CASE
+                    %01110100 OF %01111100 <OPC> c! ENDOF
+                    %01110101 OF %01111101 <OPC> c! ENDOF
+                ENDCASE
+           ELSE
+                ." push.?:g only" ABORT
+           THEN %11100010 <M> 1+ c!
+           >opc OPC,
+           8B? IF X C, ELSE X , THEN ;
 
  Table: 2ByteOPC(dsp8/dsp16)          \ 2ByteOPC(dsp8/dsp16)
         R0          ' (R) TAB,        R1     ' (R) TAB,
@@ -471,7 +486,7 @@ require asm/basic.fs
         A0          ' (R) TAB,        A1     ' (R) TAB,
         [A0]        ' ([An]) TAB,     [A1]   ' ([An]) TAB,
         [SB]        ' ([SB]) TAB,     [FB]   ' ([FB]) TAB,
-        abs:16      ' (abs:16) TAB,
+        abs:16      ' (abs:16) TAB,    #     ' (#) TAB,
  ;TABLE
 
  2ByteOPC(dsp8/dsp16) %11110000 %01110110 GROUP2: abs.b
@@ -509,7 +524,7 @@ require asm/basic.fs
              q#, ,[an]
              >opc OPC,
              d-opnd?
-             IF abs8? IF TC, ELSE T, THEN THEN ;
+             IF abs8? IF X C, ELSE X , THEN THEN ;
 
  : q#,[sb]   opnd? <d-opnd> !
              q#, ,[sb]
@@ -517,7 +532,7 @@ require asm/basic.fs
              d-opnd?
              IF >abs8? IF %1110 <M> 1+ C@ $F0 AND OR <M> 1+ C! THEN
              ELSE ." displacement expected" ABORT THEN
-             abs8? IF TC, ELSE T, THEN ;
+             abs8? IF X C, ELSE X , THEN ;
 
  : q#,[fb]   opnd? <d-opnd> !
              q#, ,[fb]
@@ -525,14 +540,14 @@ require asm/basic.fs
              d-opnd?
              IF >8B? ABORT" displacement > 8 Bit"
              ELSE ." displacement expected" ABORT THEN
-             TC, ;
+             X C, ;
 
  : q#,abs:16 opnd? <d-opnd> !
              q#, ,abs:16
              >opc OPC,
              d-opnd?
              0= ABORT" operand expected"
-             T, ;
+             X , ;
  Table: quick
         #   , R0     ' q#,R TAB,        #   , R1     ' q#,R TAB,
         #   , R2     ' q#,R TAB,        #   , R3     ' q#,R TAB,
@@ -564,76 +579,76 @@ require asm/basic.fs
              >opc OPC,
              s-opnd? d-opnd? and IF swap THEN
              s-opnd?
-             IF abs8? IF TC, ELSE T, THEN THEN
+             IF abs8? IF X C, ELSE X , THEN THEN
              d-opnd?
-             IF abs8? IF TC, ELSE T, THEN THEN ;
+             IF abs8? IF X C, ELSE X , THEN THEN ;
 
  : R,[SB]    opnd? <d-opnd> !
              ,[SB]
              >opc OPC,
-             abs8? IF TC, ELSE T, THEN ;
+             abs8? IF X C, ELSE X , THEN ;
 
  : R,[FB]    opnd? <d-opnd> !
              ,[FB]
              >opc OPC,
              >8B? ABORT" displacement > 8 Bit"
-             TC, ;
+             X C, ;
 
  : R,abs:16  opnd? <d-opnd> !
              ,abs:16
              >opc OPC,
              d-opnd?
-             IF abs8? IF TC, ELSE T, THEN THEN ;
+             IF abs8? IF X C, ELSE X , THEN THEN ;
 \ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  : [An],R    opnd? <d-opnd> !
              [An],
              >opc OPC,
              s-opnd?
-             IF abs8? IF TC, ELSE T, THEN THEN ;
+             IF abs8? IF X C, ELSE X , THEN THEN ;
 
  : [An],[An] opnd? <d-opnd> !
              [An], ,[An]
              >opc OPC,
              s-opnd? d-opnd? and IF swap THEN
              s-opnd?
-             IF abs8? IF TC, ELSE T, THEN THEN
+             IF abs8? IF X C, ELSE X , THEN THEN
              d-opnd?
-             IF abs8? IF TC, ELSE T, THEN THEN ;
+             IF abs8? IF X C, ELSE X , THEN THEN ;
 
  : [An],[SB] opnd? <d-opnd> !
              [An], ,[SB]
              >opc OPC,
              s-opnd? d-opnd? and IF swap THEN
              s-opnd?
-             IF abs8? IF TC, ELSE T, THEN THEN
-             abs8? IF TC, ELSE T, THEN ;
+             IF abs8? IF X C, ELSE X , THEN THEN
+             abs8? IF X C, ELSE X , THEN ;
 
  : [An],[FB] opnd? <d-opnd> !
              [An], ,[FB]
              >opc OPC,
              s-opnd? d-opnd? and IF swap THEN
              s-opnd?
-             IF abs8? IF TC, ELSE T, THEN THEN
+             IF abs8? IF X C, ELSE X , THEN THEN
              >8B? ABORT" displacement > 8 Bit"
-             TC, ;
+             X C, ;
 
  : [An],abs:16 opnd? <d-opnd> !
              [An], ,abs:16
              >opc OPC,
              s-opnd? d-opnd? and IF swap THEN
              s-opnd?
-             IF abs8? IF TC, ELSE T, THEN THEN
+             IF abs8? IF X C, ELSE X , THEN THEN
              d-opnd?
-             IF abs8? IF TC, ELSE T, THEN THEN ;
+             IF abs8? IF X C, ELSE X , THEN THEN ;
 \ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  : [SB],R    opnd? <d-opnd> !
              [SB],
              >opc OPC,
              s-opnd? d-opnd? and IF swap THEN
              s-opnd?
-             IF abs8? IF TC, ELSE T, THEN THEN
+             IF abs8? IF X C, ELSE X , THEN THEN
              d-opnd?
-             IF abs8? IF TC, ELSE T, THEN THEN ;
+             IF abs8? IF X C, ELSE X , THEN THEN ;
 
 
  : [SB],[An] opnd? <d-opnd> !
@@ -641,9 +656,9 @@ require asm/basic.fs
              >opc OPC,
              s-opnd? d-opnd? and IF swap THEN
              s-opnd?
-             IF abs8? IF TC, ELSE T, THEN THEN
+             IF abs8? IF X C, ELSE X , THEN THEN
              d-opnd?
-             IF abs8? IF TC, ELSE T, THEN THEN ;
+             IF abs8? IF X C, ELSE X , THEN THEN ;
 
 
  : [SB],[SB] opnd? <d-opnd> !
@@ -651,9 +666,9 @@ require asm/basic.fs
              >opc OPC,
              s-opnd? d-opnd? and IF swap THEN
              s-opnd?
-             IF abs8? IF TC, ELSE T, THEN THEN
+             IF abs8? IF X C, ELSE X , THEN THEN
              d-opnd?
-             IF abs8? IF TC, ELSE T, THEN THEN ;
+             IF abs8? IF X C, ELSE X , THEN THEN ;
 
 
  : [SB],[FB] opnd? <d-opnd> !
@@ -661,140 +676,140 @@ require asm/basic.fs
              >opc OPC,
              s-opnd? d-opnd? and IF swap THEN
              s-opnd?
-             IF abs8? IF TC, ELSE T, THEN THEN
+             IF abs8? IF X C, ELSE X , THEN THEN
              >8B? ABORT" displacement > 8 Bit"
-             TC, ;
+             X C, ;
 
  : [SB],abs:16 opnd? <d-opnd> !
              [SB], ,abs:16
              >opc OPC,
              s-opnd? d-opnd? and IF swap THEN
              s-opnd?
-             IF abs8? IF TC, ELSE T, THEN THEN
+             IF abs8? IF X C, ELSE X , THEN THEN
              d-opnd?
-             IF abs8? IF TC, ELSE T, THEN THEN ;
+             IF abs8? IF X C, ELSE X , THEN THEN ;
 \ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  : [FB],R    opnd? <d-opnd> !
              [FB],
              >opc OPC,
              s-opnd? d-opnd? and IF swap THEN
              >8B? ABORT" displacement > 8 Bit"
-             TC,
+             X C,
              d-opnd?
-             IF abs8? IF TC, ELSE T, THEN THEN ;
+             IF abs8? IF X C, ELSE X , THEN THEN ;
 
  : [FB],[An] opnd? <d-opnd> !
              [FB], ,[An]
              >opc OPC,
              s-opnd? d-opnd? and IF swap THEN
              >8B? ABORT" displacement > 8 Bit"
-             TC,
+             X C,
              d-opnd?
-             IF abs8? IF TC, ELSE T, THEN THEN ;
+             IF abs8? IF X C, ELSE X , THEN THEN ;
 
  : [FB],[SB] opnd? <d-opnd> !
              [FB], ,[SB]
              >opc OPC,
              s-opnd? d-opnd? and IF swap THEN
              >8B? ABORT" displacement > 8 Bit"
-             TC,
+             X C,
              d-opnd?
-             IF abs8? IF TC, ELSE T, THEN THEN ;
+             IF abs8? IF X C, ELSE X , THEN THEN ;
 
  : [FB],[FB] opnd? <d-opnd> !
              [FB], ,[FB]
              >opc OPC,
              s-opnd? d-opnd? and IF swap THEN
              >8B? ABORT" displacement > 8 Bit"
-             TC,
+             X C,
              d-opnd?
-             IF 8B?   IF TC, ELSE T, THEN THEN ;
+             IF 8B?   IF X C, ELSE X , THEN THEN ;
 
  : [FB],abs:16 opnd? <d-opnd> !
              [FB], ,abs:16
              >opc OPC,
              s-opnd? d-opnd? and IF swap THEN
              >8B? ABORT" displacement > 8 Bit"
-             TC,
+             X C,
              d-opnd?
-             IF abs8? IF TC, ELSE T, THEN THEN ;
+             IF abs8? IF X C, ELSE X , THEN THEN ;
 \ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  : abs:16,R  opnd? <d-opnd> !
              abs:16,
              >opc OPC,
              s-opnd?
-             IF abs8? IF TC, ELSE T, THEN THEN ;
+             IF abs8? IF X C, ELSE X , THEN THEN ;
 
  : abs:16,[An] opnd? <d-opnd> !
              abs:16, ,[An]
              >opc OPC,
              s-opnd? d-opnd? and IF swap THEN
              s-opnd?
-             IF abs8? IF TC, ELSE T, THEN THEN
+             IF abs8? IF X C, ELSE X , THEN THEN
              d-opnd?
-             IF abs8? IF TC, ELSE T, THEN THEN ;
+             IF abs8? IF X C, ELSE X , THEN THEN ;
 
  : abs:16,[SB] opnd? <d-opnd> !
              abs:16, ,[SB]
              >opc OPC,
              s-opnd? d-opnd? and IF swap THEN
              s-opnd?
-             IF abs8? IF TC, ELSE T, THEN THEN
+             IF abs8? IF X C, ELSE X , THEN THEN
              d-opnd?
-             IF abs8? IF TC, ELSE T, THEN THEN ;
+             IF abs8? IF X C, ELSE X , THEN THEN ;
 
  : abs:16,[FB] opnd? <d-opnd> !
              abs:16, ,[FB]
              >opc OPC,
              s-opnd? d-opnd? and IF swap THEN
              s-opnd?
-             IF abs8? IF TC, ELSE T, THEN THEN
+             IF abs8? IF X C, ELSE X , THEN THEN
              >8B? ABORT" displacement > 8 Bit"
-             TC, ;
+             X C, ;
 
  : abs:16,abs:16 opnd? <d-opnd> !
              abs:16, ,abs:16
              >opc OPC,
              s-opnd? d-opnd? and IF swap THEN
              s-opnd?
-             IF abs8? IF TC, ELSE T, THEN THEN
+             IF abs8? IF X C, ELSE X , THEN THEN
              d-opnd?
-             IF abs8? IF TC, ELSE T, THEN THEN ;
+             IF abs8? IF X C, ELSE X , THEN THEN ;
 \ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  : #,R       opnd? <d-opnd> !
              #,
              >opc OPC,
-             T, ;
+             X , ;
 
  : #,[An]    opnd? <d-opnd> !
              #, ,[An]
              >opc OPC,
              s-opnd? d-opnd? and IF swap THEN
-             T,
+             X ,
              d-opnd?
-             IF abs8? IF TC, ELSE T, THEN THEN ;
+             IF abs8? IF X C, ELSE X , THEN THEN ;
 
  : #,[SB]    opnd? <d-opnd> !
              #, ,[SB]
              >opc OPC,
              swap
-             T,
-             abs8? IF TC, ELSE T, THEN ;
+             X ,
+             abs8? IF X C, ELSE X , THEN ;
 
  : #,[FB]    opnd? <d-opnd> !
              #, ,[FB]
              >opc OPC,
              swap
-             T,
+             X ,
              >8B? ABORT" displacement > 8 Bit"
-             TC, ;
+             X C, ;
 
  : #,abs:16  opnd? <d-opnd> !
              #, ,abs:16
              >opc OPC,
              swap
-             T,
-             T, ;
+             X ,
+             X , ;
 \ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  Table: generic
         R0   , R0     ' R,R TAB,        R0   , R1     ' R,R TAB,

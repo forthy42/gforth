@@ -873,7 +873,7 @@ division by 2 (note that @code{/} not necessarily floors).""
 n2 = n1>>1;
 :
  dup MINI and IF 1 ELSE 0 THEN
- [ bits/byte cell * 1- ] literal 
+ [ bits/char cell * 1- ] literal 
  0 DO 2* swap dup 2* >r MINI and 
      IF 1 ELSE 0 THEN or r> swap
  LOOP nip ;

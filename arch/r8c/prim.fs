@@ -238,35 +238,12 @@ end-macros
   Code lit     ( -- n ) \ inline literal
       tos push.w:g
       [ip] , tos mov.w:g
-      # 2 , ip add.w:g
+      # 2 , ip add.w:q
       next,
    End-Code
 
 Code: :doesjump
 end-code
-
-0 [IF]
- \ i/o
-  Variable lastkey      \ Flag und Zeichencode der letzen Taste
-
-  Code (key)    ( -- char ) \ get character
-    tos push,
-    lastkey #) ax mov,
-    ah ah or,  0= IF, 7 # ah mov,  $21 int, THEN,
-    0 # lastkey #) mov,
-    ah ah xor,
-    ax tos mov,
-    next,
-   End-Code
-
-  Code (emit)     ( char -- ) \ output character
-    tosl dl mov,
-    6 # ah mov,
-    $ff # dl cmp,  0= IF, dl dec, THEN,
-    $21 int,
-    tos pop,
-    next,
-  End-Code
 
 \ ==============================================================
 \ usefull lowlevel words
@@ -275,43 +252,33 @@ end-code
 
 
  \ branch and literal
-  Code branch   ( -- ) \ unconditional branch
-    f[ip] fip mov,
-    next,
-   End-Code
-
-  Code lit     ( -- n ) \ inline literal
-    tos push,
-    lods,
-    ax tos mov,
-    next,
-   End-Code
-
 
  \ data stack words
   Code dup      ( n -- n n )
-    tos push,
+    tos push.w:g
     next,
    End-Code
 
   Code 2dup     ( d -- d d )
-    ax pop,
-    ax push,
-    tos push,
-    ax push,
+    r1 pop.w:g
+    r1 push.w:g
+    tos push.w:g
+    r1 push.w:g
     next,
    End-Code
 
   Code drop     ( n -- )
-    tos pop,
+    tos pop.w:g
     next,
    End-Code
 
   Code 2drop    ( d -- )
-    2 # fsp add,
-    tos pop,
+    tos pop.w:g
+    tos pop.w:g
     next,
    End-Code
+
+0 [IF]
 
   Code swap     ( n1 n2 -- n2 n1 )
     ax pop,
@@ -427,6 +394,28 @@ end-code
    End-Code
 
 
+ \ i/o
+  Variable lastkey      \ Flag und Zeichencode der letzen Taste
+
+  Code (key)    ( -- char ) \ get character
+    tos push,
+    lastkey #) ax mov,
+    ah ah or,  0= IF, 7 # ah mov,  $21 int, THEN,
+    0 # lastkey #) mov,
+    ah ah xor,
+    ax tos mov,
+    next,
+   End-Code
+
+  Code (emit)     ( char -- ) \ output character
+    tosl dl mov,
+    6 # ah mov,
+    $ff # dl cmp,  0= IF, dl dec, THEN,
+    $21 int,
+    tos pop,
+    next,
+  End-Code
+
  \ additon io routines
   Code (key?)     ( -- f ) \ check for read sio character
     tos push, lastkey # tos mov,
@@ -444,19 +433,15 @@ end-code
     next,
    End-Code
 
-  Code (bye)     ( -- ) \ back to DOS
-     ax pop,  $4c # ah mov,  $21 int,
-    End-Code
+[then]
+: (bye)     ( 0 -- ) \ back to DOS
+    drop ;
 
 : bye ( -- )  0 (bye) ;
     
-Code: :doesjump
-end-code
-[then]
-
-Code (bye)     ( 0 -- ) \ back to DOS
-    tos pop.w:g
-    next,
-End-Code
-
-: bye ( -- )  0 (bye) ;
+: compile-prim1 ;
+: finish-code ;
+: emit-file ;
+: x@+/string ( addr u -- addr' u' c )
+    over c@ >r 1 /string r> ;
+: xkey ( -- key )  key ;

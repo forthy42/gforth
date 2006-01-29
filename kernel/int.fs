@@ -989,7 +989,9 @@ AVariable init8 NIL init8 !
 [ has? file [IF] ]
     os-cold
 [ [THEN] ]
+[ has? ec 0= [IF] ]
     set-encoding-fixed-width
+[ [THEN] ]
     'cold
     init8 chainperform
 [ has? file [IF] ]

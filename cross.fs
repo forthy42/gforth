@@ -3269,6 +3269,7 @@ tchar 8 = 78 and or
 magic 7 + c!
 
 : save-cross ( "image-name" "binary-name" -- )
+  s" ec" X $has? IF  .regions  THEN
   bl parse ." Saving to " 2dup type cr
   w/o bin create-file throw >r
   s" header" X $has? IF
@@ -3285,7 +3286,8 @@ magic 7 + c!
   ELSE
       bl parse 2drop
   THEN
-  dictionary >rmem @ there
+  >rom dictionary >rmem @ there
+  s" rom" X $has? IF  dictionary >rstart @ -  THEN
   r@ write-file throw \ write image
   s" relocate" X $has? IF
       dictionary >rbm @ there 1- tcell>bit rshift 1+

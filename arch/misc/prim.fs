@@ -447,7 +447,7 @@ Code 2/
 end-code
 
 Code 0=		
-                '° dout
+                '0 dout
 		SP , accu ,
 		*accu , accu ,
 		ZF , accu ,
@@ -846,5 +846,8 @@ UP 2* Constant UP
 \ include ./key.fs
 include ./optcmove.fs
 
-: (bye) 0 execute ;
+: finish-code ;
+: compile-prim1 ;
+: (bye) ;
+: bye ;
 : float+ 8 + ;

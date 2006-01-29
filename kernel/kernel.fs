@@ -30,6 +30,8 @@ include ./accept.fs
 has? new-input [IF]
     include ./input.fs
 [THEN]
+has? ec 0= [IF]
 include ./license.fs
 include ./xchars.fs
+[THEN]
 \ include ./nio.fs
