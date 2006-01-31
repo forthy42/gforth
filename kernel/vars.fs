@@ -146,7 +146,7 @@ has? file [IF]
  User loadfile          0 loadfile !
 
  2user loadfilename	0 0 loadfilename 2! \ addr u for sourcefilename
-
+     
  User loadline          \ number of the currently interpreted
                         \ (in TIB) line if the interpretation
                         \ is in a textfile
@@ -156,6 +156,9 @@ has? file [IF]
                         \ the current interpreted line (in TIB)
 [THEN]
 [THEN]
+
+ 2user includefilename  0 0 includefilename 2! \ innermost included file
+
 
 User base ( -- a-addr ) \ core
 \G @code{User} variable -- @i{a-addr} is the address of a cell that stores the

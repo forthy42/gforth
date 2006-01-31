@@ -91,7 +91,7 @@ Variable argc ( -- addr ) \ gforth
     BEGIN
 	argc @ 1 > WHILE
 	    next-arg over c@ [char] - <> IF
-		required
+                required
 	    else
 		process-option
 	    then

@@ -74,29 +74,26 @@ create image-included-files 1 , A, ( pointer to and count of included files )
 
 has? new-input [IF]
 : included1 ( i*x file-id c-addr u -- j*x ) \ gforth
-    \G Include the file file-id with the name given by @var{c-addr u}.
-    save-mem 2dup add-included-file ( file-id )
-    ['] read-loop execute-parsing-named-file ;
+\G Include the file file-id with the name given by @var{c-addr u}.
+    save-mem 2dup add-included-file
+    includefilename 2@ 2>r 2dup includefilename 2!
+    ['] read-loop execute-parsing-named-file
+    2r> includefilename 2! ;
 [ELSE]
 : included1 ( i*x file-id c-addr u -- j*x ) \ gforth
 \G Include the file file-id with the name given by @var{c-addr u}.
     save-mem 2dup loadfilename>r
+    includefilename 2@ 2>r 2dup includefilename 2!
     add-included-file ( file-id )
     ['] include-file2 catch
-    r>loadfilename
+    2r> includefilename 2! r>loadfilename
     throw ;
 [THEN]
 
-: included ( i*x c-addr u -- j*x ) \ file
-    \G @code{include-file} the file whose name is given by the string
-    \G @var{c-addr u}.
+: included2 ( i*x c-addr u -- j*x ) \ file
     open-fpath-file throw included1 ;
 
-: required ( i*x addr u -- j*x ) \ gforth
-    \G @code{include-file} the file with the name given by @var{addr
-    \G u}, if it is not @code{included} (or @code{required})
-    \G already. Currently this works by comparing the name of the file
-    \G (with path) against the names of earlier included files.
+: required2 ( i*x addr u -- i*x ) \ gforth
     \ however, it may be better to fstat the file,
     \ and compare the device and inode. The advantages would be: no
     \ problems with several paths to the same file (e.g., due to
@@ -113,11 +110,25 @@ has? new-input [IF]
 
 : include  ( ... "file" -- ... ) \ gforth
     \G @code{include-file} the file @var{file}.
-    name included ;
+    name included2 ;
 
 : require  ( ... "file" -- ... ) \ gforth
     \G @code{include-file} @var{file} only if it is not included already.
-    name required ;
+    name required2 ;
+
+\ we go through execute-parsing to get nicer output on errors
+
+: included ( i*x c-addr u -- j*x ) \ file
+    \G @code{include-file} the file whose name is given by the string
+    \G @var{c-addr u}.
+    ['] include execute-parsing ;
+
+: required ( i*x addr u -- i*x ) \ gforth
+    \G @code{include-file} the file with the name given by @var{addr
+    \G u}, if it is not @code{included} (or @code{required})
+    \G already. Currently this works by comparing the name of the file
+    \G (with path) against the names of earlier included files.
+    ['] require execute-parsing ;
 
 \ : \I
 \   here 

@@ -170,7 +170,7 @@ Create tfile 0 c, 255 chars allot
     ofile count s" ./" string-prefix?
     IF
 	ofile count 1 /string tfile place
-	0 ofile c! sourcefilename extractpath ofile place
+	0 ofile c! includefilename 2@ extractpath ofile place
 	\ care of / only if there is a directory
 	ofile c@ IF need/ THEN
 	tfile count over c@ pathsep? IF 1 /string THEN
