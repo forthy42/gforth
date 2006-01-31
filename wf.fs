@@ -654,6 +654,7 @@ definitions
 \ HTML head
 
 Variable css-file
+Variable print-file
 Variable content
 Variable _lang
 Variable _favicon
@@ -663,7 +664,13 @@ Variable _favicon
 : .css ( -- )
     css-file @ IF  css-file $@len IF
 	    s" StyleSheet" s" rel" opt
-	    css-file $@ href=
+	    css-file $@ href= s" screen" s" media" opt
+	    s" text/css" s" type" opt s" link" tag/ cr
+	THEN  THEN ;
+: .print ( -- )
+    print-file @ IF  print-file $@len IF
+	    s" StyleSheet" s" rel" opt
+	    print-file $@ href= s" print" s" media" opt
 	    s" text/css" s" type" opt s" link" tag/ cr
 	THEN  THEN ;
 : .title ( addr u -- )  1 envs ! oldenv off
@@ -675,7 +682,7 @@ Variable _favicon
     s" html" >env cr s" head" >env cr
     s" Content-Type" s" http-equiv" opt
     content $@ s" content" opt
-    s" meta" tag/ cr .css
+    s" meta" tag/ cr .css .print
     _favicon @ IF
 	s" shortcut icon" s" rel" opt
 	_favicon $@ href=
@@ -744,6 +751,7 @@ Variable style$
 : vlink ( -- ) parse" s" vlink" style ;
 : marginheight ( -- ) parse" s" marginheight" style ;
 : css ( -- ) parse" css-file $! ;
+: print-css ( -- ) parse" print-file $! ;
 
 : wf ( -- )
     outfile-id >r

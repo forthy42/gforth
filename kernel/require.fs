@@ -90,10 +90,16 @@ has? new-input [IF]
     throw ;
 [THEN]
 
-: included2 ( i*x c-addr u -- j*x ) \ file
+: included ( i*x c-addr u -- j*x ) \ file
+    \G @code{include-file} the file whose name is given by the string
+    \G @var{c-addr u}.
     open-fpath-file throw included1 ;
 
-: required2 ( i*x addr u -- i*x ) \ gforth
+: required ( i*x addr u -- i*x ) \ gforth
+    \G @code{include-file} the file with the name given by @var{addr
+    \G u}, if it is not @code{included} (or @code{required})
+    \G already. Currently this works by comparing the name of the file
+    \G (with path) against the names of earlier included files.
     \ however, it may be better to fstat the file,
     \ and compare the device and inode. The advantages would be: no
     \ problems with several paths to the same file (e.g., due to
@@ -110,25 +116,11 @@ has? new-input [IF]
 
 : include  ( ... "file" -- ... ) \ gforth
     \G @code{include-file} the file @var{file}.
-    name included2 ;
+    name included ;
 
 : require  ( ... "file" -- ... ) \ gforth
     \G @code{include-file} @var{file} only if it is not included already.
-    name required2 ;
-
-\ we go through execute-parsing to get nicer output on errors
-
-: included ( i*x c-addr u -- j*x ) \ file
-    \G @code{include-file} the file whose name is given by the string
-    \G @var{c-addr u}.
-    ['] include execute-parsing ;
-
-: required ( i*x addr u -- i*x ) \ gforth
-    \G @code{include-file} the file with the name given by @var{addr
-    \G u}, if it is not @code{included} (or @code{required})
-    \G already. Currently this works by comparing the name of the file
-    \G (with path) against the names of earlier included files.
-    ['] require execute-parsing ;
+    name required ;
 
 \ : \I
 \   here 
