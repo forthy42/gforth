@@ -719,6 +719,15 @@ c2 = toupper(c1);
 :
  dup [char] a - [ char z char a - 1 + ] Literal u<  bl and - ;
 
+capscompare	( c_addr1 u1 c_addr2 u2 -- n )	string
+""Compare two strings lexicographically. If they are equal, @i{n} is 0; if
+the first string is smaller, @i{n} is -1; if the first string is larger, @i{n}
+is 1. Currently this is based on the machine's character
+comparison. In the future, this may change to consider the current
+locale and its collation order.""
+/* close ' to keep fontify happy */ 
+n = capscompare(c_addr1, u1, c_addr2, u2);
+
 /string	( c_addr1 u1 n -- c_addr2 u2 )	string	slash_string
 ""Adjust the string specified by @i{c-addr1, u1} to remove @i{n}
 characters from the start of the string.""

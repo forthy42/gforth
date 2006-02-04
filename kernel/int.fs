@@ -896,16 +896,20 @@ Defer mark-end
 \ n2:		line number
 \ n1:		error position in input line
 \ addr1 u1:	input line
-  cr error-stack @
+  error-stack @
   IF ( throwcode addr1 u1 n1 n2 [addr2 u2] )
-[ has? file [IF] ] \ !! unbalanced stack effect
-    ." in file included from "
-    type ." :"
+      [ has? file [IF] ] \ !! unbalanced stack effect
+	  over IF
+	      cr ." in file included from "
+	      type ." :"
+	      0 dec.r  drop 2drop
+	  ELSE
+	      2drop 2drop 2drop
+	  THEN
 [ [THEN] ] ( throwcode addr1 u1 n1 n2 )
-    0 dec.r  drop 2drop
   ELSE ( throwcode addr1 u1 n1 n2 [addr2 u2] )
 [ has? file [IF] ]
-      type ." :"
+      cr type ." :"
 [ [THEN] ] ( throwcode addr1 u1 n1 n2 )
       dup 0 dec.r ." : " 4 pick .error-string
       IF \ if line# non-zero, there is a line
@@ -995,7 +999,6 @@ AVariable init8 NIL init8 !
     'cold
     init8 chainperform
 [ has? file [IF] ]
-    s" *this should go away*" loadfilename 2!
     process-args
     loadline off
 [ [THEN] ]

@@ -42,7 +42,9 @@
 0 Value cur-class
 : charclass ( -- )  Create here dup to cur-class $100 dup allot erase ;
 : +char ( char -- )  cur-class swap +bit ;
+: +ichar ( char -- )  dup toupper +char +char ;
 : -char ( char -- )  cur-class swap -bit ;
+: -ichar ( char -- )  dup toupper -char -char ;
 : ..char ( start end -- )  1+ swap ?DO  I +char  LOOP ;
 : or! ( n addr -- )  dup @ rot or swap ! ;
 : and! ( n addr -- )  dup @ rot and swap ! ;
@@ -78,6 +80,16 @@ charclass any    0 $FF ..char #lf -char
 : $= ( addr1 addr2 u -- f )  tuck compare ;
 : ,=" ( addr u -- ) tuck ]] dup SLiteral $= ?LEAVE Literal + noop [[ ;
 : =" ( <string>" -- )  '" parse ,=" ; immediate
+
+[IFDEF] capscompare
+: $i= ( addr1 addr2 u -- f )  tuck capscompare ;
+: ,i=" ( addr u -- ) tuck ]] dup SLiteral $i= ?LEAVE Literal + noop [[ ;
+: i=" ( <string>" -- )  '" parse ,i=" ; immediate
+[ELSE]
+: i=" ( -- )  '" parse bounds ?DO
+    ]] count toupper [[ I c@ toupper ]] Literal <> ?LEAVE [[
+  LOOP ; immediate
+[THEN]
 
 \ loop stack
 

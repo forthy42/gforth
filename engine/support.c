@@ -190,6 +190,20 @@ Cell memcasecmp(const Char *s1, const Char *s2, Cell n)
   return 0;
 }
 
+Cell capscompare(Char *c_addr1, UCell u1, Char *c_addr2, UCell u2)
+{
+  Cell n;
+
+  n = memcasecmp(c_addr1, c_addr2, u1<u2 ? u1 : u2);
+  if (n==0)
+    n = u1-u2;
+  if (n<0)
+    n = -1;
+  else if (n>0)
+    n = 1;
+  return n;
+}
+
 struct Longname *listlfind(Char *c_addr, UCell u, struct Longname *longname1)
 {
   for (; longname1 != NULL; longname1 = (struct Longname *)(longname1->next))
