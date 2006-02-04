@@ -194,15 +194,22 @@ has? file [IF]
     terminal-input def#tib new-tib ;
     \ s" *the terminal*" loadfilename 2!
 
-: execute-parsing ( ... addr u xt -- ... ) \ gforth
-\G Make @i{addr u} the current input source, execute @i{xt @code{(
-\G ... -- ... )}}, then restore the previous input source.
-    >r evaluate-input cell new-tib
+: execute-parsing-wrapper ( ... addr1 u1 xt addr2 u2 -- ... ) \ gforth-internal
+    \ addr1 u1 is the string to be processed, xt is the word for
+    \ processing it, addr2 u2 is the name of the input source
+    rot >r 2>r evaluate-input cell new-tib 2r> 
 [ has? file [IF] ]
-    s" *evaluated string*" loadfilename 2!
+    loadfilename 2!
+[ [ELSE] ]
+    2drop
 [ [THEN] ]
     -1 loadline ! #tib ! tib !
     r> catch pop-file throw ;
+
+: execute-parsing ( ... addr u xt -- ... ) \ gforth
+\G Make @i{addr u} the current input source, execute @i{xt @code{(
+\G ... -- ... )}}, then restore the previous input source.
+    s" *evaluated string*" execute-parsing-wrapper ;
 
 : evaluate ( ... addr u -- ... ) \ core,block
 \G Save the current input source specification. Store @code{-1} in

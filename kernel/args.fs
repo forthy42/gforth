@@ -71,11 +71,28 @@ Variable argc ( -- addr ) \ gforth
 \g there is no argument left, return @code{0 0}.
     1 arg shift-args ;
 
+\ processing args on Gforth startup
+\ helper words
+
+: os-execute-parsing ( ... addr u xt -- ... )
+    s" *OS command line*" execute-parsing-wrapper ;
+
+: args-required1 ( addr u -- )
+    dup >in ! required ;
+
+: args-required ( i*x addr u -- i*x ) \ gforth
+    2dup ['] args-required1 os-execute-parsing ;
+
+: args-evaluate ( i*x addr u -- j*x ) \ gforth
+    ['] interpret os-execute-parsing ;
+
+\ main words
+
 : process-option ( addr u -- )
     \ process option, possibly consuming further arguments
     2dup s" -e"         str= >r
     2dup s" --evaluate" str= r> or if
-	2drop next-arg evaluate exit endif
+	2drop next-arg args-evaluate exit endif
     2dup s" -h"         str= >r
     2dup s" --help"     str= r> or if
 	." Image Options:" cr
@@ -91,7 +108,7 @@ Variable argc ( -- addr ) \ gforth
     BEGIN
 	argc @ 1 > WHILE
 	    next-arg over c@ [char] - <> IF
-                required
+                args-required
 	    else
 		process-option
 	    then

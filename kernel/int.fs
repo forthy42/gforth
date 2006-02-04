@@ -995,7 +995,7 @@ AVariable init8 NIL init8 !
     'cold
     init8 chainperform
 [ has? file [IF] ]
-    s" *the terminal*" loadfilename 2!
+    s" *this should go away*" loadfilename 2!
     process-args
     loadline off
 [ [THEN] ]
