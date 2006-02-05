@@ -84,8 +84,8 @@ variable start-addr
   bl parse w/o create-file throw to fd
 
 \ PSC1000 trick:
-  'E hemit
-  2dup over swap 200 min .sregion
+\  'E hemit
+\  2dup over swap 200 min .sregion
 
   over swap .sregion 
   start-addr @ .startaddr

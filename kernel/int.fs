@@ -678,6 +678,8 @@ Variable #fill-bytes
 [THEN]
 
 has? new-input 0= [IF]
+: input-start-line ( -- ) >in off ;
+: start-lexeme ( addr -- ) drop ;
 : refill ( -- flag ) \ core-ext,block-ext,file-ext
     \G Attempt to fill the input buffer from the input source.  When
     \G the input source is the user input device, attempt to receive
@@ -808,6 +810,7 @@ Defer .status
 
 \ \ DOERROR (DOERROR)                        		13jun93jaw
 
+has? ec 0= [IF]
 8 Constant max-errors
 5 has? file 2 and + Constant /error
 Variable error-stack  0 error-stack !
@@ -959,6 +962,11 @@ Defer mark-end
   normal-dp dpp ! ;
 
 ' (DoError) IS DoError
+
+[ELSE]
+    : dec.  base @ >r decimal . r> base ! ;
+    : DoError ( throw-code -- ) ." Error# " dec. cr ;
+[THEN]
 
 : quit ( ?? -- ?? ) \ core
     \G Empty the return stack, make the user input device

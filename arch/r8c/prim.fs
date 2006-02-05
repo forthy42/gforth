@@ -94,6 +94,18 @@ end-macros
     next,
   End-Code
 
+  Code: :docon
+\    '2 dout,                    \ only for debugging
+    tos push.w:g
+    4 [w] , tos mov.w:g
+    next,
+  End-Code
+
+  Code: :dodefer
+      4 [w] , w mov.w:g
+      [w] jmpi.w
+  End-Code
+
   Code: :dodoes  ( -- pfa ) \ get pfa and execute DOES> part
 \    '6 dout,                    \ only for debugging
      next,                                       \ execute does> part
@@ -217,17 +229,6 @@ end-macros
       tos , rp mov.w:g
       tos pop.w:g
       next,
-  End-Code
-
-  Code: :docon
-      tos push.w:g
-      4 [w] , tos mov.w:g
-      next,
-  End-Code
-
-  Code: :dodefer
-      4 [w] , w mov.w:g
-      [w] jmpi.w
   End-Code
 
   Code branch   ( -- ) \ unconditional branch
