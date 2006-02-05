@@ -55,15 +55,20 @@ Defer source ( -- c-addr u ) \ core
 
 \ word parse                                           23feb93py
 
-: sword  ( char -- addr len ) \ gforth s-word
-    \G Parses like @code{word}, but the output is like @code{parse} output.
-    \G @xref{core-idef}.
-  \ this word was called PARSE-WORD until 0.3.0, but Open Firmware and
-  \ dpANS6 A.6.2.2008 have a word with that name that behaves
-  \ differently (like NAME).
-  source 2dup >r >r >in @ over min /string
-  rot dup bl = IF  drop (parse-white)  ELSE  (word)  THEN
-  2dup + r> - 1+ r> min >in ! ;
+: sword  ( char -- addr len ) \ gforth-obsolete s-word
+\G Parses like @code{word}, but the output is like @code{parse} output.
+\G @xref{core-idef}.
+    \ this word was called PARSE-WORD until 0.3.0, but Open Firmware and
+    \ dpANS6 A.6.2.2008 have a word with that name that behaves
+    \ differently (like NAME).
+    source 2dup >r >r >in @ over min /string
+    rot dup bl = IF
+        drop (parse-white)
+    ELSE
+        (word)
+    THEN
+    over start-lexeme
+    2dup + r> - 1+ r> min >in ! ;
 
 : word   ( char "<chars>ccc<char>-- c-addr ) \ core
     \G Skip leading delimiters. Parse @i{ccc}, delimited by
@@ -80,7 +85,9 @@ Defer source ( -- c-addr u ) \ core
 \G Parse @i{ccc}, delimited by @i{char}, in the parse
 \G area. @i{c-addr u} specifies the parsed string within the
 \G parse area. If the parse area was empty, @i{u} is 0.
-    >r  source  >in @ over min /string  over  swap r>  scan >r
+    >r  source  >in @ over min /string ( addr u )
+    over start-lexeme
+    over  swap r>  scan >r
     over - dup r> IF 1+ THEN  >in +! ;
 
 \ name                                                 13feb93py
@@ -89,6 +96,7 @@ Defer source ( -- c-addr u ) \ core
 
 : (name) ( -- c-addr count ) \ gforth
     source 2dup >r >r >in @ /string (parse-white)
+    over start-lexeme
     2dup + r> - 1+ r> min >in ! ;
 \    name count ;
 [THEN]
@@ -685,7 +693,7 @@ has? new-input 0= [IF]
     \G and return true; otherwise, return false.  A successful result
     \G includes receipt of a line containing 0 characters.
     [ has? file [IF] ]
-	blk @  IF  1 blk +!  true  0 >in !  EXIT  THEN
+	blk @  IF  1 blk +!  true  input-start-line  EXIT  THEN
 	[ [THEN] ]
     tib /line
     [ has? file [IF] ]
@@ -699,7 +707,7 @@ has? new-input 0= [IF]
 	THEN
 	1 loadline +!
 	[ [THEN] ]
-    swap #tib ! 0 >in ! ;
+    swap #tib ! input-start-line ;
 
 : query   ( -- ) \ core-ext
     \G Make the user input device the input source. Receive input into
@@ -762,7 +770,7 @@ has? new-input 0= [IF]
     s" *evaluated string*" loadfilename>r
 [ [THEN] ]
     push-file #tib ! >tib !
-    >in off
+    input-start-line
     [ has? file [IF] ]
 	blk off loadfile off -1 loadline !
 	[ [THEN] ]
@@ -801,29 +809,47 @@ Defer .status
 \ \ DOERROR (DOERROR)                        		13jun93jaw
 
 8 Constant max-errors
-4 has? file 2 and + Constant /error
+5 has? file 2 and + Constant /error
 Variable error-stack  0 error-stack !
 max-errors /error * cells allot
 \ format of one cell:
 \ source ( addr u )
+\ input-start-parse
 \ >in
 \ line-number
 \ Loadfilename ( addr u )
 
-: error> ( -- addr u >in line# [addr u] )
+: error> ( -- addr u start-parse >in line# [addr u] )
     -1 error-stack +!
     error-stack dup @
     /error * cells + cell+
     /error cells bounds DO
-	I @
-	cell +LOOP ;
-: >error ( addr u >in line# [addr u] -- )
+        I @
+    cell +LOOP ;
+
+: >error ( addr u start-parse >in line# [addr u] -- )
     error-stack dup @ dup 1+
     max-errors 1- min error-stack !
     /error * cells + cell+
     /error 1- cells bounds swap DO
-	I !
-	-1 cells +LOOP ;
+        I !
+    -1 cells +LOOP ;
+
+: error->in ( -- u )
+    \ >in corrected to eliminate one trailing white space character
+    >in @ dup if \ non-zero?
+        source 2 pick u< if \ beyond end of source?
+            2drop exit
+        then
+        over 1- chars + c@ bl u<= if
+            1-
+        then
+    then ;
+
+: input-error-data ( -- addr u start-parse >in line# [addr u] )
+    \ error data for the current input, to be used by >error or .error-frame
+    source input-start-parse @ error->in sourceline#
+    [ has? file [IF] ] sourcefilename [ [THEN] ] ;
 
 : dec. ( n -- ) \ gforth
     \G Display @i{n} as a signed decimal number, followed by a space.
@@ -876,56 +902,52 @@ Defer mark-end
 :noname ." >>>" ; IS mark-start
 :noname ." <<<" ; IS mark-end
 
-: .error-line ( addr1 u1 n1 -- )
-    \ print error ending at char n1 in line addr1 u1
-    \ should work with UTF-8 (whitespace check looks ok)
-    over umin \ protect against wrong n1
-    swap >r ( addr1 n1 R: u1 )
-    -trailing 1- \ last non-space
-    0 >r  BEGIN \ search for the first non-space
-	2dup + c@ bl >  WHILE
-	r> 1+ >r  1- dup 0<  UNTIL  THEN  1+
-    ( addr1 n2 r: u1 namelen )
-    2dup type mark-start
-    r> -rot r> swap /string ( namelen addr2 u2 )
-    >r swap 2dup type mark-end ( addr2 namelen r: u2 )
-    r> swap /string type ;
+: part-type ( addr1 u1 u -- addr2 u2 )
+    \ print first u characters of addr1 u1, addr2 u2 is the rest
+    2 pick over type /string ;
 
-: .error-frame ( throwcode addr1 u1 n1 n2 [addr2 u2] -- throwcode )
-\ addr2 u2: 	filename of included file - optional
-\ n2:		line number
-\ n1:		error position in input line
-\ addr1 u1:	input line
-  error-stack @
-  IF ( throwcode addr1 u1 n1 n2 [addr2 u2] )
-      [ has? file [IF] ] \ !! unbalanced stack effect
+: .error-line ( addr2 u2 u0 u1 -- )
+    \ print error between char n0 and char n1 in line addr1 u1
+    \ should work with UTF-8 (whitespace check looks ok)
+    2 pick umin    \ protect against wrong n1
+    tuck umin swap \ protect against wrong n0
+    over - >r ( addr2 u2 u0 R: u1-u0 )
+    part-type mark-start r> part-type mark-end type ;
+
+: .error-frame ( throwcode addr1 u1 n0 n1 n2 [addr2 u2] -- throwcode )
+    \ addr2 u2: filename of included file - optional
+    \ n2:       line number
+    \ n1:       end of error position in input line
+    \ n0:       start of error position in input line
+    \ addr1 u1: input line
+    error-stack @
+    IF ( throwcode addr1 u1 n0 n1 n2 [addr2 u2] )
+        [ has? file [IF] ] \ !! unbalanced stack effect
 	  over IF
 	      cr ." in file included from "
 	      type ." :"
-	      0 dec.r  drop 2drop
-	  ELSE
-	      2drop 2drop 2drop
-	  THEN
-[ [THEN] ] ( throwcode addr1 u1 n1 n2 )
-  ELSE ( throwcode addr1 u1 n1 n2 [addr2 u2] )
-[ has? file [IF] ]
-      cr type ." :"
-[ [THEN] ] ( throwcode addr1 u1 n1 n2 )
-      dup 0 dec.r ." : " 4 pick .error-string
-      IF \ if line# non-zero, there is a line
-	  cr .error-line
-      ELSE
-	  2drop drop
-      THEN
-  THEN ;
+	      0 dec.r  2drop 2drop
+          ELSE
+              2drop 2drop 2drop drop
+          THEN
+          [ [THEN] ] ( throwcode addr1 u1 n0 n1 n2 )
+    ELSE ( throwcode addr1 u1 n0 n1 n2 [addr2 u2] )
+        [ has? file [IF] ]
+            cr type ." :"
+            [ [THEN] ] ( throwcode addr1 u1 n0 n1 n2 )
+        dup 0 dec.r ." : " 5 pick .error-string
+        IF \ if line# non-zero, there is a line
+            cr .error-line
+        ELSE
+            2drop 2drop
+        THEN
+    THEN ;
 
 : (DoError) ( throw-code -- )
   [ has? os [IF] ]
       >stderr
   [ [THEN] ] 
-  source >in @ sourceline# [ has? file [IF] ] \ !! unbalanced stack effect
-      sourcefilename
-  [ [THEN] ] .error-frame
+  input-error-data .error-frame
   error-stack @ 0 ?DO
     error>
     .error-frame
@@ -967,7 +989,7 @@ Defer mark-end
 
 : (bootmessage)
     ." Gforth " version-string type 
-    ." , Copyright (C) 1995-2004,2005 Free Software Foundation, Inc." cr
+    ." , Copyright (C) 1995-2006 Free Software Foundation, Inc." cr
     ." Gforth comes with ABSOLUTELY NO WARRANTY; for details type `license'"
 [ has? os [IF] ]
      cr ." Type `bye' to exit"
@@ -1016,7 +1038,7 @@ has? new-input 0= [IF]
     sp@ $10 cells +
     [ [THEN] ]
 [ [THEN] ]
-    dup >tib ! tibstack ! #tib off >in off ;
+    dup >tib ! tibstack ! #tib off input-start-line ;
 [THEN]
 
 : boot ( path n **argv argc -- )

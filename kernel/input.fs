@@ -57,6 +57,12 @@ cell input-var >in ( -- addr ) \ core to-in
     \G @code{input-var} variable -- @i{a-addr} is the address of a
     \G cell containing the char offset from the start of the input
     \G buffer to the start of the parse area.
+cell input-var input-start-parse ( -- addr ) \ gforth
+    \G @code{input-var} variable -- @i{a-addr} is the address of a
+    \G cell containing a pointer to the start of the last parsed
+    \G string (but after skipped characters, if any); this is set
+    \G automatically by @code{parse}, @code{parse-name} and
+    \G @code{word}, but not if you set @code{>in} yourself.
 cell input-var #tib ( -- addr ) \ core-ext number-t-i-b
     \G @code{input-var} variable -- @i{a-addr} is the address of a
     \G cell containing the number of characters in the terminal input
@@ -89,6 +95,15 @@ cell input-var #fill-bytes ( -- addr ) \ gforth
 
 Constant tib+
 
+\ helper words
+
+: input-start-line ( -- )
+    >in off  input-start-parse off ;
+
+: start-lexeme ( c-addr -- )
+    \ record that the current lexeme starts at c-addr
+    source drop - input-start-parse ! ;
+
 \ terminal input implementation
 
 :noname ( in 1 -- ) 1 <> -12 and throw >in ! ;
@@ -98,7 +113,7 @@ Constant tib+
 :noname ( -- flag ) [ has? file [IF] ] 
     stdin file-eof?  IF  false  EXIT  THEN [ [THEN] ]
     tib max#tib @ accept #tib !
-    >in off true 1 loadline +! ;     \ refill
+    input-start-line true 1 loadline +! ;     \ refill
 :noname ( -- addr u ) tib #tib @ ;   \ source
 
 | Create terminal-input   A, A, A, A, A,
@@ -125,7 +140,7 @@ has? file [IF]
     4 ;                \ save-input
 :noname  ( -- file ) loadfile @ ;  \ source-id
 :noname  ( -- flag )
-    #tib off #fill-bytes off >in off
+    #tib off #fill-bytes off input-start-line
     BEGIN
 	tib max#tib @ #tib @ /string
 	loadfile @ (read-line) throw #fill-bytes +!
@@ -160,9 +175,7 @@ has? file [IF]
 : pop-file ( throw-code -- throw-code ) \ gforth
     \G pop and free the current top input buffer
     dup IF
-	source >in @ sourceline#
-	[ has? file [IF] ] sourcefilename [ [THEN] ]
-	>error
+	input-error-data >error
     THEN
     current-input @ old-input @ current-input ! free throw ;
 

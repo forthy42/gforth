@@ -58,7 +58,7 @@ has? new-input 0= [IF]
 
 : pop-file   ( throw-code -- throw-code )
   dup IF
-         source >in @ sourceline# sourcefilename >error
+      input-error-data >error
   THEN
   r>
   r> >in         !
