@@ -67,7 +67,7 @@ Defer source ( -- c-addr u ) \ core
     ELSE
         (word)
     THEN
-    over start-lexeme
+    2dup input-lexeme!
     2dup + r> - 1+ r> min >in ! ;
 
 : word   ( char "<chars>ccc<char>-- c-addr ) \ core
@@ -85,10 +85,10 @@ Defer source ( -- c-addr u ) \ core
 \G Parse @i{ccc}, delimited by @i{char}, in the parse
 \G area. @i{c-addr u} specifies the parsed string within the
 \G parse area. If the parse area was empty, @i{u} is 0.
-    >r  source  >in @ over min /string ( addr u )
-    over start-lexeme
+    >r  source  >in @ over min /string ( c-addr1 u1 )
     over  swap r>  scan >r
-    over - dup r> IF 1+ THEN  >in +! ;
+    over - dup r> IF 1+ THEN  >in +!
+    2dup input-lexeme! ;
 
 \ name                                                 13feb93py
 
@@ -96,7 +96,7 @@ Defer source ( -- c-addr u ) \ core
 
 : (name) ( -- c-addr count ) \ gforth
     source 2dup >r >r >in @ /string (parse-white)
-    over start-lexeme
+    2dup input-lexeme!
     2dup + r> - 1+ r> min >in ! ;
 \    name count ;
 [THEN]
@@ -679,7 +679,7 @@ Variable #fill-bytes
 
 has? new-input 0= [IF]
 : input-start-line ( -- ) >in off ;
-: start-lexeme ( addr -- ) drop ;
+: input-lexeme! ( c-addr n -- ) 2drop ;
 : refill ( -- flag ) \ core-ext,block-ext,file-ext
     \G Attempt to fill the input buffer from the input source.  When
     \G the input source is the user input device, attempt to receive
@@ -817,8 +817,8 @@ Variable error-stack  0 error-stack !
 max-errors /error * cells allot
 \ format of one cell:
 \ source ( addr u )
-\ input-start-parse
-\ >in
+\ parse-start-offset
+\ parse-end-offset
 \ line-number
 \ Loadfilename ( addr u )
 
@@ -851,7 +851,7 @@ max-errors /error * cells allot
 
 : input-error-data ( -- addr u start-parse >in line# [addr u] )
     \ error data for the current input, to be used by >error or .error-frame
-    source input-start-parse @ error->in sourceline#
+    source input-parse-start @ input-parse-end @ sourceline#
     [ has? file [IF] ] sourcefilename [ [THEN] ] ;
 
 : dec. ( n -- ) \ gforth

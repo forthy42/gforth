@@ -78,7 +78,7 @@ Variable argc ( -- addr ) \ gforth
     s" *OS command line*" execute-parsing-wrapper ;
 
 : args-required1 ( addr u -- )
-    dup >in ! required ;
+    2dup input-lexeme! required ;
 
 : args-required ( i*x addr u -- i*x ) \ gforth
     2dup ['] args-required1 os-execute-parsing ;
