@@ -816,13 +816,12 @@ has? ec 0= [IF]
 Variable error-stack  0 error-stack !
 max-errors /error * cells allot
 \ format of one cell:
-\ source ( addr u )
-\ parse-start-offset
-\ parse-end-offset
+\ source ( c-addr u )
+\ last parsed lexeme ( c-addr u )
 \ line-number
 \ Loadfilename ( addr u )
 
-: error> ( -- addr u start-parse >in line# [addr u] )
+: error> ( --  c-addr1 u1 c-addr2 u2 line# [addr u] )
     -1 error-stack +!
     error-stack dup @
     /error * cells + cell+
@@ -830,7 +829,7 @@ max-errors /error * cells allot
         I @
     cell +LOOP ;
 
-: >error ( addr u start-parse >in line# [addr u] -- )
+: >error ( c-addr1 u1 c-addr2 u2 line# [addr u] -- )
     error-stack dup @ dup 1+
     max-errors 1- min error-stack !
     /error * cells + cell+
@@ -838,20 +837,9 @@ max-errors /error * cells allot
         I !
     -1 cells +LOOP ;
 
-: error->in ( -- u )
-    \ >in corrected to eliminate one trailing white space character
-    >in @ dup if \ non-zero?
-        source 2 pick u< if \ beyond end of source?
-            2drop exit
-        then
-        over 1- chars + c@ bl u<= if
-            1-
-        then
-    then ;
-
-: input-error-data ( -- addr u start-parse >in line# [addr u] )
+: input-error-data ( -- c-addr1 u1 c-addr2 u2 line# [addr u] )
     \ error data for the current input, to be used by >error or .error-frame
-    source input-parse-start @ input-parse-end @ sourceline#
+    source input-lexeme 2@ sourceline#
     [ has? file [IF] ] sourcefilename [ [THEN] ] ;
 
 : dec. ( n -- ) \ gforth
@@ -907,21 +895,19 @@ Defer mark-end
 
 : part-type ( addr1 u1 u -- addr2 u2 )
     \ print first u characters of addr1 u1, addr2 u2 is the rest
-    2 pick over type /string ;
+    over umin 2 pick over type /string ;
 
-: .error-line ( addr2 u2 u0 u1 -- )
-    \ print error between char n0 and char n1 in line addr1 u1
-    \ should work with UTF-8 (whitespace check looks ok)
-    2 pick umin    \ protect against wrong n1
-    tuck umin swap \ protect against wrong n0
-    over - >r ( addr2 u2 u0 R: u1-u0 )
-    part-type mark-start r> part-type mark-end type ;
+: .error-line ( c-addr1 u1 c-addr2 u2 -- )
+    \ print error in line c-addr1 u1, where the error-causing lexeme
+    \ is c-addr2 u2
+    >r 2 pick - part-type ( c-addr3 u3 R: u2 )
+    mark-start r> part-type mark-end ( c-addr4 u4 )
+    type ;
 
-: .error-frame ( throwcode addr1 u1 n0 n1 n2 [addr2 u2] -- throwcode )
-    \ addr2 u2: filename of included file - optional
+: .error-frame ( throwcode addr1 u1 addr2 u2 n2 [addr3 u3] -- throwcode )
+    \ addr3 u3: filename of included file - optional
     \ n2:       line number
-    \ n1:       end of error position in input line
-    \ n0:       start of error position in input line
+    \ addr2 u2: parsed lexeme (should be marked as causing the error)
     \ addr1 u1: input line
     error-stack @
     IF ( throwcode addr1 u1 n0 n1 n2 [addr2 u2] )

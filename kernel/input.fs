@@ -57,18 +57,11 @@ cell input-var >in ( -- addr ) \ core to-in
     \G @code{input-var} variable -- @i{a-addr} is the address of a
     \G cell containing the char offset from the start of the input
     \G buffer to the start of the parse area.
-cell input-var input-parse-start ( -- a-addr ) \ gforth
-    \G @code{input-var} variable -- @i{a-addr} is the address of a
-    \G cell containing a pointer to the start of the last parsed
-    \G string (but after skipped characters, if any); this is set
-    \G automatically by @code{parse}, @code{parse-name} and
-    \G @code{word}, but not if you set @code{>in} yourself.
-cell input-var input-parse-end ( -- a-addr ) \ gforth
-    \G @code{input-var} variable -- @i{a-addr} is the address of a
-    \G cell containing a pointer to the end of the last parsed
-    \G string (but after skipped characters, if any); this is set
-    \G automatically by @code{parse}, @code{parse-name} and
-    \G @code{word}, but not if you set @code{>in} yourself.
+2 cells input-var input-lexeme ( -- a-addr ) \ gforth-internal
+    \G @code{input-var} variable -- @i{a-addr} is the address of two
+    \G cells containing the string (in c-addr u form) parsed with
+    \G @code{parse}, @code{parse-name} or @code{word}.  If you do your
+    \G own parsing, you can set it with @code{input-lexeme!}.
 cell input-var #tib ( -- addr ) \ core-ext number-t-i-b
     \G @code{input-var} variable -- @i{a-addr} is the address of a
     \G cell containing the number of characters in the terminal input
@@ -103,12 +96,12 @@ Constant tib+
 
 \ helper words
 
-: input-start-line ( -- )
-    >in off  input-parse-start off input-parse-end off ;
-
 : input-lexeme! ( c-addr u -- )
     \ record that the current lexeme us c-addr u
-    >r source drop - dup input-parse-start ! r> + input-parse-end ! ;
+    input-lexeme 2! ;
+
+: input-start-line ( -- )
+    >in off  source drop 0 input-lexeme! ;
 
 \ terminal input implementation
 
