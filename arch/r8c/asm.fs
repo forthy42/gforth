@@ -807,7 +807,7 @@ require asm/target.fs
  : #,abs:16  opnd? <d-opnd> !
              #, ,abs:16
              >opc OPC,
-             swap
+\             swap
              X ,
              X , ;
 \ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -902,6 +902,8 @@ require asm/target.fs
  generic %00100000 %01110110  %11111111 %10010000 GROUP4: and.b:g
  generic %10000000 %01110110  %11111111 %11000000 GROUP4: cmp.b:g
  generic %11000000 %01110100  %11111111 %01110010 GROUP4: mov.b:g
+ generic %01010000 %01111100  %11111111 %01111000 GROUP4: mul.b:g
+ generic %01000000 %01111100  %11111111 %01110000 GROUP4: mulu.b:g
  generic %00110000 %01110110  %11111111 %10011000 GROUP4: or.b:g
  generic %01110000 %01110110  %11111111 %10111000 GROUP4: sbb.b
  generic %01010000 %01110110  %11111111 %10101000 GROUP4: sub.b:g
@@ -913,6 +915,8 @@ require asm/target.fs
  generic %00100000 %01110111  %11111111 %10010001 GROUP4: and.w:g
  generic %10000000 %01110111  %11111111 %11000001 GROUP4: cmp.w:g
  generic %11000000 %01110101  %11111111 %01110011 GROUP4: mov.w:g
+ generic %01010000 %01111101  %11111111 %01111001 GROUP4: mul.w:g
+ generic %01000000 %01111101  %11111111 %01110001 GROUP4: mulu.w:g
  generic %00110000 %01110111  %11111111 %10011001 GROUP4: or.w:g
  generic %01110000 %01110111  %11111111 %10111001 GROUP4: sbb.w
  generic %01010000 %01110111  %11111111 %10101001 GROUP4: sub.w:g

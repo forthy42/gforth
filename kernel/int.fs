@@ -1036,9 +1036,14 @@ has? new-input 0= [IF]
 [THEN]
 
 : boot ( path n **argv argc -- )
+[ has? no-userspace 0= [IF] ]
     main-task up!
+[ [THEN] ]
 [ has? os [IF] ]
     os-boot
+[ [THEN] ]
+[ has? rom [IF] ]
+    ram-mirror ram-start ram-size move
 [ [THEN] ]
     sp@ sp0 !
 [ has? peephole [IF] ]

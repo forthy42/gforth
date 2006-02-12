@@ -32,13 +32,7 @@
 
 start-macros
  \ register definition
-  ' R3 Alias rp
-  ' R0 Alias tos
   ' R0L Alias tos.b
-  ' A1 Alias ip
-  ' A0 Alias w
-  ' [A1] Alias [ip]
-  ' [A0] Alias [w]
 
  \ system depending macros
   : next,
@@ -57,7 +51,7 @@ end-macros
   unlock
     $0000 $FFFF region address-space
     $C000 $4000 region rom-dictionary
-    $0400 $0400  region ram-dictionary
+    $0400 $0400 region ram-dictionary
   .regions
   setup-target
   lock
@@ -67,9 +61,14 @@ end-macros
 \ ==============================================================
   Label into-forth
     # $ffff , ip mov.w:g            \ ip will be patched
-    # $fef0 , sp ldc                \ sp at $FD80...$FEF0
-    # $fd80 , rp mov.w:g            \ rp at $F.00...$FD80
-    next,
+    # $07FE , sp ldc                \ sp at $0700...$07FE
+    # $0700 , rp mov.w:g            \ rp at $0600...$0700
+  Label uart-init
+    # $20 , $B0 abs:16 mov.b:g
+    # $8105 , $A8 abs:16 mov.w:g    \ ser1: 9600 baud, 8N1
+    # $05 , $AD abs:16 mov.b:g
+    # 'o , $AA abs:16 mov.b:g
+  next,
   End-Label
 
 
@@ -109,9 +108,8 @@ end-macros
   Code: :dodoes  ( -- pfa ) \ get pfa and execute DOES> part
 \    '6 dout,                    \ only for debugging
      next,                                       \ execute does> part
-   End-Code
-
-
+  End-Code
+  
  \ program flow
   Code ;s       ( -- ) \ exit colon definition
 \    '; dout,                    \ only for debugging
@@ -279,159 +277,132 @@ end-code
     next,
    End-Code
 
-0 [IF]
-
   Code swap     ( n1 n2 -- n2 n1 )
-    ax pop,
-    tos push,
-    ax tos mov,
+    r1 pop.w:g
+    tos push.w:g
+    r1 , tos mov.w:g
     next,
    End-Code
 
   Code over     ( n1 n2 -- n1 n2 n1 )
-    tos ax mov,
-    tos pop,
-    tos push,
-    ax push,
+    tos , r1 mov.w:g
+    tos pop.w:g
+    tos push.w:g
+    r1 push.w:g
     next,
    End-Code
 
   Code rot      ( n1 n2 n3 -- n2 n3 n1 )
-    tos ax mov,
-    cx pop,
-    tos pop,
-    cx push,
-    ax push,
+    tos , r1 mov.w:g
+    r2 pop.w:g
+    tos pop.w:g
+    r2 push.w:g
+    r1 push.w:g
     next,
    End-Code
 
   Code -rot     ( n1 n2 n3 -- n3 n1 n2 )
-    tos ax mov,
-    tos pop,
-    cx pop,
-    ax push,
-    cx push,
+    tos , r1 mov.w:g
+    tos pop.w:g
+    r2 pop.w:g
+    r1 push.w:g
+    r2 push.w:g
     next,
    End-Code
 
 
  \ return stack
   Code r@       ( -- n ; R: n -- n )
-    tos push,
-    frp ) tos mov,
+    tos push.w:g
+    rp , w mov.w:g
+    [w] , tos mov.w:g
     next,
   End-Code
 
 
  \ arithmetic
-  Code -        ( n1 n2 -- n3 ) \ Subtraktion
-    ax pop,
-    tos ax sub,
-    ax tos mov,
-    next,
-   End-Code
 
   Code um*      ( u1 u2 -- ud ) \ unsigned multiply
-    tos ax mov,
-    cx pop,
-    cx mul,
-    ax push,
-    dx tos mov,
-    next,
+      r2 pop.w:g
+      r2 , r0 mulu.w:g
+      r0 push.w:g
+      r2 , tos mov.w:g
+      next,
    End-Code
 
   Code um/mod   ( ud u -- r q ) \ unsiged divide
-    tos cx mov,
-    dx pop,
-    ax pop,
-    cx div,
-    dx push,
-    ax tos mov,
-    next,
+      tos , r1 mov.w:g
+      r2 pop.w:g
+      tos pop.w:g
+      r1 divu.w
+      r2 push.w:g
+      next,
    End-Code
-
-
- \ logic
-  Code or       ( n1 n2 -- n3 ) \ logic OR
-    ax pop,   ax tos or,   next,
-   End-Code
-
 
  \ shift
   Code 2/       ( n1 -- n2 ) \ arithmetic shift right
-     tos sar,
+     # -1 , tos sha.w
      next,
    End-Code
 
+0 [IF]
   Code lshift   ( n1 n2 -- n3 ) \ shift n1 left n2 bits
-     tos cx mov,
-     tos pop,
-     cx cx or,  0<> IF, tos c* shl, THEN,
+     tos.b , r1h mov.w:g
+     r1h , tos shl.w
      next,
    End-Code
 
   Code rshift   ( n1 n2 -- n3 ) \ shift n1 right n2 bits
-     tos cx mov,
-     tos pop,
-     cx cx or,  0<> IF, tos c* shr, THEN,
+     tos.b , r1h mov.w:g
+     r1h neg.b
+     r1h , tos shl.w
      next,
    End-Code
-
+[THEN]
 
  \ compare
   Code 0=       ( n -- f ) \ Test auf 0
-    tos tos or,
-    0 # tos mov,
-    0= IF, tos dec, THEN,
+    tos , tos tst.w
+    0= IF  # -1 , tos mov.w:g   next,
+    THEN   # 0  , tos mov.w:g   next,
     next,
    End-Code
 
   Code =        ( n1 n2 -- f ) \ Test auf Gleichheit
-    ax pop,
-    ax tos sub,
-    0= IF,  -1 # tos mov,   next,
-    ELSE,   0  # tos mov,   next,
-    THEN,
+    r1 pop.w:g
+    r1 , tos sub.w:g
+    0= IF  # -1 , tos mov.w:g   next,
+    THEN   # 0  , tos mov.w:g   next,
    End-Code
 
-
- \ i/o
-  Variable lastkey      \ Flag und Zeichencode der letzen Taste
-
   Code (key)    ( -- char ) \ get character
-    tos push,
-    lastkey #) ax mov,
-    ah ah or,  0= IF, 7 # ah mov,  $21 int, THEN,
-    0 # lastkey #) mov,
-    ah ah xor,
-    ax tos mov,
+      tos push.w:g
+      BEGIN  # $08 , $AD abs:16 tst.b  0<> UNTIL
+      tos , tos xor.w
+      $AE abs:16 , tos.b mov.b:g
     next,
    End-Code
 
   Code (emit)     ( char -- ) \ output character
-    tosl dl mov,
-    6 # ah mov,
-    $ff # dl cmp,  0= IF, dl dec, THEN,
-    $21 int,
-    tos pop,
-    next,
+      BEGIN  # $02 , $AD abs:16 tst.b  0= UNTIL
+      tos.b , $AA abs:16 mov.b:g
+      tos pop.w:g
+      next,
   End-Code
 
  \ additon io routines
   Code (key?)     ( -- f ) \ check for read sio character
-    tos push, lastkey # tos mov,
-    1 tos d) ah mov,   ah ah or,
-    0= IF,  $ff # dl mov,  6 # ah mov,  $21 int,
-            0 # ah mov,
-            0<> IF, dl ah mov,   ax tos ) mov, THEN,
-    THEN,  ah tosl mov,   ah tosh mov,
-    next,
+      tos push.w:g
+      # $08 , $AD abs:16 tst.b
+      0<> IF  # -1 , tos mov.w:g   next,
+      THEN   # 0  , tos mov.w:g   next,
    End-Code
 
   Code emit?    ( -- f ) \ check for write character to sio
-    tos push,
-    -1 # tos mov,             \ output always possible
-    next,
+      tos push.w:g
+      # $02 , $AD abs:16 tst.b
+      0= IF  # -1 , tos mov.w:g   next,
+      THEN   # 0  , tos mov.w:g   next,
    End-Code
 
 [then]
@@ -445,4 +416,3 @@ end-code
 : emit-file ;
 : x@+/string ( addr u -- addr' u' c )
     over c@ >r 1 /string r> ;
-: xkey ( -- key )  key ;

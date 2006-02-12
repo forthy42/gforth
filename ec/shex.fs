@@ -81,15 +81,14 @@ variable csum
 variable start-addr
 
 : save-region-shex ( adr len -- )
-  bl parse w/o create-file throw to fd
-
+    bl parse w/o create-file throw to fd
 \ PSC1000 trick:
 \  'E hemit
 \  2dup over swap 200 min .sregion
-
-  over swap .sregion 
-  start-addr @ .startaddr
-  fd close-file throw ;
+    0 0 0 '0 .smem
+    over swap .sregion 
+    start-addr @ .startaddr
+    fd close-file throw ;
 
 >MINIMAL
 

@@ -23,7 +23,9 @@
 >ram here normal-dp !
 
 \ set udp
+has? no-userspace 0= [IF]
 UNLOCK user-region extent nip LOCK udp !
+[THEN]
 
 \ Set up last and forth-wordlist with the address of the last word's
 \ link field

@@ -429,6 +429,7 @@ doer? :dovar [IF]
 : 2Variable ( "name" -- ) \ double two-variable
     create 0 , 0 , ;
 
+has? no-userspace 0= [IF]
 : uallot ( n -- ) \ gforth
     udp @ swap udp +! ;
 
@@ -444,6 +445,7 @@ doer? :douser [IF]
 : User Create cell uallot , DOES> @ up @ + ;
 
 : AUser User ;
+[THEN]
 [THEN]
 
 doer? :docon [IF]

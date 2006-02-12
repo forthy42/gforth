@@ -26,9 +26,11 @@ has? interpreter [IF]
         include ./comp.fs
     [THEN]
 [THEN]
-include ./accept.fs
 has? new-input [IF]
+    include ./accept.fs
     include ./input.fs
+[ELSE]
+    include ./saccept.fs
 [THEN]
 has? ec 0= [IF]
 include ./license.fs

@@ -48,9 +48,11 @@ has? floating [IF]
 
 FF Constant /line
 
+has? files [IF]
 40 Constant c/l
 10 Constant l/s
 400 Constant chars/block
+[THEN]
 
 20 8 2* cells + 2 + cell+ constant word-pno-size ( -- u )
 create holdbuf word-pno-size chars allot
@@ -69,6 +71,7 @@ $400 Value def#tib
 
 \ initialized by COLD
 
+has? no-userspace 0= [IF]
 Create main-task  has? OS [IF] 100 [ELSE] 40 [THEN] cells dup allot
 
 \ set user-pointer from cross-compiler right
@@ -81,15 +84,16 @@ Variable udp ( -- a-addr ) \ gforth
 AUser next-task        main-task next-task !
 AUser prev-task        main-task prev-task !
 AUser save-task        0 save-task !
+[THEN]
 AUser sp0 ( -- a-addr ) \ gforth
 \G @code{User} variable -- initial value of the data stack pointer.
 \ sp0 is used by douser:, must be user
-    ' sp0 Alias s0 ( -- a-addr ) \ gforth
+\    ' sp0 Alias s0 ( -- a-addr ) \ gforth
 \G OBSOLETE alias of @code{sp0}
 
 AUser rp0 ( -- a-addr ) \ gforth
 \G @code{User} variable -- initial value of the return stack pointer.
-    ' rp0 Alias r0 ( -- a-addr ) \ gforth
+\    ' rp0 Alias r0 ( -- a-addr ) \ gforth
 \G OBSOLETE alias of @code{rp0}
 
 has? floating [IF]
@@ -101,7 +105,7 @@ AUser fp0 ( -- a-addr ) \ gforth
 has? glocals [IF]
 AUser lp0 ( -- a-addr ) \ gforth
 \G @code{User} variable -- initial value of the locals stack pointer.
-    ' lp0 Alias l0 ( -- a-addr ) \ gforth
+\    ' lp0 Alias l0 ( -- a-addr ) \ gforth
 \G OBSOLETE alias of @code{lp0}
 [THEN]
 

@@ -2821,8 +2821,8 @@ by Create
 \ Variable tudp 0 tudp !
 
 : u,  ( n -- udp )
-  current-region >r user-region activate
-  X here swap X , tup@ - 
+  current-region >r user-region activate .regions
+  X here swap X , tup@ - .regions
   r> activate ;
 
 : au, ( n -- udp )
@@ -3269,7 +3269,7 @@ tchar 8 = 78 and or
 magic 7 + c!
 
 : save-cross ( "image-name" "binary-name" -- )
-  s" ec" X $has? IF  .regions  THEN
+  .regions \  s" ec" X $has? IF  .regions  THEN
   bl parse ." Saving to " 2dup type cr
   w/o bin create-file throw >r
   s" header" X $has? IF
