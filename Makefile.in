@@ -269,6 +269,7 @@ COMPAT = compat/README \
 	compat/control.fs \
 	compat/defer.fs \
 	compat/exception.fs \
+	compat/execute-parsing.fs \
 	compat/loops.fs \
 	compat/required.fs \
 	compat/strcomp.fs \

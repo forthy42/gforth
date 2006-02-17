@@ -7848,6 +7848,9 @@ string that is not in the input stream to it?
 
 doc-execute-parsing
 
+A definition of this word in ANS Forth is provided in
+@file{compat/execute-parsing.fs}.
+
 If you want to run a parsing word on a file, the following word should
 help:
 
