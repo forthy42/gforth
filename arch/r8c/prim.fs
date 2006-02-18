@@ -67,7 +67,7 @@ end-macros
     # $20 , $B0 abs:16 mov.b:g
     # $8105 , $A8 abs:16 mov.w:g    \ ser1: 9600 baud, 8N1
     # $05 , $AD abs:16 mov.b:g
-    # 'o , $AA abs:16 mov.b:g
+    # $0A , $AA abs:16 mov.b:g
   next,
   End-Label
 

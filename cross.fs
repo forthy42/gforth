@@ -2821,8 +2821,8 @@ by Create
 \ Variable tudp 0 tudp !
 
 : u,  ( n -- udp )
-  current-region >r user-region activate .regions
-  X here swap X , tup@ - .regions
+  current-region >r user-region activate
+  X here swap X , tup@ -
   r> activate ;
 
 : au, ( n -- udp )

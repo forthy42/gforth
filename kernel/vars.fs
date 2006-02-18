@@ -48,7 +48,7 @@ has? floating [IF]
 
 FF Constant /line
 
-has? files [IF]
+has? file [IF]
 40 Constant c/l
 10 Constant l/s
 400 Constant chars/block
