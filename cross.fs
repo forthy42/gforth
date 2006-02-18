@@ -1771,6 +1771,9 @@ Ghost state drop
   ?DO  dup T c@ H I T c! H 1+
   tchar +LOOP  drop ;
 
+: tcallot ( char size -- )
+    0 ?DO  dup T c, H  tchar +LOOP  drop ;
+
 : td, ( d -- )
 \G Store a host value as one cell into the target
   there tcell X allot TD! ;

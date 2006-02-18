@@ -1,4 +1,3 @@
-
 \ FORTH Assembler for R8C                    hfs 23:54 25.12.05
 \
 \ Autor:          Heinz Schnitter (hfs)
@@ -32,6 +31,7 @@ require asm/target.fs
       VARIABLE <,>                 \ two addrs
       VARIABLE <M>                 \ mode searched for in table
       VARIABLE <OPC>               \ OPCode
+      VARIABLE <.B>
       VARIABLE <S-OPND>
       VARIABLE <D-OPND>
 
@@ -50,7 +50,7 @@ require asm/target.fs
    0 <M>   C!    $0FF <M>   1+ C!
    0 <OPC> C!    $0FF <OPC> 1+ C!
    <S-OPND> OFF  <D-OPND> OFF
-   <,> OFF       ssave ;
+   <,> OFF       <.B> OFF  ssave ;
 
  : opnd?  ( -- N ) SSP @ SP@ - 1 cells - 1 cells / ;
  : ,? <,> @ ;
@@ -76,7 +76,6 @@ require asm/target.fs
  : >abs8? ( n -- n f ) abs8? 0= ;
 
  : >opc <M> 1+ C@ <OPC> 1+ C! ;
- : OPC, <OPC> C@ X C, <OPC> 1+ C@ X C, ;
 
  : M: CREATE  C, C,
        DOES> ,?
@@ -120,7 +119,6 @@ require asm/target.fs
 \ |.....76543210 76543210 .....7654321076543210|
 \ |          MODE        |            xt       |
 
-
  : TABLE:        ( -- addr ) \ generate new table
    CREATE HERE DUP 1 cells + , RESET ;
 
@@ -154,38 +152,17 @@ require asm/target.fs
 
 \ GROUPS                                     hfs 07:18 04/24/92
 
- : GROUP1.B: CREATE C,              ( opc  -- )
-             DOES>  c@ X C,
-             opnd?
-             IF >8B?  ABORT" displacement > 8 Bit" X C, THEN
-             RESET ;
-
- : GROUP1.W: CREATE C,              ( opc  -- )
-             DOES>  c@ X C,
-             opnd?
-             IF X , THEN
-             RESET ;
-
- : GROUP2.B: CREATE C, C,           ( opc opc  -- )
-             DOES>  dup c@ X C, 1+ c@ X C,
-             opnd?
-             IF >8B?  ABORT" displacement > 8 Bit" X C, THEN
-             RESET ;
-
- : GROUP2.F: CREATE C, C,           ( opc opc  -- )
-             DOES>   dup c@ X C, 1+ c@ <M> 1+ C@ or X C,
-             RESET ;
-
  : GROUP2:   CREATE C, C,  ,        ( xt opc opc  -- )
              DOES> SEARCH.MODE.2 EXECUTE RESET ;
 
  : GROUP4:   CREATE C, C,  C, C,  , ( xt opc opc  opc opc  -- )
              DOES> SEARCH.MODE.4 EXECUTE RESET ;
 
-
 \ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  : , opnd? <s-opnd> ! ssave <,> ON ;
 \ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+ : OPC, <OPC> C@ X C, <OPC> 1+ C@ X C, ;
 
  : [An],     <M> 1+ C@ $F0 AND
              CASE
@@ -228,6 +205,7 @@ require asm/target.fs
  : ,abs:16   d-opnd? 0= ABORT" absolute Adr expected" ;
 
  : #,        s-opnd? 0= ABORT" operand expected"
+             <OPC> 2 + c@ %00000001 and 0= IF <.b> on THEN
              <OPC> 2 + c@ <OPC> c!
              <OPC> 3 + c@ <M> 1+ c@ $0F and or <M> 1+ c! ;
 
@@ -241,8 +219,15 @@ require asm/target.fs
  : ,ctrl     <M> 1+ C@ $0F and 4 lshift
              <M> 1+ C@ $F0 and 4 rshift OR %10000000 or <M> 1+ C! ;
 
+ : rh1,      <OPC> 2 + c@ <OPC> c!
+             <OPC> 3 + c@ $F0 and <M> 1+ c@ $0F and or  <M> 1+ c! ;
 \ ----------------------------------------------------------------------------------------------
 \ ----------------------------------------------------------------------------------------------
+ : GROUP1.B: CREATE C,              ( opc  -- )
+             DOES>  c@ X C,
+             opnd?
+             IF >8B?  ABORT" displacement > 8 Bit" X C,  THEN
+             RESET ;
  %01101000 GROUP1.B: JGEU ' JGEU alias JC
  %01101001 GROUP1.B: JGTU
  %01101010 GROUP1.B: JEQ  ' JEQ  alias JZ
@@ -251,21 +236,32 @@ require asm/target.fs
  %01101101 GROUP1.B: JLEU
  %01101110 GROUP1.B: JNE  ' JNE  alias JNZ
  %01101111 GROUP1.B: JPZ
-
  %11111110 GROUP1.B: JMP.B
-
+\ ----------------------------------------------------------------------------------------------
+ : GROUP1.W: CREATE C,              ( opc  -- )
+             DOES>  c@ X C,
+             opnd?
+             IF X , THEN
+             RESET ;
  %11110100 GROUP1.W: JMP.W
-
+\ ----------------------------------------------------------------------------------------------
+ : GROUP2.B: CREATE C, C,           ( opc opc  -- )
+             DOES>  dup c@ X C, 1+ c@ X C,
+             opnd?
+             IF >8B?  ABORT" displacement > 8 Bit" X C, THEN
+             RESET ;
  %11001000 %01111101 GROUP2.B: JLE
  %11001001 %01111101 GROUP2.B: JO
  %11001010 %01111101 GROUP2.B: JGE
  %11001100 %01111101 GROUP2.B: JGT
  %11001101 %01111101 GROUP2.B: JNO
  %11001110 %01111101 GROUP2.B: JLT
-
+\ ----------------------------------------------------------------------------------------------
+ : GROUP2.F: CREATE C, C,           ( opc opc  -- )
+             DOES>   dup c@ X C, 1+ c@ <M> 1+ C@ or X C,
+             RESET ;
  %00000101 %11101011 GROUP2.F: FCLR
  %00000100 %11101011 GROUP2.F: FSET
-
 \ ----------------------------------------------------------------------------------------------
  : ctrl,R    opnd? <d-opnd> !
              ctrl,
@@ -514,6 +510,7 @@ require asm/target.fs
  2ByteOPC(dsp8/dsp16) %10110000 %01110111 GROUP2: rorc.w
 
  2ByteOPC(dsp8/dsp16) %00100000 %01111101 GROUP2: jmpi.w
+ 2ByteOPC(dsp8/dsp16) %00000000 %01111101 GROUP2: jmpi.a
 
 \ ----------------------------------------------------------------------------------------------
  : q#,R      opnd? <d-opnd> !
@@ -560,16 +557,10 @@ require asm/target.fs
  quick %00000000 %11001000 GROUP2: add.b:q
  quick %00000000 %11010000 GROUP2: cmp.b:q
  quick %00000000 %11011000 GROUP2: mov.b:q
- quick %00000000 %11100000 GROUP2: rot.b
- quick %00000000 %11110000 GROUP2: sha.b
- quick %00000000 %11101000 GROUP2: shl.b
 
  quick %00000000 %11001001 GROUP2: add.w:q
  quick %00000000 %11010001 GROUP2: cmp.w:q
  quick %00000000 %11011001 GROUP2: mov.w:q
- quick %00000000 %11100001 GROUP2: rot.w
- quick %00000000 %11110001 GROUP2: sha.w
- quick %00000000 %11101001 GROUP2: shl.w
 
 \ ----------------------------------------------------------------------------------------------
  : R,R      >opc OPC, ;
@@ -577,9 +568,6 @@ require asm/target.fs
  : R,[An]    opnd? <d-opnd> !
              ,[An]
              >opc OPC,
-             s-opnd? d-opnd? and IF swap THEN
-             s-opnd?
-             IF abs8? IF X C, ELSE X , THEN THEN
              d-opnd?
              IF abs8? IF X C, ELSE X , THEN THEN ;
 
@@ -597,8 +585,7 @@ require asm/target.fs
  : R,abs:16  opnd? <d-opnd> !
              ,abs:16
              >opc OPC,
-             d-opnd?
-             IF abs8? IF X C, ELSE X , THEN THEN ;
+             X , ;
 \ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  : [An],R    opnd? <d-opnd> !
              [An],
@@ -638,178 +625,148 @@ require asm/target.fs
              s-opnd? d-opnd? and IF swap THEN
              s-opnd?
              IF abs8? IF X C, ELSE X , THEN THEN
-             d-opnd?
-             IF abs8? IF X C, ELSE X , THEN THEN ;
+             X , ;
 \ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  : [SB],R    opnd? <d-opnd> !
              [SB],
              >opc OPC,
-             s-opnd? d-opnd? and IF swap THEN
-             s-opnd?
-             IF abs8? IF X C, ELSE X , THEN THEN
-             d-opnd?
-             IF abs8? IF X C, ELSE X , THEN THEN ;
-
+             abs8? IF X C, ELSE X , THEN ;
 
  : [SB],[An] opnd? <d-opnd> !
              [SB], ,[An]
              >opc OPC,
              s-opnd? d-opnd? and IF swap THEN
-             s-opnd?
-             IF abs8? IF X C, ELSE X , THEN THEN
+             abs8? IF X C, ELSE X , THEN
              d-opnd?
              IF abs8? IF X C, ELSE X , THEN THEN ;
-
 
  : [SB],[SB] opnd? <d-opnd> !
              [SB], ,[SB]
              >opc OPC,
-             s-opnd? d-opnd? and IF swap THEN
-             s-opnd?
-             IF abs8? IF X C, ELSE X , THEN THEN
-             d-opnd?
-             IF abs8? IF X C, ELSE X , THEN THEN ;
-
+             swap
+             abs8? IF X C, ELSE X , THEN
+             abs8? IF X C, ELSE X , THEN ;
 
  : [SB],[FB] opnd? <d-opnd> !
              [SB], ,[FB]
              >opc OPC,
-             s-opnd? d-opnd? and IF swap THEN
-             s-opnd?
-             IF abs8? IF X C, ELSE X , THEN THEN
+             swap
+             abs8? IF X C, ELSE X , THEN
              >8B? ABORT" displacement > 8 Bit"
              X C, ;
 
  : [SB],abs:16 opnd? <d-opnd> !
              [SB], ,abs:16
              >opc OPC,
-             s-opnd? d-opnd? and IF swap THEN
-             s-opnd?
-             IF abs8? IF X C, ELSE X , THEN THEN
-             d-opnd?
-             IF abs8? IF X C, ELSE X , THEN THEN ;
+             swap
+             abs8? IF X C, ELSE X , THEN
+             X , ;
 \ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  : [FB],R    opnd? <d-opnd> !
              [FB],
              >opc OPC,
-             s-opnd? d-opnd? and IF swap THEN
              >8B? ABORT" displacement > 8 Bit"
-             X C,
-             d-opnd?
-             IF abs8? IF X C, ELSE X , THEN THEN ;
+             X C, ;
 
  : [FB],[An] opnd? <d-opnd> !
              [FB], ,[An]
              >opc OPC,
              s-opnd? d-opnd? and IF swap THEN
              >8B? ABORT" displacement > 8 Bit"
-             X C,
+             X C, 
              d-opnd?
              IF abs8? IF X C, ELSE X , THEN THEN ;
 
  : [FB],[SB] opnd? <d-opnd> !
              [FB], ,[SB]
              >opc OPC,
-             s-opnd? d-opnd? and IF swap THEN
+             swap
              >8B? ABORT" displacement > 8 Bit"
-             X C,
-             d-opnd?
-             IF abs8? IF X C, ELSE X , THEN THEN ;
+             X C, 
+             abs8? IF X C, ELSE X , THEN ;
 
  : [FB],[FB] opnd? <d-opnd> !
              [FB], ,[FB]
              >opc OPC,
-             s-opnd? d-opnd? and IF swap THEN
+             swap
              >8B? ABORT" displacement > 8 Bit"
-             X C,
+             X C, 
              d-opnd?
              IF 8B?   IF X C, ELSE X , THEN THEN ;
 
  : [FB],abs:16 opnd? <d-opnd> !
              [FB], ,abs:16
              >opc OPC,
-             s-opnd? d-opnd? and IF swap THEN
+             swap
              >8B? ABORT" displacement > 8 Bit"
              X C,
-             d-opnd?
-             IF abs8? IF X C, ELSE X , THEN THEN ;
+             X , ;
 \ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  : abs:16,R  opnd? <d-opnd> !
              abs:16,
              >opc OPC,
-             s-opnd?
-             IF abs8? IF X C, ELSE X , THEN THEN ;
+             X , ;
 
  : abs:16,[An] opnd? <d-opnd> !
              abs:16, ,[An]
              >opc OPC,
              s-opnd? d-opnd? and IF swap THEN
-             s-opnd?
-             IF abs8? IF X C, ELSE X , THEN THEN
+             X ,
              d-opnd?
              IF abs8? IF X C, ELSE X , THEN THEN ;
 
  : abs:16,[SB] opnd? <d-opnd> !
              abs:16, ,[SB]
              >opc OPC,
-             s-opnd? d-opnd? and IF swap THEN
-             s-opnd?
-             IF abs8? IF X C, ELSE X , THEN THEN
-             d-opnd?
-             IF abs8? IF X C, ELSE X , THEN THEN ;
+             swap
+             X ,
+             abs8? IF X C, ELSE X , THEN ;
 
  : abs:16,[FB] opnd? <d-opnd> !
              abs:16, ,[FB]
              >opc OPC,
-             s-opnd? d-opnd? and IF swap THEN
-             s-opnd?
-             IF abs8? IF X C, ELSE X , THEN THEN
+             swap
+             X ,
              >8B? ABORT" displacement > 8 Bit"
              X C, ;
 
  : abs:16,abs:16 opnd? <d-opnd> !
              abs:16, ,abs:16
              >opc OPC,
-             s-opnd? d-opnd? and IF swap THEN
-             s-opnd?
-             IF abs8? IF X C, ELSE X , THEN THEN
-             d-opnd?
-             IF abs8? IF X C, ELSE X , THEN THEN ;
+             swap
+             X ,
+             X , ;
 \ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  : #,R       opnd? <d-opnd> !
              #,
              >opc OPC,
-             X , ;
+             <.b> @ IF X C, ELSE X , THEN ;
 
  : #,[An]    opnd? <d-opnd> !
              #, ,[An]
              >opc OPC,
-             s-opnd? d-opnd? and IF swap THEN
-             X ,
              d-opnd?
-             IF abs8? IF X C, ELSE X , THEN THEN ;
+             IF abs8? IF X C, ELSE X , THEN THEN
+             <.b> @ IF X C, ELSE X , THEN ;
 
  : #,[SB]    opnd? <d-opnd> !
              #, ,[SB]
              >opc OPC,
-             swap
-             X ,
-             abs8? IF X C, ELSE X , THEN ;
+             abs8? IF X C, ELSE X , THEN
+             <.b> @ IF X C, ELSE X , THEN ;
 
  : #,[FB]    opnd? <d-opnd> !
              #, ,[FB]
              >opc OPC,
-             swap
-             X ,
              >8B? ABORT" displacement > 8 Bit"
-             X C, ;
+             X C, 
+             <.b> @ IF X C, ELSE X , THEN ;
 
  : #,abs:16  opnd? <d-opnd> !
              #, ,abs:16
              >opc OPC,
-\             swap
              X ,
-             X , ;
+             <.b> @ IF X C, ELSE X , THEN ;
 \ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  Table: generic
         R0   , R0     ' R,R TAB,        R0   , R1     ' R,R TAB,
@@ -924,8 +881,42 @@ require asm/target.fs
  generic %00010000 %01110111  %11111111 %10001001 GROUP4: xor.w
 
 \ ----------------------------------------------------------------------------------------------
+ : R1H,R      rh1, r,r ;
+
+ : R1H,[An]   rh1, r,[An] ;
+
+ : R1H,[SB]   rh1, r,[SB] ;
+
+ : R1H,[FB]   rh1, r,[FB] ;
+
+ : R1H,abs:16 rh1, r,abs:16 ;
+
+ Table: r1h-group
+         R1H , R0L    '  R1H,R TAB,          R1H , R0H    ' R1H,R TAB,
+         R1H , R1L    '  R1H,R TAB,          R1H , R3     ' R1H,R TAB,
+         R1H , A0     '  R1H,R TAB,          R1H , A1     ' R1H,R TAB,
+         R1H , [A0]   '  R1H,[An] TAB,       R1H , [A1]   ' R1H,[An] TAB,
+         R1H , [SB]   '  R1H,[SB] TAB,       R1H , [FB]   ' R1H,[FB] TAB,
+         R1H , abs:16 '  R1H,abs:16 TAB,
+ ;TABLE
+
+ r1h-group %11101111 %01110101 %11101111 %01110101 GROUP4: shl.w
+ r1h-group %11111111 %01110101 %11111111 %01110101 GROUP4: sha.w
+
+ r1h-group %11101111 %01110100 %11101111 %01110100 GROUP4: shl.b
+ r1h-group %11111111 %01110100 %11111111 %01110100 GROUP4: sha.b
+
+\ to do hfs
+\   #      %00000000 %11100001 GROUP2: rot.w
+\   #      %00000000 %11110001 GROUP2: sha.w
+\   #      %00000000 %11101001 GROUP2: shl.w
+\   #      %00000000 %11100000 GROUP2: rot.b
+\   #      %00000000 %11110000 GROUP2: sha.b
+\   #      %00000000 %11101000 GROUP2: shl.b
+
+\ ----------------------------------------------------------------------------------------------
 \ register definition
-  ' R3 Alias rp
+  ' R2 Alias rp
   ' R0 Alias tos
   ' A1 Alias ip
   ' A0 Alias w

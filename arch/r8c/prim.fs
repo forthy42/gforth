@@ -34,11 +34,14 @@ start-macros
  \ register definition
   ' R0L Alias tos.b
 
+ \ hfs wichtig, damit der erste Befehl richtig compiliert wird
+   reset  \ hfs
+
  \ system depending macros
   : next,
       [ip] , w mov.w:g
       # 2 , ip add.w:q
-      [w] jmpi.w ;
+      [w] , R1 mov.w:g  R1 jmpi.a ;
 \ note that this is really for 8086 and 286, and _not_ intented to run
 \ fast on a Pentium (Pro). These old chips load their code from real RAM
 \ and do it slow, anyway.
@@ -63,12 +66,14 @@ end-macros
     # $ffff , ip mov.w:g            \ ip will be patched
     # $07FE , sp ldc                \ sp at $0700...$07FE
     # $0700 , rp mov.w:g            \ rp at $0600...$0700
+    R3 , R3 xor.w
   Label uart-init
-    # $20 , $B0 abs:16 mov.b:g
-    # $8105 , $A8 abs:16 mov.w:g    \ ser1: 9600 baud, 8N1
-    # $05 , $AD abs:16 mov.b:g
-    # $0A , $AA abs:16 mov.b:g
-  next,
+    # $0F , $E3  mov.b:g
+    # $01 , $E1  mov.b:g
+    # $20 , $B0  mov.b:g  \ hfs
+    # $8105 , $A8  mov.w:g    \ ser1: 9600 baud, 8N1  \ hfs
+    # $05 , $AD  mov.b:g  \ hfs
+    next,
   End-Label
 
 
@@ -78,15 +83,17 @@ end-macros
  \ inner interpreter
   Code: :docol
   \     ': dout,                    \ only for debugging
+     # $02 , $E1  mov.b:g
      # -2 , rp add.w:q
-     w , r2 mov.w:g
+     w , r1 mov.w:g
      rp , w mov.w:g  ip , [w] mov.w:g
-     # 4 , r2 add.w:q  r2 , ip mov.w:g
+     # 4 , r1 add.w:q  r1 , ip mov.w:g
      next,
    End-Code
 
   Code: :dovar
 \    '2 dout,                    \ only for debugging
+     # $03 , $E1  mov.b:g
     tos push.w:g
     # 4 , w add.w:q
     w , tos mov.w:g
@@ -95,24 +102,32 @@ end-macros
 
   Code: :docon
 \    '2 dout,                    \ only for debugging
+     # $04 , $E1  mov.b:g
     tos push.w:g
     4 [w] , tos mov.w:g
     next,
   End-Code
 
   Code: :dodefer
+     # $05 , $E1  mov.b:g
       4 [w] , w mov.w:g
-      [w] jmpi.w
+      [w] , r1 mov.w:g  r1 jmpi.a
   End-Code
 
   Code: :dodoes  ( -- pfa ) \ get pfa and execute DOES> part
 \    '6 dout,                    \ only for debugging
+     # $06 , $E1  mov.b:g
+     # -2 , rp add.w:q
+     2 [w] , r1 mov.w:g
+     rp , w mov.w:g  ip , [w] mov.w:g
+     # 4 , r1 add.w:q  r1 , ip mov.w:g
      next,                                       \ execute does> part
   End-Code
   
  \ program flow
   Code ;s       ( -- ) \ exit colon definition
 \    '; dout,                    \ only for debugging
+     # $07 , $E1  mov.b:g
       rp , w mov.w:g  # 2 , rp add.w:q
       [w] , ip mov.w:g
       next,
@@ -120,14 +135,16 @@ end-macros
 
   Code execute   ( xt -- ) \ execute colon definition
 \    'E dout,                    \ only for debugging
+     # $08 , $E1  mov.b:g
     tos , w mov.w:g                             \ copy tos to w
     tos pop.w:g                                 \ get new tos
-    [w] jmpi.w                                  \ execute
+    [w] , R1 mov.w:g  R1 jmpi.a                     \ execute
   End-Code
 
   Code ?branch   ( f -- ) \ jump on f<>0
-      [ip] , w mov.w:g
-      tos , tos tst.w   0<> IF  w , ip mov.w:g   THEN
+      # $09 , $E1  mov.b:g
+      # 2 , ip add.w:q
+      tos , tos tst.w   0<> IF  -2 [ip] , ip mov.w:g   THEN
       next,
   End-Code
 
@@ -192,12 +209,12 @@ end-macros
       tos push.w:g
       rp , w mov.w:g
       [w] , tos mov.w:g
-      # 2 , rp add.w:g
+      # 2 , rp add.w:q  \ ? hfs
       next,
    End-Code
 
    Code >r       ( n -- ; R: -- n )
-       # -2 , rp add.w:g
+       # -2 , rp add.w:q  \ ? hfs
        rp , w mov.w:g
        tos , [w] mov.w:g
        tos pop.w:g
@@ -294,19 +311,21 @@ end-code
 
   Code rot      ( n1 n2 n3 -- n2 n3 n1 )
     tos , r1 mov.w:g
-    r2 pop.w:g
+    r3 pop.w:g
     tos pop.w:g
-    r2 push.w:g
+    r3 push.w:g
     r1 push.w:g
+    r3 , r3 xor.w
     next,
    End-Code
 
   Code -rot     ( n1 n2 n3 -- n3 n1 n2 )
     tos , r1 mov.w:g
     tos pop.w:g
-    r2 pop.w:g
+    r3 pop.w:g
     r1 push.w:g
-    r2 push.w:g
+    r3 push.w:g
+    r3 , r3 xor.w
     next,
    End-Code
 
@@ -323,37 +342,47 @@ end-code
  \ arithmetic
 
   Code um*      ( u1 u2 -- ud ) \ unsigned multiply
+      rp , r3 mov.w:g
       r2 pop.w:g
       r2 , r0 mulu.w:g
       r0 push.w:g
       r2 , tos mov.w:g
+      r3 , rp mov.w:g
+      r3 , r3 xor.w
       next,
    End-Code
 
   Code um/mod   ( ud u -- r q ) \ unsiged divide
+      rp , r3 mov.w:g
       tos , r1 mov.w:g
       r2 pop.w:g
       tos pop.w:g
       r1 divu.w
       r2 push.w:g
+      r3 , rp mov.w:g
+      r3 , r3 xor.w
       next,
    End-Code
 
  \ shift
   Code 2/       ( n1 -- n2 ) \ arithmetic shift right
-     # -1 , tos sha.w
+ \ hfs geht noch nicht !!!     # -1 , tos sha.w 
+     # -1 , r1h mov.b:q
+     r1h , tos sha.w
      next,
    End-Code
 
 0 [IF]
   Code lshift   ( n1 n2 -- n3 ) \ shift n1 left n2 bits
-     tos.b , r1h mov.w:g
+ \     tos.b , r1h mov.w:g
+     tos.b , r1h mov.b:g  \ ? hfs
      r1h , tos shl.w
      next,
    End-Code
 
   Code rshift   ( n1 n2 -- n3 ) \ shift n1 right n2 bits
-     tos.b , r1h mov.w:g
+\     tos.b , r1h mov.w:g
+     tos.b , r1h mov.b:g  \ ? hfs
      r1h neg.b
      r1h , tos shl.w
      next,
@@ -377,15 +406,19 @@ end-code
 
   Code (key)    ( -- char ) \ get character
       tos push.w:g
-      BEGIN  # $08 , $AD abs:16 tst.b  0<> UNTIL
+\      BEGIN  # $08 , $AD abs:16 tst.b  0<> UNTIL
+      BEGIN  # $08 , $AD  tst.b  0<> UNTIL
       tos , tos xor.w
-      $AE abs:16 , tos.b mov.b:g
+\      $AE abs:16 , tos.b mov.b:g
+      $AE  , tos.b mov.b:g
     next,
    End-Code
 
   Code (emit)     ( char -- ) \ output character
-      BEGIN  # $02 , $AD abs:16 tst.b  0= UNTIL
-      tos.b , $AA abs:16 mov.b:g
+\      BEGIN  # $02 , $AD abs:16 tst.b  0= UNTIL
+\      tos.b , $AA abs:16 mov.b:g
+      BEGIN  # $02 , $AD  tst.b  0= UNTIL
+      tos.b , $AA  mov.b:g
       tos pop.w:g
       next,
   End-Code
@@ -393,14 +426,16 @@ end-code
  \ additon io routines
   Code (key?)     ( -- f ) \ check for read sio character
       tos push.w:g
-      # $08 , $AD abs:16 tst.b
+\      # $08 , $AD abs:16 tst.b
+      # $08 , $AD  tst.b
       0<> IF  # -1 , tos mov.w:g   next,
       THEN   # 0  , tos mov.w:g   next,
    End-Code
 
   Code emit?    ( -- f ) \ check for write character to sio
       tos push.w:g
-      # $02 , $AD abs:16 tst.b
+\      # $02 , $AD abs:16 tst.b
+      # $02 , $AD  tst.b
       0= IF  # -1 , tos mov.w:g   next,
       THEN   # 0  , tos mov.w:g   next,
    End-Code
