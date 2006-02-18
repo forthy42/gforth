@@ -2573,7 +2573,7 @@ Cond: MAXI
   (THeader (:) ;
 
 : :noname ( -- colon-sys )
-  X cfalign there 
+  switchrom X cfalign there 
   \ define a nameless ghost
   here ghostheader dup last-header-ghost ! dup to lastghost
   (:) ;  
@@ -2866,6 +2866,19 @@ by User
 
 [THEN]
 
+T has? rom H [IF]
+Builder (Value)
+Build:  ( n -- ) ;Build
+by: :dovalue ( target-body-addr -- n ) T @ @ H ;DO
+
+Builder Value
+Build: T here 0 A, H switchram T align here swap ! , H ;Build
+by (Value)
+
+Builder AValue
+Build: T here 0 A, H switchram T align here swap ! A, H ;Build
+by (Value)
+[ELSE]
 Builder (Value)
 Build:  ( n -- ) ;Build
 by: :docon ( target-body-addr -- n ) T @ H ;DO
@@ -2877,12 +2890,18 @@ by (Value)
 Builder AValue
 BuildSmart: T A, H ;Build
 by (Value)
+[THEN]
 
 Defer texecute
 
 Builder Defer
-BuildSmart:  ( -- ) [T'] noop T A, H ;Build
-by: :dodefer ( ghost -- ) X @ texecute ;DO
+T has? rom H [IF]
+    Build: ( -- )  T here 0 A, H switchram T align here swap ! H [T'] noop T A, H ( switchrom ) ;Build
+    by: :dodefer ( ghost -- ) X @ X @ texecute ;DO
+[ELSE]
+    BuildSmart:  ( -- ) [T'] noop T A, H ;Build
+    by: :dodefer ( ghost -- ) X @ texecute ;DO
+[THEN]
 
 Builder interpret/compile:
 Build: ( inter comp -- ) swap T A, A, H ;Build-immediate
@@ -3215,10 +3234,17 @@ Cond: ABORT"    if, ahead, there [char] " parse ht-string, X align
                 >r then, r> compile ALiteral compile c(abort") then, ;Cond
 [THEN]
 
+X has? rom [IF]
+Cond: IS        T ' >body @ H compile ALiteral compile ! ;Cond
+: IS            T >address ' >body @ ! H ;
+Cond: TO        T ' >body @ H compile ALiteral compile ! ;Cond
+: TO            T ' >body @ ! H ;
+[ELSE]
 Cond: IS        T ' >body H compile ALiteral compile ! ;Cond
 : IS            T >address ' >body ! H ;
 Cond: TO        T ' >body H compile ALiteral compile ! ;Cond
 : TO            T ' >body ! H ;
+[THEN]
 
 Cond: defers	T ' >body @ compile, H ;Cond
 

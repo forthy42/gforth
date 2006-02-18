@@ -219,6 +219,10 @@ has? glocals [IF]
  laddr# [ 0 , ] ;
 [THEN]
 
+has? ec [IF]
+    : catch  execute 0 ;
+    : throw  cr .error cr quit ;
+[ELSE]
 defer catch ( x1 .. xn xt -- y1 .. ym 0 / z1 .. zn error ) \ exception
 \G @code{Executes} @i{xt}.  If execution returns normally,
 \G @code{catch} pushes 0 on the stack.  If execution returns through
@@ -243,6 +247,7 @@ defer throw ( y1 .. ym nerror -- y1 .. ym / z1 .. zn error ) \ exception
 	[ [ELSE] ] quit [ [THEN] ]
     then ;
 is throw
+[THEN]
 
 \ (abort")
 

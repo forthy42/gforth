@@ -990,7 +990,9 @@ Defer mark-end
 [ [THEN] ] ;
 
 defer bootmessage
+has? file [IF]
 defer process-args
+[THEN]
 
 ' (bootmessage) IS bootmessage
 
@@ -1003,7 +1005,7 @@ Defer 'cold ( -- ) \ gforth  tick-cold
 AVariable init8 NIL init8 !
 
 : cold ( -- ) \ gforth
-[ has? backtrace [IF] ]
+    [ has? backtrace [IF] ]
     rp@ backtrace-rp0 !
 [ [THEN] ]
 [ has? file [IF] ]

@@ -38,10 +38,11 @@ start-macros
    reset  \ hfs
 
  \ system depending macros
+  : next1,
+      [w] , r1 mov.w:g  r1 jmpi.a ;
   : next,
       [ip] , w mov.w:g
-      # 2 , ip add.w:q
-      [w] , R1 mov.w:g  R1 jmpi.a ;
+      # 2 , ip add.w:q  next1, ;
 \ note that this is really for 8086 and 286, and _not_ intented to run
 \ fast on a Pentium (Pro). These old chips load their code from real RAM
 \ and do it slow, anyway.
@@ -66,10 +67,9 @@ end-macros
     # $ffff , ip mov.w:g            \ ip will be patched
     # $07FE , sp ldc                \ sp at $0700...$07FE
     # $0700 , rp mov.w:g            \ rp at $0600...$0700
-    R3 , R3 xor.w
   Label uart-init
     # $0F , $E3  mov.b:g
-    # $01 , $E1  mov.b:g
+    # $00 , $E1  mov.b:g
     # $20 , $B0  mov.b:g  \ hfs
     # $8105 , $A8  mov.w:g    \ ser1: 9600 baud, 8N1  \ hfs
     # $05 , $AD  mov.b:g  \ hfs
@@ -83,7 +83,6 @@ end-macros
  \ inner interpreter
   Code: :docol
   \     ': dout,                    \ only for debugging
-     # $02 , $E1  mov.b:g
      # -2 , rp add.w:q
      w , r1 mov.w:g
      rp , w mov.w:g  ip , [w] mov.w:g
@@ -93,7 +92,6 @@ end-macros
 
   Code: :dovar
 \    '2 dout,                    \ only for debugging
-     # $03 , $E1  mov.b:g
     tos push.w:g
     # 4 , w add.w:q
     w , tos mov.w:g
@@ -102,21 +100,29 @@ end-macros
 
   Code: :docon
 \    '2 dout,                    \ only for debugging
-     # $04 , $E1  mov.b:g
     tos push.w:g
     4 [w] , tos mov.w:g
     next,
   End-Code
 
-  Code: :dodefer
-     # $05 , $E1  mov.b:g
-      4 [w] , w mov.w:g
-      [w] , r1 mov.w:g  r1 jmpi.a
+  Code: :dovalue
+\    '2 dout,                    \ only for debugging
+    tos push.w:g
+    4 [w] , w mov.w:g  [w] , tos mov.w:g
+    next,
   End-Code
+
+\  Code: :dodefer
+\      # $05 , $E1 mov.b:g
+\      4 [w] , w mov.w:g  [w] , w mov.w:g
+\      next1,
+\  End-Code
 
   Code: :dodoes  ( -- pfa ) \ get pfa and execute DOES> part
 \    '6 dout,                    \ only for debugging
-     # $06 , $E1  mov.b:g
+\      # $06 , $E1 mov.b:g
+     tos push.w:g
+     w , tos mov.w:g   # 4 , tos add.w:q
      # -2 , rp add.w:q
      2 [w] , r1 mov.w:g
      rp , w mov.w:g  ip , [w] mov.w:g
@@ -127,7 +133,6 @@ end-macros
  \ program flow
   Code ;s       ( -- ) \ exit colon definition
 \    '; dout,                    \ only for debugging
-     # $07 , $E1  mov.b:g
       rp , w mov.w:g  # 2 , rp add.w:q
       [w] , ip mov.w:g
       next,
@@ -135,14 +140,13 @@ end-macros
 
   Code execute   ( xt -- ) \ execute colon definition
 \    'E dout,                    \ only for debugging
-     # $08 , $E1  mov.b:g
-    tos , w mov.w:g                             \ copy tos to w
-    tos pop.w:g                                 \ get new tos
-    [w] , R1 mov.w:g  R1 jmpi.a                     \ execute
+\    # $07 , $E1 mov.b:g
+    tos , w mov.w:g                          \ copy tos to w
+    tos pop.w:g                              \ get new tos
+    next1,
   End-Code
 
   Code ?branch   ( f -- ) \ jump on f<>0
-      # $09 , $E1  mov.b:g
       # 2 , ip add.w:q
       tos , tos tst.w   0<> IF  -2 [ip] , ip mov.w:g   THEN
       next,
@@ -405,6 +409,7 @@ end-code
    End-Code
 
   Code (key)    ( -- char ) \ get character
+    # $08 , $E1 mov.b:g
       tos push.w:g
 \      BEGIN  # $08 , $AD abs:16 tst.b  0<> UNTIL
       BEGIN  # $08 , $AD  tst.b  0<> UNTIL
@@ -415,11 +420,13 @@ end-code
    End-Code
 
   Code (emit)     ( char -- ) \ output character
+    # $09 , $E1 mov.b:g
 \      BEGIN  # $02 , $AD abs:16 tst.b  0= UNTIL
 \      tos.b , $AA abs:16 mov.b:g
       BEGIN  # $02 , $AD  tst.b  0= UNTIL
       tos.b , $AA  mov.b:g
       tos pop.w:g
+    # $0A , $E1 mov.b:g
       next,
   End-Code
 
