@@ -49,6 +49,9 @@ defer everyline
 ' noop IS everyline
 
 : decode ( max span addr pos1 key -- max span addr pos2 flag )
+    \ perform action corresponding to key; addr max is the buffer,
+    \ addr span is the current string in the buffer, and pos1 is the
+    \ cursor position in the buffer.
     everychar
     dup -1 =   IF  drop 4  THEN  \ -1 is EOF
     dup #del = IF  drop #bs  THEN  \ del is rubout

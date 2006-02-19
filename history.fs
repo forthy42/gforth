@@ -69,8 +69,11 @@ s" os-class" environment? [IF] s" unix" str= [ELSE] true [THEN]
 
 \ moving in history file                               16oct94py
 
+defer back-restore ( u -- )
+' backspaces is back-restore
+
 : clear-line ( max span addr pos1 -- max addr )
-  backspaces over spaces swap backspaces ;
+  back-restore over spaces swap backspaces ;
 
 \ : clear-tib ( max span addr pos -- max 0 addr 0 false )
 \   clear-line 0 tuck dup ;
@@ -197,6 +200,11 @@ require utf-8.fs
     restore-cursor 2dup type ;
 : .all ( span addr pos1 -- span addr pos1 )
     restore-cursor >r 2dup swap type r> ;
+: xback-restore ( u -- )
+    drop restore-cursor ;
+
+\ In the following, addr max is the buffer, addr span is the current
+\ string in the buffer, and pos1 is the cursor position in the buffer.
 
 : <xins>  ( max span addr pos1 xc -- max span addr pos2 )
     >r  2over r@ xc-size + u< IF  ( max span addr pos1 R:xc )
@@ -274,7 +282,9 @@ require utf-8.fs
     ['] xtab-expand  #tab   bindkey
     ['] (xins)       IS insert-char
     ['] kill-prefix  IS everychar
-    ['] save-cursor  IS everyline ;
+    ['] save-cursor  IS everyline
+    ['] xback-restore IS back-restore
+;
 
 xchar-history
 
