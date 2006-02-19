@@ -144,7 +144,9 @@ $80 Value max-single-byte
     ['] u8!+? is xc!+?
     ['] u8@+ is xc@+
     ['] u8len is xc-size
+[ [IFDEF] x-width ]
     ['] u8width is x-width
+[ [THEN] ]
     ['] -u8trailing-garbage is -trailing-garbage
 ;
 

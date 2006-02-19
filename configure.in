@@ -141,7 +141,7 @@ AC_SUBST(CC)
 AC_SUBST(DEBUGFLAG)
 
 AC_MSG_CHECKING(make type)
-make_type=`make -v 2>&1|grep 'ake version'|sed 's/ version .*//'`
+make_type=`make -v 2>&1|grep 'ake'|sed 's/ake .*/ake/'`
 
 GNUMAKE='#'
 test "$make_type" = "GNU Make" && GNUMAKE=''

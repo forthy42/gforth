@@ -72,9 +72,13 @@ s" os-class" environment? [IF] s" unix" str= [ELSE] true [THEN]
 defer back-restore ( u -- )
 ' backspaces is back-restore
 
+[IFDEF] x-width
 : clear-line ( max span addr pos1 -- max addr )
   back-restore over over swap x-width spaces swap back-restore ;
-
+[ELSE]
+: clear-line ( max span addr pos1 -- max addr )
+  back-restore over spaces swap back-restore ;
+[THEN]
 \ : clear-tib ( max span addr pos -- max 0 addr 0 false )
 \   clear-line 0 tuck dup ;
 

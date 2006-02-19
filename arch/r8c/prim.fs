@@ -70,13 +70,20 @@ end-macros
     # $0F , $E3  mov.b:g
     # $0F , $E1  mov.b:g
   Label clock-init                  \ default is 125kHz/8
+    # $01 , $0A  mov.b:g
+    # $28 , $07  mov.b:g
     # $08 , $06  mov.b:g
-    # $38 , $07  mov.b:g
+    # $00 , $0A  mov.b:g
+    r1 , r1 mov.w:g
+    r1 , r1 mov.w:g
+    r1 , r1 mov.w:g
+    r1 , r1 mov.w:g
     # $00 , $08  mov.b:g            \ set to 20MHz
   Label uart-init
-    # $20 , $B0  mov.b:g      \ hfs
+    # $23 , $B0  mov.b:g      \ hfs
     # $8105 , $A8  mov.w:g    \ ser1: 9600 baud, 8N1  \ hfs
-    # $05 , $AD  mov.b:g      \ hfs
+    # $0500 , $AC  mov.w:g      \ hfs
+    next,
   End-Label
 
 
@@ -104,20 +111,20 @@ end-macros
   Code: :docon
 \    '2 dout,                    \ only for debugging
     tos push.w:g
-    # 4 , w add.w:q  [w] , tos mov.w:g
+    4 [w] , tos mov.w:g
     next,
   End-Code
 
   Code: :dovalue
 \    '2 dout,                    \ only for debugging
     tos push.w:g
-    # 4 , w add.w:q   [w] , w mov.w:g  [w] , tos mov.w:g
+    4 [w] , w mov.w:g  [w] , tos mov.w:g
     next,
   End-Code
 
   Code: :dodefer
-      # $05 , $E1 mov.b:g
-     # 4 , w add.w:q  [w] , w mov.w:g  [w] , w mov.w:g
+\      # $05 , $E1 mov.b:g
+     4 [w] , w mov.w:g  [w] , w mov.w:g
      next1,
   End-Code
 
@@ -127,7 +134,7 @@ end-macros
      tos push.w:g
      w , tos mov.w:g   # 4 , tos add.w:q
      # -2 , rp add.w:q
-     # 2 , w add.w:q   [w] , r1 mov.w:g
+     2 [w] , r1 mov.w:g
      rp , w mov.w:g  ip , [w] mov.w:g
      # 4 , r1 add.w:q  r1 , ip mov.w:g
      next,                                       \ execute does> part
@@ -143,18 +150,63 @@ end-macros
 
   Code execute   ( xt -- ) \ execute colon definition
 \    'E dout,                    \ only for debugging
-    # $07 , $E1 mov.b:g
+\    # $07 , $E1 mov.b:g
     tos , w mov.w:g                          \ copy tos to w
     tos pop.w:g                              \ get new tos
     next1,
   End-Code
 
-  Code ?branch   ( f -- ) \ jump on f<>0
+  Code ?branch   ( f -- ) \ jump on f=0
       # 2 , ip add.w:q
-      tos , tos tst.w   0<> IF  -2 [ip] , ip mov.w:g   THEN
+      tos , tos tst.w   0= IF  -2 [ip] , ip mov.w:g   THEN
       next,
   End-Code
 
+  Code (for) ( n -- r:0 r:n )
+      # -4 , rp add.w:q  rp , w mov.w:g
+      r3 , 2 [w] mov.w:g
+      tos , [w] mov.w:g
+      tos pop.w:g
+      next,
+  End-Code
+  
+  Code (?do) ( n -- r:0 r:n )
+      # 2 , ip add.w:q
+      # -4 , rp add.w:q  rp , w mov.w:g
+      tos , [w] mov.w:g
+      r1 pop.w:g
+      r1 , 2 [w] mov.w:g
+      tos pop.w:g
+      [w] , r1 sub.w:g
+      0= IF  -2 [ip] , ip mov.w:g   THEN
+      next,
+  End-Code
+  
+  Code (do) ( n -- r:0 r:n )
+      # -4 , rp add.w:q  rp , w mov.w:g
+      tos , [w] mov.w:g
+      tos pop.w:g
+      tos , 2 [w] mov.w:g
+      tos pop.w:g
+      next,
+  End-Code
+  
+  Code (next) ( -- )
+      # 2 , ip add.w:q
+      rp , w mov.w:g  [w] , r1 mov.w:g
+      # -1 , r1 add.w:q  r1 , [w] mov.w:g
+      u>= IF  -2 [ip] , ip mov.w:g  THEN
+      next,
+  End-Code
+
+  Code (loop) ( -- )
+      # 2 , ip add.w:q
+      rp , w mov.w:g  [w] , r1 mov.w:g
+      # 1 , r1 add.w:q  r1 , [w] mov.w:g
+      2 [w] , r1 sub.w:g
+      0<> IF  -2 [ip] , ip mov.w:g  THEN
+      next,
+  End-Code
 
  \ memory access
   Code @        ( addr -- n ) \ read cell
@@ -226,6 +278,16 @@ end-macros
        tos , [w] mov.w:g
        tos pop.w:g
        next,
+   End-Code
+
+   Code rdrop       ( R:n -- )
+      # 2 , rp add.w:q  \ ? hfs
+      next,
+   End-Code
+
+   Code unloop       ( R:n -- )
+      # 4 , rp add.w:q  \ ? hfs
+      next,
    End-Code
 
  \ datastack and returnstack address
@@ -404,10 +466,31 @@ end-code
     next,
    End-Code
 
+   Code 0<       ( n -- f ) \ Test auf 0
+    tos , tos tst.w
+    0< IF  # -1 , tos mov.w:g   next,
+    THEN   # 0  , tos mov.w:g   next,
+    next,
+   End-Code
+
   Code =        ( n1 n2 -- f ) \ Test auf Gleichheit
     r1 pop.w:g
     r1 , tos sub.w:g
     0= IF  # -1 , tos mov.w:g   next,
+    THEN   # 0  , tos mov.w:g   next,
+   End-Code
+
+  Code u<        ( n1 n2 -- f ) \ Test auf Gleichheit
+    r1 pop.w:g
+    r1 , tos sub.w:g
+    u> IF  # -1 , tos mov.w:g   next,
+    THEN   # 0  , tos mov.w:g   next,
+   End-Code
+
+  Code u>        ( n1 n2 -- f ) \ Test auf Gleichheit
+    r1 pop.w:g
+    r1 , tos sub.w:g
+    u< IF  # -1 , tos mov.w:g   next,
     THEN   # 0  , tos mov.w:g   next,
    End-Code
 
@@ -423,13 +506,9 @@ end-code
    End-Code
 
   Code (emit)     ( char -- ) \ output character
-    # $09 , $E1 mov.b:g
-\      BEGIN  # $02 , $AD abs:16 tst.b  0= UNTIL
-\      tos.b , $AA abs:16 mov.b:g
-      BEGIN  # $02 , $AD  tst.b  0= UNTIL
+\      BEGIN  # $08 , $AC  tst.b  0= UNTIL
       tos.b , $AA  mov.b:g
       tos pop.w:g
-    # $0A , $E1 mov.b:g
       next,
   End-Code
 
@@ -445,7 +524,7 @@ end-code
   Code emit?    ( -- f ) \ check for write character to sio
       tos push.w:g
 \      # $02 , $AD abs:16 tst.b
-      # $02 , $AD  tst.b
+      # $08 , $AC  tst.b
       0= IF  # -1 , tos mov.w:g   next,
       THEN   # 0  , tos mov.w:g   next,
    End-Code

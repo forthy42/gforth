@@ -925,14 +925,14 @@ require asm/target.fs
 
 \ ----------------------------------------------------------------------------------------------
 
-	 $68 Constant u>=
-	 $69 Constant u>
-	 $6A Constant 0=
-	 $6B Constant 0<
-	 $6C Constant u<
-	 $6D Constant u<=
-	 $6E Constant 0<>
-	 $6F Constant 0>=
+	 $68 Constant u<
+	 $69 Constant u<=
+	 $6A Constant 0<>
+	 $6B Constant 0>=
+	 $6C Constant u>=
+	 $6D Constant u>
+	 $6E Constant 0=
+	 $6F Constant 0<
 	 
 : IF          >r reset r> X c,   X here  0 X c, ;
 : THEN        >r reset r> X here  over - swap X c!  ;

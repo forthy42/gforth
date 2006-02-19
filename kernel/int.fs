@@ -1046,7 +1046,7 @@ has? new-input 0= [IF]
     os-boot
 [ [THEN] ]
 [ has? rom [IF] ]
-    ram-mirror ram-start ram-size move
+    ram-mirror ram-start ram-size cmove
 [ [THEN] ]
     sp@ sp0 !
 [ has? peephole [IF] ]
