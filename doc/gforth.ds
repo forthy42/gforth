@@ -968,6 +968,23 @@ open/create the history file, @file{.gforth-history}. Default:
 for Forth source-code files.
 
 @item
+@cindex @code{LANG} -- environment variable
+@code{LANG} -- see @code{LC_CTYPE}
+
+@item
+@cindex @code{LC_ALL} -- environment variable
+@code{LC_ALL} -- see @code{LC_CTYPE}
+
+@item
+@cindex @code{LC_CTYPE} -- environment variable
+@code{LC_CTYPE} -- If this variable contains ``UTF-8'' on Gforth
+startup, Gforth uses the UTF-8 encoding for strings internally and
+expects its input and produces its output in UTF-8 encoding, otherwise
+the encoding is 8bit (see @pxref{Xchars and Unicode}).  If this
+environment variable is unset, Gforth looks in @code{LC_ALL}, and if
+that is unset, in @code{LANG}.
+
+@item
 @cindex @code{GFORTHSYSTEMPREFIX} -- environment variable
 
 @code{GFORTHSYSTEMPREFIX} -- specifies what to prepend to the argument
@@ -15348,10 +15365,10 @@ mostly by Dietrich Weineck.
 
 VolksForth was written by Klaus Schleisiek, Bernd Pennemann, Georg
 Rehfeld and Dietrich Weineck for the C64 (called UltraForth there) in
-the mid-80s and ported to the Atari ST in 1986.  It descends from F83.
+the mid-80s and ported to the Atari ST in 1986.  It descends from fig-Forth.
 
-Henry Laxen and Mike Perry wrote F83 as a model implementation of the
-Forth-83 standard. !! Pedigree? When?
+@c Henry Laxen and Mike Perry wrote F83 as a model implementation of the
+@c Forth-83 standard. !! Pedigree? When?
 
 A team led by Bill Ragsdale implemented fig-Forth on many processors in
 1979. Robert Selzer and Bill Ragsdale developed the original
@@ -15369,9 +15386,12 @@ Forth existed in 1971.
 A part of the information in this section comes from
 @cite{@uref{http://www.forth.com/Content/History/History1.htm,The
 Evolution of Forth}} by Elizabeth D. Rather, Donald R. Colburn and
-Charles H. Moore, presented at the HOPL-II conference and preprinted in
-SIGPLAN Notices 28(3), 1993.  You can find more historical and
-genealogical information about Forth there.
+Charles H. Moore, presented at the HOPL-II conference and preprinted
+in SIGPLAN Notices 28(3), 1993.  You can find more historical and
+genealogical information about Forth there.  For a more general (and
+graphical) Forth family tree look see
+@cite{@uref{http://www.complang.tuwien.ac.at/forth/family-tree/},
+Forth Family Tree and Timeline}.
 
 @c ------------------------------------------------------------------
 @node Forth-related information, Licenses, Origin, Top
