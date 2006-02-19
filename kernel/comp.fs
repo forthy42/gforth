@@ -454,6 +454,16 @@ doer? :docon [IF]
     : (Constant)  Create DOES> @ ;
 [THEN]
 
+doer? :dovalue [IF]
+    : (Value)  Header reveal dovalue: cfa, ;
+[ELSE]
+    has? rom [IF]
+	: (Value)  Create DOES> @ @ ;
+    [ELSE]
+	: (Value)  Create DOES> @ ;
+    [THEN]
+[THEN]
+
 : Constant ( w "name" -- ) \ core
     \G Define a constant @i{name} with value @i{w}.
     \G  
@@ -464,10 +474,10 @@ doer? :docon [IF]
     (Constant) A, ;
 
 : Value ( w "name" -- ) \ core-ext
-    (Constant) , ;
+    (Value) , ;
 
 : AValue ( w "name" -- ) \ core-ext
-    (Constant) A, ;
+    (Value) A, ;
 
 : 2Constant ( w1 w2 "name" -- ) \ double two-constant
     Create ( w1 w2 "name" -- )

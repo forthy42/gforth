@@ -24,6 +24,12 @@ doer? :docon [IF]
     ['] bl >code-address ;
 [THEN]
 
+doer? :dovalue [IF]
+: dovalue: ( -- addr )	\ gforth
+    \G The code address of a @code{CONSTANT}.
+    ['] def#tib >code-address ;
+[THEN]
+
 : docol: ( -- addr )	\ gforth
     \G The code address of a colon definition.
     ['] on >code-address ;

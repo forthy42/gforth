@@ -2881,7 +2881,7 @@ by (Value)
 [ELSE]
 Builder (Value)
 Build:  ( n -- ) ;Build
-by: :docon ( target-body-addr -- n ) T @ H ;DO
+by: :dovalue ( target-body-addr -- n ) T @ H ;DO
 
 Builder Value
 BuildSmart: T , H ;Build

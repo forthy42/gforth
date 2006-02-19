@@ -20,6 +20,7 @@
 
 -2 Doer: :docol
 -3 Doer: :docon
+-3 Doer: :dovalue
 -4 Doer: :dovar
 -5 Doer: :douser
 -6 Doer: :dodefer
