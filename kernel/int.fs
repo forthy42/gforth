@@ -996,11 +996,12 @@ defer process-args
 
 ' (bootmessage) IS bootmessage
 
+has? ec 0= [IF]
 Defer 'cold ( -- ) \ gforth  tick-cold
 \ hook (deferred word) for things to do right before interpreting the
 \ command-line arguments
 ' noop IS 'cold
-
+[THEN]
 
 AVariable init8 NIL init8 !
 
@@ -1013,8 +1014,8 @@ AVariable init8 NIL init8 !
 [ [THEN] ]
 [ has? ec 0= [IF] ]
     set-encoding-fixed-width
-[ [THEN] ]
     'cold
+[ [THEN] ]
     init8 chainperform
 [ has? file [IF] ]
     process-args

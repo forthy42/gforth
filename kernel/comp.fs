@@ -522,10 +522,15 @@ doer? :dodefer [IF]
 
 [ELSE]
 
-: Defer ( "name" -- ) \ gforth
-    Create ['] defer-default A,
-DOES> @ execute ;
-
+    has? rom [IF]
+	: Defer ( "name" -- ) \ gforth
+	    Create ['] defer-default A,
+	  DOES> @ @ execute ;
+    [ELSE]
+	: Defer ( "name" -- ) \ gforth
+	    Create ['] defer-default A,
+	  DOES> @ execute ;
+    [THEN]
 [THEN]
 
 : defer@ ( xt-deferred -- xt ) \ gforth defer-fetch

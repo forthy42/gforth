@@ -128,6 +128,11 @@ $80 Value max-single-byte
 	nip nip over -
     then ;
 
+: u8width ( xcaddr u -- n )
+    0 rot rot over + swap ?DO
+	I xc@+ swap >r wcwidth +
+    r> I - +LOOP ;
+
 : set-encoding-utf-8 ( -- )
     ['] u8emit is xemit
     ['] u8key is xkey
@@ -139,6 +144,7 @@ $80 Value max-single-byte
     ['] u8!+? is xc!+?
     ['] u8@+ is xc@+
     ['] u8len is xc-size
+    ['] u8width is x-width
     ['] -u8trailing-garbage is -trailing-garbage
 ;
 

@@ -1681,6 +1681,10 @@ with the window size.""
 urows=rows;
 ucols=cols;
 
+wcwidth	( u -- n )	gforth
+""The number of fixed-width characters per unicode character u""
+n = wcwidth(u);
+
 flush-icache	( c_addr u -- )	gforth	flush_icache
 ""Make sure that the instruction cache of the processor (if there is
 one) does not contain stale data at @i{c-addr} and @i{u} bytes

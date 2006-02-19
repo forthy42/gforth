@@ -67,13 +67,16 @@ end-macros
     # $ffff , ip mov.w:g            \ ip will be patched
     # $07FE , sp ldc                \ sp at $0700...$07FE
     # $0700 , rp mov.w:g            \ rp at $0600...$0700
-  Label uart-init
     # $0F , $E3  mov.b:g
-    # $00 , $E1  mov.b:g
-    # $20 , $B0  mov.b:g  \ hfs
+    # $0F , $E1  mov.b:g
+  Label clock-init                  \ default is 125kHz/8
+    # $08 , $06  mov.b:g
+    # $38 , $07  mov.b:g
+    # $00 , $08  mov.b:g            \ set to 20MHz
+  Label uart-init
+    # $20 , $B0  mov.b:g      \ hfs
     # $8105 , $A8  mov.w:g    \ ser1: 9600 baud, 8N1  \ hfs
-    # $05 , $AD  mov.b:g  \ hfs
-    next,
+    # $05 , $AD  mov.b:g      \ hfs
   End-Label
 
 
@@ -101,22 +104,22 @@ end-macros
   Code: :docon
 \    '2 dout,                    \ only for debugging
     tos push.w:g
-    4 [w] , tos mov.w:g
+    # 4 , w add.w:q  [w] , tos mov.w:g
     next,
   End-Code
 
   Code: :dovalue
 \    '2 dout,                    \ only for debugging
     tos push.w:g
-    4 [w] , w mov.w:g  [w] , tos mov.w:g
+    # 4 , w add.w:q   [w] , w mov.w:g  [w] , tos mov.w:g
     next,
   End-Code
 
-\  Code: :dodefer
-\      # $05 , $E1 mov.b:g
-\      4 [w] , w mov.w:g  [w] , w mov.w:g
-\      next1,
-\  End-Code
+  Code: :dodefer
+      # $05 , $E1 mov.b:g
+     # 4 , w add.w:q  [w] , w mov.w:g  [w] , w mov.w:g
+     next1,
+  End-Code
 
   Code: :dodoes  ( -- pfa ) \ get pfa and execute DOES> part
 \    '6 dout,                    \ only for debugging
@@ -124,7 +127,7 @@ end-macros
      tos push.w:g
      w , tos mov.w:g   # 4 , tos add.w:q
      # -2 , rp add.w:q
-     2 [w] , r1 mov.w:g
+     # 2 , w add.w:q   [w] , r1 mov.w:g
      rp , w mov.w:g  ip , [w] mov.w:g
      # 4 , r1 add.w:q  r1 , ip mov.w:g
      next,                                       \ execute does> part
@@ -140,7 +143,7 @@ end-macros
 
   Code execute   ( xt -- ) \ execute colon definition
 \    'E dout,                    \ only for debugging
-\    # $07 , $E1 mov.b:g
+    # $07 , $E1 mov.b:g
     tos , w mov.w:g                          \ copy tos to w
     tos pop.w:g                              \ get new tos
     next1,
@@ -455,6 +458,5 @@ end-code
     
 : compile-prim1 ;
 : finish-code ;
-: emit-file ;
 : x@+/string ( addr u -- addr' u' c )
     over c@ >r 1 /string r> ;
