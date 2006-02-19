@@ -73,7 +73,7 @@ defer back-restore ( u -- )
 ' backspaces is back-restore
 
 : clear-line ( max span addr pos1 -- max addr )
-  back-restore over spaces swap backspaces ;
+  back-restore over spaces swap back-restore ;
 
 \ : clear-tib ( max span addr pos -- max 0 addr 0 false )
 \   clear-line 0 tuck dup ;
