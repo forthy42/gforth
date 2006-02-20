@@ -492,7 +492,8 @@ AC_SUBST(disasm_fs)
 AC_PATH_PROG(INSTALL_INFO,install-info,[echo '>>>>Please make info dir entry:'],$PATH:/sbin:/usr/sbin:/usr/local/sbin)
 
 case "$host_os" in
-	*win32|cygwin)
+	*win32*)
+		# !!!FIXME!!! problems with cygwin and ';' as path separator
 		DIRSEP="\\\\"
 		PATHSEP=";"
 		#we want the builtins of command.com/cmd.exe and its

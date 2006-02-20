@@ -140,7 +140,7 @@ CVSDIRS = CVS engine/CVS kernel/CVS doc/CVS asm/CVS ec/CVS test/CVS \
 	arch/alpha/CVS arch/4stack/CVS arch/misc/CVS arch/6502/CVS \
 	arch/8086/CVS arch/avr/CVS arch/c165/CVS arch/h8/CVS \
 	arch/shboom/CVS arch/sharc/CVS arch/ia64/CVS arch/amd64/CVS \
-	arch/arm/CVS
+	arch/arm/CVS arch/r8c/CVS
 
 INCLUDES = engine/forth.h engine/threaded.h engine/io.h
 
@@ -257,7 +257,7 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_SRC) $(EC_SRC) \
 	test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs \
 	test/string.fs test/float.fs test/gforth.fs \
 	test/other.fs test/signals.fs test/checkans.fs \
-	test/primtest.fs test/coreext.fs \
+	test/primtest.fs test/coreext.fs test/deferred.fs \
 	bubble.fs siev.fs matrix.fs fib.fs \
 	oof.fs oofsampl.fs objects.fs objexamp.fs mini-oof.fs moof-exm.fs \
 	moofglos.fs fixpath.fs \
@@ -284,6 +284,7 @@ ALLSUBDIRS = engine
 
 ARCHS =	\
 	arch/generic/machine.h \
+	arch/generic/128bit.h \
 	arch/m68k/machine.h \
 	arch/mips/machine.h \
 	arch/386/machine.h \
@@ -326,7 +327,11 @@ ARCHS =	\
 	arch/sharc/compile.sharc \
 	arch/sharc/systypes.h \
 	arch/sharc/types.h \
-	arch/sharc/g21k-3.3.4-bp1.diff
+	arch/sharc/g21k-3.3.4-bp1.diff \
+	arch/r8c/asm.fs \
+	arch/r8c/asm-test.fs \
+	arch/r8c/prim.fs \
+	arch/r8c/mach.fs
 
 #not included in distribution until distribution terms are included:
 ARCHS_NO_DIST = \
@@ -384,7 +389,8 @@ SOURCES	= $(CVSDIRS) compat Makefile.in Makedist.in engine/Makefile.in \
 	gforthmi.cmd glosgen.glo doc/glossaries.doc \
 	$(INCLUDES) $(FORTH_SRC) $(COMPAT) $(VMGEN_EX) $(VMGEN_EX2) \
 	timings.sc \
-	test/coretest.out test/checkans.out
+	test/coretest.out test/checkans.out \
+	cache-fast*.vmg
 
 RCS_FILES =  ToDo model high-level
 
@@ -414,8 +420,8 @@ FORTH_GEN1 = $(FORTH_GEN0) @kernel_fi@
 KERN_DEPS = $(KERN_SRC) kernel/version.fs machpc.fs $(FORTH_GEN0) compat/strcomp.fs
 
 #distributed documentation
-DOCDIST = doc/gforth.info doc/gforth.info-* doc/gforth.ps \
-	  doc/vmgen.info doc/vmgen.info-* doc/vmgen.ps
+DOCDIST = doc/gforth.info doc/gforth.info* doc/gforth.ps \
+	  doc/vmgen.info doc/vmgen.info* doc/vmgen.ps
 
 KERNLS = kernl16b.fi- kernl16l.fi- \
 	 kernl32b.fi- kernl32l.fi- \
@@ -509,7 +515,7 @@ virtualclean:	mostlyclean
 #rules in Makedist (you can use them with GNU make on these systems).
 
 dist:		Makedist machpc.fs FORCE
-		-sed -e 's/@[^ ]*CALLFLAG@/false/g' -e 's/@[P]EEPHOLEFLAG@/true/g' <machpc.fs.in >machpc.fs
+		-sed -e 's/@[^ ]*CALLFLAG@/false/g' -e 's/@[P]EEPHOLEFLAG@/true/g' -e 's/@[L]IBFFIFLAG@/false/g' <machpc.fs.in >machpc.fs
 		$(MAKE) -f Makedist d$@
 		-$(RM) machpc.fs
 
