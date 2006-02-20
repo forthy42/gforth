@@ -2231,7 +2231,7 @@ there (thus its name).  Programmers can also use this stack:
 @code{>r} takes an element from the data stack and pushes it onto the
 return stack; conversely, @code{r>} moves an elementm from the return to
 the data stack; @code{r@@} pushes a copy of the top of the return stack
-on the return stack.
+on the data stack.
 
 Forth programmers usually use the return stack for storing data
 temporarily, if using the data stack alone would be too complex, and

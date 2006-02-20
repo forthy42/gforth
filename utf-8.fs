@@ -128,12 +128,14 @@ $80 Value max-single-byte
 	nip nip over -
     then ;
 
-[IFDEF] wcwidth
+[IFUNDEF] wcwidth
+    : wcwidth abort ;
+[THEN]
+    
 : u8width ( xcaddr u -- n )
     0 rot rot over + swap ?DO
-	I xc@+ swap >r wcwidth +
+        I xc@+ swap >r wcwidth +
     r> I - +LOOP ;
-[THEN]
 
 : set-encoding-utf-8 ( -- )
     ['] u8emit is xemit
