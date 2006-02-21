@@ -159,6 +159,7 @@ end-macros
   Code ?branch   ( f -- ) \ jump on f=0
       # 2 , ip add.w:q
       tos , tos tst.w   0= IF  -2 [ip] , ip mov.w:g   THEN
+      tos pop.w:g
       next,
   End-Code
 
