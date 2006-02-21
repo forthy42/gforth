@@ -331,6 +331,7 @@ Other I/O
 * Displaying characters and strings::  Other stuff
 * Input::                       Input
 * Pipes::                       How to create your own pipes
+* Xchars and Unicode::          Non-ASCII characters
 
 Locals
 
@@ -8586,6 +8587,7 @@ doc-block-included
 * Displaying characters and strings::  Other stuff
 * Input::                       Input
 * Pipes::                       How to create your own pipes
+* Xchars and Unicode::          Non-ASCII characters
 @end menu
 
 @node Simple numeric output, Formatted numeric output, Other I/O, Other I/O
@@ -8969,7 +8971,7 @@ doc-expect
 doc-span
 
 
-@node Pipes,  , Input, Other I/O
+@node Pipes, Xchars and Unicode, Input, Other I/O
 @subsection Pipes
 @cindex pipes, creating your own
 
@@ -8989,6 +8991,9 @@ problem yourself, and then return to regular processing.
 
 doc-broken-pipe-error
 
+@node Xchars and Unicode, , Pipes, Other I/O
+
+This chapter needs completion
 
 @node OS command line arguments, Locals, Other I/O, Words
 @section OS command line arguments
