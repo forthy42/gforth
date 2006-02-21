@@ -223,6 +223,7 @@ Forth Words
 * Structures::                  
 * Object-oriented Forth::       
 * Programming Tools::           
+* C Interface::                 
 * Assembler and Code Words::    
 * Threading Words::             
 * Passing Commands to the OS::  
@@ -393,8 +394,8 @@ The @file{mini-oof.fs} model
 
 Programming Tools
 
-* Examining::                   
-* Forgetting words::            
+* Examining::                   Data and Code.
+* Forgetting words::            Usually before reloading.
 * Debugging::                   Simple and quick.
 * Assertions::                  Making your programs self-checking.
 * Singlestep Debugger::         Executing your program word by word.
@@ -4249,6 +4250,7 @@ the exercises in a .fs file in the distribution.
 * Structures::                  
 * Object-oriented Forth::       
 * Programming Tools::           
+* C Interface::                 
 * Assembler and Code Words::    
 * Threading Words::             
 * Passing Commands to the OS::  
@@ -11391,15 +11393,15 @@ mixture of the @file{objects.fs} and @file{oof.fs} models.
 
 
 @c -------------------------------------------------------------
-@node Programming Tools, Assembler and Code Words, Object-oriented Forth, Words
+@node Programming Tools, C Interface, Object-oriented Forth, Words
 @section Programming Tools
 @cindex programming tools
 
 @c !! move this and assembler down below OO stuff.
 
 @menu
-* Examining::                   
-* Forgetting words::            
+* Examining::                   Data and Code.
+* Forgetting words::            Usually before reloading.
 * Debugging::                   Simple and quick.
 * Assertions::                  Making your programs self-checking.
 * Singlestep Debugger::         Executing your program word by word.
@@ -11660,10 +11662,137 @@ doc-dbg
 doc-break:
 doc-break"
 
+@c ------------------------------------------------------------
+@node C Interface, Assembler and Code Words, Programming Tools, Words
+@section C Interface
+@cindex C interface
+@cindex foreign language interface
+@cindex interface to C functions
+
+Note that the C interface is not yet complete; a better way of
+declaring C functions is planned, as well as a way of declaring
+structs, unions, and their fields.
+
+@menu
+* Calling C Functions::         
+* Declaring C Functions::       
+* Callbacks::                   
+@end menu
+
+@node Calling C Functions,  , C Interface, C Interface
+@subsection Calling C functions
+
+Once a C function is declared (see @pxref{Declaring C functions}), you
+can call it as follows: You push the arguments on the stack(s), and
+then call the word for the C function.  The arguments have to be
+pushed in the same order as the arguments appear in the C
+documentation (i.e., the first argument is deepest on the stack).
+Integer and pointer arguments have to be pushed on the data stack,
+floating-point arguments on the FP stack; these arguments are consumed
+by calling the C function.
+
+On returning from the C function, the return value, if any, is pushed
+on the appropriate stack: an integer return value is pushed on the
+data stack, an FP return value on the FP stack, and a void return
+value results in not pushing anything.  Note that most C functions
+have a return value, even if that is often not used in C; in Forth,
+you have to @code{drop} this return value explicitly if you do not use
+it.
+
+By default, an integer argument or return value corresponds to a
+single cell, and a floating-point argument or return value corresponds
+to a Forth float value; the C interface performs the appropriate
+conversions where necessary, on a best-effort basis (in some cases,
+there may be some loss).
+
+As an example, consider the POSIX function @code{lseek()}:
+
+@example
+off_t lseek(int fd, off_t offset, int whence);
+@end example
+
+This function takes three integer arguments, and returns an integer
+argument, so a Forth call for setting the current file offset to the
+start of the file could look like this:
+
+@example
+fd @@ 0 SEEK_SET lseek -1 = if
+  ... \ error handling
+then
+@end example
+
+You might be worried that an @code{off_t} does not fit into a cell, so
+you could not pass larger offsets to lseek, and might get only a part
+of the return values.  In that case, you should declare the function
+to use double-cells for the off_t argument and return value (no matter
+how large or small the off_t type actually is), and maybe give the
+resulting Forth word a different name, like @code{dlseek}; the result
+could be called like this:
+
+@example
+fd @@ 0. SEEK_SET dlseek -1. d= if
+  ... \ error handling
+then
+@end example
+
+Passing and returning structs or unions is currently not supported by
+our interface@footnote{If you know the calling convention of your C
+compiler, you usually can call such functions in some way, but that
+way is usually not portable between platforms, and sometimes not even
+between C compilers.}.
+
+Calling functions with a variable number of arguments (e.g.,
+@code{printf()}) is currently only supported by having you declare one
+function-calling word for each argument pattern, and calling the
+appropriate word for the desired pattern.
+
+@node Declaring C Functions, , Calling C Functions, C Interface
+@subsection Declaring C Functions
+
+Before you can call @code{lseek} or @code{dlseek}, you have to declare
+it.  You have to look up in your system what the concrete type for the
+abstract type @code{off_t} is; let's assume it is @code{long}.  Then
+the declarations for these words are:
+
+@example
+library libc libc.so.6
+libc lseek  int  long int  (long) lseek ( fd noffset whence -- noffset2 )
+libc dlseek int dlong int (dlong) lseek ( fd doffset whence -- doffset2 ) 
+@end example
+
+The first line defines a Forth word @code{libc} for accessing the C
+functions in the shared library @file{libc.so.6} (the name of the
+shared library depends on the library and the OS; this example is the
+standard C library (containing most of the standard C and Unix
+functions) for GNU/Linux systems since about 1998).
+
+The next two lines define two Forth words for the same C function
+@code{lseek()}; the middle line defines @code{lseek ( n1 n2 n3 -- n
+)}, and the last line defines @code{dlseek ( n1 d2 n3 -- d)}
+
+!!!
+
+
+As you can see, the declarations are relatively platform-dependent
+(e.g., on one platform @code{off_t} may be a @code{long}, whereas on
+another platform it may be a @code{long long}; actually, in this case
+you can have this difference even on the same platform), while the
+resulting function-calling words are platform-independent, and calls
+to them are portable.
+
+At some point in the future this interface will be superseded by a
+more convenient one with fewer portability issues.  But the resulting
+words for the C function will still have the same interface, so will
+not need to change the calls.
+
+
+@node Callbacks,  , Declaring C Functions, C Interface
+@subsection Callbacks
+
 
 
 @c -------------------------------------------------------------
-@node Assembler and Code Words, Threading Words, Programming Tools, Words
+@node Assembler and Code Words, Threading Words, C Interface, Words
 @section Assembler and Code Words
 @cindex assembler
 @cindex code words
