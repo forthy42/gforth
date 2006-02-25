@@ -65,8 +65,8 @@ end-macros
 \ ==============================================================
   Label into-forth
     # $ffff , ip mov.w:g            \ ip will be patched
-    # $07FE , sp ldc                \ sp at $0700...$07FE
-    # $0700 , rp mov.w:g            \ rp at $0600...$0700
+    # $0700 , sp ldc                \ sp at $0600...$0700
+    # $07FE , rp mov.w:g            \ rp at $0700...$07FE
     # $0F , $E3  mov.b:g
     # $0F , $E1  mov.b:g
   Label clock-init                  \ default is 125kHz/8
@@ -81,8 +81,8 @@ end-macros
     # $00 , $08  mov.b:g            \ set to 20MHz
     $00 , $0A  bclr
   Label uart-init
-    # $23 , $B0  mov.b:g      \ hfs
-    # $810D , $A8  mov.w:g    \ ser1: 9600 baud, 8N1  \ hfs
+    # $27 , $B0  mov.b:g      \ hfs
+    # $8105 , $A8  mov.w:g    \ ser1: 9600 baud, 8N1  \ hfs
     # $0500 , $AC  mov.w:g      \ hfs
     next,
   End-Label
@@ -123,6 +123,11 @@ end-macros
     next,
   End-Code
 
+  Code: :dofield
+      4 [w] , tos add.w:g
+      next,
+  end-code
+  
   Code: :dodefer
 \      # $05 , $E1 mov.b:g
      4 [w] , w mov.w:g  [w] , w mov.w:g
@@ -135,8 +140,8 @@ end-macros
      tos push.w:g
      w , tos mov.w:g   # 4 , tos add.w:q
      # -2 , rp add.w:q
-     2 [w] , r1 mov.w:g
      rp , w mov.w:g  ip , [w] mov.w:g
+     2 [w] , r1 mov.w:g
      # 4 , r1 add.w:q  r1 , ip mov.w:g
      next,                                       \ execute does> part
   End-Code
@@ -497,18 +502,14 @@ end-code
    End-Code
 
   Code (key)    ( -- char ) \ get character
-    # $08 , $E1 mov.b:g
       tos push.w:g
-\      BEGIN  # $08 , $AD abs:16 tst.b  0<> UNTIL
-      BEGIN  # $08 , $AD  tst.b  0<> UNTIL
-      tos , tos xor.w
-\      $AE abs:16 , tos.b mov.b:g
-      $AE  , tos.b mov.b:g
+      BEGIN  3 , $AD  btst  0<> UNTIL
+      $AE  , tos mov.w:g
     next,
    End-Code
 
   Code (emit)     ( char -- ) \ output character
-      BEGIN  3 , $AC  btst  0<> UNTIL
+      BEGIN  1 , $AD  btst  0<> UNTIL
       tos.b , $AA  mov.b:g
       tos pop.w:g
       next,
@@ -517,16 +518,14 @@ end-code
  \ additon io routines
   Code (key?)     ( -- f ) \ check for read sio character
       tos push.w:g
-\      # $08 , $AD abs:16 tst.b
-      # $08 , $AD  tst.b
+      3 , $AD  btst
       0<> IF  # -1 , tos mov.w:g   next,
       THEN   # 0  , tos mov.w:g   next,
    End-Code
 
   Code emit?    ( -- f ) \ check for write character to sio
       tos push.w:g
-\      # $02 , $AD abs:16 tst.b
-      3 , $AC  btst
+      1 , $AD  btst
       0<> IF  # -1 , tos mov.w:g   next,
       THEN   # 0  , tos mov.w:g   next,
    End-Code

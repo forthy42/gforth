@@ -21,8 +21,8 @@
 : ?struc      ( flag -- )       abort" unstructured " ;
 : sys?        ( sys -- )        dup 0= ?struc ;
 : >mark       ( -- sys )        here  0 , ;
-: >resolve    ( sys -- )        here over - swap ! ;
-: <resolve    ( sys -- )        here - , ;
+: >resolve    ( sys -- )        here swap ! ;
+: <resolve    ( sys -- )        , ;
 
 : BUT       sys? swap ;                      immediate restrict
 : YET       sys? dup ;                       immediate restrict

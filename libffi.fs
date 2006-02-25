@@ -206,7 +206,7 @@ also c-decl definitions
 
 ' noop   0 rettype (void)
 ' is>x   6 rettype (int)
-' i>x    6 rettype (uint)
+' i>x    5 rettype (uint)
 ' p>x  &12 rettype (ptr)
 ' d>x    8 rettype (llong)
 ' sf>x   9 rettype (sf)

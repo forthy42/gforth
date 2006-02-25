@@ -67,7 +67,9 @@ Defer source ( -- c-addr u ) \ core
     ELSE
         (word)
     THEN
+[ has? new-input [IF] ]
     2dup input-lexeme!
+[ [THEN] ]
     2dup + r> - 1+ r> min >in ! ;
 
 : word   ( char "<chars>ccc<char>-- c-addr ) \ core
@@ -88,7 +90,9 @@ Defer source ( -- c-addr u ) \ core
     >r  source  >in @ over min /string ( c-addr1 u1 )
     over  swap r>  scan >r
     over - dup r> IF 1+ THEN  >in +!
-    2dup input-lexeme! ;
+[ has? new-input [IF] ]
+    2dup input-lexeme!
+[ [THEN] ] ;
 
 \ name                                                 13feb93py
 
@@ -96,7 +100,9 @@ Defer source ( -- c-addr u ) \ core
 
 : (name) ( -- c-addr count ) \ gforth
     source 2dup >r >r >in @ /string (parse-white)
+[ has? new-input [IF] ]
     2dup input-lexeme!
+[ [THEN] ]
     2dup + r> - 1+ r> min >in ! ;
 \    name count ;
 [THEN]
@@ -678,8 +684,7 @@ Variable #fill-bytes
 [THEN]
 
 has? new-input 0= [IF]
-: input-start-line ( -- ) >in off ;
-: input-lexeme! ( c-addr n -- ) 2drop ;
+: input-start-line ( -- )  >in off ;
 : refill ( -- flag ) \ core-ext,block-ext,file-ext
     \G Attempt to fill the input buffer from the input source.  When
     \G the input source is the user input device, attempt to receive
@@ -695,7 +700,7 @@ has? new-input 0= [IF]
     \G and return true; otherwise, return false.  A successful result
     \G includes receipt of a line containing 0 characters.
     [ has? file [IF] ]
-	blk @  IF  1 blk +!  true  input-start-line  EXIT  THEN
+	blk @  IF  1 blk +!  true  EXIT  THEN
 	[ [THEN] ]
     tib /line
     [ has? file [IF] ]
@@ -709,7 +714,8 @@ has? new-input 0= [IF]
 	THEN
 	1 loadline +!
 	[ [THEN] ]
-    swap #tib ! input-start-line ;
+    swap #tib !
+    input-start-line ;
 
 : query   ( -- ) \ core-ext
     \G Make the user input device the input source. Receive input into
@@ -801,7 +807,7 @@ Defer .status
 	    \ if stderr does not work either, already DoError causes a hang
 	    2 (bye)
 	endif
-	refill WHILE
+	refill  WHILE
 	    interpret prompt
     REPEAT
     bye ;
@@ -1035,7 +1041,8 @@ has? new-input 0= [IF]
     sp@ $10 cells +
     [ [THEN] ]
 [ [THEN] ]
-    dup >tib ! tibstack ! #tib off input-start-line ;
+    dup >tib ! tibstack ! #tib off
+    input-start-line ;
 [THEN]
 
 : boot ( path n **argv argc -- )

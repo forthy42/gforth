@@ -117,11 +117,13 @@ has? compiler [IF]
 include ./quotes.fs
 has? ec 0= [IF]
 include ./toolsext.fs
-include ./tools.fs               \ load tools ( .s dump )
 [THEN]
+include ./tools.fs               \ load tools ( .s dump )
 include ./getdoers.fs
 
 \ Setup                                                13feb93py
+
+include ./pass.fs                    \ pass pointers from cross to target
 
 has? header [IF]
     \ set image size
@@ -131,7 +133,5 @@ has? header [IF]
 [ELSE]
     >boot
 [THEN]
-
-include ./pass.fs                    \ pass pointers from cross to target
 
 .unresolved                          \ how did we do?

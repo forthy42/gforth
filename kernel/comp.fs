@@ -117,7 +117,11 @@ defer header ( -- ) \ gforth
     align here last !
     current @ 1 or A,	\ link field; before revealing, it contains the
 			\ tagged reveal-into wordlist
-    longstring, cfalign
+[ has? f83headerstring [IF] ]
+	string,
+[ [ELSE] ]
+	longstring, cfalign
+[ [THEN] ]
     alias-mask lastflags cset ;
 
 : input-stream-header ( "name" -- )
