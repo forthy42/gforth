@@ -120,9 +120,9 @@ defer header ( -- ) \ gforth
 [ has? f83headerstring [IF] ]
 	string,
 [ [ELSE] ]
-	longstring, cfalign
+	longstring,
 [ [THEN] ]
-    alias-mask lastflags cset ;
+    cfalign alias-mask lastflags cset ;
 
 : input-stream-header ( "name" -- )
     name name-too-short? header, ;

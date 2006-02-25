@@ -84,7 +84,10 @@ end-macros
     # $27 , $B0  mov.b:g      \ hfs
     # $8105 , $A8  mov.w:g    \ ser1: 9600 baud, 8N1  \ hfs
     # $0500 , $AC  mov.w:g      \ hfs
-    next,
+  Label lcd-init
+    $02 , $0A bset
+    # $FD , $E2 mov.b:g
+  next,
   End-Label
 
 
@@ -448,22 +451,22 @@ end-code
      next,
    End-Code
 
-0 [IF]
   Code lshift   ( n1 n2 -- n3 ) \ shift n1 left n2 bits
  \     tos.b , r1h mov.w:g
-     tos.b , r1h mov.b:g  \ ? hfs
-     r1h , tos shl.w
-     next,
+      tos.b , r1h mov.b:g  \ ? hfs
+      tos pop.w:g
+      r1h , tos shl.w
+      next,
    End-Code
 
   Code rshift   ( n1 n2 -- n3 ) \ shift n1 right n2 bits
 \     tos.b , r1h mov.w:g
-     tos.b , r1h mov.b:g  \ ? hfs
-     r1h neg.b
-     r1h , tos shl.w
+      tos.b , r1h mov.b:g  \ ? hfs
+      r1h neg.b
+      tos pop.w:g
+      r1h , tos shl.w
      next,
    End-Code
-[THEN]
 
  \ compare
   Code 0=       ( n -- f ) \ Test auf 0
@@ -530,7 +533,39 @@ end-code
       THEN   # 0  , tos mov.w:g   next,
    End-Code
 
-[then]
+   \ Useful code for R8C
+
+   Code delay ( n -- ) \ n microseconds delay
+       BEGIN  # -1 , tos  add.w:q  0= UNTIL
+       tos pop.w:g
+       next,
+   end-code
+
+   $E0 Constant port0
+   $E1 Constant port1
+   
+   : led!  port1 c! ;
+   : >lcd ( 4bit -- )  1+ dup port0 c! dup 8 + port0 c!  port0 c!
+       &120 delay ;
+   : lcdctrl!  ( n -- )
+       dup $F0 and >lcd
+       4 lshift >lcd
+       &300 delay ;
+   : lcdemit ( n -- )  &300 delay
+       dup $F0 and 4 + >lcd
+       4 lshift 4 + >lcd
+       &1000 delay ;
+   : lcdtype  bounds ?DO  I c@ lcdemit  LOOP ;
+   : lcdpage  $01 lcdctrl! &15000 delay ;
+   : lcdcr    $C0 lcdctrl! ;
+   : lcdinit ( -- )
+       &60000 delay  $20 port0 c! $28 port0 c! &1500 delay $20 port0 c!
+       &15000 delay  $28 lcdctrl!
+       &03000 delay  $0C lcdctrl!
+       &03000 delay  lcdpage ;
+   : r8cboot ( -- )  lcdinit s" Gforth EC R8C" lcdtype boot ;
+   ' r8cboot >body $C002 !
+   
 : (bye)     ( 0 -- ) \ back to DOS
     drop ;
 
