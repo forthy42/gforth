@@ -915,6 +915,51 @@ require asm/target.fs
 \   #      %00000000 %11101000 GROUP2: shl.b
 
 \ ----------------------------------------------------------------------------------------------
+ ' noop alias bit
+
+ : bit,      s-opnd? 0= ABORT" operand expected"
+             <OPC> 1+ C@ $F0 AND <M> 1+ c@ $0F AND OR <M> 1+ c! ;
+
+ : bit,R      bit,
+              >opc OPC,
+              %00000111 and
+              X c, ;
+
+ : bit,[An]   bit, ." geht noch nicht" abort ,[An] ;
+
+ : bit,[SB]   bit, ." geht noch nicht" abort ,[SB] ;
+
+ : bit,[FB]   bit, ." geht noch nicht" abort ,[FB] ;
+
+ : bit,abs:16 opnd? <d-opnd> !
+              bit, ,abs:16
+              >opc OPC,
+              3 lshift swap %00000111 and or
+              X , ;
+
+ Table: bit-group
+         bit , R0     '  bit,R TAB,          bit , R1     ' bit,R TAB,
+         bit , R2     '  bit,R TAB,          bit , R3     ' bit,R TAB,
+         bit , A0     '  bit,R TAB,          bit , A1     ' bit,R TAB,
+         bit , [A0]   '  bit,[An] TAB,       bit , [A1]   ' bit,[An] TAB,
+         bit , [SB]   '  bit,[SB] TAB,       bit , [FB]   ' bit,[FB] TAB,
+         bit , abs:16 '  bit,abs:16 TAB,
+ ;TABLE
+
+ bit-group %01001111 %01111110 GROUP2: band
+ bit-group %10001111 %01111110 GROUP2: bclr
+ bit-group %01011111 %01111110 GROUP2: bnand
+ bit-group %01111111 %01111110 GROUP2: bnor
+ bit-group %10101111 %01111110 GROUP2: bnot
+ bit-group %00111111 %01111110 GROUP2: bntst
+ bit-group %11011111 %01111110 GROUP2: bnxor
+ bit-group %01101111 %01111110 GROUP2: bor
+ bit-group %10011111 %01111110 GROUP2: bset
+ bit-group %10111111 %01111110 GROUP2: btst
+ bit-group %00001111 %01111110 GROUP2: btstc
+ bit-group %00011111 %01111110 GROUP2: btsts
+ bit-group %11001111 %01111110 GROUP2: bxor
+\ ----------------------------------------------------------------------------------------------
 \ register definition
   ' R2 Alias rp
   ' R0 Alias tos
@@ -934,14 +979,14 @@ require asm/target.fs
 	 $6E Constant 0=
 	 $6F Constant 0<
 	 
-: IF          >r reset r> X c,   X here  0 X c, ;
-: THEN        >r reset r> X here  over - swap X c!  ;
-: ELSE        >r reset r> $FE IF swap THEN ;
-: WHILE       >r reset r> IF swap ;
-: BEGIN       reset X here  ;
-: UNTIL       >r reset r> X c,   X here -  X c,  ;
-: AGAIN       >r reset r> $FE UNTIL ;
-: REPEAT      >r >r reset r> r> AGAIN THEN ;
+: IF          X c,   X here  0 X c, reset ;
+: THEN        X here  over - swap X c! reset  ;
+: ELSE        $FE IF swap THEN reset ;
+: WHILE       IF swap reset ;
+: BEGIN       X here reset ;
+: UNTIL       X c,   X here -  X c, reset  ;
+: AGAIN       $FE UNTIL reset ;
+: REPEAT      AGAIN THEN reset ;
 
 	 
 \ include asm-test.fs

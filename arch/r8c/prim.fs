@@ -70,18 +70,19 @@ end-macros
     # $0F , $E3  mov.b:g
     # $0F , $E1  mov.b:g
   Label clock-init                  \ default is 125kHz/8
-    # $01 , $0A  mov.b:g
+    $00 , $0A  bset
     # $28 , $07  mov.b:g
     # $08 , $06  mov.b:g
-    # $00 , $0A  mov.b:g
     r1 , r1 mov.w:g
     r1 , r1 mov.w:g
     r1 , r1 mov.w:g
     r1 , r1 mov.w:g
+    2 , $0C bclr
     # $00 , $08  mov.b:g            \ set to 20MHz
+    $00 , $0A  bclr
   Label uart-init
     # $23 , $B0  mov.b:g      \ hfs
-    # $8105 , $A8  mov.w:g    \ ser1: 9600 baud, 8N1  \ hfs
+    # $810D , $A8  mov.w:g    \ ser1: 9600 baud, 8N1  \ hfs
     # $0500 , $AC  mov.w:g      \ hfs
     next,
   End-Label
@@ -507,7 +508,7 @@ end-code
    End-Code
 
   Code (emit)     ( char -- ) \ output character
-\      BEGIN  # $08 , $AC  tst.b  0= UNTIL
+      BEGIN  3 , $AC  btst  0<> UNTIL
       tos.b , $AA  mov.b:g
       tos pop.w:g
       next,
@@ -525,8 +526,8 @@ end-code
   Code emit?    ( -- f ) \ check for write character to sio
       tos push.w:g
 \      # $02 , $AD abs:16 tst.b
-      # $08 , $AC  tst.b
-      0= IF  # -1 , tos mov.w:g   next,
+      3 , $AC  btst
+      0<> IF  # -1 , tos mov.w:g   next,
       THEN   # 0  , tos mov.w:g   next,
    End-Code
 
