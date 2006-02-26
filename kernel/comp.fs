@@ -638,7 +638,7 @@ has? ec 0= [IF]
 ' (reveal) f83search reveal-method !
 [ELSE]
 : (reveal) ( nt wid -- )
-    dup >r @ over ! r> ! ;
+    .s dup >r @ over .s ! r> ! ;
 [THEN]
 
 Variable warnings ( -- addr ) \ gforth

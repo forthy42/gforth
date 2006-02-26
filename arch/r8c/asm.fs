@@ -981,7 +981,8 @@ require asm/target.fs
 	 
 : IF          X c,   X here  0 X c, reset ;
 : THEN        X here  over - swap X c! reset  ;
-: ELSE        $FE IF swap THEN reset ;
+: AHEAD       $FE IF ;
+: ELSE        AHEAD swap THEN reset ;
 : WHILE       IF swap reset ;
 : BEGIN       X here reset ;
 : UNTIL       X c,   X here -  X c, reset  ;

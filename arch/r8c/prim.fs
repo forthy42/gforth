@@ -69,14 +69,15 @@ end-macros
     # $07FE , rp mov.w:g            \ rp at $0700...$07FE
     # $0F , $E3  mov.b:g
     # $0F , $E1  mov.b:g
+  Label mem-init
+    $01 , $0A bset
+    $00 , $05 bset
+    $01 , $0A bclr
   Label clock-init                  \ default is 125kHz/8
     $00 , $0A  bset
     # $28 , $07  mov.b:g
     # $08 , $06  mov.b:g
-    r1 , r1 mov.w:g
-    r1 , r1 mov.w:g
-    r1 , r1 mov.w:g
-    r1 , r1 mov.w:g
+    AHEAD  THEN
     2 , $0C bclr
     # $00 , $08  mov.b:g            \ set to 20MHz
     $00 , $0A  bclr
@@ -431,6 +432,17 @@ end-code
       next,
    End-Code
 
+  Code m*      ( u1 u2 -- ud ) \ unsigned multiply
+      rp , r3 mov.w:g
+      r2 pop.w:g
+      r2 , r0 mul.w:g
+      r0 push.w:g
+      r2 , tos mov.w:g
+      r3 , rp mov.w:g
+      r3 , r3 xor.w
+      next,
+   End-Code
+
   Code um/mod   ( ud u -- r q ) \ unsiged divide
       rp , r3 mov.w:g
       tos , r1 mov.w:g
@@ -490,6 +502,8 @@ end-code
     THEN   # 0  , tos mov.w:g   next,
    End-Code
 
+   ' = alias u=
+   
   Code u<        ( n1 n2 -- f ) \ Test auf Gleichheit
     r1 pop.w:g
     r1 , tos sub.w:g
@@ -535,34 +549,39 @@ end-code
 
    \ Useful code for R8C
 
-   Code delay ( n -- ) \ n microseconds delay
-       BEGIN  # -1 , tos  add.w:q  0= UNTIL
+   Code us ( n -- ) \ n microseconds delay
+       BEGIN  AHEAD  THEN  AHEAD  THEN
+           r1 , r1 mov.w:g
+           # -1 , tos  add.w:q  0= UNTIL
        tos pop.w:g
        next,
    end-code
+   
+   : ms ( n -- )  0 ?DO  &1000 us  LOOP ;
 
    $E0 Constant port0
    $E1 Constant port1
    
    : led!  port1 c! ;
-   : >lcd ( 4bit -- )  1+ dup port0 c! dup 8 + port0 c!  port0 c!
-       &120 delay ;
+   : >lcd ( 4bit -- )
+       1+ dup port0 c! dup 8 + port0 c!  1 us  port0 c!
+       &40 us ;
    : lcdctrl!  ( n -- )
        dup $F0 and >lcd
        4 lshift >lcd
-       &300 delay ;
-   : lcdemit ( n -- )  &300 delay
+       &100 us ;
+   : lcdemit ( n -- )  &100 us
        dup $F0 and 4 + >lcd
        4 lshift 4 + >lcd
-       &1000 delay ;
+       &250 us ;
    : lcdtype  bounds ?DO  I c@ lcdemit  LOOP ;
-   : lcdpage  $01 lcdctrl! &15000 delay ;
+   : lcdpage  $01 lcdctrl! &15 ms ;
    : lcdcr    $C0 lcdctrl! ;
    : lcdinit ( -- )
-       &60000 delay  $20 port0 c! $28 port0 c! &1500 delay $20 port0 c!
-       &15000 delay  $28 lcdctrl!
-       &03000 delay  $0C lcdctrl!
-       &03000 delay  lcdpage ;
+       &20 ms  $20 >lcd
+       &5 ms  $28 lcdctrl!
+       &1 ms  $0C lcdctrl!
+       &1 ms  lcdpage ;
    : r8cboot ( -- )  lcdinit s" Gforth EC R8C" lcdtype boot ;
    ' r8cboot >body $C002 !
    

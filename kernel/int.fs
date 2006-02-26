@@ -243,8 +243,8 @@ const Create bases   0A , 10 ,   2 ,   0A ,
 
 has? ec [IF]
     AVariable forth-wordlist
-    AVariable context  forth-wordlist context !
-    AVariable current  forth-wordlist context !
+    AVariable current  forth-wordlist current !
+    ' current alias context
     | ' (f83find) alias (search-wordlist) ( addr len wid -- nt / false )
     : find-name ( c-addr u -- nt | 0 ) \ gforth
 	\g Find the name @i{c-addr u} in the current search
@@ -622,7 +622,7 @@ Defer parser1 ( c-addr u -- ... xt)
 
 has? ec [IF]
     ' (name) Alias parse-name
-    : no.extensions  2drop -13 throw ;
+    : no.extensions  2drop -&13 throw ;
     ' no.extensions Alias compiler-notfound1
     ' no.extensions Alias interpreter-notfound1
 [ELSE]    
