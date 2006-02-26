@@ -56,9 +56,10 @@ doer? :dodefer [IF]
 [THEN]
 
 doer? :dofield [IF]
+
 : dofield: ( -- addr )	\ gforth
     \G The code address of a @code{field}.
-    ['] reveal-method >code-address ;
+    ['] >body >code-address ;
 [THEN]
 
 true [IF] \ !! don't know what to put here

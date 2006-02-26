@@ -55,10 +55,13 @@ has? file [IF]
 [THEN]
 
 20 8 2* cells + 2 + cell+ constant word-pno-size ( -- u )
+
+has? EC 0= [IF]
 create holdbuf word-pno-size chars allot
 holdbuf word-pno-size chars + aconstant holdbuf-end
 avariable holdptr holdbuf-end holdptr a!
 avariable holdend holdbuf-end holdend a!
+[THEN]
 
 84 constant pad-minsize ( -- u )
 

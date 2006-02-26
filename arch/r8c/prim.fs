@@ -65,7 +65,7 @@ end-macros
 \ ==============================================================
   Label into-forth
     # $ffff , ip mov.w:g            \ ip will be patched
-    # $0700 , sp ldc                \ sp at $0600...$0700
+    # $0780 , sp ldc                \ sp at $0600...$0700
     # $07FE , rp mov.w:g            \ rp at $0700...$07FE
     # $0F , $E3  mov.b:g
     # $0F , $E1  mov.b:g
@@ -571,7 +571,5 @@ end-code
 
 : bye ( -- )  0 (bye) ;
     
-: compile-prim1 ;
-: finish-code ;
 : x@+/string ( addr u -- addr' u' c )
     over c@ >r 1 /string r> ;

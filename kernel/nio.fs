@@ -28,6 +28,14 @@ require ./io.fs
 
 \ hold <# #> sign # #s                                 25jan92py
 
+has? EC [IF]
+    : hld  ( -- addr )  pad cell - ;
+    : hold  ( char -- )  hld -1 over +! @ c! ;
+    : <#    hld dup ! ;
+    : #>   ( d -- addr +n )  2drop hld dup @ tuck - ;
+    ' <# alias <<#
+    ' noop alias #>>
+[ELSE]
 : hold    ( char -- ) \ core
     \G Used within @code{<#} and @code{#>}. Append the character
     \G @var{char} to the pictured numeric output string.
@@ -58,6 +66,7 @@ require ./io.fs
     \G Release the hold area started with @code{<<#}.
     holdend @ dup holdbuf-end u>= -&11 and throw
     count chars bounds holdptr ! holdend ! ;
+[THEN]
 
 : sign    ( n -- ) \ core
     \G Used within @code{<#} and @code{#>}. If @var{n} (a @var{single}

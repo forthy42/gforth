@@ -83,7 +83,8 @@ include  ./../termsize.fs
 
 : wordlist-words ( wid -- ) \ gforth
     \G Display the contents of the wordlist wid.
-    wordlist-id 0 swap cr
+    [ has? ec 0= [IF] ] wordlist-id [ [THEN] ]
+    0 swap cr
     BEGIN
 	@ dup
     WHILE

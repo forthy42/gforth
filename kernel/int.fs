@@ -241,6 +241,16 @@ const Create bases   0A , 10 ,   2 ,   0A ,
     \G comments into documentation.
     POSTPONE \ ; immediate
 
+has? ec [IF]
+    AVariable forth-wordlist
+    AVariable context  forth-wordlist context !
+    AVariable current  forth-wordlist context !
+    | ' (f83find) alias (search-wordlist) ( addr len wid -- nt / false )
+    : find-name ( c-addr u -- nt | 0 ) \ gforth
+	\g Find the name @i{c-addr u} in the current search
+	\g order. Return its @i{nt}, if found, otherwise 0.
+	context @ (search-wordlist) ;
+[ELSE]
 \ \ object oriented search list                         17mar93py
 
 \ word list structure:
@@ -290,6 +300,27 @@ Defer context ( -- addr ) \ gforth
 
 ' lookup is context
 forth-wordlist current !
+
+: (search-wordlist)  ( addr count wid -- nt | false )
+    dup wordlist-map @ find-method perform ;
+
+: search-wordlist ( c-addr count wid -- 0 | xt +-1 ) \ search
+    \G Search the word list identified by @i{wid} for the definition
+    \G named by the string at @i{c-addr count}.  If the definition is
+    \G not found, return 0. If the definition is found return 1 (if
+    \G the definition is immediate) or -1 (if the definition is not
+    \G immediate) together with the @i{xt}.  In Gforth, the @i{xt}
+    \G returned represents the interpretation semantics.  ANS Forth
+    \G does not specify clearly what @i{xt} represents.
+    (search-wordlist) dup if
+	(name>intn)
+    then ;
+
+: find-name ( c-addr u -- nt | 0 ) \ gforth
+    \g Find the name @i{c-addr u} in the current search
+    \g order. Return its @i{nt}, if found, otherwise 0.
+    lookup @ (search-wordlist) ;
+[THEN]
 
 \ \ header, finding, ticks                              17dec92py
 
@@ -523,26 +554,6 @@ has? standardthreading has? compiler and [IF]
 
 [THEN]	
 
-: (search-wordlist)  ( addr count wid -- nt | false )
-    dup wordlist-map @ find-method perform ;
-
-: search-wordlist ( c-addr count wid -- 0 | xt +-1 ) \ search
-    \G Search the word list identified by @i{wid} for the definition
-    \G named by the string at @i{c-addr count}.  If the definition is
-    \G not found, return 0. If the definition is found return 1 (if
-    \G the definition is immediate) or -1 (if the definition is not
-    \G immediate) together with the @i{xt}.  In Gforth, the @i{xt}
-    \G returned represents the interpretation semantics.  ANS Forth
-    \G does not specify clearly what @i{xt} represents.
-    (search-wordlist) dup if
-	(name>intn)
-    then ;
-
-: find-name ( c-addr u -- nt | 0 ) \ gforth
-    \g Find the name @i{c-addr u} in the current search
-    \g order. Return its @i{nt}, if found, otherwise 0.
-    lookup @ (search-wordlist) ;
-
 : sfind ( c-addr u -- 0 / xt +-1  ) \ gforth-obsolete
     find-name dup
     if ( nt )
@@ -579,7 +590,7 @@ has? standardthreading has? compiler and [IF]
 \ ticks in interpreter
 
 : (') ( "name" -- nt ) \ gforth
-    name name-too-short?
+    parse-name name-too-short?
     find-name dup 0=
     IF
 	drop -&13 throw
@@ -609,6 +620,12 @@ Defer parser1 ( c-addr u -- ... xt)
 \ text-interpret the word/number c-addr u, possibly producing a number
     parser1 execute ;
 
+has? ec [IF]
+    ' (name) Alias parse-name
+    : no.extensions  2drop -13 throw ;
+    ' no.extensions Alias compiler-notfound1
+    ' no.extensions Alias interpreter-notfound1
+[ELSE]    
 Defer parse-name ( "name" -- c-addr u ) \ gforth
 \G Get the next word from the input buffer
 ' (name) IS parse-name
@@ -630,13 +647,14 @@ Defer interpreter-notfound1 ( c-addr count -- ... xt )
 Defer before-word ( -- ) \ gforth
 \ called before the text interpreter parses the next word
 ' noop IS before-word
+[THEN]
 
 : interpret1 ( ... -- ... )
 [ has? backtrace [IF] ]
     rp@ backtrace-rp0 !
 [ [THEN] ]
     BEGIN
-	?stack before-word name dup
+	?stack [ has? EC 0= [IF] ] before-word [ [THEN] ] parse-name dup
     WHILE
 	parser1 execute
     REPEAT
@@ -1038,7 +1056,7 @@ has? new-input 0= [IF]
     [ has? os [IF] ]
     r0 @ forthstart 6 cells + @ -
     [ [ELSE] ]
-    sp@ $10 cells +
+    sp@ cell+
     [ [THEN] ]
 [ [THEN] ]
     dup >tib ! tibstack ! #tib off

@@ -125,7 +125,7 @@ defer header ( -- ) \ gforth
     cfalign alias-mask lastflags cset ;
 
 : input-stream-header ( "name" -- )
-    name name-too-short? header, ;
+    parse-name name-too-short? header, ;
 
 : input-stream ( -- )  \ general
     \G switches back to getting the name from the input stream ;
@@ -231,11 +231,13 @@ defer compile, ( xt -- )	\ core-ext	compile-comma
 ' , is compile,
 [THEN]
 
+has? ec 0= [IF]
 defer basic-block-end ( -- )
 
 :noname ( -- )
     0 compile-prim1 ;
 is basic-block-end
+[THEN]
 
 has? peephole [IF]
 
@@ -555,7 +557,7 @@ doer? :dodefer [IF]
     ;-hook ?struc
     [ has? xconds [IF] ] exit-like [ [THEN] ]
     here 5 cells + postpone aliteral postpone (does>2) [compile] exit
-    finish-code dodoes,
+    [ has? peephole [IF] ] finish-code [ [THEN] ] dodoes,
     defstart :-hook ;
 interpret/compile: DOES>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ core        does
 
@@ -626,6 +628,7 @@ defer ;-hook ( sys2 -- sys1 )
 : last?   ( -- false / nfa nfa )
     latest ?dup ;
 
+has? ec 0= [IF]
 : (reveal) ( nt wid -- )
     wordlist-id dup >r
     @ over ( name>link ) ! 
@@ -633,6 +636,10 @@ defer ;-hook ( sys2 -- sys1 )
 
 \ make entry in wordlist-map
 ' (reveal) f83search reveal-method !
+[ELSE]
+: (reveal) ( nt wid -- )
+    dup >r @ over ! r> ! ;
+[THEN]
 
 Variable warnings ( -- addr ) \ gforth
 G -1 warnings T !
@@ -658,14 +665,20 @@ G -1 warnings T !
 	if \ it is still hidden
 	    dup ( name>link ) @ 1 xor		( nt wid )
 	    2dup >r name>string r> check-shadow ( nt wid )
-	    dup wordlist-map @ reveal-method perform
+	    [ has? ec [IF] ]
+		(reveal)
+	    [ [ELSE] ]
+		dup wordlist-map @ reveal-method perform
+	    [ [THEN] ]
 	else
 	    drop
 	then
     then ;
 
+has? EC 0= [IF]
 : rehash  ( wid -- )
     dup wordlist-map @ rehash-method perform ;
+[THEN]
 
 ' reveal alias recursive ( compilation -- ; run-time -- ) \ gforth
 \g Make the current definition visible, enabling it to call itself
