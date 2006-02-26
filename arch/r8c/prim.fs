@@ -65,13 +65,17 @@ end-macros
 \ ==============================================================
   Label into-forth
     # $ffff , ip mov.w:g            \ ip will be patched
-    # $0780 , sp ldc                \ sp at $0600...$0700
+    # $0780 , sp ldc                \ sp at $0700...$0780
     # $07FE , rp mov.w:g            \ rp at $0700...$07FE
     # $0F , $E3  mov.b:g
     # $0F , $E1  mov.b:g
   Label mem-init
     $01 , $0A bset
     $00 , $05 bset
+    $01 , $1B7 bclr
+    $01 , $1B7 bset
+    $02 , $1B7 bclr
+    $02 , $1B7 bset
     $01 , $0A bclr
   Label clock-init                  \ default is 125kHz/8
     $00 , $0A  bset
