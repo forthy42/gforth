@@ -560,56 +560,56 @@ hpux-workaround:
 #we rebuild gforth.fi, because it contains some path names.
 #we delete $build/gforth.fi and $build/install.TAGS after installation because of ownership.
 install:	gforth$(EXE) $(FORTH_SRC) $(kernel_fi) gforth.fi gforthmi vmgen doc/gforth.1 prim install.TAGS installdirs
-		touch $(siteforthdir)/siteinit.fs
-		-$(RM) $(bindir)/gforth$(EXE) $(bindir)/gforth-$(VERSION)$(EXE) $(bindir)/gforthmi $(bindir)/vmgen
-		-$(RM) $(bindir)/gforth-fast$(EXE) $(bindir)/gforth-fast-$(VERSION)$(EXE)
-		-$(RM) $(bindir)/gforth-itc$(EXE) $(bindir)/gforth-itc-$(VERSION)$(EXE)
-		$(INSTALL_PROGRAM) gforth$(EXE) $(bindir)/gforth-$(VERSION)$(EXE)
-		(cd $(bindir) && $(LN_S) gforth-$(VERSION)$(EXE) gforth$(EXE))
-		$(INSTALL_PROGRAM) gforth-fast$(EXE) $(bindir)/gforth-fast-$(VERSION)$(EXE)
-		(cd $(bindir) && $(LN_S) gforth-fast-$(VERSION)$(EXE) gforth-fast$(EXE))
-		$(INSTALL_PROGRAM) gforth-itc$(EXE) $(bindir)/gforth-itc-$(VERSION)$(EXE)
-		(cd $(bindir) && $(LN_S) gforth-itc-$(VERSION)$(EXE) gforth-itc$(EXE))
-		$(INSTALL_SCRIPT) gforthmi $(bindir)/gforthmi-$(VERSION)
-		$(INSTALL_SCRIPT) vmgen $(bindir)/vmgen-$(VERSION)
-		$(INSTALL_PROGRAM) gforth-ditc $(libdir)/gforth/$(VERSION)
-		(cd $(bindir) && $(LN_S) gforthmi-$(VERSION) gforthmi)
-		(cd $(bindir) && $(LN_S) vmgen-$(VERSION) vmgen)
-		-$(INSTALL_DATA) $(srcdir)/doc/gforth.1 $(man1dir)
-		-for i in $(srcdir)/doc/gforth.info* $(srcdir)/doc/vmgen.info*; do $(INSTALL_DATA) $$i $(infodir); done
+		touch $(DESTDIR)$(siteforthdir)/siteinit.fs
+		-$(RM) $(DESTDIR)$(bindir)/gforth$(EXE) $(DESTDIR)$(bindir)/gforth-$(VERSION)$(EXE) $(DESTDIR)$(bindir)/gforthmi $(DESTDIR)$(bindir)/vmgen
+		-$(RM) $(DESTDIR)$(bindir)/gforth-fast$(EXE) $(DESTDIR)$(bindir)/gforth-fast-$(VERSION)$(EXE)
+		-$(RM) $(DESTDIR)$(bindir)/gforth-itc$(EXE) $(DESTDIR)$(bindir)/gforth-itc-$(VERSION)$(EXE)
+		$(INSTALL_PROGRAM) gforth$(EXE) $(DESTDIR)$(bindir)/gforth-$(VERSION)$(EXE)
+		(cd $(DESTDIR)$(bindir) && $(LN_S) gforth-$(VERSION)$(EXE) gforth$(EXE))
+		$(INSTALL_PROGRAM) gforth-fast$(EXE) $(DESTDIR)$(bindir)/gforth-fast-$(VERSION)$(EXE)
+		(cd $(DESTDIR)$(bindir) && $(LN_S) gforth-fast-$(VERSION)$(EXE) gforth-fast$(EXE))
+		$(INSTALL_PROGRAM) gforth-itc$(EXE) $(DESTDIR)$(bindir)/gforth-itc-$(VERSION)$(EXE)
+		(cd $(DESTDIR)$(bindir) && $(LN_S) gforth-itc-$(VERSION)$(EXE) gforth-itc$(EXE))
+		$(INSTALL_SCRIPT) gforthmi $(DESTDIR)$(bindir)/gforthmi-$(VERSION)
+		$(INSTALL_SCRIPT) vmgen $(DESTDIR)$(bindir)/vmgen-$(VERSION)
+		$(INSTALL_PROGRAM) gforth-ditc $(DESTDIR)$(libdir)/gforth/$(VERSION)
+		(cd $(DESTDIR)$(bindir) && $(LN_S) gforthmi-$(VERSION) gforthmi)
+		(cd $(DESTDIR)$(bindir) && $(LN_S) vmgen-$(VERSION) vmgen)
+		-$(INSTALL_DATA) $(srcdir)/doc/gforth.1 $(DESTDIR)$(man1dir)
+		-for i in $(srcdir)/doc/gforth.info* $(srcdir)/doc/vmgen.info*; do $(INSTALL_DATA) $$i $(DESTDIR)$(infodir); done
 		for i in $(FORTH_SRC) $(COMPAT) prim; do \
-			$(INSTALL_DATA) $(srcdir)/$$i $(datadir)/gforth/$(VERSION)/$$i; \
+			$(INSTALL_DATA) $(srcdir)/$$i $(DESTDIR)$(datadir)/gforth/$(VERSION)/$$i; \
 		done
-		$(INSTALL_DATA) $(kernel_fi) $(datadir)/gforth/$(VERSION)
+		$(INSTALL_DATA) $(kernel_fi) $(DESTDIR)$(datadir)/gforth/$(VERSION)
 		@if test -d "$(emacssitelispdir)"; then \
-			$(INSTALL_DATA) $(srcdir)/gforth.el $(emacssitelispdir); \
+			$(INSTALL_DATA) $(srcdir)/gforth.el $(DESTDIR)$(emacssitelispdir); \
 		else \
 			echo ">>>>>Please install $(srcdir)/gforth.el in your .../emacs/site-lisp directory"; \
 		fi
 		-$(RM) gforth.fi
-		GFORTHD="./gforth-ditc -p $(libdir)/gforth/site-forth$(PATHSEP)$(siteforthdir)$(PATHSEP)$(datadir)/gforth/$(VERSION) -i $(kernel_fi)" GFORTH="./gforth-ditc --die-on-signal -i $(kernel_fi) $(STARTUP)" ./gforthmi gforth.fi $(FORTHSIZES) $(STARTUP)
-		$(INSTALL_DATA) gforth.fi $(libdir)/gforth/$(VERSION)
-		$(INSTALL_DATA) install.TAGS $(datadir)/gforth/$(VERSION)/TAGS
+		GFORTHD="./gforth-ditc -p $(DESTDIR)$(libdir)/gforth/site-forth$(PATHSEP)$(DESTDIR)$(siteforthdir)$(PATHSEP)$(DESTDIR)$(datadir)/gforth/$(VERSION) -i $(kernel_fi)" GFORTH="./gforth-ditc --die-on-signal -i $(kernel_fi) $(STARTUP)" ./gforthmi gforth.fi $(FORTHSIZES) $(STARTUP)
+		$(INSTALL_DATA) gforth.fi $(DESTDIR)$(libdir)/gforth/$(VERSION)
+		$(INSTALL_DATA) install.TAGS $(DESTDIR)$(datadir)/gforth/$(VERSION)/TAGS
 		$(RM) gforth.fi install.TAGS
-		$(INSTALL_INFO) --info-dir=$(infodir) $(infodir)/gforth.info
-		$(INSTALL_INFO) --info-dir=$(infodir) $(infodir)/vmgen.info
+		$(INSTALL_INFO) --info-dir=$(DESTDIR)$(infodir) $(DESTDIR)$(infodir)/gforth.info
+		$(INSTALL_INFO) --info-dir=$(DESTDIR)$(infodir) $(DESTDIR)$(infodir)/vmgen.info
 
 install-strip:	install
 
 installdirs:	mkinstalldirs
 		for i in $(bindir) $(man1dir) $(infodir) $(libdir)/gforth/$(VERSION) $(datadir)/gforth/$(VERSION) $(libdir)/gforth/site-forth $(siteforthdir); do \
-			$(srcdir)/mkinstalldirs $$i; \
+			$(srcdir)/mkinstalldirs $(DESTDIR)$$i; \
 		done
 		for i in $(CVSDIRS); do \
-			$(srcdir)/mkinstalldirs $(datadir)/gforth/$(VERSION)/`dirname $$i`; \
+			$(srcdir)/mkinstalldirs $(DESTDIR)$(datadir)/gforth/$(VERSION)/`dirname $$i`; \
 		done
-		$(RM) -rf $(datadir)/gforth/$(VERSION)/engine
+		$(RM) -rf $(DESTDIR)$(datadir)/gforth/$(VERSION)/engine
 
 #deinstall all files specific to this version of gforth
 #to uninstall version foo, type `make uninstall VERSION=foo'
 uninstall:	FORCE
-		-$(RM) -rf $(libdir)/gforth/$(VERSION) $(datadir)/gforth/$(VERSION) $(bindir)/gforth-$(VERSION)$(EXE) $(bindir)/gforth-fast-$(VERSION)$(EXE) $(bindir)/gforth-itc-$(VERSION)$(EXE) $(bindir)/gforthmi-$(VERSION) (bindir)/vmgen-$(VERSION)
-		@echo -e "To remove Gforth completely, type\n$(RM) -rf $(bindir)/gforth$(EXE) $(bindir)/gforth-fast$(EXE) $(bindir)/gforth-itc$(EXE) $(bindir)/gforthmi $(bindir)/vmgen $(man1dir)/gforth.1 $(infodir)/gforth.info* $(datadir)/gforth $(libdir)/gforth"
+		-$(RM) -rf $(DESTDIR)$(libdir)/gforth/$(VERSION) $(DESTDIR)$(datadir)/gforth/$(VERSION) $(DESTDIR)$(bindir)/gforth-$(VERSION)$(EXE) $(DESTDIR)$(bindir)/gforth-fast-$(VERSION)$(EXE) $(DESTDIR)$(bindir)/gforth-itc-$(VERSION)$(EXE) $(DESTDIR)$(bindir)/gforthmi-$(VERSION) $(DESTDIR)(bindir)/vmgen-$(VERSION)
+		@echo -e "To remove Gforth completely, type\n$(RM) -rf $(DESTDIR)$(bindir)/gforth$(EXE) $(DESTDIR)$(bindir)/gforth-fast$(EXE) $(DESTDIR)$(bindir)/gforth-itc$(EXE) $(DESTDIR)$(bindir)/gforthmi $(DESTDIR)$(bindir)/vmgen $(DESTDIR)$(man1dir)/gforth.1 $(DESTDIR)$(infodir)/gforth.info* $(DESTDIR)$(datadir)/gforth $(DESTDIR)$(libdir)/gforth"
 
 check:		gforths	gforth.fi
 		$(MAKE) checkone ENGINE="./gforth --no-dynamic" >/dev/null 2>&1
