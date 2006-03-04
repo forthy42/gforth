@@ -96,6 +96,8 @@ end-macros
 \ GFORTH minimal primitive set
 \ ==============================================================
  \ inner interpreter
+  align
+
   Code: :docol
   \     ': dout,                    \ only for debugging
      # -2 , rp add.w:q
@@ -105,13 +107,7 @@ end-macros
      next,
    End-Code
 
-  Code: :dovar
-\    '2 dout,                    \ only for debugging
-    tos push.w:g
-    # 4 , w add.w:q
-    w , tos mov.w:g
-    next,
-  End-Code
+   align
 
   Code: :docon
 \    '2 dout,                    \ only for debugging
@@ -120,6 +116,8 @@ end-macros
     next,
   End-Code
 
+  align
+
   Code: :dovalue
 \    '2 dout,                    \ only for debugging
     tos push.w:g
@@ -127,17 +125,23 @@ end-macros
     next,
   End-Code
 
+  align
+
   Code: :dofield
       4 [w] , tos add.w:g
       next,
   end-code
   
+  align
+
   Code: :dodefer
 \      # $05 , $E1 mov.b:g
      4 [w] , w mov.w:g  [w] , w mov.w:g
      next1,
   End-Code
 
+  align
+  
   Code: :dodoes  ( -- pfa ) \ get pfa and execute DOES> part
 \    '6 dout,                    \ only for debugging
 \      # $06 , $E1 mov.b:g
@@ -149,8 +153,18 @@ end-macros
      # 4 , r1 add.w:q  r1 , ip mov.w:g
      next,                                       \ execute does> part
   End-Code
+
+  $C0FE here - allot
   
- \ program flow
+  Code: :dovar
+\    '2 dout,                    \ only for debugging
+    tos push.w:g
+    # 4 , w add.w:q
+    w , tos mov.w:g
+    next,
+  End-Code
+
+\ program flow
   Code ;s       ( -- ) \ exit colon definition
 \    '; dout,                    \ only for debugging
       rp , w mov.w:g  # 2 , rp add.w:q

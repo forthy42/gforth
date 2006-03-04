@@ -374,7 +374,7 @@ $1fffffff constant lcount-mask
 
 : (x>int) ( cfa w -- xt )
     \ get interpretation semantics of name
-    restrict-mask and
+    restrict-mask and [ has? rom [IF] ] 0= [ [THEN] ]
     if
 	drop ['] compile-only-error
     else
@@ -423,7 +423,7 @@ has? f83headerstring [IF]
 : name?int ( nt -- xt ) \ gforth
     \G Like @code{name>int}, but perform @code{-2048 throw} if @i{nt}
     \G has no interpretation semantics.
-    (name>x) restrict-mask and
+    (name>x) restrict-mask and [ has? rom [IF] ] 0= [ [THEN] ]
     if
 	ticking-compile-only-error \ does not return
     then
@@ -438,12 +438,12 @@ has? f83headerstring [IF]
         interpret/compile-comp @
     then 
 [ [THEN] ]
-    r> immediate-mask and flag-sign
+    r> immediate-mask and [ has? rom [IF] ] 0= [ [THEN] ] flag-sign
     ;
 
 : (name>intn) ( nfa -- xt +-1 )
     (name>x) tuck (x>int) ( w xt )
-    swap immediate-mask and flag-sign ;
+    swap immediate-mask and [ has? rom [IF] ] 0= [ [THEN] ] flag-sign ;
 
 const Create ???  0 , 3 , char ? c, char ? c, char ? c,
 \ ??? is used by dovar:, must be created/:dovar

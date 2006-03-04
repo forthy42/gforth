@@ -105,7 +105,8 @@ defer header ( -- ) \ gforth
 
 : string, ( c-addr u -- ) \ gforth
     \G puts down string as cstring
-    dup c, here swap chars dup allot move ;
+    dup [ has? rom [IF] ] $E0 [ [ELSE] ] alias-mask [ [THEN] ] or c,
+    here swap chars dup allot move ;
 
 : longstring, ( c-addr u -- ) \ gforth
     \G puts down string as longcstring
@@ -115,14 +116,18 @@ defer header ( -- ) \ gforth
     name-too-long?
     dup max-name-length @ max max-name-length !
     align here last !
+[ has? ec [IF] ]
+    -1 A,
+[ [ELSE] ]
     current @ 1 or A,	\ link field; before revealing, it contains the
 			\ tagged reveal-into wordlist
+[ [THEN] ]
 [ has? f83headerstring [IF] ]
 	string,
 [ [ELSE] ]
-	longstring,
+	longstring, alias-mask lastflags cset
 [ [THEN] ]
-    cfalign alias-mask lastflags cset ;
+    cfalign ;
 
 : input-stream-header ( "name" -- )
     parse-name name-too-short? header, ;
@@ -383,6 +388,18 @@ has? peephole [IF]
 
 \ \ Header states						23feb93py
 
+\ problematic only for big endian machines
+
+has? f83headerstring [IF]
+: cset ( bmask c-addr -- )
+    tuck c@ or swap c! ; 
+
+: creset ( bmask c-addr -- )
+    tuck c@ swap invert and swap c! ; 
+
+: ctoggle ( bmask c-addr -- )
+    tuck c@ xor swap c! ; 
+[ELSE]
 : cset ( bmask c-addr -- )
     tuck @ or swap ! ; 
 
@@ -391,6 +408,7 @@ has? peephole [IF]
 
 : ctoggle ( bmask c-addr -- )
     tuck @ xor swap ! ; 
+[THEN]
 
 : lastflags ( -- c-addr )
     \ the address of the flags byte in the last header
@@ -400,11 +418,11 @@ has? peephole [IF]
 : immediate ( -- ) \ core
     \G Make the compilation semantics of a word be to @code{execute}
     \G the execution semantics.
-    immediate-mask lastflags cset ;
+    immediate-mask lastflags [ has? rom [IF] ] creset [ [ELSE] ] cset [ [THEN] ] ;
 
 : restrict ( -- ) \ gforth
     \G A synonym for @code{compile-only}
-    restrict-mask lastflags cset ;
+    restrict-mask lastflags [ has? rom [IF] ] creset [ [ELSE] ] cset [ [THEN] ] ;
 
 ' restrict alias compile-only ( -- ) \ gforth
 \G Remove the interpretation semantics of a word.
@@ -628,7 +646,21 @@ defer ;-hook ( sys2 -- sys1 )
 : last?   ( -- false / nfa nfa )
     latest ?dup ;
 
-has? ec 0= [IF]
+Variable warnings ( -- addr ) \ gforth
+G -1 warnings T !
+
+has? ec [IF]
+: reveal ( -- ) \ gforth
+    last?
+    if \ the last word has a header
+	dup ( name>link ) @ -1 =
+	if \ it is still hidden
+	    current @ dup >r @ over ! r> !
+	else
+	    drop
+	then
+    then ;
+[ELSE]
 : (reveal) ( nt wid -- )
     wordlist-id dup >r
     @ over ( name>link ) ! 
@@ -636,13 +668,6 @@ has? ec 0= [IF]
 
 \ make entry in wordlist-map
 ' (reveal) f83search reveal-method !
-[ELSE]
-: (reveal) ( nt wid -- )
-    dup >r @ over ! r> ! ;
-[THEN]
-
-Variable warnings ( -- addr ) \ gforth
-G -1 warnings T !
 
 : check-shadow  ( addr count wid -- )
     \G prints a warning if the string is already present in the wordlist
@@ -665,17 +690,12 @@ G -1 warnings T !
 	if \ it is still hidden
 	    dup ( name>link ) @ 1 xor		( nt wid )
 	    2dup >r name>string r> check-shadow ( nt wid )
-	    [ has? ec [IF] ]
-		(reveal)
-	    [ [ELSE] ]
-		dup wordlist-map @ reveal-method perform
-	    [ [THEN] ]
+	    dup wordlist-map @ reveal-method perform
 	else
 	    drop
 	then
     then ;
 
-has? EC 0= [IF]
 : rehash  ( wid -- )
     dup wordlist-map @ rehash-method perform ;
 [THEN]

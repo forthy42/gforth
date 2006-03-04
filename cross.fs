@@ -1751,7 +1751,11 @@ Ghost state drop
   swap -rot bounds ?DO I c@ over X c! X char+ LOOP drop ;
 
 2Variable last-string
+X has? rom [IF] $60 [ELSE] $00 [THEN] Constant header-masks
 
+: ht-header,  ( addr count -- )
+  dup there swap last-string 2!
+    dup header-masks or T c, H bounds  ?DO  I c@ T c, H  LOOP ;
 : ht-string,  ( addr count -- )
   dup there swap last-string 2!
     dup T c, H bounds  ?DO  I c@ T c, H  LOOP ;
@@ -2060,7 +2064,7 @@ $20 constant restrict-mask
 
 >TARGET
 X has? f83headerstring [IF]
-: name,  ( "name" -- )  bl word count ht-string, X cfalign ;
+: name,  ( "name" -- )  bl word count ht-header, X cfalign ;
 [ELSE]
 : name,  ( "name" -- )  bl word count ht-lstring, X cfalign ;
 [THEN]
