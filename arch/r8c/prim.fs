@@ -39,7 +39,7 @@ start-macros
 
  \ system depending macros
   : next1,
-      [w] , r1 mov.w:g  r1 jmpi.a ;
+      [w] , r1 mov.w:g  r3r1 jmpi.a ;
   : next,
       [ip] , w mov.w:g
       # 2 , ip add.w:q  next1, ;
@@ -65,32 +65,28 @@ end-macros
 \ ==============================================================
   Label into-forth
     # $ffff , ip mov.w:g            \ ip will be patched
-    # $0780 , sp ldc                \ sp at $0700...$0780
+    # $0780 , sp ldc                \ sp at $0600...$0700
     # $07FE , rp mov.w:g            \ rp at $0700...$07FE
     # $0F , $E3  mov.b:g
     # $0F , $E1  mov.b:g
   Label mem-init
-    $01 , $0A bset
-    $00 , $05 bset
-    $01 , $1B7 bclr
-    $01 , $1B7 bset
-    $02 , $1B7 bclr
-    $02 , $1B7 bset
-    $01 , $0A bclr
+    $01 , $0A bset:g
+    $00 , $05 bset:g                \ open data RAM
+    $01 , $0A bclr:g
   Label clock-init                  \ default is 125kHz/8
-    $00 , $0A  bset
+    $00 , $0A  bset:g
     # $28 , $07  mov.b:g
     # $08 , $06  mov.b:g
     AHEAD  THEN
-    2 , $0C bclr
+    2 , $0C bclr:g
     # $00 , $08  mov.b:g            \ set to 20MHz
-    $00 , $0A  bclr
+    $00 , $0A  bclr:g
   Label uart-init
     # $27 , $B0  mov.b:g      \ hfs
     # $8105 , $A8  mov.w:g    \ ser1: 9600 baud, 8N1  \ hfs
     # $0500 , $AC  mov.w:g      \ hfs
   Label lcd-init
-    $02 , $0A bset
+    $02 , $0A bset:g
     # $FD , $E2 mov.b:g
   next,
   End-Label
@@ -461,9 +457,9 @@ end-code
 
  \ shift
   Code 2/       ( n1 -- n2 ) \ arithmetic shift right
- \ hfs geht noch nicht !!!     # -1 , tos sha.w 
-     # -1 , r1h mov.b:q
-     r1h , tos sha.w
+     # -1 , tos sha.w 
+ \    # -1 , r1h mov.b:q
+ \    r1h , tos sha.w
      next,
    End-Code
 
@@ -487,23 +483,23 @@ end-code
  \ compare
   Code 0=       ( n -- f ) \ Test auf 0
     tos , tos tst.w
-    0= IF  # -1 , tos mov.w:g   next,
-    THEN   # 0  , tos mov.w:g   next,
+    0= IF  # -1 , tos mov.w:q   next,
+    THEN   #  0 , tos mov.w:q   next,
     next,
    End-Code
 
    Code 0<       ( n -- f ) \ Test auf 0
     tos , tos tst.w
-    0< IF  # -1 , tos mov.w:g   next,
-    THEN   # 0  , tos mov.w:g   next,
+    0< IF  # -1 , tos mov.w:q   next,
+    THEN   #  0 , tos mov.w:q   next,
     next,
    End-Code
 
   Code =        ( n1 n2 -- f ) \ Test auf Gleichheit
     r1 pop.w:g
     r1 , tos sub.w:g
-    0= IF  # -1 , tos mov.w:g   next,
-    THEN   # 0  , tos mov.w:g   next,
+    0= IF  # -1 , tos mov.w:q   next,
+    THEN   #  0 , tos mov.w:q   next,
    End-Code
 
    ' = alias u=
@@ -511,26 +507,26 @@ end-code
   Code u<        ( n1 n2 -- f ) \ Test auf Gleichheit
     r1 pop.w:g
     r1 , tos sub.w:g
-    u> IF  # -1 , tos mov.w:g   next,
-    THEN   # 0  , tos mov.w:g   next,
+    u> IF  # -1 , tos mov.w:q   next,
+    THEN   #  0 , tos mov.w:q   next,
    End-Code
 
   Code u>        ( n1 n2 -- f ) \ Test auf Gleichheit
     r1 pop.w:g
     r1 , tos sub.w:g
-    u< IF  # -1 , tos mov.w:g   next,
-    THEN   # 0  , tos mov.w:g   next,
+    u< IF  # -1 , tos mov.w:q   next,
+    THEN   #  0 , tos mov.w:q   next,
    End-Code
 
   Code (key)    ( -- char ) \ get character
       tos push.w:g
-      BEGIN  3 , $AD  btst  0<> UNTIL
+      BEGIN  3 , $AD  btst:g  0<> UNTIL
       $AE  , tos mov.w:g
     next,
    End-Code
 
   Code (emit)     ( char -- ) \ output character
-      BEGIN  1 , $AD  btst  0<> UNTIL
+      BEGIN  1 , $AD  btst:g  0<> UNTIL
       tos.b , $AA  mov.b:g
       tos pop.w:g
       next,
@@ -539,19 +535,38 @@ end-code
  \ additon io routines
   Code (key?)     ( -- f ) \ check for read sio character
       tos push.w:g
-      3 , $AD  btst
-      0<> IF  # -1 , tos mov.w:g   next,
-      THEN   # 0  , tos mov.w:g   next,
+      3 , $AD  btst:g
+      0<> IF  # -1 , tos mov.w:q   next,
+      THEN    #  0 , tos mov.w:q   next,
    End-Code
 
   Code emit?    ( -- f ) \ check for write character to sio
       tos push.w:g
-      1 , $AD  btst
-      0<> IF  # -1 , tos mov.w:g   next,
-      THEN   # 0  , tos mov.w:g   next,
+      1 , $AD  btst:g
+      0<> IF  # -1 , tos mov.w:q   next,
+      THEN    #  0 , tos mov.w:q   next,
    End-Code
 
    \ Useful code for R8C
+
+   Code btst ( b# addr -- f ) \ check for bit set in addr
+      tos , w mov.w:g  # 3 , w shl.w
+      r1 pop.w:g       r1 , w add.w:g      [w] btst:g
+      0<> IF    # -1 , tos mov.w:q   next,
+          THEN  #  0 , tos mov.w:q   next,
+   End-Code
+
+   Code bset ( b# addr -- ) \ set bit in addr
+      tos , w mov.w:g  # 3 , w shl.w
+      r1 pop.w:g       r1 , w add.w:g      [w] bset:g
+      tos pop.w:g      next,
+   End-Code
+
+   Code bclr ( b# addr -- ) \ clr bit in addr
+      tos , w mov.w:g  # 3 , w shl.w
+      r1 pop.w:g       r1 , w add.w:g      [w] bclr:g
+      tos pop.w:g      next,
+   End-Code
 
    Code us ( n -- ) \ n microseconds delay
        BEGIN  AHEAD  THEN  AHEAD  THEN
@@ -586,9 +601,13 @@ end-code
        &5 ms  $28 lcdctrl!
        &1 ms  $0C lcdctrl!
        &1 ms  lcdpage ;
-   : r8cboot ( -- )  lcdinit s" Gforth EC R8C" lcdtype boot ;
+   : ?flash  BEGIN  $1B7 c@ 1 and 1 =  UNTIL ;
+   : flashc! ( c addr -- )  $40 over c! c! ?flash ;
+   : flash-off ( addr -- )  $20 over c! $D0 swap c! ?flash ;
+   : flash-enable ( -- )   $1b7 c! 3 $1b7 c! 0 $1b5 c! 2 $1b5 c! ;
+   : r8cboot ( -- )  flash-enable lcdinit s" Gforth EC R8C" lcdtype boot ;
    ' r8cboot >body $C002 !
-   
+
 : (bye)     ( 0 -- ) \ back to DOS
     drop ;
 
@@ -596,3 +615,4 @@ end-code
     
 : x@+/string ( addr u -- addr' u' c )
     over c@ >r 1 /string r> ;
+
