@@ -610,7 +610,7 @@ end-code
    : lcdpage  $01 lcdctrl! &15 ms ;
    : lcdcr    $C0 lcdctrl! ;
    : lcdinit ( -- )
-       &20 ms  $33 lcdctrl! 5 ms $20 >lcd
+       &20 ms  $30 >lcd 5 ms $30 >lcd 5 ms $20 >lcd
        &5 ms  $28 lcdctrl!
        &1 ms  $0C lcdctrl!
        &1 ms  lcdpage ;

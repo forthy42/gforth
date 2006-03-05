@@ -577,13 +577,16 @@ doer? :dodefer [IF]
 \G set with @code{defer!} or @code{is} (and they have to, before first
 \G executing @i{name}.
     Header Reveal dodefer: cfa,
-    ['] defer-default A, ;
+    [ has? rom [IF] ] here >r cell allot
+    dpp @ ram here r> flash! ['] defer-default A, dpp !
+    [ [ELSE] ] ['] defer-default A, [ [THEN] ] ;
 
 [ELSE]
 
     has? rom [IF]
 	: Defer ( "name" -- ) \ gforth
-	    Create ['] defer-default A,
+	    Create here >r cell allot
+	    dpp @ ram here r> flash! ['] defer-default A, dpp !
 	  DOES> @ @ execute ;
     [ELSE]
 	: Defer ( "name" -- ) \ gforth
@@ -595,7 +598,7 @@ doer? :dodefer [IF]
 : defer@ ( xt-deferred -- xt ) \ gforth defer-fetch
 \G @i{xt} represents the word currently associated with the deferred
 \G word @i{xt-deferred}.
-    >body @ ;
+    >body @ [ has? rom [IF] ] @ [ [THEN] ] ;
 
 : Defers ( compilation "name" -- ; run-time ... -- ... ) \ gforth
     \G Compiles the present contents of the deferred word @i{name}
@@ -617,7 +620,7 @@ interpret/compile: DOES>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest
 
 : defer! ( xt xt-deferred -- ) \ gforth  defer-store
 \G Changes the @code{defer}red word @var{xt-deferred} to execute @var{xt}.
-    >body ! ;
+    >body [ has? rom [IF] ] @ [ [THEN] ] ! ;
     
 : <IS> ( "name" xt -- ) \ gforth
     \g Changes the @code{defer}red word @var{name} to execute @var{xt}.
