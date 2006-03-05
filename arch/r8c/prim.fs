@@ -610,7 +610,7 @@ end-code
    : lcdpage  $01 lcdctrl! &15 ms ;
    : lcdcr    $C0 lcdctrl! ;
    : lcdinit ( -- )
-       &20 ms  $30 >lcd 5 ms $30 >lcd 5 ms $20 >lcd
+       &20 ms  $33 lcdctrl! 5 ms $20 >lcd
        &5 ms  $28 lcdctrl!
        &1 ms  $0C lcdctrl!
        &1 ms  lcdpage ;
@@ -621,6 +621,10 @@ end-code
    : flash-enable ( -- )   $1b7 c! 3 $1b7 c! 0 $1b5 c! 2 $1b5 c! ;
    : r8cboot ( -- )  flash-enable lcdinit s" Gforth EC R8C" lcdtype boot ;
    ' r8cboot >body $C002 !
+   : save-system ( -- )
+       dpp @ >r rom here normal-dp @ ram-start tuck - tuck r> dpp !
+       bounds ?DO  I c@ c,  LOOP
+       ram-shadow tuck flash! cell+ flash! ;
 
 : (bye)     ( 0 -- ) \ back to DOS
     drop ;
