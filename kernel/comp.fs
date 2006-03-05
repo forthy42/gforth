@@ -458,6 +458,18 @@ doer? :dovar [IF]
     Header reveal here lastcfa ! 0 A, 0 , DOES> ;
 [THEN]
 
+has? flash [IF]
+    : (variable) dpp @ normal-dp = IF  Create
+	ELSE  normal-dp @ Constant dpp @ ram  THEN ;
+: Variable ( "name" -- ) \ core
+    (Variable) 0 , dpp ! ;
+
+: AVariable ( "name" -- ) \ gforth
+    (Variable) 0 A, dpp ! ;
+
+: 2Variable ( "name" -- ) \ double two-variable
+    (Variable) 0 , 0 , dpp ! ;
+[ELSE]
 : Variable ( "name" -- ) \ core
     Create 0 , ;
 
@@ -465,7 +477,8 @@ doer? :dovar [IF]
     Create 0 A, ;
 
 : 2Variable ( "name" -- ) \ double two-variable
-    create 0 , 0 , ;
+    Create 0 , 0 , ;
+[THEN]
 
 has? no-userspace 0= [IF]
 : uallot ( n -- ) \ gforth
