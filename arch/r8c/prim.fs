@@ -147,10 +147,9 @@ end-macros
 \      # $06 , $E1 mov.b:g
      tos push.w:g
      w , tos mov.w:g   # 4 , tos add.w:q
-     # -2 , rp add.w:q
+     # -2 , rp add.w:q  2 [w] , r1 mov.w:g
      rp , w mov.w:g  ip , [w] mov.w:g
-     2 [w] , r1 mov.w:g
-     # 4 , r1 add.w:q  r1 , ip mov.w:g
+     r1 , ip mov.w:g
      next,                                       \ execute does> part
   End-Code
 
@@ -611,12 +610,13 @@ end-code
    : lcdpage  $01 lcdctrl! &15 ms ;
    : lcdcr    $C0 lcdctrl! ;
    : lcdinit ( -- )
-       &20 ms  $20 >lcd
+       &20 ms  $33 lcdctrl! 5 ms $20 >lcd
        &5 ms  $28 lcdctrl!
        &1 ms  $0C lcdctrl!
        &1 ms  lcdpage ;
    : ?flash  BEGIN  $1B7 c@ 1 and 1 =  UNTIL ;
    : flashc! ( c addr -- )  $40 over c! c! ?flash ;
+   : flash! ( x addr -- )  2dup flashc! >r 8 rshift r> 1+ flashc! ;
    : flash-off ( addr -- )  $20 over c! $D0 swap c! ?flash ;
    : flash-enable ( -- )   $1b7 c! 3 $1b7 c! 0 $1b5 c! 2 $1b5 c! ;
    : r8cboot ( -- )  flash-enable lcdinit s" Gforth EC R8C" lcdtype boot ;

@@ -48,16 +48,17 @@
 
 : c,    ( c -- ) \ core c-comma
     \G Reserve data space for one char and store @i{c} in the space.
-    here 1 chars allot c! ;
+    here 1 chars allot [ has? flash [IF] ] flashc! [ [ELSE] ] c! [ [THEN] ] ;
 
 : ,     ( w -- ) \ core comma
     \G Reserve data space for one cell and store @i{w} in the space.
-    here cell allot  ! ;
+    here cell allot [ has? flash [IF] ] flash! [ [ELSE] ] ! [ [THEN] ] ;
 
 : 2,	( w1 w2 -- ) \ gforth
     \G Reserve data space for two cells and store the double @i{w1
     \G w2} there, @i{w2} first (lower address).
-    here 2 cells allot 2! ;
+    here 2 cells allot  [ has? flash [IF] ] tuck flash! cell+ flash!
+	[ [ELSE] ] 2! [ [THEN] ] ;
 
 \ : aligned ( addr -- addr' ) \ core
 \     [ cell 1- ] Literal + [ -1 cells ] Literal and ;
@@ -106,7 +107,11 @@ defer header ( -- ) \ gforth
 : string, ( c-addr u -- ) \ gforth
     \G puts down string as cstring
     dup [ has? rom [IF] ] $E0 [ [ELSE] ] alias-mask [ [THEN] ] or c,
-    here swap chars dup allot move ;
+[ has? flash [IF] ]
+    bounds ?DO  I c@ c,  LOOP
+[ [ELSE] ]
+    here swap chars dup allot move
+[ [THEN] ] ;
 
 : longstring, ( c-addr u -- ) \ gforth
     \G puts down string as longcstring
@@ -116,7 +121,7 @@ defer header ( -- ) \ gforth
     name-too-long?
     dup max-name-length @ max max-name-length !
     align here last !
-[ has? ec [IF] ]
+[ has? flash [IF] ]
     -1 A,
 [ [ELSE] ]
     current @ 1 or A,	\ link field; before revealing, it contains the
@@ -226,7 +231,8 @@ Defer char@ ( addr u -- char addr' u' )
 : cfa,     ( code-address -- )  \ gforth	cfa-comma
     here
     dup lastcfa !
-    0 A, 0 ,  code-address! ;
+    [ has? rom [IF] ] 2 cells allot [ [ELSE] ] 0 A, 0 , [ [THEN] ]
+    code-address! ;
 
 [IFUNDEF] compile,
 defer compile, ( xt -- )	\ core-ext	compile-comma
@@ -377,11 +383,19 @@ has? peephole [IF]
 
 : S, ( addr u -- )
     \ allot string as counted string
-    here over char+ allot  place align ;
+[ has? flash [IF] ]
+    dup c, bounds ?DO  I c@ c,  LOOP
+[ [ELSE] ]
+    here over char+ allot  place align
+[ [THEN] ] ;
 
 : mem, ( addr u -- )
     \ allot the memory block HERE (do alignment yourself)
-    here over allot swap move ;
+[ has? flash [IF] ]
+    bounds ?DO  I c@ c,  LOOP
+[ [ELSE] ]
+    here over allot swap move
+[ [THEN] ] ;
 
 : ," ( "string"<"> -- )
     [char] " parse s, ;
@@ -497,11 +511,19 @@ doer? :dovalue [IF]
 : AConstant ( addr "name" -- ) \ gforth
     (Constant) A, ;
 
+has? flash [IF]
+: Value ( w "name" -- ) \ core-ext
+    (Value) dpp @ >r here cell allot >r
+    ram here >r , r> r> flash! r> dpp ! ;
+
+' Value alias AValue
+[ELSE]
 : Value ( w "name" -- ) \ core-ext
     (Value) , ;
 
 : AValue ( w "name" -- ) \ core-ext
     (Value) A, ;
+[THEN]
 
 : 2Constant ( w1 w2 "name" -- ) \ double two-constant
     Create ( w1 w2 "name" -- )
@@ -574,7 +596,8 @@ doer? :dodefer [IF]
 :noname
     ;-hook ?struc
     [ has? xconds [IF] ] exit-like [ [THEN] ]
-    here 5 cells + postpone aliteral postpone (does>2) [compile] exit
+    here [ has? peephole [IF] ] 5 [ [ELSE] ] 4 [ [THEN] ] cells +
+    postpone aliteral postpone (does>2) [compile] exit
     [ has? peephole [IF] ] finish-code [ [THEN] ] dodoes,
     defstart :-hook ;
 interpret/compile: DOES>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ core        does
@@ -655,7 +678,8 @@ has? ec [IF]
     if \ the last word has a header
 	dup ( name>link ) @ -1 =
 	if \ it is still hidden
-	    current @ dup >r @ over ! r> !
+	    current @ dup >r @ over
+	    [ has? flash [IF] ] flash! [ [ELSE] ] ! [  [THEN] ] r> !
 	else
 	    drop
 	then

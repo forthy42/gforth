@@ -202,6 +202,12 @@ AUser dpp		normal-dp dpp !
 AUser LastCFA
 AUser Last
 
+has? flash [IF]
+    AUser flash-dp
+    : rom  flash-dp dpp ! ;
+    : ram  normal-dp dpp ! ;
+[THEN]
+
 User max-name-length \ maximum length of all names defined yet
 32 max-name-length !
     

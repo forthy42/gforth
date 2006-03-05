@@ -1184,6 +1184,7 @@ true DefaultValue gforthcross
 true DefaultValue interpreter
 true DefaultValue ITC
 false DefaultValue rom
+false DefaultValue flash
 true DefaultValue standardthreading
 
 \ ANSForth environment  stuff
@@ -2639,7 +2640,8 @@ T has? peephole H [IF]
 
 >TARGET
 Cond: DOES>
-        T here 5 cells H + alit, compile (does>2) compile ;s
+        T here H [ T has? peephole H [IF] ] 5 [ [ELSE] ] 4 [ [THEN] ] T cells
+        H + alit, compile (does>2) compile ;s
         doeshandler, resolve-does>-part
         ;Cond
 

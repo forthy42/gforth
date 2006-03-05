@@ -20,8 +20,9 @@
 
 : ?struc      ( flag -- )       abort" unstructured " ;
 : sys?        ( sys -- )        dup 0= ?struc ;
-: >mark       ( -- sys )        here  0 , ;
-: >resolve    ( sys -- )        here swap ! ;
+: >mark       ( -- sys )        here  cell allot ;
+: >resolve    ( sys -- )        here swap
+    [ has? flash [IF] ] flash! [ [ELSE] ] ! [  [THEN] ] ;
 : <resolve    ( sys -- )        , ;
 
 : BUT       sys? swap ;                      immediate restrict
@@ -31,7 +32,7 @@
 
 : AHEAD     postpone branch >mark ;           immediate restrict
 : IF        postpone ?branch >mark ;          immediate restrict
-: THEN      sys? dup @ ?struc >resolve ;     immediate restrict
+: THEN      sys? ( dup @ ?struc ) >resolve ;  immediate restrict
 : ELSE      sys? postpone AHEAD swap postpone THEN ;
                                              immediate restrict
 

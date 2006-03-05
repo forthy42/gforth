@@ -24,7 +24,8 @@ require ./io.fs
     \G @var{c-addr} is the address of a transient region that can be
     \G used as temporary data storage. At least 84 characters of space
     \G is available.
-    here word-pno-size + aligned ;
+    [ has? flash [IF] ] normal-dp @ [ [ELSE] ] here [ [THEN] ]
+    word-pno-size + aligned ;
 
 \ hold <# #> sign # #s                                 25jan92py
 
