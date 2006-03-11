@@ -11679,10 +11679,10 @@ structs, unions, and their fields.
 * Callbacks::                   
 @end menu
 
-@node Calling C Functions,  , C Interface, C Interface
+@node Calling C Functions, Declaring C Functions, C Interface, C Interface
 @subsection Calling C functions
 
-Once a C function is declared (see @pxref{Declaring C functions}), you
+Once a C function is declared (see @pxref{Declaring C Functions}), you
 can call it as follows: You push the arguments on the stack(s), and
 then call the word for the C function.  The arguments have to be
 pushed in the same order as the arguments appear in the C
@@ -11746,7 +11746,7 @@ Calling functions with a variable number of arguments (e.g.,
 function-calling word for each argument pattern, and calling the
 appropriate word for the desired pattern.
 
-@node Declaring C Functions, , Calling C Functions, C Interface
+@node Declaring C Functions, Callbacks, Calling C Functions, C Interface
 @subsection Declaring C Functions
 
 Before you can call @code{lseek} or @code{dlseek}, you have to declare
