@@ -1238,7 +1238,7 @@ useraddr	( #u -- a_addr )	new
 a_addr = (Cell *)(up+u);
 
 up!	( a_addr -- )	gforth	up_store
-gforth_UP=up=(char *)a_addr;
+gforth_UP=up=(Address)a_addr;
 :
  up ! ;
 Variable UP
@@ -1711,8 +1711,8 @@ is the host operating system's expansion of that environment variable. If the
 environment variable does not exist, @i{c-addr2 u2} specifies a string 0 characters
 in length.""
 /* close ' to keep fontify happy */
-c_addr2 = getenv(cstr(c_addr1,u1,1));
-u2 = (c_addr2 == NULL ? 0 : strlen(c_addr2));
+c_addr2 = (Char *)getenv(cstr(c_addr1,u1,1));
+u2 = (c_addr2 == NULL ? 0 : strlen((char *)c_addr2));
 
 open-pipe	( c_addr u wfam -- wfileid wior )	gforth	open_pipe
 wfileid=(Cell)popen(cstr(c_addr,u,1),pfileattr[wfam]); /* ~ expansion of 1st arg? */
@@ -1788,12 +1788,12 @@ else
 wior = IOR(a_addr2==NULL);	/* !! Define a return code */
 
 strerror	( n -- c_addr u )	gforth
-c_addr = strerror(n);
-u = strlen(c_addr);
+c_addr = (Char *)strerror(n);
+u = strlen((char *)c_addr);
 
 strsignal	( n -- c_addr u )	gforth
-c_addr = (Address)strsignal(n);
-u = strlen(c_addr);
+c_addr = (Char *)strsignal(n);
+u = strlen((char *)c_addr);
 
 call-c	( ... w -- ... )	gforth	call_c
 ""Call the C function pointed to by @i{w}. The C function has to
@@ -1929,7 +1929,7 @@ if(dent == NULL) {
   u2 = 0;
   flag = 0;
 } else {
-  u2 = strlen(dent->d_name);
+  u2 = strlen((char *)dent->d_name);
   if(u2 > u1) {
     u2 = u1;
     wior = -512-ENAMETOOLONG;
@@ -1954,9 +1954,9 @@ wior = IOR(chdir(tilde_cstr(c_addr, u, 1)));
 get-dir	( c_addr1 u1 -- c_addr2 u2 )	gforth get_dir
 ""Store the current directory in the buffer specified by @{c-addr1, u1}.
 If the buffer size is not sufficient, return 0 0""
-c_addr2 = getcwd(c_addr1, u1);
+c_addr2 = (Char *)getcwd((char *)c_addr1, u1);
 if(c_addr2 != NULL) {
-  u2 = strlen(c_addr2);
+  u2 = strlen((char *)c_addr2);
 } else {
   u2 = 0;
 }
@@ -1974,7 +1974,7 @@ char newline[] = {
 '\r','\n'
 #endif
 };
-c_addr=newline;
+c_addr=(Char *)newline;
 u=sizeof(newline);
 :
  "newline count ;
@@ -2166,7 +2166,7 @@ sig=ecvt(r, u, &decpt, &flag);
 n=(r==0. ? 1 : decpt);
 f1=FLAG(flag!=0);
 f2=FLAG(isdigit((unsigned)(sig[0]))!=0);
-siglen=strlen(sig);
+siglen=strlen((char *)sig);
 if (siglen>u) /* happens in glibc-2.1.3 if 999.. is rounded up */
   siglen=u;
 if (!f2) /* workaround Cygwin trailing 0s for Inf and Nan */
@@ -2673,15 +2673,16 @@ static int ffi_sizes[] =
 n2 = ffi_sizes[n1];
 
 ffi-prep-cif ( a_atypes n a_rtype a_cif -- w )	gforth ffi_prep_cif
-w = ffi_prep_cif(a_cif, FFI_DEFAULT_ABI, n, a_rtype, a_atypes);
+w = ffi_prep_cif((ffi_cif *)a_cif, FFI_DEFAULT_ABI, n,
+	 (ffi_type *)a_rtype, (ffi_type **)a_atypes);
 
 ffi-call ( a_avalues a_rvalue a_ip a_cif -- )	gforth ffi_call
 SAVE_REGS
-ffi_call(a_cif, a_ip, a_rvalue, a_avalues);
+ffi_call((ffi_cif *)a_cif, (void(*)())a_ip, (void *)a_rvalue, (void **)a_avalues);
 REST_REGS
 
 ffi-prep-closure ( a_ip a_cif a_closure -- w )	gforth ffi_prep_closure
-w = ffi_prep_closure(a_closure, a_cif, gforth_callback, a_ip);
+w = ffi_prep_closure((ffi_closure *)a_closure, (ffi_cif *)a_cif, gforth_callback, (void *)a_ip);
 
 ffi-2@ ( a_addr -- d )	gforth ffi_2fetch
 #ifdef BUGGY_LONG_LONG
@@ -2710,7 +2711,7 @@ d = *(DCell*)(*clist++);
 #endif
 
 ffi-arg-ptr ( -- c_addr )	gforth ffi_arg_ptr
-c_addr = *(char **)(*clist++);
+c_addr = *(Char **)(*clist++);
 
 ffi-arg-float ( -- r )	gforth ffi_arg_float
 r = *(float*)(*clist++);
@@ -2734,7 +2735,7 @@ ffi-ret-longlong ( d -- )	gforth ffi_ret_longlong
 return 0;
 
 ffi-ret-ptr ( c_addr -- )	gforth ffi_ret_ptr
-*(char **)(ritem) = c_addr;
+*(Char **)(ritem) = c_addr;
 return 0;
 
 ffi-ret-float ( r -- )	gforth ffi_ret_float

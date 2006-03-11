@@ -97,7 +97,7 @@ Address gforth_LP;
 void ** clist;
 void * ritem;
 
-void gforth_callback(ffi_cif * cif, void * resp, void ** args, Xt * ip)
+void gforth_callback(ffi_cif * cif, void * resp, void ** args, void * ip)
 {
   Cell *rp = gforth_RP;
   Cell *sp = gforth_SP;
@@ -107,7 +107,7 @@ void gforth_callback(ffi_cif * cif, void * resp, void ** args, Xt * ip)
   clist = args;
   ritem = resp;
 
-  engine(ip, sp, rp, fp, lp);
+  engine((Xt *)ip, sp, rp, fp, lp);
 
   /* restore global variables */
   gforth_RP = rp;
@@ -345,8 +345,8 @@ static unsigned char *branch_targets(Cell *image, const unsigned char *bitstring
   return result;
 }
 
-void gforth_relocate(Cell *image, const unsigned char *bitstring, 
-		     int size, Cell base, Label symbols[])
+void gforth_relocate(Cell *image, const Char *bitstring, 
+		     UCell size, Cell base, Label symbols[])
 {
   int i=0, j, k, steps=(((size-1)/sizeof(Cell))/RELINFOBITS)+1;
   Cell token;
@@ -447,6 +447,7 @@ void gforth_relocate(Cell *image, const unsigned char *bitstring,
   ((ImageHeader*)(image))->base = (Address) image;
 }
 
+#ifndef DOUBLY_INDIRECT
 static UCell checksum(Label symbols[])
 {
   UCell r=PRIM_VERSION;
@@ -470,6 +471,7 @@ static UCell checksum(Label symbols[])
 #endif
   return r;
 }
+#endif
 
 static Address verbose_malloc(Cell size)
 {
@@ -814,12 +816,14 @@ Cell npriminfos=0;
 Label goto_start;
 Cell goto_len;
 
+#ifndef NO_DYNAMIC
 static int compare_labels(const void *pa, const void *pb)
 {
   Label a = *(Label *)pa;
   Label b = *(Label *)pb;
   return a-b;
 }
+#endif
 
 static Label bsearch_next(Label key, Label *a, UCell n)
      /* a is sorted; return the label >=key that is the closest in a;
@@ -1178,6 +1182,7 @@ void finish_code(void)
   flush_to_here();
 }
 
+#if !(defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED))
 #ifdef NO_IP
 static Cell compile_prim_dyn(PrimNum p, Cell *tcp)
      /* compile prim #p dynamically (mod flags etc.) and return start
@@ -1258,6 +1263,7 @@ static Cell compile_prim_dyn(PrimNum p, Cell *tcp)
 #endif  /* !defined(NO_DYNAMIC) */
 }
 #endif /* !defined(NO_IP) */
+#endif
 
 #ifndef NO_DYNAMIC
 static int cost_codesize(int prim)
@@ -1346,6 +1352,7 @@ long lb_newstate_new = 0;
 long lb_applicable_base_rules = 0;
 long lb_applicable_chain_rules = 0;
 
+#if !(defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED))
 static void init_waypoints(struct waypoint ws[])
 {
   int k;
@@ -1402,6 +1409,7 @@ static struct tpa_state *make_termstate()
   transitions(s);
   return s;
 }
+#endif
 
 #define TPA_SIZE 16384
 
@@ -1412,6 +1420,7 @@ struct tpa_entry {
   struct tpa_state *state_infront; /* note: brack-to-front labeling */
 } *tpa_table[TPA_SIZE];
 
+#if !(defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED))
 static Cell hash_tpa(PrimNum p, struct tpa_state *t)
 {
   UCell it = (UCell )t;
@@ -1461,6 +1470,7 @@ static int tpa_state_equivalent(struct tpa_state *t1, struct tpa_state *t2)
   return (memcmp(t1->inst, t2->inst, maxstates*sizeof(struct waypoint)) == 0 &&
 	  memcmp(t1->trans,t2->trans,maxstates*sizeof(struct waypoint)) == 0);
 }
+#endif
 
 struct tpa_state_entry {
   struct tpa_state_entry *next;
@@ -1479,6 +1489,7 @@ static Cell hash_tpa_state(struct tpa_state *t)
   return (r+(r>>14)+(r>>22)) & (TPA_SIZE-1);
 }
 
+#if !(defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED))
 static struct tpa_state *lookup_tpa_state(struct tpa_state *t)
 {
   Cell hash = hash_tpa_state(t);
@@ -1619,6 +1630,7 @@ static void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
   }
   assert(nextstate==CANONICAL_STATE);
 }
+#endif
 
 /* compile *start, possibly rewriting it into a static and/or dynamic
    superinstruction */
@@ -1760,7 +1772,7 @@ Address gforth_loader(FILE *imagefile, char* filename)
     memset(imp+header.image_size, 0, dictsize-header.image_size);
   if(header.base==0 || header.base  == (Address)0x100) {
     Cell reloc_size=((header.image_size-1)/sizeof(Cell))/8+1;
-    char reloc_bits[reloc_size];
+    Char reloc_bits[reloc_size];
     fseek(imagefile, preamblesize+header.image_size, SEEK_SET);
     fread(reloc_bits, 1, reloc_size, imagefile);
     gforth_relocate((Cell *)imp, reloc_bits, header.image_size, (Cell)header.base, vm_prims);
@@ -1804,7 +1816,7 @@ static char *onlypath(char *filename)
 static FILE *openimage(char *fullfilename)
 {
   FILE *image_file;
-  char * expfilename = tilde_cstr(fullfilename, strlen(fullfilename), 1);
+  char * expfilename = tilde_cstr((Char *)fullfilename, strlen(fullfilename), 1);
 
   image_file=fopen(expfilename,"rb");
   if (image_file!=NULL && debug)
@@ -1816,7 +1828,7 @@ static FILE *openimage(char *fullfilename)
 static FILE *checkimage(char *path, int len, char *imagename)
 {
   int dirlen=len;
-  char fullfilename[dirlen+strlen(imagename)+2];
+  char fullfilename[dirlen+strlen((char *)imagename)+2];
 
   memcpy(fullfilename, path, dirlen);
   if (fullfilename[dirlen-1]!=DIRSEP)

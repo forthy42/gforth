@@ -336,7 +336,7 @@ void faxpy(Float ra, Float *f_x, Cell nstridex, Float *f_y, Cell nstridey, UCell
 UCell lshift(UCell u1, UCell n);
 UCell rshift(UCell u1, UCell n);
 int gforth_system(Char *c_addr, UCell u);
-
+Cell capscompare(Char *c_addr1, UCell u1, Char *c_addr2, UCell u2);
 
 /* signal handler stuff */
 void install_signal_handlers(void);
@@ -390,7 +390,7 @@ extern void gforth_callback(Xt* fcall, void * alist);
 extern Cell *gforth_RP;
 extern Address gforth_LP;
 #include <ffi.h>
-extern void gforth_callback(ffi_cif * cif, void * resp, void ** args, Xt * ip);
+extern void gforth_callback(ffi_cif * cif, void * resp, void ** args, void * ip);
 #endif
 
 #ifdef GFORTH_DEBUGGING

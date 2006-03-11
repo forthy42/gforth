@@ -46,6 +46,7 @@
 #include <unistd.h>
 #include <pwd.h>
 #include <dirent.h>
+#include <wchar.h>
 #include <sys/resource.h>
 #ifdef HAVE_FNMATCH_H
 #include <fnmatch.h>
