@@ -1477,6 +1477,7 @@ struct tpa_state_entry {
   struct tpa_state *state;
 } *tpa_state_table[TPA_SIZE];
 
+#if !(defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED))
 static Cell hash_tpa_state(struct tpa_state *t)
 {
   int *ti = (int *)(t->inst);
@@ -1489,7 +1490,6 @@ static Cell hash_tpa_state(struct tpa_state *t)
   return (r+(r>>14)+(r>>22)) & (TPA_SIZE-1);
 }
 
-#if !(defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED))
 static struct tpa_state *lookup_tpa_state(struct tpa_state *t)
 {
   Cell hash = hash_tpa_state(t);
