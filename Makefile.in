@@ -924,7 +924,7 @@ stamp-h.in: configure.in aclocal.m4
 	echo timestamp > $(srcdir)/stamp-h.in
 
 engine/config.h: stamp-h
-stamp-h: engine/config.h.in config.status
+stamp-h: engine/config.h.in config.status stamp-h.in
 	./config.status
 
 Makefile Makedist engine/Makefile gforthmi vmgen machpc.fs doc/version.texi:	Makefile.in Makedist.in engine/Makefile.in gforthmi.in vmgen.in machpc.fs.in doc/version.texi.in config.status configure.in
