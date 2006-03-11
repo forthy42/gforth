@@ -84,7 +84,7 @@ char *tilde_cstr(Char *from, UCell size, int clear)
          if(s1 == NULL)
 #endif
       s1 = "";
-    s2 = from+1;
+    s2 = (char *)from+1;
     s2_len = size-1;
   } else {
     UCell i;
@@ -101,7 +101,7 @@ char *tilde_cstr(Char *from, UCell size, int clear)
     if (user_entry==NULL)
       return cstr(from, size, clear);
     s1 = user_entry->pw_dir;
-    s2 = from+i;
+    s2 = (char *)from+i;
     s2_len = size-i;
   }
   s1_len = strlen(s1);
@@ -111,7 +111,7 @@ char *tilde_cstr(Char *from, UCell size, int clear)
     char path[s1_len+s2_len];
     memcpy(path,s1,s1_len);
     memcpy(path+s1_len,s2,s2_len);
-    return cstr(path,s1_len+s2_len,clear);
+    return cstr((Char *)path,s1_len+s2_len,clear);
   }
 }
 #endif
@@ -208,7 +208,7 @@ struct Longname *listlfind(Char *c_addr, UCell u, struct Longname *longname1)
 {
   for (; longname1 != NULL; longname1 = (struct Longname *)(longname1->next))
     if ((UCell)LONGNAME_COUNT(longname1)==u &&
-	memcasecmp(c_addr, longname1->name, u)== 0 /* or inline? */)
+	memcasecmp(c_addr, (Char *)(longname1->name), u)== 0 /* or inline? */)
       break;
   return longname1;
 }
@@ -221,7 +221,7 @@ struct Longname *hashlfind(Char *c_addr, UCell u, Cell *a_addr)
     longname1=(struct Longname *)(a_addr[1]);
     a_addr=(Cell *)(a_addr[0]);
     if ((UCell)LONGNAME_COUNT(longname1)==u &&
-	memcasecmp(c_addr, longname1->name, u)== 0 /* or inline? */) {
+	memcasecmp(c_addr, (Char *)(longname1->name), u)== 0 /* or inline? */) {
       return longname1;
     }
   }
