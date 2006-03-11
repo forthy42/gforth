@@ -283,7 +283,7 @@ User-defined Defining Words
 * CREATE..DOES> applications::  
 * CREATE..DOES> details::       
 * Advanced does> usage example::  
-* @code{Const-does>}::          
+* Const-does>::          
 
 Interpretation and Compilation Semantics
 
@@ -6330,7 +6330,7 @@ locals declarations for stack effect specification, though).
 * CREATE..DOES> applications::  
 * CREATE..DOES> details::       
 * Advanced does> usage example::  
-* @code{Const-does>}::          
+* Const-does>::          
 @end menu
 
 @node CREATE..DOES> applications, CREATE..DOES> details, User-defined Defining Words, User-defined Defining Words
@@ -6440,7 +6440,7 @@ CREATE name EXECUTE ( ... -- ... )
 
 doc->body
 
-@node Advanced does> usage example, @code{Const-does>}, CREATE..DOES> details, User-defined Defining Words
+@node Advanced does> usage example, Const-does>, CREATE..DOES> details, User-defined Defining Words
 @subsubsection Advanced does> usage example
 
 The MIPS disassembler (@file{arch/mips/disasm.fs}) contains many words
@@ -6564,7 +6564,7 @@ of parameters when using the defining word). So it is not necessary to
 understand this, but it may improve your understanding of Forth.
 
 
-@node @code{Const-does>},  , Advanced does> usage example, User-defined Defining Words
+@node Const-does>,  , Advanced does> usage example, User-defined Defining Words
 @subsubsection @code{Const-does>}
 
 A frequent use of @code{create}...@code{does>} is for transferring some
