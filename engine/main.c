@@ -94,8 +94,8 @@ Address gforth_LP;
 
 #include <ffi.h>
 
-void ** clist;
-void * ritem;
+void ** gforth_clist;
+void * gforth_ritem;
 
 void gforth_callback(ffi_cif * cif, void * resp, void ** args, void * ip)
 {
@@ -104,10 +104,10 @@ void gforth_callback(ffi_cif * cif, void * resp, void ** args, void * ip)
   Float *fp = gforth_FP;
   Address lp = gforth_LP;
 
-  clist = args;
-  ritem = resp;
+  gforth_clist = args;
+  gforth_ritem = resp;
 
-  engine((Xt *)ip, sp, rp, fp, lp);
+  gforth_engine((Xt *)ip, sp, rp, fp, lp);
 
   /* restore global variables */
   gforth_RP = rp;
@@ -665,12 +665,12 @@ int gforth_go(Address image, int stack, Cell *entries)
 #endif /* !defined(GFORTH_DEBUGGING) */
     /* fprintf(stderr, "rp=$%x\n",rp0);*/
     
-    return((int)(Cell)engine(image_header->throw_entry, signal_data_stack+15,
+    return((int)(Cell)gforth_engine(image_header->throw_entry, signal_data_stack+15,
 		       rp0, signal_fp_stack, 0));
   }
 #endif
 
-  return((int)(Cell)engine(ip0,sp0,rp0,fp0,lp0));
+  return((int)(Cell)gforth_engine(ip0,sp0,rp0,fp0,lp0));
 }
 
 #ifndef INCLUDE_IMAGE
@@ -867,9 +867,9 @@ static void check_prims(Label symbols1[])
 #ifndef NO_DYNAMIC
   if (no_dynamic)
     return;
-  symbols2=engine2(0,0,0,0,0);
+  symbols2=gforth_engine2(0,0,0,0,0);
 #if NO_IP
-  symbols3=engine3(0,0,0,0,0);
+  symbols3=gforth_engine3(0,0,0,0,0);
 #else
   symbols3=symbols1;
 #endif
@@ -1712,7 +1712,7 @@ Address gforth_loader(FILE *imagefile, char* filename)
 #endif
     ;
 
-  vm_prims = engine(0,0,0,0,0);
+  vm_prims = gforth_engine(0,0,0,0,0);
   check_prims(vm_prims);
   prepare_super_table();
 #ifndef DOUBLY_INDIRECT
@@ -2142,7 +2142,7 @@ int main(int argc, char **argv, char **env)
   set_stack_sizes((ImageHeader *)image);
   if(((ImageHeader *)image)->base != image)
     gforth_relocate(image, reloc_bits, ((ImageHeader *)image)->image_size,
-		    (Label*)engine(0, 0, 0, 0, 0));
+		    (Label*)gforth_engine(0, 0, 0, 0, 0));
   alloc_stacks((ImageHeader *)image);
 #else
   image_file = open_image_file(imagename, path);

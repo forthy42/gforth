@@ -310,9 +310,9 @@ struct Cellquad {
 
 #define IOR(flag)	((flag)? -512-errno : 0)
 
-Label *engine(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp);
-Label *engine2(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp);
-Label *engine3(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp);
+Label *gforth_engine(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp);
+Label *gforth_engine2(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp);
+Label *gforth_engine3(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp);
 
 /* engine/prim support routines */
 Address gforth_alloc(Cell size);

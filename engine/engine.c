@@ -256,7 +256,7 @@ extern int gforth_memcmp(const char * s1, const char * s2, size_t n);
 #elif ENGINE==2
 /* variant with padding between VM instructions for finding out
    cross-inst jumps (for dynamic code) */
-#define engine engine2
+#define gforth_engine gforth_engine2
 #define VARIANT(v)	(v)
 #define JUMP(target)	goto I_noop
 #define LABEL(name) H_##name: SKIP16; I_##name:
@@ -264,7 +264,7 @@ extern int gforth_memcmp(const char * s1, const char * s2, size_t n);
 #elif ENGINE==3
 /* variant with different immediate arguments for finding out
    immediate arguments (for native code) */
-#define engine engine3
+#define gforth_engine gforth_engine3
 #define VARIANT(v)	((v)^0xffffffff)
 #define JUMP(target)	goto K_lit
 #define LABEL(name) H_##name: asm(""); I_##name:
@@ -276,7 +276,7 @@ extern int gforth_memcmp(const char * s1, const char * s2, size_t n);
 #define LABEL2(name) K_##name: asm("");
 #define LABEL3(name) J_##name: asm("");
 
-Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
+Label *gforth_engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
 /* executes code at ip, if ip!=NULL
    returns array of machine code labels (for use in a loader), if ip==NULL
 */
@@ -297,7 +297,7 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
 #endif
 #ifdef HAS_FFCALL
   av_alist alist;
-  extern va_alist clist;
+  extern va_alist gforth_clist;
   float frv;
   int irv;
   double drv;
@@ -305,8 +305,8 @@ Label *engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
   void * prv;
 #endif
 #ifdef HAS_LIBFFI
-  extern void * ritem;
-  extern void ** clist;
+  extern void * gforth_ritem;
+  extern void ** gforth_clist;
   extern void ffi_callback(ffi_cif * cif, void * resp, void ** args, Xt * ip);
 #endif
   register Address up UPREG = gforth_UP;
