@@ -54,6 +54,7 @@ autoconf
 # generate header files like engine/config.h.in
 
 autoheader
+echo timestamp >stamp-h.in
 
 # run configure sXScript
 
