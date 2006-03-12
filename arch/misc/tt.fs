@@ -18,9 +18,7 @@ variable loops/ms
 : ms  0 ?DO  loops/ms @ 0 ?DO LOOP LOOP ;
 : blank  bl fill ;
 
-Create pn-tab ," 000102030405060708091011121314151617181920212223242526272829303132333435363738394041424344454647484950515253545556575859606162636465666768697071727374757677787980"
-
-: pn    ( n -- )  2* pn-tab 1+ + 2 type ;
+: pn    ( n -- )  0 <# # # #> type ;
 : ;pn   [char] ; emit pn ;
 : ESC[  27 emit [char] [ emit ;
 : at-xy 1+ swap 1+ swap ESC[ pn ;pn [char] H emit ;
