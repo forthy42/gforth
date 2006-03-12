@@ -88,8 +88,8 @@ FORTHK	= $(ENGINE) $(FORTHKFLAGS)
 # in exboot.fs
 STARTUP	= exboot.fs startup.fs @asm_fs@ @disasm_fs@
 STRIP	= strip
-TEXI2DVI = texi2dvi -e
-TEXI2PDF = texi2dvi --pdf -e
+TEXI2DVI = texi2dvi4a2ps -e
+TEXI2PDF = texi2dvi4a2ps --pdf -e
 DVI2PS	= dvips -t letterSize -Z
 #you can get texi2html from http://wwwcn.cern.ch/dci/texi2html/
 MAKEINFO = makeinfo

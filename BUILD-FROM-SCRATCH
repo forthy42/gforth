@@ -56,7 +56,7 @@ autoconf
 autoheader
 echo timestamp >stamp-h.in
 
-# run configure sXScript
+# run configure Script
 
 ./configure $*
 
