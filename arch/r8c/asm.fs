@@ -1029,22 +1029,30 @@ require asm/target.fs
   ' [A0] Alias [w]
 \ ----------------------------------------------------------------------------------------------
 
-	 $68 Constant u<
-	 $69 Constant u<=
-	 $6A Constant 0<>
-	 $6B Constant 0>=
-	 $6C Constant u>=
-	 $6D Constant u>
-	 $6E Constant 0=
-	 $6F Constant 0<
-	 
-: IF          X c,   X here  0 X c, reset ;
+: IF,     dup $FF u> IF  dup 8 rshift X c,  THEN  X c, ;
+	  
+	  $68 Constant u<
+	  $69 Constant u<=
+	  $6A Constant 0<>
+	  $6B Constant 0>=
+	  $6C Constant u>=
+	  $6D Constant u>
+	  $6E Constant 0=
+	  $6F Constant 0<
+	  $7DC8 Constant >
+	  $7DC9 Constant no
+	  $7DCA Constant <
+	  $7DCC Constant <=
+	  $7DCD Constant o
+	  $7DCE Constant >=
+
+: IF          IF, X here  0 X c, reset ;
 : THEN        X here  over - swap X c! reset  ;
 : AHEAD       $FE IF ;
 : ELSE        AHEAD swap THEN reset ;
 : WHILE       IF swap reset ;
 : BEGIN       X here reset ;
-: UNTIL       X c,   X here -  X c, reset  ;
+: UNTIL       IF, X here -  X c, reset ;
 : AGAIN       $FE UNTIL reset ;
 : REPEAT      AGAIN THEN reset ;
 

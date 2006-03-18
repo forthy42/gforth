@@ -84,6 +84,7 @@ end-macros
   Label uart-init
     # $27 , $B0  mov.b:g      \ hfs
     # $8105 , $A8  mov.w:g    \ ser1: 9600 baud, 8N1  \ hfs
+\    # $2005 , $A8  mov.w:g    \ ser1: 38k4 baud, 8N1  \ hfs
     # $0500 , $AC  mov.w:g      \ hfs
   Label lcd-init
     $02 , $0A bset:g
@@ -172,10 +173,15 @@ end-macros
   End-Code
 
   Code execute   ( xt -- ) \ execute colon definition
-\    'E dout,                    \ only for debugging
-\    # $07 , $E1 mov.b:g
     tos , w mov.w:g                          \ copy tos to w
     tos pop.w:g                              \ get new tos
+    next1,
+  End-Code
+
+  Code perform   ( xt -- ) \ execute colon definition
+    tos , w mov.w:g                          \ copy tos to w
+    tos pop.w:g                              \ get new tos
+    [w] , w mov.w:g
     next1,
   End-Code
 
@@ -232,6 +238,17 @@ end-macros
       next,
   End-Code
 
+  Code (+loop) ( n -- )
+      # 2 , ip add.w:q
+      rp , w mov.w:g  [w] , r1 mov.w:g
+      2 [w] , r1 sub.w:g  # $8000 , r1 xor.w
+      tos , r1 add.w:g
+      no IF  -2 [ip] , ip mov.w:g  THEN
+      tos , [w] add.w:g
+      tos pop.w:g
+      next,
+  End-Code
+
  \ memory access
   Code @        ( addr -- n ) \ read cell
       tos , w mov.w:g  [w] , tos mov.w:g
@@ -244,8 +261,20 @@ end-macros
       next,
    End-Code
 
-  Code c@        ( addr -- n ) \ read cell
+  Code +!        ( n addr -- ) \ write cell
+      tos , w mov.w:g  tos pop.w:g  tos , [w] add.w:g
+      tos pop.w:g
+      next,
+   End-Code
+
+  Code c@        ( addr -- uc ) \ read cell
       tos , w mov.w:g  tos , tos xor.w  [w] , tos.b mov.b:g
+      next,
+   End-Code
+
+  Code count     ( addr -- addr+1 uc ) \ read cell
+      tos , w mov.w:g  tos , tos xor.w  [w] , tos.b mov.b:g
+      # 1 , w add.w:q  w push.w:g
       next,
    End-Code
 
@@ -262,6 +291,11 @@ end-macros
       next,
   End-Code
   
+  Code 2*        ( n1 n2 -- n3 ) \ addition
+      tos , tos add.w:g
+      next,
+  End-Code
+  
   Code -        ( n1 n2 -- n3 ) \ addition
       r1 pop.w:g
       tos , r1 sub.w:g
@@ -269,6 +303,31 @@ end-macros
       next,
   End-Code
 
+  Code negate ( n1 -- n2 )
+      tos neg.w
+      next,
+  End-Code
+  
+  Code invert ( n1 -- n2 )
+      tos not.w:g
+      next,
+  End-Code
+  
+  Code 1+        ( n1 n2 -- n3 ) \ addition
+      # 1 , tos add.w:g
+      next,
+  End-Code
+  
+  Code 1-        ( n1 n2 -- n3 ) \ addition
+      # -1 , tos add.w:g
+      next,
+  End-Code
+  
+  Code cell+        ( n1 n2 -- n3 ) \ addition
+      # 2 , tos add.w:g
+      next,
+  End-Code
+  
   Code and        ( n1 n2 -- n3 ) \ addition
       r1 pop.w:g
       r1 , tos and.w:g
@@ -293,6 +352,34 @@ end-macros
       rp , w mov.w:g
       [w] , tos mov.w:g
       # 2 , rp add.w:q  \ ? hfs
+      next,
+  End-Code
+  
+  Code i       ( -- n ; R: n -- )
+      tos push.w:g
+      rp , w mov.w:g
+      [w] , tos mov.w:g
+      next,
+   End-Code
+
+  Code i'       ( -- n ; R: n -- )
+      tos push.w:g
+      rp , w mov.w:g
+      2 [w] , tos mov.w:g
+      next,
+   End-Code
+
+  Code j       ( -- n ; R: n -- )
+      tos push.w:g
+      rp , w mov.w:g
+      4 [w] , tos mov.w:g
+      next,
+   End-Code
+
+  Code k       ( -- n ; R: n -- )
+      tos push.w:g
+      rp , w mov.w:g
+      8 [w] , tos mov.w:g
       next,
    End-Code
 
@@ -531,6 +618,20 @@ end-code
     THEN   #  0 , tos mov.w:q   next,
    End-Code
 
+  Code <        ( n1 n2 -- f ) \ Test auf Gleichheit
+    r1 pop.w:g
+    r1 , tos sub.w:g
+    > IF  # -1 , tos mov.w:q   next,
+    THEN   #  0 , tos mov.w:q   next,
+   End-Code
+
+  Code >        ( n1 n2 -- f ) \ Test auf Gleichheit
+    r1 pop.w:g
+    r1 , tos sub.w:g
+    < IF  # -1 , tos mov.w:q   next,
+    THEN   #  0 , tos mov.w:q   next,
+   End-Code
+
   Code (key)    ( -- char ) \ get character
       tos push.w:g
       BEGIN  3 , $AD  btst:g  0<> UNTIL
@@ -560,8 +661,48 @@ end-code
       THEN    #  0 , tos mov.w:q   next,
    End-Code
 
-   \ Useful code for R8C
+   \ String operations
 
+   Code fill ( addr u char -- )
+       R3 pop.w:g  ip , r1 mov.w:g  A1 pop.w:g
+       sstr.b  tos pop.w:g
+       R3 , R3 xor.w  r1 , ip mov.w:g  next,
+   End-Code
+
+   Code cmove ( from to count -- )
+       tos , R3 mov.w:g  ip , r1 mov.w:g
+       a1 pop.w:g  a0 pop.w:g  r1 push.w:g  r1 , r1 xor.w
+       smovf.b
+       R3 , R3 xor.w  ip pop.w:g  tos pop.w:g next,
+   End-Code
+   
+   Code cmove> ( from to count -- )
+       tos , R3 mov.w:g  ip , r1 mov.w:g
+       a1 pop.w:g  a0 pop.w:g  r1 push.w:g  r1 , r1 xor.w
+       r3 , a0 add.w:g  # -1 , a0 add.w:q
+       r3 , a1 add.w:g  # -1 , a1 add.w:q
+       smovb.b
+       R3 , R3 xor.w  ip pop.w:g  tos pop.w:g next,
+   End-Code
+   
+\    Code (find-samelen) ( u f83name1 -- u f83name2/0 )
+\        tos , w mov.w:g  r0 pop.w:g
+\        BEGIN  2 [w] , r0h mov.b:g  # $1F , r0h and.b:g
+\ 	   r0l , r0h cmp.b:g  0<> WHILE  [w] , w mov.w:g
+\ 	   0= UNTIL  THEN
+\        r0h , r0h xor.b  r0 push.w:g  w , tos mov.w:g
+\        next,
+\    End-Code
+
+\ : capscomp ( c_addr1 u c_addr2 -- n )
+\  swap bounds
+\  ?DO  dup c@ I c@ <>
+\      IF  dup c@ toupper I c@ toupper =
+\      ELSE  true  THEN  WHILE  1+  LOOP  drop 0
+\  ELSE  c@ toupper I c@ toupper - unloop  THEN  sgn ;
+\ : sgn ( n -- -1/0/1 )
+\  dup 0= IF EXIT THEN  0< 2* 1+ ;
+       
    Code btst ( b# addr -- f ) \ check for bit set in addr
       tos , w mov.w:g  # 3 , w shl.w
       r1 pop.w:g       r1 , w add.w:g      [w] btst:g
@@ -610,7 +751,7 @@ end-code
    : lcdpage  $01 lcdctrl! &15 ms ;
    : lcdcr    $C0 lcdctrl! ;
    : lcdinit ( -- )
-       &20 ms  $33 lcdctrl! 5 ms $20 >lcd
+       &20 ms $33 lcdctrl! 5 ms $20 >lcd
        &5 ms  $28 lcdctrl!
        &1 ms  $0C lcdctrl!
        &1 ms  lcdpage ;
@@ -619,7 +760,10 @@ end-code
    : flash! ( x addr -- )  2dup flashc! >r 8 rshift r> 1+ flashc! ;
    : flash-off ( addr -- )  $20 over c! $D0 swap c! ?flash ;
    : flash-enable ( -- )   $1b7 c! 3 $1b7 c! 0 $1b5 c! 2 $1b5 c! ;
-   : r8cboot ( -- )  flash-enable lcdinit s" Gforth EC R8C" lcdtype boot ;
+   : 9k6   $8105 $A8 ! ; \ baud setting
+   : 38k4  $2005 $A8 ! ; \ fast terminal
+   : r8cboot ( -- )  flash-enable lcdinit 38k4
+       s" Gforth EC R8C" lcdtype boot ;
    ' r8cboot >body $C002 !
    : save-system ( -- )
        dpp @ >r rom here normal-dp @ ram-start tuck - tuck r> dpp !
