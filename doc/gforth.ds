@@ -2498,6 +2498,8 @@ Forth. It's broken up into five easy steps:
 @item Closed the files.
 @end enumerate
 
+Reference: @ref{General files}.
+
 @subsection Open file for input
 
 @example
