@@ -682,7 +682,8 @@ Variable _favicon
            s" text/css" s" type" opt s" link" tag/ cr
        THEN  THEN ;
 : .title ( addr u -- )  1 envs ! oldenv off
-    .' <?xml version="1.0" encoding="' _charset $@ .upcase .' "?>' cr
+    _charset $@ s" utf-8" str= 0=
+    IF  .' <?xml version="1.0" encoding="' _charset $@ .upcase .' "?>' cr  THEN
     .' <!DOCTYPE html' cr
     .'   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"' cr
     .'   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">' cr
