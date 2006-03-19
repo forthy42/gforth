@@ -31,6 +31,7 @@ require string.fs
 : parse" ( -- addr u ) '" parse 2drop '" parse ;
 : .' '' parse postpone SLiteral postpone type ; immediate
 : s' '' parse postpone SLiteral ; immediate
+: .upcase ( addr u -- )  bounds ?DO  I c@ toupper emit  LOOP ;
 
 \ character recoding
 
@@ -654,7 +655,10 @@ definitions
 \ HTML head
 
 Variable css-file
+Variable print-file
+Variable ie-css-file
 Variable content
+Variable _charset
 Variable _lang
 Variable _favicon
 
@@ -663,10 +667,22 @@ Variable _favicon
 : .css ( -- )
     css-file @ IF  css-file $@len IF
 	    s" StyleSheet" s" rel" opt
-	    css-file $@ href=
+	    css-file $@ href= s" screen" s" media" opt
 	    s" text/css" s" type" opt s" link" tag/ cr
-	THEN  THEN ;
+	THEN  THEN
+    ie-css-file @ IF
+	." <!--[if lt IE 7.0]>" cr
+	.'    <style type="text/css">@import url(' ie-css-file $@ type ." );</style>" cr
+	." <![endif]-->" cr
+    THEN ;
+: .print ( -- )
+    print-file @ IF  print-file $@len IF
+           s" StyleSheet" s" rel" opt
+           print-file $@ href= s" print" s" media" opt
+           s" text/css" s" type" opt s" link" tag/ cr
+       THEN  THEN ;
 : .title ( addr u -- )  1 envs ! oldenv off
+    .' <?xml version="1.0" encoding="' _charset $@ .upcase .' "?>' cr
     .' <!DOCTYPE html' cr
     .'   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"' cr
     .'   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">' cr
@@ -675,7 +691,7 @@ Variable _favicon
     s" html" >env cr s" head" >env cr
     s" Content-Type" s" http-equiv" opt
     content $@ s" content" opt
-    s" meta" tag/ cr .css
+    s" meta" tag/ cr .css .print
     _favicon @ IF
 	s" shortcut icon" s" rel" opt
 	_favicon $@ href=
@@ -715,7 +731,7 @@ Variable orig-date
 : pgp-key ( -- )
     bl sword -trailing public-key $! ;
 : charset ( -- )  s" text/xhtml; charset=" content $!
-    bl sword -trailing content $+! ;
+    bl sword -trailing 2dup content $+! _charset $! ;
 
 charset iso-8859-1
 
@@ -744,6 +760,8 @@ Variable style$
 : vlink ( -- ) parse" s" vlink" style ;
 : marginheight ( -- ) parse" s" marginheight" style ;
 : css ( -- ) parse" css-file $! ;
+: print-css ( -- ) parse" print-file $! ;
+: ie-css ( -- ) parse" ie-css-file $! ;
 
 : wf ( -- )
     outfile-id >r
