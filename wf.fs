@@ -68,7 +68,11 @@ s" " default-class $!
 : tagged ( addr1 u1 addr2 u2 -- )  2dup 2>r tag .type 2r> /tag ;
 
 : opt ( addr u opt u -- )  s"  " tag-option $+!
-    tag-option $+! s' ="' tag-option $+! tag-option $+!
+    tag-option $+! s' ="' tag-option $+!
+\    BEGIN  dup  WHILE  '& $split >r >r tag-option $+! r> r>
+\	    dup IF  s" %26" tag-option $+!  THEN
+\    REPEAT  2drop
+    tag-option $+!
     s' "' tag-option $+! ;
 : n>string ( n -- addr u )  0 <# #S #> ;
 : xy>string ( x y -- )  swap 0 <# #S 'x hold 2drop 0 #S 's hold #> ;
