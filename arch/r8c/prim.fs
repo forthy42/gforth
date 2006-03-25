@@ -524,7 +524,7 @@ end-code
   Code um*      ( u1 u2 -- ud ) \ unsigned multiply
       rp , r3 mov.w:g
       r2 pop.w:g
-      r2 , r0 mulu.w:g
+      r2 , r2r0 mulu.w:g
       r0 push.w:g
       r2 , tos mov.w:g
       r3 , rp mov.w:g
@@ -535,7 +535,7 @@ end-code
   Code m*      ( u1 u2 -- ud ) \ unsigned multiply
       rp , r3 mov.w:g
       r2 pop.w:g
-      r2 , r0 mul.w:g
+      r2 , r2r0 mul.w:g
       r0 push.w:g
       r2 , tos mov.w:g
       r3 , rp mov.w:g
@@ -548,7 +548,7 @@ end-code
       tos , r1 mov.w:g
       r2 pop.w:g
       tos pop.w:g
-      r1 divu.w
+      r3r1 divu.w
       r2 push.w:g
       r3 , rp mov.w:g
       r3 , r3 xor.w
@@ -685,23 +685,23 @@ end-code
        R3 , R3 xor.w  ip pop.w:g  tos pop.w:g next,
    End-Code
    
-\    Code (find-samelen) ( u f83name1 -- u f83name2/0 )
-\        tos , w mov.w:g  r0 pop.w:g
-\        BEGIN  2 [w] , r0h mov.b:g  # $1F , r0h and.b:g
-\ 	   r0l , r0h cmp.b:g  0<> WHILE  [w] , w mov.w:g
-\ 	   0= UNTIL  THEN
-\        r0h , r0h xor.b  r0 push.w:g  w , tos mov.w:g
-\        next,
-\    End-Code
+   Code (find-samelen) ( u f83name1 -- u f83name2/0 )
+       tos , w mov.w:g  r0 pop.w:g
+       BEGIN  2 [w] , r0h mov.b:g  # $1F , r0h and.b:g
+	   r0l , r0h cmp.b:g  0<> WHILE  [w] , w mov.w:g
+	   0= UNTIL  THEN
+       r0h , r0h xor.b  r0 push.w:g  w , tos mov.w:g
+       next,
+   End-Code
 
-\ : capscomp ( c_addr1 u c_addr2 -- n )
-\  swap bounds
-\  ?DO  dup c@ I c@ <>
-\      IF  dup c@ toupper I c@ toupper =
-\      ELSE  true  THEN  WHILE  1+  LOOP  drop 0
-\  ELSE  c@ toupper I c@ toupper - unloop  THEN  sgn ;
-\ : sgn ( n -- -1/0/1 )
-\  dup 0= IF EXIT THEN  0< 2* 1+ ;
+: capscomp ( c_addr1 u c_addr2 -- n )
+ swap bounds
+ ?DO  dup c@ I c@ <>
+     IF  dup c@ toupper I c@ toupper =
+     ELSE  true  THEN  WHILE  1+  LOOP  drop 0
+ ELSE  c@ toupper I c@ toupper - unloop  THEN  sgn ;
+: sgn ( n -- -1/0/1 )
+ dup 0= IF EXIT THEN  0< 2* 1+ ;
        
    Code btst ( b# addr -- f ) \ check for bit set in addr
       tos , w mov.w:g  # 3 , w shl.w
@@ -769,6 +769,7 @@ end-code
        dpp @ >r rom here normal-dp @ ram-start tuck - tuck r> dpp !
        bounds ?DO  I c@ c,  LOOP
        ram-shadow tuck flash! cell+ flash! ;
+   : empty ( -- )  $2800 flash-off $2000 flash-off ;
 
 : (bye)     ( 0 -- ) \ back to DOS
     drop ;

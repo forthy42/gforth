@@ -1,5 +1,23 @@
 \ FORTH Assembler for R8C                    hfs 23:54 25.12.05
 \
+\ Copyright (C) 2006 Free Software Foundation, Inc.
+
+\ This file is part of Gforth.
+
+\ Gforth is free software; you can redistribute it and/or
+\ modify it under the terms of the GNU General Public License
+\ as published by the Free Software Foundation; either version 2
+\ of the License, or (at your option) any later version.
+
+\ This program is distributed in the hope that it will be useful,
+\ but WITHOUT ANY WARRANTY; without even the implied warranty of
+\ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+\ GNU General Public License for more details.
+
+\ You should have received a copy of the GNU General Public License
+\ along with this program; if not, write to the Free Software
+\ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
+\
 \ Autor:          Heinz Schnitter (hfs)
 \
 \ Information:
@@ -20,8 +38,8 @@ require asm/target.fs
 
 \ : TC, base @ >r hex 0 <# # # #>       type r> base ! ;
 \ : T,  base @ >r hex 0 <# # # # # #>   type r> base ! ;
-: ta, base @ >r hex 0 <# # # # # # #> type r> base ! ;
-
+\ : ta, base @ >r hex 0 <# # # # # # #> type r> base ! ;
+: ta, true abort" This stupid 20 bit addressing mode doesn't work!" ;
 
  HERE                   ( Begin )
 
@@ -177,11 +195,11 @@ require asm/target.fs
 
  : [SB],     s-opnd?
              IF >abs8? IF %11100000 <M> 1+ C@ $0F AND OR <M> 1+ C! THEN
-             ELSE ." displacement expected" ABORT THEN ;
+             ELSE true abort" displacement expected" THEN ;
 
  : ,[SB]     d-opnd?
              IF >abs8? IF %1110 <M> 1+ C@ $F0 AND OR <M> 1+ C! THEN
-             ELSE ." displacement expected" ABORT THEN ;
+             ELSE true abort" displacement expected" THEN ;
 
  : [FB],     s-opnd? 0= ABORT" displacement expected" ;
 
@@ -462,7 +480,7 @@ require asm/target.fs
                     %01110101 OF %01111101 <OPC> c! ENDOF
                 ENDCASE
            ELSE
-                ." push.?:g only" ABORT
+                true abort" push.?:g only"
            THEN %11100010 <M> 1+ c!
            >opc OPC,
            8B? IF X C, ELSE X , THEN ;
