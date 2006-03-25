@@ -35,6 +35,7 @@ false Constant NIL  \ relocating
 : prims-include  ." Include primitives" cr s" arch/r8c/prim.fs" included ;
 : asm-include    ." Include assembler" cr s" arch/r8c/asm.fs" included ;
 : >boot  ." Setup boot parameters" cr
+    s" include arch/r8c/errors.fs" evaluate
     s" >rom $400 constant ram-start $2000 flash-dp !" evaluate
     s" unlock" evaluate
     s" >rom there >ram ram-start there over -" evaluate

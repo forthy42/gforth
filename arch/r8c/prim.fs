@@ -751,10 +751,13 @@ end-code
    : lcdpage  $01 lcdctrl! &15 ms ;
    : lcdcr    $C0 lcdctrl! ;
    : lcdinit ( -- )
-       &20 ms $33 lcdctrl! 5 ms $20 >lcd
+       &20 ms $30 >lcd  5 ms  $33 lcdctrl! 5 ms $20 >lcd
        &5 ms  $28 lcdctrl!
        &1 ms  $0C lcdctrl!
        &1 ms  lcdpage ;
+   \ default channel is channel 6
+   : adc@ ( chan -- value )  $80 + $D6 c!  $28 $D7 c!
+       6 $D6 bset  BEGIN  6 $D6 btst 0=  UNTIL  $C0 @ ;
    : ?flash  BEGIN  $1B7 c@ 1 and 1 =  UNTIL ;
    : flashc! ( c addr -- )  $40 over c! c! ?flash ;
    : flash! ( x addr -- )  2dup flashc! >r 8 rshift r> 1+ flashc! ;

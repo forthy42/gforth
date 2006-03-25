@@ -826,7 +826,8 @@ Defer .status
     BEGIN
 	.status
 	['] cr catch if
-	    >stderr cr ." Can't print to stdout, leaving" cr
+	    [ has? OS [IF] ] >stderr [ [THEN] ]
+	    cr ." Can't print to stdout, leaving" cr
 	    \ if stderr does not work either, already DoError causes a hang
 	    2 (bye)
 	endif
@@ -980,7 +981,9 @@ Defer mark-end
 
 [ELSE]
     : dec.  base @ >r decimal . r> base ! ;
-    : DoError ( throw-code -- ) ." Error# " dec. cr ;
+    : DoError ( throw-code -- )
+	dup -2 =  IF  "error @ type  drop  EXIT  THEN
+	.error ;
 [THEN]
 
 : quit ( ?? -- ?? ) \ core

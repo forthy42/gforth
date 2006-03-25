@@ -3730,6 +3730,8 @@ previous
 : 2/ 2/ ;
 : hex. base @ $10 base ! swap . base ! ;
 : invert invert ;
+: linkstring ( addr u n addr -- )
+    X here over X @ X , swap X ! X , ht-string, X align ;
 \ : . . ;
 
 : all-words    ['] forced?    IS skip? ;

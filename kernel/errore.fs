@@ -41,12 +41,12 @@ has? OS [IF]
 : >stderr ( -- )
     r> outfile-id >r stderr to outfile-id
     >exec  r> to outfile-id ;
-[ELSE]
-: >stderr ;
 [THEN]
 
 : .error ( n -- )
+[ has? OS [IF] ]
     >stderr
+[ [THEN] ]
     ErrLink
     BEGIN @ dup
     WHILE

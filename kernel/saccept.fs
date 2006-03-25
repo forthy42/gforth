@@ -29,7 +29,7 @@ require ./io.fs
    key dup #del = IF drop #bs THEN
    dup bl u<
    IF	dup #cr = over #lf = or IF  space drop nip swap - ( xoff ) EXIT THEN
-	#bs = IF 3 pick over <> 
+	#bs = IF 3 pick over <> over 0> and 
     	IF 1 chars - #bs emit bl emit #bs emit ELSE bell THEN THEN
    ELSE	>r 2dup <> IF r> dup emit over c! char+ ELSE r> drop bell THEN
    THEN 
