@@ -84,6 +84,7 @@ all-words
 
 \ Input                                                13feb93py
 
+04 constant #eof ( -- c ) \ gforth
 07 constant #bell ( -- c ) \ gforth
 08 constant #bs ( -- c ) \ gforth
 09 constant #tab ( -- c ) \ gforth

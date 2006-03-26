@@ -732,7 +732,7 @@ has? new-input 0= [IF]
 	ELSE
 	    [ [THEN] ]
 	sourceline# 0< IF 2drop false EXIT THEN
-	accept true
+	accept eof @ 0=
 	[ has? file [IF] ]
 	THEN
 	1 loadline +!
@@ -982,6 +982,7 @@ Defer mark-end
 [ELSE]
     : dec.  base @ >r decimal . r> base ! ;
     : DoError ( throw-code -- )
+	cr source drop >in @ type ." <<< "
 	dup -2 =  IF  "error @ type  drop  EXIT  THEN
 	.error ;
 [THEN]
@@ -1079,7 +1080,7 @@ has? new-input 0= [IF]
     os-boot
 [ [THEN] ]
 [ has? rom [IF] ]
-    ram-shadow @ -1 <> IF
+    ram-shadow dup @ dup -1 <> >r u> r> and IF
 	ram-shadow 2@  ELSE
 	ram-mirror ram-size  THEN  ram-start swap move
 [ [THEN] ]

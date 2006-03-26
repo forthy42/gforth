@@ -768,14 +768,20 @@ end-code
    : r8cboot ( -- )  flash-enable lcdinit 38k4
        s" Gforth EC R8C" lcdtype boot ;
    ' r8cboot >body $C002 !
-   : save-system ( -- )
+   : savesystem ( -- )
        dpp @ >r rom here normal-dp @ ram-start tuck - tuck r> dpp !
        bounds ?DO  I c@ c,  LOOP
        ram-shadow tuck flash! cell+ flash! ;
+   : refill-loop ( -- )
+       BEGIN  3 emit refill  WHILE  interpret  REPEAT ;   
+   : included ( addr u -- )  echo off
+       2 emit dup emit type ['] refill-loop catch
+       dup IF  4 emit  THEN  echo on  throw ;
+   : include ( "file" -- )  parse-name included ;
    : empty ( -- )  $2800 flash-off $2000 flash-off ;
 
 : (bye)     ( 0 -- ) \ back to DOS
-    drop ;
+    drop 5 emit ;
 
 : bye ( -- )  0 (bye) ;
     

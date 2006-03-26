@@ -22,6 +22,8 @@
 
 Variable leavings
 
+\ this doesn't work with flash yet!!
+
 : (leave)   here  leavings @ ,  leavings ! ;
 : LEAVE     postpone branch  (leave) ;  immediate restrict
 : ?LEAVE    postpone 0= postpone ?branch  (leave) ;

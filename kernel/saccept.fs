@@ -23,15 +23,25 @@ require ./io.fs
 \ : xon $11 emit ;
 \ : xoff $13 emit ;
 
+Variable eof
+Variable echo  -1 echo !
+
 : accept ( adr len -- len )
-  ( xon ) over + over ( start end pnt )
+  ( xon ) over + over ( start end pnt )  eof off
   BEGIN
    key dup #del = IF drop #bs THEN
    dup bl u<
-   IF	dup #cr = over #lf = or IF  space drop nip swap - ( xoff ) EXIT THEN
-	#bs = IF 3 pick over <> over 0> and 
-    	IF 1 chars - #bs emit bl emit #bs emit ELSE bell THEN THEN
-   ELSE	>r 2dup <> IF r> dup emit over c! char+ ELSE r> drop bell THEN
+   IF
+       dup #cr = over #lf = or IF
+	   echo @ IF  space  THEN  drop nip swap - ( xoff ) EXIT THEN
+       dup #eof = IF  eof on  THEN
+       #bs = IF 3 pick over <> over 0> and 
+	   IF 1 chars -
+	       echo @ IF  #bs emit bl emit #bs emit  THEN
+	   ELSE  echo @ IF  bell  THEN  THEN  THEN
+   ELSE	>r 2dup <> IF r>
+	   echo @ IF  dup emit  THEN
+	   over c! char+ ELSE r> drop bell THEN
    THEN 
   AGAIN ;
   

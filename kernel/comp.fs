@@ -217,7 +217,7 @@ Defer char@ ( addr u -- char addr' u' )
 : char   ( '<spaces>ccc' -- c ) \ core
     \G Skip leading spaces. Parse the string @i{ccc} and return @i{c}, the
     \G display code representing the first character of @i{ccc}.
-    bl word count char@ 2drop ;
+    parse-name char@ 2drop ;
 
 : [char] ( compilation '<spaces>ccc' -- ; run-time -- c ) \ core bracket-char
     \G Compilation: skip leading spaces. Parse the string
@@ -459,7 +459,7 @@ doer? :dovar [IF]
 [THEN]
 
 has? flash [IF]
-    : (variable) dpp @ normal-dp = IF  Create
+    : (variable) dpp @ normal-dp = IF  Create dpp @
 	ELSE  normal-dp @ Constant dpp @ ram  THEN ;
 : Variable ( "name" -- ) \ core
     (Variable) 0 , dpp ! ;
