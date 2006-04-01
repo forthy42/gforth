@@ -2092,6 +2092,8 @@ static void print_diag()
 	    " --enable-force-ll"
 #endif
 	    "\n"
+#else
+	    ""
 #endif
 	    ,
 	    (relocs < nonrelocs) ? "    gcc PR 15242 -> no dynamic code generation (use gcc-2.95 instead)\n" : "");
