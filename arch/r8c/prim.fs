@@ -635,7 +635,7 @@ end-code
   Code (key)    ( -- char ) \ get character
       tos push.w:g
       BEGIN  3 , $AD  btst:g  0<> UNTIL
-      $AE  , tos mov.w:g
+      $AE  , tos mov.w:g  r0h , r0h xor.b
     next,
    End-Code
 
@@ -775,10 +775,12 @@ end-code
    : refill-loop ( -- )
        BEGIN  3 emit refill  WHILE  interpret  REPEAT ;   
    : included ( addr u -- )  echo off
-       2 emit dup emit type ['] refill-loop catch
+       2 emit dup $20 + emit type ['] refill-loop catch
        dup IF  4 emit  THEN  echo on  throw ;
    : include ( "file" -- )  parse-name included ;
-   : empty ( -- )  $2800 flash-off $2000 flash-off ;
+   : empty ( -- )  $2800 flash-off $2000 flash-off
+       forth-wordlist ram-mirror + ram-start - @ forth-wordlist !
+       normal-dp ram-mirror + ram-start - @ normal-dp ! $2000 flash-dp ! ;
 
 : (bye)     ( 0 -- ) \ back to DOS
     drop 5 emit ;

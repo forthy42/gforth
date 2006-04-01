@@ -927,7 +927,7 @@ engine/config.h: stamp-h
 stamp-h: engine/config.h.in config.status stamp-h.in
 	./config.status
 
-Makefile Makedist engine/Makefile gforthmi vmgen machpc.fs doc/version.texi:	Makefile.in Makedist.in engine/Makefile.in gforthmi.in vmgen.in machpc.fs.in doc/version.texi.in config.status configure.in
+Makefile Makedist engine/Makefile gforthmi vmgen machpc.fs doc/version.texi envos.fs:	Makefile.in Makedist.in engine/Makefile.in gforthmi.in vmgen.in machpc.fs.in doc/version.texi.in config.status configure.in envos.fs.in
 	./config.status
 
 config.status: configure

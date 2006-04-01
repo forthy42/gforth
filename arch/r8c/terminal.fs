@@ -81,8 +81,10 @@ Create file-buf $40 allot
 Variable file-len
 
 0 Value term
+0 Value term-fd
 0 Value termfile
 Variable term-state
+Variable progress-state
 
 : term-end ( -- )
     4   term emit-file throw
@@ -95,6 +97,8 @@ Variable term-state
 : end-include ( -- )  termfile 0= IF  EXIT  THEN
     termfile close-file throw  0 to termfile ;
 
+Create progress s" /-\|" here over allot swap move
+
 : term-type ( addr u -- )
     bounds ?DO
 	I c@ CASE
@@ -102,6 +106,8 @@ Variable term-state
 	    3 OF
 		termfile IF
 		    file-buf $40 termfile read-line throw
+		    progress progress-state @ + c@ emit #bs emit
+		    progress-state @ 1+ 3 and progress-state !
 		ELSE
 		    0 0
 		THEN
@@ -115,7 +121,7 @@ Variable term-state
 	    5 OF  abort  ENDOF
 	    term-state @ CASE
 		0 OF  emit  ENDOF
-		1 OF  $3F min file-len !  2 term-state !  ENDOF
+		1 OF  $20 - $3F min file-len !  2 term-state !  ENDOF
 		2 - file-buf + c!  1 term-state +!
 		term-state @ file-len @ 2 + = IF
 		    open-include term-state off  THEN
@@ -123,13 +129,15 @@ Variable term-state
 	0 ENDCASE
     LOOP ;
 
-: terminal ( "name" -- ) cr
-    parse-name r/w open-file throw dup to term dup >fd { term-fd }
-    B38400 term-fd set-baud
+: term-loop ( -- )
     BEGIN
 	pad term-fd check-read term read-file throw pad swap term-type
 	key? IF  key term emit-file throw term flush-file throw
 	ELSE  &10 ms  THEN
     AGAIN ;
+: terminal ( "name" -- ) cr
+    parse-name r/w open-file throw dup to term dup >fd to term-fd
+    B38400 term-fd set-baud ['] term-loop catch
+    dup -1 = IF  drop EXIT  THEN  throw ;
 
-    
+script? [IF]  terminal /dev/ttyUSB0 bye [THEN]

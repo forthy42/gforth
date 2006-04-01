@@ -2,7 +2,7 @@
 
 rom
 
-bl bl 2constant empty
+bl bl 2constant empt
 variable wiping
  2 constant col0
  0 constant row0
@@ -72,7 +72,7 @@ def-pit pit
 rom
 
 : empty-pit deep 0 do
-	wide 0 do  empty j i pit 2c!
+	wide 0 do  empt j i pit 2c!
   loop loop ;
 
 
@@ -221,7 +221,7 @@ create brick-val
 
 : draw-brick \ row col ---
   4 0 do 4 0 do
-      j i brick 2c@  empty d<>
+      j i brick 2c@  empt d<>
       if  over j + over i +  position
    j i brick 2c@  stone
       then
@@ -232,7 +232,7 @@ create brick-val
 
 : put-brick
   4 0 do 4 0 do
-      j i brick 2c@  empty d<>
+      j i brick 2c@  empt d<>
       if  over j +  over i +  pit
    j i brick 2c@  rot 2c!
       then
@@ -240,17 +240,17 @@ create brick-val
 
 : remove-brick
   4 0 do 4 0 do
-      j i brick 2c@  empty d<>
-      if  over j + over i + pit empty rot 2c!  then
+      j i brick 2c@  empt d<>
+      if  over j + over i + pit empt rot 2c!  then
   loop loop  2drop ;
 
 : test-brick
   4 0 do 4 0 do
-      j i brick 2c@ empty d<>
+      j i brick 2c@ empt d<>
       if  over j +  over i +
    over dup 0< swap deep >= or
    over dup 0< swap wide >= or
-   2swap pit 2c@  empty d<>
+   2swap pit 2c@  empt d<>
    or or if  unloop unloop 2drop false  exit  then
       then
   loop loop  2drop true ;
@@ -291,7 +291,7 @@ create brick-val
 
 : line-full \ line-no --- flag
   true  wide 0
-  do  over i pit 2c@ empty d=
+  do  over i pit 2c@ empt d=
       if  2drop false unloop exit  then
   loop nip ;
 
