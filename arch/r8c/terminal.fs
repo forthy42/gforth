@@ -99,15 +99,15 @@ s" os-type" environment? [IF]
 	    kernel32 GetCommState int ptr (int) GetCommState ( handle addr -- r )
 	    kernel32 SetCommState int ptr (int) SetCommState ( handle addr -- r )
 	    kernel32 CreateFile ptr int int ptr int int ptr (int) CreateFileA ( name access share security disp attr temp -- handle )
-            kernel32 WriteFile int ptr int ptr ptr (int) WriteFile ( handle data size &len &data -- flag )
-            kernel32 ReadFile int ptr int ptr ptr (int) ReadFile ( handle data size &len &data -- flag )
-            kernel32 SetCommTimeouts int ptr (int) SetCommTimeouts ( handle addr -- flag )
-            kernel32 GetCommTimeouts int ptr (int) GetCommTimeouts ( handle addr -- flag )
-
+	    kernel32 WriteFile int ptr int ptr ptr (int) WriteFile ( handle data size &len &data -- flag )
+	    kernel32 ReadFile int ptr int ptr ptr (int) ReadFile ( handle data size &len &data -- flag )
+	    kernel32 SetCommTimeouts int ptr (int) SetCommTimeouts ( handle addr -- flag )
+	    kernel32 GetCommTimeouts int ptr (int) GetCommTimeouts ( handle addr -- flag )
+	    
 	    $80000000 Constant GENERIC_READ
 	    $40000000 Constant GENERIC_WRITE
 	    3 Constant OPEN_EXISTING
-
+	    
 	    50 Constant B50
 	    75 Constant B75
 	    110 Constant B110
@@ -126,7 +126,7 @@ s" os-type" environment? [IF]
 	    
 	    4 4 2Constant int%
 	    2 2 2Constant word%
-
+	    
 	    struct
 		int% field DCBlength
 		int% field BaudRate
@@ -145,17 +145,17 @@ s" os-type" environment? [IF]
 		word% field wReserved1
 	    end-struct DCB
 	    struct
-                int% field ReadIntervalTimeout
-                int% field ReadTotalTimeoutMultiplier
-                int% field ReadTotalTimeoutConstant
-                int% field WriteTotalTimeoutMultiplier
-                int% field WriteTotalTimeoutConstant
-            end-struct COMMTIMEOUTS
-
+		int% field ReadIntervalTimeout
+		int% field ReadTotalTimeoutMultiplier
+		int% field ReadTotalTimeoutConstant
+		int% field WriteTotalTimeoutMultiplier
+		int% field WriteTotalTimeoutConstant
+	    end-struct COMMTIMEOUTS
+	    
 	    Create t_old  DCB %allot drop
 	    Create t_buf  DCB %allot drop
-            Create tout_buf  COMMTIMEOUTS %allot drop
-
+	    Create tout_buf  COMMTIMEOUTS %allot drop
+	    
 	    0 Value term-fd
 	    0 Value term
 	    : open-port ( addr u -- )
@@ -164,28 +164,28 @@ s" os-type" environment? [IF]
 		to term-fd ;
 	    : set-baud ( baud fd -- )  >r
 		r@ t_old GetCommState drop
-                1 t_old flags !
-                r@ tout_buf GetCommTimeouts drop
-                3 tout_buf ReadIntervalTimeout !
-                3 tout_buf ReadTotalTimeoutMultiplier !
-                2 tout_buf ReadTotalTimeoutConstant !
-                3 tout_buf WriteTotalTimeoutMultiplier !
-                2 tout_buf WriteTotalTimeoutConstant !
-                r@ tout_buf SetCommTimeouts drop
+		1 t_old flags !
+		r@ tout_buf GetCommTimeouts drop
+		3 tout_buf ReadIntervalTimeout !
+		3 tout_buf ReadTotalTimeoutMultiplier !
+		2 tout_buf ReadTotalTimeoutConstant !
+		3 tout_buf WriteTotalTimeoutMultiplier !
+		2 tout_buf WriteTotalTimeoutConstant !
+		r@ tout_buf SetCommTimeouts drop
 		t_old t_buf DCB %size move
 		t_buf BaudRate !
 		r> t_buf SetCommState drop ;
 	    : reset-baud ( fd -- )
 		t_old SetCommState drop ;
-            Create emit-buf  0 c,
+	    Create emit-buf  0 c,
             Variable term-len
 	    : term-read ( -- addr u )
-	        term-fd pad &64 term-len 0 ReadFile drop
-                pad term-len @ ;
+		term-fd pad &64 term-len 0 ReadFile drop
+		pad term-len @ ;
 	    : (term-type) ( addr u -- )
 	        term-fd -rot term-len 0 WriteFile drop ;
 	    : term-emit ( char -- )
-	         emit-buf c!  emit-buf 1 (term-type) ;
+		emit-buf c!  emit-buf 1 (term-type) ;
 	    : term-flush ( -- ) ;
     [THEN]
 [THEN]
