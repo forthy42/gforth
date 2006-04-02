@@ -283,7 +283,7 @@ User-defined Defining Words
 * CREATE..DOES> applications::  
 * CREATE..DOES> details::       
 * Advanced does> usage example::  
-* Const-does>::          
+* Const-does>::                 
 
 Interpretation and Compilation Semantics
 
@@ -399,6 +399,13 @@ Programming Tools
 * Debugging::                   Simple and quick.
 * Assertions::                  Making your programs self-checking.
 * Singlestep Debugger::         Executing your program word by word.
+
+C Interface
+
+* Calling C Functions::         
+* Declaring C Functions::       
+* Callbacks::                   
+* Low-Level C Interface Words::  
 
 Assembler and Code Words
 
@@ -6332,7 +6339,7 @@ locals declarations for stack effect specification, though).
 * CREATE..DOES> applications::  
 * CREATE..DOES> details::       
 * Advanced does> usage example::  
-* Const-does>::          
+* Const-does>::                 
 @end menu
 
 @node CREATE..DOES> applications, CREATE..DOES> details, User-defined Defining Words, User-defined Defining Words
@@ -8997,7 +9004,8 @@ problem yourself, and then return to regular processing.
 
 doc-broken-pipe-error
 
-@node Xchars and Unicode, , Pipes, Other I/O
+@node Xchars and Unicode,  , Pipes, Other I/O
+@subsection Xchars and Unicode
 
 This chapter needs completion
 
@@ -11681,10 +11689,13 @@ structs, unions, and their fields.
 * Calling C Functions::         
 * Declaring C Functions::       
 * Callbacks::                   
+* Low-Level C Interface Words::  
 @end menu
 
 @node Calling C Functions, Declaring C Functions, C Interface, C Interface
 @subsection Calling C functions
+@cindex C functions, calls to
+@cindex calling C functions
 
 Once a C function is declared (see @pxref{Declaring C Functions}), you
 can call it as follows: You push the arguments on the stack(s), and
@@ -11693,15 +11704,14 @@ pushed in the same order as the arguments appear in the C
 documentation (i.e., the first argument is deepest on the stack).
 Integer and pointer arguments have to be pushed on the data stack,
 floating-point arguments on the FP stack; these arguments are consumed
-by calling the C function.
+by the called C function.
 
-On returning from the C function, the return value, if any, is pushed
-on the appropriate stack: an integer return value is pushed on the
-data stack, an FP return value on the FP stack, and a void return
-value results in not pushing anything.  Note that most C functions
-have a return value, even if that is often not used in C; in Forth,
-you have to @code{drop} this return value explicitly if you do not use
-it.
+On returning from the C function, the return value, if any, resides on
+the appropriate stack: an integer return value is pushed on the data
+stack, an FP return value on the FP stack, and a void return value
+results in not pushing anything.  Note that most C functions have a
+return value, even if that is often not used in C; in Forth, you have
+to @code{drop} this return value explicitly if you do not use it.
 
 By default, an integer argument or return value corresponds to a
 single cell, and a floating-point argument or return value corresponds
@@ -11727,11 +11737,11 @@ then
 
 You might be worried that an @code{off_t} does not fit into a cell, so
 you could not pass larger offsets to lseek, and might get only a part
-of the return values.  In that case, you should declare the function
-to use double-cells for the off_t argument and return value (no matter
-how large or small the off_t type actually is), and maybe give the
-resulting Forth word a different name, like @code{dlseek}; the result
-could be called like this:
+of the return values.  In that case, in your declaration of the
+function (@pxref{Declaring C Functions}) you should declare it to use
+double-cells for the off_t argument and return value, and maybe give
+the resulting Forth word a different name, like @code{dlseek}; the
+result could be called like this:
 
 @example
 fd @@ 0. SEEK_SET dlseek -1. d= if
@@ -11750,8 +11760,11 @@ Calling functions with a variable number of arguments (e.g.,
 function-calling word for each argument pattern, and calling the
 appropriate word for the desired pattern.
 
+
 @node Declaring C Functions, Callbacks, Calling C Functions, C Interface
 @subsection Declaring C Functions
+@cindex C functions, declarations
+@cindex declaring C functions
 
 Before you can call @code{lseek} or @code{dlseek}, you have to declare
 it.  You have to look up in your system what the concrete type for the
@@ -11772,10 +11785,7 @@ functions) for GNU/Linux systems since about 1998).
 
 The next two lines define two Forth words for the same C function
 @code{lseek()}; the middle line defines @code{lseek ( n1 n2 n3 -- n
-)}, and the last line defines @code{dlseek ( n1 d2 n3 -- d)}
-
-!!!
-
+)}, and the last line defines @code{dlseek ( n1 d2 n3 -- d )}.
 
 As you can see, the declarations are relatively platform-dependent
 (e.g., on one platform @code{off_t} may be a @code{long}, whereas on
@@ -11786,14 +11796,68 @@ to them are portable.
 
 At some point in the future this interface will be superseded by a
 more convenient one with fewer portability issues.  But the resulting
-words for the C function will still have the same interface, so will
-not need to change the calls.
+words for calling the C function will still have the same interface,
+so will not need to change the calls.
+
+Anyway, here are the words for the current interface:
+
+doc-library
+doc-int
+doc-dint
+doc-uint
+doc-udint
+doc-long
+doc-dlong
+doc-ulong
+doc-udlong
+doc-longlong
+doc-dlonglong
+doc-ulonglong
+doc-udlonglong
+doc-cfloat
+doc-cdouble
+doc-clongdouble
+doc-(int)
+doc-(dint)
+doc-(uint)
+doc-(udint)
+doc-(long)
+doc-(dlong)
+doc-(ulong)
+doc-(udlong)
+doc-(longlong)
+doc-(dlonglong)
+doc-(ulonglong)
+doc-(udlonglong)
+doc-(cfloat)
+doc-(cdouble)
+doc-(clongdouble)
 
 
-@node Callbacks,  , Declaring C Functions, C Interface
+@node Callbacks, Low-Level C Interface Words, Declaring C Functions, C Interface
 @subsection Callbacks
+@cindex Callback functions written in Forth
+@cindex C function pointers to Forth words
 
+In some cases you have to pass a function pointer to a C function,
+i.e., the library wants to call back to your application (and the
+pointed-to function is called a callback function).  You can pass the
+address of an existing C function (that you get with @code{lib-sym},
+@pxref{Low-Level C Interface Words}), but if there is no appropriate C
+function, you probably want to define the function as a Forth word.
 
+!!!
+@c I don't understand the existing callback interface from the example - anton
+
+doc-callback
+doc-callback;
+doc-fptr
+
+@node Low-Level C Interface Words,  , Callbacks, C Interface
+@subsection Low-Level C Interface Words
+
+doc-open-lib
+doc-lib-sym
 
 @c -------------------------------------------------------------
 @node Assembler and Code Words, Threading Words, C Interface, Words
