@@ -769,8 +769,8 @@ end-code
        s" Gforth EC R8C" lcdtype boot ;
    ' r8cboot >body $C002 !
    : savesystem ( -- )
-       dpp @ >r rom here normal-dp @ ram-start tuck - tuck r> dpp !
-       bounds ?DO  I c@ c,  LOOP
+       dpp @ >r rom here normal-dp @ ram-start tuck - tuck
+       bounds ?DO  I c@ c,  LOOP  r> dpp !
        ram-shadow tuck flash! cell+ flash! ;
    : refill-loop ( -- )
        BEGIN  3 emit refill  WHILE  interpret  REPEAT ;   
