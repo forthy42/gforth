@@ -8294,6 +8294,8 @@ doc-delete-file
 doc-rename-file
 doc-read-file
 doc-read-line
+doc-key-file
+doc-key?-file
 doc-write-file
 doc-write-line
 doc-emit-file

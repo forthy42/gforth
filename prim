@@ -1646,20 +1646,23 @@ n=1;
 
 \g hostos
 
-key-file	( wfileid -- n )		gforth	paren_key_file
+key-file	( wfileid -- c )		gforth	paren_key_file
+""Read one character @i{c} from @i{wfileid}.    ""
 #ifdef HAS_FILE
 fflush(stdout);
-n = key((FILE*)wfileid);
+c = key((FILE*)wfileid);
 #else
-n = key(stdin);
+c = key(stdin);
 #endif
 
-key?-file	( wfileid -- n )	        gforth	key_q_file
+key?-file	( wfileid -- f )	        gforth	key_q_file
+""@i{f} is true if at least one character can be read from @i{wfileid}
+without blocking.""
 #ifdef HAS_FILE
 fflush(stdout);
-n = key_query((FILE*)wfileid);
+f = key_query((FILE*)wfileid);
 #else
-n = key_query(stdin);
+f = key_query(stdin);
 #endif
 
 \+os

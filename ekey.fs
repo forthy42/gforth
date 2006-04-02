@@ -222,7 +222,7 @@ set-current
     dup 256 u< ;
 
 ' key? alias ekey? ( -- flag ) \ facility-ext e-key-question
-\G True if a keyboard even is available.
+\G True if a keyboard event is available.
 
 \  : esc? ( -- flag ) recursive
 \      key? 0=
