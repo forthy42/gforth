@@ -174,6 +174,7 @@ s" os-type" environment? [IF]
 		r@ tout_buf SetCommTimeouts drop
 		t_old t_buf DCB %size move
 		t_buf BaudRate !
+                8 t_buf ByteSize c!
 		r> t_buf SetCommState drop ;
 	    : reset-baud ( fd -- )
 		t_old SetCommState drop ;
