@@ -619,8 +619,13 @@ void deprep_terminal ()
 
 /* If a character is available to be read, then read it
    and stuff it into IBUFFER.  Otherwise, just return. */
-
 long pending = -1L;
+/* !! This is a bug: if key_avail(file1) is followed by getkey(file2),
+   the getkey(file2) can return the character from file1. - anton */
+
+/* Moreover, key_avail and getkey bypass the buffering of the FILE *,
+   leading to unpleasant effects if KEY-FILE and KEY?-FILE are mixed
+   with READ-FILE and READ-LINE */
 
 long key_avail (FILE * stream)
 {
@@ -631,6 +636,8 @@ long key_avail (FILE * stream)
   if(!terminal_prepped)  prep_terminal();
 
 #if defined(FIONREAD) && !defined(_WIN32)
+  /* !! What is the point of this part? it does not affect
+     chars_avail, and "result" is never used - anton */
   if(isatty (tty)) {
     result = ioctl (tty, FIONREAD, &chars_avail);
   }
