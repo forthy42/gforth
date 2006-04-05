@@ -35,7 +35,7 @@
 library libc libc.so.6
                 
 libc sleep int (int) sleep
-libc open  int int ptr (int) open
+libc open  ptr int int (int) open
 libc lseek int llong int (llong) lseek64
 libc read  int ptr int (int) read
 libc close int (int) close
