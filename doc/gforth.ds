@@ -11797,7 +11797,7 @@ to them are portable.
 At some point in the future this interface will be superseded by a
 more convenient one with fewer portability issues.  But the resulting
 words for calling the C function will still have the same interface,
-so will not need to change the calls.
+so you will not need to change the calls.
 
 Anyway, here are the words for the current interface:
 
@@ -11814,6 +11814,7 @@ doc-longlong
 doc-dlonglong
 doc-ulonglong
 doc-udlonglong
+doc-ptr
 doc-cfloat
 doc-cdouble
 doc-clongdouble
@@ -11829,6 +11830,7 @@ doc-(longlong)
 doc-(dlonglong)
 doc-(ulonglong)
 doc-(udlonglong)
+doc-(ptr)
 doc-(cfloat)
 doc-(cdouble)
 doc-(clongdouble)
