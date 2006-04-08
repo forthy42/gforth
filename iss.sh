@@ -71,6 +71,11 @@ Name: "{app}\doc\vmgen"
 Source: "README.txt"; DestDir: "{app}"; Flags: isreadme
 Source: "cygwin1.dll"; DestDir: "{app}"
 Source: "sh.exe"; DestDir: "{app}"
+Source: "cygintl-3.dll"; DestDir: "{app}"
+Source: "cygiconv-2.dll"; DestDir: "{app}"
+Source: "cygreadline6.dll"; DestDir: "{app}"
+Source: "cygncurses-8.dll"; DestDir: "{app}"
+Source: "cygffi-2-00-beta.dll"; DestDir: "{app}"
 Source: "gforth.fi"; DestDir: "{app}"
 $(ls doc/gforth | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "doc\\gforth\\\1"; DestDir: "{app}\\doc\\gforth"; Components: help,g')
 $(ls doc/vmgen | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "doc\\vmgen\\\1"; DestDir: "{app}\\doc\\vmgen"; Components: help,g')
@@ -94,15 +99,17 @@ Name: "{group}\Gforth-dict"; Filename: "{app}\gforth-dict.exe"; WorkingDir: "{ap
 Name: "{group}\Gforth-itc"; Filename: "{app}\gforth-itc.exe"; WorkingDir: "{app}"
 Name: "{group}\Gforth-prof"; Filename: "{app}\gforth-prof.exe"; WorkingDir: "{app}"
 Name: "{group}\Gforth Manual"; Filename: "{app}\doc\gforth\index.html"; WorkingDir: "{app}"; Components: help
+Name: "{group}\Gforth Manual (PDF)"; Filename: "{app}\doc\gforth.pdf"; WorkingDir: "{app}"; Components: help
 Name: "{group}\VMgen Manual"; Filename: "{app}\doc\vmgen\index.html"; WorkingDir: "{app}"; Components: help
+Name: "{group}\Bash"; Filename: "{app}\sh.exe"; WorkingDir: "{app}"
 Name: "{group}\Uninstall Gforth"; Filename: "{uninstallexe}"
 
-[Run]
-Filename: "{app}\gforth.exe"; WorkingDir: "{app}"; Parameters: "fixpath.fs {app} gforth-fast.exe"
-Filename: "{app}\gforth.exe"; WorkingDir: "{app}"; Parameters: "fixpath.fs {app} gforth-ditc.exe"
-Filename: "{app}\gforth.exe"; WorkingDir: "{app}"; Parameters: "fixpath.fs {app} gforth-itc.exe"
-Filename: "{app}\gforth.exe"; WorkingDir: "{app}"; Parameters: "fixpath.fs {app} gforth-prof.exe"
-Filename: "{app}\gforth-fast.exe"; WorkingDir: "{app}"; Parameters: "fixpath.fs {app} gforth.exe"
+;[Run]
+;Filename: "{app}\gforth.exe"; WorkingDir: "{app}"; Parameters: "fixpath.fs {app} gforth-fast.exe"
+;Filename: "{app}\gforth.exe"; WorkingDir: "{app}"; Parameters: "fixpath.fs {app} gforth-ditc.exe"
+;Filename: "{app}\gforth.exe"; WorkingDir: "{app}"; Parameters: "fixpath.fs {app} gforth-itc.exe"
+;Filename: "{app}\gforth.exe"; WorkingDir: "{app}"; Parameters: "fixpath.fs {app} gforth-prof.exe"
+;Filename: "{app}\gforth-fast.exe"; WorkingDir: "{app}"; Parameters: "fixpath.fs {app} gforth.exe"
 
 ;[Registry]
 ;registry commented out
