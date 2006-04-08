@@ -20,11 +20,11 @@
 
 ." Fixing " 3 arg type ."  with " 2 arg type cr
 
-$CCE0 Constant gforth.exe
-$C4F0 Constant gforth-fast.exe
-$89F0 Constant gforth-ditc.exe
-$6BF0 Constant gforth-itc.exe
-$6880 Constant gforth-prof.exe
+$1601C Constant gforth.exe
+$18E94 Constant gforth-fast.exe
+$D6C8 Constant gforth-ditc.exe
+$C8B8 Constant gforth-itc.exe
+$FD78 Constant gforth-prof.exe
 
 include string.fs
 

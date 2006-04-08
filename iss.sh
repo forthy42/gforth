@@ -32,8 +32,8 @@ cat <<EOT
 
 [Setup]
 AppName=Gforth
-AppVerName=$(./gforth -v 2>&1)
-AppCopyright=Copyright © 1995,1996,1997,1998,2000,2003,2006 Free Software Foundation
+AppVerName=Gforth $(cat version)
+AppCopyright=Copyright © 1995,1996,1997,1998,2000,2003 Free Software Foundation
 DefaultDirName={pf}\gforth
 DefaultGroupName=Gforth
 AllowNoIcons=1
