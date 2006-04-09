@@ -633,7 +633,8 @@ long key_avail (FILE * stream)
   int chars_avail = pending;
   int result;
 
-  if(!terminal_prepped)  prep_terminal();
+  if(!terminal_prepped && stream == stdin)
+    prep_terminal();
 
 #if defined(FIONREAD) && !defined(_WIN32)
   /* !! What is the point of this part? it does not affect
