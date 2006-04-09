@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 
-#Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005 Free Software Foundation, Inc.
+#Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006 Free Software Foundation, Inc.
 
 #This file is part of Gforth.
 
@@ -21,12 +21,12 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl We use some automake macros here,
 dnl but don't use automake for creating Makefile.in
-AC_INIT([gforth],[0.6.2-20060312],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
+AC_INIT([gforth],[0.6.2-20060409],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
 AC_PREREQ(2.54)
 #snapshots have numbers major.minor.release-YYYYMMDD
 #note that lexicographic ordering must be heeded.
 #I.e., 0.4.1-YYYYMMDD must not exist before 0.4.1!
-UPDATED="March 12, 2006"
+UPDATED="April 09, 2006"
 AC_SUBST(UPDATED)
 AC_CONFIG_HEADERS(engine/config.h)
 
