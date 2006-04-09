@@ -931,11 +931,9 @@ stamp-h: engine/config.h.in config.status stamp-h.in
 
 Makefile Makedist engine/Makefile gforthmi vmgen machpc.fs doc/version.texi envos.fs build-ec:	Makefile.in Makedist.in engine/Makefile.in gforthmi.in vmgen.in machpc.fs.in doc/version.texi.in config.status configure.in envos.fs.in build-ec.in
 	./config.status
-	-chmod +x build-ec
 
 config.status: configure
 	./config.status --recheck
-	-chmod +x build-ec
 
 #create files for DOS, because DOS cannot do it itself
 makefile.dos: mkdosmf.sed Makefile.in engine/Makefile.in
