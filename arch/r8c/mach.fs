@@ -47,6 +47,7 @@ false Constant NIL  \ relocating
     s" ec/shex.fs" included
     s" 0 cpu-start" evaluate
     $C000 $4000 s" save-region-shex rom-r8c.mot" evaluate
+    s" $FFFF $2FFC ! $FFFF $2FFE ! $2FFC 4 save-region-shex data-r8c.mot" evaluate
     s" >ram" evaluate
     $400 s" here over - save-region-shex ram-r8c.mot" evaluate ;
 
