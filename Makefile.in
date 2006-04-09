@@ -194,7 +194,8 @@ EC_SRC = \
 	ec/shex.fs \
 	ec/builttag.fs \
 	ec/dotx.fs \
-	ec/nesting.fs
+	ec/nesting.fs \
+	build-ec.in
 
 GFORTH_FI_SRC = \
 	assert.fs \
@@ -415,7 +416,7 @@ FORTH_GEN_PRIMB = $(FORTH_GEN_ENGINE) $(FORTH_GEN_ENGINE_FAST) kernel/aliases.fs
 FORTH_GEN0 = prim.b $(FORTH_GEN_PRIMB)
 FORTH_GEN =  $(FORTH_GEN0) @KERNEL@ gforth.fi
 # this is used for antidependences,
-FORTH_GEN1 = $(FORTH_GEN0) @kernel_fi@ 
+FORTH_GEN1 = $(FORTH_GEN0) @kernel_fi@ build-ec
 
 #kernel dependencies
 KERN_DEPS = $(KERN_SRC) kernel/version.fs machpc.fs $(FORTH_GEN0) compat/strcomp.fs
@@ -928,7 +929,7 @@ engine/config.h: stamp-h
 stamp-h: engine/config.h.in config.status stamp-h.in
 	./config.status
 
-Makefile Makedist engine/Makefile gforthmi vmgen machpc.fs doc/version.texi envos.fs:	Makefile.in Makedist.in engine/Makefile.in gforthmi.in vmgen.in machpc.fs.in doc/version.texi.in config.status configure.in envos.fs.in
+Makefile Makedist engine/Makefile gforthmi vmgen machpc.fs doc/version.texi envos.fs build-ec:	Makefile.in Makedist.in engine/Makefile.in gforthmi.in vmgen.in machpc.fs.in doc/version.texi.in config.status configure.in envos.fs.in build-ec.in
 	./config.status
 
 config.status: configure

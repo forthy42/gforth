@@ -104,12 +104,12 @@ Name: "{group}\VMgen Manual"; Filename: "{app}\doc\vmgen\index.html"; WorkingDir
 Name: "{group}\Bash"; Filename: "{app}\sh.exe"; WorkingDir: "{app}"
 Name: "{group}\Uninstall Gforth"; Filename: "{uninstallexe}"
 
-;[Run]
-;Filename: "{app}\gforth.exe"; WorkingDir: "{app}"; Parameters: "fixpath.fs {app} gforth-fast.exe"
-;Filename: "{app}\gforth.exe"; WorkingDir: "{app}"; Parameters: "fixpath.fs {app} gforth-ditc.exe"
-;Filename: "{app}\gforth.exe"; WorkingDir: "{app}"; Parameters: "fixpath.fs {app} gforth-itc.exe"
-;Filename: "{app}\gforth.exe"; WorkingDir: "{app}"; Parameters: "fixpath.fs {app} gforth-prof.exe"
-;Filename: "{app}\gforth-fast.exe"; WorkingDir: "{app}"; Parameters: "fixpath.fs {app} gforth.exe"
+[Run]
+Filename: "{app}\gforth.exe"; WorkingDir: "{app}"; Parameters: "fixpath.fs {app} gforth-fast.exe"
+Filename: "{app}\gforth.exe"; WorkingDir: "{app}"; Parameters: "fixpath.fs {app} gforth-ditc.exe"
+Filename: "{app}\gforth.exe"; WorkingDir: "{app}"; Parameters: "fixpath.fs {app} gforth-itc.exe"
+Filename: "{app}\gforth.exe"; WorkingDir: "{app}"; Parameters: "fixpath.fs {app} gforth-prof.exe"
+Filename: "{app}\gforth-fast.exe"; WorkingDir: "{app}"; Parameters: "fixpath.fs {app} gforth.exe"
 
 ;[Registry]
 ;registry commented out
