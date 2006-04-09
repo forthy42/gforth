@@ -694,6 +694,7 @@ build-ec ])
 AC_CONFIG_COMMANDS([stamp-h],[[echo timestamp > stamp-h
 chmod +x gforthmi
 chmod +x vmgen
+chmod +x build-ec
 test -d kernel||mkdir kernel]],[[]])
 AC_OUTPUT
 
