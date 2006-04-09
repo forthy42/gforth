@@ -617,58 +617,19 @@ void deprep_terminal ()
 }
 #endif  /* NEW_TTY_DRIVER */
 
-/* If a character is available to be read, then read it
-   and stuff it into IBUFFER.  Otherwise, just return. */
-long pending = -1L;
-/* !! This is a bug: if key_avail(file1) is followed by getkey(file2),
-   the getkey(file2) can return the character from file1. - anton */
-
-/* Moreover, key_avail and getkey bypass the buffering of the FILE *,
-   leading to unpleasant effects if KEY-FILE and KEY?-FILE are mixed
-   with READ-FILE and READ-LINE */
-
 long key_avail (FILE * stream)
 {
   int tty = fileno (stream);
-  int chars_avail = pending;
-  int result;
+  fd_set selin;
+  static int now[2] = { 0 , 0 };
+  int res;
 
   if(!terminal_prepped && stream == stdin)
     prep_terminal();
 
-#if defined(FIONREAD) && !defined(_WIN32)
-  /* !! What is the point of this part? it does not affect
-     chars_avail, and "result" is never used - anton */
-  if(isatty (tty)) {
-    result = ioctl (tty, FIONREAD, &chars_avail);
-  }
-#else
-  {
-    fd_set selin;
-    static int now[2] = { 0 , 0 };
-    int res;
-    
-    FD_ZERO(&selin);
-    FD_SET(tty, &selin);
-    chars_avail=select(1, &selin, NULL, NULL, now);
-  }
-#endif
-  
-  if(chars_avail == -1L) {
-    unsigned char inchar;
-    
-    fcntl(tty, F_SETFL, O_NDELAY);
-    result = read(tty, &inchar, sizeof(char));
-    if(result == sizeof(char)) {
-      chars_avail = 1;
-      pending = (long)inchar;
-    } else {
-      chars_avail = 0;
-    }
-    fcntl(tty, F_SETFL, 0);
-  }
-
-  return chars_avail;
+  FD_ZERO(&selin);
+  FD_SET(tty, &selin);
+  return select(1, &selin, NULL, NULL, now);
 }
 
 /* Get a key from the buffer of characters to be read.
@@ -686,7 +647,7 @@ Cell getkey(FILE * stream)
   if(!terminal_prepped)
     prep_terminal();
 
-  while (pending < 0)
+  while (1)
     {
       result = read (fileno (stream), &c, sizeof (char));
 
@@ -704,13 +665,6 @@ Cell getkey(FILE * stream)
       if (errno != EINTR)
 	return (EOF);
     }
-
-  /* otherwise there is a character pending;
-     return it and delete pending char */
-  result = (Cell) pending;
-  pending = -1L;
-
-  return result;
 }
 
 #ifdef TEST
