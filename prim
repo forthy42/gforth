@@ -1647,7 +1647,11 @@ n=1;
 \g hostos
 
 key-file	( wfileid -- c )		gforth	paren_key_file
-""Read one character @i{c} from @i{wfileid}.    ""
+""Read one character @i{c} from @i{wfileid}.  This word disables
+buffering for @i{wfileid}.  If you want to read characters from a
+terminal in non-canonical (raw) mode, you have to put the terminal in
+non-canonical mode yourself (using the C interface); the exception is
+@code{stdin}: Gforth automatically puts it into non-canonical mode.""
 #ifdef HAS_FILE
 fflush(stdout);
 c = key((FILE*)wfileid);
@@ -1657,7 +1661,9 @@ c = key(stdin);
 
 key?-file	( wfileid -- f )	        gforth	key_q_file
 ""@i{f} is true if at least one character can be read from @i{wfileid}
-without blocking.""
+without blocking.  If you also want to use @code{read-file} or
+@code{read-line} on the file, you have to call @code{key?-file} or
+@code{key-file} first (these two words disable buffering).""
 #ifdef HAS_FILE
 fflush(stdout);
 f = key_query((FILE*)wfileid);
@@ -1668,12 +1674,15 @@ f = key_query(stdin);
 \+os
 
 stdin	( -- wfileid )	gforth
+""The standard input file of the Gforth process.""
 wfileid = (Cell)stdin;
 
 stdout	( -- wfileid )	gforth
+""The standard output file of the Gforth process.""
 wfileid = (Cell)stdout;
 
 stderr	( -- wfileid )	gforth
+""The standard error output file of the Gforth process.""
 wfileid = (Cell)stderr;
 
 form	( -- urows ucols )	gforth

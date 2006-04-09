@@ -645,6 +645,7 @@ Cell getkey(FILE * stream)
   Cell result;
   unsigned char c;
 
+  setvbuf(stream, NULL, _IONBF, 0);
   if(!terminal_prepped && stream == stdin)
     prep_terminal();
 
