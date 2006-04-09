@@ -10,6 +10,7 @@ s" os-type" environment? [IF]
 	libc tcsetattr int int ptr (int) tcsetattr ( fd opt termios -- r )
 	libc tcflow int int (int) tcflow ( fd action -- r )
 	libc ioctl<p> int int ptr (int) ioctl ( d request ptr -- r )
+	libc fileno ptr (int) fileno ( file* -- fd )
 	
 	4 4 2Constant int%
 	
@@ -78,12 +79,10 @@ s" os-type" environment? [IF]
 	: check-read ( fd -- n )  >r
 	    0 sp@ r> FIONREAD rot ioctl<p> drop ;
 	
-	: >fd ( wfileid -- fd )  &14 cells + @ ;
-
 	0 Value term
 	0 Value term-fd
 	: open-port ( addr u -- )
-	    r/w open-file throw dup to term dup >fd to term-fd ;
+	    r/w open-file throw dup to term dup fileno to term-fd ;
 	: term-read ( -- addr u )
 	    pad term-fd check-read term read-file throw pad swap ;
 	: term-emit ( char -- )
