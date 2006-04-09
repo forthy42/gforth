@@ -103,9 +103,10 @@ true constant string
 true constant string-ext
 \ extension queries
 ' noop alias X:deferred
+' noop alias X:defined
 ' noop alias X:extension-query
 ' noop alias X:parse-name
-' noop alias X:defined
+' noop alias X:required
 set-current
 
 warnings on
