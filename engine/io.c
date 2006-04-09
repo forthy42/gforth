@@ -624,6 +624,7 @@ long key_avail (FILE * stream)
   static int now[2] = { 0 , 0 };
   int res;
 
+  setvbuf(stream, NULL, _IONBF, 0);
   if(!terminal_prepped && stream == stdin)
     prep_terminal();
 
@@ -644,27 +645,11 @@ Cell getkey(FILE * stream)
   Cell result;
   unsigned char c;
 
-  if(!terminal_prepped)
+  if(!terminal_prepped && stream == stdin)
     prep_terminal();
 
-  while (1)
-    {
-      result = read (fileno (stream), &c, sizeof (char));
-
-      if (result == sizeof (char))
-        return /* (c == 0x7F ? 0x08 :*/ c /*)*/;
-
-      /* If zero characters are returned, then the file that we are
-	 reading from is empty!  Return EOF in that case. */
-      if (result == 0)
-	return (EOF);
-
-      /* If the error that we received was SIGINT, then try again,
-	 this is simply an interrupted system call to read ().
-	 Otherwise, some error ocurred, also signifying EOF. */
-      if (errno != EINTR)
-	return (EOF);
-    }
+  result = fread(&c, sizeof(c), 1, stream);
+  return result==0 ? EOF : c;
 }
 
 #ifdef TEST
