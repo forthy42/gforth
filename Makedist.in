@@ -31,7 +31,7 @@ BINONLYDIST = config.status Makefile Makedist \
 	engine/gforth$(EXE) engine/gforth-fast$(EXE) \
         engine/gforth-ditc$(EXE) engine/gforth-itc$(EXE) \
 	$(addprefix engine/,$(PROFEXES)) \
-	stamp-h kernel/version.fs INSTALL.BINDIST
+	stamp-h kernel/version.fs build-ec INSTALL.BINDIST
 
 #use dist targets only when srcdir=.
 ddist:		$(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST)
