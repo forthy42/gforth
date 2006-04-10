@@ -1080,9 +1080,9 @@ has? new-input 0= [IF]
     os-boot
 [ [THEN] ]
 [ has? rom [IF] ]
-    ram-shadow dup @ dup -1 <> >r u> r> and IF
-	ram-shadow 2@  ELSE
-	ram-mirror ram-size  THEN  ram-start swap move
+\    ram-shadow dup @ dup -1 <> >r u> r> and IF
+\	ram-shadow 2@  ELSE
+	ram-mirror ram-size ( THEN ) ram-start swap move
 [ [THEN] ]
     sp@ sp0 !
 [ has? peephole [IF] ]

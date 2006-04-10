@@ -23,7 +23,7 @@ warnings off
 require string.fs
 
 Variable DocumentRoot  s" /usr/local/httpd/htdocs/" DocumentRoot $!
-Variable UserDir       s" .html-data/"              UserDir      $!
+Variable UserDir       s" public_html/"              UserDir      $!
 
 Variable url
 Variable posted
