@@ -475,6 +475,7 @@ void prep_terminal ()
   }      /* added by MdG */
    
   setlocale(LC_ALL, "");
+  setlocale(LC_NUMERIC, "C");
 
   /* Try to keep this function from being INTerrupted.  We can do it
      on POSIX and systems with BSD-like signal handling. */
