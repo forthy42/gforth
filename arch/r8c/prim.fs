@@ -770,7 +770,8 @@ end-code
    ' r8cboot >body $C002 !
    : savesystem ( -- )
        dpp @ >r rom here normal-dp @ ram-start tuck - tuck
-       bounds ?DO  I c@ c,  LOOP  r> dpp !
+       here over allot r> dpp ! -rot
+       bounds ?DO  I c@ over flashc! 1+  LOOP  drop
        ram-shadow tuck flash! cell+ flash! ;
    : refill-loop ( -- )
        BEGIN  3 emit refill  WHILE  interpret  REPEAT ;   
