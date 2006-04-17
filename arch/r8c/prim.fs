@@ -732,6 +732,10 @@ end-code
    
    : ms ( n -- )  0 ?DO  &1000 us  LOOP ;
 
+   $400 constant ram-start
+   $2FFC Constant ram-shadow
+   0 Constant ram-mirror
+   0 Constant ram-size
    $E0 Constant port0
    $E1 Constant port1
    

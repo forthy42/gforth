@@ -36,13 +36,13 @@ false Constant NIL  \ relocating
 : asm-include    ." Include assembler" cr s" arch/r8c/asm.fs" included ;
 : >boot  ." Setup boot parameters" cr
     s" include arch/r8c/errors.fs" evaluate
-    s" >rom $400 constant ram-start $2000 flash-dp !" evaluate
+    s" >rom $2000 flash-dp !" evaluate
     s" unlock" evaluate
     s" >rom there >ram ram-start there over -" evaluate
     s" >rom there swap dup X allot tcmove" evaluate
     s" lock" evaluate
-    s" Constant ram-mirror $2FFC Constant ram-shadow" evaluate
-    s" >ram here ram-start - >rom Constant ram-size" evaluate
+    s" cto ram-mirror" evaluate
+    s" >ram here ram-start - >rom cto ram-size" evaluate
     s" $FF $10000 here - tcallot $C000 $FFFC ! $FF00 $FFFE !" evaluate
     s" ec/shex.fs" included
     s" 0 cpu-start" evaluate

@@ -3245,6 +3245,8 @@ Cond: IS        T ' >body @ H compile ALiteral compile ! ;Cond
 : IS            T >address ' >body @ ! H ;
 Cond: TO        T ' >body @ H compile ALiteral compile ! ;Cond
 : TO            T ' >body @ ! H ;
+Cond: CTO       T ' >body H compile ALiteral compile ! ;Cond
+: CTO           T ' >body ! H ;
 [ELSE]
 Cond: IS        T ' >body H compile ALiteral compile ! ;Cond
 : IS            T >address ' >body ! H ;
