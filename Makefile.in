@@ -333,6 +333,9 @@ ARCHS =	\
 	arch/r8c/asm.fs \
 	arch/r8c/asm-test.fs \
 	arch/r8c/prim.fs \
+	arch/r8c/errors.fs \
+	arch/r8c/tt.fs \
+	arch/r8c/terminal.fs \
 	arch/r8c/mach.fs
 
 #not included in distribution until distribution terms are included:
