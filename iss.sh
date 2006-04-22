@@ -27,7 +27,7 @@
 # of Gforth, and start the setup compiler there.
 
 cat <<EOT
-; This is the setup script for 4stack on Windows
+; This is the setup script for Gforth on Windows
 ; Setup program is Inno Setup
 
 [Setup]
