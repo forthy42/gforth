@@ -108,7 +108,7 @@ rom
 
 : show-help \ --- ; display some explanations
   30  1 at-xy ." ***** T E T R I S *****"
-  30  2 at-xy ." ======================="
+  30  2 at-xy ." ======Dirk Zoller======"
   30  4 at-xy ." Use keys:"
   32  5 at-xy left-key show-key ."  Move left"
   32  6 at-xy rot-key show-key ."  Rotate"

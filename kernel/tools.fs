@@ -101,7 +101,8 @@ include  ./../termsize.fs
     \G ** this will not get annotated. See other defn in search.fs .. **
     \G It does not work to use "wordset-" prefix since this file is glossed
     \G by cross.fs which doesn't have the same functionalty as makedoc.fs
-    context @ wordlist-words ;
+    [ has? ec 0= [IF] ] context @ [ [ELSE] ] forth-wordlist [ [THEN] ]
+    wordlist-words ;
 
 ' words alias vlist ( -- ) \ gforth
 \g Old (pre-Forth-83) name for @code{WORDS}.

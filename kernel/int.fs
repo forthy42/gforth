@@ -245,13 +245,10 @@ const Create bases   0A , 10 ,   2 ,   0A ,
 
 has? ec [IF]
     AVariable forth-wordlist
-    AVariable current  forth-wordlist current !
-    ' current alias context
-    | ' (f83find) alias (search-wordlist) ( addr len wid -- nt / false )
     : find-name ( c-addr u -- nt | 0 ) \ gforth
 	\g Find the name @i{c-addr u} in the current search
 	\g order. Return its @i{nt}, if found, otherwise 0.
-	context @ (search-wordlist) ;
+	forth-wordlist (f83find) ;
 [ELSE]
 \ \ object oriented search list                         17mar93py
 
@@ -656,10 +653,9 @@ Defer before-word ( -- ) \ gforth
 ' noop IS before-word
 [THEN]
 
+has? backtrace [IF]
 : interpret1 ( ... -- ... )
-[ has? backtrace [IF] ]
     rp@ backtrace-rp0 !
-[ [THEN] ]
     BEGIN
 	?stack [ has? EC 0= [IF] ] before-word [ [THEN] ] parse-name dup
     WHILE
@@ -669,14 +665,19 @@ Defer before-word ( -- ) \ gforth
     
 : interpret ( ?? -- ?? ) \ gforth
     \ interpret/compile the (rest of the) input buffer
-[ has? backtrace [IF] ]
     backtrace-rp0 @ >r	
-[ [THEN] ]
     ['] interpret1 catch
-[ has? backtrace [IF] ]
     r> backtrace-rp0 !
-    [ [THEN] ]
     throw ;
+[ELSE]
+: interpret ( ... -- ... )
+    BEGIN
+	?stack [ has? EC 0= [IF] ] before-word [ [THEN] ] parse-name dup
+    WHILE
+	parser1 execute
+    REPEAT
+    2drop ;
+[THEN]
 
 \ interpreter                                 	30apr92py
 
@@ -819,20 +820,22 @@ has? new-input 0= [IF]
 
 Defer 'quit
 
+has? ec 0= [IF]
 Defer .status
+[THEN]
 
 : prompt        state @ IF ."  compiled" EXIT THEN ."  ok" ;
 
 : (quit) ( -- )
     \ exits only through THROW etc.
     BEGIN
-	.status
-	['] cr catch if
+	[ has? ec [IF] ] cr [ [ELSE] ]
+	.status ['] cr catch if
 	    [ has? OS [IF] ] >stderr [ [THEN] ]
 	    cr ." Can't print to stdout, leaving" cr
 	    \ if stderr does not work either, already DoError causes a hang
 	    2 (bye)
-	endif
+	endif [ [THEN] ]
 	refill  WHILE
 	    interpret prompt
     REPEAT
@@ -1041,7 +1044,7 @@ AVariable init8 NIL init8 !
 [THEN]
 
 : cold ( -- ) \ gforth
-    [ has? backtrace [IF] ]
+[ has? backtrace [IF] ]
     rp@ backtrace-rp0 !
 [ [THEN] ]
 [ has? file [IF] ]
@@ -1100,10 +1103,14 @@ has? new-input 0= [IF]
 [ has? floating [IF] ]
     fp@ fp0 !
 [ [THEN] ]
+[ has? ec 0= [IF] ]
     handler off
     ['] cold catch dup -&2049 <> if \ broken pipe?
 	DoError cr
     endif
+[ [ELSE] ]
+    cold
+[ [THEN] ]
 [ has? os [IF] ]
     1 (bye) \ !! determin exit code from throw code?
 [ [THEN] ]

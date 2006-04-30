@@ -694,7 +694,7 @@ has? ec [IF]
     if \ the last word has a header
 	dup ( name>link ) @ -1 =
 	if \ it is still hidden
-	    current @ dup >r @ over
+	    forth-wordlist dup >r @ over
 	    [ has? flash [IF] ] flash! [ [ELSE] ] ! [  [THEN] ] r> !
 	else
 	    drop
