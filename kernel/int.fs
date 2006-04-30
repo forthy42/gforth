@@ -29,7 +29,9 @@ require ./io.fs		\ type ...
 require ./nio.fs	\ . <# ...
 require ./errore.fs	\ .error ...
 require kernel/version.fs	\ version-string
+has? ec 0= [IF]
 require ./../chains.fs
+[THEN]
 
 has? new-input 0= [IF]
 : tib ( -- c-addr ) \ core-ext t-i-b
@@ -1034,9 +1036,9 @@ Defer 'cold ( -- ) \ gforth  tick-cold
 \ hook (deferred word) for things to do right before interpreting the
 \ command-line arguments
 ' noop IS 'cold
-[THEN]
 
 AVariable init8 NIL init8 !
+[THEN]
 
 : cold ( -- ) \ gforth
     [ has? backtrace [IF] ]
@@ -1048,8 +1050,8 @@ AVariable init8 NIL init8 !
 [ has? ec 0= [IF] ]
     set-encoding-fixed-width
     'cold
-[ [THEN] ]
     init8 chainperform
+[ [THEN] ]
 [ has? file [IF] ]
     process-args
     loadline off
