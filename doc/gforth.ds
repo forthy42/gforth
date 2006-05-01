@@ -14693,21 +14693,40 @@ A sequence for adding your initialization usually looks like this:
 ; IS 'cold
 @end example
 
+After @code{'cold}, Gforth processes the image options
+(@pxref{Invoking Gforth}), and then it performs @code{bootmessage},
+another deferred word.  This normally prints Gforth's startup message
+and does nothing else.
+
 @cindex turnkey image files
 @cindex image file, turnkey applications
-You can make a turnkey image by letting @code{'cold} execute a word
-(your turnkey application) that never returns; instead, it exits Gforth
-via @code{bye} or @code{throw}.
+So, if you want to make a turnkey image (i.e., an image for an
+application instead of an extended Forth system), you can do this in
+two ways:
 
-You can access the (image-specific) command-line arguments through
-@code{argc}, @code{argv} and @code{arg} (@pxref{OS command line
-arguments}).
+@itemize @bullet
 
-If @code{'cold} exits normally, Gforth processes the command-line
-arguments as files to be loaded and strings to be evaluated.  Therefore,
-@code{'cold} should remove the arguments it has used in this case.
+@item
+If you want to do your interpretation of the OS command-line
+arguments, hook into @code{'cold}.  In that case you probably also
+want to build the image with @code{gforthmi --application}
+(@pxref{gforthmi}) to keep the engine from processing OS command line
+options.  You can then do your own command-line processing with
+@code{next-arg} 
+
+@item
+If you want to have the normal Gforth processing of OS command-line
+arguments, hook into @code{bootmessage}.
+
+@end itemize
+
+In either case, you probably do not want the word that you execute in
+these hooks to exit normally, but use @code{bye} or @code{throw}.
+Otherwise the Gforth startup process would continue and eventually
+present the Forth command line to the user.
 
 doc-'cold
+doc-bootmessage
 
 @c ******************************************************************
 @node Engine, Cross Compiler, Image Files, Top

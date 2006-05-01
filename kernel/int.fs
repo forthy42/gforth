@@ -1027,7 +1027,11 @@ Defer mark-end
      cr ." Type `bye' to exit"
 [ [THEN] ] ;
 
-defer bootmessage
+defer bootmessage \ gforth
+\G Hook (deferred word) executed right after interpreting the OS
+\G command-line arguments.  Normally prints the Gforth startup
+\G message.
+
 has? file [IF]
 defer process-args
 [THEN]
@@ -1036,8 +1040,9 @@ defer process-args
 
 has? ec 0= [IF]
 Defer 'cold ( -- ) \ gforth  tick-cold
-\ hook (deferred word) for things to do right before interpreting the
-\ command-line arguments
+\G Hook (deferred word) for things to do right before interpreting the
+\G OS command-line arguments.  Normally does some initializations that
+\G you also want to perform.
 ' noop IS 'cold
 
 AVariable init8 NIL init8 !
