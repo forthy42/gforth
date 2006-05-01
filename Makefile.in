@@ -150,7 +150,6 @@ KERN_SRC = \
 	kernel/aliases0.fs \
 	kernel/aliases.fs \
 	kernel/args.fs \
-	chains.fs \
 	kernel/cbr.fs \
 	kernel/cloop.fs \
 	kernel/cond.fs \
@@ -186,6 +185,7 @@ EC_SRC = \
 	asm/README \
 	asm/bitmask.fs \
 	asm/numref.fs \
+	chains.fs \
 	asm/basic.fs \
 	asm/generic.fs \
 	asm/target.fs \
