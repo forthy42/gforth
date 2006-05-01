@@ -316,6 +316,10 @@ xchar-history
 : history-cold ( -- )
     history-file get-history xchar-history ;
 
-' history-cold INIT8 chained
+:noname ( -- )
+    defers 'cold
+    history-cold
+; is 'cold
+
 history-cold
 

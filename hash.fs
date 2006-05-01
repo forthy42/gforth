@@ -193,7 +193,10 @@ has? cross 0=
 \  REPEAT  drop 
 [ has? ec [IF] ] ." Done" cr [ [THEN] ] ;
 
-' hash-cold INIT8 chained
+:noname ( -- )
+    defers 'cold
+    hash-cold
+; is 'cold
 
 : .words  ( -- )
   base @ >r hex HashTable  Hashlen 0

@@ -29,9 +29,6 @@ require ./io.fs		\ type ...
 require ./nio.fs	\ . <# ...
 require ./errore.fs	\ .error ...
 require kernel/version.fs	\ version-string
-has? ec 0= [IF]
-require ./../chains.fs
-[THEN]
 
 has? new-input 0= [IF]
 : tib ( -- c-addr ) \ core-ext t-i-b
@@ -1044,8 +1041,6 @@ Defer 'cold ( -- ) \ gforth  tick-cold
 \G OS command-line arguments.  Normally does some initializations that
 \G you also want to perform.
 ' noop IS 'cold
-
-AVariable init8 NIL init8 !
 [THEN]
 
 : cold ( -- ) \ gforth
@@ -1058,7 +1053,6 @@ AVariable init8 NIL init8 !
 [ has? ec 0= [IF] ]
     set-encoding-fixed-width
     'cold
-    init8 chainperform
 [ [THEN] ]
 [ has? file [IF] ]
     process-args

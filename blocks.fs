@@ -64,7 +64,10 @@ User block-offset ( -- addr ) \ gforth
     buffer-struct buffers * %alloc dup block-buffers ! ( addr )
     buffer-struct %size buffers * erase ;
 
-' block-cold INIT8 chained
+:noname ( -- )
+    defers 'cold
+    block-cold
+; is 'cold
 
 block-cold
 

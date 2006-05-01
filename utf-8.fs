@@ -162,6 +162,9 @@ $80 Value max-single-byte
     s" UTF-8" search nip nip
     IF  set-encoding-utf-8  ELSE  set-encoding-fixed-width  THEN ;
 
-' utf-8-cold INIT8 chained
+:noname ( -- )
+    defers 'cold
+    utf-8-cold
+; is 'cold
 
 utf-8-cold
