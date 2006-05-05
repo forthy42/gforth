@@ -335,6 +335,8 @@ ARCHS =	\
 	arch/r8c/prim.fs \
 	arch/r8c/errors.fs \
 	arch/r8c/tt.fs \
+	arch/r8c/tasker.fs \
+	arch/r8c/lauflicht.fs \
 	arch/r8c/terminal.fs \
 	arch/r8c/mach.fs
 

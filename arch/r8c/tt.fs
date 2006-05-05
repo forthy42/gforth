@@ -27,9 +27,9 @@ variable bcol
 
 \ stupid random number generator
 
-variable seed
+variable seed $1234 seed !
 
-: randomize $1234 seed ! ;
+: randomize ;
 
 : random \ max --- n ; return random number < max
   seed @ 13 * [ hex ] 07FFF [ decimal ] and
