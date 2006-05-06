@@ -6,4 +6,5 @@ rom
   4 licht! 2 licht! ;
 : dauerlauf
   task  BEGIN  lauf  AGAIN ;
+
 ram
