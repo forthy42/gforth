@@ -8,7 +8,8 @@ Variable bgtask $20 cells allot
 : task r> bgtask $20 cells + !
   bgtask $20 cells + bgtask $10 cells + !
   bgtask $10 cells + bgtask ! ;
-: pkey BEGIN pause key? UNTIL (key) ;
+: pkey echo @ IF
+     BEGIN pause key? UNTIL THEN (key) ;
 ' pkey is key
 
 ram
