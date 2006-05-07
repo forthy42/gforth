@@ -266,11 +266,11 @@ VARIABLE C-Pass
     \ print x as a word if possible
     dup look 0= IF
 	drop dup threaded>name dup 0= if
-	    2drop dup 1 cells - @ dup body> look
+	    drop over 1 cells - @ dup body> look
 	    IF
-		nip dup ." <" name>string rot wordinfo .string ." > "
+		nip nip dup ." <" name>string rot wordinfo .string ." > "
 	    ELSE
-		drop ." <" 0 .r ." > "
+		2drop ." <" 0 .r ." > "
 	    THEN
 	    EXIT
 	then
