@@ -11429,6 +11429,7 @@ The following words inspect the stack non-destructively:
 
 doc-.s
 doc-f.s
+doc-maxdepth-.s
 
 There is a word @code{.r} but it does @i{not} display the return stack!
 It is used for formatted numeric output (@pxref{Simple numeric output}).

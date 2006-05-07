@@ -28,12 +28,15 @@ hex
 
 \ .S            CORE / CORE EXT                         9may93jaw
 
-variable maxdepth-.s
+variable maxdepth-.s \ gforth maxdepth-dot-s
+\G A variable containing 9 by default.  \code{.s} and \code{f.s}
+\G display at most that many stack items.
 9 maxdepth-.s !
 
 : .s ( -- ) \ tools dot-s
-    \G Display the number of items on the data stack,
-    \G followed by a list of the items; TOS is the right-most item.
+\G Display the number of items on the data stack, followed by a list
+\G of the items (but not more than specified by @code{maxdepth-.s};
+\G TOS is the right-most item.
     ." <" depth 0 .r ." > "
     depth 0 max maxdepth-.s @ min
     dup 0
