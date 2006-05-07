@@ -2,7 +2,7 @@
 
 rom
 
-Variable bgtask $20 cells allot
+Variable bgtask ram $20 cells allot rom
 : pause  bgtask @ 0= ?EXIT
   rp@ bgtask @ sp@ cell+ bgtask ! sp! rp! ;
 : task r> bgtask $20 cells + !
