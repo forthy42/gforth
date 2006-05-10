@@ -1,3 +1,1404 @@
+2006-05-07  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* see.fs:
+	slightly improved behaviour for .WORD when it sees a nameless word
+
+	* kernel/tools.fs, doc/gforth.ds, stuff.fs: documentation changes
+
+2006-05-05  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* Makefile.in: Multitasker for R8C
+	running light in background
+
+2006-05-01  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* Makefile.in: moved chains.fs from KERN_SRC to EC_SRC
+
+	* blocks.fs, hash.fs, history.fs, kernel/int.fs, utf-8.fs:
+	eliminated INIT8 and the use of chains.fs
+
+	* kernel/int.fs, doc/gforth.ds: documentation changes
+
+2006-04-30  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* kernel/int.fs, kernel/tools.fs, kernel/comp.fs:
+	Some simplifications for Gforth EC
+
+	* kernel/int.fs: Disabled chaining for Gforth EC
+
+2006-04-22  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* iss.sh: Comment changed
+
+	* iss.sh: Copyright for 2006 added
+
+	* Makefile.in: R8C files added to distribution
+
+2006-04-17  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* cross.fs: Make ram-mirror words visible
+
+2006-04-14  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* engine/io.c: Added setlocale() for numerals (set to "C")
+
+2006-04-10  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* kernel/int.fs: Accident reverted
+
+	* httpd.fs, kernel/int.fs, unix/socket.fs: HTTP fixes
+
+2006-04-09  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* startup.fs: added X:required extension query
+
+2006-04-09  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* Makefile.in: Build-ec setting at the right place
+
+	* configure.in: Build-ec flag setting
+
+	* Makefile.in: R8C data region cleanup
+	build-ec execution flag set
+
+	* Makedist.in: build-ec distribution
+
+	* Makefile.in, build-ec.in, configure.in, fixpath.fs, iss.sh:
+	Automatic fixpath
+	Build script for EC
+
+	* configure.in: Updated snapshot date
+
+	* Makefile.in: Small changes
+
+2006-04-09  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* engine/io.c, prim: documentation changes
+	another fix to getkey()
+
+	* engine/io.c: more cleanup of key_avail() and getkey()
+
+	* engine/io.c: bugfixes and cleanup of key_avail() and getkey()
+
+	* engine/io.c: prep_terminal() only for stdin KEY-FILE?
+
+2006-04-08  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* doc/gforth.ds, libcc.fs: added libcc.fs
+
+2006-04-08  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* iss.sh: Some fixes for Windows setup.exe
+
+	* fixpath.fs, iss.sh: Fixes for windows distribution
+
+	* Makedist.in, iss.sh: Changes for making distribution
+
+2006-04-08  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* Makefile.in: dependence on envos.fs added
+
+2006-04-05  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* lib.fs: bugfix (open declaration).
+
+2006-04-04  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* engine/io.c: docommented bugs in KEY?-FILE and KEY-FILE.
+
+2006-04-02  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* envos.fs: deteled envos.fs (envos.fs.in is the right way to go)
+
+	* envos.fs: 8 bit mode terminal
+
+2006-04-02  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* doc/gforth.ds: continued documenting the C interface
+
+	* doc/gforth.ds, ekey.fs, prim: documentation changes
+
+2006-04-01  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* engine/main.c: Minor fix
+
+	* configure.in, engine/main.c, envos.fs, envos.fs.in, Makefile.in:
+	Environment OS from $host_os
+	R8C changes
+	Better output when there are no performance problems
+
+2006-03-26  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* kernel/cbr.fs, kernel/cloop.fs, kernel/comp.fs, kernel/int.fs, kernel/io.fs, kernel/saccept.fs:
+	Made tetris for terminal run on the R8C (almost, at least)
+
+2006-03-25  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* kernel/basics.fs, kernel/errore.fs, kernel/int.fs, kernel/saccept.fs, kernel/vars.fs, cross.fs:
+	Further R8C Forth additions: LCD init, ADC fetch, /line limit...
+
+	* kernel/saccept.fs: R8C mods
+
+2006-03-20  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* wf.fs: No xml header (due to IE)
+
+2006-03-19  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* wf.fs: Made ?xml optional
+
+	* wf.fs: Some minor improvements
+	reverted print-css
+
+2006-03-18  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* doc/gforth.ds: minor documentation fix
+
+2006-03-12  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* Makefile.in, arch/misc/tt.fs: Docdist improvement
+
+	* configure.in, BUILD-FROM-SCRATCH, Makefile.in: Another small fix
+
+	* BUILD-FROM-SCRATCH:
+	Added stamp-h.in creation when doing autoheader in BUILD-FROM-SCRATCH
+
+2006-03-11  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* doc/gforth.ds: Fixed broken Const-does> link
+
+	* engine/engine.c, engine/forth.h, engine/main.c, prim:
+	Added gforth_ prefix to some functions
+
+	* doc/gforth.ds: Fixed links in C interface part
+
+	* engine/main.c: Warnings squashing cont.
+
+	* engine/support.c: Another warning suppression
+
+	* Makefile.in: Generate fast prim first
+
+	* engine/engine.c, engine/forth.h, engine/main.c, prim:
+	Reduced warnings
+
+	* engine/Makefile.in: stamp-h.in
+
+	* Makefile.in: stamp-h dependency
+
+2006-03-05  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* kernel/int.fs: Added savesystem for R8C
+
+	* kernel/comp.fs: A few more fixes
+
+	* kernel/comp.fs: Variables for flash
+
+	* kernel/cbr.fs, kernel/comp.fs, kernel/int.fs, kernel/nio.fs, kernel/vars.fs, cross.fs:
+	Flash-enabled Gforth EC
+
+2006-03-04  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* kernel/comp.fs, kernel/int.fs, cross.fs:
+	Beginning of a direct-flash Gforth
+
+2006-02-27  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* Makefile.in: added DESTDIR support (see Make manual or GNU standards)
+	  however, .INCLUDED is still wrong at the moment
+
+2006-02-26  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* kernel/comp.fs: Started work on writing R8C data flash
+
+	* kernel/comp.fs, kernel/int.fs: Enable data memory
+
+	* kernel/comp.fs, kernel/getdoers.fs, kernel/int.fs, kernel/nio.fs, kernel/pass.fs, kernel/tools.fs, kernel/vars.fs:
+	Further work on R8C forth
+
+2006-02-25  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* kernel/comp.fs: Further R8C fixes, added LCD words
+
+	* kernel/basics.fs, kernel/cbr.fs, kernel/comp.fs, kernel/int.fs, kernel/main.fs, kernel/saccept.fs, libffi.fs:
+	R8C Forth works!
+
+	* wf.fs, regexp.fs: R8C stuff
+
+2006-02-21  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* doc/gforth.ds: started documenting the C interface
+
+2006-02-21  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* doc/gforth.ds:
+	Added Xchar chapter stub so that manual generation works again
+
+2006-02-20  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* configure.in, Makefile.in: make dist fixes in makefile
+	problems with path separator on cygwin (now Unix-like again)
+
+2006-02-20  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* doc/gforth.ds, utf-8.fs: minor changes
+
+2006-02-19  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* configure.in, utf-8.fs: no u8width if wcwidth is not there
+	bumped up intermediate version
+
+	* configure.in, history.fs, kernel/int.fs, utf-8.fs:
+	Further work on r8c
+	Fix of history
+
+2006-02-19  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* doc/gforth.ds:
+	Documented LC_* and LANG env vars, and updated Pedigree section
+
+2006-02-19  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* engine/io.c, kernel/comp.fs, kernel/int.fs, kernel/xchars.fs, history.fs, prim, utf-8.fs:
+	Added x-width
+	Further r8c work
+
+2006-02-19  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* history.fs: less traffic for clear-line
+
+	* kernel/accept.fs, history.fs:
+	bugfix: command-line history and UTF-8 now work better
+
+2006-02-19  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* kernel/aliases0.fs, kernel/comp.fs, kernel/getdoers.fs, cross.fs:
+	Separated values from constants (cross and kernel sources, no engine yet)
+
+2006-02-18  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* kernel/basics.fs, kernel/int.fs, cross.fs: Further progress on R8C
+
+	* cross.fs: Improved R8C port (NEXT was wrong)
+
+	* cross.fs, kernel/vars.fs: Fixed cross
+
+2006-02-17  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* Makefile.in, compat/execute-parsing.fs, doc/gforth.ds:
+	added compat/execute-parsing.fs
+
+2006-02-12  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* kernel/int.fs, kernel/kernel.fs, kernel/pass.fs, kernel/vars.fs, arch/misc/prim.fs, ec/shex.fs, kernel/comp.fs, cross.fs:
+	More work on R8C port
+
+2006-02-06  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* kernel/input.fs, kernel/int.fs:
+	cleanup of the code dealing with the current lexeme
+
+	* kernel/args.fs, kernel/input.fs, kernel/int.fs:
+	even better error reporting (wrt trailing delimiters)
+
+2006-02-05  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* ec/shex.fs, kernel/int.fs: More work on r8c port
+
+2006-02-05  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* kernel/input.fs, kernel/int.fs, kernel/files.fs:
+	better error reporting with input-parse-start
+	updated copyright year in bootmessage
+
+2006-02-04  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* kernel/int.fs, kernel/require.fs, engine/support.c, prim, regexp.fs:
+	capscompare primitive added
+	case insensitive regexp extension
+	cleanup of error reports
+
+2006-02-04  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* kernel/input.fs, kernel/int.fs, kernel/args.fs:
+	more work on getting nice error messages for errors in
+	   OS command line arguments
+
+2006-01-31  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* kernel/require.fs, wf.fs: Partly reverted require.fs
+	Added print css to wf
+
+2006-01-31  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* kernel/int.fs: bugfix
+
+	* kernel/args.fs, kernel/paths.fs, kernel/require.fs, kernel/vars.fs:
+	INCLUDED and REQUIRED now provide nicer error messages
+
+	* kernel/paths.fs: open-path-file now returns more informative iors.
+
+2006-01-29  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* kernel/int.fs, kernel/kernel.fs, arch/misc/prim.fs, cross.fs, prim:
+	Changes to make R8C port working
+
+2006-01-28  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* stuff.fs: documentation changes
+
+	* doc/gforth.ds, stuff.fs: added /W /L
+
+	* doc/gforth.ds, startup.fs, stuff.fs, prim:
+	added UW@ UL@ (W@ and L@ are now aliases for them)
+	documented UW@ SW@ W! UL@ SL@ L!
+	added more extension query answers
+
+2006-01-27  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* Benchres, cache-fast1.vmg, kernel/int.fs, prims2x.fs:
+	added support for disabling states; disabled S3-S8 (otherwise gcc-2.95
+	  ICEs on i386).
+	added G5 benchmark results
+	documentation changes
+
+2006-01-22  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* kernel/basics.fs, kernel/main.fs: R8C work
+
+2006-01-18  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* kernel/int.fs, doc/gforth.ds, fib.fs: documented S>NUMBER? S>UNUMBER?
+	minor changes
+
+2006-01-16  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* engine/support.c: bugfix in to_float
+
+2006-01-15  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* engine/support.c, test/float.fs:
+	Fixed >float bug reported by Bojan Petrovic
+
+2006-01-05  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* engine/forth.h, engine/main.c, engine/signals.c, engine/engine.c, prim:
+	Modified some exported symbols to start with gforth_
+
+2005-12-31  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* kernel/basics.fs, kernel/comp.fs, kernel/getdoers.fs, kernel/input.fs, kernel/int.fs, kernel/kernel.fs, kernel/paths.fs, kernel/toolsext.fs, test/gforth.fs, unix/socket.fs, engine/engine.c, engine/forth.h, engine/main.c, engine/threaded.h, kernel/accept.fs, arch/m68k/machine.h, arch/mips/machine.h, arch/power/machine.h, arch/sharc/machine.h, arch/sparc/machine.h, doc/gforth.ds, arch/386/machine.h, arch/alpha/machine.h, arch/amd64/disasm.fs, arch/amd64/machine.h, arch/arm/machine.h, arch/hppa/machine.h, arch/ia64/machine.h, prim, prims2x.fs, quotes.fs, regexp-test.fs, regexp.fs, search.fs, startup.fs, string.fs, stuff.fs, update-copyright-blacklist, utf-8.fs, wf.fs, lib.fs, machpc.fs.in, oldlib.fs, peeprules.vmg, cache-fast7.vmg, cache-fast8.vmg, complex.fs, configure.in, cross.fs, debugs.fs, ds2texi.fs, ekey.fs, extend.fs, fflib.fs, fft.fs, float.fs, glocals.fs, history.fs, BUGS, Benchres, Makefile.in, ans-report.fs, cache-fast0.vmg, cache-fast1.vmg, cache-fast2.vmg, cache-fast3.vmg, cache-fast4.vmg, cache-fast5.vmg, cache-fast6.vmg:
+	updated the copyright year on many files
+	added FSF copyright header to complex.fs fft.fs regexp-test.fs regexp.fs
+	added fsl-util.fs to update-copyright-blacklist
+
+2005-12-27  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* prims2x.fs:
+	introduced THREADED-CODE-POINTER-TYPE variable for parameterizing Inst **
+
+	* BUGS, arch/386/machine.h, engine/engine.c, engine/main.c:
+	documented 2 bugs
+	minor bugfixes and cleanups
+
+2005-12-25  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* kernel/input.fs, kernel/int.fs:
+	bugfix (for bug reported in <t6CdnXFc6P87UDHenZ2dnUVZ_sidnZ2d@scnresearch.com>)
+	QUERY now throws -39 on EOF
+
+2005-12-11  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* fflib.fs, lib.fs, libffi.fs: Fixed fptr name
+
+	* fflib.fs: Added fptr: to fflib.fs
+
+	* lib.fs, libffi.fs: Fixed name for fptr:
+
+	* engine/engine.c, engine/forth.h, lib.fs, libffi.fs, prim:
+	Finally made libffi callbacks work
+
+	* libffi.fs, prim: Signed access prefix changed
+
+2005-12-04  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* engine/forth.h, libffi.fs, prim, configure.in:
+	Added support for wyde/tetrabyte including sign extended ones
+
+2005-12-03  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* unix/socket.fs, Makefile.in, libffi.fs, prim:
+	Added access words for wyde and tetrabyte (w/t@/!)
+
+	* unix/socket.fs: Modified socket.fs to work with 64 bit systems
+
+2005-12-02  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* engine/main.c:
+	added options for disabling tree-parsing automaton features
+	added tree parsing automaton statistics
+
+2005-11-27  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* fflib.fs, libffi.fs: Added missing drop
+
+	* fflib.fs: Fixed typo
+
+	* fflib.fs, libffi.fs, prim, wf.fs: Added (addr) to library interface
+	Fixed bug in libffi support
+	Added favicon support to wf.fs
+
+2005-11-20  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* fflib.fs, lib.fs, libffi.fs, oldlib.fs, prim:
+	further work on libffi.fs (not fully completed yet for callbacks)
+
+2005-11-09  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* engine/main.c:
+	added TPA state equivalence, but disabled static superinstructions for now
+
+	* engine/main.c: finished simple tree-parsing automaton
+
+	* engine/main.c:
+	initial work for tree-parsing automaton for stack caching
+
+	* engine/main.c: bugfix
+	--debug now also outputs some cache state information
+
+2005-11-05  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* regexp.fs: Changed comment
+
+	* regexp-test.fs, regexp.fs, stuff.fs, utf-8.fs: Added regexp stuff
+
+2005-11-03  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* contrib/terminal.fs:
+	contrib/terminal.fs updated (coming from Krishna Myeni)
+
+2005-10-02  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* doc/vmgen.texi, kernel/comp.fs, kernel/input.fs, kernel/paths.fs, doc/gforth.ds, debugs.fs, ds2texi.fs, ekey.fs, glocals.fs, quotes.fs, search.fs, stuff.fs:
+	Documentation changes:
+	  added wordset info for many words, and pronounciation for a few
+	  added documentation about key names for EKEY
+	  worked around texinfo 4.7 restrictions (old assignment macros broken)
+	  Added "Explicit stack access" docs to vmgen docs
+
+2005-09-27  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* complex.fs, fft.fs, prim, wf.fs, Makefile.in:
+	Added complex words and fft
+	Added some floating point primitives
+
+2005-09-12  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* test/gforth.fs, kernel/int.fs, stuff.fs: bugfix: 'X is never a double
+	bugfix: 0.009e 5 2 0 f.rdp now outputs 0.01 (not 0.00)
+
+2005-09-03  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* ans-report.fs, prim: ans-report.fs produces nicer output
+	documentation changes
+
+2005-08-21  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* engine/main.c, cross.fs, engine/engine.c, fflib.fs, lib.fs, libffi.fs, machpc.fs.in, prim, configure.in:
+	Checkin of somewhat working ffilib bindings (not completely tested)
+
+2005-08-16  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* arch/sharc/machine.h, arch/sparc/machine.h, engine/threaded.h, arch/arm/machine.h, arch/hppa/machine.h, arch/ia64/machine.h, arch/m68k/machine.h, arch/mips/machine.h, arch/power/machine.h, arch/386/machine.h, arch/alpha/machine.h, arch/amd64/machine.h:
+	threw out THREADING_SCHEME, now Scheme 8 is used everywhere.
+
+2005-08-06  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* cache-fast7.vmg, cache-fast8.vmg, engine/engine.c, cache-fast0.vmg, cache-fast1.vmg, cache-fast2.vmg, cache-fast3.vmg, cache-fast4.vmg, cache-fast5.vmg, cache-fast6.vmg:
+	added cache-fast*.vmg
+	applied reg allocation fix for engine3, too
+
+2005-08-04  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* engine/engine.c, Makefile.in:
+	Workaround for different register allocation between engine() and engine2()
+	Disabled gforth-native for now (broken anyway, and does not work with gcc-4.0)
+
+2005-08-02  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* engine/main.c, kernel/basics.fs, kernel/toolsext.fs, test/coreext.fs, Makefile.in, engine/engine.c, peeprules.vmg, prim:
+	added STACK_CACHE_DEFAULT_FAST configuration variable
+	fixed some bugs
+	added some primitive/state combinations
+	changes to support up to 8 stack cache registers
+	Worked around an unresolved bug in kernel/toolsext.fs
+
+2005-07-31  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* engine/forth.h, engine/main.c, Makefile.in, configure.in, engine/engine.c, prim:
+	First working version with default state with 2 regs
+	added configuration variable STACK_CACHE_DEFAULT_FAST
+
+2005-07-28  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* Makefile.in, prim, prims2x.fs:
+	fixed a few bugs in "..." handling in prims2x.fs
+	changed direct uses of sp and fp in prim to use "..."
+
+	* prims2x.fs:
+	completed support for "..." in stack comments in prims2x.fs (no docs yet)
+
+2005-07-27  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* prim, prims2x.fs: added support for ... stack items to prims2x.fs
+	minor cleanup in prim
+
+	* doc/gforth.ds: minor bugfix
+
+2005-07-26  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* doc/gforth.ds: Fixed documentation bug
+
+2005-06-28  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* kernel/toolsext.fs, wf.fs: Adapted interpretative loops
+
+2005-06-28  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* stuff.fs: added workaround for bootstrapping on old kernel
+
+	* kernel/getdoers.fs, kernel/int.fs, extend.fs, float.fs, kernel/comp.fs, stuff.fs:
+	refactored text interpreter to make return stack words work within a line
+	  replaced parser, compiler, interpreter, ...-notfound by words
+	  with an appended "1"
+
+2005-06-13  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* wf.fs: Small change to wf.fs
+
+2005-06-10  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* prims2y.fs, prims2yref.fs: deleted prims2y* (no longer needed)
+
+2005-06-05  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* wf.fs: Added text-mode menues
+
+2005-05-15  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* arch/amd64/machine.h: Added size suffixes to inlined instructions
+
+2005-05-11  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* kernel/int.fs, Makefile.in, doc/gforth.ds:
+	renamed PARSE-WORD into PARSE-NAME
+	added some test(dis)asm files to distribution
+
+2005-05-01  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* wf.fs: Classes for headers
+
+2005-04-28  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* engine/main.c: slight tweak in dict_alloc_read()
+
+2005-04-26  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* engine/main.c:
+	bugfix: only one allocation when the read-mmap fails (e.g., in Windows).
+
+2005-04-02  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* doc/gforth.ds: Fixed another documentation bug
+
+2005-04-01  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* doc/gforth.ds: Fixed 386 assembler documentation
+
+2005-03-30  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* wf.fs: Fixed W3C nonconformance
+
+2005-03-25  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* startup.fs: non-minimal extension query support added
+
+2005-03-17  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* prim, test/gforth.fs:
+	Workaround for ecvt misfeature on Cygwin (trailing 0s for Inf and NaNs)
+
+2005-02-01  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* prim: Optimized test for floored correction
+
+2005-01-29  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* configure.in, engine/forth.h, history.fs: Added --enable-force-cdiv
+
+	* prim: Fixed */
+
+2005-01-28  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* prim: bugfix
+
+	* arch/386/machine.h, arch/amd64/machine.h, prim:
+	added M/MOD asm support for 386 and AMD64 with FORCE_LL
+
+	* arch/amd64/machine.h, prim:
+	added asm support for FM/MOD SM/REM UM/MOD
+	   (currently only for AMD64 without FORCE_LL).
+
+2005-01-26  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* prim: made (?do) and friends relocatable
+
+	* history.fs: deleted pre-xchar history stuff
+
+	* engine/threaded.h, doc/vmgen.texi, prim, prims2x.fs:
+	EXECUTE and friends are now relocatable again even with the PR15242 workaround.
+
+2005-01-25  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* engine/forth.h, kernel/basics.fs, prim, prims2x.fs:
+	Added */ and */mod to prim
+	Made division floored by default
+
+2005-01-24  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* doc/vmgen.texi, engine/threaded.h, prim:
+	preparations to make EXEC relocatable with PR 15242 workaround
+
+	* configure.in: bugfixes and modernization in configure.in
+
+2005-01-23  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* prim: Made branch relocatable
+
+2005-01-23  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* prim:
+	back to single-dispatch conditional branches (better with PR 15242 workaround)
+
+	* Benchres, engine/threaded.h: bugfix
+	Bench result added
+
+	* configure.in: Workaround for gcc-3.4.0 bug in skip detection
+	Bugfix (skip detection)
+
+2005-01-23  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* engine/engine.c, engine/threaded.h, arch/amd64/machine.h:
+	Fixed problems with workaround
+
+2005-01-23  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* engine/main.c, engine/threaded.h, arch/amd64/disasm.fs, configure.in, engine/engine.c:
+	added configure option --disable-gcc-pr15242-workaround
+	bugfixes for the gcc pr15242 workaround
+
+2005-01-22  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* engine/engine.c, engine/main.c, prims2x.fs:
+	further work on gcc PR 15242 workaround (now works on AMD64 gforth-fast)
+	made treatment of Priminfo length and restlen more regular
+
+	* kernel/int.fs, engine/engine.c, engine/main.c, engine/threaded.h:
+	preparation for gcc PR 15242 workaround
+	minor changes
+
+2005-01-22  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* engine/main.c, configure.in, wf.fs:
+	Added --diag switch, diagnostics output.
+	Fixed "broken link" bug when referring to current file
+
+	* Makefile.in, engine/main.c: Added --diag switch
+
+2005-01-21  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* arch/amd64/machine.h, arch/generic/128bit.h, configure.in:
+	Added --enable-force-ll switch
+
+2005-01-19  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* arch/amd64/machine.h, arch/generic/128bit.h, engine/forth.h, prim:
+	Added more detailed BUGGY_LL_* flags
+
+2005-01-17  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* arch/amd64/machine.h, arch/generic/128bit.h, configure.in, engine/forth.h:
+	Added expanding mul support for AMD64
+
+2005-01-16  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* wf.fs: Expand option for links added
+
+2005-01-13  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* utf-8.fs: Fixed environment evaluation
+
+2005-01-12  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* history.fs, kernel/accept.fs, kernel/xchars.fs, utf-8.fs, Makefile.in:
+	converted command-line editing to use xchars
+	some bugfixes
+
+2005-01-10  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* history.fs, startup.fs, utf-8.fs:
+	moved utf-8 command line stuff to history.fs
+
+2005-01-09  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* kernel/int.fs: minor bootstrapping fix
+
+	* startup.fs: bootstrapping help
+
+2005-01-06  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* kernel/xchars.fs, kernel/int.fs, startup.fs: Bugfixes:
+	  xchars are initialized
+	  xchars.fs is not loaded from startup.fs
+	  bugfix for ' prefix
+
+	* kernel/kernel.fs, kernel/xchars.fs, startup.fs, xchars.fs:
+	moved xchars to kernel (for use in s'>unumber? and elsewhere)
+
+2005-01-05  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* history.fs, startup.fs, utf-8.fs, xchars.fs:
+	added xchars (no tests, and no usage anywhere yet)
+
+2005-01-05  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* string.fs: Define INSERT only when needed
+
+	* utf-8.fs: another fix for u8>>
+
+2005-01-04  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* utf-8.fs: fixed u8>>
+
+	* utf-8.fs, wf.fs, prim:
+	added set-dir/get-dir primitives (directory access words)
+	added "maxascii" value as single switch between 8 bit and UTF-8 encoding
+	Improvements in wf.fs
+
+2004-12-31  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* kernel/cond.fs, kernel/input.fs, kernel/int.fs, kernel/paths.fs, test/gforth.fs, engine/engine.c, engine/forth.h, engine/main.c, engine/support.c, engine/threaded.h, kernel/accept.fs, kernel/args.fs, kernel/basics.fs, kernel/comp.fs, doc/makedoc.fs, ec/builttag.fs, ec/mirror.fs, arch/misc/sokoban.fs, arch/sharc/compile.sharc, arch/sharc/systypes.h, arch/sharc/types.h, arch/shboom/compiler.fs, arch/shboom/dis.fs, arch/shboom/dis2.fs, arch/shboom/doers.fs, arch/shboom/prim.fs, arch/shboom/sh.p, doc/gforth.ds, arch/misc/sim.fs, arch/4stack/mach.sh, arch/amd64/asm.fs, arch/amd64/machine.h, arch/arm/machine.h, arch/misc/asm.fs, arch/misc/fi2v.fs, arch/misc/key.fs, arch/misc/misc-sim.v, arch/misc/misc.v, arch/misc/prim.fs, arch/386/machine.h, prims2x.fs, see.fs, source.fs, startup.fs, stuff.fs, wf.fs, debugs.fs, ekey.fs, exboot.fs, filedump.fs, float.fs, gforth.el, gforthmi.in, glocals.fs, history.fs, httpd.fs, peeprules.vmg, prim, Benchres, Makefile.in, README, backtrac.fs, cache1.vmg, comp-i.fs, configure.in, cross.fs, debug.fs:
+	updated copyright years for files changed in 2004
+
+	* Makefile.in, update-copyright-blacklist:
+	moved files without distribution terms from ARCHS to ARCHS_NO_DIST
+	added test/deferred.fs (public domain) to update-copyright-blacklist
+
+	* utf-8.fs: bootstrap workaround added
+
+2004-12-29  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* kernel/comp.fs, kernel/int.fs, utf-8.fs:
+	Added UTF-8 support for char and '<char>
+
+2004-12-28  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* kernel/int.fs, doc/gforth.ds, stuff.fs:
+	updated documentation for new error format (but did not document
+	mark-start and mark-end).
+	moved TYPEWHITE out from the kernel.
+
+2004-12-28  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* kernel/int.fs, utf-8.fs, ekey.fs:
+	Added start-mark/end-mark for error display
+
+2004-12-28  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* kernel/int.fs, see.fs:
+	changed error indicator into >>>word<<< instead of using ^^^^
+	made dec.r behave like .r and u.r
+	moved UMIN into kernel
+
+2004-12-28  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* kernel/accept.fs, utf-8.fs: Fixed UTF-8 buffer overflow
+
+2004-12-27  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* history.fs: Minor fix
+
+	* history.fs, utf-8.fs: Fixed missing kill-expand
+
+	* wf.fs: Fixed UTF-8 problem in WF
+
+2004-12-26  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* Benchres, history.fs, status.fs:
+	added status.fs (show interpreter status in separate xterm)
+	reorganized Benchres, new results
+	bootstrapping workaround
+
+2004-12-25  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* Makefile.in: Fixed install for amd64
+
+2004-12-24  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* history.fs, httpd.fs, utf-8.fs:
+	Automatic UTF-8 setting, depending on LANG
+	Fixed potential security hole in httpd by setting BASE to 0 for header
+	interpretation.
+
+2004-12-12  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* utf-8.fs: Fixed tab-expand
+
+	* utf-8.fs: Fixed diacritic marks
+
+	* kernel/accept.fs, utf-8.fs: Added utf-8 handling
+
+2004-12-08  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* kernel/int.fs: bugfix
+
+	* kernel/basics.fs, kernel/int.fs, test/gforth.fs, doc/gforth.ds:
+	The '-prefix now supports only the forms 'C and 'C'.
+	Base 256 no longer works as it did.
+	Updated documentation on number prefixes.
+
+	* test/gforth.fs, kernel/int.fs: added 0x and 0X as hex prefixes
+
+	* float.fs, kernel/comp.fs:
+	made ABORT the interim default for deferred words
+
+	* float.fs: added (pretty bad definitions of) FTRUNC and FMOD
+
+2004-12-01  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* wf.fs, backtrac.fs, cross.fs, stuff.fs:
+	Fixed uninitialized defers in cross
+	added stuff to compile new sources with old kernels
+
+2004-11-28  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* backtrac.fs, kernel/comp.fs, stuff.fs:
+	uninitialized deferred words now give a warning when executed
+
+	* kernel/comp.fs, test/deferred.fs, Makefile.in, compat/defer.fs, doc/gforth.ds, stuff.fs:
+	implemented deferred words proposal (and adapted documentation accordingly).
+
+2004-11-11  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* Makefile.in, arch/amd64/machine.h, kernel/int.fs:
+	Added # as decimal prefix
+
+2004-11-05  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* contrib/strings.fs, contrib/syscalls386.fs, contrib/terminal.fs, contrib/ansi.fs, contrib/serial.fs:
+	added Krishna Myneni's serial.fs, terminal.fs, and support stuff to contrib
+
+2004-09-17  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* glocals.fs:
+	made the definition of TO less fragile (for David Greggs inlining work)
+
+2004-09-13  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* doc/gforth.ds, prof-inline.fs: more prof-inline.fs work
+	improved CASE...ENDCASE documentation
+
+2004-09-07  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* prof-inline.fs: more prof-inline.fs work
+
+2004-09-06  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* prof-inline.fs:
+	continued on prof-inline.fs (call counting mostly finished)
+
+	* prof-inline.fs: continued prof-inline.fs
+
+2004-09-05  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* configure.in, doc/gforth.ds, prof-inline.fs:
+	changed default for GFORTHSYSTEMPREFIX to use $COMSPEC
+	prof-inline.fs changes
+
+2004-09-03  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* prof-inline.fs, profile.fs:
+	made a separate profiling file for the inliner measurements
+	profile.fs now needs a cleanup to get rid of some of this junk
+
+2004-09-02  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* kernel/comp.fs:
+	change COMPILE-TO-PRIMS, to call PEEPHOLE-COMPILE, instead of
+	recursing indirectly (through POSTPONE and COMPILE,).  The speedup
+	resulting from that is minimal (see below); the main benefit is that
+	COMPILE, is now called once for each compiled word (used in some
+	measurements for research that I am doing now).
+
+	Here's the speedup data:
+	#startup overhead
+	[b3:~/gforth:1709] perfex gforth -e bye
+	tsc                                29123160
+	[b3:~/gforth:1710] perfex gforth -e bye
+	tsc                                29646820
+	#before the change
+	[b3:~/gforth:1711] perfex gforth prims2x.fs -e bye
+	tsc                                95616352
+	[b3:~/gforth:1712] perfex gforth prims2x.fs -e bye
+	tsc                                95032068
+	#after the change
+	[b3:~/gforth:1725] perfex gforth prims2x.fs -e bye
+	tsc                                95594688
+	[b3:~/gforth:1726] perfex gforth prims2x.fs -e bye
+	tsc                                94587916
+
+2004-08-29  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* wf.fs: Added alternative icons directory
+
+2004-08-27  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* engine/forth.h, engine/support.c, kernel/comp.fs, doc/gforth.ds, prim, stuff.fs, configure.in:
+	added and documented usage of $GFORTHSYSTEMPREFIX to SYSTEM
+	eliminated the now-unused (does>1)
+
+2004-08-26  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* cross.fs, kernel/comp.fs:
+	removed return stack trick from DOES> (replacing (does>1) with (does>2))
+
+	* engine/main.c, prims2x.fs:
+	moved imm_ops field of costs up a bit (better factoring and readability)
+
+2004-08-23  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* engine/main.c, prims2x.fs:
+	added imm_ops operand to costs structure and generate it
+
+	* kernel/cond.fs, kernel/int.fs, dis-gdb.fs, doc/gforth.ds, profile.fs, source.fs:
+	added BEFORE-WORD and OTHER-CONTROL-FLOW hooks
+	changed profile.fs to use BEFORE-WORD hook and profile various control structs
+	added count-calls? stuff to profile.fs
+	minor changes
+
+2004-08-18  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* profile.fs: basic profiling infrastructure
+
+2004-07-19  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* arch/amd64/asm.fs:
+	Added special cases for mov (64 bit immediate and offsets)
+
+2004-07-18  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* arch/amd64/asm.fs: Started assembler for amd64 architecture
+
+	* wf.fs: fixed link icon generation for #field URLS.
+
+2004-06-24  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* wf.fs: Changes for Forth-Tagung
+
+2004-06-19  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* engine/forth.h, engine/support.c, prim:
+	Added support for external shift for broken GCCs
+
+	* debug.fs, see.fs: Made debugger work on gforth-itc
+
+	* engine/threaded.h: Changed empty expressions to do { exp } while(0)
+
+2004-06-15  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* Makefile.in, configure.in, dis-gdb.fs, startup.fs:
+	disgdb.fs is now always compiled in and checks at run-time if it works
+
+	* dis-gdb.fs: DISASM-GDB is now more error-tolerant
+
+2004-06-13  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* doc/makedoc.fs, doc/gforth.ds, stuff.fs: documented disasm-gdb
+	documentation bugfixes
+
+	* dis-gdb.fs, kernel/int.fs, stuff.fs, Makefile.in, configure.in:
+	added dis-gdb.fs and related changes
+	minor changes
+
+2004-06-07  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* kernel/args.fs, doc/gforth.ds:
+	Document fixes (broken node, broken "@")
+
+2004-05-31  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* doc/gforth.ds, arch/amd64/disasm.fs:
+	AMD64 1-byte opcodes done (mostly, and not debugged)
+	minor documentation change
+
+2004-05-24  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* arch/amd64/disasm.fs: ...
+
+2004-05-23  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* arch/amd64/disasm.fs: amd64 disassembler
+
+2004-05-16  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* httpd.fs, kernel/basics.fs, kernel/paths.fs, cross.fs:
+	bugfix for compact.. (and renamed it into compact-filename)
+	  test case: ../../a
+	related cleanups in path handling
+
+2004-05-14  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* kernel/input.fs, Benchres, Makefile.in, debugs.fs, depth-changes.fs, doc/gforth.ds, source.fs:
+	added Athlon64 benchmark result
+	added depth-changes.fs and hook for that in kernel/input.fs
+	made ~~ work in interpret state
+	documented clearstacks
+
+2004-05-08  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* float.fs, fsl-util.4th, kernel/basics.fs, kernel/int.fs, stuff.fs, Makefile.in:
+	added fsl-util.4th (IIRC from Kryshna Myeni)
+	made F.S output nicer and moved it from float.fs to stuff.fs
+	added CLEARSTACKS
+	exceptions caught by QUIT now clear the stacks (instead of resetting them to
+	  the depth when first entering QUIT)
+
+2004-04-10  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* configure.in:
+	autoconf-2.50 compatibility fix (report and fix by Stefan Schmiedl)
+	  https://savannah.gnu.org/bugs/index.php?func=detailitem&item_id=8467
+
+	* gforthmi.in, prim: BRANCH refinement (IIRC for gforth-native)
+	fixed "gforthmi --application" bug (report and fix by Stefan Schmiedl).
+
+	* comp-i.fs: disabled sanity check that does not work with exec-shield
+
+2004-04-10  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* engine/main.c, httpd.fs: fixed "too many crashes" in httpd.fs
+	fixed reentrance problem with callbacks
+
+2004-04-08  David Kuehling, MAE  <dvdkhlng@b3>
+
+	* gforth.el: * forth-load-file fixed
+	* no special (backward) indentation of `\G' any more
+
+2004-03-29  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* prim: Bug in bugfix fixed
+
+	* prim: defines for buggy long long and ffcalls
+
+2004-02-02  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* doc/fdl.texi, wf.fs: Fixed tagged occurences of < and &
+
+2004-01-25  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* Benchres, filedump.fs, wf.fs:
+	Fixed command line handling in filedump.fs
+	XHTML support in wf.fs
+
+2004-01-25  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* arch/386/machine.h, cache1.vmg, engine/engine.c, peeprules.vmg, prim, Makefile.in:
+	minore bugfixes (Makefile.in)
+	enabled 3-state stack caching for gforth-fast and gforth-native
+	   bugfixes (EXECUTE and PERFORM; spbREG use)
+	   explicit register allocation to spb for gforth-native, but not gforth-fast
+	   Due to the shortest-path algorithm this means that gforth-fast uses only
+	     S0 and S1, not S2, so we could keep that.
+	     However, we probably want to use more states etc. for other
+	     architectures, so we may want to have a way to select different
+	       cache.vmg and different peeprules.vmg files for different
+	       archs, builds, and binaries.
+
+2004-01-20  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* engine/main.c, prims2x.fs, cache1.vmg: fixed bug in cache1.vmg
+	prims2x.fs: better comments for prim*.i
+	main.c: better --debug output (added primitive names)
+
+2004-01-19  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* peeprules.vmg, prims2x.fs:
+	fixed one stack-caching bug (N_START_SUPER value), and enabled stack caching
+
+	* exboot.fs: change for bootstrap compatibility with older versions
+
+	* kernel/args.fs, doc/gforth.ds:
+	added NEXT-ARG; relkated documentation changes
+
+2004-01-18  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* Makefile.in, exboot.fs:
+	cleaned up exboot.fs (allowed by the SHIFT-ARGS change)
+
+	* doc/gforth.ds, kernel/args.fs, Makefile.in:
+	eliminated ARG# in favour of SHIFT-ARGS; related cleanups and doc changes
+
+2004-01-16  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* kernel/args.fs, doc/gforth.ds:
+	added 'arg#'; this is a hack.  It may be better to manipulate argv and argc.
+
+2004-01-13  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* doc/gforth.ds, kernel/comp.fs, README, see.fs: documentation change
+	SEE bugfixes
+	made (COMPILE) barf
+
+2004-01-05  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* engine/engine.c, arch/sharc/compile.sharc, arch/sharc/systypes.h, arch/sharc/types.h, arch/shboom/compiler.fs, arch/shboom/dis.fs, arch/shboom/dis2.fs, arch/shboom/doers.fs, arch/shboom/prim.fs, arch/shboom/sh.p, ec/builttag.fs, ec/mirror.fs, arch/4stack/mach.sh, arch/misc/asm.fs, arch/misc/fi2v.fs, arch/misc/key.fs, arch/misc/misc-sim.v, arch/misc/misc.v, arch/misc/prim.fs, arch/misc/sim.fs, arch/misc/sokoban.fs, Benchres, update-copyright-blacklist:
+	Added copyright notices
+
+2003-12-31  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* engine/main.c: fixed buggy commit (uncovered by SUSE 9.0 gcc)
+
+	* NEWS.vmgen, arch/ia64/machine.h, peeprules.vmg, update-copyright-blacklist:
+	updated copyright years, or added copyright notices.
+
+	* README, engine/main.c: minor changes
+
+	* Makedist.in, Makefile.in: fixed some Makefile bugs
+
+2003-12-07  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* configure.in, wf.fs: Added check for -fno-reorder-blocks
+	Made wf.fs use dd/dl again (margin breaks with Konqueror)
+
+2003-12-02  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* intcomp.fs: gforth-native now survives make check
+
+2003-11-23  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* wf.fs: Now creates valid XHTML
+
+2003-11-23  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* except.fs: throw works now for gforth-native
+
+	* README, except.fs: documentation changes
+	adapt exceptions to gforth-native (part 1)
+
+2003-11-10  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* cross.fs: Changed (does>) to not use the return stack
+
+2003-11-10  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* peeprules.vmg: disabled last native-incompatible superinstruction
+
+	* kernel/comp.fs: bugfix ((does>) uses return address)
+
+	* Makefile.in, NEWS.vmgen, engine/main.c:
+	fixed gforth-native bug (branch target resolution)
+	fixed "make dist" bug (arch/misc/optcmove.fs now included)
+	Documentation changes
+
+2003-11-09  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* cross.fs, kernel/comp.fs:
+	Made postpone/(compile) work with gforth-native
+
+2003-11-09  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* engine/main.c: minor cleanups
+
+	* engine/main.c: changed compile_call2() interface
+
+	* engine/main.c: changed compile_prim1arg() interface
+
+	* engine/main.c: minor fix
+
+	* engine/main.c: minor fixes
+
+2003-11-08  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* prim, test/primtest.fs, Makefile.in: added make target primtest
+	more primtests
+	fixed some gforth-native bugs
+	workaround for finish-code problem
+
+2003-11-06  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* engine/main.c, test/primtest.fs:
+	bugfixes and cleanup in reloation bitset handling
+	more primtests
+
+	* BUGS, engine/main.c: Threw out some unused code
+	recorded a bug
+
+	* engine/main.c, engine/threaded.h, test/primtest.fs, BUGS, Makefile.in, peeprules.vmg, prim:
+	activated gforth-native again
+	some gforth-native bugfixes and changes
+
+2003-11-03  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* cache1.vmg, peeprules.vmg:
+	some (failed) experiments with stack caching
+
+	* engine/engine.c, engine/forth.h, engine/main.c, cache1.vmg, peeprules.vmg, prims2x.fs:
+	made classical 1-register stack caching work again (and probably
+	  general stack caching with non-empty canonical state).  There was a
+	  subtle bug involving ?DUP-?BRANCH.
+	made this the default for gforth-fast and turned off anything beyond
+	deleted the now-unused rewrite_bb().
+
+2003-11-02  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* engine/forth.h, engine/profile.c, Makefile.in, cache0.vmg, cache1.vmg, engine/Makefile.in, prim:
+	more work on stack caching
+
+	* Makefile.in, engine/engine.c, engine/forth.h, engine/main.c, engine/peephole.c, engine/profile.c:
+	Now the _fast.i files are included for gforth-fast and gforth-native
+
+2003-10-30  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* blocks.fs: fixed block 0 update and refill
+
+2003-10-30  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* Makefile.in, gfgen:
+	factored out some generating stuff from the makefile into gfgen
+	added rules for generating engine/*-fast.i (not used yet)
+
+2003-10-16  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* kernel/comp.fs, Makefile.in, engine/engine.c, engine/main.c, prims2x.fs:
+	stack caching works now (at least for make check)
+	  the main change is to the optimize_... stuff in main.c
+	  also restricted static optimization area to basic blocks
+	minor bugfixes
+
+2003-10-09  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* Makedist.in, engine/engine.c, engine/profile.c, peeprules.vmg, prim, prims2x.fs:
+	replaced gforth-prof with $(PROFEXES) in Makedist.in
+	more stack caching work
+
+	* engine/engine.c, engine/main.c, prim, prims2x.fs, xxxprim:
+	put stack caching stuff in prims2x.fs (cvs log prims2y.fs for
+		fine-grained changes)
+	set up prim etc. to work with the changes prims2x.fs (disabled USE_TOS for now)
+
+2003-10-08  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* prims2y.fs: more stack caching
+
+	* prims2y.fs, xxxprim: more stack caching stuff
+
+2003-10-05  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* xxxprim, prims2y.fs: more stack caching stuff
+
+	* kernel/comp.fs: minor cleanup
+
+2003-10-03  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* kernel/comp.fs, kernel/vars.fs:
+	eliminated last-compiled and last-compiled-here, and its uses
+
+2003-10-02  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* prims2y.fs, xxxprim:
+	more stack caching work (..._vm.i generation seems to work now)
+
+2003-10-01  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* prims2y.fs, xxxprim: adapted store optimization to stack caching
+
+2003-09-29  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* prims2y.fs, xxxprim: stack caching changes
+
+2003-09-21  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* prims2y.fs, xxxprim: started on stack caching
+
+2003-09-20  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* Makefile.in: use @INSTALL_SCRIPT@
+
+2003-09-15  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* sokoban.fs: Fixed Sokoban (thanks to Hubert Feyrer)
+
+2003-09-15  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* Makefile.in, arch/m68k/machine.h:
+	Applied NetBSD patches submitted by Hubert Feyrer
+
+2003-09-14  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* arch/8086/mach.fs, arch/8086/prim.fs, cross.fs, prim:
+	Fixed 8086 target
+
+2003-09-14  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* arch/arm/machine.h, arch/ia64/flush_icache_block.c, arch/ia64/machine.h, engine/engine.c, engine/forth.h, Benchres, Makefile.in, configure.in:
+	IA64 refinements (dynamic native code generation)
+	ARM support (but FP is broken on the iPAQ, and icache flush is missing)
+	made no_dynamic_default and skipcode configuration variables
+	worked around http://gcc.gnu.org/bugzilla/show_bug.cgi?id=12108
+	fixed some minor bugs
+
+2003-09-08  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* prims2y.fs, prims2yref.fs:
+	added prims2y.fs, prims2yref.fs for developing stack caching
+
+	* configure.in, Makedist.in, Makefile.in:
+	added configure option --enable-prof
+
+	* Benchres, arch/amd64/machine.h, configure.in:
+	added support for dynamic code generation on HPPA
+	some Benchmark results
+	explicit register allocation for AMD64
+
+2003-09-01  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* arch/4stack/mach.fs, arch/4stack/prim.fs, arch/8086/prim.fs, arch/misc/prim.fs, Makefile.in, history.fs, iss.sh, prim:
+	a bit Gforth EC work
+	Changed Windows distribution to contain PDF instead of PostScript file
+
+2003-08-31  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* Makefile.in: Added pdf target for the documents
+
+2003-08-30  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* iss.sh: Updated iss.sh for Inno Setup 3.x
+
+	* engine/support.c, fixpath.fs, iss.sh: Fixes for Windows port
+
+2003-08-28  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* arch/amd64/machine.h, arch/generic/machine.h, Makefile.in, configure.in:
+	added amd64 architecture
+	changed some generic settings
+	minor changes
+
+2003-08-27  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* README, engine/main.c, engine/threaded.h, prims2x.fs, testall:
+	now an is-branch? field is generated engine/costs.i
+	fixed some typos in README
+	changed default threading scheme for generic machine
+
 2003-08-25  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
 
 	* README, testdist: minor changes
@@ -15,7 +1416,7 @@
 	minor changes to make testdist work
 	documentation changes
 
-2003-08-24  Bernd Paysan  <pazsan@mips.complang.tuwien.ac.at>
+2003-08-24  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* fixpath.fs, iss.sh: Fixed setup compiler stuff
 
@@ -29,7 +1430,7 @@
 	  useful code_size metrics for primitives with funny K and J labels
 	  default metric for --no-dynamic is now cost_nexts
 
-2003-08-23  Bernd Paysan  <pazsan@mips.complang.tuwien.ac.at>
+2003-08-23  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* kernel/comp.fs, prim, Makefile.in, configure.in, machpc.fs, machpc.fs.in:
 	Fixed the make dist kernl*.fi building process so that neither new nor old
@@ -54,12 +1455,12 @@
 	  (gives nicer gdb output)
 	Workaround for the absence of the FPE_... macros in FreeBSD/Alpha 4_STABLE
 
-2003-08-18  Bernd Paysan  <pazsan@mips.complang.tuwien.ac.at>
+2003-08-18  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* kernel/getdoers.fs, kernel/int.fs, kernel/main.fs, arch/4stack/asm.fs, arch/4stack/prim.fs, arch/misc/mach.fs, arch/misc/prim.fs, kernel/basics.fs, cross.fs, prim:
 	Further fixes for Gforth EC
 
-2003-08-17  Bernd Paysan  <pazsan@mips.complang.tuwien.ac.at>
+2003-08-17  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* kernel/basics.fs: basics.fs fixed
 
@@ -71,14 +1472,14 @@
 	* fflib.fs, prim: Fixed reverse ordering
 	Added legacy support for old bigFORTH libraries
 
-2003-08-16  Bernd Paysan  <pazsan@mips.complang.tuwien.ac.at>
+2003-08-16  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* engine/main.c, fflib.fs: Callback stuff tested
 
 	* fflib.fs, lib.fs, prim, Makefile.in: added callback stuff to fflib.fs
 	removed legacy flag (different usage is sufficient)
 
-2003-08-15  Bernd Paysan  <pazsan@mips.complang.tuwien.ac.at>
+2003-08-15  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* fflib.fs, lib.fs, oldlib.fs:
 	Added high level part of ffcall interface
@@ -106,7 +1507,7 @@
 	Makefile now tolerates ";" as PATHSEP
 	eliminatd some warnings
 
-2003-08-07  Bernd Paysan  <pazsan@mips.complang.tuwien.ac.at>
+2003-08-07  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* engine/forth.h, engine/main.c, prim: Fixed alloc-callback
 
@@ -122,7 +1523,7 @@
 	* gforth.el:
 	Fix keybinding "\C-h\C-i" which was broken in X-Emacs (\C-h == backspace).
 
-2003-08-04  Bernd Paysan  <pazsan@mips.complang.tuwien.ac.at>
+2003-08-04  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* engine/engine.c, engine/forth.h, engine/main.c, arch/generic/machine.h, machpc.fs, machpc.fs.in, prim, prims2x.fs, Makefile.in, comp-i.fs, configure.in, cross.fs, iss.sh:
 	Inclusion of ffcall stuff
@@ -149,11 +1550,11 @@
 	turn on engine option -fno-inline (eliminates problems with register
 	allocation on gcc-3.3 on 386 with --enable-force-reg).
 
-2003-07-18  Bernd Paysan  <pazsan@mips.complang.tuwien.ac.at>
+2003-07-18  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* configure.in: Reinstantiated --with[out]-dynamic
 
-2003-07-14  Bernd Paysan  <pazsan@mips.complang.tuwien.ac.at>
+2003-07-14  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* wf.fs, Makedist.in, Makefile.in:
 	Some fixes to makedist and a few changes to wf.fs
@@ -221,7 +1622,7 @@
 	* Makefile.in, doc/vmgen.1: bugfix (paper format)
 	added doc/vmgen.1 (contributed by Eric Schwartz)
 
-2003-03-23  Bernd Paysan  <pazsan@mips.complang.tuwien.ac.at>
+2003-03-23  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* fixpath.fs, iss.sh: Windows distribution updated
 
@@ -248,7 +1649,7 @@
 
 	* backtrac.fs: minor bugfix (bug located by Jorge Acereda)
 
-2003-03-11  Bernd Paysan  <pazsan@mips.complang.tuwien.ac.at>
+2003-03-11  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* kernel/int.fs:
 	Fixed -trailing (cures cross.fs bug for big endian machine...)
@@ -257,7 +1658,7 @@
 
 	* backtrac.fs: minor bugfix (bug located by Jorge Acereda)
 
-2003-03-11  Bernd Paysan  <pazsan@mips.complang.tuwien.ac.at>
+2003-03-11  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* kernel/int.fs:
 	Fixed -trailing (cures cross.fs bug for big endian machine...)
@@ -529,13 +1930,13 @@
 	* kernel/int.fs, kernel/io.fs, kernel/main.fs, kernel/nio.fs, kernel/paths.fs, kernel/require.fs, kernel/toolsext.fs, kernel/vars.fs, engine/signals.c, engine/support.c, kernel/args.fs, kernel/basics.fs, kernel/comp.fs, kernel/cond.fs, kernel/files.fs, engine/Makefile.in, engine/engine.c, engine/forth.h, engine/main.c, arch/mips/machine.h, arch/power/machine.h, arch/sparc/machine.h, doc/gforth.ds, arch/386/machine.h, arch/alpha/machine.h, arch/m68k/machine.h, prims2x.fs, search.fs, startup.fs, struct.fs, vt100key.fs, wordinfo.fs, configure.in, cross.fs, debug.fs, doskey.fs, environ.fs, extend.fs, glocals.fs, hash.fs, look.fs, machpc.fs.in, Makedist.in, Makefile.in, blocks.fs:
 	undid changes to copyright notices
 
-2003-01-19  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2003-01-19  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* kernel/int.fs, kernel/io.fs, kernel/main.fs, kernel/nio.fs, kernel/paths.fs, kernel/require.fs, kernel/toolsext.fs, kernel/vars.fs, engine/forth.h, engine/main.c, engine/signals.c, engine/support.c, kernel/args.fs, kernel/basics.fs, kernel/comp.fs, kernel/cond.fs, kernel/files.fs, kernel/input.fs, engine/engine.c, doc/gforth.ds, engine/Makefile.in, arch/386/machine.h, arch/alpha/machine.h, arch/m68k/machine.h, arch/mips/machine.h, arch/power/machine.h, arch/sparc/machine.h, look.fs, machpc.fs, machpc.fs.in, prims2x.fs, search.fs, startup.fs, struct.fs, vt100key.fs, wordinfo.fs, blocks.fs, configure.in, cross.fs, debug.fs, doskey.fs, environ.fs, extend.fs, glocals.fs, hash.fs, Makedist.in, Makefile.in:
 	Updated copyright notices
 	Added stack effects to kernel/input.fs
 
-2003-01-18  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2003-01-18  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* configure.in, kernel/int.fs:
 	Added intptr_t and int128_t to types to be checked
@@ -610,7 +2011,7 @@
 	moved a change from machpc.fs to machpc.fs.in
 	removed machpc.fs (generated file)
 
-2003-01-03  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2003-01-03  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* engine/forth.h, kernel/basics.fs, kernel/main.fs, Makefile.in, arch/4stack/mach.fs, arch/4stack/prim.fs, arch/4stack/relocate.fs, arch/misc/mach.fs, arch/misc/prim.fs, cross.fs, machpc.fs:
 	Made 4stack port of Gforth EC work again
@@ -620,7 +2021,7 @@
 	* arch/generic/machine.h, arch/power/machine.h, engine/threaded.h:
 	PPC fixes and speedups
 
-2003-01-02  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2003-01-02  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* Makefile.in, engine/main.c, engine/threaded.h, kernel/accept.fs, look.fs:
 	Fixed look problem
@@ -641,7 +2042,7 @@
 	  of engine/forth.h
 	Testing for size of off_t
 
-2003-01-01  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2003-01-01  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* kernel/cond.fs, kernel/input.fs, cross.fs, prim, see-ext.fs, see.fs:
 	Cleaned up prim file (only one soft of branches, grouping)
@@ -660,11 +2061,11 @@
 	* prims2x.fs:
 	vmgen: introduced STACK-ACCESS-TRANSFORM to support upward-growing stacks.
 
-2002-12-30  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2002-12-30  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* prim: Forth replacement for absolute branch
 
-2002-12-28  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2002-12-28  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* engine/engine.c, engine/forth.h, engine/main.c, engine/threaded.h, filedump.fs, prim, prims2x.fs, Makefile.in, comp-i.fs, cross.fs:
 	First inclusion of group-based primitive tokens (no reordering happend yet)
@@ -735,7 +2136,7 @@
 	cfa is now killed in NEXT_P2 in some direct threading schemes (for better
 	  register allocation)
 
-2002-12-21  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2002-12-21  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* extend.fs, gforth.el, look.fs: gforth.el: LEAVE ?LEAVE
 	rest: made compilable with gforth 0.5.0
@@ -771,7 +2172,7 @@
 	moved all functions except engine() out of engine.c into (new file) support.c
 	minor documentation changes (suggested by John A. Peters <japeters@pacbell.net>)
 
-2002-12-16  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2002-12-16  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* prim: Made the hash shift array static
 
@@ -785,7 +2186,7 @@
 	fround is a primitive again
 	rint replacement function written
 
-2002-12-14  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2002-12-14  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* cross.fs, kernel/quotes.fs, machpc.fs, machpc.fs.in:
 	Changed string compilation to not use the return stack to skipp the string
@@ -842,7 +2243,7 @@
 	new implementations of CLITERAL (independent of threaded code size) and
 	   SLITERAL (also can deal with long strings now)
 
-2002-11-24  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2002-11-24  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* acconfig.h:
 	Deleted acconfig.h after cleaning up configure (no longer needed)
@@ -923,7 +2324,7 @@
 	* config.guess, config.sub:
 	config.guess and config.sub from autoconf-2.54
 
-2002-10-04  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2002-10-04  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* engine/main.c, configure.in, prim, prims2x.fs: Fixes for GCC 3.2
 
@@ -1093,7 +2494,7 @@
 	* vmgen-ex/README, vmgen-ex/engine.c, vmgen-ex/mini-super.vmg, vmgen-ex/mini.h, vmgen-ex/peephole.c, vmgen-ex/support.c, vmgen-ex2/README, vmgen-ex2/mini-super.vmg, vmgen-ex2/mini.h, vmgen-ex2/peephole.c, vmgen-ex2/support.c:
 	profiling now turns off superinstructions in vmgen-ex*
 
-2002-07-26  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2002-07-26  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* wf.fs: Old version of parse-string for Gforth 0.5.0 added
 
@@ -1101,7 +2502,7 @@
 
 	* tags.fs: fixes (thanks to Erik Rossen)
 
-2002-06-17  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2002-06-17  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* Benchres, prim: Added Athlon XP 1800+ to Benchres
 	fixed type in wcall
@@ -1110,7 +2511,7 @@
 
 	* ekey.fs: EKEY? now does not require complete ESC-sequences
 
-2002-06-02  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2002-06-02  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* httpd.fs, prim, tags.fs: Added tags.
 	Security fix in httpd.fs
@@ -1307,7 +2708,7 @@
 	things (avoid free variables, top-level `require's etc), added
 	`(provide 'forth-mode)'
 
-2002-01-17  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2002-01-17  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* environ.fs, float.fs, startup.fs: Fixed enviroment queries
 
@@ -1326,7 +2727,7 @@
 	* engine/engine.c, engine/forth.h, engine/main.c, engine/signals.c, engine/threaded.h, Makefile.in, comp-i.fs:
 	Differentiate between threaded code and xts in gforth-ditc and in gforthmi
 
-2002-01-05  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2002-01-05  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* engine/main.c, engine/signals.c, kernel/aliases0.fs, cross.fs, prim, search.fs:
 	Thrown out static vocabulary stack
@@ -1340,7 +2741,7 @@
 	* search.fs, gforth.el: Made gforth.el hilight see and dbg.
 	Added dynamic search order stack allocation code to search.fs.
 
-2002-01-04  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2002-01-04  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* engine/engine.c, see.fs, cross.fs, prim:
 	Modified cross to get closer to mixed threading
@@ -1350,7 +2751,7 @@
 
 	* engine/main.c: preparations in loader for hybrid threading
 
-2002-01-01  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2002-01-01  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* Benchres, Makefile.in:
 	Added benchmark result (superinstructions) for 600 MHz Athlon
@@ -1363,7 +2764,7 @@
 	machine-specific stuff for dynamic superinstructions is now in machine.h
 	support for dynamic superinstructions for Alpha
 
-2001-12-28  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2001-12-28  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* engine/engine.c: undefined symbols to make engine.c work with GNU m4
 
@@ -1414,18 +2815,18 @@
 	  better than before); don't use TOS with gcc-3.x, so rp can be allocated.
 	Compile engine.c with -fno-gcse (to improve gcc-3.x code quality).
 
-2001-12-01  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2001-12-01  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* engine/engine.c, prim, proxy.fs, script.fs:
 	Fixed popen access type (*not binary*)
 	Fixed some bugs in proxy.fs
 	Added scripting support
 
-2001-11-21  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2001-11-21  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* fi2c.fs: fixed fi2c.fs address size bug
 
-2001-11-11  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2001-11-11  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* arch/386/ncex/ncexcompiler.fs, arch/386/ncex/ncexcontrol.fs, arch/386/ncex/ncexcpu1.fs, arch/386/ncex/ncexcpu2.fs, arch/386/ncex/ncexregalloc.fs, Makefile.in, cross.fs, httpd.fs, prims2x.fs, proxy.fs, wf.fs:
 	Added tags generation for vi
@@ -1442,15 +2843,15 @@
 	added some function key names and sequences (from Linux console)
 	renamed NAME into PARSE-WORD
 
-2001-10-07  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2001-10-07  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* locate.fs: Added locate for vi fans
 
-2001-09-21  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2001-09-21  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* dosekey.fs, startup.fs: Added DOS support for ekey
 
-2001-09-17  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2001-09-17  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* kernel/toolsext.fs: Provided [defined] and [undefined]
 	Changed stack comments in toolsext.fs
@@ -1458,7 +2859,7 @@
 	* history.fs:
 	Added ignoring command completion if there's another key in the queue
 
-2001-09-16  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2001-09-16  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* kernel/main.fs:
 	Put full featured startup.fs into main.fs, so that both BUILD-FROM-SCRATCH
@@ -1478,7 +2879,7 @@
 	Base address of $100 and 0 are now special cases that indicate
 	a relocatable image.
 
-2001-09-15  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2001-09-15  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* arch/386/ncex/ncexcompiler.fs, engine/signals.c, history.fs:
 	Fix for terminals where TIOCGWINSZ doesn't work
@@ -1500,7 +2901,7 @@
 
 	* cross.fs: renamed aprim
 
-2001-09-06  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2001-09-06  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* wf.fs: Improved table handling
 
@@ -1578,7 +2979,7 @@
 
 	* arch/misc/tt.fs: fix for relocating
 
-2001-08-25  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2001-08-25  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* arch/386/asm.fs, wf.fs: Fixed 386 assembler jump table
 	Some improvements to Wiki Forth
@@ -1593,34 +2994,34 @@
 	added slurp-fid; documented slurp-fid and slurp-file.
 	bugfix in f. (thanks to Doug Bagley).
 
-2001-08-06  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2001-08-06  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* wf.fs: Another set of fixes for wf.fs
 
-2001-08-05  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2001-08-05  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* arch/386/ncex/ncexcompiler.fs, arch/386/ncex/ncexcpu1.fs, wf.fs:
 	Added toc handling to wf
 	Wrote wrapper code for ncex
 
-2001-07-29  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2001-07-29  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* wf.fs: Some further fixes
 
-2001-07-24  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2001-07-24  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* wf.fs: Fixed jpeg handling
 	Improved data base
 
-2001-07-23  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2001-07-23  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* wf.fs: Added image size handling
 
-2001-07-22  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2001-07-22  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* wf.fs: Some further modification to wiki for Forth
 
-2001-07-17  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2001-07-17  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* wf.fs: fixed table end problem
 
@@ -1632,7 +3033,7 @@
 	* wf.fs: Improvements of wiki for Forth
 	Added small text data base
 
-2001-07-16  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2001-07-16  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* wf.fs: Added first version of a Wiki in Forth
 
@@ -1675,7 +3076,7 @@
 	* gforth.el: Improved interface for customizing hilighting/indentation.
 	Added imenu and speedbar support (needs further refinement, though).
 
-2001-06-16  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2001-06-16  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* arch/misc/mach.fs, arch/shboom/mach.fs:
 	Some further steps to make gforth EC work
@@ -1694,7 +3095,7 @@
 	changed >f to >FG and >b to >BG (and <f <b to <FG <BG) to remove name
 	clash between ansi.fs ">f" and gforth floating comparison word.
 
-2001-06-12  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2001-06-12  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* tasker.fs: Fixed kill-task
 	Added glossary entries
@@ -1797,7 +3198,7 @@
 	* vmgen-Attic/Makefile, vmgen-Attic/disasm.c:
 	removing vmgen directory (will be replaced by vmgen-ex)
 
-2001-04-08  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2001-04-08  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* machpc.fs.in: source for machpc.fs (for peephole)
 
@@ -1812,7 +3213,7 @@
 
 	* kernel/int.fs, see.fs, simp-see.fs, startup.fs: added SIMPLE-SEE
 
-2001-03-18  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2001-03-18  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* arch/generic/machine.h, kernel/comp.fs, kernel/int.fs, kernel/vars.fs, machpc.fs, prim, cross.fs:
 	Made peephole a configurable option
@@ -1837,7 +3238,7 @@
 	VM_DEBUGGING now also prints stack-out values.
 	output-profile now uses goto to avoid gcc parser overflow.
 
-2001-03-17  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2001-03-17  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* cross.fs, see.fs:
 	Further peephole optimization preparation in cross.fs:
@@ -1847,7 +3248,7 @@
 	- no peephole optimization yet
 	See calls works
 
-2001-03-11  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2001-03-11  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* cross.fs, gforth.el:
 	Checked in cross with some part of peephole optimization (doers - not all of
@@ -1922,23 +3323,23 @@
 	* engine/engine.c, BUGS, configure.in, prim, prims2x.fs:
 	type conversion macros instead of casts for fetch/store-single (prims2x.fs)
 
-2001-02-04  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2001-02-04  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* arch/8086/mach.fs, cross.fs, kernel/int.fs, prim:
 	Fixed problems with new word header format for Gforth EC (now only tested
 	for gf8086.com)
 
-2001-01-30  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2001-01-30  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* kernel/int.fs: Fixed masks for character sizes > 8 bit
 
-2001-01-29  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2001-01-29  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* kernel/int.fs: Fixed [ alias-mask lcount-mask or ] Literal problem
 
 	* cross.fs: Fixed input method problem
 
-2001-01-28  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2001-01-28  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* cross.fs, kernel/comp.fs, kernel/int.fs, prims2x.fs:
 	Fixed cell-size dependent masks
@@ -2010,7 +3411,7 @@
 
 	* prims2x.fs: some refactoring
 
-2001-01-14  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2001-01-14  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* prim: Fixed error report for read-dir
 
@@ -2075,7 +3476,7 @@
 
 	* prims2x.fs: added support for # prefix in prims2x.fs (not complete)
 
-2000-12-10  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2000-12-10  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* Makedist.in, Makefile.in, fixpath.fs, iss.sh:
 	Improved Win32-based distribution (iss.sh generates a setup script for inno
@@ -2085,7 +3486,7 @@
 
 	* Benchres, configure.in: i686 now uses indirect threading
 
-2000-12-02  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2000-12-02  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* arch/386/asm.fs, arch/386/disasm.fs:
 	Fixed search order bug in 386 asm.
@@ -2097,7 +3498,7 @@
 
 	* environ.fs: added ENVIRONMENT (vocabulary)
 
-2000-11-19  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2000-11-19  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* proxy.fs: Improved proxy further
 
@@ -2154,12 +3555,12 @@
 	  2 stacks, factored out common code for the stacks, etc.).
 	Changes in other files to go with the prims2x.fs changes
 
-2000-10-30  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2000-10-30  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* kernel/input.fs:
 	Fixed evaluate problem (s" SOURCE" 2dup evaluate d= -> true)
 
-2000-10-29  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2000-10-29  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* kernel/args.fs, kernel/files.fs, kernel/getdoers.fs, kernel/input.fs, kernel/int.fs, kernel/kernel.fs, kernel/require.fs, kernel/vars.fs, Makefile.in, blocks.fs, cross.fs, extend.fs, httpd.fs, machpc.fs:
 	Added new input handling (OO approach). Only available if capability
@@ -2180,7 +3581,7 @@
 
 	* Makefile.in: make uninstall now deletes gforth-fast-$VERSION
 
-2000-10-03  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2000-10-03  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* gforthmi.bat, mkdosmf.sed, mkos2mf.sed, os2conf.h, config.bat, dosconf.h:
 	Fixed version strings in the DOS and OS/2 versions
@@ -2244,7 +3645,7 @@
 	* exboot.fs, startup.fs:
 	exboot.fs now does not change image-included-files
 
-2000-09-12  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2000-09-12  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* Makefile.in, gforth.el, kernel/files.fs, kernel/int.fs, startup.fs:
 	Fixed #fill-bytes for nested inputs
@@ -2257,17 +3658,17 @@
 
 	* kernel/int.fs, kernel/require.fs, prim: fixed bug
 
-2000-09-10  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2000-09-10  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* extend.fs, kernel/files.fs, kernel/int.fs, prim:
 	Changed (read-line) again
 
-2000-09-09  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2000-09-09  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* extend.fs, kernel/files.fs, kernel/int.fs, prim:
 	Fixed CR/LF bug wrt save/restore-input
 
-2000-09-08  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2000-09-08  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* oof.fs: Made oof.fs work with iForth (thanks to Marcel Hendrix)
 
@@ -2298,7 +3699,7 @@
 
 	* doc/gforth.ds, timings.sc: minor changes
 
-2000-09-03  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2000-09-03  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* doc/gforth.ds, tt.fs: Added Files section to the tutorial
 	changed sfind .. [if] into [ifdef] in tt.fs
@@ -2352,7 +3753,7 @@
 
 	* doc/gforth.ds, kernel/basics.fs: documentation changes
 
-2000-08-14  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2000-08-14  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* kernel/int.fs: fixed copyright message at startup
 
@@ -2360,7 +3761,7 @@
 
 	* kernel/comp.fs, doc/gforth.ds, prim: documentation changes
 
-2000-08-14  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2000-08-14  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* doc/gforth.ds, arch/8086/prim.fs, prim, prims2x.fs:
 	Added conditions to the new primitives (floating)
@@ -2368,7 +3769,7 @@
 	Fixed newline Forth definition
 	Small docs fixes
 
-2000-08-13  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2000-08-13  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* arch/4stack/README, arch/8086/prim.fs, arch/386/asm.fs:
 	Added undocumented SALC instruction ot x86 assembler
@@ -2405,7 +3806,7 @@
 
 	* doc/gforth.ds: documentation changes
 
-2000-07-31  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2000-07-31  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* doskey.fs, history.fs, vt100key.fs:
 	Added ctrl-X for deleting right without quiting. DEL now maps to Ctrl-X
@@ -2420,7 +3821,7 @@
 	Removed BYE behavior of DEL key and Ctlr-D on empty lines
 	Added FSF style copyright notice to arch/386/asm.fs
 
-2000-07-30  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2000-07-30  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* engine/ecvt.c, arch/386/asm.fs, arch/386/testasm.fs, doskey.fs, gforthmi.bat, prim:
 	Added code for DEL key in doskey.fs
@@ -2441,7 +3842,7 @@
 	* testall, configure.in:
 	gforth now runs on AIX (only indirect threaded).
 
-2000-07-26  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2000-07-26  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* prim:
 	Fixed newline primitive (unix-style lineend only, define that in prim.fs
@@ -2456,7 +3857,7 @@
 	renamed backtrace.fs exceptions.fs unbuffered.fs to
 	        backtrac.fs  except.fs     unbuffer.fs
 
-2000-07-23  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2000-07-23  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* config.bat, configure.in, engine/main.c, exboot.fs, gforthmi.bat, mkdosmf.sed, startup.fs, Benchres, Makedist.in, Makefile.in:
 	Made Gforth compile on DOS. Cleaned up some minor parts in make binonlydist
@@ -2581,7 +3982,7 @@
 	Alpha assembler branches now use absolute addresses
 	Alpha control structures reworked
 
-2000-06-17  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2000-06-17  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* cross.fs, kernel/paths.fs: Fixed compact..
 
@@ -2619,7 +4020,7 @@
 	control structures for MIPS assembler cont.
 	assembler documentation
 
-2000-06-10  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2000-06-10  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* Makefile.in, kernel/int.fs, BUILD-FROM-SCRATCH:
 	Made BUILD-FROM-SCRATCH work with previous version of Gforth (almost
@@ -2629,7 +4030,7 @@
 
 	* arch/mips/asm.fs: MIPS asm control structures
 
-2000-06-06  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2000-06-06  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* doc/gforth.ds, AUTHORS:
 	Fixed some typos and german text in the tutorial
@@ -2660,12 +4061,12 @@
 	* arch/mips/disasm.fs, arch/mips/insts.fs, arch/mips/testdisasm.ds, kernel/io.fs, arch/mips/asm.fs:
 	rewrote MIPS disassembler completely; now shares ints.fs file with asm.fs
 
-2000-05-31  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2000-05-31  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* engine/engine.c, Makedist.in, prim: Added directory reads:
 	open-dir, read-dir, close-dir, filename-match
 
-2000-05-30  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2000-05-30  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* kernel/main.fs, doc/.cvsignore, engine/.cvsignore, engine/main.c, .cvsignore:
 	Added some files to .cvsignore
@@ -2758,7 +4159,7 @@
 	* kernel/int.fs, exceptions.fs:
 	bugfix: exceptions during startup are now caught
 
-2000-04-29  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2000-04-29  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* Benchres, configure.in, gforth.el: Added Athlon entry
 	Improved highlighting
@@ -2775,19 +4176,19 @@
 	* extend.fs, test/other.fs:
 	fixed RESTORE-INPUT (still does not work with CRLF, and at EOF).
 
-2000-04-12  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2000-04-12  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* arch/sharc/g21k-3.3.4-bp1.diff, arch/sharc/machine.h, engine/main.c, arch/sharc/compile.sharc, gforth.el, history.fs, httpd.fs, string.fs:
 	Got SHARC port to comile again (untested yet)
 	Added GCC patch for SHARC port
 
-2000-04-09  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2000-04-09  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* Makefile.in, gforth.el, httpd.fs: Improved color highlighting
 	Install new files, too
 	Some corrections to httpd
 
-2000-04-02  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2000-04-02  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* hash.fs, httpd.fs: Fixed unitialized tables
 	Some small fixes in httpd.fs
@@ -2796,18 +4197,18 @@
 	Tiny changes to history.fs to allow a seek in history (not finished yet)
 	Some imporvements to the httpd example
 
-2000-03-26  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2000-03-26  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* string.fs: Added string library
 
 	* httpd.fs: Added a tiny web server as example
 
-2000-03-19  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2000-03-19  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* html.fs, kernel/int.fs: Added Forth as HTML scripting language
 	Fixed >NAME bug for words >27 letters
 
-2000-03-18  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2000-03-18  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* gforth.el: Added syntax highlighting for Forth (not perfect yet)
 
@@ -2820,7 +4221,7 @@
 
 	* engine/.cvsignore, kernel/nio.fs, prim: minor documentatil tweaks.
 
-2000-03-11  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2000-03-11  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* arch/4stack/prim.fs, prim, see.fs: Changed -text in prim
 	Changed branchtable size to units in cells
@@ -2839,18 +4240,18 @@
 	* configure.in, extend.fs, test/other.fs: [COMPILE] EXIT bug fixed
 	On Alphas Gforth is now compiled with -mieee (test for availability of -mieee)
 
-2000-01-17  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+2000-01-17  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* float.fs, prim: Fixed ugly field definition in float.fs
 	Added correct IEEE handling of -0 in >float
 
-1999-12-31  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1999-12-31  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* arch/8086/mach.fs, arch/misc/mach.fs, arch/misc/prim.fs, arch/misc/sim.fs, doc/gforth.ds, arch/4stack/mach.sh, machpc.fs, Makefile.in, cross.fs:
 	Started cross compiler documentation
 	Made 4stack, 8086, and MISC Gforth-EC work again
 
-1999-12-30  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1999-12-30  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* arch/4stack/relocate.fs, arch/8086/mach.fs, arch/8086/mach.sh, arch/8086/prim.fs, arch/shboom/mach.fs, kernel/basics.fs, kernel/main.fs, arch/4stack/asm.fs, arch/4stack/mach.fs, arch/4stack/prim.fs, arch/4stack/relocate-new.fs, cross.fs, exceptions.fs, traceall.fs:
 	Added a interpreter trace (traceall)
@@ -2950,7 +4351,7 @@
 	Changes from several months ago. Several sections marked "NAC" are
 	responses to review comments from Anton.
 
-1999-11-06  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1999-11-06  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* blocked.fb: Added "Forth definitions" at the end
 
@@ -2989,7 +4390,7 @@
 	added disasm.fs (Bernd Thallner)
 	added control structures to asm.fs (Bernd Thallner)
 
-1999-08-29  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1999-08-29  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* arch/sharc/mach.fs, arch/sharc/machine.h, arch/sharc/systypes.h, arch/sharc/types.h, arch/sharc/unistd.h:
 	Added hardware specific files for the SHARC port
@@ -3012,12 +4413,12 @@
 
 	* Benchres, engine/engine.c, prim: eliminated some ifdefs for memcmp
 
-1999-08-08  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1999-08-08  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* Benchres, arch/386/machine.h:
 	Some small further changes for fast USE_TOS with gcc 2.95
 
-1999-08-07  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1999-08-07  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* engine/main.c, engine/signals.c, arch/386/machine.h, arch/generic/machine.h, engine/engine.c, configure.in, prim, Benchres:
 	Made USE_TOS work with 386 on gcc 2.95
@@ -3039,7 +4440,7 @@
 	* kernel/int.fs, objects.fs: added methods...end-methods to objects.fs
 	added stack comment in kernel/int.fs
 
-1999-06-20  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1999-06-20  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* wordlibs/unixlib.h, prim, fi2c.fs: Some small fixes for SHARC port
 
@@ -3056,7 +4457,7 @@
 	* engine/engine.c, engine/main.c, configure.in, objects.fs:
 	fixed bug (path handling when opening image).
 
-1999-05-22  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1999-05-22  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* README:
 	Changed second gforth-bugs@gnu.org location and GNU FTP server.
@@ -3206,7 +4607,7 @@
 
 	* engine/main.c: fixed a Cell==int assumption
 
-1999-05-10  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1999-05-10  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* engine/Makefile.in, configure.in, Makefile.in:
 	Changed -O4 to -O3, since that's the highest really supported optimization
@@ -3422,7 +4823,7 @@
 	* configure.in: srcdir is replaced by an absolute directory if it is .
 	Used for word libraries, if current working directory is not gforth root.
 
-1999-02-28  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1999-02-28  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* moofglos.fs, mini-oof.fs:
 	I removed the glossary from mini-oof, please keep it out!
@@ -3508,7 +4909,7 @@
 	bugfix in m68k/machine.h and 386/machine.h
 	doc changes in cross.fs and prim
 
-1999-02-20  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1999-02-20  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* kernel/int.fs:
 	Broke up s>number in int.fs (the other "changes" are just touched files)
@@ -3575,7 +4976,7 @@
 	added FORCE_REG stuff to arch/alpha/machine.h
 	added Alpha assembler (contributed by Bernd Thallner)
 
-1999-01-21  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1999-01-21  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* kernel/int.fs, engine/io.h, engine/main.c, kernel/accept.fs, cross.fs, engine/io.c, Makefile.in:
 	Minor fixes for SHARC
@@ -3587,7 +4988,7 @@
 
 	* engine/main.c: bugfix
 
-1999-01-10  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1999-01-10  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* engine/Makefile.in, engine/main.c, Makefile.in, README, cross.fs:
 	Improved dump information for magic
@@ -3637,7 +5038,7 @@
 
 	* Makefile.in, README, INSTALL: fixed siteinit.fs-related problems
 
-1998-12-25  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1998-12-25  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* kernel/aliases0.fs, engine/Makefile.in, engine/main.c, os2conf.h, prims2x.fs, configure.cmd, cross.fs, mkdosmf.sed, mkos2mf.sed, INSTALL.DOS, Makefile.in, README:
 	Install process fixes for DOS and OS/2
@@ -3663,14 +5064,14 @@
 	* prims2x.fs:
 	prim_lab.i is now generated without indices (for compatibility with gcc-2.5.8)
 
-1998-12-23  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1998-12-23  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* Makefile.in: Fixed Makefile.in for empty emacssitelispdir variable
 
 	* machpc.fs, fi2c.fs: Fixed new format in fi2c.fs
 	Fixed wrong base in machpc.fs
 
-1998-12-22  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1998-12-22  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* config.guess, config.sub: New versions of config.guess and config.sub
 
@@ -3682,7 +5083,7 @@
 	* cross.fs, Makedist.in, Makefile.in: new solution for make dist
 	fixed a bug in generating magic
 
-1998-12-22  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1998-12-22  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* engine/main.c, cross.fs, comp-i.fs:
 	Changed format to Gforth2x (0.4 or greater)
@@ -3695,7 +5096,7 @@
 	* prim, testall, testdist, Benchres: prim: suppressed a few warnings
 	updated testdist and introduced testall for automatic testing on many machines
 
-1998-12-20  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1998-12-20  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* engine/engine.c, engine/main.c, gforthmi.bat, mkdosmf.sed, prim, README, config.bat, fi2c.fs, Makefile.in:
 	Changes to make gforth run on DOS and Win32 (I hope it's not broken by the
@@ -3720,7 +5121,7 @@
 	fixed another bug in marker
 	added/changed some comments
 
-1998-12-13  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1998-12-13  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* engine/select.c, kernel/paths.fs, engine/Makefile.in, engine/main.c, arch/generic/machine.h, doc/gforth.ds, gforthmi.bat, mkdosmf.sed, prim, Makefile.in, blocks.fs, ds2texi.fs, fi2c.fs, Benchres:
 	Added some documentation (files stup, blocks stub, Mini-OOF implementation)
@@ -3733,13 +5134,13 @@
 	Bug with DOS: engine-ditc doesn't compile with optimization on. Maybe I need
 	to get a new GCC version for DOS?
 
-1998-12-12  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1998-12-12  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* engine/engine.c, configure.in, dosconf.h, mkdosmf.sed, mkos2mf.sed, prim, Makefile.in, config.bat:
 	Fixed Makefile for DOS (doesn't fully work yet)
 	Fixed shared library for Windows (not tested yet)
 
-1998-12-11  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1998-12-11  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* Makefile.in:
 	Made Makefile.in dist-able (removed the two outdated files)
@@ -3757,7 +5158,7 @@
 	inserted copyright messages in most files that did not have them
 	removed outdated files engine/32bit.h engine/strsig.c
 
-1998-11-27  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1998-11-27  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* NEWS:
 	Added new things that were part of the "mega-patches" (not necessarily
@@ -3770,7 +5171,7 @@
 	* Makefile.in, NEWS, BUGS: updated NEWS file
 	added doc/gforth.txt to distributed files.
 
-1998-11-22  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1998-11-22  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* engine/main.c, engine/pow10.c, engine/select.c, arch/generic/machine.h, engine/io.h, prims2x.fs, prim:
 	Added system-specific options for C-part of primitives
@@ -3789,7 +5190,7 @@
 	* engine/Makefile.in, kernel/vars.fs, Makefile.in, README: removed f0
 	fixed problem with dependence on config.h.in (not well tested)
 
-1998-11-08  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1998-11-08  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* kernel/args.fs, kernel/int.fs, engine/Makefile.in, engine/engine.c, engine/main.c, configure.cmd, fi2c.fs, prim, startup.fs, vt100key.fs, Makefile.in, config.bat:
 	Bug fix: print cause for problems in command line
@@ -3797,7 +5198,7 @@
 	Adjusted configures for DOS and OS/2 (not tested yet)
 	New feature: link image into executable (for non-OS systems)
 
-1998-10-25  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1998-10-25  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* engine/forth.h, engine/memcmp.c, engine/memcmpc.c, engine/memmove.c, arch/generic/machine.h, engine/engine.c, cross.fs, prim, prims2x.fs, configure.in:
 	SHARC-porting aids that benefit generally:
@@ -3807,13 +5208,13 @@
 	whatever you where like). Some messing around with inabilities of Analog
 	Devices port of GCC.
 
-1998-10-18  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1998-10-18  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* kernel/int.fs, kernel/io.fs, engine/Makefile.in, engine/io.c, engine/io.h, configure.in, prim, Makefile.in:
 	Added infile-id, fixed bug with KEY? when input is not a tty.
 	First try to compile it under Win32.
 
-1998-10-15  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1998-10-15  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* engine/io.c: Fixed braindead problem with Solaris/SunOS 5.6.
 
@@ -3821,7 +5222,7 @@
 	Removed the make -C parts for other makes. Also tried to avoid
 	multiple right side % rules for same reason.
 
-1998-10-14  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1998-10-14  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* Makefile.in, config.bat:
 	Fixed config.bat (no startup.dos, no history.dos)
@@ -3830,7 +5231,7 @@
 	Fixed a lot of problems from the wordlist structure change (I hope we had
 	not omitted the "wordlist-id" in the first place).
 
-1998-10-10  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1998-10-10  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* kernel/toolsext.fs, kernel/cond.fs, kernel/int.fs, kernel/main.fs, kernel/tools.fs, kernel/comp.fs, search.fs, environ.fs, glocals.fs, hash.fs, mini-oof.fs, README, blocked.fb:
 	Changed virtual method table pointer in dictionary objects to be compatible with
@@ -3846,12 +5247,12 @@
 	fixed bug in objects.fs (override of inherited interface methods)
 	added fpick (primitive), suggested by Julian Noble
 
-1998-08-29  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1998-08-29  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* kernel/errore.fs, kernel/main.fs, kernel/comp.fs, prims2x.fs, oof.fs:
 	Fixed docu problems, added stderr output for errors and warnings
 
-1998-08-24  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1998-08-24  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* mini-oof.fs: Small fix, thanks to srb@concentric.net
 
@@ -3871,7 +5272,7 @@
 	fixed dependences for engine.o and main.o (they were overly general)
 	For the hppa arch/hppa/cache.c is used instead of engine/cache.c (untested)
 
-1998-08-01  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1998-08-01  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* .cvsignore: Added aclocal.m4 and config.h.in to .cvsignore
 
@@ -3904,7 +5305,7 @@
 
 	* doc/gforth.ds: documentation changes
 
-1998-07-10  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1998-07-10  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* Makefile.in, doc/gforth.ds: changed deletion of html/ tree
 	changed document structure a bit
@@ -3923,7 +5324,7 @@
 	renamed PARSE-WORD into SWORD (PARSE-WORD is used with the meaning of NAME in
 		OpenBoot and dpans6 A.6.2.2008)
 
-1998-07-05  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1998-07-05  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* engine/.cvsignore, .cvsignore: Yet another additions to .cvsingore's
 
@@ -3969,7 +5370,7 @@
 	doc/gforth.ds now uses @VERSION{} (but we need to generate version.texi)
 		documented new buffering behaviour
 
-1998-05-31  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1998-05-31  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* asm/numref.fs, kernel/kernel.fs, kernel/paths.fs, arch/misc/prim.fs, asm/basic.fs, arch/6502/softuart.fs, arch/6502/prim.fs, prims2x.fs, cross.fs:
 	Switched ~+/ with ./
@@ -3994,7 +5395,7 @@
 	fixed see-code bug, improved isprim?
 	some ifdefs in arch/m68k/machine.h for AmigaOS (contributed by Jorge Acereda)
 
-1998-05-09  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1998-05-09  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* gforth.el: *** empty log message ***
 
@@ -4007,19 +5408,19 @@
 	removed generated files
 	restored gforth.el to version 1.26
 
-1998-05-07  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1998-05-07  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* kernel/doers.fs, kernel/getdoers.fs, Makefile.in:
 	Added missing doers.fs and getdoers.fs
 
-1998-05-03  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1998-05-03  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* doc/gforth.ds:
 	Small documentation changes; started adding doc about Mini-OOF
 
 	* gforth.el: Added folding to gforth.el
 
-1998-05-02  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1998-05-02  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* unix/time.fs, ec/dotx.fs, ec/mirror.fs, ec/mirrored.fs, ec/mirrors.fs, ec/nesting.fs, ec/shex.fs, ec/builttag.fs, asm/numref.fs, asm/target.fs, asm/basic.fs, asm/bitmask.fs, asm/generic.fs, arch/shboom/sh.p, arch/shboom/dis2.fs, arch/shboom/doers.fs, arch/shboom/mach.fs, arch/shboom/prim.fs, arch/shboom/asm.fs, arch/shboom/compiler.fs, arch/shboom/dis.fs, arch/misc/misc.v, arch/misc/misc-sim.v, arch/h8/asm.fs, arch/c165/mach.fs, arch/c165/prim.fs, arch/c165/asm.fs, arch/avr/asm.fs, arch/8086/asm.fs, arch/8086/mach.fs, arch/8086/mach.sh, arch/8086/prim.fs, arch/6502/prim.fs, arch/6502/softuart.fs, arch/6502/zero.fs, arch/6502/asm.fs, arch/6502/cold.fs, arch/6502/mach.fs:
 	Mega-Patch; added directories
@@ -4048,30 +5449,30 @@
 	bug fix in struct.fs, compat/struct.fs
 	main.c: stdout is now unbuffered, if it is a tty
 
-1998-04-12  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1998-04-12  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* kernel/files.fs, doc/gforth.ds, gforth.el, mini-oof.fs, moof-exm.fs, blocks.fs, ds2texi.fs:
 	Added mini-oof and example, started docu for that.
 	Corrected "load" bug in blocks.fs (seems to be that really noone uses blocks.fs).
 	Minor changes do gforth.el
 
-1998-03-21  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1998-03-21  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* engine/engine.c, engine/main.c, comp-i.fs:
 	Changed offset for relocation
 
-1998-03-08  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1998-03-08  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* arch/misc/asm.fs, arch/misc/mach.fs, arch/misc/prim.fs, arch/misc/sim.fs:
 	Added indirect memory access feature, make MISC ROM-able first step.
 
-1997-12-14  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1997-12-14  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* prims2x.fs, lib.fs, prim:
 	Added global library load, reversed order of library load after startup
 	Fixed prims2x.fs to load search.fs first.
 
-1997-12-01  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1997-12-01  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* kernel/main.fs, etags.fs:
 	Modifications due to "marker and order" problem
@@ -4135,11 +5536,11 @@
 	some changed other forth-files
 	['] can not do forward references any more
 
-1997-08-22  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1997-08-22  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* engine/io.c: Fixed bug with key? on Digital "Uhnix"
 
-1997-08-03  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1997-08-03  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* doc/makedoc.fs, doc/gforth.ds: Added OOF documentation
 	Added scope prefix to glossary generator to document different occurances
@@ -4149,7 +5550,7 @@
 	Added scope prefix to glossary generator to document different occurances
 	of the same word
 
-1997-08-02  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1997-08-02  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* doc/gforth.ds: Started documenting OOF
 
@@ -4235,7 +5636,7 @@
 
 	Jens
 
-1997-07-02  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1997-07-02  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* oof.fs: Added method postpone
 	Fixed "with" bug
@@ -4260,7 +5661,7 @@
 	gforth.ds bug fixes
 	fixed/worked around declarations in forth.h
 
-1997-06-15  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1997-06-15  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* engine/main.c, engine/io.c, engine/Makefile.in, engine/forth.h, arch/386/machine.h, prim, configure.in:
 	Some bug fixes.
@@ -4306,7 +5707,7 @@
 	one dvi: entry too much in Makefile.in
 	renaming and fix in debug.fs
 
-1997-05-29  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1997-05-29  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* kernel/main.fs, kernel/require.fs: Bug fixes
 
@@ -4334,7 +5735,7 @@
 
 	* gforth.el: fixed buglet
 
-1997-04-10  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1997-04-10  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* cross.fs, kernel.fs: Made \G work in interpret cross state
 
@@ -4353,7 +5754,7 @@
 	* alpha.h, texinfo.tex: small fix in alpha.h
 	new texinfo.tex (from texinfo-3.9)
 
-1997-03-31  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1997-03-31  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* oof.fs: Line breaks in header comment.
 
@@ -4377,7 +5778,7 @@
 	script? is now set correctly
 	look and represent now work correctly on the Alpha
 
-1997-03-25  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1997-03-25  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* mkos2mf.sed, kernel.fs, mkdosmf.sed, configure.in, gforth.el, Makefile.in, configure.cmd:
 	Improved DOS/OS/2 support
@@ -4386,13 +5787,13 @@
 
 	* Makefile.in: fixed some portability problems of Makefile.in
 
-1997-03-23  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1997-03-23  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* main.c, mkdosmf.sed, Makefile.in, gforth-makeimage.bat:
 	Added DOS-gforth-makeimage
 	Changes for DOS
 
-1997-03-21  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1997-03-21  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* kernel.fs, struct.fs, environ.fs:
 	Ensure backward compatibility to 0.2.1 to create a new system only from diffs
@@ -4414,7 +5815,7 @@
 	updated NEWS
 	some fixes in Makefile.in
 
-1997-03-13  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1997-03-13  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* primitives0.fs, see-ext.fs, main.fs, oof.fs, files.fs, gforth-makeimage, conditionals.fs, errors.fs, args.fs, cond-old.fs, Makefile.in, aliases0.fs, Benchres:
 	Added lots of copyright notices.
@@ -4435,7 +5836,7 @@
 	fixed another bug involving relocatablility of code addresses.
 	my_alloc now works on machines without MAP_FILE and MAP_PRIVATE
 
-1997-03-04  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1997-03-04  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* io.c, kernel.fs, Makefile.in, history.fs: fixed key? problem on Win32
 	Minor fixes
@@ -4452,40 +5853,40 @@
 	added hpux FLUSH_ICACHE in m68k.h
 	made source words print decimal
 
-1997-02-24  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1997-02-24  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* special.fs, primitives, kernel.fs, main.fs, cross.fs, gforth.el:
 	Fixed some alignment problems
 
-1997-02-16  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1997-02-16  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* cond-old.fs: Conditionals without locals
 
 	* primitives, sokoban.fs, oof.fs, main.fs, mkdosmf.sed, io.c, main.c, configure.cmd, engine.c, config.sub, configure.bat, INSTALL.DOS, Makefile.in:
 	go up to 0.3.0
 
-1997-02-14  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1997-02-14  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* primitives: Small changes.
 
-1997-02-12  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1997-02-12  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* mkdosmf.sed, mkos2mf.sed, cross.fs, ds2texi.fs, configure.bat, configure.cmd, Makefile.in:
 	Some fixes to make it run.
 	0.2.9 is out, go to 0.2.91 or so next.
 
-1997-02-09  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1997-02-09  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* primitives0.fs, struct.fs, primitives, extend.fs, kernel.fs, Makefile.in, cross.fs:
 	A few additional fixes. gforth EC should run now with only three
 	doers: docol, dovar and dodoes. Tried without dovar, failed (strange).
 
-1997-02-08  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1997-02-08  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* prims2x.fs, vars.fs, mkos2mf.sed, primitives, main.fs, mkdosmf.sed, mach64b.fs, mach64l.fs, mach32b.fs, mach32l.fs, mach16b.fs, mach16l.fs, etags.fs, kernel.fs, cross.fs, errore.fs, Makefile.in, configure.in:
 	Merged in gforth-EC patches
 
-1997-02-06  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1997-02-06  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* startup.fs, toolsext.fs, primitives, prims2x.fs, mach64l.fs, main.fs, mach32l.fs, mach64b.fs, mach16l.fs, mach32b.fs, kernel.fs, mach16b.fs, extend.fs, files.fs, errore.fs, errors.fs, cross.fs, engine.c, aliases0.fs, args.fs, Makefile.in:
 	Started to merge in changes made for gforth-EC project.
@@ -4496,14 +5897,14 @@
 	documentation changes: added chapter on image files; added concept index
 	bug fixes
 
-1997-01-29  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1997-01-29  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* conditionals.fs: Kernel conditonals
 
 	* see.fs, oof.fs, see-ext.fs, kernel.fs, main.fs: Fixes in see
 	Split kernel conditionals in extra file
 
-1997-01-25  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1997-01-25  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* oof.fs: Added with..endwith (interactive and compiled)
 
@@ -4559,7 +5960,7 @@
 
 	* README: ...
 
-1996-12-06  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1996-12-06  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* mkdosmf.sed, mkos2mf.sed, configure.bat, configure.cmd, INSTALL.DOS, README:
 	Fixed quirks on non-unix platforms
@@ -4573,11 +5974,11 @@
 
 	* kernel.fs: fixed QUERY bug.
 
-1996-11-18  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1996-11-18  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* oof.fs:    Fixed some OOF interfaces bugs.
 
-1996-11-15  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1996-11-15  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* hash.fs: Fixed hash growing
 
@@ -4588,11 +5989,11 @@
 	* objects.fs, gforth.ds, README, ToDo, ans-report.fs, Makefile.in:
 	Added ans-report.fs objects.fs
 
-1996-11-07  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1996-11-07  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* main.c, INSTALL.DOS, dosconf.h, INSTALL: Fixed some things with DOS
 
-1996-11-04  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1996-11-04  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* mkdosmf.sed, mkos2mf.sed, README, configure.cmd, Makefile.in:
 	Some fixes to make it run on non-Unix systems
@@ -4621,18 +6022,18 @@
 	* main.c, Makefile.in, environ.fs: added --version and --help
 	small bugfix
 
-1996-10-20  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1996-10-20  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* search-order.fs, cross.fs, hash.fs, Makefile.in:
 	Fixed problems with different search methods. Hash now doesn't patch
 	it's own search method into vocabularies anymore.
 
-1996-10-13  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1996-10-13  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* pow10.c, m68k.h, oof.fs, forth.h, configure.in:
 	Some fixes to run on Next
 
-1996-10-06  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1996-10-06  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* os2conf.h, stuff.fs, main.c, mkos2mf.sed, dosconf.h, io.c, configure.in, configure.bat, configure.cmd, Makefile.in, atanh.c, INSTALL.DOS:
 	First try to port gforth to OS/2
@@ -4652,7 +6053,7 @@
 	renamed use-file to open-blocks
 	reintroduced FUZZ (for non-Unix)
 
-1996-10-01  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1996-10-01  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* dosconf.h: config.h for DOS
 
@@ -4671,14 +6072,14 @@
 	Building in a dir different from the srcdir now works
 	a few bug fixes
 
-1996-09-24  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1996-09-24  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* main.c, oof.fs, kernel.fs, cross.fs, glocals.fs: Some bug fixing:
 	\G in cross compilation works now
 	marker <-> local conflict resolved
 	hack around problems with non-relocating images.
 
-1996-09-23  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1996-09-23  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* mkdosmf.sed, select.c, io.h, main.c, configure.bat, io.c, INSTALL, INSTALL.DOS:
 	Improved DOS-compilability.
@@ -4687,7 +6088,7 @@
 
 	* kernel.fs, intcomp.fs, code.fs, gforth.ds: documentation changes
 
-1996-09-19  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1996-09-19  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* source.fs, oofsampl.fs, search-order.fs, mkdosmf.sed, oof.fs, kernel.fs, main.fs, kernal.fs, io.c, io.h, cross.fs, filedump.fs, glocals.fs, configure.bat, configure.in, Makefile.in:
 	Steps to make 0.2.0 dist-ready.
@@ -4748,11 +6149,11 @@
 	fixed some macros such that their arguments are only evaluated once.
 	checked in special.fs
 
-1996-07-19  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1996-07-19  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* hppa.h: Fixed DOES_CODE for hppa
 
-1996-07-16  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1996-07-16  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* toolsext.fs, main.fs, mips.h, startup.fs, main.c, hppa.h, kernal.fs, hash.fs, history.fs, forth.h, glocals.fs, extend.fs, filedump.fs, cross.fs, errore.fs, blocks.fs, code.fs, 386.h, Makefile.in:
 	SPECIAL: to create special "state-smart" words
@@ -4782,7 +6183,7 @@
 	made HashTable into a value (for speed)
 	replaced 'flag!' by lastflags, cset, creset, ctoggle
 
-1996-05-07  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1996-05-07  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* tasker.fs, vt100key.fs, kernal.fs, blocks.fs, gforth.1, Makefile.in:
 	Some small bugfixes.
@@ -4817,7 +6218,7 @@
 		(e.g., direct threaded binary with indirect threaded image)
 	   the preamble specifies an interpreter and is propagated by save-system
 
-1996-03-31  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1996-03-31  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* tasker.fs: Added tiny multitasker
 
@@ -4826,13 +6227,13 @@
 	* timings.sc, search-order.fs, sparc.h, Benchres, Makefile.in:
 	minor changes
 
-1996-02-26  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1996-02-26  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* primitives, dblsub.c, Makefile.in:
 	make dist now consistent with new files
 	improved mmul (both dblsub and primitive.fs replacement)
 
-1996-02-19  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1996-02-19  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* kernal.fs, Makefile.in, configure.in:
 	Corrected ( so that it eats multiline comments in files (as recommended by ANS Forth)
@@ -4909,7 +6310,7 @@
 	fixed many small things in Makefile.in and configure.in.
 	Direct threading is now the default on Alphas.
 
-1995-12-11  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1995-12-11  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* makefile.dos, mkdosmf.sed, startup.dos, configure.in, main.fs, Makefile.in, configure.bat, INSTALL, INSTALL.DOS:
 	Added INSTALL.DOS
@@ -4938,7 +6339,7 @@
 	* Makefile.in, gforth.ds: make test now works from scratch
 	final touches on the system documentation requirements and Performance
 
-1995-11-30  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1995-11-30  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* vars.fs, kernal.fs, cross.fs: Added the terminal
 
@@ -4957,7 +6358,7 @@
 	make clean & co. now work as advertised
 	Some documentation changes
 
-1995-11-27  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1995-11-27  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* Makefile.in, sokoban.fs, Benchres, INSTALL: Added benchmark results
 	Tried to work around if clause in Makefile.in
@@ -4983,7 +6384,7 @@
 	"make bench" now also works on 64-bit machines
 	documentation improvements
 
-1995-11-14  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1995-11-14  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* gforth.ds: Added pedegree of VolksForth
 
@@ -4996,7 +6397,7 @@
 	some documentation changes
 	added make targets "bench" and "uninstall"
 
-1995-11-09  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1995-11-09  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* primitives, forth.h:
 	Made gforth run on Alpha (changed Bool to Cell and worked around
@@ -5019,20 +6420,20 @@
 	changes to loadfilename & co. to make savesystem transparent to
 	 assertions and ~~
 
-1995-11-02  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1995-11-02  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* hppa.h, see.fs, debug.fs:
 	Some bugfixes and added features (like -loop) in see.fs and debug.fs
 	Defined LONG_LATENCY in hppa.h (gives more than 10% speed boost)
 
-1995-10-29  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1995-10-29  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* kernal.fs, primitives, hppa.h, gforth.1, gforth.ds, Makefile.in:
 	Corrected aligned instructions
 	Added COPYING to gforth.ds
 	added options to gforth.1
 
-1995-10-26  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1995-10-26  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* threading.h, sokoban.fs, strsignal.c, main.c, primitives, hppa.h, kernal.fs, engine.c, forth.h, 386.h, Makefile.in:
 	Changed threading ifdefs.
@@ -5049,7 +6450,7 @@
 	Fixed many documentation errors and added some documentation
 	signal handling now uses strsignal and can handle signals not present on all machines
 
-1995-10-12  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1995-10-12  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* cache.c, forth.h, hppa.h: Fixed problems with hppa.h
 	Made engine.c compile  without warning
@@ -5087,12 +6488,12 @@
 	Added word index
 	Changed all appearances of GNU Forth to Gforth.
 
-1995-09-06  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1995-09-06  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* texinfo.tex, struct.fs, startup.fs, startup.dos, primitives, model, makefile.dos, main.c, kernal.fs, io.c, hppa.h, history.fs, gforth.el, etags.fs, engine.c, cross.fs, blocks.fs, Makefile.in, BUGS:
 	Removed BUGS, tried to clean up.
 
-1995-08-29  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1995-08-29  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* struct.fs, mkdosmf.sed, makefile.dos, kernal.fs, blocks.fs, blockedit.fb:
 	Added multibuffering in blocks and a simple block editor
@@ -5101,7 +6502,7 @@
 	Made DOS port work (you must change .gforth-history to
 	gforth-history by hand still!)
 
-1995-08-27  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1995-08-27  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* texinfo.tex, struct.fs, model, mkdosmf.sed, makefile.dos, main.fs, main.c, hppa.h, gforth.el, float.fs, filedump.fs, cross.fs, Makefile.in:
 	Made kernal generation saver
@@ -5109,19 +6510,19 @@
 	newer version texinfo.tex
 	fixed some inconsistencies (don't know, what happend with model?)
 
-1995-07-25  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1995-07-25  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* main.fs, main.c, dumpimage.fs, cross.fs, Makefile.in:
 	Changed magic, endianess and word size is now encoded.
 	Make gforth before redoing kernals (old images still work).
 
-1995-07-06  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1995-07-06  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* makedoc.fs, extend.fs, ds2texi.fs, cross.fs, Makefile.in:
 	Added makedoc facility to cross compiler.
 	Now most doc-* reverences are resolved.
 
-1995-06-08  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1995-06-08  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* tools.fs, filedump.fs: Added dump handling for incomplete lines
 
@@ -5140,7 +6541,7 @@
 	Updated bug list
 	added GNU-convention make target check
 
-1995-04-30  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1995-04-30  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* kernal.fs, history.fs: Added ~/ expansion (uses env HOME)
 
@@ -5206,7 +6607,7 @@
 	changed "-evaluate" (which did not work anyway) to "--evaluate"
 	added debugging.fs and assert.fs to startup.fs
 
-1995-02-23  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1995-02-23  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* struct.fs, search-order.fs, prims2x.fs, main.c, kernal.fs, forth.h, engine.c, cross.fs:
 	Added structure support in kernal
@@ -5221,13 +6622,13 @@
 	 scheduling alternatives. Scheduling is determined by two new flags,
 	 -DLONG_LATENCY and -DAUTO_INCREMENT.
 
-1995-02-15  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1995-02-15  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* kernal.fs:
 	BUG fixed as to requires and included after dumping an image
 	(included tried to resize a non-existing block
 
-1995-02-14  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1995-02-14  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* main.c:
 	image must be maxaligned (malloc from DJGPP doesn't return maxaligned
@@ -5238,7 +6639,7 @@
 	* primitives, kernal.fs, gforth.ds, blocks.fs, ToDo, README, Makefile.in, INSTALL, BUGS:
 	fixed blocks.fb creation bug by making result of create-file readable.
 
-1995-02-08  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1995-02-08  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* see.fs, float.fs, cross.fs, configure.bat: Added see for flits
 	Improved alignment of fp lits (now noops compiled before flit)
@@ -5249,7 +6650,7 @@
 	* kernal.fs, float.fs, errore.fs, cross.fs, BUGS:
 	The bodies of words are now maxaligned
 
-1995-02-02  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1995-02-02  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* select.c, prims2x.fs, primitives, makefile.dos, main.c, io.h, ecvt.c, cross.fs, configure.in, configure.bat, alpha.h, ToDo, Makefile.in:
 	added very preliminary support for Alpha/osf1
@@ -5271,7 +6672,7 @@
 	Configure now only generates the antidependences for the actual machines
 	Bug fixes and Bug reports
 
-1995-01-24  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1995-01-24  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* primitives, gforth.ds, float.fs, ecvt.c, cross.fs:
 	cross.fs: Corrected bug on le machines
@@ -5284,7 +6685,7 @@
 	now demand-paged executables are made everywhere
 	mips.h now supports Irix
 
-1995-01-19  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1995-01-19  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* primitives, hash.fs:
 	Fixed some last poblems with 64 bit or other wordsizes.
@@ -5329,7 +6730,7 @@
 
 	* sparc.h: Direct threading works on the SPARC now
 
-1994-12-21  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1994-12-21  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* tt.fs, search-order.fs, hash.fs, environ.fs, configure.in, Makefile.in:
 	added MARKER
@@ -5342,7 +6743,7 @@
 	* strtol.c, sparc.h, ansidecl.h: fixed a bug in sparc.h
 	brought strtoul closer to compiling on the SPARC (but it still does not)
 
-1994-12-15  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1994-12-15  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* toolsext.fs, engine.c, cross.fs, configure.in, configure:
 	Reimplemented [IF] [ELSE] [THEN] etc.
@@ -5376,7 +6777,7 @@
 	Added FORCE_REG stuff to decstation.h
 	added man page
 
-1994-11-29  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1994-11-29  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* colorize.fs: * forgotten file
 
@@ -5394,7 +6795,7 @@
 	* checked in some mminor changes which never were checked in.
 	* added special startup file for DOS
 
-1994-11-24  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1994-11-24  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* hash.fs, README, Makefile.in, INSTALL: * Changed package a bit
 	* New INSTALL file
@@ -5406,7 +6807,7 @@
 	added package target to Makefile.in
 	some documentation changes
 
-1994-11-17  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1994-11-17  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* configure: * bug fix in configure
 
@@ -5426,7 +6827,7 @@
 	* added SAVESYSTEM in dumpimage.fs
 	* fixed bug in Makefile for big endian systems (->configure)
 
-1994-11-15  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1994-11-15  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* main.c, kernal.fs, Makefile.in:
 	* Corrected bug in main.c (one "+" got lost ;-)
@@ -5443,18 +6844,18 @@
 
 	* primitives, gforth.ds: Only documentation changes
 
-1994-11-11  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1994-11-11  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* kernal.fs, configure, config.sub, config.guess, Makefile.in:
 	* added Backspaces for fast editing.
 	* modified GNU configure!!!
 
-1994-11-03  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1994-11-03  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* history.fs:
 	Enhanced command exxpanding (now all dictionaries in search order)
 
-1994-10-27  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1994-10-27  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* vt100key.fs, startup.fs, primitives, history.fs, float.fs: Added f.s
 	Speeded up history backward search
@@ -5470,7 +6871,7 @@
 	changed the behaviour of locals scoping when encountering an unreachable BEGIN.
 	made UNREACHABLE immediate
 
-1994-10-18  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1994-10-18  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* doskey.fs: doskey.fs translates DOS-PC keys into emacs-keys
 	(like cursor and home/end keys)
@@ -5487,7 +6888,7 @@
 	startup.fs modified due to history.fs and doskey.fs (see comment of these
 	files)
 
-1994-10-04  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1994-10-04  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* hppa.h: Added delay slot copying
 
@@ -5497,19 +6898,19 @@
 
 	* getopt1.c, getopt.h, getopt.c, forth.h, engine.c, ToDo, README, Makefile, INSTALL, COPYING, 386.h:
 	Updated ToDo and INSTALL; Wrote README; Lifted COPYING and getopt*
-	from other packages;  removed $Id: ChangeLog,v 1.9 2003-08-25 18:14:37 anton Exp $ lines from some files
+	from other packages;  removed $Id: ChangeLog,v 1.10 2006-05-10 16:40:12 anton Exp $ lines from some files
 
 1994-09-28  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
 
 	* prims2x.fs, primitives, main.c, engine.c, Makefile, 386.h:
 	Fixed some bugs and eliminated some warnings
 
-1994-09-26  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1994-09-26  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* primitives, main.c, hppa.h, forth.h, engine.c: Made DTC on HPPA run!
 	Changed -DDEBUG output to go to stderr
 
-1994-09-12  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1994-09-12  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* wordinfo.fs, toolsext.fs, startup.fs, see.fs, prims2x.fs, primitives, main.c, kernal.fs, hash.fs, glocals.fs, float.fs, cross.fs, Makefile:
 	Added forth variants for primitives
@@ -5537,7 +6938,7 @@
 	Added proper option processing to main.c
 	image and source files are now searched in $GFORTHPATH
 
-1994-09-02  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1994-09-02  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* search-order.fs, kernal.fs, extend.fs, cross.fs, Makefile:
 	Corrected bug in error reporting due to input stream restoration
@@ -5546,7 +6947,7 @@
 	UPS: removed double deferred header and (header) - if problems tell
 	me why double deferred?
 
-1994-08-31  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1994-08-31  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* vars.fs, startup.fs, sieve.fs, primitives, main.fs, kernal.fs, glocals.fs, extend.fs, engine.c, blocks.fs, Makefile:
 	Added options to allow good register scheduling on i386
@@ -5596,7 +6997,7 @@
 	Changed environment? to use a wordlist
 	added most of the core environmental queries
 
-1994-07-21  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1994-07-21  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* look.fs: Fixed bug in look (due to change of name>).
 
@@ -5606,7 +7007,7 @@
 	Made refill for DOS 20 times faster
 	Added m*/ and missing FP words.
 
-1994-07-13  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1994-07-13  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* wordinfo.fs, see.fs, prims2x.fs, primitives, main.c, kernal.fs, engine.c, debug.fs, cross.fs:
 	Moved setjmp from engine to go_forth, because the socalled "globbered"
@@ -5621,7 +7022,7 @@
 	Added a dusty workaround at the end of prims2x.fs, because of
 	strange exceptions.
 
-1994-07-12  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1994-07-12  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* io.c: Added job control
 
@@ -5634,13 +7035,13 @@
 	made .s nicer
 	keep names of included files (in loadfilename) and print them upon error
 
-1994-07-07  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1994-07-07  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* prims2x.fs, primitives, kernal.fs, gray.fs, engine.c, Makefile:
 	Made gray warnings-off-compatible
 	Added (type) as primitive
 
-1994-06-17  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1994-06-17  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* wordinfo.fs, Makefile:
 	Moved -DDEFAULT_BIN before version dependent features (TOS, etc.)
@@ -5651,11 +7052,11 @@
 	* toolsext.fs, primitives, main.c, machine32l.fs, machine32b.fs, locals-test.fs, kernal.fs, io.c, glocals.fs, gforth.texi, gforth.el, float.fs, cross.fs, Makefile:
 	Integrated locals (in particular automatic scoping) into the system.
 
-1994-06-16  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1994-06-16  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* search-order.fs: Removed directory cache
 
-1994-06-01  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1994-06-01  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* engine.c: Changed include sys/unistd.h to unistd.h
 
@@ -5680,7 +7081,7 @@
 
 	* apollo68k.h: changed #endif to right place
 
-1994-05-18  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1994-05-18  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* 386.h: 386.h for DTC (speeds nothing up).
 
@@ -5700,7 +7101,7 @@
 	 	from-cut-here gforth.el gforth.texi glocals.fs gray.fs
 	 	locals-test.fs prims2x.fs
 
-1994-05-05  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1994-05-05  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* main.fs: Now doesn't crash on recompile.
 
@@ -5711,7 +7112,7 @@
 	Added direct threading for R3/4000. Still needs cache flush.
 	Added direct threading for R3/4000. Needs still cache flush.
 
-1994-05-03  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1994-05-03  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* see.fs, primitives2c.el, engine.c, Makefile:
 	Make ca local to primitive to avoid constant register usage.
@@ -5721,7 +7122,7 @@
 	Changed EXIT to ;S
 	Created immediate EXIT in kernal.fs and cross.fs for locals.
 
-1994-04-20  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1994-04-20  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* vt100.fs: vt100-style terminal controls (AT-XY and PAGE).
 
@@ -5730,7 +7131,7 @@
 	engine.c: time.h for ms and time&date included
 	bugs fixed to run tt.pfe
 
-1994-03-11  pazsan  <pazsan@mips.complang.tuwien.ac.at>
+1994-03-11  Bernd Paysan  <bernd.paysan@gmx.de>
 
 	* locals.fs:
 	This file contains an experimental, simple, but portable local variable
