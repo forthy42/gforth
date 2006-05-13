@@ -622,6 +622,7 @@ AC_DEFINE_UNQUOTED(NO_DYNAMIC_DEFAULT,$no_dynamic_default,default value for no_d
 dnl Checks for programs.
 AC_PROG_LN_S
 AC_PROG_INSTALL
+AC_CHECK_PROGS(TEXI2DVI,texi2dvi4a2ps texi2dvi)
 
 dnl Checks for library functions
 dnl This check is just for making later checks link with libm.

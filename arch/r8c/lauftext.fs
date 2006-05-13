@@ -3,7 +3,7 @@
 rom
 
 Create text
-," LinuxTag 2006 -- GNU Forth EC R8C -- Mikroprozessor -- "
+," Forth Tagung 2006 -- GNU Forth EC R8C -- "
 Create ledtable 1 c, 2 c, 4 c, 8 c, 4 c, 2 c,
 Variable /text
 

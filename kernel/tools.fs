@@ -29,7 +29,7 @@ hex
 \ .S            CORE / CORE EXT                         9may93jaw
 
 variable maxdepth-.s \ gforth maxdepth-dot-s
-\G A variable containing 9 by default.  \code{.s} and \code{f.s}
+\G A variable containing 9 by default.  @code{.s} and @code{f.s}
 \G display at most that many stack items.
 9 maxdepth-.s !
 
