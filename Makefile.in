@@ -204,7 +204,6 @@ GFORTH_FI_SRC = \
 	blocks.fs \
 	bufio.fs \
 	code.fs \
-	complex.fs \
 	debug.fs \
 	debugs.fs \
 	dis-gdb.fs \
@@ -217,7 +216,6 @@ GFORTH_FI_SRC = \
 	except.fs \
 	extend.fs \
 	float.fs \
-	fft.fs \
 	glocals.fs \
 	hash.fs \
 	history.fs \
@@ -247,13 +245,13 @@ GFORTH_FI_SRC = \
 
 FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_SRC) $(EC_SRC) \
 	ans-report.fs ansi.fs answords.fs \
-	colorize.fs comp-i.fs \
+	colorize.fs comp-i.fs complex.fs \
 	depth-changes.fs dosekey.fs doskey.fs ds2texi.fs \
-	envos.dos envos.os2 etags.fs filedump.fs fi2c.fs \
+	envos.dos envos.os2 etags.fs fft.fs filedump.fs fi2c.fs \
 	fsl-util.4th glosgen.fs gray.fs httpd.fs proxy.fs \
 	make-app.fs doc/makedoc.fs \
 	locate.fs more.fs other.fs prims2x.fs random.fs \
-	sokoban.fs string.fs table.fs tags.fs \
+	regexp.fs sokoban.fs string.fs table.fs tags.fs \
 	tt.fs \
 	unbuffer.fs wordsets.fs \
 	test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs \
@@ -417,7 +415,7 @@ FORTH_GEN_ENGINE_FAST= \
 	engine/prim_superend-fast.i engine/profile-fast.i \
 	engine/prim_num-fast.i engine/prim_grp-fast.i \
 	engine/costs-fast.i engine/super2-fast.i
-FORTH_GEN_PRIMB = $(FORTH_GEN_ENGINE) $(FORTH_GEN_ENGINE_FAST) kernel/aliases.fs kernel/prim.fs
+FORTH_GEN_PRIMB = $(FORTH_GEN_ENGINE) kernel/aliases.fs kernel/prim.fs
 FORTH_GEN0 = prim.b $(FORTH_GEN_PRIMB)
 FORTH_GEN =  $(FORTH_GEN0) @KERNEL@ gforth.fi
 # this is used for antidependences,
@@ -567,6 +565,7 @@ hpux-workaround:
 #we rebuild gforth.fi, because it contains some path names.
 #we delete $build/gforth.fi and $build/install.TAGS after installation because of ownership.
 install:	gforth$(EXE) $(FORTH_SRC) $(kernel_fi) gforth.fi gforthmi vmgen doc/gforth.1 prim install.TAGS installdirs
+		$(NORMAL_INSTALL)
 		touch $(DESTDIR)$(siteforthdir)/siteinit.fs
 		-$(RM) $(DESTDIR)$(bindir)/gforth$(EXE) $(DESTDIR)$(bindir)/gforth-$(VERSION)$(EXE) $(DESTDIR)$(bindir)/gforthmi $(DESTDIR)$(bindir)/vmgen
 		-$(RM) $(DESTDIR)$(bindir)/gforth-fast$(EXE) $(DESTDIR)$(bindir)/gforth-fast-$(VERSION)$(EXE)
@@ -598,12 +597,14 @@ install:	gforth$(EXE) $(FORTH_SRC) $(kernel_fi) gforth.fi gforthmi vmgen doc/gfo
 		$(INSTALL_DATA) gforth.fi $(DESTDIR)$(libdir)/gforth/$(VERSION)
 		$(INSTALL_DATA) install.TAGS $(DESTDIR)$(datadir)/gforth/$(VERSION)/TAGS
 		$(RM) gforth.fi install.TAGS
+		$(POST_INSTALL)
 		$(INSTALL_INFO) --info-dir=$(DESTDIR)$(infodir) $(DESTDIR)$(infodir)/gforth.info
 		$(INSTALL_INFO) --info-dir=$(DESTDIR)$(infodir) $(DESTDIR)$(infodir)/vmgen.info
 
 install-strip:	install
 
 installdirs:	mkinstalldirs
+		$(NORMAL_INSTALL)
 		for i in $(bindir) $(man1dir) $(infodir) $(libdir)/gforth/$(VERSION) $(datadir)/gforth/$(VERSION) $(libdir)/gforth/site-forth $(siteforthdir); do \
 			$(srcdir)/mkinstalldirs $(DESTDIR)$$i; \
 		done
@@ -615,6 +616,7 @@ installdirs:	mkinstalldirs
 #deinstall all files specific to this version of gforth
 #to uninstall version foo, type `make uninstall VERSION=foo'
 uninstall:	FORCE
+		$(NORMAL_UNINSTALL)
 		-$(RM) -rf $(DESTDIR)$(libdir)/gforth/$(VERSION) $(DESTDIR)$(datadir)/gforth/$(VERSION) $(DESTDIR)$(bindir)/gforth-$(VERSION)$(EXE) $(DESTDIR)$(bindir)/gforth-fast-$(VERSION)$(EXE) $(DESTDIR)$(bindir)/gforth-itc-$(VERSION)$(EXE) $(DESTDIR)$(bindir)/gforthmi-$(VERSION) $(DESTDIR)(bindir)/vmgen-$(VERSION)
 		@echo -e "To remove Gforth completely, type\n$(RM) -rf $(DESTDIR)$(bindir)/gforth$(EXE) $(DESTDIR)$(bindir)/gforth-fast$(EXE) $(DESTDIR)$(bindir)/gforth-itc$(EXE) $(DESTDIR)$(bindir)/gforthmi $(DESTDIR)$(bindir)/vmgen $(DESTDIR)$(man1dir)/gforth.1 $(DESTDIR)$(infodir)/gforth.info* $(DESTDIR)$(datadir)/gforth $(DESTDIR)$(libdir)/gforth"
 

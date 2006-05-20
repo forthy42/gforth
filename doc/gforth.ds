@@ -8949,7 +8949,6 @@ doc-k12
 Note that K11 and K12 are not as widely available.  The shifted
 function keys are also not very widely available:
 
-doc-s-k8
 doc-s-k1
 doc-s-k2
 doc-s-k3
@@ -11607,7 +11606,7 @@ in @file{compat/assert.fs}.
 @cindex singlestep Debugger
 @cindex debugging Singlestep
 
-The singlestep debugger does not work in this release.
+The singlestep debugger works only with the engine @code{gforth-ditc}.
 
 When you create a new word there's often the need to check whether it
 behaves correctly or not. You can do this by typing @code{dbg
