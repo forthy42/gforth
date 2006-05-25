@@ -67,6 +67,7 @@ end-macros
     # $ffff , ip mov.w:g            \ ip will be patched
     # $0780 , sp ldc                \ sp at $0600...$0700
     # $0800 , rp mov.w:g            \ rp at $0780...$0800
+    # $C084 , intbl ldc
     # $0F , $E3  mov.b:g
     # $0F , $E1  mov.b:g
   Label mem-init
@@ -83,12 +84,9 @@ end-macros
     $00 , $0A  bclr:g
   Label uart-init
     # $27 , $B0  mov.b:g      \ hfs
-    # $8105 , $A8  mov.w:g    \ ser1: 9600 baud, 8N1  \ hfs
+\    # $8105 , $A8  mov.w:g    \ ser1: 9600 baud, 8N1  \ hfs
 \    # $2005 , $A8  mov.w:g    \ ser1: 38k4 baud, 8N1  \ hfs
     # $0500 , $AC  mov.w:g      \ hfs
-  Label lcd-init
-    $02 , $0A bset:g
-    # $FD , $E2 mov.b:g
   next,
   End-Label
 
@@ -154,7 +152,7 @@ end-macros
      next,                                       \ execute does> part
   End-Code
 
-  $C0FE here - allot
+  $FF $C0FE here - tcallot
   
   Code: :dovar
 \    '2 dout,                    \ only for debugging
@@ -755,6 +753,7 @@ end-code
    : lcdpage  $01 lcdctrl! &15 ms ;
    : lcdcr    $C0 lcdctrl! ;
    : lcdinit ( -- )
+       $02 $0A bset $FD $E2 c!
        &20 ms $30 >lcd  5 ms  $33 lcdctrl! 5 ms $20 >lcd
        &5 ms  $28 lcdctrl!
        &1 ms  $0C lcdctrl!

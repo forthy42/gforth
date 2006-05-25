@@ -3,7 +3,7 @@
 rom
 
 Create text
-," Forth Tagung 2006 -- GNU Forth EC R8C -- "
+," GNU Forth EC R8C -- Microprocessor -- "
 Create ledtable 1 c, 2 c, 4 c, 8 c, 4 c, 2 c,
 Variable /text
 
@@ -13,7 +13,7 @@ Variable /text
          r@ 16 < IF  text 1+ 16 r@ - lcdtype  THEN
          rdrop 1 /text +!
          /text @ 6 mod ledtable + c@ led!
-         &200 0 DO pause 1 ms LOOP
+         6 adc@ 2/ 0 DO pause 1 ms LOOP
   AGAIN ;
 
 ram

@@ -107,6 +107,7 @@ Create argptr maxargs 0 [DO]  argbuf [I] 2* cells + A, [LOOP]
 : >i+  ( n buf -- buf' )     tuck   l!    cell+ cell+ ;
 : >p+  ( addr buf -- buf' )  tuck    !    cell+ cell+ ;
 : >d+  ( d buf -- buf' )     dup >r ffi-2! r> cell+ cell+ ;
+: >dl+ ( d buf -- buf' )     nip dup >r  ! r> cell+ cell+ ;
 : >sf+ ( r buf -- buf' )     dup   sf!    cell+ cell+ ;
 : >df+ ( r buf -- buf' )     dup   df!    cell+ cell+ ;
 
@@ -115,6 +116,7 @@ Create argptr maxargs 0 [DO]  argbuf [I] 2* cells + A, [LOOP]
 : >i-  ( n buf -- buf' )     2 cells - tuck   l! ;
 : >p-  ( addr buf -- buf' )  2 cells - tuck    ! ;
 : >d-  ( d buf -- buf' )     2 cells - dup >r ffi-2! r> ;
+: >dl- ( d buf -- buf' )     2 cells - nip dup >r ! r> ;
 : >sf- ( r buf -- buf' )     2 cells - dup   sf! ;
 : >df- ( r buf -- buf' )     2 cells - dup   df! ;
 
@@ -123,6 +125,7 @@ Create argptr maxargs 0 [DO]  argbuf [I] 2* cells + A, [LOOP]
 : i>x   ( -- n )  retbuf l@ ;
 : is>x   ( -- n )  retbuf sl@ ;
 : p>x   ( -- addr ) retbuf @ ;
+: dl>x   ( -- d ) retbuf @ s>d ;
 : d>x   ( -- d )  retbuf ffi-2@ ;
 : sf>x  ( -- r )  retbuf sf@ ;
 : df>x  ( -- r )  retbuf df@ ;
@@ -194,21 +197,27 @@ Variable ind-call  ind-call off
   DOES>  2@ args @ decl, ind-call @ 0= IF  symbol,  THEN
     previous revarg off args off ind-call off ;
 
+6 1 cells 4 > 2* - Constant _long
+
 also c-decl definitions
 
 : <rev>  revarg on ;
 
 ' >i+  ' >i-    6 argtype int
+' >p+  ' >p-    _long argtype long
 ' >p+  ' >p-  &12 argtype ptr
 ' >d+  ' >d-    8 argtype llong
+' >dl+ ' >dl-   6 argtype dlong
 ' >sf+ ' >sf-   9 argtype sf
 ' >df+ ' >df- &10 argtype df
 
 ' noop   0 rettype (void)
 ' is>x   6 rettype (int)
 ' i>x    5 rettype (uint)
+' p>x    _long rettype (long)
 ' p>x  &12 rettype (ptr)
 ' d>x    8 rettype (llong)
+' dl>x   6 rettype (dlong)
 ' sf>x   9 rettype (sf)
 ' df>x &10 rettype (fp)
 
@@ -281,7 +290,9 @@ also cb-decl definitions
 ' ffi-arg-int        6 argtype' int
 ' ffi-arg-float      9 argtype' sf
 ' ffi-arg-double   &10 argtype' df
+' ffi-arg-long       _long argtype' long
 ' ffi-arg-longlong   8 argtype' llong
+' ffi-arg-dlong      6 argtype' dlong
 ' ffi-arg-ptr      &12 argtype' ptr
 
 ' ffi-ret-void       0 rettype' (void)
@@ -289,6 +300,8 @@ also cb-decl definitions
 ' ffi-ret-float      9 rettype' (sf)
 ' ffi-ret-double   &10 rettype' (fp)
 ' ffi-ret-longlong   8 rettype' (llong)
+' ffi-ret-long       _long rettype' (long)
+' ffi-ret-dlong      _long rettype' (dlong)
 ' ffi-ret-ptr      &12 rettype' (ptr)
 
 previous definitions

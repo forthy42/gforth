@@ -2714,12 +2714,23 @@ ffi-2! ( d a_addr -- )	gforth ffi_2store
 ffi-arg-int ( -- w )	gforth ffi_arg_int
 w = *(int *)(*gforth_clist++);
 
+ffi-arg-long ( -- w )	gforth ffi_arg_long
+w = *(long *)(*gforth_clist++);
+
 ffi-arg-longlong ( -- d )	gforth ffi_arg_longlong
 #ifdef BUGGY_LONG_LONG
 DLO_IS(d, (Cell*)(*gforth_clist++));
-DHI_IS(d, 0);
+DHI_IS(d, -((Cell*)(*gforth_clist++)<0));
 #else
 d = *(DCell*)(*gforth_clist++);
+#endif
+
+ffi-arg-dlong ( -- d )	gforth ffi_arg_dlong
+#ifdef BUGGY_LONG_LONG
+DLO_IS(d, (Cell*)(*gforth_clist++));
+DHI_IS(d, -((Cell*)(*gforth_clist++)<0));
+#else
+d = *(Cell*)(*gforth_clist++);
 #endif
 
 ffi-arg-ptr ( -- c_addr )	gforth ffi_arg_ptr
@@ -2743,6 +2754,22 @@ ffi-ret-longlong ( d -- )	gforth ffi_ret_longlong
 *(Cell*)(gforth_ritem) = DLO(d);
 #else
 *(DCell*)(gforth_ritem) = d;
+#endif
+return 0;
+
+ffi-ret-dlong ( d -- )	gforth ffi_ret_dlong
+#ifdef BUGGY_LONG_LONG
+*(Cell*)(gforth_ritem) = DLO(d);
+#else
+*(Cell*)(gforth_ritem) = d;
+#endif
+return 0;
+
+ffi-ret-long ( n -- )	gforth ffi_ret_long
+#ifdef BUGGY_LONG_LONG
+*(Cell*)(gforth_ritem) = DLO(n);
+#else
+*(Cell*)(gforth_ritem) = n;
 #endif
 return 0;
 

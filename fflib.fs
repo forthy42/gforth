@@ -127,14 +127,14 @@ also c-decl definitions
 ' av-int      ' av-int-r      ' >r  argtype int
 ' av-float    ' av-float-r    ' f>l argtype sf
 ' av-double   ' av-double-r   ' f>l argtype df
-' av-longlong ' av-longlong-r ' 2>r argtype llong
+' av-longlong ' av-longlong-r ' 2>r argtype dlong
 ' av-ptr      ' av-ptr-r      ' >r  argtype ptr
 
 ' av-call-void     ' av-start-void     rettype (void)
 ' av-call-int      ' av-start-int      rettype (int)
 ' av-call-float    ' av-start-float    rettype (sf)
 ' av-call-double   ' av-start-double   rettype (fp)
-' av-call-longlong ' av-start-longlong rettype (llong)
+' av-call-longlong ' av-start-longlong rettype (dlong)
 ' av-call-ptr      ' av-start-ptr      rettype (ptr)
 
 : (addr)  postpone EXIT drop symbol, previous revarg off ;
@@ -196,14 +196,14 @@ also cb-decl definitions
 ' va-arg-int      Alias int
 ' va-arg-float    Alias sf
 ' va-arg-double   Alias df
-' va-arg-longlong Alias llong
+' va-arg-longlong Alias dlong
 ' va-arg-ptr      Alias ptr
 
 ' va-return-void     ' va-start-void     va-ret (void)
 ' va-return-int      ' va-start-int      va-ret (int)
 ' va-return-float    ' va-start-float    va-ret (sf)
 ' va-return-double   ' va-start-double   va-ret (fp)
-' va-return-longlong ' va-start-longlong va-ret (llong)
+' va-return-longlong ' va-start-longlong va-ret (dlong)
 ' va-return-ptr      ' va-start-ptr      va-ret (ptr)
 
 previous definitions
