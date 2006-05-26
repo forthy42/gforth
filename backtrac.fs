@@ -69,13 +69,9 @@ IS 'cold
     backtrace-rp0 @ [ 2 cells ]L - over - 0 max ;
 
 :noname ( -- )
-    backtrace-empty @
-    if
-	backtrace-return-stack
-	dup backtrace-rs-buffer adjust-buffer
-	backtrace-rs-buffer buffer-address @ swap move
-	backtrace-empty off
-    then ;
+    backtrace-return-stack
+    dup backtrace-rs-buffer adjust-buffer
+    backtrace-rs-buffer buffer-address @ swap move ;
 IS store-backtrace
 
 : print-bt-entry ( return-stack-item -- )

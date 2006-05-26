@@ -85,7 +85,6 @@ Defer store-backtrace
     lp@ >r
     handler @ >r
     rp@ handler !
-    backtrace-empty on
     >r ;
 
 : try ( compilation  -- orig ; run-time  -- ) \ gforth
@@ -126,7 +125,7 @@ is catch
 :noname ( y1 .. ym error/0 -- y1 .. ym / z1 .. zn error ) \ exception
     ?DUP IF
 	[ here forthstart 9 cells + ! ]
-	store-backtrace
+	store-backtrace error-stack off
 	handler @ ?dup-0=-IF
 	    >stderr cr ." uncaught exception: " .error cr
 	    2 (bye)
@@ -140,4 +139,20 @@ is catch
 	rdrop 'throw r> perform
     THEN ;
 is throw
-
+[IFDEF] throw>error
+:noname ( y1 .. ym error/0 -- y1 .. ym / z1 .. zn error ) \ exception
+    ?DUP IF
+	handler @ ?dup-0=-IF
+	    >stderr cr ." uncaught exception: " .error cr
+	    2 (bye)
+\	    quit
+	THEN
+	rp!
+	r> handler !
+	r> lp!
+	r> fp!
+	r> swap >r sp! drop r>
+	rdrop 'throw r> perform
+    THEN ;
+is throw>error
+[THEN]

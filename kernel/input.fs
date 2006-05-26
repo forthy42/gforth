@@ -216,7 +216,7 @@ has? file [IF]
     2drop
 [ [THEN] ]
     -1 loadline ! #tib ! tib !
-    r> catch pop-file throw ;
+    r> catch pop-file throw>error ;
 
 : execute-parsing ( ... addr u xt -- ... ) \ gforth
 \G Make @i{addr u} the current input source, execute @i{xt @code{(
@@ -262,7 +262,7 @@ defer line-end-hook ( -- ) \ gforth
     loadfilename 2!  loadfile !
     r> catch
     loadfile @ close-file swap 2dup or
-    pop-file  drop throw throw ;
+    pop-file  drop throw>error throw ;
 
 : execute-parsing-file ( i*x fileid xt -- j*x ) \ gforth
 \G Make @i{fileid} the current input source, execute @i{xt @code{( i*x

@@ -665,7 +665,7 @@ has? backtrace [IF]
     backtrace-rp0 @ >r	
     ['] interpret1 catch
     r> backtrace-rp0 !
-    throw ;
+    throw>error ;
 [ELSE]
 : interpret ( ... -- ... )
     BEGIN

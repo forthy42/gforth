@@ -114,7 +114,6 @@ AUser lp0 ( -- a-addr ) \ gforth
 
 AUser handler	\ pointer to last throw frame
 has? backtrace [IF]
-User backtrace-empty \ true if the next THROW should store a backtrace
 AUser backtrace-rp0 \ rp at last call of interpret
 [THEN]
 \ AUser output
