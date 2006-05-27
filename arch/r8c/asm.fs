@@ -229,6 +229,8 @@ require asm/target.fs
              DOES> c@ X C,
              RESET ;
  %00000100 GROUP.1B: nop
+ %11111011 GROUP.1B: reit
+ %11110011 GROUP.1B: rts
 \ ----------------------------------------------------------------------------------------------
  : GROUP.1B.l8: CREATE C,              ( opc  -- )
              DOES> c@ X C,
@@ -276,7 +278,7 @@ require asm/target.fs
  %11001110 %01111101 GROUP.2B.l8: JLT
 \ ----------------------------------------------------------------------------------------------
  : GROUP.2B.F: CREATE C, C,           ( opc opc  -- )
-             DOES>   dup c@ X C, 1+ c@ <M> 1+ C@ or X C,
+             DOES>   dup c@ X C, 1+ c@ <M> 1+ C@ $70 and or X C,
              RESET ;
  %00000101 %11101011 GROUP.2B.F: FCLR
  %00000100 %11101011 GROUP.2B.F: FSET

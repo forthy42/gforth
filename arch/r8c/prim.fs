@@ -76,8 +76,7 @@ end-macros
     $01 , $0A bclr:g
   Label clock-init                  \ default is 125kHz/8
     $00 , $0A  bset:g
-    # $28 , $07  mov.b:g
-    # $08 , $06  mov.b:g
+    # $2808 , $06  mov.w:g
     AHEAD  THEN
     2 , $0C bclr:g
     # $00 , $08  mov.b:g            \ set to 20MHz
@@ -87,6 +86,7 @@ end-macros
 \    # $8105 , $A8  mov.w:g    \ ser1: 9600 baud, 8N1  \ hfs
 \    # $2005 , $A8  mov.w:g    \ ser1: 38k4 baud, 8N1  \ hfs
     # $0500 , $AC  mov.w:g      \ hfs
+    I fset
   next,
   End-Label
 
@@ -728,8 +728,23 @@ end-code
        next,
    end-code
    
-   : ms ( n -- )  0 ?DO  &1000 us  LOOP ;
+   Variable timer
+   
+   Code ms-irq ( -- )
+       # 1 , timer add.w:g
+       reit
+   end-code
 
+   ' ms-irq >body $C084 $40 + ! 0 $C084 $42 + c!
+
+   : timer-init ( -- )
+       &19999 $9E !
+       $0401 $9A !
+       1 $50 c! ;
+
+   : ms ( n -- )  timer @ +
+       BEGIN  dup timer @ - 0<  UNTIL  drop ;
+   
    $400 constant ram-start
    $2FFC Constant ram-shadow
    0 Constant ram-mirror
@@ -768,7 +783,7 @@ end-code
    : flash-enable ( -- )   $1b7 c! 3 $1b7 c! 0 $1b5 c! 2 $1b5 c! ;
    : 9k6   $8105 $A8 ! ; \ baud setting
    : 38k4  $2005 $A8 ! ; \ fast terminal
-   : r8cboot ( -- )  flash-enable lcdinit 38k4
+   : r8cboot ( -- )  timer-init flash-enable lcdinit 38k4
        s" Gforth EC R8C" lcdtype boot ;
    ' r8cboot >body $C002 !
    : savesystem ( -- )

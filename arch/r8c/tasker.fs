@@ -10,6 +10,8 @@ Variable bgtask ram $20 cells allot rom
   bgtask $10 cells + bgtask ! ;
 : pkey echo @ IF
      BEGIN pause key? UNTIL THEN (key) ;
+: ms ( n -- )  timer @ +
+    BEGIN  pause dup timer @ - 0<  UNTIL  drop ;
 ' pkey is key
 
 ram

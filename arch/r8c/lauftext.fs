@@ -13,7 +13,7 @@ Variable /text
          r@ 16 < IF  text 1+ 16 r@ - lcdtype  THEN
          rdrop 1 /text +!
          /text @ 6 mod ledtable + c@ led!
-         6 adc@ 2/ 0 DO pause 1 ms LOOP
+         6 adc@ 2/ ms
   AGAIN ;
 
 ram
