@@ -29,7 +29,7 @@ variable bcol
 
 variable seed $1234 seed !
 
-: randomize ;
+: randomize  timer @ seed ! ;
 
 : random \ max --- n ; return random number < max
   seed @ 13 * [ hex ] 07FFF [ decimal ] and

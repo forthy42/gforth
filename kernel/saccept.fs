@@ -35,7 +35,7 @@ Variable echo  -1 echo !
        dup #cr = over #lf = or IF
 	   echo @ IF  space  THEN  drop nip swap - ( xoff ) EXIT THEN
        dup #eof = IF  eof on  THEN
-       #bs = IF 3 pick over <> over 0> and 
+       #bs = IF 2 pick over <>
 	   IF 1 chars -
 	       echo @ IF  #bs emit bl emit #bs emit  THEN
 	   ELSE  echo @ IF  bell  THEN  THEN  THEN

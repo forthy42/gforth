@@ -727,7 +727,7 @@ end-code
        tos pop.w:g
        next,
    end-code
-   
+
    Variable timer
    
    Code ms-irq ( -- )
@@ -742,8 +742,11 @@ end-code
        $0401 $9A !
        1 $50 c! ;
 
+   : noop ;
+   defer pause ' noop is pause
+   
    : ms ( n -- )  timer @ +
-       BEGIN  dup timer @ - 0<  UNTIL  drop ;
+       BEGIN  pause dup timer @ - 0<  UNTIL  drop ;
    
    $400 constant ram-start
    $2FFC Constant ram-shadow
@@ -783,7 +786,8 @@ end-code
    : flash-enable ( -- )   $1b7 c! 3 $1b7 c! 0 $1b5 c! 2 $1b5 c! ;
    : 9k6   $8105 $A8 ! ; \ baud setting
    : 38k4  $2005 $A8 ! ; \ fast terminal
-   : r8cboot ( -- )  timer-init flash-enable lcdinit 38k4
+   : r8cboot ( -- ) ['] noop IS pause
+       timer-init flash-enable lcdinit 38k4
        s" Gforth EC R8C" lcdtype boot ;
    ' r8cboot >body $C002 !
    : savesystem ( -- )
