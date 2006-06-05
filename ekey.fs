@@ -219,7 +219,7 @@ set-current
 
 : ekey>char ( u -- u false | c true ) \ facility-ext e-key-to-char
     \G Convert keyboard event @var{u} into character @code{c} if possible.
-    dup 256 u< ;
+    dup k-left u< ; \ k-left must be first!
 
 ' key? alias ekey? ( -- flag ) \ facility-ext e-key-question
 \G True if a keyboard event is available.
