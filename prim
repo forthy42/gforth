@@ -2698,7 +2698,7 @@ w = ffi_prep_closure((ffi_closure *)a_closure, (ffi_cif *)a_cif, gforth_callback
 
 ffi-2@ ( a_addr -- d )	gforth ffi_2fetch
 #ifdef BUGGY_LONG_LONG
-DLO_IS(d, (Cell*)(*a_addr));
+DLO_IS(d, *(Cell*)(*a_addr));
 DHI_IS(d, 0);
 #else
 d = *(DCell*)(a_addr);
@@ -2719,16 +2719,16 @@ w = *(long *)(*gforth_clist++);
 
 ffi-arg-longlong ( -- d )	gforth ffi_arg_longlong
 #ifdef BUGGY_LONG_LONG
-DLO_IS(d, (Cell*)(*gforth_clist++));
-DHI_IS(d, -((Cell*)(*gforth_clist++)<0));
+DLO_IS(d, *(Cell*)(*gforth_clist++));
+DHI_IS(d, -(*(Cell*)(*gforth_clist++)<0));
 #else
 d = *(DCell*)(*gforth_clist++);
 #endif
 
 ffi-arg-dlong ( -- d )	gforth ffi_arg_dlong
 #ifdef BUGGY_LONG_LONG
-DLO_IS(d, (Cell*)(*gforth_clist++));
-DHI_IS(d, -((Cell*)(*gforth_clist++)<0));
+DLO_IS(d, *(Cell*)(*gforth_clist++));
+DHI_IS(d, -(*(Cell*)(*gforth_clist++)<0));
 #else
 d = *(Cell*)(*gforth_clist++);
 #endif
