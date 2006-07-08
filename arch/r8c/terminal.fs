@@ -192,8 +192,12 @@ s" os-type" environment? [IF]
 
 Create file-buf $40 allot
 Variable file-len
+Variable term-stack $10 cells allot
 
-0 Value termfile
+: 'term ( -- addr ) term-stack @ cells term-stack + ;
+: termfile ( -- file ) 'term @ ;
+: >term ( o -- )  1 term-stack +! 'term ! ;
+: term> ( -- )  -1 term-stack +! ;
 Variable term-state
 Variable progress-state
 
@@ -204,9 +208,9 @@ Variable progress-state
 : open-include ( -- )
     file-buf file-len @ r/o open-file
     IF    ." File '" file-buf file-len @ type ." ' not found" term-end drop
-    ELSE  to termfile  THEN ;
+    ELSE  >term  THEN ;
 : end-include ( -- )  termfile 0= IF  EXIT  THEN
-    termfile close-file throw  0 to termfile ;
+    termfile close-file throw  term> ;
 
 Create progress s" /-\|" here over allot swap move
 
@@ -215,17 +219,23 @@ Create progress s" /-\|" here over allot swap move
 	I c@ CASE
 	    2 OF  1 term-state !  ENDOF
 	    3 OF
-		termfile IF
-		    file-buf $40 termfile read-line throw
-		    progress progress-state @ + c@ emit #bs emit
-		    progress-state @ 1+ 3 and progress-state !
+		BEGIN
+		    termfile IF
+			file-buf $40 termfile read-line throw
+			progress progress-state @ + c@ emit #bs emit
+			progress-state @ 1+ 3 and progress-state !
+		    ELSE
+			0 0
+		    THEN
+		    0= termfile and  WHILE
+			drop end-include
+		REPEAT
+		term-stack @ 0= IF
+		    drop term-end
 		ELSE
-		    0 0
+		    file-buf swap (term-type)
+		    #cr  term-emit
 		THEN
-		0= IF
-		    term-end
-		ELSE  file-buf swap (term-type)
-		    #cr  term-emit  THEN
 		term-flush
 	    ENDOF
 	    4 OF end-include  ENDOF

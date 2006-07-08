@@ -797,9 +797,12 @@ end-code
        ram-shadow tuck flash! cell+ flash! ;
    : refill-loop ( -- )
        BEGIN  3 emit refill  WHILE  interpret  REPEAT ;   
-   : included ( addr u -- )  echo off
-       2 emit dup $20 + emit type ['] refill-loop catch
-       dup IF  4 emit  THEN  echo on  throw ;
+   : included ( addr u -- )
+       2 emit dup $20 + emit type
+       echo @ IF
+	   echo off ['] refill-loop catch
+	   dup IF  4 emit  THEN  echo on  throw
+       THEN ;
    : include ( "file" -- )  parse-name included ;
    : empty ( -- )  $2800 flash-off $2000 flash-off
        forth-wordlist ram-mirror + ram-start - @ forth-wordlist !
