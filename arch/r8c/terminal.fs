@@ -256,10 +256,15 @@ Create progress s" /-\|" here over allot swap move
 	key? IF  key term-emit term-flush
 	ELSE  &10 ms  THEN
     AGAIN ;
-: terminal ( "name" -- ) cr
+: say-hallo
+    ." Gforth terminal"
+    cr ." Press ENTER to get ok from connected device."
+    cr ." Leave with BYE" 
+    cr ;
+: terminal ( "name" -- )
     parse-name open-port
-    B38400 term-fd set-baud ['] term-loop catch
-    dup -1 = IF  drop EXIT  THEN  throw ;
+    B38400 term-fd set-baud say-hallo ['] term-loop catch
+    dup -1 = IF  drop cr EXIT  THEN  throw ;
 
 s" os-type" environment? [IF]
     2dup s" linux-gnu" str= [IF] 2drop
