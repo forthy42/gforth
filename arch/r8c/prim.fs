@@ -783,7 +783,7 @@ end-code
    : flashc! ( c addr -- )  $40 over c! c! ?flash ;
    : flash! ( x addr -- )  2dup flashc! >r 8 rshift r> 1+ flashc! ;
    : flash-off ( addr -- )  $20 over c! $D0 swap c! ?flash ;
-   : flash-enable ( -- )   $1b7 c! 3 $1b7 c! 0 $1b5 c! 2 $1b5 c! ;
+   : flash-enable ( -- )   1 $1b7 c! 3 $1b7 c! 0 $1b5 c! 2 $1b5 c! ;
    : 9k6   $8105 $A8 ! ; \ baud setting
    : 38k4  $2005 $A8 ! ; \ fast terminal
    : r8cboot ( -- ) ['] noop IS pause

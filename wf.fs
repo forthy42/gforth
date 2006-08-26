@@ -43,7 +43,7 @@ require string.fs
 	case
 	    '& of  ." &amp;"  endof
 	    '< of  ." &lt;"   endof
-\	    '¤ of  ." &euro;" endof
+\	    &164 of  ." &euro;" endof
 	    dup emit
 	endcase
     LOOP ;
