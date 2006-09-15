@@ -75,6 +75,7 @@ void gforth_callback(Xt* fcall, void * alist)
   Cell *sp = gforth_SP;
   Float *fp = gforth_FP;
   Address lp = gforth_LP;
+  va_alist clist = gforth_clist;
 
   gforth_clist = (va_alist)alist;
 
@@ -85,6 +86,7 @@ void gforth_callback(Xt* fcall, void * alist)
   gforth_SP = sp;
   gforth_FP = fp;
   gforth_LP = lp;
+  gforth_clist = clist;
 }
 #endif
 
@@ -103,6 +105,8 @@ void gforth_callback(ffi_cif * cif, void * resp, void ** args, void * ip)
   Cell *sp = gforth_SP;
   Float *fp = gforth_FP;
   Address lp = gforth_LP;
+  void ** clist = gforth_clist;
+  void * ritem = gforth_ritem;
 
   gforth_clist = args;
   gforth_ritem = resp;
@@ -114,6 +118,8 @@ void gforth_callback(ffi_cif * cif, void * resp, void ** args, void * ip)
   gforth_SP = sp;
   gforth_FP = fp;
   gforth_LP = lp;
+  gforth_clist = clist;
+  gforth_ritem = ritem;
 }
 #endif
 
