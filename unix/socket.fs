@@ -19,15 +19,30 @@
 \ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
 
 require lib.fs
-[IFUNDEF] libc  library libc libc.so.6  [THEN]
+[IFUNDEF] libc
+    s" os-type" environment? [IF]
+	2dup s" linux-gnu" str= [IF]  2drop
+	    library libc libc.so.6
+	[ELSE] 2dup s" cygwin" str= [IF]  2drop
+		library libc cygwin1.dll
+	    [ELSE]  s" bsd" str= [IF]
+		    library libc libc.so.5
+		[THEN]
+	    [THEN]
+	[THEN]
+    [THEN]
+[THEN]
 
 libc gethostbyname ptr (ptr) gethostbyname ( name -- hostent )
 libc socket int int int (int) socket ( class type proto -- fd )
 libc connect int ptr int (int) connect ( fd sock size -- err )
 libc fdopen int ptr (ptr) fdopen ( fd fileattr -- file )
 libc htonl int (int) htonl ( x -- x' )
+libc htons int (int) htons ( x -- x' )
+libc ntohl int (int) ntohl ( x -- x' )
 
 4 4 2Constant int%
+2 2 2Constant short%
 
 struct
     cell% field h_name
@@ -38,7 +53,8 @@ struct
 end-struct hostent
 
 struct
-    int% field family+port
+    short% field family
+    short% field port
     int% field sin_addr
     cell% 2* field padding
 end-struct sockaddr_in
@@ -59,11 +75,18 @@ sockaddr-tmp sockaddr_in %size dup allot erase
 1 Constant SOCK_STREAM
 6 Constant IPPROTO_TCP
 
-: open-socket ( addr u port -- fid )
-    htonl PF_INET [ base c@ 0= ] [IF] $10 lshift [THEN]
-    or sockaddr-tmp family+port l!
-    host>addr sockaddr-tmp sin_addr l!
+: new-socket ( -- socket )
     PF_INET SOCK_STREAM IPPROTO_TCP socket
-    dup 0<= abort" no free socket" >r
-    r@ sockaddr-tmp $10 connect 0< abort" can't connect"
+    dup 0<= abort" no free socket" ;
+
+: >inetaddr ( ip port sockaddr -- ) >r
+    r@ sockaddr_in %size erase
+    PF_INET r@ family w!
+    htons r@ port w!
+    htonl r> sin_addr l! ;
+
+: open-socket ( addr u port -- fid )
+    -rot host>addr swap sockaddr-tmp >inetaddr
+    new-socket >r
+    r@ sockaddr-tmp sockaddr_in %size connect 0< abort" can't connect"
     r> s" w+" c-string fdopen ;
