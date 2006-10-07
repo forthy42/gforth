@@ -181,7 +181,7 @@ mime set-current
 s" application/pgp-signature" transparent: sig
 s" application/x-bzip2" transparent: bz2
 s" application/x-gzip" transparent: gz
-s" /etc/mime.types" mime-read
+s" /etc/mime.types" ['] mime-read catch [IF]  2drop  [THEN]
 
 definitions
 
