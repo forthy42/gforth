@@ -25,8 +25,8 @@ require lib.fs
 	    library libc libc.so.6
 	[ELSE] 2dup s" cygwin" str= [IF]  2drop
 		library libc cygwin1.dll
-	    [ELSE]  s" bsd" str= [IF]
-		    library libc libc.so.5
+	    [ELSE]  s" bsd" search nip nip [IF]
+		    library libc libc.so
 		[THEN]
 	    [THEN]
 	[THEN]
