@@ -69,7 +69,7 @@ sockaddr-tmp sockaddr_in %size dup allot erase
     \G converts a internet name into a IPv4 address
     \G the resulting address is in network byte order
     c-string gethostbyname dup 0= abort" address not found"
-    h_addr_list @ @ @ ;
+    h_addr_list @ @ @ ntohl ;
 
 2 Constant PF_INET
 1 Constant SOCK_STREAM
@@ -86,7 +86,8 @@ sockaddr-tmp sockaddr_in %size dup allot erase
     htonl r> sin_addr l! ;
 
 : open-socket ( addr u port -- fid )
-    -rot host>addr swap sockaddr-tmp >inetaddr
+    -rot host>addr
+    swap sockaddr-tmp >inetaddr
     new-socket >r
     r@ sockaddr-tmp sockaddr_in %size connect 0< abort" can't connect"
     r> s" w+" c-string fdopen ;

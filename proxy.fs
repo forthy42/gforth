@@ -36,14 +36,14 @@ Create crlf #cr c, #lf c,
     ELSE  s" Gforth Proxy 0.1"  THEN  r@ writeln
     s" " r@ writeln r> ;
 
-Variable proxy          s" proxy" proxy $! \ replace that with your proxy host
-Variable proxy-port     3128 proxy-port !  \ replace that with your proxy port
+Variable proxy          \ s" proxy" proxy $! \ replace that with your proxy host
+Variable proxy-port     \ 8080 proxy-port !  \ replace that with your proxy port
 
-: proxy-open ( host u request u -- fid )
-    proxy $@ proxy-port @ request ;
+\ set proxy to your local proxy, and proxy-port to your local proxy port
+\ if you need any.
 
 : http-open ( host u request u -- fid )
-    2over 80 request ;
+    proxy @ 0= IF  2over 80  ELSE  proxy $@ proxy-port @  THEN request ;
 
 wordlist Constant response
 wordlist Constant response-values
@@ -189,7 +189,7 @@ DOES> ( -- addr u )
     IF  2drop false  ELSE  redir$ @ 0<>  THEN ;
 
 : (redirect) ( -- )
-    host$ $@ redir$ $@ proxy-open handle-request maxnum off ;
+    host$ $@ redir$ $@ http-open handle-request maxnum off ;
 
 ' (redirect?) IS redirect?
 ' (redirect) IS redirect
@@ -200,9 +200,14 @@ redirects set-current
 get-order redirects swap 1+ set-order
 
 Vocabulary systems
+Vocabulary humor
 
 also systems definitions
 
-redirect: bigforth bigforth.sourceforge.net"http://bigforth.sourceforge.net/"
+redirect: bigforth bigforth.sourceforge.net"/"
+
+humor definitions
+
+redirect: bush www.jwdt.com"/~paysan/bush/"
 
 previous previous definitions
