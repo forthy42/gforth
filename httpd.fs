@@ -18,12 +18,34 @@
 \ along with this program; if not, write to the Free Software
 \ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
 
+\ This relies on inetd or xinetd:
+
+\ To run the server on port 4444, do the following:
+
+\ Add the following line to /etc/services:
+\ gforth          4444/tcp
+
+\ If you use inetd, add the following line to /etc/inetd.conf:
+\ gforth stream tcp nowait.10000   wwwrun   /usr/users/bernd/bin/httpd
+
+\ If you use xinetd, create the folliwing service in /etc/xinetd.d:
+\ service gforth
+\ {
+\         socket_type     = stream
+\         protocol        = tcp
+\         wait            = no
+\         user            = wwwrun
+\         server          = /home/bernd/bin/httpd
+\ }
+
+\ If you want port 80, replace the service "gforth" with "http"
+
 warnings off
 
 require string.fs
 
-Variable DocumentRoot  s" /usr/local/httpd/htdocs/" DocumentRoot $!
-Variable UserDir       s" public_html/"              UserDir      $!
+Variable DocumentRoot  s" /srv/www/htdocs/" DocumentRoot $!
+Variable UserDir       s" public_html/"     UserDir      $!
 
 Variable url
 Variable posted
@@ -181,7 +203,14 @@ mime set-current
 s" application/pgp-signature" transparent: sig
 s" application/x-bzip2" transparent: bz2
 s" application/x-gzip" transparent: gz
-s" /etc/mime.types" ['] mime-read catch [IF]  2drop  [THEN]
+s" /etc/mime.types" ' mime-read catch [IF]  2drop
+    \ no /etc/mime.types found on this machine,
+    \ generating the most important types:
+    s" text/html" transparent: html
+    s" image/gif" transparent: gif
+    s" image/png" transparent: png
+    s" image/jpg" transparent: jpg
+[THEN]
 
 definitions
 
@@ -189,7 +218,7 @@ s" text/plain" transparent: txt
 
 \ http errors                                          26mar00py
 
-: .server ( -- )  ." Server: Gforth httpd/0.1 ("
+: .server ( -- )  ." Server: Gforth httpd/1.0 ("
     s" os-class" environment? IF  type  THEN  ." )" cr ;
 : .ok  ( -- ) ." HTTP/1.1 200 OK" cr .server ;
 : html-error ( n addr u -- )
@@ -200,7 +229,7 @@ s" text/plain" transparent: txt
     ." </TITLE></HEAD>" cr
     ." <BODY><H1>" type drop ." </H1>" cr ;
 : .trailer ( -- )
-    ." <HR><ADDRESS>Gforth httpd 0.1</ADDRESS>" cr
+    ." <HR><ADDRESS>Gforth httpd 1.0</ADDRESS>" cr
     ." </BODY></HTML>" cr ;
 : .nok ( -- ) command? @ IF  &405 s" Method Not Allowed"
     ELSE  &400 s" Bad Request"  THEN  html-error
