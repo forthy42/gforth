@@ -240,7 +240,7 @@ defer throw ( y1 .. ym nerror -- y1 .. ym / z1 .. zn error ) \ exception
 \G If @i{nerror} is 0, drop it and continue.  Otherwise, transfer
 \G control to the next dynamically enclosing exception handler, reset
 \G the stacks accordingly, and push @i{nerror}.
-defer throw>error ( y1 .. ym nerror -- y1 .. ym / z1 .. zn error ) \ exception
+defer rethrow ( y1 .. ym nerror -- y1 .. ym / z1 .. zn error ) \ exception
 \G If @i{nerror} is 0, drop it and continue.  Otherwise, transfer
 \G control to the next dynamically enclosing exception handler, reset
 \G the stacks accordingly, and push @i{nerror}. Doesn't reset the error stack
@@ -253,7 +253,7 @@ defer throw>error ( y1 .. ym nerror -- y1 .. ym / z1 .. zn error ) \ exception
 	[ [ELSE] ] quit [ [THEN] ]
     then ;
 dup is throw
-is throw>error
+is rethrow
 [THEN]
 
 \ (abort")

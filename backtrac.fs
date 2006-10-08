@@ -66,7 +66,7 @@ IS 'cold
     else \ throw by signal handler with insufficient information
 	handler @ cell - \ beyond that we know nothing
     then
-    backtrace-rp0 @ [ 2 cells ]L - over - 0 max ;
+    backtrace-rp0 @ [ 1 cells ]L - over - 0 max ;
 
 :noname ( -- )
     backtrace-return-stack

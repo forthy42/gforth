@@ -331,7 +331,7 @@ s" Gforth" environment? [IF] s" 0.5.0" str= [IF]
 [ELSE]
 : parse-string ( addr u -- )
     evaluate-input cell new-tib #tib ! tib !
-    ['] parse-line catch pop-file throw ;
+    ['] parse-line catch pop-file rethrow ;
 [THEN] [THEN]
 
 Variable expand-link

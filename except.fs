@@ -139,7 +139,7 @@ is catch
 	rdrop 'throw r> perform
     THEN ;
 is throw
-[IFDEF] throw>error
+[IFDEF] rethrow
 :noname ( y1 .. ym error/0 -- y1 .. ym / z1 .. zn error ) \ exception
     ?DUP IF
 	handler @ ?dup-0=-IF
@@ -154,5 +154,5 @@ is throw
 	r> swap >r sp! drop r>
 	rdrop 'throw r> perform
     THEN ;
-is throw>error
+is rethrow
 [THEN]

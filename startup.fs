@@ -24,6 +24,10 @@
 require except.fs \ included on command line
 [THEN]
 
+[IFDEF] throw>error
+    ' throw>error Alias rethrow
+[THEN]
+
 warnings off
 include search.fs
 include environ.fs
