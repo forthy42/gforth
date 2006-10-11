@@ -76,7 +76,11 @@ Defer store-backtrace
 
 \ !! explain handler on-stack structure
 
+Variable first-throw
+: nothrow ( -- )  first-throw on ;
+
 : (try) ( ahandler -- )
+    first-throw on
     r>
     swap >r \ recovery address
     rp@ 'catch >r
@@ -125,7 +129,10 @@ is catch
 :noname ( y1 .. ym error/0 -- y1 .. ym / z1 .. zn error ) \ exception
     ?DUP IF
 	[ here forthstart 9 cells + ! ]
-	store-backtrace error-stack off
+	first-throw @ IF
+	    store-backtrace error-stack off
+	    first-throw off
+	THEN
 	handler @ ?dup-0=-IF
 	    >stderr cr ." uncaught exception: " .error cr
 	    2 (bye)

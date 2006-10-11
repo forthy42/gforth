@@ -229,7 +229,7 @@ Create block-input   A, A, A, A, A,
     \G @code{BLK}, set @code{>IN} to 0 and interpret. When the parse
     \G area is exhausted, restore the input source specification.
     block-input 0 new-tib dup loadline ! blk !  s" * a block*" loadfilename 2!
-    ['] interpret catch pop-file rethrow ;
+    ['] interpret catch pop-file throw ;
 [ELSE]
 : (source)  ( -- c-addr u )
   blk @ ?dup
@@ -250,7 +250,7 @@ Create block-input   A, A, A, A, A,
     dup loadline ! blk ! >in off ['] interpret catch
     pop-file
     r>loadfilename
-    rethrow ;
+    throw ;
 [THEN]
 
 : thru ( i*x n1 n2 -- j*x ) \ block-ext

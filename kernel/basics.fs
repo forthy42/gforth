@@ -240,10 +240,6 @@ defer throw ( y1 .. ym nerror -- y1 .. ym / z1 .. zn error ) \ exception
 \G If @i{nerror} is 0, drop it and continue.  Otherwise, transfer
 \G control to the next dynamically enclosing exception handler, reset
 \G the stacks accordingly, and push @i{nerror}.
-defer rethrow ( y1 .. ym nerror -- y1 .. ym / z1 .. zn error ) \ exception
-\G If @i{nerror} is 0, drop it and continue.  Otherwise, transfer
-\G control to the next dynamically enclosing exception handler, reset
-\G the stacks accordingly, and push @i{nerror}. Doesn't reset the error stack
 
 :noname ( y1 .. ym error -- y1 .. ym / z1 .. zn error )
     ?dup if
@@ -252,8 +248,7 @@ defer rethrow ( y1 .. ym nerror -- y1 .. ym / z1 .. zn error ) \ exception
 	[ has? file [IF] ] script? IF  1 (bye)  ELSE  quit  THEN
 	[ [ELSE] ] quit [ [THEN] ]
     then ;
-dup is throw
-is rethrow
+is throw
 [THEN]
 
 \ (abort")
