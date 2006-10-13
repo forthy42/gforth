@@ -77,7 +77,12 @@ Defer store-backtrace
 \ !! explain handler on-stack structure
 
 Variable first-throw
-: nothrow ( -- )  first-throw on ;
+: nothrow ( -- ) \ gforth
+    \G Use this (or the standard sequence @code{['] false catch drop})
+    \G after a @code{catch} or @code{endtry} that does not rethrow;
+    \G this ensures that the next @code{throw} will record a
+    \G backtrace.
+    first-throw on ;
 
 : (try) ( ahandler -- )
     first-throw on

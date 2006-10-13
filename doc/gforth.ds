@@ -5677,6 +5677,7 @@ mode (i.e., while processing the shell command line), leaves Gforth).
 The ANS Forth way to catch exceptions is @code{catch}:
 
 doc-catch
+doc-nothrow
 
 The most common use of exception handlers is to clean up the state when
 an error happens.  E.g.,
@@ -5694,7 +5695,7 @@ like this:
 @example
 ['] foo catch
 CASE
-  myerror OF ... ( do something about it ) ENDOF
+  myerror OF ... ( do something about it ) nothrow ENDOF
   dup throw \ default: pass other errors on, do nothing on non-errors
 ENDCASE
 @end example
@@ -5705,7 +5706,7 @@ therefore Gforth provides an alternative syntax:
 @example
 TRY
   @i{code1}
-RECOVER     \ optional
+RECOVER
   @i{code2} \ optional
 ENDTRY
 @end example
@@ -5737,7 +5738,7 @@ TRY
   foo
 RECOVER
   CASE
-    myerror OF ... ( do something about it ) ENDOF
+    myerror OF ... ( do something about it ) nothrow ENDOF
     throw \ pass other errors on
   ENDCASE
 ENDTRY
@@ -12435,10 +12436,12 @@ specific @code{throw} was executed.  In programs that make use of
 @code{catch}, it is not necessarily clear which @code{throw} should be
 used for the return stack dump (e.g., consider one @code{throw} that
 indicates an error, which is caught, and during recovery another error
-happens; which @code{throw} should be used for the stack dump?).  Gforth
-presents the return stack dump for the first @code{throw} after the last
-executed (not returned-to) @code{catch}; this works well in the usual
-case.
+happens; which @code{throw} should be used for the stack dump?).
+Gforth presents the return stack dump for the first @code{throw} after
+the last executed (not returned-to) @code{catch} or @code{nothrow};
+this works well in the usual case. To get the right backtrace, you
+usually want to insert @code{nothrow} or @code{['] false catch drop}
+after a @code{catch} if the error is not rethrown.
 
 @cindex @code{gforth-fast} and backtraces
 @cindex @code{gforth-fast}, difference from @code{gforth}
