@@ -2766,11 +2766,7 @@ ffi-ret-dlong ( d -- )	gforth ffi_ret_dlong
 return 0;
 
 ffi-ret-long ( n -- )	gforth ffi_ret_long
-#ifdef BUGGY_LONG_LONG
-*(Cell*)(gforth_ritem) = DLO(n);
-#else
 *(Cell*)(gforth_ritem) = n;
-#endif
 return 0;
 
 ffi-ret-ptr ( c_addr -- )	gforth ffi_ret_ptr
