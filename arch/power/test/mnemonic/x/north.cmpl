@@ -1,0 +1,14 @@
+    10006738:	7f a0 58 40 	cmpl   cr7,1,r0,r11
+    10006598:	7f a9 d8 40 	cmpl   cr7,1,r9,r27
+    100006e0:	7f bf 00 40 	cmpl   cr7,1,r31,r0
+    100012ec:	7f bc d8 40 	cmpl   cr7,1,r28,r27
+    100014e0:	7f ab 00 40 	cmpl   cr7,1,r11,r0
+    1000170c:	7f a0 18 40 	cmpl   cr7,1,r0,r3
+    100029e4:	7f a9 c8 40 	cmpl   cr7,1,r9,r25
+    10002364:	7f a9 00 40 	cmpl   cr7,1,r9,r0
+    10001fe8:	7f a4 58 40 	cmpl   cr7,1,r4,r11
+    10002830:	7f a0 40 40 	cmpl   cr7,1,r0,r8
+    10002e14:	7f b6 00 40 	cmpl   cr7,1,r22,r0
+    100049e4:	7f bd 18 40 	cmpl   cr7,1,r29,r3
+    100014bc:	7f a3 f8 40 	cmpl   cr7,1,r3,r31
+    10001c08:	7f 80 48 40 	cmpl   cr7,0,r0,r9

@@ -1,0 +1,4 @@
+    1000ad30:	ed 0a 42 78 	fmsubs  f8,f10,f9,f8
+    1000ad30:	ed 0a 42 79 	fmsubs. f8,f10,f9,f8
+    101a9034:	ed a6 62 78 	fmsubs  f13,f6,f9,f12
+    101a9034:	ed a6 62 79 	fmsubs. f13,f6,f9,f12

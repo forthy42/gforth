@@ -1,0 +1,11 @@
+    10020168:	fc 00 08 1e 	fctiwz  f0,f1
+    100445c8:	fd a0 00 1e 	fctiwz  f13,f0
+    100389e8:	fc 00 68 1e 	fctiwz  f0,f13
+    10004ca8:	fd 80 08 1e 	fctiwz  f12,f1
+    100031e4:	fd 80 00 1e 	fctiwz  f12,f0
+    10005fac:	fc 00 60 1e 	fctiwz  f0,f12
+    10003148:	fd a0 08 1e 	fctiwz  f13,f1
+    100b60f4:	fd a0 f8 1e 	fctiwz  f13,f31
+    10002164:	fc 00 c8 1e 	fctiwz  f0,f25
+    1000374c:	fd a0 60 1e 	fctiwz  f13,f12
+    1000374c:	fd a0 60 1f 	fctiwz. f13,f12

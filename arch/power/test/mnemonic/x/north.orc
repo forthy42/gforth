@@ -1,0 +1,16 @@
+    10006804:	7c 05 5b 39 	orc.    r5,r0,r11
+    1000663c:	7d 27 03 39 	orc.    r7,r9,r0
+    10064cf4:	7c a5 5b 38 	orc     r5,r5,r11
+    1001775c:	7d 49 4b 38 	orc     r9,r10,r9
+    1000e814:	7c 00 53 38 	orc     r0,r0,r10
+    10057444:	7c 09 4b 38 	orc     r9,r0,r9
+    100efbd8:	7d c9 f3 38 	orc     r9,r14,r30
+    1017723c:	7f c9 fb 38 	orc     r9,r30,r31
+    10046a04:	7e 69 f3 38 	orc     r9,r19,r30
+    10004c88:	7f e0 3b 38 	orc     r0,r31,r7
+    10041c88:	7d 40 03 38 	orc     r0,r10,r0
+    1008bd44:	7f e0 23 38 	orc     r0,r31,r4
+    1008f82c:	7d 29 2b 38 	orc     r9,r9,r5
+    1005eebc:	7f 6b 4b 38 	orc     r11,r27,r9
+    10012cf8:	7d e9 73 38 	orc     r9,r15,r14
+    10012cf8:	7d e9 73 39 	orc.    r9,r15,r14

@@ -1,0 +1,6 @@
+    10005f94:	2f a9 00 00 	cmpi   cr7,1,r9,0
+    100006b8: 2f bf ff ff   cmpi   cr7,1,r31,-1
+    10000704: 2f a0 ff ff   cmpi   cr7,1,r0,-1
+    10000730: 2f a9 ff ff   cmpi   cr7,1,r9,-1
+    10000574: 2f 03 ff ff   cmpi   cr6,0,r3,-1
+    1000048c: 2f 80 00 00   cmpi   cr7,0,r0,0

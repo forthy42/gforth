@@ -1,0 +1,11 @@
+    10007694:	7d 29 01 d4 	addme   r9,r9
+    10002a50:	7c 63 01 d4 	addme   r3,r3
+    10005a0c:	7d 6b 01 d4 	addme   r11,r11
+    100036d8:	7f 9c 01 d4 	addme   r28,r28
+    10007880:	7c 00 01 d4 	addme   r0,r0
+    1000d26c:	7d 4a 01 d4 	addme   r10,r10
+    10005164:	7f bd 01 d4 	addme   r29,r29
+    10008634:	7d 08 01 d4 	addme   r8,r8
+    10008634:	7d 08 01 d5 	addme.  r8,r8
+    10008634:	7d 08 05 d4 	addmeo  r8,r8
+    10008634:	7d 08 05 d5 	addmeo. r8,r8

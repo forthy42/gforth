@@ -1,0 +1,2 @@
+    10000558:   ff 9f f8 40     fcmpo   cr7,f31,f31
+    1000055c:   fe 17 c8 40     fcmpo   cr4,f23,f25

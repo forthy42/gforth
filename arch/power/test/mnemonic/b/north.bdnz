@@ -1,0 +1,23 @@
+    10012530:	42 00 ff ec 	bdnz+   1001251c <.checksum+0x14>
+    10012530:	42 00 ff ec 	bdnz+   1001251c <.checksum+0x14>
+    10013cc0:	42 00 ff ec 	bdnz+   10013cac <.checksum+0x14>
+    10013cc0:	42 00 ff ec 	bdnz+   10013cac <.checksum+0x14>
+    1000bf78:	42 00 ff ec 	bdnz+   1000bf64 <.checksum+0x14>
+    1000bf78:	42 00 ff ec 	bdnz+   1000bf64 <.checksum+0x14>
+    1000bd44:	42 00 ff e4 	bdnz+   1000bd28 <.do_asorti+0x30>
+    10038218:	42 00 ff e8 	bdnz+   10038200 <.shell_execve+0x284>
+    100018f0:	42 00 ff e8 	bdnz+   100018d8
+    1000b7ac:	42 00 ff e8 	bdnz+   1000b794 <.fgetgrent-0x87b68>
+    100012f8:	42 00 ff e0 	bdnz+   100012d8
+    10009ecc:	42 00 ff f0 	bdnz+   10009ebc <.argp_state_help-0x8da8>
+    10002c84:	42 00 ff e8 	bdnz+   10002c6c
+    10002cfc:	42 00 00 00 	bdnz-   10002cfc
+    10002bec:	42 00 ff f0 	bdnz+   10002bdc
+    10005004:	42 00 ff f0 	bdnz+   10004ff4 <._init+0x334c>
+    100021a0:	42 00 ff f4 	bdnz+   10002194 <.re_set_syntax-0xca10>
+    10003370:	42 00 ff e4 	bdnz+   10003354 <.error-0xd940>
+    10003370:	42 00 ff e4 	bdnz+   10003354 <.error-0xd940>
+    1000bd44:	42 00 ff e4 	bdnz+   1000bd28 <.do_asorti+0x30>
+    1000bd44:	42 00 ff e4 	bdnz+   1000bd28 <.do_asorti+0x30>
+    10003370:	42 00 ff e4 	bdnz+   10003354 <.error-0xd940>
+    1000acd4:	42 00 ff f8 	bdnz+   1000accc <error-0x159cc>

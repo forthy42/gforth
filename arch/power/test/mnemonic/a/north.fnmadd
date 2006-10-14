@@ -1,0 +1,7 @@
+    100031f8:	fd 8c 03 7e 	fnmadd  f12,f12,f13,f0
+    1001fde8:	fd ac 58 3e 	fnmadd  f13,f12,f0,f11
+    1001fde8:	fd ac 58 3f 	fnmadd. f13,f12,f0,f11
+    100030a0:	fc 2c 58 3e 	fnmadd  f1,f12,f0,f11
+    100030a0:	fc 2c 58 3f 	fnmadd. f1,f12,f0,f11
+    100511cc:	fd 6b 62 fe 	fnmadd  f11,f11,f11,f12
+    100511cc:	fd 6b 62 ff 	fnmadd. f11,f11,f11,f12

@@ -1,0 +1,10 @@
+    1000a704:	7c 09 5a 2e 	lhzx    r0,r9,r11
+    10004678:	7c 0b 4a 2e 	lhzx    r0,r11,r9
+    1002d834:	7f c9 42 2e 	lhzx    r30,r9,r8
+    1000421c:	7c 09 1a 2e 	lhzx    r0,r9,r3
+    10002ec4:	7c 1c 1a 2e 	lhzx    r0,r28,r3
+    10004ce0:	7c 1c 4a 2e 	lhzx    r0,r28,r9
+    10005820:	7c 1d 4a 2e 	lhzx    r0,r29,r9
+    10001f28:	7d 28 02 2e 	lhzx    r9,r8,r0
+    10003edc:	7c 09 52 2e 	lhzx    r0,r9,r10
+    10002a5c:	7d 3e 5a 2e 	lhzx    r9,r30,r11

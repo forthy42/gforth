@@ -1,0 +1,7 @@
+    10006d68:	7c 09 5a aa 	lwax    r0,r9,r11
+    10001d30:	7d 2b 02 aa 	lwax    r9,r11,r0
+    10001cf4:	7c 76 ca aa 	lwax    r3,r22,r25
+    1000d81c:	7c a9 5a aa 	lwax    r5,r9,r11
+    10006ed0:	7d 4b 22 aa 	lwax    r10,r11,r4
+    10002828:	7c 81 da aa 	lwax    r4,r1,r27
+    10000d08:	7c 7f ea aa 	lwax    r3,r31,r29

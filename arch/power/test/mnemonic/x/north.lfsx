@@ -1,0 +1,13 @@
+    1003131c:	7c 09 dc 2e 	lfsx    f0,r9,r27
+    1007523c:	7d b2 04 2e 	lfsx    f13,r18,r0
+    100037e0:	7d 48 04 2e 	lfsx    f10,r8,r0
+    100c632c:	7c 29 5c 2e 	lfsx    f1,r9,r11
+    10012194:	7d aa f4 2e 	lfsx    f13,r10,r30
+    10002540:	7c 09 f4 2e 	lfsx    f0,r9,r30
+    10001380:	7c 0b 3c 2e 	lfsx    f0,r11,r7
+    10008d28:	7d a9 cc 2e 	lfsx    f13,r9,r25
+    101d68f8:	7c 09 e4 2e 	lfsx    f0,r9,r28
+    10002e70:	7d bf 54 2e 	lfsx    f13,r31,r10
+    10004b90:	7d a9 04 2e 	lfsx    f13,r9,r0
+    10002d10:	7c 09 5c 2e 	lfsx    f0,r9,r11
+    1003ed54:	7d bb 04 2e 	lfsx    f13,r27,r0

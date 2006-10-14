@@ -1,0 +1,3 @@
+    10000558:   7f f9 55 ee     stfdux  f31,r25,r10
+    1000055c:   7d 59 fd ee     stfdux  f10,r25,r31
+    10000560:   7c 05 25 ee     stfdux  f0,r5,r4

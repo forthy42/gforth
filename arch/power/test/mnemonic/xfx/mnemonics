@@ -1,0 +1,4 @@
+mfspr
+mftb
+mtcrf
+mtspr

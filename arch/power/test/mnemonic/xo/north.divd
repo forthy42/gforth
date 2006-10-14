@@ -1,0 +1,14 @@
+    10006ff8:	7d 68 53 d2 	divd    r11,r8,r10
+    10006c34:	7f ab db d2 	divd    r29,r11,r27
+    10041c78:	7f bd f3 d2 	divd    r29,r29,r30
+    100044c8:	7c 00 4b d2 	divd    r0,r0,r9
+    100047e4:	7f bd 03 d2 	divd    r29,r29,r0
+    10002554:	7c 09 1b d2 	divd    r0,r9,r3
+    1000af6c:	7c eb 4b d2 	divd    r7,r11,r9
+    10004948:	7c 84 4b d2 	divd    r4,r4,r9
+    1001c7fc:	7d 29 db d2 	divd    r9,r9,r27
+    1001fcf0:	7d 6b f3 d2 	divd    r11,r11,r30
+    1000b350:	7c 1e fb d2 	divd    r0,r30,r31
+    1000b350:	7c 1e fb d3 	divd.   r0,r30,r31
+    1000b350:	7c 1e ff d2 	divdo   r0,r30,r31
+    1000b350:	7c 1e ff d3 	divdo.  r0,r30,r31

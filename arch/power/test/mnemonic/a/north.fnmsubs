@@ -1,0 +1,2 @@
+    1029cc04:	ec 00 63 7c 	fnmsubs  f0,f0,f13,f12
+    1029cc04:	ec 00 63 7d 	fnmsubs. f0,f0,f13,f12

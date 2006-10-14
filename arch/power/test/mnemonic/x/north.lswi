@@ -1,0 +1,2 @@
+    100078f8:	7c bc 04 aa 	lswi    r5,r28,32
+    10000570: 7f ff e4 aa   lswi    r31,r31,28

@@ -1,0 +1,3 @@
+    10000558:   7c aa 7a 6e     lhzux   r5,r10,r15
+    1000055c:   7f ef 2a 6e     lhzux   r31,r15,r5
+    10000560:   7c 10 02 6e     lhzux   r0,r16,r0

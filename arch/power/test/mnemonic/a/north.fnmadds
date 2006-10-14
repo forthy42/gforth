@@ -1,0 +1,4 @@
+    10219070:	ed 8c 6a be 	fnmadds  f12,f12,f10,f13
+    10219070:	ed 8c 6a bf 	fnmadds. f12,f12,f10,f13
+    10003628:	ec 00 1b 7e 	fnmadds  f0,f0,f13,f3
+    10003628:	ec 00 1b 7f 	fnmadds. f0,f0,f13,f3

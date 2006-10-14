@@ -1,0 +1,8 @@
+    1000080c:	34 40 80 00 	addic.  r2,r0,-32768
+    10009b64:	35 08 ff ff 	addic.  r8,r8,-1
+    10009cb4:	34 04 ff ff 	addic.  r0,r4,-1
+    10002394:	37 bd ff ff 	addic.  r29,r29,-1
+    100028d0:	37 ff ff ff 	addic.  r31,r31,-1
+    10002704:	37 fe 00 01 	addic.  r31,r30,1
+    10001978:	37 ff 00 01 	addic.  r31,r31,1
+    100040d8:	37 c1 02 40 	addic.  r30,r1,576

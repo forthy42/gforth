@@ -1,0 +1,404 @@
+\section{Approach-Implementation}
+
+This chapter should provide an overview what problems arose while the
+assembler/disassembler was written, it should also consider solutions for
+certain problems which were chosen and the reasons why these were chosen.
+As mentioned in ~\cite{gforthman} page 162, the proposal is to start with the 
+disassembler and this is exactly what I did. I used the same approach as the 
+author of the assembler/disassembler for the mips architecture.
+
+    \subsection{Disassembler}
+
+    \subsubsection{\label{cflags}Bit Fields}
+
+    An instruction on the ppc-\{32,64\} is 32 bit long, there are several 
+    instruction formats:
+
+    \begin{itemize}
+    \item A
+    \item B
+    \item D,DS
+    \item I
+    \item M,MD,MDS
+    \item SC
+    \item X,XFX,XFL,XL,XO,XS
+    \end{itemize}
+
+    Depending on the format there is certain information encoded in those 32
+    bits. The op code always starts at bit 0 and goes till bit 5, so i introduced
+    a convention how words are named which decode for example this 6 bit long
+    number, in the range (0,5), this word is called \texttt{disasm-0,5}. The
+    reason why I choose this convention is because for example with the
+    \texttt{D} form, the manual ~\cite{ppcman} refers to the number in the 
+    range (6,10), as \texttt{D} and for some other instructions of this form 
+    it is \texttt{S}. I think that it is more readable/consistent to have my 
+    convention.
+
+    With bit or instruction fields I mean decoded numbers from a single 
+    instruction, it may also be a single bit. The naming convention is
+    (given in some pseudo BNF grammar):
+
+    \begin{verbatim}
+    disasm-range
+    range :: number_start,number_end | number_end
+    \end{verbatim}
+
+    This scheme was used to implement all required instruction field decoding
+    words, \texttt{31 - number\_end}, the result says how much the instruction
+    should be right shifted, in most cases it was also required to mask this
+    shifted number, so the result is not too long. When all required words were
+    implemented, i had to make sure, that i did not make any typos, so I tested
+    those words, but this will be discussed in the next chapter.
+
+    \subsubsection{Flags}
+
+    Some instructions have flags, those are their forms:
+
+    \begin{itemize}
+    \item A
+    \item B
+    \item I
+    \item M MD MDS
+    \item X XFL XL XS XO
+    \end{itemize}
+
+    I will explain this property which I call "flags" with the behavior of the
+    \texttt{add} instruction. Depending on the \texttt{OE} and \texttt{Rc}
+    flags, those are the
+    bits 21 and 31 in the instruction, the mnemonic is different. The
+    disassembling of this instruction is as following, first the arguments are
+    disassembled then the mnemonic is displayed, in this example \texttt{add} is
+    always displayed, since it is not affected by the \texttt{OE} or 
+    \texttt{Rc} flags and in any case it is always the same. And then a number 
+    is computed which is done by the word:
+
+    \begin{verbatim}
+    : disasm-xo-flags ( w -- u )
+        dup disasm-21 1 lshift swap disasm-31 or ;
+    \end{verbatim}
+
+    It takes the instruction and the result tells us which additional string
+    should be displayed, this number is passed directly to the word:
+
+    \begin{verbatim}
+    : get-xo,x,m,a-flag ( addr o -- addr )
+        case
+            0 of ." " endof
+            1 of ." ." endof
+            2 of ." o" endof
+            3 of ." o." endof
+       endcase ;
+    \end{verbatim}
+
+    When you take a look at the table \ref{xoflags} it is quite 
+    intuitive what i did:
+
+    \begin{table}
+        \begin{center}
+        \begin{tabular}{|r|rr|r|}
+            \hline
+            string & OE & Rc & Code\\
+            \hline
+            " " & 0 & 0 & 0 \\
+            "." & 0 & 1 & 1 \\
+            "o" & 1 & 0 & 2 \\
+            "o." & 1 & 1 & 3 \\
+            \hline
+        \end{tabular}
+        \end{center}
+        \caption{\label{xoflags}Flags: example \texttt{xo} form}
+    \end{table}
+
+    So this number has a well-defined string which gives additional information
+    and tells the programmer which flags are set.
+
+    \subsubsection{Disasm Words}
+
+    My work has the same logic as the \texttt{Mips} assembler/disassembler at
+    this point I was inspired to implement several words like
+    \texttt{define-format, disasm-table, disasm, disasm-inst}. 
+
+    The \texttt{define-format} word is explained in ~\cite{gforthman}. I 
+    started with the implementation of the disassembling words for the 
+    \texttt{XO} form.  So I defined the two tables with \texttt{disasm-table}:
+
+    \begin{verbatim}
+        $40  disasm-table opc-tab-entry
+        $200 disasm-table xo-tab-entry
+    \end{verbatim}
+
+    The \texttt{opc-tab-entry} table contains at a given position 
+    a \texttt{xt}, this one either disassembles the instruction and displays
+    the registers, immediates or it calls an \texttt{xt} which is an abstraction
+    for instructions with extended op codes, finally it also may call
+    \texttt{disasm-illegal}, which displays that an illegal instruction was
+    encountered. The abstraction word was called \texttt{disasm-xo}:
+
+    \begin{verbatim}
+    : disasm-xo ( addr w -- )
+        dup disasm-22,30 xo-tab-entry @ execute
+        disasm-21,31 get-xo-flag drop ;
+    ' disasm-xo 31 opc-tab-entry !
+    \end{verbatim}
+
+    Now i was able to do, \texttt{\$100117b0} is the address of the instruction
+    and \texttt{\$7d8c1214} is the machine code:
+
+    \begin{verbatim}
+        $100117b0 $7d8c1214 disasm-inst
+    \end{verbatim}
+
+    This call outputs:
+
+    \begin{verbatim}
+        12 12 2 add ok
+    \end{verbatim}
+
+    This word (\texttt{disasm-inst}) first calls \texttt{disasm-0,5} in this 
+    case it would be 31, so then it fetches the xt of \texttt{disasm-xo} from 
+    the \texttt{opc-tab-entry} table and executes it. The next executed word
+    from the \texttt{xo-tab-entry} in this case would be the word which
+    extracts the registers from the instruction and displays it, it also
+    displays the mnemonic of the instruction. Finally the flags are displayed
+    by the \texttt{get-xo-flag} word.
+
+    The next instruction form I wanted to implement at that time was the
+    \texttt{X} form, this decision led me to a problem. The problem was that
+    every instruction of this form has also \texttt{31} as its primary op code 
+    which goes from bit \texttt{0} to \texttt{5}, it also has an extended 
+    op code, but unlike the \texttt{XO} form the extended op code goes 
+    from \texttt{21} to \texttt{31}. So I had to find some kind of an 
+    abstraction which would either call \texttt{disasm-21,30} or 
+    \texttt{disasm-22,30}. The word \texttt{disasm-31-similar} which does that 
+    is:
+
+    \pagebreak
+    \begin{verbatim}
+\ word which should be an abstraction for opcode 31 similar forms
+: disasm-31-similar ( addr w -- )
+    dup disasm-21,29 xs-tab-entry @ execute
+    invert if disasm-31 get-xo,x,m,a-flag drop
+        else dup disasm-21,30 x-31-tab-entry @ execute
+            invert if disasm-31 get-xo,x,m,a-flag drop
+            else dup disasm-22,30  xo-tab-entry @ execute
+            invert if disasm-xo-flags get-xo,x,m,a-flag drop
+                else disasm-illegal endif
+            endif
+        endif ;
+' disasm-31-similar 31 opc-tab-entry !
+    \end{verbatim}
+
+    The principle of this word is that it uses tables which are initialized
+    differently than for example that of the \texttt{opc-tab-entry} table. If
+    the default behaviour of an execution token at a certain position is not
+    overridden by the means of entering a disassembling token for a certain
+    code, it just pushes \texttt{true} on the stack by calling 
+    \texttt{disasm-unknown}. Let's demonstrate this with an example, we want 
+    to disassemble an instruction of the form \texttt{X}:
+
+    \begin{enumerate}
+    \item It has opc \texttt{31} so \texttt{disasm-31-similar} is called from
+    \texttt{opc-tab-entry}.
+    \item The \texttt{disasm-31-similar} checks in the next step if a
+    disassemble word is available from the \texttt{xs-tab-entry} table. In 
+    this case it's not available so the default behavior pushes 
+    \texttt{true} on the stack.
+    \item The first else part is executed but now a disassemble word in the 
+    \\\texttt{x-31-tab-entry} is being found, so it displays the arguments and 
+    the mnemonic of the instruction, it also leaves \texttt{false} on the stack,
+    which causes next line to be executed. The remaining part is not executed
+    because of \texttt{disasm-31-similar}'s semantic.
+    \end{enumerate}
+
+    Finally I had to create words which would be an abstraction for all 
+    available forms:
+
+    The word
+    \texttt{disasm} behaves differently on a ppc32 than on ppc64, for a ppc32
+    for each address it fetches the instruction, which is 32 long and calls
+    disasm-inst. For a ppc64 it is a bit trickier, when fetching from an 
+    address, the result is 64 bit long, the instruction is placed in the upper 
+    32 bits, some shifting has to be done in order to get the 32 bit long
+    instruction, this is done by the \texttt{get-inst} word and the result is
+    passed to the \texttt{disasm-inst} word.
+    The definition of the \texttt{disasm} word is placed in two
+    \texttt{[if] ...  [endif]} blocks and depending on the size of one cell
+    either one or the other is being used:
+
+    \pagebreak
+    \begin{verbatim}
+    \ for ppc32
+    1 cells 4 =
+    [if]
+    : disasm ( addr u -- )
+        bounds u+do
+            cr ." ( " i hex. ." ) " i i @ disasm-inst
+            1 cells +loop
+        cr ;
+    [endif]
+
+    \ for ppc64
+    1 cells 8 =
+    [if]
+    : get-inst ( u -- o )
+        32 rshift $FFFFFFFF and ;
+
+    : disasm ( addr u -- )
+        bounds u+do
+            cr ." ( " i hex. ." ) " i i @ get-inst disasm-inst
+            \ next inst plus 4
+            4 +loop
+        cr ;
+    [endif]
+    \end{verbatim}
+
+    The words for the remaining forms are implemented in some manner as
+    described above. I followed for each form one of the appropriate scheme as
+    described above and finished the disassembler.
+
+    \subsection{Assembler}
+
+    \subsubsection{Utils-Helpers}
+
+    First I had to implement some helper words:
+
+    \begin{enumerate}
+        \item \texttt{h,}:
+        
+        This word behaves differently on a ppc32 than on a ppc64,
+        on a ppc32 it simply calls \texttt{,}. On a ppc64 if either an aligned
+        address is available then the machine code has to be shifted left by 32,
+        then it is stored to \texttt{here}, or otherwise the machine code is
+        stored to \texttt{here - 4}, finally 4 is allotted in both cases.
+
+        \pagebreak
+        This is the code of the word \texttt{h,} for \texttt{ppc64}
+
+        \begin{verbatim}
+        : h, ( h -- ) 
+            here here aligned = if
+                32 lshift
+                here !
+            else
+                here 4 - dup
+                @ rot or
+                swap !
+            endif
+            4 allot ;
+        \end{verbatim}
+
+        \item \texttt{check-range}:
+
+        This word is used every time when numerical arguments are being
+        processed and it has to be ensured that these are within a certain
+        range. For example registers can only in the range from \texttt{0} to
+        \texttt{31} so whenever an argument is to be processed which represents
+        a register this word is used like this:
+
+        \begin{verbatim}
+        <value_to_check> 0 $20 check-range
+        \end{verbatim}
+
+        If the \texttt{<value\_to\_check>} is out of range, an 
+        "illegal numerical argument" exception is risen.
+
+        \item \texttt{concat}:
+
+        This word is often used by the \textit{top-level} defining words, those
+        are used to define the assembling words. \texttt{Concat} is used
+        whenever a word for a form is defined which contains so called
+        \textit{flags} as described in section \ref{cflags}.
+
+        What it does is, it takes two strings in the \texttt{address, length}
+        form and concats those two into a single one. Since string handling in
+        Forth is not that intuitive, there has to be allocated space at the end
+        of the string where the second string should be appended to. By the
+        definition of these word:
+
+        \begin{verbatim}
+        : copy>here ( a1 u1 -- )
+            chars here over allot swap cmove ;
+
+        : concat ( a1 u1 a2 u2 -- a u )
+            here >r 2swap copy>here copy>here r>
+            here over - 1 chars / ;
+        \end{verbatim}
+
+        We can demonstrate how it works:
+
+        \begin{verbatim}
+        s" foo" s" bar" concat .s <2> -1213708974 6  ok
+        type foobar ok
+        \end{verbatim}
+
+    \end{enumerate}
+
+    \subsubsection{Top Level Defining Words}
+
+    Every defining word is using the \texttt{create does>} construct, the
+    \texttt{does>} part builds one machine word from right to left by consuming
+    the arguments which are given to the assembling word and sets the
+    appropriate bits.
+    I will explain the principle with some examples, these words can be divided
+    into two major categories:
+
+    \begin{enumerate}
+    \item Words which takes only one number, which is either the primary
+    op code or the extended op code, if it is the extended op code, then the
+    primary op code is hard coded in the \texttt{create} part. 
+    The \texttt{asm-sc} word from previous chapter is of this kind.
+
+    \item Words which are meta defining, they are used for all forms which
+    use \textit{flags} as explained in the \ref{cflags} section, this type 
+    will be discussed extensive in the rest of this section.
+    \end{enumerate}
+
+    The problem with the assembler and the \texttt{flags}, section
+    ~\ref{cflags}, was that I had to factor the flag setting semantic. For 
+    example with the \texttt{X} form four different defining words would 
+    be required, because there are four different possibilities how the bit 
+    flags may be set.  With my approach the setting of the flags bits is done 
+    by extra words.
+
+    The meta definition word would be:
+
+    \begin{verbatim}
+    \ name as addr length
+    : asm-xo-1-define ( xt n "name" "name" -- ) 
+        concat nextname
+        create 2, 31 ,
+    does> dup dup @ swap 1 cells + @ execute ( D A B -- )
+        asm-1-16,20 asm-1-11,15 asm-1-6,10 asm-1-0,5 h, ;
+    \end{verbatim}
+
+    As you can see here we use the \texttt{concat} word, which was explained
+    in the previous section. This word takes an \texttt{xt}, this one sets the
+    bit flags. It also takes a number which in this case is the extended op code.
+
+    The \texttt{does>} part first fetches the \texttt{xt} and executes it, by
+    executing it, the flag bits are set, this word also sets the bits in range
+    of the extended op code. The extended op code is fetched before the 
+    execution of this word. As a comment you can see \texttt{( D A B -- )}, 
+    those are the arguments for the assembling words of type \texttt{XO}, which 
+    take three registers. The words \texttt{asm-1-16,20}, \texttt{asm-1-11,15} 
+    and \texttt{asm-1-6,10} consume and set the bits in appropriate range, the 
+    range is also mentioned in the name of the word. The word 
+    \texttt{asm-1-0,5} sets the primary op code, this one fetched from memory.
+    
+    The definition \texttt{asm-xo-1} word which uses the  
+    meta definition word \\\texttt{asm-xo-1-define} is:
+
+    \begin{verbatim}
+    : asm-xo-1 ( n "name" -- )
+        name { n addr len }
+        ['] asm-xo-21,31-00 n addr len s" " asm-xo-1-define
+        ['] asm-xo-21,31-01 n addr len s" ." asm-xo-1-define
+        ['] asm-xo-21,31-10 n addr len s" o" asm-xo-1-define
+        ['] asm-xo-21,31-11 n addr len s" o." asm-xo-1-define  ;
+    \end{verbatim}
+
+    By the line \texttt{\$10A asm-xo-1 add} we create in this case four
+    different words \texttt{add}, \texttt{add.}, \texttt{addo} and
+    \texttt{addo.}. With this approach we do not require so much code as with 
+    a naive approach.
+

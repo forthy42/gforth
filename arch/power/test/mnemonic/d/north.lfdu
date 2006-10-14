@@ -1,0 +1,7 @@
+    100077f0:	cc 1a 00 08 	lfdu    f0,8(r26)
+    10003874:	cc 09 00 08 	lfdu    f0,8(r9)
+    100031b4:	cc 1f 00 08 	lfdu    f0,8(r31)
+    10000cf4:	cc 1d 00 08 	lfdu    f0,8(r29)
+    10036674:	cc 0b ff f8 	lfdu    f0,-8(r11)
+    1032cf30:	cc 07 00 08 	lfdu    f0,8(r7)
+    10004398:	cc 1c 00 08 	lfdu    f0,8(r28)

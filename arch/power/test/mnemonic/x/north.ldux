@@ -1,0 +1,11 @@
+    10002734:	7c 7f 00 6a 	ldux    r3,r31,r0
+    100656b0:	7f fe f8 6a 	ldux    r31,r30,r31
+    10001748:	7c 7c 00 6a 	ldux    r3,r28,r0
+    10003e20:	7c 7f e8 6a 	ldux    r3,r31,r29
+    10068074:	7e e9 00 6a 	ldux    r23,r9,r0
+    101e49fc:	7d 5e 00 6a 	ldux    r10,r30,r0
+    10002c30:	7c 9a 48 6a 	ldux    r4,r26,r9
+    100166c8:	7c 9f e0 6a 	ldux    r4,r31,r28
+    10000f54:	7c 7b 00 6a 	ldux    r3,r27,r0
+    1000239c:	7d 7e 00 6a 	ldux    r11,r30,r0
+    1000f73c:	7c 1f 18 6a 	ldux    r0,r31,r3

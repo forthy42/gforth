@@ -1,0 +1,4 @@
+    10000558:   7c aa 7c 2a     lswx    r5,r10,r15
+    1000055c:   7f ef 2c 2a     lswx    r31,r15,r5
+    10000560:   7c 10 04 2a     lswx    r0,r16,r0
+    10000564:   7f e5 34 2a     lswx    r31,r5,r6

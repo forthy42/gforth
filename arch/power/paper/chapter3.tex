@@ -1,0 +1,452 @@
+\section{Testing}
+
+\subsection{Bit Fields}
+
+The bit fields words were described in the previous chapter, when I finished the
+implementation of them, I wrote a simple shell script (listing \ref{sbitfiels})
+which made sure that I discovered all my typos:
+
+\begin{lstlisting}[float, caption=Bit fields test script, label=sbitfiels]
+#!/bin/sh
+# script: inst_field_test.sh
+# purpose: test disasm-<number> and 
+# disasm-<number>,<number> words
+
+gforth='~/gforth-20050128-ppc64/bin/gforth-fast'
+disasm='~/praktikum/ppc/disasm.fs'
+
+# ranges
+echo "testing single:";
+echo "---------------";
+for k in $(cat befehle_binaer);
+ do
+   for l in $(cat to_test);
+    do
+      first=`echo $l | cut -d, -f1`
+      second=`echo $l | cut -d, -f2`
+      len=`echo $second - $first + 1 | bc`
+      echo -n "$k disasm-$first,$second: ";
+      $gforth $disasm -e "%$k disasm-$first,$second 
+        dup hex.  %${k:$first:$len} dup hex. = . bye"
+      echo ""
+    done
+done
+
+# single bits
+echo "testing single bits:";
+echo "--------------------";
+for k in $(cat befehle_binaer);
+do
+    for l in $(cat to_test2);
+    do
+        bit=`echo $l`
+        echo -n "$k disasm-$bit: ";
+        $gforth $disasm -e "%$k disasm-$bit 
+            dup hex. %${k:$bit:1} dup %hex. = . bye"
+        echo ""
+    done
+done
+\end{lstlisting}
+
+First I defined two global variables which are used to load the
+\texttt{disasm.fs} source file and to identify the path to the 
+the Gforth binary. Two files \texttt{to\_test} and \texttt{to\_test2} are used
+to identify the number(s) which are to be inserted behind \texttt{disasm-}.
+In a file called \texttt{befehle\_binaer}, I created some random strings which
+have the length 32, because an instruction is 32 bit long (befehle is german for
+instructions and binaer for binary) and they represent a single instruction. 
+Since those strings are binary they are either composed of \texttt{0} or 
+\texttt{1}. Those files may be located in any directory but as this script is
+implemented currently, every file has to be in the same directory. This script
+works only if every \texttt{disasm-<n1>[,<n2>]} words are defined in gforth's
+standard word list.
+
+In the first block, words of the form \texttt{disasm-<n1>,<n2>} are
+tested. For every in line the \texttt{befehle\_binaer} file every possible 
+\texttt{disasm-<n1>,<n2>} word is tested. In the second nested loop the most 
+interesting lines are:
+
+\begin{verbatim}
+echo -n "$k disasm-$first,$second: ";
+$gforth $disasm -e "%$k disasm-$first,$second 
+    dup hex. %${k:$first:$len} dup hex. = . bye"
+\end{verbatim}
+
+The first line displays the instruction encoded in binary and the
+\texttt{disasm} word which is applied. In the second line the output
+of \texttt{disasm-<n1>,<n2>} is compared with a reference. The comparison is
+done with the \texttt{=} Gforth word. If the result is same with the reference
+true should be displayed which is \texttt{-1} in Gforth. For debugging purposes
+the reference and the result is displayed. The \texttt{\$\{k:\$first:\$len\}}
+shell command extracts the reference from \$k which represents the whole
+instruction. A string which starts at \$first and is \$len long is extracted.
+The block which is used to test words of type \texttt{disasm-<n>} is quite the
+same with the exception that it used the \texttt{to\_test2} file. It was easy to
+identify failed test cases, every line which had a \texttt{0} at the end, was a
+\texttt{FAILED} test case.
+
+When we call this script it produces output like listed in listing \ref{sbitout}
+(actually it is much more output than this).
+
+\begin{lstlisting}[float, language=csh, caption=Bit field test output,
+label=sbitout]
+testing single:
+---------------
+10001110111100110100010110100100 disasm-0,5: $23 $23 -1 
+10100001101000101011001111000011 disasm-0,5: $28 $28 -1 
+11010001101000101011001111000011 disasm-0,5: $34 $34 -1 
+11110101010000111110110000101010 disasm-0,5: $3D $3D -1
+.
+.
+.
+
+testing single bits:
+--------------------
+10001110111100110100010110100100 disasm-31: $0 $0 -1 
+11110001001000110100010101101011 disasm-31: $1 $1 -1 
+.
+.
+.
+\end{lstlisting}
+
+\subsection{Test Structure}
+
+In order to test the assembler/disassembler I had to create a testing structure
+where I had all my test cases. I created this structure:
+
+\begin{verbatim}
+micrev@north:~/praktikum/test/mnemonic$ ls
+a   find_mnemonic.sh  make_unique.py test_all_forms.sh    xfl  xs     
+b   find_mnemonics.sh md             test_asm.py          xfx 
+d   i                 mds            test_disasm-inst.py  xl
+ds  m                 sc             x                    xo
+\end{verbatim}
+
+In this listing, all names which are the same as the forms of the
+\texttt{ppc-\{32,64\}} architecture are directories.
+Those directories contain mainly text files with instructions, those
+were generated using \texttt{objdump} and 3 scripts.
+
+The script in listing \ref{smnem} was used in order to search through all
+binaries available at a machine for a particular mnemonic of a particular form:
+
+\begin{lstlisting}[float, caption=Script: find\_mnemonic.sh, label=smnem]
+#!/bin/sh
+
+# Autor Michal Revucky 
+# Purpose: find a certain mnemonic specified by $1 and 
+#          write to a file  it writes only a specified 
+#          number of lines into to result file which 
+#          is determined by $COUNT, the file name 
+#          contains the mnemonic too. it checks all 
+#          binaries from DIRS, it places the result file 
+#          into ./<form>/$HOSTNAME.$1
+#          Usage: ./find_mnemonic <mnemonic> <form>
+
+DIRS="/home/complang/micrev/gforth-20050128-ppc64/bin 
+/bin /usr/bin /usr/local/bin /usr/X11R6/bin 
+/usr/powerpc64-unknown-linux-gnu/gcc-bin/3.4.3 
+/opt/Ice-2.0.0/bin"
+
+COUNT=100
+
+if [ $# -ne 2 ]; then 
+    echo "usage: $0 <mnemonic> <form>"
+    exit
+fi
+
+if [ ! -d $2 ]; then 
+    mkdir $2
+fi
+
+for k in $DIRS; do
+ for l in `ls $k`; do
+  objdump -d $k/$l | grep $1 
+    | head -n1 >> $2/$HOSTNAME.$1
+   if [ `wc -l $2/$HOSTNAME.$1 
+      | grep -o [0-9]*` -ge $COUNT 
+      ] ; 
+   then exit
+   fi
+  done
+done
+\end{lstlisting}
+
+For each Form I created a file called \texttt{mnemonics} in other words: it was 
+in every directory as mentioned above and contained every mnemonic for a 
+particular form. So I wrote another script \texttt{find\_mnemonics.sh} 
+(listing \ref{smnems}) which would be faster, this time you had only to 
+specify the form and it did exactly the same as the script 
+\texttt{find\_mnemonic.sh}, but for every mnemonic of the specified form.
+
+\begin{lstlisting}[float, caption=Script: find\_mnemonics.sh, label=smnems]
+#!/bin/sh
+
+# Autor Michal Revucky
+# Purpose: find certain mnemonics of form specified 
+#          by $1 and write to a file it writes only
+#          a specified number of lines into to result
+#          file which is determined by $COUNT, the 
+#          file name contains the mnemonic too. it 
+#          checks all binaries from DIRS, it places 
+#          the result file into ./<form>/$HOSTNAME.$1
+#          it takes every mnemonic from $1/mnemonic
+# Usage: ./find_mnemonic <form>
+
+DIRS="/home/complang/micrev/gforth-20050128-ppc64/bin 
+/bin /usr/bin /usr/local/bin /opt/Ice-2.0.0/bin
+/usr/powerpc64-unknown-linux-gnu/gcc-bin/3.4.3 
+/usr/X11R6/bin"
+
+COUNT=100
+
+if [ $# -ne 1 ]; then 
+    echo "usage: $0 <form>"
+    exit
+fi
+
+if [ ! -d $1 ]; then 
+    mkdir $1
+fi
+
+for j in `cat $1/mnemonics`; do
+ echo "checking $j"
+ touch $1/$HOSTNAME.$j;
+  for k in $DIRS; do
+    for l in `ls $k`; do
+      if [ `wc -l $1/$HOSTNAME.$j 
+         | grep -o [0-9]*` -lt $COUNT 
+         ] ; then 
+         objdump -d $k/$l | grep $j 
+            | head -n1 >> $1/$HOSTNAME.$j ;
+      fi
+    done
+  done
+done
+\end{lstlisting}
+
+The files which contain the test cases have a form as shown in listing 
+\ref{stfile}.
+
+\begin{lstlisting}[float, caption=Example of a test file, label=stfile]
+    100117b0:   7d 8c 12 14     add     r12,r12,r2
+    1001132c:   7c 1c ba 14     add     r0,r28,r23
+    100112e8:   7c 00 52 14     add     r0,r0,r10
+    .
+    .
+    .
+\end{lstlisting}
+
+After the execution of \texttt{find\_mnemonics.sh} I checked the files which
+contained the instructions and what I found was that their content was not
+unique i.e. \texttt{add r0,r0,r1} appeared in the file more the once. From the
+point of view of testing it would not matter, but I wanted the files unique, so
+I wrote a Python (listing \ref{suni}) script:
+
+\begin{lstlisting}[float, language=python, caption=Script: make\_unique.py, 
+label=suni]
+#!/usr/bin/env python
+
+# makes testfiles, form: <hostname>.<mnemonic> unique
+# $1 specifies the form to make unique
+
+import commands
+from optparse import OptionParser
+
+HOSTNAME = commands.getoutput("hostname")
+MNEMONIC_TEST='~/praktikum/test/mnemonic'
+
+def get_opc_code_hex(line) :
+    l = line.split()
+    return l[1]+l[2]+l[3]+l[4]
+
+    if __name__ == '__main__' :
+        parser = OptionParser("%prog <form>")
+        (options, args) = parser.parse_args()
+        if len(args) < 1 or len(args) > 1 :
+            parser.error("incorrect number of arguments")
+        dir = MNEMONIC_TEST + '/' + args[0]
+        for k in commands.getoutput(
+                'ls %s/%s*'
+                %(dir, HOSTNAME)).split('\n') :
+            print k
+            f = open(k,'r')
+            lines = f.readlines()
+            new_file = open(k+'.unique', 'w') 
+            tmp_list = []
+            new_file_list = []
+            for l in lines :
+                opc_code_hex = get_opc_code_hex(l)
+                if opc_code_hex not in tmp_list :
+                    tmp_list.append(opc_code_hex)
+                    new_file_list.append(l)
+            new_file.writelines(new_file_list)
+            new_file.close()
+            print commands.getoutput('mv 
+                %s.unique %s' %(k,k))
+\end{lstlisting}
+
+For all test files of the form \texttt{<hostname>.<mnenonic>} this script 
+iterates over every single line of any given test file of a particular form. 
+For each line the machine code in the hexadecimal form is parsed from the file,
+a list holds all hexadecimal numbers which are already used,
+only instructions which are not already in this list are written to the new
+test file which is called \\\texttt{<hostname>.<mnemonic>.unique}, finally this
+file is renamed to its final name.
+
+\subsection{Mnemonic Tests}
+
+When I set up the directories with the test cases I had to write some scripts
+which would parse the instructions from the test files, call \texttt{gforth} and
+compare the output with a reference. For the disassembler I wrote the script
+called \texttt{test\_disasm-inst.py} and \texttt{test\_asm.py} for the 
+assembler . I decided to use Python for this, because it has a lot of useful 
+libraries i.e. regular expression for parsing.
+
+\subsubsection{Disassembler}
+
+The usage of the \texttt{test\_disasm-inst.py} is:
+
+\begin{verbatim}
+$ ./test_disasm-inst.py -h
+usage: test_disasm-inst.py [-m] [-a] form [mnemonic]
+
+options:
+-h, --help      show this help message and exit
+-m, --mnemonic  compare the returned mnemonic
+-a, --args      compare the result args
+\end{verbatim}
+
+As you can see, you have to specify a form to be tested, if you want to test a
+particular mnemonic only, you can specify an optional mnemonic. The options are
+not really useful, because I always called the script with \texttt{-m} and
+\texttt{-a}. When the script was called, then for each test case in a directory
+it iterated over each line of a test file and did this:
+
+\begin{enumerate}
+
+    \item parsed a line which had the form as mentioned in listing \ref{stfile}
+    and created a Python tuple which is easier to use in a Python script.
+    \item call Gforth with arguments which ware taken from the tuple
+    created in the previous step.
+    \item compare the results returned by Gforth and display a status either
+    "OK" or "FAILED".
+
+\end{enumerate}
+
+The output in listing \ref{sdout} is produced by the 
+\texttt{test\_disasm-inst.py} script, the first tuple (followed by "testing") 
+is the information which is parsed from the test 
+files. The first element is the address of the instruction, followed by the 
+instruction in hex, then by the mnemonic and finally by the arguments of the 
+instruction wrapped in a python list. Either "OK" or "FAILED" denotes the status
+of this particular instruction which is tested. The tuple which is followed by
+"disasm-inst" contains elements which is returned by the \texttt{disasm-inst}
+word. The first element is the returned mnemonic followed by the arguments which
+were disassembled wrapped in a Python list. These two elements are parsed from
+the third one, which is Gforth's output. As you can see the second and third
+element of the first tuple is compared with the first and second element of the
+second tuple, if they match this part of a test case succeeds. When you run this
+with \texttt{-m} and \texttt{-a} option it also displays a number of failed
+test cases.
+
+\begin{lstlisting}[float, caption=Output of test-disasm-inst.py, label=sdout]
+Testing mnemonic and its arguments:
+whole form from ~/praktikum/test/mnemonic/md
+=========================================================
+testing: ( '100022d0' , '782106e9'
+         , 'rldic.'
+         , ['1', '1', '0', '59']
+         ) OK
+disasm-inst: ( 'rldic.'
+             , ['1', '1', '0', '59']
+             , '1 1 0 59 rldic.'
+             )
+---------------------------------------------------------
+testing: ( '100012c0'
+         , '782106e8'
+         , 'rldic'
+         , ['1', '1', '0', '59']
+         ) OK
+disasm-inst: ( 'rldic'
+             , ['1', '1', '0', '59']
+             , '1 1 0 59 rldic'
+             )
+---------------------------------------------------------
+\end{lstlisting}
+
+\subsubsection{Assembler}
+
+The script \texttt{test\_asm.py} is quite the same as the script
+\texttt{test\_disasm-inst.py}. Since I wrote this script after the disassembler
+script I knew that I would not need a bunch of options so the usage is quite
+simple:
+
+\begin{verbatim}
+$ ./test_asm.py -h
+usage: test_asm.py <form>
+
+options:
+  -h, --help  show this help message and exit
+\end{verbatim}
+
+This time the script works the other way:
+
+\begin{enumerate}
+    \item parse the processed line and create the tuple followed by "testing",
+    as you may see in the output of \texttt{test\_asm-inst.py} script
+    (listing \ref{saout}), the elements are the same as in listing \ref{sdout}.
+    \item call Gforth, the first element of the second tuple from listing
+    \ref{saout}, is the command Gforth is called with. The second element in 
+    the second tuple is the result and it is compared with the second element 
+    of the first tuple.
+    \item if the result matches the reference, "OK" is displayed, the script
+    continues.
+\end{enumerate}
+
+In order to use the script the way it is currently implemented you should
+comment the words which make the assembling words appear in the word list
+\texttt{assembler} and uncomment the additional output in the \texttt{h,} word
+which causes to output the machine code of each instruction which is being
+assembled.
+
+\begin{lstlisting}[float, caption=Output of test\_asm.py, label=saout]
+Testing mnemonic and its arguments:
+whole form from ~/praktikum/test/mnemonic/md
+=========================================================
+testing: ( '100022d0', '782106e9'
+         , 'rldic.'
+         , ['1', '1', '0', '59']
+         ) OK
+asm-inst: (' 1 1 0 59 rldic.', '$782106E9')
+---------------------------------------------------------
+testing: ( '100012c0'
+         , '782106e8'
+         , 'rldic'
+         , ['1', '1', '0', '59']
+         ) OK
+asm-inst: (' 1 1 0 59 rldic', '$782106E8')
+---------------------------------------------------------
+\end{lstlisting}
+
+I also created a simple wrapper shell script (listing \ref{sallforms}) which 
+calls the two mentioned python scripts and displays only "interesting" stuff.
+
+\begin{lstlisting}[caption=Script: test\_all\_forms.sh, label=sallforms]
+#!/bin/sh
+
+FORMS="a b d ds i m md mds sc x xfl xfx xl xo xs"
+
+echo "disassembler"
+for k in  $FORMS; do
+    ./test_disasm-inst.py -m -a $k 
+        | egrep 'form|Testcases' ;
+    echo "==============="
+done
+
+echo "assembler"
+for k in  $FORMS; do
+    ./test_asm.py $k | egrep 'form|Testcases' ;
+    echo "==============="
+done
+\end{lstlisting}

@@ -1,0 +1,17 @@
+    1000a338:	fc 00 00 18 	frsp    f0,f0
+    100093fc:	fc 00 60 18 	frsp    f0,f12
+    10007260:	fd a0 00 18 	frsp    f13,f0
+    100700c0:	fc 00 68 18 	frsp    f0,f13
+    100025d8:	fd a0 68 18 	frsp    f13,f13
+    10002ee8:	fd 80 60 18 	frsp    f12,f12
+    10002098:	fc 20 08 18 	frsp    f1,f1
+    1000a300:	fd 80 00 18 	frsp    f12,f0
+    1010b944:	fc 00 08 18 	frsp    f0,f1
+    10001ee4:	ff c0 00 18 	frsp    f30,f0
+    10001eb4:	fd a0 60 18 	frsp    f13,f12
+    100040c8:	ff e0 08 18 	frsp    f31,f1
+    10001394:	fd a0 08 18 	frsp    f13,f1
+    1002f864:	fc 20 00 18 	frsp    f1,f0
+    1006bf58:	fd 60 58 18 	frsp    f11,f11
+    10001fc4:	fe c0 68 18 	frsp    f22,f13
+    10001fc4:	fe c0 68 19 	frsp.   f22,f13

@@ -1,0 +1,3 @@
+    10000564:   7c aa 7e 2c     lhbrx   r5,r10,r15
+    10000568:   7f ef 2e 2c     lhbrx   r31,r15,r5
+    1000056c:   7c 10 06 2c     lhbrx   r0,r16,r0

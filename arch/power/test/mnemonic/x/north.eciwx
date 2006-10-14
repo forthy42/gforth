@@ -1,0 +1,3 @@
+    10000558:   7c a8 fa 6c     eciwx   r5,r8,r31
+    1000055c:   7d f0 8a 6c     eciwx   r15,r16,r17
+    10000560:   7c 08 02 6c     eciwx   r0,r8,r0

@@ -1,0 +1,71 @@
+    10006684:	41 80 00 0c 	blt-    10006690 <.engine+0x5f4>
+    10006684:	41 80 00 0c 	blt-    10006690 <.engine+0x5f4>
+    100064fc:	41 80 00 0c 	blt-    10006508 <.engine+0x4b4>
+    100064fc:	41 80 00 0c 	blt-    10006508 <.engine+0x4b4>
+    10006300:	41 80 00 0c 	blt-    1000630c <.engine+0x6ac>
+    10006300:	41 80 00 0c 	blt-    1000630c <.engine+0x6ac>
+    100006ac:	41 9c ff c8 	blt+    cr7,0x10000674
+    100015d4:	41 9c 00 5c 	blt-    cr7,0x10001630
+    10025f5c:	41 9c 00 20 	blt-    cr7,10025f7c <.unset_bash_input+0x44>
+    1000168c:	41 9c fd 4c 	blt+    cr7,0x100013d8
+    10001a14:	41 9c ff e0 	blt+    cr7,100019f4 <._init+0x86c>
+    1000b548:	41 9c fd 4c 	blt+    cr7,1000b294 <.fgetgrent-0x88068>
+    10001a14:	41 9c ff e0 	blt+    cr7,100019f4 <._init+0x86c>
+    10001a14:	41 9c ff e0 	blt+    cr7,100019f4 <._init+0x86c>
+    1000196c:	41 9c ff c8 	blt+    cr7,0x10001934
+    100018c4:	41 9c 08 f0 	blt-    cr7,0x100021b4
+    1000166c:	41 9c 00 08 	blt-    cr7,10001674 <._init+0xb24>
+    10002dec:	41 9c 00 5c 	blt-    cr7,10002e48 <.fts_set-0x8c4>
+    10001b04:	41 80 00 f0 	blt-    10001bf4 <.fts_set-0x1484>
+    100021c4:	41 9c 00 90 	blt-    cr7,10002254 <.fts_set-0x16b8>
+    10001650:	41 9c 00 5c 	blt-    cr7,0x100016ac
+    100012b8:	41 9c 01 64 	blt-    cr7,0x1000141c
+    1000194c:	41 90 00 2c 	blt-    cr4,0x10001978
+    10003090:	41 9c fe d4 	blt+    cr7,0x10002f64
+    10002fcc:	41 98 05 04 	blt-    cr6,100034d0 <.argp_state_help-0xf794>
+    100018cc:	41 9c ff 64 	blt+    cr7,0x10001830
+    10001fe0:	41 80 04 40 	blt-    0x10002420
+    10001be8:	41 9c 00 30 	blt-    cr7,0x10001c18
+    100020c4:	41 80 03 3c 	blt-    0x10002400
+    10002964:	41 9c ff e4 	blt+    cr7,10002948 <._init+0xca0>
+    10001f14:	41 80 02 e0 	blt-    0x100021f4
+    100014b8:	41 9c 00 5c 	blt-    cr7,0x10001514
+    10000d48:	41 9c 00 f4 	blt-    cr7,0x10000e3c
+    100016f4:	41 9c 03 5c 	blt-    cr7,0x10001a50
+    100016f4:	41 9c 03 5c 	blt-    cr7,0x10001a50
+    100020ec:	41 80 08 6c 	blt-    10002958 <.fts_set-0x2d40>
+    100018f8:	41 9c 00 5c 	blt-    cr7,0x10001954
+    10001e58:	41 9c 01 e8 	blt-    cr7,10002040 <.re_set_syntax-0xcb64>
+    100027f4:	41 9c 00 10 	blt-    cr7,10002804 <.error-0xe490>
+    10001634:	41 90 ff b8 	blt+    cr4,0x100015ec
+    10001ac8:	41 9c 01 78 	blt-    cr7,0x10001c40
+    10001274:	41 9c 00 5c 	blt-    cr7,0x100012d0
+    100027f4:	41 9c 00 10 	blt-    cr7,10002804 <.error-0xe490>
+    10001bc0:	41 bc fe d8 	blt-    cr7,0x10001a98
+    100027f4:	41 9c 00 10 	blt-    cr7,10002804 <.error-0xe490>
+    10000f04:	41 9c 01 b8 	blt-    cr7,0x100010bc
+    10001e88:	41 9c 00 08 	blt-    cr7,10001e90 <error-0x1e808>
+    10001e88:	41 9c 00 08 	blt-    cr7,10001e90 <error-0x1e808>
+    10001e88:	41 9c 00 08 	blt-    cr7,10001e90 <error-0x1e808>
+    100018d4:	41 9c 00 3c 	blt-    cr7,0x10001910
+    100013c4:	41 9c 00 5c 	blt-    cr7,0x10001420
+    100016f4:	41 9c 03 5c 	blt-    cr7,0x10001a50
+    100017ac:	41 9c 00 5c 	blt-    cr7,0x10001808
+    10003b20:	41 9c 08 14 	blt-    cr7,0x10004334
+    1000160c:	41 98 01 18 	blt-    cr6,0x10001724
+    1000191c:	41 9c 0c 4c 	blt-    cr7,0x10002568
+    100014e0:	41 9c 00 5c 	blt-    cr7,0x1000153c
+    10002a10:	41 bc ff cc 	blt-    cr7,0x100029dc
+    10001824:	41 9c ff 58 	blt+    cr7,0x1000177c
+    10003584:	41 9c 00 ac 	blt-    cr7,10003630 <._init+0xf80>
+    100013cc:	41 9c 00 28 	blt-    cr7,0x100013f4
+    10002964:	41 9c ff e4 	blt+    cr7,10002948 <._init+0xca0>
+    100015c8:	41 9c 00 4c 	blt-    cr7,10001614 <._init+0xb14>
+    10000ee8:	41 9c 01 84 	blt-    cr7,0x1000106c
+    10002e98:	41 9c ff 20 	blt+    cr7,10002db8 <.error-0x14e34>
+    10001964:	41 9c ff 9c 	blt+    cr7,0x10001900
+    100016c8:	41 9c ff a0 	blt+    cr7,0x10001668
+    10001bcc:	41 9c 00 5c 	blt-    cr7,0x10001c28
+    1000101c:	41 9c 00 bc 	blt-    cr7,0x100010d8
+    10002a9c:	41 9c 01 64 	blt-    cr7,10002c00 <._init+0x1578>
+    10002cc0:	41 9c 00 08 	blt-    cr7,0x10002cc8

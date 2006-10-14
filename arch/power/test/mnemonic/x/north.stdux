@@ -1,0 +1,9 @@
+    10013394:	7d 41 01 6a 	stdux   r10,r1,r0
+    1000d9cc:	7d 21 01 6a 	stdux   r9,r1,r0
+    1000e97c:	7c 01 49 6a 	stdux   r0,r1,r9
+    10005fa4:	7c 01 19 6a 	stdux   r0,r1,r3
+    1000128c:	7c 21 01 6a 	stdux   r1,r1,r0
+    10003438:	7d 61 49 6a 	stdux   r11,r1,r9
+    1000dd78:	7d 41 49 6a 	stdux   r10,r1,r9
+    1008db18:	7c 01 e9 6a 	stdux   r0,r1,r29
+    10008b68:	7c 01 59 6a 	stdux   r0,r1,r11

@@ -1,0 +1,4 @@
+    10000578:   7c 85 01 d0     subfme  r4,r5
+    1000057c:   7c 85 01 d1     subfme. r4,r5
+    10000580:   7c 85 05 d0     subfmeo r4,r5
+    10000584:   7c 85 05 d1     subfmeo. r4,r5

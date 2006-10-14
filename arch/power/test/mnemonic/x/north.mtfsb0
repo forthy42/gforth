@@ -1,0 +1,5 @@
+    10000558:   ff e0 00 8c     mtfsb0  31
+    1000055c:   fc 00 00 8c     mtfsb0  0
+    10000560:   fc 00 00 8d     mtfsb0. 0
+    10000564:   fd c0 00 8c     mtfsb0  14
+    10000568:   fd c0 00 8d     mtfsb0. 14

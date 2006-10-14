@@ -1,0 +1,4 @@
+    10000568:   ff e0 00 1c     fctiw   f31,f0
+    1000056c:   fc 00 f8 1c     fctiw   f0,f31
+    10000570:   fc 00 f8 1d     fctiw.  f0,f31
+    10000574:   fc a0 50 1d     fctiw.  f5,f10

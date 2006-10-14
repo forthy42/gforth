@@ -1,0 +1,16 @@
+    1000ab58:	7c 00 01 94 	addze   r0,r0
+    10027d5c:	7f 9c 01 94 	addze   r28,r28
+    10004078:	7f ff 01 94 	addze   r31,r31
+    100069e4:	7f 4a 01 94 	addze   r26,r10
+    10002168:	7d 29 01 94 	addze   r9,r9
+    10003898:	7f bd 01 94 	addze   r29,r29
+    100017a4:	7d 6b 01 94 	addze   r11,r11
+    10003174:	7c 63 01 94 	addze   r3,r3
+    100015a0:	7c 84 01 94 	addze   r4,r4
+    10012f84:	7c a5 01 94 	addze   r5,r5
+    10001aa0:	7c e7 01 94 	addze   r7,r7
+    1001d868:	7f 5b 01 94 	addze   r26,r27
+    1000da54:	7c c6 01 94 	addze   r6,r6
+    10008e78:	7c 00 01 95 	addze.  r0,r0
+    1000342c:	7c 00 05 94 	addzeo  r0,r0
+    1000342c:	7c 00 05 95 	addzeo. r0,r0

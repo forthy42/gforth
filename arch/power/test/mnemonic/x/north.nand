@@ -1,0 +1,7 @@
+    100177d8:	7d 29 53 b8 	nand    r9,r9,r10
+    1006c764:	7f c0 fb b8 	nand    r0,r30,r31
+    10003e9c:	7f e0 f3 b9 	nand.   r0,r31,r30
+    10224448:	7c 00 53 b8 	nand    r0,r0,r10
+    100eed58:	7e c0 ab b8 	nand    r0,r22,r21
+    1030f910:	7d 29 5b b8 	nand    r9,r9,r11
+    1030f910:	7d 29 5b b9 	nand.   r9,r9,r11

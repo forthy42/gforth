@@ -1,0 +1,3 @@
+    10000558:   ff 94 00 80     mcrfs   cr7,cr5
+    1000055c:   fd 9c 00 80     mcrfs   cr3,cr7
+    10000560:   fc 94 00 80     mcrfs   cr1,cr5

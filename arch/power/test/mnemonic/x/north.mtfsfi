@@ -1,0 +1,4 @@
+    10000558:   ff 80 f1 0c     mtfsfi  cr7,15
+    1000055c:   ff 80 f1 0d     mtfsfi. cr7,15
+    10000560:   fe 00 a1 0c     mtfsfi  cr4,10
+    10000564:   fe 00 a1 0d     mtfsfi. cr4,10

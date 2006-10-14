@@ -1,0 +1,17 @@
+    1000b2a0:	ec 0a 58 28 	fsubs   f0,f10,f11
+    10030d68:	ed 29 60 28 	fsubs   f9,f9,f12
+    100037e8:	ef c0 68 28 	fsubs   f30,f0,f13
+    10003ebc:	ec 00 68 28 	fsubs   f0,f0,f13
+    10174988:	ec 0b 50 28 	fsubs   f0,f11,f10
+    1007b498:	ec 0d 00 28 	fsubs   f0,f13,f0
+    1000a3d8:	ec 0c 00 28 	fsubs   f0,f12,f0
+    10076b08:	ef ed 00 28 	fsubs   f31,f13,f0
+    10028820:	ec 00 60 28 	fsubs   f0,f0,f12
+    10001234:	ec 63 10 28 	fsubs   f3,f3,f2
+    10007c4c:	ed 0d 50 28 	fsubs   f8,f13,f10
+    10009428:	ec a9 50 28 	fsubs   f5,f9,f10
+    10066400:	ec 20 08 28 	fsubs   f1,f0,f1
+    10003468:	ec 00 f8 28 	fsubs   f0,f0,f31
+    10001110:	ec 3d 08 28 	fsubs   f1,f29,f1
+    100030f4:	ef 80 e0 28 	fsubs   f28,f0,f28
+    10008be4:	ed 8c 58 28 	fsubs   f12,f12,f11

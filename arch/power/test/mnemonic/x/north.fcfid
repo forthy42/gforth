@@ -1,0 +1,14 @@
+    1000a12c:	fc 20 06 9c 	fcfid   f1,f0
+    1007d4b0:	fc 00 06 9c 	fcfid   f0,f0
+    10001574:	fd a0 06 9c 	fcfid   f13,f0
+    1000cb38:	fc 00 66 9c 	fcfid   f0,f12
+    1000172c:	fd 80 6e 9c 	fcfid   f12,f13
+    10025920:	fd 60 06 9c 	fcfid   f11,f0
+    1001c4d8:	fd 80 06 9c 	fcfid   f12,f0
+    10000a84:	ff e0 06 9c 	fcfid   f31,f0
+    1007b4ec:	fd a0 6e 9c 	fcfid   f13,f13
+    100013e8:	fd 40 06 9c 	fcfid   f10,f0
+    10004ef4:	fd 80 4e 9c 	fcfid   f12,f9
+    10002c4c:	fc 20 6e 9c 	fcfid   f1,f13
+    100068fc:	fc 00 6e 9c 	fcfid   f0,f13
+    100068fc:	fc 00 6e 9d 	fcfid.  f0,f13

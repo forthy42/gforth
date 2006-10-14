@@ -1,0 +1,5 @@
+    1000ab54:	7c 84 00 34 	cntlzw  r4,r4
+    1017485c:	7d 29 00 34 	cntlzw  r9,r9
+    10011ec0:	7c 00 00 34 	cntlzw  r0,r0
+    1000057c: 7f ff 00 34   cntlzw  r31,r31
+    1000057d: 7f ff 00 35   cntlzw. r31,r31

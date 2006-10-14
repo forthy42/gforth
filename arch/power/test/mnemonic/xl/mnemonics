@@ -1,0 +1,14 @@
+bcctr
+bclr
+crand
+crandc
+creqv
+crnand
+crnor
+cror
+crorc
+crxor
+isync
+mcrf
+rfi
+rfid

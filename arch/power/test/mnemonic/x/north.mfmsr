@@ -1,0 +1,3 @@
+    10000558:   7f e0 00 a6     mfmsr   r31
+    1000055c:   7c a0 00 a6     mfmsr   r5
+    10000560:   7c 00 00 a6     mfmsr   r0

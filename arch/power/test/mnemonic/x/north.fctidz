@@ -1,0 +1,11 @@
+    10016ce4:	fc 00 0e 5e 	fctidz  f0,f1
+    10008f40:	fc 00 06 5e 	fctidz  f0,f0
+    10003118:	fc 00 fe 5e 	fctidz  f0,f31
+    10007f80:	ff e0 fe 5e 	fctidz  f31,f31
+    10022cf0:	fd a0 06 5e 	fctidz  f13,f0
+    1002551c:	fd a0 6e 5e 	fctidz  f13,f13
+    10017044:	ff c0 f6 5e 	fctidz  f30,f30
+    1010a8b0:	fc 20 0e 5e 	fctidz  f1,f1
+    10002698:	fc 00 6e 5e 	fctidz  f0,f13
+    100c58a4:	fc 00 66 5e 	fctidz  f0,f12
+    100c58a4:	fc 00 66 5f 	fctidz. f0,f12

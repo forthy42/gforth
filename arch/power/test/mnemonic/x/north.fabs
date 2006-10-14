@@ -1,0 +1,11 @@
+    1000a7e0:	fc 00 02 10 	fabs    f0,f0
+    10001ce4:	fc 20 f2 10 	fabs    f1,f30
+    1007a928:	fc 00 0a 10 	fabs    f0,f1
+    100037d8:	fd 80 ea 10 	fabs    f12,f29
+    100173e8:	fd a0 02 10 	fabs    f13,f0
+    101271c8:	fc 20 0a 10 	fabs    f1,f1
+    101825e0:	fc 00 fa 10 	fabs    f0,f31
+    1001a718:	ff c0 ea 10 	fabs    f30,f29
+    10001e04:	fd a0 6a 10 	fabs    f13,f13
+    10026544:	fc 00 6a 10 	fabs    f0,f13
+    10026544:	fc 00 6a 11 	fabs.   f0,f13

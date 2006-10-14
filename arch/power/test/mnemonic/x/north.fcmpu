@@ -1,0 +1,17 @@
+    10009df8:	ff 8d 00 00 	fcmpu   cr7,f13,f0
+    1000ee34:	ff 80 68 00 	fcmpu   cr7,f0,f13
+    100070b0:	ff 8c 58 00 	fcmpu   cr7,f12,f11
+    10002120:	ff 8c 00 00 	fcmpu   cr7,f12,f0
+    1004f2b4:	ff 1f 00 00 	fcmpu   cr6,f31,f0
+    10004308:	ff 80 f8 00 	fcmpu   cr7,f0,f31
+    100036a4:	ff 9f 00 00 	fcmpu   cr7,f31,f0
+    100111f4:	fe 1f 00 00 	fcmpu   cr4,f31,f0
+    1000e084:	ff 81 00 00 	fcmpu   cr7,f1,f0
+    10012314:	ff 8d 08 00 	fcmpu   cr7,f13,f1
+    100046f0:	ff 8d 60 00 	fcmpu   cr7,f13,f12
+    10007bdc:	ff 9f 08 00 	fcmpu   cr7,f31,f1
+    10005000:	ff 8b f8 00 	fcmpu   cr7,f11,f31
+    100020e4:	ff 80 58 00 	fcmpu   cr7,f0,f11
+    1001351c:	ff 99 d0 00 	fcmpu   cr7,f25,f26
+    1003cde4:	ff 0c 68 00 	fcmpu   cr6,f12,f13
+    10000ee4:	ff 81 68 00 	fcmpu   cr7,f1,f13

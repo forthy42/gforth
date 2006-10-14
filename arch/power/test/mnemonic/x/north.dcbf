@@ -1,0 +1,2 @@
+    1006418c:	7c 00 00 ac 	dcbf    r0,r0
+    10000558: 7c 1f f8 ac   dcbf    r31,r31

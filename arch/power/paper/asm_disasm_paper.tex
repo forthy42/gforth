@@ -1,0 +1,92 @@
+\documentclass[a4paper,10pt,oneside]{article}
+%\usepackage[german]{babel}
+\usepackage{calc}
+\usepackage[latin1]{inputenc}
+\usepackage{fancyheadings}
+\usepackage{array}
+\usepackage{epsfig}
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage{verbatim}
+\usepackage{listings}
+
+\rhead{}
+
+\pagestyle{fancy}
+
+%% SOME HELPERS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\entrylabel}[1]{\mbox{\textbf{#1}}}
+\newenvironment{entry}[1]{
+	\begin{list}{}{
+		\renewcommand{\makelabel}{\entrylabel}
+		\setlength{\labelwidth}{#1}
+		\setlength{\leftmargin}{\labelwidth + \labelsep}
+	}
+}{\end{list}}
+
+\begin{document}
+
+%% ß
+
+%% COVER %%%%%%%%%%%%%%%%%%%%%%%%%1%%%%%%%%%%%%%%%%
+
+\thispagestyle{empty}
+
+\setlength{\parskip}{0mm}
+
+\vspace*{\stretch{1}}
+\begin{flushright}
+\rule{\linewidth}{1mm}
+	\Large{Projektpraktikum} \\
+	\Huge{\textsf{Assembler and Disassembler in Gforth for ppc-\{32,64\}}} \\[8mm]
+    \Large{Michal Revucky 0225176 534}
+\rule{\linewidth}{1mm}
+\end{flushright}
+
+
+\vspace*{\stretch{4}}
+
+\begin{center}
+
+\Large \textsc{\today}
+\end{center}
+
+\pagebreak
+
+%% TOC %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\setcounter{page}{1}
+\tableofcontents
+
+\pagebreak
+
+%% DOCUMENT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% -) Manual fuer diesen assembler/disassembler:                                
+%   welche instruktionen wie disassembliert werden, welche instruktion 
+%   supported werden etc. 
+% -) Approach:                                                                  
+%     wie welche probleme geloest wurden, wieso und was ich dabei gelernt habe. 
+% -) Testing:                                                                   
+%     eine beschreibung der testscripte die ich geschrieben habe, sowie         
+%     ausschnitte aus deren output.                                             
+% -) Devel Env, sowie used tools, und ihre versionen.                           
+
+
+%manual
+\include{chapter1}
+\pagebreak 
+%approach
+\include{chapter2}
+\pagebreak
+%testing
+\include{chapter3}
+\pagebreak
+%tools used
+\include{chapter4}
+\pagebreak
+\include{biblio}
+% \appendix
+% appendix additional or some other stuff
+\end{document}

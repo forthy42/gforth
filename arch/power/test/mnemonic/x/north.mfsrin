@@ -1,0 +1,3 @@
+    10000558:   7f e0 cd 26     mfsrin  r31,r25
+    1000055c:   7f 20 fd 26     mfsrin  r25,r31
+    10000560:   7c 00 25 26     mfsrin  r0,r4

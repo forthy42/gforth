@@ -1,0 +1,139 @@
+\section{Manual}
+\subsection{Postfix Notation}
+    All words for this assembler/disassembler expect/return its arguments 
+    as postfix operands. The best way to explain this is with an example.  
+    When you open ~\cite{ppcman} at page 377, you see the syntax for the
+    \texttt{add} instruction:
+    
+    \begin{verbatim}
+        add rD,rA,rB
+    \end{verbatim}
+    This annotation is called infix it means that the instruction is
+    followed by its operands.
+
+    To translate this example into the postfix annotation, you simply
+    need to put all the operands before the instruction. This would
+    result in:
+
+    \begin{verbatim}
+        rD,rA,rB add
+    \end{verbatim}
+\subsection{Supported Instructions}
+    This assembler/disassembler supports all instructions from ~\cite{ppcman}. 
+    There is only one instruction which is only supported by the ppc32 and not 
+    by the 64-bit implementation of this processor. Using a 64-bit instruction 
+    on a ppc-32 will cause a run time error during the execution of your code,
+    this also applies the other way round.
+
+    Simplified mnemonics are not supported yet.
+
+    The instruction of the m-form are disassembled differently than
+    explained in ~\cite{ppcman}, when the \texttt{RC} bit is set, the dot is 
+    placed at the first position of the instruction. The assembler accepts 
+    both for example \texttt{rlwimi.} as well \texttt{.rlwimi}.
+
+\subsection{Syntax}
+    It is not necessary to explain the syntax of the disassembler in this
+    section, because this section is intended to prevent the user from
+    causing syntax errors, with the disassembler there is not much you can
+    do wrong.
+
+    All words provided by the \texttt{asm.fs} file which is usually located
+    in \\ \texttt{/usr/share/gforth/<gforth-version>/arch/power} defines 
+        words which take some arguments and depending on those they create a 
+        32 bit long number which represents one instruction. The arguments 
+        which take those words are integers only, whether signed or unsigned 
+        depends on the instruction. The assembler has a boundary check and if 
+        at least one argument is out of range it causes an error.
+
+        It is also possible that you use hexadecimal numbers as well for 
+        arguments, since the Gforth environment supports that feature:
+
+        \begin{verbatim}1 2 15 add\end{verbatim}
+
+        is equivalent to
+
+        \begin{verbatim}$1 $2 $F add\end{verbatim}
+        
+        The arguments are converted by the Gforth run time internally.
+
+        There are also instructions which take immediates as their arguments, 
+        for example \texttt{addi}. Some assemblers/disassemblers support a 
+        feature where they put for example a \texttt{r} before the number, so if
+        somewhere in the input or output we have something like \texttt{r31}, we
+        know that this is the register \texttt{31}. The point of this is that
+        when using this assembler/disassembler you should know the order and the
+        allowed ranges of the arguments pretty well, or have ~\cite{ppcman} 
+        or similar by your hand.
+
+    \subsection{Assembler}
+
+        All the assembling words are defined in a word list called
+        \texttt{assembler}. Usually Gforth does not look for words in that list,
+        to activate this list you have to use the \texttt{code} word
+        ~\cite{gforthman} page 157.
+
+        The assembling words are made available either by calling:
+            
+            \begin{verbatim}
+                gforth asm.fs
+            \end{verbatim}
+
+        where asm.fs is the source file which defines the assembling words, or
+        when you compile Gforth and start it, the file will be loaded at 
+        start up automatically.
+
+        When you call \texttt{sc}, how it is defined and what it does i will try
+        to explain with some code, the word \texttt{asm-sc}:
+
+            \begin{verbatim}
+                : asm-sc ( n "name" -- )
+                  create ,
+                does> @ 26 lshift 2 or h, ;
+            \end{verbatim}
+
+        is used to create the word \texttt{sc}, as you may noticed this word
+        does not take any arguments. Now it is possible to create the word 
+        \texttt{sc} by:
+
+            \begin{verbatim}
+                $11 asm-sc sc 
+            \end{verbatim}
+
+        When you invoke \texttt{sc} in a \texttt{code ... end-code} block, it
+        fetches the number \texttt{\$11} which is the op-code for this
+        instruction, makes a left shift by 26, so the op-code starts from bit 0
+        and goes to bit 5, it sets bit 30 which is \texttt{2 or}, finally it 
+        writes this machine code to \texttt{here}, which is performed by the 
+        the word \texttt{h,}.
+        
+    \pagebreak
+    \subsection{Disassembler}
+        
+        The disassembling words reside in word list called
+        \texttt{disassembler}. To disassemble your favourite word you can do:
+            \begin{verbatim}
+            see +
+            Code +  
+            ( $10006DE0 ) 9 -32688 2 ld
+            ( $10006DE4 ) 31 0 9 std
+            ( $10006DE8 ) 0 8 26 ld
+            ( $10006DEC ) 9 0 26 ld
+            ( $10006DF0 ) 30 0 31 ld
+            ( $10006DF4 ) 31 31 8 addi
+            ( $10006DF8 ) 0 0 9 add
+            ( $10006DFC ) 0 8 26 stdu
+            ( $10006E00 ) 29 30 30 or
+            ( $10006E04 ) 9 29 mtspr
+            ( $10006E08 ) $10006120 b
+            end-code
+            \end{verbatim}
+        The number in the parenthesis is the address of this instruction. If 
+        \texttt{see} encounters a word which is provided in machine code, it 
+        invokes \texttt{discode}. In \texttt{disasm.fs} the word 
+        \texttt{discode} is redefined and its execution semantics is then same 
+        as the one of \texttt{disasm}, it simply iterates over a block of
+        memory, for each address and machine word it calls \texttt{disasm-inst}.
+        This word fetches for every type of instruction the appropriate 
+        disassemble xt and produces output like seen before.
+        The output of the disassembler may be fed into the assembler.

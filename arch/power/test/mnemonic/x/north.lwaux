@@ -1,0 +1,4 @@
+    10000558:   7c aa 7a ea     lwaux   r5,r10,r15
+    1000055c:   7f ef 2a ea     lwaux   r31,r15,r5
+    10000560:   7c 10 02 ea     lwaux   r0,r16,r0
+    10000564:   7f e5 32 ea     lwaux   r31,r5,r6

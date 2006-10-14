@@ -1,0 +1,16 @@
+    10002018:	ec 00 63 7a 	fmadds  f0,f0,f13,f12
+    10071bf0:	ed 6c 6a fa 	fmadds  f11,f12,f11,f13
+    10002674:	ed a0 6b 3a 	fmadds  f13,f0,f12,f13
+    10004c2c:	ec 1d df ba 	fmadds  f0,f29,f30,f27
+    10001e18:	ed ad 58 3a 	fmadds  f13,f13,f0,f11
+    1000cd18:	ed ac 03 3a 	fmadds  f13,f12,f12,f0
+    10002690:	ed ad 00 7a 	fmadds  f13,f13,f1,f0
+    10024cf4:	ef 66 01 ba 	fmadds  f27,f6,f6,f0
+    100013e4:	ef ed f8 3a 	fmadds  f31,f13,f0,f31
+    1000ad44:	ec ad 28 ba 	fmadds  f5,f13,f2,f5
+    10001d98:	ec 00 6b 3a 	fmadds  f0,f0,f12,f13
+    1000210c:	ef f7 d7 fa 	fmadds  f31,f23,f31,f26
+    1000210c:	ef f7 d7 fb 	fmadds. f31,f23,f31,f26
+    10002bd4:	ec 00 6b 3b 	fmadds. f0,f0,f12,f13
+    10005a98:	ec 21 00 7a 	fmadds  f1,f1,f1,f0
+    10005a98:	ec 21 00 7b 	fmadds. f1,f1,f1,f0

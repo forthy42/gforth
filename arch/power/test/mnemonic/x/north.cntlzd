@@ -1,0 +1,3 @@
+    1004fb88:	7c 00 00 74 	cntlzd  r0,r0
+    10000578: 7f ff 00 74   cntlzd  r31,r31
+    10000578: 7f ff 00 75   cntlzd. r31,r31

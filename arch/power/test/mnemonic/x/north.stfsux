@@ -1,0 +1,3 @@
+    10000558:   7f f9 55 6e     stfsux  f31,r25,r10
+    1000055c:   7d 59 fd 6e     stfsux  f10,r25,r31
+    10000560:   7c 05 25 6e     stfsux  f0,r5,r4

@@ -1,0 +1,2 @@
+    10000558:   7f e8 fa a6     mfspr   r31,1000
+    1000055c:   7c b4 7a a6     mfspr   r5,500

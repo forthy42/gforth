@@ -1,0 +1,11 @@
+    10002ad8:	7c 3c b5 2e 	stfsx   f1,r28,r22
+    100c4954:	7d 89 fd 2e 	stfsx   f12,r9,r31
+    100157f4:	7d aa 05 2e 	stfsx   f13,r10,r0
+    10003228:	7c 1c 05 2e 	stfsx   f0,r28,r0
+    10001c14:	7c 3d dd 2e 	stfsx   f1,r29,r27
+    10008d40:	7c c9 cd 2e 	stfsx   f6,r9,r25
+    100016c4:	7c 29 dd 2e 	stfsx   f1,r9,r27
+    101d6900:	7c 09 1d 2e 	stfsx   f0,r9,r3
+    1007ecf8:	7c 09 fd 2e 	stfsx   f0,r9,r31
+    10003100:	7c 1a 05 2e 	stfsx   f0,r26,r0
+    10002e8c:	7c 1f 55 2e 	stfsx   f0,r31,r10
