@@ -241,7 +241,8 @@ GFORTH_FI_SRC = \
 	arch/amd64/asm.fs arch/amd64/disasm.fs \
 	arch/alpha/asm.fs arch/alpha/disasm.fs arch/alpha/testasm.fs\
 	arch/mips/asm.fs arch/mips/disasm.fs arch/mips/insts.fs \
-	arch/mips/testasm.fs arch/mips/testdisasm.fs
+	arch/mips/testasm.fs arch/mips/testdisasm.fs \
+	arch/power/asm.fs arch/power/disasm.fs arch/power/inst.fs
 
 FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_SRC) $(EC_SRC) \
 	ans-report.fs ansi.fs answords.fs \

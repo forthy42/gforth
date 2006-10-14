@@ -415,6 +415,7 @@ Assembler and Code Words
 * 386 Assembler::               Deviations and special cases
 * Alpha Assembler::             Deviations and special cases
 * MIPS assembler::              Deviations and special cases
+* PowerPC assembler::           
 * Other assemblers::            How to write them
 
 Tools
@@ -11875,6 +11876,7 @@ doc-lib-sym
 * 386 Assembler::               Deviations and special cases
 * Alpha Assembler::             Deviations and special cases
 * MIPS assembler::              Deviations and special cases
+* PowerPC assembler::           Deviations and special cases
 * Other assemblers::            How to write them
 @end menu
 
@@ -12165,6 +12167,7 @@ code my+ ( n1 n2 -- n )
 end-code
 @end example
 
+
 @node Alpha Assembler, MIPS assembler, 386 Assembler, Assembler and Code Words
 @subsection Alpha Assembler
 
@@ -12193,7 +12196,7 @@ endif,
 
 @code{fbgt,} gives @code{fgt}.  
 
-@node MIPS assembler, Other assemblers, Alpha Assembler, Assembler and Code Words
+@node MIPS assembler, PowerPC assembler, Alpha Assembler, Assembler and Code Words
 @subsection MIPS assembler
 
 The MIPS assembler was originally written by Christian Pirker.
@@ -12244,7 +12247,29 @@ conditional branch and leaving away the @code{b} at the start and the
 then,
 @end example
 
-@node Other assemblers,  , MIPS assembler, Assembler and Code Words
+
+@node PowerPC assembler, Other assemblers, MIPS assembler, Assembler and Code Words
+@subsection PowerPC assembler
+
+The PowerPC assembler and disassembler was contributed by Michal
+Revucky.
+
+Registers are referred to by their number, e.g., @code{9} means the
+integer register 9 or the FP register 9 (depending on the
+instruction).
+
+Because there is no way to distinguish registers from immediate values,
+you have to explicitly use the immediate forms of instructions, i.e.,
+@code{addi,}, not just @code{add,} (@command{as} does this
+implicitly).
+
+The assembler and disassembler usually supports the most general form
+of an instruction, but usually not the shorter forms (especially for
+branches).
+
+
+
+@node Other assemblers,  , PowerPC assembler, Assembler and Code Words
 @subsection Other assemblers
 
 If you want to contribute another assembler/disassembler, please contact
@@ -12268,6 +12293,9 @@ disassembler for the assembler than the other way round.
 
 For the assembler, take a look at @file{arch/alpha/asm.fs}, which shows
 how simple it can be.
+
+
+
 
 @c -------------------------------------------------------------
 @node Threading Words, Passing Commands to the OS, Assembler and Code Words, Words
@@ -15562,17 +15590,18 @@ to Report Bugs, gcc.info, GNU C Manual}.
 The Gforth project was started in mid-1992 by Bernd Paysan and Anton
 Ertl. The third major author was Jens Wilke.  Neal Crook contributed a
 lot to the manual.  Assemblers and disassemblers were contributed by
-Andrew McKewan, Christian Pirker, and Bernd Thallner.  Lennart Benschop
-(who was one of Gforth's first users, in mid-1993) and Stuart Ramsden
-inspired us with their continuous feedback. Lennart Benshop contributed
-@file{glosgen.fs}, while Stuart Ramsden has been working on automatic
-support for calling C libraries. Helpful comments also came from Paul
-Kleinrubatscher, Christian Pirker, Dirk Zoller, Marcel Hendrix, John
-Wavrik, Barrie Stott, Marc de Groot, Jorge Acerada, Bruce Hoyt, Robert
-Epprecht, Dennis Ruffer and David N. Williams. Since the release of
-Gforth-0.2.1 there were also helpful comments from many others; thank
-you all, sorry for not listing you here (but digging through my mailbox
-to extract your names is on my to-do list).
+Andrew McKewan, Christian Pirker, Bernd Thallner, and Michal Revucky.
+Lennart Benschop (who was one of Gforth's first users, in mid-1993)
+and Stuart Ramsden inspired us with their continuous feedback. Lennart
+Benshop contributed @file{glosgen.fs}, while Stuart Ramsden has been
+working on automatic support for calling C libraries. Helpful comments
+also came from Paul Kleinrubatscher, Christian Pirker, Dirk Zoller,
+Marcel Hendrix, John Wavrik, Barrie Stott, Marc de Groot, Jorge
+Acerada, Bruce Hoyt, Robert Epprecht, Dennis Ruffer and David
+N. Williams. Since the release of Gforth-0.2.1 there were also helpful
+comments from many others; thank you all, sorry for not listing you
+here (but digging through my mailbox to extract your names is on my
+to-do list).
 
 Gforth also owes a lot to the authors of the tools we used (GCC, CVS,
 and autoconf, among others), and to the creators of the Internet: Gforth
