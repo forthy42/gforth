@@ -12251,8 +12251,14 @@ then,
 @node PowerPC assembler, Other assemblers, MIPS assembler, Assembler and Code Words
 @subsection PowerPC assembler
 
-The PowerPC assembler and disassembler was contributed by Michal
+The PowerPC assembler and disassembler were contributed by Michal
 Revucky.
+
+This assembler does not follow the convention of ending mnemonic names
+with a ``,'', so some mnemonic names shadow regular Forth words (in
+particular: @code{and or xor fabs}); so if you want to use the Forth
+words, you have to make them visible first, e.g., with @code{also
+forth}.
 
 Registers are referred to by their number, e.g., @code{9} means the
 integer register 9 or the FP register 9 (depending on the
@@ -12260,10 +12266,9 @@ instruction).
 
 Because there is no way to distinguish registers from immediate values,
 you have to explicitly use the immediate forms of instructions, i.e.,
-@code{addi,}, not just @code{add,} (@command{as} does this
-implicitly).
+@code{addi,}, not just @code{add,}.
 
-The assembler and disassembler usually supports the most general form
+The assembler and disassembler usually support the most general form
 of an instruction, but usually not the shorter forms (especially for
 branches).
 
