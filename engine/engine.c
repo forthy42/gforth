@@ -97,6 +97,8 @@ extern int gforth_memcmp(const char * s1, const char * s2, size_t n);
 #endif
 
 #define NEWLINE	'\n'
+#define CELL_MIN (((Cell)1)<<(sizeof(Cell)*CHAR_BIT-1))
+#define CHECK_DIVISION 1
 
 /* conversion on fetch */
 

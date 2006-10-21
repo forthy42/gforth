@@ -95,6 +95,11 @@ graceful_exit (int sig)
 
 jmp_buf throw_jmp_buf;
 
+void throw(int code)
+{
+  longjmp(throw_jmp_buf,code); /* !! or use siglongjmp ? */
+}
+
 static void 
 signal_throw(int sig)
 {
@@ -120,7 +125,7 @@ signal_throw(int sig)
     sigprocmask(SIG_SETMASK, &emptyset, NULL);
   }
 #endif
-  longjmp(throw_jmp_buf,code); /* !! or use siglongjmp ? */
+  throw(code);
 }
 
 #ifdef SA_SIGINFO
@@ -160,7 +165,7 @@ static void fpe_handler(int sig, siginfo_t *info, void *_)
 #endif
   default: code=-55; break;
   }
-  longjmp(throw_jmp_buf,code);
+  throw(code);
 }
 
 
@@ -193,7 +198,7 @@ static void segv_handler(int sig, siginfo_t *info, void *_)
     code=-44;
   else if (JUSTOVER(addr, NEXTPAGE(h->fp_stack_base+h->fp_stack_size)))
     code=-45;
-  longjmp(throw_jmp_buf,code);
+  throw(code);
 }
 
 #endif /* defined(SA_SIGINFO) */

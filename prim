@@ -809,12 +809,21 @@ n = n1*n2;
 
 /	( n1 n2 -- n )		core	slash
 n = n1/n2;
-if(FLOORED_DIV && ((n1^n2) < 0) && (n1%n2 != 0)) n--;
+if (CHECK_DIVISION && (n2 == 0))
+  throw(-10);
+if (CHECK_DIVISION && n2 == -1 && n1 == CELL_MIN)
+  throw(-11);
+if (FLOORED_DIV && ((n1^n2) < 0) && (n1%n2 != 0))
+  n--;
 :
  /mod nip ;
 
 mod	( n1 n2 -- n )		core
 n = n1%n2;
+if (CHECK_DIVISION && (n2 == 0))
+  throw(-10);
+if (CHECK_DIVISION && n2 == -1 && n1 == CELL_MIN)
+  throw(-11);
 if(FLOORED_DIV && ((n1^n2) < 0) && n!=0) n += n2;
 :
  /mod drop ;
@@ -822,6 +831,10 @@ if(FLOORED_DIV && ((n1^n2) < 0) && n!=0) n += n2;
 /mod	( n1 n2 -- n3 n4 )		core		slash_mod
 n4 = n1/n2;
 n3 = n1%n2; /* !! is this correct? look into C standard! */
+if (CHECK_DIVISION && (n2 == 0))
+  throw(-10);
+if (CHECK_DIVISION && n2 == -1 && n1 == CELL_MIN)
+  throw(-11);
 if (FLOORED_DIV && ((n1^n2) < 0) && n3!=0) {
   n4--;
   n3+=n2;

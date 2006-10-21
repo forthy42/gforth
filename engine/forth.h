@@ -340,6 +340,7 @@ Cell capscompare(Char *c_addr1, UCell u1, Char *c_addr2, UCell u2);
 
 /* signal handler stuff */
 void install_signal_handlers(void);
+void throw(int code);
 typedef void Sigfunc(int);
 Sigfunc *bsd_signal(int signo, Sigfunc *func);
 
