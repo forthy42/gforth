@@ -1843,7 +1843,7 @@ part (@code{-- b a}) away:
 In Gforth you can have several locals definitions, anywhere in a colon
 definition; in contrast, in a standard program you can have only one
 locals definition per colon definition, and that locals definition must
-be outside any controll structure.
+be outside any control structure.
 
 With locals you can write slightly longer definitions without running
 into stack trouble.  However, I recommend trying to write colon

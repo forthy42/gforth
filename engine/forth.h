@@ -364,6 +364,7 @@ Label decompile_code(Label prim);
 
 extern int offset_image;
 extern int die_on_signal;
+extern int ignore_async_signals;
 extern UCell pagesize;
 extern ImageHeader *gforth_header;
 extern Label *vm_prims;

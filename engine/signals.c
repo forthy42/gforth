@@ -314,12 +314,42 @@ void install_signal_handlers(void)
   };
 #endif
 
+  static short async_sigs_to_throw [] = {
+#ifdef SIGINT
+    SIGINT,
+#endif
+#ifdef SIGALRM
+    SIGALRM,
+#endif
+#ifdef SIGPOLL
+    SIGPOLL,
+#endif
+#ifdef SIGPROF
+    SIGPROF,
+#endif
+#ifdef SIGURG
+    SIGURG,
+#endif
+#ifdef SIGPIPE
+    SIGPIPE,
+#endif
+#ifdef SIGUSR1
+    SIGUSR1,
+#endif
+#ifdef SIGUSR2
+    SIGUSR2,
+#endif
+#ifdef SIGVTALRM
+    SIGVTALRM,
+#endif
+#ifdef SIGXFSZ
+    SIGXFSZ,
+#endif
+  };
+
   static short sigs_to_throw [] = {
 #ifdef SIGBREAK
     SIGBREAK,
-#endif
-#ifdef SIGINT
-    SIGINT,
 #endif
 #ifdef SIGILL
     SIGILL,
@@ -336,18 +366,6 @@ void install_signal_handlers(void)
 #ifdef SIGSEGV
     SIGSEGV,
 #endif
-#ifdef SIGALRM
-    SIGALRM,
-#endif
-#ifdef SIGPIPE
-    SIGPIPE,
-#endif
-#ifdef SIGPOLL
-    SIGPOLL,
-#endif
-#ifdef SIGPROF
-    SIGPROF,
-#endif
 #ifdef SIGBUS
     SIGBUS,
 #endif
@@ -357,22 +375,8 @@ void install_signal_handlers(void)
 #ifdef SIGTRAP
     SIGTRAP,
 #endif
-#ifdef SIGURG
-    SIGURG,
-#endif
-#ifdef SIGUSR1
-    SIGUSR1,
-#endif
-#ifdef SIGUSR2
-    SIGUSR2,
-#endif
-#ifdef SIGVTALRM
-    SIGVTALRM,
-#endif
-#ifdef SIGXFSZ
-    SIGXFSZ,
-#endif
   };
+
   static short sigs_to_quit [] = {
 #ifdef SIGQUIT
     SIGQUIT,
@@ -417,6 +421,9 @@ void install_signal_handlers(void)
 */
   for (i = 0; i < DIM (sigs_to_throw); i++)
     bsd_signal(sigs_to_throw[i], throw_handler);
+  for (i = 0; i < DIM (async_sigs_to_throw); i++)
+    bsd_signal(async_sigs_to_throw[i], 
+               ignore_async_signals ? SIG_IGN : throw_handler);
   for (i = 0; i < DIM (sigs_to_quit); i++)
     bsd_signal(sigs_to_quit [i], graceful_exit);
 #ifdef SA_SIGINFO

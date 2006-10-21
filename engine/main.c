@@ -179,6 +179,7 @@ static UCell fsize=0;
 static UCell lsize=0;
 int offset_image=0;
 int die_on_signal=0;
+int ignore_async_signals=0;
 #ifndef INCLUDE_IMAGE
 static int clear_dictionary=0;
 UCell pagesize=1;
@@ -1942,6 +1943,7 @@ void gforth_args(int argc, char ** argv, char ** path, char ** imagename)
       {"no-offset-im", no_argument, &offset_image, 0},
       {"clear-dictionary", no_argument, &clear_dictionary, 1},
       {"die-on-signal", no_argument, &die_on_signal, 1},
+      {"ignore-async-signals", no_argument, &ignore_async_signals, 1},
       {"debug", no_argument, &debug, 1},
       {"diag", no_argument, &diag, 1},
       {"no-super", no_argument, &no_super, 1},
@@ -1999,10 +2001,11 @@ Engine Options:\n\
   -d SIZE, --data-stack-size=SIZE   Specify data stack size\n\
   --debug			    Print debugging information during startup\n\
   --diag			    Print diagnostic information during startup\n\
-  --die-on-signal		    exit instead of CATCHing some signals\n\
+  --die-on-signal		    exit instead of THROWing some signals\n\
   --dynamic			    use dynamic native code\n\
   -f SIZE, --fp-stack-size=SIZE	    Specify floating point stack size\n\
   -h, --help			    Print this message and exit\n\
+  --ignore-async-signals            ignore instead of THROWing async. signals\n\
   -i FILE, --image-file=FILE	    Use image FILE instead of `gforth.fi'\n\
   -l SIZE, --locals-stack-size=SIZE Specify locals stack size\n\
   -m SIZE, --dictionary-size=SIZE   Specify Forth dictionary size\n\
