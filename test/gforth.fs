@@ -19,7 +19,7 @@
 \ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
 
 require ./tester.fs
-require ./coretest.fs
+decimal
 
 \ f>str-rdp (then f.rdp and f>buf-rdb should also be ok)
 
@@ -49,3 +49,49 @@ decimal
 {  1e 0e f/ pad 16 represent drop 2drop pad 15 + c@ '0 = -> false }
 {  0e 0e f/ pad 16 represent drop 2drop pad 15 + c@ '0 = -> false }
 { -1e 0e f/ pad 16 represent drop 2drop pad 15 + c@ '0 = -> false }
+
+\ gforth now guarantees exceptions in division errors
+
+\ division by zero
+{ 1 0 ' /    catch -> 1 0 -10 }
+{ 1 0 ' mod  catch -> 1 0 -10 }
+{ 1 0 ' /mod catch -> 1 0 -10 }
+{ 1 1 0 ' */mod catch -> 1 1 0 -10 }
+{ 1 1 0 ' */    catch -> 1 1 0 -10 }
+{ 1. 0 ' fm/mod catch -> 1. 0 -10 }
+{ 1. 0 ' sm/rem catch -> 1. 0 -10 }
+{ 1. 0 ' um/mod catch -> 1. 0 -10 }
+
+\ division overflows (might come out as "division by zero" or "overflow")
+environment-wordlist >order
+{ max-n invert -1 ' /    catch 0= -> max-n invert -1 false }
+{ max-n invert -1 ' mod  catch 0= -> max-n invert -1 false }
+{ max-n invert -1 ' /mod catch 0= -> max-n invert -1 false }
+{ 1 max-n invert -1 ' */     catch 0= -> 1 max-n invert -1 false }
+{ 1 max-n invert -1 ' */mod  catch 0= -> 1 max-n invert -1 false }
+{ max-n invert s>d -1 ' fm/mod catch 0= -> max-n invert s>d -1 false }
+{ max-n invert s>d -1 ' sm/rem catch 0= -> max-n invert s>d -1 false }
+
+{ 2 max-n 2/ 1+ 1 ' */    catch 0= -> 2 max-n 2/ 1+ 1 false }
+{ 2 max-n 2/ 1+ 1 ' */mod catch 0= -> 2 max-n 2/ 1+ 1 false }
+{ max-n 0 1. d+ 1 ' fm/mod catch 0= -> max-n 0 1. d+ 1 false }
+{ max-n 0 1. d+ 1 ' sm/rem catch 0= -> max-n 0 1. d+ 1 false }
+{ max-u 0 1. d+ 1 ' um/mod catch 0= -> max-u 0 1. d+ 1 false }
+
+{ 1 1 dnegate 2 ' fm/mod catch 0= -> max-u 0 2. d+ dnegate 2 false }
+{ 1 1 dnegate 2 ' sm/rem catch 0= -> -1 max-n invert true }
+
+{ 1 1 -2 ' fm/mod catch 0= -> 1 1 -2 false }
+{ 1 1 -2 ' sm/rem catch 0= -> 1 max-n invert true }
+
+{ max-u max-n 2/ max-n invert ' fm/mod catch -> -1 max-n invert 0 }
+{ max-u max-n 2/ max-n invert ' sm/rem catch -> max-n max-n negate 0 }
+
+{ 0 max-n 2/ 1+ max-n invert ' fm/mod catch -> 0 max-n invert 0 }
+{ 0 max-n 2/ 1+ max-n invert ' sm/rem catch -> 0 max-n invert 0 }
+
+{ 1 max-n 2/ 1+ max-n invert ' fm/mod catch 0= -> 1 max-n 2/ 1+ max-n invert false }
+{ 1 max-n 2/ 1+ max-n invert ' sm/rem catch 0= -> 1 max-n invert true }
+
+{ 0 max-u -1. d+ max-u ' um/mod catch 0= -> max-u 1- max-u true }
+{ 0 max-u max-u ' um/mod catch 0= -> 0 max-u max-u false }

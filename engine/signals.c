@@ -142,10 +142,10 @@ static void fpe_handler(int sig, siginfo_t *info, void *_)
 
   switch(info->si_code) {
 #ifdef FPE_INTDIV
-  case FPE_INTDIV: code=-10; break; /* integer divide by zero */
+  case FPE_INTDIV: code=BALL_DIVZERO; break;
 #endif
 #ifdef FPE_INTOVF
-  case FPE_INTOVF: code=-11; break; /* integer overflow */
+  case FPE_INTOVF: code=BALL_RESULTRANGE; break; /* integer overflow */
 #endif
 #ifdef FPE_FLTDIV
   case FPE_FLTDIV: code=-42; break; /* floating point divide by zero */

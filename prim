@@ -809,10 +809,10 @@ n = n1*n2;
 
 /	( n1 n2 -- n )		core	slash
 n = n1/n2;
-if (CHECK_DIVISION && (n2 == 0))
-  throw(-10);
+if (CHECK_DIVISION && n2 == 0)
+  throw(BALL_DIVZERO);
 if (CHECK_DIVISION && n2 == -1 && n1 == CELL_MIN)
-  throw(-11);
+  throw(BALL_RESULTRANGE);
 if (FLOORED_DIV && ((n1^n2) < 0) && (n1%n2 != 0))
   n--;
 :
@@ -820,10 +820,10 @@ if (FLOORED_DIV && ((n1^n2) < 0) && (n1%n2 != 0))
 
 mod	( n1 n2 -- n )		core
 n = n1%n2;
-if (CHECK_DIVISION && (n2 == 0))
-  throw(-10);
+if (CHECK_DIVISION && n2 == 0)
+  throw(BALL_DIVZERO);
 if (CHECK_DIVISION && n2 == -1 && n1 == CELL_MIN)
-  throw(-11);
+  throw(BALL_RESULTRANGE);
 if(FLOORED_DIV && ((n1^n2) < 0) && n!=0) n += n2;
 :
  /mod drop ;
@@ -831,10 +831,10 @@ if(FLOORED_DIV && ((n1^n2) < 0) && n!=0) n += n2;
 /mod	( n1 n2 -- n3 n4 )		core		slash_mod
 n4 = n1/n2;
 n3 = n1%n2; /* !! is this correct? look into C standard! */
-if (CHECK_DIVISION && (n2 == 0))
-  throw(-10);
+if (CHECK_DIVISION && n2 == 0)
+  throw(BALL_DIVZERO);
 if (CHECK_DIVISION && n2 == -1 && n1 == CELL_MIN)
-  throw(-11);
+  throw(BALL_RESULTRANGE);
 if (FLOORED_DIV && ((n1^n2) < 0) && n3!=0) {
   n4--;
   n3+=n2;
@@ -844,6 +844,7 @@ if (FLOORED_DIV && ((n1^n2) < 0) && n3!=0) {
 
 */mod	( n1 n2 n3 -- n4 n5 )	core	star_slash_mod
 ""n1*n2=n3*n5+n4, with the intermediate result (n1*n2) being double.""
+DCell d5;
 #ifdef BUGGY_LL_MUL
 DCell d = mmul(n1,n2);
 #else
@@ -855,18 +856,24 @@ n4=DHI(r);
 n5=DLO(r);
 #else
 /* assumes that the processor uses either floored or symmetric division */
-n5 = d/n3;
+d5 = d/n3;
 n4 = d%n3;
+if (CHECK_DIVISION && n3 == 0)
+  throw(BALL_DIVZERO);
 if (FLOORED_DIV && ((DHI(d)^n3)<0) && n4!=0) {
-  n5--;
+  d5--;
   n4+=n3;
 }
+n5 = d5;
+if (d5 != n5)
+  throw(BALL_RESULTRANGE);
 #endif
 :
  >r m* r> fm/mod ;
 
 */	( n1 n2 n3 -- n4 )	core	star_slash
 ""n4=(n1*n2)/n3, with the intermediate result being double.""
+DCell d4;
 #ifdef BUGGY_LL_MUL
 DCell d = mmul(n1,n2);
 #else
@@ -877,8 +884,14 @@ DCell r = fmdiv(d,n3);
 n4=DLO(r);
 #else
 /* assumes that the processor uses either floored or symmetric division */
-n4 = d/n3;
-if (FLOORED_DIV && ((DHI(d)^n3)<0) && (d%n3)!=0) n4--;
+d4 = d/n3;
+if (CHECK_DIVISION && n3 == 0)
+  throw(BALL_DIVZERO);
+if (FLOORED_DIV && ((DHI(d)^n3)<0) && (d%n3)!=0)
+  d4--;
+n4 = d4;
+if (d4 != n4)
+  throw(BALL_RESULTRANGE);
 #endif
 :
  */mod nip ;
@@ -906,6 +919,8 @@ fm/mod	( d1 n1 -- n2 n3 )		core		f_m_slash_mod
 #ifdef ASM_SM_SLASH_REM
 ASM_SM_SLASH_REM(d1.lo, d1.hi, n1, n2, n3);
 if (((DHI(d1)^n1)<0) && n2!=0) {
+  if (n3 == CELL_MIN)
+    throw(BALL_RESULTRANGE);
   n3--;
   n2+=n1;
 }
@@ -918,18 +933,25 @@ n3=DLO(r);
 #ifdef ASM_SM_SLASH_REM4
 ASM_SM_SLASH_REM4(d1, n1, n2, n3);
 if (((DHI(d1)^n1)<0) && n2!=0) {
+  if (n3 == CELL_MIN)
+    throw(BALL_RESULTRANGE);
   n3--;
   n2+=n1;
 }
 #else /* !defined(ASM_SM_SLASH_REM4) */
 /* assumes that the processor uses either floored or symmetric division */
-n3 = d1/n1;
+DCell d3 = d1/n1;
 n2 = d1%n1;
+if (CHECK_DIVISION && n1 == 0)
+  throw(BALL_DIVZERO);
 /* note that this 1%-3>0 is optimized by the compiler */
 if (1%-3>0 && ((DHI(d1)^n1)<0) && n2!=0) {
-  n3--;
+  d3--;
   n2+=n1;
 }
+n3 = d3;
+if (d3 != n3)
+  throw(BALL_RESULTRANGE);
 #endif /* !defined(ASM_SM_SLASH_REM4) */
 #endif
 :
@@ -953,13 +975,18 @@ n3=DLO(r);
 ASM_SM_SLASH_REM4(d1, n1, n2, n3);
 #else /* !defined(ASM_SM_SLASH_REM4) */
 /* assumes that the processor uses either floored or symmetric division */
-n3 = d1/n1;
+DCell d3 = d1/n1;
 n2 = d1%n1;
+if (CHECK_DIVISION && n1 == 0)
+  throw(BALL_DIVZERO);
 /* note that this 1%-3<0 is optimized by the compiler */
 if (1%-3<0 && ((DHI(d1)^n1)<0) && n2!=0) {
-  n3++;
+  d3++;
   n2-=n1;
 }
+n3 = d3;
+if (d3 != n3)
+  throw(BALL_RESULTRANGE);
 #endif /* !defined(ASM_SM_SLASH_REM4) */
 #endif
 :
@@ -1009,8 +1036,13 @@ u3=DLO(r);
 #ifdef ASM_UM_SLASH_MOD4
 ASM_UM_SLASH_MOD4(ud, u1, u2, u3);
 #else /* !defined(ASM_UM_SLASH_MOD4) */
-u3 = ud/u1;
+UDCell ud3 = ud/u1;
 u2 = ud%u1;
+if (CHECK_DIVISION && u1 == 0)
+  throw(BALL_DIVZERO);
+u3 = ud3;
+if (ud3 != u3)
+  throw(BALL_RESULTRANGE);
 #endif /* !defined(ASM_UM_SLASH_MOD4) */
 #endif
 :

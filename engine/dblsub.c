@@ -81,6 +81,10 @@ UDCell umdiv (UDCell u, UCell v)
   UCell q = 0, h = u.hi, l = u.lo;
   UDCell res;
 
+  if (v==0)
+    throw(BALL_DIVZERO);
+  if (h>=v)
+    throw(BALL_RESULTRANGE);
   for (;;)
     {
       if (c || h >= v)
@@ -112,8 +116,13 @@ DCell smdiv (DCell num, Cell denom)	/* symmetric divide procedure, mixed prec */
   if (denomsign < 0)
     denom = -denom;
   res = UD2D(umdiv (D2UD(num), denom));
-  if ((numsign^denomsign)<0)
+  if (res.lo >= (UCell)CELL_MIN)
+    throw(BALL_RESULTRANGE);
+  if ((numsign^denomsign)<0) {
+    if (res.lo == CELL_MIN)
+      throw(BALL_RESULTRANGE);
     res.lo = -res.lo;
+  }
   if (numsign<0)
     res.hi = -res.hi;
   return res;
@@ -132,6 +141,8 @@ DCell fmdiv (DCell num, Cell denom)	/* floored divide procedure, mixed prec */
   if (num.hi < 0)
     num.hi += denom;
   res = UD2D(umdiv(D2UD(num),denom));
+  if (res.lo >= (UCell)CELL_MIN)
+    throw(BALL_RESULTRANGE);
   if (denomsign<0)
     res.hi = -res.hi;
   return res;

@@ -98,6 +98,12 @@ extern int gforth_memcmp(const char * s1, const char * s2, size_t n);
 
 #define NEWLINE	'\n'
 #define CELL_MIN (((Cell)1)<<(sizeof(Cell)*CHAR_BIT-1))
+/* set CHECK_DIVISION to 0 if the hardware checks division by zero and
+   division overflow.  Note that not all checks are controlled by
+   CHECK_DIVISION, in particular not overflow checks in mixed-size
+   words implemented by C's double-by-double division, because that
+   division does not signal such overflows.  !! make an autoconf test
+   that sets CHECK_DIVISION */
 #define CHECK_DIVISION 1
 
 /* conversion on fetch */
