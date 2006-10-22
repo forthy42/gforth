@@ -108,6 +108,7 @@ typedef unsigned TETRABYTE_TYPE UTetrabyte;
 /* Forth data types */
 /* Cell and UCell must be the same size as a pointer */
 #define CELL_BITS	(sizeof(Cell) * CHAR_BIT)
+#define CELL_MIN (((Cell)1)<<(sizeof(Cell)*CHAR_BIT-1))
 #define FLAG(b) (-(b))
 #define FILEIO(error)	(FLAG(error) & -37)
 #define FILEEXIST(error)	(FLAG(error) & -38)

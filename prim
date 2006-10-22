@@ -844,7 +844,6 @@ if (FLOORED_DIV && ((n1^n2) < 0) && n3!=0) {
 
 */mod	( n1 n2 n3 -- n4 n5 )	core	star_slash_mod
 ""n1*n2=n3*n5+n4, with the intermediate result (n1*n2) being double.""
-DCell d5;
 #ifdef BUGGY_LL_MUL
 DCell d = mmul(n1,n2);
 #else
@@ -856,7 +855,7 @@ n4=DHI(r);
 n5=DLO(r);
 #else
 /* assumes that the processor uses either floored or symmetric division */
-d5 = d/n3;
+DCell d5 = d/n3;
 n4 = d%n3;
 if (CHECK_DIVISION && n3 == 0)
   throw(BALL_DIVZERO);
@@ -873,7 +872,6 @@ if (d5 != n5)
 
 */	( n1 n2 n3 -- n4 )	core	star_slash
 ""n4=(n1*n2)/n3, with the intermediate result being double.""
-DCell d4;
 #ifdef BUGGY_LL_MUL
 DCell d = mmul(n1,n2);
 #else
@@ -884,7 +882,7 @@ DCell r = fmdiv(d,n3);
 n4=DLO(r);
 #else
 /* assumes that the processor uses either floored or symmetric division */
-d4 = d/n3;
+DCell d4 = d/n3;
 if (CHECK_DIVISION && n3 == 0)
   throw(BALL_DIVZERO);
 if (FLOORED_DIV && ((DHI(d)^n3)<0) && (d%n3)!=0)

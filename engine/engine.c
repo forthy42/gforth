@@ -97,7 +97,6 @@ extern int gforth_memcmp(const char * s1, const char * s2, size_t n);
 #endif
 
 #define NEWLINE	'\n'
-#define CELL_MIN (((Cell)1)<<(sizeof(Cell)*CHAR_BIT-1))
 /* set CHECK_DIVISION to 0 if the hardware checks division by zero and
    division overflow.  Note that not all checks are controlled by
    CHECK_DIVISION, in particular not overflow checks in mixed-size
