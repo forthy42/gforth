@@ -12919,9 +12919,10 @@ to use @code{fm/mod}, @code{sm/rem} or simply @code{/}).
 @item values returned after arithmetic overflow:
 On two's complement machines, arithmetic is performed modulo
 2**bits-per-cell for single arithmetic and 4**bits-per-cell for double
-arithmetic (with appropriate mapping for signed types). Division by zero
-typically results in a @code{-55 throw} (Floating-point unidentified
-fault) or @code{-10 throw} (divide by zero).
+arithmetic (with appropriate mapping for signed types). Division by
+zero typically results in a @code{-55 throw} (Floating-point
+unidentified fault) or @code{-10 throw} (divide by zero).  Integer
+division overflow can result in these throws, or in @code{-11 throw}.
 
 @item whether the current definition can be found after @t{DOES>}:
 @cindex @t{DOES>}, visibility of current definition
