@@ -505,8 +505,8 @@ defer inst-stream-f ( -- stack )
     ." vm_two"
     r@ item-stack-type-name type ." 2"
     r@ item-type @ print-type-prefix ." ("
-    r@ item-in-index r@ item-stack @ 2dup ." (Cell)" stack-read
-    ." , "                      -1 under+ ." (Cell)" stack-read
+    r@ item-in-index r@ item-stack @ 2dup stack-read
+    ." , "                      -1 under+ stack-read
     ." , " r@ item-name 2@ type
     ." )" cr
     rdrop ;

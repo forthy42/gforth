@@ -11857,6 +11857,23 @@ doc-callback
 doc-callback;
 doc-fptr
 
+
+@c > > Und dann gibt's noch die fptr-Deklaration, die einem
+@c > > C-Funktionspointer entspricht (Deklaration gleich wie bei
+@c > > Library-Funktionen, nur ohne den C-Namen, Aufruf mit der
+@c > > C-Funktionsadresse auf dem TOS).
+@c >
+@c > Ja, da bin ich dann ausgestiegen, weil ich aus dem Beispiel nicht
+@c > gesehen habe, wozu das gut ist.
+@c 
+@c Irgendwie muss ich den Callback ja testen. Und es soll ja auch 
+@c vorkommen, dass man von irgendwelchen kranken Interfaces einen 
+@c Funktionspointer übergeben bekommt, den man dann bei Gelegenheit 
+@c aufrufen muss. Also kann man den deklarieren, und das damit deklarierte 
+@c Wort verhält sich dann wie ein EXECUTE für alle C-Funktionen mit 
+@c demselben Prototyp.
+
+
 @node Low-Level C Interface Words,  , Callbacks, C Interface
 @subsection Low-Level C Interface Words
 
