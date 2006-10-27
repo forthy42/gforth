@@ -622,11 +622,11 @@ uninstall:	FORCE
 		@echo -e "To remove Gforth completely, type\n$(RM) -rf $(DESTDIR)$(bindir)/gforth$(EXE) $(DESTDIR)$(bindir)/gforth-fast$(EXE) $(DESTDIR)$(bindir)/gforth-itc$(EXE) $(DESTDIR)$(bindir)/gforthmi $(DESTDIR)$(bindir)/vmgen $(DESTDIR)$(man1dir)/gforth.1 $(DESTDIR)$(infodir)/gforth.info* $(DESTDIR)$(datadir)/gforth $(DESTDIR)$(libdir)/gforth"
 
 check:		gforths	gforth.fi
-		$(MAKE) checkone ENGINE="./gforth --no-dynamic" >/dev/null 2>&1
-		$(MAKE) checkone ENGINE="./gforth-itc" >/dev/null 2>&1
-		$(MAKE) checkone ENGINE="./gforth-ditc" >/dev/null 2>&1
+		$(MAKE) checkone check-nofast ENGINE="./gforth --no-dynamic" >/dev/null 2>&1
+		$(MAKE) checkone check-nofast ENGINE="./gforth-itc" >/dev/null 2>&1
+		$(MAKE) checkone check-nofast ENGINE="./gforth-ditc" >/dev/null 2>&1
 		$(MAKE) checkone ENGINE="./gforth-fast --no-dynamic" >/dev/null 2>&1
-		$(MAKE) checkone ENGINE="./gforth" >/dev/null 2>&1
+		$(MAKE) checkone check-nofast ENGINE="./gforth" >/dev/null 2>&1
 		$(MAKE) checkone ENGINE="./gforth-fast" >/dev/null 2>&1
 		@echo "*** Check successful ***"
 
@@ -639,6 +639,9 @@ checkone test:	gforth$(EXE) gforth.fi
 		$(FORTH) prims2x.fs -e \
 		  "c-flag on s\" prim.i\" out-filename 2! s\" $(srcdir)/prim.b\" ' output-c ' output-c-combined process-file bye"| \
 		  tr -d '\015' | diff -c - $(srcdir)/engine/prim.i
+
+check-nofast: gforth$(EXE) gforth.fi
+		$(FORTHS) test/gforth-nofast.fs -e bye
 
 test/primtest.fi: test/primtest.fs mach32l.fs cross.fs
 		$(FORTHB) -e 's" mach32b.fs"' $(srcdir)/test/primtest.fs -e "save-cross $@ $(bindir)/gforth-$(VERSION) bye"

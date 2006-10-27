@@ -650,7 +650,8 @@ are given.
 In addition to the @command{gforth} engine, there is also an engine
 called @command{gforth-fast}, which is faster, but gives less
 informative error messages (@pxref{Error messages}) and may catch some
-stack underflows later or not at all.  You should use it for debugged,
+errors (in particular, stack underflows and integer division errors)
+later or not at all.  You should use it for debugged,
 performance-critical programs.
 
 Moreover, there is an engine called @command{gforth-itc}, which is
@@ -2140,7 +2141,7 @@ Usually the name of a definition is not visible in the definition; but
 earlier definitions are usually visible:
 
 @example
-1 0 / . \ "Floating-point unidentified fault" in Gforth on most platforms
+1 0 / . \ "Floating-point unidentified fault" in Gforth on some platforms
 : / ( n1 n2 -- n )
   dup 0= if
     -10 throw \ report division by zero
@@ -12925,9 +12926,11 @@ characters are matched case-sensitively.
 
 @item division rounding:
 @cindex division rounding
-installation dependent. @code{s" floored" environment? drop .}. We leave
-the choice to @code{gcc} (what to use for @code{/}) and to you (whether
-to use @code{fm/mod}, @code{sm/rem} or simply @code{/}).
+The ordinary division words @code{/ mod /mod */ */mod} perform floored
+division (with the default installation of Gforth).  You can check
+this with @code{s" floored" environment? drop .}.  If you write
+programs that need a specific division rounding, best use
+@code{fm/mod} or @code{sm/rem} for portability.
 
 @item values of @code{STATE} when true:
 @cindex @code{STATE} values
@@ -12939,7 +12942,9 @@ On two's complement machines, arithmetic is performed modulo
 arithmetic (with appropriate mapping for signed types). Division by
 zero typically results in a @code{-55 throw} (Floating-point
 unidentified fault) or @code{-10 throw} (divide by zero).  Integer
-division overflow can result in these throws, or in @code{-11 throw}.
+division overflow can result in these throws, or in @code{-11 throw};
+in @code{gforth-fast} division overflow and divide by zero may also
+result in returning bogus results without producing an exception.
 
 @item whether the current definition can be found after @t{DOES>}:
 @cindex @t{DOES>}, visibility of current definition
@@ -13045,9 +13050,12 @@ These are located in writable memory and can be modified.
 @cindex result out of range
 On two's complement machines, arithmetic is performed modulo
 2**bits-per-cell for single arithmetic and 4**bits-per-cell for double
-arithmetic (with appropriate mapping for signed types). Division by zero
-typically results in a @code{-10 throw} (divide by zero) or @code{-55
-throw} (floating point unidentified fault). @code{convert} and
+arithmetic (with appropriate mapping for signed types). Division by
+zero typically results in a @code{-10 throw} (divide by zero) or
+@code{-55 throw} (floating point unidentified fault). Overflow on
+division may result in these errors or in @code{-11 throw} (result out
+of range).  @code{Gforth-fast} may silently produce bogus results on
+division overflow or division by zero.  @code{Convert} and
 @code{>number} currently overflow silently.
 
 @item reading from an empty data or return stack:

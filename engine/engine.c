@@ -97,13 +97,20 @@ extern int gforth_memcmp(const char * s1, const char * s2, size_t n);
 #endif
 
 #define NEWLINE	'\n'
-/* set CHECK_DIVISION to 0 if the hardware checks division by zero and
-   division overflow.  Note that not all checks are controlled by
-   CHECK_DIVISION, in particular not overflow checks in mixed-size
-   words implemented by C's double-by-double division, because that
-   division does not signal such overflows.  !! make an autoconf test
-   that sets CHECK_DIVISION */
+
+/* These two flags control whether divisions are checked by software.
+   The CHECK_DIVISION_SW is for those cases where the event is a
+   division by zero or overflow on the C level, and might be reported
+   by hardware; we might check forr that in autoconf and set the
+   switch appropriately, but currently don't.  The CHECK_DIVISION flag
+   is for the other cases. */
+#ifdef GFORTH_DEBUGGING
+#define CHECK_DIVISION_SW 1
 #define CHECK_DIVISION 1
+#else
+#define CHECK_DIVISION_SW 0
+#define CHECK_DIVISION 0
+#endif
 
 /* conversion on fetch */
 
