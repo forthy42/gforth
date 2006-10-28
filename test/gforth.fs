@@ -49,31 +49,3 @@ decimal
 {  1e 0e f/ pad 16 represent drop 2drop pad 15 + c@ '0 = -> false }
 {  0e 0e f/ pad 16 represent drop 2drop pad 15 + c@ '0 = -> false }
 { -1e 0e f/ pad 16 represent drop 2drop pad 15 + c@ '0 = -> false }
-
-\ gforth now guarantees exceptions in division errors
-
-\ division by zero
-{ 1 0 ' /    catch -> 1 0 -10 }
-{ 1 0 ' mod  catch -> 1 0 -10 }
-{ 1 0 ' /mod catch -> 1 0 -10 }
-{ 1 1 0 ' */mod catch -> 1 1 0 -10 }
-{ 1 1 0 ' */    catch -> 1 1 0 -10 }
-{ 1. 0 ' fm/mod catch -> 1. 0 -10 }
-{ 1. 0 ' sm/rem catch -> 1. 0 -10 }
-{ 1. 0 ' um/mod catch -> 1. 0 -10 }
-
-\ division overflows (might come out as "division by zero" or "overflow")
-environment-wordlist >order
-{ 1 1 dnegate 2 ' sm/rem catch 0= -> -1 max-n invert true }
-
-{ 1 1 -2 ' sm/rem catch 0= -> 1 max-n invert true }
-
-{ max-u max-n 2/ max-n invert ' fm/mod catch -> -1 max-n invert 0 }
-{ max-u max-n 2/ max-n invert ' sm/rem catch -> max-n max-n negate 0 }
-
-{ 0 max-n 2/ 1+ max-n invert ' fm/mod catch -> 0 max-n invert 0 }
-{ 0 max-n 2/ 1+ max-n invert ' sm/rem catch -> 0 max-n invert 0 }
-
-{ 1 max-n 2/ 1+ max-n invert ' sm/rem catch 0= -> 1 max-n invert true }
-
-{ 0 max-u -1. d+ max-u ' um/mod catch 0= -> max-u 1- max-u true }

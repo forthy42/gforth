@@ -634,7 +634,7 @@ checkone test:	gforth$(EXE) gforth.fi
 		$(FORTH) test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs test/string.fs test/float.fs test/deferred.fs test/coreext.fs -e bye 2>&1 | tr -d '\015' | diff -c - $(srcdir)/test/coretest.out
 		$(FORTH) test/other.fs -e bye
 		$(FORTHS) test/signals.fs -e bye
-		$(FORTHS) test/gforth.fs -e bye 2>&1 | tr -d '\015' | diff -c - $(srcdir)/test/gforth.out
+		$(FORTHS) test/coremore.fs test/gforth.fs -e bye 2>&1 | tr -d '\015' | diff -c - $(srcdir)/test/gforth.out
 		$(FORTH) code.fs test/checkans.fs -e bye | tr -d '\015' | diff -c - $(srcdir)/test/checkans.out
 		$(FORTH) prims2x.fs -e \
 		  "c-flag on s\" prim.i\" out-filename 2! s\" $(srcdir)/prim.b\" ' output-c ' output-c-combined process-file bye"| \

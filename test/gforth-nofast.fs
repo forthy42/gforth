@@ -1,6 +1,6 @@
-\ test some gforth extension words
+\ test stuff that is not guaranteed in gforth-fast, but elsewhere
 
-\ Copyright (C) 2003,2004,2005 Free Software Foundation, Inc.
+\ Copyright (C) 2006 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -20,7 +20,18 @@
 
 require ./tester.fs
 decimal
-\ division exception tests; exceptions are not guaranteed for gforth-fast
+
+\ division by zero
+{ 1 0 ' /    catch -> 1 0 -10 }
+{ 1 0 ' mod  catch -> 1 0 -10 }
+{ 1 0 ' /mod catch -> 1 0 -10 }
+{ 1 1 0 ' */mod catch -> 1 1 0 -10 }
+{ 1 1 0 ' */    catch -> 1 1 0 -10 }
+{ 1. 0 ' fm/mod catch -> 1. 0 -10 }
+{ 1. 0 ' sm/rem catch -> 1. 0 -10 }
+{ 1. 0 ' um/mod catch -> 1. 0 -10 }
+
+\ division overflow
 environment-wordlist >order
 { max-n invert -1 ' /    catch 0= -> max-n invert -1 false }
 { max-n invert -1 ' mod  catch 0= -> max-n invert -1 false }
