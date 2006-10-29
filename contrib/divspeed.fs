@@ -2,7 +2,10 @@
 \
 \ Measure speed of division words in gforth.
 \
-\ Krishna Myneni, 2006-10-26
+\ Krishna Myneni, 2006-10-26;
+\ Revisions:
+\    2006-10-28  change DIVIDEND for 32-bit systems;
+\                add tests for */ and M*/  ae, km
 (
  In the development version of gforth, code has been added to test for division
  by zero in the division words. We want to measure the performance penalty
@@ -16,6 +19,7 @@
    FM/MOD
    SM/REM
    UM/MOD
+   M*/
 )
 
 : ms@ ( -- u | return time in ms)  utime 1 1000 m*/ d>s ;
@@ -43,7 +47,7 @@ s" :noname [ xt @ >name name>string ] 2literal type ms@" 2constant s1
     get-xt s1 evaluate
     s" DIVIDEND  N 1 DO dup I" evaluate xt @ compile,
     s" 2drop LOOP drop ;" evaluate ; immediate
-
+ 
 : testC ( "op" -- )
     get-xt s1 evaluate
     s" D_DIVIDEND N 1 DO  2dup I" evaluate xt @ compile,
@@ -54,23 +58,34 @@ s" :noname [ xt @ >name name>string ] 2literal type ms@" 2constant s1
     s" DIVIDEND s>d N 1 DO  2dup I" evaluate xt @ compile,
     s" 2drop LOOP 2drop ;" evaluate ; immediate
 
+: testE ( "op" -- )
+    get-xt s1 evaluate
+    s" D_DIVIDEND N 1 DO  2dup I" evaluate xt @ compile,
+    s" drop LOOP 2drop ;" evaluate ; immediate
+
+: testF ( "op" -- )
+    get-xt s1 evaluate
+    s" D_DIVIDEND N 1 DO  2dup 1 I" evaluate xt @ compile,
+    s" 2drop LOOP 2drop ;" evaluate ; immediate
+
 \ The tests return the start time in ms
 
 testA  /
 testA  MOD
 testB  /MOD
+testE  */
 testC  */MOD
 testC  FM/MOD
 testC  SM/REM
 testD  UM/MOD   ( testC causes overflow for UM/MOD )
+testF  M*/
+9 table tests
 
-7 table tests
-
-: .elapsed ( starttime -- ) ms@ 9 emit swap - 4 .r ." ms" ;
+: .elapsed ( starttime -- ) ms@ 9 emit swap - 4 .r ."  ms" ;
 
 : run-tests
     cr ." Speed Tests:"
-    7 0 DO  cr I cells tests + @ execute .elapsed LOOP cr ;
+    9 0 DO  cr I cells tests + @ execute .elapsed LOOP cr ;
 
 
 run-tests
