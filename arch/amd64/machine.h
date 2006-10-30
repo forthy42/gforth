@@ -48,12 +48,6 @@
 #define ASM_UM_SLASH_MOD(d1lo, d1hi, n1, n2, n3) \
 	asm("divq %4": "=a"(n3),"=d"(n2) : "a"(d1lo),"d"(d1hi),"g"(n1):"cc");
 
-#define ASM_SM_SLASH_REM4(d1, n1, n2, n3) \
-	asm("idivq %3": "=a"(n3),"=d"(n2) : "A"(d1),"g"(n1):"cc");
-
-#define ASM_UM_SLASH_MOD4(d1, n1, n2, n3) \
-	asm("divq %3": "=a"(n3),"=d"(n2) : "A"(d1),"g"(n1):"cc");
-
 #include "../generic/machine.h"
 
 /* The architecture requires hardware consistency */
