@@ -849,23 +849,18 @@ DCell d = mmul(n1,n2);
 #else
 DCell d = (DCell)n1 * (DCell)n2;
 #endif
-#ifdef BUGGY_LL_DIV
+#ifdef ASM_SM_SLASH_REM
+ASM_SM_SLASH_REM(DLO(d), DHI(d), n3, n4, n5);
+if (((DHI(d)^n3)<0) && n4!=0) {
+  if (CHECK_DIVISION && n5 == CELL_MIN)
+    throw(BALL_RESULTRANGE);
+  n5--;
+  n4+=n3;
+}
+#else
 DCell r = fmdiv(d,n3);
 n4=DHI(r);
 n5=DLO(r);
-#else
-/* assumes that the processor uses either floored or symmetric division */
-DCell d5 = d/n3;
-n4 = d%n3;
-if (CHECK_DIVISION_SW && n3 == 0)
-  throw(BALL_DIVZERO);
-if (FLOORED_DIV && ((DHI(d)^n3)<0) && n4!=0) {
-  d5--;
-  n4+=n3;
-}
-n5 = d5;
-if (CHECK_DIVISION && d5 != n5)
-  throw(BALL_RESULTRANGE);
 #endif
 :
  >r m* r> fm/mod ;
@@ -877,19 +872,17 @@ DCell d = mmul(n1,n2);
 #else
 DCell d = (DCell)n1 * (DCell)n2;
 #endif
-#ifdef BUGGY_LL_DIV
+#ifdef ASM_SM_SLASH_REM
+Cell remainder;
+ASM_SM_SLASH_REM(DLO(d), DHI(d), n3, remainder, n4);
+if (((DHI(d)^n3)<0) && remainder!=0) {
+  if (CHECK_DIVISION && n4 == CELL_MIN)
+    throw(BALL_RESULTRANGE);
+  n4--;
+}
+#else
 DCell r = fmdiv(d,n3);
 n4=DLO(r);
-#else
-/* assumes that the processor uses either floored or symmetric division */
-DCell d4 = d/n3;
-if (CHECK_DIVISION_SW && n3 == 0)
-  throw(BALL_DIVZERO);
-if (FLOORED_DIV && ((DHI(d)^n3)<0) && (d%n3)!=0)
-  d4--;
-n4 = d4;
-if (CHECK_DIVISION && d4 != n4)
-  throw(BALL_RESULTRANGE);
 #endif
 :
  */mod nip ;
