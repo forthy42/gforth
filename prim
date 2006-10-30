@@ -913,8 +913,8 @@ n2 = n1>>1;
 
 fm/mod	( d1 n1 -- n2 n3 )		core		f_m_slash_mod
 ""Floored division: @i{d1} = @i{n3}*@i{n1}+@i{n2}, @i{n1}>@i{n2}>=0 or 0>=@i{n2}>@i{n1}.""
-#ifdef BUGGY_LL_DIV
 #ifdef ASM_SM_SLASH_REM
+#ifdef BUGGY_LL_DIV
 ASM_SM_SLASH_REM(d1.lo, d1.hi, n1, n2, n3);
 if (((DHI(d1)^n1)<0) && n2!=0) {
   if (CHECK_DIVISION && n3 == CELL_MIN)
@@ -922,13 +922,7 @@ if (((DHI(d1)^n1)<0) && n2!=0) {
   n3--;
   n2+=n1;
 }
-#else /* !defined(ASM_SM_SLASH_REM) */
-DCell r = fmdiv(d1,n1);
-n2=DHI(r);
-n3=DLO(r);
-#endif /* !defined(ASM_SM_SLASH_REM) */
 #else
-#ifdef ASM_SM_SLASH_REM4
 ASM_SM_SLASH_REM4(d1, n1, n2, n3);
 if (((DHI(d1)^n1)<0) && n2!=0) {
   if (CHECK_DIVISION && n3 == CELL_MIN)
@@ -936,22 +930,12 @@ if (((DHI(d1)^n1)<0) && n2!=0) {
   n3--;
   n2+=n1;
 }
-#else /* !defined(ASM_SM_SLASH_REM4) */
-/* assumes that the processor uses either floored or symmetric division */
-DCell d3 = d1/n1;
-n2 = d1%n1;
-if (CHECK_DIVISION_SW && n1 == 0)
-  throw(BALL_DIVZERO);
-/* note that this 1%-3>0 is optimized by the compiler */
-if (1%-3>0 && ((DHI(d1)^n1)<0) && n2!=0) {
-  d3--;
-  n2+=n1;
-}
-n3 = d3;
-if (CHECK_DIVISION && d3 != n3)
-  throw(BALL_RESULTRANGE);
-#endif /* !defined(ASM_SM_SLASH_REM4) */
 #endif
+#else /* !defined(ASM_SM_SLASH_REM) */
+DCell r = fmdiv(d1,n1);
+n2=DHI(r);
+n3=DLO(r);
+#endif /* !defined(ADM_SM_SLASH_REM) */
 :
  dup >r dup 0< IF  negate >r dnegate r>  THEN
  over       0< IF  tuck + swap  THEN

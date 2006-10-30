@@ -456,3 +456,190 @@ int gforth_system(Char *c_addr, UCell u)
 #endif
   return retval;
 }
+
+/* mixed division; should usually be faster than gcc's
+   double-by-double division (and gcc typically does not generate
+   double-by-single division because of exception handling issues. If
+   the architecture has double-by-single division, you should define
+   ASM_SM_SLASH_REM[4] and ASM_UM_SLASH_MOD[4] appropriately. */
+
+#if !defined(ASM_UM_SLASH_MOD)
+static Cell nlz(UCell x)
+     /* number of leading zeros, adapted from "Hacker's Delight" */
+{
+   Cell n;
+
+   if (x == 0) return(CELL_BITS);
+   n = 0;
+#if (SIZEOF_CHAR_P > 4)
+   if (x <= 0xffffffff) {n+=32; x <<= 32;}
+#endif
+   if (x <= 0x0000FFFF) {n = n +16; x = x <<16;}
+   if (x <= 0x00FFFFFF) {n = n + 8; x = x << 8;}
+   if (x <= 0x0FFFFFFF) {n = n + 4; x = x << 4;}
+   if (x <= 0x3FFFFFFF) {n = n + 2; x = x << 2;}
+   if (x <= 0x7FFFFFFF) {n = n + 1;}
+   return n;
+}
+
+UDCell umdiv (UDCell u, UCell v)
+/* Divide unsigned double by single precision using shifts and subtracts.
+   Return quotient in lo, remainder in hi. */
+{
+#if 0
+  /* simple restoring subtract-and-shift algorithm, might be faster on Alpha */
+  int i = CELL_BITS, c = 0;
+  UCell q = 0;
+  Ucell h, l;
+  UDCell res;
+
+  vm_ud2twoCell(u,l,h);
+  if (v==0)
+    throw(BALL_DIVZERO);
+  if (h>=v)
+    throw(BALL_RESULTRANGE);
+  for (;;)
+    {
+      if (c || h >= v)
+	{
+	  q++;
+	  h -= v;
+	}
+      if (--i < 0)
+	break;
+      c = HIGHBIT (h);
+      h <<= 1;
+      h += HIGHBIT (l);
+      l <<= 1;
+      q <<= 1;
+    }
+  vm_twoCell2ud(q,h,res);
+#else
+  /* adapted from "Hacker's Delight", Figure 9-3,
+     http://www.hackersdelight.org/HDcode/divlu.cc, which in turn is
+     adapted from Knuth's TAoCP Vol 2., Sect 4.3.1, Algorithm D */
+  UCell u1, u0;
+  UDCell res;
+  UCell b = ((UCell)1)<<HALFCELL_BITS; /* Number base. */
+  UCell un1, un0,        /* Norm. dividend LSD's. */
+        vn1, vn0,        /* Norm. divisor digits. */
+        q1, q0,          /* Quotient digits. */
+        un32, un21, un10,/* Dividend digit pairs. */
+        rhat;            /* A remainder. */
+  Cell s;                /* Shift amount for norm. */
+
+  vm_ud2twoCell(u,u0,u1);
+  if (v==0)
+    throw(BALL_DIVZERO);
+  if (u1 >= v) /* overflow */
+    throw(BALL_RESULTRANGE);
+  s = nlz(v);               /* 0 <= s <= CELL_BITS-1. */
+  v = v << s;               /* Normalize divisor. */
+  vn1 = v >> HALFCELL_BITS; /* Break divisor up into */
+  vn0 = v & HALFCELL_MASK;  /* two half-cell digits. */
+
+  un32 = (u1 << s) | ((u0 >> (CELL_BITS-s)) & ((-s) >> (CELL_BITS-1)));
+  un10 = u0 << s;           /* Shift dividend left. */
+
+  un1 = un10 >> HALFCELL_BITS; /* Break right half of */
+  un0 = un10 & HALFCELL_MASK;  /* dividend into two digits. */
+
+  q1 = un32/vn1;            /* Compute the first */
+  rhat = un32 - q1*vn1;     /* quotient digit, q1. */
+ again1:
+  if (q1 >= b || q1*vn0 > b*rhat + un1) {
+    q1 = q1 - 1;
+    rhat = rhat + vn1;
+    if (rhat < b) goto again1;}
+  
+  un21 = un32*b + un1 - q1*v;  /* Multiply and subtract. */
+  
+  q0 = un21/vn1;            /* Compute the second */
+  rhat = un21 - q0*vn1;     /* quotient digit, q0. */
+ again2:
+  if (q0 >= b || q0*vn0 > b*rhat + un0) {
+    q0 = q0 - 1;
+    rhat = rhat + vn1;
+    if (rhat < b) goto again2;}
+  
+  vm_twoCell2ud(q1*b + q0 /* quotient */,
+		(un21*b + un0 - q0*v) >> s /* remainder */,
+		res);
+#endif
+  return res;
+}
+#endif
+
+#if !defined(ASM_SM_SLASH_REM)
+#if  defined(ASM_UM_SLASH_MOD)
+/* define it if it is not defined above */
+UDCell umdiv (UDCell u, UCell v)
+{
+  UDCell res;
+  UCell u0,u1;
+  vm_ud2twoCell(u,u0,u1);
+  ASM_UM_SLASH_MOD(u0,u1,v,r,q);
+  vm_twoCell2ud(q,r,res);
+  return res;
+}
+#endif /* defined(ASM_UM_SLASH_MOD) */
+
+#ifndef BUGGY_LONG_LONG
+#define dnegate(x) (-(x))
+#endif
+
+DCell smdiv (DCell num, Cell denom)	/* symmetric divide procedure, mixed prec */
+{
+  DCell res;
+  UDCell ures;
+  UCell l, q, r;
+  Cell h;
+  Cell denomsign=denom;
+
+  vm_d2twoCell(num,l,h);
+  if (h < 0)
+    num = dnegate (num);
+  if (denomsign < 0)
+    denom = -denom;
+  ures = umdiv(D2UD(num), denom);
+  vm_ud2twoCell(ures,q,r);
+  if ((h^denomsign)<0) {
+    q = -q;
+    if (((Cell)q) > 0) /* note: == 0 is possible */
+      throw(BALL_RESULTRANGE);
+  } else {
+    if (((Cell)q) < 0)
+      throw(BALL_RESULTRANGE);
+  }
+  if (h<0)
+    r = -r;
+  vm_twoCell2d(q,r,res);
+  return res;
+}
+
+DCell fmdiv (DCell num, Cell denom)	/* floored divide procedure, mixed prec */
+{
+  /* I have this technique from Andrew Haley */
+  DCell res;
+  UDCell ures;
+  Cell denomsign=denom;
+  Cell numsign;
+  UCell q,r;
+
+  if (denom < 0) {
+    denom = -denom;
+    num = dnegate(num);
+  }
+  numsign = DHI(num);
+  if (numsign < 0)
+    DHI_IS(num,DHI(num)+denom);
+  ures = umdiv(D2UD(num),denom);
+  vm_ud2twoCell(ures,q,r);
+  if ((numsign^((Cell)q)) < 0)
+    throw(BALL_RESULTRANGE);
+  if (denomsign<0)
+    r = -r;
+  vm_twoCell2d(q,r,res);
+  return res;
+}
+#endif

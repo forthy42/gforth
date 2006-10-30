@@ -109,6 +109,14 @@ typedef unsigned TETRABYTE_TYPE UTetrabyte;
 /* Cell and UCell must be the same size as a pointer */
 #define CELL_BITS	(sizeof(Cell) * CHAR_BIT)
 #define CELL_MIN (((Cell)1)<<(sizeof(Cell)*CHAR_BIT-1))
+
+#define HALFCELL_BITS	(CELL_BITS/2)
+#define HALFCELL_MASK   ((~(UCell)0)>>HALFCELL_BITS)
+#define UH(x)		(((UCell)(x))>>HALFCELL_BITS)
+#define LH(x)		((x)&HALFCELL_MASK)
+#define L2U(x)		(((UCell)(x))<<HALFCELL_BITS)
+#define HIGHBIT(x)	(((UCell)(x))>>(CELL_BITS-1))
+
 #define FLAG(b) (-(b))
 #define FILEIO(error)	(FLAG(error) & -37)
 #define FILEEXIST(error)	(FLAG(error) & -38)
@@ -148,6 +156,9 @@ typedef struct {
 #define DLO(x) (x).lo
 #define DHI_IS(x,y) (x).hi=(y)
 #define DLO_IS(x,y) (x).lo=(y)
+
+#define UD2D(ud)	({UDCell _ud=(ud); (DCell){_ud.hi,_ud.lo};})
+#define D2UD(d)		({DCell _d=(d); (UDCell){_d.hi,_d.lo};})
 
 #if SMALL_OFF_T
 #define OFF2UD(o) ({UDCell _ud; _ud.hi=0; _ud.lo=(Cell)(o); _ud;})
@@ -189,8 +200,11 @@ typedef union {
 #define DLO(x) ({ Double_Store _d; _d.d=(x); _d.cells.low;  })
 
 /* beware with the assignment: x is referenced twice! */
-#define DHI_IS(x,y) ({ Double_Store _d; _d.d=(x); _d.cells.high=(y); (x)=_d; })
-#define DLO_IS(x,y) ({ Double_Store _d; _d.d=(x); _d.cells.low =(y); (x)=_d; })
+#define DHI_IS(x,y) ({ Double_Store _d; _d.d=(x); _d.cells.high=(y); (x)=_d.d; })
+#define DLO_IS(x,y) ({ Double_Store _d; _d.d=(x); _d.cells.low =(y); (x)=_d.d; })
+
+#define UD2D(ud)	((DCell)(ud))
+#define D2UD(d)		((UDCell)(d))
 #endif
 
 #define FETCH_DCELL_T(d_,lo,hi,t_)	({ \
