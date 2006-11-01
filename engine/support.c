@@ -457,19 +457,46 @@ int gforth_system(Char *c_addr, UCell u)
   return retval;
 }
 
-/* mixed division; should usually be faster than gcc's
+/* mixed division support; should usually be faster than gcc's
    double-by-double division (and gcc typically does not generate
    double-by-single division because of exception handling issues. If
    the architecture has double-by-single division, you should define
-   ASM_SM_SLASH_REM[4] and ASM_UM_SLASH_MOD[4] appropriately. */
+   ASM_SM_SLASH_REM and ASM_UM_SLASH_MOD appropriately. */
 
-#if !defined(ASM_UM_SLASH_MOD)
-static Cell nlz(UCell x)
+/* Type definitions for longlong.h (according to the comments at the start):
+   declarations taken from libgcc2.h */
+
+typedef unsigned int UQItype	__attribute__ ((mode (QI)));
+typedef 	 int SItype	__attribute__ ((mode (SI)));
+typedef unsigned int USItype	__attribute__ ((mode (SI)));
+typedef		 int DItype	__attribute__ ((mode (DI)));
+typedef unsigned int UDItype	__attribute__ ((mode (DI)));
+typedef UCell UWtype;
+#if (SIZEOF_CHAR_P == 4)
+typedef unsigned int UHWtype __attribute__ ((mode (HI)));
+#endif
+#if (SIZEOF_CHAR_P == 8)
+typedef USItype UHWtype;
+#endif
+#ifndef BUGGY_LONG_LONG
+typedef UDCell UDWtype;
+#endif
+#define W_TYPE_SIZE (SIZEOF_CHAR_P * 8)
+
+#include "longlong.h"
+
+static Cell MAYBE_UNUSED nlz(UCell x)
      /* number of leading zeros, adapted from "Hacker's Delight" */
 {
    Cell n;
 
+#if !defined(COUNT_LEADING_ZEROS_0)
    if (x == 0) return(CELL_BITS);
+#endif
+#if defined(count_leading_zeros)
+   count_leading_zeros(n,x);
+#else
+#warning "count_leading_zeros undefined (should not happen)"
    n = 0;
 #if (SIZEOF_CHAR_P > 4)
    if (x <= 0xffffffff) {n+=32; x <<= 32;}
@@ -479,19 +506,42 @@ static Cell nlz(UCell x)
    if (x <= 0x0FFFFFFF) {n = n + 4; x = x << 4;}
    if (x <= 0x3FFFFFFF) {n = n + 2; x = x << 2;}
    if (x <= 0x7FFFFFFF) {n = n + 1;}
+#endif
    return n;
 }
 
+#if !defined(ASM_UM_SLASH_MOD)
 UDCell umdiv (UDCell u, UCell v)
 /* Divide unsigned double by single precision using shifts and subtracts.
    Return quotient in lo, remainder in hi. */
 {
-#if 0
+  UDCell res;
+#if defined(udiv_qrnnd)
+  UCell q,r,u0,u1;
+  UCell MAYBE_UNUSED lz;
+  
+  vm_ud2twoCell(u,u0,u1);
+  if (v==0)
+    throw(BALL_DIVZERO);
+  if (u1>=v)
+    throw(BALL_RESULTRANGE);
+#if UDIV_NEEDS_NORMALIZATION
+  lz = nlz(v);
+  v <<= lz;
+  u <<= lz;
+  vm_ud2twoCell(u,u0,u1);
+#endif
+  udiv_qrnnd(q,r,u1,u0,v);
+#if UDIV_NEEDS_NORMALIZATION
+  r >>= lz;
+#endif
+  vm_twoCell2ud(q,r,res);
+#else /* !(defined(udiv_qrnnd) */
+#warning "udiv_qrnnd undefined (should not happen)"
   /* simple restoring subtract-and-shift algorithm, might be faster on Alpha */
   int i = CELL_BITS, c = 0;
   UCell q = 0;
   Ucell h, l;
-  UDCell res;
 
   vm_ud2twoCell(u,l,h);
   if (v==0)
@@ -514,58 +564,7 @@ UDCell umdiv (UDCell u, UCell v)
       q <<= 1;
     }
   vm_twoCell2ud(q,h,res);
-#else
-  /* adapted from "Hacker's Delight", Figure 9-3,
-     http://www.hackersdelight.org/HDcode/divlu.cc, which in turn is
-     adapted from Knuth's TAoCP Vol 2., Sect 4.3.1, Algorithm D */
-  UCell u1, u0;
-  UDCell res;
-  UCell b = ((UCell)1)<<HALFCELL_BITS; /* Number base. */
-  UCell un1, un0,        /* Norm. dividend LSD's. */
-        vn1, vn0,        /* Norm. divisor digits. */
-        q1, q0,          /* Quotient digits. */
-        un32, un21, un10,/* Dividend digit pairs. */
-        rhat;            /* A remainder. */
-  Cell s;                /* Shift amount for norm. */
-
-  vm_ud2twoCell(u,u0,u1);
-  if (v==0)
-    throw(BALL_DIVZERO);
-  if (u1 >= v) /* overflow */
-    throw(BALL_RESULTRANGE);
-  s = nlz(v);               /* 0 <= s <= CELL_BITS-1. */
-  v = v << s;               /* Normalize divisor. */
-  vn1 = v >> HALFCELL_BITS; /* Break divisor up into */
-  vn0 = v & HALFCELL_MASK;  /* two half-cell digits. */
-
-  un32 = (u1 << s) | ((u0 >> (CELL_BITS-s)) & ((-s) >> (CELL_BITS-1)));
-  un10 = u0 << s;           /* Shift dividend left. */
-
-  un1 = un10 >> HALFCELL_BITS; /* Break right half of */
-  un0 = un10 & HALFCELL_MASK;  /* dividend into two digits. */
-
-  q1 = un32/vn1;            /* Compute the first */
-  rhat = un32 - q1*vn1;     /* quotient digit, q1. */
- again1:
-  if (q1 >= b || q1*vn0 > b*rhat + un1) {
-    q1 = q1 - 1;
-    rhat = rhat + vn1;
-    if (rhat < b) goto again1;}
-  
-  un21 = un32*b + un1 - q1*v;  /* Multiply and subtract. */
-  
-  q0 = un21/vn1;            /* Compute the second */
-  rhat = un21 - q0*vn1;     /* quotient digit, q0. */
- again2:
-  if (q0 >= b || q0*vn0 > b*rhat + un0) {
-    q0 = q0 - 1;
-    rhat = rhat + vn1;
-    if (rhat < b) goto again2;}
-  
-  vm_twoCell2ud(q1*b + q0 /* quotient */,
-		(un21*b + un0 - q0*v) >> s /* remainder */,
-		res);
-#endif
+#endif /* !(defined(udiv_qrnnd) && */
   return res;
 }
 #endif
@@ -573,7 +572,7 @@ UDCell umdiv (UDCell u, UCell v)
 #if !defined(ASM_SM_SLASH_REM)
 #if  defined(ASM_UM_SLASH_MOD)
 /* define it if it is not defined above */
-UDCell umdiv (UDCell u, UCell v)
+static UDCell MAYBE_UNUSED umdiv (UDCell u, UCell v)
 {
   UDCell res;
   UCell u0,u1;
@@ -588,9 +587,24 @@ UDCell umdiv (UDCell u, UCell v)
 #define dnegate(x) (-(x))
 #endif
 
-DCell smdiv (DCell num, Cell denom)	/* symmetric divide procedure, mixed prec */
+DCell smdiv (DCell num, Cell denom)
+     /* symmetric divide procedure, mixed prec */
 {
   DCell res;
+#if defined(sdiv_qrnnd)
+#warning "using sdiv_qrnnd"
+  Cell u1,q,r
+  UCell u0;
+  UCell MAYBE_UNUSED lz;
+  
+  vm_d2twoCell(u,u0,u1);
+  if (v==0)
+    throw(BALL_DIVZERO);
+  if (u1>=v)
+    throw(BALL_RESULTRANGE);
+  sdiv_qrnnd(q,r,u1,u0,v);
+  vm_twoCell2d(q,r,res);
+#else
   UDCell ures;
   UCell l, q, r;
   Cell h;
@@ -614,10 +628,12 @@ DCell smdiv (DCell num, Cell denom)	/* symmetric divide procedure, mixed prec */
   if (h<0)
     r = -r;
   vm_twoCell2d(q,r,res);
+#endif
   return res;
 }
 
-DCell fmdiv (DCell num, Cell denom)	/* floored divide procedure, mixed prec */
+DCell fmdiv (DCell num, Cell denom)
+     /* floored divide procedure, mixed prec */
 {
   /* I have this technique from Andrew Haley */
   DCell res;
