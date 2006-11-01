@@ -107,7 +107,7 @@ MAIN_FAST_DEPS = main.c $(DEPS) prim_superend-fast.i prim_num-fast.i prim_grp-fa
 .c.o:
 	$(GCC) -c $(CFLAGS) $(CPPFLAGS) -o $@ $<
 
-support.o: support.c config.h forth.h
+support.o: support.c config.h forth.h longlong.h
 
 gforth$(EXE):	$(OBJECTS) $(AOBJECTS)
 	$(GCC) $(LDFLAGS) $(OBJECTS) $(AOBJECTS) $(LDLIBS) -o $@

@@ -142,7 +142,7 @@ CVSDIRS = CVS engine/CVS kernel/CVS doc/CVS asm/CVS ec/CVS test/CVS \
 	arch/shboom/CVS arch/sharc/CVS arch/ia64/CVS arch/amd64/CVS \
 	arch/arm/CVS arch/r8c/CVS
 
-INCLUDES = engine/forth.h engine/threaded.h engine/io.h
+INCLUDES = engine/forth.h engine/threaded.h engine/io.h engine/longlong.h
 
 KERN_SRC = \
 	mach16b.fs mach16l.fs mach32b.fs mach32l.fs mach64b.fs mach64l.fs \
