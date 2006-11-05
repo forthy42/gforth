@@ -20,18 +20,17 @@
 
 \ Structural Conditionals                              12dec92py
 
-Variable leavings
+\ this works with flash
 
-\ this doesn't work with flash yet!!
-
-: (leave)   here  leavings @ ,  leavings ! ;
+: (leave)   -1 , ;
 : LEAVE     postpone branch  (leave) ;  immediate restrict
 : ?LEAVE    postpone 0= postpone ?branch  (leave) ;
                                              immediate restrict
 
-: DONE   ( addr -- )  leavings @
-  BEGIN  2dup u<=  WHILE  dup @ swap >resolve  REPEAT
-  leavings ! drop ;                          immediate restrict
+: DONE   ( addr -- )  here  swap ?DO
+	I @ ['] branch =  I @ ['] ?branch = or  I @ ['] (?do) = or
+	I cell+ @ -1 = and  IF  I cell+ >resolve  THEN
+    cell +LOOP ;                             immediate restrict
 
 \ Structural Conditionals                              12dec92py
 
