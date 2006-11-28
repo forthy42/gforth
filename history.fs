@@ -281,8 +281,8 @@ require utf-8.fs
     ['] xclear-tib   ctrl K bindkey
     ['] xfirst-pos   ctrl A bindkey
     ['] xend-pos     ctrl E bindkey
-    ['] (xenter)     #lf    bindkey
-    ['] (xenter)     #cr    bindkey
+    history IF  ['] (xenter)     #lf    bindkey  THEN
+    history IF  ['] (xenter)     #cr    bindkey  THEN
     ['] xtab-expand  #tab   bindkey
     ['] (xins)       IS insert-char
     ['] kill-prefix  IS everychar
@@ -299,7 +299,7 @@ xchar-history
     ?dup-if
 	\ !! >stderr
         \ history-file type ." : " .error cr
-	drop 2drop
+	drop 2drop 0 to history
 	['] false ['] false ['] (ret)
     else
 	to history
