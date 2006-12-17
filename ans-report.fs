@@ -74,23 +74,38 @@ wordset STRING
 wordset TOOLS
 wordset TOOLS-EXT
 wordset TOOLS-EXT-obsolescent
+
+\ www.forth200x.org CfV extension names
+wordset X:deferred
+wordset X:extension-query
+wordset X:parse-name
+wordset X:defined
+wordset X:required
+wordset X:ekeys
+wordset X:fp-stack
+
 wordset non-ANS
+
 ans-report-words definitions
 
-: answord ( "name wordset pronounciation" -- )
-    \ check the documentaion of an ans word
-    name { D: wordname }
-    name { D: wordset }
-    name { D: pronounciation }
+: standardword { D: wordname D: wordset -- }
     wordname find-name
     ?dup-if
 	sp@ cell nextname create drop
-	wordset wordsets search-wordlist 0= abort" wordlist unknown" ,
+	wordset wordsets search-wordlist 0= abort" wordset unknown" ,
     endif ;
+    
+: answord ( "name wordset pronounciation" -- )
+    \ check the documentation of an ans word
+    parse-name parse-name parse-name 2drop standardword ;
+
+: xword ( "name wordset" )
+    parse-name parse-name standardword ;
 
 table constant answords answords set-current
 warnings @ warnings off
 include ./answords.fs
+include ./xwords.fs
 warnings !
 ans-report-words definitions
 
