@@ -14,7 +14,7 @@ answord ! CORE store \ 6.1.0010 25
 answord # CORE number-sign \ 6.1.0030 25
 answord #> CORE number-sign-greater \ 6.1.0040 25
 answord #S CORE number-sign-s \ 6.1.0050 25
-answord #TIB CORE-EXT number-t-i-b \ 6.2.0060 49
+answord #TIB CORE-EXT-obsolescent number-t-i-b \ 6.2.0060 49
 answord ' CORE tick \ 6.1.0070 25
 answord ( CORE paren \ 6.1.0080 26
 answord ( FILE paren \ 11.6.1.0080 80
@@ -118,7 +118,7 @@ answord CODE TOOLS-EXT CODE \ 15.6.2.0930 114
 answord COMPARE STRING COMPARE \ 17.6.1.0935 124
 answord COMPILE, CORE-EXT compile-comma \ 6.2.0945 52
 answord CONSTANT CORE CONSTANT \ 6.1.0950 35
-answord CONVERT CORE-EXT CONVERT \ 6.2.0970 52
+answord CONVERT CORE-EXT-obsolescent CONVERT \ 6.2.0970 52
 answord COUNT CORE COUNT \ 6.1.0980 36
 answord CR CORE c-r \ 6.1.0990 36
 answord CREATE CORE CREATE \ 6.1.1000 36
@@ -173,7 +173,7 @@ answord EVALUATE CORE EVALUATE \ 6.1.1360 38
 answord EVALUATE BLOCK EVALUATE \ 7.6.1.1360 63
 answord EXECUTE CORE EXECUTE \ 6.1.1370 38
 answord EXIT CORE EXIT \ 6.1.1380 38
-answord EXPECT CORE-EXT EXPECT \ 6.2.1390 53
+answord EXPECT CORE-EXT-obsolescent EXPECT \ 6.2.1390 53
 answord F! FLOAT f-store \ 12.6.1.1400 91
 answord F* FLOAT f-star \ 12.6.1.1410 91
 answord F** FLOAT-EXT f-star-star \ 12.6.2.1415 96
@@ -226,7 +226,7 @@ answord FM/MOD CORE f-m-slash-mod \ 6.1.1561 39
 answord FMAX FLOAT f-max \ 12.6.1.1562 94
 answord FMIN FLOAT f-min \ 12.6.1.1565 94
 answord FNEGATE FLOAT f-negate \ 12.6.1.1567 94
-answord FORGET TOOLS-EXT FORGET \ 15.6.2.1580 115
+answord FORGET TOOLS-EXT-obsolescent FORGET \ 15.6.2.1580 115
 answord FORTH SEARCH-EXT FORTH \ 16.6.2.1590 120
 answord FORTH-WORDLIST SEARCH FORTH-WORDLIST \ 16.6.1.1595 119
 answord FOVER FLOAT f-over \ 12.6.1.1600 94
@@ -288,7 +288,7 @@ answord PICK CORE-EXT PICK \ 6.2.2030 55
 answord POSTPONE CORE POSTPONE \ 6.1.2033 43
 answord PRECISION FLOAT-EXT PRECISION \ 12.6.2.2035 100
 answord PREVIOUS SEARCH-EXT PREVIOUS \ 16.6.2.2037 121
-answord QUERY CORE-EXT QUERY \ 6.2.2040 55
+answord QUERY CORE-EXT-obsolescent QUERY \ 6.2.2040 55
 answord QUIT CORE QUIT \ 6.1.2050 43
 answord R/O FILE r-o \ 11.6.1.2054 82
 answord R/W FILE r-w \ 11.6.1.2056 83
@@ -336,14 +336,14 @@ answord SOURCE-ID CORE-EXT source-i-d \ 6.2.2218 56
 answord SOURCE-ID FILE source-i-d \ 11.6.1.2218 84
 answord SPACE CORE SPACE \ 6.1.2220 45
 answord SPACES CORE SPACES \ 6.1.2230 45
-answord SPAN CORE-EXT SPAN \ 6.2.2240 56
+answord SPAN CORE-EXT-obsolescent SPAN \ 6.2.2240 56
 answord STATE CORE STATE \ 6.1.2250 45
 answord STATE TOOLS-EXT STATE \ 15.6.2.2250 115
 answord SWAP CORE SWAP \ 6.1.2260 45
 answord THEN CORE THEN \ 6.1.2270 46
 answord THROW EXCEPTION THROW \ 9.6.1.2275 73
 answord THRU BLOCK-EXT THRU \ 7.6.2.2280 64
-answord TIB CORE-EXT t-i-b \ 6.2.2290 56
+answord TIB CORE-EXT-obsolescent t-i-b \ 6.2.2290 56
 answord TIME&DATE FACILITY-EXT time-and-date \ 10.6.2.2292 76
 answord TO CORE-EXT TO \ 6.2.2295 57
 answord TO LOCAL TO \ 13.6.1.2295 106

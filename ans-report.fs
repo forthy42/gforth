@@ -52,6 +52,7 @@ vocabulary ans-report-words ans-report-words definitions
 wordlist constant wordsets wordsets set-current
 create CORE 0 , 0 0 2,
 wordset CORE-EXT
+wordset CORE-EXT-obsolescent
 wordset BLOCK
 wordset BLOCK-EXT
 wordset DOUBLE
@@ -72,6 +73,7 @@ wordset SEARCH-EXT
 wordset STRING
 wordset TOOLS
 wordset TOOLS-EXT
+wordset TOOLS-EXT-obsolescent
 wordset non-ANS
 ans-report-words definitions
 
