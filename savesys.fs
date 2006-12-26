@@ -18,7 +18,7 @@
 \ along with this program; if not, write to the Free Software
 \ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
 
-: save-string-dict { addr1 u -- addr2 u }
+: save-mem-dict { addr1 u -- addr2 u }
     here { addr2 }
     u allot
     addr1 addr2 u move
@@ -33,7 +33,7 @@
     old-addr new-addr old-cnt 2* cells move
     cnt old-cnt
     U+DO
-        addr i 2* cells + 2@ save-string-dict
+        addr i 2* cells + 2@ save-mem-dict
 	new-addr i 2* cells + 2!
     LOOP
     maxalign ;
