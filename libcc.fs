@@ -141,7 +141,7 @@ create count-stacks-types
     ." (void *)(" gen-par-n ." )" ;
 
 : gen-par-d ( fp-depth1 sp-depth1 -- fp-depth2 sp-depth2 )
-    ." gforthd2ll(" gen-par-n ." ," gen-par-n ." )" ;
+    ." gforth_d2ll(" gen-par-n ." ," gen-par-n ." )" ;
 
 : gen-par-r ( fp-depth1 sp-depth1 -- fp-depth2 sp-depth2 )
     swap 1- tuck ." fp[" .nb ." ]" ;
@@ -215,7 +215,7 @@ create gen-wrapped-types
 	i chars over + c@ type-letter emit
     loop
     ." _" ret type-letter emit .\" (void)\n"
-    .\" {\n  Cell *sp = gforth_SP;\n  Float *fp = gforth_FP;\n  "
+    .\" {\n  Cell MAYBE_UNUSED *sp = gforth_SP;\n  Float MAYBE_UNUSED *fp = gforth_FP;\n  "
     pars c-name 2over count-stacks ret gen-wrapped-stmt .\" ;\n"
     ?dup-if
 	."   gforth_SP = sp+" .nb .\" ;\n"
@@ -252,7 +252,7 @@ s" Library not found" exception constant err-nolib
 
 \ test
 
-cr .( #include "engine/forth.h")
+cr .( #include "engine/libcc.h")
 cr .( #include <unistd.h>)
 cr ." typedef void (* func)(int);
 cr ." int test1(int,char*,long,double,void (*)(int));"
