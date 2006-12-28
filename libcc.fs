@@ -67,6 +67,14 @@
 : const+ ( n1 "name" -- n2 )
     dup constant 1+ ;
 
+\ dlerror
+
+\ require lib.fs
+
+\ library libc libc.so.6
+\ libc sleep int (int) sleep
+\ libc dlerror (ptr) dlerror
+
 wordlist constant libcc-types
 
 get-current libcc-types set-current
@@ -75,7 +83,7 @@ get-current libcc-types set-current
 -1
 const+ -- \ end of arguments
 const+ n \ integer cell
-const+ p \ pointer cell
+const+ a \ address cell
 const+ d \ double
 const+ r \ float
 const+ func \ C function pointer
@@ -96,14 +104,14 @@ set-current
     parse-libcc-type dup 0< -32 and throw swap c! ;
 
 : type-letter ( n -- c )
-    chars s" npdrfv" drop + c@ ;
+    chars s" nadrfv" drop + c@ ;
 
 \ count-stacks
 
 : count-stacks-n ( fp-change1 sp-change1 -- fp-change2 sp-change2 )
     1+ ;
 
-: count-stacks-p ( fp-change1 sp-change1 -- fp-change2 sp-change2 )
+: count-stacks-a ( fp-change1 sp-change1 -- fp-change2 sp-change2 )
     1+ ;
 
 : count-stacks-d ( fp-change1 sp-change1 -- fp-change2 sp-change2 )
@@ -120,7 +128,7 @@ set-current
 
 create count-stacks-types
 ' count-stacks-n ,
-' count-stacks-p ,
+' count-stacks-a ,
 ' count-stacks-d ,
 ' count-stacks-r ,
 ' count-stacks-func ,
@@ -135,9 +143,9 @@ create count-stacks-types
 \ gen-pars
 
 : gen-par-n ( fp-depth1 sp-depth1 -- fp-depth2 sp-depth2 )
-    1- dup ." sp[" .nb ." ]" ;
+    ." sp[" 1- dup .nb ." ]" ;
 
-: gen-par-p ( fp-depth1 sp-depth1 -- fp-depth2 sp-depth2 )
+: gen-par-a ( fp-depth1 sp-depth1 -- fp-depth2 sp-depth2 )
     ." (void *)(" gen-par-n ." )" ;
 
 : gen-par-d ( fp-depth1 sp-depth1 -- fp-depth2 sp-depth2 )
@@ -147,14 +155,14 @@ create count-stacks-types
     swap 1- tuck ." fp[" .nb ." ]" ;
 
 : gen-par-func ( fp-depth1 sp-depth1 -- fp-depth2 sp-depth2 )
-    gen-par-p ;
+    gen-par-a ;
 
 : gen-par-void ( fp-depth1 sp-depth1 -- fp-depth2 sp-depth2 )
     -32 throw ;
 
 create gen-par-types
 ' gen-par-n ,
-' gen-par-p ,
+' gen-par-a ,
 ' gen-par-d ,
 ' gen-par-r ,
 ' gen-par-func ,
@@ -181,24 +189,24 @@ create gen-par-types
     2dup 2>r gen-wrapped-call 2r> ;
 
 : gen-wrapped-n ( pars c-name fp-change1 sp-change1 -- fp-change sp-change )
-    1- dup ." sp[" .nb ." ]=" gen-wrapped-void ;
+    2dup gen-par-n 2>r ." =" gen-wrapped-call 2r> ;
 
-: gen-wrapped-p ( pars c-name fp-change1 sp-change1 -- fp-change sp-change )
-    1- dup ." sp[" .nb ." ]=(Cell)" gen-wrapped-void ;
+: gen-wrapped-a ( pars c-name fp-change1 sp-change1 -- fp-change sp-change )
+    2dup gen-par-n 2>r ." =(Cell)" gen-wrapped-call 2r> ;
 
 : gen-wrapped-d ( pars c-name fp-change1 sp-change1 -- fp-change sp-change )
     ." gforth_ll2d(" gen-wrapped-void
-    ." ,sp[" 1- dup .nb ." ],sp[" 1- dup .nb ." ])" ;
+    ." ," gen-par-n ." ," gen-par-n ." )" ;
 
 : gen-wrapped-r ( pars c-name fp-change1 sp-change1 -- fp-change sp-change )
-    swap 1- tuck ." fp[" .nb ." ]=" gen-wrapped-void ;
+    2dup gen-par-r 2>r ." =" gen-wrapped-void 2r> ;
 
 : gen-wrapped-func ( pars c-name fp-change1 sp-change1 -- fp-change sp-change )
-    gen-wrapped-p ;
+    gen-wrapped-a ;
 
 create gen-wrapped-types
 ' gen-wrapped-n ,
-' gen-wrapped-p ,
+' gen-wrapped-a ,
 ' gen-wrapped-d ,
 ' gen-wrapped-r ,
 ' gen-wrapped-func ,
@@ -210,9 +218,10 @@ create gen-wrapped-types
 : gen-wrapper-function ( addr -- )
     \ addr points to the return type index of a c-function descriptor
     c@+ { ret } count 2dup { d: pars } chars + count { d: c-name }
+    .\" #include \"engine/libcc.h\"\n"
     ." void gforth_c_" c-name type ." _"
-    pars 0 +do
-	i chars over + c@ type-letter emit
+    pars bounds u+do
+	i c@ type-letter emit
     loop
     ." _" ret type-letter emit .\" (void)\n"
     .\" {\n  Cell MAYBE_UNUSED *sp = gforth_SP;\n  Float MAYBE_UNUSED *fp = gforth_FP;\n  "
@@ -225,14 +234,27 @@ create gen-wrapped-types
     endif
     .\" }\n" ;
 
+: compile-wrapper-function ( -- )
+    s" gcc -fPIC -shared -Wl,-soname,xxx.so.1 -Wl,-export_dynamic -o xxx.so.1 -O xxx.c" system
+    $? abort" compiler generated error" ;
+\    s" ar rcs xxx.a xxx.o" system
+\    $? abort" ar generated error" ;
+
+: link-wrapper-function ( -- )
+    s" /home/anton/gforth/xxx.so.1" open-lib ( lib-handle )
+    s" gforth_c_strlen_a_n" rot lib-sym dup 0= -32 and throw ;
+
 : c-function ( "forth-name" "c-name" "{libcc-type}" "--" "libcc-type" -- )
     create here >r 0 , \ place for the wrapper function pointer
     parse-name { d: c-name }
     parse-function-types c-name string,
-    r> cell+ gen-wrapper-function
-\    compile-wrapper-function
-\    link-wrapper-function
-\    r> !
+    r@ cell+
+    s" xxx.c" w/o create-file throw ( file-id )
+    dup >r >outfile gen-wrapper-function outfile<
+    r> close-file throw
+    compile-wrapper-function
+    link-wrapper-function
+    r> !
   does> ( ... -- ... )
     @ call-c ;
 
@@ -252,21 +274,27 @@ s" Library not found" exception constant err-nolib
 
 \ test
 
-cr .( #include "engine/libcc.h")
-cr .( #include <unistd.h>)
-cr ." typedef void (* func)(int);
-cr ." int test1(int,char*,long,double,void (*)(int));"
-cr ." Cell *test2(void);"
-cr ." int test3(void);"
-cr ." float test4(void);"
-cr ." func test5(void);"
-cr ." void test6(void);"
-cr
+\ test all parameter and return types
 
-c-function dlseek lseek n d n -- d
-c-function n test1 n p d r func -- n
-c-function p test2 -- p
-c-function d test3 -- d
-c-function r test4 -- r
-c-function func test5 -- func
-c-function void test6 -- void
+\ cr .( #include "engine/libcc.h")
+\ cr .( #include <unistd.h>)
+\ cr ." typedef void (* func)(int);
+\ cr ." int test1(int,char*,long,double,void (*)(int));"
+\ cr ." Cell *test2(void);"
+\ cr ." int test3(void);"
+\ cr ." float test4(void);"
+\ cr ." func test5(void);"
+\ cr ." void test6(void);"
+\ cr
+
+\ c-function dlseek lseek n d n -- d
+\ c-function n test1 n a d r func -- n
+\ c-function a test2 -- a
+\ c-function d test3 -- d
+\ c-function r test4 -- r
+\ c-function func test5 -- func
+\ c-function void test6 -- void
+
+c-function strlen strlen a -- n
+
+cr s\" fooo\0" 2dup dump drop .s strlen cr .s cr
