@@ -52,10 +52,13 @@ defer .debugline ( nfile nline -- ) \ gforth print-debug-line
 
 ' (.debugline) IS .debugline
 
+: .debugline-stderr ( nfile nline -- )
+    stderr >outfile .debugline outfile< ;
+
 :noname ( -- )
-    current-sourcepos .debugline ;
+    current-sourcepos .debugline-stderr ;
 :noname ( compilation  -- ; run-time  -- )
-    compile-sourcepos POSTPONE .debugline ;
+    compile-sourcepos POSTPONE .debugline-stderr ;
 interpret/compile: ~~ ( -- ) \ gforth tilde-tilde
 \G Prints the source code location of the @code{~~} and the stack
 \G contents with @code{.debugline}.

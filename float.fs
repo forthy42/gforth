@@ -127,8 +127,6 @@ DOES> ( -- r )
   scratch over c@ emit '. emit 1 /string type
   'E emit . ;
 
-require debugs.fs
-
 : sfnumber ( c-addr u -- r true | false )
     2dup [CHAR] e scan ( c-addr u c-addr2 u2 )
     dup 0=

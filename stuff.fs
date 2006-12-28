@@ -352,3 +352,25 @@ previous
 ' ul@ alias l@ ( addr -- u )
 \ ' sw@ alias <w@ ( addr -- n )
 [then]
+
+\ safe output redirection
+
+: to-outfile-id ( file-id -- )
+    to outfile-id ;
+
+: >outfile ( file-id -- r:old-file-id )
+    ]] outfile-id >r try to-outfile-id [[ ; immediate compile-only
+
+: outfile< ( r:old-file-id -- )
+    0 ]] literal recover endtry r> to-outfile-id throw [[
+; immediate compile-only
+
+: to-infile-id ( file-id -- )
+    to infile-id ;
+
+: >infile ( file-id -- r:old-file-id )
+    ]] infile-id >r try to-infile-id [[ ; immediate compile-only
+
+: infile< ( r:old-file-id -- )
+    0 ]] literal recover endtry r> to-infile-id throw [[
+; immediate compile-only

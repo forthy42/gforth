@@ -317,6 +317,7 @@ Files
 
 * Forth source files::          
 * General files::               
+* Redirection::                 
 * Search Paths::                
 
 Search Paths
@@ -415,7 +416,7 @@ Assembler and Code Words
 * 386 Assembler::               Deviations and special cases
 * Alpha Assembler::             Deviations and special cases
 * MIPS assembler::              Deviations and special cases
-* PowerPC assembler::           
+* PowerPC assembler::           Deviations and special cases
 * Other assemblers::            How to write them
 
 Tools
@@ -8215,6 +8216,7 @@ Files that are processed by some other program (@dfn{general files}).
 @menu
 * Forth source files::          
 * General files::               
+* Redirection::                 
 * Search Paths::                
 @end menu
 
@@ -8274,7 +8276,7 @@ A definition in ANS Forth for @code{required} is provided in
 @file{compat/required.fs}.
 
 @c -------------------------------------------------------------
-@node General files, Search Paths, Forth source files, Files
+@node General files, Redirection, Forth source files, Files
 @subsection General files
 @cindex general files
 @cindex file-handling
@@ -8324,7 +8326,42 @@ doc-stdout
 doc-stderr
 
 @c ---------------------------------------------------------
-@node Search Paths,  , General files, Files
+@node Redirection, Search Paths, General files, Files
+@subsection Redirection
+@cindex Redirection
+@cindex Input Redirection
+@cindex Output Redirection
+
+You can redirect the output of @code{type} and @code{emit} and all the
+words that use them (all output words that don't have an explicit
+target file) to an arbitrary file with the @code{>outfile
+... outfile<} construct, used like this:
+
+@example
+: print-some-warning ( n -- )
+  stderr >outfile cr ." warning# " . outfile< ;
+@end example
+
+After the @code{outfile<}, the original output direction is restored;
+this construct is nestable and safe against exceptions.  Similarly,
+there is a construct @code{>infile ... infile<} for redirecting the
+input of @code{key} and its users (any input word that does not take a
+file explicitly).
+
+If you do not want to redirect the input or output to a file, you can
+also make use of the fact that @code{key}, @code{emit} and @code{type}
+are deferred words (@pxref{Deferred Words}).  However, in that case
+you have to worry about the restoration and the protection against
+exceptions yourself; also, note that for redirecting the output in
+this way, you have to redirect both @code{emit} and @code{type}.
+
+doc->outfile
+doc-outfile<
+doc->infile
+doc-infile<
+
+@c ---------------------------------------------------------
+@node Search Paths,  , Redirection, Files
 @subsection Search Paths
 @cindex path for @code{included}
 @cindex file search path
