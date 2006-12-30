@@ -5842,8 +5842,8 @@ A similar mechanism can be used to create arrays. For example, an
 @example
 CREATE text-buf 80 chars allot
 
-text-buf 0 chars c@@ \ the 1st character (offset 0)
-text-buf 3 chars c@@ \ the 4th character (offset 3)
+text-buf 0 chars + c@@ \ the 1st character (offset 0)
+text-buf 3 chars + c@@ \ the 4th character (offset 3)
 @end example
 
 You can build arbitrarily complex data structures by allocating
