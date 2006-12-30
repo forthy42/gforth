@@ -312,7 +312,9 @@ create brick-val 1 c, 2 c, 3 c, 3 c, 4 c, 5 c, 5 c,
 		again ;
 
 : to-upper	\ char --- char ; convert to upper case
-		dup [char] a >= over [char] z <= and if  bl -  then ;
+    dup [char] a [char] z 1+ within if
+	bl -
+    then ;
 
 : interaction	\ --- flag
 		case  key to-upper
