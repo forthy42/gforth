@@ -88,7 +88,7 @@ compat/*.fs other.fs
 For discussions about Gforth, use the Usenet newsgroup
 comp.lang.forth.  If you prefer not to post on Usenet, there is also a
 mailing list: GForth@ChaosSolutions.org.  To subscribe, send a mail to
-gforth-subscribe@chaossolutions.org@ChaosSolutions.org with:
+gforth-subscribe@chaossolutions.org with:
 
 subscribe GForth
 
