@@ -1,6 +1,6 @@
 \ MAIN.FS      Kernel main load file                   20may93jaw
 
-\ Copyright (C) 1995,1996,1997,1998,2000,2003 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,2000,2003,2006 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

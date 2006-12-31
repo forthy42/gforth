@@ -1,6 +1,6 @@
 \ fix path in gforth*.exe
 
-\ Copyright (C) 2000,2003 Free Software Foundation, Inc.
+\ Copyright (C) 2000,2003,2006 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

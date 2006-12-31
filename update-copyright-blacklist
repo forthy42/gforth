@@ -45,6 +45,7 @@ compat/assert.fs
 compat/control.fs
 compat/defer.fs
 compat/exception.fs
+compat/execute-parsing.fs
 compat/loops.fs
 compat/required.fs
 compat/strcomp.fs
@@ -76,6 +77,7 @@ test/checkans.out
 test/coretest.fs
 test/coretest.out
 test/deferred.fs
+test/gforth.out
 test/postpone.fs
 test/tester.fs
 vmgen-ex/fib.mini

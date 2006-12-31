@@ -1,6 +1,6 @@
 \ float wordset test suite
 
-\ Copyright (C) 2002 Free Software Foundation, Inc.
+\ Copyright (C) 2002,2006 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

@@ -1,6 +1,6 @@
 \ Input handling (object oriented)                      22oct00py
 
-\ Copyright (C) 2000,2003,2004,2005 Free Software Foundation, Inc.
+\ Copyright (C) 2000,2003,2004,2005,2006 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
