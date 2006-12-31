@@ -22,7 +22,7 @@
    M*/
 )
 
-: ms@ ( -- u | return time in ms)  utime 1 1000 m*/ d>s ;
+: ms@ ( -- u | return time in ms)  cputime d+ 1 1000 m*/ d>s ;
 : ?allot ( u -- a ) here swap allot ;
 : table ( v1 v2 ... vn n <name> -- | create a table of singles ) 
         create dup cells ?allot over 1- cells + swap
