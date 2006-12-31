@@ -25,16 +25,16 @@ for i in `cvs -q status|grep 'Repository revision:'|sed 's|^.*/usr/local/lib/cvs
     if grep -q "[0-9]  *Free Software Foundation" $i; then
 	year=`cvs log -rHEAD $i|grep date: |sed 's/date: //'|sed 's|/.*$||'`
 	if grep "[0-9]  *Free Software Foundation" $i|grep -q $year; then
-	    echo "$i: up-to-date $year"
+	    echo "up-to-date $year: $i"
 	else
 	    if [ x$1 = x--update ]; then
 		sed "s/\([0-9]\)  *Free Software Foundation/\1,$year Free Software Foundation/" $i >update-copyright-tmp
 		cp update-copyright-tmp $i
 	    fi
-	    echo "$i: update to $year"
+	    echo "update to  $year: $i"
 	fi
     else
-	echo "$i: no copyright"
+	echo "no copyright:    $i"
     fi
 done
 
