@@ -1028,12 +1028,7 @@ d2 = -d1;
 
 d2*	( d1 -- d2 )		double		d_two_star
 ""Shift left by 1; also works on unsigned numbers""
-#ifdef BUGGY_LL_SHIFT
-DLO_IS(d2, DLO(d1)<<1);
-DHI_IS(d2, (DHI(d1)<<1) | (DLO(d1)>>(CELL_BITS-1)));
-#else
-d2 = 2*d1;
-#endif
+d2 = DLSHIFT(d1,1);
 :
  2dup d+ ;
 

@@ -245,7 +245,9 @@ case "$host_cpu" in
 		$srcdir/mkinstalldirs arch/power
 		AC_CHECK_FUNC(_sync_cache_range,[true],[AC_LIBOBJ(../arch/power/_sync_cache_range)])
 		#long long is broken on (at least) gcc-2.95.* for PPC
-		test x$ac_cv_sizeof_long_long = x && ac_cv_sizeof_long_long=0
+		test x$ac_cv_sizeof_long_long = x && 
+		($CC -v 2>&1 |grep -q 'gcc version 2.95') &&
+		ac_cv_sizeof_long_long=0
 		;;
 	*)
 		AC_MSG_WARN([Using a generic machine description])

@@ -528,7 +528,7 @@ UDCell umdiv (UDCell u, UCell v)
 #if UDIV_NEEDS_NORMALIZATION
   lz = nlz(v);
   v <<= lz;
-  u <<= lz;
+  u = UDLSHIFT(u,lz);
   vm_ud2twoCell(u,u0,u1);
 #endif
   udiv_qrnnd(q,r,u1,u0,v);

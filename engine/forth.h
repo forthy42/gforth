@@ -158,7 +158,12 @@ typedef struct {
 #define DLO_IS(x,y) (x).lo=(y)
 
 #define UD2D(ud)	({UDCell _ud=(ud); (DCell){_ud.hi,_ud.lo};})
-#define D2UD(d)		({DCell _d=(d); (UDCell){_d.hi,_d.lo};})
+#define D2UD(d)		({DCell _d1=(d); (UDCell){_d1.hi,_d1.lo};})
+
+/* shifts by less than CELL_BITS */
+#define DLSHIFT(d,u)  ({DCell _d=(d); UCell _u=(u); \
+                       (DCell){(_d.hi<<_u)|(_d.lo>>(CELL_BITS-_u)),_d.lo<<_u};})
+#define UDLSHIFT(ud,u) D2UD(DLSHIFT(UD2D(ud),u))
 
 #if SMALL_OFF_T
 #define OFF2UD(o) ({UDCell _ud; _ud.hi=0; _ud.lo=(Cell)(o); _ud;})
@@ -178,6 +183,9 @@ typedef DOUBLE_UCELL_TYPE UDCell;
 #define OFF2UD(o)	((UDCell)(o))
 #define UD2OFF(ud)	((off_t)(ud))
 #define DZERO		((DCell)0)
+/* shifts by less than CELL_BITS */
+#define DLSHIFT(d,u)  ((d)<<(u))
+#define UDLSHIFT(d,u)  ((d)<<(u))
 
 #endif /* ! defined(BUGGY_LONG_LONG) */
 
