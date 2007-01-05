@@ -80,13 +80,20 @@ Variable ind-call ind-call off
 DOES> ( -- )  dup thislib ! proc: ;
 
 : init-shared-libs ( -- )
-    defers 'cold  libs
-    0  libs  BEGIN  @ dup  WHILE  dup  REPEAT  drop
-    BEGIN  dup  WHILE  >r
-	r@ @lib
-	r@ 2 cells +  BEGIN  @ dup  WHILE  r@ over @proc  REPEAT
-	drop rdrop
-    REPEAT  drop ;
+    defers 'cold
+    0  libs  BEGIN
+	@ dup WHILE
+	    dup  REPEAT
+    drop BEGIN
+	dup  WHILE
+	    >r
+	    r@ @lib
+	    r@ 2 cells +  BEGIN
+		@ dup  WHILE
+		    r@ over @proc  REPEAT
+	    drop rdrop
+    REPEAT
+    drop ;
 
 ' init-shared-libs IS 'cold
 
