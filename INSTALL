@@ -131,13 +131,18 @@ You need a cross-compilation toolchain for your target including gcc
 The first step in cross-installation is the cross-configuration.  A
 few tests made by the configure script do not work in a
 cross-compilation situation. You have to provide the results of these
-tests by hand. E.g., if you compile for a 386 architecture processor:
+tests by hand. E.g., if you compile for an ARM:
 
-env ac_cv_sizeof_char_p=4 ac_cv_sizeof_char=1 ac_cv_sizeof_short=2 ac_cv_sizeof_int=4 ac_cv_sizeof_long=4 ac_cv_sizeof_long_long=8 ac_cv_sizeof_intptr_t=4 ac_cv_sizeof_int128_t=0 ac_cv_c_bigendian=no ./configure
+env skipcode=".skip 16" ac_cv_sizeof_char_p=4 ac_cv_sizeof_char=1 \
+ac_cv_sizeof_short=2 ac_cv_sizeof_int=4 ac_cv_sizeof_long=4 \
+ac_cv_sizeof_long_long=8 ac_cv_sizeof_intptr_t=4 ac_cv_sizeof_int128_t=0 \
+ac_cv_c_bigendian=no ./configure CC=arm-elf-gcc --host=arm-linux
 
 The ac_cv_sizeof_... variables give the sizes of various C types;
 ac_cv_sizeof_char_p is the same as "sizeof(char*)" in C code. The
-ac_cv_c_bigendian variable gives the byte order.
+ac_cv_c_bigendian variable gives the byte order.  The skipcode
+specifies how to skip 16 bytes in the code (use "skipcode=no" to
+disable skipping and dynamic native code generation).
 
 After the cross-configuration you type
 
