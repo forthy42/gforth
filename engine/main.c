@@ -202,7 +202,8 @@ static int no_super=0;   /* true if compile_prim should not fuse prims */
 static int no_dynamic=NO_DYNAMIC_DEFAULT; /* if true, no code is generated
 					     dynamically */
 static int print_metrics=0; /* if true, print metrics on exit */
-static int static_super_number = 0; /*10000000;*/ /* number of ss used if available */
+static int static_super_number = 0; /* number of ss used if available */
+                                    /* disabled because of tpa */
 #define MAX_STATE 9 /* maximum number of states */
 static int maxstates = MAX_STATE; /* number of states for stack caching */
 static int ss_greedy = 0; /* if true: use greedy, not optimal ss selection */

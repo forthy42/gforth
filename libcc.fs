@@ -21,9 +21,8 @@
 
 \ What this implementation does is this: if it sees a declaration like
 
-\ \ something that tells it to include <unistd.h>
 \ \ something that tells it that the current library is libc
-
+\ \c #include <unistd.h>
 \ c-function dlseek lseek n d n -- d
 
 \ it genererates C code similar to the following:
@@ -67,13 +66,64 @@
 : const+ ( n1 "name" -- n2 )
     dup constant 1+ ;
 
-\ dlerror
+\ linked list stuff (should go elsewhere)
 
-\ require lib.fs
+hex
 
-\ library libc libc.so.6
-\ libc sleep int (int) sleep
-\ libc dlerror (ptr) dlerror
+require struct.fs
+
+struct
+    cell% field list-next
+    1 0   field list-payload
+end-struct list%
+
+: list-insert { node list -- }
+    list list-next @ node list-next !
+    node list list-next ! ;
+
+: list-append { node endlistp -- }
+    \ insert node at place pointed to by endlistp
+    node endlistp @ list-insert
+    node list-next endlistp ! ;
+
+: list-map ( ... list xt -- ... )
+    \ xt ( ... node -- ... )
+    { xt } begin { node }
+	node while
+	    node xt execute
+	    node list-next @
+    repeat ;
+
+\ C prefix lines
+
+\ linked list of longcstrings: [ link | count-cell | characters ]
+
+list%
+    cell% field c-prefix-count
+    1 0   field c-prefix-chars
+end-struct c-prefix%
+
+variable c-prefix-lines 0 c-prefix-lines !
+variable c-prefix-lines-end c-prefix-lines c-prefix-lines-end !
+
+: save-c-prefix-line ( c-addr u -- )
+    align here 0 , c-prefix-lines-end list-append ( c-addr u )
+    longstring, ;
+
+: \c ( "rest-of-line" -- )
+    -1 parse save-c-prefix-line ;
+
+: print-c-prefix-line ( node -- )
+    dup c-prefix-chars swap c-prefix-count @ type cr ;
+
+: print-c-prefix-lines ( -- )
+    c-prefix-lines @ ['] print-c-prefix-line list-map ;
+
+\c #include "engine/libcc.h"
+
+print-c-prefix-lines
+
+\ Types (for parsing)
 
 wordlist constant libcc-types
 
@@ -218,7 +268,7 @@ create gen-wrapped-types
 : gen-wrapper-function ( addr -- )
     \ addr points to the return type index of a c-function descriptor
     c@+ { ret } count 2dup { d: pars } chars + count { d: c-name }
-    .\" #include \"engine/libcc.h\"\n"
+    print-c-prefix-lines
     ." void gforth_c_" c-name type ." _"
     pars bounds u+do
 	i c@ type-letter emit

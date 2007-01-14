@@ -18,9 +18,8 @@
 \ along with this program; if not, write to the Free Software
 \ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
 
-[IFUNDEF] linked \ defined by chains.fs?!
-: linked        here over @ a, swap ! ;
-[THEN]
+: linked ( addr -- )
+    here over @ a, swap ! ;
 
 : errstring ( addr u n -- )
     ErrLink linked

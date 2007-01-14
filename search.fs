@@ -51,7 +51,7 @@ Variable slowvoc   0 slowvoc !
 
 : mappedwordlist ( map-struct -- wid )	\ gforth
 \G Create a wordlist with a special map-structure.
-  here swap A, 0 A, voclink @ A, 0 A,
+  align here swap A, 0 A, voclink @ A, 0 A,
   dup wordlist-link voclink !
   dup initvoc ;
 
