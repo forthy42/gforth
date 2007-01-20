@@ -546,6 +546,28 @@ static Address alloc_mmap(Cell size)
   after_alloc(r, size);
   return r;  
 }
+
+static void page_noaccess(Address a)
+{
+  /* try mprotect first; with munmap the page might be allocated later */
+  debugp(stderr, "try mprotect(%p,%ld,PROT_NONE); ", a, (long)pagesize);
+  if (mprotect(a, pagesize, PROT_NONE)==0) {
+    debugp(stderr, "ok\n");
+    return;
+  }
+  debugp(stderr, "failed: %s\n", strerror(errno));
+  debugp(stderr, "try munmap(%p,%ld); ", a, (long)pagesize);
+  if (munmap(a,pagesize)==0) {
+    debugp(stderr, "ok\n");
+    return;
+  }
+  debugp(stderr, "failed: %s\n", strerror(errno));
+}  
+
+static size_t next_pagesize(size_t n)
+{
+  return (n+pagesize-1)&~(pagesize-1);
+}
 #endif
 
 Address gforth_alloc(Cell size)
@@ -614,6 +636,41 @@ void alloc_stacks(ImageHeader * header)
   header->return_stack_size=rsize;
   header->locals_stack_size=lsize;
 
+#if defined(HAVE_MMAP)
+  if (pagesize > 1) {
+    size_t totalsize = (next_pagesize(dsize)+
+			next_pagesize(fsize)+
+			next_pagesize(rsize)+
+			next_pagesize(lsize)+
+			5*pagesize);
+    Address a = alloc_mmap(totalsize);
+    if (a != (Address)MAP_FAILED) {
+      page_noaccess(a);
+      a += pagesize;
+      header->data_stack_base = a;
+      a += next_pagesize(dsize);
+      page_noaccess(a);
+      a += pagesize;
+      header->fp_stack_base = a;
+      a += next_pagesize(fsize);
+      page_noaccess(a);
+      a += pagesize;
+      header->return_stack_base = a;
+      a += next_pagesize(rsize);
+      page_noaccess(a);
+      a += pagesize;
+      header->locals_stack_base = a;
+      a += next_pagesize(lsize);
+      page_noaccess(a);
+      debugp(stderr,"stack addresses: d=%p f=%p r=%p l=%p\n",
+	     header->data_stack_base,
+	     header->fp_stack_base,
+	     header->return_stack_base,
+	     header->locals_stack_base);
+      return;
+    }
+  }
+#endif
   header->data_stack_base=gforth_alloc(dsize);
   header->fp_stack_base=gforth_alloc(fsize);
   header->return_stack_base=gforth_alloc(rsize);
