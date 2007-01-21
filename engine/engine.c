@@ -54,7 +54,7 @@
 #include "fnmatch.h"
 #endif
 #else
-#include "systypes.h"
+/* #include <systypes.h> */
 #endif
 
 #if defined(HAVE_LIBDL) || defined(HAVE_DLOPEN) /* what else? */

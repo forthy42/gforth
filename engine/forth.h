@@ -467,6 +467,5 @@ extern char *strsignal(int sig);
 extern unsigned long int strtoul(const char *nptr, char **endptr, int base);
 #endif
 
-
 #define GROUP(x, n)
 #define GROUPADD(n)

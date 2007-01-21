@@ -44,7 +44,7 @@
 #include "io.h"
 #include "getopt.h"
 #ifdef STANDALONE
-#include <systypes.h>
+/* #include <systypes.h> */
 #endif
 
 typedef enum prim_num {

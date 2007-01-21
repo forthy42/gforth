@@ -80,17 +80,26 @@ typedef void *Label;
 
 /* feature defines, these setting should be identical to the ones in machpc.fs */
 
-#define HAS_DCOMPS
+#ifndef STANDALONE
+#warning hosted system
 #define HAS_FILE
 #define HAS_FLOATING
-#define HAS_GLOCALS
-#define HAS_HASH
 #define HAS_OS
-#define HAS_XCONDS
-#define HAS_STANDARDTHREADING
 #define HAS_DEBUG
 #ifndef HAS_PEEPHOLE
 #define HAS_PEEPHOLE
 #endif
+#else
+#warning standalone system
+#undef HAS_FILE
+#undef HAS_FLOATING
+#undef HAS_OS
+#undef HAS_DEBUG
+#endif
+#define HAS_DCOMPS
+#define HAS_GLOCALS
+#define HAS_HASH
+#define HAS_XCONDS
+#define HAS_STANDARDTHREADING
 
 #define RELINFOBITS	8

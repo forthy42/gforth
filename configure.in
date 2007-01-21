@@ -99,12 +99,14 @@ dnl PEEPHOLE="$withval")
 
 AC_ARG_ENABLE(ec,
 	AC_HELP_STRING([--enable-ec],
-			[ Build gforth for systems without OS.]),
+			[  Build gforth for systems without OS.]),
 	,enable_ec=no)
 if test "$enable_ec" = "yes"; then
-  AC_DEFINE(HAVE_EC,,[Define if you want a Gforth without OS])
+  echo "defining standalone system"
+  AC_DEFINE(STANDALONE,,[Define if you want a Gforth without OS])
   EC_MODE="true"
 else
+  echo "defining hosted system"
   EC_MODE="false"
 fi
 
@@ -150,7 +152,6 @@ test "$GCC" = "yes" || AC_MSG_ERROR(Gforth uses GNU C extensions and requires GC
 
 AC_SUBST(CC)
 AC_SUBST(DEBUGFLAG)
-AC_SUBST(HAVE_EC)
 AC_SUBST(EC_MODE)
 
 AC_MSG_CHECKING(make type)
