@@ -499,8 +499,11 @@ static void after_alloc(Address r, Cell size)
 {
   if (r != (Address)-1) {
     debugp(stderr, "success, address=$%lx\n", (long) r);
+#if 0
+    /* not needed now that we protect the stacks with mprotect */
     if (pagesize != 1)
       next_address = (Address)(((((Cell)r)+size-1)&-pagesize)+2*pagesize); /* leave one page unmapped */
+#endif
   } else {
     debugp(stderr, "failed: %s\n", strerror(errno));
   }
@@ -564,7 +567,7 @@ static void page_noaccess(Address a)
   debugp(stderr, "failed: %s\n", strerror(errno));
 }  
 
-static size_t next_pagesize(size_t n)
+static size_t wholepage(size_t n)
 {
   return (n+pagesize-1)&~(pagesize-1);
 }
@@ -628,53 +631,39 @@ void set_stack_sizes(ImageHeader * header)
   fsize=maxaligned(fsize);
 }
 
-void alloc_stacks(ImageHeader * header)
+void alloc_stacks(ImageHeader * h)
 {
-  header->dict_size=dictsize;
-  header->data_stack_size=dsize;
-  header->fp_stack_size=fsize;
-  header->return_stack_size=rsize;
-  header->locals_stack_size=lsize;
+  h->dict_size=dictsize;
+  h->data_stack_size=dsize;
+  h->fp_stack_size=fsize;
+  h->return_stack_size=rsize;
+  h->locals_stack_size=lsize;
 
 #if defined(HAVE_MMAP)
   if (pagesize > 1) {
-    size_t totalsize = (next_pagesize(dsize)+
-			next_pagesize(fsize)+
-			next_pagesize(rsize)+
-			next_pagesize(lsize)+
-			5*pagesize);
+    size_t p = pagesize;
+    size_t totalsize =
+      wholepage(dsize)+wholepage(fsize)+wholepage(rsize)+wholepage(lsize)+5*p;
     Address a = alloc_mmap(totalsize);
     if (a != (Address)MAP_FAILED) {
-      page_noaccess(a);
-      a += pagesize;
-      header->data_stack_base = a;
-      a += next_pagesize(dsize);
-      page_noaccess(a);
-      a += pagesize;
-      header->fp_stack_base = a;
-      a += next_pagesize(fsize);
-      page_noaccess(a);
-      a += pagesize;
-      header->return_stack_base = a;
-      a += next_pagesize(rsize);
-      page_noaccess(a);
-      a += pagesize;
-      header->locals_stack_base = a;
-      a += next_pagesize(lsize);
+      page_noaccess(a); a+=p; h->  data_stack_base=a; a+=wholepage(dsize);
+      page_noaccess(a); a+=p; h->    fp_stack_base=a; a+=wholepage(fsize);
+      page_noaccess(a); a+=p; h->return_stack_base=a; a+=wholepage(rsize);
+      page_noaccess(a); a+=p; h->locals_stack_base=a; a+=wholepage(lsize);
       page_noaccess(a);
       debugp(stderr,"stack addresses: d=%p f=%p r=%p l=%p\n",
-	     header->data_stack_base,
-	     header->fp_stack_base,
-	     header->return_stack_base,
-	     header->locals_stack_base);
+	     h->data_stack_base,
+	     h->fp_stack_base,
+	     h->return_stack_base,
+	     h->locals_stack_base);
       return;
     }
   }
 #endif
-  header->data_stack_base=gforth_alloc(dsize);
-  header->fp_stack_base=gforth_alloc(fsize);
-  header->return_stack_base=gforth_alloc(rsize);
-  header->locals_stack_base=gforth_alloc(lsize);
+  h->data_stack_base=gforth_alloc(dsize);
+  h->fp_stack_base=gforth_alloc(fsize);
+  h->return_stack_base=gforth_alloc(rsize);
+  h->locals_stack_base=gforth_alloc(lsize);
 }
 
 #warning You can ignore the warnings about clobbered variables in gforth_go
