@@ -369,7 +369,7 @@ VMGEN_EX2 = $(VMGEN_EX:vmgen-ex/%=vmgen-ex2/%)
 SOURCES	= $(CVSDIRS) compat Makefile.in Makedist.in engine/Makefile.in \
 	gforthmi.in vmgen.in gfgen README.vmgen NEWS.vmgen \
 	configure.in configure config.sub config.guess elisp-comp missing \
-	engine/config.h.in stamp-h.in \
+	engine/config.h.in stamp-h.in envos.fs.in \
 	iss.sh install-sh INSTALL INSTALL.BINDIST NEWS README ToDo BUGS \
 	BUILD-FROM-SCRATCH model \
 	COPYING COPYING.DOC AUTHORS ChangeLog Benchres aclocal.m4 \

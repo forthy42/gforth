@@ -275,7 +275,7 @@ Defining Words
 * Anonymous Definitions::       Definitions without names
 * Supplying names::             Passing definition names as strings
 * User-defined Defining Words::  
-* Deferred words::              Allow forward references
+* Deferred Words::              Allow forward references
 * Aliases::                     
 
 User-defined Defining Words
@@ -5619,7 +5619,7 @@ Defer foo
 IS foo
 @end example
 
-Deferred words are discussed in more detail in @ref{Deferred words}.
+Deferred words are discussed in more detail in @ref{Deferred Words}.
 
 The current definition returns control to the calling definition when
 the end of the definition is reached or @code{EXIT} is encountered.
@@ -5784,7 +5784,7 @@ Defining words are used to extend Forth by creating new entries in the dictionar
 * Anonymous Definitions::       Definitions without names
 * Supplying names::             Passing definition names as strings
 * User-defined Defining Words::  
-* Deferred words::              Allow forward references
+* Deferred Words::              Allow forward references
 * Aliases::                     
 @end menu
 
@@ -6121,7 +6121,7 @@ create foo
 @code{nextname} works with any defining word.
 
 
-@node User-defined Defining Words, Deferred words, Supplying names, Defining Words
+@node User-defined Defining Words, Deferred Words, Supplying names, Defining Words
 @subsection User-defined Defining Words
 @cindex user-defined defining words
 @cindex defining words, user-defined
@@ -6617,8 +6617,8 @@ An ANS Forth implementation of @code{const-does>} is available in
 @file{compat/const-does.fs}.
 
 
-@node Deferred words, Aliases, User-defined Defining Words, Defining Words
-@subsection Deferred words
+@node Deferred Words, Aliases, User-defined Defining Words, Defining Words
+@subsection Deferred Words
 @cindex deferred words
 
 The defining word @code{Defer} allows you to define a word by name
@@ -6724,7 +6724,7 @@ Definitions of these words (except @code{defers}) in ANS Forth are
 provided in @file{compat/defer.fs}.
 
 
-@node Aliases,  , Deferred words, Defining Words
+@node Aliases,  , Deferred Words, Defining Words
 @subsection Aliases
 @cindex aliases
 
