@@ -50,8 +50,8 @@ decimal
     \G In ANS Forth u3 can only be a positive signed number.
     >r s>d >r abs -rot
     s>d r> xor r> swap >r >r dabs rot tuck um* 2swap um*
-    swap >r 0 d+ r> -rot r@ um/mod -rot r> um/mod nip swap
-    r> IF dnegate THEN ;
+    swap >r 0 d+ r> -rot r@ um/mod -rot r> um/mod -rot
+    r> IF IF 1. d+ THEN dnegate ELSE drop THEN ;
 
 \ CASE OF ENDOF ENDCASE                                 17may93jaw
 
