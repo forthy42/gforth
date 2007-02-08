@@ -1251,7 +1251,7 @@ the command line history with cursor keys, similar to bash.
 @section Syntax
 @cindex syntax tutorial
 
-A @dfn{word} is a sequence of arbitrary characters (expcept white
+A @dfn{word} is a sequence of arbitrary characters (except white
 space).  Words are separated by white space.  E.g., each of the
 following lines contains exactly one word:
 
@@ -1597,7 +1597,7 @@ see +
 @cindex stack-effect comments, tutorial
 @cindex --, tutorial
 By convention the comment after the name of a definition describes the
-stack effect: The part in from of the @samp{--} describes the state of
+stack effect: The part in front of the @samp{--} describes the state of
 the stack before the execution of the definition, i.e., the parameters
 that are passed into the colon definition; the part behind the @samp{--}
 is the state of the stack after the execution of the definition, i.e.,
@@ -1787,7 +1787,7 @@ If one parameter usually requires only a short computation (e.g., it is
 a constant), pass it on the top of the stack.  Conversely, parameters
 that usually require a long sequence of code to compute should be passed
 as the bottom (i.e., first) parameter.  This makes the code easier to
-read, because reader does not need to keep track of the bottom item
+read, because the reader does not need to keep track of the bottom item
 through a long sequence of code (or, alternatively, through stack
 manipulations). E.g., @code{!} (store, @pxref{Memory}) expects the
 address on top of the stack because it is usually simpler to compute
@@ -1879,7 +1879,7 @@ An @code{if}-structure looks like this:
 @code{if} takes a flag from the stack.  If the flag is non-zero (true),
 the following code is performed, otherwise execution continues after the
 @code{endif} (or @code{else}).  @code{<} compares the top two stack
-elements and prioduces a flag:
+elements and produces a flag:
 
 @example
 1 2 < .
@@ -1950,8 +1950,8 @@ Gforth supports all combinations of the prefixes @code{0 u d d0 du f f0}
 these combinations are standard (for details see the standard,
 @ref{Numeric comparison}, @ref{Floating Point} or @ref{Word Index}).
 
-You can use @code{and or xor invert} can be used as operations on
-canonical flags.  Actually they are bitwise operations:
+You can use @code{and or xor invert} as operations on canonical flags.
+Actually they are bitwise operations:
 
 @example
 1 2 and .
@@ -2078,7 +2078,7 @@ Reference: @ref{Simple Loops}.
 
 @example
 : ^ ( n1 u -- n )
-\ n = the uth power of u1
+\ n = the uth power of n1
   1 swap 0 u+do
     over *
   loop

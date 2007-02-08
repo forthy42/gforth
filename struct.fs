@@ -102,7 +102,7 @@ cell% 2*              2constant double% ( -- align size ) \ gforth
     \g similar to @code{allocate}.
     nip allocate ;
 
-: %alloc ( size align -- addr ) \ gforth
+: %alloc ( align size -- addr ) \ gforth
     \g Allocate @var{size} address units with alignment @var{align},
     \g giving a data block at @var{addr}; @code{throw} an ior code
     \g if not successful.

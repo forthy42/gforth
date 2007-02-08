@@ -30,7 +30,7 @@
 
 1 31 lshift 1- constant  DIVIDEND
 DIVIDEND negate s>d 2constant D_DIVIDEND
-1000000     constant  N
+10000000     constant  N
 
 \ Some helpful macros
 variable xt

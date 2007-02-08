@@ -84,5 +84,5 @@ cell% 2*              2constant double%
 : %allocate ( align size -- addr ior )
     nip allocate ;
 
-: %alloc ( size align -- addr )
+: %alloc ( align size -- addr )
     %allocate throw ;
