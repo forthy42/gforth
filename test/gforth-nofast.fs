@@ -22,14 +22,14 @@ require ./tester.fs
 decimal
 
 \ division by zero
-{ 1 0 ' /    catch -> 1 0 -10 }
-{ 1 0 ' mod  catch -> 1 0 -10 }
-{ 1 0 ' /mod catch -> 1 0 -10 }
-{ 1 1 0 ' */mod catch -> 1 1 0 -10 }
-{ 1 1 0 ' */    catch -> 1 1 0 -10 }
-{ 1. 0 ' fm/mod catch -> 1. 0 -10 }
-{ 1. 0 ' sm/rem catch -> 1. 0 -10 }
-{ 1. 0 ' um/mod catch -> 1. 0 -10 }
+{ 1 0 ' /    catch 0= -> 1 0 false }
+{ 1 0 ' mod  catch 0= -> 1 0 false }
+{ 1 0 ' /mod catch 0= -> 1 0 false }
+{ 1 1 0 ' */mod catch 0= -> 1 1 0 false }
+{ 1 1 0 ' */    catch 0= -> 1 1 0 false }
+{ 1. 0 ' fm/mod catch 0= -> 1. 0 false }
+{ 1. 0 ' sm/rem catch 0= -> 1. 0 false }
+{ 1. 0 ' um/mod catch 0= -> 1. 0 false }
 
 \ division overflow
 environment-wordlist >order
