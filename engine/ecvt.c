@@ -33,6 +33,20 @@ char* ecvt(double x, int len, int* exp, int* sign)
    int i, j;
    double z;
    
+   if (isnan(x)) {
+     *sign=0;
+     *exp=0;
+     return "nan";
+   }
+   if (isinf(x)) {
+     *sign=0; /* this mimics the glibc ecvt */
+     *exp=0;
+     if (x<0)
+       return "-inf";
+     else
+       return "inf";
+   }
+       
    if(len > (MAXCONV-1)) len = MAXCONV-1;
    
    if(x<0)
