@@ -586,8 +586,8 @@ else
 fi
 
 #check how to do asm(".skip 16")
-echo "CFLAGS=$CFLAGS"
-echo "ac_link=$ac_link"
+#echo "CFLAGS=$CFLAGS"
+#echo "ac_link=$ac_link"
 AC_MSG_CHECKING([if and how we can waste code space])
 if test -z "$skipcode"; then
     skipcode=no
