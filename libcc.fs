@@ -45,6 +45,29 @@
 \ the function pointer of gforth_c_lseek_ndn_d on the stack and
 \ calls CALL-C.
 
+\ ToDo:
+
+\ Batching, caching and lazy evaluation:
+
+\ Batching:
+
+\ New words are deferred, and the corresponding C functions are
+\ collected in one file, until the first word is EXECUTEd; then the
+\ file is compiled and linked into the system, and the word is
+\ resolved.
+
+\ Caching:
+
+\ Instead of compiling all this stuff anew for every execution, we
+\ keep the files around and have an index file containing the function
+\ names and their corresponding .so files.  If the needed wrapper name
+\ is already present, it is just linked instead of generating the
+\ wrapper again.  This is all done by loading the index file(s?),
+\ which define words for the wrappers in a separate wordlist.
+
+\ The files are built in .../lib/gforth/$VERSION/libcc/ or
+\ ~/.gforth/libcc/$HOST/.
+
 \ other things to do:
 
 \ c-variable forth-name c-name
@@ -344,6 +367,8 @@ s" Library not found" exception constant err-nolib
 \ c-function r test4 -- r
 \ c-function func test5 -- func
 \ c-function void test6 -- void
+
+\c #include <string.h>
 
 c-function strlen strlen a -- n
 
