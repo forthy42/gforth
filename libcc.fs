@@ -313,27 +313,36 @@ create gen-wrapped-types
 \    s" ar rcs xxx.a xxx.o" system
 \    $? abort" ar generated error" ;
 
-: link-wrapper-function ( -- )
+: link-wrapper-function ( -- sym )
     s" /home/anton/gforth/xxx.so.1" open-lib ( lib-handle )
-    s" gforth_c_strlen_a_n" rot lib-sym dup 0= -32 and throw ;
+    s" gforth_c_strlen_a_n" rot lib-sym dup 0= -&32 and throw ;
 
-: c-function ( "forth-name" "c-name" "{libcc-type}" "--" "libcc-type" -- )
-    create here >r 0 , \ place for the wrapper function pointer
+
+: c-function-ft ( xt-defer xt-cfr "c-name" "{libcc-type}" "--" "libcc-type" -- )
+    \ build time/first time action for c-function
+    noname create 2,
     parse-name { d: c-name }
-    parse-function-types c-name string,
-    r@ cell+
+    here parse-function-types c-name string,
     s" xxx.c" w/o create-file throw ( file-id )
     dup >r >outfile gen-wrapper-function outfile<
     r> close-file throw
+  does> ( ... -- ... )
+    2@ { xt-defer xt-cfr }
     compile-wrapper-function
-    link-wrapper-function
-    r> !
+    link-wrapper-function xt-cfr >body !
+    xt-cfr xt-defer defer!
+    xt-cfr execute ;
+
+: c-function-rt ( -- )
+    \ run-time definition for c function; addr is the address where
+    \ the sym should be stored
+    noname create 0 ,
   does> ( ... -- ... )
     @ call-c ;
 
-
-
-
+: c-function ( "forth-name" "c-name" "{libcc-type}" "--" "libcc-type" -- )
+    defer lastxt dup c-function-rt lastxt c-function-ft
+    lastxt swap defer! ;
 
 s" Library not found" exception constant err-nolib
 
