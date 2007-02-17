@@ -30,6 +30,20 @@
 
 \ testing stuff
 
+[IFUNDEF] libc
+    s" os-type" environment? [IF]
+	2dup s" linux-gnu" str= [IF]  2drop
+	    library libc libc.so.6
+	[ELSE] 2dup s" cygwin" str= [IF]  2drop
+		library libc cygwin1.dll
+	    [ELSE]  s" bsd" search nip nip [IF]
+		    library libc libc.so
+		[THEN]
+	    [THEN]
+	[THEN]
+    [THEN]
+[THEN]
+
 [ifdef] testing
 
 library libc libc.so.6
