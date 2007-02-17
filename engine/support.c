@@ -500,7 +500,7 @@ static Cell MAYBE_UNUSED nlz(UCell x)
    n = 0;
 #if (SIZEOF_CHAR_P > 4)
    if (x <= 0xffffffff) {n+=32; x <<= 32;}
-#error this can't be correct
+#error "this can't be correct"
 #endif
    if (x <= 0x0000FFFF) {n = n +16; x = x <<16;}
    if (x <= 0x00FFFFFF) {n = n + 8; x = x << 8;}
