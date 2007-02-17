@@ -541,13 +541,14 @@ AC_SUBST(DEFAULTSYSTEMPREFIX)
 AC_DEFINE_UNQUOTED(DEFAULTSYSTEMPREFIX,"$DEFAULTSYSTEMPREFIX",[default for environment variable GFORTHSYSTEMPREFIX])
 
 #work around SELinux brain damage (from Andrew Haley <12t8f3jakb74g2c@news.supernews.com>)
-AC_CHECK_PROG([MASSAGE_EXE],[chcon],[chcon -t unconfined_execmem_exec_t \$@])
+#This magic incantation  seems to be completely undocumented.
+AC_CHECK_PROG([MASSAGE_EXE],[chcon],[chcon -t unconfined_execmem_exec_t],[true])
 
 dnl Now a little support for DOS/DJGCC
 AC_SUBST(GFORTH_EXE)
-GFORTH_EXE=$MASSAGE_EXE
+GFORTH_EXE=""
 AC_SUBST(GFORTHFAST_EXE)
-GFORTHFAST_EXE=$MASSAGE_EXE
+GFORTHFAST_EXE=""
 AC_SUBST(GFORTHITC_EXE)
 GFORTHITC_EXE=""
 AC_SUBST(GFORTHDITC_EXE)

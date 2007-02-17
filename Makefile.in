@@ -58,6 +58,7 @@ MV	= mv
 TAR	= tar cf -
 INSTALL	= @INSTALL@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@ -s
+MASSAGE_EXE = @MASSAGE_EXE@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_INFO = @INSTALL_INFO@
@@ -572,8 +573,10 @@ install:	gforth$(EXE) $(FORTH_SRC) $(kernel_fi) gforth.fi gforthmi vmgen doc/gfo
 		-$(RM) $(DESTDIR)$(bindir)/gforth-fast$(EXE) $(DESTDIR)$(bindir)/gforth-fast-$(VERSION)$(EXE)
 		-$(RM) $(DESTDIR)$(bindir)/gforth-itc$(EXE) $(DESTDIR)$(bindir)/gforth-itc-$(VERSION)$(EXE)
 		$(INSTALL_PROGRAM) gforth$(EXE) $(DESTDIR)$(bindir)/gforth-$(VERSION)$(EXE)
+		-$(MASSAGE_EXE) $(DESTDIR)$(bindir)/gforth-$(VERSION)$(EXE)
 		(cd $(DESTDIR)$(bindir) && $(LN_S) gforth-$(VERSION)$(EXE) gforth$(EXE))
 		$(INSTALL_PROGRAM) gforth-fast$(EXE) $(DESTDIR)$(bindir)/gforth-fast-$(VERSION)$(EXE)
+		-$(MASSAGE_EXE) $(DESTDIR)$(bindir)/gforth-fast-$(VERSION)$(EXE)
 		(cd $(DESTDIR)$(bindir) && $(LN_S) gforth-fast-$(VERSION)$(EXE) gforth-fast$(EXE))
 		$(INSTALL_PROGRAM) gforth-itc$(EXE) $(DESTDIR)$(bindir)/gforth-itc-$(VERSION)$(EXE)
 		(cd $(DESTDIR)$(bindir) && $(LN_S) gforth-itc-$(VERSION)$(EXE) gforth-itc$(EXE))
@@ -777,14 +780,17 @@ kernel/prim.fs:	prim.b prims2x.fs kernel/prim0.fs
 gforth$(EXE):		engines
 		-$(CP) gforth$(EXE) gforth~
 		$(CP) engine/$@ $@
+		-$(MASSAGE_EXE) $@
 		@GFORTH_EXE@
 
 gforth-fast$(EXE):	engines-fast
 		$(CP) engine/$@ $@
+		-$(MASSAGE_EXE) $@
 		@GFORTHFAST_EXE@
 
 gforth-native$(EXE):	engines-fast
 		$(CP) engine/$@ $@
+		-$(MASSAGE_EXE) $@
 #@GFORTHX_EXE@
 
 gforth-itc$(EXE):	engines
