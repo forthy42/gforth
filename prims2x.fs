@@ -140,13 +140,10 @@ $12340000 immarg !
 
 : ?print-error { f addr u -- }
     f ?not? if
-	outfile-id >r try
-	    stderr to outfile-id
-	    filename 2@ type ." :" line @ 0 .r ." : " addr u type cr
-	    print-error-line
-	    0
-	recover endtry
-	r> to outfile-id throw
+	stderr >outfile
+	filename 2@ type ." :" line @ 0 .r ." : " addr u type cr
+	print-error-line
+	outfile<
 	1 (bye) \ abort
     endif ;
 

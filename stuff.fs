@@ -362,7 +362,7 @@ previous
     ]] outfile-id >r try to-outfile-id [[ ; immediate compile-only
 
 : outfile< ( r:old-file-id -- )
-    0 ]] literal recover endtry r> to-outfile-id throw [[
+    0 ]] literal restore r@ to-outfile-id endtry rdrop throw [[
 ; immediate compile-only
 
 : to-infile-id ( file-id -- )
@@ -372,5 +372,5 @@ previous
     ]] infile-id >r try to-infile-id [[ ; immediate compile-only
 
 : infile< ( r:old-file-id -- )
-    0 ]] literal recover endtry r> to-infile-id throw [[
+    0 ]] literal restore r@ to-infile-id endtry rdrop throw [[
 ; immediate compile-only

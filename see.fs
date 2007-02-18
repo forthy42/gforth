@@ -120,9 +120,10 @@ VARIABLE Colors Colors on
 		    else
 			base @ >r try
 			    8 base ! 0 <<# # # # '\ hold #> ctype #>> 0
-			recover
+			restore
+			    r@ base !
 			endtry
-			r> base ! throw
+			rdrop throw
 		    endif
 		endif
 		1 /string

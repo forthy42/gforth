@@ -92,7 +92,7 @@ Variable first-throw
     POSTPONE ahead here >r >mark 1 cs-roll POSTPONE then
     r> POSTPONE literal POSTPONE (try) ; immediate compile-only
 
-: (recover) ( -- )
+: (endtry) ( -- )
     \ normal end of try block: restore handler, forget rest
     r>
     r> handler !
@@ -102,24 +102,30 @@ Variable first-throw
     rdrop \ recovery address
     >r ;
 
-: recover ( compilation  orig1 -- orig2 ; run-time  -- ) \ gforth
-    \ !! check using a special tag
-    POSTPONE else
+: handler-intro, ( -- )
     docol: here 0 , 0 , code-address! \ start a colon def 
     postpone rdrop                    \ drop the return address
+;
+
+: iferror ( compilation  orig1 -- orig2 ; run-time  -- ) \ gforth
+    \ !! check using a special tag
+    POSTPONE else handler-intro,
 ; immediate compile-only
 
-: endtry ( compilation  orig -- ; run-time  -- ) \ gforth
-    POSTPONE then
-    POSTPONE (recover)
+: restore ( compilation  orig1 -- ; run-time  -- ) \ gforth
+    POSTPONE iferror POSTPONE then
+; immediate compile-only
+
+: endtry ( compilation  -- ; run-time  -- ) \ gforth
+    POSTPONE (endtry)
 ; immediate compile-only
 
 :noname ( x1 .. xn xt -- y1 .. ym 0 / z1 .. zn error ) \ exception
     try
 	execute 0
-    recover
-        nip
-    endtry ;
+    iferror
+	nip
+    then endtry ;
 is catch
 
 :noname ( y1 .. ym error/0 -- y1 .. ym / z1 .. zn error ) \ exception
