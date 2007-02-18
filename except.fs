@@ -20,14 +20,6 @@
 
 \ !! use a separate exception stack?           anton
 
-\ user-definable rollback actions
-
-Defer 'catch
-Defer 'throw
-
-' noop IS 'catch
-' noop IS 'throw
-
 \ has? backtrace [IF]
 Defer store-backtrace
 ' noop IS store-backtrace
@@ -88,7 +80,6 @@ Variable first-throw
     first-throw on
     r>
     swap >r \ recovery address
-    rp@ 'catch >r
     sp@ >r
     fp@ >r
     lp@ >r
@@ -108,20 +99,20 @@ Variable first-throw
     rdrop \ lp
     rdrop \ fp
     rdrop \ sp
-    r> rp!
     rdrop \ recovery address
     >r ;
 
 : recover ( compilation  orig1 -- orig2 ; run-time  -- ) \ gforth
     \ !! check using a special tag
-    POSTPONE (recover)
     POSTPONE else
     docol: here 0 , 0 , code-address! \ start a colon def 
     postpone rdrop                    \ drop the return address
 ; immediate compile-only
 
 : endtry ( compilation  orig -- ; run-time  -- ) \ gforth
-    POSTPONE then ; immediate compile-only
+    POSTPONE then
+    POSTPONE (recover)
+; immediate compile-only
 
 :noname ( x1 .. xn xt -- y1 .. ym 0 / z1 .. zn error ) \ exception
     try
@@ -143,28 +134,11 @@ is catch
 	    2 (bye)
 \	    quit
 	THEN
-	rp!
-	r> handler !
+	dup rp!
+	rdrop
 	r> lp!
 	r> fp!
-	r> swap >r sp! drop r>
-	rdrop 'throw r> perform
+	r> -rot 2>r sp! drop 2r>
+	r@ swap rp! perform
     THEN ;
 is throw
-[IFDEF] rethrow
-:noname ( y1 .. ym error/0 -- y1 .. ym / z1 .. zn error ) \ exception
-    ?DUP IF
-	handler @ ?dup-0=-IF
-	    >stderr cr ." uncaught exception: " .error cr
-	    2 (bye)
-\	    quit
-	THEN
-	rp!
-	r> handler !
-	r> lp!
-	r> fp!
-	r> swap >r sp! drop r>
-	rdrop 'throw r> perform
-    THEN ;
-is rethrow
-[THEN]
