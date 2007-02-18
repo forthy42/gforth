@@ -79,10 +79,11 @@ Defer flush-blocks ( -- ) \ gforth
 	2dup open-fpath-file throw
 	rot close-file throw  2dup file-status throw bin open-file throw
 	>r 2drop r>
-    iferror ( c-addr u ior )
+    restore endtry
+    dup if ( c-addr u ior )
 	>r 2dup file-status nip 0= r> and throw \ does it really not exist?
 	r/w bin create-file throw
-    then endtry
+    then
     block-fid @ IF
 	flush-blocks block-fid @ close-file throw
     THEN
