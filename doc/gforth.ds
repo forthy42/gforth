@@ -2847,37 +2847,28 @@ like this:
    ( ... n ) throw ;
 @end example
 
-Gforth provides an alternative syntax in addition to @code{catch}:
-@code{try ... recover ... endtry}.  If the code between @code{try} and
-@code{recover} has an exception, the stack depths are restored, the
-exception number is pushed on the stack, and the code between
-@code{recover} and @code{endtry} is performed.  E.g., the definition for
-@code{catch} is
+However, this is still not safe against, e.g., the user pressing
+@kbd{Ctrl-C} when execution is between the @code{catch} and
+@code{restore-x}.
 
-@example
-: catch ( x1 .. xn xt -- y1 .. ym 0 / z1 .. zn error ) \ exception
-  try
-    execute 0
-  recover
-    nip
-  endtry ;
-@end example
+Gforth provides an alternative exception handling syntax that is safe
+against such cases: @code{try ... restore ... endtry}.  If the code
+between @code{try} and @code{endtry} has an exception, the stack
+depths are restored, the exception number is pushed on the stack, and
+the execution continues right after @code{restore}.
 
-The equivalent to the restoration code above is
+The safer equivalent to the restoration code above is
 
 @example
 : ...
   save-x
   try
     word-changing-x 0
-  recover endtry
-  restore-x
+  restore
+    restore-x
+  endtry
   throw ;
 @end example
-
-This works if @code{word-changing-x} does not change the stack depth,
-otherwise you should add some code between @code{recover} and
-@code{endtry} to balance the stack.
 
 Reference: @ref{Exception Handling}.
 
@@ -5709,42 +5700,107 @@ therefore Gforth provides an alternative syntax:
 @example
 TRY
   @i{code1}
-RECOVER
-  @i{code2} \ optional
+  IFERROR
+    @i{code2}
+  THEN
+  @i{code3}
 ENDTRY
 @end example
 
-This performs @i{Code1}.  If @i{code1} completes normally, execution
-continues after the @code{endtry}.  If @i{Code1} throws, the stacks are
-reset to the state during @code{try}, the throw value is pushed on the
-data stack, and execution constinues at @i{code2}, and finally falls
-through the @code{endtry} into the following code.
+This performs @i{code1}.  If @i{code1} completes normally, execution
+continues with @i{code3}.  If @i{code1} or there is an exception
+before @code{endtry}, the stacks are reset to the state during
+@code{try}, the throw value is pushed on the data stack, and execution
+constinues at @i{code2}, and finally falls through the @i{code3}.
 
 doc-try
-doc-recover
 doc-endtry
+doc-iferror
 
+If you don't need @i{code2}, you can write @code{restore} instead of
+@code{iferror then}:
+
+@example
+TRY
+  @i{code1}
+RESTORE
+  @i{code3}
+ENDTRY
+@end example
+
+@cindex unwind-protect
 The cleanup example from above in this syntax:
 
 @example
-base @ >r TRY
+base @ @{ oldbase @}
+TRY
   hex foo \ now the hex is placed correctly
   0       \ value for throw
-RECOVER ENDTRY
-r> base ! throw
+RESTORE
+  oldbase base !
+ENDTRY
+throw
 @end example
 
-And here's the error handling example:
+An additional advantage of this variant is that an exception between
+@code{restore} and @code{endtry} (e.g., from the user pressing
+@kbd{Ctrl-C}) restarts the execution of the code after @code{restore},
+so the base will be restored under all circumstances.
+
+However, you have to ensure that this code does not cause an exception
+itself, otherwise the @code{iferror}/@code{restore} code will loop.
+Moreover, you should also make sure that the stack contents needed by
+the @code{iferror}/@code{restore} code exist everywhere between
+@code{try} and @code{endtry}; in our example this is achived by
+putting the data in a local before the @code{try} (you cannot use the
+return stack because the exception frame (@i{sys1}) is in the way
+there).
+
+This kind of usage corresponds to Lisp's @code{unwind-protect}.
+
+@cindex @code{recover} (old Gforth versions)
+If you do not want this exception-restarting behaviour, you achieve
+this as follows:
+
+@example
+TRY
+  @i{code1}
+ENDTRY-IFERROR
+  @i{code2}
+THEN
+@end example
+
+If there is an exception in @i{code1}, then @i{code2} is executed,
+otherwise execution continues behind the @code{then} (or in a possible
+@code{else} branch).  This corresponds to the construct
+
+@example
+TRY
+  @i{code1}
+RECOVER
+  @i{code2}
+ENDTRY
+@end example
+
+in Gforth before version 0.7.  So you can directly replace
+@code{recover}-using code; however, we recommend that you check if it
+would not be better to use one of the other @code{try} variants while
+you are at it.
+
+doc-restore
+doc-endtry-iferror
+
+Here's the error handling example:
 
 @example
 TRY
   foo
-RECOVER
+ENDTRY-IFERROR
   CASE
     myerror OF ... ( do something about it ) nothrow ENDOF
     throw \ pass other errors on
   ENDCASE
-ENDTRY
+THEN
 @end example
 
 @progstyle

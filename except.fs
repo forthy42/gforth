@@ -87,8 +87,8 @@ Variable first-throw
     rp@ handler !
     >r ;
 
-: try ( compilation  -- orig ; run-time  -- ) \ gforth
-    \ !! does not work correctly for gforth-native
+: try ( compilation  -- orig ; run-time  -- R:sys1 ) \ gforth
+    \G Start an exception-catching region.
     POSTPONE ahead here >r >mark 1 cs-roll POSTPONE then
     r> POSTPONE literal POSTPONE (try) ; immediate compile-only
 
@@ -108,16 +108,31 @@ Variable first-throw
 ;
 
 : iferror ( compilation  orig1 -- orig2 ; run-time  -- ) \ gforth
+    \G Starts the exception handling code (executed if there is an
+    \G exception between @code{try} and @code{endtry}).  This part has
+    \G to be finished with @code{then}.
     \ !! check using a special tag
     POSTPONE else handler-intro,
 ; immediate compile-only
 
 : restore ( compilation  orig1 -- ; run-time  -- ) \ gforth
+    \G Starts restoring code, that is executed if there is an
+    \G exception, and if there is no exception.
     POSTPONE iferror POSTPONE then
 ; immediate compile-only
 
-: endtry ( compilation  -- ; run-time  -- ) \ gforth
+: endtry ( compilation  -- ; run-time  R:sys1 -- ) \ gforth
+    \G End an exception-catching region.
     POSTPONE (endtry)
+; immediate compile-only
+
+: endtry-iferror ( compilation  orig1 -- orig2 ; run-time  R:sys1 -- ) \ gforth
+    \G End an exception-catching region while starting
+    \G exception-handling code outside that region (executed if there
+    \G is an exception between @code{try} and @code{endtry-iferror}).
+    \G This part has to be finished with @code{then} (or
+    \G @code{else}...@code{then}).
+    POSTPONE (endtry) POSTPONE iferror POSTPONE (endtry)
 ; immediate compile-only
 
 :noname ( x1 .. xn xt -- y1 .. ym 0 / z1 .. zn error ) \ exception
