@@ -5787,6 +5787,16 @@ in Gforth before version 0.7.  So you can directly replace
 would not be better to use one of the other @code{try} variants while
 you are at it.
 
+To ease the transition, Gforth provides two compatibility files:
+@file{endtry-iferror.fs} provides the @code{try ... endtry-iferror
+... then} syntax (but not @code{iferror} or @code{restore}) for old
+systems; @file{recover-endtry.fs} provides the @code{try ... recover
+... endtry} syntax on new systems, so you can use that file as a
+stopgap to run old programs.  Both files work on any system (they just
+do nothing if the system already has the syntax it implements), so you
+can unconditionally @code{require} one of these files, even if you use
+a mix old and new systems.
+
 doc-restore
 doc-endtry-iferror
 

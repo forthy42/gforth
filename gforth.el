@@ -273,7 +273,8 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 	  "case" "of" "?dup-if" "?dup-0=-if" "then" "endif" "until"
 	  "repeat" "again" "leave" "?leave"
 	  "loop" "+loop" "-loop" "next" "endcase" "endof" "else" "while" "try"
-	  "recover" "endtry" "assert(" "assert0(" "assert1(" "assert2(" 
+	  "recover" "endtry" "iferror" "restore" "endtry-iferror"
+	  "assert(" "assert0(" "assert1(" "assert2("
 	  "assert3(" ")" "<interpretation" "<compilation" "interpretation>" 
 	  "compilation>")
 	 compile-only (font-lock-keyword-face . 2))
@@ -415,7 +416,7 @@ INDENT1 and INDENT2 are indentation specifications of the form
 
 (setq forth-indent-words
       '((("if" "begin" "do" "?do" "+do" "-do" "u+do"
-	  "u-do" "?dup-if" "?dup-0=-if" "case" "of" "try" 
+	  "u-do" "?dup-if" "?dup-0=-if" "case" "of" "try" "iferror"
 	  "[if]" "[ifdef]" "[ifundef]" "[begin]" "[for]" "[do]" "[?do]")
 	 (0 . 2) (0 . 2))
 	((":" ":noname" "code" "struct" "m:" ":m" "class" "interface")
@@ -431,7 +432,8 @@ INDENT1 and INDENT2 are indentation specifications of the form
 	 (-2 . 0) (0 . -2) non-immediate)
 	(("protected" "public" "how:") (-1 . 1) (0 . 0) non-immediate)
 	(("+loop" "-loop" "until") (-2 . 0) (-2 . 0))
-	(("else" "recover" "[else]") (-2 . 2) (0 . 0))
+	(("else" "recover" "restore" "endtry-iferror" "[else]")
+	 (-2 . 2) (0 . 0))
 	(("does>") (-1 . 1) (0 . 0))
 	(("while" "[while]") (-2 . 4) (0 . 2))
 	(("repeat" "[repeat]") (-4 . 0) (0 . -4))))
