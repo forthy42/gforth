@@ -263,7 +263,8 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_SRC) $(EC_SRC) \
 	bubble.fs siev.fs matrix.fs fib.fs \
 	oof.fs oofsampl.fs objects.fs objexamp.fs mini-oof.fs moof-exm.fs \
 	moofglos.fs fixpath.fs \
-	add.fs lib.fs oldlib.fs fflib.fs libffi.fs sieve.fs unix/socket.fs
+	add.fs lib.fs oldlib.fs fflib.fs libffi.fs sieve.fs unix/socket.fs \
+	endtry-iferror.fs recover-endtry.fs
 
 COMPAT = compat/README \
 	compat/anslocal.fs \
@@ -660,10 +661,11 @@ bench:		gforth-fast$(EXE) gforth.fi
 		time $(FORTH_FAST) fib.fs -e "main bye"
 
 onebench:
-		@\time -f "siev   %U" $(FORTH_FAST) siev.fs -e "main bye"
-		@\time -f "bubble %U" $(FORTH_FAST) -e "warnings off" bubble.fs -e "main bye"
-		@\time -f "matrix %U" $(FORTH_FAST) matrix.fs -e "main bye"
-		@\time -f "fib    %U" $(FORTH_FAST) fib.fs -e "main bye"
+		@echo 'sieve bubble matrix  fib'
+		@echo -n " "`\time 2>&1 -f "%U" $(FORTH_FAST) siev.fs -e "main bye"`
+		@echo -n "  "`\time 2>&1 -f "%U" $(FORTH_FAST) -e "warnings off" bubble.fs -e "main bye"`
+		@echo -n "   "`\time 2>&1 -f "%U" $(FORTH_FAST) matrix.fs -e "main bye"`
+		@echo "  "`\time 2>&1 -f "%U" $(FORTH_FAST) fib.fs -e "main bye"`
 
 all-bench:	gforth-fast$(EXE) gforth$(EXE) gforth-itc$(EXE) gforth-ditc$(EXE) gforth.fi
 		@echo "*** gforth-fast dynamic:"
