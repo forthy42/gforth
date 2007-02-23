@@ -155,11 +155,10 @@ is catch
 	    2 (bye)
 \	    quit
 	THEN
-	dup rp!
-	rdrop
-	r> lp!
-	r> fp!
-	r> -rot 2>r sp! drop 2r>
-	r@ swap rp! perform
+        dup rp! ( ... ball frame )
+        cell+ dup @ lp!
+        cell+ dup @ fp!
+        cell+ dup @ ( ... ball addr sp ) -rot 2>r sp! drop 2r>
+        cell+ @ perform
     THEN ;
 is throw

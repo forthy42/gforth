@@ -44,8 +44,47 @@ decimal
 { 'A  -> 65 }
 { 1. '1 -> 1. 49 }
 
-\ represent has no trailing 0s even for inf and nan
+\ REPRESENT has no trailing 0s even for inf and nan
 
 {  1e 0e f/ pad 16 represent drop 2drop pad 15 + c@ '0 = -> false }
 {  0e 0e f/ pad 16 represent drop 2drop pad 15 + c@ '0 = -> false }
 { -1e 0e f/ pad 16 represent drop 2drop pad 15 + c@ '0 = -> false }
+
+\ TRY and friends
+
+: 0<-throw ( n -- )
+    0< throw ;
+
+: try-test1 ( n1 -- n2 )
+    try
+        dup 0<-throw
+        iferror
+            2drop 25
+        then
+        1+
+    endtry ;
+
+{ -5 try-test1 -> 26 }
+{ 5  try-test1 ->  6 }
+
+: try-test2 ( n1 -- n2 )
+    try
+        0
+    restore
+        drop 1+ dup 0<-throw
+    endtry ;
+
+{ -5 try-test2 -> 0 }
+{  5 try-test2 -> 6 }
+
+: try-test3 ( n1 -- n2 )
+    try
+        dup 0<-throw
+    endtry-iferror
+        2drop 10
+    else
+        1+
+    then ;
+
+{ -5 try-test3 -> 10 }
+{  5 try-test3 ->  6 }
