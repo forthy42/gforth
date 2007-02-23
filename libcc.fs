@@ -323,8 +323,8 @@ create gen-wrapped-types
     noname create 2,
     parse-name { d: c-name }
     here parse-function-types c-name string,
-    s" xxx.c" w/o create-file throw ( file-id )
-    dup >r >outfile gen-wrapper-function outfile<
+    s" xxx.c" w/o create-file throw >r ( R:file-id )
+    ['] gen-wrapper-function r@ outfile-execute
     r> close-file throw
   does> ( ... -- ... )
     2@ { xt-defer xt-cfr }

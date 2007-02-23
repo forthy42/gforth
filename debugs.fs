@@ -53,7 +53,7 @@ defer .debugline ( nfile nline -- ) \ gforth print-debug-line
 ' (.debugline) IS .debugline
 
 : .debugline-stderr ( nfile nline -- )
-    stderr >outfile .debugline outfile< ;
+    ['] .debugline stderr outfile-execute ;
 
 :noname ( -- )
     current-sourcepos .debugline-stderr ;

@@ -304,9 +304,11 @@ is throw
 \ HEX DECIMAL                                           2may93jaw
 
 : decimal ( -- ) \ core
-    \G Set @code{base} to &10 (decimal).
+    \G Set @code{base} to &10 (decimal).  Don't use @code{hex}, use
+    \G @code{base-execute} instead.
     a base ! ;
 : hex ( -- ) \ core-ext
-    \G Set @code{base} to &16 (hexadecimal).
+    \G Set @code{base} to &16 (hexadecimal).  Don't use @code{hex},
+    \G use @code{base-execute} instead.
     10 base ! ;
 

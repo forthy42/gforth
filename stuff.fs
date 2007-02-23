@@ -355,22 +355,36 @@ previous
 
 \ safe output redirection
 
-: to-outfile-id ( file-id -- )
-    to outfile-id ;
+: outfile-execute ( ... xt file-id -- ... ) \ gforth
+    \G execute @i{xt} with the output of @code{type} etc. redirected to
+    \G @i{file-id}.
+    outfile-id { oldfid } try
+	to outfile-id execute 0
+    restore
+	oldfid to outfile-id
+    endtry
+    throw ;
 
-: >outfile ( file-id -- r:old-file-id )
-    ]] outfile-id >r try to-outfile-id [[ ; immediate compile-only
+: infile-execute ( ... xt file-id -- ... ) \ gforth
+    \G execute @i{xt} with the input of @code{key} etc. redirected to
+    \G @i{file-id}.
+    infile-id { oldfid } try
+	to infile-id execute 0
+    restore
+	oldfid to infile-id
+    endtry
+    throw ;
 
-: outfile< ( r:old-file-id -- )
-    0 ]] literal restore r@ to-outfile-id endtry rdrop throw [[
-; immediate compile-only
+\ safe BASE wrapper
 
-: to-infile-id ( file-id -- )
-    to infile-id ;
+: base-execute ( i*x xt u -- j*x ) \ gforth
+    \G execute @i{xt} with the content of @code{BASE} being @i{u}, and
+    \G restoring the original @code{BASE} afterwards.
+    base @ { oldbase } \ use local, because TRY blocks the return stack
+    try
+	base ! execute 0
+    restore
+	oldbase base !
+    endtry
+    throw ;
 
-: >infile ( file-id -- r:old-file-id )
-    ]] infile-id >r try to-infile-id [[ ; immediate compile-only
-
-: infile< ( r:old-file-id -- )
-    0 ]] literal restore r@ to-infile-id endtry rdrop throw [[
-; immediate compile-only

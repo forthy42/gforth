@@ -167,8 +167,10 @@ has? file [IF]
 
 
 User base ( -- a-addr ) \ core
-\G @code{User} variable -- @i{a-addr} is the address of a cell that stores the
-\G number base used by default for number conversion during input and output.
+\G @code{User} variable -- @i{a-addr} is the address of a cell that
+\G stores the number base used by default for number conversion during
+\G input and output.  Don't store to @code{base}, use
+\G @code{base-execute} instead.
                        A base !
 User dpl ( -- a-addr ) \ gforth
 \G @code{User} variable -- @i{a-addr} is the address of a cell that stores the 		

@@ -138,12 +138,13 @@ $12340000 immarg !
     over - type cr
     line-start @ rawinput @ over - typewhite ." ^" cr ;
 
+: print-error { addr u -- }
+    filename 2@ type ." :" line @ 0 .r ." : " addr u type cr
+    print-error-line ;
+
 : ?print-error { f addr u -- }
     f ?not? if
-	stderr >outfile
-	filename 2@ type ." :" line @ 0 .r ." : " addr u type cr
-	print-error-line
-	outfile<
+	addr u ['] print-error stderr outfile-execute
 	1 (bye) \ abort
     endif ;
 
