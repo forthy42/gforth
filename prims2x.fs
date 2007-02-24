@@ -55,6 +55,12 @@
 \ for backwards compatibility, jaw
 require compat/strcomp.fs
 
+[undefined] outfile-execute [if]
+    : outfile-execute ( ... xt file-id -- ... )
+	\ unsafe replacement
+	outfile-id >r to outfile-id execute r> to outfile-id ;
+[then]
+
 warnings off
 
 \ redefinitions of kernel words not present in gforth-0.6.1
