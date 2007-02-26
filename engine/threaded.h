@@ -91,11 +91,24 @@
 
 */
 
-#ifdef GCC_PR15242_WORKAROUND
+#if !defined(GCC_PR15242_WORKAROUND)
+#if __GNUC__ == 3
+/* various gcc-3.x version have problems (including PR15242) that are
+   solved with this workaround */
+#define GCC_PR15242_WORKAROUND 1
+#else
+/* other gcc versions are better off without the workaround for
+   primitives that are not relocatable */
+#define GCC_PR15242_WORKAROUND 0
+#endif
+#endif
+
+#if GCC_PR15242_WORKAROUND
 #define DO_GOTO goto before_goto
 #else
 #define DO_GOTO goto *real_ca
 #endif
+
 #ifndef GOTO_ALIGN
 #define GOTO_ALIGN
 #endif
