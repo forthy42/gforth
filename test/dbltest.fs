@@ -116,3 +116,8 @@ require ./coretest.fs
 { 1 0 0 1 du< -> true }
 { 0 1 1 0 du< -> false }
 { -1. 0. du< -> false }
+
+\ some M*/ consistency checks against */
+
+{ -7. 3 5 M*/ -> -7 3 5 */ s>d }
+{  7. 3 5 M*/ ->  7 3 5 */ s>d }

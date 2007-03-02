@@ -851,14 +851,14 @@ DCell d = (DCell)n1 * (DCell)n2;
 #endif
 #ifdef ASM_SM_SLASH_REM
 ASM_SM_SLASH_REM(DLO(d), DHI(d), n3, n4, n5);
-if (((DHI(d)^n3)<0) && n4!=0) {
+if (FLOORED_DIV && ((DHI(d)^n3)<0) && n4!=0) {
   if (CHECK_DIVISION && n5 == CELL_MIN)
     throw(BALL_RESULTRANGE);
   n5--;
   n4+=n3;
 }
 #else
-DCell r = fmdiv(d,n3);
+DCell r = FLOORED_DIV ? fmdiv(d,n3) : smdiv(d,n3);
 n4=DHI(r);
 n5=DLO(r);
 #endif
@@ -875,13 +875,13 @@ DCell d = (DCell)n1 * (DCell)n2;
 #ifdef ASM_SM_SLASH_REM
 Cell remainder;
 ASM_SM_SLASH_REM(DLO(d), DHI(d), n3, remainder, n4);
-if (((DHI(d)^n3)<0) && remainder!=0) {
+if (FLOORED_DIV && ((DHI(d)^n3)<0) && remainder!=0) {
   if (CHECK_DIVISION && n4 == CELL_MIN)
     throw(BALL_RESULTRANGE);
   n4--;
 }
 #else
-DCell r = fmdiv(d,n3);
+DCell r = FLOORED_DIV ? fmdiv(d,n3) : smdiv(d,n3);
 n4=DLO(r);
 #endif
 :
