@@ -260,6 +260,7 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_SRC) $(EC_SRC) \
 	test/string.fs test/float.fs test/gforth.fs \
 	test/other.fs test/signals.fs test/checkans.fs \
 	test/primtest.fs test/coreext.fs test/deferred.fs \
+	test/coremore.fs test/gforth-nofast.fs \
 	bubble.fs siev.fs matrix.fs fib.fs \
 	oof.fs oofsampl.fs objects.fs objexamp.fs mini-oof.fs moof-exm.fs \
 	moofglos.fs fixpath.fs \
@@ -397,7 +398,7 @@ SOURCES	= $(CVSDIRS) compat Makefile.in Makedist.in engine/Makefile.in \
 	gforthmi.cmd glosgen.glo doc/glossaries.doc \
 	$(INCLUDES) $(FORTH_SRC) $(COMPAT) $(VMGEN_EX) $(VMGEN_EX2) \
 	timings.sc \
-	test/coretest.out test/checkans.out \
+	test/coretest.out test/checkans.out test/gforth.out \
 	cache-fast*.vmg
 
 RCS_FILES =  ToDo model high-level
@@ -523,7 +524,7 @@ virtualclean:	mostlyclean
 #rules in Makedist (you can use them with GNU make on these systems).
 
 dist:		Makedist machpc.fs FORCE
-		-sed -e 's/@[^ ]*CALLFLAG@/false/g' -e 's/@[P]EEPHOLEFLAG@/true/g' -e 's/@[L]IBFFIFLAG@/false/g' <machpc.fs.in >machpc.fs
+		-sed -e 's/@[E]C_MODE@/false/g' -e 's/@[^ ]*CALLFLAG@/false/g' -e 's/@[P]EEPHOLEFLAG@/true/g' -e 's/@[L]IBFFIFLAG@/false/g' <machpc.fs.in >machpc.fs
 		$(MAKE) -f Makedist d$@
 		-$(RM) machpc.fs
 
@@ -592,7 +593,7 @@ install:	gforth$(EXE) $(FORTH_SRC) $(kernel_fi) gforth.fi gforthmi vmgen doc/gfo
 			$(INSTALL_DATA) $(srcdir)/$$i $(DESTDIR)$(datadir)/gforth/$(VERSION)/$$i; \
 		done
 		$(INSTALL_DATA) $(kernel_fi) $(DESTDIR)$(datadir)/gforth/$(VERSION)
-		@if test -d "$(emacssitelispdir)"; then \
+		@if test -d "$(DESTDIR)$(emacssitelispdir)"; then \
 			$(INSTALL_DATA) $(srcdir)/gforth.el $(DESTDIR)$(emacssitelispdir); \
 		else \
 			echo ">>>>>Please install $(srcdir)/gforth.el in your .../emacs/site-lisp directory"; \
