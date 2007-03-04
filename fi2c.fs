@@ -27,19 +27,62 @@ Create magicbuf 8 allot
 
 Create groups 32 0 [DO] 512 cells allocate throw dup 512 cells erase , [LOOP]
 
+\ we define it ans like...
+wordlist Constant target-environment
+
+\ save information of current dictionary to restore with environ>
+Variable env-current 
+
+: >ENVIRON get-current env-current ! target-environment set-current ;
+: ENVIRON> env-current @ set-current ; 
+
+: t-env? ( addr len -- [ x ] true | false )
+\G returns the content of environment variable and true or
+\G false if not present
+   target-environment search-wordlist 
+   IF EXECUTE true ELSE false THEN ;
+
+: $has? ( addr u -- x | false )
+\G returns the content of environment variable 
+\G or false if not present
+   t-env? dup IF drop THEN ;
+
+' Value Alias DefaultValue
+
+: kb 1024 * ;
+
+include machpc.fs
+ENVIRON>
+
 : prefix? ( string u1 prefix u2 -- flag )
     tuck 2>r umin 2r> str= ;
 
-: read-groups ( addr u -- )
-    r/o open-file throw >r  0 0
+s" NULL" groups @ cell+ $!
+
+: scan-ifs ( fd -- ) >r 1
     BEGIN  pad $100 r@ read-line throw  WHILE
-	    pad swap 2dup s" GROUP(" prefix?
-	    IF  2drop drop 1+ 0  ELSE
-		2dup s" INST_ADDR(" prefix?
-		IF  &10 /string 2dup ') scan nip -
-		    2over cells swap cells groups + @ + $!
-		    1+
-		ELSE  2drop  THEN  THEN
+	    pad swap
+	    2dup s" #ifdef HAS_" prefix? >r
+	    2dup s" #else" prefix? >r
+	    s" #endif" prefix? r> or r> - +
+	dup 0= UNTIL  THEN  rdrop drop ;
+		
+: read-groups ( addr u -- )
+    r/o open-file throw >r  0 2
+    BEGIN  pad $100 r@ read-line throw  WHILE
+	    pad swap
+	    2dup s" #ifdef HAS_" prefix?
+	    IF
+		11 /string $has? 0= IF r@ scan-ifs  THEN
+	    ELSE  2dup s" #else" prefix?
+		IF  r@ scan-ifs
+		ELSE  2dup s" GROUP(" prefix?
+		    IF  2drop drop 1+ 0  ELSE
+			2dup s" INST_ADDR(" prefix?
+			IF  &10 /string 2dup ') scan nip -
+			    2over cells swap cells groups + @ + $!
+			    1+
+			ELSE  2drop  THEN  THEN  THEN  THEN
     REPEAT
     2drop r> close-file throw ;
 s" prim_lab.i" read-groups
@@ -124,23 +167,27 @@ Variable bitmap-chars
 	I 1 + I' min I ?DO  space image I tcell @ * + t@
 	    bitmap I bit@ IF
 		dup 0< IF
-		    negate dup $3E00 and 9 rshift swap $1FF and
-		    over cells groups + @ over $1FF and cells +
-		    dup @ 0= IF  drop
-			2dup 0 8 d= IF  2drop s" doesjump"
-			ELSE
-			    <# '] hold 0 #S 2drop '[ hold '] hold
-			    0 #S '[ hold #>
-			THEN
+		    dup -1 = IF
+			drop ." NULL"
 		    ELSE
-			>r 2drop r> $@
+			negate dup $3E00 and 9 rshift swap $1FF and
+			over cells groups + @ over $1FF and cells +
+			dup @ 0= IF  drop
+			    2dup 0 8 d= IF  2drop s" doesjump"
+			    ELSE
+				<# '] hold 0 #S 2drop '[ hold '] hold
+				0 #S '[ hold #>
+			    THEN
+			ELSE
+			    >r 2drop r> $@
+			THEN
+			." INST_ADDR(" type ." )"
 		    THEN
-		    ." &&" type
 		ELSE
-		    ." image+" tcell @ / .08x
+		    dup IF  ." ((void*)image)+"  THEN  .08x
 		THEN
 	    ELSE
-		.08x
+		." (void*)" .08x
 	    THEN  ." ,"
 	LOOP cr
     1 +LOOP ;
@@ -166,8 +213,9 @@ Variable bitmap-chars
 
 : fi2c ( addr u -- )  base @ >r hex
     read-image
-    ." #include " '" emit ." forth.h" '" emit cr
-    ." void* image[" .imagesize ." ] = {" cr .image ." };" cr
+    ." static const void* image[" .imagesize ." ] = {" cr .image ." };" cr
+    ." #ifdef USE_RELOC" cr
     ." const char reloc_bits[" .relocsize ." ] = {" cr .reloc ." };" cr
+    ." #endif" cr
     r> base ! ;
 

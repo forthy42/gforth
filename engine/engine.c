@@ -359,6 +359,11 @@ Label *gforth_engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
 #include PRIM_LAB_I
 #undef INST_ADDR
   };
+#ifdef INCLUDE_IMAGE
+#define INST_ADDR(name) ((Label)&&I_##name)
+#include "image.i"
+#undef INST_ADDR
+#endif
 #ifdef CPU_DEP2
   CPU_DEP2
 #endif
