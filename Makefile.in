@@ -523,15 +523,11 @@ virtualclean:	mostlyclean
 #Makefile if it contains our dist rules.  Therefore we have put these
 #rules in Makedist (you can use them with GNU make on these systems).
 
-dist:		Makedist machpc.fs FORCE
-		-sed -e 's/@[E]C_MODE@/false/g' -e 's/@[^ ]*CALLFLAG@/false/g' -e 's/@[P]EEPHOLEFLAG@/true/g' -e 's/@[L]IBFFIFLAG@/false/g' <machpc.fs.in >machpc.fs
+dist:		Makedist FORCE
 		$(MAKE) -f Makedist d$@
-		-$(RM) machpc.fs
 
-dosdist:	Makedist machpc.fs FORCE
-		-sed -e 's/@[^ ]*CALLFLAG@/false/g' -e 's/@[P]EEPHOLEFLAG@/true/g' <machpc.fs.in >machpc.fs
+dosdist:	Makedist FORCE
 		$(MAKE) -f Makedist d$@
-		-$(RM) machpc.fs
 
 srcdist:	Makedist FORCE
 		$(MAKE) -f Makedist d$@
@@ -545,15 +541,11 @@ docdist:	Makedist FORCE
 htmldist:	Makedist FORCE
 		$(MAKE) -f Makedist d$@
 
-bindist:	Makedist machpc.fs FORCE
-		-sed -e 's/@[^ ]*CALLFLAG@/false/g' -e 's/@[P]EEPHOLEFLAG@/true/g' <machpc.fs.in >machpc.fs
+bindist:	Makedist FORCE
 		$(MAKE) -f Makedist d$@
-		-$(RM) machpc.fs
 
-binonlydist:	Makedist machpc.fs FORCE
-		-sed -e 's/@[^ ]*CALLFLAG@/false/g' -e 's/@[P]EEPHOLEFLAG@/true/g' <machpc.fs.in >machpc.fs
+binonlydist:	Makedist FORCE
 		$(MAKE) -f Makedist d$@
-		-$(RM) machpc.fs
 
 #HPUX make breaks the cycle differently when the dates are equal, so
 # touch some of the files if it acts up
