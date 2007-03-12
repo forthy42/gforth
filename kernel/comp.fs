@@ -303,7 +303,7 @@ has? peephole [IF]
 
 \ \ ticks
 
-: name>comp ( nt -- w xt ) \ gforth
+: name>comp ( nt -- w xt ) \ gforth name-to-comp
     \G @i{w xt} is the compilation token for the word @i{nt}.
     (name>comp)
     1 = if

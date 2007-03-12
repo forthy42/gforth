@@ -378,7 +378,7 @@ $1fffffff constant lcount-mask
     then ;
 
 has? f83headerstring [IF]
-: name>string ( nt -- addr count ) \ gforth     head-to-string
+: name>string ( nt -- addr count ) \ gforth     name-to-string
     \g @i{addr count} is the name of the word represented by @i{nt}.
     cell+ count lcount-mask and ;
 
@@ -393,7 +393,7 @@ has? f83headerstring [IF]
         swap @ swap
     THEN ;
 [ELSE]
-: name>string ( nt -- addr count ) \ gforth     head-to-string
+: name>string ( nt -- addr count ) \ gforth     name-to-string
     \g @i{addr count} is the name of the word represented by @i{nt}.
     cell+ dup cell+ swap @ lcount-mask and ;
 
@@ -409,14 +409,14 @@ has? f83headerstring [IF]
     THEN ;
 [THEN]
 
-: name>int ( nt -- xt ) \ gforth
+: name>int ( nt -- xt ) \ gforth name-to-int
     \G @i{xt} represents the interpretation semantics of the word
     \G @i{nt}. If @i{nt} has no interpretation semantics (i.e. is
     \G @code{compile-only}), @i{xt} is the execution token for
     \G @code{ticking-compile-only-error}, which performs @code{-2048 throw}.
     (name>x) (x>int) ;
 
-: name?int ( nt -- xt ) \ gforth
+: name?int ( nt -- xt ) \ gforth name-question-int
     \G Like @code{name>int}, but perform @code{-2048 throw} if @i{nt}
     \G has no interpretation semantics.
     (name>x) restrict-mask and [ has? rom [IF] ] 0= [ [THEN] ]
