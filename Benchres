@@ -30,6 +30,8 @@ siev	bubble	matrix	fib	machine and configuration
  1.71	 2.18	 1.30	 2.24	PPC7400 (G4) 450MHz; Linux; gcc-2.95.4; gforth-0.6.2
  0.75    1.04    0.41    1.14	PPC7447a (G4) 1066MHz; Linux; gcc-4.1.0; gforth-0.6.2-20060409
  4.18	 5.43	 3.37	 5.88	PPC604e (PowerMac) 200MHz; Linux; gcc-2.95.2; gforth-0.6.2
+ 3.83	 4.60	 4.38	 4.38	Xscale-IOP80321 (Iyonix) 600MHz; Linux; gcc-3.3.6; gforth-0.6.2 (with minor fixes)
+ 4.05	 4.94	 4.67	 4.60	Xscale-IOP80321 (Iyonix) 600MHz; Linux; gcc 4.1.2 20061115; gforth-0.6.2
 
 All results (for historical perspective):
 siev	bubble	matrix	fib	machine and configuration
