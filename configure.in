@@ -117,6 +117,7 @@ AC_ARG_VAR(ac_cv_sizeof_uint128_t, [sizeof(uint128_t)])
 AC_ARG_VAR(ac_cv_c_bigendian, [Is the target big-endian ("yes" or "no")?])
 AC_ARG_VAR(no_dynamic_default, [run gforth with --dynamic (0) or --no-dynamic (1) by default])
 AC_ARG_VAR(skipcode, [assembly code for skipping 16 bytes of code])
+AC_ARG_VAR(asmcomment, [assembler comment start string])
 
 #set up feature test macros, so the tests get them right:
 # turn on all POSIX, SUSv3, and GNU features if available
@@ -145,14 +146,14 @@ AC_SUBST(CC)
 AC_SUBST(DEBUGFLAG)
 AC_SUBST(EC_MODE)
 
+#this is used to disable some (not generally essential) part of the
+#Makefile that some makes don't grok.  It would be better to test for
+#this specific Makefile feature than the make version.
 AC_MSG_CHECKING(make type)
-make_type=`make -v 2>&1|grep 'ake'|sed 's/ake .*/ake/'`
-
+make_type=`make -n -v 2>&1|grep 'ake'|sed 's/ake .*/ake/'`
 GNUMAKE='#'
 test "$make_type" = "GNU Make" && GNUMAKE=''
-
 AC_MSG_RESULT($make_type)
-
 AC_SUBST(GNUMAKE)
 
 AC_MSG_CHECKING([whether the linker accepts -export-dynamic])
@@ -633,6 +634,24 @@ then
     AC_DEFINE_UNQUOTED(SKIP16,((void)0),statement for skipping 16 bytes)
 else
     AC_DEFINE_UNQUOTED(SKIP16,asm("$skipcode"),statement for skipping 16 bytes)
+fi
+
+AC_MSG_CHECKING([if and how we can do comments in asm statements])
+#the point here is to get asm statements that look different to
+#gcc's "optimizer"
+if test -z "$asmcomment"; then
+    asmcomment=no
+    CFLAGS_1="$CFLAGS"
+    CFLAGS="$CFLAGS $ENGINE_FLAGS"
+    for i in '"# "' '"! "'; do
+	AC_TRY_COMPILE(,[asm($i"fluffystunk");],asmcomment=$i; break,)
+    done
+    CFLAGS=$CFLAGS_1
+fi
+AC_MSG_RESULT($asmcomment)
+if test "$asmcomment" != no
+then 
+    AC_DEFINE_UNQUOTED(ASMCOMMENT,$asmcomment,[assembler comment start string])
 fi
 
 test "$no_dynamic_default" || no_dynamic_default=0
