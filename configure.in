@@ -647,7 +647,7 @@ if test -z "$asmcomment"; then
     asmcomment=no
     CFLAGS_1="$CFLAGS"
     CFLAGS="$CFLAGS $ENGINE_FLAGS"
-    for i in '"# "' '"! "'; do
+    for i in '"# "' '"! "' '"; "'; do
 	AC_TRY_COMPILE(,[asm($i"fluffystunk");],asmcomment=$i; break,)
     done
     CFLAGS=$CFLAGS_1

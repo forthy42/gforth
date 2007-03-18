@@ -641,7 +641,7 @@ check-nofast: gforth$(EXE) gforth.fi
 		$(FORTHS) test/gforth-nofast.fs -e bye
 
 test/primtest.fi: test/primtest.fs mach32l.fs cross.fs
-		$(FORTHB) -e 's" mach32b.fs"' $(srcdir)/test/primtest.fs -e "save-cross $@ $(bindir)/gforth-$(VERSION) bye"
+		$(FORTHB) -e 's" mach32l.fs"' $(srcdir)/test/primtest.fs -e "save-cross $@ $(bindir)/gforth-$(VERSION) bye"
 
 primtest:	gforth gforth-native test/primtest.fi FORCE
 		(echo rs|ENVVAR=bla ./gforth -i test/primtest.fi) && (echo rs|ENVVAR=bla ./gforth-native -i test/primtest.fi); echo $$?
@@ -653,26 +653,16 @@ bench:		gforth-fast$(EXE) gforth.fi
 		time $(FORTH_FAST) matrix.fs -e "main bye"
 		time $(FORTH_FAST) fib.fs -e "main bye"
 
-onebench:
-		@echo 'sieve bubble matrix  fib'
-		@echo -n " "`\time 2>&1 -f "%U" $(FORTH_FAST) siev.fs -e "main bye"`
-		@echo -n "  "`\time 2>&1 -f "%U" $(FORTH_FAST) -e "warnings off" bubble.fs -e "main bye"`
-		@echo -n "   "`\time 2>&1 -f "%U" $(FORTH_FAST) matrix.fs -e "main bye"`
-		@echo "  "`\time 2>&1 -f "%U" $(FORTH_FAST) fib.fs -e "main bye"`
+onebench one-bench:
+	$(FORTH_FAST) onebench.fs
 
-all-bench:	gforth-fast$(EXE) gforth$(EXE) gforth-itc$(EXE) gforth-ditc$(EXE) gforth.fi
-		@echo "*** gforth-fast dynamic:"
-		@$(MAKE) onebench ENGINE_FAST="./gforth-fast --dynamic"
-		@echo "*** gforth-fast not dynamic:"
-		@$(MAKE) onebench ENGINE_FAST="./gforth-fast --no-dynamic"
-		@echo "*** gforth dynamic:"
-		@$(MAKE) onebench ENGINE_FAST="./gforth --dynamic"
-		@echo "*** gforth not dynamic:"
-		@$(MAKE) onebench ENGINE_FAST="./gforth --no-dynamic"
-		@echo "*** gforth-itc:"
-		@$(MAKE) onebench ENGINE_FAST=./gforth-itc
-		@echo "*** gforth-ditc:"
-		@$(MAKE) onebench ENGINE_FAST=./gforth-ditc
+all-bench allbench:	gforth-fast$(EXE) gforth$(EXE) gforth-itc$(EXE) gforth-ditc$(EXE) gforth.fi
+	./gforth-fast --dynamic onebench.fs
+	./gforth-fast --no-dynamic onebench.fs
+	./gforth --dynamic onebench.fs
+	./gforth --no-dynamic onebench.fs
+	./gforth-itc onebench.fs
+	./gforth-ditc onebench.fs
 
 # -------------	Make forth images
 
