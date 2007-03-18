@@ -141,6 +141,11 @@ const Create bases   0A , 10 ,   2 ,   0A ,
     THEN
     r> ;
 
+has? os 0= [IF]
+: x@+/string ( addr u -- addr' u' c )
+    over c@ >r 1 /string r> ;
+[THEN]
+
 : s'>unumber? ( addr u -- ud flag )
     \ convert string "C" or "C'" to character code
     dup 0= if
@@ -476,7 +481,9 @@ const Create ???  0 , 3 , char ? c, char ? c, char ? c,
 
 : >head-noprim ( cfa -- nt ) \ gforth  to-head-noprim
     \ also heuristic
-    dup forthstart - max-name-length @ float+ cell+ min cell max cell ?do ( cfa )
+    dup forthstart - max-name-length @
+    [ has? float [IF] ] float+ [ [ELSE] ] cell+ [ [THEN] ] cell+ min
+    cell max cell ?do ( cfa )
 	dup i - dup @ [ alias-mask lcount-mask or ] literal
 	[ 1 bits/char 3 - lshift 1 - 1 bits/char 1 - lshift or
 	-1 cells allot bigendian [IF]   c, -1 1 cells 1- times
@@ -532,6 +539,11 @@ has? standardthreading has? compiler and [IF]
     else
 	drop 0
     endif ;
+
+has? prims [IF]
+    : flash! ! ;
+    : flashc! c! ;
+[THEN]
 
 has? flash [IF] ' flash! [ELSE] ' ! [THEN]
 alias code-address! ( c_addr xt -- ) \ gforth
@@ -818,7 +830,12 @@ has? new-input 0= [IF]
 Defer 'quit
 
 has? os [IF]
-Defer .status
+    Defer .status
+[ELSE]
+: (bye)     ( 0 -- ) \ back to DOS
+    drop 5 emit ;
+
+: bye ( -- )  0 (bye) ;
 [THEN]
 
 : prompt        state @ IF ."  compiled" EXIT THEN ."  ok" ;

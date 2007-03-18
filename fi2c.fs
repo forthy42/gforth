@@ -33,8 +33,9 @@ wordlist Constant target-environment
 \ save information of current dictionary to restore with environ>
 Variable env-current 
 
-: >ENVIRON get-current env-current ! target-environment set-current ;
-: ENVIRON> env-current @ set-current ; 
+: >ENVIRON get-current env-current ! target-environment set-current
+  also target-environment context ! ;
+: ENVIRON> previous env-current @ set-current ; 
 
 : t-env? ( addr len -- [ x ] true | false )
 \G returns the content of environment variable and true or

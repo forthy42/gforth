@@ -808,11 +808,3 @@ end-code
        forth-wordlist ram-mirror + ram-start - @ forth-wordlist !
        normal-dp ram-mirror + ram-start - @ normal-dp ! $2000 flash-dp ! ;
 
-: (bye)     ( 0 -- ) \ back to DOS
-    drop 5 emit ;
-
-: bye ( -- )  0 (bye) ;
-    
-: x@+/string ( addr u -- addr' u' c )
-    over c@ >r 1 /string r> ;
-

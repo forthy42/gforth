@@ -110,6 +110,8 @@ false DefaultValue control-rack \ disable return stack use for control flow
 
 false DefaultValue crlf
 
+true DefaultValue flash
+    
 $100 DefaultValue kernel-start
 cell 2 = [IF] &32 KB [ELSE] &64 KB [THEN] DefaultValue kernel-size
 
