@@ -218,7 +218,7 @@ has? glocals [IF]
  laddr# [ 0 , ] ;
 [THEN]
 
-has? ec [IF]
+has? os 0= [IF]
     : catch  ( ... xt -- ... 0 )
 	handler @ >r sp@ >r
 	rp@ handler ! execute 0 r> drop r> handler ! ;

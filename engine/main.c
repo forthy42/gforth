@@ -282,6 +282,7 @@ static Cell min(Cell a, Cell b)
   return a<b?a:b;
 }
 
+#ifndef STANDALONE
 /* image file format:
  *  "#! binary-path -i\n" (e.g., "#! /usr/local/bin/gforth-0.4.0 -i\n")
  *   padding to a multiple of 8
@@ -611,6 +612,7 @@ static Address dict_alloc_read(FILE *file, Cell imagesize, Cell dictsize, Cell o
   }
   return image;
 }
+#endif
 
 void set_stack_sizes(ImageHeader * header)
 {
@@ -2201,11 +2203,8 @@ int main(int argc, char **argv, char **env)
 #endif /* !defined(NO_DYNAMIC) */
 #endif /* defined(HAS_OS) */
 
-#ifdef INCLUDE_IMAGE
-  set_stack_sizes((ImageHeader *)image);
-  if(((ImageHeader *)image)->base != image)
-    gforth_relocate(image, reloc_bits, ((ImageHeader *)image)->image_size,
-		    (Label*)gforth_engine(0, 0, 0, 0, 0));
+#ifdef STANDALONE
+  image = gforth_engine(0, 0, 0, 0, 0);
   alloc_stacks((ImageHeader *)image);
 #else
   image_file = open_image_file(imagename, path);

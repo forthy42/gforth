@@ -106,7 +106,7 @@ all-words
   \G Display one space.
   bl emit ;
 
-has? ec [IF]
+has? os 0= [IF]
 : spaces ( n -- ) \ core
   \G If n > 0, display n spaces. 
   0 max 0 ?DO space LOOP ;

@@ -817,7 +817,7 @@ has? new-input 0= [IF]
 
 Defer 'quit
 
-has? ec 0= [IF]
+has? os [IF]
 Defer .status
 [THEN]
 
@@ -842,7 +842,7 @@ Defer .status
 
 \ \ DOERROR (DOERROR)                        		13jun93jaw
 
-has? ec 0= [IF]
+has? os [IF]
 8 Constant max-errors
 5 has? file 2 and + Constant /error
 Variable error-stack  0 error-stack !
@@ -1035,7 +1035,7 @@ defer process-args
 
 ' (bootmessage) IS bootmessage
 
-has? ec 0= [IF]
+has? os [IF]
 Defer 'cold ( -- ) \ gforth  tick-cold
 \G Hook (deferred word) for things to do right before interpreting the
 \G OS command-line arguments.  Normally does some initializations that
@@ -1050,7 +1050,7 @@ Defer 'cold ( -- ) \ gforth  tick-cold
 [ has? file [IF] ]
     os-cold
 [ [THEN] ]
-[ has? ec 0= [IF] ]
+[ has? os [IF] ]
     set-encoding-fixed-width
     'cold
 [ [THEN] ]
@@ -1102,7 +1102,7 @@ has? new-input 0= [IF]
 [ has? floating [IF] ]
     fp@ fp0 !
 [ [THEN] ]
-[ has? ec 0= [IF] ]
+[ has? os [IF] ]
     handler off
     ['] cold catch dup -&2049 <> if \ broken pipe?
 	DoError cr

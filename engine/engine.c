@@ -368,7 +368,7 @@ Label *gforth_engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
 #include PRIM_LAB_I
 #undef INST_ADDR
   };
-#ifdef INCLUDE_IMAGE
+#ifdef STANDALONE
 #define INST_ADDR(name) ((Label)&&I_##name)
 #include "image.i"
 #undef INST_ADDR
@@ -404,7 +404,11 @@ Label *gforth_engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
       xts[i] = symbols[i] = &routines[i];
     }
 #endif /* defined(DOUBLY_INDIRECT) */
+#ifdef STANDALONE
+    return image;
+#else
     return symbols;
+#endif
   }
 
 #if !(defined(GFORTH_DEBUGGING) || defined(INDIRECT_THREADED) || defined(DOUBLY_INDIRECT) || defined(VM_PROFILING))

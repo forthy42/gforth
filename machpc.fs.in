@@ -86,20 +86,20 @@ true DefaultValue prims		\ true: primitives are c-code
 
 false DefaultValue floating	\ floating point wordset is present
 
-true DefaultValue glocals	\ gforth locals are present
+false DefaultValue glocals	\ gforth locals are present
 				\ will be loaded
 true DefaultValue dcomps	\ double number comparisons
 
-true DefaultValue hash		\ hashing primitives are loaded/present
+false DefaultValue hash		\ hashing primitives are loaded/present
 
-true DefaultValue xconds	\ used together with glocals,
+false DefaultValue xconds	\ used together with glocals,
 				\ special conditionals supporting gforths'
 				\ local variables
 true DefaultValue header	\ save a header information
 
-true DefaultValue backtrace	\ enables backtrace code
+false DefaultValue backtrace	\ enables backtrace code
 
-true DefaultValue new-input	\ enables object oriented input
+false DefaultValue new-input	\ enables object oriented input
 
 @PEEPHOLEFLAG@ DefaultValue peephole      \ enables peephole optimizer
 

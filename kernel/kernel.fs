@@ -32,7 +32,7 @@ has? new-input [IF]
 [ELSE]
     include ./saccept.fs
 [THEN]
-has? ec 0= [IF]
+has? os [IF]
 include ./license.fs
 include ./xchars.fs
 [THEN]
