@@ -801,10 +801,10 @@ gforth-prof$(EXE):	engines
 
 gforths: $(ENGINES) $(ENGINES_FAST)
 
-engines:	FORCE $(FORTH_GEN_ENGINE) engine/Makefile
+engines:	FORCE $(FORTH_GEN_ENGINE) engine/Makefile engine/config.h
 		cd engine && $(MAKE) $(ENGINES)
 
-engines-fast:	FORCE $(FORTH_GEN_ENGINE_FAST) engine/Makefile
+engines-fast:	FORCE $(FORTH_GEN_ENGINE_FAST) engine/Makefile engine/config.h
 		cd engine && $(MAKE) $(ENGINES_FAST)
 
 # ------------- additional C primitives
