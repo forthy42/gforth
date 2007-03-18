@@ -118,6 +118,7 @@ AC_ARG_VAR(ac_cv_c_bigendian, [Is the target big-endian ("yes" or "no")?])
 AC_ARG_VAR(no_dynamic_default, [run gforth with --dynamic (0) or --no-dynamic (1) by default])
 AC_ARG_VAR(skipcode, [assembly code for skipping 16 bytes of code])
 AC_ARG_VAR(asmcomment, [assembler comment start string])
+AC_ARG_VAR(arm_cacheflush, [file containing ARM cacheflush function (without .c)])
 
 #set up feature test macros, so the tests get them right:
 # turn on all POSIX, SUSv3, and GNU features if available
@@ -172,10 +173,13 @@ case "$host_cpu" in
 	arm*)
 		machine=arm
 		CFLAGS="$CFLAGS -fomit-frame-pointer"
-		if test -z $no_dynamic_default; then
+		if test -z $arm_cacheflush; then
 		    no_dynamic_default=1
+                    arm_cacheflush=arch/arm/cacheflush0
 		    AC_MSG_WARN([No I-cache flush code known, disabling dynamic native code generation])
 		fi
+                AC_LIBSOURCES([../arch/arm/cacheflush0, ../arch/arm/cacheflush1, ../arch/arm/cacheflush2])
+                AC_LIBOBJ(../$arm_cacheflush)
 		;;
 	hppa*)
 		machine=hppa

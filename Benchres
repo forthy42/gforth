@@ -15,7 +15,8 @@ All times are given in seconds of user time.
 
 Development results:
 sieve bubble matrix  fib  platform and version
- 3.51  3.91   3.54  4.07  Xscale 600MHz; 2007-03-12; gcc-3.3.6
+ 3.51  3.91   3.54  4.07  Xscale IOP321 (Iyonix) 600MHz; 2007-03-12; gcc-3.3.6
+ 1.96  2.42   1.97  2.23  Xscale IOP321 (Iyonix) 600MHz; 2007-03-18; gcc-3.3.6; ./configure CC=gcc-3.3 arm_cacheflush=arch/arm/cacheflush1 --enable-force-reg
  2.0   2.3    1.8   2.0   UltraSparc T1 (Sun Fire T1000) 1GHz; Solaris 2.10; gcc-4.0.2; 2007-03-13
 
 Results with Gforth 0.6.2 (for comparing CPUs):

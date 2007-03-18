@@ -33,11 +33,11 @@
 #include "../generic/machine.h"
 #include <sys/types.h>
 
-#if 0
-/* if you know how to flush the icache on the arm, mail me */
-extern void flush_icache_block(caddr_t eaddr, size_t count);
-#define FLUSH_ICACHE(addr,size) flush_icache_block(addr, size)
-#endif
+/* this calls a dummy function in cacheflush0.S */
+/* you can replace it through "./configure arm_cacheflush=<file>" */
+/* if you know how to flush the icache on the arm in general, mail me */
+#define FLUSH_ICACHE(addr,size) cacheflush(addr,size)
+void cacheflush(void *p, size_t size);
 
 #if defined(FORCE_REG) && !defined(DOUBLY_INDIRECT) && !defined(VM_PROFILING)
 /*
