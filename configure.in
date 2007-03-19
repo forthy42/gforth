@@ -180,6 +180,9 @@ case "$host_cpu" in
 		fi
                 AC_LIBSOURCES([../arch/arm/cacheflush0, ../arch/arm/cacheflush1, ../arch/arm/cacheflush2])
                 AC_LIBOBJ(../$arm_cacheflush)
+                #longer skipcodes lead to problems on ARM, and it uses
+                #only 4-byte alignment anyway
+		test "$skipcode" || skipcode="nop"
 		;;
 	hppa*)
 		machine=hppa

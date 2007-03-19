@@ -275,6 +275,7 @@ extern int gforth_memcmp(const char * s1, const char * s2, size_t n);
 #define VARIANT(v)	(v)
 #define JUMP(target)	goto I_noop
 #define LABEL(name) H_##name: asm(""); I_##name:
+#define LABEL3(name) J_##name: asm("");
 
 #elif ENGINE==2
 /* variant with padding between VM instructions for finding out
@@ -283,6 +284,11 @@ extern int gforth_memcmp(const char * s1, const char * s2, size_t n);
 #define VARIANT(v)	(v)
 #define JUMP(target)	goto I_noop
 #define LABEL(name) H_##name: SKIP16; I_##name:
+/* the SKIP16 after LABEL3 is there, because the ARM gcc may place
+   some constants after the final branch, and may refer to them from
+   the code before label3.  Since we don't copy the constants, we have
+   to make sure that such code is recognized as non-relocatable. */
+#define LABEL3(name) J_##name: SKIP16;
 
 #elif ENGINE==3
 /* variant with different immediate arguments for finding out
@@ -291,13 +297,13 @@ extern int gforth_memcmp(const char * s1, const char * s2, size_t n);
 #define VARIANT(v)	((v)^0xffffffff)
 #define JUMP(target)	goto K_lit
 #define LABEL(name) H_##name: asm(""); I_##name:
+#define LABEL3(name) J_##name: asm("");
 #else
 #error illegal ENGINE value
 #endif /* ENGINE */
 
 /* the asm(""); is there to get a stop compiled on Itanium */
 #define LABEL2(name) K_##name: asm("");
-#define LABEL3(name) J_##name: asm("");
 
 Label *gforth_engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
 /* executes code at ip, if ip!=NULL
