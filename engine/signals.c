@@ -415,8 +415,10 @@ void install_signal_handlers(void)
     sigstack.ss_flags=0;
     sas_retval=sigaltstack(&sigstack,(stack_t *)0);
   }
+#ifdef HAS_FILE
   if (debug)
     fprintf(stderr,"sigaltstack: %s\n",strerror(sas_retval));
+#endif
 #endif
 
 #define DIM(X)		(sizeof (X) / sizeof *(X))

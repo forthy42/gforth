@@ -49,8 +49,14 @@ Variable env-current
    t-env? dup IF drop THEN ;
 
 ' Value Alias DefaultValue
+' Value Alias SetValue
 
 : kb 1024 * ;
+
+' noop alias T
+' noop alias H
+
+: has?  parse-name 2drop true ;
 
 include machpc.fs
 ENVIRON>
@@ -105,27 +111,6 @@ Variable au
 	LOOP
     THEN
     dup 1 8 tcell @ * 1- lshift and negate or ;
-
-1 cells 4 = [IF]
-: bswap ( n -- n' )  bswap? @ 0= ?EXIT  0
-    over 24 rshift $FF       and or
-    over  8 rshift $FF00     and or
-    over  8 lshift $FF0000   and or
-    over 24 lshift $FF000000 and or nip ;
-[THEN]
-
-1 cells 8 = [IF]
-: bswap ( n -- n' )  bswap? @ 0= ?EXIT  0
-    over 56 rshift $FF               and or
-    over 40 rshift $FF00             and or
-    over 24 rshift $FF0000           and or
-    over  8 rshift $FF000000         and or
-    over  8 lshift $FF00000000       and or
-    over 24 lshift $FF0000000000     and or
-    over 40 lshift $FF000000000000   and or
-    over 56 lshift $FF00000000000000 and or
-    nip ;
-[THEN]
 
 : search-magic ( fd -- )  >r
     BEGIN  magicbuf 8 r@ read-file throw  8 =  WHILE
@@ -214,7 +199,7 @@ Variable bitmap-chars
 
 : fi2c ( addr u -- )  base @ >r hex
     read-image
-    ." static const void* image[" .imagesize ." ] = {" cr .image ." };" cr
+    ." static void* image[" .imagesize ." ] = {" cr .image ." };" cr
     ." #ifdef USE_RELOC" cr
     ." const char reloc_bits[" .relocsize ." ] = {" cr .reloc ." };" cr
     ." #endif" cr

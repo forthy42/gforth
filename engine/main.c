@@ -641,7 +641,7 @@ void alloc_stacks(ImageHeader * h)
   h->return_stack_size=rsize;
   h->locals_stack_size=lsize;
 
-#if defined(HAVE_MMAP)
+#if defined(HAVE_MMAP) && !defined(STANDALONE)
   if (pagesize > 1) {
     size_t p = pagesize;
     size_t totalsize =
@@ -1102,6 +1102,21 @@ static Address append_prim(Cell p)
   memcpy(code_here, pi->start, pi->length);
   code_here += pi->length;
   return old_code_here;
+}
+#endif
+
+#ifdef STANDALONE
+Address gforth_alloc(Cell size)
+{
+  Address r;
+  /* leave a little room (64B) for stack underflows */
+  if ((r = malloc(size+64))==NULL) {
+    perror(progname);
+    exit(1);
+  }
+  r = (Address)((((Cell)r)+(sizeof(Float)-1))&(-sizeof(Float)));
+  debugp(stderr, "malloc succeeds, address=$%lx\n", (long)r);
+  return r;
 }
 #endif
 
@@ -1740,6 +1755,7 @@ void compile_prim1(Cell *start)
 #endif /* !(defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED)) */
 }
 
+#ifndef STANDALONE
 Address gforth_loader(FILE *imagefile, char* filename)
 /* returns the address of the image proper (after the preamble) */
 {
@@ -1862,6 +1878,7 @@ Address gforth_loader(FILE *imagefile, char* filename)
 
   return imp;
 }
+#endif
 
 /* pointer to last '/' or '\' in file, 0 if there is none. */
 static char *onlypath(char *filename)

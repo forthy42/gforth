@@ -48,6 +48,8 @@ PATHSEP = @PATHSEP@
 
 osclass = @OSCLASS@
 
+EC = @EC@
+
 # -------------	Utility programs
 
 SHELL	= /bin/sh
@@ -406,9 +408,9 @@ SOURCES	= $(CVSDIRS) compat Makefile.in Makedist.in engine/Makefile.in \
 
 RCS_FILES =  ToDo model high-level
 
-ENGINES = gforth$(EXE) gforth-ditc$(EXE) gforth-itc$(EXE) $(PROFEXES)
+ENGINES = gforth$(EC)$(EXE) gforth-ditc$(EC)$(EXE) gforth-itc$(EC)$(EXE) $(PROFEXES)
 
-ENGINES_FAST = gforth-fast$(EXE) #gforth-native$(EXE) 
+ENGINES_FAST = gforth-fast$(EC)$(EXE) #gforth-native$(EXE) 
 
 GEN = $(ENGINES) $(ENGINES_FAST) kernel/version.fs
 
@@ -435,9 +437,9 @@ KERN_DEPS = $(KERN_SRC) kernel/version.fs machpc.fs $(FORTH_GEN0) compat/strcomp
 DOCDIST = doc/gforth.info doc/gforth.info-* doc/gforth.ps \
 	  doc/vmgen.info doc/vmgen.ps
 
-KERNLS = kernl16b.fi- kernl16l.fi- \
-	 kernl32b.fi- kernl32l.fi- \
-	 kernl64b.fi- kernl64l.fi-
+KERNLS = kernl16b$(EC).fi- kernl16l$(EC).fi- \
+	 kernl32b$(EC).fi- kernl32l$(EC).fi- \
+	 kernl64b$(EC).fi- kernl64l$(EC).fi-
 
 GEN_PRECIOUS = $(FORTH_GEN) $(KERNLS) \
 	doc/gforth.texi doc/gforth.dvi doc/gforth.ps \
@@ -464,7 +466,7 @@ version:	Makefile.in configure.in
 # shell und file utilities.
 
 kernel/version.fs:	version
-	$(MAKE) gforth$(EXE)
+	$(MAKE) gforth$(EC)$(EXE)
 	echo ": version-string s\" $(VERSION)\" ;" > kernel/version.fs
 
 more:	engines $(FORTH_GEN) $(GEN)
@@ -502,9 +504,9 @@ docclean:	FORCE
 
 clean:		mostlyclean
 		-$(RM) -rf $(GEN) *.o engine/*.o arch/*/*.o version \
-		engine/gforth$(EXE) engine/gforth-fast$(EXE) \
-                engine/gforth-native$(EXE) engine/gforth-itc$(EXE) \
-		engine/gforth-ditc$(EXE) engine/gforth-prof$(EXE)
+		engine/gforth$(EC)$(EXE) engine/gforth-fast$(EC)$(EXE) \
+                engine/gforth-native$(EC)$(EXE) engine/gforth-itc$(EC)$(EXE) \
+		engine/gforth-ditc$(EC)$(EXE) engine/gforth-prof$(EC)$(EXE)
 
 distclean:	clean
 		-$(RM) -rf config.cache config.log config.status \
@@ -563,20 +565,20 @@ hpux-workaround:
 #hard to generate).
 #we rebuild gforth.fi, because it contains some path names.
 #we delete $build/gforth.fi and $build/install.TAGS after installation because of ownership.
-install:	gforth$(EXE) $(FORTH_SRC) $(kernel_fi) gforth.fi gforthmi vmgen doc/gforth.1 prim install.TAGS installdirs
+install:	gforth$(EC)$(EXE) $(FORTH_SRC) $(kernel_fi) gforth.fi gforthmi vmgen doc/gforth.1 prim install.TAGS installdirs
 		$(NORMAL_INSTALL)
 		touch $(DESTDIR)$(siteforthdir)/siteinit.fs
-		-$(RM) $(DESTDIR)$(bindir)/gforth$(EXE) $(DESTDIR)$(bindir)/gforth-$(VERSION)$(EXE) $(DESTDIR)$(bindir)/gforthmi $(DESTDIR)$(bindir)/vmgen
-		-$(RM) $(DESTDIR)$(bindir)/gforth-fast$(EXE) $(DESTDIR)$(bindir)/gforth-fast-$(VERSION)$(EXE)
-		-$(RM) $(DESTDIR)$(bindir)/gforth-itc$(EXE) $(DESTDIR)$(bindir)/gforth-itc-$(VERSION)$(EXE)
-		$(INSTALL_PROGRAM) gforth$(EXE) $(DESTDIR)$(bindir)/gforth-$(VERSION)$(EXE)
-		-$(MASSAGE_EXE) $(DESTDIR)$(bindir)/gforth-$(VERSION)$(EXE)
-		(cd $(DESTDIR)$(bindir) && $(LN_S) gforth-$(VERSION)$(EXE) gforth$(EXE))
-		$(INSTALL_PROGRAM) gforth-fast$(EXE) $(DESTDIR)$(bindir)/gforth-fast-$(VERSION)$(EXE)
-		-$(MASSAGE_EXE) $(DESTDIR)$(bindir)/gforth-fast-$(VERSION)$(EXE)
-		(cd $(DESTDIR)$(bindir) && $(LN_S) gforth-fast-$(VERSION)$(EXE) gforth-fast$(EXE))
-		$(INSTALL_PROGRAM) gforth-itc$(EXE) $(DESTDIR)$(bindir)/gforth-itc-$(VERSION)$(EXE)
-		(cd $(DESTDIR)$(bindir) && $(LN_S) gforth-itc-$(VERSION)$(EXE) gforth-itc$(EXE))
+		-$(RM) $(DESTDIR)$(bindir)/gforth$(EC)$(EXE) $(DESTDIR)$(bindir)/gforth-$(VERSION)$(EC)$(EXE) $(DESTDIR)$(bindir)/gforthmi $(DESTDIR)$(bindir)/vmgen
+		-$(RM) $(DESTDIR)$(bindir)/gforth-fast$(EC)$(EXE) $(DESTDIR)$(bindir)/gforth-fast-$(VERSION)$(EC)$(EXE)
+		-$(RM) $(DESTDIR)$(bindir)/gforth-itc$(EC)$(EXE) $(DESTDIR)$(bindir)/gforth-itc-$(VERSION)$(EC)$(EXE)
+		$(INSTALL_PROGRAM) gforth$(EC)$(EXE) $(DESTDIR)$(bindir)/gforth-$(VERSION)$(EC)$(EXE)
+		-$(MASSAGE_EXE) $(DESTDIR)$(bindir)/gforth-$(VERSION)$(EC)$(EXE)
+		(cd $(DESTDIR)$(bindir) && $(LN_S) gforth-$(VERSION)$(EC)$(EXE) gforth$(EC)$(EXE))
+		$(INSTALL_PROGRAM) gforth-fast$(EC)$(EXE) $(DESTDIR)$(bindir)/gforth-fast-$(VERSION)$(EC)$(EXE)
+		-$(MASSAGE_EXE) $(DESTDIR)$(bindir)/gforth-fast-$(VERSION)$(EC)$(EXE)
+		(cd $(DESTDIR)$(bindir) && $(LN_S) gforth-fast-$(VERSION)$(EC)$(EXE) gforth-fast$(EC)$(EXE))
+		$(INSTALL_PROGRAM) gforth-itc$(EC)$(EXE) $(DESTDIR)$(bindir)/gforth-itc-$(VERSION)$(EC)$(EXE)
+		(cd $(DESTDIR)$(bindir) && $(LN_S) gforth-itc-$(VERSION)$(EC)$(EXE) gforth-itc$(EC)$(EXE))
 		$(INSTALL_SCRIPT) gforthmi $(DESTDIR)$(bindir)/gforthmi-$(VERSION)
 		$(INSTALL_SCRIPT) vmgen $(DESTDIR)$(bindir)/vmgen-$(VERSION)
 		$(INSTALL_PROGRAM) gforth-ditc $(DESTDIR)$(libdir)/gforth/$(VERSION)
@@ -618,8 +620,8 @@ installdirs:	mkinstalldirs
 #to uninstall version foo, type `make uninstall VERSION=foo'
 uninstall:	FORCE
 		$(NORMAL_UNINSTALL)
-		-$(RM) -rf $(DESTDIR)$(libdir)/gforth/$(VERSION) $(DESTDIR)$(datadir)/gforth/$(VERSION) $(DESTDIR)$(bindir)/gforth-$(VERSION)$(EXE) $(DESTDIR)$(bindir)/gforth-fast-$(VERSION)$(EXE) $(DESTDIR)$(bindir)/gforth-itc-$(VERSION)$(EXE) $(DESTDIR)$(bindir)/gforthmi-$(VERSION) $(DESTDIR)(bindir)/vmgen-$(VERSION)
-		@echo -e "To remove Gforth completely, type\n$(RM) -rf $(DESTDIR)$(bindir)/gforth$(EXE) $(DESTDIR)$(bindir)/gforth-fast$(EXE) $(DESTDIR)$(bindir)/gforth-itc$(EXE) $(DESTDIR)$(bindir)/gforthmi $(DESTDIR)$(bindir)/vmgen $(DESTDIR)$(man1dir)/gforth.1 $(DESTDIR)$(infodir)/gforth.info* $(DESTDIR)$(datadir)/gforth $(DESTDIR)$(libdir)/gforth"
+		-$(RM) -rf $(DESTDIR)$(libdir)/gforth/$(VERSION) $(DESTDIR)$(datadir)/gforth/$(VERSION) $(DESTDIR)$(bindir)/gforth-$(VERSION)$(EC)$(EXE) $(DESTDIR)$(bindir)/gforth-fast-$(VERSION)$(EC)$(EXE) $(DESTDIR)$(bindir)/gforth-itc-$(VERSION)$(EC)$(EXE) $(DESTDIR)$(bindir)/gforthmi-$(VERSION) $(DESTDIR)(bindir)/vmgen-$(VERSION)
+		@echo -e "To remove Gforth completely, type\n$(RM) -rf $(DESTDIR)$(bindir)/gforth$(EC)$(EXE) $(DESTDIR)$(bindir)/gforth-fast$(EC)$(EXE) $(DESTDIR)$(bindir)/gforth-itc$(EC)$(EXE) $(DESTDIR)$(bindir)/gforthmi $(DESTDIR)$(bindir)/vmgen $(DESTDIR)$(man1dir)/gforth.1 $(DESTDIR)$(infodir)/gforth.info* $(DESTDIR)$(datadir)/gforth $(DESTDIR)$(libdir)/gforth"
 
 check:		gforths	gforth.fi
 		$(MAKE) checkone check-nofast ENGINE="./gforth --no-dynamic" >/dev/null 2>&1
@@ -630,7 +632,7 @@ check:		gforths	gforth.fi
 		$(MAKE) checkone ENGINE="./gforth-fast" >/dev/null 2>&1
 		@echo "*** Check successful ***"
 
-checkone test:	gforth$(EXE) gforth.fi
+checkone test:	gforth$(EC)$(EXE) gforth.fi
 		$(FORTH) test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs test/string.fs test/float.fs test/deferred.fs test/coreext.fs -e bye 2>&1 | tr -d '\015' | diff -c - $(srcdir)/test/coretest.out
 		$(FORTH) test/other.fs -e bye
 		$(FORTHS) test/signals.fs -e bye
@@ -640,7 +642,7 @@ checkone test:	gforth$(EXE) gforth.fi
 		  "c-flag on s\" prim.i\" out-filename 2! s\" $(srcdir)/prim.b\" ' output-c ' output-c-combined process-file bye"| \
 		  tr -d '\015' | diff -c - $(srcdir)/engine/prim.i
 
-check-nofast: gforth$(EXE) gforth.fi
+check-nofast: gforth$(EC)$(EXE) gforth.fi
 		$(FORTHS) test/gforth-nofast.fs -e bye
 
 test/primtest.fi: test/primtest.fs mach32l.fs cross.fs
@@ -649,7 +651,7 @@ test/primtest.fi: test/primtest.fs mach32l.fs cross.fs
 primtest:	gforth gforth-native test/primtest.fi FORCE
 		(echo rs|ENVVAR=bla ./gforth -i test/primtest.fi) && (echo rs|ENVVAR=bla ./gforth-native -i test/primtest.fi); echo $$?
 
-bench:		gforth-fast$(EXE) gforth.fi
+bench:		gforth-fast$(EC)$(EXE) gforth.fi
 		@echo 'Each benchmark takes about 30s on a 486-66 (gcc-2.6.3 -DFORCE_REG)'
 		time $(FORTH_FAST) siev.fs -e "main bye"
 		time $(FORTH_FAST) bubble.fs -e "main bye"
@@ -659,7 +661,7 @@ bench:		gforth-fast$(EXE) gforth.fi
 onebench one-bench:
 	$(FORTH_FAST) onebench.fs
 
-all-bench allbench:	gforth-fast$(EXE) gforth$(EXE) gforth-itc$(EXE) gforth-ditc$(EXE) gforth.fi
+all-bench allbench:	gforth-fast$(EC)$(EXE) gforth$(EC)$(EXE) gforth-itc$(EC)$(EXE) gforth-ditc$(EC)$(EXE) gforth.fi
 	./gforth-fast --dynamic onebench.fs
 	./gforth-fast --no-dynamic onebench.fs
 	./gforth --dynamic onebench.fs
@@ -677,23 +679,23 @@ all-bench allbench:	gforth-fast$(EXE) gforth$(EXE) gforth-itc$(EXE) gforth-ditc$
 # 3. copy new kernels to kernlXYZ.fi
 #    these are the ones we want to use now
 
-kernl16l.fi-:	$(KERN_DEPS) mach16l.fs
-		$(FORTHB) -e 's" mach16l.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl16l.fi- $(bindir)/gforth-$(VERSION) bye"
+kernl16l$(EC).fi-:	$(KERN_DEPS) mach16l.fs
+		$(FORTHB) -e 's" mach16l.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl16l$(EC).fi- $(bindir)/gforth-$(VERSION) bye"
 
-kernl16b.fi-:	$(KERN_DEPS) mach16b.fs
-		$(FORTHB) -e 's" mach16b.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl16b.fi- $(bindir)/gforth-$(VERSION) bye"
+kernl16b$(EC).fi-:	$(KERN_DEPS) mach16b.fs
+		$(FORTHB) -e 's" mach16b.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl16b$(EC).fi- $(bindir)/gforth-$(VERSION) bye"
 
-kernl32l.fi-:	$(KERN_DEPS) mach32l.fs
-		$(FORTHB) -e 's" mach32l.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl32l.fi- $(bindir)/gforth-$(VERSION) bye"
+kernl32l$(EC).fi-:	$(KERN_DEPS) mach32l.fs
+		$(FORTHB) -e 's" mach32l.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl32l$(EC).fi- $(bindir)/gforth-$(VERSION) bye"
 
-kernl32b.fi-:	$(KERN_DEPS) mach32b.fs
-		$(FORTHB) -e 's" mach32b.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl32b.fi- $(bindir)/gforth-$(VERSION) bye"
+kernl32b$(EC).fi-:	$(KERN_DEPS) mach32b.fs
+		$(FORTHB) -e 's" mach32b.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl32b$(EC).fi- $(bindir)/gforth-$(VERSION) bye"
 
-kernl64l.fi-:	$(KERN_DEPS) mach64l.fs
-		$(FORTHB) -e 's" mach64l.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl64l.fi- $(bindir)/gforth-$(VERSION) bye"
+kernl64l$(EC).fi-:	$(KERN_DEPS) mach64l.fs
+		$(FORTHB) -e 's" mach64l.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl64l$(EC).fi- $(bindir)/gforth-$(VERSION) bye"
 
-kernl64b.fi-:	$(KERN_DEPS) mach64b.fs
-		$(FORTHB) -e 's" mach64b.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl64b.fi- $(bindir)/gforth-$(VERSION) bye"
+kernl64b$(EC).fi-:	$(KERN_DEPS) mach64b.fs
+		$(FORTHB) -e 's" mach64b.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl64b$(EC).fi- $(bindir)/gforth-$(VERSION) bye"
 
 #Solaris make does not like that:
 @GNUMAKE@kernl-%.fi:	arch/%/mach.fs arch/%/prim.fs arch/%/asm.fs $(KERN_SRC) kernel/version.fs $(FORTH_GEN0)
@@ -706,35 +708,35 @@ kernl64b.fi-:	$(KERN_DEPS) mach64b.fs
 #SunOS make does not like that
 #arch/%/mach.fs:	arch/%/prim.fs arch/%/asm.fs
 
-kernl16b.fi:	$(KERNLS)
-		-$(CP) kernl16b.fi kernl16b.fi~
-		-$(CP) kernl16b.fi- kernl16b.fi
+kernl16b$(EC).fi:	$(KERNLS)
+		-$(CP) kernl16b$(EC).fi kernl16b$(EC).fi~
+		-$(CP) kernl16b$(EC).fi- kernl16b$(EC).fi
 
-kernl16l.fi:	$(KERNLS)
-		-$(CP) kernl16l.fi kernl16l.fi~
-		-$(CP) kernl16l.fi- kernl16l.fi
+kernl16l$(EC).fi:	$(KERNLS)
+		-$(CP) kernl16l$(EC).fi kernl16l$(EC).fi~
+		-$(CP) kernl16l$(EC).fi- kernl16l$(EC).fi
 
-kernl32b.fi:	$(KERNLS)
-		-$(CP) kernl32b.fi kernl32b.fi~
-		-$(CP) kernl32b.fi- kernl32b.fi
+kernl32b$(EC).fi:	$(KERNLS)
+		-$(CP) kernl32b$(EC).fi kernl32b$(EC).fi~
+		-$(CP) kernl32b$(EC).fi- kernl32b$(EC).fi
 
-kernl32l.fi:	$(KERNLS)
-		-$(CP) kernl32l.fi kernl32l.fi~
-		-$(CP) kernl32l.fi- kernl32l.fi
+kernl32l$(EC).fi:	$(KERNLS)
+		-$(CP) kernl32l$(EC).fi kernl32l$(EC).fi~
+		-$(CP) kernl32l$(EC).fi- kernl32l$(EC).fi
 
-kernl64b.fi:	$(KERNLS)
-		-$(CP) kernl64b.fi kernl64b.fi~
-		-$(CP) kernl64b.fi- kernl64b.fi
+kernl64b$(EC).fi:	$(KERNLS)
+		-$(CP) kernl64b$(EC).fi kernl64b$(EC).fi~
+		-$(CP) kernl64b$(EC).fi- kernl64b$(EC).fi
 
-kernl64l.fi:	$(KERNLS)
-		-$(CP) kernl64l.fi kernl64l.fi~
-		-$(CP) kernl64l.fi- kernl64l.fi
+kernl64l$(EC).fi:	$(KERNLS)
+		-$(CP) kernl64l$(EC).fi kernl64l$(EC).fi~
+		-$(CP) kernl64l$(EC).fi- kernl64l$(EC).fi
 
 #kernl%.fi:	kernl%.fi- $(KERNLS)
 #		-$(CP) $@ $@~
 #		-$(CP) $< $@
 
-gforth.fi:	$(kernel_fi) gforthmi gforth$(EXE) gforth-ditc$(EXE) $(GFORTH_FI_SRC) comp-i.fs
+gforth.fi:	$(kernel_fi) gforthmi gforth$(EC)$(EXE) gforth-ditc$(EC)$(EXE) $(GFORTH_FI_SRC) comp-i.fs
 		GFORTHD="./gforth-ditc -p .$(PATHSEP)$(srcdir)" GFORTH="./gforth-ditc --die-on-signal -p .$(PATHSEP)$(srcdir) -i $(kernel_fi) $(STARTUP)" ./gforthmi gforth.fi $(FORTHSIZES) $(FORTHKFLAGS) $(STARTUP)
 
 # -------------	Make c-engine
@@ -765,31 +767,31 @@ kernel/prim.fs:	prim.b prims2x.fs kernel/prim0.fs
 		$(CP) $@- $@
 		$(RM) $@-
 
-gforth$(EXE):		engines
-		-$(CP) gforth$(EXE) gforth~
+gforth$(EC)$(EXE):		engines
+		-$(CP) gforth$(EC)$(EXE) gforth~
 		$(CP) engine/$@ $@
 		-$(MASSAGE_EXE) $@
 		@GFORTH_EXE@
 
-gforth-fast$(EXE):	engines-fast
+gforth-fast$(EC)$(EXE):	engines-fast
 		$(CP) engine/$@ $@
 		-$(MASSAGE_EXE) $@
 		@GFORTHFAST_EXE@
 
-gforth-native$(EXE):	engines-fast
+gforth-native$(EC)$(EXE):	engines-fast
 		$(CP) engine/$@ $@
 		-$(MASSAGE_EXE) $@
 #@GFORTHX_EXE@
 
-gforth-itc$(EXE):	engines
+gforth-itc$(EC)$(EXE):	engines
 		$(CP) engine/$@ $@
 		@GFORTHITC_EXE@
 
-gforth-ditc$(EXE):	engines
+gforth-ditc$(EC)$(EXE):	engines
 		$(CP) engine/$@ $@
 		@GFORTHDITC_EXE@
 
-gforth-prof$(EXE):	engines
+gforth-prof$(EC)$(EXE):	engines
 		$(CP) engine/$@ $@
 
 gforths: $(ENGINES) $(ENGINES_FAST)
@@ -820,12 +822,12 @@ tags:		gforth.tags
 install.TAGS:	gforth.TAGS
 		sed 's;^\$(srcdir)/;$(datadir)/gforth/$(VERSION)/;' gforth.TAGS >install.TAGS
 
-gforth.TAGS:	@kernel_fi@ gforth$(EXE) $(GFORTH_FI_SRC) prim.TAGS kernel.TAGS
+gforth.TAGS:	@kernel_fi@ gforth$(EC)$(EXE) $(GFORTH_FI_SRC) prim.TAGS kernel.TAGS
 		$(FORTHK) etags.fs except.fs startup.fs -e bye
 		cat TAGS prim.TAGS kernel.TAGS >gforth.TAGS
 		rm TAGS
 
-gforth.tags:	@kernel_fi@ gforth$(EXE) $(GFORTH_FI_SRC) prim.tags kernel.tags
+gforth.tags:	@kernel_fi@ gforth$(EC)$(EXE) $(GFORTH_FI_SRC) prim.tags kernel.tags
 		$(FORTHK) tags.fs except.fs startup.fs -e bye
 		cat tags prim.tags kernel.tags >gforth.tags
 		rm tags
@@ -847,10 +849,10 @@ prim.tags: 	prim.b prims2x.fs
 		$(RM) $@-
 
 kernel.TAGS:
-		rm kernl16l.fi-; $(MAKE) @kernel_fi@
+		rm kernl16l$(EC).fi-; $(MAKE) @kernel_fi@
 
 kernel.tags:
-		rm kernl16l.fi-; $(MAKE) @kernel_fi@
+		rm kernl16l$(EC).fi-; $(MAKE) @kernel_fi@
 
 doc/doc.fd:	doc/makedoc.fs $(GFORTH_FI_SRC) code.fs objects.fs oof.fs moofglos.fs
 		$(FORTHK) -e "s\" doc/doc.fd\"" doc/makedoc.fs except.fs startup.fs code.fs objects.fs oof.fs moofglos.fs -e bye

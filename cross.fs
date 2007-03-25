@@ -1175,6 +1175,7 @@ false DefaultValue header
 false DefaultValue backtrace
 false DefaultValue new-input
 false DefaultValue peephole
+false DefaultValue primcentric
 false DefaultValue abranch
 true DefaultValue f83headerstring
 true DefaultValue control-rack
@@ -2625,7 +2626,7 @@ Cond: [ ( -- ) interpreting-state ;Cond
 
 Defer instant-interpret-does>-hook  ' noop IS instant-interpret-does>-hook
 
-T has? peephole H [IF]
+T has? primcentric H [IF]
 : does-resolved ( ghost -- )
     compile does-exec g>xt T a, H ;
 [ELSE]
@@ -2640,7 +2641,7 @@ T has? peephole H [IF]
 
 >TARGET
 Cond: DOES>
-        T here H [ T has? peephole H [IF] ] 5 [ [ELSE] ] 4 [ [THEN] ] T cells
+        T here H [ T has? primcentric H [IF] ] 5 [ [ELSE] ] 4 [ [THEN] ] T cells
         H + alit, compile (does>2) compile ;s
         doeshandler, resolve-does>-part
         ;Cond
@@ -2960,7 +2961,7 @@ DO:  abort" Not in cross mode" ;DO
 \ optimizer for cross
 
 
-T has? peephole H [IF]
+T has? primcentric H [IF]
 
 \ .( loading peephole optimization) cr
 

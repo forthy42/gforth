@@ -1642,8 +1642,6 @@ f = key_query((FILE*)wfileid);
 f = key_query(stdin);
 #endif
 
-\+os
-
 stdin	( -- wfileid )	gforth
 ""The standard input file of the Gforth process.""
 wfileid = (Cell)stdin;
@@ -1655,6 +1653,8 @@ wfileid = (Cell)stdout;
 stderr	( -- wfileid )	gforth
 ""The standard error output file of the Gforth process.""
 wfileid = (Cell)stderr;
+
+\+os
 
 form	( -- urows ucols )	gforth
 ""The number of lines and columns in the terminal. These numbers may change

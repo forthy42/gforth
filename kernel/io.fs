@@ -65,6 +65,9 @@ Defer emit ( c -- ) \ core
 
 Defer key ( -- char ) \ core
 \G Receive (but do not display) one character, @var{char}.
+: (key) ( -- c ) \ gforth
+    infile-id key-file ;
+: infile-id  stdin ;
 
 [IFDEF] (key) ' (key) IS key [THEN]
 
@@ -74,6 +77,9 @@ Defer key? ( -- flag ) \ facility key-question
 \G yield the character. Once @code{key?} returns true, subsequent
 \G calls to @code{key?} before calling @code{key} or @code{ekey} will
 \G also return true.
+: (key?) ( -- flag ) \ gforth
+    infile-id key?-file ;
+: infile-id  stdin ;
 
 [IFDEF] (key?) ' (key?) IS key? [THEN]
 

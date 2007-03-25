@@ -86,6 +86,8 @@ typedef void *Label;
 #define HAS_FLOATING
 #define HAS_OS
 #define HAS_DEBUG
+#define HAS_GLOCALS
+#define HAS_HASH
 #ifndef HAS_PEEPHOLE
 #define HAS_PEEPHOLE
 #endif
@@ -95,10 +97,16 @@ typedef void *Label;
 #undef HAS_FLOATING
 #undef HAS_OS
 #undef HAS_DEBUG
+#undef HAS_GLOCALS
+#undef HAS_HASH
+#ifndef PUTC
+# define PUTC(x) putc(x, stdout)
+#endif
+#ifndef TYPE
+# define TYPE(x, l) fwrite(x, l, 1, stdout)
+#endif
 #endif
 #define HAS_DCOMPS
-#define HAS_GLOCALS
-#define HAS_HASH
 #define HAS_XCONDS
 #define HAS_STANDARDTHREADING
 

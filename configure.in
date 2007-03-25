@@ -94,9 +94,19 @@ if test "$enable_ec" = "yes"; then
   echo "defining standalone system"
   AC_DEFINE(STANDALONE,,[Define if you want a Gforth without OS])
   EC_MODE="true"
+  EC="-ec"
+  engine2=""
+  engine_fast2=""
+  no_dynamic="-DNO_DYNAMIC"
+  image_i="image.i"
 else
   echo "defining hosted system"
   EC_MODE="false"
+  EC=""
+  engine2="engine2.o"
+  engine_fast2="engine-fast2.o"
+  no_dynamic=""
+  image_i=""
 fi
 
 #variables mentioned in INSTALL
@@ -145,7 +155,12 @@ test "$GCC" = "yes" || AC_MSG_ERROR(Gforth uses GNU C extensions and requires GC
 
 AC_SUBST(CC)
 AC_SUBST(DEBUGFLAG)
+AC_SUBST(EC)
 AC_SUBST(EC_MODE)
+AC_SUBST(engine2)
+AC_SUBST(engine_fast2)
+AC_SUBST(no_dynamic)
+AC_SUBST(image_i)
 
 #this is used to disable some (not generally essential) part of the
 #Makefile that some makes don't grok.  It would be better to test for
@@ -719,7 +734,9 @@ AC_CHECK_FUNCS(mmap sysconf getpagesize)
 AM_PATH_LISPDIR
 
 kernel_fi=kernl${wordsize}${bytesex}.fi
+include_fi=kernl${wordsize}${bytesex}${EC}.fi
 AC_SUBST(kernel_fi)
+AC_SUBST(include_fi)
 
 #this breaks bindists
 #dnl replace srource directory by absolute value

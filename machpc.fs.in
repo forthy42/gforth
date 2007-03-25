@@ -25,7 +25,7 @@ true DefaultValue NIL  \ relocating
 
 @EC_MODE@ DefaultValue ec
 
-has? ec 0= [IF]
+T has? ec H 0= [IF]
 true DefaultValue file		\ controls the presence of the
 				\ file access wordset
 true DefaultValue OS		\ flag to indicate a operating system
@@ -57,6 +57,7 @@ true DefaultValue new-input	\ enables object oriented input
 
 @PEEPHOLEFLAG@ DefaultValue peephole      \ enables peephole optimizer
 
+true DefaultValue primcentric   \ enables primcentric code
 
 true DefaultValue abranch       \ enables absolute branches
 
@@ -76,11 +77,13 @@ false DefaultValue file		\ controls the presence of the
 				\ file access wordset
 false DefaultValue OS		\ flag to indicate a operating system
 
-@FFCALLFLAG@ DefaultValue ffcall \ Foreign Function Calls
+true SetValue relocate
 
-@LIBFFIFLAG@ DefaultValue libffi \ Foreign Function Calls
+false DefaultValue ffcall \ Foreign Function Calls
 
-@OLDCALLFLAG@ DefaultValue oldcall \ old Foreign Function Calls
+false DefaultValue libffi \ Foreign Function Calls
+
+false DefaultValue oldcall \ old Foreign Function Calls
 
 true DefaultValue prims		\ true: primitives are c-code
 
@@ -101,7 +104,9 @@ false DefaultValue backtrace	\ enables backtrace code
 
 false DefaultValue new-input	\ enables object oriented input
 
-@PEEPHOLEFLAG@ DefaultValue peephole      \ enables peephole optimizer
+false DefaultValue peephole     \ enables peephole optimizer
+
+true DefaultValue primcentric   \ enables primcentric code
 
 
 true DefaultValue abranch       \ enables absolute branches
@@ -112,7 +117,7 @@ false DefaultValue crlf
 
 true DefaultValue flash
     
-$100 DefaultValue kernel-start
+$0 DefaultValue kernel-start   \ no artificial offset
 cell 2 = [IF] &32 KB [ELSE] &64 KB [THEN] DefaultValue kernel-size
 
 &1 KB		DefaultValue stack-size

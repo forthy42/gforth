@@ -282,6 +282,7 @@ struct Cellpair parse_white(Char *c_addr1, UCell u1)
   return result;
 }
 
+#ifdef HAS_FILE
 Cell rename_file(Char *c_addr1, UCell u1, Char *c_addr2, UCell u2)
 {
   char *s1=tilde_cstr(c_addr2, u2, 1);
@@ -404,6 +405,7 @@ Cell to_float(Char *c_addr, UCell u, Float *rp)
   *rp = r;
   return flag;
 }
+#endif
 
 Float v_star(Float *f_addr1, Cell nstride1, Float *f_addr2, Cell nstride2, UCell ucount)
 {
