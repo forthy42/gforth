@@ -331,6 +331,7 @@ Other I/O
 * Formatted numeric output::    Formatted (pictured) output
 * String Formats::              How Forth stores strings in memory
 * Displaying characters and strings::  Other stuff
+* Terminal output::             
 * Input::                       Input
 * Pipes::                       How to create your own pipes
 * Xchars and Unicode::          Non-ASCII characters
@@ -8706,6 +8707,7 @@ doc-block-included
 * Formatted numeric output::    Formatted (pictured) output
 * String Formats::              How Forth stores strings in memory
 * Displaying characters and strings::  Other stuff
+* Terminal output::             Cursor positioning etc.
 * Input::                       Input
 * Pipes::                       How to create your own pipes
 * Xchars and Unicode::          Non-ASCII characters
@@ -8910,14 +8912,13 @@ For words that move, copy and search for strings see @ref{Memory
 Blocks}. For words that display characters and strings see
 @ref{Displaying characters and strings}.
 
-@node Displaying characters and strings, Input, String Formats, Other I/O
+@node Displaying characters and strings, Terminal output, String Formats, Other I/O
 @subsection Displaying characters and strings
 @cindex characters - compiling and displaying
 @cindex character strings - compiling and displaying
 
 This section starts with a glossary of Forth words and ends with a set
 of examples.
-
 
 doc-bl
 doc-space
@@ -8931,8 +8932,6 @@ doc-type
 doc-typewhite
 doc-cr
 @cindex cursor control
-doc-at-xy
-doc-page
 doc-s"
 doc-s\"
 doc-c"
@@ -9005,8 +9004,33 @@ definition of @code{my-char}.
 @end itemize
 
 
+@node Terminal output, Input, Displaying characters and strings, Other I/O
+@subsection Terminal output
+@cindex output to terminal
+@cindex terminal output
 
-@node Input, Pipes, Displaying characters and strings, Other I/O
+If you are outputting to a terminal, you may want to control the
+positioning of the cursor:
+@cindex cursor positioning
+
+doc-at-xy
+
+In order to know where to position the cursor, it is often helpful to
+know the size of the screen:
+@cindex terminal size 
+
+doc-form
+
+And sometimes you want to use:
+@cindex clear screen
+
+doc-page
+
+Note that on non-terminals you should use @code{12 emit}, not
+@code{page}, to get a form feed.
+
+
+@node Input, Pipes, Terminal output, Other I/O
 @subsection Input
 @cindex input
 @cindex I/O - see input

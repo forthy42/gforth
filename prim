@@ -1657,8 +1657,13 @@ wfileid = (Cell)stderr;
 \+os
 
 form	( -- urows ucols )	gforth
-""The number of lines and columns in the terminal. These numbers may change
-with the window size.""
+""The number of lines and columns in the terminal. These numbers may
+change with the window size.  Note that it depends on the OS whether
+this reflects the actual size and changes with the window size
+(currently only on Unix-like OSs).  On other OSs you just get a
+default, and can tell Gforth the terminal size by setting the
+environment variables @code{COLUMNS} and @code{LINES} before starting
+Gforth.""
 /* we could block SIGWINCH here to get a consistent size, but I don't
  think this is necessary or always beneficial */
 urows=rows;
