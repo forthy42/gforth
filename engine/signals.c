@@ -415,7 +415,7 @@ void install_signal_handlers(void)
     sigstack.ss_flags=0;
     sas_retval=sigaltstack(&sigstack,(stack_t *)0);
   }
-#ifdef HAS_FILE
+#if defined(HAS_FILE) || !defined(STANDALONE)
   if (debug)
     fprintf(stderr,"sigaltstack: %s\n",strerror(sas_retval));
 #endif

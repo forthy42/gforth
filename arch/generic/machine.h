@@ -99,6 +99,7 @@ typedef void *Label;
 #undef HAS_DEBUG
 #undef HAS_GLOCALS
 #undef HAS_HASH
+#define HAS_F83HEADERSTRING
 #ifndef PUTC
 # define PUTC(x) putc(x, stdout)
 #endif

@@ -82,7 +82,7 @@ s" NULL" groups @ cell+ $!
 	    IF
 		11 /string $has? 0= IF r@ scan-ifs  THEN
 	    ELSE  2dup s" #else" prefix?
-		IF  r@ scan-ifs
+		IF  2drop r@ scan-ifs
 		ELSE  2dup s" GROUP(" prefix?
 		    IF  2drop drop 1+ 0  ELSE
 			2dup s" INST_ADDR(" prefix?

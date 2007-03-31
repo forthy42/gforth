@@ -311,6 +311,15 @@ typedef struct {
 } ImageHeader;
 /* the image-header is created in main.fs */
 
+#ifdef HAS_F83HEADERSTRING
+struct F83Name {
+  struct F83Name *next;  /* the link field for old hands */
+  char		countetc;
+  char		name[0];
+};
+
+#define F83NAME_COUNT(np)	((np)->countetc & 0x1f)
+#endif
 struct Longname {
   struct Longname *next;  /* the link field for old hands */
   Cell		countetc;
