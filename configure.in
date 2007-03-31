@@ -99,6 +99,7 @@ if test "$enable_ec" = "yes"; then
   engine_fast2=""
   no_dynamic="-DNO_DYNAMIC"
   image_i="image.i"
+  signals_o=""
 else
   echo "defining hosted system"
   EC_MODE="false"
@@ -107,6 +108,7 @@ else
   engine_fast2="engine-fast2.o"
   no_dynamic=""
   image_i=""
+  signals_o="signals.o"
 fi
 
 #variables mentioned in INSTALL
@@ -161,6 +163,7 @@ AC_SUBST(engine2)
 AC_SUBST(engine_fast2)
 AC_SUBST(no_dynamic)
 AC_SUBST(image_i)
+AC_SUBST(signals_o)
 
 #this is used to disable some (not generally essential) part of the
 #Makefile that some makes don't grok.  It would be better to test for

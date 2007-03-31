@@ -2316,7 +2316,11 @@ Variable prim#
   prim# @ (THeader ( S xt ghost )
   ['] prim-resolved over >comp !
   dup >ghost-flags <primitive> set-flag
-  over resolve-noforwards T A, H alias-mask flag!
+  over resolve-noforwards T A, H
+  s" EC" T $has? H 0=
+  IF
+      alias-mask flag!
+  THEN
   -1 prim# +! ;
 >CROSS
 

@@ -265,6 +265,15 @@ extern int gforth_memcmp(const char * s1, const char * s2, size_t n);
       }
 #endif
 
+#ifdef STANDALONE
+jmp_buf throw_jmp_buf;
+
+void throw(int code)
+{
+  longjmp(throw_jmp_buf,code); /* !! or use siglongjmp ? */
+}
+#endif
+
 #if defined(HAS_FFCALL) || defined(HAS_LIBFFI)
 #define SAVE_REGS IF_fpTOS(fp[0]=fpTOS); gforth_SP=sp; gforth_FP=fp; gforth_RP=rp; gforth_LP=lp;
 #define REST_REGS sp=gforth_SP; fp=gforth_FP; rp=gforth_RP; lp=gforth_LP; IF_fpTOS(fpTOS=fp[0]);

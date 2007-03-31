@@ -693,7 +693,7 @@ int gforth_go(Address image, int stack, Cell *entries)
   for(;stack>0;stack--)
     *--sp0=entries[stack-1];
 
-#ifdef SYSSIGNALS
+#if defined(SYSSIGNALS) && !defined(STANDALONE)
   get_winsize();
    
   install_signal_handlers(); /* right place? */
@@ -729,7 +729,7 @@ int gforth_go(Address image, int stack, Cell *entries)
   return((int)(Cell)gforth_engine(ip0,sp0,rp0,fp0,lp0));
 }
 
-#ifndef INCLUDE_IMAGE
+#if !defined(INCLUDE_IMAGE) && !defined(STANDALONE)
 static void print_sizes(Cell sizebyte)
      /* print size information */
 {
@@ -1102,21 +1102,6 @@ static Address append_prim(Cell p)
   memcpy(code_here, pi->start, pi->length);
   code_here += pi->length;
   return old_code_here;
-}
-#endif
-
-#ifdef STANDALONE
-Address gforth_alloc(Cell size)
-{
-  Address r;
-  /* leave a little room (64B) for stack underflows */
-  if ((r = malloc(size+64))==NULL) {
-    perror(progname);
-    exit(1);
-  }
-  r = (Address)((((Cell)r)+(sizeof(Float)-1))&(-sizeof(Float)));
-  debugp(stderr, "malloc succeeds, address=$%lx\n", (long)r);
-  return r;
 }
 #endif
 
@@ -1942,6 +1927,21 @@ static FILE * open_image_file(char * imagename, char * path)
 }
 #endif
 
+#ifdef STANDALONE
+Address gforth_alloc(Cell size)
+{
+  Address r;
+  /* leave a little room (64B) for stack underflows */
+  if ((r = malloc(size+64))==NULL) {
+    perror(progname);
+    exit(1);
+  }
+  r = (Address)((((Cell)r)+(sizeof(Float)-1))&(-sizeof(Float)));
+  debugp(stderr, "malloc succeeds, address=$%lx\n", (long)r);
+  return r;
+}
+#endif
+
 #ifdef HAS_OS
 static UCell convsize(char *s, UCell elemsize)
 /* converts s of the format [0-9]+[bekMGT]? (e.g. 25k) into the number
@@ -2263,9 +2263,11 @@ int main(int argc, char **argv, char **env)
   if (print_metrics) {
     int i;
     fprintf(stderr, "code size = %8ld\n", dyncodesize());
+#ifndef STANDALONE
     for (i=0; i<sizeof(cost_sums)/sizeof(cost_sums[0]); i++)
       fprintf(stderr, "metric %8s: %8ld\n",
 	      cost_sums[i].metricname, cost_sums[i].sum);
+#endif
     fprintf(stderr,"lb_basic_blocks = %ld\n", lb_basic_blocks);
     fprintf(stderr,"lb_labeler_steps = %ld\n", lb_labeler_steps);
     fprintf(stderr,"lb_labeler_automaton = %ld\n", lb_labeler_automaton);

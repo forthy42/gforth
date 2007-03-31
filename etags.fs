@@ -43,6 +43,7 @@
 \ the tag-text, rather than the tag name.
 
 require search.fs
+require environ.fs
 require extend.fs
 
 : tags-file-name ( -- c-addr u )

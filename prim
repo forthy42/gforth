@@ -248,6 +248,9 @@ SET_IP((Xt *)a_callee);
 
 execute	( xt -- )		core
 ""Perform the semantics represented by the execution token, @i{xt}.""
+#ifdef DEBUG
+fprintf(stderr, "execute %08x\n", xt);
+#endif
 #ifndef NO_IP
 ip=IP;
 #endif
@@ -1487,6 +1490,11 @@ for (; f83name1 != NULL; f83name1 = (struct F83Name *)(f83name1->next))
       memcasecmp(c_addr, f83name1->name, u)== 0 /* or inline? */)
     break;
 f83name2=f83name1;
+#ifdef DEBUG
+fprintf(stderr, "F83find ");
+fwrite(c_addr, u, 1, stderr);
+fprintf(stderr, " found %08x\n", f83name2); 
+#endif
 :
     BEGIN  dup WHILE  (find-samelen)  dup  WHILE
 	>r 2dup r@ cell+ char+ capscomp  0=
