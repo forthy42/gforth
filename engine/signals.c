@@ -41,7 +41,7 @@ typedef struct sigaltstack stack_t;
 #endif
 
 #define DEFAULTCOLS 80
-#if defined(MSDOS) || defined (_WIN32)
+#if defined(MSDOS) || defined (_WIN32) || defined (__CYGWIN__)
 #define DEFAULTROWS 25
 #else
 #define DEFAULTROWS 24
