@@ -236,7 +236,7 @@ extern int gforth_memcmp(const char * s1, const char * s2, size_t n);
 
 #ifdef GFORTH_DEBUGGING
 #if DEBUG
-#define NAME(string) { saved_ip=ip; asmcomment(string); fprintf(stderr,"%08lx depth=%3ld: "string"\n",(Cell)ip,sp0+3-sp);}
+#define NAME(string) { saved_ip=ip; asmcomment(string); fprintf(stderr,"%08lx depth=%3ld tos=%016lx: "string"\n",(Cell)ip,sp0+3-sp,sp[0]);}
 #else /* !DEBUG */
 #define NAME(string) { saved_ip=ip; asm(""); }
 /* the asm here is to avoid reordering of following stuff above the

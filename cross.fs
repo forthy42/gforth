@@ -1244,6 +1244,9 @@ bits/byte		Constant tbits/byte
 H
 tbits/char bits/byte /	Constant tbyte
 
+: >signed ( u -- n )
+    1 tbits/char tcell * 1- lshift 2dup and
+    IF  negate or  ELSE  drop  THEN ;
 
 \ Variables                                            06oct92py
 
@@ -2316,10 +2319,12 @@ Variable prim#
   prim# @ (THeader ( S xt ghost )
   ['] prim-resolved over >comp !
   dup >ghost-flags <primitive> set-flag
-  over resolve-noforwards T A, H
   s" EC" T $has? H 0=
   IF
+      over resolve-noforwards T A, H
       alias-mask flag!
+  ELSE
+      T here H resolve-noforwards T A, H
   THEN
   -1 prim# +! ;
 >CROSS
@@ -2975,10 +2980,17 @@ T has? primcentric H [IF]
 : (callcm) T here 0 a, 0 a, H ;                 ' (callcm) plugin-of colonmark,
 : (call-res) >tempdp resolved gexecute tempdp> drop ;
                                                 ' (call-res) plugin-of colon-resolve
+T has? ec H [IF]
+: (pprim) T @ H >signed dup 0< IF  $4000 -  ELSE
+    cr ." wrong usage of (prim) "
+    dup gdiscover IF  .ghost  ELSE  .  THEN  cr -1 throw  THEN
+    T a, H ;					' (pprim) plugin-of prim,
+[ELSE]
 : (pprim) dup 0< IF  $4000 -  ELSE
     cr ." wrong usage of (prim) "
     dup gdiscover IF  .ghost  ELSE  .  THEN  cr -1 throw  THEN
     T a, H ;					' (pprim) plugin-of prim,
+[THEN]
 
 \ if we want this, we have to spilt aconstant
 \ and constant!!
@@ -3002,7 +3014,7 @@ Builder Defer
 compile: g>body compile lit-perform T A, H ;compile
 
 Builder (Field)
-compile: g>body T @ H compile lit+ T , H ;compile
+compile: g>body T @ H compile lit+ T here H reloff T , H ;compile
 
 Builder interpret/compile:
 compile: does-resolved ;compile

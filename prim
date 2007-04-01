@@ -209,10 +209,16 @@ goto *next_code;
 a_retaddr = next_code;
 a_body = PFA(CFA);
 INST_TAIL;
+#ifdef DEBUG
+fprintf(stderr, "dodoes to %x, push %x\n", a_retaddr, a_body);
+#endif
 goto **(Label *)DOES_CODE1(CFA);
 #else /* !defined(NO_IP) */
 a_retaddr = (Cell *)IP;
 a_body = PFA(CFA);
+#ifdef DEBUG
+fprintf(stderr, "dodoes to %x, push %x\n", a_retaddr, a_body);
+#endif
 SET_IP(DOES_CODE1(CFA));
 #endif /* !defined(NO_IP) */
 
@@ -751,6 +757,9 @@ n = n1+n2;
 \ lit+ / lit_plus = lit +
 
 lit+	( n1 #n2 -- n )		new	lit_plus
+#ifdef DEBUG
+fprintf(stderr, "lit+ %08x\n", n2);
+#endif
 n=n1+n2;
 
 \ PFE-0.9.14 has it differently, but the next release will have it as follows
