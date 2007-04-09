@@ -76,8 +76,15 @@
 
 \ data structures
 
-\ c-function word body:
-\  cell function pointer
+\ For every c-function, we have three words: two anonymous words
+\ created by c-function-ft (first time) and c-function-rt (run-time),
+\ and a named deferred word.  The deferred word first points to the
+\ first-time word, then to the run-time word; the run-time word calls
+\ the c function.
+
+\ c-function-ft word body:
+\  cell xt of c-function-rt word
+\  cell xt of c-function deferred word 
 \  char return type index
 \  char parameter count n
 \  char*n parameters (type indices)
@@ -88,6 +95,20 @@
 
 : const+ ( n1 "name" -- n2 )
     dup constant 1+ ;
+
+: front-string { c-addr1 u1 c-addr2 u2 -- c-addr3 u3 }
+    \ insert string c-addr2 u2 in buffer c-addr1 u1; c-addr3 u3 is the
+    \ remainder of the buffer.
+    assert( u1 u2 u>= )
+    c-addr2 c-addr1 u2 move
+    c-addr1 u1 u2 /string ;
+
+: front-char { c-addr1 u1 c -- c-addr3 u2 }
+    \ insert c in buffer c-addr1 u1; c-addr3 u3 is the remainder of
+    \ the buffer.
+    assert( u1 0 u> )
+    c c-addr1 c!
+    c-addr1 u1 1 /string ;
 
 \ linked list stuff (should go elsewhere)
 
@@ -288,15 +309,28 @@ create gen-wrapped-types
 : gen-wrapped-stmt ( pars c-name fp-change1 sp-change1 ret -- fp-change sp-change )
     cells gen-wrapped-types + @ execute ;
 
+: wrapper-function-name ( addr -- c-addr u )
+    \ addr points to the return type index of a c-function descriptor
+    count { r-type } count { d: pars }
+    pars + count { d: c-name }
+    s" gforth_c_" { d: prefix }
+    prefix nip c-name nip + pars nip + 3 + { u }
+    u allocate throw { c-addr }
+    c-addr u
+    prefix front-string c-name front-string '_ front-char
+    pars bounds u+do
+	i c@ type-letter front-char
+    loop
+    '_ front-char r-type type-letter front-char assert( dup 0= )
+    2drop c-addr u ;
+
 : gen-wrapper-function ( addr -- )
     \ addr points to the return type index of a c-function descriptor
+    dup { descriptor }
     c@+ { ret } count 2dup { d: pars } chars + count { d: c-name }
     print-c-prefix-lines
-    ." void gforth_c_" c-name type ." _"
-    pars bounds u+do
-	i c@ type-letter emit
-    loop
-    ." _" ret type-letter emit .\" (void)\n"
+    ." void " descriptor wrapper-function-name 2dup type drop free throw
+    .\" (void)\n"
     .\" {\n  Cell MAYBE_UNUSED *sp = gforth_SP;\n  Float MAYBE_UNUSED *fp = gforth_FP;\n  "
     pars c-name 2over count-stacks ret gen-wrapped-stmt .\" ;\n"
     ?dup-if
@@ -313,10 +347,11 @@ create gen-wrapped-types
 \    s" ar rcs xxx.a xxx.o" system
 \    $? abort" ar generated error" ;
 
-: link-wrapper-function ( -- sym )
+: link-wrapper-function ( addr -- sym )
+    wrapper-function-name { d: wrapper-name }
     s" /home/anton/gforth/xxx.so.1" open-lib ( lib-handle )
-    s" gforth_c_strlen_a_n" rot lib-sym dup 0= -&32 and throw ;
-
+    wrapper-name rot lib-sym dup 0= -&32 and throw
+    wrapper-name drop free throw ;
 
 : c-function-ft ( xt-defer xt-cfr "c-name" "{libcc-type}" "--" "libcc-type" -- )
     \ build time/first time action for c-function
@@ -327,9 +362,9 @@ create gen-wrapped-types
     ['] gen-wrapper-function r@ outfile-execute
     r> close-file throw
   does> ( ... -- ... )
-    2@ { xt-defer xt-cfr }
+    dup 2@ { xt-defer xt-cfr }
     compile-wrapper-function
-    link-wrapper-function xt-cfr >body !
+    2 cells + link-wrapper-function xt-cfr >body !
     xt-cfr xt-defer defer!
     xt-cfr execute ;
 
