@@ -633,6 +633,25 @@ void set_stack_sizes(ImageHeader * header)
   fsize=maxaligned(fsize);
 }
 
+#ifdef STANDALONE
+void alloc_stacks(ImageHeader * h)
+{
+#define SSTACKSIZE 0x200
+  static Cell dstack[SSTACKSIZE+1];
+  static Cell rstack[SSTACKSIZE+1];
+
+  h->dict_size=dictsize;
+  h->data_stack_size=dsize;
+  h->fp_stack_size=fsize;
+  h->return_stack_size=rsize;
+  h->locals_stack_size=lsize;
+
+  h->data_stack_base=dstack+SSTACKSIZE;
+  //  h->fp_stack_base=gforth_alloc(fsize);
+  h->return_stack_base=rstack+SSTACKSIZE;
+  //  h->locals_stack_base=gforth_alloc(lsize);
+}
+#else
 void alloc_stacks(ImageHeader * h)
 {
   h->dict_size=dictsize;
@@ -667,6 +686,7 @@ void alloc_stacks(ImageHeader * h)
   h->return_stack_base=gforth_alloc(rsize);
   h->locals_stack_base=gforth_alloc(lsize);
 }
+#endif
 
 #warning You can ignore the warnings about clobbered variables in gforth_go
 int gforth_go(Address image, int stack, Cell *entries)
@@ -1824,6 +1844,7 @@ Address gforth_loader(FILE *imagefile, char* filename)
   image = dict_alloc_read(imagefile, preamblesize+header.image_size,
 			  preamblesize+dictsize, data_offset);
   imp=image+preamblesize;
+
   alloc_stacks((ImageHeader *)imp);
   if (clear_dictionary)
     memset(imp+header.image_size, 0, dictsize-header.image_size);
@@ -1927,7 +1948,7 @@ static FILE * open_image_file(char * imagename, char * path)
 }
 #endif
 
-#ifdef STANDALONE
+#ifdef STANDALONE_ALLOC
 Address gforth_alloc(Cell size)
 {
   Address r;
@@ -2252,7 +2273,7 @@ int main(int argc, char **argv, char **env)
 	*p2 = *p1;
     *p2='\0';
     retvalue = gforth_go(image, 4, environ);
-#ifdef SIGPIPE
+#if defined(SIGPIPE) && !defined(STANDALONE)
     bsd_signal(SIGPIPE, SIG_IGN);
 #endif
 #ifdef VM_PROFILING

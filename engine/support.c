@@ -27,10 +27,12 @@
 #include <sys/time.h>
 #include <unistd.h>
 #include <pwd.h>
+#ifndef STANDALONE
 #include <dirent.h>
 #include <math.h>
 #include <ctype.h>
 #include <errno.h>
+#endif
 
 #ifdef HAS_FILE
 char *cstr(Char *from, UCell size, int clear)

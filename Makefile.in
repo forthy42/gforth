@@ -466,7 +466,6 @@ version:	Makefile.in configure.in
 # shell und file utilities.
 
 kernel/version.fs:	version
-	$(MAKE) gforth$(EC)$(EXE)
 	echo ": version-string s\" $(VERSION)\" ;" > kernel/version.fs
 
 more:	engines $(FORTH_GEN) $(GEN)

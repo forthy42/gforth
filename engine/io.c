@@ -654,6 +654,18 @@ Cell getkey(FILE * stream)
   return result==0 ? EOF : c;
 }
 
+#ifdef STANDALONE
+void emit_char(char x)
+{
+  putc(x, stdout);
+}
+
+void type_chars(char *addr, unsigned int l)
+{
+  fwrite(addr, l, 1, stdout);
+}
+#endif
+
 #ifdef TEST
 
 #include <time.h>

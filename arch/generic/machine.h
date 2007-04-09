@@ -101,10 +101,10 @@ typedef void *Label;
 #undef HAS_HASH
 #define HAS_F83HEADERSTRING
 #ifndef PUTC
-# define PUTC(x) putc(x, stdout)
+# define PUTC(x) emit_char(x)
 #endif
 #ifndef TYPE
-# define TYPE(x, l) fwrite(x, l, 1, stdout)
+# define TYPE(x, l) type_chars(x, l)
 #endif
 #endif
 #define HAS_DCOMPS

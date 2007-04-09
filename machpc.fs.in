@@ -119,7 +119,7 @@ false DefaultValue crlf
 true DefaultValue flash
     
 $0 DefaultValue kernel-start   \ no artificial offset
-cell 2 = [IF] &32 KB [ELSE] &64 KB [THEN] DefaultValue kernel-size
+&48 KB DefaultValue kernel-size
 
 &1 KB		DefaultValue stack-size
 &0 KB		DefaultValue fstack-size

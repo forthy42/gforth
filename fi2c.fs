@@ -199,7 +199,8 @@ Variable bitmap-chars
 
 : fi2c ( addr u -- )  base @ >r hex
     read-image
-    ." static void* image[" .imagesize ." ] = {" cr .image ." };" cr
+    \    .\" const static __attribute__ ((__section__ (\".rodata\"))) void* image[" .imagesize ." ] = {" cr .image ." };" cr
+    .\" static void* image[" .imagesize ." ] = {" cr .image ." };" cr
     ." #ifdef USE_RELOC" cr
     ." const char reloc_bits[" .relocsize ." ] = {" cr .reloc ." };" cr
     ." #endif" cr
