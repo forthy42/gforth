@@ -49,7 +49,9 @@ CP	= cp -p
 TAR	= tar cf -
 GCC	= @CC@
 CC	= $(GCC)
+LD	= $(GCC:gcc=ld)
 STRIP	= strip
+GCCLD	= @GCC_LD@
 
 FORTHPATH = .$(PATHSEP)$(libdir)/gforth/site-forth$(PATHSEP)$(datadir)/gforth/site-forth$(PATHSEP)$(libdir)/gforth/$(VERSION)$(PATHSEP)$(datadir)/gforth/$(VERSION)
 
@@ -113,25 +115,25 @@ MAIN_FAST_DEPS = main.c $(DEPS) prim_superend-fast.i prim_num-fast.i prim_grp-fa
 support.o: support.c config.h forth.h longlong.h
 
 gforth$(EC)$(EXE):	$(OBJECTS) $(AOBJECTS)
-	$(GCC) $(LDFLAGS) $(OBJECTS) $(AOBJECTS) $(LDLIBS) -o $@
+	$(GCCLD) $(LDFLAGS) $(OBJECTS) $(AOBJECTS) $(LDLIBS) -o $@
 
 gforth-native$(EC)$(EXE):	$(OBJECTS_NATIVE) $(AOBJECTS)
-	$(GCC) $(LDFLAGS) $(OBJECTS_NATIVE) $(AOBJECTS) $(LDLIBS) -o $@
+	$(GCCLD) $(LDFLAGS) $(OBJECTS_NATIVE) $(AOBJECTS) $(LDLIBS) -o $@
 
 gforth-fast$(EC)$(EXE):	$(OBJECTS_FAST) $(AOBJECTS)
-	$(GCC) $(LDFLAGS) $(OBJECTS_FAST) $(AOBJECTS) $(LDLIBS) -o $@
+	$(GCCLD) $(LDFLAGS) $(OBJECTS_FAST) $(AOBJECTS) $(LDLIBS) -o $@
 
 gforth-itc$(EC)$(EXE):	$(OBJECTS_ITC) $(AOBJECTS)
-	$(GCC) $(LDFLAGS) $(OBJECTS_ITC) $(AOBJECTS) $(LDLIBS) -o $@
+	$(GCCLD) $(LDFLAGS) $(OBJECTS_ITC) $(AOBJECTS) $(LDLIBS) -o $@
 
 gforth-ditc$(EC)$(EXE): $(OBJECTS_DITC) $(AOBJECTS)
-	$(GCC) $(LDFLAGS) $(OBJECTS_DITC) $(AOBJECTS) $(LDLIBS) -o $@
+	$(GCCLD) $(LDFLAGS) $(OBJECTS_DITC) $(AOBJECTS) $(LDLIBS) -o $@
 
 gforth-prof$(EC)$(EXE): $(OBJECTS_PROF) $(AOBJECTS) profile.o
-	$(GCC) $(LDFLAGS) $(OBJECTS_PROF) $(AOBJECTS) profile.o $(LDLIBS) -o $@
+	$(GCCLD) $(LDFLAGS) $(OBJECTS_PROF) $(AOBJECTS) profile.o $(LDLIBS) -o $@
 
 gforth-fi$(EC)$(EXE):	$(OBJECTS_FI) $(AOBJECTS)
-	$(GCC) $(LDFLAGS) $(OBJECTS_FI) $(AOBJECTS) $(LDLIBS) -o $@
+	$(GCCLD) $(LDFLAGS) $(OBJECTS_FI) $(AOBJECTS) $(LDLIBS) -o $@
 
 engine.s:	$(ENGINE_FAST_DEPS)
 		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -S $(srcdir)/engine.c

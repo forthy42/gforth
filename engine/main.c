@@ -2007,6 +2007,7 @@ enum {
   ss_min_nexts,
 };
 
+#ifndef STANDALONE
 void gforth_args(int argc, char ** argv, char ** path, char ** imagename)
 {
   int c;
@@ -2123,6 +2124,7 @@ SIZE arguments consist of an integer followed by a unit. The unit can be\n\
   }
 }
 #endif
+#endif
 
 static void print_diag()
 {
@@ -2195,9 +2197,14 @@ static void print_diag()
 	    (relocs < nonrelocs) ? "    gcc PR 15242 -> no dynamic code generation (use gcc-2.95 instead)\n" : "");
 }
 
-#ifdef INCLUDE_IMAGE
-extern Cell image[];
-extern const char reloc_bits[];
+#ifdef STANDALONE
+Cell data_abort_pc;
+
+void data_abort_C(void)
+{
+  while(1) {
+  }
+}
 #endif
 
 int main(int argc, char **argv, char **env)
@@ -2224,6 +2231,7 @@ int main(int argc, char **argv, char **env)
      the stack FP-aligned. */
 #endif
 
+#ifndef STANDALONE
   /* buffering of the user output device */
 #ifdef _IONBF
   if (isatty(fileno(stdout))) {
@@ -2231,15 +2239,18 @@ int main(int argc, char **argv, char **env)
     setvbuf(stdout,NULL,_IONBF,0);
   }
 #endif
+#endif
 
   progname = argv[0];
 
+#ifndef STANDALONE
 #ifdef HAS_OS
   gforth_args(argc, argv, &path, &imagename);
 #ifndef NO_DYNAMIC
   init_ss_cost();
 #endif /* !defined(NO_DYNAMIC) */
 #endif /* defined(HAS_OS) */
+#endif
 
 #ifdef STANDALONE
   image = gforth_engine(0, 0, 0, 0, 0);

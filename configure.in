@@ -98,6 +98,7 @@ AC_ARG_WITH(ec,
   no_dynamic=""
   image_i=""
   signals_o="io.o signals.o"
+  GCC_LD="\$(GCC)"
 else
   echo "defining standalone system (${withval})"
   AC_DEFINE(STANDALONE,,[Define if you want a Gforth without OS])
@@ -112,6 +113,10 @@ else
   else
     signals_o="io.o"
   fi
+  GCC_PATH=$(which $CC)
+  LIB_PATH=${GCC_PATH%/*/*}
+  GCC_LD="\$(LD)"
+  plattform=${withval}
 fi])
 
 #variables mentioned in INSTALL
@@ -121,6 +126,7 @@ AC_ARG_VAR(STACK_CACHE_DEFAULT_FAST, [number of registers in the default stack c
 AC_ARG_VAR(GCC_PR15242_WORKAROUND, [Force the enabling (1) or disabling (0) of a workaround for a gcc-3.x performance bug (default unset: use workaround for gcc-3.x)])
 
 AC_ARG_VAR(ac_cv_sizeof_char_p, [sizeof(char *)])
+AC_ARG_VAR(ac_cv_sizeof_void_p, [sizeof(void *)])
 AC_ARG_VAR(ac_cv_sizeof_char, [sizeof(char)])
 AC_ARG_VAR(ac_cv_sizeof_short, [sizeof(short)])
 AC_ARG_VAR(ac_cv_sizeof_int, [sizeof(int)])
@@ -159,6 +165,7 @@ AC_PROG_CC
 test "$GCC" = "yes" || AC_MSG_ERROR(Gforth uses GNU C extensions and requires GCC 2.0 or higher)
 
 AC_SUBST(CC)
+AC_SUBST(GCC_LD)
 AC_SUBST(DEBUGFLAG)
 AC_SUBST(EC)
 AC_SUBST(EC_MODE)
@@ -194,6 +201,9 @@ case "$host_cpu" in
 	arm*)
 		machine=arm
 		CFLAGS="$CFLAGS -fomit-frame-pointer"
+		if test x$plattform = xnxt; then
+		   CFLAGS="$CFLAGS -mthumb -mthumb-interwork"
+		fi
 		if test -z $arm_cacheflush; then
 		    no_dynamic_default=1
                     arm_cacheflush=arch/arm/cacheflush0
@@ -296,6 +306,19 @@ case "$host_cpu" in
 esac
 AC_SUBST(host)
 
+echo "Check for arch/$machine/$plattform/gforth.ld ($EC_MODE)"
+if test x$EC_MODE = xtrue
+then
+	echo "Check for arch/$machine/$plattform/gforth.ld"
+	if test -f arch/$machine/$plattform/gforth.ld
+	then
+		LDFLAGS="-T ../arch/$machine/$plattform/gforth.ld -Map \$@.map -cref --gc-sections $LDFLAGS"
+		if test x$plattform = xnxt; then
+			LIBS="$LIB_PATH/lib/gcc/arm-elf/$($CC --version | grep GCC | cut -d' ' -f3)/interwork/libgcc.a $LIB_PATH/arm-elf/lib/interwork/libc.a $LIBS"
+		fi
+	fi
+fi
+
 test x$STACK_CACHE_DEFAULT_FAST = x && STACK_CACHE_DEFAULT_FAST=1
 AC_DEFINE_UNQUOTED(STACK_CACHE_DEFAULT_FAST, $STACK_CACHE_DEFAULT_FAST,
 		   [number of registers in the default stack cache state for gforth-fast and gforth-native])
@@ -324,6 +347,19 @@ case "$ac_cv_sizeof_char_p" in
     ;;
   8)
     wordsize=64
+    ;;
+esac
+
+AC_CHECK_SIZEOF(void *)
+case "$ac_cv_sizeof_void_p" in
+  2)
+    vwordsize=16
+    ;;
+  4)
+    vwordsize=32
+    ;;
+  8)
+    vwordsize=64
     ;;
 esac
 
@@ -739,7 +775,7 @@ test $ac_cv_func_fnmatch_works = yes || AC_LIBOBJ(fnmatch)
 AC_CHECK_FUNCS(mmap sysconf getpagesize)
 AM_PATH_LISPDIR
 
-kernel_fi=kernl${wordsize}${bytesex}.fi
+kernel_fi=kernl${vwordsize}${bytesex}.fi
 include_fi=kernl${wordsize}${bytesex}${EC}.fi
 AC_SUBST(kernel_fi)
 AC_SUBST(include_fi)

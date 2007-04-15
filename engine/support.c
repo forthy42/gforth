@@ -409,6 +409,7 @@ Cell to_float(Char *c_addr, UCell u, Float *rp)
 }
 #endif
 
+#ifdef HAS_FLOAT
 Float v_star(Float *f_addr1, Cell nstride1, Float *f_addr2, Cell nstride2, UCell ucount)
 {
   Float r;
@@ -429,6 +430,7 @@ void faxpy(Float ra, Float *f_x, Cell nstridex, Float *f_y, Cell nstridey, UCell
     f_y = (Float *)(((Address)f_y)+nstridey);
   }
 }
+#endif
 
 UCell lshift(UCell u1, UCell n)
 {
@@ -440,6 +442,7 @@ UCell rshift(UCell u1, UCell n)
   return u1 >> n;
 }
 
+#ifndef STANDALONE
 int gforth_system(Char *c_addr, UCell u)
 {
   int retval;
@@ -460,6 +463,7 @@ int gforth_system(Char *c_addr, UCell u)
 #endif
   return retval;
 }
+#endif
 
 /* mixed division support; should usually be faster than gcc's
    double-by-double division (and gcc typically does not generate
