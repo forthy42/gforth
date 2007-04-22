@@ -189,16 +189,30 @@ display_char(int c)
   U8 *b;
   const U8 *f;
 
-  if (c >= 0 && c < N_CHARS &&
-      display_x >= 0 && display_x < DISPLAY_CHAR_WIDTH &&
-      display_y >= 0 && display_y < DISPLAY_CHAR_DEPTH) {
-    b = &display_buffer[display_y][display_x * CELL_WIDTH];
-    f = font[c];
-    for (i = 0; i < FONT_WIDTH; i++) {
-      *b = *f;
-      b++;
-      f++;
+  if(c != '\n') {
+    if (c >= 0 && c < N_CHARS &&
+	display_x >= 0 && display_x < DISPLAY_CHAR_WIDTH &&
+	display_y >= 0 && display_y < DISPLAY_CHAR_DEPTH) {
+      b = &display_buffer[display_y][display_x * CELL_WIDTH];
+      f = font[c];
+      for (i = 0; i < FONT_WIDTH; i++) {
+	*b = *f;
+	b++;
+	f++;
+      }
     }
+    display_x++;
+    if(display_x == DISPLAY_CHAR_WIDTH) {
+      display_x = 0;
+      display_y++;
+      if(display_y == DISPLAY_CHAR_DEPTH)
+	display_y = 0;
+    }
+  } else {
+    display_x = 0;
+    display_y++;
+    if(display_y == DISPLAY_CHAR_DEPTH)
+      display_y = 0;
   }
 }
 
@@ -206,13 +220,7 @@ void
 display_string(const char *str)
 {
   while (*str) {
-    if (*str != '\n') {
-      display_char(*str);
-      display_x++;
-    } else {
-      display_x = 0;
-      display_y++;
-    }
+    display_char(*str);
     str++;
   }
 }

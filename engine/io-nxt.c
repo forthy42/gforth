@@ -25,26 +25,41 @@
 #include "forth.h"
 #include "../arch/arm/nxt/AT91SAM7.h"
 #include "../arch/arm/nxt/bt.h"
-
-long key_avail ()
-{
-  return bt_avail();
-}
-
-Cell getkey()
-{
-  return bt_getkey();
-}
+#include "../arch/arm/nxt/display.h"
+#include "../arch/arm/nxt/aic.h"
+#include "../arch/arm/nxt/systick.h"
+#include "../arch/arm/nxt/sound.h"
+#include "../arch/arm/nxt/interrupts.h"
+#include "../arch/arm/nxt/nxt_avr.h"
+#include "../arch/arm/nxt/nxt_motors.h"
+#include "../arch/arm/nxt/i2c.h"
 
 int terminal_prepped = 0;
+
+void
+show_splash(U32 milliseconds)
+{
+  display_clear(0);
+  display_goto_xy(6, 6);
+  display_string("Gforth");
+  display_update();
+
+  systick_wait_ms(milliseconds);
+}
 
 void prep_terminal ()
 {
   aic_initialise();
   interrupts_enable();
   systick_init();
+  sound_init();
+  nxt_avr_init();
   display_init();
+  nxt_motor_init();
+  i2c_init();
   bt_init();
+  display_goto_xy(0,0);
+  display_clear(1);
 
   terminal_prepped = 1;
 }
@@ -54,16 +69,29 @@ void deprep_terminal ()
   terminal_prepped = 0;
 }
 
+long key_avail ()
+{
+  if(!terminal_prepped) prep_terminal();
+  return bt_avail();
+}
+
+Cell getkey()
+{
+  if(!terminal_prepped) prep_terminal();
+  return bt_getkey();
+}
+
 void emit_char(char x)
 {
-  bt_send(&x, 1);
+  if(!terminal_prepped) prep_terminal();
   display_char(x);
+  display_update();
+  bt_send(&x, 1);
 }
 
 void type_chars(char *addr, unsigned int l)
 {
   int i;
-  bt_send(addr, l);
   for(i=0; i<l; i++)
-    display_char(addr[i]);
+    emit_char(addr[i]);
 }

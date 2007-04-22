@@ -2239,6 +2239,8 @@ int main(int argc, char **argv, char **env)
     setvbuf(stdout,NULL,_IONBF,0);
   }
 #endif
+#else
+  prep_terminal();
 #endif
 
   progname = argv[0];
