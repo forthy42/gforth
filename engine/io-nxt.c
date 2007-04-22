@@ -62,37 +62,11 @@ void bt_send_cmd(char * cmd)
   cmd[0] = len;
   for(i=1; i<len-2; i++)
     sum += cmd[i];
+  sum = -sum;
   cmd[i++] = (char)(sum>>8);
   cmd[i++] = (char)(sum & 0xff);
 
-  bt_send(cmd, len);
-}
-
-void prep_terminal ()
-{
-  char cmd[30];
-
-  aic_initialise();
-  interrupts_enable();
-  systick_init();
-  sound_init();
-  nxt_avr_init();
-  display_init();
-  nxt_motor_init();
-  i2c_init();
-  bt_init();
-  cmd[1] = 3;
-  bt_send_cmd(cmd); // open port query
-
-  display_goto_xy(0,0);
-  display_clear(1);
-
-  terminal_prepped = 1;
-}
-
-void deprep_terminal ()
-{
-  terminal_prepped = 0;
+  bt_send(cmd, len+1);
 }
 
 void do_bluetooth ()
@@ -121,6 +95,34 @@ void do_bluetooth ()
     break;
     }
   }
+}
+
+void prep_terminal ()
+{
+  char cmd[30];
+
+  aic_initialise();
+  interrupts_enable();
+  systick_init();
+  sound_init();
+  nxt_avr_init();
+  display_init();
+  nxt_motor_init();
+  i2c_init();
+  bt_init();
+  cmd[1] = 0x21; strcpy(cmd+2, "Gforth NXT"); bt_send_cmd(cmd); do_bluetooth();
+  cmd[1] = 0x1C; cmd[2] = 1; bt_send_cmd(cmd); do_bluetooth(); // make visible
+  cmd[1] = 0x03; bt_send_cmd(cmd); // open port query
+
+  display_goto_xy(0,0);
+  display_clear(1);
+
+  terminal_prepped = 1;
+}
+
+void deprep_terminal ()
+{
+  terminal_prepped = 0;
 }
 
 long key_avail ()
@@ -161,7 +163,8 @@ void emit_char(char x)
     needs_update = 0;
   } else
     needs_update = 1;
-  bt_send(&x, 1);
+  if(bt_mode)
+    bt_send(&x, 1);
 }
 
 void type_chars(char *addr, unsigned int l)
