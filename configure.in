@@ -86,19 +86,20 @@ dnl   --without-peephole	disables peephole optimization. Creates smaller,
 dnl 			but slower images.],
 dnl PEEPHOLE="$withval")
 
+GCC_LD="\$(GCC)"
+EC_MODE="false"
+EC=""
+engine2="engine2.o"
+engine_fast2="engine-fast2.o"
+no_dynamic=""
+image_i=""
+signals_o="io.o signals.o"
+
 AC_ARG_WITH(ec,
 	AC_HELP_STRING([--with-ec=<arch>],
 			[  Build gforth for systems without OS.]),
 [if test "$withval" = "no"; then
   echo "defining hosted system"
-  EC_MODE="false"
-  EC=""
-  engine2="engine2.o"
-  engine_fast2="engine-fast2.o"
-  no_dynamic=""
-  image_i=""
-  signals_o="io.o signals.o"
-  GCC_LD="\$(GCC)"
 else
   echo "defining standalone system (${withval})"
   AC_DEFINE(STANDALONE,,[Define if you want a Gforth without OS])

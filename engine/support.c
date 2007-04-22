@@ -409,7 +409,7 @@ Cell to_float(Char *c_addr, UCell u, Float *rp)
 }
 #endif
 
-#ifdef HAS_FLOAT
+#ifdef HAS_FLOATING
 Float v_star(Float *f_addr1, Cell nstride1, Float *f_addr2, Cell nstride2, UCell ucount)
 {
   Float r;
