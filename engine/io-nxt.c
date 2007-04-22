@@ -35,6 +35,8 @@
 #include "../arch/arm/nxt/i2c.h"
 
 int terminal_prepped = 0;
+int needs_update = 0;
+int bt_mode = 0;
 
 void
 show_splash(U32 milliseconds)
@@ -47,8 +49,29 @@ show_splash(U32 milliseconds)
   systick_wait_ms(milliseconds);
 }
 
+const static bt_lens[0x3C] = { 10, 3, 10, 3,  10, 30, 10, 3,  4, 4, 26, 4,  3, 0, 0, 0,
+			       0, 0, 0, 0,    0, 0, 0, 0,     0, 0, 0, 0,   4, 4, 0, 0,
+			       0, 19, 0, 4,   0, 3, 0, 3,     0, 3, 3, 3,   0, 0, 0, 3,
+			       0, 0, 0, 3, 5, 0, 3, 4, 0,     3, 0, 3, 0 };
+
+void bt_send_cmd(char * cmd)
+{
+  int len = bt_lens[cmd[1]];
+  int i, sum=0;
+
+  cmd[0] = len;
+  for(i=1; i<len-2; i++)
+    sum += cmd[i];
+  cmd[i++] = (char)(sum>>8);
+  cmd[i++] = (char)(sum & 0xff);
+
+  bt_send(cmd, len);
+}
+
 void prep_terminal ()
 {
+  char cmd[30];
+
   aic_initialise();
   interrupts_enable();
   systick_init();
@@ -58,6 +81,9 @@ void prep_terminal ()
   nxt_motor_init();
   i2c_init();
   bt_init();
+  cmd[1] = 3;
+  bt_send_cmd(cmd); // open port query
+
   display_goto_xy(0,0);
   display_clear(1);
 
@@ -69,15 +95,60 @@ void deprep_terminal ()
   terminal_prepped = 0;
 }
 
+void do_bluetooth ()
+{
+  if(!bt_mode) {
+    char cmd[30];
+
+    bt_receive(cmd);
+    
+    switch(cmd[1]) {
+    case 0x16: // request connection
+      cmd[1] = 9; // accept connection
+      cmd[2] = 1; // yes, we do
+      bt_send_cmd(cmd);
+      break;
+    case 0x13: // connect result
+      if(cmd[2]) {
+	int handle=cmd[3];
+	cmd[1] = 0xB; // open stream
+	cmd[2] = handle;
+	bt_send_cmd(cmd);
+	bt_mode = 1;
+      }
+      break;
+  default:
+    break;
+    }
+  }
+}
+
 long key_avail ()
 {
   if(!terminal_prepped) prep_terminal();
-  return bt_avail();
+
+  if(bt_mode) {
+    return bt_avail();
+  } else {
+    if(bt_avail())
+      do_bluetooth();
+    return 0;
+  }
 }
 
 Cell getkey()
 {
+  int key;
+
   if(!terminal_prepped) prep_terminal();
+
+  if(needs_update) {
+    display_update();
+    needs_update = 0;
+  }
+
+  while(!key_avail());
+
   return bt_getkey();
 }
 
@@ -85,7 +156,11 @@ void emit_char(char x)
 {
   if(!terminal_prepped) prep_terminal();
   display_char(x);
-  display_update();
+  if(x == '\n') {
+    display_update();
+    needs_update = 0;
+  } else
+    needs_update = 1;
   bt_send(&x, 1);
 }
 
