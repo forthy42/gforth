@@ -50,6 +50,7 @@ TAR	= tar cf -
 GCC	= @CC@
 CC	= $(GCC)
 LD	= $(GCC:gcc=ld)
+AS	= $(GCC:gcc=as)
 STRIP	= strip
 GCCLD	= @GCC_LD@
 
@@ -92,6 +93,8 @@ LDLIBS  = @LIBS@
 
 AOBJECTS = @signals_o@ support.o @LIBOBJS@
 
+@MAKEINC@
+
 OBJECTS = engine.o @engine2@ main.o
 OBJECTS_NATIVE = engine-native.o engine-native2.o engine-native3.o main-native.o
 OBJECTS_FAST = engine-fast.o @engine_fast2@ main-fast.o
@@ -110,6 +113,9 @@ MAIN_FAST_DEPS = main.c $(DEPS) prim_superend-fast.i prim_num-fast.i prim_grp-fa
 
 #some makes don't do the -o $@ correctly, so we help them
 .c.o:
+	$(GCC) -c $(CFLAGS) $(CPPFLAGS) -o $@ $<
+
+.s.o:
 	$(GCC) -c $(CFLAGS) $(CPPFLAGS) -o $@ $<
 
 support.o: support.c config.h forth.h longlong.h

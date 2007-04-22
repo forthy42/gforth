@@ -24,21 +24,28 @@
 #include "config.h"
 #include "forth.h"
 #include "../arch/arm/nxt/AT91SAM7.h"
+#include "../arch/arm/nxt/bt.h"
 
 long key_avail ()
 {
-  return 0;
+  return bt_avail();
 }
 
 Cell getkey()
 {
-  return 0;
+  return bt_getkey();
 }
 
 int terminal_prepped = 0;
 
 void prep_terminal ()
 {
+  aic_initialise();
+  interrupts_enable();
+  systick_init();
+  display_init();
+  bt_init();
+
   terminal_prepped = 1;
 }
 
@@ -49,8 +56,14 @@ void deprep_terminal ()
 
 void emit_char(char x)
 {
+  bt_send(&x, 1);
+  display_char(x);
 }
 
 void type_chars(char *addr, unsigned int l)
 {
+  int i;
+  bt_send(addr, l);
+  for(i=0; i<l; i++)
+    display_char(addr[i]);
 }

@@ -116,7 +116,7 @@ else
   GCC_PATH=$(which $CC)
   LIB_PATH=${GCC_PATH%/*/*}
   GCC_LD="\$(LD)"
-  plattform=${withval}
+  platform=${withval}
 fi])
 
 #variables mentioned in INSTALL
@@ -201,7 +201,7 @@ case "$host_cpu" in
 	arm*)
 		machine=arm
 		CFLAGS="$CFLAGS -fomit-frame-pointer"
-		if test x$plattform = xnxt; then
+		if test x$platform = xnxt; then
 		   CFLAGS="$CFLAGS -mthumb -mthumb-interwork"
 		fi
 		if test -z $arm_cacheflush; then
@@ -306,18 +306,25 @@ case "$host_cpu" in
 esac
 AC_SUBST(host)
 
-echo "Check for arch/$machine/$plattform/gforth.ld ($EC_MODE)"
+MAKEINC=""
+
+echo "Check for arch/$machine/$platform/gforth.ld ($EC_MODE)"
 if test x$EC_MODE = xtrue
 then
-	echo "Check for arch/$machine/$plattform/gforth.ld"
-	if test -f arch/$machine/$plattform/gforth.ld
+	echo "Check for arch/$machine/$platform/gforth.ld"
+	if test -f arch/$machine/$platform/gforth.ld
 	then
-		LDFLAGS="-T ../arch/$machine/$plattform/gforth.ld -Map \$@.map -cref --gc-sections $LDFLAGS"
-		if test x$plattform = xnxt; then
+		LDFLAGS="-T ../arch/$machine/$platform/gforth.ld -Map \$@.map -cref --gc-sections $LDFLAGS"
+		if test x$platform = xnxt; then
 			LIBS="$LIB_PATH/lib/gcc/arm-elf/$($CC --version | grep GCC | cut -d' ' -f3)/interwork/libgcc.a $LIB_PATH/arm-elf/lib/interwork/libc.a $LIBS"
 		fi
 	fi
+	if test -f arch/$machine/$platform/make.inc
+	then
+		MAKEINC="include ../arch/$machine/$platform/make.inc"
+	fi
 fi
+AC_SUBST(MAKEINC)
 
 test x$STACK_CACHE_DEFAULT_FAST = x && STACK_CACHE_DEFAULT_FAST=1
 AC_DEFINE_UNQUOTED(STACK_CACHE_DEFAULT_FAST, $STACK_CACHE_DEFAULT_FAST,

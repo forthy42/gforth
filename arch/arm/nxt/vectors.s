@@ -1,3 +1,6 @@
+@ This file is copied from the leJOS NXT project and comes
+@ under the Mozilla public license (see file LICENSE in this directory)
+
 @  This is the vector set up for an AT91SAM7
 
 	.text
