@@ -75,10 +75,16 @@ void do_bluetooth ()
     char cmd[30];
 
     bt_receive(cmd);
+    if(cmd[0] | cmd[1]) {
+      display_char('0'+cmd[0]);
+      display_char('0'+cmd[1]);
+      display_update();
+    }
     
     switch(cmd[1]) {
+    case 0x10:
     case 0x16: // request connection
-      cmd[1] = 9; // accept connection
+      cmd[1] = 0x9; // accept connection
       cmd[2] = 1; // yes, we do
       bt_send_cmd(cmd);
       break;
@@ -88,7 +94,14 @@ void do_bluetooth ()
 	cmd[1] = 0xB; // open stream
 	cmd[2] = handle;
 	bt_send_cmd(cmd);
+	display_char('#'); display_update();
+	while (*AT91C_US1_TNCR != 0);
+	// while(!(*AT91C_PIOA_PDSR & BT_BC4_CMD_PIN));
+	bt_set_arm7_cmd();
+	display_char('!'); display_update();
 	bt_mode = 1;
+      } else {
+	display_char('('); display_update();
       }
       break;
   default:
@@ -110,12 +123,17 @@ void prep_terminal ()
   nxt_motor_init();
   i2c_init();
   bt_init();
+  do {
+    bt_receive(cmd);
+  } while((cmd[0] != 3) && (cmd[1] != 0x14));
   cmd[1] = 0x21; strcpy(cmd+2, "Gforth NXT"); bt_send_cmd(cmd); do_bluetooth();
   cmd[1] = 0x1C; cmd[2] = 1; bt_send_cmd(cmd); do_bluetooth(); // make visible
+  cmd[1] = 0x36; cmd[2] = 1; bt_send_cmd(cmd); do_bluetooth(); // don't break stream mode
   cmd[1] = 0x03; bt_send_cmd(cmd); // open port query
 
-  display_goto_xy(0,0);
   display_clear(1);
+  show_splash(1000);
+  display_goto_xy(0,0);
 
   terminal_prepped = 1;
 }
@@ -151,25 +169,30 @@ Cell getkey()
 
   while(!key_avail());
 
-  return bt_getkey();
+  while((key=bt_getkey())==0);
+  display_char(key); display_update();
+
+  return key;
 }
 
 void emit_char(char x)
 {
   if(!terminal_prepped) prep_terminal();
-  display_char(x);
+  /*  display_char(x);
   if(x == '\n') {
     display_update();
     needs_update = 0;
   } else
-    needs_update = 1;
+  needs_update = 1; */
   if(bt_mode)
     bt_send(&x, 1);
 }
 
 void type_chars(char *addr, unsigned int l)
 {
-  int i;
+  if(bt_mode)
+    bt_send(addr, l);
+  /*  int i;
   for(i=0; i<l; i++)
-    emit_char(addr[i]);
+  emit_char(addr[i]); */
 }

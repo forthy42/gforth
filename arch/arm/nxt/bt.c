@@ -89,13 +89,12 @@ U32 bt_get_mode()
 
 void bt_send(U8 *buf, U32 len)
 {
-  if (*AT91C_US1_TNCR == 0)
-  {	
-    memcpy(&(out_buf[out_buf_ptr][0]), buf, len);
-    *AT91C_US1_TNPR = (unsigned int) &(out_buf[out_buf_ptr][0]);
-    *AT91C_US1_TNCR = len;
-    out_buf_ptr = (out_buf_ptr+1) % 2;
-  }
+  while (*AT91C_US1_TNCR != 0);
+
+  memcpy(&(out_buf[out_buf_ptr][0]), buf, len);
+  *AT91C_US1_TNPR = (unsigned int) &(out_buf[out_buf_ptr][0]);
+  *AT91C_US1_TNCR = len;
+  out_buf_ptr = (out_buf_ptr+1) % 2;
 }
 
 void bt_clear_arm7_cmd(void)
