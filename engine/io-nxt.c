@@ -94,12 +94,12 @@ void do_bluetooth ()
 	cmd[1] = 0xB; // open stream
 	cmd[2] = handle;
 	bt_send_cmd(cmd);
-	display_char('#'); display_update();
 	while (*AT91C_US1_TNCR != 0);
 	// while(!(*AT91C_PIOA_PDSR & BT_BC4_CMD_PIN));
 	bt_set_arm7_cmd();
-	display_char('!'); display_update();
+	display_char(')'); display_update();
 	bt_mode = 1;
+	// bt_send("Hello Bluetooth\n", 16);
       } else {
 	display_char('('); display_update();
       }
@@ -126,7 +126,7 @@ void prep_terminal ()
   do {
     bt_receive(cmd);
   } while((cmd[0] != 3) && (cmd[1] != 0x14));
-  cmd[1] = 0x21; strcpy(cmd+2, "Gforth NXT"); bt_send_cmd(cmd); do_bluetooth();
+  //  cmd[1] = 0x21; strcpy(cmd+2, "NXT"); bt_send_cmd(cmd); do_bluetooth();
   cmd[1] = 0x1C; cmd[2] = 1; bt_send_cmd(cmd); do_bluetooth(); // make visible
   cmd[1] = 0x36; cmd[2] = 1; bt_send_cmd(cmd); do_bluetooth(); // don't break stream mode
   cmd[1] = 0x03; bt_send_cmd(cmd); // open port query
@@ -168,7 +168,7 @@ Cell getkey()
   }
 
   while(!key_avail());
-
+  
   while((key=bt_getkey())==0);
   display_char(key); display_update();
 
@@ -184,14 +184,12 @@ void emit_char(char x)
     needs_update = 0;
   } else
   needs_update = 1; */
-  if(bt_mode)
-    bt_send(&x, 1);
+  if(bt_mode) bt_send(&x, 1);
 }
 
 void type_chars(char *addr, unsigned int l)
 {
-  if(bt_mode)
-    bt_send(addr, l);
+  if(bt_mode) bt_send(addr, l);
   /*  int i;
   for(i=0; i<l; i++)
   emit_char(addr[i]); */

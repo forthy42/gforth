@@ -206,13 +206,13 @@ display_char(int c)
       display_x = 0;
       display_y++;
       if(display_y == DISPLAY_CHAR_DEPTH)
-	display_y = 0;
+	display_y--;
     }
   } else {
     display_x = 0;
     display_y++;
     if(display_y == DISPLAY_CHAR_DEPTH)
-      display_y = 0;
+      display_y--;
   }
 }
 
