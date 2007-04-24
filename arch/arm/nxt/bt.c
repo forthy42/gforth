@@ -115,15 +115,17 @@ void bt_set_reset_high(void)
 int bt_avail(void)
 {
   if (*AT91C_US1_RNCR == 0)
-    return 128;
+    return 256 - *AT91C_US1_RCR - in_buf_idx;
   else
-    return 128 - *AT91C_US1_RCR;
+    return 128 - *AT91C_US1_RCR - in_buf_idx;
 }
 
 int bt_getkey(void)
 {
-  int out;
-  while((bt_avail())==0);
+  int out, total_bytes_ready;
+
+  while(bt_avail()==0);
+
   out=buf_ptr[in_buf_idx++];
 
   if (in_buf_idx >= 128 && *AT91C_US1_RNCR == 0)

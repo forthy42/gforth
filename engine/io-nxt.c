@@ -99,7 +99,7 @@ void do_bluetooth ()
 	bt_set_arm7_cmd();
 	display_char(')'); display_update();
 	bt_mode = 1;
-	// bt_send("Hello Bluetooth\n", 16);
+	bt_send("Hello Bluetooth\n", 16);
       } else {
 	display_char('('); display_update();
       }
