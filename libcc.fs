@@ -82,13 +82,23 @@
 \ first-time word, then to the run-time word; the run-time word calls
 \ the c function.
 
+
+require struct.fs
+
+    \ counted-string
+    
 \ c-function-ft word body:
-\  cell xt of c-function-rt word
-\  cell xt of c-function deferred word 
-\  char return type index
-\  char parameter count n
-\  char*n parameters (type indices)
-\  counted string: c-name
+struct
+    cell% field cff-cfr \ xt of c-function-rt word
+    cell% field cff-deferred \ xt of c-function deferred word
+    cell% field cff-lha \ address of the lib-handle for the lib that
+                        \ contains the wrapper function of the word
+    char% field cff-rtype  \ return type
+    char% field cff-np     \ number of parameters
+    1 0   field cff-ptypes \ #npar parameter types
+    \  counted string: c-name
+end-struct cff%
+
 
 : .nb ( n -- )
     0 .r ;
@@ -113,8 +123,6 @@
 \ linked list stuff (should go elsewhere)
 
 hex
-
-require struct.fs
 
 struct
     cell% field list-next
@@ -164,8 +172,6 @@ variable c-prefix-lines-end c-prefix-lines c-prefix-lines-end !
     c-prefix-lines @ ['] print-c-prefix-line list-map ;
 
 \c #include "engine/libcc.h"
-
-print-c-prefix-lines
 
 \ Types (for parsing)
 
@@ -340,40 +346,50 @@ create gen-wrapped-types
     endif
     .\" }\n" ;
 
-variable c-source-file-id
+variable c-source-file-id \ contains the source file id of the current batch
 0 c-source-file-id !
+variable lib-handle-addr \ points to the library handle of the current batch.
+                         \ the library handle is 0 if the current
+                         \ batch is not yet compiled.
+
+: init-c-source-file ( -- )
+    c-source-file-id @ 0= if
+	s" xxx.c" w/o create-file throw dup c-source-file-id !
+	['] print-c-prefix-lines swap outfile-execute
+	here 0 , lib-handle-addr !
+    endif ;
 
 : c-source-file ( -- file-id )
-    c-source-file-id @ ?dup-if
-	exit
-    endif
-    s" xxx.c" w/o create-file throw dup c-source-file-id !
-    ['] print-c-prefix-lines over outfile-execute ;
+    c-source-file-id @ assert( dup ) ;
 
 : compile-wrapper-function ( -- )
-    c-source-file-id @ assert( dup )
-    close-file throw 0 c-source-file-id !
+    c-source-file close-file throw
+    0 c-source-file-id !
     s" gcc -fPIC -shared -Wl,-soname,xxx.so.1 -Wl,-export_dynamic -o xxx.so.1 -O xxx.c" system
-    $? abort" compiler generated error" ;
+    $? abort" compiler generated error"
+    s" /home/anton/gforth/xxx.so.1" open-lib dup 0= abort" open-lib failed"
+    ( lib-handle ) lib-handle-addr @ ! ;
 \    s" ar rcs xxx.a xxx.o" system
 \    $? abort" ar generated error" ;
 
-: link-wrapper-function ( addr -- sym )
-    wrapper-function-name { d: wrapper-name }
-    s" /home/anton/gforth/xxx.so.1" open-lib ( lib-handle )
-    wrapper-name rot lib-sym dup 0= -&32 and throw
+: link-wrapper-function { cff -- sym }
+    cff cff-rtype wrapper-function-name { d: wrapper-name }
+    wrapper-name cff cff-lha @ @ assert( dup ) lib-sym dup 0= -&32 and throw
     wrapper-name drop free throw ;
 
-: c-function-ft ( xt-defer xt-cfr "c-name" "{libcc-type}" "--" "libcc-type" -- )
+: c-function-ft ( xt-defr xt-cfr "c-name" "{libcc-type}" "--" "libcc-type" -- )
     \ build time/first time action for c-function
-    noname create 2,
+    init-c-source-file
+    noname create 2, lib-handle-addr @ ,
     parse-name { d: c-name }
     here parse-function-types c-name string,
     ['] gen-wrapper-function c-source-file outfile-execute
   does> ( ... -- ... )
     dup 2@ { xt-defer xt-cfr }
-    compile-wrapper-function
-    2 cells + link-wrapper-function xt-cfr >body !
+    dup cff-lha @ @ 0= if
+	compile-wrapper-function
+    endif
+    link-wrapper-function xt-cfr >body !
     xt-cfr xt-defer defer!
     xt-cfr execute ;
 
@@ -424,10 +440,8 @@ s" Library not found" exception constant err-nolib
 \c #include <string.h>
 \c #include <stdlib.h>
 
-cr here hex.
-
 c-function strlen strlen a -- n
 c-function labs labs n -- n
 
 cr s\" fooo\0" 2dup dump drop .s strlen cr .s drop cr 
-\ -5 labs .s drop cr
+-5 labs .s drop cr
