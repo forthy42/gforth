@@ -328,7 +328,6 @@ create gen-wrapped-types
     \ addr points to the return type index of a c-function descriptor
     dup { descriptor }
     c@+ { ret } count 2dup { d: pars } chars + count { d: c-name }
-    print-c-prefix-lines
     ." void " descriptor wrapper-function-name 2dup type drop free throw
     .\" (void)\n"
     .\" {\n  Cell MAYBE_UNUSED *sp = gforth_SP;\n  Float MAYBE_UNUSED *fp = gforth_FP;\n  "
@@ -341,7 +340,19 @@ create gen-wrapped-types
     endif
     .\" }\n" ;
 
+variable c-source-file-id
+0 c-source-file-id !
+
+: c-source-file ( -- file-id )
+    c-source-file-id @ ?dup-if
+	exit
+    endif
+    s" xxx.c" w/o create-file throw dup c-source-file-id !
+    ['] print-c-prefix-lines over outfile-execute ;
+
 : compile-wrapper-function ( -- )
+    c-source-file-id @ assert( dup )
+    close-file throw 0 c-source-file-id !
     s" gcc -fPIC -shared -Wl,-soname,xxx.so.1 -Wl,-export_dynamic -o xxx.so.1 -O xxx.c" system
     $? abort" compiler generated error" ;
 \    s" ar rcs xxx.a xxx.o" system
@@ -358,9 +369,7 @@ create gen-wrapped-types
     noname create 2,
     parse-name { d: c-name }
     here parse-function-types c-name string,
-    s" xxx.c" w/o create-file throw >r ( R:file-id )
-    ['] gen-wrapper-function r@ outfile-execute
-    r> close-file throw
+    ['] gen-wrapper-function c-source-file outfile-execute
   does> ( ... -- ... )
     dup 2@ { xt-defer xt-cfr }
     compile-wrapper-function
@@ -413,7 +422,12 @@ s" Library not found" exception constant err-nolib
 \ c-function void test6 -- void
 
 \c #include <string.h>
+\c #include <stdlib.h>
+
+cr here hex.
 
 c-function strlen strlen a -- n
+c-function labs labs n -- n
 
-cr s\" fooo\0" 2dup dump drop .s strlen cr .s cr
+cr s\" fooo\0" 2dup dump drop .s strlen cr .s drop cr 
+\ -5 labs .s drop cr
