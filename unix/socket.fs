@@ -59,6 +59,8 @@ struct
     cell% 2* field padding
 end-struct sockaddr_in
 
+' family alias family+port \ 0.6.2 32-bit field; used by itools
+
 Create sockaddr-tmp
 sockaddr-tmp sockaddr_in %size dup allot erase
 
