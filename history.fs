@@ -218,6 +218,7 @@ Variable curpos
 : .rest ( addr pos1 -- addr pos1 )
     restore-cursor 2dup type 2dup cur-correct ;
 : .all ( span addr pos1 -- span addr pos1 )
+    key? IF  rdrop  EXIT  THEN
     restore-cursor >r 2dup swap type 2dup swap cur-correct r> ;
 : xback-restore ( u -- )
     drop restore-cursor ;
@@ -232,7 +233,7 @@ Variable curpos
     2dup chars + r@ swap r@ xc-size xc!+? 2drop drop
     r> xc-size >r  rot r@ chars + -rot r> chars + ;
 : (xins)  ( max span addr pos1 xc -- max span addr pos2 )
-    <xins> key? ?EXIT .all .rest ;
+    <xins> .all .rest ;
 : xback  ( max span addr pos1 -- max span addr pos2 f )
     dup  IF  over + xchar- over -  0 max .all .rest
     ELSE  bell  THEN 0 ;
