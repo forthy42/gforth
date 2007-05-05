@@ -216,12 +216,14 @@ Variable curpos
 : save-cursor ( -- )  cursor@ curpos ! ;
 : restore-cursor ( -- )  curpos @ cursor! ;
 : .rest ( addr pos1 -- addr pos1 )
+    key? ?EXIT
     restore-cursor 2dup type 2dup cur-correct ;
 : .all ( span addr pos1 -- span addr pos1 )
-    key? IF  rdrop  EXIT  THEN
+    key? ?EXIT
     restore-cursor >r 2dup swap type 2dup swap cur-correct r> ;
 : xback-restore ( u -- )
-    drop restore-cursor ;
+    drop key? ?EXIT
+    restore-cursor ;
 
 \ In the following, addr max is the buffer, addr span is the current
 \ string in the buffer, and pos1 is the cursor position in the buffer.
