@@ -198,12 +198,27 @@ require utf-8.fs
 
 [IFUNDEF] #esc  27 Constant #esc  [THEN]
 
-: save-cursor ( -- )  #esc emit '7 emit ;
-: restore-cursor ( -- )  #esc emit '8 emit ;
+Variable curpos
+
+: at-xy? ( -- x y )
+    key? drop
+    #esc emit ." [6n"  0 0
+    BEGIN  key dup 'R <>  WHILE
+	    dup '; = IF  drop  swap  ELSE
+		dup '0 '9 1+ within  IF  '0 - swap 10 * +  ELSE
+		    drop  THEN  THEN
+    REPEAT  drop 1- swap 1- ;
+: cursor@ ( -- n )  at-xy? form nip * + ;
+: cursor! ( n -- )  form nip /mod at-xy ;
+: cur-correct  ( addr u -- )  x-width curpos @ + cursor@ -
+    form nip >r  r@ 2/ + r@ / r> * negate curpos +! ;
+
+: save-cursor ( -- )  cursor@ curpos ! ;
+: restore-cursor ( -- )  curpos @ cursor! ;
 : .rest ( addr pos1 -- addr pos1 )
-    restore-cursor 2dup type ;
+    restore-cursor 2dup type 2dup cur-correct ;
 : .all ( span addr pos1 -- span addr pos1 )
-    restore-cursor >r 2dup swap type r> ;
+    restore-cursor >r 2dup swap type 2dup swap cur-correct r> ;
 : xback-restore ( u -- )
     drop restore-cursor ;
 
@@ -217,7 +232,7 @@ require utf-8.fs
     2dup chars + r@ swap r@ xc-size xc!+? 2drop drop
     r> xc-size >r  rot r@ chars + -rot r> chars + ;
 : (xins)  ( max span addr pos1 xc -- max span addr pos2 )
-    <xins> .all .rest ;
+    <xins> key? ?EXIT .all .rest ;
 : xback  ( max span addr pos1 -- max span addr pos2 f )
     dup  IF  over + xchar- over -  0 max .all .rest
     ELSE  bell  THEN 0 ;

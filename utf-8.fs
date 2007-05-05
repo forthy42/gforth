@@ -91,10 +91,14 @@ $80 Value max-single-byte
 
 \ utf-8 stuff for xchars
 
-: +u8/string ( c-addr1 u1 -- c-addr2 u2 )
-    over dup u8>> swap - /string ;
+: u8string+ ( xcaddr u -- xcaddr u' )
+    over + u8>> over - ;
+: u8string- ( xcaddr u -- xcaddr u' )
+    over + u8<< over - ;
 
-: -u8/string ( c-addr1 u1 -- c-addr2 u2 )
+: +u8string ( xc-addr1 u1 -- xc-addr2 u2 )
+    over dup u8>> swap - /string ;
+: -u8string ( xc-addr1 u1 -- xc-addr2 u2 )
     over dup u8<< swap - /string ;
 
 : u8@ ( c-addr -- u )
@@ -287,8 +291,12 @@ here wc-table - Constant #wc-table
     ['] u8key is xkey
     ['] u8>> is xchar+
     ['] u8<< is xchar-
-    ['] +u8/string is +x/string
-    ['] -u8/string is -x/string
+[ [IFDEF] xstring+ ]
+    ['] u8string+ is xstring+
+    ['] u8string- is xstring-
+    ['] +u8string is +xstring
+    ['] -u8string is -xstring
+[ [THEN] ]
     ['] u8@ is xc@
     ['] u8!+? is xc!+?
     ['] u8@+ is xc@+

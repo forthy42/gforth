@@ -27,8 +27,10 @@ DEFER XEMIT ( xc -- )
 DEFER XKEY ( -- xc )
 DEFER XCHAR+ ( xc-addr1 -- xc-addr2 )
 DEFER XCHAR- ( xc-addr1 -- xc-addr2 )
-DEFER +X/STRING ( xc-addr1 u1 -- xc-addr2 u2 )
-DEFER -X/STRING ( xc-addr1 u1 -- xc-addr2 u2 )
+DEFER +XSTRING ( xc-addr1 u1 -- xc-addr2 u2 )
+DEFER -XSTRING ( xc-addr1 u1 -- xc-addr2 u2 )
+DEFER XSTRING+ ( xc-addr1 u1 -- xc-addr1 u2 )
+DEFER XSTRING- ( xc-addr1 u1 -- xc-addr1 u2 )
 DEFER XC@ ( xc-addr -- xc )
 DEFER XC!+? ( xc xc-addr1 u1 -- xc-addr2 u2 f ) \ f if operation succeeded
 DEFER XC@+ ( xc-addr1 -- xc-addr2 xc )
@@ -38,9 +40,9 @@ DEFER -TRAILING-GARBAGE ( addr u1 -- addr u2 ) \ remove trailing incomplete xc
 
 \ derived words, faster implementations are probably possible
 
-: X@+/string ( xc-addr1 u1 -- xc-addr2 u2 xc )
+: x@+/string ( xc-addr1 u1 -- xc-addr2 u2 xc )
     \ !! check for errors?
-    over >r +x/string
+    over >r +xstring
     r> xc@ ;
 
 \ fixed-size versions of these words
@@ -48,11 +50,15 @@ DEFER -TRAILING-GARBAGE ( addr u1 -- addr u2 ) \ remove trailing incomplete xc
 : char- ( c-addr1 -- c-addr2 )
     [ 1 chars ] literal - ;
 
-: 1/string ( c-addr1 u1 -- c-addr2 u2 )
+: +string ( c-addr1 u1 -- c-addr2 u2 )
     1 /string ;
-
-: -1/string ( c-addr1 u1 -- c-addr2 u2 )
+: -string ( c-addr1 u1 -- c-addr2 u2 )
     -1 /string ;
+
+: string+ ( c-addr1 u1 -- c-addr1 u2 )
+    1+ ;
+: string- ( c-addr1 u1 -- c-addr1 u2 )
+    1- ;
 
 : c!+? ( c c-addr1 u1 -- c-addr2 u2 f )
     dup 1 chars u< if \ or use < ?
@@ -70,8 +76,10 @@ DEFER -TRAILING-GARBAGE ( addr u1 -- addr u2 ) \ remove trailing incomplete xc
     ['] key is xkey
     ['] char+ is xchar+
     ['] char- is xchar-
-    ['] 1/string is +x/string
-    ['] -1/string is -x/string
+    ['] +string is +xstring
+    ['] -string is -xstring
+    ['] string+ is xstring+
+    ['] string- is xstring-
     ['] c@ is xc@
     ['] c!+? is xc!+?
     ['] count is xc@+
