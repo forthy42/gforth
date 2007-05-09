@@ -463,7 +463,23 @@ int gforth_system(Char *c_addr, UCell u)
 #endif
   return retval;
 }
-#endif
+
+void gforth_ms(UCell u)
+{
+#ifdef HAVE_NANOSLEEP
+  struct timespec time_req;
+  time_req.tv_sec=u/1000;
+  time_req.tv_nsec=1000000*(u%1000);
+  while(nanosleep(&time_req, &time_req));
+#else /* !defined(HAVE_NANOSLEEP) */
+  struct timeval timeout;
+  timeout.tv_sec=u/1000;
+  timeout.tv_usec=1000*(u%1000);
+  (void)select(0,0,0,0,&timeout);
+#endif /* !defined(HAVE_NANOSLEEP) */
+}
+#endif /* !defined(STANDALONE) */
+
 
 /* mixed division support; should usually be faster than gcc's
    double-by-double division (and gcc typically does not generate

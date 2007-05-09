@@ -1751,12 +1751,9 @@ nhour =ltime->tm_hour;
 nmin  =ltime->tm_min;
 nsec  =ltime->tm_sec;
 
-ms	( n -- )	facility-ext
+ms	( u -- )	facility-ext
 ""Wait at least @i{n} milli-second.""
-struct timeval timeout;
-timeout.tv_sec=n/1000;
-timeout.tv_usec=1000*(n%1000);
-(void)select(0,0,0,0,&timeout);
+gforth_ms(u);
 
 allocate	( u -- a_addr wior )	memory
 ""Allocate @i{u} address units of contiguous data space. The initial
