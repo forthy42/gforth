@@ -738,6 +738,21 @@ the unit specifier @code{e} refers to floating point numbers.
 Allocate @i{size} space for the locals stack instead of using the
 default specified in the image (typically 14.5K).
 
+@cindex --vm-commit, command-line option
+@cindex overcommit memory for dictionary and stacks
+@cindex memory overcommit for dictionary and stacks
+@item --vm-commit
+Normally, Gforth tries to start up even if there is not enough virtual
+memory for the dictionary and the stacks (using @code{MAP_NORESERVE}
+on OSs that support it); so you can ask for a really big dictionary
+and/or stacks, and as long as you don't use more virtual memory than
+is available, everything will be fine (but if you use more, processes
+get killed).  With this option you just use the default allocation
+policy of the OS; for OSs that don't overcommit (e.g., Solaris), this
+means that you cannot and should not ask for as big dictionary and
+stacks, but once Gforth successfully starts up, out-of-memory won't
+kill it.
+
 @cindex -h, command-line option
 @cindex --help, command-line option
 @item --help

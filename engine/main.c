@@ -188,6 +188,10 @@ char *progname;
 char *progname = "gforth";
 int optind = 1;
 #endif
+#ifndef MAP_NORESERVE
+#define MAP_NORESERVE 0
+#endif
+static int map_noreserve=MAP_NORESERVE;
 
 #define CODE_BLOCK_SIZE (512*1024) /* !! overflow handling for -native */
 Address code_area=0;
@@ -530,7 +534,7 @@ static Address alloc_mmap(Cell size)
 
 #if defined(MAP_ANON)
   debugp(stderr,"try mmap($%lx, $%lx, ..., MAP_ANON, ...); ", (long)next_address, (long)size);
-  r = mmap(next_address, size, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE, -1, 0);
+  r = mmap(next_address, size, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE|map_noreserve, -1, 0);
 #else /* !defined(MAP_ANON) */
   /* Ultrix (at least) does not define MAP_FILE and MAP_PRIVATE (both are
      apparently defaults) */
@@ -544,7 +548,7 @@ static Address alloc_mmap(Cell size)
 	      strerror(errno));
   } else {
     debugp(stderr,"try mmap($%lx, $%lx, ..., MAP_FILE, dev_zero, ...); ", (long)next_address, (long)size);
-    r=mmap(next_address, size, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_FILE|MAP_PRIVATE, dev_zero, 0);
+    r=mmap(next_address, size, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_FILE|MAP_PRIVATE|map_noreserve, dev_zero, 0);
   }
 #endif /* !defined(MAP_ANON) */
   after_alloc(r, size);
@@ -597,7 +601,7 @@ static Address dict_alloc_read(FILE *file, Cell imagesize, Cell dictsize, Cell o
     if (image != (Address)MAP_FAILED) {
       Address image1;
       debugp(stderr,"try mmap($%lx, $%lx, ..., MAP_FIXED|MAP_FILE, imagefile, 0); ", (long)image, (long)imagesize);
-      image1 = mmap(image, imagesize, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_FIXED|MAP_FILE|MAP_PRIVATE, fileno(file), 0);
+      image1 = mmap(image, imagesize, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_FIXED|MAP_FILE|MAP_PRIVATE|map_noreserve, fileno(file), 0);
       after_alloc(image1,dictsize);
       if (image1 == (Address)MAP_FAILED)
 	goto read_image;
@@ -2023,6 +2027,7 @@ void gforth_args(int argc, char ** argv, char ** path, char ** imagename)
       {"return-stack-size", required_argument, NULL, 'r'},
       {"fp-stack-size", required_argument, NULL, 'f'},
       {"locals-stack-size", required_argument, NULL, 'l'},
+      {"vm-commit", no_argument, &map_noreserve, 0},
       {"path", required_argument, NULL, 'p'},
       {"version", no_argument, NULL, 'v'},
       {"help", no_argument, NULL, 'h'},
@@ -2084,37 +2089,38 @@ void gforth_args(int argc, char ** argv, char ** path, char ** imagename)
     case 'h': 
       fprintf(stderr, "Usage: %s [engine options] ['--'] [image arguments]\n\
 Engine Options:\n\
-  --appl-image FILE		    equivalent to '--image-file=FILE --'\n\
+  --appl-image FILE		    Equivalent to '--image-file=FILE --'\n\
   --clear-dictionary		    Initialize the dictionary with 0 bytes\n\
   -d SIZE, --data-stack-size=SIZE   Specify data stack size\n\
   --debug			    Print debugging information during startup\n\
   --diag			    Print diagnostic information during startup\n\
-  --die-on-signal		    exit instead of THROWing some signals\n\
-  --dynamic			    use dynamic native code\n\
+  --die-on-signal		    Exit instead of THROWing some signals\n\
+  --dynamic			    Use dynamic native code\n\
   -f SIZE, --fp-stack-size=SIZE	    Specify floating point stack size\n\
   -h, --help			    Print this message and exit\n\
-  --ignore-async-signals            ignore instead of THROWing async. signals\n\
+  --ignore-async-signals	    Ignore instead of THROWing async. signals\n\
   -i FILE, --image-file=FILE	    Use image FILE instead of `gforth.fi'\n\
   -l SIZE, --locals-stack-size=SIZE Specify locals stack size\n\
   -m SIZE, --dictionary-size=SIZE   Specify Forth dictionary size\n\
   --no-dynamic			    Use only statically compiled primitives\n\
   --no-offset-im		    Load image at normal position\n\
-  --no-super                        No dynamically formed superinstructions\n\
+  --no-super			    No dynamically formed superinstructions\n\
   --offset-image		    Load image at a different position\n\
   -p PATH, --path=PATH		    Search path for finding image and sources\n\
   --print-metrics		    Print some code generation metrics on exit\n\
   -r SIZE, --return-stack-size=SIZE Specify return stack size\n\
-  --ss-greedy                       greedy, not optimal superinst selection\n\
-  --ss-min-codesize                 select superinsts for smallest native code\n\
-  --ss-min-ls                       minimize loads and stores\n\
-  --ss-min-lsu                      minimize loads, stores, and pointer updates\n\
-  --ss-min-nexts                    minimize the number of static superinsts\n\
-  --ss-number=N                     use N static superinsts (default max)\n\
-  --ss-states=N                     N states for stack caching (default max)\n\
-  --tpa-noequiv                     automaton without state equivalence\n\
-  --tpa-noautomaton                 dynamic programming only\n\
-  --tpa-trace                       report new states etc.\n\
+  --ss-greedy			    Greedy, not optimal superinst selection\n\
+  --ss-min-codesize		    Select superinsts for smallest native code\n\
+  --ss-min-ls			    Minimize loads and stores\n\
+  --ss-min-lsu			    Minimize loads, stores, and pointer updates\n\
+  --ss-min-nexts		    Minimize the number of static superinsts\n\
+  --ss-number=N			    Use N static superinsts (default max)\n\
+  --ss-states=N			    N states for stack caching (default max)\n\
+  --tpa-noequiv			    Automaton without state equivalence\n\
+  --tpa-noautomaton		    Dynamic programming only\n\
+  --tpa-trace			    Report new states etc.\n\
   -v, --version			    Print engine version and exit\n\
+  --vm-commit			    Use OS default for memory overcommit\n\
 SIZE arguments consist of an integer followed by a unit. The unit can be\n\
   `b' (byte), `e' (element; default), `k' (KB), `M' (MB), `G' (GB) or `T' (TB).\n",
 	      argv[0]);
