@@ -84,7 +84,8 @@ void bt_start_ad_converter()
 
 U32 bt_get_mode()
 {
-  return (U32) *AT91C_ADC_CDR6;
+  bt_start_ad_converter();
+  return ((U32) *AT91C_ADC_CDR6) > 0x200;
 }
 
 void bt_send(U8 *buf, U32 len)
