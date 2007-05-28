@@ -333,7 +333,7 @@ create gen-wrapped-types
 : gen-wrapper-function ( addr -- )
     \ addr points to the return type index of a c-function descriptor
     dup { descriptor }
-    c@+ { ret } count 2dup { d: pars } chars + count { d: c-name }
+    count { ret } count 2dup { d: pars } chars + count { d: c-name }
     ." void " descriptor wrapper-function-name 2dup type drop free throw
     .\" (void)\n"
     .\" {\n  Cell MAYBE_UNUSED *sp = gforth_SP;\n  Float MAYBE_UNUSED *fp = gforth_FP;\n  "
@@ -413,35 +413,3 @@ s" Library not found" exception constant err-nolib
     create parse-name open-lib dup 0= err-nolib and throw ,
   does> ( -- lib )
     @ ;
-
-\ test
-
-\ test all parameter and return types
-
-\ cr .( #include "engine/libcc.h")
-\ cr .( #include <unistd.h>)
-\ cr ." typedef void (* func)(int);
-\ cr ." int test1(int,char*,long,double,void (*)(int));"
-\ cr ." Cell *test2(void);"
-\ cr ." int test3(void);"
-\ cr ." float test4(void);"
-\ cr ." func test5(void);"
-\ cr ." void test6(void);"
-\ cr
-
-\ c-function dlseek lseek n d n -- d
-\ c-function n test1 n a d r func -- n
-\ c-function a test2 -- a
-\ c-function d test3 -- d
-\ c-function r test4 -- r
-\ c-function func test5 -- func
-\ c-function void test6 -- void
-
-\c #include <string.h>
-\c #include <stdlib.h>
-
-c-function strlen strlen a -- n
-c-function labs labs n -- n
-
-cr s\" fooo\0" 2dup dump drop .s strlen cr .s drop cr 
--5 labs .s drop cr
