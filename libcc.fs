@@ -99,6 +99,11 @@ struct
     \  counted string: c-name
 end-struct cff%
 
+variable c-source-file-id \ contains the source file id of the current batch
+0 c-source-file-id !
+variable lib-handle-addr \ points to the library handle of the current batch.
+                         \ the library handle is 0 if the current
+                         \ batch is not yet compiled.
 
 : .nb ( n -- )
     0 .r ;
@@ -158,18 +163,21 @@ end-struct c-prefix%
 variable c-prefix-lines 0 c-prefix-lines !
 variable c-prefix-lines-end c-prefix-lines c-prefix-lines-end !
 
-: save-c-prefix-line ( c-addr u -- )
-    align here 0 , c-prefix-lines-end list-append ( c-addr u )
-    longstring, ;
-
-: \c ( "rest-of-line" -- )
-    -1 parse save-c-prefix-line ;
-
 : print-c-prefix-line ( node -- )
     dup c-prefix-chars swap c-prefix-count @ type cr ;
 
 : print-c-prefix-lines ( -- )
     c-prefix-lines @ ['] print-c-prefix-line list-map ;
+
+: save-c-prefix-line ( c-addr u -- )
+    c-source-file-id @ ?dup-if
+	>r 2dup r> write-line throw
+    then
+    align here 0 , c-prefix-lines-end list-append ( c-addr u )
+    longstring, ;
+
+: \c ( "rest-of-line" -- )
+    -1 parse save-c-prefix-line ;
 
 \c #include "engine/libcc.h"
 
@@ -345,12 +353,6 @@ create gen-wrapped-types
 	."   gforth_FP = fp+" .nb .\" ;\n"
     endif
     .\" }\n" ;
-
-variable c-source-file-id \ contains the source file id of the current batch
-0 c-source-file-id !
-variable lib-handle-addr \ points to the library handle of the current batch.
-                         \ the library handle is 0 if the current
-                         \ batch is not yet compiled.
 
 : init-c-source-file ( -- )
     c-source-file-id @ 0= if
