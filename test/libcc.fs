@@ -4,6 +4,7 @@ require libcc.fs
 \c #include <stdlib.h>
 
 c-function strlen strlen a -- n
+cr s\" fooo\0" 2dup dump drop .s strlen cr .s drop cr 
 c-function labs labs n -- n
 
 \c #include <sys/types.h>
