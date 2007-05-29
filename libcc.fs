@@ -104,6 +104,7 @@ variable c-source-file-id \ contains the source file id of the current batch
 variable lib-handle-addr \ points to the library handle of the current batch.
                          \ the library handle is 0 if the current
                          \ batch is not yet compiled.
+2variable lib-filename \ filename without extension
 
 : .nb ( n -- )
     0 .r ;
@@ -124,6 +125,18 @@ variable lib-handle-addr \ points to the library handle of the current batch.
     assert( u1 0 u> )
     c c-addr1 c!
     c-addr1 u1 1 /string ;
+
+: s+ { addr1 u1 addr2 u2 -- addr u }
+    u1 u2 + allocate throw { addr }
+    addr1 addr u1 move
+    addr2 addr u1 + u2 move
+    addr u1 u2 +
+;
+
+: append { addr1 u1 addr2 u2 -- addr u }
+    addr1 u1 u2 + dup { u } resize throw { addr }
+    addr2 addr u1 + u2 move
+    addr u ;
 
 \ linked list stuff (should go elsewhere)
 
@@ -354,11 +367,16 @@ create gen-wrapped-types
     endif
     .\" }\n" ;
 
+: gen-filename ( x -- c-addr u )
+    \ generates a filename without extension for lib-handle-addr X
+    0 <<# ['] #s $10 base-execute 'x hold 'x hold 'x hold #> save-mem #>> ;
+
 : init-c-source-file ( -- )
     c-source-file-id @ 0= if
-	s" xxx.c" w/o create-file throw dup c-source-file-id !
-	['] print-c-prefix-lines swap outfile-execute
-	here 0 , lib-handle-addr !
+	here 0 , dup lib-handle-addr ! gen-filename 2dup lib-filename 2!
+	s" .c" s+ 2dup w/o create-file throw dup c-source-file-id !
+        ['] print-c-prefix-lines swap outfile-execute
+        drop free throw
     endif ;
 
 : c-source-file ( -- file-id )
@@ -367,10 +385,17 @@ create gen-wrapped-types
 : compile-wrapper-function ( -- )
     c-source-file close-file throw
     0 c-source-file-id !
-    s" gcc -fPIC -shared -Wl,-soname,xxx.so.1 -Wl,-export_dynamic -o xxx.so.1 -O xxx.c" system
-    $? abort" compiler generated error"
-    s" /home/anton/gforth/xxx.so.1" open-lib dup 0= abort" open-lib failed"
-    ( lib-handle ) lib-handle-addr @ ! ;
+    s" gcc -fPIC -shared -Wl,-soname," lib-filename 2@ s+
+    s" .so.1 -Wl,-export_dynamic -o " append lib-filename 2@ append
+    s" .so.1 -O " append lib-filename 2@ append s" .c" append ( c-addr u )
+    2dup system drop free throw
+    $? abort" compiler generated error" \ !! call dlerror
+    s" ./" lib-filename 2@ s+ s" .so.1" append
+    2dup open-lib dup 0= abort" open-lib failed" \ !! call dlerror
+    ( lib-handle ) lib-handle-addr @ !
+    2dup delete-file throw drop free throw
+    lib-filename 2@ s" .c" s+ 2dup delete-file throw drop free throw
+    lib-filename 2@ drop free throw 0 0 lib-filename 2! ;
 \    s" ar rcs xxx.a xxx.o" system
 \    $? abort" ar generated error" ;
 
