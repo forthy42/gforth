@@ -367,9 +367,15 @@ create gen-wrapped-types
     endif
     .\" }\n" ;
 
+: tempdir ( -- c-addr u )
+    s" TMPDIR" getenv dup 0= if
+        2drop s" /tmp"
+    then ;
+
 : gen-filename ( x -- c-addr u )
     \ generates a filename without extension for lib-handle-addr X
-    0 <<# ['] #s $10 base-execute 'x hold 'x hold 'x hold #> save-mem #>> ;
+    0 <<# ['] #s $10 base-execute #> 
+    tempdir s" /gforth-c-" s+ 2swap append #>> ;
 
 : init-c-source-file ( -- )
     c-source-file-id @ 0= if
@@ -385,12 +391,12 @@ create gen-wrapped-types
 : compile-wrapper-function ( -- )
     c-source-file close-file throw
     0 c-source-file-id !
-    s" gcc -fPIC -shared -Wl,-soname," lib-filename 2@ s+
+    s" gcc -I. -fPIC -shared -Wl,-soname," lib-filename 2@ s+
     s" .so.1 -Wl,-export_dynamic -o " append lib-filename 2@ append
     s" .so.1 -O " append lib-filename 2@ append s" .c" append ( c-addr u )
     2dup system drop free throw
     $? abort" compiler generated error" \ !! call dlerror
-    s" ./" lib-filename 2@ s+ s" .so.1" append
+    lib-filename 2@ s" .so.1" s+
     2dup open-lib dup 0= abort" open-lib failed" \ !! call dlerror
     ( lib-handle ) lib-handle-addr @ !
     2dup delete-file throw drop free throw
