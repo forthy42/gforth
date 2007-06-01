@@ -24,6 +24,9 @@
     [IFDEF] ffi-call
 	include libffi.fs
     [ELSE]
+        .( Neither libffi nor ffcall are available ) cr
+        abort
+        .( Using oldlib.fs; incompatible with fflib.fs and libffi.fs) cr
 	include oldlib.fs
     [THEN]
 [THEN]

@@ -140,8 +140,6 @@ variable lib-handle-addr \ points to the library handle of the current batch.
 
 \ linked list stuff (should go elsewhere)
 
-hex
-
 struct
     cell% field list-next
     1 0   field list-payload
@@ -190,6 +188,7 @@ variable c-prefix-lines-end c-prefix-lines c-prefix-lines-end !
     longstring, ;
 
 : \c ( "rest-of-line" -- )
+    \G One line of C declarations for the C interface
     -1 parse save-c-prefix-line ;
 
 \c #include "engine/libcc.h"
@@ -434,15 +433,7 @@ create gen-wrapped-types
     @ call-c ;
 
 : c-function ( "forth-name" "c-name" "{libcc-type}" "--" "libcc-type" -- )
+    \G Define a Forth word @i{forth-name}.  @i{Forth-name} has the
+    \G specified stack effect and calls the C function @code{c-name}.
     defer lastxt dup c-function-rt lastxt c-function-ft
     lastxt swap defer! ;
-
-s" Library not found" exception constant err-nolib
-
-: library ( "name" "file" -- ) \ gforth
-\G Dynamically links the library specified by @i{file}.  Defines a
-\G word @i{name} ( -- lib ) that starts the declaration of a
-\G function from that library.
-    create parse-name open-lib dup 0= err-nolib and throw ,
-  does> ( -- lib )
-    @ ;
