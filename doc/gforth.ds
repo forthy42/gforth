@@ -11919,9 +11919,9 @@ it.  The declaration consists of two parts:
 @table @b
 
 @item The C part
-is the C declaration of the function, or more typically, a C-style
-@code{#include} of a file that contains the declaration of the C
-function.
+is the C declaration of the function, or more typically and portably,
+a C-style @code{#include} of a file that contains the declaration of
+the C function.
 
 @item The Forth part
 declares the Forth types of the parameters and the Forth word name
