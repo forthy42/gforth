@@ -331,7 +331,7 @@ Other I/O
 * Formatted numeric output::    Formatted (pictured) output
 * String Formats::              How Forth stores strings in memory
 * Displaying characters and strings::  Other stuff
-* Terminal output::             
+* Terminal output::             Cursor positioning etc.
 * Input::                       Input
 * Pipes::                       How to create your own pipes
 * Xchars and Unicode::          Non-ASCII characters
@@ -407,6 +407,7 @@ C Interface
 * Calling C Functions::         
 * Declaring C Functions::       
 * Callbacks::                   
+* C interface internals::       
 * Low-Level C Interface Words::  
 
 Assembler and Code Words
@@ -11828,14 +11829,14 @@ doc-break"
 @cindex foreign language interface
 @cindex interface to C functions
 
-Note that the C interface is not yet complete; a better way of
-declaring C functions is planned, as well as a way of declaring
-structs, unions, and their fields.
+Note that the C interface is not yet complete; callbacks are missing,
+as well as a way of declaring structs, unions, and their fields.
 
 @menu
 * Calling C Functions::         
 * Declaring C Functions::       
 * Callbacks::                   
+* C interface internals::       
 * Low-Level C Interface Words::  
 @end menu
 
@@ -11939,7 +11940,7 @@ c-function lseek lseek n n n -- n
 c-function dlseek lseek n d n -- d
 @end example
 
-The C part of the declarations is prefixed by @ocde{\c}, and the rest
+The C part of the declarations is prefixed by @code{\c}, and the rest
 of the line is ordinary C code.  You can use as many lines of C
 declarations as you like, and they are visible for all further
 function declarations.
@@ -11947,7 +11948,7 @@ function declarations.
 The Forth part declares each interface word with @code{c-function},
 followed by the Forth name of the word, the C name of the called
 function, and the stack effect of the word.  The stack effect contains
-an arbitrary number of types of parameters, then \code{--}, and then
+an arbitrary number of types of parameters, then @code{--}, and then
 exactly one type for the return value.  The possible types are:
 
 @table @code
@@ -11990,29 +11991,30 @@ problems in some cases.  In such cases you can perform the conversion
 explicitly on the C level, e.g., as follows:
 
 @example
-\c #define printf_ull(s,ull) printf(s,(unsigned long long)ull)
-c-function printf-ull printf_ull a n -- n
+\c #define printfll(s,ll) printf(s,(long long)ll)
+c-function printfll printfll a n -- n
 @end example
 
 Here, instead of calling @code{printf()} directly, we define a macro
-that casts (converts) the Forth single-cell (unsigned) integer into a
-C @code{unsigned long long} before calling @code{printf()}.
+that casts (converts) the Forth single-cell integer into a
+C @code{long long} before calling @code{printf()}.
 
 doc-\c
 doc-c-function
 
 In order to work, this C interface invokes GCC at run-time and uses
-dynamic linking.  If these features are not availabkle, there are
-other, less convenient C interfaces in @file{lib.fs} and
-@file{oldlib.fs}.  These interfaces are mostly undocumented and mostly
-incompatible with each other and with the documented C interface; you
-can find some examples for the @file{lib.fs} interface in @file{lib.fs}.
+dynamic linking.  If these features are not available, there are
+other, less convenient and less portable C interfaces in @file{lib.fs}
+and @file{oldlib.fs}.  These interfaces are mostly undocumented and
+mostly incompatible with each other and with the documented C
+interface; you can find some examples for the @file{lib.fs} interface
+in @file{lib.fs}.
 
 
 
 
 
-@node Callbacks, Low-Level C Interface Words, Declaring C Functions, C Interface
+@node Callbacks, C interface internals, Declaring C Functions, C Interface
 @subsection Callbacks
 @cindex Callback functions written in Forth
 @cindex C function pointers to Forth words
@@ -12046,7 +12048,7 @@ function, you probably want to define the function as a Forth word.
 @c demselben Prototyp.
 
 
-@node C interface internals
+@node C interface internals, Low-Level C Interface Words, Callbacks, C Interface
 @subsection How the C interface works
 
 The documented C interface works by generating a C code out of the
@@ -12070,7 +12072,7 @@ These wrapper functions are eventually compiled and dynamically linked
 into Gforth, and then they can be called.
 
 
-@node Low-Level C Interface Words,  , Callbacks, C Interface
+@node Low-Level C Interface Words,  , C interface internals, C Interface
 @subsection Low-Level C Interface Words
 
 doc-open-lib

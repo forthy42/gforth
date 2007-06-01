@@ -25,3 +25,8 @@ s\" r=%f n=%d\n\0" drop -0.5e -5 printf-rn . cr
 c-function printfull printfull a n -- n
 s\" ull=%llu\n\0" drop -1 printfull . cr
 s\" ull=%llu r=%f\n\0" drop -1 -0.5e printf-nr . cr
+
+\c #define printfll(s,ll) printf(s,(long long)ll)
+c-function printfll printfll a n -- n
+s\" ll=%lld\n\0" drop -1 printfll . cr
+s\" ll=%lld r=%f\n\0" drop -1 -0.5e printf-nr . cr
