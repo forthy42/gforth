@@ -223,6 +223,7 @@ GFORTH_FI_SRC = \
 	hash.fs \
 	history.fs \
 	intcomp.fs \
+	libcc.fs \
 	locals.fs \
 	look.fs \
 	quotes.fs \
@@ -262,7 +263,7 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_SRC) $(EC_SRC) \
 	test/string.fs test/float.fs test/gforth.fs \
 	test/other.fs test/signals.fs test/checkans.fs \
 	test/primtest.fs test/coreext.fs test/deferred.fs \
-	test/coremore.fs test/gforth-nofast.fs \
+	test/coremore.fs test/gforth-nofast.fs test/libcc.fs \
 	bubble.fs siev.fs matrix.fs fib.fs \
 	oof.fs oofsampl.fs objects.fs objexamp.fs mini-oof.fs moof-exm.fs \
 	moofglos.fs fixpath.fs \

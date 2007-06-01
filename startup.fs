@@ -78,6 +78,7 @@ require simp-see.fs
 require debug.fs
 require code.fs
 require dis-gdb.fs
+require libcc.fs
 
 \ define the environmental queries for all the loaded wordsets
 \ since the blocks wordset is loaded in a single file, its queries

@@ -1800,7 +1800,7 @@ u = strlen((char *)c_addr);
 call-c	( ... w -- ... )	gforth	call_c
 ""Call the C function pointed to by @i{w}. The C function has to
 access the stack itself. The stack pointers are exported in the global
-variables @code{SP} and @code{FP}.""
+variables @code{gforth_SP} and @code{gforth_FP}.""
 /* This is a first attempt at support for calls to C. This may change in
    the future */
 gforth_FP=fp;

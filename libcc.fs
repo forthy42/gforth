@@ -187,7 +187,7 @@ variable c-prefix-lines-end c-prefix-lines c-prefix-lines-end !
     align here 0 , c-prefix-lines-end list-append ( c-addr u )
     longstring, ;
 
-: \c ( "rest-of-line" -- )
+: \c ( "rest-of-line" -- ) \ gforth backslash-c
     \G One line of C declarations for the C interface
     -1 parse save-c-prefix-line ;
 
@@ -432,7 +432,7 @@ create gen-wrapped-types
   does> ( ... -- ... )
     @ call-c ;
 
-: c-function ( "forth-name" "c-name" "{libcc-type}" "--" "libcc-type" -- )
+: c-function ( "forth-name" "c-name" "@{type@}" "--" "type" -- ) \ gforth
     \G Define a Forth word @i{forth-name}.  @i{Forth-name} has the
     \G specified stack effect and calls the C function @code{c-name}.
     defer lastxt dup c-function-rt lastxt c-function-ft
