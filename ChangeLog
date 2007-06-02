@@ -1,3 +1,588 @@
+2007-06-01  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* doc/gforth.ds: documentation changes
+
+	* Makefile.in, libcc.fs, prim, startup.fs: libcc.fs is now in gforth.fi
+	documentation changes
+
+	* doc/gforth.ds, test/libcc.fs: minor fixes
+
+	* doc/gforth.ds, lib.fs, libcc.fs, test/libcc.fs: more libcc.fs tests
+	documented C interface (libcc)
+	lib.fs now aborts if neither libffi nor ffcall are available (oldlib.fs is
+	  incompatible)
+
+2007-05-31  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* libcc.fs: libcc now puts its files into
+
+2007-05-29  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* libcc.fs: libcc now manages several batches
+
+	* test/libcc.fs: additional libcc test
+
+2007-05-28  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* libcc.fs: minor libcc.fs bugfix
+
+	* libcc.fs, test/libcc.fs: split test/libcc.fs from libcc.fs
+
+2007-05-17  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* arch/arm/nxt/bt.c: Mode check
+
+2007-05-15  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* engine/main.c, doc/gforth.ds:
+	Use MAP_NORESERVE on OSs that support it to overcommit dict and stack memory
+	Added --vm-commit option to turn off MAP_NORESERVE
+
+2007-05-09  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* configure.in, engine/forth.h, engine/support.c, prim:
+	use nanosleep() for MS where available (thanks to Shawn K. Quinn).
+
+2007-05-05  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* history.fs: Even better handling with keys in the buffer
+
+	* history.fs: Better handling of keys in the buffer
+
+	* kernel/xchars.fs, history.fs, utf-8.fs: Changes for xchar proposal
+	Fixed cursor handing for multi-line edits on last line
+
+2007-05-05  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* unix/socket.fs: reintroduced FAMILY+PORT
+
+2007-04-25  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* libcc.fs:
+	more libcc work: now can handle multiple functions (one batch)
+
+	* libcc.fs: more libcc work
+
+2007-04-24  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* arch/arm/nxt/bt.c, engine/io-nxt.c: Fixed important bug
+
+	* arch/arm/nxt/display.c, engine/io-nxt.c:
+	Fruitless attempt to get a bit further with NXT Bluetooth
+
+2007-04-23  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* arch/arm/nxt/bt.c, engine/io-nxt.c:
+	More tries to get Bluetooth to work
+
+2007-04-22  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* engine/io-nxt.c: Some further progress with bluetooth
+
+	* engine/io-nxt.c:
+	Some further progress with Bluetooth (not running, though)
+
+	* configure.in, engine/support.c: Make sure normal setup works
+
+	* arch/arm/nxt/config.nxt: Added config script
+
+	* arch/arm/nxt/display.c, engine/io-nxt.c, engine/main.c:
+	Gforth says "hello"
+
+	* arch/arm/nxt/aic.c, arch/arm/nxt/aic.h, arch/arm/nxt/bt.c, arch/arm/nxt/bt.h, arch/arm/nxt/byte_fifo.c, arch/arm/nxt/byte_fifo.h, arch/arm/nxt/display.c, arch/arm/nxt/display.h, arch/arm/nxt/i2c.c, arch/arm/nxt/i2c.h, arch/arm/nxt/init.s, arch/arm/nxt/interrupts.h, arch/arm/nxt/interrupts.s, arch/arm/nxt/irq.s, arch/arm/nxt/make.inc, arch/arm/nxt/mytypes.h, arch/arm/nxt/nxt_avr.c, arch/arm/nxt/nxt_avr.h, arch/arm/nxt/nxt_lcd.c, arch/arm/nxt/nxt_lcd.h, arch/arm/nxt/nxt_motors.c, arch/arm/nxt/nxt_motors.h, arch/arm/nxt/nxt_spi.c, arch/arm/nxt/nxt_spi.h, arch/arm/nxt/sound.c, arch/arm/nxt/sound.h, arch/arm/nxt/systick.c, arch/arm/nxt/systick.h, arch/arm/nxt/twi.c, arch/arm/nxt/twi.h, arch/arm/nxt/uart.c, arch/arm/nxt/uart.h, arch/arm/nxt/udp.c, arch/arm/nxt/udp.h, arch/arm/nxt/vectors.s, engine/Makefile.in, engine/io-nxt.c, arch/arm/nxt/AT91SAM7.h, configure.in:
+	NXT Gforth now compiles (but doesn't run yet)
+
+2007-04-15  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* arch/arm/nxt/gforth.ld, arch/arm/nxt/vectors.s, configure.in, engine/Makefile.in, engine/main.c, engine/support.c:
+	Configure work to make Gforth on NXT compile without much effort
+
+2007-04-09  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* engine/io-nxt.c: NXT-specific IO file (stub)
+
+	* Makefile.in, arch/generic/machine.h, configure.in, engine/Makefile.in, engine/io.c, engine/main.c, engine/support.c, fi2c.fs, machpc.fs.in:
+	Some stuff to get closer to run Gforth on NXT
+
+2007-04-09  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* libcc.fs: more work on libcc
+
+2007-04-01  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* configure.in, cross.fs, engine/engine.c, prim:
+	C-based EC version runs now on OS hosted system.
+
+	* configure.in, engine/signals.c: Added cygwin define
+
+2007-03-31  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* configure.in, cross.fs, engine/Makefile.in, engine/engine.c, engine/main.c, etags.fs, kernel/basics.fs, prim:
+	Further work on NXT Gforth
+	Fixed problem with useless kernel error messages
+	TAGS generation works again
+
+2007-03-31  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* doc/gforth.ds, prim:
+	documented FORM and reorganized related documentation
+
+2007-03-31  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* arch/generic/machine.h, engine/forth.h, engine/signals.c, fi2c.fs, machpc.fs.in:
+	Work on Gforth NXT
+
+2007-03-25  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* Makefile.in, arch/generic/machine.h, configure.in, cross.fs, engine/Makefile.in, engine/main.c, engine/signals.c, engine/support.c, fi2c.fs, kernel/io.fs, machpc.fs.in, prim:
+	C-based Gforth EC starts to work
+
+2007-03-19  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* configure.in, engine/engine.c: portability fixes for ARM
+
+2007-03-18  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* arch/r8c/prim.fs, fi2c.fs, kernel/int.fs, machpc.fs.in:
+	Fixed some small problems further along to compile on NXT
+
+2007-03-18  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* Makefile.in: added new files to make dist
+
+2007-03-18  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* engine/engine.c, engine/main.c, kernel/basics.fs, kernel/int.fs, kernel/io.fs, kernel/kernel.fs, machpc.fs.in:
+	Another step in direction to compile for NXT
+
+2007-03-18  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* Makefile.in, configure.in, onebench.fs:
+	changed benchmarking code (use Gforth instead of GNU time)
+	more assembler comment syntax variants
+
+	* Benchres, arch/arm/cacheflush0.c, arch/arm/cacheflush1.c, arch/arm/cacheflush2.c, arch/arm/machine.h, configure.in:
+	Added some support for ARM cache flushing
+
+	* Makefile.in: added missing dependency for running autoheader
+
+2007-03-17  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* configure.in, engine/engine.c:
+	portability fixes for sparc-sun-solaris2.10:
+	  Support assembler comments other than "#", plus fallback
+	  better GNU make detection (does not make during configuring any more)
+
+2007-03-13  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* Benchres: added UltraSparc T1 results
+
+	* Benchres: added Xscale results
+
+2007-03-12  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* Benchres, kernel/comp.fs, kernel/int.fs: documentation changes
+
+2007-03-08  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* extend.fs: M*/ now also works on symmetric-division systems
+
+2007-03-04  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* Makefile.in: Removed stupid machpc.fs regeneration in Makefile.in
+
+	* engine/engine.c, fi2c.fs:
+	better image to C conversion - let the linker do the the relocating
+
+2007-03-04  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* Makefile.in:
+	make dist patch from Josh Message-ID: <20070301220740.GA32518@qualdan>
+
+2007-03-02  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* prim, test/dbltest.fs:
+	--enable-force-cdiv now works for */ and */MOD (but not M*/)
+	added test case for M*/
+
+	* gforth-cgi.fs: added example cgi script
+
+2007-02-26  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* configure.in, engine/threaded.h:
+	GCC_PR15242_WORKAROUND is now a configure variable, not an option
+	default is now to use the workaround for gcc-3.x, but not for other gccs
+
+2007-02-24  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* prims2x.fs: prims2x.fs backwards compatibility
+
+2007-02-23  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* kernel/vars.fs, debugs.fs, doc/gforth.ds, kernel/basics.fs, libcc.fs, prims2x.fs, stuff.fs:
+	changed >OUTFILE ... OUTFILE< to OUTFILE-EXECUTE
+	changed >INFILE ... INFILE< to INFILE-EXECUTE
+	added BASE-EXECUTE
+	related documentation changes
+
+	* Makefile.in: added new files to package
+	nicer onebench output
+
+	* except.fs, test/gforth.fs: THROW bugfix
+	added tests for new TRY variants
+
+2007-02-22  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* doc/gforth.ds, endtry-iferror.fs, gforth.el, recover-endtry.fs:
+	added support for new try words in gforth.el
+	added compatibility files endtry-iferror.fs recover-endtry.fs
+
+2007-02-19  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* blocks.fs, doc/gforth.ds, except.fs:
+	added endtry-iferror and used it in blocks.fs
+	documented new try... constructs
+
+2007-02-18  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* blocks.fs: deal properly with the absence of RECOVER, next try
+
+	* blocks.fs: deal properly with the absence of RECOVER
+
+	* blocks.fs, except.fs, prims2x.fs, see.fs, stuff.fs:
+	added RESTORE and IFERROR, deleted RECOVER (undocumented)
+
+	* except.fs:
+	changed TRY...RECOVER...ENDTRY to also cover the code between RECOVER
+	  and ENDTRY; not yet documented
+	Threw out RETHROW
+
+2007-02-17  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* fi2c.fs, lib.fs:
+	Changed fi2c so that the included C image can be relocated at read time
+	Added a libc definition to lib.fs
+
+2007-02-17  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* engine/support.c: minor fix
+
+	* Makefile.in, configure.in: more changes for SELinux black magic
+
+2007-02-15  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* configure.in, engine/support.c: minor fixes
+
+	* configure.in: workaround for SELinux mmap breakage
+
+2007-02-12  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* libcc.fs: some work on batching c functions
+
+2007-02-10  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* libcc.fs: more work on libcc.fs
+
+2007-02-09  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* test/gforth-nofast.fs: fixed compatibility with some BSD
+
+	* engine/ecvt.c: added inf and nan handling to our replacement ecvt()
+
+	* configure.in, prim: eliminated GNU-m4-specific usage
+
+2007-02-08  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* doc/gforth.ds, contrib/divspeed.fs, compat/struct.fs, struct.fs:
+	documentation bug fixes thanks to Sam Falvo and Viktor Pavlu
+
+2007-01-25  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* extend.fs: M*/ is now floored
+
+2007-01-21  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* engine/engine.c, engine/forth.h, engine/main.c, arch/generic/machine.h, configure.in:
+	Some more work to get a C-based Gforth EC work with autoconf
+
+2007-01-21  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* engine/main.c: minor changes
+
+2007-01-21  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* doc/gforth.ds, machpc.fs.in, Makefile.in, configure.in:
+	Started with Gforth EC NXT
+
+2007-01-20  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* engine/main.c: improved stack boundary memory protection
+
+2007-01-14  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* engine/main.c, errors.fs, libcc.fs, search.fs:
+	lists and C prelude stuff in libcc.fs
+	minor changes
+
+2007-01-10  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* configure.in: minor bugfix
+
+	* INSTALL: updated cross-configuration information
+
+2007-01-05  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* fflib.fs: Bugfix (thanks to Dennis Ruffer)
+
+	* engine/forth.h, engine/support.c, configure.in, prim:
+	On PPC now long long is used except with gcc-2.95
+	BUGGY_LONG_LONG now works again
+
+2006-12-31  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* update-copyright-blacklist:
+	some more files in update-copyright-blacklist
+
+	* test/float.fs, test/gforth.fs, unix/socket.fs, kernel/io.fs, kernel/kernel.fs, kernel/main.fs, kernel/nio.fs, kernel/pass.fs, kernel/paths.fs, kernel/require.fs, kernel/saccept.fs, kernel/tools.fs, kernel/vars.fs, kernel/xchars.fs, kernel/accept.fs, kernel/aliases0.fs, kernel/args.fs, kernel/basics.fs, kernel/cbr.fs, kernel/cloop.fs, kernel/comp.fs, kernel/errore.fs, kernel/files.fs, kernel/getdoers.fs, kernel/input.fs, ec/shex.fs, engine/Makefile.in, engine/dblsub.c, engine/engine.c, engine/forth.h, engine/io.c, engine/longlong.h, engine/main.c, engine/signals.c, engine/support.c, doc/gforth.ds, arch/386/machine.h, arch/amd64/machine.h, arch/misc/prim.fs, startup.fs, stuff.fs, update-copyright, update-copyright-blacklist, utf-8.fs, wf.fs, fflib.fs, fixpath.fs, float.fs, hash.fs, history.fs, httpd.fs, lib.fs, libffi.fs, prim, prims2x.fs, proxy.fs, regexp.fs, savesys.fs, see.fs, debugs.fs, ekey.fs, envos.fs.in, except.fs, ans-report.fs, backtrac.fs, blocks.fs, cache-fast1.vmg, cross.fs, Makefile.in, NEWS, NEWS.vmgen, README, BUILD-FROM-SCRATCH, Benchres, ChangeLog, Makedist.in:
+	updated copyright years
+
+	* update-copyright: changed output format
+
+	* contrib/divspeed.fs: minor change
+
+	* README: documentation change
+
+2006-12-30  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* see.fs, tt.fs: minor code cleanup
+
+	* doc/gforth.ds: documentation bugfix (thanks to Josh)
+
+2006-12-28  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* libcc.fs, except.fs: libcc with first working function
+
+	* debugs.fs, float.fs, stuff.fs, doc/gforth.ds:
+	added >OUTFILE ... OUTFILE<, >INFILE...INFILE< and use it in ~~
+
+2006-12-27  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* engine/libcc.h, libcc.fs: more work on libcc
+
+	* libcc.fs: more work on libcc.fs
+
+2006-12-26  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* libcc.fs, savesys.fs: progress on libcc.fs
+	renamed SAVE-STRING-DICT into SAVE-MEM-DICT (cf. SAVE-MEM).
+
+2006-12-17  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* Makefile.in, ans-report.fs, xwords.fs:
+	ans-report.fs now reports CfV extensions
+
+	* ans-report.fs, answords.fs: marked obsolescent words as such
+
+2006-11-28  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* history.fs: History disabling in xchar mode
+
+2006-11-05  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* kernel/cloop.fs: Fixed LEAVE on flash targets
+
+2006-11-01  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* Makefile.in, engine/Makefile.in:
+	updated Makefile.ins with engine/longlong.h dependencies
+
+	* engine/longlong.h, engine/support.c:
+	Mixed division support now uses the routines from gcc's longlong.h
+
+2006-10-30  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* arch/386/machine.h, arch/amd64/machine.h, prim:
+	Simplified FM/MOD SM/REM UM/MOD to use fmdiv or 5-argument ASM_...
+	Eliminated 4-argument ASM_...
+
+	* prim: */ and */mod now use ASM_SM_SLASH_REM if available
+
+	* engine/dblsub.c, engine/forth.h, engine/support.c, prim:
+	new double-by-single division code
+	rewrote double-by-single-division code to work with long longs
+	started using the double-by-single-division code instead of C long long division  (fm/mod)
+
+2006-10-29  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* contrib/divspeed.fs: updated contrib/divspeed.fs
+
+2006-10-28  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* Makefile.in, contrib/divspeed.fs, test/coremore.fs, test/gforth-nofast.fs, test/gforth.fs:
+	rearranged tests
+	added contrib/divspeed.fs by Krishna Myneni
+
+2006-10-27  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* engine/engine.c, test/gforth-nofast.fs, test/gforth.fs, doc/gforth.ds, prim, Makefile.in:
+	Disabled division checks in gforth-fast
+	documented that and the floored division default
+
+2006-10-25  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* doc/gforth.ds, prims2x.fs:
+	eliminated some "Cell" mentions from prims2x.fs
+	added some comments to gforth.ds
+
+2006-10-23  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* doc/gforth.ds, engine/dblsub.c: optimized checking in dblsub.c
+	documentation changes
+
+2006-10-22  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* engine/dblsub.c, engine/engine.c, engine/forth.h, prim:
+	fixes to make the division checking work with dblsub.c
+
+	* test/gforth.out, engine/engine.c, engine/forth.h, engine/signals.c, test/coretest.out, test/gforth.fs, Makefile.in, engine/dblsub.c, prim:
+	added checking for division by zero and division overflow to
+	  mixed-size division words (*/ */mod fm/mod sm/rem um/mod).
+	these exceptions are now tested in our test suite
+	fixed bug in testing
+
+2006-10-21  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* engine/engine.c, engine/forth.h, engine/signals.c, prim:
+	explicit checks for division by zero and overflow on division
+
+	* engine/forth.h, engine/main.c, engine/signals.c, doc/gforth.ds:
+	added --ignore-async-signals
+	fixed typo
+
+2006-10-15  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* doc/gforth.ds: more PPC assembler documentation
+
+2006-10-14  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* Makefile.in, arch/power/asm.fs, arch/power/disasm.fs, arch/power/inst.fs, doc/gforth.ds:
+	Integrated and documented the PowerPC assembler.
+
+	* arch/power/test/mnemonic/xo/north.mulhwu, arch/power/test/mnemonic/xo/north.mulld, arch/power/test/mnemonic/xo/north.mullw, arch/power/test/mnemonic/xo/north.neg, arch/power/test/mnemonic/xo/north.subf, arch/power/test/mnemonic/xo/north.subfc, arch/power/test/mnemonic/xo/north.subfe, arch/power/test/mnemonic/xo/north.subfme, arch/power/test/mnemonic/xo/north.subfze, arch/power/test/mnemonic/xs/mnemonics, arch/power/test/mnemonic/xs/north.sradi, arch/power/test/mnemonic/xl/north.rfid, arch/power/test/mnemonic/xo/CHECK, arch/power/test/mnemonic/xo/mnemonics, arch/power/test/mnemonic/xo/north.add, arch/power/test/mnemonic/xo/north.addc, arch/power/test/mnemonic/xo/north.adde, arch/power/test/mnemonic/xo/north.addme, arch/power/test/mnemonic/xo/north.addze, arch/power/test/mnemonic/xo/north.divd, arch/power/test/mnemonic/xo/north.divdu, arch/power/test/mnemonic/xo/north.divw, arch/power/test/mnemonic/xo/north.divwu, arch/power/test/mnemonic/xo/north.mulhd, arch/power/test/mnemonic/xo/north.mulhdu, arch/power/test/mnemonic/xo/north.mulhw, arch/power/test/mnemonic/xfx/north.mtspr, arch/power/test/mnemonic/xl/CHECK, arch/power/test/mnemonic/xl/mnemonics, arch/power/test/mnemonic/xl/north.bcctr, arch/power/test/mnemonic/xl/north.bclr, arch/power/test/mnemonic/xl/north.crand, arch/power/test/mnemonic/xl/north.crandc, arch/power/test/mnemonic/xl/north.creqv, arch/power/test/mnemonic/xl/north.crnand, arch/power/test/mnemonic/xl/north.crnor, arch/power/test/mnemonic/xl/north.cror, arch/power/test/mnemonic/xl/north.crorc, arch/power/test/mnemonic/xl/north.crxor, arch/power/test/mnemonic/xl/north.isync, arch/power/test/mnemonic/xl/north.mcrf, arch/power/test/mnemonic/xl/north.rfi, arch/power/test/mnemonic/x/north.tlbie, arch/power/test/mnemonic/x/north.tlbsync, arch/power/test/mnemonic/x/north.tw, arch/power/test/mnemonic/x/north.xor, arch/power/test/mnemonic/xfl/CHECK, arch/power/test/mnemonic/xfl/mnemonics, arch/power/test/mnemonic/xfl/north.mtfsf, arch/power/test/mnemonic/xfx/CHECK, arch/power/test/mnemonic/xfx/mnemonics, arch/power/test/mnemonic/xfx/north.mfspr, arch/power/test/mnemonic/xfx/north.mftb, arch/power/test/mnemonic/xfx/north.mtcrf, arch/power/test/mnemonic/x/north.sthbrx, arch/power/test/mnemonic/x/north.sthux, arch/power/test/mnemonic/x/north.sthx, arch/power/test/mnemonic/x/north.stswi, arch/power/test/mnemonic/x/north.stswx, arch/power/test/mnemonic/x/north.stwbrx, arch/power/test/mnemonic/x/north.stwcx., arch/power/test/mnemonic/x/north.stwux, arch/power/test/mnemonic/x/north.stwx, arch/power/test/mnemonic/x/north.sync, arch/power/test/mnemonic/x/north.td, arch/power/test/mnemonic/x/north.tlbia, arch/power/test/mnemonic/x/north.srd, arch/power/test/mnemonic/x/north.srw, arch/power/test/mnemonic/x/north.stbux, arch/power/test/mnemonic/x/north.stbx, arch/power/test/mnemonic/x/north.stdcx., arch/power/test/mnemonic/x/north.stdux, arch/power/test/mnemonic/x/north.stdx, arch/power/test/mnemonic/x/north.stfdux, arch/power/test/mnemonic/x/north.stfdx, arch/power/test/mnemonic/x/north.stfiwx, arch/power/test/mnemonic/x/north.stfsux, arch/power/test/mnemonic/x/north.stfsx, arch/power/test/mnemonic/x/north.mtsr, arch/power/test/mnemonic/x/north.mtsrd, arch/power/test/mnemonic/x/north.mtsrdin, arch/power/test/mnemonic/x/north.mtsrin, arch/power/test/mnemonic/x/north.nand, arch/power/test/mnemonic/x/north.nor, arch/power/test/mnemonic/x/north.or, arch/power/test/mnemonic/x/north.orc, arch/power/test/mnemonic/x/north.slbia, arch/power/test/mnemonic/x/north.slbie, arch/power/test/mnemonic/x/north.sld, arch/power/test/mnemonic/x/north.slw, arch/power/test/mnemonic/x/north.srad, arch/power/test/mnemonic/x/north.sraw, arch/power/test/mnemonic/x/north.srawi, arch/power/test/mnemonic/x/north.lwaux, arch/power/test/mnemonic/x/north.lwax, arch/power/test/mnemonic/x/north.lwbrx, arch/power/test/mnemonic/x/north.lwzux, arch/power/test/mnemonic/x/north.lwzx, arch/power/test/mnemonic/x/north.mcrfs, arch/power/test/mnemonic/x/north.mcrxr, arch/power/test/mnemonic/x/north.mfcr, arch/power/test/mnemonic/x/north.mffs, arch/power/test/mnemonic/x/north.mfmsr, arch/power/test/mnemonic/x/north.mfsr, arch/power/test/mnemonic/x/north.mfsrin, arch/power/test/mnemonic/x/north.mtfsb0, arch/power/test/mnemonic/x/north.mtfsb1, arch/power/test/mnemonic/x/north.mtfsfi, arch/power/test/mnemonic/x/north.mtmsr, arch/power/test/mnemonic/x/north.mtmsrd, arch/power/test/mnemonic/x/north.icbi, arch/power/test/mnemonic/x/north.lbzux, arch/power/test/mnemonic/x/north.lbzx, arch/power/test/mnemonic/x/north.ldarx, arch/power/test/mnemonic/x/north.ldux, arch/power/test/mnemonic/x/north.ldx, arch/power/test/mnemonic/x/north.lfdux, arch/power/test/mnemonic/x/north.lfdx, arch/power/test/mnemonic/x/north.lfsux, arch/power/test/mnemonic/x/north.lfsx, arch/power/test/mnemonic/x/north.lhaux, arch/power/test/mnemonic/x/north.lhax, arch/power/test/mnemonic/x/north.lhbrx, arch/power/test/mnemonic/x/north.lhzux, arch/power/test/mnemonic/x/north.lhzx, arch/power/test/mnemonic/x/north.lswi, arch/power/test/mnemonic/x/north.lswx, arch/power/test/mnemonic/x/north.lwarx, arch/power/test/mnemonic/x/north.eieio, arch/power/test/mnemonic/x/north.eqv, arch/power/test/mnemonic/x/north.extsb, arch/power/test/mnemonic/x/north.extsh, arch/power/test/mnemonic/x/north.extsw, arch/power/test/mnemonic/x/north.fabs, arch/power/test/mnemonic/x/north.fcfid, arch/power/test/mnemonic/x/north.fcmpo, arch/power/test/mnemonic/x/north.fcmpu, arch/power/test/mnemonic/x/north.fctid, arch/power/test/mnemonic/x/north.fctidz, arch/power/test/mnemonic/x/north.fctiw, arch/power/test/mnemonic/x/north.fctiwz, arch/power/test/mnemonic/x/north.fmr, arch/power/test/mnemonic/x/north.fnabs, arch/power/test/mnemonic/x/north.fneg, arch/power/test/mnemonic/x/north.frsp, arch/power/test/mnemonic/x/mnemonics, arch/power/test/mnemonic/x/north.and, arch/power/test/mnemonic/x/north.andc, arch/power/test/mnemonic/x/north.cmp, arch/power/test/mnemonic/x/north.cmpl, arch/power/test/mnemonic/x/north.cntlzd, arch/power/test/mnemonic/x/north.cntlzw, arch/power/test/mnemonic/x/north.dcba, arch/power/test/mnemonic/x/north.dcbf, arch/power/test/mnemonic/x/north.dcbi, arch/power/test/mnemonic/x/north.dcbst, arch/power/test/mnemonic/x/north.dcbt, arch/power/test/mnemonic/x/north.dcbtst, arch/power/test/mnemonic/x/north.dcbz, arch/power/test/mnemonic/x/north.eciwx, arch/power/test/mnemonic/x/north.ecowx, arch/power/test/mnemonic/md/north.rldic, arch/power/test/mnemonic/md/north.rldicl, arch/power/test/mnemonic/md/north.rldicr, arch/power/test/mnemonic/md/north.rldimi, arch/power/test/mnemonic/mds/CHECK, arch/power/test/mnemonic/mds/mnemonics, arch/power/test/mnemonic/mds/north.rldcl, arch/power/test/mnemonic/mds/north.rldcr, arch/power/test/mnemonic/sc/mnemonics, arch/power/test/mnemonic/sc/north.sc, arch/power/test/mnemonic/x/CHECK, arch/power/test/mnemonic/ds/north.lwa, arch/power/test/mnemonic/ds/north.std, arch/power/test/mnemonic/ds/north.stdu, arch/power/test/mnemonic/i/CHECK, arch/power/test/mnemonic/i/mnemonics, arch/power/test/mnemonic/i/north.b, arch/power/test/mnemonic/m/CHECK, arch/power/test/mnemonic/m/mnemonics, arch/power/test/mnemonic/m/north.rlwimi, arch/power/test/mnemonic/m/north.rlwinm, arch/power/test/mnemonic/m/north.rlwnm, arch/power/test/mnemonic/md/CHECK, arch/power/test/mnemonic/md/mnemonics, arch/power/test/mnemonic/d/north.sthu, arch/power/test/mnemonic/d/north.stmw, arch/power/test/mnemonic/d/north.stw, arch/power/test/mnemonic/d/north.stwu, arch/power/test/mnemonic/d/north.subfic, arch/power/test/mnemonic/d/north.tdi, arch/power/test/mnemonic/d/north.twi, arch/power/test/mnemonic/d/north.xori, arch/power/test/mnemonic/d/north.xoris, arch/power/test/mnemonic/ds/mnemonics, arch/power/test/mnemonic/ds/north.ld, arch/power/test/mnemonic/ds/north.ldu, arch/power/test/mnemonic/d/north.lhau, arch/power/test/mnemonic/d/north.lhz, arch/power/test/mnemonic/d/north.lhzu, arch/power/test/mnemonic/d/north.lmw, arch/power/test/mnemonic/d/north.lwz, arch/power/test/mnemonic/d/north.lwzu, arch/power/test/mnemonic/d/north.mulli, arch/power/test/mnemonic/d/north.ori, arch/power/test/mnemonic/d/north.oris, arch/power/test/mnemonic/d/north.stb, arch/power/test/mnemonic/d/north.stbu, arch/power/test/mnemonic/d/north.stfd, arch/power/test/mnemonic/d/north.stfdu, arch/power/test/mnemonic/d/north.stfs, arch/power/test/mnemonic/d/north.stfsu, arch/power/test/mnemonic/d/north.sth, arch/power/test/mnemonic/d/north.lfd, arch/power/test/mnemonic/d/north.lfdu, arch/power/test/mnemonic/d/north.lfs, arch/power/test/mnemonic/d/north.lfsu, arch/power/test/mnemonic/d/north.lha, arch/power/test/mnemonic/d/north.addi, arch/power/test/mnemonic/d/north.addic, arch/power/test/mnemonic/d/north.addic., arch/power/test/mnemonic/d/north.addis, arch/power/test/mnemonic/d/north.andi., arch/power/test/mnemonic/d/north.andis., arch/power/test/mnemonic/d/north.cmpi, arch/power/test/mnemonic/d/north.cmpli, arch/power/test/mnemonic/d/north.lbz, arch/power/test/mnemonic/d/north.lbzu, arch/power/test/mnemonic/a/north.fnmsubs, arch/power/test/mnemonic/a/north.fres, arch/power/test/mnemonic/a/north.frsqrte, arch/power/test/mnemonic/a/north.fsel, arch/power/test/mnemonic/a/north.fsqrt, arch/power/test/mnemonic/a/north.fsqrts, arch/power/test/mnemonic/a/north.fsub, arch/power/test/mnemonic/a/north.fsubs, arch/power/test/mnemonic/b/mnemonics, arch/power/test/mnemonic/b/north.bdnz, arch/power/test/mnemonic/b/north.blt, arch/power/test/mnemonic/b/north.bne, arch/power/test/mnemonic/d/CHECK, arch/power/test/mnemonic/d/mnemonics, arch/power/test/mnemonic/a/CHECK, arch/power/test/mnemonic/a/mnemonics, arch/power/test/mnemonic/a/north.fadd, arch/power/test/mnemonic/a/north.fadds, arch/power/test/mnemonic/a/north.fdiv, arch/power/test/mnemonic/a/north.fdivs, arch/power/test/mnemonic/a/north.fmadd, arch/power/test/mnemonic/a/north.fmadds, arch/power/test/mnemonic/a/north.fmsub, arch/power/test/mnemonic/a/north.fmsubs, arch/power/test/mnemonic/a/north.fmul, arch/power/test/mnemonic/a/north.fmuls, arch/power/test/mnemonic/a/north.fnmadd, arch/power/test/mnemonic/a/north.fnmadds, arch/power/test/mnemonic/a/north.fnmsub, arch/power/test/mnemonic/test_disasm-inst.py, arch/power/tags/disasm-core/inst.fs, arch/power/tags/disasm-core/inst_field_test.sh, arch/power/tags/disasm-core/to_test, arch/power/tags/disasm-core/to_test2, arch/power/test/inst_field/befehle_binaer, arch/power/test/inst_field/inst_field_test.sh, arch/power/test/inst_field/to_test, arch/power/test/inst_field/to_test2, arch/power/test/mnemonic/find_mnemonic.sh, arch/power/test/mnemonic/find_mnemonics.sh, arch/power/test/mnemonic/make_unique.py, arch/power/test/mnemonic/test_all_forms.sh, arch/power/test/mnemonic/test_asm.py, arch/power/nofsfcopyright/asm.fs, arch/power/nofsfcopyright/disasm.fs, arch/power/nofsfcopyright/ops.fs, arch/power/paper/Makefile, arch/power/paper/asm_disasm_paper.tex, arch/power/paper/biblio.tex, arch/power/paper/chapter1.tex, arch/power/paper/chapter2.tex, arch/power/paper/chapter3.tex, arch/power/paper/chapter4.tex, arch/power/tags/disasm-core/befehle_binaer, arch/power/tags/disasm-core/disasm.fs, arch/power/tags/disasm-core/form_test.py, arch/power/asm.fs, arch/power/disasm.fs, arch/power/inst.fs:
+	added PPC assembler by Michal Revucky; and another one without FSF copyright
+
+2006-10-13  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* doc/gforth.ds, except.fs: documented NOTHROW
+
+	* prim: bugfix
+
+2006-10-11  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* kernel/basics.fs, kernel/input.fs, kernel/int.fs, blocks.fs, except.fs, wf.fs:
+	Replaced rethrow solution with nothrow
+
+2006-10-08  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* except.fs, kernel/basics.fs, kernel/input.fs, kernel/int.fs, startup.fs, wf.fs, backtrac.fs, blocks.fs:
+	Renamed THROW>ERROR to RETHROW
+
+2006-10-07  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* proxy.fs, unix/socket.fs: Fixes to make the proxy stuff work again
+
+	* httpd.fs: Bugfixing and some comments about how to get it to work
+
+	* unix/socket.fs: Generic libc.so for BSDs
+
+	* httpd.fs:
+	Catch mime-read so that it won't fail when there's no mime.types
+
+	* unix/socket.fs: Fixes to socket.fs, proposed by Aleksejj Saushev
+
+2006-10-03  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* regexp.fs: Regexp replacements added
+
+2006-09-15  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* engine/main.c: Save callback global variables
+
+2006-08-26  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* arch/r8c/prim.fs, utf-8.fs, wf.fs: flash-enale fixed
+
+2006-08-19  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* arch/r8c/terminal.fs: Added welcome message to R8C terminal
+
+2006-07-08  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* arch/r8c/prim.fs, arch/r8c/terminal.fs:
+	Nested file inclusion possible
+
+2006-07-05  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* kernel/basics.fs: Fixed roll code
+
+2006-06-09  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* prim: Fixed buggy_long_long problems in ffi
+
+2006-06-05  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* ekey.fs: Fixed EKEY with unicode
+
+2006-06-04  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* engine/main.c: reduced CODE_BLOCK_SIZE to 512k (for release)
+
+2006-05-27  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* Makedist.in: Added some generated files to binary distribution list
+
+	* arch/r8c/prim.fs, arch/r8c/tasker.fs, arch/r8c/tt.fs, kernel/saccept.fs:
+	Bugfix in simple accept
+	deferred PAUSE in Gforth R8C kernel (for ms)
+
+	* arch/r8c/lauftext.fs, arch/r8c/prim.fs, arch/r8c/tasker.fs, arch/r8c/asm.fs, configure.in:
+	Timer interrupt for Gforth R8C
+
+2006-05-26  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* backtrac.fs, except.fs, kernel/basics.fs, kernel/input.fs, kernel/int.fs, kernel/vars.fs:
+	Fixed problem with error stack leftovers
+
+2006-05-25  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* arch/r8c/lauftext.fs, arch/r8c/prim.fs, fflib.fs, libffi.fs, prim:
+	Added long/dlong type
+	ADC-controlled running text
+	Interrupt table space
+
+2006-05-20  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* doc/gforth.ds, Agenda, Benchres, Makefile.in, NEWS, NEWS.vmgen:
+	Makefile: undid change requiring gforth-fast to build first
+	  other changes for packaging
+	  added POST_INSTALL etc. tags
+	Updated NEWS files to 2006-05-07
+	minor documentation changes
+
+2006-05-13  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* kernel/tools.fs, Makefile.in, arch/r8c/lauftext.fs, configure.in:
+	Added texi2dvi[4a2ps] check
+	Fixed maxdepth_.s glossary entry
+
+2006-05-10  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* ChangeLog: updated Changelog (but not yet processed for NEWS)
+
+2006-05-07  Bernd Paysan <bernd.paysan@gmx.de>
+
+	* arch/r8c/tasker.fs: Fixed multitasker bug
+
 2006-05-07  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
 
 	* see.fs:
@@ -6898,7 +7483,7 @@
 
 	* getopt1.c, getopt.h, getopt.c, forth.h, engine.c, ToDo, README, Makefile, INSTALL, COPYING, 386.h:
 	Updated ToDo and INSTALL; Wrote README; Lifted COPYING and getopt*
-	from other packages;  removed $Id: ChangeLog,v 1.11 2006-12-31 13:39:09 anton Exp $ lines from some files
+	from other packages;  removed $Id: ChangeLog,v 1.12 2007-06-02 09:23:39 anton Exp $ lines from some files
 
 1994-09-28  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
 
