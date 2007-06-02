@@ -432,7 +432,7 @@ FORTH_GEN =  $(FORTH_GEN0) @KERNEL@ gforth.fi
 FORTH_GEN1 = $(FORTH_GEN0) @kernel_fi@ build-ec
 
 #kernel dependencies
-KERN_DEPS = $(KERN_SRC) kernel/version.fs machpc.fs $(FORTH_GEN0) compat/strcomp.fs
+KERN_DEPS = $(KERN_SRC) kernel/version.fs machpc.fs $(FORTH_GEN0) compat/strcomp.fs gforth$(EC)$(EXE)
 
 #distributed documentation
 DOCDIST = doc/gforth.info doc/gforth.info-* doc/gforth.ps \
