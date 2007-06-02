@@ -1,4 +1,4 @@
-\ provide TRY...ENDTRY-IFERROR...THEN on older Gforth's
+\ provide TRY...ENDTRY-IFERROR...THEN on older Gforths
 
 \ Copyright (C) 2007 Free Software Foundation, Inc.
 
@@ -19,7 +19,8 @@
 \ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
 
 
-\ this provides the new-style TRY...ENDTRY-IFERROR...THEN syntax, but not the other new TRY constructs.
+\ this provides the new-style TRY...ENDTRY-IFERROR...THEN syntax, but
+\ not the other new TRY constructs.
 
 [undefined] endtry-iferror [if]
     : endtry-iferror postpone recover ; immediate compile-only

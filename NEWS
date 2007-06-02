@@ -6,11 +6,15 @@ Installation:
   support for DESTDIR, POST_INSTALL, INSTALL_SCRIPT
   report performance and functionality problems at end of "make"  
 Bug fixes
-  Among others: now works with address-space randomization.
+  Now works with address-space randomization.
   The single-step debugger works again in some engines.
+  Many others.
 Ports:
   AMD64, ARM, IA-64 (Itanium): better performance
-  Gforth EC: R8C port
+  PPC: disassembler and assembler (32-bit)
+  Gforth EC: R8C, Lego NXT (complete?)
+Invocation:
+  New flags --ignore-async-signals, --vm-commit (default overcommit)
 Forth 200x:
   extension queries (produce true for all implemented extensions)
   REQUIRED etc. (not new)
@@ -25,18 +29,27 @@ Number prefixes:
   # is a decimal prefix: #10 now produces (decimal) 10
   ' now only handles a single (x)char: 'ab is no longer accepted, 
                                        'a' now produces (decimal) 97
-The disassembler (DISCODE, SEE <primitive>) can now use gdb to disassemble code
-Uninitialized defered words now give a warning when executed
 New words:
-  16-bit and 32-bit memory acces: UW@ UL@ SW@ SK@ W! L! W@ L@ /W /L
-  FTRUNC FMOD (undocumented)
+  \C C-FUNCTION (C interface)
+  OUTFILE-EXECUTE INFILE-EXECUTE BASE-EXECUTE (limited change of global state)
+  16-bit and 32-bit memory acces: UW@ UL@ SW@ SL@ W! L! W@ L@ /W /L
   NEXT-ARG SHIFT-ARGS (OS command-line argument processing)
+  NOTHROW (for backtrace control)
+  FTRUNC FMOD (undocumented)
+Improvements/changes of existing words:
+  TRY...ENDTRY changed significantly, compatibility files available (see docs).
+  The disassembler (DISCODE) can now use gdb to disassemble code
+  Uninitialized defered words now give a warning when executed
+  Division is floored (disable with "configure --enable-force-cdiv")
+  Gforth (not gforth-fast) reports division by zero and overflow on division
+    on all platforms.
 Newly documented words:
   S>NUMBER? S>UNUMBER?
   EKEY keypress names: K-LEFT K-RIGHT K-UP K-DOWN K-HOME K-END K-PRIOR
     K-NEXT K-INSERT K-DELETE K1 K2 K3 K4 K5 K6 K7 K8 K9 K10 K11 K12
     S-K1 S-K2 S-K3 S-K4 S-K5 S-K6 S-K7 S-K8 S-K9 S-K10 S-K11 S-K12
   CLEARSTACKS
+  FORM
 Environment variable GFORTHSYSTEMPREFIX (used by word SYSTEM and friends)
 C interface:
   exported symbols now start with "gforth_" (for referencing them from C code)
@@ -44,6 +57,7 @@ C interface:
   a C-compiler-based approach (requires C compiler at run-time) (incomplete).
 Libraries:
   depth-changes.fs: report stack depth changes during interpretation
+  ans-report.fs now reports CfV extensions
   fsl-util.4th: FSL support files (undocumented)
   regexp.fs for regular expressions (undocumented)
   complex.fs for complex numbers (undocumented)
@@ -52,11 +66,12 @@ Libraries:
   httpd.fs, a web server (undocumented)
   status.fs, show interpreter status in separate xterm (undocumented)
   profile.fs for profiling (undocumented, incomplete)
+  endtry-iferror.fs, recover-endtry.fs to ease the TRY change transition
  compat library:
   compat/execute-parsing.fs
 Speed improvements:
   static stack caching (good speedup on PPC)
-  fast mixed-precision division words on i386 and AMD64
+  mixed-precision division is now faster
   support for int128 types on AMD64
   workarounds for gcc performance bugs (in particular, PR 15242)
 

@@ -19,10 +19,10 @@ Unfinished functionality:
  Up-to-date with latest proposal version?
 
  C interface:
- libcc implementation
+ precompiled interface libraries
  library words in images
- C interface should do what the documentation says (Bernd)
- documentation of callbacks (Bernd)
+ callbacks
+ structs etc.
  oldlib words should be compatible or named differently (Bernd)
 
  gforth-native:
@@ -37,8 +37,6 @@ Unfinished functionality:
 
  profile.fs: complete, add documentation
 
- add ppc assembler
-
  amd64 assembler
 
  regression tests for single-step debugger (Bernd)
@@ -48,7 +46,5 @@ NEWS:
 	* complex.fs, fft.fs, prim, wf.fs, Makefile.in:
 	Added some floating point primitives
    Which ones?  Should they be documented?
-
-Savannah: Bugzilla Emails verschwinden
 
 Windows-Port (FP bugs dank gcc-2.95)

@@ -1,4 +1,4 @@
-\ provide TRY...RECOVER...ENDTRY on newer Gforth's
+\ provide TRY...RECOVER...ENDTRY on newer Gforths
 
 \ Copyright (C) 2007 Free Software Foundation, Inc.
 

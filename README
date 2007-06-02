@@ -13,21 +13,7 @@ OS/2, and DOS and should not be hard to port to other systems
 supported by GCC. This version has been tested successfully on the
 following platforms:
 
- alpha-dec-osf4.0d
- alpha-unknown-linux-gnu
- alphapca56-unknown-linux-gnu
- hppa1.1-unknown-linux-gnu
- hppa2.0n-hp-hpux11.00
- hppa2.0w-hp-hpux11.11
- i386-unknown-freebsd5.1
- i686-pc-cygwin
- i686-pc-linux-gnu
- mips-sgi-irix6.5
- mipsel-pc-linux-gnu
- powerpc-apple-darwin5.4
- powerpc-unknown-linux-gnu
- sparc-sun-sunos4.1.4
- sparc-unknown-linux-gnu
+  x86_64-unknown-linux-gnu
 
 Read INSTALL for installation instructions from source, or INSTALL.DOS
 for DOS, Windows, and OS/2 from source, or INSTALL.BINDIST if you have
