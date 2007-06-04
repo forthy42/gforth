@@ -1,6 +1,6 @@
 
 
-User-visible changes between 0.6.2 and 0.6.9 (up to 2006-05-07):
+User-visible changes between 0.6.2 and 0.6.9 (up to 2007-06-01):
 
 Installation:
   support for DESTDIR, POST_INSTALL, INSTALL_SCRIPT
@@ -21,7 +21,7 @@ Forth 200x:
   [DEFINED] and [UNDEFINED]
   PARSE-NAME (new name)
   deferred words (new: DEFER@ DEFER! ACTION-OF)
-Unicode support (incomplete):
+Unicode support (incomplete, documentation probably not up-to-date):
   added xchars words for dealing with variable-width multi-byte characters
   provide 8bit (ISO Latin 1) and UTF-8 support for xchars
 Number prefixes:

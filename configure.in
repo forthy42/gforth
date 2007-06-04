@@ -21,7 +21,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl We use some automake macros here,
 dnl but don't use automake for creating Makefile.in
-AC_INIT([gforth],[0.6.9-20070602],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
+AC_INIT([gforth],[0.6.9-20070604],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
 AC_PREREQ(2.54)
 #snapshots have numbers major.minor.release-YYYYMMDD
 #note that lexicographic ordering must be heeded.
@@ -793,6 +793,8 @@ AC_SUBST(include_fi)
 #if test $srcdir = "."; then srcdir=`pwd` 
 #fi
 
+echo "version=$PACKAGE_VERSION"
+
 AC_SUBST(machine)
 AC_CONFIG_FILES([
 Makefile
@@ -802,12 +804,15 @@ vmgen
 machpc.fs
 envos.fs
 engine/Makefile
+engine/libcc.h
 doc/version.texi
 build-ec ])
 AC_CONFIG_COMMANDS([stamp-h],[[echo timestamp > stamp-h
 chmod +x gforthmi
 chmod +x vmgen
 chmod +x build-ec
-test -d kernel||mkdir kernel]],[[]])
+test -d kernel||mkdir kernel
+$srcdir/mkinstalldirs include/gforth/$PACKAGE_VERSION
+ln -s ../../../engine/config.h ../../../engine/libcc.h include/gforth/$PACKAGE_VERSION]],[[PACKAGE_VERSION=$PACKAGE_VERSION]])
 AC_OUTPUT
 

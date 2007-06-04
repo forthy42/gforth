@@ -191,7 +191,8 @@ variable c-prefix-lines-end c-prefix-lines c-prefix-lines-end !
     \G One line of C declarations for the C interface
     -1 parse save-c-prefix-line ;
 
-\c #include "engine/libcc.h"
+s" #include <gforth/" version-string s+ s" /libcc.h>" append ( c-addr u )
+  2dup save-c-prefix-line drop free throw
 
 \ Types (for parsing)
 
@@ -390,9 +391,10 @@ create gen-wrapped-types
 : compile-wrapper-function ( -- )
     c-source-file close-file throw
     0 c-source-file-id !
-    s" gcc -I. -fPIC -shared -Wl,-soname," lib-filename 2@ s+
+    s" gcc -fPIC -shared -Wl,-soname," lib-filename 2@ s+
     s" .so.1 -Wl,-export_dynamic -o " append lib-filename 2@ append
-    s" .so.1 -O " append lib-filename 2@ append s" .c" append ( c-addr u )
+    [ s" .so.1 -O -I " s" includedir" getenv append s"  " append ] sliteral
+    append lib-filename 2@ append s" .c" append ( c-addr u )
     2dup system drop free throw
     $? abort" compiler generated error" \ !! call dlerror
     lib-filename 2@ s" .so.1" s+
