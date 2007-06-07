@@ -200,6 +200,11 @@ require utf-8.fs
 
 Variable curpos
 
+s" os-type" environment? [IF] s" cygwin" str= [IF]
+: save-cursor ( -- ) #esc emit '7 emit ;
+: restore-cursor ( -- ) #esc emit '8 emit ;
+: cur-correct ( addr u -- )  2drop ;
+[ELSE]
 : at-xy? ( -- x y )
     key? drop
     #esc emit ." [6n"  0 0
@@ -212,9 +217,9 @@ Variable curpos
 : cursor! ( n -- )  form nip /mod at-xy ;
 : cur-correct  ( addr u -- )  x-width curpos @ + cursor@ -
     form nip >r  r@ 2/ + r@ / r> * negate curpos +! ;
-
 : save-cursor ( -- )  cursor@ curpos ! ;
 : restore-cursor ( -- )  curpos @ cursor! ;
+[THEN]
 : .rest ( addr pos1 -- addr pos1 )
     key? ?EXIT
     restore-cursor 2dup type 2dup cur-correct ;
