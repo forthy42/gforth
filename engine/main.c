@@ -191,9 +191,11 @@ int optind = 1;
 #ifndef MAP_NORESERVE
 #define MAP_NORESERVE 0
 #endif
+/* IF you have an old Cygwin, this may help:
 #ifdef __CYGWIN__
 #define MAP_NORESERVE 0
 #endif
+*/
 static int map_noreserve=MAP_NORESERVE;
 
 #define CODE_BLOCK_SIZE (512*1024) /* !! overflow handling for -native */

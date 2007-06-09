@@ -70,7 +70,9 @@ s" os-class" environment? [IF] s" unix" str= [ELSE] true [THEN]
 \ moving in history file                               16oct94py
 
 defer back-restore ( u -- )
-' backspaces is back-restore
+defer cur-correct ( addr u -- )
+' backspaces IS back-restore
+' 2drop IS cur-correct
 
 [IFDEF] x-width
 : clear-line ( max span addr pos1 -- max addr )
@@ -93,7 +95,7 @@ defer back-restore ( u -- )
   forward^ 2@ 2dup hist-setpos backward^ 2!
   2dup get-line drop
   hist-pos  forward^ 2!
-  tuck 2dup type 0 ;
+  tuck 2dup type 2dup cur-correct 0 ;
 
 : find-prev-line ( max addr -- max span addr pos2 )
   backward^ 2@ forward^ 2!
@@ -105,7 +107,7 @@ defer back-restore ( u -- )
   REPEAT  2drop  THEN  tuck ;
 
 : prev-line  ( max span addr pos1 -- max span addr pos2 false )
-    clear-line find-prev-line 2dup type 0 ;
+    clear-line find-prev-line 2dup type 2dup cur-correct 0 ;
 
 \ Create lfpad #lf c,
 
@@ -201,9 +203,25 @@ require utf-8.fs
 Variable curpos
 
 s" os-type" environment? [IF] s" cygwin" str= [IF]
-: save-cursor ( -- ) #esc emit '7 emit ;
-: restore-cursor ( -- ) #esc emit '8 emit ;
-: cur-correct ( addr u -- )  2drop ;
+: cygwin? ( -- flag ) s" TERM" getenv s" cygwin" str= ;
+: at-xy? ( -- x y )
+    key? drop
+    #esc emit ." [6n"  0 0
+    BEGIN  key dup 'R <>  WHILE
+	    dup '; = IF  drop  swap  ELSE
+		dup '0 '9 1+ within  IF  '0 - swap 10 * +  ELSE
+		    drop  THEN  THEN
+    REPEAT  drop 1- swap 1- ;
+: cursor@ ( -- n )  at-xy? form nip * + ;
+: cursor! ( n -- )  form nip /mod at-xy ;
+: xcur-correct  ( addr u -- )
+    cygwin? IF  2drop EXIT  THEN
+    x-width curpos @ + cursor@ -
+    form nip >r  r@ 2/ + r@ / r> * negate curpos +! ;
+: save-cursor ( -- )
+    cygwin? IF  #esc emit '7 emit  ELSE  cursor@ curpos !  THEN ;
+: restore-cursor ( -- )
+    cygwin? IF  #esc emit '8 emit  ELSE  curpos @ cursor!  THEN ;
 [ELSE]
 : at-xy? ( -- x y )
     key? drop
@@ -215,11 +233,13 @@ s" os-type" environment? [IF] s" cygwin" str= [IF]
     REPEAT  drop 1- swap 1- ;
 : cursor@ ( -- n )  at-xy? form nip * + ;
 : cursor! ( n -- )  form nip /mod at-xy ;
-: cur-correct  ( addr u -- )  x-width curpos @ + cursor@ -
+: xcur-correct  ( addr u -- )  x-width curpos @ + cursor@ -
     form nip >r  r@ 2/ + r@ / r> * negate curpos +! ;
 : save-cursor ( -- )  cursor@ curpos ! ;
 : restore-cursor ( -- )  curpos @ cursor! ;
-[THEN]
+[THEN] [THEN]
+' xcur-correct IS cur-correct
+
 : .rest ( addr pos1 -- addr pos1 )
     key? ?EXIT
     restore-cursor 2dup type 2dup cur-correct ;
@@ -311,6 +331,7 @@ s" os-type" environment? [IF] s" cygwin" str= [IF]
     ['] kill-prefix  IS everychar
     ['] save-cursor  IS everyline
     ['] xback-restore IS back-restore
+    ['] xcur-correct  IS cur-correct
 ;
 
 xchar-history
