@@ -73,6 +73,48 @@
 \ c-variable forth-name c-name
 \ c-constant forth-name c-name
 
+\ Todo: conversion between function pointers and xts (both directions)
+
+\ taking an xt and turning it into a function pointer:
+
+\ e.g., assume we have the xt of + and want to create a C function int
+\ gforth_callback_plus(int, int), and then pass the pointer to that
+\ function:
+
+\ There should be Forth code like this:
+\   ] + 0 (bye)
+\ Assume that the start of this code is START
+        
+\ Now, there should be a C function:
+
+\ int gforth_callback_plus(int p1, int p2)
+\ {
+\   Cell   *sp = gforth_SP;
+\   Float  *fp = gforth_FP;
+\   Float  *fp = gforth_FP;
+\   Address lp = gforth_LP;
+\   sp -= 2;
+\   sp[0] = p1;
+\   sp[1] = p2;
+\   gforth_engine(START, sp, rp, fp, lp);
+\   sp += 1;
+\   gforth_RP = rp;
+\   gforth_SP = sp;
+\   gforth_FP = fp;
+\   gforth_LP = lp;
+\   return sp[0];
+\ }
+
+\ and the pointer to that function is the C function pointer for the XT of +.
+
+\ Future problems:
+\   how to combine the Forth code generation with inlining
+\   START is not a constant across executions (when caching the C files)
+\      Solution: make START a variable, and store into it on startup with dlsym
+
+\ Syntax:
+\  callback <rettype> <params> <paramtypes> -- <rettype>
+
 
 \ data structures
 

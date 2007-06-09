@@ -406,6 +406,7 @@ C Interface
 
 * Calling C Functions::         
 * Declaring C Functions::       
+* Calling C function pointers::  
 * Callbacks::                   
 * C interface internals::       
 * Low-Level C Interface Words::  
@@ -11835,6 +11836,7 @@ as well as a way of declaring structs, unions, and their fields.
 @menu
 * Calling C Functions::         
 * Declaring C Functions::       
+* Calling C function pointers::  
 * Callbacks::                   
 * C interface internals::       
 * Low-Level C Interface Words::  
@@ -11908,7 +11910,7 @@ calling the appropriate word for the desired pattern.
 
 
 
-@node Declaring C Functions, Callbacks, Calling C Functions, C Interface
+@node Declaring C Functions, Calling C function pointers, Calling C Functions, C Interface
 @subsection Declaring C Functions
 @cindex C functions, declarations
 @cindex declaring C functions
@@ -12011,10 +12013,44 @@ interface; you can find some examples for the @file{lib.fs} interface
 in @file{lib.fs}.
 
 
+@node Calling C function pointers, Callbacks, Declaring C Functions, C Interface
+@subsection Calling C function pointers from Forth
+@cindex C function pointers, calling from Forth
+
+If you come across a C function pointer (e.g., in some C-constructed
+structure) and want to call it from your Forth program, you can also
+use the features explained until now to achieve that, as follows:
+
+Let us assume that there is a C function pointer type @code{func1}
+defined in some header file @file{func1.h}, and you know that these
+functions take one integer argument and return an integer result; and
+you want to call functions through such pointers.  Just define
+
+@example
+\c #include <func1.h>
+\c #define call_func1(par1,fptr) ((func1)fptr)(par1)
+c-function call-func1 call_func1 n func -- n
+@end example
+
+and then you can call a function pointed to by, say @code{func1a} as
+follows:
+
+@example
+-5 func1a call-func1 .
+@end example
+
+In the C part, @code{call_func} is defined as a macro to avoid having
+to declare the exact parameter and return types, so the C compiler
+knows them from the declaration of @code{func1}.
+
+The Forth word @code{call-func1} is similar to @code{execute}, except
+that it takes a C @code{func1} pointer instead of a Forth execution
+token, and it is specific to @code{func1} pointers.  For each type of
+function pointer you want to call from Forth, you have to define
+a separate calling word.
 
 
-
-@node Callbacks, C interface internals, Declaring C Functions, C Interface
+@node Callbacks, C interface internals, Calling C function pointers, C Interface
 @subsection Callbacks
 @cindex Callback functions written in Forth
 @cindex C function pointers to Forth words

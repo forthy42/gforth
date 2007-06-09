@@ -30,3 +30,18 @@ s\" ull=%llu r=%f\n\0" drop -1 -0.5e printf-nr . cr
 c-function printfll printfll a n -- n
 s\" ll=%lld\n\0" drop -1 printfll . cr
 s\" ll=%lld r=%f\n\0" drop -1 -0.5e printf-nr . cr
+
+\ test calling a C function pointer from Forth
+
+\ first create a C function pointer:
+
+\c typedef long (* func1)(long);
+\c #define labsptr(dummy) ((func1)labs)
+c-function labsptr labsptr -- a
+
+\ now the call
+\c #define call_func1(par1,fptr) ((func1)fptr)(par1)
+c-function call_func1 call_func1 n func -- n
+
+-5 labsptr call_func1 . cr
+
