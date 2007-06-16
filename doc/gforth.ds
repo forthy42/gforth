@@ -332,7 +332,8 @@ Other I/O
 * String Formats::              How Forth stores strings in memory
 * Displaying characters and strings::  Other stuff
 * Terminal output::             Cursor positioning etc.
-* Input::                       Input
+* Single-key input::            
+* Line input and conversion::   
 * Pipes::                       How to create your own pipes
 * Xchars and Unicode::          Non-ASCII characters
 
@@ -7798,7 +7799,7 @@ of @code{base}.
 @end itemize
 
 You can read numbers into your programs with the words described in
-@ref{Input}.
+@ref{Line input and conversion}.
 
 @node Interpret/Compile states, Interpreter Directives, Number Conversion, The Text Interpreter
 @subsection Interpret/Compile states
@@ -8725,7 +8726,8 @@ doc-block-included
 * String Formats::              How Forth stores strings in memory
 * Displaying characters and strings::  Other stuff
 * Terminal output::             Cursor positioning etc.
-* Input::                       Input
+* Single-key input::            
+* Line input and conversion::   
 * Pipes::                       How to create your own pipes
 * Xchars and Unicode::          Non-ASCII characters
 @end menu
@@ -9021,7 +9023,7 @@ definition of @code{my-char}.
 @end itemize
 
 
-@node Terminal output, Input, Displaying characters and strings, Other I/O
+@node Terminal output, Single-key input, Displaying characters and strings, Other I/O
 @subsection Terminal output
 @cindex output to terminal
 @cindex terminal output
@@ -9047,27 +9049,46 @@ Note that on non-terminals you should use @code{12 emit}, not
 @code{page}, to get a form feed.
 
 
-@node Input, Pipes, Terminal output, Other I/O
-@subsection Input
-@cindex input
-@cindex I/O - see input
-@cindex parsing a string
+@node Single-key input, Line input and conversion, Terminal output, Other I/O
+@subsection Single-key input
+@cindex single-key input
+@cindex input, single-key
 
-For ways of storing character strings in memory see @ref{String Formats}.
-
-@comment TODO examples for >number >float accept key key? pad parse word refill
-@comment then index them
-
+If you want to get a single printable character, you can use
+@code{key}; to check whether a character is available for @code{key},
+you can use @code{key?}.
 
 doc-key
 doc-key?
+
+If you want to process a mix of printable and non-printable
+characters, you can do that with @code{ekey} and friends.  @code{Ekey}
+produces a keyboard event that you have to convert into a character
+with @code{ekey>char} or into a key identifier with @code{ekey>fkey}.
+
+Typical code for using EKEY looks like this:
+
+@example
+ekey ekey>char if ( c )
+  ... \ do something with the character
+else ekey>fkey if ( key-id )
+  case
+    k-up                                  of ... endof
+    k-f1                                  of ... endof
+    k-left k-shift-mask or k-ctrl-mask or of ... endof
+    ...
+  endcase
+else ( keyboard-event )
+  drop \ just ignore an unknown keyboard event type
+then then
+@end example
+
 doc-ekey
 doc-ekey>char
+doc-ekey>fkey
 doc-ekey?
 
-Gforth recognizes various keys available on ANSI terminals (in MS-DOS
-you need the ANSI.SYS driver to get that behaviour).  These are the
-keyboard events produced by various common keys:
+The key identifiers for cursor keys are:
 
 doc-k-left
 doc-k-right
@@ -9080,36 +9101,62 @@ doc-k-next
 doc-k-insert
 doc-k-delete
 
-The function keys (aka keypad keys) are:
+The key identifiers for function keys (aka keypad keys) are:
 
-doc-k1
-doc-k2
-doc-k3
-doc-k4
-doc-k5
-doc-k6
-doc-k7
-doc-k8
-doc-k9
-doc-k10
-doc-k11
-doc-k12
+doc-k-f1
+doc-k-f2
+doc-k-f3
+doc-k-f4
+doc-k-f5
+doc-k-f6
+doc-k-f7
+doc-k-f8
+doc-k-f9
+doc-k-f10
+doc-k-f11
+doc-k-f12
 
-Note that K11 and K12 are not as widely available.  The shifted
-function keys are also not very widely available:
+Note that @code{k-f11} and @code{k-f12} are not as widely available.
 
-doc-s-k1
-doc-s-k2
-doc-s-k3
-doc-s-k4
-doc-s-k5
-doc-s-k6
-doc-s-k7
-doc-s-k8
-doc-s-k9
-doc-s-k10
-doc-s-k11
-doc-s-k12
+You can combine these key identifiers with masks for various shift keys:
+
+doc-k-shift-mask
+doc-k-ctrl-mask
+doc-k-alt-mask
+
+Note that, even if a Forth system has @code{ekey>fkey} and the key
+identifier words, the keys are not necessarily available or it may not
+necessarily be able to report all the keys and all the possible
+combinations with shift masks.  Therefore, write your programs in such
+a way that they are still useful even if the keys and key combinations
+cannot be pressed or are not recognized.
+
+Examples: Older keyboards often do not have an F11 and F12 key.  If
+you run Gforth in an xterm, the xterm catches a number of combinations
+(e.g., @key{Shift-Up}), and never passes it to Gforth.  Finally,
+Gforth currently does not recognize and report combinations with
+multiple shift keys (so the @key{shift-ctrl-left} case in the example
+above would never be entered).
+
+Gforth recognizes various keys available on ANSI terminals (in MS-DOS
+you need the ANSI.SYS driver to get that behaviour); it works by
+recognizing the escape sequences that ANSI terminals send when such a
+key is pressed.  If you have a terminal that sends other escape
+sequences, you will not get useful results on Gforth.  Other Forth
+systems may work in a different way.
+
+
+@node  Line input and conversion, Pipes, Single-key input, Other I/O
+@subsection Line input and conversion
+@cindex line input from terminal
+@cindex input, linewise from terminal
+@cindex convertin strings to numbers
+@cindex I/O - see input
+
+For ways of storing character strings in memory see @ref{String Formats}.
+
+@comment TODO examples for >number >float accept key key? pad parse word refill
+@comment then index them
 
 Words for inputting one line from the keyboard:
 
@@ -9132,7 +9179,7 @@ doc-expect
 doc-span
 
 
-@node Pipes, Xchars and Unicode, Input, Other I/O
+@node Pipes, Xchars and Unicode, Line input and conversion, Other I/O
 @subsection Pipes
 @cindex pipes, creating your own
 
