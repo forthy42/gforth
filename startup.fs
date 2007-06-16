@@ -112,6 +112,7 @@ true constant string-ext
 ' noop alias X:extension-query
 ' noop alias X:parse-name
 ' noop alias X:required
+' noop alias X:ekeys
 set-current
 
 warnings on
