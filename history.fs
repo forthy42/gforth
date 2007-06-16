@@ -202,7 +202,6 @@ require utf-8.fs
 
 Variable curpos
 
-s" os-type" environment? [IF] s" cygwin" str= [IF]
 : cygwin? ( -- flag ) s" TERM" getenv s" cygwin" str= ;
 : at-xy? ( -- x y )
     key? drop
@@ -219,25 +218,12 @@ s" os-type" environment? [IF] s" cygwin" str= [IF]
     x-width curpos @ + cursor@ -
     form nip >r  r@ 2/ + r@ / r> * negate curpos +! ;
 : save-cursor ( -- )
-    cygwin? IF  #esc emit '7 emit  ELSE  cursor@ curpos !  THEN ;
+    cygwin? IF  #esc emit '7 emit  ELSE
+	key? IF  -1  ELSE  cursor@  THEN  curpos !  THEN ;
 : restore-cursor ( -- )
-    cygwin? IF  #esc emit '8 emit  ELSE  curpos @ cursor!  THEN ;
-[ELSE]
-: at-xy? ( -- x y )
-    key? drop
-    #esc emit ." [6n"  0 0
-    BEGIN  key dup 'R <>  WHILE
-	    dup '; = IF  drop  swap  ELSE
-		dup '0 '9 1+ within  IF  '0 - swap 10 * +  ELSE
-		    drop  THEN  THEN
-    REPEAT  drop 1- swap 1- ;
-: cursor@ ( -- n )  at-xy? form nip * + ;
-: cursor! ( n -- )  form nip /mod at-xy ;
-: xcur-correct  ( addr u -- )  x-width curpos @ + cursor@ -
-    form nip >r  r@ 2/ + r@ / r> * negate curpos +! ;
-: save-cursor ( -- )  cursor@ curpos ! ;
-: restore-cursor ( -- )  curpos @ cursor! ;
-[THEN] [THEN]
+    cygwin? IF  #esc emit '8 emit  ELSE
+	curpos @ dup -1 = IF  drop  ELSE   cursor!  THEN  THEN ;
+
 ' xcur-correct IS cur-correct
 
 : .rest ( addr pos1 -- addr pos1 )
@@ -293,7 +279,11 @@ s" os-type" environment? [IF] s" cygwin" str= [IF]
     >r end^ 2@ hist-setpos
     2dup swap history write-line drop ( throw ) \ don't worry about errors
     hist-pos 2dup backward^ 2! end^ 2!
-    r> .all space true ;
+    r> curpos @ -1 = key? or IF
+	>r 2dup swap type r>
+    ELSE
+	.all
+    THEN space true ;
 
 : xkill-expand ( max span addr pos1 -- max span addr pos2 )
     prefix-found cell+ @ ?dup IF  >r

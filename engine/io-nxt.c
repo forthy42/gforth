@@ -37,13 +37,14 @@
 int terminal_prepped = 0;
 int needs_update = 0;
 int bt_mode = 0;
+int bt_state = 0;
 
 void
 show_splash(U32 milliseconds)
 {
   display_clear(0);
-  display_goto_xy(6, 6);
-  display_string("Gforth");
+  display_goto_xy(4, 6);
+  display_string("Gforth NXT");
   display_update();
 
   systick_wait_ms(milliseconds);
@@ -66,48 +67,92 @@ void bt_send_cmd(char * cmd)
   cmd[i++] = (char)(sum>>8);
   cmd[i++] = (char)(sum & 0xff);
 
+  //  systick_wait_ms(500);
+
   bt_send(cmd, len+1);
 }
 
-void do_bluetooth ()
+int do_bluetooth ()
 {
-  if(!bt_mode) {
-    char cmd[30];
-
-    bt_receive(cmd);
-    if(cmd[0] | cmd[1]) {
-      display_char('0'+cmd[0]);
-      display_char('0'+cmd[1]);
-      display_update();
-    }
-    
-    switch(cmd[1]) {
-    case 0x10:
-    case 0x16: // request connection
-      cmd[1] = 0x9; // accept connection
-      cmd[2] = 1; // yes, we do
-      bt_send_cmd(cmd);
-      break;
-    case 0x13: // connect result
-      if(cmd[2]) {
-	int handle=cmd[3];
-	cmd[1] = 0xB; // open stream
-	cmd[2] = handle;
-	bt_send_cmd(cmd);
-	while (*AT91C_US1_TNCR != 0);
-	// while(!(*AT91C_PIOA_PDSR & BT_BC4_CMD_PIN));
+  if(bt_state) {
+    if(bt_get_mode()) {
+      if(!bt_mode) {
 	bt_set_arm7_cmd();
 	display_char(')'); display_update();
 	bt_mode = 1;
-	bt_send("Hello Bluetooth\n", 16);
-      } else {
-	display_char('('); display_update();
       }
-      break;
-  default:
-    break;
+      return 1;
+    } else {
+      if(bt_mode) {
+	bt_clear_arm7_cmd();
+	display_char('['); display_update();
+	bt_mode = 0;
+	bt_state = 0;
+      } else {
+	display_char('.');
+	display_update();
+      }
+    }
+  } else {
+    if(!bt_mode) {
+      char cmd[30];
+      
+      bt_receive(cmd);
+      if(cmd[0] | cmd[1]) {
+	display_char('0'+cmd[0]);
+	display_char('0'+cmd[1]);
+      }
+      
+      switch(cmd[1]) {
+      case 0x10:
+      case 0x16: // request connection
+	display_char('-');
+	cmd[1] = 0x9; // accept connection
+	cmd[2] = 1; // yes, we do
+	bt_send_cmd(cmd);
+	break;
+      case 0x0f: // inquiry result
+	cmd[1] = 0x05;
+	bt_send_cmd(cmd); // add devices as known device
+	break;
+      case 0x13: // connect result
+	if(cmd[2]) {
+	  display_char('/');
+	  int handle=cmd[3];
+	  cmd[1] = 0xB; // open stream
+	  cmd[2] = handle;
+	  bt_send_cmd(cmd);
+	  bt_state = 1;
+	} else {
+	  display_char('(');
+	}
+	break;
+      case 0x20: // discoverableack
+	if(cmd[2]) {
+	  display_char('?');
+	  cmd[1] = 0x03; bt_send_cmd(cmd); // open port query
+	  break;
+	}
+      case 0x14:
+	display_char('!');
+	cmd[1] = 0x1C; cmd[2] = 1; bt_send_cmd(cmd);
+	break;
+      default:
+	break;
+      }
+      {
+	extern int display_x, display_y;
+	static int n=0;
+	int x = display_x;
+	int y = display_y;
+	display_goto_xy(0,6);
+	display_char("/|\\-"[(n++)&3]);
+	display_goto_xy(x,y);
+      }
+      display_update();
     }
   }
+  return 0;
 }
 
 void prep_terminal ()
@@ -126,11 +171,10 @@ void prep_terminal ()
   do {
     bt_receive(cmd);
   } while((cmd[0] != 3) && (cmd[1] != 0x14));
-  //  cmd[1] = 0x21; strcpy(cmd+2, "NXT"); bt_send_cmd(cmd); do_bluetooth();
-  cmd[1] = 0x1C; cmd[2] = 1; bt_send_cmd(cmd); do_bluetooth(); // make visible
-  cmd[1] = 0x36; cmd[2] = 1; bt_send_cmd(cmd); do_bluetooth(); // don't break stream mode
-  cmd[1] = 0x03; bt_send_cmd(cmd); // open port query
-
+  cmd[1] = 0x36; // break stream mode
+  cmd[2] = 0;
+  bt_send_cmd(cmd);
+  cmd[1] = 0x1C; cmd[2] = 1; bt_send_cmd(cmd); // make visible
   display_clear(1);
   show_splash(1000);
   display_goto_xy(0,0);
@@ -147,11 +191,11 @@ long key_avail ()
 {
   if(!terminal_prepped) prep_terminal();
 
+  do_bluetooth();
   if(bt_mode) {
     return bt_avail();
   } else {
-    if(bt_avail())
-      do_bluetooth();
+    systick_wait_ms(100);
     return 0;
   }
 }

@@ -85,6 +85,7 @@ void bt_start_ad_converter()
 U32 bt_get_mode()
 {
   bt_start_ad_converter();
+  while (!(((U32) *AT91C_ADC_SR) & 0x40)); // poll for EOC
   return ((U32) *AT91C_ADC_CDR6) > 0x200;
 }
 
