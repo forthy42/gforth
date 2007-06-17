@@ -74,83 +74,62 @@ void bt_send_cmd(char * cmd)
 
 int do_bluetooth ()
 {
-  if(bt_state) {
-    if(bt_get_mode()) {
-      if(!bt_mode) {
-	bt_set_arm7_cmd();
-	display_char(')'); display_update();
-	bt_mode = 1;
-      }
-      return 1;
-    } else {
-      if(bt_mode) {
-	bt_clear_arm7_cmd();
-	display_char('['); display_update();
-	bt_mode = 0;
-	bt_state = 0;
-      } else {
-	display_char('.');
-	display_update();
-      }
+  if(!bt_mode) {
+    char cmd[30];
+    
+    bt_receive(cmd);
+    if(cmd[0] | cmd[1]) {
+      display_char('0'+cmd[0]);
+      display_char('0'+cmd[1]);
     }
-  } else {
-    if(!bt_mode) {
-      char cmd[30];
-      
-      bt_receive(cmd);
-      if(cmd[0] | cmd[1]) {
-	display_char('0'+cmd[0]);
-	display_char('0'+cmd[1]);
-      }
-      
-      switch(cmd[1]) {
-      case 0x10:
-      case 0x16: // request connection
-	display_char('-');
-	cmd[1] = 0x9; // accept connection
-	cmd[2] = 1; // yes, we do
-	bt_send_cmd(cmd);
-	break;
-      case 0x0f: // inquiry result
-	cmd[1] = 0x05;
-	bt_send_cmd(cmd); // add devices as known device
-	break;
-      case 0x13: // connect result
-	if(cmd[2]) {
-	  display_char('/');
-	  int handle=cmd[3];
+    
+    switch(cmd[1]) {
+    case 0x16: // request connection
+      display_char('-');
+      cmd[1] = 0x9; // accept connection
+      cmd[2] = 1; // yes, we do
+      bt_send_cmd(cmd);
+      break;
+    case 0x0f: // inquiry result
+      display_char('+');
+      cmd[1] = 0x05;
+      bt_send_cmd(cmd); // add devices as known device
+      break;
+    case 0x13: // connect result
+      if(cmd[2]) {
+	int n=0;
+	int handle=cmd[3];
+	display_char('/'); display_update();
+	systick_wait_ms(300);
+	bt_receive(cmd);
+	if(cmd[0]==0) {
 	  cmd[1] = 0xB; // open stream
 	  cmd[2] = handle;
 	  bt_send_cmd(cmd);
-	  bt_state = 1;
-	} else {
-	  display_char('(');
+	  systick_wait_ms(100);
+	  bt_set_arm7_cmd();
+	  bt_mode = 1;
+	  display_char(')'); display_update();
 	}
-	break;
-      case 0x20: // discoverableack
-	if(cmd[2]) {
-	  display_char('?');
-	  cmd[1] = 0x03; bt_send_cmd(cmd); // open port query
-	  break;
-	}
-      case 0x14:
-	display_char('!');
-	cmd[1] = 0x1C; cmd[2] = 1; bt_send_cmd(cmd);
-	break;
-      default:
+	//	  bt_state = 1;
+      } else {
+	display_char('(');
+      }
+      break;
+    case 0x20: // discoverableack
+      if(cmd[2]) {
+	display_char('?');
 	break;
       }
-      {
-	extern int display_x, display_y;
-	static int n=0;
-	int x = display_x;
-	int y = display_y;
-	display_goto_xy(0,6);
-	display_char("/|\\-"[(n++)&3]);
-	display_goto_xy(x,y);
-      }
-      display_update();
+    case 0x10:
+    case 0x14:
+      display_char('!');
+      cmd[1] = 0x1C; cmd[2] = 1; bt_send_cmd(cmd);
+      break;
+    default:
+      break;
     }
+    display_update();
   }
   return 0;
 }
@@ -168,13 +147,15 @@ void prep_terminal ()
   nxt_motor_init();
   i2c_init();
   bt_init();
+  bt_start_ad_converter();
   do {
     bt_receive(cmd);
   } while((cmd[0] != 3) && (cmd[1] != 0x14));
-  cmd[1] = 0x36; // break stream mode
-  cmd[2] = 0;
-  bt_send_cmd(cmd);
-  cmd[1] = 0x1C; cmd[2] = 1; bt_send_cmd(cmd); // make visible
+  //  cmd[1] = 0x36; // break stream mode
+  //  cmd[2] = 0;
+  //  bt_send_cmd(cmd);
+  //  cmd[1] = 0x1C; cmd[2] = 1; bt_send_cmd(cmd); // make visible
+  cmd[1] = 0x03; bt_send_cmd(cmd); // open port query
   display_clear(1);
   show_splash(1000);
   display_goto_xy(0,0);

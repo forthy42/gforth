@@ -84,8 +84,6 @@ void bt_start_ad_converter()
 
 U32 bt_get_mode()
 {
-  bt_start_ad_converter();
-  while (!(((U32) *AT91C_ADC_SR) & 0x40)); // poll for EOC
   return ((U32) *AT91C_ADC_CDR6) > 0x200;
 }
 
@@ -120,28 +118,6 @@ int bt_avail(void)
     return 256 - *AT91C_US1_RCR - in_buf_idx;
   else
     return 128 - *AT91C_US1_RCR - in_buf_idx;
-}
-
-int bt_getkey(void)
-{
-  int out, total_bytes_ready;
-
-  while(bt_avail()==0);
-
-  out=buf_ptr[in_buf_idx++];
-
-  if (in_buf_idx >= 128 && *AT91C_US1_RNCR == 0)
-  {
-  	// Switch current buffer, and set up next 
-  	
-  	in_buf_idx -= 128;
-  	*AT91C_US1_RNPR = (unsigned int) buf_ptr;
-  	*AT91C_US1_RNCR = 128;
-  	in_buf_in_ptr = (in_buf_in_ptr+1) % 2;
-  	buf_ptr = &(in_buf[in_buf_in_ptr][0]);
-  }   
-
-  return out;
 }
 
 void bt_receive(U8 * buf)
@@ -209,6 +185,44 @@ void bt_receive(U8 * buf)
   	in_buf_in_ptr = (in_buf_in_ptr+1) % 2;
   	buf_ptr = &(in_buf[in_buf_in_ptr][0]);
   }   
+}
+
+int bt_getkey(void)
+{
+  static char recbuf[128];
+  static index=0, data=0;
+
+  if(data == 0) {
+    bt_receive(recbuf);
+    data = recbuf[0];
+    index = 0;
+  }
+  if(index < data) {
+    return recbuf[2+index++];
+  } else {
+    return 0;
+  }
+
+#if 0
+  int out, total_bytes_ready;
+
+  while(bt_avail()==0);
+
+  out=buf_ptr[in_buf_idx++];
+
+  if (in_buf_idx >= 128 && *AT91C_US1_RNCR == 0)
+  {
+  	// Switch current buffer, and set up next 
+  	
+  	in_buf_idx -= 128;
+  	*AT91C_US1_RNPR = (unsigned int) buf_ptr;
+  	*AT91C_US1_RNCR = 128;
+  	in_buf_in_ptr = (in_buf_in_ptr+1) % 2;
+  	buf_ptr = &(in_buf[in_buf_in_ptr][0]);
+  }   
+
+  return out;
+#endif
 }
 
 void bt_set_reset_low(void)

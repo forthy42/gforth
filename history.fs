@@ -214,7 +214,7 @@ Variable curpos
 : cursor@ ( -- n )  at-xy? form nip * + ;
 : cursor! ( n -- )  form nip /mod at-xy ;
 : xcur-correct  ( addr u -- )
-    cygwin? IF  2drop EXIT  THEN
+    cygwin? curpos @ -1 = or  IF  2drop EXIT  THEN
     x-width curpos @ + cursor@ -
     form nip >r  r@ 2/ + r@ / r> * negate curpos +! ;
 : save-cursor ( -- )
