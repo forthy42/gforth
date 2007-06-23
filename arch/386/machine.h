@@ -26,7 +26,7 @@
 #endif
 #endif
 
-#if (((__GNUC__==2 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=95) || (__GNUC__>2))) && defined(FORCE_REG)
+#if (((__GNUC__==2 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=95) || (__GNUC__==3))) && defined(FORCE_REG)
 #if !defined(USE_TOS) && !defined(USE_NO_TOS)
 #define USE_TOS
 #endif
@@ -70,7 +70,7 @@
 /* this works with 2.6.3 (and quite well, too) */
 /* since this is not very demanding, it's the default for other gcc versions */
 #if defined(USE_TOS) && !defined(CFA_NEXT)
-#if ((__GNUC__==2 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=95) || (__GNUC__>2))
+#if ((__GNUC__==2 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=95) || (__GNUC__==3))
      /* gcc 2.95 has a better register allocater */
 #define SPREG asm("%esi")
 #define RPREG asm("%edi")
@@ -82,7 +82,7 @@
 /* ebp leads to broken code (gcc-3.0); eax, ecx, edx produce compile errors */
 #define TOSREG asm("%ecx")
 /* ecx works only for TOS, and eax, edx don't work for anything (gcc-3.0) */
-#else /* !(gcc-2.95 or later) */
+#else /* !(gcc-2.95 or gcc-3.x) */
 #define IPREG asm("%ebx")
 #endif /* !(gcc-2.95 or later) */
 #else /* !defined(USE_TOS) || defined(CFA_NEXT) */
