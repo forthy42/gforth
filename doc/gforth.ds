@@ -11645,6 +11645,8 @@ doc-see
 doc-xt-see
 doc-simple-see
 doc-simple-see-range
+doc-see-code
+doc-see-code-range
 
 @node Forgetting words, Debugging, Examining, Programming Tools
 @subsection Forgetting words
