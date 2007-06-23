@@ -229,15 +229,15 @@ case "$host_cpu" in
 		;;
 	i386)
 		machine=386
-		CFLAGS="$CFLAGS -fomit-frame-pointer -fforce-addr -fforce-mem"
+		CFLAGS="$CFLAGS -fomit-frame-pointer -fforce-addr"
 		;;
 	i486)
 		machine=386
-		CFLAGS="$CFLAGS -fomit-frame-pointer -fforce-addr -fforce-mem -m486"
+		CFLAGS="$CFLAGS -fomit-frame-pointer -fforce-addr -m486"
 		;;
 	i*86)
 		machine=386
-		CFLAGS="$CFLAGS -fomit-frame-pointer -fforce-addr -fforce-mem"
+		CFLAGS="$CFLAGS -fomit-frame-pointer -fforce-addr"
 		CFLAGS_1="$CFLAGS"
 		CFLAGS="$CFLAGS -march=pentium"
 		AC_TRY_COMPILE(,,,CFLAGS="$CFLAGS_1 -m486")
@@ -564,6 +564,14 @@ CFLAGS="$CFLAGS -fno-reorder-blocks"
 AC_TRY_COMPILE(,,ac_noreorder_blocks=yes;ENGINE_FLAGS="$ENGINE_FLAGS -fno-reorder-blocks",ac_noreorder_blocks=no)
 CFLAGS="$CFLAGS_1"
 AC_MSG_RESULT($ac_noreorder_blocks)
+
+# Try if GCC understands -falign-labels=1
+AC_MSG_CHECKING([if $CC understands -falign-labels=1])
+CFLAGS_1="$CFLAGS"
+CFLAGS="$CFLAGS -falign-labels=1"
+AC_TRY_COMPILE(,,ac_noreorder_blocks=yes;ENGINE_FLAGS="$ENGINE_FLAGS -falign-labels=1",ac_align_labels=no)
+CFLAGS="$CFLAGS_1"
+AC_MSG_RESULT($ac_align_labels)
 
 # Try if GCC understands __attribute__((unused))
 AC_MSG_CHECKING([how to suppress 'unused variable' warnings])
