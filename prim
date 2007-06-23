@@ -338,8 +338,6 @@ SET_IP((Xt *)a_target);
 
 \ condbranch(forthname,stackeffect,restline,code1,code2,forthcode)
 \ this is non-syntactical: code must open a brace that is closed by the macro
-\ condbranch(forthname,stackeffect,restline,code1,code2,forthcode)
-\ this is non-syntactical: code must open a brace that is closed by the macro
 define(condbranch,
 $1 ( `#'a_target $2 ) $3
 $4	#ifdef NO_IP
@@ -349,8 +347,10 @@ $5	#ifdef NO_IP
 JUMP(a_target);
 #else
 SET_IP((Xt *)a_target);
+ifelse(condbranch_opt,`1',`INST_TAIL; NEXT_P2;',`/* condbranch_opt=0 */')
 #endif
 }
+ifelse(condbranch_opt,`1',`SUPER_CONTINUE;',`/* condbranch_opt=0 */')
 $6
 
 \+glocals
@@ -364,43 +364,10 @@ $5	lp += nlocals;
 JUMP(a_target);
 #else
 SET_IP((Xt *)a_target);
+ifelse(condbranch_opt,`1',`INST_TAIL; NEXT_P2;',`/* condbranch_opt=0 */')
 #endif
 }
-
-\+
-)
-
-\ version that generates two jumps (not good for PR 15242 workaround)
-define(condbranch_twojump,
-$1 ( `#'a_target $2 ) $3
-$4	#ifdef NO_IP
-INST_TAIL;
-#endif
-$5	#ifdef NO_IP
-JUMP(a_target);
-#else
-SET_IP((Xt *)a_target);
-INST_TAIL; NEXT_P2;
-#endif
-}
-SUPER_CONTINUE;
-$6
-
-\+glocals
-
-$1-lp+!`#' ( `#'a_target `#'nlocals $2 ) $3_lp_plus_store_number
-$4	#ifdef NO_IP
-INST_TAIL;
-#endif
-$5	lp += nlocals;
-#ifdef NO_IP
-JUMP(a_target);
-#else
-SET_IP((Xt *)a_target);
-INST_TAIL; NEXT_P2;
-#endif
-}
-SUPER_CONTINUE;
+ifelse(condbranch_opt,`1',`SUPER_CONTINUE;',`/* condbranch_opt=0 */')
 
 \+
 )

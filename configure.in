@@ -138,6 +138,7 @@ AC_ARG_VAR(ac_cv_sizeof_int128_t, [sizeof(int128_t)])
 AC_ARG_VAR(ac_cv_sizeof_uint128_t, [sizeof(uint128_t)])
 AC_ARG_VAR(ac_cv_c_bigendian, [Is the target big-endian ("yes" or "no")?])
 AC_ARG_VAR(no_dynamic_default, [run gforth with --dynamic (0) or --no-dynamic (1) by default])
+AC_ARG_VAR(condbranch_opt, [enable (1) or disable (0) using two dispatches for conditional branches])
 AC_ARG_VAR(skipcode, [assembly code for skipping 16 bytes of code])
 AC_ARG_VAR(asmcomment, [assembler comment start string])
 AC_ARG_VAR(arm_cacheflush, [file containing ARM cacheflush function (without .c)])
@@ -164,6 +165,16 @@ dnl AC_DEFINE_UNQUOTED([_FILE_OFFSET_BITS],64,[feature test macro])
 AC_PROG_CC
 
 test "$GCC" = "yes" || AC_MSG_ERROR(Gforth uses GNU C extensions and requires GCC 2.0 or higher)
+
+AC_MSG_CHECKING([whether to use two dispatches per conditional branch])
+test x$condbranch_opt = x && 
+if ($CC -v 2>&1 |grep -q 'gcc version 3'); then
+   condbranch_opt=0
+else
+   condbranch_opt=1
+fi
+AC_MSG_RESULT($condbranch_opt)
+AC_SUBST(condbranch_opt)
 
 AC_SUBST(CC)
 AC_SUBST(GCC_LD)

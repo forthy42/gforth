@@ -746,11 +746,11 @@ gforth.fi:	$(kernel_fi) gforthmi gforth$(EC)$(EXE) gforth-ditc$(EC)$(EXE) $(GFOR
 # -------------	Make c-engine
 
 prim.b:		prim cache0.vmg
-		m4 -s $(srcdir)/prim >$@
+		m4 -Dcondbranch_opt=0 -s $(srcdir)/prim >$@
 		sleep 1 #should make hpux-workaround unnecessary
 
-prim-fast.b:	prim cache-fast$(STACK_CACHE_DEFAULT_FAST).vmg peeprules.vmg
-		m4 -DSTACK_CACHE_FILE=cache-fast$(STACK_CACHE_DEFAULT_FAST).vmg -s $(srcdir)/prim >$@
+prim-fast.b:	prim cache-fast$(STACK_CACHE_DEFAULT_FAST).vmg peeprules.vmg Makefile.in
+		m4 -Dcondbranch_opt=@condbranch_opt@ -DSTACK_CACHE_FILE=cache-fast$(STACK_CACHE_DEFAULT_FAST).vmg -s $(srcdir)/prim >$@
 		sleep 1 #should make hpux-workaround unnecessary
 
 $(FORTH_GEN_ENGINE_FAST): prim-fast.b prims2x.fs
