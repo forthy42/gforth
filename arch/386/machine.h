@@ -54,51 +54,56 @@
 #define FLUSH_ICACHE(addr,size)
 
 #if defined(FORCE_REG) && !defined(DOUBLY_INDIRECT) && !defined(VM_PROFILING)
-#if (__GNUC__==2 && defined(__GNUC_MINOR__) && __GNUC_MINOR__==5)
+# if (__GNUC__==2 && defined(__GNUC_MINOR__) && __GNUC_MINOR__==5)
 /* i.e. gcc-2.5.x */
 /* this works with 2.5.7; nothing works with 2.5.8 */
-#define IPREG asm("%esi")
-#define SPREG asm("%edi")
-#if 0
-#ifdef USE_TOS
-#define CFAREG asm("%ecx")
-#else
-#define CFAREG asm("%edx")
-#endif
-#endif
-#else /* !gcc-2.5.x */
+#  define IPREG asm("%esi")
+#  define SPREG asm("%edi")
+#  if 0
+#   ifdef USE_TOS
+#    define CFAREG asm("%ecx")
+#   else
+#    define CFAREG asm("%edx")
+#   endif
+#  endif
+# else /* !gcc-2.5.x */
 /* this works with 2.6.3 (and quite well, too) */
 /* since this is not very demanding, it's the default for other gcc versions */
-#if defined(USE_TOS) && !defined(CFA_NEXT)
-#if ((__GNUC__==2 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=95) || (__GNUC__==3))
+#  if defined(USE_TOS) && !defined(CFA_NEXT)
+#   if ((__GNUC__==2 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=95) || (__GNUC__==3))
      /* gcc 2.95 has a better register allocater */
-#define SPREG asm("%esi")
-#define RPREG asm("%edi")
-#ifdef NO_IP
-#define spbREG asm("%ebx")
-#else
-#define IPREG asm("%ebx")
-#endif
+#    define SPREG asm("%esi")
+#    define RPREG asm("%edi")
+#    ifdef NO_IP
+#     define spbREG asm("%ebx")
+#    else
+#     define IPREG asm("%ebx")
+#    endif
 /* ebp leads to broken code (gcc-3.0); eax, ecx, edx produce compile errors */
-#define TOSREG asm("%ecx")
+#    define TOSREG asm("%ecx")
 /* ecx works only for TOS, and eax, edx don't work for anything (gcc-3.0) */
-#else /* !(gcc-2.95 or gcc-3.x) */
-#define IPREG asm("%ebx")
-#endif /* !(gcc-2.95 or later) */
-#else /* !defined(USE_TOS) || defined(CFA_NEXT) */
-#if ((__GNUC__==2 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=95) || (__GNUC__>2))
-#define SPREG asm("%esi")
-#define RPREG asm("%edi")
-#ifdef NO_IP
-#define spbREG asm("%ebx")
-#else
-#define IPREG asm("%ebx")
-#endif
-#else /* !(gcc-2.95 or later) */
-#define SPREG asm("%ebx")
-#endif  /* !(gcc-2.95 or later) */
-#endif /* !defined(USE_TOS) || defined(CFA_NEXT) */
-#endif /* !gcc-2.5.x */
+#   else /* !(gcc-2.95 or gcc-3.x) */
+#    define IPREG asm("%ebx")
+#    if (__GNUC__==4 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=2)
+#     define SPREG asm("%esi")
+#     define RPREG asm("%edi")
+#     define TOSREG asm("%edx")
+#    endif /* (gcc-4.2 or later) */
+#   endif /* !(gcc-2.95 or later) */
+#  else /* !defined(USE_TOS) || defined(CFA_NEXT) */
+#   if ((__GNUC__==2 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=95) || (__GNUC__>2))
+#    define SPREG asm("%esi")
+#    define RPREG asm("%edi")
+#    ifdef NO_IP
+#     define spbREG asm("%ebx")
+#    else
+#     define IPREG asm("%ebx")
+#    endif
+#   else /* !(gcc-2.95 or later) */
+#    define SPREG asm("%ebx")
+#   endif  /* !(gcc-2.95 or later) */
+#  endif /* !defined(USE_TOS) || defined(CFA_NEXT) */
+# endif /* !gcc-2.5.x */
 #endif /* defined(FORCE_REG) && !defined(DOUBLY_INDIRECT) && !defined(VM_PROFILING) */
 
 /* #define ALIGNMENT_CHECK 1 */
