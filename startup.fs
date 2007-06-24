@@ -79,6 +79,7 @@ require debug.fs
 require code.fs
 require dis-gdb.fs
 require libcc.fs
+require struct0x.fs
 
 \ define the environmental queries for all the loaded wordsets
 \ since the blocks wordset is loaded in a single file, its queries
@@ -109,10 +110,11 @@ true constant string-ext
 \ extension queries
 ' noop alias X:deferred
 ' noop alias X:defined
+' noop alias X:ekeys
 ' noop alias X:extension-query
 ' noop alias X:parse-name
 ' noop alias X:required
-' noop alias X:ekeys
+' noop alias X:structures
 set-current
 
 warnings on

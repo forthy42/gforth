@@ -356,6 +356,7 @@ Structures
 * Structure Naming Convention::  
 * Structure Implementation::    
 * Structure Glossary::          
+* Forth200x Structures::        
 
 Object-oriented Forth
 
@@ -9847,6 +9848,7 @@ Another Forth Structures Package}, Forth Dimensions 19(3), pages
 * Structure Naming Convention::  
 * Structure Implementation::    
 * Structure Glossary::          
+* Forth200x Structures::        
 @end menu
 
 @node Why explicit structure support?, Structure Usage, Structures, Structures
@@ -10117,7 +10119,7 @@ in separate words, and decide which one to invoke based on the
 offset. For a zero offset, the field is basically a noop; it is
 immediate, and therefore no code is generated when it is compiled.
 
-@node Structure Glossary,  , Structure Implementation, Structures
+@node Structure Glossary, Forth200x Structures, Structure Implementation, Structures
 @subsection Structure Glossary
 @cindex structure glossary
 
@@ -10139,6 +10141,43 @@ doc-sfloat%
 doc-%size
 doc-struct
 
+
+@node Forth200x Structures,  , Structure Glossary, Structures
+@subsection Forth200x Structures
+@cindex Structures in Forth200x
+
+The Forth 200x standard defines a slightly less convenient form of
+structures.  In general (when using @code{field+}, you have to perform
+the alignment yourself, but there are a number of convenience words
+(e.g., @code{field:} that perform the alignment for you.
+
+A typical usage example is:
+
+@example
+0
+  field:                   s-a
+  faligned 2 floats +field s-b
+constant s-struct
+@end example
+
+An alternative way of writing this structure is:
+
+@example
+begin-structure s-struct
+  field:                   s-a
+  faligned 2 floats +field s-b
+end-structure
+@end example
+
+doc-begin-structure
+doc-end-structure
+doc-+field
+doc-cfield:
+doc-field:
+doc-2field:
+doc-ffield:
+doc-sffield:
+doc-dffield:
 
 @c -------------------------------------------------------------
 @node Object-oriented Forth, Programming Tools, Structures, Words
