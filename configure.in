@@ -254,7 +254,18 @@ case "$host_cpu" in
 		AC_TRY_COMPILE(,,,CFLAGS="$CFLAGS_1 -m486")
 		;;
 	x86_64)
-		machine=amd64
+		case $CC
+		in
+		    *-m32*)
+		    	machine=386
+			CFLAGS="$CFLAGS -fomit-frame-pointer -fforce-addr"
+			CFLAGS_1="$CFLAGS"
+			CFLAGS="$CFLAGS -march=athlon64"
+			;;
+		    *)
+		    	machine=amd64
+			;;
+		esac
 		;;
 	ia64*)
 		machine=ia64
