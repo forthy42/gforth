@@ -236,6 +236,7 @@ GFORTH_FI_SRC = \
 	source.fs \
 	startup.fs \
 	struct.fs \
+	struct0x.fs \
 	stuff.fs \
 	tasker.fs \
 	termsize.fs \
