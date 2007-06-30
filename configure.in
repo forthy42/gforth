@@ -595,6 +595,22 @@ AC_TRY_COMPILE(,,ac_noreorder_blocks=yes;ENGINE_FLAGS="$ENGINE_FLAGS -falign-lab
 CFLAGS="$CFLAGS_1"
 AC_MSG_RESULT($ac_align_labels)
 
+# Try if GCC understands -falign-loops=1
+AC_MSG_CHECKING([if $CC understands -falign-loops=1])
+CFLAGS_1="$CFLAGS"
+CFLAGS="$CFLAGS -falign-loops=1"
+AC_TRY_COMPILE(,,ac_noreorder_blocks=yes;ENGINE_FLAGS="$ENGINE_FLAGS -falign-loops=1",ac_align_loops=no)
+CFLAGS="$CFLAGS_1"
+AC_MSG_RESULT($ac_align_loops)
+
+# Try if GCC understands -falign-jumps=1
+AC_MSG_CHECKING([if $CC understands -falign-jumps=1])
+CFLAGS_1="$CFLAGS"
+CFLAGS="$CFLAGS -falign-jumps=1"
+AC_TRY_COMPILE(,,ac_noreorder_blocks=yes;ENGINE_FLAGS="$ENGINE_FLAGS -falign-jumps=1",ac_align_jumps=no)
+CFLAGS="$CFLAGS_1"
+AC_MSG_RESULT($ac_align_jumps)
+
 # Try if GCC understands __attribute__((unused))
 AC_MSG_CHECKING([how to suppress 'unused variable' warnings])
 AC_TRY_COMPILE(,[int __attribute__((unused)) foo;], MAYBE_UNUSED='__attribute__((unused))',)
