@@ -108,7 +108,7 @@ extern const UQItype __clz_tab[256];
 #define __AND_CLOBBER_CC , "cc"
 #endif /* __GNUC__ < 2 */
 
-#if defined (__alpha) && W_TYPE_SIZE == 64
+#if defined (__alpha) && W_TYPE_SIZE == 64 && __GNUC__ >= 3
 #define umul_ppmm(ph, pl, m0, m1) \
   do {									\
     UDItype __m0 = (m0), __m1 = (m1);					\

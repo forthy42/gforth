@@ -105,10 +105,10 @@ OBJECTS_FI =  engine.o main-fi.o
 
 # In engine subdirectory there are (or should be) only files that belong to
 # our engine, so we can make life easy
-DEPS =  config.h *.h $(srcdir)/../arch/$(machine)/*.[h]
-ENGINE_DEPS = engine.c $(DEPS) prim_lab.i prim.i @image_i@
+DEPS =  config.h forth.h io.h $(srcdir)/../arch/$(machine)/*.[h]
+ENGINE_DEPS = engine.c $(DEPS) prim_lab.i prim.i @image_i@ fnmatch.h threaded.h
 MAIN_DEPS = main.c $(DEPS) prim_superend.i prim_num.i prim_grp.i costs.i super2.i
-ENGINE_FAST_DEPS = engine.c $(DEPS) prim_lab-fast.i prim-fast.i
+ENGINE_FAST_DEPS = engine.c $(DEPS) prim_lab-fast.i prim-fast.i fnmatch.h threaded.h
 MAIN_FAST_DEPS = main.c $(DEPS) prim_superend-fast.i prim_num-fast.i prim_grp-fast.i costs-fast.i super2-fast.i
 
 #some makes don't do the -o $@ correctly, so we help them
@@ -119,6 +119,14 @@ MAIN_FAST_DEPS = main.c $(DEPS) prim_superend-fast.i prim_num-fast.i prim_grp-fa
 	$(GCC) -c $(CFLAGS) $(CPPFLAGS) -o $@ $<
 
 support.o: support.c config.h forth.h longlong.h
+
+strtol.o: strtol.c ansidecl.h
+
+fnmatch.o: fnmatch.c fnmatch.h
+
+getopt1.o: getopt1.c getopt.h
+
+getopt.o: getopt.c getopt.h
 
 gforth$(EC)$(EXE):	$(OBJECTS) $(AOBJECTS)
 	$(GCCLD) $(LDFLAGS) $(OBJECTS) $(AOBJECTS) $(LDLIBS) -o $@

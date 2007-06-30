@@ -591,7 +591,7 @@ AC_MSG_RESULT($ac_noreorder_blocks)
 AC_MSG_CHECKING([if $CC understands -falign-labels=1])
 CFLAGS_1="$CFLAGS"
 CFLAGS="$CFLAGS -falign-labels=1"
-AC_TRY_COMPILE(,,ac_noreorder_blocks=yes;ENGINE_FLAGS="$ENGINE_FLAGS -falign-labels=1",ac_align_labels=no)
+AC_TRY_COMPILE(,,ac_align_labels=yes;ENGINE_FLAGS="$ENGINE_FLAGS -falign-labels=1",ac_align_labels=no)
 CFLAGS="$CFLAGS_1"
 AC_MSG_RESULT($ac_align_labels)
 
@@ -599,7 +599,7 @@ AC_MSG_RESULT($ac_align_labels)
 AC_MSG_CHECKING([if $CC understands -falign-loops=1])
 CFLAGS_1="$CFLAGS"
 CFLAGS="$CFLAGS -falign-loops=1"
-AC_TRY_COMPILE(,,ac_noreorder_blocks=yes;ENGINE_FLAGS="$ENGINE_FLAGS -falign-loops=1",ac_align_loops=no)
+AC_TRY_COMPILE(,,ac_align_loops=yes;ENGINE_FLAGS="$ENGINE_FLAGS -falign-loops=1",ac_align_loops=no)
 CFLAGS="$CFLAGS_1"
 AC_MSG_RESULT($ac_align_loops)
 
@@ -607,7 +607,7 @@ AC_MSG_RESULT($ac_align_loops)
 AC_MSG_CHECKING([if $CC understands -falign-jumps=1])
 CFLAGS_1="$CFLAGS"
 CFLAGS="$CFLAGS -falign-jumps=1"
-AC_TRY_COMPILE(,,ac_noreorder_blocks=yes;ENGINE_FLAGS="$ENGINE_FLAGS -falign-jumps=1",ac_align_jumps=no)
+AC_TRY_COMPILE(,,ac_align_jumps=yes;ENGINE_FLAGS="$ENGINE_FLAGS -falign-jumps=1",ac_align_jumps=no)
 CFLAGS="$CFLAGS_1"
 AC_MSG_RESULT($ac_align_jumps)
 

@@ -1088,6 +1088,13 @@ static void append_jump(void)
     code_here += pi->restlength;
     memcpy(code_here, goto_start, goto_len);
     code_here += goto_len;
+#if defined(__alpha)
+    {
+      /* align code after jump */
+      Cell alignment = 16;
+      code_here = (Address)((((UCell)code_here)+(alignment-1))&~(alignment-1));
+    }
+#endif
     last_jump=0;
   }
 }

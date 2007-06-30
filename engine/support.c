@@ -509,6 +509,7 @@ typedef UDCell UDWtype;
 
 #include "longlong.h"
 
+#if defined(udiv_qrnnd) && !defined(__alpha) && UDIV_NEEDS_NORMALIZATION
 static Cell MAYBE_UNUSED nlz(UCell x)
      /* number of leading zeros, adapted from "Hacker's Delight" */
 {
@@ -520,11 +521,12 @@ static Cell MAYBE_UNUSED nlz(UCell x)
 #if defined(count_leading_zeros)
    count_leading_zeros(n,x);
 #else
-#warning "count_leading_zeros undefined (should not happen)"
    n = 0;
 #if (SIZEOF_CHAR_P > 4)
-   if (x <= 0xffffffff) {n+=32; x <<= 32;}
-#error "this can't be correct"
+   if (x <= 0xffffffff) 
+     n+=32;
+   else
+     x >>= 32;
 #endif
    if (x <= 0x0000FFFF) {n = n +16; x = x <<16;}
    if (x <= 0x00FFFFFF) {n = n + 8; x = x << 8;}
@@ -534,6 +536,7 @@ static Cell MAYBE_UNUSED nlz(UCell x)
 #endif
    return n;
 }
+#endif /*defined(udiv_qrnnd) && !defined(__alpha) && UDIV_NEEDS_NORMALIZATION*/
 
 #if !defined(ASM_UM_SLASH_MOD)
 UDCell umdiv (UDCell u, UCell v)
@@ -541,7 +544,17 @@ UDCell umdiv (UDCell u, UCell v)
    Return quotient in lo, remainder in hi. */
 {
   UDCell res;
-#if defined(udiv_qrnnd)
+#if defined(udiv_qrnnd) && !defined(__alpha)
+#if 0
+   This code is slower on an Alpha (timings with gcc-3.3.5):
+          other     this
+   */      5205 ms  5741 ms 
+   */mod   5167 ms  5717 ms 
+   fm/mod  5467 ms  5312 ms 
+   sm/rem  4734 ms  5278 ms 
+   um/mod  4490 ms  5020 ms 
+   m*/    15557 ms 17151 ms
+#endif /* 0 */
   UCell q,r,u0,u1;
   UCell MAYBE_UNUSED lz;
   
@@ -561,12 +574,11 @@ UDCell umdiv (UDCell u, UCell v)
   r >>= lz;
 #endif
   vm_twoCell2ud(q,r,res);
-#else /* !(defined(udiv_qrnnd) */
-#warning "udiv_qrnnd undefined (should not happen)"
+#else /* !(defined(udiv_qrnnd) && !defined(__alpha)) */
   /* simple restoring subtract-and-shift algorithm, might be faster on Alpha */
   int i = CELL_BITS, c = 0;
   UCell q = 0;
-  Ucell h, l;
+  UCell h, l;
 
   vm_ud2twoCell(u,l,h);
   if (v==0)
@@ -589,7 +601,7 @@ UDCell umdiv (UDCell u, UCell v)
       q <<= 1;
     }
   vm_twoCell2ud(q,h,res);
-#endif /* !(defined(udiv_qrnnd) && */
+#endif /* !(defined(udiv_qrnnd) && !defined(__alpha)) */
   return res;
 }
 #endif
