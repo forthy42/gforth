@@ -71,8 +71,11 @@ $80 Value max-single-byte
 
 \ utf key and emit
 
+Defer check-xy  ' noop IS check-xy
+
 : u8key ( -- u )
     defers key dup max-single-byte u< ?EXIT  \ special case ASCII
+    dup $FF = ?EXIT  \ special resize character
     dup $C2 u< IF  UTF-8-err throw  THEN  \ malformed character
     $7F and  $40 >r
     BEGIN  dup r@ and  WHILE  r@ xor

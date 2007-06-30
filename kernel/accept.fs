@@ -41,6 +41,8 @@ Create ctrlkeys
     ' false a, ' false a, ' false a, ' false a, 
     ' false a, ' false a, ' false a, ' false a,
 
+    ' false a,
+
 defer insert-char
 ' (ins) IS insert-char
 defer everychar
@@ -55,6 +57,7 @@ defer everyline
     everychar
     dup -1 =   IF  drop 4  THEN  \ -1 is EOF
     dup #del = IF  drop #bs  THEN  \ del is rubout
+    dup $FF =  IF  drop bl cells ctrlkeys + perform  EXIT  THEN
     dup bl u<  IF  cells ctrlkeys + perform  EXIT  THEN
     \ check for end reached
     insert-char 0 ;

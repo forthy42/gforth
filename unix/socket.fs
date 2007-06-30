@@ -25,8 +25,12 @@ require lib.fs
 	    library libc libc.so.6
 	[ELSE] 2dup s" cygwin" str= [IF]  2drop
 		library libc cygwin1.dll
-	    [ELSE]  s" bsd" search nip nip [IF]
+	    [ELSE]  2dup s" bsd" search nip nip [IF]  2drop
 		    library libc libc.so
+		[ELSE]  2dup s" darwin" string-prefix? [IF]  2drop
+			library libc libc.dylib
+		    [ELSE]  2drop \ or add your stuff here
+		    [THEN]
 		[THEN]
 	    [THEN]
 	[THEN]

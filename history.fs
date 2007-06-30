@@ -201,6 +201,7 @@ require utf-8.fs
 [IFUNDEF] #esc  27 Constant #esc  [THEN]
 
 Variable curpos
+Variable screenw
 
 : cygwin? ( -- flag ) s" TERM" getenv s" cygwin" str= ;
 : at-xy? ( -- x y )
@@ -211,15 +212,15 @@ Variable curpos
 		dup '0 '9 1+ within  IF  '0 - swap 10 * +  ELSE
 		    drop  THEN  THEN
     REPEAT  drop 1- swap 1- ;
-: cursor@ ( -- n )  at-xy? form nip * + ;
-: cursor! ( n -- )  form nip /mod at-xy ;
+: cursor@ ( -- n )  at-xy? screenw @ * + ;
+: cursor! ( n -- )  screenw @ /mod at-xy ;
 : xcur-correct  ( addr u -- )
     cygwin? curpos @ -1 = or  IF  2drop EXIT  THEN
     x-width curpos @ + cursor@ -
-    form nip >r  r@ 2/ + r@ / r> * negate curpos +! ;
+    screenw @ >r  r@ 2/ + r@ / r> * negate curpos +! ;
 : save-cursor ( -- )
     cygwin? IF  #esc emit '7 emit  ELSE
-	key? IF  -1  ELSE  cursor@  THEN  curpos !  THEN ;
+	key? IF  -1  ELSE  form nip screenw ! cursor@  THEN  curpos !  THEN ;
 : restore-cursor ( -- )
     cygwin? IF  #esc emit '8 emit  ELSE
 	curpos @ dup -1 = IF  drop  ELSE   cursor!  THEN  THEN ;
@@ -235,6 +236,10 @@ Variable curpos
 : xback-restore ( u -- )
     drop key? ?EXIT
     restore-cursor ;
+
+: xretype ( max span addr pos1 -- max span addr pos1 )
+    restore-cursor screenw @ >r save-cursor
+    .all 2 pick r@ / 1+ screenw @ r> - * 0 max spaces .rest false ;
 
 \ In the following, addr max is the buffer, addr span is the current
 \ string in the buffer, and pos1 is the cursor position in the buffer.
@@ -314,6 +319,7 @@ Variable curpos
     ['] xclear-tib   ctrl K bindkey
     ['] xfirst-pos   ctrl A bindkey
     ['] xend-pos     ctrl E bindkey
+    ['] xretype      bl     bindkey
     history IF  ['] (xenter)     #lf    bindkey  THEN
     history IF  ['] (xenter)     #cr    bindkey  THEN
     ['] xtab-expand  #tab   bindkey
