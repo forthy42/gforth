@@ -602,13 +602,13 @@ i'	( R:w R:w2 -- R:w R:w2 w )		gforth		i_tick
   r> r> r> dup itmp ! >r >r >r itmp @ ;
 variable itmp
 
-j	( R:n R:d1 -- n R:n R:d1 )		core
+j	( R:w R:w1 R:w2 -- w R:w R:w1 R:w2 )	core
 :
 \ rp@ cell+ cell+ cell+ @ ;
   r> r> r> r> dup itmp ! >r >r >r >r itmp @ ;
 [IFUNDEF] itmp variable itmp [THEN]
 
-k	( R:n R:d1 R:d2 -- n R:n R:d1 R:d2 )		gforth
+k	( R:w R:w1 R:w2 R:w3 R:w4 -- w R:w R:w1 R:w2 R:w3 R:w4 )	gforth
 :
 \ rp@ [ 5 cells ] Literal + @ ;
   r> r> r> r> r> r> dup itmp ! >r >r >r >r >r >r itmp @ ;
