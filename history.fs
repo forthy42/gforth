@@ -205,7 +205,6 @@ Variable screenw
 
 : cygwin? ( -- flag ) s" TERM" getenv s" cygwin" str= ;
 : at-xy? ( -- x y )
-    key? drop
     #esc emit ." [6n"  0 0
     BEGIN  key dup 'R <>  WHILE
 	    dup '; = IF  drop  swap  ELSE
@@ -239,7 +238,7 @@ Variable screenw
 
 : xretype ( max span addr pos1 -- max span addr pos1 )
     restore-cursor screenw @ >r save-cursor
-    .all 2 pick r@ / 1+ screenw @ r> - * 0 max spaces .rest false ;
+    .all 2 pick r@ / screenw @ r> - * 0 max spaces .rest false ;
 
 \ In the following, addr max is the buffer, addr span is the current
 \ string in the buffer, and pos1 is the cursor position in the buffer.
