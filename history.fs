@@ -205,6 +205,7 @@ Variable screenw
 
 : cygwin? ( -- flag ) s" TERM" getenv s" cygwin" str= ;
 : at-xy? ( -- x y )
+    key? drop \ make sure prep_terminal() is executed
     #esc emit ." [6n"  0 0
     BEGIN  key dup 'R <>  WHILE
 	    dup '; = IF  drop  swap  ELSE

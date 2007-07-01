@@ -622,7 +622,7 @@ long key_avail (FILE * stream)
 {
   int tty = fileno (stream);
   fd_set selin;
-  static int now[2] = { 0 , 0 };
+  static long int now[2] = { 0 , 0 };
   int res;
 
   setvbuf(stream, NULL, _IONBF, 0);
