@@ -319,7 +319,7 @@ Variable screenw
     ['] xclear-tib   ctrl K bindkey
     ['] xfirst-pos   ctrl A bindkey
     ['] xend-pos     ctrl E bindkey
-    ['] xretype      bl     bindkey
+    ['] xretype      ctrl L bindkey
     history IF  ['] (xenter)     #lf    bindkey  THEN
     history IF  ['] (xenter)     #cr    bindkey  THEN
     ['] xtab-expand  #tab   bindkey
