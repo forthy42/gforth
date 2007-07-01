@@ -239,6 +239,12 @@ Label *xts; /* same content as vm_prims, but should only be used for xts */
 #endif
 
 #ifndef NO_DYNAMIC
+#if defined(__alpha)
+#define CODE_ALIGNMENT 16
+#else
+#define CODE_ALIGNMENT 0
+#endif
+
 #define MAX_IMMARGS 2
 
 typedef struct {
@@ -1078,6 +1084,23 @@ static void flush_to_here(void)
 #endif
 }
 
+static void align_code(void)
+     /* align code_here on some platforms */
+{
+#ifndef NO_DYNAMIC
+#if defined(__alpha)
+  Cell alignment = CODE_ALIGNMENT;
+  int nops[] = {0x47ff041f,0x2ffe0000,0x47ff041f,0x2ffe0000};
+  UCell offset = ((UCell)code_here)&(alignment-1);
+  UCell length = alignment-offset;
+  if (offset != 0) {
+    memcpy(code_here,((Address)nops)+offset,length);
+    code_here += length;
+  }
+#endif /* defined(__alpha) */
+#endif /* defined(NO_DYNAMIC */
+}  
+
 #ifndef NO_DYNAMIC
 static void append_jump(void)
 {
@@ -1088,13 +1111,7 @@ static void append_jump(void)
     code_here += pi->restlength;
     memcpy(code_here, goto_start, goto_len);
     code_here += goto_len;
-#if defined(__alpha)
-    {
-      /* align code after jump */
-      Cell alignment = 16;
-      code_here = (Address)((((UCell)code_here)+(alignment-1))&~(alignment-1));
-    }
-#endif
+    align_code();
     last_jump=0;
   }
 }
@@ -1117,7 +1134,7 @@ static Address append_prim(Cell p)
   PrimInfo *pi = &priminfos[p];
   Address old_code_here = code_here;
 
-  if (code_area+code_area_size < code_here+pi->length+pi->restlength+goto_len) {
+  if (code_area+code_area_size < code_here+pi->length+pi->restlength+goto_len+CODE_ALIGNMENT) {
     struct code_block_list *p;
     append_jump();
     flush_to_here();
@@ -1759,8 +1776,10 @@ void compile_prim1(Cell *start)
     optimize_rewrite(instps,origs,ninsts);
     /* fprintf(stderr,"optimize_rewrite(...,%d)\n",ninsts); */
     ninsts=0;
-    if (start==NULL)
+    if (start==NULL) {
+      align_code();
       return;
+    }
   }
   prim_num = ((Xt)*start)-vm_prims;
   if(prim_num >= npriminfos) {
