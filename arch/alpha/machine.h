@@ -27,6 +27,12 @@
 
 #include "../generic/machine.h"
 
+/* code padding */
+#define CODE_ALIGNMENT 16
+#define CODE_PADDING {0x1f, 0x04, 0xff, 0x47, 0x00, 0x00, 0xfe, 0x2f,
+                      0x1f, 0x04, 0xff, 0x47, 0x00, 0x00, 0xfe, 0x2f}
+#define MAX_PADDING 12
+
 #ifdef FORCE_REG
 /* $9-$14 are callee-saved, $1-$8 and $22-$25 are caller-saved */
 #define IPREG asm("$10")

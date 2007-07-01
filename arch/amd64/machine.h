@@ -53,6 +53,25 @@
 /* The architecture requires hardware consistency */
 #define FLUSH_ICACHE(addr,size)
 
+/* code padding */
+#define CODE_ALIGNMENT 16
+#define CODE_PADDING {0x66, 0x66, 0x66, 0x90, 0x66, 0x66, 0x66, 0x90, \
+                      0x66, 0x66, 0x66, 0x90, 0x66, 0x66, 0x66, 0x90}
+#define MAX_PADDING 4
+/* results for various maxpaddings:
+   3GHz Xeon 5160                     2.2GHz Athlon 64 X2
+   sieve bubble matrix  fib  padding sieve bubble matrix  fib 
+    0.132 0.216  0.072 0.228    0     0.260 0.300  0.108 0.344
+    0.132 0.216  0.072 0.228    1     0.268 0.300  0.112 0.344
+    0.132 0.216  0.072 0.248    2     0.256 0.300  0.108 0.344
+    0.136 0.216  0.072 0.248    3     0.252 0.300  0.108 0.344
+    0.132 0.220  0.072 0.240    4     0.252 0.300  0.112 0.340
+    0.136 0.216  0.072 0.248    5     0.252 0.300  0.108 0.344
+    0.132 0.216  0.072 0.244    6     0.256 0.300  0.108 0.344
+    0.132 0.216  0.072 0.244    7     0.264 0.300  0.108 0.344
+    0.136 0.216  0.072 0.244    8     0.268 0.296  0.108 0.340
+*/
+
 #if defined(FORCE_REG) && !defined(DOUBLY_INDIRECT) && !defined(VM_PROFILING)
 #define RPREG asm("%r13")
 #define FPREG asm("%r12")

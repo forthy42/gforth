@@ -239,9 +239,7 @@ Label *xts; /* same content as vm_prims, but should only be used for xts */
 #endif
 
 #ifndef NO_DYNAMIC
-#if defined(__alpha)
-#define CODE_ALIGNMENT 16
-#else
+#ifndef CODE_ALIGNMENT
 #define CODE_ALIGNMENT 0
 #endif
 
@@ -1088,16 +1086,17 @@ static void align_code(void)
      /* align code_here on some platforms */
 {
 #ifndef NO_DYNAMIC
-#if defined(__alpha)
+#if defined(CODE_PADDING)
   Cell alignment = CODE_ALIGNMENT;
-  int nops[] = {0x47ff041f,0x2ffe0000,0x47ff041f,0x2ffe0000};
+  static char nops[] = CODE_PADDING;
+  UCell maxpadding=MAX_PADDING;
   UCell offset = ((UCell)code_here)&(alignment-1);
   UCell length = alignment-offset;
-  if (offset != 0) {
-    memcpy(code_here,((Address)nops)+offset,length);
+  if (length <= maxpadding) {
+    memcpy(code_here,nops+offset,length);
     code_here += length;
   }
-#endif /* defined(__alpha) */
+#endif /* defined(CODE_PADDING) */
 #endif /* defined(NO_DYNAMIC */
 }  
 
