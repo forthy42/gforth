@@ -617,6 +617,17 @@ AC_TRY_COMPILE(,[int __attribute__((unused)) foo;], MAYBE_UNUSED='__attribute__(
 AC_DEFINE_UNQUOTED(MAYBE_UNUSED,$MAYBE_UNUSED,[attribute for possibly unused variables])
 AC_MSG_RESULT($MAYBE_UNUSED)
 
+#try if m4 understands -s
+AC_MSG_CHECKING([how to invoke m4])
+if m4 -s /dev/null; then
+ M4="m4 -s"
+else
+ M4=m4
+fi
+AC_SUBST(M4)
+AC_DEFINE_UNQUOTED(M4,"$M4",[How to invoke m4])
+AC_MSG_RESULT($M4)
+
 echo "machine='$machine'"
 
 dnl AC_CHECK_PROG(asm_fs,asm.fs,arch/$machine/asm.fs,,$srcdir/arch/$machine)
