@@ -65,6 +65,7 @@ INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_INFO = @INSTALL_INFO@
 LN_S	= @LN_S@
+M4      = m4 -s
 GCC	= @CC@
 CC	= $(GCC)
 FORTHPATH = .$(PATHSEP)$(libdir)/gforth/site-forth$(PATHSEP)$(siteforthdir)$(PATHSEP)$(libdir)/gforth/$(VERSION)$(PATHSEP)$(datadir)/gforth/$(VERSION)
@@ -747,11 +748,11 @@ gforth.fi:	$(kernel_fi) gforthmi gforth$(EC)$(EXE) gforth-ditc$(EC)$(EXE) $(GFOR
 # -------------	Make c-engine
 
 prim.b:		prim cache0.vmg
-		m4 -Dcondbranch_opt=0 -s $(srcdir)/prim >$@
+		$(M4) -Dcondbranch_opt=0 $(srcdir)/prim >$@
 		sleep 1 #should make hpux-workaround unnecessary
 
 prim-fast.b:	prim cache-fast$(STACK_CACHE_DEFAULT_FAST).vmg peeprules.vmg Makefile.in
-		m4 -Dcondbranch_opt=@condbranch_opt@ -DSTACK_CACHE_FILE=cache-fast$(STACK_CACHE_DEFAULT_FAST).vmg -s $(srcdir)/prim >$@
+		$(M4) -Dcondbranch_opt=@condbranch_opt@ -DSTACK_CACHE_FILE=cache-fast$(STACK_CACHE_DEFAULT_FAST).vmg $(srcdir)/prim >$@
 		sleep 1 #should make hpux-workaround unnecessary
 
 $(FORTH_GEN_ENGINE_FAST): prim-fast.b prims2x.fs
