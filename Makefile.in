@@ -510,7 +510,8 @@ clean:		mostlyclean
 		-$(RM) -rf $(GEN) *.o engine/*.o arch/*/*.o version \
 		engine/gforth$(EC)$(EXE) engine/gforth-fast$(EC)$(EXE) \
                 engine/gforth-native$(EC)$(EXE) engine/gforth-itc$(EC)$(EXE) \
-		engine/gforth-ditc$(EC)$(EXE) engine/gforth-prof$(EC)$(EXE)
+		engine/gforth-ditc$(EC)$(EXE) engine/gforth-prof$(EC)$(EXE) \
+		engine/prim-s.i
 
 distclean:	clean
 		-$(RM) -rf config.cache config.log config.status \
@@ -638,7 +639,7 @@ check:		gforths	gforth.fi
 		$(MAKE) checkone ENGINE="./gforth-fast" >/dev/null 2>&1
 		@echo "*** Check successful ***"
 
-checkone test:	gforth$(EC)$(EXE) gforth.fi
+checkone test:	gforth$(EC)$(EXE) gforth.fi engine/prim-s.i
 		$(FORTH) test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs test/string.fs test/float.fs test/deferred.fs test/coreext.fs -e bye 2>&1 | tr -d '\015' | diff -c - $(srcdir)/test/coretest.out
 		$(FORTH) test/other.fs -e bye
 		$(FORTHS) test/signals.fs -e bye
@@ -646,7 +647,7 @@ checkone test:	gforth$(EC)$(EXE) gforth.fi
 		$(FORTH) code.fs test/checkans.fs -e bye | tr -d '\015' | diff -c - $(srcdir)/test/checkans.out
 		$(FORTH) prims2x.fs -e \
 		  "c-flag on s\" prim.i\" out-filename 2! s\" $(srcdir)/prim.b\" ' output-c ' output-c-combined process-file bye"| \
-		  tr -d '\015' | diff -c - $(srcdir)/engine/prim.i
+		  tr -d '\015' | grep -v '^#line '|diff -c - engine/prim-s.i
 
 check-nofast: gforth$(EC)$(EXE) gforth.fi
 		$(FORTHS) test/gforth-nofast.fs -e bye
@@ -760,6 +761,9 @@ $(FORTH_GEN_ENGINE_FAST): prim-fast.b prims2x.fs
 
 $(FORTH_GEN_ENGINE): prim.b prims2x.fs
 		GFORTH="$(FORTHP)" $(srcdir)/gfgen
+
+engine/prim-s.i: engine/prim.i
+	grep -v '^#line ' $(srcdir)/engine/prim.i >$@
 
 kernel/aliases.fs:	prim.b prims2x.fs kernel/aliases0.fs
 		$(CP) kernel/aliases0.fs $@-
