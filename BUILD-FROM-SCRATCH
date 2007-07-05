@@ -24,7 +24,7 @@
 # created: 2may00jaw
 
 # To build gforth from scratch you need autoconf, automake and a 
-# gforth0.5.0
+# gforth-0.6.2
 # This file can be used as shell script. If you make the environment
 # variable GFORTH point to an existing gforth installation, this
 # script takes over the whole build process and will produce the
@@ -58,13 +58,13 @@ echo timestamp >stamp-h.in
 
 # run configure Script
 
-./configure $*
+./configure "$@"
 
-# if you have specified a previous Gforth, you can savely run make now
-# with FORTHK and FORTHP changed appropriate.
+# if you have specified a previous Gforth, you can safely run make now
+# with FORTHK and FORTHP changed appropriately.
 
 #a local gforth.fi probably does not work with $GFORTH
-rm gforth.fi
+rm -f gforth.fi
 
 echo xz
 if [ "$GFORTH"xx != "xx" ]

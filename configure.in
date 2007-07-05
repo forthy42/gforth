@@ -619,7 +619,7 @@ AC_MSG_RESULT($MAYBE_UNUSED)
 
 #try if m4 understands -s
 AC_MSG_CHECKING([how to invoke m4])
-if m4 -s /dev/null; then
+if m4 -s /dev/null >/dev/null 2>&1; then
  M4="m4 -s"
 else
  M4=m4
