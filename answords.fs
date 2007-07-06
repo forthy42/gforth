@@ -36,10 +36,10 @@ answord .S TOOLS dot-s \ 15.6.1.0220 112
 answord / CORE slash \ 6.1.0230 28
 answord /MOD CORE slash-mod \ 6.1.0240 28
 answord /STRING STRING slash-string \ 17.6.1.0245 123
-answord 0< CORE zero-less \ 6.1.0250 28
+answord 0< CORE zero-less-than \ 6.1.0250 28 \ officially zero-less
 answord 0<> CORE-EXT zero-not-equals \ 6.2.0260 49
 answord 0= CORE zero-equals \ 6.1.0270 28
-answord 0> CORE-EXT zero-greater \ 6.2.0280 50
+answord 0> CORE-EXT zero-greater-than \ 6.2.0280 50 \ officially zero-greater
 answord 1+ CORE one-plus \ 6.1.0290 28
 answord 1- CORE one-minus \ 6.1.0300 29
 answord 2! CORE two-store \ 6.1.0310 29
@@ -129,7 +129,7 @@ answord D+ DOUBLE d-plus \ 8.6.1.1040 67
 answord D- DOUBLE d-minus \ 8.6.1.1050 67
 answord D. DOUBLE d-dot \ 8.6.1.1060 67
 answord D.R DOUBLE d-dot-r \ 8.6.1.1070 67
-answord D0< DOUBLE d-zero-less \ 8.6.1.1075 67
+answord D0< DOUBLE d-zero-less-than \ 8.6.1.1075 67 \ officially d-zero-less
 answord D0= DOUBLE d-zero-equals \ 8.6.1.1080 67
 answord D2* DOUBLE d-two-star \ 8.6.1.1090 68
 answord D2/ DOUBLE d-two-slash \ 8.6.1.1100 68
@@ -154,7 +154,7 @@ answord DNEGATE DOUBLE d-negate \ 8.6.1.1230 69
 answord DO CORE DO \ 6.1.1240 36
 answord DOES> CORE does \ 6.1.1250 37
 answord DROP CORE DROP \ 6.1.1260 37
-answord DU< DOUBLE-EXT d-u-less \ 8.6.2.1270 69
+answord DU< DOUBLE-EXT d-u-less-than \ 8.6.2.1270 69 \ officially d-u-less
 answord DUMP TOOLS DUMP \ 15.6.1.1280 112
 answord DUP CORE dupe \ 6.1.1290 37
 answord EDITOR TOOLS-EXT EDITOR \ 15.6.2.1300 115

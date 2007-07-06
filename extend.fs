@@ -98,8 +98,8 @@ decimal
 
 \ CONVERT                                               17may93jaw
 
-: convert ( ud1 c-addr1 -- ud2 c-addr2 ) \ core-ext
-    \G OBSOLESCENT: superseded by @code{>number}.
+: convert ( ud1 c-addr1 -- ud2 c-addr2 ) \ core-ext-obsolescent
+    \G Obsolescent: superseded by @code{>number}.
     char+ true >number drop ;
 
 \ ERASE                                                 17may93jaw
@@ -188,11 +188,11 @@ decimal
 
 \ EXPECT SPAN                                           17may93jaw
 
-variable span ( -- c-addr ) \ core-ext
+variable span ( -- c-addr ) \ core-ext-obsolescent
 \G @code{Variable} -- @i{c-addr} is the address of a cell that stores the
 \G length of the last string received by @code{expect}. OBSOLESCENT.
 
-: expect ( c-addr +n -- ) \ core-ext
+: expect ( c-addr +n -- ) \ core-ext-obsolescent
     \G Receive a string of at most @i{+n} characters, and store it
     \G in memory starting at @i{c-addr}. The string is
     \G displayed. Input terminates when the <return> key is pressed or

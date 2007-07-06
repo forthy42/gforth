@@ -151,7 +151,7 @@ Defer flush-blocks ( -- ) \ gforth
 : get-buffer ( u -- a-addr ) \ gforth
     0 buffers um/mod drop buffer-struct %size * block-buffers @ + ;
 
-: block ( u -- a-addr ) \ gforthman- block
+: block ( u -- a-addr ) \ block
     \G If a block buffer is assigned for block @i{u}, return its
     \G start address, @i{a-addr}. Otherwise, assign a block buffer
     \G for block @i{u} (if the assigned block buffer has been
@@ -292,7 +292,7 @@ Create block-input   A, A, A, A, A,
 \     0= IF  block-included  ELSE  included  THEN ;
 
 get-current environment-wordlist set-current
-true constant block
+true constant block \ environment- environment
 true constant block-ext
 set-current
 

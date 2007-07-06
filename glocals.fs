@@ -686,7 +686,7 @@ forth definitions
     endcase ;
 interpret/compile: TO ( c|w|d|r "name" -- ) \ core-ext,local
 
-: locals|
+: locals| ( ... "name ..." -- ) \ local-ext locals-bar
     \ don't use 'locals|'! use '{'! A portable and free '{'
     \ implementation is compat/anslocals.fs
     BEGIN

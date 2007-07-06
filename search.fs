@@ -136,7 +136,7 @@ slowvoc off
 
 \ Only root                                            14may93py
 
-Vocabulary Forth ( -- ) \ gforthman- search-ext
+Vocabulary Forth ( -- ) \ search-ext
   \G Replace the @i{wid} at the top of the search order with the
   \G @i{wid} associated with the word list @code{forth-wordlist}.
 
@@ -190,7 +190,7 @@ lookup ! \ our dictionary search order becomes the law ( -- )
   \G last.
   vp @ 0 ?DO vp cell+ I cells + @ LOOP vp @ ;
 
-: set-order  ( widn .. wid1 n -- ) \ gforthman- search
+: set-order  ( widn .. wid1 n -- ) \ search
     \G If @var{n}=0, empty the search order.  If @var{n}=-1, set the
     \G search order to the implementation-defined minimum search order
     \G (for Gforth, this is the word list @code{Root}). Otherwise,
@@ -235,7 +235,7 @@ lookup ! \ our dictionary search order becomes the law ( -- )
     endif
     drop r> body> >head-noprim id. ;
 
-: order ( -- )  \  gforthman- search-ext
+: order ( -- )  \  search-ext
   \G Print the search order and the compilation word list.  The
   \G word lists are printed in the order in which they are searched
   \G (which is reversed with respect to the conventional way of
@@ -264,13 +264,13 @@ Root definitions
 ' words Alias words  ( -- ) \ tools
 \G Display a list of all of the definitions in the word list at the top
 \G of the search order.
-' Forth Alias Forth
+' Forth Alias Forth \ alias- search-ext
 ' forth-wordlist alias forth-wordlist ( -- wid ) \ search
   \G @code{Constant} -- @i{wid} identifies the word list that includes all of the standard words
   \G provided by Gforth. When Gforth is invoked, this word list is the compilation word
   \G list and is at the top of the search order.
-' set-order alias set-order
-' order alias order
+' set-order alias set-order ( wid1 ... widu u -- ) \ alias- search
+' order alias order ( -- ) \ alias- search-ext
 
 Forth definitions
 

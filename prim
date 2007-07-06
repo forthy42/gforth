@@ -2110,7 +2110,7 @@ floor	( r1 -- r2 )	float
 /* !! unclear wording */
 r2 = floor(r1);
 
-fround	( r1 -- r2 )	gforth	f_round
+fround	( r1 -- r2 )	float	f_round
 ""Round to the nearest integral value.""
 r2 = rint(r1);
 

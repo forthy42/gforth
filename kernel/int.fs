@@ -517,7 +517,7 @@ const Create ???  0 , 3 , char ? c, char ? c, char ? c,
 
 [THEN]
 
-cell% 2* 0 0 field >body ( xt -- a_addr ) \ core
+cell% 2* 0 0 field >body ( xt -- a_addr ) \ core to-body
 \G Get the address of the body of the word represented by @i{xt} (the
 \G address of the word's data field).
 drop drop
@@ -1033,7 +1033,7 @@ Defer mark-end
 
 \ \ Cold Boot                                    	13feb93py
 
-: (bootmessage)
+: (bootmessage) ( -- )
     ." Gforth " version-string type 
     ." , Copyright (C) 1995-2006 Free Software Foundation, Inc." cr
     ." Gforth comes with ABSOLUTELY NO WARRANTY; for details type `license'"
@@ -1041,7 +1041,7 @@ Defer mark-end
      cr ." Type `bye' to exit"
 [ [THEN] ] ;
 
-defer bootmessage \ gforth
+defer bootmessage ( -- ) \ gforth
 \G Hook (deferred word) executed right after interpreting the OS
 \G command-line arguments.  Normally prints the Gforth startup
 \G message.

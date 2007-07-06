@@ -51,12 +51,14 @@
     \G enough space to align it.
     here dup dfaligned swap ?DO  bl c,  LOOP ;
 
-1 sfloats (Field) sfloat+ , ( sf-addr1 -- sf-addr2 ) \ float-ext s-float-plus
+(Field) sfloat+ ( sf-addr1 -- sf-addr2 ) \ float-ext s-float-plus
 \G @code{1 sfloats +}.
+    1 sfloats ,
 
-1 dfloats (Field) dfloat+ , ( df-addr1 -- df-addr2 ) \ float-ext d-float-plus
+(Field) dfloat+ ( df-addr1 -- df-addr2 ) \ float-ext d-float-plus
 \G @code{1 dfloats +}.
-
+    1 dfloats ,
+    
 : f, ( f -- ) \ gforth
     \G Reserve data space for one floating-point number and store
     \G @i{f} in the space.

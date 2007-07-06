@@ -26,7 +26,7 @@ DOES> ( ... -- ... ) @ current-input @ @ + perform ;
 DOES> ( -- addr ) @ current-input @ + ;
 
 0
-input-method source ( -- addr u ) \ core-ext,file source
+input-method source ( -- addr u ) \ core source
     \G Return address @i{addr} and length @i{u} of the current input
     \G buffer
 input-method refill ( -- flag ) \ core-ext,block-ext,file-ext
@@ -62,7 +62,7 @@ cell input-var >in ( -- addr ) \ core to-in
     \G cells containing the string (in c-addr u form) parsed with
     \G @code{parse}, @code{parse-name} or @code{word}.  If you do your
     \G own parsing, you can set it with @code{input-lexeme!}.
-cell input-var #tib ( -- addr ) \ core-ext number-t-i-b
+cell input-var #tib ( -- addr ) \ core-ext-obsolescent number-t-i-b
     \G @code{input-var} variable -- @i{a-addr} is the address of a
     \G cell containing the number of characters in the terminal input
     \G buffer. OBSOLESCENT: @code{source} superceeds the function of
@@ -80,7 +80,7 @@ has? file [IF]
 cell input-var loadfile ( -- addr ) \ gforth
     \G @code{input-var} variable -- This cell contains the file the
     \G input buffer is associated with (0 if none)
-cell input-var blk ( -- addr ) \ block
+cell input-var blk ( -- addr ) \ block b-l-k
     \G @code{input-var} variable -- This cell contains the current
     \G block number
 cell input-var #fill-bytes ( -- addr ) \ gforth
@@ -90,7 +90,7 @@ cell input-var #fill-bytes ( -- addr ) \ gforth
     \G @code{input-var} variable -- addr u describes name of currently
     \G interpreted input (file name or somesuch)
 [THEN]
-0 input-var tib ( -- addr ) \ core
+0 input-var tib ( -- addr ) \ core-ext-obsolescent t-i-b
 
 Constant tib+
 
@@ -239,7 +239,7 @@ has? file [IF]
     current-input @ 0= IF  create-input  THEN
     BEGIN  old-input @  WHILE  0 pop-file drop  REPEAT ;
 
-: query ( -- ) \ core-ext
+: query ( -- ) \ core-ext-obsolescent
     \G Make the user input device the input source. Receive input into
     \G the Terminal Input Buffer. Set @code{>IN} to zero. OBSOLESCENT:
     \G superceeded by @code{accept}.

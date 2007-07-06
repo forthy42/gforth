@@ -8697,7 +8697,7 @@ doc-block-position
 doc-list
 doc-scr
 
-doc---gforthman-block
+doc-block
 doc-buffer
 
 doc-empty-buffers
