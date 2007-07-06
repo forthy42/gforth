@@ -45,31 +45,34 @@ fi
 
 # makes a aclocal.m4 which includes the automake macros for autconf
 
-aclocal
+aclocal &&
 
 # generate configure script
 
-autoconf
+autoconf &&
 
 # generate header files like engine/config.h.in
 
-autoheader
+autoheader &&
 echo timestamp >stamp-h.in
 
 # run configure Script
 
-./configure "$@"
+./configure "$@" &&
 
 # if you have specified a previous Gforth, you can safely run make now
 # with FORTHK and FORTHP changed appropriately.
 
 #a local gforth.fi probably does not work with $GFORTH
-rm -f gforth.fi
+rm -f gforth.fi &&
 
 if [ "$GFORTH"xx != "xx" ]
 then
- echo Running: make BUILDFORTH="$GFORTH" FORTHP="$GFORTH" gforth...
- make BUILDFORTH="$GFORTH" FORTHP="$GFORTH" gforth
- echo Running: make BUILDFORTH="$GFORTH" FORTHP="$GFORTH" all...
- make BUILDFORTH="$GFORTH" FORTHP="$GFORTH" all
+ bootstrap=engine/prim.i" "`echo kernl{16,32,64}{b,l}.fi`
+ echo 'Running: make BUILDFORTH="'$GFORTH'" FORTHP="'$GFORTH'" '$bootstrap &&
+ make BUILDFORTH="$GFORTH" FORTHP="$GFORTH" engine/prim.i $bootstrap &&
+ echo Running: make &&
+ make &&
+ make doc &&
+ make more
 fi
