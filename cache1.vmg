@@ -29,11 +29,11 @@
 \ \E create regs spTOS ,
 
 \E IPregs 1 0 stack-state IPss1
-\E regs 3 cells + 0  -1 stack-state ss0
-\E regs 2 cells + 1  0 stack-state ss1
-\E regs 1 cells + 2  1 stack-state ss2
-\ \E regs 0 cells + 3  2 stack-state ss3
-\ \E regs 1 cells + 0 -1 stack-state ss0
+\E regs 3 th 0  -1 stack-state ss0
+\E regs 2 th 1  0 stack-state ss1
+\E regs 1 th 2  1 stack-state ss2
+\ \E regs 0 th 3  2 stack-state ss3
+\ \E regs 1 th 0 -1 stack-state ss0
 \ \E regs           1  0 stack-state ss1
 
 \ the first of these is the default state (for now)
