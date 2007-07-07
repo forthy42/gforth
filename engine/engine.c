@@ -24,7 +24,6 @@
 #else
 #define USE_TOS
 #endif
-#define USE_NO_FTOS
 
 #include "config.h"
 #include "forth.h"

@@ -26,7 +26,7 @@
 
 #ifndef USE_FTOS
 #ifndef USE_NO_FTOS
-#if defined(FORCE_REG)
+#if 1 || defined(FORCE_REG)
 #define USE_FTOS
 #else
 #define USE_NO_FTOS
