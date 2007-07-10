@@ -8023,15 +8023,15 @@ doc-definitions
 doc-get-current
 doc-set-current
 doc-get-order
-doc---gforthman-set-order
+doc-set-order
 doc-wordlist
 doc-table
 doc->order
 doc-previous
 doc-also
-doc---gforthman-forth
+doc-forth
 doc-only
-doc---gforthman-order
+doc-order
 
 doc-find
 doc-search-wordlist
@@ -9093,10 +9093,10 @@ The key identifiers for cursor keys are:
 
 doc-k-left
 doc-k-right
-doc-k-up	
-doc-k-down	
-doc-k-home	
-doc-k-end	
+doc-k-up
+doc-k-down
+doc-k-home
+doc-k-end
 doc-k-prior
 doc-k-next
 doc-k-insert

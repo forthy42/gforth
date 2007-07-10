@@ -371,7 +371,7 @@ variable name-line
 2variable last-name-filename
 Variable function-number 0 function-number !
 Variable function-old 0 function-old !
-: function-diff ( n -- )
+: function-diff ( -- )
     ." GROUPADD(" function-number @ function-old @ - 0 .r ." )" cr
     function-number @ function-old ! ;
 : forth-fdiff ( -- )
@@ -685,7 +685,7 @@ get-current prefixes set-current
 set-current
 
 create ...-item ( -- addr ) \ just used for letting stack-prefixes work on it
-item% %allot                \ stores the stack temporarily until used by ...
+item% %allot drop           \ stores the stack temporarily until used by ...
 
 : init-item1 ( addr1 addr u -- addr2 )
     \ initialize item at addr1 with name addr u, next item is at addr2
@@ -1855,15 +1855,18 @@ Variable c-flag
 )) <- else-comment
 
 (( ` + {{ start }} nonl ** {{ end
-	dup
-	IF	c-flag @
-	    IF
-		function-diff
-		." #ifdef HAS_" bounds ?DO  I c@ toupper emit  LOOP cr
-		THEN
-		forth-flag @
-		IF  forth-fdiff  ." has? " type ."  [IF]"  cr THEN
-	ELSE	2drop
+        dup
+        IF
+            c-flag @ IF
+                function-diff
+                ." #ifdef HAS_" 2dup bounds ?DO  I c@ toupper emit  LOOP cr
+            THEN
+            forth-flag @ IF
+                forth-fdiff  ." has? " 2dup type ."  [IF]"  cr
+            THEN
+            2drop
+        ELSE
+            2drop
 	    c-flag @      IF
 		function-diff  ." #endif" cr THEN
 	    forth-flag @  IF  forth-fdiff  ." [THEN]"  cr THEN
@@ -1872,9 +1875,10 @@ Variable c-flag
 
 (( (( ` g || ` G )) {{ start }} nonl **
    {{ end
-      forth-flag @ IF  forth-fdiff  ." group " type cr  THEN
+      forth-flag @ IF  forth-fdiff  ." group " 2dup type cr  THEN
       c-flag @     IF  function-diff
-	  ." GROUP(" type ." , " function-number @ 0 .r ." )" cr  THEN }}
+          ." GROUP(" 2dup type ." , " function-number @ 0 .r ." )" cr  THEN
+      2drop }}
 )) <- group-comment
 
 (( (( eval-comment || forth-comment || c-comment || else-comment || if-comment || group-comment )) ?? nonl ** )) <- comment-body
@@ -1892,7 +1896,7 @@ Variable c-flag
 (( {{ prim create-prim prim init-simple }}
    ` ( white ** {{ start }} stack-effect {{ end prim prim-stack-string 2! }} ` ) white **
    (( {{ start }} forth-ident {{ end prim prim-wordset 2! }} white **
-      (( {{ start }}  c-ident {{ end 2dup prim-c-name-2! }} )) ??
+      (( {{ start }}  c-ident {{ end prim-c-name-2! }} )) ??
    )) ??  nleof
    (( ` " ` "  {{ start }} (( noquote ++ ` " )) ++ {{ end 1- prim prim-doc 2! }} ` " white ** nleof )) ??
    {{ skipsynclines off line @ c-line ! filename 2@ c-filename 2! start }}
