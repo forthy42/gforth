@@ -35,6 +35,7 @@ DEFER XC@ ( xc-addr -- xc )
 DEFER XC!+? ( xc xc-addr1 u1 -- xc-addr2 u2 f ) \ f if operation succeeded
 DEFER XC@+ ( xc-addr1 -- xc-addr2 xc )
 DEFER XC-SIZE ( xc -- u ) \ size in cs
+DEFER X-SIZE ( xc-addr u1 -- u2 ) \ size in cs
 DEFER X-WIDTH ( addr u -- n ) \ size in fixed chars
 DEFER -TRAILING-GARBAGE ( addr u1 -- addr u2 ) \ remove trailing incomplete xc
 
@@ -84,6 +85,7 @@ DEFER -TRAILING-GARBAGE ( addr u1 -- addr u2 ) \ remove trailing incomplete xc
     ['] c!+? is xc!+?
     ['] count is xc@+
     ['] c-size is xc-size
+    ['] c-size is x-size
     ['] nip IS x-width
     ['] noop is -trailing-garbage
 ;

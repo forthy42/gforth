@@ -651,7 +651,7 @@ Cell getkey(FILE * stream)
     prep_terminal();
 
   result = fread(&c, sizeof(c), 1, stream);
-  return result==0 ? (errno == EINTR ? 12 : EOF) : c;
+  return result==0 ? (errno == EINTR ? 12 : 4) : c;
 }
 
 #ifdef STANDALONE

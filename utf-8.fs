@@ -115,7 +115,7 @@ Defer check-xy  ' noop IS check-xy
 	>r u8!+ r> r> swap - true
     then ;
 
-: u8addrlen ( u8-addr -- u )
+: u8addrlen ( u8-addr u -- u )  drop
     \ length of UTF-8 char starting at u8-addr (accesses only u8-addr)
     c@
     dup $80 u< if drop 1 exit endif
@@ -129,7 +129,7 @@ Defer check-xy  ' noop IS check-xy
 
 : -u8trailing-garbage ( addr u1 -- addr u2 )
     2dup + dup u8<< ( addr u1 end1 end2 )
-    2dup dup u8addrlen + = if \ last character ok
+    2dup dup over over - u8addrlen + = if \ last character ok
 	2drop
     else
 	nip nip over -
@@ -306,6 +306,9 @@ here wc-table - Constant #wc-table
     ['] u8len is xc-size
 [ [IFDEF] x-width ]
     ['] u8width is x-width
+[ [THEN] ]
+[ [IFDEF] x-size ]
+    ['] u8addrlen is x-size
 [ [THEN] ]
     ['] -u8trailing-garbage is -trailing-garbage
 ;
