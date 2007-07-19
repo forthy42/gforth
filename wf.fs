@@ -354,7 +354,7 @@ Variable expand-postfix
 
 \ line handling
 
-: char? ( -- c )  >in @ char swap >in ! ;
+: char? ( -- c )  >in @ char swap >in ! $FF umin ;
 
 : parse-tag ( addr u char -- )
     >r r@ parse .type
@@ -456,9 +456,10 @@ Create nav-buf 0 c,
     bounds ?DO
 	I c@  dup 'A 'Z 1+ within IF  bl + nav+
 	ELSE  dup 'a 'z 1+ within IF  nav+
-	ELSE  dup '0 '9 1+ within IF  nav+
-	ELSE  dup  bl = swap '- = or IF  '- nav+
-	THEN  THEN  THEN  THEN
+	    ELSE  dup '0 '9 1+ within IF  nav+
+		ELSE  dup  bl = over '- = or IF  '- nav+
+		    ELSE  nav+
+		    THEN  THEN  THEN  THEN
     LOOP ;
 : >nav ( addr u -- addr' u' )
     nav-name $!  create-navs @ 0=
@@ -519,7 +520,7 @@ true Value toc-image
 		3  OF  s" down" class=  ENDOF
 	    ENDCASE
 	THEN
-	s" a" tag parse-string s" a" /tag
+	s" a" tag parse-string s" a" /tag ." <!--" cr ." -->"
     THEN
     rdrop
     1 toc-index +! toc-index @ /toc-line mod 0=

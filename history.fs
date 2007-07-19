@@ -203,6 +203,10 @@ require utf-8.fs
 Variable curpos
 Variable screenw
 
+: at-deltaxy ( dx dy -- )
+    #esc emit '[ emit  dup abs 0 .r 0< IF  'A  ELSE  'B  THEN  emit
+    #esc emit '[ emit  dup abs 0 .r 0< IF  'D  ELSE  'C  THEN  emit ;
+
 : cygwin? ( -- flag ) s" TERM" getenv s" cygwin" str= ;
 : at-xy? ( -- x y )
     key? drop \ make sure prep_terminal() is executed
