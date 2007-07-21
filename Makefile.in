@@ -59,7 +59,7 @@ CP	= cp -p
 MV	= mv
 TAR	= tar cf -
 INSTALL	= @INSTALL@
-INSTALL_PROGRAM = @INSTALL_PROGRAM@ -s
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
 MASSAGE_EXE = @MASSAGE_EXE@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_DATA = @INSTALL_DATA@
@@ -602,7 +602,7 @@ install:	gforth$(EC)$(EXE) $(FORTH_SRC) $(kernel_fi) gforth.fi gforthmi vmgen do
 			echo ">>>>>Please install $(srcdir)/gforth.el in your .../emacs/site-lisp directory"; \
 		fi
 		-$(RM) gforth.fi
-		GFORTHD="./gforth-ditc -p $(DESTDIR)$(libdir)/gforth/site-forth$(PATHSEP)$(DESTDIR)$(siteforthdir)$(PATHSEP)$(DESTDIR)$(datadir)/gforth/$(VERSION) -i $(kernel_fi)" GFORTH="./gforth-ditc --die-on-signal -i $(kernel_fi) $(STARTUP)" includedir=$(includedir) ./gforthmi gforth.fi $(FORTHSIZES) $(STARTUP)
+		GFORTHD="./gforth-ditc -p $(DESTDIR)$(libdir)/gforth/site-forth$(PATHSEP)$(DESTDIR)$(siteforthdir)$(PATHSEP)$(DESTDIR)$(datadir)/gforth/$(VERSION) -i $(kernel_fi)" GFORTH="./gforth-ditc --die-on-signal -i $(kernel_fi) $(STARTUP)" includedir=$(includedir) bindir=$bindir ./gforthmi gforth.fi $(FORTHSIZES) $(STARTUP)
 		$(INSTALL_DATA) gforth.fi $(DESTDIR)$(libdir)/gforth/$(VERSION)
 		$(INSTALL_DATA) install.TAGS $(DESTDIR)$(datadir)/gforth/$(VERSION)/TAGS
 		$(RM) gforth.fi install.TAGS
@@ -744,7 +744,7 @@ kernl64l$(EC).fi:	$(KERNLS)
 #		-$(CP) $< $@
 
 gforth.fi:	$(kernel_fi) gforthmi gforth$(EC)$(EXE) gforth-ditc$(EC)$(EXE) $(GFORTH_FI_SRC) comp-i.fs
-		GFORTHD="./gforth-ditc -p .$(PATHSEP)$(srcdir)" GFORTH="./gforth-ditc --die-on-signal -p .$(PATHSEP)$(srcdir) -i $(kernel_fi) $(STARTUP)" includedir=`pwd`/include ./gforthmi gforth.fi $(FORTHSIZES) $(FORTHKFLAGS) $(STARTUP)
+		GFORTHD="./gforth-ditc -p .$(PATHSEP)$(srcdir)" GFORTH="./gforth-ditc --die-on-signal -p .$(PATHSEP)$(srcdir) -i $(kernel_fi) $(STARTUP)" includedir=`pwd`/include bindir=`pwd` ./gforthmi gforth.fi $(FORTHSIZES) $(FORTHKFLAGS) $(STARTUP)
 
 # -------------	Make c-engine
 

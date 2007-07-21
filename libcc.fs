@@ -430,7 +430,8 @@ create gen-wrapped-types
 : c-source-file ( -- file-id )
     c-source-file-id @ assert( dup ) ;
 
-: compile-wrapper-function ( -- )
+DEFER compile-wrapper-function
+:NONAME ( -- )
     c-source-file close-file throw
     0 c-source-file-id !
     s" gcc -fPIC -shared -Wl,-soname," lib-filename 2@ s+
@@ -444,7 +445,7 @@ create gen-wrapped-types
     ( lib-handle ) lib-handle-addr @ !
     2dup delete-file throw drop free throw
     lib-filename 2@ s" .c" s+ 2dup delete-file throw drop free throw
-    lib-filename 2@ drop free throw 0 0 lib-filename 2! ;
+    lib-filename 2@ drop free throw 0 0 lib-filename 2! ; IS compile-wrapper-function
 \    s" ar rcs xxx.a xxx.o" system
 \    $? abort" ar generated error" ;
 
