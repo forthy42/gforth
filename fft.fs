@@ -76,3 +76,6 @@ Carray expix
 : fft  ( -- )  #points  true (fft ;
 : rfft ( -- )  #points false (fft ;
 
+: hamming ( -- )  #points 0 DO
+	I values dup z@ pi I #points fm*/ fsin f**2 f2* zscale z!
+    LOOP ;
