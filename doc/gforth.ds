@@ -7960,7 +7960,6 @@ doc-parse-name
 doc-parse-word
 doc-name
 doc-word
-doc-\"-parse
 doc-refill
 
 Conversely, if you have the bad luck (or lack of foresight) to have to

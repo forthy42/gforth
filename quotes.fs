@@ -20,59 +20,54 @@
 
 : char/ ; immediate
 
-: parse-num-x  ( c-addr1 base -- c-addr2 c )
-    base !
-    0. rot source chars + over - char/ >number
+: parse-num-x  ( c-addr1 umax -- c-addr2 c )
+    >r 0. rot source chars + over - char/ r> umin >number
     drop rot rot drop ;
 
-: parse-num ( c-addr1 base -- c-addr2 c )
-    base @ >r
-    ['] parse-num-x catch
-    r> base ! throw ;
+: parse-num ( c-addr1 umax base -- c-addr2 c )
+    ['] parse-num-x swap base-execute ;
 
 create \-escape-table
-    7 c,        8 c,  char c c,  char d c,      27 c,      12 c,  char g c,
-char h c,  char i c,  char j c,  char k c,  char l c,  char m c,      10 c,
-char o c,  char p c,  char " c,      13 c,  char s c,       9 c,  char u c,
-    11 c,
+ 7 c, #bs c,  'c c,   'd c, #esc c,   #ff c,   'g c,
+'h c,  'i c,  'j c,   'k c,  #lf c,   #lf c,  #lf c,
+'o c,  'p c,  '" c,  #cr c,   's c,  #tab c,   'u c,
+11 c,  'w c,  'x c,   'y c,    0 c,
 
 : \-escape ( c-addr1 -- c-addr2 c )
     \ c-addr1 points at a char right after a '\', c-addr2 points right
     \ after the whole sequence, c is the translated char
     dup c@
-    dup [char] x = if
-	drop char+ 16 parse-num exit
+    dup 'x = if
+	drop char+ 2 16 parse-num exit
     endif
-    dup [char] 0 [char] 8 within if
-	drop 8 parse-num exit
+    dup '0 '8 within if
+	drop 3 8 parse-num exit
     endif
-    dup [char] n = if
+    dup 'n = if
 	\ \-escapes were designed to translate to one character, so
 	\ this is quite ugly: copy all but the last char right away
 	drop newline 1-
 	2dup here swap chars dup allot move
 	chars + c@
     else
-	dup [char] a [char] w within if
-	    [char] a - chars \-escape-table + c@
+        dup 'm = if \ crlf; ugly, because it's two characters
+            #cr c, \ first half, the rest follows below
+        endif
+	dup 'a '{ within if
+	    'a - chars \-escape-table + c@
 	endif
     endif
     1 chars under+ ;
 
-: \"-parse ( "string"<"> -- c-addr u ) \ gforth  backslash-quote-parse
+: \"-parse ( "string"<"> -- c-addr u ) \ gforth-internal  backslash-quote-parse
 \G parses string, translating @code{\}-escapes to characters (as in
-\G C).  The resulting string resides at @code{here char+}.  The
-\G supported @code{\-escapes} are: @code{\a} BEL (alert), @code{\b}
-\G BS, @code{\e} ESC (not in C99), @code{\f} FF, @code{\n} newline,
-\G @code{\r} CR, @code{\t} HT, @code{\v} VT, @code{\"} ",
-\G @code{\}[0-7]+ octal numerical character value, @code{\x}[0-9a-f]+
-\G hex numerical character value; a @code{\} before any other
-\G character represents that character (only ', \, ? in C99).
+\G C).  The resulting string resides at @code{here}.  See @code{S\"}
+\G for the supported @code{\-escapes}.
     here >r
     >in @ chars source chars over + >r + begin ( parse-area R: here parse-end )
 	dup r@ < while
-	    dup c@ [char] " <> while
-		dup c@ dup [char] \ = if ( parse-area c R: here parse-end )
+	    dup c@ '" <> while
+		dup c@ dup '\ = if ( parse-area c R: here parse-end )
 		    drop char+ dup r@ = abort" unfinished \-escape"
 		    \-escape c,
 		else
@@ -87,12 +82,19 @@ char o c,  char p c,  char " c,      13 c,  char s c,       9 c,  char u c,
 :noname \"-parse save-mem ;
 :noname \"-parse save-mem 2dup postpone sliteral drop free throw ;
 interpret/compile: s\" ( compilation 'ccc"' -- ; run-time -- c-addr u )	\ gforth	s-backslash-quote
-\G Like @code{S"}, but translates C-like \-escape-sequences into
-\G single characters.  See @code{\"-parse} for details.
+\G Like @code{S"}, but translates C-like \-escape-sequences, as
+\G follows: @code{\a} BEL (alert), @code{\b} BS, @code{\e} ESC (not in
+\G C99), @code{\f} FF, @code{\n} newline, @code{\r} CR, @code{\t} HT,
+\G @code{\v} VT, @code{\"} ", @code{\\} \, @code{\}[0-7]{1,3} octal
+\G numerical character value (non-standard), @code{\x}[0-9a-f]{0,2}
+\G hex numerical character value (standard only with two digits); a
+\G @code{\} before any other character is reserved.
 
 :noname \"-parse type ;
 :noname postpone s\" postpone type ;
 interpret/compile: .\" ( compilation 'ccc"' -- ; run-time -- )	\ gforth	dot-backslash-quote
+\G Like @code{."}, but translates C-like \-escape-sequences (see
+\G @code{S\"}).
 
 0 [if] \ test
     s" 123" drop 10 parse-num-x 123 <> throw drop .s
