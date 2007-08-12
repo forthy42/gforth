@@ -141,6 +141,11 @@ const Create bases   0A , 10 ,   2 ,   0A ,
     THEN
     r> ;
 
+: ?dnegate ( d1 f -- d2 )
+    if
+        dnegate
+    then ;
+
 has? os 0= [IF]
 : x@+/string ( addr u -- addr' u' c )
     over c@ >r 1 /string r> ;
@@ -153,13 +158,13 @@ has? os 0= [IF]
     endif
     x@+/string 0 s" '" 2rot string-prefix? ;
 
-: s>unumber? ( addr u -- ud flag ) \ gforth
-    \G converts string addr u into ud, flag indicates success
+: s>unumber? ( c-addr u -- ud flag ) \ gforth
+    \G converts string c-addr u into ud, flag indicates success
     dpl on
     over c@ '' = if
 	1 /string s'>unumber? exit
     endif
-    base @ >r  getbase
+    base @ >r  getbase sign? >r
     0. 2swap
     BEGIN ( d addr len )
 	dup >r >number dup
@@ -170,9 +175,9 @@ has? os 0= [IF]
     WHILE \ the current char is '.'
 	1 /string
     REPEAT  THEN \ there are unparseable characters left
-	2drop false
+	2drop rdrop false
     ELSE
-	rdrop 2drop true
+	rdrop 2drop r> ?dnegate true
     THEN
     r> base ! ;
 
@@ -184,10 +189,7 @@ has? os 0= [IF]
     0= IF
         rdrop false
     ELSE \ no characters left, all ok
-	r>
-	IF
-	    dnegate
-	THEN
+	r> ?dnegate
 	true
     THEN ;
 
