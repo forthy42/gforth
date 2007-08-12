@@ -7,12 +7,46 @@
 \ VERSION 1.1
 
 \ revised by Anton Ertl 2007-08-12
-\   Added support for separate fp stack.
-\       Note: BASE is HEX after loading this file)
-\     The sensitivity of the fp comparison is determined by FSENSITIVITY;
-\       Note that this fvariable is present and works only if the FP
-\       stack is separate (default sensitivity: 0e, i.e., exact equality).
-\   added support for non-empty stack at {.
+\ The original has two shortcomings:
+
+\ - It does not work as expected if the stack is non-empty before the {.
+
+\ - It does not check FP results if the system has a separate FP stack.
+
+\ I have revised it to address both shortcomings.  You can find the
+\ result at
+
+\ http://www.forth200x.org/tests/tester.fs
+
+\ It is intended to be a drop-in replacement of the original.
+
+\ In spirit of the original, I have strived to avoid any potential
+\ non-portabilities and stayed as much within the CORE words as
+\ possible; e.g., FLOATING words are used only if the FLOATING wordset
+\ is present and the FP stack is separate.
+
+\ There are a few things to be noted:
+
+\ - Following the despicable practice of the original, this version sets
+\   the base to HEX for everything that gets loaded later.
+\   Floating-point input is ambiguous when the base is not decimal, so
+\   you have to set it to decimal yourself when you want to deal with
+\   decimal numbers.
+
+\ - The separate-FP-stack code has an fvariable FSENSITIVITY that allows
+\   approximate matching of FP results (it's used as the r3 parameter of
+\   F~).  However, that's used only in the separate-fp-stack case.  With
+\   a shared-fp-stack you get exact matching in any case (actually
+\   FSENSITIVITY variable is not even defined in that case).  So if you
+\   define an FP test case and want to support shared-FP-stack systems,
+\   better do the approximate matching yourself.  E.g., instead of
+
+\   -1e-12 fsensitivity f!
+\   { ... computation ... -> 2.345678901e }
+
+\   write
+
+\   { ... computation ... 2.345678901e -1e-12 f~ -> true }
 HEX
 
 \ SET THE FOLLOWING FLAG TO TRUE FOR MORE VERBOSE OUTPUT; THIS MAY
