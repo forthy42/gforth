@@ -7,10 +7,12 @@
 \ VERSION 1.1
 
 \ revised by Anton Ertl 2007-08-12
-\   added fp comparisons (note: BASE is HEX after loading this file)
-\         environmental dependency on separate fp stack
-\         the sensitivity of the fp comparison is determined by FSENSITIVITY
-\   added support for non-empty stack at the start
+\   Added support for separate fp stack.
+\       Note: BASE is HEX after loading this file)
+\     The sensitivity of the fp comparison is determined by FSENSITIVITY;
+\       Note that this fvariable is present and works only if the FP
+\       stack is separate (default sensitivity: 0e, i.e., exact equality).
+\   added support for non-empty stack at {.
 HEX
 
 \ SET THE FOLLOWING FLAG TO TRUE FOR MORE VERBOSE OUTPUT; THIS MAY
@@ -45,7 +47,7 @@ VARIABLE ERROR-XT
     FALSE
 [THEN]
 [IF] \ WE HAVE FP WORDS AND A SEPARATE FP STACK
-    FVARIABLE FSENSITIVITY -1E-12 FSENSITIVITY F!
+    FVARIABLE FSENSITIVITY DECIMAL 0E HEX FSENSITIVITY F!
     VARIABLE ACTUAL-FDEPTH
     CREATE ACTUAL-FRESULTS 20 FLOATS ALLOT
     VARIABLE START-FDEPTH
