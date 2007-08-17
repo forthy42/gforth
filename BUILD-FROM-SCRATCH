@@ -68,7 +68,7 @@ rm -f gforth.fi &&
 
 if [ "$GFORTH"xx != "xx" ]
 then
- bootstrap=engine/prim.i" "`echo kernl{16,32,64}{b,l}.fi`
+ bootstrap=engine/prim.i" "`for x in b l; do for wid in 16 32 64; do echo kernl$wid$x.fi; done; done`
  echo 'Running: make BUILDFORTH="'$GFORTH'" FORTHP="'$GFORTH'" '$bootstrap &&
  make BUILDFORTH="$GFORTH" FORTHP="$GFORTH" engine/prim.i $bootstrap &&
  echo Running: make &&
