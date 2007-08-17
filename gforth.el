@@ -61,13 +61,13 @@
       (progn (string-match "^[0-9]+" emacs-version)
 	     (string-to-int (match-string 0 emacs-version)))))
 
+;; Code ripped from `subr.el' for compatability with Emacs versions
+;; prior to 20.1
+(eval-when-compile 
 (defun forth-emacs-older (major minor)
   (or (< emacs-major-version major)
       (and (= emacs-major-version major) (< emacs-minor-version minor))))
 
-;; Code ripped from `subr.el' for compatability with Emacs versions
-;; prior to 20.1
-(eval-when-compile 
   (if (forth-emacs-older 20 1)
       (progn
 	(defmacro when (cond &rest body)
@@ -79,8 +79,9 @@
 
 ;; `no-error' argument of require not supported in Emacs versions
 ;; prior to 20.4 :-(
+(eval-and-compile
 (defun forth-require (feature)
-  (condition-case err (require feature) (error nil)))
+    (condition-case err (require feature) (error nil))))
 
 (require 'font-lock)
 

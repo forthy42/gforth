@@ -417,7 +417,7 @@ ENGINES = gforth$(EC)$(EXE) gforth-ditc$(EC)$(EXE) gforth-itc$(EC)$(EXE) $(PROFE
 
 ENGINES_FAST = gforth-fast$(EC)$(EXE) #gforth-native$(EXE) 
 
-GEN = $(ENGINES) $(ENGINES_FAST) kernel/version.fs
+GEN = $(ENGINES) $(ENGINES_FAST) kernel/version.fs gforth.elc
 
 # things that need a working forth system to be generated
 FORTH_GEN_ENGINE=engine/prim.i engine/prim_lab.i engine/prim_names.i \
@@ -597,9 +597,9 @@ install:	gforth$(EC)$(EXE) $(FORTH_SRC) $(kernel_fi) gforth.fi gforthmi vmgen do
 		done
 		$(INSTALL_DATA) $(kernel_fi) $(DESTDIR)$(datadir)/gforth/$(VERSION)
 		@if test -d "$(DESTDIR)$(emacssitelispdir)"; then \
-			$(INSTALL_DATA) $(srcdir)/gforth.el $(DESTDIR)$(emacssitelispdir); \
+			$(INSTALL_DATA) gforth.elc $(DESTDIR)$(emacssitelispdir); \
 		else \
-			echo ">>>>>Please install $(srcdir)/gforth.el in your .../emacs/site-lisp directory"; \
+			echo ">>>>>Please install gforth.elc in your .../emacs/site-lisp directory"; \
 		fi
 		-$(RM) gforth.fi
 		GFORTHD="./gforth-ditc -p $(DESTDIR)$(libdir)/gforth/site-forth$(PATHSEP)$(DESTDIR)$(siteforthdir)$(PATHSEP)$(DESTDIR)$(datadir)/gforth/$(VERSION) -i $(kernel_fi)" GFORTH="./gforth-ditc --die-on-signal -i $(kernel_fi) $(STARTUP)" includedir=$(includedir) bindir=$bindir GFORTHPATH=.:"$$GFORTHPATH" ./gforthmi gforth.fi $(FORTHSIZES) $(STARTUP)
@@ -863,6 +863,12 @@ kernel.TAGS:
 
 kernel.tags:
 		rm kernl16l$(EC).fi-; $(MAKE) @kernel_fi@
+
+#elc files
+gforth.elc:	gforth.el
+		emacs -batch -f batch-byte-compile $<
+
+#Documentation
 
 doc/doc.fd:	doc/makedoc.fs $(GFORTH_FI_SRC) code.fs objects.fs oof.fs moofglos.fs
 		$(FORTHK) -e "s\" doc/doc.fd\"" doc/makedoc.fs except.fs startup.fs code.fs objects.fs oof.fs moofglos.fs -e bye
