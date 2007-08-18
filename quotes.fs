@@ -85,8 +85,8 @@ interpret/compile: s\" ( compilation 'ccc"' -- ; run-time -- c-addr u )	\ gforth
 \G Like @code{S"}, but translates C-like \-escape-sequences, as
 \G follows: @code{\a} BEL (alert), @code{\b} BS, @code{\e} ESC (not in
 \G C99), @code{\f} FF, @code{\n} newline, @code{\r} CR, @code{\t} HT,
-\G @code{\v} VT, @code{\"} ", @code{\\} \, @code{\}[0-7]{1,3} octal
-\G numerical character value (non-standard), @code{\x}[0-9a-f]{0,2}
+\G @code{\v} VT, @code{\"} ", @code{\\} \, @code{\}[0-7]@{1,3@} octal
+\G numerical character value (non-standard), @code{\x}[0-9a-f]@{0,2@}
 \G hex numerical character value (standard only with two digits); a
 \G @code{\} before any other character is reserved.
 
