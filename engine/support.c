@@ -27,6 +27,7 @@
 #include <sys/time.h>
 #include <unistd.h>
 #include <pwd.h>
+#include <assert.h>
 #ifndef STANDALONE
 #include <dirent.h>
 #include <math.h>
@@ -361,51 +362,86 @@ struct Cellpair file_status(Char *c_addr, UCell u)
 
 Cell to_float(Char *c_addr, UCell u, Float *rp)
 {
-  Float r;
-  Cell flag;
-  char *number=cstr(c_addr, u, 1);
+  /* convertible string := <significand>[<exponent>]
+     <significand> := [<sign>]{<digits>[.<digits0>] | .<digits> }
+     <exponent>    := <marker><digits0>
+     <marker>      := {<e-form> | <sign-form>}
+     <e-form>      := <e-char>[<sign-form>]
+     <sign-form>   := { + | - }
+     <e-char>      := { D | d | E | e }
+  */
+  Char *s = c_addr;
+  Char c;
+  Char *send = c_addr+u;
+  UCell ndigits = 0;
+  UCell ndots = 0;
+  UCell edigits = 0;
+  char cnum[u+3]; /* append at most "e0\0" */
+  char *t=cnum;
   char *endconv;
-  int sign = 0;
-  if(number[0]==' ') {
-    UCell i;
-    for (i=1; i<u; i++)
-      if (number[i] != ' ')
-	return 0;
-    *rp = 0.0;
-    return -1;
+  Float r;
+  
+  if (s >= send) /* treat empty string as 0e */
+    goto return0;
+  switch ((c=*s)) {
+  case ' ':
+    /* "A string of blanks should be treated as a special case
+       representing zero."*/
+    for (s++; s<send; )
+      if (*s++ != ' ')
+        goto error;
+    goto return0;
+  case '-':
+  case '+': *t++ = c; s++; goto aftersign;
   }
-  if(number[0]=='-') {
-    sign = 1;
-    number++;
-    u--;
-    if (u==0)
-      return 0;
+  aftersign: 
+  if (s >= send)
+    goto exponent;
+  switch (c=*s) {
+  case '0' ... '9': *t++ = c; ndigits++; s++; goto aftersign;
+  case '.':         *t++ = c; ndots++;   s++; goto aftersign;
+  default:                                    goto exponent;
   }
-  switch(number[u-1]) {
-  case 'd':
+ exponent:
+  if (ndigits < 1 || ndots > 1)
+    goto error;
+  *t++ = 'E';
+  if (s >= send)
+    goto done;
+  switch (c=*s) {
   case 'D':
-  case 'e':
-  case 'E':  
-    u--;
-    break;
+  case 'd':
+  case 'E':
+  case 'e': s++; break;
   }
-  number[u]='\0';
-  r=strtod(number,&endconv);
-  flag=FLAG((*endconv)=='\0');
-  if(flag) {
-    if (sign)
-      r = -r;
-  } else if(*endconv=='d' || *endconv=='D') {
-    *endconv='E';
-    r=strtod(number,&endconv);
-    flag=FLAG((*endconv)=='\0');
-    if (flag) {
-      if (sign)
-	r = -r;
-    }
+  if (s >= send)
+    goto done;
+  switch (c=*s) {
+  case '+':
+  case '-': *t++ = c; s++; break;
   }
+ edigits0:
+  if (s >= send)
+    goto done;
+  switch (c=*s) {
+  case '0' ... '9': *t++ = c; s++; edigits++; goto edigits0;
+  default: goto error;
+  }
+ done:
+  if (edigits == 0)
+    *t++ = '0';
+  *t++ = '\0';
+  assert(t-cnum <= u+3);
+  r = strtod(cnum, &endconv);
+  assert(*endconv == '\0');
   *rp = r;
-  return flag;
+  return -1;
+ return0:
+  *rp = 0.0;
+  return -1;
+ error:
+  *rp = 0.0;
+  return 0;
 }
 #endif
 

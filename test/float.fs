@@ -48,4 +48,5 @@ decimal
 { s" -" >float -> false }
 { s" +" >float -> false }
 { s"   " >float 0e f= -> true true }
-
+{ s" 2e+3e" >float -> false }
+{ s" 2+3" >float -> 2000e true }

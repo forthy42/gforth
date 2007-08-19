@@ -1848,7 +1848,7 @@ You can define local variables (@emph{locals}) in a colon definition:
 @end example
 
 (If your Forth system does not support this syntax, include
-@file{compat/anslocals.fs} first).
+@file{compat/anslocal.fs} first).
 
 In this example @code{@{ a b -- b a @}} is the locals definition; it
 takes two cells from the stack, puts the top of stack in @code{b} and
