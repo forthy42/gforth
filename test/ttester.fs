@@ -1,12 +1,34 @@
+\ for the original tester
 \ From: John Hayes S1I
 \ Subject: tester.fr
 \ Date: Mon, 27 Nov 95 13:10:09 PST  
-
 \ (C) 1995 JOHNS HOPKINS UNIVERSITY / APPLIED PHYSICS LABORATORY
 \ MAY BE DISTRIBUTED FREELY AS LONG AS THIS COPYRIGHT NOTICE REMAINS.
 \ VERSION 1.1
 
+\ for the FNEARLY= stuff:
+\ from ftester.fs written by David N. Williams, based on the
+\ approximate equality in Dirk Zoller's float.4th
+
+\ This library is free software; you can redistribute it and/or
+\ modify it under the terms of the GNU Lesser General Public
+\ License as published by the Free Software Foundation; either
+\ version 2.1 of the License, or at your option any later version.
+
+\ This library is distributed in the hope that it will be useful,
+\ but WITHOUT ANY WARRANTY; without even the implied warranty of
+\ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+\ Lesser General Public License for more details.
+
+\ You should have received a copy of the GNU Lesser General Public
+\ License along with this library; if not, write to the Free
+\ Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+\ MA 02111-1307 USA.
+
+\ for the rest:
 \ revised by Anton Ertl 2007-08-12, 2007-08-19
+\ public domain
+
 \ The original has the following shortcomings:
 
 \ - It does not work as expected if the stack is non-empty before the {.
