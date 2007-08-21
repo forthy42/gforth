@@ -349,6 +349,7 @@ Label *gforth_engine3(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp);
 Address gforth_alloc(Cell size);
 char *cstr(Char *from, UCell size, int clear);
 char *tilde_cstr(Char *from, UCell size, int clear);
+Cell opencreate_file(char *s, Cell wfam, int flags, Cell *wiorp);
 DCell timeval2us(struct timeval *tvp);
 void cmove(Char *c_from, Char *c_to, UCell u);
 void cmove_up(Char *c_from, Char *c_to, UCell u);

@@ -117,7 +117,22 @@ char *tilde_cstr(Char *from, UCell size, int clear)
     return cstr((Char *)path,s1_len+s2_len,clear);
   }
 }
-#endif
+
+Cell opencreate_file(char *s, Cell wfam, int flags, Cell *wiorp)
+{
+  Cell fd;
+  Cell wfileid;
+  fd = open(s, flags|ufileattr[wfam], 0666);
+  if (fd != -1) {
+    wfileid = (Cell)fdopen(fd, fileattr[wfam]);
+    *wiorp = IOR(wfileid == 0);
+  } else {
+    wfileid = 0;
+    *wiorp = IOR(1);
+  }
+  return wfileid;
+}
+#endif /* defined(HAS_FILE) */
 
 DCell timeval2us(struct timeval *tvp)
 {

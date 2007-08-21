@@ -1783,19 +1783,10 @@ close-file	( wfileid -- wior )		file	close_file
 wior = IOR(fclose((FILE *)wfileid)==EOF);
 
 open-file	( c_addr u wfam -- wfileid wior )	file	open_file
-wfileid = (Cell)fopen(tilde_cstr(c_addr, u, 1), fileattr[wfam]);
-wior =  IOR(wfileid == 0);
+wfileid = opencreate_file(tilde_cstr(c_addr,u,1), wfam, 0, &wior);
 
 create-file	( c_addr u wfam -- wfileid wior )	file	create_file
-Cell	fd;
-fd = open(tilde_cstr(c_addr, u, 1), O_CREAT|O_TRUNC|ufileattr[wfam], 0666);
-if (fd != -1) {
-  wfileid = (Cell)fdopen(fd, fileattr[wfam]);
-  wior = IOR(wfileid == 0);
-} else {
-  wfileid = 0;
-  wior = IOR(1);
-}
+wfileid = opencreate_file(tilde_cstr(c_addr,u,1), wfam, O_CREAT|O_TRUNC, &wior);
 
 delete-file	( c_addr u -- wior )		file	delete_file
 wior = IOR(unlink(tilde_cstr(c_addr, u, 1))==-1);
