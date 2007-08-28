@@ -41,11 +41,10 @@
 
 \ There are a few things to be noted:
 
-\ - Following the despicable practice of the original, this version
-\ sets the base to HEX for everything that gets loaded later.
-\ Floating-point input is ambiguous when the base is not decimal, so
-\ you have to set it to decimal yourself when you want to deal with
-\ decimal numbers.
+\ - Loading ttester.fs does not change BASE.  Loading tester.fs
+\ changes BASE to HEX (like the original tester).  Floating-point
+\ input is ambiguous when the base is not decimal, so you have to set
+\ it to decimal yourself when you want to deal with decimal numbers.
 
 \ - For FP it is often useful to use approximate equality for checking
 \ the results.  You can turn on approximate matching with SET-NEAR
@@ -101,8 +100,7 @@ HAS-FLOATING [IF]
     \ SET THE FOLLOWING TO THE RELATIVE AND ABSOLUTE TOLERANCES YOU
     \ WANT FOR APPROXIMATE FLOAT EQUALITY, TO BE USED WITH F~ IN
     \ FNEARLY=.  KEEP THE SIGNS, BECAUSE F~ NEEDS THEM.
-    FVARIABLE FSENSITIVITY DECIMAL 1E-12 HEX FSENSITIVITY F!
-    : REL-NEAR FSENSITIVITY ;
+    FVARIABLE REL-NEAR DECIMAL 1E-12 HEX REL-NEAR F!
     FVARIABLE ABS-NEAR    DECIMAL 0E HEX ABS-NEAR F!
 
     \ WHEN EXACT? IS TRUE, }F USES FEXACTLY=, OTHERWISE FNEARLY=.
