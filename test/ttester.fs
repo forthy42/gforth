@@ -7,26 +7,12 @@
 \ VERSION 1.1
 
 \ for the FNEARLY= stuff:
-\ from ftester.fs written by David N. Williams, based on the
+\ from ftester.fs written by David N. Williams, based on the idea of
 \ approximate equality in Dirk Zoller's float.4th
-
-\ This library is free software; you can redistribute it and/or
-\ modify it under the terms of the GNU Lesser General Public
-\ License as published by the Free Software Foundation; either
-\ version 2.1 of the License, or at your option any later version.
-
-\ This library is distributed in the hope that it will be useful,
-\ but WITHOUT ANY WARRANTY; without even the implied warranty of
-\ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-\ Lesser General Public License for more details.
-
-\ You should have received a copy of the GNU Lesser General Public
-\ License along with this library; if not, write to the Free
-\ Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
-\ MA 02111-1307 USA.
+\ public domain
 
 \ for the rest:
-\ revised by Anton Ertl 2007-08-12, 2007-08-19
+\ revised by Anton Ertl 2007-08-12, 2007-08-19, 2007-08-28
 \ public domain
 
 \ The original has the following shortcomings:
@@ -44,7 +30,9 @@
 \ http://www.forth200x.org/tests/ttester.fs
 
 \ tester.fs is intended to be a drop-in replacement of the original.
-\ ttester.fs is a version that uses T{ and }T instead of { and }.
+
+\ ttester.fs is a version that uses T{ and }T instead of { and } and
+\ keeps the BASE as it was before loading ttester.fs
 
 \ In spirit of the original, I have strived to avoid any potential
 \ non-portabilities and stayed as much within the CORE words as
@@ -72,6 +60,7 @@
 \ system or if you need only exact matching, you can use the plain }T
 \ instead.
 
+BASE @
 HEX
 
 \ SET THE FOLLOWING FLAG TO TRUE FOR MORE VERBOSE OUTPUT; THIS MAY
@@ -339,3 +328,5 @@ HAS-FLOATING-STACK [IF]
    IF DUP >R TYPE CR R> >IN !
    ELSE >IN ! DROP
    THEN ;
+
+BASE !
