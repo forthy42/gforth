@@ -720,8 +720,8 @@ int gforth_go(Address image, int stack, Cell *entries)
   /* ensure that the cached elements (if any) are accessible */
 #if !(defined(GFORTH_DEBUGGING) || defined(INDIRECT_THREADED) || defined(DOUBLY_INDIRECT) || defined(VM_PROFILING))
   sp0 -= 8; /* make stuff below bottom accessible for stack caching */
+  fp0--;
 #endif
-  IF_fpTOS(fp0--);
   
   for(;stack>0;stack--)
     *--sp0=entries[stack-1];
