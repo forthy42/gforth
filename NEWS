@@ -1,6 +1,6 @@
 
 
-User-visible changes between 0.6.2 and 0.6.9 (up to 2007-06-01):
+User-visible changes between 0.6.2 and 0.6.9 (up to 2007-09-12):
 
 Installation:
   support for DESTDIR, POST_INSTALL, INSTALL_SCRIPT
@@ -21,12 +21,15 @@ Forth 200x:
   [DEFINED] and [UNDEFINED]
   PARSE-NAME (new name)
   deferred words (new: DEFER@ DEFER! ACTION-OF)
+  X:structures: +FIELD FIELD: FFIELD: CFIELD: etc.
+  X:ekeys: new: EKEY>FKEY K-SHIFT-MASK K-CTRL-MASK K-ALT-MASK
 Unicode support (incomplete, documentation probably not up-to-date):
   added xchars words for dealing with variable-width multi-byte characters
   provide 8bit (ISO Latin 1) and UTF-8 support for xchars
 Number prefixes:
   0x is a hex prefix: 0xff and 0XfF now produces (decimal) 255
   # is a decimal prefix: #10 now produces (decimal) 10
+  Signs after the number prefix are now accepted, e.g, #-50.
   ' now only handles a single (x)char: 'ab is no longer accepted, 
                                        'a' now produces (decimal) 97
 New words:
@@ -36,7 +39,10 @@ New words:
   NEXT-ARG SHIFT-ARGS (OS command-line argument processing)
   NOTHROW (for backtrace control)
   FTRUNC FMOD (undocumented)
+  SEE-CODE SEE-CODE-RANGE (show generated dynamic native code)
 Improvements/changes of existing words:
+  S\" now supports \l, \m, \z, and limits hex and octal character specs.
+  OPEN-FILE with W/O no longer creates or truncates files (compat file missing)
   TRY...ENDTRY changed significantly, compatibility files available (see docs).
   The disassembler (DISCODE) can now use gdb to disassemble code
   Uninitialized defered words now give a warning when executed
@@ -53,7 +59,7 @@ Newly documented words:
 Environment variable GFORTHSYSTEMPREFIX (used by word SYSTEM and friends)
 C interface:
   exported symbols now start with "gforth_" (for referencing them from C code)
-  support for use of libffi (supplied with gcc) and
+  support for use of libffi (supplied with gcc) (undocumented) and
   a C-compiler-based approach (requires C compiler at run-time) (incomplete).
 Libraries:
   depth-changes.fs: report stack depth changes during interpretation
@@ -67,6 +73,8 @@ Libraries:
   status.fs, show interpreter status in separate xterm (undocumented)
   profile.fs for profiling (undocumented, incomplete)
   endtry-iferror.fs, recover-endtry.fs to ease the TRY change transition
+  test/tester.fs: Now works with FP numbers (undocumented)
+  test/ttester.fs: Version of tester.fs with improved interface (T{...}T).
  compat library:
   compat/execute-parsing.fs
 Speed improvements:
@@ -74,6 +82,7 @@ Speed improvements:
   mixed-precision division is now faster
   support for int128 types on AMD64
   workarounds for gcc performance bugs (in particular, PR 15242)
+  branch target alignment (good speedup on Alpha).
 
 
 User-visible changes between 0.6.1 and 0.6.2:
