@@ -94,15 +94,10 @@ Defer check-xy  ' noop IS check-xy
 
 \ utf-8 stuff for xchars
 
-: u8string+ ( xcaddr u -- xcaddr u' )
-    over + u8>> over - ;
-: u8string- ( xcaddr u -- xcaddr u' )
-    over + u8<< over - ;
-
-: +u8string ( xc-addr1 u1 -- xc-addr2 u2 )
+: +u8/string ( xc-addr1 u1 -- xc-addr2 u2 )
     over dup u8>> swap - /string ;
-: -u8string ( xc-addr1 u1 -- xc-addr2 u2 )
-    over dup u8<< swap - /string ;
+: u8\string- ( xcaddr u -- xcaddr u' )
+    over + u8<< over - ;
 
 : u8@ ( c-addr -- u )
     u8@+ nip ;
@@ -295,10 +290,12 @@ here wc-table - Constant #wc-table
     ['] u8>> is xchar+
     ['] u8<< is xchar-
 [ [IFDEF] xstring+ ]
-    ['] u8string+ is xstring+
-    ['] u8string- is xstring-
-    ['] +u8string is +xstring
-    ['] -u8string is -xstring
+    ['] u8\string- is xstring-
+    ['] +u8/string is +xstring
+[ [THEN] ]
+[ [IFDEF] x/string+ ]
+    ['] u8\string- is x\string-
+    ['] +u8/string is +x/string
 [ [THEN] ]
     ['] u8@ is xc@
     ['] u8!+? is xc!+?

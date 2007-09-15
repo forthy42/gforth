@@ -27,10 +27,8 @@ DEFER XEMIT ( xc -- )
 DEFER XKEY ( -- xc )
 DEFER XCHAR+ ( xc-addr1 -- xc-addr2 )
 DEFER XCHAR- ( xc-addr1 -- xc-addr2 )
-DEFER +XSTRING ( xc-addr1 u1 -- xc-addr2 u2 )
-DEFER -XSTRING ( xc-addr1 u1 -- xc-addr2 u2 )
-DEFER XSTRING+ ( xc-addr1 u1 -- xc-addr1 u2 )
-DEFER XSTRING- ( xc-addr1 u1 -- xc-addr1 u2 )
+DEFER +X/STRING ( xc-addr1 u1 -- xc-addr2 u2 )
+DEFER X\STRING- ( xc-addr1 u1 -- xc-addr1 u2 )
 DEFER XC@ ( xc-addr -- xc )
 DEFER XC!+? ( xc xc-addr1 u1 -- xc-addr2 u2 f ) \ f if operation succeeded
 DEFER XC@+ ( xc-addr1 -- xc-addr2 xc )
@@ -43,7 +41,7 @@ DEFER -TRAILING-GARBAGE ( addr u1 -- addr u2 ) \ remove trailing incomplete xc
 
 : x@+/string ( xc-addr1 u1 -- xc-addr2 u2 xc )
     \ !! check for errors?
-    over >r +xstring
+    over >r +x/string
     r> xc@ ;
 
 \ fixed-size versions of these words
@@ -53,11 +51,6 @@ DEFER -TRAILING-GARBAGE ( addr u1 -- addr u2 ) \ remove trailing incomplete xc
 
 : +string ( c-addr1 u1 -- c-addr2 u2 )
     1 /string ;
-: -string ( c-addr1 u1 -- c-addr2 u2 )
-    -1 /string ;
-
-: string+ ( c-addr1 u1 -- c-addr1 u2 )
-    1+ ;
 : string- ( c-addr1 u1 -- c-addr1 u2 )
     1- ;
 
@@ -77,10 +70,8 @@ DEFER -TRAILING-GARBAGE ( addr u1 -- addr u2 ) \ remove trailing incomplete xc
     ['] key is xkey
     ['] char+ is xchar+
     ['] char- is xchar-
-    ['] +string is +xstring
-    ['] -string is -xstring
-    ['] string+ is xstring+
-    ['] string- is xstring-
+    ['] +string is +x/string
+    ['] string- is x\string-
     ['] c@ is xc@
     ['] c!+? is xc!+?
     ['] count is xc@+
