@@ -318,6 +318,11 @@ here wc-table - Constant #wc-table
     s" UTF-8" search nip nip
     IF  set-encoding-utf-8  ELSE  set-encoding-fixed-width  THEN ;
 
+environment-wordlist set-current
+: xchar-encoding
+    max-single-byte $80 = IF  s" UTF-8"  ELSE  s" ISO-LATIN-1"  THEN ;
+forth definitions
+
 :noname ( -- )
     defers 'cold
     utf-8-cold
