@@ -109,9 +109,9 @@
 \E store-optimization on
 \E ' noop tail-nextp2 ! \ now INST_TAIL just stores, but does not jump
 \E
-\E include-skipped-insts on \ static superinsts include cells for components
-\E                          \ useful for dynamic programming and
-\E                          \ superinsts across entry points
+\E `include-skipped-insts' on \ static superinsts include cells for components
+\E                            \ useful for dynamic programming and
+\E                            \ superinsts across entry points
 
 \ 
 \ 

@@ -20,8 +20,11 @@
 
 
 \ the following sequence crashes gforth-0.5.0 on Linux-PPC
-: down 1- ;
-' down 1- ' execute catch 2drop
+\ but testing it can cause a bug on Solaris-i386, because apparently
+\ some code from the stack is executed that corrupts something, so
+\ interpreting the next line crashes
+\ : down 1- ;
+\ ' down 1- ' execute catch 2drop
 
 \ test if SIGSEGV handler really works (in particular sigaltstack)
 0 ' @ catch 2drop
