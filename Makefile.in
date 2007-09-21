@@ -830,8 +830,8 @@ TAGS:		gforth.TAGS
 tags:		gforth.tags
 		$(CP) gforth.tags $@
 
-install.TAGS:	gforth.TAGS
-		sed 's;^\$(srcdir)/;$(datadir)/gforth/$(VERSION)/;' gforth.TAGS >install.TAGS
+install.TAGS:	TAGS
+		sed 's;^\$(srcdir)/;;' TAGS|awk 'BEGIN {RS="\014\n"; ORS=RS} {if (NR==1) print $0; else print "$(datadir)/gforth/$(VERSION)/"$$0;}' >install.TAGS
 
 gforth.TAGS:	@kernel_fi@ gforth$(EC)$(EXE) $(GFORTH_FI_SRC) prim.TAGS kernel.TAGS
 		$(FORTHK) etags.fs except.fs startup.fs -e bye
@@ -844,10 +844,7 @@ gforth.tags:	@kernel_fi@ gforth$(EC)$(EXE) $(GFORTH_FI_SRC) prim.tags kernel.tag
 		rm tags
 
 prim.TAGS: 	prim.b prims2x.fs
-		#echo '2c\' >prim.TAGS.sed
-		#echo $(srcdir)/prim >>prim.TAGS.sed
-		#$(FORTHP) prims2x.fs -e "s\" $(srcdir)/prim.b\" ' output-tag dup process-file bye" | sed -f prim.TAGS.sed >$@-
-		$(FORTHP) prims2x.fs -e "s\" $(srcdir)/prim.b\" ' output-tag dup process-file bye" >$@-
+		$(FORTHP) prims2x.fs -e "s\" $(srcdir)/prim.b\" ' output-tag dup process-file bye"|sed 's#^./prim#prim#' >$@-
 		$(CP) $@- $@
 		$(RM) $@-
 
