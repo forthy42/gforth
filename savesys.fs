@@ -24,6 +24,14 @@
     addr1 addr2 u move
     addr2 u ;
 
+: delete-prefix ( c-addr1 u1 c-addr2 u2 -- c-addr3 u3 )
+    \ if c-addr2 u2 is a prefix of c-addr1 u1, delete it
+    2over 2over string-prefix? if
+        nip /string
+    else
+        2drop
+    endif ;
+
 : update-image-included-files ( -- )
     included-files 2@ { addr cnt }
     image-included-files 2@ { old-addr old-cnt }
@@ -33,7 +41,8 @@
     old-addr new-addr old-cnt 2* cells move
     cnt old-cnt
     U+DO
-        addr i 2* cells + 2@ save-mem-dict
+        addr i 2* cells + 2@
+        s" GFORTHDESTDIR" getenv delete-prefix save-mem-dict
 	new-addr i 2* cells + 2!
     LOOP
     maxalign ;
