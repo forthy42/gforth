@@ -1,13 +1,7 @@
 Installation friendlyness:
 
-have the right files in .INCLUDED (contact installer)
 Try out different options (FORCE_REG, GCC-bug-workarounds) and select
-  the best-working/fastest one
-
-autoheader should be called automatically when necessary
-
-$(PRE_INSTALL) and $(POST_INSTALL)
-  Are the symlinks (gforth etc.) POST_INSTALL?
+  the best-working/fastest one (Anton)
 
 version-specific info installation?
 
@@ -49,3 +43,7 @@ NEWS:
    Which ones?  Should they be documented?
 
 Windows-Port (FP bugs dank gcc-2.95)
+
+Licensing
+
+Command-line editing
