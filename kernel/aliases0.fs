@@ -20,12 +20,12 @@
 
 -2 Doer: :docol
 -3 Doer: :docon
--3 Doer: :dovalue
 -4 Doer: :dovar
 -5 Doer: :douser
 -6 Doer: :dodefer
 -7 Doer: :dofield
--8 Doer: :dodoes
--9 Doer: :doesjump
+-8 Doer: :dovalue
+-9 Doer: :dodoes
+-&10 Doer: :doesjump
 -&2 first-primitive \ this does not work for (at least) (DODOES),
                     \ so these routines are commented out

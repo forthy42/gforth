@@ -19,7 +19,7 @@
 \ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
 
 s" address-unit-bits" environment? drop constant bits/au
-6 constant dodoes-tag
+7 constant dodoes-tag
 
 : write-cell { w^ w  file-id -- ior }
     \ write a cell to the file

@@ -266,7 +266,8 @@ has? peephole [IF]
 	\ dup >body POSTPONE literal ['] call peephole-compile, >does-code , EXIT
     then
     dup >code-address CASE
-	docon:   OF >body ['] lit@ peephole-compile, , EXIT ENDOF
+	dovalue: OF >body ['] lit@ peephole-compile, , EXIT ENDOF
+	docon:   OF >body @ ['] lit peephole-compile, , EXIT ENDOF
 	\ docon:   OF >body POSTPONE literal ['] @ peephole-compile, EXIT ENDOF
 	\ docon is also used by VALUEs, so don't @ at compile time
 	docol:   OF >body ['] call peephole-compile, , EXIT ENDOF

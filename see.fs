@@ -758,6 +758,7 @@ Defer discode ( addr u -- ) \ gforth
     dup >code-address
     CASE
 	docon: of seecon endof
+	dovalue: of seevalue endof
 	docol: of seecol endof
 	dovar: of seevar endof
 [ [IFDEF] douser: ]

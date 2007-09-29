@@ -203,6 +203,14 @@ INST_TAIL;
 goto *next_code;
 #endif /* defined(NO_IP) */
 
+(dovalue) ( -- w )	gforth-internal	paren_doval
+""run-time routine for constants""
+w = *(Cell *)PFA(CFA);
+#ifdef NO_IP
+INST_TAIL;
+goto *next_code;
+#endif /* defined(NO_IP) */
+
 (dodoes) ( -- a_body R:a_retaddr )	gforth-internal	paren_dodoes
 ""run-time routine for @code{does>}-defined words""
 #ifdef NO_IP

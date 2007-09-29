@@ -89,8 +89,9 @@
 #define DOUSER	3
 #define DODEFER	4
 #define DOFIELD	5
-#define DODOES	6
-#define DOESJUMP	7
+#define DOVAL	6
+#define DODOES	7
+#define DOESJUMP	8
 
 /* the size of the DOESJUMP, which resides between DOES> and the does-code */
 #define DOES_HANDLER_SIZE	(2*sizeof(Cell))

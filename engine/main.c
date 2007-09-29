@@ -414,6 +414,7 @@ void gforth_relocate(Cell *image, const Char *bitstring,
 	    case CF(DOCOL)   :
 	    case CF(DOVAR)   :
 	    case CF(DOCON)   :
+	    case CF(DOVAL)   :
 	    case CF(DOUSER)  : 
 	    case CF(DODEFER) : 
 	    case CF(DOFIELD) : MAKE_CF(image+i,symbols[CF(token)]); break;
