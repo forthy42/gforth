@@ -206,13 +206,13 @@ require utf-8.fs
 
 [IFUNDEF] #esc  27 Constant #esc  [THEN]
 
-: at-deltaxy ( dx dy -- )
+: at-deltaxy ( dx dy -- )  base @ >r decimal
     ?dup IF
 	#esc emit '[ emit  dup abs 0 .r 0< IF  'A  ELSE  'B  THEN  emit
     THEN
     ?dup IF
 	#esc emit '[ emit  dup abs 0 .r 0< IF  'D  ELSE  'C  THEN  emit
-    THEN ;
+    THEN  r> base ! ;
 
 \ : cygwin? ( -- flag ) s" TERM" getenv s" cygwin" str= ;
 \ : at-xy? ( -- x y )
@@ -252,7 +252,7 @@ require utf-8.fs
     2dup chars + r@ swap r@ xc-size xc!+? 2drop drop
     r> xc-size >r  rot r@ chars + -rot r> chars + ;
 : (xins)  ( max span addr pos1 xc -- max span addr pos2 )
-    <xins> .all .rest ;
+    <xins> key? 0= IF  .all .rest  THEN ;
 : xback  ( max span addr pos1 -- max span addr pos2 f )
     dup  IF  over + xchar- over -  0 max .all .rest
     ELSE  bell  THEN 0 ;
