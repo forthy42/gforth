@@ -74,9 +74,15 @@ defer cur-correct ( addr u -- )
 ' backspaces IS back-restore
 ' 2drop IS cur-correct
 
+Variable linew
+Variable screenw
+
+: linew-off  linew off form nip screenw ! ;
+
 [IFDEF] x-width
 : clear-line ( max span addr pos1 -- max addr )
-  back-restore over over swap x-width spaces swap back-restore ;
+    drop linew @ back-restore over over swap x-width
+    dup spaces back-restore nip linew off ;
 [ELSE]
 : clear-line ( max span addr pos1 -- max addr )
   back-restore over spaces swap back-restore ;
@@ -200,50 +206,41 @@ require utf-8.fs
 
 [IFUNDEF] #esc  27 Constant #esc  [THEN]
 
-Variable curpos
-Variable screenw
-
 : at-deltaxy ( dx dy -- )
-    #esc emit '[ emit  dup abs 0 .r 0< IF  'A  ELSE  'B  THEN  emit
-    #esc emit '[ emit  dup abs 0 .r 0< IF  'D  ELSE  'C  THEN  emit ;
+    ?dup IF
+	#esc emit '[ emit  dup abs 0 .r 0< IF  'A  ELSE  'B  THEN  emit
+    THEN
+    ?dup IF
+	#esc emit '[ emit  dup abs 0 .r 0< IF  'D  ELSE  'C  THEN  emit
+    THEN ;
 
-: cygwin? ( -- flag ) s" TERM" getenv s" cygwin" str= ;
-: at-xy? ( -- x y )
-    key? drop \ make sure prep_terminal() is executed
-    #esc emit ." [6n"  0 0
-    BEGIN  key dup 'R <>  WHILE
-	    dup '; = IF  drop  swap  ELSE
-		dup '0 '9 1+ within  IF  '0 - swap 10 * +  ELSE
-		    drop  THEN  THEN
-    REPEAT  drop 1- swap 1- ;
-: cursor@ ( -- n )  at-xy? screenw @ * + ;
-: cursor! ( n -- )  screenw @ /mod at-xy ;
-: xcur-correct  ( addr u -- )
-    cygwin? curpos @ -1 = or  IF  2drop EXIT  THEN
-    x-width curpos @ + cursor@ -
-    screenw @ >r  r@ 2/ + r@ / r> * negate curpos +! ;
-: save-cursor ( -- )
-    cygwin? IF  #esc emit '7 emit  ELSE
-	key? IF  -1  ELSE  form nip screenw ! cursor@  THEN  curpos !  THEN ;
-: restore-cursor ( -- )
-    cygwin? IF  #esc emit '8 emit  ELSE
-	curpos @ dup -1 = IF  drop  ELSE   cursor!  THEN  THEN ;
+\ : cygwin? ( -- flag ) s" TERM" getenv s" cygwin" str= ;
+\ : at-xy? ( -- x y )
+\     key? drop \ make sure prep_terminal() is executed
+\     #esc emit ." [6n"  0 0
+\     BEGIN  key dup 'R <>  WHILE
+\ 	    dup '; = IF  drop  swap  ELSE
+\ 		dup '0 '9 1+ within  IF  '0 - swap 10 * +  ELSE
+\ 		    drop  THEN  THEN
+\     REPEAT  drop 1- swap 1- ;
+\ : cursor@ ( -- n )  at-xy? screenw @ * + ;
+\ : cursor! ( n -- )  screenw @ /mod at-xy ;
+: xcur-correct  ( addr u -- )  x-width linew ! ;
 
 ' xcur-correct IS cur-correct
 
-: .rest ( addr pos1 -- addr pos1 )
-    key? ?EXIT
-    restore-cursor 2dup type 2dup cur-correct ;
-: .all ( span addr pos1 -- span addr pos1 )
-    key? ?EXIT
-    restore-cursor >r 2dup swap type 2dup swap cur-correct r> ;
 : xback-restore ( u -- )
-    drop key? ?EXIT
-    restore-cursor ;
+    screenw @ /mod negate swap negate swap at-deltaxy ;
+: .rest ( addr pos1 -- addr pos1 )
+    linew @ xback-restore 2dup type 2dup cur-correct ;
+: .all ( span addr pos1 -- span addr pos1 )
+    linew @ xback-restore >r 2dup swap type 2dup swap cur-correct r> ;
 
-: xretype ( max span addr pos1 -- max span addr pos1 )
-    restore-cursor screenw @ >r save-cursor
-    .all 2 pick r@ / screenw @ r> - * 0 max spaces .rest false ;
+: xretype ( max span addr pos1 -- max span addr pos1 f )
+    .all form nip screenw @ >r screenw !
+    linew @ screenw @ / linew @ r@ / max
+    screenw @ r> - * 0 max
+    dup spaces linew +! .rest false ;
 
 \ In the following, addr max is the buffer, addr span is the current
 \ string in the buffer, and pos1 is the cursor position in the buffer.
@@ -260,16 +257,17 @@ Variable screenw
     dup  IF  over + xchar- over -  0 max .all .rest
     ELSE  bell  THEN 0 ;
 : xforw  ( max span addr pos1 -- max span addr pos2 f )
-    2 pick over <> IF  over + xc@+ xemit over -  ELSE  bell  THEN 0 ;
+    2 pick over <> IF  over + xc@+ xemit over -  ELSE  bell  THEN
+    2dup cur-correct 0 ;
 : (xdel)  ( max span addr pos1 -- max span addr pos2 )
     over + dup xchar- tuck - >r over -
     >string over r@ + -rot move
     rot r> - -rot ;
 : ?xdel ( max span addr pos1 -- max span addr pos2 0 )
-  dup  IF  (xdel) .all 2 spaces .rest  THEN  0 ;
+  dup  IF  (xdel) .all 2 spaces 2 linew +! .rest  THEN  0 ;
 : <xdel> ( max span addr pos1 -- max span addr pos2 0 )
   2 pick over <>
-    IF  xforw drop (xdel) .all 2 spaces .rest
+    IF  xforw drop (xdel) .all 2 spaces 2 linew +! .rest
     ELSE  bell  THEN  0 ;
 : xeof  2 pick over or 0=  IF  bye  ELSE  <xdel>  THEN ;
 
@@ -280,7 +278,7 @@ Variable screenw
 
 
 : xclear-line ( max span addr pos1 -- max addr )
-    drop restore-cursor swap spaces restore-cursor ;
+    2dup x-width dup xback-restore dup spaces xback-restore drop nip ;
 : xclear-tib ( max span addr pos -- max 0 addr 0 false )
     xclear-line 0 tuck dup ;
 
@@ -288,16 +286,12 @@ Variable screenw
     >r end^ 2@ hist-setpos
     2dup swap history write-line drop ( throw ) \ don't worry about errors
     hist-pos 2dup backward^ 2! end^ 2!
-    r> curpos @ -1 = key? or IF
-	>r 2dup swap type r>
-    ELSE
-	.all
-    THEN space true ;
+    r> .all space true ;
 
 : xkill-expand ( max span addr pos1 -- max span addr pos2 )
     prefix-found cell+ @ ?dup IF  >r
 	r@ - >string over r@ + -rot move
-	rot r@ - -rot .all r> spaces .rest THEN ;
+	rot r@ - -rot .all r@ spaces r> back-restore .rest THEN ;
 
 : insert   ( string length buffer size -- )
     rot over min >r  r@ - ( left over )
@@ -329,7 +323,7 @@ Variable screenw
     ['] xtab-expand  #tab   bindkey
     ['] (xins)       IS insert-char
     ['] kill-prefix  IS everychar
-    ['] save-cursor  IS everyline
+    ['] linew-off     IS everyline
     ['] xback-restore IS back-restore
     ['] xcur-correct  IS cur-correct
 ;
