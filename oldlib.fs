@@ -42,13 +42,13 @@ Variable legacy  legacy off
     cell+ tuck 2 cells + count rot cell+ @
     lib-sym  dup 0= abort" Proc not found!" swap cell+ ! ;
 
--1 Constant (addr)
- 0 Constant (int)
- 1 Constant (float)
- 2 Constant (void)
- 4 Constant (int...)
- 5 Constant (float...)
- 6 Constant (void...)
+-1 Constant <addr>
+ 0 Constant <int>
+ 1 Constant <float>
+ 2 Constant <void>
+ 4 Constant <int...>
+ 5 Constant <float...>
+ 6 Constant <void...>
 
 : proc, ( pars type lib addr -- )
     \G allocates and initializes proc stub
