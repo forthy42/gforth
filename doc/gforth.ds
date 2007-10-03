@@ -9202,7 +9202,55 @@ doc-broken-pipe-error
 @node Xchars and Unicode,  , Pipes, Other I/O
 @subsection Xchars and Unicode
 
-This chapter needs completion
+ASCII is only appropriate for the English language. Most western
+languages however fit somewhat into the Forth frame, since a byte is
+sufficient to encode the few special characters in each (though not
+always the same encoding can be used; latin-1 is most widely used,
+though). For other languages, different char-sets have to be used,
+several of them variable-width. Most prominent representant is
+UTF-8. Let's call these extended characters xchars. The primitive
+fixed-size characters stored as bytes are called pchars in this
+section.
+
+The xchar words add a few data types:
+
+@itemize
+
+@item
+@var{xc} is an extended char (xchar) on the stack. It occupies one cell,
+and is a subset of unsigned cell. Note: UTF-8 can not store more that
+31 bits; on 16 bit systems, only the UCS16 subset of the UTF-8
+character set can be used.
+
+@item
+@var{xc-addr} is the address of an xchar in memory. Alignment
+requirements are the same as @var{c-addr}. The memory representation of an
+xchar differs from the stack representation, and depends on the
+encoding used. An xchar may use a variable number of pchars in memory.
+
+@item
+@var{xc-addr} @var{u} is a buffer of xchars in memory, starting at
+@var{xc-addr}, @var{u} pchars long.
+
+@end itemize
+
+doc-xc-size
+doc-x-size
+doc-xc@+
+doc-xc!+
+doc-xc!+?
+doc-xchar+
+doc-xchar-
+doc-+x/string
+doc-x\string-
+doc--trailing-garbage
+doc-x-width
+doc-xkey
+doc-xemit
+
+There's a new environment query
+
+doc-xchar-encoding
 
 @node OS command line arguments, Locals, Other I/O, Words
 @section OS command line arguments

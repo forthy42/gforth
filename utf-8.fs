@@ -319,8 +319,13 @@ here wc-table - Constant #wc-table
     IF  set-encoding-utf-8  ELSE  set-encoding-fixed-width  THEN ;
 
 environment-wordlist set-current
-: xchar-encoding
-    max-single-byte $80 = IF  s" UTF-8"  ELSE  s" ISO-LATIN-1"  THEN ;
+: xchar-encoding ( -- addr u ) \ xchar-ext
+    \G Returns a printable ASCII string that reperesents the encoding,
+    \G and use the preferred MIME name (if any) or the name in
+    \G @url{http://www.iana.org/assignments/character-sets} like
+    \G ``ISO-LATIN-1'' or ``UTF-8'', with the exception of ``ASCII'', where
+    \G we prefer the alias ``ASCII''.
+    max-single-byte $80 = IF s" UTF-8" ELSE s" ISO-LATIN-1" THEN ;
 forth definitions
 
 :noname ( -- )

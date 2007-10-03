@@ -23,19 +23,58 @@
 \ utf-8 words with an appropriate setting of max-single-byte, but I
 \ like to see how an 8bit setting without UTF-8 stuff looks like.
 
-DEFER XEMIT ( xc -- )
-DEFER XKEY ( -- xc )
-DEFER XCHAR+ ( xc-addr1 -- xc-addr2 )
-DEFER XCHAR- ( xc-addr1 -- xc-addr2 )
-DEFER +X/STRING ( xc-addr1 u1 -- xc-addr2 u2 )
-DEFER X\STRING- ( xc-addr1 u1 -- xc-addr1 u2 )
-DEFER XC@ ( xc-addr -- xc )
-DEFER XC!+? ( xc xc-addr1 u1 -- xc-addr2 u2 f ) \ f if operation succeeded
-DEFER XC@+ ( xc-addr1 -- xc-addr2 xc )
-DEFER XC-SIZE ( xc -- u ) \ size in cs
-DEFER X-SIZE ( xc-addr u1 -- u2 ) \ size in cs
-DEFER X-WIDTH ( addr u -- n ) \ size in fixed chars
-DEFER -TRAILING-GARBAGE ( addr u1 -- addr u2 ) \ remove trailing incomplete xc
+Defer xemit ( xc -- ) \ xchar-ext
+\G Prints an xchar on the terminal.
+Defer xkey ( -- xc ) \ xchar-ext
+\G Reads an xchar from the terminal. This will discard all input
+\G events up to the completion of the xchar.
+Defer xchar+ ( xc-addr1 -- xc-addr2 ) \ xchar-ext
+\G Adds the size of the xchar stored at @var{xc-addr1} to this address,
+\G giving @var{xc-addr2}.
+Defer xchar- ( xc-addr1 -- xc-addr2 ) \ xchar-ext
+\G Goes backward from @var{xc_addr1} until it finds an xchar so that
+\G the size of this xchar added to @var{xc_addr2} gives
+\G @var{xc_addr1}.
+Defer +x/string ( xc-addr1 u1 -- xc-addr2 u2 ) \ xchar	plus-x-slash-string
+\G Step forward by one xchar in the buffer defined by address
+\G @var{xc-addr1}, size @var{u1} pchars. @var{xc-addr2} is the address
+\G and u2 the size in pchars of the remaining buffer after stepping
+\G over the first xchar in the buffer.
+Defer x\string- ( xc-addr1 u1 -- xc-addr1 u2 ) \ xchar	x-back-string-minus
+\G Step backward by one xchar in the buffer defined by address
+\G @var{xc-addr1} and size @var{u1} in pchars, starting at the end of
+\G the buffer. @var{xc-addr1} is the address and @var{u2} the size in
+\G pchars of the remaining buffer after stepping backward over the
+\G last xchar in the buffer.
+Defer xc@ ( xc-addr -- xc ) \ xchar-ext	xc-fetch
+\G Fetchs the xchar @var{xc} at @var{xc-addr1}.
+Defer xc!+? ( xc xc-addr1 u1 -- xc-addr2 u2 f ) \ xchar-ext	xc-store-plus-query
+\G Stores the xchar @var{xc} into the buffer starting at address
+\G @var{xc-addr1}, @var{u1} pchars large. @var{xc-addr2} points to the
+\G first memory location after @var{xc}, @var{u2} is the remaining
+\G size of the buffer. If the xchar @var{xc} did fit into the buffer,
+\G @var{f} is true, otherwise @var{f} is false, and @var{xc-addr2}
+\G @var{u2} equal @var{xc-addr1} @var{u1}. XC!+?  is safe for buffer
+\G overflows, and therefore preferred over XC!+.
+Defer xc@+ ( xc-addr1 -- xc-addr2 xc ) \ xchar-ext	xc-fetch-plus
+\G Fetchs the xchar @var{xc} at @var{xc-addr1}. @var{xc-addr2} points
+\G to the first memory location after @var{xc}.
+Defer xc-size ( xc -- u ) \ xchar-ext
+\G Computes the memory size of the xchar @var{xc} in pchars.
+Defer x-size ( xc-addr u1 -- u2 ) \ xchar
+\G Computes the memory size of the first xchar stored at @var{xc-addr}
+\G in pchars.
+Defer x-width ( xc-addr u -- n ) \ xchar-ext
+\G @var{n} is the number of monospace ASCII pchars that take the same
+\G space to display as the the xchar string starting at @var{xc-addr},
+\G using @var{u} pchars; assuming a monospaced display font,
+\G i.e. pchar width is always an integer multiple of the width of an
+\G ASCII pchar.
+Defer -trailing-garbage ( xc-addr u1 -- addr u2 ) \ xchar-ext
+\G Examine the last XCHAR in the buffer @var{xc-addr} @var{u1}---if
+\G the encoding is correct and it repesents a full pchar, @var{u2}
+\G equals @var{u1}, otherwise, @var{u2} represents the string without
+\G the last (garbled) xchar.
 
 \ derived words, faster implementations are probably possible
 
