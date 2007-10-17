@@ -83,6 +83,12 @@ Defer -trailing-garbage ( xc-addr u1 -- addr u2 ) \ xchar-ext
     over >r +x/string
     r> xc@ ;
 
+Create xholdbuf 8 allot
+: xhold ( xc -- )
+    \G Put xc into the pictured numeric output
+    xholdbuf 8 xc!+? 2drop
+    BEGIN  1- dup  xholdbuf u>=  WHILE  dup c@ hold  REPEAT  drop ;
+
 \ fixed-size versions of these words
 
 : char- ( c-addr1 -- c-addr2 )

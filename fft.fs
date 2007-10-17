@@ -70,8 +70,9 @@ Carray expix
   BEGIN  2dup >  WHILE  dup 2* swap fft-step
   REPEAT  2drop drop ;
 
-: normalize ( -- )  #points dup s>f 1/f
-  0 DO  I values dup z@ 2 fpick zscale z!  LOOP  fdrop ;
+: fftscale ( r -- )
+  #points 0 DO  I values dup z@ 2 fpick zscale z!  LOOP  fdrop ;
+: normalize ( -- )  #points s>f 1/f  fftscale ;
 
 : fft  ( -- )  #points  true (fft ;
 : rfft ( -- )  #points false (fft ;
