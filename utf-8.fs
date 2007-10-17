@@ -293,7 +293,7 @@ here wc-table - Constant #wc-table
     ['] u8\string- is xstring-
     ['] +u8/string is +xstring
 [ [THEN] ]
-[ [IFDEF] x/string+ ]
+[ [IFDEF] +x/string ]
     ['] u8\string- is x\string-
     ['] +u8/string is +x/string
 [ [THEN] ]
