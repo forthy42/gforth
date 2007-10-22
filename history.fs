@@ -19,9 +19,9 @@
 \ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
 
 :noname
-    char [char] @ - ;
+    char toupper $1f and ;
 :noname
-    char [char] @ - postpone Literal ;
+    char toupper $1f and postpone Literal ;
 interpret/compile: ctrl  ( "<char>" -- ctrl-code )
 
 \ command line editing                                  16oct94py
