@@ -18,10 +18,12 @@
 \ along with this program; if not, write to the Free Software
 \ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
 
+: ctrl-i ( "<char>" -- c )
+    char toupper $40 xor ;
+
+' ctrl-i
 :noname
-    char toupper $1f and ;
-:noname
-    char toupper $1f and postpone Literal ;
+    ctrl-i postpone Literal ;
 interpret/compile: ctrl  ( "<char>" -- ctrl-code )
 
 \ command line editing                                  16oct94py
