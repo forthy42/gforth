@@ -123,6 +123,7 @@ exec_prefix = @exec_prefix@
 srcdir = @srcdir@
 bindir = @bindir@
 #read-only architecture-independent files
+datarootdir = @datarootdir@
 datadir = @datadir@
 #read-only architecture-dependent non-ascii files
 libdir = @libdir@
@@ -265,7 +266,7 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_SRC) $(EC_SRC) \
 	unbuffer.fs wordsets.fs xwords.fs \
 	test/tester.fs test/ttester.fs \
 	test/coretest.fs test/postpone.fs test/dbltest.fs \
-	test/string.fs test/float.fs test/gforth.fs \
+	test/string.fs test/float.fs test/search.fs test/gforth.fs \
 	test/other.fs test/signals.fs test/checkans.fs \
 	test/primtest.fs test/coreext.fs test/deferred.fs \
 	test/coremore.fs test/gforth-nofast.fs test/libcc.fs \
@@ -641,7 +642,7 @@ check:		gforths	gforth.fi
 		@echo "*** Check successful ***"
 
 checkone test:	gforth$(EC)$(EXE) gforth.fi engine/prim-s.i
-		$(FORTH) test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs test/string.fs test/float.fs test/deferred.fs test/coreext.fs -e bye 2>&1 | tr -d '\015' | diff -c - $(srcdir)/test/coretest.out
+		$(FORTH) test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs test/string.fs test/float.fs test/deferred.fs test/coreext.fs test/search.fs -e bye 2>&1 | tr -d '\015' | diff -c - $(srcdir)/test/coretest.out
 		$(FORTH) test/other.fs -e bye
 		$(FORTHS) test/signals.fs -e bye
 		$(FORTHS) test/coremore.fs test/gforth.fs -e bye 2>&1 | tr -d '\015' | diff -c - $(srcdir)/test/gforth.out

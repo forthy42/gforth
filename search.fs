@@ -23,6 +23,8 @@ require struct.fs
 $10 Value maxvp		\ current size of search order stack
 $400 Value maxvp-limit	\ upper limit for resizing search order stack
 0 AValue vp		\ will be initialized later (dynamic)
+\ the first cell at vp contains the search order depth, the others
+\ contain the wordlists, starting with the last-searched one.
 
 : get-current  ( -- wid ) \ search
   \G @i{wid} is the identifier of the current compilation word list.
@@ -96,13 +98,10 @@ Variable slowvoc   0 slowvoc !
 
 : (vocfind)  ( addr count wid -- nfa|false )
     \ !! generalize this to be independent of vp
-    drop vp dup @ 1- cells over +
-    DO  2dup I 2@ over <>
-        IF  (search-wordlist) dup
-	    IF  nip nip  UNLOOP EXIT
-	    THEN  drop
-        ELSE  drop 2drop  THEN
-    [ -1 cells ] Literal +LOOP
+    drop 0 vp @ -DO ( addr count ) \ note that the loop does not reach 0
+        2dup vp i cells + @ (search-wordlist) dup if ( addr count nt )
+            nip nip unloop exit then
+    drop 1 -loop
     2drop false ;
 
 0 value locals-wordlist
@@ -203,7 +202,9 @@ lookup ! \ our dictionary search order becomes the law ( -- )
     THEN
     dup check-maxvp
     dup vp!
-    ?dup IF 1- FOR vp cell+ I cells + !  NEXT THEN ;
+    0 swap -DO ( wid1 ... widi )
+        vp i cells + ! \ note that the loop does not reach 0
+    1 -loop ;
 
 : seal ( -- ) \ gforth
   \G Remove all word lists from the search order stack other than the word
