@@ -1,63 +1,63 @@
-\ for the original tester
-\ From: John Hayes S1I
-\ Subject: tester.fr
-\ Date: Mon, 27 Nov 95 13:10:09 PST  
+\ FOR THE ORIGINAL TESTER
+\ FROM: JOHN HAYES S1I
+\ SUBJECT: TESTER.FR
+\ DATE: MON, 27 NOV 95 13:10:09 PST  
 \ (C) 1995 JOHNS HOPKINS UNIVERSITY / APPLIED PHYSICS LABORATORY
 \ MAY BE DISTRIBUTED FREELY AS LONG AS THIS COPYRIGHT NOTICE REMAINS.
 \ VERSION 1.1
 
-\ for the FNEARLY= stuff:
-\ from ftester.fs written by David N. Williams, based on the idea of
-\ approximate equality in Dirk Zoller's float.4th
-\ public domain
+\ FOR THE FNEARLY= STUFF:
+\ FROM FTESTER.FS WRITTEN BY DAVID N. WILLIAMS, BASED ON THE IDEA OF
+\ APPROXIMATE EQUALITY IN DIRK ZOLLER'S FLOAT.4TH
+\ PUBLIC DOMAIN
 
-\ for the rest:
-\ revised by Anton Ertl 2007-08-12, 2007-08-19, 2007-08-28
-\ public domain
+\ FOR THE REST:
+\ REVISED BY ANTON ERTL 2007-08-12, 2007-08-19, 2007-08-28
+\ PUBLIC DOMAIN
 
-\ The original has the following shortcomings:
+\ THE ORIGINAL HAS THE FOLLOWING SHORTCOMINGS:
 
-\ - It does not work as expected if the stack is non-empty before the {.
+\ - IT DOES NOT WORK AS EXPECTED IF THE STACK IS NON-EMPTY BEFORE THE {.
 
-\ - It does not check FP results if the system has a separate FP stack.
+\ - IT DOES NOT CHECK FP RESULTS IF THE SYSTEM HAS A SEPARATE FP STACK.
 
-\ - There is a conflict with the use of } for FSL arrays and { for locals.
+\ - THERE IS A CONFLICT WITH THE USE OF } FOR FSL ARRAYS AND { FOR LOCALS.
 
-\ I have revised it to address these shortcomings.  You can find the
-\ result at
+\ I HAVE REVISED IT TO ADDRESS THESE SHORTCOMINGS.  YOU CAN FIND THE
+\ RESULT AT
 
-\ http://www.forth200x.org/tests/tester.fs
-\ http://www.forth200x.org/tests/ttester.fs
+\ HTTP://WWW.FORTH200X.ORG/TESTS/TESTER.FS
+\ HTTP://WWW.FORTH200X.ORG/TESTS/TTESTER.FS
 
-\ tester.fs is intended to be a drop-in replacement of the original.
+\ TESTER.FS IS INTENDED TO BE A DROP-IN REPLACEMENT OF THE ORIGINAL.
 
-\ ttester.fs is a version that uses T{ and }T instead of { and } and
-\ keeps the BASE as it was before loading ttester.fs
+\ TTESTER.FS IS A VERSION THAT USES T{ AND }T INSTEAD OF { AND } AND
+\ KEEPS THE BASE AS IT WAS BEFORE LOADING TTESTER.FS
 
-\ In spirit of the original, I have strived to avoid any potential
-\ non-portabilities and stayed as much within the CORE words as
-\ possible; e.g., FLOATING words are used only if the FLOATING wordset
-\ is present
+\ IN SPIRIT OF THE ORIGINAL, I HAVE STRIVED TO AVOID ANY POTENTIAL
+\ NON-PORTABILITIES AND STAYED AS MUCH WITHIN THE CORE WORDS AS
+\ POSSIBLE; E.G., FLOATING WORDS ARE USED ONLY IF THE FLOATING WORDSET
+\ IS PRESENT
 
-\ There are a few things to be noted:
+\ THERE ARE A FEW THINGS TO BE NOTED:
 
-\ - Loading ttester.fs does not change BASE.  Loading tester.fs
-\ changes BASE to HEX (like the original tester).  Floating-point
-\ input is ambiguous when the base is not decimal, so you have to set
-\ it to decimal yourself when you want to deal with decimal numbers.
+\ - LOADING TTESTER.FS DOES NOT CHANGE BASE.  LOADING TESTER.FS
+\ CHANGES BASE TO HEX (LIKE THE ORIGINAL TESTER).  FLOATING-POINT
+\ INPUT IS AMBIGUOUS WHEN THE BASE IS NOT DECIMAL, SO YOU HAVE TO SET
+\ IT TO DECIMAL YOURSELF WHEN YOU WANT TO DEAL WITH DECIMAL NUMBERS.
 
-\ - For FP it is often useful to use approximate equality for checking
-\ the results.  You can turn on approximate matching with SET-NEAR
-\ (and turn it off (default) with SET-EXACT, and you can tune it by
-\ setting the variables REL-NEAR and ABS-NEAR.  If you want your tests
-\ to work with a shared stack, you have to specify the types of the
-\ elements on the stack by using one of the closing words that specify
-\ types, e.g. RRRX}T for checking the stack picture ( r r r x ).
-\ There are such words for all combination of R and X with up to 4
-\ stack items, and defining more if you need them is straightforward
-\ (see source).  If your tests are only intended for a separate-stack
-\ system or if you need only exact matching, you can use the plain }T
-\ instead.
+\ - FOR FP IT IS OFTEN USEFUL TO USE APPROXIMATE EQUALITY FOR CHECKING
+\ THE RESULTS.  YOU CAN TURN ON APPROXIMATE MATCHING WITH SET-NEAR
+\ (AND TURN IT OFF (DEFAULT) WITH SET-EXACT, AND YOU CAN TUNE IT BY
+\ SETTING THE VARIABLES REL-NEAR AND ABS-NEAR.  IF YOU WANT YOUR TESTS
+\ TO WORK WITH A SHARED STACK, YOU HAVE TO SPECIFY THE TYPES OF THE
+\ ELEMENTS ON THE STACK BY USING ONE OF THE CLOSING WORDS THAT SPECIFY
+\ TYPES, E.G. RRRX}T FOR CHECKING THE STACK PICTURE ( R R R X ).
+\ THERE ARE SUCH WORDS FOR ALL COMBINATION OF R AND X WITH UP TO 4
+\ STACK ITEMS, AND DEFINING MORE IF YOU NEED THEM IS STRAIGHTFORWARD
+\ (SEE SOURCE).  IF YOUR TESTS ARE ONLY INTENDED FOR A SEPARATE-STACK
+\ SYSTEM OR IF YOU NEED ONLY EXACT MATCHING, YOU CAN USE THE PLAIN }T
+\ INSTEAD.
 
 BASE @
 HEX
@@ -192,15 +192,15 @@ HAS-FLOATING-STACK [IF]
 
     : F...}T ( -- )
         FDEPTH START-FDEPTH @ = 0= IF
-            S" WRONG NUMBER OF FP RESULTS" ERROR
+            S" NUMBER OF FLOAT RESULTS BEFORE AND AFTER '->' DOES NOT MATCH: " ERROR
         THEN
-        FCURSOR @ ACTUAL-FDEPTH @ <> IF
-            S" WRONG NUMBER OF FP RESULTS" ERROR
+        FCURSOR @ START-FDEPTH @ + ACTUAL-FDEPTH @ <> IF
+            S" NUMBER OF FLOAT RESULTS BEFORE '->' DOES NOT MATCH ...}T SPRECIFICATION: " ERROR
         THEN ;
     
     : FTESTER ( R -- )
-        FDEPTH 0= ACTUAL-FDEPTH @ FCURSOR @ 1+ < OR IF
-            S" WRONG NUMBER OF FP RESULTS: " ERROR EXIT
+        FDEPTH 0= ACTUAL-FDEPTH @ FCURSOR @ START-FDEPTH @ + 1+ < OR IF
+            S" NUMBER OF FLOAT RESULTS AFTER '->' BELOW ...}T SPECIFICATION: " ERROR EXIT
         THEN
         ACTUAL-FRESULTS FCURSOR @ FLOATS + F@ FCONF= 0= IF
             S" INCORRECT FP RESULT: " ERROR
@@ -222,8 +222,8 @@ HAS-FLOATING-STACK [IF]
     COMPUTE-CELLS-PER-FP CONSTANT CELLS-PER-FP
     
     : FTESTER ( R -- )
-        DEPTH CELLS-PER-FP < ACTUAL-DEPTH @ XCURSOR @ CELLS-PER-FP + < OR IF
-            S" WRONG NUMBER OF RESULTS: " ERROR EXIT
+        DEPTH CELLS-PER-FP < ACTUAL-DEPTH @ XCURSOR @ START-DEPTH @ + CELLS-PER-FP + < OR IF
+            S" NUMBER OF RESULTS AFTER '->' BELOW ...}T SPECIFICATION: " ERROR EXIT
         THEN
         ACTUAL-RESULTS XCURSOR @ CELLS + F@ FCONF= 0= IF
             S" INCORRECT FP RESULT: " ERROR
@@ -274,16 +274,16 @@ HAS-FLOATING-STACK [IF]
 
 : ...}T ( -- )
     DEPTH START-DEPTH @ = 0= IF
-        S" WRONG NUMBER OF RESULTS" ERROR
+        S" NUMBER OF CELL RESULTS BEFORE AND AFTER '->' DOES NOT MATCH: " ERROR
     THEN
-    XCURSOR @ ACTUAL-DEPTH @ <> IF
-        S" WRONG NUMBER OF RESULTS" ERROR
+    XCURSOR @ START-DEPTH @ + ACTUAL-DEPTH @ <> IF
+        S" NUMBER OF CELL RESULTS BEFORE '->' DOES NOT MATCH ...}T SPRECIFICATION: " ERROR
     THEN
     F...}T ;
 
 : XTESTER ( X -- )
-    DEPTH 0= ACTUAL-DEPTH @ XCURSOR @ 1+ < OR IF
-        S" WRONG NUMBER OF RESULTS: " ERROR EXIT
+    DEPTH 0= ACTUAL-DEPTH @ XCURSOR @ START-DEPTH @ + 1+ < OR IF
+        S" NUMBER OF CELL RESULTS AFTER '->' BELOW ...}T SPECIFICATION: " ERROR EXIT
     THEN
     ACTUAL-RESULTS XCURSOR @ CELLS + @ <> IF
         S" INCORRECT CELL RESULT: " ERROR
