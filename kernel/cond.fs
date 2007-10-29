@@ -151,7 +151,7 @@ immediate restrict
 \ people who have not been brought up with Forth (or who have been
 \ brought up with fig-Forth).
 
-: ELSE ( compilation orig1 -- orig2 ; run-time f -- ) \ core
+: ELSE ( compilation orig1 -- orig2 ; run-time -- ) \ core
     POSTPONE ahead
     1 cs-roll
     POSTPONE then ; immediate restrict

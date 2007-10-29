@@ -47,6 +47,9 @@
 /* #include <systypes.h> */
 #endif
 
+/* output rules etc. for burg with --debug and --print-sequences */
+/* #define BURG_FORMAT*/
+
 typedef enum prim_num {
 /* definitions of N_execute etc. */
 #include PRIM_NUM_I
@@ -226,7 +229,7 @@ static int nonrelocs = 0;
 
 #ifdef HAS_DEBUG
 int debug=0;
-# define debugp(x...) if (debug) fprintf(x);
+# define debugp(x...) do { if (debug) fprintf(x); } while (0)
 #else
 # define perror(x...)
 # define fprintf(x...)
@@ -975,7 +978,7 @@ static void check_prims(Label symbols1[])
   /* check whether the "goto *" is relocatable */
   goto_len = goto_p[1]-goto_p[0];
   debugp(stderr, "goto * %p %p len=%ld\n",
-	 goto_p[0],symbols2[goto_p-symbols1],goto_len);
+	 goto_p[0],symbols2[goto_p-symbols1],(long)goto_len);
   if (memcmp(goto_p[0],symbols2[goto_p-symbols1],goto_len)!=0) { /* unequal */
     no_dynamic=1;
     debugp(stderr,"  not relocatable, disabling dynamic code generation\n");
@@ -1001,14 +1004,26 @@ static void check_prims(Label symbols1[])
     pi->restlength = endlabel - symbols1[i] - pi->length;
     pi->nimmargs = 0;
     relocs++;
+#if defined(BURG_FORMAT)
+    { /* output as burg-style rules */
+      int p=super_costs[i].offset;
+      if (p==N_noop)
+	debugp(stderr, "S%d: S%d = %d (%d);", sc->state_in, sc->state_out, i+1, pi->length);
+      else
+	debugp(stderr, "S%d: op%d(S%d) = %d (%d);", sc->state_in, p, sc->state_out, i+1, pi->length);
+    }
+#else
     debugp(stderr, "%-15s %d-%d %4d %p %p %p len=%3ld rest=%2ld send=%1d",
 	   prim_names[i], sc->state_in, sc->state_out,
 	   i, s1, s2, s3, (long)(pi->length), (long)(pi->restlength),
 	   pi->superend);
+#endif
     if (endlabel == NULL) {
       pi->start = NULL; /* not relocatable */
       if (pi->length<0) pi->length=100;
+#ifndef BURG_FORMAT
       debugp(stderr,"\n   non_reloc: no J label > start found\n");
+#endif
       relocs--;
       nonrelocs++;
       continue;
@@ -1016,7 +1031,9 @@ static void check_prims(Label symbols1[])
     if (ends1[i] > endlabel && !pi->superend) {
       pi->start = NULL; /* not relocatable */
       pi->length = endlabel-symbols1[i];
+#ifndef BURG_FORMAT
       debugp(stderr,"\n   non_reloc: there is a J label before the K label (restlength<0)\n");
+#endif
       relocs--;
       nonrelocs++;
       continue;
@@ -1024,7 +1041,9 @@ static void check_prims(Label symbols1[])
     if (ends1[i] < pi->start && !pi->superend) {
       pi->start = NULL; /* not relocatable */
       pi->length = endlabel-symbols1[i];
+#ifndef BURG_FORMAT
       debugp(stderr,"\n   non_reloc: K label before I label (length<0)\n");
+#endif
       relocs--;
       nonrelocs++;
       continue;
@@ -1035,7 +1054,9 @@ static void check_prims(Label symbols1[])
       if (s1[j]==s3[j]) {
 	if (s1[j] != s2[j]) {
 	  pi->start = NULL; /* not relocatable */
+#ifndef BURG_FORMAT
 	  debugp(stderr,"\n   non_reloc: engine1!=engine2 offset %3d",j);
+#endif
 	  /* assert(j<prim_len); */
 	  relocs--;
 	  nonrelocs++;
@@ -1056,7 +1077,9 @@ static void check_prims(Label symbols1[])
 	  debugp(stderr,"\n   relative immarg: offset %3d",j);
 	} else {
 	  pi->start = NULL; /* not relocatable */
+#ifndef BURG_FORMAT
 	  debugp(stderr,"\n   non_reloc: engine1!=engine3 offset %3d",j);
+#endif
 	  /* assert(j<prim_len);*/
 	  relocs--;
 	  nonrelocs++;
@@ -1641,7 +1664,11 @@ static void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
 #ifndef NO_DYNAMIC
   if (print_sequences) {
     for (i=0; i<ninsts; i++)
+#if defined(BURG_FORMAT)
+      fprintf(stderr, "op%d ", super_costs[origs[i]].offset);
+#else
       fprintf(stderr, "%s ", prim_names[origs[i]]);
+#endif
     fprintf(stderr, "\n");
   }
 #endif

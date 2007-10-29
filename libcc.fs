@@ -124,6 +124,7 @@
 \ first-time word, then to the run-time word; the run-time word calls
 \ the c function.
 
+: delete-file 2drop 0 ;
 
 require struct.fs
 
@@ -434,13 +435,18 @@ DEFER compile-wrapper-function
 :NONAME ( -- )
     c-source-file close-file throw
     0 c-source-file-id !
-    s" gcc -fPIC -shared -Wl,-soname," lib-filename 2@ s+
-    s" .so.1 -Wl,-export_dynamic -o " append lib-filename 2@ append
-    [ s" .so.1 -O -I " s" includedir" getenv append s"  " append ] sliteral
-    append lib-filename 2@ append s" .c" append ( c-addr u )
-    2dup system drop free throw
+    [ s" libtool --silent --mode=link gcc -module -I "
+      s" includedir" getenv append s"  -rpath " append ] sliteral
+    tempdir s+ s"  -O -c " append lib-filename 2@ append s" .c -o " append
+    lib-filename 2@ append s" .la" append ( c-addr u )
+\    s" gcc -fPIC -shared -Wl,-soname," lib-filename 2@ s+
+\    s" .so.1 -Wl,-export_dynamic -o " append lib-filename 2@ append
+\    [ s" .so.1 -O -I " s" includedir" getenv append s"  " append ] sliteral
+\    append lib-filename 2@ append s" .c" append ( c-addr u )
+    ~~ 2dup type 2dup system drop free throw
     $? abort" compiler generated error" \ !! call dlerror
-    lib-filename 2@ s" .so.1" s+
+    tempdir s" /.libs/" s+ lib-filename 2@ append s" .so.0" append
+    2dup type
     2dup open-lib dup 0= abort" open-lib failed" \ !! call dlerror
     ( lib-handle ) lib-handle-addr @ !
     2dup delete-file throw drop free throw
