@@ -220,6 +220,7 @@ static int diag = 0; /* if true: print diagnostic informations */
 static int tpa_noequiv = 0;     /* if true: no state equivalence checking */
 static int tpa_noautomaton = 0; /* if true: no tree parsing automaton */
 static int tpa_trace = 0; /* if true: data for line graph of new states etc. */
+static int print_sequences = 0; /* print primitive sequences for optimization */
 static int relocs = 0;
 static int nonrelocs = 0;
 
@@ -1637,6 +1638,13 @@ static void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
   
   lb_basic_blocks++;
   ts[ninsts] = termstate;
+#ifndef NO_DYNAMIC
+  if (print_sequences) {
+    for (i=0; i<ninsts; i++)
+      fprintf(stderr, "%s ", prim_names[origs[i]]);
+    fprintf(stderr, "\n");
+  }
+#endif
   for (i=ninsts-1; i>=0; i--) {
     struct tpa_state **tp = lookup_tpa(origs[i],ts[i+1]);
     struct tpa_state *t = *tp;
@@ -2074,6 +2082,7 @@ void gforth_args(int argc, char ** argv, char ** path, char ** imagename)
       {"no-dynamic", no_argument, &no_dynamic, 1},
       {"dynamic", no_argument, &no_dynamic, 0},
       {"print-metrics", no_argument, &print_metrics, 1},
+      {"print-sequences", no_argument, &print_sequences, 1},
       {"ss-number", required_argument, NULL, ss_number},
       {"ss-states", required_argument, NULL, ss_states},
 #ifndef NO_DYNAMIC
@@ -2139,6 +2148,7 @@ Engine Options:\n\
   --offset-image		    Load image at a different position\n\
   -p PATH, --path=PATH		    Search path for finding image and sources\n\
   --print-metrics		    Print some code generation metrics on exit\n\
+  --print-sequences                 Print primitive sequences for optimization\n\
   -r SIZE, --return-stack-size=SIZE Specify return stack size\n\
   --ss-greedy			    Greedy, not optimal superinst selection\n\
   --ss-min-codesize		    Select superinsts for smallest native code\n\
