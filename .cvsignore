@@ -43,3 +43,15 @@ Makedist
 Makefile.os2
 configure.bat
 Makefile.dos
+autom4te.cache
+build-ec
+envos.fs
+gforth-itc
+gforth-prof
+include
+kernel.tags
+machpc.fs
+prim-fast.b
+stamp-h.in
+TAGS
+vmgen
