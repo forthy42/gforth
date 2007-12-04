@@ -443,12 +443,14 @@ DEFER compile-wrapper-function
 :NONAME ( -- )
     c-source-file close-file throw
     0 c-source-file-id !
-    [ s" libtool --silent --mode=compile gcc -I "
-      s" includedir" getenv append ] sliteral
+    [ libtool-command s"  --silent --mode=compile gcc -I " s+
+    s" includedir" getenv append ] sliteral
     s"  -O -c " s+ lib-filename 2@ append s" .c -o " append
     lib-filename 2@ append s" .lo" append ( c-addr u )
     2dup system drop free throw $? abort" libtool compile failed"
-    s" libtool --silent --mode=link gcc -module -rpath " tempdir s+ s"  " append
+    
+    [ libtool-command s"  --silent --mode=link gcc -module -rpath " s+ ] sliteral
+    tempdir s+ s"  " append
     lib-filename 2@ append s" .lo -o " append
     lib-filename 2@ append s" .la" append ( c-addr u )
     2dup system drop free throw $? abort" libtool link failed"

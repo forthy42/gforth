@@ -26,3 +26,7 @@ get-current environment-wordlist set-current
     \G Counted string equal to "$host_os"
     s" @host_os@" ;
 set-current
+
+: libtool-command ( -- c-addr u ) \ gforth
+\G name of the GNU libtool command
+    s" @GNU_LIBTOOL@" ;

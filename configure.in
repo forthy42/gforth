@@ -795,6 +795,9 @@ AC_PROG_LN_S
 AC_PROG_INSTALL
 AC_CHECK_PROGS(TEXI2DVI,texi2dvi4a2ps texi2dvi)
 
+dnl MacOS X has a libtool that does something else
+AC_CHECK_PROGS(GNU_LIBTOOL,glibtool libtool)
+
 dnl Checks for library functions
 dnl This check is just for making later checks link with libm.
 dnl using sin here is no good idea since it is built-into gcc and typechecked
