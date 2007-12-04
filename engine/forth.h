@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include <sys/time.h>
 #include <unistd.h>
+#include <ltdl.h>
 
 #if defined(DOUBLY_INDIRECT)||defined(INDIRECT_THREADED)||defined(VM_PROFILING)
 #define NO_DYNAMIC

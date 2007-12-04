@@ -2394,7 +2394,9 @@ r = fp[u];
 \g syslib
 
 open-lib	( c_addr1 u1 -- u2 )	gforth	open_lib
-#if defined(HAVE_LIBDL) || defined(HAVE_DLOPEN)
+#if 1
+u2 = (UCell)lt_dlopen(cstr(c_addr1, u1, 1));
+#elif defined(HAVE_LIBDL) || defined(HAVE_DLOPEN)
 #ifndef RTLD_GLOBAL
 #define RTLD_GLOBAL 0
 #endif
@@ -2409,7 +2411,9 @@ u2 = 0;
 #endif
 
 lib-sym	( c_addr1 u1 u2 -- u3 )	gforth	lib_sym
-#if defined(HAVE_LIBDL) || defined(HAVE_DLOPEN)
+#if 1
+u3 = (UCell) lt_dlsym((lt_dlhandle)u2, cstr(c_addr1, u1, 1));
+#elif defined(HAVE_LIBDL) || defined(HAVE_DLOPEN)
 u3 = (UCell) dlsym((void*)u2,cstr(c_addr1, u1, 1));
 #else
 #  ifdef _WIN32
@@ -2780,6 +2784,10 @@ fcall(20)
 
 \+
 \+
+
+lib-error ( -- c_addr u )       gforth  lib_error
+c_addr = lt_dlerror();
+u = (c_addr == NULL) ? 0 : strlen(c_addr);
 
 \g peephole
 

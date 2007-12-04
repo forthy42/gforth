@@ -799,6 +799,7 @@ dnl Checks for library functions
 dnl This check is just for making later checks link with libm.
 dnl using sin here is no good idea since it is built-into gcc and typechecked
 AC_CHECK_LIB(m,asin)
+AC_CHECK_LIB(ltdl,lt_dlinit)
 AC_CHECK_LIB(dl,dlopen)
 dnl check for libffi 2.x
 AC_CHECK_LIB(ffi,ffi_call)

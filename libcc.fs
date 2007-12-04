@@ -147,7 +147,8 @@ variable c-source-file-id \ contains the source file id of the current batch
 variable lib-handle-addr \ points to the library handle of the current batch.
                          \ the library handle is 0 if the current
                          \ batch is not yet compiled.
-2variable lib-filename \ filename without extension
+2variable lib-filename   \ filename without extension
+2variable lib-modulename \ basename of the file without extension
 
 : .nb ( n -- )
     0 .r ;
@@ -398,7 +399,7 @@ create gen-wrapped-types
     \ addr points to the return type index of a c-function descriptor
     dup { descriptor }
     count { ret } count 2dup { d: pars } chars + count { d: c-name }
-    ." void " descriptor wrapper-function-name 2dup type drop free throw
+    ." void " lib-modulename 2@ type ." _LTX_" descriptor wrapper-function-name 2dup type drop free throw
     .\" (void)\n"
     .\" {\n  Cell MAYBE_UNUSED *sp = gforth_SP;\n  Float MAYBE_UNUSED *fp = gforth_FP;\n  "
     pars c-name 2over count-stacks ret gen-wrapped-stmt .\" ;\n"
@@ -418,11 +419,12 @@ create gen-wrapped-types
 : gen-filename ( x -- c-addr u )
     \ generates a filename without extension for lib-handle-addr X
     0 <<# ['] #s $10 base-execute #> 
-    tempdir s" /gforth-c-" s+ 2swap append #>> ;
+    tempdir s" /gforth_c_" s+ 2swap append #>> ;
 
 : init-c-source-file ( -- )
     c-source-file-id @ 0= if
-	here 0 , dup lib-handle-addr ! gen-filename 2dup lib-filename 2!
+        here 0 , dup lib-handle-addr ! gen-filename 2dup lib-filename 2!
+        2dup tempdir nip 1+ /string lib-modulename 2!
 	s" .c" s+ 2dup w/o create-file throw dup c-source-file-id !
         ['] print-c-prefix-lines swap outfile-execute
         drop free throw
@@ -431,23 +433,26 @@ create gen-wrapped-types
 : c-source-file ( -- file-id )
     c-source-file-id @ assert( dup ) ;
 
+\ libtool --mode=compile gcc -I /nfs/a5/anton/gforth-amd64/include -O -c /tmp/gforth_c_2AAAAB2E7C50.c -o /tmp/gforth_c_2AAAAB2E7C50.lo
+\ libtool --mode=link gcc -module -rpath /tmp /tmp/gforth_c_2AAAAB2E7C50.lo -o /tmp/gforth_c_2AAAAB2E7C50.la
+
 DEFER compile-wrapper-function
 :NONAME ( -- )
     c-source-file close-file throw
     0 c-source-file-id !
-    [ s" libtool --silent --mode=link gcc -module -I "
-      s" includedir" getenv append s"  -rpath " append ] sliteral
-    tempdir s+ s"  -O -c " append lib-filename 2@ append s" .c -o " append
+    [ s" libtool --silent --mode=compile gcc -I "
+      s" includedir" getenv append ] sliteral
+    s"  -O -c " s+ lib-filename 2@ append s" .c -o " append
+    lib-filename 2@ append s" .lo" append ( c-addr u )
+    2dup system drop free throw $? abort" libtool compile failed"
+    s" libtool --silent --mode=link gcc -module -rpath " tempdir s+ s"  " append
+    lib-filename 2@ append s" .lo -o " append
     lib-filename 2@ append s" .la" append ( c-addr u )
-\    s" gcc -fPIC -shared -Wl,-soname," lib-filename 2@ s+
-\    s" .so.1 -Wl,-export_dynamic -o " append lib-filename 2@ append
-\    [ s" .so.1 -O -I " s" includedir" getenv append s"  " append ] sliteral
-\    append lib-filename 2@ append s" .c" append ( c-addr u )
-    ~~ 2dup type 2dup system drop free throw
-    $? abort" compiler generated error" \ !! call dlerror
-    tempdir s" /.libs/" s+ lib-filename 2@ append s" .so.0" append
-    2dup type
-    2dup open-lib dup 0= abort" open-lib failed" \ !! call dlerror
+    2dup system drop free throw $? abort" libtool link failed"
+    lib-filename 2@ s" .la" s+
+    2dup open-lib dup 0= if
+        cr lib-error type true abort" open-lib failed"
+    endif
     ( lib-handle ) lib-handle-addr @ !
     2dup delete-file throw drop free throw
     lib-filename 2@ s" .c" s+ 2dup delete-file throw drop free throw
@@ -457,7 +462,9 @@ DEFER compile-wrapper-function
 
 : link-wrapper-function { cff -- sym }
     cff cff-rtype wrapper-function-name { d: wrapper-name }
-    wrapper-name cff cff-lha @ @ assert( dup ) lib-sym dup 0= -&32 and throw
+    wrapper-name cff cff-lha @ @ assert( dup ) lib-sym dup 0= if
+        cr lib-error type -&32 throw
+    endif
     wrapper-name drop free throw ;
 
 : c-function-ft ( xt-defr xt-cfr "c-name" "{libcc-type}" "--" "libcc-type" -- )
