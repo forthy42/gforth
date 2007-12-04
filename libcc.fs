@@ -433,8 +433,11 @@ create gen-wrapped-types
 : c-source-file ( -- file-id )
     c-source-file-id @ assert( dup ) ;
 
-\ libtool --mode=compile gcc -I /nfs/a5/anton/gforth-amd64/include -O -c /tmp/gforth_c_2AAAAB2E7C50.c -o /tmp/gforth_c_2AAAAB2E7C50.lo
-\ libtool --mode=link gcc -module -rpath /tmp /tmp/gforth_c_2AAAAB2E7C50.lo -o /tmp/gforth_c_2AAAAB2E7C50.la
+: .lib-error ( -- )
+    [ifdef] lib-error
+        ['] cr stderr outfile-execute
+        lib-error ['] type outfile-execute
+    [then] ;
 
 DEFER compile-wrapper-function
 :NONAME ( -- )
@@ -451,7 +454,7 @@ DEFER compile-wrapper-function
     2dup system drop free throw $? abort" libtool link failed"
     lib-filename 2@ s" .la" s+
     2dup open-lib dup 0= if
-        cr lib-error type true abort" open-lib failed"
+        .lib-error true abort" open-lib failed"
     endif
     ( lib-handle ) lib-handle-addr @ !
     2dup delete-file throw drop free throw
@@ -463,7 +466,7 @@ DEFER compile-wrapper-function
 : link-wrapper-function { cff -- sym }
     cff cff-rtype wrapper-function-name { d: wrapper-name }
     wrapper-name cff cff-lha @ @ assert( dup ) lib-sym dup 0= if
-        cr lib-error type -&32 throw
+        .lib-error -&32 throw
     endif
     wrapper-name drop free throw ;
 
