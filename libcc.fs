@@ -448,7 +448,6 @@ DEFER compile-wrapper-function
     s"  -O -c " s+ lib-filename 2@ append s" .c -o " append
     lib-filename 2@ append s" .lo" append ( c-addr u )
     2dup system drop free throw $? abort" libtool compile failed"
-    
     [ libtool-command s"  --silent --mode=link gcc -module -rpath " s+ ] sliteral
     tempdir s+ s"  " append
     lib-filename 2@ append s" .lo -o " append
