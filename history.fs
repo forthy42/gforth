@@ -78,8 +78,7 @@ defer cur-correct ( addr u -- )
 
 Variable linew
 Variable screenw
-
-: linew-off  linew off form nip screenw ! ;
+: linew-off  linew off cols screenw ! ;
 
 [IFDEF] x-width
 : clear-line ( max span addr pos1 -- max addr )
@@ -239,7 +238,7 @@ require utf-8.fs
     linew @ xback-restore >r 2dup swap type 2dup swap cur-correct r> ;
 
 : xretype ( max span addr pos1 -- max span addr pos1 f )
-    .all form nip screenw @ >r screenw !
+    .all cols screenw @ >r screenw !
     linew @ screenw @ / linew @ r@ / max
     screenw @ r> - * 0 max
     dup spaces linew +! .rest false ;

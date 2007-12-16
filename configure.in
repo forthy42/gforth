@@ -876,6 +876,6 @@ chmod +x vmgen
 chmod +x build-ec
 test -d kernel||mkdir kernel
 $srcdir/mkinstalldirs include/gforth/$PACKAGE_VERSION
-ln -s ../../../engine/config.h ../../../engine/libcc.h include/gforth/$PACKAGE_VERSION]],[[PACKAGE_VERSION=$PACKAGE_VERSION]])
+ln -sf ../../../engine/config.h ../../../engine/libcc.h include/gforth/$PACKAGE_VERSION]],[[PACKAGE_VERSION=$PACKAGE_VERSION]])
 AC_OUTPUT
 

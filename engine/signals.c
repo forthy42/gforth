@@ -232,7 +232,7 @@ void get_winsize()
 #endif
   if (rows==0)
     rows=DEFAULTROWS;
-  if (rows==0)
+  if (cols==0)
     cols=DEFAULTCOLS;
 }
 
