@@ -11890,7 +11890,7 @@ in @file{compat/assert.fs}.
 @cindex singlestep Debugger
 @cindex debugging Singlestep
 
-The singlestep debugger works only with the engine @code{gforth-ditc}.
+The singlestep debugger works only with the engine @code{gforth-itc}.
 
 When you create a new word there's often the need to check whether it
 behaves correctly or not. You can do this by typing @code{dbg
