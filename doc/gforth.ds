@@ -174,6 +174,7 @@ Forth Tutorial
 * Memory Tutorial::             
 * Characters and Strings Tutorial::  
 * Alignment Tutorial::          
+* Floating Point Tutorial::     
 * Files Tutorial::              
 * Interpretation and Compilation Semantics and Immediacy Tutorial::  
 * Execution Tokens Tutorial::   
@@ -1240,6 +1241,7 @@ e.g., a loop is.
 * Memory Tutorial::             
 * Characters and Strings Tutorial::  
 * Alignment Tutorial::          
+* Floating Point Tutorial::     
 * Files Tutorial::              
 * Interpretation and Compilation Semantics and Immediacy Tutorial::  
 * Execution Tokens Tutorial::   
@@ -2473,7 +2475,7 @@ Implement @code{type ( addr u -- )}.
 Reference: @ref{Memory Blocks}.
 
 
-@node Alignment Tutorial, Files Tutorial, Characters and Strings Tutorial, Tutorial
+@node Alignment Tutorial, Floating Point Tutorial, Characters and Strings Tutorial, Tutorial
 @section Alignment
 @cindex alignment tutorial
 @cindex memory alignment tutorial
@@ -2512,8 +2514,88 @@ not require them, if you want your program to be portable.
 
 Reference: @ref{Address arithmetic}.
 
+@node Floating Point Tutorial, Files Tutorial, Alignment Tutorial, Tutorial
+@section Floating Point
+@cindex floating point tutorial
+@cindex FP tutorial
 
-@node Files Tutorial, Interpretation and Compilation Semantics and Immediacy Tutorial, Alignment Tutorial, Tutorial
+Floating-point (FP) numbers and arithmetic in Forth works mostly as one
+might expect, but there are a few things worth noting:
+
+The first point is not specific to Forth, but so important and yet not
+universally known that I mention it here: FP numbers are not reals.
+Many properties (e.g., arithmetic laws) that reals have and that one
+expects of all kinds of numbers do not hold for FP numbers.  If you
+want to use FP computations, you should learn about their problems and
+how to avoid them; a good starting point is @cite{David Goldberg,
+@uref{http://docs.sun.com/source/806-3568/ncg_goldberg.html,What Every
+Computer Scientist Should Know About Floating-Point Arithmetic}, ACM
+Computing Surveys 23(1):5@minus{}48, March 1991}.
+
+In Forth source code literal FP numbers need an exponent, e.g.,
+@code{1e0}; this can also be written shorter as @code{1e},
+@code{+1.0e+0}, and many variations in between.  The reason for this
+is that, for historical reasons, Forth interprets a decimal point
+alone (e.g., @code{1.}) as indicating a double-cell integer.  Another
+requirement for literal FP numbers is that the current base is
+decimal; with a hex base @code{1e} is interpreted as an integer.
+
+Forth has a separate stack for FP numbers.@footnote{Theoretically, an
+ANS Forth system may implement the FP stack on the data stack, but
+virtually all systems implement a separate FP stack; and programming
+in a way that accommodates all models is so cumbersome that nobody
+does it.}  One advantage of this model is that cells are not in the
+way when accessing FP values, and vice versa.  Forth has a set of
+words for manipulating the FP stack: @code{fdup fswap fdrop fover
+frot} and (non-standard) @code{fnip ftuck fpick}.
+
+FP arithmetic words are prefixed with @code{F}.  There is the usual
+set @code{f+ f- f* f/ f** fnegate} as well as a number of words for
+other functions, e.g., @code{fsqrt fsin fln fmin}.  One word that you
+might expect is @code{f=}; but @code{f=} is non-standard, because FP
+computation results are usually inaccurate, so exact comparison is
+usually a mistake, and one should use approximate comparison.
+Unfortunately, @code{f~}, the standard word for that purpose, is not
+well designed, so Gforth provides @code{f~abs} and @code{f~rel} as
+well.
+
+And of course there are words for accessing FP numbers in memory
+(@code{f@@ f!}), and for address arithmetic (@code{floats float+
+faligned}).  There are also variants of these words with an @code{sf}
+and @code{df} prefix for accessing IEEE format single-precision and
+double-precision numbers in memory; their main purpose is for
+accessing external FP data (e.g., that has been read from or will be
+written to a file).
+
+Here is an example of a dot-product word and its use:
+
+@example
+: v* ( f_addr1 nstride1 f_addr2 nstride2 ucount -- r )
+  >r swap 2swap swap 0e r> 0 ?DO
+    dup f@@ over + 2swap dup f@@ f* f+ over + 2swap
+  LOOP
+  2drop 2drop ;
+
+create v 1.23e f, 4.56e f, 7.89e f,
+
+v 1 floats  v 1 floats  3  v* f.
+@end example
+
+@quotation Assignment
+Write a program to solve a quadratic equation.  Then read @cite{Henry
+G. Baker,
+@uref{http://home.pipeline.com/~hbaker1/sigplannotices/sigcol05.ps.gz,You
+Could Learn a Lot from a Quadratic}, ACM SIGPLAN Notices,
+33(1):30@minus{}39, January 1998}, and see if you can improve your
+program.  Finally, find a test case where the original and the
+improved version produce different results.
+@end quotation
+
+Reference: @ref{Floating Point}; @ref{Floating point stack};
+@ref{Number Conversion}; @ref{Memory Access}; @ref{Address
+arithmetic}.
+
+@node Files Tutorial, Interpretation and Compilation Semantics and Immediacy Tutorial, Floating Point Tutorial, Tutorial
 @section Files
 @cindex files tutorial
 
@@ -4658,14 +4740,14 @@ r3 )}.}
 
 @cindex floating-point arithmetic, pitfalls
 Floating point numbers have a number of unpleasant surprises for the
-unwary (e.g., floating point addition is not associative) and even a few
-for the wary. You should not use them unless you know what you are doing
-or you don't care that the results you get are totally bogus. If you
-want to learn about the problems of floating point numbers (and how to
-avoid them), you might start with @cite{David Goldberg,
-@uref{http://www.validgh.com/goldberg/paper.ps,What Every Computer
-Scientist Should Know About Floating-Point Arithmetic}, ACM Computing
-Surveys 23(1):5@minus{}48, March 1991}.
+unwary (e.g., floating point addition is not associative) and even a
+few for the wary. You should not use them unless you know what you are
+doing or you don't care that the results you get are totally bogus. If
+you want to learn about the problems of floating point numbers (and
+how to avoid them), you might start with @cite{David Goldberg,
+@uref{http://docs.sun.com/source/806-3568/ncg_goldberg.html,What Every
+Computer Scientist Should Know About Floating-Point Arithmetic}, ACM
+Computing Surveys 23(1):5@minus{}48, March 1991}.
 
 
 doc-d>f
@@ -8257,7 +8339,7 @@ s" gforth" environment? [IF]
   s" 0.5.0" compare 0< [IF] \ v* is a primitive since 0.5.0
    : v* ( f_addr1 nstride1 f_addr2 nstride2 ucount -- r )
      >r swap 2swap swap 0e r> 0 ?DO
-       dup f@ over + 2swap dup f@ f* f+ over + 2swap
+       dup f@@ over + 2swap dup f@@ f* f+ over + 2swap
      LOOP
      2drop 2drop ; 
   [THEN]
