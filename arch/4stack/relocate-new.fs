@@ -1,6 +1,6 @@
 \ relocate 4stack binary
 
-\ Copyright (C) 2000 Free Software Foundation, Inc.
+\ Copyright (C) 2000,2007 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

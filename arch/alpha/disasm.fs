@@ -1,6 +1,6 @@
 \ disassembler in forth for alpha
 
-\ Copyright (C) 1999,2000 Free Software Foundation, Inc.
+\ Copyright (C) 1999,2000,2007 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

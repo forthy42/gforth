@@ -1,6 +1,6 @@
 \ BUFOUT.STR    Buffered output for Debug               13jun93jaw
 
-\ Copyright (C) 1995,1996,1997,2000,2003 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,2000,2003,2007 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

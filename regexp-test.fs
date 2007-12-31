@@ -1,6 +1,6 @@
 \ regexp test
 
-\ Copyright (C) 2005 Free Software Foundation, Inc.
+\ Copyright (C) 2005,2007 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

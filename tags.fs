@@ -1,6 +1,6 @@
 \ VI tags support for GNU Forth.
 
-\ Copyright (C) 1995,1998,2002,2003 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1998,2002,2003,2007 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

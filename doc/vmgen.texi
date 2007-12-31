@@ -10,7 +10,7 @@ This manual is for Vmgen
 (version @value{VERSION}, @value{UPDATED}),
 the virtual machine interpreter generator
 
-Copyright @copyright{} 2002,2003,2005 Free Software Foundation, Inc.
+Copyright @copyright{} 2002,2003,2005,2007 Free Software Foundation, Inc.
 
 @quotation
 Permission is granted to copy, distribute and/or modify this document
