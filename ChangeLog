@@ -7764,7 +7764,7 @@
 
 	* getopt1.c, getopt.h, getopt.c, forth.h, engine.c, ToDo, README, Makefile, INSTALL, COPYING, 386.h:
 	Updated ToDo and INSTALL; Wrote README; Lifted COPYING and getopt*
-	from other packages;  removed $Id: ChangeLog,v 1.14 2007-12-31 17:34:58 anton Exp $ lines from some files
+	from other packages;  removed $Id: ChangeLog,v 1.15 2007-12-31 18:40:23 anton Exp $ lines from some files
 
 1994-09-28  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
 
@@ -8030,7 +8030,7 @@ This file is part of Gforth.
 
 Gforth is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
+as published by the Free Software Foundation, either version 3
 of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
@@ -8039,5 +8039,4 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.#See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
+along with this program. If not, see http://www.gnu.org/licenses/.

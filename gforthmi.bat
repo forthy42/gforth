@@ -5,7 +5,7 @@ REM This file is part of Gforth.
 
 REM Gforth is free software; you can redistribute it and/or
 REM modify it under the terms of the GNU General Public License
-REM as published by the Free Software Foundation; either version 2
+REM as published by the Free Software Foundation, either version 3
 REM of the License, or (at your option) any later version.
 
 REM This program is distributed in the hope that it will be useful,
