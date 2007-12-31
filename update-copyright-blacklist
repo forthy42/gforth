@@ -12,6 +12,7 @@ os2conf.h
 elisp-comp
 fib.fs
 fsl-util.4th
+gforth-cgi.fs                 
 gforth.lsm
 glosgen.glo
 install-sh
@@ -336,7 +337,12 @@ compat/required.fs
 compat/strcomp.fs
 compat/struct.fs
 compat/vocabulary.fs
+contrib/ansi.fs               
 contrib/divspeed.fs
+contrib/serial.fs             
+contrib/strings.fs            
+contrib/syscalls386.fs        
+contrib/terminal.fs           
 doc/.cvsignore
 doc/fdl.texi
 doc/gforth.1
