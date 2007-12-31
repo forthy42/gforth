@@ -34,7 +34,9 @@ for i in `cvs -q status|grep 'Repository revision:'|sed 's|^.*/nfs/unsafe/cvs-re
 	    echo "update to  $year: $i"
 	fi
     else
-	echo "no copyright:    $i"
+        author=`cvs log -rHEAD $i|grep 'author:'|sed 's/^.*author: //'|sed 's/;.*$//'`
+        awk 'BEGIN {printf "no copyright:    %-30s %s\n","'$i'","'$author'";}'
+	#echo "no copyright:    $i"
     fi
 done
 

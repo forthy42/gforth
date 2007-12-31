@@ -366,6 +366,7 @@ test/deferred.fs
 test/gforth.out
 test/postpone.fs
 test/tester.fs
+test/ttester.fs
 vmgen-ex/fib.mini
 vmgen-ex/mini-super.vmg
 vmgen-ex/peephole-blacklist
