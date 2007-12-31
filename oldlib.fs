@@ -1,6 +1,6 @@
 \ lib.fs	shared library support package 		11may97py
 
-\ Copyright (C) 1995,1996,1997,1998,2000,2003,2005 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,2000,2003,2005,2007 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

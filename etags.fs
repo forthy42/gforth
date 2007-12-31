@@ -1,6 +1,6 @@
 \ Etags support for GNU Forth.
 
-\ Copyright (C) 1995,1998,2001,2003 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1998,2001,2003,2007 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

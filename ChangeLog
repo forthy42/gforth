@@ -7764,7 +7764,7 @@
 
 	* getopt1.c, getopt.h, getopt.c, forth.h, engine.c, ToDo, README, Makefile, INSTALL, COPYING, 386.h:
 	Updated ToDo and INSTALL; Wrote README; Lifted COPYING and getopt*
-	from other packages;  removed $Id: ChangeLog,v 1.13 2007-09-12 17:33:43 anton Exp $ lines from some files
+	from other packages;  removed $Id: ChangeLog,v 1.14 2007-12-31 17:34:58 anton Exp $ lines from some files
 
 1994-09-28  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
 
@@ -8024,7 +8024,7 @@
 	New file.
 
 -----
-Copyright (C) 2003,2006 Free Software Foundation, Inc.
+Copyright (C) 2003,2006,2007 Free Software Foundation, Inc.
 
 This file is part of Gforth.
 
