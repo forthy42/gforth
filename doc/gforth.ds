@@ -550,7 +550,7 @@ Cross Compiler
 Licenses
 
 * GNU Free Documentation License::  License for copying this manual.
-* Copying::                         GPL (for copying this software).
+* Copying::                     GPL (for copying this software).
 
 @end detailmenu
 @end menu
@@ -16156,11 +16156,15 @@ The ANS Forth standard is most usable in its
 
 @menu
 * GNU Free Documentation License::  License for copying this manual.
-* Copying::                         GPL (for copying this software).
+* Copying::                     GPL (for copying this software).
 @end menu
 
+@node GNU Free Documentation License, Copying, Licenses, Licenses
+@appendixsec GNU Free Documentation License
 @include fdl.texi
 
+@node Copying,  , GNU Free Documentation License, Licenses
+@appendixsec GNU GENERAL PUBLIC LICENSE
 @include gpl.texi
 
 
