@@ -66,6 +66,7 @@ INSTALL_INFO = @INSTALL_INFO@
 LN_S	= @LN_S@
 M4      = @M4@
 GCC	= @CC@
+BOOTFORTH	= @GFORTH@
 CC	= $(GCC)
 FORTHPATH = .$(PATHSEP)$(libdir)/gforth/site-forth$(PATHSEP)$(siteforthdir)$(PATHSEP)$(libdir)/gforth/$(VERSION)$(PATHSEP)$(datadir)/gforth/$(VERSION)
 FORTHSIZES = @FORTHSIZES@
@@ -443,6 +444,10 @@ KERN_DEPS = $(KERN_SRC) kernel/version.fs machpc.fs $(FORTH_GEN0) compat/strcomp
 DOCDIST = doc/gforth.info doc/gforth.info-* doc/gforth.ps \
 	  doc/vmgen.info doc/vmgen.ps
 
+BKERNLS = kernl16b$(EC).fi kernl16l$(EC).fi \
+	  kernl32b$(EC).fi kernl32l$(EC).fi \
+	  kernl64b$(EC).fi kernl64l$(EC).fi
+
 KERNLS = kernl16b$(EC).fi- kernl16l$(EC).fi- \
 	 kernl32b$(EC).fi- kernl32l$(EC).fi- \
 	 kernl64b$(EC).fi- kernl64l$(EC).fi-
@@ -676,6 +681,11 @@ all-bench allbench:	gforth-fast$(EC)$(EXE) gforth$(EC)$(EXE) gforth-itc$(EC)$(EX
 	./gforth --no-dynamic onebench.fs
 	./gforth-itc onebench.fs
 	./gforth-ditc onebench.fs
+
+# ------------- Bootstrapping
+bootstrap:
+	[ ! -z "${BOOTFORTH}" ] && \
+	${MAKE} BUILDFORTH="${BOOTFORTH}" FORTHP="${BOOTFORTH}" engine/prim.i ${BKERNLS}
 
 # -------------	Make forth images
 

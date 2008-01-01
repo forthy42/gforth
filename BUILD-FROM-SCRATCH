@@ -29,17 +29,15 @@
 # script takes over the whole build process and will produce the
 # kernel kernel images from the sources as well
 
-# try to guess a installed gforth
 
 if [ "$GFORTH"xx = "xx" ];
 then
-	rm -f gforth
-	GFORTH=`which gforth`
-	if [ "$GFORTH"xx = "xx" ]; then
-		echo 'BUILD-FROM-SCRATCH needs a working gforth (in environment variable GFORTH)'
-                exit 1
-        fi
-	GFORTH="$GFORTH -m4M"
+    rm -f gforth
+    GFORTH=`which gforth`
+    if [ "$GFORTH"xx = "xx" ]; then
+	echo 'BUILD-FROM-SCRATCH needs a working gforth (in environment variable GFORTH)'
+        exit 1
+    fi
 fi
 
 # makes a aclocal.m4 which includes the automake macros for autconf
@@ -59,19 +57,12 @@ echo timestamp >stamp-h.in
 
 ./configure "$@" &&
 
-# if you have specified a previous Gforth, you can safely run make now
-# with FORTHK and FORTHP changed appropriately.
-
 #a local gforth.fi probably does not work with $GFORTH
 rm -f gforth.fi &&
 
-if [ "$GFORTH"xx != "xx" ]
-then
- bootstrap=engine/prim.i" "`for x in b l; do for wid in 16 32 64; do echo kernl$wid$x.fi; done; done`
- echo 'Running: make BUILDFORTH="'$GFORTH'" FORTHP="'$GFORTH'" '$bootstrap &&
- make BUILDFORTH="$GFORTH" FORTHP="$GFORTH" engine/prim.i $bootstrap &&
- echo Running: make &&
- make &&
- make doc &&
- make more
-fi
+echo Running: make bootstrap &&
+make bootstrap &&
+echo Running: make &&
+make &&
+make doc &&
+make more

@@ -627,6 +627,14 @@ AC_SUBST(M4)
 AC_DEFINE_UNQUOTED(M4,"$M4",[How to invoke m4])
 AC_MSG_RESULT($M4)
 
+# Find installed Gforth
+AC_MSG_CHECKING([for gforth])
+GFORTH="`which gforth 2>/dev/null`"
+if test ! -z "$GFORTH"; then  GFORTH="$GFORTH -m4M" ; fi
+AC_SUBST(GFORTH)
+AC_DEFINE_UNQUOTED(GFORTH,"$GFORTH",[How to invoke gforth])
+AC_MSG_RESULT($GFORTH)
+
 echo "machine='$machine'"
 
 dnl AC_CHECK_PROG(asm_fs,asm.fs,arch/$machine/asm.fs,,$srcdir/arch/$machine)
