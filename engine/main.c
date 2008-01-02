@@ -34,6 +34,7 @@
 #include <fcntl.h>
 #include <assert.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <signal.h>
 #ifndef STANDALONE
 #if HAVE_SYS_MMAN_H
@@ -213,8 +214,7 @@ static int no_super=0;   /* true if compile_prim should not fuse prims */
 static int no_dynamic=NO_DYNAMIC_DEFAULT; /* if true, no code is generated
 					     dynamically */
 static int print_metrics=0; /* if true, print metrics on exit */
-static int static_super_number = 0; /* number of ss used if available */
-                                    /* disabled because of tpa */
+static int static_super_number = 10000; /* number of ss used if available */
 #define MAX_STATE 9 /* maximum number of states */
 static int maxstates = MAX_STATE; /* number of states for stack caching */
 static int ss_greedy = 0; /* if true: use greedy, not optimal ss selection */
@@ -881,6 +881,10 @@ static void prepare_super_table()
     }
   }
   debugp(stderr, "Using %d static superinsts\n", nsupers);
+  if (nsupers>0 && !tpa_noautomaton) {
+    debugp(stderr, "Disabling tpa-automaton, because nsupers>0.\n");
+    tpa_noautomaton = true;
+  }
 }
 
 /* dynamic replication/superinstruction stuff */
