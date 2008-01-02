@@ -113,6 +113,7 @@ XLDFLAGS = @LDFLAGS@
 LDFLAGS	=  $(DEBUGFLAG) $(XLDFLAGS)
 LDLIBS	= @LIBS@
 
+STACK_CACHE_REGS = @STACK_CACHE_REGS@
 STACK_CACHE_DEFAULT_FAST = @STACK_CACHE_DEFAULT_FAST@
 
 # ------------	Install Directories
@@ -763,8 +764,8 @@ prim.b:		prim cache0.vmg
 		$(M4) -Dcondbranch_opt=0 $(srcdir)/prim >$@
 		sleep 1 #should make hpux-workaround unnecessary
 
-prim-fast.b:	prim cache-fast$(STACK_CACHE_DEFAULT_FAST).vmg peeprules.vmg Makefile.in
-		$(M4) -Dcondbranch_opt=@condbranch_opt@ -DSTACK_CACHE_FILE=cache-fast$(STACK_CACHE_DEFAULT_FAST).vmg $(srcdir)/prim >$@
+prim-fast.b:	prim cache-fast$(STACK_CACHE_DEFAULT_FAST).vmg cache-regs$(STACK_CACHE_REGS).vmg peeprules.vmg Makefile
+		$(M4) -Dcondbranch_opt=@condbranch_opt@ -DSTACK_CACHE_FILE=cache-fast$(STACK_CACHE_DEFAULT_FAST).vmg -DSTACK_CACHE_REGS=cache-regs$(STACK_CACHE_REGS).vmg $(srcdir)/prim >$@
 		sleep 1 #should make hpux-workaround unnecessary
 
 $(FORTH_GEN_ENGINE_FAST): prim-fast.b prims2x.fs

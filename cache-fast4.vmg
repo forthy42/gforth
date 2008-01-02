@@ -55,6 +55,8 @@
 \E state S7
 \E state S8
 
+include(STACK_CACHE_REGS)
+
 \E ss0 data-stack S0 set-ss
 \E ss1 data-stack S1 set-ss
 \E ss2 data-stack S2 set-ss

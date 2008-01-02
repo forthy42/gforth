@@ -1,4 +1,4 @@
-\ stack cache setup
+\ stack cache setup: default state S1
 
 \ Copyright (C) 2003,2004,2005,2006,2007 Free Software Foundation, Inc.
 
@@ -59,12 +59,7 @@
 \E state S7
 \E state S8
 
-\E S3 state-disable
-\E S4 state-disable
-\E S5 state-disable
-\E S6 state-disable
-\E S7 state-disable
-\E S8 state-disable
+include(STACK_CACHE_REGS)
 
 \E ss0 data-stack S0 set-ss
 \E ss1 data-stack S1 set-ss
