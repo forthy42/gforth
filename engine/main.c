@@ -881,8 +881,14 @@ static void prepare_super_table()
     }
   }
   debugp(stderr, "Using %d static superinsts\n", nsupers);
-  if (nsupers>0 && !tpa_noautomaton) {
-    debugp(stderr, "Disabling tpa-automaton, because nsupers>0.\n");
+  if (nsupers>0 && !tpa_noautomaton && !tpa_noequiv) {
+    /* Currently these two things don't work together; see Section 3.2
+       of <http://www.complang.tuwien.ac.at/papers/ertl+06pldi.ps.gz>,
+       in particular Footnote 6 for the reason; hmm, we should be able
+       to use an automaton without state equivalence, but that costs
+       significant space so we only do it if the user explicitly
+       disables state equivalence. */
+    debugp(stderr, "Disabling tpa-automaton, because nsupers>0 and state equivalence is enabled.\n");
     tpa_noautomaton = true;
   }
 }
