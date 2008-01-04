@@ -19,6 +19,7 @@
 */
 
 #include "config.h"
+#include "128bit.h"
 #include <stdio.h>
 #include <sys/time.h>
 #include <unistd.h>

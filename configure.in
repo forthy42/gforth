@@ -42,16 +42,6 @@ AC_ARG_ENABLE(force-reg,
 test "$enable_force_reg" = "no"||
   AC_DEFINE(FORCE_REG,,[Define if you want to use explicit register declarations for better performance or for more convenient CODE words (does not work with all GCC versions on all machines)])
 
-AC_ARG_ENABLE(force-ll,
-	AC_HELP_STRING([--enable-force-ll],
-		       [  Use explicit long long declarations if they appear in
-			  the machine.h file. This can cause a good speedup,
-			  but also incorrect code with some gcc versions on
-			  some processors (default disabled).]),
-	,enable_force_ll=no)
-test "$enable_force_ll" = "no"||
-  AC_DEFINE(FORCE_LL,,[Define if you want to use explicit long long declarations for better performance (does not work with all GCC versions on all machines)])
-
 AC_ARG_ENABLE(force-cdiv,
 	AC_HELP_STRING([--enable-force-cdiv],
 		       [  Use the native C division - symmetric - instead of
@@ -67,8 +57,8 @@ AC_ARG_ENABLE(prof,
 			[ Build gforth-prof, which outputs frequently occuring
                           sequences of primitives.]),
 	,enable_prof=no)
-if test "$enable_prof" = "no"; then
-  PROFEXES="gforth-prof\$(EXE)"; PROFOBJS="engine-prof.o main-prof.o profile.o"
+if test "$enable_prof" != "no"; then
+  PROFEXES='gforth-prof$(OPT)$(EXE)'; PROFOBJS='engine-prof$(OPT).o main-prof$(OPT).o profile$(OPT).o'
 fi
 
 AC_ARG_WITH(debug,
@@ -78,18 +68,11 @@ AC_ARG_WITH(debug,
 			  debugging informations.],
 if test "$withval" = "yes"; then DEBUGFLAG=-g; fi)
 
-dnl PEEPHOLE="yes"
-dnl AC_ARG_WITH(peephole,
-dnl [  --with-peephole	Enable peephole optimization (default)
-dnl   --without-peephole	disables peephole optimization. Creates smaller,
-dnl 			but slower images.],
-dnl PEEPHOLE="$withval")
-
 GCC_LD="\$(GCC)"
 EC_MODE="false"
 EC=""
-engine2="engine2.o"
-engine_fast2="engine-fast2.o"
+engine2='engine2$(OPT).o'
+engine_fast2='engine-fast2$(OPT).o'
 no_dynamic=""
 image_i=""
 signals_o="io.o signals.o"
@@ -134,8 +117,6 @@ AC_ARG_VAR(ac_cv_sizeof_int, [sizeof(int)])
 AC_ARG_VAR(ac_cv_sizeof_long, [sizeof(long)])
 AC_ARG_VAR(ac_cv_sizeof_long_long, [sizeof(long long)])
 AC_ARG_VAR(ac_cv_sizeof_intptr_t, [sizeof(intptr_t)])
-AC_ARG_VAR(ac_cv_sizeof_int128_t, [sizeof(int128_t)])
-AC_ARG_VAR(ac_cv_sizeof_uint128_t, [sizeof(uint128_t)])
 AC_ARG_VAR(ac_cv_c_bigendian, [Is the target big-endian ("yes" or "no")?])
 AC_ARG_VAR(no_dynamic_default, [run gforth with --dynamic (0) or --no-dynamic (1) by default])
 AC_ARG_VAR(condbranch_opt, [enable (1) or disable (0) using two dispatches for conditional branches])
@@ -365,15 +346,6 @@ test x$GCC_PR15242_WORKAROUND = x ||
 AC_DEFINE_UNQUOTED(GCC_PR15242_WORKAROUND, $GCC_PR15242_WORKAROUND,
                    [force (1) or forbid (0) use of a workaround for a gcc performance bug])
 
-dnl AC_DEFINE(GCC_PR15242_WORKAROUND,,[Define if you want to get dynamic code
-dnl generation on gccs affected by PR15242])
-
-
-if test "${enable_force_ll+set}" = set; then
-   ac_includes_default="$ac_includes_default
-#include \"arch/generic/128bit.h\""
-fi
-
 dnl the following macro produces a warning with autoconf-2.1
 AC_CHECK_SIZEOF(char *)
 case "$ac_cv_sizeof_char_p" in
@@ -431,9 +403,6 @@ case "$ac_cv_sizeof_char_p" in
   $ac_cv_sizeof_intptr_t)
     ac_cv_int_type_cell="intptr_t"
     ;;
-  $ac_cv_sizeof_int128_t)
-    ac_cv_int_type_cell="int128_t"
-    ;;
 esac
 AC_MSG_RESULT($ac_cv_int_type_cell)
 AC_DEFINE_UNQUOTED(CELL_TYPE,$ac_cv_int_type_cell,[an integer type that is as long as a pointer])
@@ -458,9 +427,6 @@ case 2 in
     ;;
   $ac_cv_sizeof_intptr_t)
     ac_cv_wyde_type_cell="intptr_t"
-    ;;
-  $ac_cv_sizeof_int128_t)
-    ac_cv_wyde_type_cell="int128_t"
     ;;
 esac
 AC_MSG_RESULT($ac_cv_wyde_type_cell)
@@ -487,9 +453,6 @@ case 4 in
   $ac_cv_sizeof_intptr_t)
     ac_cv_tetrabyte_type_cell="intptr_t"
     ;;
-  $ac_cv_sizeof_int128_t)
-    ac_cv_tetrabyte_type_cell="int128_t"
-    ;;
 esac
 AC_MSG_RESULT($ac_cv_tetrabyte_type_cell)
 AC_DEFINE_UNQUOTED(TETRABYTE_TYPE,$ac_cv_tetrabyte_type_cell,[an integer type that is 4 bytes long])
@@ -512,7 +475,10 @@ case `expr 2 '*' "$ac_cv_sizeof_char_p"` in
   $ac_cv_sizeof_intptr_t)
     ac_cv_int_type_double_cell="intptr_t"
     ;;
-  $ac_cv_sizeof_int128_t)
+  $ac_cv_sizeof_intptr_t)
+    ac_cv_int_type_double_cell="intptr_t"
+    ;;
+  $ac_cv_sizeof_intptr_t)
     ac_cv_int_type_double_cell="int128_t"
     ;;
 esac
@@ -542,13 +508,9 @@ case `expr 2 '*' "$ac_cv_sizeof_char_p"` in
 esac
 AC_MSG_RESULT($ac_cv_int_type_double_ucell)
 
-if test "$ac_cv_int_type_double_cell" = none || \
-   test "$ac_cv_int_type_double_ucell" = none
+if test "$ac_cv_int_type_double_cell" != none && \
+   test "$ac_cv_int_type_double_ucell" != none
 then
-	AC_MSG_WARN([Emulating double-cell arithmetic. This may be slow.])
-	AC_LIBOBJ(dblsub)
-	AC_DEFINE(BUGGY_LONG_LONG,,[define this if there is no working DOUBLE_CELL_TYPE on your machine])
-else
 	AC_DEFINE_UNQUOTED(DOUBLE_CELL_TYPE,$ac_cv_int_type_double_cell,[an integer type that is twice as long as a pointer])
 	AC_DEFINE_UNQUOTED(DOUBLE_UCELL_TYPE,$ac_cv_int_type_double_ucell,[an unsigned integer type that is twice as long as a pointer])
 fi

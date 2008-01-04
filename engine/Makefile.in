@@ -75,7 +75,7 @@ man1ext= .1
 
 XCFLAGS	= @CFLAGS@
 XDEFINES = @DEFS@
-SWITCHES = $(XCFLAGS) $(XDEFINES)
+SWITCHES = $(XCFLAGS) $(XDEFINES) $(OPTDEFINES)
 #use -fno-inline to avoid register problems with asinh, atanh on gcc-3.3 on 386
 ENGINE_FLAGS = @ENGINE_FLAGS@ -fno-defer-pop -fcaller-saves -fno-inline
 DEBUGFLAG = @DEBUGFLAG@
@@ -90,17 +90,17 @@ XLDFLAGS = @LDFLAGS@
 LDFLAGS =  $(DEBUGFLAG) $(XLDFLAGS)
 LDLIBS  = @LIBS@
 
-AOBJECTS = @signals_o@ support.o @LIBOBJS@
+AOBJECTS = @signals_o@ support$(OPT).o @LIBOBJS@
 
 @MAKEINC@
 
-OBJECTS = engine.o @engine2@ main.o
-OBJECTS_NATIVE = engine-native.o engine-native2.o engine-native3.o main-native.o
-OBJECTS_FAST = engine-fast.o @engine_fast2@ main-fast.o
-OBJECTS_ITC = engine-itc.o main-itc.o
-OBJECTS_DITC = engine-ditc.o main-ditc.o
-OBJECTS_PROF = engine-prof.o main-prof.o
-OBJECTS_FI =  engine.o main-fi.o
+OBJECTS = engine$(OPT).o @engine2@ main$(OPT).o
+OBJECTS_NATIVE = engine-native$(OPT).o engine-native2$(OPT).o engine-native3$(OPT).o main-native$(OPT).o
+OBJECTS_FAST = engine-fast$(OPT).o @engine_fast2@ main-fast$(OPT).o
+OBJECTS_ITC = engine-itc$(OPT).o main-itc$(OPT).o
+OBJECTS_DITC = engine-ditc$(OPT).o main-ditc$(OPT).o
+OBJECTS_PROF = engine-prof$(OPT).o main-prof$(OPT).o
+OBJECTS_FI =  engine$(OPT).o main-fi$(OPT).o
 
 # In engine subdirectory there are (or should be) only files that belong to
 # our engine, so we can make life easy
@@ -117,7 +117,8 @@ MAIN_FAST_DEPS = main.c $(DEPS) prim_superend-fast.i prim_num-fast.i prim_grp-fa
 .s.o:
 	$(GCC) -c $(CFLAGS) $(CPPFLAGS) -o $@ $<
 
-support.o: support.c config.h forth.h longlong.h
+support$(OPT).o: support.c config.h forth.h longlong.h
+	$(GCC) -c $(CFLAGS) $(CPPFLAGS) -o $@ $<
 
 strtol.o: strtol.c ansidecl.h
 
@@ -127,85 +128,85 @@ getopt1.o: getopt1.c getopt.h
 
 getopt.o: getopt.c getopt.h
 
-gforth$(EC)$(EXE):	$(OBJECTS) $(AOBJECTS)
+gforth$(OPT)$(EC)$(EXE):	$(OBJECTS) $(AOBJECTS)
 	$(GCCLD) $(LDFLAGS) $(OBJECTS) $(AOBJECTS) $(LDLIBS) -o $@
 
-gforth-native$(EC)$(EXE):	$(OBJECTS_NATIVE) $(AOBJECTS)
+gforth-native$(OPT)$(EC)$(EXE):	$(OBJECTS_NATIVE) $(AOBJECTS)
 	$(GCCLD) $(LDFLAGS) $(OBJECTS_NATIVE) $(AOBJECTS) $(LDLIBS) -o $@
 
-gforth-fast$(EC)$(EXE):	$(OBJECTS_FAST) $(AOBJECTS)
+gforth-fast$(OPT)$(EC)$(EXE):	$(OBJECTS_FAST) $(AOBJECTS)
 	$(GCCLD) $(LDFLAGS) $(OBJECTS_FAST) $(AOBJECTS) $(LDLIBS) -o $@
 
-gforth-itc$(EC)$(EXE):	$(OBJECTS_ITC) $(AOBJECTS)
+gforth-itc$(OPT)$(EC)$(EXE):	$(OBJECTS_ITC) $(AOBJECTS)
 	$(GCCLD) $(LDFLAGS) $(OBJECTS_ITC) $(AOBJECTS) $(LDLIBS) -o $@
 
-gforth-ditc$(EC)$(EXE): $(OBJECTS_DITC) $(AOBJECTS)
+gforth-ditc$(OPT)$(EC)$(EXE): $(OBJECTS_DITC) $(AOBJECTS)
 	$(GCCLD) $(LDFLAGS) $(OBJECTS_DITC) $(AOBJECTS) $(LDLIBS) -o $@
 
-gforth-prof$(EC)$(EXE): $(OBJECTS_PROF) $(AOBJECTS) profile.o
-	$(GCCLD) $(LDFLAGS) $(OBJECTS_PROF) $(AOBJECTS) profile.o $(LDLIBS) -o $@
+gforth-prof$(OPT)$(EC)$(EXE): $(OBJECTS_PROF) $(AOBJECTS) profile$(OPT).o
+	$(GCCLD) $(LDFLAGS) $(OBJECTS_PROF) $(AOBJECTS) profile$(OPT).o $(LDLIBS) -o $@
 
-gforth-fi$(EC)$(EXE):	$(OBJECTS_FI) $(AOBJECTS)
+gforth-fi$(OPT)$(EC)$(EXE):	$(OBJECTS_FI) $(AOBJECTS)
 	$(GCCLD) $(LDFLAGS) $(OBJECTS_FI) $(AOBJECTS) $(LDLIBS) -o $@
 
 engine.s:	$(ENGINE_FAST_DEPS)
 		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -S $(srcdir)/engine.c
 
-engine.o:	$(ENGINE_DEPS)
+engine$(OPT).o:	$(ENGINE_DEPS)
 		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -DGFORTH_DEBUGGING -o $@ -c $(srcdir)/engine.c
 
-engine2.o:	$(ENGINE_DEPS)
+engine2$(OPT).o:	$(ENGINE_DEPS)
 		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -DGFORTH_DEBUGGING -DENGINE=2 -o $@ -c $(srcdir)/engine.c
 
-engine-native.o:$(ENGINE_FAST_DEPS)
+engine-native$(OPT).o:$(ENGINE_FAST_DEPS)
 		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -DNO_IP -o $@ -c $(srcdir)/engine.c
 
-engine-native2.o:$(ENGINE_FAST_DEPS)
+engine-native2$(OPT).o:$(ENGINE_FAST_DEPS)
 		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -DNO_IP -DENGINE=2 -o $@ -c $(srcdir)/engine.c
 
-engine-native3.o:$(ENGINE_FAST_DEPS)
+engine-native3$(OPT).o:$(ENGINE_FAST_DEPS)
 		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -DNO_IP -DENGINE=3 -o $@ -c $(srcdir)/engine.c
 
-engine-fast.o:	$(ENGINE_FAST_DEPS)
+engine-fast$(OPT).o:	$(ENGINE_FAST_DEPS)
 		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -o $@ -c $(srcdir)/engine.c
 
-engine-fast2.o:	$(ENGINE_FAST_DEPS)
+engine-fast2$(OPT).o:	$(ENGINE_FAST_DEPS)
 		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -DENGINE=2 -o $@ -c $(srcdir)/engine.c
 
-engine-itc.o:	$(ENGINE_DEPS)
+engine-itc$(OPT).o:	$(ENGINE_DEPS)
 		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -DINDIRECT_THREADED -DGFORTH_DEBUGGING -o $@ -c $(srcdir)/engine.c
 
-engine-ditc.o:	$(ENGINE_DEPS)
+engine-ditc$(OPT).o:	$(ENGINE_DEPS)
 		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -DDOUBLY_INDIRECT -o $@ -c $(srcdir)/engine.c
 
-engine-prof.o:	$(ENGINE_DEPS)
+engine-prof$(OPT).o:	$(ENGINE_DEPS)
 		$(GCC) $(CFLAGS2) $(ENGINE_FLAGS) -DVM_PROFILING -o $@ -c $(srcdir)/engine.c
 
-main.o:		$(MAIN_DEPS) 
+main$(OPT).o:		$(MAIN_DEPS) 
 		$(GCC) $(CFLAGS) -DGFORTH_DEBUGGING @no_dynamic@ -o $@ -c $(srcdir)/main.c
 
-main-native.o:	$(MAIN_FAST_DEPS) 
+main-native$(OPT).o:	$(MAIN_FAST_DEPS) 
 		$(GCC) $(CFLAGS) -DNO_IP -o $@ -c $(srcdir)/main.c
 
-main-fast.o:	$(MAIN_FAST_DEPS) 
+main-fast$(OPT).o:	$(MAIN_FAST_DEPS) 
 		$(GCC) $(CFLAGS) -o $@ -c $(srcdir)/main.c
 
-main-itc.o:	$(MAIN_DEPS) 
+main-itc$(OPT).o:	$(MAIN_DEPS) 
 		$(GCC) $(CFLAGS) -DINDIRECT_THREADED -DGFORTH_DEBUGGING -o $@ -c $(srcdir)/main.c
 
-main-ditc.o:	$(MAIN_DEPS)
+main-ditc$(OPT).o:	$(MAIN_DEPS)
 		$(GCC) $(CFLAGS) -DDOUBLY_INDIRECT -o $@ -c $(srcdir)/main.c
 
-main-prof.o:	$(MAIN_DEPS)
+main-prof$(OPT).o:	$(MAIN_DEPS)
 		$(GCC) $(CFLAGS) -DVM_PROFILING -o $@ -c $(srcdir)/main.c
 
-main-fi.o:	$(MAIN_DEPS)
+main-fi$(OPT).o:	$(MAIN_DEPS)
 		$(GCC) $(CFLAGS) -DINCLUDE_IMAGE -o $@ -c $(srcdir)/main.c
 
-peephole.o:	peephole.c peephole.i $(DEPS)
+peephole$(OPT).o:	peephole.c peephole.i $(DEPS)
 		$(GCC) $(CFLAGS) -o $@ -c $(srcdir)/peephole.c
 
-profile.o:	profile.c profile.i $(DEPS)
+profile$(OPT).o:	profile.c profile.i $(DEPS)
 		$(GCC) $(CFLAGS) -o $@ -c $(srcdir)/profile.c
 
 #The next two rules seem to be superfluous:
@@ -216,8 +217,8 @@ profile.o:	profile.c profile.i $(DEPS)
 
 #NeXTstep hack
 
-termios.o:	/usr/lib/libposix.a
-	ar x /usr/lib/libposix.a termios.o
+termios$(OPT).o:	/usr/lib/libposix.a
+	ar x /usr/lib/libposix.a termios$(OPT).o
 
 #duplicated rules to avoid too many recursive make invocations
 # !! No any forth stuff should be done in ../Makefile.

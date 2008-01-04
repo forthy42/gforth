@@ -38,7 +38,6 @@
 #define BUGGY_LL_F2D    /* from float not possible */
 #define BUGGY_LL_SIZE   /* long long "too short", so we use something else */
 
-#include "../generic/128bit.h"
 #endif
 
 #define ASM_SM_SLASH_REM(d1lo, d1hi, n1, n2, n3) \
