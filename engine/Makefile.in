@@ -90,7 +90,7 @@ XLDFLAGS = @LDFLAGS@
 LDFLAGS =  $(DEBUGFLAG) $(XLDFLAGS)
 LDLIBS  = @LIBS@
 
-AOBJECTS = @signals_o@ support$(OPT).o @LIBOBJS@
+AOBJECTS = @signals_o@ support$(OPT).o @LIBOBJS@ $(OPTOBJECTS)
 
 @MAKEINC@
 
