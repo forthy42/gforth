@@ -475,10 +475,7 @@ case `expr 2 '*' "$ac_cv_sizeof_char_p"` in
   $ac_cv_sizeof_intptr_t)
     ac_cv_int_type_double_cell="intptr_t"
     ;;
-  $ac_cv_sizeof_intptr_t)
-    ac_cv_int_type_double_cell="intptr_t"
-    ;;
-  $ac_cv_sizeof_intptr_t)
+  $ac_cv_sizeof_int128_t)
     ac_cv_int_type_double_cell="int128_t"
     ;;
 esac

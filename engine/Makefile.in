@@ -217,8 +217,8 @@ profile$(OPT).o:	profile.c profile.i $(DEPS)
 
 #NeXTstep hack
 
-termios$(OPT).o:	/usr/lib/libposix.a
-	ar x /usr/lib/libposix.a termios$(OPT).o
+termios.o:	/usr/lib/libposix.a
+	ar x /usr/lib/libposix.a termios.o
 
 #duplicated rules to avoid too many recursive make invocations
 # !! No any forth stuff should be done in ../Makefile.
