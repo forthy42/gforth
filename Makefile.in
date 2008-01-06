@@ -420,6 +420,11 @@ ENGINES = gforth$(OPT)$(EC)$(EXE) gforth-ditc$(OPT)$(EC)$(EXE) gforth-itc$(OPT)$
 
 ENGINES_FAST = gforth-fast$(OPT)$(EC)$(EXE) #gforth-native$(EXE) 
 
+#names of engines without $(OPT) etc.
+ENGINES_BASE = gforth gforth-ditc gforth-itc gforth-fast
+# !! should include PROFEXES
+
+
 GEN = $(ENGINES) $(ENGINES_FAST) kernel/version.fs gforth.elc
 
 # things that need a working forth system to be generated
@@ -462,8 +467,23 @@ GEN_PRECIOUS = $(FORTH_GEN) $(KERNLS) \
 .SUFFIXES:
 .SUFFIXES: .c .o
 
+OPTS = -ll -noll
 
-all:	kernel/version.fs more
+MAKELINE-ll   = OPT=-ll OPTDEFINES=-DFORCE_LL OPTOBJECTS=
+MAKELINE-noll = OPT=-noll OPTDEFINES= OPTOBJECTS=dblsub.o
+
+all:
+	if test -z "$(OPT)"; then \
+		for i in $(OPTS); do make optall OPT=$$i && break; done \
+	else \
+		make allbut1; \
+	fi
+
+allbut1: kernel/version.fs more
+
+optall:
+	make $(MAKELINE$(OPT))
+
 
 # use this dependency for phony targets just as mostlyclean,...
 FORCE: ;
@@ -483,6 +503,7 @@ kernel/version.fs:	version
 more:	engines $(FORTH_GEN) $(GEN)
 	@make check
 	@$(FORTH_FAST) --diag -e bye
+	test -z "$(OPT)" || for i in $(ENGINES_BASE); do $(CP) $${i}$(OPT)$(EC)$(EXE) $${i}$(EC)$(EXE); done
 
 #from the gcc Makefile: 
 #"Deletion of files made during compilation.
@@ -819,7 +840,7 @@ gforth-prof$(OPT)$(EC)$(EXE):	engines
 gforths: $(ENGINES) $(ENGINES_FAST)
 
 engines:	FORCE $(FORTH_GEN_ENGINE) engine/Makefile engine/config.h
-		cd engine && $(MAKE) $(ENGINES)
+		cd engine && $(MAKE) $(ENGINES) \
 
 engines-fast:	FORCE $(FORTH_GEN_ENGINE_FAST) engine/Makefile engine/config.h
 		cd engine && $(MAKE) $(ENGINES_FAST)
