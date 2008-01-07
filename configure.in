@@ -510,7 +510,15 @@ if test "$ac_cv_int_type_double_cell" != none && \
 then
 	AC_DEFINE_UNQUOTED(DOUBLE_CELL_TYPE,$ac_cv_int_type_double_cell,[an integer type that is twice as long as a pointer])
 	AC_DEFINE_UNQUOTED(DOUBLE_UCELL_TYPE,$ac_cv_int_type_double_ucell,[an unsigned integer type that is twice as long as a pointer])
+        OPTS=-ll
+else
+        if test "$ac_cv_sizeof_char_p" == 8; then
+           OPTS="-ll -no-ll"
+        else
+           OPTS=-noll
+        fi
 fi
+AC_SUBST(OPTS)
 
 AC_TYPE_OFF_T
 AC_CHECK_SIZEOF(off_t)
