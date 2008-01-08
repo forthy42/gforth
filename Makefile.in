@@ -469,8 +469,10 @@ GEN_PRECIOUS = $(FORTH_GEN) $(KERNLS) \
 
 OPTS = @OPTS@
 
-MAKELINE-ll   = OPT=-ll OPTDEFINES=-DFORCE_LL OPTOBJECTS=
-MAKELINE-noll = OPT=-noll OPTDEFINES= OPTOBJECTS=dblsub.o
+MAKELINE-ll-reg   = OPT=-ll-reg OPTDEFINES="-DFORCE_LL -DFORCE_REG" OPTOBJECTS=
+MAKELINE-noll-reg = OPT=-noll-reg OPTDEFINES=-DFORCE_REG OPTOBJECTS=dblsub.o
+MAKELINE-ll       = OPT=-ll OPTDEFINES=-DFORCE_LL OPTOBJECTS=
+MAKELINE-noll     = OPT=-noll OPTDEFINES= OPTOBJECTS=dblsub.o
 
 all:
 	if test -z "$(OPT)"; then \
@@ -696,7 +698,7 @@ bench:		gforth-fast$(OPT)$(EC)$(EXE) gforth.fi
 onebench one-bench:
 	$(FORTH_FAST) onebench.fs
 
-all-bench allbench:	gforth-fast$(OPT)$(EC)$(EXE) gforth$(OPT)$(EC)$(EXE) gforth-itc$(OPT)$(EC)$(EXE) gforth-ditc$(OPT)$(EC)$(EXE) gforth.fi
+all-bench allbench:
 	./gforth-fast --dynamic onebench.fs
 	./gforth-fast --no-dynamic onebench.fs
 	./gforth --dynamic onebench.fs

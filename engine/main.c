@@ -2264,18 +2264,6 @@ static void print_diag()
 #ifndef FORCE_REG
 	    "    automatic register allocation: performance degradation possible\n"
 #endif
-#if !defined(FORCE_REG) || defined(BUGGY_LONG_LONG)
-	    "*** Suggested remedy: try ./configure"
-#ifndef FORCE_REG
-	    " --enable-force-reg"
-#endif
-#ifdef BUGGY_LONG_LONG
-	    " --enable-force-ll"
-#endif
-	    "\n"
-#else
-	    ""
-#endif
 	    ,
 	    (relocs < nonrelocs) ? "    gcc PR 15242 -> no dynamic code generation (use gcc-2.95 instead)\n" : "");
 }
