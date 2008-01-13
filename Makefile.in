@@ -416,14 +416,9 @@ SOURCES	= $(CVSDIRS) compat Makefile.in Makedist.in engine/Makefile.in \
 
 RCS_FILES =  ToDo model high-level
 
-ENGINES = gforth$(OPT)$(EC)$(EXE) gforth-ditc$(OPT)$(EC)$(EXE) gforth-itc$(OPT)$(EC)$(EXE) $(PROFEXES)
+ENGINES = gforth$(OPT)$(EC)$(EXE) gforth-ditc$(EC)$(EXE) gforth-itc$(EC)$(EXE) $(PROFEXES)
 
-ENGINES_FAST = gforth-fast$(OPT)$(EC)$(EXE) #gforth-native$(EXE) 
-
-#names of engines without $(OPT) etc.
-ENGINES_BASE = gforth gforth-ditc gforth-itc gforth-fast
-# !! should include PROFEXES
-
+ENGINES_FAST = gforth-fast$(OPT)$(EC)$(EXE) #gforth-native$(OPT)$(EC)$(EXE) 
 
 GEN = $(ENGINES) $(ENGINES_FAST) kernel/version.fs gforth.elc
 
@@ -467,25 +462,7 @@ GEN_PRECIOUS = $(FORTH_GEN) $(KERNLS) \
 .SUFFIXES:
 .SUFFIXES: .c .o
 
-OPTS = @OPTS@
-
-MAKELINE-ll-reg   = OPT=-ll-reg OPTDEFINES="-DFORCE_LL -DFORCE_REG" OPTOBJECTS=
-MAKELINE-noll-reg = OPT=-noll-reg OPTDEFINES=-DFORCE_REG OPTOBJECTS=dblsub.o
-MAKELINE-ll       = OPT=-ll OPTDEFINES=-DFORCE_LL OPTOBJECTS=
-MAKELINE-noll     = OPT=-noll OPTDEFINES= OPTOBJECTS=dblsub.o
-
-all:
-	if test -z "$(OPT)"; then \
-		for i in $(OPTS); do make optall OPT=$$i && break; done \
-	else \
-		make allbut1; \
-	fi
-
-allbut1: kernel/version.fs more
-
-optall:
-	make $(MAKELINE$(OPT))
-
+all: kernel/version.fs more
 
 # use this dependency for phony targets just as mostlyclean,...
 FORCE: ;
@@ -502,10 +479,9 @@ version:	Makefile.in configure.in
 kernel/version.fs:	version
 	echo ": version-string s\" $(VERSION)\" ;" > kernel/version.fs
 
-more:	engines $(FORTH_GEN) $(GEN)
+more:	$(ENGINES) $(FORTH_GEN) $(GEN)
 	@make check
 	@$(FORTH_FAST) --diag -e bye
-	test -z "$(OPT)" || for i in $(ENGINES_BASE); do $(CP) $${i}$(OPT)$(EC)$(EXE) $${i}$(EC)$(EXE); done
 
 #from the gcc Makefile: 
 #"Deletion of files made during compilation.
@@ -669,7 +645,7 @@ check:		gforths	gforth.fi
 		$(MAKE) checkone ENGINE="./gforth-fast$(OPT)" >/dev/null 2>&1
 		@echo "*** Check successful ***"
 
-checkone test:	gforth$(OPT)$(EC)$(EXE) gforth.fi engine/prim-s.i
+checkone test: gforth.fi engine/prim-s.i
 		$(FORTH) test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs test/string.fs test/float.fs test/deferred.fs test/coreext.fs test/search.fs -e bye 2>&1 | tr -d '\015' | diff -c - $(srcdir)/test/coretest.out
 		$(FORTH) test/other.fs -e bye
 		$(FORTHS) test/signals.fs -e bye
@@ -679,7 +655,7 @@ checkone test:	gforth$(OPT)$(EC)$(EXE) gforth.fi engine/prim-s.i
 		  "c-flag on s\" prim.i\" out-filename 2! s\" $(srcdir)/prim.b\" ' output-c ' output-c-combined process-file bye"| \
 		  tr -d '\015' | grep -v '^#line '|diff -c - engine/prim-s.i
 
-check-nofast: gforth$(OPT)$(EC)$(EXE) gforth.fi
+check-nofast: gforth.fi
 		$(FORTHS) test/gforth-nofast.fs -e bye
 
 test/primtest.fi: test/primtest.fs mach32l.fs cross.fs
@@ -778,7 +754,7 @@ kernl64l$(EC).fi:	$(KERNLS)
 #		-$(CP) $@ $@~
 #		-$(CP) $< $@
 
-gforth.fi:	$(kernel_fi) gforthmi gforth$(OPT)$(EC)$(EXE) gforth-ditc$(OPT)$(EC)$(EXE) $(GFORTH_FI_SRC) comp-i.fs
+gforth.fi:	$(kernel_fi) gforthmi gforth-ditc$(OPT)$(EC)$(EXE) $(GFORTH_FI_SRC) comp-i.fs
 		GFORTHD="./gforth-ditc$(OPT) -p .$(PATHSEP)$(srcdir)" GFORTH="./gforth-ditc$(OPT) --die-on-signal -p .$(PATHSEP)$(srcdir) -i $(kernel_fi) $(STARTUP)" includedir=`pwd`/include bindir=`pwd` ./gforthmi gforth.fi $(FORTHSIZES) $(FORTHKFLAGS) $(STARTUP)
 
 # -------------	Make c-engine
@@ -812,40 +788,66 @@ kernel/prim.fs:	prim.b prims2x.fs kernel/prim0.fs
 		$(CP) $@- $@
 		$(RM) $@-
 
-gforth$(OPT)$(EC)$(EXE):		engines
-		-$(CP) gforth$(OPT)$(EC)$(EXE) gforth~
-		$(CP) engine/$@ $@
-		-$(MASSAGE_EXE) $@
-		@GFORTH_EXE@
 
-gforth-fast$(OPT)$(EC)$(EXE):	engines-fast
-		$(CP) engine/$@ $@
-		-$(MASSAGE_EXE) $@
-		@GFORTHFAST_EXE@
+OPTS = @OPTS@
+
+MAKELINE-ll-reg   = OPT=-ll-reg OPTDEFINES="-DFORCE_LL -DFORCE_REG" OPTOBJECTS=
+MAKELINE-noll-reg = OPT=-noll-reg OPTDEFINES=-DFORCE_REG OPTOBJECTS=dblsub.o
+MAKELINE-ll       = OPT=-ll OPTDEFINES=-DFORCE_LL OPTOBJECTS=
+MAKELINE-noll     = OPT=-noll OPTDEFINES= OPTOBJECTS=dblsub.o
+
+gforth$(OPT)$(EC)$(EXE): $(FORTH_GEN_ENGINE) engine/config.h
+	if test -z "$(OPT)"; then \
+		echo then-branch; \
+		for i in $(OPTS); do make optgforth OPT=$$i && $(CP) gforth$${i}$(EC)$(EXE) $@ && break; done; \
+	else \
+		echo else-branch1 && \
+		( cd engine && $(MAKE) $@ ) && \
+		echo else-branch2 && \
+		make checkone check-nofast ENGINE=./engine/$@ && \
+		$(CP) gforth$(OPT)$(EC)$(EXE) gforth~; \
+		$(CP) engine/$@ $@ && \
+		$(MASSAGE_EXE) $@; \
+		@GFORTH_EXE@; \
+	fi
+
+optgforth:
+	make gforth$(OPT)$(EC)$(EXE) $(MAKELINE$(OPT))
+
+gforth-fast$(OPT)$(EC)$(EXE): $(FORTH_GEN_ENGINE_FAST) engine/config.h
+	if test -z "$(OPT)"; then \
+		for i in $(OPTS); do make optgforth-fast OPT=$$i && $(CP) gforth-fast$${i}$(EC)$(EXE) $@ && break; done; \
+	else \
+		( cd engine && $(MAKE) $@ ) && \
+		make checkone ENGINE=./engine/$@ && \
+		$(CP) engine/$@ $@ && \
+		$(MASSAGE_EXE) $@; \
+		@GFORTHFAST_EXE@; \
+	fi
+
+optgforth-fast:
+	make gforth-fast$(OPT)$(EC)$(EXE) $(MAKELINE$(OPT))
 
 gforth-native$(OPT)$(EC)$(EXE):	engines-fast
 		$(CP) engine/$@ $@
 		-$(MASSAGE_EXE) $@
 #@GFORTHX_EXE@
 
-gforth-itc$(OPT)$(EC)$(EXE):	engines
-		$(CP) engine/$@ $@
+gforth-itc$(EC)$(EXE): $(FORTH_GEN_ENGINE) engine/Makefile engine/config.h
+		cd engine && $(MAKE) gforth-itc-noll$(EC)$(EXE) $(MAKELINE-noll)
+		$(CP) engine/gforth-itc-noll$(EC)$(EXE) $@
 		@GFORTHITC_EXE@
 
-gforth-ditc$(OPT)$(EC)$(EXE):	engines
-		$(CP) engine/$@ $@
+gforth-ditc$(EC)$(EXE): $(FORTH_GEN_ENGINE) engine/Makefile engine/config.h
+		cd engine && $(MAKE) gforth-ditc-noll$(EC)$(EXE) $(MAKELINE-noll)
+		$(CP) engine/gforth-ditc-noll$(EC)$(EXE) $@
 		@GFORTHDITC_EXE@
 
-gforth-prof$(OPT)$(EC)$(EXE):	engines
-		$(CP) engine/$@ $@
+gforth-prof$(EC)$(EXE): $(FORTH_GEN_ENGINE) engine/Makefile engine/config.h
+		cd engine && $(MAKE) gforth-prof-noll$(EC)$(EXE) $(MAKELINE-noll)
+		$(CP) engine/gforth-prof-noll$(EC)$(EXE) $@
 
 gforths: $(ENGINES) $(ENGINES_FAST)
-
-engines:	FORCE $(FORTH_GEN_ENGINE) engine/Makefile engine/config.h
-		cd engine && $(MAKE) $(ENGINES) \
-
-engines-fast:	FORCE $(FORTH_GEN_ENGINE_FAST) engine/Makefile engine/config.h
-		cd engine && $(MAKE) $(ENGINES_FAST)
 
 # ------------- additional C primitives
 

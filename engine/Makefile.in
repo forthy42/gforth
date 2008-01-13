@@ -241,6 +241,9 @@ stamp-h:	config.h.in ../config.status ../stamp-h.in
 		cd .. && CONFIG_FILES=$@ CONFIG_HEADERS=engine/config.h ./config.status
 		echo timestamp > stamp-h
 
+Makefile: Makefile.in ../config.status ../configure.in
+	cd .. && make engine/Makefile.in
+
 image.i:	../fi2c.fs ../$(include_fi)
 		$(FORTH) fi2c.fs -e "s\" ../$(include_fi)\" fi2c bye" >$@
 
