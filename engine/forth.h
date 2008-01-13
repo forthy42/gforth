@@ -355,7 +355,7 @@ extern saved_regs saved_regs_v, *saved_regs_p;
 #define saved_ip (saved_regs_p->sr_saved_ip)
 #define rp       (saved_regs_p->sr_rp)
 /* for use in gforth_engine header */
-#define sr_proto , struct saved_regs *saved_regs_p
+#define sr_proto , struct saved_regs *saved_regs_p0
 #define sr_call  , saved_regs_p
 #else /* !defined(GLOBALS_NONRELOC) */
 extern Xt *saved_ip;

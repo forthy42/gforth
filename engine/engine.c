@@ -317,9 +317,13 @@ Label *gforth_engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0 sr_p
    returns array of machine code labels (for use in a loader), if ip==NULL
 */
 {
-#ifndef GFORTH_DEBUGGING
+#if defined(GFORTH_DEBUGGING)
+#if defined(GLOBALS_NONRELOC)
+  register saved_regs *saved_regs_p TOSREG = saved_regs_p0;
+#endif /* defined(GLOBALS_NONRELOC) */
+#else /* !defined(GFORTH_DEBUGGING) */
   register Cell *rp RPREG;
-#endif
+#endif /* !defined(GFORTH_DEBUGGING) */
 #ifndef NO_IP
   register Xt *ip IPREG = ip0;
 #endif
@@ -346,6 +350,7 @@ Label *gforth_engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0 sr_p
   extern void ffi_callback(ffi_cif * cif, void * resp, void ** args, Xt * ip);
 #endif
   register Address up UPREG = gforth_UP;
+#if !defined(GFORTH_DEBUGGING)
   register Cell MAYBE_UNUSED spTOS TOSREG;
   register Cell MAYBE_UNUSED spb spbREG;
   register Cell MAYBE_UNUSED spc spcREG;
@@ -355,6 +360,7 @@ Label *gforth_engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0 sr_p
   register Cell MAYBE_UNUSED spg speREG;
   register Cell MAYBE_UNUSED sph speREG;
   IF_fpTOS(register Float fpTOS FTOSREG;)
+#endif /* !defined(GFORTH_DEBUGGING) */
 #if defined(DOUBLY_INDIRECT)
   static Label *symbols;
   static void *routines[]= {
