@@ -513,11 +513,12 @@ docclean:	FORCE
 		doc/gforth.toc doc/gforth.tp doc/gforth.vr html
 
 clean:		mostlyclean
-		-$(RM) -rf $(GEN) *.o engine/*.o arch/*/*.o version \
-		engine/gforth$(OPT)$(EC)$(EXE) engine/gforth-fast$(OPT)$(EC)$(EXE) \
-                engine/gforth-native$(OPT)$(EC)$(EXE) engine/gforth-itc$(OPT)$(EC)$(EXE) \
-		engine/gforth-ditc$(OPT)$(EC)$(EXE) engine/gforth-prof$(OPT)$(EC)$(EXE) \
-		engine/prim-s.i
+	-$(RM) -rf $(GEN) *.o engine/*.o arch/*/*.o version \
+	gforth-itc-noll$(EC)$(EXE)  engine/gforth-itc-noll$(EC)$(EXE)  \
+	gforth-ditc-noll$(EC)$(EXE) engine/gforth-ditc-noll$(EC)$(EXE) \
+	gforth-prof-noll$(EC)$(EXE) engine/gforth-prof-noll$(EC)$(EXE) \
+	engine/prim-s.i
+	for i in gforth gforth-fast gforth-native; do for j in $(OPTS); do rm -f engine/$$i$${j}$(EC)$(EXE) $$i$${j}$(EC)$(EXE); done; done
 
 distclean:	clean
 		-$(RM) -rf config.cache config.log config.status \
@@ -798,17 +799,14 @@ MAKELINE-noll     = OPT=-noll OPTDEFINES= OPTOBJECTS=dblsub.o
 
 gforth$(OPT)$(EC)$(EXE): $(FORTH_GEN_ENGINE) engine/config.h
 	if test -z "$(OPT)"; then \
-		echo then-branch; \
 		for i in $(OPTS); do make optgforth OPT=$$i && $(CP) gforth$${i}$(EC)$(EXE) $@ && break; done; \
 	else \
-		echo else-branch1 && \
 		( cd engine && $(MAKE) $@ ) && \
-		echo else-branch2 && \
-		make checkone check-nofast ENGINE=./engine/$@ && \
 		$(CP) gforth$(OPT)$(EC)$(EXE) gforth~; \
 		$(CP) engine/$@ $@ && \
 		$(MASSAGE_EXE) $@; \
 		@GFORTH_EXE@; \
+		make checkone check-nofast ENGINE=./engine/$@; \
 	fi
 
 optgforth:
@@ -819,10 +817,10 @@ gforth-fast$(OPT)$(EC)$(EXE): $(FORTH_GEN_ENGINE_FAST) engine/config.h
 		for i in $(OPTS); do make optgforth-fast OPT=$$i && $(CP) gforth-fast$${i}$(EC)$(EXE) $@ && break; done; \
 	else \
 		( cd engine && $(MAKE) $@ ) && \
-		make checkone ENGINE=./engine/$@ && \
 		$(CP) engine/$@ $@ && \
 		$(MASSAGE_EXE) $@; \
 		@GFORTHFAST_EXE@; \
+		make checkone ENGINE=./engine/$@; \
 	fi
 
 optgforth-fast:
