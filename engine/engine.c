@@ -312,7 +312,7 @@ void throw(int code)
 /* the asm(""); is there to get a stop compiled on Itanium */
 #define LABEL2(name) K_##name: asm("");
 
-Label *gforth_engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0)
+Label *gforth_engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0 sr_proto)
 /* executes code at ip, if ip!=NULL
    returns array of machine code labels (for use in a loader), if ip==NULL
 */

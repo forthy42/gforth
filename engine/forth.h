@@ -343,9 +343,34 @@ struct Cellquad {
 
 #define IOR(flag)	((flag)? -512-errno : 0)
 
-Label *gforth_engine(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp);
-Label *gforth_engine2(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp);
-Label *gforth_engine3(Xt *ip, Cell *sp, Cell *rp, Float *fp, Address lp);
+#ifdef GFORTH_DEBUGGING
+#if defined(GLOBALS_NONRELOC)
+/* if globals cause non-relocatable primitives, keep saved_ip and rp
+   in a structure and access it through locals */
+typedef struct saved_regs {
+  Xt *sr_saved_ip;
+  Cell *sr_rp;
+} saved_regs;
+extern saved_regs saved_regs_v, *saved_regs_p;
+#define saved_ip (saved_regs_p->sr_saved_ip)
+#define rp       (saved_regs_p->sr_rp)
+/* for use in gforth_engine header */
+#define sr_proto , struct saved_regs *saved_regs_p
+#define sr_call  , saved_regs_p
+#else /* !defined(GLOBALS_NONRELOC) */
+extern Xt *saved_ip;
+extern Cell *rp;
+#define sr_proto
+#define sr_call
+#endif /* !defined(GLOBALS_NONRELOC) */
+#else /* !defined(GFORTH_DEBUGGING) */
+#define sr_proto
+#define sr_call
+#endif /* !defined(GFORTH_DEBUGGING) */
+
+Label *gforth_engine(Xt *ip, Cell *sp, Cell *rp0, Float *fp, Address lp sr_proto);
+Label *gforth_engine2(Xt *ip, Cell *sp, Cell *rp0, Float *fp, Address lp sr_proto);
+Label *gforth_engine3(Xt *ip, Cell *sp, Cell *rp0, Float *fp, Address lp sr_proto);
 
 /* engine/prim support routines */
 Address gforth_alloc(Cell size);
@@ -364,7 +389,7 @@ struct Cellpair parse_white(Char *c_addr1, UCell u1);
 Cell rename_file(Char *c_addr1, UCell u1, Char *c_addr2, UCell u2);
 struct Cellquad read_line(Char *c_addr, UCell u1, Cell wfileid);
 struct Cellpair file_status(Char *c_addr, UCell u);
-Cell to_float(Char *c_addr, UCell u, Float *rp);
+Cell to_float(Char *c_addr, UCell u, Float *r_p);
 Float v_star(Float *f_addr1, Cell nstride1, Float *f_addr2, Cell nstride2, UCell ucount);
 void faxpy(Float ra, Float *f_x, Cell nstridex, Float *f_y, Cell nstridey, UCell ucount);
 UCell lshift(UCell u1, UCell n);
@@ -432,11 +457,6 @@ extern Cell *gforth_RP;
 extern Address gforth_LP;
 #include <ffi.h>
 extern void gforth_callback(ffi_cif * cif, void * resp, void ** args, void * ip);
-#endif
-
-#ifdef GFORTH_DEBUGGING
-extern Xt *saved_ip;
-extern Cell *rp;
 #endif
 
 #ifdef NO_IP

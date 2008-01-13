@@ -82,7 +82,7 @@ void gforth_callback(Xt* fcall, void * alist)
 
   gforth_clist = (va_alist)alist;
 
-  gforth_engine(fcall, sp, rp, fp, lp);
+  gforth_engine(fcall, sp, rp, fp, lp sr_call);
 
   /* restore global variables */
   gforth_RP = rp;
@@ -104,7 +104,7 @@ void * gforth_ritem;
 
 void gforth_callback(ffi_cif * cif, void * resp, void ** args, void * ip)
 {
-  Cell *rp = gforth_RP;
+  Cell *rp1 = gforth_RP;
   Cell *sp = gforth_SP;
   Float *fp = gforth_FP;
   Address lp = gforth_LP;
@@ -114,10 +114,10 @@ void gforth_callback(ffi_cif * cif, void * resp, void ** args, void * ip)
   gforth_clist = args;
   gforth_ritem = resp;
 
-  gforth_engine((Xt *)ip, sp, rp, fp, lp);
+  gforth_engine((Xt *)ip, sp, rp1, fp, lp sr_call);
 
   /* restore global variables */
-  gforth_RP = rp;
+  gforth_RP = rp1;
   gforth_SP = sp;
   gforth_FP = fp;
   gforth_LP = lp;
@@ -130,9 +130,14 @@ void gforth_callback(ffi_cif * cif, void * resp, void ** args, void * ip)
 /* define some VM registers as global variables, so they survive exceptions;
    global register variables are not up to the task (according to the 
    GNU C manual) */
+#if defined(GLOBALS_NONRELOC)
+saved_regs saved_regs_v;
+saved_regs *saved_regs_p = &saved_regs_v;
+#else /* !defined(GLOBALS_NONRELOC) */
 Xt *saved_ip;
 Cell *rp;
-#endif
+#endif /* !defined(GLOBALS_NONRELOC) */
+#endif /* !defined(GFORTH_DEBUGGING) */
 
 #ifdef NO_IP
 Label next_code;
@@ -759,11 +764,11 @@ int gforth_go(Address image, int stack, Cell *entries)
     /* fprintf(stderr, "rp=$%x\n",rp0);*/
     
     return((int)(Cell)gforth_engine(image_header->throw_entry, signal_data_stack+15,
-		       rp0, signal_fp_stack, 0));
+		       rp0, signal_fp_stack, 0 sr_call));
   }
 #endif
 
-  return((int)(Cell)gforth_engine(ip0,sp0,rp0,fp0,lp0));
+  return((int)(Cell)gforth_engine(ip0,sp0,rp0,fp0,lp0 sr_call));
 }
 
 #if !defined(INCLUDE_IMAGE) && !defined(STANDALONE)
@@ -970,9 +975,9 @@ static void check_prims(Label symbols1[])
 #ifndef NO_DYNAMIC
   if (no_dynamic)
     return;
-  symbols2=gforth_engine2(0,0,0,0,0);
+  symbols2=gforth_engine2(0,0,0,0,0 sr_call);
 #if NO_IP
-  symbols3=gforth_engine3(0,0,0,0,0);
+  symbols3=gforth_engine3(0,0,0,0,0 sr_call);
 #else
   symbols3=symbols1;
 #endif
@@ -1868,7 +1873,7 @@ Address gforth_loader(FILE *imagefile, char* filename)
 #endif
     ;
 
-  vm_prims = gforth_engine(0,0,0,0,0);
+  vm_prims = gforth_engine(0,0,0,0,0 sr_call);
   check_prims(vm_prims);
   prepare_super_table();
 #ifndef DOUBLY_INDIRECT
@@ -2330,7 +2335,7 @@ int main(int argc, char **argv, char **env)
 #endif
 
 #ifdef STANDALONE
-  image = gforth_engine(0, 0, 0, 0, 0);
+  image = gforth_engine(0, 0, 0, 0, 0 sr_call);
   alloc_stacks((ImageHeader *)image);
 #else
   image_file = open_image_file(imagename, path);

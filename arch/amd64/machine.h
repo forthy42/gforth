@@ -51,6 +51,10 @@
 /* The architecture requires hardware consistency */
 #define FLUSH_ICACHE(addr,size)
 
+/* globals are accessed in a PC-relative way and therefore make
+   primitives that access them nonrelocatable */
+#define GLOBALS_NONRELOC 1
+
 /* code padding */
 #define CODE_ALIGNMENT 16
 #define CODE_PADDING {0x66, 0x66, 0x66, 0x90, 0x66, 0x66, 0x66, 0x90, \
