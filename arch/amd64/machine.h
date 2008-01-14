@@ -52,8 +52,17 @@
 #define FLUSH_ICACHE(addr,size)
 
 /* globals are accessed in a PC-relative way and therefore make
-   primitives that access them nonrelocatable */
-#define GLOBALS_NONRELOC 1
+   primitives that access them nonrelocatable.  If GLOBALS_NONRELOC is
+   defined, the engine accesses these variables through a local. */
+/* #define GLOBALS_NONRELOC 1 */
+/* The effect of GLOBALS_NONRELOC is as follows (gcc-4.2.0):
+    3GHz Xeon 5160              2.2GHz Athlon 64 X2   
+sieve bubble matrix  fib    sieve bubble matrix  fib   GLOBALS_NONRELOC
+ 0.304 0.412  0.200 0.668    0.608 0.720  0.396 0.792      defined
+ 0.284 0.388  0.176 0.472    0.588 0.760  0.860 0.884    undefined
+The problem seems to be that the local is in memory, even with
+explicit register allocation and efforts to stop coalescing.
+*/
 
 /* code padding */
 #define CODE_ALIGNMENT 16
