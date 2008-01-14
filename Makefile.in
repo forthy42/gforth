@@ -382,20 +382,9 @@ VMGEN_EX = vmgen-ex/CVS vmgen-ex/Makefile vmgen-ex/README vmgen-ex/disasm.c \
 
 VMGEN_EX2 = $(VMGEN_EX:vmgen-ex/%=vmgen-ex2/%)
 
-SOURCES	= $(CVSDIRS) compat Makefile.in Makedist.in engine/Makefile.in \
-	gforthmi.in vmgen.in gfgen README.vmgen NEWS.vmgen \
-	configure.in configure config.sub config.guess elisp-comp missing \
-	engine/config.h.in stamp-h.in envos.fs.in \
-	iss.sh install-sh INSTALL INSTALL.BINDIST NEWS README ToDo BUGS \
-	BUILD-FROM-SCRATCH model \
-	COPYING COPYING.LIB COPYING.DOC AUTHORS ChangeLog Benchres aclocal.m4 \
-	doc/gforth.ds doc/gforth.1 doc/version.texi.in \
-	doc/vmgen.texi doc/fdl.texi doc/gpl.texi \
-	gforth.el \
-	prim cache0.vmg cache1.vmg peeprules.vmg \
+ENGINE_SOURCES = engine/Makefile.in engine/config.h.in \
 	engine/engine.c engine/main.c \
 	engine/io.c engine/support.c engine/signals.c engine/libcc.h.in \
-	$(ARCHS) \
 	engine/profile.c \
 	engine/getopt.c engine/getopt1.c engine/getopt.h engine/select.c \
 	engine/ecvt.c engine/memcmp.c engine/rint.c \
@@ -404,10 +393,23 @@ SOURCES	= $(CVSDIRS) compat Makefile.in Makedist.in engine/Makefile.in \
 	engine/pow10.c engine/atanh.c engine/cleanalign.c \
 	engine/strerror.c engine/strsignal.c engine/dblsub.c \
 	engine/fnmatch.h engine/fnmatch.c \
-	INSTALL.DOS makefile.dos engine/makefile.dos mkdosmf.sed config.bat \
+	engine/makefile.dos engine/makefile.os2
+
+SOURCES	= $(CVSDIRS) $(ENGINE_SOURCES) compat Makefile.in Makedist.in \
+	gforthmi.in vmgen.in gfgen README.vmgen NEWS.vmgen \
+	configure.in configure config.sub config.guess elisp-comp missing \
+	stamp-h.in envos.fs.in \
+	iss.sh install-sh INSTALL INSTALL.BINDIST NEWS README ToDo BUGS \
+	BUILD-FROM-SCRATCH model \
+	COPYING COPYING.LIB COPYING.DOC AUTHORS ChangeLog Benchres aclocal.m4 \
+	doc/gforth.ds doc/gforth.1 doc/version.texi.in \
+	doc/vmgen.texi doc/fdl.texi doc/gpl.texi \
+	gforth.el \
+	$(ARCHS) \
+	INSTALL.DOS makefile.dos mkdosmf.sed config.bat \
 	dosconf.h gforthmi.bat mkinstalldirs siteinit.fs \
 	versions.bsh \
-	configure.cmd mkos2mf.sed os2conf.h makefile.os2 engine/makefile.os2 \
+	configure.cmd mkos2mf.sed os2conf.h makefile.os2 \
 	gforthmi.cmd glosgen.glo doc/glossaries.doc \
 	$(INCLUDES) $(FORTH_SRC) $(COMPAT) $(VMGEN_EX) $(VMGEN_EX2) \
 	timings.sc \
@@ -797,7 +799,7 @@ MAKELINE-noll-reg = OPT=-noll-reg OPTDEFINES=-DFORCE_REG OPTOBJECTS=dblsub.o
 MAKELINE-ll       = OPT=-ll OPTDEFINES=-DFORCE_LL OPTOBJECTS=
 MAKELINE-noll     = OPT=-noll OPTDEFINES= OPTOBJECTS=dblsub.o
 
-gforth$(OPT)$(EC)$(EXE): $(FORTH_GEN_ENGINE) engine/config.h
+gforth$(OPT)$(EC)$(EXE): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/config.h
 	if test -z "$(OPT)"; then \
 		for i in $(OPTS); do make optgforth OPT=$$i && $(CP) gforth$${i}$(EC)$(EXE) $@ && break; done; \
 	else \
@@ -812,7 +814,7 @@ gforth$(OPT)$(EC)$(EXE): $(FORTH_GEN_ENGINE) engine/config.h
 optgforth:
 	make gforth$(OPT)$(EC)$(EXE) $(MAKELINE$(OPT))
 
-gforth-fast$(OPT)$(EC)$(EXE): $(FORTH_GEN_ENGINE_FAST) engine/config.h
+gforth-fast$(OPT)$(EC)$(EXE): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE_FAST) engine/config.h
 	if test -z "$(OPT)"; then \
 		for i in $(OPTS); do make optgforth-fast OPT=$$i && $(CP) gforth-fast$${i}$(EC)$(EXE) $@ && break; done; \
 	else \
@@ -831,17 +833,17 @@ gforth-native$(OPT)$(EC)$(EXE):	engines-fast
 		-$(MASSAGE_EXE) $@
 #@GFORTHX_EXE@
 
-gforth-itc$(EC)$(EXE): $(FORTH_GEN_ENGINE) engine/Makefile engine/config.h
+gforth-itc$(EC)$(EXE): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/Makefile engine/config.h
 		cd engine && $(MAKE) gforth-itc-noll$(EC)$(EXE) $(MAKELINE-noll)
 		$(CP) engine/gforth-itc-noll$(EC)$(EXE) $@
 		@GFORTHITC_EXE@
 
-gforth-ditc$(EC)$(EXE): $(FORTH_GEN_ENGINE) engine/Makefile engine/config.h
+gforth-ditc$(EC)$(EXE): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/Makefile engine/config.h
 		cd engine && $(MAKE) gforth-ditc-noll$(EC)$(EXE) $(MAKELINE-noll)
 		$(CP) engine/gforth-ditc-noll$(EC)$(EXE) $@
 		@GFORTHDITC_EXE@
 
-gforth-prof$(EC)$(EXE): $(FORTH_GEN_ENGINE) engine/Makefile engine/config.h
+gforth-prof$(EC)$(EXE): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/Makefile engine/config.h
 		cd engine && $(MAKE) gforth-prof-noll$(EC)$(EXE) $(MAKELINE-noll)
 		$(CP) engine/gforth-prof-noll$(EC)$(EXE) $@
 
