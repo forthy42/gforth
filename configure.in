@@ -600,7 +600,7 @@ AC_MSG_RESULT($M4)
 # Find installed Gforth
 AC_MSG_CHECKING([for gforth])
 GFORTH="`which gforth 2>/dev/null`"
-if test ! -z "$GFORTH"; then  GFORTH="$GFORTH -m4M" ; fi
+if test ! -z "$GFORTH"; then  GFORTH="$GFORTH -m4M --die-on-signal" ; fi
 AC_SUBST(GFORTH)
 AC_DEFINE_UNQUOTED(GFORTH,"$GFORTH",[How to invoke gforth])
 AC_MSG_RESULT($GFORTH)
