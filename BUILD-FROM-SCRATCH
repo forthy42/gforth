@@ -33,7 +33,7 @@
 if [ "$GFORTH"xx = "xx" ];
 then
     rm -f gforth
-    GFORTH=`which gforth`
+    GFORTH="`which gforth` --die-on-signal"
     if [ "$GFORTH"xx = "xx" ]; then
 	echo 'BUILD-FROM-SCRATCH needs a working gforth (in environment variable GFORTH)'
         exit 1
