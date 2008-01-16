@@ -611,7 +611,7 @@ install:	gforth$(EC)$(EXE) $(FORTH_SRC) $(kernel_fi) gforth.fi gforthmi vmgen do
 			echo ">>>>>Please install gforth.elc in your .../emacs/site-lisp directory"; \
 		fi
 		-$(RM) gforth.fi
-		GFORTHD="./gforth-ditc$(OPT) -p $(DESTDIR)$(libdir)/gforth/site-forth$(PATHSEP)$(DESTDIR)$(siteforthdir)$(PATHSEP)$(DESTDIR)$(datadir)/gforth/$(VERSION) -i $(kernel_fi)" GFORTH="./gforth-ditc$(OPT) --die-on-signal -i $(kernel_fi) $(STARTUP)" includedir=$(includedir) bindir=$bindir GFORTHPATH=.:"$$GFORTHPATH" GFORTHDESTDIR="$(DESTDIR)" ./gforthmi gforth.fi $(FORTHSIZES) $(STARTUP)
+		GFORTHD="./gforth-ditc -p $(DESTDIR)$(libdir)/gforth/site-forth$(PATHSEP)$(DESTDIR)$(siteforthdir)$(PATHSEP)$(DESTDIR)$(datadir)/gforth/$(VERSION) -i $(kernel_fi)" GFORTH="./gforth-ditc --die-on-signal -i $(kernel_fi) $(STARTUP)" includedir=$(includedir) bindir=$bindir GFORTHPATH=.:"$$GFORTHPATH" GFORTHDESTDIR="$(DESTDIR)" ./gforthmi gforth.fi $(FORTHSIZES) $(STARTUP)
 		$(INSTALL_DATA) gforth.fi $(DESTDIR)$(libdir)/gforth/$(VERSION)
 		$(INSTALL_DATA) install.TAGS $(DESTDIR)$(datadir)/gforth/$(VERSION)/TAGS
 		$(RM) gforth.fi install.TAGS
@@ -641,8 +641,8 @@ uninstall:	FORCE
 
 check:		gforths	gforth.fi
 		$(MAKE) checkone check-nofast ENGINE="./gforth$(OPT) --no-dynamic" >/dev/null 2>&1
-		$(MAKE) checkone check-nofast ENGINE="./gforth-itc$(OPT)" >/dev/null 2>&1
-		$(MAKE) checkone check-nofast ENGINE="./gforth-ditc$(OPT)" >/dev/null 2>&1
+		$(MAKE) checkone check-nofast ENGINE="./gforth-itc" >/dev/null 2>&1
+		$(MAKE) checkone check-nofast ENGINE="./gforth-ditc" >/dev/null 2>&1
 		$(MAKE) checkone ENGINE="./gforth-fast$(OPT) --no-dynamic" >/dev/null 2>&1
 		$(MAKE) checkone check-nofast ENGINE="./gforth$(OPT)" >/dev/null 2>&1
 		$(MAKE) checkone ENGINE="./gforth-fast$(OPT)" >/dev/null 2>&1
@@ -757,8 +757,8 @@ kernl64l$(EC).fi:	$(KERNLS)
 #		-$(CP) $@ $@~
 #		-$(CP) $< $@
 
-gforth.fi:	$(kernel_fi) gforthmi gforth-ditc$(OPT)$(EC)$(EXE) $(GFORTH_FI_SRC) comp-i.fs
-		GFORTHD="./gforth-ditc$(OPT) -p .$(PATHSEP)$(srcdir)" GFORTH="./gforth-ditc$(OPT) --die-on-signal -p .$(PATHSEP)$(srcdir) -i $(kernel_fi) $(STARTUP)" includedir=`pwd`/include bindir=`pwd` ./gforthmi gforth.fi $(FORTHSIZES) $(FORTHKFLAGS) $(STARTUP)
+gforth.fi:	$(kernel_fi) gforthmi gforth-ditc$(EC)$(EXE) $(GFORTH_FI_SRC) comp-i.fs
+		GFORTHD="./gforth-ditc -p .$(PATHSEP)$(srcdir)" GFORTH="./gforth-ditc --die-on-signal -p .$(PATHSEP)$(srcdir) -i $(kernel_fi) $(STARTUP)" includedir=`pwd`/include bindir=`pwd` ./gforthmi gforth.fi $(FORTHSIZES) $(FORTHKFLAGS) $(STARTUP)
 
 # -------------	Make c-engine
 

@@ -2269,7 +2269,7 @@ static void print_diag()
 #ifndef FORCE_REG
 	    "    automatic register allocation: performance degradation possible\n"
 #endif
-	    ,
+	    "",
 	    (relocs < nonrelocs) ? "    gcc PR 15242 -> no dynamic code generation (use gcc-2.95 instead)\n" : "");
 }
 

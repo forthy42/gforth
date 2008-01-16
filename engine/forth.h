@@ -25,6 +25,10 @@
 #include <unistd.h>
 #include <ltdl.h>
 
+#if !defined(FORCE_LL) && !defined(BUGGY_LONG_LONG)
+#define BUGGY_LONG_LONG
+#endif
+
 #if defined(DOUBLY_INDIRECT)||defined(INDIRECT_THREADED)||defined(VM_PROFILING)
 #define NO_DYNAMIC
 #endif
@@ -132,7 +136,7 @@ typedef unsigned TETRABYTE_TYPE UTetrabyte;
 #define FLOORED_DIV ((1%-3)>0)
 #endif
 
-#ifdef BUGGY_LONG_LONG
+#if defined(BUGGY_LONG_LONG)
 
 #define BUGGY_LL_CMP    /* compares not possible */
 #define BUGGY_LL_MUL    /* multiplication not possible */
@@ -175,12 +179,21 @@ typedef struct {
 #endif /* !SMALL_OFF_T */
 #define DZERO		((DCell){0,0})
 
-#else /* ! defined(BUGGY_LONG_LONG) */
+#else /* !defined(BUGGY_LONG_LONG) */
 
 /* DCell and UDCell must be twice as large as Cell */
 typedef DOUBLE_CELL_TYPE DCell;
 typedef DOUBLE_UCELL_TYPE UDCell;
 
+#define DHI(x) ({ Double_Store _d; _d.d=(x); _d.cells.high; })
+#define DLO(x) ({ Double_Store _d; _d.d=(x); _d.cells.low;  })
+
+/* beware with the assignment: x is referenced twice! */
+#define DHI_IS(x,y) ({ Double_Store _d; _d.d=(x); _d.cells.high=(y); (x)=_d.d; })
+#define DLO_IS(x,y) ({ Double_Store _d; _d.d=(x); _d.cells.low =(y); (x)=_d.d; })
+
+#define UD2D(ud)	((DCell)(ud))
+#define D2UD(d)		((UDCell)(d))
 #define OFF2UD(o)	((UDCell)(o))
 #define UD2OFF(ud)	((off_t)(ud))
 #define DZERO		((DCell)0)
@@ -188,7 +201,7 @@ typedef DOUBLE_UCELL_TYPE UDCell;
 #define DLSHIFT(d,u)  ((d)<<(u))
 #define UDLSHIFT(d,u)  ((d)<<(u))
 
-#endif /* ! defined(BUGGY_LONG_LONG) */
+#endif /* !defined(BUGGY_LONG_LONG) */
 
 typedef union {
   struct {
@@ -203,18 +216,6 @@ typedef union {
   DCell d;
   UDCell ud;
 } Double_Store;
-
-#ifndef BUGGY_LONG_LONG
-#define DHI(x) ({ Double_Store _d; _d.d=(x); _d.cells.high; })
-#define DLO(x) ({ Double_Store _d; _d.d=(x); _d.cells.low;  })
-
-/* beware with the assignment: x is referenced twice! */
-#define DHI_IS(x,y) ({ Double_Store _d; _d.d=(x); _d.cells.high=(y); (x)=_d.d; })
-#define DLO_IS(x,y) ({ Double_Store _d; _d.d=(x); _d.cells.low =(y); (x)=_d.d; })
-
-#define UD2D(ud)	((DCell)(ud))
-#define D2UD(d)		((UDCell)(d))
-#endif
 
 #define FETCH_DCELL_T(d_,lo,hi,t_)	({ \
 				     Double_Store _d; \
