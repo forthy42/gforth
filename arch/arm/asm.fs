@@ -324,6 +324,7 @@ enumerate: forward backward
 
 \ Register aliases (see also machine.h)
 R15 2CONSTANT PC
+R15 2CONSTANT IP
 R14 2CONSTANT LR
 R13 2CONSTANT SP	
 R7  2CONSTANT RP	\ only if compiled with --enable-force regs
