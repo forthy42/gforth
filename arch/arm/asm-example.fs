@@ -21,9 +21,10 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 
-\ this shows how the interpreter 'next' works in gforth on ARM.  But don't
-\ take that for granted! may depend on your configure settings, compiler
-\ version etc.  If in doubt, look at 'gforth_engine' diassembly by running:
+\ this shows how the interpreter 'next' works in gforth on ARM.  But
+\ don't take that for granted! May depend on your configure settings,
+\ compiler version etc.  If in doubt, look at 'gforth_engine'
+\ diassembly by running:
 \
 \ objdump -dt $(which gforth)
 \
@@ -31,9 +32,20 @@ CODE asm-noop
    FP 4 ]#	PC	LDR,
 END-CODE
 
-\ Now we try to access the stack.  This implements 'DUP'.  The forth stack
-\ pointer register is 'r9' here, again, look at the disassembly to be sure.
-CODE asm-dup
-   R9 -4 ]#	R3	STR,
-   FP 4 ]#	IP	LDR,
+\ Now we try to access the stack.  This implements 'DROP'.  The forth
+\ stack pointer register is 'r9' here, again, look at the disassembly
+\ to be sure.  (also the top of stack might be register cached, which
+\ was not the case here)
+CODE asm-drop
+   R9 4 #	R9	ADD,
+   FP 4 ]#	PC	LDR,
 END-CODE
+
+\ Implement 'DUP'.  It is not safe to clobber R3 here.  Again, check the
+\ disassebly...
+CODE asm-dup
+   R9 0 #]	R3	LDR,
+   R9 -4 #]!	R3	STR,
+   FP 4 ]#	PC	LDR,
+END-CODE
+
