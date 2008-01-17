@@ -324,10 +324,10 @@ enumerate: forward backward
 
 \ Register aliases (see also machine.h)
 R15 2CONSTANT PC
-R15 2CONSTANT IP
 R14 2CONSTANT LR
 R13 2CONSTANT SP
-R11 2CONSTANT FP
+R12 2CONSTANT IP	\ "intra procedure call scratch register" *not* PC
+R11 2CONSTANT FP	\ frame pointer
 R7  2CONSTANT RP	\ only if compiled with --enable-force regs
 
 PREVIOUS DEFINITIONS DECIMAL

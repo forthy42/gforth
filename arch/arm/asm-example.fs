@@ -28,13 +28,12 @@
 \ objdump -dt $(which gforth)
 \
 CODE asm-noop
-   FP 4 ]#	IP	LDR,
+   FP 4 ]#	PC	LDR,
 END-CODE
 
 \ Now we try to access the stack.  This implements 'DUP'.  The forth stack
 \ pointer register is 'r9' here, again, look at the disassembly to be sure.
 CODE asm-dup
-   R9 0 #]	R3	LDR,
    R9 -4 ]#	R3	STR,
    FP 4 ]#	IP	LDR,
 END-CODE
