@@ -1,5 +1,5 @@
 /*
-  This is the machine-specific part for Intel ia64 compatible processors
+  This is the machine-specific part for ARM processors
 
   Copyright (C) 2000,2003,2004,2005,2007 Free Software Foundation, Inc.
 
