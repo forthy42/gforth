@@ -423,6 +423,7 @@ Assembler and Code Words
 * Alpha Assembler::             Deviations and special cases
 * MIPS assembler::              Deviations and special cases
 * PowerPC assembler::           Deviations and special cases
+* ARM Assembler::               Deviations and special cases
 * Other assemblers::            How to write them
 
 Tools
@@ -12346,6 +12347,7 @@ doc-call-c
 * Alpha Assembler::             Deviations and special cases
 * MIPS assembler::              Deviations and special cases
 * PowerPC assembler::           Deviations and special cases
+* ARM Assembler::               Deviations and special cases
 * Other assemblers::            How to write them
 @end menu
 
@@ -12717,7 +12719,7 @@ then,
 @end example
 
 
-@node PowerPC assembler, Other assemblers, MIPS assembler, Assembler and Code Words
+@node PowerPC assembler, ARM Assembler, MIPS assembler, Assembler and Code Words
 @subsection PowerPC assembler
 
 The PowerPC assembler and disassembler were contributed by Michal
@@ -12742,8 +12744,119 @@ of an instruction, but usually not the shorter forms (especially for
 branches).
 
 
+@node ARM Assembler, Other assemblers, PowerPC assembler, Assembler and Code Words
+@subsection ARM Assembler
 
-@node Other assemblers,  , PowerPC assembler, Assembler and Code Words
+The ARM assembler included in Gforth was written from scratch by David
+Kuehling.
+
+The assembler includes all instruction of ARM architecture version 4,
+but does not (yet) have support for Thumb instructions.  It also lacks
+support for any co-processors.
+
+The assembler uses a postfix syntax with the target operand specified
+last.  For load/store instructions the last operand will be the
+register(s) to be loaded from/stored to.
+
+Registers are specified by their names @code{r0} through @code{r15},
+with the aliases @code{pc}, @code{lr}, @code{sp}, @code{ip} and
+@code{fp} provided for convenience.  Note that @code{ip} means intra
+procedure call scratch register (@code{r12}) and does not refer to the
+instruction pointer.
+
+Condition codes can be specified anywhere in the instruction, but will
+be most readable if specified just in front of the mnemonic.  The 'S'
+flag is not a separate word, but encoded into instruction mnemonics,
+ie. just use @code{adds,} instead of @code{add,} if you want the
+status register to be updated.
+
+The following table lists the syntax of operands for general
+instructions:
+
+@example
+Gforth          normal assembler      description
+123 #           #123                  immediate
+r12             r12                   register
+r12 4 #LSL      r12, LSL #4           shift left by immediate
+r12 r1 #LSL     r12, LSL r1           shift left by register
+r12 4 #LSR      r12, LSR #4           shift right by immediate
+r12 r1 #LSR     r12, LSR r1           shift right by register
+r12 4 #ASR      r12, ASR #4           arithmetic shift right
+r12 r1 #ASR     r12, ASR r1           ... by register
+r12 4 #ROR      r12, ROR #4           rotate right by immediate
+r12 r1 #ROR     r12, ROR r1           ... by register
+r12 RRX         r12, RRX              rotate right with extend by 1
+@end example
+
+Memory operand syntax is listed in this table:
+
+@example
+Gforth            normal assembler      description
+r4 ]              [r4]                  register
+r4 4 #]           [r4, #+4]             register with immediate offset
+r4 -4 #]          [r4, #-4]             with negative offset
+r4 r1 +]          [r4, +r1]             register with register offset
+r4 r1 -]          [r4, -r1]             with negated register offset
+r4 r1 2 #LSL -]   [r4, -r1, LSL #2]     with negated and shifted offset
+r4 4 #]!          [r4, #+4]!            immediate preincrement
+r4 r1 +]!         [r4, +r1]!            register preincrement
+r4 r1 -]!         [r4, +r1]!            register predecrement
+r4 r1 2 #LSL +]!  [r4, +r1, LSL #2]!    shifted preincrement
+r4 -4 ]#          [r4], #-4             immediate postdecrement
+r4 r1 ]+          [r4], r1              register postincrement
+r4 r1 ]-          [r4], -r1             register postdecrement
+r4 r1 2 #LSL ]-   [r4], -r1, LSL #2     shifted postdecrement
+' xyz >body [#]   xyz                   PC-relative addressing
+@end example
+
+Register lists for load/store multiple instructions are started and
+terminated by using the words @code{@{} and @code{@}}
+respectivly.  Between braces, register names can be listed one by one,
+or register ranges can be formed by using the postfix operator
+@code{r-r}.  The @code{^} flag is not encoded in the register list
+operand, but instead directly encoded into the instruction mnemonic,
+ie. use @code{^ldm,} and @code{^stm,}.
+
+Addressing modes for load/store multiple are not encoded as
+instruction suffixes, but instead specified after the register that
+supplies the address.  Use one of @code{DA}, @code{IA}, @code{DB},
+@code{IB}, @code{DA!}, @code{IA!}, @code{DB!} or @code{IB!}.
+
+The following table gives some examples:
+
+@example
+Gforth                           normal assembler
+@{ r0 r7 r8 @}  r4 ia  stm,        stmia    @{r0,r7,r8@}, r4
+@{ r0 r7 r8 @}  r4 db!  ldm,       ldmdb    @{r0,r7,r8@}, r4!
+@{ r0 r15 r-r @}  sp ia!  ^ldm,    ldmfd    @{r0-r15@}^, sp!
+@end example
+
+Conditions for control structure words are specified in front of a
+word:
+
+@example
+r1 r2 cmp,    \ compare r1 and r2
+eq if,        \ equal?
+   ...          \ code executed if r1 == r2
+then,
+@end example
+
+Here is an example of a @code{code} word (assumes that the stack
+pointer is in @code{r9}, and that @code{r2} and @code{r3} can be
+clobbered):
+
+@example
+code my+ ( n1 n2 --  n3 )
+   r9 IA!       @{ r2 r3 @} ldm,  \ pop r2 = n2, r3 = n1
+   r2   r3      r3        add,  \ r3 = n2+n1
+   r9 -4 #]!    r3        str,  \ push r3
+   next,
+end-code
+@end example
+
+Look at @file{arch/arm/asm-example.fs} for more examples.
+
+@node Other assemblers,  , ARM Assembler, Assembler and Code Words
 @subsection Other assemblers
 
 If you want to contribute another assembler/disassembler, please contact
