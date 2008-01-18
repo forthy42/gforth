@@ -20,6 +20,9 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+\ *** For details on usage, please have a look at section "ARM assembler" in
+\ the Gforth documentaion. ***
+
 require ./../../code.fs
 
 ALSO ASSEMBLER DEFINITIONS
