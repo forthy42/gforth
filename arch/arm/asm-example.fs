@@ -32,6 +32,11 @@ CODE asm-noop
    FP 4 ]#	PC	LDR,
 END-CODE
 
+\ this should be safer since we don't guess about interpreter register
+CODE asm-noop2
+   ' noop >code-address B,
+END-CODE
+
 \ Now we try to access the stack.  This implements 'DROP'.  The forth
 \ stack pointer register is 'r9' here, again, look at the disassembly
 \ to be sure.  (also the top of stack might be register cached, which
@@ -49,3 +54,10 @@ CODE asm-dup
    FP 4 ]#	PC	LDR,
 END-CODE
 
+\ Implement '+'
+CODE my+ ( n1 n2 --  n3 )
+   R9 IA!	{ R2 R3 }	LDM,
+   R2	R3	R3	ADD,
+   R9 -4 #]!	R3	STR,
+   ' noop >code-address B,
+end-code

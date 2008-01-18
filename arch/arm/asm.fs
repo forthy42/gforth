@@ -65,9 +65,7 @@ VARIABLE instruction
 VARIABLE had-cc
 : encode  ( x1 -- )   instruction @  OR  instruction ! ;
 : ?can-cc ( -- )
-   had-cc @ ABORT" Attempt to specify condition code twice."
-   instruction @ 1C RSHIFT 0<>
-   ABORT" Condition code not allowed for instruction." ;
+   had-cc @ ABORT" Attempt to specify condition code twice." ;
 : cc:  ( x "name" -- )  CREATE ,
   DOES> @  ( x -- )
    ?can-cc  1C LSHIFT encode   TRUE had-cc ! ;
@@ -77,6 +75,10 @@ VARIABLE had-cc
 08 cc: HI	09 cc: LS	0A cc: GE	0B cc: LT
 0C cc: GT	0D cc: LE	0E cc: AL	0F cc: NV
 02 CC: HS	03 cc: LO
+
+: invert-cc  ( -- ) \ invert meaning of condition code (EQ -> NE etc.)
+   had-cc @ 0= ABORT" No condition code specified for instruction"
+   instruction @   1 1C LSHIFT XOR  instruction ! ;
 
 : <instruction  ( x -- )
    DUP  0F0000000 AND IF
@@ -311,15 +313,19 @@ enumerate: forward backward
 \
 : LABEL  there CONSTANT ;
 : IF-NOT,  a>mark B, ;
+: IF,  invert-cc IF-NOT, ;
 : AHEAD,  AL IF-NOT, ;
 : THEN,  a>resolve ;
 : ELSE,  a>mark AL B,  2SWAP THEN, ;
 : BEGIN,  a<mark ;
 : UNTIL-NOT,  a<resolve B, ;
+: UNTIL,  invert-cc UNTIL-NOT, ;
 : AGAIN,  AL UNTIL-NOT, ;
 : WHILE-NOT,  IF-NOT, ;
+: WHILE,  invert-cc WHILE-NOT, ;
 : REPEAT,  2SWAP  AGAIN,  THEN, ;
 : REPEAT-UNTIL-NOT,  2SWAP  UNTIL-NOT,  THEN, ;
+: REPEAT-UNTIL,  invert-cc REPEAT-UNTIL-NOT, ;
 
 \ Register aliases (see also machine.h)
 R15 2CONSTANT PC
