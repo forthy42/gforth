@@ -46,13 +46,20 @@ CODE asm-noop2
     ' 'noop-code >body [#]  PC LDR,
 END-CODE
 
+\ actually the ARM-assembler already defines NEXT, which does something
+\ similar to the above.
+CODE asm-noop3
+    NEXT,
+END-CODE
+
+
 \ Now we try to access the stack.  This implements 'DROP'.  The forth
 \ stack pointer register is 'r9' here, again, look at the disassembly
 \ to be sure.  (also the top of stack might be register cached, which
 \ was not the case here)
 CODE mydrop
    R9 4 #	R9	ADD,
-   FP 4 ]#	PC	LDR,
+   NEXT,
 END-CODE
 
 \ Implement 'DUP'.  It is not safe to clobber R3 here.  Again, check the
@@ -60,7 +67,7 @@ END-CODE
 CODE mydup
    R9 0 #]	R3	LDR,
    R9 -4 #]!	R3	STR,
-    ' 'noop-code >body [#]  PC LDR,
+   NEXT,
 END-CODE
 
 \ Implement '+'
@@ -68,5 +75,5 @@ CODE my+ ( n1 n2 --  n3 )
    R9 IA!	{ R2 R3 }	LDM,
    R2	R3	R3	ADD,
    R9 -4 #]!	R3	STR,
-    ' 'noop-code >body [#]  PC LDR,
+   NEXT,
 end-code
