@@ -32,26 +32,35 @@ CODE asm-noop
    FP 4 ]#	PC	LDR,
 END-CODE
 
-\ this should be safer since we don't guess about interpreter register
+' noop >code-address .
+here .
+
+\ Branching to the code of 'noop' should be safer since we don't guess
+\ about interpreter register.  But using branch instructions we can
+\ only branch +/-32MB, which might not work.  Instead we directly load
+\ the 32bit branch target into the program-counter, using LDR.  The
+\ source of the LDR will be a nearby constant for which we use the [#]
+\ addressing mode that generates PC-relative memory address.
+' noop >code-address constant 'noop-code
 CODE asm-noop2
-   ' noop >code-address B,
+    ' 'noop-code >body [#]  PC LDR,
 END-CODE
 
 \ Now we try to access the stack.  This implements 'DROP'.  The forth
 \ stack pointer register is 'r9' here, again, look at the disassembly
 \ to be sure.  (also the top of stack might be register cached, which
 \ was not the case here)
-CODE asm-drop
+CODE mydrop
    R9 4 #	R9	ADD,
    FP 4 ]#	PC	LDR,
 END-CODE
 
 \ Implement 'DUP'.  It is not safe to clobber R3 here.  Again, check the
 \ disassebly...
-CODE asm-dup
+CODE mydup
    R9 0 #]	R3	LDR,
    R9 -4 #]!	R3	STR,
-   FP 4 ]#	PC	LDR,
+    ' 'noop-code >body [#]  PC LDR,
 END-CODE
 
 \ Implement '+'
@@ -59,5 +68,5 @@ CODE my+ ( n1 n2 --  n3 )
    R9 IA!	{ R2 R3 }	LDM,
    R2	R3	R3	ADD,
    R9 -4 #]!	R3	STR,
-   ' noop >code-address B,
+    ' 'noop-code >body [#]  PC LDR,
 end-code
