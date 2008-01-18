@@ -335,6 +335,11 @@ R12 2CONSTANT IP	\ "intra procedure call scratch register" *not* PC
 R11 2CONSTANT FP	\ frame pointer
 R7  2CONSTANT RP	\ only if compiled with --enable-force regs
 
+\ Minimal Gforth interpreter support
+: NEXT,		\ Do 32-bit branch to NOOP
+   PC  -4 #]   PC LDR,	\ due to pipeline PC is always 8 bytes ahead
+   ' NOOP >code-address t, ;
+
 PREVIOUS DEFINITIONS DECIMAL
 \ : ]ASM   ALSO ASSEMBLER ; 
 \ : ASM[   PREVIOUS ;
