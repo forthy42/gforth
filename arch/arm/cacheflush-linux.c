@@ -33,7 +33,7 @@
 #include <stddef.h>
 #include <errno.h>
 
-/* need __NR_ suffixed syscall number for syscall macros to work
+/* need __NR_ prefixed syscall number for syscall macros to work
    correctly */
 #define __NR_ARM_cacheflush __ARM_NR_cacheflush	
 
