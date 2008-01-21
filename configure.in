@@ -188,15 +188,21 @@ case "$host_cpu" in
 		   CFLAGS="$CFLAGS -mthumb -mthumb-interwork"
 		fi
 		if test -z $arm_cacheflush; then
-                  if test $host_os = linux; then
-                    arm_cacheflush=arch/arm/cacheflush-linux
-                  else
-		    no_dynamic_default=1
-                    arm_cacheflush=arch/arm/cacheflush0
-		    AC_MSG_WARN([No I-cache flush code known, disabling dynamic native code generation])
-                  fi
+		   case "$host_os" in
+		     *linux*)
+			arm_cacheflush=arch/arm/cacheflush-linux 
+			;;
+		     *)   
+			no_dynamic_default=1
+			arm_cacheflush=arch/arm/cacheflush0
+			AC_MSG_WARN([No I-cache flush code known, disabling dynamic native code generation])
+			;;
+                   esac
 		fi
-                AC_LIBSOURCES([../arch/arm/cacheflush0, ../arch/arm/cacheflush1, ../arch/arm/cacheflush2])
+                AC_LIBSOURCES([../arch/arm/cacheflush0, dnl
+			       ../arch/arm/cacheflush1, dnl
+			       ../arch/arm/cacheflush2, dnl
+			       ../arch/arm/cacheflush-linux])
                 AC_LIBOBJ(../$arm_cacheflush)
                 #longer skipcodes lead to problems on ARM, and it uses
                 #only 4-byte alignment anyway
