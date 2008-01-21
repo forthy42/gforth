@@ -26,21 +26,33 @@
   there, which can be selected at kernel compile time.
 */
 
-/* syscall macros not exported, unless __KERNEL__ set :( */
-#define __KERNEL__
-#include <linux/unistd.h>
+void cacheflush(void *p, size_t size) 
+{
+   /* For details, please see the Linux sources, files
+    * arch/arm/kernel/traps.c, arch/arm/kernel/entry-common.S and
+    * asm-arm/unistd.h
+    * 
+    * This syscall is supported by all 2.4 and 2.6 Linux kernels.  2.2 linux
+    * kernels got first support with version 2.2.18.
+    */
 
-#include <stddef.h>
-#include <errno.h>
-
-/* need __NR_ prefixed syscall number for syscall macros to work
-   correctly */
-#define __NR_ARM_cacheflush __ARM_NR_cacheflush	
-
-static _syscall3(void, ARM_cacheflush, 
-	  long, start, long, end, unsigned long, flags);
-
-void cacheflush(void *p, size_t size) {
-  ARM_cacheflush ((long)p, (long)p + size, 0);
+   asm("mov r0, %0\n"
+       "mov r1, %1\n"
+       "mov r2, #0\n"
+#    if defined (__ARM_EABI__) || defined (__thumb__)
+       /* EABI or Thumb syscall: syscall number passed in 'r7' (syscall base
+	* number is 0x0).  Note that Thumb and EABI are generally not the
+	* same.  It just happens that the simple cacheflush syscall doesn't
+	* expose any of differences in calling conventions.
+        */
+       "mov r7, #0xf0002\n"
+       "swi #0\n"      
+#    else
+       /* OABI syscall: syscall number passed as part of 'swi' instruction,
+	* base number is 0x900000 */
+       "swi #0x9f0002\n" ::
+#     endif
+       "g"(p), "g"((long)p+size) :
+       "r0", "r1", "r2", "r7");
 }
 
