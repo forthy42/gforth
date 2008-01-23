@@ -25,6 +25,7 @@
   system.  Yes, on ARM there are at least two different ABIs out
   there, which can be selected at kernel compile time.
 */
+#include <stddef.h>
 
 void cacheflush(void *p, size_t size) 
 {
@@ -36,23 +37,24 @@ void cacheflush(void *p, size_t size)
     * kernels got first support with version 2.2.18.
     */
 
-   asm("mov r0, %0\n"
-       "mov r1, %1\n"
-       "mov r2, #0\n"
+   asm("mov r0, %0\n\t"
+       "mov r1, %1\n\t"
+       "mov r2, #0\n\t"
 #    if defined (__ARM_EABI__) || defined (__thumb__)
        /* EABI or Thumb syscall: syscall number passed in 'r7' (syscall base
 	* number is 0x0).  Note that Thumb and EABI are generally not the
 	* same.  It just happens that the simple cacheflush syscall doesn't
 	* expose any of differences in calling conventions.
         */
-       "mov r7, #0xf0002\n"
-       "swi #0\n"      
+       "mov r7, #0xf0000\n\t"
+       "orr r7, r7, #0x00002\n\t"
+       "swi #0\n\t"      
 #    else
        /* OABI syscall: syscall number passed as part of 'swi' instruction,
 	* base number is 0x900000 */
-       "swi #0x9f0002\n" ::
+       "swi #0x9f0002\n\t" 
 #     endif
-       "g"(p), "g"((long)p+size) :
+       :: "r"(p), "r"((long)p+size) :
        "r0", "r1", "r2", "r7");
 }
 
