@@ -513,7 +513,7 @@ then
         OPTS=-ll
 else
         if test "$ac_cv_sizeof_char_p" == 8; then
-           OPTS="-ll -no-ll"
+           OPTS="-ll -noll"
         else
            OPTS=-noll
         fi
