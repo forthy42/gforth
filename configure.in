@@ -200,8 +200,6 @@ case "$host_cpu" in
                    esac
 		fi
                 AC_LIBSOURCES([../arch/arm/cacheflush0, dnl
-			       ../arch/arm/cacheflush1, dnl
-			       ../arch/arm/cacheflush2, dnl
 			       ../arch/arm/cacheflush-linux])
                 AC_LIBOBJ(../$arm_cacheflush)
                 #longer skipcodes lead to problems on ARM, and it uses

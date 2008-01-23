@@ -310,8 +310,7 @@ ARCHS =	\
 	arch/alpha/machine.h \
 	arch/arm/machine.h \
 	arch/arm/cacheflush0.c \
-	arch/arm/cacheflush1.c \
-	arch/arm/cacheflush2.c \
+	arch/arm/cacheflush-linux.c \
 	arch/ia64/machine.h \
 	arch/ia64/flush_icache_block.c \
 	arch/amd64/machine.h \
