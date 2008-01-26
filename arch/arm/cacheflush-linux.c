@@ -34,7 +34,7 @@ void cacheflush(void *p, size_t size)
    asm("mov r0, %0\n"
        "mov r1, %1\n"
        "mov r2, #0\n"
-#    if defined (__THUMB__)
+#    if defined (__thumb__)
        /* Thumb syscall, either EABI or OABI, syscall number is passed in
 	* 'r7'.  Note that Thumb EABI and OABI are generally not the same.  It
 	* just happens that the simple cacheflush syscall doesn't expose any
@@ -42,6 +42,7 @@ void cacheflush(void *p, size_t size)
        "mov r7, #0xf\n\t"	/* Thumb mode only allows 8-bit constants */
        "lsl r7, #16\n\t"
        "add r7, #0x2\n\t"
+       "swi #0\n\t"      
 #    elif defined (__ARM_EABI__)
        /* EABI non-Thumb syscall: syscall number passed in 'r7' (syscall base
 	* number is 0x0).
@@ -53,7 +54,7 @@ void cacheflush(void *p, size_t size)
        /* OABI non-Thumb syscall: syscall number passed as part of 'swi'
 	* instruction, base number is 0x900000 */
        "swi #0x9f0002\n"
-#     endif
+#    endif
        :: "r"(p), "r"((long)p+size) :
        "r0", "r1", "r2", "r7");
 }
