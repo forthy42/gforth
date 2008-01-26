@@ -52,7 +52,7 @@ void cacheflush(void *p, size_t size)
 #    else
        /* OABI non-Thumb syscall: syscall number passed as part of 'swi'
 	* instruction, base number is 0x900000 */
-       "swi #0x9f0002\n" ::
+       "swi #0x9f0002\n"
 #     endif
        :: "r"(p), "r"((long)p+size) :
        "r0", "r1", "r2", "r7");
