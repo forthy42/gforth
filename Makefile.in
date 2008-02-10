@@ -11,7 +11,7 @@
 
 #This program is distributed in the hope that it will be useful,
 #but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.#See the
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #GNU General Public License for more details.
 
 #You should have received a copy of the GNU General Public License
@@ -66,7 +66,7 @@ INSTALL_INFO = @INSTALL_INFO@
 LN_S	= @LN_S@
 M4      = @M4@
 GCC	= @CC@
-BOOTFORTH	= @GFORTH@
+PREFORTH	= @PREFORTH@
 CC	= $(GCC)
 FORTHPATH = .$(PATHSEP)$(libdir)/gforth/site-forth$(PATHSEP)$(siteforthdir)$(PATHSEP)$(libdir)/gforth/$(VERSION)$(PATHSEP)$(datadir)/gforth/$(VERSION)
 FORTHSIZES = @FORTHSIZES@
@@ -684,11 +684,6 @@ all-bench allbench:
 	./gforth-itc onebench.fs
 	./gforth-ditc onebench.fs
 
-# ------------- Bootstrapping
-bootstrap:
-	[ ! -z "${BOOTFORTH}" ] && \
-	${MAKE} BUILDFORTH="${BOOTFORTH}" FORTHP="${BOOTFORTH}" engine/prim.i ${BKERNLS}
-
 # -------------	Make forth images
 
 # How to make new images:
@@ -700,26 +695,26 @@ bootstrap:
 #    these are the ones we want to use now
 
 kernl16l$(EC).fi-:	$(KERN_DEPS) mach16l.fs
-		$(FORTHB) -e 's" mach16l.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl16l$(EC).fi- $(bindir)/gforth-$(VERSION) bye"
+		$(PREFORTH) -e 's" mach16l.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl16l$(EC).fi- $(bindir)/gforth-$(VERSION) bye"
 
 kernl16b$(EC).fi-:	$(KERN_DEPS) mach16b.fs
-		$(FORTHB) -e 's" mach16b.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl16b$(EC).fi- $(bindir)/gforth-$(VERSION) bye"
+		$(PREFORTH) -e 's" mach16b.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl16b$(EC).fi- $(bindir)/gforth-$(VERSION) bye"
 
 kernl32l$(EC).fi-:	$(KERN_DEPS) mach32l.fs
-		$(FORTHB) -e 's" mach32l.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl32l$(EC).fi- $(bindir)/gforth-$(VERSION) bye"
+		$(PREFORTH) -e 's" mach32l.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl32l$(EC).fi- $(bindir)/gforth-$(VERSION) bye"
 
 kernl32b$(EC).fi-:	$(KERN_DEPS) mach32b.fs
-		$(FORTHB) -e 's" mach32b.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl32b$(EC).fi- $(bindir)/gforth-$(VERSION) bye"
+		$(PREFORTH) -e 's" mach32b.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl32b$(EC).fi- $(bindir)/gforth-$(VERSION) bye"
 
 kernl64l$(EC).fi-:	$(KERN_DEPS) mach64l.fs
-		$(FORTHB) -e 's" mach64l.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl64l$(EC).fi- $(bindir)/gforth-$(VERSION) bye"
+		$(PREFORTH) -e 's" mach64l.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl64l$(EC).fi- $(bindir)/gforth-$(VERSION) bye"
 
 kernl64b$(EC).fi-:	$(KERN_DEPS) mach64b.fs
-		$(FORTHB) -e 's" mach64b.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl64b$(EC).fi- $(bindir)/gforth-$(VERSION) bye"
+		$(PREFORTH) -e 's" mach64b.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl64b$(EC).fi- $(bindir)/gforth-$(VERSION) bye"
 
 #Solaris make does not like that:
 @GNUMAKE@kernl-%.fi:	arch/%/mach.fs arch/%/prim.fs arch/%/asm.fs $(KERN_SRC) kernel/version.fs $(FORTH_GEN0)
-@GNUMAKE@		$(FORTHB) -e 's" $<"' $(srcdir)/kernel/main.fs -e "save-cross $@- $(bindir)/gforth-$(VERSION) bye"
+@GNUMAKE@		$(PREFORTH) -e 's" $<"' $(srcdir)/kernel/main.fs -e "save-cross $@- $(bindir)/gforth-$(VERSION) bye"
 @GNUMAKE@		if [ -f `echo $< | sed s/fs/sh/` ]; \
 @GNUMAKE@		then sh `echo $< | sed s/fs/sh/` $@; \
 @GNUMAKE@		else $(CP) $@- $@; \
@@ -773,20 +768,20 @@ $(FORTH_GEN_ENGINE_FAST): prim-fast.b prims2x.fs
 		GFORTH="$(FORTHP)" $(srcdir)/gfgen -fast
 
 $(FORTH_GEN_ENGINE): prim.b prims2x.fs
-		GFORTH="$(FORTHP)" $(srcdir)/gfgen
+		GFORTH="$(PREFORTH)" $(srcdir)/gfgen
 
 engine/prim-s.i: engine/prim.i
 	grep -v '^#line ' $(srcdir)/engine/prim.i >$@
 
 kernel/aliases.fs:	prim.b prims2x.fs kernel/aliases0.fs
 		$(CP) kernel/aliases0.fs $@-
-		$(FORTHP) prims2x.fs -e "forth-flag on s\" prim.b\" ' output-alias ' noop process-file bye" >>$@-
+		$(PREFORTH) prims2x.fs -e "forth-flag on s\" prim.b\" ' output-alias ' noop process-file bye" >>$@-
 		$(CP) $@- $@
 		$(RM) $@-
 
 kernel/prim.fs:	prim.b prims2x.fs kernel/prim0.fs
 		$(CP) kernel/prim0.fs kernel/prim.fs-
-		$(FORTHP) prims2x.fs -e "forth-flag on s\" prim.b\" ' output-forth ' output-forth-combined process-file bye" >>$@-
+		$(PREFORTH) prims2x.fs -e "forth-flag on s\" prim.b\" ' output-forth ' output-forth-combined process-file bye" >>$@-
 		$(CP) $@- $@
 		$(RM) $@-
 
@@ -879,15 +874,15 @@ gforth.tags:	@kernel_fi@ gforth$(EC)$(EXE) $(GFORTH_FI_SRC) prim.tags kernel.tag
 		rm tags
 
 prim.TAGS: 	prim.b prims2x.fs
-		$(FORTHP) prims2x.fs -e "s\" $(srcdir)/prim.b\" ' output-tag dup process-file bye"|sed 's#^./prim#prim#' >$@-
+		$(PREFORTH) prims2x.fs -e "s\" $(srcdir)/prim.b\" ' output-tag dup process-file bye"|sed 's#^./prim#prim#' >$@-
 		$(CP) $@- $@
 		$(RM) $@-
 
 prim.tags: 	prim.b prims2x.fs
 		#echo '2c\' >prim.TAGS.sed
 		#echo $(srcdir)/prim >>prim.TAGS.sed
-		#$(FORTHP) prims2x.fs -e "s\" $(srcdir)/prim.b\" ' output-tag dup process-file bye" | sed -f prim.TAGS.sed >$@-
-		$(FORTHP) prims2x.fs -e "s\" $(srcdir)/prim.b\" ' output-vi-tag dup process-file bye" >$@-
+		#$(PREFORTH) prims2x.fs -e "s\" $(srcdir)/prim.b\" ' output-tag dup process-file bye" | sed -f prim.TAGS.sed >$@-
+		$(PREFORTH) prims2x.fs -e "s\" $(srcdir)/prim.b\" ' output-vi-tag dup process-file bye" >$@-
 		$(CP) $@- $@
 		$(RM) $@-
 
@@ -909,9 +904,9 @@ doc/doc.fd:	doc/makedoc.fs $(GFORTH_FI_SRC) code.fs objects.fs oof.fs moofglos.f
 doc/crossdoc.fd:	$(KERN_SRC) kernel/version.fs $(FORTH_GEN0)
 		$(FORTHK) -e 's" mach32l.fs"' kernel/main.fs -e bye
 
-doc/gforth.texi:	doc/gforth.ds prim.b ds2texi.fs prims2x.fs \
+doc/gforth.texi: doc/gforth.ds prim.b ds2texi.fs prims2x.fs \
 		doc/doc.fd doc/crossdoc.fd
-		$(FORTHP) ds2texi.fs prims2x.fs -e "s\" $(srcdir)/prim.b\" ' register-doc ' noop process-file" doc/crossdoc.fd doc/doc.fd -e "s\" $(srcdir)/doc/gforth.ds\" r/o open-file throw ds2texi bye" >$@-
+		$(PREFORTH) ds2texi.fs prims2x.fs -e "s\" $(srcdir)/prim.b\" ' register-doc ' noop process-file" doc/crossdoc.fd doc/doc.fd -e "s\" $(srcdir)/doc/gforth.ds\" r/o open-file throw ds2texi bye" >$@-
 		$(CP) $@- $@
 		$(RM) $@-
 

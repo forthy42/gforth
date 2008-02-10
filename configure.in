@@ -607,13 +607,17 @@ AC_MSG_RESULT($M4)
 
 # Find installed Gforth
 AC_MSG_CHECKING([for gforth])
-GFORTH="`which gforth 2>/dev/null`"
-if test ! -z "$GFORTH"; then  GFORTH="$GFORTH -m4M --die-on-signal -i `gforth --debug -e bye 2>&1 |grep "Opened image file: "|sed 's/Opened image file: //'`" ; fi
-AC_SUBST(GFORTH)
-AC_DEFINE_UNQUOTED(GFORTH,"$GFORTH",[How to invoke gforth])
-AC_MSG_RESULT($GFORTH)
+GFORTH="`cd / && which gforth 2>/dev/null`"
+if test -z "$GFORTH"; then
+  PREFORTH='echo "You need to configure with a gforth in \$PATH to build this part" && false'
+else
+  PREFORTH="$GFORTH -i `cd / && gforth --debug -e bye 2>&1 |grep "Opened image file: "|sed 's/Opened image file: //'`" ;
+fi
+AC_SUBST(PREFORTH)
+AC_DEFINE_UNQUOTED(PREFORTH,"$PREFORTH",[How to invoke the pre-installed gforth])
+AC_MSG_RESULT($PREFORTH)
 
-echo "machine='$machine'"
+#echo "machine='$machine'"
 
 dnl AC_CHECK_PROG(asm_fs,asm.fs,arch/$machine/asm.fs,,$srcdir/arch/$machine)
 AC_CHECK_FILE($srcdir/arch/$machine/asm.fs,[asm_fs=arch/$machine/asm.fs],)

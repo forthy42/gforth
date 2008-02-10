@@ -35,7 +35,7 @@ bl word vocabulary find nip 0= [IF]
     \ system and include it.
     \ We want the files taken from our current gforth installation
     \ so we don't include relatively to this file
-    require startup.fs
+    require ./../startup.fs
 [THEN]
 
 \ include etags.fs
