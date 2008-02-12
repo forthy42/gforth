@@ -17,10 +17,15 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-[IFDEF] av-call-int
+s" libavcall.so"     open-lib 0<>
+s" libcallback.so"   open-lib 0<> and
+s" libvacall.so"     open-lib 0<> and
+s" libtrampoline.so" open-lib 0<> and [if]
+    .( including fflib.fs [ffcall] )
     include fflib.fs
 [ELSE]
-    [IFDEF] ffi-call
+    s" libffi.so" open-lib [if]
+        .( including libffi.fs )
 	include libffi.fs
     [ELSE]
         .( Neither libffi nor ffcall are available ) cr

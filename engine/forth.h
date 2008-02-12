@@ -356,6 +356,7 @@ extern saved_regs saved_regs_v, *saved_regs_p;
 #define saved_ip (saved_regs_p->sr_saved_ip)
 #define rp       (saved_regs_p->sr_rp)
 /* for use in gforth_engine header */
+#error sr_proto not passed in fflib.fs callbacks (solution: disable GLOBALS_NONRELOC)
 #define sr_proto , struct saved_regs *saved_regs_p0
 #define sr_call  , saved_regs_p
 #else /* !defined(GLOBALS_NONRELOC) */

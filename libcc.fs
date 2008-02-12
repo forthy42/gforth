@@ -372,7 +372,7 @@ create gen-par-types
     ." ," gen-par-n ." ," gen-par-n ." )" ;
 
 : gen-wrapped-r ( pars c-name fp-change1 sp-change1 -- fp-change sp-change )
-    2dup gen-par-r 2>r ." =" gen-wrapped-void 2r> ;
+    2dup gen-par-r 2>r ." =" gen-wrapped-call 2r> ;
 
 : gen-wrapped-func ( pars c-name fp-change1 sp-change1 -- fp-change sp-change )
     gen-wrapped-a ;

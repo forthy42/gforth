@@ -17,6 +17,130 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+\ replacements for former primitives
+require libcc.fs
+
+\c #include <avcall.h>
+\c #include <callback.h>
+\c static av_alist alist;
+\c static va_alist gforth_clist;
+\c static float frv;
+\c static int irv;
+\c static double drv;
+\c static long long llrv;
+\c static void * prv;
+\c static Cell *gforth_RP;
+\c static char *gforth_LP;
+\c typedef void *Label;
+\c typedef Label *Xt;
+\c Label *gforth_engine(Xt *ip, Cell *sp, Cell *rp0, Float *fp, char *lp);
+\c 
+\c void gforth_callback_ffcall(Xt* fcall, void * alist)
+\c {
+\c   /* save global valiables */
+\c   Cell *rp = gforth_RP;
+\c   Cell *sp = gforth_SP;
+\c   Float *fp = gforth_FP;
+\c   char *lp = gforth_LP;
+\c   va_alist clist = gforth_clist;
+\c 
+\c   gforth_clist = (va_alist)alist;
+\c 
+\c   gforth_engine(fcall, sp, rp, fp, lp);
+\c 
+\c   /* restore global variables */
+\c   gforth_RP = rp;
+\c   gforth_SP = sp;
+\c   gforth_FP = fp;
+\c   gforth_LP = lp;
+\c   gforth_clist = clist;
+\c }
+
+\c #define av_start_void1(c_addr) av_start_void(alist, c_addr)
+c-function av-start-void av_start_void1 a -- void
+\c #define av_start_int1(c_addr) av_start_int(alist, c_addr, &irv)
+c-function av-start-int av_start_int1 a -- void
+\c #define av_start_float1(c_addr) av_start_float(alist, c_addr, &frv)
+c-function av-start-float av_start_float1 a -- void
+\c #define av_start_double1(c_addr) av_start_double(alist, c_addr, &drv)
+c-function av-start-double av_start_double1 a -- void
+\c #define av_start_longlong1(c_addr) av_start_longlong(alist, c_addr, &llrv)
+c-function av-start-longlong av_start_longlong1 a -- void
+\c #define av_start_ptr1(c_addr) av_start_ptr(alist, c_addr, void *, &prv)
+c-function av-start-ptr av_start_ptr1 a -- void
+\c #define av_int1(w) av_int(alist,w)
+c-function av-int av_int1 n -- void
+\c #define av_float1(r) av_float(alist,r)
+c-function av-float av_float1 r -- void
+\c #define av_double1(r) av_double(alist,r)
+c-function av-double av_double1 r -- void
+\c #define av_longlong1(d) av_longlong(alist,d)
+c-function av-longlong av_longlong1 d -- void
+\c #define av_ptr1(a) av_ptr(alist, void *, a)
+c-function av-ptr av_ptr1 a -- void
+\c #define av_call_void() av_call(alist)
+c-function av-call-void av_call_void -- void
+\c #define av_call_int() (av_call(alist), irv)
+c-function av-call-int av_call_int -- n
+\c #define av_call_float() (av_call(alist), frv)
+c-function av-call-float av_call_float -- r
+\c #define av_call_double() (av_call(alist), drv)
+c-function av-call-double av_call_double -- r
+\c #define av_call_longlong() (av_call(alist), llrv)
+c-function av-call-longlong av_call_longlong -- d
+\c #define av_call_ptr() (av_call(alist), prv)
+c-function av-call-ptr av_call_ptr -- a
+\c #define alloc_callback1(a_ip) alloc_callback(gforth_callback_ffcall, (Xt *)a_ip)
+c-function alloc-callback alloc_callback1 a -- a
+\c #define va_start_void1() va_start_void(gforth_clist)
+c-function va-start-void va_start_void1 -- void
+\c #define va_start_int1() va_start_int(gforth_clist)
+c-function va-start-int va_start_int1 -- void
+\c #define va_start_longlong1() va_start_longlong(gforth_clist)
+c-function va-start-longlong va_start_longlong1 -- void
+\c #define va_start_ptr1() va_start_ptr(gforth_clist, (char *))
+c-function va-start-ptr va_start_ptr1 -- void
+\c #define va_start_float1() va_start_float(gforth_clist)
+c-function va-start-float va_start_float1 -- void
+\c #define va_start_double1() va_start_double(gforth_clist)
+c-function va-start-double va_start_double1 -- void
+\c #define va_arg_int1() va_arg_int(gforth_clist)
+c-function va-arg-int va_arg_int1 -- n
+\c #define va_arg_longlong1() va_arg_longlong(gforth_clist)
+c-function va-arg-longlong va_arg_longlong1 -- d
+\c #define va_arg_ptr1() va_arg_ptr(gforth_clist, char *)
+c-function va-arg-ptr va_arg_ptr1 -- a
+\c #define va_arg_float1() va_arg_float(gforth_clist)
+c-function va-arg-float va_arg_float1 -- r
+\c #define va_arg_double1() va_arg_double(gforth_clist)
+c-function va-arg-double va_arg_double1 -- r
+\c #define va_return_void1() va_return_void(gforth_clist)
+c-function va-return-void1 va_return_void1 -- void
+\c #define va_return_int1(w) va_return_int(gforth_clist,w)
+c-function va-return-int1 va_return_int1 n -- void
+\c #define va_return_ptr1(w) va_return_ptr(gforth_clist, void *, w)
+c-function va-return-ptr1 va_return_ptr1 a -- void
+\c #define va_return_longlong1(d) va_return_longlong(gforth_clist,d)
+c-function va-return-longlong1 va_return_longlong1 d -- void
+\c #define va_return_float1(r) va_return_float(gforth_clist,r)
+c-function va-return-float1 va_return_float1 r -- void
+\c #define va_return_double1(r) va_return_double(gforth_clist,r)
+c-function va-return-double1 va_return_double1 r -- void
+
+: av-int-r      2r> >r av-int ;
+: av-float-r    f@local0 lp+ av-float ;
+: av-double-r   f@local0 lp+ av-double ;
+: av-longlong-r r> 2r> rot >r av-longlong ;
+: av-ptr-r      2r> >r av-ptr ;
+: va-return-void      va-return-void1     0 (bye) ;
+: va-return-int       va-return-int1      0 (bye) ;
+: va-return-ptr       va-return-ptr1      0 (bye) ;
+: va-return-longlong  va-return-longlong1 0 (bye) ;
+: va-return-float     va-return-float1    0 (bye) ;
+: va-return-double    va-return-double1   0 (bye) ;
+
+\ start of fflib proper
+
 Variable libs 0 libs !
 \ links between libraries
 Variable thisproc
