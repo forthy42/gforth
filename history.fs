@@ -323,7 +323,9 @@ require utf-8.fs
     ['] xtab-expand  #tab   bindkey
     ['] (xins)       IS insert-char
     ['] kill-prefix  IS everychar
+[ifdef] everyline
     ['] linew-off     IS everyline
+[endif]
     ['] xback-restore IS back-restore
     ['] xcur-correct  IS cur-correct
 ;

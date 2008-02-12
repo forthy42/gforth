@@ -757,18 +757,20 @@ Defer discode ( addr u -- ) \ gforth
     dup >code-address
     CASE
 	docon: of seecon endof
-	dovalue: of seevalue endof
+[IFDEF] dovalue:
+        dovalue: of seevalue endof
+[THEN]
 	docol: of seecol endof
 	dovar: of seevar endof
-[ [IFDEF] douser: ]
+[IFDEF] douser:
 	douser: of seeuser endof
-[ [THEN] ]
-[ [IFDEF] dodefer: ]
+[THEN]
+[IFDEF] dodefer:
 	dodefer: of seedefer endof
-[ [THEN] ]
-[ [IFDEF] dofield: ]
+[THEN]
+[IFDEF] dofield:
 	dofield: of seefield endof
-[ [THEN] ]
+[THEN]
 	over       of seecode endof \ direct threaded code words
 	over >body of seecode endof \ indirect threaded code words
 	2drop abort" unknown word type"

@@ -17,6 +17,15 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+[ifundef] umin
+: umin ( u1 u2 -- u )
+    2dup u>
+    if
+	swap
+    then
+    drop ;
+[then]
+
 : char/ ; immediate
 
 : parse-num-x  ( c-addr1 umax -- c-addr2 c )

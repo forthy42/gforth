@@ -123,7 +123,16 @@
 \ first-time word, then to the run-time word; the run-time word calls
 \ the c function.
 
-: delete-file 2drop 0 ;
+[ifundef] parse-name
+    ' parse-word alias parse-name
+[then]
+[ifundef] defer!
+: defer! ( xt xt-deferred -- ) \ gforth  defer-store
+\G Changes the @code{defer}red word @var{xt-deferred} to execute @var{xt}.
+    >body [ has? rom [IF] ] @ [ [THEN] ] ! ;
+[then]
+
+\ : delete-file 2drop 0 ;
 
 require struct.fs
 
