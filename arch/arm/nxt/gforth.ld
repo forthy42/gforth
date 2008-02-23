@@ -68,7 +68,7 @@ __extra_ram_end__   = __samba_ram_end__;
  * table
  */
 .vectors : {
-    KEEP(vectors.o (*.text *.text.*))
+    KEEP(../arch/arm/nxt/vectors.o (*.text *.text.*))
     . = ALIGN(16);
 } > vector_ram
  AT> rom
@@ -83,7 +83,7 @@ __vectors_load_end__ = (LOADADDR(.vectors) + SIZEOF(.vectors));
  * For a ram build it goes into ram, for a rom build it goes into rom.
  */
 .init : {
-    init.o (*.text *.text.*)
+    ../arch/arm/nxt/init.o (*.text *.text.*)
     . = ALIGN(16);
 } 
  > rom

@@ -37,6 +37,11 @@ int terminal_prepped = 0;
 int needs_update = 0;
 int bt_mode = 0;
 int bt_state = 0;
+static char bt_buf[0x100];
+static char udp_buf[0x100];
+int bt_index;
+int udp_index;
+int udp_size;
 
 void
 show_splash(U32 milliseconds)
@@ -77,9 +82,11 @@ int do_bluetooth ()
     char cmd[30];
     
     bt_receive(cmd);
-    if(cmd[0] | cmd[1]) {
-      display_char('0'+cmd[0]);
-      display_char('0'+cmd[1]);
+    if(cmd[0]) {
+      display_goto_xy(0,1);
+      display_hex(cmd[0],2);
+      display_goto_xy(3,1);
+      display_hex(cmd[1],2);
     }
     
     switch(cmd[1]) {
@@ -109,6 +116,7 @@ int do_bluetooth ()
 	  bt_set_arm7_cmd();
 	  bt_mode = 1;
 	  display_char(')'); display_update();
+	  type_chars("Gforth NXT\n", 11);
 	}
 	//	  bt_state = 1;
       } else {
@@ -118,6 +126,7 @@ int do_bluetooth ()
     case 0x20: // discoverableack
       if(cmd[2]) {
 	display_char('?');
+	cmd[1] = 0x03; bt_send_cmd(cmd); // open port query
 	break;
       }
     case 0x10:
@@ -130,7 +139,7 @@ int do_bluetooth ()
     }
     display_update();
   }
-  return 0;
+  return bt_mode;
 }
 
 void prep_terminal ()
@@ -142,22 +151,33 @@ void prep_terminal ()
   systick_init();
   sound_init();
   nxt_avr_init();
-  display_init();
   nxt_motor_init();
   i2c_init();
   bt_init();
-  bt_start_ad_converter();
-  do {
-    bt_receive(cmd);
-  } while((cmd[0] != 3) && (cmd[1] != 0x14));
+  udp_init();
+  display_init();
+  show_splash(2000);
+  display_goto_xy(0,0);
+  display_string("BT Reset ");
+  display_update();
+  //  bt_reset();
+  display_string("ok");
+  display_update();
+  bt_buf[0] = 0;
+  bt_buf[1] = 0;
+  bt_index = 0;
+  //  bt_start_ad_converter();
+  //  do {
+  //    bt_receive(cmd);
+  //  } while((cmd[0] != 3) && (cmd[1] != 0x14));
   //  cmd[1] = 0x36; // break stream mode
   //  cmd[2] = 0;
   //  bt_send_cmd(cmd);
-  //  cmd[1] = 0x1C; cmd[2] = 1; bt_send_cmd(cmd); // make visible
-  cmd[1] = 0x03; bt_send_cmd(cmd); // open port query
-  display_clear(1);
-  show_splash(1000);
-  display_goto_xy(0,0);
+  // cmd[1] = 0x1C; cmd[2] = 1; bt_send_cmd(cmd); // make visible
+  display_string(".");
+  display_goto_xy(0,1);
+  display_update();
+  while(!do_bluetooth() && !udp_configured());
 
   terminal_prepped = 1;
 }
@@ -171,9 +191,10 @@ long key_avail ()
 {
   if(!terminal_prepped) prep_terminal();
 
-  do_bluetooth();
-  if(bt_mode) {
-    return bt_avail();
+  if(do_bluetooth()) {
+    return bt_buf[0] - bt_index;
+  } else if(udp_configured()) {
+    return udp_size - udp_index;
   } else {
     systick_wait_ms(100);
     return 0;
@@ -183,38 +204,63 @@ long key_avail ()
 Cell getkey()
 {
   int key;
-
+  
   if(!terminal_prepped) prep_terminal();
-
+  
   if(needs_update) {
     display_update();
     needs_update = 0;
   }
-
-  while(!key_avail());
   
-  while((key=bt_getkey())==0);
+  do {
+    if(do_bluetooth()) {
+      while(bt_index >= bt_buf[0]) {
+	bt_receive(bt_buf);
+	bt_index = 0;
+      }
+      key = bt_buf[bt_index++];
+    } else if(udp_configured()) {
+      if(udp_index < udp_size) {
+	key = udp_buf[udp_index++];
+      } else {
+	udp_size = udp_read(udp_buf, 0x100);
+	udp_index = 0;
+	key = 0;
+      }
+    } else {
+      key = 0;
+    }
+  } while(!key);
+    
   display_char(key); display_update();
-
+  
   return key;
 }
 
 void emit_char(char x)
 {
+  char buf[3];
   if(!terminal_prepped) prep_terminal();
-  /*  display_char(x);
-  if(x == '\n') {
-    display_update();
-    needs_update = 0;
-  } else
-  needs_update = 1; */
-  if(bt_mode) bt_send(&x, 1);
+  if(bt_mode) {
+    buf[0] = 1;
+    buf[1] = 0;
+    buf[2] = x;
+    bt_send(buf, 3);
+  }
 }
 
 void type_chars(char *addr, unsigned int l)
 {
-  if(bt_mode) bt_send(addr, l);
-  /*  int i;
-  for(i=0; i<l; i++)
-  emit_char(addr[i]); */
+  int i;
+  char buf[0x100];
+  if(bt_mode) {
+    buf[0]=l;
+    buf[1]=0;
+    for(i=0; i<l; i++) {
+      buf[2+i]=addr[i];
+    }
+    bt_send(buf, l+2);
+  }
 }
+
+volatile unsigned char gMakeRequest;

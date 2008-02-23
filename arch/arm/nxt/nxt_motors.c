@@ -56,6 +56,17 @@ nxt_motor_set_speed(U32 n, int speed_percent, int brake)
   }
 }
 
+void nxt_motor_reset_all() 
+{
+  int i;
+	
+  for(i=0;i<NXT_N_MOTORS;i++)
+  {
+    nxt_motor_set_speed(i,0,1);
+    nxt_motor_set_count(i,0);   
+  }	
+}
+
 void
 nxt_motor_command(U32 n, int cmd, int target_count, int speed_percent)
 {

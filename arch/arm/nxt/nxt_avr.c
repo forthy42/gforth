@@ -280,11 +280,19 @@ nxt_avr_set_motor(U32 n, int power_percent, int brake)
 void
 nxt_avr_set_input_power(U32 n, U32 power_type)
 {
-  // This does not correspond to the spec.
-  // It is unclear how to set power always on.
-  // Lego code has a bug in it.
-  if (n < NXT_AVR_N_INPUTS && power_type <= 1) {
-    io_to_avr.input_power &= ~(0x1 << (n));
-    io_to_avr.input_power |= (power_type << (n));
+  // The power to the sensor is controlled by a bit in
+  // each of the two nibbles of the byte. There is one
+  // bit for each of the four sensors. if the low nibble
+  // bit is set then the sensor is "ACTIVE" and 9v is
+  // supplied to it but it will be pulsed off to allow
+  // the sensor to be be read. A 1 in the high nibble
+  // indicates that it is a 9v always on sensor and
+  // 9v will be supplied constantly. If both bits are
+  // clear then 9v is not supplied to the sensor. 
+  // Having both bits set is currently not supported.
+  if (n < NXT_AVR_N_INPUTS && power_type <= 2) {
+    U8 val = (power_type & 0x2 ? 0x10 << n : 0) | ((power_type & 1) << n);
+    io_to_avr.input_power &= ~(0x11 << n);
+    io_to_avr.input_power |= val;
   }
 }

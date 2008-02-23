@@ -15,7 +15,7 @@ int udp_short_timed_out(void);
 void udp_short_reset_timeout(void);
 void udp_write(U8* buf, int len);
 void udp_enumerate(void);
-void udp_send_control(U8* p,int len);
+void udp_send_control(U8* p,int len, int send_null);
 void udp_send_null(void);
 void udp_send_stall(void);
 int udp_configured(void);

@@ -23,7 +23,9 @@
 #include <stdio.h>
 #include <sys/time.h>
 #include <unistd.h>
+#ifndef STANDALONE
 #include <ltdl.h>
+#endif
 
 #if !defined(FORCE_LL) && !defined(BUGGY_LONG_LONG)
 #define BUGGY_LONG_LONG

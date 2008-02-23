@@ -1,8 +1,3 @@
-/*
- * This file is copied from the leJOS NXT project and comes
- * under the Mozilla public license (see file LICENSE in this directory)
- */
-
 /* Driver for the AT91SAM7's Advanced Interrupt Controller (AIC).
  *
  * The AIC is responsible for queuing interrupts from other

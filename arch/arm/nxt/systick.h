@@ -15,4 +15,8 @@ void systick_wait_ns(U32 n);
 
 void systick_test(void);
 
+void systick_suspend(void);
+
+void systick_resume(void);
+
 #endif

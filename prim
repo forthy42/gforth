@@ -2782,12 +2782,12 @@ uploop(i, 0, 7, `fcall(i)')
 fcall(20)
 
 \+
-\+
 
 lib-error ( -- c_addr u )       gforth  lib_error
 c_addr = lt_dlerror();
 u = (c_addr == NULL) ? 0 : strlen(c_addr);
 
+\+
 \g peephole
 
 \+peephole

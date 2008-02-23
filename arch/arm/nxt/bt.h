@@ -1,8 +1,3 @@
-/*
- * This file is copied from the leJOS NXT project and comes
- * under the Mozilla public license (see file LICENSE in this directory)
- */
-
 #ifndef BT_H_
 #define BT_H_
 
@@ -79,8 +74,10 @@ void bt_set_reset_low(void);
 void bt_start_ad_converter(void);
 void bt_send(U8 *buf, U32 len);
 void bt_receive(U8 * buf);
-int bt_avail(void);
-int bt_getkey(void);
 U32 bt_get_mode(void);
+void bt_reset(void);
+U32 bt_write(U8 *buf, U32 off, U32 len);
+U32 bt_read(U8 * buf, U32 off, U32 len);
+U32 bt_pending(void);
 
 #endif /*BT_H_*/

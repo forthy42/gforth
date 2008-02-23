@@ -1,8 +1,3 @@
-/*
- * This file is copied from the leJOS NXT project and comes
- * under the Mozilla public license (see file LICENSE in this directory)
- */
-
 #ifndef __AT91_UART_H__
 #  define __AT91_UART_H__
 

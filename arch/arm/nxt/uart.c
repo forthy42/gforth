@@ -1,7 +1,3 @@
-/*
- * This file is copied from the leJOS NXT project and comes
- * under the Mozilla public license (see file LICENSE in this directory)
- */
 
 #include "mytypes.h"
 #include "uart.h"

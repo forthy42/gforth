@@ -47,6 +47,7 @@ RMTREE	= rm -rf
 CP	= cp -p
 TAR	= tar cf -
 GCC	= @CC@
+BOOTFORTH	= @GFORTH@
 CC	= $(GCC)
 LD	= $(GCC:gcc=ld)
 AS	= $(GCC:gcc=as)
@@ -83,7 +84,7 @@ CFLAGS	= $(DEBUGFLAG) -I$(srcdir)/../arch/$(machine) -I. -Wall $(SWITCHES) -DDEF
 CFLAGS2	= $(DEBUGFLAG) -I$(srcdir)/../arch/$(machine) -I. -Wall $(SWITCHES) -DDEFAULTPATH='"$(FORTHPATH)"'
 FORTHKFLAGS= --die-on-signal -p "..$(PATHSEP)$(srcdir)" -i ../$(kernel_fi)
 FORTHK	= ../gforth $(FORTHKFLAGS)
-FORTH	= ../gforth --die-on-signal -p "..$(PATHSEP)$(srcdir)" -i ../gforth.fi
+FORTH	= $(BOOTFORTH) --die-on-signal
 
 #John Wavrik should use -Xlinker -N to get a writable text (executable)
 XLDFLAGS = @LDFLAGS@
@@ -245,7 +246,7 @@ Makefile: Makefile.in ../config.status ../configure.in
 	cd .. && make engine/Makefile.in
 
 image.i:	../fi2c.fs ../$(include_fi)
-		$(FORTH) fi2c.fs -e "s\" ../$(include_fi)\" fi2c bye" >$@
+		$(BOOTFORTH) ../fi2c.fs -e "s\" ../$(include_fi)\" fi2c bye" >$@
 
 ../$(include_fi):	FORCE
 		cd .. && $(MAKE) $(include_fi)

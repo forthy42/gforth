@@ -2321,11 +2321,11 @@ int main(int argc, char **argv, char **env)
 
   progname = argv[0];
 
+#ifndef STANDALONE
   if (lt_dlinit()!=0) {
     fprintf(stderr,"%s: lt_dlinit failed", progname);
     exit(1);
   }
-#ifndef STANDALONE
 #ifdef HAS_OS
   gforth_args(argc, argv, &path, &imagename);
 #ifndef NO_DYNAMIC
@@ -2373,8 +2373,10 @@ int main(int argc, char **argv, char **env)
     vm_print_profile(stderr);
 #endif
     deprep_terminal();
+#ifndef STANDALONE
     if (lt_dlexit()!=0)
       fprintf(stderr,"%s: lt_dlexit failed", progname);
+#endif
   }
   if (print_metrics) {
     int i;

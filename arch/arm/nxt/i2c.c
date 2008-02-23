@@ -59,6 +59,19 @@ static const struct i2c_pin_pair i2c_pin[4] = {
 //
 // Note: It appears that the Lego ultrasonic sensor needs a 
 // stop and an extra clock before the restart.
+//
+// Additional changes made by Andy Shaw...
+//
+// Port 4 on the nxt is a little odd. It has extra hardware to implement
+// an RS485 interface. However this interacts with the digital I/O lines
+// which means that the original open collector driver used in this code
+// did not work. The code now uses a combination of open collector drive
+// on the clock lines (with pull up resistors enabled), plus a fully
+// driven ineterface on the data lines. This differs from the Lego
+// firmware which uses a fully driven clock inetrface. However doing so
+// means that it is hard (or impossible), to operate with the devices
+// that make use of clock stretching. It is hoped that the compromise
+// implemented here will work with all devices.
 
 
 struct i2c_partial_transaction {
@@ -156,6 +169,8 @@ i2c_timer_isr_C(void)
 
   U32 codr = 0;
   U32 sodr = 0;
+  U32 oer = 0;
+  U32 odr = 0;
   U32 inputs = *AT91C_PIOA_PDSR;
 
   struct i2c_port_struct *p = i2c_port;
@@ -177,6 +192,8 @@ i2c_timer_isr_C(void)
     case I2C_BEGIN:		
       // Start the current partial transaction
       p->pt_begun |= (1 << p->pt_num);
+      oer |= p->sda_pin;
+      oer |= p->scl_pin;
       
       if(p->current_pt && p->current_pt->nbytes){
         p->data = p->current_pt->data;
@@ -251,14 +268,18 @@ i2c_timer_isr_C(void)
         if(p->ack_slot) {
         
           if(p->transmitting)
-            sodr |= p->sda_pin;
+            odr |= p->sda_pin;
           else
+          {
+            oer |= p->sda_pin;
             codr |= p->sda_pin;
+          }
         
         } else if(!p->transmitting)
-          sodr |= p->sda_pin;
+          odr |= p->sda_pin;
         else {
           // Transmitting, and not an ack slot so send next bit
+          oer |= p->sda_pin;
           p->nbits--;
           if(((*(p->data)) >> (p->nbits & 7)) & 0x01)
             sodr |= p->sda_pin;
@@ -335,6 +356,7 @@ i2c_timer_isr_C(void)
       break;
     case I2C_STOP0:
       // Take SDA low (SCL is already low)
+      oer |= p->sda_pin;
       codr |= p->sda_pin;
       p->state = I2C_STOP1;
       break;  
@@ -366,6 +388,10 @@ i2c_timer_isr_C(void)
     *AT91C_PIOA_CODR = codr;
   if (sodr)
     *AT91C_PIOA_SODR = sodr;
+  if (oer)
+    *AT91C_PIOA_OER = oer;
+  if (odr)
+    *AT91C_PIOA_ODR = odr;
 }
 
 
@@ -389,10 +415,15 @@ i2c_enable(int port)
     struct i2c_port_struct *p = &i2c_port[port];
     U32 pinmask = p->scl_pin | p->sda_pin;
     p->state = I2C_IDLE;
-    /* Set pins for output, open collector driver */
+    /* Set clock pin for output, open collector driver, with
+     * pullups enabled. Set data to be enabled for output with
+     * pullups disabled.
+     */
     *AT91C_PIOA_SODR  = pinmask;
     *AT91C_PIOA_OER   = pinmask;
-    *AT91C_PIOA_MDER  = pinmask;
+    *AT91C_PIOA_MDER  = p->scl_pin;
+    *AT91C_PIOA_PPUDR = p->sda_pin;
+    *AT91C_PIOA_PPUER = p->scl_pin;
   }
 }
 
@@ -484,7 +515,8 @@ i2c_start_transaction(int port,
     // Set up first partial transaction: start address and internal address if required
 
     pt->start = 1;
-    pt->stop = 1;
+    // We add an extra stop for the odd Lego i2c sensor, but only on a read
+    pt->stop = (write ? 0 : 1);;
     pt->tx = 1;
     pt->data = p->addr_int;
     pt->nbytes = 2;

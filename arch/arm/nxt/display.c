@@ -1,19 +1,27 @@
-/*
- * This file is copied from the leJOS NXT project and comes
- * under the Mozilla public license (see file LICENSE in this directory)
- */
-
 #include "display.h"
 #include "nxt_lcd.h"
 #include "systick.h"
-
+// #include "constants.h"
+// #include "classes.h"
 #include <string.h>
 
 
 #define DISPLAY_WIDTH (NXT_LCD_WIDTH)
 #define DISPLAY_DEPTH (NXT_LCD_DEPTH)
 
-static U8 display_buffer[DISPLAY_DEPTH][DISPLAY_WIDTH];
+/* NOTE
+ * The following buffer is declared with one extra line (the +1).
+ * This is to allow fast dma update of the screen (see nxt_spi.c
+ * for details). The buffer is now created wrapped inside of a Java
+ * array. This allows the buffer to be shared with Java applications.
+ */
+static U8 display_buffer[DISPLAY_DEPTH+1][DISPLAY_WIDTH];
+/*static struct
+{
+  Object hdr;
+  U8 display[DISPLAY_DEPTH+1][DISPLAY_WIDTH];
+} __attribute__((packed)) display_array;
+static U8 (*display_buffer)[DISPLAY_WIDTH] = display_array.display;*/
 
 /* Font table for a 5x8 font. 1 pixel spacing between chars */
 #define N_CHARS 128
@@ -153,19 +161,27 @@ static const U8 font[N_CHARS][FONT_WIDTH] = {
 /* 0x7F */ {0x3E, 0x36, 0x2A, 0x36, 0x3E},
 };
 
-
+int displayTick = 0;
 
 void
 display_update(void)
 {
-  nxt_lcd_data((U8 *) display_buffer);
+  displayTick = 0;
+  nxt_lcd_update();
+}
+
+void display_force_update(void)
+{
+  // Force a display update even if interrupts are disabled
+  nxt_lcd_force_update();
 }
 
 
 void
 display_clear(U32 updateToo)
 {
-  memset(display_buffer, 0, sizeof(display_buffer));
+  //memset(display_buffer, 0, sizeof(display_buffer));
+  memset(display_buffer, 0, DISPLAY_WIDTH*DISPLAY_DEPTH);
   if (updateToo)
     display_update();
 }
@@ -189,30 +205,16 @@ display_char(int c)
   U8 *b;
   const U8 *f;
 
-  if(c != '\n') {
-    if (c >= 0 && c < N_CHARS &&
-	display_x >= 0 && display_x < DISPLAY_CHAR_WIDTH &&
-	display_y >= 0 && display_y < DISPLAY_CHAR_DEPTH) {
-      b = &display_buffer[display_y][display_x * CELL_WIDTH];
-      f = font[c];
-      for (i = 0; i < FONT_WIDTH; i++) {
-	*b = *f;
-	b++;
-	f++;
-      }
+  if (c >= 0 && c < N_CHARS &&
+      display_x >= 0 && display_x < DISPLAY_CHAR_WIDTH &&
+      display_y >= 0 && display_y < DISPLAY_CHAR_DEPTH) {
+    b = &display_buffer[display_y][display_x * CELL_WIDTH];
+    f = font[c];
+    for (i = 0; i < FONT_WIDTH; i++) {
+      *b = *f;
+      b++;
+      f++;
     }
-    display_x++;
-    if(display_x == DISPLAY_CHAR_WIDTH) {
-      display_x = 0;
-      display_y++;
-      if(display_y == DISPLAY_CHAR_DEPTH)
-	display_y--;
-    }
-  } else {
-    display_x = 0;
-    display_y++;
-    if(display_y == DISPLAY_CHAR_DEPTH)
-      display_y--;
   }
 }
 
@@ -220,7 +222,13 @@ void
 display_string(const char *str)
 {
   while (*str) {
-    display_char(*str);
+    if (*str != '\n') {
+      display_char(*str);
+      display_x++;
+    } else {
+      display_x = 0;
+      display_y++;
+    }
     str++;
   }
 }
@@ -331,14 +339,25 @@ display_bitmap_copy(const U8 *data, U32 width, U32 depth, U32 x, U32 y)
 U8 *
 display_get_buffer(void)
 {
-  return display_buffer;
+  return (U8 *)display_buffer;
 }
 
 void
 display_init(void)
 {
-  nxt_lcd_init();
-  display_clear(1);
+  // Initialise the array parameters so that the display can
+  // be memory mapped into the Java address space
+  /*  display_array.hdr.flags.arrays.isArray = 1;
+  // NOTE This object must always be marked, otherwise very, very bad
+  // things will happen!
+  display_array.hdr.flags.arrays.mark = 1;
+  display_array.hdr.flags.arrays.length = 200;
+  display_array.hdr.flags.arrays.isAllocated = 1;
+  display_array.hdr.flags.arrays.type = T_INT;
+  display_array.hdr.monitorCount = 0;
+  display_array.hdr.threadId = 0; */
+  display_clear(0);
+  nxt_lcd_init((U8 *)display_buffer);
 }
 
 void
@@ -346,7 +365,7 @@ display_test(void)
 {
   int iterator = 0;
 
-  nxt_lcd_init();
+  nxt_lcd_init((U8 *)display_buffer);
   while (1) {
     display_clear(0);
     display_goto_xy(iterator, 0);

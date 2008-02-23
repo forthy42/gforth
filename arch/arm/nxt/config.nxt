@@ -1,2 +1,2 @@
 #!/bin/bash
-env skipcode=".skip 16" kernel_fi=kernl64l.fi ac_cv_sizeof_void_p=8 ac_cv_sizeof_char_p=4 ac_cv_sizeof_char=1 ac_cv_sizeof_short=2 ac_cv_sizeof_int=4 ac_cv_sizeof_long=4 ac_cv_sizeof_long_long=8 ac_cv_sizeof_intptr_t=4 ac_cv_sizeof_int128_t=0  ac_cv_c_bigendian=no ./configure CC=arm-elf-gcc --host=arm-elf --with-ec=nxt 
+env skipcode=".skip 16" kernel_fi=kernl64l.fi ac_cv_sizeof_void_p=8 ac_cv_sizeof_char_p=4 ac_cv_sizeof_char=1 ac_cv_sizeof_short=2 ac_cv_sizeof_int=4 ac_cv_sizeof_long=4 ac_cv_sizeof_long_long=8 ac_cv_sizeof_intptr_t=4 ac_cv_sizeof_int128_t=0  ac_cv_c_bigendian=no ac_cv_file___arch_arm_asm_fs=no ac_cv_file___arch_arm_disasm_fs=no ./configure CC=arm-elf-gcc --host=arm-elf --with-ec=nxt 

@@ -14,8 +14,9 @@ void nxt_motor_command(U32 n, int cmd, int target_count, int speed_percent);
 
 void nxt_motor_init(void);
 
-
 // ISR points used by motor processing
 void nxt_motor_1kHz_process(void);
+
+void nxt_motor_reset_all(void);
 
 #endif

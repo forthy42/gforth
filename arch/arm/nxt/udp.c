@@ -129,18 +129,19 @@ udp_isr_C(void)
 {
 }
 
+void
 udp_check_interrupt()
 {
   if (*AT91C_UDP_ISR & END_OF_BUS_RESET) 
   { 
-  	//display_goto_xy(0,0);
-  	//display_string("Bus Reset");
-  	//display_update();
+  	display_goto_xy(0,0);
+  	display_string("Bus Reset");
+  	display_update();
 	*AT91C_UDP_ICR = END_OF_BUS_RESET;          
 	*AT91C_UDP_ICR = SUSPEND_RESUME;      
 	*AT91C_UDP_ICR = WAKEUP;              
-    configured = 0;
-    currentConfig = 0;
+	configured = 0;
+	currentConfig = 0;
 	*AT91C_UDP_RSTEP = 0xFFFFFFFF;
 	*AT91C_UDP_RSTEP = 0x0; 
 	currentRxBank = AT91C_UDP_RX_DATA_BK0;
@@ -149,9 +150,9 @@ udp_check_interrupt()
   }
   else if (*AT91C_UDP_ISR & SUSPEND_INT)
   {
-  	//display_goto_xy(0,0);
-  	//display_string("Suspend");
-  	//display_update();
+  	display_goto_xy(0,0);
+  	display_string("Suspend");
+  	display_update();
     if (configured == 1) configured = 2;
     else configured = 0;
 	*AT91C_UDP_ICR = SUSPEND_INT;
@@ -159,9 +160,9 @@ udp_check_interrupt()
   }
   else if (*AT91C_UDP_ISR & SUSPEND_RESUME)
   {
-  	//display_goto_xy(0,0);
-  	//display_string("Resume");
-  	//display_update();
+  	display_goto_xy(0,0);
+  	display_string("Resume");
+  	display_update();
     if (configured == 2) configured = 1;
     else configured = 0;
     *AT91C_UDP_ICR = WAKEUP;
@@ -169,6 +170,9 @@ udp_check_interrupt()
   }
   else if (*AT91C_UDP_ISR & AT91C_UDP_EPINT0)
   {
+  	display_goto_xy(0,0);
+  	display_string("Enumerate");
+  	display_update();
     *AT91C_UDP_ICR = AT91C_UDP_EPINT0; 
 	udp_enumerate();					
   } 
@@ -177,7 +181,7 @@ udp_check_interrupt()
 int
 udp_init(void)
 {
-  int i_state;
+  //int i_state;
 
   /* Make sure the USB PLL and clock are set up */
   *AT91C_CKGR_PLLR |= AT91C_CKGR_USBDIV_1;
@@ -332,7 +336,7 @@ void udp_send_stall()
   while ((*AT91C_UDP_CSR0) & (AT91C_UDP_FORCESTALL | AT91C_UDP_ISOERROR));
 }
 
-void udp_send_control(U8* p, int len)
+void udp_send_control(U8* p, int len, int send_null)
 {
   int i = 0, j, tmp;
   
@@ -348,7 +352,7 @@ void udp_send_control(U8* p, int len)
   	// Packet ready to send 
   	
   	(*AT91C_UDP_CSR0) |= AT91C_UDP_TXPKTRDY;
-    udp_reset_timeout(); 	
+	udp_reset_timeout(); 	
     
   	do 
   	{
@@ -371,7 +375,8 @@ void udp_send_control(U8* p, int len)
 
   }
   while (i < len);
-	
+  // If needed send the null terminating data 
+  if (send_null) udp_send_null();
   udp_reset_timeout();
 
   while(!((*AT91C_UDP_CSR0) & AT91C_UDP_RX_DATA_BK0) && !udp_timed_out());
@@ -417,7 +422,8 @@ udp_enumerate()
 
   req = br << 8 | bt;
   
-  /*if (1) {
+  /*
+  if (1) {
   	display_goto_xy(0,0);
     display_string(hex4(req));
     display_goto_xy(4,0);
@@ -426,30 +432,33 @@ udp_enumerate()
     display_string(hex4(ind));
     display_goto_xy(12,0);
     display_string(hex4(len));
+    display_goto_xy(0,1);
+    display_string("   ");
     display_update();
-  }*/
+  }
+  */
     
   switch(req)
   {
     case STD_GET_DESCRIPTOR: 
       if (val == 0x100) // Get device descriptor
       {
-        udp_send_control(dd, sizeof(dd));
+        udp_send_control((U8 *)dd, sizeof(dd), 0);
       }
       else if (val == 0x200) // Configuration descriptor
       {     
-        udp_send_control(cfd, (len < sizeof(cfd) ? len : sizeof(cfd)));
-        if (len > sizeof(cfd)) udp_send_null();
+        udp_send_control((U8 *)cfd, (len < sizeof(cfd) ? len : sizeof(cfd)), (len > sizeof(cfd) ? 1 : 0));
+        //if (len > sizeof(cfd)) udp_send_null();
       }	
       else if ((val & 0xF00) == 0x300)
       {
         switch(val & 0xFF)
         {
           case 0x00:
-	        udp_send_control(ld, sizeof(ld));
+	        udp_send_control((U8 *)ld, sizeof(ld), 0);
             break;
           case 0x01:
-		    udp_send_control(snd, sizeof(snd));
+		    udp_send_control(snd, sizeof(snd), 0);
             break;
           default:
 			udp_send_stall();
@@ -537,19 +546,19 @@ udp_enumerate()
       
     case STD_GET_CONFIGURATION:                                   
 
-      udp_send_control((U8 *) &(currentConfig), sizeof(currentConfig));
+      udp_send_control((U8 *) &(currentConfig), sizeof(currentConfig), 0);
       break;
 
     case STD_GET_STATUS_ZERO:
     
       status = 0x01; 
-      udp_send_control((U8 *) &status, sizeof(status));
+      udp_send_control((U8 *) &status, sizeof(status), 0);
       break;
       
     case STD_GET_STATUS_INTERFACE:
 
       status = 0;
-      udp_send_control((U8 *) &status, sizeof(status));
+      udp_send_control((U8 *) &status, sizeof(status), 0);
       break;
 
     case STD_GET_STATUS_ENDPOINT:
@@ -571,12 +580,12 @@ udp_enumerate()
             status = ((*AT91C_UDP_CSR3) & AT91C_UDP_EPEDS) ? 0 : 1;
             break;
         }
-        udp_send_control((U8 *) &status, sizeof(status));
+        udp_send_control((U8 *) &status, sizeof(status), 0);
       }
       else if (((*AT91C_UDP_GLBSTATE) & AT91C_UDP_FADDEN) && (ind == 0))
       {
         status = ((*AT91C_UDP_CSR0) & AT91C_UDP_EPEDS) ? 0 : 1;
-        udp_send_control((U8 *) &status, sizeof(status));
+        udp_send_control((U8 *) &status, sizeof(status), 0);
       }
       else udp_send_stall();                                // Illegal request :-(
 

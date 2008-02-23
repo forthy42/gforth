@@ -1,8 +1,3 @@
-/*
- * This file is copied from the leJOS NXT project and comes
- * under the Mozilla public license (see file LICENSE in this directory)
- */
-
 #ifndef __MTYPES_H__
 #  define __MTYPES_H__
 

@@ -1,8 +1,3 @@
-/*
- * This file is copied from the leJOS NXT project and comes
- * under the Mozilla public license (see file LICENSE in this directory)
- */
-
 #ifndef __DISPLAY_H__
 #  define __DISPLAY_H__
 
@@ -11,6 +6,8 @@
 void display_init(void);
 
 void display_update(void);
+
+void display_force_update(void);
 
 void display_clear(U32 updateToo);
 
@@ -30,5 +27,7 @@ void display_bitmap_copy(const U8 *data, U32 width, U32 depth, U32 x, U32 y);
 void display_test(void);
 
 U8 *display_get_buffer(void);
+
+extern int displayTick;
 
 #endif
