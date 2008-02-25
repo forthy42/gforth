@@ -26,12 +26,6 @@
 
 script? [IF]
     warnings off
-    require search.fs
-    require extend.fs
-    require glocals.fs
-    require float.fs
-    require struct.fs
-    require debugs.fs
 [THEN]
 
 wordlist constant documentation

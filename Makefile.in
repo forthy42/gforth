@@ -454,6 +454,7 @@ KERNLS = kernl16b$(EC).fi- kernl16l$(EC).fi- \
 	 kernl32b$(EC).fi- kernl32l$(EC).fi- \
 	 kernl64b$(EC).fi- kernl64l$(EC).fi-
 
+# -------------        Make forth images
 GEN_PRECIOUS = $(FORTH_GEN) $(KERNLS) \
 	doc/gforth.texi doc/gforth.dvi doc/gforth.ps \
 	doc/vmgen.dvi doc/vmgen.ps \
@@ -464,6 +465,11 @@ GEN_PRECIOUS = $(FORTH_GEN) $(KERNLS) \
 .SUFFIXES: .c .o
 
 all: kernel/version.fs more
+
+# ------------- Bootstrapping
+bootstrap:
+       [ ! -z "${PREFORTH}" ] && \
+       ${MAKE} BUILDFORTH="@PREFORTH@" FORTHP="@PREFORTH@" engine/prim.i ${BKERNLS}
 
 # use this dependency for phony targets just as mostlyclean,...
 FORCE: ;
