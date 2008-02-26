@@ -466,11 +466,6 @@ GEN_PRECIOUS = $(FORTH_GEN) $(KERNLS) \
 
 all: kernel/version.fs more
 
-# ------------- Bootstrapping
-bootstrap:
-       [ ! -z "${PREFORTH}" ] && \
-       ${MAKE} BUILDFORTH="@PREFORTH@" FORTHP="@PREFORTH@" engine/prim.i ${BKERNLS}
-
 # use this dependency for phony targets just as mostlyclean,...
 FORCE: ;
 
@@ -536,7 +531,7 @@ distclean:	clean
 
 #realclean is useless, but dangerous, so it's commented out
 realclean:	distclean
-		-$(RM) $(GEN_PRECIOUS)
+		-$(RM) -f $(GEN_PRECIOUS) `cat .cvsignore`
 
 #mostlyclean, but also remove some of the stuff that is distributed
 virtualclean:	mostlyclean
