@@ -2266,7 +2266,7 @@ static void print_diag()
 #endif
 	    "\b\b slow\n"
 #endif
-#ifndef FORCE_REG
+#if !(defined(FORCE_REG) || defined(FORCE_REG_UNNECESSARY))
 	    "    automatic register allocation: performance degradation possible\n"
 #endif
 	    "",
