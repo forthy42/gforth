@@ -483,7 +483,6 @@ kernel/version.fs:	version
 
 more:	$(ENGINES) $(FORTH_GEN) $(GEN)
 	@$(MAKE) check
-	@$(FORTH_FAST) --diag -e bye
 
 #from the gcc Makefile: 
 #"Deletion of files made during compilation.
