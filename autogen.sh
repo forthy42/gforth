@@ -31,14 +31,8 @@ autoconf &&
 # generate header files like engine/config.h.in
 
 autoheader &&
-echo timestamp >stamp-h.in
 
-# run configure Script
-
-./configure &&
+echo timestamp >stamp-h.in &&
 
 #a local gforth.fi probably does not work with $GFORTH
-rm -f gforth.fi &&
-
-echo Running: make bootstrap &&
-make bootstrap
+rm -f gforth.fi
