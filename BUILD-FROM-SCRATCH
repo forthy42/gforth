@@ -24,42 +24,9 @@
 
 # To build gforth from scratch you need autoconf, automake and a 
 # gforth-0.6.2
-# This file can be used as shell script. If you make the environment
-# variable GFORTH point to an existing gforth installation, this
-# script takes over the whole build process and will produce the
-# kernel kernel images from the sources as well
 
-
-#if [ "$GFORTH"xx = "xx" ];
-#then
-#    rm -f gforth
-#    GFORTH="`which gforth` --die-on-signal"
-#    if [ "$GFORTH"xx = "xx" ]; then
-#	echo 'BUILD-FROM-SCRATCH needs a working gforth (in environment variable GFORTH)'
-#        exit 1
-#    fi
-#fi
-
-# makes a aclocal.m4 which includes the automake macros for autconf
-
-aclocal &&
-
-# generate configure script
-
-autoconf &&
-
-# generate header files like engine/config.h.in
-
-autoheader &&
-echo timestamp >stamp-h.in
-
-# run configure Script
-
+./autogen.sh &&
 ./configure "$@" &&
-
-#a local gforth.fi probably does not work with $GFORTH
-rm -f gforth.fi &&
-
 echo Running: make &&
 make &&
 make doc &&

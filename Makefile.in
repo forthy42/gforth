@@ -530,7 +530,7 @@ distclean:	clean
 
 #realclean is useless, but dangerous, so it's commented out
 realclean:	distclean
-		-$(RM) -f $(GEN_PRECIOUS) `cat .cvsignore`
+		-$(RM) -rf $(GEN_PRECIOUS) `cat .cvsignore`
 
 #mostlyclean, but also remove some of the stuff that is distributed
 virtualclean:	mostlyclean
