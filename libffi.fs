@@ -17,6 +17,129 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+\ replacements for former primitives
+\ note that the API functions have their arguments reversed and other
+\ deviations.
+
+require libcc.fs
+
+\c #include <ffi.h>
+\c static Cell *gforth_RP;
+\c static char *gforth_LP;
+\c static void **gforth_clist;
+\c static void *gforth_ritem;
+\c typedef void *Label;
+\c typedef Label *Xt;
+\c static void gforth_callback_ffi(ffi_cif * cif, void * resp, void ** args, void * ip)
+\c {
+\c   Cell *rp1 = gforth_RP;
+\c   Cell *sp = gforth_SP;
+\c   Float *fp = gforth_FP;
+\c   char *lp = gforth_LP;
+\c   void ** clist = gforth_clist;
+\c   void * ritem = gforth_ritem;
+\c 
+\c   gforth_clist = args;
+\c   gforth_ritem = resp;
+\c 
+\c   gforth_engine((Xt *)ip, sp, rp1, fp, lp);
+\c 
+\c   /* restore global variables */
+\c   gforth_RP = rp1;
+\c   gforth_SP = sp;
+\c   gforth_FP = fp;
+\c   gforth_LP = lp;
+\c   gforth_clist = clist;
+\c   gforth_ritem = ritem;
+\c }
+
+\c static void* ffi_types[] =
+\c     { &ffi_type_void,
+\c       &ffi_type_uint8, &ffi_type_sint8,
+\c       &ffi_type_uint16, &ffi_type_sint16,
+\c       &ffi_type_uint32, &ffi_type_sint32,
+\c       &ffi_type_uint64, &ffi_type_sint64,
+\c       &ffi_type_float, &ffi_type_double, &ffi_type_longdouble,
+\c       &ffi_type_pointer };
+\c #define ffi_type(n) (ffi_types[n])
+c-function ffi-type ffi_type n -- a
+
+\c static int ffi_sizes[] = { sizeof(ffi_cif), sizeof(ffi_closure) };
+\c #define ffi_size(n1) (ffi_sizes[n1])
+c-function ffi-size ffi_size n -- n
+
+\c #define ffi_prep_cif1(atypes, n, rtype, cif) \
+\c           ffi_prep_cif((ffi_cif *)cif, FFI_DEFAULT_ABI, n, \
+\c                        (ffi_type *)rtype, (ffi_type **)atypes)
+c-function ffi-prep-cif ffi_prep_cif1 a n a a -- n
+
+\c #define ffi_call1(a_avalues, a_rvalue ,a_ip ,a_cif) \
+\c             ffi_call((ffi_cif *)a_cif, (void(*)())a_ip, \
+\c                      (void *)a_rvalue, (void **)a_avalues)
+c-function ffi-call ffi_call1 a a a a -- void
+
+\c #define ffi-prep-closure1(a_ip, a_cif, a_closure) \
+\c              ffi_prep_closure((ffi_closure *)a_closure, (ffi_cif *)a_cif, gforth_callback_ffi, (void *)a_ip)
+c-function ffi-prep-closure a a a -- n
+
+\ !! use ud?
+\c #define ffi_2fetch(a_addr) (*(long long *)a_addr)
+c-function ffi-2@ ffi_2fetch a -- d
+
+\c #define ffi_2store(d,a_addr) ((*(long long *)a_addr) = (long long)d)
+c-function ffi-2! ffi_2store d a -- void
+
+\c #define ffi_arg_int() (*(int *)(*gforth_clist++))
+c-function ffi-arg-int ffi_arg_int -- n
+
+\c #define ffi_arg_long() (*(long *)(*gforth_clist++))
+c-function ffi-arg-long ffi_arg_long -- n
+
+\c #define ffi_arg_longlong() (*(long long *)(*gforth_clist++))
+c-function ffi-arg-longlong ffi_arg_longlong -- d
+
+\ !! correct?  The primitive is different, but looks funny
+c-function ffi-arg-dlong ffi_arg_long -- d
+
+\c #define ffi_arg_ptr() (*(char **)(*gforth_clist++))
+c-function ffi-arg-ptr ffi_arg_ptr -- a
+
+\c #define ffi_arg_float() (*(float *)(*gforth_clist++))
+c-function ffi-arg-float ffi_arg_float -- r
+
+\c #define ffi_arg_double() (*(double *)(*gforth_clist++))
+c-function ffi-arg-double ffi_arg_double -- r
+
+: ffi-ret-void ( -- )
+    0 (bye) ;
+
+\c #define ffi_ret_int1(w) (*(int*)(gforth_ritem) = w)
+c-function ffi-ret-int1 ffi_ret_int1 n -- void
+: ffi-ret-int ( w -- ) ffi-ret-int1 ffi-ret-void ;
+
+\c #define ffi_ret_longlong1(d) (*(long long *)(gforth_ritem) = d)
+c-function ffi-ret-longlong1 ffi_ret_longlong1 d -- void
+: ffi-ret-longlong ( d -- ) ffi-ret-longlong1 ffi-ret-void ;
+
+\c #define ffi_ret_dlong1(d) (*(long *)(gforth_ritem) = d)
+c-function ffi-ret-dlong1 ffi_ret_dlong1 d -- void
+: ffi-ret-dlong ( d -- ) ffi-ret-dlong1 ffi-ret-void ;
+
+c-function ffi-ret-long1 ffi_ret_dlong1 n -- void
+: ffi-ret-long ( n -- ) ffi-ret-long1 ffi-ret-void ;
+
+\c #define ffi_ret_ptr1(w) (*(char **)(gforth_ritem) = w)
+c-function ffi-ret-ptr1 ffi_ret_ptr1 a -- void
+: ffi-ret-ptr ( a -- ) ffi-ret-ptr1 ffi-ret-void ;
+
+\c #define ffi_ret_float1(r) (*(float *)(gforth_ritem) = r)
+c-function ffi-ret-float1 ffi_ret_float1 r -- void
+: ffi-ret-float ( r -- ) ffi-ret-float1 ffi-ret-void ;
+
+\c #define ffi_ret_double1(r) (*(double *)(gforth_ritem) = r)
+c-function ffi-ret-double1 ffi_ret_double1 r -- void
+: ffi-ret-double ( r -- ) ffi-ret-double1 ffi-ret-void ;
+
 \ common stuff, same as fflib.fs
 
 Variable libs 0 libs !
@@ -263,9 +386,12 @@ Variable rtype
     swap postpone Literal postpone call , postpone EXIT
     r@ cell+ cell+ alloc-callback r> ! ;
 
+\ !! is the stack effect right?  or is it ( 0 ret arg1 .. argn -- ) ?
 : callback; ( 0 arg1 .. argn -- )
     BEGIN  over  WHILE  compile,  REPEAT
     postpone r> postpone execute compile, drop
+    \ !! should we put ]] 0 (bye) [[ here?
+    \ !! is the EXIT ever executed?
     postpone EXIT postpone [ previous ; immediate
 
 : rettype' ( xt n -- )
