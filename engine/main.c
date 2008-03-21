@@ -188,6 +188,7 @@ static UCell lsize=0;
 int offset_image=0;
 int die_on_signal=0;
 int ignore_async_signals=0;
+int check_alignment=1; /* does not cost extra on any current platform */
 #ifndef INCLUDE_IMAGE
 static int clear_dictionary=0;
 UCell pagesize=1;
@@ -2114,11 +2115,13 @@ void gforth_args(int argc, char ** argv, char ** path, char ** imagename)
       /* put something != 0 into offset_image */
       {"offset-image", no_argument, &offset_image, 1},
       {"no-offset-im", no_argument, &offset_image, 0},
+      {"check-alignment", no_argument, &check_alignment, 1},
+      {"no-check-alignment", no_argument, &check_alignment, 0},
       {"clear-dictionary", no_argument, &clear_dictionary, 1},
-      {"die-on-signal", no_argument, &die_on_signal, 1},
-      {"ignore-async-signals", no_argument, &ignore_async_signals, 1},
       {"debug", no_argument, &debug, 1},
       {"diag", no_argument, &diag, 1},
+      {"die-on-signal", no_argument, &die_on_signal, 1},
+      {"ignore-async-signals", no_argument, &ignore_async_signals, 1},
       {"no-super", no_argument, &no_super, 1},
       {"no-dynamic", no_argument, &no_dynamic, 1},
       {"dynamic", no_argument, &no_dynamic, 0},
@@ -2171,6 +2174,7 @@ void gforth_args(int argc, char ** argv, char ** path, char ** imagename)
       fprintf(stderr, "Usage: %s [engine options] ['--'] [image arguments]\n\
 Engine Options:\n\
   --appl-image FILE		    Equivalent to '--image-file=FILE --'\n\
+  --[no-]check-alignment	    alignment checks on some platforms\n\
   --clear-dictionary		    Initialize the dictionary with 0 bytes\n\
   -d SIZE, --data-stack-size=SIZE   Specify data stack size\n\
   --debug			    Print debugging information during startup\n\
@@ -2189,7 +2193,7 @@ Engine Options:\n\
   --offset-image		    Load image at a different position\n\
   -p PATH, --path=PATH		    Search path for finding image and sources\n\
   --print-metrics		    Print some code generation metrics on exit\n\
-  --print-sequences                 Print primitive sequences for optimization\n\
+  --print-sequences		    Print primitive sequences for optimization\n\
   -r SIZE, --return-stack-size=SIZE Specify return stack size\n\
   --ss-greedy			    Greedy, not optimal superinst selection\n\
   --ss-min-codesize		    Select superinsts for smallest native code\n\
@@ -2297,16 +2301,6 @@ int main(int argc, char **argv, char **env)
 #endif
   int retvalue;
 	  
-#if defined(i386) && defined(ALIGNMENT_CHECK)
-  /* turn on alignment checks on the 486.
-   * on the 386 this should have no effect. */
-  __asm__("pushfl; popl %eax; orl $0x40000, %eax; pushl %eax; popfl;");
-  /* this is unusable with Linux' libc.4.6.27, because this library is
-     not alignment-clean; we would have to replace some library
-     functions (e.g., memcpy) to make it work. Also GCC doesn't try to keep
-     the stack FP-aligned. */
-#endif
-
 #ifndef STANDALONE
   /* buffering of the user output device */
 #ifdef _IONBF
@@ -2328,6 +2322,9 @@ int main(int argc, char **argv, char **env)
   }
 #ifdef HAS_OS
   gforth_args(argc, argv, &path, &imagename);
+#ifdef SWITCHABLE_ALIGNMENT_CHECK
+  switch_alignment_check(check_alignment);
+#endif
 #ifndef NO_DYNAMIC
   init_ss_cost();
 #endif /* !defined(NO_DYNAMIC) */
