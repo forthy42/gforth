@@ -188,7 +188,6 @@ static UCell lsize=0;
 int offset_image=0;
 int die_on_signal=0;
 int ignore_async_signals=0;
-int check_alignment=1; /* does not cost extra on any current platform */
 #ifndef INCLUDE_IMAGE
 static int clear_dictionary=0;
 UCell pagesize=1;
@@ -2115,8 +2114,6 @@ void gforth_args(int argc, char ** argv, char ** path, char ** imagename)
       /* put something != 0 into offset_image */
       {"offset-image", no_argument, &offset_image, 1},
       {"no-offset-im", no_argument, &offset_image, 0},
-      {"check-alignment", no_argument, &check_alignment, 1},
-      {"no-check-alignment", no_argument, &check_alignment, 0},
       {"clear-dictionary", no_argument, &clear_dictionary, 1},
       {"debug", no_argument, &debug, 1},
       {"diag", no_argument, &diag, 1},
@@ -2174,7 +2171,6 @@ void gforth_args(int argc, char ** argv, char ** path, char ** imagename)
       fprintf(stderr, "Usage: %s [engine options] ['--'] [image arguments]\n\
 Engine Options:\n\
   --appl-image FILE		    Equivalent to '--image-file=FILE --'\n\
-  --[no-]check-alignment	    alignment checks on some platforms\n\
   --clear-dictionary		    Initialize the dictionary with 0 bytes\n\
   -d SIZE, --data-stack-size=SIZE   Specify data stack size\n\
   --debug			    Print debugging information during startup\n\
@@ -2322,9 +2318,6 @@ int main(int argc, char **argv, char **env)
   }
 #ifdef HAS_OS
   gforth_args(argc, argv, &path, &imagename);
-#ifdef SWITCHABLE_ALIGNMENT_CHECK
-  switch_alignment_check(check_alignment);
-#endif
 #ifndef NO_DYNAMIC
   init_ss_cost();
 #endif /* !defined(NO_DYNAMIC) */
