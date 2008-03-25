@@ -78,7 +78,7 @@ c-function ffi-prep-cif ffi_prep_cif1 a n a a -- n
 \c                      (void *)a_rvalue, (void **)a_avalues)
 c-function ffi-call ffi_call1 a a a a -- void
 
-\c #define ffi-prep-closure1(a_ip, a_cif, a_closure) \
+\c #define ffi_prep_closure1(a_ip, a_cif, a_closure) \
 \c              ffi_prep_closure((ffi_closure *)a_closure, (ffi_cif *)a_cif, gforth_callback_ffi, (void *)a_ip)
 c-function ffi-prep-closure a a a -- n
 
