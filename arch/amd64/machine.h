@@ -34,8 +34,10 @@
 #endif
 
 #ifdef FORCE_LL
+#if (__GNUC__<4 || (__GNUC==4 && __GNUC_MINOR__ < 2))
 #define BUGGY_LL_D2F    /* to float not possible */
 #define BUGGY_LL_F2D    /* from float not possible */
+#endif
 #define BUGGY_LL_SIZE   /* long long "too short", so we use something else */
 
 #endif

@@ -298,7 +298,6 @@ ALLSUBDIRS = engine
 
 ARCHS =	\
 	arch/generic/machine.h \
-	arch/generic/128bit.h \
 	arch/m68k/machine.h \
 	arch/mips/machine.h \
 	arch/386/machine.h \
@@ -384,7 +383,7 @@ VMGEN_EX2 = $(VMGEN_EX:vmgen-ex/%=vmgen-ex2/%)
 ENGINE_SOURCES = engine/Makefile.in engine/config.h.in \
 	engine/engine.c engine/main.c \
 	engine/io.c engine/support.c engine/signals.c engine/libcc.h.in \
-	engine/profile.c \
+	engine/profile.c engine/128bit.h \
 	engine/getopt.c engine/getopt1.c engine/getopt.h engine/select.c \
 	engine/ecvt.c engine/memcmp.c engine/rint.c \
 	engine/strtol.c engine/strtoul.c \
@@ -413,7 +412,7 @@ SOURCES	= $(CVSDIRS) $(ENGINE_SOURCES) compat Makefile.in Makedist.in \
 	$(INCLUDES) $(FORTH_SRC) $(COMPAT) $(VMGEN_EX) $(VMGEN_EX2) \
 	timings.sc \
 	test/coretest.out test/checkans.out test/gforth.out \
-	cache-fast*.vmg
+	cache*.vmg peeprules.vmg prim
 
 RCS_FILES =  ToDo model high-level
 
@@ -646,6 +645,7 @@ check:		gforths	gforth.fi
 		$(MAKE) checkone check-nofast ENGINE="./gforth" >/dev/null 2>&1
 		$(MAKE) checkone ENGINE="./gforth-fast" >/dev/null 2>&1
 		@echo "*** Check successful ***"
+		./gforth-fast --diag -e bye
 
 checkone test: gforth.fi engine/prim-s.i
 		$(FORTH) test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs test/string.fs test/float.fs test/deferred.fs test/coreext.fs test/search.fs -e bye 2>&1 | tr -d '\015' | diff -c - $(srcdir)/test/coretest.out
