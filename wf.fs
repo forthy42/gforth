@@ -258,7 +258,7 @@ Defer parse-line
     ELSE  2swap icon-tmp $! icon-prefix $@ icon-tmp $+! icon-tmp $+!
 	icon-tmp $@  THEN
     dup >r '| -$split  dup r> = IF  2swap  THEN 
-    dup IF  2swap alt=  ELSE  2drop  THEN
+    dup IF  2swap alt=  ELSE  2drop s" " alt=  THEN
     tag-class $@len >r over c@ >align  tag-class $@len r> = 1+ /string
     tag-class $@len >r over c@ >border tag-class $@len r> = 1+ /string
     2dup .img-size src= s" img" tag/ ;
@@ -337,10 +337,15 @@ Variable expand-link
 Variable expand-prefix
 Variable expand-postfix
 
-: ?expand ( addr u -- )  expand-link $!
+: ?expand ( addr u -- addr u' )  expand-link $!
     do-expand @ IF
 	expand-prefix $@ expand-link 0 $ins
 	expand-postfix $@ expand-link $+!  THEN
+    0 >r
+    BEGIN  expand-link $@ r@ /string  WHILE
+	    r> 1+ >r
+	    c@ '& = IF  s" amp;" expand-link r@ $ins  THEN
+    REPEAT  drop rdrop
     expand-link $@ ;
 
 : .link ( addr u -- ) dup >r '| -$split  dup r> = IF  2swap  THEN 
@@ -485,7 +490,7 @@ Variable toc-index
 true Value toc-image
 
 : .toc-entry ( toc flag -- )
-    swap cell+ dup @ swap cell+ dup cell+ $@ 2dup href=
+    swap cell+ dup @ swap cell+ dup cell+ $@ 2dup ?expand href=
     '# scan 1 /string toc-name $@ compare >r
     $@ toc-image IF  s" a" tag .img swap
 	IF
@@ -558,9 +563,9 @@ Variable divs
 longtags set-current
 
 : --- 0 indent cr s" hr" tag/ cr ;
-: *   1 indent s" h1" dclass= s" h1" par +indent s" " dclass= ;
-: **  1 indent s" h2" dclass= s" h2" par +indent s" " dclass= ;
-: *** 2 indent s" h3" dclass= s" h3" par +indent s" " dclass= ;
+: *   1 indent +indent s" h1" dclass= s" h1" par s" " dclass= ;
+: **  1 indent +indent s" h2" dclass= s" h2" par s" " dclass= ;
+: *** 2 indent +indent s" h3" dclass= s" h3" par s" " dclass= ;
 : --  0 indent cr print-toc ;
 : &&  0 parse id= ;
 : -   s" ul" env s" li" par ;
@@ -689,8 +694,8 @@ Variable _favicon
     _charset $@ s" utf-8" str= 0=
     IF  .' <?xml version="1.0" encoding="' _charset $@ .upcase .' "?>' cr  THEN
     .' <!DOCTYPE html' cr
-    .'   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"' cr
-    .'   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">' cr
+    .'   PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"' cr
+    .'   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">' cr
     s" http://www.w3.org/1999/xhtml" s" xmlns" opt
     lang@ s" xml:lang" opt lang@ s" lang" opt
     s" html" >env cr s" head" >env cr
