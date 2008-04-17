@@ -59,7 +59,7 @@
 (if (not (boundp 'emacs-major-version))
     (defconst emacs-major-version
       (progn (string-match "^[0-9]+" emacs-version)
-	     (string-to-int (match-string 0 emacs-version)))))
+	     (string-to-number (match-string 0 emacs-version)))))
 
 ;; Code ripped from `subr.el' for compatability with Emacs versions
 ;; prior to 20.1
@@ -462,12 +462,11 @@ End:\" construct).")
 ;; in Lisp??
 (defun forth-filter (predicate list)
   (let ((filtered nil))
-    (mapcar (lambda (item)
+    (dolist (item list)
 	      (when (funcall predicate item)
 		(if filtered
 		    (nconc filtered (list item))
-		  (setq filtered (cons item nil))))
-	      nil) list)
+          (setq filtered (cons item nil)))))
     filtered))
 
 ;; Helper function for `forth-compile-word': return whether word has to be
@@ -488,7 +487,7 @@ End:\" construct).")
 	 (regexp 
 	  (concat "\\(" (cond ((stringp matcher) matcher)
 			      ((listp matcher) (regexp-opt matcher))
-			      (t (error "Invalid matcher `%s'")))
+			      (t (error "Invalid matcher")))
 		  "\\)"))
 	 (depth (regexp-opt-depth regexp))
 	 (description (cdr word)))
@@ -699,14 +698,14 @@ End:\" construct).")
 (eval-when-compile 
   (defmacro forth-save-buffer-state (varlist &rest body)
     "Bind variables according to VARLIST and eval BODY restoring buffer state."
-    (` (let* ((,@ (append varlist
+    `(let* (,@(append varlist
 		   '((modified (buffer-modified-p)) (buffer-undo-list t)
 		     (inhibit-read-only t) (inhibit-point-motion-hooks t)
 		     before-change-functions after-change-functions
-		     deactivate-mark buffer-file-name buffer-file-truename))))
-	 (,@ body)
+                        deactivate-mark buffer-file-name buffer-file-truename)))
+       ,@body
 	 (when (and (not modified) (buffer-modified-p))
-	   (set-buffer-modified-p nil))))))
+         (set-buffer-modified-p nil)))))
 
 ;; Function that is added to the `change-functions' hook. Calls 
 ;; `forth-update-properties' and keeps care of disabling undo information
@@ -1385,17 +1384,11 @@ programmers who tend to fill code won't use emacs anyway:-)."
       (progn
 	(delete-other-windows)
 	(split-window-vertically
-	 (/ (* (screen-height) forth-percent-height) 100))
+	 (/ (frame-height) 2))
 	(other-window 1)
 	(switch-to-buffer buffer)
 	(goto-char (point-max))
 	(other-window 1))))
-
-(defun forth-compile (command)
-  (interactive (list (setq forth-compile-command (read-string "Compile command: " forth-compile-command))))
-  (forth-split-1 "*compilation*")
-  (setq ctools-compile-command command)
-  (compile1 ctools-compile-command "No more errors"))
 
 ;;; Forth menu
 ;;; Mikael Karlsson <qramika@eras70.ericsson.se>
@@ -1616,8 +1609,7 @@ of `forth-program-name').  Runs the hooks `inferior-forth-mode-hook'
 	(forth-end-of-paragraph)
 	(skip-chars-backward  "\t\n ")
 	(setq end (point))
-	(if (re-search-backward "\n[ \t]*\n" nil t)
-	    (setq start (point))
+	(if (null (re-search-backward "\n[ \t]*\n" nil t))
 	  (goto-char (point-min)))
 	(skip-chars-forward  "\t\n ")
 	(forth-send-region (point) end))))
@@ -1655,11 +1647,11 @@ With argument, position cursor at end of buffer."
 	   (push-mark)
 	   (goto-char (point-max)))))
 
-  (defun forth-send-region-and-go (start end)
+  (defun forth-send-region-and-go (my-start end)
     "Send the current region to the inferior Forth process.
 Then switch to the process buffer."
     (interactive "r")
-    (forth-send-region start end)
+    (forth-send-region my-start end)
     (forth-switch-to-interactive t))
 
   (defcustom forth-source-modes '(forth-mode forth-block-mode)
