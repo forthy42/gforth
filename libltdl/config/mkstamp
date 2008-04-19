@@ -1,0 +1,37 @@
+#! /bin/sh
+
+#   mkstamp - extract data from Revision and Date RCS tags in a file
+#   Copyright (C) 1999, 2003 Free Software Foundation, Inc.
+#   Written by Alexandre Oliva, 1999
+#
+#   This file is part of GNU Libtool.
+#
+# GNU Libtool is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 2 of
+# the License, or (at your option) any later version.
+#
+# GNU Libtool is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU Libtool; see the file COPYING.  If not, a copy
+# can be downloaded from  http://www.gnu.org/licenses/gpl.html,
+# or obtained by writing to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+####
+
+# This script expects to find a line containing both Revision and Date
+# tags, and it edits this line so that it looks like ` $rev $date'
+
+# Command-line arguments are passed down to sed; additional -e cmd
+# arguments are acceptable.  Input is from from stdin.  The original
+# version of this script accepted input from a named file or stdin.
+
+tr -d "\015" | sed -e '
+	s%.*\$''Revision: \([^$]*\) \$.*\$''Date: \([^$]*\) \$.*% \1 \2%
+	t end
+	d
+	: end' ${1+"$@"}
