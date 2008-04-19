@@ -107,6 +107,7 @@ SWITCHES = $(XCFLAGS) $(XDEFINES) $(OPTDEFINES) #-DNDEBUG #turn off assertions
 ENGINE_FLAGS = @ENGINE_FLAGS@ -fno-defer-pop -fcaller-saves
 DEBUGFLAG = @DEBUGFLAG@
 CFLAGS	= $(DEBUGFLAG) -I$(srcdir)/engine -I$(srcdir)/arch/$(machine) -O3 -Wall $(SWITCHES) -DDEFAULTPATH='"$(FORTHPATH)"'
+CPPFLAGS = @CPPFLAGS@
 
 #John Wavrik should use -Xlinker -N to get a writable text (executable)
 XLDFLAGS = @LDFLAGS@
@@ -849,7 +850,7 @@ gforths: $(ENGINES) $(ENGINES_FAST)
 		$(FORTHK) prim2cl.fs -e "file $< altogether bye" >$@
 
 %.so:		%.c
-		$(GCC) -shared $(CFLAGS) $< -o $@
+		$(GCC) -shared $(CFLAGS) $(CPPFLAGS) $< -o $@
 
 # -------------	Make Documentation
 
@@ -997,6 +998,6 @@ makefile.os2 engine/makefile.os2: mkos2mf.sed Makefile.in engine/Makefile.in
 	sed -f mkos2mf.sed <Makefile.in >makefile.os2
 	sed -f mkos2mf.sed <engine/Makefile.in >engine/makefile.os2
 	echo '%.o:	%.c' >>makefile.os2
-	echo '		$$(GCC) $$(CFLAGS) -c $$<' >>makefile.os2
+	echo '		$$(GCC) $$(CFLAGS) $$(CPPFLAGS) -c $$<' >>makefile.os2
 	echo '%.o:	%.c' >>engine/makefile.os2
-	echo '		$$(GCC) $$(CFLAGS) -c $$<' >>engine/makefile.os2
+	echo '		$$(GCC) $$(CFLAGS) $$(CPPFLAGS) -c $$<' >>engine/makefile.os2

@@ -444,7 +444,7 @@ create gen-wrapped-types
 : .lib-error ( -- )
     [ifdef] lib-error
         ['] cr stderr outfile-execute
-        lib-error ['] type outfile-execute
+        lib-error ['] type stderr outfile-execute
     [then] ;
 
 DEFER compile-wrapper-function
@@ -462,6 +462,7 @@ DEFER compile-wrapper-function
     lib-filename 2@ append s" .la" append ( c-addr u )
     2dup system drop free throw $? abort" libtool link failed"
     lib-filename 2@ s" .la" s+
+\    2dup type cr
     2dup open-lib dup 0= if
         .lib-error true abort" open-lib failed"
     endif

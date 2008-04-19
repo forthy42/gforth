@@ -473,6 +473,8 @@ extern char* pfileattr[6];
 extern int ufileattr[6];
 #endif
 
+extern lt_dladvise ltdl_advice;
+
 #ifdef PRINT_SUPER_LENGTHS
 Cell prim_length(Cell prim);
 void print_super_lengths();

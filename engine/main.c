@@ -161,6 +161,8 @@ int ufileattr[6]= {
 #endif
 /* end global vars for engine.c */
 
+lt_dladvise ltdl_advice;
+
 #define PRIM_VERSION 1
 /* increment this whenever the primitives change in an incompatible way */
 
@@ -2316,6 +2318,19 @@ int main(int argc, char **argv, char **env)
     fprintf(stderr,"%s: lt_dlinit failed", progname);
     exit(1);
   }
+  if (lt_dladvise_init(&ltdl_advice)!=0) {
+    fprintf(stderr,"%s: lt_dladvise_init: %s\n", progname, lt_dlerror());
+    exit(1);
+  }
+  if (lt_dladvise_global(&ltdl_advice)!=0) {
+    fprintf(stderr,"%s: lt_dladvise_global: %s\n", progname, lt_dlerror());
+    exit(1);
+  }
+  if (lt_dladvise_ext(&ltdl_advice)!=0) {
+    fprintf(stderr,"%s: lt_dladvise_ext: %s\n", progname, lt_dlerror());
+    exit(1);
+  }
+    
 #ifdef HAS_OS
   gforth_args(argc, argv, &path, &imagename);
 #ifndef NO_DYNAMIC

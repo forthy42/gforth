@@ -2394,7 +2394,7 @@ r = fp[u];
 
 open-lib	( c_addr1 u1 -- u2 )	gforth	open_lib
 #if 1
-u2 = (UCell)lt_dlopen(cstr(c_addr1, u1, 1));
+u2 = (UCell)lt_dlopenadvise(cstr(c_addr1, u1, 1), ltdl_advice);
 #elif defined(HAVE_LIBDL) || defined(HAVE_DLOPEN)
 #ifndef RTLD_GLOBAL
 #define RTLD_GLOBAL 0
