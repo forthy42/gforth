@@ -971,7 +971,7 @@ configure: configure.in aclocal.m4
 	cd $(srcdir) && autoconf
 
 aclocal.m4:	configure.in
-		aclocal
+		aclocal -I libltdl/m4
 
 # autoheader might not change config.h.in, so touch a stamp file.
 engine/config.h.in: stamp-h.in

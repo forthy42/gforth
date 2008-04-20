@@ -56,7 +56,12 @@ GCCLD	= @GCC_LD@
 
 FORTHPATH = .$(PATHSEP)$(libdir)/gforth/site-forth$(PATHSEP)$(datadir)/gforth/site-forth$(PATHSEP)$(libdir)/gforth/$(VERSION)$(PATHSEP)$(datadir)/gforth/$(VERSION)
 
-# ------------	Install Directorys
+# ------------  Source and Build directories
+
+top_srcdir = @top_srcdir@
+top_builddir = @top_builddir@
+
+# ------------	Install directories
 
 VPATH = @srcdir@
 prefix = @prefix@
@@ -72,6 +77,12 @@ mandir = $(prefix)/man
 man1dir= $(mandir)/man1
 man1ext= .1
 
+# ------------- ltdl variables
+
+LTDLDEPS = @LTDLDEPS@
+LTDLINCL = @LTDLINCL@
+LIBLTDL  = @LIBLTDL@
+
 # ------------- Compiler Flags
 
 XCFLAGS	= @CFLAGS@
@@ -80,8 +91,8 @@ SWITCHES = $(XCFLAGS) $(XDEFINES) $(OPTDEFINES)
 #use -fno-inline to avoid register problems with asinh, atanh on gcc-3.3 on 386
 ENGINE_FLAGS = @ENGINE_FLAGS@ -fno-defer-pop -fcaller-saves -fno-inline
 DEBUGFLAG = @DEBUGFLAG@
-CFLAGS	= $(DEBUGFLAG) -I$(srcdir)/../arch/$(machine) -I. -Wall $(SWITCHES) -DDEFAULTPATH='"$(FORTHPATH)"'
-CFLAGS2	= $(DEBUGFLAG) -I$(srcdir)/../arch/$(machine) -I. -Wall $(SWITCHES) -DDEFAULTPATH='"$(FORTHPATH)"'
+CFLAGS	= $(DEBUGFLAG) -I$(srcdir)/../arch/$(machine) -I. -Wall $(SWITCHES) -DDEFAULTPATH='"$(FORTHPATH)"' $(LTDLINCL)
+CFLAGS2	= $(DEBUGFLAG) -I$(srcdir)/../arch/$(machine) -I. -Wall $(SWITCHES) -DDEFAULTPATH='"$(FORTHPATH)"' $(LTDLINCL)
 CPPFLAGS=@CPPFLAGS@
 FORTHKFLAGS= --die-on-signal -p "..$(PATHSEP)$(srcdir)" -i ../$(kernel_fi)
 FORTHK	= ../gforth $(FORTHKFLAGS)
@@ -90,7 +101,7 @@ FORTH	= $(BOOTFORTH) --die-on-signal
 #John Wavrik should use -Xlinker -N to get a writable text (executable)
 XLDFLAGS = @LDFLAGS@
 LDFLAGS =  $(DEBUGFLAG) $(XLDFLAGS)
-LDLIBS  = @LIBS@
+LDLIBS  = @LIBS@ @LTDL_LDLIBS@
 
 AOBJECTS = @signals_o@ support$(OPT).o @LIBOBJS@ $(OPTOBJECTS)
 
@@ -251,6 +262,10 @@ image.i:	../fi2c.fs ../$(include_fi)
 
 ../$(include_fi):	FORCE
 		cd .. && $(MAKE) $(include_fi)
+
+#build ltdl
+$(LTDLDEPS):
+	cd ../libltdl && $(MAKE)
 
 #phony targets depend on FORCE; this is more portable than .PHONY
 FORCE:
