@@ -141,25 +141,25 @@ getopt1.o: getopt1.c getopt.h
 
 getopt.o: getopt.c getopt.h
 
-gforth$(OPT)$(EC)$(EXE):	$(OBJECTS) $(AOBJECTS)
+gforth$(OPT)$(EC)$(EXE):	$(OBJECTS) $(AOBJECTS) $(LTDLDEPS)
 	$(GCCLD) $(LDFLAGS) $(OBJECTS) $(AOBJECTS) $(LDLIBS) -o $@
 
-gforth-native$(OPT)$(EC)$(EXE):	$(OBJECTS_NATIVE) $(AOBJECTS)
+gforth-native$(OPT)$(EC)$(EXE):	$(OBJECTS_NATIVE) $(AOBJECTS) $(LTDLDEPS)
 	$(GCCLD) $(LDFLAGS) $(OBJECTS_NATIVE) $(AOBJECTS) $(LDLIBS) -o $@
 
-gforth-fast$(OPT)$(EC)$(EXE):	$(OBJECTS_FAST) $(AOBJECTS)
+gforth-fast$(OPT)$(EC)$(EXE):	$(OBJECTS_FAST) $(AOBJECTS) $(LTDLDEPS)
 	$(GCCLD) $(LDFLAGS) $(OBJECTS_FAST) $(AOBJECTS) $(LDLIBS) -o $@
 
-gforth-itc$(OPT)$(EC)$(EXE):	$(OBJECTS_ITC) $(AOBJECTS)
+gforth-itc$(OPT)$(EC)$(EXE):	$(OBJECTS_ITC) $(AOBJECTS) $(LTDLDEPS)
 	$(GCCLD) $(LDFLAGS) $(OBJECTS_ITC) $(AOBJECTS) $(LDLIBS) -o $@
 
-gforth-ditc$(OPT)$(EC)$(EXE): $(OBJECTS_DITC) $(AOBJECTS)
+gforth-ditc$(OPT)$(EC)$(EXE): $(OBJECTS_DITC) $(AOBJECTS) $(LTDLDEPS)
 	$(GCCLD) $(LDFLAGS) $(OBJECTS_DITC) $(AOBJECTS) $(LDLIBS) -o $@
 
-gforth-prof$(OPT)$(EC)$(EXE): $(OBJECTS_PROF) $(AOBJECTS) profile$(OPT).o
+gforth-prof$(OPT)$(EC)$(EXE): $(OBJECTS_PROF) $(AOBJECTS) $(LTDLDEPS) profile$(OPT).o
 	$(GCCLD) $(LDFLAGS) $(OBJECTS_PROF) $(AOBJECTS) profile$(OPT).o $(LDLIBS) -o $@
 
-gforth-fi$(OPT)$(EC)$(EXE):	$(OBJECTS_FI) $(AOBJECTS)
+gforth-fi$(OPT)$(EC)$(EXE):	$(OBJECTS_FI) $(AOBJECTS) $(LTDLDEPS)
 	$(GCCLD) $(LDFLAGS) $(OBJECTS_FI) $(AOBJECTS) $(LDLIBS) -o $@
 
 engine.s:	$(ENGINE_FAST_DEPS)
