@@ -394,6 +394,65 @@ ENGINE_SOURCES = engine/Makefile.in engine/config.h.in \
 	engine/fnmatch.h engine/fnmatch.c \
 	engine/makefile.dos engine/makefile.os2
 
+LIBLTDL = \
+	libltdl/argz.c \
+	libltdl/loaders/dlopen.c \
+	libltdl/loaders/shl_load.c \
+	libltdl/loaders/dld_link.c \
+	libltdl/loaders/dyld.c \
+	libltdl/loaders/preopen.c \
+	libltdl/loaders/load_add_on.c \
+	libltdl/loaders/loadlibrary.c \
+	libltdl/configure.ac \
+	libltdl/configure \
+	libltdl/slist.c \
+	libltdl/aclocal.m4 \
+	libltdl/config/config.guess \
+	libltdl/config/mkstamp \
+	libltdl/config/missing \
+	libltdl/config/install-sh \
+	libltdl/config/ltmain.m4sh \
+	libltdl/config/depcomp \
+	libltdl/config/getopt.m4sh \
+	libltdl/config/texinfo.tex \
+	libltdl/config/compile \
+	libltdl/config/mdate-sh \
+	libltdl/config/config.sub \
+	libltdl/config/general.m4sh \
+	libltdl/config/ltmain.sh \
+	libltdl/README \
+	libltdl/lt__dirent.c \
+	libltdl/ltdl.h \
+	libltdl/m4/argz.m4 \
+	libltdl/m4/ltdl.m4 \
+	libltdl/m4/libtool.m4 \
+	libltdl/m4/ltsugar.m4 \
+	libltdl/m4/lt~obsolete.m4 \
+	libltdl/m4/ltoptions.m4 \
+	libltdl/m4/ltversion.in \
+	libltdl/m4/ltversion.m4 \
+	libltdl/Makefile.am \
+	libltdl/lt__strl.c \
+	libltdl/config-h.in \
+	libltdl/ltdl.c \
+	libltdl/lt__alloc.c \
+	libltdl/argz_.h \
+	libltdl/lt_error.c \
+	libltdl/Makefile.inc \
+	libltdl/lt_dlloader.c \
+	libltdl/stamp-mk \
+	libltdl/libltdl/lt_system.h \
+	libltdl/libltdl/lt__private.h \
+	libltdl/libltdl/lt__alloc.h \
+	libltdl/libltdl/lt_dlloader.h \
+	libltdl/libltdl/lt_error.h \
+	libltdl/libltdl/slist.h \
+	libltdl/libltdl/lt__glibc.h \
+	libltdl/libltdl/lt__strl.h \
+	libltdl/libltdl/lt__dirent.h \
+	libltdl/COPYING.LIB \
+	libltdl/Makefile.in
+
 SOURCES	= $(CVSDIRS) $(ENGINE_SOURCES) compat Makefile.in Makedist.in \
 	gforthmi.in vmgen.in gfgen README.vmgen NEWS.vmgen \
 	configure.in configure config.sub config.guess elisp-comp missing \
@@ -413,7 +472,8 @@ SOURCES	= $(CVSDIRS) $(ENGINE_SOURCES) compat Makefile.in Makedist.in \
 	$(INCLUDES) $(FORTH_SRC) $(COMPAT) $(VMGEN_EX) $(VMGEN_EX2) \
 	timings.sc \
 	test/coretest.out test/checkans.out test/gforth.out \
-	cache*.vmg peeprules.vmg prim
+	cache*.vmg peeprules.vmg prim \
+	$(LIBLTDL)
 
 RCS_FILES =  ToDo model high-level
 
@@ -496,6 +556,7 @@ more:	$(ENGINES) $(FORTH_GEN) $(GEN)
 # `realclean' also deletes everything that could be regenerated automatically."
 
 mostlyclean:	FORCE
+		cd libltdl && make mostlyclean
 		-$(RM) -rf engine/*.s gforth.fi *.fi~ *.fi- kernel/version.fs \
 		*TAGS gforth~ \
 		doc/crossdoc.fd doc/doc.fd doc/gforth.texi doc/gforth.fns \
@@ -514,6 +575,7 @@ docclean:	FORCE
 		doc/gforth.toc doc/gforth.tp doc/gforth.vr html
 
 clean:		mostlyclean
+	cd libltdl && make clean
 	-$(RM) -rf $(GEN) *.o engine/*.o arch/*/*.o version \
 	gforth-itc-noll$(EC)$(EXE)  engine/gforth-itc-noll$(EC)$(EXE)  \
 	gforth-ditc-noll$(EC)$(EXE) engine/gforth-ditc-noll$(EC)$(EXE) \
@@ -522,6 +584,7 @@ clean:		mostlyclean
 	for i in gforth gforth-fast gforth-native; do for j in $(OPTS); do rm -f engine/$$i$${j}$(EC)$(EXE) $$i$${j}$(EC)$(EXE); done; done
 
 distclean:	clean
+		cd libltdl && make distclean
 		-$(RM) -rf config.cache config.log config.status \
 		engine/config.h Makefile Makedist engine/Makefile \
 		stamp-h engine/stamp-h \
@@ -536,6 +599,9 @@ realclean:	distclean
 virtualclean:	mostlyclean
 		-$(RM) -rf gforth.fns gforth.texi gforth.ps gforth.info* \
 		gforth-$(VERSION).tar.gz config.cache *~ */*~
+
+maintainer-clean: realclean
+		cd libltdl && maintainer-clean
 
 #Some makes (Ultrix, SunOS, IRIX) are so broken, they cannot read the
 #Makefile if it contains our dist rules.  Therefore we have put these
