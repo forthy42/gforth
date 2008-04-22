@@ -639,7 +639,7 @@ AC_MSG_RESULT($M4)
 AC_MSG_CHECKING([for gforth])
 GFORTH="`cd / && which gforth 2>/dev/null`"
 if test -z "$GFORTH"; then
-  PREFORTH='echo "You need to configure with a gforth in \$PATH to build this part" && false'
+  PREFORTH='echo "You need to configure with a gforth in $$PATH to build this part" && false'
 else
   PREFORTH="$GFORTH -i `cd / && gforth --debug -e bye 2>&1 |grep "Opened image file: "|sed 's/Opened image file: //'`" ;
 fi
