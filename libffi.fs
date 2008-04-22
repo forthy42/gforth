@@ -23,7 +23,7 @@
 
 require libcc.fs
 
-s" libffi.so" open-lib 0= [if]
+s" libffi" open-lib 0= [if]
     .( cannot open libffi ) cr abort
 [then]
 

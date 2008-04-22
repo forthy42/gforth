@@ -24,7 +24,7 @@ s" libtrampoline.so" open-lib 0<> and [if]
     .( including fflib.fs [ffcall] )
     include fflib.fs
 [ELSE]
-    s" libffi.so" open-lib [if]
+    s" libffi" open-lib [if]
         .( including libffi.fs )
 	include libffi.fs
     [ELSE]

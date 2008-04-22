@@ -53,7 +53,7 @@ fi
 #how to link with libltdl
 if test "x$with_included_ltdl" = "xyes"; then
   #hard-code it (hopefully portable); the official way is to use automake :-(
-  LTDL_LDLIBS='-L $(top_builddir)/libltdl/.libs -lltdlc'
+  LTDL_LDLIBS='-L$(top_builddir)/libltdl/.libs -lltdlc'
 else
   LTDL_LDLIBS='$(LIBLTDL)'
 fi
