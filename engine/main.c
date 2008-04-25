@@ -2238,7 +2238,7 @@ static void print_diag()
      )
     debugp(stderr, "relocs: %d:%d\n", relocs, nonrelocs);
     fprintf(stderr, "*** %sperformance problems ***\n%s",
-#if defined(BUGGY_LL_CMP) || defined(BUGGY_LL_MUL) || defined(BUGGY_LL_DIV) || defined(BUGGY_LL_ADD) || defined(BUGGY_LL_SHIFT) || defined(BUGGY_LL_D2F) || defined(BUGGY_LL_F2D) || !defined(FORCE_REG) || defined(BUGGY_LONG_LONG)
+#if defined(BUGGY_LL_CMP) || defined(BUGGY_LL_MUL) || defined(BUGGY_LL_DIV) || defined(BUGGY_LL_ADD) || defined(BUGGY_LL_SHIFT) || defined(BUGGY_LL_D2F) || defined(BUGGY_LL_F2D) || !(defined(FORCE_REG) || defined(FORCE_REG_UNNECESSARY)) || defined(BUGGY_LONG_LONG)
 	    "",
 #else
 	    "no ",

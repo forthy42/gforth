@@ -549,6 +549,8 @@ fi
 
 if grep -q FORCE_REG arch/$machine/machine.h; then
    OPTS=`for i in $OPTS; do echo -n "$i-reg "; done`$OPTS
+else
+  AC_DEFINE_UNQUOTED(FORCE_REG_UNNECESSARY,,[defined if the platform does not need FORCE_REG])
 fi
 AC_SUBST(OPTS)
 
@@ -639,7 +641,7 @@ AC_MSG_RESULT($M4)
 AC_MSG_CHECKING([for gforth])
 GFORTH="`cd / && which gforth 2>/dev/null`"
 if test -z "$GFORTH"; then
-  PREFORTH='echo "You need to configure with a gforth in $$PATH to build this part" && false'
+  PREFORTH='echo "You need to configure with a gforth in \$PATH to build this part" && false'
 else
   PREFORTH="$GFORTH -i `cd / && gforth --debug -e bye 2>&1 |grep "Opened image file: "|sed 's/Opened image file: //'`" ;
 fi
@@ -884,6 +886,7 @@ gforthmi
 vmgen
 machpc.fs
 envos.fs
+preforth
 engine/Makefile
 engine/libcc.h
 doc/version.texi
@@ -892,6 +895,7 @@ AC_CONFIG_COMMANDS([stamp-h],[[echo timestamp > stamp-h
 chmod +x gforthmi
 chmod +x vmgen
 chmod +x build-ec
+chmod +x preforth
 test -d kernel||mkdir kernel
 $srcdir/mkinstalldirs include/gforth/$PACKAGE_VERSION
 ln -sf ../../../engine/config.h ../../../engine/libcc.h include/gforth/$PACKAGE_VERSION]],[[PACKAGE_VERSION=$PACKAGE_VERSION]])

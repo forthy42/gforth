@@ -66,7 +66,7 @@ INSTALL_INFO = @INSTALL_INFO@
 LN_S	= @LN_S@
 M4      = @M4@
 GCC	= @CC@
-PREFORTH	= @PREFORTH@ -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)"
+PREFORTH	= ./preforth -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)"
 CC	= $(GCC)
 FORTHPATH = .$(PATHSEP)$(libdir)/gforth/site-forth$(PATHSEP)$(siteforthdir)$(PATHSEP)$(libdir)/gforth/$(VERSION)$(PATHSEP)$(datadir)/gforth/$(VERSION)
 FORTHSIZES = @FORTHSIZES@
@@ -454,7 +454,7 @@ LIBLTDL = \
 	libltdl/Makefile.in
 
 SOURCES	= $(CVSDIRS) $(ENGINE_SOURCES) compat Makefile.in Makedist.in \
-	gforthmi.in vmgen.in gfgen README.vmgen NEWS.vmgen \
+	gforthmi.in vmgen.in preforth.in gfgen README.vmgen NEWS.vmgen \
 	configure.in configure config.sub config.guess elisp-comp missing \
 	stamp-h.in envos.fs.in \
 	iss.sh install-sh INSTALL INSTALL.BINDIST NEWS README ToDo BUGS \
@@ -588,7 +588,7 @@ distclean:	clean
 		-$(RM) -rf config.cache config.log config.status \
 		engine/config.h Makefile Makedist engine/Makefile \
 		stamp-h engine/stamp-h \
-		doc/version.texi gforthmi vmgen \
+		doc/version.texi gforthmi vmgen preforth \
 		prim-fast.b $(FORTH_GEN_ENGINE_FAST)
 
 #realclean is useless, but dangerous, so it's commented out
@@ -1049,7 +1049,7 @@ engine/config.h: stamp-h
 stamp-h: engine/config.h.in config.status stamp-h.in
 	./config.status
 
-Makefile Makedist engine/Makefile gforthmi vmgen machpc.fs doc/version.texi envos.fs build-ec:	Makefile.in Makedist.in engine/Makefile.in gforthmi.in vmgen.in machpc.fs.in doc/version.texi.in config.status configure.in envos.fs.in build-ec.in
+Makefile Makedist engine/Makefile gforthmi vmgen preforth machpc.fs doc/version.texi envos.fs build-ec:	Makefile.in Makedist.in engine/Makefile.in gforthmi.in vmgen.in preforth.in machpc.fs.in doc/version.texi.in config.status configure.in envos.fs.in build-ec.in
 	./config.status
 
 config.status: configure

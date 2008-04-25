@@ -455,6 +455,7 @@ DEFER compile-wrapper-function
     s" includedir" getenv append ] sliteral
     s"  -O -c " s+ lib-filename 2@ append s" .c -o " append
     lib-filename 2@ append s" .lo" append ( c-addr u )
+\    cr 2dup type
     2dup system drop free throw $? abort" libtool compile failed"
     [ libtool-command s"  --silent --mode=link gcc -module -rpath " s+ ] sliteral
     tempdir s+ s"  " append

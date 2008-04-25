@@ -27,5 +27,3 @@
 
 extern void _sync_cache_range (caddr_t eaddr, size_t count);
 #define FLUSH_ICACHE(addr,size)   _sync_cache_range(addr,size)
-
-#define FORCE_REG_UNNECESSARY

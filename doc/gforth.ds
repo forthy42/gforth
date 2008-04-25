@@ -2691,9 +2691,10 @@ s" The text I search is here" scan-file
   begin
       line-buffer max-line fd-in read-line throw
   while
-      line-buffer swap fd-out write-file throw
+      line-buffer swap fd-out write-line throw
   repeat ;
 @end example
+@c !! does not handle long lines, no newline at end of file
 
 @subsection Close files
 
