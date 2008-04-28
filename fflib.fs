@@ -20,6 +20,10 @@
 \ replacements for former primitives
 require libcc.fs
 
+clear-libs
+s" avcall" add-lib
+s" callback" add-lib
+
 \c #include <avcall.h>
 \c #include <callback.h>
 \c static av_alist alist;
@@ -337,3 +341,4 @@ also cb-decl definitions
 ' va-return-ptr      ' va-start-ptr      va-ret (ptr)
 
 previous definitions
+clear-libs

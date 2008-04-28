@@ -12056,6 +12056,7 @@ as well as a way of declaring structs, unions, and their fields.
 * Calling C Functions::         
 * Declaring C Functions::       
 * Calling C function pointers::  
+* Declaring libraries::         
 * Callbacks::                   
 * C interface internals::       
 * Low-Level C Interface Words::  
@@ -12232,7 +12233,7 @@ interface; you can find some examples for the @file{lib.fs} interface
 in @file{lib.fs}.
 
 
-@node Calling C function pointers, Callbacks, Declaring C Functions, C Interface
+@node Calling C function pointers, Declaring libraries, Declaring C Functions, C Interface
 @subsection Calling C function pointers from Forth
 @cindex C function pointers, calling from Forth
 
@@ -12269,7 +12270,38 @@ function pointer you want to call from Forth, you have to define
 a separate calling word.
 
 
-@node Callbacks, C interface internals, Calling C function pointers, C Interface
+@node Declaring libraries, Callbacks, Calling C function pointers, C Interface
+@subsection Declaring libraries
+@cindex Shared libraries in C interface
+@cindex Dynamically linked libraries in C interface
+@cindex Libraries in C interface
+
+For calling some C functions, you need to link with a specific library
+that contains that library.  E.g., the @code{sin} function requires
+linking a special library by using the command line switch @code{-lm}.
+In our C iterface you do the equivalent thing by calling
+@code{add-lib} as follows:
+
+@example
+clear-libs
+s" m" add-lib
+\c #include <math.h>
+c-function sin sin r -- r
+@end example
+
+First, you clear any libraries that may have been declared earlier
+(you don't need them for @code{sin}); then you add the @code{m}
+library (actually @code{libm.so} or somesuch) to the currently
+declared libraries; you can add as many as you need.  Finally you
+declare the function as shown above.  Typically you will use the same
+set of library declarations for many function declarations; you need
+to write only one set for that, right at the beginning.
+
+doc-clear-libs
+doc-add-lib
+
+
+@node Callbacks, C interface internals, Declaring libraries, C Interface
 @subsection Callbacks
 @cindex Callback functions written in Forth
 @cindex C function pointers to Forth words
@@ -12325,6 +12357,11 @@ conversion.
 
 These wrapper functions are eventually compiled and dynamically linked
 into Gforth, and then they can be called.
+
+The libraries added with @code{add-lib} are used in the compile
+command line to specify dependent libraries with @code{-l@var{lib}},
+causing these libraries to be dynamically linked when the wrapper
+function is linked.
 
 
 @node Low-Level C Interface Words,  , C interface internals, C Interface

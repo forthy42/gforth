@@ -23,9 +23,7 @@
 
 require libcc.fs
 
-s" libffi" open-lib 0= [if]
-    .( cannot open libffi ) cr abort
-[then]
+clear-libs s" ffi" add-lib
 
 \c #include <ffi.h>
 \c static Cell *gforth_RP;

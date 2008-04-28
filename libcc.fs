@@ -214,6 +214,25 @@ end-struct list%
 	    node list-next @
     repeat ;
 
+\ linked libraries
+
+list%
+    cell% 2* field c-lib-string
+end-struct c-lib%
+
+variable c-libs \ linked list of library names (without "lib")
+
+: add-lib ( c-addr u -- )
+\G Add library lib@i{string} to the list of libraries, where
+\G @i{string} is represented by @i{c-addr u}.
+    c-lib% %size allocate throw dup >r
+    c-lib-string 2!
+    r> c-libs list-insert ;
+
+: append-l ( c-addr1 u1 node -- c-addr2 u2 )
+    \ append " -l<nodelib>" to string1
+    >r s"  -l" append r> c-lib-string 2@ append ;
+
 \ C prefix lines
 
 \ linked list of longcstrings: [ link | count-cell | characters ]
@@ -447,7 +466,7 @@ create gen-wrapped-types
         lib-error ['] type stderr outfile-execute
     [then] ;
 
-DEFER compile-wrapper-function
+DEFER compile-wrapper-function ( -- )
 :NONAME ( -- )
     c-source-file close-file throw
     0 c-source-file-id !
@@ -461,6 +480,8 @@ DEFER compile-wrapper-function
     tempdir s+ s"  " append
     lib-filename 2@ append s" .lo -o " append
     lib-filename 2@ append s" .la" append ( c-addr u )
+    c-libs @ ['] append-l list-map
+    2dup type cr
     2dup system drop free throw $? abort" libtool link failed"
     lib-filename 2@ s" .la" s+
 \    2dup type cr
@@ -509,3 +530,11 @@ DEFER compile-wrapper-function
     \G specified stack effect and calls the C function @code{c-name}.
     defer lastxt dup c-function-rt lastxt c-function-ft
     lastxt swap defer! ;
+
+: clear-libs ( -- )
+\G Clear the list of libs
+    c-source-file-id @ if
+	compile-wrapper-function
+    endif
+    0 c-libs ! ;
+clear-libs
