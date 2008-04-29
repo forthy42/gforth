@@ -481,7 +481,7 @@ DEFER compile-wrapper-function ( -- )
     lib-filename 2@ append s" .lo -o " append
     lib-filename 2@ append s" .la" append ( c-addr u )
     c-libs @ ['] append-l list-map
-    2dup type cr
+\    2dup type cr
     2dup system drop free throw $? abort" libtool link failed"
     lib-filename 2@ s" .la" s+
 \    2dup type cr

@@ -18,9 +18,7 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 s" libavcall.so"     open-lib 0<>
-s" libcallback.so"   open-lib 0<> and
-s" libvacall.so"     open-lib 0<> and
-s" libtrampoline.so" open-lib 0<> and [if]
+s" libcallback.so"   open-lib 0<> and [if]
     .( including fflib.fs [ffcall] )
     include fflib.fs
 [ELSE]

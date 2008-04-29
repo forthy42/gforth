@@ -17,32 +17,18 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-require lib.fs
-[IFUNDEF] libc
-    s" os-type" environment? [IF]
-	2dup s" linux-gnu" str= [IF]  2drop
-	    library libc libc.so.6
-	[ELSE] 2dup s" cygwin" str= [IF]  2drop
-		library libc cygwin1.dll
-	    [ELSE]  2dup s" bsd" search nip nip [IF]  2drop
-		    library libc libc.so
-		[ELSE]  2dup s" darwin" string-prefix? [IF]  2drop
-			library libc libc.dylib
-		    [ELSE]  2drop \ or add your stuff here
-		    [THEN]
-		[THEN]
-	    [THEN]
-	[THEN]
-    [THEN]
-[THEN]
-
-libc gethostbyname ptr (ptr) gethostbyname ( name -- hostent )
-libc socket int int int (int) socket ( class type proto -- fd )
-libc connect int ptr int (int) connect ( fd sock size -- err )
-libc fdopen int ptr (ptr) fdopen ( fd fileattr -- file )
-libc htonl int (int) htonl ( x -- x' )
-libc htons int (int) htons ( x -- x' )
-libc ntohl int (int) ntohl ( x -- x' )
+\c #include <netdb.h>
+c-function gethostbyname gethostbyname a -- a ( name -- hostent )
+\c #include <sys/types.h>
+\c #include <sys/socket.h>
+c-function socket socket n n n -- n ( class type proto -- fd )
+c-function connect connect n a n -- n ( fd sock size -- err )
+\c #include <stdio.h>
+c-function fdopen fdopen n a -- a ( fd fileattr -- file )
+\c #include <arpa/inet.h>
+c-function htonl htonl n -- n ( x -- x' )
+c-function htons htons n -- n ( x -- x' )
+c-function ntohl ntohl n -- n ( x -- x' )
 
 4 4 2Constant int%
 2 2 2Constant short%
