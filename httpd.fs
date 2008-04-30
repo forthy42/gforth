@@ -197,7 +197,7 @@ wordlist constant mime
 mime set-current
 
 : shtml ( addr u -- )  lastrequest
-    data @ IF  included  ELSE  2drop  THEN ;
+    data @ IF  also forth included previous  ELSE  2drop  THEN ;
 
 s" application/pgp-signature" transparent: sig
 s" application/x-bzip2" transparent: bz2
