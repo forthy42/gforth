@@ -22,7 +22,7 @@
 
 # makes a aclocal.m4 which includes the automake macros for autconf
 
-aclocal -I libltdl/m4 &&
+aclocal &&
 
 # generate configure script
 

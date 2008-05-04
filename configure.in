@@ -29,34 +29,14 @@ UPDATED="February 23, 2008"
 AC_SUBST(UPDATED)
 AC_CONFIG_HEADERS(engine/config.h)
 
-#ltdl stuff:
-AC_CONFIG_MACRO_DIR([libltdl/m4])
-LT_CONFIG_LTDL_DIR([libltdl])
-LT_INIT([dlopen])
-LTDL_INIT([subproject],[convenience])
-AC_CONFIG_AUX_DIR([libltdl/config])
-
-# check for ltdl features we need
-# The lt_dladvise_init symbol was added with libtool-2.2
-if test "x$with_included_ltdl" != "xyes"; then
-  save_CFLAGS="$CFLAGS"
-  save_LDFLAGS="$LDFLAGS"
-  CFLAGS="$CFLAGS $LTDLINCL"
-  LDFLAGS="$LDFLAGS $LIBLTDL"
-  AC_CHECK_LIB([ltdl], [lt_dladvise_init],
-		[],
-	[AC_MSG_ERROR([libltdl-2.2 or later needed; configure with --with-included-ltdl])])
-  LDFLAGS="$save_LDFLAGS"
-  CFLAGS="$save_CFLAGS"
-fi
-
-#how to link with libltdl
-if test "x$with_included_ltdl" = "xyes"; then
-  #hard-code it (hopefully portable); the official way is to use automake :-(
-  LTDL_LDLIBS='-L$(top_builddir)/libltdl/.libs -lltdlc'
-else
-  LTDL_LDLIBS='$(LIBLTDL)'
-fi
+#remnants from having ltdl as convenience library
+LTDLDEPS=""
+LTDLINCL=""
+LIBLTDL=""
+LTDL_LDLIBS=""
+AC_SUBST(LTDLDEPS)
+AC_SUBST(LTDLINCL)
+AC_SUBST(LIBLTDL)
 AC_SUBST(LTDL_LDLIBS)
 
 #suppress the "-g -O2" default
@@ -823,6 +803,7 @@ dnl Checks for library functions
 dnl This check is just for making later checks link with libm.
 dnl using sin here is no good idea since it is built-into gcc and typechecked
 AC_CHECK_LIB(m,asin)
+AC_CHECK_LIB(ltdl,lt_dlinit)
 AC_CHECK_LIB(dl,dlopen)
 dnl check for libffi 2.x
 AC_CHECK_LIB(ffi,ffi_call)

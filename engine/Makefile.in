@@ -263,10 +263,6 @@ image.i:	../fi2c.fs ../$(include_fi)
 ../$(include_fi):	FORCE
 		cd .. && $(MAKE) $(include_fi)
 
-#build ltdl
-$(LTDLDEPS):
-	cd ../libltdl && $(MAKE)
-
 #phony targets depend on FORCE; this is more portable than .PHONY
 FORCE:
 
