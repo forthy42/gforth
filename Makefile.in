@@ -768,7 +768,7 @@ prim-fast.b:	prim cache-fast$(STACK_CACHE_DEFAULT_FAST).vmg cache-regs$(STACK_CA
 		sleep 1 #should make hpux-workaround unnecessary
 
 $(FORTH_GEN_ENGINE_FAST): prim-fast.b prims2x.fs
-		GFORTH="$(FORTHP)" $(srcdir)/gfgen -fast
+		GFORTH="$(PREFORTH)" $(srcdir)/gfgen -fast
 
 $(FORTH_GEN_ENGINE): prim.b prims2x.fs
 		GFORTH="$(PREFORTH)" $(srcdir)/gfgen
