@@ -206,7 +206,9 @@ require utf-8.fs
 
 [IFUNDEF] #esc  27 Constant #esc  [THEN]
 
-: at-deltaxy ( dx dy -- )  base @ >r decimal
+: at-deltaxy ( dx dy -- )
+    over 0< over 0= and IF  drop abs backspaces  EXIT  THEN
+    base @ >r decimal
     ?dup IF
 	#esc emit '[ emit  dup abs 0 .r 0< IF  'A  ELSE  'B  THEN  emit
     THEN
