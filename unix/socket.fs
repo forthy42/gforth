@@ -30,6 +30,9 @@ c-function closesocket close n -- n ( fd -- ior )
 c-function connect connect n a n -- n ( fd sock size -- err )
 c-function send send n a n n -- n ( socket buffer count flags -- size )
 c-function recv recv n a n n -- n ( socket buffer count flags -- size )
+c-function listen() n n -- n ( socket backlog -- err )
+c-function bind n a a -- n ( socket sockaddr socklen --- err )
+c-function accept() accept n a a -- n ( socket sockaddr addrlen -- fd )
 \c #include <stdio.h>
 c-function fdopen fdopen n a -- a ( fd fileattr -- file )
 \c #include <fcntl.h>
@@ -98,7 +101,17 @@ $802 Constant O_NONBLOCK|O_RDWR
     r@ sockaddr-tmp sockaddr_in %size connect 0< abort" can't connect"
     r> s" w+" c-string fdopen ;
 
+: create-server  ( port# -- lsocket )
+    sockaddr-tmp 4 CELLS ERASE
+    htonl PF_INET OR sockaddr-tmp !
+    PF_INET SOCK_STREAM 0 socket
+    dup 0< abort" no free socket" >r
+    r@ sockaddr-tmp 16 bind 0= IF  r> exit  ENDIF
+    r> drop true abort" bind :: failed" ;
+
 \ from itools.frt
+
+' open-socket Alias open-service
 
 : ms@  utime 1000 um/mod nip ; ( -- u ) 
 
@@ -112,8 +125,22 @@ $802 Constant O_NONBLOCK|O_RDWR
     u1 u2 + ;
 
 Create hostname$ 256 chars allot
-
+Create alen   16 ,
 Create crlf 2 c, 13 c, 10 c,
+
+: errno ( -- #error ) 'errno @ ;
+
+: listen ( lsocket /queue -- )
+    listen() 0< abort" listen :: failed" ;
+
+\ This call blocks the server until a client appears. The client uses socket to
+\ converse with the server.
+: accept-socket ( lsocket -- socket )
+    16 alen !
+    sockaddr-tmp alen accept() 
+    dup 0< IF  errno cr ." accept() :: error #" .  
+	abort" accept :: failed"  
+    ENDIF   s" w+" c-string fdopen ;
 
 : +cr  ( c-addr1 u1 -- c-addr2 u2 ) crlf count $+ ;
 
@@ -123,9 +150,7 @@ Create crlf 2 c, 13 c, 10 c,
     THEN  
     fcntl 0< abort" blocking-mode failed" ;
 
-: errno ( -- #error ) 'errno @ ;
 : hostname ( -- c-addr u ) hostname$ count ;
-: open-service ( c-addr u port# -- socket ) open-socket ;
 : set-socket-timeout ( u -- ) 200 + to socket-timeout ;
 : get-socket-timeout ( -- u ) socket-timeout 200 - ;
 : write-socket ( c-addr size socket -- ) fileno -rot 0 send 0< throw ;
