@@ -124,7 +124,7 @@ Defer flush-blocks ( -- ) \ gforth
     rdrop ;
 
 : empty-buffer ( buffer -- ) \ gforth
-    buffer-block off ;
+    dup buffer-block on buffer-dirty off ;
 
 : save-buffers  ( -- ) \ block
     \G Transfer the contents of each @code{update}d block buffer to
