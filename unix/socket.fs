@@ -124,7 +124,7 @@ $802 Constant O_NONBLOCK|O_RDWR
     c-addr2 u2  2 pick u1 +  $put  
     u1 u2 + ;
 
-Create hostname$ 256 chars allot
+Create hostname$ 0 c, 255 chars allot
 Create alen   16 ,
 Create crlf 2 c, 13 c, 10 c,
 
@@ -150,7 +150,12 @@ Create crlf 2 c, 13 c, 10 c,
     THEN  
     fcntl 0< abort" blocking-mode failed" ;
 
-: hostname ( -- c-addr u ) hostname$ count ;
+: hostname ( -- c-addr u )
+    hostname$ c@ 0= IF
+	hostname$ 1+ 255 gethostname drop
+	hostname$ 1+ 255 0 scan nip 255 swap - hostname$ c!
+    THEN
+    hostname$ count ;
 : set-socket-timeout ( u -- ) 200 + to socket-timeout ;
 : get-socket-timeout ( -- u ) socket-timeout 200 - ;
 : write-socket ( c-addr size socket -- ) fileno -rot 0 send 0< throw ;
@@ -173,6 +178,3 @@ Create crlf 2 c, 13 c, 10 c,
     WHILE 
 	    2drop
     REPEAT ;
-
-hostname$ 1+ 255 gethostname drop
-hostname$ 1+ 255 0 scan nip 255 swap - hostname$ c!
