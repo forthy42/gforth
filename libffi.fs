@@ -27,17 +27,18 @@ clear-libs s" ffi" add-lib
 
 \c #include <ffi.h>
 \c static Cell *gforth_RP;
-\c static char *gforth_LP;
+\c static unsigned char *gforth_LP;
 \c static void **gforth_clist;
 \c static void *gforth_ritem;
 \c typedef void *Label;
 \c typedef Label *Xt;
+\c Label *gforth_engine(Xt *ip, Cell *sp, Cell *rp0, Float *fp, unsigned char *lp);
 \c static void gforth_callback_ffi(ffi_cif * cif, void * resp, void ** args, void * ip)
 \c {
 \c   Cell *rp1 = gforth_RP;
 \c   Cell *sp = gforth_SP;
 \c   Float *fp = gforth_FP;
-\c   char *lp = gforth_LP;
+\c   unsigned char *lp = gforth_LP;
 \c   void ** clist = gforth_clist;
 \c   void * ritem = gforth_ritem;
 \c 
@@ -82,7 +83,7 @@ c-function ffi-call ffi_call1 a a a a -- void
 
 \c #define ffi_prep_closure1(a_ip, a_cif, a_closure) \
 \c              ffi_prep_closure((ffi_closure *)a_closure, (ffi_cif *)a_cif, gforth_callback_ffi, (void *)a_ip)
-c-function ffi-prep-closure a a a -- n
+c-function ffi-prep-closure ffi_prep_closure1 a a a -- n
 
 \ !! use ud?
 \c #define ffi_2fetch(a_addr) (*(long long *)a_addr)
