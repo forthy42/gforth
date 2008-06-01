@@ -38,7 +38,7 @@
 
 \ This code is released to the public domain Everett Carter July 1994
 
-\ CR .( FSL-UTILG.FTH    $Revision: 1.1 $       $Date: 2004-05-08 17:14:30 $   EFC )
+\ CR .( FSL-UTILG.FTH    $Revision: 1.2 $       $Date: 2008-06-01 12:18:23 $   EFC )
 
 CR .( FSL-UTIL          V1.17c        12 February 2004  EFC, KM )
 
@@ -58,7 +58,7 @@ TRUE CONSTANT HAS-MEMORY-WORDS?
 
 \ FSL NonANS words
 
-: S>F    S>D D>F ;
+[UNDEFINED] S>F [IF] : S>F    S>D D>F ; [THEN]
 
 \ Words to control nested includes.  Use as follows:
 \ C" filename" ~INCLUDED [IF]
