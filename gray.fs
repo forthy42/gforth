@@ -746,9 +746,13 @@ constant nt-syntax-expr
 : generate-nt \ -- )
 \ generates a call to the code for the rule )
 \ since the code needs not be generated yet, an indirect call is used )
- exec postpone literal
- postpone @
- postpone execute ;
+ exec dup @ if
+  @ compile,
+ else
+  postpone literal
+  postpone @
+  postpone execute
+ endif ;
 
 : pass2-nt \ -- )
 \ apart from the usual duties, this pass2 also has to code-nt )
