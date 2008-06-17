@@ -440,6 +440,11 @@ create gen-wrapped-types
     endif
     .\" }\n" ;
 
+: open-wrappers ( -- addr )
+    lib-filename 2@ s" .la" s+
+    2dup open-lib >r
+    drop free throw r> ;
+
 : tempdir ( -- c-addr u )
     s" TMPDIR" getenv dup 0= if
         2drop s" /tmp"
@@ -496,14 +501,11 @@ DEFER compile-wrapper-function ( -- )
     c-libs @ ['] append-l list-map
 \    2dup type cr
     2dup system drop free throw $? abort" libtool link failed"
-    lib-filename 2@ s" .la" s+
-\    2dup type cr
-    2dup open-lib dup 0= if
-        .lib-error true abort" open-lib failed"
+    open-wrappers
+    dup 0= if
+	.lib-error true abort" open-lib failed"
     endif
     ( lib-handle ) lib-handle-addr @ !
-    2dup delete-file throw drop free throw
-    lib-filename 2@ s" .c" s+ 2dup delete-file throw drop free throw
     lib-filename 2@ drop free throw 0 0 lib-filename 2! ;
 ' compile-wrapper-function1 IS compile-wrapper-function
 \    s" ar rcs xxx.a xxx.o" system

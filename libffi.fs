@@ -23,7 +23,8 @@
 
 require libcc.fs
 
-clear-libs s" ffi" add-lib
+c-library libffi
+s" ffi" add-lib
 
 \c #include <ffi.h>
 \c static Cell *gforth_RP;
@@ -142,6 +143,7 @@ c-function ffi-ret-float1 ffi_ret_float1 r -- void
 \c #define ffi_ret_double1(r) (*(double *)(gforth_ritem) = r)
 c-function ffi-ret-double1 ffi_ret_double1 r -- void
 : ffi-ret-double ( r -- ) ffi-ret-double1 ffi-ret-void ;
+end-c-library
 
 \ common stuff, same as fflib.fs
 
