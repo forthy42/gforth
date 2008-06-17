@@ -587,7 +587,7 @@ clear-libs
     true abort" Called function of unfinished named C library" ;
 
 : c-library-name ( c-addr u -- ) \ gforth
-\G Start a C library with name @i{c-addr u}.
+\G Start a C library interface with name @i{c-addr u}.
     clear-libs
     ['] c-library-incomplete is compile-wrapper-function
     c-library-name1 ;
@@ -596,6 +596,7 @@ clear-libs
 \G Parsing version of @code{c-library-name}
     name save-mem c-library-name ;
 
-: end-c-library ( -- )
+: end-c-library ( -- ) \ gforth
+\G Finish and (if necessary) build the latest C library interface.
     ['] compile-wrapper-function1 is compile-wrapper-function
     compile-wrapper-function1 ;

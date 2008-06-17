@@ -410,6 +410,8 @@ C Interface
 * Calling C Functions::         
 * Declaring C Functions::       
 * Calling C function pointers::  
+* Defining library interfaces::  
+* Declaring OS-level libraries::  
 * Callbacks::                   
 * C interface internals::       
 * Low-Level C Interface Words::  
@@ -12056,7 +12058,8 @@ as well as a way of declaring structs, unions, and their fields.
 * Calling C Functions::         
 * Declaring C Functions::       
 * Calling C function pointers::  
-* Declaring libraries::         
+* Defining library interfaces::  
+* Declaring OS-level libraries::  
 * Callbacks::                   
 * C interface internals::       
 * Low-Level C Interface Words::  
@@ -12233,7 +12236,7 @@ interface; you can find some examples for the @file{lib.fs} interface
 in @file{lib.fs}.
 
 
-@node Calling C function pointers, Declaring libraries, Declaring C Functions, C Interface
+@node Calling C function pointers, Defining library interfaces, Declaring C Functions, C Interface
 @subsection Calling C function pointers from Forth
 @cindex C function pointers, calling from Forth
 
@@ -12270,17 +12273,56 @@ function pointer you want to call from Forth, you have to define
 a separate calling word.
 
 
-@node Declaring libraries, Callbacks, Calling C function pointers, C Interface
-@subsection Declaring libraries
+@node Defining library interfaces, Declaring OS-level libraries, Calling C function pointers, C Interface
+@subsection Defining library interfaces
+@cindex giving a name to a library interface
+@cindex library interface names
+
+You can give a name to a bunch of C function declarations (a library
+interface), as follows:
+
+@example
+c-library lseek-lib
+\c #define _FILE_OFFSET_BITS 64
+...
+end-c-library
+@end example
+
+The effect of giving such a name to the interface is that the
+generated files will contain that name, and when you use the interface
+a second time, it will use the existing files instead of generating
+and compiling them again, saving you time.  Note that even if you
+change the declarations, the old (stale) files will be used, probably
+leading to errors.  So, during development of the declarations we
+recommend not using @code{c-library}.
+
+Note that the library name is not allocated in the dictionary and
+therefore does not shadow dictionary names.  It is used in the file
+system, so you have to use naming conventions appropriate for file
+systems.  Also, you must not call a function you declare after
+@code{c-library} before you perform @code{end-c-library}.
+
+A major benefit of these named library interfaces is that, once they
+are generated, the tools used to generated them (in particular, the C
+compiler and libtool) are no longer needed, so the interface can be
+used even on machines that do not have the tools installed.
+
+doc-c-library-name
+doc-c-library
+doc-end-c-library
+
+
+@node Declaring OS-level libraries, Callbacks, Defining library interfaces, C Interface
+@subsection Declaring OS-level libraries
 @cindex Shared libraries in C interface
 @cindex Dynamically linked libraries in C interface
 @cindex Libraries in C interface
 
-For calling some C functions, you need to link with a specific library
-that contains that library.  E.g., the @code{sin} function requires
-linking a special library by using the command line switch @code{-lm}.
-In our C iterface you do the equivalent thing by calling
-@code{add-lib} as follows:
+For calling some C functions, you need to link with a specific
+OS-level library that contains that function.  E.g., the @code{sin}
+function requires linking a special library by using the command line
+switch @code{-lm}.  In our C iterface you do the equivalent thing by
+calling @code{add-lib} as follows:
 
 @example
 clear-libs
@@ -12297,11 +12339,17 @@ declare the function as shown above.  Typically you will use the same
 set of library declarations for many function declarations; you need
 to write only one set for that, right at the beginning.
 
+Note that you must not call @code{clear-libs} inside
+@code{c-library...end-c-library}; however, @code{c-library} performs
+the function of @code{clear-libs}, so @code{clear-libs} is not
+necessary, and you usually want to put @code{add-lib} calls inside
+@code{c-library...end-c-library}.
+
 doc-clear-libs
 doc-add-lib
 
 
-@node Callbacks, C interface internals, Declaring libraries, C Interface
+@node Callbacks, C interface internals, Declaring OS-level libraries, C Interface
 @subsection Callbacks
 @cindex Callback functions written in Forth
 @cindex C function pointers to Forth words
@@ -12369,6 +12417,7 @@ function is linked.
 
 doc-open-lib
 doc-lib-sym
+doc-lib-error
 doc-call-c
 
 @c -------------------------------------------------------------
