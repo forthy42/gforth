@@ -158,6 +158,8 @@ variable lib-handle-addr \ points to the library handle of the current batch.
 2variable lib-filename   \ filename without extension
 2variable lib-modulename \ basename of the file without extension
 
+: delete-file 2drop 0 ;
+
 : .nb ( n -- )
     0 .r ;
 
@@ -444,17 +446,28 @@ create gen-wrapped-types
     then ;
 
 : gen-filename ( x -- c-addr u )
-    \ generates a filename without extension for lib-handle-addr X
+    \ generates a file basename for lib-handle-addr X
     0 <<# ['] #s $10 base-execute #> 
-    tempdir s" /gforth_c_" s+ 2swap append #>> ;
+    s" gforth_c_" 2swap s+ #>> ;
+
+: prepend-dirname ( c-addr1 u1 -- c-addr2 u2 )
+    tempdir s" /" s+ 2over append
+    2swap drop free throw ;
+
+: c-library-name1 ( c-addr u -- )
+    \ set up filenames for a new library; c-addr u is the basename of
+    \ the library
+    assert( c-source-file-id @ 0= )
+    prepend-dirname { d: filename }
+    here 0 , lib-handle-addr ! filename 2dup lib-filename 2!
+    2dup tempdir nip 1+ /string lib-modulename 2!
+    s" .c" s+ 2dup w/o create-file throw dup c-source-file-id !
+    ['] print-c-prefix-lines swap outfile-execute
+    drop free throw ;
 
 : init-c-source-file ( -- )
     c-source-file-id @ 0= if
-        here 0 , dup lib-handle-addr ! gen-filename 2dup lib-filename 2!
-        2dup tempdir nip 1+ /string lib-modulename 2!
-	s" .c" s+ 2dup w/o create-file throw dup c-source-file-id !
-        ['] print-c-prefix-lines swap outfile-execute
-        drop free throw
+	here gen-filename c-library-name1
     endif ;
 
 : c-source-file ( -- file-id )
@@ -467,7 +480,7 @@ create gen-wrapped-types
     [then] ;
 
 DEFER compile-wrapper-function ( -- )
-:NONAME ( -- )
+: compile-wrapper-function1 ( -- )
     c-source-file close-file throw
     0 c-source-file-id !
     [ libtool-command s"  --silent --mode=compile gcc -I " s+
@@ -491,7 +504,8 @@ DEFER compile-wrapper-function ( -- )
     ( lib-handle ) lib-handle-addr @ !
     2dup delete-file throw drop free throw
     lib-filename 2@ s" .c" s+ 2dup delete-file throw drop free throw
-    lib-filename 2@ drop free throw 0 0 lib-filename 2! ; IS compile-wrapper-function
+    lib-filename 2@ drop free throw 0 0 lib-filename 2! ;
+' compile-wrapper-function1 IS compile-wrapper-function
 \    s" ar rcs xxx.a xxx.o" system
 \    $? abort" ar generated error" ;
 
@@ -538,3 +552,20 @@ DEFER compile-wrapper-function ( -- )
     endif
     0 c-libs ! ;
 clear-libs
+
+: c-library-incomplete ( -- )
+    true abort" Called function of unfinished named C library" ;
+
+: c-library-name ( c-addr u -- ) \ gforth
+\G Start a C library with name @i{c-addr u}.
+    clear-libs
+    ['] c-library-incomplete is compile-wrapper-function
+    c-library-name1 ;
+
+: c-library ( "name" -- ) \ gforth
+\G Parsing version of @code{c-library-name}
+    name save-mem c-library-name ;
+
+: end-c-library ( -- )
+    ['] compile-wrapper-function1 is compile-wrapper-function
+    compile-wrapper-function1 ;

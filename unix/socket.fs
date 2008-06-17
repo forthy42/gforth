@@ -17,6 +17,7 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+c-library socket
 \c #include <netdb.h>
 c-function gethostbyname gethostbyname a -- a ( name -- hostent )
 \c #include <unistd.h>
@@ -42,6 +43,7 @@ c-function htonl htonl n -- n ( x -- x' )
 c-function htons htons n -- n ( x -- x' )
 c-function ntohl ntohl n -- n ( x -- x' )
 c-function fileno fileno a -- n ( file* -- fd )
+end-c-library
 
 4 4 2Constant int%
 2 2 2Constant short%
