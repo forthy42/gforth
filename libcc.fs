@@ -464,19 +464,46 @@ create gen-wrapped-types
     \ the library
     assert( c-source-file-id @ 0= )
     prepend-dirname { d: filename }
-    here 0 , lib-handle-addr ! filename 2dup lib-filename 2!
-    2dup tempdir nip 1+ /string lib-modulename 2!
-    s" .c" s+ 2dup w/o create-file throw dup c-source-file-id !
-    ['] print-c-prefix-lines swap outfile-execute
-    drop free throw ;
+    here 0 , lib-handle-addr ! filename lib-filename 2!
+    filename tempdir nip 1+ /string lib-modulename 2!
+    open-wrappers dup if
+	lib-handle-addr @ !
+	( 0 c-source-file-id ! ) \ already set
+    else
+	drop
+	filename s" .c" s+ 2dup w/o create-file throw dup c-source-file-id !
+	['] print-c-prefix-lines swap outfile-execute
+	drop free throw
+    endif ;
+
+: lib-handle ( -- addr )
+    lib-handle-addr @ @ ;
 
 : init-c-source-file ( -- )
-    c-source-file-id @ 0= if
-	here gen-filename c-library-name1
+    lib-handle 0= if
+	c-source-file-id @ 0= if
+	    here gen-filename c-library-name1
+	endif
     endif ;
 
 : c-source-file ( -- file-id )
     c-source-file-id @ assert( dup ) ;
+
+: notype-execute ( ... xt -- ... )
+    what's type { oldtype } try
+	['] 2drop is type execute 0
+    restore
+	oldtype is type
+    endtry
+    throw ;
+
+: c-source-file-execute ( ... xt -- ... )
+    \ direct the output of xt to c-source-file, or nothing
+    lib-handle if
+	notype-execute
+    else
+	c-source-file outfile-execute
+    endif ;
 
 : .lib-error ( -- )
     [ifdef] lib-error
@@ -486,26 +513,27 @@ create gen-wrapped-types
 
 DEFER compile-wrapper-function ( -- )
 : compile-wrapper-function1 ( -- )
-    c-source-file close-file throw
-    0 c-source-file-id !
-    [ libtool-command s"  --silent --mode=compile gcc -I " s+
-    s" includedir" getenv append ] sliteral
-    s"  -O -c " s+ lib-filename 2@ append s" .c -o " append
-    lib-filename 2@ append s" .lo" append ( c-addr u )
-\    cr 2dup type
-    2dup system drop free throw $? abort" libtool compile failed"
-    [ libtool-command s"  --silent --mode=link gcc -module -rpath " s+ ] sliteral
-    tempdir s+ s"  " append
-    lib-filename 2@ append s" .lo -o " append
-    lib-filename 2@ append s" .la" append ( c-addr u )
-    c-libs @ ['] append-l list-map
-\    2dup type cr
-    2dup system drop free throw $? abort" libtool link failed"
-    open-wrappers
-    dup 0= if
-	.lib-error true abort" open-lib failed"
+    lib-handle 0= if
+	c-source-file close-file throw
+	0 c-source-file-id !
+	[ libtool-command s"  --silent --mode=compile gcc -I " s+
+	s" includedir" getenv append ] sliteral
+	s"  -O -c " s+ lib-filename 2@ append s" .c -o " append
+	lib-filename 2@ append s" .lo" append ( c-addr u )
+	\    cr 2dup type
+	2dup system drop free throw $? abort" libtool compile failed"
+	[ libtool-command s"  --silent --mode=link gcc -module -rpath " s+ ] sliteral
+	tempdir s+ s"  " append
+	lib-filename 2@ append s" .lo -o " append
+	lib-filename 2@ append s" .la" append ( c-addr u )
+	c-libs @ ['] append-l list-map
+	\    2dup type cr
+	2dup system drop free throw $? abort" libtool link failed"
+	open-wrappers dup 0= if
+	    .lib-error true abort" open-lib failed"
+	endif
+	( lib-handle ) lib-handle-addr @ !
     endif
-    ( lib-handle ) lib-handle-addr @ !
     lib-filename 2@ drop free throw 0 0 lib-filename 2! ;
 ' compile-wrapper-function1 IS compile-wrapper-function
 \    s" ar rcs xxx.a xxx.o" system
@@ -524,7 +552,7 @@ DEFER compile-wrapper-function ( -- )
     noname create 2, lib-handle-addr @ ,
     parse-name { d: c-name }
     here parse-function-types c-name string,
-    ['] gen-wrapper-function c-source-file outfile-execute
+    ['] gen-wrapper-function c-source-file-execute
   does> ( ... -- ... )
     dup 2@ { xt-defer xt-cfr }
     dup cff-lha @ @ 0= if
