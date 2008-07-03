@@ -70,10 +70,6 @@
 #include <callback.h>
 #endif
 
-#ifdef HAS_LIBFFI
-#include <ffi.h>
-#endif
-
 #ifndef SEEK_SET
 /* should be defined in stdio.h, but some systems don't have it */
 #define SEEK_SET 0
@@ -343,11 +339,6 @@ Label *gforth_engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0 sr_p
   double drv;
   long long llrv;
   void * prv;
-#endif
-#ifdef HAS_LIBFFI
-  extern void * gforth_ritem;
-  extern void ** gforth_clist;
-  extern void ffi_callback(ffi_cif * cif, void * resp, void ** args, Xt * ip);
 #endif
   register Address up UPREG = gforth_UP;
 #if !defined(GFORTH_DEBUGGING)

@@ -62,10 +62,10 @@ typedef enum prim_num {
 Cell *gforth_SP;
 Float *gforth_FP;
 Address gforth_UP=NULL;
-
-#ifdef HAS_FFCALL
 Cell *gforth_RP;
 Address gforth_LP;
+
+#ifdef HAS_FFCALL
 
 #include <callback.h>
 
@@ -90,39 +90,6 @@ void gforth_callback(Xt* fcall, void * alist)
   gforth_FP = fp;
   gforth_LP = lp;
   gforth_clist = clist;
-}
-#endif
-
-#ifdef HAS_LIBFFI
-Cell *gforth_RP;
-Address gforth_LP;
-
-#include <ffi.h>
-
-void ** gforth_clist;
-void * gforth_ritem;
-
-void gforth_callback(ffi_cif * cif, void * resp, void ** args, void * ip)
-{
-  Cell *rp1 = gforth_RP;
-  Cell *sp = gforth_SP;
-  Float *fp = gforth_FP;
-  Address lp = gforth_LP;
-  void ** clist = gforth_clist;
-  void * ritem = gforth_ritem;
-
-  gforth_clist = args;
-  gforth_ritem = resp;
-
-  gforth_engine((Xt *)ip, sp, rp1, fp, lp sr_call);
-
-  /* restore global variables */
-  gforth_RP = rp1;
-  gforth_SP = sp;
-  gforth_FP = fp;
-  gforth_LP = lp;
-  gforth_clist = clist;
-  gforth_ritem = ritem;
 }
 #endif
 
@@ -2217,13 +2184,10 @@ SIZE arguments consist of an integer followed by a unit. The unit can be\n\
 static void print_diag()
 {
 
-#if !defined(HAVE_GETRUSAGE) || (!defined(HAS_FFCALL) && !defined(HAS_LIBFFI))
+#if !defined(HAVE_GETRUSAGE)
   fprintf(stderr, "*** missing functionality ***\n"
 #ifndef HAVE_GETRUSAGE
 	  "    no getrusage -> CPUTIME broken\n"
-#endif
-#if !defined(HAS_FFCALL) && !defined(HAS_LIBFFI)
-	  "    no ffcall -> only old-style foreign function calls (no fflib.fs)\n"
 #endif
 	  );
 #endif

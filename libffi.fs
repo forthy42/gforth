@@ -26,9 +26,18 @@ require libcc.fs
 c-library libffi
 s" ffi" add-lib
 
-\c #include <ffi.h>
-\c static Cell *gforth_RP;
-\c static unsigned char *gforth_LP;
+s" os-type" environment? [IF] s" darwin" string-prefix?
+[IF]
+    \c #define MACOSX
+    \c #include <ffi/ffi.h>
+[ELSE]
+    \c #include <ffi.h>
+[THEN]
+[ELSE]
+    \c #include <ffi.h>
+[THEN]
+\c extern Cell *gforth_RP;
+\c extern unsigned char *gforth_LP;
 \c static void **gforth_clist;
 \c static void *gforth_ritem;
 \c typedef void *Label;

@@ -456,13 +456,6 @@ extern Address gforth_LP;
 extern void gforth_callback(Xt* fcall, void * alist);
 #endif
 
-#ifdef HAS_LIBFFI
-extern Cell *gforth_RP;
-extern Address gforth_LP;
-#include <ffi.h>
-extern void gforth_callback(ffi_cif * cif, void * resp, void ** args, void * ip);
-#endif
-
 #ifdef NO_IP
 extern Label next_code;
 #endif
