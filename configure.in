@@ -528,7 +528,9 @@ else
 fi
 
 if grep -q FORCE_REG arch/$machine/machine.h; then
-   OPTS=`for i in $OPTS; do echo -n "$i-reg "; done`$OPTS
+   OPTS2=''
+   for i in $OPTS; do OPTS2="$OPTS2 $i-reg"; done
+   OPTS="$OPTS2 $OPTS"
 else
   AC_DEFINE_UNQUOTED(FORCE_REG_UNNECESSARY,,[defined if the platform does not need FORCE_REG])
 fi
