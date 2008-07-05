@@ -155,6 +155,7 @@ variable c-source-file-id \ contains the source file id of the current batch
 variable lib-handle-addr \ points to the library handle of the current batch.
                          \ the library handle is 0 if the current
                          \ batch is not yet compiled.
+  here 0 , lib-handle-addr ! \ just make sure LIB-HANDLE always works
 2variable lib-filename   \ filename without extension
 2variable lib-modulename \ basename of the file without extension
 
@@ -459,22 +460,32 @@ create gen-wrapped-types
     tempdir s" /" s+ 2over append
     2swap drop free throw ;
 
-: c-library-name1 ( c-addr u -- )
-    \ set up filenames for a new library; c-addr u is the basename of
-    \ the library
+: c-library-name-setup ( c-addr u -- )
     assert( c-source-file-id @ 0= )
     prepend-dirname { d: filename }
     here 0 , lib-handle-addr ! filename lib-filename 2!
-    filename tempdir nip 1+ /string lib-modulename 2!
+    filename tempdir nip 1+ /string lib-modulename 2! ;
+   
+: c-library-name-create ( -- )
+    lib-filename 2@ s" .c" s+ 2dup w/o create-file throw
+    dup c-source-file-id !
+    ['] print-c-prefix-lines swap outfile-execute
+    drop free throw ;
+
+: c-library-name1 ( c-addr u -- )
+    \ set up filenames for a (possibly new) library; c-addr u is the
+    \ basename of the library
+    c-library-name-setup
     open-wrappers dup if
 	lib-handle-addr @ !
-	( 0 c-source-file-id ! ) \ already set
     else
-	drop
-	filename s" .c" s+ 2dup w/o create-file throw dup c-source-file-id !
-	['] print-c-prefix-lines swap outfile-execute
-	drop free throw
+	drop c-library-name-create
     endif ;
+
+: c-library-name2 ( c-addr u -- )
+    \ set up filenames for a new library; c-addr u is the basename of
+    \ the library
+    c-library-name-setup c-library-name-create ;
 
 : lib-handle ( -- addr )
     lib-handle-addr @ @ ;
@@ -482,7 +493,7 @@ create gen-wrapped-types
 : init-c-source-file ( -- )
     lib-handle 0= if
 	c-source-file-id @ 0= if
-	    here gen-filename c-library-name1
+	    here gen-filename c-library-name2
 	endif
     endif ;
 
@@ -594,7 +605,7 @@ clear-libs
 
 : c-library ( "name" -- ) \ gforth
 \G Parsing version of @code{c-library-name}
-    name save-mem c-library-name ;
+    parse-name save-mem c-library-name ;
 
 : end-c-library ( -- ) \ gforth
 \G Finish and (if necessary) build the latest C library interface.

@@ -20,7 +20,7 @@
 \ replacements for former primitives
 require libcc.fs
 
-clear-libs
+c-library fflib
 s" avcall" add-lib
 s" callback" add-lib
 
@@ -130,6 +130,7 @@ c-function va-return-longlong1 va_return_longlong1 d -- void
 c-function va-return-float1 va_return_float1 r -- void
 \c #define va_return_double1(r) va_return_double(gforth_clist,r)
 c-function va-return-double1 va_return_double1 r -- void
+end-c-library
 
 : av-int-r      2r> >r av-int ;
 : av-float-r    f@local0 lp+ av-float ;
@@ -341,4 +342,3 @@ also cb-decl definitions
 ' va-return-ptr      ' va-start-ptr      va-ret (ptr)
 
 previous definitions
-clear-libs
