@@ -443,28 +443,49 @@ create gen-wrapped-types
 
 : open-wrappers ( -- addr )
     lib-filename 2@ s" .la" s+
+    \ 2dup cr type
     2dup open-lib >r
     drop free throw r> ;
 
-: tempdir ( -- c-addr u )
-    s" TMPDIR" getenv dup 0= if
-        2drop s" /tmp"
-    then ;
+: scan-back { c-addr u1 c -- c-addr u2 }
+    \ the last occurence of c in c-addr u1 is at u2-1; if it does not
+    \ occur, u2=0.
+    c-addr 1- c-addr u1 + 1- u-do
+	i c@ c = if
+	    c-addr i over - 1+ unloop exit endif
+    1 -loop
+    c-addr 0 ;
+
+: dirname ( c-addr1 u1 -- c-addr2 u2 )
+    \ directory name of the file name c-addr1 u1, including the final "/".
+    '/ scan-back ;
+
+: basename ( c-addr1 u1 -- c-addr2 u2 )
+    \ file name without directory component
+    2dup dirname nip /string ;
 
 : gen-filename ( x -- c-addr u )
     \ generates a file basename for lib-handle-addr X
     0 <<# ['] #s $10 base-execute #> 
     s" gforth_c_" 2swap s+ #>> ;
 
-: prepend-dirname ( c-addr1 u1 -- c-addr2 u2 )
-    tempdir s" /" s+ 2over append
-    2swap drop free throw ;
+: home-dir ( -- c-addr u )
+    s" HOME" getenv ;
+
+: libcc-named-dir ( -- c-addr u )
+    home-dir s" /.gforth/libcc-named/" s+ ;
+
+: libcc-tmp-dir ( -- c-addr u )
+    home-dir s" /.gforth/libcc-tmp/" s+ ;
+
+: prepend-dirname ( c-addr1 u1 c-addr2 u2 -- c-addr3 u3 )
+    2over append 2swap drop free throw ;
 
 : c-library-name-setup ( c-addr u -- )
     assert( c-source-file-id @ 0= )
-    prepend-dirname { d: filename }
+    { d: filename }
     here 0 , lib-handle-addr ! filename lib-filename 2!
-    filename tempdir nip 1+ /string lib-modulename 2! ;
+    filename basename lib-modulename 2! ;
    
 : c-library-name-create ( -- )
     lib-filename 2@ s" .c" s+ 2dup w/o create-file throw
@@ -472,20 +493,20 @@ create gen-wrapped-types
     ['] print-c-prefix-lines swap outfile-execute
     drop free throw ;
 
-: c-library-name1 ( c-addr u -- )
+: c-named-library-name ( c-addr u -- )
     \ set up filenames for a (possibly new) library; c-addr u is the
     \ basename of the library
-    c-library-name-setup
+    libcc-named-dir prepend-dirname c-library-name-setup
     open-wrappers dup if
 	lib-handle-addr @ !
     else
 	drop c-library-name-create
     endif ;
 
-: c-library-name2 ( c-addr u -- )
+: c-tmp-library-name ( c-addr u -- )
     \ set up filenames for a new library; c-addr u is the basename of
     \ the library
-    c-library-name-setup c-library-name-create ;
+    libcc-tmp-dir prepend-dirname c-library-name-setup c-library-name-create ;
 
 : lib-handle ( -- addr )
     lib-handle-addr @ @ ;
@@ -493,7 +514,7 @@ create gen-wrapped-types
 : init-c-source-file ( -- )
     lib-handle 0= if
 	c-source-file-id @ 0= if
-	    here gen-filename c-library-name2
+	    here gen-filename c-tmp-library-name
 	endif
     endif ;
 
@@ -534,7 +555,7 @@ DEFER compile-wrapper-function ( -- )
 	\    cr 2dup type
 	2dup system drop free throw $? abort" libtool compile failed"
 	[ libtool-command s"  --silent --mode=link gcc -module -rpath " s+ ] sliteral
-	tempdir s+ s"  " append
+	lib-filename 2@ dirname s+ s"  " append
 	lib-filename 2@ append s" .lo -o " append
 	lib-filename 2@ append s" .la" append ( c-addr u )
 	c-libs @ ['] append-l list-map
@@ -601,7 +622,7 @@ clear-libs
 \G Start a C library interface with name @i{c-addr u}.
     clear-libs
     ['] c-library-incomplete is compile-wrapper-function
-    c-library-name1 ;
+    c-named-library-name ;
 
 : c-library ( "name" -- ) \ gforth
 \G Parsing version of @code{c-library-name}
