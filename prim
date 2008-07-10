@@ -2394,15 +2394,15 @@ r = fp[u];
 
 open-lib	( c_addr1 u1 -- u2 )	gforth	open_lib
 #if 1
-u2 = (UCell)lt_dlopen(cstr(c_addr1, u1, 1));
+u2 = (UCell)lt_dlopen(tilde_cstr(c_addr1, u1, 1));
 #elif defined(HAVE_LIBDL) || defined(HAVE_DLOPEN)
 #ifndef RTLD_GLOBAL
 #define RTLD_GLOBAL 0
 #endif
-u2=(UCell) dlopen(cstr(c_addr1, u1, 1), RTLD_GLOBAL | RTLD_LAZY);
+u2=(UCell) dlopen(tilde_cstr(c_addr1, u1, 1), RTLD_GLOBAL | RTLD_LAZY);
 #else
 #  ifdef _WIN32
-u2 = (Cell) GetModuleHandle(cstr(c_addr1, u1, 1));
+u2 = (Cell) GetModuleHandle(tilde_cstr(c_addr1, u1, 1));
 #  else
 #warning Define open-lib!
 u2 = 0;

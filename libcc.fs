@@ -469,17 +469,14 @@ create gen-wrapped-types
     0 <<# ['] #s $10 base-execute #> 
     s" gforth_c_" 2swap s+ #>> ;
 
-: home-dir ( -- c-addr u )
-    s" HOME" getenv ;
-
 : libcc-named-dir ( -- c-addr u )
-    home-dir s" /.gforth/libcc-named/" s+ ;
+    s" ~/.gforth/libcc-named/" ;
 
 : libcc-tmp-dir ( -- c-addr u )
-    home-dir s" /.gforth/libcc-tmp/" s+ ;
+    s" ~/.gforth/libcc-tmp/" ;
 
 : prepend-dirname ( c-addr1 u1 c-addr2 u2 -- c-addr3 u3 )
-    2over append 2swap drop free throw ;
+    2over s+ 2swap drop free throw ;
 
 : c-library-name-setup ( c-addr u -- )
     assert( c-source-file-id @ 0= )
