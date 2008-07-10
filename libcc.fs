@@ -441,12 +441,6 @@ create gen-wrapped-types
     endif
     .\" }\n" ;
 
-: open-wrappers ( -- addr )
-    lib-filename 2@ s" .la" s+
-    \ 2dup cr type
-    2dup open-lib >r
-    drop free throw r> ;
-
 : scan-back { c-addr u1 c -- c-addr u2 }
     \ the last occurence of c in c-addr u1 is at u2-1; if it does not
     \ occur, u2=0.
@@ -477,6 +471,25 @@ create gen-wrapped-types
 
 : prepend-dirname ( c-addr1 u1 c-addr2 u2 -- c-addr3 u3 )
     2over s+ 2swap drop free throw ;
+
+0 value libcc-path
+here 1024 dup , 0 , allot to libcc-path \ !! the path words should grow buffers dynamically
+libcc-path clear-path
+libcc-named-dir libcc-path also-path
+\ !! setup path on boot
+
+: open-wrappers ( -- addr|0 )
+    lib-filename 2@ s" .la" s+
+    2dup libcc-named-dir string-prefix? if ( c-addr u )
+	\ see if we can open it in the path
+	libcc-named-dir nip /string
+	libcc-path open-path-file if
+	    0 exit endif
+	( wfile-id c-addr2 u2 ) rot close-file throw save-mem ( c-addr2 u2 )
+    endif
+    \ 2dup cr type
+    2dup open-lib >r
+    drop free throw r> ;
 
 : c-library-name-setup ( c-addr u -- )
     assert( c-source-file-id @ 0= )
