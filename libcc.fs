@@ -463,8 +463,10 @@ create gen-wrapped-types
     0 <<# ['] #s $10 base-execute #> 
     s" gforth_c_" 2swap s+ #>> ;
 
+2variable libcc-named-dir-v
+
 : libcc-named-dir ( -- c-addr u )
-    s" ~/.gforth/libcc-named/" ;
+    libcc-named-dir-v 2@ ;
 
 : libcc-tmp-dir ( -- c-addr u )
     s" ~/.gforth/libcc-tmp/" ;
@@ -473,10 +475,6 @@ create gen-wrapped-types
     2over s+ 2swap drop free throw ;
 
 0 value libcc-path
-here 1024 dup , 0 , allot to libcc-path \ !! the path words should grow buffers dynamically
-libcc-path clear-path
-libcc-named-dir libcc-path also-path
-\ !! setup path on boot
 
 : open-wrappers ( -- addr|0 )
     lib-filename 2@ s" .la" s+
@@ -642,3 +640,17 @@ clear-libs
 \G Finish and (if necessary) build the latest C library interface.
     ['] compile-wrapper-function1 is compile-wrapper-function
     compile-wrapper-function1 ;
+
+: init-libcc ( -- )
+    s" ~/.gforth/libcc-named/" libcc-named-dir-v 2!
+    make-path to libcc-path
+    libcc-named-dir libcc-path also-path
+    [ s" libccdir" getenv ] sliteral libcc-path also-path
+;
+
+init-libcc
+
+:noname ( -- )
+    defers 'cold
+    init-libcc ;
+is 'cold

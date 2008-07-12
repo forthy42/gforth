@@ -66,9 +66,12 @@
 \ create sourcepath 1024 chars , 0 , 1024 chars allot \ !! make this dynamic
 0 avalue fpath ( -- path-addr ) \ gforth
 
+: make-path ( -- addr )
+    $400 chars dup 2 cells + allocate throw >r
+    0 swap r@ 2! r> ;
+
 : os-cold ( -- )
-    $400 chars dup 2 cells + allocate throw to fpath
-    0 swap fpath 2!
+    make-path to fpath
     pathstring 2@ fpath only-path 
     init-included-files ;
 
@@ -78,7 +81,7 @@
     \G add the directory @i{c-addr len} to @i{path-addr}.
   >r
   \ len check
-  r@ cell+ @ over + r@ @ u> ABORT" path buffer too small!"
+  r@ cell+ @ over + r@ @ u> ABORT" path buffer too small!" \ !! grow it
   \ copy into
   tuck r@ cell+ dup @ cell+ + swap cmove
   \ make delimiter
