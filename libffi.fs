@@ -21,8 +21,6 @@
 \ note that the API functions have their arguments reversed and other
 \ deviations.
 
-require libcc.fs
-
 c-library libffi
 s" ffi" add-lib
 

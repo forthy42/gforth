@@ -18,8 +18,6 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 \ replacements for former primitives
-require libcc.fs
-
 c-library fflib
 s" avcall" add-lib
 s" callback" add-lib

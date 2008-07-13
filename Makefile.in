@@ -129,7 +129,7 @@ datarootdir = @datarootdir@
 datadir = @datadir@
 #read-only architecture-dependent non-ascii files
 libdir = @libdir@
-libccdir = $libdir/gforth/$(VERSION)/libcc-named/
+libccdir = $(libdir)/gforth/$(VERSION)/libcc-named/
 includedir = @includedir@
 infodir = @infodir@
 htmldir = @htmldir@
@@ -616,11 +616,11 @@ install:	gforth$(EC)$(EXE) $(FORTH_SRC) $(kernel_fi) gforth.fi gforthmi vmgen do
 		fi
 		-$(RM) gforth.fi
 		GFORTHD="./gforth-ditc -p $(DESTDIR)$(libdir)/gforth/site-forth$(PATHSEP)$(DESTDIR)$(siteforthdir)$(PATHSEP)$(DESTDIR)$(datadir)/gforth/$(VERSION) -i $(kernel_fi)" GFORTH="./gforth-ditc --die-on-signal -i $(kernel_fi) $(STARTUP)" includedir=$(includedir) bindir=$(bindir) libccdir=$(libccdir) GFORTHPATH=.:"$$GFORTHPATH" GFORTHDESTDIR="$(DESTDIR)" ./gforthmi gforth.fi $(FORTHSIZES) $(STARTUP)
-		for i in $(LIBCC_SRC); do gforth -e "s\" $(DESTDIR)$(libccdir)\" libcc-named-dir-v 2! libcc-path clear-path libcc-named-dir libcc-path also-path" $$i -e bye; done
 		$(INSTALL_DATA) gforth.fi $(DESTDIR)$(libdir)/gforth/$(VERSION)
 		$(INSTALL_DATA) install.TAGS $(DESTDIR)$(datadir)/gforth/$(VERSION)/TAGS
 		$(RM) gforth.fi install.TAGS
 		$(INSTALL_DATA) include/gforth/$(VERSION)/* $(DESTDIR)$(includedir)/gforth/$(VERSION)
+		for i in $(LIBCC_SRC); do $(DESTDIR)$(bindir)/gforth -e "s\" $(DESTDIR)$(libccdir)\" libcc-named-dir-v 2! libcc-path clear-path libcc-named-dir libcc-path also-path" $$i -e bye; done
 		$(POST_INSTALL)
 		$(INSTALL_INFO) --info-dir=$(DESTDIR)$(infodir) $(DESTDIR)$(infodir)/gforth.info
 		#$(INSTALL_INFO) --info-dir=$(DESTDIR)$(infodir) $(DESTDIR)$(infodir)/vmgen.info

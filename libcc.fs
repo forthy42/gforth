@@ -158,6 +158,8 @@ variable lib-handle-addr \ points to the library handle of the current batch.
   here 0 , lib-handle-addr ! \ just make sure LIB-HANDLE always works
 2variable lib-filename   \ filename without extension
 2variable lib-modulename \ basename of the file without extension
+2variable libcc-named-dir-v \ directory for named libcc wrapper libraries
+0 value libcc-path       \ pointer to path of library directories
 
 : delete-file 2drop 0 ;
 
@@ -463,8 +465,6 @@ create gen-wrapped-types
     0 <<# ['] #s $10 base-execute #> 
     s" gforth_c_" 2swap s+ #>> ;
 
-2variable libcc-named-dir-v
-
 : libcc-named-dir ( -- c-addr u )
     libcc-named-dir-v 2@ ;
 
@@ -473,8 +473,6 @@ create gen-wrapped-types
 
 : prepend-dirname ( c-addr1 u1 c-addr2 u2 -- c-addr3 u3 )
     2over s+ 2swap drop free throw ;
-
-0 value libcc-path
 
 : open-wrappers ( -- addr|0 )
     lib-filename 2@ s" .la" s+
