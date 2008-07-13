@@ -871,6 +871,7 @@ envos.fs
 preforth
 engine/Makefile
 engine/libcc.h
+libcc.fs
 doc/version.texi
 build-ec ])
 AC_CONFIG_COMMANDS([stamp-h],[[echo timestamp > stamp-h
