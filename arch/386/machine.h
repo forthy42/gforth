@@ -101,11 +101,17 @@
 #    define TOSREG asm("%ecx")
 /* ecx works only for TOS, and eax, edx don't work for anything (gcc-3.0) */
 #   else /* !(gcc-2.95 or gcc-3.x) */
-#    define IPREG asm("%ebx")
+#    ifndef __APPLE__
+#     define IPREG asm("%ebx")
+#    endif
 #    if (__GNUC__==4 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=2)
 #     define SPREG asm("%esi")
 #     define RPREG asm("%edi")
-#     define TOSREG asm("%edx")
+#     ifndef __APPLE__
+#      define TOSREG asm("%edx")
+#     else
+#      define IPREG asm("%edx")
+#     endif
 #    endif /* (gcc-4.2 or later) */
 #   endif /* !(gcc-2.95 or later) */
 #  else /* !defined(USE_TOS) || defined(CFA_NEXT) */

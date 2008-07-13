@@ -647,7 +647,7 @@ uninstall:	FORCE
 check-libcc-named: $(LIBCC_SRC)
 		$(RMTREE) lib/gforth/$(VERSION)/libcc-named/
 		$(srcdir)/mkinstalldirs lib/gforth/$(VERSION)/libcc-named/
-		for i in $(LIBCC_SRC); do gforth -e "s\" `pwd`/lib/gforth/$(VERSION)/libcc-named/\" libcc-named-dir-v 2! libcc-path clear-path libcc-named-dir libcc-path also-path" $$i -e bye; done
+		for i in $(LIBCC_SRC); do ./gforth -e "s\" `pwd`/lib/gforth/$(VERSION)/libcc-named/\" libcc-named-dir-v 2! libcc-path clear-path libcc-named-dir libcc-path also-path" $$i -e bye; done
 
 check:		gforths	gforth.fi 
 		$(MAKE) checkone check-nofast ENGINE="./gforth --no-dynamic" >/dev/null 2>&1
