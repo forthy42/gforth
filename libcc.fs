@@ -554,18 +554,18 @@ DEFER compile-wrapper-function ( -- )
     lib-handle 0= if
 	c-source-file close-file throw
 	0 c-source-file-id !
-	[ libtool-command s"  --silent --mode=compile 'gcc-4.2 -arch x86_64' -I " s+
+	[ libtool-command s"  --silent --mode=compile --tag=CC gcc-4.2 -arch x86_64 -I " s+
 	s" includedir" getenv append ] sliteral
 	s"  -O -c " s+ lib-filename 2@ append s" .c -o " append
 	lib-filename 2@ append s" .lo" append ( c-addr u )
-	    cr 2dup type
+	\    cr 2dup type
 	2dup system drop free throw $? abort" libtool compile failed"
-	[ libtool-command s"  --silent --mode=link 'gcc-4.2 -arch x86_64' -module -rpath " s+ ] sliteral
+	[ libtool-command s"  --silent --mode=link --tag=CC gcc-4.2 -arch x86_64 -module -rpath " s+ ] sliteral
 	lib-filename 2@ dirname s+ s"  " append
 	lib-filename 2@ append s" .lo -o " append
 	lib-filename 2@ append s" .la" append ( c-addr u )
 	c-libs @ ['] append-l list-map
-	    2dup type cr
+	\    2dup type cr
 	2dup system drop free throw $? abort" libtool link failed"
 	open-wrappers dup 0= if
 	    .lib-error true abort" open-lib failed"
