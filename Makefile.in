@@ -424,7 +424,7 @@ ENGINES = gforth$(EC)$(EXE) gforth-ditc$(EC)$(EXE) gforth-itc$(EC)$(EXE) $(PROFE
 
 ENGINES_FAST = gforth-fast$(OPT)$(EC)$(EXE) #gforth-native$(OPT)$(EC)$(EXE) 
 
-GEN = $(ENGINES) $(ENGINES_FAST) kernel/version.fs gforth.elc
+GEN = $(ENGINES) $(ENGINES_FAST) gforth.elc
 
 # things that need a working forth system to be generated
 FORTH_GEN_ENGINE=engine/prim.i engine/prim_lab.i engine/prim_names.i \
@@ -437,7 +437,7 @@ FORTH_GEN_ENGINE_FAST= \
 	engine/prim_num-fast.i engine/prim_grp-fast.i \
 	engine/costs-fast.i engine/super2-fast.i
 FORTH_GEN_PRIMB = $(FORTH_GEN_ENGINE) kernel/aliases.fs kernel/prim.fs
-FORTH_GEN0 = prim.b $(FORTH_GEN_PRIMB)
+FORTH_GEN0 = prim.b $(FORTH_GEN_PRIMB) version kernel/version.fs
 FORTH_GEN =  $(FORTH_GEN0) @KERNEL@ gforth.fi
 # this is used for antidependences,
 FORTH_GEN1 = $(FORTH_GEN0) @kernel_fi@ build-ec
@@ -806,7 +806,7 @@ MAKELINE-noll-reg = OPT=-noll-reg OPTDEFINES=-DFORCE_REG OPTOBJECTS=dblsub.o
 MAKELINE-ll       = OPT=-ll OPTDEFINES=-DFORCE_LL OPTOBJECTS=
 MAKELINE-noll     = OPT=-noll OPTDEFINES= OPTOBJECTS=dblsub.o
 
-gforth$(OPT)$(EC)$(EXE): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/config.h $(kernel_fi)
+gforth$(OPT)$(EC)$(EXE): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/config.h
 	if test -z "$(OPT)"; then \
 		for i in $(OPTS); do $(MAKE) optgforth OPT=$$i && $(CP) gforth$${i}$(EC)$(EXE) $@ && break; done; \
 	else \
