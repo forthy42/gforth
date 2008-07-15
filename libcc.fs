@@ -136,8 +136,6 @@
 
 require struct.fs
 
-    \ counted-string
-    
 \ c-function-ft word body:
 struct
     cell% field cff-cfr \ xt of c-function-rt word
@@ -161,7 +159,8 @@ variable lib-handle-addr \ points to the library handle of the current batch.
 2variable libcc-named-dir-v \ directory for named libcc wrapper libraries
 0 value libcc-path       \ pointer to path of library directories
 
-: delete-file 2drop 0 ;
+defer replace-rpath ( c-addr1 u1 -- c-addr2 u2 )
+' noop is replace-rpath
 
 : .nb ( n -- )
     0 .r ;
@@ -563,7 +562,7 @@ DEFER compile-wrapper-function ( -- )
 	2dup system drop free throw $? abort" libtool compile failed"
 	[ libtool-command s"  --silent --mode=link --tag=CC " s+
 	  libtool-cc append s"  -module -rpath " s+ ] sliteral
-	lib-filename 2@ dirname s+ s"  " append
+	lib-filename 2@ dirname replace-rpath s+ s"  " append
 	lib-filename 2@ append s" .lo -o " append
 	lib-filename 2@ append s" .la" append ( c-addr u )
 	c-libs @ ['] append-l list-map
