@@ -400,7 +400,7 @@ ENGINE_SOURCES = engine/Makefile.in engine/config.h.in \
 SOURCES	= $(CVSDIRS) $(ENGINE_SOURCES) compat Makefile.in Makedist.in \
 	gforthmi.in vmgen.in preforth.in gfgen README.vmgen NEWS.vmgen \
 	configure.in configure config.sub config.guess elisp-comp missing \
-	stamp-h.in envos.fs.in libcc.fs.in \
+	stamp-h.in envos.fs.in \
 	iss.sh install-sh INSTALL INSTALL.BINDIST NEWS README ToDo BUGS \
 	BUILD-FROM-SCRATCH model \
 	COPYING COPYING.LIB COPYING.DOC AUTHORS ChangeLog Benchres aclocal.m4 \
@@ -995,7 +995,7 @@ engine/config.h: stamp-h
 stamp-h: engine/config.h.in config.status stamp-h.in
 	./config.status
 
-Makefile Makedist engine/Makefile gforthmi vmgen preforth machpc.fs doc/version.texi envos.fs build-ec:	Makefile.in Makedist.in engine/Makefile.in gforthmi.in vmgen.in preforth.in machpc.fs.in doc/version.texi.in config.status configure.in envos.fs.in build-ec.in libcc.fs.in engine/libcc.h.in
+Makefile Makedist engine/Makefile gforthmi vmgen preforth machpc.fs doc/version.texi envos.fs build-ec:	Makefile.in Makedist.in engine/Makefile.in gforthmi.in vmgen.in preforth.in machpc.fs.in doc/version.texi.in config.status configure.in envos.fs.in build-ec.in engine/libcc.h.in
 	./config.status
 
 config.status: configure
