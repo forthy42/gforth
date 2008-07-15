@@ -1,6 +1,6 @@
 /* This is the machine-specific part for the Power (incl. PPC) architecture
 
-  Copyright (C) 1995,1996,1997,1998,2000,2003,2005,2007 Free Software Foundation, Inc.
+  Copyright (C) 1995,1996,1997,1998,2000,2003,2005,2007,2008 Free Software Foundation, Inc.
 
   This file is part of Gforth.
 

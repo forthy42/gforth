@@ -1,6 +1,6 @@
 \ recursive descent parser generator )
 
-\ Copyright (C) 1995,1996,1997,2000,2003,2007 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,2000,2003,2007,2008 Free Software Foundation, Inc.
 \ Copyright 1990, 1991, 1994 Martin Anton Ertl
 
 \ This file is part of Gforth.
