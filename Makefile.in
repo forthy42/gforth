@@ -437,7 +437,7 @@ FORTH_GEN_ENGINE_FAST= \
 	engine/prim_num-fast.i engine/prim_grp-fast.i \
 	engine/costs-fast.i engine/super2-fast.i
 FORTH_GEN_PRIMB = $(FORTH_GEN_ENGINE) kernel/aliases.fs kernel/prim.fs
-FORTH_GEN0 = prim.b $(FORTH_GEN_PRIMB) version kernel/version.fs
+FORTH_GEN0 = prim.b $(FORTH_GEN_PRIMB)
 FORTH_GEN =  $(FORTH_GEN0) @KERNEL@ gforth.fi
 # this is used for antidependences,
 FORTH_GEN1 = $(FORTH_GEN0) @kernel_fi@ build-ec
