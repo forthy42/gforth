@@ -1,3 +1,657 @@
+2008-07-15  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* BUILD-FROM-SCRATCH, Makedist.in, Makefile.in, arch/386/machine.h, arch/amd64/machine.h, arch/arm/asm-example.fs, arch/arm/asm.fs, arch/arm/machine.h, arch/power/machine.h, blocks.fs, build-ec.in, cache-fast0.vmg, cache-fast1.vmg, cache-fast2.vmg, cache-fast3.vmg, cache-fast4.vmg, configure.in, doc/gforth.ds, ds2texi.fs, engine/128bit.h, engine/Makefile.in, engine/engine.c, engine/forth.h, engine/io-nxt.c, engine/main.c, envos.fs.in, fflib.fs, gforth.el, gray.fs, history.fs, httpd.fs, kernel/main.fs, kernel/paths.fs, lib.fs, libcc.fs, libffi.fs, preforth.in, prim, quotes.fs, see.fs, unix/socket.fs, update-copyright, update-copyright-blacklist, utf-8.fs, wf.fs:
+	updated copyright years
+	updated copyright-blacklist (added libltdl)
+	updated distributed files (don't distribute files without distribution terms)
+	added copyright to preforth.in and build-ec.in
+
+	* Makefile.in, configure.in, kernel/int.fs, libcc.fs:
+	fixed some make install bugs
+	updated date and version
+
+	* Makefile.in, configure.in, envos.fs.in, libcc.fs, libcc.fs.in:
+	eliminated libcc.fs.in by moving @CC@ into envos.fs.in.
+
+2008-07-14  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* libcc.fs, libcc.fs.in:
+	Added tag so that different gcc names compile correctly
+
+	* libcc.fs.in: Debugs commented out again
+
+	* Makefile.in, libcc.fs, libcc.fs.in:
+	Try to get C compiler with options to work
+
+	* libcc.fs.in: Compiler-specific libcc.fs.in
+
+	* Makefile.in, configure.in: Fix for libcc.fs
+
+	* Makefile.in, arch/386/machine.h: Fix a few building bugs
+
+	* libcc.fs: Made libcc.fs compile with old kernels
+
+2008-07-13  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* Makefile.in, fflib.fs, libcc.fs, libffi.fs:
+	fixed some bugs so "make install" works (DESTDIR still probably buggy)
+
+2008-07-12  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* Makefile.in, kernel/paths.fs, libcc.fs:
+	builds .la files on install (untested and probably broken wrt DESTDIR)
+	added check-libcc-named target and perform it on make check
+	The libcc-path now also contains the common libcc-named directory
+	reworked initialization of libcc to happen on every boot
+	added MAKE-PATH (for making an empty path to paths.fs
+
+2008-07-10  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* libcc.fs: first steps in having a LIBCC-PATH
+
+	* libcc.fs, prim: OPEN-LIB now understands "~" for directories.
+
+	* libcc.fs:
+	libcc files are now generated in ~/.gforth/libcc-{named,tmp}/
+
+2008-07-05  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* fflib.fs, libcc.fs: fflib.fs now is a named C interface library
+	fixed bug in libcc.fs (unnamed libraries are now always rebuilt)
+
+2008-07-04  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* configure.in: Removed bash dependency
+
+2008-07-03  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* engine/engine.c, engine/forth.h, engine/main.c, libffi.fs:
+	Removed remainders of FFI in C code
+
+2008-06-17  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* doc/gforth.ds, libcc.fs, prim:
+	documented LIB-ERROR C-LIBRARY-NAME C-LIBRARY END-C-LIBRARY
+
+	* libcc.fs:
+	Now libcc loads existing .la file instead of generating it anew
+	  Bug: also does this for generated (not user-provided) names
+
+	* libcc.fs, libffi.fs: libffi now also uses C-LIBRARY
+	prepare for loading existing c-library
+
+	* libcc.fs, unix/socket.fs:
+	added C-LIBRARY END-C-LIBRARY C-LIBRARY-NAME (yet undocumented)
+	  to specify the library wrapper file name
+	used that feature in unix/socket.fs
+
+2008-06-14  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* gray.fs: optimized nts in gray
+
+2008-06-01  Darren Bane  <dbane@mips>
+
+	* libffi.fs: Forgot an argument to c-function for ffi-prep-closure
+
+	* fsl-util.4th: S>F is already defined in prim
+
+	* Makefile.in:
+	Use make, not sh, variable interpolation syntax for bindir
+
+2008-05-22  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* xhash.fs: Added xorshift rng+hash
+
+2008-05-18  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* blocks.fs: Changed empty-buffer
+
+	* unix/socket.fs: hostname$ calls gethostname only on demand
+
+	* unix/socket.fs: Added server-side stuff
+
+2008-05-17  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* unix/socket.fs: First part of itools adaption in socket.fs
+
+2008-05-07  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* history.fs: Use backspaces for single-line editing
+
+	* Makefile.in: Another use of PREFORTH
+
+2008-05-05  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* prim:
+	deleted FFCALL LIBFFI OLDCALL primitives, use fflib.fs libffi.fs instead
+
+	* Makefile.in: added missing (anti-)dependence
+
+2008-05-04  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* configure.in: no longer configures libdl; we use libltdl instead
+
+	* Makefile.in, autogen.sh, configure.in, engine/Makefile.in:
+	removed all references to local libltdl
+
+	* engine/forth.h, engine/main.c, prim:
+	removed usage of libtool-2.2 ltdl functions
+
+	* libltdl/Makefile.in, libltdl/aclocal.m4, libltdl/configure:
+	removed generated files
+
+2008-05-01  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* Makedist.in: Quick&dirty trick to make bindist/binonlydist work again
+
+2008-04-30  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* configure.in, httpd.fs, libltdl/Makefile.in, libltdl/aclocal.m4, libltdl/configure:
+	Fixed httpd.fs bug
+	Created new snapshot
+
+2008-04-29  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* lib.fs, libcc.fs, unix/socket.fs:
+	lib.fs: only check those ffcall libraries we use
+	libcc.fs: removed some debugging output
+	unix/socket.fs: converted to libcc.fs style (partially thanks to Darren Bane
+	    <http://savannah.gnu.org/bugs/?23015>
+
+2008-04-28  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* doc/gforth.ds, engine/main.c, fflib.fs, libcc.fs, libffi.fs:
+	added CLEAR-LIB ADD-LIB (libcc.fs), documented them,
+	  and used them in libffi.fs and fflib.fs
+	OPEN-LIB no longer guesses library extensions (lt_dladvise_ext())
+
+2008-04-26  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* Makefile.in, arch/power/machine.h, configure.in, doc/gforth.ds, engine/main.c, libcc.fs, preforth.in:
+	Bugfix: make and make dist don't need pre-installed Gforth
+	FORCE_REG_UNNECESSARY now defined automatically and used better
+	documentation bugfix
+
+2008-04-22  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* configure.in: minor bugfix
+
+	* configure.in, lib.fs, libffi.fs:
+	MacOS X portability <https://savannah.gnu.org/bugs/index.php?23014>
+
+2008-04-21  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* autogen.sh: bugfix <http://savannah.gnu.org/bugs/?23010>
+
+2008-04-20  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* engine/Makefile.in: added missing dependency
+
+	* Makefile.in: make dist now also distributes libtldl (untested)
+	added "make maintainer-clean" (untested, and without autogen.sh for libltdl)
+	Various "clean" targets now also clean libtldl
+
+	* configure.in: removed debug message
+
+	* Makefile.in, configure.in, engine/Makefile.in, ltmain.sh:
+	added support for building with included libltdl
+	  missing: building with installed libltdl
+	           including ltdl in the distributed files
+
+2008-04-19  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* libltdl/COPYING.LIB, libltdl/Makefile.am, libltdl/Makefile.in, libltdl/Makefile.inc, libltdl/README, libltdl/aclocal.m4, libltdl/argz.c, libltdl/argz_.h, libltdl/config-h.in, libltdl/config/compile, libltdl/config/config.guess, libltdl/config/config.sub, libltdl/config/depcomp, libltdl/config/general.m4sh, libltdl/config/getopt.m4sh, libltdl/config/install-sh, libltdl/config/ltmain.m4sh, libltdl/config/ltmain.sh, libltdl/config/mdate-sh, libltdl/config/missing, libltdl/config/mkstamp, libltdl/config/texinfo.tex, libltdl/configure, libltdl/configure.ac, libltdl/libltdl/lt__alloc.h, libltdl/libltdl/lt__dirent.h, libltdl/libltdl/lt__glibc.h, libltdl/libltdl/lt__private.h, libltdl/libltdl/lt__strl.h, libltdl/libltdl/lt_dlloader.h, libltdl/libltdl/lt_error.h, libltdl/libltdl/lt_system.h, libltdl/libltdl/slist.h, libltdl/loaders/dld_link.c, libltdl/loaders/dlopen.c, libltdl/loaders/dyld.c, libltdl/loaders/load_add_on.c, libltdl/loaders/loadlibrary.c, libltdl/loaders/preopen.c, libltdl/loaders/shl_load.c, libltdl/lt__alloc.c, libltdl/lt__dirent.c, libltdl/lt__strl.c, libltdl/lt_dlloader.c, libltdl/lt_error.c, libltdl/ltdl.c, libltdl/ltdl.h, libltdl/m4/argz.m4, libltdl/m4/libtool.m4, libltdl/m4/ltdl.m4, libltdl/m4/ltoptions.m4, libltdl/m4/ltsugar.m4, libltdl/m4/ltversion.in, libltdl/m4/ltversion.m4, libltdl/m4/lt~obsolete.m4, libltdl/slist.c, libltdl/stamp-mk:
+	added libltdl (no integration yet)
+
+	* Makefile.in, engine/Makefile.in, engine/forth.h, engine/main.c, libcc.fs, libffi.fs, prim:
+	CPPFLAGS are now used by the Makefiles
+	bugfix in libcc.fs
+	OPEN-LIB now can open libraries without extension and the library's
+	   symbols become global
+	libltdl from libtool-2.2 or higher required (will be included soon)
+
+2008-04-17  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* gforth.el: Patch from Darren Bane added (bug #22929)
+
+2008-04-08  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* wf.fs:
+	Better XHTML conformance (now 'Strict', not just 'Transitional')
+
+2008-04-05  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* Makefile.in, arch/amd64/machine.h, configure.in:
+	Made sure that a distribution is possible
+
+2008-03-25  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* libffi.fs: typo fixed <http://savannah.gnu.org/bugs/?22722>
+
+2008-03-22  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* engine/main.c: removed --[no-]check-alignment (no implementation)
+	  on Alpha use <http://www.complang.tuwien.ac.at/anton/uace.c> instead
+
+2008-03-21  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* engine/main.c: added --[no-]check-alignment (currently no effect)
+
+2008-03-16  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* libffi.fs: added libffi primitive replacements
+
+2008-03-06  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* test/ttester.fs: fixed typo
+
+2008-02-26  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* BUILD-FROM-SCRATCH, Makefile.in:
+	BUILD-FROM-SCRATCH now uses autogen.sh
+	realclean now also cleans directories
+
+	* arch/power/machine.h, engine/main.c:
+	--diag now does not complain about reg. alloc. on PPC (FORCE_REG_UNNECESSARY)
+
+	* Makefile.in: disabled automatic calling of gforth --diag
+
+	* .cvsignore, BUILD-FROM-SCRATCH, Makefile.in:
+	deleted bootstrap target (hopefully for good).
+	'make realclean' should now make it real clean
+
+2008-02-26  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* autogen.sh, configure.in, engine/Makefile.in:
+	Some small changes in build process
+
+2008-02-25  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* Makefile.in, ds2texi.fs: Fixed doc generating problem
+
+2008-02-23  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* Makefile.in, arch/arm/nxt/aic.c, arch/arm/nxt/aic.h, arch/arm/nxt/bt.c, arch/arm/nxt/bt.h, arch/arm/nxt/config.nxt, arch/arm/nxt/display.c, arch/arm/nxt/display.h, arch/arm/nxt/gforth.ld, arch/arm/nxt/i2c.c, arch/arm/nxt/mytypes.h, arch/arm/nxt/nxt_avr.c, arch/arm/nxt/nxt_lcd.c, arch/arm/nxt/nxt_lcd.h, arch/arm/nxt/nxt_motors.c, arch/arm/nxt/nxt_motors.h, arch/arm/nxt/nxt_spi.c, arch/arm/nxt/nxt_spi.h, arch/arm/nxt/sound.c, arch/arm/nxt/sound.h, arch/arm/nxt/systick.c, arch/arm/nxt/systick.h, arch/arm/nxt/uart.c, arch/arm/nxt/uart.h, arch/arm/nxt/udp.c, arch/arm/nxt/udp.h, configure.in, engine/Makefile.in, engine/forth.h, engine/io-nxt.c, engine/main.c, prim:
+	Fixed build problem
+	Some changes for NXT
+
+2008-02-12  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* engine/forth.h, fflib.fs, lib.fs, libcc.fs:
+	Added replacements for primitives to fflib.fs
+	  current status: the libcc-generated code compiles, but does not link
+	Bugfix in libcc.fs
+
+	* history.fs, libcc.fs, quotes.fs, see.fs, utf-8.fs:
+	Support kernel building with 0.6.2 engine, 0.6.2 kernel, and
+	   current startup.fs and friends.
+
+2008-02-10  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* Makefile.in, configure.in, kernel/int.fs, kernel/main.fs:
+	Kernel and primitive building should now be done by a pre-installed gforth.
+	  configure.in and Makefile.in are now prepared for that.
+	  However, it does not work yet.
+
+2008-01-26  David Kuehling, MAE  <dvdkhlng@mips.complang.tuwien.ac.at>
+
+	* arch/arm/cacheflush-linux.c: minor thumb-mode fixes
+
+	* arch/arm/cacheflush-linux.c: minor fix
+
+	* arch/arm/cacheflush-linux.c:
+	Thumb-mode fixes for ARM cacheflush syscall (untested)
+
+2008-01-23  David Kuehling, MAE  <dvdkhlng@mips.complang.tuwien.ac.at>
+
+	* arch/arm/cacheflush1.c, arch/arm/cacheflush2.c:
+	removed depricated ARM chacheflush files
+
+	* Makefile.in, configure.in:
+	removed references to old ARM cacheflush routines
+
+	* arch/arm/cacheflush-linux.c:
+	fixed buggy code in EABI-version of cacheflush syscall, fixed possible
+	problems with older versions of GCC (use "r" instead of "g" constraint
+	for inline assembly), improved formatting of asm code (added
+	tab-characters)
+
+2008-01-23  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* Makefile.in, configure.in:
+	configure.in: Bugfix: Gforth now also builds if -ll does not work
+	Makefile.in: removed or changed some dependencies on the engine.
+
+2008-01-21  David Kuehling, MAE  <dvdkhlng@mips.complang.tuwien.ac.at>
+
+	* configure.in:
+	Check for Linux on ARM by comparing $host_os against "*linux*" and not just
+	"linux".  In practice we can see values like "linux-gnu", "linux-uclibc".
+	This also mirrors the other places in configure.in wher $host_os is
+	referenced.
+
+	* arch/arm/cacheflush-linux.c:
+	Added clean ARM icache flush code using Linux syscall.  Should work on OABI
+	and EABI systems, even when compiled for thumb mode.
+
+2008-01-21  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* arch/arm/cacheflush1.c, configure.in:
+	added support for arch/arm/cacheflush-linux.c
+
+2008-01-19  David Kuehling, MAE  <dvdkhlng@mips.complang.tuwien.ac.at>
+
+	* arch/arm/cacheflush-linux.c: typo...
+
+	* arch/arm/cacheflush-linux.c:
+	fixed cacheflush-linux.c to actually compile
+
+	* arch/arm/cacheflush-linux.c, arch/arm/machine.h:
+	Added icache flush code that uses a linux syscall and should thus guarantee
+	correct operation on all Linux systems (if that syscall exists).
+
+2008-01-18  David Kuehling, MAE  <dvdkhlng@mips.complang.tuwien.ac.at>
+
+	* doc/gforth.ds:
+	Added section "ARM Assembler" to the Gforth documentation.
+
+	* arch/arm/asm.fs:
+	Added a note, telling the reader were to look for the assembler's
+	documentation.
+
+	* arch/arm/asm-example.fs, arch/arm/asm.fs:
+	fixed NEXT,  , adapted asm-example.fs to use it
+
+	* arch/arm/asm.fs:
+	added portable implementation of NEXT, to ARM assembler
+
+	* arch/arm/asm-example.fs:
+	Updated ARM assembler example to jump to ' noop >code-address instead
+	of reimplementing next.
+
+	* arch/arm/asm-example.fs, arch/arm/asm.fs: minor assembler updates
+
+2008-01-17  David Kuehling, MAE  <dvdkhlng@mips.complang.tuwien.ac.at>
+
+	* arch/arm/asm.fs: very minor fix
+
+	* arch/arm/asm-example.fs:
+	updated asm example.  now shows how to access the stack.
+
+	* arch/arm/asm-example.fs, arch/arm/asm.fs: asm example...
+
+	* arch/arm/asm-example.fs: more asm example code
+
+	* arch/arm/asm-example.fs: minor change
+
+	* arch/arm/asm-example.fs, arch/arm/asm.fs:
+	minor change.  how do code an assembly 'next' compatible to gforth?
+
+	* arch/arm/asm-example.fs, arch/arm/asm.fs:
+	add example/proof of concept routines coded in ASM
+
+	* arch/arm/asm.fs: first commit of ARM assembler.
+
+2008-01-16  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* configure.in:
+	BUILD-FROM-SCRATCH's gforth now always uses its install image
+
+	* BUILD-FROM-SCRATCH, configure.in:
+	BUILD-FROM-SCRATCH: prevent gforth hangs
+
+	* BUILD-FROM-SCRATCH:
+	prevent gforth from hanging when used with the wrong image in BUILD-FROM-SCRATCH
+
+	* Makefile.in: minor Makefile.in bugfix
+
+	* Makefile.in, engine/forth.h, engine/main.c:
+	Building on i386 works again
+
+2008-01-14  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* arch/amd64/machine.h: disabled GLOBALS_NONRELOC for AMD64
+	commented GLOBALS_NONRELOC for AMD64
+
+	* Makefile.in: added some missing engine dependencies
+
+2008-01-13  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* engine/engine.c, engine/forth.h:
+	tried to use explicit register allocation for local saved_regs_p, but
+	  it does not seem to work.
+
+	* arch/amd64/machine.h, engine/engine.c, engine/forth.h, engine/main.c:
+	enable dynamic code generation for (debugging) gforth on AMD64 by accessing
+	  the global variable through a local pointer.  Mixed results up to now, may
+	  be better with explicit register allocation.
+
+	* Makefile.in:
+	make clean now removes the various $(OPT)-generated files
+	removed some debugging output
+	fixed some endless recursions
+
+	* Makefile.in, configure.in, engine/Makefile.in:
+	Different build options are now tried per-binary and only for gforth
+	  and gforth-fast (everything else is built with -noll).
+
+	* prim: documentation changes
+
+2008-01-08  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* Makefile.in, configure.in, engine/main.c:
+	Now FORCE_REG is tried and used by default
+	Removed --enable-force-reg
+	Removed suggestions to use --enable-force-* from --diag option
+
+2008-01-07  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* Makefile.in, configure.in: Now configure sets OPTS
+
+2008-01-06  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* Makefile.in:
+	Now make automatically tries a set of OPT settings after another until
+	  one is found that works.  This is a pretty bad hack.
+
+2008-01-04  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* Makefile.in, engine/Makefile.in:
+	Now we can use BUGGY_LONG_LONG again, as follows:
+	  make OPT=-noll OPTDEFINES= OPTOBJECTS=dblsub.o
+	Minor bugfix
+
+	* configure.in, engine/Makefile.in: some bugfixes for previous patch
+
+	* Makefile.in, arch/amd64/machine.h, arch/generic/128bit.h, configure.in, engine/128bit.h, engine/Makefile.in, engine/forth.h:
+	moved --enable-force-ll out of configuration and into Makefile:
+	  Build with "make OPT=-ll OPTDEFINES=-DFORCE_LL"
+	  This builds gforth-ll gforth-fast-ll etc.
+	  This is the first step in automatically building a fast gforth.
+
+2008-01-02  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* Makefile.in, cache-fast0.vmg, cache-fast1.vmg, cache-fast2.vmg, cache-fast3.vmg, cache-fast4.vmg, cache-regs1.vmg, cache-regs2.vmg, cache-regs3.vmg, cache-regs4.vmg, configure.in:
+	Added configure variable STACK_CACHE_REGS and set useful defaults
+	  currently supported: 0-4 regs, default reg 0-4.
+
+	* engine/main.c:
+	refined static super vs. TPA check (TPA ok if state equivalence disabled).
+
+	* engine/main.c: reenabled static superinstructions
+	disable tpa-automaton if static superinstrutions are used
+
+2008-01-01  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* BUILD-FROM-SCRATCH, Makefile.in, autogen.sh, configure.in:
+	Added autogen.sh
+	Used patch from Aleksej
+
+2007-12-31  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* engine/dblsub.c: updated copyright year
+
+	* COPYING.LIB, engine/dblsub.c, engine/getopt.c, engine/getopt1.c, engine/strtol.c, engine/strtoul.c, update-copyright-blacklist:
+	updated LGPL and files referring to it
+	bugfix in update-copyright-blacklist
+
+	* AUTHORS, BUGS, Makedist.in, README.vmgen, ToDo, ToDo-native, add.fs, ans-report.fs, ansi.fs, arch/386/asm.fs, arch/386/testasm.fs, arch/4stack/asm.fs, arch/4stack/mach.fs, arch/4stack/mach.sh, arch/4stack/prim-new.fs, arch/4stack/prim.fs, arch/4stack/relocate-new.fs, arch/4stack/relocate.fs, arch/6502/mach.fs, arch/6502/prim.fs, arch/alpha/asm.fs, arch/alpha/disasm.fs, arch/alpha/testasm.fs, arch/amd64/asm.fs, arch/amd64/disasm.fs, arch/generic/128bit.h, arch/hppa/cache.c, arch/hppa/machine.h, arch/ia64/flush_icache_block.c, arch/ia64/machine.h, arch/m68k/machine.h, arch/mips/asm.fs, arch/mips/disasm.fs, arch/mips/insts.fs, arch/mips/machine.h, arch/mips/testasm.fs, arch/mips/testasmcontrol.fs, arch/mips/testdisasm.fs, arch/misc/asm.fs, arch/misc/fi2v.fs, arch/misc/key.fs, arch/misc/mach.fs, arch/misc/misc-sim.v, arch/misc/misc.v, arch/misc/prim.fs, arch/misc/sim.fs, arch/misc/sokoban.fs, arch/power/_sync_cache_range.c, arch/power/asm.fs, arch/power/disasm.fs, arch/power/inst.fs, arch/power/machine.h, arch/r8c/asm.fs, arch/sharc/compile.sharc, arch/sharc/mach.fs, arch/sharc/machine.h, arch/sharc/systypes.h, arch/sharc/types.h, arch/shboom/compiler.fs, arch/shboom/dis.fs, arch/shboom/dis2.fs, arch/shboom/doers.fs, arch/shboom/mach.fs, arch/shboom/prim.fs, arch/shboom/sh.p, arch/sparc/machine.h, asm/basic.fs, asm/bitmask.fs, asm/generic.fs, asm/numref.fs, asm/target.fs, assert.fs, backtrac.fs, bufio.fs, chains.fs, code.fs, colorize.fs, config.bat, configure.cmd, debug.fs, depth-changes.fs, dis-gdb.fs, doc/vmgen.texi, dosekey.fs, doskey.fs, ds2texi.fs, ec/builttag.fs, ec/dotx.fs, ec/mirror.fs, ec/nesting.fs, ec/shex.fs, engine/atanh.c, engine/cleanalign.c, engine/io.h, engine/memcmp.c, engine/memmove.c, engine/peephole.c, engine/pow10.c, engine/profile.c, engine/rint.c, engine/select.c, engine/strerror.c, engine/strsignal.c, environ.fs, envos.dos, envos.os2, exboot.fs, filedump.fs, fixpath.fs, gfgen, gforthmi.bat, gforthmi.cmd, gforthmi.in, glosgen.fs, gray.fs, growable.fs, hash.fs, html.fs, httpd.fs, intcomp.fs, iss.sh, kernel/args.fs, kernel/cbr.fs, kernel/cbrpi.fs, kernel/cloop.fs, kernel/cloop2.fs, kernel/cond-old.fs, kernel/doers.fs, kernel/errore.fs, kernel/files.fs, kernel/getdoers.fs, kernel/license.fs, kernel/main.fs, kernel/nio.fs, kernel/pass.fs, kernel/paths.fs, kernel/prim0.fs, kernel/quotes.fs, kernel/require.fs, kernel/saccept.fs, kernel/toolsext.fs, libffi.fs, locals-test.fs, locals.fs, locate.fs, look.fs, mach16b.fs, mach16l.fs, mach32b.fs, mach32l.fs, mach64b.fs, mach64l.fs, make-app.fs, mkdosmf.sed, mkos2mf.sed, model, moof-exm.fs, more.fs, netlib/configure.in, other.fs, peeprules.vmg, prims2cl.fs, prof-inline.fs, profile.fs, proxy.fs, random.fs, regexp-test.fs, script.fs, see-ext.fs, sokoban.fs, source.fs, status.fs, string.fs, table.fs, tags.fs, tasker.fs, termsize.fs, test/coreext.fs, test/coremore.fs, test/other.fs, test/primtest.fs, test/string.fs, traceall.fs, unbuffer.fs, unix/time.fs, versions.bsh, vmgen-ex/Makefile, vmgen-ex/README, vmgen-ex/disasm.c, vmgen-ex/engine.c, vmgen-ex/mini-inst.vmg, vmgen-ex/mini.h, vmgen-ex/mini.l, vmgen-ex/mini.y, vmgen-ex/peephole.c, vmgen-ex/profile.c, vmgen-ex/support.c, vmgen-ex2/Makefile, vmgen-ex2/README, vmgen-ex2/disasm.c, vmgen-ex2/engine.c, vmgen-ex2/mini-inst.vmg, vmgen-ex2/mini.h, vmgen-ex2/mini.l, vmgen-ex2/mini.y, vmgen-ex2/peephole.c, vmgen-ex2/profile.c, vmgen-ex2/support.c, vmgen.in, vt100.fs, wordinfo.fs, wordlib.fs, wordlib.mk, wordsets.fs, xwords.fs, xxxprim:
+	updated copyright year after changing license notice
+
+	* COPYING, doc/fdl.texi, doc/gforth.ds, doc/gpl.texi, doc/vmgen.texi:
+	Updated COPYING and doc/gpl.texi to GPL v3
+	adjusted dectioning etc in documentation for new gpl.texi
+
+	* AUTHORS, BUGS, BUILD-FROM-SCRATCH, ChangeLog, Makedist.in, Makefile.in, NEWS, NEWS.vmgen, README, README.vmgen, ToDo, ToDo-native, add.fs, ans-report.fs, ansi.fs, arch/386/asm.fs, arch/386/machine.h, arch/386/ncex/ncexasm.fs, arch/386/ncex/ncexcache.fs, arch/386/ncex/ncexcfstack.fs, arch/386/ncex/ncextree.fs, arch/386/testasm.fs, arch/4stack/asm.fs, arch/4stack/mach.fs, arch/4stack/mach.sh, arch/4stack/prim-new.fs, arch/4stack/prim.fs, arch/4stack/relocate-new.fs, arch/4stack/relocate.fs, arch/6502/mach.fs, arch/6502/prim.fs, arch/alpha/asm.fs, arch/alpha/disasm.fs, arch/alpha/machine.h, arch/alpha/testasm.fs, arch/amd64/asm.fs, arch/amd64/disasm.fs, arch/amd64/machine.h, arch/arm/cacheflush0.c, arch/arm/cacheflush1.c, arch/arm/cacheflush2.c, arch/arm/machine.h, arch/generic/128bit.h, arch/generic/machine.h, arch/hppa/cache.c, arch/hppa/machine.h, arch/ia64/flush_icache_block.c, arch/ia64/machine.h, arch/m68k/machine.h, arch/mips/asm.fs, arch/mips/disasm.fs, arch/mips/insts.fs, arch/mips/machine.h, arch/mips/testasm.fs, arch/mips/testasmcontrol.fs, arch/mips/testdisasm.fs, arch/misc/asm.fs, arch/misc/fi2v.fs, arch/misc/key.fs, arch/misc/mach.fs, arch/misc/misc-sim.v, arch/misc/misc.v, arch/misc/prim.fs, arch/misc/sim.fs, arch/misc/sokoban.fs, arch/power/_sync_cache_range.c, arch/power/asm.fs, arch/power/disasm.fs, arch/power/inst.fs, arch/power/machine.h, arch/r8c/asm.fs, arch/r8c/mach.fs, arch/r8c/prim.fs, arch/sharc/compile.sharc, arch/sharc/mach.fs, arch/sharc/machine.h, arch/sharc/systypes.h, arch/sharc/types.h, arch/shboom/compiler.fs, arch/shboom/dis.fs, arch/shboom/dis2.fs, arch/shboom/doers.fs, arch/shboom/mach.fs, arch/shboom/prim.fs, arch/shboom/sh.p, arch/sparc/machine.h, asm/basic.fs, asm/bitmask.fs, asm/generic.fs, asm/numref.fs, asm/target.fs, assert.fs, backtrac.fs, blocks.fs, bufio.fs, cache-fast0.vmg, cache-fast1.vmg, cache-fast2.vmg, cache-fast3.vmg, cache-fast4.vmg, cache-fast5.vmg, cache-fast6.vmg, cache-fast7.vmg, cache-fast8.vmg, cache0.vmg, cache1.vmg, chains.fs, code.fs, colorize.fs, comp-i.fs, complex.fs, config.bat, configure.cmd, configure.in, cross.fs, debug.fs, debugs.fs, depth-changes.fs, dis-gdb.fs, doc/makedoc.fs, dosekey.fs, doskey.fs, ds2texi.fs, ec/builttag.fs, ec/dotx.fs, ec/mirror.fs, ec/nesting.fs, ec/shex.fs, ekey.fs, endtry-iferror.fs, engine/Makefile.in, engine/atanh.c, engine/cleanalign.c, engine/ecvt.c, engine/engine.c, engine/forth.h, engine/io-nxt.c, engine/io.c, engine/io.h, engine/libcc.h.in, engine/longlong.h, engine/main.c, engine/memcmp.c, engine/memmove.c, engine/peephole.c, engine/pow10.c, engine/profile.c, engine/rint.c, engine/select.c, engine/signals.c, engine/strerror.c, engine/strsignal.c, engine/support.c, engine/threaded.h, environ.fs, envos.dos, envos.fs.in, envos.os2, errors.fs, etags.fs, exboot.fs, except.fs, extend.fs, fflib.fs, fft.fs, fi2c.fs, filedump.fs, fixpath.fs, float.fs, gfgen, gforthmi.bat, gforthmi.cmd, gforthmi.in, glocals.fs, glosgen.fs, gray.fs, growable.fs, hash.fs, history.fs, html.fs, httpd.fs, intcomp.fs, iss.sh, kernel/accept.fs, kernel/aliases0.fs, kernel/args.fs, kernel/basics.fs, kernel/cbr.fs, kernel/cbrpi.fs, kernel/cloop.fs, kernel/cloop2.fs, kernel/comp.fs, kernel/cond-old.fs, kernel/cond.fs, kernel/doers.fs, kernel/errore.fs, kernel/files.fs, kernel/getdoers.fs, kernel/input.fs, kernel/int.fs, kernel/io.fs, kernel/kernel.fs, kernel/license.fs, kernel/main.fs, kernel/nio.fs, kernel/pass.fs, kernel/paths.fs, kernel/prim0.fs, kernel/quotes.fs, kernel/require.fs, kernel/saccept.fs, kernel/tools.fs, kernel/toolsext.fs, kernel/vars.fs, kernel/xchars.fs, lib.fs, libcc.fs, libffi.fs, locals-test.fs, locals.fs, locate.fs, look.fs, mach16b.fs, mach16l.fs, mach32b.fs, mach32l.fs, mach64b.fs, mach64l.fs, machpc.fs.in, make-app.fs, missing, mkdosmf.sed, mkos2mf.sed, model, moof-exm.fs, more.fs, netlib/configure.in, oldlib.fs, onebench.fs, other.fs, peeprules.vmg, prim, prims2cl.fs, prims2x.fs, prof-inline.fs, profile.fs, proxy.fs, quotes.fs, random.fs, recover-endtry.fs, regexp-test.fs, regexp.fs, savesys.fs, script.fs, search.fs, see-ext.fs, see.fs, simp-see.fs, sokoban.fs, source.fs, startup.fs, status.fs, string.fs, struct.fs, struct0x.fs, stuff.fs, table.fs, tags.fs, tasker.fs, termsize.fs, test/coreext.fs, test/coremore.fs, test/dbltest.fs, test/float.fs, test/gforth-nofast.fs, test/gforth.fs, test/libcc.fs, test/other.fs, test/primtest.fs, test/search.fs, test/signals.fs, test/string.fs, traceall.fs, unbuffer.fs, unix/socket.fs, unix/time.fs, update-copyright, utf-8.fs, versions.bsh, vmgen-ex/Makefile, vmgen-ex/README, vmgen-ex/disasm.c, vmgen-ex/engine.c, vmgen-ex/mini-inst.vmg, vmgen-ex/mini.h, vmgen-ex/mini.l, vmgen-ex/mini.y, vmgen-ex/peephole.c, vmgen-ex/profile.c, vmgen-ex/support.c, vmgen-ex2/Makefile, vmgen-ex2/README, vmgen-ex2/disasm.c, vmgen-ex2/engine.c, vmgen-ex2/mini-inst.vmg, vmgen-ex2/mini.h, vmgen-ex2/mini.l, vmgen-ex2/mini.y, vmgen-ex2/peephole.c, vmgen-ex2/profile.c, vmgen-ex2/support.c, vmgen.in, vt100.fs, vt100key.fs, wf.fs, wordinfo.fs, wordlib.fs, wordlib.mk, wordsets.fs, xwords.fs, xxxprim:
+	updated copyright notices for GPL v3
+
+	* arch/r8c/mach.fs, BUILD-FROM-SCRATCH, Benchres, ChangeLog, INSTALL, Makefile.in, NEWS, NEWS.vmgen, README, arch/386/machine.h, arch/alpha/machine.h, arch/amd64/machine.h, arch/arm/machine.h, arch/generic/machine.h, arch/r8c/prim.fs, blocks.fs, cache-fast0.vmg, cache-fast1.vmg, cache-fast2.vmg, cache-fast3.vmg, cache-fast4.vmg, cache-fast5.vmg, cache-fast6.vmg, cache-fast7.vmg, cache-fast8.vmg, cache0.vmg, cache1.vmg, comp-i.fs, complex.fs, configure.in, cross.fs, debugs.fs, doc/gforth.ds, doc/makedoc.fs, ekey.fs, engine/Makefile.in, engine/ecvt.c, engine/engine.c, engine/forth.h, engine/io.c, engine/libcc.h.in, engine/longlong.h, engine/main.c, engine/signals.c, engine/support.c, engine/threaded.h, envos.fs.in, errors.fs, etags.fs, except.fs, extend.fs, fflib.fs, fft.fs, fi2c.fs, float.fs, gforth.el, glocals.fs, history.fs, kernel/accept.fs, kernel/aliases0.fs, kernel/basics.fs, kernel/comp.fs, kernel/cond.fs, kernel/input.fs, kernel/int.fs, kernel/io.fs, kernel/kernel.fs, kernel/tools.fs, kernel/vars.fs, kernel/xchars.fs, lib.fs, libcc.fs, machpc.fs.in, missing, oldlib.fs, prim, prims2x.fs, quotes.fs, regexp.fs, savesys.fs, search.fs, see.fs, simp-see.fs, startup.fs, struct.fs, stuff.fs, test/dbltest.fs, test/float.fs, test/gforth-nofast.fs, test/gforth.fs, test/signals.fs, unix/socket.fs, update-copyright, utf-8.fs, vt100key.fs, wf.fs:
+	updated copyright years
+
+	* update-copyright, update-copyright-blacklist:
+	updated update-copyright-blacklist
+	update-copyright author report in more usable format
+
+	* missing, test/libcc.fs, update-copyright, update-copyright-blacklist:
+	Copyright comments updated
+	update-copyrigh now reports the author of "no copyright" files
+
+	* update-copyright: adapted update-copyrights to current system
+
+2007-12-28  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* doc/gforth.ds: added floating-point tutorial
+
+2007-12-27  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* doc/gforth.ds: documentation fix
+
+2007-12-16  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* README, configure.in, engine/signals.c, history.fs:
+	Some bugfixes and cleanups by Jorge Acereda <AE069F38-47DD-4037-9434-89A9489456EF@gmail.com>
+
+2007-12-05  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* README: CVS history test
+
+	* libcc.fs: deleted empty line
+
+2007-12-04  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* configure.in, envos.fs.in, libcc.fs:
+	support different libtool names (based on configure.in)
+
+	* libcc.fs:
+	libcc now outputs errors on stderr and does not require LIB-ERROR
+
+	* configure.in, engine/forth.h, engine/main.c, libcc.fs, prim:
+	libcc.fs now uses libtool
+	OPEN-LIB and LIB-SYM now call libltdl (libtool) functions
+	  probably needs some additional adjustment in configure.in
+	added LIB-ERROR
+
+2007-11-03  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* .cvsignore, config.guess, config.sub, doc/.cvsignore, engine/.cvsignore, netlib/.cvsignore:
+	added stuff to the .cvsignore files (thanks to Dennis Ruffer)
+	updated config.guess, config.sub to the latest versions
+
+	* test/ttester.fs: another ttester.fs bugfix
+
+	* test/ttester.fs:
+	ttester.fs improved error reporting: once more with unified stack
+
+	* test/ttester.fs: ttester.fs bugfix and improved error reporting
+
+2007-11-02  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* test/ttester.fs: fixed typo, comment case
+
+2007-10-29  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* engine/main.c, kernel/cond.fs, libcc.fs:
+	added -DBURG_FORMAT compile-time option for generating burg grammars etc.
+	cleaned up debugp() definition
+	documentation bugfix (ELSE)
+
+	* engine/main.c: added --print-sequences
+
+2007-10-26  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* test/ttester.fs:
+	ttester bugfix: ...}T now handles non-empty start-depths
+
+2007-10-22  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* history.fs: CTRL ? now works
+
+	* history.fs:
+	CTRL now works with lower-case letters <bill-3F687F.10282322102007@cnews.newsguy.com>
+
+	* Makefile.in, search.fs, test/search.fs:
+	bugfix <2007Oct22.192528@mips.complang.tuwien.ac.at> and cleanup
+
+2007-10-17  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* kernel/xchars.fs, utf-8.fs: Better xhold (no buffer)
+	Fixed +x/string deferred words
+
+	* fft.fs, kernel/xchars.fs: Added xhold
+
+2007-10-03  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* Makefile.in, complex.fs: Added stack comments to complex.fs
+
+	* Makefile.in, regexp.fs:
+	Added glossary entries to regexp (but no documentation chapter)
+
+	* oldlib.fs: Changed oldlib words
+
+	* doc/gforth.ds, kernel/xchars.fs, utf-8.fs:
+	Added documentation for xchars
+
+2007-09-30  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* history.fs, vt100key.fs: Made new scheme work in different bases
+	Added first/last key do vt100key.fs
+
+	* history.fs: Fixes for command line editing
+
+	* comp-i.fs, engine/forth.h, engine/main.c, kernel/aliases0.fs, kernel/comp.fs, prim, see.fs:
+	Constants compile to literals
+
+2007-09-25  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* Agenda, NEWS: small fixes in NEWS and Agenda
+
+2007-09-22  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* Makefile.in, savesys.fs:
+	DESTDIR is now not in the INCLUDED-FILES of the installed gforth.fi
+
+2007-09-21  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* Makefile.in: install TAGS are now created correctly (untested).
+
+2007-09-16  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* prim, test/signals.fs: workaround for lesser m4s in prim
+	disabled aggressive test in test/signals.fs that led to spurious failures
+
+2007-09-15  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* utf-8.fs: Added environment query for encoding
+
+	* kernel/xchars.fs, utf-8.fs:
+	Xchar changes after discussion at EuroForth 2007
+
+2007-09-12  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* NEWS, NEWS.vmgen: Updated NEWS.vmgen (incomplete?) and NEWS
+
+	* ChangeLog: Updated ChangeLog
+
 2007-09-09  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
 
 	* engine/main.c:
@@ -7764,7 +8418,7 @@
 
 	* getopt1.c, getopt.h, getopt.c, forth.h, engine.c, ToDo, README, Makefile, INSTALL, COPYING, 386.h:
 	Updated ToDo and INSTALL; Wrote README; Lifted COPYING and getopt*
-	from other packages;  removed $Id: ChangeLog,v 1.15 2007-12-31 18:40:23 anton Exp $ lines from some files
+	from other packages;  removed $Id: ChangeLog,v 1.16 2008-07-15 17:43:30 anton Exp $ lines from some files
 
 1994-09-28  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
 

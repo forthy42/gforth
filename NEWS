@@ -1,10 +1,17 @@
 
 
-User-visible changes between 0.6.2 and 0.6.9 (up to 2007-09-12):
+User-visible changes between 0.6.2 and 0.6.9 (up to 2008-07-15):
 
+Requirements:
+  At run-time requires libtool and gcc (for libcc C interface) and
+                       gdb (for disassembler (SEE) on some platforms).
 Installation:
   support for DESTDIR, POST_INSTALL, INSTALL_SCRIPT
-  report performance and functionality problems at end of "make"  
+  automatic performance tuning on building (--enable-force-reg unnecessary)
+  report performance and functionality problems at end of "make"
+  autogen.sh now exists
+License:
+  Changed to GPLv3
 Bug fixes
   Now works with address-space randomization.
   The single-step debugger works again in some engines.
@@ -12,9 +19,11 @@ Bug fixes
 Ports:
   AMD64, ARM, IA-64 (Itanium): better performance
   PPC: disassembler and assembler (32-bit)
-  Gforth EC: R8C, Lego NXT (complete?)
+  Gforth EC: R8C, Lego NXT (not distributed; complete?)
+  MacOS X: better support
 Invocation:
   New flags --ignore-async-signals, --vm-commit (default overcommit)
+            --print-sequences
 Forth 200x:
   extension queries (produce true for all implemented extensions)
   REQUIRED etc. (not new)
@@ -23,7 +32,7 @@ Forth 200x:
   deferred words (new: DEFER@ DEFER! ACTION-OF)
   X:structures: +FIELD FIELD: FFIELD: CFIELD: etc.
   X:ekeys: new: EKEY>FKEY K-SHIFT-MASK K-CTRL-MASK K-ALT-MASK K-F1...K-F12
-Unicode support (incomplete, documentation probably not up-to-date):
+Unicode support (currently supports only uniform encoding):
   added xchars words for dealing with variable-width multi-byte characters
   provide 8bit (ISO Latin 1) and UTF-8 support for xchars
 Number prefixes:
@@ -33,7 +42,8 @@ Number prefixes:
   ' now only handles a single (x)char: 'ab is no longer accepted, 
                                        'a' now produces (decimal) 97
 New words:
-  \C C-FUNCTION (libcc C interface)
+  \C C-FUNCTION C-LIBRARY END-C-LIBRARY C-LIBRARY-NAME (libcc C interface)
+  LIB-ERROR (complements OPEN-LIB)
   OUTFILE-EXECUTE INFILE-EXECUTE BASE-EXECUTE (limited change of global state)
   16-bit and 32-bit memory acces: UW@ UL@ SW@ SL@ W! L! W@ L@ /W /L
   NEXT-ARG SHIFT-ARGS (OS command-line argument processing)
@@ -43,6 +53,7 @@ New words:
 Improvements/changes of existing words:
   S\", .\" now support \l, \m, \z, and limits hex and octal character specs.
   OPEN-FILE with W/O no longer creates or truncates files (no compat. file)
+  OPEN-LIB now understands ~ at the start, like OPEN-FILE.
   TRY...ENDTRY changed significantly, compatibility files available (see docs).
   The disassembler (DISCODE) can now use gdb to disassemble code
   Uninitialized defered words now give a warning when executed
@@ -58,8 +69,8 @@ Newly documented words:
 Environment variable GFORTHSYSTEMPREFIX (used by word SYSTEM and friends)
 C interface:
   exported symbols now start with "gforth_" (for referencing them from C code)
-  support for use of libffi (supplied with gcc) (undocumented) and
-  a C-compiler-based approach (requires C compiler at run-time) (incomplete).
+  libcc C function call interface (requires libtool and gcc at run-time)
+    alternative: undocumented libffi-based interface
 Libraries:
   depth-changes.fs: report stack depth changes during interpretation
   ans-report.fs now reports CfV extensions
@@ -77,6 +88,7 @@ Libraries:
  compat library:
   compat/execute-parsing.fs
 Speed improvements:
+  automatic performance tuning on building
   static stack caching (good speedup on PPC)
   mixed-precision division is now faster
   support for int128 types on AMD64
