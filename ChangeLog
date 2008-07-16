@@ -1,4 +1,22 @@
+Update this by inserting the output of 
+	rcs2log -h mips.complang.tuwien.ac.at
+	and correcting the names/emails.
+
+2008-07-16  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* preforth.in: preforth now works if there is an engine but no kernel
+
+2008-07-16  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* Makedist.in, Makefile.in: Cleanup of improved build process
+
+2008-07-15  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* Makedist.in, Makefile.in: Fixed build process
+
 2008-07-15  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* ChangeLog, NEWS: updated ChangeLog and NEWS
 
 	* BUILD-FROM-SCRATCH, Makedist.in, Makefile.in, arch/386/machine.h, arch/amd64/machine.h, arch/arm/asm-example.fs, arch/arm/asm.fs, arch/arm/machine.h, arch/power/machine.h, blocks.fs, build-ec.in, cache-fast0.vmg, cache-fast1.vmg, cache-fast2.vmg, cache-fast3.vmg, cache-fast4.vmg, configure.in, doc/gforth.ds, ds2texi.fs, engine/128bit.h, engine/Makefile.in, engine/engine.c, engine/forth.h, engine/io-nxt.c, engine/main.c, envos.fs.in, fflib.fs, gforth.el, gray.fs, history.fs, httpd.fs, kernel/main.fs, kernel/paths.fs, lib.fs, libcc.fs, libffi.fs, preforth.in, prim, quotes.fs, see.fs, unix/socket.fs, update-copyright, update-copyright-blacklist, utf-8.fs, wf.fs:
 	updated copyright years
@@ -8418,7 +8436,7 @@
 
 	* getopt1.c, getopt.h, getopt.c, forth.h, engine.c, ToDo, README, Makefile, INSTALL, COPYING, 386.h:
 	Updated ToDo and INSTALL; Wrote README; Lifted COPYING and getopt*
-	from other packages;  removed $Id: ChangeLog,v 1.16 2008-07-15 17:43:30 anton Exp $ lines from some files
+	from other packages;  removed $Id: ChangeLog,v 1.17 2008-07-16 19:59:28 anton Exp $ lines from some files
 
 1994-09-28  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
 
