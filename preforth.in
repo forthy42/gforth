@@ -18,12 +18,11 @@
 #along with this program. If not, see http://www.gnu.org/licenses/.
 
 test -z "$ENGINE" && ENGINE=./gforth
-if [ -x $ENGINE ]
-then 
+if test -x $ENGINE -a -f @kernel_fi@; then 
   path1="$1"
   path2="$2"
   shift; shift
-  set -x -v
+#  set -x -v
   $ENGINE -i @kernel_fi@ $path1 $path2 exboot.fs startup.fs "$@"
 else
   @PREFORTH@ "$@"
