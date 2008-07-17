@@ -624,11 +624,13 @@ AC_MSG_CHECKING([for gforth])
 GFORTH="`cd / && which gforth 2>/dev/null`"
 if test -z "$GFORTH"; then
   PREFORTH='echo "You need to configure with a gforth in \$PATH to build this part" && false'
+  kernel_anti_dependence=''
 else
   PREFORTH="$GFORTH -i `cd / && gforth --debug -e bye 2>&1 |grep "Opened image file: "|sed 's/Opened image file: //'`" ;
+  kernel_anti_dependence='$(kernel_fi)'
 fi
 AC_SUBST(PREFORTH)
-AC_DEFINE_UNQUOTED(PREFORTH,"$PREFORTH",[How to invoke the pre-installed gforth])
+AC_SUBST(kernel_anti_dependence)
 AC_MSG_RESULT($PREFORTH)
 
 #echo "machine='$machine'"
