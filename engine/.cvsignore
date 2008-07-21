@@ -11,6 +11,14 @@ version.h
 gforth
 gforth-fast
 gforth-ditc
+gforth-ditc-noll
+gforth-ditc-ll
+gforth-itc-noll
+gforth-itc-ll
+gforth-ll-reg
+gforth-noll-reg
+gforth-fast-ll-reg
+gforth-fast-noll-reg
 config.h.in
 stamp-h
 strsig.s

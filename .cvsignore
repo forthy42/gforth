@@ -16,8 +16,16 @@ Makefile
 config.cache
 config.status
 stamp-h
+lib
+preforth
 gforth
 gforth-fast
+gforth-reg
+gforth-ll-reg
+gforth-noll-reg
+gforth-fast-reg
+gforth-fast-ll-reg
+gforth-fast-noll-reg
 gforthmi
 kernel.TAGS
 kernl16b.fi-
