@@ -399,8 +399,8 @@ ENGINE_SOURCES = engine/Makefile.in engine/config.h.in \
 
 SOURCES	= $(CVSDIRS) $(ENGINE_SOURCES) compat Makefile.in Makedist.in \
 	gforthmi.in vmgen.in preforth.in gfgen README.vmgen NEWS.vmgen \
-	configure.in configure config.sub config.guess elisp-comp missing \
-	stamp-h.in envos.fs.in \
+	autogen.sh configure.in configure config.sub config.guess \
+	elisp-comp missing stamp-h.in envos.fs.in \
 	iss.sh install-sh INSTALL INSTALL.BINDIST NEWS README ToDo BUGS \
 	BUILD-FROM-SCRATCH model \
 	COPYING COPYING.LIB COPYING.DOC AUTHORS ChangeLog Benchres aclocal.m4 \
