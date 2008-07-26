@@ -38,7 +38,11 @@ s" libcallback.so"   open-lib 0<> and [if]
 [IFUNDEF] libc
     s" os-type" environment? [IF]
 	2dup s" linux-gnu" str= [IF]  2drop
-	    library libc libc.so.6
+	    cell 8 = [IF]
+		library libc /lib64/libc.so.6
+	    [ELSE]
+		library libc /lib/libc.so.6
+	    [THEN]
 	[ELSE] 2dup s" cygwin" str= [IF]  2drop
 		library libc cygwin1.dll
 	    [ELSE]  2dup s" bsd" search nip nip [IF]  2drop
