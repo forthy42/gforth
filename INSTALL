@@ -33,7 +33,8 @@ After configuration, type
 
 make
 
-Now you can check whether your shiny new Forth system works. Say
+This includes a check whether your shiny new Forth system works. If
+you like to invoke the check alone, do
 
 make check
 
