@@ -284,6 +284,7 @@ const+ d \ double
 const+ r \ float
 const+ func \ C function pointer
 const+ void
+const+ file \ C file pointer
 drop
 
 set-current
@@ -300,7 +301,7 @@ set-current
     parse-libcc-type dup 0< -32 and throw swap c! ;
 
 : type-letter ( n -- c )
-    chars s" nadrfv" drop + c@ ;
+    chars s" nadrfvF" drop + c@ ;
 
 \ count-stacks
 
@@ -329,6 +330,7 @@ create count-stacks-types
 ' count-stacks-r ,
 ' count-stacks-func ,
 ' count-stacks-void ,
+' count-stacks-a ,
 
 : count-stacks ( pars -- fp-change sp-change )
     \ pars is an addr u pair
@@ -356,6 +358,9 @@ create count-stacks-types
 : gen-par-void ( fp-depth1 sp-depth1 -- fp-depth2 sp-depth2 )
     -32 throw ;
 
+: gen-par-file ( fp-depth1 sp-depth1 -- fp-depth2 sp-depth2 )
+    ." (FILE *)(" gen-par-n ." )" ;
+
 create gen-par-types
 ' gen-par-n ,
 ' gen-par-a ,
@@ -363,6 +368,7 @@ create gen-par-types
 ' gen-par-r ,
 ' gen-par-func ,
 ' gen-par-void ,
+' gen-par-file ,
 
 : gen-par ( fp-depth1 sp-depth1 partype -- fp-depth2 sp-depth2 )
     cells gen-par-types + @ execute ;
@@ -407,6 +413,7 @@ create gen-wrapped-types
 ' gen-wrapped-r ,
 ' gen-wrapped-func ,
 ' gen-wrapped-void ,
+' gen-wrapped-a ,
 
 : gen-wrapped-stmt ( pars c-name fp-change1 sp-change1 ret -- fp-change sp-change )
     cells gen-wrapped-types + @ execute ;
