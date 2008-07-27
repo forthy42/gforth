@@ -447,6 +447,8 @@ extern int debug;
 #endif
 
 extern Cell *gforth_SP;
+extern Cell *gforth_RP;
+extern Address gforth_LP;
 extern Float *gforth_FP;
 extern Address gforth_UP;
 
