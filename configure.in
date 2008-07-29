@@ -809,29 +809,29 @@ dnl using sin here is no good idea since it is built-into gcc and typechecked
 AC_CHECK_LIB(m,asin)
 AC_CHECK_LIB(ltdl,lt_dlinit)
 dnl check for libffi 2.x
-AC_CHECK_LIB(ffi,ffi_call)
-if test $ac_cv_lib_ffi_ffi_call = yes
-then
-LIBFFIFLAG="true"
-FFCALLFLAG="false"
-OLDCALLFLAG="false"
-AC_DEFINE(HAS_LIBFFI,,[define this if you want to use the ffcall interface with libffi 2.0])
-else
+dnl AC_CHECK_LIB(ffi,ffi_call)
+dnl if test $ac_cv_lib_ffi_ffi_call = yes
+dnl then
+dnl LIBFFIFLAG="true"
+dnl FFCALLFLAG="false"
+dnl OLDCALLFLAG="false"
+dnl AC_DEFINE(HAS_LIBFFI,,[define this if you want to use the ffcall interface with libffi 2.0])
+dnl else
 dnl check for ffcall libraries
 dnl unfortunately, these four calls are separated out into a library each.
-AC_CHECK_LIB(avcall,__builtin_avcall)
-AC_CHECK_LIB(callback,__vacall_r)
-AC_CHECK_LIB(vacall,vacall)
-AC_CHECK_LIB(trampoline,alloc_trampoline)
-LIBFFIFLAG="false"
-FFCALLFLAG="false"
-OLDCALLFLAG="true"
-test $ac_cv_lib_avcall___builtin_avcall = yes && FFCALLFLAG="true" && OLDCALLFLAG="false" && AC_DEFINE(HAS_FFCALL,,[define this if you want to use the ffcall libraries])
-test $ac_cv_lib_avcall___builtin_avcall = no && AC_DEFINE(HAS_OLDCALL,,[define this if you want to use the old call libraries])
-fi
-AC_SUBST(LIBFFIFLAG)
-AC_SUBST(FFCALLFLAG)
-AC_SUBST(OLDCALLFLAG)
+dnl AC_CHECK_LIB(avcall,__builtin_avcall)
+dnl AC_CHECK_LIB(callback,__vacall_r)
+dnl AC_CHECK_LIB(vacall,vacall)
+dnl AC_CHECK_LIB(trampoline,alloc_trampoline)
+dnl LIBFFIFLAG="false"
+dnl FFCALLFLAG="false"
+dnl OLDCALLFLAG="true"
+dnl test $ac_cv_lib_avcall___builtin_avcall = yes && FFCALLFLAG="true" && OLDCALLFLAG="false" && AC_DEFINE(HAS_FFCALL,,[define this if you want to use the ffcall libraries])
+dnl test $ac_cv_lib_avcall___builtin_avcall = no && AC_DEFINE(HAS_OLDCALL,,[define this if you want to use the old call libraries])
+dnl fi
+dnl AC_SUBST(LIBFFIFLAG)
+dnl AC_SUBST(FFCALLFLAG)
+dnl AC_SUBST(OLDCALLFLAG)
 if test "$host_os" != "nextstep3"
 then
 	AC_FUNC_MEMCMP
