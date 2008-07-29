@@ -24,6 +24,8 @@ s" callback" add-lib
 
 \c #include <avcall.h>
 \c #include <callback.h>
+\c extern Cell *gforth_RP;
+\c extern unsigned char *gforth_LP;
 \c static av_alist alist;
 \c static va_alist gforth_clist;
 \c static float frv;
