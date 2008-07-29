@@ -42,7 +42,8 @@ c-function fcntl fcntl n n n -- n ( fd n1 n2 -- ior )
 c-function htonl htonl n -- n ( x -- x' )
 c-function htons htons n -- n ( x -- x' )
 c-function ntohl ntohl n -- n ( x -- x' )
-c-function fileno fileno file -- n ( file* -- fd )
+\c #define fileno1(file) fileno((FILE*)(file))
+c-function fileno fileno1 a -- n ( file* -- fd )
 end-c-library
 
 4 4 2Constant int%

@@ -31,8 +31,6 @@ s" callback" add-lib
 \c static double drv;
 \c static long long llrv;
 \c static void * prv;
-\c static Cell *gforth_RP;
-\c static char *gforth_LP;
 \c typedef void *Label;
 \c typedef Label *Xt;
 \c Label *gforth_engine(Xt *ip, Cell *sp, Cell *rp0, Float *fp, char *lp);
