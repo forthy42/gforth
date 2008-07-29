@@ -17,17 +17,17 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-s" libavcall.so"     open-lib 0<>
-s" libcallback.so"   open-lib 0<> and [if]
-    .( including fflib.fs [ffcall] )
-    include fflib.fs
+s" libffi.so" open-lib [if]
+    .( including libffi.fs )
+    include libffi.fs
 [ELSE]
-    s" libffi.so" open-lib [if]
-        .( including libffi.fs )
-	include libffi.fs
+    s" libavcall.so"     open-lib 0<>
+    s" libcallback.so"   open-lib 0<> and [if]
+	.( including fflib.fs [ffcall] )
+	include fflib.fs
     [ELSE]
-        .( Neither libffi nor ffcall are available ) cr
-        abort
+	.( Neither libffi nor ffcall are available ) cr
+	abort
         .( Using oldlib.fs; incompatible with fflib.fs and libffi.fs) cr
 	include oldlib.fs
     [THEN]
