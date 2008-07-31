@@ -18,11 +18,12 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 s" os-type" environment? [IF]
-    2dup s" linux-gnu" str= [IF] 2drop s" libffi.so"
+    2dup s" linux-gnu" str= [IF] 2drop
+	cell 8 = [IF] s" /usr/lib64/libffi.so" [ELSE] s" libffi.so" [THEN]
     [ELSE] 2dup s" bsd" search nip nip [IF] 2drop s" libffi.so"
 	[ELSE] 2dup s" cygwin" str= [IF] 2drop s" libffi.dll"
-	    [ELSE] 2dup s" darwin" str= [IF] 2drop s" libffi.dylib"
-		[ELSE] 2drop [THEN] [THEN] [THEN] [THEN] [THEN]
+	    [ELSE] 2dup s" darwin" str-prefix? [IF] 2drop s" libffi.dylib"
+		[ELSE] 2drop s" libffi" [THEN] [THEN] [THEN] [THEN] [THEN]
 open-lib [if]
     .( including libffi.fs )
     include libffi.fs
