@@ -17,7 +17,13 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-s" libffi.so" open-lib [if]
+s" os-type" environment? [IF]
+    2dup s" linux-gnu" str= [IF] 2drop s" libffi.so"
+    [ELSE] 2dup s" bsd" search nip nip [IF] 2drop s" libffi.so"
+	[ELSE] 2dup s" cygwin" str= [IF] 2drop s" libffi.dll"
+	    [ELSE] 2dup s" darwin" str= [IF] 2drop s" libffi.dylib"
+		[ELSE] 2drop [THEN] [THEN] [THEN] [THEN] [THEN]
+open-lib [if]
     .( including libffi.fs )
     include libffi.fs
 [ELSE]
