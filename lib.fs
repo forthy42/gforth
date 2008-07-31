@@ -22,7 +22,7 @@ s" os-type" environment? [IF]
 	cell 8 = [IF] s" /usr/lib64/libffi.so" [ELSE] s" libffi.so" [THEN]
     [ELSE] 2dup s" bsd" search nip nip [IF] 2drop s" libffi.so"
 	[ELSE] 2dup s" cygwin" str= [IF] 2drop s" libffi.dll"
-	    [ELSE] 2dup s" darwin" str-prefix? [IF] 2drop s" libffi.dylib"
+	    [ELSE] 2dup s" darwin" string-prefix? [IF] 2drop s" libffi.dylib"
 		[ELSE] 2drop s" libffi" [THEN] [THEN] [THEN] [THEN] [THEN]
 open-lib [if]
     .( including libffi.fs )
