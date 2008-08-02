@@ -25,12 +25,12 @@ s" os-type" environment? [IF]
 	    [ELSE] 2dup s" darwin" string-prefix? [IF] 2drop s" libffi.dylib"
 		[ELSE] 2drop s" libffi" [THEN] [THEN] [THEN] [THEN] [THEN]
 open-lib [if]
-    .( including libffi.fs )
+\    warnings @ [IF] .( including libffi.fs ) [THEN]
     include libffi.fs
 [ELSE]
     s" libavcall.so"     open-lib 0<>
     s" libcallback.so"   open-lib 0<> and [if]
-	.( including fflib.fs [ffcall] )
+\	warnings @ [IF] .( including fflib.fs [ffcall] ) [THEN]
 	include fflib.fs
     [ELSE]
 	.( Neither libffi nor ffcall are available ) cr
