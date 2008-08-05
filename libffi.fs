@@ -431,6 +431,7 @@ also cb-decl definitions
 ' ffi-arg-longlong   8 argtype' llong
 ' ffi-arg-dlong      6 argtype' dlong
 ' ffi-arg-ptr      &12 argtype' ptr
+: ints ( n -- ) 0 ?DO postpone int LOOP ; immediate
 
 ' ffi-ret-void       0 rettype' (void)
 ' ffi-ret-int        6 rettype' (int)
