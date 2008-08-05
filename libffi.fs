@@ -344,6 +344,7 @@ also c-decl definitions
 ' >dl+ ' >dl-   6 argtype dlong
 ' >sf+ ' >sf-   9 argtype sf
 ' >df+ ' >df- &10 argtype df
+: ints 0 ?DO int LOOP ;
 
 ' noop   0 rettype (void)
 ' is>x   6 rettype (int)
