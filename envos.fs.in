@@ -33,3 +33,9 @@ set-current
 : libtool-cc ( -- c-addr u ) \ gforth
 \G invocation string of the C compiler used for libtool
     s" @CC@" ;
+
+\ test for the presence of libffi or ffcall
+@FFCALLFLAG@ constant ffcall-present \ libffi present (on building)
+@LIBFFIFLAG@ constant libffi-present \ ffcall libs present (on building)
+
+

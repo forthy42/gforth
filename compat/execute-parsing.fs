@@ -47,7 +47,7 @@ get-current execute-parsing-wordlist set-current
 \ X is prepended to the string, then the string is EVALUATEd
 : X ( xt -- )
     previous execute
-    source >in ! drop ; \ skip remaining input
+    source >in ! drop ; immediate \ skip remaining input
 
 set-current
 

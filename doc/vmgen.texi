@@ -331,7 +331,7 @@ instructions.  Another option is to use a register machine architecture
 for the virtual machine; we believe that using a stack architecture is
 usually both simpler and faster.
 
-however, this option is slower or
+However, this option is slower or
 significantly more complex to implement than a stack machine architecture.
 
 Vmgen has special support and optimizations for stack VMs, making their
@@ -1141,7 +1141,7 @@ optimizer for both variations, so leave this flag alone for now.
 @cindex stack stores, optimization
 @cindex eliminating stack stores
 
-This minor optimization (0.6\%--0.8\% reduction in executed instructions
+This minor optimization (0.6%--0.8% reduction in executed instructions
 for Gforth) puts additional requirements on the instruction descriptions
 and is therefore disabled by default.
 

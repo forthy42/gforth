@@ -1,8 +1,3 @@
-Installation friendlyness:
-
-Try out different options (FORCE_REG, GCC-bug-workarounds) and select
-  the best-working/fastest one (Anton)
-
 version-specific info installation?
 
 html, ps, and pdf installation
@@ -24,8 +19,6 @@ Unfinished functionality:
  make it work again
  make it work on most platforms
 
- compile constants to literals (Bernd)
-
  regexp.fs: add documentation (Bernd)
 
  complex.fs, fft.fs: add documentation.  Add stack comments! (Bernd)
@@ -43,7 +36,5 @@ NEWS:
    Which ones?  Should they be documented?
 
 Windows-Port (FP bugs dank gcc-2.95)
-
-Licensing
 
 Command-line editing

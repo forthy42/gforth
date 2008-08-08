@@ -17,52 +17,42 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-s" os-type" environment? [IF]
-    2dup s" linux-gnu" str= [IF] 2drop
-	cell 8 = [IF] s" /usr/lib64/libffi.so" [ELSE] s" libffi.so" [THEN]
-    [ELSE] 2dup s" bsd" search nip nip [IF] 2drop s" libffi.so"
-	[ELSE] 2dup s" cygwin" str= [IF] 2drop s" libffi.dll"
-	    [ELSE] 2dup s" darwin" string-prefix? [IF] 2drop s" libffi.dylib"
-		[ELSE] 2drop s" libffi" [THEN] [THEN] [THEN] [THEN] [THEN]
-open-lib [if]
-\    warnings @ [IF] .( including libffi.fs ) [THEN]
-    include libffi.fs
-[ELSE]
-    s" libavcall.so"     open-lib 0<>
-    s" libcallback.so"   open-lib 0<> and [if]
-\	warnings @ [IF] .( including fflib.fs [ffcall] ) [THEN]
-	include fflib.fs
-    [ELSE]
-	.( Neither libffi nor ffcall are available ) cr
+libffi-present [if]
+    require ./libffi.fs
+[else]
+    ffcall-present [if]
+	require ./fflib.fs
+    [else]
+	.( Neither libffi nor ffcall are configured ) cr
+	.( If you have installed one of them, you can use libffi.fs or fflib.fs directly ) cr
+	.( Or you can just use the new, documented and better, but different, libcc.fs ) cr
 	abort
-        .( Using oldlib.fs; incompatible with fflib.fs and libffi.fs) cr
-	include oldlib.fs
-    [THEN]
-[THEN]
+    [then]
+[then]
 
 \ testing stuff
 
-[IFUNDEF] libc
-    s" os-type" environment? [IF]
-	2dup s" linux-gnu" str= [IF]  2drop
-	    cell 8 = [IF]
-		library libc /lib64/libc.so.6
-	    [ELSE]
-		library libc /lib/libc.so.6
-	    [THEN]
-	[ELSE] 2dup s" cygwin" str= [IF]  2drop
-		library libc cygwin1.dll
-	    [ELSE]  2dup s" bsd" search nip nip [IF]  2drop
-		    library libc libc.so
-		[ELSE]  2dup s" darwin" string-prefix? [IF]  2drop
-			library libc libc.dylib
-		    [ELSE]  2drop \ or add your stuff here
-		    [THEN]
-		[THEN]
-	    [THEN]
-	[THEN]
-    [THEN]
-[THEN]
+\ [IFUNDEF] libc
+\     s" os-type" environment? [IF]
+\ 	2dup s" linux-gnu" str= [IF]  2drop
+\ 	    cell 8 = [IF]
+\ 		library libc /lib64/libc.so.6 
+\ 	    [ELSE]
+\ 		library libc /lib/libc.so.6
+\ 	    [THEN]
+\ 	[ELSE] 2dup s" cygwin" str= [IF]  2drop
+\ 		library libc cygwin1.dll
+\ 	    [ELSE]  2dup s" bsd" search nip nip [IF]  2drop
+\ 		    library libc libc.so
+\ 		[ELSE]  2dup s" darwin" string-prefix? [IF]  2drop
+\ 			library libc libc.dylib
+\ 		    [ELSE]  2drop \ or add your stuff here
+\ 		    [THEN]
+\ 		[THEN]
+\ 	    [THEN]
+\ 	[THEN]
+\     [THEN]
+\ [THEN]
 
 [ifdef] testing
 

@@ -2067,7 +2067,7 @@ one bit (arithmetic shift right):
 @end example
 
 @code{assert(} is no standard word, but you can get it on systems other
-then Gforth by including @file{compat/assert.fs}.  You can see what it
+than Gforth by including @file{compat/assert.fs}.  You can see what it
 does by trying
 
 @example
@@ -2756,7 +2756,7 @@ bar
 see bar
 @end example
 
-Two conventions to mark words with non-default compilation semnatics are
+Two conventions to mark words with non-default compilation semantics are
 names with brackets (more frequently used) and to write them all in
 upper case (less frequently used).
 
@@ -3110,7 +3110,7 @@ about defining words is an array defining word (possibly for
 n-dimensional arrays).  Go ahead and do it, I did it, too; you will
 learn something from it.  However, don't be disappointed when you later
 learn that you have little use for these words (inappropriate use would
-be even worse).  I have not yet found a set of useful array words yet;
+be even worse).  I have not found a set of useful array words yet;
 the needs are just too diverse, and named, global arrays (the result of
 naive use of defining words) are often not flexible enough (e.g.,
 consider how to pass them as parameters).  Another such project is a set

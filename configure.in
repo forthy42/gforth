@@ -808,30 +808,30 @@ dnl This check is just for making later checks link with libm.
 dnl using sin here is no good idea since it is built-into gcc and typechecked
 AC_CHECK_LIB(m,asin)
 AC_CHECK_LIB(ltdl,lt_dlinit)
-dnl check for libffi 2.x
-dnl AC_CHECK_LIB(ffi,ffi_call)
-dnl if test $ac_cv_lib_ffi_ffi_call = yes
-dnl then
-dnl LIBFFIFLAG="true"
-dnl FFCALLFLAG="false"
-dnl OLDCALLFLAG="false"
-dnl AC_DEFINE(HAS_LIBFFI,,[define this if you want to use the ffcall interface with libffi 2.0])
-dnl else
-dnl check for ffcall libraries
-dnl unfortunately, these four calls are separated out into a library each.
-dnl AC_CHECK_LIB(avcall,__builtin_avcall)
+#check for libffi 2.x
+AC_CHECK_LIB(ffi,ffi_call)
+if test $ac_cv_lib_ffi_ffi_call = yes
+then
+  LIBFFIFLAG="true"
+else
+  LIBFFIFLAG="false"
+fi
+#check for ffcall libraries
+#unfortunately, these four calls are separated out into a library each.
+AC_CHECK_LIB(avcall,__builtin_avcall)
 dnl AC_CHECK_LIB(callback,__vacall_r)
 dnl AC_CHECK_LIB(vacall,vacall)
 dnl AC_CHECK_LIB(trampoline,alloc_trampoline)
-dnl LIBFFIFLAG="false"
-dnl FFCALLFLAG="false"
-dnl OLDCALLFLAG="true"
-dnl test $ac_cv_lib_avcall___builtin_avcall = yes && FFCALLFLAG="true" && OLDCALLFLAG="false" && AC_DEFINE(HAS_FFCALL,,[define this if you want to use the ffcall libraries])
-dnl test $ac_cv_lib_avcall___builtin_avcall = no && AC_DEFINE(HAS_OLDCALL,,[define this if you want to use the old call libraries])
-dnl fi
-dnl AC_SUBST(LIBFFIFLAG)
-dnl AC_SUBST(FFCALLFLAG)
-dnl AC_SUBST(OLDCALLFLAG)
+if test $ac_cv_lib_avcall___builtin_avcall = yes; then
+  FFCALLFLAG="true"
+else
+  FFCALLFLAG="false"
+fi
+if test $LIBFFIFLAG = false -a $FFCALLFLAG = false; then
+  AC_MSG_WARN([The (old) lib.fs foreign function interface needs either libffi or the ffcall libraries])
+fi
+AC_SUBST(LIBFFIFLAG)
+AC_SUBST(FFCALLFLAG)
 if test "$host_os" != "nextstep3"
 then
 	AC_FUNC_MEMCMP
