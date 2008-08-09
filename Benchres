@@ -21,6 +21,8 @@ sieve bubble matrix  fib  platform and version
  0.930 1.070  0.390 1.160 PPC7447a (G4) 1066MHz; Linux; gcc-4.1.2; gforth-0.6.9-20080716; configure GCC_PR15242_WORKAROUND=1
  0.970 1.120  0.400 1.190 PPC7447a (G4) 1066MHz; Linux; gcc-4.1.2; gforth-0.6.9-20080716
  0.75  1.04   0.41  1.14  PPC7447a (G4) 1066MHz; Linux; gcc-4.1.0; gforth-0.6.2-20060409
+ 0.249 0.302  0.156 0.394 Pentium 4 2.26 (Northwood); gcc-2.95.4; gforth-0.6.9-20080716
+ 0.156 0.252  0.076 0.248 Xeon 5160 (3GHz); gcc-4.1.2 20061115 (prerelease) (Debian 4.1.1-21); gforth-0.6.9-20080716
 
 Results with Gforth 0.6.2 (for comparing CPUs):
 siev	bubble	matrix	fib	machine and configuration
