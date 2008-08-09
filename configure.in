@@ -108,6 +108,7 @@ AC_ARG_VAR(FORTHSIZES, [Gforth command line options for the default stack and di
 AC_ARG_VAR(STACK_CACHE_REGS, [number of registers in the maximum stack cache state for gforth-fast and gforth-native (default platform-dependent).])
 AC_ARG_VAR(STACK_CACHE_DEFAULT_FAST, [number of registers in the default stack cache state for gforth-fast and gforth-native (default 1).])
 AC_ARG_VAR(GCC_PR15242_WORKAROUND, [Force the enabling (1) or disabling (0) of a workaround for a gcc-3.x performance bug (default unset: use workaround for gcc-3.x)])
+AC_ARG_VAR(LIBCC_BUILD_SRC, [(Additional) libcc interface source files that should be processed on building and installation (default none)])
 
 AC_ARG_VAR(ac_cv_sizeof_char_p, [sizeof(char *)])
 AC_ARG_VAR(ac_cv_sizeof_void_p, [sizeof(void *)])
@@ -813,6 +814,7 @@ AC_CHECK_LIB(ffi,ffi_call)
 if test $ac_cv_lib_ffi_ffi_call = yes
 then
   LIBFFIFLAG="true"
+  LIBCC_BUILD_SRC="$LIBCC_BUILD_SRC libffi.fs"
 else
   LIBFFIFLAG="false"
 fi
@@ -824,6 +826,7 @@ dnl AC_CHECK_LIB(vacall,vacall)
 dnl AC_CHECK_LIB(trampoline,alloc_trampoline)
 if test $ac_cv_lib_avcall___builtin_avcall = yes; then
   FFCALLFLAG="true"
+  LIBCC_BUILD_SRC="$LIBCC_BUILD_SRC fflib.fs"
 else
   FFCALLFLAG="false"
 fi
@@ -832,6 +835,7 @@ if test $LIBFFIFLAG = false -a $FFCALLFLAG = false; then
 fi
 AC_SUBST(LIBFFIFLAG)
 AC_SUBST(FFCALLFLAG)
+AC_SUBST(LIBCC_BUILD_SRC)
 if test "$host_os" != "nextstep3"
 then
 	AC_FUNC_MEMCMP
