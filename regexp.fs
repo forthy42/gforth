@@ -137,7 +137,7 @@ Variable varsmax
 0 Value end$
 0 Value start$
 : !end ( addr u -- addr )  over + to end$ dup to start$ ;
-: $? ( addr -- addr flag ) dup end$ u< ;
+: $?1 ( addr -- addr flag ) dup end$ u< ;
 : ^? ( addr -- addr flag ) dup start$ u> ;
 : ?end ( addr -- addr ) ]] dup end$ u> ?LEAVE [[ ; immediate
 
@@ -148,7 +148,7 @@ Variable varsmax
     ]] ^? ?LEAVE [[ ; immediate
 : \$ ( addr -- addr ) \ regexp-pattern
     \G check for string end
-    ]] $? ?LEAVE [[ ; immediate
+    ]] $?1 ?LEAVE [[ ; immediate
 
 \ regexp block
 
@@ -179,7 +179,7 @@ Variable varsmax
     immediate
 : n*} ( sys n -- ) \ regexp-pattern
     \G At least @var{n} pattern
-    >r ]] r> 1+ >r $? 0= UNTIL dup [[ DONE, ]] drop [[
+    >r ]] r> 1+ >r $?1 0= UNTIL dup [[ DONE, ]] drop [[
     r@ IF r@ ]] r@ Literal u< IF  r> 1+ drops false  EXIT  THEN [[ THEN
     r@ ]] r> 1+ Literal U+DO FORK BUT [[
     ]] IF  I' I - [[ r@ 1- ]] Literal + drops true UNLOOP EXIT  THEN  LOOP [[

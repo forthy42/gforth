@@ -934,7 +934,7 @@ doc/gforth.texi: doc/gforth.ds prim.b ds2texi.fs prims2x.fs \
 checkdoc:	doc/gforth.ds prim.b ds2texi.fs prims2x.fs doc/doc.fd doc/crossdoc.fd answords.fs doc/gforth.texi
 		$(FORTH) ds2texi.fs prims2x.fs -e "s\" $(srcdir)/prim.b\" ' register-doc ' noop process-file" doc/crossdoc.fd doc/doc.fd answords.fs -e bye
 		-grep unknown doc/gforth.texi
-		-grep doc- doc/gforth.texi
+		-grep doc- doc/gforth.texi| grep -v '^@c'
 
 dvi:		doc/gforth.dvi doc/vmgen.dvi
 

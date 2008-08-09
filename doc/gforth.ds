@@ -9323,7 +9323,6 @@ encoding used. An xchar may use a variable number of pchars in memory.
 doc-xc-size
 doc-x-size
 doc-xc@+
-doc-xc!+
 doc-xc!+?
 doc-xchar+
 doc-xchar-

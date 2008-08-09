@@ -226,7 +226,7 @@ end-struct c-lib%
 
 variable c-libs \ linked list of library names (without "lib")
 
-: add-lib ( c-addr u -- )
+: add-lib ( c-addr u -- ) \ gforth
 \G Add library lib@i{string} to the list of libraries, where
 \G @i{string} is represented by @i{c-addr u}.
     c-lib% %size allocate throw dup >r
@@ -614,7 +614,7 @@ DEFER compile-wrapper-function ( -- )
     defer lastxt dup c-function-rt lastxt c-function-ft
     lastxt swap defer! ;
 
-: clear-libs ( -- )
+: clear-libs ( -- ) \ gforth
 \G Clear the list of libs
     c-source-file-id @ if
 	compile-wrapper-function
