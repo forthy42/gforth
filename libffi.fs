@@ -24,6 +24,8 @@
 c-library libffi
 s" ffi" add-lib
 
+\ The ffi.h of XCode needs the following line, and it should not hurt elsewhere
+\c #define MACOSX
 include-ffi.h-string save-c-prefix-line \ #include <ffi.h>
 \c extern Cell *gforth_RP;
 \c extern unsigned char *gforth_LP;
