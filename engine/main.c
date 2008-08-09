@@ -1083,7 +1083,7 @@ static void flush_to_here(void)
 {
 #ifndef NO_DYNAMIC
   if (start_flush)
-    FLUSH_ICACHE(start_flush, code_here-start_flush);
+    FLUSH_ICACHE((caddr_t)start_flush, code_here-start_flush);
   start_flush=code_here;
 #endif
 }

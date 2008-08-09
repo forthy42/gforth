@@ -1674,7 +1674,7 @@ supported on your machine (take a look at your @file{machine.h}) and
 your machine has a separate instruction cache. In such cases,
 @code{flush-icache} does nothing instead of flushing the instruction
 cache.""
-FLUSH_ICACHE(c_addr,u);
+FLUSH_ICACHE((caddr_t)c_addr,u);
 
 (bye)	( n -- )	gforth	paren_bye
 SUPER_END;

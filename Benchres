@@ -18,6 +18,9 @@ sieve bubble matrix  fib  platform and version
  3.51  3.91   3.54  4.07  Xscale IOP321 (Iyonix) 600MHz; 2007-03-12; gcc-3.3.6
  1.96  2.42   1.97  2.23  Xscale IOP321 (Iyonix) 600MHz; 2007-03-18; gcc-3.3.6; ./configure CC=gcc-3.3 arm_cacheflush=arch/arm/cacheflush1 --enable-force-reg
  2.0   2.3    1.8   2.0   UltraSparc T1 (Sun Fire T1000) 1GHz; Solaris 2.10; gcc-4.0.2; 2007-03-13
+ 0.930 1.070  0.390 1.160 PPC7447a (G4) 1066MHz; Linux; gcc-4.1.2; gforth-0.6.9-20080716; configure GCC_PR15242_WORKAROUND=1
+ 0.970 1.120  0.400 1.190 PPC7447a (G4) 1066MHz; Linux; gcc-4.1.2; gforth-0.6.9-20080716
+ 0.75  1.04   0.41  1.14  PPC7447a (G4) 1066MHz; Linux; gcc-4.1.0; gforth-0.6.2-20060409
 
 Results with Gforth 0.6.2 (for comparing CPUs):
 siev	bubble	matrix	fib	machine and configuration
@@ -30,7 +33,6 @@ siev	bubble	matrix	fib	machine and configuration
  1.974	 2.313	 2.033	 2.428	Itanium 2 (HP rx2600) 900MHz; gcc-3.3; gforth-0.6.2
  0.427   0.676   0.303   0.630  PPC970 (G5) 2000MHz; Linux (32-bit executable); gcc-2.95.4; gforth-0.6.2
  1.71	 2.18	 1.30	 2.24	PPC7400 (G4) 450MHz; Linux; gcc-2.95.4; gforth-0.6.2
- 0.75    1.04    0.41    1.14	PPC7447a (G4) 1066MHz; Linux; gcc-4.1.0; gforth-0.6.2-20060409
  4.18	 5.43	 3.37	 5.88	PPC604e (PowerMac) 200MHz; Linux; gcc-2.95.2; gforth-0.6.2
  3.83	 4.60	 4.38	 4.38	Xscale-IOP80321 (Iyonix) 600MHz; Linux; gcc-3.3.6; gforth-0.6.2 (with minor fixes)
  4.05	 4.94	 4.67	 4.60	Xscale-IOP80321 (Iyonix) 600MHz; Linux; gcc 4.1.2 20061115; gforth-0.6.2
