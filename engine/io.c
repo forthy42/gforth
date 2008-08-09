@@ -621,8 +621,7 @@ long key_avail (FILE * stream)
 {
   int tty = fileno (stream);
   fd_set selin;
-  static struct timespec now = { 0 , 0 };
-  int res;
+  static struct timeval now = { 0 , 0 };
 
   setvbuf(stream, NULL, _IONBF, 0);
   if(!terminal_prepped && stream == stdin)

@@ -32,6 +32,10 @@
 #include <math.h>
 #include <ctype.h>
 #include <errno.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <time.h>
 #endif
 
 #ifdef HAS_FILE
@@ -679,7 +683,7 @@ DCell smdiv (DCell num, Cell denom)
 {
   DCell res;
 #if defined(sdiv_qrnnd)
-#warning "using sdiv_qrnnd"
+  /* #warning "using sdiv_qrnnd" */
   Cell u1,q,r
   UCell u0;
   UCell MAYBE_UNUSED lz;

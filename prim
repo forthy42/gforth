@@ -2460,8 +2460,8 @@ l! ( w c_addr -- )	gforth l_store
 
 lib-error ( -- c_addr u )       gforth  lib_error
 ""Error message for last failed @code{open-lib} or @code{lib-sym}.""
-c_addr = lt_dlerror();
-u = (c_addr == NULL) ? 0 : strlen(c_addr);
+c_addr = (Char *)lt_dlerror();
+u = (c_addr == NULL) ? 0 : strlen((char *)c_addr);
 
 \+
 \g peephole

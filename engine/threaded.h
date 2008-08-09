@@ -135,7 +135,7 @@ before_goto: goto *real_ca; after_goto:
 #  define SET_IP(p)	do {ip=(p); cfa=*ip;} while(0)
 #  define NEXT_INST	(cfa)
 #  define INC_IP(const_inc)	do {cfa=IP[const_inc]; ip+=(const_inc);} while(0)
-#  define DEF_CA	Label ca;
+#  define DEF_CA	Label MAYBE_UNUSED ca;
 #  define NEXT_P1	do {\
   if (DEBUG_DITC && (cfa<=vm_prims+DOESJUMP || cfa>=vm_prims+npriminfos)) \
     fprintf(stderr,"NEXT encountered prim %p at ip=%p\n", cfa, ip); \
@@ -186,7 +186,7 @@ before_goto: goto *real_ca; after_goto:
 */
 #define KILLS asm("":"=X"(cfa));
 
-#warning direct threading scheme 8: cfa dead, i386 hack
+/* #warning direct threading scheme 8: cfa dead, i386 hack */
 #  define NEXT_P0
 #  define CFA		cfa
 #  define IP		(ip)
@@ -202,7 +202,7 @@ before_goto: goto *real_ca; after_goto:
 #else
 /* indirect THREADED  */
 
-#warning indirect threading scheme 8: low latency,cisc
+/* #warning indirect threading scheme 8: low latency,cisc */
 #  define NEXT_P0
 #  define CFA		cfa
 #  define IP		(ip)

@@ -21,7 +21,7 @@
 #if !defined(DOUBLE_CELL_TYPE) || !defined(DOUBLE_UCELL_TYPE)
 #if (SIZEOF_CHAR_P==8)
 #ifdef FORCE_LL
-#warning hand-defined int128_t
+/* #warning hand-defined int128_t */
 typedef int int128_t __attribute__((__mode__(TI)));
 typedef unsigned int uint128_t __attribute__((__mode__(TI)));
 #define DOUBLE_CELL_TYPE int128_t

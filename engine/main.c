@@ -1088,7 +1088,7 @@ static void flush_to_here(void)
 #endif
 }
 
-static void align_code(void)
+static void MAYBE_UNUSED align_code(void)
      /* align code_here on some platforms */
 {
 #ifndef NO_DYNAMIC
@@ -2199,7 +2199,7 @@ static void print_diag()
 #endif
      )
     debugp(stderr, "relocs: %d:%d\n", relocs, nonrelocs);
-    fprintf(stderr, "*** %sperformance problems ***\n%s",
+    fprintf(stderr, "*** %sperformance problems ***\n%s%s",
 #if defined(BUGGY_LL_CMP) || defined(BUGGY_LL_MUL) || defined(BUGGY_LL_DIV) || defined(BUGGY_LL_ADD) || defined(BUGGY_LL_SHIFT) || defined(BUGGY_LL_D2F) || defined(BUGGY_LL_F2D) || !(defined(FORCE_REG) || defined(FORCE_REG_UNNECESSARY)) || defined(BUGGY_LONG_LONG)
 	    "",
 #else
@@ -2234,7 +2234,7 @@ static void print_diag()
 	    "    automatic register allocation: performance degradation possible\n"
 #endif
 	    "",
-	    (relocs < nonrelocs) ? "    gcc PR 15242 -> no dynamic code generation (use gcc-2.95 instead)\n" : "");
+	    (relocs < nonrelocs) ? "no dynamic code generation (--debug for details) -> factor 2 slowdown\n" : "");
 }
 
 #ifdef STANDALONE

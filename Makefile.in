@@ -66,6 +66,7 @@ INSTALL_INFO = @INSTALL_INFO@
 LN_S	= @LN_S@
 M4      = @M4@
 GCC	= @CC@
+EMACS   = emacs
 PREFORTH	= ./preforth -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)"
 CC	= $(GCC)
 FORTHPATH = .$(PATHSEP)$(libdir)/gforth/site-forth$(PATHSEP)$(siteforthdir)$(PATHSEP)$(libdir)/gforth/$(VERSION)$(PATHSEP)$(datadir)/gforth/$(VERSION)
@@ -908,7 +909,7 @@ kernel.tags:
 
 #elc files
 gforth.elc:	gforth.el
-		-emacs -batch -f batch-byte-compile $<
+		-$(EMACS) -batch -f batch-byte-compile $<
 
 #Documentation
 

@@ -80,7 +80,7 @@ typedef void *Label;
 /* feature defines, these setting should be identical to the ones in machpc.fs */
 
 #ifndef STANDALONE
-#warning hosted system
+/* #warning hosted system */
 #define HAS_FILE
 #define HAS_FLOATING
 #define HAS_OS
