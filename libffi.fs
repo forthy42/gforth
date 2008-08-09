@@ -24,16 +24,7 @@
 c-library libffi
 s" ffi" add-lib
 
-s" os-type" environment? [IF] s" darwin" string-prefix?
-[IF]
-    \c #define MACOSX
-    \c #include <ffi/ffi.h>
-[ELSE]
-    \c #include <ffi.h>
-[THEN]
-[ELSE]
-    \c #include <ffi.h>
-[THEN]
+include-ffi.h-string save-c-prefix-line \ #include <ffi.h>
 \c extern Cell *gforth_RP;
 \c extern unsigned char *gforth_LP;
 \c static void **gforth_clist;

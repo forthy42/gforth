@@ -810,6 +810,11 @@ dnl using sin here is no good idea since it is built-into gcc and typechecked
 AC_CHECK_LIB(m,asin)
 AC_CHECK_LIB(ltdl,lt_dlinit)
 #check for libffi 2.x
+AC_CHECK_HEADER(ffi.h,FFI_H_NAME=ffi.h,)
+if test -z "$FFI_H_NAME"; then
+  AC_CHECK_HEADER(ffi/ffi.h,FFI_H_NAME=ffi/ffi.h,)
+fi
+AC_SUBST(FFI_H_NAME)
 AC_CHECK_LIB(ffi,ffi_call)
 if test $ac_cv_lib_ffi_ffi_call = yes
 then

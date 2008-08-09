@@ -38,4 +38,6 @@ set-current
 @FFCALLFLAG@ constant ffcall-present \ libffi present (on building)
 @LIBFFIFLAG@ constant libffi-present \ ffcall libs present (on building)
 
+: include-ffi.h-string ( -- c-addr u )
+  s" #include <@FFI_H_NAME@>" ;
 
