@@ -54,7 +54,7 @@ libffi-present [if]
 \     [THEN]
 \ [THEN]
 
-[ifdef] testing
+0 [if]
 
 library libc libc.so.6
                 
