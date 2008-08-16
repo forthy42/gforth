@@ -623,7 +623,7 @@ AC_MSG_RESULT($M4)
 # Find installed Gforth
 AC_MSG_CHECKING([for gforth])
 GFORTH="`cd / && which gforth 2>/dev/null`"
-$GFORTH -e bye >/dev/null 2>/dev/null || GFORTH=""
+(cd / && $GFORTH -e bye >/dev/null 2>/dev/null) || GFORTH=""
 if test -z "$GFORTH"; then
   PREFORTH='echo "You need to configure with a gforth in \$PATH to build this part" && false'
   kernel_anti_dependence=''
