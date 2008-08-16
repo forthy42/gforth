@@ -2399,7 +2399,7 @@ r = fp[u];
 \g syslib
 
 open-lib	( c_addr1 u1 -- u2 )	gforth	open_lib
-#if 1
+#ifdef HAVE_LIBLTDL
 u2 = (UCell)lt_dlopen(tilde_cstr(c_addr1, u1, 1));
 #elif defined(HAVE_LIBDL) || defined(HAVE_DLOPEN)
 #ifndef RTLD_GLOBAL
@@ -2416,7 +2416,7 @@ u2 = 0;
 #endif
 
 lib-sym	( c_addr1 u1 u2 -- u3 )	gforth	lib_sym
-#if 1
+#ifdef HAVE_LIBLTDL
 u3 = (UCell) lt_dlsym((lt_dlhandle)u2, cstr(c_addr1, u1, 1));
 #elif defined(HAVE_LIBDL) || defined(HAVE_DLOPEN)
 u3 = (UCell) dlsym((void*)u2,cstr(c_addr1, u1, 1));
@@ -2460,8 +2460,13 @@ l! ( w c_addr -- )	gforth l_store
 
 lib-error ( -- c_addr u )       gforth  lib_error
 ""Error message for last failed @code{open-lib} or @code{lib-sym}.""
+#ifdef HAVE_LIBLTDL
 c_addr = (Char *)lt_dlerror();
 u = (c_addr == NULL) ? 0 : strlen((char *)c_addr);
+#else
+c_addr = "libltdl is not configured";
+u = strlen(c_addr);
+#endif
 
 \+
 \g peephole

@@ -2277,10 +2277,12 @@ int main(int argc, char **argv, char **env)
   progname = argv[0];
 
 #ifndef STANDALONE
+#ifdef HAVE_LIBLTDL
   if (lt_dlinit()!=0) {
     fprintf(stderr,"%s: lt_dlinit failed", progname);
     exit(1);
   }
+#endif
     
 #ifdef HAS_OS
   gforth_args(argc, argv, &path, &imagename);
@@ -2330,8 +2332,10 @@ int main(int argc, char **argv, char **env)
 #endif
     deprep_terminal();
 #ifndef STANDALONE
+#ifdef HAVE_LIBLTDL
     if (lt_dlexit()!=0)
       fprintf(stderr,"%s: lt_dlexit failed", progname);
+#endif
 #endif
   }
   if (print_metrics) {
