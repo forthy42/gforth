@@ -28,6 +28,7 @@
 #include <string.h>
 #include <math.h>
 #include <sys/types.h>
+#include <alloca.h>
 #ifndef STANDALONE
 #include <sys/stat.h>
 #endif
@@ -483,7 +484,7 @@ static Address verbose_malloc(Cell size)
   return r;
 }
 
-static Address next_address=0;
+static void *next_address=0;
 static void after_alloc(Address r, Cell size)
 {
   if (r != (Address)-1) {
@@ -514,7 +515,7 @@ static void after_alloc(Address r, Cell size)
 #if defined(HAVE_MMAP)
 static Address alloc_mmap(Cell size)
 {
-  Address r;
+  void *r;
 
 #if defined(MAP_ANON)
   debugp(stderr,"try mmap($%lx, $%lx, ..., MAP_ANON, ...); ", (long)next_address, (long)size);
@@ -539,7 +540,7 @@ static Address alloc_mmap(Cell size)
   return r;  
 }
 
-static void page_noaccess(Address a)
+static void page_noaccess(void *a)
 {
   /* try mprotect first; with munmap the page might be allocated later */
   debugp(stderr, "try mprotect(%p,%ld,PROT_NONE); ", a, (long)pagesize);
@@ -575,24 +576,24 @@ Address gforth_alloc(Cell size)
   return verbose_malloc(size);
 }
 
-static Address dict_alloc_read(FILE *file, Cell imagesize, Cell dictsize, Cell offset)
+static void *dict_alloc_read(FILE *file, Cell imagesize, Cell dictsize, Cell offset)
 {
-  Address image = MAP_FAILED;
+  void *image = MAP_FAILED;
 
 #if defined(HAVE_MMAP)
   if (offset==0) {
     image=alloc_mmap(dictsize);
-    if (image != (Address)MAP_FAILED) {
-      Address image1;
+    if (image != (void *)MAP_FAILED) {
+      void *image1;
       debugp(stderr,"try mmap($%lx, $%lx, ..., MAP_FIXED|MAP_FILE, imagefile, 0); ", (long)image, (long)imagesize);
       image1 = mmap(image, imagesize, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_FIXED|MAP_FILE|MAP_PRIVATE|map_noreserve, fileno(file), 0);
       after_alloc(image1,dictsize);
-      if (image1 == (Address)MAP_FAILED)
+      if (image1 == (void *)MAP_FAILED)
 	goto read_image;
     }
   }
 #endif /* defined(HAVE_MMAP) */
-  if (image == (Address)MAP_FAILED) {
+  if (image == (void *)MAP_FAILED) {
     image = gforth_alloc(dictsize+offset)+offset;
   read_image:
     rewind(file);  /* fseek(imagefile,0L,SEEK_SET); */
@@ -653,8 +654,8 @@ void alloc_stacks(ImageHeader * h)
     size_t p = pagesize;
     size_t totalsize =
       wholepage(dsize)+wholepage(fsize)+wholepage(rsize)+wholepage(lsize)+5*p;
-    Address a = alloc_mmap(totalsize);
-    if (a != (Address)MAP_FAILED) {
+    void *a = alloc_mmap(totalsize);
+    if (a != (void *)MAP_FAILED) {
       page_noaccess(a); a+=p; h->  data_stack_base=a; a+=wholepage(dsize);
       page_noaccess(a); a+=p; h->    fp_stack_base=a; a+=wholepage(fsize);
       page_noaccess(a); a+=p; h->return_stack_base=a; a+=wholepage(rsize);
@@ -677,7 +678,7 @@ void alloc_stacks(ImageHeader * h)
 #endif
 
 #warning You can ignore the warnings about clobbered variables in gforth_go
-int gforth_go(Address image, int stack, Cell *entries)
+int gforth_go(void *image, int stack, Cell *entries)
 {
   volatile ImageHeader *image_header = (ImageHeader *)image;
   Cell *sp0=(Cell*)(image_header->data_stack_base + dsize);
@@ -2260,8 +2261,8 @@ int main(int argc, char **argv, char **env)
 #endif
   int retvalue;
 	  
-  code_here = NULL+CODE_BLOCK_SIZE; /* llvm-gcc does not like this as
-                                       initializer, so we do it here */
+  code_here = ((void *)0)+CODE_BLOCK_SIZE; /* llvm-gcc does not like this as
+                                              initializer, so we do it here */
 #ifndef STANDALONE
   /* buffering of the user output device */
 #ifdef _IONBF
