@@ -819,7 +819,6 @@ gforth$(OPT)$(EC)$(EXE): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/config.h @
 		for i in $(OPTS); do $(MAKE) optgforth OPT=$$i && $(CP) gforth$${i}$(EC)$(EXE) $@ && break; done; \
 	else \
 		( cd engine && $(MAKE) $@ ) && \
-		$(CP) gforth$(OPT)$(EC)$(EXE) gforth~; \
 		$(CP) engine/$@ $@ && \
 		$(MASSAGE_EXE) $@; \
 		@GFORTH_EXE@; \
