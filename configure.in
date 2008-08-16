@@ -623,11 +623,12 @@ AC_MSG_RESULT($M4)
 # Find installed Gforth
 AC_MSG_CHECKING([for gforth])
 GFORTH="`cd / && which gforth 2>/dev/null`"
+$GFORTH -e bye >/dev/null 2>/dev/null || GFORTH=""
 if test -z "$GFORTH"; then
   PREFORTH='echo "You need to configure with a gforth in \$PATH to build this part" && false'
   kernel_anti_dependence=''
 else
-  PREFORTH="$GFORTH -i `cd / && gforth --debug -e bye 2>&1 |grep "Opened image file: "|sed 's/Opened image file: //'`" ;
+  PREFORTH="$GFORTH -i `cd / && $GFORTH --debug -e bye 2>&1 |grep "Opened image file: "|sed 's/Opened image file: //'`" ;
   kernel_anti_dependence='$(kernel_fi)'
 fi
 AC_SUBST(PREFORTH)
