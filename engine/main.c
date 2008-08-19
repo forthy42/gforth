@@ -28,7 +28,9 @@
 #include <string.h>
 #include <math.h>
 #include <sys/types.h>
+#ifdef HAVE_ALLOCA_H
 #include <alloca.h>
+#endif
 #ifndef STANDALONE
 #include <sys/stat.h>
 #endif
