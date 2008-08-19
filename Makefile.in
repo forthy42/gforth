@@ -257,9 +257,7 @@ GFORTH_FI_SRC = \
 	arch/mips/testasm.fs arch/mips/testdisasm.fs \
 	arch/power/asm.fs arch/power/disasm.fs arch/power/inst.fs
 
-
-
-LIBCC_SRC = unix/socket.fs
+LIBCC_SRC = cstr.fs mkdir.fs unix/socket.fs
 
 LIBCC_DIST_SRC = libffi.fs fflib.fs $(LIBCC_SRC)
 

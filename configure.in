@@ -617,7 +617,6 @@ else
  M4=m4
 fi
 AC_SUBST(M4)
-AC_DEFINE_UNQUOTED(M4,"$M4",[How to invoke m4])
 AC_MSG_RESULT($M4)
 
 # Find installed Gforth
