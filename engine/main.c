@@ -2265,6 +2265,12 @@ int main(int argc, char **argv, char **env)
 	  
   code_here = ((void *)0)+CODE_BLOCK_SIZE; /* llvm-gcc does not like this as
                                               initializer, so we do it here */
+#ifdef MACOSX_DEPLOYMENT_TARGET
+  setenv("MACOSX_DEPLOYMENT_TARGET", MACOSX_DEPLOYMENT_TARGET, 0);
+#endif
+#ifdef LTDL_LIBRARY_PATH
+  setenv("LTDL_LIBRARY_PATH", LTDL_LIBRARY_PATH, 0);
+#endif
 #ifndef STANDALONE
   /* buffering of the user output device */
 #ifdef _IONBF

@@ -666,6 +666,9 @@ case "$host_os" in
 		DIRSEP="/"
 		PATHSEP=":"
 		DEFAULTSYSTEMPREFIX=""
+                #the following magic value was suggested by
+                #http://mail.python.org/pipermail/pythonmac-sig/2005-October/015190.html
+                AC_DEFINE_UNQUOTED(MACOSX_DEPLOYMENT_TARGET,"10.3",[an environment variable value needed by libtool on some MacOS X versions])
 		;;
 	*)
 		DIRSEP="/"
