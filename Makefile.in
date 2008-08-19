@@ -914,7 +914,7 @@ kernel.tags:
 
 #elc files
 gforth.elc:	gforth.el
-		-$(EMACS) -batch -f batch-byte-compile $<
+		-$(EMACS) -batch -f batch-byte-compile gforth.el
 
 #Documentation
 

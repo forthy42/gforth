@@ -817,7 +817,7 @@ if test -z "$FFI_H_NAME"; then
 fi
 AC_SUBST(FFI_H_NAME)
 AC_CHECK_LIB(ffi,ffi_call)
-if test $ac_cv_lib_ffi_ffi_call = yes
+if test -n "$FFI_H_NAME" -a $ac_cv_lib_ffi_ffi_call = yes
 then
   LIBFFIFLAG="true"
   LIBCC_BUILD_SRC="$LIBCC_BUILD_SRC libffi.fs"
