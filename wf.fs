@@ -531,7 +531,7 @@ true Value toc-image
     IF  -env cr s" p" >env  THEN ;
 
 : print-toc ( -- ) toc-index off cr
-    toc-image IF  s" img-menu"  ELSE  s" menu"  THEN id=
+    toc-image IF  s" img-menu"  ELSE  s" menu"  THEN class=
     s" div" >env cr s" p" >env
     0 parse
     dup 0= IF  toc-name $! 0  ELSE
@@ -579,8 +579,8 @@ longtags set-current
 : p<< s" p" >env ;
 : <<  +env ;
 : <*  s" center" class= ;
-: <red  s" p" >env s" #ff0000" s" color" opt s" font" >env parse-par ;
-: red> -env -env ;
+: <red  s" red" class= s" p" >env parse-par ;
+: red> -env ;
 : >>  -env ;
 : *> ;
 : ::  interpret ;
