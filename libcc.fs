@@ -558,10 +558,10 @@ DEFER compile-wrapper-function ( -- )
 	  s" includedir" getenv append ] sliteral
 	s"  -O -c " s+ lib-filename 2@ append s" .c -o " append
 	lib-filename 2@ append s" .lo" append ( c-addr u )
-	\    cr 2dup type
+	\    2dup type cr
 	2dup system drop free throw $? abort" libtool compile failed"
 	[ libtool-command s"  --silent --mode=link --tag=CC " s+
-	  libtool-cc append s"  -module -rpath " s+ ] sliteral
+	  libtool-cc append libtool-flags append s"  -module -rpath " s+ ] sliteral
 	lib-filename 2@ dirname replace-rpath s+ s"  " append
 	lib-filename 2@ append s" .lo -o " append
 	lib-filename 2@ append s" .la" append ( c-addr u )

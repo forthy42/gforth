@@ -20,7 +20,7 @@
 
 #include <gforth/@PACKAGE_VERSION@/config.h>
 
-#if defined(_WIN32) || defined(__WIN32__)
+#if defined(_WIN32) || defined(__WIN32__) || defined(__CYGWIN__)
 #undef HAS_BACKLINK
 #else
 #define HAS_BACKLINK 1
