@@ -451,6 +451,9 @@ extern Cell *gforth_RP;
 extern Address gforth_LP;
 extern Float *gforth_FP;
 extern Address gforth_UP;
+#ifndef HAS_LINKBACK
+extern void * gforth_pointers[];
+#endif
 
 #ifdef HAS_FFCALL
 extern Cell *gforth_RP;

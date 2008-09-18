@@ -27,34 +27,40 @@ s" ffi" add-lib
 \ The ffi.h of XCode needs the following line, and it should not hurt elsewhere
 \c #define MACOSX
 include-ffi.h-string save-c-prefix-line \ #include <ffi.h>
-\c extern Cell *gforth_RP;
-\c extern unsigned char *gforth_LP;
+\c #include <stdio.h>
 \c static void **gforth_clist;
 \c static void *gforth_ritem;
+\c #ifndef HAS_BACKLINK
+\c static void **saved_gforth_pointers;
+\c #endif
 \c typedef void *Label;
 \c typedef Label *Xt;
-\c Label *gforth_engine(Xt *ip, Cell *sp, Cell *rp0, Float *fp, unsigned char *lp);
 \c static void gforth_callback_ffi(ffi_cif * cif, void * resp, void ** args, void * ip)
 \c {
-\c   Cell *rp1 = gforth_RP;
-\c   Cell *sp = gforth_SP;
-\c   Float *fp = gforth_FP;
-\c   unsigned char *lp = gforth_LP;
-\c   void ** clist = gforth_clist;
-\c   void * ritem = gforth_ritem;
+\c #ifndef HAS_BACKLINK
+\c   void **gforth_pointers = saved_gforth_pointers;
+\c #endif
+\c   {
+\c     Cell *rp1 = gforth_RP;
+\c     Cell *sp = gforth_SP;
+\c     Float *fp = gforth_FP;
+\c     unsigned char *lp = gforth_LP;
+\c     void ** clist = gforth_clist;
+\c     void * ritem = gforth_ritem;
+\c
+\c     gforth_clist = args;
+\c     gforth_ritem = resp;
+\c
+\c     gforth_engine((Xt *)ip, sp, rp1, fp, lp, gforth_UP);
 \c 
-\c   gforth_clist = args;
-\c   gforth_ritem = resp;
-\c 
-\c   gforth_engine((Xt *)ip, sp, rp1, fp, lp);
-\c 
-\c   /* restore global variables */
-\c   gforth_RP = rp1;
-\c   gforth_SP = sp;
-\c   gforth_FP = fp;
-\c   gforth_LP = lp;
-\c   gforth_clist = clist;
-\c   gforth_ritem = ritem;
+\c     /* restore global variables */
+\c     gforth_RP = rp1;
+\c     gforth_SP = sp;
+\c     gforth_FP = fp;
+\c     gforth_LP = lp;
+\c     gforth_clist = clist;
+\c     gforth_ritem = ritem;
+\c   }
 \c }
 
 \c static void* ffi_types[] =
@@ -77,9 +83,16 @@ c-function ffi-size ffi_size n -- n
 \c                        (ffi_type *)rtype, (ffi_type **)atypes)
 c-function ffi-prep-cif ffi_prep_cif1 a n a a -- n
 
+\c #ifdef HAS_BACKLINK
 \c #define ffi_call1(a_avalues, a_rvalue ,a_ip ,a_cif) \
 \c             ffi_call((ffi_cif *)a_cif, (void(*)())a_ip, \
 \c                      (void *)a_rvalue, (void **)a_avalues)
+\c #else
+\c #define ffi_call1(a_avalues, a_rvalue ,a_ip ,a_cif) \
+\c             (saved_gforth_pointers = gforth_pointers), \
+\c             ffi_call((ffi_cif *)a_cif, (void(*)())a_ip, \
+\c                      (void *)a_rvalue, (void **)a_avalues)
+\c #endif
 c-function ffi-call ffi_call1 a a a a -- void
 
 \c #define ffi_prep_closure1(a_ip, a_cif, a_closure) \

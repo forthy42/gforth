@@ -1782,7 +1782,11 @@ gforth_FP=fp;
 gforth_SP=sp;
 gforth_RP=rp;
 gforth_LP=lp;
+#ifdef HAS_LINKBACK
 ((void (*)())w)();
+#else
+((void (*)(void *))w)(gforth_pointers);
+#endif
 sp=gforth_SP;
 fp=gforth_FP;
 rp=gforth_RP;

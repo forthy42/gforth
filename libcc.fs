@@ -431,7 +431,7 @@ create gen-wrapped-types
     dup { descriptor }
     count { ret } count 2dup { d: pars } chars + count { d: c-name }
     ." void " lib-modulename 2@ type ." _LTX_" descriptor wrapper-function-name 2dup type drop free throw
-    .\" (void)\n"
+    .\" (GFORTH_ARGS)\n"
     .\" {\n  Cell MAYBE_UNUSED *sp = gforth_SP;\n  Float MAYBE_UNUSED *fp = gforth_FP;\n  "
     pars c-name 2over count-stacks ret gen-wrapped-stmt .\" ;\n"
     ?dup-if

@@ -24,10 +24,11 @@ s" callback" add-lib
 
 \c #include <avcall.h>
 \c #include <callback.h>
-\c extern Cell *gforth_RP;
-\c extern unsigned char *gforth_LP;
 \c static av_alist alist;
 \c static va_alist gforth_clist;
+\c #ifndef HAS_BACKLINK
+\c static void **saved_gforth_pointers;
+\c #endif
 \c static float frv;
 \c static int irv;
 \c static double drv;
@@ -35,27 +36,31 @@ s" callback" add-lib
 \c static void * prv;
 \c typedef void *Label;
 \c typedef Label *Xt;
-\c Label *gforth_engine(Xt *ip, Cell *sp, Cell *rp0, Float *fp, char *lp);
 \c 
 \c void gforth_callback_ffcall(Xt* fcall, void * alist)
 \c {
-\c   /* save global valiables */
-\c   Cell *rp = gforth_RP;
-\c   Cell *sp = gforth_SP;
-\c   Float *fp = gforth_FP;
-\c   char *lp = gforth_LP;
-\c   va_alist clist = gforth_clist;
+\c #ifndef HAS_BACKLINK
+\c   void **gforth_pointers = saved_gforth_pointers;
+\c #endif
+\c   {
+\c     /* save global valiables */
+\c     Cell *rp = gforth_RP;
+\c     Cell *sp = gforth_SP;
+\c     Float *fp = gforth_FP;
+\c     char *lp = gforth_LP;
+\c     va_alist clist = gforth_clist;
 \c 
-\c   gforth_clist = (va_alist)alist;
+\c     gforth_clist = (va_alist)alist;
 \c 
-\c   gforth_engine(fcall, sp, rp, fp, lp);
+\c     gforth_engine(fcall, sp, rp, fp, lp, gforth_UP);
 \c 
-\c   /* restore global variables */
-\c   gforth_RP = rp;
-\c   gforth_SP = sp;
-\c   gforth_FP = fp;
-\c   gforth_LP = lp;
-\c   gforth_clist = clist;
+\c     /* restore global variables */
+\c     gforth_RP = rp;
+\c     gforth_SP = sp;
+\c     gforth_FP = fp;
+\c     gforth_LP = lp;
+\c     gforth_clist = clist;
+\c   }
 \c }
 
 \c #define av_start_void1(c_addr) av_start_void(alist, c_addr)

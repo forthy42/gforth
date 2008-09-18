@@ -1,7 +1,7 @@
 %TGIF 2.16-p12
 state(0,32,100,0,0,0,16,1,9,1,1,0,1,1,0,1,1,'Helvetica',0,17,0,0,1,5,0,0,1,0,0,16,1,0,1,1,1,0,1088,1408).
 %
-% @(#)$Header: /usr/local/lib/cvs-repository/src-master/gforth/doc/objects-implementation.obj,v 1.1 2000-08-23 21:03:53 anton Exp $
+% @(#)$Header: /usr/local/lib/cvs-repository/src-master/gforth/doc/objects-implementation.obj,v 1.2 2008-09-18 02:42:24 pazsan Exp $
 % %W%
 %
 page(1,"").

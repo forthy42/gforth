@@ -68,6 +68,16 @@ Address gforth_UP=NULL;
 Cell *gforth_RP;
 Address gforth_LP;
 
+#ifndef HAS_LINKBACK
+void * gforth_pointers[] = { 
+  (void*)&gforth_SP,
+  (void*)&gforth_FP,
+  (void*)&gforth_LP,
+  (void*)&gforth_RP,
+  (void*)&gforth_UP,
+  (void*)gforth_engine };
+#endif
+
 #ifdef HAS_FFCALL
 
 #include <callback.h>
