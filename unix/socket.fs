@@ -23,7 +23,8 @@ c-function gethostbyname gethostbyname a -- a ( name -- hostent )
 \c #include <unistd.h>
 c-function gethostname gethostname a n -- n ( c-addr u -- ior )
 \c #include <errno.h>
-c-function 'errno __errno_location -- a ( -- addr )
+\c #define get_errno() errno
+c-function errno get_errno -- n ( -- value )
 \c #include <sys/types.h>
 \c #include <sys/socket.h>
 c-function socket socket n n n -- n ( class type proto -- fd )
@@ -130,8 +131,6 @@ $802 Constant O_NONBLOCK|O_RDWR
 Create hostname$ 0 c, 255 chars allot
 Create alen   16 ,
 Create crlf 2 c, 13 c, 10 c,
-
-: errno ( -- #error ) 'errno @ ;
 
 : listen ( lsocket /queue -- )
     listen() 0< abort" listen :: failed" ;
