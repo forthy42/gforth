@@ -1,4 +1,4 @@
-\ socket interface
+\ mkdir wrapper
 
 \ Copyright (C) 2008 Free Software Foundation, Inc.
 
@@ -21,11 +21,11 @@ require cstr.fs
 c-library mkdir
 \c #include <sys/stat.h>
 \c #include <sys/types.h>
-c-function mkdir1 mkdir a n -- n ( pathname\0 mode -- f )
+c-function mkdir mkdir a n -- n ( pathname\0 mode -- f )
 \c #include <errno.h>
 \c #define IOR(flag)	((flag)? -512-errno : 0)
 c-function f>ior IOR n -- n ( f -- ior )
 
-: mkdir ( c-addr u mode -- ior )
-    >r 1 tilde_cstr r> mkdir1 f>ior ;
+: =mkdir ( c-addr u mode -- ior )
+    >r 1 tilde_cstr r> mkdir f>ior ;
 end-c-library
