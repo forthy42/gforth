@@ -29,3 +29,15 @@ c-function f>ior IOR n -- n ( f -- ior )
 : =mkdir ( c-addr u mode -- ior )
     >r 1 tilde_cstr r> mkdir f>ior ;
 end-c-library
+
+: mkdir-p { c-addr u mode -- ior }
+    \G create the directory @i{c-addr u} and all it's parents with
+    \G mode @i{mode} (modified by umask)
+    c-addr u begin { d: s }
+        s 1 /string '/' scan 2dup while ( s1 s1addr )
+            c-addr tuck - mode =mkdir drop
+    repeat
+    drop 2drop
+    c-addr u mode =mkdir ;
+
+        
