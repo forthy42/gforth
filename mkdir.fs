@@ -18,18 +18,26 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 \ there is now a primitive =MKDIR
-\ require cstr.fs
-\ c-library mkdir
-\ \c #include <sys/stat.h>
-\ \c #include <sys/types.h>
-\ c-function mkdir mkdir a n -- n ( pathname\0 mode -- f )
-\ \c #include <errno.h>
-\ \c #define IOR(flag)	((flag)? -512-errno : 0)
-\ c-function f>ior IOR n -- n ( f -- ior )
-
-\ : =mkdir ( c-addr u mode -- ior )
-\     >r 1 tilde_cstr r> mkdir f>ior ;
-\ end-c-library
+[IFUNDEF] =mkdir
+    [IFUNDEF] c-library
+	\ define dummy mkdir
+	: =mkdir ( c-addr u mode -- ior )
+	    2drop drop 0 ;
+    [ELSE]
+	require cstr.fs
+	c-library mkdir
+	\c #include <sys/stat.h>
+	\c #include <sys/types.h>
+	c-function mkdir mkdir a n -- n ( pathname\0 mode -- f )
+	\c #include <errno.h>
+	\c #define IOR(flag)	((flag)? -512-errno : 0)
+	c-function f>ior IOR n -- n ( f -- ior )
+	    
+	: =mkdir ( c-addr u mode -- ior )
+	>r 1 tilde_cstr r> mkdir f>ior ;
+        end-c-library
+    [THEN]
+[THEN]
 
 : mkdir-parents { c-addr u mode -- ior }
     \G create the directory @i{c-addr u} and all its parents with
