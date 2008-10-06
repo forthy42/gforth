@@ -134,4 +134,4 @@ Filename: "{app}\gforth-fast.exe"; WorkingDir: "{app}"; Parameters: "fixpath.fs 
 ;HKCR, "forthblock\DefaultIcon"; STRING, "{sys}\System32\shell32.dll,61"
 EOT
 
-recode utf8..l1/cl <README >README.txt
+sed -e 's/$/\r/' <README >README.txt
