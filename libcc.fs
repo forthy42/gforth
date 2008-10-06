@@ -135,6 +135,7 @@
 \ : delete-file 2drop 0 ;
 
 require struct.fs
+require mkdir.fs
 
 \ c-function-ft word body:
 struct
@@ -505,13 +506,15 @@ create gen-wrapped-types
     open-wrappers dup if
 	lib-handle-addr @ !
     else
+        libcc-named-dir $1ff mkdir-parents drop
 	drop c-library-name-create
     endif ;
 
 : c-tmp-library-name ( c-addr u -- )
     \ set up filenames for a new library; c-addr u is the basename of
     \ the library
-    libcc-tmp-dir prepend-dirname c-library-name-setup c-library-name-create ;
+    libcc-tmp-dir 2dup $1ff mkdir-parents drop
+    prepend-dirname c-library-name-setup c-library-name-create ;
 
 : lib-handle ( -- addr )
     lib-handle-addr @ @ ;

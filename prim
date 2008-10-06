@@ -1929,7 +1929,7 @@ Return an error if this is not possible""
 wior = IOR(chdir(tilde_cstr(c_addr, u, 1)));
 
 get-dir	( c_addr1 u1 -- c_addr2 u2 )	gforth get_dir
-""Store the current directory in the buffer specified by @{c-addr1, u1}.
+""Store the current directory in the buffer specified by @i{c-addr1, u1}.
 If the buffer size is not sufficient, return 0 0""
 c_addr2 = (Char *)getcwd((char *)c_addr1, u1);
 if(c_addr2 != NULL) {
@@ -1937,6 +1937,10 @@ if(c_addr2 != NULL) {
 } else {
   u2 = 0;
 }
+
+=mkdir ( c_addr u wmode -- wior )        gforth equals_mkdir
+""Create directory @i{c-addr u} with mode @i{wmode}.""
+wior = IOR(mkdir(tilde_cstr(c_addr,u,1),wmode));
 
 \+
 

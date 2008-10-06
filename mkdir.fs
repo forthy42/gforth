@@ -17,21 +17,22 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-require cstr.fs
-c-library mkdir
-\c #include <sys/stat.h>
-\c #include <sys/types.h>
-c-function mkdir mkdir a n -- n ( pathname\0 mode -- f )
-\c #include <errno.h>
-\c #define IOR(flag)	((flag)? -512-errno : 0)
-c-function f>ior IOR n -- n ( f -- ior )
+\ there is now a primitive =MKDIR
+\ require cstr.fs
+\ c-library mkdir
+\ \c #include <sys/stat.h>
+\ \c #include <sys/types.h>
+\ c-function mkdir mkdir a n -- n ( pathname\0 mode -- f )
+\ \c #include <errno.h>
+\ \c #define IOR(flag)	((flag)? -512-errno : 0)
+\ c-function f>ior IOR n -- n ( f -- ior )
 
-: =mkdir ( c-addr u mode -- ior )
-    >r 1 tilde_cstr r> mkdir f>ior ;
-end-c-library
+\ : =mkdir ( c-addr u mode -- ior )
+\     >r 1 tilde_cstr r> mkdir f>ior ;
+\ end-c-library
 
-: mkdir-p { c-addr u mode -- ior }
-    \G create the directory @i{c-addr u} and all it's parents with
+: mkdir-parents { c-addr u mode -- ior }
+    \G create the directory @i{c-addr u} and all its parents with
     \G mode @i{mode} (modified by umask)
     c-addr u begin { d: s }
         s 1 /string '/' scan 2dup while ( s1 s1addr )
