@@ -380,6 +380,7 @@ Create do-words  $100 0 [DO] ' .text , [LOOP]
 : >tag '\ parse type '\ parse tag ;
 
 char>tag * b
+char>tag / i
 char>tag _ em
 char>tag # code
 :noname  '~ parse .type '~ parse .type ; '~ cells do-words + !

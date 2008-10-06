@@ -39,6 +39,10 @@ extern Cell *gforth_RP;
 extern char *gforth_LP;
 extern char *gforth_UP;
 extern void *gforth_engine(void *, Cell *, Cell *, Float *, char *, char *);
+#ifdef HAS_FILE
+extern char *cstr(char *from, UCell size, int clear)
+extern char *tilde_cstr(char *from, UCell size, int clear)
+#endif
 #define GFORTH_ARGS void
 #else
 #define gforth_SP *((Cell **)(gforth_pointers[0]))
@@ -47,6 +51,10 @@ extern void *gforth_engine(void *, Cell *, Cell *, Float *, char *, char *);
 #define gforth_RP *((Cell **)(gforth_pointers[3]))
 #define gforth_UP *((char **)(gforth_pointers[4]))
 #define gforth_engine ((char *(*)(Xt *, Cell *, Cell *, Float *, char *, char *))(((void **)(gforth_pointers[5]))))
+#ifdef HAS_FILE
+#define cstr ((char *(*)(char *, UCell *, int))(((void **)(gforth_pointers[6]))))
+#define tilde_cstr ((char *(*)(char *, UCell *, int))(((void **)(gforth_pointers[7]))))
+#endif
 #define GFORTH_ARGS void ** gforth_pointers 
 #endif
 
