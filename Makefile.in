@@ -863,10 +863,12 @@ gforths: $(ENGINES) $(ENGINES_FAST)
 
 # ------------- additional C primitives
 
-%.c:		%.pri prim2cl.fs
+.SUFFIXES:	.c .pri
+
+.pri.c:		$< prim2cl.fs
 		$(FORTHK) prim2cl.fs -e "file $< altogether bye" >$@
 
-%.so:		%.c
+.c.so:		$<
 		$(GCC) -shared $(CFLAGS) $(CPPFLAGS) $< -o $@
 
 # -------------	Make Documentation
