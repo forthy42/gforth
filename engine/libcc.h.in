@@ -39,8 +39,8 @@ extern Cell *gforth_RP;
 extern char *gforth_LP;
 extern char *gforth_UP;
 extern void *gforth_engine(void *, Cell *, Cell *, Float *, char *, char *);
-extern char *cstr(char *from, Cell size, int clear)
-extern char *tilde_cstr(char *from, Cell size, int clear)
+extern char *cstr(char *from, Cell size, int clear);
+extern char *tilde_cstr(char *from, Cell size, int clear);
 #define GFORTH_ARGS void
 #else
 #define gforth_SP *((Cell **)(gforth_pointers[0]))
