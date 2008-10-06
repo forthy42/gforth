@@ -77,7 +77,12 @@ sockaddr-tmp sockaddr_in %size dup allot erase
     \G converts a internet name into a IPv4 address
     \G the resulting address is in network byte order
     c-string gethostbyname dup 0= abort" address not found"
-    h_addr_list @ @ @ ntohl ;
+[ s" os-type" environment? drop s" cygwin" str= ] [IF]
+    &12 + @ 8 + @
+[ELSE]
+    h_addr_list @ @ @
+[THEN]
+    ntohl ;
 
    2 Constant PF_INET
    1 Constant SOCK_STREAM

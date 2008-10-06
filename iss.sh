@@ -25,20 +25,23 @@
 # copy the resulting *.iss to the location of your Windows installation
 # of Gforth, and start the setup compiler there.
 
+VERSION=$(cat version)
+
 cat <<EOT
 ; This is the setup script for Gforth on Windows
 ; Setup program is Inno Setup
 
 [Setup]
 AppName=Gforth
-AppVerName=Gforth $(cat version)
-AppCopyright=Copyright © 1995,1996,1997,1998,2000,2003,2006,2007 Free Software Foundation
+AppVerName=Gforth $VERSION
+AppCopyright=Copyright © 1995,1996,1997,1998,2000,2003,2006,2007,2008 Free Software Foundation
 DefaultDirName={pf}\gforth
 DefaultGroupName=Gforth
 AllowNoIcons=1
 InfoBeforeFile=COPYING
 Compression=bzip
 DisableStartupPrompt=yes
+OutputBaseFilename=gforth-$VERSION
 
 [Messages]
 WizardInfoBefore=License Agreement
@@ -63,6 +66,7 @@ done) | sort -u | sed \
   -e 's,^\(..*\)$,Name: "{app}\\\1",g')
 Name: "{app}\doc\gforth"
 Name: "{app}\doc\vmgen"
+Name: "{app}\lib\gforth\\$VERSION\libcc-named"
 
 [Files]
 ; Parameter quick reference:
@@ -70,14 +74,16 @@ Name: "{app}\doc\vmgen"
 Source: "README.txt"; DestDir: "{app}"; Flags: isreadme
 Source: "cygwin1.dll"; DestDir: "{app}"
 Source: "sh.exe"; DestDir: "{app}"
-Source: "cygintl-3.dll"; DestDir: "{app}"
+Source: "cygintl-8.dll"; DestDir: "{app}"
 Source: "cygiconv-2.dll"; DestDir: "{app}"
+Source: "cygltdl-3.dll"; DestDir: "{app}"
 Source: "cygreadline6.dll"; DestDir: "{app}"
 Source: "cygncurses-8.dll"; DestDir: "{app}"
 Source: "cygffi-2-00-beta.dll"; DestDir: "{app}"
 Source: "gforth.fi"; DestDir: "{app}"
 $(ls doc/gforth | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "doc\\gforth\\\1"; DestDir: "{app}\\doc\\gforth"; Components: help,g')
 $(ls doc/vmgen | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "doc\\vmgen\\\1"; DestDir: "{app}\\doc\\vmgen"; Components: help,g')
+$(ls lib/gforth/$VERSION/libcc-named | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "lib\\gforth\\'$VERSION'\\libcc-named\\\1"; DestDir: "{app}\\lib\\gforth\\'$VERSION'\\libcc-named",g')
 $(make distfiles -f Makedist EXE=.exe | tr ' ' '\n' | grep -v engine.*exe | (while read i; do
   if [ ! -d $i ]; then echo $i; fi
 done) | sed \
