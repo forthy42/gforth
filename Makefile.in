@@ -235,6 +235,7 @@ GFORTH_FI_SRC = \
 	libcc.fs \
 	locals.fs \
 	look.fs \
+	mkdir.fs \
 	quotes.fs \
 	search.fs \
 	see.fs \
@@ -653,7 +654,6 @@ uninstall:	FORCE
 
 check-libcc-named: $(LIBCC_BUILD_SRC)
 		$(RMTREE) lib/gforth/$(VERSION)/libcc-named/
-		$(srcdir)/mkinstalldirs lib/gforth/$(VERSION)/libcc-named/
 		for i in $(LIBCC_BUILD_SRC); do ./gforth -e "s\" `pwd`/lib/gforth/$(VERSION)/libcc-named/\" libcc-named-dir-v 2! libcc-path clear-path libcc-named-dir libcc-path also-path :noname 2drop s\" $(libccdir)\" ; is replace-rpath" $$i -e bye; done
 
 check:		gforths	gforth.fi 
