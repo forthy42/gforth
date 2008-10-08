@@ -272,7 +272,7 @@ Defer parse-line
 
 : get-icon ( addr u -- )  iconpath @ IF  2drop  EXIT  THEN
     link-suffix $! s" .*" link-suffix $+!
-    icon-prefix $@ open-dir throw >r
+    icon-prefix $@ open-dir IF  drop  EXIT  THEN >r
     BEGIN
 	pad $100 r@ read-dir throw  WHILE
 	pad swap 2dup link-suffix $@ filename-match
