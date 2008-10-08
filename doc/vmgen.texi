@@ -860,6 +860,9 @@ first one (just as the intuition suggests).
 @cindex Stack pointer access
 @cindex explicit stack access
 
+This feature is not needed and not supported in the 0.6.2 version of
+vmgen that is documented here (and that is invoked by default).
+
 Not all stack effects can be specified using the stack effect
 specifications above.  For VM instructions that have other stack
 effects, you can specify them explicitly by accessing the stack
@@ -963,13 +966,14 @@ if (branch_condition) @{
 SUPER_CONTINUE;
 @end example
 
-@item VM_JUMP
-@findex VM_JUMP
-@code{VM_JUMP(target)} is equivalent to @code{goto *(target)}, but
-allows Vmgen to do dynamic superinstructions and replication.  You
-still need to say @code{SUPER_END}.  Also, the goto only happens at
-the end (wherever the VM_JUMP is).  Essentially, this just suppresses
-much of the ordinary dispatch mechanism.
+@c !! uncomment for post-0.6.2 docs
+@c @item VM_JUMP
+@c @findex VM_JUMP
+@c @code{VM_JUMP(target)} is equivalent to @code{goto *(target)}, but
+@c allows Vmgen to do dynamic superinstructions and replication.  You
+@c still need to say @code{SUPER_END}.  Also, the goto only happens at
+@c the end (wherever the VM_JUMP is).  Essentially, this just suppresses
+@c much of the ordinary dispatch mechanism.
 
 @end table
 
