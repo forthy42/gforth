@@ -37,6 +37,9 @@
 #include <fcntl.h>
 #include <time.h>
 #endif
+#if defined(HAVE_LIBDL) || defined(HAVE_DLOPEN) /* what else? */
+#include <dlfcn.h>
+#endif
 
 #ifdef HAS_FILE
 char *cstr(Char *from, UCell size, int clear)
@@ -536,21 +539,21 @@ void gforth_ms(UCell u)
 UCell gforth_dlopen(Char *c_addr, UCell u)
 {
   char * file=tilde_cstr(c_addr, u, 1);
-#ifdef HAVE_LIBLTDL
-  return (UCell)lt_dlopen(file);
+  int lib;
+#if defined(HAVE_LIBLTDL)
+  lib = (UCell)lt_dlopen(file);
+  if(lib) return lib;
 #elif defined(HAVE_LIBDL) || defined(HAVE_DLOPEN)
 #ifndef RTLD_GLOBAL
 #define RTLD_GLOBAL 0
 #endif
-  return (UCell)dlopen(file, RTLD_GLOBAL | RTLD_LAZY);
-#else
-#  ifdef _WIN32
-  return (Cell) GetModuleHandle(file);
-#  else
-#warning Define open-lib!
-  return 0;
-#  endif
+  lib = (UCell)dlopen(file, RTLD_GLOBAL | RTLD_LAZY);
+  if(lib) return lib;
+#elif defined(_WIN32)
+  lib = (UCell) GetModuleHandle(file);
+  if(lib) return lib;
 #endif
+  return 0;
 }
 
 #endif /* !defined(STANDALONE) */
