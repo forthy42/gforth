@@ -532,6 +532,27 @@ void gforth_ms(UCell u)
   (void)select(0,0,0,0,&timeout);
 #endif /* !defined(HAVE_NANOSLEEP) */
 }
+
+UCell gforth_dlopen(Char *c_addr, UCell u)
+{
+  char * file=tilde_cstr(c_addr, u, 1);
+#ifdef HAVE_LIBLTDL
+  return (UCell)lt_dlopen(file);
+#elif defined(HAVE_LIBDL) || defined(HAVE_DLOPEN)
+#ifndef RTLD_GLOBAL
+#define RTLD_GLOBAL 0
+#endif
+  return (UCell)dlopen(file, RTLD_GLOBAL | RTLD_LAZY);
+#else
+#  ifdef _WIN32
+  return (Cell) GetModuleHandle(file);
+#  else
+#warning Define open-lib!
+  return 0;
+#  endif
+#endif
+}
+
 #endif /* !defined(STANDALONE) */
 
 

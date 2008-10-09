@@ -2407,21 +2407,7 @@ r = fp[u];
 \g syslib
 
 open-lib	( c_addr1 u1 -- u2 )	gforth	open_lib
-#ifdef HAVE_LIBLTDL
-u2 = (UCell)lt_dlopen(tilde_cstr(c_addr1, u1, 1));
-#elif defined(HAVE_LIBDL) || defined(HAVE_DLOPEN)
-#ifndef RTLD_GLOBAL
-#define RTLD_GLOBAL 0
-#endif
-u2=(UCell) dlopen(tilde_cstr(c_addr1, u1, 1), RTLD_GLOBAL | RTLD_LAZY);
-#else
-#  ifdef _WIN32
-u2 = (Cell) GetModuleHandle(tilde_cstr(c_addr1, u1, 1));
-#  else
-#warning Define open-lib!
-u2 = 0;
-#  endif
-#endif
+u2 = gforth_dlopen(c_addr1, u1);
 
 lib-sym	( c_addr1 u1 u2 -- u3 )	gforth	lib_sym
 #ifdef HAVE_LIBLTDL

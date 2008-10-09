@@ -400,6 +400,7 @@ UCell lshift(UCell u1, UCell n);
 UCell rshift(UCell u1, UCell n);
 int gforth_system(Char *c_addr, UCell u);
 void gforth_ms(UCell u);
+UCell gforth_dlopen(Char *c_addr, UCell u);
 Cell capscompare(Char *c_addr1, UCell u1, Char *c_addr2, UCell u2);
 
 /* signal handler stuff */
