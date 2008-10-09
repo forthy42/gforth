@@ -539,7 +539,7 @@ void gforth_ms(UCell u)
 UCell gforth_dlopen(Char *c_addr, UCell u)
 {
   char * file=tilde_cstr(c_addr, u, 1);
-  int lib;
+  Ucell lib;
 #if defined(HAVE_LIBLTDL)
   lib = (UCell)lt_dlopen(file);
   if(lib) return lib;
