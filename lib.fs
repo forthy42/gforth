@@ -32,27 +32,23 @@ libffi-present [if]
 
 \ testing stuff
 
-\ [IFUNDEF] libc
-\     s" os-type" environment? [IF]
-\ 	2dup s" linux-gnu" str= [IF]  2drop
-\ 	    cell 8 = [IF]
-\ 		library libc /lib64/libc.so.6 
-\ 	    [ELSE]
-\ 		library libc /lib/libc.so.6
-\ 	    [THEN]
-\ 	[ELSE] 2dup s" cygwin" str= [IF]  2drop
-\ 		library libc cygwin1.dll
-\ 	    [ELSE]  2dup s" bsd" search nip nip [IF]  2drop
-\ 		    library libc libc.so
-\ 		[ELSE]  2dup s" darwin" string-prefix? [IF]  2drop
-\ 			library libc libc.dylib
-\ 		    [ELSE]  2drop \ or add your stuff here
-\ 		    [THEN]
-\ 		[THEN]
-\ 	    [THEN]
-\ 	[THEN]
-\     [THEN]
-\ [THEN]
+[IFUNDEF] libc
+    s" os-type" environment? [IF]
+	2dup s" linux-gnu" str= [IF]  2drop
+	    library libc libc.so.6 
+	[ELSE] 2dup s" cygwin" str= [IF]  2drop
+		library libc cygwin1.dll
+	    [ELSE]  2dup s" bsd" search nip nip [IF]  2drop
+		    library libc libc.so
+		[ELSE]  2dup s" darwin" string-prefix? [IF]  2drop
+			library libc libc.dylib
+		    [ELSE]  2drop \ or add your stuff here
+		    [THEN]
+		[THEN]
+	    [THEN]
+	[THEN]
+    [THEN]
+[THEN]
 
 0 [if]
 

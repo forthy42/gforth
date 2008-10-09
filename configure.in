@@ -669,6 +669,14 @@ case "$host_os" in
                 #http://mail.python.org/pipermail/pythonmac-sig/2005-October/015190.html
                 AC_DEFINE_UNQUOTED(MACOSX_DEPLOYMENT_TARGET,"10.3",[an environment variable value needed by libtool on some MacOS X versions])
 		;;
+	*linux*)
+		DIRSEP="/"
+		PATHSEP=":"
+		DEFAULTSYSTEMPREFIX=""
+		if test "$wordsize" = 64; then
+		   AC_DEFINE(LTDL_LIBRARY_PATH,"/lib64:/usr/lib64",[Define LTDL_LIBRARY_PATH for 64 bit Linux])
+		fi
+		;;
 	*)
 		DIRSEP="/"
 		PATHSEP=":"
