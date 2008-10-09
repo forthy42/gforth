@@ -14,6 +14,8 @@ supported by GCC. This version has been tested successfully on the
 following platforms:
 
   x86_64-unknown-linux-gnu
+  i386-apple-darwin9.4.0
+  x86_64-apple-darwin9.4.0
 
 Read INSTALL for installation instructions from source, or INSTALL.DOS
 for DOS, Windows, and OS/2 from source, or INSTALL.BINDIST if you have
