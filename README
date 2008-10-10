@@ -13,6 +13,7 @@ OS/2, and DOS and should not be hard to port to other systems
 supported by GCC. This version has been tested successfully on the
 following platforms:
 
+  i386-unknown-linux-gnu
   x86_64-unknown-linux-gnu
   i386-apple-darwin9.4.0
   x86_64-apple-darwin9.4.0
