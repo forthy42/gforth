@@ -674,8 +674,10 @@ case "$host_os" in
 		PATHSEP=":"
 		DEFAULTSYSTEMPREFIX=""
 		if test "$wordsize" = 64; then
-		   LTDL_LIBRARY_PATH=`grep 64 /etc/ld.so.conf | tr '[\n]' [:] | sed -e 's/:$//'`
-		   AC_DEFINE_UNQUOTED(LTDL_LIBRARY_PATH,"$LTDL_LIBRARY_PATH",[Define LTDL_LIBRARY_PATH for 64 bit Linux])
+		   LTDL_LIBRARY_PATH=`ldconfig -p |tail -n +2 |sed 's/^.* => //'|sed 's|/[[^/]]*$||'| grep 64 | sort -u | tr '[\n]' [:] | sed -e 's/:$//'`
+                   if test -n "$LTDL_LIBRARY_PATH"; then
+                      AC_DEFINE_UNQUOTED(LTDL_LIBRARY_PATH,"$LTDL_LIBRARY_PATH",[Define LTDL_LIBRARY_PATH for 64 bit Linux])
+                   fi                                                                
 		fi
 		;;
 	*)
