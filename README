@@ -18,6 +18,8 @@ following platforms:
   i386-apple-darwin9.4.0
   x86_64-apple-darwin9.4.0
   ppc-apple-darwin9.4.0
+  i686-pc-cygwin
+  r8c (gforth-ec)
 
 Read INSTALL for installation instructions from source, or INSTALL.DOS
 for DOS, Windows, and OS/2 from source, or INSTALL.BINDIST if you have
