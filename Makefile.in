@@ -45,8 +45,6 @@ EXE=@EXEEXT@
 
 PATHSEP = @PATHSEP@
 
-osclass = @OSCLASS@
-
 EC = @EC@
 
 # -------------	Utility programs

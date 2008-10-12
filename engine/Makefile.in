@@ -47,7 +47,7 @@ RMTREE	= rm -rf
 CP	= cp -p
 TAR	= tar cf -
 GCC	= @CC@
-BOOTFORTH	= @GFORTH@
+BOOTFORTH	= ../preforth
 CC	= $(GCC)
 LD	= $(GCC:gcc=ld)
 AS	= $(GCC:gcc=as)
