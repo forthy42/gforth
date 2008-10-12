@@ -1,0 +1,6 @@
+
+User-visible changes between 0.6.2 and 0.6.9 (up to 2006-05-07):
+
+variable THREADED-CODE-POINTER-TYPE for parameterizing Inst ** (undocumented)
+Better support for explicit stack access (see documentation) (works with static superinsts?)
+support for static multi-state stack caching (undocumented)

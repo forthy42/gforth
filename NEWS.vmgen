@@ -1,10 +1,10 @@
-Disabled vmgen installation for now
+User-visible changes between 0.6.2 and 0.7.0:
 
-User-visible changes between 0.6.2 and 0.6.9 (up to 2006-05-07):
+Bugfixes (in particular a Gforth bug when dealing with "../" is fixed).
 
-variable THREADED-CODE-POINTER-TYPE for parameterizing Inst ** (undocumented)
-Better support for explicit stack access (see documentation) (works with static superinsts?)
-support for static multi-state stack caching (undocumented)
+Vmgen by default behaves just as in 0.6.2.  While some advances have
+  been implemented, the result is not mature enough for general
+  consumption and is therefore disabled by default.
 
 
 User-visible changes between 0.6.[01] and 0.6.2:

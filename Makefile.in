@@ -606,13 +606,12 @@ install:	gforth$(EC)$(EXE) $(FORTH_SRC) $(kernel_fi) gforth.fi gforthmi vmgen do
 		$(INSTALL_PROGRAM) gforth-itc$(EC)$(EXE) $(DESTDIR)$(bindir)/gforth-itc-$(VERSION)$(EC)$(EXE)
 		(cd $(DESTDIR)$(bindir) && $(LN_S) gforth-itc-$(VERSION)$(EC)$(EXE) gforth-itc$(EC)$(EXE))
 		$(INSTALL_SCRIPT) gforthmi $(DESTDIR)$(bindir)/gforthmi-$(VERSION)
-		#$(INSTALL_SCRIPT) vmgen $(DESTDIR)$(bindir)/vmgen-$(VERSION)
+		$(INSTALL_SCRIPT) vmgen $(DESTDIR)$(bindir)/vmgen-$(VERSION)
 		$(INSTALL_PROGRAM) gforth-ditc $(DESTDIR)$(libdir)/gforth/$(VERSION)
 		(cd $(DESTDIR)$(bindir) && $(LN_S) gforthmi-$(VERSION) gforthmi)
-		#(cd $(DESTDIR)$(bindir) && $(LN_S) vmgen-$(VERSION) vmgen)
+		(cd $(DESTDIR)$(bindir) && $(LN_S) vmgen-$(VERSION) vmgen)
 		-$(INSTALL_DATA) $(srcdir)/doc/gforth.1 $(DESTDIR)$(man1dir)
-		#-for i in $(srcdir)/doc/gforth.info* $(srcdir)/doc/vmgen.info*; do $(INSTALL_DATA) $$i $(DESTDIR)$(infodir); done
-		-for i in $(srcdir)/doc/gforth.info*; do $(INSTALL_DATA) $$i $(DESTDIR)$(infodir); done
+		-for i in $(srcdir)/doc/gforth.info* $(srcdir)/doc/vmgen.info*; do $(INSTALL_DATA) $$i $(DESTDIR)$(infodir); done
 		for i in $(FORTH_SRC) $(COMPAT) prim; do \
 			$(INSTALL_DATA) $(srcdir)/$$i $(DESTDIR)$(datadir)/gforth/$(VERSION)/$$i; \
 		done
