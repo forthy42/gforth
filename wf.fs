@@ -463,7 +463,7 @@ Create nav-buf 0 c,
 	ELSE  dup 'a 'z 1+ within IF  nav+
 	    ELSE  dup '0 '9 1+ within IF  nav+
 		ELSE  dup  bl = over '- = or IF  '- nav+
-		    ELSE  nav+
+		    ELSE  drop
 		    THEN  THEN  THEN  THEN
     LOOP ;
 : >nav ( addr u -- addr' u' )
@@ -741,7 +741,7 @@ Variable orig-date
     '< sword -trailing mail-name $! '> sword mail $! ;
 : pgp-key ( -- )
     bl sword -trailing public-key $! ;
-: charset ( -- )  s" text/xhtml; charset=" content $!
+: charset ( -- )  s" application/xhtml+xml; charset=" content $!
     bl sword -trailing 2dup content $+! _charset $! ;
 
 charset iso-8859-1
