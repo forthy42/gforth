@@ -124,6 +124,7 @@ AC_ARG_VAR(condbranch_opt, [enable (1) or disable (0) using two dispatches for c
 AC_ARG_VAR(skipcode, [assembly code for skipping 16 bytes of code])
 AC_ARG_VAR(asmcomment, [assembler comment start string])
 AC_ARG_VAR(arm_cacheflush, [file containing ARM cacheflush function (without .c)])
+AC_ARG_VAR(LTDL_LIBRARY_PATH, [additional directories for libltdl (for some 64-bit platforms)])
 
 #set up feature test macros, so the tests get them right:
 # turn on all POSIX, SUSv3, and GNU features if available
@@ -673,11 +674,8 @@ case "$host_os" in
 		DIRSEP="/"
 		PATHSEP=":"
 		DEFAULTSYSTEMPREFIX=""
-		if test "$wordsize" = 64; then
-		   LTDL_LIBRARY_PATH=`grep 64 /etc/ld.so.conf | tr '[\n]' [:] | sed -e 's/:$//'`
-		   if test -n "$LTDL_LIBRARY_PATH"; then
-		      AC_DEFINE_UNQUOTED(LTDL_LIBRARY_PATH,"$LTDL_LIBRARY_PATH",[Define LTDL_LIBRARY_PATH for 64 bit Linux])
-		   fi
+		if test -z "$LTDL_LIBRARY_PATH" -a "$wordsize" = 64; then
+		   LTDL_LIBRARY_PATH=`/sbin/ldconfig -p |tail -n +2 |sed 's/^.* => //'|sed 's|/[[^/]]*$||'| grep 64 | sort -u | tr '[\n]' [:] | sed -e 's/:$//'`
 		fi
 		;;
 	*)
@@ -692,6 +690,9 @@ AC_SUBST(PATHSEP)
 AC_DEFINE_UNQUOTED(PATHSEP,'$PATHSEP',[a path separator character])
 AC_SUBST(DEFAULTSYSTEMPREFIX)
 AC_DEFINE_UNQUOTED(DEFAULTSYSTEMPREFIX,"$DEFAULTSYSTEMPREFIX",[default for environment variable GFORTHSYSTEMPREFIX])
+if test -n "$LTDL_LIBRARY_PATH"; then
+   AC_DEFINE_UNQUOTED(LTDL_LIBRARY_PATH,"$LTDL_LIBRARY_PATH",[Define LTDL_LIBRARY_PATH for 64 bit Linux])
+fi                                                                
 
 #work around SELinux brain damage (from Andrew Haley <12t8f3jakb74g2c@news.supernews.com>)
 #This magic incantation  seems to be completely undocumented.
