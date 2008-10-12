@@ -675,7 +675,7 @@ case "$host_os" in
 		PATHSEP=":"
 		DEFAULTSYSTEMPREFIX=""
 		if test -z "$LTDL_LIBRARY_PATH" -a "$wordsize" = 64; then
-		   LTDL_LIBRARY_PATH=`/sbin/ldconfig -p |tail -n +2 |sed 's/^.* => //'|sed 's|/[^/]*$||'| grep 64 | sort -u | tr '[\n]' [:] | sed -e 's/:$//'`
+		   LTDL_LIBRARY_PATH=`/sbin/ldconfig -p |tail -n +2 |sed 's/^.* => //'|sed 's|/[[^/]]*$||'| grep 64 | sort -u | tr '[\n]' [:] | sed -e 's/:$//'`
 		fi
 		;;
 	*)
