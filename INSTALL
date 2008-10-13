@@ -7,8 +7,8 @@ unlimited permission to copy, distribute and modify it.
 
 You need gcc version 2.0 or later to compile gforth.
 
-For the (documented) libcc.fs C interface you need a C compiler at
-run-time.
+For the (documented) libcc.fs C interface you need a C compiler and
+libtool at run-time.
 
 For the (undocumented ) lib.fs C interface you need to install either
 the ffcall libraries or the libffi library.  Libffi comes with recent
@@ -88,14 +88,10 @@ configure has the following useful parameters:
                           [default: /usr/local]
   --exec-prefix=PREFIX    install architecture-dependent files in PREFIX
                           [default: same as prefix]
-  --enable-force-reg      Use explicit register declarations if they appear in
-                          the machine.h file. This can cause a good speedup,
-                          but also incorrect code with some gcc versions on
-                          some processors (default disabled).
   --help: tells you about other parameters.
 
-The file Benchres shows which combination of the -enable options we
-tried gave the best results for various machines.
+The file Benchres shows the best gforth-fast performance that we
+achieved.
 
 If you don't like the defaults for the installation directories, you
 should override them already during configure.  E.g., if you want to
@@ -118,7 +114,7 @@ You can change the sizes of the various areas used in the default
 image `gforth.fi' by passing the appropriate Gforth command line
 options in the FORTHSIZES environment variable:
 
-./configure "FORTHSIZES=--dictionary-size=256k --data-stack-size=16k --fp-stack-size=15872b --return-stack-size=15k --locals-stack-size=14848b"
+./configure "FORTHSIZES=--dictionary-size=1048576 --data-stack-size=16k --fp-stack-size=16K --return-stack-size=15k --locals-stack-size=14848b"
 
 The line above reaffirms the default sizes. Note that the locals
 stack area is also used as input buffer stack.
@@ -129,8 +125,23 @@ that it does not use "long long":
 
 ./configure ac_cv_sizeof_long_long=0
 
+For MacOS X on Core 2 processors, you might want to use the 64-bit
+version for increased speed (more registers available); you have to
+ask for that on configuration, as follows:
+
+./configure CC='gcc-4.2 -arch x86_64' --build=x86_64-apple-darwin9.4.0
+
 
 			Cross-Installation
+
+There is currently no simple way to do cross-installation of Gforth
+(apart from Gforth EC).  The current build process interleaves
+compiling and running heavily, so multiple transfers between build and
+target machine would be required.  We don't have a testing environment
+for cross-compilation, so we cannot fix this at the moment.  If you
+want to do cross-installation, please contact us.
+
+In any case, you might find the following useful:
 
 You need a cross-compilation toolchain for your target including gcc
 (2.0 or later).
@@ -140,9 +151,10 @@ few tests made by the configure script do not work in a
 cross-compilation situation. You have to provide the results of these
 tests by hand. E.g., if you compile for an ARM:
 
-env skipcode=".skip 16" ac_cv_sizeof_char_p=4 ac_cv_sizeof_char=1 \
-ac_cv_sizeof_short=2 ac_cv_sizeof_int=4 ac_cv_sizeof_long=4 \
-ac_cv_sizeof_long_long=8 ac_cv_sizeof_intptr_t=4 ac_cv_sizeof_int128_t=0 \
+env skipcode=".skip 16" ac_cv_sizeof_char_p=4 ac_cv_sizeof_void_p=4 \
+ac_cv_sizeof_char=1 ac_cv_sizeof_short=2 ac_cv_sizeof_int=4 \
+ac_cv_sizeof_long=4 ac_cv_sizeof_long_long=8 ac_cv_sizeof_intptr_t=4 \ 
+ac_cv_sizeof_int128_t=0 ac_cv_sizeof_uint128_t=0 \
 ac_cv_c_bigendian=no ./configure CC=arm-elf-gcc --host=arm-linux
 
 The ac_cv_sizeof_... variables give the sizes of various C types;
@@ -150,36 +162,6 @@ ac_cv_sizeof_char_p is the same as "sizeof(char*)" in C code. The
 ac_cv_c_bigendian variable gives the byte order.  The skipcode
 specifies how to skip 16 bytes in the code (use "skipcode=no" to
 disable skipping and dynamic native code generation).
-
-After the cross-configuration you type
-
-make gforths
-
-This produces the gforth engines for the target.
-
-The next step is to transfer everything to the target; on the target,
-you do
-
-make
-
-to complete building gforth.  If you do not have a make on the target,
-run
-
-make -n
-
-on the host; manually execute on the target the last command output by
-"make -n" (GFORTHD=...); the other commands output by "make -n" are
-not necessary unless you have changed the Gforth sources.  You can
-then check and benchmark Gforth with
-
-make check
-make bench
-
-or equivalent.  Finally, perform
-
-make install
-
-or the equivalent commands on the target.
 
 
 		Preloading installation-specific code

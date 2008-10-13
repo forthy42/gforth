@@ -41,8 +41,8 @@ popular platforms.
 If you want to work on Gforth, mail me. Tasks to be done can be found
 in ToDo; but if you would like to do something not mentioned there,
 it's ok, too. In any case, we would like to hear what you are
-doing. The most important tasks IMO are the missing ANS Forth words,
-the documentation and the foreign language interface for C.
+doing. The most important task IMO is the foreign language interface
+for C.
 
 On popular request, here are the meanings of unusual file extensions:
 
@@ -75,7 +75,7 @@ Benchmarks:
 bubble.fs siev.fs matrix.fs fib.fs
 
 ANS Forth implementations of Gforth extensions:
-compat/*.fs other.fs
+compat/*.fs
 
 For discussions about Gforth, use the Usenet newsgroup
 comp.lang.forth.  If you prefer not to post on Usenet, there is also a
@@ -84,12 +84,11 @@ gforth-subscribe@chaossolutions.org with:
 
 subscribe GForth
 
-as the first and only line within the message body.  Submit bug
-reports through
+as the first and only line within the message body.  You can also
+report bugs through these channels, or you can report them through our
+bug database:
 
 https://savannah.gnu.org/bugs/?func=addbug&group=gforth
-
-(whether you post them or not).
 
 - anton
 anton@mips.complang.tuwien.ac.at
