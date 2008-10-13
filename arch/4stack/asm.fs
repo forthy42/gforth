@@ -225,41 +225,38 @@ Vocabulary symbols
 : symbols[  symbols definitions ;
 : symbols]  forth   definitions ;
 
-Create makesym"   ," label: "  here $40 allot AConstant symname
-
 : sym-lookup? ( addr len -- xt/0 )
   [ ' symbols >body ] ALiteral search-wordlist
   0= IF  0  THEN ;
-: >sym" ( addr len -- )  symname swap move ;
-: sym, ( addr len -- addr )   drop ;
+: sym, ( addr len -- addr ) 2drop here 0 , ;
 \  symframe cell+ 2@ + swap ( --> addr target len )
 \  2dup aligned dup cell+ symframe cell+ +!
 \  2dup + >r cell+ erase move r> ( --> addr ) ;
-: symbol,  ( addr len -- xt )  dup >r
-  2dup >sym"  sym,
-  also asmdefs  makesym" count r> + evaluate  previous ;
 : label:  ( addr -- xt )
   symbols[ Create symbols] 0 A, , lastxt
-  DOES>  ( addr -- )  dup cell+ @ @ dup
+  DOES>  ( addr -- ) dup cell+ @ @ dup
          IF  nip >IP  EXIT  THEN
          drop dup @ here rot ! A, , ;
 : reveal: ( addr xt -- )  >body 2dup cell+ @ !
   BEGIN  @ dup  WHILE
          2dup cell+ @ swap >IP  REPEAT  2drop ;
+: symbol,  ( addr len -- xt )
+  2dup nextname  sym,
+  also asmdefs  label:  previous ;
 :A
 : .globl  ( -- )  0 bl word count symbol, ;
 :D
 
 : is-label?  ( addr u -- flag )  drop c@ '@ >= ;
+: do-label ( addr u -- )
+    2dup 1- + c@ ': = dup >r +
+    2dup sym-lookup? dup 0=
+    IF  drop symbol,  ELSE  nip nip  THEN
+    r@ IF  finish? 4here over reveal:  THEN
+    r> 0= IF  execute  ELSE  drop  THEN ;
 : ?label ( addr u -- )
-  2dup is-label?
-  IF  2dup 1- + c@ ': = dup >r +
-      2dup sym-lookup? dup 0=
-      IF  drop symbol,  ELSE  nip nip  THEN
-      r@ IF  finish? 4here over reveal:  THEN
-      r> 0= IF  execute  ELSE  drop  THEN  EXIT
-  THEN
-  defers interpreter-notfound ;
+  2dup is-label?  IF  ['] do-label EXIT  THEN
+  defers interpreter-notfound1 ;
 
 \ >call                                                09sep94py
 
@@ -660,13 +657,13 @@ Defer char-mode
 
 : .(  ') parse also Forth evaluate previous ;
 
-: .byte   name parser byte,   ;
-: .short  name parser short,  ;
-: .int    name parser int,    ;
-: .long   name parser long,   ;
-: .quad   name s>number dpl @ 0= abort" Not a number" quad, ;
-\ : .float  name >float 0= abort" Not a FP number" float,  ;
-\ : .double name >float 0= abort" Not a FP number" double, ;
+: .byte   parse-name parser byte,   ;
+: .short  parse-name parser short,  ;
+: .int    parse-name parser int,    ;
+: .long   parse-name parser long,   ;
+: .quad   parse-name s>number dpl @ 0= abort" Not a number" quad, ;
+\ : .float  parse-name >float 0= abort" Not a FP number" float,  ;
+\ : .double parse-name >float 0= abort" Not a FP number" double, ;
 
 : .ascii  '" parse 2drop
   source  >in @ /string  over  swap
@@ -715,10 +712,10 @@ also Forth definitions
     also asm4stack
     s" F' 2@ F' 2! F' c! F' ! F' here F' allot" evaluate
     IS 4allot  IS 4here  IS  '! IS  'c!  IS '2!  IS '2@
-    What's interpreter-notfound old-notfound !
-    ['] ?label IS interpreter-notfound ;
+    What's interpreter-notfound1 old-notfound !
+    ['] ?label IS interpreter-notfound1 ;
 : label (code) 4here label: drop asm4stack depth ;
-: (end-code) previous old-notfound @ IS interpreter-notfound ;
+: (end-code) previous old-notfound @ IS interpreter-notfound1 ;
 
 previous previous previous Forth
 

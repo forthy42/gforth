@@ -86,7 +86,7 @@ Create bits $80 c, $40 c, $20 c, $10 c, $08 c, $04 c, $02 c, $01 c,
 Create 4magic  here $10 dup allot erase
 s" 4stack00" 4magic swap move
 
-: write-gforth ( addr u -- )  w/o bin open-file throw >r
+: write-gforth ( addr u -- )  w/o bin create-file throw >r
     imagesize @ 4magic $C + !
     4magic $10 r@ write-file throw
     image @ imagesize @ r@ write-file throw

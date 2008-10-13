@@ -120,7 +120,7 @@ defer header ( -- ) \ gforth
     name-too-long?
     dup max-name-length @ max max-name-length !
     align here last !
-[ has? flash [IF] ]
+[ has? ec [IF] ]
     -1 A,
 [ [ELSE] ]
     current @ 1 or A,	\ link field; before revealing, it contains the

@@ -57,13 +57,20 @@ false SetValue xconds		\ used together with glocals,
 				\ local variables
 false SetValue header		\ save a header information
 
-false SetValue ec
+true SetValue ec
 false SetValue crlf
 false SetValue ITC
 false SetValue new-input
 false SetValue peephole
 true SetValue abranch       \ enables absolute branches
 false SetValue standardthreading
+
+false SetValue rom
+false SetValue flash
+
+true SetValue compiler
+false SetValue primtrace
+true SetValue no-userspace
 
 0 SetValue kernel-start
 cell 2 = [IF] 32 [ELSE] 256 [THEN] KB SetValue kernel-size
