@@ -44,7 +44,9 @@
 #include <unistd.h>
 #include <pwd.h>
 #include <dirent.h>
+#ifdef HAVE_WCHAR_H
 #include <wchar.h>
+#endif
 #include <sys/resource.h>
 #ifdef HAVE_FNMATCH_H
 #include <fnmatch.h>

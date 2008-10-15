@@ -37,7 +37,6 @@
 #include <fcntl.h>
 #include <assert.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <signal.h>
 #ifndef STANDALONE
 #if HAVE_SYS_MMAN_H
@@ -522,6 +521,9 @@ static void after_alloc(Address r, Cell size)
 #ifndef MAP_PRIVATE
 # define MAP_PRIVATE 0
 #endif
+#ifndef PROT_NONE
+# define PROT_NONE 0
+#endif
 #if !defined(MAP_ANON) && defined(MAP_ANONYMOUS)
 # define MAP_ANON MAP_ANONYMOUS
 #endif
@@ -875,7 +877,7 @@ static void prepare_super_table()
        significant space so we only do it if the user explicitly
        disables state equivalence. */
     debugp(stderr, "Disabling tpa-automaton, because nsupers>0 and state equivalence is enabled.\n");
-    tpa_noautomaton = true;
+    tpa_noautomaton = 1;
   }
 }
 

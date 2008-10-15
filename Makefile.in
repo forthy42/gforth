@@ -404,7 +404,7 @@ ENGINE_SOURCES = engine/Makefile.in engine/config.h.in \
 
 SOURCES	= $(CVSDIRS) $(ENGINE_SOURCES) compat Makefile.in Makedist.in \
 	gforthmi.in vmgen.in preforth.in gfgen README.vmgen NEWS.vmgen \
-	prims2x-0.6.2.fs \
+	prims2x0.6.2.fs \
 	autogen.sh configure.in configure config.sub config.guess \
 	elisp-comp missing stamp-h.in envos.fs.in \
 	iss.sh install-sh INSTALL INSTALL.BINDIST NEWS README ToDo BUGS \
