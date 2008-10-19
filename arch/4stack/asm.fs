@@ -49,7 +49,6 @@ Defer 4allot
 : caddr  ;  immediate
 : waddr  ;  immediate
 : laddr  ;  immediate
-[THEN]
 
 \ instruction generation                               24apr94py
 
