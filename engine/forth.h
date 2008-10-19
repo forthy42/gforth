@@ -170,8 +170,12 @@ typedef struct {
 #define D2UD(d)		({DCell _d1=(d); (UDCell){_d1.hi,_d1.lo};})
 
 /* shifts by less than CELL_BITS */
-#define DLSHIFT(d,u)  ({DCell _d=(d); UCell _u=(u); \
-                       (DCell){(_d.hi<<_u)|(_d.lo>>(CELL_BITS-_u)),_d.lo<<_u};})
+#define DLSHIFT(d,u) ({DCell _d=(d); UCell _u=(u); \
+                       ((_u==0) ? \
+                        _d : \
+                        (DCell){(_d.hi<<_u)|(_d.lo>>(CELL_BITS-_u)), \
+                                 _d.lo<<_u});})
+
 #define UDLSHIFT(ud,u) D2UD(DLSHIFT(UD2D(ud),u))
 
 #if SMALL_OFF_T
