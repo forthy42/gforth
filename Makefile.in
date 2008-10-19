@@ -65,6 +65,7 @@ LN_S	= @LN_S@
 M4      = @M4@
 GCC	= @CC@
 EMACS   = emacs
+LIBTOOL = @GNU_LIBTOOL@
 PREFORTH	= ./preforth -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)"
 CC	= $(GCC)
 FORTHPATH = .$(PATHSEP)$(libdir)/gforth/site-forth$(PATHSEP)$(siteforthdir)$(PATHSEP)$(libdir)/gforth/$(VERSION)$(PATHSEP)$(datadir)/gforth/$(VERSION)
@@ -491,6 +492,7 @@ kernel/version.fs:	version
 	echo ": version-string s\" $(VERSION)\" ;" > kernel/version.fs
 
 more:	$(ENGINES) $(FORTH_GEN) $(GEN)
+	test -n "$(LIBTOOL)" && $(MAKE) build-libcc-named
 	@$(MAKE) check
 
 #from the gcc Makefile: 
@@ -626,7 +628,9 @@ install:	gforth$(EC)$(EXE) $(FORTH_SRC) $(kernel_fi) gforth.fi gforthmi vmgen do
 		$(INSTALL_DATA) install.TAGS $(DESTDIR)$(datadir)/gforth/$(VERSION)/TAGS
 		$(RM) gforth.fi install.TAGS
 		$(INSTALL_DATA) include/gforth/$(VERSION)/* $(DESTDIR)$(includedir)/gforth/$(VERSION)
-		for i in $(LIBCC_BUILD_SRC); do @GNU_LIBTOOL@ --silent --mode=install $(INSTALL) lib/gforth/$(VERSION)/libcc-named/`basename $$i .fs`.la $(DESTDIR)$(libccdir)`basename $$i .fs`.la; done
+		if test -n "$(LIBTOOL)"; then for i in $(LIBCC_BUILD_SRC); do \
+		   $(LIBTOOL) --silent --mode=install $(INSTALL) lib/gforth/$(VERSION)/libcc-named/`basename $$i .fs`.la $(DESTDIR)$(libccdir)`basename $$i .fs`.la; \
+		done; fi
 		$(POST_INSTALL)
 		$(INSTALL_INFO) --info-dir=$(DESTDIR)$(infodir) $(DESTDIR)$(infodir)/gforth.info
 		#$(INSTALL_INFO) --info-dir=$(DESTDIR)$(infodir) $(DESTDIR)$(infodir)/vmgen.info
@@ -650,7 +654,7 @@ uninstall:	FORCE
 		-$(RM) -rf $(DESTDIR)$(libdir)/gforth/$(VERSION) $(DESTDIR)$(datadir)/gforth/$(VERSION) $(DESTDIR)$(bindir)/gforth-$(VERSION)$(EC)$(EXE) $(DESTDIR)$(bindir)/gforth-fast-$(VERSION)$(EC)$(EXE) $(DESTDIR)$(bindir)/gforth-itc-$(VERSION)$(EC)$(EXE) $(DESTDIR)$(bindir)/gforthmi-$(VERSION) $(DESTDIR)(bindir)/vmgen-$(VERSION) $(DESTDIR)$(includedir)/gforth/$(VERSION)
 		@echo -e "To remove Gforth completely, type\n$(RM) -rf $(DESTDIR)$(bindir)/gforth$(EC)$(EXE) $(DESTDIR)$(bindir)/gforth-fast$(EC)$(EXE) $(DESTDIR)$(bindir)/gforth-itc$(EC)$(EXE) $(DESTDIR)$(bindir)/gforthmi $(DESTDIR)$(bindir)/vmgen $(DESTDIR)$(man1dir)/gforth.1 $(DESTDIR)$(infodir)/gforth.info* $(DESTDIR)$(datadir)/gforth $(DESTDIR)$(libdir)/gforth"
 
-check-libcc-named: $(LIBCC_BUILD_SRC)
+build-libcc-named: $(LIBCC_BUILD_SRC) $(FORTH_GEN) $(GEN) FORCE
 		$(RMTREE) lib/gforth/$(VERSION)/libcc-named/
 		for i in $(LIBCC_BUILD_SRC); do ./gforth -e "s\" `pwd`/lib/gforth/$(VERSION)/libcc-named/\" libcc-named-dir-v 2! libcc-path clear-path libcc-named-dir libcc-path also-path :noname 2drop s\" $(libccdir)\" ; is replace-rpath" $$i -e bye; done
 
@@ -661,7 +665,6 @@ check:		gforths	gforth.fi
 		$(MAKE) checkone ENGINE="./gforth-fast --no-dynamic" >/dev/null 2>&1
 		$(MAKE) checkone check-nofast ENGINE="./gforth" >/dev/null 2>&1
 		$(MAKE) checkone ENGINE="./gforth-fast" >/dev/null 2>&1
-		$(MAKE) check-libcc-named
 		@echo "*** Check successful ***"
 		./gforth-fast --diag -e bye
 
