@@ -71,6 +71,7 @@ false SetValue flash
 true SetValue compiler
 false SetValue primtrace
 true SetValue no-userspace
+true SetValue relocate
 
 0 SetValue kernel-start
 cell 2 = [IF] 32 [ELSE] 256 [THEN] KB SetValue kernel-size

@@ -58,11 +58,11 @@ Create bits $80 c, $40 c, $20 c, $10 c, $08 c, $04 c, $02 c, $01 c,
 		-4 OF
 		    dovar 2@
 		    image @ I cells + 2!  2 ENDOF \ docon
-		-8 OF
+		-9 OF
 		    image @ I 1+ cells + be@ 5 -
 		    dovar 2@ nip
 		    image @ I cells + 2!  2 ENDOF \ dodoes
-		-9 OF
+		-10 OF
 		    docol 2@
 		    image @ I cells + 2!  2 ENDOF \ docol
 		1 swap

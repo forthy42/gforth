@@ -72,7 +72,11 @@ docon:  .endif ;;
 	nop      ip!       ip@      nop       set 2: R1   ld 1: R1 N+ ;;
 end-code
 
--3 Alias: :docon
+-2 Doer: :docol
+-3 Doer: :docon
+-4 Doer: :dovar
+-8 Doer: :dodoes
+-9 Doer: :doesjump
 
 Code execute ( xt -- )
 	nop      nop       nop      ip@       br .endif
@@ -170,23 +174,6 @@ Code (emit)
 	nop      swap      ip!      nop                               ;;
 	nop      ip!       ip@      nop       set 2: R1   ld 1: R1 N+ ;;
 end-code
-
-: (type)
-    bounds ?DO  I c@ (emit)  LOOP ;
-\    BEGIN  dup  WHILE
-\	>r dup c@ (emit) 1+ r> 1-  REPEAT  2drop ;
-
-\ obligatory code address manipulations
-
-: >code-address ( xt -- addr )  cell+ @ -8 and ;
-: >does-code    ( xt -- addr )
-    cell+ @ -8 and \ dup 3 and 3 <> IF  drop 0  EXIT  THEN
-    8 + dup cell - @ 3 and 0<> and ;
-: code-address! ( addr xt -- )  >r 3 or $808 @ r> 2! ;
-: does-code!    ( a_addr xt -- )  >r 5 - $808 @ r> 2! ;
-: does-handler! ( a_addr -- )  $818 2@ rot 2! ;
-
-\ this was obligatory, now some things to speed it up
 
 Code 2/
 	asr      ip!       ip@      nop       set 2: R1   ld 1: R1 N+ ;;
@@ -416,6 +403,23 @@ Code (find-samelen)
 	nip      swap      ip!      nop                               ;;
 	nop      ip!       ip@      nop       set 2: R1   ld 1: R1 N+ ;;
 end-code
+
+\ obligatory code address manipulations
+
+: >code-address ( xt -- addr )  cell+ @ -8 and ;
+: >does-code    ( xt -- addr )
+    cell+ @ -8 and \ dup 3 and 3 <> IF  drop 0  EXIT  THEN
+    8 + dup cell - @ 3 and 0<> and ;
+: code-address! ( addr xt -- )  >r 3 or $808 @ r> 2! ;
+: does-code!    ( a_addr xt -- )  >r 5 - $808 @ r> 2! ;
+: does-handler! ( a_addr -- )  $818 2@ rot 2! ;
+
+\ this was obligatory, now some things to speed it up
+
+: (type)
+    bounds ?DO  I c@ (emit)  LOOP ;
+\    BEGIN  dup  WHILE
+\	>r dup c@ (emit) 1+ r> 1-  REPEAT  2drop ;
 
 \ division a/b
 \ x:=a, y:=b, r:=est; iterate(x:=x*r, y:=y*r, r:=2-y*r);

@@ -68,8 +68,8 @@ end-code
 -2 Doer: :docol
 -3 Doer: :docon
 -4 Doer: :dovar
--8 Doer: :dodoes
--9 Doer: :doesjump
+-9 Doer: :dodoes
+-10 Doer: :doesjump
 
 Code execute ( xt -- )
 	ip!      nop       nop      nop                               ;;
