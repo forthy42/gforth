@@ -737,7 +737,7 @@ dnl the following macro produces a warning with autoconf-2.1
 AC_C_BIGENDIAN
 AC_SUBST(KERNEL)
 dnl ac_cv_c_bigendian is an undocumented variable of autoconf-2.1
-if test $ac_cv_c_bigendian = yes; then
+if test $ac_cv_c_bigendian != no; then
   bytesex=b
   KERNEL="kernl16b.fi kernl16l.fi kernl32b.fi kernl32l.fi kernl64b.fi kernl64l.fi"
 else
