@@ -43,9 +43,14 @@ Defer 4allot
 
 : 4there  4here ;
 
+cell 8 = [IF]
+: op!       >r drop $100000000 /mod r> '2! ;
+: op@       '2@ $100000000 * + 0 ;
+[ELSE]
 : op!       '2! ;
-: op,       4there op!  2 cells 4allot ;
 : op@       '2@ ;
+[THEN]
+: op,       4there op!  8 4allot ;
 : caddr  ;  immediate
 : waddr  ;  immediate
 : laddr  ;  immediate
@@ -57,6 +62,8 @@ Variable  instfield  0  instfield !
 Variable  condfield  0  condfield !
 Variable  lastmove   0  lastmove !
 
+8 cells Constant bit/cell
+
 Create instmasks  $003FFFFF.FFFFFFFF , ,
                   $FFC00FFF.FFFFFFFF , , 
                   $FFFFF003.FFFFFFFF , ,
@@ -65,7 +72,7 @@ Create instmasks  $003FFFFF.FFFFFFFF , ,
                   $FFFFFFFF.FFFFC00F , ,
 
 : instshift ( 10bit -- 64bit )
-  1 5 instfield @ - &10 * 4 + $20 /mod >r
+  1 5 instfield @ - &10 * 4 + bit/cell /mod >r
   lshift um* r> IF  swap  THEN ;
 
 : 2and  ( d1 d2 -- d )  rot and -rot and swap ;
@@ -134,10 +141,10 @@ Variable lastalufield
 
 Create and/or-tab
        $08 c, $04 c, $02 c, $01 c,
-       $1C c, $1A c, $19 c, $16 c, $15 c, $13 c,
+       $1C c, $1A c, $16 c, $19 c, $15 c, $13 c,
        $1E c, $1D c, $1B c, $17 c,
        $1F c,
-       $0C c, $0A c, $09 c, $06 c, $05 c, $03 c,
+       $0C c, $0A c, $06 c, $09 c, $05 c, $03 c,
        $0E c, $0D c, $0B c, $07 c,
        $0F c,
 
@@ -455,7 +462,7 @@ Create lits  0. 2, 0. 2, 0. 2, 0. 2,  0. 2, 0. 2,
     >body cell+ @ @ ;
 :D
 : >ip.b  ( -- )
-    >sym 4here 2 cells + - ;
+    >sym 4here 8 + - ;
 :A
 : .ip.b#  ( -- )    >ip.b                [A] # [F] ;
 : .ip.h#  ( -- )    >ip.b 2/             [A] # [F] ;
@@ -636,11 +643,11 @@ Defer char-mode
   over $FF and 0> IF  tuck caddr 'c! 1+  ELSE  nip  THEN
   r> base ! ;
 
-: byte,   4there caddr  'c!  1        4allot ;
+: byte,   4there caddr  'c!         1 4allot ;
 : short,  $100 /mod 4there waddr  'c!
               4there  waddr 1+ 'c!  2 4allot ;
-: int,    4there laddr   '!  1 cells  4allot ;
-: long,   4there laddr   '!  1 cells  4allot ;
+: int,    4there laddr   '!         4 4allot ;
+: long,   4there laddr   '!         4 4allot ;
 : quad,   op, ;
 \ : float,  4there laddr 'SF!  1 cells  4allot ;
 \ : double, 4there        'F!  1 floats 4allot ;
@@ -692,7 +699,8 @@ Defer char-mode
   r@ cell+ @ 0=  IF  rdrop drop  EXIT  THEN
 \ cr ." Writing " r@ @ . ." len " r@ cell+ @ .
   r@ cell+ @ 7 + -8 and r@ cell+ !
-  r@ 2 cells 2 pick write-file throw
+  r@ 4 2 pick write-file throw
+  r@ cell+ 4 2 pick write-file throw
   r@ cell+ cell+ @  dup 7 and 2 =  IF  2drop rdrop  EXIT  THEN
   r> cell+ @  rot write-file throw ;
 

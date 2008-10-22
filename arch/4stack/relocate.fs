@@ -23,6 +23,8 @@ Variable relinfo
 Variable imagesize
 
 : be@  0 swap 4 bounds DO  8 lshift I c@ +  LOOP ;
+: x@   dup 4 + l@ swap l@ ;
+: x!   tuck l! 4 + l! ;
 
 : scan-header ( fd -- skip )  >r 0
     BEGIN
@@ -40,40 +42,40 @@ Create bits $80 c, $40 c, $20 c, $10 c, $08 c, $04 c, $02 c, $01 c,
 2Variable docol
 
 : relocate ( -- )  hex
-    image @ $814 + be@ image @ $810 + be@ docol 2!
-    image @ $80C + be@ image @ $808 + be@ dovar 2!
-    imagesize @ 1 cells / 0 ?DO
-	image @ I cells + be@
+    image @ $814 + be@ image @ $810 + be@ docol x!
+    image @ $80C + be@ image @ $808 + be@ dovar x!
+    imagesize @ 1 2* 2* / 0 ?DO
+	image @ I 2* 2* + be@
 \	dup 8 u.r I bit@ IF '+ ELSE '- THEN emit I 7 and 7 = IF cr THEN 
 	dup 0< I bit@ and IF
 	    CASE
 		-1 OF
-		    0 image @ I cells + !  1 ENDOF \ NIL
+		    0 image @ I 2* 2* + l!  1 ENDOF \ NIL
 		-2 OF
-		    docol 2@
-		    image @ I cells + 2!  2 ENDOF \ docol
+		    docol x@
+		    image @ I 2* 2* + x!  2 ENDOF \ docol
 		-3 OF
-		    dovar 2@ $10. d+
-		    image @ I cells + 2!  2 ENDOF \ docon
+		    dovar x@ $10. d+
+		    image @ I 2* 2* + x!  2 ENDOF \ docon
 		-4 OF
-		    dovar 2@
-		    image @ I cells + 2!  2 ENDOF \ docon
+		    dovar x@
+		    image @ I 2* 2* + x!  2 ENDOF \ docon
 		-9 OF
-		    image @ I 1+ cells + be@ 5 -
-		    dovar 2@ nip
-		    image @ I cells + 2!  2 ENDOF \ dodoes
+		    image @ I 1+ 2* 2* + be@ 5 -
+		    dovar x@ nip
+		    image @ I 2* 2* + x!  2 ENDOF \ dodoes
 		-10 OF
-		    docol 2@
-		    image @ I cells + 2!  2 ENDOF \ docol
+		    docol x@
+		    image @ I 2* 2* + x!  2 ENDOF \ docol
 		1 swap
 	    ENDCASE
 	ELSE
-	    image @ I cells + ! 1
+	    image @ I 2* 2* + l! 1
 	THEN
     +LOOP
     image @ imagesize @ bounds ?DO
-	I 2@ swap I 2!
-	2 cells +LOOP ;
+	I x@ swap I x!
+	8 +LOOP ;
 
 : read-gforth ( addr u -- )  r/o bin open-file throw
     >r r@ file-size throw drop
