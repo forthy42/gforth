@@ -850,5 +850,3 @@ include ./optcmove.fs
 : (bye) ;
 : bye ;
 : float+ 8 + ;
-: x@+/string ( addr u -- addr' u' c )
-    over c@ >r 1 /string r> ;
