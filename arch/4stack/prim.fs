@@ -467,5 +467,5 @@ end-code
 : new/mod  ( d1 n1 -- n2 n3 )
  dup >r dup 0< IF  negate >r negate r>  THEN
  over       0< IF  tuck + swap  THEN
- u/mod
+ newu/mod
  r> 0< IF  swap negate swap  THEN ;
