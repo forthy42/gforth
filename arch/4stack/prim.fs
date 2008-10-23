@@ -426,8 +426,8 @@ end-code
 \ x:=a, y:=b, r:=est; iterate(x:=x*r, y:=y*r, r:=2-y*r);
 \ result: x=a/b; y=1; r=1
 
-Code u/mod ( u1 u2 -- q r )
-    drop     nop       pick 0s0  call $43 +IP ;;
+Code newu/mod ( u1 u2 -- q r )
+    drop     nop       pick 0s0  call idiv ;;
     pick 1s0 drop      nop       nop                 ;;
     swap     ip!       nop       nop       0 #         ld 1: R1 N+ ;;
     nop      nop       nop       nop                               ;;
@@ -464,7 +464,7 @@ idiv:
    nop                                     ;;
 end-code
 
-: /mod  ( d1 n1 -- n2 n3 )
+: new/mod  ( d1 n1 -- n2 n3 )
  dup >r dup 0< IF  negate >r negate r>  THEN
  over       0< IF  tuck + swap  THEN
  u/mod
