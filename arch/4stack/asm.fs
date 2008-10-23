@@ -166,10 +166,10 @@ decimal
 
 \ branch conditions                                    20mar94py
 
-Create condmasks  $FF07FFFF ,
-                  $FFF83FFF ,
-                  $FFFFC1FF ,
-                  $FFFFFE0F ,
+Create condmasks  $FFFFFFFFFF07FFFF ,
+                  $FFFFFFFFFFF83FFF ,
+                  $FFFFFFFFFFFFC1FF ,
+                  $FFFFFFFFFFFFFE0F ,
 
 : !cond  ( n -- )  condfield @ 3 > abort" too much conds!"
   $1F and 3 condfield @ - 5 * 4 + lshift
@@ -205,7 +205,12 @@ $20 $18 conds:  ?f   ?0<> ?0>= ?no  ?u>= ?u<= ?>= ?<=
   >r  r@ op@ drop 3 and
   dup 2 =  IF    drop $3FF8 and 0  ELSE
       dup 3 =  IF    drop -8 and 0
-	  r@ op@ nip 2 and IF  swap r@ 8 + + swap  THEN
+	  r@ op@ [ cell 8 = ] [IF]
+	      drop $200000000
+	  [ELSE]
+	      nip 2
+	  [THEN]
+	  and IF  swap r@ 8 + + swap  THEN
            ELSE  true abort" No Jump!"  THEN THEN
   r@ op@ 2or r> op! ;
 
@@ -438,6 +443,9 @@ $20 stacks:  #0         #-1         #$7FFFFFFF  #$80000000
     alu?  IF  $200 or !alu  ELSE  !data  THEN ;
 Create lits  0. 2, 0. 2, 0. 2, 0. 2,  0. 2, 0. 2,
 
+: bytesplit ( n -- n1 n2 )
+    0 $1000000 um/mod swap 8 lshift swap ;
+
 :A
 : #  ( 8bit -- )  dup $80 -$80 within abort" out of range"
   $FF and !a/d ;
@@ -447,14 +455,14 @@ Create lits  0. 2, 0. 2, 0. 2, 0. 2,  0. 2, 0. 2,
 : ## ( 32bit -- )  ?finish  3
   BEGIN  over $FF800000 and dup $FF800000 = swap 0= or  WHILE
          1- swap 8 lshift swap  dup 0= UNTIL  THEN
-  swap $100 um*  dup $80 and negate or >r
+  swap bytesplit  dup $80 and negate or >r
   swap lits instfield @ 2* cells + 2!  r> [A] # [F] ;
 
 : #, ( -- )  ?finish  lits instfield @ 2* cells + dup 2@ dup 0>
   IF    over 0= alu? and
         IF  dup 3 =  IF  hib  2drop  0 0 rot 2!  EXIT THEN
             dup 2 =  IF  hih  2drop  0 0 rot 2!  EXIT THEN THEN
-        1- >r $100 um* #< r> rot 2!
+        1- >r bytesplit #< r> rot 2!
   ELSE  2drop drop  alu? IF  nop  ELSE  0 #  THEN  THEN ;
 
 : >sym ( "symbol" -- addr )

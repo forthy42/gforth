@@ -432,7 +432,7 @@ Code u/mod ( u1 u2 -- q r )
     swap     ip!       nop       nop       0 #         ld 1: R1 N+ ;;
     nop      nop       nop       nop                               ;;
 .macro .idiv-table [F]
-	$100 $80 DO  0 $100 I 2* 1+ um/mod  long, drop  LOOP
+	$100 $80 DO  $100.00000000 I 2* 1+ um/mod  long, drop  LOOP
 .end-macro
 approx:
    .idiv-table

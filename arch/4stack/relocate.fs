@@ -47,24 +47,24 @@ Create bits $80 c, $40 c, $20 c, $10 c, $08 c, $04 c, $02 c, $01 c,
     imagesize @ 1 2* 2* / 0 ?DO
 	image @ I 2* 2* + be@
 \	dup 8 u.r I bit@ IF '+ ELSE '- THEN emit I 7 and 7 = IF cr THEN 
-	dup 0< I bit@ and IF
+	dup $80000000 and 0<> I bit@ and IF
 	    CASE
-		-1 OF
+		$FFFFFFFF OF
 		    0 image @ I 2* 2* + l!  1 ENDOF \ NIL
-		-2 OF
+		$FFFFFFFE OF
 		    docol x@
 		    image @ I 2* 2* + x!  2 ENDOF \ docol
-		-3 OF
+		$FFFFFFFD OF
 		    dovar x@ $10. d+
 		    image @ I 2* 2* + x!  2 ENDOF \ docon
-		-4 OF
+		$FFFFFFFC OF
 		    dovar x@
 		    image @ I 2* 2* + x!  2 ENDOF \ docon
-		-9 OF
+		$FFFFFFF7 OF
 		    image @ I 1+ 2* 2* + be@ 5 -
 		    dovar x@ nip
 		    image @ I 2* 2* + x!  2 ENDOF \ dodoes
-		-10 OF
+		$FFFFFFF6 OF
 		    docol x@
 		    image @ I 2* 2* + x!  2 ENDOF \ docol
 		1 swap

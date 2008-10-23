@@ -833,10 +833,12 @@ Defer 'quit
 has? os [IF]
     Defer .status
 [ELSE]
-: (bye)     ( 0 -- ) \ back to DOS
-    drop 5 emit ;
-
-: bye ( -- )  0 (bye) ;
+    [IFUNDEF] bye
+	: (bye)     ( 0 -- ) \ back to DOS
+	    drop 5 emit ;
+	
+	: bye ( -- )  0 (bye) ;
+    [THEN]
 [THEN]
 
 : prompt        state @ IF ."  compiled" EXIT THEN ."  ok" ;
