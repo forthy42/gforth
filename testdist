@@ -1,42 +1,54 @@
-#! /bin/sh
+#! /bin/bash
 #tests that dist works
 #usage: testdist gforth-version.tar.gz
 #gforth-version.tar.gz must be in the working directory
 MACHINE=`hostname`
 GFORTH=`basename $1 .tar.gz`
-DIR=`cygpath -m \`pwd\` 2>/dev/null` || DIR=`pwd`
-PATHDIR=`pwd`
-test -z "$CC" && CC=cc
-chmod -R +w $GFORTH
-rm -rf $GFORTH
-gunzip -cd $1 | tar xf -
-(if make --version|grep -q GNU
-then
-	echo building in build
+result=ok
+last=ok
+for CC in `(shopt -s nullglob; for i in \`echo $PATH|sed 's/:/ /g'\`; do for j in $i/gcc-*; do basename $j; done; done )|sort -u`; do
+    test $result = ok -a $last = ok || result=broken
+    last=broken
+    rm -rf $CC
+    mkdir $CC
+    cd $CC
+    PATHDIR=`pwd`
+    DIR=`cygpath -m \`pwd\` 2>/dev/null` || DIR=`pwd`
+    chmod -R +w $GFORTH
+    rm -rf $GFORTH
+    gunzip -cd ../$1 | tar xf -
+    (if make --version|grep -q GNU
+     then
+	echo building in build with $CC
 	chmod -R a-w $GFORTH
 	rm -rf build
 	mkdir build
 	cd build
-	../$GFORTH/configure --prefix=$DIR/install
-else
-	echo building in $GFORTH
+	../$GFORTH/configure --prefix=$DIR/install CC=$CC
+     else
+	echo building in $GFORTH with $CC
 	cd $GFORTH
-	./configure --prefix=$DIR/install
-fi &&
-make &&
-make check &&
+	./configure --prefix=$DIR/install CC=$CC
+     fi &&
+     make &&
 #gforth locals-test.fs
 #gforth test-counted-loops.fs
-make install &&
+     make install &&
 #make all-bench &&
-chmod -R +w ../$GFORTH/vmgen-ex ../$GFORTH/vmgen-ex2 &&
-cd ../$GFORTH/vmgen-ex &&
-PATH=$PATHDIR/install/bin:$PATH make check GCC="$CC -O" YACC=yacc LEX=lex &&
-cd ../vmgen-ex2 &&
-PATH=$DIR/install/bin:$PATH make check GCC="$CC -O" YACC=yacc LEX=lex &&
-cd .. &&
-cd .. &&
-install/bin/gforth test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs -e bye &&
-echo test ok )
-chmod -R +w $GFORTH
-cd ..
+     chmod -R +w ../$GFORTH/vmgen-ex ../$GFORTH/vmgen-ex2 &&
+     cd ../$GFORTH/vmgen-ex &&
+     PATH=$PATHDIR/install/bin:$PATH make check GCC="$CC -O" YACC=yacc LEX=lex &&
+     cd ../vmgen-ex2 &&
+     PATH=$DIR/install/bin:$PATH make check GCC="$CC -O" YACC=yacc LEX=lex &&
+     cd .. &&
+     cd .. &&
+     install/bin/gforth test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs -e bye >&/dev/null &&
+     make -f build/Makefile onebench ENGINE_FAST=install/bin/gforth-fast &&
+     gforth-fast --debug -e bye 2>&1 |grep 'Compiled with' &&
+     echo $CC ok ) &&
+    last=ok
+    chmod -R +w $GFORTH
+    cd ..
+    test $result = ok -a $last = ok || result=broken
+done
+echo test $result

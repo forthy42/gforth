@@ -131,7 +131,7 @@ MAIN_FAST_DEPS = main.c $(DEPS) prim_superend-fast.i prim_num-fast.i prim_grp-fa
 	$(GCC) -c $(CFLAGS) $(CPPFLAGS) -o $@ $<
 
 support$(OPT).o: support.c config.h forth.h longlong.h
-	$(GCC) -c $(CFLAGS) $(CPPFLAGS) -o $@ support.c
+	$(GCC) -c $(CFLAGS) $(CPPFLAGS) -o $@ $(srcdir)/support.c
 
 strtol.o: strtol.c ansidecl.h
 

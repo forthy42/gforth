@@ -18,7 +18,9 @@
 #along with this program. If not, see http://www.gnu.org/licenses/.
 
 test -z "$ENGINE" && ENGINE=./gforth
-if test -f $ENGINE -a -f @kernel_fi@; then 
+test -f "@srcdir@/@kernel_fi@" && KERNEL="@srcdir@/@kernel_fi@"
+test -f "@kernel_fi@" && KERNEL="@kernel_fi@"
+if test -f $ENGINE -a -f $KERNEL; then 
   path1="$1"
   path2="$2"
   shift; shift

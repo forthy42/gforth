@@ -1,4 +1,4 @@
-#! /usr/local/bin/bash
+#! /bin/bash
 #test dist on all MACHINES given in MACHINES
 #usage: MACHINES="..." testall dirs/gforth-version.tar.gz
 if test $# = 0; then
@@ -6,20 +6,11 @@ if test $# = 0; then
   exit 1
 fi
 test "x$MACHINES" != x || 
-MACHINES="mips aertl@fpr.zserv.tuwien.ac.at \
-b1 b2 b3 b4 c2 \
-samhain.ifs.tuwien.ac.at calis aertl@mail.zserv.tuwien.ac.at \
-aertl@stat.zserv.tuwien.ac.at \
-rlwinm.ifs.tuwien.ac.at fmadd.ifs.tuwien.ac.at lfsux.ifs.tuwien.ac.at \
-s4addq.ifs.tuwien.ac.at \
-128.130.204.24 128.130.204.25 128.130.204.26 \
-cdbook jupiter \
-complang@red.a-business.co.at"
-#taken out: hpws03.infosys.tuwien.ac.at aertl@fbma.tuwien.ac.at w4.infosys.tuwien.ac.at d0 struppi pcs
+MACHINES="mips a5 a7 b2 b3 c1 c4 c6 c7 c8 t1000 iyonix ppc64"
 SSH_PROTOCOL=-oProtocol=1,2
 for i in $MACHINES
 do
-  if false; then
+  if true; then
     echo; echo $i
     /usr/bin/ssh $SSH_PROTOCOL -x $i echo ok
   else
