@@ -5,9 +5,7 @@
 MACHINE=`hostname`
 GFORTH=`basename $1 .tar.gz`
 result=ok
-last=ok
-for CC in `(shopt -s nullglob; for i in \`echo $PATH|sed 's/:/ /g'\`; do for j in $i/gcc-*; do basename $j; done; done )|sort -u`; do
-    test $result = ok -a $last = ok || result=broken
+for CC in `(shopt -s nullglob; for i in /usr/sfw/bin /opt/csw/gcc4 \`echo $PATH|sed 's/:/ /g'\`; do for j in $i/gcc-*; do basename $j; done; done )|sort -u`; do
     last=broken
     rm -rf $CC
     mkdir $CC
@@ -44,9 +42,9 @@ for CC in `(shopt -s nullglob; for i in \`echo $PATH|sed 's/:/ /g'\`; do for j i
      cd .. &&
      install/bin/gforth test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs -e bye >&/dev/null &&
      make -f build/Makefile onebench ENGINE_FAST=install/bin/gforth-fast &&
-     gforth-fast --debug -e bye 2>&1 |grep 'Compiled with' &&
-     echo $CC ok ) &&
+     install/bin/gforth-fast --debug -e bye 2>&1 |grep 'Compiled with' ) &&
     last=ok
+    echo $CC $last
     chmod -R +w $GFORTH
     cd ..
     test $result = ok -a $last = ok || result=broken

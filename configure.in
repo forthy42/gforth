@@ -213,8 +213,8 @@ case "$host_cpu" in
 			;;
                    esac
 		fi
-                AC_LIBSOURCES([../arch/arm/cacheflush0, dnl
-			       ../arch/arm/cacheflush-linux])
+                AC_LIBSOURCES([arch/arm/cacheflush0, dnl
+			       arch/arm/cacheflush-linux])
                 AC_LIBOBJ(../$arm_cacheflush)
                 #longer skipcodes lead to problems on ARM, and it uses
                 #only 4-byte alignment anyway
@@ -531,7 +531,7 @@ else
         fi
 fi
 
-if grep FORCE_REG arch/$machine/machine.h >/dev/null; then
+if grep FORCE_REG $srcdir/arch/$machine/machine.h >/dev/null; then
    OPTS2=''
    for i in $OPTS; do OPTS2="$OPTS2 $i-reg"; done
    OPTS="$OPTS2 $OPTS"
@@ -822,6 +822,14 @@ AC_CHECK_PROGS(TEXI2DVI,texi2dvi4a2ps texi2dvi)
 dnl MacOS X has a libtool that does something else
 AC_CHECK_PROGS(GNU_LIBTOOL,glibtool libtool)
 
+if test -n "$GNU_LIBTOOL"; then
+  build_libcc_named=build-libcc-named
+else
+  build_libcc_named=""
+fi
+AC_SUBST(build_libcc_named)
+
+
 dnl Checks for library functions
 dnl This check is just for making later checks link with libm.
 dnl using sin here is no good idea since it is built-into gcc and typechecked
@@ -908,6 +916,7 @@ chmod +x vmgen
 chmod +x build-ec
 chmod +x preforth
 test -d kernel||mkdir kernel
+if test $srcdir != "."; then ln -sf $srcdir/gforth.el .; fi
 $srcdir/mkinstalldirs include/gforth/$PACKAGE_VERSION
 ln -sf ../../../engine/config.h ../../../engine/libcc.h include/gforth/$PACKAGE_VERSION]],[[PACKAGE_VERSION=$PACKAGE_VERSION]])
 AC_OUTPUT

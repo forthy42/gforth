@@ -490,8 +490,7 @@ version:	Makefile.in configure.in
 kernel/version.fs:	version
 	echo ": version-string s\" $(VERSION)\" ;" > kernel/version.fs
 
-more:	$(ENGINES) $(FORTH_GEN) $(GEN)
-	test -n "$(LIBTOOL)" && $(MAKE) build-libcc-named
+more:	$(ENGINES) $(FORTH_GEN) $(GEN) @build_libcc_named@
 
 #from the gcc Makefile: 
 #"Deletion of files made during compilation.
@@ -907,14 +906,14 @@ prim.tags: 	prim.b prims2x.fs
 		$(RM) $@-
 
 kernel.TAGS:
-		rm kernl16l$(EC).fi-; $(MAKE) @kernel_fi@
+		$(RM) kernl16l$(EC).fi-; $(MAKE) @kernel_fi@
 
 kernel.tags:
-		rm kernl16l$(EC).fi-; $(MAKE) @kernel_fi@
+		$(RM) kernl16l$(EC).fi-; $(MAKE) @kernel_fi@
 
 #elc files
 gforth.elc:	gforth.el
-		-$(EMACS) -batch -f batch-byte-compile $(srcdir)/gforth.el
+		-$(EMACS) -batch -f batch-byte-compile gforth.el
 
 #Documentation
 
