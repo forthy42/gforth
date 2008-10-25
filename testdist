@@ -5,7 +5,7 @@
 MACHINE=`hostname`
 GFORTH=`basename $1 .tar.gz`
 result=ok
-for CC in `(shopt -s nullglob; for i in /usr/sfw/bin /opt/csw/gcc4 \`echo $PATH|sed 's/:/ /g'\`; do for j in $i/gcc-*; do basename $j; done; done )|sort -u`; do
+for CC in `(shopt -s nullglob; for i in /usr/sfw/bin /opt/csw/gcc4/bin \`echo $PATH|sed 's/:/ /g'\`; do for j in $i/gcc-*; do basename $j; done; done )|sort -u`; do
     last=broken
     rm -rf $CC
     mkdir $CC

@@ -17,7 +17,7 @@ do
     ( ssh $SSH_PROTOCOL -q -x $i "test -d xxxgforthtest||mkdir xxxgforthtest; cd xxxgforthtest; test -d $i||mkdir $i; rm -rf $i/*" >$i 2>&1; \
       scp $SSH_PROTOCOL -p -q $1 ../testdist $i:xxxgforthtest/$i >>$i 2>&1; \
       ssh $SSH_PROTOCOL -q -x $i "cd xxxgforthtest/$i; ./testdist `basename $1`" >>$i 2>&1; \
-      echo "$i done" "`tail -1 $i`" `grep "checking host system type..." a7|sed 's/checking host system type... //'` `grep "^gcc.*ok" $i`
+      echo "$i done" "`tail -1 $i`" `grep "checking host system type..." $i|sed 's/checking host system type... //'` `grep "^gcc.*ok" $i`
       grep -A 2 "sieve bubble matrix  fib" $i) &
   fi
 done
