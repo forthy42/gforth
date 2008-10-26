@@ -591,7 +591,7 @@ hpux-workaround:
 install:	gforth$(EC)$(EXE) $(FORTH_SRC) $(kernel_fi) gforth.fi gforthmi vmgen doc/gforth.1 prim install.TAGS installdirs
 		$(NORMAL_INSTALL)
 		touch $(DESTDIR)$(siteforthdir)/siteinit.fs
-		-$(RM) $(DESTDIR)$(bindir)/gforth$(EC)$(EXE) $(DESTDIR)$(bindir)/gforth-$(VERSION)$(EC)$(EXE) $(DESTDIR)$(bindir)/gforthmi #$(DESTDIR)$(bindir)/vmgen
+		-$(RM) $(DESTDIR)$(bindir)/gforth$(EC)$(EXE) $(DESTDIR)$(bindir)/gforth-$(VERSION)$(EC)$(EXE) $(DESTDIR)$(bindir)/gforthmi $(DESTDIR)$(bindir)/vmgen
 		-$(RM) $(DESTDIR)$(bindir)/gforth-fast$(EC)$(EXE) $(DESTDIR)$(bindir)/gforth-fast-$(VERSION)$(EC)$(EXE)
 		-$(RM) $(DESTDIR)$(bindir)/gforth-itc$(EC)$(EXE) $(DESTDIR)$(bindir)/gforth-itc-$(VERSION)$(EC)$(EXE)
 		$(INSTALL_PROGRAM) gforth$(EC)$(EXE) $(DESTDIR)$(bindir)/gforth-$(VERSION)$(EC)$(EXE)
