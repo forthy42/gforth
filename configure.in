@@ -197,6 +197,7 @@ AC_CANONICAL_HOST
 case "$host_cpu" in
 	arm*)
 		machine=arm
+		$srcdir/mkinstalldirs arch/arm
 		CFLAGS="$CFLAGS -fomit-frame-pointer"
 		if test x$platform = xnxt; then
 		   CFLAGS="$CFLAGS -mthumb -mthumb-interwork"
