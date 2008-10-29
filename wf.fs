@@ -270,8 +270,12 @@ Defer parse-line
     s" ]" link-suffix $+!
     link-suffix $@ alt= ;
 
+: replace.- ( addr u -- )
+    bounds ?DO  I c@ '. = IF  '- I c!  THEN  LOOP ;
+
 : get-icon ( addr u -- )  iconpath @ IF  2drop  EXIT  THEN
-    link-suffix $! s" .*" link-suffix $+!
+    link-suffix $! link-suffix $@ replace.-
+    s" .*" link-suffix $+!
     icon-prefix $@ open-dir IF  drop  EXIT  THEN >r
     BEGIN
 	pad $100 r@ read-dir throw  WHILE
@@ -731,7 +735,7 @@ Variable orig-date
     s" Mail|@/mail.gif" .img mail $@ mailto: mail-name $@ s" a" tagged
     public-key @ IF
 	public-key $@ href=  s" a" tag
-	s" PGP key|-@/gpg.asc.gif" .img s" a" /tag
+	s" PGP key|-@/gpg-asc.gif" .img s" a" /tag
     THEN
     -envs ;
 
