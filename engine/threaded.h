@@ -1,6 +1,6 @@
 /* This file defines a number of threading schemes.
 
-  Copyright (C) 1995, 1996,1997,1999,2003,2004,2005,2007 Free Software Foundation, Inc.
+  Copyright (C) 1995, 1996,1997,1999,2003,2004,2005,2007,2008 Free Software Foundation, Inc.
 
   This file is part of Gforth.
 

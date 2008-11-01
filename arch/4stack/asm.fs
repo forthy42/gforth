@@ -1,6 +1,6 @@
 \ four stack assembler                                 19jan94py
 
-\ Copyright (C) 2000,2003,2007 Free Software Foundation, Inc.
+\ Copyright (C) 2000,2003,2007,2008 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
