@@ -879,8 +879,8 @@ TAGS:		gforth.TAGS
 tags:		gforth.tags
 		$(CP) gforth.tags $@
 
-install.TAGS:	TAGS
-		sed 's;^\$(srcdir)/;;' TAGS|./gforth -e 's" '$(datadir)/gforth/$(VERSION)/'"' install-tags.fs -e bye >install.TAGS
+install.TAGS:	TAGS install-tags.fs
+		sed 's;^\$(srcdir)/;;' TAGS|./gforth -e 's" '$(datadir)/gforth/$(VERSION)/'"' $(srcdir)/install-tags.fs -e bye >install.TAGS
 
 gforth.TAGS:	@kernel_fi@ gforth$(EC)$(EXE) $(GFORTH_FI_SRC) prim.TAGS kernel.TAGS
 		$(FORTHK) etags.fs except.fs startup.fs -e bye

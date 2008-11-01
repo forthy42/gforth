@@ -42,7 +42,7 @@ for CC in `(shopt -s nullglob; for i in /usr/sfw/bin /opt/csw/gcc4/bin \`echo $P
      cd .. &&
      cd .. &&
      install/bin/gforth test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs -e bye >&/dev/null &&
-     make -f build/Makefile onebench ENGINE_FAST=install/bin/gforth-fast &&
+     install/bin/gforth-fast onebench.fs -e bye &&
      install/bin/gforth-fast --debug -e bye 2>&1 |grep 'Compiled with' ) &&
     last=ok
     echo $CC $last

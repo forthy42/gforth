@@ -305,10 +305,14 @@ case "$host_cpu" in
 		#long long is broken on (at least) gcc-2.95.* for PPC
 		test x$ac_cv_sizeof_long_long = x && 
 		($CC -v 2>&1 |grep 'gcc version 2.95' >/dev/null) &&
-		ac_cv_sizeof_long_long=0
+                     ac_cv_sizeof_long_long=0
                 #The only architecture with enough callee-saved registers
                 test x$STACK_CACHE_REGS = x && STACK_CACHE_REGS=3
                 #or use 2, hardly slower at run-time and starts up faster
+
+                #the skipcode that is normally selected below does not
+                #work with gcc-3.[34]
+		test "$skipcode" || skipcode="nop\nnop\nnop\nnop"
 		;;
 	*)
 		AC_MSG_WARN([Using a generic machine description])
