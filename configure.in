@@ -822,7 +822,7 @@ AC_PROG_INSTALL
 AC_CHECK_PROGS(TEXI2DVI,texi2dvi4a2ps texi2dvi)
 
 dnl MacOS X has a libtool that does something else
-AC_CHECK_PROGS(GNU_LIBTOOL,glibtool libtool)
+AC_CHECK_PROGS(GNU_LIBTOOL,"glibtool --tag=CC" libtool)
 
 if test -n "$GNU_LIBTOOL"; then
   build_libcc_named=build-libcc-named
