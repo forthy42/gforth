@@ -28,8 +28,8 @@ i686-pc-linux-gnu
  gcc-3.3.5 (Debian 1:3.3.5-13) 
  gcc-3.4.4 20050314 (prerelease) (Debian 3.4.3-13sarge1)
 ia64-hp-hpux11.23 
- broken: gcc-3.4.3
  gcc-4.1.1
+ broken: gcc-3.4.3
 powerpc-unknown-linux-gnu 
  gcc-2.95.4 20011002 (Debian prerelease) 
  gcc-3.2.3 (Debian) 
