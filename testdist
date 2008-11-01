@@ -3,6 +3,7 @@
 #usage: testdist gforth-version.tar.gz
 #gforth-version.tar.gz must be in the working directory
 MACHINE=`hostname`
+test $MACHINE = mail2 -o $MACHINE = t1000 && confopt='ac_cv_prog_GNU_LIBTOOL='
 GFORTH=`basename $1 .tar.gz`
 result=ok
 for CC in `(shopt -s nullglob; for i in /usr/sfw/bin /opt/csw/gcc4/bin \`echo $PATH|sed 's/:/ /g'\`; do for j in $i/gcc-*; do basename $j; done; done )|sort -u`; do
@@ -15,18 +16,18 @@ for CC in `(shopt -s nullglob; for i in /usr/sfw/bin /opt/csw/gcc4/bin \`echo $P
     chmod -R +w $GFORTH
     rm -rf $GFORTH
     gunzip -cd ../$1 | tar xf -
-    (if make --version|grep -q GNU
+    (if make --version|grep GNU >/dev/null
      then
 	echo building in build with $CC
 	chmod -R a-w $GFORTH
 	rm -rf build
 	mkdir build
 	cd build
-	../$GFORTH/configure --prefix=$DIR/install CC=$CC
+	../$GFORTH/configure --prefix=$DIR/install CC=$CC $confopt
      else
 	echo building in $GFORTH with $CC
 	cd $GFORTH
-	./configure --prefix=$DIR/install CC=$CC
+	./configure --prefix=$DIR/install CC=$CC $confopt
      fi &&
      make &&
 #gforth locals-test.fs

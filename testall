@@ -6,8 +6,9 @@ if test $# = 0; then
   exit 1
 fi
 test "x$MACHINES" != x || 
-MACHINES="a5 a7 b2 b3 c1 c4 c6 c7 c8 iyonix mips ppc64 t1000"
-SSH_PROTOCOL=-oProtocol=1,2
+MACHINES="a5 a7 akrall@titan.zserv.tuwien.ac.at b2 b3 b6 c4 c6 c7 c8 iyonix mips ppc64 t1000"
+#left out (NFS problem?): c1
+#SSH_PROTOCOL=-oProtocol=1,2
 for i in $MACHINES
 do
   if false; then
@@ -16,7 +17,7 @@ do
   else
     ( ssh $SSH_PROTOCOL -q -x $i "test -d xxxgforthtest||mkdir xxxgforthtest; cd xxxgforthtest; test -d $i||mkdir $i; rm -rf $i/*" >$i 2>&1; \
       scp $SSH_PROTOCOL -p -q $1 ../testdist $i:xxxgforthtest/$i >>$i 2>&1; \
-      ssh $SSH_PROTOCOL -q -x $i "cd xxxgforthtest/$i; ./testdist `basename $1`" >>$i 2>&1; \
+      ssh $SSH_PROTOCOL -q -x $i "cd xxxgforthtest/$i; nice ./testdist `basename $1`" >>$i 2>&1; \
       echo "$i done" "`tail -1 $i`" `grep "checking host system type..." $i|sed 's/checking host system type... //'|uniq` `grep "^gcc.*ok" $i`
       grep -A 2 "sieve bubble matrix  fib" $i; echo) &
   fi

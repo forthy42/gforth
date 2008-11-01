@@ -269,9 +269,9 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_SRC) $(EC_SRC) $(LIBCC_DIST_SRC) \
 	colorize.fs comp-i.fs complex.fs \
 	depth-changes.fs dosekey.fs doskey.fs ds2texi.fs \
 	envos.dos envos.os2 etags.fs fft.fs filedump.fs fi2c.fs \
-	fsl-util.4th glosgen.fs gray.fs httpd.fs proxy.fs \
+	fsl-util.4th glosgen.fs gray.fs httpd.fs install-tags.fs \
 	make-app.fs doc/makedoc.fs locate.fs more.fs onebench.fs \
-	other.fs prims2x.fs prims2x0.6.2.fs random.fs \
+	other.fs prims2x.fs prims2x0.6.2.fs proxy.fs random.fs \
 	regexp.fs sokoban.fs string.fs table.fs tags.fs \
 	tt.fs \
 	unbuffer.fs wordsets.fs xwords.fs \
@@ -880,7 +880,7 @@ tags:		gforth.tags
 		$(CP) gforth.tags $@
 
 install.TAGS:	TAGS
-		sed 's;^\$(srcdir)/;;' TAGS|awk 'BEGIN {RS="\014\n"; ORS=RS} {if (NR==1) print $0; else print "$(datadir)/gforth/$(VERSION)/"$$0;}' >install.TAGS
+		sed 's;^\$(srcdir)/;;' TAGS|./gforth -e 's" '$(datadir)/gforth/$(VERSION)/'"' install-tags.fs -e bye >install.TAGS
 
 gforth.TAGS:	@kernel_fi@ gforth$(EC)$(EXE) $(GFORTH_FI_SRC) prim.TAGS kernel.TAGS
 		$(FORTHK) etags.fs except.fs startup.fs -e bye
