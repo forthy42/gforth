@@ -13,13 +13,52 @@ OS/2, and DOS and should not be hard to port to other systems
 supported by GCC. This version has been tested successfully on the
 following platforms:
 
-  i386-unknown-linux-gnu
-  x86_64-unknown-linux-gnu
-  i386-apple-darwin9.4.0
-  x86_64-apple-darwin9.4.0
-  ppc-apple-darwin9.4.0
-  i686-pc-cygwin
-  gforth-ec: r8c, 4stack, misc, 8086
+alpha-unknown-linux-gnu 
+ gcc-2.95.2 19991024 (release)
+ gcc-2.95.4 20011002 (Debian prerelease) 
+ gcc-3.3.6 (Debian 1:3.3.6-15) 
+ gcc-3.4.6 (Debian 3.4.6-5) 
+ gcc-4.1.2 20061115 (prerelease) (Debian 4.1.1-21)
+armv5l-unknown-linux-gnu 
+ gcc-3.3.6 (Debian 1:3.3.6-15)
+ broken: gcc-4.1.2 20061115 (prerelease) (Debian 4.1.1-21)
+           <http://gcc.gnu.org/bugzilla/show_bug.cgi?id=31152>
+i686-pc-linux-gnu 
+ gcc-2.95.4 20011002 (Debian prerelease) 
+ gcc-3.3.5 (Debian 1:3.3.5-13) 
+ gcc-3.4.4 20050314 (prerelease) (Debian 3.4.3-13sarge1)
+ia64-hp-hpux11.23 
+ broken: gcc-3.4.3
+ gcc-4.1.1
+powerpc-unknown-linux-gnu 
+ gcc-2.95.4 20011002 (Debian prerelease) 
+ gcc-3.2.3 (Debian) 
+ gcc-3.3.6 (Debian 1:3.3.6-15) 
+ gcc-3.4.6 (Debian 3.4.6-8) 
+ gcc-4.0.3 20060128 (prerelease) (Debian 4.0.2-8) 
+ gcc-4.1.3 20080623 (prerelease) (Debian 4.1.2-23) 
+ gcc-4.3.2
+powerpc64-unknown-linux-gnu 
+ gcc-3.4.6 (Debian 3.4.6-5) 
+ gcc-4.1.2 20061115 (prerelease) (Debian 4.1.1-21)
+sparc-sun-solaris2.10 
+ gcc-3.4.3 (csl-sol210-3_4-branch+sol_rpath) 
+ gcc-4.0.2
+x86_64-unknown-linux-gnu 
+ gcc-3.3.6 (Debian 1:3.3.6-15) 
+ gcc-3.4.6 (Debian 3.4.6-5) 
+ gcc-4.0.0
+ gcc-4.0.4 20060904 (prerelease) (Debian 4.0.3-7) 
+ gcc-4.1.2 20061115 (prerelease) (Debian 4.1.1-21)
+ gcc-4.1.3 20080623 (prerelease) (Debian 4.1.2-23) 
+ gcc-4.2.0
+ gcc-4.2.4 (Debian 4.2.4-3) 
+ gcc-4.3.1
+i386-apple-darwin9.4.0
+x86_64-apple-darwin9.4.0
+ppc-apple-darwin9.4.0
+i686-pc-cygwin
+gforth-ec: r8c, 4stack, misc, 8086
 
 Read INSTALL for installation instructions from source, or INSTALL.DOS
 for DOS, Windows, and OS/2 from source, or INSTALL.BINDIST if you have
