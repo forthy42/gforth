@@ -13,7 +13,55 @@ http://www.complang.tuwien.ac.at/papers/ertl&maierhofer95.ps.gz.
 
 All times are given in seconds of user time.
 
-Development results:
+Results with Gforth 0.7.0 (for comparing CPUs and C compilers):
+AMD64:
+sieve bubble matrix  fib
+ 0.160 0.236  0.072 0.248 0.7.0; Core 2 3GHz (Xeon 5160); gcc-3.4.6 (Debian 3.4.6-5)
+ 0.152 0.208  0.076 0.244 0.7.0; Core 2 3GHz (Xeon 5160); gcc-4.1.2 20061115 (prerelease) (Debian 4.1.1-21)
+ 0.132 0.184  0.104 0.292 0.7.0; Core 2 3GHz (Xeon 5160); gcc-4.2.0
+ 0.264 0.380  0.116 0.432 0.7.0; K8 2.2Ghz (Athlon 64 X2 4400+); gcc-3.3.6 (Debian 1:3.3.6-15)
+ 0.264 0.372  0.120 0.400 0.7.0; K8 2.2Ghz (Athlon 64 X2 4400+); gcc-3.4.6 (Debian 3.4.6-5)
+ 0.176 0.244  0.100 0.308 0.7.0; K8 2.2Ghz (Athlon 64 X2 4400+); gcc-4.0.4 20060904 (prerelease) (Debian 4.0.3-7)
+ 0.356 0.540  0.112 0.388 0.7.0; K8 2.2Ghz (Athlon 64 X2 4400+); gcc-4.1.2 20061115 (prerelease) (Debian 4.1.1-21)
+ 0.292 0.420  0.124 0.480 0.7.0; K8 2GHz (Opteron 270); gcc-3.3.6 (Debian 1:3.3.6-15)
+ 0.292 0.416  0.132 0.440 0.7.0; K8 2GHz (Opteron 270); gcc-3.4.6 (Debian 3.4.6-8)
+ 0.209 0.281  0.118 0.373 0.7.0; K8 2GHz (Opteron 246); gcc-4.0.0
+ 0.192 0.268  0.112 0.340 0.7.0; K8 2GHz (Opteron 270); gcc-4.0.4 20060904 (prerelease) (Debian 4.0.3-7)
+ 0.216 0.268  0.112 0.340 0.7.0; K8 2GHz (Opteron 270); gcc-4.1.3 20080623 (prerelease) (Debian 4.1.2-23)
+ 0.216 0.272  0.112 0.392 0.7.0; K8 2GHz (Opteron 270); gcc-4.2.4 (Debian 4.2.4-3)
+ 0.192 0.276  0.108 0.360 0.7.0; K8 2GHz (Opteron 270); gcc-4.3.1
+IA32:
+ 0.245 0.287  0.156 0.376 0.7.0; Pentium 4 Northwood 2.26GHz; gcc-2.95.4 20011002 (Debian prerelease)
+ 0.253 0.350  0.143 0.392 0.7.0; Pentium 4 Northwood 2.26GHz; gcc-3.3.5 (Debian 1:3.3.5-13)
+ 0.258 0.335  0.138 0.386 0.7.0; Pentium 4 Northwood 2.26GHz; gcc-3.4.4 20050314 (prerelease) (Debian 3.4.3-13sarge1)
+PowerPC:
+ 0.644 0.740  0.320 0.992 0.7.0; PPC7447A 1066MHz (iBook G4 1GHz); gcc-2.95.4 20011002 (Debian prerelease)
+ 1.740 1.884  1.440 2.264 0.7.0; PPC7447A 1066MHz (iBook G4 1GHz); gcc-3.2.3 (Debian)
+ 0.680 0.824  0.324 1.068 0.7.0; PPC7447A 1066MHz (iBook G4 1GHz); gcc-3.3.6 (Debian 1:3.3.6-15)
+ 0.700 0.832  0.332 1.056 0.7.0; PPC7447A 1066MHz (iBook G4 1GHz); gcc-3.4.6 (Debian 3.4.6-8)
+ 0.600 0.688  0.348 0.988 0.7.0; PPC7447A 1066MHz (iBook G4 1GHz); gcc-4.0.3 20060128 (prerelease) (Debian 4.0.2-8)
+ 0.972 1.108  0.400 1.180 0.7.0; PPC7447A 1066MHz (iBook G4 1GHz); gcc-4.1.3 20080623 (prerelease) (Debian 4.1.2-23)
+ 0.584 0.668  0.348 0.968 0.7.0; PPC7447A 1066MHz (iBook G4 1GHz); gcc-4.3.2
+PowerPC64:
+ 0.311 0.389  0.213 0.502 0.7.0; PPC970 2GHz (PowerMac G5); gcc-3.4.6 (Debian 3.4.6-5)
+ 0.279 0.411  0.183 0.519 0.7.0; PPC970 2GHz (PowerMac G5); gcc-4.1.2 20061115 (prerelease) (Debian 4.1.1-21)
+Alpha:
+ 0.710 1.392  1.118 1.159 0.7.0; Alpha 21264B 800MHz; gcc-2.95.4 20011002 (Debian prerelease)
+ 0.840 0.916  0.973 0.961 0.7.0; Alpha 21264B 800MHz; gcc-3.3.6 (Debian 1:3.3.6-15)
+ 0.760 0.991  0.909 1.008 0.7.0; Alpha 21264B 800MHz; gcc-3.4.6 (Debian 3.4.6-5)
+ 0.670 1.070  0.932 0.968 0.7.0; Alpha 21264B 800MHz; gcc-4.1.2 20061115 (prerelease) (Debian 4.1.1-21)
+ 1.047 1.907  1.273 1.309 0.7.0; Alpha 21264 500MHz; gcc-2.95.2 19991024 (release)
+IA64:
+ 1.000 1.120  0.710 1.680 0.7.0; Itanium II 900MHz (HP rx2600); gcc-4.1.1
+ARM:
+ 1.850 2.330  1.750 2.190 0.7.0; ARM Xscale-IOP80321 600MHz; gcc-3.3.6 (Debian 1:3.3.6-15)
+SPARC:
+ 2.133 2.855  1.536 1.970 0.7.0; UltraSparc T1 1GHz; gcc-3.4.3 (csl-sol210-3_4-branch+sol_rpath)
+ 2.114 2.665  1.494 1.912 0.7.0; UltraSparc T1 1GHz; gcc-4.0.2
+
+Other results (for historical perspective):
+
+Between 0.6.2 and 0.7.0:
 sieve bubble matrix  fib  platform and version
  3.51  3.91   3.54  4.07  Xscale IOP321 (Iyonix) 600MHz; 2007-03-12; gcc-3.3.6
  1.96  2.42   1.97  2.23  Xscale IOP321 (Iyonix) 600MHz; 2007-03-18; gcc-3.3.6; ./configure CC=gcc-3.3 arm_cacheflush=arch/arm/cacheflush1 --enable-force-reg
@@ -24,23 +72,7 @@ sieve bubble matrix  fib  platform and version
  0.249 0.302  0.156 0.394 Pentium 4 2.26 (Northwood); gcc-2.95.4; gforth-0.6.9-20080716
  0.156 0.252  0.076 0.248 Xeon 5160 (3GHz); gcc-4.1.2 20061115 (prerelease) (Debian 4.1.1-21); gforth-0.6.9-20080716
 
-Results with Gforth 0.6.2 (for comparing CPUs):
-siev	bubble	matrix	fib	machine and configuration
- 0.21	 0.33	 0.14	 0.36	Athlon 64 3200+ (2GHz, 1MB L2); gcc-2.95.1; gforth-0.6.2 --enable-force-reg
- 0.23	 0.34	 0.14	 0.35	Athlon MP 2600+ (2GHz, 0.5MB L2); gcc-2.95.1; gforth-0.6.2 --enable-force-reg
- 0.23	 0.28    0.19    0.34	Pentium 4 2.26 (Northwood); gcc-2.95.1; gforth-0.6.2 --enable-force-reg
- 0.55	 0.73	 0.32	 0.66	Pentium-III 1000 (Coppermine); gcc-2.95.1; gforth-0.6.2 --enable-force-reg
- 0.56    0.63    0.36    0.79   Transmeta Crusoe TM5800 (1GHz); gcc-2.95.4; gforth-0.6.2 --enable-force-reg
-
- 1.974	 2.313	 2.033	 2.428	Itanium 2 (HP rx2600) 900MHz; gcc-3.3; gforth-0.6.2
- 0.427   0.676   0.303   0.630  PPC970 (G5) 2000MHz; Linux (32-bit executable); gcc-2.95.4; gforth-0.6.2
- 1.71	 2.18	 1.30	 2.24	PPC7400 (G4) 450MHz; Linux; gcc-2.95.4; gforth-0.6.2
- 4.18	 5.43	 3.37	 5.88	PPC604e (PowerMac) 200MHz; Linux; gcc-2.95.2; gforth-0.6.2
- 3.83	 4.60	 4.38	 4.38	Xscale-IOP80321 (Iyonix) 600MHz; Linux; gcc-3.3.6; gforth-0.6.2 (with minor fixes)
- 4.05	 4.94	 4.67	 4.60	Xscale-IOP80321 (Iyonix) 600MHz; Linux; gcc 4.1.2 20061115; gforth-0.6.2
- 2.6	 3.4	 2.6	 2.9	UltraSparc T1 (Sun Fire T1000) 1GHz; Solaris 2.10; gcc-4.0.2; gforth-0.6.2
-
-All results (for historical perspective):
+0.6.2 and older results:
 siev	bubble	matrix	fib	machine and configuration
  0.56    0.63    0.36    0.79   Transmeta Crusoe TM5800 (1GHz); gcc-2.95.4; gforth-0.6.2 --enable-force-reg
  0.21	 0.33	 0.14	 0.36	Athlon 64 3200+ (2GHz, 1MB L2); gcc-2.95.1; gforth-0.6.2 --enable-force-reg
@@ -108,6 +140,7 @@ siev	bubble	matrix	fib	machine and configuration
 17.3	19.0	14.1	18.3	R4000 (DecStation 5000/150) 100MHz 1M cache; gcc-2.4.5; gforth-0.1beta
 50.9	56.8	42.4	52.0	R3000 (DecStation 5000/200) 25MHz 64K+64K cache; gcc-2.5.8 -DFORCE_REG; gforth-0.1beta
 
+ 2.6	 3.4	 2.6	 2.9	UltraSparc T1 (Sun Fire T1000) 1GHz; Solaris 2.10; gcc-4.0.2; gforth-0.6.2
  7.8     8.6     7.0    10.3	UltraSparc-II 248MHz; Solaris.5.5.1; gcc-2.7.1; gforth-0.3.0
 28.5	31.1	26.3	33.3    SuperSparc (Sparcstation 10) 40MHz; Solaris.5.5.1; gcc-2.7.1; gforth-0.3.0
 59.5	65.8	69.5	61.9	FJMB86903 (SPARC ELC) 33MHz; gcc-2.5.8; gforth-0.1beta
@@ -116,6 +149,7 @@ siev	bubble	matrix	fib	machine and configuration
 11.6	12.1	10.8	15.6	PA8000 (HP C160) 160MHz 64M RAM; gcc-2.7.2; gforth-0.3.0
 30.0	34.1	20.5	33.0	PA-RISC 1.1 (HP 720) 50MHz 64K cache; gcc-2.6.3 -DDIRECT_THREADED; gforth-0.1beta
 
+ 0.427   0.676   0.303   0.630  PPC970 (G5) 2000MHz; Linux (32-bit executable); gcc-2.95.4; gforth-0.6.2
  0.89	 1.17	 0.58	 1.18	PPC7447A (G4) 1066MHz; Linux; gcc-2.95.4; gforth-0.6.2
  1.71	 2.18	 1.30	 2.24	PPC7400 (G4) 450MHz; Linux; gcc-2.95.4; gforth-0.6.2
  2.11	 2.43	 1.52	 2.66	PPC7400 (G4) 450MHz; Linux; gcc-2.95.2; gforth-0.5.0
@@ -126,7 +160,9 @@ siev	bubble	matrix	fib	machine and configuration
  6.81	 7.53	 5.10	 8.12	PPC604e (PowerMac) 200MHz; Linux; gcc-2.7.2.1; gforth-0.4.0
  8.25	10.09	 6.45	10.34	PPC604e (PowerMac) 200MHz; Linux; gcc-2.7.2.1; gforth-0.3.0 (indirect threaded)
 14.05	16.96	11.14	17.51	PPC604 (PowerMac) 132MHz 256K L2 cache; MkLinux 2.1; gcc-2.7.2.1; gforth-0.3.0
- 7.42    8.81    5.96    8.61    PPC603 (Amiga + BlizzardPPC) 160Mhz; gcc-2.95.2 -DDIRECT_THREADED; gforth-0.4.9-19990617
+ 7.42    8.81    5.96    8.61   PPC603 (Amiga + BlizzardPPC) 160Mhz; gcc-2.95.2 -DDIRECT_THREADED; gforth-0.4.9-19990617
 16.29   10.38   7.58    10.5    PPC603 (Amiga + BlizzardPPC) 160Mhz; gcc-2.95.2 -DINDIRECT_THREADED; gforth-0.4.9-19990617
 
+ 3.83	 4.60	 4.38	 4.38	Xscale-IOP80321 (Iyonix) 600MHz; Linux; gcc-3.3.6; gforth-0.6.2 (with minor fixes)
+ 4.05	 4.94	 4.67	 4.60	Xscale-IOP80321 (Iyonix) 600MHz; Linux; gcc 4.1.2 20061115; gforth-0.6.2
  4.38	 5.66	 3.52	 4.86	StrongARM SA-1110 206MHz (iPAQ); Linux; gcc-2.95.2; gforth-0.6.2-20030910 --enable-force-reg --dynamic
