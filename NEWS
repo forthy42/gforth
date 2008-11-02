@@ -3,8 +3,8 @@
 User-visible changes between 0.6.2 and 0.6.9 (up to 2008-07-16):
 
 Requirements:
-  At run-time requires libtool and gcc (for libcc C interface) and
-                       gdb (for disassembler (SEE) on some platforms).
+  At run-time requires libtool and gcc (for the libcc C interface) and
+                       gdb (for the disassembler (SEE)) on some platforms.
 Installation:
   support for DESTDIR, POST_INSTALL, INSTALL_SCRIPT
   automatic performance tuning on building (--enable-force-reg unnecessary)
@@ -18,29 +18,31 @@ Bug fixes
   Many others.
 Ports:
   AMD64, ARM, IA-64 (Itanium): better performance
-  PPC: disassembler and assembler (32-bit)
-  Gforth EC: R8C, Lego NXT (not distributed; complete?)
+  PPC, PPC64: disassembler and assembler
+  Gforth EC: R8C, 4stack, misc, 8086 work
   MacOS X: better support
 Invocation:
   New flags --ignore-async-signals, --vm-commit (default overcommit)
             --print-sequences
 Forth 200x:
-  extension queries (produce true for all implemented extensions)
-  REQUIRED etc. (not new)
-  [DEFINED] and [UNDEFINED]
-  PARSE-NAME (new name)
-  deferred words (new: DEFER@ DEFER! ACTION-OF)
+  X:extension-query: produce true for all implemented extensions
+  X:required REQUIRED etc. (not new)
+  X:defined: [DEFINED] and [UNDEFINED]
+  X:parse-name: PARSE-NAME (new name)
+  X:deferred: deferred words (new: DEFER@ DEFER! ACTION-OF)
   X:structures: +FIELD FIELD: FFIELD: CFIELD: etc.
   X:ekeys: new: EKEY>FKEY K-SHIFT-MASK K-CTRL-MASK K-ALT-MASK K-F1...K-F12
-Unicode support (currently supports only uniform encoding):
-  added xchars words for dealing with variable-width multi-byte characters
-  provide 8bit (ISO Latin 1) and UTF-8 support for xchars
+  X:fp-stack (not new)
+  X:number-prefixes (partially new, see below)
 Number prefixes:
   0x is a hex prefix: 0xff and 0XfF now produces (decimal) 255
   # is a decimal prefix: #10 now produces (decimal) 10
   Signs after the number prefix are now accepted, e.g, #-50.
   ' now only handles a single (x)char: 'ab is no longer accepted, 
                                        'a' now produces (decimal) 97
+Unicode support (currently supports only uniform encoding):
+  added xchars words for dealing with variable-width multi-byte characters
+  provide 8bit (ISO Latin 1) and UTF-8 support for xchars
 New words:
   \C C-FUNCTION C-LIBRARY END-C-LIBRARY C-LIBRARY-NAME (libcc C interface)
   LIB-ERROR (complements OPEN-LIB)

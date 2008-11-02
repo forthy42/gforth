@@ -1,8 +1,419 @@
 Update this by inserting the output of 
-	rcs2log -h mips.complang.tuwien.ac.at
-	and correcting the names/emails.
+	rcs2log -u "pazsan	Bernd Paysan	bernd.paysan@gmx.de" -h mips.complang.tuwien.ac.at
+with possibly additional -u clauses for other authors.  Check the authors with
+	rcs2log -u "pazsan	Bernd Paysan	bernd.paysan@gmx.de" -h mips.complang.tuwien.ac.at|grep '^200' |sed s/200.-..-..//|sort |uniq
+
+	
+2008-11-01  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* Benchres, ChangeLog, INSTALL, NEWS, NEWS.vmgen, README, arch/4stack/asm.fs, arch/4stack/mach.fs, arch/4stack/prim-new.fs, arch/4stack/prim.fs, arch/4stack/relocate.fs, arch/generic/machine.h, arch/misc/prim.fs, arch/sparc/machine.h, dis-gdb.fs, doc/vmgen.texi, engine/io.c, engine/libcc.h.in, engine/support.c, engine/threaded.h, kernel/comp.fs, machpc.fs.in, prims2x0.6.2.fs, regexp.fs, update-copyright, vmgen-ex/Makefile, vmgen-ex2/Makefile, vmgen.in:
+	updated copyright years
+
+2008-11-01  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* configure.in: Added --tag=CC for glibtool configure option
+
+2008-11-01  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* Benchres: added 0.7.0 Benchmark results and reorganized the others
+
+	* README: updated tested platforms
+
+	* libcc.fs:
+	don't use libtool --tag=CC (doesn't work with libtool-1.5, and is unnecessary)
+
+	* Makefile.in, configure.in, testall, testdist: install.TAGS bugfix
+	set special skipcode for power architecture to work with gcc-3.[34]
+
+	* Makefile.in, install-tags.fs, testall, testdist:
+	worked around HP/UX awk limitations by replacing awk script with gforth script
+	put some workarounds for specific boxes into testall and testdist
+
+2008-10-29  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* wf.fs: Fixed multi-extension problem with old apache and IE
+
+2008-10-28  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* configure.in: fixed ia64 bug corresponding to the arm_cacheflush bug
+
+2008-10-27  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* configure.in: finally fixed the arm_cacheflush builddir issue
+
+	* configure.in, testall:
+	arm_cacheflush should now work with separate build dir
+	minor testall improvements
+
+2008-10-26  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* Makefile.in: Fixed vmgen problem
+
+	* configure.in: New snapshot date
+
+2008-10-26  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* testall, testdist: more t1000 workarounds
+
+	* Makefile.in, configure.in, testall, testdist:
+	Fixed a few more builddir and other issues
+	Improved testall and testdist (only partially tested)
+
+2008-10-25  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* Makefile.in, configure.in, engine/Makefile.in, kernel/int.fs, preforth.in, testall, testdist:
+	Fixed various bugs related to builddir!=srcdir
+	prims2x0.6.2.fs is now installed
+	avoid extra make for check
+	updated testdist and testall
+
+2008-10-23  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* README, arch/misc/prim.fs: Tested on various Gforth EC platforms
+
+	* arch/4stack/prim.fs: Fixed typo
+
+	* arch/4stack/prim.fs:
+	Disabled new division primitives (they fail to work)
+
+	* arch/4stack/asm.fs, arch/4stack/prim.fs, arch/4stack/relocate.fs, kernel/int.fs:
+	Fixed 4stack image generation with a 64 bit Gforth engine (tested only
+	on little endian machines, so far).
+
+2008-10-22  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* arch/4stack/asm.fs, arch/4stack/relocate.fs:
+	Attempt at better compilation of 4stack with 64 bit Gforth
+
+2008-10-20  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* configure.in: Byte order check != no, to cover autoconf-2.62 bug
+
+2008-10-19  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* arch/4stack/asm.fs: Deleted superfluous [THEN]
+
+	* arch/4stack/mach.fs, arch/4stack/prim-new.fs, arch/4stack/prim.fs, arch/4stack/relocate.fs:
+	Minor fixes to make 4stack work again (build with 32 bit engine!)
+
+2008-10-19  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* Makefile.in:
+	The libcc-named stuff is now build before checking (it's not a check)
+	The libcc-named stuff is only built and installed if libtool exists
+
+	* engine/forth.h: DLSHIFT bugfix (fixes um/mod on some platforms)
+
+2008-10-15  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* engine/support.c, preforth.in: more fixes to support old stuff
+
+	* Makefile.in, configure.in, engine/engine.c, engine/forth.h, engine/main.c, prim:
+	Makefile bugfix
+	fixed some portability issues for MIPS
+	fixed some portability issues for old platforms
+
+2008-10-13  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* arch/4stack/asm.fs, arch/4stack/mach.fs, arch/4stack/relocate.fs, kernel/comp.fs:
+	Made 4stack target compile again (but it doesn't run yet)
+
+2008-10-13  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* INSTALL, README, configure.in: updated INSTALL, README
+	documented some configuration variables in configure.in
+
+2008-10-12  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* Makefile.in, engine/Makefile.in: Fixed unused Makefile macros
+
+	* configure.in: Removed unnecessary quoting of tr arguments
+
+2008-10-12  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* Makefile.in, NEWS.vmgen, NEWS.vmgen.future:
+	re-enabled installation of vmgen
+	updated NEWS.vmgen
+	NEWS.vmgen.future contains stuff that's not yet for NEWS.vmgen (not installed)
+
+2008-10-12  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* configure.in: M4 escapes readded
+
+	* configure.in, wf.fs: Fixed sed pattern
+	wf adds content-type application/xhtml+xml
+
+2008-10-12  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* configure.in: LTDL_LIBRARY_PATH is now a configure variable
+	The computation of the default for LTDL_LIBRARY_PATH now uses ldconfig again.
+
+2008-10-11  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* README: Added further testing results
+
+	* configure.in: Reverted ldconfig -p call
+
+2008-10-10  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* configure.in:
+	refined LTDL_LIBRARY_PATH computation to also work on systems that use
+	  "include /etc/ld.so.conf.d/*.conf" in ld.so.conf
+
+2008-10-10  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* README: Added ppc on Darwin as checked plattform
+
+	* README: Added 386er test
+
+	* README: Added darwin to the successfully tested systems
+
+	* engine/support.c: Fixed typo
+
+	* engine/support.c: Fixing lt_dlopen for Mac OS X
+
+2008-10-09  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* configure.in: Better workaround
+
+	* configure.in, lib.fs: Added workaround for libltdl
+
+	* engine/support.c: Tried short circuit to dlopen() - failed, too.
+
+	* engine/forth.h, engine/support.c, prim:
+	Added gforth_dlopen as support word
+
+2008-10-08  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* Makefile.in, doc/vmgen.texi, prims2x0.6.2.fs, vmgen-ex/Makefile, vmgen-ex2/Makefile, vmgen.in:
+	made vmgen release-ready:
+	  added prims2x0.6.2.fs (and fixed use of RECOVER)
+	  vmgen now looks for vmgen-version to decide what prims2x.fs to use and
+	     uses prims2x0.6.2.fs by default
+	  reverted some of the documentation
+	  fixed minor bug in vmgen-ex*/Makefile
+
+	* unix/socket.fs: fixed bind() type error
+
+	* Makefile.in: now the use of MKDIR-PARENTS in libcc is tested
+
+2008-10-08  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* wf.fs: Fixed get-icon problem
+
+2008-10-07  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* iss.sh, unix/socket.fs: Fixed sockets for windows
+	Don't use recode to add cr before lf - use sed (always available)
+
+2008-10-06  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* Makefile.in:
+	Moved mkdir.fs to the normal sources (no longer a libcc.fs based file)
+
+	* mkdir.fs: Fix build process when mkdir is required
+
+	* Makefile.in: Added Aleksej's Makefile patch
+
+	* iss.sh: Added automatic recode of README for setup.exe presentation
+
+2008-10-06  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* libcc.fs, mkdir.fs, prim:
+	libcc now creates the directories where it puts its files
+	make =MKDIR into a primitive to break bootstrapping problem (=MKDIR
+	  needs libcc, which needs =MKDIR)
+
+2008-10-06  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* engine/libcc.h.in: Fixed typo in non-windows part
+
+	* configure.in, iss.sh, unix/socket.fs:
+	Working Windows port snapshot created
+
+2008-10-06  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* mkdir.fs: added MKDIR-P
+
+2008-10-06  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* engine/libcc.h.in, unix/socket.fs:
+	Fixed problems with Windows C libraries
+
+2008-10-06  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* mkdir.fs:
+	renamed mkdir words to avoid conflicts with likely naming conventions
+
+2008-10-06  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* engine/libcc.h.in, engine/main.c, wf.fs:
+	Added cstr and tilde_cstr to gforth_pointers
+
+2008-09-18  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* unix/socket.fs: Fixed errno
+
+	* engine/libcc.h.in, envos.fs.in, libcc.fs:
+	libcc works now on Windows (though most of the examples don't)
+
+	* doc/objects-implementation.obj, engine/forth.h, engine/libcc.h.in, engine/main.c, fflib.fs, libcc.fs, libffi.fs, prim:
+	Windows version of libcc interface (first attempt)
+
+2008-08-24  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* wf.fs: xhtml strict compliant <red red> tag
+
+2008-08-19  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* Makefile.in, configure.in, cstr.fs, mkdir.fs:
+	added cstr.fs mkdir.fs C interface files
+
+	* configure.in, engine/main.c:
+	workarounds for MacOS X and /lib64 portability issues (/lib64 incomplete)
+
+	* configure.in, engine/main.c:
+	fixed BSD portability issue (reported by Aleksej Saushev)
+
+	* Makefile.in, configure.in: more Solaris portability fixes
+
+2008-08-16  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* arch/sparc/machine.h, engine/main.c:
+	fixed some warnings that were reported on sparc-solaris
+
+	* Makefile.in: another Solaris portability fix
+
+	* dis-gdb.fs:
+	removed bash dependency (now there is a dependency on POSIX ps)
+
+	* engine/main.c, prim: fix if libltdl is not present
+
+	* engine/Makefile.in: Solaris make portability fix
+
+	* configure.in: bugfix
+
+	* configure.in: portability fix (Solaris "which")
+
+	* engine/main.c: Now builds with llvm-gcc (but libcc.fs does not work)
+
+2008-08-14  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* lib.fs: commented out unportable lib.fs test
+
+2008-08-13  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* configure.in: fixed grep portability issue in configure.in
+
+2008-08-09  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* libffi.fs: Another fix for Xcode nonsense
+
+	* configure.in, envos.fs.in, libffi.fs:
+	The location of ffi.h is now determined by configure
+
+2008-08-09  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* regexp.fs: Changed checks for start and end of regexp
+
+2008-08-09  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* Makefile.in, doc/gforth.ds, libcc.fs, regexp.fs:
+	fixed documentation bugs
+
+	* Benchres: added more benchmark results
+
+	* Makefile.in, configure.in:
+	Only those libcc files are processed for which the libraries exist
+
+	* Benchres, engine/main.c, prim: eliminated warnings
+	added Benchmark results
+
+	* Makefile.in, arch/generic/machine.h, engine/128bit.h, engine/io.c, engine/main.c, engine/support.c, engine/threaded.h, prim:
+	The Makefile now uses an EMACS variable
+	Eliminated most compilation warnings
+
+	* Makefile.in:
+	install gforth.el, too (suggested by Aleksej Saushev <878wvgaatn.fsf@inbox.ru>)
+
+2008-08-08  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* Agenda, compat/execute-parsing.fs, configure.in, doc/gforth.ds, doc/vmgen.texi, envos.fs.in, lib.fs, machpc.fs.in:
+	Updated Agenda
+	Now lib.fs selects libffi.fs or fflib.fs based on a configure test
+	compat/execute-parsing bugfix
+	fixed some documentation bugs (reported by Jakob Sievers)
+
+2008-08-05  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* libffi.fs: Added ints at the right position
+
+	* libffi.fs: Added ints
+
+2008-08-03  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* lib.fs: Removed printout in lib.fs
+
+2008-08-02  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* arch/386/machine.h: Best effort for Mac OS X 32 bit with gcc-4.2
+
+	* preforth.in: Fixed Mac OS X default build problem
+
+2008-07-31  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* lib.fs: Typo
+
+	* lib.fs: Another fix for lib.fs
+
+	* lib.fs: Changed search for libffi
+
+2008-07-29  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* configure.in, machpc.fs.in: Removed dependencies to libffi/ffcall
+
+	* lib.fs: Prefer libffi over ffcall
+
+	* fflib.fs: Correct declaration of gforth_RP and gforth_LP
+
+	* fflib.fs, libcc.fs, unix/socket.fs: Fixed fflib.fs
+	Real fix for the macro problem (define wrapper macro instead)
+
+2008-07-27  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* libcc.fs, unix/socket.fs: Fixed FILE* problem
+
+	* engine/forth.h, prim: Fixed callback problem
+
+2008-07-26  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* lib.fs: Right libc for 64 bit
+
+	* INSTALL, Makefile.in, lib.fs: Try to make old libffi.fs work again
+
+2008-07-23  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* Makefile.in:
+	distribute autogen.sh, too (Bug report from M. Edward (Ed) Borasky)
+
+2008-07-21  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* .cvsignore, engine/.cvsignore: More complete .cvsignore
+
+2008-07-18  Bernd Paysan  <bernd.paysan@gmx.de>
+
+	* Makefile.in: Fixed libtool invocation in Makefile for Mac OS X
+
+2008-07-17  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* Makefile.in, configure.in:
+	anti-dependence of engine on kernel is now set by configure
+	   (if a preforth exists)
 
 2008-07-16  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
+
+	* ChangeLog, NEWS, configure.in: Updated dates in NEWS, configure.in
+	Updated ChangeLog
 
 	* preforth.in: preforth now works if there is an engine but no kernel
 
@@ -8436,7 +8847,7 @@ Update this by inserting the output of
 
 	* getopt1.c, getopt.h, getopt.c, forth.h, engine.c, ToDo, README, Makefile, INSTALL, COPYING, 386.h:
 	Updated ToDo and INSTALL; Wrote README; Lifted COPYING and getopt*
-	from other packages;  removed $Id: ChangeLog,v 1.18 2008-11-01 22:19:30 anton Exp $ lines from some files
+	from other packages;  removed $Id: ChangeLog,v 1.19 2008-11-02 17:13:01 anton Exp $ lines from some files
 
 1994-09-28  Anton Ertl  <anton@mips.complang.tuwien.ac.at>
 
