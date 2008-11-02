@@ -1,6 +1,4 @@
-
-
-User-visible changes between 0.6.2 and 0.6.9 (up to 2008-07-16):
+User-visible changes between 0.6.2 and 0.7.0:
 
 Requirements:
   At run-time requires libtool and gcc (for the libcc C interface) and
