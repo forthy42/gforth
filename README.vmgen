@@ -18,7 +18,7 @@ Vmgen supports several techniques for writing efficient interpreters:
 virtual machine interpreters, threaded code, combining VM instructions
 into superinstructions, keeping the top-of-stack in a register,
 scheduling the dispatch of the next VM instruction, and a couple of
-minor optimizations.  Interpreters created with vmgen usually are
+minor optimizations.  Interpreters created with Vmgen usually are
 faster than competing interpreters and are typically only a factor of
 2-10 slower than the code generateed by native-code compilers.
 

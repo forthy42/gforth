@@ -387,3 +387,7 @@ previous
     endtry
     throw ;
 
+\ th
+
+: th ( addr1 u -- addr2 )
+    cells + ;

@@ -1,6 +1,6 @@
 \ ekey etc.
 
-\ Copyright (C) 1999,2002,2003,2004,2005,2006,2007 Free Software Foundation, Inc.
+\ Copyright (C) 1999,2002,2003,2004,2005,2006,2007,2008 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -31,8 +31,16 @@
 
 \ The keycode names are compatible with pfe-0.9.14
 
+$80000000 constant keycode-start
+$80000016 constant keycode-limit
+
+create keycode-table keycode-limit keycode-start - cells allot
+
 : keycode ( u1 "name" -- u2 ; name execution: -- u )
-    dup constant 1+ ;
+    dup keycode-limit keycode-start within -11 and throw
+    dup constant
+    dup latest keycode-table rot keycode-start - th !
+    1+ ;
 
 \ most of the keys are also in pfe, except:
 \ k-insert, k-delete, k11, k12, s-k11, s-k12
@@ -41,7 +49,18 @@ $40000000 constant k-shift-mask ( -- u ) \ X:ekeys
 $20000000 constant k-ctrl-mask ( -- u )  \ X:ekeys
 $10000000 constant k-alt-mask ( -- u )   \ X:ekeys
 
-$80000000
+: simple-fkey-string ( u -- c-addr u )
+    dup keycode-limit keycode-start within -24 and throw
+    keycode-table swap keycode-start - th @ name>string ;
+
+: fkey. ( u -- )
+    dup [ k-shift-mask k-ctrl-mask k-alt-mask or or invert ] literal and
+    simple-fkey-string type
+    dup k-shift-mask and if ."  k-shift-mask or" then
+    dup k-ctrl-mask  and if ."  k-ctrl-mask or"  then
+        k-alt-mask   and if ."  k-alt-mask or"   then ;
+
+keycode-start
 keycode k-left   ( -- u ) \ X:ekeys  
 keycode k-right  ( -- u ) \ X:ekeys
 keycode k-up     ( -- u ) \ X:ekeys
