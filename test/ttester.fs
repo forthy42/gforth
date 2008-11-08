@@ -12,7 +12,7 @@
 \ public domain
 
 \ for the rest:
-\ revised by Anton Ertl 2007-08-12, 2007-08-19, 2007-08-28
+\ revised by Anton Ertl
 \ public domain
 
 \ The original has the following shortcomings:
@@ -28,6 +28,9 @@
 
 \ http://www.forth200x.org/tests/tester.fs
 \ http://www.forth200x.org/tests/ttester.fs
+
+\ for history and possibly newer versions you can also look at
+\ http://www.complang.tuwien.ac.at/cvsweb/cgi-bin/cvsweb/gforth/test/ttester.fs
 
 \ tester.fs is intended to be a drop-in replacement of the original.
 
