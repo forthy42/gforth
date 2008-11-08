@@ -9231,6 +9231,12 @@ key is pressed.  If you have a terminal that sends other escape
 sequences, you will not get useful results on Gforth.  Other Forth
 systems may work in a different way.
 
+Gforth also provides a few words for outputting names of function
+keys:
+
+doc-fkey.
+doc-simple-fkey-string
+
 
 @node  Line input and conversion, Pipes, Single-key input, Other I/O
 @subsection Line input and conversion

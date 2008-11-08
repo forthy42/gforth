@@ -49,11 +49,18 @@ $40000000 constant k-shift-mask ( -- u ) \ X:ekeys
 $20000000 constant k-ctrl-mask ( -- u )  \ X:ekeys
 $10000000 constant k-alt-mask ( -- u )   \ X:ekeys
 
-: simple-fkey-string ( u -- c-addr u )
+: simple-fkey-string ( u1 -- c-addr u ) \ gforth
+    \G @i{c-addr u} is the string name of the function key @i{u1}.
+    \G Only works for simple function keys without modifier masks.
+    \G Any @i{u1} that does not correspond to a simple function key
+    \G currently produces an exception.
     dup keycode-limit keycode-start within -24 and throw
     keycode-table swap keycode-start - th @ name>string ;
 
-: fkey. ( u -- )
+: fkey. ( u -- ) \ gforth fkey-dot
+    \G Print a string representation for the function key @i{u}.
+    \G @i{U} must be a function key (possibly with modifier masks),
+    \G otherwise there may be an exception.
     dup [ k-shift-mask k-ctrl-mask k-alt-mask or or invert ] literal and
     simple-fkey-string type
     dup k-shift-mask and if ."  k-shift-mask or" then
