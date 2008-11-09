@@ -648,7 +648,7 @@ installdirs:	mkinstalldirs
 #to uninstall version foo, type `make uninstall VERSION=foo'
 uninstall:	FORCE
 		$(NORMAL_UNINSTALL)
-		-$(RM) -rf $(DESTDIR)$(libdir)/gforth/$(VERSION) $(DESTDIR)$(datadir)/gforth/$(VERSION) $(DESTDIR)$(bindir)/gforth-$(VERSION)$(EC)$(EXE) $(DESTDIR)$(bindir)/gforth-fast-$(VERSION)$(EC)$(EXE) $(DESTDIR)$(bindir)/gforth-itc-$(VERSION)$(EC)$(EXE) $(DESTDIR)$(bindir)/gforthmi-$(VERSION) $(DESTDIR)(bindir)/vmgen-$(VERSION) $(DESTDIR)$(includedir)/gforth/$(VERSION)
+		-$(RM) -rf $(DESTDIR)$(libdir)/gforth/$(VERSION) $(DESTDIR)$(datadir)/gforth/$(VERSION) $(DESTDIR)$(bindir)/gforth-$(VERSION)$(EC)$(EXE) $(DESTDIR)$(bindir)/gforth-fast-$(VERSION)$(EC)$(EXE) $(DESTDIR)$(bindir)/gforth-itc-$(VERSION)$(EC)$(EXE) $(DESTDIR)$(bindir)/gforthmi-$(VERSION) $(DESTDIR)$(bindir)/vmgen-$(VERSION) $(DESTDIR)$(includedir)/gforth/$(VERSION)
 		@echo -e "To remove Gforth completely, type\n$(RM) -rf $(DESTDIR)$(bindir)/gforth$(EC)$(EXE) $(DESTDIR)$(bindir)/gforth-fast$(EC)$(EXE) $(DESTDIR)$(bindir)/gforth-itc$(EC)$(EXE) $(DESTDIR)$(bindir)/gforthmi $(DESTDIR)$(bindir)/vmgen $(DESTDIR)$(man1dir)/gforth.1 $(DESTDIR)$(infodir)/gforth.info* $(DESTDIR)$(datadir)/gforth $(DESTDIR)$(libdir)/gforth"
 
 build-libcc-named: $(LIBCC_BUILD_SRC) $(FORTH_GEN) $(GEN) FORCE
