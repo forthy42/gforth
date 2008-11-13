@@ -478,6 +478,9 @@ all: kernel/version.fs more check
 # use this dependency for phony targets just as mostlyclean,...
 FORCE: ;
 
+#targets of failed commands should be deleted:
+.DELETE_ON_ERROR:
+
 #this rule avoids remaking everything after minor changes in Makefile.in
 version:	Makefile.in configure.in
 		if test -r $@ && test x'$(VERSION)' = x`cat $@` ; then true ; else echo $(VERSION) > $@ ; fi
