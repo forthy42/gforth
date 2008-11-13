@@ -5814,10 +5814,10 @@ ENDTRY
 @end example
 
 This performs @i{code1}.  If @i{code1} completes normally, execution
-continues with @i{code3}.  If @i{code1} or there is an exception
-before @code{endtry}, the stacks are reset to the state during
+continues with @i{code3}.  If there is an exception in @i{code1} or
+before @code{endtry}, the stacks are reset to the depth during
 @code{try}, the throw value is pushed on the data stack, and execution
-constinues at @i{code2}, and finally falls through the @i{code3}.
+constinues at @i{code2}, and finally falls through to @i{code3}.
 
 doc-try
 doc-endtry

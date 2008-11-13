@@ -303,7 +303,7 @@ is throw
 \ HEX DECIMAL                                           2may93jaw
 
 : decimal ( -- ) \ core
-    \G Set @code{base} to &10 (decimal).  Don't use @code{hex}, use
+    \G Set @code{base} to &10 (decimal).  Don't use @code{decimal}, use
     \G @code{base-execute} instead.
     a base ! ;
 : hex ( -- ) \ core-ext
