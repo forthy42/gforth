@@ -34,7 +34,7 @@
 \ (e.g. via shared memory)
 
 \ This is ANS Forth with the following serious environmental
-\ dependences: the variable LAST must contain a pointer to the last
+\ dependences: the word LATEST must return a pointer to the last
 \ header, NAME>STRING must convert that pointer to a string, and
 \ HEADER must be a deferred word that is called to create the name.
 
