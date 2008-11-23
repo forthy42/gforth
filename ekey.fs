@@ -337,25 +337,36 @@ set-current
 : clear-ekey-buffer ( -- )
     ekey-buffer 0 ekey-buffered 2! ;
 
+[IFDEF] max-single-byte
+    : read-xkey ( key -- flag )
+	clear-ekey-buffer
+	ekey-buffered char-append-buffer
+	ekey-buffer 1 u8addrlen 1 +do
+	    key? 0= ?leave
+	    key ekey-buffered char-append-buffer
+	loop
+	ekey-buffer 1 u8addrlen ekey-buffered @ = ;
+    : get-xkey ( u -- xc )
+	dup max-single-byte u>= if
+	    read-xkey if
+		ekey-buffer xc@+ nip         else
+		ekey-buffered 2@ unkeys key  then
+	then ;
+    : xkey? ( -- flag )
+	key? dup if
+	    drop key read-xkey ekey-buffered 2@ unkeys
+	    clear-ekey-buffer  then ;
+[THEN]
+
 : ekey ( -- u ) \ facility-ext e-key
     \G Receive a keyboard event @var{u} (encoding implementation-defined).
     key dup #esc =
     if
         drop clear-ekey-buffer
-        esc-prefix
+        esc-prefix  exit
     then
     [IFDEF] max-single-byte
-	dup max-single-byte u>= if
-	    clear-ekey-buffer
-	    ekey-buffered char-append-buffer
-	    ekey-buffer 1 u8addrlen 1 +do
-		key? 0= ?leave
-		key ekey-buffered char-append-buffer
-	    loop
-	    ekey-buffer 1 u8addrlen ekey-buffered @ = if
-		ekey-buffer xc@+ nip         else
-		ekey-buffered 2@ unkeys key  then
-	then
+	get-xkey
     [THEN]
 ;
 

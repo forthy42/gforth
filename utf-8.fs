@@ -73,23 +73,23 @@ $80 Value max-single-byte
 Defer check-xy  ' noop IS check-xy
 
 : u8key ( -- u )
-    defers key dup max-single-byte u< ?EXIT  \ special case ASCII
+    key dup max-single-byte u< ?EXIT  \ special case ASCII
     dup $FF = ?EXIT  \ special resize character
     dup $C2 u< IF  UTF-8-err throw  THEN  \ malformed character
     $7F and  $40 >r
     BEGIN  dup r@ and  WHILE  r@ xor
-	    6 lshift r> 5 lshift >r >r defers key
+	    6 lshift r> 5 lshift >r >r key
 	    dup $C0 and $80 <> IF  UTF-8-err throw  THEN
 	    $3F and r> or
     REPEAT  rdrop ;
 
 : u8emit ( u -- )
-    dup max-single-byte u< IF  defers emit  EXIT  THEN \ special case ASCII
+    dup max-single-byte u< IF  emit  EXIT  THEN \ special case ASCII
     0 swap  $3F
     BEGIN  2dup u>  WHILE
 	    2/ >r  dup $3F and $80 or swap 6 rshift r>
     REPEAT  $7F xor 2* or
-    BEGIN   dup $80 u>= WHILE  defers emit  REPEAT  drop ;
+    BEGIN   dup $80 u>= WHILE  emit  REPEAT  drop ;
 
 \ utf-8 stuff for xchars
 
