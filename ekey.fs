@@ -175,7 +175,6 @@ table constant esc-sequences \ and prefixes
 
 create ekey-buffer 8 chars allot
 2variable ekey-buffered
-
 [IFUNDEF] #esc  27 Constant #esc  [THEN]
 
 : esc-prefix ( -- u )
@@ -344,17 +343,44 @@ set-current
     if
         drop clear-ekey-buffer
         esc-prefix
-    then ;
+    then
+    [IFDEF] max-single-byte
+	dup max-single-byte u>= if
+	    clear-ekey-buffer
+	    ekey-buffered char-append-buffer
+	    ekey-buffer 1 u8addrlen 1 +do
+		key? 0= ?leave
+		key ekey-buffered char-append-buffer
+	    loop
+	    ekey-buffer 1 u8addrlen ekey-buffered @ = if
+		ekey-buffer xc@+ nip         else
+		ekey-buffered 2@ unkeys key  then
+	then
+    [THEN]
+;
 
+[IFDEF] max-single-byte
+: ekey>char ( u -- u false | c true ) \ facility-ext e-key-to-char
+    \G Convert keyboard event @var{u} into character @code{c} if possible.
+    dup max-single-byte u< ; \ k-left must be first!
+: ekey>xchar ( u -- u false | xc true ) \ xchar-ext e-key-to-xchar
+    \G Convert keyboard event @var{u} into xchar @code{xc} if possible.
+    dup k-left u< ; \ k-left must be first!
+: ekey>fkey ( u1 -- u2 f ) \ X:ekeys
+\G If u1 is a keyboard event in the special key set, convert
+\G keyboard event @var{u1} into key id @var{u2} and return true;
+\G otherwise return @var{u1} and false.
+    ekey>xchar 0= ;
+[ELSE]
 : ekey>char ( u -- u false | c true ) \ facility-ext e-key-to-char
     \G Convert keyboard event @var{u} into character @code{c} if possible.
     dup k-left u< ; \ k-left must be first!
-
 : ekey>fkey ( u1 -- u2 f ) \ X:ekeys
 \G If u1 is a keyboard event in the special key set, convert
 \G keyboard event @var{u1} into key id @var{u2} and return true;
 \G otherwise return @var{u1} and false.
     ekey>char 0= ;
+[THEN]
 
 ' key? alias ekey? ( -- flag ) \ facility-ext e-key-question
 \G True if a keyboard event is available.
