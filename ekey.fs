@@ -382,6 +382,8 @@ set-current
 \G keyboard event @var{u1} into key id @var{u2} and return true;
 \G otherwise return @var{u1} and false.
     ekey>xchar 0= ;
+
+' xkey? alias ekey? ( -- flag ) \ facility-ext e-key-question
 [ELSE]
 : ekey>char ( u -- u false | c true ) \ facility-ext e-key-to-char
     \G Convert keyboard event @var{u} into character @code{c} if possible.
@@ -391,9 +393,10 @@ set-current
 \G keyboard event @var{u1} into key id @var{u2} and return true;
 \G otherwise return @var{u1} and false.
     ekey>char 0= ;
-[THEN]
 
 ' key? alias ekey? ( -- flag ) \ facility-ext e-key-question
+[THEN]
+
 \G True if a keyboard event is available.
 
 \  : esc? ( -- flag ) recursive
