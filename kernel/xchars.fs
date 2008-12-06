@@ -88,6 +88,8 @@ Defer -trailing-garbage ( xc-addr u1 -- addr u2 ) \ xchar-ext
     holdptr @ dup holdbuf u< -&17 and throw
     8 xc!+? 2drop drop ;
 
+: xc, ( xchar -- ) here unused xc!+? 2drop dp ! ;
+
 \ fixed-size versions of these words
 
 : char- ( c-addr1 -- c-addr2 )
