@@ -1,4 +1,5 @@
 \ lauftext
+\ this file is in the public domain
 
 rom
 

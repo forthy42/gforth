@@ -1,4 +1,5 @@
 \ lauflicht
+\ this file is in the public domain
 
 rom
 : licht!  led!  &100 0 DO  pause 1 ms  LOOP ;

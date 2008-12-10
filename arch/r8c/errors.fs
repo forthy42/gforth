@@ -1,4 +1,5 @@
 \ Error strings
+\ This file is in public domain
 
 >rom
 s" Aborted" -&1 ErrLink linkstring
