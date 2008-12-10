@@ -355,6 +355,7 @@ ARCHS =	\
 	arch/sharc/g21k-3.3.4-bp1.diff \
 	arch/r8c/asm.fs \
 	arch/r8c/mach.fs \
+	arch/r8c/errors.fs \
 	arch/r8c/prim.fs
 
 #not included in distribution until distribution terms are included:
