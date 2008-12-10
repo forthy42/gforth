@@ -356,7 +356,13 @@ ARCHS =	\
 	arch/r8c/asm.fs \
 	arch/r8c/mach.fs \
 	arch/r8c/errors.fs \
-	arch/r8c/prim.fs
+	arch/r8c/prim.fs \
+	arch/r8c/asm-test.fs \
+	arch/r8c/errors.fs \
+	arch/r8c/lauflicht.fs \
+	arch/r8c/tasker.fs \
+	arch/r8c/terminal.fs \
+	arch/r8c/tt.fs
 
 #not included in distribution until distribution terms are included:
 ARCHS_NO_DIST = \
@@ -373,12 +379,6 @@ ARCHS_NO_DIST = \
 	arch/c165/mach.fs \
 	arch/c165/prim.fs \
 	arch/h8/asm.fs \
-	arch/r8c/asm-test.fs \
-	arch/r8c/errors.fs \
-	arch/r8c/lauflicht.fs \
-	arch/r8c/tasker.fs \
-	arch/r8c/terminal.fs \
-	arch/r8c/tt.fs \
 	arch/sharc/unistd.h
 
 VMGEN_EX = vmgen-ex/CVS vmgen-ex/Makefile vmgen-ex/README vmgen-ex/disasm.c \
