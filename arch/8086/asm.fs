@@ -5,6 +5,7 @@
 \ Log:          30.07.97 KK: file generated
 \
 \ * Register using see PRIMS.FS
+\ This file is in the public domain, like the original volksForth
 
 
 include asm/basic.fs

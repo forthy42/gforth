@@ -1012,14 +1012,18 @@ config.status: configure
 	./config.status --recheck
 
 #create files for DOS, because DOS cannot do it itself
-makefile.dos engine/makefile.dos: mkdosmf.sed Makefile.in engine/Makefile.in
+makefile.dos: mkdosmf.sed Makefile.in
 	sed -f mkdosmf.sed <Makefile.in >makefile.dos
+
+engine/makefile.dos: mkdosmf.sed engine/Makefile.in
 	sed -f mkdosmf.sed <engine/Makefile.in >engine/makefile.dos
 
-makefile.os2 engine/makefile.os2: mkos2mf.sed Makefile.in engine/Makefile.in
+makefile.os2: mkos2mf.sed Makefile.in
 	sed -f mkos2mf.sed <Makefile.in >makefile.os2
+	echo '%.o:      %.c' >>makefile.os2
+	echo '          $$(GCC) $$(CFLAGS) $$(CPPFLAGS) -c $$<' >>makefile.os2
+
+engine/makefile.os2: mkos2mf.sed engine/Makefile.in
 	sed -f mkos2mf.sed <engine/Makefile.in >engine/makefile.os2
-	echo '%.o:	%.c' >>makefile.os2
-	echo '		$$(GCC) $$(CFLAGS) $$(CPPFLAGS) -c $$<' >>makefile.os2
-	echo '%.o:	%.c' >>engine/makefile.os2
-	echo '		$$(GCC) $$(CFLAGS) $$(CPPFLAGS) -c $$<' >>engine/makefile.os2
+	echo '%.o:      %.c' >>engine/makefile.os2
+	echo '          $$(GCC) $$(CFLAGS) $$(CPPFLAGS) -c $$<' >>engine/makefile.os2
