@@ -12293,13 +12293,21 @@ c-library lseek-lib
 end-c-library
 @end example
 
-The effect of giving such a name to the interface is that the
-generated files will contain that name, and when you use the interface
-a second time, it will use the existing files instead of generating
-and compiling them again, saving you time.  Note that even if you
-change the declarations, the old (stale) files will be used, probably
-leading to errors.  So, during development of the declarations we
-recommend not using @code{c-library}.
+The effect of giving such a name to the interface is that the names of
+the generated files will contain that name, and when you use the
+interface a second time, it will use the existing files instead of
+generating and compiling them again, saving you time.  Note that even
+if you change the declarations, the old (stale) files will be used,
+probably leading to errors.  So, during development of the
+declarations we recommend not using @code{c-library}.  Normally these
+files are cached in @file{$HOME/.gforth/libcc-named}, so by deleting
+that directory you can get rid of stale files.
+
+Note that you should use @code{c-library} before everything else
+having anything to do with that library, as it resets some setup
+stuff.  The idea is that the typical use is to put each
+@code{c-library}...@code{end-library} unit in its own file, and to be
+able to include these files in any order.
 
 Note that the library name is not allocated in the dictionary and
 therefore does not shadow dictionary names.  It is used in the file
