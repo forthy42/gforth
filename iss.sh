@@ -39,7 +39,7 @@ DefaultDirName={pf}\gforth
 DefaultGroupName=Gforth
 AllowNoIcons=1
 InfoBeforeFile=COPYING
-Compression=bzip
+Compression=lzma
 DisableStartupPrompt=yes
 OutputBaseFilename=gforth-$VERSION
 
@@ -67,7 +67,7 @@ done) | sort -u | sed \
 Name: "{app}\doc\gforth"
 Name: "{app}\doc\vmgen"
 Name: "{app}\lib\gforth\\$VERSION\libcc-named"
-Name: "{app}\include\gforth\\$VERSION\libcc-named"
+Name: "{app}\include\gforth\\$VERSION"
 
 [Files]
 ; Parameter quick reference:
@@ -81,11 +81,11 @@ Source: "cygltdl-3.dll"; DestDir: "{app}"
 Source: "cygreadline6.dll"; DestDir: "{app}"
 Source: "cygncurses-8.dll"; DestDir: "{app}"
 Source: "cygffi-2-00-beta.dll"; DestDir: "{app}"
-Source: "gforthfi.sh"; DestDir: "{app}"
+Source: "gforthmi.sh"; DestDir: "{app}"
 $(ls doc/gforth | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "doc\\gforth\\\1"; DestDir: "{app}\\doc\\gforth"; Components: help,g')
 $(ls doc/vmgen | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "doc\\vmgen\\\1"; DestDir: "{app}\\doc\\vmgen"; Components: help,g')
 $(ls lib/gforth/$VERSION/libcc-named | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "lib\\gforth\\'$VERSION'\\libcc-named\\\1"; DestDir: "{app}\\lib\\gforth\\'$VERSION'\\libcc-named",g')
-$(ls include/gforth/$VERSION/libcc-named | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "include\\gforth\\'$VERSION'\\libcc-named\\\1"; DestDir: "{app}\\include\\gforth\\'$VERSION'\\libcc-named",g')
+$(ls include/gforth/$VERSION | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "engine\\\1"; DestDir: "{app}\\include\\gforth\\'$VERSION'",g')
 $(make distfiles -f Makedist EXE=.exe | tr ' ' '\n' | grep -v engine.*exe | (while read i; do
   if [ ! -d $i ]; then echo $i; fi
 done) | sed \
@@ -112,12 +112,12 @@ Name: "{group}\Bash"; Filename: "{app}\sh.exe"; WorkingDir: "{app}"
 Name: "{group}\Uninstall Gforth"; Filename: "{uninstallexe}"
 
 [Run]
-Filename: "{app}\gforth.exe"; WorkingDir: "{app}"; Parameters: "fixpath.fs {app} gforth-fast.exe"
-Filename: "{app}\gforth.exe"; WorkingDir: "{app}"; Parameters: "fixpath.fs {app} gforth-ditc.exe"
-Filename: "{app}\gforth.exe"; WorkingDir: "{app}"; Parameters: "fixpath.fs {app} gforth-itc.exe"
-Filename: "{app}\gforth.exe"; WorkingDir: "{app}"; Parameters: "fixpath.fs {app} gforth-prof.exe"
-Filename: "{app}\gforth-fast.exe"; WorkingDir: "{app}"; Parameters: "fixpath.fs {app} gforth.exe"
-Filename: "{app}\sh.exe"; WorkingDir: "{app}"; Parameters: "./gforthfi.sh"
+Filename: "{app}\gforth.exe"; WorkingDir: "{app}"; Parameters: "fixpath.fs gforth-fast.exe"
+Filename: "{app}\gforth.exe"; WorkingDir: "{app}"; Parameters: "fixpath.fs gforth-ditc.exe"
+Filename: "{app}\gforth.exe"; WorkingDir: "{app}"; Parameters: "fixpath.fs gforth-itc.exe"
+Filename: "{app}\gforth.exe"; WorkingDir: "{app}"; Parameters: "fixpath.fs gforth-prof.exe"
+Filename: "{app}\gforth-fast.exe"; WorkingDir: "{app}"; Parameters: "fixpath.fs gforth.exe"
+Filename: "{app}\sh.exe"; WorkingDir: "{app}"; Parameters: "./gforthmi.sh"
 
 ;[Registry]
 ;registry commented out

@@ -557,8 +557,8 @@ DEFER compile-wrapper-function ( -- )
 	c-source-file close-file throw
 	0 c-source-file-id !
 	[ libtool-command s"  --silent --mode=compile " s+
-	  libtool-cc append s"  -I " append
-	  s" includedir" getenv append ] sliteral
+	  libtool-cc append s"  -I '" append
+	  s" includedir" getenv append  s" '" append ] sliteral
 	s"  -O -c " s+ lib-filename 2@ append s" .c -o " append
 	lib-filename 2@ append s" .lo" append ( c-addr u )
 	\    2dup type cr

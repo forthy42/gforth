@@ -17,20 +17,20 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-." Fixing " 2 arg type ."  with " 1 arg type cr
+." Fixing " 1 arg type ."  with " pad $1000 get-dir type cr
 
 : "search s" .:/usr/local" ;
 
 include string.fs
 
-Variable path$  1 arg path$ $!
-Variable pathes$  1 arg pathes$ $!
+Variable path$  pad $1000 get-dir path$ $!
+Variable pathes$  pad $1000 get-dir pathes$ $!
 Variable exe$
 
-pathes$ 1 1 $del s" /cygdrive/" pathes$ 0 $ins
-: fixpathes ( addr u -- )
-  bounds ?DO  I c@ '\ = IF  '/ I c!  THEN  LOOP ;
-pathes$ $@ fixpathes
+\ pathes$ 1 1 $del s" /cygdrive/" pathes$ 0 $ins
+\ : fixpathes ( addr u -- )
+\   bounds ?DO  I c@ '\ = IF  '/ I c!  THEN  LOOP ;
+\ pathes$ $@ fixpathes
 s" .:" pathes$ 0 $ins
 
 0 Value #size
@@ -46,6 +46,6 @@ s" .:" pathes$ 0 $ins
   pathes$ $@ 2dup + 0 swap c! 1+ r@ write-file throw
   r> close-file throw ;
 
-2 arg fix-exe
+1 arg fix-exe
 
 bye
