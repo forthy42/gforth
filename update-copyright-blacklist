@@ -12,6 +12,7 @@ os2conf.h
 elisp-comp
 fib.fs
 fsl-util.4th
+fsl-util.fs
 gforth-cgi.fs
 gforth.lsm
 glosgen.glo
@@ -322,7 +323,12 @@ arch/power/test/mnemonic/xo/north.subfme
 arch/power/test/mnemonic/xo/north.subfze
 arch/power/test/mnemonic/xs/mnemonics
 arch/power/test/mnemonic/xs/north.sradi
+arch/r8c/errors.fs            
+arch/r8c/lauflicht.fs         
+arch/r8c/lauftext.fs          
+arch/r8c/tasker.fs            
 arch/sharc/g21k-3.3.4-bp1.diff
+arch/sharc/unistd.h
 arch/shboom/asm.fs
 asm/README
 compat/README
