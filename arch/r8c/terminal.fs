@@ -20,7 +20,7 @@
 require lib.fs
 
 s" os-type" environment? [IF]
-    2dup s" linux-gnu" str= [IF] 2drop
+    2dup 2dup s" linux-gnu" str= -rot s" darwin" string-prefix? or [IF] 2drop
 	[IFUNDEF] libc  library libc libc.so.6  [THEN]
 	
 	libc tcgetattr int ptr (int) tcgetattr ( fd termios -- r )
@@ -29,21 +29,28 @@ s" os-type" environment? [IF]
 	libc ioctl<p> int int ptr (int) ioctl ( d request ptr -- r )
 	libc fileno ptr (int) fileno ( file* -- fd )
 	
+        s" os-type" environment? [IF] s" linux-gnu" str= [IF]	
 	4 4 2Constant int%
+        $20 Constant NCCS
+        [ELSE]
+	cell dup 2Constant int%
+        20 Constant NCCS
+        [THEN]
 	
 	struct
 	    int% field c_iflag
 	    int% field c_oflag
 	    int% field c_cflag
 	    int% field c_lflag
-	    32 chars 0 field c_line
+	    char% NCCS * field c_line
 	    int% field c_ispeed
 	    int% field c_ospeed
 	end-struct termios
 	
 	Create t_old  termios %allot drop
 	Create t_buf  termios %allot drop
-	
+
+        s" os-type" environment? [IF] s" linux-gnu" str= [IF]	
 	base @ 8 base !
 	0000001 Constant B50
 	0000002 Constant B75
@@ -74,6 +81,8 @@ s" os-type" environment? [IF]
 	6 Constant VTIME
 	7 Constant VMIN
 	
+	$541B Constant FIONREAD
+
 	: set-baud ( baud fd -- )  >r
 	    r@ t_old tcgetattr drop
 	    t_old t_buf termios %size move
@@ -87,11 +96,55 @@ s" os-type" environment? [IF]
 	    28800 t_buf c_cflag @ $F and lshift
 	    dup t_buf c_ispeed l! t_buf c_ospeed l!
 	    r> 1 t_buf tcsetattr drop ;
+        [ELSE]
+        0 Constant B0
+        50 Constant B50
+        75 Constant B75
+        110 Constant B110
+        134 Constant B134
+        150 Constant B150
+        200 Constant B200
+        300 Constant B300
+        600 Constant B600
+        1200 Constant B1200
+        1800 Constant B1800
+        2400 Constant B2400
+        4800 Constant B4800
+        9600 Constant B9600
+        19200 Constant B19200
+	38400 Constant B38400
+	57600 Constant B57600
+	115200 Constant B115200
+	$00060000 Constant CRTSCTS
+	$300 Constant CS8
+	$800 Constant CREAD
+	$8000 Constant CLOCAL
+	0 Constant CBAUD
+	1 Constant IGNBRK
+	4 Constant IGNPAR
+	
+	17 Constant VTIME
+	16 Constant VMIN
+	
+	$4004667F Constant FIONREAD
+
+	: set-baud ( baud fd -- )  >r
+	    r@ t_old tcgetattr drop
+	    t_old t_buf termios %size move
+	    [ IGNBRK IGNPAR or         ] Literal    t_buf c_iflag l!
+	    0                                       t_buf c_oflag l!
+	    [ CS8 CREAD or CLOCAL or ] Literal
+	    t_buf c_cflag l!
+	    0                                       t_buf c_lflag l!
+	    1 t_buf c_line VMIN + c!
+	    0 t_buf c_line VTIME + c!
+	    dup t_buf c_ispeed l! t_buf c_ospeed l!
+	    r> 1 t_buf tcsetattr drop ;
+        [THEN]
+        [THEN]
 	
 	: reset-baud ( fd -- )
 	    1 t_old tcsetattr drop ;
-	
-	$541B Constant FIONREAD
 	
 	: check-read ( fd -- n )  >r
 	    0 sp@ r> FIONREAD rot ioctl<p> drop ;
@@ -99,7 +152,7 @@ s" os-type" environment? [IF]
 	0 Value term
 	0 Value term-fd
 	: open-port ( addr u -- )
-	    r/w open-file throw dup to term dup fileno to term-fd ;
+	    r/w open-file throw dup to term fileno to term-fd ;
 	: term-read ( -- addr u )
 	    pad term-fd check-read term read-file throw pad swap ;
 	: term-emit ( char -- )
@@ -286,7 +339,9 @@ Create progress s" /-\|" here over allot swap move
 s" os-type" environment? [IF]
     2dup s" linux-gnu" str= [IF] 2drop
         script? [IF]  terminal /dev/ttyUSB0 bye [THEN]
-    [ELSE] s" cygwin" str= [IF]
+    [ELSE] 2dup s" cygwin" str= [IF]
         script? [IF]  terminal COM2 bye [THEN]
-    [THEN]
+    [ELSE] s" darwin" string-prefix? [IF]
+        script? [IF] terminal /dev/cu.PL2303-0000101D bye [THEN]
+    [THEN] [THEN]
 [THEN]
