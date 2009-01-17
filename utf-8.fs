@@ -119,7 +119,8 @@ Defer check-xy  ' noop IS check-xy
     dup $f8 u< if drop 4 exit endif
     dup $fc u< if drop 5 exit endif
     dup $fe u< if drop 6 exit endif
-    UTF-8-err throw ;
+    dup $ff u< if drop 7 exit endif
+    drop 8 ;
 
 : -u8trailing-garbage ( addr u1 -- addr u2 )
     2dup + dup u8<< ( addr u1 end1 end2 )
