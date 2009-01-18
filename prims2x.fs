@@ -1555,8 +1555,8 @@ variable reprocessed-num 0 reprocessed-num !
     stores ;
 
 : output-combined-tail ( -- )
-    part-output-c-tail
     in-part @ >r in-part off
+    part-output-c-tail
     combined ['] output-c-tail-no-stores prim-context
     r> in-part ! ;
 
