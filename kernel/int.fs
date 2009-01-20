@@ -163,21 +163,24 @@ has? os 0= [IF]
     over c@ '' = if
 	1 /string s'>unumber? exit
     endif
-    base @ >r  getbase sign? >r
-    0. 2swap
-    BEGIN ( d addr len )
-	dup >r >number dup
-    WHILE \ there are characters left
-	dup r> -
-    WHILE \ the last >number parsed something
-	dup 1- dpl ! over c@ [char] . =
-    WHILE \ the current char is '.'
-	1 /string
-    REPEAT  THEN \ there are unparseable characters left
-	2drop rdrop false
+    base @ >r  getbase sign?
+    over if
+        >r 0. 2swap
+        BEGIN ( d addr len )
+            dup >r >number dup
+        WHILE \ there are characters left
+                dup r> -
+            WHILE \ the last >number parsed something
+                    dup 1- dpl ! over c@ [char] . =
+                WHILE \ the current char is '.'
+                        1 /string
+                REPEAT  THEN \ there are unparseable characters left
+            2drop rdrop false
+        ELSE
+            rdrop 2drop r> ?dnegate true
+        THEN
     ELSE
-	rdrop 2drop r> ?dnegate true
-    THEN
+        drop 2drop 0. false THEN
     r> base ! ;
 
 \ ouch, this is complicated; there must be a simpler way - anton
