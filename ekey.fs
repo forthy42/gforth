@@ -331,6 +331,12 @@ s-k6 s" [32~" esc-sequence
 s-k7 s" [33~" esc-sequence
 s-k8 s" [34~" esc-sequence
 
+\ esc sequences for MacOS X iterm <e7a7c785-3bea-408b-94e9-4b59b008546f@x16g2000prn.googlegroups.com>
+k-left   s" OD" esc-sequence
+k-right  s" OC" esc-sequence
+k-up     s" OA" esc-sequence
+k-down   s" OB" esc-sequence
+
 set-current
 [ENDIF]
 
