@@ -82,7 +82,7 @@ BUILDFORTH = $(ENGINE) --die-on-signal -m 4M -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir
 # the forth system plus flags we use to build
 FORTHB = $(BUILDFORTH) exboot.fs -e 'fpath= .|~+|$(srcdir)'
 # the Forth system for running prims2x.fs
-FORTHP = $(FORTH)
+#FORTHP = $(FORTH)
 ENGINE_FAST = ./gforth-fast
 FORTH_FAST	= $(ENGINE_FAST) $(FORTH_ARGS)
 FORTHKFLAGS= --die-on-signal -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)" -i $(kernel_fi)
