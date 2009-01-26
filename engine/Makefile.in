@@ -122,7 +122,7 @@ MAIN_DEPS = main.c $(DEPS) prim_superend.i prim_num.i prim_grp.i costs.i super2.
 ENGINE_FAST_DEPS = engine.c $(DEPS) prim_lab-fast.i prim-fast.i fnmatch.h threaded.h
 MAIN_FAST_DEPS = main.c $(DEPS) prim_superend-fast.i prim_num-fast.i prim_grp-fast.i costs-fast.i super2-fast.i
 
-COMPILE.c?=    $(GCC) $(CFLAGS) $(CPPFLAGS) -c # simulate BSD sys.mk
+COMPILE.c = $(GCC) $(CFLAGS) $(CPPFLAGS) -c # simulate BSD sys.mk
 
 #some makes don't do the -o $@ correctly, so we help them
 .c.o:
