@@ -302,13 +302,23 @@ create sp-update-in max-stacks cells allot
 create max-depths max-stacks max-combined 1+ * cells allot
 \ maximum depth at start of each part: array[parts] of array[stack]
 create max-back-depths max-stacks max-combined 1+ * cells allot
-\ maximun depth from end of the combination to the start of the each part
+\ maximum depth from end of the combination to the start of the each part
+create depths max-stacks max-combined 1+ * cells allot
+\ depth at the start of each part: array[parts] of array[stack]
 
 : s-c-max-depth ( nstack ncomponent -- addr )
     max-stacks * + cells max-depths + ;
 
 : s-c-max-back-depth ( nstack ncomponent -- addr )
     max-stacks * + cells max-back-depths + ;
+
+: s-c-depth  ( nstack ncomponent -- addr )
+    max-stacks * + cells depths + ;
+
+: final-max-depth? { nstack ncomponent -- flag }
+    \ does the stack reach its final maxdepth before the component?
+    nstack ncomponent s-c-max-depth @
+    nstack num-combined @ s-c-max-depth @ = ;
 
 wordlist constant primitives
 
@@ -692,17 +702,20 @@ stack inst-stream IP Cell
     stack-access-transform @ dup >r execute
     0 r> execute - ;
 
-: stack-pointer-update { stack -- }
-    \ stacks grow downwards
-    stack stack-diff
-    ?dup-if \ this check is not necessary, gcc would do this for us
+: n-stack-pointer-update { n stack -- }
+    \ stack pointer update by n
+    n if \ this check is not necessary, gcc would do this for us
 	stack inst-stream = if
-	    ." INC_IP(" 0 .r ." );" cr
+	    ." INC_IP(" n 0 .r ." );" cr
 	else
 	    stack stack-pointer 2@ type ."  += "
-	    stack stack-update-transform 0 .r ." ;" cr
+	    n stack stack-update-transform 0 .r ." ;" cr
 	endif
     endif ;
+
+: stack-pointer-update { stack -- }
+    \ stacks grow downwards
+    stack stack-diff stack n-stack-pointer-update ;
 
 : stack-pointer-updates ( -- )
     ['] stack-pointer-update map-stacks ;
@@ -1094,8 +1107,10 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
 	current-depth i th !
     loop ;
 
-: copy-maxdepths ( n -- )
-    max-depth max-depths rot max-stacks * th max-stacks cells move ;
+: copy-maxdepths { n -- }
+    \ transfer current-depth to depths and max-depth to max-depths
+    max-depth max-depths n max-stacks * th max-stacks cells move
+    current-depth depths n max-stacks * th max-stacks cells move ;
 
 : add-prim ( addr u -- )
     \ add primitive given by "addr u" to combined-prims
@@ -1190,18 +1205,29 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
     print-debug-results
     stores ;
 
+: combined-tail-stack-pointer-update { stack -- }
+    stack stack-number @ { nstack }
+    nstack part-num @ 1+ s-c-depth @ ( nupdate-raw )
+    \ correct for possible earlier update
+    nstack part-num @ 1+ final-max-depth? if
+        stack combined ['] stack-diff prim-context - endif
+    stack n-stack-pointer-update ;
+
+: combined-tail-stack-pointer-updates ( -- )
+    ['] combined-tail-stack-pointer-update map-stacks ;
+
 : output-combined-tail ( -- )
     in-part @ >r in-part off
     part-output-c-tail
+    combined-tail-stack-pointer-updates
     combined ['] output-c-tail-no-stores prim-context
     r> in-part ! ;
 
 : part-stack-pointer-updates ( -- )
     next-stack-number @ 0 +do
-	i part-num @ 1+ s-c-max-depth @ dup
-	i num-combined @ s-c-max-depth @ =    \ final depth
-	swap i part-num @ s-c-max-depth @ <> \ just reached now
-	part-num @ 0= \ first part
+        i part-num @ 1+ final-max-depth? \ reached afterwards
+        i part-num @ final-max-depth? 0= \ but not before
+        part-num @ 0= \ exception: first part
 	or and if
 	    stacks i th @ stack-pointer-update
 	endif
@@ -1216,9 +1242,9 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
     part-fetches
     print-debug-args
     combined ['] part-stack-pointer-updates prim-context
-    1 part-num +!
     prim add-depths \ !! right place?
     prim prim-c-code 2@ ['] output-combined-tail type-c-code
+    1 part-num +!
     part-output-c-tail
     ." }" cr ;
 
