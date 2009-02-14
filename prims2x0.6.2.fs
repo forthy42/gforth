@@ -1218,8 +1218,8 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
 
 : output-combined-tail ( -- )
     in-part @ >r in-part off
-    part-output-c-tail
     combined-tail-stack-pointer-updates
+    part-output-c-tail
     combined ['] output-c-tail-no-stores prim-context
     r> in-part ! ;
 
