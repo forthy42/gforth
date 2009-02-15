@@ -1,16 +1,5 @@
 \ tt.pfe
-\ Tetris for terminals, redone in ANSI-Forth.
-\ Written 05Apr94 by Dirk Uwe Zoller,
-\  e-mail duz@roxi.rz.fht-mannheim.de.
-\ Look&feel stolen from Mike Taylor's "TETRIS FOR TERMINALS"
-\
-\ Please copy and share this program, modify it for your system
-\ and improve it as you like. But don't remove this notice.
-\
-\ Thank you.
-\
-\ Variables, constants
-
+\ see ../../tt.fs
 rom
 
 bl bl 2constant empt
