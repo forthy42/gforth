@@ -17,7 +17,7 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-require lib.fs
+require ~+/lib.fs
 
 s" os-type" environment? [IF]
     2dup 2dup s" linux-gnu" str= -rot s" darwin" string-prefix? or [IF] 2drop
@@ -35,7 +35,7 @@ s" os-type" environment? [IF]
         [ELSE]
 	cell dup 2Constant int%
         20 Constant NCCS
-        [THEN]
+        [THEN] [THEN]
 	
 	struct
 	    int% field c_iflag
@@ -340,8 +340,8 @@ s" os-type" environment? [IF]
     2dup s" linux-gnu" str= [IF] 2drop
         script? [IF]  terminal /dev/ttyUSB0 bye [THEN]
     [ELSE] 2dup s" cygwin" str= [IF]
-        script? [IF]  terminal COM2 bye [THEN]
+        script? [IF]  terminal COM1 bye [THEN]
     [ELSE] s" darwin" string-prefix? [IF]
         script? [IF] terminal /dev/cu.PL2303-0000101D bye [THEN]
-    [THEN] [THEN]
+    [THEN] [THEN] [THEN]
 [THEN]

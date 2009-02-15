@@ -27,6 +27,14 @@
 
 VERSION=$(cat version)
 
+sed "s/@PACKAGE_VERSION@/$VERSION/g" <gforthmi.sh.in >gforthmi.sh
+
+for i in lib/gforth/$VERSION/libcc-named/*.la
+do
+    sed "s/dependency_libs='.*'/dependency_libs=''/g" <$i >$i+
+    mv $i+ $i
+done
+
 cat <<EOT
 ; This is the setup script for Gforth on Windows
 ; Setup program is Inno Setup
@@ -73,14 +81,14 @@ Name: "{app}\include\gforth\\$VERSION"
 ; Parameter quick reference:
 ;   "Source filename", "Dest. filename", Copy mode, Flags
 Source: "README.txt"; DestDir: "{app}"; Flags: isreadme
-Source: "cygwin1.dll"; DestDir: "{app}"
-Source: "sh.exe"; DestDir: "{app}"
-Source: "cygintl-8.dll"; DestDir: "{app}"
-Source: "cygiconv-2.dll"; DestDir: "{app}"
-Source: "cygltdl-3.dll"; DestDir: "{app}"
-Source: "cygreadline6.dll"; DestDir: "{app}"
-Source: "cygncurses-8.dll"; DestDir: "{app}"
-Source: "cygffi-2-00-beta.dll"; DestDir: "{app}"
+Source: "c:\cygwin\bin\cygwin1.dll"; DestDir: "{app}"
+Source: "c:\cygwin\bin\sh.exe"; DestDir: "{app}"
+Source: "c:\cygwin\bin\cygintl-8.dll"; DestDir: "{app}"
+Source: "c:\cygwin\bin\cygiconv-2.dll"; DestDir: "{app}"
+Source: "c:\cygwin\bin\cygltdl-3.dll"; DestDir: "{app}"
+Source: "c:\cygwin\bin\cygreadline6.dll"; DestDir: "{app}"
+Source: "c:\cygwin\bin\cygncurses-8.dll"; DestDir: "{app}"
+Source: "c:\cygwin\bin\cygffi-2-00-beta.dll"; DestDir: "{app}"
 Source: "gforthmi.sh"; DestDir: "{app}"
 $(ls doc/gforth | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "doc\\gforth\\\1"; DestDir: "{app}\\doc\\gforth"; Components: help,g')
 $(ls doc/vmgen | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "doc\\vmgen\\\1"; DestDir: "{app}\\doc\\vmgen"; Components: help,g')
@@ -118,6 +126,11 @@ Filename: "{app}\gforth.exe"; WorkingDir: "{app}"; Parameters: "fixpath.fs gfort
 Filename: "{app}\gforth.exe"; WorkingDir: "{app}"; Parameters: "fixpath.fs gforth-prof.exe"
 Filename: "{app}\gforth-fast.exe"; WorkingDir: "{app}"; Parameters: "fixpath.fs gforth.exe"
 Filename: "{app}\sh.exe"; WorkingDir: "{app}"; Parameters: "./gforthmi.sh"
+
+[UninstallDelete]
+Type: files; Name: "{app}\gforth.fi"
+Type: files; Name: "{app}\temp-image.fi1"
+Type: files; Name: "{app}\temp-image.fi2"
 
 ;[Registry]
 ;registry commented out
