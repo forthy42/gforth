@@ -49,15 +49,18 @@ defer .debugline ( nfile nline -- ) \ gforth print-debug-line
     printdebugdata
     cr ;
 
+stderr value debug-fid
+\ file-id to output debugging stuff to
+
 ' (.debugline) IS .debugline
 
-: .debugline-stderr ( nfile nline -- )
-    ['] .debugline stderr outfile-execute ;
+: .debugline-directed ( nfile nline -- )
+    ['] .debugline debug-fid outfile-execute ;
 
 :noname ( -- )
-    current-sourcepos .debugline-stderr ;
+    current-sourcepos .debugline-directed ;
 :noname ( compilation  -- ; run-time  -- )
-    compile-sourcepos POSTPONE .debugline-stderr ;
+    compile-sourcepos POSTPONE .debugline-directed ;
 interpret/compile: ~~ ( -- ) \ gforth tilde-tilde
 \G Prints the source code location of the @code{~~} and the stack
 \G contents with @code{.debugline}.
