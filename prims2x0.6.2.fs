@@ -1205,6 +1205,25 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
     print-debug-results
     stores ;
 
+: stack-combined-tail-stores { stack -- }
+    \ the top stack-out items of this part are stored elsewhere; so
+    \ this store everything between max-depth, unless it was stored
+    \ previously (below back-max-depth) and stack-out
+    stack stack-number @ part-num @ 2dup 2>r s-c-max-depth @ 
+    2r> s-c-max-back-depth @ min
+    stack stack-depth -
+    stack stack-out @ +do
+        i stack normal-stack-access ."  = "
+        i stack part-stack-access ." ;" cr
+    loop ;
+
+: combined-tail-stores ( -- )
+    \ All the stores we have yet to do on an INST_TAIL that are the
+    \ result of earlier parts (and will be consumed by other parts in
+    \ the fallthrough path, and thus have not been stored in the
+    \ earlier part).
+    ['] stack-combined-tail-stores map-stacks ;
+
 : combined-tail-stack-pointer-update { stack -- }
     stack stack-number @ { nstack }
     nstack part-num @ 1+ s-c-depth @ ( nupdate-raw )
@@ -1220,6 +1239,7 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
     in-part @ >r in-part off
     combined-tail-stack-pointer-updates
     part-output-c-tail
+    combined-tail-stores
     combined ['] output-c-tail-no-stores prim-context
     r> in-part ! ;
 
