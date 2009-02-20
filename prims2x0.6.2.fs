@@ -315,6 +315,17 @@ create depths max-stacks max-combined 1+ * cells allot
 : s-c-depth  ( nstack ncomponent -- addr )
     max-stacks * + cells depths + ;
 
+: print-depths1 { stack# xt -- }
+    num-combined @ 1+ 0 +do
+        stack# i xt execute @ 3 .r
+    loop ;
+
+: print-depths { stack# -- }
+    \ for debugging
+    cr ."          depths: " stack# [']          s-c-depth print-depths1
+    cr ."      max-depths: " stack# [']      s-c-max-depth print-depths1
+    cr ." max-back-depths: " stack# ['] s-c-max-back-depth print-depths1 ;
+
 : final-max-depth? { nstack ncomponent -- flag }
     \ does the stack reach its final maxdepth before the component?
     nstack ncomponent s-c-max-depth @
@@ -679,12 +690,14 @@ stack inst-stream IP Cell
 : flush-tos ( -- )
     ['] flush-a-tos map-stacks1 ;
 
-: fill-a-tos { stack -- }
-    stack stack-out @ 0= stack stack-in @ 0<> and
-    if
-	." IF_" stack stack-pointer 2@ 2dup type ." TOS("
-	2dup type ." TOS = " type 0 stack normal-stack-access0 ." );" cr
+: ?really-fill-a-tos { f stack -- }
+    f if
+        ." IF_" stack stack-pointer 2@ 2dup type ." TOS("
+        2dup type ." TOS = " type 0 stack normal-stack-access0 ." );" cr
     endif ;
+    
+: fill-a-tos { stack -- }
+    stack stack-out @ 0= stack stack-in @ 0<> and stack ?really-fill-a-tos ;
 
 : fill-tos ( -- )
     \ !! inst-stream for prefetching?
@@ -793,9 +806,6 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
 
 : output-c-tail2 ( -- )
     ['] output-label2 output-c-tail1 ;
-
-: output-c-tail-no-stores ( -- )
-    tail-nextp2 @ output-c-tail1-no-stores ;
 
 : output-c-tail2-no-stores ( -- )
     ['] output-label2 output-c-tail1-no-stores ;
@@ -1205,14 +1215,17 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
     print-debug-results
     stores ;
 
-: stack-combined-tail-stores { stack -- }
-    \ the top stack-out items of this part are stored elsewhere; so
-    \ this store everything between max-depth, unless it was stored
-    \ previously (below back-max-depth) and stack-out
+: stack-combined-tail-stores-limits { stack -- nupper nlower }
     stack stack-number @ part-num @ 2dup 2>r s-c-max-depth @ 
     2r> s-c-max-back-depth @ min
     stack stack-depth -
-    stack stack-out @ +do
+    stack stack-out @ ;
+
+: stack-combined-tail-stores { stack -- }
+    \ the top stack-out items of this part are stored elsewhere; so
+    \ this store everything between max-depth and stack-out, unless it
+    \ was stored previously (below back-max-depth)
+    stack stack-combined-tail-stores-limits +do
         i stack normal-stack-access ."  = "
         i stack part-stack-access ." ;" cr
     loop ;
@@ -1224,16 +1237,47 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
     \ earlier part).
     ['] stack-combined-tail-stores map-stacks ;
 
-: combined-tail-stack-pointer-update { stack -- }
+: combined-tail-stack-pointer-update-n { stack -- }
     stack stack-number @ { nstack }
     nstack part-num @ 1+ s-c-depth @ ( nupdate-raw )
     \ correct for possible earlier update
     nstack part-num @ 1+ final-max-depth? if
-        stack combined ['] stack-diff prim-context - endif
-    stack n-stack-pointer-update ;
+        stack combined ['] stack-diff prim-context -
+    endif ;
+
+: combined-tail-stack-pointer-update { stack -- }
+    stack combined-tail-stack-pointer-update-n stack n-stack-pointer-update ;
 
 : combined-tail-stack-pointer-updates ( -- )
     ['] combined-tail-stack-pointer-update map-stacks ;
+
+: stack-combined-tail-stores-limits { stack -- nupper nlower }
+    stack stack-number @ part-num @ 2dup 2>r s-c-max-depth @ 
+    2r> s-c-max-back-depth @ min
+    stack stack-depth -
+    stack stack-out @ ;
+
+: tail-fill-a-tos { stack -- }
+    \ 1 print-depths
+    stack stack-number @ part-num @ 2dup s-c-max-depth @ { scmde }
+    1+ 2dup s-c-max-depth @ { scmd } s-c-depth @ { scd }
+    scmd scd = scmd 0<> and \ normal fill (TOS consumed)
+    \ or it was stored to (what's now) sp[0] by an earlier part:
+    stack stack-combined-tail-stores-limits <= \ no stores in this tail
+    scmde 0= and \ there were stores to this stack earlier
+    stack combined-tail-stack-pointer-update-n 0<> and \ but not to spTOS
+    or stack ?really-fill-a-tos ;
+
+: tail-fill-tos ( -- )
+    \ fill tos in INST_TAIL
+    ['] tail-fill-a-tos map-stacks1 ;
+
+: output-c-tail-no-stores ( -- )
+    \ the final part of INST_TAIL
+    output-super-end
+    ." NEXT_P1;" cr
+    tail-fill-tos 
+    tail-nextp2 perform ;
 
 : output-combined-tail ( -- )
     in-part @ >r in-part off
