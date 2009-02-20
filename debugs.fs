@@ -49,8 +49,8 @@ defer .debugline ( nfile nline -- ) \ gforth print-debug-line
     printdebugdata
     cr ;
 
-stderr value debug-fid
-\ file-id to output debugging stuff to
+stderr value debug-fid ( -- fid )
+\G (value) Debugging output prints to this file
 
 ' (.debugline) IS .debugline
 

@@ -11895,6 +11895,7 @@ happened or where the strange data has occurred).
 doc-~~
 doc-printdebugdata
 doc-.debugline
+doc-debug-fid
 
 @cindex filenames in @code{~~} output
 @code{~~} (and assertions) will usually print the wrong file name if a
