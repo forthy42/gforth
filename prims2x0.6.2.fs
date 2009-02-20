@@ -54,6 +54,10 @@
 \ for backwards compatibility, jaw
 require compat/strcomp.fs
 
+[undefined] endtry-iferror [if]
+    : endtry-iferror postpone recover ; immediate compile-only
+[then]
+
 warnings off
 
 \ redefinitions of kernel words not present in gforth-0.6.1
@@ -71,7 +75,7 @@ warnings off
 
 include ./gray.fs
 128 constant max-effect \ number of things on one side of a stack effect
-4 constant max-stacks  \ the max. number of stacks (including inst-stream).
+9 constant max-stacks  \ the max. number of stacks (including inst-stream).
 255 constant maxchar
 maxchar 1+ constant eof-char
 #tab constant tab-char
