@@ -231,6 +231,10 @@ DOES> ( -- )  dup thislib ! proc: ;
     here thisproc @ 2 cells + ! parse-name s,
     thislib @ thisproc @ @proc ;
 
+: func@ >body cell+ @ ;
+: func' ' func@ ;
+: [func'] postpone ['] postpone func@ ; immediate restrict
+
 \ stuff for libffi
 
 \ libffi uses a parameter array for the input
