@@ -258,6 +258,10 @@ DOES> ( -- )  dup thislib ! proc: ;
   DOES>  decl, ind-call @ 0= IF  symbol,  THEN
     previous revarg off ind-call off ;
 
+: func@ >body cell+ @ ;
+: func' ' func@ ;
+: [func'] postpone ['] postpone func@ ; immediate restrict
+
 also c-decl definitions
 
 : <rev>  revarg on ;
