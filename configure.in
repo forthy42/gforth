@@ -824,19 +824,19 @@ AC_CHECK_PROGS(TEXI2DVI,texi2dvi4a2ps texi2dvi)
 dnl MacOS X has a libtool that does something else
 AC_CHECK_PROGS(GNU_LIBTOOL,"glibtool --tag=CC" libtool)
 
-if test -n "$GNU_LIBTOOL"; then
+dnl Checks for library functions
+dnl This check is just for making later checks link with libm.
+dnl using sin here is no good idea since it is built-into gcc and typechecked
+AC_CHECK_LIB(m,asin)
+AC_CHECK_LIB(ltdl,lt_dlinit)
+
+if test -n "$GNU_LIBTOOL" -a $ac_cv_lib_ltdl_lt_dlinit = yes; then
   build_libcc_named=build-libcc-named
 else
   build_libcc_named=""
 fi
 AC_SUBST(build_libcc_named)
 
-
-dnl Checks for library functions
-dnl This check is just for making later checks link with libm.
-dnl using sin here is no good idea since it is built-into gcc and typechecked
-AC_CHECK_LIB(m,asin)
-AC_CHECK_LIB(ltdl,lt_dlinit)
 #check for libffi 2.x
 AC_CHECK_HEADER(ffi.h,FFI_H_NAME=ffi.h,)
 if test -z "$FFI_H_NAME"; then

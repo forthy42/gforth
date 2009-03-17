@@ -143,14 +143,14 @@ siteforthdir=$(datadir)/gforth/site-forth
 PROFOBJS = @PROFOBJS@
 PROFEXES = @PROFEXES@
 
-CVSDIRS = CVS engine/CVS kernel/CVS doc/CVS asm/CVS ec/CVS test/CVS \
-	compat/CVS unix/CVS \
-	arch/CVS arch/generic/CVS arch/m68k/CVS arch/mips/CVS \
-	arch/386/CVS arch/hppa/CVS arch/sparc/CVS arch/power/CVS \
-	arch/alpha/CVS arch/4stack/CVS arch/misc/CVS arch/6502/CVS \
-	arch/8086/CVS arch/avr/CVS arch/c165/CVS arch/h8/CVS \
-	arch/shboom/CVS arch/sharc/CVS arch/ia64/CVS arch/amd64/CVS \
-	arch/arm/CVS arch/r8c/CVS
+INSTALLDIRS = kernel doc asm ec test \
+	compat unix \
+	arch arch/generic arch/m68k arch/mips \
+	arch/386 arch/hppa arch/sparc arch/power \
+	arch/alpha arch/4stack arch/misc arch/6502 \
+	arch/8086 arch/avr arch/c165 arch/h8 \
+	arch/shboom arch/sharc arch/ia64 arch/amd64 \
+	arch/arm arch/r8c
 
 INCLUDES = engine/forth.h engine/threaded.h engine/io.h engine/longlong.h
 
@@ -381,7 +381,7 @@ ARCHS_NO_DIST = \
 	arch/h8/asm.fs \
 	arch/r8c/tt.fs
 
-VMGEN_EX = vmgen-ex/CVS vmgen-ex/Makefile vmgen-ex/README vmgen-ex/disasm.c \
+VMGEN_EX = vmgen-ex/Makefile vmgen-ex/README vmgen-ex/disasm.c \
 	vmgen-ex/engine.c vmgen-ex/fib.mini \
 	vmgen-ex/mini-inst.vmg vmgen-ex/mini-super.vmg vmgen-ex/mini.h \
 	vmgen-ex/mini.l vmgen-ex/mini.y vmgen-ex/peephole-blacklist \
@@ -404,7 +404,7 @@ ENGINE_SOURCES = engine/Makefile.in engine/config.h.in \
 	engine/fnmatch.h engine/fnmatch.c \
 	engine/makefile.dos engine/makefile.os2
 
-SOURCES	= $(CVSDIRS) $(ENGINE_SOURCES) compat Makefile.in Makedist.in \
+SOURCES	= $(ENGINE_SOURCES) compat Makefile.in Makedist.in \
 	gforthmi.in vmgen.in preforth.in gfgen README.vmgen NEWS.vmgen \
 	autogen.sh configure.in configure config.sub config.guess \
 	elisp-comp missing stamp-h.in envos.fs.in \
@@ -643,10 +643,10 @@ installdirs:	mkinstalldirs
 		for i in $(bindir) $(man1dir) $(infodir) $(libdir)/gforth/$(VERSION) $(datadir)/gforth/$(VERSION) $(libdir)/gforth/site-forth $(siteforthdir) $(includedir)/gforth/$(VERSION) $(libccdir); do \
 			$(srcdir)/mkinstalldirs $(DESTDIR)$$i; \
 		done
-		for i in $(CVSDIRS); do \
-			$(srcdir)/mkinstalldirs $(DESTDIR)$(datadir)/gforth/$(VERSION)/`dirname $$i`; \
+		#
+		for i in $(INSTALLDIRS); do \
+			$(srcdir)/mkinstalldirs $(DESTDIR)$(datadir)/gforth/$(VERSION)/$$i; \
 		done
-		$(RM) -rf $(DESTDIR)$(datadir)/gforth/$(VERSION)/engine
 
 #deinstall all files specific to this version of gforth
 #to uninstall version foo, type `make uninstall VERSION=foo'
