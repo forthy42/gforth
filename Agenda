@@ -9,15 +9,19 @@ Unfinished functionality:
  Up-to-date with latest proposal version?
 
  C interface:
- precompiled interface libraries
+ SWIG-based tool for generating interface files from .h files (Gerald Wodni)
+ provide interface files for popular APIs
+ compile predefined interfaces into engine (at least on machines
+   without dynamic linking)
  library words in images
  callbacks
  structs etc.
  oldlib words should be compatible or named differently (Bernd)
 
- gforth-native:
- make it work again
- make it work on most platforms
+ Performance:
+   Inlining
+   Compilation through C
+   gforth-native? make it work again? make it work on most platforms?
 
  regexp.fs: add documentation (Bernd)
 
