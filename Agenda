@@ -11,8 +11,9 @@ Unfinished functionality:
  C interface:
  SWIG-based tool for generating interface files from .h files (Gerald Wodni)
  provide interface files for popular APIs
- compile predefined interfaces into engine (at least on machines
+ compile predefined wrappers into engine (at least on machines
    without dynamic linking)
+ prim-like wrappers (Bernd?)
  library words in images
  callbacks
  structs etc.
