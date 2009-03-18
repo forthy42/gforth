@@ -2224,25 +2224,25 @@ static void print_diag()
 #if defined(BUGGY_LL_CMP) || defined(BUGGY_LL_MUL) || defined(BUGGY_LL_DIV) || defined(BUGGY_LL_ADD) || defined(BUGGY_LL_SHIFT) || defined(BUGGY_LL_D2F) || defined(BUGGY_LL_F2D)
 	    "    double-cell integer type buggy ->\n        "
 #ifdef BUGGY_LL_CMP
-	    "CMP, "
+	    "double comparisons, "
 #endif
 #ifdef BUGGY_LL_MUL
-	    "MUL, "
+	    "*/MOD */ M* UM* "
 #endif
 #ifdef BUGGY_LL_DIV
-	    "DIV, "
+	    /* currently nothing is affected */
 #endif
 #ifdef BUGGY_LL_ADD
-	    "ADD, "
+	    "M+ D+ D- DNEGATE "
 #endif
 #ifdef BUGGY_LL_SHIFT
-	    "SHIFT, "
+	    "D2/ "
 #endif
 #ifdef BUGGY_LL_D2F
-	    "D2F, "
+	    "D>F "
 #endif
 #ifdef BUGGY_LL_F2D
-	    "F2D, "
+	    "F>D "
 #endif
 	    "\b\b slow\n"
 #endif
