@@ -113,7 +113,7 @@ Defer source ( -- c-addr u ) \ core
 
 \ \ Number parsing					23feb93py
 
-\ number? number                                       23feb93py
+\ (number?) number                                       23feb93py
 
 hex
 const Create bases   0A , 10 ,   2 ,   0A ,
@@ -210,7 +210,7 @@ has? os 0= [IF]
 	1+
     THEN ;
 
-: number? ( string -- string 0 / n -1 / d 0> )
+: (number?) ( string -- string 0 / n -1 / d 0> )
     dup >r count snumber? dup if
 	rdrop
     else
@@ -218,7 +218,7 @@ has? os 0= [IF]
     then ;
 
 : number ( string -- d )
-    number? ?dup 0= abort" ?"  0<
+    (number?) ?dup 0= abort" ?"  0<
     IF
 	s>d
     THEN ;

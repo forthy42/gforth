@@ -191,7 +191,7 @@ Create bases   10 ,   2 ,   A , 100 ,
 	1+
     THEN ;
 
-: number? ( string -- string 0 / n -1 / d 0> )
+: (number?) ( string -- string 0 / n -1 / d 0> )
     dup >r count snumber? dup if
 	rdrop
     else
@@ -199,12 +199,14 @@ Create bases   10 ,   2 ,   A , 100 ,
     then ;
 
 : number ( string -- d )
-    number? ?dup 0= abort" ?"  0<
+    (number?) ?dup 0= abort" ?"  0<
     IF
 	s>d
     THEN ;
 
 [THEN]
+
+[IFUNDEF] (number?) : (number?) number? ; [THEN]
 
 \ this provides assert( and struct stuff
 \GFORTH [IFUNDEF] assert1(
@@ -2535,7 +2537,7 @@ Cond: MAXI
         IF   nip execute-exec-compile ELSE gexecute  THEN 
 	EXIT 
   THEN
-  number? dup  
+  (number?) dup  
   IF	0> IF swap lit,  THEN  lit, discard
   ELSE	2drop restore-input throw Ghost gexecute THEN  ;
 
