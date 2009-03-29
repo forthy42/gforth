@@ -290,7 +290,7 @@ has? f83headerstring [IF]
 Create f83search ( -- wordlist-map )
     ' f83find A,  ' drop A,  ' drop A, ' drop A,
 
-here G f83search T A, NIL A, NIL A, NIL A,
+here f83search A, NIL A, NIL A, NIL A,
 AValue forth-wordlist \ variable, will be redefined by search.fs
 
 AVariable lookup       	forth-wordlist lookup !
