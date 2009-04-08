@@ -1,84 +1,93 @@
-\ for the original tester
+\ This file contains the code for ttester, a utility for testing Forth words,
+\ as developed by several authors (see below), together with some explanations
+\ of its use.
+
+\ ttester is based on the original tester suite by Hayes:
 \ From: John Hayes S1I
 \ Subject: tester.fr
 \ Date: Mon, 27 Nov 95 13:10:09 PST  
 \ (C) 1995 JOHNS HOPKINS UNIVERSITY / APPLIED PHYSICS LABORATORY
 \ MAY BE DISTRIBUTED FREELY AS LONG AS THIS COPYRIGHT NOTICE REMAINS.
 \ VERSION 1.1
-
-\ for the FNEARLY= stuff:
+\ All the subsequent changes have been placed in the public domain.
+\ The primary changes from the original are the replacement of "{" by "T{"
+\ and "}" by "}T" (to avoid conflicts with the uses of { for locals and }
+\ for FSL arrays), modifications so that the stack is allowed to be non-empty
+\ before T{, and extensions for the handling of floating point tests.
+\ Code for testing equality of floating point values comes
 \ from ftester.fs written by David N. Williams, based on the idea of
-\ approximate equality in Dirk Zoller's float.4th
-\ public domain
-
-\ for the rest:
-\ revised by Anton Ertl
-\ public domain
-
-\ The original has the following shortcomings:
-
-\ - It does not work as expected if the stack is non-empty before the {.
-
-\ - It does not check FP results if the system has a separate FP stack.
-
-\ - There is a conflict with the use of } for FSL arrays and { for locals.
-
-\ I have revised it to address these shortcomings.  You can find the
-\ result at
-
-\ http://www.forth200x.org/tests/tester.fs
-\ http://www.forth200x.org/tests/ttester.fs
-
-\ for history and possibly newer versions you can also look at
+\ approximate equality in Dirk Zoller's float.4th.
+\ Further revisions were provided by Anton Ertl, including the ability
+\ to handle either integrated or separate floating point stacks.
+\ Revision history and possibly newer versions can be found at
 \ http://www.complang.tuwien.ac.at/cvsweb/cgi-bin/cvsweb/gforth/test/ttester.fs
+\ Explanatory material and minor reformatting (no code changes) by
+\ C. G. Montgomery March 2009, with helpful comments from David Williams
+\ and Krishna Myneni.
 
-\ tester.fs is intended to be a drop-in replacement of the original.
+\ Usage:
 
-\ ttester.fs is a version that uses T{ and }T instead of { and } and
-\ keeps the BASE as it was before loading ttester.fs
+\ The basic usage takes the form  T{ <code> -> <expected stack> }T .
+\ This executes  <code>  and compares the resulting stack contents with
+\ the  <expected stack>  values, and reports any discrepancy between the
+\ two sets of values.
+\ For example:
+\ T{ 1 2 3 swap -> 1 3 2 }T  ok
+\ T{ 1 2 3 swap -> 1 2 2 }T INCORRECT RESULT: T{ 1 2 3 swap -> 1 2 2 }T ok
+\ T{ 1 2 3 swap -> 1 2 }T WRONG NUMBER OF RESULTS: T{ 1 2 3 swap -> 1 2 }T ok
 
-\ In spirit of the original, I have strived to avoid any potential
-\ non-portabilities and stayed as much within the CORE words as
-\ possible; e.g., FLOATING words are used only if the FLOATING wordset
-\ is present
+\ Floating point testing can involve further complications.  The code
+\ attempts to determine whether floating-point support is present, and
+\ if so, whether there is a separate floating-point stack, and behave
+\ accordingly.  The CONSTANTs HAS-FLOATING and HAS-FLOATING-STACK
+\ contain the results of its efforts, so the behavior of the code can
+\ be modified by the user if necessary.
 
-\ There are a few things to be noted:
+\ Then there are the perennial issues of floating point value
+\ comparisons.  Exact equality is specified by SET-EXACT (the
+\ default).  If approximate equality tests are desired, execute
+\ SET-NEAR .  Then the FVARIABLEs REL-NEAR (default 1E-12) and
+\ ABS-NEAR (default 0E) contain the values to be used in comparisons
+\ by the (internal) word FNEARLY= .
 
-\ - Loading ttester.fs does not change BASE.  Loading tester.fs
-\ changes BASE to HEX (like the original tester).  Floating-point
-\ input is ambiguous when the base is not decimal, so you have to set
-\ it to decimal yourself when you want to deal with decimal numbers.
+\ When there is not a separate floating point stack and you want to
+\ use approximate equality for FP values, it is necessary to identify
+\ which stack items are floating point quantities.  This can be done
+\ by replacing the closing }T with a version that specifies this, such
+\ as RRXR}T which identifies the stack picture ( r r x r ).  The code
+\ provides such words for all combinations of R and X with up to four
+\ stack items.  They can be used with either an integrated or separate
+\ floating point stacks. Adding more if you need them is
+\ straightforward; see the examples in the source.  Here is an example
+\ which also illustrates controlling the precision of comparisons:
 
-\ - For FP it is often useful to use approximate equality for checking
-\ the results.  You can turn on approximate matching with SET-NEAR
-\ (and turn it off (default) with SET-EXACT, and you can tune it by
-\ setting the variables REL-NEAR and ABS-NEAR.  If you want your tests
-\ to work with a shared stack, you have to specify the types of the
-\ elements on the stack by using one of the closing words that specify
-\ types, e.g. RRRX}T for checking the stack picture ( r r r x ).
-\ There are such words for all combination of R and X with up to 4
-\ stack items, and defining more if you need them is straightforward
-\ (see source).  If your tests are only intended for a separate-stack
-\ system or if you need only exact matching, you can use the plain }T
-\ instead.
+\   SET-NEAR
+\   1E-6 REL-NEAR F!
+\   T{ S" 3.14159E" >FLOAT -> -1E FACOS TRUE RX}T
+
+\ The word ERROR is now vectored, so that its action can be changed by
+\ the user (for example, to add a counter for the number of errors).
+\ The default action ERROR1 can be used as a factor in the display of
+\ error reports.
+
+\ Loading ttester.fs does not change BASE.  Remember that floating point input
+\ is ambiguous if the base is not decimal.
+
+\ The file defines some 70 words in all, but in most cases only the
+\ ones mentioned above will be needed for successful testing.
 
 BASE @
 HEX
 
-\ SET THE FOLLOWING FLAG TO TRUE FOR MORE VERBOSE OUTPUT; THIS MAY
-\ ALLOW YOU TO TELL WHICH TEST CAUSED YOUR SYSTEM TO HANG.
-VARIABLE VERBOSE
-   FALSE VERBOSE !
-
-VARIABLE ACTUAL-DEPTH			\ STACK RECORD
+VARIABLE ACTUAL-DEPTH			\ stack record
 CREATE ACTUAL-RESULTS 20 CELLS ALLOT
 VARIABLE START-DEPTH
-VARIABLE XCURSOR \ FOR ...}T
+VARIABLE XCURSOR      \ for ...}T
 VARIABLE ERROR-XT
 
-: ERROR ERROR-XT @ EXECUTE ;
+: ERROR ERROR-XT @ EXECUTE ;   \ for vectoring of error reporting
 
-: "FLOATING" S" FLOATING" ; \ ONLY COMPILED S" IN CORE
+: "FLOATING" S" FLOATING" ;    \ only compiled S" in CORE
 : "FLOATING-STACK" S" FLOATING-STACK" ;
 "FLOATING" ENVIRONMENT? [IF]
     [IF]
@@ -95,18 +104,18 @@ VARIABLE ERROR-XT
     [ELSE]
         FALSE
     [THEN]
-[ELSE] \ WE DON'T KNOW WHETHER THE FP STACK IS SEPARATE
-    HAS-FLOATING \ IF WE HAVE FLOATING, WE ASSUME IT IS
+[ELSE]            \ We don't know whether the FP stack is separate.
+    HAS-FLOATING  \ If we have FLOATING, we assume it is.
 [THEN] CONSTANT HAS-FLOATING-STACK
 
 HAS-FLOATING [IF]
-    \ SET THE FOLLOWING TO THE RELATIVE AND ABSOLUTE TOLERANCES YOU
-    \ WANT FOR APPROXIMATE FLOAT EQUALITY, TO BE USED WITH F~ IN
-    \ FNEARLY=.  KEEP THE SIGNS, BECAUSE F~ NEEDS THEM.
+    \ Set the following to the relative and absolute tolerances you
+    \ want for approximate float equality, to be used with F~ in
+    \ FNEARLY=.  Keep the signs, because F~ needs them.
     FVARIABLE REL-NEAR DECIMAL 1E-12 HEX REL-NEAR F!
     FVARIABLE ABS-NEAR    DECIMAL 0E HEX ABS-NEAR F!
 
-    \ WHEN EXACT? IS TRUE, }F USES FEXACTLY=, OTHERWISE FNEARLY=.
+    \ When EXACT? is TRUE, }F uses FEXACTLY=, otherwise FNEARLY=.
     
     TRUE VALUE EXACT?
     : SET-EXACT  ( -- )   TRUE TO EXACT? ;
@@ -115,22 +124,22 @@ HAS-FLOATING [IF]
     DECIMAL
     : FEXACTLY=  ( F: X Y -- S: FLAG )
         (
-        LEAVE TRUE IF THE TWO FLOATS ARE IDENTICAL.
+        Leave TRUE if the two floats are identical.
         )
         0E F~ ;
     HEX
     
     : FABS=  ( F: X Y -- S: FLAG )
         (
-        LEAVE TRUE IF THE TWO FLOATS ARE EQUAL WITHIN THE TOLERANCE
-        STORED IN ABS-NEAR.
+        Leave TRUE if the two floats are equal within the tolerance
+        stored in ABS-NEAR.
         )
         ABS-NEAR F@ F~ ;
     
     : FREL=  ( F: X Y -- S: FLAG )
         (
-        LEAVE TRUE IF THE TWO FLOATS ARE RELATIVELY EQUAL BASED ON THE
-        TOLERANCE STORED IN ABS-NEAR.
+        Leave TRUE if the two floats are relatively equal based on the
+        tolerance stored in ABS-NEAR.
         )
         REL-NEAR F@ FNEGATE F~ ;
 
@@ -139,11 +148,11 @@ HAS-FLOATING [IF]
     
     : FNEARLY=  ( F: X Y -- S: FLAG )
         (
-        LEAVE TRUE IF THE TWO FLOATS ARE NEARLY EQUAL.  THIS IS A
-        REFINEMENT OF DIRK ZOLLER'S FEQ TO ALSO ALLOW X = Y, INCLUDING
-        BOTH ZERO, OR TO ALLOW APPROXIMATE EQUALITY WHEN X AND Y ARE TOO
-        SMALL TO SATISFY THE RELATIVE APPROXIMATION MODE IN THE F~
-        SPECIFICATION.
+        Leave TRUE if the two floats are nearly equal.  This is a 
+        refinement of Dirk Zoller's FEQ to also allow X = Y, including
+        both zero, or to allow approximately equality when X and Y are too
+        small to satisfy the relative approximation mode in the F~ 
+        specification.
         )
         F2DUP FEXACTLY= IF F2DROP TRUE EXIT THEN
         F2DUP FREL=     IF F2DROP TRUE EXIT THEN
@@ -234,7 +243,7 @@ HAS-FLOATING-STACK [IF]
     [THEN]
 [THEN]    
 
-: EMPTY-STACK	\ ( ... -- ) EMPTY STACK: HANDLES UNDERFLOWED STACK TOO.
+: EMPTY-STACK	\ ( ... -- ) empty stack; handles underflowed stack too.
     DEPTH START-DEPTH @ < IF
         DEPTH START-DEPTH @ SWAP DO 0 LOOP
     THEN
@@ -243,34 +252,34 @@ HAS-FLOATING-STACK [IF]
     THEN
     EMPTY-FSTACK ;
 
-: ERROR1	\ ( C-ADDR U -- ) DISPLAY AN ERROR MESSAGE FOLLOWED BY
-		\ THE LINE THAT HAD THE ERROR.
-   TYPE SOURCE TYPE CR			\ DISPLAY LINE CORRESPONDING TO ERROR
-   EMPTY-STACK				\ THROW AWAY EVERY THING ELSE
+: ERROR1	\ ( C-ADDR U -- ) display an error message 
+		\ followed by the line that had the error.
+   TYPE SOURCE TYPE CR			\ display line corresponding to error
+   EMPTY-STACK				\ throw away everything else
 ;
 
 ' ERROR1 ERROR-XT !
 
-: T{		\ ( -- ) SYNTACTIC SUGAR.
+: T{		\ ( -- ) syntactic sugar.
    DEPTH START-DEPTH ! 0 XCURSOR ! F{ ;
 
-: ->		\ ( ... -- ) RECORD DEPTH AND CONTENT OF STACK.
-   DEPTH DUP ACTUAL-DEPTH !		\ RECORD DEPTH
-   START-DEPTH @ > IF		\ IF THERE IS SOMETHING ON STACK
-       DEPTH START-DEPTH @ - 0 DO ACTUAL-RESULTS I CELLS + ! LOOP \ SAVE THEM
+: ->		\ ( ... -- ) record depth and contents of stack.
+   DEPTH DUP ACTUAL-DEPTH !		\ record depth
+   START-DEPTH @ > IF		\ if there is something on the stack
+       DEPTH START-DEPTH @ - 0 DO ACTUAL-RESULTS I CELLS + ! LOOP \ save them
    THEN
    F-> ;
 
 : }T		\ ( ... -- ) COMPARE STACK (EXPECTED) CONTENTS WITH SAVED
 		\ (ACTUAL) CONTENTS.
-   DEPTH ACTUAL-DEPTH @ = IF		\ IF DEPTHS MATCH
-      DEPTH START-DEPTH @ > IF		\ IF THERE IS SOMETHING ON THE STACK
-         DEPTH START-DEPTH @ - 0 DO	\ FOR EACH STACK ITEM
-	    ACTUAL-RESULTS I CELLS + @	\ COMPARE ACTUAL WITH EXPECTED
+   DEPTH ACTUAL-DEPTH @ = IF		\ if depths match
+      DEPTH START-DEPTH @ > IF		\ if there is something on the stack
+         DEPTH START-DEPTH @ - 0 DO	\ for each stack item
+	    ACTUAL-RESULTS I CELLS + @	\ compare actual with expected
 	    <> IF S" INCORRECT RESULT: " ERROR LEAVE THEN
 	 LOOP
       THEN
-   ELSE					\ DEPTH MISMATCH
+   ELSE					\ depth mismatch
       S" WRONG NUMBER OF RESULTS: " ERROR
    THEN
    F} ;
@@ -325,6 +334,11 @@ HAS-FLOATING [IF]
 : RRRR}T FTESTER FTESTER FTESTER FTESTER ...}T ;
 [THEN]
 
+\ Set the following flag to TRUE for more verbose output; this may
+\ allow you to tell which test caused your system to hang.
+VARIABLE VERBOSE
+   FALSE VERBOSE !
+
 : TESTING	\ ( -- ) TALKING COMMENT.
    SOURCE VERBOSE @
    IF DUP >R TYPE CR R> >IN !
@@ -332,3 +346,4 @@ HAS-FLOATING [IF]
    THEN ;
 
 BASE !
+\ end of ttester.fs
