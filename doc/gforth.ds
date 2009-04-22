@@ -145,7 +145,7 @@ Gforth Environment
 * Environment variables::       that affect how Gforth starts up
 * Gforth Files::                What gets installed and where
 * Gforth in pipes::             
-* Startup speed::               When 35ms is not fast enough ...
+* Startup speed::               When 14ms is not fast enough ...
 
 Forth Tutorial
 
@@ -631,7 +631,7 @@ material in this chapter.
 * Environment variables::       that affect how Gforth starts up
 * Gforth Files::                What gets installed and where
 * Gforth in pipes::             
-* Startup speed::               When 35ms is not fast enough ...
+* Startup speed::               When 14ms is not fast enough ...
 @end menu
 
 For related information about the creation of images see @ref{Image Files}.
@@ -1139,47 +1139,66 @@ Pipes involving Gforth's @code{stderr} output do not work.
 @cindex speed, startup
 
 If Gforth is used for CGI scripts or in shell scripts, its startup
-speed may become a problem.  On a 300MHz 21064a under Linux-2.2.13 with
-glibc-2.0.7, @code{gforth -e bye} takes about 24.6ms user and 11.3ms
-system time.
+speed may become a problem.  On a 3GHz Core 2 Duo E8400 under 64-bit
+Linux 2.6.27.8 with libc-2.7, @code{gforth-fast -e bye} takes 13.1ms
+user and 1.2ms system time (@code{gforth -e bye} is faster on startup
+with about 3.4ms user time and 1.2ms system time, because it subsumes
+some of the options discussed below).
 
 If startup speed is a problem, you may consider the following ways to
 improve it; or you may consider ways to reduce the number of startups
-(for example, by using Fast-CGI).
+(for example, by using Fast-CGI).  Note that the first steps below
+improve the startup time at the cost of run-time (including
+compile-time), so whether they are profitable depends on the balance
+of these times in your application.
 
-An easy step that influences Gforth startup speed is the use of the
-@option{--no-dynamic} option; this decreases image loading speed, but
-increases compile-time and run-time.
+An easy step that influences Gforth startup speed is the use of a
+number of options that increase run-time, but decrease image-loading
+time.
 
-Another step to improve startup speed is to statically link Gforth, by
-building it with @code{XLDFLAGS=-static}.  This requires more memory for
-the code and will therefore slow down the first invocation, but
-subsequent invocations avoid the dynamic linking overhead.  Another
-disadvantage is that Gforth won't profit from library upgrades.  As a
-result, @code{gforth-static -e bye} takes about 17.1ms user and
-8.2ms system time.
+The first of these that you should try is @code{--ss-number=0
+--ss-states=1} because this option buys relatively little run-time
+speedup and costs quite a bit of time at startup.  @code{gforth-fast
+--ss-number=0 --ss-states=1 -e bye} takes about 2.8ms user and 1.5ms
+system time.
 
-The next step to improve startup speed is to use a non-relocatable image
-(@pxref{Non-Relocatable Image Files}).  You can create this image with
-@code{gforth -e "savesystem gforthnr.fi bye"} and later use it with
-@code{gforth -i gforthnr.fi ...}.  This avoids the relocation overhead
-and a part of the copy-on-write overhead.  The disadvantage is that the
-non-relocatable image does not work if the OS gives Gforth a different
-address for the dictionary, for whatever reason; so you better provide a
-fallback on a relocatable image.  @code{gforth-static -i gforthnr.fi -e
-bye} takes about 15.3ms user and 7.5ms system time.
+The next option is @code{--no-dynamic} which has a substantial impact
+on run-time (about a factor of 2 on several platforms), but still
+makes startup speed a little faster: @code{gforth-fast --ss-number=0
+--ss-states=1 --no-dynamic -e bye} consumes about 2.6ms user and 1.2ms
+system time.
 
-The final step is to disable dictionary hashing in Gforth.  Gforth
-builds the hash table on startup, which takes much of the startup
-overhead. You can do this by commenting out the @code{include hash.fs}
-in @file{startup.fs} and everything that requires @file{hash.fs} (at the
-moment @file{table.fs} and @file{ekey.fs}) and then doing @code{make}.
-The disadvantages are that functionality like @code{table} and
-@code{ekey} is missing and that text interpretation (e.g., compiling)
-now takes much longer. So, you should only use this method if there is
-no significant text interpretation to perform (the script should be
-compiled into the image, amongst other things).  @code{gforth-static -i
-gforthnrnh.fi -e bye} takes about 2.1ms user and 6.1ms system time.
+The next step to improve startup speed is to use a data-relocatable
+image (@pxref{Data-Relocatable Image Files}).  This avoids the
+relocation cost for the code in the image (but not for the data).
+Note that the image is then specific to the particular binary you are
+using (i.e., whether it is @code{gforth}, @code{gforth-fast}, and even
+the particular build).  You create the data-relocatable image that
+works with @code{./gforth-fast} with @code{GFORTHD="./gforth-fast
+--no-dynamic" gforthmi gforthdr.fi} (the @code{--no-dynamic} is
+required here or the image will not work).  And you run it with
+@code{gforth-fast -i gforthdr.fi ... -e bye} (the flags discussed
+above don't matter here, because they only come into play on
+relocatable code).  @code{gforth-fast -i gforthdr.fi -e bye} takes
+about 1.1ms user and 1.2ms system time.
+
+One step further is to avoid all relocation cost and part of the
+copy-on-write cost through using a non-relocatable image
+(@pxref{Non-Relocatable Image Files}).  However, this has the
+disadvantage that it does not work on operating systems with address
+space randomization (the default in, e.g., Linux nowadays), or if the
+dictionary moves for any other reason (e.g., because of a change of
+the OS kernel or an updated library), so we cannot really recommend
+it.  You create a non-relocatable image with @code{gforth-fast
+--no-dynamic -e "savesystem gforthnr.fi bye"} (the @code{--no-dynamic}
+is required here, too).  And you run it with @code{gforth-fast -i
+gforthnr.fi ... -e bye} (again the flags discussed above don't
+matter).  @code{gforth-fast -i gforthdr.fi -e bye} takes
+about 0.9ms user and 0.9ms system time.
+
+If the script you want to execute contains a significant amount of
+code, it may be profitable to compile it into the image to avoid the
+cost of compiling it at startup time.
 
 @c ******************************************************************
 @node Tutorial, Introduction, Gforth Environment, Top
@@ -15093,15 +15112,25 @@ addresses, then sets up the memory (stacks etc.) according to
 information in the image file, and (finally) starts executing Forth
 code.
 
-The image file variants represent different compromises between the
-goals of making it easy to generate image files and making them
-portable.
+The default image file is @file{gforth.fi} (in the @code{GFORTHPATH}).
+You can use a different image by using the @code{-i},
+@code{--image-file} or @code{--appl-image} options (@pxref{Invoking
+Gforth}), e.g.:
+
+@example
+gforth-fast -i myimage.fi
+@end example
+
+There are different variants of image files, and they represent
+different compromises between the goals of making it easy to generate
+image files and making them portable.
 
 @cindex relocation at run-time
 Win32Forth 3.4 and Mitch Bradley's @code{cforth} use relocation at
 run-time. This avoids many of the complications discussed below (image
 files are data relocatable without further ado), but costs performance
-(one addition per memory access).
+(one addition per memory access) and makes it difficult to pass
+addresses between Forth and library calls or other programs.
 
 @cindex relocation at load-time
 By contrast, the Gforth loader performs relocation at image load time. The
@@ -15133,6 +15162,7 @@ with code addresses or with pieces of machine code.
 If any complex computations involving addresses are performed, the
 results cannot be represented in the image file. Several applications that
 use such computations come to mind:
+
 @itemize @minus
 @item
 Hashing addresses (or data structures which contain addresses) for table
@@ -15171,17 +15201,21 @@ a place where it is stored in a non-mangled form.
 @cindex non-relocatable image files
 @cindex image file, non-relocatable
 
-These files are simple memory dumps of the dictionary. They are specific
-to the executable (i.e., @file{gforth} file) they were created
-with. What's worse, they are specific to the place on which the
-dictionary resided when the image was created. Now, there is no
+These files are simple memory dumps of the dictionary. They are
+specific to the executable (i.e., @file{gforth} file) they were
+created with. What's worse, they are specific to the place on which
+the dictionary resided when the image was created. Now, there is no
 guarantee that the dictionary will reside at the same place the next
 time you start Gforth, so there's no guarantee that a non-relocatable
-image will work the next time (Gforth will complain instead of crashing,
-though).
+image will work the next time (Gforth will complain instead of
+crashing, though).  Indeed, on OSs with (enabled) address-space
+randomization non-relocatable images are unlikely to work.
 
-You can create a non-relocatable image file with
+You can create a non-relocatable image file with @code{savesystem}, e.g.:
 
+@example
+gforth app.fs -e "savesystem app.fi bye"
+@end example
 
 doc-savesystem
 
@@ -15191,13 +15225,22 @@ doc-savesystem
 @cindex data-relocatable image files
 @cindex image file, data-relocatable
 
-These files contain relocatable data addresses, but fixed code addresses
-(instead of tokens). They are specific to the executable (i.e.,
-@file{gforth} file) they were created with. For direct threading on some
-architectures (e.g., the i386), data-relocatable images do not work. You
-get a data-relocatable image, if you use @file{gforthmi} with a
-Gforth binary that is not doubly indirect threaded (@pxref{Fully
-Relocatable Image Files}).
+These files contain relocatable data addresses, but fixed code
+addresses (instead of tokens). They are specific to the executable
+(i.e., @file{gforth} file) they were created with.  Also, they disable
+dynamic native code generation (typically a factor of 2 in speed).
+You get a data-relocatable image, if you pass the engine you want to
+use through the @code{GFORTHD} environment variable to @file{gforthmi}
+(@pxref{gforthmi}), e.g.
+
+@example
+GFORTHD="/usr/bin/gforth-fast --no-dynamic" gforthmi myimage.fi source.fs
+@end example
+
+Note that the @code{--no-dynamic} is required here for the image to
+work (otherwise it will contain references to dynamically generated
+code that is not saved in the image).
+
 
 @node Fully Relocatable Image Files, Stack and Dictionary Sizes, Data-Relocatable Image Files, Image Files
 @section Fully Relocatable Image Files
@@ -15209,10 +15252,10 @@ Relocatable Image Files}).
 These image files have relocatable data addresses, and tokens for code
 addresses. They can be used with different binaries (e.g., with and
 without debugging) on the same machine, and even across machines with
-the same data formats (byte order, cell size, floating point
-format). However, they are usually specific to the version of Gforth
-they were created with. The files @file{gforth.fi} and @file{kernl*.fi}
-are fully relocatable.
+the same data formats (byte order, cell size, floating point format),
+and they work with dynamic native code generation.  However, they are
+usually specific to the version of Gforth they were created with. The
+files @file{gforth.fi} and @file{kernl*.fi} are fully relocatable.
 
 There are two ways to create a fully relocatable image file:
 
@@ -15279,16 +15322,17 @@ instructions.
 @cindex @code{GFORTH} -- environment variable
 @cindex @code{gforth-ditc}
 There are a few wrinkles: After processing the passed @i{options}, the
-words @code{savesystem} and @code{bye} must be visible. A special doubly
-indirect threaded version of the @file{gforth} executable is used for
-creating the non-relocatable images; you can pass the exact filename of
-this executable through the environment variable @code{GFORTHD}
-(default: @file{gforth-ditc}); if you pass a version that is not doubly
-indirect threaded, you will not get a fully relocatable image, but a
-data-relocatable image (because there is no code address offset). The
-normal @file{gforth} executable is used for creating the relocatable
-image; you can pass the exact filename of this executable through the
-environment variable @code{GFORTH}.
+words @code{savesystem} and @code{bye} must be visible. A special
+doubly indirect threaded version of the @file{gforth} executable is
+used for creating the non-relocatable images; you can pass the exact
+filename of this executable through the environment variable
+@code{GFORTHD} (default: @file{gforth-ditc}); if you pass a version
+that is not doubly indirect threaded, you will not get a fully
+relocatable image, but a data-relocatable image
+(@pxref{Data-Relocatable Image Files}), because there is no code
+address offset). The normal @file{gforth} executable is used for
+creating the relocatable image; you can pass the exact filename of
+this executable through the environment variable @code{GFORTH}.
 
 @node cross.fs,  , gforthmi, Fully Relocatable Image Files
 @subsection @file{cross.fs}
