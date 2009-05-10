@@ -33,16 +33,28 @@
 	r> loop
     drop 2drop 0 ;
 
-: current-sourcepos ( -- nfile nline )
-    sourcefilename  str>loadfilename# sourceline# ;
+\ we encode line and character in one cell to keep the interface the same
+: encode-pos ( nline nchar -- npos )
+    $ff min swap 8 lshift + ;
 
-: compile-sourcepos ( compile-time: -- ; run-time: -- nfile nline )
+: decode-pos ( npos -- nline nchar )
+    dup 8 rshift swap $ff and ;
+
+: current-sourcepos ( -- nfile npos )
+    sourcefilename  str>loadfilename# sourceline# >in @ encode-pos ;
+
+: compile-sourcepos ( compile-time: -- ; run-time: -- nfile npos )
     \ compile the current source position as literals: nfile is the
     \ source file index, nline the line number within the file.
-    current-sourcepos swap postpone literal postpone literal ;
+    current-sourcepos
+    swap postpone literal
+    postpone literal ;
 
-: .sourcepos ( nfile nline -- )
+: .sourcepos ( nfile npos -- )
     \ print source position
-    swap loadfilename#>str type ." :"
-    base @ decimal swap 0 .r base ! ;
+    swap loadfilename#>str type ': emit
+    base @ decimal
+    swap decode-pos swap 0 .r ': emit 0 .r
+    base ! ;
+
 
