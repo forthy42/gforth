@@ -326,6 +326,9 @@ environment-wordlist set-current
     \G ``ISO-LATIN-1'' or ``UTF-8'', with the exception of ``ASCII'', where
     \G we prefer the alias ``ASCII''.
     max-single-byte $80 = IF s" UTF-8" ELSE s" ISO-LATIN-1" THEN ;
+: max-xchar ( -- xchar )
+    max-single-byte $80 = IF $7FFFFFFF  ELSE  $FF  THEN ;
+' noop Alias X:xchar
 forth definitions
 
 :noname ( -- )
