@@ -65,3 +65,4 @@ interpret/compile: ~~ ( -- ) \ gforth tilde-tilde
 \G Prints the source code location of the @code{~~} and the stack
 \G contents with @code{.debugline}.
 
+:noname ( -- )  stderr to debug-fid  defers 'cold ; IS 'cold
