@@ -2150,8 +2150,7 @@ int flag;
 int decpt;
 sig=ecvt(r, u, &decpt, &flag);
 n=(r==0. ? 1 : decpt);
-// workaround Mac OS X bug in ecvt
-flag=signbit(r);
+flag=signbit(r); /* not all ecvt()s do this as desired */
 f1=FLAG(flag!=0);
 f2=FLAG(isdigit((unsigned)(sig[0]))!=0);
 siglen=strlen((char *)sig);
