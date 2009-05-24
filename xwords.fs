@@ -74,3 +74,20 @@ xword K-CTRL-MASK  X:ekeys
 xword K-ALT-MASK   X:ekeys
 
 \ X:fp-stack no new words
+
+\ X:number-prefixes no new words
+
+\ X:structures
+
+xword +field          X:structures
+xword begin-structure X:structures
+xword end-structure   X:structures
+xword cfield:         X:structures
+xword field:          X:structures
+xword 2field:         X:structures
+xword ffield:         X:structures
+xword sffield:        X:structures
+xword dffield:        X:structures
+
+\ X:ftrunc
+xword FTRUNC       X:ftrunc

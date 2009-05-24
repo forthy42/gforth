@@ -112,6 +112,7 @@ true constant string-ext
 ' noop alias X:ekeys
 ' noop alias X:extension-query
 ' noop alias X:fp-stack
+' noop alias X:ftrunc
 ' noop alias X:number-prefixes
 ' noop alias X:parse-name
 ' noop alias X:required

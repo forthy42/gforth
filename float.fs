@@ -233,14 +233,23 @@ set-current
 	fnegate f~rel
     THEN ;
 
+-0e fp@ c@ $80 = [if] 0 [else] 7 [endif] constant fsign-offset
+
+: fcopysign ( r1 r2 -- r3 ) \ gforth
+\G r3 takes its absolute value from r1 and its sign from r2
+    \ !! implementation relies on IEEE DP format
+    fp@ dup fsign-offset + dup c@ $80 and >r ( r1 r2 addr-r1sign )
+    float + dup c@ $7f and r> or swap c!
+    fdrop ;
+
 \ proposals from Krishna Myeni in <cjsp2d$47l$1@ngspool-d02.news.aol.com>
 \ not sure if they are a good idea
 
-: FTRUNC ( r1 -- r2 )
+: ftrunc ( r1 -- r2 ) \ X:ftrunc
     \ round towards 0
-    \ !! should be implemented properly
-    F>D D>F ;
+    fdup fabs floor fswap fcopysign ;
 
 : FMOD ( r1 r2 -- r )
     \ remainder of r1/r2
     FOVER FOVER F/ ftrunc F* F- ;
+

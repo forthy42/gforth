@@ -82,6 +82,9 @@ wordset X:defined
 wordset X:required
 wordset X:ekeys
 wordset X:fp-stack
+wordset X:number-prefixes
+wordset X:structures
+wordset X:ftrunc
 
 wordset non-ANS
 
