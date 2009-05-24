@@ -38,6 +38,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <signal.h>
+
 #ifndef STANDALONE
 #if HAVE_SYS_MMAN_H
 #include <sys/mman.h>
@@ -2276,6 +2277,12 @@ int main(int argc, char **argv, char **env)
   Address image;
 #endif
   int retvalue;
+#if defined(__i386)
+  /* set 387 precision control to use 53-bit mantissae to avoid most
+     cases of double rounding */
+  short fpu_control = 0x027f ;
+  asm("fldcw %0" : : "m"(fpu_control));
+#endif /* defined(__i386) */
 	  
   code_here = ((void *)0)+CODE_BLOCK_SIZE; /* llvm-gcc does not like this as
                                               initializer, so we do it here */
