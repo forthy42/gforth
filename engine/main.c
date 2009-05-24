@@ -2277,7 +2277,8 @@ int main(int argc, char **argv, char **env)
   Address image;
 #endif
   int retvalue;
-#if defined(__i386)
+#if 0 && defined(__i386)
+  /* disabled because the drawbacks may be worse than the benefits */
   /* set 387 precision control to use 53-bit mantissae to avoid most
      cases of double rounding */
   short fpu_control = 0x027f ;
