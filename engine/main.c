@@ -560,13 +560,13 @@ static Address alloc_mmap(Cell size)
 static void page_noaccess(void *a)
 {
   /* try mprotect first; with munmap the page might be allocated later */
-  debugp(stderr, "try mprotect(%p,%ld,PROT_NONE); ", a, (long)pagesize);
+  debugp(stderr, "try mprotect(%p,$%lx,PROT_NONE); ", a, (long)pagesize);
   if (mprotect(a, pagesize, PROT_NONE)==0) {
     debugp(stderr, "ok\n");
     return;
   }
   debugp(stderr, "failed: %s\n", strerror(errno));
-  debugp(stderr, "try munmap(%p,%ld); ", a, (long)pagesize);
+  debugp(stderr, "try munmap(%p,$%lx); ", a, (long)pagesize);
   if (munmap(a,pagesize)==0) {
     debugp(stderr, "ok\n");
     return;
@@ -1151,12 +1151,9 @@ struct code_block_list {
   Cell size;
 } *code_block_list=NULL, **next_code_blockp=&code_block_list;
 
-static Address append_prim(Cell p)
+static void reserve_code_space(UCell size)
 {
-  PrimInfo *pi = &priminfos[p];
-  Address old_code_here = code_here;
-
-  if (code_area+code_area_size < code_here+pi->length+pi->restlength+goto_len+CODE_ALIGNMENT) {
+  if (code_area+code_area_size < code_here+size) {
     struct code_block_list *p;
     append_jump();
     flush_to_here();
@@ -1171,12 +1168,41 @@ static Address append_prim(Cell p)
       p = *next_code_blockp;
       code_here = start_flush = code_area = p->block;
     }
-    old_code_here = code_here;
     next_code_blockp = &(p->next);
   }
+}
+
+static Address append_prim(Cell p)
+{
+  PrimInfo *pi = &priminfos[p];
+  Address old_code_here;
+  reserve_code_space(pi->length+pi->restlength+goto_len+CODE_ALIGNMENT-1);
   memcpy(code_here, pi->start, pi->length);
+  old_code_here = code_here;
   code_here += pi->length;
   return old_code_here;
+}
+
+static void reserve_code_super(PrimNum origs[], int ninsts)
+{
+  int i;
+  UCell size = CODE_ALIGNMENT-1; /* alignment may happen first */
+  if (no_dynamic)
+    return;
+  /* use size of the original primitives as an upper bound for the
+     size of the superinstruction.  !! This is only safe if we
+     optimize for code size (the default) */
+  for (i=0; i<ninsts; i++) {
+    PrimNum p = origs[i];
+    PrimInfo *pi = &priminfos[p];
+    if (is_relocatable(p))
+      size += pi->length;
+    else
+      if (i>0)
+        size += priminfos[origs[i-1]].restlength+goto_len+CODE_ALIGNMENT-1;
+  }
+  size += priminfos[origs[i-1]].restlength+goto_len;
+  reserve_code_space(size);
 }
 #endif
 
@@ -1584,7 +1610,7 @@ static struct tpa_state **lookup_tpa(PrimNum p, struct tpa_state *t2)
 static void tpa_state_normalize(struct tpa_state *t)
 {
   /* normalize so cost of canonical state=0; this may result in
-     negative states for some states */
+     negative costs for some states */
   int d = t->inst[CANONICAL_STATE].cost;
   int i;
 
@@ -1656,6 +1682,7 @@ static void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
   int i,j;
   struct tpa_state *ts[ninsts+1];
   int nextdyn, nextstate, no_transition;
+  Address old_code_area;
   
   lb_basic_blocks++;
   ts[ninsts] = termstate;
@@ -1718,6 +1745,8 @@ static void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
     }
   }
   /* now rewrite the instructions */
+  reserve_code_super(origs,ninsts);
+  old_code_area = code_area;
   nextdyn=0;
   nextstate=CANONICAL_STATE;
   no_transition = ((!ts[0]->trans[nextstate].relocatable) 
@@ -1771,6 +1800,7 @@ static void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
     nextstate = c->state_out;
   }
   assert(nextstate==CANONICAL_STATE);
+  assert(code_area==old_code_area); /* does reserve_code_super() work? */
 }
 #endif
 
@@ -1910,7 +1940,7 @@ Address gforth_loader(FILE *imagefile, char* filename)
   debugp(stderr,"pagesize=%ld\n",(unsigned long) pagesize);
 
   image = dict_alloc_read(imagefile, preamblesize+header.image_size,
-			  preamblesize+dictsize, data_offset);
+			  dictsize, data_offset);
   imp=image+preamblesize;
 
   alloc_stacks((ImageHeader *)imp);
