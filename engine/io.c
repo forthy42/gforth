@@ -708,6 +708,8 @@ Cell getkey(FILE * stream)
     prep_terminal();
 
   result = fread(&c, sizeof(c), 1, stream);
+  if (result>0)
+    gf_regetc(stream);
   return result==0 ? (errno == EINTR ? 12 : 4) : c;
 }
 
