@@ -39,6 +39,7 @@
 typedef unsigned int uint32_t;
 #endif
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <signal.h>
 #include <string.h>
@@ -617,7 +618,54 @@ void deprep_terminal ()
 }
 #endif  /* NEW_TTY_DRIVER */
 
-long key_avail (FILE * stream)
+/* an ungetc() variant where we can know that there is a character waiting:
+   gf_ungetc: like ungetc
+   gf_regetc: call when reading a char, but does not get the character
+   gf_ungottenc: true if there is a char waiting
+
+   Implementation: just an array containing all the FILEs with ungotten chars.
+   Sequential search for membership checking (there should not be many elements)
+*/
+
+static FILE **ungotten_files = NULL;
+static size_t n_ungotten = 0; /* actual number */
+static size_t max_ungotten = 0; /* buffer size */
+
+int gf_ungetc(int c, FILE *stream)
+/* like ungetc, but works with the others */
+{
+  if (n_ungotten>=max_ungotten) {
+    max_ungotten = max_ungotten*2+1;
+    ungotten_files = realloc(ungotten_files, max_ungotten*sizeof(FILE *));
+  }
+  ungotten_files[n_ungotten++] = stream;
+  return ungetc(c, stream);
+}
+
+static long search_ungotten(FILE *stream)
+{
+  long i;
+  for (i=0; i<n_ungotten; i++)
+    if (ungotten_files[i] == stream)
+      return i;
+  return -1;
+}
+
+void gf_regetc(FILE *stream)
+/* remove STREAM from ungotten_files */
+{
+  long i = search_ungotten(stream);
+  if (i>=0)
+    ungotten_files[i] = ungotten_files[--n_ungotten];
+}
+
+int gf_ungottenc(FILE *stream)
+/* true if stream has been ungotten */
+{
+  return search_ungotten(stream)>=0;
+}
+
+long key_avail (FILE *stream)
 {
   int tty = fileno (stream);
   fd_set selin;
@@ -627,10 +675,19 @@ long key_avail (FILE * stream)
   setvbuf(stream, NULL, _IONBF, 0);
   if(!terminal_prepped && stream == stdin)
     prep_terminal();
+  if (gf_ungottenc(stream))
+    return 1;
 
   FD_ZERO(&selin);
   FD_SET(tty, &selin);
   chars_avail = select(1, &selin, NULL, NULL, &now);
+  if (chars_avail > 0) {
+    /* getc won't block */
+    int c = getc(stream);
+    if (c==EOF)
+      return 0;
+    gf_ungetc(c, stream);
+  }
   return (chars_avail == -1) ? 0 : chars_avail;
 }
 

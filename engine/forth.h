@@ -397,7 +397,7 @@ struct Longname *tablelfind(Char *c_addr, UCell u, Cell *a_addr);
 UCell hashkey1(Char *c_addr, UCell u, UCell ubits);
 struct Cellpair parse_white(Char *c_addr1, UCell u1);
 Cell rename_file(Char *c_addr1, UCell u1, Char *c_addr2, UCell u2);
-struct Cellquad read_line(Char *c_addr, UCell u1, Cell wfileid);
+struct Cellquad read_line(Char *c_addr, UCell u1, FILE *wfileid);
 struct Cellpair file_status(Char *c_addr, UCell u);
 Cell to_float(Char *c_addr, UCell u, Float *r_p);
 Float v_star(Float *f_addr1, Cell nstride1, Float *f_addr2, Cell nstride2, UCell ucount);
@@ -408,6 +408,9 @@ int gforth_system(Char *c_addr, UCell u);
 void gforth_ms(UCell u);
 UCell gforth_dlopen(Char *c_addr, UCell u);
 Cell capscompare(Char *c_addr1, UCell u1, Char *c_addr2, UCell u2);
+int gf_ungetc(int c, FILE *stream);
+void gf_regetc(FILE *stream);
+int gf_ungottenc(FILE *stream);
 
 /* signal handler stuff */
 void install_signal_handlers(void);

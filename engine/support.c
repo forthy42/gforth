@@ -313,7 +313,7 @@ Cell rename_file(Char *c_addr1, UCell u1, Char *c_addr2, UCell u2)
   return IOR(rename(tilde_cstr(c_addr1, u1, 0), s1)==-1);
 }
 
-struct Cellquad read_line(Char *c_addr, UCell u1, Cell wfileid)
+struct Cellquad read_line(Char *c_addr, UCell u1, FILE *wfileid)
 {
   UCell u2, u3;
   Cell flag, wior;
@@ -322,13 +322,15 @@ struct Cellquad read_line(Char *c_addr, UCell u1, Cell wfileid)
 
   flag=-1;
   u3=0;
+  if (u1>0)
+    gf_regetc(wfileid);
   for(u2=0; u2<u1; u2++) {
-    c = getc((FILE *)wfileid);
+    c = getc(wfileid);
     u3++;
     if (c=='\n') break;
     if (c=='\r') {
-      if ((c = getc((FILE *)wfileid))!='\n')
-	ungetc(c,(FILE *)wfileid);
+      if ((c = getc(wfileid))!='\n')
+	gf_ungetc(c,wfileid);
       else
 	u3++;
       break;
@@ -339,7 +341,7 @@ struct Cellquad read_line(Char *c_addr, UCell u1, Cell wfileid)
     }
     c_addr[u2] = (Char)c;
   }
-  wior=FILEIO(ferror((FILE *)wfileid));
+  wior=FILEIO(ferror(wfileid));
   r.n1 = u2;
   r.n2 = flag;
   r.n3 = u3;
