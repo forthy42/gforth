@@ -672,11 +672,11 @@ long key_avail (FILE *stream)
   static struct timeval now = { 0 , 0 };
   int chars_avail;
 
+  if (gf_ungottenc(stream))
+    return 1;
   setvbuf(stream, NULL, _IONBF, 0);
   if(!terminal_prepped && stream == stdin)
     prep_terminal();
-  if (gf_ungottenc(stream))
-    return 1;
 
   FD_ZERO(&selin);
   FD_SET(tty, &selin);
@@ -703,7 +703,8 @@ Cell getkey(FILE * stream)
   Cell result;
   unsigned char c;
 
-  setvbuf(stream, NULL, _IONBF, 0);
+  if (!gf_ungottenc(stream))
+    setvbuf(stream, NULL, _IONBF, 0);
   if(!terminal_prepped && stream == stdin)
     prep_terminal();
 
