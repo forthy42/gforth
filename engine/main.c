@@ -2105,6 +2105,7 @@ enum {
   ss_min_ls,
   ss_min_lsu,
   ss_min_nexts,
+  opt_code_block_size,
 };
 
 #ifndef STANDALONE
@@ -2138,6 +2139,7 @@ void gforth_args(int argc, char ** argv, char ** path, char ** imagename)
       {"no-super", no_argument, &no_super, 1},
       {"no-dynamic", no_argument, &no_dynamic, 1},
       {"dynamic", no_argument, &no_dynamic, 0},
+      {"code-block-size", required_argument, NULL, opt_code_block_size},
       {"print-metrics", no_argument, &print_metrics, 1},
       {"print-sequences", no_argument, &print_sequences, 1},
       {"ss-number", required_argument, NULL, ss_number},
@@ -2175,6 +2177,7 @@ void gforth_args(int argc, char ** argv, char ** path, char ** imagename)
     case 's': die_on_signal = 1; break;
     case 'x': debug = 1; break;
     case 'v': fputs(PACKAGE_STRING"\n", stderr); exit(0);
+    case opt_code_block_size: code_area_size = atoi(optarg); break;
     case ss_number: static_super_number = atoi(optarg); break;
     case ss_states: maxstates = max(min(atoi(optarg),MAX_STATE),1); break;
 #ifndef NO_DYNAMIC
@@ -2188,6 +2191,7 @@ void gforth_args(int argc, char ** argv, char ** path, char ** imagename)
 Engine Options:\n\
   --appl-image FILE		    Equivalent to '--image-file=FILE --'\n\
   --clear-dictionary		    Initialize the dictionary with 0 bytes\n\
+  --code-block-size=SIZE            size of native code blocks [512KB]\n\
   -d SIZE, --data-stack-size=SIZE   Specify data stack size\n\
   --debug			    Print debugging information during startup\n\
   --diag			    Print diagnostic information during startup\n\
@@ -2317,8 +2321,6 @@ int main(int argc, char **argv, char **env)
   asm("fldcw %0" : : "m"(fpu_control));
 #endif /* defined(__i386) */
 	  
-  code_here = ((void *)0)+CODE_BLOCK_SIZE; /* llvm-gcc does not like this as
-                                              initializer, so we do it here */
 #ifdef MACOSX_DEPLOYMENT_TARGET
   setenv("MACOSX_DEPLOYMENT_TARGET", MACOSX_DEPLOYMENT_TARGET, 0);
 #endif
@@ -2354,7 +2356,7 @@ int main(int argc, char **argv, char **env)
 #endif /* !defined(NO_DYNAMIC) */
 #endif /* defined(HAS_OS) */
 #endif
-
+  code_here = ((void *)0)+code_area_size;
 #ifdef STANDALONE
   image = gforth_engine(0, 0, 0, 0, 0 sr_call);
   alloc_stacks((ImageHeader *)image);
