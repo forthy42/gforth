@@ -213,15 +213,7 @@ variable span ( -- c-addr ) \ core-ext-obsolescent
 \ defined afterwards) when executing the mark.
 
 : included-files-mark ( -- u )
-    included-files 2@ nip
-    blk @ 0=
-    if \ not input from blocks
-	source-id 1 -1 within
-	if \ input from file
-	    1- \ do not include the last file (hopefully this is the
-	       \ currently included file)
-	then
-    then ;  
+    included-files @ ;
 
 \ hmm, most of the saving appears to be pretty unnecessary: we could
 \ derive the wordlists and the words that have to be kept from the
@@ -247,7 +239,7 @@ variable span ( -- c-addr ) \ core-ext-obsolescent
 
 : marker! ( mark -- )
     \ reset included files count; resize will happen on next add-included-file
-    included-files 2@ drop over @ included-files 2! cell+
+    included-files @ over @ min included-files ! cell+
     \ rest of marker!
     dup @ swap cell+ ( here rest-of-marker )
     dup @ voclink ! cell+

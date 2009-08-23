@@ -1947,7 +1947,7 @@ Address gforth_loader(FILE *imagefile, char* filename)
 
   alloc_stacks((ImageHeader *)imp);
   if (clear_dictionary)
-    memset(imp+header.image_size, 0, dictsize-header.image_size);
+    memset(imp+header.image_size, 0, dictsize-header.image_size-preamblesize);
   if(header.base==0 || header.base  == (Address)0x100) {
     Cell reloc_size=((header.image_size-1)/sizeof(Cell))/8+1;
     Char reloc_bits[reloc_size];
