@@ -329,7 +329,9 @@ forth-wordlist current !
 : find-name-run-prelude ( c-addr u -- nt | 0 )
     \ Like find-name, but also run the prelude (if present).  This is
     \ used in the text interpreter and similar stuff.
-    find-name ; \ dup name>prelude execute ;
+    find-name dup if
+	dup name>prelude execute
+    then ;
 [THEN]
 
 \ \ header, finding, ticks                              17dec92py
