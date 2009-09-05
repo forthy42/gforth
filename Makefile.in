@@ -235,6 +235,7 @@ GFORTH_FI_SRC = \
 	locals.fs \
 	look.fs \
 	mkdir.fs \
+	prelude.fs \
 	quotes.fs \
 	search.fs \
 	see.fs \

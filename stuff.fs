@@ -155,7 +155,9 @@ AUser CSP
 
 [ifdef] compiler1
 : postponer1 ( c-addr u -- ... xt )
-    2dup find-name dup if ( c-addr u nt )
+    2dup
+    [ifdef] find-name-run-prelude find-name-run-prelude [else] find-name [then]
+    dup if ( c-addr u nt )
 	nip nip name>comp
 	2dup [comp'] [[ d= if
 	    2drop ['] compiler1 is parser1 ['] noop

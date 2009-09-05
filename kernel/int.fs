@@ -325,6 +325,11 @@ forth-wordlist current !
     \g Find the name @i{c-addr u} in the current search
     \g order. Return its @i{nt}, if found, otherwise 0.
     lookup @ (search-wordlist) ;
+
+: find-name-run-prelude ( c-addr u -- nt | 0 )
+    \ Like find-name, but also run the prelude (if present).  This is
+    \ used in the text interpreter and similar stuff.
+    find-name ; \ dup name>prelude execute ;
 [THEN]
 
 \ \ header, finding, ticks                              17dec92py
@@ -338,7 +343,10 @@ has? f83headerstring [IF]
     $40 constant immediate-mask
     $20 constant restrict-mask
     $1f constant lcount-mask
-[ELSE]    
+[ELSE]
+\ 32-bit systems cannot generate large 64-bit constant in the
+\ cross-compiler, so we kludge it by generating a constant and then
+\ storing the proper value into it (and that's another kludge).
 $80000000 constant alias-mask
 1 bits/char 1 - lshift
 -1 cells allot  bigendian [IF]   c, 0 1 cells 1- times
@@ -351,8 +359,12 @@ $20000000 constant restrict-mask
 1 bits/char 3 - lshift
 -1 cells allot  bigendian [IF]   c, 0 1 cells 1- times
                           [ELSE] 0 1 cells 1- times c, [THEN]
-$1fffffff constant lcount-mask
-1 bits/char 3 - lshift 1 -
+$10000000 constant prelude-mask
+1 bits/char 4 - lshift
+-1 cells allot  bigendian [IF]   c, 0 1 cells 1- times
+                          [ELSE] 0 1 cells 1- times c, [THEN]
+$0fffffff constant lcount-mask
+1 bits/char 4 - lshift 1 -
 -1 cells allot  bigendian [IF]   c, -1 1 cells 1- times
                           [ELSE] -1 1 cells 1- times c, [THEN]
 [THEN]
@@ -449,6 +461,13 @@ has? f83headerstring [IF]
 : (name>intn) ( nfa -- xt +-1 )
     (name>x) tuck (x>int) ( w xt )
     swap immediate-mask and [ has? rom [IF] ] 0= [ [THEN] ] flag-sign ;
+
+: name>prelude ( nt -- xt )
+    dup cell+ @ prelude-mask and if
+	[ -1 cells ] literal + @
+    else
+	drop ['] noop
+    then ;
 
 const Create ???  0 , 3 , char ? c, char ? c, char ? c,
 \ ??? is used by dovar:, must be created/:dovar
@@ -696,7 +715,7 @@ has? backtrace [IF]
 
 \ not the most efficient implementations of interpreter and compiler
 : interpreter1 ( c-addr u -- ... xt ) 
-    2dup find-name dup
+    2dup find-name-run-prelude dup
     if
 	nip nip name>int
     else

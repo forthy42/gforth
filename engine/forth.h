@@ -336,7 +336,7 @@ struct Longname {
   char		name[0];
 };
 
-#define LONGNAME_COUNT(np)	((np)->countetc & (((~((UCell)0))<<3)>>3))
+#define LONGNAME_COUNT(np)	((np)->countetc & (((~((UCell)0))<<4)>>4))
 
 struct Cellpair {
   Cell n1;

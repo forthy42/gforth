@@ -116,9 +116,17 @@ defer header ( -- ) \ gforth
     \G puts down string as longcstring
     dup , here swap chars dup allot move ;
 
+variable next-prelude
+
+: prelude, ( -- )
+    next-prelude @ if
+	align next-prelude @ ,
+    then ;
+
 : header, ( c-addr u -- ) \ gforth
     name-too-long?
     dup max-name-length @ max max-name-length !
+    prelude,
     align here last !
 [ has? ec [IF] ]
     -1 A,
@@ -130,6 +138,8 @@ defer header ( -- ) \ gforth
 	string,
 [ [ELSE] ]
 	longstring, alias-mask lastflags cset
+	next-prelude @ 0<> prelude-mask and lastflags cset
+	next-prelude off
 [ [THEN] ]
     cfalign ;
 
@@ -352,7 +362,7 @@ has? peephole [IF]
 \ \ compiler loop
 
 : compiler1 ( c-addr u -- ... xt )
-    2dup find-name dup
+    2dup find-name-run-prelude dup
     if ( c-addr u nt )
 	nip nip name>comp
     else
