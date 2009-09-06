@@ -325,13 +325,6 @@ forth-wordlist current !
     \g Find the name @i{c-addr u} in the current search
     \g order. Return its @i{nt}, if found, otherwise 0.
     lookup @ (search-wordlist) ;
-
-: find-name-run-prelude ( c-addr u -- nt | 0 )
-    \ Like find-name, but also run the prelude (if present).  This is
-    \ used in the text interpreter and similar stuff.
-    find-name dup if
-	dup name>prelude execute
-    then ;
 [THEN]
 
 \ \ header, finding, ticks                              17dec92py
@@ -715,9 +708,16 @@ has? backtrace [IF]
 
 \ interpreter                                 	30apr92py
 
+: run-prelude ( nt|0 -- nt|0 )
+    \ run the prelude of the name identified by nt (if present).  This
+    \ is used in the text interpreter and similar stuff.
+    dup if
+	dup name>prelude execute
+    then ;
+
 \ not the most efficient implementations of interpreter and compiler
 : interpreter1 ( c-addr u -- ... xt ) 
-    2dup find-name-run-prelude dup
+    2dup find-name run-prelude dup
     if
 	nip nip name>int
     else

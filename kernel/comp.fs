@@ -362,7 +362,7 @@ has? peephole [IF]
 \ \ compiler loop
 
 : compiler1 ( c-addr u -- ... xt )
-    2dup find-name-run-prelude dup
+    2dup find-name run-prelude dup
     if ( c-addr u nt )
 	nip nip name>comp
     else
