@@ -17,8 +17,8 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-charclass [bl-]   blanks +class '- +char
-charclass [0-9(]  '( +char '0 '9 ..char
+charclass [bl-]   blanks +class '-' +char
+charclass [0-9(]  '(' +char '0' '9' ..char
 
 : telnum ( addr u -- flag )
     (( {{ ` (  \( \d \d \d \) ` ) || \( \d \d \d \) }}  blanks c?
@@ -26,7 +26,7 @@ charclass [0-9(]  '( +char '0 '9 ..char
     \( \d \d \d \d \) {{ \$ || -\d }} )) ;
 
 : ?tel ( addr u -- ) telnum
-    IF  '( emit \1 type ." ) " \2 type '- emit \3 type ."  succeeded"
+    IF  '(' emit \1 type ." ) " \2 type '-' emit \3 type ."  succeeded"
     ELSE \0 type ."  failed " THEN ;
 
 : ?tel-s ( addr u -- ) ?tel ."  should succeed" space depth . cr ;
@@ -47,7 +47,7 @@ s" 123 456-78909" ?tel-f
     \( \d \d \d \d \) {{ \$ || -\d }} )) ;
 
 : ?tel2 ( addr u -- ) telnum2
-    IF   '( emit \1 type ." ) " \2 type '- emit \3 type ."  succeeded"
+    IF   '(' emit \1 type ." ) " \2 type '-' emit \3 type ."  succeeded"
     ELSE \0 type ."  failed " THEN  cr ;
 ." --- Telephone number search ---" cr
 s" blabla (123) 456-7890" ?tel2
@@ -65,7 +65,7 @@ s" abla 123 456-78909" ?tel2
 
 ." --- Number extraction test ---" cr
 
-charclass [0-9,./:]  '0 '9 ..char ', +char '. +char '/ +char ': +char
+charclass [0-9,./:]  '0' '9' ..char ',' +char '.' +char '/' +char ':' +char
 
 : ?num
     (( // \( {++ [0-9,./:] c? ++} \) ))
@@ -94,11 +94,11 @@ s" Hier kommt nichts vor" ?string
 
 : ?foobars
     (( // \( {** =" foo" **} \) \( {++ =" bar" ++} \) ))
-    IF  \1 type ', emit \2 type  ELSE  \0 type ."  failed"  THEN  cr ;
+    IF  \1 type ',' emit \2 type  ELSE  \0 type ."  failed"  THEN  cr ;
 
 : ?foos1
     (( // \( {+ =" foo" +} \) \( {++ =" bar" ++} \) ))
-    IF  \1 type ', emit \2 type  ELSE  \0 type ."  failed"  THEN  cr ;
+    IF  \1 type ',' emit \2 type  ELSE  \0 type ."  failed"  THEN  cr ;
 
 s" foobar" ?foos
 s" foofoofoobar" ?foos
