@@ -77,10 +77,10 @@
 \ ones mentioned above will be needed for successful testing.
 
 BASE @
-HEX
+DECIMAL
 
 VARIABLE ACTUAL-DEPTH			\ stack record
-CREATE ACTUAL-RESULTS 20 CELLS ALLOT
+CREATE ACTUAL-RESULTS 32 CELLS ALLOT
 VARIABLE START-DEPTH
 VARIABLE XCURSOR      \ for ...}T
 VARIABLE ERROR-XT
@@ -112,8 +112,8 @@ HAS-FLOATING [IF]
     \ Set the following to the relative and absolute tolerances you
     \ want for approximate float equality, to be used with F~ in
     \ FNEARLY=.  Keep the signs, because F~ needs them.
-    FVARIABLE REL-NEAR DECIMAL 1E-12 HEX REL-NEAR F!
-    FVARIABLE ABS-NEAR    DECIMAL 0E HEX ABS-NEAR F!
+    FVARIABLE REL-NEAR 1E-12 REL-NEAR F!
+    FVARIABLE ABS-NEAR 0E    ABS-NEAR F!
 
     \ When EXACT? is TRUE, }F uses FEXACTLY=, otherwise FNEARLY=.
     
@@ -121,13 +121,11 @@ HAS-FLOATING [IF]
     : SET-EXACT  ( -- )   TRUE TO EXACT? ;
     : SET-NEAR   ( -- )  FALSE TO EXACT? ;
 
-    DECIMAL
     : FEXACTLY=  ( F: X Y -- S: FLAG )
         (
         Leave TRUE if the two floats are identical.
         )
         0E F~ ;
-    HEX
     
     : FABS=  ( F: X Y -- S: FLAG )
         (
@@ -168,11 +166,10 @@ HAS-FLOATING [IF]
 
 HAS-FLOATING-STACK [IF]
     VARIABLE ACTUAL-FDEPTH
-    CREATE ACTUAL-FRESULTS 20 FLOATS ALLOT
+    CREATE ACTUAL-FRESULTS 32 FLOATS ALLOT
     VARIABLE START-FDEPTH
     VARIABLE FCURSOR
 
-    DECIMAL
     : EMPTY-FSTACK ( ... -- ... )
         FDEPTH START-FDEPTH @ < IF
             FDEPTH START-FDEPTH @ SWAP DO 0E LOOP
@@ -180,7 +177,6 @@ HAS-FLOATING-STACK [IF]
         FDEPTH START-FDEPTH @ > IF
             FDEPTH START-FDEPTH @ DO FDROP LOOP
         THEN ;
-    HEX
     
     : F{ ( -- )
         FDEPTH START-FDEPTH ! 0 FCURSOR ! ;
@@ -228,10 +224,8 @@ HAS-FLOATING-STACK [IF]
     : F...}T ;
 
     HAS-FLOATING [IF]
-    DECIMAL
     : COMPUTE-CELLS-PER-FP ( -- U )
         DEPTH 0E DEPTH 1- >R FDROP R> SWAP - ;
-    HEX
 
     COMPUTE-CELLS-PER-FP CONSTANT CELLS-PER-FP
 
