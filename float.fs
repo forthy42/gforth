@@ -238,8 +238,8 @@ set-current
 : fcopysign ( r1 r2 -- r3 ) \ gforth
 \G r3 takes its absolute value from r1 and its sign from r2
     \ !! implementation relies on IEEE DP format
-    fp@ dup fsign-offset + dup c@ $80 and >r ( r1 r2 addr-r1sign )
-    float + dup c@ $7f and r> or swap c!
+    fp@ fsign-offset + dup c@ $80 and >r ( r1 r2 addr-r1sign )
+    float+ dup c@ $7f and r> or swap c!
     fdrop ;
 
 \ proposals from Krishna Myeni in <cjsp2d$47l$1@ngspool-d02.news.aol.com>

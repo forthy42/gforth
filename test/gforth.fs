@@ -87,3 +87,11 @@ decimal
 
 { -5 try-test3 -> 10 }
 {  5 try-test3 ->  6 }
+
+\ fcopysign
+
+t{  5e  1e fcopysign ->  5e }t
+t{ -5e  1e fcopysign ->  5e }t
+t{  5e -1e fcopysign -> -5e }t
+t{ -5e -1e fcopysign -> -5e }t
+\ tests involving -0e?
