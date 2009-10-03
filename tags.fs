@@ -48,7 +48,7 @@
 \ to comment out search.fs since it sets the search order destructively
 \ on my system.  Added a bit more explanation on how to use tags.fs.
 
-\ require search.fs
+require search.fs
 require extend.fs
 
 : tags-file-name ( -- c-addr u )

@@ -50,7 +50,7 @@ decimal
     >r s>d >r abs -rot
     s>d r> xor r> swap >r >r dabs rot tuck um* 2swap um*
     swap >r 0 d+ r> -rot r@ um/mod -rot r> um/mod
-    [ s" floored" environment? 0= throw ] [if]
+    [ 1 -3 mod 0< ] [if]
         -rot r> IF IF 1. d+ THEN dnegate ELSE drop THEN
     [else]
         nip swap r> IF dnegate THEN
