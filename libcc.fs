@@ -219,24 +219,19 @@ end-struct list%
 	    node list-next @
     repeat ;
 
-\ linked libraries
-
-list%
-    cell% 2* field c-lib-string
-end-struct c-lib%
-
-variable c-libs \ linked list of library names (without "lib")
+2variable c-libs \ library names in a string (without "lib")
 
 : add-lib ( c-addr u -- ) \ gforth
 \G Add library lib@i{string} to the list of libraries, where
-\G @i{string} is represented by @i{c-addr u}.
-    c-lib% %size allocate throw dup >r
-    c-lib-string 2!
-    r> c-libs list-insert ;
+    \G @i{string} is represented by @i{c-addr u}.
+    c-libs 2@ d0= IF  0 allocate throw 0 c-libs 2!  THEN
+    c-libs 2@ s"  -l" append 2swap append c-libs 2! ;
 
-: append-l ( c-addr1 u1 node -- c-addr2 u2 )
-    \ append " -l<nodelib>" to string1
-    >r s"  -l" append r> c-lib-string 2@ append ;
+: add-libpath ( c-addr u -- ) \ gforth
+\G Add path @i{string} to the list of library search pathes, where
+    \G @i{string} is represented by @i{c-addr u}.
+    c-libs 2@ d0= IF  0 allocate throw 0 c-libs 2!  THEN
+    c-libs 2@ s"  -L" append 2swap append c-libs 2! ;
 
 \ C prefix lines
 
@@ -568,7 +563,7 @@ DEFER compile-wrapper-function ( -- )
 	lib-filename 2@ dirname replace-rpath s+ s"  " append
 	lib-filename 2@ append s" .lo -o " append
 	lib-filename 2@ append s" .la" append ( c-addr u )
-	c-libs @ ['] append-l list-map
+	c-libs 2@ append
 	\    2dup type cr
 	2dup system drop free throw $? abort" libtool link failed"
 	open-wrappers dup 0= if
@@ -622,7 +617,7 @@ DEFER compile-wrapper-function ( -- )
     c-source-file-id @ if
 	compile-wrapper-function
     endif
-    0 c-libs ! ;
+    0. c-libs 2! ;
 clear-libs
 
 : c-library-incomplete ( -- )
