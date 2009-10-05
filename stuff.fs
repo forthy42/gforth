@@ -393,3 +393,11 @@ previous
 
 : th ( addr1 u -- addr2 )
     cells + ;
+
+\ \\\ - skip to end of file
+
+: \\\ ( -- ) \ gforth
+    \G skip remaining source file
+    source-id dup 0> IF
+	>r r@ file-size throw r> reposition-file throw
+	BEGIN  refill 0= UNTIL  postpone \  THEN ; immediate

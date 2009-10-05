@@ -2465,6 +2465,9 @@ lib-error ( -- c_addr u )       gforth  lib_error
 #ifdef HAVE_LIBLTDL
 c_addr = (Char *)lt_dlerror();
 u = (c_addr == NULL) ? 0 : strlen((char *)c_addr);
+#elif defined(HAVE_LIBDL) || defined(HAVE_DLOPEN)
+c_addr = dlerror();
+u = strlen(c_addr);
 #else
 c_addr = "libltdl is not configured";
 u = strlen(c_addr);
