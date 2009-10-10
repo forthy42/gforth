@@ -29,7 +29,7 @@ char *strsignal(int sig)
   static char errbuf[16];
 
 #if defined(HAVE_SYS_SIGLIST) && defined(NSIG)
-#if !defined(SYS_SIGLIST_DECLARED)
+#if !defined(HAVE_DECL_SYS_SIGLIST)
   extern const char * const sys_siglist[];
 #endif
   if (sig>0 && sig<NSIG)
