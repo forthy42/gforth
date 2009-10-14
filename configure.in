@@ -608,6 +608,21 @@ AC_TRY_COMPILE(,,ac_align_jumps=yes;ENGINE_FLAGS="$ENGINE_FLAGS -falign-jumps=1"
 CFLAGS="$CFLAGS_1"
 AC_MSG_RESULT($ac_align_jumps)
 
+if test -z "$LIBTOOL_CC"
+then
+  LIBTOOL_CC="$CC"
+  # Try if GCC understands -Wimplicit-function-declaration
+  AC_MSG_CHECKING([if $CC understands -Wimplicit-function-declaration])
+  CFLAGS_1="$CFLAGS"
+  CFLAGS="$CFLAGS -Wimplicit-function-declaration"
+  AC_TRY_COMPILE(,,LIBTOOL_CC="$CC -Wimplicit-function-declaration",)
+  CFLAGS="$CFLAGS_1"
+  AC_MSG_RESULT($ac_align_jumps)
+fi
+AC_SUBST(LIBTOOL_CC)
+
+
+
 # Try if GCC understands __attribute__((unused))
 AC_MSG_CHECKING([how to suppress 'unused variable' warnings])
 AC_TRY_COMPILE(,[int __attribute__((unused)) foo;], MAYBE_UNUSED='__attribute__((unused))',)

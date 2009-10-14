@@ -32,7 +32,7 @@ set-current
 
 : libtool-cc ( -- c-addr u ) \ gforth
 \G invocation string of the C compiler used for libtool
-    s" @CC@" ;
+    s" @LIBTOOL_CC@" ;
 
 : libtool-flags ( -- c-addr u ) \ gforth
 \G force no undefined for cygwin
