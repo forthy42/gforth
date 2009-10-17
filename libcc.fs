@@ -251,6 +251,9 @@ variable c-prefix-lines-end c-prefix-lines c-prefix-lines-end !
 : print-c-prefix-lines ( -- )
     c-prefix-lines @ ['] print-c-prefix-line list-map ;
 
+: free-c-prefix-lines ( -- )
+    c-prefix-lines @ off  c-prefix-lines @ c-prefix-lines-end ! ;
+
 : save-c-prefix-line ( c-addr u -- )
     c-source-file-id @ ?dup-if
 	>r 2dup r> write-line throw
@@ -492,7 +495,7 @@ create gen-wrapped-types
     lib-filename 2@ s" .c" s+ 2dup w/o create-file throw
     dup c-source-file-id !
     ['] print-c-prefix-lines swap outfile-execute
-    drop free throw ;
+    drop free-c-prefix-lines free throw ;
 
 : c-named-library-name ( c-addr u -- )
     \ set up filenames for a (possibly new) library; c-addr u is the
