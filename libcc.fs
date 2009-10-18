@@ -251,15 +251,20 @@ variable c-prefix-lines-end c-prefix-lines c-prefix-lines-end !
 : print-c-prefix-lines ( -- )
     c-prefix-lines @ ['] print-c-prefix-line list-map ;
 
-: free-c-prefix-lines ( -- )
-    c-prefix-lines @ off  c-prefix-lines @ c-prefix-lines-end ! ;
+: write-c-prefix-line ( c-addr u -- )
+    c-source-file-id @ dup if
+	write-line throw
+    else
+	drop 2drop
+    then ;
 
-: save-c-prefix-line ( c-addr u -- )
-    c-source-file-id @ ?dup-if
-	>r 2dup r> write-line throw
-    then
+: save-c-prefix-line1 ( c-addr u -- )
+    2dup write-c-prefix-line
     align here 0 , c-prefix-lines-end list-append ( c-addr u )
     longstring, ;
+
+defer save-c-prefix-line ( c-addr u -- )
+' save-c-prefix-line1 is save-c-prefix-line
 
 : \c ( "rest-of-line" -- ) \ gforth backslash-c
     \G One line of C declarations for the C interface
@@ -489,13 +494,13 @@ create gen-wrapped-types
     assert( c-source-file-id @ 0= )
     { d: filename }
     here 0 , lib-handle-addr ! filename lib-filename 2!
-    filename basename lib-modulename 2! ;
+    filename basename lib-modulename 2!
+    ['] write-c-prefix-line is save-c-prefix-line ;
    
 : c-library-name-create ( -- )
     lib-filename 2@ s" .c" s+ 2dup w/o create-file throw
-    dup c-source-file-id !
-    ['] print-c-prefix-lines swap outfile-execute
-    drop free-c-prefix-lines free throw ;
+    c-source-file-id !
+    drop free throw ;
 
 : c-named-library-name ( c-addr u -- )
     \ set up filenames for a (possibly new) library; c-addr u is the
@@ -506,13 +511,16 @@ create gen-wrapped-types
     else
         libcc-named-dir $1ff mkdir-parents drop
 	drop c-library-name-create
+	c-prefix-lines @ ['] print-c-prefix-line \ first line only
+	c-source-file-id @ outfile-execute
     endif ;
 
 : c-tmp-library-name ( c-addr u -- )
     \ set up filenames for a new library; c-addr u is the basename of
     \ the library
     libcc-tmp-dir 2dup $1ff mkdir-parents drop
-    prepend-dirname c-library-name-setup c-library-name-create ;
+    prepend-dirname c-library-name-setup c-library-name-create
+    ['] print-c-prefix-lines c-source-file-id @ outfile-execute ;
 
 : lib-handle ( -- addr )
     lib-handle-addr @ @ ;
@@ -638,6 +646,7 @@ clear-libs
 
 : end-c-library ( -- ) \ gforth
 \G Finish and (if necessary) build the latest C library interface.
+    ['] save-c-prefix-line1 is save-c-prefix-line
     ['] compile-wrapper-function1 is compile-wrapper-function
     compile-wrapper-function1 ;
 
