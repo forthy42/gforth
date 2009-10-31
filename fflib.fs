@@ -43,7 +43,7 @@ s" callback" add-lib
 \c   void **gforth_pointers = saved_gforth_pointers;
 \c #endif
 \c   {
-\c     /* save global valiables */
+\c     /* save global variables */
 \c     Cell *rp = gforth_RP;
 \c     Cell *sp = gforth_SP;
 \c     Float *fp = gforth_FP;

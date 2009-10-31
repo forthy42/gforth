@@ -1306,7 +1306,7 @@ word
 5!a
 @end example
 
-A frequent beginner's error is to leave away necessary white space,
+A frequent beginner's error is to leave out necessary white space,
 resulting in an error like @samp{Undefined word}; so if you see such an
 error, check if you have put spaces wherever necessary.
 
@@ -1347,7 +1347,7 @@ them), let's learn how to produce meaningful programs.
 @cindex stack tutorial
 
 The most obvious feature of Forth is the stack.  When you type in a
-number, it is pushed on the stack.  You can display the content of the
+number, it is pushed on the stack.  You can display the contents of the
 stack with @code{.s}.
 
 @example
@@ -1358,7 +1358,7 @@ stack with @code{.s}.
 @code{.s} displays the top-of-stack to the right, i.e., the numbers
 appear in @code{.s} output as they appeared in the input.
 
-You can print the top of stack element with @code{.}.
+You can print the top element of the stack with @code{.}.
 
 @example
 1 2 3 . . .
