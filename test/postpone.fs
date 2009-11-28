@@ -216,8 +216,10 @@ testing postpone if
 { 4 PIF6 -> 0 1 2 3 4 }
 
 testing postpone literal
+[undefined] postpone-literal [if]
 : postpone-literal
     postpone literal ;
+[then]
 
 { : plit [ 42 postpone-literal ] ; -> }
 { plit -> 42 }

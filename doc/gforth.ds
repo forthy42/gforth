@@ -1219,11 +1219,11 @@ be used while sitting in front of a computer, and covers much more
 material, but does not explain how the Forth system works.
 
 This tutorial can be used with any ANS-compliant Forth; any
-Gforth-specific features are marked as such and you can skip them if you
-work with another Forth.  This tutorial does not explain all features of
-Forth, just enough to get you started and give you some ideas about the
-facilities available in Forth.  Read the rest of the manual and the
-standard when you are through this.
+Gforth-specific features are marked as such and you can skip them if
+you work with another Forth.  This tutorial does not explain all
+features of Forth, just enough to get you started and give you some
+ideas about the facilities available in Forth.  Read the rest of the
+manual when you are through this.
 
 The intended way to use this tutorial is that you work through it while
 sitting in front of the console, take a look at the examples and predict
@@ -7399,11 +7399,10 @@ guaranteed to work on all standard systems, but on any decent system it
 will work.}
 
 doc-postpone
-doc-[compile]
 
 Compiling words like @code{compile-+} are usually immediate (or similar)
 so you do not have to switch to interpret state to execute them;
-mopifying the last example accordingly produces:
+modifying the last example accordingly produces:
 
 @example
 : [compile-+] ( compilation: --; interpretation: -- )
@@ -7414,6 +7413,61 @@ mopifying the last example accordingly produces:
   [compile-+] ;
 1 2 foo .
 @end example
+
+You will occassionally find the need to POSTPONE several words;
+putting POSTPONE before each such word is cumbersome, so Gforth
+provides a more convenient syntax: @code{]] ... [[}.  This
+allows us to write @code{[compile-+]} as:
+
+@example
+: [compile-+] ( compilation: --; interpretation: -- )
+  ]] + [[ ; immediate
+@end example
+
+doc-]]
+doc-[[
+
+The unusual direction of the brackets indicates their function:
+@code{]]} switches from compilation to postponing (i.e., compilation
+of compilation), just like @code{]} switches from immediate execution
+(interpretation) to compilation.  Conversely, @code{[[} switches from
+postponing to compilation, ananlogous to @code{[} which switches from
+compilation to immediate execution.
+
+The real advantage of @code{]] }...@code{ [[} becomes apparent when
+there are many words to POSTPONE.  E.g., the word
+@code{compile-map-array} (@pxref{Advanced macros Tutorial}) can be
+written much shorter as follows:
+
+@example
+: compile-map-array ( compilation: xt -- ; run-time: ... addr u -- ... )
+\ at run-time, execute xt ( ... x -- ... ) for each element of the
+\ array beginning at addr and containing u elements
+  @{ xt @}
+  ]] cells over + swap ?do
+    i @@ [[ xt compile, 
+  1 cells ]]L +loop [[ ;
+@end example
+
+This example also uses @code{]]L} as a shortcut for @code{]] literal}.
+There are also other shortcuts
+
+doc-]]L
+doc-]]2L
+doc-]]FL
+doc-]]SL
+
+Note that parsing words don't parse at postpone time; if you want to
+provide the parsed string right away, you have to switch back to
+compilation:
+
+@example
+]] ... [[ s" some string" ]]2L ... [[
+]] ... [[ ['] + ]]L ... [[
+@end example
+
+Definitions of @code{]]} and friends in ANS Forth are provided in
+@file{compat/macros.fs}.
 
 Immediate compiling words are similar to macros in other languages (in
 particular, Lisp).  The important differences to macros in, e.g., C are:
@@ -7523,6 +7577,8 @@ example}).  One advantage of this method is that it can be optimized
 better, because the compiler knows that the value compiled with
 @code{literal} is fixed, whereas the data associated with a
 @code{create}d word can be changed.
+
+@c doc-[compile] !! not properly documented
 
 @c ----------------------------------------------------------
 @node The Text Interpreter, The Input Stream, Compiling words, Words

@@ -148,7 +148,7 @@ AUser CSP
 : compile-compile-2literal ( n1 n2 -- )
     compile-2literal postpone compile-2literal ;
 
-: [[ ( -- )
+: [[ ( -- ) \ gforth left-bracket-bracket
 \G switch from postpone state to compile state
     \ this is only a marker; it is never really interpreted
     compile-only-error ; immediate
@@ -178,9 +178,31 @@ AUser CSP
 	THEN
     then ;
 
-: ]] ( -- )
-    \ switch into postpone state
+: ]] ( -- ) \ gforth right-bracket-bracket
+    \G switch into postpone state
     ['] postponer1 is parser1 state on ; immediate restrict
+
+: postpone-literal  postpone  literal ;
+: postpone-2literal postpone 2literal ;
+: postpone-fliteral postpone fliteral ;
+: postpone-sliteral postpone sliteral ;
+
+: ]]L ( postponing: x -- ; compiling: -- x ) \ gforth right-bracket-bracket-l
+\G Shortcut for @code{]] literal}.
+    ]] postpone-literal ]] [[ ; immediate
+
+: ]]2L ( postponing: x1 x2 -- ; compiling: -- x1 x2 ) \ gforth right-bracket-bracket-two-l
+\G Shortcut for @code{]] 2literal}.
+    ]] postpone-2literal ]] [[ ; immediate
+
+: ]]FL ( postponing: r -- ; compiling: -- r ) \ gforth right-bracket-bracket-f-l
+\G Shortcut for @code{]] fliteral}.
+    ]] postpone-fliteral ]] [[ ; immediate
+
+: ]]SL ( postponing: addr1 u -- ; compiling: -- addr2 u ) \ gforth right-bracket-bracket-s-l
+\G Shortcut for @code{]] sliteral}; if the string already has been
+\G allocated permanently, you can use @code{]]2L} instead.
+    ]] postpone-sliteral ]] [[ ; immediate
 
 [then]
 
