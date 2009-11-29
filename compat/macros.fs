@@ -16,8 +16,28 @@
 \ 1e ]]FL              is equivalent to    1e ]] fliteral
 \ parse-name foo ]]SL  is equivalent to    parse-name foo ]] sliteral
 
+\ This program uses the following words
+\ from CORE :
+\  environment? drop : BEGIN >in @ dup 0= WHILE 2drop and REPEAT ; ! 
+\  POSTPONE immediate Literal 
+\ from BLOCK-EXT :
+\  \ 
+\ from DOUBLE :
+\  2Literal 
+\ from EXCEPTION :
+\  throw 
+\ from FILE :
+\  S" ( 
+\ from FILE-EXT :
+\  refill 
+\ from FLOAT :
+\  FLiteral 
+\ from STRING :
+\  compare SLiteral 
+\ from X:parse-name :
+\  parse-name 
+
 s" X:parse-name" environment? drop \ just let the system know that we need it
-s" X:required"   environment? drop \ just let the system know that we need it
 
 : refilling-parse-name ( -- old->in c-addr u )
     begin
