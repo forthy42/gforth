@@ -182,10 +182,10 @@ AUser CSP
     \G switch into postpone state
     ['] postponer1 is parser1 state on ; immediate restrict
 
-: postpone-literal  postpone  literal ;
-: postpone-2literal postpone 2literal ;
-: postpone-fliteral postpone fliteral ;
-: postpone-sliteral postpone sliteral ;
+comp'  literal drop alias postpone-literal
+comp' 2literal drop alias postpone-2literal
+comp' fliteral drop alias postpone-fliteral
+comp' sliteral drop alias postpone-sliteral
 
 : ]]L ( postponing: x -- ; compiling: -- x ) \ gforth right-bracket-bracket-l
 \G Shortcut for @code{]] literal}.

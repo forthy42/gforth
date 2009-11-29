@@ -282,6 +282,7 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_SRC) $(EC_SRC) $(LIBCC_DIST_SRC) \
 	test/other.fs test/signals.fs test/checkans.fs \
 	test/primtest.fs test/coreext.fs test/deferred.fs \
 	test/coremore.fs test/gforth-nofast.fs test/libcc.fs \
+	test/macros.fs \
 	bubble.fs siev.fs matrix.fs fib.fs \
 	oof.fs oofsampl.fs objects.fs objexamp.fs mini-oof.fs moof-exm.fs \
 	moofglos.fs fixpath.fs \
@@ -296,6 +297,7 @@ COMPAT = compat/README \
 	compat/exception.fs \
 	compat/execute-parsing.fs \
 	compat/loops.fs \
+	compat/macros.fs \
 	compat/required.fs \
 	compat/strcomp.fs \
 	compat/struct.fs \
@@ -674,7 +676,7 @@ checkone test: gforth.fi engine/prim-s.i
 		$(FORTH) test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs test/string.fs test/float.fs test/deferred.fs test/coreext.fs test/search.fs -e bye 2>&1 | tr -d '\015' | diff -c - $(srcdir)/test/coretest.out
 		$(FORTH) test/other.fs -e bye
 		$(FORTHS) test/signals.fs -e bye
-		$(FORTHS) test/coremore.fs test/gforth.fs -e bye 2>&1 | tr -d '\015' | diff -c - $(srcdir)/test/gforth.out
+		$(FORTHS) test/coremore.fs test/gforth.fs test/macros.fs -e bye 2>&1 | tr -d '\015' | diff -c - $(srcdir)/test/gforth.out
 		$(FORTH) code.fs test/checkans.fs -e bye | tr -d '\015' | diff -c - $(srcdir)/test/checkans.out
 		$(FORTH) prims2x.fs -e \
 		  "c-flag on s\" prim.i\" out-filename 2! s\" $(srcdir)/prim.b\" ' output-c ' output-c-combined process-file bye"| \
