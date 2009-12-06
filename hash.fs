@@ -225,3 +225,15 @@ has? cross 0=
 \ : chisq ( -- n )
 \     \ n should have about the same size as Hashlen
 \     countwl Hashlen 2 pick */ swap - ;
+
+\ Create hashhist here $100 cells dup allot erase
+
+\ : .hashhist ( -- )  hashhist $100 cells erase
+\     HashTable HashLen cells bounds
+\     DO  0 I  BEGIN  @ dup  WHILE  swap 1+ swap  REPEAT  drop
+\         1 swap cells hashhist + +!
+\     cell +LOOP
+\     0 0 $100 0 DO
+\         hashhist I cells + @ dup IF
+\     	cr I 0 .r ." : " dup .  THEN tuck I * + >r + r>
+\     LOOP cr ." Total: " 0 .r ." /" . cr ;
