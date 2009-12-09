@@ -91,7 +91,7 @@ sockaddr-tmp sockaddr_in %size dup allot erase
   11 Constant EWOULDBLOCK
 $100 Constant MSG_WAITALL
 $802 Constant O_NONBLOCK|O_RDWR
-2000 Value    SOCKET-TIMEOUT
+2variable socket-timeout-d 2000. socket-timeout-d 2!
 
 : new-socket ( -- socket )
     PF_INET SOCK_STREAM IPPROTO_TCP socket
@@ -121,8 +121,6 @@ $802 Constant O_NONBLOCK|O_RDWR
 \ from itools.frt
 
 ' open-socket Alias open-service
-
-: ms@  utime 1000 ud/mod drop nip ; ( -- u ) 
 
 : $put ( c-addr1 u1 c-addr2 -- ) swap cmove ;
 
@@ -163,8 +161,8 @@ Create crlf 2 c, 13 c, 10 c,
 	hostname$ 1+ 255 0 scan nip 255 swap - hostname$ c!
     THEN
     hostname$ count ;
-: set-socket-timeout ( u -- ) 200 + to socket-timeout ;
-: get-socket-timeout ( -- u ) socket-timeout 200 - ;
+: set-socket-timeout ( u -- ) 200 + s>d socket-timeout-d 2! ;
+: get-socket-timeout ( -- u ) socket-timeout-d 2@ drop 200 - ;
 : write-socket ( c-addr size socket -- ) fileno -rot 0 send 0< throw ;
 : close-socket ( socket -- ) fileno closesocket drop ;
 
@@ -178,10 +176,10 @@ Create crlf 2 c, 13 c, 10 c,
     r> true blocking-mode ;
 
 : read-socket ( socket c-addr maxlen -- c-addr u )
-    ms@ socket-timeout + { socket c-addr maxlen tmax -- c-addr size }
+    utime socket-timeout-d 2@ d+ { socket c-addr maxlen d: tmax -- c-addr size }
     BEGIN 
 	socket c-addr maxlen (rs) dup 0=
-	ms@ tmax u< and 
+	utime tmax d< and 
     WHILE 
 	    2drop
     REPEAT ;
