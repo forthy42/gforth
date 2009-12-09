@@ -122,7 +122,7 @@ $802 Constant O_NONBLOCK|O_RDWR
 
 ' open-socket Alias open-service
 
-: ms@  utime 1000 um/mod nip ; ( -- u ) 
+: ms@  utime 1000 ud/mod drop nip ; ( -- u ) 
 
 : $put ( c-addr1 u1 c-addr2 -- ) swap cmove ;
 
