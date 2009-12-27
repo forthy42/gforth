@@ -67,11 +67,6 @@
 \ The files are built in .../lib/gforth/$VERSION/libcc/ or
 \ ~/.gforth/libcc/$HOST/.
 
-\ other things to do:
-
-\ c-variable forth-name c-name
-\ c-constant forth-name c-name
-
 \ Todo: conversion between function pointers and xts (both directions)
 
 \ taking an xt and turning it into a function pointer:
@@ -143,6 +138,7 @@ struct
     cell% field cff-deferred \ xt of c-function deferred word
     cell% field cff-lha \ address of the lib-handle for the lib that
                         \ contains the wrapper function of the word
+    char% field cff-ctype  \ call type (function=1, value=0)
     char% field cff-rtype  \ return type
     char% field cff-np     \ number of parameters
     1 0   field cff-ptypes \ #npar parameter types
@@ -292,16 +288,38 @@ drop
 
 set-current
 
-: parse-libcc-type ( "libcc-type" -- u )
-    parse-name libcc-types search-wordlist 0= -13 and throw execute ;
+\ call types
+0
+const+ c-func
+const+ c-val
+const+ c-var
+drop
 
-: parse-function-types ( "{libcc-type}" "--" "libcc-type" -- )
-    here 2 chars allot here begin
+: libcc-type ( c-addr u -- u2 )
+	libcc-types search-wordlist 0= -13 and throw execute ;
+
+: parse-libcc-type ( "libcc-type" -- u )  parse-name libcc-type ;
+
+: parse-return-type ( "libcc-type" -- u )
+	parse-libcc-type dup 0< -32 and throw ;
+
+: parse-function-types ( "{libcc-type}" "--" "libcc-type" -- addr )
+    c-func c, here
+    dup 2 chars allot here begin
 	parse-libcc-type dup 0>= while
 	    c,
     repeat
     drop here swap - over char+ c!
-    parse-libcc-type dup 0< -32 and throw swap c! ;
+    parse-return-type swap c! ;
+
+: parse-value-type ( "{--}" "libcc-type" -- addr )
+    c-val c, here
+    parse-libcc-type  dup 0< if drop parse-return-type then
+    c,  0 c, ;
+
+: parse-variable-type ( -- addr )
+	c-var c, here
+	s" a" libcc-type c,  0 c, ;
 
 : type-letter ( n -- c )
     chars s" nadrfv" drop + c@ ;
@@ -373,7 +391,7 @@ create gen-par-types
 
 \ the call itself
 
-: gen-wrapped-call { d: pars d: c-name fp-change1 sp-change1 -- }
+: gen-wrapped-func { d: pars d: c-name fp-change1 sp-change1 -- }
     c-name type ." ("
     fp-change1 sp-change1 pars over + swap u+do 
 	i c@ gen-par
@@ -382,6 +400,20 @@ create gen-par-types
 	endif
     loop
     2drop ." )" ;
+
+: gen-wrapped-const { d: pars d: c-name fp-change1 sp-change1 -- }
+	." (" c-name type ." )" ;
+
+: gen-wrapped-var { d: pars d: c-name fp-change1 sp-change1 -- }
+	." &(" c-name type ." )" ;
+
+create gen-call-types
+' gen-wrapped-func ,
+' gen-wrapped-const ,
+' gen-wrapped-var ,
+
+: gen-wrapped-call ( pars c-name fp-change1 sp-change1 -- )
+	5 pick 3 chars - c@ cells gen-call-types + @ execute ;
 
 \ calls for various kinds of return values
 
@@ -594,12 +626,12 @@ DEFER compile-wrapper-function ( -- )
     endif
     wrapper-name drop free throw ;
 
-: c-function-ft ( xt-defr xt-cfr "c-name" "{libcc-type}" "--" "libcc-type" -- )
+: c-function-ft ( xt-defr xt-cfr xt-parse "c-name" "type signature" -- )
     \ build time/first time action for c-function
-    init-c-source-file
+    { xt-parse-types } init-c-source-file
     noname create 2, lib-handle-addr @ ,
     parse-name { d: c-name }
-    here parse-function-types c-name string,
+    xt-parse-types execute c-name string,
     ['] gen-wrapper-function c-source-file-execute
   does> ( ... -- ... )
     dup 2@ { xt-defer xt-cfr }
@@ -617,11 +649,25 @@ DEFER compile-wrapper-function ( -- )
   does> ( ... -- ... )
     @ call-c ;
 
-: c-function ( "forth-name" "c-name" "@{type@}" "--" "type" -- ) \ gforth
+: (c-function) ( xt-parse "forth-name" "c-name" "{stack effect}" -- )
+    { xt-parse-types } defer lastxt dup c-function-rt
+    lastxt xt-parse-types c-function-ft
+    lastxt swap defer! ;
+
+: c-function ( "forth-name" "c-name" "@{type@}" "---" "type" -- ) \ gforth
     \G Define a Forth word @i{forth-name}.  @i{Forth-name} has the
     \G specified stack effect and calls the C function @code{c-name}.
-    defer lastxt dup c-function-rt lastxt c-function-ft
-    lastxt swap defer! ;
+    ['] parse-function-types (c-function) ;
+
+: c-value ( "forth-name" "c-name" "[---]" "type" -- ) \ gforth
+    \G Define a Forth word @i{forth-name}.  @i{Forth-name} has the
+    \G specified stack effect and gives the C value of @code{c-name}.
+    ['] parse-value-type (c-function) ;
+
+: c-variable ( "forth-name" "c-name" -- ) \ gforth
+    \G Define a Forth word @i{forth-name}.  @i{Forth-name} returns the
+    \G address of @code{c-name}.
+    ['] parse-variable-type (c-function) ;
 
 : clear-libs ( -- ) \ gforth
 \G Clear the list of libs

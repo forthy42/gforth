@@ -12307,6 +12307,8 @@ C @code{long long} before calling @code{printf()}.
 
 doc-\c
 doc-c-function
+doc-c-value
+doc-c-variable
 
 In order to work, this C interface invokes GCC at run-time and uses
 dynamic linking.  If these features are not available, there are

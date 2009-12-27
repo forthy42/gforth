@@ -172,8 +172,12 @@ const Create (hashsearch-map)
 \ Hash-Find                                            01jan93py
 has? cross 0= 
 [IF]
+: hash-wordlist ( wid -- )
+  hashsearch-map swap wordlist-map ! ;
 : make-hash
-  hashsearch-map forth-wordlist wordlist-map !
+  forth-wordlist hash-wordlist
+  environment-wordlist hash-wordlist
+  ['] Root >body hash-wordlist
   addall ;
   make-hash \ Baumsuche ist installiert.
 [ELSE]

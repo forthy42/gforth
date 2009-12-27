@@ -82,7 +82,7 @@ sockaddr-tmp sockaddr_in %size dup allot erase
 [ELSE]
     h_addr_list
 [THEN]
-    @ @ @ ntohl ;
+    @ @ l@ ntohl ;
 
    2 Constant PF_INET
    1 Constant SOCK_STREAM

@@ -274,7 +274,7 @@ Create argptr maxargs 0 [DO]  argbuf [I] 2* cells + A, [LOOP]
 : sf>x  ( -- r )  retbuf sf@ ;
 : df>x  ( -- r )  retbuf df@ ;
 
-wordlist constant cifs
+table constant cifs
 
 Variable cifbuf $40 allot \ maximum: 64 parameters
 : cifreset  cifbuf cell+ cifbuf ! ;
