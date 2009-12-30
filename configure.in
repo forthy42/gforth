@@ -941,3 +941,4 @@ ln -sf ../../../engine/config.h ../../../engine/libcc.h include/gforth/$PACKAGE_
  machine=$machine])
 AC_OUTPUT
 
+test -z "$GNU_LIBTOOL" && echo * Problem: no libtool found, libcc.fs will not work
