@@ -339,6 +339,7 @@ compat/defer.fs
 compat/exception.fs
 compat/execute-parsing.fs
 compat/loops.fs
+compat/macros.fs
 compat/required.fs
 compat/strcomp.fs
 compat/struct.fs
@@ -423,6 +424,7 @@ libltdl/m4/ltversion.in
 libltdl/m4/ltversion.m4
 libltdl/m4/lt~obsolete.m4
 kernel/.cvsignore
+netlib/.cvsignore
 netlib/README
 test/checkans.fs
 test/checkans.out
