@@ -849,8 +849,16 @@ if test -n "$GNU_LIBTOOL" -a $ac_cv_lib_ltdl_lt_dlinit = yes; then
   build_libcc_named=build-libcc-named
 else
   build_libcc_named=""
+  AC_MSG_WARN([No GNU_LIBTOOL found, skip pre-building libcc-based libraries])
 fi
 AC_SUBST(build_libcc_named)
+
+
+if test -z "$GNU_LIBTOOL"; then
+  AC_MSG_WARN([No GNU_LIBTOOL found, using "libtool" as name.])
+  AC_MSG_WARN([libcc.fs won't work until you have installed (GNU) libtool.])
+  GNU_LIBTOOL=libtool
+fi
 
 #check for libffi 2.x
 AC_CHECK_HEADER(ffi.h,FFI_H_NAME=ffi.h,)
@@ -940,5 +948,3 @@ ln -sf ../../../engine/config.h ../../../engine/libcc.h include/gforth/$PACKAGE_
 [PACKAGE_VERSION=$PACKAGE_VERSION
  machine=$machine])
 AC_OUTPUT
-
-test -z "$GNU_LIBTOOL" && echo * Problem: no libtool found, libcc.fs will not work
