@@ -5,7 +5,7 @@
 // #include <linux/config.h>
 #endif
 
-// #include <linux/posix_types.h>
+#include "posix_types.h"
 #include "asm-types.h"
 
 #ifndef __KERNEL_STRICT_NAMES
@@ -87,6 +87,7 @@ typedef unsigned long		u_long;
 
 /* sysv */
 typedef unsigned char		unchar;
+typedef unsigned char		uchar;
 typedef unsigned short		ushort;
 typedef unsigned int		uint;
 typedef unsigned long		ulong;

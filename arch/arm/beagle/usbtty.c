@@ -23,8 +23,7 @@
 
 #define __KERNEL__
 #define BAUDRATE 115200
-// #define NULL 0L
-typedef unsigned long ulong;
+#define __LITTLE_ENDIAN
 
 #include "config.h"
 #include "circbuf.h"
@@ -32,6 +31,8 @@ typedef unsigned long ulong;
 #include "usbtty.h"
 #include "usb_cdc_acm.h"
 #include "usbdescriptors.h"
+
+#define cpu_to_le16(x) x
 
 #ifdef DEBUG
 #define TTYDBG(fmt,args...)\

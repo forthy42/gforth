@@ -84,7 +84,7 @@ typedef struct {
  * VARIABLES
  */
 extern struct stdio_dev *stdio_devices[];
-extern char *stdio_names[MAX_FILES];
+// extern char *stdio_names[MAX_FILES];
 
 /*
  * PROTOTYPES

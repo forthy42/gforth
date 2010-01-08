@@ -68,7 +68,7 @@ void NS16550_putc (NS16550_t com_port, char c)
 char NS16550_getc (NS16550_t com_port)
 {
 	while ((com_port->lsr & UART_LSR_DR) == 0) {
-#ifdef CONFIG_USB_TTY_dummy
+#ifdef CONFIG_USB_TTY
 		extern void usbtty_poll(void);
 		usbtty_poll();
 #endif
