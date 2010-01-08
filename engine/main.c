@@ -75,9 +75,13 @@ void * gforth_pointers[] = {
   (void*)&gforth_LP,
   (void*)&gforth_RP,
   (void*)&gforth_UP,
-  (void*)gforth_engine,
+  (void*)gforth_engine
+#ifdef HAS_FILE
+  ,
   (void*)cstr,
-  (void*)tilde_cstr };
+  (void*)tilde_cstr
+#endif
+};
 #endif
 
 #ifdef HAS_FFCALL

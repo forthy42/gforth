@@ -116,17 +116,19 @@ defer header ( -- ) \ gforth
     \G puts down string as longcstring
     dup , here swap chars dup allot move ;
 
+[IFDEF] prelude-mask
 variable next-prelude
 
 : prelude, ( -- )
     next-prelude @ if
 	align next-prelude @ ,
     then ;
+[THEN]
 
 : header, ( c-addr u -- ) \ gforth
     name-too-long?
     dup max-name-length @ max max-name-length !
-    prelude,
+    [ [IFDEF] prelude-mask ] prelude, [ [THEN] ]
     align here last !
 [ has? ec [IF] ]
     -1 A,
@@ -259,13 +261,16 @@ defer basic-block-end ( -- )
 is basic-block-end
 [THEN]
 
-has? peephole [IF]
+has? primcentric [IF]
+    has? peephole [IF]
+	\ dynamic only    
+	: peephole-compile, ( xt -- )
+	    \ compile xt, appending its code to the current dynamic superinstruction
+	    here swap , compile-prim1 ;
+    [ELSE]
+	: peephole-compile, ( xt -- addr ) @ , ;
+    [THEN]
 
-\ dynamic only    
-: peephole-compile, ( xt -- )
-    \ compile xt, appending its code to the current dynamic superinstruction
-    here swap , compile-prim1 ;
-    
 : compile-to-prims, ( xt -- )
     \G compile xt to use primitives (and their peephole optimization)
     \G instead of ","-ing the xt.
@@ -362,7 +367,7 @@ has? peephole [IF]
 \ \ compiler loop
 
 : compiler1 ( c-addr u -- ... xt )
-    2dup find-name run-prelude dup
+    2dup find-name [ [IFDEF] prelude-mask ] run-prelude [ [THEN] ] dup
     if ( c-addr u nt )
 	nip nip name>comp
     else

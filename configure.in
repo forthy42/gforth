@@ -70,6 +70,7 @@ if test "$withval" = "yes"; then DEBUGFLAG=-g; fi)
 
 GCC_LD="\$(GCC)"
 EC_MODE="false"
+NO_EC=""
 EC=""
 engine2='engine2$(OPT).o'
 engine_fast2='engine-fast2$(OPT).o'
@@ -77,6 +78,7 @@ no_dynamic=""
 image_i=""
 signals_o="io.o signals.o"
 
+AC_CANONICAL_HOST
 AC_ARG_WITH(ec,
 	AC_HELP_STRING([--with-ec=<arch>],
 			[  Build gforth for systems without OS.]),
@@ -87,6 +89,7 @@ else
   AC_DEFINE(STANDALONE,,[Define if you want a Gforth without OS])
   EC_MODE="true"
   EC="-ec"
+  NO_EC="#"
   engine2=""
   engine_fast2=""
   no_dynamic="-DNO_DYNAMIC"
@@ -95,6 +98,9 @@ else
     signals_o="io-${withval}.o"
   else
     signals_o="io.o"
+  fi
+  if test -f "arch/$host_cpu/${withval}/config.sh"; then
+    source "arch/$host_cpu/${withval}/config.sh"
   fi
   GCC_PATH=$(which $CC)
   LIB_PATH=${GCC_PATH%/*/*}
@@ -165,6 +171,7 @@ AC_SUBST(CC)
 AC_SUBST(GCC_LD)
 AC_SUBST(DEBUGFLAG)
 AC_SUBST(EC)
+AC_SUBST(NO_EC)
 AC_SUBST(EC_MODE)
 AC_SUBST(engine2)
 AC_SUBST(engine_fast2)
@@ -193,7 +200,6 @@ AC_MSG_RESULT($ac_export_dynamic)
 
 #terminology is a bit unusual here: The host is the system on which
 #gforth will run; the system on which configure will run is the `build'
-AC_CANONICAL_HOST
 case "$host_cpu" in
 	arm*)
 		machine=arm
@@ -658,11 +664,17 @@ AC_MSG_RESULT($PREFORTH)
 #echo "machine='$machine'"
 
 dnl AC_CHECK_PROG(asm_fs,asm.fs,arch/$machine/asm.fs,,$srcdir/arch/$machine)
-AC_CHECK_FILE($srcdir/arch/$machine/asm.fs,[asm_fs=arch/$machine/asm.fs],)
+if test x$EC_MODE = xfalse
+then
+  AC_CHECK_FILE($srcdir/arch/$machine/asm.fs,[asm_fs=arch/$machine/asm.fs],)
+fi
 AC_SUBST(asm_fs)
 
 dnl AC_CHECK_PROG(disasm_fs,disasm.fs,arch/$machine/disasm.fs,,$srcdir/arch/$machine)
-AC_CHECK_FILE($srcdir/arch/$machine/disasm.fs,[disasm_fs=arch/$machine/disasm.fs],)
+if test x$EC_MODE = xfalse
+then
+  AC_CHECK_FILE($srcdir/arch/$machine/disasm.fs,[disasm_fs=arch/$machine/disasm.fs],)
+fi
 AC_SUBST(disasm_fs)
 
 AC_PATH_PROG(INSTALL_INFO,install-info,[echo '>>>>Please make info dir entry:'],$PATH:/sbin:/usr/sbin:/usr/local/sbin)

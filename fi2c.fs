@@ -169,7 +169,7 @@ Variable bitmap-chars
 			." INST_ADDR(" type ." )"
 		    THEN
 		ELSE
-		    dup IF  ." ((void*)image)+"  THEN  .08x
+		    dup IF  ." ((void*)image)+"  $10 -  THEN  .08x
 		THEN
 	    ELSE
 		." (void*)" .08x

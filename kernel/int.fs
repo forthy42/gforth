@@ -334,6 +334,7 @@ forth-wordlist current !
 
 has? f83headerstring [IF]
     \ to save space, Gforth EC limits words to 31 characters
+    \ also, there's no predule concept in Gforth EC
     $80 constant alias-mask
     $40 constant immediate-mask
     $20 constant restrict-mask
@@ -457,12 +458,14 @@ has? f83headerstring [IF]
     (name>x) tuck (x>int) ( w xt )
     swap immediate-mask and [ has? rom [IF] ] 0= [ [THEN] ] flag-sign ;
 
+[IFDEF] prelude-mask
 : name>prelude ( nt -- xt )
     dup cell+ @ prelude-mask and if
 	[ -1 cells ] literal + @
     else
 	drop ['] noop
     then ;
+[THEN]
 
 const Create ???  0 , 3 , char ? c, char ? c, char ? c,
 \ ??? is used by dovar:, must be created/:dovar
@@ -708,16 +711,18 @@ has? backtrace [IF]
 
 \ interpreter                                 	30apr92py
 
+[IFDEF] prelude-mask
 : run-prelude ( nt|0 -- nt|0 )
     \ run the prelude of the name identified by nt (if present).  This
     \ is used in the text interpreter and similar stuff.
     dup if
 	dup name>prelude execute
     then ;
+[THEN]
 
 \ not the most efficient implementations of interpreter and compiler
 : interpreter1 ( c-addr u -- ... xt ) 
-    2dup find-name run-prelude dup
+    2dup find-name [ [IFDEF] prelude-mask ] run-prelude [ [THEN] ] dup
     if
 	nip nip name>int
     else

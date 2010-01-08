@@ -430,9 +430,9 @@ SOURCES	= $(ENGINE_SOURCES) compat Makefile.in Makedist.in \
 
 RCS_FILES =  ToDo model high-level
 
-ENGINES = gforth$(EC)$(EXE) gforth-ditc$(EC)$(EXE) gforth-itc$(EC)$(EXE) $(PROFEXES)
+ENGINES = gforth$(EC)$(EXE) @NO_EC@ gforth-ditc$(EC)$(EXE) gforth-itc$(EC)$(EXE) $(PROFEXES)
 
-ENGINES_FAST = gforth-fast$(OPT)$(EC)$(EXE) #gforth-native$(OPT)$(EC)$(EXE) 
+ENGINES_FAST = @NO_EC@ gforth-fast$(OPT)$(EC)$(EXE) #gforth-native$(OPT)$(EC)$(EXE) 
 
 GEN = $(ENGINES) $(ENGINES_FAST) gforth.elc
 
@@ -448,7 +448,7 @@ FORTH_GEN_ENGINE_FAST= \
 	engine/costs-fast.i engine/super2-fast.i
 FORTH_GEN_PRIMB = $(FORTH_GEN_ENGINE) kernel/aliases.fs kernel/prim.fs
 FORTH_GEN0 = prim.b $(FORTH_GEN_PRIMB)
-FORTH_GEN =  $(FORTH_GEN0) @KERNEL@ gforth.fi
+FORTH_GEN =  $(FORTH_GEN0) @KERNEL@ @NO_EC@ gforth.fi
 # this is used for antidependences,
 FORTH_GEN1 = $(FORTH_GEN0) @kernel_fi@ build-ec
 
@@ -477,7 +477,7 @@ GEN_PRECIOUS = $(FORTH_GEN) $(KERNLS) \
 .SUFFIXES:
 .SUFFIXES: .c .o
 
-all: kernel/version.fs more check
+all: kernel/version.fs more @NO_EC@ check
 
 # use this dependency for phony targets just as mostlyclean,...
 FORCE: ;
@@ -826,7 +826,7 @@ gforth$(OPT)$(EC)$(EXE): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/config.h @
 		$(CP) engine/$@ $@ && \
 		$(MASSAGE_EXE) $@; \
 		@GFORTH_EXE@; \
-		$(MAKE) checkone check-nofast ENGINE=./engine/$@; \
+		@NO_EC@ $(MAKE) checkone check-nofast ENGINE=./engine/$@; \
 	fi
 
 optgforth:
@@ -840,7 +840,7 @@ gforth-fast$(OPT)$(EC)$(EXE): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE_FAST) engine/
 		$(CP) engine/$@ $@ && \
 		$(MASSAGE_EXE) $@; \
 		@GFORTHFAST_EXE@; \
-		$(MAKE) checkone ENGINE=./engine/$@; \
+		@NO_EC@ $(MAKE) checkone ENGINE=./engine/$@; \
 	fi
 
 optgforth-fast:

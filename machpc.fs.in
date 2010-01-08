@@ -109,9 +109,9 @@ true DefaultValue control-rack  \ disable return stack use for control flow
 
 false DefaultValue crlf
 
-true DefaultValue flash
+false DefaultValue flash
     
-$0 DefaultValue kernel-start   \ no artificial offset
+$10 DefaultValue kernel-start   \ no artificial offset
 &48 KB DefaultValue kernel-size
 
 &1 KB		DefaultValue stack-size

@@ -83,7 +83,7 @@ AConstant dictionary-end
     \G the region addressed by @code{here}.
     usable-dictionary-end here - ;
 
-has? ec [IF]
+has? ec has? primcentric 0= and [IF]
 : in-dictionary? ( x -- f )
     dictionary-end u< ;
 [ELSE]    
