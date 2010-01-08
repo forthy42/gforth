@@ -54,6 +54,7 @@
 #define __KERNEL__
 #define NULL (void*)0
 #include "types.h"
+#define cpu_to_le16(x) x
 #include "usbdevice.h"
 
 #if 0

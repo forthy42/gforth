@@ -24,7 +24,16 @@
 #define __KERNEL__
 #define BAUDRATE 115200
 #define __LITTLE_ENDIAN
+#define min(X, Y)                               \
+        ({ typeof (X) __x = (X), __y = (Y);     \
+                (__x < __y) ? __x : __y; })
 
+#define max(X, Y)                               \
+        ({ typeof (X) __x = (X), __y = (Y);     \
+                (__x > __y) ? __x : __y; })
+
+#define MIN(x, y)  min(x, y)
+#define MAX(x, y)  max(x, y)
 #include "config.h"
 #include "circbuf.h"
 #include "stdio_dev.h"

@@ -1,6 +1,7 @@
 BEAGLE = ../arch/arm/beagle
 
-EXTRAS = serial.c ns16550.c usbtty.c core.c ep0.c
+EXTRAS = serial.c ns16550.c usbtty.c core.c ep0.c musb_core.c musb_udc.c \
+       omap3.c twl4030.c circbuf.c
 
 AOBJECTS += $(EXTRAS:%.c=../arch/arm/beagle/%.o)
 
