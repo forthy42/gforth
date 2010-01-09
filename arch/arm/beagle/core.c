@@ -31,7 +31,6 @@
 
 #define __KERNEL__
 #define NULL (void*)0
-// #include <malloc.h>
 #include "types.h"
 #include "usbdevice.h"
 

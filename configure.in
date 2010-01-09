@@ -334,6 +334,7 @@ esac
 AC_SUBST(host)
 
 MAKEINC=""
+GFORTH_EXE="true"
 
 echo "Check for arch/$machine/$platform/gforth.ld ($EC_MODE)"
 if test x$EC_MODE = xtrue
@@ -349,6 +350,7 @@ then
 	if test -f arch/$machine/$platform/make.inc
 	then
 		MAKEINC="include ../arch/$machine/$platform/make.inc"
+		GFORTH_EXE="\$(MAKE) -f arch/$machine/$platform/make.inc \$@.exe"
 	fi
 fi
 AC_SUBST(MAKEINC)
@@ -731,14 +733,13 @@ fi
 AC_CHECK_PROG([MASSAGE_EXE],[chcon],[chcon -t unconfined_execmem_exec_t],[true])
 
 dnl Now a little support for DOS/DJGCC
+GFORTHFAST_EXE="$GFORTH_EXE"
+GFORTHITC_EXE="$GFORTH_EXE"
+GFORTHDITC_EXE="$GFORTH_EXE"
 AC_SUBST(GFORTH_EXE)
-GFORTH_EXE="true"
 AC_SUBST(GFORTHFAST_EXE)
-GFORTHFAST_EXE="true"
 AC_SUBST(GFORTHITC_EXE)
-GFORTHITC_EXE="true"
 AC_SUBST(GFORTHDITC_EXE)
-GFORTHDITC_EXE="true"
 
 AC_SUBST(FORTHSIZES)
 
