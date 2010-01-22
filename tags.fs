@@ -66,7 +66,8 @@ create tags-line 128 chars allot
 
 : tags-file-id ( -- file-id )
     tags-file @ 0= if
-	tags-file-name w/o create-file throw
+        s" sort >tags" w/o open-pipe throw
+\	tags-file-name w/o create-file throw
 \ 	2dup file-status
 \ 	if \ the file does not exist
 \ 	    drop w/o create-file throw
