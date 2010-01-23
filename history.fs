@@ -278,11 +278,8 @@ require utf-8.fs
 : xend-pos  ( max span addr pos1 -- max span addr span 0 )
   drop over .all 0 ;
 
-
-: xclear-line ( max span addr pos1 -- max addr )
-    2dup x-width dup xback-restore dup spaces xback-restore drop nip ;
-: xclear-tib ( max span addr pos -- max 0 addr 0 false )
-    xclear-line 0 tuck dup ;
+: xclear-rest ( max span addr pos -- max pos addr pos false )
+     rot >r tuck 2dup r> swap /string u8width dup spaces linew +! .all 0 ;
 
 : (xenter)  ( max span addr pos1 -- max span addr pos2 true )
     >r end^ 2@ hist-setpos
@@ -316,7 +313,7 @@ require utf-8.fs
     ['] ?xdel        ctrl H bindkey
     ['] xeof         ctrl D bindkey
     ['] <xdel>       ctrl X bindkey
-    ['] xclear-tib   ctrl K bindkey
+    ['] xclear-rest  ctrl K bindkey
     ['] xfirst-pos   ctrl A bindkey
     ['] xend-pos     ctrl E bindkey
     ['] xretype      ctrl L bindkey
