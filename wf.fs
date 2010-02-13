@@ -554,11 +554,8 @@ true Value toc-image
     indentlevel @ over
     indentlevel !
     2dup < IF swap DO  -env   LOOP  EXIT THEN
-    2dup > IF      DO   s" div" >env  LOOP EXIT THEN
-    2dup = IF drop IF  -env  s" div" >env  THEN THEN
-;
-: +indent ( -- )
-    indentlevel @ IF  -env indent= s" div" >env  THEN
+    2dup > IF      DO   indent= s" div" >env  LOOP EXIT THEN
+    2dup = IF drop IF  -env  indent= s" div" >env  THEN THEN
 ;
 
 wordlist constant longtags
@@ -568,9 +565,9 @@ Variable divs
 longtags set-current
 
 : --- 0 indent cr s" hr" tag/ cr ;
-: *   1 indent +indent s" h1" dclass= s" h1" par s" " dclass= ;
-: **  1 indent +indent s" h2" dclass= s" h2" par s" " dclass= ;
-: *** 2 indent +indent s" h3" dclass= s" h3" par s" " dclass= ;
+: *   1 indent s" h1" dclass= s" h1" par s" " dclass= ;
+: **  1 indent s" h2" dclass= s" h2" par s" " dclass= ;
+: *** 2 indent s" h3" dclass= s" h3" par s" " dclass= ;
 : --  0 indent cr print-toc ;
 : &&  0 parse id= ;
 : -   s" ul" env s" li" par ;
