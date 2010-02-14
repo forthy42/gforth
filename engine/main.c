@@ -46,8 +46,8 @@
 #endif
 #include "io.h"
 #include "getopt.h"
-#ifdef STANDALONE
-/* #include <systypes.h> */
+#ifndef STANDALONE
+#include <locale.h>
 #endif
 
 /* output rules etc. for burg with --debug and --print-sequences */
@@ -2339,6 +2339,8 @@ int main(int argc, char **argv, char **env)
     setvbuf(stdout,NULL,_IONBF,0);
   }
 #endif
+  setlocale(LC_ALL, "");
+  setlocale(LC_NUMERIC, "C");
 #else
   prep_terminal();
 #endif

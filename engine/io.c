@@ -447,8 +447,6 @@ void deprep_terminal ()
 #define VTIME VEOL
 #endif
 
-#include <locale.h>
-
 void prep_terminal ()
 {
   int tty = fileno (stdin);
@@ -474,9 +472,6 @@ void prep_terminal ()
     return;      /* added by MdG */
   }      /* added by MdG */
    
-  setlocale(LC_ALL, "");
-  setlocale(LC_NUMERIC, "C");
-
   /* Try to keep this function from being INTerrupted.  We can do it
      on POSIX and systems with BSD-like signal handling. */
 #if defined (HAVE_POSIX_SIGNALS)

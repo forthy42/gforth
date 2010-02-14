@@ -1,6 +1,5 @@
 \ xchar word test suite - UTF-8 only
 
-key? drop \ initialize terminal - will init locale in Gforth
 hex
 
 { 0 xc-size -> 1 }
