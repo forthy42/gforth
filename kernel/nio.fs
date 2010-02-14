@@ -100,6 +100,9 @@ has? EC [IF]
 	# 2dup or 0=
     UNTIL ;
 
+: holds ( addr u -- )
+    BEGIN  dup  WHILE  1- 2dup + c@ hold  REPEAT  2drop ;
+
 \ print numbers                                        07jun92py
 
 : d.r ( d n -- ) \ double	d-dot-r

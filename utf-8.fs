@@ -273,15 +273,17 @@ here wc-table - Constant #wc-table
 
 \ inefficient table walk:
 
-: wcwidth ( xc -- n )
+: xc-width ( xc -- n )
     wc-table #wc-table over + swap ?DO
 	dup I 2@ within IF  I 2 cells + @  UNLOOP EXIT  THEN
     3 cells +LOOP  1 ;
+[ELSE]
+    ' wcwidth Alias xc-width
 [THEN]
     
 : u8width ( xcaddr u -- n )
     0 rot rot over + swap ?DO
-        I xc@+ swap >r wcwidth +
+        I xc@+ swap >r xc-width +
     r> I - +LOOP ;
 
 : set-encoding-utf-8 ( -- )
