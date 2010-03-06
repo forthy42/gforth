@@ -1753,14 +1753,15 @@ two cells (not-necessarily double-cell numbers)
 mixed single-cell and double-cell operations
 @item f
 floating-point (note that in stack comments @samp{f} represents flags,
-and @samp{r} represents FP numbers).
+and @samp{r} represents FP numbers; also, you need to include the
+exponent part in literal FP numbers, @pxref{Floating Point Tutorial}).
 @end table
 
 If there are no differences between the signed and the unsigned variant
 (e.g., for @code{+}), there is only the prefix-less variant.
 
 Forth does not perform type checking, neither at compile time, nor at
-run time.  If you use the wrong oeration, the data are interpreted
+run time.  If you use the wrong operation, the data are interpreted
 incorrectly:
 
 @example
@@ -2559,11 +2560,16 @@ Computer Scientist Should Know About Floating-Point Arithmetic}, ACM
 Computing Surveys 23(1):5@minus{}48, March 1991}.
 
 In Forth source code literal FP numbers need an exponent, e.g.,
-@code{1e0}; this can also be written shorter as @code{1e},
-@code{+1.0e+0}, and many variations in between.  The reason for this
-is that, for historical reasons, Forth interprets a decimal point
-alone (e.g., @code{1.}) as indicating a double-cell integer.  Another
-requirement for literal FP numbers is that the current base is
+@code{1e0}; this can also be written shorter as @code{1e}, longer as
+@code{+1.0e+0}, and many variations in between.  The reason for this is
+that, for historical reasons, Forth interprets a decimal point alone
+(e.g., @code{1.}) as indicating a double-cell integer.  Examples:
+
+@example
+2e 2e f+ f.
+@end example
+
+Another requirement for literal FP numbers is that the current base is
 decimal; with a hex base @code{1e} is interpreted as an integer.
 
 Forth has a separate stack for FP numbers.@footnote{Theoretically, an
