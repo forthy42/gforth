@@ -2081,13 +2081,16 @@ continues behind the @code{repeat}; if the flag is non-zero, execution
 continues behind the @code{while}.  @code{Repeat} jumps back to
 @code{begin}, just like @code{again}.
 
-In Forth there are many combinations/abbreviations, like @code{1+}.
-However, @code{2/} is not one of them; it shifts its argument right by
-one bit (arithmetic shift right):
+In Forth there are a number of combinations/abbreviations, like
+@code{1+}.  However, @code{2/} is not one of them; it shifts its
+argument right by one bit (arithmetic shift right), and viewed as
+division that always rounds towards negative infinity (floored
+division).  In contrast, @code{/} rounds towards zero on some systems
+(not on default installations of gforth (>=0.7.0), however).
 
 @example
--5 2 / .
--5 2/ .
+-5 2 / . \ -2 or -3
+-5 2/ .  \ -3
 @end example
 
 @code{assert(} is no standard word, but you can get it on systems other
@@ -2367,8 +2370,8 @@ v2 20 cells dump
 @end example
 
 creates a word @code{v2} and reserves 20 uninitialized cells; the
-address pushed by @code{v2} points to the start of these 20 cells.  You
-can use address arithmetic to access these cells:
+address pushed by @code{v2} points to the start of these 20 cells.
+You can use address arithmetic to access these cells:
 
 @example
 3 v2 5 cells + !
@@ -2399,9 +2402,10 @@ here 10 cells allot .
 here .
 @end example
 
-@code{Here} pushes the start address of the memory area.  You should
-store it somewhere, or you will have a hard time finding the memory area
-again.
+The first @code{here} pushes the start address of the memory area, the
+second @code{here} the address after the dictionary area.  You should
+store the start address somewhere, or you will have a hard time
+finding the memory area again.
 
 @code{Allot} manages dictionary memory.  The dictionary memory contains
 the system's data structures for words etc. on Gforth and most other
@@ -2416,6 +2420,16 @@ here .
 Note that you cannot do this if you have created a new word in the
 meantime (because then your @code{allot}ed memory is no longer on the
 top of the dictionary ``stack'').
+
+Revisiting the @code{create} examples, where does @code{allot} get the
+address from?  It is the current dictinary pointer, that you can read
+with @code{here}.  And the @code{create}d word produces exactly that
+address (but keeps it):
+
+@example
+create v2a     here . v2a .
+20 cells allot here . v2a .
+@end example
 
 Alternatively, you can use @code{allocate} and @code{free} which allow
 freeing memory in any order:
@@ -4435,6 +4449,10 @@ this standard behaviour, or the word does other unusual things at
 compile time, both stack effects are shown; otherwise only the run-time
 stack effect is shown.
 
+Also note that in code templates or examples there can be comments in
+parentheses that display the stack picture at this point; there is no
+@code{--} in these places, because there is no before-after situation.
+
 @cindex pronounciation of words
 @item pronunciation
 How the word is pronounced.
@@ -5349,13 +5367,23 @@ CASE
 ENDCASE ( )
 @end example
 
-Executes the first @i{codei}, where the @i{ni} is equal to @i{n}.  If
-no @i{ni} matches, the optional @i{default-code} is executed. The
-optional default case can be added by simply writing the code after
-the last @code{ENDOF}. It may use @i{n}, which is on top of the stack,
-but must not consume it.  The value @i{n} is consumed by this
-construction (either by a OF that matches, or by the ENDCASE, if no OF
-matches).
+Executes the first @i{codei}, where the @i{ni} is equal to @i{n}.  If no
+@i{ni} matches, the optional @i{default-code} is executed. The optional
+default case can be added by simply writing the code after the last
+@code{ENDOF}. It may use @i{n}, which is on top of the stack, but must
+not consume it.  The value @i{n} is consumed by this construction
+(either by an @code{OF} that matches, or by the @code{ENDCASE}, if no OF
+matches).  Example:
+
+@example
+: .spell ( n -- )
+ case
+   0 of ." zero " endof
+   1 of ." one "  endof
+   2 of ." two "  endof
+   dup .
+ endcase ;
+@end example
 
 @progstyle
 To keep the code understandable, you should ensure that you change the
