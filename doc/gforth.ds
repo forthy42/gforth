@@ -2369,9 +2369,10 @@ create v2 20 cells allot
 v2 20 cells dump
 @end example
 
-creates a word @code{v2} and reserves 20 uninitialized cells; the
-address pushed by @code{v2} points to the start of these 20 cells.
-You can use address arithmetic to access these cells:
+creates a variable-like word @code{v2} and reserves 20 uninitialized
+cells; the address pushed by @code{v2} points to the start of these 20
+cells (@pxref{CREATE}).  You can use address arithmetic to access
+these cells:
 
 @example
 3 v2 5 cells + !
@@ -2420,16 +2421,6 @@ here .
 Note that you cannot do this if you have created a new word in the
 meantime (because then your @code{allot}ed memory is no longer on the
 top of the dictionary ``stack'').
-
-Revisiting the @code{create} examples, where does @code{allot} get the
-address from?  It is the current dictinary pointer, that you can read
-with @code{here}.  And the @code{create}d word produces exactly that
-address (but keeps it):
-
-@example
-create v2a     here . v2a .
-20 cells allot here . v2a .
-@end example
 
 Alternatively, you can use @code{allocate} and @code{free} which allow
 freeing memory in any order:
