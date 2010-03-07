@@ -5349,30 +5349,32 @@ for @code{ENDIF}, @code{?DUP-IF} and @code{?DUP-0=-IF} are provided in
 
 @cindex @code{CASE} control structure
 @example
-@i{n}
+@i{x}
 CASE
-  @i{n1} OF @i{code1} ENDOF
-  @i{n2} OF @i{code2} ENDOF
+  @i{x1} OF @i{code1} ENDOF
+  @i{x2} OF @i{code2} ENDOF
   @dots{}
-  ( n ) @i{default-code} ( n )
+  ( x ) @i{default-code} ( x )
 ENDCASE ( )
 @end example
 
-Executes the first @i{codei}, where the @i{ni} is equal to @i{n}.  If no
-@i{ni} matches, the optional @i{default-code} is executed. The optional
+Executes the first @i{codei}, where the @i{xi} is equal to @i{x}.  If no
+@i{xi} matches, the optional @i{default-code} is executed. The optional
 default case can be added by simply writing the code after the last
-@code{ENDOF}. It may use @i{n}, which is on top of the stack, but must
-not consume it.  The value @i{n} is consumed by this construction
+@code{ENDOF}. It may use @i{x}, which is on top of the stack, but must
+not consume it.  The value @i{x} is consumed by this construction
 (either by an @code{OF} that matches, or by the @code{ENDCASE}, if no OF
 matches).  Example:
 
 @example
-: .spell ( n -- )
+: num-name ( n -- c-addr u )
  case
-   0 of ." zero " endof
-   1 of ." one "  endof
-   2 of ." two "  endof
-   dup .
+   0 of s" zero " endof
+   1 of s" one "  endof
+   2 of s" two "  endof
+   \ default case:
+   s" other number" 
+   rot \ get n on top so ENDCASE can drop it
  endcase ;
 @end example
 
