@@ -2396,6 +2396,10 @@ Write a definition @code{vsum ( addr u -- n )} that computes the sum of
 one at @code{addr cell+} etc.
 @end quotation
 
+The difference between @code{variable} and @code{create} is that
+@code{variable} allots a cell, and that you cannot allot additional
+memory to a variable in standard Forth.
+
 You can also reserve memory without creating a new word:
 
 @example
