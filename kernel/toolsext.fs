@@ -38,8 +38,8 @@ UNLOCK  Tlast @ TNIL Tlast !  LOCK
 : [THEN]
   -1 countif +! ?if ;       immediate
 : [ELSE]
-  postpone [THEN] postpone [IF] ;
-                                     immediate
+  postpone [THEN] postpone [IF] ; immediate
+
 ' [IF]   Alias [IFDEF]               immediate
 ' [IF]   Alias [IFUNDEF]             immediate
 ' [THEN] Alias [ENDIF]               immediate
