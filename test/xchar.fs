@@ -13,7 +13,8 @@ hex
 
 : test-string s" 恭喜发财!" ;
 
-{ test-string drop xc@+ swap xc@+ swap xc@+ swap xc@+ swap xc@+ nip -> 606D 559C 53D1 8D22 21 }
+{ test-string drop xc@+ swap xc@+ swap xc@+ swap xc@+ swap xc@+ nip
+  -> 606D 559C 53D1 8D22 21 }
 { ffff pad 4 xc!+? -> pad 3 + 1 true }
 { test-string drop xchar+ -> test-string drop 3 + }
 { test-string drop xchar+ xchar- -> test-string drop }
