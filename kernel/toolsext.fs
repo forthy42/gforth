@@ -66,7 +66,7 @@ UNLOCK Tlast @ swap Tlast ! LOCK
 
 \ Interpretative Structuren                            30apr92py
 
-: [defined] ( "<spaces>name" -- flag )   bl word find nip 0<> ; immediate
+: [defined] ( "<spaces>name" -- flag )   parse-name find-name 0<> ; immediate
   \G returns true if name is found in current search order
 ' [defined] alias defined immediate
 : [undefined] ( "<spaces>name" -- flag ) postpone [defined] 0= ; immediate
