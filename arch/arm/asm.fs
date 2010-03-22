@@ -46,7 +46,7 @@ HEX  \ EVERYTHING BELOW IS IN HEXADECIMAL!
 
 : nand ( x1 -- x2 )  invert and ;
 : ?register   ( n -- )
-   register <> ABORT" Inavlid operand, need a register R0..R15" ;
+   register <> ABORT" Invalid operand, need a register R0..R15" ;
 : ?psr   ( n -- )
    psr <> ABORT" Invalid operand, need special register SPSR or CSPR" ;
 
@@ -181,7 +181,7 @@ VARIABLE had-cc
 : ?upwards  ( n1 -- n2 )
    DUP 0< IF  NEGATE ELSE %U encode THEN ;
 : ?post-offset  ( x 'offset' -- x )
-   ?offset  DUP %P AND 0=
+   ?offset  DUP %P AND 0<>
    ABORT" Only post-indexed addressing, ]#, ]+ or ]- , allowed here" ;
 : ?0#]  ( 0 'offset' -- )
    ?offset    0 #] DROP D<>
@@ -194,7 +194,7 @@ VARIABLE had-cc
    DUP 0F AND ( low nibble) encode  0F0 AND 4 LSHIFT  ( high nibble) encode ;
 : R#shifted-offset,  ( n  'register'|'shifted-reg' -- )
    ?#shifted-register encode  ;
-: R-offset,  ( n  'register'|'shifted-reg' -- )
+: R-offset,  ( n  'shifted-reg' -- )
    ?register encode  ;
 : offs12,  ( x1..xn 'offset' -- )
    ?offset DUP encode
@@ -309,7 +309,7 @@ enumerate: forward backward
 00800090 RRQ-op:  UMULL,	   00900090 RRQ-op:  UMULLS,
 00A00090 RRQ-op:  UMLAL,	   00B00090 RRQ-op:  UMLALS,
 00C00090 RRQ-op:  SMULL,	   00D00090 RRQ-op:  SMULLS,
-000E0090 RRQ-op:  SMLAL,	   00F00090 RRQ-op:  SMLALS,
+00E00090 RRQ-op:  SMLAL,	   00F00090 RRQ-op:  SMLALS,
 
 \
 \ Labels and branch resolving
