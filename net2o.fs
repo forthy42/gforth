@@ -22,3 +22,5 @@ Create inbuf maxpacket allot
 : read-a-packet ( -- addr u )
     net2o-srv inbuf maxpacket read-socket-from ;
 
+: send-a-packet ( addr u -- n )
+    net2o-sock fileno -rot 0 sockaddr-tmp 16 sendto ;
