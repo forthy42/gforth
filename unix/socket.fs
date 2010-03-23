@@ -32,6 +32,7 @@ c-function closesocket close n -- n ( fd -- ior )
 c-function connect connect n a n -- n ( fd sock size -- err )
 c-function send send n a n n -- n ( socket buffer count flags -- size )
 c-function recv recv n a n n -- n ( socket buffer count flags -- size )
+c-function recvfrom recvfrom n a n n a a -- n ( socket buffer count flags srcaddr addrlen -- size )
 c-function listen() listen n n -- n ( socket backlog -- err )
 c-function bind bind n a n -- n ( socket sockaddr socklen --- err )
 c-function accept() accept n a a -- n ( socket sockaddr addrlen -- fd )
@@ -86,7 +87,10 @@ sockaddr-tmp sockaddr_in %size dup allot erase
 
    2 Constant PF_INET
    1 Constant SOCK_STREAM
+   2 Constant SOCK_DGRAM
+   1 Constant IPPROTO_ICMP
    6 Constant IPPROTO_TCP
+  17 Constant IPPROTO_UDP
    4 Constant F_SETFL
   11 Constant EWOULDBLOCK
 $100 Constant MSG_WAITALL
@@ -94,7 +98,11 @@ $802 Constant O_NONBLOCK|O_RDWR
 2variable socket-timeout-d 2000. socket-timeout-d 2!
 
 : new-socket ( -- socket )
-    PF_INET SOCK_STREAM IPPROTO_TCP socket
+    PF_INET SOCK_STREAM 0 socket
+    dup 0<= abort" no free socket" ;
+
+: new-udp-socket ( -- socket )
+    PF_INET SOCK_DGRAM 0 socket
     dup 0<= abort" no free socket" ;
 
 : >inetaddr ( ip port sockaddr -- ) >r
@@ -110,10 +118,27 @@ $802 Constant O_NONBLOCK|O_RDWR
     r@ sockaddr-tmp sockaddr_in %size connect 0< abort" can't connect"
     r> s" w+" c-string fdopen ;
 
+: open-udp-socket ( addr u port -- fid )
+    -rot host>addr
+    swap sockaddr-tmp >inetaddr
+    new-udp-socket >r
+    r@ sockaddr-tmp sockaddr_in %size connect 0< abort" can't connect"
+    r> s" w+" c-string fdopen ;
+
 : create-server  ( port# -- lsocket )
-    sockaddr-tmp 4 CELLS ERASE
-    htonl PF_INET OR sockaddr-tmp !
-    PF_INET SOCK_STREAM 0 socket
+    sockaddr-tmp sockaddr_in %size erase
+    PF_INET sockaddr-tmp family w!
+    htons   sockaddr-tmp port w!
+    new-socket
+    dup 0< abort" no free socket" >r
+    r@ sockaddr-tmp 16 bind 0= IF  r> exit  ENDIF
+    r> drop true abort" bind :: failed" ;
+
+: create-udp-server  ( port# -- lsocket )
+    sockaddr-tmp sockaddr_in %size erase
+    PF_INET sockaddr-tmp family w!
+    htons   sockaddr-tmp port w!
+    new-udp-socket
     dup 0< abort" no free socket" >r
     r@ sockaddr-tmp 16 bind 0= IF  r> exit  ENDIF
     r> drop true abort" bind :: failed" ;
@@ -179,6 +204,24 @@ Create crlf 2 c, 13 c, 10 c,
     utime socket-timeout-d 2@ d+ { socket c-addr maxlen d: tmax -- c-addr size }
     BEGIN 
 	socket c-addr maxlen (rs) dup 0=
+	utime tmax d< and 
+    WHILE 
+	    2drop
+    REPEAT ;
+
+: (rs-from)  ( socket c-addr maxlen -- c-addr size ) 
+    2 pick >r  r@ false blocking-mode  rot fileno -rot
+    over >r msg_waitall sockaddr-tmp alen  recvfrom
+    dup 0<  IF  0 max
+	errno dup 0<> swap ewouldblock <> and abort" (rs) :: socket read error"
+    THEN
+    r> swap
+    r> true blocking-mode ;
+
+: read-socket-from ( socket c-addr maxlen -- c-addr u )
+    utime socket-timeout-d 2@ d+ { socket c-addr maxlen d: tmax -- c-addr size }
+    BEGIN 
+	socket c-addr maxlen (rs-from) dup 0=
 	utime tmax d< and 
     WHILE 
 	    2drop
