@@ -111,7 +111,7 @@ Variable .arel
     Aimm?   @ imm  @ imm#  @ bytes,    sclear  ;
 : finishb  ( opcode -- )       byte? @ xor  finish ;
 : 0F,  $0F opcode, ;
-: finish0F ( opcode -- )       0F,  finish ;
+: finish0F ( opcode -- )       0F, .64now off finish ;
 
 \ Register                                             29mar94py
 
@@ -150,7 +150,7 @@ Variable .arel
 : I#) ( disp32 reg -- ireg ) BP swap I) swap #) drop ;
 : seg)  ( seg disp -- -1 )
   disp !  asize@ disp# !  imm ! 2 imm# !  -1 ;
-: )  ( reg -- reg )  dup SP = IF dup I) ELSE 77 and THEN ;
+: )  ( reg -- reg )  dup SP = IF dup I) ELSE 200077 and THEN ;
 : D) ( disp reg -- reg )  ) >r dup disp !  $80 -$80 within
   Adisp? @ or IF  200 asize@  ELSE  100 1  THEN disp# ! r> or ;
 : DI) ( disp reg1 reg2 -- ireg )  I) D) ;
@@ -169,6 +169,7 @@ Variable .arel
     2dup or $80000 and $0F rshift .rex +!
     dup $10000 and $0E rshift .rex +! 70 and swap
     dup $30000 and $10 rshift .rex +! 307 and or ;
+: >reg ( reg -- reg' )  dup $10000 and $10 rshift .rex +! 7 and ;
 : >mod ( reg1 reg2 -- )  >>mod modR/M !  1 modR/M# ! ;
 : CR  ( n -- )  7 and 11 *  $1C0 or ;    0 CR constant CR0
 : DR  ( n -- )  7 and 11 *  $2C0 or ;
@@ -258,7 +259,7 @@ $AB bc.b: stos  $AD bc.b: lods  $AF bc.b: scas
     .64bit @ IF  44  ELSE  .anow @ IF 55 ELSE 66 THEN  THEN AX d= ;
 : mov ( r/m reg / reg r/m / reg -- )  2dup or 0> imm# @ and
   IF    assign#  reg?
-        IF    7 and  $B8 or byte? @ 3 lshift xor  byte? off
+        IF    >reg  $B8 or byte? @ 3 lshift xor  byte? off
 	      .64now @ IF  10 imm# !  THEN
         ELSE  0 >mod  $C7  THEN
   ELSE  2dup or $FFFF and $FF > IF  movxr exit  THEN
@@ -312,11 +313,11 @@ $AB bc.b: stos  $AD bc.b: lods  $AF bc.b: scas
 : push  ( reg -- )
   imm# @ 1 = IF  $6A finish exit  THEN
   imm# @     IF  $68 finish exit  THEN
-  reg?       IF  7 and $50 or finish exit  THEN
+  reg?       IF  >reg $50 or finish exit  THEN
   sr?        IF  0 pushs  exit  THEN
   66 $FF modf ;
 : pop   ( reg -- )
-  reg?       IF  7 and $58 or finish exit  THEN
+  reg?       IF  >reg $58 or finish exit  THEN
   sr?        IF  1 pushs  exit  THEN
   06 $8F modf ;
 
@@ -370,7 +371,7 @@ $E0 sb: LOOPNE  $E1 sb: LOOPE   $E2 sb: LOOP    $E3 sb: JCXZ
 : jmpf  ( reg / seg -- )
   seg? IF  drop $EA  finish exit  THEN  55 $FF modf ;
 
-: next ['] noop >code-address rel) jmp ;
+: next .d ['] noop >code-address rel) jmp ;
 
 \ jump if                                              22dec93py
 
@@ -395,7 +396,7 @@ $10 sets: seto setno  setb  setnb  sete setne  setna seta  sets setns  setpe set
 : xchg ( r/m reg / reg r/m -- )
   over AX = IF  swap  THEN  reg?  0= IF  swap  THEN  ?reg
   byte? @ 0=  IF AX case?
-  IF reg? IF 7 and $90 or finish exit THEN  AX  THEN THEN
+  IF reg? IF >reg $90 or finish exit THEN  AX  THEN THEN
   $87 modfb ;
 
 : movx ( r/m reg opcode -- ) 0F, modfb ;
@@ -416,7 +417,7 @@ $08 bc0F: INVD  $09 bc0F: WBINVD
 
 : CMPXCHG ( reg r/m -- ) swap $A7 movx ;
 : CMPXCHG8B ( r/m -- )   $8 $C7 movx ;
-: BSWAP ( reg -- )       7 and $C8 or finish0F ;
+: BSWAP ( reg -- )       >reg $C8 or finish0F ;
 : XADD ( r/m reg -- )    $C1 movx ;
 
 \ misc                                                 20may93py

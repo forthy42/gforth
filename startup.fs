@@ -118,6 +118,7 @@ true constant string-ext
 ' noop alias X:parse-name
 ' noop alias X:required
 ' noop alias X:structures
+' noop alias X:xchar
 set-current
 
 warnings on
