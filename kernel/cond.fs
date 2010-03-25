@@ -224,7 +224,7 @@ Avariable leave-sp  leave-stack 3 cells + leave-sp !
     leave-sp ! ;
 
 : DONE ( compilation orig -- ; run-time -- ) \ gforth
-    \ !! the original done had ( addr -- )
+    \g resolves all LEAVEs up to the compilaton orig (from a BEGIN)
     drop >r drop
     begin
 	leave>
