@@ -29,7 +29,7 @@
 \ objdump -dt $(which gforth)
 \
 CODE asm-noop
-   FP 4 ]#	PC	LDR,
+   PC	FP 4 ]#		LDR,
 END-CODE
 
 ' noop >code-address .
@@ -43,7 +43,7 @@ here .
 \ addressing mode that generates PC-relative memory address.
 ' noop >code-address constant 'noop-code
 CODE asm-noop2
-    ' 'noop-code >body [#]  PC LDR,
+    PC	' 'noop-code >body [#]	LDR,
 END-CODE
 
 \ actually the ARM-assembler already defines NEXT, which does something
@@ -58,22 +58,22 @@ END-CODE
 \ to be sure.  (also the top of stack might be register cached, which
 \ was not the case here)
 CODE mydrop
-   R9 4 #	R9	ADD,
+   R9	R9 4 #		ADD,
    NEXT,
 END-CODE
 
 \ Implement 'DUP'.  It is not safe to clobber R3 here.  Again, check the
 \ disassebly...
 CODE mydup
-   R9 0 #]	R3	LDR,
-   R9 -4 #]!	R3	STR,
+   R3	R9 0 #]		LDR,
+   R3	R9 -4 #]!	STR,
    NEXT,
 END-CODE
 
 \ Implement '+'
 CODE my+ ( n1 n2 --  n3 )
-   R9 IA!	{ R2 R3 }	LDM,
-   R2	R3	R3	ADD,
-   R9 -4 #]!	R3	STR,
+   { R2 R3 }	R9 IA!	LDM,
+   R3	R2 R3		ADD,
+   R3	R9 -4 #]!	STR,
    NEXT,
 end-code

@@ -84,6 +84,8 @@ VARIABLE had-cc
    instruction @   1 1C LSHIFT XOR  instruction ! ;
 
 : <instruction  ( x -- )
+   \ todo: we have to reset had-cc on ABORT"..", else we're going to throw
+   \ spurious errors :(
    DUP  0F0000000 AND IF
       had-cc @ ABORT" Condition code not allowed for instruction"
    ELSE  had-cc @ 0= IF AL THEN   THEN
@@ -210,13 +212,24 @@ VARIABLE had-cc
 \ Branch offsets
 2 80000000
 enumerate: forward backward
+: ?branch-range  ( offset -- offset )
+   DUP -2000000 2000000 WITHIN 0= ABORT" Branch destination out of range" ;
 : ?branch-offset  ( offset -- offset )
-   DUP -2000000 2000000 WITHIN 0= ABORT" Branch destination out of range"
+   ?branch-range
    DUP 3 AND 0<> ABORT" Branch destination not 4 byte-aligned" ;
-: branch-addr>offset  ( src dest -- offset )   SWAP 8 +  -   ?branch-offset ;
-: branch-offset>bits  ( offset -- x )  2 RSHIFT 0FFFFFF AND ;
+: ?branchX-offset  ( offset -- offset )
+   ?branch-range
+   DUP 1 AND 0<> ABORT" Thumb-mode branch destination not 2 byte-aligned" ;
+: branch-addr>offset  ( src dest -- offset )   SWAP 8 +  - ;
+: branch-offset>bits  ( offset -- x )  \ offset for B, BL instruction
+   ?branch-offset  2 RSHIFT 0FFFFFF AND ;
+: branchX-offset>bits  ( offset -- x ) \ offset for BLX instruction
+   ?branchX-offset  DUP  2 RSHIFT 0FFFFFF AND  \ immediate 24-bit part
+   SWAP 2 AND  17 LSHIFT OR  ;  \ H-bit 
 : branch-addr,  ( addr -- x )
    there SWAP branch-addr>offset  branch-offset>bits  encode ;
+: branchX-addr,  ( addr -- x )
+   there SWAP branch-addr>offset  branchX-offset>bits  encode ;
 : a<mark  ( -- addr 'backward' )  there backward ;
 : a<resolve  ( addr 'backward' -- addr )
    backward <> ABORT" Expect assembler backward reference on stack" ;
@@ -250,23 +263,26 @@ enumerate: forward backward
   DOES> @  ( mask xt "name" -- )  CREATE 2,
   DOES> 2@   ( mask xt -- )  >R   <instruction R> EXECUTE instruction> t, ;
 
-:NONAME  Rd,	rhs,	Rn, ;		instruction-class: data-op:
-:NONAME  rhs,	Rn, ;			instruction-class: cmp-op:
-:NONAME  Rd,	rhs, ;			instruction-class: mov-op:
-:NONAME  Rd,	psr, ;			instruction-class: mrs-op:
-:NONAME  cxsf, psr, rhs', ;	instruction-class: msr-op:
-:NONAME  Rd,	offs12, Rn, ;		instruction-class: mem-op:
-:NONAME  Rd,	offsP,  Rn, ;		instruction-class: memT-op:
-:NONAME  Rd,	offs8,  Rn, ;		instruction-class: memH-op:
-:NONAME  Rd,	Rm,	?0#] Rn, ;	instruction-class: memS-op:
-:NONAME  reg-list, mmode, Rn, ;		instruction-class: mmem-op:
+\ Operand names correspond mostly to ARM Architecture Reference Manual.
+\ Note the inverse operand order due to processing from top of stack.
+\ Actual order shall match standard ARM assembler syntax.
+:NONAME  rhs, Rn, Rd, ;			instruction-class: data-op:
+:NONAME  rhs, Rn, ;			instruction-class: cmp-op:
+:NONAME  rhs, Rd, ;			instruction-class: mov-op:
+:NONAME  psr, Rd, ;			instruction-class: mrs-op:
+:NONAME  rhs', cxsf, psr, ;		instruction-class: msr-op:
+:NONAME  offs12, Rn, Rd, ;		instruction-class: mem-op:
+:NONAME  offsP, Rn,  Rd, ;		instruction-class: memT-op:
+:NONAME  offs8, Rn, Rd, ;		instruction-class: memH-op:
+:NONAME  Rm, ?0#] Rn, Rd, ;		instruction-class: memS-op:
+:NONAME  mmode, Rn, reg-list, ;		instruction-class: mmem-op:
 :NONAME  branch-addr, ;			instruction-class: branch-op:
-:NONAME  Rn,	Rs,	Rm, ;		instruction-class: RRR-op:
-:NONAME  Rd,	Rn,	Rs,	Rm, ;	instruction-class: RRRR-op:
-:NONAME  RdHi, RdLo,	Rs,	Rm, ;	instruction-class: RRQ-op:
+:NONAME  Rs, Rm,   Rn,	;		instruction-class: RRR-op:
+:NONAME  Rn, Rs, Rm, Rd, ;		instruction-class: RRRR-op:
+:NONAME  Rs, Rm, RdHi, RdLo,	;	instruction-class: RRQ-op:
 :NONAME  comment, ;			instruction-class: comment-op:
 :NONAME  rm, ;				instruction-class: branchR-op:
-: mmem-op2x:  ( x "name1" "name2" -- )  DUP mmem-op: mmem-op: ;
+:NONAME  branchX-addr, ;		instruction-class: branchX-op:
 
 00000000 data-op: AND,             00100000 data-op: ANDS,
 00200000 data-op: EOR,		   00300000 data-op: EORS,
@@ -296,12 +312,12 @@ enumerate: forward backward
 08000000 mmem-op:  STM,		   08100000 mmem-op: LDM,
 08400000 mmem-op:  ^STM,	   08500000 mmem-op: ^LDM,
 
-010F0000 mrs-op:  MRS,		   
-
+010F0000 mrs-op:  MRS,
+0120F000 msr-op:  MSR,		   
 
 0A000000 branch-op:  B,		   0B000000 branch-op:  BL,
 0A120010 branchR-op: BX,
-\ FA000000 branchx-op: BLX,	   
+012FFF30 branchR-op: BLX,	   FA000000 branchX-op: #BLX,
 0F000000 comment-op: SWI,	   0F000000 comment-op: SVC,
 
 00000090 RRR-op:  MUL,		   00100090 RRR-op:  MULS,
@@ -340,7 +356,7 @@ R7  2CONSTANT RP	\ only if compiled with --enable-force regs
 
 \ Minimal Gforth interpreter support
 : NEXT,		\ Do 32-bit branch to NOOP
-   PC  -4 #]   PC LDR,	\ due to pipeline PC is always 8 bytes ahead
+   PC  PC -4 #]  LDR,	\ due to pipeline PC is always 8 bytes ahead
    ['] NOOP >code-address t, ;
 
 PREVIOUS DEFINITIONS DECIMAL

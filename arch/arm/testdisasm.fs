@@ -227,6 +227,14 @@ $CAFE $FBFFFFFE disasm-inst space \  0 blx (h=1)
 $CAFE $FBFFFFFC disasm-inst space \ -A blx (h=1)
 cr
 
+code: blx0  here $10 +  #blx ;;   \ +8 blx (h=0)
+code: blx1  here $8  +  #blx ;;   \  0 blx (h=0)
+code: blx2  here 0   +  #blx ;;   \ -8 blx (h=0)
+
+code: blx3  here $12 +  #blx ;;   \ +A blx (h=1)
+code: blx4  here $A  +  #blx ;;   \  0 blx (h=1)
+code: blx5  here 2   +  #blx ;;   \ -A blx (h=1)
+
 \ FPA extension
 
 cr
@@ -262,8 +270,11 @@ code: misc4 r2 r1 +] r0 strh, ;;
 code: misc5 r2 ] r1 r0 swp, ;;
 code: misc6 r2 ] r1 r0 swpb, ;;
 
-code: misc7 cpsr r0 mrs, ;;
-code: misc8 spsr r0 mrs, ;;
+code: misc7 r0 cpsr mrs, ;;
+code: misc8 r0 spsr mrs, ;;
+
+code: misc9   cpsr c x s f  r0 msr, ;;
+code: misc10  spsr c x s f  $0ff # msr, ;;
 
 \ --
 
