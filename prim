@@ -233,6 +233,19 @@ SET_IP(DOES_CODE1(CFA));
 ""just a slot to have an encoding for the DOESJUMP, 
 which is no longer used anyway (!! eliminate this)""
 
+(doabicode) ( s:... f:... -- s:... f:...)	gforth-internal	paren_doabicode
+""run-time routine for ABI-CODE definitions""
+struct abi_code_ret_t {  
+    Cell *sp; 
+    double * fp; 
+} ret = ((struct abi_code_ret_t(*)(Cell *, double *))(PFA(CFA)))(sp, fp);
+sp = ret.sp;
+fp = ret.fp;
+#ifdef NO_IP
+INST_TAIL;
+goto *next_code;
+#endif /* defined(NO_IP) */
+
 \F [endif]
 
 \g control
@@ -624,6 +637,14 @@ k	( R:w R:w1 R:w2 R:w3 R:w4 -- w R:w R:w1 R:w2 R:w3 R:w4 )	gforth
 \f[THEN]
 
 \ digit is high-level: 0/0%
+
+abi-call	( #a_callee s:... f:... -- s:... f:... )	gforth	abi_call
+struct abi_code_ret_t {  
+    Cell *sp; 
+    double * fp; 
+} ret = ((struct abi_code_ret_t(*)(Cell *, double *))(a_callee))(sp, fp);
+sp = ret.sp;
+fp = ret.fp;
 
 \g strings
 

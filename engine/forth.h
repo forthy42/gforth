@@ -101,6 +101,8 @@
 #define DOVAL	6
 #define DODOES	7
 #define DOESJUMP	8
+#define DOABICODE	9
+#define DOER_MAX        9
 
 /* the size of the DOESJUMP, which resides between DOES> and the does-code */
 #define DOES_HANDLER_SIZE	(2*sizeof(Cell))

@@ -2949,6 +2949,11 @@ by (Field)
     T 1 cells H dup ;
 >CROSS
 
+\ ABI-CODE support
+Builder (ABI-CODE)
+Build: ;Build
+by: :doabicode noop ;DO
+
 \ Input-Methods                                            01py
 
 Builder input-method

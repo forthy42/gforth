@@ -66,3 +66,11 @@ true [IF] \ !! don't know what to put here
     \G The code address of a @code{field}???
     ['] DOES> >code-address ;
 [THEN]
+
+
+doer? :doabicode [IF]
+(ABI-CODE) (abi-code-dummy)
+: doabicode: ( -- addr )	\ gforth
+    \G The code address of a @code{ABI-CODE} definition.
+    ['] (abi-code-dummy) >code-address ;
+[THEN]

@@ -313,8 +313,8 @@ static Cell min(Cell a, Cell b)
  * If the word =CF(DODOES), it's a DOES> CFA
  * If the word =CF(DOESJUMP), it's a DOES JUMP (2 Cells after DOES>,
  *					possibly containing a jump to dodoes)
- * If the word is <CF(DOESJUMP) and bit 14 is set, it's the xt of a primitive
- * If the word is <CF(DOESJUMP) and bit 14 is clear, 
+ * If the word is <CF(DOER_MAX) and bit 14 is set, it's the xt of a primitive
+ * If the word is <CF(DOER_MAX) and bit 14 is clear, 
  *                                        it's the threaded code of a primitive
  * bits 13..9 of a primitive token state which group the primitive belongs to,
  * bits 8..0 of a primitive token index into the group
@@ -410,7 +410,8 @@ void gforth_relocate(Cell *image, const Char *bitstring,
 	    case CF(DOVAL)   :
 	    case CF(DOUSER)  : 
 	    case CF(DODEFER) : 
-	    case CF(DOFIELD) : MAKE_CF(image+i,symbols[CF(token)]); break;
+	    case CF(DOFIELD) : 
+	    case CF(DOABICODE) : MAKE_CF(image+i,symbols[CF(token)]); break;
 	    case CF(DOESJUMP): image[i]=0; break;
 #endif /* !defined(DOUBLY_INDIRECT) */
 	    case CF(DODOES)  :
@@ -469,7 +470,7 @@ static UCell checksum(Label symbols[])
   UCell r=PRIM_VERSION;
   Cell i;
 
-  for (i=DOCOL; i<=DOESJUMP; i++) {
+  for (i=DOCOL; i<=DOER_MAX; i++) {
     r ^= (UCell)(symbols[i]);
     r = (r << 5) | (r >> (8*sizeof(Cell)-5));
   }
@@ -1074,7 +1075,7 @@ static void check_prims(Label symbols1[])
 	  ia->rel=0;
 	  debugp(stderr,"\n   absolute immarg: offset %3d",j);
 	} else if ((&(s1[j]))+(*(Cell *)&(s1[j]))+4 ==
-		   symbols1[DOESJUMP+1]) {
+		   symbols1[DOER_MAX+1]) {
 	  ia->rel=1;
 	  debugp(stderr,"\n   relative immarg: offset %3d",j);
 	} else {
@@ -1093,9 +1094,9 @@ static void check_prims(Label symbols1[])
     debugp(stderr,"\n");
   }
   decomp_prims = calloc(i,sizeof(PrimInfo *));
-  for (i=DOESJUMP+1; i<npriminfos; i++)
+  for (i=DOER_MAX+1; i<npriminfos; i++)
     decomp_prims[i] = &(priminfos[i]);
-  qsort(decomp_prims+DOESJUMP+1, npriminfos-DOESJUMP-1, sizeof(PrimInfo *),
+  qsort(decomp_prims+DOER_MAX+1, npriminfos-DOER_MAX-1, sizeof(PrimInfo *),
 	compare_priminfo_length);
 #endif
 }
@@ -1264,7 +1265,7 @@ Label decompile_code(Label _code)
       break;
   }
   /* reverse order because NOOP might match other prims */
-  for (i=npriminfos-1; i>DOESJUMP; i--) {
+  for (i=npriminfos-1; i>DOER_MAX; i--) {
     PrimInfo *pi=decomp_prims[i];
     if (pi->start==code || (pi->start && memcmp(code,pi->start,pi->length)==0))
       return vm_prims[super2[super_costs[pi-priminfos].offset]];
@@ -1820,7 +1821,7 @@ void compile_prim1(Cell *start)
   if (start==NULL)
     return;
   prim = (Label)*start;
-  if (prim<((Label)(xts+DOESJUMP)) || prim>((Label)(xts+npriminfos))) {
+  if (prim<((Label)(xts+DOER_MAX)) || prim>((Label)(xts+npriminfos))) {
     fprintf(stderr,"compile_prim encountered xt %p\n", prim);
     *start=(Cell)prim;
     return;

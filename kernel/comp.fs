@@ -289,6 +289,7 @@ has? primcentric [IF]
 	douser:  OF >body @ ['] useraddr peephole-compile, , EXIT ENDOF
 	dodefer: OF >body ['] lit-perform peephole-compile, , EXIT ENDOF
 	dofield: OF >body @ ['] lit+ peephole-compile, , EXIT ENDOF
+	doabicode: OF >body ['] abi-call peephole-compile, , EXIT ENDOF
 	\ dofield: OF >body @ POSTPONE literal ['] + peephole-compile, EXIT ENDOF
 	\ code words and ;code-defined words (code words could be optimized):
 	dup in-dictionary? IF drop POSTPONE literal ['] execute peephole-compile, EXIT THEN

@@ -137,12 +137,12 @@ before_goto: goto *real_ca; after_goto:
 #  define INC_IP(const_inc)	do {cfa=IP[const_inc]; ip+=(const_inc);} while(0)
 #  define DEF_CA	Label MAYBE_UNUSED ca;
 #  define NEXT_P1	do {\
-  if (DEBUG_DITC && (cfa<=vm_prims+DOESJUMP || cfa>=vm_prims+npriminfos)) \
+  if (DEBUG_DITC && (cfa<=vm_prims+DOER_MAX || cfa>=vm_prims+npriminfos)) \
     fprintf(stderr,"NEXT encountered prim %p at ip=%p\n", cfa, ip); \
   ip++;} while(0)
 #  define NEXT_P1_5	do {ca=**cfa; GOTO(ca);} while(0)
 #  define EXEC1(XT)	({DEF_CA cfa=(XT);\
-  if (DEBUG_DITC && (cfa>vm_prims+DOESJUMP && cfa<vm_prims+npriminfos)) \
+  if (DEBUG_DITC && (cfa>vm_prims+DOER_MAX && cfa<vm_prims+npriminfos)) \
     fprintf(stderr,"EXEC encountered xt %p at ip=%p, vm_prims=%p, xts=%p\n", cfa, ip, vm_prims, xts); \
  ca=**cfa; ca;})
 

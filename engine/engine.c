@@ -406,7 +406,7 @@ Label *gforth_engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0 sr_p
 
     symbols = (Label *)(malloc(MAX_SYMBOLS*sizeof(Cell)+CODE_OFFSET)+code_offset);
     xts = (Label *)(malloc(MAX_SYMBOLS*sizeof(Cell)+XT_OFFSET)+xt_offset);
-    for (i=0; i<DOESJUMP+1; i++)
+    for (i=0; i<DOER_MAX+1; i++)
       xts[i] = symbols[i] = (Label)routines[i];
     for (; routines[i]!=0; i++) {
       if (i>=MAX_SYMBOLS) {
