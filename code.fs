@@ -32,6 +32,7 @@ vocabulary assembler ( -- ) \ tools-ext
     here >body cfa,
     defstart init-asm ;
 
+[ifdef] doabicode:
 : abi-code ( "name" -- colon-sys )	\ gforth
    \ start a native code definition that is called using the platform's
    \ ABI conventions corresponding to C-prototype
@@ -39,6 +40,7 @@ vocabulary assembler ( -- ) \ tools-ext
     header  
     doabicode: cfa,
     defstart init-asm ;
+[endif]
 
 : (;code) ( -- ) \ gforth
     \ execution semantics of @code{;code}
