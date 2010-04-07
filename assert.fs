@@ -32,20 +32,20 @@ variable assert-level ( -- a-addr ) \ gforth
 
 : assert0( ( -- ) \ gforth assert-zero
     \G Important assertions that should always be turned on.
-    0 assertn ; immediate
+    0 assertn ; immediate compile-only
 : assert1( ( -- ) \ gforth assert-one
     \G Normal assertions; turned on by default.
-    1 assertn ; immediate
+    1 assertn ; immediate compile-only
 : assert2( ( -- ) \ gforth assert-two
     \G Debugging assertions.
-    2 assertn ; immediate
+    2 assertn ; immediate compile-only
 : assert3( ( -- ) \ gforth assert-three
     \G Slow assertions that you may not want to turn on in normal debugging;
     \G you would turn them on mainly for thorough checking.
-    3 assertn ; immediate
+    3 assertn ; immediate compile-only
 : assert( ( -- ) \ gforth
     \G Equivalent to @code{assert1(}
-    POSTPONE assert1( ; immediate
+    POSTPONE assert1( ; immediate compile-only
 
 : (end-assert) ( flag nfile nline -- ) \ gforth-internal
     rot if
