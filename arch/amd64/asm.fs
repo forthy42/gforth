@@ -528,7 +528,6 @@ $10 cmovs: cmovo  cmovno   cmovb   cmovnb   cmovz  cmovnz   cmovbe  cmovnbe   cm
 \ MMX opcodes                                          02mar97py
 
     300 7 regs MM0 MM1 MM2 MM3 MM4 MM5 MM6 MM7
-0200300 7 regs MM8 MM9 MM10 MM11 MM12 MM13 MM14 MM15
 
 : mmxs ?DO  I mod0F:  LOOP ;
 $64 $60 mmxs PUNPCKLBW PUNPCKLWD PUNOCKLDQ PACKUSDW
