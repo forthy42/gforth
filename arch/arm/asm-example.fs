@@ -72,7 +72,7 @@ END-CODE
 
 \ Implement '+'
 CODE my+ ( n1 n2 --  n3 )
-   { R2 R3 }	R9 IA!	LDM,
+   R9 IA!  { R2 R3 }	LDM,
    R3	R2 R3		ADD,
    R3	R9 -4 #]!	STR,
    NEXT,

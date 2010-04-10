@@ -153,21 +153,21 @@ code: ls-reg3 r0 r3 r2 1 #lsl ]- ldrbt, ;;
 
 \ load/store multiple
 
-code: ldm0 r0 { r1 r2 r3 } da  ldm, ;; \ LDMDA r0, {r1, r2, r3}
-code: ldm1 r0 { r1 r2 r3 } ia  ldm, ;;
-code: ldm2 r0 { r1 r2 r3 } db  ldm, ;;
-code: ldm3 r0 { r1 r2 r3 } ib  ldm, ;;
-code: ldm4 r0 { r1 r2 r3 } da! ldm, ;; \ LDMDA r0!, {r1, r2, r3}
-code: ldm5 r0 { r1 r2 r3 } ia! ldm, ;;
-code: ldm6 r0 { r1 r2 r3 } db! ldm, ;;
-code: ldm7 r0 { r1 r2 r3 } ib! ldm, ;;
+code: ldm0 r0 da  { r1 r2 r3 }  ldm, ;; \ LDMDA r0, {r1, r2, r3}
+code: ldm1 r0 ia  { r1 r2 r3 }  ldm, ;;
+code: ldm2 r0 db  { r1 r2 r3 }  ldm, ;;
+code: ldm3 r0 ib  { r1 r2 r3 }  ldm, ;;
+code: ldm4 r0 da!  { r1 r2 r3 } ldm, ;; \ LDMDA r0!, {r1, r2, r3}
+code: ldm5 r0 ia!  { r1 r2 r3 } ldm, ;;
+code: ldm6 r0 db!  { r1 r2 r3 } ldm, ;;
+code: ldm7 r0 ib!  { r1 r2 r3 } ldm, ;;
 
-code: stm0  r0 { r1 r2 r3 } da  stm, ;;
-code: ^ldm0 r0 { r2 r3 r4 } da ^ldm, ;;
-code: ^stm0 r0 { r2 r3 r4 } da ^stm, ;;
+code: stm0  r0 da  { r1 r2 r3 }  stm, ;;
+code: ^ldm0 r0 da  { r2 r3 r4 } ^ldm, ;;
+code: ^stm0 r0 da  { r2 r3 r4 } ^stm, ;;
 
 code: stm-all
-    r0 { r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15 } da stm, ;;
+    r0 da  { r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15 } stm, ;;
 
 \ software interrupt
 

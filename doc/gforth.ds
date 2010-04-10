@@ -13046,17 +13046,17 @@ directly encoded into the instruction mnemonic, ie. use @code{^ldm,}
 and @code{^stm,}.
 
 Addressing modes for load/store multiple are not encoded as
-instruction suffixes, but instead specified after the register that
-supplies the address.  Use one of @code{DA}, @code{IA}, @code{DB},
-@code{IB}, @code{DA!}, @code{IA!}, @code{DB!} or @code{IB!}.
+instruction suffixes, but instead specified like an addressing mode,
+Use one of @code{DA}, @code{IA}, @code{DB}, @code{IB}, @code{DA!},
+@code{IA!}, @code{DB!} or @code{IB!}.
 
 The following table gives some examples:
 
 @example
 Gforth                           normal assembler
-r4  @{ r0 r7 r8 @} ia  stm,        stmia    r4, @{r0,r7,r8@}
-r4  @{ r0 r7 r8 @} db!  ldm,       ldmdb    r4!, @{r0,r7,r8@}
-sp  @{ r0 r15 r-r @} ia!  ^ldm,    ldmfd    sp!, @{r0-r15@}^
+r4 ia  @{ r0 r7 r8 @}  stm,        stmia    r4, @{r0,r7,r8@}
+r4 db!  @{ r0 r7 r8 @}  ldm,       ldmdb    r4!, @{r0,r7,r8@}
+sp ia!  @{ r0 r15 r-r @}  ^ldm,    ldmfd    sp!, @{r0-r15@}^
 @end example
 
 Control structure words typical for Forth assemblers are available:
@@ -13076,7 +13076,7 @@ Example of a definition using the ARM assembler:
 @example
 abi-code my+ ( n1 n2 --  n3 )
    \ arm abi: r0=sp, r1=fp, r2, r3 saved by caller
-   r0  @{ r2 r3 @} IA!   ldm,     \ pop r2 = n2, r3 = n1
+   r0 IA!   @{ r2 r3 @}  ldm,     \ pop r2 = n2, r3 = n1
    r3   r2   r3        add,     \ r3 = n2+n1
    r3   r0 -4 #]!      str,     \ push r3
    pc   lr             mov,     \ return (r0=sp, r1=fp) to caller
