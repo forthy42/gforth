@@ -332,7 +332,7 @@ $C dat-op: ORR  $D mov-op: MOV  $E dat-op: BIC  $F mov-op: MVN
 set-current
 
 : disasm-inst ( a w -- ) \ disassemble instruction w at address a
-    dup ."   ( " hex. ." ) " guard
+    ."   ( " over hex. ." ) " guard
         \ basic arm instruction formats
         dup {{ -27 -26 -25     -4 }}  {{ 24 -23 -20  }} b~ G[ dis-dp-imm/sh ]G
         dup {{ -27 -26 -25  -7  4 }}  {{ 24 -23 -20  }} b~ G[ dis-dp-reg/sh ]G
