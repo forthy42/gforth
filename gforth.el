@@ -247,6 +247,11 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 	 "[\n\t ]" t string (font-lock-string-face . 1))
 	(("included" "required" "thru" "load")
 	 non-immediate (font-lock-keyword-face . 1))
+	(("code" "abi-code")
+	 non-immediate (font-lock-keyword-face . 1)
+	 "[ \t\n]" t name (font-lock-function-name-face . 3))
+	(("end-code")
+	 non-immediate (font-lock-keyword-face . 1))
 	(("[char]") compile-only (font-lock-keyword-face . 1)
 	 "[ \t\n]" t string (font-lock-string-face . 1))
 	(("char") non-immediate (font-lock-keyword-face . 1)
@@ -312,6 +317,8 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 	 "[ \t\n]" t name (font-lock-type-face . 3))
 	(("struct") non-immediate (font-lock-keyword-face . 2))
 	("-?[0-9]+\\(\\.[0-9]*e\\(-?[0-9]+\\)?\\|\\.?[0-9a-f]*\\)" 
+	 immediate (font-lock-constant-face . 3))
+	("-?\\([&#][0-9]+\\|\\(0x\\|\\$\\)[0-9a-f]+\\|%[01]+\\)"
 	 immediate (font-lock-constant-face . 3))
 	))
 
@@ -420,7 +427,8 @@ INDENT1 and INDENT2 are indentation specifications of the form
 	  "u-do" "?dup-if" "?dup-0=-if" "case" "of" "try" "iferror"
 	  "[if]" "[ifdef]" "[ifundef]" "[begin]" "[for]" "[do]" "[?do]")
 	 (0 . 2) (0 . 2))
-	((":" ":noname" "code" "struct" "m:" ":m" "class" "interface")
+	((":" ":noname" "code" "abi-code" "struct" "m:" ":m" "class" 
+	  "interface")
 	 (0 . 2) (0 . 2) non-immediate)
 	("\\S-+%$" (0 . 2) (0 . 0) non-immediate)
 	((";" ";m") (-2 . 0) (0 . -2))
