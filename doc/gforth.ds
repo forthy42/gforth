@@ -12572,8 +12572,9 @@ machine code), and for defining the machine-code equivalent of
 @code{DOES>}-based defining words. However, the machine-independent
 nature of Gforth poses a few problems: First of all, Gforth runs on
 several architectures, so it can provide no standard assembler. What's
-worse is that the register allocation not only depends on the processor,
-but also on the @code{gcc} version and options used.
+worse is that the register allocation not only depends on the
+processor, but also on the @code{gcc} version and options used (still
+this problem can be worked around by using @code{ABI-CODE}).
 
 The words that Gforth offers encapsulate some system dependences (e.g.,
 the header structure), so a system-independent assembler may be used in
@@ -12587,6 +12588,7 @@ portable anyway.}.
 doc-assembler
 doc-init-asm
 doc-code
+doc-abi-code
 doc-end-code
 doc-;code
 doc-flush-icache
@@ -12627,6 +12629,15 @@ cannot write a @code{NEXT} routine that works reliably on both versions
 or different installations; so for doing @code{NEXT}, I recommend
 jumping to @code{' noop >code-address}, which contains nothing but a
 @code{NEXT}.
+
+@cindex code words, using platform's ABI
+If you do not want to bother with the complexities of the
+interpreter's registers, you may use @code{ABI-CODE} for defining
+native code instead.  @code{ABI-CODE} definitions are called with the
+C-Language's application binary interface (ABI) conventions of the
+platform, passing the Forth virtual machine's SP and FP as arguments,
+While this approach involves some (minor) overhead, it allows you to
+write code that is portable across different versions of GForth.
 
 For general accesses to the inner interpreter's registers, the easiest
 solution is to use explicit register declarations (@pxref{Explicit Reg
@@ -12691,21 +12702,26 @@ conditions are specified in a way specific to each assembler.
 
 Note that the register assignments of the Gforth engine can change
 between Gforth versions, or even between different compilations of the
-same Gforth version (e.g., if you use a different GCC version).  So if
-you want to refer to Gforth's registers (e.g., the stack pointer or
-TOS), I recommend defining your own words for refering to these
-registers, and using them later on; then you can easily adapt to a
-changed register assignment.  The stability of the register assignment
-is usually better if you build Gforth with @code{--enable-force-reg}.
+same Gforth version (e.g., if you use a different GCC version).  If
+you are using @code{CODE} instead of @code{ABI-CODE}, and you want to
+refer to Gforth's registers (e.g., the stack pointer or TOS), I
+recommend defining your own words for refering to these registers, and
+using them later on; then you can easily adapt to a changed register
+assignment.  The stability of the register assignment is usually
+better if you build Gforth with @code{--enable-force-reg}.
 
 The most common use of these registers is to dispatch to the next word
 (the @code{next} routine).  A portable way to do this is to jump to
 @code{' noop >code-address} (of course, this is less efficient than
-integrating the @code{next} code and scheduling it well).
+integrating the @code{next} code and scheduling it well).  When using
+@code{ABI-CODE}, you can just assemble a normal subroutine return (but
+make sure you return SP and FP back to the caller).
 
 Another difference between Gforth version is that the top of stack is
-kept in memory in @code{gforth} and, on most platforms, in a register in
-@code{gforth-fast}.
+kept in memory in @code{gforth} and, on most platforms, in a register
+in @code{gforth-fast}.  For @code{ABI-CODE} definitions, any stack
+caching registers are guaranteed to be flushed to the stack, allowing
+you to reliably access the top of stack as @code{sp[0]}.
 
 @node  Common Disassembler, 386 Assembler, Common Assembler, Assembler and Code Words
 @subsection Common Disassembler
@@ -12960,22 +12976,21 @@ branches).
 @node ARM Assembler, Other assemblers, PowerPC assembler, Assembler and Code Words
 @subsection ARM Assembler
 
-The ARM assembler included in Gforth was written from scratch by David
-Kuehling.
+The ARM assembler includes all instruction of ARM architecture version
+4, and the BLX instruction from architecture 5.  It does not (yet)
+have support for Thumb instructions.  It also lacks support for any
+co-processors.
 
-The assembler includes all instruction of ARM architecture version 4,
-but does not (yet) have support for Thumb instructions.  It also lacks
-support for any co-processors.
-
-The assembler uses a postfix syntax with the target operand specified
-last.  For load/store instructions the last operand will be the
-register(s) to be loaded from/stored to.
+The assembler uses a postfix syntax with the same operand order as
+used in the ARM Architecture Reference Manual.  Mnemonics are suffixed
+by a comma.
 
 Registers are specified by their names @code{r0} through @code{r15},
 with the aliases @code{pc}, @code{lr}, @code{sp}, @code{ip} and
-@code{fp} provided for convenience.  Note that @code{ip} means intra
-procedure call scratch register (@code{r12}) and does not refer to the
-instruction pointer.
+@code{fp} provided for convenience.  Note that @code{ip} refers to
+the``intra procedure call scratch register'' (@code{r12}) and does not
+refer to an instruction pointer.  @code{sp} refers to the ARM ABI
+stack pointer (@code{r13}) and not the Forth stack pointer.
 
 Condition codes can be specified anywhere in the instruction, but will
 be most readable if specified just in front of the mnemonic.  The 'S'
@@ -13023,12 +13038,12 @@ r4 r1 2 #LSL ]-   [r4], -r1, LSL #2     shifted postdecrement
 @end example
 
 Register lists for load/store multiple instructions are started and
-terminated by using the words @code{@{} and @code{@}}
-respectivly.  Between braces, register names can be listed one by one,
-or register ranges can be formed by using the postfix operator
-@code{r-r}.  The @code{^} flag is not encoded in the register list
-operand, but instead directly encoded into the instruction mnemonic,
-ie. use @code{^ldm,} and @code{^stm,}.
+terminated by using the words @code{@{} and @code{@}} respectivly.
+Between braces, register names can be listed one by one or register
+ranges can be formed by using the postfix operator @code{r-r}.  The
+@code{^} flag is not encoded in the register list operand, but instead
+directly encoded into the instruction mnemonic, ie. use @code{^ldm,}
+and @code{^stm,}.
 
 Addressing modes for load/store multiple are not encoded as
 instruction suffixes, but instead specified after the register that
@@ -13039,13 +13054,15 @@ The following table gives some examples:
 
 @example
 Gforth                           normal assembler
-@{ r0 r7 r8 @}  r4 ia  stm,        stmia    @{r0,r7,r8@}, r4
-@{ r0 r7 r8 @}  r4 db!  ldm,       ldmdb    @{r0,r7,r8@}, r4!
-@{ r0 r15 r-r @}  sp ia!  ^ldm,    ldmfd    @{r0-r15@}^, sp!
+r4  @{ r0 r7 r8 @} ia  stm,        stmia    r4, @{r0,r7,r8@}
+r4  @{ r0 r7 r8 @} db!  ldm,       ldmdb    r4!, @{r0,r7,r8@}
+sp  @{ r0 r15 r-r @} ia!  ^ldm,    ldmfd    sp!, @{r0-r15@}^
 @end example
 
-Conditions for control structure words are specified in front of a
-word:
+Control structure words typical for Forth assemblers are available:
+@code{if,} @code{ahead,} @code{then,} @code{else,} @code{begin,}
+@code{until,} @code{again,} @code{while,} @code{repeat,}
+@code{repeat-until,}.  Conditions are specified in front of these words:
 
 @example
 r1 r2 cmp,    \ compare r1 and r2
@@ -13054,20 +13071,17 @@ eq if,        \ equal?
 then,
 @end example
 
-Here is an example of a @code{code} word (assumes that the stack
-pointer is in @code{r9}, and that @code{r2} and @code{r3} can be
-clobbered):
+Example of a definition using the ARM assembler:
 
 @example
-code my+ ( n1 n2 --  n3 )
-   r9 IA!       @{ r2 r3 @} ldm,  \ pop r2 = n2, r3 = n1
-   r2   r3      r3        add,  \ r3 = n2+n1
-   r9 -4 #]!    r3        str,  \ push r3
-   next,
+abi-code my+ ( n1 n2 --  n3 )
+   \ arm abi: r0=sp, r1=fp, r2, r3 saved by caller
+   r0  @{ r2 r3 @} IA!   ldm,     \ pop r2 = n2, r3 = n1
+   r3   r2   r3        add,     \ r3 = n2+n1
+   r3   r0 -4 #]!      str,     \ push r3
+   pc   lr             mov,     \ return (r0=sp, r1=fp) to caller
 end-code
 @end example
-
-Look at @file{arch/arm/asm-example.fs} for more examples.
 
 @node Other assemblers,  , ARM Assembler, Assembler and Code Words
 @subsection Other assemblers

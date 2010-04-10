@@ -27,16 +27,18 @@ vocabulary assembler ( -- ) \ tools-ext
     also assembler ;
 
 : code ( "name" -- colon-sys )	\ tools-ext
-    \ start a native code definition
+    \G start a native code definition
     header
     here >body cfa,
     defstart init-asm ;
 
 [ifdef] doabicode:
-: abi-code ( "name" -- colon-sys )	\ gforth
-   \ start a native code definition that is called using the platform's
-   \ ABI conventions corresponding to C-prototype
-   \ struct{Cell*sp;double*fp;} function (Cell *sp, double *fp);
+: abi-code ( "name" -- colon-sys )	\ gforth	abi_code
+   \G Start a native code definition that is called using the platform's
+   \G ABI conventions corresponding to the C-prototype:
+   \G @example
+   \G struct@{Cell*sp;double*fp;@} function (Cell *sp, double *fp);
+   \G @end example
     header  
     doabicode: cfa,
     defstart init-asm ;
@@ -56,7 +58,7 @@ vocabulary assembler ( -- ) \ tools-ext
 interpret/compile: ;code ( compilation. colon-sys1 -- colon-sys2 )	\ tools-ext	semicolon-code
 
 : end-code ( colon-sys -- )	\ gforth	end_code
-    ( end a code definition )
+    \G end a code definition 
     latestxt here over - flush-icache
     previous ?struc reveal ;
 
