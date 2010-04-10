@@ -274,8 +274,8 @@ enumerate: forward backward
 :NONAME  offs12, Rn, Rd, ;		instruction-class: mem-op:
 :NONAME  offsP, Rn,  Rd, ;		instruction-class: memT-op:
 :NONAME  offs8, Rn, Rd, ;		instruction-class: memH-op:
-:NONAME  Rm, ?0#] Rn, Rd, ;		instruction-class: memS-op:
-:NONAME  mmode, Rn, reg-list, ;		instruction-class: mmem-op:
+:NONAME  ?0#] Rn, Rm, Rd, ;		instruction-class: memS-op:
+:NONAME  mmode, reg-list, Rn, ;		instruction-class: mmem-op:
 :NONAME  branch-addr, ;			instruction-class: branch-op:
 :NONAME  Rs, Rm,   Rn,	;		instruction-class: RRR-op:
 :NONAME  Rn, Rs, Rm, Rd, ;		instruction-class: RRRR-op:
