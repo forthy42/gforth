@@ -13075,11 +13075,12 @@ Example of a definition using the ARM assembler:
 
 @example
 abi-code my+ ( n1 n2 --  n3 )
-   \ arm abi: r0=sp, r1=fp, r2, r3 saved by caller
-   r0 IA!   @{ r2 r3 @}  ldm,     \ pop r2 = n2, r3 = n1
-   r3   r2   r3        add,     \ r3 = n2+n1
-   r3   r0 -4 #]!      str,     \ push r3
-   pc   lr             mov,     \ return (r0=sp, r1=fp) to caller
+   \ arm abi: r0=return_stuct, r1=sp, r2=fp, r3,r12 saved by caller
+   r1 IA!  @{ r3 r12 @}  ldm,     \ pop r2 = n2, r3 = n1
+   r12  r3   r12        add,    \ r12 = n2+n1
+   r12  r1 -4 #]!       str,     \ push r12
+   r0 IA!  @{ r1 r2 @}    stm,     \ return r1 and r2 via [r0] memory
+   pc   lr              mov,     \ return to caller
 end-code
 @end example
 
