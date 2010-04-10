@@ -79,7 +79,7 @@ also disassembler definitions
 $F0000000 fld: %CC#     $01E00000 fld: %opc#    $01800000 fld: %PU#
 $00000F00 fld: %rot#    $000000FF fld: %imm8#   $00FFFFFF fld: %off24#
 $00000060 fld: %shc#    $00000F80 fld: %shimm#  $00000FFF fld: %off12#
-$00F00000 fld: %cpopc1# $000000C0 fld: %cpopc2#
+$00E00000 fld: %cpopc1# $000000E0 fld: %cpopc2#
 ' %rot#  alias %cpnum#  ' %imm8# alias %cpoff8#
 
 $01000000 fld: %b24#    $00800000 fld: %b23#    $00400000 fld: %b22#
@@ -183,9 +183,9 @@ does> ( i a -- a+2*i )
 : dis-shifter ( sh-xt w -- w ) swap execute ;
 
 \ dis-xts: disassemblers for the data processing instr encodings
-: dis-mov ( sh-xt w -- w )        dis-shifter dis-Rd dis-CC dis-opc dis-S ;
+: dis-mov ( sh-xt w -- w ) dis-Rd        dis-shifter dis-CC dis-opc dis-S ;
 : dis-cmp ( sh-xt w -- w )        dis-Rn dis-shifter dis-CC dis-opc dis-P ;
-: dis-dat ( sh-xt w -- w ) dis-Rn dis-shifter dis-Rd dis-CC dis-opc dis-S ;
+: dis-dat ( sh-xt w -- w ) dis-Rd dis-Rn dis-shifter dis-CC dis-opc dis-S ;
 
 : dpclass: ( dis-xt "defname" -- )
     create ,
@@ -230,26 +230,27 @@ $C dat-op: ORR  $D mov-op: MOV  $E dat-op: BIC  $F mov-op: MVN
 : dis-dp-imm/rot ( w -- w ) ['] dis-imm/rot dis-dp ;
 
 : dis-ls-imm ( w -- w )
+    dis-Rd
     dis-Rn
     %b24# >r %b21# 0= >r %off12# 0= r> and r> and if \ 24=1 & 21=0 & off12=0
         ." ] "
     else
         %b23# 0= if ." -" endif %off12# . [char] # dis-ls-mode
     endif
-    dis-Rd dis-ls-opc ;
+    dis-ls-opc ;
 
 : dis-ls-reg ( w -- w )
-    dis-Rn dis-Rm dis-shimm
+    dis-Rd dis-Rn dis-Rm dis-shimm
     %b23# if [char] + else [char] - endif dis-ls-mode
-    dis-Rd dis-ls-opc ;
+    dis-ls-opc ;
 
 : dis-lsm ( w -- w )
     dis-Rn                                      \ Rn
-    %PU# lsm-mode-tab 2 elem-type               \ mode: basic
-    %b21# if ." !" endif space                  \ mode: write?
     ." { " 15 0 u+do                            \ register list
         dup i rshift %1 and if ." R" i . endif
     loop ." } "
+    %PU# lsm-mode-tab 2 elem-type               \ mode: basic
+    %b21# if ." !" endif space                  \ mode: write?
     %b22# if ." ^" endif                        \ user mode?
     %b20# if ." LDM," else ." STM," endif ;     \ load/store
 
@@ -263,25 +264,29 @@ $C dat-op: ORR  $D mov-op: MOV  $E dat-op: BIC  $F mov-op: MVN
     endif ;
 
 : dis-mul ( w -- w )
-    dis-Rm dis-Rs dis-Rn %b21# if dis-Rd endif dis-CC dis-mulc dis-S ;
+    %b21# if
+        dis-Rd dis-Rm dis-Rs dis-Rn
+    else
+        dis-Rn dis-Rm dis-Rs
+    endif dis-CC dis-mulc dis-S ;
 
 : dis-mull ( w -- w )
-    dis-Rm dis-Rs dis-Rd dis-Rn
+    dis-Rd dis-Rn dis-Rm dis-Rs
     dis-CC %b22# if ." S" else ." U" endif dis-mulc ." L" dis-S ;
 
 : dis-swi ( w -- w ) %off24# hex. dis-CC ." SWI," ;
 
 : dis-fpa-ls ( w -- w )
+    dis-Fd
     dis-Rn
     %b23# 0= if ." -" endif %cpoff8# 2 lshift . [char] # dis-ls-mode
-    dis-Fd
     dis-CC
     %b20# if ." LDF" else ." STF" endif %bb22,15# dis-fpa-prec ." ," ;
 
 : dis-fpa-dp ( w -- w )
+    dis-Fd
     %b15# 0= if dis-Fn endif
     dis-fpa-iFm
-    dis-Fd
     dis-CC
     dis-fpa-dp-opc
     %bb19,07# dis-fpa-prec
@@ -294,25 +299,25 @@ $C dat-op: ORR  $D mov-op: MOV  $E dat-op: BIC  $F mov-op: MVN
     %b21# if ." CNF" else ." CMF" endif %b22# if ." E" endif ." ," ;
 
 : dis-cp-ls ( w -- w )
+    dis-cpnum
+    dis-CRd
     dis-Rn
     %b24# 0= swap %b21# 0= rot and if
         %cpoff8# hex. ." ]$ "
     else
         %b23# 0= if ." -" endif %cpoff8# . [char] # dis-ls-mode
     endif
-    dis-CRd
-    dis-cpnum
     %CC# $F <> if dis-CC endif
     %b20# if ." LDC" else ." STC" endif
     %CC# $F = if ." 2" endif
     %b22# if ." L" endif ." ," ;
 
 : dis-cp-dp ( w -- w )
-    dis-cpopc2 dis-CRm dis-CRn dis-CRd dis-cpopc1 dis-cpnum
+    dis-cpnum dis-cpopc1 dis-CRd dis-CRn dis-CRm dis-cpopc2
     %CC# $F = if ." CDP2," else dis-CC ." CDP," endif ;
 
 : dis-cp-tx ( w -- w )
-    dis-cpopc2 dis-CRm dis-CRn dis-Rd dis-cpopc1 dis-cpnum
+    dis-cpnum dis-cpopc1 dis-Rd dis-CRn dis-CRm dis-cpopc2
     %CC# $F <> if dis-CC endif
     %b20# if ." MRC" else ." MCR" endif
     %CC# $F = if ." 2" endif ." ," ;
