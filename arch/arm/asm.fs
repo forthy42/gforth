@@ -71,12 +71,14 @@ VARIABLE had-cc
 : cc:  ( x "name" -- )  CREATE ,
   DOES> @  ( x -- )
    ?can-cc  1C LSHIFT encode   TRUE had-cc ! ;
+: ccs:  do  i cc:  loop ;
 
-00 cc: EQ	01 cc: NE	02 cc: CS	03 cc: CC
-04 cc: MI	05 cc: PL	06 cc: VS	07 cc: VC
-08 cc: HI	09 cc: LS	0A cc: GE	0B cc: LT
-0C cc: GT	0D cc: LE	0E cc: AL	0F cc: NV
-02 CC: HS	03 cc: LO
+8  0 ccs: EQ   NE   CS   CC   MI   PL   VS VC
+4  2 ccs:           HS	 LO
+6  0 ccs: ?=   ?<>  u>=  u<   ?0<  ?0>=  
+
+10 8 ccs: HI   LS   GE   LT   GT   LE   AL NV
+0E 8 ccs: ?u>  ?u<= ?>=  ?<   ?>   ?<= 
 
 : invert-cc  ( -- ) \ invert meaning of condition code (EQ -> NE etc.)
    had-cc @ 0= ABORT" No condition code specified for instruction"
