@@ -308,11 +308,9 @@ has? primcentric [IF]
 : (does>)  ( R: addr -- )
     r> cfaligned /does-handler + !does ; \ !! no gforth-native
 
+\ !! unused, but ifdefed/gosted in some places
 : (does>2)  ( addr -- )
     cfaligned /does-handler + !does ;
-
-: dodoes,  ( -- )
-  cfalign here /does-handler allot does-handler! ;
 
 : (compile) ( -- ) \ gforth-obsolete: dummy
     true abort" (compile) doesn't work, use POSTPONE instead" ;
@@ -623,14 +621,14 @@ doer? :dodefer [IF]
     ' defer@ compile, ; immediate
 
 :noname
-    dodoes, here !does ]
+    here !does ]
     defstart :-hook ;
 :noname
     ;-hook ?struc
     [ has? xconds [IF] ] exit-like [ [THEN] ]
     here [ has? peephole [IF] ] 5 [ [ELSE] ] 4 [ [THEN] ] cells +
-    postpone aliteral postpone (does>2) [compile] exit
-    [ has? peephole [IF] ] finish-code [ [THEN] ] dodoes,
+    postpone aliteral postpone !does [compile] exit
+    [ has? peephole [IF] ] finish-code [ [THEN] ]
     defstart :-hook ;
 interpret/compile: DOES>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ core        does
 

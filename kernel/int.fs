@@ -551,10 +551,6 @@ alias code-address! ( c_addr xt -- ) \ gforth
     dodoes: over ! cell+ !
     [ [THEN] ] ;
 
-' drop alias does-handler! ( a_addr -- ) \ gforth
-\G Create a @code{DOES>}-handler at address @i{a-addr}. Normally,
-\G @i{a-addr} points just behind a @code{DOES>}.
-
 2 cells constant /does-handler ( -- n ) \ gforth
 \G The size of a @code{DOES>}-handler (includes possible padding).
 

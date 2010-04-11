@@ -46,7 +46,7 @@ constant no-interpretation-does-code
     latestxt interpret/compile-int @ r@ >body = and
     latestxt interpret/compile-comp @ r> = and
     0= abort" not created with create-interpret/compile"
-    cell+ cell+ maxaligned /does-handler + \ to does-code
+    cell+ cell+ maxaligned \ to does-code
     swap @ does-code! ;
 
 : (interpretation>1) ( addr R:retaddr -- )
@@ -54,7 +54,7 @@ constant no-interpretation-does-code
 
 : interpretation> ( compilation. -- orig colon-sys ) \ gforth
     here 4 cells +  POSTPONE literal POSTPONE (interpretation>1) POSTPONE ahead
-    dodoes, defstart dead-code off 0 set-locals-size-list ; immediate restrict
+    defstart dead-code off 0 set-locals-size-list ; immediate restrict
 
 : <interpretation ( compilation. orig colon-sys -- ) \ gforth
     ?struc POSTPONE exit
@@ -65,7 +65,7 @@ constant no-interpretation-does-code
 
 : compilation> ( compilation. -- orig colon-sys ) \ gforth
     here 4 cells + POSTPONE literal POSTPONE (compilation>1) POSTPONE ahead
-    dodoes, defstart dead-code off 0 set-locals-size-list POSTPONE >body ; immediate restrict
+    defstart dead-code off 0 set-locals-size-list POSTPONE >body ; immediate restrict
 
 comp' <interpretation drop
 Alias <compilation ( compilation. orig colon-sys -- ) \ gforth

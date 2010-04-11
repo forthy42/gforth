@@ -531,8 +531,8 @@ VARIABLE C-Pass
 
 [IFDEF] (does>)
 : c-does>               \ end of create part
-        Display? IF S" DOES> " Com# .string THEN
-	maxaligned /does-handler + ;
+        Display? IF S" DOES> " Com# .string THEN ;
+\	maxaligned /does-handler + ; \ !! no longer needed for non-cross stuff
 [THEN]
 
 [IFDEF] (compile)
