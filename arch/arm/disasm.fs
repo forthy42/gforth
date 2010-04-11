@@ -99,18 +99,18 @@ $70000 fld: %F16#   $07000 fld: %F12#   $00007 fld: %F00#
 \ --
 
 \ core tables
-s" EQ NE CS CC MI PL VS VC HI LS GE LT GT LE AL NV" 2constant cc-tab
-s" LSL LSR ASR ROR"                                 2constant shc-tab
-s" DA IA DB IB"                                     2constant lsm-mode-tab
+: cc-tab        ( -- u n ) s" EQ NE CS CC MI PL VS VC HI LS GE LT GT LE AL NV" ;
+: shc-tab       ( -- u n ) s" LSL LSR ASR ROR" ;
+: lsm-mode-tab  ( -- u n ) s" DA IA DB IB" ;
 
 \ fpa tables
-s" ADF MUF SUF RSF DVF RDF POW RPW RMF FML FDV FRD POL"
-    2constant fpa-opcd-tab \ dyadic data-processing opcodes
-s" MVF MNF ABS RND SQT LOG LGN EXP SIN COS TAN ASN ACS ATN URD NRM"
-    2constant fpa-opcm-tab \ monadic data-processing opcodes
-s" 0.0 1.0 2.0 3.0 4.0 5.0 0.5 10."                 2constant fpa-ifm-tab
-s" S D E"                                           2constant fpa-prec-tab
-s" P M Z"                                           2constant fpa-round-tab
+: fpa-opcd-tab  ( -- u n )
+    s" ADF MUF SUF RSF DVF RDF POW RPW RMF FML FDV FRD POL" ;
+: fpa-opcm-tab  ( -- u n )
+    s" MVF MNF ABS RND SQT LOG LGN EXP SIN COS TAN ASN ACS ATN URD NRM" ;
+: fpa-ifm-tab   ( -- u n ) s" 0.0 1.0 2.0 3.0 4.0 5.0 0.5 10." ;
+: fpa-prec-tab  ( -- u n ) s" S D E" ;
+: fpa-round-tab ( -- u n ) s" P M Z" ;
 
 : dis-CC ( w -- w ) %CC# dup $E <> if cc-tab 2 elem-type space else drop endif ;
 
@@ -242,7 +242,7 @@ $C dat-op: ORR  $D mov-op: MOV  $E dat-op: BIC  $F mov-op: MVN
 : dis-ls-reg ( w -- w )
     dis-Rd dis-Rn dis-Rm dis-shimm
     %b23# if [char] + else [char] - endif dis-ls-mode
-    dis-ls-opc ;
+    dis-CC dis-ls-opc ;
 
 : dis-lsm ( w -- w )
     dis-Rn                                      \ Rn
@@ -251,6 +251,7 @@ $C dat-op: ORR  $D mov-op: MOV  $E dat-op: BIC  $F mov-op: MVN
     loop ." } "
     %PU# lsm-mode-tab 2 elem-type               \ mode: basic
     %b21# if ." !" endif space                  \ mode: write?
+    dis-CC
     %b22# if ." ^" endif                        \ user mode?
     %b20# if ." LDM," else ." STM," endif ;     \ load/store
 
