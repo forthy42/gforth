@@ -30,11 +30,10 @@ ALSO ASSEMBLER DEFINITIONS
 HEX  \ EVERYTHING BELOW IS IN HEXADECIMAL!
 
 \ change these for cross compilation
-: t,  , ;
 : there  here ;
-: t@  @ ;
-: t!  ! ;
-
+: t@  ul@ ;
+: t!  l! ;
+: t,  here 4 allot t! ;
 
 \ Enumerations
 : enumerate:  ( N start "name1" ... "nameN" -- )
@@ -112,8 +111,10 @@ VARIABLE had-cc
 10 cxsf-mask: C   11 cxsf-mask: X   12 cxsf-mask: S   13 cxsf-mask: F
 
 \ Right-hand side operands
+: lshift32  ( x1 n -- x2 )  \ also works in cross-compilers with 64-bit cells
+   LSHIFT 0FFFFFFFF AND ;
 : lrotate32  ( x1 n -- x2 )
-   2DUP LSHIFT >R    20 SWAP - RSHIFT R> OR ;
+   2DUP lshift32 >R    20 SWAP - RSHIFT R> OR ;
 : #  ( n -- x )
    16 0 ?DO
       DUP 0 100 WITHIN IF
