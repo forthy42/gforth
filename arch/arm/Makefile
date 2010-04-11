@@ -8,17 +8,23 @@
 
 FS = gforth
 
-SRC = disasm.fs testdisasm.fs
+SRC = asm.fs disasm.fs testdisasm.fs
 
 .PHONY: all
 all: check
 
 .PHONY: check
-check:
-	@trap "rm -f testdisasm.res" 0; \
-	    $(FS) $(SRC) -e bye > testdisasm.res && \
-	    diff -U1 testdisasm.out testdisasm.res && echo OK
+
+testdisasm.res : $(SRC) FORCE
+	$(FS) $(SRC) -e bye > testdisasm.res
+.INTERMEDIATE: testdisasm.res
+
+check: testdisasm.res
+	sed -i testdisasm.res -e 's/( \$$[0-9A-F]\+ )//g'
+	sed -e 's/( \$$[0-9A-F]\+ )//g' < testdisasm.out \
+		| diff -U1 - testdisasm.res && echo OK
 
 .PHONY: check-gen
+.PHONY: FORCE
 check-gen:
 	$(FS) $(SRC) -e bye | tee testdisasm.out
