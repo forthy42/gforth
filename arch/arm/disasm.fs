@@ -28,8 +28,10 @@ also disassembler definitions
 : elem-type ( i u n c -- ) \ for str U of length N, type C chars from U+I*(C+1)
     >r drop swap r@ 1+ * + r> type ;
 
+: lshift32  ( x1 n -- x2 )  \ also works in cross-compilers with 64-bit cells
+   LSHIFT $0FFFFFFFF AND ;
 : rrotate32 ( u n -- u>>>n )
-    2dup 32 swap - lshift -rot rshift or ;
+    2dup 32 swap - lshift32 -rot rshift or ;
 
 : sext24>32 ( x -- y ) \ http://graphics.stanford.edu/~seander/bithacks.html
     $00800000 tuck xor swap - ;
@@ -362,7 +364,7 @@ set-current
 : disasm ( a n -- ) \ disassemble n instructions starting at address a
     assert0( dup 4 mod 0= ) \ arm instrs are 32b wide
     cr bounds u+do
-        i i @ disasm-inst cr
+        i i ul@ disasm-inst cr
     4 +loop ;
 
 ' disasm is discode
