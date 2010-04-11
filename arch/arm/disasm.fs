@@ -28,8 +28,9 @@ also disassembler definitions
 : elem-type ( i u n c -- ) \ for str U of length N, type C chars from U+I*(C+1)
     >r drop swap r@ 1+ * + r> type ;
 
-: lshift32  ( x1 n -- x2 )  \ also works in cross-compilers with 64-bit cells
-   LSHIFT $0FFFFFFFF AND ;
+: lshift32 ( x1 n -- x2 ) \ also works in cross-compilers with 64-bit cells
+    lshift $0FFFFFFFF and ;
+
 : rrotate32 ( u n -- u>>>n )
     2dup 32 swap - lshift32 -rot rshift or ;
 
