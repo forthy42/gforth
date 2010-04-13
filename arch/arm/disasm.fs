@@ -178,7 +178,7 @@ $70000 fld: %F16#   $07000 fld: %F12#   $00007 fld: %F00#
 \ --
 
 create dp-table \ [(dis-xt, opcode-str)]
-    15 2* cells allot
+    16 2* cells allot
 does> ( i a -- a+2*i )
     swap 2* cells + ;
 
