@@ -122,7 +122,14 @@ $70000 fld: %F16#   $07000 fld: %F12#   $00007 fld: %F00#
 : dis-S ( w -- w ) %b20# if ." S," else ." ," endif ;
 : dis-P ( w -- w ) %R12# $F = if ." P," else ." ," endif ;
 
-: Rx. ( n -- ) ." R" . ;
+: Rx. ( n -- )
+    case
+        13 of ." SP " endof
+        14 of ." LR " endof
+        15 of ." PC " endof
+        ( n ) ." R" dup . ( n )
+    endcase ;
+
 : dis-Rn ( w -- w ) %R16# Rx. ;
 : dis-Rd ( w -- w ) %R12# Rx. ;
 : dis-Rs ( w -- w ) %R08# Rx. ;
