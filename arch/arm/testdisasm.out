@@ -391,7 +391,7 @@ end-code
    BLX,    BLX,    BLX, 
 
 Code bx0  
-   R12 BLX,
+   R12 BX,
 end-code
 
 Code blx0  
