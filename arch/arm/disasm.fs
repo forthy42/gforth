@@ -274,6 +274,8 @@ $C dat-op: ORR  $D mov-op: MOV  $E dat-op: BIC  $F mov-op: MVN
         swap hex. dis-CC %b24# if ." BL," else ." B," endif
     endif ;
 
+: dis-bx ( a w -- a w ) dis-Rm dis-CC ." BX," ;
+
 : dis-mul ( w -- w )
     %b21# if
         dis-Rd dis-Rm dis-Rs dis-Rn
@@ -353,6 +355,9 @@ set-current
         dup {{  27 -26 -25        }}  {{ 31 30 29 28 }} b~ G[ dis-lsm ]G
         dup {{  27 -26  25        }}                    b= G[ dis-b ]G
         dup {{  27  26  25  24    }}  {{ 31 30 29 28 }} b~ G[ dis-swi ]G
+        \ miscellaneous instructions
+        dup {{ -27 -26 -25  24 -23 -22 21 -20
+                -7  -6  -5   4 }}                       b= G[ dis-bx ]G
         \ multiply extensions
         dup {{ -27 -26 -25 -24 -23 -22 7 -6 -5 4 }}     b= G[ dis-mul ]G
         dup {{ -27 -26 -25 -24  23     7 -6 -5 4 }}     b= G[ dis-mull ]G
