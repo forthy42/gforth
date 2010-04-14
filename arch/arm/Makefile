@@ -20,8 +20,8 @@ testdisasm.res : $(SRC) FORCE
 .INTERMEDIATE: testdisasm.res
 
 check: testdisasm.res
-	sed -i testdisasm.res -e 's/( \$$[0-9A-F]\+ )//g'
-	sed -e 's/( \$$[0-9A-F]\+ )//g' < testdisasm.out \
+	sed -f testdisasm.sed -i testdisasm.res
+	sed -f testdisasm.sed < testdisasm.out \
 		| diff -U1 - testdisasm.res && echo OK
 
 .PHONY: check-gen

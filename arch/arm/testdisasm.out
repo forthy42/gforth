@@ -2,480 +2,480 @@
 EQ NE CS CC MI PL VS VC HI LS GE LT GT LE NV 
 
 Code dp-imm/rot-and  
-  ( $E200102A ) R1 R0 42 # AND,
+  ( $402652A8 ) R1 R0 42 # AND,
 end-code
 
 Code dp-imm/rot-eor  
-  ( $E220102A ) R1 R0 42 # EOR,
+  ( $402652D0 ) R1 R0 42 # EOR,
 end-code
 
 Code dp-imm/rot-sub  
-  ( $E240102A ) R1 R0 42 # SUB,
+  ( $402652F8 ) R1 R0 42 # SUB,
 end-code
 
 Code dp-imm/rot-rsb  
-  ( $E260102A ) R1 R0 42 # RSB,
+  ( $40265320 ) R1 R0 42 # RSB,
 end-code
 
 Code dp-imm/rot-add  
-  ( $E280102A ) R1 R0 42 # ADD,
+  ( $40265348 ) R1 R0 42 # ADD,
 end-code
 
 Code dp-imm/rot-adc  
-  ( $E2A0102A ) R1 R0 42 # ADC,
+  ( $40265370 ) R1 R0 42 # ADC,
 end-code
 
 Code dp-imm/rot-sbc  
-  ( $E2C0102A ) R1 R0 42 # SBC,
+  ( $40265398 ) R1 R0 42 # SBC,
 end-code
 
 Code dp-imm/rot-rsc  
-  ( $E2E0102A ) R1 R0 42 # RSC,
+  ( $402653C0 ) R1 R0 42 # RSC,
 end-code
 
 Code dp-imm/rot-orr  
-  ( $E380102A ) R1 R0 42 # ORR,
+  ( $402653E8 ) R1 R0 42 # ORR,
 end-code
 
 Code dp-imm/rot-bic  
-  ( $E3C0102A ) R1 R0 42 # BIC,
+  ( $40265410 ) R1 R0 42 # BIC,
 end-code
 
 Code dp-imm/sh-add0  
-  ( $E08BC48A ) R12 R11 R10 9 #LSL ADD,
+  ( $40265438 ) R12 R11 R10 9 #LSL ADD,
 end-code
 
 Code dp-imm/sh-add1  
-  ( $E08BC4AA ) R12 R11 R10 9 #LSR ADD,
+  ( $40265460 ) R12 R11 R10 9 #LSR ADD,
 end-code
 
 Code dp-imm/sh-add2  
-  ( $E08BC4CA ) R12 R11 R10 9 #ASR ADD,
+  ( $40265488 ) R12 R11 R10 9 #ASR ADD,
 end-code
 
 Code dp-imm/sh-add3  
-  ( $E08BC4EA ) R12 R11 R10 9 #ROR ADD,
+  ( $402654B0 ) R12 R11 R10 9 #ROR ADD,
 end-code
 
 Code dp-imm/sh-add-lsl0  
-  ( $E08BC00A ) R12 R11 R10 ADD,
+  ( $402654D8 ) R12 R11 R10 ADD,
 end-code
 
-  ( $E08CA02B ) R10 R12 R11 32 #LSR ADD,
-  ( $E08CA04B ) R10 R12 R11 32 #ASR ADD,
+  ( $0 ) R10 R12 R11 32 #LSR ADD,
+  ( $0 ) R10 R12 R11 32 #ASR ADD,
 
 Code dp-imm/sh-add-ror0  
-  ( $E08BC06A ) R12 R11 R10 RRX ADD,
+  ( $40265500 ) R12 R11 R10 RRX ADD,
 end-code
 
 Code dp-imm/sh-mov0  
-  ( $E1A0B00A ) R11 R10 MOV,
+  ( $40265528 ) R11 R10 MOV,
 end-code
 
 Code dp-imm/sh-mov1  
-  ( $E1A0B48A ) R11 R10 9 #LSL MOV,
+  ( $40265550 ) R11 R10 9 #LSL MOV,
 end-code
 
 Code dp-imm/sh-mov2  
-  ( $E1B0B48A ) R11 R10 9 #LSL MOVS,
+  ( $40265578 ) R11 R10 9 #LSL MOVS,
 end-code
 
 Code dp-imm/sh-mov3  
-  ( $11B0B48A ) R11 R10 9 #LSL NE MOVS,
+  ( $402655A0 ) R11 R10 9 #LSL NE MOVS,
 end-code
 
 Code dp-imm/sh-cmp0  
-  ( $E15B000A ) R11 R10 CMP,
+  ( $402655C8 ) R11 R10 CMP,
 end-code
 
 Code dp-imm/sh-cmp1  
-  ( $E15B048A ) R11 R10 9 #LSL CMP,
+  ( $402655F0 ) R11 R10 9 #LSL CMP,
 end-code
 
 Code dp-imm/sh-cmp2  
-  ( $E15BF48A ) R11 R10 9 #LSL CMPP,
+  ( $40265618 ) R11 R10 9 #LSL CMPP,
 end-code
 
 Code dp-reg/sh-sub0  
-  ( $E0456314 ) R6 R5 R4 R3 LSL SUB,
+  ( $40265640 ) R6 R5 R4 R3 LSL SUB,
 end-code
 
 Code dp-reg/sh-sub1  
-  ( $E0456334 ) R6 R5 R4 R3 LSR SUB,
+  ( $40265668 ) R6 R5 R4 R3 LSR SUB,
 end-code
 
 Code dp-reg/sh-sub2  
-  ( $E0456354 ) R6 R5 R4 R3 ASR SUB,
+  ( $40265690 ) R6 R5 R4 R3 ASR SUB,
 end-code
 
 Code dp-reg/sh-sub3  
-  ( $E0456374 ) R6 R5 R4 R3 ROR SUB,
+  ( $402656B8 ) R6 R5 R4 R3 ROR SUB,
 end-code
 
 Code dp-reg/sh-mvn0  
-  ( $E1E05314 ) R5 R4 R3 LSL MVN,
+  ( $402656E0 ) R5 R4 R3 LSL MVN,
 end-code
 
 Code dp-reg/sh-mvn1  
-  ( $E1F05314 ) R5 R4 R3 LSL MVNS,
+  ( $40265708 ) R5 R4 R3 LSL MVNS,
 end-code
 
 Code dp-reg/sh-teq0  
-  ( $E1360415 ) R6 R5 R4 LSL TEQ,
+  ( $40265730 ) R6 R5 R4 LSL TEQ,
 end-code
 
 Code dp-reg/sh-teq1  
-  ( $E136F415 ) R6 R5 R4 LSL TEQP,
+  ( $40265758 ) R6 R5 R4 LSL TEQP,
 end-code
 
 Code dp-imm/rot-add0  
-  ( $E2801E3F ) R1 R0 1008 # ADD,
+  ( $40265780 ) R1 R0 1008 # ADD,
 end-code
 
 Code dp-imm/rot-add1  
-  ( $E2901E3F ) R1 R0 1008 # ADDS,
+  ( $402657A8 ) R1 R0 1008 # ADDS,
 end-code
 
 Code dp-imm/rot-mov  
-  ( $E3A0002A ) R0 42 # MOV,
+  ( $402657D0 ) R0 42 # MOV,
 end-code
 
 Code dp-imm/rot-mvn  
-  ( $E3E0002A ) R0 42 # MVN,
+  ( $402657F8 ) R0 42 # MVN,
 end-code
 
 Code dp-imm/rot-movs  
-  ( $E3B0002A ) R0 42 # MOVS,
+  ( $40265820 ) R0 42 # MOVS,
 end-code
 
 Code dp-imm/rot-mvns  
-  ( $E3F0002A ) R0 42 # MVNS,
+  ( $40265848 ) R0 42 # MVNS,
 end-code
 
 Code dp-imm/rot-tst  
-  ( $E311002A ) R1 42 # TST,
+  ( $40265870 ) R1 42 # TST,
 end-code
 
 Code dp-imm/rot-teq  
-  ( $E331002A ) R1 42 # TEQ,
+  ( $40265898 ) R1 42 # TEQ,
 end-code
 
 Code dp-imm/rot-cmp  
-  ( $E351002A ) R1 42 # CMP,
+  ( $402658C0 ) R1 42 # CMP,
 end-code
 
 Code dp-imm/rot-cmn  
-  ( $E371002A ) R1 42 # CMN,
+  ( $402658E8 ) R1 42 # CMN,
 end-code
 
 Code dp-imm/rot-tstp  
-  ( $E311F02A ) R1 42 # TSTP,
+  ( $40265910 ) R1 42 # TSTP,
 end-code
 
 Code dp-imm/rot-teqp  
-  ( $E331F02A ) R1 42 # TEQP,
+  ( $40265938 ) R1 42 # TEQP,
 end-code
 
 Code dp-imm/rot-cmpp  
-  ( $E351F02A ) R1 42 # CMPP,
+  ( $40265960 ) R1 42 # CMPP,
 end-code
 
 Code dp-imm/rot-cmnp  
-  ( $E371F02A ) R1 42 # CMNP,
+  ( $40265988 ) R1 42 # CMNP,
 end-code
 
 Code ls-imm-ldr0  
-  ( $E5987000 ) R7 R8 ] LDR,
+  ( $402659A8 ) R7 R8 ] LDR,
 end-code
 
 Code ls-imm-ldr1  
-  ( $E5987000 ) R7 R8 ] LDR,
+  ( $402659C8 ) R7 R8 ] LDR,
 end-code
 
 Code ls-imm-ldr2  
-  ( $E598702A ) R7 R8 42 #] LDR,
+  ( $402659E8 ) R7 R8 42 #] LDR,
 end-code
 
 Code ls-imm-ldr3  
-  ( $E518702A ) R7 R8 -42 #] LDR,
+  ( $40265A08 ) R7 R8 -42 #] LDR,
 end-code
 
 Code ls-imm-ldr4  
-  ( $E5B8702A ) R7 R8 42 #]! LDR,
+  ( $40265A28 ) R7 R8 42 #]! LDR,
 end-code
 
 Code ls-imm-ldr5  
-  ( $E538702A ) R7 R8 -42 #]! LDR,
+  ( $40265A48 ) R7 R8 -42 #]! LDR,
 end-code
 
 Code ls-imm-ldr6  
-  ( $E498702A ) R7 R8 42 ]# LDR,
+  ( $40265A68 ) R7 R8 42 ]# LDR,
 end-code
 
 Code ls-imm-ldr7  
-  ( $E418702A ) R7 R8 -42 ]# LDR,
+  ( $40265A88 ) R7 R8 -42 ]# LDR,
 end-code
 
 Code ls-imm-ldr8  
-  ( $E4987FFF ) R7 R8 4095 ]# LDR,
+  ( $40265AA8 ) R7 R8 4095 ]# LDR,
 end-code
 
 Code ls-imm0  
-  ( $E5887000 ) R7 R8 ] STR,
+  ( $40265AC8 ) R7 R8 ] STR,
 end-code
 
 Code ls-imm1  
-  ( $E5C87000 ) R7 R8 ] STRB,
+  ( $40265AE8 ) R7 R8 ] STRB,
 end-code
 
 Code ls-imm2  
-  ( $E4B87000 ) R7 R8 0 ]# LDRT,
+  ( $40265B08 ) R7 R8 0 ]# LDRT,
 end-code
 
 Code ls-imm3  
-  ( $E4F87000 ) R7 R8 0 ]# LDRBT,
+  ( $40265B28 ) R7 R8 0 ]# LDRBT,
 end-code
 
 Code ls-reg-str0  
-  ( $E78FD48E ) R13 R15 R14 9 #LSL +] STR,
+  ( $40265B48 ) SP PC LR 9 #LSL +] STR,
 end-code
 
 Code ls-reg-str1  
-  ( $E70FD48E ) R13 R15 R14 9 #LSL -] STR,
+  ( $40265B68 ) SP PC LR 9 #LSL -] STR,
 end-code
 
 Code ls-reg-str2  
-  ( $E7AFD48E ) R13 R15 R14 9 #LSL +]! STR,
+  ( $40265B88 ) SP PC LR 9 #LSL +]! STR,
 end-code
 
 Code ls-reg-str3  
-  ( $E72FD48E ) R13 R15 R14 9 #LSL -]! STR,
+  ( $40265BA8 ) SP PC LR 9 #LSL -]! STR,
 end-code
 
 Code ls-reg-str4  
-  ( $E68FD48E ) R13 R15 R14 9 #LSL ]+ STR,
+  ( $40265BC8 ) SP PC LR 9 #LSL ]+ STR,
 end-code
 
 Code ls-reg-str5  
-  ( $E60FD48E ) R13 R15 R14 9 #LSL ]- STR,
+  ( $40265BE8 ) SP PC LR 9 #LSL ]- STR,
 end-code
 
 Code ls-reg0  
-  ( $E7930082 ) R0 R3 R2 1 #LSL +] LDR,
+  ( $40265C08 ) R0 R3 R2 1 #LSL +] LDR,
 end-code
 
 Code ls-reg1  
-  ( $E7530082 ) R0 R3 R2 1 #LSL -] LDRB,
+  ( $40265C28 ) R0 R3 R2 1 #LSL -] LDRB,
 end-code
 
 Code ls-reg2  
-  ( $E6B30082 ) R0 R3 R2 1 #LSL ]+ LDRT,
+  ( $40265C48 ) R0 R3 R2 1 #LSL ]+ LDRT,
 end-code
 
 Code ls-reg3  
-  ( $E6730082 ) R0 R3 R2 1 #LSL ]- LDRBT,
+  ( $40265C68 ) R0 R3 R2 1 #LSL ]- LDRBT,
 end-code
 
 Code ldm0  
-  ( $E810000E ) R0 { R1 R2 R3 } DA LDM,
+  ( $40265C80 ) R0 { R1 R2 R3 } DA LDM,
 end-code
 
 Code ldm1  
-  ( $E890000E ) R0 { R1 R2 R3 } IA LDM,
+  ( $40265C98 ) R0 { R1 R2 R3 } IA LDM,
 end-code
 
 Code ldm2  
-  ( $E910000E ) R0 { R1 R2 R3 } DB LDM,
+  ( $40265CB0 ) R0 { R1 R2 R3 } DB LDM,
 end-code
 
 Code ldm3  
-  ( $E990000E ) R0 { R1 R2 R3 } IB LDM,
+  ( $40265CC8 ) R0 { R1 R2 R3 } IB LDM,
 end-code
 
 Code ldm4  
-  ( $E830000E ) R0 { R1 R2 R3 } DA! LDM,
+  ( $40265CE0 ) R0 { R1 R2 R3 } DA! LDM,
 end-code
 
 Code ldm5  
-  ( $E8B0000E ) R0 { R1 R2 R3 } IA! LDM,
+  ( $40265CF8 ) R0 { R1 R2 R3 } IA! LDM,
 end-code
 
 Code ldm6  
-  ( $E930000E ) R0 { R1 R2 R3 } DB! LDM,
+  ( $40265D10 ) R0 { R1 R2 R3 } DB! LDM,
 end-code
 
 Code ldm7  
-  ( $E9B0000E ) R0 { R1 R2 R3 } IB! LDM,
+  ( $40265D28 ) R0 { R1 R2 R3 } IB! LDM,
 end-code
 
 Code stm0  
-  ( $E800000E ) R0 { R1 R2 R3 } DA STM,
+  ( $40265D40 ) R0 { R1 R2 R3 } DA STM,
 end-code
 
 Code ^ldm0  
-  ( $E850001C ) R0 { R2 R3 R4 } DA ^LDM,
+  ( $40265D60 ) R0 { R2 R3 R4 } DA ^LDM,
 end-code
 
 Code ^stm0  
-  ( $E840001C ) R0 { R2 R3 R4 } DA ^STM,
+  ( $40265D80 ) R0 { R2 R3 R4 } DA ^STM,
 end-code
 
 Code stm-all  
-  ( $E800FFFF ) R0 { R0 R1 R2 R3 R4 R5 R6 R7 R8 R9 R10 R11 R12 R13 R14 } DA STM,
+  ( $40265DA0 ) R0 { R0 R1 R2 R3 R4 R5 R6 R7 R8 R9 R10 R11 R12 R13 R14 } DA STM,
 end-code
 
 Code swi0  
-  ( $EF000000 ) $0 SWI,
+  ( $40265DB8 ) $0 SWI,
 end-code
 
 Code swi1  
-  ( $EFFFFFFF ) $FFFFFF SWI,
+  ( $40265DD0 ) $FFFFFF SWI,
 end-code
 
 Code mul0  
-  ( $E0030192 ) R3 R2 R1 MUL,
+  ( $40265DE8 ) R3 R2 R1 MUL,
 end-code
 
 Code mul1  
-  ( $E0130192 ) R3 R2 R1 MULS,
+  ( $40265E00 ) R3 R2 R1 MULS,
 end-code
 
 Code mla0  
-  ( $E0214293 ) R4 R3 R2 R1 MLA,
+  ( $40265E18 ) R4 R3 R2 R1 MLA,
 end-code
 
 Code mla1  
-  ( $E0314293 ) R4 R3 R2 R1 MLAS,
+  ( $40265E30 ) R4 R3 R2 R1 MLAS,
 end-code
 
 Code smull0  
-  ( $E0C34192 ) R4 R3 R2 R1 SMULL,
+  ( $40265E50 ) R4 R3 R2 R1 SMULL,
 end-code
 
 Code smull1  
-  ( $E0D34192 ) R4 R3 R2 R1 SMULLS,
+  ( $40265E70 ) R4 R3 R2 R1 SMULLS,
 end-code
 
 Code umull2  
-  ( $E0834192 ) R4 R3 R2 R1 UMULL,
+  ( $40265E90 ) R4 R3 R2 R1 UMULL,
 end-code
 
 Code umull3  
-  ( $E0934192 ) R4 R3 R2 R1 UMULLS,
+  ( $40265EB0 ) R4 R3 R2 R1 UMULLS,
 end-code
 
 Code smlal0  
-  ( $E0E34192 ) R4 R3 R2 R1 SMLAL,
+  ( $40265ED0 ) R4 R3 R2 R1 SMLAL,
 end-code
 
 Code smlal1  
-  ( $E0F34192 ) R4 R3 R2 R1 SMLALS,
+  ( $40265EF0 ) R4 R3 R2 R1 SMLALS,
 end-code
 
 Code umlal2  
-  ( $E0A34192 ) R4 R3 R2 R1 UMLAL,
+  ( $40265F10 ) R4 R3 R2 R1 UMLAL,
 end-code
 
 Code umlal3  
-  ( $E0B34192 ) R4 R3 R2 R1 UMLALS,
+  ( $40265F30 ) R4 R3 R2 R1 UMLALS,
 end-code
 
-  ( $EA000000 ) $CB06 B,   ( $EAFFFFFF ) $CB02 B,   ( $EAFFFFFE ) $CAFE B,   ( $EAFFFFFC ) $CAF6 B, 
+  ( $CAFE ) $CB06 B,   ( $CAFE ) $CB02 B,   ( $CAFE ) $CAFE B,   ( $CAFE ) $CAF6 B, 
 
-  ( $AFFFFFE ) $CAFE EQ B,   ( $1AFFFFFE ) $CAFE NE B,   ( $BAFFFFFE ) $CAFE LT B, 
+  ( $CAFE ) $CAFE EQ B,   ( $CAFE ) $CAFE NE B,   ( $CAFE ) $CAFE LT B, 
 
-  ( $EB000000 ) $CB06 BL,   ( $EBFFFFFE ) $CAFE BL,   ( $EBFFFFFC ) $CAF6 BL, 
+  ( $CAFE ) $CB06 BL,   ( $CAFE ) $CAFE BL,   ( $CAFE ) $CAF6 BL, 
 
-  ( $FA000000 ) $CB06 BLX,   ( $FAFFFFFE ) $CAFE BLX,   ( $FAFFFFFC ) $CAF6 BLX, 
+  ( $CAFE ) $CB06 BLX,   ( $CAFE ) $CAFE BLX,   ( $CAFE ) $CAF6 BLX, 
 
-  ( $FB000000 ) $CB08 BLX,   ( $FBFFFFFE ) $CB00 BLX,   ( $FBFFFFFC ) $CAF8 BLX, 
+  ( $CAFE ) $CB08 BLX,   ( $CAFE ) $CB00 BLX,   ( $CAFE ) $CAF8 BLX, 
 
 Code blx0  
-  ( $FA000002 ) $401D7698 BLX,
+  ( $40265F48 ) $40265F58 BLX,
 end-code
 
 Code blx1  
-  ( $FA000000 ) $401D76A8 BLX,
+  ( $40265F60 ) $40265F68 BLX,
 end-code
 
 Code blx2  
-  ( $FAFFFFFE ) $401D76B8 BLX,
+  ( $40265F78 ) $40265F78 BLX,
 end-code
 
 Code blx3  
-  ( $FB000002 ) $401D76E2 BLX,
+  ( $40265F90 ) $40265FA2 BLX,
 end-code
 
 Code blx4  
-  ( $FB000000 ) $401D76F2 BLX,
+  ( $40265FA8 ) $40265FB2 BLX,
 end-code
 
 Code blx5  
-  ( $FBFFFFFE ) $401D7702 BLX,
+  ( $40265FC0 ) $40265FC2 BLX,
 end-code
-  ( $EC198700 ) P7 C8 R9 $0 ]$ LDC,
-  ( $EE2AC6E3 ) P6 $1 C12 C10 C3 $7 CDP,
-  ( $EEE84512 ) P5 $7 R4 C8 C2 $0 MCR,
+  ( $0 ) P7 C8 R9 $0 ]$ LDC,
+  ( $0 ) P6 $1 C12 C10 C3 $7 CDP,
+  ( $0 ) P5 $7 R4 C8 C2 $0 MCR,
 
-  ( $ED949100 ) F1 R4 0 #] LDFD,
-  ( $ED948102 ) F0 R4 8 #] LDFD,
-  ( $EDB48102 ) F0 R4 8 #]! LDFD,
-  ( $EC948102 ) F0 R4 8 ]# LDFD,
-  ( $ED848102 ) F0 R4 8 #] STFD,
-  ( $EE010182 ) F0 F1 F2 ADFD,
-  ( $EE01018D ) F0 F1 5.0 # ADFD,
-  ( $EE01018E ) F0 F1 0.5 # ADFD,
-  ( $EE01018F ) F0 F1 10. # ADFD,
-  ( $4E008181 ) F0 F1 MI MVFD,
-  ( $EE90F110 ) F0 F0 CMF,
-  ( $EEB0F118 ) F0 0.0 # CNF,
-  ( $EED4F118 ) F4 0.0 # CMFE,
-  ( $ECBDC203 ) P2 C12 R13 3 ]# LDC,
-  ( $ED948F02 ) P15 C8 R4 2 #] LDC,
-  ( $EE000F81 ) P15 $0 C0 C0 C1 $4 CDP,
+  ( $0 ) F1 R4 0 #] LDFD,
+  ( $0 ) F0 R4 8 #] LDFD,
+  ( $0 ) F0 R4 8 #]! LDFD,
+  ( $0 ) F0 R4 8 ]# LDFD,
+  ( $0 ) F0 R4 8 #] STFD,
+  ( $0 ) F0 F1 F2 ADFD,
+  ( $0 ) F0 F1 5.0 # ADFD,
+  ( $0 ) F0 F1 0.5 # ADFD,
+  ( $0 ) F0 F1 10. # ADFD,
+  ( $0 ) F0 F1 MI MVFD,
+  ( $0 ) F0 F0 CMF,
+  ( $0 ) F0 0.0 # CNF,
+  ( $0 ) F4 0.0 # CMFE,
+  ( $0 ) P2 C12 SP 3 ]# LDC,
+  ( $0 ) P15 C8 R4 2 #] LDC,
+  ( $0 ) P15 $0 C0 C0 C1 $4 CDP,
 
 Code misc0  
-  ( $E1D100B0 ) $E1D100B0 t,
+  ( $40265FE0 ) $E1D100B0 t,
 end-code
 
 Code misc1  
-  ( $E1D100F0 ) $E1D100F0 t,
+  ( $40266000 ) $E1D100F0 t,
 end-code
 
 Code misc2  
-  ( $E1C100D0 ) $E1C100D0 t,
+  ( $40266020 ) $E1C100D0 t,
 end-code
 
 Code misc3  
-  ( $E1C200B1 ) $E1C200B1 t,
+  ( $40266040 ) $E1C200B1 t,
 end-code
 
 Code misc4  
-  ( $E18200B1 ) $E18200B1 t,
+  ( $40266060 ) $E18200B1 t,
 end-code
 
 Code misc5  
-  ( $E1020091 ) $E1020091 t,
+  ( $40266080 ) $E1020091 t,
 end-code
 
 Code misc6  
-  ( $E1420091 ) $E1420091 t,
+  ( $402660A0 ) $E1420091 t,
 end-code
 
 Code misc7  
-  ( $E10F0000 ) $E10F0000 t,
+  ( $402660C0 ) $E10F0000 t,
 end-code
 
 Code misc8  
-  ( $E14F0000 ) $E14F0000 t,
+  ( $402660E0 ) $E14F0000 t,
 end-code
 
 Code misc9  
-  ( $E12FF000 ) $E12FF000 t,
+  ( $40266100 ) $E12FF000 t,
 end-code
 
 Code misc10  
-  ( $E36FF0FF ) $E36FF0FF t,
+  ( $40266120 ) $E36FF0FF t,
 end-code
 
 <0> 
