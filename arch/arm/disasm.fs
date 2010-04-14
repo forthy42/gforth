@@ -87,7 +87,7 @@ $00E00000 fld: %cpopc1# $000000E0 fld: %cpopc2#
 
 $01000000 fld: %b24#    $00800000 fld: %b23#    $00400000 fld: %b22#
 $00200000 fld: %b21#    $00100000 fld: %b20#    $00008000 fld: %b15#
-$00000008 fld: %b4#
+$00000010 fld: %b5#     $00000008 fld: %b4#
 
 $F0000 fld: %R16#   $0F000 fld: %R12#   $00F00 fld: %R08#   $0000F fld: %R00#
 
@@ -274,7 +274,7 @@ $C dat-op: ORR  $D mov-op: MOV  $E dat-op: BIC  $F mov-op: MVN
         swap hex. dis-CC %b24# if ." BL," else ." B," endif
     endif ;
 
-: dis-bx ( a w -- a w ) dis-Rm dis-CC ." BX," ;
+: dis-bx ( a w -- a w ) dis-Rm dis-CC %b5# if ." BLX," else ." BX," endif ;
 
 : dis-mul ( w -- w )
     %b21# if
@@ -357,7 +357,7 @@ set-current
         dup {{  27  26  25  24    }}  {{ 31 30 29 28 }} b~ G[ dis-swi ]G
         \ miscellaneous instructions
         dup {{ -27 -26 -25  24 -23 -22 21 -20
-                -7  -6  -5   4 }}                       b= G[ dis-bx ]G
+                -7  -6       4 }}                       b= G[ dis-bx ]G
         \ multiply extensions
         dup {{ -27 -26 -25 -24 -23 -22 7 -6 -5 4 }}     b= G[ dis-mul ]G
         dup {{ -27 -26 -25 -24  23     7 -6 -5 4 }}     b= G[ dis-mull ]G

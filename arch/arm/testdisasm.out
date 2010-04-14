@@ -390,27 +390,35 @@ end-code
 
    BLX,    BLX,    BLX, 
 
+Code bx0  
+   R12 BLX,
+end-code
+
 Code blx0  
+   R12 BLX,
+end-code
+
+Code #blx0  
    BLX,
 end-code
 
-Code blx1  
+Code #blx1  
    BLX,
 end-code
 
-Code blx2  
+Code #blx2  
    BLX,
 end-code
 
-Code blx3  
+Code #blx3  
    BLX,
 end-code
 
-Code blx4  
+Code #blx4  
    BLX,
 end-code
 
-Code blx5  
+Code #blx5  
    BLX,
 end-code
    P7 C8 R9 $0 ]$ LDC,

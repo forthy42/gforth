@@ -225,13 +225,17 @@ $CAFE $FBFFFFFE disasm-inst space \  0 blx (h=1)
 $CAFE $FBFFFFFC disasm-inst space \ -A blx (h=1)
 cr
 
-code: blx0  here $10 +  #blx, ;;   \ +8 blx (h=0)
-code: blx1  here $8  +  #blx, ;;   \  0 blx (h=0)
-code: blx2  here 0   +  #blx, ;;   \ -8 blx (h=0)
+code: bx0 r12 bx, ;;
 
-code: blx3  here $12 +  #blx, ;;   \ +A blx (h=1)
-code: blx4  here $A  +  #blx, ;;   \  0 blx (h=1)
-code: blx5  here 2   +  #blx, ;;   \ -A blx (h=1)
+code: blx0 r12 blx, ;;
+
+code: #blx0  here $10 +  #blx, ;;   \ +8 blx (h=0)
+code: #blx1  here $8  +  #blx, ;;   \  0 blx (h=0)
+code: #blx2  here 0   +  #blx, ;;   \ -8 blx (h=0)
+
+code: #blx3  here $12 +  #blx, ;;   \ +A blx (h=1)
+code: #blx4  here $A  +  #blx, ;;   \  0 blx (h=1)
+code: #blx5  here 2   +  #blx, ;;   \ -A blx (h=1)
 
 \ generic co-processor instructions
 

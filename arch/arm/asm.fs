@@ -319,7 +319,7 @@ enumerate: forward backward
 0120F000 msr-op:  MSR,		   
 
 0A000000 branch-op:  B,		   0B000000 branch-op:  BL,
-0A120010 branchR-op: BX,
+012FFF10 branchR-op: BX,
 012FFF30 branchR-op: BLX,	   FA000000 branchX-op: #BLX,
 0F000000 comment-op: SWI,	   0F000000 comment-op: SVC,
 
