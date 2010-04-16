@@ -12631,13 +12631,12 @@ jumping to @code{' noop >code-address}, which contains nothing but a
 @code{NEXT}.
 
 @cindex code words, using platform's ABI
-If you do not want to bother with the complexities of the
-interpreter's registers, you may use @code{ABI-CODE} for defining
-native code instead.  @code{ABI-CODE} definitions are called with the
-C-Language's application binary interface (ABI) conventions of the
-platform, passing the Forth virtual machine's SP and FP as arguments,
-While this approach involves some (minor) overhead, it allows you to
-write code that is portable across different versions of GForth.
+If you want more portability (at the cost of a little performance), you
+can use @code{ABI-CODE} for defining native code instead.
+@code{ABI-CODE} definitions are called with the application binary
+interface (ABI) conventions of the platform, so your code will be
+portable to any Gforth (>0.7.0) on platforms with that ABI.  See
+@ref{abi-call} for more information.
 
 For general accesses to the inner interpreter's registers, the easiest
 solution is to use explicit register declarations (@pxref{Explicit Reg
