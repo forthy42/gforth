@@ -21,6 +21,9 @@
 
 \ termios structure
 
+require strings.fs
+require syscalls386.fs
+
 create termios 4 4 + 4 + 4 + 2 + 64 + 4 + 4 + allot
 
 0 constant C_IFLAG
