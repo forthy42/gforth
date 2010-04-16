@@ -508,9 +508,10 @@ int gforth_system(Char *c_addr, UCell u)
   char *prefix = getenv("GFORTHSYSTEMPREFIX") ? : DEFAULTSYSTEMPREFIX;
   size_t prefixlen = strlen(prefix);
   char buffer[prefixlen+u+1];
+  int MAYBE_UNUSED old_tp;
   fflush(stdout);
 #ifndef MSDOS
-  int old_tp=terminal_prepped;
+  old_tp=terminal_prepped;
   deprep_terminal();
 #endif
   memcpy(buffer,prefix,prefixlen);
