@@ -22,12 +22,20 @@
 \ defined for all machines.
 
 vocabulary assembler ( -- ) \ tools-ext
+\g A vocubulary: Replaces the wordlist at the top of the search order
+\g with the assembler wordlist.
 
 : init-asm ( -- ) \ gforth
+\g Pushes the assembler wordlist on the search order.
     also assembler ;
-
+    
 : code ( "name" -- colon-sys )	\ tools-ext
-    \G start a native code definition
+    \G Start a native code definition that runs in the context of the
+    \G Gforth virtual machine (engine).  Such a definition is not
+    \G portable between Gforth installations, so we recommend using
+    \G @code{abi-code} instead of @code{code}.  You have to end a
+    \G @code{code} definition with a dispatch to the next virtual
+    \G machine instruction.
     header
     here >body cfa,
     defstart init-asm ;
@@ -37,8 +45,11 @@ vocabulary assembler ( -- ) \ tools-ext
    \G Start a native code definition that is called using the platform's
    \G ABI conventions corresponding to the C-prototype:
    \G @example
-   \G struct@{Cell*sp;double*fp;@} function (Cell *sp, double *fp);
+   \G Cell *function(Cell *sp, Float **fpp);
    \G @end example
+   \G The FP stack pointer is passed in by providing a reference to a
+   \G memory location containing the FP stack pointer and is passed
+   \G out by storing the changed FP stack pointer there (if necessary).
     header  
     doabicode: cfa,
     defstart init-asm ;
@@ -56,9 +67,17 @@ vocabulary assembler ( -- ) \ tools-ext
     ;-hook postpone (;code) basic-block-end finish-code ?struc postpone [
     defstart init-asm ;
 interpret/compile: ;code ( compilation. colon-sys1 -- colon-sys2 )	\ tools-ext	semicolon-code
+\g The code after @code{;code} becomes the behaviour of the last
+\g defined word (which must be a @code{create}d word).  The same
+\g caveats apply as for @code{code}, but Gforth does not have a
+\g @code{;abi-code} yet.  As a workaround, you can use @code{does> foo
+\g ;} instead, where @code{foo} is defined with @code{abi-code}.
 
 : end-code ( colon-sys -- )	\ gforth	end_code
-    \G end a code definition 
+    \G End a code definition.  Note that you have to assemble the
+    \G return from the ABI call (for @code{abi-code}) or the dispatch
+    \G to the next VM instruction (for @code{code} and @code{;code})
+    \G yourself.
     latestxt here over - flush-icache
     previous ?struc reveal ;
 

@@ -418,7 +418,7 @@ C Interface
 
 Assembler and Code Words
 
-* Code and ;code::              
+* Assembler definitions::       Definitions in assembly language
 * Common Assembler::            Assembler Syntax
 * Common Disassembler::         
 * 386 Assembler::               Deviations and special cases
@@ -12553,7 +12553,7 @@ doc-call-c
 @cindex code words
 
 @menu
-* Code and ;code::              
+* Assembler definitions::       Definitions in assembly language
 * Common Assembler::            Assembler Syntax
 * Common Disassembler::         
 * 386 Assembler::               Deviations and special cases
@@ -12564,44 +12564,51 @@ doc-call-c
 * Other assemblers::            How to write them
 @end menu
 
-@node Code and ;code, Common Assembler, Assembler and Code Words, Assembler and Code Words
-@subsection @code{Code} and @code{;code}
+@node Assembler definitions, Common Assembler, Assembler and Code Words, Assembler and Code Words
+@subsection Definitions in assembly language
 
-Gforth provides some words for defining primitives (words written in
-machine code), and for defining the machine-code equivalent of
-@code{DOES>}-based defining words. However, the machine-independent
-nature of Gforth poses a few problems: First of all, Gforth runs on
-several architectures, so it can provide no standard assembler. What's
-worse is that the register allocation not only depends on the
-processor, but also on the @code{gcc} version and options used (still
-this problem can be worked around by using @code{ABI-CODE}).
+Gforth provides ways to implement words in assembly language (using
+@code{abi-code}...@code{end-code}), and also ways to define defining
+words with arbitrary run-time behaviour (like @code{does>}), where
+(unlike @code{does>}) the behaviour is not defined in Forth, but in
+assembly language (with @code{;code}).
 
-The words that Gforth offers encapsulate some system dependences (e.g.,
-the header structure), so a system-independent assembler may be used in
-Gforth. If you do not have an assembler, you can compile machine code
-directly with @code{,} and @code{c,}@footnote{This isn't portable,
-because these words emit stuff in @i{data} space; it works because
-Gforth has unified code/data spaces. Assembler isn't likely to be
-portable anyway.}.
+However, the machine-independent nature of Gforth poses a few
+problems: First of all, Gforth runs on several architectures, so it
+can provide no standard assembler. It does provide assemblers for
+several of the architectures it runs on, though.  Moreover, you can
+use a system-independent assembler in Gforth, or compile machine code
+directly with @code{,} and @code{c,}.
 
+Another problem is that the virtual machine registers of Gforth (the
+stack pointers and the virtual machine instruction pointer) depend on
+the installation and engine.  Also, which registers are free to use
+also depend on the installation and engine.  So any code written to
+run in the context of the Gforth virtual machine is essentially
+limited to the installation and engine it was developed for (it may
+run elsewhere, but you cannot rely on that).
+
+Fortunately, you can define @code{abi-code} words in Gforth that are
+portable to any Gforth running on the same ABI (typically the same
+architecture/OS combination, sometimes crossing OS boundaries).
 
 doc-assembler
 doc-init-asm
-doc-code
 doc-abi-code
 doc-end-code
+doc-code
 doc-;code
 doc-flush-icache
 
 
-If @code{flush-icache} does not work correctly, @code{code} words
+If @code{flush-icache} does not work correctly, @code{abi-code} words
 etc. will not work (reliably), either.
 
-The typical usage of these @code{code} words can be shown most easily by
-analogy to the equivalent high-level defining words:
+The typical usage of these words can be shown most easily by analogy
+to the equivalent high-level defining words:
 
 @example
-: foo                              code foo
+: foo                              abi-code foo
    <high-level Forth words>              <assembler>
 ;                                  end-code
                                 
@@ -12614,66 +12621,43 @@ analogy to the equivalent high-level defining words:
 ;                                  end-code
 @end example
 
-@c anton: the following stuff is also in "Common Assembler", in less detail.
+For using @code{abi-code}, take a look at the ABI documentation of
+your platform to see how the parameters are passed (so you know where
+you get the stack pointers) and how the return value is passed (so you
+know where the data stack pointer is returned).  The ABI documentation
+also tells you which registers are saved by the caller (caller-saved),
+so you are free to destroy them in your code, and which registers have
+to be preserved by the called word (callee-saved), so you have to save
+them before using them, and restore them afterwards.  More
+reverse-engineering oriented people can also find out about the
+passing and returning of the stack pointers through @code{see
+abi-call}.
 
-@cindex registers of the inner interpreter
-In the assembly code you will want to refer to the inner interpreter's
-registers (e.g., the data stack pointer) and you may want to use other
-registers for temporary storage. Unfortunately, the register allocation
-is installation-dependent.
+Most ABIs pass the parameters through registers, but some (in
+particular the 386 (aka IA-32) architecture) pass them on the
+architectural stack.  The usual ABIs all pass the return value in a
+register.
 
-In particular, @code{ip} (Forth instruction pointer) and @code{rp}
-(return stack pointer) may be in different places in @code{gforth} and
-@code{gforth-fast}, or different installations.  This means that you
-cannot write a @code{NEXT} routine that works reliably on both versions
-or different installations; so for doing @code{NEXT}, I recommend
-jumping to @code{' noop >code-address}, which contains nothing but a
-@code{NEXT}.
+One other thing you need to know for using @code{abi-code} is that
+both the data and the FP stack grow downwards (towards lower
+addresses) in Gforth.
 
-@cindex code words, using platform's ABI
-If you want more portability (at the cost of a little performance), you
-can use @code{ABI-CODE} for defining native code instead.
-@code{ABI-CODE} definitions are called with the application binary
-interface (ABI) conventions of the platform, so your code will be
-portable to any Gforth (>0.7.0) on platforms with that ABI.  See
-@ref{abi-call} for more information.
+Here's an example of using @code{abi-code} on the 386 architecture:
 
-For general accesses to the inner interpreter's registers, the easiest
-solution is to use explicit register declarations (@pxref{Explicit Reg
-Vars, , Variables in Specified Registers, gcc.info, GNU C Manual}) for
-all of the inner interpreter's registers: You have to compile Gforth
-with @code{-DFORCE_REG} (configure option @code{--enable-force-reg}) and
-the appropriate declarations must be present in the @code{machine.h}
-file (see @code{mips.h} for an example; you can find a full list of all
-declarable register symbols with @code{grep register engine.c}). If you
-give explicit registers to all variables that are declared at the
-beginning of @code{engine()}, you should be able to use the other
-caller-saved registers for temporary storage. Alternatively, you can use
-the @code{gcc} option @code{-ffixed-REG} (@pxref{Code Gen Options, ,
-Options for Code Generation Conventions, gcc.info, GNU C Manual}) to
-reserve a register (however, this restriction on register allocation may
-slow Gforth significantly).
+@example
+abi-code my+ ( n1 n2 -- n )
+\ eax, edx, ecx are caller-saved
+4 sp d) ax mov \ sp into return reg
+ax )    cx mov \ tos
+cx 4 ax d) add \ sec = sec+tos
+4 #     ax add \ update sp (pop)
+ret            \ return from my+
+end-code
+@end example
 
-If this solution is not viable (e.g., because @code{gcc} does not allow
-you to explicitly declare all the registers you need), you have to find
-out by looking at the code where the inner interpreter's registers
-reside and which registers can be used for temporary storage. You can
-get an assembly listing of the engine's code with @code{make engine.s}.
+@c !! example also involving fp.  Also other architecture?
 
-In any case, it is good practice to abstract your assembly code from the
-actual register allocation. E.g., if the data stack pointer resides in
-register @code{$17}, create an alias for this register called @code{sp},
-and use that in your assembly code.
-
-@cindex code words, portable
-Another option for implementing normal and defining words efficiently
-is to add the desired functionality to the source of Gforth. For normal
-words you just have to edit @file{primitives} (@pxref{Automatic
-Generation}). Defining words (equivalent to @code{;CODE} words, for fast
-defined words) may require changes in @file{engine.c}, @file{kernel.fs},
-@file{prims2x.fs}, and possibly @file{cross.fs}.
-
-@node Common Assembler, Common Disassembler, Code and ;code, Assembler and Code Words
+@node Common Assembler, Common Disassembler, Assembler definitions, Assembler and Code Words
 @subsection Common Assembler
 
 The assemblers in Gforth generally use a postfix syntax, i.e., the
@@ -12699,28 +12683,33 @@ control structures}), with @code{if,}, @code{ahead,}, @code{then,},
 @code{cs-pick}, @code{else,}, @code{while,}, and @code{repeat,}.  The
 conditions are specified in a way specific to each assembler.
 
+The rest of this section is of interest mainly for those who want to
+define @code{code} words (instead of the more portable @code{abi-code}
+words).
+
 Note that the register assignments of the Gforth engine can change
 between Gforth versions, or even between different compilations of the
 same Gforth version (e.g., if you use a different GCC version).  If
 you are using @code{CODE} instead of @code{ABI-CODE}, and you want to
 refer to Gforth's registers (e.g., the stack pointer or TOS), I
 recommend defining your own words for refering to these registers, and
-using them later on; then you can easily adapt to a changed register
+using them later on; then you can adapt to a changed register
 assignment.  The stability of the register assignment is usually
-better if you build Gforth with @code{--enable-force-reg}.
+better if you always build Gforth with @code{--enable-force-reg}.
 
-The most common use of these registers is to dispatch to the next word
-(the @code{next} routine).  A portable way to do this is to jump to
-@code{' noop >code-address} (of course, this is less efficient than
-integrating the @code{next} code and scheduling it well).  When using
-@code{ABI-CODE}, you can just assemble a normal subroutine return (but
-make sure you return SP and FP back to the caller).
+The most common use of these registers is to end a @code{code}
+definition with a dispatch to the next word (the @code{next} routine).
+A portable way to do this is to jump to @code{' noop >code-address}
+(of course, this is less efficient than integrating the @code{next}
+code and scheduling it well).  When using @code{ABI-CODE}, you can
+just assemble a normal subroutine return (but make sure you return the
+data stack pointer).
 
-Another difference between Gforth version is that the top of stack is
+Another difference between Gforth versions is that the top of stack is
 kept in memory in @code{gforth} and, on most platforms, in a register
 in @code{gforth-fast}.  For @code{ABI-CODE} definitions, any stack
 caching registers are guaranteed to be flushed to the stack, allowing
-you to reliably access the top of stack as @code{sp[0]}.
+you to reliably access the top of stack in memory.
 
 @node  Common Disassembler, 386 Assembler, Common Assembler, Assembler and Code Words
 @subsection Common Disassembler
@@ -13072,6 +13061,7 @@ then,
 
 Example of a definition using the ARM assembler:
 
+@c !! rewrite for new abi-call convention
 @example
 abi-code my+ ( n1 n2 --  n3 )
    \ arm abi: r0=return_stuct, r1=sp, r2=fp, r3,r12 saved by caller
