@@ -384,6 +384,9 @@ Label *gforth_engine(Xt *ip, Cell *sp, Cell *rp0, Float *fp, Address lp sr_proto
 Label *gforth_engine2(Xt *ip, Cell *sp, Cell *rp0, Float *fp, Address lp sr_proto);
 Label *gforth_engine3(Xt *ip, Cell *sp, Cell *rp0, Float *fp, Address lp sr_proto);
 
+/* for ABI-CODE */
+typedef Cell *abifunc(Cell *sp, Float **fpp);
+
 /* engine/prim support routines */
 Address gforth_alloc(Cell size);
 char *cstr(Char *from, UCell size, int clear);
