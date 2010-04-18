@@ -418,10 +418,11 @@ C Interface
 
 Assembler and Code Words
 
-* Assembler definitions::       Definitions in assembly language
+* Assembler Definitions::       Definitions in assembly language
 * Common Assembler::            Assembler Syntax
 * Common Disassembler::         
 * 386 Assembler::               Deviations and special cases
+* AMD64 Assembler::             
 * Alpha Assembler::             Deviations and special cases
 * MIPS assembler::              Deviations and special cases
 * PowerPC assembler::           Deviations and special cases
@@ -12553,11 +12554,11 @@ doc-call-c
 @cindex code words
 
 @menu
-* Assembler definitions::       Definitions in assembly language
+* Assembler Definitions::       Definitions in assembly language
 * Common Assembler::            Assembler Syntax
 * Common Disassembler::         
 * 386 Assembler::               Deviations and special cases
-* AMD64 (x86_64) Assembler::    Deviations and special cases
+* AMD64 Assembler::             
 * Alpha Assembler::             Deviations and special cases
 * MIPS assembler::              Deviations and special cases
 * PowerPC assembler::           Deviations and special cases
@@ -12565,7 +12566,7 @@ doc-call-c
 * Other assemblers::            How to write them
 @end menu
 
-@node Assembler definitions, Common Assembler, Assembler and Code Words, Assembler and Code Words
+@node Assembler Definitions, Common Assembler, Assembler and Code Words, Assembler and Code Words
 @subsection Definitions in assembly language
 
 Gforth provides ways to implement words in assembly language (using
@@ -12590,7 +12591,8 @@ limited to the installation and engine it was developed for (it may
 run elsewhere, but you cannot rely on that).
 
 Fortunately, you can define @code{abi-code} words in Gforth that are
-portable to any Gforth running on the same ABI (typically the same
+portable to any Gforth running on a platform with the same calling
+convention (ABI); typically this means portability to the same
 architecture/OS combination, sometimes crossing OS boundaries).
 
 doc-assembler
@@ -12629,36 +12631,55 @@ know where the data stack pointer is returned).  The ABI documentation
 also tells you which registers are saved by the caller (caller-saved),
 so you are free to destroy them in your code, and which registers have
 to be preserved by the called word (callee-saved), so you have to save
-them before using them, and restore them afterwards.  More
+them before using them, and restore them afterwards.  For some
+architectures and OSs we give short summaries of the parts of the
+calling convention in the appropriate sections.  More
 reverse-engineering oriented people can also find out about the
 passing and returning of the stack pointers through @code{see
 abi-call}.
 
 Most ABIs pass the parameters through registers, but some (in
-particular the 386 (aka IA-32) architecture) pass them on the
-architectural stack.  The usual ABIs all pass the return value in a
-register.
+particular the most common 386 (aka IA-32) calling conventions) pass
+them on the architectural stack.  The common ABIs all pass the return
+value in a register.
 
-One other thing you need to know for using @code{abi-code} is that
-both the data and the FP stack grow downwards (towards lower
-addresses) in Gforth.
+Other things you need to know for using @code{abi-code} is that both
+the data and the FP stack grow downwards (towards lower addresses) in
+Gforth, with @code{1 cells} size per cell, and @code{1 floats} size
+per FP value.
 
 Here's an example of using @code{abi-code} on the 386 architecture:
 
 @example
 abi-code my+ ( n1 n2 -- n )
-\ eax, edx, ecx are caller-saved
 4 sp d) ax mov \ sp into return reg
 ax )    cx mov \ tos
-cx 4 ax d) add \ sec = sec+tos
 4 #     ax add \ update sp (pop)
+cx    ax ) add \ sec = sec+tos
 ret            \ return from my+
 end-code
 @end example
 
-@c !! example also involving fp.  Also other architecture?
+An AMD64 variant of this example can be found in @ref{AMD64 Assembler}.
 
-@node Common Assembler, Common Disassembler, Assembler definitions, Assembler and Code Words
+Here's a 386 example that deals with FP values:
+
+@example
+abi-code my-f+ ( r1 r2 -- r )
+8 sp d) cx mov  \ load address of fp
+cx )    dx mov  \ load fp
+.fl dx )   fld  \ r2
+8 #     dx add  \ update fp
+.fl dx )   fadd \ r1+r2
+.fl dx )   fstp \ store r
+dx    cx ) mov  \ store new fp
+4 sp d) ax mov  \ sp into return reg
+ret             \ return from my-f+
+end-code
+@end example
+
+
+@node Common Assembler, Common Disassembler, Assembler Definitions, Assembler and Code Words
 @subsection Common Assembler
 
 The assemblers in Gforth generally use a postfix syntax, i.e., the
@@ -12695,8 +12716,7 @@ you are using @code{CODE} instead of @code{ABI-CODE}, and you want to
 refer to Gforth's registers (e.g., the stack pointer or TOS), I
 recommend defining your own words for refering to these registers, and
 using them later on; then you can adapt to a changed register
-assignment.  The stability of the register assignment is usually
-better if you always build Gforth with @code{--enable-force-reg}.
+assignment.
 
 The most common use of these registers is to end a @code{code}
 definition with a dispatch to the next word (the @code{next} routine).
@@ -12751,7 +12771,7 @@ the code word is not immediately followed by a named word.  If you have
 something else there, you can follow the word with @code{align latest ,}
 to ensure that the end is recognized.
 
-@node 386 Assembler, AMD64 (x86_64) Assembler, Common Disassembler, Assembler and Code Words
+@node 386 Assembler, AMD64 Assembler, Common Disassembler, Assembler and Code Words
 @subsection 386 Assembler
 
 The 386 assembler included in Gforth was written by Bernd Paysan, it's
@@ -12762,7 +12782,8 @@ and is in the public domain.
 
 The disassembler displays code in an Intel-like prefix syntax.
 
-The assembler uses a postfix syntax with reversed parameters.
+The assembler uses a postfix syntax with AT&T-style parameter order
+(i.e., destination last).
 
 The assembler includes all instruction of the Athlon, i.e. 486 core
 instructions, Pentium and PPro extensions, floating point, MMX, 3Dnow!,
@@ -12777,7 +12798,9 @@ need a prefix for byte register names (@code{AL} et al).
 
 For floating point operations, the prefixes are @code{.fs} (IEEE
 single), @code{.fl} (IEEE double), @code{.fx} (extended), @code{.fw}
-(word), @code{.fd} (double-word), and @code{.fq} (quad-word).
+(word), @code{.fd} (double-word), and @code{.fq} (quad-word).  The
+default is @code{.fx}, so you need to specify @code{.fl} explicitly
+when dealing with Gforth FP values.
 
 The MMX opcodes don't have size prefixes, they are spelled out like in
 the Intel assembler. Instead of move from and to memory, there are
@@ -12845,25 +12868,26 @@ e.g., in @code{code} words).  Currently the control structure words use
 one stack item, so you have to use @code{roll} instead of @code{cs-roll}
 to shuffle them (you can also use @code{swap} etc.).
 
-Here is an example of a @code{code} word (assumes that the stack pointer
-is in esi and the TOS is in ebx):
+Based on the Intel ABI (used in Linux), @code{abi-code} words can find
+the data stack pointer at @code{4 sp d)}, and the address of the FP
+stack pointer at @code{8 sp d)}; the data stack pointer is returned in
+@code{ax}; @code{Ax}, @code{cx}, and @code{dx} are caller-saved, so
+you do not need to preserve their values inside the word.  You can
+return from the word with @code{ret}, the parameters are cleaned up by
+the caller.
 
-@example
-code my+ ( n1 n2 -- n )
-    4 si D) bx add
-    4 # si add
-    Next
-end-code
-@end example
+For examples of 386 @code{abi-code} words, see @ref{Assembler Definitions}.
 
-@node AMD64 (x86_64) Assembler, Alpha Assembler, 386 Assembler, Assembler and Code Words
+
+@node AMD64 Assembler, Alpha Assembler, 386 Assembler, Assembler and Code Words
 @subsection AMD64 (x86_64) Assembler
 
 The AMD64 assembler is a slightly modified version of the 386
 assembler, and as such shares most of the syntax.  Two new prefixes,
 @code{.q} and @code{.qa}, are provided to select 64-bit operand and
-address sizes respectively.  Also there are additional register
-operands @code{R8}-@code{R15}.  
+address sizes respectively.  64-bit sizes are the default, so normally
+you only have to use the other prefixes.  Also there are additional
+register operands @code{R8}-@code{R15}.
 
 The registers lack the 'e' or 'r' prefix; even in 64 bit mode,
 @code{rax} is called @code{ax}.  Additional register operands are
@@ -12871,21 +12895,31 @@ available to refer to the lowest-significant byte of all registers:
 @code{R8L}-@code{R15L}, @code{SPL}, @code{BPL}, @code{SIL},
 @code{DIL}.
 
+The Linux-AMD64 calling convention is to pass the first 6 integer
+parameters in rdi, rsi, rdx, rcx, r8 and r9 and to return the result
+in rax and rdx; to pass the first 8 FP parameters in xmm0--xmm7 and to
+return FP results in xmm0--xmm1.  So @code{abi-code} words get the
+data stack pointer in @code{di} and the address of the FP stack
+pointer in @code{si}, and return the data stack pointer in @code{ax}.
+The other caller-saved registers are: r10, r11, xmm8-xmm15.  This
+calling convention reportedly is also used on other non-Microsoft OSs.
+Microsoft OSs use a different calling convention, but then we
+currently have no easy way of porting Gforth to Windows x64, so that
+issue is moot.
+
 Here is an example of an AMD64 @code{abi-code} word:
 
 @example
 abi-code my+  ( n1 n2 -- n3 )
-   \ ABI: SP passed in di, returned in ax, &FP passed in si
-   di ax mov		\ copy SP into ax for return
-   ax ) dx  mov		\ load sp[0]
-   8 ax d) dx add	\ add sp[1]
-   8 # ax  add		\ store result to *++sp
-   dx  ax ) mov
-   ret			\ return to caller, ax = new SP
+\ SP passed in di, returned in ax,  address of FP passed in si
+8 di d) ax lea        \ compute new sp in result reg
+di )    dx mov        \ get old tos
+dx    ax ) add        \ add to new tos
+ret
 end-code
 @end example
 
-@node Alpha Assembler, MIPS assembler, AMD64 (x86_64) Assembler, Assembler and Code Words
+@node Alpha Assembler, MIPS assembler, AMD64 Assembler, Assembler and Code Words
 @subsection Alpha Assembler
 
 The Alpha assembler and disassembler were originally written by Bernd

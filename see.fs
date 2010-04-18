@@ -657,7 +657,7 @@ Defer xt-see-xt ( xt -- )
     space ;
 
 Defer discode ( addr u -- ) \ gforth
-\G hook for the disassembler: disassemble code at addr of length u
+\G hook for the disassembler: disassemble u bytes of code at addr
 ' dump IS discode
 
 : next-head ( addr1 -- addr2 ) \ gforth
