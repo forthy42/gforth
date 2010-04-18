@@ -706,6 +706,11 @@ Defer discode ( addr u -- ) \ gforth
     then
     over - discode
     ." end-code" cr ;
+: seeabicode ( xt -- )
+    dup s" ABI-Code" .defname
+    >body dup dup next-head 
+    swap - discode
+    ." end-code" cr ;
 : seevar ( xt -- )
     s" Variable" .defname cr ;
 : seeuser ( xt -- )
@@ -770,6 +775,9 @@ Defer discode ( addr u -- ) \ gforth
 [THEN]
 [IFDEF] dofield:
 	dofield: of seefield endof
+[THEN]
+[IFDEF] doabicode:
+        doabicode: of seeabicode endof
 [THEN]
 	over       of seecode endof \ direct threaded code words
 	over >body of seecode endof \ indirect threaded code words
