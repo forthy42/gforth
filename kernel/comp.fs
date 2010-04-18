@@ -304,13 +304,12 @@ has? primcentric [IF]
 : !does    ( addr -- ) \ gforth	store-does
     latestxt does-code! ;
 
-\ !! unused, but ifdefed/gosted in some places
-: (does>)  ( R: addr -- )
-    r> cfaligned /does-handler + !does ; \ !! no gforth-native
+\ : (does>)  ( R: addr -- )
+\     r> cfaligned /does-handler + !does ; \ !! no gforth-native
 
-\ !! unused, but ifdefed/gosted in some places
-: (does>2)  ( addr -- )
-    cfaligned /does-handler + !does ;
+\ \ !! unused, but ifdefed/gosted in some places
+\ : (does>2)  ( addr -- )
+\     cfaligned /does-handler + !does ;
 
 : (compile) ( -- ) \ gforth-obsolete: dummy
     true abort" (compile) doesn't work, use POSTPONE instead" ;

@@ -529,7 +529,7 @@ VARIABLE C-Pass
         ELSE    2drop
         THEN ;
 
-[IFDEF] (does>)
+[IFDEF] !does
 : c-does>               \ end of create part
         Display? IF S" DOES> " Com# .string THEN ;
 \	maxaligned /does-handler + ; \ !! no longer needed for non-cross stuff
@@ -576,7 +576,7 @@ CREATE C-Table
 [IFDEF] (abort") ' (abort") A,      ' c-abort" A, [THEN]
 \ only defined if compiler is loaded
 [IFDEF] (compile) ' (compile) A,      ' c-(compile) A, [THEN]
-[IFDEF] (does>) ' (does>) A,        ' c-does> A, [THEN]
+[IFDEF] !does   ' !does A,          ' c-does> A, [THEN]
         	0 ,		here 0 ,
 
 avariable c-extender

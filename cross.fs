@@ -1728,7 +1728,7 @@ Ghost (do)      Ghost (?do)                     2drop
 Ghost (for)                                     drop
 Ghost (loop)    Ghost (+loop)                   2drop
 Ghost (next)                                    drop
-Ghost (does>)   Ghost (does>1)  Ghost (does>2)  2drop drop
+Ghost !does                                     drop
 Ghost compile,                                  drop
 Ghost (.")      Ghost (S")      Ghost (ABORT")  2drop drop
 Ghost (C")      Ghost c(abort") Ghost type      2drop drop
@@ -2412,7 +2412,7 @@ T 2 cells H Value xt>body
   there xt>body + ca>native T a, H 1 fillcfa ;		' (doprim,) plugin-of doprim,
 
 : (doeshandler,) ( -- ) 
-  T cfalign H [G'] :doesjump addr, T 0 , H ; 		' (doeshandler,) plugin-of doeshandler,
+    T cfalign H ; 					' (doeshandler,) plugin-of doeshandler,
 
 : (dodoes,) ( does-action-ghost -- )
   ]comp [G'] :dodoes addr, comp[
@@ -2652,7 +2652,7 @@ T has? primcentric H [IF]
 >TARGET
 Cond: DOES>
         T here H [ T has? primcentric H [IF] ] 5 [ [ELSE] ] 4 [ [THEN] ] T cells
-        H + alit, compile (does>2) compile ;s
+        H + alit, compile !does compile ;s
         doeshandler, resolve-does>-part
         ;Cond
 
