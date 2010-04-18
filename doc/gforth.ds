@@ -12557,6 +12557,7 @@ doc-call-c
 * Common Assembler::            Assembler Syntax
 * Common Disassembler::         
 * 386 Assembler::               Deviations and special cases
+* AMD64 (x86_64) Assembler::    Deviations and special cases
 * Alpha Assembler::             Deviations and special cases
 * MIPS assembler::              Deviations and special cases
 * PowerPC assembler::           Deviations and special cases
@@ -12750,7 +12751,7 @@ the code word is not immediately followed by a named word.  If you have
 something else there, you can follow the word with @code{align latest ,}
 to ensure that the end is recognized.
 
-@node 386 Assembler, Alpha Assembler, Common Disassembler, Assembler and Code Words
+@node 386 Assembler, AMD64 (x86_64) Assembler, Common Disassembler, Assembler and Code Words
 @subsection 386 Assembler
 
 The 386 assembler included in Gforth was written by Bernd Paysan, it's
@@ -12855,8 +12856,36 @@ code my+ ( n1 n2 -- n )
 end-code
 @end example
 
+@node AMD64 (x86_64) Assembler, Alpha Assembler, 386 Assembler, Assembler and Code Words
+@subsection AMD64 (x86_64) Assembler
 
-@node Alpha Assembler, MIPS assembler, 386 Assembler, Assembler and Code Words
+The AMD64 assembler is a slightly modified version of the 386
+assembler, and as such shares most of the syntax.  Two new prefixes,
+@code{.q} and @code{.qa}, are provided to select 64-bit operand and
+address sizes respectively.  Also there are additional register
+operands @code{R8}-@code{R15}.  
+
+The registers lack the 'e' or 'r' prefix; even in 64 bit mode,
+@code{rax} is called @code{ax}.  Additional register operands are
+available to refer to the lowest-significant byte of all registers:
+@code{R8L}-@code{R15L}, @code{SPL}, @code{BPL}, @code{SIL},
+@code{DIL}.
+
+Here is an example of an AMD64 @code{abi-code} word:
+
+@example
+abi-code my+  ( n1 n2 -- n3 )
+   \ ABI: SP passed in di, returned in ax, &FP passed in si
+   di ax mov		\ copy SP into ax for return
+   ax ) dx  mov		\ load sp[0]
+   8 ax d) dx add	\ add sp[1]
+   8 # ax  add		\ store result to *++sp
+   dx  ax ) mov
+   ret			\ return to caller, ax = new SP
+end-code
+@end example
+
+@node Alpha Assembler, MIPS assembler, AMD64 (x86_64) Assembler, Assembler and Code Words
 @subsection Alpha Assembler
 
 The Alpha assembler and disassembler were originally written by Bernd
@@ -13026,7 +13055,7 @@ r4 r1 2 #LSL ]-   [r4], -r1, LSL #2     shifted postdecrement
 @end example
 
 Register lists for load/store multiple instructions are started and
-terminated by using the words @code{@{} and @code{@}} respectivly.
+terminated by using the words @code{@{} and @code{@}} respectively.
 Between braces, register names can be listed one by one or register
 ranges can be formed by using the postfix operator @code{r-r}.  The
 @code{^} flag is not encoded in the register list operand, but instead
@@ -13061,15 +13090,13 @@ then,
 
 Example of a definition using the ARM assembler:
 
-@c !! rewrite for new abi-call convention
 @example
 abi-code my+ ( n1 n2 --  n3 )
-   \ arm abi: r0=return_stuct, r1=sp, r2=fp, r3,r12 saved by caller
-   r1 IA!  @{ r3 r12 @}  ldm,     \ pop r2 = n2, r3 = n1
-   r12  r3   r12        add,    \ r12 = n2+n1
-   r12  r1 -4 #]!       str,     \ push r12
-   r0 IA!  @{ r1 r2 @}    stm,     \ return r1 and r2 via [r0] memory
-   pc   lr              mov,     \ return to caller
+   \ arm abi: r0=SP, r1=&FP, r2,r3,r12 saved by caller
+   r0 IA!  @{ r2 r3 @}  ldm,     \ pop r2 = n2, r3 = n1
+   r3  r2  r3         add,     \ r3 = n1+n1
+   r3  r0 -4 #]!      str,     \ push r3
+   pc  lr             mov,     \ return to caller, new SP in r0
 end-code
 @end example
 
