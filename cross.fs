@@ -2412,7 +2412,7 @@ T 2 cells H Value xt>body
   there xt>body + ca>native T a, H 1 fillcfa ;		' (doprim,) plugin-of doprim,
 
 : (doeshandler,) ( -- ) 
-    T cfalign H ; 					' (doeshandler,) plugin-of doeshandler,
+    T H ; 					' (doeshandler,) plugin-of doeshandler,
 
 : (dodoes,) ( does-action-ghost -- )
   ]comp [G'] :dodoes addr, comp[
