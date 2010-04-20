@@ -412,7 +412,7 @@ void gforth_relocate(Cell *image, const Char *bitstring,
 	    case CF(DODEFER) : 
 	    case CF(DOFIELD) : 
 	    case CF(DOABICODE) : MAKE_CF(image+i,symbols[CF(token)]); break;
-	    case CF(DOESJUMP): image[i]=0; break;
+	    case CF(DOESJUMP): assert(0); image[i]=0; break;
 #endif /* !defined(DOUBLY_INDIRECT) */
 	    case CF(DODOES)  :
 	      MAKE_DOES_CF(image+i,(Xt *)(image[i+1]+((Cell)start)));
