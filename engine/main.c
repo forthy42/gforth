@@ -311,8 +311,7 @@ static Cell min(Cell a, Cell b)
  * If the word =-1 (CF_NIL), the address is NIL,
  * If the word is <CF_NIL and >CF(DODOES), it's a CFA (:, Create, ...)
  * If the word =CF(DODOES), it's a DOES> CFA
- * If the word =CF(DOESJUMP), it's a DOES JUMP (2 Cells after DOES>,
- *					possibly containing a jump to dodoes)
+ * !! ABI-CODE and ;ABI-CODE
  * If the word is <CF(DOER_MAX) and bit 14 is set, it's the xt of a primitive
  * If the word is <CF(DOER_MAX) and bit 14 is clear, 
  *                                        it's the threaded code of a primitive
@@ -411,8 +410,9 @@ void gforth_relocate(Cell *image, const Char *bitstring,
 	    case CF(DOUSER)  : 
 	    case CF(DODEFER) : 
 	    case CF(DOFIELD) : 
-	    case CF(DOABICODE) : MAKE_CF(image+i,symbols[CF(token)]); break;
-	    case CF(DOESJUMP): assert(0); image[i]=0; break;
+	    case CF(DOABICODE) :
+	    case CF(DOSEMIABICODE): 
+	      MAKE_CF(image+i,symbols[CF(token)]); break;
 #endif /* !defined(DOUBLY_INDIRECT) */
 	    case CF(DODOES)  :
 	      MAKE_DOES_CF(image+i,(Xt *)(image[i+1]+((Cell)start)));

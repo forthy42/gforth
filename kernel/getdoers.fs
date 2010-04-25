@@ -63,8 +63,11 @@ doer? :dofield [IF]
 
 true [IF] \ !! don't know what to put here
 : dodoes: ( -- addr )	\ gforth
-    \G The code address of a @code{field}???
+\G The code address of a @code{DOES>}-defined word.
+    \ DOES> is interpret/compile: but cross' ['] gives the address of
+    \ a DOES>-defined word
     ['] DOES> >code-address ;
+    
 [THEN]
 
 
@@ -73,4 +76,10 @@ doer? :doabicode [IF]
 : doabicode: ( -- addr )	\ gforth
     \G The code address of a @code{ABI-CODE} definition.
     ['] (abi-code-dummy) >code-address ;
+[THEN]
+
+doer? :do;abicode [IF]
+(;abi-code) (;abi-code-dummy)
+: do;abicode: ( -- addr )
+    ['] (;abi-code-dummy) >code-address ;
 [THEN]

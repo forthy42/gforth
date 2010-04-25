@@ -2954,6 +2954,10 @@ Builder (ABI-CODE)
 Build: ;Build
 by: :doabicode noop ;DO
 
+BUILDER (;abi-code)
+Build: ;Build
+by: :do;abicode noop ;DO
+
 \ Input-Methods                                            01py
 
 Builder input-method

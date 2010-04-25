@@ -100,12 +100,9 @@
 #define DOFIELD	5
 #define DOVAL	6
 #define DODOES	7
-#define DOESJUMP	8
-#define DOABICODE	9
+#define DOABICODE	8
+#define DOSEMIABICODE   9
 #define DOER_MAX        9
-
-/* the size of the DOESJUMP, which resides between DOES> and the does-code */
-#define DOES_HANDLER_SIZE	(2*sizeof(Cell))
 
 #include "machine.h"
 
@@ -384,8 +381,9 @@ Label *gforth_engine(Xt *ip, Cell *sp, Cell *rp0, Float *fp, Address lp sr_proto
 Label *gforth_engine2(Xt *ip, Cell *sp, Cell *rp0, Float *fp, Address lp sr_proto);
 Label *gforth_engine3(Xt *ip, Cell *sp, Cell *rp0, Float *fp, Address lp sr_proto);
 
-/* for ABI-CODE */
+/* for ABI-CODE and ;ABI-CODE */
 typedef Cell *abifunc(Cell *sp, Float **fpp);
+typedef Cell *semiabifunc(Cell *sp, Float **fpp, Address body);
 
 /* engine/prim support routines */
 Address gforth_alloc(Cell size);

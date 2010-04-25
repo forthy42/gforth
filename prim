@@ -229,15 +229,23 @@ fprintf(stderr, "dodoes to %x, push %x\n", a_retaddr, a_body);
 SET_IP(DOES_CODE1(CFA));
 #endif /* !defined(NO_IP) */
 
-(does-handler) ( -- )	gforth-internal	paren_does_handler
-""just a slot to have an encoding for the DOESJUMP, 
-which is no longer used anyway (!! eliminate this)""
-
 (doabicode) ( ... -- ...)	gforth-internal	paren_doabicode
-""run-time routine for ABI-CODE definitions""
+""run-time routine for @code{ABI-code} definitions""
 abifunc *f = (abifunc *)PFA(CFA);
 Float *fp_mem = fp;
 sp = (*f)(sp, &fp_mem);
+fp = fp_mem;
+#ifdef NO_IP
+INST_TAIL;
+goto *next_code;
+#endif /* defined(NO_IP) */
+
+(do;abicode) ( ... -- ... ) gforth-internal paren_do_semicolon_abi_code
+""run-time routine for @code{;abi-code}-defined words""
+Float *fp_mem = fp;
+Address body = (Address)PFA(CFA);
+semiabifunc *f = (semiabifunc *)DOES_CODE1(CFA);
+sp = (*f)(sp, &fp_mem, body);
 fp = fp_mem;
 #ifdef NO_IP
 INST_TAIL;
@@ -635,12 +643,6 @@ k	( R:w R:w1 R:w2 R:w3 R:w4 -- w R:w R:w1 R:w2 R:w3 R:w4 )	gforth
 \f[THEN]
 
 \ digit is high-level: 0/0%
-
-abi-call	( #a_callee ... -- ... )	gforth	abi_call
-abifunc *f = (abifunc *)a_callee;
-Float *fp_mem = fp;
-sp = (*f)(sp, &fp_mem);
-fp = fp_mem;
 
 \g strings
 
@@ -2536,6 +2538,32 @@ extern Cell groups[32];
 a_addr = groups;
 
 \+
+
+\g primitive_centric
+
+\ primitives for primitive-centric code
+\ another one is does-exec
+
+abi-call	( #a_callee ... -- ... ) gforth-internal abi_call
+/* primitive for compiled ABI-CODE words */
+abifunc *f = (abifunc *)a_callee;
+Float *fp_mem = fp;
+sp = (*f)(sp, &fp_mem);
+fp = fp_mem;
+
+;abi-code-exec ( #a_cfa ... -- ... ) gforth-internal semi_abi_code_exec
+/* primitive for performing ;ABI-CODE words */
+Float *fp_mem = fp;
+semiabifunc *f = (semiabifunc *)DOES_CODE1(a_cfa);
+Address body = (Address)PFA(a_cfa);
+sp = (*f)(sp, &fp_mem, body);
+fp = fp_mem;
+
+;code-exec ( #a_cfa -- ) gforth-internal semi_code_exec
+/* routine for performing ;code-defined words */
+SUPER_END;
+VM_JUMP(EXEC1(a_cfa));
+
 
 \g static_super
 

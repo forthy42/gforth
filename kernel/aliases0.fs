@@ -25,7 +25,7 @@
 -7 Doer: :dofield
 -8 Doer: :dovalue
 -9 Doer: :dodoes
--&10 Doer: :doesjump
--&11 Doer: :doabicode
+-&10 Doer: :doabicode
+-&11 Doer: :do;abicode
 -&2 first-primitive \ this does not work for (at least) (DODOES),
                     \ so these routines are commented out

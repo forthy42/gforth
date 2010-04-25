@@ -12902,10 +12902,13 @@ return FP results in xmm0--xmm1.  So @code{abi-code} words get the
 data stack pointer in @code{di} and the address of the FP stack
 pointer in @code{si}, and return the data stack pointer in @code{ax}.
 The other caller-saved registers are: r10, r11, xmm8-xmm15.  This
-calling convention reportedly is also used on other non-Microsoft OSs.
-Microsoft OSs use a different calling convention, but then we
-currently have no easy way of porting Gforth to Windows x64, so that
-issue is moot.
+calling convention reportedly is also used in other non-Microsoft OSs.
+@c source: http://en.wikipedia.org/wiki/X86_calling_conventions#AMD64_ABI_convention
+
+@c source: http://msdn.microsoft.com/en-us/library/9b372w95(v=VS.90).aspx
+Windows x64 passes the first four integer parameters in rcx, rdx, r8
+and r9 and return the integer result in rax.  The other caller-saved
+registers are r10 and r11.
 
 Here is an example of an AMD64 @code{abi-code} word:
 

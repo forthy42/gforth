@@ -289,10 +289,12 @@ has? primcentric [IF]
 	douser:  OF >body @ ['] useraddr peephole-compile, , EXIT ENDOF
 	dodefer: OF >body ['] lit-perform peephole-compile, , EXIT ENDOF
 	dofield: OF >body @ ['] lit+ peephole-compile, , EXIT ENDOF
-	doabicode: OF >body ['] abi-call peephole-compile, , EXIT ENDOF
 	\ dofield: OF >body @ POSTPONE literal ['] + peephole-compile, EXIT ENDOF
+	doabicode: OF >body ['] abi-call peephole-compile, , EXIT ENDOF
+	do;abicode: OF ['] ;abi-code-exec peephole-compile, , EXIT ENDOF
 	\ code words and ;code-defined words (code words could be optimized):
-	dup in-dictionary? IF drop POSTPONE literal ['] execute peephole-compile, EXIT THEN
+	dup in-dictionary? IF ['] ;code-exec peephole-compile, , EXIT THEN
+	\ dup in-dictionary? IF drop POSTPONE literal ['] execute peephole-compile, EXIT THEN
     ENDCASE
     peephole-compile, ;
 
@@ -619,16 +621,21 @@ doer? :dodefer [IF]
     \G binding as if @i{name} was not deferred.
     ' defer@ compile, ; immediate
 
+: does>-like ( xt -- )
+    \ xt ( addr -- ) is !does or !;abi-code etc, addr is the address
+    \ that should be stored right after the code address.
+    >r ;-hook ?struc
+    [ has? xconds [IF] ] exit-like [ [THEN] ]
+    here [ has? peephole [IF] ] 5 [ [ELSE] ] 4 [ [THEN] ] cells +
+    postpone aliteral r> compile, [compile] exit
+    [ has? peephole [IF] ] finish-code [ [THEN] ]
+    defstart ;
+
 :noname
     here !does ]
     defstart :-hook ;
 :noname
-    ;-hook ?struc
-    [ has? xconds [IF] ] exit-like [ [THEN] ]
-    here [ has? peephole [IF] ] 5 [ [ELSE] ] 4 [ [THEN] ] cells +
-    postpone aliteral postpone !does [compile] exit
-    [ has? peephole [IF] ] finish-code [ [THEN] ]
-    defstart :-hook ;
+    ['] !does does>-like :-hook ;
 interpret/compile: DOES>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ core        does
 
 : defer! ( xt xt-deferred -- ) \ gforth  defer-store

@@ -542,13 +542,18 @@ has? flash [IF] ' flash! [ELSE] ' ! [THEN]
 alias code-address! ( c_addr xt -- ) \ gforth
 \G Create a code field with code address @i{c-addr} at @i{xt}.
 
-: does-code! ( a_addr xt -- ) \ gforth
+: any-code! ( a-addr cfa code-addr -- )
+    \ for implementing DOES> and ;ABI-CODE, maybe :
+    \ code-address is stored at cfa, a-addr at cfa+cell
+    over ! cell+ ! ;
+    
+: does-code! ( a-addr xt -- ) \ gforth
 \G Create a code field at @i{xt} for a child of a @code{DOES>}-word;
 \G @i{a-addr} is the start of the Forth code after @code{DOES>}.
     [ has? flash [IF] ]
     dodoes: over flash! cell+ flash!
     [ [ELSE] ]
-    dodoes: over ! cell+ !
+    dodoes: any-code! 
     [ [THEN] ] ;
 
 2 cells constant /does-handler ( -- n ) \ gforth

@@ -41,7 +41,7 @@ vocabulary assembler ( -- ) \ tools-ext
     defstart init-asm ;
 
 [ifdef] doabicode:
-: abi-code ( "name" -- colon-sys )	\ gforth	abi_code
+: abi-code ( "name" -- colon-sys )	\ gforth	abi-code
    \G Start a native code definition that is called using the platform's
    \G ABI conventions corresponding to the C-prototype:
    \G @example
@@ -69,10 +69,17 @@ vocabulary assembler ( -- ) \ tools-ext
 interpret/compile: ;code ( compilation. colon-sys1 -- colon-sys2 )	\ tools-ext	semicolon-code
 \g The code after @code{;code} becomes the behaviour of the last
 \g defined word (which must be a @code{create}d word).  The same
-\g caveats apply as for @code{code}, but Gforth does not have a
-\g @code{;abi-code} yet.  As a workaround, you can use @code{does> foo
-\g ;} instead, where @code{foo} is defined with @code{abi-code}.
+\g caveats apply as for @code{code}, so we recommend using
+\g @code{;abi-code} instead.
 
+[ifdef] do;abicode: 
+: !;abi-code ( addr -- )
+    latestxt do;abicode: any-code! ;
+
+: ;abi-code ( -- ) \ gforth semicolon-abi-code
+    ['] !;abi-code does>-like postpone [ init-asm ; immediate
+[then]
+    
 : end-code ( colon-sys -- )	\ gforth	end_code
     \G End a code definition.  Note that you have to assemble the
     \G return from the ABI call (for @code{abi-code}) or the dispatch
@@ -80,4 +87,3 @@ interpret/compile: ;code ( compilation. colon-sys1 -- colon-sys2 )	\ tools-ext	s
     \G yourself.
     latestxt here over - flush-icache
     previous ?struc reveal ;
-
