@@ -309,10 +309,15 @@ VARIABLE C-Pass
 	endif
 	over 4 cells + over = if
 	    over 1 cells + @ decompile-prim ['] call xt>threaded = >r
-	    over 2 cells + @ ['] !does >body = >r
 	    over 3 cells + @ decompile-prim ['] ;S xt>threaded =
-	    r> and r> and
-	    if  drop c-does>  4 cells + EXIT  endif
+	    r> and if
+	    over 2 cells + @ ['] !does >body = if  drop
+		S" DOES> " Com# .string 4 cells + EXIT endif
+	    [IFDEF] !;abi-code
+		over 2 cells + @ ['] !;abi-code >body = if  drop
+		    S" DOES> " Com# .string 4 cells + EXIT endif
+	    [THEN]
+	    endif
 	endif
 	\ !! test for cfa here, and print "['] ..."
 	dup abs 0 <# #S rot sign #> 0 .string bl cemit
