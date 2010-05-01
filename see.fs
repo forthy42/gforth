@@ -293,6 +293,12 @@ VARIABLE C-Pass
 \ here docon: , docol: , dovar: , douser: , dodefer: , dofield: ,
 \ here over - 2constant doers
 
+[IFDEF] !does
+: c-does>               \ end of create part
+        Display? IF S" DOES> " Com# .string THEN ;
+\	maxaligned /does-handler + ; \ !! no longer needed for non-cross stuff
+[THEN]
+
 : c-lit ( addr1 -- addr2 )
     Display? IF
 	dup @ dup body> dup cfaligned over = swap in-dictionary? and if
@@ -300,6 +306,13 @@ VARIABLE C-Pass
 	    dup body> @ dovar: = if
 		drop c-call EXIT
 	    endif
+	endif
+	over 4 cells + over = if
+	    over 1 cells + @ decompile-prim ['] call xt>threaded = >r
+	    over 2 cells + @ ['] !does >body = >r
+	    over 3 cells + @ decompile-prim ['] ;S xt>threaded =
+	    r> and r> and
+	    if  drop c-does>  4 cells + EXIT  endif
 	endif
 	\ !! test for cfa here, and print "['] ..."
 	dup abs 0 <# #S rot sign #> 0 .string bl cemit
@@ -529,12 +542,6 @@ VARIABLE C-Pass
         ELSE    2drop
         THEN ;
 
-[IFDEF] !does
-: c-does>               \ end of create part
-        Display? IF S" DOES> " Com# .string THEN ;
-\	maxaligned /does-handler + ; \ !! no longer needed for non-cross stuff
-[THEN]
-
 [IFDEF] (compile)
 : c-(compile)
     Display?
@@ -576,7 +583,6 @@ CREATE C-Table
 [IFDEF] (abort") ' (abort") A,      ' c-abort" A, [THEN]
 \ only defined if compiler is loaded
 [IFDEF] (compile) ' (compile) A,      ' c-(compile) A, [THEN]
-[IFDEF] !does   ' !does A,          ' c-does> A, [THEN]
         	0 ,		here 0 ,
 
 avariable c-extender
