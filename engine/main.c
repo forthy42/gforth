@@ -1832,9 +1832,6 @@ void compile_prim1(Cell *start)
 #elif defined(INDIRECT_THREADED)
   return;
 #else /* !(defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED)) */
-  /* !! does not work, for unknown reasons; but something like this is
-     probably needed to ensure that we don't call compile_prim_dyn
-     before the inline arguments are there */
   static Cell *instps[MAX_BB];
   static PrimNum origs[MAX_BB];
   static int ninsts=0;
@@ -1853,9 +1850,12 @@ void compile_prim1(Cell *start)
   }
   prim_num = ((Xt)*start)-vm_prims;
   if(prim_num >= npriminfos) {
+    /* code word */
     optimize_rewrite(instps,origs,ninsts);
     /* fprintf(stderr,"optimize_rewrite(...,%d)\n",ninsts);*/
     ninsts=0;
+    append_jump();
+    *start = *(Cell *)*start;
     return;
   }    
   assert(ninsts<MAX_BB);

@@ -294,8 +294,12 @@ has? primcentric [IF]
 	do;abicode: OF ['] ;abi-code-exec peephole-compile, , EXIT ENDOF
 	\ code words and ;code-defined words (code words could be
 	\ optimized, if we could identify them):
-	dup in-dictionary? IF
-	    drop ['] lit-execute peephole-compile, , EXIT
+	dup in-dictionary? IF ( xt code-address )
+	    over >body = if ( xt )
+		\ definitely a CODE word
+		peephole-compile, EXIT THEN
+	    \ not sure, might be a ;CODE word
+	    ['] lit-execute peephole-compile, , EXIT
 	    \ drop POSTPONE literal ['] execute peephole-compile, EXIT
 	THEN
     ENDCASE

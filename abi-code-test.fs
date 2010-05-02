@@ -28,7 +28,7 @@ end-code
 
 : my-constant ( w "name" -- )
     create ,
-    ;abi-code ( -- w )
+;abi-code ( -- w )
     \ sp in di, address of fp in si, body address in dx
     -8 di d) ax lea \ compute new sp in result reg
     dx )     cx mov \ load w
@@ -45,7 +45,7 @@ foo-compiled 5 <> throw
 
 : my-constant2 ( w "name" -- )
     create ,
-    ;code ( -- w )
+;code ( -- w )
     \ sp=r15, tos=r14, ip=bx
     8 #        bx add
     r14     r15 ) mov
@@ -56,3 +56,23 @@ end-code
 
 7 my-constant2 bar
 : bar-compiled bar ;
+
+bar 7 <> throw
+bar-compiled 7 <> throw
+
+code my-1+ ( n1 -- n2 )
+    8 #        bx add
+    r14 inc
+    -8 bx d)   jmp
+end-code
+
+: compiled-my-1+
+    my-1+ ;
+
+7 my-1+ 8 <> throw
+8 compiled-my-1+ 9 <> throw
+
+: funny-compiler-test
+    drop my-1+ 1 ;
+
+\ 6 9 funny-compiler-test 1 <> throw 7 <> throw
