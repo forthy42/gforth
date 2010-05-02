@@ -52,6 +52,7 @@ super23 = useraddr !
 super25 = @ ;s
 super26 = lit @ +
 super27 = dup @
+\ super28 = lit execute \ currently not supported
 
 \F 0 [if]
 
@@ -250,6 +251,8 @@ super27 = dup @
 \ \E prim-states flush-icache         \ 1
 \ \E prim-states cmove                \ 1
 \ \E prim-states (system)             \ 1
+\E S0 S0 state-prim abi-call
+\E S0 S0 state-prim ;abi-code-exec
 
 \E ' noop is output-nextp0
 \E ' noop is output-nextp1

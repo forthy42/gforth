@@ -2559,10 +2559,14 @@ Address body = (Address)PFA(a_cfa);
 sp = (*f)(sp, &fp_mem, body);
 fp = fp_mem;
 
-;code-exec ( #a_cfa -- ) gforth-internal semi_code_exec
-/* routine for performing ;code-defined words */
+lit-execute	( #a_addr -- )	new	lit_execute
+/* for ;code and code words; a static superinstruction would be more general, 
+   but VM_JUMP is currently not supported there */
+#ifndef NO_IP
+ip=IP;
+#endif
 SUPER_END;
-VM_JUMP(EXEC1(a_cfa));
+VM_JUMP(EXEC1((Xt)a_addr));
 
 
 \g static_super

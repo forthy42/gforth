@@ -292,9 +292,12 @@ has? primcentric [IF]
 	\ dofield: OF >body @ POSTPONE literal ['] + peephole-compile, EXIT ENDOF
 	doabicode: OF >body ['] abi-call peephole-compile, , EXIT ENDOF
 	do;abicode: OF ['] ;abi-code-exec peephole-compile, , EXIT ENDOF
-	\ code words and ;code-defined words (code words could be optimized):
-	dup in-dictionary? IF ['] ;code-exec peephole-compile, , EXIT THEN
-	\ dup in-dictionary? IF drop POSTPONE literal ['] execute peephole-compile, EXIT THEN
+	\ code words and ;code-defined words (code words could be
+	\ optimized, if we could identify them):
+	dup in-dictionary? IF
+	    drop ['] lit-execute peephole-compile, , EXIT
+	    \ drop POSTPONE literal ['] execute peephole-compile, EXIT
+	THEN
     ENDCASE
     peephole-compile, ;
 

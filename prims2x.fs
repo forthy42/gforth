@@ -1053,6 +1053,7 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
     tail-nextp2 @ output-c-tail1-no-stores ;
 
 : output-c-tail2-no-stores ( -- )
+    prim prim-c-code 2@ s" VM_JUMP(" search nip nip abort" Currently VM_JUMP is not supported in static superinstructions"
     ['] output-label2 output-c-tail1-no-stores ;
 
 : type-c-code ( c-addr u xt -- )
