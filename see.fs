@@ -315,7 +315,7 @@ VARIABLE C-Pass
 		S" DOES> " Com# .string 4 cells + EXIT endif
 	    [IFDEF] !;abi-code
 		over 2 cells + @ ['] !;abi-code >body = if  drop
-		    S" DOES> " Com# .string 4 cells + EXIT endif
+		    S" ;abi-code " Com# .string 4 cells + EXIT endif
 	    [THEN]
 	    endif
 	endif

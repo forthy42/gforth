@@ -70,12 +70,12 @@ require ekey.fs
 require dosekey.fs
 [THEN]
 require quotes.fs
+require code.fs
 require see.fs
 require see-ext.fs
 require backtrac.fs
 require simp-see.fs
 require debug.fs
-require code.fs
 require dis-gdb.fs
 require libcc.fs
 require struct0x.fs
