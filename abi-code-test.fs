@@ -42,3 +42,17 @@ end-code
 
 foo 5 <> throw
 foo-compiled 5 <> throw
+
+: my-constant2 ( w "name" -- )
+    create ,
+    ;code ( -- w )
+    \ sp=r15, tos=r14, ip=bx
+    8 #        bx add
+    r14     r15 ) mov
+    $10 r9 d) r14 mov
+    8 #       r15 sub
+    -8 bx d)   jmp
+end-code
+
+7 my-constant2 bar
+: bar-compiled bar ;
