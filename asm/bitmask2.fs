@@ -42,12 +42,10 @@
       then
    loop
    swap 0<> ABORT" dispense: value does not fit into masked bits" ;
-: embed  ( x1-accu x2-val x3-mask -- x4-result )
-   \ encode 'val' into bits set given by mask, replacing corresponding bits in
-   \ 'accu'
-   dup >r dispense         \ dispense value over masked bits
-   swap r> invert and      \ delete corresponding bits in accu
-   or ;                    \ and add dispensed bits
+: embed  ( x2-val x1-accu x3-mask -- x4-result )
+   \ encode 'val' into bits given by mask, replacing these bits in 'accu'
+   tuck invert and -rot      \ delete corresponding bits in accu
+   dispense  or ;            \ dispense value over masked bits, onto accu ;
 
 : mask ( +n -- mask )  \ get bitmask for lowest #n bits
    0 invert  swap lshift invert ;
@@ -61,4 +59,4 @@
 
 : maskinto ( "x-mask" --  runtime:  x1-val x1-accu -- x2-masked )
    \ for backwards compatability with old bitmask code
-    ]] swap [[ parse-word s>number drop ]]L embed [[ ; IMMEDIATE
+    parse-word s>number drop ]]L embed [[ ; IMMEDIATE

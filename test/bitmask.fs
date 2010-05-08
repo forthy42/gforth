@@ -28,7 +28,7 @@ require ../asm/bitmask.fs
 require ../asm/bitmask2.fs
 
 { $567 $F0F0F0 dispense -> $506070 }
-{ $abcde $567 $F0F0F0 embed -> $5a6c7e }
+{ $567 $abcde $F0F0F0 embed -> $5a6c7e }
 
 { : test1 maskinto $F0F0F0 ; -> }
 { $567 $abcde test1 -> $5a6c7e }
