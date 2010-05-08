@@ -102,7 +102,7 @@ Variable I-Len
 : opc! ( adr len -- )
   \G Logically OR string of bytes into instruction latch
   dup I-Len @ max I-Len !
-  I-Latch -rot bounds DO I c@ over c@ or over c! char+ LOOP drop ;
+  I-Latch -rot bounds ?DO I c@ over c@ or over c! char+ LOOP drop ;
 
 : I-Init  ( -- )  0 I-Len ! I-Latch 10 erase ;
 : I-Flush  ( -- )
