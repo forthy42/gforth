@@ -185,7 +185,8 @@ Variable ByteDirection	\ -1 = big endian; 1 = little endian
 
 : Table  ( "name" -- )
   \G create table that lists allowed operand/mode combinations for opcode
-  \G "name"
+  \G "name".  Note that during assembling, table will be scanned in reverse
+  \G order!
   Reset 
   Create here to Table-Link 0 dic,
   DOES> I-Init
