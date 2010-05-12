@@ -410,13 +410,11 @@ void gforth_relocate(Cell *image, const Char *bitstring,
 	    case CF(DOUSER)  : 
 	    case CF(DODEFER) : 
 	    case CF(DOFIELD) : 
+	    case CF(DODOES)  :
 	    case CF(DOABICODE) :
 	    case CF(DOSEMIABICODE): 
 	      MAKE_CF(image+i,symbols[CF(token)]); break;
 #endif /* !defined(DOUBLY_INDIRECT) */
-	    case CF(DODOES)  :
-	      MAKE_DOES_CF(image+i,(Xt *)(image[i+1]+((Cell)start)));
-	      break;
 	    default          : /* backward compatibility */
 /*	      printf("Code field generation image[%x]:=CFA(%x)\n",
 		     i, CF(image[i])); */

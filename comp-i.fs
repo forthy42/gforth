@@ -77,26 +77,12 @@ s" address-unit-bits" environment? drop constant bits/au
 	    coffset 0<> cell1 coffset + cell2 = and
 	    if
 		cell1 cbase - cell / { tag }
-		tag dodoes-tag =
-		if
-		    \ make sure that the next cell will not be tagged
-		    \ !! can probably be optimized away with hybrid threading
-		    dbase negate image1 i 1+ th +!
-		    dbase doffset + negate image2 i 1+ th +!
-		endif
 		tag >tag $4000 xor file-id write-cell throw
 		i reloc-bits set-bit
 	    else
 		xoffset 0<> cell1 xoffset + cell2 = and
 		if
 		    cell1 xbase - cell / { tag }
-		    tag dodoes-tag =
-		    if
-			\ make sure that the next cell will not be tagged
-			\ !! can probably be optimized away with hybrid threading
-			dbase negate image1 i 1+ th +!
-			dbase doffset + negate image2 i 1+ th +!
-		    endif
 		    tag >tag file-id write-cell throw
 		    i reloc-bits set-bit
 		else

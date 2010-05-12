@@ -267,8 +267,6 @@ typedef Label *Xt;
    ca is the code address */
 #define MAKE_CF(cfa,ca) ((*(Label *)(cfa)) = ((Label)ca))
 /* make a code field for a defining-word-defined word */
-#define MAKE_DOES_CF(cfa,does_code)  ({MAKE_CF(cfa,DOES_CA);	\
-				       ((Cell *)cfa)[1] = (Cell)(does_code);})
 
 #define CF(const)	(-const-2)
 

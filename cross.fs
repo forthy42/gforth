@@ -2417,9 +2417,6 @@ T 2 cells H Value xt>body
 : (dodoes,) ( does-action-ghost -- )
   ]comp [G'] :dodoes addr, comp[
   addr,
-  \ the relocator in the c engine, does not like the
-  \ does-address to marked for relocation
-  [ T e? ec H 0= [IF] ] T here H tcell - reloff [ [THEN] ]
   2 fillcfa ;						' (dodoes,) plugin-of dodoes,
 
 : (dlit,) ( n -- ) compile lit td, ;			' (dlit,) plugin-of dlit,
