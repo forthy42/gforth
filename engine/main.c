@@ -292,7 +292,7 @@ static Cell min(Cell a, Cell b)
 /* image file format:
  *  "#! binary-path -i\n" (e.g., "#! /usr/local/bin/gforth-0.4.0 -i\n")
  *   padding to a multiple of 8
- *   magic: "Gforth3x" means format 0.6,
+ *   magic: "Gforth4x" means format 0.8,
  *              where x is a byte with
  *              bit 7:   reserved = 0
  *              bit 6:5: address unit size 2^n octets
@@ -1909,12 +1909,12 @@ Address gforth_loader(FILE *imagefile, char* filename)
   
   do {
     if(fread(magic,sizeof(Char),8,imagefile) < 8) {
-      fprintf(stderr,"%s: image %s doesn't seem to be a Gforth (>=0.6) image.\n",
+      fprintf(stderr,"%s: image %s doesn't seem to be a Gforth (>=0.8) image.\n",
 	      progname, filename);
       exit(1);
     }
     preamblesize+=8;
-  } while(memcmp(magic,"Gforth3",7));
+  } while(memcmp(magic,"Gforth4",7));
   magic7 = magic[7];
   if (debug) {
     magic[7]='\0';
