@@ -33,7 +33,7 @@ create image-included-files 1 , A, ( pointer to and count of included files )
     \G source.  The result is valid only while the file is being
     \G loaded.  If the current input source is no (stream) file, the
     \G result is undefined.  In Gforth, the result is valid during the
-    \G whole seesion (but not across @code{savesystem} etc.).
+    \G whole session (but not across @code{savesystem} etc.).
     loadfilename 2@ ;
 
 : sourceline# ( -- u ) \ gforth		sourceline-number
