@@ -110,8 +110,10 @@
 
 typedef WYDE_TYPE Wyde;
 typedef TETRABYTE_TYPE Tetrabyte;
+typedef OCTABYTE_TYPE Octabyte;
 typedef unsigned WYDE_TYPE UWyde;
 typedef unsigned TETRABYTE_TYPE UTetrabyte;
+typedef unsigned OCTABYTE_TYPE UOctabyte;
 
 /* Forth data types */
 /* Cell and UCell must be the same size as a pointer */
@@ -514,3 +516,38 @@ extern unsigned long int strtoul(const char *nptr, char **endptr, int base);
 
 #define GROUP(x, n)
 #define GROUPADD(n)
+
+#ifdef HAVE_ENDIAN_H
+#include <endian.h>
+#else
+#define BSWAP16(x) ((((x) >> 8) & 0xff | (((x) & 0xff) << 8)))
+#define BSWAP32(x) ((BSWAP16((x) >> 16) | (BSWAP16(x) << 16)))
+#define BSWAP64(x) ((BSWAP32((x) >> 32) | (BSWAP32(x) << 32)))
+#ifdef WORDS_BIGENDIAN
+#define htobe16(x) (x)
+#define htobe32(x) (x)
+#define htobe64(x) (x)
+#define be16toh(x) (x)
+#define be32toh(x) (x)
+#define be64toh(x) (x)
+#define htole16(x) BSWAP16(x)
+#define htole32(x) BSWAP32(x)
+#define htole64(x) BSWAP64(x)
+#define le16toh(x) BSWAP16(x)
+#define le32toh(x) BSWAP32(x)
+#define le64toh(x) BSWAP64(x)
+#else
+#define htobe16(x) BSWAP16(x)
+#define htobe32(x) BSWAP32(x)
+#define htobe64(x) BSWAP64(x)
+#define be16toh(x) BSWAP16(x)
+#define be32toh(x) BSWAP32(x)
+#define be64toh(x) BSWAP64(x)
+#define htole16(x) (x)
+#define htole32(x) (x)
+#define htole64(x) (x)
+#define le16toh(x) (x)
+#define le32toh(x) (x)
+#define le64toh(x) (x)
+#endif
+#endif
