@@ -281,10 +281,13 @@ Variable >>string
     >>string $@ >>string off
     0 to >>ptr  0 to <<ptr ;
 : >>next ( -- addr u ) <<ptr end$ over - ;
-: s// ( -- sys ) \ regexp-replace
+: >>rest ( -- ) >>next >>string $+! ;
+: s// ( addr u -- ptr )
     \G start search/replace loop
-    ]] BEGIN [[ ; immediate
-: //g ( sys -- ) \ regexp-replace
-    \G end search/replace loop
-    ]] WHILE >>next REPEAT end$ [[
-    s" " ]] SLiteral << >>string@ rot drop [[ ; immediate
+    ]] (( // >> [[ ; immediate
+: // ( ptr addr u -- addr' u' )
+    \G end search/replace single loop
+    ]] << )) drop >>rest >>string@ [[ ; immediate
+: //g ( ptr addr u -- addr' u' )
+    \G end search/replace all loop
+    ]] << LEAVE )) drop >>string@ [[ ; immediate

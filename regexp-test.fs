@@ -118,4 +118,15 @@ s" fofoofoofofooofoobarbar" ?foos1
 s" bla baz bar" ?foos1
 s" foofoofoo" ?foos1
 
+\ replacement tests
+
+: hms>s ( addr u -- addr' u' )
+  s// \( \d \d \) ` : \( \d \d \) ` : \( \d \d \)
+  \1 s>number drop 60 *
+  \2 s>number drop + 60 *
+  \3 s>number drop + 0 <# 's' hold #s #> //g ;
+
+s" bla 12:34:56 fasel 00:01:57 blubber" hms>s
+s" bla 45296s fasel 117s" str= 0= [IF] .( failed) [THEN]
+
 script? [IF] bye [THEN]
