@@ -285,7 +285,7 @@ Variable >>string
 : s// ( addr u -- ptr )
     \G start search/replace loop
     ]] (( // >> [[ ; immediate
-: // ( ptr addr u -- addr' u' )
+: //o ( ptr addr u -- addr' u' )
     \G end search/replace single loop
     ]] << )) drop >>rest >>string@ [[ ; immediate
 : //g ( ptr addr u -- addr' u' )
