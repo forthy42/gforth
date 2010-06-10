@@ -43,7 +43,9 @@ Variable echo  -1 echo !
 	   over c! char+ ELSE r> drop bell THEN
    THEN 
   AGAIN ;
-  
+
+\ simple include for terminal.fs
+
 : refill-loop ( -- )
     BEGIN  3 emit refill  WHILE  interpret  REPEAT ;   
 : included ( addr u -- )

@@ -28,6 +28,7 @@ s" os-type" environment? [IF]
 	libc tcflow int int (int) tcflow ( fd action -- r )
 	libc ioctl<p> int int ptr (int) ioctl ( d request ptr -- r )
 	libc fileno ptr (int) fileno ( file* -- fd )
+	libc setvbuf ptr ptr int int (int) setvbuf ( file* buf mode size -- )
 	
         s" os-type" environment? [IF] s" linux-gnu" str= [IF]	
 	4 4 2Constant int%
@@ -151,16 +152,18 @@ s" os-type" environment? [IF]
 	
 	0 Value term
 	0 Value term-fd
+	2 Constant _IONBF
 	: open-port ( addr u -- )
-	    r/w open-file throw dup to term fileno to term-fd ;
+	    r/w open-file throw dup to term fileno to term-fd
+	    term pad _IONBF 0 setvbuf drop ;
 	: term-read ( -- addr u )
-	    pad term-fd check-read term read-file throw pad swap ;
+	    pad term-fd check-read dup IF term read-file throw pad swap THEN ;
 	: term-emit ( char -- )
 	    term emit-file throw ;
 	: (term-type) ( addr u -- )
 	    term write-file throw ;
 	: term-flush ( -- )
-	    term flush-file throw ;
+	    ( term flush-file throw ) ;
     [ELSE] s" cygwin" str= [IF]
 	    \ Cygwin terminal adoption
 	    library kernel32 kernel32
