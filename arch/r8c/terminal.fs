@@ -333,7 +333,7 @@ Create progress s" /-\|" here over allot swap move
     cr ;
 : terminal ( "name" -- )
     parse-name open-port
-    B38400 term-fd set-baud say-hallo ['] term-loop catch
+    B115200 term-fd set-baud say-hallo ['] term-loop catch
     dup -1 = IF  drop cr EXIT  THEN  throw ;
 
 s" os-type" environment? [IF]
