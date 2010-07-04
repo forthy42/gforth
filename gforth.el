@@ -537,6 +537,8 @@ End:\" construct).")
   "Parse and bind local variables, set in the contents of the current 
  forth-mode buffer. Prepend `forth-local-words' to `forth-words' and 
  `forth-local-indent-words' to `forth-indent-words'."
+  (put 'forth-local-indent-words 'safe-local-variable 'listp)
+  (put 'forth-local-words 'safe-local-variable 'listp)
   (hack-local-variables)
   (setq forth-words (append forth-local-words forth-words))
   (setq forth-indent-words (append forth-local-indent-words 
