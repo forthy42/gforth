@@ -2492,53 +2492,53 @@ c_addr = "libltdl is not configured";
 u = strlen(c_addr);
 #endif
 
-w!be ( w c_addr -- )	gforth w_store_be
-""Store the bottom 16 bits of @i{w} at @i{c_addr} in big endian format.""
-*(Wyde*)(c_addr) = htobe16(w);
-
-l!be ( w c_addr -- )	gforth l_store_be
-""Store the bottom 32 bits of @i{w} at @i{c_addr} in big endian format.""
-*(Tetrabyte*)(c_addr) = htobe32(w);
-
-x!be ( w c_addr -- )	gforth x_store_be
-""Store the bottom 64 bits of @i{w} at @i{c_addr} in big endian format.""
-*(Octabyte*)(c_addr) = htobe64(w);
-
-w!le ( w c_addr -- )	gforth w_store_le
-""Store the bottom 16 bits of @i{w} at @i{c_addr} in big endian format.""
-*(Wyde*)(c_addr) = htole16(w);
-
-l!le ( w c_addr -- )	gforth l_store_le
-""Store the bottom 32 bits of @i{w} at @i{c_addr} in big endian format.""
-*(Tetrabyte*)(c_addr) = htole32(w);
-
-x!le ( w c_addr -- )	gforth x_store_le
-""Store the bottom 64 bits of @i{w} at @i{c_addr} in big endian format.""
-*(Octabyte*)(c_addr) = htole64(w);
-
-w@be ( c_addr -- u )	gforth w_fetch_be
-""@i{u} is the zero-extended 16-bit big endian value stored at @i{c_addr}.""
-u = be16toh(*(UWyde*)(c_addr));
-
-l@be ( c_addr -- u )	gforth l_fetch_be
-""@i{u} is the zero-extended 32-bit big endian value stored at @i{c_addr}.""
-u = be32toh(*(UTetrabyte*)(c_addr));
-
-x@be ( c_addr -- u )	gforth x_fetch_be
-""@i{u} is the zero-extended 64-bit big endian value stored at @i{c_addr}.""
-u = be64toh(*(UOctabyte*)(c_addr));
-
-w@le ( c_addr -- u )	gforth w_fetch_le
-""@i{u} is the zero-extended 16-bit little endian value stored at @i{c_addr}.""
-u = le16toh(*(UWyde*)(c_addr));
-
-l@le ( c_addr -- u )	gforth l_fetch_le
-""@i{u} is the zero-extended 32-bit little endian value stored at @i{c_addr}.""
-u = le32toh(*(UTetrabyte*)(c_addr));
-
-x@le ( c_addr -- u )	gforth x_fetch_le
-""@i{u} is the zero-extended 64-bit little endian value stored at @i{c_addr}.""
-u = le64toh(*(UOctabyte*)(c_addr));
+\ w!be ( w c_addr -- )	gforth w_store_be
+\ ""Store the bottom 16 bits of @i{w} at @i{c_addr} in big endian format.""
+\ *(Wyde*)(c_addr) = htobe16(w);
+\ 
+\ l!be ( w c_addr -- )	gforth l_store_be
+\ ""Store the bottom 32 bits of @i{w} at @i{c_addr} in big endian format.""
+\ *(Tetrabyte*)(c_addr) = htobe32(w);
+\ 
+\ x!be ( w c_addr -- )	gforth x_store_be
+\ ""Store the bottom 64 bits of @i{w} at @i{c_addr} in big endian format.""
+\ *(Octabyte*)(c_addr) = htobe64(w);
+\ 
+\ w!le ( w c_addr -- )	gforth w_store_le
+\ ""Store the bottom 16 bits of @i{w} at @i{c_addr} in big endian format.""
+\ *(Wyde*)(c_addr) = htole16(w);
+\ 
+\ l!le ( w c_addr -- )	gforth l_store_le
+\ ""Store the bottom 32 bits of @i{w} at @i{c_addr} in big endian format.""
+\ *(Tetrabyte*)(c_addr) = htole32(w);
+\ 
+\ x!le ( w c_addr -- )	gforth x_store_le
+\ ""Store the bottom 64 bits of @i{w} at @i{c_addr} in big endian format.""
+\ *(Octabyte*)(c_addr) = htole64(w);
+\ 
+\ w@be ( c_addr -- u )	gforth w_fetch_be
+\ ""@i{u} is the zero-extended 16-bit big endian value stored at @i{c_addr}.""
+\ u = be16toh(*(UWyde*)(c_addr));
+\ 
+\ l@be ( c_addr -- u )	gforth l_fetch_be
+\ ""@i{u} is the zero-extended 32-bit big endian value stored at @i{c_addr}.""
+\ u = be32toh(*(UTetrabyte*)(c_addr));
+\ 
+\ x@be ( c_addr -- u )	gforth x_fetch_be
+\ ""@i{u} is the zero-extended 64-bit big endian value stored at @i{c_addr}.""
+\ u = be64toh(*(UOctabyte*)(c_addr));
+\ 
+\ w@le ( c_addr -- u )	gforth w_fetch_le
+\ ""@i{u} is the zero-extended 16-bit little endian value stored at @i{c_addr}.""
+\ u = le16toh(*(UWyde*)(c_addr));
+\ 
+\ l@le ( c_addr -- u )	gforth l_fetch_le
+\ ""@i{u} is the zero-extended 32-bit little endian value stored at @i{c_addr}.""
+\ u = le32toh(*(UTetrabyte*)(c_addr));
+\ 
+\ x@le ( c_addr -- u )	gforth x_fetch_le
+\ ""@i{u} is the zero-extended 64-bit little endian value stored at @i{c_addr}.""
+\ u = le64toh(*(UOctabyte*)(c_addr));
 
 \+
 \g peephole
