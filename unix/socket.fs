@@ -47,6 +47,8 @@ c-function htons htons n -- n ( x -- x' )
 c-function ntohl ntohl n -- n ( x -- x' )
 \c #define fileno1(file) fileno((FILE*)(file))
 c-function fileno fileno1 a -- n ( file* -- fd )
+\c #include <poll.h>
+c-function poll poll a n n -- n ( fds nfds timeout -- r )
 end-c-library
 
 4 4 2Constant int%
@@ -66,6 +68,12 @@ struct
     int% field sin_addr
     cell% 2* field padding
 end-struct sockaddr_in
+
+struct
+    int% field fd
+    short% field events
+    short% field revents
+end-struct pollfd
 
 ' family alias family+port \ 0.6.2 32-bit field; used by itools
 
@@ -96,6 +104,10 @@ sockaddr-tmp sockaddr_in %size dup allot erase
   11 Constant EWOULDBLOCK
 $100 Constant MSG_WAITALL
 $802 Constant O_NONBLOCK|O_RDWR
+$001 Constant POLLIN
+$002 Constant POLLPRI
+$004 Constant POLLOUT
+
 2variable socket-timeout-d 2000. socket-timeout-d 2!
 
 : new-socket ( -- socket )
