@@ -25,7 +25,7 @@
 : disasm-gdb { addr u -- }
     base @ >r hex
     s\" type mktemp >/dev/null && type gdb >/dev/null && file=`mktemp -t gforthdis.XXXXXXXXXX` && file2=`mktemp -t gforthdis.XXXXXXXXXX` && echo \"set verbose off\nset logging file $file\nset logging on\ndisas " save-mem ( addr u addr1 u1 )
-    addr 0 <<# bl hold # #s 'x hold # #> append-extend-string #>>
+    addr 0 <<# ',' hold # #s 'x hold # #> append-extend-string #>>
     addr u + 0 <<# # #s 'x hold # #> append-extend-string #>>
     r> base ! cr
     s\" \nset logging off\nquit\n\" >$file2 && gdb -nx -q -p `ps -p $$ -o ppid=` -x $file2 2>/dev/null >/dev/null && rm $file2 && grep -v \"of assembler\" $file && rm $file" append-extend-string
