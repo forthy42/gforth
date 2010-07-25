@@ -807,7 +807,11 @@ fi
 #echo "CFLAGS=$CFLAGS"
 #echo "ac_link=$ac_link"
 AC_MSG_CHECKING([if and how we can waste code space])
-if test -z "$skipcode"; then
+if test -z "$skipcode" && test x$cross_compiling = xyes; then
+   # we cannot perform the AC_TRY_RUN check when cross-compiling.  
+   skipcode=no
+   AC_MSG_RESULT([$skipcode, can't run checks since cross-compiling])
+elif test -z "$skipcode"; then
     skipcode=no
     CFLAGS_1="$CFLAGS"
     CFLAGS="$CFLAGS $ENGINE_FLAGS"
