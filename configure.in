@@ -20,7 +20,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl We use some automake macros here,
 dnl but don't use automake for creating Makefile.in
-AC_INIT([gforth],[0.7.0-20090215],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
+AC_INIT([gforth],[0.7.0-20100725],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
 AC_PREREQ(2.54)
 #snapshots have numbers major.minor.release-YYYYMMDD
 #note that lexicographic ordering must be heeded.
@@ -693,14 +693,16 @@ AC_MSG_RESULT($PREFORTH)
 dnl AC_CHECK_PROG(asm_fs,asm.fs,arch/$machine/asm.fs,,$srcdir/arch/$machine)
 if test x$EC_MODE = xfalse
 then
-  AC_CHECK_FILE($srcdir/arch/$machine/asm.fs,[asm_fs=arch/$machine/asm.fs],)
+  AS_IF([test -f $srcdir/arch/$machine/asm.fs],
+        [asm_fs=arch/$machine/asm.fs])
 fi
 AC_SUBST(asm_fs)
 
 dnl AC_CHECK_PROG(disasm_fs,disasm.fs,arch/$machine/disasm.fs,,$srcdir/arch/$machine)
 if test x$EC_MODE = xfalse
 then
-  AC_CHECK_FILE($srcdir/arch/$machine/disasm.fs,[disasm_fs=arch/$machine/disasm.fs],)
+  AS_IF([test -f $srcdir/arch/$machine/disasm.fs],
+   	[disasm_fs=arch/$machine/disasm.fs])
 fi
 AC_SUBST(disasm_fs)
 
