@@ -13001,6 +13001,29 @@ conditional branch and leaving away the @code{b} at the start and the
 then,
 @end example
 
+The calling conventions for 32-bit MIPS machines is to pass the first
+4 arguments in registers @code{$4}..@code{$7}, and to use
+@code{$v0}-@code{$v1} for return values.  In addition to these
+registers, it is ok to clobber registers @code{$t0}-@code{$t8} without
+saving and restoring them.
+
+If you use @code{jalr,} to call into dynamic library routines, you
+must first load the called function's address into @code{$t9}, which
+is used by position-indirect code to do relative memory accesses.
+
+Here is an example of a MIPS32 @code{abi-code} word:
+
+@example
+abi-code my+  ( n1 n2 -- n3 )
+  \ SP passed in $4, returned in $v0
+  $t0  0 $4  lw,         \ load n1, n2 from stack
+  $t1  4 $4  lw,    
+  $t0  $t0  $t1  addu,   \ add n1+n2, result in $t0
+  $t0  4 $4  sw,         \ store result (overwriting n1)
+  $ra  jr,               \ return to caller
+  $v0  $4  4  addiu,     \ (delay slot) return uptated SP in $v0
+end-code
+@end example
 
 @node PowerPC assembler, ARM Assembler, MIPS assembler, Assembler and Code Words
 @subsection PowerPC assembler
