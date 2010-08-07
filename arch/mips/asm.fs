@@ -1,4 +1,4 @@
-\ asm.fs	assembler file (for MIPS R3000)
+\ asm.fs	assembler file (for MIPS32)
 \
 \ Copyright (C) 2000,2007 Free Software Foundation, Inc.
 
@@ -18,7 +18,16 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 \ test this with
-\ gforth arch/mips/asm.fs -e "also assembler here" arch/mips/testasm.fs -e "here over - here" arch/mips/testdisasm.fs -e "here over - compare throw bye"
+\
+\ ./gforth -i kernl64l.fi exboot.fs startup.fs \
+\     arch/mips/{asm.fs,disasm.fs,insts.fs} \
+\     -e "also assembler here" arch/mips/testasm.fs
+\     -e "here over - here" arch/mips/testdisasm.fs
+\     -e "here over - compare throw bye"
+\
+\ This test should also work when run on non-mips systems.  Even on 64-bit
+\ systems. the mips assembler is 64-bit safe, so you can use it to
+\ cross-compile e.g. from an AMD64 target.
 
 require ./../../code.fs
 
@@ -61,12 +70,15 @@ $20 constant asm-registers
 30 constant $s8
 31 constant $ra
 
-$00 constant asm-init-code
+$00 constant asm-special
+$1C 26 lshift constant asm-special2
 
 $1F constant asm-bm05
 $3F constant asm-bm06
 $FFFF constant asm-bm10
 $3FFFFFF constant asm-bm1A
+
+: l,  here 4 allot  l! ;
 
 : asm-op ( n -- code )
     asm-bm06 and $1a lshift ;
@@ -96,7 +108,7 @@ $3FFFFFF constant asm-bm1A
     swap 2/ 2/ swap asm-imm ;
 
 : asm-target ( n code -- code )
-    over here cell+ xor $f0000003 and 0<> -24 and throw
+    over here 4 + xor $f0000003 and 0<> -24 and throw
     swap 2 rshift asm-bm1A and or ;
 
 : asm-rd ( n code -- code )
@@ -112,43 +124,46 @@ $3FFFFFF constant asm-bm1A
     swap asm-bm06 and or ;
 
 : asm-special ( code1 -- code2 )
-    asm-init-code asm-funct ;
+    asm-special asm-funct ;
+
+ : asm-special2 ( code1 -- code2 )
+    asm-special2 asm-funct ;
 
 \ ***** I-types
 : asm-I-rt,imm ( code -- )
     create ,
 does> ( rt imm -- )
-    @ asm-imm asm-rt , ;
+    @ asm-imm asm-rt l, ;
 
 : asm-I-rt,uimm ( code -- )
     create ,
 does> ( rt uimm -- )
-    @ asm-uimm asm-rt , ;
+    @ asm-uimm asm-rt l, ;
 
 : asm-I-rs,imm ( code -- )
     create ,
 does> ( rs imm -- )
-    @ asm-rel asm-rs , ;
+    @ asm-rel asm-rs l, ;
 
 : asm-I-rt,rs,imm ( code -- )
     create ,
 does> ( rt rs imm -- )
-    @ asm-imm asm-rs asm-rt , ;
+    @ asm-imm asm-rs asm-rt l, ;
 
 : asm-I-rt,rs,uimm ( code -- )
     create ,
 does> ( rt rs uimm -- )
-    @ asm-uimm asm-rs asm-rt , ;
+    @ asm-uimm asm-rs asm-rt l, ;
 
 : asm-I-rs,rt,imm ( code -- )
     create ,
 does> ( rs rt imm -- )
-    @ asm-rel asm-rt asm-rs , ;
+    @ asm-rel asm-rt asm-rs l, ;
 
 : asm-I-rt,offset,rs ( code -- )
     create ,
 does> ( rt offset rs -- )
-    @ asm-rs asm-offset asm-rt , ;
+    @ asm-rs asm-offset asm-rt l, ;
 
 \ ***** regimm types
 : asm-regimm-rs,imm ( funct -- )
@@ -159,7 +174,7 @@ does> ( rt offset rs -- )
 : asm-I-imm,z ( code -- )
     create ,
 does> ( imm z -- )
-    @ swap asm-op or asm-rel , ;
+    @ swap asm-op or asm-rel l, ;
 
 : asm-copz-imm ( code -- )
     $10 asm-op or asm-I-imm,z ;
@@ -167,7 +182,7 @@ does> ( imm z -- )
 : asm-I-rt,offset,rs,z ( code -- )
     create ,
 does> ( rt offset rs z -- )
-    @ swap asm-op or asm-rs asm-offset asm-rt , ;
+    @ swap asm-op or asm-rs asm-offset asm-rt l, ;
 
 : asm-copz-rt,offset,rs ( code -- )
     asm-op asm-I-rt,offset,rs,z ;
@@ -175,62 +190,77 @@ does> ( rt offset rs z -- )
 : asm-J-target ( code -- )
     create ,
 does> ( target -- )
-    @ asm-target , ;
+    @ asm-target l, ;
 
 \ ***** special types
 : asm-special-nothing ( code -- )
     asm-special create ,
 does> ( addr -- )
-    @ , ;
+    @ l, ;
 
 : asm-special-rd ( code -- )
     asm-special create ,
 does> ( rd addr -- )
-    @ asm-rd , ;
+    @ asm-rd l, ;
 
 : asm-special-rs ( code -- )
     asm-special create ,
 does> ( rs addr -- )
-    @ asm-rs , ;
+    @ asm-rs l, ;
 
 : asm-special-rd,rs ( code -- )
     asm-special create ,
 does> ( rd rs addr -- )
-    @ asm-rs asm-rd , ;
+    @ asm-rs asm-rd l, ;
 
 : asm-special-rs,rt ( code -- )
     asm-special create ,
 does> ( rs rt addr -- )
-    @ asm-rt asm-rs , ;
+    @ asm-rt asm-rs l, ;
 
 : asm-special-rd,rs,rt ( code -- )
     asm-special create ,
 does> ( rd rs rt addr -- )
-    @ asm-rt asm-rs asm-rd , ;
+    @ asm-rt asm-rs asm-rd l, ;
 
 : asm-special-rd,rt,rs ( code -- )
     asm-special create ,
 does> ( rd rt rs addr -- )
-    @ asm-rs asm-rt asm-rd , ;
+    @ asm-rs asm-rt asm-rd l, ;
 
 : asm-special-rd,rt,sa ( code -- )
     asm-special create ,
 does> ( rd rt sa addr -- )
-    @ asm-sa asm-rt asm-rd , ;
+    @ asm-sa asm-rt asm-rd l, ;
 
+ : asm-special2-rd,rs ( code -- )
+    asm-special2 create ,
+does> ( rd rs addr -- ) \ note: rt equal rd for these special2 opcodes!
+    @ asm-rs  over swap asm-rd asm-rt l, ;
+
+: asm-special2-rs,rt ( code -- )
+    asm-special2 create ,
+does> ( rs rt addr -- )
+    @ asm-rt asm-rs l, ;
+
+: asm-special2-rd,rs,rt ( code -- )
+    asm-special2 create ,
+does> ( rd rs rt addr -- )
+    @ asm-rt asm-rs asm-rd l, ;
+ 
 \ ***** copz types 2
 : asm-copz0 ( funct -- )
     $10 $10 asm-op asm-rs asm-funct create ,
 does> ( addr -- )
-    @ , ;
+    @ l, ;
 
 : asm-copz-rt,rd ( funct -- )
     $10 asm-op or create ,
 does> ( rt rd z addr -- )
-    @ swap asm-op or asm-rd asm-rt , ;
+    @ swap asm-op or asm-rd asm-rt l, ;
 
 : nop, ( -- )
-    0 , ;
+    0 l, ;
 
 include ./insts.fs
 
@@ -348,8 +378,8 @@ include ./insts.fs
     \ there is a branch just before branch-delay-addr; PATCH-BRANCH
     \ patches this branch to branch to target-addr
     over - ( branch-delay-addr rel )
-    swap cell - dup >r ( rel branch-addr R:branch-addr )
-    @ asm-rel r> ! ; \ !! relies on the imm field being 0 before
+    swap 4 - dup >r ( rel branch-addr R:branch-addr )
+    ul@ asm-rel r> l! ; \ !! relies on the imm field being 0 before
 
 : if, ( ... xt -- asm-orig )
     \ xt is for a branch word ( ... addr -- )
@@ -380,7 +410,7 @@ include ./insts.fs
 
 : delayed-then, ( asm-orig -- )
     \ set the target of asm-orig to one instruction after the current one
-    0 , then, -1 cells allot ;
+    0 l, then, -4 allot ;
 
 : else, ( asm-orig1 -- asm-orig2 )
     ahead, 1 cs-roll delayed-then, ;

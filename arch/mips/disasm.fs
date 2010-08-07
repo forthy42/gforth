@@ -1,4 +1,4 @@
-\ disasm.fs	disassembler file (for MIPS R3000)
+\ disasm.fs	disassembler file (for MIPS32)
 \
 \ Copyright (C) 2000,2007 Free Software Foundation, Inc.
 
@@ -79,6 +79,7 @@ does> ( u -- addr )
 
 $40 disasm-table opc-tab-entry     \ top-level decode table
 $40 disasm-table funct-tab-entry   \ special function table
+$40 disasm-table funct-tab2-entry  \ special2 function table
 $20 disasm-table regimm-tab-entry  \ regim instructions rt table
 $20 disasm-table copz-rs-tab-entry \ COPz instructions rs table
 $20 disasm-table copz-rt-tab-entry \ COPz BC instructions rt table
@@ -96,8 +97,8 @@ dup set-current
 : disasm ( addr u -- ) \ gforth
     \G disassemble u aus starting at addr
     bounds u+do
-	cr ." ( " i hex. ." ) " i i @ disasm-inst
-	1 cells +loop
+	cr ." ( " i hex. ." ) " i i ul@ disasm-inst
+	4 +loop
     cr ;
 
 ' disasm IS discode
@@ -108,6 +109,11 @@ definitions
     \ disassemble inst with opcode special
     dup disasm-funct funct-tab-entry @ execute ;
 ' disasm-special 0 opc-tab-entry ! \ enter it for opcode special
+
+: disasm-special2 ( addr w -- ) \ todo factor out!
+    \ disassemble inst with opcode special2
+    dup disasm-funct funct-tab2-entry @ execute ;
+' disasm-special2 $1C opc-tab-entry ! \ enter it for opcode special
 
 : disasm-regimm ( addr w -- )
     \ disassemble regimm inst
@@ -260,6 +266,9 @@ does> ( addr w -- )
 ' disasm-rd.         ' funct-tab-entry 	 define-format asm-special-rd
 ' disasm-rs,rt       ' funct-tab-entry 	 define-format asm-special-rs,rt
 ' disasm-rd,rs,rt    ' funct-tab-entry 	 define-format asm-special-rd,rs,rt
+' disasm-rd,rs       ' funct-tab2-entry  define-format asm-special2-rd,rs
+' disasm-rs,rt       ' funct-tab2-entry  define-format asm-special2-rs,rt
+' disasm-rd,rs,rt    ' funct-tab2-entry  define-format asm-special2-rd,rs,rt
 ' disasm-I-rs,imm    ' regimm-tab-entry  define-format asm-regimm-rs,imm
 ' 2drop              ' cp0-tab-entry     define-format asm-copz0
 ' disasm-rt,rd,z     ' copz-rs-tab-entry define-format asm-copz-rt,rd1
