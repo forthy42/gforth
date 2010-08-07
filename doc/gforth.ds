@@ -12955,41 +12955,50 @@ endif,
 
 The MIPS assembler was originally written by Christian Pirker.
 
-Currently the assembler and disassembler only cover the MIPS-I
-architecture (R3000), and don't support FP instructions.
+Currently the assembler and disassembler covers most of the MIPS32
+architecture and doesn't support FP instructions.
 
 The register names @code{$a0}--@code{$a3} are not available to avoid
-shadowing hex numbers.
+shadowing hex numbers.  Use register numbers @code{$4}--@code{$7}
+instead.
 
-Because there is no way to distinguish registers from immediate values,
-you have to explicitly use the immediate forms of instructions, i.e.,
-@code{addiu,}, not just @code{addu,} (@command{as} does this
-implicitly).
+Nothing distinguishes registers from immediate values.  Use explicit
+opcode names with the @code{i} suffix for instructions with immediate
+argument.  E.g. @code{addiu,} in place of @code{addu,}.
 
-If the architecture manual specifies several formats for the instruction
-(e.g., for @code{jalr,}), you usually have to use the one with more
-arguments (i.e., two for @code{jalr,}).  When in doubt, see
+Where the architecture manual specifies several formats for the
+instruction (e.g., for @code{jalr,}),use the one with more arguments
+(i.e. two for @code{jalr,}).  When in doubt, see
 @code{arch/mips/testasm.fs} for an example of correct use.
 
-Branches and jumps in the MIPS architecture have a delay slot.  You have
-to fill it yourself (the simplest way is to use @code{nop,}), the
+Branches and jumps in the MIPS architecture have a delay slot.  You
+have to fill it manually (the simplest way is to use @code{nop,}), the
 assembler does not do it for you (unlike @command{as}).  Even
-@code{if,}, @code{ahead,}, @code{until,}, @code{again,}, @code{while,},
-@code{else,} and @code{repeat,} need a delay slot.  Since @code{begin,}
-and @code{then,} just specify branch targets, they are not affected.
+@code{if,}, @code{ahead,}, @code{until,}, @code{again,},
+@code{while,}, @code{else,} and @code{repeat,} need a delay slot.
+Since @code{begin,} and @code{then,} just specify branch targets, they
+are not affected.  For branches the argument specifying the target is
+a relative address.  Add the address of the delay slot to get the
+absolute address.
 
-Note that you must not put branches, jumps, or @code{li,} into the delay
-slot: @code{li,} may expand to several instructions, and control flow
-instructions may not be put into the branch delay slot in any case.
+Note that you must not put branches nor jumps (nor control-flow
+instructions) into the delay slot.  Also it is a bad idea to put
+pseudo-ops such as @code{li,} into a delay slot, as these may expand
+to several instructions.  The MIPS I architecture also had load delay
+slots, and newer MIPSes still have restrictions on using @code{mfhi,}
+and @code{mflo,}.  Be careful to satisfy these restrictions, the
+assembler does not do it for you.
 
-For branches the argument specifying the target is a relative address;
-You have to add the address of the delay slot to get the absolute
-address.
+Some example of instructions are:
 
-The MIPS architecture also has load delay slots and restrictions on
-using @code{mfhi,} and @code{mflo,}; you have to order the instructions
-yourself to satisfy these restrictions, the assembler does not do it for
-you.
+@example
+$ra  12 $sp  sw,         \ sw    ra,12(sp)
+$4    8 $s0  lw,         \ lw    a0,8(s0)
+$v0  $0  lui,            \ lui   v0,0x0
+$s0  $s4  $12  addiu,    \ addiu s0,s4,0x12
+$s0  $s4  $4  addu,      \ addu  s0,s4,$a0
+$ra  $t9  jalr,          \ jalr  t9
+@end example
 
 You can specify the conditions for @code{if,} etc. by taking a
 conditional branch and leaving away the @code{b} at the start and the
