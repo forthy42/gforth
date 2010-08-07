@@ -849,7 +849,7 @@ then
 	no_dynamic_default=1
 	AC_MSG_WARN(Disabling default dynamic native code generation)
     fi
-    AC_DEFINE_UNQUOTED(SKIP16,((void)0),statement for skipping 16 bytes)
+    AC_DEFINE_UNQUOTED(SKIP16,asm(""),statement for skipping 16 bytes)
 else
     AC_DEFINE_UNQUOTED(SKIP16,asm("$skipcode"),statement for skipping 16 bytes)
 fi
