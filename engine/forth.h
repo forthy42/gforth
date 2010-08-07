@@ -282,6 +282,10 @@ typedef Label *Xt;
 #define NO_DYNAMIC_DEFAULT 1
 #endif
 
+#ifndef CHECK_PRIM
+#define CHECK_PRIM(start,len) 0
+#endif
+
 #if defined(GFORTH_DEBUGGING) || defined(INDIRECT_THREADED) || defined(DOUBLY_INDIRECT) || defined(VM_PROFILING)
 #define STACK_CACHE_DEFAULT 0
 #else

@@ -46,3 +46,7 @@
 #define CFAREG asm("$20")
 #define TOSREG asm("$21")
 #endif /* FORCE_REG */
+
+int check_prim(char *start, int len);
+
+#define CHECK_PRIM(start,len) check_prim(start,len)

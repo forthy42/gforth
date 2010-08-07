@@ -1049,6 +1049,15 @@ static void check_prims(Label symbols1[])
       nonrelocs++;
       continue;
     }
+    if (CHECK_PRIM(s1, prim_len)) {
+#ifndef BURG_FORMAT
+      debugp(stderr,"\n   non_reloc: architecture specific check failed\n");
+#endif
+      pi->start = NULL; /* not relocatable */
+      relocs--;
+      nonrelocs++;
+      continue;
+    }
     assert(pi->length>=0);
     assert(pi->restlength >=0);
     while (j<(pi->length+pi->restlength)) {
