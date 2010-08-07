@@ -70,8 +70,8 @@ $20 constant asm-registers
 30 constant $s8
 31 constant $ra
 
-$00 constant asm-special
-$1C 26 lshift constant asm-special2
+$00 constant #asm-special
+$1C 26 lshift constant #asm-special2
 
 $1F constant asm-bm05
 $3F constant asm-bm06
@@ -124,10 +124,10 @@ $3FFFFFF constant asm-bm1A
     swap asm-bm06 and or ;
 
 : asm-special ( code1 -- code2 )
-    asm-special asm-funct ;
+    #asm-special asm-funct ;
 
  : asm-special2 ( code1 -- code2 )
-    asm-special2 asm-funct ;
+    #asm-special2 asm-funct ;
 
 \ ***** I-types
 : asm-I-rt,imm ( code -- )
