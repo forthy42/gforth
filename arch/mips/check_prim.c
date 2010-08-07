@@ -30,6 +30,12 @@ int check_prim(char *start, int len)
    } blacklist[] = {
       { 0xFC000000, 0x08000000}, /* J */
       { 0xFC000000, 0x0C000000}, /* JAL */
+      /* HI/LO register reads must be separated from writes by two instruction
+	 slots.  We can blacklist either only writes or only reads.
+	 Blacklisting only MFLO, MFHI is sufficient and the shortest
+	 solution. */
+      { 0xFFFF07FF, 0x00000010}, /* MFHI */
+      { 0xFFFF07FF, 0x00000012}  /* MFLO */
    };
    int n = sizeof(blacklist) / sizeof(struct instcmp_t);
    const instruction *inst = (const instruction*)start;
