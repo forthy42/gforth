@@ -13025,8 +13025,8 @@ Here is an example of a MIPS32 @code{abi-code} word:
 @example
 abi-code my+  ( n1 n2 -- n3 )
   \ SP passed in $4, returned in $v0
-  $t0  0 $4  lw,         \ load n1, n2 from stack
-  $t1  4 $4  lw,    
+  $t0  4 $4  lw,         \ load n1, n2 from stack
+  $t1  0 $4  lw,    
   $t0  $t0  $t1  addu,   \ add n1+n2, result in $t0
   $t0  4 $4  sw,         \ store result (overwriting n1)
   $ra  jr,               \ return to caller
