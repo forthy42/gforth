@@ -315,6 +315,7 @@ ARCHS =	\
 	arch/generic/machine.h \
 	arch/m68k/machine.h \
 	arch/mips/machine.h \
+	arch/mips/check_prim.c \
 	arch/386/machine.h \
 	arch/hppa/machine.h \
 	arch/hppa/cache.c \
