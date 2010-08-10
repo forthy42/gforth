@@ -12922,6 +12922,22 @@ ret
 end-code
 @end example
 
+Here's a AMD64 example that deals with FP values:
+
+@example
+abi-code my-f+  ( r1 r2 -- r )
+\ SP passed in di, returned in ax,  address of FP passed in si
+si )     ax mov         \ load fp
+8 ax d)  dx lea         \ update fp
+ax )   xmm0 movsd       \ r2
+dx )   xmm0 addsd       \ r1+r2
+xmm0   dx ) movsd       \ store r
+dx     si ) mov         \ store new fp
+di       ax mov         \ sp into return reg
+ret
+end-code
+@end example
+
 @node Alpha Assembler, MIPS assembler, AMD64 Assembler, Assembler and Code Words
 @subsection Alpha Assembler
 
