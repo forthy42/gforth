@@ -97,13 +97,16 @@ Variable .arel
     LOOP   2drop ;
 : rbytes, ( nr x n -- )
     >r here r@ + - r> bytes, ;
+: (opcode,)  ( opcode -- ) \ append 1 to 3 opcode bytes (high part 1st)
+   -1 $10 do  dup i rshift $ff and   dup i 0= or if , else drop then 
+   -$8 +loop  drop ;
 : opcode, ( opcode -- )
     .asize @ .anow @  <> IF  $67 ,  THEN
     .osize @ .onow @  <> IF  $66 ,  THEN
     seg    @ IF  seg @ ,  THEN
     .64now @ IF  .rex @ $08 or .rex !  THEN
     .rex   @ IF  .rex @ $F and $40 or ,  THEN
-    ,  pre- ;
+    (opcode,)  pre- ;
 : finish ( opcode -- )  opcode,
     ModR/M# @ IF  ModR/M @ ,  THEN
     SIB#    @ IF  SIB    @ ,  THEN
@@ -166,7 +169,9 @@ Variable .arel
 : L) ( disp reg -- reg ) ) >r disp ! 200 asize@ disp# ! r> or ;
 : LI) ( disp reg1 reg2 -- reg ) I) L) ;
 : >>mod ( reg1 reg2 -- mod )
-    2dup or $80000 and $0F rshift .rex +!
+   \ bug?  This can only add $10 to .rex.  However only bits 0..3 of .rex are
+   \ used
+    2dup or $80000 and $0F rshift .rex +!  
     dup $10000 and $0E rshift .rex +! 70 and swap
     dup $30000 and $10 rshift .rex +! 307 and or ;
 : >reg ( reg -- reg' )  dup $10000 and $10 rshift .rex +! 7 and ;
@@ -340,6 +345,7 @@ $CC bc: INT3                    $CE bc: INTO    $CF bc: IRET
 
 \ one byte opcodes                                     25dec92py
 
+\ todo: keep these from generating REX prefixes!
 $F0 bc: LOCK                    $F2 bc: REP     $F3 bc: REPE
 $F4 bc: HLT     $F5 bc: CMC
 $F8 bc: CLC     $F9 bc: STC     $FA bc: CLI     $FB bc: STI
@@ -561,7 +567,8 @@ $EB mod0F: por                  $EF mod0F: pxor
 \ MMX opcodes                                         27jun99beu
 
 \ mmxreg --> mmxreg move
-$6F mod0F: MOVQ
+\ (dk)this misses the reg->mem move, redefined in the SSE part below
+\ $6F mod0F: MOVQ   
 
 \ memory/reg32 --> mmxreg load
 $6F mod0F: PLDQ  \ Intel: MOVQ mm,m64
@@ -587,6 +594,72 @@ $BF 3Dnow: PAVGUSB
 
 : FEMMS  $0E finish0F ;
 : PREFETCH  000 $0D mod0F ;    : PREFETCHW  010 $0D mod0F ;
+
+\ SSE opcodes (Athlon64)
+    300 7 regs XMM0 XMM1 XMM2 XMM3 XMM4 XMM5 XMM6 XMM7
+0200300 7 regs XMM8 XMM9 XMM10 XMM11 XMM12 XMM13 XMM14 XMM15
+
+: movxx:  ( opcode1-regdst opcode2-memdst -- )  create ,  ,
+   does>  ( xmm1 xmm2/mem | xmm1/mem xmm2   a-addr -- ) 
+   >r reg>mod r>  swap 3 = if cell+ then  @
+   .d  ( supress REX)   finish ;
+
+$0f10   $0f11   movxx: movups   $660f10 $660f11 movxx: movupd
+$0f12   $0f13   movxx: movlps   $660f12 $660f13 movxx: movlpd
+$0f16   $0f17   movxx: movhps   $660f16 $660f17 movxx: movhpd
+$0f28   $0f29   movxx: movaps   $660f28 $660f29 movxx: movapd
+$f30f10 $f30f11 movxx: movss    $f20f10 $f20f11 movxx: movsd   
+
+\ todo: how do we switch all the other MMX/SSE bastards between the two modes?
+\ obviously that requires only inserting a $66 prefix
+\ ugly solution: set .osize flag when XMM is used!?
+$0f6f   $0f7f   movxx: movq-mmx
+$660f7e $660fd6 movxx: movq
+
+\ todo: can be used with .d/.q prefix (i.e. 64-bit mov with REX, else 32-bit
+\ mov)  So now we have REX and $66 prefix!
+$0f6e   $0f7e   movxx: movd-mmx
+$660f6e $660f7e movxx: movd
+
+\ SSE arithmetic
+: sse:  ( opc1 opc2 "name" -- ) create here 4 allot l!
+   does> ( xmm1 xmm2/mem a-addr -- )
+   .d ( suppress .REX) ul@ modf ;
+$0f58   sse: addps     $660f58 sse: addpd 
+$f30f58 sse: addss     $f20f58 sse: addsd  
+$f20fd0 sse: addsubps  $660fd0 sse: addsubpd
+$0f54   sse: andps     $660f54 sse: andpd
+$0f55   sse: andnps    $660f55 sse: andnpd
+$0f56   sse: orps      $660f56 sse: orpd
+$0f57   sse: xorps     $660f57 sse: xorpd
+$0f2e   sse: ucomiss   $660f2e sse: ucomisd
+$0f2f   sse: comiss    $660f2f sse: comisd
+$f30fe6 sse: cvtdq2pd  $f20fe6 sse: cvtpd2dq
+$0f5b   sse: cvtdq2ps  $660f5b sse: cvtps2dq
+$0f2d   sse: cvtps2pi  $660f2d sse: cvtpd2pi
+$0f2a   sse: cvtpi2ps  $660f2a sse: cvtpi2pd
+$0f5e   sse: divps     $660f5e sse: divpd
+$f30f5e sse: divss     $f20f5e sse: divsd
+$f20f7c sse: haddps    $660f7c sse: haddpd
+$f20f7d sse: hsubps    $660f7d sse: hsubpd
+$0f5f   sse: maxps     $660f5f sse: maxpd
+$f30f5f sse: maxss     $f20f5f sse: maxsd
+$0f5d   sse: minps     $660f5d sse: minpd
+$f30f5d sse: minss     $f20f5d sse: minsd
+$0f59   sse: mulps     $660f59 sse: mulpd
+$f30f59 sse: mulss     $f20f59 sse: mulsd
+
+\ todo: cvtss2si : rex prefix!
+
+: cmp: ( opc "name1"..."name8" -- )
+   create swap here 4 allot l!  c,
+   does>  ( xmm1 xmm2/mem a-addr -- )
+   dup ul@ >r  4 + c@ #  modf ;
+: cmps:  $8 0 do  dup i cmp: loop  drop ;
+$0fc2 cmps: cmpeqps cmpltps cmpleps cmpunordps cmpneqps cmpnltps cmpnleps cmpordps
+$660f42 cmps: cmpeqpd cmpltpd cmplepd cmpunordpd cmpneqpd cmpnltpd cmpnlepd cmpordpd
+$f30fc2 cmps: cmpeqss cmpltss cmpless cmpunordss cmpneqss cmpnltss cmpnless cmpordss
+$f20fc2 cmps: cmpeqsd cmpltsd cmplesd cmpunordsd cmpneqsd cmpnltsd cmpnlesd cmpordsd 
 
 \ 3Dnow!+MMX opcodes (Athlon)                          21apr00py
 
