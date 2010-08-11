@@ -579,8 +579,8 @@ $6E mod0F: PLDD  \ Intel: MOVD mm,m32/r
 : PSTD ( mm m32/r -- ) SWAP  $7E mod0F ; \ Intel: MOVD m32/r,mm
 
 \ 3Dnow! opcodes (K6)                                  21apr00py
-: mod0F# ( code imm -- )  # 1 imm ! mod0F ;
-: 3Dnow: ( imm -- )  Create c,  DOES> c@ mod0F# ;
+: mod0F# ( code imm -- )  [A] # [F]  1 imm# ! mod0F ;
+: 3Dnow: ( imm -- )  Create c,  DOES>  .64now off  $0f swap c@ mod0F# ;
 $0D 3Dnow: PI2FD                $1D 3Dnow: PF2ID
 $90 3Dnow: PFCMPGE              $A0 3Dnow: PFCMPGT
 $94 3Dnow: PFMIN                $A4 3Dnow: PFMAX
@@ -592,8 +592,8 @@ $B0 3Dnow: PFCMPEQ              $B4 3Dnow: PFMUL
 $B6 3Dnow: PFRCPIT2             $B7 3Dnow: PMULHRW
 $BF 3Dnow: PAVGUSB
 
-: FEMMS  $0E finish0F ;
-: PREFETCH  000 $0D mod0F ;    : PREFETCHW  010 $0D mod0F ;
+: FEMMS  .d $0E finish0F ;
+: PREFETCH  .d 000 $0D mod0F ;    : PREFETCHW  .d 010 $0D mod0F ;
 
 \ SSE opcodes (Athlon64)
     300 7 regs XMM0 XMM1 XMM2 XMM3 XMM4 XMM5 XMM6 XMM7
@@ -614,7 +614,7 @@ $f30f10 $f30f11 movxx: movss    $f20f10 $f20f11 movxx: movsd
 \ obviously that requires only inserting a $66 prefix
 \ ugly solution: set .osize flag when XMM is used!?
 $0f6f   $0f7f   movxx: movq-mmx
-$660f7e $660fd6 movxx: movq
+$f30f7e $660fd6 movxx: movq
 
 \ todo: can be used with .d/.q prefix (i.e. 64-bit mov with REX, else 32-bit
 \ mov)  So now we have REX and $66 prefix!
@@ -622,42 +622,45 @@ $0f6e   $0f7e   movxx: movd-mmx
 $660f6e $660f7e movxx: movd
 
 \ SSE arithmetic
-: sse:  ( opc1 opc2 "name" -- ) create here 4 allot l!
-   does> ( xmm1 xmm2/mem a-addr -- )
-   .d ( suppress .REX) ul@ modf ;
-$0f58   sse: addps     $660f58 sse: addpd 
-$f30f58 sse: addss     $f20f58 sse: addsd  
-$f20fd0 sse: addsubps  $660fd0 sse: addsubpd
-$0f54   sse: andps     $660f54 sse: andpd
-$0f55   sse: andnps    $660f55 sse: andnpd
-$0f56   sse: orps      $660f56 sse: orpd
-$0f57   sse: xorps     $660f57 sse: xorpd
-$0f2e   sse: ucomiss   $660f2e sse: ucomisd
-$0f2f   sse: comiss    $660f2f sse: comisd
-$f30fe6 sse: cvtdq2pd  $f20fe6 sse: cvtpd2dq
-$0f5b   sse: cvtdq2ps  $660f5b sse: cvtps2dq
-$0f2d   sse: cvtps2pi  $660f2d sse: cvtpd2pi
-$0f2a   sse: cvtpi2ps  $660f2a sse: cvtpi2pd
-$0f5e   sse: divps     $660f5e sse: divpd
-$f30f5e sse: divss     $f20f5e sse: divsd
-$f20f7c sse: haddps    $660f7c sse: haddpd
-$f20f7d sse: hsubps    $660f7d sse: hsubpd
-$0f5f   sse: maxps     $660f5f sse: maxpd
-$f30f5f sse: maxss     $f20f5f sse: maxsd
-$0f5d   sse: minps     $660f5d sse: minpd
-$f30f5d sse: minss     $f20f5d sse: minsd
-$0f59   sse: mulps     $660f59 sse: mulpd
-$f30f59 sse: mulss     $f20f59 sse: mulsd
+: sse:  ( opc1 "name" -- ) create ,
+  does> ( xmm1 xmm2/mem a-addr -- )
+   .d ( suppress .REX) @  modf ;
+: sses  ( prefixN..prefix1 opc n "name1" ... "nameN"  -- )
+   0 do   swap $10 lshift over or  sse:  loop  drop ;
+: sse2xa  ( opc "name1" "name2-66"  -- )   $66 $00 rot 2 sses ;
+: sse2xb  ( opc "name1-f3" "name2-f2"  -- )   $f2 $f3 rot 2 sses ;
+: sse2xc  ( opc "name1-f3" "name2-f2"  -- )  $66 $f2 rot 2 sses ;
+: sse4x  ( opc "name1" "name4"  -- )   dup sse2xa sse2xb ;
+
+$0f58 sse4x addps addpd addss addsd
+$0f5c sse4x subps subpd subss subsd  
+$0f5f sse4x maxps maxpd maxss maxsd
+$0f5d sse4x minps minpd minss minsd
+$0f59 sse4x mulps mulpd mulss mulsd
+$0f5e sse4x divps divpd divss divsd
+$0f54 sse2xa andps andpd
+$0f55 sse2xa andnps andnpd
+$0f56 sse2xa orps orpd
+$0f57 sse2xa xorps xorpd
+$0f2e sse2xa ucomiss ucomisd
+$0f2f sse2xa comiss comisd
+$0f5b sse2xa cvtdq2ps cvtps2dq   $f30f5b sse: cvttps2dq 
+$0fe6 sse2xb cvtdq2pd cvtpd2dq   $660f5b sse: cvttpd2dq 
+$0f2d sse2xa cvtps2pi cvtpd2pi  \ todo rex ss
+$0f2a sse2xa cvtpi2ps cvtpi2pd  \ tod rex ss
+$0f5e sse2xa divps divpd
+$0f7c sse2xc haddps haddpd
+$0f7d sse2xc hsubps hsubpd
+$0fd0 sse2xc addsubps addsubpd
 
 \ todo: cvtss2si : rex prefix!
-
-: cmp: ( opc "name1"..."name8" -- )
-   create swap here 4 allot l!  c,
-   does>  ( xmm1 xmm2/mem a-addr -- )
-   dup ul@ >r  4 + c@ #  modf ;
-: cmps:  $8 0 do  dup i cmp: loop  drop ;
+: cmp: ( opc #cmp "name" -- )
+   create swap , c,
+   does>  ( xmm1/mem xmm2 a-addr -- )
+   dup @ swap cell+ c@  [A] #   .64now off modf [F] ;
+: cmps:  ( opc "name1" ... "name8" -- )  $8 0 do  dup i cmp: loop  drop ;
 $0fc2 cmps: cmpeqps cmpltps cmpleps cmpunordps cmpneqps cmpnltps cmpnleps cmpordps
-$660f42 cmps: cmpeqpd cmpltpd cmplepd cmpunordpd cmpneqpd cmpnltpd cmpnlepd cmpordpd
+$660fc2 cmps: cmpeqpd cmpltpd cmplepd cmpunordpd cmpneqpd cmpnltpd cmpnlepd cmpordpd
 $f30fc2 cmps: cmpeqss cmpltss cmpless cmpunordss cmpneqss cmpnltss cmpnless cmpordss
 $f20fc2 cmps: cmpeqsd cmpltsd cmplesd cmpunordsd cmpneqsd cmpnltsd cmpnlesd cmpordsd 
 
@@ -673,7 +676,7 @@ $F6 mod0F: PSADBW               $70 mod0F: PSHUFW
 
 $0C 3Dnow: PI2FW                $1C 3Dnow: PF2IW
 $8A 3Dnow: PFNACC               $8E 3Dnow: PFPNACC
-$BB 3Dnow: PSWABD               : SFENCE   $AE $07 mod0F# ;
+$BB 3Dnow: PSWABD               : SFENCE  .d $0faef8 finish ;     
 : PREFETCHNTA  000 $18 mod0F ;  : PREFETCHT0  010 $18 mod0F ;
 : PREFETCHT1   020 $18 mod0F ;  : PREFETCHT2  030 $18 mod0F ;
 
