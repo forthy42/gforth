@@ -76,6 +76,17 @@ ABI-Code testasm
   	cvtpd2pi (%rax),%mm1
   	cvtpi2ps (%rax),%xmm1
   	cvtpi2pd (%rax),%xmm1
+  	cvtss2si %xmm2,%edx
+  	cvtss2si (%rax),%edx
+  	rex.W
+  	cvtss2si %xmm2,%edx
+  	rex.W
+  	cvtss2si (%rax),%edx
+  	cvtsd2si %xmm2,%edx
+  	cvtsi2sd %edx,%xmm2
+  	cvtsi2sdl (%rax),%xmm2
+  	cvtsi2ss %edx,%xmm2
+  	cvtsi2ssl (%rax),%xmm2
   	divps  (%rax),%xmm1
   	divpd  (%rax),%xmm1
   	haddps (%rax),%xmm1

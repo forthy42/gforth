@@ -622,11 +622,14 @@ $0f6e   $0f7e   movxx: movd-mmx
 $660f6e $660f7e movxx: movd
 
 \ SSE arithmetic
-: sse:  ( opc1 "name" -- ) create ,
-  does> ( xmm1 xmm2/mem a-addr -- )
-   .d ( suppress .REX) @  modf ;
+\ todo: REX prefixes seem to come in between Fx and 0F opcode bytes.
+\ ouch.  need to touch opcode,?
+: sse:  ( opc1 rex? "name" -- ) create swap , c,
+   does> ( xmm1 xmm2/mem a-addr -- )
+   dup @  swap cell+ c@ 0= if ( suppress rex).d then
+   modf ;
 : sses  ( prefixN..prefix1 opc n "name1" ... "nameN"  -- )
-   0 do   swap $10 lshift over or  sse:  loop  drop ;
+   0 do   swap $10 lshift over or  0 sse:  loop  drop ;
 : sse2xa  ( opc "name1" "name2-66"  -- )   $66 $00 rot 2 sses ;
 : sse2xb  ( opc "name1-f3" "name2-f2"  -- )   $f2 $f3 rot 2 sses ;
 : sse2xc  ( opc "name1-f3" "name2-f2"  -- )  $66 $f2 rot 2 sses ;
@@ -644,10 +647,16 @@ $0f56 sse2xa orps orpd
 $0f57 sse2xa xorps xorpd
 $0f2e sse2xa ucomiss ucomisd
 $0f2f sse2xa comiss comisd
-$0f5b sse2xa cvtdq2ps cvtps2dq   $f30f5b sse: cvttps2dq 
-$0fe6 sse2xb cvtdq2pd cvtpd2dq   $660f5b sse: cvttpd2dq 
-$0f2d sse2xa cvtps2pi cvtpd2pi  \ todo rex ss
-$0f2a sse2xa cvtpi2ps cvtpi2pd  \ tod rex ss
+$0f5b sse2xa cvtdq2ps cvtps2dq   $f30f5b 0 sse: cvttps2dq 
+$0fe6 sse2xb cvtdq2pd cvtpd2dq   $660f5b 0 sse: cvttpd2dq 
+$0f2d sse2xa cvtps2pi cvtpd2pi   
+$0f2a sse2xa cvtpi2ps cvtpi2pd   
+( these take .d/.q size prefix:)
+$f30f2d 1 sse: cvtss2si
+$f20f2d 1 sse: cvtsd2si
+$f20f2a 1 sse: cvtsi2sd
+$f30f2a 1 sse: cvtsi2ss
+
 $0f5e sse2xa divps divpd
 $0f7c sse2xc haddps haddpd
 $0f7d sse2xc hsubps hsubpd

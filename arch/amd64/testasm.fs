@@ -1,8 +1,8 @@
-abi-code mmxdup
+abi-code ssedup
    \ SP passed in di, returned in ax,  address of FP passed in si
    -16 di d) ax lea        \ compute new sp in result reg
-   di )  mm0 movupd 
-   mm0 ax )  movups
+   di )  xmm0 movupd 
+   xmm0 ax )  movups
    ret
 end-code
 
@@ -15,6 +15,16 @@ abi-code my-f+
    xmm0 dx )  movsd        \ write TOS to FP stack
    dx  si ) mov            \ write resulting FP back
    di ax mov               \ return SP unchanged
+   ret
+end-code
+
+abi-code my-s>f
+   \ SP passed in di, returned in ax,  address of FP passed in si
+   8 di d) ax lea          \ compute new sp in result reg
+   8 #  si ) sub           \ adjust FP
+   si )  si mov            \ load FP into si
+   .q di )  xmm2 cvtsi2sd  \ convert
+   xmm2  si ) movsd        \ store FP result
    ret
 end-code
 
@@ -81,6 +91,19 @@ abi-code testasm
    ax ) xmm1 cvtpd2pi
    ax ) xmm1 cvtpi2ps
    ax ) xmm1 cvtpi2pd
+
+   .d xmm2  dx  cvtss2si
+   .d ax )  dx  cvtss2si   
+   .q xmm2  dx  cvtss2si  \ our fault.  todo.
+   .q ax )  dx  cvtss2si  \ our fault.  todo.
+
+   .d xmm2  dx cvtsd2si
+   
+   .d dx    xmm2 cvtsi2sd
+   .d ax )  xmm2 cvtsi2sd
+   .d dx    xmm2 cvtsi2ss
+   .d ax )  xmm2 cvtsi2ss
+   
    ax ) xmm1 divps
    ax ) xmm1 divpd
    ax ) xmm1 haddps
