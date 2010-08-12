@@ -67,7 +67,7 @@ Create nrc  ' c, A, ' here A, ' allot A, ' c! A, ' (+rel A,
 >exec +rel
 drop
 
-\ Stack-Buffer fr Extra-Werte                         22dec93py
+\ Stack-Buffer für Extra-Werte                         22dec93py
 
 Variable ModR/M               Variable ModR/M#
 Variable SIB                  Variable SIB#
@@ -79,9 +79,9 @@ Variable .asize               Variable .anow
 Variable .osize               Variable .onow
 Variable .64size              Variable .64now
 Variable .rex                 Variable .64bit
-Variable .arel
+Variable .arel                Variable media
 : pre-    seg off  .asize @ .anow !  .osize @ .onow !
-  .rex off  .arel off  .64size @ .64now ! ;
+  .rex off  .arel off  .64size @ .64now !  media off ;
 : sclear  pre-  Aimm? off  Adisp? off
     ModR/M# off  SIB# off  disp# off  imm# off  byte? off ;
 
@@ -90,6 +90,7 @@ Variable .arel
 : .w   .onow off .64now off ;   : .wa  .anow off ;
 : .d   .onow on .64now off ;    : .da  .anow on ;
 : .q   .64now on ;              : .qa  .anow off ;
+: -rex  .64now off ;            : -size  .osize @ .onow ! ;
 
 \ Extra-Werte compilieren                              01may95py
 : bytes,  ( nr x n -- )
@@ -97,16 +98,14 @@ Variable .arel
     LOOP   2drop ;
 : rbytes, ( nr x n -- )
     >r here r@ + - r> bytes, ;
-: (opcode,)  ( opcode -- ) \ append 1 to 3 opcode bytes (high part 1st)
-   -1 $10 do  dup i rshift $ff and   dup i 0= or if , else drop then 
-   -$8 +loop  drop ;
 : opcode, ( opcode -- )
     .asize @ .anow @  <> IF  $67 ,  THEN
-    .osize @ .onow @  <> IF  $66 ,  THEN
+    media  @ IF media @ ,
+    ELSE .osize @ .onow @  <> IF  $66 ,  THEN  THEN
     seg    @ IF  seg @ ,  THEN
     .64now @ IF  .rex @ $08 or .rex !  THEN
     .rex   @ IF  .rex @ $F and $40 or ,  THEN
-    (opcode,)  pre- ;
+    ,  pre- ;
 : finish ( opcode -- )  opcode,
     ModR/M# @ IF  ModR/M @ ,  THEN
     SIB#    @ IF  SIB    @ ,  THEN
@@ -114,6 +113,8 @@ Variable .arel
     Aimm?   @ imm  @ imm#  @ bytes,    sclear  ;
 : finishb  ( opcode -- )       byte? @ xor  finish ;
 : 0F,  $0F opcode, ;
+
+\ Possible bug: '.64now off' does not have any effect _after_ 0F,
 : finish0F ( opcode -- )       0F, .64now off finish ;
 
 \ Register                                             29mar94py
@@ -579,8 +580,9 @@ $6E mod0F: PLDD  \ Intel: MOVD mm,m32/r
 : PSTD ( mm m32/r -- ) SWAP  $7E mod0F ; \ Intel: MOVD m32/r,mm
 
 \ 3Dnow! opcodes (K6)                                  21apr00py
-: mod0F# ( code imm -- )  [A] # [F]  1 imm# ! mod0F ;
-: 3Dnow: ( imm -- )  Create c,  DOES>  .64now off  $0f swap c@ mod0F# ;
+: ib!  ( code -- )  [A] # [F]  1 imm# ! ;
+: mod0F# ( code imm -- )  ib! mod0F ;
+: 3Dnow: ( imm -- )  Create c,  DOES>  -rex $0f swap c@ mod0F# ;
 $0D 3Dnow: PI2FD                $1D 3Dnow: PF2ID
 $90 3Dnow: PFCMPGE              $A0 3Dnow: PFCMPGT
 $94 3Dnow: PFMIN                $A4 3Dnow: PFMAX
@@ -592,17 +594,21 @@ $B0 3Dnow: PFCMPEQ              $B4 3Dnow: PFMUL
 $B6 3Dnow: PFRCPIT2             $B7 3Dnow: PMULHRW
 $BF 3Dnow: PAVGUSB
 
-: FEMMS  .d $0E finish0F ;
-: PREFETCH  .d 000 $0D mod0F ;    : PREFETCHW  .d 010 $0D mod0F ;
+: FEMMS  -rex $0E finish0F ;
+: PREFETCH  -rex 000 $0D mod0F ;    : PREFETCHW  -rex 010 $0D mod0F ;
 
 \ SSE opcodes (Athlon64)
     300 7 regs XMM0 XMM1 XMM2 XMM3 XMM4 XMM5 XMM6 XMM7
 0200300 7 regs XMM8 XMM9 XMM10 XMM11 XMM12 XMM13 XMM14 XMM15
 
+: finishxx0f  ( $xx0fyy -- )  \ xx 0f yy opcodes  (xx=66,f2,f3 or 00 if none)
+   dup $10 rshift media !  -size  $ff and finish0F ;
+: modxx0f  -rot >mod finishxx0f ;
+
 : movxx:  ( opcode1-regdst opcode2-memdst -- )  create ,  ,
    does>  ( xmm1 xmm2/mem | xmm1/mem xmm2   a-addr -- ) 
    >r reg>mod r>  swap 3 = if cell+ then  @
-   .d  ( supress REX)   finish ;
+   -rex finishxx0f ;
 
 $0f10   $0f11   movxx: movups   $660f10 $660f11 movxx: movupd
 $0f12   $0f13   movxx: movlps   $660f12 $660f13 movxx: movlpd
@@ -626,8 +632,8 @@ $660f6e $660f7e movxx: movd
 \ ouch.  need to touch opcode,?
 : sse:  ( opc1 rex? "name" -- ) create swap , c,
    does> ( xmm1 xmm2/mem a-addr -- )
-   dup @  swap cell+ c@ 0= if ( suppress rex).d then
-   modf ;
+   dup @  swap cell+ c@ 0= if ( suppress rex) .d then
+   modxx0f ;
 : sses  ( prefixN..prefix1 opc n "name1" ... "nameN"  -- )
    0 do   swap $10 lshift over or  0 sse:  loop  drop ;
 : sse2xa  ( opc "name1" "name2-66"  -- )   $66 $00 rot 2 sses ;
@@ -666,7 +672,7 @@ $0fd0 sse2xc addsubps addsubpd
 : cmp: ( opc #cmp "name" -- )
    create swap , c,
    does>  ( xmm1/mem xmm2 a-addr -- )
-   dup @ swap cell+ c@  [A] #   .64now off modf [F] ;
+   dup @ swap cell+ c@  [A] # -rex modxx0f [F] ;
 : cmps:  ( opc "name1" ... "name8" -- )  $8 0 do  dup i cmp: loop  drop ;
 $0fc2 cmps: cmpeqps cmpltps cmpleps cmpunordps cmpneqps cmpnltps cmpnleps cmpordps
 $660fc2 cmps: cmpeqpd cmpltpd cmplepd cmpunordpd cmpneqpd cmpnltpd cmpnlepd cmpordpd
@@ -685,9 +691,9 @@ $F6 mod0F: PSADBW               $70 mod0F: PSHUFW
 
 $0C 3Dnow: PI2FW                $1C 3Dnow: PF2IW
 $8A 3Dnow: PFNACC               $8E 3Dnow: PFPNACC
-$BB 3Dnow: PSWABD               : SFENCE  .d $0faef8 finish ;     
-: PREFETCHNTA  000 $18 mod0F ;  : PREFETCHT0  010 $18 mod0F ;
-: PREFETCHT1   020 $18 mod0F ;  : PREFETCHT2  030 $18 mod0F ;
+$BB 3Dnow: PSWABD                  : SFENCE  .d $ae $f8 ib! finish0f ;     
+: PREFETCHNTA  .d 000 $18 mod0F ;  : PREFETCHT0 .d 010 $18 mod0F ;
+: PREFETCHT1   .d 020 $18 mod0F ;  : PREFETCHT2 .d  030 $18 mod0F ;
 
 \ Assembler Conditionals                               22dec93py
 : ~cond ( cond -- ~cond )  1 xor ;

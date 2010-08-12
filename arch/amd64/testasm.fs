@@ -37,11 +37,10 @@ abi-code testasm
    ax ) mm1 pfmul
    ax ) prefetch
    ax ) prefetchw
-
    
-\   cx xmm2 movd   \ these cannot be distinguished. ouch.  bastard opcode!
-\   xmm2 cx movd
-\   xmm8 ax ) movd  \ either this doesn't work or GDB disassembler is buggy
+   cx xmm2 movd   
+\   xmm2 cx movd  \ these cannot be distinguished. ouch.  bastard opcode!
+   xmm8 ax ) movd
    ax ) xmm1 movd
    xmm1 ax ) movd
    dx xmm1   movd

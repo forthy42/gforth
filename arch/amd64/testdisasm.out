@@ -7,6 +7,8 @@ ABI-Code testasm
   	pfmul  (%rax),%mm1
   	prefetch (%rax)
   	prefetchw (%rax)
+  	movd   %ecx,%xmm2
+  	movd   %xmm8,(%rax)
   	movd   (%rax),%xmm1
   	movd   %xmm1,(%rax)
   	movd   %edx,%xmm1
@@ -78,10 +80,8 @@ ABI-Code testasm
   	cvtpi2pd (%rax),%xmm1
   	cvtss2si %xmm2,%edx
   	cvtss2si (%rax),%edx
-  	rex.W
-  	cvtss2si %xmm2,%edx
-  	rex.W
-  	cvtss2si (%rax),%edx
+  	cvtss2si %xmm2,%rdx
+  	cvtss2si (%rax),%rdx
   	cvtsd2si %xmm2,%edx
   	cvtsi2sd %edx,%xmm2
   	cvtsi2sdl (%rax),%xmm2
