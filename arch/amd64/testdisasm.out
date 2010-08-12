@@ -1,5 +1,33 @@
-
+branch offset out of 1-byte range
 ABI-Code testasm  
+  	mov    %rax,%rdx
+  	mov    %eax,%edx
+  	push   %rax
+  	push   %r8
+  	pop    %r10
+  	popq   %fs
+  	popq   %gs
+  	pushq  %fs
+  	pushq  %gs
+  	popfq  
+  	pushfq 
+  	enterq $0x8,$0x8
+  	leaveq 
+  	pushq  $0x8
+  	pushq  $0x10000000
+  	callq  0x2aac7b7182a9
+  	jrcxz  0x2aac7b7182fe
+  	jne    0x2aabffffffff
+  	jmp    0x2aac7b7182b7
+  	loop   0x2aac7b7182b9
+  	loopne 0x2aac7b7182bb
+  	retq   
+  	lgdt   (%rdx)
+  	lidt   (%rdx)
+  	lldt   (%rdx)
+  	ltr    %ax
+  	mov    %rax,%cr1
+  	mov    %db1,%rax
   	sfence 
   	femms  
   	pfadd  (%rax),%mm1
@@ -87,6 +115,8 @@ ABI-Code testasm
   	cvtsi2sdl (%rax),%xmm2
   	cvtsi2ss %edx,%xmm2
   	cvtsi2ssl (%rax),%xmm2
+  	cvtsi2ss %rdx,%xmm2
+  	cvtsi2ssq (%rax),%xmm2
   	divps  (%rax),%xmm1
   	divpd  (%rax),%xmm1
   	haddps (%rax),%xmm1

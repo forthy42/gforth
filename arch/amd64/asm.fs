@@ -252,10 +252,10 @@ $AB bc.b: stos  $AD bc.b: lods  $AF bc.b: scas
     xr?  IF  >mod  2  ELSE  swap ?xr >mod  0  THEN  ;
 
 : movxr  ( reg1 reg2 -- )
-    2dup or sr? nip
-    IF    xr>mod  $8C
-    ELSE  2dup or $8 rshift 1+ -3 and >r  xr>mod  0F,  r> $20 or
-    THEN  or  finish ;
+    -rex   2dup or sr? nip 
+    IF    xr>mod  $8C or finish
+    ELSE  2dup or $8 rshift 1+ -3 and >r  xr>mod  r> $20 or or finish0F
+    THEN  ;
 
 \ mov                                                  23jan93py
 
@@ -317,12 +317,14 @@ $AB bc.b: stos  $AD bc.b: lods  $AF bc.b: scas
     30 and 6 or or finish ;
 
 : push  ( reg -- )
+  -rex
   imm# @ 1 = IF  $6A finish exit  THEN
   imm# @     IF  $68 finish exit  THEN
   reg?       IF  >reg $50 or finish exit  THEN
   sr?        IF  0 pushs  exit  THEN
   66 $FF modf ;
 : pop   ( reg -- )
+  -rex
   reg?       IF  >reg $58 or finish exit  THEN
   sr?        IF  1 pushs  exit  THEN
   06 $8F modf ;
@@ -346,7 +348,6 @@ $CC bc: INT3                    $CE bc: INTO    $CF bc: IRET
 
 \ one byte opcodes                                     25dec92py
 
-\ todo: keep these from generating REX prefixes!
 $F0 bc: LOCK                    $F2 bc: REP     $F3 bc: REPE
 $F4 bc: HLT     $F5 bc: CMC
 $F8 bc: CLC     $F9 bc: STC     $FA bc: CLI     $FB bc: STI
@@ -356,9 +357,9 @@ $FC bc: CLD     $FD bc: STD
     IF ." branch offset out of 1-byte range" THEN ;
 : sb: ( opcode -- )  Create c,
     DOES> ( addr -- ) >r  [A] here [F] 2 + - ?brange
-    disp !  1 disp# !  r> c@ finish ;
+    disp !  1 disp# !  r> c@ -rex finish ;
 $E0 sb: LOOPNE  $E1 sb: LOOPE   $E2 sb: LOOP    $E3 sb: JCXZ
-: (ret ( op -- )  imm# @  IF  2 imm# !  1-  THEN  finish ;
+: (ret ( op -- )  imm# @  IF  2 imm# !  1-  THEN  -rex finish ;
 : ret  ( -- )  $C3  (ret ;
 : retf ( -- )  $CB  (ret ;
 
@@ -366,17 +367,18 @@ $E0 sb: LOOPNE  $E1 sb: LOOPE   $E2 sb: LOOP    $E3 sb: JCXZ
 
 : call  ( reg / disp -- ) rel?
   IF  drop $E8 disp @ [A] here [F] 1+ asize@ + - disp ! finish
-      exit  THEN  22 $FF modf ;
+      exit  THEN  22 $FF -rex modf ;
 : callf ( reg / seg -- )
-  seg? IF  drop $9A  finish exit  THEN  33 $FF modf ;
+  seg? IF  drop $9A  finish exit  THEN  33 $FF -rex modf ;
 
 : jmp   ( reg / disp -- )
+  -rex
   rel? IF  drop disp @ [A] here [F] 2 + - dup -$80 $80 within
            IF    disp ! 1 disp# !  $EB
            ELSE  3 - disp ! $E9  THEN  finish exit  THEN
   44 $FF modf ;
 : jmpf  ( reg / seg -- )
-  seg? IF  drop $EA  finish exit  THEN  55 $FF modf ;
+  seg? IF  drop $EA  finish exit  THEN  55 $FF -rex modf ;
 
 : next .d ['] noop >code-address rel) jmp ;
 
@@ -389,7 +391,7 @@ $10 cond: o  no   b  nb   z  nz   be  nbe  s  ns   pe po   l  nl   le  nle
 : jmpIF  ( addr cond -- )
   swap [A] here [F] 2 + - dup -$80 $80 within
   IF            disp ! $70 1
-  ELSE  0F,  4 - disp ! $80 4  THEN  disp# ! or finish ;
+  ELSE  0F,  4 - disp ! $80 4  THEN  disp# ! or  -rex finish ;
 : jmp:  Create c,  DOES> c@ jmpIF ;
 : jmps  0 DO  i jmp:  LOOP ;
 $10 jmps jo  jno   jb  jnb   jz  jnz   jbe  jnbe  js  jns   jpe jpo   jl  jnl   jle  jnle
@@ -412,7 +414,7 @@ $10 sets: seto setno  setb  setnb  sete setne  setna seta  sets setns  setpe set
 
 \ misc                                                 16nov97py
 
-: ENTER ( imm8 -- ) 2 imm# ! $C8 finish [A] , [F] ;
+: ENTER ( imm8 -- ) 2 imm# ! $C8 -rex finish [A] , [F] ;
 : ARPL ( reg r/m -- )  swap $63 modf ;
 $62 modf: BOUND ( mem reg -- )
 
@@ -437,10 +439,10 @@ $08 bc0F: INVD  $09 bc0F: WBINVD
 : IN  ( -- ) $E5 io ;
 : OUT ( -- ) $E7 io ;
 : INT ( -- ) 1 imm# ! $CD finish ;
-: 0F.0: ( r/m -- ) Create c, DOES> c@ $00 mod0F ;
+: 0F.0: ( r/m -- ) Create c, DOES> c@ $00 -rex mod0F ;
 00 0F.0: SLDT   11 0F.0: STR    22 0F.0: LLDT   33 0F.0: LTR
 44 0F.0: VERR   55 0F.0: VERW
-: 0F.1: ( r/m -- ) Create c, DOES> c@ $01 mod0F ;
+: 0F.1: ( r/m -- ) Create c, DOES> c@ $01 -rex mod0F ;
 00 0F.1: SGDT   11 0F.1: SIDT   22 0F.1: LGDT   33 0F.1: LIDT
 44 0F.1: SMSW                   66 0F.1: LMSW   77 0F.1: INVLPG
 
@@ -672,7 +674,7 @@ $0fd0 sse2xc addsubps addsubpd
 : cmp: ( opc #cmp "name" -- )
    create swap , c,
    does>  ( xmm1/mem xmm2 a-addr -- )
-   dup @ swap cell+ c@  [A] # -rex modxx0f [F] ;
+   dup @ swap cell+ c@ ib! -rex modxx0f ;
 : cmps:  ( opc "name1" ... "name8" -- )  $8 0 do  dup i cmp: loop  drop ;
 $0fc2 cmps: cmpeqps cmpltps cmpleps cmpunordps cmpneqps cmpnltps cmpnleps cmpordps
 $660fc2 cmps: cmpeqpd cmpltpd cmplepd cmpunordpd cmpneqpd cmpnltpd cmpnlepd cmpordpd

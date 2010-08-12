@@ -29,6 +29,39 @@ abi-code my-s>f
 end-code
 
 abi-code testasm
+   .q ax dx mov
+   .d ax dx mov
+
+   \ opcodes that do not get REX prefix
+   ax push
+   r8 push
+   r10 pop
+   fs pop
+   gs pop
+   fs push
+   gs push 
+   popf
+   pushf
+   8 enter 
+   leave
+   8 # push
+   $10000000 # push 
+   here rel) call
+   here rel) jcxz
+   here rel) jnz
+   here rel) jmp
+   here loop 
+   here loopne
+   ret
+   dx ) lgdt 
+   dx ) lidt 
+   dx ) lldt  
+   ax ltr
+   ax 1 cr movxr 
+   1 dr ax movxr  
+
+\   ax dx ) arpl    broken?
+
    \ mmx/3dnow tests (this was completely bugged!)
    sfence 
    femms
@@ -93,15 +126,15 @@ abi-code testasm
 
    .d xmm2  dx  cvtss2si
    .d ax )  dx  cvtss2si   
-   .q xmm2  dx  cvtss2si  \ our fault.  todo.
-   .q ax )  dx  cvtss2si  \ our fault.  todo.
-
+   .q xmm2  dx  cvtss2si
+   .q ax )  dx  cvtss2si
    .d xmm2  dx cvtsd2si
-   
    .d dx    xmm2 cvtsi2sd
    .d ax )  xmm2 cvtsi2sd
    .d dx    xmm2 cvtsi2ss
    .d ax )  xmm2 cvtsi2ss
+   .q dx    xmm2 cvtsi2ss
+   .q ax )  xmm2 cvtsi2ss
    
    ax ) xmm1 divps
    ax ) xmm1 divpd
