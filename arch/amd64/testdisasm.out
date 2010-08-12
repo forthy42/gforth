@@ -15,12 +15,12 @@ ABI-Code testasm
   	leaveq 
   	pushq  $0x8
   	pushq  $0x10000000
-  	callq  0x2aac7b7182a9
-  	jrcxz  0x2aac7b7182fe
-  	jne    0x2aabffffffff
-  	jmp    0x2aac7b7182b7
-  	loop   0x2aac7b7182b9
-  	loopne 0x2aac7b7182bb
+  	callq  <addr...>
+  	jrcxz  <addr...>
+  	jne    <addr...>
+  	jmp    <addr...>
+  	loop   <addr...>
+  	loopne <addr...>
   	retq   
   	lgdt   (%rdx)
   	lidt   (%rdx)

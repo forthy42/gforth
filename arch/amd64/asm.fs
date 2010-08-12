@@ -599,7 +599,23 @@ $BF 3Dnow: PAVGUSB
 : FEMMS  -rex $0E finish0F ;
 : PREFETCH  -rex 000 $0D mod0F ;    : PREFETCHW  -rex 010 $0D mod0F ;
 
-\ SSE opcodes (Athlon64)
+\ 3Dnow!+MMX opcodes (Athlon)                          21apr00py
+
+$F7 mod0F: MASKMOVQ             $E7 mod0F: MOVNTQ
+$E0 mod0F: PAVGB                $E3 mod0F: PAVGW
+$C5 mod0F: PEXTRW               $C4 mod0F: PINSRW
+$EE mod0F: PMAXSW               $DE mod0F: PMAXUB
+$EA mod0F: PMINSW               $DA mod0F: PMINUB
+$D7 mod0F: PMOVMSKB             $E4 mod0F: PMULHUW
+$F6 mod0F: PSADBW               $70 mod0F: PSHUFW
+
+$0C 3Dnow: PI2FW                $1C 3Dnow: PF2IW
+$8A 3Dnow: PFNACC               $8E 3Dnow: PFPNACC
+$BB 3Dnow: PSWABD                  : SFENCE  .d $ae $f8 ib! finish0f ;     
+: PREFETCHNTA  .d 000 $18 mod0F ;  : PREFETCHT0 .d 010 $18 mod0F ;
+: PREFETCHT1   .d 020 $18 mod0F ;  : PREFETCHT2 .d  030 $18 mod0F ;
+
+\ SSE opcodes (Athlon64)                               12aug10dk
     300 7 regs XMM0 XMM1 XMM2 XMM3 XMM4 XMM5 XMM6 XMM7
 0200300 7 regs XMM8 XMM9 XMM10 XMM11 XMM12 XMM13 XMM14 XMM15
 
@@ -625,13 +641,11 @@ $0f6f   $0f7f   movxx: movq-mmx
 $f30f7e $660fd6 movxx: movq
 
 \ todo: can be used with .d/.q prefix (i.e. 64-bit mov with REX, else 32-bit
-\ mov)  So now we have REX and $66 prefix!
+\ mov)
 $0f6e   $0f7e   movxx: movd-mmx
 $660f6e $660f7e movxx: movd
 
 \ SSE arithmetic
-\ todo: REX prefixes seem to come in between Fx and 0F opcode bytes.
-\ ouch.  need to touch opcode,?
 : sse:  ( opc1 rex? "name" -- ) create swap , c,
    does> ( xmm1 xmm2/mem a-addr -- )
    dup @  swap cell+ c@ 0= if ( suppress rex) .d then
@@ -670,7 +684,6 @@ $0f7c sse2xc haddps haddpd
 $0f7d sse2xc hsubps hsubpd
 $0fd0 sse2xc addsubps addsubpd
 
-\ todo: cvtss2si : rex prefix!
 : cmp: ( opc #cmp "name" -- )
    create swap , c,
    does>  ( xmm1/mem xmm2 a-addr -- )
@@ -680,22 +693,6 @@ $0fc2 cmps: cmpeqps cmpltps cmpleps cmpunordps cmpneqps cmpnltps cmpnleps cmpord
 $660fc2 cmps: cmpeqpd cmpltpd cmplepd cmpunordpd cmpneqpd cmpnltpd cmpnlepd cmpordpd
 $f30fc2 cmps: cmpeqss cmpltss cmpless cmpunordss cmpneqss cmpnltss cmpnless cmpordss
 $f20fc2 cmps: cmpeqsd cmpltsd cmplesd cmpunordsd cmpneqsd cmpnltsd cmpnlesd cmpordsd 
-
-\ 3Dnow!+MMX opcodes (Athlon)                          21apr00py
-
-$F7 mod0F: MASKMOVQ             $E7 mod0F: MOVNTQ
-$E0 mod0F: PAVGB                $E3 mod0F: PAVGW
-$C5 mod0F: PEXTRW               $C4 mod0F: PINSRW
-$EE mod0F: PMAXSW               $DE mod0F: PMAXUB
-$EA mod0F: PMINSW               $DA mod0F: PMINUB
-$D7 mod0F: PMOVMSKB             $E4 mod0F: PMULHUW
-$F6 mod0F: PSADBW               $70 mod0F: PSHUFW
-
-$0C 3Dnow: PI2FW                $1C 3Dnow: PF2IW
-$8A 3Dnow: PFNACC               $8E 3Dnow: PFPNACC
-$BB 3Dnow: PSWABD                  : SFENCE  .d $ae $f8 ib! finish0f ;     
-: PREFETCHNTA  .d 000 $18 mod0F ;  : PREFETCHT0 .d 010 $18 mod0F ;
-: PREFETCHT1   .d 020 $18 mod0F ;  : PREFETCHT2 .d  030 $18 mod0F ;
 
 \ Assembler Conditionals                               22dec93py
 : ~cond ( cond -- ~cond )  1 xor ;
