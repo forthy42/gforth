@@ -62,31 +62,62 @@ abi-code testasm
 
 \   ax dx ) arpl    broken?
 
-   \ mmx/3dnow tests (this was completely bugged!)
-   sfence 
+   \ mmx
+   ax ) mm0  paddsw
+   mm0  3 # psllq
+   mm0  4 # psrlq
    femms
+   .q mm0 ax ) movd
+   .q ax ) xmm1 movd
+   .q mm1 ax ) movd
+   .q dx xmm1   movd
+   .d mm0 ax ) movd
+   .d ax ) xmm1 movd
+   .d mm1 ax ) movd
+   .d dx mm0   movd
+   mm1 mm2  maskmovq
+
+   \ 3dnow tests
    ax ) mm1 pfadd
    ax ) mm1 pfsub
    ax ) mm1 pfmul
    ax ) prefetch
    ax ) prefetchw
-   
+   sfence 
+  
+   \ sse 
    cx xmm2 movd   
 \   xmm2 cx movd  \ these cannot be distinguished. ouch.  bastard opcode!
-   xmm8 ax ) movd
-   ax ) xmm1 movd
-   xmm1 ax ) movd
-   dx xmm1   movd
+   .q xmm8 ax ) movd
+   .q ax ) xmm1 movd
+   .q xmm1 ax ) movd
+   .q dx xmm1   movd
+   .d xmm8 ax ) movd
+   .d ax ) xmm1 movd
+   .d xmm1 ax ) movd
+   .d dx xmm1   movd
    
    ax ) xmm1 movq
    xmm1 ax ) movq
    xmm1 xmm2 movq
+
+   .d xmm8 ax ) movd
+   .d ax ) xmm1 movd
+   .d xmm1 ax ) movd
+   .d dx xmm1   movd
+
+   xmm8 ax ) movdqa
+   ax ) xmm1 movdqa
+   xmm1 ax ) movdqu
+   dx xmm1   movdqu
 
    ax ) xmm1  movups
    xmm1 ax )  movups
    xmm1 xmm8  movups
    ax ) xmm1 movupd
    
+   mm1 mm2  maskmovdqu
+
    ax ) xmm1 movlps   ax ) xmm1 movlpd
    ax ) xmm1 movhps   ax ) xmm1 movhpd
    ax ) xmm1 movaps   ax ) xmm1 movapd
@@ -178,7 +209,14 @@ abi-code testasm
    ax ) xmm1 cmpnltsd
    ax ) xmm1 cmpnlesd
    ax ) xmm1 cmpordsd
-   
+
+   \ sse2 (i.e. mostlq MMX opcodes with XMM 128-bit regs)
+   ax ) xmm0  paddsw
+   xmm0  3 # psllq
+   xmm0  4 # psrlq
+   xmm0  3 # pslldq
+   xmm0  4 # psrldq
+
 end-code
 
 see testasm

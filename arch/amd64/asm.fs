@@ -80,8 +80,9 @@ Variable .osize               Variable .onow
 Variable .64size              Variable .64now
 Variable .rex                 Variable .64bit
 Variable .arel                Variable media
+Variable dquad?
 : pre-    seg off  .asize @ .anow !  .osize @ .onow !
-  .rex off  .arel off  .64size @ .64now !  media off ;
+  .rex off  .arel off  .64size @ .64now !  media off  dquad? off ;
 : sclear  pre-  Aimm? off  Adisp? off
     ModR/M# off  SIB# off  disp# off  imm# off  byte? off ;
 
@@ -91,7 +92,8 @@ Variable .arel                Variable media
 : .d   .onow on .64now off ;    : .da  .anow on ;
 : .q   .64now on ;              : .qa  .anow off ;
 : -rex  .64now off ;            : -size  .osize @ .onow ! ;
-
+: .dq  dquad? on ;
+   
 \ Extra-Werte compilieren                              01may95py
 : bytes,  ( nr x n -- )
     0 ?DO  over 0< IF  +rel  swap 1+ swap  THEN  dup ,  $8 rshift
@@ -116,21 +118,26 @@ Variable .arel                Variable media
 
 \ Possible bug: '.64now off' does not have any effect _after_ 0F,
 : finish0F ( opcode -- )       0F, .64now off finish ;
+: finishxx0f  ( $xx0fyy -- )  \ xx 0f yy opcodes  (xx=66,f2,f3 or 00 if none)
+   dup $10 rshift media !  -size  $ff and finish0F ;
 
 \ Register                                             29mar94py
 
-: Regs  ( mod n -- ) FOR  dup Constant 11 +  NEXT  drop ;
+: (regs)  ( mod n xt -- )  -rot  FOR  2dup swap execute  11 +  NEXT  2drop ;
+: Regs  ( mod n -- )  ['] constant (regs) ;
 : breg  ( reg -- )  Create c,  DOES> c@  .b ;
-: bregs ( mod n -- ) FOR  dup breg     11 +  NEXT  drop ;
+: bregs ( mod n -- ) ['] breg (regs) ;
 : wadr: ( reg -- )  Create c,  DOES> c@  .wa ;
-: wadr  ( mod n -- ) FOR  dup wadr:    11 +  NEXT  drop ;
+: wadr  ( mod n -- ) ['] wadr: (regs) ;
+: xmmreg  ( reg -- )  Create [F] , [A]  DOES> @  .dq ;
+: xmmregs  ( reg -- )  ['] xmmreg (regs) ;
       0 7 wadr [BX+SI] [BX+DI] [BP+SI] [BP+DI] [SI] [DI] [BP] [BX]
     300 7 regs  AX CX DX BX SP BP SI DI
 0200300 7 regs  R8 R9 R10 R11 R12 R13 R14 R15
     300 7 bregs AL CL DL BL AH CH DH BH
 2000300 3 bregs SPL BPL SIL DIL
 0200300 7 bregs  R8L R9L R10L R11L R12L R13L R14L R15L
-  2300 5 regs ES CS SS DS FS GS
+   2300 5 regs ES CS SS DS FS GS
 ' SI alias RP   ' BP alias UP   ' DI Alias OP
 : .386  .64size off .64bit off .asize on   .osize on  sclear ;
 : .86   .64size off .64bit off .asize off  .osize off sclear ;
@@ -280,6 +287,7 @@ $AB bc.b: stos  $AD bc.b: lods  $AF bc.b: scas
 : modf  ( r/m reg opcode -- )  -rot >mod finish   ;
 : modfb ( r/m reg opcode -- )  -rot >mod finishb  ;
 : mod0F ( r/m reg opcode -- )  -rot >mod finish0F ;
+: modxx0f  ( r/m reg opcode -- )  -rot >mod finishxx0f ;
 : modf:  Create  c,  DOES>  c@ modf ;
 : not: ( mode -- )  Create c, DOES> ( r/m -- ) c@ $F7 modfb ;
 
@@ -534,11 +542,15 @@ $FC D9: FRNDINT $FD D9: FSCALE  $FE D9: FSIN    $FF D9: FCOS
 : cmovs:  0 DO  I cmov:  LOOP ;
 $10 cmovs: cmovo  cmovno   cmovb   cmovnb   cmovz  cmovnz   cmovbe  cmovnbe   cmovs  cmovns   cmovpe  cmovpo   cmovl  cmovnl   cmovle  cmovnle
 
-\ MMX opcodes                                          02mar97py
+\ MMX/SSE2 opcodes                            02mar97py/14aug10dk
 
-    300 7 regs MM0 MM1 MM2 MM3 MM4 MM5 MM6 MM7
+    300 7 regs    MM0   MM1   MM2   MM3   MM4   MM5   MM6   MM7
+    300 7 xmmregs XMM0  XMM1  XMM2  XMM3  XMM4  XMM5  XMM6  XMM7
+0200300 7 xmmregs XMM8  XMM9  XMM10 XMM11 XMM12 XMM13 XMM14 XMM15
+: mmx  -rex  dquad? @ $660000 and or   modxx0f ;
+: mmx: ( code -- )  Create c,  DOES> c@  mmx ;
+: mmxs ?DO  I mmx:  LOOP ;
 
-: mmxs ?DO  I mod0F:  LOOP ;
 $64 $60 mmxs PUNPCKLBW PUNPCKLWD PUNOCKLDQ PACKUSDW
 $68 $64 mmxs PCMPGTB   PCMPGTW   PCMPGTD   PACKSSWB
 $6C $68 mmxs PUNPCKHBW PUNPCKHWD PUNPCKHDQ PACKSSDW
@@ -550,14 +562,17 @@ $DE $DC mmxs PADDUSB   PADDUSW
 $EE $EC mmxs PADDSB    PADDSW
 $FF $FC mmxs PADDB     PADDW     PADDD
 
-\ MMX opcodes                                          02mar97py
+\ MMX/SSE2 opcodes                            02mar97py/14aug10dk
 
-$D5 mod0F: pmullw               $E5 mod0F: pmulhw
-$F5 mod0F: pmaddwd
-$DB mod0F: pand                 $DF mod0F: pandn
-$EB mod0F: por                  $EF mod0F: pxor
+$D5 mmx: pmullw               $E5 mmx: pmulhw
+$F5 mmx: pmaddwd
+$DB mmx: pand                 $DF mmx: pandn
+$EB mmx: por                  $EF mmx: pxor
 : pshift ( mmx imm/m mod op -- )
-  imm# @ IF  1 imm# !  ELSE  + $50 +  THEN  mod0F ;
+  imm# @ IF  1 imm# !  ELSE  + $50 +  THEN  mmx ;
+: dqshift  ( xmm imm mod op -- )
+   dquad? @ imm# @ AND 0= ABORT" Usage  xmm<NN> imm # <opcode>"
+   pshift ;
 : PSRLW ( mmx imm/m -- )  020 $71 pshift ;
 : PSRLD ( mmx imm/m -- )  020 $72 pshift ;
 : PSRLQ ( mmx imm/m -- )  020 $73 pshift ;
@@ -566,6 +581,8 @@ $EB mod0F: por                  $EF mod0F: pxor
 : PSLLW ( mmx imm/m -- )  060 $71 pshift ;
 : PSLLD ( mmx imm/m -- )  060 $72 pshift ;
 : PSLLQ ( mmx imm/m -- )  060 $73 pshift ;
+: PSRLDQ ( xmm imm -- )   030 $73 dqshift ;  \ shifts by bytes, not bits!
+: PSLLDQ ( xmm imm -- )   070 $73 dqshift ;
 
 \ MMX opcodes                                         27jun99beu
 
@@ -574,12 +591,12 @@ $EB mod0F: por                  $EF mod0F: pxor
 \ $6F mod0F: MOVQ   
 
 \ memory/reg32 --> mmxreg load
-$6F mod0F: PLDQ  \ Intel: MOVQ mm,m64
-$6E mod0F: PLDD  \ Intel: MOVD mm,m32/r
+$6F mmx: PLDQ  \ Intel: MOVQ mm,m64
+$6E mmx: PLDD  \ Intel: MOVD mm,m32/r
 
 \ mmxreg --> memory/reg32
-: PSTQ ( mm m64   -- ) SWAP  $7F mod0F ; \ Intel: MOVQ m64,mm
-: PSTD ( mm m32/r -- ) SWAP  $7E mod0F ; \ Intel: MOVD m32/r,mm
+: PSTQ ( mm m64   -- ) SWAP  $7F mmx ; \ Intel: MOVQ m64,mm
+: PSTD ( mm m32/r -- ) SWAP  $7E mmx ; \ Intel: MOVD m32/r,mm
 
 \ 3Dnow! opcodes (K6)                                  21apr00py
 : ib!  ( code -- )  [A] # [F]  1 imm# ! ;
@@ -599,15 +616,15 @@ $BF 3Dnow: PAVGUSB
 : FEMMS  -rex $0E finish0F ;
 : PREFETCH  -rex 000 $0D mod0F ;    : PREFETCHW  -rex 010 $0D mod0F ;
 
-\ 3Dnow!+MMX opcodes (Athlon)                          21apr00py
+\ 3Dnow!+MMX/SSE2 opcodes (Athlon/Athlon64)   21apr00py/14aug10dk
 
-$F7 mod0F: MASKMOVQ             $E7 mod0F: MOVNTQ
-$E0 mod0F: PAVGB                $E3 mod0F: PAVGW
-$C5 mod0F: PEXTRW               $C4 mod0F: PINSRW
-$EE mod0F: PMAXSW               $DE mod0F: PMAXUB
-$EA mod0F: PMINSW               $DA mod0F: PMINUB
-$D7 mod0F: PMOVMSKB             $E4 mod0F: PMULHUW
-$F6 mod0F: PSADBW               $70 mod0F: PSHUFW
+$F7 mmx: MASKMOVQ             $E7 mmx: MOVNTQ
+$E0 mmx: PAVGB                $E3 mmx: PAVGW
+$C5 mmx: PEXTRW               $C4 mmx: PINSRW
+$EE mmx: PMAXSW               $DE mmx: PMAXUB
+$EA mmx: PMINSW               $DA mmx: PMINUB
+$D7 mmx: PMOVMSKB             $E4 mmx: PMULHUW
+$F6 mmx: PSADBW               $70 mmx: PSHUFW
 
 $0C 3Dnow: PI2FW                $1C 3Dnow: PF2IW
 $8A 3Dnow: PFNACC               $8E 3Dnow: PFPNACC
@@ -615,41 +632,36 @@ $BB 3Dnow: PSWABD                  : SFENCE  .d $ae $f8 ib! finish0f ;
 : PREFETCHNTA  .d 000 $18 mod0F ;  : PREFETCHT0 .d 010 $18 mod0F ;
 : PREFETCHT1   .d 020 $18 mod0F ;  : PREFETCHT2 .d  030 $18 mod0F ;
 
-\ SSE opcodes (Athlon64)                               12aug10dk
-    300 7 regs XMM0 XMM1 XMM2 XMM3 XMM4 XMM5 XMM6 XMM7
-0200300 7 regs XMM8 XMM9 XMM10 XMM11 XMM12 XMM13 XMM14 XMM15
+\ MMX/SSE/SSE2 moves                                     12aug10dk
 
-: finishxx0f  ( $xx0fyy -- )  \ xx 0f yy opcodes  (xx=66,f2,f3 or 00 if none)
-   dup $10 rshift media !  -size  $ff and finish0F ;
-: modxx0f  -rot >mod finishxx0f ;
+: movxx  ( mod opcode1-regdst opcode2-memdst rex&mmx? -- )
+   >r 2>r
+   reg>mod 3 = if 2r> drop else  2r> nip then
+   r@ 1 and if dquad? @ $660000 and or then
+   r> 2 and 0= if -rex then
+   finishxx0f ;
+   
+: movxx:  ( opcode1-regdst opcode2-memdst rex&mmx? -- )  create , 2,
+  does>  ( xmm1 xmm2/mem | xmm1/mem xmm2   a-addr -- )
+   dup @  swap cell+ 2@  rot  movxx ;
 
-: movxx:  ( opcode1-regdst opcode2-memdst -- )  create ,  ,
-   does>  ( xmm1 xmm2/mem | xmm1/mem xmm2   a-addr -- ) 
-   >r reg>mod r>  swap 3 = if cell+ then  @
-   -rex finishxx0f ;
+$0f10   $0f11   0 movxx: movups   $660f10 $660f11 0 movxx: movupd
+$0f12   $0f13   0 movxx: movlps   $660f12 $660f13 0 movxx: movlpd
+$0f16   $0f17   0 movxx: movhps   $660f16 $660f17 0 movxx: movhpd
+$0f28   $0f29   0 movxx: movaps   $660f28 $660f29 0 movxx: movapd
+$f30f10 $f30f11 0 movxx: movss    $f20f10 $f20f11 0 movxx: movsd   
+$660f6f $660f7f 0 movxx: movdqa   $f30f6f $f30f7f 0 movxx: movdqu
+$0f6e   $0f7e   3 movxx: movd   \ use .d/.q prefix to select operand size!
 
-$0f10   $0f11   movxx: movups   $660f10 $660f11 movxx: movupd
-$0f12   $0f13   movxx: movlps   $660f12 $660f13 movxx: movlpd
-$0f16   $0f17   movxx: movhps   $660f16 $660f17 movxx: movhpd
-$0f28   $0f29   movxx: movaps   $660f28 $660f29 movxx: movapd
-$f30f10 $f30f11 movxx: movss    $f20f10 $f20f11 movxx: movsd   
+: maskmovdqu  .dq maskmovq ;
+: movq  ( xmm/mmx mmx/xmm/mem64 | mmx/xmm/mem64 xmm/mmx )
+   dquad? @ if  $f30f7e $660fd6
+   else           $0f6f   $0f7f then  0 movxx ;
 
-\ todo: how do we switch all the other MMX/SSE bastards between the two modes?
-\ obviously that requires only inserting a $66 prefix
-\ ugly solution: set .osize flag when XMM is used!?
-$0f6f   $0f7f   movxx: movq-mmx
-$f30f7e $660fd6 movxx: movq
-
-\ todo: can be used with .d/.q prefix (i.e. 64-bit mov with REX, else 32-bit
-\ mov)
-$0f6e   $0f7e   movxx: movd-mmx
-$660f6e $660f7e movxx: movd
-
-\ SSE arithmetic
+\ SSE floating point arithmetic                          12aug10dk
 : sse:  ( opc1 rex? "name" -- ) create swap , c,
    does> ( xmm1 xmm2/mem a-addr -- )
-   dup @  swap cell+ c@ 0= if ( suppress rex) .d then
-   modxx0f ;
+   dup @  swap cell+ c@ 0= if -rex then   modxx0f ;
 : sses  ( prefixN..prefix1 opc n "name1" ... "nameN"  -- )
    0 do   swap $10 lshift over or  0 sse:  loop  drop ;
 : sse2xa  ( opc "name1" "name2-66"  -- )   $66 $00 rot 2 sses ;

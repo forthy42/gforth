@@ -28,14 +28,30 @@ ABI-Code testasm
   	ltr    %ax
   	mov    %rax,%cr1
   	mov    %db1,%rax
-  	sfence 
+  	paddsw (%rax),%mm0
+  	psllq  $0x3,%mm0
+  	psrlq  $0x4,%mm0
   	femms  
+  	movq   %mm0,(%rax)
+  	movq   (%rax),%xmm1
+  	movq   %mm1,(%rax)
+  	movq   %rdx,%xmm1
+  	movd   %mm0,(%rax)
+  	movd   (%rax),%xmm1
+  	movd   %mm1,(%rax)
+  	movd   %edx,%mm0
+  	maskmovq %mm1,%mm2
   	pfadd  (%rax),%mm1
   	pfsub  (%rax),%mm1
   	pfmul  (%rax),%mm1
   	prefetch (%rax)
   	prefetchw (%rax)
-  	movd   %ecx,%xmm2
+  	sfence 
+  	movq   %rcx,%xmm2
+  	movq   %xmm8,(%rax)
+  	movq   (%rax),%xmm1
+  	movq   %xmm1,(%rax)
+  	movq   %rdx,%xmm1
   	movd   %xmm8,(%rax)
   	movd   (%rax),%xmm1
   	movd   %xmm1,(%rax)
@@ -43,10 +59,19 @@ ABI-Code testasm
   	movq   (%rax),%xmm1
   	movq   %xmm1,(%rax)
   	movq   %xmm1,%xmm2
+  	movd   %xmm8,(%rax)
+  	movd   (%rax),%xmm1
+  	movd   %xmm1,(%rax)
+  	movd   %edx,%xmm1
+  	movdqa %xmm8,(%rax)
+  	movdqa (%rax),%xmm1
+  	movdqu %xmm1,(%rax)
+  	movdqu %xmm2,%xmm1
   	movups (%rax),%xmm1
   	movups %xmm1,(%rax)
   	movups %xmm1,%xmm8
   	movupd (%rax),%xmm1
+  	maskmovdqu %xmm1,%xmm2
   	movlps (%rax),%xmm1
   	movlpd (%rax),%xmm1
   	movhps (%rax),%xmm1
@@ -157,4 +182,9 @@ ABI-Code testasm
   	cmpnltsd (%rax),%xmm1
   	cmpnlesd (%rax),%xmm1
   	cmpordsd (%rax),%xmm1
+  	paddsw (%rax),%xmm0
+  	psllq  $0x3,%xmm0
+  	psrlq  $0x4,%xmm0
+  	pslldq $0x3,%xmm0
+  	psrldq $0x4,%xmm0
 end-code
