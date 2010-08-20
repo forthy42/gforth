@@ -241,7 +241,7 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 	 immediate (font-lock-keyword-face . 1))
 	(("does>") compile-only (font-lock-keyword-face . 1))
 	((":noname") definition-starter (font-lock-keyword-face . 1))
-	((";" ";code") definition-ender (font-lock-keyword-face . 1))
+	((";" ";code" ";abi-code") definition-ender (font-lock-keyword-face . 1))
 	(("include" "require" "needs" "use") 
 	 non-immediate (font-lock-keyword-face . 1) 
 	 "[\n\t ]" t string (font-lock-string-face . 1))
@@ -443,7 +443,7 @@ INDENT1 and INDENT2 are indentation specifications of the form
 	(("+loop" "-loop" "until") (-2 . 0) (-2 . 0))
 	(("else" "recover" "restore" "endtry-iferror" "[else]")
 	 (-2 . 2) (0 . 0))
-	(("does>") (-1 . 1) (0 . 0))
+	(("does>" ";code" ";abi-code") (-1 . 1) (0 . 0))
 	(("while" "[while]") (-2 . 4) (0 . 2))
 	(("repeat" "[repeat]") (-4 . 0) (0 . -4))))
 

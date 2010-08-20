@@ -2538,15 +2538,15 @@ c_addr[2] = w >> 16;
 c_addr[1] = w >> 8;
 c_addr[0] = w;
 
-be-w@ ( c_addr -- u )	gforth w_fetch_be
+be-uw@ ( c_addr -- u )	gforth w_fetch_be
 ""@i{u} is the zero-extended 16-bit big endian value stored at @i{c_addr}.""
 u = (c_addr[0] << 8) | (c_addr[1]);
 
-be-l@ ( c_addr -- u )	gforth l_fetch_be
+be-ul@ ( c_addr -- u )	gforth l_fetch_be
 ""@i{u} is the zero-extended 32-bit big endian value stored at @i{c_addr}.""
 u = (c_addr[0] << 24) | (c_addr[1] << 16) | (c_addr[2] << 8) | (c_addr[3]);
 
-be-x@ ( c_addr -- u )	gforth x_fetch_be
+be-ux@ ( c_addr -- u )	gforth x_fetch_be
 ""@i{u} is the zero-extended 64-bit big endian value stored at @i{c_addr}.""
 u = (((Cell)(c_addr[0]) << 56) |
      ((Cell)(c_addr[1]) << 48) |
@@ -2557,15 +2557,15 @@ u = (((Cell)(c_addr[0]) << 56) |
      ((Cell)(c_addr[6]) << 8) |
      ((Cell)(c_addr[7])));
 
-le-w@ ( c_addr -- u )	gforth w_fetch_le
+le-uw@ ( c_addr -- u )	gforth w_fetch_le
 ""@i{u} is the zero-extended 16-bit little endian value stored at @i{c_addr}.""
 u = (c_addr[1] << 8) | (c_addr[0]);
 
-le-l@ ( c_addr -- u )	gforth l_fetch_le
+le-ul@ ( c_addr -- u )	gforth l_fetch_le
 ""@i{u} is the zero-extended 32-bit little endian value stored at @i{c_addr}.""
 u = (c_addr[3] << 24) | (c_addr[2] << 16) | (c_addr[1] << 8) | (c_addr[0]);
 
-le-x@ ( c_addr -- u )	gforth x_fetch_le
+le-ux@ ( c_addr -- u )	gforth x_fetch_le
 ""@i{u} is the zero-extended 64-bit little endian value stored at @i{c_addr}.""
 u = (((Cell)(c_addr[7]) << 56) |
      ((Cell)(c_addr[6]) << 48) |
