@@ -110,4 +110,8 @@ typedef void *Label;
 #define HAS_XCONDS
 #define HAS_STANDARDTHREADING
 
+#if SIZEOF_CHAR_P==8
+#define HAS_64BIT
+#endif
+
 #define RELINFOBITS	8
