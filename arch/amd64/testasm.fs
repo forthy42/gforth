@@ -31,6 +31,10 @@ end-code
 abi-code testasm
    .q ax dx mov
    .d ax dx mov
+   dx cx *8 i)  dx lea
+   .da dx cx *8 i)  dx lea
+   .d .da dx cx *8 i)  dx lea
+   .d dx cx *8 i)  dx lea
 
    \ opcodes that do not get REX prefix
    ax push

@@ -2,6 +2,10 @@ branch offset out of 1-byte range
 ABI-Code testasm  
   	mov    %rax,%rdx
   	mov    %eax,%edx
+  	lea    (%rdx,%rcx,8),%rdx
+  	lea    (%edx,%ecx,8),%rdx
+  	lea    (%edx,%ecx,8),%edx
+  	lea    (%rdx,%rcx,8),%edx
   	push   %rax
   	push   %r8
   	pop    %r10

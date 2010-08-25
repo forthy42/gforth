@@ -156,7 +156,7 @@ Variable dquad?
     .64bit @ 0= abort" RIP address only in 64 bit mode"
     disp ! 4 disp# ! .arel on  55 ;
 : *2   100 xor ;    : *4   200 xor ;    : *8   300 xor ;
-: I) ( reg1 reg2 -- ireg )  .anow @ 0= abort" No Index!"
+: I) ( reg1 reg2 -- ireg )  .anow @ .64bit @ or 0= abort" No Index!"
   *8  index ;
 : I#) ( disp32 reg -- ireg ) BP swap I) swap #) drop ;
 : seg)  ( seg disp -- -1 )
