@@ -81,6 +81,58 @@ DEFER nlcount ' noop IS nlcount
                 IF 2drop ELSE XPos +! C-Output @ IF emit ELSE drop THEN
                 THEN ;
 
+	    
+Defer xt-see-xt ( xt -- )
+\ this one is just a forward declaration for indirect recursion
+
+: .defname ( xt c-addr u -- )
+    rot look
+    if ( c-addr u nfa )
+	-rot type space .name
+    else
+	drop ." noname " type
+    then
+    space ;
+
+Defer discode ( addr u -- ) \ gforth
+\G hook for the disassembler: disassemble u bytes of code at addr
+' dump IS discode
+
+: next-head ( addr1 -- addr2 ) \ gforth
+    \G find the next header starting after addr1, up to here (unreliable).
+    here swap u+do
+	i head? -2 and if
+	    i unloop exit
+	then
+    cell +loop
+    here ;
+
+[ifundef] umin \ !! bootstrapping help
+: umin ( u1 u2 -- u )
+    2dup u>
+    if
+	swap
+    then
+    drop ;
+[then]
+
+: next-prim ( addr1 -- addr2 ) \ gforth
+    \G find the next primitive after addr1 (unreliable)
+    1+ >r -1 primstart
+    begin ( umin head R: boundary )
+	@ dup
+    while
+	tuck name>int >code-address ( head1 umin ca R: boundary )
+	r@ - umin
+	swap
+    repeat
+    drop dup r@ negate u>=
+    \ "umin+boundary within [0,boundary)" = "umin within [-boundary,0)"
+    if ( umin R: boundary ) \ no primitive found behind -> use a default length
+	drop 31
+    then
+    r> + ;
+
 DEFER .string ( c-addr u n -- )
 
 [IFDEF] Green
@@ -316,9 +368,12 @@ VARIABLE C-Pass
 	endif
 	[IFDEF] !;abi-code
 	    over 2 cells + @ ['] !;abi-code >body = if  drop
-		S" ;abi-code " Com# ?.string 4 cells +
+		S" ;abi-code " Com# ?.string   4 cells +
 		c-stop on
-		EXIT
+		Display? if
+		    dup   dup  next-head   over - discode 
+		    S" end-code" Com# ?.string 
+		then   EXIT
 	    endif
 	[THEN]
     endif
@@ -658,57 +713,6 @@ c-extender !
 	analyse
 	c-stop @
     UNTIL drop ;
-
-Defer xt-see-xt ( xt -- )
-\ this one is just a forward declaration for indirect recursion
-
-: .defname ( xt c-addr u -- )
-    rot look
-    if ( c-addr u nfa )
-	-rot type space .name
-    else
-	drop ." noname " type
-    then
-    space ;
-
-Defer discode ( addr u -- ) \ gforth
-\G hook for the disassembler: disassemble u bytes of code at addr
-' dump IS discode
-
-: next-head ( addr1 -- addr2 ) \ gforth
-    \G find the next header starting after addr1, up to here (unreliable).
-    here swap u+do
-	i head? -2 and if
-	    i unloop exit
-	then
-    cell +loop
-    here ;
-
-[ifundef] umin \ !! bootstrapping help
-: umin ( u1 u2 -- u )
-    2dup u>
-    if
-	swap
-    then
-    drop ;
-[then]
-
-: next-prim ( addr1 -- addr2 ) \ gforth
-    \G find the next primitive after addr1 (unreliable)
-    1+ >r -1 primstart
-    begin ( umin head R: boundary )
-	@ dup
-    while
-	tuck name>int >code-address ( head1 umin ca R: boundary )
-	r@ - umin
-	swap
-    repeat
-    drop dup r@ negate u>=
-    \ "umin+boundary within [0,boundary)" = "umin within [-boundary,0)"
-    if ( umin R: boundary ) \ no primitive found behind -> use a default length
-	drop 31
-    then
-    r> + ;
 
 : seecode ( xt -- )
     dup s" Code" .defname
