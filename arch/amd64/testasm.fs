@@ -29,13 +29,32 @@ abi-code my-s>f
 end-code
 
 abi-code testasm
+
    .q ax dx mov
    .d ax dx mov
+   $1234567890abcdef # ax mov    \ only GPR moves can use 64-bit immediates
+
+   \ scaled index addressing with various address/operand sizes
+   dx cx i)  dx lea    
+   .da dx cx i)  dx lea
+   .d .da dx cx i)  dx lea
+   .d dx cx i)  dx lea
+
+   dx cx *2 i)  dx lea
+   .da dx cx *2 i)  dx lea
+   .d .da dx cx *2 i)  dx lea
+   .d dx cx *2 i)  dx lea
+
+   dx cx *4 i)  dx lea
+   .da dx cx *4 i)  dx lea
+   .d .da dx cx *4 i)  dx lea
+   .d dx cx *4 i)  dx lea
+
    dx cx *8 i)  dx lea
    .da dx cx *8 i)  dx lea
    .d .da dx cx *8 i)  dx lea
    .d dx cx *8 i)  dx lea
-
+   
    \ opcodes that do not get REX prefix
    ax push
    r8 push
@@ -46,7 +65,7 @@ abi-code testasm
    gs push 
    popf
    pushf
-   8 enter 
+   8 # 0 enter 
    leave
    8 # push
    $10000000 # push 

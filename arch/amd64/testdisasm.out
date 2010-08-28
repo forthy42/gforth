@@ -2,6 +2,19 @@ branch offset out of 1-byte range
 ABI-Code testasm  
   	mov    %rax,%rdx
   	mov    %eax,%edx
+  	movabs $0x1234567890abcdef,%rax
+  	lea    (%rdx,%rcx,1),%rdx
+  	lea    (%edx,%ecx,1),%rdx
+  	lea    (%edx,%ecx,1),%edx
+  	lea    (%rdx,%rcx,1),%edx
+  	lea    (%rdx,%rcx,2),%rdx
+  	lea    (%edx,%ecx,2),%rdx
+  	lea    (%edx,%ecx,2),%edx
+  	lea    (%rdx,%rcx,2),%edx
+  	lea    (%rdx,%rcx,4),%rdx
+  	lea    (%edx,%ecx,4),%rdx
+  	lea    (%edx,%ecx,4),%edx
+  	lea    (%rdx,%rcx,4),%edx
   	lea    (%rdx,%rcx,8),%rdx
   	lea    (%edx,%ecx,8),%rdx
   	lea    (%edx,%ecx,8),%edx
@@ -15,7 +28,7 @@ ABI-Code testasm
   	pushq  %gs
   	popfq  
   	pushfq 
-  	enterq $0x8,$0x8
+  	enterq $0x8,$0x0
   	leaveq 
   	pushq  $0x8
   	pushq  $0x10000000
