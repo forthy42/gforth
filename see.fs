@@ -254,6 +254,7 @@ VARIABLE C-Pass
 : Scan? ( -- flag ) C-Pass @ 0= ;
 : Display? ( -- flag ) C-Pass @ 1 = ;
 : Debug? ( -- flag ) C-Pass @ 2 = ;
+: ?.string  ( c-addr u n -- )   Display? if .string else 2drop drop then ;
 
 : back? ( addr target -- addr flag )
     over u< ;
@@ -300,28 +301,31 @@ VARIABLE C-Pass
 [THEN]
 
 : c-lit ( addr1 -- addr2 )
-    Display? IF
-	dup @ dup body> dup cfaligned over = swap in-dictionary? and if
-	    ( addr1 addr1@ )
-	    dup body> @ dovar: = if
-		drop c-call EXIT
-	    endif
+    dup @ dup body> dup cfaligned over = swap in-dictionary? and if
+	( addr1 addr1@ )
+	dup body> @ dovar: = if
+	    drop c-call EXIT
 	endif
-	over 4 cells + over = if
-	    over 1 cells + @ decompile-prim ['] call xt>threaded = >r
-	    over 3 cells + @ decompile-prim ['] ;S xt>threaded =
-	    r> and if
+    endif
+    over 4 cells + over = if
+	over 1 cells + @ decompile-prim ['] call xt>threaded = >r
+	over 3 cells + @ decompile-prim ['] ;S xt>threaded =
+	r> and if
 	    over 2 cells + @ ['] !does >body = if  drop
-		S" DOES> " Com# .string 4 cells + EXIT endif
-	    [IFDEF] !;abi-code
-		over 2 cells + @ ['] !;abi-code >body = if  drop
-		    S" ;abi-code " Com# .string 4 cells + EXIT endif
-	    [THEN]
-	    endif
+		S" DOES> " Com# ?.string 4 cells + EXIT endif
 	endif
+	[IFDEF] !;abi-code
+	    over 2 cells + @ ['] !;abi-code >body = if  drop
+		S" ;abi-code " Com# ?.string 4 cells +
+		c-stop on
+		EXIT
+	    endif
+	[THEN]
+    endif
+    Display? if
 	\ !! test for cfa here, and print "['] ..."
 	dup abs 0 <# #S rot sign #> 0 .string bl cemit
-    endif
+    else  drop  then
     cell+ ;
 
 : c-lit+ ( addr1 -- addr2 )
