@@ -75,6 +75,25 @@ Variable first-throw
     \G backtrace.
     first-throw on ;
 
+: (try0) ( -- aoldhandler )
+    first-throw on
+    handler @ ;
+
+[undefined] (try1) [if]
+: (try1) ( aoldhandler arecovery -- anewhandler )
+    r>
+    swap >r \ recovery address
+    sp@ cell+ >r
+    fp@ >r
+    lp@ >r
+    swap >r \ old handler
+    rp@ swap \ new handler
+    >r ;
+[endif]
+
+: (try2)
+    handler ! ;
+
 : (try) ( ahandler -- )
     first-throw on
     r>
@@ -86,10 +105,17 @@ Variable first-throw
     rp@ handler !
     >r ;
 
+\ : try ( compilation  -- orig ; run-time  -- R:sys1 ) \ gforth
+\     \G Start an exception-catching region.
+\     POSTPONE ahead here >r >mark 1 cs-roll POSTPONE then
+\     r> POSTPONE literal POSTPONE (try) ; immediate compile-only
+
 : try ( compilation  -- orig ; run-time  -- R:sys1 ) \ gforth
     \G Start an exception-catching region.
     POSTPONE ahead here >r >mark 1 cs-roll POSTPONE then
-    r> POSTPONE literal POSTPONE (try) ; immediate compile-only
+    POSTPONE (try0) r> POSTPONE literal POSTPONE (try1) POSTPONE (try2)
+; immediate compile-only
+
 
 : (endtry) ( -- )
     \ normal end of try block: restore handler, forget rest

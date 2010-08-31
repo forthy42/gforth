@@ -612,6 +612,12 @@ SET_IP((Xt *)a_target);
      cell+
  THEN  >r ;
 
+(try1)	( ... a_oldhandler a_recovery -- R:a_recovery R:a_sp R:f_fp R:c_lp R:a_oldhandler a_newhandler ) gforth paren_try1
+a_sp = sp-1;
+f_fp = fp;
+c_lp = lp;
+a_newhandler = rp-5;
+
 \+
 
 \ don't make any assumptions where the return stack is!!
