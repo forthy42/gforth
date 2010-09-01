@@ -2,6 +2,7 @@
 
 \ This file is in the public domain. NO WARRANTY.
 
+testing defer and friends
 require tester.fs
 
 { defer defer1 -> }

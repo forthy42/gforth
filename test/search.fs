@@ -19,6 +19,7 @@
 
 require ./tester.fs
 
+testing search order wordset
 decimal
 
 : test-set-order0 ( c-addr u -- n )
@@ -30,7 +31,6 @@ decimal
     2>r get-order 2r> forth-wordlist 1 set-order ['] evaluate catch dup if
         nip nip then
     >r set-order r> ;
-
 
 { s" order"      test-set-order0 -> -13 }
 { s" 5e"         test-set-order0 -> 0 5e }

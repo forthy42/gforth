@@ -17,6 +17,7 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+testing core ext
 { 1 2 3 4 0 roll -> 1 2 3 4 }
 { 1 2 3 4 1 roll -> 1 2 4 3 }
 { 1 2 3 4 2 roll -> 1 3 4 2 }

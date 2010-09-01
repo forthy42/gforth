@@ -22,6 +22,7 @@ require ./coretest.fs
 
 \ fm/mod, sm/rem, um/mod, s>d, m*, um* already covered in coretest.fs
 
+testing double primitives
 { 0. 0 m+ -> 0. }
 { 0. 1 m+ -> 1. }
 { 0. -1 m+ -> -1. }

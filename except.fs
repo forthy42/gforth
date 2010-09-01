@@ -168,6 +168,15 @@ Variable first-throw
     then endtry ;
 is catch
 
+[undefined] (throw1)
+: (throw1) ( ... ball frame -- ... ball )
+    dup rp! ( ... ball frame )
+    cell+ dup @ lp!
+    cell+ dup @ fp!
+    cell+ dup @ ( ... ball addr sp ) -rot 2>r sp! drop 2r>
+    cell+ @ perform ;
+[endif]
+    
 :noname ( y1 .. ym error/0 -- y1 .. ym / z1 .. zn error ) \ exception
     ?DUP IF
 	[ here forthstart 9 cells + ! ]
@@ -180,10 +189,7 @@ is catch
 	    2 (bye)
 \	    quit
 	THEN
-        dup rp! ( ... ball frame )
-        cell+ dup @ lp!
-        cell+ dup @ fp!
-        cell+ dup @ ( ... ball addr sp ) -rot 2>r sp! drop 2r>
-        cell+ @ perform
+	\ cr .s dup 64 dump
+        (throw1)
     THEN ;
 is throw

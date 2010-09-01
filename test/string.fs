@@ -18,6 +18,8 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 \ compare
+
+testing string wordset
 { here 0 c, 1 chars here 255 c, 1 chars compare -> -1 }
 
 \ search
