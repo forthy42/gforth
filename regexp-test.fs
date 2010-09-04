@@ -118,9 +118,22 @@ s" fofoofoofofooofoobarbar" ?foos1
 s" bla baz bar" ?foos1
 s" foofoofoo" ?foos1
 
+\ buffer overrun test (bug in =")
+
+ : ?long-string
+    (( // \( =" abcdefghi" \) ))
+    IF  \1 type  cr THEN ;
+
+here 4096 allocate throw 4096 + 8 - constant test-string
+ s" abcdefgh" test-string swap cmove>
+ .( provoking overflow [i.e. see valgrind output]) cr
+ test-string . cr
+ test-string 8 ?long-string
+.( done) cr
+
 \ simple replacement test
  
-." --- delnum test ---" cr
+." --- simple replacement test ---" cr
 
 : delnum  ( addr u -- addr' u' )   s// \d s" " //g ;
 : test-delnum  ( addr u addr' u' -- )
@@ -132,6 +145,9 @@ s" 00"  s" " test-delnum
 s" 0a"  s" a" test-delnum
 s" a0"  s" a" test-delnum
 s" aa"  s" aa" test-delnum
+
+: delcomment  ( addr u -- addr' u' )  s// ` # {** .? **}  s" " //g ;
+s" hello # test " delcomment type cr
 
 \ replacement tests
 
