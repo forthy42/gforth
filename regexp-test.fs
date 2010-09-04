@@ -118,6 +118,19 @@ s" fofoofoofofooofoobarbar" ?foos1
 s" bla baz bar" ?foos1
 s" foofoofoo" ?foos1
 
+\ simple replacement test
+ 
+: delnum  ( addr u -- addr' u' )   s// \d s" " //g ;
+: test-delnum  ( addr u addr' u' -- )
+   2swap delnum 2over 2over str= 0= IF
+      ." test-delnum: got '" type ." ', expected '" type ." '"
+   THEN ;
+s" 0"  s" " test-delnum
+s" 00"  s" " test-delnum
+s" 0a"  s" a" test-delnum
+s" a0"  s" a" test-delnum
+s" aa"  s" aa" test-delnum
+
 \ replacement tests
 
 : hms>s ( addr u -- addr' u' )
@@ -127,6 +140,6 @@ s" foofoofoo" ?foos1
   \3 s>number drop + 0 <# 's' hold #s #> //g ;
 
 s" bla 12:34:56 fasel 00:01:57 blubber" hms>s
-s" bla 45296s fasel 117s" str= 0= [IF] .( failed) [THEN]
+s" bla 45296s fasel 117s" str= 0= [IF] .( replacement failed) [THEN]
 
 script? [IF] bye [THEN]
