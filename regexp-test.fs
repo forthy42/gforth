@@ -126,7 +126,7 @@ s" foofoofoo" ?foos1
 : test-delnum  ( addr u addr' u' -- )
    2swap delnum 2over 2over str= 0= IF
       ." test-delnum: got '" type ." ', expected '" type ." '"
-   THEN ;
+   ELSE  2drop 2drop  THEN ;
 s" 0"  s" " test-delnum
 s" 00"  s" " test-delnum
 s" 0a"  s" a" test-delnum
