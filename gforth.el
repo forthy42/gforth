@@ -315,7 +315,19 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 	 "[ \t\n]" t name (font-lock-function-name-face . 3))
 	(("end-struct") non-immediate (font-lock-keyword-face . 2)
 	 "[ \t\n]" t name (font-lock-type-face . 3))
-	(("struct") non-immediate (font-lock-keyword-face . 2))
+	(("struct" "end-c-library" "c-library-name") 
+	 non-immediate (font-lock-keyword-face . 2))
+	(("c-library") non-immediate (font-lock-keyword-face . 2)
+	 "[ \t\n]" t name (font-lock-variable-name-face . 3))
+	(("c-variable") non-immediate (font-lock-type-face . 1)
+	 "[ \t\n]" t name (font-lock-function-name-face . 3)
+	 "[ \t\n]" t name (font-lock-function-name-face . 3))
+	(("c-function" "c-value") non-immediate (font-lock-type-face . 1)
+	 "[ \t\n]" t name (font-lock-function-name-face . 3)
+	 "[ \t\n]" t name (font-lock-function-name-face . 3)
+	 "[\n]" nil comment (font-lock-variable-name-face . 3))
+	(("\\c") non-immediate (font-lock-keyword-face . 1)
+	 "[\n]" nil string (font-lock-string-face . 1))
 	("-?[0-9]+\\(\\.[0-9]*e\\(-?[0-9]+\\)?\\|\\.?[0-9a-f]*\\)" 
 	 immediate (font-lock-constant-face . 3))
 	("-?\\([&#][0-9]+\\|\\(0x\\|\\$\\)[0-9a-f]+\\|%[01]+\\)"
@@ -428,7 +440,7 @@ INDENT1 and INDENT2 are indentation specifications of the form
 	  "[if]" "[ifdef]" "[ifundef]" "[begin]" "[for]" "[do]" "[?do]")
 	 (0 . 2) (0 . 2))
 	((":" ":noname" "code" "abi-code" "struct" "m:" ":m" "class" 
-	  "interface")
+	  "interface" "c-library" "c-library-name")
 	 (0 . 2) (0 . 2) non-immediate)
 	("\\S-+%$" (0 . 2) (0 . 0) non-immediate)
 	((";" ";m") (-2 . 0) (0 . -2))
@@ -437,7 +449,7 @@ INDENT1 and INDENT2 are indentation specifications of the form
 	  "[until]" "[again]" "loop")
 	 (-2 . 0) (0 . -2))
 	(("end-code" "end-class" "end-interface" "end-class-noname" 
-	  "end-interface-noname" "end-struct" "class;")
+	  "end-interface-noname" "end-struct" "class;" "end-c-library")
 	 (-2 . 0) (0 . -2) non-immediate)
 	(("protected" "public" "how:") (-1 . 1) (0 . 0) non-immediate)
 	(("+loop" "-loop" "until") (-2 . 0) (-2 . 0))
