@@ -269,8 +269,6 @@ Variable >>string
 : << ( run-addr addr u -- run-addr ) \ regexp-replace
     \G Replace string from start of replace pattern region with
     \G @var{addr} @var{u}
-    <<ptr 0= IF  start$ to <<ptr  THEN
-    >>string @ 0= IF  s" " >>string $!  THEN
     <<ptr >>ptr over - >>string $+!
     >>string $+! dup to <<ptr ;
 : <<" ( "string<">" -- ) \ regexp-replace
@@ -278,16 +276,17 @@ Variable >>string
     \G @var{string}
     '" parse postpone SLiteral postpone << ; immediate
 : >>string@ ( -- addr u )
-    >>string $@ >>string off
-    0 to >>ptr  0 to <<ptr ;
+    >>string $@ ;
+: >>string0 ( addr u -- addr u )  s" " >>string $!
+    0 to >>ptr  over to <<ptr ;
 : >>next ( -- addr u ) <<ptr end$ over - ;
 : >>rest ( -- ) >>next >>string $+! ;
 : s// ( addr u -- ptr )
     \G start search/replace loop
-    ]] (( // >> [[ ; immediate
+    ]] >>string0 (( // >> [[ ; immediate
 : //o ( ptr addr u -- addr' u' )
     \G end search/replace single loop
     ]] << )) drop >>rest >>string@ [[ ; immediate
 : //g ( ptr addr u -- addr' u' )
     \G end search/replace all loop
-    ]] << LEAVE )) drop >>string@ [[ ; immediate
+    ]] << LEAVE )) drop >>rest >>string@ [[ ; immediate

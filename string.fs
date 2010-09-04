@@ -42,7 +42,7 @@
 : $ins ( addr1 u addr2 off -- ) >r
   2dup dup $@len rot + swap $!len  $@ 1+ r> /string insert ;
 : $+! ( addr1 u addr2 -- ) dup $@len $ins ;
-: $off ( addr -- )  dup @ free throw off ;
+: $off ( addr -- )  dup @ dup IF  free throw off  ELSE  2drop  THEN ;
 
 \ dynamic string handling                              12dec99py
 
