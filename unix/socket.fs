@@ -49,10 +49,15 @@ c-function ntohl ntohl n -- n ( x -- x' )
 c-function fileno fileno1 a -- n ( file* -- fd )
 \c #include <poll.h>
 c-function poll poll a n n -- n ( fds nfds timeout -- r )
+\c #include <netdb.h>
+c-function getaddrinfo getaddrinfo a a a a -- n ( node service hints res -- r )
+c-function freeaddrinfo freeaddrinfo a -- void ( res -- )
+c-function gai_strerror gai_strerror n -- a ( errcode -- addr )
 end-c-library
 
 4 4 2Constant int%
 2 2 2Constant short%
+cell dup 2Constant size_t%
 
 struct
     cell% field h_name
@@ -74,6 +79,17 @@ struct
     short% field events
     short% field revents
 end-struct pollfd
+
+struct
+    int% field ai_flags
+    int% field ai_family
+    int% field ai_socktype
+    int% field ai_protocol
+    size_t% field ai_addrlen
+    cell% field ai_addr
+    cell% field ai_canonname
+    cell% field ai_next
+end-struct addrinfo
 
 ' family alias family+port \ 0.6.2 32-bit field; used by itools
 
