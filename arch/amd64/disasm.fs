@@ -44,10 +44,6 @@
 \ prelude
 : c@+ count ;
 
-: th ( addr1 n -- addr2 )
-    \ cell indexing
-    cells + ;
-
 : cell-fill ( addr u w -- )
     rot rot 0 ?do
 	2dup i th !

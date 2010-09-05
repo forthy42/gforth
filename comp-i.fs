@@ -24,9 +24,6 @@ s" address-unit-bits" environment? drop constant bits/au
     \ write a cell to the file
     w cell file-id write-file ;
 
-: th ( addr1 n -- addr2 )
-    cells + ;
-
 : bset ( bmask c-addr -- )
     tuck c@ or swap c! ; 
 

@@ -691,7 +691,7 @@ $f20f2d 1 sse: cvtsd2si
 $f20f2a 1 sse: cvtsi2sd
 $f30f2a 1 sse: cvtsi2ss
 
-$0f5e sse2xa divps divpd
+\ $0f5e sse2xa divps divpd \ already defined above
 $0f7c sse2xc haddps haddpd
 $0f7d sse2xc hsubps hsubpd
 $0fd0 sse2xc addsubps addsubpd
