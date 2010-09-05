@@ -118,6 +118,12 @@ s" fofoofoofofooofoobarbar" ?foos1
 s" bla baz bar" ?foos1
 s" foofoofoo" ?foos1
 
+\ backtracking on decissions
+
+: ?aab ( addr u -- flag )
+   (( {{ =" aa" || =" a" }} {{ =" ab" || =" a" }} )) ;
+s" aab" ?aab 0= [IF] .( aab failed!) cr [THEN]
+
 \ buffer overrun test (bug in =")
 
 ." --- buffer overrun test ---" cr
@@ -172,7 +178,7 @@ s" bla 45296s fasel 117s blubber" str= [IF] .(  ok) [ELSE] .(  failed) [THEN] cr
          >> \1 s>number drop 60 *
             \2 s>number drop + 60 *
             \3 s>number drop + 0 <# 's' hold #s #> <<
-         || ` ( {* .? *} ` ) >> <<" "
+         || ` ( // ` ) >> <<" "
       }} LEAVE //s ;
 
 \ doesn't work yet
