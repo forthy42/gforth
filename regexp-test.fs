@@ -120,6 +120,8 @@ s" foofoofoo" ?foos1
 
 \ buffer overrun test (bug in =")
 
+." --- buffer overrun test ---" cr
+
  : ?long-string
     (( // \( =" abcdefghi" \) ))
     IF  \1 type  cr THEN ;
@@ -135,7 +137,7 @@ here 4096 allocate throw 4096 + 8 - constant test-string
  
 ." --- simple replacement test ---" cr
 
-: delnum  ( addr u -- addr' u' )   s// \d ?end s" " //g ;
+: delnum  ( addr u -- addr' u' )   s// \d >> s" " //g ;
 : test-delnum  ( addr u addr' u' -- )
    2swap delnum 2over 2over str= 0= IF
       ." test-delnum: got '" type ." ', expected '" type ." '"
@@ -170,7 +172,7 @@ s" bla 45296s fasel 117s blubber" str= [IF] .(  ok) [ELSE] .(  failed) [THEN] cr
          >> \1 s>number drop 60 *
             \2 s>number drop + 60 *
             \3 s>number drop + 0 <# 's' hold #s #> <<
-         || ` ( {* -` ) *} ` ) \ >> <<" "
+         || ` ( {* .? *} ` ) >> <<" "
       }} LEAVE //s ;
 
 \ doesn't work yet
