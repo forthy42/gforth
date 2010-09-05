@@ -101,14 +101,9 @@ charclass any    0 $FF ..char #lf -char
 : ` ( "char" -- ) \ regexp-pattern
     \G check for particular char
     ]] count [[  char ]] Literal <> ?LEAVE [[ ;  immediate
-
-\ A word for string comparison
-
-: $= ( addr1 addr2 u -- f )  tuck compare ;
-: ,=" ( addr u -- ) tuck ]] dup SLiteral $= ?LEAVE Literal + noop [[ ;
-: =" ( <string>" -- ) \ regexp-pattern
-    \G check for string
-    '" parse ,=" ; immediate
+: -` ( "char" -- ) \ regexp-pattern
+    \G check for particular char
+    ]] count [[  char ]] Literal = ?LEAVE [[ ;  immediate
 
 \ loop stack
 
@@ -149,6 +144,13 @@ Variable varsmax
 : \$ ( addr -- addr ) \ regexp-pattern
     \G check for string end
     ]] end-rex? ?LEAVE [[ ; immediate
+
+\ A word for string comparison
+
+: ,=" ( addr u -- ) tuck ]] dup SLiteral tuck compare ?LEAVE Literal + noop [[ ;
+: =" ( <string>" -- ) \ regexp-pattern
+    \G check for string
+    '" parse ,=" ; immediate
 
 \ regexp block
 
@@ -263,7 +265,7 @@ require string.fs
 0 Value >>ptr
 0 Value <<ptr
 Variable >>string
-: >>  ( addr -- addr ) \ regexp-replace
+: s>>  ( addr -- addr ) \ regexp-replace
     \G Start replace pattern region
     dup to >>ptr ;
 : << ( run-addr addr u -- run-addr ) \ regexp-replace
@@ -283,10 +285,15 @@ Variable >>string
 : >>rest ( -- ) >>next >>string $+! ;
 : s// ( addr u -- ptr )
     \G start search/replace loop
-    ]] >>string0 (( // >> [[ ; immediate
+    ]] >>string0 (( // s>> [[ ; immediate
+: >> ( addr -- addr )
+    ]] <<ptr >>ptr u> ?LEAVE ?end [[ ; immediate
+: //s ( ptr -- )
+    \G search end
+    ]] )) drop >>rest >>string@ [[ ; immediate
 : //o ( ptr addr u -- addr' u' )
     \G end search/replace single loop
-    ]] << )) drop >>rest >>string@ [[ ; immediate
+    ]] << //s [[ ; immediate
 : //g ( ptr addr u -- addr' u' )
     \G end search/replace all loop
-    ]] << LEAVE )) drop >>rest >>string@ [[ ; immediate
+    ]] << LEAVE //s [[ ; immediate
