@@ -57,7 +57,7 @@ end-c-library
 
 4 4 2Constant int%
 2 2 2Constant short%
-cell dup 2Constant size_t%
+int% 2Constant size_t%
 
 struct
     cell% field h_name
