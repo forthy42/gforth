@@ -168,7 +168,7 @@ Variable first-throw
     then endtry ;
 is catch
 
-[undefined] (throw1)
+[undefined] (throw1) [if]
 : (throw1) ( ... ball frame -- ... ball )
     dup rp! ( ... ball frame )
     cell+ dup @ lp!
