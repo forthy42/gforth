@@ -1116,7 +1116,6 @@ exceeds 64 characters."
 (define-key forth-mode-map "\C-x\\" 'comment-region)
 (define-key forth-mode-map "\C-x~" 'forth-remove-tracers)
 (define-key forth-mode-map "\C-x\C-m" 'forth-split)
-(define-key forth-mode-map "\e " 'forth-reload)
 (define-key forth-mode-map "\t" 'forth-indent-command)
 (define-key forth-mode-map "\C-m" 'forth-reindent-then-newline-and-indent)
 (define-key forth-mode-map "\M-q" 'forth-fill-paragraph)
