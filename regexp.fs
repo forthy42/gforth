@@ -163,8 +163,8 @@ Variable varsmax
     ]] FORK  AHEAD BUT JOIN !end [[ BEGIN, ; immediate
 : )) ( -- addr f ) \ regexp-pattern
     \G end regexp block
-    ]] ?end drop true EXIT [[
-    DONE, ]] drop false EXIT THEN [[ ; immediate
+    ]] ?end drop true ;S [[
+    DONE, ]] drop false ;S THEN [[ ; immediate
 
 \ greedy loops
 
@@ -182,11 +182,11 @@ Variable varsmax
 : n*} ( sys n -- ) \ regexp-pattern
     \G At least @var{n} pattern
     >r ]] r> 1+ >r end-rex? 0= UNTIL dup [[ DONE, ]] drop [[
-    r@ IF r@ ]] r@ Literal u< IF  r> 1+ drops false  EXIT  THEN [[ THEN
+    r@ IF r@ ]] r@ Literal u< IF  r> 1+ drops false  ;S  THEN [[ THEN
     r@ ]] r> 1+ Literal U+DO FORK BUT [[
-    ]] IF  I' I - [[ r@ 1- ]] Literal + drops true UNLOOP EXIT  THEN  LOOP [[
+    ]] IF  I' I - [[ r@ 1- ]] Literal + drops true UNLOOP ;S  THEN  LOOP [[
     r@ IF  r@ ]] Literal drops [[ THEN
-    rdrop ]] false  EXIT  JOIN [[ ; immediate
+    rdrop ]] false  ;S  JOIN [[ ; immediate
 : **} ( sys -- ) \ regexp-pattern
     \G end of greedy zero-or-more pattern
     0 postpone n*} ; immediate
@@ -204,15 +204,15 @@ Variable varsmax
     ]] BEGIN  [[ BEGIN, ; immediate
 : {* ( addr -- addr addr ) \ regexp-pattern
     \G non-greedy zero-or-more pattern
-    ]] {+ dup FORK BUT  IF  drop true  EXIT THEN [[ ; immediate
+    ]] {+ dup FORK BUT  IF  drop true  ;S THEN [[ ; immediate
 : *} ( addr addr' -- addr' ) \ regexp-pattern
     \G end of non-greedy zero-or-more pattern
     ]] dup end$ u>  UNTIL [[
-    DONE, ]] drop false  EXIT  JOIN [[ ; immediate
+    DONE, ]] drop false  ;S  JOIN [[ ; immediate
 : +} ( addr addr' -- addr' ) \ regexp-pattern
     \G end of non-greedy one-or-more pattern
-    ]] dup FORK BUT  IF  drop true  EXIT [[
-    DONE, ]] drop false  EXIT  THEN *} [[ ; immediate
+    ]] dup FORK BUT  IF  drop true  ;S [[
+    DONE, ]] drop false  ;S  THEN *} [[ ; immediate
 
 : // ( -- ) \ regexp-pattern
     \G search for string
@@ -231,12 +231,12 @@ Variable varsmax
 : || ( addr addr -- addr addr ) \ regexp-pattern
     \G separator between alternatives
     vars @ varsmax @ max varsmax !
-    ]] dup FORK  IF  2drop true  EXIT THEN  drop dup [[ >r >r >r vars !
+    ]] dup FORK  IF  2drop true  ;S THEN  drop dup [[ >r >r >r vars !
     ]] DONE drop dup [[ r> r> r> ]] BEGIN [[ vars @ ; immediate
 : }} ( addr addr -- addr addr ) \ regexp-pattern
     \G end of alternatives
     vars @ varsmax @ max vars !
-    ]] dup FORK  IF  2drop true  EXIT THEN  drop dup [[ >r >r >r drop
+    ]] dup FORK  IF  2drop true  ;S THEN  drop dup [[ >r >r >r drop
     ]] DONE drop LEAVE [[ r> r> r> JOINs ; immediate
 
 \ match variables
