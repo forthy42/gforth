@@ -235,12 +235,12 @@ Variable varsmax
 : || ( addr addr -- addr addr ) \ regexp-pattern
     \G separator between alternatives
     vars @ varsmax @ max varsmax !
-    ]] dup FORK  IF  2drop true  ;S THEN  drop dup [[ >r >r >r vars !
+    ]] dup FORK  IF  2drop true  ;S THEN  [[ >r >r >r vars !
     ]] DONE drop dup [[ r> r> r> ]] BEGIN [[ vars @ ; immediate
-: }} ( addr addr -- addr addr ) \ regexp-pattern
+: }} ( addr addr -- addr ) \ regexp-pattern
     \G end of alternatives
     vars @ varsmax @ max vars !
-    ]] dup FORK  IF  2drop true  ;S THEN  drop dup [[ >r >r >r drop
+    ]] dup FORK  IF  2drop true  ;S THEN  dup [[ >r >r >r drop
     ]] DONE drop LEAVE [[ r> r> r> JOINs ; immediate
 
 \ match variables

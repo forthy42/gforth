@@ -170,7 +170,7 @@ s" delete (test) and (another test) " delparents type cr
   \3 s>number drop + 0 <# 's' hold #s #> //g ;
 
 s" bla 12:34:56 fasel 00:01:57 blubber" 2dup type hms>s
-."  replaced by " 2dup type
+."  -> " 2dup type
 s" bla 45296s fasel 117s blubber" str= [IF] .(  ok) [ELSE] .(  failed) [THEN] cr
 
 : hms>s,del() ( addr u -- addr' u' )

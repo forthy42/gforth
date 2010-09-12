@@ -518,10 +518,10 @@ VARIABLE C-Pass
 			ELSE
 				dup cell+ BranchAddr? Forward?
        	                 	IF      dup cell+ @ WhileCode2 =
-       	                         	IF nl S" ELSE" .struc level+
+       	                         	IF nl S" ELSE " .struc level+
                                 	ELSE level- nl S" ELSE" .struc level+ THEN
                                 	cell+ Disable swap !
-                        	ELSE    S" AHEAD" .struc level+
+                        	ELSE    S" AHEAD " .struc level+
                         	THEN
 			THEN
                 THEN
