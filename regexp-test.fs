@@ -178,14 +178,14 @@ s" bla 45296s fasel 117s blubber" str= [IF] .(  ok) [ELSE] .(  failed) [THEN] cr
 ?depth
 
 : hms>s,del() ( addr u -- addr' u' )
-  s// {{ \( \d \d \) ` : \( \d \d \) ` : \( \d \d \)
+  s// {{ ` ( .? .? .? ` ) >> <<" ()"
+      || \( \d \d \) ` : \( \d \d \) ` : \( \d \d \)
          >> \1 s>number drop 60 *
             \2 s>number drop + 60 *
             \3 s>number drop + 0 <# 's' hold #s #> <<
-         || ` ( // ` ) >> <<" "
       }} LEAVE //s ;
 
 \ doesn't work yet
-\ s" (bla) 12:34:56 (fasel) 00:01:57 (blubber)" 2dup type hms>s,del() space type cr
+s" (bla) 12:34:56 (fasel) 00:01:57 (blubber)" 2dup type hms>s,del() ."  -> " type cr
 
 script? [IF] bye [THEN]
