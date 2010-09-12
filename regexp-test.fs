@@ -114,11 +114,11 @@ s" fofoofoofofooofoobarbar" ?foobars
 s" bla baz bar" ?foobars
 s" foofoofoo" ?foobars
 
-\ s" foobar" ?foos1
-\ s" foofoofoobar" ?foos1
-\ s" fofoofoofofooofoobarbar" ?foos1
-\ s" bla baz bar" ?foos1
-\ s" foofoofoo" ?foos1
+s" foobar" ?foos1
+s" foofoofoobar" ?foos1
+s" fofoofoofofooofoobarbar" ?foos1
+s" bla baz bar" ?foos1
+s" foofoofoo" ?foos1
 
 \ backtracking on decissions
 
@@ -134,12 +134,12 @@ s" aab" ?aab 0= [IF] .( aab failed!) cr [THEN]
     (( // \( =" abcdefghi" \) ))
     IF  \1 type  cr THEN ;
 
-here 4096 allocate throw 4096 + 8 - constant test-string
+4096 allocate throw 4096 + 8 - constant test-string
  s" abcdefgh" test-string swap cmove>
  .( provoking overflow [i.e. see valgrind output]) cr
  test-string . cr
  test-string 8 ?long-string
-.( done) cr
+.( done) cr ?depth
 
 \ simple replacement test
  
@@ -149,7 +149,7 @@ here 4096 allocate throw 4096 + 8 - constant test-string
 : test-delnum  ( addr u addr' u' -- )
    2swap delnum 2over 2over str= 0= IF
       ." test-delnum: got '" type ." ', expected '" type ." '"
-   ELSE  2drop 2drop ." passed" cr  THEN ;
+   ELSE  2drop 2drop ." test-delnum passed" cr  THEN  ?depth ;
 s" 0"  s" " test-delnum
 s" 00"  s" " test-delnum
 s" 0a"  s" a" test-delnum
@@ -160,6 +160,7 @@ s" aa"  s" aa" test-delnum
 s" hello # test " delcomment type cr
 : delparents  ( addr u -- addr' u' )  s// ` ( {* .? *} ` ) >> s" ()" //g ;
 s" delete (test) and (another test) " delparents type cr
+?depth
 
 \ replacement tests
 
@@ -174,6 +175,7 @@ s" delete (test) and (another test) " delparents type cr
 s" bla 12:34:56 fasel 00:01:57 blubber" 2dup type hms>s
 ."  -> " 2dup type
 s" bla 45296s fasel 117s blubber" str= [IF] .(  ok) [ELSE] .(  failed) [THEN] cr
+?depth
 
 : hms>s,del() ( addr u -- addr' u' )
   s// {{ \( \d \d \) ` : \( \d \d \) ` : \( \d \d \)

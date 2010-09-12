@@ -113,7 +113,7 @@ Variable loops  $40 3 * cells allot
 : loops> ( -- addr ) -3 loops +!  loops @+ swap cells + 3@ ;
 : >loops ( addr -- ) loops @+ swap cells + 3! 3 loops +! ;
 : BEGIN, ( -- )  ]] BEGIN [[ >loops ;
-: DONE, ( -- )  loops @ IF  loops> ]] DONE [[ THEN ;
+: DONE, ( -- )  loops @ IF  loops> ]] DONE [[ ELSE ." no done left!" cr THEN ;
 
 \ variables
 
@@ -186,7 +186,6 @@ Variable varsmax
 : n*} ( sys n -- ) \ regexp-pattern
     \G At least @var{n} pattern
     >r ]] r> 1+ >r end-rex? 0= UNTIL dup [[ DONE, ]] drop [[
-    r@ IF r@ ]] r@ Literal u< IF  r> 1+ drops dup  LEAVE  THEN [[ THEN
     r@ ]] r> 1+ Literal U+DO FORK BUT [[
     ]] IF  I' I - [[ r@ 1- ]] Literal + drops true UNLOOP ;S  THEN  LOOP [[
     r@ IF  r@ ]] Literal drops [[ THEN
@@ -216,7 +215,7 @@ Variable varsmax
 : +} ( addr addr' -- addr' ) \ regexp-pattern
     \G end of non-greedy one-or-more pattern
     ]] dup FORK BUT  IF  drop true  ;S [[
-    DONE, ]] drop dup  LEAVE  THEN *} [[ ; immediate
+    DONE, ]] drop dup  LEAVE [[ BEGIN, ]] THEN *} [[ ; immediate
 
 : // ( -- ) \ regexp-pattern
     \G search for string
