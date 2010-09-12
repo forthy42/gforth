@@ -17,6 +17,8 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+: ?depth  depth IF  ." unbalanced: " .s clearstack cr  THEN ;
+
 charclass [bl-]   blanks +class '-' +char
 charclass [0-9(]  '(' +char '0' '9' ..char
 
@@ -29,8 +31,8 @@ charclass [0-9(]  '(' +char '0' '9' ..char
     IF  '(' emit \1 type ." ) " \2 type '-' emit \3 type ."  succeeded"
     ELSE \0 type ."  failed " THEN ;
 
-: ?tel-s ( addr u -- ) ?tel ."  should succeed" space depth . cr ;
-: ?tel-f ( addr u -- ) ?tel ."  should fail" space depth . cr ;
+: ?tel-s ( addr u -- ) ?tel ."  should succeed" space cr ?depth ;
+: ?tel-f ( addr u -- ) ?tel ."  should fail" space cr ?depth ;
 
 ." --- Telephone number match ---" cr
 s" (123) 456-7890" ?tel-s
@@ -48,7 +50,7 @@ s" 123 456-78909" ?tel-f
 
 : ?tel2 ( addr u -- ) telnum2
     IF   '(' emit \1 type ." ) " \2 type '-' emit \3 type ."  succeeded"
-    ELSE \0 type ."  failed " THEN  cr ;
+    ELSE \0 type ."  failed " THEN  cr ?depth ;
 ." --- Telephone number search ---" cr
 s" blabla (123) 456-7890" ?tel2
 s" blabla (123) 456-7890 " ?tel2
@@ -69,7 +71,7 @@ charclass [0-9,./:]  '0' '9' ..char ',' +char '.' +char '/' +char ':' +char
 
 : ?num
     (( // \( {++ [0-9,./:] c? ++} \) ))
-    IF  \1 type  ELSE  \0 type ."  failed"  THEN   cr ;
+    IF  \1 type  ELSE  \0 type ."  failed"  THEN   cr ?depth ;
 
 s" 1234" ?num
 s" 12,345abc" ?num
@@ -90,15 +92,15 @@ s" Hier kommt nichts vor" ?string
 
 : ?foos
     (( \( {** =" foo" **} \) ))
-    IF  \1 type  ELSE  \0 type ."  failed"  THEN  cr ;
+    IF  \1 type  ELSE  \0 type ."  failed"  THEN  cr ?depth ;
 
 : ?foobars
     (( // \( {** =" foo" **} \) \( {++ =" bar" ++} \) ))
-    IF  \1 type ',' emit \2 type  ELSE  \0 type ."  failed"  THEN  cr ;
+    IF  \1 type ',' emit \2 type  ELSE  \0 type ."  failed"  THEN  cr ?depth ;
 
 : ?foos1
     (( // \( {+ =" foo" +} \) \( {++ =" bar" ++} \) ))
-    IF  \1 type ',' emit \2 type  ELSE  \0 type ."  failed"  THEN  cr ;
+    IF  \1 type ',' emit \2 type  ELSE  \0 type ."  failed"  THEN  cr ?depth ;
 
 s" foobar" ?foos
 s" foofoofoobar" ?foos
@@ -112,11 +114,11 @@ s" fofoofoofofooofoobarbar" ?foobars
 s" bla baz bar" ?foobars
 s" foofoofoo" ?foobars
 
-s" foobar" ?foos1
-s" foofoofoobar" ?foos1
-s" fofoofoofofooofoobarbar" ?foos1
-s" bla baz bar" ?foos1
-s" foofoofoo" ?foos1
+\ s" foobar" ?foos1
+\ s" foofoofoobar" ?foos1
+\ s" fofoofoofofooofoobarbar" ?foos1
+\ s" bla baz bar" ?foos1
+\ s" foofoofoo" ?foos1
 
 \ backtracking on decissions
 

@@ -113,7 +113,7 @@ Variable loops  $40 3 * cells allot
 : loops> ( -- addr ) -3 loops +!  loops @+ swap cells + 3@ ;
 : >loops ( addr -- ) loops @+ swap cells + 3! 3 loops +! ;
 : BEGIN, ( -- )  ]] BEGIN [[ >loops ;
-: DONE, ( -- )  loops @ IF  loops> ]] DONE [[ THEN ]] noop [[ ;
+: DONE, ( -- )  loops @ IF  loops> ]] DONE [[ THEN ;
 
 \ variables
 
@@ -148,10 +148,10 @@ Variable varsmax
 
 \ A word for string comparison
 
-: =str ( addr1 addr u -- addr2 )
+: (str=?) ( addr1 addr u -- addr2 )
     dup >r 2>r rest$ r@ umin 2r> compare IF rdrop true ELSE r> + false THEN ;
-: $= ( addr1 addr u -- addr2 ) ]] =str ?LEAVE [[ ; immediate
-: ,=" ( addr u -- ) tuck dup ]] rest$ Literal umin SLiteral compare ?LEAVE Literal + noop [[ ;
+: str=? ( addr1 addr u -- addr2 ) ]] (str=?) ?LEAVE [[ ; immediate
+: ,=" ( addr u -- ) tuck dup ]] rest$ Literal umin SLiteral compare ?LEAVE Literal + [[ ;
 : =" ( <string>" -- ) \ regexp-pattern
     \G check for string
     '" parse ,=" ; immediate
@@ -186,11 +186,11 @@ Variable varsmax
 : n*} ( sys n -- ) \ regexp-pattern
     \G At least @var{n} pattern
     >r ]] r> 1+ >r end-rex? 0= UNTIL dup [[ DONE, ]] drop [[
-    r@ IF r@ ]] r@ Literal u< IF  r> 1+ drops false  ;S  THEN [[ THEN
+    r@ IF r@ ]] r@ Literal u< IF  r> 1+ drops dup  LEAVE  THEN [[ THEN
     r@ ]] r> 1+ Literal U+DO FORK BUT [[
     ]] IF  I' I - [[ r@ 1- ]] Literal + drops true UNLOOP ;S  THEN  LOOP [[
     r@ IF  r@ ]] Literal drops [[ THEN
-    rdrop ]] false  ;S  JOIN [[ ; immediate
+    rdrop ]]  dup LEAVE  JOIN [[ ; immediate
 : **} ( sys -- ) \ regexp-pattern
     \G end of greedy zero-or-more pattern
     0 postpone n*} ; immediate
@@ -216,7 +216,7 @@ Variable varsmax
 : +} ( addr addr' -- addr' ) \ regexp-pattern
     \G end of non-greedy one-or-more pattern
     ]] dup FORK BUT  IF  drop true  ;S [[
-    DONE, ]] drop false  ;S  THEN *} [[ ; immediate
+    DONE, ]] drop dup  LEAVE  THEN *} [[ ; immediate
 
 : // ( -- ) \ regexp-pattern
     \G search for string
@@ -240,8 +240,8 @@ Variable varsmax
 : }} ( addr addr -- addr ) \ regexp-pattern
     \G end of alternatives
     vars @ varsmax @ max vars !
-    ]] dup FORK  IF  2drop true  ;S THEN  dup [[ >r >r >r drop
-    ]] DONE drop LEAVE [[ r> r> r> JOINs ; immediate
+    ]] dup FORK  IF  2drop true  ;S THEN drop dup [[ >r >r >r drop
+    ]] DONE drop LEAVE ;S  [[ r> r> r> JOINs ; immediate
 
 \ match variables
 
