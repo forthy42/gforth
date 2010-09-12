@@ -135,6 +135,7 @@ Variable varsmax
 : end-rex? ( addr -- addr flag ) dup end$ u< ;
 : start-rex? ( addr -- addr flag ) dup start$ u> ;
 : ?end ( addr -- addr ) ]] dup end$ u> ?LEAVE [[ ; immediate
+: rest$ ( addr -- addr addr u ) dup end$ over - ;
 
 \ start and end
 
@@ -147,7 +148,10 @@ Variable varsmax
 
 \ A word for string comparison
 
-: ,=" ( addr u -- ) tuck ]] dup SLiteral tuck compare ?LEAVE Literal + noop [[ ;
+: =str ( addr1 addr u -- addr2 )
+    dup >r 2>r rest$ r@ umin 2r> compare IF rdrop true ELSE r> + false THEN ;
+: $= ( addr1 addr u -- addr2 ) ]] =str ?LEAVE [[ ; immediate
+: ,=" ( addr u -- ) tuck dup ]] rest$ Literal umin SLiteral compare ?LEAVE Literal + noop [[ ;
 : =" ( <string>" -- ) \ regexp-pattern
     \G check for string
     '" parse ,=" ; immediate
