@@ -95,6 +95,9 @@ end-struct addrinfo
 
 Create sockaddr-tmp
 sockaddr-tmp sockaddr_in %size dup allot erase
+Create hints
+hints addrinfo %size dup allot erase
+Variable addrres
 
 : c-string ( addr u -- addr' )
     tuck pad swap move pad + 0 swap c! pad ;
@@ -110,6 +113,7 @@ sockaddr-tmp sockaddr_in %size dup allot erase
 [THEN]
     @ @ l@ ntohl ;
 
+   0 Constant PF_UNSPEC
    2 Constant PF_INET
    1 Constant SOCK_STREAM
    2 Constant SOCK_DGRAM
@@ -140,19 +144,55 @@ $004 Constant POLLOUT
     htons r@ port w!
     htonl r> sin_addr l! ;
 
-: open-socket ( addr u port -- fid )
+: open-socket1 ( addr u port -- fid )
     -rot host>addr
     swap sockaddr-tmp >inetaddr
     new-socket >r
     r@ sockaddr-tmp sockaddr_in %size connect 0< abort" can't connect"
     r> s" w+" c-string fdopen ;
 
-: open-udp-socket ( addr u port -- fid )
+: open-udp-socket1 ( addr u port -- fid )
     -rot host>addr
     swap sockaddr-tmp >inetaddr
     new-udp-socket >r
     r@ sockaddr-tmp sockaddr_in %size connect 0< abort" can't connect"
     r> s" w+" c-string fdopen ;
+
+\ getaddrinfo based open-socket
+
+: >hints ( socktype -- )
+    hints addrinfo %size erase
+    PF_UNSPEC hints ai_family l!
+    hints ai_socktype l! ;
+
+: get-info ( addr u port -- info )
+    base @ >r  decimal  0 <<# 0 hold #s #>  r> base ! drop
+    >r c-string r> hints addrres getaddrinfo #>>
+    ?dup IF
+	gai_strerror cstring>sstring type
+	true abort" getaddrinfo failed"  THEN
+    addrres @ ;
+
+: get-socket ( info -- socket )  dup >r >r
+    BEGIN  r@  WHILE
+	    r@ ai_family l@ r@ ai_socktype l@ r@ ai_protocol l@ socket
+	    dup 0>= IF
+		dup r@ ai_addr @ r@ ai_addrlen @ connect
+		IF
+		    closesocket drop
+		ELSE
+		    s" w+" c-string fdopen
+		    rdrop r> freeaddrinfo  EXIT
+		THEN
+	    ELSE  drop  THEN
+	    r> ai_next @ >r  REPEAT
+    rdrop r> freeaddrinfo true abort" can't connect" ;
+
+: open-socket ( addr u port -- fid )
+    SOCK_STREAM >hints  get-info  get-socket ;
+
+: open-udp-socket ( addr u port -- fid )
+    SOCK_DGRAM >hints  get-info  get-socket ;
 
 : create-server  ( port# -- lsocket )
     sockaddr-tmp sockaddr_in %size erase
