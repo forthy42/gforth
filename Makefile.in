@@ -207,7 +207,7 @@ EC_SRC = \
 	ec/nesting.fs \
 	build-ec.in
 
-GFORTH_FI_SRC = \
+GFORTH_FI_SRC1=\
 	assert.fs \
 	backtrac.fs \
 	blocked.fb \
@@ -218,7 +218,8 @@ GFORTH_FI_SRC = \
 	debugs.fs \
 	dis-gdb.fs \
 	ekey.fs \
-	envos.fs \
+
+GFORTH_FI_SRC2=\
 	savesys.fs \
 	environ.fs \
 	errors.fs \
@@ -261,13 +262,24 @@ GFORTH_FI_SRC = \
 	arch/mips/testasm.fs arch/mips/testdisasm.fs \
 	arch/power/asm.fs arch/power/disasm.fs arch/power/inst.fs
 
+# execlude envos.fs into list of distributed sources
+GFORTH_FI_DIST_SRC = \
+	$(GFORTH_FI_SRC1) \
+	$(GFORTH_FI_SRC2)
+
+GFORTH_FI_SRC = \
+	$(GFORTH_FI_SRC1) \
+	envos.fs \
+	$(GFORTH_FI_SRC2)
+
 LIBCC_SRC = cstr.fs unix/socket.fs
 
 LIBCC_DIST_SRC = libffi.fs fflib.fs $(LIBCC_SRC)
 
 LIBCC_BUILD_SRC = @LIBCC_BUILD_SRC@ $(LIBCC_SRC)
 
-FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_SRC) $(EC_SRC) $(LIBCC_DIST_SRC) \
+
+FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC) $(LIBCC_DIST_SRC) \
 	ans-report.fs ansi.fs answords.fs \
 	colorize.fs comp-i.fs complex.fs \
 	depth-changes.fs dosekey.fs doskey.fs ds2texi.fs \
@@ -619,7 +631,7 @@ install:	gforth$(EC)$(EXE) $(FORTH_SRC) $(kernel_fi) gforth.fi gforthmi vmgen do
 		(cd $(DESTDIR)$(bindir) && $(LN_S) vmgen-$(VERSION) vmgen)
 		-$(INSTALL_DATA) $(srcdir)/doc/gforth.1 $(DESTDIR)$(man1dir)
 		-for i in $(srcdir)/doc/gforth.info* $(srcdir)/doc/vmgen.info*; do $(INSTALL_DATA) $$i $(DESTDIR)$(infodir); done
-		for i in $(FORTH_SRC) $(COMPAT) prim; do \
+		for i in $(FORTH_SRC) $(COMPAT) envos.fs prim; do \
 			$(INSTALL_DATA) $(srcdir)/$$i $(DESTDIR)$(datadir)/gforth/$(VERSION)/$$i; \
 		done
 		$(INSTALL_DATA) $(kernel_fi) $(DESTDIR)$(datadir)/gforth/$(VERSION)
