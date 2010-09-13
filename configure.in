@@ -242,14 +242,20 @@ case "$host_cpu" in
 		;;
 	i486)
 		machine=386
-		CFLAGS="$CFLAGS -fomit-frame-pointer -fforce-addr -m486"
+		CFLAGS="$CFLAGS -fomit-frame-pointer -fforce-addr"
+		CFLAGS_1="$CFLAGS"
+		CFLAGS="$CFLAGS -march=i486"
+		AC_TRY_COMPILE(,,,CFLAGS="$CFLAGS_1 -m486")
+		AC_TRY_COMPILE(,,,CFLAGS="$CFLAGS_1")
 		;;
 	i*86)
 		machine=386
 		CFLAGS="$CFLAGS -fomit-frame-pointer -fforce-addr"
 		CFLAGS_1="$CFLAGS"
-		CFLAGS="$CFLAGS -march=pentium"
+		CFLAGS="$CFLAGS -march=pentium -mtune=generic"
+		AC_TRY_COMPILE(,,,CFLAGS="$CFLAGS_1 -march=pentium")
 		AC_TRY_COMPILE(,,,CFLAGS="$CFLAGS_1 -m486")
+		AC_TRY_COMPILE(,,,CFLAGS="$CFLAGS_1")
 		;;
 	x86_64)
 		case $CC
