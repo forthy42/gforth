@@ -120,4 +120,4 @@ $10 DefaultValue kernel-start   \ no artificial offset
 &1 KB		DefaultValue lstack-size
 [THEN]
 
-cell 8 = DefaultValue 64bit
+T cell H 8 = DefaultValue 64bit
