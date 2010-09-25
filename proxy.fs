@@ -18,6 +18,7 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 require unix/socket.fs
+require string.fs
 
 Create crlf #cr c, #lf c,
 
@@ -131,7 +132,7 @@ Variable data-buffer
     Content-Length @ IF
 	Content-Length $@ s>number drop r> read-sized  EXIT  THEN
     Transfer-Encoding @ IF
-	Transfer-Encoding $@ s" chunked" str= 0= IF
+	Transfer-Encoding $@ s" chunked" str= IF
 	    r> read-chunked  EXIT  THEN  THEN
     r> read-to-end ;
 

@@ -138,10 +138,13 @@ Variable data-buffer
     Content-Length @ IF
 	Content-Length $@ s>number drop r> read-sized  EXIT  THEN
     Transfer-Encoding @ IF
-	Transfer-Encoding $@ s" chunked" str= 0= IF
+	Transfer-Encoding $@ s" chunked" str= IF
 	    r> read-chunked  EXIT  THEN  THEN
     r> read-to-end ;
 
-: fslurp ( addr u -- addr u )
-    '/ $split -1 /string
-    http-open dup >r get-response throw r> read-data  data-buffer $@ ;
+: fslurp ( addr u -- addr u response )
+    '/' $split -1 /string
+    http-open dup >r get-response throw r> read-data  data-buffer $@
+    response-string $@ bl $split 2drop s>number drop ;
+
+\ download file
