@@ -257,9 +257,9 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 	(("char") non-immediate (font-lock-keyword-face . 1)
 	 "[ \t\n]" t string (font-lock-string-face . 1))
 	("'.'?" non-immediate (font-lock-string-face . 1))
-	(("s\"" "c\"") immediate (font-lock-string-face . 1)
+	(("s\"" "c\"" "s\\\"") immediate (font-lock-string-face . 1)
 	 "[\"\n]" nil string (font-lock-string-face . 1))
-	((".\"") compile-only (font-lock-string-face . 1)
+	((".\"" ".\\\"") compile-only (font-lock-string-face . 1)
 	 "[\"\n]" nil string (font-lock-string-face . 1))
 	(("abort\"") compile-only (font-lock-keyword-face . 1)
 	 "[\"\n]" nil string (font-lock-string-face . 1))
@@ -307,7 +307,7 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 
 	(("create" "variable" "constant" "2variable" "2constant" "fvariable"
 	  "fconstant" "value" "field" "user" "vocabulary" 
-	  "create-interpret/compile")
+	  "create-interpret/compile" "interpret/compile:")
 	 non-immediate (font-lock-type-face . 2)
 	 "[ \t\n]" t name (font-lock-variable-name-face . 3))
 	("\\S-+%" non-immediate (font-lock-type-face . 2))
@@ -761,7 +761,7 @@ End:\" construct).")
 (defvar forth-defining-words 
   '("VARIABLE" "CONSTANT" "2VARIABLE" "2CONSTANT" "FVARIABLE" "FCONSTANT"
    "USER" "VALUE" "field" "end-struct" "VOCABULARY" "CREATE" ":" "CODE"
-   "DEFER" "ALIAS")
+   "DEFER" "ALIAS" "interpret/compile:")
   "List of words, that define the following word.
 Used for imenu index generation.")
 
