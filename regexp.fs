@@ -226,21 +226,20 @@ Variable varsmax
 \ idea: try to match one alternative and then the rest of regexp.
 \ if that fails, jump back to second alternative
 
-: JOINs ( sys -- )  BEGIN  dup  WHILE  ]] JOIN [[  REPEAT  drop ;
+: THENs ( sys -- )  BEGIN  dup  WHILE  ]] THEN [[  REPEAT  drop ;
 
 : {{ ( addr -- addr addr ) \ regexp-pattern
     \G Start of alternatives
-    0 ]] dup BEGIN [[  vars @ ; immediate
+    0 ]] dup dup FORK  IF  2drop true ;S  BUT  JOIN [[ vars @ ; immediate
 : || ( addr addr -- addr addr ) \ regexp-pattern
     \G separator between alternatives
-    vars @ varsmax @ max varsmax !
-    ]] dup FORK  IF  2drop true  ;S THEN  [[ >r >r >r vars !
-    ]] DONE drop dup [[ r> r> r> ]] BEGIN [[ vars @ ; immediate
+    vars @ varsmax @ max varsmax !  vars !
+    ]] AHEAD  BUT  THEN  drop [[
+    ]] dup dup FORK  IF  2drop true ;S  BUT  JOIN [[ vars @ ; immediate
 : }} ( addr addr -- addr ) \ regexp-pattern
     \G end of alternatives
-    vars @ varsmax @ max vars !
-    ]] dup FORK  IF  2drop true  ;S THEN drop dup [[ >r >r >r drop
-    ]] DONE drop LEAVE ;S  [[ r> r> r> JOINs ; immediate
+    vars @ varsmax @ max vars !  drop
+    ]] AHEAD  BUT  THEN  2drop false ;S [[  THENs ; immediate
 
 \ match variables
 

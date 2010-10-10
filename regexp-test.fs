@@ -178,7 +178,7 @@ s" bla 45296s fasel 117s blubber" str= [IF] .(  ok) [ELSE] .(  failed) [THEN] cr
 ?depth
 
 : hms>s,del() ( addr u -- addr' u' )
-  s// {{ ` ( .? .? .? ` ) >> <<" ()"
+  s// {{ ` ( // ` ) >> <<" ()"
       || \( \d \d \) ` : \( \d \d \) ` : \( \d \d \)
          >> \1 s>number drop 60 *
             \2 s>number drop + 60 *
