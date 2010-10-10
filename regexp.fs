@@ -239,7 +239,7 @@ Variable varsmax
 : }} ( addr addr -- addr ) \ regexp-pattern
     \G end of alternatives
     vars @ varsmax @ max vars !  drop
-    ]] AHEAD  BUT  THEN  2drop false ;S [[  THENs ; immediate
+    ]] AHEAD  BUT  THEN  drop LEAVE [[  THENs ; immediate
 
 \ match variables
 
