@@ -349,9 +349,9 @@ Label *gforth_engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0 sr_p
   register Cell MAYBE_UNUSED spc spcREG;
   register Cell MAYBE_UNUSED spd spdREG;
   register Cell MAYBE_UNUSED spe speREG;
-  register Cell MAYBE_UNUSED spf speREG;
-  register Cell MAYBE_UNUSED spg speREG;
-  register Cell MAYBE_UNUSED sph speREG;
+  register Cell MAYBE_UNUSED spf spfREG;
+  register Cell MAYBE_UNUSED spg spgREG;
+  register Cell MAYBE_UNUSED sph sphREG;
   IF_fpTOS(register Float fpTOS FTOSREG;)
 #endif /* !defined(GFORTH_DEBUGGING) */
 #if defined(DOUBLY_INDIRECT)
