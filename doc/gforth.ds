@@ -2733,7 +2733,8 @@ s" The text I search is here" scan-file
       line-buffer max-line fd-in read-line throw
   while
       line-buffer swap fd-out write-line throw
-  repeat ;
+  repeat 
+  drop ;
 @end example
 @c !! does not handle long lines, no newline at end of file
 
@@ -2885,7 +2886,7 @@ word with @code{compile,}:
 @example
 : foo1 ( n1 n2 -- n )
    [ ' + compile, ] ;
-see foo
+see foo1
 @end example
 
 This is non-standard, because @code{compile,} has no compilation
