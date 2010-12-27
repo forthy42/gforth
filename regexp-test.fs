@@ -185,7 +185,6 @@ s" bla 45296s fasel 117s blubber" str= [IF] .(  ok) [ELSE] .(  failed) [THEN] cr
             \3 s>number drop + 0 <# 's' hold #s #> <<
       }} LEAVE //s ;
 
-\ doesn't work yet
 s" (bla) 12:34:56 (fasel) 00:01:57 (blubber)" 2dup type hms>s,del() ."  -> " type cr
 
 script? [IF] bye [THEN]
