@@ -1,4 +1,4 @@
-#! /usr/stud/paysan/bin/forth
+#! /usr/bin/gforth
 
 DECIMAL
 : SECS TIME&DATE  2DROP DROP  60 * + 60 * + ;

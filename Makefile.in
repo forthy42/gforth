@@ -129,7 +129,7 @@ datarootdir = @datarootdir@
 datadir = @datadir@
 #read-only architecture-dependent non-ascii files
 libdir = @libdir@
-libccdir = $(libdir)/gforth/$(VERSION)/libcc-named/
+libccdir = $(subst $(DESTDIR),,$(libdir)/gforth/$(VERSION)/libcc-named/)
 includedir = @includedir@
 infodir = @infodir@
 htmldir = @htmldir@
@@ -675,7 +675,7 @@ uninstall:	FORCE
 
 build-libcc-named: $(LIBCC_BUILD_SRC) $(FORTH_GEN) $(GEN) FORCE
 		$(RMTREE) lib/gforth/$(VERSION)/libcc-named/
-		for i in $(LIBCC_BUILD_SRC); do ./gforth -e "s\" `pwd`/lib/gforth/$(VERSION)/libcc-named/\" libcc-named-dir-v 2! libcc-path clear-path libcc-named-dir libcc-path also-path :noname 2drop s\" $(libccdir)\" ; is replace-rpath" $(srcdir)/$$i -e bye; done
+		for i in $(LIBCC_BUILD_SRC); do ./gforth -e "s\" `pwd`/lib/gforth/$(VERSION)/libcc-named/\" libcc-named-dir-v 2! libcc-path clear-path libcc-named-dir libcc-path also-path :noname 2drop s\" $(DESTDIR)$(libccdir)\" ; is replace-rpath" $(srcdir)/$$i -e bye; done
 
 check:		gforths	gforth.fi 
 		$(MAKE) checkone check-nofast ENGINE="./gforth --no-dynamic" >/dev/null 2>&1
