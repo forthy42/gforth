@@ -18,7 +18,6 @@
 Name:           gforth
 %if 0%{?suse_version}
 BuildRequires:  emacs-nox libffi-devel
-Requires:       libffi
 PreReq:         %{install_info_prereq}
 %endif
 %if 0%{?redhat_version}

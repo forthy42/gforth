@@ -917,7 +917,7 @@ if test -z "$FFI_H_NAME"; then
   AC_CHECK_HEADER(ffi/ffi.h,FFI_H_NAME=ffi/ffi.h,)
 fi
 AC_SUBST(FFI_H_NAME)
-AC_CHECK_LIB(ffi,ffi_call)
+AC_CHECK_LIB(ffi,ffi_call,LIBS="$LIBS")
 if test -n "$FFI_H_NAME" -a $ac_cv_lib_ffi_ffi_call = yes
 then
   LIBFFIFLAG="true"
@@ -927,7 +927,7 @@ else
 fi
 #check for ffcall libraries
 #unfortunately, these four calls are separated out into a library each.
-AC_CHECK_LIB(avcall,__builtin_avcall)
+AC_CHECK_LIB(avcall,__builtin_avcall,LIBS="$LIBS")
 dnl AC_CHECK_LIB(callback,__vacall_r)
 dnl AC_CHECK_LIB(vacall,vacall)
 dnl AC_CHECK_LIB(trampoline,alloc_trampoline)
