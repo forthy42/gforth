@@ -33,11 +33,10 @@ Url:            http://www.complang.tuwien.ac.at/forth/gforth/
 License:        GNU Free Documentation License, Version 1.2 (GFDL 1.2); GPL v2 or later; GPL v3 or later
 Group:          Development/Languages/Other
 AutoReqProv:    on
-Version:        0.7.0
-Release:        40.1
+Version:        0.7.9
+Release:        62.1
 Summary:        GNU Forth
 Source:         gforth-%{version}.tar.gz
-Patch0:         gforth-%{version}.diff
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
 %description
@@ -53,7 +52,6 @@ Authors:
 
 %prep
 %setup -q
-%patch0 -p1
 
 %build
 # Fixup timestamps. Can't rebuild them without working gforth
