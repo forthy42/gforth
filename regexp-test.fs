@@ -187,4 +187,41 @@ s" bla 45296s fasel 117s blubber" str= [IF] .(  ok) [ELSE] .(  failed) [THEN] cr
 
 s" (bla) 12:34:56 (fasel) 00:01:57 (blubber)" 2dup type hms>s,del() ."  -> " type cr
 
+\ more tests from David Kühling
+
+require test/ttester.fs
+
+: underflow1  ( c-addr u -- flag )
+   (( {{
+         {{ ` - || }} \d
+         || \d
+      }} )) ;
+T{ s" -1dummy" underflow1 -> true }T
+
+: underflow2  ( -- )
+   (( \( {{ \s {** \s **} 
+	 || =" /*" // =" */"
+	 || =" //" {** \d **} }} \) )) ;
+T{ s" /*10203030203030404*/   " underflow2 -> true }T
+T{ pad 0 underflow2 -> false }T
+
+charclass [*] '* +char
+charclass [*/] '* +char '/ +char
+
+: underflow3  ( -- )
+   ((
+      =" /*"
+      \( {** {{ [*] -c? || ` * [*/] -c? }}  **} \)
+      {++ ` * ++} ` /
+   )) ;
+
+\ this still seems to be too complicated
+T{ s" /*10203030203030404*/   " underflow3 -> true }T
+\1 type cr
+
+: underflow4  ( -- )
+   (( \( {{ {** \d **} || {** \d **} }} \d \) )) ;
+
+T{ s" 0  " underflow4 -> true }T
+
 script? [IF] bye [THEN]
