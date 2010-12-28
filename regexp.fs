@@ -181,25 +181,24 @@ Variable greed-counts  9 cells allot \ no more than 9 nested greedy loops
 
 : {** ( addr -- addr addr ) \ regexp-pattern
     \G greedy zero-or-more pattern
-    cell greed-counts +!
-    greed' ]] Literal off BEGIN dup [[ BEGIN, ; immediate
+    ]] false >r BEGIN  dup  FORK  BUT  WHILE  r> 1+ >r  REPEAT [[
+    ]] r>  AHEAD  BUT  JOIN [[
+    BEGIN, ; immediate
 ' {** Alias {++ ( addr -- addr addr ) \ regexp-pattern
     \G greedy one-or-more pattern
     immediate
-: n*} ( sys n -- ) \ regexp-pattern
-    \G At least @var{n} pattern
-    >r greed' ]] 1 Literal +! end-rex? 0= UNTIL dup [[ DONE, ]] drop [[
-    r@ greed' ]] Literal @ 1+ Literal U+DO FORK BUT [[
-    ]] IF  I' I - [[ r@ 1- ]] Literal + drops true UNLOOP ;S  THEN  LOOP [[
-    r@ IF  r@ ]] Literal drops [[ THEN
-    rdrop ]]  dup LEAVE  JOIN [[
-    cell negate greed-counts +! ; immediate
 : **} ( sys -- ) \ regexp-pattern
     \G end of greedy zero-or-more pattern
-    0 postpone n*} ; immediate
+    ]] dup end$ u<=  ;S [[ DONE, ]] false ;S  THEN [[
+    ]] nip 1+ false  U+DO  FORK BUT [[
+    ]] IF  I' I - 1- drops true UNLOOP ;S  THEN  LOOP [[
+    ]] dup LEAVE JOIN [[ ; immediate
 : ++} ( sys -- ) \ regexp-pattern
     \G end of greedy zero-or-more pattern
-    1 postpone n*} ; immediate
+    ]] dup end$ u<=  ;S [[ DONE, ]] false ;S  THEN [[
+    ]] nip false  U+DO  FORK BUT [[
+    ]] IF  I' I - drops true UNLOOP ;S  THEN  LOOP [[
+    ]] drop dup LEAVE JOIN [[ ; immediate
 
 \ non-greedy loops
 
