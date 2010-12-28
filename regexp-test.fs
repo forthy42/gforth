@@ -211,12 +211,12 @@ charclass [*/] '* +char '/ +char
 : underflow3  ( -- )
    ((
       =" /*"
-      \( {** {{ [*] -c? || ` * [*/] -c? }}  **} \)
+      \( {** {{ [*] -c? || ` * [*/] -c? }} **} \)
       {++ ` * ++} ` /
    )) ;
 
 \ this still seems to be too complicated
-T{ s" /*10203030203030404*/   " underflow3 -> true }T
+T{ s" /*10203030203030404*/   " underflow3 .s -> true }T
 \1 type cr
 
 : underflow4  ( -- )
