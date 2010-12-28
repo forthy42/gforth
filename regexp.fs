@@ -1,6 +1,6 @@
-\ Regexp compile
+\ Regexp compiler
 
-\ Copyright (C) 2005,2006,2007,2008 Free Software Foundation, Inc.
+\ Copyright (C) 2005,2006,2007,2008,2010 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
