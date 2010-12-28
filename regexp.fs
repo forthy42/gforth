@@ -183,7 +183,7 @@ Variable greed-counts  9 cells allot \ no more than 9 nested greedy loops
 
 : {** ( addr -- addr addr ) \ regexp-pattern
     \G greedy zero-or-more pattern
-    ]] false >r BEGIN  dup  FORK  BUT  WHILE  drop last$ r> 1+ >r  REPEAT [[
+    ]] false >r BEGIN  dup  FORK  BUT  WHILE  last$ r> 1+ >r  REPEAT [[
     ]] r>  AHEAD  BUT  JOIN [[
     BEGIN, ; immediate
 ' {** Alias {++ ( addr -- addr addr ) \ regexp-pattern
@@ -191,14 +191,14 @@ Variable greed-counts  9 cells allot \ no more than 9 nested greedy loops
     immediate
 : **} ( sys -- ) \ regexp-pattern
     \G end of greedy zero-or-more pattern
-    ]] dup >last  ;S [[ DONE, ]] false ;S  THEN [[
-    ]] nip 1+ false  U+DO  FORK BUT [[
+    ]] >last  ;S [[ DONE, ]] drop false ;S  THEN [[
+    ]] 1+ false  U+DO  FORK BUT [[
     ]] IF  I' I - 1- drops UNLOOP  true ;S  THEN  LOOP [[
     ]] false ;S JOIN [[ ; immediate
 : ++} ( sys -- ) \ regexp-pattern
     \G end of greedy zero-or-more pattern
-    ]] dup >last  ;S [[ DONE, ]] false ;S  THEN [[
-    ]] nip false  U+DO  FORK BUT [[
+    ]] >last  ;S [[ DONE, ]] drop false ;S  THEN [[
+    ]] false  U+DO  FORK BUT [[
     ]] IF  I' I - drops UNLOOP  true ;S  THEN  LOOP [[
     ]] drop false ;S JOIN [[ ; immediate
 
