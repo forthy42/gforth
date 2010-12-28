@@ -169,7 +169,7 @@ Variable greed-counts  9 cells allot \ no more than 9 nested greedy loops
     \G start regexp block
     vars off varsmax off loops off greed-counts off
     ]] FORK  AHEAD BUT JOIN !end [[ BEGIN, ; immediate
-: )) ( -- addr f ) \ regexp-pattern
+: )) ( -- flag ) \ regexp-pattern
     \G end regexp block
     ]] >last  ;S [[
     DONE, ]] drop false ;S THEN [[ ; immediate
@@ -194,13 +194,13 @@ Variable greed-counts  9 cells allot \ no more than 9 nested greedy loops
     ]] dup >last  ;S [[ DONE, ]] false ;S  THEN [[
     ]] nip 1+ false  U+DO  FORK BUT [[
     ]] IF  I' I - 1- drops UNLOOP  true ;S  THEN  LOOP [[
-    ]] dup LEAVE JOIN [[ ; immediate
+    ]] false ;S JOIN [[ ; immediate
 : ++} ( sys -- ) \ regexp-pattern
     \G end of greedy zero-or-more pattern
     ]] dup >last  ;S [[ DONE, ]] false ;S  THEN [[
     ]] nip false  U+DO  FORK BUT [[
     ]] IF  I' I - drops UNLOOP  true ;S  THEN  LOOP [[
-    ]] LEAVE JOIN [[ ; immediate
+    ]] drop false ;S JOIN [[ ; immediate
 
 \ non-greedy loops
 
@@ -235,16 +235,16 @@ Variable greed-counts  9 cells allot \ no more than 9 nested greedy loops
 
 : {{ ( addr -- addr addr ) \ regexp-pattern
     \G Start of alternatives
-    0 ]] dup dup FORK  IF  2drop true ;S  BUT  JOIN [[ vars @ ; immediate
+    0 ]] dup FORK  IF  drop true ;S  BUT  JOIN [[ vars @ ; immediate
 : || ( addr addr -- addr addr ) \ regexp-pattern
     \G separator between alternatives
     vars @ varsmax @ max varsmax !  vars !
-    ]] AHEAD  BUT  THEN  drop [[
-    ]] dup dup FORK  IF  2drop true ;S  BUT  JOIN [[ vars @ ; immediate
+    ]] AHEAD  BUT  THEN  [[
+    ]] dup FORK  IF  drop true ;S  BUT  JOIN [[ vars @ ; immediate
 : }} ( addr addr -- addr ) \ regexp-pattern
     \G end of alternatives
     vars @ varsmax @ max vars !  drop
-    ]] AHEAD  BUT  THEN  2drop false ;S [[  THENs ; immediate
+    ]] AHEAD  BUT  THEN  drop false ;S [[  THENs ; immediate
 
 \ match variables
 
