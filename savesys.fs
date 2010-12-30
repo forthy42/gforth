@@ -60,6 +60,4 @@
     r> close-file throw ;
 
 : savesystem ( "name" -- ) \ gforth
-    ofile 256 chars erase
-    tfile 256 chars erase
     name dump-fi ;

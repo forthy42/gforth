@@ -47,9 +47,7 @@
 
 \ questions to: wilke@jwdt.com
 
-: path-allot ( umax -- ) \ gforth
-    \G @code{Allot} a path with @i{umax} characters capacity, initially empty.
-    chars dup , 0 , allot ;
+include string.fs
 
 [IFUNDEF] +place
 : +place ( adr len adr )
@@ -63,15 +61,16 @@
         2dup c! char+ swap move ;
 [THEN]
 
-\ create sourcepath 1024 chars , 0 , 1024 chars allot \ !! make this dynamic
-0 avalue fpath ( -- path-addr ) \ gforth
+Variable fpath ( -- path-addr ) \ gforth
+Variable ofile
+Variable tfile
 
-: make-path ( -- addr )
-    $400 chars dup 2 cells + allocate throw >r
-    0 swap r@ 2! r> ;
+: make-path ( addr -- )  >r r@ off s" " r> $! ;
 
 : os-cold ( -- )
-    make-path to fpath
+    fpath make-path
+    ofile make-path
+    tfile make-path
     pathstring 2@ fpath only-path 
     init-included-files ;
 
@@ -79,20 +78,17 @@
 
 : also-path ( c-addr len path-addr -- ) \ gforth
     \G add the directory @i{c-addr len} to @i{path-addr}.
-  >r
-  \ len check
-  r@ cell+ @ over + r@ @ u> ABORT" path buffer too small!" \ !! grow it
-  \ copy into
-  tuck r@ cell+ dup @ cell+ + swap cmove
-  \ make delimiter
-  0 r@ cell+ dup @ cell+ + 2 pick + c! 1 + r> cell+ +!
-;
+    >r
+    r@ $@len IF  \ add separator if necessary
+	s" |" r@ $+!  0 r@ $@ + 1- c!
+    THEN
+    r> $+! ;
 
 : clear-path ( path-addr -- ) \ gforth
     \G Set the path @i{path-addr} to empty.
-    0 swap cell+ ! ;
+    s" " rot $! ;
 
-: only-path ( adr len path^ -- )
+: only-path ( adr len path -- )
     dup clear-path also-path ;
 
 : path+ ( path-addr  "dir" -- ) \ gforth
@@ -114,19 +110,11 @@
 
 : path>string ( path -- c-addr u )
     \ string contains NULs to separate/terminate components
-    cell+ dup cell+ swap @ ;
+    $@ ;
 
 : next-path ( addr u -- addr1 u1 addr2 u2 )
     \ addr2 u2 is the first component of the path, addr1 u1 is the rest
-    2dup 0 scan
-    dup 0= IF     2drop 0 -rot 0 -rot EXIT THEN
-    >r 1+ -rot r@ 1- -rot
-    r> - ;
-
-: previous-path ( path^ -- )
-    \ !! "fpath previous-path" doesn't work
-  dup path>string
-  BEGIN tuck dup WHILE repeat ;
+    0 $split 2swap ;
 
 : .path ( path-addr -- ) \ gforth
     \G Display the contents of the search path @var{path-addr}.
@@ -149,12 +137,9 @@
     S" ./" string-prefix?
     r> r> r> or or or ;
 
-Create ofile 0 c, 255 chars allot
-Create tfile 0 c, 255 chars allot
-
 : pathsep? dup [char] / = swap [char] \ = or ;
 
-: need/   ofile dup c@ + c@ pathsep? 0= IF s" /" ofile +place THEN ;
+: need/   ofile $@ 1- + c@ pathsep? 0= IF s" /" ofile $+! THEN ;
 
 : extractpath ( adr len -- adr len2 )
   BEGIN dup WHILE 1-
@@ -162,21 +147,21 @@ Create tfile 0 c, 255 chars allot
   REPEAT ;
 
 : remove~+ ( -- )
-    ofile count s" ~+/" string-prefix?
+    ofile $@ s" ~+/" string-prefix?
     IF
-	ofile count 3 /string ofile place
+	ofile 0 3 $del
     THEN ;
 
 : expandtopic ( -- ) \ stack effect correct? - anton
     \ expands "./" into an absolute name
-    ofile count s" ./" string-prefix?
+    ofile $@ s" ./" string-prefix?
     IF
-	ofile count 1 /string tfile place
-	0 ofile c! includefilename 2@ extractpath ofile place
+	ofile $@ 1 /string tfile $!
+	includefilename 2@ extractpath ofile $!
 	\ care of / only if there is a directory
-	ofile c@ IF need/ THEN
-	tfile count over c@ pathsep? IF 1 /string THEN
-	ofile +place
+	ofile $@len IF need/ THEN
+	tfile $@ over c@ pathsep? IF 1 /string THEN
+	ofile $+!
     THEN ;
 
 : del-string ( addr u u1 -- addr u2 )
@@ -215,7 +200,7 @@ Create tfile 0 c, 255 chars allot
 	1 /string del-./s recurse
 	2dup s" ../" string-prefix? if ( start addr3 addr4 u4 )
 	    3 /string ( start to from count )
-	    >r swap 2dup r@ cmove r>
+	    >r swap 2dup r@ move r>
 	endif
     endif
     + nip over - ;
@@ -227,17 +212,17 @@ Create tfile 0 c, 255 chars allot
 
 : reworkdir ( -- )
   remove~+
-  ofile count compact-filename
-  nip ofile c! ;
+  ofile $@ compact-filename
+  nip ofile $!len ;
 
 : open-ofile ( -- fid ior )
     \G opens the file whose name is in ofile
     expandtopic reworkdir
-    ofile count r/o open-file ;
+    ofile $@ r/o open-file ;
 
 : check-path ( adr1 len1 adr2 len2 -- fid 0 | 0 ior )
-  0 ofile ! >r >r ofile place need/
-  r> r> ofile +place
+  >r >r ofile $! need/
+  r> r> ofile $+!
   open-ofile ;
 
 \ !! allow arbitrary FAMs, not just R/O
@@ -250,16 +235,16 @@ Create tfile 0 c, 255 chars allot
     >r
     2dup absolut-path? IF
         rdrop
-        ofile place open-ofile
+        ofile $! open-ofile
         dup 0= IF
-            >r ofile count r> THEN
+            >r ofile $@ r> THEN
         EXIT
     ELSE
         r> -&37 >r path>string BEGIN
             next-path dup WHILE
                 r> drop
                 5 pick 5 pick check-path dup 0= IF
-                    drop >r 2drop 2drop r> ofile count 0 EXIT
+                    drop >r 2drop 2drop r> ofile $@ 0 EXIT
                 ELSE
                     >r drop
                 THEN

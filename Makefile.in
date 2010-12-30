@@ -189,7 +189,8 @@ KERN_SRC = \
 	kernel/doers.fs \
 	kernel/getdoers.fs \
 	kernel/pass.fs \
-	kernel/xchars.fs
+	kernel/xchars.fs \
+	string.fs
 
 EC_SRC = \
 	asm/README \

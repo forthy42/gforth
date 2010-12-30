@@ -50,6 +50,6 @@
   >r 2dup r> scan dup >r dup IF  1 /string  THEN
   2swap r> - 2swap ;
 
-: $iter ( .. $addr char xt -- .. ) { char xt }
-  $@ BEGIN  dup  WHILE  char $split >r >r xt execute r> r>
-     REPEAT  2drop ;
+: $iter ( .. $addr char xt -- .. ) >r >r
+  $@ BEGIN  dup  WHILE  r@ $split i' -rot >r >r execute r> r>
+     REPEAT  2drop rdrop rdrop ;

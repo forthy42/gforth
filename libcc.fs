@@ -154,7 +154,7 @@ variable lib-handle-addr \ points to the library handle of the current batch.
 2variable lib-filename   \ filename without extension
 2variable lib-modulename \ basename of the file without extension
 2variable libcc-named-dir-v \ directory for named libcc wrapper libraries
-0 value libcc-path       \ pointer to path of library directories
+Variable libcc-path      \ pointer to path of library directories
 
 defer replace-rpath ( c-addr1 u1 -- c-addr2 u2 )
 ' noop is replace-rpath
@@ -699,7 +699,7 @@ clear-libs
 : init-libcc ( -- )
     s" ~/.gforth/libcc-named/" libcc-named-dir-v 2!
 [IFDEF] make-path
-    make-path to libcc-path
+    libcc-path make-path
     libcc-named-dir libcc-path also-path
     [ s" libccdir" getenv ] sliteral libcc-path also-path
 [THEN]
