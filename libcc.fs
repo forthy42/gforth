@@ -698,8 +698,8 @@ clear-libs
 
 : init-libcc ( -- )
     s" ~/.gforth/libcc-named/" libcc-named-dir-v 2!
-[IFDEF] make-path
-    libcc-path make-path
+[IFDEF] $init
+    libcc-path $init
     libcc-named-dir libcc-path also-path
     [ s" libccdir" getenv ] sliteral libcc-path also-path
 [THEN]

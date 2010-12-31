@@ -65,12 +65,10 @@ Variable fpath ( -- path-addr ) \ gforth
 Variable ofile
 Variable tfile
 
-: make-path ( addr -- )  >r r@ off s" " r> $! ;
-
 : os-cold ( -- )
-    fpath make-path
-    ofile make-path
-    tfile make-path
+    fpath $init
+    ofile $init
+    tfile $init
     pathstring 2@ fpath only-path 
     init-included-files ;
 
