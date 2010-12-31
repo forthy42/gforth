@@ -1,6 +1,6 @@
 \ test some double primitives
 
-\ Copyright (C) 1996,1998,1999,2000,2003,2007 Free Software Foundation, Inc.
+\ Copyright (C) 1996,1998,1999,2000,2003,2007,2010 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

@@ -1,6 +1,6 @@
 \ ASSEMBLER, CODE etc.
 
-\ Copyright (C) 1995,1996,1997,1999,2003,2007 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1999,2003,2007,2010 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

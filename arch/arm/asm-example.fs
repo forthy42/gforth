@@ -3,7 +3,7 @@
 \ Author: David Kühling <dvdkhlng AT gmx DOT de>
 \ Created: January 2008
 
-\ Copyright (C) 2000,2007,2008 Free Software Foundation, Inc.
+\ Copyright (C) 2000,2007,2008,2010 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
