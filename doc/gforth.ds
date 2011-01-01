@@ -8923,6 +8923,7 @@ doc-block-included
 * Formatted numeric output::    Formatted (pictured) output
 * String Formats::              How Forth stores strings in memory
 * Displaying characters and strings::  Other stuff
+* String words::                Gforth's little string library
 * Terminal output::             Cursor positioning etc.
 * Single-key input::            
 * Line input and conversion::   
@@ -9129,7 +9130,7 @@ For words that move, copy and search for strings see @ref{Memory
 Blocks}. For words that display characters and strings see
 @ref{Displaying characters and strings}.
 
-@node Displaying characters and strings, Terminal output, String Formats, Other I/O
+@node Displaying characters and strings, String words, String Formats, Other I/O
 @subsection Displaying characters and strings
 @cindex characters - compiling and displaying
 @cindex character strings - compiling and displaying
@@ -9220,8 +9221,31 @@ the text ``LPHABET'' and only compiled the display code for ``A'' into the
 definition of @code{my-char}.
 @end itemize
 
+@node String words, Terminal output, Displaying characters and strings, Other I/O
+@subsection String words
+@cindex string words
 
-@node Terminal output, Single-key input, Displaying characters and strings, Other I/O
+The following string library stores strings in ordinary variables,
+which then contain a pointer to a counted string stored allocated from
+the heap.  Instead of a count byte, there's a whole count cell,
+sufficient for all normal use.  The string library originates from
+bigFORTH.
+
+doc-delete
+doc-insert
+doc-$!
+doc-$@
+doc-$@len
+doc-$!len
+doc-$del
+doc-$ins
+doc-$+!
+doc-$off
+doc-$init
+doc-$split
+doc-$iter
+
+@node Terminal output, Single-key input, String words, Other I/O
 @subsection Terminal output
 @cindex output to terminal
 @cindex terminal output

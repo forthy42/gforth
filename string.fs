@@ -17,40 +17,67 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-: delete   ( buffer size count -- )
-  over min >r  r@ - ( left over )  dup 0>
-  IF  2dup swap dup  r@ +  -rot swap move  THEN  + r> bl fill ;
+: delete   ( buffer size n -- ) \ gforth-string
+    \G deletes the first @var{n} bytes from a buffer and fills the
+    \G rest at the end with blanks.
+    over min >r  r@ - ( left over )  dup 0>
+    IF  2dup swap dup  r@ +  -rot swap move  THEN  + r> bl fill ;
 
-[IFUNDEF] insert
-: insert   ( string length buffer size -- )
-  rot over min >r  r@ - ( left over )
-  over dup r@ +  rot move   r> move  ;
-[THEN]
+: insert   ( string length buffer size -- ) \ gforth-string
+    \G inserts a string at the front of a buffer. The remaining
+    \G bytes are moved on.
+    rot over min >r  r@ - ( left over )
+    over dup r@ +  rot move   r> move  ;
 
-: $padding ( n -- n' )
-  [ 6 cells ] Literal + [ -4 cells ] Literal and ;
-: $! ( addr1 u addr2 -- )
-  dup @ IF  dup @ free throw  THEN
-  over $padding allocate throw over ! @
-  over >r  rot over cell+  r> move 2dup ! + cell+ bl swap c! ;
-: $@len ( addr -- u )  @ @ ;
-: $@ ( addr1 -- addr2 u )  @ dup cell+ swap @ ;
-: $!len ( u addr -- )
-  over $padding over @ swap resize throw over ! @ ! ;
-: $del ( addr off u -- )   >r >r dup $@ r> /string r@ delete
-  dup $@len r> - swap $!len ;
-: $ins ( addr1 u addr2 off -- ) >r
-  2dup dup $@len rot + swap $!len  $@ 1+ r> /string insert ;
-: $+! ( addr1 u addr2 -- ) dup $@len $ins ;
-: $off ( addr -- )  dup @ dup IF  free throw off  ELSE  2drop  THEN ;
-: $init ( addr -- )  >r r@ off s" " r> $! ;
+: $padding ( n -- n' ) \ gforth-string
+    [ 6 cells ] Literal + [ -4 cells ] Literal and ;
+: $! ( addr1 u addr2 -- ) \ gforth-string string-store
+    \G stores a string at an address, If there was a string there
+    \G already, that string will be lost.
+    dup @ IF  dup @ free throw  THEN
+    over $padding allocate throw over ! @
+    over >r  rot over cell+  r> move 2dup ! + cell+ bl swap c! ;
+: $@len ( addr -- u ) \ gforth-string string-fetch-len
+    \G returns the length of the stored string.
+    @ @ ;
+: $@ ( addr1 -- addr2 u ) \ gforth-string string-fetch
+    \G returns the stored string.
+    @ dup cell+ swap @ ;
+: $!len ( u addr -- ) \ gforth-string string-store-len
+    \G changes the length of the stored string.  Therefore we must
+    \G change the memory area and adjust address and count cell as
+    \G well.
+    over $padding over @ swap resize throw over ! @ ! ;
+: $del ( addr off u -- ) \ gforth-string string-del
+    \G deletes @var{u} bytes from a string with offset @var{off}.
+    >r >r dup $@ r> /string r@ delete
+    dup $@len r> - swap $!len ;
+: $ins ( addr1 u addr2 off -- ) \ gforth-string string-ins
+    \G inserts a string at offset @var{off}.
+    >r 2dup dup $@len rot + swap $!len  $@ 1+ r> /string insert ;
+: $+! ( addr1 u addr2 -- ) \ gforth-string string-plus-store
+    \G appends a string to another.
+    dup $@len $ins ;
+: $off ( addr -- ) \ gforth-string string-off
+    \G releases a string.
+    dup @ dup IF  free throw off  ELSE  2drop  THEN ;
+: $init ( addr -- ) \ gforth-string string-init
+    \G initializes a string to empty (doesn't look at what was there before).
+    >r r@ off s" " r> $! ;
 
 \ dynamic string handling                              12dec99py
 
-: $split ( addr u char -- addr1 u1 addr2 u2 )
-  >r 2dup r> scan dup >r dup IF  1 /string  THEN
-  2swap r> - 2swap ;
+: $split ( addr u char -- addr1 u1 addr2 u2 ) \ gforth-string string-split
+    \G divides a string into two, with one char as separator (e.g. '?'
+    \G for arguments in an HTML query)
+    >r 2dup r> scan dup >r dup IF  1 /string  THEN
+    2swap r> - 2swap ;
 
-: $iter ( .. $addr char xt -- .. ) >r >r
-  $@ BEGIN  dup  WHILE  r@ $split i' -rot >r >r execute r> r>
-     REPEAT  2drop rdrop rdrop ;
+: $iter ( .. $addr char xt -- .. ) \ gforth-string string-iter
+    \G takes a string apart piece for piece, also with a character as
+    \G separator. For each part a passed token will be called. With
+    \G this you can take apart arguments -- separated with '&' -- at
+    \G ease.
+    >r >r
+    $@ BEGIN  dup  WHILE  r@ $split i' -rot >r >r execute r> r>
+    REPEAT  2drop rdrop rdrop ;

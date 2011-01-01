@@ -659,7 +659,7 @@ DEFER compile-wrapper-function ( -- )
     \G specified stack effect and calls the C function @code{c-name}.
     ['] parse-function-types (c-function) ;
 
-: c-value ( "forth-name" "c-name" "[---]" "type" -- ) \ gforth
+: c-value ( "forth-name" "c-name" "---" "type" -- ) \ gforth
     \G Define a Forth word @i{forth-name}.  @i{Forth-name} has the
     \G specified stack effect and gives the C value of @code{c-name}.
     ['] parse-value-type (c-function) ;
