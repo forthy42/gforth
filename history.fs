@@ -292,9 +292,11 @@ require utf-8.fs
 	r@ - >string over r@ + -rot move
 	rot r@ - -rot .all r@ spaces r> back-restore .rest THEN ;
 
+[IFUNDEF] insert
 : insert   ( string length buffer size -- )
     rot over min >r  r@ - ( left over )
     over dup r@ +  rot move   r> move  ;
+[THEN]
 
 : xtab-expand ( max span addr pos1 -- max span addr pos2 0 )
     key? IF  #tab (xins) 0  EXIT  THEN
