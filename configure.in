@@ -887,6 +887,11 @@ AC_PROG_LN_S
 AC_PROG_INSTALL
 AC_CHECK_PROGS(TEXI2DVI,texi2dvi4a2ps texi2dvi)
 
+dnl check for the presence of Emacs
+AC_CHECK_PROGS(EMACS,emacs xemacs)
+test -n "$EMACS" && gforth_elc=gforth.elc
+AC_SUBST(gforth_elc)
+
 dnl MacOS X has a libtool that does something else
 AC_CHECK_PROGS(GNU_LIBTOOL,"glibtool --tag=CC" libtool)
 

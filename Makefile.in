@@ -64,7 +64,7 @@ INSTALL_INFO = @INSTALL_INFO@
 LN_S	= @LN_S@
 M4      = @M4@
 GCC	= @CC@
-EMACS   = emacs
+EMACS   = @EMACS@
 LIBTOOL = @GNU_LIBTOOL@
 PREFORTH	= ./preforth -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)"
 CC	= $(GCC)
@@ -450,7 +450,7 @@ ENGINES = gforth$(EC)$(EXE) @NO_EC@ gforth-ditc$(EC)$(EXE) gforth-itc$(EC)$(EXE)
 
 ENGINES_FAST = @NO_EC@ gforth-fast$(OPT)$(EC)$(EXE) #gforth-native$(OPT)$(EC)$(EXE) 
 
-GEN = $(ENGINES) $(ENGINES_FAST) gforth.elc
+GEN = $(ENGINES) $(ENGINES_FAST) @gforth_elc@
 
 # things that need a working forth system to be generated
 FORTH_GEN_ENGINE=engine/prim.i engine/prim_lab.i engine/prim_names.i \
@@ -637,8 +637,9 @@ install:	gforth$(EC)$(EXE) $(FORTH_SRC) $(kernel_fi) gforth.fi gforthmi vmgen do
 		done
 		$(INSTALL_DATA) $(kernel_fi) $(DESTDIR)$(datadir)/gforth/$(VERSION)
 		@if test -d "$(DESTDIR)$(emacssitelispdir)"; then \
-			$(INSTALL_DATA) gforth.el $(DESTDIR)$(emacssitelispdir); \
-			$(INSTALL_DATA) gforth.elc $(DESTDIR)$(emacssitelispdir); \
+			for i in gforth.el @gforth_elc@; do \
+				$(INSTALL_DATA) $$i $(DESTDIR)$(emacssitelispdir); \
+			done; \
 		else \
 			echo '>>>>>Please install gforth.{el,elc} in your .../emacs/site-lisp directory'; \
 		fi
