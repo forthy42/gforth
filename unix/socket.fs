@@ -49,6 +49,7 @@ c-function ntohl ntohl n -- n ( x -- x' )
 c-function fileno fileno1 a -- n ( file* -- fd )
 \c #include <poll.h>
 c-function poll poll a n n -- n ( fds nfds timeout -- r )
+c-function ppoll ppoll a n a a -- n ( fds nfds timeout_ts sigmask -- r )
 \c #include <netdb.h>
 c-function getaddrinfo getaddrinfo a a a a -- n ( node service hints res -- r )
 c-function freeaddrinfo freeaddrinfo a -- void ( res -- )

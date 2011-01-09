@@ -20,11 +20,11 @@ Name:           gforth
 BuildRequires:  emacs-nox libffi-devel
 PreReq:         %{install_info_prereq}
 %endif
-%if 0%{?redhat_version}
-BuildRequires:  emacs-nox libtool-ltdl-devel libffi-devel
-Requires:       libffi libtool-libs libtool-ltdl libtool-ltdl-devel libffi-devel
+%if 0%{?rhel_version} || 0%{?centos_version}
+BuildRequires:  emacs-nox libtool-ltdl-devel
+Requires:       libtool-libs libtool-ltdl libtool-ltdl-devel
 %endif
-%if 0%{?fedora_version}
+%if 0%{?fedora}
 BuildRequires:  emacs-nox libtool-ltdl-devel libffi-devel
 Requires:       libffi libtool-libs libtool-ltdl libtool-ltdl-devel libffi-devel
 %endif
@@ -103,15 +103,11 @@ rm -rf $RPM_BUILD_ROOT
 %if 0%{?suse_version}
 %dir /usr/share/gforth/site-forth
 %config /usr/share/gforth/site-forth/siteinit.fs
+%else
+/usr/share/info/dir
 %endif
 %doc %{_infodir}/*.gz
 %doc %{_mandir}/man?/*
-%if 0%{?redhat_version}
-/usr/share/info/dir
-%endif
-%if 0%{?fedora_version}
-/usr/share/info/dir
-%endif
 
 %changelog
 * Thu Dec 23 2010 bernd.paysan@gmx.de

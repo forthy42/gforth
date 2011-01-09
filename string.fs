@@ -17,6 +17,7 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+[IFUNDEF] $!
 : delete   ( buffer size n -- ) \ gforth-string
     \G deletes the first @var{n} bytes from a buffer and fills the
     \G rest at the end with blanks.
@@ -81,3 +82,4 @@
     >r >r
     $@ BEGIN  dup  WHILE  r@ $split i' -rot >r >r execute r> r>
     REPEAT  2drop rdrop rdrop ;
+[THEN]
