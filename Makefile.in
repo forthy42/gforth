@@ -47,6 +47,29 @@ PATHSEP = @PATHSEP@
 
 EC = @EC@
 
+# ------------	Install Directories
+
+VPATH = @srcdir@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+srcdir = @srcdir@
+bindir = @bindir@
+#read-only architecture-independent files
+datarootdir = @datarootdir@
+datadir = @datadir@
+#read-only architecture-dependent non-ascii files
+libdir = @libdir@
+libccdir = $(subst $(DESTDIR),,$(libdir)/gforth/$(VERSION)/libcc-named/)
+includedir = @includedir@
+infodir = @infodir@
+htmldir = @htmldir@
+mandir = @mandir@
+man1dir= $(mandir)/man1
+man1ext= .1
+#older emacses have their site-lisp in $(libdir)/emacs/
+emacssitelispdir=@lispdir@
+siteforthdir=$(datadir)/gforth/site-forth
+
 # -------------	Utility programs
 
 SHELL	= /bin/sh
@@ -116,29 +139,6 @@ LDLIBS	= @LIBS@
 
 STACK_CACHE_REGS = @STACK_CACHE_REGS@
 STACK_CACHE_DEFAULT_FAST = @STACK_CACHE_DEFAULT_FAST@
-
-# ------------	Install Directories
-
-VPATH = @srcdir@
-prefix = @prefix@
-exec_prefix = @exec_prefix@
-srcdir = @srcdir@
-bindir = @bindir@
-#read-only architecture-independent files
-datarootdir = @datarootdir@
-datadir = @datadir@
-#read-only architecture-dependent non-ascii files
-libdir = @libdir@
-libccdir = $(subst $(DESTDIR),,$(libdir)/gforth/$(VERSION)/libcc-named/)
-includedir = @includedir@
-infodir = @infodir@
-htmldir = @htmldir@
-mandir = @mandir@
-man1dir= $(mandir)/man1
-man1ext= .1
-#older emacses have their site-lisp in $(libdir)/emacs/
-emacssitelispdir=@lispdir@
-siteforthdir=$(datadir)/gforth/site-forth
 
 PROFOBJS = @PROFOBJS@
 PROFEXES = @PROFEXES@
