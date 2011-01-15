@@ -30,9 +30,9 @@ defer gdb-addr-sep-char ( -- c )
     \ gdb-7.0 and earlier do what we want with "disassemble addr1 addr2"
     \ gdb-7.1 and later only work with         "disaesemble addr1,addr2"
     \ try the old syntax to see if it works
-    s" gdb -q -ex 'disassemble 0 1' -ex 'quit' 2>/dev/null" r/o open-pipe throw
+    s" gdb -ex 'disassemble 0 1' -ex 'quit' 2>/dev/null" r/o open-pipe throw
     dup slurp-fid rot close-pipe throw drop
-    s" Dump of assembler code from" string-prefix? if
+    s" Dump of assembler code from" search nip nip if
         ['] bl
     else
         ['] #comma
