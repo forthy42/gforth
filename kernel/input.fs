@@ -81,7 +81,7 @@ cell input-var loadfile ( -- addr ) \ gforth
     \G input buffer is associated with (0 if none)
 cell input-var blk ( -- addr ) \ block b-l-k
     \G @code{input-var} variable -- This cell contains the current
-    \G block number
+    \G block number (or 0 if the current input source is not a block).
 cell input-var #fill-bytes ( -- addr ) \ gforth
     \G @code{input-var} variable -- number of bytes read via
     \G (read-line) by the last refill

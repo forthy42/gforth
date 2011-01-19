@@ -223,10 +223,8 @@ User scr ( -- a-addr ) \ block-ext s-c-r
 
 Create block-input   A, A, A, A, A,
 
-: load  ( i*x n -- j*x ) \ block
-\G Save the current input source specification. Store @i{n} in
-\G @code{BLK}, set @code{>IN} to 0 and interpret. When the parse
-\G area is exhausted, restore the input source specification.
+: load  ( i*x u -- j*x ) \ block
+    \g Text-interpret block @i{u}.  Block 0 cannot be @code{load}ed.
     dup 0= -35 and throw
     block-input 0 new-tib dup loadline ! blk !  s" * a block*" loadfilename 2!
     ['] interpret catch pop-file throw ;
@@ -241,10 +239,8 @@ Create block-input   A, A, A, A, A,
 \G @i{c-addr} is the address of the input buffer and @i{u} is the
 \G number of characters in it.
 
-: load ( i*x n -- j*x ) \ block
-    \G Save the current input source specification. Store @i{n} in
-    \G @code{BLK}, set @code{>IN} to 0 and interpret. When the parse
-    \G area is exhausted, restore the input source specification.
+: load ( i*x u -- j*x ) \ block
+    \g Text-interpret block @i{u}.  Block 0 cannot be @code{load}ed.
     dup 0= -35 and throw
     s" * a block*" loadfilename>r
     push-file
