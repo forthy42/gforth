@@ -232,6 +232,8 @@ require utf-8.fs
 ' xcur-correct IS cur-correct
 
 : xback-restore ( u -- )
+    dup screenw @ mod 0= IF  1- 0 max  THEN
+    \ correction for line=screenw, no wraparound then!
     screenw @ /mod negate swap negate swap at-deltaxy ;
 : .rest ( addr pos1 -- addr pos1 )
     linew @ xback-restore 2dup type 2dup cur-correct ;
