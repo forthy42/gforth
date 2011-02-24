@@ -30,7 +30,7 @@ Constant fd-symbol-table
 [THEN]
 
 
-bl word vocabulary find nip 0= [IF]
+bl parse-name vocabulary find-name 0= [IF]
     \ if search order stuff is missing assume we are compiling on a gforth
     \ system and include it.
     \ We want the files taken from our current gforth installation
