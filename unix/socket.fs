@@ -19,7 +19,6 @@
 
 c-library socket
 \c #include <netdb.h>
-c-function gethostbyname gethostbyname a -- a ( name -- hostent )
 \c #include <unistd.h>
 c-function gethostname gethostname a n -- n ( c-addr u -- ior )
 \c #include <errno.h>
@@ -54,6 +53,7 @@ c-function ppoll ppoll a n a a -- n ( fds nfds timeout_ts sigmask -- r )
 c-function getaddrinfo getaddrinfo a a a a -- n ( node service hints res -- r )
 c-function freeaddrinfo freeaddrinfo a -- void ( res -- )
 c-function gai_strerror gai_strerror n -- a ( errcode -- addr )
+c-function setsockopt setsockopt n n n a n -- n ( sockfd level optname optval optlen -- r )
 end-c-library
 
 4 4 2Constant int%
@@ -73,7 +73,18 @@ struct
     short% field port
     int% field sin_addr
     cell% 2* field padding
-end-struct sockaddr_in
+end-struct sockaddr_in4
+
+struct
+    short% field sin6_family
+    short% field sin6_port
+    int% field sin6_flowinfo
+    int% 4 * field sin6_addr
+    int% field sin6_scope_id
+end-struct sockaddr_in6
+
+sockaddr_in4 %alignment sockaddr_in6 %alignment max
+sockaddr_in4 %size sockaddr_in6 %size max 2Constant sockaddr_in
 
 struct
     int% field fd
@@ -99,28 +110,21 @@ sockaddr-tmp sockaddr_in %size dup allot erase
 Create hints
 hints addrinfo %size dup allot erase
 Variable addrres
+Variable sockopt-on
 
 : c-string ( addr u -- addr' )
     tuck pad swap move pad + 0 swap c! pad ;
 
-: host>addr ( addr u -- x )
-    \G converts a internet name into a IPv4 address
-    \G the resulting address is in network byte order
-    c-string gethostbyname dup 0= abort" address not found"
-[ s" os-type" environment? drop s" cygwin" str= ] [IF]
-    &12 +
-[ELSE]
-    h_addr_list
-[THEN]
-    @ @ l@ ntohl ;
-
    0 Constant PF_UNSPEC
    2 Constant PF_INET
+  10 Constant PF_INET6
    1 Constant SOCK_STREAM
    2 Constant SOCK_DGRAM
    1 Constant IPPROTO_ICMP
    6 Constant IPPROTO_TCP
   17 Constant IPPROTO_UDP
+  26 Constant IPV6_V6ONLY
+  41 Constant IPPROTO_IPV6
    4 Constant F_SETFL
   11 Constant EWOULDBLOCK
 $100 Constant MSG_WAITALL
@@ -135,29 +139,19 @@ $004 Constant POLLOUT
     PF_INET SOCK_STREAM 0 socket
     dup 0<= abort" no free socket" ;
 
+: new-socket6 ( -- socket )
+    PF_INET6 SOCK_STREAM 0 socket
+    dup 0<= abort" no free socket"
+    dup IPPROTO_IPV6 IPV6_V6ONLY sockopt-on dup on 4 setsockopt drop ;
+
 : new-udp-socket ( -- socket )
     PF_INET SOCK_DGRAM 0 socket
     dup 0<= abort" no free socket" ;
 
-: >inetaddr ( ip port sockaddr -- ) >r
-    r@ sockaddr_in %size erase
-    PF_INET r@ family w!
-    htons r@ port w!
-    htonl r> sin_addr l! ;
-
-: open-socket1 ( addr u port -- fid )
-    -rot host>addr
-    swap sockaddr-tmp >inetaddr
-    new-socket >r
-    r@ sockaddr-tmp sockaddr_in %size connect 0< abort" can't connect"
-    r> s" w+" c-string fdopen ;
-
-: open-udp-socket1 ( addr u port -- fid )
-    -rot host>addr
-    swap sockaddr-tmp >inetaddr
-    new-udp-socket >r
-    r@ sockaddr-tmp sockaddr_in %size connect 0< abort" can't connect"
-    r> s" w+" c-string fdopen ;
+: new-udp-socket6 ( -- socket )
+    PF_INET6 SOCK_DGRAM 0 socket
+    dup 0<= abort" no free socket"
+    dup IPPROTO_IPV6 IPV6_V6ONLY sockopt-on dup on 4 setsockopt drop ;
 
 \ getaddrinfo based open-socket
 
@@ -201,7 +195,16 @@ $004 Constant POLLOUT
     htons   sockaddr-tmp port w!
     new-socket
     dup 0< abort" no free socket" >r
-    r@ sockaddr-tmp 16 bind 0= IF  r> exit  ENDIF
+    r@ sockaddr-tmp sockaddr_in4 %size bind 0= IF  r> exit  ENDIF
+    r> drop true abort" bind :: failed" ;
+
+: create-server6  ( port# -- lsocket )
+    sockaddr-tmp sockaddr_in %size erase
+    PF_INET6 sockaddr-tmp family w!
+    htons   sockaddr-tmp port w!
+    new-socket6
+    dup 0< abort" no free socket" >r
+    r@ sockaddr-tmp sockaddr_in6 %size bind 0= IF  r> exit  ENDIF
     r> drop true abort" bind :: failed" ;
 
 : create-udp-server  ( port# -- lsocket )
@@ -210,7 +213,16 @@ $004 Constant POLLOUT
     htons   sockaddr-tmp port w!
     new-udp-socket
     dup 0< abort" no free socket" >r
-    r@ sockaddr-tmp 16 bind 0= IF  r> exit  ENDIF
+    r@ sockaddr-tmp sockaddr_in4 %size bind 0= IF  r> exit  ENDIF
+    r> drop true abort" bind :: failed" ;
+
+: create-udp-server6  ( port# -- lsocket )
+    sockaddr-tmp sockaddr_in %size erase
+    PF_INET6 sockaddr-tmp family w!
+    htons   sockaddr-tmp port w!
+    new-udp-socket6
+    dup 0< abort" no free socket" >r
+    r@ sockaddr-tmp sockaddr_in6 %size bind 0= IF  r> exit  ENDIF
     r> drop true abort" bind :: failed" ;
 
 \ from itools.frt
