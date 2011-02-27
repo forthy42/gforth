@@ -48,7 +48,9 @@ c-function ntohl ntohl n -- n ( x -- x' )
 c-function fileno fileno1 a -- n ( file* -- fd )
 \c #include <poll.h>
 c-function poll poll a n n -- n ( fds nfds timeout -- r )
-c-function ppoll ppoll a n a a -- n ( fds nfds timeout_ts sigmask -- r )
+environment os-type s" linux" string-prefix? [IF]
+    c-function ppoll ppoll a n a a -- n ( fds nfds timeout_ts sigmask -- r )
+[THEN]
 \c #include <netdb.h>
 c-function getaddrinfo getaddrinfo a a a a -- n ( node service hints res -- r )
 c-function freeaddrinfo freeaddrinfo a -- void ( res -- )
@@ -72,7 +74,7 @@ struct
     short% field family
     short% field port
     int% field sin_addr
-    cell% 2* field padding
+    int% 2* field padding
 end-struct sockaddr_in4
 
 struct
@@ -98,8 +100,13 @@ struct
     int% field ai_socktype
     int% field ai_protocol
     size_t% field ai_addrlen
+environment os-type s" darwin" string-prefix? [IF]
+    cell% field ai_canonname
+    cell% field ai_addr
+[ELSE]
     cell% field ai_addr
     cell% field ai_canonname
+[THEN]
     cell% field ai_next
 end-struct addrinfo
 
@@ -117,18 +124,27 @@ Variable sockopt-on
 
    0 Constant PF_UNSPEC
    2 Constant PF_INET
+environment os-type s" darwin" string-prefix? [IF]
+  30 Constant PF_INET6
+$0210 Constant AF_INET
+$1E1C Constant AF_INET6
+  27 Constant IPV6_V6ONLY
+  35 Constant EWOULDBLOCK
+ $40 Constant MSG_WAITALL
+$006 Constant O_NONBLOCK|O_RDWR
+[ELSE]
   10 Constant PF_INET6
-   1 Constant SOCK_STREAM
-   2 Constant SOCK_DGRAM
-   1 Constant IPPROTO_ICMP
-   6 Constant IPPROTO_TCP
-  17 Constant IPPROTO_UDP
+   2 Constant AF_INET
+  10 Constant AF_INET6
   26 Constant IPV6_V6ONLY
-  41 Constant IPPROTO_IPV6
-   4 Constant F_SETFL
   11 Constant EWOULDBLOCK
 $100 Constant MSG_WAITALL
 $802 Constant O_NONBLOCK|O_RDWR
+[THEN]
+   1 Constant SOCK_STREAM
+   2 Constant SOCK_DGRAM
+  41 Constant IPPROTO_IPV6
+   4 Constant F_SETFL
 $001 Constant POLLIN
 $002 Constant POLLPRI
 $004 Constant POLLOUT
@@ -191,7 +207,7 @@ $004 Constant POLLOUT
 
 : create-server  ( port# -- lsocket )
     sockaddr-tmp sockaddr_in %size erase
-    PF_INET sockaddr-tmp family w!
+    AF_INET sockaddr-tmp family w!
     htons   sockaddr-tmp port w!
     new-socket
     dup 0< abort" no free socket" >r
@@ -200,7 +216,7 @@ $004 Constant POLLOUT
 
 : create-server6  ( port# -- lsocket )
     sockaddr-tmp sockaddr_in %size erase
-    PF_INET6 sockaddr-tmp family w!
+    AF_INET6 sockaddr-tmp family w!
     htons   sockaddr-tmp port w!
     new-socket6
     dup 0< abort" no free socket" >r
@@ -209,7 +225,7 @@ $004 Constant POLLOUT
 
 : create-udp-server  ( port# -- lsocket )
     sockaddr-tmp sockaddr_in %size erase
-    PF_INET sockaddr-tmp family w!
+    AF_INET sockaddr-tmp family w!
     htons   sockaddr-tmp port w!
     new-udp-socket
     dup 0< abort" no free socket" >r
@@ -218,7 +234,7 @@ $004 Constant POLLOUT
 
 : create-udp-server6  ( port# -- lsocket )
     sockaddr-tmp sockaddr_in %size erase
-    PF_INET6 sockaddr-tmp family w!
+    AF_INET6 sockaddr-tmp family w!
     htons   sockaddr-tmp port w!
     new-udp-socket6
     dup 0< abort" no free socket" >r
