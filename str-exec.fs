@@ -38,11 +38,11 @@ variable  >string-len    \ actual string length
     c 1 >string-type ;
 
 : >string-execute ( ... xt -- ... addr u )
-    \ execute xt while the standard output (TYPE, EMIT, and everything
-    \ that uses them) is redirected to a string.  The resulting string
-    \ is addr u, which is in ALLOCATEd memory; it is the
-    \ responsibility of the caller of >STRING-EXECUTE to FREE this
-    \ string.
+    \G execute xt while the standard output (TYPE, EMIT, and everything
+    \G that uses them) is redirected to a string.  The resulting string
+    \G is addr u, which is in ALLOCATEd memory; it is the
+    \G responsibility of the caller of >STRING-EXECUTE to FREE this
+    \G string.
     >string-buffer 2@ >string-len @
     action-of type action-of emit    { d: oldbuf oldlen oldtype oldemit }
     try
@@ -61,14 +61,37 @@ variable  >string-len    \ actual string length
     endtry
     throw ;
 
+\ altenative interface (for systems without memory allocation wordset):
+
+\ >buffer-execute ( ... c-addr u1 xt -- ... u2 ) execute xt while the
+\ standard output (TYPE, EMIT, and everything that uses them) is
+\ redirected to the buffer c-addr u.  u2 is the number of characters
+\ that were output with TYPE or EMIT.  If u2<=u1, then the string
+\ c-addr u2 contains the output, otherwise c-addr u1 contains the
+\ first u1 characters of the output, and the other characters are not
+\ stored.
+
+\ You can emulate >STRING-EXECUTE with >BUFFER-EXECUTE like this:
+\ Instead of
+
+\ ... ['] foo >string-execute ( c-addr u ) ...
+
+\ where FOO has the stack effect ( x1 x2 -- x3 ), write
+
+\ ... 2dup 2>r (or whatever is necessary to save FOO's input operands)
+\ pad 0 ['] foo >buffer-execute >r drop ( throw away result of FOO )
+\ 2r> ( restore FOO's input operands )
+\ r@ allocate throw r> 2dup 2>r ['] foo >buffer-execute drop 2r>
+
+
 0 [if]
 \ tests
 5 ' . >string-execute dump
 5 5 ' .r >string-execute dump
 
-: test 0 do i . loop ;
+: test 0 swap 0 do i . i + loop ;
 
-cr  20 ' test >string-execute .s cr 2dup type drop free throw
-cr 120 ' test >string-execute .s cr 2dup type drop free throw
+cr  20 ' test >string-execute .s cr 2dup type drop free throw .
+cr 120 ' test >string-execute .s cr 2dup type drop free throw .
 cr
 [endif]
