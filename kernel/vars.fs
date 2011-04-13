@@ -45,7 +45,7 @@ has? floating [IF]
 \G @i{c-char} is the character value for a space.
 \ used by docon:, must be constant
 
-has? EC [IF] 40 [ELSE] FF [THEN] Constant /line
+has? EC [IF] 20 cells [ELSE] FF [THEN] Constant /line
 
 has? file [IF]
 40 Constant c/l

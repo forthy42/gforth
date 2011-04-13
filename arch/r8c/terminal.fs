@@ -155,7 +155,7 @@ s" os-type" environment? [IF]
 	2 Constant _IONBF
 	: open-port ( addr u -- )
 	    r/w open-file throw dup to term fileno to term-fd
-	    term pad _IONBF 0 setvbuf drop ;
+	    term 0 _IONBF 0 setvbuf drop ;
 	: term-read ( -- addr u )
 	    pad term-fd check-read dup IF term read-file throw pad swap THEN ;
 	: term-emit ( char -- )
@@ -341,7 +341,7 @@ Create progress s" /-\|" here over allot swap move
 
 s" os-type" environment? [IF]
     2dup s" linux-gnu" str= [IF] 2drop
-        script? [IF]  terminal /dev/ttyUSB0 bye [THEN]
+        script? [IF]  terminal /dev/ttyUSB1 bye [THEN]
     [ELSE] 2dup s" cygwin" str= [IF]
         script? [IF]  terminal COM1 bye [THEN]
     [ELSE] s" darwin" string-prefix? [IF]

@@ -188,7 +188,7 @@ $004 Constant POLLOUT
     BEGIN  r@  WHILE
 	    r@ ai_family l@ r@ ai_socktype l@ r@ ai_protocol l@ socket
 	    dup 0>= IF
-		dup r@ ai_addr @ r@ ai_addrlen @ connect
+		dup r@ ai_addr @ r@ ai_addrlen l@ connect
 		IF
 		    closesocket drop
 		ELSE
