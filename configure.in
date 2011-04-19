@@ -669,6 +669,12 @@ AC_TRY_COMPILE(,[int __attribute__((unused)) foo;], MAYBE_UNUSED='__attribute__(
 AC_DEFINE_UNQUOTED(MAYBE_UNUSED,$MAYBE_UNUSED,[attribute for possibly unused variables])
 AC_MSG_RESULT($MAYBE_UNUSED)
 
+# Try if GCC understands __thread
+AC_MSG_CHECKING([whether gcc understands '__thread'])
+AC_TRY_COMPILE(,[extern __thread int foo;],PER_THREAD='__thread',)
+AC_DEFINE_UNQUOTED(PER_THREAD,$PER_THREAD,[storage class for thread-local variables])
+AC_MSG_RESULT($PER_THREAD)
+
 #try if m4 understands -s
 AC_MSG_CHECKING([how to invoke m4])
 if m4 -s /dev/null >/dev/null 2>&1; then
