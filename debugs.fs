@@ -55,7 +55,15 @@ stderr value debug-fid ( -- fid )
 ' (.debugline) IS .debugline
 
 : .debugline-directed ( nfile nline -- )
-    ['] .debugline debug-fid outfile-execute ;
+    action-of type action-of emit { oldtype oldemit }
+    try
+	['] (type) is type ['] (emit) is emit
+	['] .debugline debug-fid outfile-execute
+	0
+    restore
+	oldemit is emit oldtype is type
+    endtry
+    throw ;
 
 :noname ( -- )
     current-sourcepos .debugline-directed ;
