@@ -22,3 +22,17 @@ testing core ext
 { 1 2 3 4 1 roll -> 1 2 4 3 }
 { 1 2 3 4 2 roll -> 1 3 4 2 }
 { 1 2 3 4 3 roll -> 2 3 4 1 }
+
+{ 1 0 U> -> <TRUE> }
+{ 2 1 U> -> <TRUE> }
+{ MID-UINT 0 U> -> <TRUE> }
+{ MAX-UINT 0 U> -> <TRUE> }
+{ MAX-UINT MID-UINT U> -> <TRUE> }
+{ 0 0 U> -> <FALSE> }
+{ 1 1 U> -> <FALSE> }
+{ 0 1 U> -> <FALSE> }
+{ 1 2 U> -> <FALSE> }
+{ 0 MID-UINT U> -> <FALSE> }
+{ 0 MAX-UINT U> -> <FALSE> }
+{ MID-UINT MAX-UINT U> -> <FALSE> }
+
