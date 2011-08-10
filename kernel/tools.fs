@@ -27,6 +27,10 @@ hex
 
 \ .S            CORE / CORE EXT                         9may93jaw
 
+
+defer .s.
+' . is .s.
+
 variable maxdepth-.s ( -- addr ) \ gforth maxdepth-dot-s
 \G A variable containing 9 by default.  @code{.s} and @code{f.s}
 \G display at most that many stack items.
@@ -40,7 +44,7 @@ variable maxdepth-.s ( -- addr ) \ gforth maxdepth-dot-s
     depth 0 max maxdepth-.s @ min
     dup 0
     ?do
-	dup i - pick .
+	dup i - pick .s.
     loop
     drop ;
 
