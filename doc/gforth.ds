@@ -5384,10 +5384,24 @@ matches).  Example:
  endcase ;
 @end example
 
+You can also use (the non-standard) @code{?of} to use @code{case} as a
+general selection structure for more than two alternatives.
+@code{?Of} takes a flag.  Example:
+
+@example
+: sgn ( n1 -- n2 )
+    \ sign function
+    case
+	dup 0< ?of drop -1 endof
+	dup 0> ?of drop 1 endof
+	dup \ n1=0 -> n2=0; dup an item, to be consumed by ENDCASE
+    endcase ;
+@end example
+
 @progstyle
 To keep the code understandable, you should ensure that you change the
 stack in the same way (wrt. number and types of stack items consumed
-and pushed) on all paths through a selection construct.
+and pushed) on all paths through a selection structure.
 
 @node Simple Loops, Counted Loops, Selection, Control Structures
 @subsection Simple Loops
@@ -5681,6 +5695,7 @@ Another group of control structure words are:
 doc-case
 doc-endcase
 doc-of
+doc-?ofx
 doc-endof
 
 

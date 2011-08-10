@@ -63,11 +63,12 @@ decimal
 0 CONSTANT case ( compilation  -- case-sys ; run-time  -- ) \ core-ext
     immediate
 
+: ?of ( compilation  -- of-sys ; run-time  f -- ) \ gforth
+    1+ >r POSTPONE if r> ; immediate
+
 : of ( compilation  -- of-sys ; run-time x1 x2 -- |x1 ) \ core-ext
     \ !! the implementation does not match the stack effect
-    1+ >r
-    postpone over postpone = postpone if postpone drop
-    r> ; immediate
+    postpone over postpone = postpone ?of postpone drop ; immediate
 
 : endof ( compilation case-sys1 of-sys -- case-sys2 ; run-time  -- ) \ core-ext end-of
     >r postpone else r> ; immediate

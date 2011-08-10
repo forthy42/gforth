@@ -95,3 +95,16 @@ t{ -5e  1e fcopysign ->  5e }t
 t{  5e -1e fcopysign -> -5e }t
 t{ -5e -1e fcopysign -> -5e }t
 \ tests involving -0e?
+
+\ ?of
+
+: sgn ( n1 -- n2 )
+    case
+	dup 0< ?of drop -1 endof
+	dup 0> ?of drop 1 endof
+	dup
+    endcase ;
+
+t{  5 sgn ->  1 }
+t{ -3 sgn -> -1 }
+t{  0 sgn ->  0 }
