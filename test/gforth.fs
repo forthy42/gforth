@@ -96,15 +96,38 @@ t{  5e -1e fcopysign -> -5e }t
 t{ -5e -1e fcopysign -> -5e }t
 \ tests involving -0e?
 
-\ ?of
+\ ?of nextcase contof
 
-: sgn ( n1 -- n2 )
+: mysgn ( n1 -- n2 )
     case
 	dup 0< ?of drop -1 endof
 	dup 0> ?of drop 1 endof
 	dup
     endcase ;
 
-t{  5 sgn ->  1 }
-t{ -3 sgn -> -1 }
-t{  0 sgn ->  0 }
+t{  5 mysgn ->  1 }
+t{ -3 mysgn -> -1 }
+t{  0 mysgn ->  0 }
+
+: myscan ( addr1 n1 char -- addr2 n2 )
+    >r case
+	dup 0= ?of endof
+        over c@ r@ = ?of endof
+        1 /string
+        dup nextcase
+    rdrop ;
+
+t{ s" dhfa;jfsdk" 2dup ';' myscan 2swap 4 /string d= -> true }
+t{ s" abcdef" 2dup 'g' myscan 2swap 6 /string d= -> true }
+
+
+: gcd ( n1 n2 -- n )
+    case
+	2dup > ?of tuck - contof
+	2dup < ?of over - contof
+    endcase ;
+
+t{ 48 42 gcd -> 6 }
+t{ 42 48 gcd -> 6 }
+
+    

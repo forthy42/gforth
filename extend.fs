@@ -60,22 +60,39 @@ decimal
 
 \ just as described in dpANS5
 
-0 CONSTANT case ( compilation  -- case-sys ; run-time  -- ) \ core-ext
-    immediate
+[ifundef] cs-drop
+: CS-DROP ( dest -- ) \ gforth
+    dest? 2drop ;
+[then]
+
+: case ( compilation  -- case-sys ; run-time  -- ) \ core-ext
+    postpone begin 0 ; immediate
 
 : ?of ( compilation  -- of-sys ; run-time  f -- ) \ gforth
-    1+ >r POSTPONE if r> ; immediate
+    >r POSTPONE if r> ; immediate
 
 : of ( compilation  -- of-sys ; run-time x1 x2 -- |x1 ) \ core-ext
     \ !! the implementation does not match the stack effect
     postpone over postpone = postpone ?of postpone drop ; immediate
 
 : endof ( compilation case-sys1 of-sys -- case-sys2 ; run-time  -- ) \ core-ext end-of
-    >r postpone else r> ; immediate
+    >r postpone else 1 cs-roll r> 1+ ; immediate
+
+: contof ( compilation case-sys1 of-sys -- case-sys2 ; run-time  -- )
+    \ like @code{endof}, but loops back to the @code{case}
+    >r 1 cs-pick postpone again postpone then r> ; immediate
+
+: n-thens ( orig1 ... origu u -- )
+    0 ?do postpone then loop ;
 
 : endcase ( compilation case-sys -- ; run-time x -- ) \ core-ext end-case
-    postpone drop
-    0 ?do postpone then loop ; immediate
+    >r cs-drop postpone drop r> n-thens ; immediate
+
+: nextcase ( compilation case-sys -- ; run-time x -- ) \ gforth-undocumented
+    \ like ENDCASE, but start again from the beginning if this is
+    \ reached by fallthrough
+    >r postpone drop postpone again r> n-thens ; immediate
+
 
 \ C"                                                    17may93jaw
 
