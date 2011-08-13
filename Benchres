@@ -61,6 +61,7 @@ ARM:
 MIPS32
  7.25  8.24   6.13  9.09  0.7.0-20100725; Ingenic XBurst Jz4720 336MHz; gcc-4.3.3 (OpenWrt-xburst Backfire 10.03)
  4.25  5.10   2.82  4.84  0.7.0-20100807--dynamic; Ingenic XBurst Jz4720 336MHz; gcc-4.3.3 (OpenWrt-xburst Backfire 10.03)
+ 3.71  4.51   2.65  4.49  0.7.0-20100918--dynamic; Ingenic XBurst Jz4720 336MHz; gcc-4.5.2-linaro (OpenWrt-xburst trunk)
 
 SPARC:
  2.133 2.855  1.536 1.970 0.7.0; UltraSparc T1 1GHz; gcc-3.4.3 (csl-sol210-3_4-branch+sol_rpath)
