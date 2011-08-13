@@ -1388,7 +1388,7 @@ programmers who tend to fill code won't use emacs anyway:-)."
 (defun forth-remove-tracers ()
   "Remove tracers of the form `~~ '. Queries the user for each occurrence."
   (interactive)
-  (query-replace-regexp "\\(~~ \\| ~~$\\)" "" nil))
+  (query-replace-regexp "\\(~~[ \t]\\|[ \t]~~$\\)" "" nil))
 
 (define-key forth-mode-map "\C-x\C-e" 'compile)
 (define-key forth-mode-map "\C-x\C-n" 'next-error)
