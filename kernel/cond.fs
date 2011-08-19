@@ -91,6 +91,9 @@ variable backedge-locals
  rdrop
  dup cs-item? ; 
 
+: CS-DROP ( dest -- ) \ gforth
+    dest? 2drop ;
+
 : cs-push-part ( -- list addr )
  locals-list @ here ;
 
