@@ -31,7 +31,7 @@
 	    rdrop 2drop i unloop exit
 	endif
 	r> loop
-    drop 2drop 0 ;
+    drop 2drop -1 ;
 
 \ we encode line and character in one cell to keep the interface the same
 : encode-pos ( nline nchar -- npos )
@@ -57,4 +57,23 @@
     swap decode-pos swap 0 .r ': emit 0 .r
     base ! ;
 
+: save-source-filename ( c-addr1 u1 -- c-addr2 u2 )
+    \ c-addr1 u1 is a temporary string for a file name, c-addr2 u2 is
+    \ a permanent one.  Reuses strings for the same file names and
+    \ adds them to the included files (not sure if that's a good idea)
+    2dup str>loadfilename# dup 0< if
+	drop save-mem 2dup add-included-file
+    else
+	nip nip loadfilename#>str
+    then ;
 
+: #line ( "u" "["file"]" -- )
+    \g Set the line number to @i{u} and (if present) the file name to @i{file}.  Consumes the rest of the line.
+    \g 
+    parse-name ['] evaluate 10 base-execute 1- loadline !
+    '"' parse 2drop '"' parse dup if
+	save-source-filename loadfilename 2!
+    else
+	2drop
+    then
+    postpone \ ;
