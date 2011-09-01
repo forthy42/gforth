@@ -69,6 +69,7 @@
 \ : faligned ( addr -- f-addr ) \ float f-aligned
 \     [ 1 floats 1- ] Literal + [ -1 floats ] Literal and ; 
 
+has? ec 0= [IF]
 : falign ( -- ) \ float f-align
     \G If the data-space pointer is not float-aligned, reserve
     \G enough space to align it.
@@ -76,6 +77,7 @@
     ?DO
 	bl c,
     LOOP ;
+[THEN]
 
 : maxalign ( -- ) \ gforth
     \G Align data-space pointer for all alignment requirements.
@@ -98,10 +100,6 @@
 \ input-stream, nextname and noname are quite ugly (passing
 \ information through global variables), but they are useful for dealing
 \ with existing/independent defining words
-
-defer (header)
-defer header ( -- ) \ gforth
-' (header) IS header
 
 : string, ( c-addr u -- ) \ gforth
     \G puts down string as cstring
@@ -145,6 +143,14 @@ variable next-prelude
 [ [THEN] ]
     cfalign ;
 
+has? ec [IF]
+: header ( "name" -- )
+    parse-name name-too-short? header, ;
+[ELSE]
+defer (header)
+defer header ( -- ) \ gforth
+' (header) IS header
+
 : input-stream-header ( "name" -- )
     parse-name name-too-short? header, ;
 
@@ -156,16 +162,13 @@ variable next-prelude
 
 2variable nextname-string
 
-has? OS [IF]
 : nextname-header ( -- )
     nextname-string 2@ header,
     nextname-string free-mem-var
     input-stream ;
-[THEN]
 
 \ the next name is given in the string
 
-has? OS [IF]
 : nextname ( c-addr u -- ) \ gforth
     \g The next defined word will have the name @var{c-addr u}; the
     \g defining word will leave the input stream alone.
@@ -173,7 +176,6 @@ has? OS [IF]
     nextname-string free-mem-var
     save-mem nextname-string 2!
     ['] nextname-header IS (header) ;
-[THEN]
 
 : noname-header ( -- )
     0 last ! cfalign
@@ -184,6 +186,7 @@ has? OS [IF]
     \g leave the input stream alone. The xt of the defined word will
     \g be given by @code{latestxt}.
     ['] noname-header IS (header) ;
+[THEN]
 
 : latestxt ( -- xt ) \ gforth
     \G @i{xt} is the execution token of the last word defined.

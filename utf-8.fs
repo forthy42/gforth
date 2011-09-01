@@ -300,6 +300,9 @@ here wc-table - Constant #wc-table
     ['] +u8/string is +x/string
 [ [THEN] ]
     ['] u8@ is xc@
+[ [IFDEF] xc!+ ]
+    ['] u8!+ is xc!+
+[ [THEN] ]
     ['] u8!+? is xc!+?
     ['] u8@+ is xc@+
     ['] u8len is xc-size

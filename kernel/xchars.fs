@@ -47,6 +47,9 @@ Defer x\string- ( xc-addr1 u1 -- xc-addr1 u2 ) \ xchar	x-back-string-minus
 \G last xchar in the buffer.
 Defer xc@ ( xc-addr -- xc ) \ xchar-ext	xc-fetch
 \G Fetchs the xchar @var{xc} at @var{xc-addr1}.
+Defer xc!+ ( xc xc-addr1 -- xc-addr2 ) \ xchar-ext	xc-store
+\G Stores the xchar @var{xc} at @var{xc-addr1}. @var{xc-addr2} is the next
+\G unused address in the buffer.
 Defer xc!+? ( xc xc-addr1 u1 -- xc-addr2 u2 f ) \ xchar-ext	xc-store-plus-query
 \G Stores the xchar @var{xc} into the buffer starting at address
 \G @var{xc-addr1}, @var{u1} pchars large. @var{xc-addr2} points to the
