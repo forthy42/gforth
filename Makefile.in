@@ -245,6 +245,7 @@ GFORTH_FI_SRC2=\
 	simp-see.fs \
 	source.fs \
 	startup.fs \
+	str-exec.fs \
 	struct.fs \
 	struct0x.fs \
 	stuff.fs \
