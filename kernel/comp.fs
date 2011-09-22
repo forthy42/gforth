@@ -483,6 +483,9 @@ doer? :dovar [IF]
     Header reveal here lastcfa ! 0 A, 0 , DOES> ;
 [THEN]
 
+: buffer: ( u "name" -- ) \ core ext
+    Create allot ;
+
 has? flash [IF]
     : (variable) dpp @ normal-dp = IF  Create dpp @
 	ELSE  normal-dp @ Constant dpp @ ram  THEN ;
