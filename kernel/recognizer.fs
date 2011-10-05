@@ -95,3 +95,8 @@ num-recognizer int-recognizer 2 forth-recognizer set-recognizers
     \G Enter compilation state.
     ['] compiler-r     IS parser1 state on  ;
 
+: postpone ( "name" -- ) \ core
+    \g Compiles the compilation semantics of @i{name}.
+    parse-name forth-recognizer do-recognizer >r
+    r@ r>lit perform r> r>comp @ compile, ; immediate
+
