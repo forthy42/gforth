@@ -26,12 +26,12 @@
 :noname ( ... nt -- ) name>int compile, ;
 :noname ( ... nt -- ) name>comp execute ;
 :noname ( ... nt -- ) postpone Literal ;
-recognizer: r:int-table
+recognizer: r:interpreter
 
 :noname ( addr u -- nt int-table true | addr u false )
     2dup find-name [ [IFDEF] prelude-mask ] run-prelude [ [THEN] ] dup
     IF
-	nip nip r:int-table true  EXIT
+	nip nip r:interpreter true  EXIT
     THEN ; Constant int-recognizer
 
 ' noop
