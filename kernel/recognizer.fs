@@ -17,10 +17,10 @@
 
 : recognizer: ( xt1 xt2 xt3 xt4 -- ) Create 2swap swap 2, swap 2, ;
 
-: r>int     ( r-addr -- )  @ ;
-: r>compint ( r-addr -- )  cell+ @ ;
-: r>comp    ( r-addr -- )  cell+ cell+ @ ;
-: r>lit     ( r-addr -- )  cell+ cell+ cell+ @ ;
+(field) r>int     ( r-addr -- addr )  0 cells ,
+(field) r>compint ( r-addr -- )       1 cells ,
+(field) r>comp    ( r-addr -- )       2 cells ,
+(field) r>lit     ( r-addr -- )       3 cells ,
 
 :noname ( ... nt -- ) name>int execute ;
 :noname ( ... nt -- ) name>int compile, ;
@@ -80,10 +80,10 @@ num-recognizer int-recognizer 2 forth-recognizer set-recognizers
     no.extensions ;
 
 : interpreter-r ( addr u -- ... xt )
-    forth-recognizer do-recognizer r>int ;
+    forth-recognizer do-recognizer r>int @ ;
 
 : compiler-r ( addr u -- ... xt )
-    forth-recognizer do-recognizer r>comp ;
+    forth-recognizer do-recognizer r>comp @ ;
 
 : [ ( -- ) \  core	left-bracket
     \G Enter interpretation state. Immediate word.
