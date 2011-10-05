@@ -81,6 +81,14 @@ num-recognizer int-recognizer 2 forth-recognizer set-recognizers
     cell +LOOP
     r:fail ;
 
+\ nested recognizer helper
+
+: r:table>flag ( table -- table true | false )
+    dup r:fail <> dup 0= IF  nip  THEN ;
+
+\ : nest-recognizer ( addr u -- token table true | addr u false )
+\   xxx-recognizer do-recognizer r:table>flag ;
+
 : interpreter-r ( addr u -- ... xt )
     forth-recognizer do-recognizer r>int @ ;
 
