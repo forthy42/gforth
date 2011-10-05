@@ -53,6 +53,8 @@ recognizer: r:2number
     THEN
     drop 2r> false ; Constant num-recognizer
 
+' no.extensions dup 2dup recognizer: r:fail
+
 \ recognizer stack
 
 $10 Constant max-rec#
@@ -77,7 +79,7 @@ num-recognizer int-recognizer 2 forth-recognizer set-recognizers
     dup cell+ swap @ cells bounds ?DO
 	I perform IF  UNLOOP  EXIT  THEN
     cell +LOOP
-    no.extensions ;
+    r:fail ;
 
 : interpreter-r ( addr u -- ... xt )
     forth-recognizer do-recognizer r>int @ ;
