@@ -693,6 +693,7 @@ has? backtrace [IF]
     then ;
 [THEN]
 
+has? recognizer 0= [IF]
 \ not the most efficient implementations of interpreter and compiler
 : interpreter1 ( c-addr u -- ... xt ) 
     2dup find-name [ [IFDEF] prelude-mask ] run-prelude [ [THEN] ] dup
@@ -709,6 +710,7 @@ has? backtrace [IF]
     then ;
 
 ' interpreter1  IS  parser1
+[THEN]
 
 \ \ Query Evaluate                                 	07apr93py
 

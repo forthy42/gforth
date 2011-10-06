@@ -22,7 +22,7 @@
 has? interpreter [IF]
     include ./int.fs
     has? compiler [IF]
-        include ./comp.fs
+	include ./comp.fs
     [THEN]
 [THEN]
 has? new-input [IF]

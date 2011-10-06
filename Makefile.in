@@ -181,6 +181,7 @@ KERN_SRC = \
 	kernel/basics.fs \
 	kernel/int.fs \
 	kernel/comp.fs \
+	kernel/recognizer.fs \
 	kernel/io.fs \
 	kernel/input.fs \
 	kernel/license.fs \

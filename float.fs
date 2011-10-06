@@ -141,6 +141,22 @@ DOES> ( -- r )
 	2drop false
     THEN ;
 
+[ifdef] recognizer:
+    ' noop
+    :noname postpone Fliteral ;
+    dup
+    recognizer: r:fnumber
+
+    :noname ( addr u -- nt int-table true | addr u false )
+    2dup sfnumber  dup
+    IF
+	drop 2drop r:fnumber  true
+    THEN ; Constant fnum-recognizer
+
+fnum-recognizer
+forth-recognizer get-recognizers
+1+ forth-recognizer set-recognizers
+[else]
 [ifundef] compiler-notfound1
 defer compiler-notfound1
 ' no.extensions IS compiler-notfound1
@@ -170,6 +186,7 @@ IS compiler-notfound1
 	defers interpreter-notfound1
     ENDIF ;
 IS interpreter-notfound1
+[then]
 
 : fvariable ( "name" -- ) \ float f-variable
     Create 0.0E0 f, ;

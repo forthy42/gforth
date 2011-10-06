@@ -181,6 +181,18 @@ AUser CSP
 : ]] ( -- ) \ gforth right-bracket-bracket
     \G switch into postpone state
     ['] postponer1 is parser1 state on ; immediate restrict
+[then]
+
+[ifdef] compiler-r
+: postponer-r ( addr u -- ... xt )
+    forth-recognizer do-recognizer
+    over [ s" [[" find-name ] Literal =
+    IF  2drop [comp'] ] drop ELSE  ['] >postpone  THEN ;
+
+: ]] ( -- ) \ gforth right-bracket-bracket
+    \G switch into postpone state
+    ['] postponer-r is parser1 state on ; immediate restrict
+[then]
 
 comp'  literal drop alias postpone-literal
 comp' 2literal drop alias postpone-2literal
@@ -203,8 +215,6 @@ comp' sliteral drop alias postpone-sliteral
 \G Shortcut for @code{]] sliteral}; if the string already has been
 \G allocated permanently, you can use @code{]]2L} instead.
     ]] postpone-sliteral ]] [[ ; immediate
-
-[then]
 
 \ f.rdp
 

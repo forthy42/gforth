@@ -15,18 +15,16 @@
 \ interpret it, compile interpretation semantics
 \ compile it, compile it as literal.
 
-: recognizer: ( xt1 xt2 xt3 xt4 -- ) Create 2swap swap 2, swap 2, ;
+: recognizer: ( xt1 xt2 xt3 -- ) Create rot , swap , , ;
 
-(field) r>int     ( r-addr -- addr )  0 cells ,
-(field) r>compint ( r-addr -- )       1 cells ,
-(field) r>comp    ( r-addr -- )       2 cells ,
-(field) r>lit     ( r-addr -- )       3 cells ,
+(field) r>int      ( r-addr -- addr )  0 cells ,
+(field) r>comp     ( r-addr -- )       1 cells ,
+(field) r>lit      ( r-addr -- )       2 cells ,
 
 :noname ( ... nt -- ) name>int execute ;
-:noname ( ... nt -- ) name>int compile, ;
 :noname ( ... nt -- ) name>comp execute ;
 :noname ( ... nt -- ) postpone Literal ;
-recognizer: r:interpreter
+Create r:interpreter rot A, swap A, A,
 
 :noname ( addr u -- nt int-table true | addr u false )
     2dup find-name [ [IFDEF] prelude-mask ] run-prelude [ [THEN] ] dup
@@ -37,14 +35,14 @@ recognizer: r:interpreter
 ' noop
 :noname  postpone Literal ;
 dup
-dup
-recognizer: r:number
+Create r:number rot A, swap A, A,
 
 ' noop
 :noname  postpone 2Literal ;
 dup
-dup
-recognizer: r:2number
+Create r:2number rot A, swap A, A,
+
+\ snumber? should be implemented as recognizer stack
 
 :noname ( addr u -- nt int-table true | addr u false )
     2dup 2>r snumber?  dup
@@ -53,12 +51,11 @@ recognizer: r:2number
     THEN
     drop 2r> false ; Constant num-recognizer
 
-' no.extensions dup 2dup recognizer: r:fail
+' no.extensions dup dup Create r:fail A, A, A,
 
 \ recognizer stack
 
 $10 Constant max-rec#
-Variable forth-recognizer max-rec# cells allot
 
 : get-recognizers ( rec-addr -- xt1 .. xtn n )
     dup cell+ swap @ dup >r cells bounds ?DO
@@ -71,7 +68,11 @@ Variable forth-recognizer max-rec# cells allot
 	I !
     cell -LOOP ;
 
-num-recognizer int-recognizer 2 forth-recognizer set-recognizers
+Variable forth-recognizer
+
+int-recognizer A, num-recognizer A, max-rec# 2 - cells allot
+2 forth-recognizer !
+\ num-recognizer int-recognizer 2 forth-recognizer set-recognizers
 
 \ recognizer loop
 
@@ -92,6 +93,8 @@ num-recognizer int-recognizer 2 forth-recognizer set-recognizers
 : interpreter-r ( addr u -- ... xt )
     forth-recognizer do-recognizer r>int @ ;
 
+' interpreter-r IS parser1
+
 : compiler-r ( addr u -- ... xt )
     forth-recognizer do-recognizer r>comp @ ;
 
@@ -103,8 +106,11 @@ num-recognizer int-recognizer 2 forth-recognizer set-recognizers
     \G Enter compilation state.
     ['] compiler-r     IS parser1 state on  ;
 
+: >postpone ( token table -- )
+    dup r:fail = IF  no.extensions  THEN
+    >r r@ r>lit perform r> r>comp @ compile, ;
+
 : postpone ( "name" -- ) \ core
     \g Compiles the compilation semantics of @i{name}.
-    parse-name forth-recognizer do-recognizer >r
-    r@ r>lit perform r> r>comp @ compile, ; immediate
+    parse-name forth-recognizer do-recognizer >postpone ; immediate
 

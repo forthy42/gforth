@@ -765,6 +765,7 @@ Plugin ?do,	( -- ?do-token )
 Plugin for,	( -- for-token )
 Plugin loop,	( do-token / ?do-token -- )
 Plugin +loop,	( do-token / ?do-token -- )
+Plugin -loop,	( do-token / ?do-token -- )
 Plugin next,	( for-token )
 Plugin leave,	( -- )
 Plugin ?leave, 	( -- )
@@ -1726,7 +1727,7 @@ T has? relocate H
 
 Ghost (do)      Ghost (?do)                     2drop
 Ghost (for)                                     drop
-Ghost (loop)    Ghost (+loop)                   2drop
+Ghost (loop)    Ghost (+loop)   Ghost (-loop)   2drop drop
 Ghost (next)                                    drop
 Ghost !does                                     drop
 Ghost compile,                                  drop
@@ -3233,6 +3234,10 @@ Cond: ENDCASE   endcase, ;Cond
   1to compile (+loop)  loop] 
   compile unloop skiploop] ;			' (+loop,) plugin-of +loop,
 
+: (-loop,) ( target-addr -- )
+  1to compile (-loop)  loop] 
+  compile unloop skiploop] ;			' (-loop,) plugin-of -loop,
+
 : (next,) 
   compile (next)  loop] compile unloop ;	' (next,) plugin-of next,
 
@@ -3242,6 +3247,7 @@ Cond: FOR	for, ;Cond
 
 Cond: LOOP	1 ncontrols? loop, ;Cond
 Cond: +LOOP	1 ncontrols? +loop, ;Cond
+Cond: -LOOP	1 ncontrols? -loop, ;Cond
 Cond: NEXT	1 ncontrols? next, ;Cond
 
 \ String words                                         23feb93py

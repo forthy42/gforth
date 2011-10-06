@@ -364,9 +364,13 @@ has? primcentric [IF]
 	swap POSTPONE aliteral compile,
     then ;
 
+has? recognizer [IF]
+    include ./recognizer.fs
+[ELSE]
 : POSTPONE ( "name" -- ) \ core
     \g Compiles the compilation semantics of @i{name}.
     COMP' postpone, ; immediate
+[THEN]
 
 \ \ recurse							17may93jaw
 
@@ -376,6 +380,7 @@ has? primcentric [IF]
 
 \ \ compiler loop
 
+has? recognizer 0= [IF]
 : compiler1 ( c-addr u -- ... xt )
     2dup find-name [ [IFDEF] prelude-mask ] run-prelude [ [THEN] ] dup
     if ( c-addr u nt )
@@ -403,6 +408,7 @@ has? primcentric [IF]
 : ] ( -- ) \ core	right-bracket
     \G Enter compilation state.
     ['] compiler1     IS parser1 state on  ;
+[THEN]
 
 \ \ Strings							22feb93py
 
