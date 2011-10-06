@@ -147,13 +147,13 @@ DOES> ( -- r )
     dup
     recognizer: r:fnumber
 
-    :noname ( addr u -- nt int-table true | addr u false )
+    : fnum-recognizer ( addr u -- nt int-table true | addr u false )
     2dup sfnumber  dup
     IF
 	drop 2drop r:fnumber  true
-    THEN ; Constant fnum-recognizer
+    THEN ;
 
-fnum-recognizer
+' fnum-recognizer
 forth-recognizer get-recognizers
 1+ forth-recognizer set-recognizers
 [else]
