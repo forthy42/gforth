@@ -58,15 +58,15 @@ Create r:2number rot A, swap A, A,
 $10 Constant max-rec#
 
 : get-recognizers ( rec-addr -- xt1 .. xtn n )
-    dup cell+ swap @ dup >r cells bounds ?DO
+    dup swap @ dup >r cells bounds swap ?DO
 	I @
-    cell +LOOP  r> ;
+    cell -LOOP  r> ;
 
 : set-recognizers ( xt1 .. xtn n rec-addr -- )
     over max-rec# u>= abort" Too many recognizers"
-    2dup ! swap cells bounds swap ?DO
+    2dup ! cell+ swap cells bounds ?DO
 	I !
-    cell -LOOP ;
+    cell +LOOP ;
 
 Variable forth-recognizer
 
