@@ -24,30 +24,30 @@
 :noname ( ... nt -- ) name>int execute ;
 :noname ( ... nt -- ) name>comp execute ;
 :noname ( ... nt -- ) postpone Literal ;
-Create r:interpreter rot A, swap A, A,
+Create r:word rot A, swap A, A,
 
-: int-recognizer ( addr u -- nt int-table true | addr u false )
+: word-recognizer ( addr u -- nt int-table true | addr u false )
     2dup find-name [ [IFDEF] prelude-mask ] run-prelude [ [THEN] ] dup
     IF
-	nip nip r:interpreter true  EXIT
+	nip nip r:word true  EXIT
     THEN ;
 
 ' noop
 :noname  postpone Literal ;
 dup
-Create r:number rot A, swap A, A,
+Create r:num rot A, swap A, A,
 
 ' noop
 :noname  postpone 2Literal ;
 dup
-Create r:2number rot A, swap A, A,
+Create r:2num rot A, swap A, A,
 
 \ snumber? should be implemented as recognizer stack
 
 : num-recognizer ( addr u -- n/d int-table true | addr u false )
     2dup 2>r snumber?  dup
     IF
-	2rdrop 0> IF  r:2number   ELSE  r:number  THEN  true  EXIT
+	2rdrop 0> IF  r:2num   ELSE  r:num  THEN  true  EXIT
     THEN
     drop 2r> false ;
 
@@ -70,9 +70,9 @@ $10 Constant max-rec#
 
 Variable forth-recognizer
 
-' int-recognizer A, ' num-recognizer A, max-rec# 2 - cells allot
+' word-recognizer A, ' num-recognizer A, max-rec# 2 - cells allot
 2 forth-recognizer !
-\ ' num-recognizer ' int-recognizer 2 forth-recognizer set-recognizers
+\ ' num-recognizer ' word-recognizer 2 forth-recognizer set-recognizers
 
 \ recognizer loop
 
