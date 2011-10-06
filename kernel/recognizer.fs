@@ -18,8 +18,8 @@
 : recognizer: ( xt1 xt2 xt3 -- ) Create rot , swap , , ;
 
 (field) r>int      ( r-addr -- addr )  0 cells ,
-(field) r>comp     ( r-addr -- )       1 cells ,
-(field) r>lit      ( r-addr -- )       2 cells ,
+(field) r>comp     ( r-addr -- addr )  1 cells ,
+(field) r>lit      ( r-addr -- addr )  2 cells ,
 
 :noname ( ... nt -- ) name>int execute ;
 :noname ( ... nt -- ) name>comp execute ;
