@@ -26,11 +26,11 @@
 :noname ( ... nt -- ) postpone Literal ;
 Create r:interpreter rot A, swap A, A,
 
-:noname ( addr u -- nt int-table true | addr u false )
+: int-recognizer ( addr u -- nt int-table true | addr u false )
     2dup find-name [ [IFDEF] prelude-mask ] run-prelude [ [THEN] ] dup
     IF
 	nip nip r:interpreter true  EXIT
-    THEN ; Constant int-recognizer
+    THEN ;
 
 ' noop
 :noname  postpone Literal ;
@@ -44,12 +44,12 @@ Create r:2number rot A, swap A, A,
 
 \ snumber? should be implemented as recognizer stack
 
-:noname ( addr u -- nt int-table true | addr u false )
+: num-recognizer ( addr u -- n/d int-table true | addr u false )
     2dup 2>r snumber?  dup
     IF
 	2rdrop 0> IF  r:2number   ELSE  r:number  THEN  true  EXIT
     THEN
-    drop 2r> false ; Constant num-recognizer
+    drop 2r> false ;
 
 ' no.extensions dup dup Create r:fail A, A, A,
 
@@ -70,9 +70,9 @@ $10 Constant max-rec#
 
 Variable forth-recognizer
 
-int-recognizer A, num-recognizer A, max-rec# 2 - cells allot
+' int-recognizer A, ' num-recognizer A, max-rec# 2 - cells allot
 2 forth-recognizer !
-\ num-recognizer int-recognizer 2 forth-recognizer set-recognizers
+\ ' num-recognizer ' int-recognizer 2 forth-recognizer set-recognizers
 
 \ recognizer loop
 
