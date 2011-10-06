@@ -107,7 +107,6 @@ Variable forth-recognizer
     ['] compiler-r     IS parser1 state on  ;
 
 : >postpone ( token table -- )
-    dup r:fail = IF  no.extensions  THEN
     >r r@ r>lit perform r> r>comp @ compile, ;
 
 : postpone ( "name" -- ) \ core
