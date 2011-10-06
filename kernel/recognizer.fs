@@ -106,6 +106,8 @@ Variable forth-recognizer
     \G Enter compilation state.
     ['] compiler-r     IS parser1 state on  ;
 
+: >int      ( token table -- )  r>int perform ;
+: >comp     ( token table -- )  r>comp perform ;
 : >postpone ( token table -- )
     >r r@ r>lit perform r> r>comp @ compile, ;
 
