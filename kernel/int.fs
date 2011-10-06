@@ -643,13 +643,16 @@ Defer parse-name ( "name" -- c-addr u ) \ gforth
 ' parse-name alias name ( -- c-addr u ) \ gforth-obsolete
 \G old name for @code{parse-name}
     
+: no.extensions  ( addr u -- )
+    2drop -&13 throw ;
+
+has? recognizer 0= [IF]
 Defer compiler-notfound1 ( c-addr count -- ... xt )
 Defer interpreter-notfound1 ( c-addr count -- ... xt )
 
-: no.extensions  ( addr u -- )
-    2drop -&13 throw ;
 ' no.extensions IS compiler-notfound1
 ' no.extensions IS interpreter-notfound1
+[THEN]
 
 Defer before-word ( -- ) \ gforth
 \ called before the text interpreter parses the next word
