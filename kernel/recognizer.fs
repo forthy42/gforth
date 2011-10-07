@@ -21,16 +21,16 @@
 (field) r>comp     ( r-addr -- addr )  1 cells ,
 (field) r>lit      ( r-addr -- addr )  2 cells ,
 
+' no.extensions dup dup Create r:fail A, A, A,
+
 :noname ( ... nt -- ) name>int execute ;
 :noname ( ... nt -- ) name>comp execute ;
 :noname ( ... nt -- ) postpone Literal ;
 Create r:word rot A, swap A, A,
 
-: word-recognizer ( addr u -- nt int-table true | addr u false )
+: word-recognizer ( addr u -- nt r:word | addr u r:fail )
     2dup find-name [ [IFDEF] prelude-mask ] run-prelude [ [THEN] ] dup
-    IF
-	nip nip r:word true  EXIT
-    THEN ;
+    IF  nip nip r:word  ELSE  drop r:fail  THEN ;
 
 ' noop
 :noname  postpone Literal ;
@@ -44,14 +44,12 @@ Create r:2num rot A, swap A, A,
 
 \ snumber? should be implemented as recognizer stack
 
-: num-recognizer ( addr u -- n/d int-table true | addr u false )
+: num-recognizer ( addr u -- n/d table | addr u r:fail )
     2dup 2>r snumber?  dup
     IF
-	2rdrop 0> IF  r:2num   ELSE  r:num  THEN  true  EXIT
+	2rdrop 0> IF  r:2num   ELSE  r:num  THEN  EXIT
     THEN
-    drop 2r> false ;
-
-' no.extensions dup dup Create r:fail A, A, A,
+    drop 2r> r:fail ;
 
 \ recognizer stack
 
@@ -78,17 +76,14 @@ Variable forth-recognizer
 
 : do-recognizer ( addr u rec-addr -- token table )
     dup cell+ swap @ cells bounds ?DO
-	I perform IF  UNLOOP  EXIT  THEN
+	I perform dup r:fail <>  IF  UNLOOP  EXIT  THEN  drop
     cell +LOOP
     r:fail ;
 
 \ nested recognizer helper
 
-: r:table>flag ( table -- table true | false )
-    dup r:fail <> dup 0= IF  nip  THEN ;
-
-\ : nest-recognizer ( addr u -- token table true | addr u false )
-\   xxx-recognizer do-recognizer r:table>flag ;
+\ : nest-recognizer ( addr u -- token table | addr u r:fail )
+\   xxx-recognizer do-recognizer ;
 
 : interpreter-r ( addr u -- ... xt )
     forth-recognizer do-recognizer r>int @ ;
