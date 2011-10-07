@@ -121,3 +121,12 @@ has? rom
 
 ' >name ALIAS >head \ gforth to-head
 \G another name of @code{>name}
+
+\ print recognizer stack
+
+[IFDEF] forth-recognizer
+    : .recs ( -- )
+	forth-recognizer get-recognizers 0 ?DO
+	    >name .name
+	LOOP ;
+[THEN]

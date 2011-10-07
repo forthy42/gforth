@@ -136,6 +136,12 @@ AUser CSP
 
 \ ]] ... [[
 
+: [[ ( -- ) \ gforth left-bracket-bracket
+\G switch from postpone state to compile state
+    \ this is only a marker; it is never really interpreted
+    compile-only-error ; immediate
+
+[ifdef] compiler1
 : compile-literal ( n -- )
     postpone literal ;
 
@@ -148,12 +154,6 @@ AUser CSP
 : compile-compile-2literal ( n1 n2 -- )
     compile-2literal postpone compile-2literal ;
 
-: [[ ( -- ) \ gforth left-bracket-bracket
-\G switch from postpone state to compile state
-    \ this is only a marker; it is never really interpreted
-    compile-only-error ; immediate
-
-[ifdef] compiler1
 : postponer1 ( c-addr u -- ... xt )
     2dup find-name
     [ifdef] run-prelude run-prelude [then]
