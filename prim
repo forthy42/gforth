@@ -1804,6 +1804,8 @@ if (a_addr1==NULL)
 else
   a_addr2 = (Cell *)realloc(a_addr1, u);
 wior = IOR(a_addr2==NULL);	/* !! Define a return code */
+if (a_addr2==NULL)
+  a_addr2 = a_addr1;
 
 strerror	( n -- c_addr u )	gforth
 c_addr = (Char *)strerror(n);
