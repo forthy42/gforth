@@ -898,7 +898,8 @@ max-errors /error * cells allot
 
 : input-error-data ( -- c-addr1 u1 c-addr2 u2 line# [addr u] )
     \ error data for the current input, to be used by >error or .error-frame
-    source input-lexeme 2@ sourceline#
+    source over >r save-mem over r> -
+    input-lexeme 2@ >r + r> sourceline#
     [ has? file [IF] ] sourcefilename [ [THEN] ] ;
 
 : dec. ( n -- ) \ gforth
