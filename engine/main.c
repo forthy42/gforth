@@ -714,7 +714,7 @@ int gforth_go(void *image, int stack, Cell *entries)
 #endif
 
   /* ensure that the cached elements (if any) are accessible */
-#if !(defined(GFORTH_DEBUGGING) || defined(INDIRECT_THREADED) || defined(DOUBLY_INDIRECT) || defined(VM_PROFILING))
+#if !(defined(INDIRECT_THREADED) || defined(DOUBLY_INDIRECT) || defined(VM_PROFILING))
   sp0 -= 8; /* make stuff below bottom accessible for stack caching */
   fp0--;
 #endif
