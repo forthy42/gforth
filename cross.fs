@@ -2968,21 +2968,22 @@ DO:  abort" Not in cross mode" ;DO
 
 \ Mini-OOF
 
-\ Builder method
-\ Build: ( m v -- m' v )  over T , swap cell+ swap H ;Build
-\ DO:  abort" Not in cross mode" ;DO
+Builder method
+Build: ( m v -- m' v )  over T , swap cell+ swap H ;Build
+DO:  abort" Not in cross mode" ;DO
 
-\ Builder var
-\ Build: ( m v size -- m v+size )  over T , H + ;Build
-\ DO: ( o -- addr ) T @ H + ;DO
+Builder var
+Build: ( m v size -- m v+size )  over T , H + ;Build
+DO: ( o -- addr ) T @ H + ;DO
 
-\ Builder end-class
-\ Build: ( addr m v -- )
-\   T here >r , dup , 2 cells H ?DO T ['] noop , 1 cells H +LOOP
-\   T cell+ dup cell+ r> rot @ 2 cells /string move H ;Build
-\ by: Variable
+Builder end-class
+Build: ( addr m v -- )
+   T here >r , dup , 2 cells H ?DO T ['] noop , 1 cells H +LOOP
+   T cell+ dup cell+ r> rot @ 2 cells /string move H ;Build
+by Create
 
-\ : defines ( xt class -- )  T ' >body @ + ! H ;
+: class ( class -- class methods vars ) dup T 2@ H ;
+: defines ( xt class -- )  T ' >body @ + ! H ;
 
 \ Peephole optimization					05sep01jaw
 
