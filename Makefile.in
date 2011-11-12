@@ -685,14 +685,14 @@ check:		gforths	gforth.fi
 		$(MAKE) checkone check-nofast ENGINE="./gforth --no-dynamic" >/dev/null 2>&1
 		$(MAKE) checkone check-nofast ENGINE="./gforth-itc" >/dev/null 2>&1
 		$(MAKE) checkone check-nofast ENGINE="./gforth-ditc" >/dev/null 2>&1
-		$(MAKE) checkone ENGINE="./gforth-fast --no-dynamic" >/dev/null 2>&1
+		#$(MAKE) checkone ENGINE="./gforth-fast --no-dynamic" >/dev/null 2>&1
 		$(MAKE) checkone check-nofast ENGINE="./gforth" >/dev/null 2>&1
 		$(MAKE) checkone ENGINE="./gforth-fast" >/dev/null 2>&1
 		@echo "*** Check successful ***"
 		./gforth-fast --diag -e bye
 
 checkone test: gforth.fi engine/prim-s.i
-		$(FORTH) test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs test/string.fs test/float.fs test/deferred.fs test/coreext.fs test/search.fs -e bye 2>&1 | tr -d '\015' | diff -c - $(srcdir)/test/coretest.out
+		$(FORTH) test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs test/string.fs test/float.fs test/deferred.fs test/coreext.fs test/search.fs -e bye 2>/dev/null | tr -d '\015' | diff -c - $(srcdir)/test/coretest.out
 		$(FORTH) test/other.fs -e bye
 		$(FORTHS) test/signals.fs -e bye
 		$(FORTHS) test/coremore.fs test/gforth.fs test/macros.fs -e bye 2>&1 | tr -d '\015' | diff -c - $(srcdir)/test/gforth.out
