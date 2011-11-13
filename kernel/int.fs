@@ -448,29 +448,15 @@ const Create ???  0 , 3 , char ? c, char ? c, char ? c,
 
 : head? ( addr -- f )
 \G heuristic check whether addr is a name token; may deliver false
-\G positives; addr must be a valid address; returns 1 for
-\G particularly unsafe positives
-    \ we follow the link fields and check for plausibility; two
-    \ iterations should catch most false addresses: on the first
-    \ iteration, we may get an xt, on the second a code address (or
-    \ some code), which is typically not in the dictionary.
-    \ we added a third iteration for working with code and ;code words.
-    3 0 do
-	dup dup aligned <> if \ protect @ against unaligned accesses
-	    drop false unloop exit
-	then
-	dup @ dup
-	if ( addr addr1 )
-	    dup rot forthstart within
-	    if \ addr1 is outside forthstart..addr, not a head
-		drop false unloop exit
-	    then ( addr1 )
-	else \ 0 in the link field, no further checks
-	    2drop 1 unloop exit \ this is very unsure, so return 1
-	then
-    loop
-    \ in dubio pro:
-    drop true ;
+\G positives; addr must be a valid address
+    dup dup aligned <>
+    if
+	drop false exit \ heads are aligned
+    then
+    name>string dup $1F > if
+	2drop false exit \ realistically the name is short
+    then
+    + cfaligned @ here forthstart within ; \ and the cfa is outside
 
 : >head-noprim ( cfa -- nt ) \ gforth  to-head-noprim
     \ also heuristic
