@@ -685,7 +685,7 @@ check:		gforths	gforth.fi
 		$(MAKE) checkone check-nofast ENGINE="./gforth --no-dynamic" >/dev/null 2>&1
 		$(MAKE) checkone check-nofast ENGINE="./gforth-itc" >/dev/null 2>&1
 		$(MAKE) checkone check-nofast ENGINE="./gforth-ditc" >/dev/null 2>&1
-		#$(MAKE) checkone ENGINE="./gforth-fast --no-dynamic" >/dev/null 2>&1
+		$(MAKE) checkone ENGINE="./gforth-fast --no-dynamic" >/dev/null 2>&1
 		$(MAKE) checkone check-nofast ENGINE="./gforth" >/dev/null 2>&1
 		$(MAKE) checkone ENGINE="./gforth-fast" >/dev/null 2>&1
 		@echo "*** Check successful ***"

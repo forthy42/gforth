@@ -921,11 +921,14 @@ stack inst-stream IP Cell
 : stack-pointer-update { stack -- }
     \ and moves
     \ stacks grow downwards
+\    ." /* stack pointer update " stack stack-pointer 2@ type ."  */" cr
     stack stack-prim-stacks-sync @ if
+\	." /* synced "  stack stack-in ? stack stack-out ? stack state-in  stack-offset . ." */" cr
 	stack stack-in @
 	stack state-in  stack-offset -
 	stack swap update-stack-pointer
     else
+\	." /* unsynced "  stack stack-in ? stack stack-out ? ." */" cr
 	stack stack-diff ( in-out )
 	stack state-in  stack-offset -
 	stack state-out stack-offset + ( [in-in_offset]-[out-out_offset] )
@@ -937,6 +940,7 @@ stack inst-stream IP Cell
     ['] stack-pointer-update map-stacks ;
 
 : stack-pointer-update2 { stack -- }
+\    ." /* stack pointer update2 " stack stack-pointer 2@ type ."  */" cr
     stack stack-prim-stacks-sync @ if
 	stack state-out stack-offset
 	stack stack-out @ -
@@ -1349,6 +1353,7 @@ is output-c-prim-num
 \  NEXT_P2;
 
 : init-combined ( -- )
+    ['] clear-prim-stacks-sync map-stacks
     prim to combined
     0 num-combined !
     current-depth max-stacks cells erase

@@ -230,9 +230,10 @@ extern int gforth_memcmp(const char * s1, const char * s2, size_t n);
 #define asmcomment(string) asm("")
 #endif
 
+#define DEPTHOFF 4
 #ifdef GFORTH_DEBUGGING
 #if DEBUG
-#define NAME(string) { saved_ip=ip; asmcomment(string); fprintf(stderr,"%08lx depth=%3ld tos=%016lx: "string"\n",(Cell)ip,sp0+3-sp,sp[0]);}
+#define NAME(string) { saved_ip=ip; asmcomment(string); fprintf(stderr,"%08lx depth=%3ld tos=%016lx: "string"\n",(Cell)ip,sp0+DEPTHOFF-sp,sp[0]);}
 #else /* !DEBUG */
 #define NAME(string) { saved_ip=ip; asm(""); }
 /* the asm here is to avoid reordering of following stuff above the
@@ -242,7 +243,7 @@ extern int gforth_memcmp(const char * s1, const char * s2, size_t n);
    because the stack loads may already cause a stack underflow. */
 #endif /* !DEBUG */
 #elif DEBUG
-#       define  NAME(string)    {Cell __depth=sp0+3-sp; int i; fprintf(stderr,"%08lx depth=%3ld: "string,(Cell)ip,sp0+3-sp); for (i=__depth-1; i>0; i--) fprintf(stderr, " $%lx",sp[i]); fprintf(stderr, " $%lx\n",spTOS); }
+#       define  NAME(string)    {Cell __depth=sp0+DEPTHOFF-sp; int i; fprintf(stderr,"%08lx depth=%3ld: "string,(Cell)ip,sp0+DEPTHOFF-sp); for (i=__depth-1; i>0; i--) fprintf(stderr, " $%lx",sp[i]); fprintf(stderr, " $%lx\n",spTOS); }
 #else
 #	define	NAME(string) asmcomment(string);
 #endif
