@@ -35,8 +35,8 @@
 /* this calls a dummy function in cacheflush0.S */
 /* you can replace it through "./configure arm_cacheflush=<file>" */
 /* if you know how to flush the icache on the arm in general, mail me */
-#define FLUSH_ICACHE(addr,size) cacheflush(addr,size)
-void cacheflush(void *p, size_t size);
+#define FLUSH_ICACHE(addr,size) gforth_cacheflush(addr,size)
+void gforth_cacheflush(void *p, size_t size);
 
 #if defined(FORCE_REG) && !defined(DOUBLY_INDIRECT) && !defined(VM_PROFILING)
 /*

@@ -24,6 +24,9 @@
    ./configure arm_cacheflush=arch/arm/cacheflush
  */
 #include <stdlib.h>
-void cacheflush(void *p, size_t size)
+void gforth_cacheflush(void *p, size_t size)
 {
+#ifdef __ANDROID_API__
+  cacheflush(p, p+size, 0);
+#endif
 }
