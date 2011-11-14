@@ -14996,7 +14996,7 @@ the additional porting problems?
 
 @end itemize
 
-In order to perform these consideratios, you need to know what's
+In order to perform these considerations, you need to know what's
 standard and what's not.  This manual generally states if something is
 non-standard, but the authoritative source is the
 @uref{http://www.taygeta.com/forth/dpans.html,standard document}.

@@ -88,7 +88,7 @@ DOES> ( -- r )
     \G @code{F.} @code{FE.} and @code{FS.} to @i{u}.
     to precision ;
 
-: scratch ( r -- addr len )
+: scratch ( -- addr len )
   pad precision - precision ;
 
 : zeros ( n -- )   0 max 0 ?DO  '0 emit  LOOP ;

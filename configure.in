@@ -108,6 +108,22 @@ else
   platform=${withval}
 fi])
 
+AC_ARG_WITH(cross,
+	AC_HELP_STRING([--with-cross=<arch>],
+			[  Build gforth using a cross compiler.]),
+[if test "$withval" = "no"; then
+  echo "defining hosted system"
+else
+  echo "defining cross compiled system (${withval})"
+  if test -f "arch/$host_cpu/${withval}/config.sh"; then
+    source "arch/$host_cpu/${withval}/config.sh"
+  fi
+  GCC_PATH=$(which $CC)
+  LIB_PATH=${GCC_PATH%/*/*}
+  GCC_LD="\$(LD)"
+  platform=${withval}
+fi])
+
 #variables mentioned in INSTALL
 AC_ARG_VAR(CC, [The C compiler (must support GNU C 2.x).])
 AC_ARG_VAR(FORTHSIZES, [Gforth command line options for the default stack and dictionary sizes (see INSTALL).])
