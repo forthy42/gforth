@@ -453,7 +453,7 @@ const Create ???  0 , 3 , char ? c, char ? c, char ? c,
     if
 	drop false exit \ heads are aligned
     then
-    name>string dup $1F > if
+    name>string dup $20 $1 within if
 	2drop false exit \ realistically the name is short
     then
     + cfaligned @ here forthstart within ; \ and the cfa is outside
