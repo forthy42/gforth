@@ -71,6 +71,7 @@ if test "$withval" = "yes"; then DEBUGFLAG=-g; fi)
 GCC_LD="\$(GCC)"
 EC_MODE="false"
 NO_EC=""
+NO_CROSS=""
 EC=""
 engine2='engine2$(OPT).o'
 engine_fast2='engine-fast2$(OPT).o'
@@ -90,6 +91,7 @@ else
   EC_MODE="true"
   EC="-ec"
   NO_EC="#"
+  NO_CROSS="#"
   engine2=""
   engine_fast2=""
   no_dynamic="-DNO_DYNAMIC"
@@ -120,8 +122,9 @@ else
   fi
   GCC_PATH=$(which $CC)
   LIB_PATH=${GCC_PATH%/*/*}
-  GCC_LD="\$(LD)"
   platform=${withval}
+  NO_EC=""
+  NO_CROSS="#"
 fi])
 
 #variables mentioned in INSTALL
@@ -188,6 +191,7 @@ AC_SUBST(GCC_LD)
 AC_SUBST(DEBUGFLAG)
 AC_SUBST(EC)
 AC_SUBST(NO_EC)
+AC_SUBST(NO_CROSS)
 AC_SUBST(EC_MODE)
 AC_SUBST(engine2)
 AC_SUBST(engine_fast2)

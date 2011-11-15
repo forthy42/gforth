@@ -466,7 +466,7 @@ FORTH_GEN_ENGINE_FAST= \
 	engine/costs-fast.i engine/super2-fast.i
 FORTH_GEN_PRIMB = $(FORTH_GEN_ENGINE) kernel/aliases.fs kernel/prim.fs
 FORTH_GEN0 = prim.b $(FORTH_GEN_PRIMB)
-FORTH_GEN =  $(FORTH_GEN0) @KERNEL@ @NO_EC@ gforth.fi
+FORTH_GEN =  $(FORTH_GEN0) @KERNEL@ @NO_CROSS@ gforth.fi
 # this is used for antidependences,
 FORTH_GEN1 = $(FORTH_GEN0) @kernel_fi@ build-ec
 
@@ -495,7 +495,7 @@ GEN_PRECIOUS = $(FORTH_GEN) $(KERNLS) \
 .SUFFIXES:
 .SUFFIXES: .c .o
 
-all: kernel/version.fs more @NO_EC@ check
+all: kernel/version.fs more @NO_CROSS@ check
 
 # use this dependency for phony targets just as mostlyclean,...
 FORCE: ;
@@ -845,7 +845,7 @@ gforth$(OPT)$(EC)$(EXE): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/config.h @
 		$(CP) engine/$@ $@ && \
 		$(MASSAGE_EXE) $@; \
 		@GFORTH_EXE@; \
-		@NO_EC@ $(MAKE) checkone check-nofast ENGINE=./engine/$@; \
+		@NO_CROSS@ $(MAKE) checkone check-nofast ENGINE=./engine/$@; \
 	fi
 
 optgforth:
@@ -859,7 +859,7 @@ gforth-fast$(OPT)$(EC)$(EXE): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE_FAST) engine/
 		$(CP) engine/$@ $@ && \
 		$(MASSAGE_EXE) $@; \
 		@GFORTHFAST_EXE@; \
-		@NO_EC@ $(MAKE) checkone ENGINE=./engine/$@; \
+		@NO_CROSS@ $(MAKE) checkone ENGINE=./engine/$@; \
 	fi
 
 optgforth-fast:

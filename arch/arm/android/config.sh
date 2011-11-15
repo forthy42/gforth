@@ -2,7 +2,7 @@
 #mkdir ~/proj/android-toolchain
 #cd  ~/proj/android-toolchain
 #~/proj/android-ndk-r6b/build/tools/make-standalone-toolchain.sh --platform=android-5 --ndk-dir=/home/bernd/proj/android-ndk-r6b --install-dir=$PWD
-ar x ~/proj/android-toolchain/sysroot/usr/lib/libc.a engine/sigaltstack.o
+(cd engine; ar x ~/proj/android-toolchain/sysroot/usr/lib/libc.a sigaltstack.o)
 skipcode=".skip 4\n.skip 4\n.skip 4\n.skip 4"
 kernel_fi=kernl64l.fi
 ac_cv_sizeof_void_p=4
