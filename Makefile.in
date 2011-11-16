@@ -109,7 +109,7 @@ FORTHB = $(BUILDFORTH) exboot.fs -e 'fpath= .|~+|$(srcdir)'
 ENGINE_FAST = ./gforth-fast
 FORTH_FAST	= $(ENGINE_FAST) $(FORTH_ARGS)
 FORTHKFLAGS= --die-on-signal -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)" -i $(kernel_fi)
-FORTHK	= $(ENGINE) $(FORTHKFLAGS)
+FORTHK	= ./kforth -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)"
 #FORTHP	= $(ENGINE) --die-on-signal -i ./$(kernel_fi)
 #the "-2 image-included-files +!" undoes the change to image-included-files
 # in exboot.fs

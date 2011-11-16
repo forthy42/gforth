@@ -705,22 +705,6 @@ fi
 AC_SUBST(M4)
 AC_MSG_RESULT($M4)
 
-# Find installed Gforth
-AC_MSG_CHECKING([for gforth])
-GFORTH="`cd / && which gforth 2>/dev/null`"
-#the "$srcdir" = "." test defends agains the "../" bug in gforth-0.6.2
-(cd / && $GFORTH -e bye >/dev/null 2>/dev/null  && test "$srcdir" = ".") || GFORTH=""
-if test -z "$GFORTH"; then
-  PREFORTH='echo "You need to configure with a gforth in \$PATH to build this part" && false'
-  kernel_anti_dependence=''
-else
-  PREFORTH="$GFORTH -i `cd / && $GFORTH --debug -e bye 2>&1 |grep "Opened image file: "|sed 's/Opened image file: //'`" ;
-  kernel_anti_dependence='$(kernel_fi)'
-fi
-AC_SUBST(PREFORTH)
-AC_SUBST(kernel_anti_dependence)
-AC_MSG_RESULT($PREFORTH)
-
 #echo "machine='$machine'"
 
 dnl AC_CHECK_PROG(asm_fs,asm.fs,arch/$machine/asm.fs,,$srcdir/arch/$machine)
@@ -999,6 +983,27 @@ include_fi=kernl${wordsize}${bytesex}${EC}.fi
 AC_SUBST(kernel_fi)
 AC_SUBST(include_fi)
 
+# Find installed Gforth
+AC_MSG_CHECKING([for gforth])
+GFORTH="`cd / && which gforth 2>/dev/null`"
+#the "$srcdir" = "." test defends agains the "../" bug in gforth-0.6.2
+(cd / && $GFORTH -e bye >/dev/null 2>/dev/null  && test "$srcdir" = ".") || GFORTH=""
+if test -z "$GFORTH"; then
+  PREFORTH='echo "You need to configure with a gforth in \$PATH to build this part" && false'
+  KFORTH='echo "You need to configure with a gforth in \$PATH to build this part" && false'
+  kernel_anti_dependence=''
+else
+  GFORTH_FI=`cd / && $GFORTH --debug -e bye 2>&1 |grep "Opened image file: "|sed 's/Opened image file: //'`
+  PREFORTH="$GFORTH -i $GFORTH_FI" ;
+  KERNLX_FI=`echo $GFORTH_FI | sed -e s/lib/share/g -e s/gforth.fi/kernl*.fi/g`
+  KFORTH="$GFORTH -i `echo $KERNLX_FI`" ;
+  kernel_anti_dependence='$(kernel_fi)'
+fi
+AC_SUBST(PREFORTH)
+AC_SUBST(KFORTH)
+AC_SUBST(kernel_anti_dependence)
+AC_MSG_RESULT($PREFORTH)
+
 #this breaks bindists
 #dnl replace srource directory by absolute value
 #if test $srcdir = "."; then srcdir=`pwd` 
@@ -1013,6 +1018,7 @@ vmgen
 machpc.fs
 envos.fs
 preforth
+kforth
 engine/Makefile
 engine/libcc.h
 doc/version.texi
@@ -1022,6 +1028,7 @@ chmod +x gforthmi
 chmod +x vmgen
 chmod +x build-ec
 chmod +x preforth
+chmod +x kforth
 test -d kernel||mkdir kernel
 if test $srcdir != "."; then ln -sf $srcdir/gforth.el .; fi
 $srcdir/mkinstalldirs include/gforth/$PACKAGE_VERSION
