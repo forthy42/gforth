@@ -424,7 +424,7 @@ Label *gforth_engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0 sr_p
 #endif
   }
 
-#if !(defined(GFORTH_DEBUGGING) || defined(INDIRECT_THREADED) || defined(DOUBLY_INDIRECT) || defined(VM_PROFILING))
+#ifdef USE_TOS
   sp += STACK_CACHE_DEFAULT-1;
   /* some of those registers are dead, but its simpler to initialize them all */  spTOS = sp[0];
   spb = sp[-1];
