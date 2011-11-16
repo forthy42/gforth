@@ -214,6 +214,16 @@ Defer char@ ( addr u -- char addr' u' )
 
 \ \ threading							17mar93py
 
+has? ec 0= [IF]
+' noop Alias recurse
+    \g Call the current definition.
+unlock tlastcfa @ lock AConstant lastcfa
+[ELSE]
+: recurse ( compilation -- ; run-time ?? -- ?? ) \ core
+    \g Call the current definition.
+    latestxt compile, ; immediate restrict
+[THEN]
+
 : cfa,     ( code-address -- )  \ gforth	cfa-comma
     here
     dup lastcfa !
@@ -334,12 +344,6 @@ has? recognizer [IF]
     \g Compiles the compilation semantics of @i{name}.
     COMP' postpone, ; immediate
 [THEN]
-
-\ \ recurse							17may93jaw
-
-: recurse ( compilation -- ; run-time ?? -- ?? ) \ core
-    \g Call the current definition.
-    latestxt compile, ; immediate restrict
 
 \ \ compiler loop
 

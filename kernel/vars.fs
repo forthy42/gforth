@@ -199,7 +199,9 @@ AUser dpp		normal-dp dpp !
 			\ the pointer to the current dictionary pointer
                         \ ist reset to normal-dp on (doerror)
                         \  (i.e. any throw caught by quit)
-AUser LastCFA
+has? ec [IF]
+    AUser LastCFA
+[THEN]
 AUser Last
 
 has? flash [IF]

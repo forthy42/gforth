@@ -29,10 +29,9 @@
 #if !defined(apollo) && !defined(MSDOS)
 #include <sys/ioctl.h>
 #endif
-#include <asm/signal.h>
-#include <asm/termios.h>
 #include <sys/types.h>
 #include <signal.h>
+#include <termios.h>
 #include "io.h"
 
 #ifndef HAVE_STACK_T
