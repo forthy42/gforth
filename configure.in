@@ -990,17 +990,17 @@ GFORTH="`cd / && which gforth 2>/dev/null`"
 (cd / && $GFORTH -e bye >/dev/null 2>/dev/null  && test "$srcdir" = ".") || GFORTH=""
 if test -z "$GFORTH"; then
   PREFORTH='echo "You need to configure with a gforth in \$PATH to build this part" && false'
-  KFORTH='echo "You need to configure with a gforth in \$PATH to build this part" && false'
+  GFORTHKER='echo "You need to configure with a gforth in \$PATH to build this part" && false'
   kernel_anti_dependence=''
 else
   GFORTH_FI=`cd / && $GFORTH --debug -e bye 2>&1 |grep "Opened image file: "|sed 's/Opened image file: //'`
   PREFORTH="$GFORTH -i $GFORTH_FI" ;
   KERNLX_FI=`echo $GFORTH_FI | sed -e s/lib/share/g -e s/gforth.fi/kernl*.fi/g`
-  KFORTH="$GFORTH -i `echo $KERNLX_FI`" ;
+  GFORTHKER="$GFORTH -i `echo $KERNLX_FI`" ;
   kernel_anti_dependence='$(kernel_fi)'
 fi
 AC_SUBST(PREFORTH)
-AC_SUBST(KFORTH)
+AC_SUBST(GFORTHKER)
 AC_SUBST(kernel_anti_dependence)
 AC_MSG_RESULT($PREFORTH)
 
@@ -1018,7 +1018,7 @@ vmgen
 machpc.fs
 envos.fs
 preforth
-kforth
+gforthker
 engine/Makefile
 engine/libcc.h
 doc/version.texi
@@ -1028,7 +1028,7 @@ chmod +x gforthmi
 chmod +x vmgen
 chmod +x build-ec
 chmod +x preforth
-chmod +x kforth
+chmod +x gforthker
 test -d kernel||mkdir kernel
 if test $srcdir != "."; then ln -sf $srcdir/gforth.el .; fi
 $srcdir/mkinstalldirs include/gforth/$PACKAGE_VERSION

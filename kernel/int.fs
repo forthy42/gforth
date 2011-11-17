@@ -451,12 +451,27 @@ const Create ???  0 , 3 , char ? c, char ? c, char ? c,
 \G positives; addr must be a valid address
     dup dup aligned <>
     if
-	drop false exit \ heads are aligned
+        drop false exit \ heads are aligned
     then
+    dup cell+ @ alias-mask and 0= >r
     name>string dup $20 $1 within if
-	2drop false exit \ realistically the name is short
+        rdrop 2drop false exit \ realistically the name is short
     then
-    + cfaligned @ here forthstart within ; \ and the cfa is outside
+    cfaligned 2dup bounds ?do \ should be a printable string
+	i c@ bl < if
+	    2drop unloop rdrop false exit
+	then
+    loop
+    + r> if \ check for valid aliases
+	@ dup forthstart here within
+	over ['] noop ['] lit-execute 1+ within or
+	over dup aligned = and
+	0= if
+	    drop false exit
+	then
+    then \ check for cfa - must be code field or primitive
+    dup @ tuck 2 cells - = swap
+    docol:  ['] lit-execute @ 1+ within or ;
 
 : >head-noprim ( cfa -- nt ) \ gforth  to-head-noprim
     \ also heuristic

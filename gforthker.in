@@ -23,5 +23,5 @@
 if test -f "$ENGINE" -a -f "$KERNEL"; then 
   $ENGINE --die-on-signal -i @kernel_fi@ "$@"
 else
-  @KFORTH@ "$@"
+  @GFORTHKER@ "$@"
 fi

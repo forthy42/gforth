@@ -109,7 +109,7 @@ FORTHB = $(BUILDFORTH) exboot.fs -e 'fpath= .|~+|$(srcdir)'
 ENGINE_FAST = ./gforth-fast
 FORTH_FAST	= $(ENGINE_FAST) $(FORTH_ARGS)
 FORTHKFLAGS= --die-on-signal -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)" -i $(kernel_fi)
-FORTHK	= ./kforth -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)"
+FORTHK	= ./gforthker -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)"
 #FORTHP	= $(ENGINE) --die-on-signal -i ./$(kernel_fi)
 #the "-2 image-included-files +!" undoes the change to image-included-files
 # in exboot.fs
@@ -426,7 +426,7 @@ ENGINE_SOURCES = engine/Makefile.in engine/config.h.in \
 	engine/makefile.dos engine/makefile.os2
 
 SOURCES	= $(ENGINE_SOURCES) compat Makefile.in Makedist.in \
-	gforthmi.in vmgen.in preforth.in gfgen README.vmgen NEWS.vmgen \
+	gforthmi.in vmgen.in preforth.in gforthker.in gfgen README.vmgen NEWS.vmgen \
 	autogen.sh configure.in configure config.sub config.guess \
 	elisp-comp missing stamp-h.in envos.fs.in \
 	iss.sh install-sh INSTALL INSTALL.BINDIST NEWS README ToDo BUGS \
