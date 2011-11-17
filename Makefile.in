@@ -637,7 +637,7 @@ install:	gforth$(EC)$(EXE) $(FORTH_SRC) $(kernel_fi) gforth.fi gforthmi vmgen do
 		for i in $(FORTH_SRC) $(COMPAT) envos.fs prim; do \
 			$(INSTALL_DATA) $(srcdir)/$$i $(DESTDIR)$(datadir)/gforth/$(VERSION)/$$i; \
 		done
-		$(INSTALL_DATA) $(kernel_fi) $(DESTDIR)$(datadir)/gforth/$(VERSION)
+		$(INSTALL_DATA) $(kernel_fi) $(DESTDIR)$(libdir)/gforth/$(VERSION)
 		@if test -d "$(DESTDIR)$(emacssitelispdir)"; then \
 			for i in gforth.el @gforth_elc@; do \
 				$(INSTALL_DATA) $$i $(DESTDIR)$(emacssitelispdir); \

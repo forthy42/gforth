@@ -35,8 +35,6 @@ include_fi = @include_fi@
 
 PATHSEP = @PATHSEP@
 
-osclass = @OSCLASS@
-
 EC = @EC@
 
 # ------------- Utility programs
