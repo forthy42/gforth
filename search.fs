@@ -228,7 +228,7 @@ lookup ! \ our dictionary search order becomes the law ( -- )
 \G print the name of the wordlist represented by @var{wid}.  Can
 \G only print names defined with @code{vocabulary} or
 \G @code{wordlist constant}, otherwise prints @samp{???}.
-    dup >r wordlist-struct %size + dup head? if ( wid nt )
+    dup >r wordlist-struct %size + dup head? true = if ( wid nt )
 	dup name>int dup >code-address docon: = swap >body @ r@ = and if
 	    id. rdrop exit
 	endif
