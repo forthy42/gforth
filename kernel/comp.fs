@@ -215,13 +215,18 @@ Defer char@ ( addr u -- char addr' u' )
 \ \ threading							17mar93py
 
 has? ec 0= [IF]
-' noop Alias recurse
+    ' noop Alias recurse
     \g Call the current definition.
-unlock tlastcfa @ lock AConstant lastcfa
+    unlock tlastcfa @ lock AConstant lastcfa
+    \ this is the alias pointer in the recurse header, named lastcfa.
+    \ changing lastcfa now changes where recurse aliases to
+    \ it's always an alias of the current definition
+    \ it won't work in a flash/rom environment, therefore for Gforth EC
+    \ we stick to the traditional implementation
 [ELSE]
-: recurse ( compilation -- ; run-time ?? -- ?? ) \ core
-    \g Call the current definition.
-    latestxt compile, ; immediate restrict
+    : recurse ( compilation -- ; run-time ?? -- ?? ) \ core
+	\g Call the current definition.
+	latestxt compile, ; immediate restrict
 [THEN]
 
 : cfa,     ( code-address -- )  \ gforth	cfa-comma
