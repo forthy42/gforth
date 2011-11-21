@@ -156,7 +156,7 @@ DCell timeval2us(struct timeval *tvp)
 DCell timespec2ns(struct timespec *tvp)
 {
 #ifndef BUGGY_LONG_LONG
-  return (tvp->tv_sec*(DCell)1000000000LL)+tvp->tn_nsec;
+  return (tvp->tv_sec*(DCell)1000000000LL)+tvp->tv_nsec;
 #else
   DCell d2;
   DCell d1=mmul(tvp->tv_sec,1000000000);

@@ -2035,9 +2035,9 @@ dsystem = DZERO;
 
 ntime	( -- dtime )	gforth
 ""Report the current time in nanoseconds since some epoch.""
-struct timespec t;
-clock_gettime(CLOCK_REALTIME,&t);
-dtime = timespec2ns(&t);
+struct timespec time1;
+clock_gettime(CLOCK_REALTIME,&time1);
+dtime = timespec2ns(&time1);
 
 \+
 
