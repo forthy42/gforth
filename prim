@@ -2033,6 +2033,12 @@ duser = timeval2us(&time1);
 dsystem = DZERO;
 #endif
 
+ntime	( -- dtime )	gforth
+""Report the current time in nanoseconds since some epoch.""
+struct timespec t;
+clock_gettime(CLOCK_REALTIME,&t);
+dtime = timespec2ns(&t);
+
 \+
 
 \+floating

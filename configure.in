@@ -910,6 +910,7 @@ dnl This check is just for making later checks link with libm.
 dnl using sin here is no good idea since it is built-into gcc and typechecked
 AC_CHECK_LIB(m,asin)
 AC_CHECK_LIB(ltdl,lt_dlinit)
+AC_CHECK_LIB(rt,clock_gettime)
 
 if test -n "$GNU_LIBTOOL" -a $ac_cv_lib_ltdl_lt_dlinit = yes; then
   build_libcc_named=build-libcc-named

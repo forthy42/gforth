@@ -153,6 +153,19 @@ DCell timeval2us(struct timeval *tvp)
 #endif
 }
 
+DCell timespec2ns(struct timespec *tvp)
+{
+#ifndef BUGGY_LONG_LONG
+  return (tvp->tv_sec*(DCell)1000000000LL)+tvp->tn_nsec;
+#else
+  DCell d2;
+  DCell d1=mmul(tvp->tv_sec,1000000000);
+  d2.lo = d1.lo+tvp->tv_nsec;
+  d2.hi = d1.hi + (d2.lo<d1.lo);
+  return d2;
+#endif
+}
+
 DCell double2ll(Float r)
 {
 #ifndef BUGGY_LONG_LONG
