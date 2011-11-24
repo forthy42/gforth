@@ -446,7 +446,7 @@ const Create ???  0 , 3 , char ? c, char ? c, char ? c,
 \ if we have a forthstart we can define head? with it
 \ otherwise leave out the head? check
 
-: head? ( addr -- f )
+: one-head? ( addr -- f )
 \G heuristic check whether addr is a name token; may deliver false
 \G positives; addr must be a valid address
     dup dup aligned <>
@@ -472,6 +472,29 @@ const Create ???  0 , 3 , char ? c, char ? c, char ? c,
     then \ check for cfa - must be code field or primitive
     dup @ tuck 2 cells - = swap
     docol:  ['] lit-execute @ 1+ within or ;
+
+: head? ( addr -- f )
+\G heuristic check whether addr is a name token; may deliver false
+\G positives; addr must be a valid address; returns 1 for
+\G particularly unsafe positives
+    \ we follow the link fields and check for plausibility; two
+    \ iterations should catch most false addresses: on the first
+    \ iteration, we may get an xt, on the second a code address (or
+    \ some code), which is typically not in the dictionary.
+    \ we added a third iteration for working with code and ;code words.
+    3 0 do
+	dup one-head? 0= if
+	    drop false unloop exit
+	endif
+	dup @ dup 0= if
+	    2drop 1 unloop exit
+	else
+	    dup rot forthstart within if
+		drop false unloop exit
+	    then
+	then
+    loop
+    drop true ;
 
 : >head-noprim ( cfa -- nt ) \ gforth  to-head-noprim
     \ also heuristic
