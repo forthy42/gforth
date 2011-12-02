@@ -2035,9 +2035,15 @@ dsystem = DZERO;
 
 ntime	( -- dtime )	gforth
 ""Report the current time in nanoseconds since some epoch.""
+#ifdef HAVE_CLOCK_GETTIME
 struct timespec time1;
 clock_gettime(CLOCK_REALTIME,&time1);
 dtime = timespec2ns(&time1);
+#else
+struct timeval time1;
+gettimeofday(&time1,NULL);
+dtime = timeval2us(&time1) * 1000LL;
+#endif
 
 \+
 
