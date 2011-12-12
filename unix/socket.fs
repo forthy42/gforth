@@ -124,7 +124,8 @@ Variable sockopt-on
 
    0 Constant PF_UNSPEC
    2 Constant PF_INET
-environment os-type s" darwin" string-prefix? [IF]
+environment os-type s" darwin" string-prefix? [IF] : darwin ; [THEN]
+[IFDEF] darwin
   30 Constant PF_INET6
 $0210 Constant AF_INET
 $1E1C Constant AF_INET6
@@ -167,12 +168,18 @@ $004 Constant POLLOUT
 : new-udp-socket ( -- socket )
     PF_INET SOCK_DGRAM 0 socket
     dup 0<= abort" no free socket"
-    dup IPPROTO_IP IP_MTU_DISCOVER sockopt-on IP_PMTUDISC_DO over l! 4 setsockopt drop ;
+[IFUNDEF] darwin
+    dup IPPROTO_IP IP_MTU_DISCOVER sockopt-on IP_PMTUDISC_DO over l! 4
+    setsockopt drop
+[THEN] ;
 
 : new-udp-socket6 ( -- socket )
     PF_INET6 SOCK_DGRAM 0 socket
     dup 0<= abort" no free socket"
-    dup IPPROTO_IPV6 IPV6_MTU_DISCOVER sockopt-on IP_PMTUDISC_DO over l! 4 setsockopt drop
+[IFUNDEF] darwin
+    dup IPPROTO_IPV6 IPV6_MTU_DISCOVER sockopt-on IP_PMTUDISC_DO over l! 4
+    setsockopt drop
+[THEN]
     dup IPPROTO_IPV6 IPV6_V6ONLY sockopt-on dup on 4 setsockopt drop ;
 
 \ getaddrinfo based open-socket
