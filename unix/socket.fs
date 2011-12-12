@@ -147,6 +147,7 @@ $802 Constant O_NONBLOCK|O_RDWR
   41 Constant IPPROTO_IPV6
   10 Constant IP_MTU_DISCOVER
   23 Constant IPV6_MTU_DISCOVER
+   2 Constant IP_PMTUDISC_DO
    4 Constant F_SETFL
 $001 Constant POLLIN
 $002 Constant POLLPRI
@@ -166,12 +167,12 @@ $004 Constant POLLOUT
 : new-udp-socket ( -- socket )
     PF_INET SOCK_DGRAM 0 socket
     dup 0<= abort" no free socket"
-    dup IPPROTO_IP IP_MTU_DISCOVER sockopt-on 1 over l! 4 setsockopt drop ;
+    dup IPPROTO_IP IP_MTU_DISCOVER sockopt-on IP_PMTUDISC_DO over l! 4 setsockopt drop ;
 
 : new-udp-socket6 ( -- socket )
     PF_INET6 SOCK_DGRAM 0 socket
     dup 0<= abort" no free socket"
-    dup IPPROTO_IPV6 IPV6_MTU_DISCOVER sockopt-on 1 over l! 4 setsockopt drop
+    dup IPPROTO_IPV6 IPV6_MTU_DISCOVER sockopt-on IP_PMTUDISC_DO over l! 4 setsockopt drop
     dup IPPROTO_IPV6 IPV6_V6ONLY sockopt-on dup on 4 setsockopt drop ;
 
 \ getaddrinfo based open-socket
