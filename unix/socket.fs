@@ -58,6 +58,8 @@ c-function gai_strerror gai_strerror n -- a ( errcode -- addr )
 c-function setsockopt setsockopt n n n a n -- n ( sockfd level optname optval optlen -- r )
 end-c-library
 
+environment os-type s" darwin" string-prefix? [IF] : darwin ; [THEN]
+
 4 4 2Constant int%
 2 2 2Constant short%
 int% 2Constant size_t%
@@ -100,7 +102,7 @@ struct
     int% field ai_socktype
     int% field ai_protocol
     size_t% field ai_addrlen
-environment os-type s" darwin" string-prefix? [IF]
+[IFDEF] darwin
     cell% field ai_canonname
     cell% field ai_addr
 [ELSE]
@@ -124,7 +126,6 @@ Variable sockopt-on
 
    0 Constant PF_UNSPEC
    2 Constant PF_INET
-environment os-type s" darwin" string-prefix? [IF] : darwin ; [THEN]
 [IFDEF] darwin
   30 Constant PF_INET6
 $0210 Constant AF_INET
