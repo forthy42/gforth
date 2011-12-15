@@ -1068,7 +1068,7 @@ Defer mark-end
 
 \ \ Cold Boot                                    	13feb93py
 
-: (bootmessage) ( -- )
+: gforth ( -- )
     ." Gforth " version-string type 
     ." , Copyright (C) 1995-2011 Free Software Foundation, Inc." cr
     ." Gforth comes with ABSOLUTELY NO WARRANTY; for details type `license'"
@@ -1085,7 +1085,7 @@ has? file [IF]
 defer process-args
 [THEN]
 
-' (bootmessage) IS bootmessage
+' gforth IS bootmessage
 
 has? os [IF]
 Defer 'cold ( -- ) \ gforth  tick-cold
