@@ -188,7 +188,6 @@ $004 Constant POLLOUT
     dup IPPROTO_IPV6 IPV6_MTU_DISCOVER sockopt-on IP_PMTUDISC_DO over l! 4
     setsockopt drop
 [THEN]
-    setsockopt drop
     dup IPPROTO_IPV6 IPV6_V6ONLY sockopt-on dup on 4 setsockopt drop ;
 
 \ getaddrinfo based open-socket
