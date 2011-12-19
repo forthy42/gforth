@@ -1103,6 +1103,22 @@ lshift	( u1 n -- u2 )		core	l_shift
 :
     0 ?DO 2* LOOP ;
 
+umax	( u1 u2 -- u )	core
+if (u1<u2)
+  u = u2;
+else
+  u = u1;
+:
+ 2dup u< IF swap THEN drop ;
+
+umin	( u1 u2 -- u )	core
+if (u1<u2)
+  u = u1;
+else
+  u = u2;
+:
+ 2dup u> IF swap THEN drop ;
+
 \g compare
 
 \ comparisons(prefix, args, prefix, arg1, arg2, wordsets...)

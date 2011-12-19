@@ -964,12 +964,14 @@ Defer dobacktrace ( -- )
   ELSE	.error
   THEN ;
 
+[IFUNDEF] umin
 : umin ( u1 u2 -- u )
     2dup u>
     if
 	swap
     then
     drop ;
+[THEN]
 
 Defer mark-start
 Defer mark-end
