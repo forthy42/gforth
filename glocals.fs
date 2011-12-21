@@ -224,9 +224,12 @@ variable locals-dp \ so here's the special dp for locals.
 : create-local ( " name" -- a-addr )
     \ defines the local "name"; the offset of the local shall be
     \ stored in a-addr
+    dp
+    locals-dp dpp !
     create
-	immediate restrict
-	here 0 , ( place for the offset ) ;
+    immediate restrict
+    here 0 , ( place for the offset )
+    swap dpp ! ;
 
 : lp-offset ( n1 -- n2 )
 \ converts the offset from the frame start to an offset from lp and
@@ -313,10 +316,12 @@ also locals-types
     
 \ these "locals" are used for comparison in TO
 
+here locals-dp !
 c: some-clocal 2drop
 d: some-dlocal 2drop
 f: some-flocal 2drop
 w: some-wlocal 2drop
+locals-dp @ dp !
     
 \ the following gymnastics are for declaring locals without type specifier.
 \ we exploit a feature of our dictionary: every wordlist
@@ -351,12 +356,8 @@ new-locals-map mappedwordlist Constant new-locals-wl
 \ slowvoc !
 \ new-locals-map ' new-locals >body wordlist-map A! \ !! use special access words
 
-variable old-dpp
-
 \ and now, finally, the user interface words
 : { ( -- latestxt wid 0 ) \ gforth open-brace
-    dp old-dpp !
-    locals-dp dpp !
     latestxt get-current
     get-order new-locals-wl swap 1+ set-order
     also locals definitions locals-types
@@ -367,7 +368,7 @@ locals-types definitions
 
 : } ( latestxt wid 0 a-addr1 xt1 ... -- ) \ gforth close-brace
     \ ends locals definitions
-    ] old-dpp @ dpp !
+    ]
     begin
 	dup
     while
