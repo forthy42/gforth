@@ -75,8 +75,11 @@ AConstant dictionary-end
     [THEN]
 [THEN]
 
-: usable-dictionary-end ( -- addr )
+: usable-dictionary-end1 ( -- addr )
     dictionary-end [ word-pno-size pad-minsize + ] Literal - ;
+
+defer usable-dictionary-end ( -- addr )
+' usable-dictionary-end1 is usable-dictionary-end
 
 : unused ( -- u ) \ core-ext
     \G Return the amount of free space remaining (in address units) in

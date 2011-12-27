@@ -17,12 +17,6 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-: save-mem-dict { addr1 u -- addr2 u }
-    here { addr2 }
-    u allot
-    addr1 addr2 u move
-    addr2 u ;
-
 : delete-prefix ( c-addr1 u1 c-addr2 u2 -- c-addr3 u3 )
     \ if c-addr2 u2 is a prefix of c-addr1 u1, delete it
     2over 2over string-prefix? if

@@ -88,6 +88,10 @@ require search.fs
 require float.fs
 require extend.fs \ for case
 
+: save-mem-dict ( addr1 u -- addr2 u )
+    here swap dup allot ( addr1 addr2 u )
+    2dup 2>r move 2r> ;
+
 : compile-@local ( n -- ) \ gforth compile-fetch-local
  case
     0       of postpone @local0 endof
@@ -132,11 +136,22 @@ vocabulary locals \ this contains the local variables
 ' locals >body wordlist-id ' locals-list >body !
 slowvoc !
 
-create locals-buffer 1000 allot \ !! limited and unsafe
-    \ here the names of the local variables are stored
-    \ we would have problems storing them at the normal dp
+variable locals-mem-list \ linked list of all locals name memory in
+0 locals-mem-list !      \ the current (outer-level) definition
 
-variable locals-dp \ so here's the special dp for locals.
+: free-list ( addr -- )
+    \ free all members of a linked list (link field is first)
+    begin
+	dup while
+	    dup @ swap free throw
+    repeat
+    drop ;
+
+: prepend-list ( addr1 addr2 -- )
+    \ addr1 is the address of a list element, addr2 is the address of
+    \ the cell containing the address of the first list element
+    2dup @ swap ! \ store link to next element
+    ! ; \ store pointer to new first element
 
 : alignlp-w ( n1 -- n2 )
     \ cell-align size and generate the corresponding code for aligning lp
@@ -221,15 +236,45 @@ variable locals-dp \ so here's the special dp for locals.
     locals-size @ swap !
     postpone lp@ postpone c! ;
 
+7 cells 32 + constant locals-name-size \ 32-char name + fields + wiggle room
+
+: create-local1 ( "name" -- a-addr )
+    create
+    immediate restrict
+    here 0 , ( place for the offset ) ;
+
+variable dict-execute-dp \ the special dp for DICT-EXECUTE
+
+0 value dict-execute-ude \ USABLE-DICTIONARY-END during DICT-EXECUTE
+
+: dict-execute1 ( ... addr1 addr2 xt -- ... )
+    \ execute xt with HERE set to addr1 and USABLE-DICTIONARY-END set to addr2
+    dict-execute-dp @ dp 2>r
+    dict-execute-ude ['] usable-dictionary-end defer@ 2>r
+    swap to dict-execute-ude
+    ['] dict-execute-ude is usable-dictionary-end
+    swap to dict-execute-dp
+    dict-execute-dp dpp !
+    catch
+    2r> is usable-dictionary-end to dict-execute-ude
+    2r> dpp ! dict-execute-dp !
+    throw ;
+
+defer dict-execute ( ... addr1 addr2 xt -- ... )
+
+:noname ( ... addr1 addr2 xt -- ... )
+    \ first have a dummy routine, for SOME-CLOCAL etc. below
+    nip nip execute ;
+is dict-execute
+
 : create-local ( " name" -- a-addr )
     \ defines the local "name"; the offset of the local shall be
     \ stored in a-addr
-    dp
-    locals-dp dpp !
-    create
-    immediate restrict
-    here 0 , ( place for the offset )
-    swap dpp ! ;
+    locals-name-size allocate throw
+    dup locals-mem-list prepend-list
+    locals-name-size cell /string over + ['] create-local1 dict-execute ;
+
+variable locals-dp \ so here's the special dp for locals.
 
 : lp-offset ( n1 -- n2 )
 \ converts the offset from the frame start to an offset from lp and
@@ -315,13 +360,12 @@ forth definitions
 also locals-types
     
 \ these "locals" are used for comparison in TO
-
-here locals-dp !
 c: some-clocal 2drop
 d: some-dlocal 2drop
 f: some-flocal 2drop
 w: some-wlocal 2drop
-locals-dp @ dp !
+
+' dict-execute1 is dict-execute \ now the real thing
     
 \ the following gymnastics are for declaring locals without type specifier.
 \ we exploit a feature of our dictionary: every wordlist
@@ -498,7 +542,8 @@ forth definitions
     latest latestxt
     clear-leave-stack
     0 locals-size !
-    locals-buffer locals-dp !
+    locals-mem-list @ free-list
+    0 locals-mem-list !
     0 locals-list !
     dead-code off
     defstart ;
