@@ -142,8 +142,14 @@ DOES> ( -- r )
     THEN ;
 
 [ifdef] recognizer:
-    ' noop
-    :noname postpone Fliteral ;
+    [IFDEF] 2lit,
+	: flit, postpone Fliteral ;
+	:noname ['] noop ;
+	:noname ['] flit, ;
+    [ELSE]
+	' noop
+	:noname postpone Fliteral ;
+    [THEN]
     dup
     recognizer: r:fnumber
 

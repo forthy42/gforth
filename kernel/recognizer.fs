@@ -23,22 +23,26 @@
 
 ' no.extensions dup dup Create r:fail A, A, A,
 
-:noname ( ... nt -- ) name>int execute ;
-:noname ( ... nt -- ) name>comp execute ;
-:noname ( ... nt -- ) postpone Literal ;
+: lit, ( n -- ) postpone Literal ;
+: 2lit, ( n -- ) postpone 2Literal ;
+: nt, ( nt -- ) name>comp execute ;
+
+' name>int
+:noname ( ... nt -- ... xt ) ['] nt, ;
+:noname ( ... nt -- xt ) ['] lit, ;
 Create r:word rot A, swap A, A,
 
 : word-recognizer ( addr u -- nt r:word | addr u r:fail )
     2dup find-name [ [IFDEF] prelude-mask ] run-prelude [ [THEN] ] dup
     IF  nip nip r:word  ELSE  drop r:fail  THEN ;
 
-' noop
-:noname  postpone Literal ;
+:noname  ['] noop ;
+:noname  ['] lit, ;
 dup
 Create r:num rot A, swap A, A,
 
-' noop
-:noname  postpone 2Literal ;
+:noname  ['] noop ;
+:noname  ['] 2lit, ;
 dup
 Create r:2num rot A, swap A, A,
 
@@ -86,12 +90,12 @@ Variable forth-recognizer
 \   xxx-recognizer do-recognizer ;
 
 : interpreter-r ( addr u -- ... xt )
-    forth-recognizer do-recognizer r>int @ ;
+    forth-recognizer do-recognizer r>int perform ;
 
 ' interpreter-r IS parser1
 
 : compiler-r ( addr u -- ... xt )
-    forth-recognizer do-recognizer r>comp @ ;
+    forth-recognizer do-recognizer r>comp perform ;
 
 : [ ( -- ) \  core	left-bracket
     \G Enter interpretation state. Immediate word.
@@ -101,10 +105,10 @@ Variable forth-recognizer
     \G Enter compilation state.
     ['] compiler-r     IS parser1 state on  ;
 
-: >int      ( token table -- )  r>int perform ;
-: >comp     ( token table -- )  r>comp perform ;
+: >int      ( token table -- )  r>int perform execute ;
+: >comp     ( token table -- )  r>comp perform execute ;
 : >postpone ( token table -- )
-    >r r@ r>lit perform r> r>comp @ compile, ;
+    >r r@ r>lit perform execute r> r>comp perform compile, ;
 
 : postpone ( "name" -- ) \ core
     \g Compiles the compilation semantics of @i{name}.
