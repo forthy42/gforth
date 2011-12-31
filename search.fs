@@ -1,6 +1,6 @@
 \ search order wordset                                 14may93py
 
-\ Copyright (C) 1995,1996,1997,1998,2000,2003,2005,2007 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,2000,2003,2005,2007,2011 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
