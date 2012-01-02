@@ -25,8 +25,12 @@
     then
     + ;
 
+: extend-structure ( n "name" -- struct-sys n ) \ Gforth
+    \g extend an existing structure
+    >r 0 value lastxt >body r> ;
+
 : begin-structure ( "name" -- struct-sys 0 ) \ X:structures
-    0 value lastxt >body 0 ;
+    0 extend-structure ;
 
 : end-structure ( struct-sys +n -- ) \ X:structures
     swap ! ;
