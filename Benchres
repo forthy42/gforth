@@ -13,6 +13,11 @@ http://www.complang.tuwien.ac.at/papers/ertl&maierhofer95.ps.gz.
 
 All times are given in seconds of user time.
 
+After 0.7.0:
+AMD64:
+sieve bubble matrix  fib
+ 0.284 0.436  0.204 0.516 2012-01-11; AMD E-450 1650MHz; gcc-4.6.1 (Ubuntu/Linaro 4.6.1-9ubuntu3)
+
 Results with Gforth 0.7.0 (for comparing CPUs and C compilers):
 AMD64:
 sieve bubble matrix  fib
