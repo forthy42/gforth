@@ -457,7 +457,7 @@ const Create ???  0 , 3 , char ? c, char ? c, char ? c,
     name>string dup $20 $1 within if
         rdrop 2drop false exit \ realistically the name is short
     then
-    cfaligned 2dup bounds ?do \ should be a printable string
+    over + cfaligned over - 2dup bounds ?do \ should be a printable string
 	i c@ bl < if
 	    2drop unloop rdrop false exit
 	then
