@@ -217,7 +217,7 @@ variable locals-mem-list \ linked list of all locals name memory in
 \ warn if list is not a sublist of locals-list
  locals-list @ sub-list? 0= if
    \ !! print current position
-   ." compiler was overly optimistic about locals at a BEGIN" cr
+     >stderr ." compiler was overly optimistic about locals at a BEGIN" cr
    \ !! print assumption and reality
  then ;
 

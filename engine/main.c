@@ -276,6 +276,21 @@ int gforth_memcmp(const char * s1, const char * s2, size_t n)
 {
   return memcmp(s1, s2, n);
 }
+
+Char *gforth_memmove(Char * dest, const Char* src, Cell n)
+{
+  return memmove(dest, src, n);
+}
+
+Char *gforth_memset(Char * s, Cell c, UCell n)
+{
+  return memset(s, c, n);
+}
+
+Char *gforth_memcpy(Char * dest, const Char* src, Cell n)
+{
+  return memcpy(dest, src, n);
+}
 #endif
 
 static Cell max(Cell a, Cell b)
