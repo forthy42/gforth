@@ -16,17 +16,17 @@ Disassembly of section .data:
   20:	61 24 00 7b 	andhi r4,r9,0x7b
   24:	21 24 00 7b 	andi r4,r9,0x7b
   28:	c1 20 00 00 	b r9
-  2c:	45 49 01 23 	be r10,r9,0x4b8
-  30:	49 49 01 23 	bg r10,r9,0x4bc
-  34:	4d 49 01 23 	bge r10,r9,0x4c0
-  38:	51 49 01 23 	bgeu r10,r9,0x4c4
-  3c:	55 49 01 23 	bgu r10,r9,0x4c8
-  40:	e1 23 45 67 	bi 0x48d15dc
-  44:	5d 49 01 23 	bne r10,r9,0x4d0
+  2c:	45 2a ff f5 	be r9,r10,0x0
+  30:	49 2a ff f4 	bg r9,r10,0x0
+  34:	4d 2a ff f3 	bge r9,r10,0x0
+  38:	51 2a ff f2 	bgeu r9,r10,0x0
+  3c:	55 2a ff f1 	bgu r9,r10,0x0
+  40:	e3 ff ff f0 	bi 0x0
+  44:	5d 2a ff ef 	bne r9,r10,0x0
   48:	ac 00 00 02 	break
   4c:	c3 e0 00 00 	bret
   50:	d9 20 00 00 	call r9
-  54:	f9 23 45 67 	calli 0x48d15f0
+  54:	fb ff ff eb 	calli 0x0
   58:	e5 2a 20 00 	cmpe r4,r9,r10
   5c:	65 24 00 7b 	cmpei r4,r9,123
   60:	e9 2a 20 00 	cmpg r4,r9,r10
@@ -48,7 +48,7 @@ Disassembly of section .data:
   a0:	2a 44 00 7b 	lw r4,(r18+123)
   a4:	c5 2a 20 00 	modu r4,r9,r10
   a8:	89 2a 20 00 	mul r4,r9,r10
-  ac:	09 24 01 23 	muli r4,r9,291
+  ac:	09 24 00 7b 	muli r4,r9,123
   b0:	85 2a 20 00 	nor r4,r9,r10
   b4:	05 24 01 23 	nori r4,r9,0x123
   b8:	b9 2a 20 00 	or r4,r9,r10
@@ -74,3 +74,14 @@ Disassembly of section .data:
  108:	25 24 01 23 	xnori r4,r9,0x123
  10c:	99 2a 20 00 	xor r4,r9,r10
  110:	19 24 01 23 	xori r4,r9,0x123
+ 114:	4c a6 00 02 	bge r5,r6,0x11c
+ 118:	b8 c0 28 00 	mv r5,r6
+ 11c:	44 a0 00 03 	be r5,r0,0x128
+ 120:	34 06 00 59 	mvi r6,89
+ 124:	44 00 00 02 	be r0,r0,0x12c
+ 128:	34 06 00 4e 	mvi r6,78
+ 12c:	34 a5 ff ff 	addi r5,r5,-1
+ 130:	5c a0 ff ff 	bne r5,r0,0x12c
+ 134:	44 a0 00 03 	be r5,r0,0x140
+ 138:	34 a5 ff ff 	addi r5,r5,-1
+ 13c:	e3 ff ff fe 	bi 0x134

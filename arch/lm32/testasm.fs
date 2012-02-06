@@ -20,7 +20,7 @@
 \ Author: David Kühling
 \ Created: Feb 2012
 
-require ./asm.fs
+require ./asm.fs 
 
 ALIGN
 ALSO ASSEMBLER
@@ -32,27 +32,27 @@ HERE TO first
 \ todo: pseudo instructions for these:
 
 ra b,
-r1 r2 r0 or,
-r1 r0 $7fff orhi,
-r1 r2 r0 xnor,
-r2 r0 $7fff addi,
+r1 r2 mv,
+r1 $7fff mvhi,
+r1 r2 not,
+r2 $7fff mvi,
 r4 r9 r10 add,
 r4 r9 123 addi,
 r4 r9 r10 and,
 r4 r9 123 andhi,
 r4 r9 123 andi,
 r9 b,
-r9 r10 $123 be,
-r9 r10 $123 bg,
-r9 r10 $123 bge,
-r9 r10 $123 bgeu,
-r9 r10 $123 bgu,
-$1234567 bi,
-r9 r10 $123 bne,
+r9 r10 first be,
+r9 r10 first bg,
+r9 r10 first bge,
+r9 r10 first bgeu,
+r9 r10 first bgu,
+first bi,
+r9 r10 first bne,
 break,
-ba b, \ bret,
+bret,
 r9 call,
-$1234567 calli,
+first calli,
 r4 r9 r10 cmpe,
 r4 r9 123 cmpei,
 r4 r9 r10 cmpg,
@@ -66,7 +66,7 @@ r4 r9 123 cmpgui,
 r4 r9 r10 cmpne,
 r4 r9 123 cmpnei,
 r4 r9 r10 divu,
-ea b, \ eret,
+eret,
 r4 r18 123 lb,
 r4 r18 123 lbu,
 r4 r18 123 lh,
@@ -74,14 +74,14 @@ r4 r18 123 lhu,
 r4 r18 123 lw,
 r4 r9 r10 modu,
 r4 r9 r10 mul,
-r4 r9 $123 muli,
+r4 r9 123 muli,
 r4 r9 r10 nor,
 r4 r9 $123 nori,
 r4 r9 r10 or,
 r4 r9 123 ori,
 r4 r9 123 orhi,
 r4 IM rcsr,
-ra b, \ ret
+ret,
 r18 123 r9 sb,
 scall,
 r4 r9 sextb,
@@ -100,6 +100,24 @@ r4 r9 r10 xnor,
 r4 r9 $123 xnori,
 r4 r9 r10 xor,
 r4 r9 $123 xori,
+
+r5 r6 ?< if,
+r5 r6 mv,
+then,
+
+r5 r0 ?<> if,
+r6 'Y mvi,
+else,
+r6 'N mvi,
+then,
+
+begin,
+r5 r5 -1 addi,
+r5 r0 ?= until,
+
+begin, r5 r0 ?<> while,
+r5 r5 -1 addi,
+repeat,
 
 HERE TO last
 

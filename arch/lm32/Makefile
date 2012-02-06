@@ -4,8 +4,8 @@ lm32-objdump = /opt/rtems-4.11/bin/lm32-rtems4.11-objdump
 
 all: check
 
-check: testasm.disas testasm.disas-ok
-	diff $^
+check: testasm.disas-ok testasm.disas 
+	diff $^  && echo "*** asm.fs test PASSED ***"
 
 testasm.bin: testasm.fs asm.fs FORCE
 	gforth ./$< -e bye
