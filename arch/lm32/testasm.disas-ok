@@ -1,0 +1,76 @@
+
+testasm.bin:     file format binary
+
+
+Disassembly of section .data:
+
+00000000 <.data>:
+   0:	c3 a0 00 00 	ret
+   4:	b8 40 08 00 	mv r1,r2
+   8:	78 01 7f ff 	mvhi r1,0x7fff
+   c:	a4 40 08 00 	not r1,r2
+  10:	34 02 7f ff 	mvi r2,32767
+  14:	b5 2a 20 00 	add r4,r9,r10
+  18:	35 24 00 7b 	addi r4,r9,123
+  1c:	a1 2a 20 00 	and r4,r9,r10
+  20:	61 24 00 7b 	andhi r4,r9,0x7b
+  24:	21 24 00 7b 	andi r4,r9,0x7b
+  28:	c1 20 00 00 	b r9
+  2c:	45 49 01 23 	be r10,r9,0x4b8
+  30:	49 49 01 23 	bg r10,r9,0x4bc
+  34:	4d 49 01 23 	bge r10,r9,0x4c0
+  38:	51 49 01 23 	bgeu r10,r9,0x4c4
+  3c:	55 49 01 23 	bgu r10,r9,0x4c8
+  40:	e1 23 45 67 	bi 0x48d15dc
+  44:	5d 49 01 23 	bne r10,r9,0x4d0
+  48:	ac 00 00 02 	break
+  4c:	c3 e0 00 00 	bret
+  50:	d9 20 00 00 	call r9
+  54:	f9 23 45 67 	calli 0x48d15f0
+  58:	e5 2a 20 00 	cmpe r4,r9,r10
+  5c:	65 24 00 7b 	cmpei r4,r9,123
+  60:	e9 2a 20 00 	cmpg r4,r9,r10
+  64:	69 24 00 7b 	cmpgi r4,r9,123
+  68:	ed 2a 20 00 	cmpge r4,r9,r10
+  6c:	6d 24 00 7b 	cmpgei r4,r9,123
+  70:	f1 2a 20 00 	cmpgeu r4,r9,r10
+  74:	71 24 00 7b 	cmpgeui r4,r9,0x7b
+  78:	f5 2a 20 00 	cmpgu r4,r9,r10
+  7c:	75 24 00 7b 	cmpgui r4,r9,0x7b
+  80:	fd 2a 20 00 	cmpne r4,r9,r10
+  84:	7d 24 00 7b 	cmpnei r4,r9,123
+  88:	8d 2a 20 00 	divu r4,r9,r10
+  8c:	c3 c0 00 00 	eret
+  90:	12 44 00 7b 	lb r4,(r18+123)
+  94:	42 44 00 7b 	lbu r4,(r18+123)
+  98:	1e 44 00 7b 	lh r4,(r18+123)
+  9c:	2e 44 00 7b 	lhu r4,(r18+123)
+  a0:	2a 44 00 7b 	lw r4,(r18+123)
+  a4:	c5 2a 20 00 	modu r4,r9,r10
+  a8:	89 2a 20 00 	mul r4,r9,r10
+  ac:	09 24 01 23 	muli r4,r9,291
+  b0:	85 2a 20 00 	nor r4,r9,r10
+  b4:	05 24 01 23 	nori r4,r9,0x123
+  b8:	b9 2a 20 00 	or r4,r9,r10
+  bc:	39 24 00 7b 	ori r4,r9,0x7b
+  c0:	79 24 00 7b 	orhi r4,r9,0x7b
+  c4:	90 20 20 00 	rcsr r4,IM
+  c8:	c3 a0 00 00 	ret
+  cc:	32 49 00 7b 	sb (r18+123),r9
+  d0:	ac 00 00 07 	scall
+  d4:	b1 20 20 00 	sextb r4,r9
+  d8:	dd 20 20 00 	sexth r4,r9
+  dc:	0e 49 00 7b 	sh (r18+123),r9
+  e0:	bd 2a 20 00 	sl r4,r9,r10
+  e4:	3d 24 00 7b 	sli r4,r9,123
+  e8:	95 2a 20 00 	sr r4,r9,r10
+  ec:	15 24 00 7b 	sri r4,r9,123
+  f0:	81 2a 20 00 	sru r4,r9,r10
+  f4:	01 24 00 7b 	srui r4,r9,123
+  f8:	c9 2a 20 00 	sub r4,r9,r10
+  fc:	5a 49 00 7b 	sw (r18+123),r9
+ 100:	d0 24 00 00 	wcsr IM,r4
+ 104:	a5 2a 20 00 	xnor r4,r9,r10
+ 108:	25 24 01 23 	xnori r4,r9,0x123
+ 10c:	99 2a 20 00 	xor r4,r9,r10
+ 110:	19 24 01 23 	xori r4,r9,0x123
