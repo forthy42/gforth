@@ -85,3 +85,8 @@ Disassembly of section .data:
  134:	44 a0 00 03 	be r5,r0,0x140
  138:	34 a5 ff ff 	addi r5,r5,-1
  13c:	e3 ff ff fe 	bi 0x134
+ 140:	34 01 72 34 	mvi r1,29236
+ 144:	78 02 72 34 	mvhi r2,0x7234
+ 148:	34 03 8d cc 	mvi r3,-29236
+ 14c:	78 04 89 ab 	mvhi r4,0x89ab
+ 150:	38 84 cd ef 	ori r4,r4,0xcdef

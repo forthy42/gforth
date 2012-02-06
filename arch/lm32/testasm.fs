@@ -119,6 +119,10 @@ begin, r5 r0 ?<> while,
 r5 r5 -1 addi,
 repeat,
 
+r1 $7234 li,
+r2 $72340000 li,
+r3 -$7234 li,
+r4 $89abcdef li,
 HERE TO last
 
 \ write out assembled data to file

@@ -77,7 +77,10 @@ VARIABLE latch
 11 regarg: reg2,
 
 : #imm16,  ( n -- )
-   DUP -32768 32768 WITHIN 0= ABORT" 16-bit constant out of range"
+   DUP -32768 32768 WITHIN 0= ABORT" 16-bit signed constant out of range"
+   $FFFF and latch, ;
+: #imm16u,  ( u -- )
+   DUP 0 $10000 WITHIN 0= ABORT" 16-bit unsigned constant out of range"
    $FFFF and latch, ;
 : #imm26,  ( n -- )
    DUP 1 25 LSHIFT DUP NEGATE SWAP WITHIN
@@ -99,6 +102,7 @@ VARIABLE latch
 
 \ instruction formats
 : rr#: CREATE ,  DOES> <opinst  #imm16, reg0, reg1, inst> ;
+: rr#u: CREATE ,  DOES> <opinst  #imm16u, reg0, reg1, inst> ;
 
 \ note: according to manual it's reg0, reg1, but binutils uses reg1, reg0,
 \ guessing that rather binutils is right.
@@ -115,15 +119,15 @@ VARIABLE latch
 
 \ instruction table
 
-$00 rr#: srui,    $01 rr#: nori,   $02 rr#: muli,    $03  r#r: sh,
-$04 rr#: lb,      $05 rr#: sri,    $06 rr#: xori,    $07  rr#: lh,
-$08 rr#: andi,    $09 rr#: xnori,  $0a rr#: lw,      $0b  rr#: lhu,
-$0c r#r: sb,      $0d rr#: addi,   $0e rr#: ori,     $0f  rr#: sli,
+$00 rr#u: srui,   $01 rr#u: nori,   $02 rr#: muli,    $03  r#r: sh,
+$04 rr#: lb,      $05 rr#u: sri,    $06 rr#u: xori,   $07  rr#: lh,
+$08 rr#u: andi,   $09 rr#u: xnori,  $0a rr#: lw,      $0b  rr#: lhu,
+$0c r#r: sb,      $0d rr#: addi,    $0e rr#u: ori,    $0f  rr#u: sli,
 
 $10 rr#: lbu,     $11 rrb: be,     $12 rrb: bg,      $13  rrb: bge,
 $14 rrb: bgeu,    $15 rrb: bgu,    $16 r#r: sw,      $17  rrb: bne,
-$18 rr#: andhi,   $19 rr#: cmpei,  $1a rr#: cmpgi,   $1b  rr#: cmpgei,
-$1c rr#: cmpgeui, $1d rr#: cmpgui, $1e rr#: orhi,    $1f  rr#: cmpnei,
+$18 rr#u: andhi,  $19 rr#: cmpei,  $1a rr#: cmpgi,   $1b  rr#: cmpgei,
+$1c rr#: cmpgeui, $1d rr#: cmpgui, $1e rr#u: orhi,    $1f  rr#: cmpnei,
 
 $20 rrr: sru,     $21 rrr: nor,    $22 rrr: mul,     $23 rrr: divu,
 $24 rcsr: rcsr,   $25 rrr: sr,     $26 rrr: xor,     $27 rrr: div,
@@ -146,6 +150,18 @@ $ac000007 name: scall,
 : bret,  ( -- )  ba b, ;
 : eret,  ( -- )  ea b, ;
 : ret,  ( -- )  ra b, ;
+: extend16  ( -- )  DUP $8000 AND 0<> 16 LSHIFT OR ;
+: li,  ( reg n -- )
+   DUP -32768 32768 WITHIN IF	\ 16-bit constant
+      mvi, EXIT
+   THEN
+   DUP $FFFF AND 0= IF		\ high 16-bit constant
+      16 RSHIFT mvhi, EXIT
+   THEN			\ else it's a 32-bit constant, needing two operations:
+    DUP >R 16 RSHIFT 		\ first the high 16-bit,
+   >R 2DUP R> mvhi,		 
+   R> $FFFF AND			\ then OR with zero-extended low 16-bits 
+   >R 2DUP R> ori, ;
 
 \ forth-style branching
 : ?orig  #orig <> ABORT" unstructured (expected branch origin)" ;
