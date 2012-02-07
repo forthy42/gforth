@@ -29,8 +29,27 @@
 \  addi r4,r9,123		r4  r9 123  addi,
 
 
-require ./../../code.fs
+[IFUNDEF] there
+   CR .( non-cross mode assembler)
+   \ this is designed to work on any forth system (amd64 etc.) to support easy
+   \ testing
+   require ./../../code.fs
+   : there   HERE ;
+   : t,  HERE 4 ALLOT be-l! ;
+   : t@  be-ul@ ;
+   : t!  be-l! ;      
+[ELSE]
+   CR .( cross-mode assembler)
+   \ why does basic.fs via target.fs emulate t, t@ etc. in host-mode, even
+   \ when cross.fs does not provide a t@ t! t, API?
+   include ./../../asm/basic.fs
+   : t,  X , H ;
+   : t@  X @ H ;
+   : t!  X ! H ;      
+[THEN]
 
+BASE @ DECIMAL
+GET-CURRENT
 ALSO ASSEMBLER DEFINITIONS
 
 100001 constant #register
@@ -41,7 +60,7 @@ ALSO ASSEMBLER DEFINITIONS
 
 \ registers
 : register:  ( n "name" -- )  #register 2CONSTANT ;
-: regs:  ( n1 n2 "name..." -- )  DO  I register: LOOP ;
+: regs:  ( n1 n2 "name..." -- )  DO I register: LOOP ;
 
 16  0 regs: r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15
 32 16 regs: r16 r17 r18 r19 r20 r21 r22 r23 r24 r25 r26 r27 r28 r29 r30 r31 
@@ -61,7 +80,7 @@ VARIABLE latch
 : latch,  ( x -- )  latch @ OR latch ! ;
 : <inst  ( a-addr -- )  @ latch ! ;
 : <opinst  ( a-addr -- )  @ 26 LSHIFT latch ! ;
-: inst,   HERE 4 ALLOT be-l! ;
+: inst,   t, ;
 : inst>  ( -- )  latch @ inst, ;
 
 \ instruction code components
@@ -87,16 +106,16 @@ VARIABLE latch
    0= ABORT" 26-bit constant out of range"
    $3FFFFFF and latch, ;
 : !imm16  ( n a-addr -- )  \ patch immediate field of opcode afterwards
-   DUP be-ul@  $FFFF INVERT AND
-   ROT $FFFF AND OR  SWAP be-l! ;
+   DUP t@  $FFFF INVERT AND
+   ROT $FFFF AND OR  SWAP t! ;
 
 \ branches (LM32 only has relative branches, which is good)
 : >branch-delta  ( dst-addr src-addr -- n )
    -
    DUP 3 AND 0<> ABORT" branch target not word aligned"
    4 / ;
-: #b16,  ( a-addr -- ) here >branch-delta #imm16, ;
-: #b26,  ( a-addr -- ) here >branch-delta #imm26, ;
+: #b16,  ( a-addr -- ) there >branch-delta #imm16, ;
+: #b26,  ( a-addr -- ) there >branch-delta #imm26, ;
 : !branch  ( dst-addr src-addr -- )
    TUCK >branch-delta SWAP !imm16 ;
 
@@ -178,21 +197,21 @@ $ac000007 name: scall,
 ' bgu,  DUP cc: leu cc: ?u<=
 
 : ahead,  ( -- orig )
-   HERE  r0 r0 HERE be,   #orig ;
+   THERE  r0 r0 tHERE be,   #orig ;
 : if,  ( reg... cc -- orig )
    ?cc 
-   HERE >R  HERE SWAP  EXECUTE   R>  #orig ;
+   THERE >R  THERE SWAP  EXECUTE   R>  #orig ;
 : then,  ( orig -- )
-   ?orig  HERE SWAP !branch ;
+   ?orig  THERE SWAP !branch ;
 : else,  ( orig -- )
    ahead,  2SWAP then, ;
 : begin,  ( -- dest )
-   HERE #dest ;
+   THERE #dest ;
 : again,  ( dest -- )
    ?dest bi, ;
 : until,  ( dest cc -- )
-   HERE >R
-   ?cc HERE SWAP EXECUTE   ( s: dest )
+   THERE >R
+   ?cc THERE SWAP EXECUTE   ( s: dest )
    ?dest R> !branch ;
 : while,  ( dest reg.. -- orig dest )
    if, 2SWAP ;
@@ -201,7 +220,8 @@ $ac000007 name: scall,
 
 \ todo: use get-current / set-current
 PREVIOUS DEFINITIONS
-
+SET-CURRENT
+BASE !
 
 \ \ Customize Emacs
 \ 0 [IF]
@@ -209,3 +229,4 @@ PREVIOUS DEFINITIONS
 \    compile-command: "gforth ./testasm.fs -e bye"
 \    End:
 \ [THEN]
+
