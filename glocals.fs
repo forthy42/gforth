@@ -170,28 +170,62 @@ variable locals-mem-list \ linked list of all locals name memory in
 
 \ locals list operations
 
-: common-list ( list1 list2 -- list3 ) \ gforth-internal
-\ list1 and list2 are lists, where the heads are at higher addresses than
-\ the tail. list3 is the largest sublist of both lists.
- begin
-   2dup u<>
- while
-   2dup u>
-   if
-     swap
-   then
-   @
- repeat
- drop ;
+: list-length ( list -- u )
+    0 swap begin ( u1 list1 )
+	dup while
+	    @ swap 1+ swap
+    repeat
+    drop ;
 
-: sub-list? ( list1 list2 -- f ) \ gforth-internal
-\ true iff list1 is a sublist of list2
- begin
-   2dup u<
- while
-   @
- repeat
- = ;
+: /list ( list1 u -- list2 )
+    \ list2 is list1 with the first u elements removed
+    0 ?do
+	@
+    loop ;
+
+: common-list ( list1 list2 -- list3 )
+    \ list3 is the largest common tail of both lists.
+    over list-length over list-length - dup 0< if
+	negate >r swap r>
+    then ( long short u )
+    rot swap /list begin ( list3 list4 )
+	2dup u<> while
+	    @ swap @
+    repeat
+    drop ;
+
+: sub-list? ( list1 list2 -- f )
+    \ true iff list1 is a sublist of list2
+    over list-length over list-length swap - 0 max /list = ;
+
+\ : ocommon-list ( list1 list2 -- list3 ) \ gforth-internal
+\ \ list1 and list2 are lists, where the heads are at higher addresses than
+\ \ the tail. list3 is the largest sublist of both lists.
+\  begin
+\    2dup u<>
+\  while
+\    2dup u>
+\    if
+\      swap
+\    then
+\    @
+\  repeat
+\  drop ;
+
+\ : osub-list? ( list1 list2 -- f ) \ gforth-internal
+\ \ true iff list1 is a sublist of list2
+\  begin
+\    2dup u<
+\  while
+\    @
+\  repeat
+\  = ;
+
+\ defer common-list
+\ defer sub-list?
+
+\ ' ocommon-list is common-list
+\ ' osub-list?   is sub-list?
 
 : list-size ( list -- u ) \ gforth-internal
     \ size of the locals frame represented by list
