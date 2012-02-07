@@ -43,9 +43,9 @@
    \ why does basic.fs via target.fs emulate t, t@ etc. in host-mode, even
    \ when cross.fs does not provide a t@ t! t, API?
    include ./../../asm/basic.fs
-   : t,  X , H ;
-   : t@  X @ H ;
-   : t!  X ! H ;      
+   : t,  X , ;
+   : t@  X @ ;
+   : t!  X ! ;      
 [THEN]
 
 BASE @ DECIMAL
