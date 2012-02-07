@@ -42,7 +42,11 @@ include hash.fs
 \ include float.fs
 \ include search.fs
 require compat/strcomp.fs
-include glocals.fs
+' usable-dictionary-end @ dodefer: = [if]
+    include glocals.fs
+[else]
+    include glocals-1.60.fs
+[then]
 require float.fs
 require stuff.fs
 include wordinfo.fs

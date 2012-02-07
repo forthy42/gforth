@@ -1,6 +1,6 @@
 \ A powerful locals implementation
 
-\ Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2007,2011 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2007 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -132,22 +132,11 @@ vocabulary locals \ this contains the local variables
 ' locals >body wordlist-id ' locals-list >body !
 slowvoc !
 
-variable locals-mem-list \ linked list of all locals name memory in
-0 locals-mem-list !      \ the current (outer-level) definition
+create locals-buffer 1000 allot \ !! limited and unsafe
+    \ here the names of the local variables are stored
+    \ we would have problems storing them at the normal dp
 
-: free-list ( addr -- )
-    \ free all members of a linked list (link field is first)
-    begin
-	dup while
-	    dup @ swap free throw
-    repeat
-    drop ;
-
-: prepend-list ( addr1 addr2 -- )
-    \ addr1 is the address of a list element, addr2 is the address of
-    \ the cell containing the address of the first list element
-    2dup @ swap ! \ store link to next element
-    ! ; \ store pointer to new first element
+variable locals-dp \ so here's the special dp for locals.
 
 : alignlp-w ( n1 -- n2 )
     \ cell-align size and generate the corresponding code for aligning lp
@@ -213,7 +202,7 @@ variable locals-mem-list \ linked list of all locals name memory in
 \ warn if list is not a sublist of locals-list
  locals-list @ sub-list? 0= if
    \ !! print current position
-     >stderr ." compiler was overly optimistic about locals at a BEGIN" cr
+   ." compiler was overly optimistic about locals at a BEGIN" cr
    \ !! print assumption and reality
  then ;
 
@@ -232,45 +221,12 @@ variable locals-mem-list \ linked list of all locals name memory in
     locals-size @ swap !
     postpone lp@ postpone c! ;
 
-7 cells 32 + constant locals-name-size \ 32-char name + fields + wiggle room
-
-: create-local1 ( "name" -- a-addr )
-    create
-    immediate restrict
-    here 0 , ( place for the offset ) ;
-
-variable dict-execute-dp \ the special dp for DICT-EXECUTE
-
-0 value dict-execute-ude \ USABLE-DICTIONARY-END during DICT-EXECUTE
-
-: dict-execute1 ( ... addr1 addr2 xt -- ... )
-    \ execute xt with HERE set to addr1 and USABLE-DICTIONARY-END set to addr2
-    dict-execute-dp @ dp 2>r
-    dict-execute-ude ['] usable-dictionary-end defer@ 2>r
-    swap to dict-execute-ude
-    ['] dict-execute-ude is usable-dictionary-end
-    swap to dict-execute-dp
-    dict-execute-dp dpp !
-    catch
-    2r> is usable-dictionary-end to dict-execute-ude
-    2r> dpp ! dict-execute-dp !
-    throw ;
-
-defer dict-execute ( ... addr1 addr2 xt -- ... )
-
-:noname ( ... addr1 addr2 xt -- ... )
-    \ first have a dummy routine, for SOME-CLOCAL etc. below
-    nip nip execute ;
-is dict-execute
-
 : create-local ( " name" -- a-addr )
     \ defines the local "name"; the offset of the local shall be
     \ stored in a-addr
-    locals-name-size allocate throw
-    dup locals-mem-list prepend-list
-    locals-name-size cell /string over + ['] create-local1 dict-execute ;
-
-variable locals-dp \ so here's the special dp for locals.
+    create
+	immediate restrict
+	here 0 , ( place for the offset ) ;
 
 : lp-offset ( n1 -- n2 )
 \ converts the offset from the frame start to an offset from lp and
@@ -356,12 +312,11 @@ forth definitions
 also locals-types
     
 \ these "locals" are used for comparison in TO
+
 c: some-clocal 2drop
 d: some-dlocal 2drop
 f: some-flocal 2drop
 w: some-wlocal 2drop
-
-' dict-execute1 is dict-execute \ now the real thing
     
 \ the following gymnastics are for declaring locals without type specifier.
 \ we exploit a feature of our dictionary: every wordlist
@@ -396,8 +351,12 @@ new-locals-map mappedwordlist Constant new-locals-wl
 \ slowvoc !
 \ new-locals-map ' new-locals >body wordlist-map A! \ !! use special access words
 
+variable old-dpp
+
 \ and now, finally, the user interface words
 : { ( -- latestxt wid 0 ) \ gforth open-brace
+    dp old-dpp !
+    locals-dp dpp !
     latestxt get-current
     get-order new-locals-wl swap 1+ set-order
     also locals definitions locals-types
@@ -408,7 +367,7 @@ locals-types definitions
 
 : } ( latestxt wid 0 a-addr1 xt1 ... -- ) \ gforth close-brace
     \ ends locals definitions
-    ]
+    ] old-dpp @ dpp !
     begin
 	dup
     while
@@ -538,8 +497,7 @@ forth definitions
     latest latestxt
     clear-leave-stack
     0 locals-size !
-    locals-mem-list @ free-list
-    0 locals-mem-list !
+    locals-buffer locals-dp !
     0 locals-list !
     dead-code off
     defstart ;

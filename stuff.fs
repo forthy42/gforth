@@ -17,7 +17,16 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-require glocals.fs
+: save-mem-dict ( addr1 u -- addr2 u )
+    here swap dup allot ( addr1 addr2 u )
+    2dup 2>r move 2r> ;
+
+' usable-dictionary-end @ dodefer: = [if]
+    require glocals.fs
+[else]
+    require glocals-1.60.fs
+[then]
+
 
 ' require alias needs ( ... "name" -- ... ) \ gforth
 \G An alias for @code{require}; exists on other systems (e.g., Win32Forth).
