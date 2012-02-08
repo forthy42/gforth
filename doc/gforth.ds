@@ -2115,7 +2115,7 @@ Here's a loop with an exit at the end:
   nip ;
 @end example
 
-@code{Until} consumes a flag; if it is non-zero, execution continues at
+@code{Until} consumes a flag; if it is zero, execution continues at
 the @code{begin}, otherwise after the @code{until}.
 
 @quotation Assignment
