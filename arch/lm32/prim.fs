@@ -67,11 +67,11 @@ end-label
 
 label dout   \ print character in r20.  clobber r20,r21,r22
    r21  csr-uart-rxtx  li,
-   r21 0  r20  sw, 
    begin,
-      r20  r21 8  lw,
-      r20  r20  1  andi,
-   r20 r0 ?<> until,
+      r22  r21 8  lw,
+      r22  r22 1  andi,
+   r22 r0 ?<> until,
+   r21 0  r20  sw, 
    ret,
 end-label
 
@@ -561,13 +561,41 @@ CODE (emit)  ( char -- )  \ defining (emit) via dout helps.
    fsp  fsp 4  addi,
    next,
 END-CODE
-   
-: (key?)  ( -- flag )
-   csr-uart-stat @ 2 AND 0<> ;
-: (key)  ( -- char )
-   BEGIN (key?) UNTIL
-   csr-uart-rxtx @
-   2 csr-uart-stat ! ;
+
+
+\ : (key?)  ( -- flag )
+\    csr-uart-stat @ 2 AND 0<> ;
+\ : (key)  ( -- char )
+\    BEGIN (key?) UNTIL
+\    csr-uart-rxtx @
+\    2 csr-uart-stat ! ;
+
+\ As logn as this in not IRQ-driven we use asm code for higher performance
+\ Else chars swallowed, (especially when pasting to the console)
+CODE (key?)  ( -- flag )
+   fsp -4  tos  sw,
+   tos  csr-uart-stat  li,
+   tos  tos 0  lw,
+   tos  tos 2  andi,
+   tos  tos r0  cmpe,
+   tos  tos -1 addi,
+   fsp  fsp -4  addi,   
+   next,
+END-CODE  
+
+CODE (key)  ( -- char )
+   fsp -4  tos  sw,
+   r2  csr-uart-stat  li,
+   begin,
+      tos  r2 0  lw,
+      tos  tos 2  andi,
+   tos  r0 ?<> until,
+   tos  r2 -8  lw,   
+   r3  2  mvi,
+   r2 0  r3  sw,
+   fsp  fsp -4  addi,
+   next,
+END-CODE  
 
 : lm32boot
    'F (emit) boot ;
