@@ -3,9 +3,9 @@
 :noname  false :noname ;
 :noname  locals-wordlist last @ lastcfa @
     postpone AHEAD
-    locals-list @  locals-list off
-    locals-dp @ dup >r     postpone SCOPE
-    true  :noname  r> locals-dp ! ;
+    locals-list @ locals-list off
+    postpone SCOPE
+    true  :noname  ;
 interpret/compile: [: ( -- quotation-sys )
 \G Starts a quotation
 
@@ -13,7 +13,7 @@ interpret/compile: [: ( -- quotation-sys )
     \g ends a quotation
     POSTPONE ; >r IF
 	]  postpone ENDSCOPE
-	locals-dp !  locals-list !
+	locals-list !
 	postpone THEN
 	lastcfa ! last ! to locals-wordlist
 	r> postpone ALiteral

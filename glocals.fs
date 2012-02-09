@@ -79,11 +79,6 @@
 \ aligned correctly, but our locals stack must be float-aligned between
 \ words.
 
-\ Other things about the internals are pretty unclear now.
-
-\ Currently locals may only be
-\ defined at the outer level and TO is not supported.
-
 require search.fs
 require float.fs
 require extend.fs \ for case
@@ -572,11 +567,14 @@ forth definitions
     latest latestxt
     clear-leave-stack
     0 locals-size !
-    locals-mem-list @ free-list
-    0 locals-mem-list !
     0 locals-list !
     dead-code off
     defstart ;
+
+:noname ( -- )
+    locals-mem-list @ free-list
+    0 locals-mem-list ! ;
+is free-old-local-names
 
 : locals-;-hook ( sys addr xt sys -- sys )
     def?
@@ -656,6 +654,7 @@ forth definitions
 
 ' locals-:-hook IS :-hook
 ' locals-;-hook IS ;-hook
+
 
 ' (then-like)  IS then-like
 ' (begin-like) IS begin-like

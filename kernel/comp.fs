@@ -567,7 +567,7 @@ interpret/compile: TO ( w "name" -- ) \ core-ext
 \ \ : ;                                                  	24feb93py
 
 defer :-hook ( sys1 -- sys2 )
-
+defer free-old-local-names ( -- )
 defer ;-hook ( sys2 -- sys1 )
 
 0 Constant defstart
@@ -578,6 +578,7 @@ defer ;-hook ( sys2 -- sys1 )
     defstart ] :-hook ;
 
 : : ( "name" -- colon-sys ) \ core	colon
+    free-old-local-names
     Header (:noname) ;
 
 : :noname ( -- xt colon-sys ) \ core-ext	colon-no-name
