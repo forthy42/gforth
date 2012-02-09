@@ -110,7 +110,8 @@ has? compiler [IF]
     \ and misc simulators (see arch/4stack/README and arch/misc/README).
     has? games [IF]
 	include arch/misc/tt.fs
-	include arch/misc/sokoban.fs
+        \ disabled, as cross-compilation support seems broken currently:
+        \ include arch/misc/sokoban.fs
     [THEN]
 [THEN]
 include ./quotes.fs
