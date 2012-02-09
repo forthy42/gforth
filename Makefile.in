@@ -263,7 +263,8 @@ GFORTH_FI_SRC2=\
 	arch/arm/testdisasm.fs arch/arm/testdisasm.out arch/arm/Makefile \
 	arch/mips/asm.fs arch/mips/disasm.fs arch/mips/insts.fs \
 	arch/mips/testasm.fs arch/mips/testdisasm.fs \
-	arch/power/asm.fs arch/power/disasm.fs arch/power/inst.fs
+	arch/power/asm.fs arch/power/disasm.fs arch/power/inst.fs \
+	arch/lm32/asm.fs arch/lm32/testasm.fs
 
 # execlude envos.fs into list of distributed sources
 GFORTH_FI_DIST_SRC = \
@@ -383,7 +384,12 @@ ARCHS =	\
 	arch/r8c/lauflicht.fs \
 	arch/r8c/tasker.fs \
 	arch/r8c/terminal.fs \
-	arch/sharc/unistd.h
+	arch/sharc/unistd.h \
+	arch/lm32/mach.fs \
+	arch/lm32/mach.sh \
+	arch/lm32/prim.fs \
+	arch/lm32/Makefile \
+	arch/lm32/testasm.disas-ok
 
 #not included in distribution until distribution terms are included:
 ARCHS_NO_DIST = \
