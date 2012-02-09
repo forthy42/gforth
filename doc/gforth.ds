@@ -274,6 +274,7 @@ Defining Words
 * Values::                      Initialised variables
 * Colon Definitions::           
 * Anonymous Definitions::       Definitions without names
+* Quotations::                  
 * Supplying names::             Passing definition names as strings
 * User-defined Defining Words::  
 * Deferred Words::              Allow forward references
@@ -332,6 +333,7 @@ Other I/O
 * Formatted numeric output::    Formatted (pictured) output
 * String Formats::              How Forth stores strings in memory
 * Displaying characters and strings::  Other stuff
+* String words::                Gforth's little string library
 * Terminal output::             Cursor positioning etc.
 * Single-key input::            
 * Line input and conversion::   
@@ -6025,6 +6027,7 @@ Defining words are used to extend Forth by creating new entries in the dictionar
 * Values::                      Initialised variables
 * Colon Definitions::           
 * Anonymous Definitions::       Definitions without names
+* Quotations::                  
 * Supplying names::             Passing definition names as strings
 * User-defined Defining Words::  
 * Deferred Words::              Allow forward references
@@ -6281,7 +6284,7 @@ doc-:
 doc-;
 
 
-@node Anonymous Definitions, Supplying names, Colon Definitions, Defining Words
+@node Anonymous Definitions, Quotations, Colon Definitions, Defining Words
 @subsection Anonymous Definitions
 @cindex colon definitions
 @cindex defining words without name
@@ -6336,7 +6339,44 @@ latestxt . : foo [ latestxt . ] ; ' foo .
 @noindent
 prints 3 numbers; the last two are the same.
 
-@node Supplying names, User-defined Defining Words, Anonymous Definitions, Defining Words
+
+@node Quotations, Supplying names, Anonymous Definitions, Defining Words
+@subsection Quotations
+@cindex quotations
+@cindex nested colon definitions
+@cindex colon definitions, nesting
+
+A quotation is an anonymous colon definition inside another colon
+definition.  Quotations are useful when dealing with words that
+consume an execution token, like @code{catch} or
+@code{outfile-execute}.  E.g. consider the following example of using
+@code{outfile-execute} (@pxref{Redirection}):
+
+@example
+: some-warning ( n -- )
+    cr ." warning# " . ;
+
+: print-some-warning ( n -- )
+    ['] some-warning stderr outfile-execute ;
+@end example
+
+Here we defined @code{some-warning} as a helper word whose xt we could
+pass to outfile-execute.  Instead, we can use a quotation to define
+such a word anonymously inside @code{print-some-warning}:
+
+@example
+: print-some-warning ( n -- )
+  [: cr ." warning# " . ;] stderr outfile-execute ;
+@end example
+
+The quotation is bouded by @code{[:} and @code{;]}.  It produces an
+execution token at run-time.
+
+doc-[:
+doc-;]
+
+
+@node Supplying names, User-defined Defining Words, Quotations, Defining Words
 @subsection Supplying the name of a defined word
 @cindex names for defined words
 @cindex defining words, name given in a string

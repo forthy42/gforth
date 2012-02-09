@@ -472,3 +472,24 @@ previous
     \G the counted string. OBSOLESCENT: the counted string has a
     \G trailing space that is not included in its length.
     sword here place  bl here count + c!  here ;
+
+\ quotations
+
+:noname  false :noname ;
+:noname  locals-wordlist last @ lastcfa @
+    postpone AHEAD
+    locals-list @ locals-list off
+    postpone SCOPE
+    true  :noname  ;
+interpret/compile: [: ( compile-time: -- quotation-sys ) \ gforth bracket-colon
+\G Starts a quotation
+
+: ;] ( compile-time: quotation-sys -- ; run-time: -- xt ) \ gforth semi-bracket
+    \g ends a quotation
+    POSTPONE ; >r IF
+	]  postpone ENDSCOPE
+	locals-list !
+	postpone THEN
+	lastcfa ! last ! to locals-wordlist
+	r> postpone ALiteral
+    ELSE  r>  THEN ( xt ) ; immediate
