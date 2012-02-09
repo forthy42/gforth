@@ -123,6 +123,7 @@ r1 $7234 li,
 r2 $72340000 li,
 r3 -$7234 li,
 r4 $89abcdef li,
+r3 $e0000000 li,
 HERE TO last
 
 \ write out assembled data to file

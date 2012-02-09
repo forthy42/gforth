@@ -28,6 +28,9 @@ start-macros
 ' r25 alias fip
 ' r27 alias wa    \ use 'fp', spare 'gp'
 
+$e0000000 equ csr-uart-rxtx
+$e0000008 equ csr-uart-stat
+
 : next,
    wa  fip 0  lw,
    r2  wa 0  lw,
@@ -36,24 +39,59 @@ start-macros
 
 end-macros
 
-unlock
-   $40000000   $20000 region dictionary
-   setup-target
-lock
+\ unlock
+\    $40000000   $40000 region dictionary
+\    setup-target
+\ lock
 
 label into-forth
+   r0 r0 r0  xor,         \ r0 needs to be zeroed manually for mvhi, to work!
    fip     $0000  mvhi,   \ patched later
    fip fip $0000  ori,    \ patched later   
-   r0 r0 r0  xor,     \ r0 needs to be zeroed manually!
    IM  r0  wcsr,      \ disable IRQs for now
-   fsp  $40021800  li,
-   frp  $40022000  li,
+
+   \ uncomment to get an immediate live signal
+   \ r2  '~  mvi,
+   \ r3  csr-uart-rxtx li,
+   \ r3 0  r2 sw,
+   \ begin,
+   \ r4  r3 8 lw,
+   \ r4  r4  1 andi,
+   \ r4 r0 ?<> until,
+
+   fsp  $40041800  li,
+   frp  $40042000  li,
+   
    next,
 end-label
+
+label dout   \ print character in r20.  clobber r20,r21,r22
+   r21  csr-uart-rxtx  li,
+   r21 0  r20  sw, 
+   begin,
+      r20  r21 8  lw,
+      r20  r20  1  andi,
+   r20 r0 ?<> until,
+   ret,
+end-label
+
+start-macros
+
+VARIABLE demit?  demit? off
+: demit,  ( char -- )
+   demit? @ IF
+      r20  ROT ( char)  mvi,  dout  calli,
+   ELSE
+      DROP
+   THEN ;
+
+
+end-macros
 
 \ Minimal Gforth primitive set
 
 CODE: :docol
+   ': demit,
    frp -4  fip sw,
    fip  wa 8  addi,
    frp  frp -4  addi,
@@ -68,6 +106,7 @@ CODE: :dovar
 END-CODE
 
 CODE: :dodoes
+   '> demit,
    frp -4  fip sw,	\ save IP
    fip  wa 4  lw,	\ load does> address
    fsp -4  tos  sw,	\ push pfa
@@ -94,11 +133,13 @@ END-CODE
 
 
 CODE branch
+   'B demit,
    fip  fip 0  lw,
    next,   
 END-CODE
 
 CODE lit
+   '# demit,
    fsp -4  tos  sw,
    tos  fip 0  lw,
    wa  fip 4  lw,		\ optimized instance of "next":
@@ -109,6 +150,7 @@ CODE lit
 END-CODE
 
 CODE dup      ( n -- n n )
+   'd demit,      
    fsp -4  tos  sw,
    fsp  fsp -4  addi,
    next,
@@ -123,12 +165,14 @@ CODE 2dup      ( d -- d d )
 END-CODE
 
 CODE drop      ( n -- )
+   '. demit,   
    tos  fsp 0  lw,
    fsp  fsp 4  addi,
    next,
 END-CODE
 
 CODE 2drop      ( n -- )
+   '| demit,
    tos  fsp 4  lw,
    fsp  fsp 8  addi,
    next,
@@ -189,6 +233,7 @@ CODE j       ( -- x1   R: x1 x2 x3 -- x1 x2 x3 )
 END-CODE
 
 CODE r>       ( -- x   R: x -- )
+   's demit,      
    fsp -4  tos  sw,
    tos  frp 0  lw,
    fsp  fsp -4  addi,
@@ -197,6 +242,7 @@ CODE r>       ( -- x   R: x -- )
 END-CODE
 
 CODE >r       ( x --   R: -- x )
+   'r demit,   
    frp -4  tos sw,
    tos  fsp 0  lw,
    fsp  fsp 4  addi,
@@ -242,6 +288,61 @@ CODE *       ( n1 n2  -- n3 )  \ no easy way to implement (u)m* on lm32 :(
    next,
 END-CODE
 
+\ CODE UM*       ( u1 u2  -- ud3 )  
+\    r2  fsp 0  lw,		\ tos=u2, r2=u1
+\    r3  r2 $ffff  andi,		\ r3=u2.l, r2=u2.h
+\    r2  r2 16  srui,		
+\    r4  tos $ffff  andi,		\ r4=u1.l, r5=u4.h
+\    r5  tos 16  srui,
+   
+\    r6  r3 r4  mul,		\ r6=l*l  (ud3.l)
+\    r7  r2 r5  mul,		\ r7=h*l
+\    r8  r3 r5  mul,		\ r8,r9=l*h,h*l
+\    r9  r4 r2  mul,
+   
+\    r8  r9 r8  add,		\ r8=l*h+h*l
+\    r9  r9 r8  cmpgu,		\ r9=carry
+\    r9  r9 16  sli,		\ add carry to h*h in ud3.h=tos
+\    tos  r9 r7  add,
+
+\    r9  r8 16  srui,		\ add (high part of) l*h+h*l to ud3.h
+\    tos  tos r9 add,
+
+\    r9  r8 16  sli,		\ add low part of) l*h+h*l to ud3.l
+\    r6  r9 r6  add,
+\    r9  r9 r6  cmpgu,		\ add carry to ud3.h
+\    tos  tos r9  add,		
+
+\    fsp 0  r6  sw,		\ store r6=ud3.l=nos
+\    next,
+\ END-CODE
+
+\ CODE D+   ( d1 d2 -- d3 )
+\    r2  fsp 0  lw,		\ tos = d2.h, r2 = d2.l
+\    r3  fsp 4  lw,		\ r3  = d1.h, r4 = d1.l
+\    r4  fsp 8  lw,
+\    fsp  fsp 8  addi,
+\    r2  r4 r2  add,		\ add low, r2 = d3.l
+\    r4  r4 r2  cmpgu,		\ r4 = carry
+\    tos  r3 tos  add,		\ add high, tos = d3.h
+\    tos  tos r4  add,		\ add carry
+\    fsp 0  r3  sw,		\ store r2=nos
+\    next,
+\ END-CODE
+
+\ CODE D-   ( d1 d2 -- d3 )
+\    r2  fsp 0  lw,		\ tos = d2.h, r2 = d2.l
+\    r3  fsp 4  lw,		\ r3  = d1.h, r4 = d1.l
+\    r4  fsp 8  lw,
+\    fsp  fsp 8  addi,
+\    r2  r4 r2  sub,		\ subtract low, r2 = d3.l
+\    r5  r4 r2  cmpgu,		\ r5 = borrow
+\    tos  r3 tos  sub,		\ subtract high, tos = d3.h
+\    tos  tos r5  sub,		\ subtract borrow
+\    fsp 0  r3  sw,		\ store r2=nos   
+\    next,
+\ END-CODE
+
 CODE 2*       ( u1 -- u2 )
    tos  tos 1  sli,
    next,
@@ -259,6 +360,7 @@ CODE invert       ( x1 -- x2 )
 END-CODE
 
 CODE and       ( x1 x2 -- x3 )
+   'a demit,      
    r2  fsp 0  lw,
    tos  r2 tos  and,
    fsp  fsp 4 addi,
@@ -352,6 +454,7 @@ END-CODE
 
 \ flow control
 CODE ;s  ( R: a-addr -- )
+   '; demit,         
    fip  frp 0  lw,
    frp  frp 4  addi,
    next,
@@ -360,31 +463,37 @@ END-CODE
 CODE execute  ( xt -- )
    wa  tos  mv,		\ like "next", but with cfa fetched via tos
    r2  wa 0  lw,
-   tos  frp 0  lw,
-   frp  frp 4 addi,
+   tos  fsp 0  lw,
+   fsp  fsp 4 addi,
    r2  b, 
 END-CODE
 
-CODE ?branch   ( flag -- ) \ jump on true
+CODE ?branch   ( flag -- ) \ jump on false
+   '? demit,   
    fip  fip 4  addi,
-   tos r0 ?<> if,
+   tos r0 ?= if,
       fip  fip -4  lw,
    then,
+   tos  fsp 0  lw,
+   fsp  fsp 4  addi,
    next,   
 END-CODE
 
 \ memory access
 CODE @       ( a-addr -- x )
+   '@ demit,   
    tos  tos 0  lw,
    next,
 END-CODE
 
 CODE c@       ( a-addr -- c )
+   'c demit,      
    tos  tos 0  lbu,
    next,
 END-CODE
 
 CODE !       ( x a-addr -- )
+   '! demit,      
    r2  fsp 0  lw,
    tos 0  r2  sw,
    tos  fsp 4  lw,
@@ -402,21 +511,24 @@ END-CODE
 
 
 \ stack addresses (vm registers)
-CODE sp@  ( -- sp )  \ hmm return sp at start or end of invocation? 
+CODE sp@  ( -- sp ) 
+   \ according to kernel/prim.fs 'sp@ cell+ @' must equal 'over'
+   '$ demit,
    fsp -4  tos  sw,
-   tos  fsp -4  addi,   \ for now:  SP after sp@ call (as in 8086/prims.fs)
+   tos  fsp -4  addi,
    fsp  fsp -4  addi,
    next,
 END-CODE
 
 CODE sp!      ( sp -- ) \ needs to conform to code above
-   fsp  tos  mv,
-   tos  fsp 0  lw,
-   fsp fsp  4 addi,
+   '& demit,   
+   fsp  tos 4  addi,
+   tos  fsp -4  lw,
    next,
 END-CODE
 
 CODE rp@  ( -- rp )
+   '% demit,   
    fsp -4  tos  sw,
    tos  frp  mv,
    fsp  fsp -4  addi,
@@ -437,14 +549,25 @@ END-CODE
 $e0000000 CONSTANT csr-uart-rxtx
 $e0000008 CONSTANT csr-uart-stat
 
-: (emit)  ( char -- )
-   BEGIN csr-uart-stat @ 1 AND UNTIL   \ wait for transmit register empty
-   csr-uart-rxtx ! ;
+\ threaded-code definition of (emit) hangs when debug-out 'dout' is used
+\ : (emit)  ( char -- )
+\    csr-uart-rxtx @ DROP    \ clear out receive buffer (ugly but required)
+\    csr-uart-rxtx !
+\    BEGIN csr-uart-stat @ 1 AND UNTIL ;  \ wait for transmit register empty
+CODE (emit)  ( char -- )  \ defining (emit) via dout helps.
+   r20  tos  mv,
+   dout  calli,
+   tos  fsp 0  lw,
+   fsp  fsp 4  addi,
+   next,
+END-CODE
+   
 : (key?)  ( -- flag )
    csr-uart-stat @ 2 AND 0<> ;
 : (key)  ( -- char )
    BEGIN (key?) UNTIL
-   csr-uart-rxtx @ ;
+   csr-uart-rxtx @
+   2 csr-uart-stat ! ;
 
 : lm32boot
    'F (emit) boot ;
@@ -452,3 +575,10 @@ $e0000008 CONSTANT csr-uart-stat
 CODE: :doesjump
 END-CODE
 
+
+\ Customize Emacs
+0 [IF]
+   Local Variables:
+   compile-command: "cd ../.. && ./build-ec lm32"
+   End:
+[THEN]

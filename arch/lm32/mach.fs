@@ -20,25 +20,25 @@
 \ Author: David Kühling
 \ Created: Feb 2012
 
-    4 Constant cell
-    2 Constant cell<<
-    5 Constant cell>bit
-    8 Constant bits/char
-    8 Constant float
-    4 Constant /maxalign
- true Constant bigendian
+4     Constant cell
+2     Constant cell<<
+5     Constant cell>bit
+8     Constant bits/char
+8     Constant float
+4     Constant /maxalign
+true  Constant bigendian
 ( true=big, false=little )
 
 : prims-include  ." Include primitives" cr s" arch/lm32/prim.fs" included ;
 : asm-include    ." Include assembler" cr s" arch/lm32/asm.fs" included ;
 : >boot          ." Prepare booting" cr
+    s" include ../arch/r8c/errors.fs" evaluate
    \ patch lm32boot's body address into the commands that initialize FIP
-   s" ' lm32boot >body $10000 / into-forth DUP @ ROT OR SWAP !" evaluate
-   s" ' lm32boot >body $FFFF AND into-forth CELL+ DUP @ ROT OR SWAP ! " evaluate
-   \ save-cross fails, due to dictionary not starting at 0 (!?), thus build-ec
-   \ fails.  This hack implements a workaround:
-   s" $40000000 here OVER - save-region gflm32.bin BYE " evaluate
-   ;
+   s" ' lm32boot >body $10000 / into-forth 4 + DUP @ ROT OR SWAP !" evaluate
+   s" ' lm32boot >body $FFFF AND into-forth 8 + DUP @ ROT OR SWAP ! " evaluate
+   \ Workaround for SAVECROSS bug with kernel-start != 0
+   s"   unlock .regions lock $40000000 here OVER - save-region kernl-lm32.fi- BYE " evaluate
+;
 
 false Constant NIL
 
@@ -50,9 +50,13 @@ false SetValue new-input     \ disables object oriented input
 false SetValue peephole
 true  SetValue f83headerstring
 true  SetValue abranch       \ enables absolute branches
-\ true Constant has-rom
+true  SetValue games         \ include sokoban, tt games into image
+\ true  SetValue rom
 
-256 KB Constant kernel-size
+$40000000 SetValue kernel-start
+$40000    SetValue kernel-size
+   
+\ 256 KB Constant kernel-size
 
 16 KB		Constant stack-size
 15 KB 512 +	Constant fstack-size
@@ -60,3 +64,10 @@ true  SetValue abranch       \ enables absolute branches
 14 KB 512 +	Constant lstack-size
 
 
+
+\ Customize Emacs
+0 [IF]
+   Local Variables:
+   compile-command: "cd ../.. && ./build-ec lm32"
+   End:
+[THEN]
