@@ -90,3 +90,4 @@ Disassembly of section .data:
  148:	34 03 8d cc 	mvi r3,-29236
  14c:	78 04 89 ab 	mvhi r4,0x89ab
  150:	38 84 cd ef 	ori r4,r4,0xcdef
+ 154:	78 03 e0 00 	mvhi r3,0xe000
