@@ -250,14 +250,14 @@ End-Code
 
 
 \ SIO-Grundroutinen                             ( 09.06.96/KK )
-  Code key?     ( -- f ) \ Flag, ob Zeichen anliegt
+  Code (key?)     ( -- f ) \ Flag, ob Zeichen anliegt
     sp -] , tos mov,   tos , 0 s# mov,
     _s0ric . 7 , here 6 + jnb,
     tos , 1 s# sub,   next,                            End-Code
   Code (key)      ( -- char ) \ Zeichen holen
     _s0ric . 7 , here jnb,   _s0ric . 7 bclr,   sp -] , tos mov,
     tosh , 0 s# movb,   tosl , _s0rbuf movb,   next,   End-Code
-  Code emit?    ( -- f ) \ Flag, ob Zeichen ausgebbar
+  Code (emit?)    ( -- f ) \ Flag, ob Zeichen ausgebbar
     sp -] , tos mov,   tos , 0 s# mov,
     _s0tic . 7 , here 6 + jnb,
     tos , 1 s# sub,   next,                            End-Code
