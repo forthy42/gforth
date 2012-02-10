@@ -111,7 +111,7 @@ has? compiler [IF]
     has? games [IF]
 	include arch/misc/tt.fs
         \ disabled, as cross-compilation support seems broken currently:
-        \ include arch/misc/sokoban.fs
+        include arch/misc/sokoban.fs
     [THEN]
 [THEN]
 include ./quotes.fs

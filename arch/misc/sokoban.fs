@@ -62,20 +62,20 @@ Variable moves     0 moves !  \ number of moves
 Variable score     0 score !  \ total number of scores
 
 UNLOCK
->MINIMAL
+>TARGET
 
 : new-maze ( n -- addr ) \ add a new level
-    T here mazes rot 1 H ?DO T @ H LOOP T !
-    0 , 0 , here >maze ! 0 , H ;
+    X here mazes rot 1 ?DO X @ LOOP X !
+    0 X , 0 X , X here >maze X ! 0 X , ;
 : count-$ ( addr u -- n )  0 rot rot
     over + swap ?DO  I c@ [char] $ = -  LOOP ;
 : m: ( "string" -- )  \ add a level line (top first!)
     -1 parse tuck 2dup count-$
-    T >maze @ 1 cells - dup @ rot + swap ! H
-    bounds ?DO  I c@ T c, H  LOOP
-    /maze swap - 0 ?DO  bl T c, H  LOOP
-    T >maze @ here over cell+ - swap ! H ;
-
+    >maze X @ 1 X cells - dup X @ rot + swap X ! 
+    bounds ?DO  I c@ X c,  LOOP
+    /maze swap - 0 ?DO  bl X c,  LOOP
+    >maze X @ X here over X cell+ - swap X ! ;
+ 
 LOCK
 
 : maze-field ( -- addr n )
