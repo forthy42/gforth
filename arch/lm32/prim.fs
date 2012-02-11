@@ -288,60 +288,60 @@ CODE *       ( n1 n2  -- n3 )  \ no easy way to implement (u)m* on lm32 :(
    next,
 END-CODE
 
-\ CODE UM*       ( u1 u2  -- ud3 )  
-\    r2  fsp 0  lw,		\ tos=u2, r2=u1
-\    r3  r2 $ffff  andi,		\ r3=u2.l, r2=u2.h
-\    r2  r2 16  srui,		
-\    r4  tos $ffff  andi,		\ r4=u1.l, r5=u4.h
-\    r5  tos 16  srui,
+CODE um*       ( u1 u2  -- ud3 )  
+   r2  fsp 0  lw,		\ tos=u2, r2=u1
+   r3  r2 $ffff  andi,		\ r3=u2.l, r2=u2.h
+   r2  r2 16  srui,		
+   r4  tos $ffff  andi,		\ r4=u1.l, r5=u4.h
+   r5  tos 16  srui,
    
-\    r6  r3 r4  mul,		\ r6=l*l  (ud3.l)
-\    r7  r2 r5  mul,		\ r7=h*l
-\    r8  r3 r5  mul,		\ r8,r9=l*h,h*l
-\    r9  r4 r2  mul,
+   r6  r3 r4  mul,		\ r6=l*l  (ud3.l)
+   r7  r2 r5  mul,		\ r7=h*l
+   r8  r3 r5  mul,		\ r8,r9=l*h,h*l
+   r9  r4 r2  mul,
    
-\    r8  r9 r8  add,		\ r8=l*h+h*l
-\    r9  r9 r8  cmpgu,		\ r9=carry
-\    r9  r9 16  sli,		\ add carry to h*h in ud3.h=tos
-\    tos  r9 r7  add,
+   r8  r9 r8  add,		\ r8=l*h+h*l
+   r9  r9 r8  cmpgu,		\ r9=carry
+   r9  r9 16  sli,		\ add carry to h*h in ud3.h=tos
+   tos  r9 r7  add,
 
-\    r9  r8 16  srui,		\ add (high part of) l*h+h*l to ud3.h
-\    tos  tos r9 add,
+   r9  r8 16  srui,		\ add (high part of) l*h+h*l to ud3.h
+   tos  tos r9 add,
 
-\    r9  r8 16  sli,		\ add low part of) l*h+h*l to ud3.l
-\    r6  r9 r6  add,
-\    r9  r9 r6  cmpgu,		\ add carry to ud3.h
-\    tos  tos r9  add,		
+   r9  r8 16  sli,		\ add low part of) l*h+h*l to ud3.l
+   r6  r9 r6  add,
+   r9  r9 r6  cmpgu,		\ add carry to ud3.h
+   tos  tos r9  add,		
 
-\    fsp 0  r6  sw,		\ store r6=ud3.l=nos
-\    next,
-\ END-CODE
+   fsp 0  r6  sw,		\ store r6=ud3.l=nos
+   next,
+END-CODE
 
-\ CODE D+   ( d1 d2 -- d3 )
-\    r2  fsp 0  lw,		\ tos = d2.h, r2 = d2.l
-\    r3  fsp 4  lw,		\ r3  = d1.h, r4 = d1.l
-\    r4  fsp 8  lw,
-\    fsp  fsp 8  addi,
-\    r2  r4 r2  add,		\ add low, r2 = d3.l
-\    r4  r4 r2  cmpgu,		\ r4 = carry
-\    tos  r3 tos  add,		\ add high, tos = d3.h
-\    tos  tos r4  add,		\ add carry
-\    fsp 0  r3  sw,		\ store r2=nos
-\    next,
-\ END-CODE
+CODE D+   ( d1 d2 -- d3 )
+   r2  fsp 0  lw,		\ tos = d2.h, r2 = d2.l
+   r3  fsp 4  lw,		\ r3  = d1.h, r4 = d1.l
+   r4  fsp 8  lw,
+   fsp  fsp 8  addi,
+   r2  r4 r2  add,		\ add low, r2 = d3.l
+   r4  r4 r2  cmpgu,		\ r4 = carry
+   tos  r3 tos  add,		\ add high, tos = d3.h
+   tos  tos r4  add,		\ add carry
+   fsp 0  r2  sw,		\ store r2=nos
+   next,
+END-CODE
 
-\ CODE D-   ( d1 d2 -- d3 )
-\    r2  fsp 0  lw,		\ tos = d2.h, r2 = d2.l
-\    r3  fsp 4  lw,		\ r3  = d1.h, r4 = d1.l
-\    r4  fsp 8  lw,
-\    fsp  fsp 8  addi,
-\    r2  r4 r2  sub,		\ subtract low, r2 = d3.l
-\    r5  r4 r2  cmpgu,		\ r5 = borrow
-\    tos  r3 tos  sub,		\ subtract high, tos = d3.h
-\    tos  tos r5  sub,		\ subtract borrow
-\    fsp 0  r3  sw,		\ store r2=nos   
-\    next,
-\ END-CODE
+CODE D-   ( d1 d2 -- d3 )
+   r2  fsp 0  lw,		\ tos = d2.h, r2 = d2.l
+   r3  fsp 4  lw,		\ r3  = d1.h, r4 = d1.l
+   r4  fsp 8  lw,
+   fsp  fsp 8  addi,
+   r5  r4 r2  sub,		\ subtract low, r5 = d3.l
+   r4  r2 r4  cmpgu,		\ r4 = borrow
+   tos  r3 tos  sub,		\ subtract high, tos = d3.h
+   tos  tos r4  sub,		\ subtract borrow
+   fsp 0  r5  sw,		\ store r2=nos   
+   next,
+END-CODE
 
 CODE 2*       ( u1 -- u2 )
    tos  tos 1  sli,
@@ -477,6 +477,23 @@ CODE ?branch   ( flag -- ) \ jump on false
    tos  fsp 0  lw,
    fsp  fsp 4  addi,
    next,   
+END-CODE
+
+CODE unloop   ( r: n1 n2 -- )
+   frp  frp 8  addi,
+   next,
+END-CODE
+
+CODE (loop)   ( r: n1 n2 -- n1 n3 )
+   r2  frp 0  lw,		\ r2=i
+   r3  frp 4  lw,		\ r3=limit
+   r2  r2  1  addi,
+   fip  fip 4  addi,
+   r2 r3 ?<> if,
+      fip  fip -4  lw,
+   then,
+   frp 0  r2  sw,
+   next,
 END-CODE
 
 \ memory access

@@ -34,6 +34,7 @@ true  Constant bigendian
 : >boot          ." Prepare booting" cr
 \    s" include ../arch/r8c/errors.fs" evaluate
    \ patch lm32boot's body address into the commands that initialize FIP
+   s" &3000 loops/ms !" evaluate
    s" ' lm32boot >body $10000 / into-forth 4 + DUP @ ROT OR SWAP !" evaluate
    s" ' lm32boot >body $FFFF AND into-forth 8 + DUP @ ROT OR SWAP ! " evaluate
    \ Workaround for SAVECROSS bug with kernel-start != 0
