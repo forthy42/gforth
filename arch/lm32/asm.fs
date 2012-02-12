@@ -74,6 +74,7 @@ ALSO ASSEMBLER DEFINITIONS
 10 8 csrs: DC DEBA
 20 14 csrs: JTX JRX BP0 BP1 BP2 BP3
 28 24 csrs: WP0 WP1 WP2 WP3
+31 28 csrs: TLBCTRL TLBVADDR TLBPADDR  \ experimental CSRs for MMU support
 
 \ instruction latch
 VARIABLE latch
