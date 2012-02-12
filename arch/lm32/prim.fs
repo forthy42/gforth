@@ -20,6 +20,7 @@
 \ Author: David Kühling
 \ Created: Feb 2012
 
+
 start-macros
 
 ' sp alias frp
@@ -171,6 +172,11 @@ CODE drop      ( n -- )
    next,
 END-CODE
 
+CODE nip      ( n -- )
+   fsp  fsp 4  addi,
+   next,
+END-CODE
+
 CODE 2drop      ( n -- )
    '| demit,
    tos  fsp 4  lw,
@@ -232,6 +238,16 @@ CODE j       ( -- x1   R: x1 x2 x3 -- x1 x2 x3 )
    next,
 END-CODE
 
+CODE rdrop       ( R: x -- )
+   frp  frp 4  addi,   
+   next,
+END-CODE
+
+CODE 2rdrop       ( R: x -- )
+   frp  frp 8  addi,   
+   next,
+END-CODE
+
 CODE r>       ( -- x   R: x -- )
    's demit,      
    fsp -4  tos  sw,
@@ -247,6 +263,27 @@ CODE >r       ( x --   R: -- x )
    tos  fsp 0  lw,
    fsp  fsp 4  addi,
    frp  frp -4  addi,   
+   next,
+END-CODE
+
+CODE 2r>       ( -- x1 x2   R: x1 x2 -- )
+   fsp -4  tos  sw,
+   r2  frp 4  lw,   
+   tos  frp 0  lw,
+   fsp -8  r2  sw,
+   fsp  fsp -8  addi,
+   frp  frp 8  addi,   
+   next,
+END-CODE
+
+CODE 2>r       ( x1 x2 --   R: -- x1 x2 )
+   r2  fsp 0  lw,
+   frp -8  tos sw,
+   r2  fsp 0  lw,   
+   tos  fsp 4  lw,
+   fsp  fsp 8  addi,
+   frp -4  r2  sw,
+   frp  frp -8  addi,   
    next,
 END-CODE
 
@@ -278,6 +315,16 @@ END-CODE
 
 CODE 1-       ( n1 -- n2 )
    tos  tos -1  addi,
+   next,
+END-CODE
+
+CODE cell+       ( n1 -- n2 )
+   tos  tos 4  addi,
+   next,
+END-CODE
+
+CODE cells       ( n1 -- n2 )
+   tos  tos 2  sli,
    next,
 END-CODE
 
@@ -420,6 +467,22 @@ CODE 0>       ( x1  -- flag )
    next,
 END-CODE
 
+CODE =       ( x1 x2 -- flag )
+   r2  fsp 0  lw,
+   tos  r2 tos  cmpne,
+   fsp  fsp 4 addi,
+   tos  tos -1  addi,
+   next,
+END-CODE
+
+CODE <>       ( x1 x2 -- flag )
+   r2  fsp 0  lw,
+   tos  r2 tos  cmpe,
+   fsp  fsp 4 addi,
+   tos  tos -1  addi,
+   next,
+END-CODE
+
 CODE <       ( n1 n2 -- flag )
    r2  fsp 0  lw,
    tos  r2 tos  cmpge,
@@ -509,6 +572,14 @@ CODE c@       ( a-addr -- c )
    next,
 END-CODE
 
+CODE count       ( a-addr -- a-addr+1 c )
+   r2   tos 1  addi,
+   fsp -4  r2  sw,
+   tos  tos 0  lbu,
+   fsp  fsp -4  addi,
+   next,
+END-CODE
+
 CODE !       ( x a-addr -- )
    '! demit,      
    r2  fsp 0  lw,
@@ -558,6 +629,35 @@ CODE rp!      ( sp -- ) \ needs to conform to code above
    fsp fsp  4 addi,
    next,
 END-CODE
+
+\ some words to access CSR registers
+UNLOCK >TARGET
+: csr@:  ( n "name" -- )  \ generate csr-fetching word for CSR #n
+   >R
+   X CODE  [ ALSO ASSEMBLER ]
+   fsp -4  tos  sw,   tos  R> #csr  rcsr,   fsp  fsp -4  addi,
+   next,
+   X END-CODE [ PREVIOUS ] ;
+: csr!:  ( n "name" -- )  \ generate csr-writing word for CSR #n
+   >R
+   X CODE  [ ALSO ASSEMBLER ]
+   R> #csr  tos  wcsr,   tos  fsp 0  lw,   fsp fsp  4 addi,
+   next,
+   X END-CODE [ PREVIOUS ] ;
+: csr@s:  DO  I csr@: LOOP ;
+: csr!s:  DO  I csr!: LOOP ;
+LOCK
+
+8 0 csr@s: IE@ IM@ IP@ ICC@ DCC@ CC@ CFG@ EBA@
+8 0 csr!s: IE! IM! IP! ICC! DCC! CC! CFG! EBA!
+10 8 csr@s: DC@ DEBA@
+10 8 csr!s: DC! DEBA!
+20 14 csr@s: JTX@ JRX@ BP0@ BP1@ BP2@ BP3@
+20 14 csr!s: JTX! JRX! BP0! BP1! BP2! BP3!
+28 24 csr@s: WP0@ WP1@ WP2@ WP3@
+28 24 csr!s: WP0! WP1! WP2! WP3!
+31 28 csr@s: TLBCTRL@ TLBVADDR@ TLBPADDR@
+31 28 csr!s: TLBCTRL! TLBVADDR! TLBPADDR!
 
 CODE (bye)     ( -- ) \ hmm, only works when ra not modified
    ret,
