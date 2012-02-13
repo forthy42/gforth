@@ -106,11 +106,11 @@
 #      define IPREG asm("%ebx")
 #      define SPREG asm("%esi")
 #      define RPREG asm("%edi")
-#      define TOSREG asm("%edx")
+#      define TOSREG asm("%ecx")
 #     else
 #      define IPREG asm("%edi")
 #      define SPREG asm("%esi")
-#      define TOSREG asm("%edx")
+#      define TOSREG asm("%ecx")
 #     endif
 #    endif /* (gcc-4.2 or later) */
 #   endif /* !(gcc-2.95 or later) */
