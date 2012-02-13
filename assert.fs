@@ -23,12 +23,32 @@ variable assert-level ( -- a-addr ) \ gforth
 \G All assertions above this level are turned off.
 1 assert-level !
 
+: (end-assert) ( flag nfile nline -- ) \ gforth-internal
+    rot if
+	2drop
+    else
+	.sourcepos ." : failed assertion"
+	true abort" assertion failed" \ !! or use a new throw code?
+    then ;
+
+: assert) ( -- )
+    compile-sourcepos POSTPONE (end-assert) ;
+
+6 Constant assert-canary
+
 : assertn ( n -- ) \ gforth assert-n
     \ this is internal (it is not immediate)
     assert-level @ >
     if
 	POSTPONE (
+    else
+	['] assert) assert-canary
     then ;
+
+: )  ( -- ) \ gforth	close-paren
+    \G End an assertion. Generic end, can be used for other similar purposes
+    assert-canary <> abort" unmatched assertion"
+    execute ; immediate
 
 : assert0( ( -- ) \ gforth assert-zero
     \G Important assertions that should always be turned on.
@@ -47,14 +67,3 @@ variable assert-level ( -- a-addr ) \ gforth
     \G Equivalent to @code{assert1(}
     POSTPONE assert1( ; immediate compile-only
 
-: (end-assert) ( flag nfile nline -- ) \ gforth-internal
-    rot if
-	2drop
-    else
-	.sourcepos ." : failed assertion"
-	true abort" assertion failed" \ !! or use a new throw code?
-    then ;
-
-: ) ( -- ) \ gforth	close-paren
-\G End an assertion.
-    compile-sourcepos POSTPONE (end-assert) ; immediate
