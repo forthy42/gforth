@@ -571,10 +571,12 @@ forth definitions
     dead-code off
     defstart ;
 
+[IFDEF] free-old-local-names
 :noname ( -- )
     locals-mem-list @ free-list
     0 locals-mem-list ! ;
 is free-old-local-names
+[THEN]
 
 : locals-;-hook ( sys addr xt sys -- sys )
     def?
