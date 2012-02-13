@@ -3068,7 +3068,7 @@ compile: does-resolved ;compile
 \ : ?struc      ( flag -- )       ABORT" CROSS: unstructured " ;
 \ : sys?        ( sys -- sys )    dup 0= ?struc ;
 
-: >mark       ( -- sys )        T here  ( dup ." M" hex. ) 0 , H ;
+: >mark       ( -- sys )        T here  0 , H ;
 
 X has? abranch [IF]
     : branchoffset ( src dest -- )  drop ;
