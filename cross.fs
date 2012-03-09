@@ -2128,35 +2128,48 @@ Create tag-tab 1 c,  09 c,
 	s" ,0" tag-file-id write-line throw
     THEN ;
 
-: cross-gnu-tag-entry  ( -- )
+: put-cross-gnu-tag-entry  ( addr u -- )
     tlast @ 0<>	\ not an anonymous (i.e. noname) header
     IF
 	put-load-file-name
 	source >in @ min tag-file-id write-file throw
 	tag-beg count tag-file-id write-file throw
-	Last-Header-Ghost @ >ghostname tag-file-id write-file throw
+	tag-file-id write-file throw
 	tag-end count tag-file-id write-file throw
 	base @ decimal sourceline# 0 <# #s #> tag-file-id write-file throw
 \	>in @ 0 <# #s [char] , hold #> tag-file-id write-line throw
 	s" ,0" tag-file-id write-line throw
 	base !
-    THEN ;
+    ELSE  2drop  THEN ;
 
-: cross-vi-tag-entry ( -- )
+: cross-gnu-tag-entry  ( -- )
+    Last-Header-Ghost @ >ghostname put-cross-gnu-tag-entry ;
+
+: put-cross-vi-tag-entry ( addr u -- )
     tlast @ 0<>	\ not an anonymous (i.e. noname) header
     IF
 	sourcefilename vi-tag-file-id write-file throw
 	tag-tab count vi-tag-file-id write-file throw
-	Last-Header-Ghost @ >ghostname vi-tag-file-id write-file throw
+	vi-tag-file-id write-file throw
 	tag-tab count vi-tag-file-id write-file throw
 	s" /^" vi-tag-file-id write-file throw
 	source vi-tag-file-id write-file throw
 	s" $/" vi-tag-file-id write-line throw
-    THEN ;
+    ELSE  2drop  THEN ;
+
+: cross-vi-tag-entry ( -- )
+    Last-Header-Ghost @ >ghostname put-cross-vi-tag-entry ;
 
 : cross-tag-entry ( -- )
     cross-gnu-tag-entry
     cross-vi-tag-entry ;
+
+: put-cross-tag-entry ( addr u -- )
+    2dup put-cross-gnu-tag-entry
+    put-cross-vi-tag-entry ;
+
+: cross-record-name ( -- )
+    >in @ parse-name put-cross-tag-entry >in ! ;
 
 \ Check for words
 
@@ -3290,15 +3303,15 @@ Cond: ABORT"    if, ahead, there [char] " parse ht-string, X align
 [THEN]
 
 X has? rom [IF]
-Cond: IS        T ' >body @ H compile ALiteral compile ! ;Cond
-: IS            T >address ' >body @ ! H ;
+Cond: IS        cross-record-name T ' >body @ H compile ALiteral compile ! ;Cond
+: IS            cross-record-name T >address ' >body @ ! H ;
 Cond: TO        T ' >body @ H compile ALiteral compile ! ;Cond
 : TO            T ' >body @ ! H ;
 Cond: CTO       T ' >body H compile ALiteral compile ! ;Cond
 : CTO           T ' >body ! H ;
 [ELSE]
-Cond: IS        T ' >body H compile ALiteral compile ! ;Cond
-: IS            T >address ' >body ! H ;
+Cond: IS        cross-record-name T ' >body H compile ALiteral compile ! ;Cond
+: IS            cross-record-name T >address ' >body ! H ;
 Cond: TO        T ' >body H compile ALiteral compile ! ;Cond
 : TO            T ' >body ! H ;
 [THEN]
