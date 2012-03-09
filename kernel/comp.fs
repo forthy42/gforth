@@ -128,6 +128,8 @@ variable next-prelude
     next-prelude off
     cfalign ;
 
+defer record-name ( -- ) ' noop is record-name
+\ record next name in tags file
 defer (header)
 defer header ( -- ) \ gforth
 ' (header) IS header
@@ -544,12 +546,12 @@ interpret/compile: DOES>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest
     
 : <IS> ( "name" xt -- ) \ gforth
     \g Changes the @code{defer}red word @var{name} to execute @var{xt}.
-    ' defer! ;
+    record-name ' defer! ;
 
 : [IS] ( compilation "name" -- ; run-time xt -- ) \ gforth bracket-is
     \g At run-time, changes the @code{defer}red word @var{name} to
     \g execute @var{xt}.
-    ' postpone ALiteral postpone defer! ; immediate restrict
+    record-name ' postpone ALiteral postpone defer! ; immediate restrict
 
 ' <IS>
 ' [IS]
