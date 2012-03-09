@@ -27,7 +27,7 @@
 	IFERROR  2drop drop false nothrow ELSE  true  THEN  ENDTRY ;
 
 : .string. ( addr u -- )
-    '"' emit type '"' emit space ;
+    .\" s\" " type '"' emit space ;
 : .addr. ( addr -- )  hex. ;
 
 Variable smart.s-skip
