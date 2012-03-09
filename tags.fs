@@ -86,22 +86,33 @@ create tags-line 128 chars allot
     sourcefilename r@ write-file throw
     #tab r> emit-file throw ;
 
-: put-tags-entry ( -- )
-    \ write the entry for the last name to the TAGS file
-    \ if the input is from a file and it is not a local name
-    source-id dup 0<> swap -1 <> and	\ input from a file
+: put-tags-string ( c-addr u -- )
+    2>r source-id dup 0<> swap -1 <> and	\ input from a file
     current @ locals-list <> and	\ not a local name
-    latest 0<> and	\ not an anonymous (i.e. noname) header
     if
 	tags-file-id >r 
-	latest name>string r@ write-file throw
+	r> 2r> rot dup >r write-file throw
 	#tab r@ emit-file throw
 	r@ put-load-file-name
 	s" /^" r@ write-file throw
 	source drop >in @ r@ write-file throw
 	s" /" r@ write-line throw
 	rdrop
+    else
+	2r> 2drop
     endif ;
+
+: put-tags-name ( -- )
+    >in @ parse-name put-tags-string >in ! ;
+
+' put-tags-name is record-name
+
+: put-tags-entry ( -- )
+    \ write the entry for the last name to the TAGS file
+    \ if the input is from a file and it is not a local name
+    latest 0<> if
+	latest name>string put-tags-string
+    then ;
 
 : (tags-header) ( -- )
     defers header
