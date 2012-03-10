@@ -45,6 +45,11 @@
 #define ASM_UM_SLASH_MOD(d1lo, d1hi, n1, n2, n3) \
 	asm("divl %4": "=a"(n3),"=d"(n2) : "a"(d1lo),"d"(d1hi),"g"(n1):"cc");
 
+#if defined(USE_TOS)
+#define CLOBBER_TOS_WORKAROUND_START sp[0]=spTOS
+#define CLOBBER_TOS_WORKAROUND_END   spTOS=sp[0]
+#endif
+
 #include "../generic/machine.h"
 
 /* 386 and below have no cache, 486 has a shared cache, and the

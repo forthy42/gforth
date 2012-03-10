@@ -2057,7 +2057,7 @@ clock_gettime(CLOCK_REALTIME,&time1);
 #else
 struct timeval time2;
 gettimeofday(&time2,NULL);
-time1.tv_sec = time2.tv_sec;
+time1.tv_sec = time2.tv_sec;1
 time1.tv_nsec = time2.tv_usec*1000;
 #endif
 dtime = timespec2ns(&time1);
@@ -2153,7 +2153,9 @@ r3 = r1/r2;
 
 f**	( r1 r2 -- r3 )	float-ext	f_star_star
 ""@i{r3} is @i{r1} raised to the @i{r2}th power.""
+CLOBBER_TOS_WORKAROUND_START;
 r3 = pow(r1,r2);
+CLOBBER_TOS_WORKAROUND_END;
 
 fm*	( r1 n -- r2 )	gforth	fm_star
 r2 = r1*n;
@@ -2195,7 +2197,9 @@ n2 = n1*sizeof(Float);
 floor	( r1 -- r2 )	float
 ""Round towards the next smaller integral value, i.e., round toward negative infinity.""
 /* !! unclear wording */
+CLOBBER_TOS_WORKAROUND_START;
 r2 = floor(r1);
+CLOBBER_TOS_WORKAROUND_END;
 
 fround	( r1 -- r2 )	float	f_round
 ""Round to the nearest integral value.""
@@ -2250,10 +2254,14 @@ fabs	( r1 -- r2 )	float-ext	f_abs
 r2 = fabs(r1);
 
 facos	( r1 -- r2 )	float-ext	f_a_cos
+CLOBBER_TOS_WORKAROUND_START;
 r2 = acos(r1);
+CLOBBER_TOS_WORKAROUND_END;
 
 fasin	( r1 -- r2 )	float-ext	f_a_sine
+CLOBBER_TOS_WORKAROUND_START;
 r2 = asin(r1);
+CLOBBER_TOS_WORKAROUND_END;
 
 fatan	( r1 -- r2 )	float-ext	f_a_tan
 r2 = atan(r1);
@@ -2261,13 +2269,19 @@ r2 = atan(r1);
 fatan2	( r1 r2 -- r3 )	float-ext	f_a_tan_two
 ""@i{r1/r2}=tan(@i{r3}). ANS Forth does not require, but probably
 intends this to be the inverse of @code{fsincos}. In gforth it is.""
+CLOBBER_TOS_WORKAROUND_START;
 r3 = atan2(r1,r2);
+CLOBBER_TOS_WORKAROUND_END;
 
 fcos	( r1 -- r2 )	float-ext	f_cos
+CLOBBER_TOS_WORKAROUND_START;
 r2 = cos(r1);
+CLOBBER_TOS_WORKAROUND_END;
 
 fexp	( r1 -- r2 )	float-ext	f_e_x_p
+CLOBBER_TOS_WORKAROUND_START;
 r2 = exp(r1);
+CLOBBER_TOS_WORKAROUND_END;
 
 fexpm1	( r1 -- r2 )	float-ext	f_e_x_p_m_one
 ""@i{r2}=@i{e}**@i{r1}@minus{}1""
@@ -2277,13 +2291,19 @@ extern double
               const
 #endif
                     expm1(double);
+CLOBBER_TOS_WORKAROUND_START;
 r2 = expm1(r1);
+CLOBBER_TOS_WORKAROUND_END;
 #else
+CLOBBER_TOS_WORKAROUND_START;
 r2 = exp(r1)-1.;
+CLOBBER_TOS_WORKAROUND_END;
 #endif
 
 fln	( r1 -- r2 )	float-ext	f_l_n
+CLOBBER_TOS_WORKAROUND_START;
 r2 = log(r1);
+CLOBBER_TOS_WORKAROUND_END;
 
 flnp1	( r1 -- r2 )	float-ext	f_l_n_p_one
 ""@i{r2}=ln(@i{r1}+1)""
@@ -2300,56 +2320,78 @@ r2 = log(r1+1.);
 
 flog	( r1 -- r2 )	float-ext	f_log
 ""The decimal logarithm.""
+CLOBBER_TOS_WORKAROUND_START;
 r2 = log10(r1);
+CLOBBER_TOS_WORKAROUND_END;
 
 falog	( r1 -- r2 )	float-ext	f_a_log
 ""@i{r2}=10**@i{r1}""
 extern double pow10(double);
+CLOBBER_TOS_WORKAROUND_START;
 r2 = pow10(r1);
+CLOBBER_TOS_WORKAROUND_END;
 
 fsin	( r1 -- r2 )	float-ext	f_sine
+CLOBBER_TOS_WORKAROUND_START;
 r2 = sin(r1);
+CLOBBER_TOS_WORKAROUND_END;
 
 fsincos	( r1 -- r2 r3 )	float-ext	f_sine_cos
 ""@i{r2}=sin(@i{r1}), @i{r3}=cos(@i{r1})""
+CLOBBER_TOS_WORKAROUND_START;
 r2 = sin(r1);
 r3 = cos(r1);
+CLOBBER_TOS_WORKAROUND_END;
 
 fsqrt	( r1 -- r2 )	float-ext	f_square_root
 r2 = sqrt(r1);
 
 ftan	( r1 -- r2 )	float-ext	f_tan
+CLOBBER_TOS_WORKAROUND_START;
 r2 = tan(r1);
+CLOBBER_TOS_WORKAROUND_END;
 :
  fsincos f/ ;
 
 fsinh	( r1 -- r2 )	float-ext	f_cinch
+CLOBBER_TOS_WORKAROUND_START;
 r2 = sinh(r1);
+CLOBBER_TOS_WORKAROUND_END;
 :
  fexpm1 fdup fdup 1. d>f f+ f/ f+ f2/ ;
 
 fcosh	( r1 -- r2 )	float-ext	f_cosh
+CLOBBER_TOS_WORKAROUND_START;
 r2 = cosh(r1);
+CLOBBER_TOS_WORKAROUND_END;
 :
  fexp fdup 1/f f+ f2/ ;
 
 ftanh	( r1 -- r2 )	float-ext	f_tan_h
+CLOBBER_TOS_WORKAROUND_START;
 r2 = tanh(r1);
+CLOBBER_TOS_WORKAROUND_END;
 :
  f2* fexpm1 fdup 2. d>f f+ f/ ;
 
 fasinh	( r1 -- r2 )	float-ext	f_a_cinch
+CLOBBER_TOS_WORKAROUND_START;
 r2 = asinh(r1);
+CLOBBER_TOS_WORKAROUND_END;
 :
  fdup fdup f* 1. d>f f+ fsqrt f/ fatanh ;
 
 facosh	( r1 -- r2 )	float-ext	f_a_cosh
+CLOBBER_TOS_WORKAROUND_START;
 r2 = acosh(r1);
+CLOBBER_TOS_WORKAROUND_END;
 :
  fdup fdup f* 1. d>f f- fsqrt f+ fln ;
 
 fatanh	( r1 -- r2 )	float-ext	f_a_tan_h
+CLOBBER_TOS_WORKAROUND_START;
 r2 = atanh(r1);
+CLOBBER_TOS_WORKAROUND_END;
 :
  fdup f0< >r fabs 1. d>f fover f- f/  f2* flnp1 f2/
  r> IF  fnegate  THEN ;
