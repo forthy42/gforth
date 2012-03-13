@@ -2010,11 +2010,12 @@ static char *onlypath(char *filename)
 static FILE *openimage(char *fullfilename)
 {
   FILE *image_file;
-  char * expfilename = tilde_cstr((Char *)fullfilename, strlen(fullfilename), 1);
+  char * expfilename = tilde_cstr((Char *)fullfilename, strlen(fullfilename));
 
   image_file=fopen(expfilename,"rb");
   if (image_file!=NULL && debug)
     fprintf(stderr, "Opened image file: %s\n", expfilename);
+  free(expfilename);
   return image_file;
 }
 
@@ -2315,6 +2316,22 @@ void data_abort_C(void)
 }
 #endif
 
+void gforth_linkback()
+{
+#ifndef HAS_LINKBACK
+  gforth_pointers[0] = (void*)&gforth_SP;
+  gforth_pointers[1] = (void*)&gforth_FP;
+  gforth_pointers[2] = (void*)&gforth_LP;
+  gforth_pointers[3] = (void*)&gforth_RP;
+  gforth_pointers[4] = (void*)&gforth_UP;
+  gforth_pointers[5] = (void*)gforth_engine;
+#ifdef HAS_FILE
+  gforth_pointers[6] = (void*)cstr;
+  gforth_pointers[7] = (void*)tilde_cstr;
+#endif
+#endif
+}
+
 int main(int argc, char **argv, char **env)
 {
 #ifdef HAS_OS
@@ -2337,16 +2354,7 @@ int main(int argc, char **argv, char **env)
 #endif /* defined(__i386) */
 
 #ifndef HAS_LINKBACK
-  gforth_pointers[0] = (void*)&gforth_SP;
-  gforth_pointers[1] = (void*)&gforth_FP;
-  gforth_pointers[2] = (void*)&gforth_LP;
-  gforth_pointers[3] = (void*)&gforth_RP;
-  gforth_pointers[4] = (void*)&gforth_UP;
-  gforth_pointers[5] = (void*)gforth_engine;
-#ifdef HAS_FILE
-  gforth_pointers[6] = (void*)cstr;
-  gforth_pointers[7] = (void*)tilde_cstr;
-#endif
+  gforth_linkback();
 #endif
 	  
 #ifdef MACOSX_DEPLOYMENT_TARGET

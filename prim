@@ -1747,13 +1747,17 @@ is the host operating system's expansion of that environment variable. If the
 environment variable does not exist, @i{c-addr2 u2} specifies a string 0 characters
 in length.""
 /* close ' to keep fontify happy */
-c_addr2 = (Char *)getenv(cstr(c_addr1,u1,1));
+char * string = cstr(c_addr1,u1);
+c_addr2 = (Char *)getenv(string);
 u2 = (c_addr2 == NULL ? 0 : strlen((char *)c_addr2));
+free(string);
 
 open-pipe	( c_addr u wfam -- wfileid wior )	gforth	open_pipe
+char * string = cstr(c_addr,u);
 fflush(stdout);
-wfileid=(Cell)popen(cstr(c_addr,u,1),pfileattr[wfam]); /* ~ expansion of 1st arg? */
+wfileid=(Cell)popen(string,pfileattr[wfam]); /* ~ expansion of 1st arg? */
 wior = IOR(wfileid==0); /* !! the man page says that errno is not set reliably */
+free(string);
 
 close-pipe	( wfileid -- wretval wior )		gforth	close_pipe
 wretval = pclose((FILE *)wfileid);
@@ -1860,13 +1864,19 @@ close-file	( wfileid -- wior )		file	close_file
 wior = IOR(fclose((FILE *)wfileid)==EOF);
 
 open-file	( c_addr u wfam -- wfileid wior )	file	open_file
-wfileid = opencreate_file(tilde_cstr(c_addr,u,1), wfam, 0, &wior);
+char * string = tilde_cstr(c_addr,u);
+wfileid = opencreate_file(string, wfam, 0, &wior);
+free(string);
 
 create-file	( c_addr u wfam -- wfileid wior )	file	create_file
-wfileid = opencreate_file(tilde_cstr(c_addr,u,1), wfam, O_CREAT|O_TRUNC, &wior);
+char * string = tilde_cstr(c_addr,u);
+wfileid = opencreate_file(string, wfam, O_CREAT|O_TRUNC, &wior);
+free(string);
 
 delete-file	( c_addr u -- wior )		file	delete_file
-wior = IOR(unlink(tilde_cstr(c_addr, u, 1))==-1);
+char * string = tilde_cstr(c_addr,u);
+wior = IOR(unlink(string)==-1);
+free(string);
 
 rename-file	( c_addr1 u1 c_addr2 u2 -- wior )	file-ext	rename_file
 ""Rename file @i{c_addr1 u1} to new name @i{c_addr2 u2}""
@@ -1945,8 +1955,10 @@ flag = FLAG(feof((FILE *) wfileid));
 open-dir	( c_addr u -- wdirid wior )	gforth	open_dir
 ""Open the directory specified by @i{c-addr, u}
 and return @i{dir-id} for futher access to it.""
-wdirid = (Cell)opendir(tilde_cstr(c_addr, u, 1));
+char * string = tilde_cstr(c_addr,u);
+wdirid = (Cell)opendir(string);
 wior =  IOR(wdirid == 0);
+free(string);
 
 read-dir	( c_addr u1 wdirid -- u2 flag wior )	gforth	read_dir
 ""Attempt to read the next entry from the directory specified
@@ -1981,14 +1993,18 @@ close-dir	( wdirid -- wior )	gforth	close_dir
 wior = IOR(closedir((DIR *)wdirid));
 
 filename-match	( c_addr1 u1 c_addr2 u2 -- flag )	gforth	match_file
-char * string = cstr(c_addr1, u1, 1);
-char * pattern = cstr(c_addr2, u2, 0);
+char * string = cstr(c_addr1, u1);
+char * pattern = cstr(c_addr2, u2);
 flag = FLAG(!fnmatch(pattern, string, 0));
+free(string);
+free(pattern);
 
 set-dir	( c_addr u -- wior )	gforth set_dir
 ""Change the current directory to @i{c-addr, u}.
 Return an error if this is not possible""
-wior = IOR(chdir(tilde_cstr(c_addr, u, 1)));
+char * string = tilde_cstr(c_addr, u);
+wior = IOR(chdir(string));
+free(string);
 
 get-dir	( c_addr1 u1 -- c_addr2 u2 )	gforth get_dir
 ""Store the current directory in the buffer specified by @i{c-addr1, u1}.
@@ -2002,7 +2018,9 @@ if(c_addr2 != NULL) {
 
 =mkdir ( c_addr u wmode -- wior )        gforth equals_mkdir
 ""Create directory @i{c-addr u} with mode @i{wmode}.""
-wior = IOR(mkdir(tilde_cstr(c_addr,u,1),wmode));
+char * string = tilde_cstr(c_addr,u);
+wior = IOR(mkdir(string,wmode));
+free(string);
 
 \+
 
@@ -2528,18 +2546,20 @@ open-lib	( c_addr1 u1 -- u2 )	gforth	open_lib
 u2 = gforth_dlopen(c_addr1, u1);
 
 lib-sym	( c_addr1 u1 u2 -- u3 )	gforth	lib_sym
+char * string = cstr(c_addr1, u1);
 #ifdef HAVE_LIBLTDL
-u3 = (UCell) lt_dlsym((lt_dlhandle)u2, cstr(c_addr1, u1, 1));
+u3 = (UCell) lt_dlsym((lt_dlhandle)u2, string);
 #elif defined(HAVE_LIBDL) || defined(HAVE_DLOPEN)
-u3 = (UCell) dlsym((void*)u2,cstr(c_addr1, u1, 1));
+u3 = (UCell) dlsym((void*)u2,string);
 #else
 #  ifdef _WIN32
-u3 = (Cell) GetProcAddress((HMODULE)u2, cstr(c_addr1, u1, 1));
+u3 = (Cell) GetProcAddress((HMODULE)u2, string);
 #  else
 #warning Define lib-sym!
 u3 = 0;
 #  endif
 #endif
+free(string);
 
 wcall	( ... u -- ... )	gforth
 gforth_FP=fp;

@@ -18,6 +18,6 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 c-library cstr
-c-function cstr       cstr       a n n -- a ( c-addr u fclear -- c-addr2 )
-c-function tilde_cstr tilde_cstr a n n -- a ( c-addr u fclear -- c-addr2 )
+c-function cstr       cstr       a n -- a ( c-addr u -- c-addr2 )
+c-function tilde_cstr tilde_cstr a n -- a ( c-addr u -- c-addr2 )
 end-c-library

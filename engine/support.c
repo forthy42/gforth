@@ -42,39 +42,17 @@
 #endif
 
 #ifdef HAS_FILE
-char *cstr(Char *from, UCell size, int clear)
+char *cstr(Char *from, UCell size)
 /* return a C-string corresponding to the Forth string ( FROM SIZE ).
-   the C-string lives until the next call of cstr with CLEAR being true */
+   the C-string lives until free */
 {
-  static struct cstr_buffer {
-    char *buffer;
-    size_t size;
-  } *buffers=NULL;
-  static int nbuffers=0;
-  static int used=0;
-  struct cstr_buffer *b;
-
-  if (buffers==NULL)
-    buffers=malloc(0);
-  if (clear)
-    used=0;
-  if (used>=nbuffers) {
-    buffers=realloc(buffers,sizeof(struct cstr_buffer)*(used+1));
-    buffers[used]=(struct cstr_buffer){malloc(0),0};
-    nbuffers=used+1;
-  }
-  b=&buffers[used];
-  if (size+1 > b->size) {
-    b->buffer = realloc(b->buffer,size+1);
-    b->size = size+1;
-  }
-  memcpy(b->buffer,from,size);
-  b->buffer[size]='\0';
-  used++;
-  return b->buffer;
+  char * string = malloc(size+1);
+  memcpy(string,from,size);
+  string[size]='\0';
+  return string;
 }
 
-char *tilde_cstr(Char *from, UCell size, int clear)
+char *tilde_cstr(Char *from, UCell size)
 /* like cstr(), but perform tilde expansion on the string */
 {
   char *s1,*s2;
@@ -82,7 +60,7 @@ char *tilde_cstr(Char *from, UCell size, int clear)
   struct passwd *getpwnam (), *user_entry;
 
   if (size<1 || from[0]!='~')
-    return cstr(from, size, clear);
+    return cstr(from, size);
   if (size<2 || from[1]=='/') {
     s1 = (char *)getenv ("HOME");
     if(s1 == NULL)
@@ -100,7 +78,7 @@ char *tilde_cstr(Char *from, UCell size, int clear)
     for (i=1; i<size && from[i]!='/'; i++)
       ;
     if (i==2 && from[1]=='+') /* deal with "~+", i.e., the wd */
-      return cstr(from+3, size<3?0:size-3,clear);
+      return cstr(from+3, size<3?0:size-3);
     {
       char user[i];
       memcpy(user,from+1,i-1);
@@ -108,7 +86,7 @@ char *tilde_cstr(Char *from, UCell size, int clear)
       user_entry=getpwnam(user);
     }
     if (user_entry==NULL)
-      return cstr(from, size, clear);
+      return cstr(from, size);
     s1 = user_entry->pw_dir;
     s2 = (char *)from+i;
     s2_len = size-i;
@@ -120,7 +98,7 @@ char *tilde_cstr(Char *from, UCell size, int clear)
     char path[s1_len+s2_len];
     memcpy(path,s1,s1_len);
     memcpy(path+s1_len,s2,s2_len);
-    return cstr((Char *)path,s1_len+s2_len,clear);
+    return cstr((Char *)path,s1_len+s2_len);
   }
 }
 
@@ -322,8 +300,11 @@ struct Cellpair parse_white(Char *c_addr1, UCell u1)
 #ifdef HAS_FILE
 Cell rename_file(Char *c_addr1, UCell u1, Char *c_addr2, UCell u2)
 {
-  char *s1=tilde_cstr(c_addr2, u2, 1);
-  return IOR(rename(tilde_cstr(c_addr1, u1, 0), s1)==-1);
+  char *s1=tilde_cstr(c_addr2, u2);
+  char *s2=tilde_cstr(c_addr1, u1);
+  return IOR(rename(s2, s1)==-1);
+  free(s1);
+  free(s2);
 }
 
 struct Cellquad read_line(Char *c_addr, UCell u1, FILE *wfileid)
@@ -367,7 +348,7 @@ struct Cellpair file_status(Char *c_addr, UCell u)
   struct Cellpair r;
   Cell wfam;
   Cell wior;
-  char *filename=tilde_cstr(c_addr, u, 1);
+  char *filename=tilde_cstr(c_addr, u);
 
   if (access (filename, F_OK) != 0) {
     wfam=0;
@@ -393,6 +374,7 @@ struct Cellpair file_status(Char *c_addr, UCell u)
   }
   r.n1 = wfam;
   r.n2 = wior;
+  free(filename);
   return r;
 }
 
@@ -555,19 +537,22 @@ void gforth_ms(UCell u)
 
 UCell gforth_dlopen(Char *c_addr, UCell u)
 {
-  char * file=tilde_cstr(c_addr, u, 1);
+  char * file=tilde_cstr(c_addr, u);
   UCell lib;
 #if defined(HAVE_LIBLTDL)
   lib = (UCell)lt_dlopen(file);
+  free(file);
   if(lib) return lib;
 #elif defined(HAVE_LIBDL) || defined(HAVE_DLOPEN)
 #ifndef RTLD_GLOBAL
 #define RTLD_GLOBAL 0
 #endif
   lib = (UCell)dlopen(file, RTLD_GLOBAL | RTLD_LAZY);
+  free(file);
   if(lib) return lib;
 #elif defined(_WIN32)
   lib = (UCell) GetModuleHandle(file);
+  free(file);
   if(lib) return lib;
 #endif
   return 0;

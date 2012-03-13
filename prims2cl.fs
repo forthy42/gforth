@@ -42,8 +42,6 @@ Create 	InputFile 130 chars allot
  
 : c-header
 	.\ #include "engine/forth.h"
-	.\ extern char *cstr(Char *from, UCell size, int clear);
-	.\ extern char *tilde_cstr(Char *from, UCell size, int clear);
 	.\ 
 	.\ #undef TOS
 	.\ #define TOS sp[0]

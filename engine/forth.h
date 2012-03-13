@@ -391,8 +391,8 @@ typedef Cell *semiabifunc(Cell *sp, Float **fpp, Address body);
 
 /* engine/prim support routines */
 Address gforth_alloc(Cell size);
-char *cstr(Char *from, UCell size, int clear);
-char *tilde_cstr(Char *from, UCell size, int clear);
+char *cstr(Char *from, UCell size);
+char *tilde_cstr(Char *from, UCell size);
 Cell opencreate_file(char *s, Cell wfam, int flags, Cell *wiorp);
 DCell timeval2us(struct timeval *tvp);
 DCell timespec2ns(struct timespec *tvp);
@@ -472,6 +472,8 @@ extern __thread Address gforth_UP;
 #ifndef HAS_LINKBACK
 extern __thread void * gforth_pointers[];
 #endif
+
+extern void gforth_backlink();
 
 #ifdef HAS_FFCALL
 extern void gforth_callback(Xt* fcall, void * alist);
