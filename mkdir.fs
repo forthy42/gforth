@@ -34,7 +34,7 @@
 	c-function f>ior IOR n -- n ( f -- ior )
 	    
 	: =mkdir ( c-addr u mode -- ior )
-	>r 1 tilde_cstr r> over >r mkdir r> free drop f>ior ;
+	>r tilde_cstr r> over >r mkdir r> free drop f>ior ;
         end-c-library
     [THEN]
 [THEN]
