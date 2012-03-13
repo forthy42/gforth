@@ -464,18 +464,16 @@ extern int debug;
 # define debug 0
 #endif
 
-extern Cell *gforth_SP;
-extern Cell *gforth_RP;
-extern Address gforth_LP;
-extern Float *gforth_FP;
-extern Address gforth_UP;
+extern __thread Cell *gforth_SP;
+extern __thread Cell *gforth_RP;
+extern __thread Address gforth_LP;
+extern __thread Float *gforth_FP;
+extern __thread Address gforth_UP;
 #ifndef HAS_LINKBACK
-extern void * gforth_pointers[];
+extern __thread void * gforth_pointers[];
 #endif
 
 #ifdef HAS_FFCALL
-extern Cell *gforth_RP;
-extern Address gforth_LP;
 extern void gforth_callback(Xt* fcall, void * alist);
 #endif
 

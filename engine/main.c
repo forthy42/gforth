@@ -62,33 +62,21 @@ typedef enum prim_num {
 /* global variables for engine.c 
    We put them here because engine.c is compiled several times in
    different ways for the same engine. */
-Cell *gforth_SP;
-Float *gforth_FP;
-Address gforth_UP=NULL;
-Cell *gforth_RP;
-Address gforth_LP;
+__thread Cell *gforth_SP;
+__thread Float *gforth_FP;
+__thread Address gforth_UP=NULL;
+__thread Cell *gforth_RP;
+__thread Address gforth_LP;
 
 #ifndef HAS_LINKBACK
-void * gforth_pointers[] = { 
-  (void*)&gforth_SP,
-  (void*)&gforth_FP,
-  (void*)&gforth_LP,
-  (void*)&gforth_RP,
-  (void*)&gforth_UP,
-  (void*)gforth_engine
-#ifdef HAS_FILE
-  ,
-  (void*)cstr,
-  (void*)tilde_cstr
-#endif
-};
+__thread void * gforth_pointers[8];
 #endif
 
 #ifdef HAS_FFCALL
 
 #include <callback.h>
 
-va_alist gforth_clist;
+__thread va_alist gforth_clist;
 
 void gforth_callback(Xt* fcall, void * alist)
 {
@@ -2347,6 +2335,19 @@ int main(int argc, char **argv, char **env)
   short fpu_control = 0x027f ;
   asm("fldcw %0" : : "m"(fpu_control));
 #endif /* defined(__i386) */
+
+#ifndef HAS_LINKBACK
+  gforth_pointers[0] = (void*)&gforth_SP;
+  gforth_pointers[1] = (void*)&gforth_FP;
+  gforth_pointers[2] = (void*)&gforth_LP;
+  gforth_pointers[3] = (void*)&gforth_RP;
+  gforth_pointers[4] = (void*)&gforth_UP;
+  gforth_pointers[5] = (void*)gforth_engine;
+#ifdef HAS_FILE
+  gforth_pointers[6] = (void*)cstr;
+  gforth_pointers[7] = (void*)tilde_cstr;
+#endif
+#endif
 	  
 #ifdef MACOSX_DEPLOYMENT_TARGET
   setenv("MACOSX_DEPLOYMENT_TARGET", MACOSX_DEPLOYMENT_TARGET, 0);
