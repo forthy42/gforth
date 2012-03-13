@@ -1,6 +1,6 @@
 \ smart .s                                             09mar2012py
 
-\ Copyright (C) 1995,1998,1999,2001,2003,2006,2007,2011 Free Software Foundation, Inc.
+\ Copyright (C) 2012 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

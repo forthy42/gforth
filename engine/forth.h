@@ -370,15 +370,18 @@ extern saved_regs saved_regs_v, *saved_regs_p;
 #error sr_proto not passed in fflib.fs callbacks (solution: disable GLOBALS_NONRELOC)
 #define sr_proto , struct saved_regs *saved_regs_p0
 #define sr_call  , saved_regs_p
+#define sr_arg   , arg[5]
 #else /* !defined(GLOBALS_NONRELOC) */
 extern Xt *saved_ip;
 extern Cell *rp;
 #define sr_proto
 #define sr_call
+#define sr_arg
 #endif /* !defined(GLOBALS_NONRELOC) */
 #else /* !defined(GFORTH_DEBUGGING) */
 #define sr_proto
 #define sr_call
+#define sr_arg
 #endif /* !defined(GFORTH_DEBUGGING) */
 
 Label *gforth_engine(Xt *ip, Cell *sp, Cell *rp0, Float *fp, Address lp sr_proto);
