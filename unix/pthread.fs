@@ -64,7 +64,8 @@ c-library pthread
     \c #endif /* !defined(MAP_ANON) */
     \c   return r;  
     \c }
-    \c void *gforth_thread(threadId * t)
+    \c
+    \c int gforth_create_thread(threadId * t)
     \c {
     \c #if HAVE_GETPAGESIZE
     \c   pagesize=getpagesize(); /* Linux/GNU libc offers this */
@@ -85,6 +86,14 @@ c-library pthread
     \c     page_noaccess((void*)a); a+=pagesize; a+=rsize; t->rp0=a;
     \c     page_noaccess((void*)a); a+=pagesize; a+=lsize; t->lp0=a;
     \c     page_noaccess((void*)a);
+    \c     return 1;
+    \c   }
+    \c   return 0;
+    \c }
+    \c
+    \c void *gforth_thread(threadId * t)
+    \c {
+    \c   if(gforth_create_thread(t)) {
     \c     return gforth_engine((void*)(t->boot_entry), (Cell*)(t->sp0), (Cell*)(t->rp0), (Float*)(t->fp0), (void*)(t->lp0), (char*)&(t->saved_ip));
     \c   }
     \c   return NULL;
@@ -101,10 +110,25 @@ c-library pthread
     \c {
     \c   return thread*(int)sizeof(pthread_t);
     \c }
+    \c void *pthread_mutex_plus(void * thread)
+    \c {
+    \c   return thread+sizeof(pthread_mutex_t);
+    \c }
+    \c Cell pthread_mutexes(Cell thread)
+    \c {
+    \c   return thread*(int)sizeof(pthread_mutex_t);
+    \c }
     c-function pthread+ pthread_plus a -- a ( addr -- addr' )
     c-function pthreads pthreads n -- n ( n -- n' )
     c-function thread_start gforth_thread_p -- a ( -- addr )
     c-function pthread_create pthread_create a a a a -- n ( thread attr start arg )
+    c-function pthread_exit pthread_exit a -- void ( retaddr -- )
+    c-function pthread_mutex_init pthread_mutex_init a a -- n ( mutex addr -- r )
+    c-function pthread_mutex_lock pthread_mutex_lock a -- n ( mutex -- r )
+    c-function pthread_mutex_unlock pthread_mutex_unlock a -- n ( mutex -- r )
+    c-function pthread-mutex+ pthread_mutex_plus a -- a ( mutex -- mutex' )
+    c-function pthread-mutexes pthread_mutexes n -- n ( n -- n' )
+    c-function pause pthread_yield -- void ( -- )
 end-c-library
 
 begin-structure threadId
@@ -130,9 +154,31 @@ end-structure
     drop \ fixme
     r> ;
 
-0 [IF] \ test
-    : test-thread
-	BEGIN  ." Thread-Test" cr 1000 ms  AGAIN ;
+: semaphore ( "name" -- )
+    Create here 1 pthread-mutexes allot 0 pthread_mutex_init drop ;
 
-    ' test-thread new-thread Constant test-id
+: lock ( addr -- )  pthread_mutex_lock drop ;
+: unlock ( addr -- )  pthread_mutex_unlock drop ;
+
+false [IF] \ test
+    semaphore testsem
+    
+    : test-thread1
+	BEGIN
+	    testsem lock
+	    ." Thread-Test1" cr 1000 ms
+	    testsem unlock
+	    100 0 DO  pause  LOOP
+	AGAIN ;
+
+    : test-thread2
+	BEGIN
+	    testsem lock
+	    ." Thread-Test2" cr 1000 ms
+	    testsem unlock
+	    100 0 DO  pause  LOOP
+	AGAIN ;
+
+    ' test-thread1 new-thread Constant test-id1
+    ' test-thread2 new-thread Constant test-id2
 [THEN]
