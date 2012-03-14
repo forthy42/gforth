@@ -22,43 +22,69 @@ c-library pthread
     \c #include <limits.h>
     \c #include <sys/mman.h>
     \c #include <unistd.h>
-    \c extern void * alloc_mmap(Cell size);
-    \c extern void page_noaccess(void *a);
-    \c #define wholepage(n) (((n)+p-1)&~(p-1))
+    \c #define wholepage(n) (((n)+pagesize-1)&~(pagesize-1))
     \c typedef struct {
     \c   Cell data_stack_size;
     \c   Cell fp_stack_size;
     \c   Cell return_stack_size;
     \c   Cell locals_stack_size;
-    \c   void *boot_entry;
-    \c } ImageHeader;
-    \c void *gforth_thread(ImageHeader * header)
+    \c   Cell sp0, fp0, rp0, lp0;
+    \c   Cell boot_entry;
+    \c } threadId;
+    \c int pagesize = 1;
+    \c void page_noaccess(void *a)
     \c {
-    \c   Cell *sp0;
-    \c   Cell *rp0;
-    \c   Float *fp0;
-    \c   char *lp0;
-    \c   Cell
+    \c   /* try mprotect first; with munmap the page might be allocated later */
+    \c   if (mprotect(a, pagesize, PROT_NONE)==0) {
+    \c     return;
+    \c   }
+    \c   if (munmap(a,pagesize)==0) {
+    \c     return;
+    \c   }
+    \c }  
+    \c void * alloc_mmap(Cell size)
+    \c {
+    \c   void *r;
+    \c 
+    \c #if defined(MAP_ANON)
+    \c   r = mmap(NULL, size, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE, -1, 0);
+    \c #else /* !defined(MAP_ANON) */
+    \c   /* Ultrix (at least) does not define MAP_FILE and MAP_PRIVATE (both are
+    \c      apparently defaults) */
+    \c   static int dev_zero=-1;
+    \c 
+    \c   if (dev_zero == -1)
+    \c     dev_zero = open("/dev/zero", O_RDONLY);
+    \c   if (dev_zero == -1) {
+    \c     r = MAP_FAILED;
+    \c   } else {
+    \c     r=mmap(NULL, size, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_FILE|MAP_PRIVATE, dev_zero, 0);
+    \c   }
+    \c #endif /* !defined(MAP_ANON) */
+    \c   return r;  
+    \c }
+    \c void *gforth_thread(threadId * t)
+    \c {
     \c #if HAVE_GETPAGESIZE
-    \c   p=getpagesize(); /* Linux/GNU libc offers this */
+    \c   pagesize=getpagesize(); /* Linux/GNU libc offers this */
     \c #elif HAVE_SYSCONF && defined(_SC_PAGESIZE)
-    \c   p=sysconf(_SC_PAGESIZE); /* POSIX.4 */
+    \c   pagesize=sysconf(_SC_PAGESIZE); /* POSIX.4 */
     \c #elif PAGESIZE
-    \c   p=PAGESIZE; /* in limits.h according to Gallmeister's POSIX.4 book */
+    \c   pagesize=PAGESIZE; /* in limits.h according to Gallmeister's POSIX.4 book */
     \c #endif
-    \c   Cell dsize = wholepage(header->data_stack_size);
-    \c   Cell rsize = wholepage(header->return_stack_size);
-    \c   Cell fsize = wholepage(header->fp_stack_size);
-    \c   Cell lsize = wholepage(header->locals_stack_size);
-    \c   size_t totalsize = dsize+fsize+rsize+lsize+5*p;
-    \c   void *a = alloc_mmap(totalsize);
-    \c   if (a != (void *)MAP_FAILED) {
-    \c     page_noaccess(a); a+=p; a+=dsize; sp0=a;
-    \c     page_noaccess(a); a+=p; a+=fsize; fp0=a;
-    \c     page_noaccess(a); a+=p; a+=rsize; rp0=a;
-    \c     page_noaccess(a); a+=p; a+=lsize; lp0=a;
-    \c     page_noaccess(a);
-    \c     return gforth_engine(header->boot_entry, sp0, rp0, fp0, lp0, 0);
+    \c   Cell dsize = wholepage(t->data_stack_size);
+    \c   Cell rsize = wholepage(t->return_stack_size);
+    \c   Cell fsize = wholepage(t->fp_stack_size);
+    \c   Cell lsize = wholepage(t->locals_stack_size);
+    \c   size_t totalsize = dsize+fsize+rsize+lsize+5*pagesize;
+    \c   Cell a = (Cell)alloc_mmap(totalsize);
+    \c   if (a != (Cell)MAP_FAILED) {
+    \c     page_noaccess((void*)a); a+=pagesize; a+=dsize; t->sp0=a;
+    \c     page_noaccess((void*)a); a+=pagesize; a+=fsize; t->fp0=a;
+    \c     page_noaccess((void*)a); a+=pagesize; a+=rsize; t->rp0=a;
+    \c     page_noaccess((void*)a); a+=pagesize; a+=lsize; t->lp0=a;
+    \c     page_noaccess((void*)a);
+    \c     return gforth_engine((void*)(t->boot_entry), (Cell*)(t->sp0), (Cell*)(t->rp0), (Float*)(t->fp0), (void*)(t->lp0), 0);
     \c   }
     \c   return NULL;
     \c }
@@ -79,3 +105,31 @@ c-library pthread
     c-function thread_start gforth_thread_p -- a ( -- addr )
     c-function pthread_create pthread_create a a a a -- n ( thread attr start arg )
 end-c-library
+
+begin-structure threadId
+field: data_stack_size
+field: fp_stack_size
+field: return_stack_size
+field: locals_stack_size
+field: t_sp0
+field: t_fp0
+field: t_rp0
+field: t_lp0
+field: boot_entry
+0 pthread+ +field t_pthread
+end-structure
+
+: new-thread ( xt -- id )
+    threadId allocate throw >r
+    forthstart 3 cells + r@ 4 cells move
+    >body r@ boot_entry !
+    r@ t_pthread 0 thread_start r@ pthread_create
+    drop \ fixme
+    r> ;
+
+0 [IF] \ test
+    : test-thread
+	BEGIN  ." Thread-Test" cr 1000 ms  AGAIN ;
+
+    ' test-thread new-thread Constant test-id
+[THEN]
