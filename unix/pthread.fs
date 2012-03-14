@@ -119,7 +119,7 @@ field: t_lp0
 field: boot_entry
 field: saved_ip
 field: saved_rp
-field: t_pthread
+1 pthreads +field t_pthread
 end-structure
 
 : new-thread ( xt -- id )
