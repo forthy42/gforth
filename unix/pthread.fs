@@ -28,7 +28,7 @@ c-library pthread
     \c   Cell fp_stack_size;
     \c   Cell return_stack_size;
     \c   Cell locals_stack_size;
-    \c   Cell sp0, fp0, rp0, lp0;
+    \c   Cell sp0, fp0, rp0, lp0, up0;
     \c   Cell boot_entry;
     \c   Cell saved_ip, saved_rp;
     \c } threadId;
@@ -81,7 +81,7 @@ c-library pthread
     \c   size_t totalsize = dsize+fsize+rsize+lsize+5*pagesize;
     \c   Cell a = (Cell)alloc_mmap(totalsize);
     \c   if (a != (Cell)MAP_FAILED) {
-    \c     page_noaccess((void*)a); a+=pagesize; a+=dsize; t->sp0=a;
+    \c     page_noaccess((void*)a); a+=pagesize; t->up0=a; a+=dsize; t->sp0=a;
     \c     page_noaccess((void*)a); a+=pagesize; a+=fsize; t->fp0=a;
     \c     page_noaccess((void*)a); a+=pagesize; a+=rsize; t->rp0=a;
     \c     page_noaccess((void*)a); a+=pagesize; a+=lsize; t->lp0=a;
@@ -93,10 +93,8 @@ c-library pthread
     \c
     \c void *gforth_thread(threadId * t)
     \c {
-    \c   if(gforth_create_thread(t)) {
-    \c     return gforth_engine((void*)(t->boot_entry), (Cell*)(t->sp0), (Cell*)(t->rp0), (Float*)(t->fp0), (void*)(t->lp0), (char*)&(t->saved_ip));
-    \c   }
-    \c   return NULL;
+    \c   gforth_UP = (char*)(t->up0);
+    \c   return gforth_engine((void*)(t->boot_entry), (Cell*)(t->sp0), (Cell*)(t->rp0), (Float*)(t->fp0), (void*)(t->lp0), (char*)&(t->saved_ip));
     \c }
     \c void *gforth_thread_p()
     \c {
@@ -121,6 +119,7 @@ c-library pthread
     c-function pthread+ pthread_plus a -- a ( addr -- addr' )
     c-function pthreads pthreads n -- n ( n -- n' )
     c-function thread_start gforth_thread_p -- a ( -- addr )
+    c-function gforth_create_thread gforth_create_thread a -- n ( addr -- n )
     c-function pthread_create pthread_create a a a a -- n ( thread attr start arg )
     c-function pthread_exit pthread_exit a -- void ( retaddr -- )
     c-function pthread_mutex_init pthread_mutex_init a a -- n ( mutex addr -- r )
@@ -140,19 +139,24 @@ field: t_sp0
 field: t_fp0
 field: t_rp0
 field: t_lp0
+field: t_up0
 field: boot_entry
 field: saved_ip
 field: saved_rp
 1 pthreads +field t_pthread
 end-structure
 
-: new-thread ( xt -- id )
+: NewTask ( stacksize -- task )
     threadId allocate throw >r
-    forthstart 3 cells + r@ 4 cells move
-    >body r@ boot_entry !
-    r@ t_pthread 0 thread_start r@ pthread_create
-    drop \ fixme
+    dup 2dup r@ 2! r@ cell+ cell+ 2!
+    r@ gforth_create_thread drop
+    next-task r@ t_up0 @ udp @ move
     r> ;
+
+: activate ( task -- )
+    r> swap >r
+    r@ boot_entry !
+    r@ t_pthread 0 thread_start r> pthread_create drop ;
 
 : semaphore ( "name" -- )
     Create here 1 pthread-mutexes allot 0 pthread_mutex_init drop ;
@@ -160,25 +164,29 @@ end-structure
 : lock ( addr -- )  pthread_mutex_lock drop ;
 : unlock ( addr -- )  pthread_mutex_unlock drop ;
 
-false [IF] \ test
+: stacksize ( -- n ) forthstart 4 cells + @ ;
+
+true [IF] \ test
     semaphore testsem
     
     : test-thread1
+	stacksize NewTask activate  0 hex
 	BEGIN
 	    testsem lock
-	    ." Thread-Test1" cr 1000 ms
-	    testsem unlock
+	    ." Thread-Test1 " dup . cr 1000 ms
+	    testsem unlock  1+
 	    100 0 DO  pause  LOOP
 	AGAIN ;
 
     : test-thread2
+	stacksize NewTask activate  0 decimal
 	BEGIN
 	    testsem lock
-	    ." Thread-Test2" cr 1000 ms
-	    testsem unlock
+	    ." Thread-Test2 " dup . cr 1000 ms
+	    testsem unlock  1+
 	    100 0 DO  pause  LOOP
 	AGAIN ;
 
-    ' test-thread1 new-thread Constant test-id1
-    ' test-thread2 new-thread Constant test-id2
+    test-thread1
+    test-thread2
 [THEN]
