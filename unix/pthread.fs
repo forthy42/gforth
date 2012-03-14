@@ -30,6 +30,7 @@ c-library pthread
     \c   Cell locals_stack_size;
     \c   Cell sp0, fp0, rp0, lp0;
     \c   Cell boot_entry;
+    \c   Cell saved_ip, saved_rp;
     \c } threadId;
     \c int pagesize = 1;
     \c void page_noaccess(void *a)
@@ -84,7 +85,7 @@ c-library pthread
     \c     page_noaccess((void*)a); a+=pagesize; a+=rsize; t->rp0=a;
     \c     page_noaccess((void*)a); a+=pagesize; a+=lsize; t->lp0=a;
     \c     page_noaccess((void*)a);
-    \c     return gforth_engine((void*)(t->boot_entry), (Cell*)(t->sp0), (Cell*)(t->rp0), (Float*)(t->fp0), (void*)(t->lp0), 0);
+    \c     return gforth_engine((void*)(t->boot_entry), (Cell*)(t->sp0), (Cell*)(t->rp0), (Float*)(t->fp0), (void*)(t->lp0), (char*)&(t->saved_ip));
     \c   }
     \c   return NULL;
     \c }
@@ -116,7 +117,9 @@ field: t_fp0
 field: t_rp0
 field: t_lp0
 field: boot_entry
-0 pthread+ +field t_pthread
+field: saved_ip
+field: saved_rp
+1 pthreads +field t_pthread
 end-structure
 
 : new-thread ( xt -- id )

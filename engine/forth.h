@@ -363,25 +363,23 @@ typedef struct saved_regs {
   Xt *sr_saved_ip;
   Cell *sr_rp;
 } saved_regs;
-extern saved_regs saved_regs_v, *saved_regs_p;
+extern saved_regs saved_regs_v;
+extern __thread saved_regs *saved_regs_p;
 #define saved_ip (saved_regs_p->sr_saved_ip)
 #define rp       (saved_regs_p->sr_rp)
 /* for use in gforth_engine header */
 #error sr_proto not passed in fflib.fs callbacks (solution: disable GLOBALS_NONRELOC)
 #define sr_proto , struct saved_regs *saved_regs_p0
 #define sr_call  , saved_regs_p
-#define sr_arg   , arg[5]
 #else /* !defined(GLOBALS_NONRELOC) */
-extern Xt *saved_ip;
-extern Cell *rp;
+extern __thread Xt *saved_ip;
+extern __thread Cell *rp;
 #define sr_proto
 #define sr_call
-#define sr_arg
 #endif /* !defined(GLOBALS_NONRELOC) */
 #else /* !defined(GFORTH_DEBUGGING) */
 #define sr_proto
 #define sr_call
-#define sr_arg
 #endif /* !defined(GFORTH_DEBUGGING) */
 
 Label *gforth_engine(Xt *ip, Cell *sp, Cell *rp0, Float *fp, Address lp sr_proto);

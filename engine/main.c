@@ -106,10 +106,10 @@ void gforth_callback(Xt* fcall, void * alist)
    GNU C manual) */
 #if defined(GLOBALS_NONRELOC)
 saved_regs saved_regs_v;
-saved_regs *saved_regs_p = &saved_regs_v;
+__thread saved_regs *saved_regs_p = &saved_regs_v;
 #else /* !defined(GLOBALS_NONRELOC) */
-Xt *saved_ip;
-Cell *rp;
+__thread Xt *saved_ip;
+__thread Cell *rp;
 #endif /* !defined(GLOBALS_NONRELOC) */
 #endif /* !defined(GFORTH_DEBUGGING) */
 
