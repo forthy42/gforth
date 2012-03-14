@@ -33,14 +33,14 @@ typedef double Float;
 typedef unsigned Clongest UClongest;
 
 #ifdef HAS_BACKLINK
-extern Cell *gforth_SP;
-extern Float *gforth_FP;
-extern Cell *gforth_RP;
-extern char *gforth_LP;
-extern char *gforth_UP;
+extern __thread Cell *gforth_SP;
+extern __thread Float *gforth_FP;
+extern __thread Cell *gforth_RP;
+extern __thread char *gforth_LP;
+extern __thread char *gforth_UP;
 extern void *gforth_engine(void *, Cell *, Cell *, Float *, char *, char *);
-extern char *cstr(char *from, Cell size, int clear);
-extern char *tilde_cstr(char *from, Cell size, int clear);
+extern char *cstr(char *from, Cell size);
+extern char *tilde_cstr(char *from, Cell size);
 #define GFORTH_ARGS void
 #else
 #define gforth_SP *((Cell **)(gforth_pointers[0]))
@@ -49,8 +49,8 @@ extern char *tilde_cstr(char *from, Cell size, int clear);
 #define gforth_RP *((Cell **)(gforth_pointers[3]))
 #define gforth_UP *((char **)(gforth_pointers[4]))
 #define gforth_engine ((char *(*)(Xt *, Cell *, Cell *, Float *, char *, char *))(((void **)(gforth_pointers[5]))))
-#define cstr ((char *(*)(char *, Cell, int))(((void **)(gforth_pointers[6]))))
-#define tilde_cstr ((char *(*)(char *, Cell, int))(((void **)(gforth_pointers[7]))))
+#define cstr ((char *(*)(char *, Cell))(((void **)(gforth_pointers[6]))))
+#define tilde_cstr ((char *(*)(char *, Cell))(((void **)(gforth_pointers[7]))))
 #define GFORTH_ARGS void ** gforth_pointers 
 #endif
 
