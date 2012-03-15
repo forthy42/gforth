@@ -136,12 +136,19 @@ User pthread-id  -1 cells pthread+ uallot drop
 
 saved-ip save-task !
 
+:noname    ' >body @ ;
+:noname    ' >body @ postpone literal ; 
+interpret/compile: user' ( 'user' -- n )
+\G USER' computes the task offset of a user variable
+
 : >task ( user task -- user' )  + next-task - ;
 
 : NewTask ( stacksize -- task )
     dup 2dup gforth_create_thread >r
     handler r@ udp @ handler next-task - /string move
     saved-ip r@ >task save-task r@ >task !
+    word-pno-size chars dup allocate throw dup holdbufptr r@ >task !
+    + dup holdptr r@ >task !  holdend r@ >task !
     r> ;
 
 : activate ( task -- )
@@ -149,7 +156,8 @@ saved-ip save-task !
     saved-ip r@ >task !
     pthread-id r@ >task 0 thread_start r> pthread_create drop ;
 
-: semaphore ( "name" -- )
+: sema ( "name" -- ) \ gforth
+    \G create a named semaphore
     Create here 1 pthread-mutexes allot 0 pthread_mutex_init drop ;
 
 : lock ( addr -- )  pthread_mutex_lock drop ;
