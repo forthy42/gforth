@@ -157,14 +157,16 @@ interpret/compile: user' ( 'user' -- n )
 : kill-task ( -- )
     thread-retval pthread_exit ;
 
-: NewTask ( stacksize -- task )
-    dup 2dup gforth_create_thread >r
+: NewTask4 ( dsize rsize fsize lsize -- task )
+    gforth_create_thread >r
     handler r@ udp @ handler next-task - /string move
     saved-ip r@ >task save-task r@ >task !
     word-pno-size chars dup allocate throw dup holdbufptr r@ >task !
     + dup holdptr r@ >task !  holdend r@ >task !
     ['] kill-task >body  rp0 r@ >task @ 1 cells - dup rp0 r@ >task ! !
     r> ;
+
+: NewTask ( stacksize -- task )  dup 2dup NewTask4 ;
 
 : activate ( task -- )
     r> swap >r
@@ -179,6 +181,8 @@ interpret/compile: user' ( 'user' -- n )
 : unlock ( addr -- )  pthread_mutex_unlock drop ;
 
 : stacksize ( -- n ) forthstart 4 cells + @ ;
+: stacksize4 ( -- dsize rsize fsize lsize )
+    forthstart 4 cells + 4 cells bounds DO  I @  cell +LOOP ;
 
 false [IF] \ test
     semaphore testsem
