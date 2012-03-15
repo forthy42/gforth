@@ -24,14 +24,11 @@ c-library pthread
     \c #include <unistd.h>
     \c #define wholepage(n) (((n)+pagesize-1)&~(pagesize-1))
     \c typedef struct {
-    \c   Cell data_stack_size;
-    \c   Cell fp_stack_size;
-    \c   Cell return_stack_size;
-    \c   Cell locals_stack_size;
-    \c   Cell sp0, fp0, rp0, lp0, up0;
-    \c   Cell boot_entry;
-    \c   Cell saved_ip, saved_rp;
-    \c } threadId;
+    \c   Cell next_task;
+    \c   Cell prev_task;
+    \c   Cell save_task;
+    \c   Cell sp0, fp0, rp0, lp0;
+    \c } user_area;
     \c int pagesize = 1;
     \c void page_noaccess(void *a)
     \c {
@@ -65,7 +62,7 @@ c-library pthread
     \c   return r;  
     \c }
     \c
-    \c int gforth_create_thread(threadId * t)
+    \c Cell gforth_create_thread(Cell dsize, Cell rsize, Cell fsize, Cell lsize)
     \c {
     \c #if HAVE_GETPAGESIZE
     \c   pagesize=getpagesize(); /* Linux/GNU libc offers this */
@@ -74,27 +71,30 @@ c-library pthread
     \c #elif PAGESIZE
     \c   pagesize=PAGESIZE; /* in limits.h according to Gallmeister's POSIX.4 book */
     \c #endif
-    \c   Cell dsize = wholepage(t->data_stack_size);
-    \c   Cell rsize = wholepage(t->return_stack_size);
-    \c   Cell fsize = wholepage(t->fp_stack_size);
-    \c   Cell lsize = wholepage(t->locals_stack_size);
-    \c   size_t totalsize = dsize+fsize+rsize+lsize+5*pagesize;
-    \c   Cell a = (Cell)alloc_mmap(totalsize);
+    \c   size_t totalsize;
+    \c   Cell a;
+    \c   user_area * up0;
+    \c   dsize = wholepage(dsize);
+    \c   rsize = wholepage(rsize);
+    \c   fsize = wholepage(fsize);
+    \c   lsize = wholepage(lsize);
+    \c   totalsize = dsize+fsize+rsize+lsize+5*pagesize;
+    \c   a = (Cell)alloc_mmap(totalsize);
     \c   if (a != (Cell)MAP_FAILED) {
-    \c     page_noaccess((void*)a); a+=pagesize; t->up0=a; a+=dsize; t->sp0=a;
-    \c     page_noaccess((void*)a); a+=pagesize; a+=fsize; t->fp0=a;
-    \c     page_noaccess((void*)a); a+=pagesize; a+=rsize; t->rp0=a;
-    \c     page_noaccess((void*)a); a+=pagesize; a+=lsize; t->lp0=a;
+    \c     page_noaccess((void*)a); a+=pagesize; up0=(user_area*)a; a+=dsize; up0->sp0=a;
+    \c     page_noaccess((void*)a); a+=pagesize; a+=fsize; up0->fp0=a;
+    \c     page_noaccess((void*)a); a+=pagesize; a+=rsize; up0->rp0=a;
+    \c     page_noaccess((void*)a); a+=pagesize; a+=lsize; up0->lp0=a;
     \c     page_noaccess((void*)a);
-    \c     return 1;
+    \c     return (Cell)up0;
     \c   }
     \c   return 0;
     \c }
     \c
-    \c void *gforth_thread(threadId * t)
+    \c void *gforth_thread(user_area * t)
     \c {
-    \c   gforth_UP = (char*)(t->up0);
-    \c   return gforth_engine((void*)(t->boot_entry), (Cell*)(t->sp0), (Cell*)(t->rp0), (Float*)(t->fp0), (void*)(t->lp0), (char*)&(t->saved_ip));
+    \c   gforth_UP = (char*)(t);
+    \c   return gforth_engine(*(void**)(t->save_task), (Cell*)(t->sp0), (Cell*)(t->rp0), (Float*)(t->fp0), (void*)(t->lp0), (char*)(t->save_task));
     \c }
     \c void *gforth_thread_p()
     \c {
@@ -119,7 +119,7 @@ c-library pthread
     c-function pthread+ pthread_plus a -- a ( addr -- addr' )
     c-function pthreads pthreads n -- n ( n -- n' )
     c-function thread_start gforth_thread_p -- a ( -- addr )
-    c-function gforth_create_thread gforth_create_thread a -- n ( addr -- n )
+    c-function gforth_create_thread gforth_create_thread n n n n -- a ( dsize rsize fsize lsize -- task )
     c-function pthread_create pthread_create a a a a -- n ( thread attr start arg )
     c-function pthread_exit pthread_exit a -- void ( retaddr -- )
     c-function pthread_mutex_init pthread_mutex_init a a -- n ( mutex addr -- r )
@@ -130,33 +130,24 @@ c-library pthread
     c-function pause pthread_yield -- void ( -- )
 end-c-library
 
-begin-structure threadId
-field: data_stack_size
-field: fp_stack_size
-field: return_stack_size
-field: locals_stack_size
-field: t_sp0
-field: t_fp0
-field: t_rp0
-field: t_lp0
-field: t_up0
-field: boot_entry
-field: saved_ip
-field: saved_rp
-1 pthreads +field t_pthread
-end-structure
+User saved-ip
+User saved-up
+User pthread-id  -1 cells pthread+ uallot drop
+
+saved-ip save-task !
+
+: >task ( user task -- user' )  + next-task - ;
 
 : NewTask ( stacksize -- task )
-    threadId allocate throw >r
-    dup 2dup r@ 2! r@ cell+ cell+ 2!
-    r@ gforth_create_thread drop
-    next-task r@ t_up0 @ udp @ move
+    dup 2dup gforth_create_thread >r
+    handler r@ udp @ handler next-task - /string move
+    saved-ip r@ >task save-task r@ >task !
     r> ;
 
 : activate ( task -- )
     r> swap >r
-    r@ boot_entry !
-    r@ t_pthread 0 thread_start r> pthread_create drop ;
+    saved-ip r@ >task !
+    pthread-id r@ >task 0 thread_start r> pthread_create drop ;
 
 : semaphore ( "name" -- )
     Create here 1 pthread-mutexes allot 0 pthread_mutex_init drop ;
@@ -166,7 +157,7 @@ end-structure
 
 : stacksize ( -- n ) forthstart 4 cells + @ ;
 
-true [IF] \ test
+false [IF] \ test
     semaphore testsem
     
     : test-thread1
