@@ -27,7 +27,7 @@ c-library pthread
     \c   Cell next_task;
     \c   Cell prev_task;
     \c   Cell save_task;
-    \c   Cell sp0, fp0, rp0, lp0;
+    \c   Cell sp0, rp0, fp0, lp0;
     \c } user_area;
     \c int pagesize = 1;
     \c void page_noaccess(void *a)
@@ -91,10 +91,20 @@ c-library pthread
     \c   return 0;
     \c }
     \c
+    \c void gforth_cleanup_thread(void * t)
+    \c {
+    \c   Cell size = (Cell)(((user_area*)t)->lp0)+pagesize-(Cell)t;
+    \c   munmap(t-pagesize, size);
+    \c }
+    \c
     \c void *gforth_thread(user_area * t)
     \c {
-    \c   gforth_UP = (char*)(t);
-    \c   return gforth_engine(*(void**)(t->save_task), (Cell*)(t->sp0), (Cell*)(t->rp0), (Float*)(t->fp0), (void*)(t->lp0), (char*)(t->save_task));
+    \c void *x;
+    \c   gforth_UP = (char*)((void*)t);
+    \c   pthread_cleanup_push(&gforth_cleanup_thread, (void*)t);
+    \c   x=gforth_engine(*(void**)(t->save_task), (Cell*)(t->sp0), (Cell*)(t->rp0), (Float*)(t->fp0), (void*)(t->lp0), (char*)(t->save_task));
+    \c   pthread_cleanup_pop(1);
+    \c   return x;
     \c }
     \c void *gforth_thread_p()
     \c {
@@ -133,6 +143,7 @@ end-c-library
 User saved-ip
 User saved-up
 User pthread-id  -1 cells pthread+ uallot drop
+User thread-retval
 
 saved-ip save-task !
 
@@ -143,12 +154,16 @@ interpret/compile: user' ( 'user' -- n )
 
 : >task ( user task -- user' )  + next-task - ;
 
+: kill-task ( -- )
+    thread-retval pthread_exit ;
+
 : NewTask ( stacksize -- task )
     dup 2dup gforth_create_thread >r
     handler r@ udp @ handler next-task - /string move
     saved-ip r@ >task save-task r@ >task !
     word-pno-size chars dup allocate throw dup holdbufptr r@ >task !
     + dup holdptr r@ >task !  holdend r@ >task !
+    ['] kill-task >body  rp0 r@ >task @ 1 cells - dup rp0 r@ >task ! !
     r> ;
 
 : activate ( task -- )
