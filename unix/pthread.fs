@@ -173,13 +173,13 @@ interpret/compile: user' ( 'user' -- n )
 : >task ( user task -- user' )  + next-task - ;
 
 : kill-task ( -- )
-    thread-retval pthread_exit ;
+    0 (bye) ;
 
 : thread-throw ( -- )
     [ here throw-entry ! ]
     handler @ ?dup-0=-IF
 	>stderr cr ." uncaught thread exception: " .error cr
-	kill-task
+	0 (bye)
     THEN
     (throw1) ;
 
