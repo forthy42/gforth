@@ -196,9 +196,16 @@ interpret/compile: user' ( 'user' -- n )
 : NewTask ( stacksize -- task )  dup 2dup NewTask4 ;
 
 : activate ( task -- )
-    r> swap >r
-    saved-ip r@ >task !
+    r> swap >r  saved-ip r@ >task !
     pthread-id r@ >task 0 thread_start r> pthread_create drop ;
+
+: (pass) ( x1 .. xn n task -- )
+    r> swap >r  saved-ip r@ >task !
+    1+ dup cells negate  sp0 r@ >task @ -rot  sp0 r@ >task +!
+    sp0 r@ >task @ swap 0 ?DO  tuck ! cell+  LOOP  drop
+    pthread-id r@ >task 0 thread_start r> pthread_create drop ;
+
+: pass  ]] (pass) sp0 ! [[ ; immediate
 
 : sema ( "name" -- ) \ gforth
     \G create a named semaphore
