@@ -104,6 +104,8 @@ AUser lp0 ( -- a-addr ) \ gforth
 \G OBSOLETE alias of @code{lp0}
 [THEN]
 
+AUser throw-entry  \ pointer to task-specific signal handler
+
 AUser handler	\ pointer to last throw frame
 has? backtrace [IF]
 AUser backtrace-rp0 \ rp at last call of interpret

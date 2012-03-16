@@ -92,7 +92,7 @@ graceful_exit (int sig)
   exit (0x80|sig);
 }
 
-jmp_buf throw_jmp_buf;
+__thread jmp_buf throw_jmp_buf;
 
 void throw(int code)
 {

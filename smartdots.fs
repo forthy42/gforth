@@ -34,7 +34,8 @@ Variable smart.s-skip
 
 : smart.s. ( n -- )
     smart.s-skip @  smart.s-skip off IF  drop  EXIT  THEN
-    over r> i swap >r - pick  2dup string? IF
+    over r> i swap >r -
+    dup 1 = IF  false  ELSE  pick  2dup string?  THEN  IF
 	.string. smart.s-skip on
     ELSE  drop dup addr? IF  .addr.
 	ELSE  .  THEN

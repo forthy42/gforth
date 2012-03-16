@@ -22,12 +22,15 @@ c-library pthread
     \c #include <limits.h>
     \c #include <sys/mman.h>
     \c #include <unistd.h>
+    \c #include <setjmp.h>
+    \c #include <stdio.h>
     \c #define wholepage(n) (((n)+pagesize-1)&~(pagesize-1))
     \c typedef struct {
     \c   Cell next_task;
     \c   Cell prev_task;
     \c   Cell save_task;
     \c   Cell sp0, rp0, fp0, lp0;
+    \c   Cell throw_entry;
     \c } user_area;
     \c int pagesize = 1;
     \c void page_noaccess(void *a)
@@ -78,10 +81,11 @@ c-library pthread
     \c   rsize = wholepage(rsize);
     \c   fsize = wholepage(fsize);
     \c   lsize = wholepage(lsize);
-    \c   totalsize = dsize+fsize+rsize+lsize+5*pagesize;
+    \c   totalsize = dsize+fsize+rsize+lsize+6*pagesize;
     \c   a = (Cell)alloc_mmap(totalsize);
     \c   if (a != (Cell)MAP_FAILED) {
-    \c     page_noaccess((void*)a); a+=pagesize; up0=(user_area*)a; a+=dsize; up0->sp0=a;
+    \c     up0=(user_area*)a; a+=pagesize;
+    \c     page_noaccess((void*)a); a+=pagesize; a+=dsize; up0->sp0=a;
     \c     page_noaccess((void*)a); a+=pagesize; a+=fsize; up0->fp0=a;
     \c     page_noaccess((void*)a); a+=pagesize; a+=rsize; up0->rp0=a;
     \c     page_noaccess((void*)a); a+=pagesize; a+=lsize; up0->lp0=a;
@@ -93,16 +97,30 @@ c-library pthread
     \c
     \c void gforth_cleanup_thread(void * t)
     \c {
-    \c   Cell size = (Cell)(((user_area*)t)->lp0)+pagesize-(Cell)t;
-    \c   munmap(t-pagesize, size);
+    \c   Cell size = wholepage((Cell)(((user_area*)t)->lp0)+pagesize-(Cell)t);
+    \c   munmap(t, size);
     \c }
+    \c
+    \c extern __thread jmp_buf throw_jmp_buf;
     \c
     \c void *gforth_thread(user_area * t)
     \c {
-    \c void *x;
+    \c   void *x;
+    \c   int throw_code;
     \c   gforth_UP = (char*)((void*)t);
     \c   pthread_cleanup_push(&gforth_cleanup_thread, (void*)t);
-    \c   x=gforth_engine(*(void**)(t->save_task), (Cell*)(t->sp0), (Cell*)(t->rp0), (Float*)(t->fp0), (void*)(t->lp0), (char*)(t->save_task));
+    \c
+    \c   if ((throw_code=setjmp(throw_jmp_buf))) {
+    \c     static Cell signal_data_stack[24];
+    \c     static Cell signal_return_stack[16];
+    \c     static Float signal_fp_stack[1];
+    \c 
+    \c     signal_data_stack[15]=throw_code;
+    \c     x=gforth_engine((Cell*)(t->throw_entry), signal_data_stack+15,
+    \c                     signal_return_stack+16, signal_fp_stack, 0, (char*)(t->save_task));
+    \c   } else {
+    \c     x=gforth_engine(*(void**)(t->save_task), (Cell*)(t->sp0), (Cell*)(t->rp0), (Float*)(t->fp0), (void*)(t->lp0), (char*)(t->save_task));
+    \c   }
     \c   pthread_cleanup_pop(1);
     \c   return x;
     \c }
@@ -157,13 +175,22 @@ interpret/compile: user' ( 'user' -- n )
 : kill-task ( -- )
     thread-retval pthread_exit ;
 
+: thread-throw ( -- )
+    [ here throw-entry ! ]
+    handler @ ?dup-0=-IF
+	>stderr cr ." uncaught thread exception: " .error cr
+	kill-task
+    THEN
+    (throw1) ;
+
 : NewTask4 ( dsize rsize fsize lsize -- task )
     gforth_create_thread >r
-    handler r@ udp @ handler next-task - /string move
+    throw-entry r@ udp @ throw-entry next-task - /string move
     saved-ip r@ >task save-task r@ >task !
     word-pno-size chars dup allocate throw dup holdbufptr r@ >task !
     + dup holdptr r@ >task !  holdend r@ >task !
     ['] kill-task >body  rp0 r@ >task @ 1 cells - dup rp0 r@ >task ! !
+    handler r@ >task off
     r> ;
 
 : NewTask ( stacksize -- task )  dup 2dup NewTask4 ;

@@ -20,7 +20,7 @@
 
 #include <setjmp.h>
 
-extern jmp_buf throw_jmp_buf;
+extern __thread jmp_buf throw_jmp_buf;
 
 #if defined(MSDOS) || defined(SHARC)
 #  define prep_terminal()
