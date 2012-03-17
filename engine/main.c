@@ -68,10 +68,6 @@ __thread Address gforth_UP=NULL;
 __thread Cell *gforth_RP;
 __thread Address gforth_LP;
 
-#ifndef HAS_LINKBACK
-__thread void * gforth_pointers[8];
-#endif
-
 #ifdef HAS_FFCALL
 
 #include <callback.h>
@@ -2316,20 +2312,22 @@ void data_abort_C(void)
 }
 #endif
 
-void gforth_linkback()
+void* gforth_pointers(Cell n)
 {
-#ifndef HAS_LINKBACK
-  gforth_pointers[0] = (void*)&gforth_SP;
-  gforth_pointers[1] = (void*)&gforth_FP;
-  gforth_pointers[2] = (void*)&gforth_LP;
-  gforth_pointers[3] = (void*)&gforth_RP;
-  gforth_pointers[4] = (void*)&gforth_UP;
-  gforth_pointers[5] = (void*)gforth_engine;
+  switch(n) {
+  case 0: return (void*)&gforth_SP;
+  case 1: return (void*)&gforth_FP;
+  case 2: return (void*)&gforth_LP;
+  case 3: return (void*)&gforth_RP;
+  case 4: return (void*)&gforth_UP;
+  case 5: return (void*)&gforth_engine;
 #ifdef HAS_FILE
-  gforth_pointers[6] = (void*)cstr;
-  gforth_pointers[7] = (void*)tilde_cstr;
+  case 6: return (void*)&cstr;
+  case 7: return (void*)&tilde_cstr;
 #endif
-#endif
+  case 8: return (void*)&throw_jmp_buf;
+  default: return NULL;
+  }
 }
 
 int main(int argc, char **argv, char **env)
@@ -2353,10 +2351,6 @@ int main(int argc, char **argv, char **env)
   asm("fldcw %0" : : "m"(fpu_control));
 #endif /* defined(__i386) */
 
-#ifndef HAS_LINKBACK
-  gforth_linkback();
-#endif
-	  
 #ifdef MACOSX_DEPLOYMENT_TARGET
   setenv("MACOSX_DEPLOYMENT_TARGET", MACOSX_DEPLOYMENT_TARGET, 0);
 #endif

@@ -470,11 +470,8 @@ extern __thread Cell *gforth_RP;
 extern __thread Address gforth_LP;
 extern __thread Float *gforth_FP;
 extern __thread Address gforth_UP;
-#ifndef HAS_LINKBACK
-extern __thread void * gforth_pointers[];
-#endif
 
-extern void gforth_backlink();
+extern void * gforth_pointers(Cell n);
 
 #ifdef HAS_FFCALL
 extern void gforth_callback(Xt* fcall, void * alist);

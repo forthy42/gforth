@@ -31,14 +31,14 @@ include-ffi.h-string save-c-prefix-line \ #include <ffi.h>
 \c static void **gforth_clist;
 \c static void *gforth_ritem;
 \c #ifndef HAS_BACKLINK
-\c static void **saved_gforth_pointers;
+\c static void *(*saved_gforth_pointers)(Cell);
 \c #endif
 \c typedef void *Label;
 \c typedef Label *Xt;
 \c static void gforth_callback_ffi(ffi_cif * cif, void * resp, void ** args, void * ip)
 \c {
 \c #ifndef HAS_BACKLINK
-\c   void **gforth_pointers = saved_gforth_pointers;
+\c   void *(*gforth_pointers)(Cell) = saved_gforth_pointers;
 \c #endif
 \c   {
 \c     Cell *rp1 = gforth_RP;
