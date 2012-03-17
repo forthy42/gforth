@@ -107,9 +107,8 @@ c-library pthread
     \c {
     \c   void *x;
     \c   int throw_code;
-    \c   gforth_UP = (char*)((void*)t);
     \c   pthread_cleanup_push(&gforth_cleanup_thread, (void*)t);
-    \c
+    \c 
     \c   if ((throw_code=setjmp(throw_jmp_buf))) {
     \c     static Cell signal_data_stack[24];
     \c     static Cell signal_return_stack[16];
@@ -117,9 +116,10 @@ c-library pthread
     \c 
     \c     signal_data_stack[15]=throw_code;
     \c     x=gforth_engine((Cell*)(t->throw_entry), signal_data_stack+15,
-    \c                     signal_return_stack+16, signal_fp_stack, 0, (char*)(t->save_task));
+    \c                     signal_return_stack+16, signal_fp_stack, 0);
     \c   } else {
-    \c     x=gforth_engine(*(void**)(t->save_task), (Cell*)(t->sp0), (Cell*)(t->rp0), (Float*)(t->fp0), (void*)(t->lp0), (char*)(t->save_task));
+    \c     ((Cell*)(t->sp0))[-1]=(Cell)t;
+    \c     x=gforth_engine((void*)(t->save_task), (Cell*)(t->sp0)-1, (Cell*)(t->rp0), (Float*)(t->fp0), (void*)(t->lp0));
     \c   }
     \c   pthread_cleanup_pop(1);
     \c   return x;
@@ -158,12 +158,8 @@ c-library pthread
     c-function pause pthread_yield -- void ( -- )
 end-c-library
 
-User saved-ip
-User saved-up
 User pthread-id  -1 cells pthread+ uallot drop
 User thread-retval
-
-saved-ip save-task !
 
 :noname    ' >body @ ;
 :noname    ' >body @ postpone literal ; 
@@ -186,7 +182,6 @@ interpret/compile: user' ( 'user' -- n )
 : NewTask4 ( dsize rsize fsize lsize -- task )
     gforth_create_thread >r
     throw-entry r@ udp @ throw-entry next-task - /string move
-    saved-ip r@ >task save-task r@ >task !
     word-pno-size chars dup allocate throw dup holdbufptr r@ >task !
     + dup holdptr r@ >task !  holdend r@ >task !
     ['] kill-task >body  rp0 r@ >task @ 1 cells - dup rp0 r@ >task ! !
@@ -195,17 +190,19 @@ interpret/compile: user' ( 'user' -- n )
 
 : NewTask ( stacksize -- task )  dup 2dup NewTask4 ;
 
-: activate ( task -- )
-    r> swap >r  saved-ip r@ >task !
+: (activate) ( task -- )
+    r> swap >r  save-task r@ >task !
     pthread-id r@ >task 0 thread_start r> pthread_create drop ;
 
+: activate  ]] (activate) up! [[ ; immediate
+
 : (pass) ( x1 .. xn n task -- )
-    r> swap >r  saved-ip r@ >task !
+    r> swap >r  save-task r@ >task !
     1+ dup cells negate  sp0 r@ >task @ -rot  sp0 r@ >task +!
     sp0 r@ >task @ swap 0 ?DO  tuck ! cell+  LOOP  drop
     pthread-id r@ >task 0 thread_start r> pthread_create drop ;
 
-: pass  ]] (pass) sp0 ! [[ ; immediate
+: pass  ]] (pass) up! sp0 ! [[ ; immediate
 
 : sema ( "name" -- ) \ gforth
     \G create a named semaphore
