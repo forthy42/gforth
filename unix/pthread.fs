@@ -159,7 +159,6 @@ c-library pthread
 end-c-library
 
 User pthread-id  -1 cells pthread+ uallot drop
-User thread-retval
 
 :noname    ' >body @ ;
 :noname    ' >body @ postpone literal ; 
@@ -171,13 +170,13 @@ interpret/compile: user' ( 'user' -- n )
 : kill-task ( -- )
     0 (bye) ;
 
-: thread-throw ( -- )
+:noname ( -- )
     [ here throw-entry ! ]
     handler @ ?dup-0=-IF
 	>stderr cr ." uncaught thread exception: " .error cr
-	0 (bye)
+	kill-task
     THEN
-    (throw1) ;
+    (throw1) ; drop
 
 : NewTask4 ( dsize rsize fsize lsize -- task )
     gforth_create_thread >r
@@ -192,17 +191,17 @@ interpret/compile: user' ( 'user' -- n )
 
 : (activate) ( task -- )
     r> swap >r  save-task r@ >task !
-    pthread-id r@ >task 0 thread_start r> pthread_create drop ;
+    pthread-id r@ >task 0 thread_start r> pthread_create drop ; compile-only
 
-: activate  ]] (activate) up! [[ ; immediate
+: activate  ]] (activate) up! [[ ; immediate compile-only
 
 : (pass) ( x1 .. xn n task -- )
     r> swap >r  save-task r@ >task !
     1+ dup cells negate  sp0 r@ >task @ -rot  sp0 r@ >task +!
     sp0 r@ >task @ swap 0 ?DO  tuck ! cell+  LOOP  drop
-    pthread-id r@ >task 0 thread_start r> pthread_create drop ;
+    pthread-id r@ >task 0 thread_start r> pthread_create drop ; compile-only
 
-: pass  ]] (pass) up! sp0 ! [[ ; immediate
+: pass  ]] (pass) up! sp0 ! [[ ; immediate compile-only
 
 : sema ( "name" -- ) \ gforth
     \G create a named semaphore
