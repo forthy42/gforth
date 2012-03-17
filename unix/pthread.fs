@@ -101,12 +101,18 @@ c-library pthread
     \c   munmap(t, size);
     \c }
     \c
+    \c #ifdef HAS_BACKLINK
     \c extern __thread jmp_buf throw_jmp_buf;
-    \c
+    \c #else
+    \c __thread jmp_buf throw_jmp_buf;
+    \c static void ** gf_pointers;
+    \c #endif
+    \c 
     \c void *gforth_thread(user_area * t)
     \c {
     \c   void *x;
     \c   int throw_code;
+    \c   void ** gforth_pointers = gf_pointers;
     \c   pthread_cleanup_push(&gforth_cleanup_thread, (void*)t);
     \c 
     \c   if ((throw_code=setjmp(throw_jmp_buf))) {
@@ -124,10 +130,19 @@ c-library pthread
     \c   pthread_cleanup_pop(1);
     \c   return x;
     \c }
+    \c #ifdef HAS_BACKLINK
     \c void *gforth_thread_p()
     \c {
     \c   return (void*)&gforth_thread;
     \c }
+    \c #else
+    \c #define gforth_thread_p() gforth_thread_ptr(gforth_pointers)
+    \c void *gforth_thread_ptr(GFORTH_ARGS)
+    \c {
+    \c   gf_pointers=gforth_pointers;
+    \c   return (void*)&gforth_thread;
+    \c }
+    \c #endif
     \c void *pthread_plus(void * thread)
     \c {
     \c   return thread+sizeof(pthread_t);

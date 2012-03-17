@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#Copyright (C) 2000,2003,2006,2007,2009 Free Software Foundation, Inc.
+#Copyright (C) 2000,2003,2006,2007,2009,2011 Free Software Foundation, Inc.
 
 #This file is part of Gforth.
 
@@ -42,7 +42,7 @@ cat <<EOT
 [Setup]
 AppName=Gforth
 AppVerName=Gforth $VERSION
-AppCopyright=Copyright © 1995,1996,1997,1998,2000,2003,2006,2007,2008,2009 Free Software Foundation
+AppCopyright=Copyright © 1995,1996,1997,1998,2000,2003,2006,2007,2008,2009,2010,2011 Free Software Foundation
 DefaultDirName={pf}\gforth
 DefaultGroupName=Gforth
 AllowNoIcons=1
@@ -81,14 +81,15 @@ Name: "{app}\include\gforth\\$VERSION"
 ; Parameter quick reference:
 ;   "Source filename", "Dest. filename", Copy mode, Flags
 Source: "README.txt"; DestDir: "{app}"; Flags: isreadme
-Source: "c:\cygwin\bin\cygwin1.dll"; DestDir: "{app}"
 Source: "c:\cygwin\bin\sh.exe"; DestDir: "{app}"
+Source: "c:\cygwin\bin\cygwin1.dll"; DestDir: "{app}"
+Source: "c:\cygwin\bin\cyggcc_s-1.dll"; DestDir: "{app}"
 Source: "c:\cygwin\bin\cygintl-8.dll"; DestDir: "{app}"
 Source: "c:\cygwin\bin\cygiconv-2.dll"; DestDir: "{app}"
-Source: "c:\cygwin\bin\cygltdl-3.dll"; DestDir: "{app}"
-Source: "c:\cygwin\bin\cygreadline6.dll"; DestDir: "{app}"
-Source: "c:\cygwin\bin\cygncurses-8.dll"; DestDir: "{app}"
-Source: "c:\cygwin\bin\cygffi-2-00-beta.dll"; DestDir: "{app}"
+Source: "c:\cygwin\bin\cygltdl-7.dll"; DestDir: "{app}"
+Source: "c:\cygwin\bin\cygreadline7.dll"; DestDir: "{app}"
+Source: "c:\cygwin\bin\cygncursesw-10.dll"; DestDir: "{app}"
+Source: "c:\cygwin\bin\cygffi-4.dll"; DestDir: "{app}"
 Source: "gforthmi.sh"; DestDir: "{app}"
 $(ls doc/gforth | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "doc\\gforth\\\1"; DestDir: "{app}\\doc\\gforth"; Components: help,g')
 $(ls doc/vmgen | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "doc\\vmgen\\\1"; DestDir: "{app}\\doc\\vmgen"; Components: help,g')
