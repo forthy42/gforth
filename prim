@@ -2325,6 +2325,7 @@ CLOBBER_TOS_WORKAROUND_END;
 
 flnp1	( r1 -- r2 )	float-ext	f_l_n_p_one
 ""@i{r2}=ln(@i{r1}+1)""
+CLOBBER_TOS_WORKAROUND_START;
 #ifdef HAVE_LOG1P
 extern double
 #ifdef NeXT
@@ -2335,6 +2336,7 @@ r2 = log1p(r1);
 #else
 r2 = log(r1+1.);
 #endif
+CLOBBER_TOS_WORKAROUND_END;
 
 flog	( r1 -- r2 )	float-ext	f_log
 ""The decimal logarithm.""
