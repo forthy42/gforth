@@ -2359,8 +2359,7 @@ CLOBBER_TOS_WORKAROUND_END;
 fsincos	( r1 -- r2 r3 )	float-ext	f_sine_cos
 ""@i{r2}=sin(@i{r1}), @i{r3}=cos(@i{r1})""
 CLOBBER_TOS_WORKAROUND_START;
-r2 = sin(r1);
-r3 = cos(r1);
+sincos(r1, &r2, &r3);
 CLOBBER_TOS_WORKAROUND_END;
 
 fsqrt	( r1 -- r2 )	float-ext	f_square_root
