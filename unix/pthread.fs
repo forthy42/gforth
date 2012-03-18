@@ -77,18 +77,18 @@ c-library pthread
     \c   size_t totalsize;
     \c   Cell a;
     \c   user_area * up0;
-    \c   dsize = wholepage(dsize);
-    \c   rsize = wholepage(rsize);
-    \c   fsize = wholepage(fsize);
-    \c   lsize = wholepage(lsize);
+    \c   Cell dsizep = wholepage(dsize);
+    \c   Cell rsizep = wholepage(rsize);
+    \c   Cell fsizep = wholepage(fsize);
+    \c   Cell lsizep = wholepage(lsize);
     \c   totalsize = dsize+fsize+rsize+lsize+6*pagesize;
     \c   a = (Cell)alloc_mmap(totalsize);
     \c   if (a != (Cell)MAP_FAILED) {
     \c     up0=(user_area*)a; a+=pagesize;
-    \c     page_noaccess((void*)a); a+=pagesize; a+=dsize; up0->sp0=a;
-    \c     page_noaccess((void*)a); a+=pagesize; a+=fsize; up0->fp0=a;
-    \c     page_noaccess((void*)a); a+=pagesize; a+=rsize; up0->rp0=a;
-    \c     page_noaccess((void*)a); a+=pagesize; a+=lsize; up0->lp0=a;
+    \c     page_noaccess((void*)a); a+=pagesize; up0->sp0=a+dsize; a+=dsizep;
+    \c     page_noaccess((void*)a); a+=pagesize; up0->fp0=a+fsize; a+=fsizep;
+    \c     page_noaccess((void*)a); a+=pagesize; up0->rp0=a+rsize; a+=rsizep;
+    \c     page_noaccess((void*)a); a+=pagesize; up0->lp0=a+lsize; a+=lsizep;
     \c     page_noaccess((void*)a);
     \c     return (Cell)up0;
     \c   }
@@ -207,7 +207,8 @@ interpret/compile: user' ( 'user' -- n )
     r> swap >r  save-task r@ >task !
     pthread-id r@ >task 0 thread_start r> pthread_create drop ; compile-only
 
-: activate  ]] (activate) up! [[ ; immediate compile-only
+: activate ( task -- )
+    ]] (activate) up! [[ ; immediate compile-only
 
 : (pass) ( x1 .. xn n task -- )
     r> swap >r  save-task r@ >task !
@@ -215,7 +216,8 @@ interpret/compile: user' ( 'user' -- n )
     sp0 r@ >task @ swap 0 ?DO  tuck ! cell+  LOOP  drop
     pthread-id r@ >task 0 thread_start r> pthread_create drop ; compile-only
 
-: pass  ]] (pass) up! sp0 ! [[ ; immediate compile-only
+: pass ( x1 .. xn n task -- )
+    ]] (pass) up! sp0 ! [[ ; immediate compile-only
 
 : sema ( "name" -- ) \ gforth
     \G create a named semaphore
@@ -224,9 +226,12 @@ interpret/compile: user' ( 'user' -- n )
 : lock ( addr -- )  pthread_mutex_lock drop ;
 : unlock ( addr -- )  pthread_mutex_unlock drop ;
 
-: stacksize ( -- n ) forthstart 4 cells + @ ;
+: stacksize ( -- n ) forthstart 4 cells + @
+    sp0 @ $FFF and -$1000 or + ;
 : stacksize4 ( -- dsize rsize fsize lsize )
-    forthstart 4 cells + 4 cells bounds DO  I @  cell +LOOP ;
+    forthstart 4 cells + 4 cells bounds DO  I @  cell +LOOP
+    2swap swap sp0 @ $FFF and -$1000 or + swap 2swap
+    swap       fp0 @ $FFF and -$1000 or + swap ;
 
 false [IF] \ test
     semaphore testsem
