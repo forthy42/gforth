@@ -51,24 +51,24 @@ EC = @EC@
 
 package =
 VPATH = @srcdir@
-prefix = $(package)@prefix@
+prefix = @prefix@
 exec_prefix = @exec_prefix@
 srcdir = @srcdir@
-bindir = @bindir@
+bindir = $(package)@bindir@
 #read-only architecture-independent files
-datarootdir = @datarootdir@
-datadir = @datadir@
+datarootdir = $(package)@datarootdir@
+datadir = $(package)@datadir@
 #read-only architecture-dependent non-ascii files
-libdir = @libdir@
+libdir = $(package)@libdir@
 libccdir = $(subst $(DESTDIR),,$(libdir)/gforth/$(VERSION)/libcc-named/)
-includedir = @includedir@
-infodir = @infodir@
-htmldir = @htmldir@
-mandir = @mandir@
+includedir = $(package)@includedir@
+infodir = $(package)@infodir@
+htmldir = $(package)@htmldir@
+mandir = $(package)@mandir@
 man1dir= $(mandir)/man1
 man1ext= .1
 #older emacses have their site-lisp in $(libdir)/emacs/
-emacssitelispdir=@lispdir@
+emacssitelispdir=$(package)@lispdir@
 siteforthdir=$(datadir)/gforth/site-forth
 
 # -------------	Utility programs
