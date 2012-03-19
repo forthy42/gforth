@@ -109,3 +109,14 @@ dbinonlydist:	$(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST) $(BINONLYDIST)
 		$(TAR) $(BINONLYDIST) | (cd gforth-$(VERSION); tar xf -)
 		$(STRIP) gforth-$(VERSION)/gforth$(EXE)
 		$(TAR) gforth-$(VERSION)|gzip -9 >gforth-$(VERSION).binonly.@host@.tar.gz
+
+ddebdist:	$(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST) $(BINONLYDIST) debian.control
+		-rm -rf debian
+		mkdir debian
+		make package=$$PWD/debian install
+		mkdir debian/DEBIAN
+		(cd debian; find . -name '*' -exec md5sum '{}' ';') >debian/DEBIAN/md5sums	
+		cp debian.control debian/DEBIAN/control
+		dpkg-deb --build debian
+		mv debian.deb gforth_$(VERSION)_@host_cpu@.deb
+		rm -rf md5sums debian

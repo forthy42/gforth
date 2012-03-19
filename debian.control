@@ -3,9 +3,9 @@ Section: programming
 Priority: optional
 Maintainer: Bernd Paysan <bernd.paysan@gmx.de>
 Build-Depends: debhelper (>= 4.1.16), build-essential, gcc, autoconf, automake, autotools-dev, libffi-dev, libtool, libltdl3-dev
-
 Package: gforth
+Version: 0.7.9
 Architecture: any
-Depends: ${shlibs:Depends}
+Depends: 
 Description: gforth
  gforth is the GNU implementation of the ANS Forth standard.

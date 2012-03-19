@@ -185,6 +185,7 @@ else
 fi
 AC_MSG_RESULT($condbranch_opt)
 AC_SUBST(condbranch_opt)
+AC_SUBST(host_cpu)
 
 AC_SUBST(CC)
 AC_SUBST(GCC_LD)
