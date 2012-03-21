@@ -56,7 +56,7 @@ exec_prefix = @exec_prefix@
 srcdir = @srcdir@
 bindir = $(package)@bindir@
 #read-only architecture-independent files
-datarootdir = $(package)@datarootdir@
+datarootdir = @datarootdir@
 datadir = $(package)@datadir@
 #read-only architecture-dependent non-ascii files
 libdir = $(package)@libdir@
@@ -623,7 +623,7 @@ hpux-workaround:
 #hard to generate).
 #we rebuild gforth.fi, because it contains some path names.
 #we delete $build/gforth.fi and $build/install.TAGS after installation because of ownership.
-install:	gforth$(EC)$(EXE) $(FORTH_SRC) $(kernel_fi) gforth.fi gforthmi vmgen doc/gforth.1 prim install.TAGS installdirs
+install:	gforth$(EC)$(EXE) $(FORTH_SRC) $(kernel_fi) gforthmi vmgen doc/gforth.1 prim install.TAGS installdirs @NO_CROSS@ gforth.fi
 		$(NORMAL_INSTALL)
 		touch $(DESTDIR)$(siteforthdir)/siteinit.fs
 		-$(RM) $(DESTDIR)$(bindir)/gforth$(EC)$(EXE) $(DESTDIR)$(bindir)/gforth-$(VERSION)$(EC)$(EXE) $(DESTDIR)$(bindir)/gforthmi $(DESTDIR)$(bindir)/vmgen
@@ -637,9 +637,10 @@ install:	gforth$(EC)$(EXE) $(FORTH_SRC) $(kernel_fi) gforth.fi gforthmi vmgen do
 		(cd $(DESTDIR)$(bindir) && $(LN_S) gforth-fast-$(VERSION)$(EC)$(EXE) gforth-fast$(EC)$(EXE))
 		$(INSTALL_PROGRAM) gforth-itc$(EC)$(EXE) $(DESTDIR)$(bindir)/gforth-itc-$(VERSION)$(EC)$(EXE)
 		(cd $(DESTDIR)$(bindir) && $(LN_S) gforth-itc-$(VERSION)$(EC)$(EXE) gforth-itc$(EC)$(EXE))
+		$(INSTALL_PROGRAM) gforth-ditc$(EC)$(EXE) $(DESTDIR)$(bindir)/gforth-ditc-$(VERSION)$(EC)$(EXE)
+		(cd $(DESTDIR)$(bindir) && $(LN_S) gforth-ditc-$(VERSION)$(EC)$(EXE) gforth-ditc$(EC)$(EXE))
 		$(INSTALL_SCRIPT) gforthmi $(DESTDIR)$(bindir)/gforthmi-$(VERSION)
 		$(INSTALL_SCRIPT) vmgen $(DESTDIR)$(bindir)/vmgen-$(VERSION)
-		$(INSTALL_PROGRAM) gforth-ditc $(DESTDIR)$(libdir)/gforth/$(VERSION)
 		(cd $(DESTDIR)$(bindir) && $(LN_S) gforthmi-$(VERSION) gforthmi)
 		(cd $(DESTDIR)$(bindir) && $(LN_S) vmgen-$(VERSION) vmgen)
 		-$(INSTALL_DATA) $(srcdir)/doc/gforth.1 $(DESTDIR)$(man1dir)
@@ -656,14 +657,14 @@ install:	gforth$(EC)$(EXE) $(FORTH_SRC) $(kernel_fi) gforth.fi gforthmi vmgen do
 			echo '>>>>>Please install gforth.{el,elc} in your .../emacs/site-lisp directory'; \
 		fi
 		-$(RM) gforth.fi
-		GFORTHD="./gforth-ditc -p $(DESTDIR)$(libdir)/gforth/site-forth$(PATHSEP)$(DESTDIR)$(siteforthdir)$(PATHSEP)$(DESTDIR)$(datadir)/gforth/$(VERSION) -i $(kernel_fi)" GFORTH="./gforth-ditc -p $(DESTDIR)$(libdir)/gforth/site-forth$(PATHSEP)$(DESTDIR)$(siteforthdir)$(PATHSEP)$(DESTDIR)$(datadir)/gforth/$(VERSION) --die-on-signal -i $(kernel_fi) $(STARTUP)" includedir=$(includedir) bindir=$(bindir) libccdir=$(libccdir) GFORTHPATH=.:"$$GFORTHPATH" GFORTHDESTDIR="$(DESTDIR)" ./gforthmi gforth.fi $(FORTHSIZES) $(STARTUP)
-		$(INSTALL_DATA) gforth.fi $(DESTDIR)$(libdir)/gforth/$(VERSION)
+		@NO_CROSS@GFORTHD="./gforth-ditc -p $(DESTDIR)$(libdir)/gforth/site-forth$(PATHSEP)$(DESTDIR)$(siteforthdir)$(PATHSEP)$(DESTDIR)$(datadir)/gforth/$(VERSION) -i $(kernel_fi)" GFORTH="./gforth-ditc -p $(DESTDIR)$(libdir)/gforth/site-forth$(PATHSEP)$(DESTDIR)$(siteforthdir)$(PATHSEP)$(DESTDIR)$(datadir)/gforth/$(VERSION) --die-on-signal -i $(kernel_fi) $(STARTUP)" includedir=$(includedir) bindir=$(bindir) libccdir=$(libccdir) GFORTHPATH=.:"$$GFORTHPATH" GFORTHDESTDIR="$(DESTDIR)" ./gforthmi gforth.fi $(FORTHSIZES) $(STARTUP)
+		@NO_CROSS@$(INSTALL_DATA) gforth.fi $(DESTDIR)$(libdir)/gforth/$(VERSION)
 		$(INSTALL_DATA) install.TAGS $(DESTDIR)$(datadir)/gforth/$(VERSION)/TAGS
-		$(RM) gforth.fi install.TAGS
+		$(RM) install.TAGS @NO_CROSS@gforth.fi
 		$(INSTALL_DATA) include/gforth/$(VERSION)/* $(DESTDIR)$(includedir)/gforth/$(VERSION)
-		if test -n "$(LIBTOOL)"; then for i in $(LIBCC_BUILD_SRC); do \
-		   $(LIBTOOL) --silent --mode=install $(INSTALL) lib/gforth/$(VERSION)/libcc-named/`basename $$i .fs`.la $(DESTDIR)$(libccdir)`basename $$i .fs`.la; \
-		done; fi
+		@NO_CROSS@if test -n "$(LIBTOOL)"; then for i in $(LIBCC_BUILD_SRC); do \
+		@NO_CROSS@   $(LIBTOOL) --silent --mode=install $(INSTALL) lib/gforth/$(VERSION)/libcc-named/`basename $$i .fs`.la $(DESTDIR)$(libccdir)`basename $$i .fs`.la; \
+		@NO_CROSS@done; fi
 		$(POST_INSTALL)
 		$(INSTALL_INFO) --info-dir=$(DESTDIR)$(infodir) $(DESTDIR)$(infodir)/gforth.info
 		$(INSTALL_INFO) --info-dir=$(DESTDIR)$(infodir) $(DESTDIR)$(infodir)/vmgen.info

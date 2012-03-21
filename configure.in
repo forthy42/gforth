@@ -128,6 +128,7 @@ else
 fi])
 
 #variables mentioned in INSTALL
+AC_ARG_VAR(SH, [The shell])
 AC_ARG_VAR(CC, [The C compiler (must support GNU C 2.x).])
 AC_ARG_VAR(FORTHSIZES, [Gforth command line options for the default stack and dictionary sizes (see INSTALL).])
 AC_ARG_VAR(STACK_CACHE_REGS, [number of registers in the maximum stack cache state for gforth-fast and gforth-native (default platform-dependent).])
@@ -176,6 +177,8 @@ AC_PROG_CC
 
 test "$GCC" = "yes" || AC_MSG_ERROR(Gforth uses GNU C extensions and requires GCC 2.0 or higher)
 
+test "x$SH" = "x" && SH="/bin/sh"
+
 AC_MSG_CHECKING([whether to use two dispatches per conditional branch])
 test x$condbranch_opt = x && 
 if ($CC -v 2>&1 |grep 'gcc version 3' >/dev/null); then
@@ -187,6 +190,7 @@ AC_MSG_RESULT($condbranch_opt)
 AC_SUBST(condbranch_opt)
 AC_SUBST(host_cpu)
 
+AC_SUBST(SH)
 AC_SUBST(CC)
 AC_SUBST(GCC_LD)
 AC_SUBST(DEBUGFLAG)

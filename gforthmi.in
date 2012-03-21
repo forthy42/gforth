@@ -1,4 +1,4 @@
-#! /bin/sh
+#! @SH@
 # @configure_input@
 #Copyright (C) 1997,1998,2000,2002,2003,2004,2007 Free Software Foundation, Inc.
 
@@ -17,10 +17,17 @@
 #You should have received a copy of the GNU General Public License
 #along with this program; if not, see http://www.gnu.org/licenses/.
 
+startup="-i @kernel_fi@ exboot.fs startup.fs @asm_fs@ @disasm_fs@"
 prefix=@prefix@
 exec_prefix=@exec_prefix@
-test "x$GFORTHD" != x || GFORTHD=$prefix/lib/gforth/@PACKAGE_VERSION@/gforth-ditc
-test "x$GFORTH" != x || GFORTH="@bindir@/gforth-@PACKAGE_VERSION@ --die-on-signal"
+if [ -f "@libdir@/gforth/@PACKAGE_VERSION@/gforth.fi" ]
+then
+  helper=""
+else
+  helper="$startup"
+fi
+test "x$GFORTHD" != x || GFORTHD="@bindir@/gforth-ditc-@PACKAGE_VERSION@ --die-on-signal"
+test "x$GFORTH" != x || GFORTH="@bindir@/gforth-@PACKAGE_VERSION@ --die-on-signal $helper"
 if test $# = 0 || test $1 = --help || test $1 = -h; then
   echo "usage: `basename $0` [--application] target-name [gforth-options]"
   echo "creates a relocatable image 'target-name'"
@@ -39,13 +46,19 @@ elif test $1 = --version || test $1 = -v; then
 elif test $1 = --application; then
     application=yes
     shift
+    generate="$@"
+    outfile=$1; shift
+elif test $1 = --system; then
+    shift
+    generate=$startup
+    outfile="@libdir@/gforth/@PACKAGE_VERSION@/gforth.fi"
 else
-    true #old shells require this
+    generate="$@"
+    outfile=$1; shift
 fi
-outfile=$1; shift
 tmpfile=./temp-image.fi
-$GFORTHD --clear-dictionary --no-offset-im --die-on-signal "$@" -e "savesystem $tmpfile"1" bye"
-$GFORTHD --clear-dictionary --offset-image --die-on-signal "$@" -e "savesystem $tmpfile"2" bye"
+$GFORTHD --clear-dictionary --no-offset-im --die-on-signal $generate -e "savesystem $tmpfile"1" bye"
+$GFORTHD --clear-dictionary --offset-image --die-on-signal $generate -e "savesystem $tmpfile"2" bye"
 $GFORTH comp-i.fs -e "comp-image $tmpfile"1" $tmpfile"2" $outfile bye"
 chmod +x $outfile
 #gforth-0.2.1 -m 100000  comp-i.fs -e "comp-image $tmpfile"1" $tmpfile"2" $outfile bye"
