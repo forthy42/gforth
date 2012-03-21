@@ -46,15 +46,15 @@ elif test $1 = --version || test $1 = -v; then
 elif test $1 = --application; then
     application=yes
     shift
-    generate="$@"
     outfile=$1; shift
+    generate="$@"
 elif test $1 = --system; then
     shift
     generate=$startup
     outfile="@libdir@/gforth/@PACKAGE_VERSION@/gforth.fi"
 else
-    generate="$@"
     outfile=$1; shift
+    generate="$@"
 fi
 tmpfile=./temp-image.fi
 $GFORTHD --clear-dictionary --no-offset-im --die-on-signal $generate -e "savesystem $tmpfile"1" bye"
