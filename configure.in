@@ -918,7 +918,13 @@ dnl Checks for library functions
 dnl This check is just for making later checks link with libm.
 dnl using sin here is no good idea since it is built-into gcc and typechecked
 AC_CHECK_LIB(m,asin)
-AC_CHECK_LIB(ltdl,lt_dlinit,LIB_SUFFIX=.la,LIB_SUFFIX=.so)
+AC_CHECK_LIB(ltdl,lt_dlinit)
+dnl ,LIB_SUFFIX=.la,LIB_SUFFIX=.so)
+if test "x$ac_cv_lib_ltdl_lt_dlinit" = xyes; then
+  LIB_SUFFIX=.la
+else
+  LIB_SUFFIX=.so
+fi
 AC_SUBST(LIB_SUFFIX)
 AC_CHECK_LIB(rt,clock_gettime)
 
