@@ -60,7 +60,8 @@ datarootdir = @datarootdir@
 datadir = $(package)@datadir@
 #read-only architecture-dependent non-ascii files
 libdir = $(package)@libdir@
-libccdir = $(subst $(DESTDIR),,$(libdir)/gforth/$(VERSION)/libcc-named/)
+libexecdir = $(package)@libexecdir@
+libccdir = $(subst $(DESTDIR),,$(libexecdir)/gforth/$(VERSION)/libcc-named/)
 includedir = $(package)@includedir@
 infodir = $(package)@infodir@
 htmldir = $(package)@htmldir@
@@ -433,7 +434,7 @@ ENGINE_SOURCES = engine/Makefile.in engine/config.h.in \
 	engine/makefile.dos engine/makefile.os2
 
 SOURCES	= $(ENGINE_SOURCES) compat Makefile.in Makedist.in \
-	gforthmi.in vmgen.in preforth.in gforthker.in gfgen README.vmgen NEWS.vmgen \
+	gforthmi.in vmgen.in preforth.in libforth.in gforthker.in gfgen README.vmgen NEWS.vmgen \
 	autogen.sh configure.in configure config.sub config.guess \
 	elisp-comp missing stamp-h.in envos.fs.in \
 	iss.sh install-sh INSTALL INSTALL.BINDIST NEWS README ToDo BUGS \
@@ -662,9 +663,9 @@ install:	gforth$(EC)$(EXE) $(FORTH_SRC) $(kernel_fi) gforthmi vmgen doc/gforth.1
 		$(INSTALL_DATA) install.TAGS $(DESTDIR)$(datadir)/gforth/$(VERSION)/TAGS
 		$(RM) install.TAGS @NO_CROSS@gforth.fi
 		$(INSTALL_DATA) include/gforth/$(VERSION)/* $(DESTDIR)$(includedir)/gforth/$(VERSION)
-		@NO_CROSS@if test -n "$(LIBTOOL)"; then for i in $(LIBCC_BUILD_SRC); do \
-		@NO_CROSS@   $(LIBTOOL) --silent --mode=install $(INSTALL) lib/gforth/$(VERSION)/libcc-named/`basename $$i .fs`.la $(DESTDIR)$(libccdir)`basename $$i .fs`.la; \
-		@NO_CROSS@done; fi
+		if test -n "$(LIBTOOL)"; then for i in $(LIBCC_BUILD_SRC); do \
+		   $(LIBTOOL) --silent --mode=install $(INSTALL) lib/gforth/$(VERSION)/libcc-named/`basename $$i .fs`.la $(DESTDIR)$(libccdir)`basename $$i .fs`.la; \
+		done; fi
 		$(POST_INSTALL)
 		$(INSTALL_INFO) --info-dir=$(DESTDIR)$(infodir) $(DESTDIR)$(infodir)/gforth.info
 		$(INSTALL_INFO) --info-dir=$(DESTDIR)$(infodir) $(DESTDIR)$(infodir)/vmgen.info
@@ -690,7 +691,7 @@ uninstall:	FORCE
 
 build-libcc-named: $(LIBCC_BUILD_SRC) $(FORTH_GEN) $(GEN) FORCE
 		$(RMTREE) lib/gforth/$(VERSION)/libcc-named/
-		for i in $(LIBCC_BUILD_SRC); do ./gforth -e "s\" `pwd`/lib/gforth/$(VERSION)/libcc-named/\" libcc-named-dir-v 2! libcc-path clear-path libcc-named-dir libcc-path also-path :noname 2drop s\" $(DESTDIR)$(libccdir)\" ; is replace-rpath" $(srcdir)/$$i -e bye; done
+		for i in $(LIBCC_BUILD_SRC); do ./libforth -e "s\" `pwd`/lib/gforth/$(VERSION)/libcc-named/\" libcc-named-dir-v 2! libcc-path clear-path libcc-named-dir libcc-path also-path :noname 2drop s\" $(DESTDIR)$(libccdir)\" ; is replace-rpath" $(srcdir)/$$i -e bye; done
 
 check:		gforths	gforth.fi 
 		$(MAKE) checkone check-nofast ENGINE="./gforth --no-dynamic" >/dev/null 2>&1
@@ -1038,7 +1039,7 @@ engine/config.h: stamp-h
 stamp-h: engine/config.h.in config.status stamp-h.in
 	./config.status
 
-Makefile Makedist engine/Makefile gforthmi vmgen preforth machpc.fs doc/version.texi envos.fs build-ec:	Makefile.in Makedist.in engine/Makefile.in gforthmi.in vmgen.in preforth.in machpc.fs.in doc/version.texi.in config.status configure.in envos.fs.in build-ec.in engine/libcc.h.in
+Makefile Makedist engine/Makefile gforthmi vmgen preforth machpc.fs doc/version.texi envos.fs build-ec:	Makefile.in Makedist.in engine/Makefile.in gforthmi.in vmgen.in preforth.in libforth.in machpc.fs.in doc/version.texi.in config.status configure.in envos.fs.in build-ec.in engine/libcc.h.in
 	./config.status
 
 config.status: configure

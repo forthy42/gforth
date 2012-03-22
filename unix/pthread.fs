@@ -169,7 +169,7 @@ c-library pthread
     c-function pthread_mutex_unlock pthread_mutex_unlock a -- n ( mutex -- r )
     c-function pthread-mutex+ pthread_mutex_plus a -- a ( mutex -- mutex' )
     c-function pthread-mutexes pthread_mutexes n -- n ( n -- n' )
-    c-function pause pthread_yield -- void ( -- )
+    c-function pause sched_yield -- void ( -- )
 end-c-library
 
 User pthread-id  -1 cells pthread+ uallot drop

@@ -1027,6 +1027,7 @@ vmgen
 machpc.fs
 envos.fs
 preforth
+libforth
 gforthker
 engine/Makefile
 engine/libcc.h
@@ -1037,6 +1038,7 @@ chmod +x gforthmi
 chmod +x vmgen
 chmod +x build-ec
 chmod +x preforth
+chmod +x libforth
 chmod +x gforthker
 test -d kernel||mkdir kernel
 if test $srcdir != "."; then ln -sf $srcdir/gforth.el .; fi

@@ -3,7 +3,7 @@
 #cd  ~/proj/android-toolchain
 #~/proj/android-ndk-r6b/build/tools/make-standalone-toolchain.sh --platform=android-5 --ndk-dir=/home/bernd/proj/android-ndk-r6b --install-dir=$PWD
 #configure with
-#./configure --host=arm --with-cross=android --prefix= --datarootdir=/sdcard --libdir=/sdcard
+#./configure --host=arm --with-cross=android --prefix= --datarootdir=/sdcard --libdir=/sdcard --libexecdir=/lib
 (cd engine; ar x ~/proj/android-toolchain/sysroot/usr/lib/libc.a sigaltstack.o)
 skipcode=".skip 4\n.skip 4\n.skip 4\n.skip 4"
 kernel_fi=kernl64l.fi
@@ -20,8 +20,11 @@ ac_cv_c_bigendian=no
 ac_cv_func_memcmp_working=yes
 ac_cv_file___arch_arm_asm_fs=no
 ac_cv_file___arch_arm_disasm_fs=no
+ac_cv_func_dlopen=yes
 CC=arm-linux-androideabi-gcc
-SH=/data/data/kevinboone.androidterm/kbox/bin/bash
+GNU_LIBTOOL=arm-linux-androideabi-libtool
+KBOX=/data/data/kevinboone.androidterm/kbox
+SH=$KBOX/bin/bash
 asm_fs=arch/arm/asm.fs
 disasm_fs=
 EC_MODE="false"
