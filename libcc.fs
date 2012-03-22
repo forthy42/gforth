@@ -466,7 +466,9 @@ create gen-wrapped-types
     \ addr points to the return type index of a c-function descriptor
     dup { descriptor }
     count { ret } count 2dup { d: pars } chars + count { d: c-name }
-    ." void " lib-modulename 2@ type ." _LTX_" descriptor wrapper-function-name 2dup type drop free throw
+    ." void "
+    [ lib-suffix s" .la" str= [IF] ] lib-modulename 2@ type ." _LTX_" [ [THEN] ]
+    descriptor wrapper-function-name 2dup type drop free throw
     .\" (GFORTH_ARGS)\n"
     .\" {\n  Cell MAYBE_UNUSED *sp = gforth_SP;\n  Float MAYBE_UNUSED *fp = gforth_FP;\n  "
     pars c-name 2over count-stacks ret gen-wrapped-stmt .\" ;\n"
@@ -510,7 +512,7 @@ create gen-wrapped-types
     2over s+ 2swap drop free throw ;
 
 : open-wrappers ( -- addr|0 )
-    lib-filename 2@ s" .la" s+
+    lib-filename 2@ lib-suffix s+
     2dup libcc-named-dir string-prefix? if ( c-addr u )
 	\ see if we can open it in the path
 	libcc-named-dir nip /string

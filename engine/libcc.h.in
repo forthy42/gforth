@@ -21,7 +21,7 @@
 #include <gforth/@PACKAGE_VERSION@/config.h>
 #include <setjmp.h>
 
-#if defined(_WIN32) || defined(__WIN32__) || defined(__CYGWIN__)
+#if defined(_WIN32) || defined(__WIN32__) || defined(__CYGWIN__) || defined(__ANDROID__)
 #undef HAS_BACKLINK
 #else
 #define HAS_BACKLINK 1

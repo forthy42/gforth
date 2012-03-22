@@ -214,14 +214,18 @@ test "$make_type" = "GNU Make" && GNUMAKE=''
 AC_MSG_RESULT($make_type)
 AC_SUBST(GNUMAKE)
 
-AC_MSG_CHECKING([whether the linker accepts -export-dynamic])
-OLDLDFLAGS=$LDFLAGS
-LDFLAGS="$LDFLAGS -export-dynamic"
-dnl AC_TRY_LINK gives false positive on rs6000-ibm-aix4.2.1.0
-dnl AC_TRY_LINK(,,ac_export_dynamic=yes,ac_export_dynamic=no)
-AC_TRY_RUN(main(){exit(0);},ac_export_dynamic=yes,ac_export_dynamic=no,ac_export_dynamic=no)
-test $ac_export_dynamic = yes|| LDFLAGS=$OLDLDFLAGS
-AC_MSG_RESULT($ac_export_dynamic)
+if test "$ac_export_dynamic" != yes; then
+  AC_MSG_CHECKING([whether the linker accepts -export-dynamic])
+  OLDLDFLAGS=$LDFLAGS
+  LDFLAGS="$LDFLAGS -export-dynamic"
+  dnl AC_TRY_LINK gives false positive on rs6000-ibm-aix4.2.1.0
+  dnl AC_TRY_LINK(,,ac_export_dynamic=yes,ac_export_dynamic=no)
+  AC_TRY_RUN(main(){exit(0);},ac_export_dynamic=yes,ac_export_dynamic=no,ac_export_dynamic=no)
+  test $ac_export_dynamic = yes|| LDFLAGS=$OLDLDFLAGS
+  AC_MSG_RESULT($ac_export_dynamic)
+else
+  LDFLAGS="$LDFLAGS -export-dynamic"
+fi
 
 #terminology is a bit unusual here: The host is the system on which
 #gforth will run; the system on which configure will run is the `build'
@@ -914,7 +918,8 @@ dnl Checks for library functions
 dnl This check is just for making later checks link with libm.
 dnl using sin here is no good idea since it is built-into gcc and typechecked
 AC_CHECK_LIB(m,asin)
-AC_CHECK_LIB(ltdl,lt_dlinit)
+AC_CHECK_LIB(ltdl,lt_dlinit,LIB_SUFFIX=.la,LIB_SUFFIX=.so)
+AC_SUBST(LIB_SUFFIX)
 AC_CHECK_LIB(rt,clock_gettime)
 
 if test -n "$GNU_LIBTOOL" -a $ac_cv_lib_ltdl_lt_dlinit = yes; then

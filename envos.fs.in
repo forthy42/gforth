@@ -26,6 +26,10 @@ get-current environment-wordlist set-current
     s" @host_os@" ;
 set-current
 
+: lib-suffix ( -- c-addr u ) \ gforth
+\G the suffix for loading shared objects
+    s" @LIB_SUFFIX@" ;
+
 : libtool-command ( -- c-addr u ) \ gforth
 \G name of the GNU libtool command
     s" @GNU_LIBTOOL@" ;

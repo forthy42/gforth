@@ -21,6 +21,7 @@ ac_cv_func_memcmp_working=yes
 ac_cv_file___arch_arm_asm_fs=no
 ac_cv_file___arch_arm_disasm_fs=no
 ac_cv_func_dlopen=yes
+ac_export_dynamic=yes
 CC=arm-linux-androideabi-gcc
 GNU_LIBTOOL=arm-linux-androideabi-libtool
 KBOX=/data/data/kevinboone.androidterm/kbox

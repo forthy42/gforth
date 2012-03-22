@@ -547,7 +547,7 @@ UCell gforth_dlopen(Char *c_addr, UCell u)
 #ifndef RTLD_GLOBAL
 #define RTLD_GLOBAL 0
 #endif
-  lib = (UCell)dlopen(file, RTLD_GLOBAL | RTLD_LAZY);
+  lib = (UCell)dlopen(file, RTLD_GLOBAL);
   free(file);
   if(lib) return lib;
 #elif defined(_WIN32)
