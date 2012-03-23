@@ -113,22 +113,28 @@ c-library pthread
     \c #ifndef HAS_BACKLINK
     \c   void *(*gforth_pointers)(Cell) = saved_gforth_pointers;
     \c #endif
+    \c   Cell signal_data_stack[24];
+    \c   Cell signal_return_stack[16];
+    \c   Float signal_fp_stack[1];
+    \c   void *ip0=(void*)(t->save_task);
+    \c   Cell *sp0=(Cell*)(t->sp0)-1;
+    \c   Cell *rp0=(Cell*)(t->rp0);
+    \c   Float *fp0=(Float*)(t->fp0);
+    \c   void *lp0=(void*)(t->lp0);
+    \c
     \c   pthread_cleanup_push(&gforth_cleanup_thread, (void*)t);
     \c 
     \c   throw_jmp_handler = &throw_jmp_buf;
+    \c   ((Cell*)(t->sp0))[-1]=(Cell)t;
     \c 
-    \c   if ((throw_code=setjmp(*throw_jmp_handler))) {
-    \c     static Cell signal_data_stack[24];
-    \c     static Cell signal_return_stack[16];
-    \c     static Float signal_fp_stack[1];
-    \c 
+    \c   while((throw_code=setjmp(*throw_jmp_handler))) {
     \c     signal_data_stack[15]=throw_code;
-    \c     x=gforth_engine((Cell*)(t->throw_entry), signal_data_stack+15,
-    \c                     signal_return_stack+16, signal_fp_stack, 0);
-    \c   } else {
-    \c     ((Cell*)(t->sp0))[-1]=(Cell)t;
-    \c     x=gforth_engine((void*)(t->save_task), (Cell*)(t->sp0)-1, (Cell*)(t->rp0), (Float*)(t->fp0), (void*)(t->lp0));
+    \c     ip0=(void*)(t->throw_entry);
+    \c     sp0=signal_data_stack+15;
+    \c     rp0=signal_return_stack+16;
+    \c     fp0=signal_fp_stack;
     \c   }
+    \c   x=gforth_engine(ip0, sp0, rp0, fp0, lp0);
     \c   pthread_cleanup_pop(1);
     \c   return x;
     \c }

@@ -105,7 +105,7 @@ __thread jmp_buf * throw_jmp_handler;
 
 void throw(int code)
 {
-  debugp(stderr,"\nthrow code %d to %lx\n", code, (intptr_t)*throw_jmp_handler);
+  debugp(stderr,"\nthrow code %d to %p\n", code, *throw_jmp_handler);
   longjmp(*throw_jmp_handler,code); /* !! or use siglongjmp ? */
 }
 
@@ -142,7 +142,7 @@ signal_throw(int sig)
 static void
 sigaction_throw(int sig, siginfo_t *info, void *_)
 {
-  debugp(stderr,"\nsigaction_throw %d 0x%lx 0x%lx\n", sig, (intptr_t)info, (intptr_t)_);
+  debugp(stderr,"\nsigaction_throw %d 0x%p 0x%p\n", sig, info, _);
   signal_throw(sig);
 }
 
@@ -199,7 +199,7 @@ static void segv_handler(int sig, siginfo_t *info, void *_)
   Address addr=info->si_addr;
   ImageHeader *h=gforth_header;
 
-  debugp(stderr,"\nsegv_handler %d 0x%lx 0x%lx\n", sig, (intptr_t)info, (intptr_t)_);
+  debugp(stderr,"\nsegv_handler %d 0x%p 0x%p\n", sig, info, _);
 
   if (JUSTUNDER(addr, h->data_stack_base))
     code=-3;
