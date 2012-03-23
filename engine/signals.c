@@ -101,12 +101,12 @@ graceful_exit (int sig)
   exit (0x80|sig);
 }
 
-__thread jmp_buf throw_jmp_buf;
+__thread jmp_buf * throw_jmp_handler;
 
 void throw(int code)
 {
-  debugp(stderr,"\nthrow code %d to %lx\n", code, (intptr_t)throw_jmp_buf);
-  longjmp(throw_jmp_buf,code); /* !! or use siglongjmp ? */
+  debugp(stderr,"\nthrow code %d to %lx\n", code, (intptr_t)*throw_jmp_handler);
+  longjmp(*throw_jmp_handler,code); /* !! or use siglongjmp ? */
 }
 
 static void 

@@ -109,12 +109,15 @@ c-library pthread
     \c {
     \c   void *x;
     \c   int throw_code;
+    \c   jmp_buf throw_jmp_buf;
     \c #ifndef HAS_BACKLINK
     \c   void *(*gforth_pointers)(Cell) = saved_gforth_pointers;
     \c #endif
     \c   pthread_cleanup_push(&gforth_cleanup_thread, (void*)t);
     \c 
-    \c   if ((throw_code=setjmp(throw_jmp_buf))) {
+    \c   throw_jmp_handler = &throw_jmp_buf;
+    \c 
+    \c   if ((throw_code=setjmp(*throw_jmp_handler))) {
     \c     static Cell signal_data_stack[24];
     \c     static Cell signal_return_stack[16];
     \c     static Float signal_fp_stack[1];

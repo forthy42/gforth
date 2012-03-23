@@ -139,7 +139,7 @@ int ufileattr[6]= {
 #endif
 
 #ifdef MSDOS
-jmp_buf throw_jmp_buf;
+jmp_buf throw_jmp_handler;
 #endif
 
 #if defined(DOUBLY_INDIRECT)
@@ -710,6 +710,7 @@ int gforth_go(void *image, int stack, Cell *entries)
   Xt *ip0=(Xt *)(image_header->boot_entry);
 #ifdef SYSSIGNALS
   int throw_code;
+  jmp_buf throw_jmp_buf;
 #endif
 
   /* ensure that the cached elements (if any) are accessible */
@@ -726,8 +727,10 @@ int gforth_go(void *image, int stack, Cell *entries)
    
   install_signal_handlers(); /* right place? */
 
-  debugp(stderr, "setjmp(%lx)\n", throw_jmp_buf);
-  if ((throw_code=setjmp(throw_jmp_buf))) {
+  throw_jmp_handler = &throw_jmp_buf;
+
+  debugp(stderr, "setjmp(%lx)\n", *throw_jmp_handler);
+  if ((throw_code=setjmp(*throw_jmp_handler))) {
     static Cell signal_data_stack[24];
     static Cell signal_return_stack[16];
     static Float signal_fp_stack[1];
@@ -2326,7 +2329,7 @@ void* gforth_pointers(Cell n)
   case 6: return (void*)&cstr;
   case 7: return (void*)&tilde_cstr;
 #endif
-  case 8: return (void*)&throw_jmp_buf;
+  case 8: return (void*)&throw_jmp_handler;
   default: return NULL;
   }
 }

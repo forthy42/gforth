@@ -269,11 +269,11 @@ extern Char *gforth_memcpy(Char * dest, const Char* src, Cell n);
 #endif
 
 #ifdef STANDALONE
-jmp_buf throw_jmp_buf;
+jmp_buf * throw_jmp_handler;
 
 void throw(int code)
 {
-  longjmp(throw_jmp_buf,code); /* !! or use siglongjmp ? */
+  longjmp(*throw_jmp_handler,code); /* !! or use siglongjmp ? */
 }
 #endif
 
