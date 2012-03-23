@@ -42,7 +42,7 @@ extern __thread char *gforth_UP;
 extern void *gforth_engine(void *, Cell *, Cell *, Float *, char *);
 extern char *cstr(char *from, Cell size);
 extern char *tilde_cstr(char *from, Cell size);
-extern __thread jmp_buf throw_jmp_buf;
+extern __thread jmp_buf *throw_jmp_handler;
 #define GFORTH_ARGS void
 #else
 #define gforth_SP *((Cell **)(gforth_pointers(0)))
@@ -53,7 +53,7 @@ extern __thread jmp_buf throw_jmp_buf;
 #define gforth_engine ((char *(*)(void *, Cell *, Cell *, Float *, char *))(((void **)(gforth_pointers(5)))))
 #define cstr ((char *(*)(char *, Cell))(((void **)(gforth_pointers(6)))))
 #define tilde_cstr ((char *(*)(char *, Cell))(((void **)(gforth_pointers(7)))))
-#define throw_jmp_buf *((jmp_buf*)(gforth_pointers(8)))
+#define throw_jmp_handler *((jmp_buf**)(gforth_pointers(8)))
 #define GFORTH_ARGS void *(*gforth_pointers)(Cell)
 #endif
 
