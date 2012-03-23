@@ -34,6 +34,15 @@
 #include <termios.h>
 #include "io.h"
 
+#ifdef HAS_DEBUG
+extern int debug;
+# define debugp(x...) do { if (debug) fprintf(x); } while (0)
+#else
+# define perror(x...)
+# define fprintf(x...)
+# define debugp(x...)
+#endif
+
 #ifndef HAVE_STACK_T
 /* Darwin uses "struct sigaltstack" instead of "stack_t" */
 typedef struct sigaltstack stack_t;
@@ -96,6 +105,7 @@ __thread jmp_buf throw_jmp_buf;
 
 void throw(int code)
 {
+  debugp(stderr,"\nthrow code %d\n", code);
   longjmp(throw_jmp_buf,code); /* !! or use siglongjmp ? */
 }
 
@@ -103,6 +113,7 @@ static void
 signal_throw(int sig)
 {
   int code;
+  debugp(stderr,"\ncaught signal %d\n", sig);
 
   switch (sig) {
   case SIGINT: code=-28; break;
@@ -131,6 +142,7 @@ signal_throw(int sig)
 static void
 sigaction_throw(int sig, siginfo_t *info, void *_)
 {
+  debugp(stderr,"\nsigaction_throw %d %x %x\n", sig, info, _);
   signal_throw(sig);
 }
 
@@ -138,6 +150,8 @@ static void fpe_handler(int sig, siginfo_t *info, void *_)
      /* handler for SIGFPE */
 {
   int code;
+
+  debugp(stderr,"\nfpe_handler %d %x %x\n", sig, info, _);
 
   switch(info->si_code) {
 #ifdef FPE_INTDIV
@@ -184,6 +198,8 @@ static void segv_handler(int sig, siginfo_t *info, void *_)
   int code=-9;
   Address addr=info->si_addr;
   ImageHeader *h=gforth_header;
+
+  debugp(stderr,"\nsegv_handler %d %x %x\n", sig, info, _);
 
   if (JUSTUNDER(addr, h->data_stack_base))
     code=-3;
@@ -415,8 +431,7 @@ void install_signal_handlers(void)
     sas_retval=sigaltstack(&sigstack,(stack_t *)0);
   }
 #if defined(HAS_FILE) || !defined(STANDALONE)
-  if (debug)
-    fprintf(stderr,"sigaltstack: %s\n",strerror(sas_retval));
+  debugp(stderr,"sigaltstack: %s\n",strerror(sas_retval));
 #endif
 #endif
 
