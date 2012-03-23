@@ -725,7 +725,8 @@ int gforth_go(void *image, int stack, Cell *entries)
   get_winsize();
    
   install_signal_handlers(); /* right place? */
-  
+
+  debugp(stderr, "setjmp(%lx)\n", throw_jmp_buf);
   if ((throw_code=setjmp(throw_jmp_buf))) {
     static Cell signal_data_stack[24];
     static Cell signal_return_stack[16];
