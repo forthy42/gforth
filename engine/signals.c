@@ -416,7 +416,7 @@ void install_signal_handlers(void)
   };
   int i;
   void (*throw_handler)() = die_on_signal ? graceful_exit : signal_throw;
-#ifdef SIGSTKSZ 
+#if defined(SIGSTKSZ) && defined(HAS_SIGALTSTACK)
   stack_t sigstack;
   int sas_retval=-1;
 

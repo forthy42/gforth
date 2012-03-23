@@ -727,37 +727,35 @@ int gforth_go(void *image, int stack, Cell *entries)
 
 #if defined(SYSSIGNALS) && !defined(STANDALONE)
   get_winsize();
-  
-  do {
-    install_signal_handlers(); /* right place? */
-    
-    throw_jmp_handler = &throw_jmp_buf;
-    
-    debugp(stderr, "setjmp(%p)\n", *throw_jmp_handler);
-    if((throw_code=setjmp(*throw_jmp_handler))) {
-      signal_data_stack[15]=throw_code;
-      
+   
+  install_signal_handlers(); /* right place? */
+
+  throw_jmp_handler = &throw_jmp_buf;
+
+  debugp(stderr, "setjmp(%p)\n", *throw_jmp_handler);
+  while((throw_code=setjmp(*throw_jmp_handler))) {
+    signal_data_stack[15]=throw_code;
+
 #ifdef GFORTH_DEBUGGING
-      debugp(stderr,"\ncaught signal, throwing exception %d, ip=%p rp=%p\n",
-	     throw_code, saved_ip, rp);
-      if (rp <= orig_rp0 && rp > (Cell *)(image_header->return_stack_base+5)) {
-	/* no rstack overflow or underflow */
-	rp0 = rp;
-	*--rp0 = (Cell)saved_ip;
-      }
-      else /* I love non-syntactic ifdefs :-) */
-	rp0 = signal_return_stack+16;
-#else  /* !defined(GFORTH_DEBUGGING) */
-      debugp(stderr,"\ncaught signal, throwing exception %d\n", throw_code);
-      rp0 = signal_return_stack+16;
-#endif /* !defined(GFORTH_DEBUGGING) */
-      /* fprintf(stderr, "rp=$%x\n",rp0);*/
-      
-      ip0=image_header->throw_entry;
-      sp0=signal_data_stack+15;
-      fp0=signal_fp_stack;
+    debugp(stderr,"\ncaught signal, throwing exception %d, ip=%p rp=%p\n",
+	      throw_code, saved_ip, rp);
+    if (rp <= orig_rp0 && rp > (Cell *)(image_header->return_stack_base+5)) {
+      /* no rstack overflow or underflow */
+      rp0 = rp;
+      *--rp0 = (Cell)saved_ip;
     }
-  } while(throw_code);
+    else /* I love non-syntactic ifdefs :-) */
+      rp0 = signal_return_stack+16;
+#else  /* !defined(GFORTH_DEBUGGING) */
+    debugp(stderr,"\ncaught signal, throwing exception %d\n", throw_code);
+    rp0 = signal_return_stack+16;
+#endif /* !defined(GFORTH_DEBUGGING) */
+    /* fprintf(stderr, "rp=$%x\n",rp0);*/
+    
+    ip0=image_header->throw_entry;
+    sp0=signal_data_stack+15;
+    fp0=signal_fp_stack;
+  }
 #endif
 
   return((int)(Cell)gforth_engine(ip0,sp0,rp0,fp0,lp0 sr_call));
