@@ -24,6 +24,7 @@ c-library pthread
     \c #include <unistd.h>
     \c #include <setjmp.h>
     \c #include <stdio.h>
+    \c #include <signal.h>
     \c #define wholepage(n) (((n)+pagesize-1)&~(pagesize-1))
     \c typedef struct {
     \c   Cell next_task;
@@ -74,6 +75,10 @@ c-library pthread
     \c #elif PAGESIZE
     \c   pagesize=PAGESIZE; /* in limits.h according to Gallmeister's POSIX.4 book */
     \c #endif
+    \c #ifdef SIGSTKSZ
+    \c   stack_t sigstack;
+    \c   int sas_retval=-1;
+    \c #endif
     \c   size_t totalsize;
     \c   Cell a;
     \c   user_area * up0;
@@ -81,7 +86,10 @@ c-library pthread
     \c   Cell rsizep = wholepage(rsize);
     \c   Cell fsizep = wholepage(fsize);
     \c   Cell lsizep = wholepage(lsize);
-    \c   totalsize = dsize+fsize+rsize+lsize+6*pagesize;
+    \c   totalsize = dsizep+fsizep+rsizep+lsizep+6*pagesize;
+    \c #ifdef SIGSTKSZ
+    \c   totalsize += 2*SIGSTKSZ;
+    \c #endif
     \c   a = (Cell)alloc_mmap(totalsize);
     \c   if (a != (Cell)MAP_FAILED) {
     \c     up0=(user_area*)a; a+=pagesize;
@@ -89,7 +97,12 @@ c-library pthread
     \c     page_noaccess((void*)a); a+=pagesize; up0->fp0=a+fsize; a+=fsizep;
     \c     page_noaccess((void*)a); a+=pagesize; up0->rp0=a+rsize; a+=rsizep;
     \c     page_noaccess((void*)a); a+=pagesize; up0->lp0=a+lsize; a+=lsizep;
-    \c     page_noaccess((void*)a);
+    \c     page_noaccess((void*)a); a+=pagesize;
+    \c #ifdef SIGSTKSZ
+    \c     sigstack.ss_sp=(void*)a+SIGSTKSZ;
+    \c     sigstack.ss_size=SIGSTKSZ;
+    \c     sas_retval=sigaltstack(&sigstack,(stack_t *)0);
+    \c #endif
     \c     return (Cell)up0;
     \c   }
     \c   return 0;
@@ -98,6 +111,9 @@ c-library pthread
     \c void gforth_cleanup_thread(void * t)
     \c {
     \c   Cell size = wholepage((Cell)(((user_area*)t)->lp0)+pagesize-(Cell)t);
+    \c #ifdef SIGSTKSZ
+    \c   size += 2*SIGSTKSZ;
+    \c #endif
     \c   munmap(t, size);
     \c }
     \c
@@ -136,7 +152,7 @@ c-library pthread
     \c   }
     \c   x=gforth_engine(ip0, sp0, rp0, fp0, lp0);
     \c   pthread_cleanup_pop(1);
-    \c   return x;
+    \c   pthread_exit(x);
     \c }
     \c #ifdef HAS_BACKLINK
     \c void *gforth_thread_p()
@@ -167,6 +183,13 @@ c-library pthread
     \c {
     \c   return thread*(int)sizeof(pthread_mutex_t);
     \c }
+    \c pthread_attr_t * pthread_detach_attr(void)
+    \c {
+    \c   static pthread_attr_t attr;
+    \c   pthread_attr_init(&attr);
+    \c   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+    \c   return &attr;
+    \c }
     c-function pthread+ pthread_plus a -- a ( addr -- addr' )
     c-function pthreads pthreads n -- n ( n -- n' )
     c-function thread_start gforth_thread_p -- a ( -- addr )
@@ -179,6 +202,7 @@ c-library pthread
     c-function pthread-mutex+ pthread_mutex_plus a -- a ( mutex -- mutex' )
     c-function pthread-mutexes pthread_mutexes n -- n ( n -- n' )
     c-function pause sched_yield -- void ( -- )
+    c-function pthread_detatch_attr pthread_detach_attr -- a ( -- addr )
 end-c-library
 
 User pthread-id  -1 cells pthread+ uallot drop
@@ -214,7 +238,7 @@ interpret/compile: user' ( 'user' -- n )
 
 : (activate) ( task -- )
     r> swap >r  save-task r@ >task !
-    pthread-id r@ >task 0 thread_start r> pthread_create drop ; compile-only
+    pthread-id r@ >task pthread_detatch_attr thread_start r> pthread_create drop ; compile-only
 
 : activate ( task -- )
     ]] (activate) up! [[ ; immediate compile-only
