@@ -142,7 +142,7 @@ signal_throw(int sig)
 static void
 sigaction_throw(int sig, siginfo_t *info, void *_)
 {
-  debugp(stderr,"\nsigaction_throw %d 0x%p 0x%p\n", sig, info, _);
+  debugp(stderr,"\nsigaction_throw %d %p %p\n", sig, info, _);
   signal_throw(sig);
 }
 
@@ -199,7 +199,7 @@ static void segv_handler(int sig, siginfo_t *info, void *_)
   Address addr=info->si_addr;
   ImageHeader *h=gforth_header;
 
-  debugp(stderr,"\nsegv_handler %d 0x%p 0x%p\n", sig, info, _);
+  debugp(stderr,"\nsegv_handler %d %p %p\n", sig, info, _);
 
   if (JUSTUNDER(addr, h->data_stack_base))
     code=-3;
@@ -416,7 +416,7 @@ void install_signal_handlers(void)
   };
   int i;
   void (*throw_handler)() = die_on_signal ? graceful_exit : signal_throw;
-#if defined(SIGSTKSZ) && defined(HAS_SIGALTSTACK)
+#if defined(SIGSTKSZ)
   stack_t sigstack;
   int sas_retval=-1;
 

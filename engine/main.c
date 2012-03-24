@@ -427,7 +427,7 @@ void gforth_relocate(Cell *image, const Char *bitstring,
 		}
 #endif
 	      } else
-		fprintf(stderr,"Primitive %ld used in this image at $%p (offset $%x) is not implemented by this\n engine (%s); executing this code will crash.\n",(long)CF(token), &image[i], i, PACKAGE_VERSION);
+		fprintf(stderr,"Primitive %ld used in this image at %p (offset $%x) is not implemented by this\n engine (%s); executing this code will crash.\n",(long)CF(token), &image[i], i, PACKAGE_VERSION);
 	    }
 	  } else {
 	    int tok = -token & 0x1FF;
@@ -445,7 +445,7 @@ void gforth_relocate(Cell *image, const Char *bitstring,
 	      }
 #endif
 	    } else
-	      fprintf(stderr,"Primitive %lx, %d of group %d used in this image at $%p (offset $%x) is not implemented by this\n engine (%s); executing this code will crash.\n", (long)-token, tok, group, &image[i],i,PACKAGE_VERSION);
+	      fprintf(stderr,"Primitive %lx, %d of group %d used in this image at %p (offset $%x) is not implemented by this\n engine (%s); executing this code will crash.\n", (long)-token, tok, group, &image[i],i,PACKAGE_VERSION);
 	  }
 	} else {
           /* if base is > 0: 0 is a null reference so don't adjust*/
@@ -496,7 +496,7 @@ static Address verbose_malloc(Cell size)
     exit(1);
   }
   r = (Address)((((Cell)r)+(sizeof(Float)-1))&(-sizeof(Float)));
-  debugp(stderr, "malloc succeeds, address=$%p\n", r);
+  debugp(stderr, "malloc succeeds, address=%p\n", r);
   return r;
 }
 
@@ -504,7 +504,7 @@ static void *next_address=0;
 static void after_alloc(Address r, Cell size)
 {
   if (r != (Address)-1) {
-    debugp(stderr, "success, address=$%p\n", r);
+    debugp(stderr, "success, address=%p\n", r);
 #if 0
     /* not needed now that we protect the stacks with mprotect */
     if (pagesize != 1)
@@ -537,7 +537,7 @@ static Address alloc_mmap(Cell size)
   void *r;
 
 #if defined(MAP_ANON)
-  debugp(stderr,"try mmap($%p, $%lx, ..., MAP_ANON, ...); ", next_address, size);
+  debugp(stderr,"try mmap(%p, $%lx, ..., MAP_ANON, ...); ", next_address, size);
   r = mmap(next_address, size, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE|map_noreserve, -1, 0);
 #else /* !defined(MAP_ANON) */
   /* Ultrix (at least) does not define MAP_FILE and MAP_PRIVATE (both are
@@ -551,7 +551,7 @@ static Address alloc_mmap(Cell size)
     debugp(stderr, "open(\"/dev/zero\"...) failed (%s), no mmap; ", 
 	      strerror(errno));
   } else {
-    debugp(stderr,"try mmap($%p, $%lx, ..., MAP_FILE, dev_zero, ...); ", next_address, size);
+    debugp(stderr,"try mmap(%p, $%lx, ..., MAP_FILE, dev_zero, ...); ", next_address, size);
     r=mmap(next_address, size, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_FILE|MAP_PRIVATE|map_noreserve, dev_zero, 0);
   }
 #endif /* !defined(MAP_ANON) */
@@ -604,7 +604,7 @@ static void *dict_alloc_read(FILE *file, Cell imagesize, Cell dictsize, Cell off
     image=alloc_mmap(dictsize);
     if (image != (void *)MAP_FAILED) {
       void *image1;
-      debugp(stderr,"try mmap($%p, $%lx, ..., MAP_FIXED|MAP_FILE, imagefile, 0); ", image, imagesize);
+      debugp(stderr,"try mmap(%p, $%lx, ..., MAP_FIXED|MAP_FILE, imagefile, 0); ", image, imagesize);
       image1 = mmap(image, imagesize, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_FIXED|MAP_FILE|MAP_PRIVATE|map_noreserve, fileno(file), 0);
       after_alloc(image1,dictsize);
       if (image1 == (void *)MAP_FAILED)
@@ -1978,7 +1978,7 @@ Address gforth_loader(FILE *imagefile, char* filename)
 #endif
   }
   else if(header.base!=imp) {
-    fprintf(stderr,"%s: Cannot load nonrelocatable image (compiled for address $%p) at address $%p\n",
+    fprintf(stderr,"%s: Cannot load nonrelocatable image (compiled for address %p) at address %p\n",
 	    progname, header.base, imp);
     exit(1);
   }
@@ -2074,7 +2074,7 @@ Address gforth_alloc(Cell size)
     exit(1);
   }
   r = (Address)((((Cell)r)+(sizeof(Float)-1))&(-sizeof(Float)));
-  debugp(stderr, "malloc succeeds, address=$%p\n", r);
+  debugp(stderr, "malloc succeeds, address=%p\n", r);
   return r;
 }
 #endif
