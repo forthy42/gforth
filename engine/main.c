@@ -62,17 +62,17 @@ typedef enum prim_num {
 /* global variables for engine.c 
    We put them here because engine.c is compiled several times in
    different ways for the same engine. */
-__thread Cell *gforth_SP;
-__thread Float *gforth_FP;
-__thread Address gforth_UP=NULL;
-__thread Cell *gforth_RP;
-__thread Address gforth_LP;
+PER_THREAD Cell *gforth_SP;
+PER_THREAD Float *gforth_FP;
+PER_THREAD Address gforth_UP=NULL;
+PER_THREAD Cell *gforth_RP;
+PER_THREAD Address gforth_LP;
 
 #ifdef HAS_FFCALL
 
 #include <callback.h>
 
-__thread va_alist gforth_clist;
+PER_THREAD va_alist gforth_clist;
 
 void gforth_callback(Xt* fcall, void * alist)
 {
@@ -102,10 +102,10 @@ void gforth_callback(Xt* fcall, void * alist)
    GNU C manual) */
 #if defined(GLOBALS_NONRELOC)
 saved_regs saved_regs_v;
-__thread saved_regs *saved_regs_p = &saved_regs_v;
+PER_THREAD saved_regs *saved_regs_p = &saved_regs_v;
 #else /* !defined(GLOBALS_NONRELOC) */
-__thread Xt *saved_ip;
-__thread Cell *rp;
+PER_THREAD Xt *saved_ip;
+PER_THREAD Cell *rp;
 #endif /* !defined(GLOBALS_NONRELOC) */
 #endif /* !defined(GFORTH_DEBUGGING) */
 

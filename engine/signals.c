@@ -101,7 +101,7 @@ graceful_exit (int sig)
   exit (0x80|sig);
 }
 
-__thread jmp_buf * throw_jmp_handler;
+PER_THREAD jmp_buf * throw_jmp_handler;
 
 void throw(int code)
 {

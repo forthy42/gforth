@@ -364,7 +364,7 @@ typedef struct saved_regs {
   Cell *sr_rp;
 } saved_regs;
 extern saved_regs saved_regs_v;
-extern __thread saved_regs *saved_regs_p;
+extern PER_THREAD saved_regs *saved_regs_p;
 #define saved_ip (saved_regs_p->sr_saved_ip)
 #define rp       (saved_regs_p->sr_rp)
 /* for use in gforth_engine header */
@@ -372,8 +372,8 @@ extern __thread saved_regs *saved_regs_p;
 #define sr_proto , struct saved_regs *saved_regs_p0
 #define sr_call  , saved_regs_p
 #else /* !defined(GLOBALS_NONRELOC) */
-extern __thread Xt *saved_ip;
-extern __thread Cell *rp;
+extern PER_THREAD Xt *saved_ip;
+extern PER_THREAD Cell *rp;
 #define sr_proto
 #define sr_call
 #endif /* !defined(GLOBALS_NONRELOC) */
@@ -465,11 +465,11 @@ extern int debug;
 # define debug 0
 #endif
 
-extern __thread Cell *gforth_SP;
-extern __thread Cell *gforth_RP;
-extern __thread Address gforth_LP;
-extern __thread Float *gforth_FP;
-extern __thread Address gforth_UP;
+extern PER_THREAD Cell *gforth_SP;
+extern PER_THREAD Cell *gforth_RP;
+extern PER_THREAD Address gforth_LP;
+extern PER_THREAD Float *gforth_FP;
+extern PER_THREAD Address gforth_UP;
 
 extern void * gforth_pointers(Cell n);
 

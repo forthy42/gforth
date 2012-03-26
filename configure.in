@@ -699,10 +699,12 @@ AC_DEFINE_UNQUOTED(MAYBE_UNUSED,$MAYBE_UNUSED,[attribute for possibly unused var
 AC_MSG_RESULT($MAYBE_UNUSED)
 
 # Try if GCC understands __thread
-AC_MSG_CHECKING([whether gcc understands '__thread'])
-AC_TRY_COMPILE(,[extern __thread int foo;],PER_THREAD='__thread',)
+AC_CACHE_CHECK([whether gcc understands '__thread'], [ac_cv_thread],
+     [AC_TRY_COMPILE(,[extern __thread int foo;],
+                        [ac_cv_thread=yes],
+                        [ac_cv_thread=no])])
+test x$ac_cv_thread = xyes && PER_THREAD='__thread'
 AC_DEFINE_UNQUOTED(PER_THREAD,$PER_THREAD,[storage class for thread-local variables])
-AC_MSG_RESULT($PER_THREAD)
 
 #try if m4 understands -s
 AC_MSG_CHECKING([how to invoke m4])
