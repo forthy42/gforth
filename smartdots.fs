@@ -28,7 +28,8 @@
 
 : .string. ( addr u -- )
     .\" s\" " type '"' emit space ;
-: .addr. ( addr -- )  hex. ;
+: .addr. ( addr -- )
+    dup >name dup IF  ." ' " .name drop  ELSE  drop hex.  THEN ;
 
 Variable smart.s-skip
 
