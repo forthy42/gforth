@@ -20,10 +20,10 @@
 \ idea: Gerald Wodni
 
 : addr? ( addr -- flag )
-    TRY  @  IFERROR  2drop  false nothrow  ELSE  drop  true  THEN   ENDTRY ;
+    TRY  c@  IFERROR  2drop  false nothrow  ELSE  drop  true  THEN   ENDTRY ;
 
 : string? ( addr u -- flag )
-    TRY  bounds ?DO  I c@ bl < IF  -1 throw  THEN  LOOP
+    TRY  dup #80 u> throw  bounds ?DO  I c@ bl < IF  -1 throw  THEN  LOOP
 	IFERROR  2drop drop false nothrow ELSE  true  THEN  ENDTRY ;
 
 : .string. ( addr u -- )
