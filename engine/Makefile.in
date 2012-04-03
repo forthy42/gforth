@@ -36,6 +36,7 @@ include_fi = @include_fi@
 PATHSEP = @PATHSEP@
 
 EC = @EC@
+ARCH= @ARCH@
 
 # ------------- Utility programs
 
@@ -52,7 +53,7 @@ AS	= $(GCC:gcc=as)
 STRIP	= strip
 GCCLD	= @GCC_LD@
 
-FORTHPATH = .$(PATHSEP)$(libdir)/gforth/site-forth$(PATHSEP)$(datadir)/gforth/site-forth$(PATHSEP)$(libdir)/gforth/$(VERSION)$(PATHSEP)$(datadir)/gforth/$(VERSION)
+FORTHPATH = .$(PATHSEP)$(libdir)/gforth/site-forth$(PATHSEP)$(datadir)/gforth/site-forth$(PATHSEP)$(libdir)/gforth$(ARCH)/$(VERSION)$(PATHSEP)$(datadir)/gforth/$(VERSION)
 
 # ------------  Source and Build directories
 
@@ -140,25 +141,25 @@ getopt1.o: getopt1.c getopt.h
 
 getopt.o: getopt.c getopt.h
 
-gforth$(OPT)$(EC)$(EXE):	$(OBJECTS) $(AOBJECTS) $(LTDLDEPS)
+gforth$(OPT)$(EC)$(ARCH)$(EXE):	$(OBJECTS) $(AOBJECTS) $(LTDLDEPS)
 	$(GCCLD) $(LDFLAGS) $(OBJECTS) $(AOBJECTS) $(LDLIBS) -o $@
 
-gforth-native$(OPT)$(EC)$(EXE):	$(OBJECTS_NATIVE) $(AOBJECTS) $(LTDLDEPS)
+gforth-native$(OPT)$(EC)$(ARCH)$(EXE):	$(OBJECTS_NATIVE) $(AOBJECTS) $(LTDLDEPS)
 	$(GCCLD) $(LDFLAGS) $(OBJECTS_NATIVE) $(AOBJECTS) $(LDLIBS) -o $@
 
-gforth-fast$(OPT)$(EC)$(EXE):	$(OBJECTS_FAST) $(AOBJECTS) $(LTDLDEPS)
+gforth-fast$(OPT)$(EC)$(ARCH)$(EXE):	$(OBJECTS_FAST) $(AOBJECTS) $(LTDLDEPS)
 	$(GCCLD) $(LDFLAGS) $(OBJECTS_FAST) $(AOBJECTS) $(LDLIBS) -o $@
 
-gforth-itc$(OPT)$(EC)$(EXE):	$(OBJECTS_ITC) $(AOBJECTS) $(LTDLDEPS)
+gforth-itc$(OPT)$(EC)$(ARCH)$(EXE):	$(OBJECTS_ITC) $(AOBJECTS) $(LTDLDEPS)
 	$(GCCLD) $(LDFLAGS) $(OBJECTS_ITC) $(AOBJECTS) $(LDLIBS) -o $@
 
-gforth-ditc$(OPT)$(EC)$(EXE): $(OBJECTS_DITC) $(AOBJECTS) $(LTDLDEPS)
+gforth-ditc$(OPT)$(EC)$(ARCH)$(EXE): $(OBJECTS_DITC) $(AOBJECTS) $(LTDLDEPS)
 	$(GCCLD) $(LDFLAGS) $(OBJECTS_DITC) $(AOBJECTS) $(LDLIBS) -o $@
 
-gforth-prof$(OPT)$(EC)$(EXE): $(OBJECTS_PROF) $(AOBJECTS) $(LTDLDEPS) profile$(OPT).o
+gforth-prof$(OPT)$(EC)$(ARCH)$(EXE): $(OBJECTS_PROF) $(AOBJECTS) $(LTDLDEPS) profile$(OPT).o
 	$(GCCLD) $(LDFLAGS) $(OBJECTS_PROF) $(AOBJECTS) profile$(OPT).o $(LDLIBS) -o $@
 
-gforth-fi$(OPT)$(EC)$(EXE):	$(OBJECTS_FI) $(AOBJECTS) $(LTDLDEPS)
+gforth-fi$(OPT)$(EC)$(ARCH)$(EXE):	$(OBJECTS_FI) $(AOBJECTS) $(LTDLDEPS)
 	$(GCCLD) $(LDFLAGS) $(OBJECTS_FI) $(AOBJECTS) $(LDLIBS) -o $@
 
 engine.s:	$(ENGINE_FAST_DEPS)

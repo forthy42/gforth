@@ -46,6 +46,8 @@ EXE=@EXEEXT@
 PATHSEP = @PATHSEP@
 
 EC = @EC@
+ARCH= @ARCH@
+EXT = $(EC)$(ARCH)$(EXE)
 
 # ------------	Install Directories
 
@@ -61,7 +63,7 @@ datadir = $(package)@datadir@
 #read-only architecture-dependent non-ascii files
 libdir = $(package)@libdir@
 libexecdir = $(package)@libexecdir@
-libccdir = $(subst $(DESTDIR),,$(libexecdir)/gforth/$(VERSION)/libcc-named/)
+libccdir = $(subst $(DESTDIR),,$(libexecdir)/gforth$(ARCH)/$(VERSION)/libcc-named/)
 includedir = $(package)@includedir@
 infodir = $(package)@infodir@
 htmldir = $(package)@htmldir@
@@ -93,7 +95,7 @@ EMACS   = @EMACS@
 LIBTOOL = @GNU_LIBTOOL@
 PREFORTH	= ./preforth -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)"
 CC	= $(GCC)
-FORTHPATH = .$(PATHSEP)$(libdir)/gforth/site-forth$(PATHSEP)$(siteforthdir)$(PATHSEP)$(libdir)/gforth/$(VERSION)$(PATHSEP)$(datadir)/gforth/$(VERSION)
+FORTHPATH = .$(PATHSEP)$(libdir)/gforth/site-forth$(PATHSEP)$(siteforthdir)$(PATHSEP)$(libdir)/gforth$(ARCH)/$(VERSION)$(PATHSEP)$(datadir)/gforth/$(VERSION)
 FORTHSIZES = @FORTHSIZES@
 FORTHS_ARGS =  -p "$(FORTHPATH)$(PATHSEP)$(srcdir)"
 FORTH_ARGS = --die-on-signal $(FORTHS_ARGS)
@@ -108,7 +110,7 @@ BUILDFORTH = $(ENGINE) --die-on-signal -m 4M -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir
 FORTHB = $(BUILDFORTH) exboot.fs -e 'fpath= .|~+|$(srcdir)'
 # the Forth system for running prims2x.fs
 #FORTHP = $(FORTH)
-ENGINE_FAST = ./gforth-fast
+ENGINE_FAST = ./gforth-fast$(EXT)
 FORTH_FAST	= $(ENGINE_FAST) $(FORTH_ARGS)
 FORTHKFLAGS= --die-on-signal -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)" -i $(kernel_fi)
 FORTHK	= ./gforthker -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)"
@@ -456,9 +458,9 @@ SOURCES	= $(ENGINE_SOURCES) compat Makefile.in Makedist.in \
 
 RCS_FILES =  ToDo model high-level
 
-ENGINES = gforth$(EC)$(EXE) @NO_EC@ gforth-ditc$(EC)$(EXE) gforth-itc$(EC)$(EXE) $(PROFEXES)
+ENGINES = gforth$(EXT) @NO_EC@ gforth-ditc$(EXT) gforth-itc$(EXT) $(PROFEXES)
 
-ENGINES_FAST = @NO_EC@ gforth-fast$(OPT)$(EC)$(EXE) #gforth-native$(OPT)$(EC)$(EXE) 
+ENGINES_FAST = @NO_EC@ gforth-fast$(OPT)$(EXT) #gforth-native$(OPT)$(EXT) 
 
 GEN = $(ENGINES) $(ENGINES_FAST) @gforth_elc@
 
@@ -556,11 +558,11 @@ docclean:	FORCE
 
 clean:		mostlyclean
 	-$(RM) -rf $(GEN) *.o engine/*.o arch/*/*.o version \
-	gforth-itc-noll$(EC)$(EXE)  engine/gforth-itc-noll$(EC)$(EXE)  \
-	gforth-ditc-noll$(EC)$(EXE) engine/gforth-ditc-noll$(EC)$(EXE) \
-	gforth-prof-noll$(EC)$(EXE) engine/gforth-prof-noll$(EC)$(EXE) \
+	gforth-itc-noll$(EXT)  engine/gforth-itc-noll$(EXT)  \
+	gforth-ditc-noll$(EXT) engine/gforth-ditc-noll$(EXT) \
+	gforth-prof-noll$(EXT) engine/gforth-prof-noll$(EXT) \
 	engine/prim-s.i
-	for i in gforth gforth-fast gforth-native; do for j in $(OPTS); do rm -f engine/$$i$${j}$(EC)$(EXE) $$i$${j}$(EC)$(EXE); done; done
+	for i in gforth gforth-fast gforth-native; do for j in $(OPTS); do rm -f engine/$$i$${j}$(EXT) $$i$${j}$(EXT); done; done
 
 distclean:	clean
 		-$(RM) -rf config.cache config.log config.status \
@@ -624,22 +626,23 @@ hpux-workaround:
 #hard to generate).
 #we rebuild gforth.fi, because it contains some path names.
 #we delete $build/gforth.fi and $build/install.TAGS after installation because of ownership.
-install:	gforth$(EC)$(EXE) $(FORTH_SRC) $(kernel_fi) gforthmi vmgen doc/gforth.1 prim install.TAGS installdirs @NO_CROSS@ gforth.fi
+install:	gforth$(EXT) $(FORTH_SRC) $(kernel_fi) gforthmi vmgen doc/gforth.1 prim install.TAGS installdirs @NO_CROSS@ gforth.fi
 		$(NORMAL_INSTALL)
 		touch $(DESTDIR)$(siteforthdir)/siteinit.fs
-		-$(RM) $(DESTDIR)$(bindir)/gforth$(EC)$(EXE) $(DESTDIR)$(bindir)/gforth-$(VERSION)$(EC)$(EXE) $(DESTDIR)$(bindir)/gforthmi $(DESTDIR)$(bindir)/vmgen
-		-$(RM) $(DESTDIR)$(bindir)/gforth-fast$(EC)$(EXE) $(DESTDIR)$(bindir)/gforth-fast-$(VERSION)$(EC)$(EXE)
-		-$(RM) $(DESTDIR)$(bindir)/gforth-itc$(EC)$(EXE) $(DESTDIR)$(bindir)/gforth-itc-$(VERSION)$(EC)$(EXE)
-		$(INSTALL_PROGRAM) gforth$(EC)$(EXE) $(DESTDIR)$(bindir)/gforth-$(VERSION)$(EC)$(EXE)
-		-$(MASSAGE_EXE) $(DESTDIR)$(bindir)/gforth-$(VERSION)$(EC)$(EXE)
-		(cd $(DESTDIR)$(bindir) && $(LN_S) gforth-$(VERSION)$(EC)$(EXE) gforth$(EC)$(EXE))
-		$(INSTALL_PROGRAM) gforth-fast$(EC)$(EXE) $(DESTDIR)$(bindir)/gforth-fast-$(VERSION)$(EC)$(EXE)
-		-$(MASSAGE_EXE) $(DESTDIR)$(bindir)/gforth-fast-$(VERSION)$(EC)$(EXE)
-		(cd $(DESTDIR)$(bindir) && $(LN_S) gforth-fast-$(VERSION)$(EC)$(EXE) gforth-fast$(EC)$(EXE))
-		$(INSTALL_PROGRAM) gforth-itc$(EC)$(EXE) $(DESTDIR)$(bindir)/gforth-itc-$(VERSION)$(EC)$(EXE)
-		(cd $(DESTDIR)$(bindir) && $(LN_S) gforth-itc-$(VERSION)$(EC)$(EXE) gforth-itc$(EC)$(EXE))
-		$(INSTALL_PROGRAM) gforth-ditc$(EC)$(EXE) $(DESTDIR)$(bindir)/gforth-ditc-$(VERSION)$(EC)$(EXE)
-		(cd $(DESTDIR)$(bindir) && $(LN_S) gforth-ditc-$(VERSION)$(EC)$(EXE) gforth-ditc$(EC)$(EXE))
+		-$(RM) $(DESTDIR)$(bindir)/gforth$(EXT) $(DESTDIR)$(bindir)/gforth-$(VERSION)$(EXT) $(DESTDIR)$(bindir)/gforthmi $(DESTDIR)$(bindir)/vmgen
+		-$(RM) $(DESTDIR)$(bindir)/gforth-fast$(EXT) $(DESTDIR)$(bindir)/gforth-fast-$(VERSION)$(EXT)
+		-$(RM) $(DESTDIR)$(bindir)/gforth-itc$(EXT) $(DESTDIR)$(bindir)/gforth-itc-$(VERSION)$(EXT)
+		-$(RM) $(DESTDIR)$(bindir)/gforth-ditc$(EXT) $(DESTDIR)$(bindir)/gforth-ditc-$(VERSION)$(EXT)
+		$(INSTALL_PROGRAM) gforth$(EXT) $(DESTDIR)$(bindir)/gforth-$(VERSION)$(EXT)
+		-$(MASSAGE_EXE) $(DESTDIR)$(bindir)/gforth-$(VERSION)$(EXT)
+		(cd $(DESTDIR)$(bindir) && $(LN_S) gforth-$(VERSION)$(EXT) gforth$(EXT))
+		$(INSTALL_PROGRAM) gforth-fast$(EXT) $(DESTDIR)$(bindir)/gforth-fast-$(VERSION)$(EXT)
+		-$(MASSAGE_EXE) $(DESTDIR)$(bindir)/gforth-fast-$(VERSION)$(EXT)
+		(cd $(DESTDIR)$(bindir) && $(LN_S) gforth-fast-$(VERSION)$(EXT) gforth-fast$(EXT))
+		$(INSTALL_PROGRAM) gforth-itc$(EXT) $(DESTDIR)$(bindir)/gforth-itc-$(VERSION)$(EXT)
+		(cd $(DESTDIR)$(bindir) && $(LN_S) gforth-itc-$(VERSION)$(EXT) gforth-itc$(EXT))
+		$(INSTALL_PROGRAM) gforth-ditc$(EXT) $(DESTDIR)$(bindir)/gforth-ditc-$(VERSION)$(EXT)
+		(cd $(DESTDIR)$(bindir) && $(LN_S) gforth-ditc-$(VERSION)$(EXT) gforth-ditc$(EXT))
 		$(INSTALL_SCRIPT) gforthmi $(DESTDIR)$(bindir)/gforthmi-$(VERSION)
 		$(INSTALL_SCRIPT) vmgen $(DESTDIR)$(bindir)/vmgen-$(VERSION)
 		(cd $(DESTDIR)$(bindir) && $(LN_S) gforthmi-$(VERSION) gforthmi)
@@ -649,7 +652,7 @@ install:	gforth$(EC)$(EXE) $(FORTH_SRC) $(kernel_fi) gforthmi vmgen doc/gforth.1
 		for i in $(FORTH_SRC) $(COMPAT) envos.fs prim; do \
 			$(INSTALL_DATA) $(srcdir)/$$i $(DESTDIR)$(datadir)/gforth/$(VERSION)/$$i; \
 		done
-		$(INSTALL_DATA) $(kernel_fi) $(DESTDIR)$(libdir)/gforth/$(VERSION)
+		$(INSTALL_DATA) $(kernel_fi) $(DESTDIR)$(libdir)/gforth$(ARCH)/$(VERSION)
 		@if test -d "$(DESTDIR)$(emacssitelispdir)"; then \
 			for i in gforth.el @gforth_elc@; do \
 				$(INSTALL_DATA) $$i $(DESTDIR)$(emacssitelispdir); \
@@ -658,13 +661,13 @@ install:	gforth$(EC)$(EXE) $(FORTH_SRC) $(kernel_fi) gforthmi vmgen doc/gforth.1
 			echo '>>>>>Please install gforth.{el,elc} in your .../emacs/site-lisp directory'; \
 		fi
 		-$(RM) gforth.fi
-		@NO_CROSS@GFORTHD="./gforth-ditc -p $(DESTDIR)$(libdir)/gforth/site-forth$(PATHSEP)$(DESTDIR)$(siteforthdir)$(PATHSEP)$(DESTDIR)$(datadir)/gforth/$(VERSION) -i $(kernel_fi)" GFORTH="./gforth-ditc -p $(DESTDIR)$(libdir)/gforth/site-forth$(PATHSEP)$(DESTDIR)$(siteforthdir)$(PATHSEP)$(DESTDIR)$(datadir)/gforth/$(VERSION) --die-on-signal -i $(kernel_fi) $(STARTUP)" includedir=$(includedir) bindir=$(bindir) libccdir=$(libccdir) GFORTHPATH=.:"$$GFORTHPATH" GFORTHDESTDIR="$(DESTDIR)" ./gforthmi gforth.fi $(FORTHSIZES) $(STARTUP)
-		@NO_CROSS@$(INSTALL_DATA) gforth.fi $(DESTDIR)$(libdir)/gforth/$(VERSION)
+		@NO_CROSS@GFORTHD="./gforth-ditc$(EXT) -p $(DESTDIR)$(libdir)/gforth/site-forth$(PATHSEP)$(DESTDIR)$(siteforthdir)$(PATHSEP)$(DESTDIR)$(datadir)/gforth/$(VERSION) -i $(kernel_fi)" GFORTH="./gforth-ditc$(EXT) -p $(DESTDIR)$(libdir)/gforth/site-forth$(PATHSEP)$(DESTDIR)$(siteforthdir)$(PATHSEP)$(DESTDIR)$(datadir)/gforth/$(VERSION) --die-on-signal -i $(kernel_fi) $(STARTUP)" includedir=$(includedir) bindir=$(bindir) libccdir=$(libccdir) GFORTHPATH=.:"$$GFORTHPATH" GFORTHDESTDIR="$(DESTDIR)" ./gforthmi gforth.fi $(FORTHSIZES) $(STARTUP)
+		@NO_CROSS@$(INSTALL_DATA) gforth.fi $(DESTDIR)$(libdir)/gforth$(ARCH)/$(VERSION)
 		$(INSTALL_DATA) install.TAGS $(DESTDIR)$(datadir)/gforth/$(VERSION)/TAGS
 		$(RM) install.TAGS @NO_CROSS@gforth.fi
 		$(INSTALL_DATA) include/gforth/$(VERSION)/* $(DESTDIR)$(includedir)/gforth/$(VERSION)
 		if test -n "$(LIBTOOL)"; then for i in $(LIBCC_BUILD_SRC); do \
-		   $(LIBTOOL) --silent --mode=install $(INSTALL) lib/gforth/$(VERSION)/libcc-named/`basename $$i .fs`.la $(DESTDIR)$(libccdir)`basename $$i .fs`.la; \
+		   $(LIBTOOL) --silent --mode=install $(INSTALL) lib/gforth$(ARCH)/$(VERSION)/libcc-named/`basename $$i .fs`.la $(DESTDIR)$(libccdir)`basename $$i .fs`.la; \
 		done; fi
 		$(POST_INSTALL)
 		$(INSTALL_INFO) --info-dir=$(DESTDIR)$(infodir) $(DESTDIR)$(infodir)/gforth.info
@@ -674,7 +677,7 @@ install-strip:	install
 
 installdirs:	mkinstalldirs
 		$(NORMAL_INSTALL)
-		for i in $(bindir) $(man1dir) $(infodir) $(libdir)/gforth/$(VERSION) $(datadir)/gforth/$(VERSION) $(libdir)/gforth/site-forth $(siteforthdir) $(includedir)/gforth/$(VERSION) $(libccdir); do \
+		for i in $(bindir) $(man1dir) $(infodir) $(libdir)/gforth$(ARCH)/$(VERSION) $(datadir)/gforth/$(VERSION) $(libdir)/gforth/site-forth $(siteforthdir) $(includedir)/gforth/$(VERSION) $(libccdir); do \
 			$(srcdir)/mkinstalldirs $(DESTDIR)$$i; \
 		done
 		#
@@ -686,22 +689,22 @@ installdirs:	mkinstalldirs
 #to uninstall version foo, type `make uninstall VERSION=foo'
 uninstall:	FORCE
 		$(NORMAL_UNINSTALL)
-		-$(RM) -rf $(DESTDIR)$(libdir)/gforth/$(VERSION) $(DESTDIR)$(datadir)/gforth/$(VERSION) $(DESTDIR)$(bindir)/gforth-$(VERSION)$(EC)$(EXE) $(DESTDIR)$(bindir)/gforth-fast-$(VERSION)$(EC)$(EXE) $(DESTDIR)$(bindir)/gforth-itc-$(VERSION)$(EC)$(EXE) $(DESTDIR)$(bindir)/gforthmi-$(VERSION) $(DESTDIR)$(bindir)/vmgen-$(VERSION) $(DESTDIR)$(includedir)/gforth/$(VERSION)
-		@echo -e "To remove Gforth completely, type\n$(RM) -rf $(DESTDIR)$(bindir)/gforth$(EC)$(EXE) $(DESTDIR)$(bindir)/gforth-fast$(EC)$(EXE) $(DESTDIR)$(bindir)/gforth-itc$(EC)$(EXE) $(DESTDIR)$(bindir)/gforthmi $(DESTDIR)$(bindir)/vmgen $(DESTDIR)$(man1dir)/gforth.1 $(DESTDIR)$(infodir)/gforth.info* $(DESTDIR)$(datadir)/gforth $(DESTDIR)$(libdir)/gforth"
+		-$(RM) -rf $(DESTDIR)$(libdir)/gforth$(ARCH)/$(VERSION) $(DESTDIR)$(datadir)/gforth/$(VERSION) $(DESTDIR)$(bindir)/gforth-$(VERSION)$(EXT) $(DESTDIR)$(bindir)/gforth-fast-$(VERSION)$(EXT) $(DESTDIR)$(bindir)/gforth-itc-$(VERSION)$(EXT) $(DESTDIR)$(bindir)/gforthmi-$(VERSION) $(DESTDIR)$(bindir)/vmgen-$(VERSION) $(DESTDIR)$(includedir)/gforth/$(VERSION)
+		@echo -e "To remove Gforth completely, type\n$(RM) -rf $(DESTDIR)$(bindir)/gforth$(EXT) $(DESTDIR)$(bindir)/gforth-fast$(EXT) $(DESTDIR)$(bindir)/gforth-itc$(EXT) $(DESTDIR)$(bindir)/gforthmi $(DESTDIR)$(bindir)/vmgen $(DESTDIR)$(man1dir)/gforth.1 $(DESTDIR)$(infodir)/gforth.info* $(DESTDIR)$(datadir)/gforth $(DESTDIR)$(libdir)/gforth"
 
 build-libcc-named: $(LIBCC_BUILD_SRC) $(FORTH_GEN) $(GEN) FORCE
-		$(RMTREE) lib/gforth/$(VERSION)/libcc-named/
-		for i in $(LIBCC_BUILD_SRC); do ./libforth -e "s\" `pwd`/lib/gforth/$(VERSION)/libcc-named/\" libcc-named-dir-v 2! libcc-path clear-path libcc-named-dir libcc-path also-path :noname 2drop s\" $(DESTDIR)$(libccdir)\" ; is replace-rpath" $(srcdir)/$$i -e bye; done
+		$(RMTREE) lib/gforth$(ARCH)/$(VERSION)/libcc-named/
+		for i in $(LIBCC_BUILD_SRC); do ./libforth -e "s\" `pwd`/lib/gforth$(ARCH)/$(VERSION)/libcc-named/\" libcc-named-dir-v 2! libcc-path clear-path libcc-named-dir libcc-path also-path :noname 2drop s\" $(DESTDIR)$(libccdir)\" ; is replace-rpath" $(srcdir)/$$i -e bye; done
 
 check:		gforths	gforth.fi 
-		$(MAKE) checkone check-nofast ENGINE="./gforth --no-dynamic" >/dev/null 2>&1
-		$(MAKE) checkone check-nofast ENGINE="./gforth-itc" >/dev/null 2>&1
-		$(MAKE) checkone check-nofast ENGINE="./gforth-ditc" >/dev/null 2>&1
-		$(MAKE) checkone ENGINE="./gforth-fast --no-dynamic" >/dev/null 2>&1
-		$(MAKE) checkone check-nofast ENGINE="./gforth" >/dev/null 2>&1
-		$(MAKE) checkone ENGINE="./gforth-fast" >/dev/null 2>&1
+		$(MAKE) checkone check-nofast ENGINE="./gforth$(EXT) --no-dynamic" >/dev/null 2>&1
+		$(MAKE) checkone check-nofast ENGINE="./gforth-itc$(EXT)" >/dev/null 2>&1
+		$(MAKE) checkone check-nofast ENGINE="./gforth-ditc$(EXT)" >/dev/null 2>&1
+		$(MAKE) checkone ENGINE="./gforth-fast$(EXT) --no-dynamic" >/dev/null 2>&1
+		$(MAKE) checkone check-nofast ENGINE="./gforth$(EXT)" >/dev/null 2>&1
+		$(MAKE) checkone ENGINE="./gforth-fast$(EXT)" >/dev/null 2>&1
 		@echo "*** Check successful ***"
-		./gforth-fast --diag -e bye
+		./gforth-fast$(EXT) --diag -e bye
 
 checkone test: gforth.fi engine/prim-s.i
 		$(FORTH) test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs test/string.fs test/float.fs test/deferred.fs test/coreext.fs test/search.fs -e bye 2>/dev/null | tr -d '\015' | diff -c - $(srcdir)/test/coretest.out
@@ -722,7 +725,7 @@ test/primtest.fi: test/primtest.fs mach32l.fs cross.fs
 primtest:	gforth gforth-native test/primtest.fi FORCE
 		(echo rs|ENVVAR=bla ./gforth -i test/primtest.fi) && (echo rs|ENVVAR=bla ./gforth-native -i test/primtest.fi); echo $$?
 
-bench:		gforth-fast$(EC)$(EXE) gforth.fi
+bench:		gforth-fast$(EXT) gforth.fi
 		@echo 'Each benchmark takes about 30s on a 486-66 (gcc-2.6.3 -DFORCE_REG)'
 		time $(FORTH_FAST) siev.fs -e "main bye"
 		time $(FORTH_FAST) bubble.fs -e "main bye"
@@ -807,8 +810,8 @@ kernl64l$(EC).fi:	$(KERNLS)
 #		-$(CP) $@ $@~
 #		-$(CP) $< $@
 
-gforth.fi:	$(kernel_fi) gforthmi gforth-ditc$(EC)$(EXE) $(GFORTH_FI_SRC) comp-i.fs
-		GFORTHD="./gforth-ditc -p .$(PATHSEP)$(srcdir)" GFORTH="./gforth-ditc --die-on-signal -p .$(PATHSEP)$(srcdir) -i $(kernel_fi) $(STARTUP)" includedir=`pwd`/include bindir=`pwd` libccdir=`pwd`/lib/gforth/$(VERSION)/libcc-named/ ./gforthmi gforth.fi $(FORTHSIZES) $(FORTHKFLAGS) $(STARTUP)
+gforth.fi:	$(kernel_fi) gforthmi gforth-ditc$(EXT) $(GFORTH_FI_SRC) comp-i.fs
+		GFORTHD="./gforth-ditc$(EXT) -p .$(PATHSEP)$(srcdir)" GFORTH="./gforth-ditc$(EXT) --die-on-signal -p .$(PATHSEP)$(srcdir) -i $(kernel_fi) $(STARTUP)" includedir=`pwd`/include bindir=`pwd` libccdir=`pwd`/lib/gforth$(ARCH)/$(VERSION)/libcc-named/ ./gforthmi gforth.fi $(FORTHSIZES) $(FORTHKFLAGS) $(STARTUP)
 
 # -------------	Make c-engine
 
@@ -849,9 +852,9 @@ MAKELINE-noll-reg = OPT=-noll-reg OPTDEFINES=-DFORCE_REG OPTOBJECTS=dblsub.o
 MAKELINE-ll       = OPT=-ll OPTDEFINES=-DFORCE_LL OPTOBJECTS=
 MAKELINE-noll     = OPT=-noll OPTDEFINES= OPTOBJECTS=dblsub.o
 
-gforth$(OPT)$(EC)$(EXE): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/config.h @kernel_anti_dependence@
+gforth$(OPT)$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/config.h @kernel_anti_dependence@
 	if test -z "$(OPT)"; then \
-		for i in $(OPTS); do $(MAKE) optgforth OPT=$$i && $(CP) gforth$${i}$(EC)$(EXE) $@ && break; done; \
+		for i in $(OPTS); do $(MAKE) optgforth OPT=$$i && $(CP) gforth$${i}$(EXT) $@ && break; done; \
 	else \
 		( cd engine && $(MAKE) $@ ) && \
 		$(CP) engine/$@ $@ && \
@@ -861,11 +864,11 @@ gforth$(OPT)$(EC)$(EXE): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/config.h @
 	fi
 
 optgforth:
-	$(MAKE) gforth$(OPT)$(EC)$(EXE) $(MAKELINE$(OPT))
+	$(MAKE) gforth$(OPT)$(EXT) $(MAKELINE$(OPT))
 
-gforth-fast$(OPT)$(EC)$(EXE): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE_FAST) engine/config.h
+gforth-fast$(OPT)$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE_FAST) engine/config.h
 	if test -z "$(OPT)"; then \
-		for i in $(OPTS); do $(MAKE) optgforth-fast OPT=$$i && $(CP) gforth-fast$${i}$(EC)$(EXE) $@ && break; done; \
+		for i in $(OPTS); do $(MAKE) optgforth-fast OPT=$$i && $(CP) gforth-fast$${i}$(EXT) $@ && break; done; \
 	else \
 		( cd engine && $(MAKE) $@ ) && \
 		$(CP) engine/$@ $@ && \
@@ -875,26 +878,26 @@ gforth-fast$(OPT)$(EC)$(EXE): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE_FAST) engine/
 	fi
 
 optgforth-fast:
-	$(MAKE) gforth-fast$(OPT)$(EC)$(EXE) $(MAKELINE$(OPT))
+	$(MAKE) gforth-fast$(OPT)$(EXT) $(MAKELINE$(OPT))
 
-gforth-native$(OPT)$(EC)$(EXE):	engines-fast
+gforth-native$(OPT)$(EXT):	engines-fast
 		$(CP) engine/$@ $@
 		-$(MASSAGE_EXE) $@
 #@GFORTHX_EXE@
 
-gforth-itc$(EC)$(EXE): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/Makefile engine/config.h
-		cd engine && $(MAKE) gforth-itc-noll$(EC)$(EXE) $(MAKELINE-noll)
-		$(CP) engine/gforth-itc-noll$(EC)$(EXE) $@
+gforth-itc$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/Makefile engine/config.h
+		cd engine && $(MAKE) gforth-itc-noll$(EXT) $(MAKELINE-noll)
+		$(CP) engine/gforth-itc-noll$(EXT) $@
 		@GFORTHITC_EXE@
 
-gforth-ditc$(EC)$(EXE): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/Makefile engine/config.h
-		cd engine && $(MAKE) gforth-ditc-noll$(EC)$(EXE) $(MAKELINE-noll)
-		$(CP) engine/gforth-ditc-noll$(EC)$(EXE) $@
+gforth-ditc$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/Makefile engine/config.h
+		cd engine && $(MAKE) gforth-ditc-noll$(EXT) $(MAKELINE-noll)
+		$(CP) engine/gforth-ditc-noll$(EXT) $@
 		@GFORTHDITC_EXE@
 
-gforth-prof$(EC)$(EXE): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/Makefile engine/config.h
-		cd engine && $(MAKE) gforth-prof-noll$(EC)$(EXE) $(MAKELINE-noll)
-		$(CP) engine/gforth-prof-noll$(EC)$(EXE) $@
+gforth-prof$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/Makefile engine/config.h
+		cd engine && $(MAKE) gforth-prof-noll$(EXT) $(MAKELINE-noll)
+		$(CP) engine/gforth-prof-noll$(EXT) $@
 
 gforths: $(ENGINES) $(ENGINES_FAST)
 
@@ -920,12 +923,12 @@ tags:		gforth.tags
 install.TAGS:	TAGS install-tags.fs
 		sed 's;^\$(srcdir)/;;' TAGS|$(PREFORTH) -e 's" '$(datadir)/gforth/$(VERSION)/'"' $(srcdir)/install-tags.fs -e bye >install.TAGS
 
-gforth.TAGS:	@kernel_fi@ gforth$(EC)$(EXE) $(GFORTH_FI_SRC) prim.TAGS kernel.TAGS
+gforth.TAGS:	@kernel_fi@ gforth$(EXT) $(GFORTH_FI_SRC) prim.TAGS kernel.TAGS
 		$(FORTHK) etags.fs except.fs startup.fs -e bye
 		cat TAGS prim.TAGS kernel.TAGS >gforth.TAGS
 		rm TAGS
 
-gforth.tags:	@kernel_fi@ gforth$(EC)$(EXE) $(GFORTH_FI_SRC) prim.tags kernel.tags
+gforth.tags:	@kernel_fi@ gforth$(EXT) $(GFORTH_FI_SRC) prim.tags kernel.tags
 		$(FORTHK) tags.fs except.fs startup.fs -e bye
 		cat tags prim.tags kernel.tags >gforth.tags
 		rm tags

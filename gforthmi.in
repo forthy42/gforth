@@ -26,8 +26,8 @@ then
 else
   helper="$startup"
 fi
-test "x$GFORTHD" != x || GFORTHD="@bindir@/gforth-ditc-@PACKAGE_VERSION@ --die-on-signal"
-test "x$GFORTH" != x || GFORTH="@bindir@/gforth-@PACKAGE_VERSION@ --die-on-signal $helper"
+test "x$GFORTHD" != x || GFORTHD="@bindir@/gforth-ditc-@PACKAGE_VERSION@@ARCH@ --die-on-signal"
+test "x$GFORTH" != x || GFORTH="@bindir@/gforth-@PACKAGE_VERSION@@ARCH@ --die-on-signal $helper"
 if test $# = 0 || test $1 = --help || test $1 = -h; then
   echo "usage: `basename $0` [--application] target-name [gforth-options]"
   echo "creates a relocatable image 'target-name'"

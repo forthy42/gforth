@@ -127,6 +127,16 @@ else
   NO_CROSS="#"
 fi])
 
+AC_ARG_WITH(arch,
+	AC_HELP_STRING([--with-arch=<arch>],
+			[  Build gforth binaries with <arch> postfix]),
+[if test "$withval" = "no"; then
+  ARCH=""
+else
+  ARCH=-${withval}
+fi])
+AC_SUBST(ARCH)
+
 #variables mentioned in INSTALL
 AC_ARG_VAR(SH, [The shell])
 AC_ARG_VAR(CC, [The C compiler (must support GNU C 2.x).])
