@@ -673,9 +673,16 @@ long key_avail (FILE *stream)
   if(!terminal_prepped && stream == stdin)
     prep_terminal();
 
-  FD_ZERO(&selin);
-  FD_SET(tty, &selin);
-  chars_avail = select(1, &selin, NULL, NULL, &now);
+#if defined(FIONREAD) && !defined(_WIN32)
+  if(isatty (tty)) {
+    int result = ioctl (tty, FIONREAD, &chars_avail);
+  } else
+#endif
+  {
+    FD_ZERO(&selin);
+    FD_SET(tty, &selin);
+    chars_avail = select(1, &selin, NULL, NULL, &now);
+  }
   if (chars_avail > 0) {
     /* getc won't block */
     int c = getc(stream);
