@@ -70,6 +70,7 @@ s" os-type" environment? [IF]
 	0000017 Constant B38400
 	000000010001 Constant B57600
 	000000010002 Constant B115200
+	000000010003 Constant B230400
 	020000000000 Constant CRTSCTS
 	000000000060 Constant CS8
 	000000000200 Constant CREAD
@@ -336,12 +337,12 @@ Create progress s" /-\|" here over allot swap move
     cr ;
 : terminal ( "name" -- )
     parse-name open-port
-    B115200 term-fd set-baud say-hallo ['] term-loop catch
+    B38400 term-fd set-baud say-hallo ['] term-loop catch
     dup -1 = IF  drop cr EXIT  THEN  throw ;
 
 s" os-type" environment? [IF]
     2dup s" linux-gnu" str= [IF] 2drop
-        script? [IF]  terminal /dev/ttyUSB1 bye [THEN]
+        script? [IF]  terminal /dev/ttyUSB0 bye [THEN]
     [ELSE] 2dup s" cygwin" str= [IF]
         script? [IF]  terminal COM1 bye [THEN]
     [ELSE] s" darwin" string-prefix? [IF]

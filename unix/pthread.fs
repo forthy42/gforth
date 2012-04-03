@@ -190,6 +190,14 @@ c-library pthread
     \c   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
     \c   return &attr;
     \c }
+    \c void create_pipe(FILE ** addr)
+    \c {
+    \c   int epipe[2];
+    \c   pipe(epipe);
+    \c   addr[0]=fdopen(epipe[0], "r");
+    \c   addr[1]=fdopen(epipe[1], "a");
+    \c   setvbuf(addr[1], NULL, _IONBF, 0);
+    \c }
     c-function pthread+ pthread_plus a -- a ( addr -- addr' )
     c-function pthreads pthreads n -- n ( n -- n' )
     c-function thread_start gforth_thread_p -- a ( -- addr )
@@ -203,9 +211,12 @@ c-library pthread
     c-function pthread-mutexes pthread_mutexes n -- n ( n -- n' )
     c-function pause sched_yield -- void ( -- )
     c-function pthread_detatch_attr pthread_detach_attr -- a ( -- addr )
+    c-function create_pipe create_pipe a -- void ( pipefd[2] -- )
 end-c-library
 
 User pthread-id  -1 cells pthread+ uallot drop
+User epiper
+User epipew
 
 :noname    ' >body @ ;
 :noname    ' >body @ postpone literal ; 
@@ -215,7 +226,7 @@ interpret/compile: user' ( 'user' -- n )
 : >task ( user task -- user' )  + next-task - ;
 
 : kill-task ( -- )
-    0 (bye) ;
+    epiper @ close-file drop   epipew @ close-file drop  0 (bye) ;
 
 :noname ( -- )
     [ here throw-entry ! ]
@@ -230,6 +241,7 @@ interpret/compile: user' ( 'user' -- n )
     throw-entry r@ udp @ throw-entry next-task - /string move
     word-pno-size chars dup allocate throw dup holdbufptr r@ >task !
     + dup holdptr r@ >task !  holdend r@ >task !
+    epiper r@ >task create_pipe
     ['] kill-task >body  rp0 r@ >task @ 1 cells - dup rp0 r@ >task ! !
     handler r@ >task off
     r> ;
