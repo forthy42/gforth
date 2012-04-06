@@ -26,7 +26,7 @@
 
 \ BIN WRITE-LINE                                        11jun93jaw
 
-: write-line ( c-addr u fileid -- ior ) \ file
+: write-line ( c-addr u wfileid -- ior ) \ file
     dup >r write-file
     ?dup IF
 	r> drop EXIT
