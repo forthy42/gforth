@@ -118,10 +118,11 @@ Variable screenw
 \ Create lfpad #lf c,
 
 : (enter)  ( max span addr pos1 -- max span addr pos2 true )
-  >r end^ 2@ hist-setpos
-  2dup swap history write-line drop ( throw ) \ don't worry about errors
-  hist-pos 2dup backward^ 2! end^ 2!
-  r> (ret) ;
+    >r 2dup swap -trailing nip IF
+	end^ 2@ hist-setpos
+	2dup swap history write-line drop
+	hist-pos 2dup backward^ 2! end^ 2!
+    THEN  r> (ret) ;
 
 : extract-word ( addr len -- addr' len' )  dup >r
   BEGIN  1- dup 0>=  WHILE  2dup + c@ bl =  UNTIL  THEN  1+
@@ -284,10 +285,11 @@ require utf-8.fs
      rot >r tuck 2dup r> swap /string u8width dup spaces linew +! .all 0 ;
 
 : (xenter)  ( max span addr pos1 -- max span addr pos2 true )
-    >r end^ 2@ hist-setpos
-    2dup swap history write-line drop ( throw ) \ don't worry about errors
-    hist-pos 2dup backward^ 2! end^ 2!
-    r> .all space true ;
+    >r 2dup swap -trailing nip IF
+	end^ 2@ hist-setpos
+	2dup swap history write-line drop ( throw ) \ don't worry about errors
+	hist-pos 2dup backward^ 2! end^ 2!
+    THEN  r> .all space true ;
 
 : xkill-expand ( max span addr pos1 -- max span addr pos2 )
     prefix-found cell+ @ ?dup IF  >r
