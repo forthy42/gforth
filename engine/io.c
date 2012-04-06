@@ -55,6 +55,7 @@ typedef unsigned int uint32_t;
 #include "io.h"
 
 #ifndef MSDOS
+#include <poll.h>
 #if defined (__GNUC__)
 #  define alloca __builtin_alloca
 #else
@@ -663,8 +664,7 @@ int gf_ungottenc(FILE *stream)
 long key_avail (FILE *stream)
 {
   int tty = fileno (stream);
-  fd_set selin;
-  static struct timeval now = { 0 , 0 };
+  struct pollfd fds = { tty, POLLIN, 0 };
   int chars_avail;
 
   if (gf_ungottenc(stream))
@@ -679,9 +679,7 @@ long key_avail (FILE *stream)
   } else
 #endif
   {
-    FD_ZERO(&selin);
-    FD_SET(tty, &selin);
-    chars_avail = select(1, &selin, NULL, NULL, &now);
+    chars_avail = poll(&fds, 1, 0);
   }
   if (chars_avail > 0) {
     /* getc won't block */
