@@ -2026,7 +2026,7 @@ free(string);
 
 newline	( -- c_addr u )	gforth
 ""String containing the newline sequence of the host OS""
-char newline[] = {
+static const char newline[] = {
 #if DIRSEP=='/'
 /* Unix */
 '\n'
