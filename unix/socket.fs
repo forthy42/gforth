@@ -50,6 +50,12 @@ c-function fileno fileno1 a -- n ( file* -- fd )
 c-function poll poll a n n -- n ( fds nfds timeout -- r )
 environment os-type s" linux" string-prefix? [IF]
     c-function ppoll ppoll a n a a -- n ( fds nfds timeout_ts sigmask -- r )
+    \c #include <sys/epoll.h>
+    c-function epoll_create epoll_create n -- n ( n -- epfd )
+    c-function epoll_ctl epoll_ctl n n n a -- n ( epfd op fd event -- r )
+    c-function epoll_wait epoll_wait n a n n -- n ( epfd events maxevs timeout -- r )
+    c-function recvmmsg recvmmsg n a n n a -- n ( sockfd hdr vlen flag timeout -- r )
+    c-function sendmmsg sendmmsg n a n n -- n ( sockfd hdr vlen flag -- r )
 [THEN]
 \c #include <netdb.h>
 c-function getaddrinfo getaddrinfo a a a a -- n ( node service hints res -- r )
@@ -112,6 +118,23 @@ struct
     cell% field ai_next
 end-struct addrinfo
 
+environment os-type s" linux" string-prefix? [IF]
+    struct
+	cell% field iov_base
+	int% field iov_len
+    end-struct iovec
+    struct
+	cell% field msg_name
+	int% field msg_namelen
+	cell% field msg_iov \ iovec structures
+	int% field msg_iovlen
+	cell% field msg_control
+	int% field msg_controllen
+	int% field msg_flags
+	int% field msg_len
+    end-struct mmsghdr
+[THEN]
+
 ' family alias family+port \ 0.6.2 32-bit field; used by itools
 
 Create sockaddr-tmp
@@ -141,6 +164,7 @@ $006 Constant O_NONBLOCK|O_RDWR
   26 Constant IPV6_V6ONLY
   11 Constant EWOULDBLOCK
 $100 Constant MSG_WAITALL
+$10000 Constant MSG_WAITFORONE
 $802 Constant O_NONBLOCK|O_RDWR
 [THEN]
    1 Constant SOCK_STREAM
