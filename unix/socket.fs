@@ -54,8 +54,12 @@ environment os-type s" linux" string-prefix? [IF]
     c-function epoll_create epoll_create n -- n ( n -- epfd )
     c-function epoll_ctl epoll_ctl n n n a -- n ( epfd op fd event -- r )
     c-function epoll_wait epoll_wait n a n n -- n ( epfd events maxevs timeout -- r )
-    c-function recvmmsg recvmmsg n a n n a -- n ( sockfd hdr vlen flag timeout -- r )
-    c-function sendmmsg sendmmsg n a n n -- n ( sockfd hdr vlen flag -- r )
+    s" uname -r" r/o open-pipe throw
+    dup >r slurp-fid r> close-pipe throw drop
+    2dup s" 3." string-prefix? >r drop free throw r> [IF]
+	c-function recvmmsg recvmmsg n a n n a -- n ( sockfd hdr vlen flag timeout -- r )
+	c-function sendmmsg sendmmsg n a n n -- n ( sockfd hdr vlen flag -- r )
+    [THEN]
 [THEN]
 \c #include <netdb.h>
 c-function getaddrinfo getaddrinfo a a a a -- n ( node service hints res -- r )
@@ -121,17 +125,17 @@ end-struct addrinfo
 environment os-type s" linux" string-prefix? [IF]
     struct
 	cell% field iov_base
-	int% field iov_len
+	cell% field iov_len
     end-struct iovec
     struct
 	cell% field msg_name
-	int% field msg_namelen
+	cell% field msg_namelen
 	cell% field msg_iov \ iovec structures
-	int% field msg_iovlen
+	cell% field msg_iovlen
 	cell% field msg_control
-	int% field msg_controllen
-	int% field msg_flags
-	int% field msg_len
+	cell% field msg_controllen
+	cell% field msg_flags
+	cell% field msg_len
     end-struct mmsghdr
 [THEN]
 
@@ -214,6 +218,18 @@ $004 Constant POLLOUT
 [THEN]
     dup IPPROTO_IPV6 IPV6_V6ONLY sockopt-on dup on 4 setsockopt drop ;
 
+: new-udp-socket46 ( -- socket )
+    PF_INET6 SOCK_DGRAM 0 socket
+    dup 0<= abort" no free socket"
+[IFDEF] darwin
+\    dup IPPROTO_IP IP_DONTFRAG sockopt-on 1 over l! 4
+\    setsockopt drop
+[ELSE]
+    dup IPPROTO_IPV6 IPV6_MTU_DISCOVER sockopt-on IP_PMTUDISC_DO over l! 4
+    setsockopt drop
+[THEN]
+;
+
 \ getaddrinfo based open-socket
 
 : >hints ( socktype -- )
@@ -282,6 +298,15 @@ $004 Constant POLLOUT
     AF_INET6 sockaddr-tmp family w!
     htons   sockaddr-tmp port w!
     new-udp-socket6
+    dup 0< abort" no free socket" >r
+    r@ sockaddr-tmp sockaddr_in6 %size bind 0= IF  r> exit  ENDIF
+    r> drop true abort" bind :: failed" ;
+
+: create-udp-server46  ( port# -- lsocket )
+    sockaddr-tmp sockaddr_in %size erase
+    AF_INET6 sockaddr-tmp family w!
+    htons   sockaddr-tmp port w!
+    new-udp-socket46
     dup 0< abort" no free socket" >r
     r@ sockaddr-tmp sockaddr_in6 %size bind 0= IF  r> exit  ENDIF
     r> drop true abort" bind :: failed" ;
