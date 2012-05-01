@@ -151,25 +151,29 @@ Variable sockopt-on
 : c-string ( addr u -- addr' )
     tuck pad swap move pad + 0 swap c! pad ;
 
-   0 Constant PF_UNSPEC
-   2 Constant PF_INET
+     0 Constant PF_UNSPEC
+     2 Constant PF_INET
 [IFDEF] darwin
-  30 Constant PF_INET6
-$0210 Constant AF_INET
-$1E1C Constant AF_INET6
-  27 Constant IPV6_V6ONLY
-  35 Constant EWOULDBLOCK
- $40 Constant MSG_WAITALL
-$006 Constant O_NONBLOCK|O_RDWR
+    30 Constant PF_INET6
+ $0210 Constant AF_INET
+ $1E1C Constant AF_INET6
+    27 Constant IPV6_V6ONLY
+    35 Constant EWOULDBLOCK
+   $40 Constant MSG_WAITALL
+  $006 Constant O_NONBLOCK|O_RDWR
+ $1006 Constant SO_RCVTIMEO
+ $FFFF Constant SOL_SOCKET
 [ELSE]
-  10 Constant PF_INET6
-   2 Constant AF_INET
-  10 Constant AF_INET6
-  26 Constant IPV6_V6ONLY
-  11 Constant EWOULDBLOCK
-$100 Constant MSG_WAITALL
+    10 Constant PF_INET6
+     2 Constant AF_INET
+    10 Constant AF_INET6
+    26 Constant IPV6_V6ONLY
+    11 Constant EWOULDBLOCK
+  $100 Constant MSG_WAITALL
 $10000 Constant MSG_WAITFORONE
-$802 Constant O_NONBLOCK|O_RDWR
+  $802 Constant O_NONBLOCK|O_RDWR
+    20 Constant SO_RCVTIMEO
+     1 Constant SOL_SOCKET
 [THEN]
    1 Constant SOCK_STREAM
    2 Constant SOCK_DGRAM
