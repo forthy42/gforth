@@ -37,8 +37,8 @@ void deprep_terminal(void);
 void get_winsize(void);
 
 #  define key(stdin)		getkey(stdin)
-#  define key_query(stdin)	-(!!key_avail(stdin)) /* !! FLAG(...)? - anton */
-         		/* flag was originally wrong -- lennart */
+#  define key_query(stdin)	FLAG(!!key_avail(stdin))
+         		/* FLAG only negates, key_avail may return the number available */
 #endif
 
 extern UCell rows, cols;

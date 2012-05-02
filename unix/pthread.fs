@@ -198,6 +198,15 @@ c-library pthread
     \c   addr[1]=fdopen(epipe[1], "a");
     \c   setvbuf(addr[1], NULL, _IONBF, 0);
     \c }
+    \c #include <sys/ioctl.h>
+    \c #include <errno.h>
+    \c int check_read(FILE * fid)
+    \c {
+    \c   int pipe = fileno(fid);
+    \c   int chars_avail;
+    \c   int result = ioctl(pipe, FIONREAD, &chars_avail);
+    \c   return (result==-1) ? -errno : chars_avail;
+    \c }
     c-function pthread+ pthread_plus a -- a ( addr -- addr' )
     c-function pthreads pthreads n -- n ( n -- n' )
     c-function thread_start gforth_thread_p -- a ( -- addr )
@@ -212,11 +221,14 @@ c-library pthread
     c-function pause sched_yield -- void ( -- )
     c-function pthread_detatch_attr pthread_detach_attr -- a ( -- addr )
     c-function create_pipe create_pipe a -- void ( pipefd[2] -- )
+    c-function check_read check_read a -- n ( pipefd -- n )
 end-c-library
 
 User pthread-id  -1 cells pthread+ uallot drop
 User epiper
 User epipew
+
+epiper create_pipe \ create pipe for main task
 
 :noname    ' >body @ ;
 :noname    ' >body @ postpone literal ; 
@@ -278,11 +290,52 @@ interpret/compile: user' ( 'user' -- n )
     2swap swap sp0 @ $FFF and -$1000 or + swap 2swap
     swap       fp0 @ $FFF and -$1000 or + swap ;
 
+\ event handling
+
+s" Undefined event"   exception Constant !!event!!
+s" Event buffer full" exception Constant !!ebuffull!!
+
+Variable event#  1 event# !
+
+User eventbuf# $100 uallot drop \ 256 bytes buffer for atomic event squences
+
+: <event  eventbuf# off ;
+: 'event ( -- addr )  eventbuf# dup @ + cell+ ;
+: event+ ( n -- addr )
+    dup eventbuf# @ + $100 u>= !!ebuffull!! and throw
+    'event swap eventbuf# +! ;
+: event> ( task -- )  >r eventbuf# cell+ eventbuf# @
+    epipew r> >task @ write-file throw ;
+
+: event-crash  !!event!! throw ;
+
+Create event-table $100 0 [DO] ' event-crash , [LOOP]
+
+: event-does ( -- )  DOES>  @ 'event c! 1 eventbuf# +! ;
+: event:  Create event# @ ,  event-does
+    here 0 , >r  noname : lastxt dup event# @ cells event-table + !
+    r> ! 1 event# +! ;
+: do-event ( -- )  epiper @ key-file cells event-table + perform ;
+: event? ( -- flag )  epiper @ check_read 0> ;
+: ?events ( -- )  BEGIN  event?  WHILE  do-event  REPEAT ;
+: event-loop ( -- )  BEGIN  do-event  AGAIN ;
+
+event: elit  0  sp@ cell  epiper @ read-file throw drop ;
+event: eflit 0e fp@ float epiper @ read-file throw drop ;
+
+: elit,  ( x -- ) elit cell event+ [ cell 8 = ] [IF] x! [ELSE] l! [THEN] ;
+: e$, ( addr u -- )  swap elit, elit, ;
+: eflit, ( x -- ) eflit fp@ float event+ float move fdrop ;
+
+false [IF] \ event test
+    <event 1234 elit, next-task event> ?event 1234 = [IF] ." event ok" cr [THEN]
+[THEN]
+
 false [IF] \ test
     semaphore testsem
     
     : test-thread1
-	stacksize NewTask activate  0 hex
+	stacksize4 NewTask4 activate  0 hex
 	BEGIN
 	    testsem lock
 	    ." Thread-Test1 " dup . cr 1000 ms
@@ -291,7 +344,7 @@ false [IF] \ test
 	AGAIN ;
 
     : test-thread2
-	stacksize NewTask activate  0 decimal
+	stacksize4 NewTask4 activate  0 decimal
 	BEGIN
 	    testsem lock
 	    ." Thread-Test2 " dup . cr 1000 ms

@@ -298,7 +298,7 @@ $004 Constant POLLOUT
     r> drop true abort" bind :: failed" ;
 
 : create-udp-server6  ( port# -- lsocket )
-    sockaddr-tmp sockaddr_in %size erase
+    sockaddr-tmp sockaddr_in6 %size erase
     AF_INET6 sockaddr-tmp family w!
     htons   sockaddr-tmp port w!
     new-udp-socket6
@@ -307,7 +307,7 @@ $004 Constant POLLOUT
     r> drop true abort" bind :: failed" ;
 
 : create-udp-server46  ( port# -- lsocket )
-    sockaddr-tmp sockaddr_in %size erase
+    sockaddr-tmp sockaddr_in6 %size erase
     AF_INET6 sockaddr-tmp family w!
     htons   sockaddr-tmp port w!
     new-udp-socket46
