@@ -315,13 +315,15 @@ Create event-table $100 0 [DO] ' event-crash , [LOOP]
 : event:  Create event# @ ,  event-does
     here 0 , >r  noname : lastxt dup event# @ cells event-table + !
     r> ! 1 event# +! ;
-: do-event ( -- )  epiper @ key-file cells event-table + perform ;
+: stop ( -- )  epiper @ key-file cells event-table + perform ;
 : event? ( -- flag )  epiper @ check_read 0> ;
-: ?events ( -- )  BEGIN  event?  WHILE  do-event  REPEAT ;
-: event-loop ( -- )  BEGIN  do-event  AGAIN ;
+: ?events ( -- )  BEGIN  event?  WHILE  stop  REPEAT ;
+: event-loop ( -- )  BEGIN  stop  AGAIN ;
 
 event: elit  0  sp@ cell  epiper @ read-file throw drop ;
 event: eflit 0e fp@ float epiper @ read-file throw drop ;
+event: wake ;
+event: sleep  stop ;
 
 : elit,  ( x -- ) elit cell event+ [ cell 8 = ] [IF] x! [ELSE] l! [THEN] ;
 : e$, ( addr u -- )  swap elit, elit, ;
