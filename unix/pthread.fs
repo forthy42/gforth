@@ -343,7 +343,7 @@ event: ->sleep  stop ;
 : sleep ( task -- ) <event ->sleep event> ;
 
 : elit,  ( x -- ) ->lit cell event+ [ cell 8 = ] [IF] x! [ELSE] l! [THEN] ;
-: e$, ( addr u -- )  swap ->lit, ->lit, ;
+: e$, ( addr u -- )  swap elit, elit, ;
 : eflit, ( x -- ) ->flit fp@ float event+ float move fdrop ;
 
 false [IF] \ event test
