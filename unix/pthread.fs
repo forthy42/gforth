@@ -334,17 +334,17 @@ Create event-table $100 0 [DO] ' event-crash , [LOOP]
 : ?events ( -- )  BEGIN  event?  WHILE  stop  REPEAT ;
 : event-loop ( -- )  BEGIN  stop  AGAIN ;
 
-event: elit  0  sp@ cell  epiper @ read-file throw drop ;
-event: eflit 0e fp@ float epiper @ read-file throw drop ;
-event: wake-ev ;
-event: sleep-ev  stop ;
+event: ->lit  0  sp@ cell  epiper @ read-file throw drop ;
+event: ->flit 0e fp@ float epiper @ read-file throw drop ;
+event: ->wake ;
+event: ->sleep  stop ;
 
-: wake ( task -- )  <event wake-ev event> ;
-: sleep ( task -- ) <event sleep-ev event> ;
+: wake ( task -- )  <event ->wake event> ;
+: sleep ( task -- ) <event ->sleep event> ;
 
-: elit,  ( x -- ) elit cell event+ [ cell 8 = ] [IF] x! [ELSE] l! [THEN] ;
-: e$, ( addr u -- )  swap elit, elit, ;
-: eflit, ( x -- ) eflit fp@ float event+ float move fdrop ;
+: elit,  ( x -- ) ->lit cell event+ [ cell 8 = ] [IF] x! [ELSE] l! [THEN] ;
+: e$, ( addr u -- )  swap ->lit, ->lit, ;
+: eflit, ( x -- ) ->flit fp@ float event+ float move fdrop ;
 
 false [IF] \ event test
     <event 1234 elit, next-task event> ?event 1234 = [IF] ." event ok" cr [THEN]
