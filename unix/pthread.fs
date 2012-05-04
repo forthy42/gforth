@@ -336,8 +336,11 @@ Create event-table $100 0 [DO] ' event-crash , [LOOP]
 
 event: elit  0  sp@ cell  epiper @ read-file throw drop ;
 event: eflit 0e fp@ float epiper @ read-file throw drop ;
-event: wake ;
-event: sleep  stop ;
+event: wake-ev ;
+event: sleep-ev  stop ;
+
+: wake ( task -- )  <event wake-ev event> ;
+: sleep ( task -- ) <event sleep-ev event> ;
 
 : elit,  ( x -- ) elit cell event+ [ cell 8 = ] [IF] x! [ELSE] l! [THEN] ;
 : e$, ( addr u -- )  swap elit, elit, ;
