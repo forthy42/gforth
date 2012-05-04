@@ -207,6 +207,18 @@ c-library pthread
     \c   int result = ioctl(pipe, FIONREAD, &chars_avail);
     \c   return (result==-1) ? -errno : chars_avail;
     \c }
+    \c #include <poll.h>
+    \c int wait_read(FILE * fid, Cell timeout)
+    \c {
+    \c   struct pollfd fds = { fileno(fid), POLLIN, 0 };
+    \c #ifdef linux
+    \c   struct timespec tout = { timeout/1000000000, timeout%1000000000 };
+    \c   ppoll(&fds, 1, &tout, 0);
+    \c #else
+    \c   poll(&fds, 1, timeout/1000000);
+    \c #endif
+    \c   return check_read(fid);
+    \c }
     c-function pthread+ pthread_plus a -- a ( addr -- addr' )
     c-function pthreads pthreads n -- n ( n -- n' )
     c-function thread_start gforth_thread_p -- a ( -- addr )
@@ -222,6 +234,7 @@ c-library pthread
     c-function pthread_detatch_attr pthread_detach_attr -- a ( -- addr )
     c-function create_pipe create_pipe a -- void ( pipefd[2] -- )
     c-function check_read check_read a -- n ( pipefd -- n )
+    c-function wait_read wait_read a n -- n ( pipefd timeout -- n )
 end-c-library
 
 User pthread-id  -1 cells pthread+ uallot drop
@@ -316,6 +329,7 @@ Create event-table $100 0 [DO] ' event-crash , [LOOP]
     here 0 , >r  noname : lastxt dup event# @ cells event-table + !
     r> ! 1 event# +! ;
 : stop ( -- )  epiper @ key-file cells event-table + perform ;
+: stop-ns ( timeout -- ) epiper @ swap wait_read 0> IF  stop  THEN ;
 : event? ( -- flag )  epiper @ check_read 0> ;
 : ?events ( -- )  BEGIN  event?  WHILE  stop  REPEAT ;
 : event-loop ( -- )  BEGIN  stop  AGAIN ;

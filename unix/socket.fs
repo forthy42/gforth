@@ -48,7 +48,7 @@ c-function ntohl ntohl n -- n ( x -- x' )
 c-function fileno fileno1 a -- n ( file* -- fd )
 \c #include <poll.h>
 c-function poll poll a n n -- n ( fds nfds timeout -- r )
-environment os-type s" linux" string-prefix? [IF]
+e? os-type s" linux" string-prefix? [IF]
     c-function ppoll ppoll a n a a -- n ( fds nfds timeout_ts sigmask -- r )
     \c #include <sys/epoll.h>
     c-function epoll_create epoll_create n -- n ( n -- epfd )
@@ -68,7 +68,7 @@ c-function gai_strerror gai_strerror n -- a ( errcode -- addr )
 c-function setsockopt setsockopt n n n a n -- n ( sockfd level optname optval optlen -- r )
 end-c-library
 
-environment os-type s" darwin" string-prefix? [IF] : darwin ; [THEN]
+e? os-type s" darwin" string-prefix? [IF] : darwin ; [THEN]
 
 4 4 2Constant int%
 2 2 2Constant short%
@@ -122,7 +122,7 @@ struct
     cell% field ai_next
 end-struct addrinfo
 
-environment os-type s" linux" string-prefix? [IF]
+e? os-type s" linux" string-prefix? [IF]
     struct
 	cell% field iov_base
 	cell% field iov_len
