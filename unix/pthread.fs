@@ -183,6 +183,14 @@ c-library pthread
     \c {
     \c   return thread*(int)sizeof(pthread_mutex_t);
     \c }
+    \c void *pthread_cond_plus(void * thread)
+    \c {
+    \c   return thread+sizeof(pthread_cond_t);
+    \c }
+    \c Cell pthread_conds(Cell thread)
+    \c {
+    \c   return thread*(int)sizeof(pthread_cond_t);
+    \c }
     \c pthread_attr_t * pthread_detach_attr(void)
     \c {
     \c   static pthread_attr_t attr;
@@ -230,8 +238,14 @@ c-library pthread
     c-function pthread_mutex_unlock pthread_mutex_unlock a -- n ( mutex -- r )
     c-function pthread-mutex+ pthread_mutex_plus a -- a ( mutex -- mutex' )
     c-function pthread-mutexes pthread_mutexes n -- n ( n -- n' )
+    c-function pthread-cond+ pthread_cond_plus a -- a ( cond -- cond' )
+    c-function pthread-conds pthread_conds n -- n ( n -- n' )
     c-function pause sched_yield -- void ( -- )
     c-function pthread_detatch_attr pthread_detach_attr -- a ( -- addr )
+    c-function pthread_cond_signal pthread_cond_signal a -- n ( cond -- r )
+    c-function pthread_cond_broadcast pthread_cond_broadcast a -- n ( cond -- r )
+    c-function pthread_cond_wait pthread_cond_wait a a -- n ( cond mutex -- r )
+    c-function pthread_cond_timedwait pthread_cond_timedwait a a a -- n ( cond mutex abstime -- r )
     c-function create_pipe create_pipe a -- void ( pipefd[2] -- )
     c-function check_read check_read a -- n ( pipefd -- n )
     c-function wait_read wait_read a n -- n ( pipefd timeout -- n )
@@ -293,6 +307,10 @@ interpret/compile: user' ( 'user' -- n )
     \G create a named semaphore
     Create here 1 pthread-mutexes allot 0 pthread_mutex_init drop ;
 
+: cond ( "name" -- ) \ gforth
+    \G create a named condition
+    Create here 1 pthread-conds dup allot erase ;
+
 : lock ( addr -- )  pthread_mutex_lock drop ;
 : unlock ( addr -- )  pthread_mutex_unlock drop ;
 
@@ -311,20 +329,22 @@ s" Event buffer full" exception Constant !!ebuffull!!
 Variable event#  1 event# !
 
 User eventbuf# $100 uallot drop \ 256 bytes buffer for atomic event squences
+-1 eventbuf# !
 
 : <event  eventbuf# off ;
 : 'event ( -- addr )  eventbuf# dup @ + cell+ ;
 : event+ ( n -- addr )
     dup eventbuf# @ + $100 u>= !!ebuffull!! and throw
     'event swap eventbuf# +! ;
-: event> ( task -- )  >r eventbuf# cell+ eventbuf# @
+: event> ( task -- )  >r eventbuf# cell+ eventbuf# @ -1 eventbuf# !
     epipew r> >task @ write-file throw ;
 
 : event-crash  !!event!! throw ;
 
 Create event-table $100 0 [DO] ' event-crash , [LOOP]
 
-: event-does ( -- )  DOES>  @ 'event c! 1 eventbuf# +! ;
+: event-does ( task/ -- )  DOES>  @ eventbuf# @ 0< dup >r IF  <event  THEN
+    'event c! 1 eventbuf# +!  r> IF  event>  THEN ;
 : event:  Create event# @ ,  event-does
     here 0 , >r  noname : lastxt dup event# @ cells event-table + !
     r> ! 1 event# +! ;

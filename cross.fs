@@ -2649,6 +2649,7 @@ Defer instant-interpret-does>-hook  ' noop IS instant-interpret-does>-hook
 
 T has? primcentric H [IF]
 : does-resolved ( ghost -- )
+\    g>xt dup T >body H alit, compile call T cell+ @ a, H ;
     compile does-exec g>xt T a, H ;
 [ELSE]
 : does-resolved ( ghost -- )
