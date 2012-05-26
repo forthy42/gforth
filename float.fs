@@ -131,9 +131,22 @@ DOES> ( -- r )
 [IFDEF] fp-char
 : sfnumber ( c-addr u -- r true | false )
     fp-char @ >float1 ;
+
+Create si-prefixes ," PTGMk.munpf"
+si-prefixes count '.' scan drop Constant zero-exp
+
+: prefix-number ( c-addr u -- r true | false )
+    si-prefixes count bounds DO
+	2dup I c@ scan nip 0<> IF
+	    I c@ >float1
+	    dup IF  1000 s>f zero-exp I - s>f f** f*  THEN
+	    UNLOOP  EXIT  THEN
+    LOOP
+    sfnumber ;
 [ELSE]
 : sfnumber ( c-addr u -- r true | false )
     >float ;
+: prefix-number  sfnumber ;
 [THEN]
 
 [ifdef] recognizer:
@@ -149,7 +162,7 @@ DOES> ( -- r )
     recognizer: r:fnumber
 
     : fnum-recognizer ( addr u -- float int-table | addr u r:fail )
-	2dup sfnumber
+	2dup prefix-number
 	IF
 	    2drop r:fnumber  EXIT
 	THEN

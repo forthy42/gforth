@@ -9452,7 +9452,7 @@ doc-s>number?
 doc-s>unumber?
 doc->number
 doc->float
-
+doc->float1
 
 @comment obsolescent words..
 Obsolescent input and conversion words:
