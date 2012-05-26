@@ -378,7 +378,7 @@ struct Cellpair file_status(Char *c_addr, UCell u)
   return r;
 }
 
-Cell to_float(Char *c_addr, UCell u, Float *rp)
+Cell to_float(Char *c_addr, UCell u, Float *rp, Char dot)
 {
   /* convertible string := <significand>[<exponent>]
      <significand> := [<sign>]{<digits>[.<digits0>] | .<digits> }
@@ -415,9 +415,9 @@ Cell to_float(Char *c_addr, UCell u, Float *rp)
   aftersign: 
   if (s >= send)
     goto exponent;
-  switch (c=*s) {
+  if((c=*s)==dot) { *t++ = '.'; ndots++; s++; goto aftersign; }
+  switch (c) {
   case '0' ... '9': *t++ = c; ndigits++; s++; goto aftersign;
-  case '.':         *t++ = c; ndots++;   s++; goto aftersign;
   default:                                    goto exponent;
   }
  exponent:

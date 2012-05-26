@@ -128,18 +128,13 @@ DOES> ( -- r )
   scratch over c@ emit '. emit 1 /string type
   'E emit . ;
 
+[IFDEF] fp-char
 : sfnumber ( c-addr u -- r true | false )
-    2dup [CHAR] e scan ( c-addr u c-addr2 u2 )
-    dup 0=
-    IF
-	2drop 2dup [CHAR] E scan ( c-addr u c-addr3 u3 )
-    THEN
-    nip
-    IF
-	>float
-    ELSE
-	2drop false
-    THEN ;
+    fp-char @ >float1 ;
+[ELSE]
+: sfnumber ( c-addr u -- r true | false )
+    >float ;
+[THEN]
 
 [ifdef] recognizer:
     [IFDEF] 2lit,

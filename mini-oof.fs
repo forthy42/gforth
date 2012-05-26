@@ -7,7 +7,9 @@
 : end-class  ( class methods vars "name" -- )
   Create  here >r , dup , 2 cells ?DO ['] noop , 1 cells +LOOP
   cell+ dup cell+ r> rot @ 2 cells /string move ;
-: defines ( xt class "name" -- ) ' >body @ + ! ;
+: >vt ( class "name" -- addr )  ' >body @ + ;
+: bind ( class "name" -- xt )    >vt @ ;
+: defines ( xt class "name" -- ) >vt ! ;
 : new ( class -- o )  here over @ allot swap over ! ;
-: :: ( class "name" -- ) ' >body @ + @ compile, ;
+: :: ( class "name" -- ) bind compile, ;
 Create object  1 cells , 2 cells ,

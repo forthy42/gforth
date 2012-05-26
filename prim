@@ -2262,7 +2262,7 @@ representation. If the string represents a valid floating-point number
 true. Otherwise, @i{flag} is false. A string of blanks is a special
 case and represents the floating-point number 0.""
 Float r;
-flag = to_float(c_addr, u, &r);
+flag = to_float(c_addr, u, &r, '.');
 if (flag) {
   fp--;
   fp[0]=r;
@@ -2456,6 +2456,20 @@ faxpy(ra, f_x, nstridex, f_y, nstridey, ucount);
  >r swap 2swap swap r> 0 ?DO
      fdup dup f@ f* over + 2swap dup f@ f+ dup f! over + 2swap
  LOOP 2drop 2drop fdrop ;
+
+>float1	( c_addr u c -- f:... flag )	gforth	to_float1
+""Actual stack effect: ( c_addr u c -- r t | f ).  Attempt to convert the
+character string @i{c-addr u} to internal floating-point
+representation. If the string represents a valid floating-point number
+@i{r} is placed on the floating-point stack and @i{flag} is
+true. Otherwise, @i{flag} is false. A string of blanks is a special
+case and represents the floating-point number 0.""
+Float r;
+flag = to_float(c_addr, u, &r, c);
+if (flag) {
+  fp--;
+  fp[0]=r;
+}
 
 \+
 

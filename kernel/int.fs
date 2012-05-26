@@ -143,7 +143,7 @@ has? os 0= [IF]
         WHILE \ there are characters left
                 dup r> -
             WHILE \ the last >number parsed something
-                    dup 1- dpl ! over c@ [char] . =
+                    dup 1- dpl ! over c@ dp-char @ =
                 WHILE \ the current char is '.'
                         1 /string
                 REPEAT  THEN \ there are unparseable characters left

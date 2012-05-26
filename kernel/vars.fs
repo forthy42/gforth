@@ -48,9 +48,9 @@ has? floating [IF]
 has? EC [IF] 20 cells [ELSE] FF [THEN] Constant /line
 
 has? file [IF]
-40 Constant c/l
-10 Constant l/s
-400 Constant chars/block
+40 Value c/l
+10 Value l/s
+400 Value chars/block
 [THEN]
 
 20 8 2* cells + 2 + cell+ constant word-pno-size ( -- u )
@@ -183,6 +183,16 @@ User dpl ( -- a-addr ) \ gforth
 \G decimal point, @code{dpl} is -1. After the conversion of @code{2.} it holds
 \G 0. After the conversion of 234123.9 it contains 1, and so forth.
 -1 dpl !
+
+User dp-char ( -- a-addr ) \ VFX
+\G @code{User} variable -- @i{a-addr} is the address of a cell that stores the
+\G decimal point character for double number conversion
+'.' dp-char !
+
+User fp-char ( -- a-addr ) \ VFX
+\G @code{User} variable -- @i{a-addr} is the address of a cell that stores the
+\G decimal point character for floating point number conversion
+'.' fp-char !
 
 User state ( -- a-addr ) \ core,tools-ext
 \G @code{User} variable -- @i{a-addr} is the address of a cell

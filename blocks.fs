@@ -208,9 +208,9 @@ User scr ( -- a-addr ) \ block-ext s-c-r
     dup scr !
     ." Screen " u.
     scr @ updated?  0= IF ." not "  THEN  ." modified     " cr
-    16 0
+    l/s 0
     ?do
-	i 2 .r space scr @ block i 64 * chars + 64 type cr
+	i 2 .r space scr @ block i c/l * chars + c/l type cr
     loop ;
 
 [IFDEF] current-input
