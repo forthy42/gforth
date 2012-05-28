@@ -132,15 +132,16 @@ DOES> ( -- r )
 : sfnumber ( c-addr u -- r true | false )
     fp-char @ >float1 ;
 
-Create si-prefixes ," PTGMk.munpf"
-si-prefixes count '.' scan drop Constant zero-exp
+Create si-prefixes ," PTGMk munpf"
+si-prefixes count bl scan drop Constant zero-exp
 
 : prefix-number ( c-addr u -- r true | false )
     si-prefixes count bounds DO
-	2dup I c@ scan nip 0<> IF
-	    I c@ >float1
+	2dup I c@ scan nip dup 0<> IF
+	    1 = IF  1- fp-char @  ELSE  I c@  THEN
+	    >float1
 	    dup IF  1000 s>f zero-exp I - s>f f** f*  THEN
-	    UNLOOP  EXIT  THEN
+	    UNLOOP  EXIT  THEN  drop
     LOOP
     sfnumber ;
 [ELSE]
