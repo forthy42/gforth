@@ -25,8 +25,7 @@
 
 : lit, ( n -- ) postpone Literal ;
 : nt, ( nt -- ) name>comp execute ;
-Variable nt-ex-r
-: nt-ex ( nt -- )  r> nt-ex-r ! name>int execute nt-ex-r @ >r ;
+: nt-ex ( nt -- )  r> >l name>int execute @local0 >r lp+ ;
 
 ' nt-ex
 ' nt,
