@@ -21,7 +21,7 @@
 */
 #include <stddef.h>
 
-void cacheflush(void *p, size_t size) 
+void gforth_cacheflush(void *p, size_t size) 
 {
    /* For details, please see the Linux sources, files
     * arch/arm/kernel/traps.c, arch/arm/kernel/entry-common.S and

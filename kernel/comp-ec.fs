@@ -350,17 +350,11 @@ has? flash [IF]
 : Variable ( "name" -- ) \ core
     (Variable) 0 , dpp ! ;
 
-: AVariable ( "name" -- ) \ gforth
-    (Variable) 0 A, dpp ! ;
-
 : 2Variable ( "name" -- ) \ double two-variable
     (Variable) 0 , 0 , dpp ! ;
 [ELSE]
 : Variable ( "name" -- ) \ core
     Create 0 , ;
-
-: AVariable ( "name" -- ) \ gforth
-    Create 0 A, ;
 
 : 2Variable ( "name" -- ) \ double two-variable
     Create 0 , 0 , ;
@@ -374,14 +368,9 @@ doer? :douser [IF]
 
 : User ( "name" -- ) \ gforth
     Header reveal douser: cfa, cell uallot , ;
-
-: AUser ( "name" -- ) \ gforth
-    User ;
 [ELSE]
 
 : User Create cell uallot , DOES> @ up @ + ;
-
-: AUser User ;
 [THEN]
 [THEN]
 
@@ -419,9 +408,6 @@ has? flash [IF]
 [ELSE]
 : Value ( w "name" -- ) \ core-ext
     (Value) , ;
-
-: AValue ( w "name" -- ) \ core-ext
-    (Value) A, ;
 [THEN]
 
 : 2Constant ( w1 w2 "name" -- ) \ double two-constant
