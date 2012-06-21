@@ -4,7 +4,10 @@
 #~/proj/android-ndk-r6b/build/tools/make-standalone-toolchain.sh --platform=android-5 --ndk-dir=/home/bernd/proj/android-ndk-r6b --install-dir=$PWD
 #configure with
 #./configure --host=arm --with-cross=android --prefix= --datarootdir=/sdcard --libdir=/sdcard --libexecdir=/lib
-(cd engine; ar x ~/proj/android-toolchain/sysroot/usr/lib/libc.a sigaltstack.o)
+(cd engine
+ar x ~/proj/android-toolchain/sysroot/usr/lib/libc.a sigaltstack.o
+ar x ~/proj/android-toolchain/sysroot/usr/lib/libc.a __set_errno.o
+)
 skipcode=".skip 4\n.skip 4\n.skip 4\n.skip 4"
 kernel_fi=kernl64l.fi
 ac_cv_sizeof_void_p=4
@@ -25,7 +28,7 @@ ac_export_dynamic=yes
 CC=arm-linux-androideabi-gcc
 GNU_LIBTOOL=arm-linux-androideabi-libtool
 KBOX=/data/data/kevinboone.androidterm/kbox
-SH=$KBOX/bin/bash
+mi_prefix=$KBOX
 asm_fs=arch/arm/asm.fs
 disasm_fs=arch/arm/disasm.fs
 EC_MODE="false"
@@ -35,5 +38,5 @@ engine2='engine2$(OPT).o'
 engine_fast2='engine-fast2$(OPT).o'
 no_dynamic=""
 image_i=""
-signals_o="io.o signals.o sigaltstack.o"
+signals_o="io.o signals.o sigaltstack.o __set_errno.o"
 

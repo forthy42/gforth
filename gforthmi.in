@@ -1,4 +1,4 @@
-#! @SH@
+#! @mi_prefix@/bin/bash
 # @configure_input@
 #Copyright (C) 1997,1998,2000,2002,2003,2004,2007 Free Software Foundation, Inc.
 
@@ -19,7 +19,7 @@
 
 startup="-i @kernel_fi@ exboot.fs startup.fs @asm_fs@ @disasm_fs@"
 prefix=@prefix@
-exec_prefix=@exec_prefix@
+exec_prefix=@exec_prefix@@mi_prefix@
 if [ -f "@libdir@/gforth/@PACKAGE_VERSION@/gforth.fi" ]
 then
   helper=""

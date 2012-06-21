@@ -213,6 +213,7 @@ AC_SUBST(engine_fast2)
 AC_SUBST(no_dynamic)
 AC_SUBST(image_i)
 AC_SUBST(signals_o)
+AC_SUBST(mi_prefix)
 
 #this is used to disable some (not generally essential) part of the
 #Makefile that some makes don't grok.  It would be better to test for
@@ -1024,7 +1025,7 @@ if test -z "$GFORTH"; then
 else
   GFORTH_FI=`cd / && $GFORTH --debug -e bye 2>&1 |grep "Opened image file: "|sed 's/Opened image file: //'`
   PREFORTH="$GFORTH -i $GFORTH_FI" ;
-  KERNLX_FI1=`echo $GFORTH_FI | sed -e s/lib/share/g -e s/gforth.fi/kernl*.fi/g`
+  KERNLX_FI1=`echo $GFORTH_FI | sed -e s/lib[64]*/share/g -e s/gforth.fi/kernl*.fi/g`
   KERNLX_FI2=`echo $GFORTH_FI | sed -e s/gforth.fi/kernl*.fi/g`
   test -f $KERNLX_FI1 && KERNLX_FI=$KERNLX_FI1
   test -f $KERNLX_FI2 && KERNLX_FI=$KERNLX_FI2
