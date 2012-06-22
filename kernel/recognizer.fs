@@ -25,7 +25,9 @@
 
 : lit, ( n -- ) postpone Literal ;
 : nt, ( nt -- ) name>comp execute ;
-: nt-ex ( nt -- )  r> >l name>int execute @local0 >r lp+ ;
+: nt-ex ( nt -- )
+    [ cell 1 floats - dup [IF] ] lp+!# [ dup , [THEN] drop ]
+    r> >l name>int execute @local0 >r lp+ ;
 
 ' nt-ex
 ' nt,
