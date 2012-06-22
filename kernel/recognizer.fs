@@ -114,5 +114,6 @@ Variable forth-recognizer
 
 : postpone ( "name" -- ) \ core
     \g Compiles the compilation semantics of @i{name}.
-    parse-name forth-recognizer do-recognizer >postpone ; immediate
+    parse-name forth-recognizer do-recognizer >postpone
+; immediate restrict
 
