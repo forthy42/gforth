@@ -381,3 +381,10 @@ testing postpone [char]
 { PCHAR1 -> 58 }
 { PCHAR2 -> 48 }
 
+\ test if we can build entire macros
+
+testing postpone macros
+: n+: ( N -- )  >R  : R> POSTPONE LITERAL POSTPONE + POSTPONE ; ;
+3 n+: 3+
+: bar 3+ ;
+{ 5 bar -> 8 }

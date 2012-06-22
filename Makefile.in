@@ -309,7 +309,7 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC) $(LIBCC_DIST_SRC) \
 	oof.fs oofsampl.fs objects.fs objexamp.fs mini-oof.fs moof-exm.fs \
 	moofglos.fs fixpath.fs \
 	add.fs lib.fs oldlib.fs sieve.fs \
-	endtry-iferror.fs recover-endtry.fs
+	endtry-iferror.fs recover-endtry.fs smartdots.fs
 
 COMPAT = compat/README \
 	compat/anslocal.fs \
