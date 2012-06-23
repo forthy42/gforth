@@ -244,6 +244,7 @@ GFORTH_FI_SRC2=\
 	mkdir.fs \
 	prelude.fs \
 	quotes.fs \
+	quotedstring.fs \
 	search.fs \
 	see.fs \
 	see-ext.fs \

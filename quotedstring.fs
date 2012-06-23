@@ -29,3 +29,16 @@
 ' string-recognizer
 forth-recognizer get-recognizers
 1+ forth-recognizer set-recognizers
+
+: slit.  slit, postpone type ;
+
+' type ' slit. ' slit, recognizer: r:."
+
+: ."-recognizer  ( addr u -- addr u' r:." | addr u r:fail )
+    2dup ".\"" string-prefix?
+    IF    drop source drop - 2 + >in !  \"-parse save-mem r:."
+    ELSE  r:fail  THEN ;
+
+' ."-recognizer
+forth-recognizer get-recognizers
+1+ forth-recognizer set-recognizers
