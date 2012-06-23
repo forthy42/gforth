@@ -74,6 +74,7 @@ require ekey.fs
 require dosekey.fs
 [THEN]
 require quotes.fs
+require quotedstring.fs
 require code.fs
 require see.fs
 require see-ext.fs
