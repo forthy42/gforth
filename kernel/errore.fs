@@ -42,26 +42,31 @@ has? OS [IF]
     >exec  r> to outfile-id ;
 [THEN]
 
-: .error ( n -- )
-[ has? OS [IF] ]
-    >stderr
-[ [THEN] ]
+: error$ ( n -- addr u ) \ gforth
+    \G converts an error to a string
     ErrLink
     BEGIN @ dup
     WHILE
 	2dup cell+ @ =
 	IF
-	    2 cells + count type drop EXIT THEN
+	    2 cells + count rot drop EXIT THEN
     REPEAT
     drop
 [ has? os [IF] ]
     dup -511 -255 within
     IF
-	256 + negate strsignal type EXIT
+	256 + negate strsignal EXIT
     THEN
     dup -2047 -511 within
     IF
-	512 + negate strerror type EXIT
+	512 + negate strerror EXIT
     THEN
 [ [THEN] ]
-    ." error " dec. ;
+    base @ >r decimal
+    s>d tuck dabs <# #s rot sign s" error #" holds #> r> base ! ;
+
+: .error ( n -- )
+[ has? OS [IF] ]
+    >stderr
+[ [THEN] ]
+    error$ type ;
