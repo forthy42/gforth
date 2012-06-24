@@ -30,6 +30,7 @@
 forth-recognizer get-recognizers
 1+ forth-recognizer set-recognizers
 
+0 [IF] \ dot-quoted strings, we don't need them
 : slit.  slit, postpone type ;
 
 ' type ' slit. ' slit, recognizer: r:."
@@ -42,3 +43,4 @@ forth-recognizer get-recognizers
 ' ."-recognizer
 forth-recognizer get-recognizers
 1+ forth-recognizer set-recognizers
+[THEN]
