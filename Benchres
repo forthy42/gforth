@@ -17,6 +17,10 @@ After 0.7.0:
 AMD64:
 sieve bubble matrix  fib
  0.284 0.436  0.204 0.516 2012-01-11; AMD E-450 1650MHz; gcc-4.6.1 (Ubuntu/Linaro 4.6.1-9ubuntu3)
+ARM A8:
+sieve bubble matrix fib
+ 2.610 3.430  2.470 3.980 2012-06-27; Allwinner A10 1.0GHz; gcc-4.4.3 (Android 4.0.3)
+ 2.671 3.125  2.515 4.054 2012-06-27; TI OMAP 3620 1.0GHz; gcc-4.4.3 (Android 2.3.4)
 
 Results with Gforth 0.7.0 (for comparing CPUs and C compilers):
 AMD64:

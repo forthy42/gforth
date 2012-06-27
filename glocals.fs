@@ -735,18 +735,21 @@ is free-old-local-names
 	code-address!
     then ;
 
-:noname
-    ' dup >definer [ ' locals-wordlist ] literal >definer =
-    if
-	>body !
-    else
+: (int-to) ( xt -- ) dup >definer
+    case
+	[ ' locals-wordlist ] literal >definer \ value
+	of  >body ! endof
+	[ ' parse-name ] literal >definer \ defer
+	of  defer! endof
 	-&32 throw
-    endif ;
-:noname
-    comp' drop dup >definer
+    endcase ;
+
+: (comp-to) ( xt -- ) dup >definer
     case
 	[ ' locals-wordlist ] literal >definer \ value
 	OF >body POSTPONE Aliteral POSTPONE ! ENDOF
+	[ ' parse-name ] literal >definer \ defer
+	OF POSTPONE Aliteral POSTPONE defer! ENDOF
 	\ !! dependent on c: etc. being does>-defining words
 	\ this works, because >definer uses >does-code in this case,
 	\ which produces a relocatable address
@@ -760,6 +763,11 @@ is free-old-local-names
 	OF POSTPONE laddr# >body @ lp-offset, POSTPONE f! ENDOF
 	-&32 throw
     endcase ;
+
+:noname
+    ' (int-to) ;
+:noname
+    comp' drop (comp-to) ;
 interpret/compile: TO ( c|w|d|r "name" -- ) \ core-ext,local
 
 : locals| ( ... "name ..." -- ) \ local-ext locals-bar
