@@ -30,6 +30,10 @@ set-current
 \G the suffix for loading shared objects
     s" @LIB_SUFFIX@" ;
 
+: arch-modifier ( -- c-addr u ) \ gforth
+\G the file name or directory modifier for the architecture
+    s" @ARCH@" ;
+
 : libtool-command ( -- c-addr u ) \ gforth
 \G name of the GNU libtool command
     s" @GNU_LIBTOOL@" ;

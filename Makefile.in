@@ -667,7 +667,7 @@ install:	gforth$(EXT) $(FORTH_SRC) $(kernel_fi) gforthmi vmgen doc/gforth.1 prim
 		@NO_CROSS@$(INSTALL_DATA) gforth.fi $(DESTDIR)$(libdir)/gforth$(ARCH)/$(VERSION)
 		$(INSTALL_DATA) install.TAGS $(DESTDIR)$(datadir)/gforth/$(VERSION)/TAGS
 		$(RM) install.TAGS @NO_CROSS@gforth.fi
-		$(INSTALL_DATA) include/gforth/$(VERSION)/* $(DESTDIR)$(includedir)/gforth/$(VERSION)
+		$(INSTALL_DATA) include/gforth$(ARCH)/$(VERSION)/* $(DESTDIR)$(includedir)/gforth$(ARCH)/$(VERSION)
 		if test -n "$(LIBTOOL)"; then for i in $(LIBCC_BUILD_SRC); do \
 		   $(LIBTOOL) --silent --mode=install $(INSTALL) lib/gforth$(ARCH)/$(VERSION)/libcc-named/`basename $$i .fs`.la $(DESTDIR)$(libccdir)`basename $$i .fs`.la; \
 		done; fi
@@ -679,7 +679,7 @@ install-strip:	install
 
 installdirs:	mkinstalldirs
 		$(NORMAL_INSTALL)
-		for i in $(bindir) $(man1dir) $(infodir) $(libdir)/gforth$(ARCH)/$(VERSION) $(datadir)/gforth/$(VERSION) $(libdir)/gforth/site-forth $(siteforthdir) $(includedir)/gforth/$(VERSION) $(libccdir); do \
+		for i in $(bindir) $(man1dir) $(infodir) $(libdir)/gforth$(ARCH)/$(VERSION) $(datadir)/gforth/$(VERSION) $(libdir)/gforth/site-forth $(siteforthdir) $(includedir)/gforth$(ARCH)/$(VERSION) $(libccdir); do \
 			$(srcdir)/mkinstalldirs $(DESTDIR)$$i; \
 		done
 		#

@@ -64,8 +64,8 @@
 \ wrapper again.  This is all done by loading the index file(s?),
 \ which define words for the wrappers in a separate wordlist.
 
-\ The files are built in .../lib/gforth/$VERSION/libcc/ or
-\ ~/.gforth/libcc/$HOST/.
+\ The files are built in .../lib/gforth$ARCH/$VERSION/libcc/ or
+\ ~/.gforth$ARCH/libcc/$HOST/.
 
 \ Todo: conversion between function pointers and xts (both directions)
 
@@ -266,7 +266,7 @@ defer save-c-prefix-line ( c-addr u -- )
     \G One line of C declarations for the C interface
     -1 parse save-c-prefix-line ;
 
-s" #include <gforth/" version-string s+ s" /libcc.h>" append ( c-addr u )
+s" #include <gforth" arch-modifier s+ s" /" s+ version-string s+ s" /libcc.h>" append ( c-addr u )
   2dup save-c-prefix-line drop free throw
 
 \ Types (for parsing)
@@ -506,7 +506,7 @@ create gen-wrapped-types
     libcc-named-dir-v 2@ ;
 
 : libcc-tmp-dir ( -- c-addr u )
-    s" ~/.gforth/libcc-tmp/" ;
+    s" ~/.gforth" arch-modifier s+ s" /libcc-tmp/" s+ ;
 
 : prepend-dirname ( c-addr1 u1 c-addr2 u2 -- c-addr3 u3 )
     2over s+ 2swap drop free throw ;
@@ -699,7 +699,7 @@ clear-libs
     compile-wrapper-function1 ;
 
 : init-libcc ( -- )
-    s" ~/.gforth/libcc-named/" libcc-named-dir-v 2!
+    s" ~/.gforth" arch-modifier s+ s" /libcc-named/" s+ libcc-named-dir-v 2!
 [IFDEF] $init
     libcc-path $init
     libcc-named-dir libcc-path also-path
