@@ -25,12 +25,11 @@
 \ The "design pattern" used here is the *factory*, even though
 \ the recognizer does not return a full-blown object.
 \ A recognizer has the stack effect
-\ ( addr u -- token table true | addr u false )
+\ ( addr u -- token table | addr u r:fail )
 \ where the token is the result of the parsing action (can be more than
 \ one stack or live on other stacks, e.g. on the FP stack)
-\ and the table contains for actions (as array of four xts:
-\ interpret it, compile interpretation semantics
-\ compile it, compile it as literal.
+\ and the table contains three actions (as array of three xts):
+\ interpret it, compile it, compile it as literal.
 
 : recognizer: ( xt1 xt2 xt3 -- ) Create rot , swap , , ;
 
