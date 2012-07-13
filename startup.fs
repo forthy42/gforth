@@ -76,6 +76,7 @@ require dosekey.fs
 require quotes.fs
 require quotedstring.fs
 require parsedto.fs
+require substitute.fs
 require code.fs
 require see.fs
 require see-ext.fs
