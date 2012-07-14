@@ -44,8 +44,8 @@ Variable macro$
     \G result to @var{addr2 len2}.  @var{n} is the number of
     \G substitutions, @var{addr2 len3} the result.  If
     \G @var{len2}=@var{len3}, it is likely that the string did not fit.
-    2swap $substitute >r
-    2swap rot umin 2dup >r >r move r> r> r> ;
+    2>r $substitute -rot
+    2r> rot umin 2dup 2>r move 2r> rot ;
 
 : unescapes ( addr1 u1 dest -- dest u2 )
     \G double all delimiters in @var{addr1 u1}, so that substitute
