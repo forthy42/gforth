@@ -31,9 +31,9 @@ Variable macro$
 		    '%' $split 2swap dup 0= IF
 			2drop s" %" macro$ $+! r> 1+ >r
 		    ELSE
-			2dup macros-wordlist search-wordlist  IF
-			    execute 2swap 2drop r> 1+ >r macro$ $+!
-			ELSE  2drop  THEN
+			macros-wordlist search-wordlist  IF
+			    -rot 2>r execute macro$ $+! 2r> r> 1+ >r
+			THEN
 		    THEN
 		THEN
 	    THEN

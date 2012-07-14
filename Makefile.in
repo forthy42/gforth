@@ -237,6 +237,7 @@ GFORTH_FI_SRC2=\
 	hash.fs \
 	history.fs \
 	intcomp.fs \
+	i18n.fs \
 	mkdir.fs \
 	libcc.fs \
 	locals.fs \
@@ -256,6 +257,7 @@ GFORTH_FI_SRC2=\
 	struct.fs \
 	struct0x.fs \
 	stuff.fs \
+	substitute.fs \
 	tasker.fs \
 	termsize.fs \
 	utf-8.fs \
