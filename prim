@@ -2793,7 +2793,20 @@ ip=IP;
 SUPER_END;
 VM_JUMP(EXEC1((Xt)a_addr));
 
+\+objects
+\g object_pointer
 
+>o ( c_addr -- r:c_old )	new	to_o
+c_old = op;
+op = c_addr;
+
+o> ( r:c_addr -- )		new	o_restore
+op = c_addr;
+
+o#+ ( #w -- c_addr )		new	o_lit_plus
+c_addr = op + w;
+
+\+
 \g static_super
 
 ifdef(`STACK_CACHE_FILE',

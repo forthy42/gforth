@@ -208,6 +208,9 @@ extern Char *gforth_memcpy(Char * dest, const Char* src, Cell n);
 #ifndef FTOSREG
 #define FTOSREG
 #endif
+#ifndef OPREG
+#define OPREG
+#endif
 
 #ifndef CPU_DEP1
 # define CPU_DEP1 0
@@ -337,6 +340,9 @@ Label *gforth_engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0 sr_p
   register Address lp LPREG = lp0;
   register Xt cfa CFAREG;
   register Label real_ca CAREG;
+#ifdef HAS_OBJECTS
+  register Char * op OPREG = NULL;
+#endif
 #ifdef MORE_VARS
   MORE_VARS
 #endif

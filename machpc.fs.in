@@ -59,7 +59,9 @@ false DefaultValue control-rack \ disable return stack use for control flow
 false DefaultValue crlf
 
 true DefaultValue recognizer
-    
+
+true DefaultValue objects
+
 $100 DefaultValue kernel-start
 cell 2 = [IF] &32 KB [ELSE] $100000 cells [THEN] DefaultValue kernel-size
 
@@ -114,6 +116,8 @@ false DefaultValue crlf
 false DefaultValue recognizer
     
 false DefaultValue flash
+
+false DefaultValue objects
     
 $10 DefaultValue kernel-start   \ no artificial offset
 &48 KB DefaultValue kernel-size

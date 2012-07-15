@@ -119,4 +119,6 @@ typedef void *Label;
 #define HAS_64BIT
 #endif
 
+#define HAS_OBJECTS
+
 #define RELINFOBITS	8
