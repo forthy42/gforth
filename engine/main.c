@@ -2334,7 +2334,7 @@ void* gforth_pointers(Cell n)
   }
 }
 
-int main(int argc, char **argv, char **env)
+int gforth_main(int argc, char **argv, char **env)
 {
 #ifdef HAS_OS
   char *path = getenv("GFORTHPATH") ? : DEFAULTPATH;

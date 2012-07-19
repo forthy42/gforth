@@ -110,6 +110,20 @@ else
   platform=${withval}
 fi])
 
+AC_ARG_ENABLE(lib,
+	AC_HELP_STRING([--enable-lib],
+		       [  Compile Gforth as shared library (default disabled).]),
+	,enable_lib=no)
+if test "$enable_lib" != "no"; then
+   AC_DEFINE(HAS_LIB,,[Define if you want to build as shared library])
+   libengines=libgforths
+   libinstall=libinstall
+   LIB_VERSION=0:8:0
+fi
+AC_SUBST(libengines)
+AC_SUBST(libinstall)
+AC_SUBST(LIB_VERSION)
+
 AC_ARG_WITH(cross,
 	AC_HELP_STRING([--with-cross=<arch>],
 			[  Build gforth using a cross compiler.]),

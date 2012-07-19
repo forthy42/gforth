@@ -20,6 +20,7 @@
 # ------------- gforth version
 
 VERSION =@PACKAGE_VERSION@
+LIBVERSION=@LIB_VERSION@
 DOSVERSION=`echo $VERSION|sed 's/\.//g'`
 EXE=@EXEEXT@
 
@@ -52,6 +53,8 @@ LD	= $(GCC:gcc=ld)
 AS	= $(GCC:gcc=as)
 STRIP	= strip
 GCCLD	= @GCC_LD@
+LIBTOOL = @GNU_LIBTOOL@
+LTLD = $(LIBTOOL) --mode=link $(GCCLD) -rpath $(libdir) -version-info $(LIBVERSION) -module
 
 FORTHPATH = .$(PATHSEP)$(libdir)/gforth/site-forth$(PATHSEP)$(datadir)/gforth/site-forth$(PATHSEP)$(libdir)/gforth$(ARCH)/$(VERSION)$(PATHSEP)$(datadir)/gforth/$(VERSION)
 
@@ -122,105 +125,150 @@ ENGINE_FAST_DEPS = engine.c $(DEPS) prim_lab-fast.i prim-fast.i fnmatch.h thread
 MAIN_FAST_DEPS = main.c $(DEPS) prim_superend-fast.i prim_num-fast.i prim_grp-fast.i costs-fast.i super2-fast.i
 
 COMPILE.c = $(GCC) $(CFLAGS) $(CPPFLAGS) -c # simulate BSD sys.mk
+LIBTOOL.c = $(LIBTOOL) --mode=compile $(COMPILE.c)
+COMPILER = $(COMPILE.c)
+
+%.lo:	COMPILER = $(LIBTOOL.c)
 
 #some makes don't do the -o $@ correctly, so we help them
 .c.o:
-	$(COMPILE.c) -o $@ $<
+	$(COMPILER) -o $@ $<
+
+%.lo:	%.c
+	$(COMPILER) -o $@ $<
 
 .s.o:
-	$(COMPILE.c) -o $@ $<
+	$(COMPILER) -o $@ $<
 
-support$(OPT).o: support.c config.h forth.h longlong.h
-	$(COMPILE.c) -o $@ $(srcdir)/support.c
+support$(OPT).o support$(OPT).lo: support.c config.h forth.h longlong.h
+	$(COMPILER) -o $@ $(srcdir)/support.c
 
-strtol.o: strtol.c ansidecl.h
+strtol.o strtol.lo: strtol.c ansidecl.h
 
-fnmatch.o: fnmatch.c fnmatch.h
+fnmatch.o fnmatch.lo: fnmatch.c fnmatch.h
 
-getopt1.o: getopt1.c getopt.h
+getopt1.o getopt1.lo: getopt1.c getopt.h
 
-getopt.o: getopt.c getopt.h
+getopt.o getopt.lo: getopt.c getopt.h
 
-gforth$(OPT)$(EC)$(ARCH)$(EXE):	$(OBJECTS) $(AOBJECTS) $(LTDLDEPS)
-	$(GCCLD) $(LDFLAGS) $(OBJECTS) $(AOBJECTS) $(LDLIBS) -o $@
+GFORTHDEPS = $(AOBJECTS) $(LTDLDEPS) libmain.o
+GFORTHOBJS = $(AOBJECTS) $(LDLIBS) libmain.o
 
-gforth-native$(OPT)$(EC)$(ARCH)$(EXE):	$(OBJECTS_NATIVE) $(AOBJECTS) $(LTDLDEPS)
-	$(GCCLD) $(LDFLAGS) $(OBJECTS_NATIVE) $(AOBJECTS) $(LDLIBS) -o $@
+LINKER=$(GCCLD) $(LDFLAGS) 
+%.la:	LINKER=$(LTLD) $(LDFLAGS) 
 
-gforth-fast$(OPT)$(EC)$(ARCH)$(EXE):	$(OBJECTS_FAST) $(AOBJECTS) $(LTDLDEPS)
-	$(GCCLD) $(LDFLAGS) $(OBJECTS_FAST) $(AOBJECTS) $(LDLIBS) -o $@
+gforth$(OPT)$(EC)$(ARCH)$(EXE):	$(OBJECTS) $(GFORTHDEPS)
+	$(LINKER) $(OBJECTS) $(GFORTHOBJS) -o $@
 
-gforth-itc$(OPT)$(EC)$(ARCH)$(EXE):	$(OBJECTS_ITC) $(AOBJECTS) $(LTDLDEPS)
-	$(GCCLD) $(LDFLAGS) $(OBJECTS_ITC) $(AOBJECTS) $(LDLIBS) -o $@
+gforth-native$(OPT)$(EC)$(ARCH)$(EXE):	$(OBJECTS_NATIVE) $(GFORTHDEPS)
+	$(LINKER) $(OBJECTS_NATIVE) $(GFORTHOBJS) -o $@
 
-gforth-ditc$(OPT)$(EC)$(ARCH)$(EXE): $(OBJECTS_DITC) $(AOBJECTS) $(LTDLDEPS)
-	$(GCCLD) $(LDFLAGS) $(OBJECTS_DITC) $(AOBJECTS) $(LDLIBS) -o $@
+gforth-fast$(OPT)$(EC)$(ARCH)$(EXE):	$(OBJECTS_FAST) $(GFORTHDEPS)
+	$(LINKER) $(OBJECTS_FAST) $(GFORTHOBJS) -o $@
 
-gforth-prof$(OPT)$(EC)$(ARCH)$(EXE): $(OBJECTS_PROF) $(AOBJECTS) $(LTDLDEPS) profile$(OPT).o
-	$(GCCLD) $(LDFLAGS) $(OBJECTS_PROF) $(AOBJECTS) profile$(OPT).o $(LDLIBS) -o $@
+gforth-itc$(OPT)$(EC)$(ARCH)$(EXE):	$(OBJECTS_ITC) $(GFORTHDEPS)
+	$(LINKER) $(OBJECTS_ITC) $(GFORTHOBJS) -o $@
 
-gforth-fi$(OPT)$(EC)$(ARCH)$(EXE):	$(OBJECTS_FI) $(AOBJECTS) $(LTDLDEPS)
-	$(GCCLD) $(LDFLAGS) $(OBJECTS_FI) $(AOBJECTS) $(LDLIBS) -o $@
+gforth-ditc$(OPT)$(EC)$(ARCH)$(EXE): $(OBJECTS_DITC) $(GFORTHDEPS)
+	$(LINKER) $(OBJECTS_DITC) $(GFORTHOBJS) -o $@
+
+gforth-prof$(OPT)$(EC)$(ARCH)$(EXE): $(OBJECTS_PROF) profile$(OPT).o $(GFORTHDEPS)
+	$(LINKER) $(OBJECTS_PROF) $(AOBJECTS) profile$(OPT).o $(LDLIBS) -o $@
+
+gforth-fi$(OPT)$(EC)$(ARCH)$(EXE):	$(OBJECTS_FI) $(GFORTHDEPS)
+	$(LINKER) $(OBJECTS_FI) $(GFORTHOBJS) -o $@
+
+LIBGFORTHDEPS = $(AOBJECTS:%.o=%.lo) $(LTDLDEPS)
+LIBGFORTHOBJS = $(AOBJECTS:%.o=%.lo) $(LDLIBS)
+
+libgforth$(EC)$(ARCH).la libgforth$(OPT)$(EC)$(ARCH).la:	$(OBJECTS:%.o=%.lo) $(LIBGFORTHDEPS)
+	$(LINKER) $(OBJECTS:%.o=%.lo) $(LIBGFORTHOBJS) -o $@
+
+libgforth-native$(EC)$(ARCH).la libgforth-native$(OPT)$(EC)$(ARCH).la:	$(OBJECTS_NATIVE:%.o=%.lo) $(LIBGFORTHDEPS)
+	$(LINKER) $(OBJECTS_NATIVE:%.o=%.lo) $(LIBGFORTHOBJS) -o $@
+
+libgforth-fast$(EC)$(ARCH).la libgforth-fast$(OPT)$(EC)$(ARCH).la:	$(OBJECTS_FAST:%.o=%.lo) $(LIBGFORTHDEPS)
+	$(LINKER) $(OBJECTS_FAST:%.o=%.lo) $(LIBGFORTHOBJS) -o $@
+
+libgforth-itc$(EC)$(ARCH).la libgforth-itc$(OPT)$(EC)$(ARCH).la:	$(OBJECTS_ITC:%.o=%.lo) $(LIBGFORTHDEPS)
+	$(LINKER) $(OBJECTS_ITC:%.o=%.lo) $(LIBGFORTHOBJS) -o $@
+
+libgforth-ditc$(EC)$(ARCH).la libgforth-ditc$(OPT)$(EC)$(ARCH).la: $(OBJECTS_DITC:%.o=%.lo) $(LIBGFORTHDEPS)
+	$(LINKER) $(OBJECTS_DITC:%.o=%.lo) $(LIBGFORTHOBJS) -o $@
+
+libgforth-prof$(EC)$(ARCH).la libgforth-prof$(OPT)$(EC)$(ARCH).la: $(OBJECTS_PROF:%.o=%.lo) profile$(OPT).o $(LIBGFORTHDEPS)
+	$(LINKER) $(OBJECTS_PROF:%.o=%.lo) $(AOBJECTS) profile$(OPT).o $(LDLIBS) -o $@
+
+libgforth-fi$(EC)$(ARCH).la libgforth-fi$(OPT)$(EC)$(ARCH).la:	$(OBJECTS_FI:%.o=%.lo) $(LIBGFORTHDEPS)
+	$(LINKER) $(OBJECTS_FI:%.o=%.lo) $(LIBGFORTHOBJS) -o $@
+
+# executables generated by linking to library
+
+libgforth%$(EXE):	libgforth%.la libmain.lo
+	$(LTLD) $(LDFLAGS) $(patsubst lib%,-l%,$@) libmain.lo -o $@
+
+libgforth$(EXE):	libgforth.la libmain.lo
+	$(LTLD) $(LDFLAGS) $(patsubst lib%,-l%,$@) libmain.lo -o $@
 
 engine.s:	$(ENGINE_FAST_DEPS)
 		$(GCC) $(CFLAGS) $(CPPFLAGS) $(ENGINE_FLAGS) -S $(srcdir)/engine.c
 
-engine$(OPT).o:	$(ENGINE_DEPS)
-		$(COMPILE.c) $(ENGINE_FLAGS) -DGFORTH_DEBUGGING -o $@ $(srcdir)/engine.c
+engine$(OPT).o engine$(OPT).lo:	$(ENGINE_DEPS)
+		$(COMPILER) $(ENGINE_FLAGS) -DGFORTH_DEBUGGING -o $@ $(srcdir)/engine.c
 
-engine2$(OPT).o:	$(ENGINE_DEPS)
-		$(COMPILE.c) $(ENGINE_FLAGS) -DGFORTH_DEBUGGING -DENGINE=2 -o $@ $(srcdir)/engine.c
+engine2$(OPT).o engine2$(OPT).lo:	$(ENGINE_DEPS)
+		$(COMPILER) $(ENGINE_FLAGS) -DGFORTH_DEBUGGING -DENGINE=2 -o $@ $(srcdir)/engine.c
 
-engine-native$(OPT).o:$(ENGINE_FAST_DEPS)
-		$(COMPILE.c) $(ENGINE_FLAGS) -DNO_IP -o $@ $(srcdir)/engine.c
+engine-native$(OPT).o engine-native$(OPT).lo:$(ENGINE_FAST_DEPS)
+		$(COMPILER) $(ENGINE_FLAGS) -DNO_IP -o $@ $(srcdir)/engine.c
 
-engine-native2$(OPT).o:$(ENGINE_FAST_DEPS)
-		$(COMPILE.c) $(ENGINE_FLAGS) -DNO_IP -DENGINE=2 -o $@ $(srcdir)/engine.c
+engine-native2$(OPT).o engine-native2$(OPT).lo:$(ENGINE_FAST_DEPS)
+		$(COMPILER) $(ENGINE_FLAGS) -DNO_IP -DENGINE=2 -o $@ $(srcdir)/engine.c
 
-engine-native3$(OPT).o:$(ENGINE_FAST_DEPS)
-		$(COMPILE.c) $(ENGINE_FLAGS) -DNO_IP -DENGINE=3 -o $@ $(srcdir)/engine.c
+engine-native3$(OPT).o engine-native3$(OPT).lo:$(ENGINE_FAST_DEPS)
+		$(COMPILER) $(ENGINE_FLAGS) -DNO_IP -DENGINE=3 -o $@ $(srcdir)/engine.c
 
-engine-fast$(OPT).o:	$(ENGINE_FAST_DEPS)
-		$(COMPILE.c) $(ENGINE_FLAGS) -o $@ $(srcdir)/engine.c
+engine-fast$(OPT).o engine-fast$(OPT).lo:	$(ENGINE_FAST_DEPS)
+		$(COMPILER) $(ENGINE_FLAGS) -o $@ $(srcdir)/engine.c
 
-engine-fast2$(OPT).o:	$(ENGINE_FAST_DEPS)
-		$(COMPILE.c) $(ENGINE_FLAGS) -DENGINE=2 -o $@ $(srcdir)/engine.c
+engine-fast2$(OPT).o engine-fast2$(OPT).lo:	$(ENGINE_FAST_DEPS)
+		$(COMPILER) $(ENGINE_FLAGS) -DENGINE=2 -o $@ $(srcdir)/engine.c
 
-engine-itc$(OPT).o:	$(ENGINE_DEPS)
-		$(COMPILE.c) $(ENGINE_FLAGS) -DINDIRECT_THREADED -DGFORTH_DEBUGGING -o $@ $(srcdir)/engine.c
+engine-itc$(OPT).o engine-itc$(OPT).lo:	$(ENGINE_DEPS)
+		$(COMPILER) $(ENGINE_FLAGS) -DINDIRECT_THREADED -DGFORTH_DEBUGGING -o $@ $(srcdir)/engine.c
 
-engine-ditc$(OPT).o:	$(ENGINE_DEPS)
-		$(COMPILE.c) $(ENGINE_FLAGS) -DDOUBLY_INDIRECT -o $@ $(srcdir)/engine.c
+engine-ditc$(OPT).o engine-ditc$(OPT).lo:	$(ENGINE_DEPS)
+		$(COMPILER) $(ENGINE_FLAGS) -DDOUBLY_INDIRECT -o $@ $(srcdir)/engine.c
 
-engine-prof$(OPT).o:	$(ENGINE_DEPS)
-		$(COMPILE.c) $(ENGINE_FLAGS) -DVM_PROFILING -o $@ $(srcdir)/engine.c
+engine-prof$(OPT).o engine-prof$(OPT).lo:	$(ENGINE_DEPS)
+		$(COMPILER) $(ENGINE_FLAGS) -DVM_PROFILING -o $@ $(srcdir)/engine.c
 
-main$(OPT).o:		$(MAIN_DEPS) 
-		$(COMPILE.c) -DGFORTH_DEBUGGING @no_dynamic@ -o $@ $(srcdir)/main.c
+main$(OPT).o main$(OPT).lo:		$(MAIN_DEPS) 
+		$(COMPILER) -DGFORTH_DEBUGGING @no_dynamic@ -o $@ $(srcdir)/main.c
 
-main-native$(OPT).o:	$(MAIN_FAST_DEPS) 
-		$(COMPILE.c) -DNO_IP -o $@ $(srcdir)/main.c
+main-native$(OPT).o main-native$(OPT).lo:	$(MAIN_FAST_DEPS) 
+		$(COMPILER) -DNO_IP -o $@ $(srcdir)/main.c
 
-main-fast$(OPT).o:	$(MAIN_FAST_DEPS) 
-		$(COMPILE.c) -o $@ $(srcdir)/main.c
+main-fast$(OPT).o main-fast$(OPT).lo:	$(MAIN_FAST_DEPS) 
+		$(COMPILER) -o $@ $(srcdir)/main.c
 
-main-itc$(OPT).o:	$(MAIN_DEPS) 
-		$(COMPILE.c) -DINDIRECT_THREADED -DGFORTH_DEBUGGING -o $@ $(srcdir)/main.c
+main-itc$(OPT).o main-itc$(OPT).lo:	$(MAIN_DEPS) 
+		$(COMPILER) -DINDIRECT_THREADED -DGFORTH_DEBUGGING -o $@ $(srcdir)/main.c
 
-main-ditc$(OPT).o:	$(MAIN_DEPS)
-		$(COMPILE.c) -DDOUBLY_INDIRECT -o $@ $(srcdir)/main.c
+main-ditc$(OPT).o main-ditc$(OPT).lo:	$(MAIN_DEPS)
+		$(COMPILER) -DDOUBLY_INDIRECT -o $@ $(srcdir)/main.c
 
-main-prof$(OPT).o:	$(MAIN_DEPS)
-		$(COMPILE.c) -DVM_PROFILING -o $@ $(srcdir)/main.c
+main-prof$(OPT).o main-prof$(OPT).lo:	$(MAIN_DEPS)
+		$(COMPILER) -DVM_PROFILING -o $@ $(srcdir)/main.c
 
-main-fi$(OPT).o:	$(MAIN_DEPS)
-		$(COMPILE.c) -DINCLUDE_IMAGE -o $@ $(srcdir)/main.c
+main-fi$(OPT).o main-fi$(OPT).lo:	$(MAIN_DEPS)
+		$(COMPILER) -DINCLUDE_IMAGE -o $@ $(srcdir)/main.c
 
-peephole$(OPT).o:	peephole.c peephole.i $(DEPS)
-		$(COMPILE.c) -o $@ $(srcdir)/peephole.c
+peephole$(OPT).o peephole$(OPT).lo:	peephole.c peephole.i $(DEPS)
+		$(COMPILER) -o $@ $(srcdir)/peephole.c
 
-profile$(OPT).o:	profile.c profile.i $(DEPS)
-		$(COMPILE.c) -o $@ $(srcdir)/profile.c
+profile$(OPT).o profile$(OPT).lo:	profile.c profile.i $(DEPS)
+		$(COMPILER) -o $@ $(srcdir)/profile.c
 
 #The next two rules seem to be superfluous:
 

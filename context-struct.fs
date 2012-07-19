@@ -37,7 +37,7 @@ Variable do-field,
 
 default-field
 
-: +field ( n1 n2 "name" -- n3 ) \ X:structures plus-field
+: context+field ( n1 n2 "name" -- n3 ) \ X:structures plus-field
     create-interpret/compile over , +
 interpretation>
     @ do-field, @ perform
@@ -46,30 +46,4 @@ compilation>
     @ do-field, @ cell+ @ compile, ,
 <compilation ;
 
-: extend-structure ( n "name" -- struct-sys n ) \ Gforth
-    \g extend an existing structure
-    >r 0 value lastxt >body r> ;
-
-: begin-structure ( "name" -- struct-sys 0 ) \ X:structures
-    0 extend-structure ;
-
-: end-structure ( struct-sys +n -- ) \ X:structures
-    swap ! ;
-
-: cfield: ( u1 "name" -- u2 ) \ X:structures
-    1 +field ;
-
-: field: ( u1 "name" -- u2 ) \ X:structures
-    aligned cell +field ;
-
-: 2field: ( u1 "name" -- u2 ) \ gforth
-    aligned 2 cells +field ;
-
-: ffield: ( u1 "name" -- u2 ) \ X:structures
-    faligned 1 floats +field ;
-
-: sffield: ( u1 "name" -- u2 ) \ X:structures
-    sfaligned 1 sfloats +field ;
-
-: dffield: ( u1 "name" -- u2 ) \ X:structures
-    dfaligned 1 dfloats +field ;
+: context:field  ['] context+field IS +field ;

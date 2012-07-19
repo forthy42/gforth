@@ -17,7 +17,7 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-: +field ( n1 n2 "name" -- n3 ) \ X:structures plus-field
+: standard+field ( n1 n2 "name" -- n3 ) \ X:structures plus-field
     over if
         (field) over ,
     else
@@ -25,9 +25,20 @@
     then
     + ;
 
+Defer +field
+\ A number of things have field-like structure, but not
+\ exactly field-like behavior.  Objects, locals, etc.
+\ Allow them to plug into +field.
+
+: standard:field ( -- )
+    \g set +field to standard behavior
+    ['] standard+field IS +field ;
+
+standard:field
+
 : extend-structure ( n "name" -- struct-sys n ) \ Gforth
     \g extend an existing structure
-    >r 0 value lastxt >body r> ;
+    standard:field >r 0 value lastxt >body r> ;
 
 : begin-structure ( "name" -- struct-sys 0 ) \ X:structures
     0 extend-structure ;

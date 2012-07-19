@@ -48,6 +48,7 @@ PATHSEP = @PATHSEP@
 EC = @EC@
 ARCH= @ARCH@
 EXT = $(EC)$(ARCH)$(EXE)
+LA = $(EC)$(ARCH).la
 
 # ------------	Install Directories
 
@@ -88,7 +89,7 @@ MASSAGE_EXE = @MASSAGE_EXE@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_INFO = @INSTALL_INFO@
-LN_S	= @LN_S@
+LN_S	= @LN_S@ -f
 M4      = @M4@
 GCC	= @CC@
 EMACS   = @EMACS@
@@ -529,7 +530,7 @@ version:	Makefile.in configure.in
 kernel/version.fs:	version
 	echo ": version-string s\" $(VERSION)\" ;" > kernel/version.fs
 
-more:	$(ENGINES) $(FORTH_GEN) $(GEN) @build_libcc_named@
+more:	$(ENGINES) $(FORTH_GEN) $(GEN) @libengines@ @build_libcc_named@
 
 #from the gcc Makefile: 
 #"Deletion of files made during compilation.
@@ -561,7 +562,8 @@ docclean:	FORCE
 		doc/gforth.toc doc/gforth.tp doc/gforth.vr html
 
 clean:		mostlyclean
-	-$(RM) -rf $(GEN) *.o engine/*.o arch/*/*.o version \
+	-$(RM) -rf $(GEN) *.o engine/*.o engine/*.lo engine/*.la \
+	engine/.libs engine/libgforth* libgforth* arch/*/*.o version \
 	gforth-itc-noll$(EXT)  engine/gforth-itc-noll$(EXT)  \
 	gforth-ditc-noll$(EXT) engine/gforth-ditc-noll$(EXT) \
 	gforth-prof-noll$(EXT) engine/gforth-prof-noll$(EXT) \
@@ -630,7 +632,7 @@ hpux-workaround:
 #hard to generate).
 #we rebuild gforth.fi, because it contains some path names.
 #we delete $build/gforth.fi and $build/install.TAGS after installation because of ownership.
-install:	gforth$(EXT) $(FORTH_SRC) $(kernel_fi) gforthmi vmgen doc/gforth.1 prim install.TAGS installdirs @NO_CROSS@ gforth.fi
+install:	gforth$(EXT) $(FORTH_SRC) $(kernel_fi) gforthmi vmgen doc/gforth.1 prim install.TAGS installdirs @libinstall@ @NO_CROSS@ gforth.fi
 		$(NORMAL_INSTALL)
 		touch $(DESTDIR)$(siteforthdir)/siteinit.fs
 		-$(RM) $(DESTDIR)$(bindir)/gforth$(EXT) $(DESTDIR)$(bindir)/gforth-$(VERSION)$(EXT) $(DESTDIR)$(bindir)/gforthmi $(DESTDIR)$(bindir)/vmgen
@@ -678,6 +680,11 @@ install:	gforth$(EXT) $(FORTH_SRC) $(kernel_fi) gforthmi vmgen doc/gforth.1 prim
 		$(INSTALL_INFO) --info-dir=$(DESTDIR)$(infodir) $(DESTDIR)$(infodir)/vmgen.info
 
 install-strip:	install
+
+libinstall:	$(ENGINES:%$(EXT)=lib%) $(ENGINES_FAST:%$(EXT)=lib%)
+		for i in $(ENGINES:%$(EXT)=lib%) $(ENGINES_FAST:%$(EXT)=lib%); do \
+		   $(LIBTOOL) --silent --mode=install $(INSTALL) engine/$$i.la $(libdir)/$$i.la; \
+		done
 
 installdirs:	mkinstalldirs
 		$(NORMAL_INSTALL)
@@ -874,7 +881,7 @@ gforth-fast$(OPT)$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE_FAST) engine/confi
 	if test -z "$(OPT)"; then \
 		for i in $(OPTS); do $(MAKE) optgforth-fast OPT=$$i && $(CP) gforth-fast$${i}$(EXT) $@ && break; done; \
 	else \
-		( cd engine && $(MAKE) $@ ) && \
+		(cd engine && $(MAKE) $@ ) && \
 		$(CP) engine/$@ $@ && \
 		$(MASSAGE_EXE) $@; \
 		@GFORTHFAST_EXE@; \
@@ -904,6 +911,46 @@ gforth-prof$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/Makefile engine/
 		$(CP) engine/gforth-prof-noll$(EXT) $@
 
 gforths: $(ENGINES) $(ENGINES_FAST)
+
+#For now, we have no way to check if the engines build correctly
+libgforth$(OPT)$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/config.h @kernel_anti_dependence@
+	if test -z "$(OPT)"; then \
+		for i in $(OPTS); do $(MAKE) optlibgforth OPT=$$i && $(MAKE) optlibgforth2 OPT=$$i && $(LN_S) engine/$@ $@ && break; done; \
+	else \
+		(cd engine && $(MAKE) $@ ) && \
+		@NO_CROSS@ $(MAKE) checkone check-nofast ENGINE=./engine/$@; \
+	fi
+
+optlibgforth:
+	$(MAKE) libgforth$(OPT)$(EXT) $(MAKELINE$(OPT))
+
+optlibgforth2:
+	(cd engine && $(MAKE) libgforth$(EXT) $(MAKELINE$(OPT)))
+
+libgforth-fast$(OPT)$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE_FAST) engine/config.h
+	if test -z "$(OPT)"; then \
+		for i in $(OPTS); do $(MAKE) optlibgforth-fast OPT=$$i && $(MAKE) optlibgforth-fast2 OPT=$$i && $(LN_S) engine/$@ $@ && break; done; \
+	else \
+		(cd engine && $(MAKE) $@ ) && \
+		@NO_CROSS@ $(MAKE) checkone ENGINE=./engine/$@; \
+	fi
+
+optlibgforth-fast:
+	$(MAKE) libgforth-fast$(OPT)$(EXT) $(MAKELINE$(OPT))
+
+optlibgforth-fast2:
+	(cd engine && $(MAKE) libgforth-fast$(EXT) $(MAKELINE$(OPT)))
+
+libgforth-itc$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/Makefile engine/config.h
+		cd engine && $(MAKE) libgforth-itc$(EXT) $(MAKELINE-noll)
+
+libgforth-ditc$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/Makefile engine/config.h
+		cd engine && $(MAKE) libgforth-ditc$(EXT) $(MAKELINE-noll)
+
+libgforth-prof$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/Makefile engine/config.h
+		cd engine && $(MAKE) libgforth-prof$(EXT) $(MAKELINE-noll)
+
+libgforths: $(ENGINES:%$(EXT)=lib%) $(ENGINES_FAST:%$(EXT)=lib%)
 
 # ------------- additional C primitives
 
