@@ -26,90 +26,16 @@ c-library pthread
     \c #include <stdio.h>
     \c #include <signal.h>
     \c #define wholepage(n) (((n)+pagesize-1)&~(pagesize-1))
-    \c typedef struct {
-    \c   Cell next_task;
-    \c   Cell prev_task;
-    \c   Cell save_task;
-    \c   Cell sp0, rp0, fp0, lp0;
-    \c   Cell throw_entry;
-    \c } user_area;
-    \c int pagesize = 1;
-    \c void page_noaccess(void *a)
-    \c {
-    \c   /* try mprotect first; with munmap the page might be allocated later */
-    \c   if (mprotect(a, pagesize, PROT_NONE)==0) {
-    \c     return;
-    \c   }
-    \c   if (munmap(a,pagesize)==0) {
-    \c     return;
-    \c   }
-    \c }  
-    \c void * alloc_mmap(Cell size)
-    \c {
-    \c   void *r;
-    \c 
-    \c #if defined(MAP_ANON)
-    \c   r = mmap(NULL, size, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE, -1, 0);
-    \c #else /* !defined(MAP_ANON) */
-    \c   /* Ultrix (at least) does not define MAP_FILE and MAP_PRIVATE (both are
-    \c      apparently defaults) */
-    \c   static int dev_zero=-1;
-    \c 
-    \c   if (dev_zero == -1)
-    \c     dev_zero = open("/dev/zero", O_RDONLY);
-    \c   if (dev_zero == -1) {
-    \c     r = MAP_FAILED;
-    \c   } else {
-    \c     r=mmap(NULL, size, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_FILE|MAP_PRIVATE, dev_zero, 0);
-    \c   }
-    \c #endif /* !defined(MAP_ANON) */
-    \c   return r;  
-    \c }
-    \c
-    \c Cell gforth_create_thread(Cell dsize, Cell rsize, Cell fsize, Cell lsize)
-    \c {
-    \c #if HAVE_GETPAGESIZE
-    \c   pagesize=getpagesize(); /* Linux/GNU libc offers this */
-    \c #elif HAVE_SYSCONF && defined(_SC_PAGESIZE)
-    \c   pagesize=sysconf(_SC_PAGESIZE); /* POSIX.4 */
-    \c #elif PAGESIZE
-    \c   pagesize=PAGESIZE; /* in limits.h according to Gallmeister's POSIX.4 book */
-    \c #endif
-    \c #ifdef SIGSTKSZ
-    \c   stack_t sigstack;
-    \c   int sas_retval=-1;
-    \c #endif
-    \c   size_t totalsize;
-    \c   Cell a;
-    \c   user_area * up0;
-    \c   Cell dsizep = wholepage(dsize);
-    \c   Cell rsizep = wholepage(rsize);
-    \c   Cell fsizep = wholepage(fsize);
-    \c   Cell lsizep = wholepage(lsize);
-    \c   totalsize = dsizep+fsizep+rsizep+lsizep+6*pagesize;
-    \c #ifdef SIGSTKSZ
-    \c   totalsize += 2*SIGSTKSZ;
-    \c #endif
-    \c   a = (Cell)alloc_mmap(totalsize);
-    \c   if (a != (Cell)MAP_FAILED) {
-    \c     up0=(user_area*)a; a+=pagesize;
-    \c     page_noaccess((void*)a); a+=pagesize; up0->sp0=a+dsize; a+=dsizep;
-    \c     page_noaccess((void*)a); a+=pagesize; up0->fp0=a+fsize; a+=fsizep;
-    \c     page_noaccess((void*)a); a+=pagesize; up0->rp0=a+rsize; a+=rsizep;
-    \c     page_noaccess((void*)a); a+=pagesize; up0->lp0=a+lsize; a+=lsizep;
-    \c     page_noaccess((void*)a); a+=pagesize;
-    \c #ifdef SIGSTKSZ
-    \c     sigstack.ss_sp=(void*)a+SIGSTKSZ;
-    \c     sigstack.ss_size=SIGSTKSZ;
-    \c     sas_retval=sigaltstack(&sigstack,(stack_t *)0);
-    \c #endif
-    \c     return (Cell)up0;
-    \c   }
-    \c   return 0;
-    \c }
     \c
     \c void gforth_cleanup_thread(void * t)
     \c {
+    \c #if HAVE_GETPAGESIZE
+    \c   Cell pagesize=getpagesize(); /* Linux/GNU libc offers this */
+    \c #elif HAVE_SYSCONF && defined(_SC_PAGESIZE)
+    \c   Cell pagesize=sysconf(_SC_PAGESIZE); /* POSIX.4 */
+    \c #elif PAGESIZE
+    \c   Cell pagesize=PAGESIZE; /* in limits.h according to Gallmeister's POSIX.4 book */
+    \c #endif
     \c   Cell size = wholepage((Cell)(((user_area*)t)->lp0)+pagesize-(Cell)t);
     \c #ifdef SIGSTKSZ
     \c   size += 2*SIGSTKSZ;
@@ -230,7 +156,7 @@ c-library pthread
     c-function pthread+ pthread_plus a -- a ( addr -- addr' )
     c-function pthreads pthreads n -- n ( n -- n' )
     c-function thread_start gforth_thread_p -- a ( -- addr )
-    c-function gforth_create_thread gforth_create_thread n n n n -- a ( dsize rsize fsize lsize -- task )
+    c-function gforth_create_thread gforth_stacks n n n n -- a ( dsize rsize fsize lsize -- task )
     c-function pthread_create pthread_create a a a a -- n ( thread attr start arg )
     c-function pthread_exit pthread_exit a -- void ( retaddr -- )
     c-function pthread_mutex_init pthread_mutex_init a a -- n ( mutex addr -- r )
@@ -372,7 +298,7 @@ false [IF] \ event test
 [THEN]
 
 false [IF] \ test
-    semaphore testsem
+    sema testsem
     
     : test-thread1
 	stacksize4 NewTask4 activate  0 hex

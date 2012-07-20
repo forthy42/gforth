@@ -64,29 +64,9 @@ typedef enum prim_num {
    different ways for the same engine. */
 PER_THREAD Cell *gforth_SP;
 PER_THREAD Float *gforth_FP;
-PER_THREAD Address gforth_UP=NULL;
+PER_THREAD user_area* gforth_UP=NULL;
 PER_THREAD Cell *gforth_RP;
 PER_THREAD Address gforth_LP;
-
-void gforth_push(Cell n)
-{
-  *--gforth_SP=n;
-}
-
-Cell gforth_pop()
-{
-  return *gforth_SP++;
-}
-
-void gforth_fpush(Float r)
-{
-  *--gforth_FP=r;
-}
-
-Float gforth_fpop()
-{
-  return *gforth_FP++;
-}
 
 #ifdef HAS_FFCALL
 
@@ -212,7 +192,6 @@ static int static_super_number = 10000; /* number of ss used if available */
 #define MAX_STATE 9 /* maximum number of states */
 static int maxstates = MAX_STATE; /* number of states for stack caching */
 static int ss_greedy = 0; /* if true: use greedy, not optimal ss selection */
-static int diag = 0; /* if true: print diagnostic informations */
 static int tpa_noequiv = 0;     /* if true: no state equivalence checking */
 static int tpa_noautomaton = 0; /* if true: no tree parsing automaton */
 static int tpa_trace = 0; /* if true: data for line graph of new states etc. */
@@ -659,74 +638,25 @@ void set_stack_sizes(ImageHeader * header)
   rsize=maxaligned(rsize);
   lsize=maxaligned(lsize);
   fsize=maxaligned(fsize);
+
+  header->dict_size=dictsize;
+  header->data_stack_size=dsize;
+  header->fp_stack_size=fsize;
+  header->return_stack_size=rsize;
+  header->locals_stack_size=lsize;
 }
-
-#ifdef STANDALONE
-void alloc_stacks(ImageHeader * h)
-{
-#define SSTACKSIZE 0x200
-  static Cell dstack[SSTACKSIZE+1];
-  static Cell rstack[SSTACKSIZE+1];
-
-  h->dict_size=dictsize;
-  h->data_stack_size=dsize;
-  h->fp_stack_size=fsize;
-  h->return_stack_size=rsize;
-  h->locals_stack_size=lsize;
-
-  h->data_stack_base=dstack+SSTACKSIZE;
-  //  h->fp_stack_base=gforth_alloc(fsize);
-  h->return_stack_base=rstack+SSTACKSIZE;
-  //  h->locals_stack_base=gforth_alloc(lsize);
-}
-#else
-void alloc_stacks(ImageHeader * h)
-{
-  h->dict_size=dictsize;
-  h->data_stack_size=dsize;
-  h->fp_stack_size=fsize;
-  h->return_stack_size=rsize;
-  h->locals_stack_size=lsize;
-
-#if defined(HAVE_MMAP) && !defined(STANDALONE)
-  if (pagesize > 1) {
-    size_t p = pagesize;
-    size_t totalsize =
-      wholepage(dsize)+wholepage(fsize)+wholepage(rsize)+wholepage(lsize)+5*p;
-    void *a = alloc_mmap(totalsize);
-    if (a != (void *)MAP_FAILED) {
-      page_noaccess(a); a+=p; h->  data_stack_base=a; a+=wholepage(dsize);
-      page_noaccess(a); a+=p; h->    fp_stack_base=a; a+=wholepage(fsize);
-      page_noaccess(a); a+=p; h->return_stack_base=a; a+=wholepage(rsize);
-      page_noaccess(a); a+=p; h->locals_stack_base=a; a+=wholepage(lsize);
-      page_noaccess(a);
-      debugp(stderr,"stack addresses: d=%p f=%p r=%p l=%p\n",
-	     h->data_stack_base,
-	     h->fp_stack_base,
-	     h->return_stack_base,
-	     h->locals_stack_base);
-      return;
-    }
-  }
-#endif
-  h->data_stack_base=gforth_alloc(dsize);
-  h->fp_stack_base=gforth_alloc(fsize);
-  h->return_stack_base=gforth_alloc(rsize);
-  h->locals_stack_base=gforth_alloc(lsize);
-}
-#endif
 
 #warning You can ignore the warnings about clobbered variables in gforth_go
 int gforth_go(void *image, int stack, Cell *entries)
 {
   volatile ImageHeader *image_header = (ImageHeader *)image;
-  Cell *sp0=(Cell*)(image_header->data_stack_base + dsize);
-  Cell *rp0=(Cell *)(image_header->return_stack_base + rsize);
-  Float *fp0=(Float *)(image_header->fp_stack_base + fsize);
+  Cell *sp0=gforth_SP;
+  Cell *rp0=gforth_RP;
+  Float *fp0=gforth_FP;
 #ifdef GFORTH_DEBUGGING
   volatile Cell *orig_rp0=rp0;
 #endif
-  Address lp0=image_header->locals_stack_base + lsize;
+  Address lp0=gforth_LP;
   Xt *ip0=(Xt *)(image_header->boot_entry);
 #ifdef SYSSIGNALS
   int throw_code;
@@ -1895,8 +1825,122 @@ void compile_prim1(Cell *start)
 #endif /* !(defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED)) */
 }
 
+void gforth_init()
+{
+#if 0 && defined(__i386)
+  /* disabled because the drawbacks may be worse than the benefits */
+  /* set 387 precision control to use 53-bit mantissae to avoid most
+     cases of double rounding */
+  short fpu_control = 0x027f ;
+  asm("fldcw %0" : : "m"(fpu_control));
+#endif /* defined(__i386) */
+
+#ifdef MACOSX_DEPLOYMENT_TARGET
+  setenv("MACOSX_DEPLOYMENT_TARGET", MACOSX_DEPLOYMENT_TARGET, 0);
+#endif
+#ifdef LTDL_LIBRARY_PATH
+  setenv("LTDL_LIBRARY_PATH", LTDL_LIBRARY_PATH, 0);
+#endif
 #ifndef STANDALONE
-Address gforth_loader(FILE *imagefile, char* filename)
+  /* buffering of the user output device */
+#ifdef _IONBF
+  if (isatty(fileno(stdout))) {
+    fflush(stdout);
+    setvbuf(stdout,NULL,_IONBF,0);
+  }
+#endif
+  setlocale(LC_ALL, "");
+  setlocale(LC_NUMERIC, "C");
+#else
+  prep_terminal();
+#endif
+
+#ifndef STANDALONE
+#ifdef HAVE_LIBLTDL
+  if (lt_dlinit()!=0) {
+    fprintf(stderr,"%s: lt_dlinit failed", progname);
+    exit(1);
+  }
+#endif
+#ifdef HAS_OS
+#ifndef NO_DYNAMIC
+  init_ss_cost();
+#endif /* !defined(NO_DYNAMIC) */
+#endif /* defined(HAS_OS) */
+#endif
+  code_here = ((void *)0)+code_area_size;
+}
+
+/* pointer to last '/' or '\' in file, 0 if there is none. */
+static char *onlypath(char *filename)
+{
+  return strrchr(filename, DIRSEP);
+}
+
+static FILE *openimage(char *fullfilename)
+{
+  FILE *image_file;
+  char * expfilename = tilde_cstr((Char *)fullfilename, strlen(fullfilename));
+
+  image_file=fopen(expfilename,"rb");
+  if (image_file!=NULL && debug)
+    fprintf(stderr, "Opened image file: %s\n", expfilename);
+  free(expfilename);
+  return image_file;
+}
+
+/* try to open image file concat(path[0:len],imagename) */
+static FILE *checkimage(char *path, int len, char *imagename)
+{
+  int dirlen=len;
+  char fullfilename[dirlen+strlen((char *)imagename)+2];
+
+  memcpy(fullfilename, path, dirlen);
+  if (fullfilename[dirlen-1]!=DIRSEP)
+    fullfilename[dirlen++]=DIRSEP;
+  strcpy(fullfilename+dirlen,imagename);
+  return openimage(fullfilename);
+}
+
+static FILE * open_image_file(char * imagename, char * path)
+{
+  FILE * image_file=NULL;
+  char *origpath=path;
+  
+  if(strchr(imagename, DIRSEP)==NULL) {
+    /* first check the directory where the exe file is in !! 01may97jaw */
+    if (onlypath(progname))
+      image_file=checkimage(progname, onlypath(progname)-progname, imagename);
+    if (!image_file)
+      do {
+	char *pend=strchr(path, PATHSEP);
+	if (pend==NULL)
+	  pend=path+strlen(path);
+	if (strlen(path)==0) break;
+	image_file=checkimage(path, pend-path, imagename);
+	path=pend+(*pend==PATHSEP);
+      } while (image_file==NULL);
+  } else {
+    image_file=openimage(imagename);
+  }
+
+  if (!image_file) {
+    fprintf(stderr,"%s: cannot open image file %s in path %s for reading\n",
+	    progname, imagename, origpath);
+    exit(1);
+  }
+
+  return image_file;
+}
+
+#ifdef STANDALONE
+Address gforth_loader(char* imagename, char* path)
+{
+  gforth_init();
+  return gforth_engine(0, 0, 0, 0, 0 sr_call);
+}
+#else
+Address gforth_loader(char* imagename, char* path)
 /* returns the address of the image proper (after the preamble) */
 {
   ImageHeader header;
@@ -1923,6 +1967,9 @@ Address gforth_loader(FILE *imagefile, char* filename)
        1
 #endif
     ;
+  FILE* imagefile=open_image_file(imagename, path);
+
+  gforth_init();
 
   vm_prims = gforth_engine(0,0,0,0,0 sr_call);
   check_prims(vm_prims);
@@ -1942,7 +1989,7 @@ Address gforth_loader(FILE *imagefile, char* filename)
   do {
     if(fread(magic,sizeof(Char),8,imagefile) < 8) {
       fprintf(stderr,"%s: image %s doesn't seem to be a Gforth (>=0.8) image.\n",
-	      progname, filename);
+	      progname, imagename);
       exit(1);
     }
     preamblesize+=8;
@@ -2019,68 +2066,6 @@ Address gforth_loader(FILE *imagefile, char* filename)
   return imp;
 }
 #endif
-
-/* pointer to last '/' or '\' in file, 0 if there is none. */
-static char *onlypath(char *filename)
-{
-  return strrchr(filename, DIRSEP);
-}
-
-static FILE *openimage(char *fullfilename)
-{
-  FILE *image_file;
-  char * expfilename = tilde_cstr((Char *)fullfilename, strlen(fullfilename));
-
-  image_file=fopen(expfilename,"rb");
-  if (image_file!=NULL && debug)
-    fprintf(stderr, "Opened image file: %s\n", expfilename);
-  free(expfilename);
-  return image_file;
-}
-
-/* try to open image file concat(path[0:len],imagename) */
-static FILE *checkimage(char *path, int len, char *imagename)
-{
-  int dirlen=len;
-  char fullfilename[dirlen+strlen((char *)imagename)+2];
-
-  memcpy(fullfilename, path, dirlen);
-  if (fullfilename[dirlen-1]!=DIRSEP)
-    fullfilename[dirlen++]=DIRSEP;
-  strcpy(fullfilename+dirlen,imagename);
-  return openimage(fullfilename);
-}
-
-static FILE * open_image_file(char * imagename, char * path)
-{
-  FILE * image_file=NULL;
-  char *origpath=path;
-  
-  if(strchr(imagename, DIRSEP)==NULL) {
-    /* first check the directory where the exe file is in !! 01may97jaw */
-    if (onlypath(progname))
-      image_file=checkimage(progname, onlypath(progname)-progname, imagename);
-    if (!image_file)
-      do {
-	char *pend=strchr(path, PATHSEP);
-	if (pend==NULL)
-	  pend=path+strlen(path);
-	if (strlen(path)==0) break;
-	image_file=checkimage(path, pend-path, imagename);
-	path=pend+(*pend==PATHSEP);
-      } while (image_file==NULL);
-  } else {
-    image_file=openimage(imagename);
-  }
-
-  if (!image_file) {
-    fprintf(stderr,"%s: cannot open image file %s in path %s for reading\n",
-	    progname, imagename, origpath);
-    exit(1);
-  }
-
-  return image_file;
-}
 #endif
 
 #ifdef STANDALONE_ALLOC
@@ -2143,132 +2128,6 @@ enum {
   opt_code_block_size,
 };
 
-#ifndef STANDALONE
-void gforth_args(int argc, char ** argv, char ** path, char ** imagename)
-{
-  int c;
-
-  opterr=0;
-  while (1) {
-    int option_index=0;
-    static struct option opts[] = {
-      {"appl-image", required_argument, NULL, 'a'},
-      {"image-file", required_argument, NULL, 'i'},
-      {"dictionary-size", required_argument, NULL, 'm'},
-      {"data-stack-size", required_argument, NULL, 'd'},
-      {"return-stack-size", required_argument, NULL, 'r'},
-      {"fp-stack-size", required_argument, NULL, 'f'},
-      {"locals-stack-size", required_argument, NULL, 'l'},
-      {"vm-commit", no_argument, &map_noreserve, 0},
-      {"path", required_argument, NULL, 'p'},
-      {"version", no_argument, NULL, 'v'},
-      {"help", no_argument, NULL, 'h'},
-      /* put something != 0 into offset_image */
-      {"offset-image", no_argument, &offset_image, 1},
-      {"no-offset-im", no_argument, &offset_image, 0},
-      {"clear-dictionary", no_argument, &clear_dictionary, 1},
-      {"debug", no_argument, &debug, 1},
-      {"diag", no_argument, &diag, 1},
-      {"die-on-signal", no_argument, &die_on_signal, 1},
-      {"ignore-async-signals", no_argument, &ignore_async_signals, 1},
-      {"no-super", no_argument, &no_super, 1},
-      {"no-dynamic", no_argument, &no_dynamic, 1},
-      {"dynamic", no_argument, &no_dynamic, 0},
-      {"code-block-size", required_argument, NULL, opt_code_block_size},
-      {"print-metrics", no_argument, &print_metrics, 1},
-      {"print-sequences", no_argument, &print_sequences, 1},
-      {"ss-number", required_argument, NULL, ss_number},
-      {"ss-states", required_argument, NULL, ss_states},
-#ifndef NO_DYNAMIC
-      {"ss-min-codesize", no_argument, NULL, ss_min_codesize},
-#endif
-      {"ss-min-ls",       no_argument, NULL, ss_min_ls},
-      {"ss-min-lsu",      no_argument, NULL, ss_min_lsu},
-      {"ss-min-nexts",    no_argument, NULL, ss_min_nexts},
-      {"ss-greedy",       no_argument, &ss_greedy, 1},
-      {"tpa-noequiv",     no_argument, &tpa_noequiv, 1},
-      {"tpa-noautomaton", no_argument, &tpa_noautomaton, 1},
-      {"tpa-trace",	  no_argument, &tpa_trace, 1},
-      {0,0,0,0}
-      /* no-init-file, no-rc? */
-    };
-    
-    c = getopt_long(argc, argv, "+i:m:d:r:f:l:p:vhoncsx", opts, &option_index);
-    
-    switch (c) {
-    case EOF: return;
-    case '?': optind--; return;
-    case 'a': *imagename = optarg; return;
-    case 'i': *imagename = optarg; break;
-    case 'm': dictsize = convsize(optarg,sizeof(Cell)); break;
-    case 'd': dsize = convsize(optarg,sizeof(Cell)); break;
-    case 'r': rsize = convsize(optarg,sizeof(Cell)); break;
-    case 'f': fsize = convsize(optarg,sizeof(Float)); break;
-    case 'l': lsize = convsize(optarg,sizeof(Cell)); break;
-    case 'p': *path = optarg; break;
-    case 'o': offset_image = 1; break;
-    case 'n': offset_image = 0; break;
-    case 'c': clear_dictionary = 1; break;
-    case 's': die_on_signal = 1; break;
-    case 'x': debug = 1; break;
-    case 'v': fputs(PACKAGE_STRING"\n", stderr); exit(0);
-    case opt_code_block_size: code_area_size = atoi(optarg); break;
-    case ss_number: static_super_number = atoi(optarg); break;
-    case ss_states: maxstates = max(min(atoi(optarg),MAX_STATE),1); break;
-#ifndef NO_DYNAMIC
-    case ss_min_codesize: ss_cost = cost_codesize; break;
-#endif
-    case ss_min_ls:       ss_cost = cost_ls;       break;
-    case ss_min_lsu:      ss_cost = cost_lsu;      break;
-    case ss_min_nexts:    ss_cost = cost_nexts;    break;
-    case 'h': 
-      fprintf(stderr, "Usage: %s [engine options] ['--'] [image arguments]\n\
-Engine Options:\n\
-  --appl-image FILE		    Equivalent to '--image-file=FILE --'\n\
-  --clear-dictionary		    Initialize the dictionary with 0 bytes\n\
-  --code-block-size=SIZE            size of native code blocks [512KB]\n\
-  -d SIZE, --data-stack-size=SIZE   Specify data stack size\n\
-  --debug			    Print debugging information during startup\n\
-  --diag			    Print diagnostic information during startup\n\
-  --die-on-signal		    Exit instead of THROWing some signals\n\
-  --dynamic			    Use dynamic native code\n\
-  -f SIZE, --fp-stack-size=SIZE	    Specify floating point stack size\n\
-  -h, --help			    Print this message and exit\n\
-  --ignore-async-signals	    Ignore instead of THROWing async. signals\n\
-  -i FILE, --image-file=FILE	    Use image FILE instead of `gforth.fi'\n\
-  -l SIZE, --locals-stack-size=SIZE Specify locals stack size\n\
-  -m SIZE, --dictionary-size=SIZE   Specify Forth dictionary size\n\
-  --no-dynamic			    Use only statically compiled primitives\n\
-  --no-offset-im		    Load image at normal position\n\
-  --no-super			    No dynamically formed superinstructions\n\
-  --offset-image		    Load image at a different position\n\
-  -p PATH, --path=PATH		    Search path for finding image and sources\n\
-  --print-metrics		    Print some code generation metrics on exit\n\
-  --print-sequences		    Print primitive sequences for optimization\n\
-  -r SIZE, --return-stack-size=SIZE Specify return stack size\n\
-  --ss-greedy			    Greedy, not optimal superinst selection\n\
-  --ss-min-codesize		    Select superinsts for smallest native code\n\
-  --ss-min-ls			    Minimize loads and stores\n\
-  --ss-min-lsu			    Minimize loads, stores, and pointer updates\n\
-  --ss-min-nexts		    Minimize the number of static superinsts\n\
-  --ss-number=N			    Use N static superinsts (default max)\n\
-  --ss-states=N			    N states for stack caching (default max)\n\
-  --tpa-noequiv			    Automaton without state equivalence\n\
-  --tpa-noautomaton		    Dynamic programming only\n\
-  --tpa-trace			    Report new states etc.\n\
-  -v, --version			    Print engine version and exit\n\
-  --vm-commit			    Use OS default for memory overcommit\n\
-SIZE arguments consist of an integer followed by a unit. The unit can be\n\
-  `b' (byte), `e' (element; default), `k' (KB), `M' (MB), `G' (GB) or `T' (TB).\n",
-	      argv[0]);
-      optind--;
-      return;
-    }
-  }
-}
-#endif
-#endif
-
 static void print_diag()
 {
 
@@ -2326,6 +2185,149 @@ static void print_diag()
 }
 
 #ifdef STANDALONE
+void gforth_args(int argc, char ** argv, char ** path, char ** imagename)
+{
+#ifdef HAS_OS
+  *path = getenv("GFORTHPATH") ? : DEFAULTPATH;
+#else
+  *path = DEFAULTPATH;
+#endif
+  *imagename="gforth.fi";
+}
+#else
+void gforth_args(int argc, char ** argv, char ** path, char ** imagename)
+{
+  int c;
+#ifdef HAS_OS
+  *path = getenv("GFORTHPATH") ? : DEFAULTPATH;
+#else
+  *path = DEFAULTPATH;
+#endif
+  *imagename="gforth.fi";
+
+  opterr=0;
+  while (1) {
+    int option_index=0;
+    static struct option opts[] = {
+      {"appl-image", required_argument, NULL, 'a'},
+      {"image-file", required_argument, NULL, 'i'},
+      {"dictionary-size", required_argument, NULL, 'm'},
+      {"data-stack-size", required_argument, NULL, 'd'},
+      {"return-stack-size", required_argument, NULL, 'r'},
+      {"fp-stack-size", required_argument, NULL, 'f'},
+      {"locals-stack-size", required_argument, NULL, 'l'},
+      {"vm-commit", no_argument, &map_noreserve, 0},
+      {"path", required_argument, NULL, 'p'},
+      {"version", no_argument, NULL, 'v'},
+      {"help", no_argument, NULL, 'h'},
+      /* put something != 0 into offset_image */
+      {"offset-image", no_argument, &offset_image, 1},
+      {"no-offset-im", no_argument, &offset_image, 0},
+      {"clear-dictionary", no_argument, &clear_dictionary, 1},
+      {"debug", no_argument, &debug, 1},
+      {"diag", no_argument, NULL, 'D'},
+      {"die-on-signal", no_argument, &die_on_signal, 1},
+      {"ignore-async-signals", no_argument, &ignore_async_signals, 1},
+      {"no-super", no_argument, &no_super, 1},
+      {"no-dynamic", no_argument, &no_dynamic, 1},
+      {"dynamic", no_argument, &no_dynamic, 0},
+      {"code-block-size", required_argument, NULL, opt_code_block_size},
+      {"print-metrics", no_argument, &print_metrics, 1},
+      {"print-sequences", no_argument, &print_sequences, 1},
+      {"ss-number", required_argument, NULL, ss_number},
+      {"ss-states", required_argument, NULL, ss_states},
+#ifndef NO_DYNAMIC
+      {"ss-min-codesize", no_argument, NULL, ss_min_codesize},
+#endif
+      {"ss-min-ls",       no_argument, NULL, ss_min_ls},
+      {"ss-min-lsu",      no_argument, NULL, ss_min_lsu},
+      {"ss-min-nexts",    no_argument, NULL, ss_min_nexts},
+      {"ss-greedy",       no_argument, &ss_greedy, 1},
+      {"tpa-noequiv",     no_argument, &tpa_noequiv, 1},
+      {"tpa-noautomaton", no_argument, &tpa_noautomaton, 1},
+      {"tpa-trace",	  no_argument, &tpa_trace, 1},
+      {0,0,0,0}
+      /* no-init-file, no-rc? */
+    };
+    
+    c = getopt_long(argc, argv, "+i:m:d:r:f:l:p:vhoncsxD", opts, &option_index);
+    
+    switch (c) {
+    case EOF: return;
+    case '?': optind--; return;
+    case 'a': *imagename = optarg; return;
+    case 'i': *imagename = optarg; break;
+    case 'm': dictsize = convsize(optarg,sizeof(Cell)); break;
+    case 'd': dsize = convsize(optarg,sizeof(Cell)); break;
+    case 'r': rsize = convsize(optarg,sizeof(Cell)); break;
+    case 'f': fsize = convsize(optarg,sizeof(Float)); break;
+    case 'l': lsize = convsize(optarg,sizeof(Cell)); break;
+    case 'p': *path = optarg; break;
+    case 'o': offset_image = 1; break;
+    case 'n': offset_image = 0; break;
+    case 'c': clear_dictionary = 1; break;
+    case 's': die_on_signal = 1; break;
+    case 'x': debug = 1; break;
+    case 'D': print_diag(); break;
+    case 'v': fputs(PACKAGE_STRING"\n", stderr); exit(0);
+    case opt_code_block_size: code_area_size = atoi(optarg); break;
+    case ss_number: static_super_number = atoi(optarg); break;
+    case ss_states: maxstates = max(min(atoi(optarg),MAX_STATE),1); break;
+#ifndef NO_DYNAMIC
+    case ss_min_codesize: ss_cost = cost_codesize; break;
+#endif
+    case ss_min_ls:       ss_cost = cost_ls;       break;
+    case ss_min_lsu:      ss_cost = cost_lsu;      break;
+    case ss_min_nexts:    ss_cost = cost_nexts;    break;
+    case 'h': 
+      fprintf(stderr, "Usage: %s [engine options] ['--'] [image arguments]\n\
+Engine Options:\n\
+  --appl-image FILE		    Equivalent to '--image-file=FILE --'\n\
+  --clear-dictionary		    Initialize the dictionary with 0 bytes\n\
+  --code-block-size=SIZE            size of native code blocks [512KB]\n\
+  -d SIZE, --data-stack-size=SIZE   Specify data stack size\n\
+  --debug			    Print debugging information during startup\n\
+  -D, --diag			    Print diagnostic information during startup\n\
+  --die-on-signal		    Exit instead of THROWing some signals\n\
+  --dynamic			    Use dynamic native code\n\
+  -f SIZE, --fp-stack-size=SIZE	    Specify floating point stack size\n\
+  -h, --help			    Print this message and exit\n\
+  --ignore-async-signals	    Ignore instead of THROWing async. signals\n\
+  -i FILE, --image-file=FILE	    Use image FILE instead of `gforth.fi'\n\
+  -l SIZE, --locals-stack-size=SIZE Specify locals stack size\n\
+  -m SIZE, --dictionary-size=SIZE   Specify Forth dictionary size\n\
+  --no-dynamic			    Use only statically compiled primitives\n\
+  --no-offset-im		    Load image at normal position\n\
+  --no-super			    No dynamically formed superinstructions\n\
+  --offset-image		    Load image at a different position\n\
+  -p PATH, --path=PATH		    Search path for finding image and sources\n\
+  --print-metrics		    Print some code generation metrics on exit\n\
+  --print-sequences		    Print primitive sequences for optimization\n\
+  -r SIZE, --return-stack-size=SIZE Specify return stack size\n\
+  --ss-greedy			    Greedy, not optimal superinst selection\n\
+  --ss-min-codesize		    Select superinsts for smallest native code\n\
+  --ss-min-ls			    Minimize loads and stores\n\
+  --ss-min-lsu			    Minimize loads, stores, and pointer updates\n\
+  --ss-min-nexts		    Minimize the number of static superinsts\n\
+  --ss-number=N			    Use N static superinsts (default max)\n\
+  --ss-states=N			    N states for stack caching (default max)\n\
+  --tpa-noequiv			    Automaton without state equivalence\n\
+  --tpa-noautomaton		    Dynamic programming only\n\
+  --tpa-trace			    Report new states etc.\n\
+  -v, --version			    Print engine version and exit\n\
+  --vm-commit			    Use OS default for memory overcommit\n\
+SIZE arguments consist of an integer followed by a unit. The unit can be\n\
+  `b' (byte), `e' (element; default), `k' (KB), `M' (MB), `G' (GB) or `T' (TB).\n",
+	      argv[0]);
+      optind--;
+      return;
+    }
+  }
+}
+#endif
+#endif
+
+#ifdef STANDALONE
 Cell data_abort_pc;
 
 void data_abort_C(void)
@@ -2349,84 +2351,115 @@ void* gforth_pointers(Cell n)
   case 7: return (void*)&tilde_cstr;
 #endif
   case 8: return (void*)&throw_jmp_handler;
+  case 9: return (void*)&gforth_stacks;
   default: return NULL;
   }
 }
 
-void gforth_init(int argc, char **argv, char **env, char ** path, char ** imagename)
+void gforth_printmetrics()
 {
-#if 0 && defined(__i386)
-  /* disabled because the drawbacks may be worse than the benefits */
-  /* set 387 precision control to use 53-bit mantissae to avoid most
-     cases of double rounding */
-  short fpu_control = 0x027f ;
-  asm("fldcw %0" : : "m"(fpu_control));
-#endif /* defined(__i386) */
-
-#ifdef MACOSX_DEPLOYMENT_TARGET
-  setenv("MACOSX_DEPLOYMENT_TARGET", MACOSX_DEPLOYMENT_TARGET, 0);
-#endif
-#ifdef LTDL_LIBRARY_PATH
-  setenv("LTDL_LIBRARY_PATH", LTDL_LIBRARY_PATH, 0);
-#endif
+  if (print_metrics) {
+    int i;
+    fprintf(stderr, "code size = %8ld\n", dyncodesize());
 #ifndef STANDALONE
-  /* buffering of the user output device */
-#ifdef _IONBF
-  if (isatty(fileno(stdout))) {
-    fflush(stdout);
-    setvbuf(stdout,NULL,_IONBF,0);
+    for (i=0; i<sizeof(cost_sums)/sizeof(cost_sums[0]); i++)
+      fprintf(stderr, "metric %8s: %8ld\n",
+	      cost_sums[i].metricname, cost_sums[i].sum);
+#endif
+    fprintf(stderr,"lb_basic_blocks = %ld\n", lb_basic_blocks);
+    fprintf(stderr,"lb_labeler_steps = %ld\n", lb_labeler_steps);
+    fprintf(stderr,"lb_labeler_automaton = %ld\n", lb_labeler_automaton);
+    fprintf(stderr,"lb_labeler_dynprog = %ld\n", lb_labeler_dynprog);
+    fprintf(stderr,"lb_newstate_equiv = %ld\n", lb_newstate_equiv);
+    fprintf(stderr,"lb_newstate_new = %ld\n", lb_newstate_new);
+    fprintf(stderr,"lb_applicable_base_rules = %ld\n", lb_applicable_base_rules);
+    fprintf(stderr,"lb_applicable_chain_rules = %ld\n", lb_applicable_chain_rules);
   }
-#endif
-  setlocale(LC_ALL, "");
-  setlocale(LC_NUMERIC, "C");
-#else
-  prep_terminal();
-#endif
+  if (tpa_trace) {
+    fprintf(stderr, "%ld %ld lb_states\n", lb_labeler_steps, lb_newstate_new);
+    fprintf(stderr, "%ld %ld lb_table_entries\n", lb_labeler_steps, lb_labeler_dynprog);
+  }
+}
 
+void gforth_cleanup()
+{
+#if defined(SIGPIPE) && !defined(STANDALONE)
+  bsd_signal(SIGPIPE, SIG_IGN);
+#endif
+#ifdef VM_PROFILING
+  vm_print_profile(stderr);
+#endif
+  deprep_terminal();
 #ifndef STANDALONE
 #ifdef HAVE_LIBLTDL
-  if (lt_dlinit()!=0) {
-    fprintf(stderr,"%s: lt_dlinit failed", progname);
-    exit(1);
+  if (lt_dlexit()!=0)
+    fprintf(stderr,"%s: lt_dlexit failed", progname);
+#endif
+#endif
+}
+
+user_area* gforth_stacks(Cell dsize, Cell rsize, Cell fsize, Cell lsize)
+{
+#ifdef SIGSTKSZ
+  stack_t sigstack;
+  int sas_retval=-1;
+#endif
+  size_t totalsize;
+  Cell a;
+  user_area * up0;
+  Cell dsizep = wholepage(dsize);
+  Cell rsizep = wholepage(rsize);
+  Cell fsizep = wholepage(fsize);
+  Cell lsizep = wholepage(lsize);
+  totalsize = dsizep+fsizep+rsizep+lsizep+6*pagesize;
+#ifdef SIGSTKSZ
+  totalsize += 2*SIGSTKSZ;
+#endif
+  a = (Cell)alloc_mmap(totalsize);
+  if (a != (Cell)MAP_FAILED) {
+    up0=(user_area*)a; a+=pagesize;
+    page_noaccess((void*)a); a+=pagesize; up0->sp0=a+dsize; a+=dsizep;
+    page_noaccess((void*)a); a+=pagesize; up0->rp0=a+rsize; a+=rsizep;
+    page_noaccess((void*)a); a+=pagesize; up0->fp0=a+fsize; a+=fsizep;
+    page_noaccess((void*)a); a+=pagesize; up0->lp0=a+lsize; a+=lsizep;
+    page_noaccess((void*)a); a+=pagesize;
+#ifdef SIGSTKSZ
+    sigstack.ss_sp=(void*)a+SIGSTKSZ;
+    sigstack.ss_size=SIGSTKSZ;
+    sas_retval=sigaltstack(&sigstack,(stack_t *)0);
+#if defined(HAS_FILE) || !defined(STANDALONE)
+    debugp(stderr,"sigaltstack: %s\n",strerror(sas_retval));
+#endif
+#endif
+    return up0;
   }
-#endif
-#ifdef HAS_OS
-  gforth_args(argc, argv, path, imagename);
-#ifndef NO_DYNAMIC
-  init_ss_cost();
-#endif /* !defined(NO_DYNAMIC) */
-#endif /* defined(HAS_OS) */
-#endif
+  return 0;
+}
+
+void gforth_setstacks()
+{
+  gforth_UP->next_task = NULL; /* mark user area as need-to-be-set */
+  gforth_SP = gforth_UP->sp0;
+  gforth_RP = gforth_UP->rp0;
+  gforth_FP = gforth_UP->fp0;
+  gforth_LP = gforth_UP->lp0;
 }
 
 int gforth_main(int argc, char **argv, char **env)
 {
-#ifdef HAS_OS
-  char *path = getenv("GFORTHPATH") ? : DEFAULTPATH;
-#else
-  char *path = DEFAULTPATH;
-#endif
+  char *path, *imagename;
   int retvalue;
   Address image;
-  char *imagename="gforth.fi";
-  FILE *image_file;
+  user_area* task;
 
   progname = argv[0];
 
-  gforth_init(argc, argv, env, &path, &imagename);
-
-  code_here = ((void *)0)+code_area_size;
-#ifdef STANDALONE
-  image = gforth_engine(0, 0, 0, 0, 0 sr_call);
-#else
-  image_file = open_image_file(imagename, path);
-  image = gforth_loader(image_file, imagename);
-#endif
-  alloc_stacks((ImageHeader *)image);
+  gforth_args(argc, argv, &path, &imagename);
+  image = gforth_loader(imagename, path);
+  gforth_UP = gforth_stacks(dsize, rsize, fsize, lsize);
+  gforth_setstacks();
   gforth_header=(ImageHeader *)image; /* used in SIGSEGV handler */
 
-  if (diag)
-    print_diag();
   {
     char path2[strlen(path)+1];
     char *p1, *p2;
@@ -2448,40 +2481,8 @@ int gforth_main(int argc, char **argv, char **env)
 	*p2 = *p1;
     *p2='\0';
     retvalue = gforth_go(image, 4, environ);
-#if defined(SIGPIPE) && !defined(STANDALONE)
-    bsd_signal(SIGPIPE, SIG_IGN);
-#endif
-#ifdef VM_PROFILING
-    vm_print_profile(stderr);
-#endif
-    deprep_terminal();
-#ifndef STANDALONE
-#ifdef HAVE_LIBLTDL
-    if (lt_dlexit()!=0)
-      fprintf(stderr,"%s: lt_dlexit failed", progname);
-#endif
-#endif
-  }
-  if (print_metrics) {
-    int i;
-    fprintf(stderr, "code size = %8ld\n", dyncodesize());
-#ifndef STANDALONE
-    for (i=0; i<sizeof(cost_sums)/sizeof(cost_sums[0]); i++)
-      fprintf(stderr, "metric %8s: %8ld\n",
-	      cost_sums[i].metricname, cost_sums[i].sum);
-#endif
-    fprintf(stderr,"lb_basic_blocks = %ld\n", lb_basic_blocks);
-    fprintf(stderr,"lb_labeler_steps = %ld\n", lb_labeler_steps);
-    fprintf(stderr,"lb_labeler_automaton = %ld\n", lb_labeler_automaton);
-    fprintf(stderr,"lb_labeler_dynprog = %ld\n", lb_labeler_dynprog);
-    fprintf(stderr,"lb_newstate_equiv = %ld\n", lb_newstate_equiv);
-    fprintf(stderr,"lb_newstate_new = %ld\n", lb_newstate_new);
-    fprintf(stderr,"lb_applicable_base_rules = %ld\n", lb_applicable_base_rules);
-    fprintf(stderr,"lb_applicable_chain_rules = %ld\n", lb_applicable_chain_rules);
-  }
-  if (tpa_trace) {
-    fprintf(stderr, "%ld %ld lb_states\n", lb_labeler_steps, lb_newstate_new);
-    fprintf(stderr, "%ld %ld lb_table_entries\n", lb_labeler_steps, lb_labeler_dynprog);
+    gforth_cleanup();
+    gforth_printmetrics();
   }
   return retvalue;
 }

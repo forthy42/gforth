@@ -1132,7 +1132,14 @@ has? new-input 0= [IF]
 
 : boot ( path n **argv argc -- )
 [ has? no-userspace 0= [IF] ]
-    main-task up!
+    next-task 0= IF  main-task up!
+    ELSE
+	next-task @ 0= IF
+	    throw-entry main-task udp @ throw-entry next-task -
+	    /string >r swap r> move
+	    next-task dup next-task 2!  normal-dp dpp !
+	THEN
+    THEN
 [ [THEN] ]
 [ has? os [IF] ]
     os-boot

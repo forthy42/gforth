@@ -303,6 +303,17 @@ typedef Label *Xt;
 #define rpTOS (rp[0])
 
 typedef struct {
+  Cell next_task;
+  Cell prev_task;
+  Cell save_task;
+  Cell* sp0;
+  Cell* rp0;
+  Float* fp0;
+  Address lp0;
+  Xt *throw_entry;
+} user_area;
+
+typedef struct {
   Address base;		/* base address of image (0 if relocatable) */
   UCell checksum;	/* checksum of ca's to protect against some
 			   incompatible	binary/executable combinations
@@ -386,7 +397,14 @@ Label *gforth_engine(Xt *ip, Cell *sp, Cell *rp0, Float *fp, Address lp sr_proto
 Label *gforth_engine2(Xt *ip, Cell *sp, Cell *rp0, Float *fp, Address lp sr_proto);
 Label *gforth_engine3(Xt *ip, Cell *sp, Cell *rp0, Float *fp, Address lp sr_proto);
 
+
 int gforth_main(int argc, char **argv, char **env);
+void gforth_args(int argc, char ** argv, char ** path, char ** imagename);
+Address gforth_loader(char* imagename, char* path);
+user_area* gforth_stacks(Cell dsize, Cell rsize, Cell fsize, Cell lsize);
+int gforth_go(void *image, int stack, Cell *entries);
+void gforth_cleanup();
+void gforth_printmetrics();
 
 /* for ABI-CODE and ;ABI-CODE */
 typedef Cell *abifunc(Cell *sp, Float **fpp);
@@ -471,7 +489,7 @@ extern PER_THREAD Cell *gforth_SP;
 extern PER_THREAD Cell *gforth_RP;
 extern PER_THREAD Address gforth_LP;
 extern PER_THREAD Float *gforth_FP;
-extern PER_THREAD Address gforth_UP;
+extern PER_THREAD user_area* gforth_UP;
 
 extern void * gforth_pointers(Cell n);
 

@@ -40,10 +40,14 @@
     LOOP
     maxalign ;
 
+: update-maintask ( -- )
+    throw-entry main-task udp @ throw-entry next-task - /string move ;
+
 : dump-fi ( addr u -- )
     w/o bin create-file throw >r
     update-image-included-files
     update-image-order
+    update-maintask
     here forthstart - forthstart 2 cells + !
     forthstart
     begin \ search for start of file ("#! " at a multiple of 8)

@@ -192,26 +192,27 @@ static void fpe_handler(int sig, siginfo_t *info, void *_)
 #define JUSTOVER(addr1,addr2) (((UCell)((addr1)-(addr2)))<SPILLAGE)
 
 #define NEXTPAGE(addr) ((Address)((((UCell)(addr)-1)&-pagesize)+pagesize))
+#define NEXTPAGE2(addr) ((Address)((((UCell)(addr)-1)&-pagesize)+2*pagesize))
+#define NEXTPAGE3(addr) ((Address)((((UCell)(addr)-1)&-pagesize)+3*pagesize))
 
 static void segv_handler(int sig, siginfo_t *info, void *_)
 {
   int code=-9;
   Address addr=info->si_addr;
-  ImageHeader *h=gforth_header;
 
-  debugp(stderr,"\nsegv_handler %d %p %p\n", sig, info, _);
+  debugp(stderr,"\nsegv_handler %d %p %p @%p\n", sig, info, _, addr);
 
-  if (JUSTUNDER(addr, h->data_stack_base))
+  if (JUSTUNDER(addr, NEXTPAGE3(gforth_UP)))
     code=-3;
-  else if (JUSTOVER(addr, NEXTPAGE(h->data_stack_base+h->data_stack_size)))
+  else if (JUSTOVER(addr, NEXTPAGE(gforth_UP->sp0)))
     code=-4;
-  else if (JUSTUNDER(addr, h->return_stack_base))
+  else if (JUSTUNDER(addr, NEXTPAGE2(gforth_UP->sp0)))
     code=-5;
-  else if (JUSTOVER(addr, NEXTPAGE(h->return_stack_base+h->return_stack_size)))
+  else if (JUSTOVER(addr, NEXTPAGE(gforth_UP->rp0)))
     code=-6;
-  else if (JUSTUNDER(addr, h->fp_stack_base))
+  else if (JUSTUNDER(addr, NEXTPAGE2(gforth_UP->rp0)))
     code=-44;
-  else if (JUSTOVER(addr, NEXTPAGE(h->fp_stack_base+h->fp_stack_size)))
+  else if (JUSTOVER(addr, NEXTPAGE(gforth_UP->fp0)))
     code=-45;
   throw(code);
 }
@@ -416,6 +417,8 @@ void install_signal_handlers(void)
   };
   int i;
   void (*throw_handler)() = die_on_signal ? graceful_exit : signal_throw;
+#if 0
+  /* sigaltstack is now called by gforth_stacks() */
 #if defined(SIGSTKSZ)
   stack_t sigstack;
   int sas_retval=-1;
@@ -432,6 +435,7 @@ void install_signal_handlers(void)
   }
 #if defined(HAS_FILE) || !defined(STANDALONE)
   debugp(stderr,"sigaltstack: %s\n",strerror(sas_retval));
+#endif
 #endif
 #endif
 
