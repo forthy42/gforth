@@ -28,10 +28,24 @@
 #endif
 
 typedef CELL_TYPE Cell;
+typedef unsigned char Char;
 typedef double Float;
+typedef Char *Address;
+typedef void **Xt;
 
 #define Clongest long long
 typedef unsigned Clongest UClongest;
+
+typedef struct {
+  Cell next_task;
+  Cell prev_task;
+  Cell save_task;
+  Cell* sp0;
+  Cell* rp0;
+  Float* fp0;
+  Address lp0;
+  Xt *throw_entry;
+} user_area;
 
 #ifdef HAS_BACKLINK
 extern __thread Cell *gforth_SP;
@@ -43,6 +57,7 @@ extern void *gforth_engine(void *, Cell *, Cell *, Float *, char *);
 extern char *cstr(char *from, Cell size);
 extern char *tilde_cstr(char *from, Cell size);
 extern __thread jmp_buf *throw_jmp_handler;
+extern user_area* gforth_stacks();
 #define GFORTH_ARGS void
 #else
 #define gforth_SP *((Cell **)(gforth_pointers(0)))
@@ -50,10 +65,11 @@ extern __thread jmp_buf *throw_jmp_handler;
 #define gforth_LP *((char **)(gforth_pointers(2)))
 #define gforth_RP *((Cell **)(gforth_pointers(3)))
 #define gforth_UP *((char **)(gforth_pointers(4)))
-#define gforth_engine ((char *(*)(void *, Cell *, Cell *, Float *, char *))(((void **)(gforth_pointers(5)))))
-#define cstr ((char *(*)(char *, Cell))(((void **)(gforth_pointers(6)))))
-#define tilde_cstr ((char *(*)(char *, Cell))(((void **)(gforth_pointers(7)))))
+#define gforth_engine ((char *(*)(void *, Cell *, Cell *, Float *, char *))gforth_pointers(5))
+#define cstr ((char *(*)(char *, Cell))gforth_pointers(6))
+#define tilde_cstr ((char *(*)(char *, Cell))gforth_pointers(7))
 #define throw_jmp_handler *((jmp_buf**)(gforth_pointers(8)))
+#define gforth_stacks ((user_area *(*)())gforth_pointers(9))
 #define GFORTH_ARGS void *(*gforth_pointers)(Cell)
 #endif
 
