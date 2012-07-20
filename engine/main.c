@@ -68,6 +68,26 @@ PER_THREAD Address gforth_UP=NULL;
 PER_THREAD Cell *gforth_RP;
 PER_THREAD Address gforth_LP;
 
+void gforth_push(Cell n)
+{
+  *--gforth_SP=n;
+}
+
+Cell gforth_pop()
+{
+  return *gforth_SP++;
+}
+
+void gforth_fpush(Float r)
+{
+  *--gforth_FP=r;
+}
+
+Float gforth_fpop()
+{
+  return *gforth_FP++;
+}
+
 #ifdef HAS_FFCALL
 
 #include <callback.h>
@@ -1960,7 +1980,6 @@ Address gforth_loader(FILE *imagefile, char* filename)
 			  dictsize, data_offset);
   imp=image+preamblesize;
 
-  alloc_stacks((ImageHeader *)imp);
   if (clear_dictionary)
     memset(imp+header.image_size, 0, dictsize-header.image_size-preamblesize);
   if(header.base==0 || header.base  == (Address)0x100) {
@@ -2334,19 +2353,8 @@ void* gforth_pointers(Cell n)
   }
 }
 
-int gforth_main(int argc, char **argv, char **env)
+void gforth_init(int argc, char **argv, char **env, char ** path, char ** imagename)
 {
-#ifdef HAS_OS
-  char *path = getenv("GFORTHPATH") ? : DEFAULTPATH;
-#else
-  char *path = DEFAULTPATH;
-#endif
-#ifndef INCLUDE_IMAGE
-  char *imagename="gforth.fi";
-  FILE *image_file;
-  Address image;
-#endif
-  int retvalue;
 #if 0 && defined(__i386)
   /* disabled because the drawbacks may be worse than the benefits */
   /* set 387 precision control to use 53-bit mantissae to avoid most
@@ -2375,8 +2383,6 @@ int gforth_main(int argc, char **argv, char **env)
   prep_terminal();
 #endif
 
-  progname = argv[0];
-
 #ifndef STANDALONE
 #ifdef HAVE_LIBLTDL
   if (lt_dlinit()!=0) {
@@ -2384,22 +2390,39 @@ int gforth_main(int argc, char **argv, char **env)
     exit(1);
   }
 #endif
-    
 #ifdef HAS_OS
-  gforth_args(argc, argv, &path, &imagename);
+  gforth_args(argc, argv, path, imagename);
 #ifndef NO_DYNAMIC
   init_ss_cost();
 #endif /* !defined(NO_DYNAMIC) */
 #endif /* defined(HAS_OS) */
 #endif
+}
+
+int gforth_main(int argc, char **argv, char **env)
+{
+#ifdef HAS_OS
+  char *path = getenv("GFORTHPATH") ? : DEFAULTPATH;
+#else
+  char *path = DEFAULTPATH;
+#endif
+  int retvalue;
+  Address image;
+  char *imagename="gforth.fi";
+  FILE *image_file;
+
+  progname = argv[0];
+
+  gforth_init(argc, argv, env, &path, &imagename);
+
   code_here = ((void *)0)+code_area_size;
 #ifdef STANDALONE
   image = gforth_engine(0, 0, 0, 0, 0 sr_call);
-  alloc_stacks((ImageHeader *)image);
 #else
   image_file = open_image_file(imagename, path);
   image = gforth_loader(image_file, imagename);
 #endif
+  alloc_stacks((ImageHeader *)image);
   gforth_header=(ImageHeader *)image; /* used in SIGSEGV handler */
 
   if (diag)
