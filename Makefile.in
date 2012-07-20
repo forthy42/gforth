@@ -917,7 +917,7 @@ libgforth$(OPT)$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/config.h @ke
 	if test -z "$(OPT)"; then \
 		for i in $(OPTS); do $(MAKE) optlibgforth OPT=$$i && $(MAKE) optlibgforth2 OPT=$$i && $(LN_S) engine/$@ $@ && break; done; \
 	else \
-		(cd engine && $(MAKE) $@ ) && \
+		(cd engine && $(MAKE) $@ ); \
 		@NO_CROSS@ $(MAKE) checkone check-nofast ENGINE=./engine/$@; \
 	fi
 
@@ -931,7 +931,7 @@ libgforth-fast$(OPT)$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE_FAST) engine/co
 	if test -z "$(OPT)"; then \
 		for i in $(OPTS); do $(MAKE) optlibgforth-fast OPT=$$i && $(MAKE) optlibgforth-fast2 OPT=$$i && $(LN_S) engine/$@ $@ && break; done; \
 	else \
-		(cd engine && $(MAKE) $@ ) && \
+		(cd engine && $(MAKE) $@ ); \
 		@NO_CROSS@ $(MAKE) checkone ENGINE=./engine/$@; \
 	fi
 
