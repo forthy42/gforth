@@ -17,8 +17,6 @@
   You should have received a copy of the GNU General Public License
   along with this program; if not, see http://www.gnu.org/licenses/.
 */
-#include <android/log.h>
-#include <android_native_app_glue.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -40,7 +38,6 @@ int gforth_server(int portno)
      if (sockfd < 0) 
        fprintf(stderr, "ERROR opening socket\n");
      bzero((char *) &serv_addr, sizeof(serv_addr));
-     portno = atoi(argv[1]);
      serv_addr.sin_family = AF_INET;
      serv_addr.sin_addr.s_addr = INADDR_ANY;
      serv_addr.sin_port = htons(portno);
@@ -53,17 +50,20 @@ int gforth_server(int portno)
                  (struct sockaddr *) &cli_addr, 
                  &clilen);
      if (newsockfd < 0) 
-       fprintf(error, "ERROR on accept\n");
+       fprintf(stderr, "ERROR on accept\n");
 
      return newsockfd;
 }
 
 #ifdef ANDROID
+#include <android/log.h>
+#include <android_native_app_glue.h>
+
 void android_main(struct android_app* state)
 {
   char *argv[] = { "gforth", NULL };
   char *env[] = { "HOME=/sdcard/gforth/home", NULL };
-  int sockfd = gforth_socket(4444);
+  int sockfd = gforth_server(4444);
 
   app_dummy();
 
@@ -76,7 +76,7 @@ void android_main(struct android_app* state)
 #else
 void main(int argc, char ** argv, char ** env)
 {
-  int sockfd = gforth_socket(4444);
+  int sockfd = gforth_server(4444);
 
   dup2(sockfd, 0); // set socket to stdin
   dup2(sockfd, 1); // set socket to stdout
