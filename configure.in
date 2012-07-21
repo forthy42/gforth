@@ -958,7 +958,6 @@ AC_CHECK_LIB(rt,clock_gettime)
 if test -n "$GNU_LIBTOOL" -a $ac_cv_lib_ltdl_lt_dlinit = yes; then
   build_libcc_named=build-libcc-named
 else
-  build_libcc_named=""
   AC_MSG_WARN([No GNU_LIBTOOL found, skip pre-building libcc-based libraries])
 fi
 AC_SUBST(build_libcc_named)

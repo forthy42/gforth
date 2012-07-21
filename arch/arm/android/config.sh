@@ -42,6 +42,7 @@ ac_cv_func_dlopen=yes
 ac_export_dynamic=yes
 CC=arm-linux-androideabi-gcc
 GNU_LIBTOOL=arm-linux-androideabi-libtool
+build_libcc_named=build-libcc-named
 KBOX=/data/data/kevinboone.androidterm/kbox
 mi_prefix=$KBOX
 asm_fs=arch/arm/asm.fs
