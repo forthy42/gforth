@@ -25,6 +25,7 @@
 #include <sys/types.h> 
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <stdarg.h>
 
 #include "forth.h"
 
@@ -55,16 +56,21 @@ int gforth_server(int portno)
      return newsockfd;
 }
 
-#ifdef ANDROID
+#ifdef __ANDROID__
 #include <android/log.h>
-#include <android_native_app_glue.h>
+#include "android_native_app_glue.h"
 
 void android_main(struct android_app* state)
 {
+  char statepointer[30];
   char *argv[] = { "gforth", NULL };
-  char *env[] = { "HOME=/sdcard/gforth/home", NULL };
+  char *env[] = { "HOME=/sdcard/gforth/home",
+		  "SHELL=/system/bin/sh",
+                  statepointer };
   int sockfd = gforth_server(4444);
 
+  snprintf(statepointer, sizeof(statepointer), "STATE=%p", state);
+  
   app_dummy();
 
   dup2(sockfd, 0); // set socket to stdin

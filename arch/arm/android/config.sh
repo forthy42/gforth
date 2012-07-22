@@ -1,9 +1,11 @@
 # First create a standalone toolchain directory
 #mkdir ~/proj/android-toolchain
 #cd  ~/proj/android-toolchain
-#~/proj/android-ndk-r6b/build/tools/make-standalone-toolchain.sh --platform=android-5 --ndk-dir=/home/bernd/proj/android-ndk-r6b --install-dir=$PWD
+#~/proj/android-ndk-r8b/build/tools/make-standalone-toolchain.sh --platform=android-14 --ndk-dir=/home/bernd/proj/android-ndk-r8b --install-dir=$PWD
 #configure with
 #./configure --host=arm --with-cross=android --prefix= --datarootdir=/sdcard --libdir=/sdcard --libexecdir=/lib --enable-lib
+#and finally create an apk in this directory
+#aapt package -v -f -m -M AndroidManifest.xml -A assets -S res -F gforth.apk
 (cd engine
 mkdir .libs
 for i in sigaltstack.o __set_errno.o
@@ -54,5 +56,6 @@ engine2='engine2$(OPT).o'
 engine_fast2='engine-fast2$(OPT).o'
 no_dynamic=""
 image_i=""
-signals_o="io.o signals.o sigaltstack.o __set_errno.o"
+LIBS="-llog -landroid"
+signals_o="io.o signals.o sigaltstack.o __set_errno.o ../arch/arm/android/androidmain.o ../arch/arm/android/android_native_app_glue.o"
 
