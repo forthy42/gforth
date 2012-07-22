@@ -681,6 +681,7 @@ long key_avail (FILE *stream)
   {
     chars_avail = poll(&fds, 1, 0);
   }
+#ifndef __ANDROID__
   if (chars_avail > 0) {
     /* getc won't block */
     int c = getc(stream);
@@ -688,6 +689,7 @@ long key_avail (FILE *stream)
       return 0;
     gf_ungetc(c, stream);
   }
+#endif
   return (chars_avail == -1) ? 0 : chars_avail;
 }
 
