@@ -59,10 +59,11 @@ has? kernel-size
     has? fstack-size ,  \ FP stack size
     has? rstack-size ,  \ return stack size
     has? lstack-size ,  \ locals stack size
-    0 A,                \ code entry point
+    0 A,                \ boot entry point
     0 A,                \ throw entry point
-    has? stack-size ,   \ unused (possibly tib stack size)
-    0 ,                 \ unused
+    0 A,                \ quit entry point
+    0 A,                \ execute entry point
+    0 ,                 \ base of DOUBLE_INDIRECT xts[], for comp-i.fs
 [THEN]
 
 doc-off
@@ -124,8 +125,10 @@ include ./pass.fs                    \ pass pointers from cross to target
 has? header [IF]
     \ set image size
     here image-header 2 cells + !         
-    \ set image entry point
-    ' boot >body  image-header 8 cells + A!         
+    ." set image entry point" cr
+    ' boot >body  image-header 8 cells + A!
+    ' quit >body  image-header #10 cells + A!
+    ' do-execute >body image-header #11 cells + A!
 [ELSE]
     >boot
 [THEN]

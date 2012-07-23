@@ -326,7 +326,8 @@ typedef struct {
   UCell locals_stack_size;
   Xt *boot_entry;	/* initial ip for booting (in BOOT) */
   Xt *throw_entry;	/* ip after signal (in THROW) */
-  Cell unused1;		/* possibly tib stack size */
+  Xt *quit_entry;
+  Xt *execute_entry;
   Label *xt_base;         /* base of DOUBLE_INDIRECT xts[], for comp-i.fs */
 } ImageHeader;
 /* the image-header is created in main.fs */
@@ -398,7 +399,7 @@ int gforth_main(int argc, char **argv, char **env);
 void gforth_args(int argc, char ** argv, char ** path, char ** imagename);
 Address gforth_loader(char* imagename, char* path);
 user_area* gforth_stacks(Cell dsize, Cell rsize, Cell fsize, Cell lsize);
-int gforth_go(void *image, int stack, Cell *entries);
+int gforth_go(Xt* ip0);
 void gforth_cleanup();
 void gforth_printmetrics();
 

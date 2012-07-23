@@ -62,7 +62,7 @@ s" address-unit-bits" environment? drop constant bits/au
     doffset 0= abort" images have the same dictionary base address"
     ." data offset=" doffset . cr
     ." code" image1 image2 cell     26 cells image-data { cbase coffset }
-    ."   xt" image1 image2 11 cells 22 cells image-data { xbase xoffset }
+    ."   xt" image1 image2 12 cells 22 cells image-data { xbase xoffset }
     size 0
     u+do
 	image1 i th @ image2 i th @ { cell1 cell2 }

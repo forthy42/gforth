@@ -1734,11 +1734,11 @@ cache.""
 FLUSH_ICACHE((caddr_t)c_addr,u);
 
 (bye)	( n -- )	gforth	paren_bye
+SUPER_END;
 gforth_FP=fp;
 gforth_SP=sp;
 gforth_RP=rp;
 gforth_LP=lp;
-SUPER_END;
 return (Label *)n;
 
 (system)	( c_addr u -- wretval wior )	gforth	paren_system

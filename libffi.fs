@@ -51,7 +51,7 @@ include-ffi.h-string save-c-prefix-line \ #include <ffi.h>
 \c     gforth_clist = args;
 \c     gforth_ritem = resp;
 \c
-\c     gforth_engine((Xt *)ip, sp, rp1, fp, lp);
+\c     gforth_engine((Xt *)ip);
 \c 
 \c     /* restore global variables */
 \c     gforth_RP = rp1;

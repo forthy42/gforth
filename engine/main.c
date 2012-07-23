@@ -651,10 +651,8 @@ void set_stack_sizes(ImageHeader * header)
 #define NEXTPAGE(addr) ((Address)((((UCell)(addr)-1)&-pagesize)+pagesize))
 #define NEXTPAGE2(addr) ((Address)((((UCell)(addr)-1)&-pagesize)+2*pagesize))
 
-int gforth_go(void *image, int stack, Cell *entries)
+int gforth_go(Xt* ip0)
 {
-  volatile ImageHeader *image_header = (ImageHeader *)image;
-  Xt *ip0=(Xt *)(image_header->boot_entry);
 #ifdef SYSSIGNALS
   int throw_code;
   jmp_buf throw_jmp_buf;
@@ -663,20 +661,7 @@ int gforth_go(void *image, int stack, Cell *entries)
   Cell signal_return_stack[16];
   Float signal_fp_stack[1];
 
-  /* ensure that the cached elements (if any) are accessible */
-#if !(defined(GFORTH_DEBUGGING) || defined(INDIRECT_THREADED) || defined(DOUBLY_INDIRECT) || defined(VM_PROFILING))
-  gforth_SP -= 8; /* make stuff below bottom accessible for stack caching */
-  gforth_FP--;
-#endif
-  
-  for(;stack>0;stack--)
-    *--gforth_SP=entries[stack-1];
-
 #if defined(SYSSIGNALS) && !defined(STANDALONE)
-  get_winsize();
-   
-  install_signal_handlers(); /* right place? */
-
   throw_jmp_handler = &throw_jmp_buf;
 
   debugp(stderr, "setjmp(%p)\n", *throw_jmp_handler);
@@ -700,7 +685,7 @@ int gforth_go(void *image, int stack, Cell *entries)
 #endif /* !defined(GFORTH_DEBUGGING) */
     /* fprintf(stderr, "rp=$%x\n",rp0);*/
     
-    ip0=image_header->throw_entry;
+    ip0=gforth_header->throw_entry;
     gforth_SP=signal_data_stack+15;
     gforth_FP=signal_fp_stack;
   }
@@ -1867,6 +1852,10 @@ void gforth_init()
 #endif /* defined(HAS_OS) */
 #endif
   code_here = ((void *)0)+code_area_size;
+
+  get_winsize();
+   
+  install_signal_handlers(); /* right place? */
 }
 
 /* pointer to last '/' or '\' in file, 0 if there is none. */
@@ -2437,6 +2426,13 @@ user_area* gforth_stacks(Cell dsize, Cell rsize, Cell fsize, Cell lsize)
 void gforth_setstacks()
 {
   gforth_UP->next_task = NULL; /* mark user area as need-to-be-set */
+
+  /* ensure that the cached elements (if any) are accessible */
+#if !(defined(GFORTH_DEBUGGING) || defined(INDIRECT_THREADED) || defined(DOUBLY_INDIRECT) || defined(VM_PROFILING))
+  gforth_UP->sp0 -= 8; /* make stuff below bottom accessible for stack caching */
+  gforth_UP->fp0--;
+#endif
+
   gforth_SP = gforth_UP->sp0;
   gforth_RP = gforth_UP->rp0;
   gforth_FP = gforth_UP->fp0;
@@ -2453,19 +2449,14 @@ int gforth_main(int argc, char **argv, char **env)
   progname = argv[0];
 
   gforth_args(argc, argv, &path, &imagename);
-  image = gforth_loader(imagename, path);
+  gforth_header = gforth_loader(imagename, path);
   gforth_UP = gforth_stacks(dsize, rsize, fsize, lsize);
   gforth_setstacks();
-  gforth_header=(ImageHeader *)image; /* used in SIGSEGV handler */
 
   {
     char path2[strlen(path)+1];
     char *p1, *p2;
-    Cell environ[]= {
-      (Cell)argc-(optind-1),
-      (Cell)(argv+(optind-1)),
-      (Cell)strlen(path),
-      (Cell)path2};
+
     argv[optind-1] = progname;
     /*
        for (i=0; i<environ[0]; i++)
@@ -2478,7 +2469,18 @@ int gforth_main(int argc, char **argv, char **env)
       else
 	*p2 = *p1;
     *p2='\0';
-    retvalue = gforth_go(image, 4, environ);
+
+    *--gforth_SP=(Cell)path2;
+    *--gforth_SP=(Cell)strlen(path);
+    *--gforth_SP=(Cell)(argv+(optind-1));
+    *--gforth_SP=(Cell)(argc-(optind-1));
+
+    debugp(stderr, "Booting Gforth: %p\n", gforth_header->boot_entry);
+    retvalue = gforth_go(gforth_header->boot_entry);
+    if(retvalue > 0) {
+      debugp(stderr, "Quit into Gforth: %p\n", gforth_header->quit_entry);
+      retvalue = gforth_go(gforth_header->quit_entry);
+    }
     gforth_cleanup();
     gforth_printmetrics();
   }

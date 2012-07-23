@@ -1068,6 +1068,10 @@ Defer mark-end
     [ [ELSE] ] r> >tib !
     [ [THEN] ] ;
 
+: do-execute ( xt -- ) \ Gforth
+    \G C calling us
+    catch dup IF  DoError cr  THEN  (bye) ;
+
 \ \ Cold Boot                                    	13feb93py
 
 : gforth ( -- )
@@ -1113,7 +1117,7 @@ Defer 'cold ( -- ) \ gforth  tick-cold
     loadline off
 [ [THEN] ]
     bootmessage
-    quit ;
+    1 (bye) ;
 
 has? new-input 0= [IF]
 : clear-tibstack ( -- )
@@ -1172,7 +1176,7 @@ has? new-input 0= [IF]
     cold
 [ [THEN] ]
 [ has? os [IF] ]
-    1 (bye) \ !! determin exit code from throw code?
+    -1 (bye) \ !! determin exit code from throw code?
 [ [THEN] ]
 ;
 
