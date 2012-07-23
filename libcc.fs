@@ -217,6 +217,8 @@ end-struct list%
 
 2variable c-libs \ library names in a string (without "lib")
 
+: lib-prefix ( -- addr u )  s" libgf" ;
+
 : add-lib ( c-addr u -- ) \ gforth
 \G Add library lib@i{string} to the list of libraries, where
     \G @i{string} is represented by @i{c-addr u}.
@@ -467,7 +469,7 @@ create gen-wrapped-types
     dup { descriptor }
     count { ret } count 2dup { d: pars } chars + count { d: c-name }
     ." void "
-    [ lib-suffix s" .la" str= [IF] ] ." lib" lib-modulename 2@ type ." _LTX_" [ [THEN] ]
+    [ lib-suffix s" .la" str= [IF] ] lib-prefix type lib-modulename 2@ type ." _LTX_" [ [THEN] ]
     descriptor wrapper-function-name 2dup type drop free throw
     .\" (GFORTH_ARGS)\n"
     .\" {\n  Cell MAYBE_UNUSED *sp = gforth_SP;\n  Float MAYBE_UNUSED *fp = gforth_FP;\n  "
@@ -512,7 +514,7 @@ create gen-wrapped-types
     2over s+ 2swap drop free throw ;
 
 : open-wrappers ( -- addr|0 )
-    lib-filename 2@ dirname s" lib" s+
+    lib-filename 2@ dirname lib-prefix s+
     lib-filename 2@ basename append lib-suffix append
     2dup libcc-named-dir string-prefix? if ( c-addr u )
 	\ see if we can open it in the path
@@ -608,7 +610,7 @@ DEFER compile-wrapper-function ( -- )
 	  libtool-cc append libtool-flags append s"  -module -rpath " s+ ] sliteral
 	lib-filename 2@ dirname replace-rpath s+ s"  " append
 	lib-filename 2@ append s" .lo -o " append
-	lib-filename 2@ dirname append s" lib" append
+	lib-filename 2@ dirname append lib-prefix append
 	lib-filename 2@ basename append s" .la" append ( c-addr u )
 	c-libs 2@ append
 	\    2dup type cr
