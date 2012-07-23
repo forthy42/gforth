@@ -673,7 +673,7 @@ install:	gforth$(EXT) $(FORTH_SRC) $(kernel_fi) gforthmi vmgen doc/gforth.1 prim
 		$(RM) install.TAGS @NO_CROSS@gforth.fi
 		$(INSTALL_DATA) include/gforth$(ARCH)/$(VERSION)/* $(DESTDIR)$(includedir)/gforth$(ARCH)/$(VERSION)
 		if test -n "$(LIBTOOL)"; then for i in $(LIBCC_BUILD_SRC); do \
-		   $(LIBTOOL) --silent --mode=install $(INSTALL) lib/gforth$(ARCH)/$(VERSION)/libcc-named/`basename $$i .fs`.la $(DESTDIR)$(libccdir)`basename $$i .fs`.la; \
+		   $(LIBTOOL) --silent --mode=install $(INSTALL) lib/gforth$(ARCH)/$(VERSION)/libcc-named/lib`basename $$i .fs`.la $(DESTDIR)$(libccdir)lib`basename $$i .fs`.la; \
 		done; fi
 		$(POST_INSTALL)
 		$(INSTALL_INFO) --info-dir=$(DESTDIR)$(infodir) $(DESTDIR)$(infodir)/gforth.info
