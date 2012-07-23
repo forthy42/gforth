@@ -400,6 +400,8 @@ void gforth_args(int argc, char ** argv, char ** path, char ** imagename);
 Address gforth_loader(char* imagename, char* path);
 user_area* gforth_stacks(Cell dsize, Cell rsize, Cell fsize, Cell lsize);
 int gforth_go(Xt* ip0);
+int gforth_boot(int argc, char** argv, char* path);
+int gforth_quit();
 void gforth_cleanup();
 void gforth_printmetrics();
 

@@ -2191,6 +2191,7 @@ void gforth_args(int argc, char ** argv, char ** path, char ** imagename)
   *path = DEFAULTPATH;
 #endif
   *imagename="gforth.fi";
+  progname = argv[0];
 
   opterr=0;
   while (1) {
@@ -2439,50 +2440,51 @@ void gforth_setstacks()
   gforth_LP = gforth_UP->lp0;
 }
 
+int gforth_boot(int argc, char** argv, char* path)
+{
+  char *path2=malloc(strlen(path)+1);
+  char *p1, *p2;
+  
+  argv[optind-1] = progname;
+  
+  /* make path OS-independent by replacing path separators with NUL */
+  for (p1=path, p2=path2; *p1!='\0'; p1++, p2++)
+    if (*p1==PATHSEP)
+      *p2 = '\0';
+    else
+      *p2 = *p1;
+  *p2='\0';
+  
+  *--gforth_SP=(Cell)path2;
+  *--gforth_SP=(Cell)strlen(path);
+  *--gforth_SP=(Cell)(argv+(optind-1));
+  *--gforth_SP=(Cell)(argc-(optind-1));
+  
+  debugp(stderr, "Booting Gforth: %p\n", gforth_header->boot_entry);
+  return gforth_go(gforth_header->boot_entry);
+}
+
+int gforth_quit()
+{
+  debugp(stderr, "Quit into Gforth: %p\n", gforth_header->quit_entry);
+  return gforth_go(gforth_header->quit_entry);
+}
+
 int gforth_main(int argc, char **argv, char **env)
 {
   char *path, *imagename;
   int retvalue;
-  Address image;
-  user_area* task;
-
-  progname = argv[0];
 
   gforth_args(argc, argv, &path, &imagename);
   gforth_header = gforth_loader(imagename, path);
   gforth_UP = gforth_stacks(dsize, rsize, fsize, lsize);
   gforth_setstacks();
-
-  {
-    char path2[strlen(path)+1];
-    char *p1, *p2;
-
-    argv[optind-1] = progname;
-    /*
-       for (i=0; i<environ[0]; i++)
-       printf("%s\n", ((char **)(environ[1]))[i]);
-       */
-    /* make path OS-independent by replacing path separators with NUL */
-    for (p1=path, p2=path2; *p1!='\0'; p1++, p2++)
-      if (*p1==PATHSEP)
-	*p2 = '\0';
-      else
-	*p2 = *p1;
-    *p2='\0';
-
-    *--gforth_SP=(Cell)path2;
-    *--gforth_SP=(Cell)strlen(path);
-    *--gforth_SP=(Cell)(argv+(optind-1));
-    *--gforth_SP=(Cell)(argc-(optind-1));
-
-    debugp(stderr, "Booting Gforth: %p\n", gforth_header->boot_entry);
-    retvalue = gforth_go(gforth_header->boot_entry);
-    if(retvalue > 0) {
-      debugp(stderr, "Quit into Gforth: %p\n", gforth_header->quit_entry);
-      retvalue = gforth_go(gforth_header->quit_entry);
-    }
-    gforth_cleanup();
-    gforth_printmetrics();
+  retvalue=gforth_boot(argc, argv, path);
+  if(retvalue > 0) {
+    retvalue = gforth_quit();
   }
+  gforth_cleanup();
+  gforth_printmetrics();
+
   return retvalue;
 }
