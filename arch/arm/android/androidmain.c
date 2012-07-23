@@ -29,31 +29,43 @@
 
 #include "forth.h"
 
-int gforth_server(int portno)
+int sockfd;
+
+void gforth_waitfor_client(int sig)
 {
-     int sockfd, newsockfd;
-     socklen_t clilen;
-     struct sockaddr_in serv_addr, cli_addr;
+  int newsockfd;
+  socklen_t clilen;
+  struct sockaddr_in cli_addr;
+  
+  listen(sockfd, 1);
+  clilen = sizeof(cli_addr);
+  newsockfd = accept(sockfd, 
+		     (struct sockaddr *) &cli_addr, 
+		     &clilen);
+  if (newsockfd < 0) 
+    fprintf(stderr, "ERROR on accept\n");
 
-     sockfd = socket(AF_INET, SOCK_STREAM, 0);
-     if (sockfd < 0) 
-       fprintf(stderr, "ERROR opening socket\n");
-     bzero((char *) &serv_addr, sizeof(serv_addr));
-     serv_addr.sin_family = AF_INET;
-     serv_addr.sin_addr.s_addr = INADDR_ANY;
-     serv_addr.sin_port = htons(portno);
-     if (bind(sockfd, (struct sockaddr *) &serv_addr,
-              sizeof(serv_addr)) < 0) 
-       fprintf(stderr, "ERROR on binding\n");
-     listen(sockfd,5);
-     clilen = sizeof(cli_addr);
-     newsockfd = accept(sockfd, 
-                 (struct sockaddr *) &cli_addr, 
-                 &clilen);
-     if (newsockfd < 0) 
-       fprintf(stderr, "ERROR on accept\n");
+  dup2(newsockfd, 0); // set socket to stdin
+  dup2(newsockfd, 1); // set socket to stdout
+  dup2(newsockfd, 2); // set socket to stderr
+}
 
-     return newsockfd;
+void gforth_server(int portno)
+{
+  struct sockaddr_in serv_addr;
+  
+  sockfd = socket(AF_INET, SOCK_STREAM, 0);
+  if (sockfd < 0) 
+    fprintf(stderr, "ERROR opening socket\n");
+  bzero((char *) &serv_addr, sizeof(serv_addr));
+  serv_addr.sin_family = AF_INET;
+  serv_addr.sin_addr.s_addr = INADDR_ANY;
+  serv_addr.sin_port = htons(portno);
+  if (bind(sockfd, (struct sockaddr *) &serv_addr,
+	   sizeof(serv_addr)) < 0) 
+    fprintf(stderr, "ERROR on binding\n");
+  
+  gforth_waitfor_client(0);
 }
 
 #ifdef __ANDROID__
@@ -64,8 +76,6 @@ void android_main(struct android_app* state)
 {
   char statepointer[30];
   char *argv[] = { "gforth", NULL };
-  int sockfd = gforth_server(4444);
-
   char *env[] = { "HOME=/sdcard/gforth/home",
 		  "SHELL=/system/bin/sh",
                   statepointer,
@@ -77,21 +87,15 @@ void android_main(struct android_app* state)
   setenv("APP_STATE", statepointer+10, 1);
   
   app_dummy();
-
-  dup2(sockfd, 0); // set socket to stdin
-  dup2(sockfd, 1); // set socket to stdout
-  dup2(sockfd, 2); // set socket to stderr
+  gforth_server(4444);
+  bsd_signal(SIGPIPE, gforth_waitfor_client); 
 
   gforth_main(1, argv, env);
 }
 #else
 void main(int argc, char ** argv, char ** env)
 {
-  int sockfd = gforth_server(4444);
-
-  dup2(sockfd, 0); // set socket to stdin
-  dup2(sockfd, 1); // set socket to stdout
-  dup2(sockfd, 2); // set socket to stderr
+  gforth_server(4444);
 
   gforth_main(argc, argv, env);
 }
