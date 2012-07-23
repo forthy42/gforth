@@ -64,12 +64,17 @@ void android_main(struct android_app* state)
 {
   char statepointer[30];
   char *argv[] = { "gforth", NULL };
-  char *env[] = { "HOME=/sdcard/gforth/home",
-		  "SHELL=/system/bin/sh",
-                  statepointer };
   int sockfd = gforth_server(4444);
 
-  snprintf(statepointer, sizeof(statepointer), "STATE=%p", state);
+  char *env[] = { "HOME=/sdcard/gforth/home",
+		  "SHELL=/system/bin/sh",
+                  statepointer,
+		  NULL };
+
+  snprintf(statepointer, sizeof(statepointer), "APP_STATE=%p", state);
+  setenv("HOME", "/sdcard/gforth/home", 1);
+  setenv("SHELL", "/system/bin/sh", 1);
+  setenv("APP_STATE", statepointer+10, 1);
   
   app_dummy();
 
