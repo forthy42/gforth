@@ -1734,6 +1734,10 @@ cache.""
 FLUSH_ICACHE((caddr_t)c_addr,u);
 
 (bye)	( n -- )	gforth	paren_bye
+gforth_FP=fp;
+gforth_SP=sp;
+gforth_RP=rp;
+gforth_LP=lp;
 SUPER_END;
 return (Label *)n;
 

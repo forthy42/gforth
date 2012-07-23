@@ -85,7 +85,7 @@ void gforth_callback(Xt* fcall, void * alist)
 
   gforth_clist = (va_alist)alist;
 
-  gforth_engine(fcall, sp, rp, fp, lp sr_call);
+  gforth_engine(fcall sr_call);
 
   /* restore global variables */
   gforth_RP = rp;
@@ -647,16 +647,13 @@ void set_stack_sizes(ImageHeader * header)
 }
 
 #warning You can ignore the warnings about clobbered variables in gforth_go
+
+#define NEXTPAGE(addr) ((Address)((((UCell)(addr)-1)&-pagesize)+pagesize))
+#define NEXTPAGE2(addr) ((Address)((((UCell)(addr)-1)&-pagesize)+2*pagesize))
+
 int gforth_go(void *image, int stack, Cell *entries)
 {
   volatile ImageHeader *image_header = (ImageHeader *)image;
-  Cell *sp0=gforth_SP;
-  Cell *rp0=gforth_RP;
-  Float *fp0=gforth_FP;
-#ifdef GFORTH_DEBUGGING
-  volatile Cell *orig_rp0=rp0;
-#endif
-  Address lp0=gforth_LP;
   Xt *ip0=(Xt *)(image_header->boot_entry);
 #ifdef SYSSIGNALS
   int throw_code;
@@ -668,12 +665,12 @@ int gforth_go(void *image, int stack, Cell *entries)
 
   /* ensure that the cached elements (if any) are accessible */
 #if !(defined(GFORTH_DEBUGGING) || defined(INDIRECT_THREADED) || defined(DOUBLY_INDIRECT) || defined(VM_PROFILING))
-  sp0 -= 8; /* make stuff below bottom accessible for stack caching */
-  fp0--;
+  gforth_SP -= 8; /* make stuff below bottom accessible for stack caching */
+  gforth_FP--;
 #endif
   
   for(;stack>0;stack--)
-    *--sp0=entries[stack-1];
+    *--gforth_SP=entries[stack-1];
 
 #if defined(SYSSIGNALS) && !defined(STANDALONE)
   get_winsize();
@@ -689,26 +686,27 @@ int gforth_go(void *image, int stack, Cell *entries)
 #ifdef GFORTH_DEBUGGING
     debugp(stderr,"\ncaught signal, throwing exception %d, ip=%p rp=%p\n",
 	      throw_code, saved_ip, rp);
-    if (rp <= orig_rp0 && rp > (Cell *)(image_header->return_stack_base+5)) {
+    if ((rp > NEXTPAGE2(gforth_UP->sp0)) &&
+	(rp < NEXTPAGE(gforth_UP->rp0))) {
       /* no rstack overflow or underflow */
-      rp0 = rp;
-      *--rp0 = (Cell)saved_ip;
+      gforth_RP = rp;
+      *--gforth_RP = (Cell)saved_ip;
     }
     else /* I love non-syntactic ifdefs :-) */
-      rp0 = signal_return_stack+16;
+      gforth_RP = signal_return_stack+16;
 #else  /* !defined(GFORTH_DEBUGGING) */
     debugp(stderr,"\ncaught signal, throwing exception %d\n", throw_code);
-    rp0 = signal_return_stack+16;
+    gforth_RP = signal_return_stack+16;
 #endif /* !defined(GFORTH_DEBUGGING) */
     /* fprintf(stderr, "rp=$%x\n",rp0);*/
     
     ip0=image_header->throw_entry;
-    sp0=signal_data_stack+15;
-    fp0=signal_fp_stack;
+    gforth_SP=signal_data_stack+15;
+    gforth_FP=signal_fp_stack;
   }
 #endif
 
-  return((int)(Cell)gforth_engine(ip0,sp0,rp0,fp0,lp0 sr_call));
+  return((int)(Cell)gforth_engine(ip0 sr_call));
 }
 
 #if !defined(INCLUDE_IMAGE) && !defined(STANDALONE)
@@ -915,9 +913,9 @@ static void check_prims(Label symbols1[])
 #ifndef NO_DYNAMIC
   if (no_dynamic)
     return;
-  symbols2=gforth_engine2(0,0,0,0,0 sr_call);
+  symbols2=gforth_engine2(0 sr_call);
 #if NO_IP
-  symbols3=gforth_engine3(0,0,0,0,0 sr_call);
+  symbols3=gforth_engine3(0 sr_call);
 #else
   symbols3=symbols1;
 #endif
@@ -1937,7 +1935,7 @@ static FILE * open_image_file(char * imagename, char * path)
 Address gforth_loader(char* imagename, char* path)
 {
   gforth_init();
-  return gforth_engine(0, 0, 0, 0, 0 sr_call);
+  return gforth_engine(0 sr_call);
 }
 #else
 Address gforth_loader(char* imagename, char* path)
@@ -1971,7 +1969,7 @@ Address gforth_loader(char* imagename, char* path)
 
   gforth_init();
 
-  vm_prims = gforth_engine(0,0,0,0,0 sr_call);
+  vm_prims = gforth_engine(0 sr_call);
   check_prims(vm_prims);
   prepare_super_table();
 #ifndef DOUBLY_INDIRECT

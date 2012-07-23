@@ -266,7 +266,7 @@ defer save-c-prefix-line ( c-addr u -- )
     \G One line of C declarations for the C interface
     -1 parse save-c-prefix-line ;
 
-s" #include <gforth" arch-modifier s+ s" /" s+ version-string s+ s" /libcc.h>" append ( c-addr u )
+s" #include <gforth" arch-modifier s+ s" /" append version-string append s" /libcc.h>" append ( c-addr u )
   2dup save-c-prefix-line drop free throw
 
 \ Types (for parsing)
@@ -512,7 +512,8 @@ create gen-wrapped-types
     2over s+ 2swap drop free throw ;
 
 : open-wrappers ( -- addr|0 )
-    lib-filename 2@ dirname s" lib" s+ lib-filename 2@ basename s+ lib-suffix s+
+    lib-filename 2@ dirname s" lib" s+
+    lib-filename 2@ basename append lib-suffix append
     2dup libcc-named-dir string-prefix? if ( c-addr u )
 	\ see if we can open it in the path
 	libcc-named-dir nip /string

@@ -59,10 +59,10 @@ c-library pthread
     \c   Cell signal_return_stack[16];
     \c   Float signal_fp_stack[1];
     \c   void *ip0=(void*)(t->save_task);
-    \c   Cell *sp0=(Cell*)(t->sp0)-1;
-    \c   Cell *rp0=(Cell*)(t->rp0);
-    \c   Float *fp0=(Float*)(t->fp0);
-    \c   void *lp0=(void*)(t->lp0);
+    \c   gforth_SP=(Cell*)(t->sp0)-1;
+    \c   gforth_RP=(Cell*)(t->rp0);
+    \c   gforth_FP=(Float*)(t->fp0);
+    \c   gforth_LP=(void*)(t->lp0);
     \c
     \c   pthread_cleanup_push(&gforth_cleanup_thread, (void*)t);
     \c 
@@ -72,11 +72,11 @@ c-library pthread
     \c   while((throw_code=setjmp(*throw_jmp_handler))) {
     \c     signal_data_stack[15]=throw_code;
     \c     ip0=(void*)(t->throw_entry);
-    \c     sp0=signal_data_stack+15;
-    \c     rp0=signal_return_stack+16;
-    \c     fp0=signal_fp_stack;
+    \c     gforth_SP=signal_data_stack+15;
+    \c     gforth_RP=signal_return_stack+16;
+    \c     gforth_FP=signal_fp_stack;
     \c   }
-    \c   x=gforth_engine(ip0, sp0, rp0, fp0, lp0);
+    \c   x=gforth_engine(ip0);
     \c   pthread_cleanup_pop(1);
     \c   pthread_exit(x);
     \c }

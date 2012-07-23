@@ -63,10 +63,6 @@ has? kernel-size
     0 A,                \ throw entry point
     has? stack-size ,   \ unused (possibly tib stack size)
     0 ,                 \ unused
-    0 ,                 \ data stack base
-    0 ,                 \ fp stack base
-    0 ,                 \ return stack base
-    0 ,                 \ locals stack base
 [THEN]
 
 doc-off

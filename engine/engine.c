@@ -320,7 +320,7 @@ void throw(int code)
 /* the asm(""); is there to get a stop compiled on Itanium */
 #define LABEL2(name) K_##name: asm("");
 
-Label *gforth_engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0 sr_proto)
+Label *gforth_engine(Xt *ip0 sr_proto)
 /* executes code at ip, if ip!=NULL
    returns array of machine code labels (for use in a loader), if ip==NULL
 */
@@ -335,9 +335,9 @@ Label *gforth_engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0 sr_p
 #ifndef NO_IP
   register Xt *ip IPREG = ip0;
 #endif
-  register Cell *sp SPREG = sp0;
-  register Float *fp FPREG = fp0;
-  register Address lp LPREG = lp0;
+  register Cell *sp SPREG = gforth_SP;
+  register Float *fp FPREG = gforth_FP;
+  register Address lp LPREG = gforth_LP;
   register Xt cfa CFAREG;
   register Label real_ca CAREG;
 #ifdef HAS_OBJECTS
@@ -402,7 +402,7 @@ Label *gforth_engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0 sr_p
   CPU_DEP2
 #endif
 
-  rp = rp0;
+  rp = gforth_RP;
 #ifdef DEBUG
   fprintf(stderr,"ip=%x, sp=%x, rp=%x, fp=%x, lp=%x, up=%x\n",
           (unsigned)ip0,(unsigned)sp,(unsigned)rp,

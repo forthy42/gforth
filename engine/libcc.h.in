@@ -53,7 +53,7 @@ extern __thread Float *gforth_FP;
 extern __thread Cell *gforth_RP;
 extern __thread char *gforth_LP;
 extern __thread char *gforth_UP;
-extern void *gforth_engine(void *, Cell *, Cell *, Float *, char *);
+extern void *gforth_engine(void *);
 extern char *cstr(char *from, Cell size);
 extern char *tilde_cstr(char *from, Cell size);
 extern __thread jmp_buf *throw_jmp_handler;
@@ -65,7 +65,7 @@ extern user_area* gforth_stacks();
 #define gforth_LP *((char **)(gforth_pointers(2)))
 #define gforth_RP *((Cell **)(gforth_pointers(3)))
 #define gforth_UP *((char **)(gforth_pointers(4)))
-#define gforth_engine ((char *(*)(void *, Cell *, Cell *, Float *, char *))gforth_pointers(5))
+#define gforth_engine ((char *(*)(void *))gforth_pointers(5))
 #define cstr ((char *(*)(char *, Cell))gforth_pointers(6))
 #define tilde_cstr ((char *(*)(char *, Cell))gforth_pointers(7))
 #define throw_jmp_handler *((jmp_buf**)(gforth_pointers(8)))

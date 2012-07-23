@@ -328,10 +328,6 @@ typedef struct {
   Xt *throw_entry;	/* ip after signal (in THROW) */
   Cell unused1;		/* possibly tib stack size */
   Label *xt_base;         /* base of DOUBLE_INDIRECT xts[], for comp-i.fs */
-  Address data_stack_base; /* this and the following fields are initialized by the loader */
-  Address fp_stack_base;
-  Address return_stack_base;
-  Address locals_stack_base;
 } ImageHeader;
 /* the image-header is created in main.fs */
 
@@ -393,9 +389,9 @@ extern PER_THREAD Cell *rp;
 #define sr_call
 #endif /* !defined(GFORTH_DEBUGGING) */
 
-Label *gforth_engine(Xt *ip, Cell *sp, Cell *rp0, Float *fp, Address lp sr_proto);
-Label *gforth_engine2(Xt *ip, Cell *sp, Cell *rp0, Float *fp, Address lp sr_proto);
-Label *gforth_engine3(Xt *ip, Cell *sp, Cell *rp0, Float *fp, Address lp sr_proto);
+Label *gforth_engine(Xt *ip sr_proto);
+Label *gforth_engine2(Xt *ip sr_proto);
+Label *gforth_engine3(Xt *ip sr_proto);
 
 
 int gforth_main(int argc, char **argv, char **env);
