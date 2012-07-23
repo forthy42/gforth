@@ -2503,7 +2503,7 @@ int gforth_main(int argc, char **argv, char **env)
   gforth_setstacks();
   retvalue=gforth_boot(argc, argv, path);
   if(retvalue > 0) {
-    /* gforth_execute(gforth_find("license")); */
+    gforth_execute(gforth_find("bootmessage"));
     retvalue = gforth_quit();
   }
   gforth_cleanup();

@@ -1119,7 +1119,6 @@ Defer 'cold ( -- ) \ gforth  tick-cold
     process-args
     loadline off
 [ [THEN] ]
-    bootmessage
     1 (bye) ;
 
 has? new-input 0= [IF]
