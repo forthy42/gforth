@@ -2472,21 +2472,24 @@ int gforth_quit()
 
 int gforth_execute(Xt xt)
 {
-  debugp(stderr, "Execte Gforth xt %p: %p\n", xt, gforth_header->execute_entry);
+  debugp(stderr, "Execute Gforth xt %p: %p\n", xt, gforth_header->execute_entry);
 
   *--gforth_SP = (Cell)xt;
 
-  return gforth_go(gforth_header->quit_entry);
+  return gforth_go(gforth_header->execute_entry);
 }
 
 Xt gforth_find(Char * name)
 {
+  Xt xt;
   debugp(stderr, "Find '%s' in Gforth: %p\n", name, gforth_header->find_entry);
 
   *--gforth_SP = (Cell)name;
   *--gforth_SP = strlen(name);
 
-  return (Xt)gforth_go(gforth_header->find_entry);
+  xt = (Xt)gforth_go(gforth_header->find_entry);
+  debugp(stderr, "Found %p\n", xt);
+  return xt;
 }
 
 int gforth_main(int argc, char **argv, char **env)
@@ -2500,6 +2503,7 @@ int gforth_main(int argc, char **argv, char **env)
   gforth_setstacks();
   retvalue=gforth_boot(argc, argv, path);
   if(retvalue > 0) {
+    /* gforth_execute(gforth_find("license")); */
     retvalue = gforth_quit();
   }
   gforth_cleanup();
