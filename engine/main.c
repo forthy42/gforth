@@ -651,7 +651,7 @@ void set_stack_sizes(ImageHeader * header)
 #define NEXTPAGE(addr) ((Address)((((UCell)(addr)-1)&-pagesize)+pagesize))
 #define NEXTPAGE2(addr) ((Address)((((UCell)(addr)-1)&-pagesize)+2*pagesize))
 
-int gforth_go(Xt* ip0)
+Cell gforth_go(Xt* ip0)
 {
 #ifdef SYSSIGNALS
   int throw_code;
@@ -691,7 +691,7 @@ int gforth_go(Xt* ip0)
   }
 #endif
 
-  return((int)(Cell)gforth_engine(ip0 sr_call));
+  return((Cell)gforth_engine(ip0 sr_call));
 }
 
 #if !defined(INCLUDE_IMAGE) && !defined(STANDALONE)
@@ -2468,6 +2468,25 @@ int gforth_quit()
 {
   debugp(stderr, "Quit into Gforth: %p\n", gforth_header->quit_entry);
   return gforth_go(gforth_header->quit_entry);
+}
+
+int gforth_execute(Xt xt)
+{
+  debugp(stderr, "Execte Gforth xt %p: %p\n", xt, gforth_header->execute_entry);
+
+  *--gforth_SP = (Cell)xt;
+
+  return gforth_go(gforth_header->quit_entry);
+}
+
+Xt gforth_find(Char * name)
+{
+  debugp(stderr, "Find '%s' in Gforth: %p\n", name, gforth_header->find_entry);
+
+  *--gforth_SP = (Cell)name;
+  *--gforth_SP = strlen(name);
+
+  return (Xt)gforth_go(gforth_header->find_entry);
 }
 
 int gforth_main(int argc, char **argv, char **env)

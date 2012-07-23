@@ -882,7 +882,7 @@ has? os [IF]
 	    [ has? OS [IF] ] >stderr [ [THEN] ]
 	    cr ." Can't print to stdout, leaving" cr
 	    \ if stderr does not work either, already DoError causes a hang
-	    2 (bye)
+	    -2 (bye)
 	endif [ [THEN] ]
 	refill  WHILE
 	    interpret prompt
@@ -1071,6 +1071,9 @@ Defer mark-end
 : do-execute ( xt -- ) \ Gforth
     \G C calling us
     catch dup IF  DoError cr  THEN  (bye) ;
+
+: do-find ( addr u -- )
+    find-name dup IF  name>int  THEN  (bye) ;
 
 \ \ Cold Boot                                    	13feb93py
 

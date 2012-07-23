@@ -328,6 +328,7 @@ typedef struct {
   Xt *throw_entry;	/* ip after signal (in THROW) */
   Xt *quit_entry;
   Xt *execute_entry;
+  Xt *find_entry;
   Label *xt_base;         /* base of DOUBLE_INDIRECT xts[], for comp-i.fs */
 } ImageHeader;
 /* the image-header is created in main.fs */
@@ -399,9 +400,11 @@ int gforth_main(int argc, char **argv, char **env);
 void gforth_args(int argc, char ** argv, char ** path, char ** imagename);
 Address gforth_loader(char* imagename, char* path);
 user_area* gforth_stacks(Cell dsize, Cell rsize, Cell fsize, Cell lsize);
-int gforth_go(Xt* ip0);
+Cell gforth_go(Xt* ip0);
 int gforth_boot(int argc, char** argv, char* path);
 int gforth_quit();
+Xt gforth_find(Char * name);
+int gforth_execute(Xt xt);
 void gforth_cleanup();
 void gforth_printmetrics();
 
