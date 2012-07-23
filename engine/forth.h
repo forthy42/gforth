@@ -402,6 +402,7 @@ Address gforth_loader(char* imagename, char* path);
 user_area* gforth_stacks(Cell dsize, Cell rsize, Cell fsize, Cell lsize);
 Cell gforth_go(Xt* ip0);
 int gforth_boot(int argc, char** argv, char* path);
+int gforth_start(int argc, char ** argv);
 int gforth_quit();
 Xt gforth_find(Char * name);
 int gforth_execute(Xt xt);

@@ -2492,16 +2492,21 @@ Xt gforth_find(Char * name)
   return xt;
 }
 
-int gforth_main(int argc, char **argv, char **env)
+int gforth_start(int argc, char ** argv)
 {
   char *path, *imagename;
-  int retvalue;
 
   gforth_args(argc, argv, &path, &imagename);
   gforth_header = gforth_loader(imagename, path);
   gforth_UP = gforth_stacks(dsize, rsize, fsize, lsize);
   gforth_setstacks();
-  retvalue=gforth_boot(argc, argv, path);
+  return gforth_boot(argc, argv, path);
+}
+
+int gforth_main(int argc, char **argv, char **env)
+{
+  int retvalue=gforth_start(argc, argv);
+
   if(retvalue > 0) {
     gforth_execute(gforth_find("bootmessage"));
     retvalue = gforth_quit();
