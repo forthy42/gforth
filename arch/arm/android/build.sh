@@ -1,11 +1,18 @@
 #!/bin/bash
+
+# takes as extra argument a directory where to look for .so-s
+
 rm -rf libs/armeabi
 mkdir -p libs/armeabi
 cp ../../../engine/.libs/libgforth-fast.so libs/armeabi/
-LIBCC=../../../lib/gforth/*/libcc-named/.libs/
-for i in $(cd $LIBCC; echo *.so)
+LIBCC=../../..
+for i in $LIBCC $*
 do
-  cp $LIBCC/$i libs/armeabi/$i
+    for j in $(cd $i/lib/gforth/*/libcc-named/.libs; echo *.so)
+    do
+	cp $i/lib/gforth/*/libcc-named/.libs/$j libs/armeabi/$j
+    done
+    shift
 done
 #ant debug
 ant release

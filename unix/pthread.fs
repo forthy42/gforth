@@ -145,7 +145,7 @@ c-library pthread
     \c int wait_read(FILE * fid, Cell timeout)
     \c {
     \c   struct pollfd fds = { fileno(fid), POLLIN, 0 };
-    \c #ifdef linux
+    \c #if defined(linux) && !defined(__ANDROID__)
     \c   struct timespec tout = { timeout/1000000000, timeout%1000000000 };
     \c   ppoll(&fds, 1, &tout, 0);
     \c #else

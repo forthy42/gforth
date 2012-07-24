@@ -30,24 +30,32 @@
 #include "forth.h"
 
 int sockfd;
+int clientfd;
 
 void gforth_waitfor_client(int sig)
 {
-  int newsockfd;
   socklen_t clilen;
   struct sockaddr_in cli_addr;
   
   listen(sockfd, 1);
   clilen = sizeof(cli_addr);
-  newsockfd = accept(sockfd, 
-		     (struct sockaddr *) &cli_addr, 
-		     &clilen);
-  if (newsockfd < 0) 
+  clientfd = accept(sockfd, 
+		    (struct sockaddr *) &cli_addr, 
+		    &clilen);
+  if (clientfd < 0) 
     fprintf(stderr, "ERROR on accept\n");
 
-  dup2(newsockfd, 0); // set socket to stdin
-  dup2(newsockfd, 1); // set socket to stdout
-  dup2(newsockfd, 2); // set socket to stderr
+  dup2(clientfd, 0); // set socket to stdin
+  dup2(clientfd, 1); // set socket to stdout
+  dup2(clientfd, 2); // set socket to stderr
+}
+
+void gforth_close_client()
+{
+  close(clientfd);
+  close(0);
+  close(1);
+  close(2);
 }
 
 void gforth_server(int portno)
@@ -75,28 +83,38 @@ void gforth_server(int portno)
 void android_main(struct android_app* state)
 {
   char statepointer[30];
-  char *argv[] = { "gforth", NULL };
+  char *argv[] = { "gforth" };
+  const int argc = sizeof(argv)/sizeof(char*);
   char *env[] = { "HOME=/sdcard/gforth/home",
 		  "SHELL=/system/bin/sh",
+		  "libccdir=/data/data/gnu.gforth/lib",
                   statepointer,
 		  NULL };
+  int retvalue;
 
   snprintf(statepointer, sizeof(statepointer), "APP_STATE=%p", state);
   setenv("HOME", "/sdcard/gforth/home", 1);
   setenv("SHELL", "/system/bin/sh", 1);
+  setenv("libccdir", "/data/data/gnu.gforth/lib", 1);
   setenv("APP_STATE", statepointer+10, 1);
   
   app_dummy();
   gforth_server(4444);
   bsd_signal(SIGPIPE, gforth_waitfor_client); 
 
-  gforth_main(1, argv, env);
+  retvalue=gforth_start(argc, argv);
+
+  if(retvalue > 0) {
+    gforth_execute(gforth_find("bootmessage"));
+    retvalue = gforth_quit();
+  }
+  exit(retvalue);
 }
 #else
-void main(int argc, char ** argv, char ** env)
+int main(int argc, char ** argv, char ** env)
 {
   gforth_server(4444);
 
-  gforth_main(argc, argv, env);
+  return gforth_main(argc, argv, env);
 }
 #endif
