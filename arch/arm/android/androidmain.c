@@ -23,6 +23,8 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/types.h> 
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <stdarg.h>
@@ -42,20 +44,29 @@ void gforth_waitfor_client(int sig)
   clientfd = accept(sockfd, 
 		    (struct sockaddr *) &cli_addr, 
 		    &clilen);
-  if (clientfd < 0) 
+  if (clientfd < 0) {
     fprintf(stderr, "ERROR on accept\n");
+    return;
+  }
+  fprintf(stderr, "Client socket on %d\n", clientfd);
+  fflush(stderr);
+  fflush(stdout);
 
-  dup2(clientfd, 0); // set socket to stdin
-  dup2(clientfd, 1); // set socket to stdout
-  dup2(clientfd, 2); // set socket to stderr
+  fileno(stdin) = clientfd;
+  fileno(stdout) = clientfd;
+
+  //  dup2(clientfd, 0); // set socket to stdin
+  //  dup2(clientfd, 1); // set socket to stdout
+
+  fprintf(stdout, "Welcome to Gforth Server\r\n");
+  fflush(stdout);
 }
 
 void gforth_close_client()
 {
   close(clientfd);
-  close(0);
-  close(1);
-  close(2);
+  //  close(0);
+  //  close(1);
 }
 
 void gforth_server(int portno)
@@ -80,10 +91,64 @@ void gforth_server(int portno)
 #include <android/log.h>
 #include "android_native_app_glue.h"
 
+struct input_states {
+  int flag;
+  int x, y;
+};
+
+struct input_states app_input_state;
+
+static int32_t engine_handle_input(struct android_app* app, AInputEvent* event) 
+{
+  fprintf(stderr, "Input event of type %d\n", AInputEvent_getType(event));
+  if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION) {
+    app_input_state.x=AMotionEvent_getX(event, 0);
+    app_input_state.y=AMotionEvent_getY(event, 0);
+    app_input_state.flag = AInputEvent_getType(event);
+    return 1;
+  }
+  // pretend we handled that, too?
+  return 0;
+}
+
+static void engine_handle_cmd(struct android_app* app, int32_t cmd)
+{
+  fprintf(stderr, "App cmd %d\n", cmd);
+  switch (cmd) {
+  case APP_CMD_SAVE_STATE:
+    fprintf(stderr, "app save\n");
+    // The system has asked us to save our current state.  Do so.
+    break;
+  case APP_CMD_INIT_WINDOW:
+    fprintf(stderr, "app window %p\n", app->window);
+    // The window is being shown, get it ready.
+    if (app->window != NULL) {
+      // now you can do something with the window
+    }
+    break;
+  case APP_CMD_TERM_WINDOW:
+    fprintf(stderr, "app window close\n");
+    // The window is being hidden or closed, clean it up.
+    break;
+  case APP_CMD_GAINED_FOCUS:
+    fprintf(stderr, "app window focus\n");
+    // When our app gains focus, we start doing something
+    break;
+  case APP_CMD_LOST_FOCUS:
+    fprintf(stderr, "app window defocus\n");
+    // When our app loses focus, we stop doing something
+    break;
+  case APP_CMD_DESTROY:
+    fprintf(stderr, "app window destroyed\n");
+    exit(0);
+    break;
+  }
+}
+
 void android_main(struct android_app* state)
 {
   char statepointer[30];
-  char *argv[] = { "gforth" };
+  char *argv[] = { "gforth", "starta.fs" };
   const int argc = sizeof(argv)/sizeof(char*);
   char *env[] = { "HOME=/sdcard/gforth/home",
 		  "SHELL=/system/bin/sh",
@@ -92,6 +157,10 @@ void android_main(struct android_app* state)
 		  NULL };
   int retvalue;
 
+  state->userData = (void*)&app_input_state;
+  state->onAppCmd = engine_handle_cmd;
+  state->onInputEvent = engine_handle_input;
+
   snprintf(statepointer, sizeof(statepointer), "APP_STATE=%p", state);
   setenv("HOME", "/sdcard/gforth/home", 1);
   setenv("SHELL", "/system/bin/sh", 1);
@@ -99,12 +168,13 @@ void android_main(struct android_app* state)
   setenv("APP_STATE", statepointer+10, 1);
   
   app_dummy();
-  gforth_server(4444);
-  bsd_signal(SIGPIPE, gforth_waitfor_client); 
 
   retvalue=gforth_start(argc, argv);
 
   if(retvalue > 0) {
+    gforth_server(4444);
+    bsd_signal(SIGPIPE, gforth_waitfor_client); 
+    
     gforth_execute(gforth_find("bootmessage"));
     retvalue = gforth_quit();
   }

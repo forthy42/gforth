@@ -550,6 +550,7 @@ UCell gforth_dlopen(Char *c_addr, UCell u)
   lib = (UCell)dlopen(file, RTLD_GLOBAL);
   free(file);
   if(lib) return lib;
+  fprintf(stderr, "%s\n", dlerror());
 #elif defined(_WIN32)
   lib = (UCell) GetModuleHandle(file);
   free(file);
