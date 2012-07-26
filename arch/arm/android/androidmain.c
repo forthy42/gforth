@@ -93,21 +93,42 @@ void gforth_server(int portno)
 
 struct input_states {
   int flag;
-  int x, y;
+  int count;
+  int x0, y0;
+  int x1, y1;
+  int x2, y2;
+  int x3, y3;
+  int x4, y4;
 };
 
 struct input_states app_input_state;
 
 static int32_t engine_handle_input(struct android_app* app, AInputEvent* event) 
 {
-  fprintf(stderr, "Input event of type %d\n", AInputEvent_getType(event));
   if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION) {
-    app_input_state.x=AMotionEvent_getX(event, 0);
-    app_input_state.y=AMotionEvent_getY(event, 0);
+    app_input_state.count=AMotionEvent_getPointerCount(event);
+    switch(app_input_state.count) {
+    case 5:
+      app_input_state.x4=AMotionEvent_getX(event, 4);
+      app_input_state.y4=AMotionEvent_getY(event, 4);
+    case 4:
+      app_input_state.x3=AMotionEvent_getX(event, 3);
+      app_input_state.y3=AMotionEvent_getY(event, 3);
+    case 3:
+      app_input_state.x2=AMotionEvent_getX(event, 2);
+      app_input_state.y2=AMotionEvent_getY(event, 2);
+    case 2:
+      app_input_state.x1=AMotionEvent_getX(event, 1);
+      app_input_state.y1=AMotionEvent_getY(event, 1);
+    case 1:
+      app_input_state.x0=AMotionEvent_getX(event, 0);
+      app_input_state.y0=AMotionEvent_getY(event, 0);
+    }
     app_input_state.flag = AInputEvent_getType(event);
     return 1;
   }
   // pretend we handled that, too?
+  fprintf(stderr, "Input event of type %d\n", AInputEvent_getType(event));
   return 0;
 }
 
