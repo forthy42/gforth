@@ -22,8 +22,9 @@ require ./basics.fs
 \ Output                                               13feb93py
 
 has? os [IF]
-0 Value outfile-id ( -- file-id ) \ gforth
 0 Value infile-id ( -- file-id ) \ gforth
+0 Value outfile-id ( -- file-id ) \ gforth
+0 Value errfile-id ( -- file-id ) \ gforth
     
 : (type) ( c-addr u -- ) \ gforth
     outfile-id write-file drop \ !! use ?DUP-IF THROW ENDIF instead of DROP ?
@@ -100,12 +101,14 @@ all-words
 0A constant #lf ( -- c ) \ gforth
 
 : bell  #bell emit [ has? os [IF] ] outfile-id flush-file drop [ [THEN] ] ;
-: cr ( -- ) \ core c-r
+Defer cr ( -- ) \ core c-r
     \G Output a newline (of the favourite kind of the host OS).  Note
     \G that due to the way the Forth command line interpreter inserts
     \G newlines, the preferred way to use @code{cr} is at the start
     \G of a piece of text; e.g., @code{cr ." hello, world"}.
+: (cr) ( -- )
     newline type ;
+' (cr) IS cr
 
 : space ( -- ) \ core
   \G Display one space.
