@@ -25,67 +25,9 @@
 #include <sys/types.h> 
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
 #include <stdarg.h>
 
 #include "forth.h"
-
-int sockfd;
-int clientfd;
-
-void gforth_waitfor_client(int sig)
-{
-  socklen_t clilen;
-  struct sockaddr_in cli_addr;
-  
-  listen(sockfd, 1);
-  clilen = sizeof(cli_addr);
-  clientfd = accept(sockfd, 
-		    (struct sockaddr *) &cli_addr, 
-		    &clilen);
-  if (clientfd < 0) {
-    fprintf(stderr, "ERROR on accept\n");
-    return;
-  }
-  fprintf(stderr, "Client socket on %d\n", clientfd);
-  fflush(stderr);
-  fflush(stdout);
-
-  fileno(stdin) = clientfd;
-  fileno(stdout) = clientfd;
-
-  //  dup2(clientfd, 0); // set socket to stdin
-  //  dup2(clientfd, 1); // set socket to stdout
-
-  fprintf(stdout, "Welcome to Gforth Server\r\n");
-  fflush(stdout);
-}
-
-void gforth_close_client()
-{
-  close(clientfd);
-  //  close(0);
-  //  close(1);
-}
-
-void gforth_server(int portno)
-{
-  struct sockaddr_in serv_addr;
-  
-  sockfd = socket(AF_INET, SOCK_STREAM, 0);
-  if (sockfd < 0) 
-    fprintf(stderr, "ERROR opening socket\n");
-  bzero((char *) &serv_addr, sizeof(serv_addr));
-  serv_addr.sin_family = AF_INET;
-  serv_addr.sin_addr.s_addr = INADDR_ANY;
-  serv_addr.sin_port = htons(portno);
-  if (bind(sockfd, (struct sockaddr *) &serv_addr,
-	   sizeof(serv_addr)) < 0) 
-    fprintf(stderr, "ERROR on binding\n");
-  
-  gforth_waitfor_client(0);
-}
 
 #ifdef __ANDROID__
 #include <android/log.h>
@@ -193,9 +135,6 @@ void android_main(struct android_app* state)
   retvalue=gforth_start(argc, argv);
 
   if(retvalue > 0) {
-    gforth_server(4444);
-    bsd_signal(SIGPIPE, gforth_waitfor_client); 
-    
     gforth_execute(gforth_find("bootmessage"));
     retvalue = gforth_quit();
   }
@@ -204,8 +143,6 @@ void android_main(struct android_app* state)
 #else
 int main(int argc, char ** argv, char ** env)
 {
-  gforth_server(4444);
-
   return gforth_main(argc, argv, env);
 }
 #endif
