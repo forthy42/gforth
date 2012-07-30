@@ -31,17 +31,16 @@
 \ type is:
 \ 'f' for file,
 \ 'd' for directory,
-\ 's' for symlink,
-\ 'h' for hardlink
+\ 's' for symlink (can't create now),
+\ 'h' for hardlink (can't create now)
 \ rules for directories are: Specify each before first use
 
 4 buffer: fsize
 
-: >align ( n -- ) dup sfaligned swap - spaces ;
 : .len ( n -- )  fsize le-l! fsize 4 type ;
 : .z ( -- )  0 .len ;
 : .entry ( addr u char -- addr u )
-    >r dup 2 + .len r> emit 2dup type 0 emit dup 2 + >align ;
+    >r dup 2 + .len r> emit 2dup type 0 emit ;
 
 : -scan ( addr u char -- addr' u' )
   >r  BEGIN  dup  WHILE  1- 2dup + c@ r@ =  UNTIL  THEN
@@ -52,7 +51,7 @@ wordlist constant dirs
 : :dir ( addr u -- )
     get-current >r dirs set-current nextname create r> set-current ;
 
-"." :dir
+"." :dir \ no need to create .
 
 : ?dir ( addr u -- )
     '/' -scan dup 0= IF  2drop  EXIT  THEN
@@ -64,10 +63,8 @@ wordlist constant dirs
     THEN ;
 
 : dump-a-file ( addr u -- )
-    2dup ?dir
-    'f' .entry
-    slurp-file dup .len 2dup type dup >align
-    drop free throw ;
+    2dup ?dir  'f' .entry
+    slurp-file dup .len 2dup type drop free throw ;
 
 : dump-files ( -- )
     BEGIN  argc @ 1 >  WHILE
