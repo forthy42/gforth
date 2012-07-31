@@ -111,7 +111,7 @@ static void engine_handle_cmd(struct android_app* app, int32_t cmd)
 void android_main(struct android_app* state)
 {
   char statepointer[30];
-  char *argv[] = { "gforth", "starta.fs" };
+  char *argv[] = { "gforth", "-i", "kernl32l.fi", "exboot.fs", "startup.fs", "arch/arm/asm.fs", "arch/arm/disasm.fs", "starta.fs" };
   const int argc = sizeof(argv)/sizeof(char*);
   char *env[] = { "HOME=/sdcard/gforth/home",
 		  "SHELL=/system/bin/sh",
@@ -119,6 +119,19 @@ void android_main(struct android_app* state)
                   statepointer,
 		  NULL };
   int retvalue;
+  int checkdir;
+
+  freopen("/sdcard/gforth/home/aout.log", "w+", stdout);
+  freopen("/sdcard/gforth/home/aerr.log", "w+", stderr);
+
+  checkdir=open("/sdcard/gforth/" PACKAGE_VERSION, O_RDONLY);
+  if(checkdir==-1) {
+    chdir("/sdcard");
+    zexpand("/data/data/gnu.gforth/lib/libgforthgz.so");
+  } else {
+    close(checkdir);
+  }
+  chdir("/sdcard/gforth/home");
 
   state->userData = (void*)&app_input_state;
   state->onAppCmd = engine_handle_cmd;

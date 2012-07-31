@@ -620,6 +620,9 @@ binonlydist:	Makedist FORCE
 debdist:	Makedist FORCE
 		$(MAKE) -f Makedist d$@
 
+setup-debdist:	Makedist FORCE
+		$(MAKE) -f Makedist d$@
+
 #HPUX make breaks the cycle differently when the dates are equal, so
 # touch some of the files if it acts up
 hpux-workaround:

@@ -5,7 +5,7 @@
 #configure with
 #./configure --host=arm --with-cross=android --prefix= --datarootdir=/sdcard --libdir=/sdcard --libexecdir=/lib --enable-lib
 #and finally create an apk in this directory
-#aapt package -v -f -m -M AndroidManifest.xml -A assets -S res -F gforth.apk
+#./build.sh
 (cd engine
 mkdir .libs
 for i in sigaltstack.o __set_errno.o
@@ -45,8 +45,9 @@ ac_export_dynamic=yes
 CC=arm-linux-androideabi-gcc
 GNU_LIBTOOL=arm-linux-androideabi-libtool
 build_libcc_named=build-libcc-named
-KBOX=/data/data/kevinboone.androidterm/kbox
-mi_prefix=$KBOX
+#KBOX=/data/data/kevinboone.androidterm/kbox
+#mi_prefix=$KBOX
+mi_prefix=/data/data/gnu.gforth/lib
 asm_fs=arch/arm/asm.fs
 disasm_fs=arch/arm/disasm.fs
 EC_MODE="false"
@@ -56,6 +57,6 @@ engine2='engine2$(OPT).o'
 engine_fast2='engine-fast2$(OPT).o'
 no_dynamic=""
 image_i=""
-LIBS="-llog -landroid"
-signals_o="io.o signals.o sigaltstack.o __set_errno.o ../arch/arm/android/androidmain.o ../arch/arm/android/android_native_app_glue.o"
+LIBS="-llog -landroid -lz"
+signals_o="io.o signals.o sigaltstack.o __set_errno.o ../arch/arm/android/androidmain.o  ../arch/arm/android/zexpand.o ../arch/arm/android/android_native_app_glue.o"
 
