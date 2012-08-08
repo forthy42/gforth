@@ -111,13 +111,9 @@ static void engine_handle_cmd(struct android_app* app, int32_t cmd)
 void android_main(struct android_app* state)
 {
   char statepointer[30];
+  char ldlibrarypath[200];
   char *argv[] = { "gforth", "-i", "kernl32l.fi", "exboot.fs", "startup.fs", "arch/arm/asm.fs", "arch/arm/disasm.fs", "starta.fs" };
   const int argc = sizeof(argv)/sizeof(char*);
-  char *env[] = { "HOME=/sdcard/gforth/home",
-		  "SHELL=/system/bin/sh",
-		  "libccdir=/data/data/gnu.gforth/lib",
-                  statepointer,
-		  NULL };
   int retvalue;
   int checkdir;
 
@@ -137,11 +133,13 @@ void android_main(struct android_app* state)
   state->onAppCmd = engine_handle_cmd;
   state->onInputEvent = engine_handle_input;
 
-  snprintf(statepointer, sizeof(statepointer), "APP_STATE=%p", state);
+  snprintf(statepointer, sizeof(statepointer), "%p", state);
+  snprintf(ldlibrarypath, sizeof(ldlibrarypath), "%s:%s", getenv("LD_LIBRARY_PATH"), "/data/data/gnu.gforth/lib");
   setenv("HOME", "/sdcard/gforth/home", 1);
   setenv("SHELL", "/system/bin/sh", 1);
   setenv("libccdir", "/data/data/gnu.gforth/lib", 1);
-  setenv("APP_STATE", statepointer+10, 1);
+  setenv("APP_STATE", statepointer, 1);
+  setenv("LD_LIBRARY_PATH", ldlibrarypath, 1);
   
   app_dummy();
 
