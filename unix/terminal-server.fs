@@ -12,6 +12,6 @@ require unix/socket.fs
     lsocket accept-socket
     dup to infile-id
     dup to outfile-id
-    to errfile-id
+    to debug-fid
     ['] term-cr is cr
     key drop BEGIN  key? WHILE key drop REPEAT ;

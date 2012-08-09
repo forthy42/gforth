@@ -38,7 +38,7 @@ decimal
 
 has? OS [IF]
 : >stderr ( -- )
-    r> outfile-id >r errfile-id to outfile-id
+    r> outfile-id >r debug-fid to outfile-id
     >exec  r> to outfile-id ;
 [THEN]
 

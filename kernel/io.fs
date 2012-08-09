@@ -24,7 +24,7 @@ require ./basics.fs
 has? os [IF]
 0 Value infile-id ( -- file-id ) \ gforth
 0 Value outfile-id ( -- file-id ) \ gforth
-0 Value errfile-id ( -- file-id ) \ gforth
+0 Value debug-fid ( -- file-id ) \ gforth
     
 : (type) ( c-addr u -- ) \ gforth
     outfile-id write-file drop \ !! use ?DUP-IF THROW ENDIF instead of DROP ?

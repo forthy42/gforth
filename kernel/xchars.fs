@@ -103,6 +103,9 @@ Defer -trailing-garbage ( xc-addr u1 -- addr u2 ) \ xchar-ext
 : string- ( c-addr1 u1 -- c-addr1 u2 )
     1- ;
 
+: c!+ ( c c-addr1 -- c-addr2 )
+    dup 1+ >r c! r> ;
+
 : c!+? ( c c-addr1 u1 -- c-addr2 u2 f )
     dup 1 chars u< if \ or use < ?
 	rot drop false
@@ -122,6 +125,7 @@ Defer -trailing-garbage ( xc-addr u1 -- addr u2 ) \ xchar-ext
     ['] +string is +x/string
     ['] string- is x\string-
     ['] c@ is xc@
+    ['] c!+ is xc!+
     ['] c!+? is xc!+?
     ['] count is xc@+
     ['] c-size is xc-size

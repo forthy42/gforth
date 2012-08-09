@@ -117,7 +117,7 @@ Variable argc ( -- addr ) \ gforth
 : os-boot ( path n **argv argc -- )
     stdin  TO infile-id
     stdout TO outfile-id
-    stderr TO errfile-id
+    stderr TO debug-fid
     argc ! argv ! pathstring 2! ;
 
 ' (process-args) IS process-args
