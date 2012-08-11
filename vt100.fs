@@ -23,14 +23,19 @@ decimal
 : ;pn   [char] ; emit pn ;
 : ESC[  27 emit [char] [ emit ;
 
-: at-xy ( u1 u2 -- ) \ facility at-x-y
+Defer at-xy
+Defer page
+
+: vt100-at-xy ( u1 u2 -- ) \ facility at-x-y
   \G Position the cursor so that subsequent text output will take
   \G place at column @var{u1}, row @var{u2} of the display. (column 0,
   \G row 0 is the top left-hand corner of the display).
   1+ swap 1+ swap ESC[ pn ;pn [char] H emit ;
 
-: page ( -- ) \ facility
+: vt100-page ( -- ) \ facility
   \G Clear the display and set the cursor to the top left-hand
   \G corner.
   ESC[ ." 2J" 0 0 at-xy ;
 
+' vt100-at-xy IS at-xy
+' vt100-page IS page
