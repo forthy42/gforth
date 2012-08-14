@@ -162,6 +162,7 @@ Variable sockopt-on
    $40 Constant MSG_WAITALL
   $006 Constant O_NONBLOCK|O_RDWR
  $1006 Constant SO_RCVTIMEO
+     4 Constant SO_REUSEADDR
  $FFFF Constant SOL_SOCKET
 [ELSE]
     10 Constant PF_INET6
@@ -173,6 +174,7 @@ Variable sockopt-on
 $10000 Constant MSG_WAITFORONE
   $802 Constant O_NONBLOCK|O_RDWR
     20 Constant SO_RCVTIMEO
+     2 Constant SO_REUSEADDR
      1 Constant SOL_SOCKET
 [THEN]
    1 Constant SOCK_STREAM
@@ -276,6 +278,7 @@ $004 Constant POLLOUT
     htons   sockaddr-tmp port w!
     new-socket
     dup 0< abort" no free socket" >r
+    r@ SOL_SOCKET SO_REUSEADDR sockopt-on 1 over ! 4 setsockopt drop
     r@ sockaddr-tmp sockaddr_in4 %size bind 0= IF  r> exit  ENDIF
     r> drop true abort" bind :: failed" ;
 
