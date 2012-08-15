@@ -656,12 +656,15 @@ Cell gforth_go(Xt* ip0)
 #ifdef SYSSIGNALS
   int throw_code;
   jmp_buf throw_jmp_buf;
+  jmp_buf* old_handler;
 #endif
   Cell signal_data_stack[24];
   Cell signal_return_stack[16];
   Float signal_fp_stack[1];
+  Cell result;
 
 #if defined(SYSSIGNALS) && !defined(STANDALONE)
+  old_handler = throw_jmp_handler;
   throw_jmp_handler = &throw_jmp_buf;
 
   debugp(stderr, "setjmp(%p)\n", *throw_jmp_handler);
@@ -691,7 +694,9 @@ Cell gforth_go(Xt* ip0)
   }
 #endif
 
-  return((Cell)gforth_engine(ip0 sr_call));
+  result=((Cell)gforth_engine(ip0 sr_call));
+  throw_jmp_handler = old_handler;
+  return result;
 }
 
 #if !defined(INCLUDE_IMAGE) && !defined(STANDALONE)
