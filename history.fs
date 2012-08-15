@@ -207,7 +207,8 @@ require utf-8.fs
 
 [IFUNDEF] #esc  27 Constant #esc  [THEN]
 
-: at-deltaxy ( dx dy -- )
+Defer at-deltaxy
+: vt100-at-deltaxy ( dx dy -- )
     over 0< over 0= and IF  drop abs backspaces  EXIT  THEN
     base @ >r decimal
     ?dup IF
@@ -216,6 +217,7 @@ require utf-8.fs
     ?dup IF
 	#esc emit '[ emit  dup abs 0 .r 0< IF  'D  ELSE  'C  THEN  emit
     THEN  r> base ! ;
+' vt100-at-deltaxy IS at-deltaxy
 
 \ : cygwin? ( -- flag ) s" TERM" getenv s" cygwin" str= ;
 \ : at-xy? ( -- x y )
