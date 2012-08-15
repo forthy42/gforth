@@ -2,29 +2,43 @@
 
 # takes as extra argument a directory where to look for .so-s
 
-rm -rf libs/armeabi
-mkdir -p libs/armeabi
+ENGINE=-fast
+SRC=../../..
+LIBS=libs/armeabi
+LIBCCNAMED=lib/$(gforth --version 2>&1 | tr ' ' '/')/libcc-named/.libs
 
-(cd ../../..
-./configure --host=arm --with-cross=android --prefix= --datarootdir=/sdcard --libdir=/sdcard --libexecdir=/lib --enable-lib
-make
-make setup-debdist)
+rm -rf $LIBS
+mkdir -p $LIBS
+
+if [ "$1" != "--no-gforthgz" ]
+then
+    (cd $SRC
+	./configure --host=arm --with-cross=android --prefix= --datarootdir=/sdcard --libdir=/sdcard --libexecdir=/lib --enable-lib
+	make
+	make setup-debdist)
+else
+    shift
+fi
+
 for i in . $*
 do
-    cp $i/*.fs ../../../debian/sdcard/gforth/site-forth
+    cp $i/*.{fs,png,jpg} $SRC/debian/sdcard/gforth/site-forth
 done
-(cd ../../../debian/sdcard
+(cd $SRC/debian/sdcard
     mkdir -p gforth/home
     touch gforth/home/.gforth-history
-    gforth ../../archive.fs $(find gforth -type f)) | gzip -9 >libs/armeabi/libgforthgz.so
+    gforth ../../archive.fs $(find gforth -type f)) | gzip -9 >$LIBS/libgforthgz.so
 
-cp ../../../engine/.libs/libgforth-fast.so libs/armeabi/
-LIBCC=../../..
+cp $SRC/engine/.libs/libgforth$ENGINE.so $LIBS/
+LIBCC=$SRC
 for i in $LIBCC $*
 do
-    for j in $(cd $i/lib/gforth/*/libcc-named/.libs; echo *.so)
+    for j in $LIBCCNAMED .libs
     do
-	cp $i/lib/gforth/*/libcc-named/.libs/$j libs/armeabi/
+	for k in $(cd $i/$j; echo *.so)
+	do
+	    cp $i/$j/$k $LIBS
+	done
     done
     shift
 done

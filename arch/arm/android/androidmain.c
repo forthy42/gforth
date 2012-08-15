@@ -33,85 +33,40 @@
 #include <android/log.h>
 #include "android_native_app_glue.h"
 
-struct input_states {
-  int flag;
-  int count;
-  int x0, y0;
-  int x1, y1;
-  int x2, y2;
-  int x3, y3;
-  int x4, y4;
-};
-
-struct input_states app_input_state;
-
 static int32_t engine_handle_input(struct android_app* app, AInputEvent* event) 
 {
-  if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION) {
-    app_input_state.count=AMotionEvent_getPointerCount(event);
-    switch(app_input_state.count) {
-    case 5:
-      app_input_state.x4=AMotionEvent_getX(event, 4);
-      app_input_state.y4=AMotionEvent_getY(event, 4);
-    case 4:
-      app_input_state.x3=AMotionEvent_getX(event, 3);
-      app_input_state.y3=AMotionEvent_getY(event, 3);
-    case 3:
-      app_input_state.x2=AMotionEvent_getX(event, 2);
-      app_input_state.y2=AMotionEvent_getY(event, 2);
-    case 2:
-      app_input_state.x1=AMotionEvent_getX(event, 1);
-      app_input_state.y1=AMotionEvent_getY(event, 1);
-    case 1:
-      app_input_state.x0=AMotionEvent_getX(event, 0);
-      app_input_state.y0=AMotionEvent_getY(event, 0);
-    }
-    app_input_state.flag = AInputEvent_getType(event);
+  static Xt ainput=0;
+
+  if(!ainput) {
+    ainput=gforth_find("ainput");
+  }
+  if(ainput) {
+    *--gforth_SP=event;
+    gforth_execute(ainput);
     return 1;
   }
-  // pretend we handled that, too?
   fprintf(stderr, "Input event of type %d\n", AInputEvent_getType(event));
   return 0;
 }
 
 static void engine_handle_cmd(struct android_app* app, int32_t cmd)
 {
-  fprintf(stderr, "App cmd %d\n", cmd);
-  switch (cmd) {
-  case APP_CMD_SAVE_STATE:
-    fprintf(stderr, "app save\n");
-    // The system has asked us to save our current state.  Do so.
-    break;
-  case APP_CMD_INIT_WINDOW:
-    fprintf(stderr, "app window %p\n", app->window);
-    // The window is being shown, get it ready.
-    if (app->window != NULL) {
-      // now you can do something with the window
-    }
-    break;
-  case APP_CMD_TERM_WINDOW:
-    fprintf(stderr, "app window close\n");
-    // The window is being hidden or closed, clean it up.
-    break;
-  case APP_CMD_GAINED_FOCUS:
-    fprintf(stderr, "app window focus\n");
-    // When our app gains focus, we start doing something
-    break;
-  case APP_CMD_LOST_FOCUS:
-    fprintf(stderr, "app window defocus\n");
-    // When our app loses focus, we stop doing something
-    break;
-  case APP_CMD_DESTROY:
-    fprintf(stderr, "app window destroyed\n");
-    exit(0);
-    break;
+  static Xt acmd=0;
+
+  if(!acmd) {
+    acmd=gforth_find("acmd");
   }
+  if(acmd) {
+    *--gforth_SP=cmd;
+    gforth_execute(acmd);
+    return 1;
+  }
+  fprintf(stderr, "App cmd %d\n", cmd);
 }
 
 void android_main(struct android_app* state)
 {
-  char statepointer[30];
-  char ldlibrarypath[200];
+  char statepointer[2*sizeof(char*)+3]; // 0x+hex digits+trailing 0
   char *argv[] = { "gforth", "-i", "kernl32l.fi", "exboot.fs", "startup.fs", "arch/arm/asm.fs", "arch/arm/disasm.fs", "starta.fs" };
   const int argc = sizeof(argv)/sizeof(char*);
   int retvalue;
@@ -129,17 +84,15 @@ void android_main(struct android_app* state)
   }
   chdir("/sdcard/gforth/home");
 
-  state->userData = (void*)&app_input_state;
   state->onAppCmd = engine_handle_cmd;
   state->onInputEvent = engine_handle_input;
 
   snprintf(statepointer, sizeof(statepointer), "%p", state);
-  snprintf(ldlibrarypath, sizeof(ldlibrarypath), "%s:%s", getenv("LD_LIBRARY_PATH"), "/data/data/gnu.gforth/lib");
   setenv("HOME", "/sdcard/gforth/home", 1);
   setenv("SHELL", "/system/bin/sh", 1);
   setenv("libccdir", "/data/data/gnu.gforth/lib", 1);
+  setenv("LANG", "en_US.UTF-8", 1);
   setenv("APP_STATE", statepointer, 1);
-  setenv("LD_LIBRARY_PATH", ldlibrarypath, 1);
   
   app_dummy();
 
