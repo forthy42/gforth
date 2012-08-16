@@ -453,6 +453,15 @@ create gen-wrapped-types
 : gen-wrapped-stmt ( pars c-name fp-change1 sp-change1 ret -- fp-change sp-change )
     cells gen-wrapped-types + @ execute ;
 
+: sanitize ( addr u -- )
+    bounds ?DO
+	I c@
+	dup 'a' 'z' 1+ within
+	over 'A' 'Z' 1+ within or
+	over '0' '9' 1+ within or
+	swap '_' = or 0= IF  '_' I c!  THEN
+    LOOP ;
+
 : wrapper-function-name ( addr -- c-addr u )
     \ addr points to the return type index of a c-function descriptor
     count { r-type } count { d: pars }
@@ -466,7 +475,7 @@ create gen-wrapped-types
 	i c@ type-letter front-char
     loop
     '_ front-char r-type type-letter front-char assert( dup 0= )
-    2drop c-addr u ;
+    2drop c-addr u 2dup sanitize ;
 
 : gen-wrapper-function ( addr -- )
     \ addr points to the return type index of a c-function descriptor
@@ -477,7 +486,7 @@ create gen-wrapped-types
     descriptor wrapper-function-name 2dup type drop free throw
     .\" (GFORTH_ARGS)\n"
     .\" {\n  Cell MAYBE_UNUSED *sp = gforth_SP;\n  Float MAYBE_UNUSED *fp = gforth_FP;\n  "
-    is-funptr? IF  .\"   Cell ptr = *gforth_SP++;\n"  0 to is-funptr?  THEN
+    is-funptr? IF  .\" Cell ptr = *gforth_SP++;\n  "  0 to is-funptr?  THEN
     pars c-name 2over count-stacks ret gen-wrapped-stmt .\" ;\n"
     ?dup-if
 	."   gforth_SP = sp+" .nb .\" ;\n"
