@@ -320,8 +320,12 @@ drop
     c,  0 c, ;
 
 : parse-variable-type ( -- addr )
-	c-var c, here
-	s" a" libcc-type c,  0 c, ;
+    c-var c, here
+    s" a" libcc-type c,  0 c, ;
+
+0 Value is-funptr?
+: parse-funptr-types ( "{libcc-type}" "--" "libcc-type" -- addr )
+    true to is-funptr?  parse-function-types ;
 
 : type-letter ( n -- c )
     chars s" nadrfv" drop + c@ ;
@@ -473,6 +477,7 @@ create gen-wrapped-types
     descriptor wrapper-function-name 2dup type drop free throw
     .\" (GFORTH_ARGS)\n"
     .\" {\n  Cell MAYBE_UNUSED *sp = gforth_SP;\n  Float MAYBE_UNUSED *fp = gforth_FP;\n  "
+    is-funptr? IF  .\"   Cell ptr = *gforth_SP++;\n"  0 to is-funptr?  THEN
     pars c-name 2over count-stacks ret gen-wrapped-stmt .\" ;\n"
     ?dup-if
 	."   gforth_SP = sp+" .nb .\" ;\n"
@@ -674,6 +679,12 @@ DEFER compile-wrapper-function ( -- )
     \G Define a Forth word @i{forth-name}.  @i{Forth-name} returns the
     \G address of @code{c-name}.
     ['] parse-variable-type (c-function) ;
+
+: c-funptr ( "forth-name" "c-typecast" "@{type@}" "---" "type" -- ) \ gforth
+    \G Define a Forth word @i{forth-name}.  @i{Forth-name} has the
+    \G specified stack effect and calls the C function pointer
+    \G ptr using the typecast or struct access @code{c-typecast}.
+    ['] parse-funptr-types (c-function) ;
 
 : clear-libs ( -- ) \ gforth
 \G Clear the list of libs
