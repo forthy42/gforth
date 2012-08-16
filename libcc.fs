@@ -486,7 +486,7 @@ create gen-wrapped-types
     descriptor wrapper-function-name 2dup type drop free throw
     .\" (GFORTH_ARGS)\n"
     .\" {\n  Cell MAYBE_UNUSED *sp = gforth_SP;\n  Float MAYBE_UNUSED *fp = gforth_FP;\n  "
-    is-funptr? IF  .\" Cell ptr = *gforth_SP++;\n  "  0 to is-funptr?  THEN
+    is-funptr? IF  .\" Cell ptr = *sp++;\n  "  0 to is-funptr?  THEN
     pars c-name 2over count-stacks ret gen-wrapped-stmt .\" ;\n"
     ?dup-if
 	."   gforth_SP = sp+" .nb .\" ;\n"
