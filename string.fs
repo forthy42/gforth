@@ -82,4 +82,30 @@
     >r >r
     $@ BEGIN  dup  WHILE  r@ $split i' -rot >r >r execute r> r>
     REPEAT  2drop rdrop rdrop ;
+
+\ string array words
+
+: $[] { n addr -- addr' }
+    addr @ 0= IF  s" " addr $!  THEN
+    addr $@ n cells /string
+    dup cell < IF
+	2drop addr $@len
+	n 1+ cells addr $!len
+	addr $@ rot /string erase
+	addr $@ n cells /string
+    THEN  drop ;
+
+: $[]! ( addr u n $addr -- )  $[] $! ;
+: $[]+! ( addr u n $addr -- )  $[] $+! ;
+: $[]@ ( n $addr -- addr u )  $[] dup @ IF $@ ELSE drop s" " THEN ;
+
+: $over { addr u $addr off -- }
+    \G overwrite string at offset off with addr u
+    $addr @ 0= IF  s" " $addr $!  THEN
+    $addr $@len u off + < IF
+	$addr $@len dup
+	u off + max $addr $!len
+	$addr $@ rot /string bl fill
+    THEN
+    addr $addr $@ off /string u min move ;
 [THEN]
