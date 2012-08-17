@@ -85,27 +85,27 @@
 
 \ string array words
 
-: $[] { n addr -- addr' }
-    addr @ 0= IF  s" " addr $!  THEN
-    addr $@ n cells /string
+: $[] ( n addr -- addr' ) >r
+    r@ @ 0= IF  s" " r@ $!  THEN
+    r@ $@ 2 pick cells /string
     dup cell < IF
-	2drop addr $@len
-	n 1+ cells addr $!len
-	addr $@ rot /string erase
-	addr $@ n cells /string
-    THEN  drop ;
+	2drop r@ $@len
+	over 1+ cells r@ $!len
+	r@ $@ rot /string 0 fill
+	r@ $@ 2 pick cells /string
+    THEN  drop nip rdrop ;
 
 : $[]! ( addr u n $addr -- )  $[] $! ;
 : $[]+! ( addr u n $addr -- )  $[] $+! ;
 : $[]@ ( n $addr -- addr u )  $[] dup @ IF $@ ELSE drop s" " THEN ;
 
-: $over { addr u $addr off -- }
+: $over ( addr u $addr off -- )
     \G overwrite string at offset off with addr u
-    $addr @ 0= IF  s" " $addr $!  THEN
-    $addr $@len u off + < IF
-	$addr $@len dup
-	u off + max $addr $!len
-	$addr $@ rot /string bl fill
+    swap >r
+    r@ @ 0= IF  s" " r@ $!  THEN
+    2dup + r@ $@len > IF
+	2dup + r@ $@len tuck max r@ $!len
+	r@ $@ rot /string bl fill
     THEN
-    addr $addr $@ off /string u min move ;
+    r> $@ rot /string rot min move ;
 [THEN]
