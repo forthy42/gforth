@@ -76,7 +76,7 @@ void android_main(struct android_app* state)
   freopen("/sdcard/gforth/home/aout.log", "w+", stdout);
   freopen("/sdcard/gforth/home/aerr.log", "w+", stderr);
   pipe(epipe);
-  stdin=fdopen(epipe[0], "r");
+  fileno(stdin)=epipe[0];
 
   checkdir=open("/sdcard/gforth/" PACKAGE_VERSION, O_RDONLY);
   if(checkdir==-1) {
