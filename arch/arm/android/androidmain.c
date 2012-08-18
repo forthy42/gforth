@@ -71,9 +71,12 @@ void android_main(struct android_app* state)
   const int argc = sizeof(argv)/sizeof(char*);
   int retvalue;
   int checkdir;
+  int epipe[2];
 
   freopen("/sdcard/gforth/home/aout.log", "w+", stdout);
   freopen("/sdcard/gforth/home/aerr.log", "w+", stderr);
+  pipe(epipe);
+  stdin=fdopen(epipe[0], "r");
 
   checkdir=open("/sdcard/gforth/" PACKAGE_VERSION, O_RDONLY);
   if(checkdir==-1) {
