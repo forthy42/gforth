@@ -1700,7 +1700,7 @@ wfileid = (Cell)stderr;
 
 \+os
 
-form	( -- urows ucols )	gforth
+(form)	( -- urows ucols )	gforth	paren_form
 ""The number of lines and columns in the terminal. These numbers may
 change with the window size.  Note that it depends on the OS whether
 this reflects the actual size and changes with the window size

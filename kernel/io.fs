@@ -83,6 +83,8 @@ Defer key? ( -- flag ) \ facility key-question
 
 [IFDEF] (key?) ' (key?) IS key? [THEN]
 
+[IFDEF] (form) Defer form ' (form) IS form [THEN]
+
 all-words
 
 : (.")     "lit count type ;
