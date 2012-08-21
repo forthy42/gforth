@@ -193,7 +193,7 @@ IS until-like
     \g jump to the next outer BEGIN
     depth 0 ?DO  I pick dest = IF
 	    I cs-item-size / cs-pick postpone AGAIN
-	    LEAVE  THEN
+	    UNLOOP  EXIT  THEN
     cs-item-size +LOOP
     true abort" no BEGIN found" ; immediate compile-only
 
