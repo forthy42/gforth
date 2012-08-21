@@ -187,6 +187,16 @@ IS until-like
     POSTPONE again
     POSTPONE then ; immediate restrict
 
+\ not clear if this should really go into Gforth's kernel...
+
+: CONTINUE ( dest-sys j*sys -- dest-sys j*sys ) \ gforth
+    \g jump to the next outer BEGIN
+    depth 0 ?DO  I pick dest = IF
+	    I cs-item-size / cs-pick postpone AGAIN
+	    LEAVE  THEN
+    cs-item-size +LOOP
+    true abort" no BEGIN found" ; immediate compile-only
+
 \ counted loops
 
 \ leave poses a little problem here
