@@ -2057,6 +2057,7 @@ $20 constant restrict-mask
                 <res> <> ABORT" CROSS: Cannot immediate a unresolved word"
                 <imm> ^imm @ ! ;
 : restrict      restrict-mask flag! ;
+: compile-only  restrict-mask flag! ;
 
 : isdoer	
 \G define a forth word as doer, this makes obviously only sence on

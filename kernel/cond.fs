@@ -195,7 +195,7 @@ IS until-like
 	    I cs-item-size / cs-pick postpone AGAIN
 	    UNLOOP  EXIT  THEN
     cs-item-size +LOOP
-    true abort" no BEGIN found" ; immediate compile-only
+    true abort" no BEGIN found" ; immediate restrict
 
 \ counted loops
 
