@@ -650,7 +650,6 @@ Defer parser1 ( c-addr u -- ... xt)
 : parser ( c-addr u -- ... )
 \ text-interpret the word/number c-addr u, possibly producing a number
     parser1 execute ;
-
 has? ec [IF]
     ' (name) Alias parse-name
     : no.extensions  2drop -&13 throw ;
@@ -681,11 +680,17 @@ Defer interpreter-notfound1 ( c-addr count -- ... xt )
 Defer before-word ( -- ) \ gforth
 \ called before the text interpreter parses the next word
 ' noop IS before-word
+
+Defer before-line ( -- ) \ gforth
+\ called before the text interpreter parses the next line
+' noop IS before-line
+
 [THEN]
 
 has? backtrace [IF]
 : interpret1 ( ... -- ... )
     rp@ backtrace-rp0 !
+    [ has? EC 0= [IF] ] before-line [ [THEN] ]
     BEGIN
 	?stack [ has? EC 0= [IF] ] before-word [ [THEN] ] parse-name dup
     WHILE
