@@ -107,5 +107,5 @@
 	2dup + r@ $@len tuck max r@ $!len
 	r@ $@ rot /string bl fill
     THEN
-    r> $@ rot /string rot min move ;
+    r> $@ rot /string rot umin move ;
 [THEN]
