@@ -94,17 +94,17 @@ version-string 2constant gforth ( -- c-addr u ) \ gforth-environment
 
 : return-stack-cells ( -- n ) \ environment
     \G Maximum size of the return stack, in cells.
-    [ forthstart 6 cells + ] literal @ cell / ;
+    [ forthstart 6 cells + ] literal @ cell/ ;
 
 : stack-cells ( -- n ) \ environment
     \G Maximum size of the data stack, in cells.
-    [ forthstart 4 cells + ] literal @ cell / ;
+    [ forthstart 4 cells + ] literal @ cell/ ;
 
 : floating-stack ( -- n ) \ environment
     \G @var{n} is non-zero, showing that Gforth maintains a separate
     \G floating-point stack of depth @var{n}.
     [ forthstart 5 cells + ] literal @
-    [IFDEF] float  float  [ELSE]  [ 1 floats ] Literal [THEN] / ;
+    [IFDEF] float/  float/  [ELSE]  [ 1 floats ] Literal / [THEN] ;
 
 15 constant #locals \ 1000 64 /
     \ One local can take up to 64 bytes, the size of locals-buffer is 1000

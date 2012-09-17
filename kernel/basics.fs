@@ -284,7 +284,7 @@ is throw
 : depth ( -- +n ) \ core depth
     \G @var{+n} is the number of values that were on the data stack before
     \G @var{+n} itself was placed on the stack.
-    sp@ sp0 @ swap - cell / ;
+    sp@ sp0 @ swap - cell/ ;
 
 : clearstack ( ... -- ) \ gforth clear-stack
 \G remove and discard all/any items from the data stack.

@@ -73,13 +73,13 @@ s" address-unit-bits" environment? drop constant bits/au
 	else
 	    coffset 0<> cell1 coffset + cell2 = and
 	    if
-		cell1 cbase - cell / { tag }
+		cell1 cbase - cell/ { tag }
 		tag >tag $4000 xor file-id write-cell throw
 		i reloc-bits set-bit
 	    else
 		xoffset 0<> cell1 xoffset + cell2 = and
 		if
-		    cell1 xbase - cell / { tag }
+		    cell1 xbase - cell/ { tag }
 		    tag >tag file-id write-cell throw
 		    i reloc-bits set-bit
 		else
@@ -102,13 +102,13 @@ s" address-unit-bits" environment? drop constant bits/au
     name slurp-file { image2 size2 }
     size1 size2 <> abort" image sizes differ"
     name ( "new-image" ) w/o bin create-file throw { outfile }
-    size1 header-offset - 1- cell / bits/au / 1+ { reloc-size }
+    size1 header-offset - 1- cell/ bits/au / 1+ { reloc-size }
     reloc-size allocate throw { reloc-bits }
     reloc-bits reloc-size erase
     image1 header-offset outfile write-file throw
     base @ hex
     image1 header-offset +  image2 header-offset +  reloc-bits
-    size1 header-offset - aligned cell /  outfile  compare-images
+    size1 header-offset - aligned cell/  outfile  compare-images
     base !
     reloc-bits reloc-size outfile write-file throw
     outfile close-file throw ;

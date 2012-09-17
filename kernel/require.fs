@@ -68,7 +68,7 @@ create image-included-files 1 , A, ( pointer to and count of included files )
 : add-included-file ( c-addr u -- ) \ gforth
     \G add name c-addr u to included-files
     included-files 2@ 2* cells 2 cells extend-mem
-    2/ cell / included-files 2!
+    2/ cell/ included-files 2!
     2! ;
 
 : included1 ( i*x file-id c-addr u -- j*x ) \ gforth

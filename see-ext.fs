@@ -26,7 +26,7 @@
 : c-@local#
     Display? IF
 	S" @local" 0 .string
-	dup @ dup 1 cells / abs 0 <# #S rot sign #> 0 .string bl cemit
+	dup @ dup cell/ abs 0 <# #S rot sign #> 0 .string bl cemit
     THEN
     cell+ ;
 
@@ -45,7 +45,7 @@
 : c-f@local#
     Display? IF
 	S" f@local" 0 .string
-	dup @ dup 1 floats / abs 0 <# #S rot sign #> 0 .string bl cemit
+	dup @ dup float/ abs 0 <# #S rot sign #> 0 .string bl cemit
     THEN
     cell+ ;
 
