@@ -1516,6 +1516,10 @@ c_addr2 = c_addr1+1;
 :
  dup 1+ swap c@ ;
 
+cell/ ( n1 -- n2 )	gforth cell_divide
+""@i{n2} is the number of cells that fit into @i{n1}""
+n2 = n1 / sizeof(Cell);
+
 \g compiler
 
 \+f83headerstring
@@ -2474,6 +2478,15 @@ if (flag) {
   fp--;
   fp[0]=r;
 }
+
+float/ ( n1 -- n2 )	gforth	float_divide
+n2 = n1 / sizeof(Float);
+
+dfloat/ ( n1 -- n2 )	gforth	sfloat_divide
+n2 = n1 / sizeof(DFloat);
+
+sfloat/ ( n1 -- n2 )	gforth	dfloat_divide
+n2 = n1 / sizeof(SFloat);
 
 \+
 
