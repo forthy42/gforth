@@ -19,7 +19,7 @@
 
 arch=$1
 
-./gforth --die-on-signal -m 4M -p ".:~+:." -i @kernel_fi@ exboot.fs -e 'fpath= .|~+|.' -e "s\" arch/$arch/mach.fs\"" ./kernel/main.fs -e "save-cross kernl-$arch.fi- /usr/local/bin/gforth bye"
+./gforth --die-on-signal -m 4M -p ".:~+:." -i @kernel_fi@ exboot.fs -e 'fpath= .|~+|.' -e "s\" arch/$arch/mach.fs\"" ./kernel-ec/main.fs -e "save-cross kernl-$arch.fi- /usr/local/bin/gforth bye"
 if [ -f arch/$arch/mach.sh ] 
 then sh arch/$arch/mach.sh kernl-$arch.fi
 else cp -p kernl-$arch.fi- kernl-$arch.fi
