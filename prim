@@ -1109,7 +1109,7 @@ if (u1<u2)
 else
   u = u1;
 :
- 2dup u< IF swap THEN drop ;
+ 2dup u> select ;
 
 umin	( u1 u2 -- u )	core
 if (u1<u2)
@@ -1117,7 +1117,19 @@ if (u1<u2)
 else
   u = u2;
 :
- 2dup u> IF swap THEN drop ;
+ 2dup u< select ;
+
+mux   ( u1 u2 u3 -- u )	   gforth
+""multiplex @i{u1} for 1 bits in @i{u3}, @i{u2} for 0 bits in @i{u3} into @i{u}""
+u = (u3 & u1) | (~u3 & u2);
+:
+ tuck and >r invert and r> ;
+
+select ( u1 u2 f -- u )	   gforth
+""select @i{u1} if @i{f} is true, @i{u2} if false.""
+u = f ? u1 : u2;
+:
+ IF swap THEN nip ;
 
 \g compare
 
@@ -1519,6 +1531,13 @@ c_addr2 = c_addr1+1;
 cell/ ( n1 -- n2 )	gforth cell_divide
 ""@i{n2} is the number of cells that fit into @i{n1}""
 n2 = n1 / sizeof(Cell);
+:
+ [ cell
+ 2/ dup [IF] ] 2/ [ [THEN]
+ 2/ dup [IF] ] 2/ [ [THEN]
+ 2/ dup [IF] ] 2/ [ [THEN]
+ 2/ dup [IF] ] 2/ [ [THEN]
+ drop ] ;
 
 \g compiler
 
