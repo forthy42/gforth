@@ -1539,6 +1539,12 @@ n2 = n1 / sizeof(Cell);
  2/ dup [IF] ] 2/ [ [THEN]
  drop ] ;
 
+cell-	( a_addr1 -- a_addr2 )	core	cell_minus
+""@code{1 cells -}""
+a_addr2 = a_addr1-1;
+:
+ cell - ;
+
 \g compiler
 
 \+f83headerstring

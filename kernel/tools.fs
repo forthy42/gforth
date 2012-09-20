@@ -87,21 +87,21 @@ Variable /dump
 
 include  ./../termsize.fs
 
+: map-wordlist ( wid xt -- )  >r
+    [ has? ec 0= [IF] ] wordlist-id [ [THEN] ] cell+
+    BEGIN
+	1 cells - @ dup
+    WHILE
+	    r@ over >r execute r>
+    REPEAT  drop rdrop ;
+
+: .word ( n nt -- n' )  name>string tuck 2>r
+    1+ tuck + dup cols >=  IF  cr drop  ELSE  nip  THEN
+    2r> type space ;
+
 : wordlist-words ( wid -- ) \ gforth
     \G Display the contents of the wordlist wid.
-    [ has? ec 0= [IF] ] wordlist-id [ [THEN] ]
-    0 swap cr
-    BEGIN
-	@ dup
-    WHILE
-	2dup name>string nip 2 + dup >r +
-	cols >=
-	IF
-	    cr nip 0 swap
-	THEN
-	dup name>string type space r> rot + swap
-    REPEAT
-    2drop ;
+    0 swap cr ['] .word map-wordlist drop ;
 
 : words
     \G ** this will not get annotated. See other defn in search.fs .. **

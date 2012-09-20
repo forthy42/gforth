@@ -62,7 +62,7 @@ UNLOCK  Tlast @ TNIL Tlast !  LOCK
 
 UNLOCK Tlast @ swap Tlast ! LOCK
 \ last @ swap last !
-1 cells - [struct]-voc cell+ !
+[struct]-voc cell+ !
 
 \ Interpretative Structuren                            30apr92py
 

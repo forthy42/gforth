@@ -382,17 +382,16 @@ has? f83headerstring [IF]
         swap @ swap
     THEN ;
 [ELSE]
-: name>string ( xt -- addr count ) \ gforth     name-to-string
+: name>string ( nt -- addr count ) \ gforth     name-to-string
     \g @i{addr count} is the name of the word represented by @i{nt}.
-    1 cells - dup @ lcount-mask and tuck - swap ;
+    2 cells - dup @ lcount-mask and tuck - swap ;
 
-: ((name>))  ( nfa -- cfa )
-    cell+ ;
+: ((name>))  ( nfa -- cfa ) ;
 
 : (name>x) ( nfa -- cfa w )
     \ cfa is an intermediate cfa and w is the flags cell of nfa
     dup ((name>))
-    swap 1 cells - @ dup alias-mask and 0=
+    swap 2 cells - @ dup alias-mask and 0=
     IF
         swap @ swap
     THEN ;
@@ -432,7 +431,7 @@ has? f83headerstring [IF]
 
 [IFDEF] prelude-mask
 : name>prelude ( nt -- xt )
-    dup cell+ @ prelude-mask and if
+    dup 2 cells - @ prelude-mask and if
 	[ -1 cells ] literal + @
     else
 	drop ['] noop
@@ -449,20 +448,20 @@ const Create ???  0 , 3 , char ? c, char ? c, char ? c,
 : one-head? ( addr -- f )
 \G heuristic check whether addr is a name token; may deliver false
 \G positives; addr must be a valid address
-    dup cell+ dup maxaligned <>
+    dup dup maxaligned <>
     if
         drop false exit \ heads are aligned
     then
-    dup 1 cells - @ alias-mask and 0= >r
+    dup 2 cells - @ alias-mask and 0= >r
     dup name>string dup $20 $1 within if
         rdrop 2drop drop false exit \ realistically the name is short
     then
-    over + cfaligned over - 2dup bounds ?do \ should be a printable string
+    bounds ?do \ should be a printable string
 	i c@ bl < if
 	    2drop unloop rdrop drop false exit
 	then
     loop
-    2drop cell+ r> if \ check for valid aliases
+    2drop r> if \ check for valid aliases
 	@ dup forthstart here within
 	over ['] noop ['] lit-execute 1+ within or
 	over dup aligned = and
@@ -496,9 +495,9 @@ const Create ???  0 , 3 , char ? c, char ? c, char ? c,
     loop
     drop true ;
 
-: >head-noprim ( cfa -- nt ) \ gforth  to-head-noprim
+: >head-noprim ( xt -- nt ) \ gforth  to-head-noprim
     \ also heuristic
-    1 cells - ;
+;
 
 [ELSE]
 

@@ -221,7 +221,7 @@ Cell capscompare(Char *c_addr1, UCell u1, Char *c_addr2, UCell u2)
 
 struct Longname *listlfind(Char *c_addr, UCell u, struct Longname *longname1)
 {
-  for (; longname1 != NULL; longname1 = (struct Longname *)(longname1->next))
+  for (; longname1 != NULL; longname1 = LONGNAME_NEXT(longname1))
     if ((UCell)LONGNAME_COUNT(longname1)==u &&
 	memcasecmp(c_addr, LONGNAME_NAME(longname1), u)== 0 /* or inline? */)
       break;

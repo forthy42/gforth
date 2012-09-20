@@ -168,14 +168,14 @@ variable locals-mem-list \ linked list of all locals name memory in
 : list-length ( list -- u )
     0 swap begin ( u1 list1 )
 	dup while
-	    @ swap 1+ swap
+	    cell- @ swap 1+ swap
     repeat
     drop ;
 
 : /list ( list1 u -- list2 )
     \ list2 is list1 with the first u elements removed
     0 ?do
-	@
+	cell- @
     loop ;
 
 : common-list ( list1 list2 -- list3 )
@@ -183,9 +183,10 @@ variable locals-mem-list \ linked list of all locals name memory in
     over list-length over list-length - dup 0< if
 	negate >r swap r>
     then ( long short u )
-    rot swap /list begin ( list3 list4 )
+    rot swap /list
+    begin ( list3 list4 )
 	2dup u<> while
-	    @ swap @
+	    cell- @ swap cell- @
     repeat
     drop ;
 
@@ -230,7 +231,7 @@ variable locals-mem-list \ linked list of all locals name memory in
     while
 	over
 	((name>)) >body @ max
-	swap @ swap ( get next )
+	swap cell- @ swap ( get next )
     repeat
     faligned nip ;
 

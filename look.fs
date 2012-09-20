@@ -45,7 +45,7 @@ decimal
     swap
     >r false swap
     BEGIN
-	@ dup
+	cell- @ dup
     WHILE
 	    dup name>int
 	    r@ = IF

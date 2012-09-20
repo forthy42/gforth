@@ -2252,7 +2252,7 @@ Defer setup-execution-semantics  ' noop IS setup-execution-semantics
     ELSE
 	T align H view,
 	>in @ T name, H >in !
-	tlast @ dup 0> IF tcell - THEN T A, H  there tlast !
+	tlast @ T A, H  there tlast !
 	1 headers-named +!	\ Statistic
     THEN
     T cfalign here H tlastcfa !
