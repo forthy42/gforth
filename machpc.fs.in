@@ -48,6 +48,8 @@ true DefaultValue backtrace	\ enables backtrace code
 
 true DefaultValue new-input	\ enables object oriented input
 
+true DefaultValue new-header    \ enables new headers
+
 @PEEPHOLEFLAG@ DefaultValue peephole      \ enables peephole optimizer
 
 true DefaultValue primcentric   \ enables primcentric code

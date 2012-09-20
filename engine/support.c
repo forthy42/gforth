@@ -223,7 +223,7 @@ struct Longname *listlfind(Char *c_addr, UCell u, struct Longname *longname1)
 {
   for (; longname1 != NULL; longname1 = (struct Longname *)(longname1->next))
     if ((UCell)LONGNAME_COUNT(longname1)==u &&
-	memcasecmp(c_addr, (Char *)(longname1->name), u)== 0 /* or inline? */)
+	memcasecmp(c_addr, LONGNAME_NAME(longname1), u)== 0 /* or inline? */)
       break;
   return longname1;
 }
@@ -236,7 +236,7 @@ struct Longname *hashlfind(Char *c_addr, UCell u, Cell *a_addr)
     longname1=(struct Longname *)(a_addr[1]);
     a_addr=(Cell *)(a_addr[0]);
     if ((UCell)LONGNAME_COUNT(longname1)==u &&
-	memcasecmp(c_addr, (Char *)(longname1->name), u)== 0 /* or inline? */) {
+	memcasecmp(c_addr, LONGNAME_NAME(longname1), u)== 0 /* or inline? */) {
       return longname1;
     }
   }
@@ -250,7 +250,7 @@ struct Longname *tablelfind(Char *c_addr, UCell u, Cell *a_addr)
     longname1=(struct Longname *)(a_addr[1]);
     a_addr=(Cell *)(a_addr[0]);
     if ((UCell)LONGNAME_COUNT(longname1)==u &&
-	memcmp(c_addr, longname1->name, u)== 0 /* or inline? */) {
+	memcmp(c_addr, LONGNAME_NAME(longname1), u)== 0 /* or inline? */) {
       return longname1;
     }
   }

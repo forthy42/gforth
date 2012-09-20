@@ -348,7 +348,13 @@ struct Longname {
   char		name[0];
 };
 
-#define LONGNAME_COUNT(np)	((np)->countetc & (((~((UCell)0))<<4)>>4))
+#ifdef OLD_HEADER
+# define LONGNAME_COUNT(np)	((np)->countetc & (((~((UCell)0))<<4)>>4))
+# define LONGNAME_NAME(np)      ((Char *)((np)->name))
+#else
+# define LONGNAME_COUNT(np)     ((((Cell*)np)[-1]) & (((~((UCell)0))<<4)>>4))
+# define LONGNAME_NAME(np)      ((Char *)(np)-sizeof(Cell)-LONGNAME_COUNT(np))
+#endif
 
 struct Cellpair {
   Cell n1;

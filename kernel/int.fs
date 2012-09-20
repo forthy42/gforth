@@ -382,17 +382,17 @@ has? f83headerstring [IF]
         swap @ swap
     THEN ;
 [ELSE]
-: name>string ( nt -- addr count ) \ gforth     name-to-string
+: name>string ( xt -- addr count ) \ gforth     name-to-string
     \g @i{addr count} is the name of the word represented by @i{nt}.
-    cell+ dup cell+ swap @ lcount-mask and ;
+    1 cells - dup @ lcount-mask and tuck - swap ;
 
 : ((name>))  ( nfa -- cfa )
-    name>string + cfaligned ;
+    cell+ ;
 
 : (name>x) ( nfa -- cfa w )
     \ cfa is an intermediate cfa and w is the flags cell of nfa
     dup ((name>))
-    swap cell+ @ dup alias-mask and 0=
+    swap 1 cells - @ dup alias-mask and 0=
     IF
         swap @ swap
     THEN ;

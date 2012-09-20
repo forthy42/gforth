@@ -61,9 +61,13 @@
 \ : aligned ( addr -- addr' ) \ core
 \     [ cell 1- ] Literal + [ -1 cells ] Literal and ;
 
+: >align ( addr a-addr -- ) \ gforth
+    \G add enough spaces to reach a-addr
+    swap ?DO  bl c,  LOOP ;
+
 : align ( -- ) \ core
     \G If the data-space pointer is not aligned, reserve enough space to align it.
-    here dup aligned swap ?DO  bl c,  LOOP ;
+    here dup aligned >align ;
 
 \ : faligned ( addr -- f-addr ) \ float f-aligned
 \     [ 1 floats 1- ] Literal + [ -1 floats ] Literal and ; 
@@ -71,17 +75,11 @@
 : falign ( -- ) \ float f-align
     \G If the data-space pointer is not float-aligned, reserve
     \G enough space to align it.
-    here dup faligned swap
-    ?DO
-	bl c,
-    LOOP ;
+    here dup faligned >align ;
 
 : maxalign ( -- ) \ gforth
     \G Align data-space pointer for all alignment requirements.
-    here dup maxaligned swap
-    ?DO
-	bl c,
-    LOOP ;
+    here dup maxaligned >align ;
 
 \ the code field is aligned if its body is maxaligned
 ' maxalign Alias cfalign ( -- ) \ gforth
@@ -107,6 +105,11 @@
     \G puts down string as longcstring
     dup , here swap chars dup allot move ;
 
+: nlstring, ( c-addr u -- ) \ gforth
+    \G puts down string as longcstring
+    tuck here swap chars dup allot move , ;
+
+
 [IFDEF] prelude-mask
 variable next-prelude
 
@@ -120,10 +123,18 @@ variable next-prelude
     name-too-long?
     dup max-name-length @ max max-name-length !
     [ [IFDEF] prelude-mask ] prelude, [ [THEN] ]
-    align here last !
-    current @ 1 or A,	\ link field; before revealing, it contains the
-			\ tagged reveal-into wordlist
-    longstring, alias-mask lastflags cset
+    [ has? new-header [IF] ]
+	dup here + cell+ cell+ dup maxaligned >align
+	nlstring,  here last !
+	current @ 1 or A,	\ link field; before revealing, it contains the
+	                        \ tagged reveal-into wordlist
+    [ [ELSE] ]
+	align here last !
+	current @ 1 or A,	\ link field; before revealing, it contains the
+	\ tagged reveal-into wordlist
+	longstring,
+    [ [THEN] ]
+    alias-mask lastflags cset
     next-prelude @ 0<> prelude-mask and lastflags cset
     next-prelude off
     cfalign ;
@@ -413,7 +424,8 @@ has? recognizer 0= [IF]
 : lastflags ( -- c-addr )
     \ the address of the flags byte in the last header
     \ aborts if the last defined word was headerless
-    latest dup 0= abort" last word was headerless" cell+ ;
+    latest dup 0= abort" last word was headerless"
+    [ has? new-header [IF] ] 1 cells - [ [ELSE] ] cell+ [ [THEN] ] ;
 
 : immediate ( -- ) \ core
     \G Make the compilation semantics of a word be to @code{execute}

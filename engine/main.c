@@ -2437,6 +2437,10 @@ void gforth_setstacks()
 #if !(defined(GFORTH_DEBUGGING) || defined(INDIRECT_THREADED) || defined(DOUBLY_INDIRECT) || defined(VM_PROFILING))
   gforth_UP->sp0 -= 8; /* make stuff below bottom accessible for stack caching */
   gforth_UP->fp0--;
+#else
+#ifdef DEBUG
+  gforth_UP->sp0--; // debug will print TOS even if the stack is empty
+#endif
 #endif
 
   gforth_SP = gforth_UP->sp0;
