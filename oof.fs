@@ -649,7 +649,7 @@ Forth definitions
 : interface ( -- ) \ oof-interface- oof
     Create  interface-does>
     here lastif !  0 ,  get-current old-current !
-    last-interface @ dup  IF  :inum @  THEN  1 cells - inter# !
+    last-interface @ dup  IF  :inum @  THEN  cell- inter# !
     get-order wordlist
     dup inter-list ! dup set-current swap 1+ set-order
     true decl !

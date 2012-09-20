@@ -90,7 +90,7 @@ include  ./../termsize.fs
 : map-wordlist ( wid xt -- )  >r
     [ has? ec 0= [IF] ] wordlist-id [ [THEN] ] cell+
     BEGIN
-	1 cells - @ dup
+	cell- @ dup
     WHILE
 	    r@ over >r execute r>
     REPEAT  drop rdrop ;

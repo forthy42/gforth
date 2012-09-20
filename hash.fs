@@ -100,7 +100,7 @@ Defer hash-alloc ( addr -- addr )
     wordlist-extend
     insRule @ >r  insRule off  1 hash-alloc over ! 3 cells -
     dup wordlist-id cell+
-    BEGIN  1 cells - @ dup  WHILE  2dup swap (reveal  REPEAT
+    BEGIN  cell- @ dup  WHILE  2dup swap (reveal  REPEAT
     2drop  r> insRule ! ;
 
 : addall  ( -- )

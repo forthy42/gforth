@@ -252,7 +252,7 @@ ACONSTANT MaxTable
                 dup @
                 BranchAddr?
                 BEGIN
-                WHILE 1 cells - @
+                WHILE cell- @
                       over <>
                 WHILE dup @
                       MoreBranchAddr?
@@ -289,7 +289,7 @@ ACONSTANT MaxTable
         1 cells BranchPointer +! ;
 
 : Type!   ( u -- )
-        BranchPointer @ 1 cells - ! ;
+        BranchPointer @ cell- ! ;
 
 : Branch! ( a-addr rel -- a-addr )
     over ,Branch ,Branch 0 ,Branch ;
@@ -315,7 +315,7 @@ VARIABLE C-Pass
     \ print x as a word if possible
     dup look 0= IF
 	drop dup threaded>name dup 0= if
-	    drop over 1 cells - @ dup body> look
+	    drop over cell- @ dup body> look
 	    IF
 		nip nip dup ." <" name>string rot wordinfo .string ." > "
 	    ELSE
@@ -393,7 +393,7 @@ VARIABLE C-Pass
 : .name-without ( addr -- addr )
     \ !! the stack effect cannot be correct
     \ prints a name without a() e.g. a(+LOOP) or (s")
-    dup 1 cells - @ threaded>name dup IF
+    dup cell- @ threaded>name dup IF
 	name>string over c@ 'a = IF
 	    1 /string
 	THEN
@@ -463,7 +463,7 @@ VARIABLE C-Pass
     \ a-addr is pointer into branch table
     \ returns true when jump is a forward jump
     IF
-	dup dup @ swap 1 cells - @ u> IF
+	dup dup @ swap cell- @ u> IF
 	    true
 	ELSE
 	    drop false
@@ -475,7 +475,7 @@ VARIABLE C-Pass
 
 : RepeatCheck ( a-addr1 a-addr2 true | false -- false )
         IF  BEGIN  2dup
-                   1 cells - @ swap @
+                   cell- @ swap @
                    u<=
             WHILE  drop dup cell+
                    MoreBranchAddr? 0=
@@ -587,7 +587,7 @@ VARIABLE C-Pass
     DebugBranch cell+ ;
 
 : c-exit ( addr1 -- addr2 )
-    dup 1 cells -
+    dup cell-
     CheckEnd
     IF
 	Display? IF nlflag off S" ;" Com# .string THEN

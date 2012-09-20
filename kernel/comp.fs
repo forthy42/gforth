@@ -607,7 +607,7 @@ G -1 warnings T !
 
 : (reveal) ( nt wid -- )
     wordlist-id dup >r
-    @ over 1 cells - ! 
+    @ over cell- ! 
     r> ! ;
 
 \ make entry in wordlist-map
@@ -630,9 +630,9 @@ G -1 warnings T !
 : reveal ( -- ) \ gforth
     last?
     if \ the last word has a header
-	dup 1 cells - @ 1 and
+	dup cell- @ 1 and
 	if \ it is still hidden
-	    dup 1 cells - @ 1 xor		( nt wid )
+	    dup cell- @ 1 xor		( nt wid )
 	    2dup >r name>string r> check-shadow ( nt wid )
 	    dup wordlist-map @ reveal-method perform
 	else

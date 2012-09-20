@@ -59,7 +59,7 @@ Variable score     0 score !  \ total number of scores
 : count-$ ( addr u -- n )  0 rot rot
     over + swap ?DO  I c@ [char] $ = -  LOOP ;
 : m: ( "string" -- )  \ add a level line (top first!)
-    -1 parse tuck 2dup count-$ >maze @ 1 cells - +!
+    -1 parse tuck 2dup count-$ >maze @ cell- +!
     here swap move dup allot
     /maze swap - here over bl fill allot
     >maze @ here over cell+ - swap ! ;

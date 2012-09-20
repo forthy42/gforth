@@ -325,7 +325,7 @@ Variable callbacks
   DOES> 2@ compile, ;
 
 : init-callbacks ( -- )
-    defers 'cold  callbacks 1 cells -
+    defers 'cold  callbacks cell-
     BEGIN  cell+ @ dup  WHILE  dup cell+ cell+ alloc-callback over !
     REPEAT  drop ;
 
