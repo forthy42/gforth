@@ -30,7 +30,7 @@
 	IFERROR  2drop drop false nothrow ELSE  true  THEN  ENDTRY ;
 
 : .string. ( addr u -- )
-    .\" s\" " type '"' emit space ;
+    '"' emit type '"' emit space ;
 : .addr. ( addr -- )
     dup >name dup IF  ." ' " .name drop  ELSE  drop hex.  THEN ;
 : .var. ( addr -- )

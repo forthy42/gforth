@@ -88,7 +88,7 @@ has? rom
     THEN ;
 [ELSE]
 : look ( cfa -- lfa flag )
-    >head-noprim dup ??? <> ;
+    >head-noprim dup ['] ??? <> ;
 [THEN]
 
 [ELSE]
@@ -101,7 +101,7 @@ has? rom
 : look ( xt -- lfa flag )
     dup in-dictionary?
     IF
-	>head-noprim dup ??? <>
+	>head-noprim dup ['] ??? <>
     ELSE
 	prim>name dup 0<>
     THEN ;

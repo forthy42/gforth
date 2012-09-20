@@ -438,8 +438,7 @@ has? f83headerstring [IF]
     then ;
 [THEN]
 
-const Create ???  0 , 3 , char ? c, char ? c, char ? c,
-\ ??? is used by dovar:, must be created/:dovar
+const Create ???
 
 [IFDEF] forthstart
 \ if we have a forthstart we can define head? with it
@@ -461,7 +460,7 @@ const Create ???  0 , 3 , char ? c, char ? c, char ? c,
 	    2drop unloop rdrop drop false exit
 	then
     loop
-    2drop r> if \ check for valid aliases
+    r> if \ check for valid aliases
 	@ dup forthstart here within
 	over ['] noop ['] lit-execute 1+ within or
 	over dup aligned = and
@@ -485,7 +484,7 @@ const Create ???  0 , 3 , char ? c, char ? c, char ? c,
 	dup one-head? 0= if
 	    drop false unloop exit
 	endif
-	dup @ dup 0= if
+	dup cell- @ dup 0= if
 	    2drop 1 unloop exit
 	else
 	    dup rot forthstart within if
@@ -497,7 +496,7 @@ const Create ???  0 , 3 , char ? c, char ? c, char ? c,
 
 : >head-noprim ( xt -- nt ) \ gforth  to-head-noprim
     \ also heuristic
-;
+    dup head? 0= IF  drop ['] ???  THEN ;
 
 [ELSE]
 
@@ -512,7 +511,7 @@ const Create ???  0 , 3 , char ? c, char ? c, char ? c,
 	if ( cfa ) i - cell - unloop exit
 	then
 	cell +loop
-    drop ??? ( wouldn't 0 be better? ) ;
+    drop ['] ??? ( wouldn't 0 be better? ) ;
 
 [THEN]
 

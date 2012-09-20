@@ -39,7 +39,7 @@ doer? :dovar [IF]
     \G The code address of a @code{CREATE}d word.
     \ in rom-applications variable might be implemented with constant
     \ use really a created word!
-    ['] ??? >code-address ;
+    ['] udp >code-address ;
 [THEN]
 
 doer? :douser [IF]

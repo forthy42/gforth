@@ -324,7 +324,7 @@ VARIABLE C-Pass
 	    EXIT
 	then
     THEN
-    nip dup cell+ @ immediate-mask and
+    nip dup 2 cells - @ immediate-mask and
     IF
 	bl cemit  ." POSTPONE "
     THEN
