@@ -449,20 +449,20 @@ const Create ???  0 , 3 , char ? c, char ? c, char ? c,
 : one-head? ( addr -- f )
 \G heuristic check whether addr is a name token; may deliver false
 \G positives; addr must be a valid address
-    dup dup aligned <>
+    dup cell+ dup maxaligned <>
     if
         drop false exit \ heads are aligned
     then
-    dup cell+ @ alias-mask and 0= >r
-    name>string dup $20 $1 within if
-        rdrop 2drop false exit \ realistically the name is short
+    dup 1 cells - @ alias-mask and 0= >r
+    dup name>string dup $20 $1 within if
+        rdrop 2drop drop false exit \ realistically the name is short
     then
     over + cfaligned over - 2dup bounds ?do \ should be a printable string
 	i c@ bl < if
-	    2drop unloop rdrop false exit
+	    2drop unloop rdrop drop false exit
 	then
     loop
-    + r> if \ check for valid aliases
+    2drop cell+ r> if \ check for valid aliases
 	@ dup forthstart here within
 	over ['] noop ['] lit-execute 1+ within or
 	over dup aligned = and
@@ -498,24 +498,7 @@ const Create ???  0 , 3 , char ? c, char ? c, char ? c,
 
 : >head-noprim ( cfa -- nt ) \ gforth  to-head-noprim
     \ also heuristic
-    dup forthstart - max-name-length @
-    [ has? float [IF] ] float+ [ [ELSE] ] cell+ [ [THEN] ] cell+ min
-    cell max cell ?do ( cfa )
-	dup i - dup @ [ alias-mask lcount-mask or ] literal
-	[ 1 bits/char 3 - lshift 1 - 1 bits/char 1 - lshift or
-	-1 cells allot bigendian [IF]   c, -1 1 cells 1- times
-	[ELSE] -1 1 cells 1- times c, [THEN] ]
-	and ( cfa len|alias )
-	swap + cell+ cfaligned over alias-mask + =
-	if ( cfa )
-	    dup i - cell - dup head?
-	    if
-		nip unloop exit
-	    then
-	    drop
-	then
-	cell +loop
-    drop ??? ( wouldn't 0 be better? ) ;
+    1 cells - ;
 
 [ELSE]
 
