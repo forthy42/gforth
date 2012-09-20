@@ -2042,7 +2042,7 @@ variable ResolveFlag
 
 \ : flag! ( 8b -- )   tlast @ dup >r T c@ xor r> c! H ;
 X has? f83headerstring bigendian or [IF] 0 [ELSE] tcell 1- [THEN]
-X has? new-header [IF] tcell 2* - [THEN] Constant flag+
+tcell 2* - Constant flag+
 : flag! ( w -- )   tlast @ flag+ + dup >r T c@ xor r> c! H ;
 
 VARIABLE ^imm
@@ -2078,13 +2078,9 @@ $20 constant restrict-mask
 X has? f83headerstring [IF]
 : name,  ( "name" -- )  bl word count ht-header, X cfalign ;
 [ELSE]
-    X has? new-header [IF]
-	: name,  ( "name" -- )  bl word count
-	    dup T here H + cfalign+ 0 ?DO  bl T c, H  LOOP
-	    ht-nlstring, X cfalign ;
-    [ELSE]
-	: name,  ( "name" -- )  bl word count ht-lstring, X cfalign ;
-    [THEN]
+    : name,  ( "name" -- )  bl word count
+	dup T here H + cfalign+ 0 ?DO  bl T c, H  LOOP
+	ht-nlstring, X cfalign ;
 [THEN]
 : view,   ( -- ) ( dummy ) ;
 >CROSS
@@ -2255,13 +2251,8 @@ Defer setup-execution-semantics  ' noop IS setup-execution-semantics
     IF  NoHeaderFlag off
     ELSE
 	T align H view,
-	[ X has? new-header ] [IF]
-	    >in @ T name, H >in !
-	    tlast @ dup 0> IF tcell - THEN T A, H  there tlast !
-	[ELSE]
-	    tlast @ dup 0> IF tcell - THEN T A, H  there tlast !
-	    >in @ T name, H >in !
-	[THEN]
+	>in @ T name, H >in !
+	tlast @ dup 0> IF tcell - THEN T A, H  there tlast !
 	1 headers-named +!	\ Statistic
     THEN
     T cfalign here H tlastcfa !

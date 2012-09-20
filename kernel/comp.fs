@@ -123,17 +123,10 @@ variable next-prelude
     name-too-long?
     dup max-name-length @ max max-name-length !
     [ [IFDEF] prelude-mask ] prelude, [ [THEN] ]
-    [ has? new-header [IF] ]
-	dup here + cell+ cell+ dup maxaligned >align
-	nlstring,  here last !
-	current @ 1 or A,	\ link field; before revealing, it contains the
-	                        \ tagged reveal-into wordlist
-    [ [ELSE] ]
-	align here last !
-	current @ 1 or A,	\ link field; before revealing, it contains the
-	\ tagged reveal-into wordlist
-	longstring,
-    [ [THEN] ]
+    dup here + cell+ cell+ dup maxaligned >align
+    nlstring,  here last !
+    current @ 1 or A,	\ link field; before revealing, it contains the
+    \ tagged reveal-into wordlist
     alias-mask lastflags cset
     next-prelude @ 0<> prelude-mask and lastflags cset
     next-prelude off
@@ -425,7 +418,7 @@ has? recognizer 0= [IF]
     \ the address of the flags byte in the last header
     \ aborts if the last defined word was headerless
     latest dup 0= abort" last word was headerless"
-    [ has? new-header [IF] ] 1 cells - [ [ELSE] ] cell+ [ [THEN] ] ;
+    1 cells - ;
 
 : immediate ( -- ) \ core
     \G Make the compilation semantics of a word be to @code{execute}
