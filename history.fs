@@ -173,7 +173,7 @@ Create prefix-found  0 , 0 ,
 		>r
 	    THEN
 	THEN
-	r> @
+	r> >link @
     REPEAT
     drop r> ;
 

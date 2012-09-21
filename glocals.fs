@@ -165,17 +165,19 @@ variable locals-mem-list \ linked list of all locals name memory in
 
 \ locals list operations
 
+[IFUNDEF] >link ' noop Alias >link [THEN]
+
 : list-length ( list -- u )
     0 swap begin ( u1 list1 )
-	dup while
-	    cell- @ swap 1+ swap
+       dup while
+           >link @ swap 1+ swap
     repeat
     drop ;
 
 : /list ( list1 u -- list2 )
     \ list2 is list1 with the first u elements removed
     0 ?do
-	cell- @
+	>link @
     loop ;
 
 : common-list ( list1 list2 -- list3 )
@@ -186,7 +188,7 @@ variable locals-mem-list \ linked list of all locals name memory in
     rot swap /list
     begin ( list3 list4 )
 	2dup u<> while
-	    cell- @ swap cell- @
+	    >link @ swap >link @
     repeat
     drop ;
 
@@ -231,7 +233,7 @@ variable locals-mem-list \ linked list of all locals name memory in
     while
 	over
 	((name>)) >body @ max
-	swap cell- @ swap ( get next )
+	swap >link @ swap ( get next )
     repeat
     faligned nip ;
 

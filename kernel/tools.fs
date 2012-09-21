@@ -87,13 +87,25 @@ Variable /dump
 
 include  ./../termsize.fs
 
-: map-wordlist ( wid xt -- )  >r
-    [ has? ec 0= [IF] ] wordlist-id [ [THEN] ] cell+
+: map-wordlist ( ... wid xt -- ... )  >r
+    \G xt: ( ... nt -- ... ) free to use the stack underneath
+    [ has? ec 0= [IF] ] wordlist-id [ [THEN] ] @
     BEGIN
-	cell- @ dup
+	dup
     WHILE
-	    r@ over >r execute r>
+	    r@ over >r execute r> >link @
     REPEAT  drop rdrop ;
+
+: traverse-wordlist ( ... wid xt -- ... )  >r
+    \G xt: ( ... nt -- f ... ) free to use the stack underneath
+    \G run as lot as f is true
+    [ has? ec 0= [IF] ] wordlist-id [ [THEN] ] @
+    BEGIN
+	dup
+    WHILE
+	    r@ over >r execute  WHILE r> >link @
+	REPEAT  r>
+    THEN  drop rdrop ;
 
 : .word ( n nt -- n' )  name>string tuck 2>r
     1+ tuck + dup cols >=  IF  cr drop  ELSE  nip  THEN

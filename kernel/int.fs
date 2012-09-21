@@ -386,7 +386,8 @@ has? f83headerstring [IF]
     \g @i{addr count} is the name of the word represented by @i{nt}.
     2 cells - dup @ lcount-mask and tuck - swap ;
 
-: ((name>))  ( nfa -- cfa ) ;
+' noop Alias ((name>))  ( nfa -- cfa )
+' cell- Alias >link
 
 : (name>x) ( nfa -- cfa w )
     \ cfa is an intermediate cfa and w is the flags cell of nfa
