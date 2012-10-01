@@ -69,7 +69,7 @@ c-library pthread
     \c   throw_jmp_handler = &throw_jmp_buf;
     \c   ((Cell*)(t->sp0))[-1]=(Cell)t;
     \c 
-    \c   while((throw_code=setjmp(*throw_jmp_handler))) {
+    \c   while((throw_code=setjmp(*(jmp_buf*)throw_jmp_handler))) {
     \c     signal_data_stack[15]=throw_code;
     \c     ip0=(void*)(t->throw_entry);
     \c     gforth_SP=signal_data_stack+15;
