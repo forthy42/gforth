@@ -56,7 +56,8 @@ extern void *gforth_engine(void *);
 extern char *cstr(char *from, Cell size);
 extern char *tilde_cstr(char *from, Cell size);
 extern __thread void *throw_jmp_handler;
-extern user_area* gforth_stacks();
+extern user_area* gforth_stacks(Cell dsize, Cell rsize, Cell fsize, Cell lsize);
+extern void gforth_free_stacks(user_area* t);
 #define GFORTH_ARGS void
 #else
 #define gforth_SP *((Cell **)(gforth_pointers(0)))
@@ -68,7 +69,8 @@ extern user_area* gforth_stacks();
 #define cstr ((char *(*)(char *, Cell))gforth_pointers(6))
 #define tilde_cstr ((char *(*)(char *, Cell))gforth_pointers(7))
 #define throw_jmp_handler *((void**)(gforth_pointers(8)))
-#define gforth_stacks ((user_area *(*)())gforth_pointers(9))
+#define gforth_stacks ((user_area *(*)(Cell, Cell, Cell, Cell))gforth_pointers(9))
+#define gforth_free_stacks ((void(*)(user_area* t))gforth_pointers(10))
 #define GFORTH_ARGS void *(*gforth_pointers)(Cell)
 #endif
 
