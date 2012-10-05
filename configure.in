@@ -1049,6 +1049,8 @@ AC_SUBST(PREFORTH)
 AC_SUBST(GFORTHKER)
 AC_SUBST(kernel_anti_dependence)
 AC_MSG_RESULT($PREFORTH)
+AC_DEFINE_UNQUOTED(KERNEL, "$kernel_fi", [The kernel to load in the image])
+AC_DEFINE_UNQUOTED(ARCH, "$machine", [architecture to run on ])
 
 #this breaks bindists
 #dnl replace srource directory by absolute value

@@ -410,6 +410,9 @@ Xt gforth_find(Char * name);
 int gforth_execute(Xt xt);
 void gforth_cleanup();
 void gforth_printmetrics();
+#if defined(DOUBLY_INDIRECT)
+int gforth_make_image(int debugflag);
+#endif
 
 /* for ABI-CODE and ;ABI-CODE */
 typedef Cell *abifunc(Cell *sp, Float **fpp);

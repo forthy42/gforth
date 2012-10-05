@@ -99,12 +99,16 @@ void android_main(struct android_app* state)
   
   app_dummy();
 
+#ifdef DOUBLY_INDIRECT
+  retvalue=gforth_make_image(0);
+#else
   retvalue=gforth_start(argc, argv);
 
   if(retvalue > 0) {
     gforth_execute(gforth_find("bootmessage"));
     retvalue = gforth_quit();
   }
+#endif
   exit(retvalue);
 }
 #else

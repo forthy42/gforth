@@ -2578,3 +2578,40 @@ int gforth_main(int argc, char **argv, char **env)
 
   return retvalue;
 }
+
+#if defined(DOUBLY_INDIRECT)
+int gforth_make_image(int debugflag)
+{
+  char *argv0[] = { "gforth", "--clear-dictionary", "--no-offset-im", "--die-on-signal", "-i", KERNEL, "exboot.fs", "startup.fs", "arch/" ARCH "/asm.fs", "arch/" ARCH "/disasm.fs", "-e", "savesystem temp-file.fi1 bye" };
+  char *argv1[] = { "gforth", "--clear-dictionary", "--offset-image", "--die-on-signal", "-i", KERNEL, "exboot.fs", "startup.fs", "arch/" ARCH "/asm.fs", "arch/" ARCH "/disasm.fs", "-e", "savesystem temp-file.fi2 bye" };
+  char *argv2[] = { "gforth", "--die-on-signal", "-i", KERNEL, "exboot.fs", "startup.fs", "comp-i.fs", "-e", "comp-image temp-file.fi1 temp-file.fi2 gforth.fi bye" };
+  const int argc0 = sizeof(argv0)/sizeof(char*);
+  const int argc1 = sizeof(argv1)/sizeof(char*);
+  const int argc2 = sizeof(argv2)/sizeof(char*);
+
+  int retvalue;
+
+  debug=debugflag;
+
+  retvalue=gforth_start(argc0, argv0);
+  gforth_free_stacks(gforth_UP);
+  gforth_free();
+
+  optind=1;
+
+  retvalue=gforth_start(argc1, argv1);
+  gforth_free_stacks(gforth_UP);
+  gforth_free();
+
+  optind=1;
+
+  retvalue=gforth_start(argc2, argv2);
+  gforth_free_stacks(gforth_UP);
+  gforth_free();
+  
+  unlink("temp-file.fi1");
+  unlink("temp-file.fi2");
+
+  return retvalue;
+}
+#endif
