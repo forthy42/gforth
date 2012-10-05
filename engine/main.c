@@ -621,6 +621,19 @@ static void *dict_alloc_read(FILE *file, Cell imagesize, Cell dictsize, Cell off
 }
 #endif
 
+void gforth_free()
+{
+  Cell image = (-pagesize) & (Cell)gforth_header;
+#ifdef HAVE_MMAP
+  debugp(stderr,"try unmmap(%p, $%lx); ", (void*)image, dictsize);
+  if(!munmap((void*)image, dictsize)) {
+    debugp(stderr,"ok\n");
+  }
+#else
+  free((void*)image);
+#endif
+}
+
 void set_stack_sizes(ImageHeader * header)
 {
   if (dictsize==0)
@@ -2345,6 +2358,7 @@ void* gforth_pointers(Cell n)
 #endif
   case 8: return (void*)&throw_jmp_handler;
   case 9: return (void*)&gforth_stacks;
+  case 10: return (void*)&gforth_free_stacks;
   default: return NULL;
   }
 }
@@ -2408,6 +2422,7 @@ user_area* gforth_stacks(Cell dsize, Cell rsize, Cell fsize, Cell lsize)
 #ifdef SIGSTKSZ
   totalsize += 2*SIGSTKSZ;
 #endif
+#ifdef HAVE_MMAP
   a = (Cell)alloc_mmap(totalsize);
   if (a != (Cell)MAP_FAILED) {
     up0=(user_area*)a; a+=pagesize;
@@ -2427,6 +2442,47 @@ user_area* gforth_stacks(Cell dsize, Cell rsize, Cell fsize, Cell lsize)
     return up0;
   }
   return 0;
+#else
+  a = (Cell)verbose_malloc(totalsize);
+  if (a != NULL) {
+    up0=(user_area*)a; a+=pagesize;
+    a+=pagesize; up0->sp0=a+dsize; a+=dsizep;
+    a+=pagesize; up0->rp0=a+rsize; a+=rsizep;
+    a+=pagesize; up0->fp0=a+fsize; a+=fsizep;
+    a+=pagesize; up0->lp0=a+lsize; a+=lsizep;
+    a+=pagesize;
+#ifdef SIGSTKSZ
+    sigstack.ss_sp=(void*)a+SIGSTKSZ;
+    sigstack.ss_size=SIGSTKSZ;
+    sas_retval=sigaltstack(&sigstack,(stack_t *)0);
+#if defined(HAS_FILE) || !defined(STANDALONE)
+    debugp(stderr,"sigaltstack: %s\n",strerror(sas_retval));
+#endif
+#endif
+    return up0;
+  }
+  return 0;
+#endif
+}
+
+void gforth_free_stacks(user_area * t)
+{
+#if HAVE_GETPAGESIZE
+  Cell pagesize=getpagesize(); /* Linux/GNU libc offers this */
+#elif HAVE_SYSCONF && defined(_SC_PAGESIZE)
+  Cell pagesize=sysconf(_SC_PAGESIZE); /* POSIX.4 */
+#elif PAGESIZE
+  Cell pagesize=PAGESIZE; /* in limits.h according to Gallmeister's POSIX.4 book */
+#endif
+  Cell size = wholepage((Cell)((t)->lp0)+pagesize-(Cell)t);
+#ifdef SIGSTKSZ
+  size += 2*SIGSTKSZ;
+#endif
+#ifdef HAVE_MMAP
+  munmap(t, size);
+#else
+  free(t);
+#endif
 }
 
 void gforth_setstacks()
@@ -2518,6 +2574,7 @@ int gforth_main(int argc, char **argv, char **env)
   }
   gforth_cleanup();
   gforth_printmetrics();
+  gforth_free();
 
   return retvalue;
 }
