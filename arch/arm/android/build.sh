@@ -2,7 +2,7 @@
 
 # takes as extra argument a directory where to look for .so-s
 
-if [ -z "$ENGINE ]
+if [ -z "$ENGINE" ]
 then
    ENGINE=-fast
    EXT=""
@@ -10,7 +10,7 @@ else
    EXT=$ENGINE
 fi
 
-sed -e 's/android:value="gforth-[a-z]*"/android:value="gforth-'$ENGINE'"/g' <AndroidManifest.xml >AndroidManifest.xml+
+sed -e 's/android:value="gforth[a-z-]*"/android:value="gforth'$ENGINE'"/g' <AndroidManifest.xml >AndroidManifest.xml+
 mv AndroidManifest.xml+ AndroidManifest.xml
 
 SRC=../../..

@@ -67,7 +67,7 @@ static void engine_handle_cmd(struct android_app* app, int32_t cmd)
 void android_main(struct android_app* state)
 {
   char statepointer[2*sizeof(char*)+3]; // 0x+hex digits+trailing 0
-  char *argv[] = { "gforth", "-i", "kernl32l.fi", "exboot.fs", "startup.fs", "arch/arm/asm.fs", "arch/arm/disasm.fs", "starta.fs" };
+  char *argv[] = { "gforth", "starta.fs" };
   const int argc = sizeof(argv)/sizeof(char*);
   int retvalue;
   int checkdir;
@@ -85,7 +85,6 @@ void android_main(struct android_app* state)
   } else {
     close(checkdir);
   }
-  chdir("/sdcard/gforth/home");
 
   state->onAppCmd = engine_handle_cmd;
   state->onInputEvent = engine_handle_input;
@@ -99,16 +98,22 @@ void android_main(struct android_app* state)
   
   app_dummy();
 
-#ifdef DOUBLY_INDIRECT
-  retvalue=gforth_make_image(0);
-#else
-  retvalue=gforth_start(argc, argv);
+  checkdir=open("/sdcard/gforth/site-forth/gforth.fi", O_RDONLY);
+  if(checkdir==-1) {
+    chdir("/sdcard/gforth/site-forth");
+    retvalue=gforth_make_image(0);
+  } else {
+    close(checkdir);
+  }
 
+  chdir("/sdcard/gforth/home");
+
+  retvalue=gforth_start(argc, argv);
+  
   if(retvalue > 0) {
     gforth_execute(gforth_find("bootmessage"));
     retvalue = gforth_quit();
   }
-#endif
   exit(retvalue);
 }
 #else
