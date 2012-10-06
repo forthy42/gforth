@@ -8,6 +8,7 @@ then
    EXT=""
 else
    EXT=$ENGINE
+fi
 
 sed -e 's/android:value="gforth-[a-z]*"/android:value="gforth-'$ENGINE'"/g' <AndroidManifest.xml >AndroidManifest.xml+
 mv AndroidManifest.xml+ AndroidManifest.xml
