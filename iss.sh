@@ -136,6 +136,7 @@ Type: files; Name: "{app}\temp-image.fi2"
 
 [Registry]
 Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};{app}"
+Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: expandsz; ValueName: "GFORTHPATH"; ValueData: ".;{app}"
 
 ;[Registry]
 ;registry commented out
