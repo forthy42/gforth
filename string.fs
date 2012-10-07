@@ -83,22 +83,6 @@
     $@ BEGIN  dup  WHILE  r@ $split i' -rot >r >r execute r> r>
     REPEAT  2drop rdrop rdrop ;
 
-\ string array words
-
-: $[] ( n addr -- addr' ) >r
-    r@ @ 0= IF  s" " r@ $!  THEN
-    r@ $@ 2 pick cells /string
-    dup cell < IF
-	2drop r@ $@len
-	over 1+ cells r@ $!len
-	r@ $@ rot /string 0 fill
-	r@ $@ 2 pick cells /string
-    THEN  drop nip rdrop ;
-
-: $[]! ( addr u n $addr -- )  $[] $! ;
-: $[]+! ( addr u n $addr -- )  $[] $+! ;
-: $[]@ ( n $addr -- addr u )  $[] dup @ IF $@ ELSE drop s" " THEN ;
-
 : $over ( addr u $addr off -- )
     \G overwrite string at offset off with addr u
     swap >r
@@ -108,4 +92,24 @@
 	r@ $@ rot /string bl fill
     THEN
     r> $@ rot /string rot umin move ;
+
+\ string array words
+
+: $[] ( n addr -- addr' ) >r
+    \G index into the string array and return the address at index n
+    r@ @ 0= IF  s" " r@ $!  THEN
+    r@ $@ 2 pick cells /string
+    dup cell < IF
+	2drop r@ $@len
+	over 1+ cells r@ $!len
+	r@ $@ rot /string 0 fill
+	r@ $@ 2 pick cells /string
+    THEN  drop nip rdrop ;
+
+: $[]! ( addr u n $[]addr -- )  $[] $! ;
+\G store a string into an array at index n
+: $[]+! ( addr u n $[]addr -- )  $[] $+! ;
+\G add a string to the string at addr n
+: $[]@ ( n $[]addr -- addr u )  $[] dup @ IF $@ ELSE drop s" " THEN ;
+\G fetch a string from array index n -- return the zero string if empty
 [THEN]

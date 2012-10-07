@@ -10,7 +10,11 @@ else
    EXT=$ENGINE
 fi
 
+<<<<<<< build.sh
+sed -e 's/android:value="gforth-[a-z]*"/android:value="gforth'$ENGINE'"/g' <AndroidManifest.xml >AndroidManifest.xml+
+=======
 sed -e 's/android:value="gforth[a-z-]*"/android:value="gforth'$ENGINE'"/g' <AndroidManifest.xml >AndroidManifest.xml+
+>>>>>>> 1.12
 mv AndroidManifest.xml+ AndroidManifest.xml
 
 SRC=../../..

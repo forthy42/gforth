@@ -134,6 +134,9 @@ Type: files; Name: "{app}\gforth.fi"
 Type: files; Name: "{app}\temp-image.fi1"
 Type: files; Name: "{app}\temp-image.fi2"
 
+[Registry]
+Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};{app}"
+
 ;[Registry]
 ;registry commented out
 ; WorkingDir: "{app}"; Parameter quick reference:
