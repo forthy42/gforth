@@ -10,15 +10,7 @@ else
    EXT=$ENGINE
 fi
 
-<<<<<<< HEAD
-<<<<<<< build.sh
-sed -e 's/android:value="gforth-[a-z]*"/android:value="gforth'$ENGINE'"/g' <AndroidManifest.xml >AndroidManifest.xml+
-=======
 sed -e 's/android:value="gforth[a-z-]*"/android:value="gforth'$ENGINE'"/g' <AndroidManifest.xml >AndroidManifest.xml+
->>>>>>> 1.12
-=======
-sed -e 's/android:value="gforth[a-z-]*"/android:value="gforth'$ENGINE'"/g' <AndroidManifest.xml >AndroidManifest.xml+
->>>>>>> refs/heads/origin
 mv AndroidManifest.xml+ AndroidManifest.xml
 
 SRC=../../..
