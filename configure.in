@@ -20,12 +20,12 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl We use some automake macros here,
 dnl but don't use automake for creating Makefile.in
-AC_INIT([gforth],[0.7.9-20120730],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
+AC_INIT([gforth],[0.7.9-20121007],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
 AC_PREREQ(2.54)
 #snapshots have numbers major.minor.release-YYYYMMDD
 #note that lexicographic ordering must be heeded.
 #I.e., 0.4.1-YYYYMMDD must not exist before 0.4.1!
-UPDATED="July 30, 2012"
+UPDATED="October 7, 2012"
 AC_SUBST(UPDATED)
 AC_CONFIG_HEADERS(engine/config.h)
 
@@ -762,18 +762,8 @@ AC_SUBST(disasm_fs)
 AC_PATH_PROG(INSTALL_INFO,install-info,[echo '>>>>Please make info dir entry:'],$PATH:/sbin:/usr/sbin:/usr/local/sbin)
 
 case "$host_os" in
-	*win32*)
-		# !!!FIXME!!! problems with cygwin and ';' as path separator
-		DIRSEP="\\\\"
-		PATHSEP=";"
-		#we want the builtins of command.com/cmd.exe and its
-		# handling of .com files.
-		#$COMSPEC contains the name of the Windows shell;
-		# the ./ is there, because the bash does not recognize
-		# absolute DOS filenames
-		DEFAULTSYSTEMPREFIX="./$COMSPEC /c "
-		;;
 	*darwin*)
+		#dar*win* must be first, not to confuse with cygwin, win32 or similar
 		#Darwin uses some funny preprocessor by default; eliminate it:
 		AC_MSG_NOTICE([using -no-cpp-precomp on Darwin])
 		CFLAGS="$CFLAGS -no-cpp-precomp"
@@ -783,6 +773,17 @@ case "$host_os" in
                 #the following magic value was suggested by
                 #http://mail.python.org/pipermail/pythonmac-sig/2005-October/015190.html
                 AC_DEFINE_UNQUOTED(MACOSX_DEPLOYMENT_TARGET,"10.3",[an environment variable value needed by libtool on some MacOS X versions])
+		;;
+	*win*)
+		# !!!FIXME!!! problems with cygwin and ';' as path separator
+		DIRSEP="/" # normal dirsep
+		PATHSEP=";" # semicolon as pathsep
+		#we want the builtins of command.com/cmd.exe and its
+		# handling of .com files.
+		#$COMSPEC contains the name of the Windows shell;
+		# the ./ is there, because the bash does not recognize
+		# absolute DOS filenames
+		DEFAULTSYSTEMPREFIX="./$COMSPEC /c "
 		;;
 	*linux*)
 		DIRSEP="/"
@@ -1062,6 +1063,7 @@ AC_CONFIG_FILES([
 Makefile
 Makedist
 gforthmi
+gforthmi.sh
 vmgen
 machpc.fs
 envos.fs

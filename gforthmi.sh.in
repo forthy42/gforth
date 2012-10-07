@@ -1,2 +1,2 @@
 #!/bin/bash
-GFORTHD="./gforth-ditc -p .:." GFORTH="./gforth-ditc --die-on-signal -p .:. -i kernl32l.fi exboot.fs startup.fs arch/386/asm.fs arch/386/disasm.fs" includedir=`pwd`/include bindir=`pwd` libccdir=`pwd`/lib/gforth/@PACKAGE_VERSION@/libcc-named/ ./sh.exe ./gforthmi gforth.fi  --die-on-signal -p ".:~+:." -i kernl32l.fi exboot.fs startup.fs arch/386/asm.fs arch/386/disasm.fs
+GFORTHD="./gforth-ditc -p .:." GFORTH="./gforth-ditc --die-on-signal -p .:. -i kernl32l.fi exboot.fs startup.fs arch/386/asm.fs arch/386/disasm.fs" includedir="`pwd`"/include bindir="`pwd`" libccdir="`pwd`"/lib/gforth/@PACKAGE_VERSION@/libcc-named/ ./sh.exe ./gforthmi gforth.fi  --die-on-signal -p ".:~+:." -i @kernel_fi@ exboot.fs startup.fs @asm_fs@ @disasm_fs@
