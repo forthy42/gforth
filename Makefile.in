@@ -746,6 +746,7 @@ bench:		gforth-fast$(EXT) gforth.fi
 		time $(FORTH_FAST) bubble.fs -e "main bye"
 		time $(FORTH_FAST) matrix.fs -e "main bye"
 		time $(FORTH_FAST) fib.fs -e "main bye"
+		time $(FORTH_FAST) fft-bench.fs -e "main bye"
 
 onebench one-bench:
 	$(FORTH_FAST) onebench.fs
