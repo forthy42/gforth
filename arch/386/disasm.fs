@@ -30,8 +30,10 @@ CREATE SPCS         SPCS-MAX ALLOT
 \ : nfa-count ( nfa -- addr u )
 \     name>string ;
 
+[IFUNDEF] w@
 : w@ ( addr -- w )
     @ $ffff and ;
+[THEN]
 
 : col ( n -- ) drop space ;
 
