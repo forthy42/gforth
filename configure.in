@@ -257,10 +257,15 @@ fi
 case "$host_cpu" in
 	arm*)
 		machine=arm
-		CFLAGS="$CFLAGS -fomit-frame-pointer -mfloat-abi=hard -mfpu=vfp"
+		CFLAGS="$CFLAGS -fomit-frame-pointer"
 		if test x$platform = xnxt; then
 		   CFLAGS="$CFLAGS -mthumb -mthumb-interwork"
 		fi
+		case "$host_os" in
+		     *android*)
+			CFLAGS="$CFLAGS -march=armv7-a -mfloat-abi=softfp -mfpu=vfpv3-d16"
+			;;
+		esac
 		if test -z $arm_cacheflush; then
 		   case "$host_os" in
 		     *linux*)
