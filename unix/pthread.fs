@@ -25,6 +25,9 @@ c-library pthread
     \c #include <setjmp.h>
     \c #include <stdio.h>
     \c #include <signal.h>
+    \c #ifndef FIONREAD
+    \c #include <sys/socket.h>
+    \c #endif
     \c #define wholepage(n) (((n)+pagesize-1)&~(pagesize-1))
     \c
     \c #ifndef HAS_BACKLINK
@@ -48,7 +51,7 @@ c-library pthread
     \c   gforth_FP=(Float*)(t->fp0);
     \c   gforth_LP=(void*)(t->lp0);
     \c
-    \c   pthread_cleanup_push(&gforth_free_stacks, (void*)t);
+    \c   pthread_cleanup_push(gforth_free_stacks, (void*)t);
     \c 
     \c   throw_jmp_handler = &throw_jmp_buf;
     \c   ((Cell*)(t->sp0))[-1]=(Cell)t;
