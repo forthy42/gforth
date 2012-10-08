@@ -257,7 +257,7 @@ fi
 case "$host_cpu" in
 	arm*)
 		machine=arm
-		CFLAGS="$CFLAGS -fomit-frame-pointer"
+		CFLAGS="$CFLAGS -fomit-frame-pointer -mfloat-abi=hard -mfpu=vfp"
 		if test x$platform = xnxt; then
 		   CFLAGS="$CFLAGS -mthumb -mthumb-interwork"
 		fi
