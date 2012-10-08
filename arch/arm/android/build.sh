@@ -2,12 +2,18 @@
 
 # takes as extra argument a directory where to look for .so-s
 
+if [ "$1" == "-ditc" ]
+then
+    ENGINE=-ditc
+    shift
+fi
+
 if [ -z "$ENGINE" ]
 then
-   ENGINE=-fast
-   EXT=""
+    ENGINE=-fast
+    EXT=""
 else
-   EXT=$ENGINE
+    EXT=$ENGINE
 fi
 
 sed -e 's/android:value="gforth[a-z-]*"/android:value="gforth'$ENGINE'"/g' <AndroidManifest.xml >AndroidManifest.xml+

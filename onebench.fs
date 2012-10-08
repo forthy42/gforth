@@ -29,8 +29,9 @@ warnings off
     cputime d+ 2r> d-
     <# # # # # # # '. hold #s #> 9 over - spaces 3 - type ;
 
-s" siev.fs"   include-main-time
-s" bubble.fs" include-main-time space
-s" matrix.fs" include-main-time
-s" fib.fs"    include-main-time
-cr bye
+s" siev.fs"      include-main-time
+s" bubble.fs"    include-main-time space
+s" matrix.fs"    include-main-time
+s" fib.fs"       include-main-time
+s" fft-bench.fs" include-main-time
+script? [IF] cr bye [THEN]

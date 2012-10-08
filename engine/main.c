@@ -2579,7 +2579,6 @@ int gforth_main(int argc, char **argv, char **env)
   return retvalue;
 }
 
-#if defined(DOUBLY_INDIRECT)
 int gforth_make_image(int debugflag)
 {
   char *argv0[] = { "gforth", "--clear-dictionary", "--no-offset-im", "--die-on-signal", "-i", KERNEL, "exboot.fs", "startup.fs", "arch/" ARCH "/asm.fs", "arch/" ARCH "/disasm.fs", "-e", "savesystem temp-file.fi1 bye" };
@@ -2614,4 +2613,3 @@ int gforth_make_image(int debugflag)
 
   return retvalue;
 }
-#endif
