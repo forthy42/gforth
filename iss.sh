@@ -47,6 +47,7 @@ AllowNoIcons=1
 InfoBeforeFile=COPYING
 Compression=lzma
 DisableStartupPrompt=yes
+ChangesEnvironment=yes
 OutputBaseFilename=gforth-$VERSION
 
 [Messages]
