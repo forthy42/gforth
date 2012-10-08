@@ -6,6 +6,7 @@ require fft.fs
 
 : setup ( -- ) 32 1024 * points >values ;
 
+<<<<<<< HEAD
 : main setup fft rfft normalize ;
 
 Variable pass
@@ -14,3 +15,6 @@ Variable pass
 	i values z@ fround f>s fround f>s
 	I $aa and I $55 and d<> IF i . i values z@ z. cr pass off THEN
     LOOP  pass @ IF ." passed test" cr THEN ;
+=======
+: main setup fft rfft normalize ;
+>>>>>>> refs/heads/origin
