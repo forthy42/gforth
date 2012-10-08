@@ -17,7 +17,7 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-." Fixing " 1 arg type ."  with " pad $1000 get-dir type cr
+." Fixing " 1 arg type ."  with " pad $1000 get-dir type cr 200 ms
 
 : "search s" .:/usr/local" ;
 

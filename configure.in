@@ -777,13 +777,13 @@ case "$host_os" in
 	*win*)
 		# !!!FIXME!!! problems with cygwin and ';' as path separator
 		DIRSEP="/" # normal dirsep
-		PATHSEP=";" # semicolon as pathsep
-		#we want the builtins of command.com/cmd.exe and its
+		PATHSEP=":" # colon as pathsep
+		#we don't want the builtins of command.com/cmd.exe and its
 		# handling of .com files.
 		#$COMSPEC contains the name of the Windows shell;
 		# the ./ is there, because the bash does not recognize
 		# absolute DOS filenames
-		DEFAULTSYSTEMPREFIX="./$COMSPEC /c "
+		DEFAULTSYSTEMPREFIX="" #"./${COMSPEC//\\/\\\\\\\\} /c "
 		;;
 	*linux*)
 		DIRSEP="/"
