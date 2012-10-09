@@ -298,7 +298,7 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC) $(LIBCC_DIST_SRC) \
 	depth-changes.fs dosekey.fs doskey.fs ds2texi.fs \
 	envos.dos envos.os2 etags.fs fft.fs filedump.fs fi2c.fs \
 	fsl-util.4th glosgen.fs gray.fs httpd.fs install-tags.fs \
-	make-app.fs doc/makedoc.fs locate.fs more.fs onebench.fs \
+	make-app.fs doc/makedoc.fs locate.fs more.fs onebench.fs fft-bench.fs \
 	other.fs prims2x.fs prims2x0.6.2.fs proxy.fs random.fs \
 	regexp.fs sokoban.fs string.fs table.fs tags.fs \
 	tt.fs quotations.fs \
@@ -746,6 +746,7 @@ bench:		gforth-fast$(EXT) gforth.fi
 		time $(FORTH_FAST) bubble.fs -e "main bye"
 		time $(FORTH_FAST) matrix.fs -e "main bye"
 		time $(FORTH_FAST) fib.fs -e "main bye"
+		time $(FORTH_FAST) fft-bench.fs -e "main bye"
 
 onebench one-bench:
 	$(FORTH_FAST) onebench.fs
@@ -1097,7 +1098,7 @@ engine/config.h: stamp-h
 stamp-h: engine/config.h.in config.status stamp-h.in
 	./config.status
 
-Makefile Makedist engine/Makefile gforthmi vmgen preforth machpc.fs doc/version.texi envos.fs build-ec:	Makefile.in Makedist.in engine/Makefile.in gforthmi.in vmgen.in preforth.in libforth.in machpc.fs.in doc/version.texi.in config.status configure.in envos.fs.in build-ec.in engine/libcc.h.in
+Makefile Makedist engine/Makefile gforthmi vmgen preforth machpc.fs doc/version.texi envos.fs build-ec gforthmi.sh:	Makefile.in Makedist.in engine/Makefile.in gforthmi.in vmgen.in preforth.in libforth.in machpc.fs.in doc/version.texi.in config.status configure.in envos.fs.in build-ec.in engine/libcc.h.in gforthmi.sh.in
 	./config.status
 
 config.status: configure

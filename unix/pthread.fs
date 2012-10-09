@@ -25,23 +25,10 @@ c-library pthread
     \c #include <setjmp.h>
     \c #include <stdio.h>
     \c #include <signal.h>
+    \c #ifndef FIONREAD
+    \c #include <sys/socket.h>
+    \c #endif
     \c #define wholepage(n) (((n)+pagesize-1)&~(pagesize-1))
-    \c
-    \c void gforth_cleanup_thread(void * t)
-    \c {
-    \c #if HAVE_GETPAGESIZE
-    \c   Cell pagesize=getpagesize(); /* Linux/GNU libc offers this */
-    \c #elif HAVE_SYSCONF && defined(_SC_PAGESIZE)
-    \c   Cell pagesize=sysconf(_SC_PAGESIZE); /* POSIX.4 */
-    \c #elif PAGESIZE
-    \c   Cell pagesize=PAGESIZE; /* in limits.h according to Gallmeister's POSIX.4 book */
-    \c #endif
-    \c   Cell size = wholepage((Cell)(((user_area*)t)->lp0)+pagesize-(Cell)t);
-    \c #ifdef SIGSTKSZ
-    \c   size += 2*SIGSTKSZ;
-    \c #endif
-    \c   munmap(t, size);
-    \c }
     \c
     \c #ifndef HAS_BACKLINK
     \c static void *(*saved_gforth_pointers)(Cell);
@@ -64,7 +51,7 @@ c-library pthread
     \c   gforth_FP=(Float*)(t->fp0);
     \c   gforth_LP=(void*)(t->lp0);
     \c
-    \c   pthread_cleanup_push(&gforth_cleanup_thread, (void*)t);
+    \c   pthread_cleanup_push(gforth_free_stacks, (void*)t);
     \c 
     \c   throw_jmp_handler = &throw_jmp_buf;
     \c   ((Cell*)(t->sp0))[-1]=(Cell)t;

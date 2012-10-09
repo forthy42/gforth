@@ -27,8 +27,6 @@
 
 VERSION=$(cat version)
 
-sed "s/@PACKAGE_VERSION@/$VERSION/g" <gforthmi.sh.in >gforthmi.sh
-
 for i in lib/gforth/$VERSION/libcc-named/*.la
 do
     sed "s/dependency_libs='.*'/dependency_libs=''/g" <$i >$i+
@@ -49,6 +47,7 @@ AllowNoIcons=1
 InfoBeforeFile=COPYING
 Compression=lzma
 DisableStartupPrompt=yes
+ChangesEnvironment=yes
 OutputBaseFilename=gforth-$VERSION
 
 [Messages]
@@ -114,7 +113,6 @@ Name: "{group}\Gforth"; Filename: "{app}\gforth.exe"; WorkingDir: "{app}"
 Name: "{group}\Gforth-fast"; Filename: "{app}\gforth-fast.exe"; WorkingDir: "{app}"
 Name: "{group}\Gforth-dict"; Filename: "{app}\gforth-dict.exe"; WorkingDir: "{app}"
 Name: "{group}\Gforth-itc"; Filename: "{app}\gforth-itc.exe"; WorkingDir: "{app}"
-Name: "{group}\Gforth-prof"; Filename: "{app}\gforth-prof.exe"; WorkingDir: "{app}"
 Name: "{group}\Gforth Manual"; Filename: "{app}\doc\gforth\index.html"; WorkingDir: "{app}"; Components: help
 Name: "{group}\Gforth Manual (PDF)"; Filename: "{app}\doc\gforth.pdf"; WorkingDir: "{app}"; Components: help
 Name: "{group}\VMgen Manual"; Filename: "{app}\doc\vmgen\index.html"; WorkingDir: "{app}"; Components: help
@@ -122,17 +120,19 @@ Name: "{group}\Bash"; Filename: "{app}\sh.exe"; WorkingDir: "{app}"
 Name: "{group}\Uninstall Gforth"; Filename: "{uninstallexe}"
 
 [Run]
-Filename: "{app}\gforth.exe"; WorkingDir: "{app}"; Parameters: "fixpath.fs gforth-fast.exe"
-Filename: "{app}\gforth.exe"; WorkingDir: "{app}"; Parameters: "fixpath.fs gforth-ditc.exe"
-Filename: "{app}\gforth.exe"; WorkingDir: "{app}"; Parameters: "fixpath.fs gforth-itc.exe"
-Filename: "{app}\gforth.exe"; WorkingDir: "{app}"; Parameters: "fixpath.fs gforth-prof.exe"
-Filename: "{app}\gforth-fast.exe"; WorkingDir: "{app}"; Parameters: "fixpath.fs gforth.exe"
-Filename: "{app}\sh.exe"; WorkingDir: "{app}"; Parameters: "./gforthmi.sh"
+Filename: "{app}\sh.exe"; WorkingDir: "{app}"; Parameters: "-c ""./gforthmi.sh || read"""
+Filename: "{app}\sh.exe"; WorkingDir: "{app}"; Parameters: "-c ""./gforth fixpath.fs gforth-fast.exe || read"""
+Filename: "{app}\sh.exe"; WorkingDir: "{app}"; Parameters: "-c ""./gforth fixpath.fs gforth-ditc.exe || read"""
+Filename: "{app}\sh.exe"; WorkingDir: "{app}"; Parameters: "-c ""./gforth fixpath.fs gforth-itc.exe || read"""
+Filename: "{app}\sh.exe"; WorkingDir: "{app}"; Parameters: "-c ""./gforth-fast fixpath.fs gforth.exe || read"""
 
 [UninstallDelete]
 Type: files; Name: "{app}\gforth.fi"
 Type: files; Name: "{app}\temp-image.fi1"
 Type: files; Name: "{app}\temp-image.fi2"
+
+[Registry]
+Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};{app}"; Check: NeedsAddPath(ExpandConstant('{app}'))
 
 ;[Registry]
 ;registry commented out
@@ -150,6 +150,23 @@ Type: files; Name: "{app}\temp-image.fi2"
 ;HKCR, "forthblock"; STRING, "Forth Block",
 ;HKCR, "forthblock", "EditFlags", DWORD, "00000000",
 ;HKCR, "forthblock\DefaultIcon"; STRING, "{sys}\System32\shell32.dll,61"
+
+[Code]
+function NeedsAddPath(Param: string): boolean;
+var
+  OrigPath: string;
+begin
+  if not RegQueryStringValue(HKEY_LOCAL_MACHINE,'SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'Path', OrigPath)
+  then begin
+    Result := True;
+    exit;
+  end;
+  // look for the path with leading and trailing semicolon
+  // Pos() returns 0 if not found
+  Result := Pos(';' + UpperCase(Param) + ';', ';' + UpperCase(OrigPath) + ';') = 0;  
+  if Result = True then
+     Result := Pos(';' + UpperCase(Param) + '\;', ';' + UpperCase(OrigPath) + ';') = 0; 
+end;
 EOT
 
 sed -e 's/$/\r/' <README >README.txt

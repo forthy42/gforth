@@ -34,7 +34,6 @@ include-ffi.h-string save-c-prefix-line \ #include <ffi.h>
 \c static void *(*saved_gforth_pointers)(Cell);
 \c #endif
 \c typedef void *Label;
-\c typedef Label *Xt;
 \c static void gforth_callback_ffi(ffi_cif * cif, void * resp, void ** args, void * ip)
 \c {
 \c #ifndef HAS_BACKLINK

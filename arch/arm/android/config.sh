@@ -3,7 +3,7 @@
 #cd  ~/proj/android-toolchain
 #~/proj/android-ndk-r8b/build/tools/make-standalone-toolchain.sh --platform=android-14 --ndk-dir=/home/bernd/proj/android-ndk-r8b --install-dir=$PWD
 #configure with
-#./configure --host=arm --with-cross=android --prefix= --datarootdir=/sdcard --libdir=/sdcard --libexecdir=/lib --enable-lib
+#./configure --host=arm-unknown-android-google --with-cross=android --prefix= --datarootdir=/sdcard --libdir=/sdcard --libexecdir=/lib --enable-lib
 #and finally create an apk in this directory
 #./build.sh
 (cd engine
@@ -38,6 +38,7 @@ ac_cv_sizeof_intptr_t=4
 ac_cv_sizeof_int128_t=0
 ac_cv_c_bigendian=no
 ac_cv_func_memcmp_working=yes
+ac_cv_func_memmove=yes
 ac_cv_file___arch_arm_asm_fs=yes
 ac_cv_file___arch_arm_disasm_fs=yes
 ac_cv_func_dlopen=yes

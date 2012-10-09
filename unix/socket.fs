@@ -48,7 +48,7 @@ c-function ntohl ntohl n -- n ( x -- x' )
 c-function fileno fileno1 a -- n ( file* -- fd )
 \c #include <poll.h>
 c-function poll poll a n n -- n ( fds nfds timeout -- r )
-e? os-type s" linux" string-prefix? [IF]
+e? os-type s" linux-gnu" str= [IF]
     c-function ppoll ppoll a n a a -- n ( fds nfds timeout_ts sigmask -- r )
     \c #include <sys/epoll.h>
     c-function epoll_create epoll_create n -- n ( n -- epfd )

@@ -9299,6 +9299,11 @@ doc-$off
 doc-$init
 doc-$split
 doc-$iter
+doc-$over
+doc-$[]
+doc-$[]!
+doc-$[]+!
+doc-$[]@
 
 @node Terminal output, Single-key input, String words, Other I/O
 @subsection Terminal output

@@ -2,7 +2,23 @@
 
 # takes as extra argument a directory where to look for .so-s
 
-ENGINE=-fast
+if [ "$1" == "-ditc" ]
+then
+    ENGINE=-ditc
+    shift
+fi
+
+if [ -z "$ENGINE" ]
+then
+    ENGINE=-fast
+    EXT=""
+else
+    EXT=$ENGINE
+fi
+
+sed -e 's/android:value="gforth[a-z-]*"/android:value="gforth'$ENGINE'"/g' <AndroidManifest.xml >AndroidManifest.xml+
+mv AndroidManifest.xml+ AndroidManifest.xml
+
 SRC=../../..
 LIBS=libs/armeabi
 LIBCCNAMED=lib/$(gforth --version 2>&1 | tr ' ' '/')/libcc-named/.libs
@@ -13,7 +29,7 @@ mkdir -p $LIBS
 if [ "$1" != "--no-gforthgz" ]
 then
     (cd $SRC
-	./configure --host=arm --with-cross=android --prefix= --datarootdir=/sdcard --libdir=/sdcard --libexecdir=/lib --enable-lib
+	./configure --host=arm-unknown-linux-android --with-cross=android --prefix= --datarootdir=/sdcard --libdir=/sdcard --libexecdir=/lib --enable-lib
 	make
 	make setup-debdist)
 else
@@ -22,7 +38,7 @@ fi
 
 for i in . $*
 do
-    cp $i/*.{fs,png,jpg} $SRC/debian/sdcard/gforth/site-forth
+    cp $i/*.{fs,fi,png,jpg} $SRC/debian/sdcard/gforth/site-forth
 done
 (cd $SRC/debian/sdcard
     mkdir -p gforth/home
@@ -44,5 +60,5 @@ do
 done
 #ant debug
 ant release
-cp bin/Gforth-release-unsigned.apk bin/Gforth.apk
-jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore ~/.gnupg/bernd-release-key.keystore bin/Gforth.apk bernd
+cp bin/Gforth-release-unsigned.apk bin/Gforth$EXT.apk
+jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore ~/.gnupg/bernd-release-key.keystore bin/Gforth$EXT.apk bernd

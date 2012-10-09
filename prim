@@ -2108,7 +2108,7 @@ clock_gettime(CLOCK_REALTIME,&time1);
 #else
 struct timeval time2;
 gettimeofday(&time2,NULL);
-time1.tv_sec = time2.tv_sec;1
+time1.tv_sec = time2.tv_sec;
 time1.tv_nsec = time2.tv_usec*1000;
 #endif
 dtime = timespec2ns(&time1);
