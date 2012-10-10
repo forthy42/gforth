@@ -2040,14 +2040,24 @@ variable ResolveFlag
 >CROSS
 \ Header states                                        12dec92py
 
-\ : flag! ( 8b -- )   tlast @ dup >r T c@ xor r> c! H ;
+\ new header fields
+
 X has? f83headerstring bigendian or [IF] 0 [ELSE] tcell 1- [THEN]
 Constant flag+
-: t>f+c    tcell 3 * - flag+ + ;
+: t>f+c    tcell 3 * - ;
+: t>flag   t>f+c flag+ + ; \ points to the flag byte
 : t>link   tcell 2* - ;
 : t>namevt tcell - ;
 
-: flag! ( w -- )   tlast @ t>f+c dup >r T c@ xor r> c! H ;
+Struct
+    tcell dup field >next-vt        \ linked list
+    tcell dup field >compile,       \ smart compile,
+    tcell dup field >extra-code     \ code for DOES> and other purposes
+End-Struct name-vt
+
+Create current-name-vt  name-vt %size allot
+
+: flag! ( w -- )   tlast @ t>flag dup >r T c@ xor r> c! H ;
 
 VARIABLE ^imm
 

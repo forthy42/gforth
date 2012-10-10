@@ -166,6 +166,7 @@ variable locals-mem-list \ linked list of all locals name memory in
 \ locals list operations
 
 [IFUNDEF] >link ' noop Alias >link [THEN]
+[IFUNDEF] >f+c  : >f+c cell+ ;     [THEN]
 
 : list-length ( list -- u )
     0 swap begin ( u1 list1 )
