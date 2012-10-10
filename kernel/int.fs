@@ -382,17 +382,19 @@ has? f83headerstring [IF]
         swap @ swap
     THEN ;
 [ELSE]
+' noop Alias ((name>)) ( nfa -- cfa )
+(field) >namevt -1 cells , \ virtual table for names
+(field) >link   -2 cells , \ link field
+(field) >f+c    -3 cells , \ flags+count
+
 : name>string ( nt -- addr count ) \ gforth     name-to-string
     \g @i{addr count} is the name of the word represented by @i{nt}.
-    2 cells - dup @ lcount-mask and tuck - swap ;
-
-' noop Alias ((name>))  ( nfa -- cfa )
-' cell- Alias >link
+    >f+c dup @ lcount-mask and tuck - swap ;
 
 : (name>x) ( nfa -- cfa w )
     \ cfa is an intermediate cfa and w is the flags cell of nfa
     dup ((name>))
-    swap 2 cells - @ dup alias-mask and 0=
+    swap >f+c @ dup alias-mask and 0=
     IF
         swap @ swap
     THEN ;
@@ -432,7 +434,7 @@ has? f83headerstring [IF]
 
 [IFDEF] prelude-mask
 : name>prelude ( nt -- xt )
-    dup 2 cells - @ prelude-mask and if
+    dup >f+c @ prelude-mask and if
 	[ -1 cells ] literal + @
     else
 	drop ['] noop
@@ -452,7 +454,7 @@ const Create ???
     if
         drop false exit \ heads are aligned
     then
-    dup 2 cells - @ alias-mask and 0= >r
+    dup >f+c @ alias-mask and 0= >r
     dup name>string dup $20 $1 within if
         rdrop 2drop drop false exit \ realistically the name is short
     then
@@ -485,7 +487,7 @@ const Create ???
 	dup one-head? 0= if
 	    drop false unloop exit
 	endif
-	dup cell- @ dup 0= if
+	dup >link @ dup 0= if
 	    2drop 1 unloop exit
 	else
 	    dup rot forthstart within if

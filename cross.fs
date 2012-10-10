@@ -2042,8 +2042,12 @@ variable ResolveFlag
 
 \ : flag! ( 8b -- )   tlast @ dup >r T c@ xor r> c! H ;
 X has? f83headerstring bigendian or [IF] 0 [ELSE] tcell 1- [THEN]
-tcell 2* - Constant flag+
-: flag! ( w -- )   tlast @ flag+ + dup >r T c@ xor r> c! H ;
+Constant flag+
+: t>f+c    tcell 3 * - flag+ + ;
+: t>link   tcell 2* - ;
+: t>namevt tcell - ;
+
+: flag! ( w -- )   tlast @ t>f+c dup >r T c@ xor r> c! H ;
 
 VARIABLE ^imm
 
@@ -2252,7 +2256,7 @@ Defer setup-execution-semantics  ' noop IS setup-execution-semantics
     ELSE
 	T align H view,
 	>in @ T name, H >in !
-	tlast @ T A, H  there tlast !
+	tlast @ T A, 0 A, H  there tlast !
 	1 headers-named +!	\ Statistic
     THEN
     T cfalign here H tlastcfa !

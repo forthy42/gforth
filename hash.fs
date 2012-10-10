@@ -99,8 +99,8 @@ Defer hash-alloc ( addr -- addr )
 : inithash ( wid -- )
     wordlist-extend
     insRule @ >r  insRule off  1 hash-alloc over ! 3 cells -
-    dup wordlist-id cell+
-    BEGIN  cell- @ dup  WHILE  2dup swap (reveal  REPEAT
+    dup wordlist-id 0 >link -
+    BEGIN  >link @ dup  WHILE  2dup swap (reveal  REPEAT
     2drop  r> insRule ! ;
 
 : addall  ( -- )

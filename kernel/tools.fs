@@ -89,7 +89,7 @@ include  ./../termsize.fs
 
 : map-wordlist ( ... wid xt -- ... )  >r
     \G xt: ( ... nt -- ... ) free to use the stack underneath
-    [ has? ec 0= [IF] ] wordlist-id [ [THEN] ] @
+    wordlist-id @
     BEGIN
 	dup
     WHILE
@@ -98,8 +98,8 @@ include  ./../termsize.fs
 
 : traverse-wordlist ( ... wid xt -- ... )  >r
     \G xt: ( ... nt -- f ... ) free to use the stack underneath
-    \G run as lot as f is true
-    [ has? ec 0= [IF] ] wordlist-id [ [THEN] ] @
+    \G run as long as f is true
+    wordlist-id @
     BEGIN
 	dup
     WHILE
@@ -115,12 +115,11 @@ include  ./../termsize.fs
     \G Display the contents of the wordlist wid.
     0 swap cr ['] .word map-wordlist drop ;
 
-: words
+: words ( -- )
     \G ** this will not get annotated. See other defn in search.fs .. **
     \G It does not work to use "wordset-" prefix since this file is glossed
     \G by cross.fs which doesn't have the same functionalty as makedoc.fs
-    [ has? ec 0= [IF] ] context @ [ [ELSE] ] forth-wordlist [ [THEN] ]
-    wordlist-words ;
+    context @ wordlist-words ;
 
 ' words alias vlist ( -- ) \ gforth
 \g Old (pre-Forth-83) name for @code{WORDS}.

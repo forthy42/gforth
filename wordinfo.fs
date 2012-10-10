@@ -29,10 +29,12 @@ require look.fs
 
 \ the old alias? did not work and it is not used, so I changed
 \ it in many respects - anton
+[IFUNDEF] >f+c : >f+c 2 cells - ; [THEN]
+
 : alias? ( nfa1 -- nfa2|0 )
     \ if nfa1 is an alias, nfa2 is the name of the original word.
     \ if the original word has no name, return 0.
-    dup cell+ @ alias-mask and 0=
+    dup >f+c @ alias-mask and 0=
     IF ( nfa1 )
 	((name>)) @ >name
     ELSE

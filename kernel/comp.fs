@@ -123,9 +123,9 @@ variable next-prelude
     name-too-long?
     dup max-name-length @ max max-name-length !
     [ [IFDEF] prelude-mask ] prelude, [ [THEN] ]
-    dup here + cell+ cell+ dup maxaligned >align
+    dup here + 3 cells + dup maxaligned >align
     nlstring,
-    current @ 1 or A, here last !  \ link field; before revealing, it contains the
+    current @ 1 or A, 0 A, here last !  \ link field; before revealing, it contains the
     \ tagged reveal-into wordlist
     alias-mask lastflags cset
     next-prelude @ 0<> prelude-mask and lastflags cset
@@ -418,7 +418,7 @@ has? recognizer 0= [IF]
     \ the address of the flags byte in the last header
     \ aborts if the last defined word was headerless
     latest dup 0= abort" last word was headerless"
-    2 cells - ;
+    >f+c ;
 
 : immediate ( -- ) \ core
     \G Make the compilation semantics of a word be to @code{execute}
@@ -607,7 +607,7 @@ G -1 warnings T !
 
 : (reveal) ( nt wid -- )
     wordlist-id dup >r
-    @ over cell- ! 
+    @ over >link ! 
     r> ! ;
 
 \ make entry in wordlist-map
@@ -630,9 +630,9 @@ G -1 warnings T !
 : reveal ( -- ) \ gforth
     last?
     if \ the last word has a header
-	dup cell- @ 1 and
+	dup >link @ 1 and
 	if \ it is still hidden
-	    dup cell- @ 1 xor		( nt wid )
+	    dup >link @ 1 xor		( nt wid )
 	    2dup >r name>string r> check-shadow ( nt wid )
 	    dup wordlist-map @ reveal-method perform
 	else

@@ -353,9 +353,9 @@ struct Longname {
 # define LONGNAME_NAME(np)      ((Char *)((np)->name))
 # define LONGNAME_NEXT(np)      ((np)->next)
 #else
-# define LONGNAME_COUNT(np)     ((((Cell*)np)[-2]) & (((~((UCell)0))<<4)>>4))
-# define LONGNAME_NAME(np)      ((Char *)(np)-2*sizeof(Cell)-LONGNAME_COUNT(np))
-# define LONGNAME_NEXT(np)      ((struct Longname*)(((Cell*)np)[-1]))
+# define LONGNAME_COUNT(np)     ((((Cell*)np)[-3]) & (((~((UCell)0))<<4)>>4))
+# define LONGNAME_NAME(np)      ((Char *)(np)-3*sizeof(Cell)-LONGNAME_COUNT(np))
+# define LONGNAME_NEXT(np)      ((struct Longname*)(((Cell*)np)[-2]))
 #endif
 
 struct Cellpair {
