@@ -882,6 +882,8 @@ Struct
 
   cell% field >ghost-name
 
+\  cell% field >ghost-vt
+
 End-Struct ghost-struct
 
 Variable ghost-list
@@ -2266,7 +2268,13 @@ Defer setup-execution-semantics  ' noop IS setup-execution-semantics
     ELSE
 	T align H view,
 	>in @ T name, H >in !
-	tlast @ T A, 0 A, H  there tlast !
+	tlast @ T A, H
+	executed-ghost @ ?dup IF
+	    >do:ghost @ >exec2 @ addr,
+	ELSE
+	    0 T A, H
+	THEN
+	there tlast !
 	1 headers-named +!	\ Statistic
     THEN
     T cfalign here H tlastcfa !
@@ -2803,6 +2811,17 @@ Cond: DOES>
   Ghost do:ghost!
   :noname postpone gdoes> ;
 
+: vt:  ( ghost -- )  Ghost built >do:ghost @ >exec2 ! ;
+
+Variable vtable-list
+
+>TARGET
+: vtable: ( compile-xt extra-xt "name" -- )
+    Ghost >do:ghost @ >exec2 @ hereresolve
+    vtable-list @ T here swap A, H vtable-list !
+    swap T A, A, H ;
+>CROSS
+
 : ;DO ( [xt] [colon-sys] -- )
   postpone ; doexec! ; immediate
 
@@ -2822,6 +2841,7 @@ Cond: DOES>
 Builder (Constant)
 Build:  ( n -- ) ;Build
 by: :docon ( target-body-addr -- n ) T @ H ;DO
+vt: docon-vt
 
 Builder Constant
 Build:  ( n -- ) T , H ;Build
@@ -2834,10 +2854,12 @@ by (Constant)
 Builder 2Constant
 Build:  ( d -- ) T , , H ;Build
 DO: ( ghost -- d ) T dup cell+ @ swap @ H ;DO
+vt: do2con-vt
 
 Builder Create
 BuildSmart: ;Build
 by: :dovar ( target-body-addr -- addr ) ;DO
+vt: dovar-vt
 
 Builder Variable
 T has? rom H [IF]
@@ -2905,6 +2927,7 @@ by AVariable
 Builder User
 Build: 0 u, X , ;Build
 by: :douser ( ghost -- up-addr )  X @ tup@ + ;DO
+vt: douser-vt
 
 Builder 2User
 Build: 0 u, X , 0 u, drop ;Build
@@ -2920,6 +2943,7 @@ T has? rom H [IF]
 Builder (Value)
 Build:  ( n -- ) ;Build
 by: :dovalue ( target-body-addr -- n ) T @ @ H ;DO
+vt: dovalue-vt
 
 Builder Value
 Build: T here 0 A, H switchram T align here swap ! , H ;Build
@@ -2932,6 +2956,7 @@ by (Value)
 Builder (Value)
 Build:  ( n -- ) ;Build
 by: :dovalue ( target-body-addr -- n ) T @ H ;DO
+vt: dovalue-vt
 
 Builder Value
 BuildSmart: T , H ;Build
@@ -2952,10 +2977,12 @@ T has? rom H [IF]
     BuildSmart:  ( -- ) [T'] noop T A, H ;Build
     by: :dodefer ( ghost -- ) X @ texecute ;DO
 [THEN]
+vt: dodefer-vt
 
 Builder interpret/compile:
 Build: ( inter comp -- ) swap T A, A, H ;Build-immediate
 DO: ( ghost -- ) ABORT" CROSS: Don't execute" ;DO
+vt: doi/c-vt
 
 \ Sturctures                                           23feb95py
 
@@ -2967,6 +2994,7 @@ DO: ( ghost -- ) ABORT" CROSS: Don't execute" ;DO
 Builder (Field)
 Build: ;Build
 by: :dofield T @ H + ;DO
+vt: dofield-vt
 
 Builder Field
 Build: ( align1 offset1 align size "name" --  align2 offset2 )
@@ -2986,30 +3014,35 @@ by (Field)
 Builder (ABI-CODE)
 Build: ;Build
 by: :doabicode noop ;DO
+vt: abicode-vt
 
 BUILDER (;abi-code)
 Build: ;Build
 by: :do;abicode noop ;DO
+vt: ;abicode-vt
 
 \ Input-Methods                                            01py
 
 Builder input-method
 Build: ( m v -- m' v )  dup T , cell+ H ;Build
 DO:  abort" Not in cross mode" ;DO
+vt: doim-vt
 
 Builder input-var
 Build: ( m v size -- m v' )  over T , H + ;Build
 DO:  abort" Not in cross mode" ;DO
+vt: doiv-vt
 
 \ Mini-OOF
 
 Builder method
 Build: ( m v -- m' v )  over T , swap cell+ swap H ;Build
 DO:  abort" Not in cross mode" ;DO
+vt: do-moof-method-vt
 
 Builder var
 Build: ( m v size -- m v+size )  over T , H + ;Build
-DO: ( o -- addr ) T @ H + ;DO
+by (Field)
 
 Builder end-class
 Build: ( addr m v -- )

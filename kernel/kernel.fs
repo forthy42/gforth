@@ -22,11 +22,8 @@
 has? interpreter [IF]
     include ./int.fs
     has? compiler [IF]
-	has? EC [IF]
-	    include ./comp-ec.fs
-	[ELSE]
-	    include ./comp.fs
-	[THEN]
+	include ./vtables.fs
+	include ./comp.fs
     [THEN]
 [THEN]
 has? new-input [IF]
