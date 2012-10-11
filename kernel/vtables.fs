@@ -22,7 +22,7 @@
 :noname >body 2@ swap
     ['] lit peephole-compile, ,
     ['] lit peephole-compile, , ;                   0 vtable: 2Constant    
-\ :noname >body ['] call peephole-compile, , ;        0 vtable: :
+:noname >body ['] call peephole-compile, , ;        0 vtable: :-dummy
 :noname >body ['] lit peephole-compile, , ;         0 vtable: Variable
 :noname >body @ ['] useraddr peephole-compile, , ;  0 vtable: User
 :noname >body ['] lit-perform peephole-compile, , ; 0 vtable: Defer

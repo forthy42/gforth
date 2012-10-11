@@ -120,7 +120,7 @@ Defer discode ( addr u -- ) \ gforth
     \G find the next primitive after addr1 (unreliable)
     1+ >r -1 primstart
     begin ( umin head R: boundary )
-	@ dup
+	>link @ dup
     while
 	tuck name>int >code-address ( head1 umin ca R: boundary )
 	r@ - umin
@@ -379,7 +379,12 @@ VARIABLE C-Pass
     endif
     Display? if
 	\ !! test for cfa here, and print "['] ..."
-	dup abs 0 <# #S rot sign #> 0 .string bl cemit
+	dup >name dup IF
+	    nip ." ['] " name>string
+	ELSE
+	    drop dup abs 0 <# #S rot sign #>
+	THEN
+	0 .string bl cemit
     else  drop  then
     cell+ ;
 

@@ -2272,7 +2272,7 @@ Defer setup-execution-semantics  ' noop IS setup-execution-semantics
 	executed-ghost @ ?dup IF
 	    >do:ghost @ >exec2 @ addr,
 	ELSE
-	    0 T A, H
+	    0 T , H
 	THEN
 	there tlast !
 	1 headers-named +!	\ Statistic
@@ -2616,6 +2616,8 @@ Cond: MAXI
 \ by the way: defining a second interpreter (a compiler-)loop
 \             is not allowed if a system should be ans conform
 
+ghost :-dummy Constant :-ghost
+
 : (:) ( ghost -- ) 
 \ common factor of : and :noname. Prepare ;Resolve and start definition
    ;Resolve ! there ;Resolve cell+ !
@@ -2626,7 +2628,7 @@ Cond: MAXI
   constflag off \ don't let this flag work over colon defs
 		\ just to go sure nothing unwanted happens
   >in @ skip? IF  drop skip-defs  EXIT  THEN  >in !
-  (THeader (:) ;
+  :-ghost executed-ghost !  (THeader (:) ;
 
 : :noname ( -- colon-sys )
   switchrom X cfalign there 
@@ -2837,6 +2839,11 @@ Variable vtable-list
   postpone ; built >do:ghost @ >comp ! ; immediate
 
 \ Variables and Constants                              05dec92py
+
+Builder :-dummy
+Build: ;Build
+by: :docol ;DO
+vt: docol-vt
 
 Builder (Constant)
 Build:  ( n -- ) ;Build
