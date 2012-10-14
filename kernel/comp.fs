@@ -295,6 +295,8 @@ has? primcentric [IF]
 	    \ not sure, might be a ;CODE word
 	    ['] lit-execute peephole-compile, , EXIT
 	    \ drop POSTPONE literal ['] execute peephole-compile, EXIT
+\	ELSE
+\	    @ peephole-compile,
 	THEN
     ENDCASE
     peephole-compile, ;

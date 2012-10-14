@@ -2350,6 +2350,8 @@ Defer setup-prim-semantics
   Ghost
   tuck swap resolve-noforwards <do:> swap >magic ! ;
 
+Ghost prim-dummy Constant prim-ghost
+
 Variable prim#
 : first-primitive ( n -- )  prim# ! ;
 : group 0 word drop prim# @ 1- -$200 and prim# ! ;
@@ -2360,13 +2362,13 @@ Variable prim#
   IF
      .sourcepos ." needs prim: " >in @ bl word count type >in ! cr
   THEN
-  prim# @ (THeader ( S xt ghost )
+  prim-ghost executed-ghost !  prim# @ (THeader ( S xt ghost )
   ['] prim-resolved over >comp !
   dup >ghost-flags <primitive> set-flag
   s" EC" T $has? H 0=
   IF
-      over resolve-noforwards T A, H
-      alias-mask flag!
+      over resolve-noforwards $8000 - T A, H
+\      alias-mask flag!
   ELSE
       T here H resolve-noforwards T A, H
   THEN
@@ -2838,12 +2840,19 @@ Variable vtable-list
 : ;compile ( [xt] [colon-sys] -- )
   postpone ; built >do:ghost @ >comp ! ; immediate
 
-\ Variables and Constants                              05dec92py
+\ Dummy builder
 
 Builder :-dummy
 Build: ;Build
 by: :docol ;DO
 vt: docol-vt
+
+Builder prim-dummy
+Build: ;Build
+by: :doprim ;DO \ :doprim is a dummy, we will not use it
+vt: doprim-vt
+
+\ Variables and Constants                              05dec92py
 
 Builder (Constant)
 Build:  ( n -- ) ;Build

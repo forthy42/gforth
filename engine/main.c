@@ -419,7 +419,7 @@ void gforth_relocate(Cell *image, const Char *bitstring,
 	      if (CF((token | 0x4000))<max_symbols) {
 		image[i]=(Cell)CFA(CF(token));
 #ifdef DIRECT_THREADED
-		if ((token & 0x4000) == 0) { /* threade code, no CFA */
+		if ((token & 0x4000) == 0) { /* threaded code, no CFA */
 		  if (targets[k] & (1U<<(RELINFOBITS-1-j)))
 		    compile_prim1(0);
 		  compile_prim1(&image[i]);
@@ -437,10 +437,19 @@ void gforth_relocate(Cell *image, const Char *bitstring,
 	      image[i]=(Cell)CFA((groups[group]+tok));
 #endif
 #ifdef DIRECT_THREADED
-	      if ((token & 0x4000) == 0) { /* threade code, no CFA */
+	      if ((token & 0x4000) == 0) { /* threaded code, no CFA */
 		if (targets[k] & (1U<<(RELINFOBITS-1-j)))
 		  compile_prim1(0);
 		compile_prim1(&image[i]);
+	      } else if((token & 0x8000) == 0) { /* special CFA */
+		debugp(stderr, "image[%x] = symbols[%x]\n", i, groups[group]+tok);
+		MAKE_CF(image+i,symbols[groups[group]+tok]);
+	      }
+#endif
+#if defined(DOUBLY_INDIRECT)
+	      if((token & 0x8000) == 0) { /* special CFA */
+		debugp(stderr, "image[%x] = symbols[%x] = %p\n", i, groups[group]+tok, symbols[groups[group]+tok]);
+		MAKE_CF(image+i,symbols[groups[group]+tok]);
 	      }
 #endif
 	    } else

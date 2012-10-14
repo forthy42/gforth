@@ -32,3 +32,4 @@
 :noname ['] does-exec peephole-compile, , ;         0 vtable: input-var
 :noname ['] does-exec peephole-compile, , ;         0 vtable: input-method
 :noname >body @ peephole-compile, ;                 0 vtable: interpret/compile:
+:noname peephole-compile, ;                         0 vtable: prim-dummy
