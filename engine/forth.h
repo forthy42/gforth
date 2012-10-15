@@ -544,6 +544,7 @@ extern char *strsignal(int sig);
 #ifndef HAVE_STRTOUL
 extern unsigned long int strtoul(const char *nptr, char **endptr, int base);
 #endif
+extern Cell negate(Cell n);
 
 #define GROUP(x, n)
 #define GROUPADD(n)

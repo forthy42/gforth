@@ -934,7 +934,8 @@ static void check_prims(Label symbols1[])
   goto_len = goto_p[1]-goto_p[0];
   debugp(stderr, "goto * %p %p len=%ld\n",
 	 goto_p[0],symbols2[goto_p-symbols1],(long)goto_len);
-  if (memcmp(goto_p[0],symbols2[goto_p-symbols1],goto_len)!=0) { /* unequal */
+  if ((goto_len < 0) ||
+      memcmp(goto_p[0],symbols2[goto_p-symbols1],goto_len)!=0) { /* unequal */
     no_dynamic=1;
     debugp(stderr,"  not relocatable, disabling dynamic code generation\n");
     init_ss_cost();
@@ -1012,8 +1013,14 @@ static void check_prims(Label symbols1[])
       nonrelocs++;
       continue;
     }
-    assert(pi->length>=0);
-    assert(pi->restlength >=0);
+    if((pi->length<0) || (pi->restlength<0)) {
+      pi->length = endlabel-symbols1[i];
+      pi->restlength = 0;
+#ifndef BURG_FORMAT
+      debugp(stderr,"\n   adjust restlen: len/restlen < 0, %d/%d",
+	     pi->length, pi->restlength);
+#endif
+    };
     while (j<(pi->length+pi->restlength)) {
       if (s1[j]==s3[j]) {
 	if (s1[j] != s2[j]) {
@@ -1095,8 +1102,10 @@ static void append_jump(void)
   if (last_jump) {
     PrimInfo *pi = &priminfos[last_jump];
     
+    /* debugp(stderr, "Copy code %p<=%p+%x,%d\n", code_here, pi->start, pi->length, pi->restlength); */
     memcpy(code_here, pi->start+pi->length, pi->restlength);
     code_here += pi->restlength;
+    /* debugp(stderr, "Copy goto %p<=%p,%d\n", code_here, goto_start, goto_len); */
     memcpy(code_here, goto_start, goto_len);
     code_here += goto_len;
     align_code();
@@ -1119,6 +1128,7 @@ struct code_block_list {
 
 static void reserve_code_space(UCell size)
 {
+  if(((Cell)size)<0) size=100;
   if (code_area+code_area_size < code_here+size) {
     struct code_block_list *p;
     append_jump();
@@ -1145,6 +1155,7 @@ static Address append_prim(Cell p)
   PrimInfo *pi = &priminfos[p];
   Address old_code_here;
   reserve_code_space(pi->length+pi->restlength+goto_len+CODE_ALIGNMENT-1);
+  /* debugp(stderr, "Copy code %p<=%p,%d\n", code_here, pi->start, pi->length); */
   memcpy(code_here, pi->start, pi->length);
   old_code_here = code_here;
   code_here += pi->length;

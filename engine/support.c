@@ -52,6 +52,11 @@ char *cstr(Char *from, UCell size)
   return string;
 }
 
+Cell negate(Cell n)
+{
+  return -n;
+}
+
 char *tilde_cstr(Char *from, UCell size)
 /* like cstr(), but perform tilde expansion on the string */
 {

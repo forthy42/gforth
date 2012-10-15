@@ -118,7 +118,7 @@
 #define VM_JUMP(target) do {GOTO(target);} while (0)
 #define NEXT do {DEF_CA NEXT_P1; NEXT_P2;} while(0)
 #define FIRST_NEXT_P2 NEXT_P1_5; GOTO_ALIGN; \
-before_goto: goto *real_ca; after_goto:
+before_goto: asm("# before goto"); goto *real_ca; after_goto: asm("# after goto"); 
 #define FIRST_NEXT do {DEF_CA NEXT_P1; FIRST_NEXT_P2;} while(0)
 #define IPTOS NEXT_INST
 

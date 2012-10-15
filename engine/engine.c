@@ -453,8 +453,10 @@ Label *gforth_engine(Xt *ip0 sr_proto)
 #ifdef NO_IP
   goto *(*(Label *)ip0);
   before_goto:
+  asm("# before goto");
   goto *real_ca;
   after_goto:;
+  asm("# after goto");
 #else
   SET_IP(ip);
   SUPER_END; /* count the first block, too */

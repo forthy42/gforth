@@ -1012,8 +1012,10 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
 
 : output-label2 ( -- )
     ." LABEL2(" prim prim-c-name 2@ type ." )" cr
+    .\" NAME(\"l2-" prim prim-c-name 2@ type .\" \")" cr
     ." NEXT_P1_5;" cr
     ." LABEL3(" prim prim-c-name 2@ type ." )" cr
+    .\" NAME(\"l3-" prim prim-c-name 2@ type .\" \")" cr
     ." DO_GOTO;" cr ;
 
 : output-c-tail1 { xt -- }
