@@ -72,6 +72,11 @@
 #include <callback.h>
 #endif
 
+#ifdef HAS_DEBUG
+extern int debug;
+# define debugp(x...) do { if (debug) fprintf(x); } while (0)
+#endif
+
 #ifndef SEEK_SET
 /* should be defined in stdio.h, but some systems don't have it */
 #define SEEK_SET 0
@@ -413,20 +418,30 @@ Label *gforth_engine(Xt *ip0 sr_proto)
 #if defined(DOUBLY_INDIRECT)
 #define CODE_OFFSET (26*sizeof(Cell))
 #define XT_OFFSET (22*sizeof(Cell))
+#define LABEL_OFFSET (18*sizeof(Cell))
     int i;
     Cell code_offset = offset_image? CODE_OFFSET : 0;
     Cell xt_offset = offset_image? XT_OFFSET : 0;
+    Cell label_offset = offset_image? LABEL_OFFSET : 0;
+
+    debugp(stderr, "offsets code/xt/label: %x/%x/%x\n",
+	   code_offset, xt_offset, label_offset);
 
     symbols = (Label *)(malloc(MAX_SYMBOLS*sizeof(Cell)+CODE_OFFSET)+code_offset);
     xts = (Label *)(malloc(MAX_SYMBOLS*sizeof(Cell)+XT_OFFSET)+xt_offset);
-    for (i=0; i<DOER_MAX+1; i++)
+    labels = (void **)(malloc(MAX_SYMBOLS*sizeof(Cell)+LABEL_OFFSET)+label_offset);
+    
+    for (i=0; i<DOER_MAX+1; i++) {
+      labels[i] = routines[i];
       xts[i] = symbols[i] = (Label)routines[i];
+    }
     for (; routines[i]!=0; i++) {
       if (i>=MAX_SYMBOLS) {
 	fprintf(stderr,"gforth-ditc: more than %ld primitives\n",(long)MAX_SYMBOLS);
 	exit(1);
       }
-      xts[i] = symbols[i] = &routines[i];
+      labels[i] = routines[i];
+      xts[i] = symbols[i] = &labels[i];
     }
 #endif /* defined(DOUBLY_INDIRECT) */
 #ifdef STANDALONE

@@ -330,6 +330,7 @@ typedef struct {
   Xt *execute_entry;
   Xt *find_entry;
   Label *xt_base;         /* base of DOUBLE_INDIRECT xts[], for comp-i.fs */
+  Label *label_base;      /* base of DOUBLE_INDIRECT labels[], for comp-i.fs */
 } ImageHeader;
 /* the image-header is created in main.fs */
 
@@ -493,6 +494,7 @@ extern UCell pagesize;
 extern ImageHeader *gforth_header;
 extern Label *vm_prims;
 extern Label *xts;
+extern Label *labels;
 extern Cell npriminfos;
 
 #ifdef HAS_DEBUG

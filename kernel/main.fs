@@ -65,6 +65,7 @@ has? kernel-size
     0 A,                \ execute entry point
     0 A,                \ find entry point
     0 ,                 \ base of DOUBLE_INDIRECT xts[], for comp-i.fs
+    0 ,                 \ base of DOUBLE_INDIRECT labels[], for comp-i.fs
 [THEN]
 
 doc-off

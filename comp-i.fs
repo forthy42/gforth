@@ -60,9 +60,10 @@ s" address-unit-bits" environment? drop constant bits/au
     \ hard to factor.
     image1 @ image2 @ over - { dbase doffset }
     doffset 0= abort" images have the same dictionary base address"
-    ." data offset=" doffset . cr
-    ." code" image1 image2 cell     26 cells image-data { cbase coffset }
-    ."   xt" image1 image2 13 cells 22 cells image-data { xbase xoffset }
+    ."  data offset=" doffset . cr
+    ."  code" image1 image2 cell     26 cells image-data { cbase coffset }
+    ."    xt" image1 image2 13 cells 22 cells image-data { xbase xoffset }
+    ." label" image1 image2 14 cells 18 cells image-data { lbase loffset }
     size 0
     u+do
 	image1 i th @ image2 i th @ { cell1 cell2 }
@@ -83,10 +84,17 @@ s" address-unit-bits" environment? drop constant bits/au
 		    tag >tag file-id write-cell throw
 		    i reloc-bits set-bit
 		else
-		    cell1 file-id write-cell throw
-		    cell1 cell2 <>
+		    loffset 0<> cell1 loffset + cell2 = and
 		    if
-			0 i th 9 u.r cell1 17 u.r cell2 17 u.r cr
+			cell1 lbase - cell/ { tag }
+			tag >tag $8000 xor file-id write-cell throw
+			i reloc-bits set-bit
+		    else
+			cell1 file-id write-cell throw
+			cell1 cell2 <>
+			if
+			    0 i th 9 u.r cell1 17 u.r cell2 17 u.r cr
+			endif
 		    endif
 		endif
 	    endif

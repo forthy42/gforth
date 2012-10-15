@@ -212,6 +212,7 @@ ImageHeader *gforth_header;
 Label *vm_prims;
 #ifdef DOUBLY_INDIRECT
 Label *xts; /* same content as vm_prims, but should only be used for xts */
+Label *labels; /* labels, as pointed to by vm_prims */
 #endif
 
 #ifndef NO_DYNAMIC
@@ -1792,7 +1793,7 @@ void compile_prim1(Cell *start)
     return;
   prim = (Label)*start;
   if (prim<((Label)(xts+DOER_MAX)) || prim>((Label)(xts+npriminfos))) {
-    fprintf(stderr,"compile_prim encountered xt %p\n", prim);
+    debugp(stderr,"compile_prim encountered xt %p\n", prim);
     *start=(Cell)prim;
     return;
   } else {
@@ -2071,6 +2072,7 @@ Address gforth_loader(char* imagename, char* path)
   }
 #ifdef DOUBLY_INDIRECT
   ((ImageHeader *)imp)->xt_base = xts;
+  ((ImageHeader *)imp)->label_base = labels;
 #endif
   fclose(imagefile);
 
