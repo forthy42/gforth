@@ -153,6 +153,13 @@ undefine(`symbols')
 
 (docol)	( -- R:a_retaddr )	gforth-internal	paren_docol
 ""run-time routine for colon definitions""
+#ifdef DEBUG
+    {
+      CFA_TO_NAME(CFA);
+      debugp(stderr,"%08lx: call %08lx %.*s\n",(Cell)ip,(Cell)CFA,
+	     len,name);
+    }
+#endif
 #ifdef NO_IP
 a_retaddr = next_code;
 INST_TAIL;
@@ -217,14 +224,14 @@ a_retaddr = next_code;
 a_body = PFA(CFA);
 INST_TAIL;
 #ifdef DEBUG
-fprintf(stderr, "dodoes to %x, push %x\n", a_retaddr, a_body);
+debugp(stderr, "dodoes to %x, push %x\n", a_retaddr, a_body);
 #endif
 goto **(Label *)DOES_CODE1(CFA);
 #else /* !defined(NO_IP) */
 a_retaddr = (Cell *)IP;
 a_body = PFA(CFA);
 #ifdef DEBUG
-fprintf(stderr, "dodoes to %x, push %x\n", a_retaddr, a_body);
+debugp(stderr, "dodoes to %x, push %x\n", a_retaddr, a_body);
 #endif
 SET_IP(DOES_CODE1(CFA));
 #endif /* !defined(NO_IP) */
@@ -270,8 +277,8 @@ JUMP(a_callee);
 #ifdef DEBUG
     {
       CFA_TO_NAME((((Cell *)a_callee)-2));
-      fprintf(stderr,"%08lx: call %08lx %.*s\n",(Cell)ip,(Cell)a_callee,
-	      len,name);
+      debugp(stderr,"%08lx: call %08lx %.*s\n",(Cell)ip,(Cell)a_callee,
+	     len,name);
     }
 #endif
 a_retaddr = (Cell *)IP;
@@ -281,7 +288,7 @@ SET_IP((Xt *)a_callee);
 execute	( xt -- )		core
 ""Perform the semantics represented by the execution token, @i{xt}.""
 #ifdef DEBUG
-fprintf(stderr, "execute %08x\n", xt);
+debugp(stderr, "execute %08x\n", xt);
 #endif
 #ifndef NO_IP
 ip=IP;
@@ -331,8 +338,8 @@ nest = (Cell)IP;
 #ifdef DEBUG
     {
       CFA_TO_NAME(a_cfa);
-      fprintf(stderr,"%08lx: does %08lx %.*s\n",
-	      (Cell)ip,(Cell)a_cfa,len,name);
+      debugp(stderr,"%08lx: does %08lx %.*s\n",
+	     (Cell)ip,(Cell)a_cfa,len,name);
     }
 #endif
 SET_IP(DOES_CODE1(a_cfa));
@@ -769,7 +776,7 @@ n = n1+n2;
 
 lit+	( n1 #n2 -- n )		new	lit_plus
 #ifdef DEBUG
-fprintf(stderr, "lit+ %08x\n", n2);
+debugp(stderr, "lit+ %08x\n", n2);
 #endif
 n=n1+n2;
 
