@@ -447,9 +447,9 @@ void gforth_relocate(Cell *image, const Char *bitstring,
 		MAKE_CF(image+i,symbols[groups[group]+tok]);
 	      }
 #endif
-#if defined(DOUBLY_INDIRECT)
+#if defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED)
 	      if((token & 0x8000) == 0) { /* special CFA */
-		debugp(stderr, "image[%x] = symbols[%x] = %p\n", i, groups[group]+tok, symbols[groups[group]+tok]);
+		/* debugp(stderr, "image[%x] = symbols[%x] = %p\n", i, groups[group]+tok, symbols[groups[group]+tok]); */
 		MAKE_CF(image+i,symbols[groups[group]+tok]);
 	      }
 #endif
@@ -1793,8 +1793,8 @@ void compile_prim1(Cell *start)
     return;
   prim = (Label)*start;
   if (prim<((Label)(xts+DOER_MAX)) || prim>((Label)(xts+npriminfos))) {
-    debugp(stderr,"compile_prim encountered xt %p\n", prim);
-    *start=(Cell)prim;
+    debugp(stderr,"compile_prim encountered xt %p [%x]\n", prim, (*(Cell*)prim-(Cell)labels));
+    *start = (Cell)((*(Cell*)prim-(Cell)labels)+(Cell)vm_prims);
     return;
   } else {
     *start = (Cell)(prim-((Label)xts)+((Label)vm_prims));

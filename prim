@@ -163,7 +163,7 @@ undefine(`symbols')
 #ifdef NO_IP
 a_retaddr = next_code;
 INST_TAIL;
-goto **(Label *)PFA(CFA);
+JUMP(PFA(CFA));
 #else /* !defined(NO_IP) */
 a_retaddr = (Cell *)IP;
 SET_IP((Xt *)PFA(CFA));
