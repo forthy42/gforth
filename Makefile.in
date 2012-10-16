@@ -160,7 +160,7 @@ INSTALLDIRS = kernel doc asm ec test \
 INCLUDES = engine/forth.h engine/threaded.h engine/io.h engine/longlong.h
 
 KERN_SRC = \
-	mach16b.fs mach16l.fs mach32b.fs mach32l.fs mach64b.fs mach64l.fs \
+	mach32b.fs mach32l.fs mach64b.fs mach64l.fs \
 	machpc.fs.in \
 	kernel/aliases0.fs \
 	kernel/aliases.fs \
