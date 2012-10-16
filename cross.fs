@@ -3051,12 +3051,12 @@ vt: ;abicode-vt
 Builder input-method
 Build: ( m v -- m' v )  dup T , cell+ H ;Build
 DO:  abort" Not in cross mode" ;DO
-vt: doim-vt
+vt: dodoes-vt
 
 Builder input-var
 Build: ( m v size -- m v' )  over T , H + ;Build
 DO:  abort" Not in cross mode" ;DO
-vt: doiv-vt
+vt: dodoes-vt
 
 \ Mini-OOF
 

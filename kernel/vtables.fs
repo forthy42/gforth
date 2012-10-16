@@ -29,8 +29,6 @@
 :noname >body @ ['] lit+ peephole-compile, , ;      ' :dofield 0 vtable: Field
 :noname >body ['] abi-call peephole-compile, , ;    ' :doabicode 0 vtable: (abi-code)
 :noname ['] ;abi-code-exec peephole-compile, , ;    ' :do;abicode 0 vtable: (;abi-code)
-:noname ['] does-exec peephole-compile, , ;         ' :dodoes 0 vtable: input-var
-:noname ['] does-exec peephole-compile, , ;         ' :dodoes 0 vtable: input-method
 :noname >body @ peephole-compile, ;                 ' :docol  0 vtable: interpret/compile:
 :noname peephole-compile, ;                         0         0 vtable: prim-dummy
 :noname ['] does-exec peephole-compile, , ;         ' :dodoes 0 vtable: does>-dummy

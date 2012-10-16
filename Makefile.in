@@ -195,6 +195,7 @@ KERN_SRC = \
 	kernel/doers.fs \
 	kernel/getdoers.fs \
 	kernel/pass.fs \
+	kernel/vtables.fs \
 	kernel/xchars.fs \
 	string.fs
 
