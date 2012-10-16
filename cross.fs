@@ -1110,7 +1110,7 @@ Ghost lit+ drop
 Ghost does-exec drop
 
 Ghost :docol    Ghost :doesjump Ghost :dodoes   2drop drop
-Ghost :dovar					drop
+Ghost :dovar	Ghost dovar-vt			2drop
 
 \ \ Parameter for target systems                         06oct92py
 
@@ -1911,7 +1911,7 @@ Defer resolve-warning
 
 : prim-resolved  ( ghost -- )
 \ compiles a call to a primitive
-    >link @ prim, ;
+    >exec2 @ prim, ;
 
 : (is-forward)   ( ghost -- )
     colonmark, 0 (refered) ; \ compile space for call
@@ -2363,11 +2363,12 @@ Variable prim#
      .sourcepos ." needs prim: " >in @ bl word count type >in ! cr
   THEN
   prim-ghost executed-ghost !  prim# @ (THeader ( S xt ghost )
+  prim# @ over >exec2 !
   ['] prim-resolved over >comp !
   dup >ghost-flags <primitive> set-flag
   s" EC" T $has? H 0=
   IF
-      over resolve-noforwards $8000 - T A, H
+      T here H resolve-noforwards $8000 xor T A, H
 \      alias-mask flag!
   ELSE
       T here H resolve-noforwards T A, H
@@ -2633,7 +2634,8 @@ ghost :-dummy Constant :-ghost
   :-ghost executed-ghost !  (THeader (:) ;
 
 : :noname ( -- colon-sys )
-  switchrom X cfalign there 
+  switchrom X cfalign
+  :-ghost >do:ghost @ >exec2 @ addr,  there 
   \ define a nameless ghost
   here ghostheader dup last-header-ghost ! dup to lastghost
   (:) ;  
@@ -2673,6 +2675,7 @@ Cond: [ ( -- ) interpreting-state ;Cond
 
 : !does ( does-action -- )
     tlastcfa @ [G'] :dovar killref
+    tlastcfa @ t>namevt [G'] dovar-vt killref
     >space here >r ghostheader space>
     ['] colon-resolved r@ >comp !
     r@ created >do:ghost ! r@ swap resolve
@@ -2820,10 +2823,10 @@ Cond: DOES>
 Variable vtable-list
 
 >TARGET
-: vtable: ( compile-xt extra-xt "name" -- )
+: vtable: ( compile-xt doer-xt extra-xt "name" -- )
     Ghost >do:ghost @ >exec2 @ hereresolve
     vtable-list @ T here swap A, H vtable-list !
-    swap T A, A, H ;
+    swap rot T A, A, A, H ;
 >CROSS
 
 : ;DO ( [xt] [colon-sys] -- )
@@ -2851,6 +2854,11 @@ Builder prim-dummy
 Build: ;Build
 by: :doprim ;DO \ :doprim is a dummy, we will not use it
 vt: doprim-vt
+
+Builder does>-dummy
+Build: ;Build
+by: :dodoes ;DO
+vt: dooes-vt
 
 \ Variables and Constants                              05dec92py
 

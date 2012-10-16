@@ -382,22 +382,27 @@ has? f83headerstring [IF]
         swap @ swap
     THEN ;
 [ELSE]
-' noop Alias ((name>)) ( nfa -- cfa )
-(field) >namevt -1 cells , \ virtual table for names
-(field) >link   -2 cells , \ link field
-(field) >f+c    -3 cells , \ flags+count
+    ' noop Alias ((name>)) ( nfa -- cfa )
+    (field) >namevt -1 cells , \ virtual table for names
+    (field) >link   -2 cells , \ link field
+    (field) >f+c    -3 cells , \ flags+count
 
-: name>string ( nt -- addr count ) \ gforth     name-to-string
-    \g @i{addr count} is the name of the word represented by @i{nt}.
-    >f+c dup @ lcount-mask and tuck - swap ;
-
-: (name>x) ( nfa -- cfa w )
-    \ cfa is an intermediate cfa and w is the flags cell of nfa
-    dup ((name>))
-    swap >f+c @ dup alias-mask and 0=
-    IF
-        swap @ swap
-    THEN ;
+    (field) >vtlink      0 cells ,
+    (field) >vtcompile,  1 cells ,
+    (field) >vtcfa       2 cells ,
+    (field) >vtextra     3 cells ,
+    
+    : name>string ( nt -- addr count ) \ gforth     name-to-string
+	\g @i{addr count} is the name of the word represented by @i{nt}.
+	>f+c dup @ lcount-mask and tuck - swap ;
+    
+    : (name>x) ( nfa -- cfa w )
+	\ cfa is an intermediate cfa and w is the flags cell of nfa
+	dup ((name>))
+	swap >f+c @ dup alias-mask and 0=
+	IF
+	    swap @ swap
+	THEN ;
 [THEN]
 
 : name>int ( nt -- xt ) \ gforth name-to-int

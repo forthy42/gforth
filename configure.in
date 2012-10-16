@@ -856,10 +856,10 @@ AC_SUBST(KERNEL)
 dnl ac_cv_c_bigendian is an undocumented variable of autoconf-2.1
 if test $ac_cv_c_bigendian != no; then
   bytesex=b
-  KERNEL="kernl16b.fi kernl16l.fi kernl32b.fi kernl32l.fi kernl64b.fi kernl64l.fi"
+  KERNEL="kernl32b.fi kernl32l.fi kernl64b.fi kernl64l.fi"
 else
   bytesex=l
-  KERNEL="kernl16l.fi kernl16b.fi kernl32l.fi kernl32b.fi kernl64l.fi kernl64b.fi"
+  KERNEL="kernl32l.fi kernl32b.fi kernl64l.fi kernl64b.fi"
 fi
 
 #check how to do asm(".skip 16")

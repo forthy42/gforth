@@ -220,20 +220,14 @@ Defer char@ ( addr u -- char addr' u' )
 
 \ \ threading							17mar93py
 
-has? ec 0= [IF]
-    ' noop Alias recurse
-    \g Call the current definition.
-    unlock tlastcfa @ lock AConstant lastcfa
-    \ this is the alias pointer in the recurse header, named lastcfa.
-    \ changing lastcfa now changes where recurse aliases to
-    \ it's always an alias of the current definition
-    \ it won't work in a flash/rom environment, therefore for Gforth EC
-    \ we stick to the traditional implementation
-[ELSE]
-    : recurse ( compilation -- ; run-time ?? -- ?? ) \ core
-	\g Call the current definition.
-	latestxt compile, ; immediate restrict
-[THEN]
+' noop Alias recurse
+\g Call the current definition.
+unlock tlastcfa @ lock AConstant lastcfa
+\ this is the alias pointer in the recurse header, named lastcfa.
+\ changing lastcfa now changes where recurse aliases to
+\ it's always an alias of the current definition
+\ it won't work in a flash/rom environment, therefore for Gforth EC
+\ we stick to the traditional implementation
 
 : cfa,     ( code-address -- )  \ gforth	cfa-comma
     here
@@ -265,10 +259,17 @@ has? primcentric [IF]
 	: peephole-compile, ( xt -- addr ) @ , ;
     [THEN]
 
+: vtcompile, ( xt -- )
+    dup >namevt @ ?dup if
+	>vtcompile, perform
+	EXIT
+    then \ fall back to backward compatible compile,
+    compile-to-prims, ;
+    
 : compile-to-prims, ( xt -- )
     \G compile xt to use primitives (and their peephole optimization)
     \G instead of ","-ing the xt.
-    \ !! all POSTPONEs here postpone primitives; this can be optimized
+    \ traditional compile,
     dup >does-code if
 	['] does-exec peephole-compile, , EXIT
 	\ dup >body POSTPONE literal ['] call peephole-compile, >does-code , EXIT
@@ -299,7 +300,7 @@ has? primcentric [IF]
     ENDCASE
     peephole-compile, ;
 
-' compile-to-prims, IS compile,
+' vtcompile, IS compile,
 [ELSE]
 ' , is compile,
 [THEN]
@@ -590,7 +591,7 @@ defer ;-hook ( sys2 -- sys1 )
 
 : :noname ( -- xt colon-sys ) \ core-ext	colon-no-name
     0 last !
-    cfalign here (:noname) ;
+    cfalign 0 , here (:noname) ;
 
 : ; ( compilation colon-sys -- ; run-time nest-sys ) \ core	semicolon
     ;-hook ?struc [compile] exit
