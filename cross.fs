@@ -1110,7 +1110,7 @@ Ghost lit+ drop
 Ghost does-exec drop
 
 Ghost :docol    Ghost :doesjump Ghost :dodoes   2drop drop
-Ghost :dovar	Ghost dovar-vt			2drop
+Ghost :dovar	Ghost dovar-vt	Ghost dodoes-vt	2drop drop
 
 \ \ Parameter for target systems                         06oct92py
 
@@ -2676,6 +2676,7 @@ Cond: [ ( -- ) interpreting-state ;Cond
 : !does ( does-action -- )
     tlastcfa @ [G'] :dovar killref
     tlastcfa @ t>namevt [G'] dovar-vt killref
+    tlastcfa @ t>namevt >tempdp [G'] dodoes-vt addr, tempdp>
     >space here >r ghostheader space>
     ['] colon-resolved r@ >comp !
     r@ created >do:ghost ! r@ swap resolve
@@ -2858,7 +2859,7 @@ vt: doprim-vt
 Builder does>-dummy
 Build: ;Build
 by: :dodoes ;DO
-vt: dooes-vt
+vt: dodoes-vt
 
 \ Variables and Constants                              05dec92py
 
