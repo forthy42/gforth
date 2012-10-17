@@ -1819,11 +1819,30 @@ void compile_prim1(Cell *start)
       return;
     }
   }
+  /* !!!FIXME!!! need to look up prims in labels */
   prim_num = ((Xt)*start)-vm_prims;
+  if(prim_num >= npriminfos) {
+    /* try search prim number in vm_prims */
+    int step, i;
+    UCell inst = **(UCell**)start;
+    for(i=1; i<npriminfos; i*=2);
+    i/=2;
+    for(step=i/2; step>0; step/=2) {
+      // debugp(stderr, "Search at label[%x] for %p=%p\n", i, inst, vm_prims[i]);
+      if(inst == (UCell)(vm_prims[i])) {
+	prim_num = i;
+	break;
+      }
+      i += (inst > (UCell)(vm_prims[i])) ? step : -step;
+    }
+    if(inst == (UCell)(vm_prims[i]))
+      prim_num = i;
+  }
+  // debugp(stderr, "Prim %d %p[%p] compiled\n", prim_num, *start, **(Cell**)start);
   if(prim_num >= npriminfos) {
     /* code word */
     optimize_rewrite(instps,origs,ninsts);
-    /* fprintf(stderr,"optimize_rewrite(...,%d)\n",ninsts);*/
+    // debugp(stderr,"optimize_rewrite(...,%d)\n",ninsts);
     ninsts=0;
     append_jump();
     *start = *(Cell *)*start;
