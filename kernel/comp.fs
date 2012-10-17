@@ -459,14 +459,14 @@ has? recognizer 0= [IF]
     udp @ swap udp +! ;
 
 : User ( "name" -- ) \ gforth
-    Header reveal douser: cfa, cell uallot , ;
+    Header reveal douser, cell uallot , ;
 
 : AUser ( "name" -- ) \ gforth
     User ;
 
-: (Constant)  Header reveal docon: cfa, ;
+: (Constant)  Header reveal docon, ;
 
-: (Value)  Header reveal dovalue: cfa, ;
+: (Value)  Header reveal dovalue, ;
 
 : Constant ( w "name" -- ) \ core
     \G Define a constant @i{name} with value @i{w}.
@@ -489,7 +489,7 @@ has? recognizer 0= [IF]
     DOES> ( -- w1 w2 )
         2@ ;
 
-: (Field)  Header reveal dofield: cfa, ;
+: (Field)  Header reveal dofield, ;
 
 \ \ interpret/compile:
 
@@ -515,7 +515,7 @@ defer defer-default ( -- )
 \G Define a deferred word @i{name}; its execution semantics can be
 \G set with @code{defer!} or @code{is} (and they have to, before first
 \G executing @i{name}.
-    Header Reveal dodefer: cfa,
+    Header Reveal dodefer,
     ['] defer-default A, ;
 
 : defer@ ( xt-deferred -- xt ) \ gforth defer-fetch
@@ -582,7 +582,7 @@ defer ;-hook ( sys2 -- sys1 )
 
 : (:noname) ( -- colon-sys )
     \ common factor of : and :noname
-    docol: cfa,
+    docol,
     defstart ] :-hook ;
 
 : : ( "name" -- colon-sys ) \ core	colon
