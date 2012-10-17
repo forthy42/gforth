@@ -1828,11 +1828,11 @@ void compile_prim1(Cell *start)
     i/=2;
     for(step=i/2; step>0; step/=2) {
       // debugp(stderr, "Search at label[%x] for %p=%p\n", i, inst, vm_prims[i]);
-      if(inst == (UCell)(vm_prims[i])) {
+      if((i < npriminfos) && (inst == (UCell)(vm_prims[i]))) {
 	prim_num = i;
 	break;
       }
-      i += (inst > (UCell)(vm_prims[i])) ? step : -step;
+      i += ((i < npriminfos) && (inst > (UCell)(vm_prims[i]))) ? step : -step;
     }
     if(inst == (UCell)(vm_prims[i]))
       prim_num = i;

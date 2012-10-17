@@ -119,6 +119,7 @@ include ./toolsext.fs
 [THEN]
 include ./tools.fs               \ load tools ( .s dump )
 include ./getdoers.fs
+include ./copydoers.fs
 
 \ Setup                                                13feb93py
 
