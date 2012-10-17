@@ -1819,7 +1819,6 @@ void compile_prim1(Cell *start)
       return;
     }
   }
-  /* !!!FIXME!!! need to look up prims in labels */
   prim_num = ((Xt)*start)-vm_prims;
   if(prim_num >= npriminfos) {
     /* try search prim number in vm_prims */
