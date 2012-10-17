@@ -66,7 +66,7 @@ true [IF] \ !! don't know what to put here
 \G The code address of a @code{DOES>}-defined word.
     \ DOES> is interpret/compile: but cross' ['] gives the address of
     \ a DOES>-defined word
-    ['] DOES> >code-address ;
+    ['] spaces >code-address ;
     
 [THEN]
 

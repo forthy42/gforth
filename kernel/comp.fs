@@ -306,6 +306,7 @@ has? primcentric [IF]
 [THEN]
 
 : !does    ( addr -- ) \ gforth	store-does
+    ['] spaces >namevt @ latestxt >namevt !
     latestxt does-code! ;
 
 : (compile) ( -- ) \ gforth-obsolete: dummy
@@ -441,7 +442,7 @@ has? recognizer 0= [IF]
     dup A, lastcfa ! ;
 
 : Create ( "name" -- ) \ core
-    Header reveal dovar: cfa, ;
+    Header reveal dovar, ;
 
 : buffer: ( u "name" -- ) \ core ext
     Create allot ;
