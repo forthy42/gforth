@@ -17,18 +17,18 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-:noname >body ['] lit@ peephole-compile, , ;        ' :dovalue 0 vtable: Value
-:noname >body @ ['] lit peephole-compile, , ;       ' :docon   0 vtable: Constant
+:noname >body ['] lit@ peephole-compile, , ;        ' lit, vtable: Value
+:noname >body @ ['] lit peephole-compile, , ;       ' lit, vtable: Constant
 :noname >body 2@ swap
     ['] lit peephole-compile, ,
-    ['] lit peephole-compile, , ;                   ' :dodoes  0 vtable: 2Constant    
-:noname >body ['] call peephole-compile, , ;        ' :docol   0 vtable: :-dummy
-:noname >body ['] lit peephole-compile, , ;         ' :dovar   0 vtable: Variable
-:noname >body @ ['] useraddr peephole-compile, , ;  ' :douser  0 vtable: User
-:noname >body ['] lit-perform peephole-compile, , ; ' :dodefer 0 vtable: Defer
-:noname >body @ ['] lit+ peephole-compile, , ;      ' :dofield 0 vtable: Field
-:noname >body ['] abi-call peephole-compile, , ;    ' :doabicode 0 vtable: (abi-code)
-:noname ['] ;abi-code-exec peephole-compile, , ;    ' :do;abicode 0 vtable: (;abi-code)
-:noname >body @ peephole-compile, ;                 ' :docol  0 vtable: interpret/compile:
-:noname peephole-compile, ;                         0         0 vtable: prim-dummy
-:noname ['] does-exec peephole-compile, , ;         ' :dodoes 0 vtable: does>-dummy
+    ['] lit peephole-compile, , ;                   ' lit, vtable: 2Constant    
+:noname >body ['] call peephole-compile, , ;        ' lit, vtable: :-dummy
+:noname >body ['] lit peephole-compile, , ;         ' lit, vtable: Variable
+:noname >body @ ['] useraddr peephole-compile, , ;  ' lit, vtable: User
+:noname >body ['] lit-perform peephole-compile, , ; ' lit, vtable: Defer
+:noname >body @ ['] lit+ peephole-compile, , ;      ' lit, vtable: Field
+:noname >body ['] abi-call peephole-compile, , ;    ' lit, vtable: (abi-code)
+:noname ['] ;abi-code-exec peephole-compile, , ;    ' lit, vtable: (;abi-code)
+:noname >body @ peephole-compile, ;                 ' lit, vtable: interpret/compile:
+:noname peephole-compile, ;                         ' lit, vtable: prim-dummy
+:noname ['] does-exec peephole-compile, , ;         ' lit, vtable: does>-dummy

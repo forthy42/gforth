@@ -2824,10 +2824,10 @@ Cond: DOES>
 Variable vtable-list
 
 >TARGET
-: vtable: ( compile-xt doer-xt extra-xt "name" -- )
+: vtable: ( compile-xt tokenize-xt "name" -- )
     Ghost >do:ghost @ >exec2 @ hereresolve
     vtable-list @ T here swap A, H vtable-list !
-    swap rot T A, A, A, H ;
+    swap T A, A, H ;
 >CROSS
 
 : ;DO ( [xt] [colon-sys] -- )
