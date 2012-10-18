@@ -35,7 +35,6 @@ doer? :dovalue [IF]
 : docol, ( -- )	\ gforth
     \G The code address of a colon definition.
     ['] on copy, ;
-\ !! mark on
 
 doer? :dovar [IF]
 : dovar, ( -- )	\ gforth
@@ -58,12 +57,16 @@ doer? :dodefer [IF]
 [THEN]
 
 doer? :dofield [IF]
-
 : dofield, ( -- )	\ gforth
     \G The code address of a @code{field}.
     ['] >body copy, ;
 [THEN]
 
+true [IF] \ !! don't know what to put here
+: dodoes: ( -- addr )	\ gforth
+    \G The code address of a @code{DOES>}-defined word.
+    ['] spaces >code-address ;
+[THEN]
 
 doer? :doabicode [IF]
 (ABI-CODE) (abi-code-dummy)

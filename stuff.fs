@@ -21,12 +21,7 @@
     here swap dup allot ( addr1 addr2 u )
     2dup 2>r move 2r> ;
 
-' usable-dictionary-end @ dodefer: = [if]
-    require glocals.fs
-[else]
-    require glocals-1.60.fs
-[then]
-
+require glocals.fs
 
 ' require alias needs ( ... "name" -- ... ) \ gforth
 \G An alias for @code{require}; exists on other systems (e.g., Win32Forth).
