@@ -261,40 +261,6 @@ has? primcentric [IF]
 
 : vtcompile, ( xt -- )
     dup >namevt @ >vtcompile, perform ;
-    
-: compile-to-prims, ( xt -- )
-    \G compile xt to use primitives (and their peephole optimization)
-    \G instead of ","-ing the xt.
-    \ traditional compile,
-    dup >does-code if
-	['] does-exec peephole-compile, , EXIT
-	\ dup >body POSTPONE literal ['] call peephole-compile, >does-code , EXIT
-    then
-    dup >code-address CASE
-	dovalue: OF >body ['] lit@ peephole-compile, , EXIT ENDOF
-	docon:   OF >body @ ['] lit peephole-compile, , EXIT ENDOF
-	\ docon:   OF >body POSTPONE literal ['] @ peephole-compile, EXIT ENDOF
-	\ docon is also used by VALUEs, so don't @ at compile time
-	docol:   OF >body ['] call peephole-compile, , EXIT ENDOF
-	dovar:   OF >body ['] lit peephole-compile, , EXIT ENDOF
-	douser:  OF >body @ ['] useraddr peephole-compile, , EXIT ENDOF
-	dodefer: OF >body ['] lit-perform peephole-compile, , EXIT ENDOF
-	dofield: OF >body @ ['] lit+ peephole-compile, , EXIT ENDOF
-	\ dofield: OF >body @ POSTPONE literal ['] + peephole-compile, EXIT ENDOF
-	doabicode: OF >body ['] abi-call peephole-compile, , EXIT ENDOF
-	do;abicode: OF ['] ;abi-code-exec peephole-compile, , EXIT ENDOF
-	\ code words and ;code-defined words (code words could be
-	\ optimized, if we could identify them):
-	dup in-dictionary? IF ( xt code-address )
-	    over >body = if ( xt )
-		\ definitely a CODE word
-		peephole-compile, EXIT THEN
-	    \ not sure, might be a ;CODE word
-	    ['] lit-execute peephole-compile, , EXIT
-	    \ drop POSTPONE literal ['] execute peephole-compile, EXIT
-	THEN
-    ENDCASE
-    peephole-compile, ;
 
 ' vtcompile, IS compile,
 [ELSE]
