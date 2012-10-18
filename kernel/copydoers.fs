@@ -18,7 +18,7 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 : copy,     ( xt -- )  \ gforth	copy-comma
-    ( dup >namevt @ here >namevt ! ) >code-address cfa, ;
+    dup >namevt @ here >namevt !  >code-address cfa, ;
 
 doer? :docon [IF]
 : docon, ( -- )	\ gforth

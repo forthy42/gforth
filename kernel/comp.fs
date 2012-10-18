@@ -260,11 +260,7 @@ has? primcentric [IF]
     [THEN]
 
 : vtcompile, ( xt -- )
-    dup >namevt @ ?dup if
-	>vtcompile, perform
-	EXIT
-    then \ fall back to backward compatible compile,
-    compile-to-prims, ;
+    dup >namevt @ >vtcompile, perform ;
     
 : compile-to-prims, ( xt -- )
     \G compile xt to use primitives (and their peephole optimization)
