@@ -268,11 +268,9 @@ has? primcentric [IF]
 [THEN]
 
 : !does    ( addr -- ) \ gforth	store-does
-    ['] spaces >namevt @ latestxt >namevt !
+    latestxt >namevt @ ['] udp >namevt @ =
+    IF  ['] spaces >namevt @ latestxt >namevt !  THEN
     latestxt does-code! ;
-
-: (compile) ( -- ) \ gforth-obsolete: dummy
-    true abort" (compile) doesn't work, use POSTPONE instead" ;
 
 \ \ ticks
 
@@ -312,45 +310,7 @@ has? primcentric [IF]
 	swap POSTPONE aliteral compile,
     then ;
 
-has? recognizer [IF]
-    include ./recognizer.fs
-[ELSE]
-: POSTPONE ( "name" -- ) \ core
-    \g Compiles the compilation semantics of @i{name}.
-    COMP' postpone, ; immediate
-[THEN]
-
-\ \ compiler loop
-
-has? recognizer 0= [IF]
-: compiler1 ( c-addr u -- ... xt )
-    2dup find-name [ [IFDEF] prelude-mask ] run-prelude [ [THEN] ] dup
-    if ( c-addr u nt )
-	nip nip name>comp
-    else
-	drop
-	2dup 2>r snumber? dup
-	IF
-	    0>
-	    IF
-		['] 2literal
-	    ELSE
-		['] literal
-	    THEN
-	    2rdrop
-	ELSE
-	    drop 2r> compiler-notfound1
-	THEN
-    then ;
-
-: [ ( -- ) \  core	left-bracket
-    \G Enter interpretation state. Immediate word.
-    ['] interpreter1  IS parser1 state off ; immediate
-
-: ] ( -- ) \ core	right-bracket
-    \G Enter compilation state.
-    ['] compiler1     IS parser1 state on  ;
-[THEN]
+include ./recognizer.fs
 
 \ \ Strings							22feb93py
 

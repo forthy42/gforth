@@ -494,12 +494,10 @@ KERN_DEPS = $(KERN_SRC) kernel/version.fs machpc.fs $(FORTH_GEN0) compat/strcomp
 DOCDIST = doc/gforth.info doc/gforth.info-* doc/gforth.ps \
 	  doc/vmgen.info doc/vmgen.ps
 
-BKERNLS = kernl16b$(EC).fi kernl16l$(EC).fi \
-	  kernl32b$(EC).fi kernl32l$(EC).fi \
+BKERNLS = kernl32b$(EC).fi kernl32l$(EC).fi \
 	  kernl64b$(EC).fi kernl64l$(EC).fi
 
-KERNLS = kernl16b$(EC).fi- kernl16l$(EC).fi- \
-	 kernl32b$(EC).fi- kernl32l$(EC).fi- \
+KERNLS = kernl32b$(EC).fi- kernl32l$(EC).fi- \
 	 kernl64b$(EC).fi- kernl64l$(EC).fi-
 
 # -------------        Make forth images
@@ -770,12 +768,6 @@ all-bench allbench:
 # 3. copy new kernels to kernlXYZ.fi
 #    these are the ones we want to use now
 
-kernl16l$(EC).fi-:	$(KERN_DEPS) mach16l.fs
-		$(PREFORTH) -e 's" mach16l.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl16l$(EC).fi- $(bindir)/gforth-$(VERSION) bye"
-
-kernl16b$(EC).fi-:	$(KERN_DEPS) mach16b.fs
-		$(PREFORTH) -e 's" mach16b.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl16b$(EC).fi- $(bindir)/gforth-$(VERSION) bye"
-
 kernl32l$(EC).fi-:	$(KERN_DEPS) mach32l.fs
 		$(PREFORTH) -e 's" mach32l.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl32l$(EC).fi- $(bindir)/gforth-$(VERSION) bye"
 
@@ -798,14 +790,6 @@ kernl64b$(EC).fi-:	$(KERN_DEPS) mach64b.fs
 
 #SunOS make does not like that
 #arch/%/mach.fs:	arch/%/prim.fs arch/%/asm.fs
-
-kernl16b$(EC).fi:	$(KERNLS)
-		-$(CP) kernl16b$(EC).fi kernl16b$(EC).fi~
-		-$(CP) kernl16b$(EC).fi- kernl16b$(EC).fi
-
-kernl16l$(EC).fi:	$(KERNLS)
-		-$(CP) kernl16l$(EC).fi kernl16l$(EC).fi~
-		-$(CP) kernl16l$(EC).fi- kernl16l$(EC).fi
 
 kernl32b$(EC).fi:	$(KERNLS)
 		-$(CP) kernl32b$(EC).fi kernl32b$(EC).fi~
@@ -1004,10 +988,10 @@ prim.tags: 	prim.b prims2x.fs
 		$(RM) $@-
 
 kernel.TAGS:
-		$(RM) kernl16l$(EC).fi-; $(MAKE) @kernel_fi@
+		$(RM) kernl32l$(EC).fi-; $(MAKE) @kernel_fi@
 
 kernel.tags:
-		$(RM) kernl16l$(EC).fi-; $(MAKE) @kernel_fi@
+		$(RM) kernl32l$(EC).fi-; $(MAKE) @kernel_fi@
 
 #elc files
 gforth.elc:	gforth.el
