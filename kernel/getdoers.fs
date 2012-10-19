@@ -64,10 +64,7 @@ doer? :dofield [IF]
 true [IF] \ !! don't know what to put here
 : dodoes: ( -- addr )	\ gforth
 \G The code address of a @code{DOES>}-defined word.
-    \ DOES> is interpret/compile: but cross' ['] gives the address of
-    \ a DOES>-defined word
     ['] spaces >code-address ;
-    
 [THEN]
 
 

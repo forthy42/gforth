@@ -39,6 +39,9 @@
 
 ' no.extensions dup dup Create r:fail A, A, A,
 
+: r:fail2  no.extensions ;
+' no.extensions dup >vtable
+
 : lit, ( n -- ) postpone Literal ;
 : nt, ( nt -- ) name>comp execute ;
 : nt-ex ( nt -- )
@@ -50,6 +53,10 @@
 ' lit,
 Create r:word rot A, swap A, A,
 
+: r:word2 [ drop resolved
+' execute @ ' r:word2 ! \ make this a clone of the execute primitive
+' nt, ' lit, >vtable
+
 : word-recognizer ( addr u -- nt r:word | addr u r:fail )
     2dup find-name [ [IFDEF] prelude-mask ] run-prelude [ [THEN] ] dup
     IF  nip nip r:word  ELSE  drop r:fail  THEN ;
@@ -59,10 +66,17 @@ Create r:word rot A, swap A, A,
 dup
 Create r:num rot A, swap A, A,
 
+: r:num2 ;
+' lit, dup >vtable
+
 ' noop
-:noname ( n -- ) postpone 2Literal ;
+:noname ( d -- ) postpone 2Literal ;
 dup
 Create r:2num rot A, swap A, A,
+
+:noname ( d -- ) postpone 2Literal ;
+: r:2num2 ;
+dup >vtable
 
 \ snumber? should be implemented as recognizer stack
 

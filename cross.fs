@@ -2295,7 +2295,7 @@ Defer setup-execution-semantics  ' noop IS setup-execution-semantics
 Variable ;Resolve 1 cells allot
 
 : hereresolve ( ghost -- )
-  there resolve 0 ;Resolve ! ;
+  there resolve ( 0 ;Resolve ! ) ;
 
 : Theader  ( "name" -- ghost )
   (THeader dup hereresolve ;
@@ -2650,6 +2650,12 @@ Cond: ?EXIT ( -- ) 1 abort" CROSS: using ?exit" ;Cond
 
 >TARGET
 
+: resolved ( -- )
+    ;Resolve @ 
+    IF  ['] colon-resolved ;Resolve @ >comp !
+	;Resolve @ ;Resolve cell+ @ resolve 
+    THEN ;
+     
 Cond: recurse ( -- ) Last-Header-Ghost @ gexecute ;Cond
 
 Cond: ; ( -- ) 
@@ -2660,11 +2666,7 @@ Cond: ; ( -- )
 	colon-end
 	fini,
 	comp[
-	;Resolve @ 
-	IF  ['] colon-resolved ;Resolve @ >comp !
-	    ;Resolve @ ;Resolve cell+ @ resolve 
-	THEN
-	interpreting-state
+	T resolved H interpreting-state
 	;Cond
 
 Cond: [ ( -- ) interpreting-state ;Cond
@@ -2758,7 +2760,7 @@ Cond: DOES>
 0 Value createhere
 
 : create-resolve ( -- )
-    created createhere resolve 0 ;Resolve ! ;
+    created createhere resolve ( 0 ;Resolve ! ) ;
 : create-resolve-immediate ( -- )
     create-resolve T immediate H ;
 
@@ -2823,11 +2825,19 @@ Cond: DOES>
 
 Variable tvtable-list
 
+Ghost docol-vt drop
+
 >TARGET
-: vtable: ( compile-xt tokenize-xt "name" -- )
-    Ghost >do:ghost @ >exec2 @ hereresolve
+: vtable, ( compile-xt tokenize-xt -- )
     tvtable-list @ T here swap A, H tvtable-list !
     swap T A, A, H ;
+
+: vtable: ( compile-xt tokenize-xt "name" -- )
+    Ghost >do:ghost @ >exec2 @ hereresolve T vtable, H ;
+
+: >vtable ( compile-xt tokenize-xt -- )
+    T here H lastxt T 0 cell+ H -
+    dup [G'] docol-vt killref T ! vtable, H ;
 >CROSS
 
 : ;DO ( [xt] [colon-sys] -- )

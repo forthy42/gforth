@@ -484,13 +484,13 @@ interpret/compile: DOES>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest
     latestxt >namevt @ >vtcompile, @ ['] noop vtable,
     :noname  cs-item-size 1+ roll vtable-list @ >vtlit, ! ;
 
-:noname  here !namevt start-compile> ;
-:noname  reveal ['] !namevt does>-like drop start-compile> ;
-interpret/compile: compile>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth        compile-to
+:noname  drop reveal ['] !namevt does>-like drop start-compile> ;
+: compile>  here !namevt start-compile> ;
+' lit, >vtable  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth        compile-to
 
-:noname  here !namevt start-lit> ;
-:noname  reveal ['] !namevt does>-like drop start-lit> ;
-interpret/compile: lit>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth        compile-to
+:noname  drop reveal ['] !namevt does>-like drop start-lit> ;
+: lit>  here !namevt start-lit> ;
+' lit, >vtable  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth        compile-to
 
 \ defer and friends
 
@@ -507,15 +507,11 @@ interpret/compile: lit>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-
     \g execute @var{xt}.
     record-name ' postpone ALiteral postpone defer! ; immediate restrict
 
-' <IS>
-' [IS]
-interpret/compile: IS ( compilation/interpretation "name-deferred" -- ; run-time xt -- ) \ gforth
-\G Changes the @code{defer}red word @var{name} to execute @var{xt}.
-\G Its compilation semantics parses at compile time.
+:noname  drop postpone [IS] ;
+: IS <IS> ;
+' lit, >vtable
 
-' <IS>
-' [IS]
-interpret/compile: TO ( w "name" -- ) \ core-ext
+' IS Alias TO
 
 : interpret/compile? ( xt -- flag )
     >does-code ['] DOES> >does-code = ;

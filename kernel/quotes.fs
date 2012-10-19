@@ -43,18 +43,11 @@ require ./vars.fs
     postpone then ; immediate restrict
 
 \ create s"-buffer /line chars allot
-has? compiler 0= 
-[IF] : s" [ELSE] :noname [THEN]
-	[char] " parse
-[ has? OS [IF] ]
-    save-mem
-[ [THEN] ]
-;
-\    	/line min >r s"-buffer r@ cmove
-\    	s"-buffer r> ;
 has? compiler [IF]
-:noname [char] " parse postpone SLiteral ;
-interpret/compile: S" ( compilation 'ccc"' -- ; run-time -- c-addr u )	\ core,file	s-quote
+:noname drop [char] " parse postpone SLiteral ;
+[THEN]
+
+: s" ( compilation 'ccc"' -- ; run-time -- c-addr u )	\ core,file	s-quote
   \G Compilation: Parse a string @i{ccc} delimited by a @code{"}
   \G (double quote). At run-time, return the length, @i{u}, and the
   \G start address, @i{c-addr} of the string. Interpretation: parse
@@ -66,14 +59,22 @@ interpret/compile: S" ( compilation 'ccc"' -- ; run-time -- c-addr u )	\ core,fi
   \G @code{free} the strings.  ANS Forth only guarantees one buffer of
   \G 80 characters, so in standard programs you should assume that the
   \G string lives only until the next @code{s"}.
+    [char] " parse
+[ has? OS [IF] ]
+    save-mem
+[ [THEN] ]
+;
+has? compiler [IF]
+    ' lit, >vtable
 [THEN]
 
-:noname    [char] " parse type ;
-:noname    [char] " parse postpone sLiteral postpone type ;
-interpret/compile: ." ( compilation 'ccc"' -- ; run-time -- )  \ core	dot-quote
+:noname    drop [char] " parse postpone sLiteral postpone type ;
+: ."  ( compilation 'ccc"' -- ; run-time -- )  \ core	dot-quote
   \G Compilation: Parse a string @i{ccc} delimited by a " (double
   \G quote). At run-time, display the string. Interpretation semantics
   \G for this word are undefined in ANS Forth. Gforth's interpretation
   \G semantics are to display the string. This is the simplest way to
   \G display a string from within a definition; see examples below.
+    [char] " parse type ;
+' lit, >vtable
 
