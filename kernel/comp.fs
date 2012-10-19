@@ -477,12 +477,20 @@ interpret/compile: DOES>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest
 : !namevt ( addr -- )  latestxt >namevt ! ;
 
 : start-compile> ( -- colon-sys )
-    ['] noop ['] lit, vtable,
+    ['] noop latestxt >namevt @ >vtlit, @ vtable,
     :noname  cs-item-size 1+ roll vtable-list @ >vtcompile, ! ;
+
+: start-lit> ( -- colon-sys )
+    latestxt >namevt @ >vtcompile, @ ['] noop vtable,
+    :noname  cs-item-size 1+ roll vtable-list @ >vtlit, ! ;
 
 :noname  here !namevt start-compile> ;
 :noname  reveal ['] !namevt does>-like drop start-compile> ;
 interpret/compile: compile>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth        compile-to
+
+:noname  here !namevt start-lit> ;
+:noname  reveal ['] !namevt does>-like drop start-lit> ;
+interpret/compile: lit>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth        compile-to
 
 \ defer and friends
 
