@@ -32,3 +32,7 @@
 :noname >body @ peephole-compile, ;                 ' lit, vtable: interpret/compile:
 :noname peephole-compile, ;                         ' lit, vtable: prim-dummy
 :noname ['] does-exec peephole-compile, , ;         ' lit, vtable: does>-dummy
+
+AVariable vtable-list
+
+unlock tvtable-list @ lock vtable-list !

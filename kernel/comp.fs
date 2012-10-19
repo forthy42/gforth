@@ -269,7 +269,7 @@ has? primcentric [IF]
 
 : !does    ( addr -- ) \ gforth	store-does
     latestxt >namevt @ ['] udp >namevt @ =
-    IF  ['] spaces >namevt @ latestxt >namevt !  THEN
+    IF  ['] spaces >namevt @ !namevt  THEN
     latestxt does-code! ;
 
 \ \ ticks
@@ -452,7 +452,7 @@ defer defer-default ( -- )
     \G binding as if @i{name} was not deferred.
     ' defer@ compile, ; immediate
 
-: does>-like ( xt -- )
+: does>-like ( xt -- defstart )
     \ xt ( addr -- ) is !does or !;abi-code etc, addr is the address
     \ that should be stored right after the code address.
     >r ;-hook ?struc
@@ -468,6 +468,23 @@ defer defer-default ( -- )
 :noname
     ['] !does does>-like :-hook ;
 interpret/compile: DOES>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ core        does
+
+\ compile> to define compile, action
+
+: vtable, ( compile,-xt tokenize-xt -- )
+    here vtable-list @ , vtable-list ! swap , , ;
+
+: !namevt ( addr -- )  latestxt >namevt ! ;
+
+: start-compile> ( -- colon-sys )
+    ['] noop ['] lit, vtable,
+    :noname  cs-item-size 1+ roll vtable-list @ >vtcompile, ! ;
+
+:noname  here !namevt start-compile> ;
+:noname  reveal ['] !namevt does>-like drop start-compile> ;
+interpret/compile: compile>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth        compile-to
+
+\ defer and friends
 
 : defer! ( xt xt-deferred -- ) \ gforth  defer-store
 \G Changes the @code{defer}red word @var{xt-deferred} to execute @var{xt}.

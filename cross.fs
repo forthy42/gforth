@@ -2821,12 +2821,12 @@ Cond: DOES>
 
 : vt:  ( ghost -- )  Ghost built >do:ghost @ >exec2 ! ;
 
-Variable vtable-list
+Variable tvtable-list
 
 >TARGET
 : vtable: ( compile-xt tokenize-xt "name" -- )
     Ghost >do:ghost @ >exec2 @ hereresolve
-    vtable-list @ T here swap A, H vtable-list !
+    tvtable-list @ T here swap A, H tvtable-list !
     swap T A, A, H ;
 >CROSS
 
