@@ -31,61 +31,36 @@
 \ and the table contains three actions (as array of three xts):
 \ interpret it, compile it, compile it as literal.
 
-: recognizer: ( xt1 xt2 xt3 -- ) Create rot , swap , , ;
+: recognizer, ( xt2 xt3 -- )  >vtable ;
 
-(field) r>int      ( r-addr -- addr )  0 cells ,
-(field) r>comp     ( r-addr -- addr )  1 cells ,
-(field) r>lit      ( r-addr -- addr )  2 cells ,
-
-' no.extensions dup dup Create r:fail A, A, A,
-
-: r:fail2  no.extensions ;
+: r:fail  no.extensions ;
 ' no.extensions dup >vtable
 
 : lit, ( n -- ) postpone Literal ;
 : nt, ( nt -- ) name>comp execute ;
-: nt-ex ( nt -- )
-    [ cell 1 floats - dup [IF] ] lp+!# [ dup , [THEN] drop ]
-    r> >l name>int execute @local0 >r lp+ ;
 
-' nt-ex
-' nt,
-' lit,
-Create r:word rot A, swap A, A,
-
-: r:word2 [ drop resolved
-' execute @ ' r:word2 ! \ make this a clone of the execute primitive
-' nt, ' lit, >vtable
-
-: word-recognizer ( addr u -- nt r:word | addr u r:fail )
+: word-recognizer ( addr u -- xt | addr u r:fail )
     2dup find-name [ [IFDEF] prelude-mask ] run-prelude [ [THEN] ] dup
-    IF  nip nip r:word  ELSE  drop r:fail  THEN ;
+    IF  nip nip  ELSE  drop ['] r:fail  THEN ;
 
-' noop
-' lit,
-dup
-Create r:num rot A, swap A, A,
+:noname ( n xt -- ) drop postpone Literal ;
+:noname ( n -- )  postpone Literal ;
+: r:num ;
+>vtable
 
-: r:num2 ;
-' lit, dup >vtable
-
-' noop
-:noname ( d -- ) postpone 2Literal ;
-dup
-Create r:2num rot A, swap A, A,
-
-:noname ( d -- ) postpone 2Literal ;
-: r:2num2 ;
-dup >vtable
+:noname ( d xt -- ) drop postpone 2Literal ;
+:noname ( d -- )  postpone 2Literal ;
+: r:2num ;
+>vtable
 
 \ snumber? should be implemented as recognizer stack
 
 : num-recognizer ( addr u -- n/d table | addr u r:fail )
     2dup 2>r snumber?  dup
     IF
-	2rdrop 0> IF  r:2num   ELSE  r:num  THEN  EXIT
+	2rdrop 0> IF  ['] r:2num   ELSE  ['] r:num  THEN  EXIT
     THEN
-    drop 2r> r:fail ;
+    drop 2r> ['] r:fail ;
 
 \ recognizer stack
 
@@ -112,9 +87,9 @@ Variable forth-recognizer
 
 : do-recognizer ( addr u rec-addr -- token table )
     dup cell+ swap @ cells bounds ?DO
-	I perform dup r:fail <>  IF  UNLOOP  EXIT  THEN  drop
+	I perform dup ['] r:fail <>  IF  UNLOOP  EXIT  THEN  drop
     cell +LOOP
-    r:fail ;
+    ['] r:fail ;
 
 \ nested recognizer helper
 
@@ -122,12 +97,12 @@ Variable forth-recognizer
 \   xxx-recognizer do-recognizer ;
 
 : interpreter-r ( addr u -- ... xt )
-    forth-recognizer do-recognizer r>int @ ;
+    forth-recognizer do-recognizer name>int ;
 
 ' interpreter-r IS parser1
 
 : compiler-r ( addr u -- ... xt )
-    forth-recognizer do-recognizer r>comp @ ;
+    forth-recognizer do-recognizer name>comp ;
 
 : [ ( -- ) \  core	left-bracket
     \G Enter interpretation state. Immediate word.
@@ -137,13 +112,13 @@ Variable forth-recognizer
     \G Enter compilation state.
     ['] compiler-r     IS parser1 state on  ;
 
-: >int      ( token table -- )  r>int perform ;
-: >comp     ( token table -- )  r>comp perform ;
+: >int      ( token table -- )  name>int execute ;
+' compile, Alias >comp     ( token table -- )
 : >postpone ( token table -- )
-    >r r@ r>lit perform r> r>comp @ compile, ;
+    dup >r (name>x) drop >namevt @ >vtlit, perform
+    r> lit, postpone nt, ;
 
 : postpone ( "name" -- ) \ core
     \g Compiles the compilation semantics of @i{name}.
     parse-name forth-recognizer do-recognizer >postpone
 ; immediate restrict
-

@@ -65,7 +65,7 @@ has? compiler [IF]
 [ [THEN] ]
 ;
 has? compiler [IF]
-    ' lit, >vtable
+    ' noop >vtable
 [THEN]
 
 :noname    drop [char] " parse postpone sLiteral postpone type ;
@@ -76,5 +76,5 @@ has? compiler [IF]
   \G semantics are to display the string. This is the simplest way to
   \G display a string from within a definition; see examples below.
     [char] " parse type ;
-' lit, >vtable
+' noop >vtable
 

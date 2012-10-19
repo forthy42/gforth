@@ -17,14 +17,26 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-' (int-to) ' (comp-to) ' lit, recognizer: r:to
-
-: to-recognizer ( addr u -- xt r:to | addr u r:fail )
-    2dup s" ->" string-prefix?  0= IF  r:fail  EXIT  THEN
-    2dup 2 /string dup 0= IF  2drop r:fail  EXIT  THEN
-    find-name dup 0= IF  drop r:fail  EXIT  THEN
-    name>comp drop nip nip r:to ;
-
+[IFDEF] recognizer:
+    ' (int-to) ' (comp-to) ' lit, recognizer: r:to
+    
+    : to-recognizer ( addr u -- xt r:to | addr u r:fail )
+	2dup s" ->" string-prefix?  0= IF  r:fail  EXIT  THEN
+	2dup 2 /string dup 0= IF  2drop r:fail  EXIT  THEN
+	find-name dup 0= IF  drop r:fail  EXIT  THEN
+	name>comp drop nip nip r:to ;
+[ELSE]
+    :noname drop (comp-to) ;
+    :noname lit, ;
+    : r:to (int-to) ; recognizer,
+    
+    : to-recognizer ( addr u -- xt r:to | addr u r:fail )
+	2dup s" ->" string-prefix?  0= IF  ['] r:fail  EXIT  THEN
+	2dup 2 /string dup 0= IF  2drop ['] r:fail  EXIT  THEN
+	find-name dup 0= IF  drop ['] r:fail  EXIT  THEN
+	name>comp drop nip nip ['] r:to ;
+[THEN]
+    
 ' to-recognizer
 forth-recognizer get-recognizers
 1+ forth-recognizer set-recognizers

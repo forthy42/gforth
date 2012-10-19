@@ -152,12 +152,12 @@ si-prefixes count bl scan drop Constant zero-exp
 
 [ifdef] recognizer:
     [IFDEF] 2lit,
-	: flit, postpone Fliteral ;
-	:noname ['] noop ;
-	:noname ['] flit, ;
+       : flit, postpone Fliteral ;
+       :noname ['] noop ;
+       :noname ['] flit, ;
     [ELSE]
-	' noop
-	:noname postpone Fliteral ;
+       ' noop
+       :noname postpone Fliteral ;
     [THEN]
     dup
     recognizer: r:fnumber
@@ -169,9 +169,25 @@ si-prefixes count bl scan drop Constant zero-exp
 	THEN
 	r:fail ;
 
-' fnum-recognizer
-forth-recognizer get-recognizers
-1+ forth-recognizer set-recognizers
+    ' fnum-recognizer
+    forth-recognizer get-recognizers
+    1+ forth-recognizer set-recognizers
+[THEN]
+[ifdef] recognizer,
+    :noname drop postpone Fliteral ;
+    :noname postpone Fliteral ;
+    : r:fnumber ; recognizer,
+
+    : fnum-recognizer ( addr u -- float int-table | addr u r:fail )
+	2dup prefix-number
+	IF
+	    2drop ['] r:fnumber  EXIT
+	THEN
+	['] r:fail ;
+
+    ' fnum-recognizer
+    forth-recognizer get-recognizers
+    1+ forth-recognizer set-recognizers
 [else]
 [ifundef] compiler-notfound1
 defer compiler-notfound1

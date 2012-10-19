@@ -476,6 +476,9 @@ interpret/compile: DOES>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest
 
 : !namevt ( addr -- )  latestxt >namevt ! ;
 
+: >vtable ( compile,-xt tokenize-xt -- )
+    here !namevt vtable, ;
+
 : start-compile> ( -- colon-sys )
     ['] noop latestxt >namevt @ >vtlit, @ vtable,
     :noname  cs-item-size 1+ roll vtable-list @ >vtcompile, ! ;
@@ -486,11 +489,11 @@ interpret/compile: DOES>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest
 
 :noname  drop reveal ['] !namevt does>-like drop start-compile> ;
 : compile>  here !namevt start-compile> ;
-' lit, >vtable  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth        compile-to
+' noop >vtable  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth        compile-to
 
 :noname  drop reveal ['] !namevt does>-like drop start-lit> ;
 : lit>  here !namevt start-lit> ;
-' lit, >vtable  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth        compile-to
+' noop >vtable  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth        compile-to
 
 \ defer and friends
 
@@ -509,7 +512,7 @@ interpret/compile: DOES>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest
 
 :noname  drop postpone [IS] ;
 : IS <IS> ;
-' lit, >vtable
+' noop >vtable
 
 ' IS Alias TO
 

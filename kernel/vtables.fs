@@ -17,21 +17,21 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-:noname >body ['] lit@ peephole-compile, , ;        ' lit, vtable: Value
-:noname >body @ ['] lit peephole-compile, , ;       ' lit, vtable: Constant
+:noname >body ['] lit@ peephole-compile, , ;        ' noop vtable: Value
+:noname >body @ ['] lit peephole-compile, , ;       ' noop vtable: Constant
 :noname >body 2@ swap
     ['] lit peephole-compile, ,
-    ['] lit peephole-compile, , ;                   ' lit, vtable: 2Constant    
-:noname >body ['] call peephole-compile, , ;        ' lit, vtable: :-dummy
-:noname >body ['] lit peephole-compile, , ;         ' lit, vtable: Variable
-:noname >body @ ['] useraddr peephole-compile, , ;  ' lit, vtable: User
-:noname >body ['] lit-perform peephole-compile, , ; ' lit, vtable: Defer
-:noname >body @ ['] lit+ peephole-compile, , ;      ' lit, vtable: Field
-:noname >body ['] abi-call peephole-compile, , ;    ' lit, vtable: (abi-code)
-:noname ['] ;abi-code-exec peephole-compile, , ;    ' lit, vtable: (;abi-code)
-:noname >body @ peephole-compile, ;                 ' lit, vtable: interpret/compile:
-:noname peephole-compile, ;                         ' lit, vtable: prim-dummy
-:noname ['] does-exec peephole-compile, , ;         ' lit, vtable: does>-dummy
+    ['] lit peephole-compile, , ;                   ' noop vtable: 2Constant    
+:noname >body ['] call peephole-compile, , ;        ' noop vtable: :-dummy
+:noname >body ['] lit peephole-compile, , ;         ' noop vtable: Variable
+:noname >body @ ['] useraddr peephole-compile, , ;  ' noop vtable: User
+:noname >body ['] lit-perform peephole-compile, , ; ' noop vtable: Defer
+:noname >body @ ['] lit+ peephole-compile, , ;      ' noop vtable: Field
+:noname >body ['] abi-call peephole-compile, , ;    ' noop vtable: (abi-code)
+:noname ['] ;abi-code-exec peephole-compile, , ;    ' noop vtable: (;abi-code)
+:noname >body @ peephole-compile, ;                 ' noop vtable: interpret/compile:
+:noname peephole-compile, ;                         ' noop vtable: prim-dummy
+:noname ['] does-exec peephole-compile, , ;         ' noop vtable: does>-dummy
 
 AVariable vtable-list
 
