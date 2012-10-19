@@ -37,7 +37,7 @@
 ' no.extensions dup >vtable
 
 : lit, ( n -- ) postpone Literal ;
-: nt, ( nt -- ) name>comp execute ;
+: xt, ( nt -- ) name>comp execute ;
 
 : word-recognizer ( addr u -- xt | addr u r:fail )
     2dup find-name [ [IFDEF] prelude-mask ] run-prelude [ [THEN] ] dup
@@ -116,7 +116,7 @@ Variable forth-recognizer
 ' compile, Alias >comp     ( token table -- )
 : >postpone ( token table -- )
     dup >r (name>x) drop >namevt @ >vtlit, perform
-    r> lit, postpone nt, ;
+    r> lit, postpone xt, ;
 
 : postpone ( "name" -- ) \ core
     \g Compiles the compilation semantics of @i{name}.
