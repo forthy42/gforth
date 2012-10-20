@@ -120,7 +120,7 @@ variable next-prelude
 [THEN]
 
 : header, ( c-addr u -- ) \ gforth
-    name-too-long?
+    name-too-long?  vt,
     dup max-name-length @ max max-name-length !
     [ [IFDEF] prelude-mask ] prelude, [ [THEN] ]
     dup here + 3 cells + dup maxaligned >align
@@ -165,7 +165,7 @@ defer header ( -- ) \ gforth
     ['] nextname-header IS (header) ;
 
 : noname-header ( -- )
-    0 last ! cfalign
+    0 last ! vt,  cfalign
     input-stream ;
 
 : noname ( -- ) \ gforth
@@ -266,11 +266,6 @@ has? primcentric [IF]
 [ELSE]
 ' , is compile,
 [THEN]
-
-: !does    ( addr -- ) \ gforth	store-does
-    latestxt >namevt @ ['] udp >namevt @ =
-    IF  ['] spaces >namevt @ !namevt  THEN
-    latestxt does-code! ;
 
 \ \ ticks
 
@@ -462,6 +457,10 @@ defer defer-default ( -- )
     [ has? peephole [IF] ] finish-code [ [THEN] ]
     defstart ;
 
+: !does    ( addr -- ) \ gforth	store-does
+    ['] spaces >namevt @ >vtcompile, @ vttemplate >vtcompile, !
+    latestxt does-code! ;
+
 :noname
     here !does ]
     defstart :-hook ;
@@ -474,25 +473,42 @@ interpret/compile: DOES>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest
 : vtable, ( compile,-xt tokenize-xt -- )
     here vtable-list @ , vtable-list ! swap , , ;
 
+Create vttemplate 0 A, ' peephole-compile, A, ' noop A, \ initialize to one known vt
+
+: vtcopy,     ( xt -- )  \ gforth	vtcopy-comma
+    vttemplate here >namevt !
+    dup >namevt @ cell+ 2@ vttemplate cell+ 2!
+    here >namevt vttemplate !
+    >code-address cfa, ;
+
+: vt= ( vt1 vt2 -- flag )
+    cell+ 2@ rot cell+ 2@ d= ;
+
+: vt, ( -- )  vttemplate @ 0= IF EXIT THEN
+    vtable-list
+    BEGIN  @ dup  WHILE
+	    dup vttemplate vt= IF  vttemplate @ !  vttemplate off  EXIT  THEN
+    REPEAT  drop
+    here dup vtable-list @ , vtable-list ! vttemplate cell+ 2@ , ,
+    vttemplate @ !  vttemplate off ;
+
 : !namevt ( addr -- )  latestxt >namevt ! ;
 
 : >vtable ( compile,-xt tokenize-xt -- )
-    here !namevt vtable, ;
+    swap vttemplate cell+ 2! ;
 
 : start-compile> ( -- colon-sys )
-    ['] noop latestxt >namevt @ >vtlit, @ vtable,
-    :noname  cs-item-size 1+ roll vtable-list @ >vtcompile, ! ;
+    :noname  cs-item-size 1+ roll vttemplate >vtcompile, ! ;
 
 : start-lit> ( -- colon-sys )
-    latestxt >namevt @ >vtcompile, @ ['] noop vtable,
-    :noname  cs-item-size 1+ roll vtable-list @ >vtlit, ! ;
+    :noname  cs-item-size 1+ roll vttemplate >vtlit, ! ;
 
-:noname  drop reveal ['] !namevt does>-like drop start-compile> ;
-: compile>  here !namevt start-compile> ;
+:noname  drop reveal ['] drop does>-like drop start-compile> ;
+: compile>  start-compile> ;
 ' noop >vtable  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth        compile-to
 
-:noname  drop reveal ['] !namevt does>-like drop start-lit> ;
-: lit>  here !namevt start-lit> ;
+:noname  drop reveal ['] drop does>-like drop start-lit> ;
+: lit>  start-lit> ;
 ' noop >vtable  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth        compile-to
 
 \ defer and friends
@@ -538,7 +554,7 @@ defer ;-hook ( sys2 -- sys1 )
 
 : :noname ( -- xt colon-sys ) \ core-ext	colon-no-name
     0 last !
-    cfalign 0 , here (:noname) ;
+    vt, cfalign 0 , here (:noname) ;
 
 : ; ( compilation colon-sys -- ; run-time nest-sys ) \ core	semicolon
     ;-hook ?struc [compile] exit

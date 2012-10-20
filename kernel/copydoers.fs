@@ -17,49 +17,46 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-: copy,     ( xt -- )  \ gforth	copy-comma
-    dup >namevt @ here >namevt !  >code-address cfa, ;
-
 doer? :docon [IF]
 : docon, ( -- )	\ gforth
     \G The code address of a @code{CONSTANT}.
-    ['] bl copy, ;
+    ['] bl vtcopy, ;
 [THEN]
 
 doer? :dovalue [IF]
 : dovalue, ( -- )	\ gforth
     \G The code address of a @code{CONSTANT}.
-    ['] def#tib copy, ;
+    ['] def#tib vtcopy, ;
 [THEN]
 
 : docol, ( -- )	\ gforth
     \G The code address of a colon definition.
-    ['] on copy, ;
+    ['] on vtcopy, ;
 
 doer? :dovar [IF]
 : dovar, ( -- )	\ gforth
     \G The code address of a @code{CREATE}d word.
     \ in rom-applications variable might be implemented with constant
     \ use really a created word!
-    ['] udp copy, ;
+    ['] udp vtcopy, ;
 [THEN]
 
 doer? :douser [IF]
 : douser, ( -- )	\ gforth
     \G The code address of a @code{USER} variable.
-    ['] sp0 copy, ;
+    ['] sp0 vtcopy, ;
 [THEN]
 
 doer? :dodefer [IF]
 : dodefer, ( -- )	\ gforth
     \G The code address of a @code{defer}ed word.
-    ['] parser1 copy, ;
+    ['] parser1 vtcopy, ;
 [THEN]
 
 doer? :dofield [IF]
 : dofield, ( -- )	\ gforth
     \G The code address of a @code{field}.
-    ['] >body copy, ;
+    ['] >body vtcopy, ;
 [THEN]
 
 true [IF] \ !! don't know what to put here
@@ -72,11 +69,11 @@ doer? :doabicode [IF]
 (ABI-CODE) (abi-code-dummy)
 : doabicode, ( -- )	\ gforth
     \G The code address of a @code{ABI-CODE} definition.
-    ['] (abi-code-dummy) copy, ;
+    ['] (abi-code-dummy) vtcopy, ;
 [THEN]
 
 doer? :do;abicode [IF]
 (;abi-code) (;abi-code-dummy)
 : do;abicode, ( -- )
-    ['] (;abi-code-dummy) copy, ;
+    ['] (;abi-code-dummy) vtcopy, ;
 [THEN]

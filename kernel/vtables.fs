@@ -30,9 +30,7 @@
 :noname >body ['] abi-call peephole-compile, , ;    ' noop vtable: (abi-code)
 :noname ['] ;abi-code-exec peephole-compile, , ;    ' noop vtable: (;abi-code)
 :noname >body @ peephole-compile, ;                 ' noop vtable: interpret/compile:
-:noname peephole-compile, ;                         ' noop vtable: prim-dummy
+' peephole-compile,                                 ' noop vtable: prim-dummy
 :noname ['] does-exec peephole-compile, , ;         ' noop vtable: does>-dummy
 
 AVariable vtable-list
-
-unlock tvtable-list @ lock vtable-list !

@@ -299,6 +299,7 @@ is dict-execute
 : create-local ( " name" -- a-addr )
     \ defines the local "name"; the offset of the local shall be
     \ stored in a-addr
+    [IFDEF] vt, vt, [THEN]
     locals-name-size allocate throw
     dup locals-mem-list prepend-list
     locals-name-size cell /string over + ['] create-local1 dict-execute ;

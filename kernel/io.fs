@@ -124,17 +124,15 @@ has? os 0= [IF]
 [ELSE]
 \ space spaces		                                21mar93py
 decimal
+: spaces-loop ( n addr -- )  swap
+  0 max 0 ?DO  I' I - &80 min 2dup type  +LOOP  drop ;
 Create spaces ( u -- ) \ core
   \G Display @var{n} spaces. 
   bl 80 times \ times from target compiler! 11may93jaw
-DOES>   ( u -- )
-  swap
-  0 max 0 ?DO  I' I - &80 min 2dup type  +LOOP  drop ;
+DOES>   ( u -- ) spaces-loop ;
 Create backspaces
   08 80 times \ times from target compiler! 11may93jaw
-DOES>   ( u -- )
-  swap
-  0 max 0 ?DO  I' I - &80 min 2dup type  +LOOP  drop ;
+DOES>   ( u -- ) spaces-loop ;
 hex
 [THEN]
 
