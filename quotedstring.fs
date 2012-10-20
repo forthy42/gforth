@@ -27,9 +27,9 @@
 	IF    drop source drop - 1+ >in !  \"-parse save-mem r:string
 	ELSE  r:fail  THEN ;
 [ELSE]
-    :noname drop slit, ;
-    ' slit,
-    : r:string ; recognizer,
+    : r:string ;
+    compile> drop slit, ;
+    lit> slit, ;
 
     : string-recognizer ( addr u -- addr u' r:string | addr u r:fail )
 	2dup s\" \"" string-prefix?

@@ -498,10 +498,12 @@ Create vttemplate 0 A, ' peephole-compile, A, ' noop A, \ initialize to one know
     swap vttemplate cell+ 2! ;
 
 : start-compile> ( -- colon-sys )
-    :noname  cs-item-size 1+ roll vttemplate >vtcompile, ! ;
+    cfalign ['] on >namevt @ , here vttemplate >vtcompile, ! docol: cfa,
+    defstart ] :-hook ;
 
 : start-lit> ( -- colon-sys )
-    :noname  cs-item-size 1+ roll vttemplate >vtlit, ! ;
+    cfalign ['] on >namevt @ , here vttemplate >vtlit, ! docol: cfa,
+    defstart ] :-hook ;
 
 :noname  drop reveal ['] drop does>-like drop start-compile> ;
 : compile>  start-compile> ;
