@@ -63,8 +63,9 @@ require look.fs
 \ probably make this file incompatible with cross.
 
 [IFDEF] forthstart
-: xtprim? ( xt -- flag )
-    in-dictionary? 0= ; \ !! does not work for CODE words
+    : xtprim? ( xt -- flag )
+	>code-address ['] noop >code-address
+	['] image-header >link @ >code-address 1+ within ;
 [ELSE]
 : xtprim? ( xt -- flag )
     dup >body swap >code-address = ; \ !! works only for indirect threaded code
