@@ -1715,7 +1715,8 @@ T has? relocate H
 : allot ( n -- )        tdp +! ;
 : ,     ( w -- )        T here H tcell T allot  ! H ;
 : c,    ( char -- )     T here H tchar T allot c! H ;
-: align ( -- )          T here H align+ 0 ?DO  bl T c, H tchar +LOOP ;
+: >align ( n -- )       0 ?DO  bl T c, H tchar +LOOP ;
+: align ( -- )          T here H align+ T >align H ;
 : cfalign ( -- )
     T here H cfalign+ 0 ?DO  bl T c, H tchar +LOOP ;
 
@@ -2095,7 +2096,7 @@ X has? f83headerstring [IF]
 : name,  ( "name" -- )  bl word count ht-header, X cfalign ;
 [ELSE]
     : name,  ( "name" -- )  bl word count
-	dup T here H + cfalign+ 0 ?DO  bl T c, H  LOOP
+	dup T here cell+ H + cfalign+ 0 ?DO  bl T c, H  LOOP
 	ht-nlstring, X cfalign ;
 [THEN]
 : view,   ( -- ) ( dummy ) ;

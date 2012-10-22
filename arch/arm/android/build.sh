@@ -29,7 +29,7 @@ mkdir -p $LIBS
 if [ "$1" != "--no-gforthgz" ]
 then
     (cd $SRC
-	./configure --host=arm-unknown-linux-android --with-cross=android --prefix= --datarootdir=/sdcard --libdir=/sdcard --libexecdir=/lib --enable-lib
+	if [ "$1" != "--no-config" ]; then ./configure --host=arm-unknown-linux-android --with-cross=android --prefix= --datarootdir=/sdcard --libdir=/sdcard --libexecdir=/lib --enable-lib; else shift; fi
 	make
 	make setup-debdist)
 else
