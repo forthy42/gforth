@@ -96,6 +96,8 @@ Defer hash-alloc ( addr -- addr )
 : hash-reveal ( nfa wid -- )
     2dup (reveal) (reveal ;
 
+[IFUNDEF] >link ' noop Alias >link [THEN]
+
 : inithash ( wid -- )
     wordlist-extend
     insRule @ >r  insRule off  1 hash-alloc over ! 3 cells -

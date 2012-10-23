@@ -172,52 +172,53 @@ si-prefixes count bl scan drop Constant zero-exp
     ' fnum-recognizer
     forth-recognizer get-recognizers
     1+ forth-recognizer set-recognizers
-[THEN]
-[ifdef] recognizer,
-    :noname drop postpone Fliteral ;
-    :noname postpone Fliteral ;
-    : r:fnumber ; recognizer,
-
-    : fnum-recognizer ( addr u -- float int-table | addr u r:fail )
-	2dup prefix-number
-	IF
-	    2drop ['] r:fnumber  EXIT
-	THEN
-	['] r:fail ;
-
-    ' fnum-recognizer
-    forth-recognizer get-recognizers
-    1+ forth-recognizer set-recognizers
 [else]
-[ifundef] compiler-notfound1
-defer compiler-notfound1
-' no.extensions IS compiler-notfound1
+    [ifdef] recognizer,
+	:noname drop postpone Fliteral ;
+	:noname postpone Fliteral ;
+	: r:fnumber ; recognizer,
+	
+	: fnum-recognizer ( addr u -- float int-table | addr u r:fail )
+	    2dup prefix-number
+	    IF
+		2drop ['] r:fnumber  EXIT
+	    THEN
+	    ['] r:fail ;
+	
+	' fnum-recognizer
+	forth-recognizer get-recognizers
+	1+ forth-recognizer set-recognizers
+    [else]
+	[ifundef] compiler-notfound1
+	    defer compiler-notfound1
+	    ' no.extensions IS compiler-notfound1
+	    
+	    :noname compiler-notfound1 execute ; is compiler-notfound
+	    
+	    defer interpreter-notfound1
+	    ' no.extensions IS interpreter-notfound1
 
-:noname compiler-notfound1 execute ; is compiler-notfound
+	    :noname interpreter-notfound1 execute ; is interpreter-notfound
+	[then]
 
-defer interpreter-notfound1
-' no.extensions IS interpreter-notfound1
-
-:noname interpreter-notfound1 execute ; is interpreter-notfound
-[then]
-
-:noname ( c-addr u -- ... xt )
-    2dup sfnumber
-    IF
-	2drop [comp'] FLiteral
-    ELSE
-	defers compiler-notfound1
-    ENDIF ;
-IS compiler-notfound1
-
-:noname ( c-addr u -- ... xt )
-    2dup sfnumber
-    IF
-	2drop ['] noop
-    ELSE
-	defers interpreter-notfound1
-    ENDIF ;
-IS interpreter-notfound1
+	:noname ( c-addr u -- ... xt )
+	    2dup sfnumber
+	    IF
+		2drop [comp'] FLiteral
+	    ELSE
+		defers compiler-notfound1
+	    ENDIF ;
+	IS compiler-notfound1
+	
+	:noname ( c-addr u -- ... xt )
+	    2dup sfnumber
+	    IF
+		2drop ['] noop
+	    ELSE
+		defers interpreter-notfound1
+	    ENDIF ;
+	IS interpreter-notfound1
+    [then]
 [then]
 
 : fvariable ( "name" -- ) \ float f-variable
