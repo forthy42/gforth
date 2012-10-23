@@ -69,6 +69,7 @@ c-function setsockopt setsockopt n n n a n -- n ( sockfd level optname optval op
 end-c-library
 
 e? os-type s" darwin" string-prefix? [IF] : darwin ; [THEN]
+e? os-type s" linux-android" str= [IF] : android ; [THEN]
 
 4 4 2Constant int%
 2 2 2Constant short%
@@ -112,7 +113,7 @@ struct
     int% field ai_socktype
     int% field ai_protocol
     size_t% field ai_addrlen
-[IFDEF] darwin
+[defined] android [defined] darwin or [IF]
     cell% field ai_canonname
     cell% field ai_addr
 [ELSE]

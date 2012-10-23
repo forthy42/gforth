@@ -247,6 +247,8 @@ ACONSTANT MaxTable
         2drop true
         THEN ;
 
+[IFUNDEF] cell- : cell- cell - ; [THEN]
+    
 : MyBranch      ( a-addr -- a-addr a-addr2 )
 \ finds branch table entry for branch at a-addr
                 dup @
@@ -324,7 +326,7 @@ VARIABLE C-Pass
 	    EXIT
 	then
     THEN
-    nip dup 2 cells - @ immediate-mask and
+    nip dup >f+c @ immediate-mask and
     IF
 	bl cemit  ." POSTPONE "
     THEN
