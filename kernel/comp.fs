@@ -497,9 +497,8 @@ Create vttemplate 0 A, ' peephole-compile, A, ' noop A, \ initialize to one know
 : >vtable ( compile,-xt tokenize-xt -- )
     swap vttemplate cell+ 2! ;
 
-: start-x ( -- xt )
-    cfalign ['] on >namevt @ , here >r docol: cfa,
-    defstart ] :-hook r> ;
+: start-x ( -- xt ) \ incomplete, will not be a full xt
+    here >r docol: cfa, defstart ] :-hook r> ;
 
 : !compile, ( xt -- ) vttemplate >vtcompile, ! ;
 : !lit,     ( xt -- ) vttemplate >vtlit, ! ;
