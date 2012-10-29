@@ -103,7 +103,7 @@ s" address-unit-bits" environment? drop constant bits/au
 
 : comp-image ( "image-file1" "image-file2" "new-image" -- )
     name slurp-file { image1 size1 }
-    image1 size1 s" Gforth4" search 0= abort" not a Gforth image"
+    image1 size1 s" Gforth5" search 0= abort" not a Gforth image"
     drop 8 + image1 - { header-offset }
     size1 aligned size1 <> abort" unaligned image size"
     image1 header-offset + 2 cells + @ header-offset + size1 <> abort" header gives wrong size"

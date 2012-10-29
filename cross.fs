@@ -3445,7 +3445,7 @@ Cond: postpone ( -- ) \ name
 hex
 
 >CROSS
-Create magic  s" Gforth4x" here over allot swap move
+Create magic  s" Gforth5x" here over allot swap move
 
 bigendian 1+ \ strangely, in magic big=0, little=1
 tcell 1 = 0 and or

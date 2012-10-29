@@ -161,6 +161,7 @@ Variable sockopt-on
     27 Constant IPV6_V6ONLY
     35 Constant EWOULDBLOCK
    $40 Constant MSG_WAITALL
+   $80 Constant MSG_DONTWAIT
   $006 Constant O_NONBLOCK|O_RDWR
  $1006 Constant SO_RCVTIMEO
      4 Constant SO_REUSEADDR
@@ -171,6 +172,7 @@ Variable sockopt-on
     10 Constant AF_INET6
     26 Constant IPV6_V6ONLY
     11 Constant EWOULDBLOCK
+   $40 Constant MSG_DONTWAIT
   $100 Constant MSG_WAITALL
 $10000 Constant MSG_WAITFORONE
   $802 Constant O_NONBLOCK|O_RDWR
