@@ -1969,7 +1969,7 @@ static FILE *checkimage(char *path, int len, char *imagename)
     preamblesize+=8;
   } while(memcmp(magic,"Gforth5",7));
   if (debug) {
-    fprintf(stderr,"Magic found: %*s ", 7, magic);
+    fprintf(stderr,"Magic found: %*s ", 6, magic);
     print_sizes(magic[7]);
   }
   if (magic[7] != sizebyte) {
@@ -2005,7 +2005,7 @@ static FILE * open_image_file(char * imagename, char * path)
 	path=pend+(*pend==PATHSEP);
       } while (image_file==NULL);
   } else {
-    image_file=openimage(imagename);
+    image_file=checkimage("", 0, imagename);
   }
 
   if (!image_file) {
