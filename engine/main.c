@@ -2026,7 +2026,7 @@ Address gforth_loader(char* imagename, char* path)
       exit(1);
     }
     preamblesize+=8;
-  } while(memcmp(magic,"Gforth4",7));
+  } while(memcmp(magic,"Gforth5",7));
   magic7 = magic[7];
   if (debug) {
     magic[7]='\0';
