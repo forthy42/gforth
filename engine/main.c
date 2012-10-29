@@ -443,7 +443,7 @@ void gforth_relocate(Cell *image, const Char *bitstring,
 		  compile_prim1(0);
 		compile_prim1(&image[i]);
 	      } else if((token & 0x8000) == 0) { /* special CFA */
-		debugp(stderr, "image[%x] = symbols[%x]\n", i, groups[group]+tok);
+		/* debugp(stderr, "image[%x] = symbols[%x]\n", i, groups[group]+tok); */
 		MAKE_CF(image+i,symbols[groups[group]+tok]);
 	      }
 #endif
@@ -1923,16 +1923,67 @@ static FILE *openimage(char *fullfilename)
 }
 
 /* try to open image file concat(path[0:len],imagename) */
+
+/* global variables from checkimage */
+
+Char magic[8];
+Cell preamblesize=0;
+
 static FILE *checkimage(char *path, int len, char *imagename)
 {
   int dirlen=len;
   char fullfilename[dirlen+strlen((char *)imagename)+2];
+  FILE* imagefile;
+  Cell ausize = ((RELINFOBITS ==  8) ? 0 :
+		 (RELINFOBITS == 16) ? 1 :
+		 (RELINFOBITS == 32) ? 2 : 3);
+  Cell charsize = ((sizeof(Char) == 1) ? 0 :
+		   (sizeof(Char) == 2) ? 1 :
+		   (sizeof(Char) == 4) ? 2 : 3) + ausize;
+  Cell cellsize = ((sizeof(Cell) == 1) ? 0 :
+		   (sizeof(Cell) == 2) ? 1 :
+		   (sizeof(Cell) == 4) ? 2 : 3) + ausize;
+  Cell sizebyte = (ausize << 5) + (charsize << 3) + (cellsize << 1) +
+#ifdef WORDS_BIGENDIAN
+       0
+#else
+       1
+#endif
+    ;
 
   memcpy(fullfilename, path, dirlen);
   if (fullfilename[dirlen-1]!=DIRSEP)
     fullfilename[dirlen++]=DIRSEP;
   strcpy(fullfilename+dirlen,imagename);
-  return openimage(fullfilename);
+  imagefile=openimage(fullfilename);
+
+  if(!imagefile) return 0;
+
+  preamblesize=0;
+  do {
+    if(fread(magic,sizeof(Char),8,imagefile) < 8) {
+      fprintf(stderr,"%s: image %s doesn't seem to be a Gforth (>=0.8) image.\n",
+	      progname, imagename);
+      exit(1);
+    }
+    preamblesize+=8;
+  } while(memcmp(magic,"Gforth5",7));
+  if (debug) {
+    fprintf(stderr,"Magic found: %*s ", 7, magic);
+    print_sizes(magic[7]);
+  }
+  if (magic[7] != sizebyte) {
+    if (debug) {
+      fprintf(stderr,"This image is:         ");
+      print_sizes(magic[7]);
+      fprintf(stderr,"whereas the machine is ");
+      print_sizes(sizebyte);
+    };
+    fclose(imagefile);
+    imagefile = 0;
+  }
+
+  return imagefile;
 }
 
 static FILE * open_image_file(char * imagename, char * path)
@@ -1979,27 +2030,8 @@ Address gforth_loader(char* imagename, char* path)
   ImageHeader header;
   Address image;
   Address imp; /* image+preamble */
-  Char magic[8];
-  char magic7; /* size byte of magic number */
-  Cell preamblesize=0;
   Cell data_offset = offset_image ? 56*sizeof(Cell) : 0;
   UCell check_sum;
-  Cell ausize = ((RELINFOBITS ==  8) ? 0 :
-		 (RELINFOBITS == 16) ? 1 :
-		 (RELINFOBITS == 32) ? 2 : 3);
-  Cell charsize = ((sizeof(Char) == 1) ? 0 :
-		   (sizeof(Char) == 2) ? 1 :
-		   (sizeof(Char) == 4) ? 2 : 3) + ausize;
-  Cell cellsize = ((sizeof(Cell) == 1) ? 0 :
-		   (sizeof(Cell) == 2) ? 1 :
-		   (sizeof(Cell) == 4) ? 2 : 3) + ausize;
-  Cell sizebyte = (ausize << 5) + (charsize << 3) + (cellsize << 1) +
-#ifdef WORDS_BIGENDIAN
-       0
-#else
-       1
-#endif
-    ;
   FILE* imagefile=open_image_file(imagename, path);
 
   gforth_init();
@@ -2018,30 +2050,6 @@ Address gforth_loader(char* imagename, char* path)
 #if !(defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED))
   termstate = make_termstate();
 #endif /* !(defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED)) */
-  
-  do {
-    if(fread(magic,sizeof(Char),8,imagefile) < 8) {
-      fprintf(stderr,"%s: image %s doesn't seem to be a Gforth (>=0.8) image.\n",
-	      progname, imagename);
-      exit(1);
-    }
-    preamblesize+=8;
-  } while(memcmp(magic,"Gforth5",7));
-  magic7 = magic[7];
-  if (debug) {
-    magic[7]='\0';
-    fprintf(stderr,"Magic found: %s ", magic);
-    print_sizes(magic7);
-  }
-
-  if (magic7 != sizebyte)
-    {
-      fprintf(stderr,"This image is:         ");
-      print_sizes(magic7);
-      fprintf(stderr,"whereas the machine is ");
-      print_sizes(sizebyte);
-      exit(-2);
-    };
 
   fread((void *)&header,sizeof(ImageHeader),1,imagefile);
 
