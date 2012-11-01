@@ -73,13 +73,19 @@ void android_main(struct android_app* state)
   int checkdir;
   int epipe[2];
 
+  if((checkdir=open("/sdcard/gforth/", O_RDONLY))==-1) {
+    mkdir("/sdcard/gforth/", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+  } else { close(checkdir); }
+  if((checkdir=open("/sdcard/gforth/home", O_RDONLY))==-1) {
+    mkdir("/sdcard/gforth/home", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+  } else { close(checkdir); }
+
   freopen("/sdcard/gforth/home/aout.log", "w+", stdout);
   freopen("/sdcard/gforth/home/aerr.log", "w+", stderr);
   pipe(epipe);
   fileno(stdin)=epipe[0];
 
-  checkdir=open("/sdcard/gforth/" PACKAGE_VERSION, O_RDONLY);
-  if(checkdir==-1) {
+  if((checkdir=open("/sdcard/gforth/" PACKAGE_VERSION, O_RDONLY))==-1) {
     chdir("/sdcard");
     zexpand("/data/data/gnu.gforth/lib/libgforthgz.so");
   } else {

@@ -25,18 +25,22 @@ void zexpand(char * zfile)
       if((len3==filesize)) {
 	switch(filename[0]) {
 	case 'f': // file
+	  fprintf(stderr, "file %s, size %d\n", filename+1, filesize);
 	  out=fopen(filename+1, "w+");
 	  fwrite(filebuf, filesize, 1, out);
 	  fclose(out);
 	  break;
 	case 'd': // directory
+	  fprintf(stderr, "dir %s\n", filename+1);
 	  mkdir(filename+1, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 	  break;
 	case 'h': // hard link
-	  link(filebuf, filename);
+	  fprintf(stderr, "hardlink %s\n", filename+1);
+	  link(filebuf, filename+1);
 	  break;
 	case 's': // symlink
-	  symlink(filebuf, filename);
+	  fprintf(stderr, "symlink %s\n", filename+1);
+	  symlink(filebuf, filename+1);
 	  break;
 	}
       }
