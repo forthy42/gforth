@@ -29,20 +29,23 @@ then
 	make
 	make setup-debdist)
     if [ "$1" == "--no-config" ]; then shift; fi
+
+    for i in . $*
+    do
+	cp $i/*.{fs,fi,png,jpg} $SRC/debian/sdcard/gforth/site-forth
+    done
+    (cd $SRC/debian/sdcard
+	mkdir -p gforth/home
+	touch gforth/home/.gforth-history
+	gforth ../../archive.fs $(find gforth -type f)) | gzip -9 >$LIBS/libgforthgz.so
 else
     shift
 fi
 
-for i in . $*
-do
-    cp $i/*.{fs,fi,png,jpg} $SRC/debian/sdcard/gforth/site-forth
-done
-(cd $SRC/debian/sdcard
-    mkdir -p gforth/home
-    touch gforth/home/.gforth-history
-    gforth ../../archive.fs $(find gforth -type f)) | gzip -9 >$LIBS/libgforthgz.so
+TIMESTAMP=$(ls -l --time-style="+^%s.%N^" libs/armeabi/libgforthgz.so | cut -f2 -d^)
 
-cp $SRC/engine/.libs/libgforth$ENGINE.so $LIBS/
+sed -e "s/1234567890\.987654321/$TIMESTAMP/" $SRC/engine/.libs/libgforth$ENGINE.so >$LIBS/libgforth$ENGINE.so
+
 LIBCC=$SRC
 for i in $LIBCC $*
 do
