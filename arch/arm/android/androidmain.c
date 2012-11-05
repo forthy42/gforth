@@ -64,6 +64,26 @@ static void engine_handle_cmd(struct android_app* app, int32_t cmd)
   fprintf(stderr, "App cmd %d\n", cmd);
 }
 
+char timestamp[]="1234567890.987654321";
+
+int checktimestamp(void)
+{
+  int checkdir;
+  char timebuffer[30];
+  int checkread;
+
+  checkdir=open("/sdcard/gforth/" PACKAGE_VERSION, O_RDONLY);
+  if(checkdir==-1) return 0; // directory not there
+  close(checkdir);
+  checkdir=open("/sdcard/gforth/" PACKAGE_VERSION "/timestamp", O_RDONLY);
+  if(checkdir==-1) return 0; // timestamp not there
+  checkread=read(checkdir, timebuffer, 30);
+  close(checkdir);
+  if(checkread!=20) return 0;
+  if(memcmp(timebuffer, timestamp, 20)) return 0;
+  return 1;
+}
+
 void android_main(struct android_app* state)
 {
   char statepointer[2*sizeof(char*)+3]; // 0x+hex digits+trailing 0
@@ -73,16 +93,23 @@ void android_main(struct android_app* state)
   int checkdir;
   int epipe[2];
 
+  if((checkdir=open("/sdcard/gforth/", O_RDONLY))==-1) {
+    mkdir("/sdcard/gforth/", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+  } else { close(checkdir); }
+  if((checkdir=open("/sdcard/gforth/home", O_RDONLY))==-1) {
+    mkdir("/sdcard/gforth/home", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+  } else { close(checkdir); }
+
   freopen("/sdcard/gforth/home/aout.log", "w+", stdout);
   freopen("/sdcard/gforth/home/aerr.log", "w+", stderr);
   pipe(epipe);
   fileno(stdin)=epipe[0];
 
-  checkdir=open("/sdcard/gforth/" PACKAGE_VERSION, O_RDONLY);
-  if(checkdir==-1) {
+  if(!checktimestamp()) {
     chdir("/sdcard");
     zexpand("/data/data/gnu.gforth/lib/libgforthgz.so");
-  } else {
+    checkdir=creat("/sdcard/gforth/" PACKAGE_VERSION "/timestamp", O_WRONLY);
+    write(checkdir, timestamp, strlen(timestamp));
     close(checkdir);
   }
 
@@ -102,6 +129,7 @@ void android_main(struct android_app* state)
   if(checkdir==-1) {
     chdir("/sdcard/gforth/site-forth");
     retvalue=gforth_make_image(0);
+    exit(retvalue);
   } else {
     close(checkdir);
   }
