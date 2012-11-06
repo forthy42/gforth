@@ -42,9 +42,9 @@ else
     shift
 fi
 
-TIMESTAMP=$(ls -l --time-style="+^%s.%N^" libs/armeabi/libgforthgz.so | cut -f2 -d^)
+SHA256=$(sha256sum libs/armeabi/libgforthgz.so | cut -f1 -d' ')
 
-sed -e "s/1234567890\.987654321/$TIMESTAMP/" $SRC/engine/.libs/libgforth$ENGINE.so >$LIBS/libgforth$ENGINE.so
+sed -e "s/sha256sum-sha256sum-sha256sum-sha256sum-sha256sum-sha256sum-sha2/$SHA256/" $SRC/engine/.libs/libgforth$ENGINE.so >$LIBS/libgforth$ENGINE.so
 
 LIBCC=$SRC
 for i in $LIBCC $*
