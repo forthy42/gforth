@@ -613,8 +613,8 @@ Defer parse-name ( "name" -- c-addr u ) \ gforth
 ' parse-name alias name ( -- c-addr u ) \ gforth-obsolete
 \G old name for @code{parse-name}
     
-: no.extensions  ( addr u -- )
-    2drop -&13 throw ;
+: no.extensions  ( -- )
+    -&13 throw ;
 
 Defer before-word ( -- ) \ gforth
 \ called before the text interpreter parses the next word

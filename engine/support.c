@@ -106,9 +106,9 @@ Cell opencreate_file(char *s, Cell wfam, int flags, Cell *wiorp)
 {
   Cell fd;
   Cell wfileid;
-  fd = open(s, flags|ufileattr[wfam], 0666);
+  fd = open(s, flags|ufileattr[wfam & 0x0F], (wfam >> 4) ^ 0666);
   if (fd != -1) {
-    wfileid = (Cell)fdopen(fd, fileattr[wfam]);
+    wfileid = (Cell)fdopen(fd, fileattr[wfam & 0x0F]);
     *wiorp = IOR(wfileid == 0);
   } else {
     wfileid = 0;
