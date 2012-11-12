@@ -24,6 +24,14 @@
 : bin ( fam1 -- fam2 ) \ file
     1 or ;
 
+\ file creation attributes
+
+\ default is rw-rw-rw-
+
+: +fmode ( fam1 rwxrwxrwx -- fam2 )
+    \G add file access mode to fam - for create-file only
+    $1B6 xor 4 lshift or ;
+
 \ BIN WRITE-LINE                                        11jun93jaw
 
 : write-line ( c-addr u wfileid -- ior ) \ file

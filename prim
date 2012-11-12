@@ -763,6 +763,19 @@ u2 = u1-n;
 :
  tuck - >r + r> dup 0< IF  - 0  THEN ;
 
+safe/string	( c_addr1 u1 n -- c_addr2 u2 )	string	safe_slash_string
+""Adjust the string specified by @i{c-addr1, u1} to remove @i{n}
+characters from the start of the string.  Clamps on overflow""
+c_addr2 = c_addr1+n;
+u2 = u1-n;
+if(n>=0) {
+  if(u2>u1) { c_addr2 += u2; u2 = 0; }
+} else {
+  if(u2<u1) { c_addr2 += u2+1; u2 = -1; }
+}
+:
+ tuck - >r + r> dup 0< IF  - 0  THEN ;
+
 \g arith
 
 lit	( #w -- w )		gforth

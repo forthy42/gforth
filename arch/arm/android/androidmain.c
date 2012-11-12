@@ -64,23 +64,23 @@ static void engine_handle_cmd(struct android_app* app, int32_t cmd)
   fprintf(stderr, "App cmd %d\n", cmd);
 }
 
-char timestamp[]="1234567890.987654321";
+const char sha256sum[]="sha256sum-sha256sum-sha256sum-sha256sum-sha256sum-sha256sum-sha2";
 
-int checktimestamp(void)
+int checksha256sum(void)
 {
   int checkdir;
-  char timebuffer[30];
+  char sha256buffer[64];
   int checkread;
 
   checkdir=open("/sdcard/gforth/" PACKAGE_VERSION, O_RDONLY);
   if(checkdir==-1) return 0; // directory not there
   close(checkdir);
-  checkdir=open("/sdcard/gforth/" PACKAGE_VERSION "/timestamp", O_RDONLY);
-  if(checkdir==-1) return 0; // timestamp not there
-  checkread=read(checkdir, timebuffer, 30);
+  checkdir=open("/sdcard/gforth/" PACKAGE_VERSION "/sha256sum", O_RDONLY);
+  if(checkdir==-1) return 0; // sha256sum not there
+  checkread=read(checkdir, sha256buffer, 64);
   close(checkdir);
-  if(checkread!=20) return 0;
-  if(memcmp(timebuffer, timestamp, 20)) return 0;
+  if(checkread!=64) return 0;
+  if(memcmp(sha256buffer, sha256sum, 64)) return 0;
   return 1;
 }
 
@@ -105,11 +105,11 @@ void android_main(struct android_app* state)
   pipe(epipe);
   fileno(stdin)=epipe[0];
 
-  if(!checktimestamp()) {
+  if(!checksha256sum()) {
     chdir("/sdcard");
     zexpand("/data/data/gnu.gforth/lib/libgforthgz.so");
-    checkdir=creat("/sdcard/gforth/" PACKAGE_VERSION "/timestamp", O_WRONLY);
-    write(checkdir, timestamp, strlen(timestamp));
+    checkdir=creat("/sdcard/gforth/" PACKAGE_VERSION "/sha256sum", O_WRONLY);
+    write(checkdir, sha256sum, 64);
     close(checkdir);
   }
 

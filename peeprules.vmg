@@ -53,6 +53,8 @@ super25 = @ ;s
 super26 = lit @ +
 super27 = dup @
 \ super28 = lit execute \ currently not supported
+super29 = o#+ @
+super30 = o#+ !
 
 \F 0 [if]
 

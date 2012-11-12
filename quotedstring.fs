@@ -19,23 +19,14 @@
 
 : slit,  postpone sliteral ;
 
-[IFDEF] recognizer:
-    ' noop ' slit, dup recognizer: r:string
+: r:string ;
+compile> drop slit, ;
+lit> slit, ;
 
-    : string-recognizer ( addr u -- addr u' r:string | addr u r:fail )
-	2dup s\" \"" string-prefix?
-	IF    drop source drop - 1+ >in !  \"-parse save-mem r:string
-	ELSE  r:fail  THEN ;
-[ELSE]
-    : r:string ;
-    compile> drop slit, ;
-    lit> slit, ;
-
-    : string-recognizer ( addr u -- addr u' r:string | addr u r:fail )
-	2dup s\" \"" string-prefix?
-	IF    drop source drop - 1+ >in !  \"-parse save-mem ['] r:string
-	ELSE  ['] r:fail  THEN ;
-[THEN]
+: string-recognizer ( addr u -- addr u' r:string | r:fail )
+    2dup s\" \"" string-prefix?
+    IF    drop source drop - 1+ >in !  \"-parse save-mem ['] r:string
+    ELSE  2drop ['] r:fail  THEN ;
 
 ' string-recognizer
 forth-recognizer get-recognizers

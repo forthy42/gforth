@@ -38,9 +38,9 @@
 
 : lit, ( n -- ) postpone Literal ;
 
-: word-recognizer ( addr u -- xt | addr u r:fail )
-    2dup find-name [ [IFDEF] prelude-mask ] run-prelude [ [THEN] ] dup
-    IF  nip nip  ELSE  drop ['] r:fail  THEN ;
+: word-recognizer ( addr u -- xt | r:fail )
+    find-name [ [IFDEF] prelude-mask ] run-prelude [ [THEN] ]
+    dup 0= IF  drop ['] r:fail  THEN ;
 
 :noname ( n xt -- ) drop postpone Literal ;
 :noname ( n -- )  postpone Literal ;
@@ -54,12 +54,12 @@
 
 \ snumber? should be implemented as recognizer stack
 
-: num-recognizer ( addr u -- n/d table | addr u r:fail )
-    2dup 2>r snumber?  dup
+: num-recognizer ( addr u -- n/d table | r:fail )
+    snumber?  dup
     IF
-	2rdrop 0> IF  ['] r:2num   ELSE  ['] r:num  THEN  EXIT
+	0> IF  ['] r:2num   ELSE  ['] r:num  THEN  EXIT
     THEN
-    drop 2r> ['] r:fail ;
+    drop ['] r:fail ;
 
 \ recognizer stack
 
@@ -84,15 +84,17 @@ Variable forth-recognizer
 
 \ recognizer loop
 
-: do-recognizer ( addr u rec-addr -- token table )
+: do-recognizer ( addr u rec-addr -- tokens xt )
     dup cell+ swap @ cells bounds ?DO
-	I perform dup ['] r:fail <>  IF  UNLOOP  EXIT  THEN  drop
+	2dup I -rot 2>r
+	perform dup ['] r:fail <>  IF  2rdrop UNLOOP  EXIT  THEN  drop
+	2r>
     cell +LOOP
-    ['] r:fail ;
+    2drop ['] r:fail ;
 
 \ nested recognizer helper
 
-\ : nest-recognizer ( addr u -- token table | addr u r:fail )
+\ : nest-recognizer ( addr u -- token table | r:fail )
 \   xxx-recognizer do-recognizer ;
 
 : interpreter-r ( addr u -- ... xt )
