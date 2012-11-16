@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ ! -f build.xml ]
+then
+    android update project -p . -s
+fi
+
 # takes as extra argument a directory where to look for .so-s
 
 case "$1" in
