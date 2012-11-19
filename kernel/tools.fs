@@ -58,7 +58,7 @@ Variable /dump
         IF  ."    "  ELSE  dup c@ 0 <<# # # #> type #>> space  THEN
     char+ NEXT ;
 : .chars ( addr -- )
-    /dump @ bounds
+    /dump @ 0 max bounds
     ?DO I c@ dup 7f bl within
 	IF  drop [char] .  THEN  emit
     LOOP ;
