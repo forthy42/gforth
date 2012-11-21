@@ -2068,6 +2068,8 @@ Address gforth_loader(char* imagename, char* path)
 			  dictsize, data_offset);
   imp=image+preamblesize;
 
+  set_stack_sizes(imp);
+
   if (clear_dictionary)
     memset(imp+header.image_size, 0, dictsize-header.image_size-preamblesize);
   if(header.base==0 || header.base  == (Address)0x100) {
