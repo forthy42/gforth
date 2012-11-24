@@ -125,9 +125,9 @@ void android_main(struct android_app* state)
   
   app_dummy();
 
-  checkdir=open("/sdcard/gforth/site-forth/gforth.fi", O_RDONLY);
+  checkdir=open("/sdcard/gforth/" PACKAGE_VERSION "/gforth.fi", O_RDONLY);
   if(checkdir==-1) {
-    chdir("/sdcard/gforth/site-forth");
+    chdir("/sdcard/gforth/" PACKAGE_VERSION);
     retvalue=gforth_make_image(0);
     exit(retvalue);
   } else {

@@ -101,6 +101,7 @@ FORTHSIZES = @FORTHSIZES@
 FORTHS_ARGS =  -p "$(FORTHPATH)$(PATHSEP)$(srcdir)"
 FORTH_ARGS = --die-on-signal $(FORTHS_ARGS)
 ENGINE = ./gforth
+DITCENGINE = @DITCENGINE@
 FORTH	= $(ENGINE) $(FORTH_ARGS)
 FORTHS	= $(ENGINE) $(FORTHS_ARGS)
 # the (existing) forth system to use for cross compiling and primitives tables
@@ -670,8 +671,8 @@ install:	gforth$(EXT) $(FORTH_SRC) $(kernel_fi) gforthmi vmgen doc/gforth.1 prim
 			echo '>>>>>Please install gforth.{el,elc} in your .../emacs/site-lisp directory'; \
 		fi
 		-$(RM) gforth.fi
-		@NO_CROSS@GFORTHD="./gforth-ditc$(EXT) -p $(DESTDIR)$(libdir)/gforth/site-forth$(PATHSEP)$(DESTDIR)$(siteforthdir)$(PATHSEP)$(DESTDIR)$(datadir)/gforth/$(VERSION) -i $(kernel_fi)" GFORTH="./gforth-ditc$(EXT) -p $(DESTDIR)$(libdir)/gforth/site-forth$(PATHSEP)$(DESTDIR)$(siteforthdir)$(PATHSEP)$(DESTDIR)$(datadir)/gforth/$(VERSION) --die-on-signal -i $(kernel_fi) $(STARTUP)" includedir=$(includedir) bindir=$(bindir) libccdir=$(libccdir) GFORTHPATH=.:"$$GFORTHPATH" GFORTHDESTDIR="$(DESTDIR)" ./gforthmi gforth.fi $(FORTHSIZES) $(STARTUP)
-		@NO_CROSS@$(INSTALL_DATA) gforth.fi $(DESTDIR)$(libdir)/gforth$(ARCH)/$(VERSION)
+		GFORTHD="$(DITCENGINE)$(EXT) -p $(DESTDIR)$(libdir)/gforth/site-forth$(PATHSEP)$(DESTDIR)$(siteforthdir)$(PATHSEP)$(DESTDIR)$(datadir)/gforth/$(VERSION) -i $(kernel_fi)" GFORTH="$(DITCENGINE)$(EXT) -p $(DESTDIR)$(libdir)/gforth/site-forth$(PATHSEP)$(DESTDIR)$(siteforthdir)$(PATHSEP)$(DESTDIR)$(datadir)/gforth/$(VERSION) --die-on-signal -i $(kernel_fi) $(STARTUP)" includedir=$(includedir) bindir=$(bindir) libccdir=$(libccdir) GFORTHPATH=.:"$$GFORTHPATH" GFORTHDESTDIR="$(package)$(DESTDIR)" ./gforthmi gforth.fi $(FORTHSIZES) $(STARTUP)
+		$(INSTALL_DATA) gforth.fi $(DESTDIR)$(libdir)/gforth$(ARCH)/$(VERSION)
 		$(INSTALL_DATA) install.TAGS $(DESTDIR)$(datadir)/gforth/$(VERSION)/TAGS
 		$(RM) install.TAGS @NO_CROSS@gforth.fi
 		$(INSTALL_DATA) include/gforth$(ARCH)/$(VERSION)/* $(DESTDIR)$(includedir)/gforth$(ARCH)/$(VERSION)
@@ -812,7 +813,7 @@ kernl64l$(EC).fi:	$(KERNLS)
 #		-$(CP) $< $@
 
 gforth.fi:	$(kernel_fi) gforthmi gforth-ditc$(EXT) $(GFORTH_FI_SRC) comp-i.fs
-		@NO_CROSS@GFORTHD="./gforth-ditc$(EXT) -p .$(PATHSEP)$(srcdir)" GFORTH="./gforth-ditc$(EXT) --die-on-signal -p .$(PATHSEP)$(srcdir) -i $(kernel_fi) $(STARTUP)" includedir=`pwd`/include bindir=`pwd` libccdir=`pwd`/lib/gforth$(ARCH)/$(VERSION)/libcc-named/ ./gforthmi gforth.fi $(FORTHSIZES) $(FORTHKFLAGS) $(STARTUP)
+		GFORTHD="$(DITCENGINE)$(EXT) -p .$(PATHSEP)$(srcdir)" GFORTH="$(DITCENGINE)$(EXT) --die-on-signal -p .$(PATHSEP)$(srcdir) -i $(kernel_fi) $(STARTUP)" includedir=`pwd`/include bindir=`pwd` libccdir=`pwd`/lib/gforth$(ARCH)/$(VERSION)/libcc-named/ ./gforthmi gforth.fi $(FORTHSIZES) $(FORTHKFLAGS) $(STARTUP)
 
 # -------------	Make c-engine
 
