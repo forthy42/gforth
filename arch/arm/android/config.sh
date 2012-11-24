@@ -49,6 +49,7 @@ build_libcc_named=build-libcc-named
 #KBOX=/data/data/kevinboone.androidterm/kbox
 #mi_prefix=$KBOX
 #mi_prefix=/data/data/gnu.gforth/lib
+extraccdir=/data/data/gnu.gforth/lib
 asm_fs=arch/arm/asm.fs
 disasm_fs=arch/arm/disasm.fs
 EC_MODE="false"
