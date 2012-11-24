@@ -125,6 +125,7 @@ void android_main(struct android_app* state)
   
   app_dummy();
 
+#ifdef DOUBLY_INDIRECT
   checkdir=open("/sdcard/gforth/" PACKAGE_VERSION "/gforth.fi", O_RDONLY);
   if(checkdir==-1) {
     chdir("/sdcard/gforth/" PACKAGE_VERSION);
@@ -133,6 +134,7 @@ void android_main(struct android_app* state)
   } else {
     close(checkdir);
   }
+#endif
 
   chdir("/sdcard/gforth/home");
 
