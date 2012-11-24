@@ -16,8 +16,7 @@ esac
 
 EXT=$ENGINE
 
-sed -e 's/android:value="gforth[a-z-]*"/android:value="gforth'$ENGINE'"/g' <AndroidManifest.xml >AndroidManifest.xml+
-mv AndroidManifest.xml+ AndroidManifest.xml
+sed -e "s/@ENGINE@/$ENGINE/g" <AndroidManifest.xml.in >AndroidManifest.xml
 
 SRC=../../..
 LIBS=libs/armeabi
