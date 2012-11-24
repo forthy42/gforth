@@ -15,17 +15,20 @@ All times are given in seconds of user time.
 
 After 0.7.0:
 AMD64:
-sieve bubble matrix  fib
- 0.284 0.436  0.204 0.516 2012-01-11; AMD E-450 1650MHz; gcc-4.6.1 (Ubuntu/Linaro 4.6.1-9ubuntu3)
+ 0.156  0.232  0.084 0.236 0.080  2012-10-31; Intel Xeon E5620 2.40GHz; gcc-4.7.1 (Debian 4.7.1-7)
+ 0.321  0.479  0.219 0.594 0.229  2012-10-31; AMD E-350 1.6GHz; gcc version 4.7.1 20120723 (SUSE Linux)
+sieve bubble matrix  fib   fft    release; CPU; gcc
+ 0.284 0.436  0.204 0.516         2012-01-11; AMD E-450 1650MHz; gcc-4.6.1 (Ubuntu/Linaro 4.6.1-9ubuntu3)
+
 ARM Cortex-A9:
-sieve bubble matrix fib   fft
+sieve bubble matrix fib   fft   release; CPU; gcc
  0.735 0.920  0.900 1.110 0.690 2012-10-31; Exynos 4 Quad 1.6GHz; gcc-4.6.x (Android 4.1.1)
 ARM A8:
-sieve bubble matrix fib   fft
+sieve bubble matrix fib   fft   release
  1.437 1.821  1.929 2.406 1.640 2012-10-31; TI OMAP 3620 1.0GHz; gcc-4.6.x (Android 2.3.4)
- 1.390 1.820  1.850 2.310 2012-07-23; Allwinner A10 1.0GHz; gcc-4.6.x (Android 4.0.3)
- 2.610 3.430  2.470 3.980 2012-06-27; Allwinner A10 1.0GHz; gcc-4.4.3 (Android 4.0.3)
- 2.671 3.125  2.515 4.054 2012-06-27; TI OMAP 3620 1.0GHz; gcc-4.4.3 (Android 2.3.4)
+ 1.390 1.820  1.850 2.310       2012-07-23; Allwinner A10 1.0GHz; gcc-4.6.x (Android 4.0.3)
+ 2.610 3.430  2.470 3.980       2012-06-27; Allwinner A10 1.0GHz; gcc-4.4.3 (Android 4.0.3)
+ 2.671 3.125  2.515 4.054       2012-06-27; TI OMAP 3620 1.0GHz; gcc-4.4.3 (Android 2.3.4)
 
 Results with Gforth 0.7.0 (for comparing CPUs and C compilers):
 AMD64:
