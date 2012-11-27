@@ -151,12 +151,11 @@ else
 fi])
 AC_SUBST(ARCH)
 
+DITCENGINE="./gforth-ditc"
 AC_ARG_WITH(ditc,
 	AC_HELP_STRING([--with-ditc=<engine>],
 			[  Use this engine for compilation of gforth.fi]),
-[if test $"withval" = "no"; then
-  DITCENGINE="./gforth-ditc"
-else
+[if test $"withval" != "no"; then
   DITCENGINE=${withval}
 fi])
 AC_SUBST(DITCENGINE)
