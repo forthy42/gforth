@@ -29,10 +29,6 @@ warnings on
 
 \ end of ANS FORTH prolog
 
-warnings @ [IF]
-.( Loading Gray ... Copyright 1990-1994 Martin Anton Ertl; NO WARRANTY ) cr
-[THEN]
-
 \ misc )
 : noop ;
 
