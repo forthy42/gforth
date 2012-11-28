@@ -5890,7 +5890,7 @@ This performs @i{code1}.  If @i{code1} completes normally, execution
 continues with @i{code3}.  If there is an exception in @i{code1} or
 before @code{endtry}, the stacks are reset to the depth during
 @code{try}, the throw value is pushed on the data stack, and execution
-constinues at @i{code2}, and finally falls through to @i{code3}.
+continues at @i{code2}, and finally falls through to @i{code3}.
 
 doc-try
 doc-endtry
@@ -15730,9 +15730,37 @@ Gforth. Because of the second usage, a space is required between
 @code{#!} and the path to the executable (moreover, some Unixes
 require the sequence @code{#! /}).
 
-The disadvantage of this latter technique, compared with using
-@file{gforthmi}, is that it is slightly slower; the Forth source code is
-compiled on-the-fly, each time the program is invoked.
+Most Unix systems (including Linux) support exactly one option after
+the binary name.  If that is not enough, you can use the following
+trick:
+
+@example
+#! /bin/sh
+: ## ; 0 [if]
+exec gforth -m 10M -d 1M $0 "$@@"
+[then]
+." Hello, world" cr
+bye \ caution: this prevents (further) processing of "$@@"
+@end example
+
+First this script is interpreted as shell script, which treats the
+first two lines as (mostly) comments, then performs the third line,
+which invokes gforth with this script (@code{$0}) as parameter and its
+parameters as additional parameters (@code{"$@@"}).  Then this script
+is interpreted as Forth script, which first defines a colon definition
+@code{##}, then ignores everything up to @code{[then]} and finally
+processes the following Forth code.  You can also use
+
+@example
+#0 [if]
+@end example
+
+in the second line, but this works only in Gforth-0.7.0 and later.
+
+The @file{gforthmi} approach is the fastest one, the shell-based one
+is slowest (needs to start an additional shell).  An additional
+advantage of the shell approach is that it is unnecessary to know
+where the Gforth binary resides, as long as it is in the @code{$PATH}.
 
 doc-#!
 
