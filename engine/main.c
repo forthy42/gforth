@@ -1952,7 +1952,7 @@ static FILE *checkimage(char *path, int len, char *imagename)
     ;
 
   memcpy(fullfilename, path, dirlen);
-  if (fullfilename[dirlen-1]!=DIRSEP)
+  if (dirlen && fullfilename[dirlen-1]!=DIRSEP)
     fullfilename[dirlen++]=DIRSEP;
   strcpy(fullfilename+dirlen,imagename);
   imagefile=openimage(fullfilename);
@@ -2004,13 +2004,15 @@ static FILE * open_image_file(char * imagename, char * path)
 	image_file=checkimage(path, pend-path, imagename);
 	path=pend+(*pend==PATHSEP);
       } while (image_file==NULL);
+    path=origpath;
   } else {
-    image_file=checkimage("", 0, imagename);
+    path="";
+    image_file=checkimage(path, 0, imagename);
   }
 
   if (!image_file) {
     fprintf(stderr,"%s: cannot open image file %s in path %s for reading\n",
-	    progname, imagename, origpath);
+	    progname, imagename, path);
     exit(1);
   }
 
@@ -2544,7 +2546,7 @@ void gforth_setstacks()
   gforth_LP = gforth_UP->lp0;
 }
 
-int gforth_boot(int argc, char** argv, char* path)
+Cell gforth_boot(int argc, char** argv, char* path)
 {
   char *path2=malloc(strlen(path)+1);
   char *p1, *p2;
@@ -2568,13 +2570,13 @@ int gforth_boot(int argc, char** argv, char* path)
   return gforth_go(gforth_header->boot_entry);
 }
 
-int gforth_quit()
+Cell gforth_quit()
 {
   debugp(stderr, "Quit into Gforth: %p\n", gforth_header->quit_entry);
   return gforth_go(gforth_header->quit_entry);
 }
 
-int gforth_execute(Xt xt)
+Cell gforth_execute(Xt xt)
 {
   debugp(stderr, "Execute Gforth xt %p: %p\n", xt, gforth_header->execute_entry);
 
@@ -2596,7 +2598,7 @@ Xt gforth_find(Char * name)
   return xt;
 }
 
-int gforth_start(int argc, char ** argv)
+Cell gforth_start(int argc, char ** argv)
 {
   char *path, *imagename;
 
@@ -2607,11 +2609,12 @@ int gforth_start(int argc, char ** argv)
   return gforth_boot(argc, argv, path);
 }
 
-int gforth_main(int argc, char **argv, char **env)
+Cell gforth_main(int argc, char **argv, char **env)
 {
-  int retvalue=gforth_start(argc, argv);
+  Cell retvalue=gforth_start(argc, argv);
+  debugp(stderr, "Start returned %d\n", retvalue);
 
-  if(retvalue > 0) {
+  if(retvalue == -56) { /* throw-code for quit */
     gforth_execute(gforth_find("bootmessage"));
     retvalue = gforth_quit();
   }
@@ -2622,7 +2625,7 @@ int gforth_main(int argc, char **argv, char **env)
   return retvalue;
 }
 
-int gforth_make_image(int debugflag)
+Cell gforth_make_image(int debugflag)
 {
   char *argv0[] = { "gforth", "--clear-dictionary", "--no-offset-im", "--die-on-signal", "-i", KERNEL, "exboot.fs", "startup.fs", "arch/" ARCH "/asm.fs", "arch/" ARCH "/disasm.fs", "-e", "savesystem temp-file.fi1 bye" };
   char *argv1[] = { "gforth", "--clear-dictionary", "--offset-image", "--die-on-signal", "-i", KERNEL, "exboot.fs", "startup.fs", "arch/" ARCH "/asm.fs", "arch/" ARCH "/disasm.fs", "-e", "savesystem temp-file.fi2 bye" };
@@ -2631,7 +2634,7 @@ int gforth_make_image(int debugflag)
   const int argc1 = sizeof(argv1)/sizeof(char*);
   const int argc2 = sizeof(argv2)/sizeof(char*);
 
-  int retvalue;
+  Cell retvalue;
 
   debug=debugflag;
 

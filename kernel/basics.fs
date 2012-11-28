@@ -246,8 +246,8 @@ defer throw ( y1 .. ym nerror -- y1 .. ym / z1 .. zn error ) \ exception
 :noname ( y1 .. ym error -- y1 .. ym / z1 .. zn error )
     ?dup if
 	[ has? header [IF] here image-header 9 cells + ! [THEN] ]
-	cr DoError cr
-	[ has? file [IF] ] script? IF  1 (bye)  ELSE  quit  THEN
+	cr dup >r DoError cr
+	[ has? file [IF] ] script? IF  r> (bye)  ELSE  quit  THEN
 	[ [ELSE] ] quit [ [THEN] ]
     then ;
 is throw
