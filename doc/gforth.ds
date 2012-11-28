@@ -15732,7 +15732,7 @@ require the sequence @code{#! /}).
 
 Most Unix systems (including Linux) support exactly one option after
 the binary name.  If that is not enough, you can use the following
-trick (devised by David Kuehling):
+trick:
 
 @example
 #! /bin/sh
@@ -15748,7 +15748,7 @@ first two lines as (mostly) comments, then performs the third line,
 which invokes gforth with this script (@code{$0}) as parameter and its
 parameters as additional parameters (@code{"$@"}).  Then this script
 is interpreted as Forth script, which first defines a colon definition
-\code{##}, then ignores everything up to \code{[then]} and finally
+@code{##}, then ignores everything up to @code{[then]} and finally
 processes the following Forth code.  You can also use
 
 @example
