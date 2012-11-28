@@ -15737,16 +15737,16 @@ trick:
 @example
 #! /bin/sh
 : ## ; 0 [if]
-exec gforth -m 10M -d 1M $0 "$@"
+exec gforth -m 10M -d 1M $0 "$@@"
 [then]
 ." Hello, world" cr
-bye \ caution: this prevents (further) processing of "$@"
+bye \ caution: this prevents (further) processing of "$@@"
 @end example
 
 First this script is interpreted as shell script, which treats the
 first two lines as (mostly) comments, then performs the third line,
 which invokes gforth with this script (@code{$0}) as parameter and its
-parameters as additional parameters (@code{"$@"}).  Then this script
+parameters as additional parameters (@code{"$@@"}).  Then this script
 is interpreted as Forth script, which first defines a colon definition
 @code{##}, then ignores everything up to @code{[then]} and finally
 processes the following Forth code.  You can also use
