@@ -76,3 +76,16 @@ interpret/compile: ~~ ( -- ) \ gforth tilde-tilde
 \G contents with @code{.debugline}.
 
 :noname ( -- )  stderr to debug-fid  defers 'cold ; IS 'cold
+
+\ print a no-overhead backtrace
+
+: ~bt~ ( -- )
+    ]] ~~ store-backtrace dobacktrace nothrow [[ ; immediate compile-only
+
+\ launch a debug shell, quit with emtpy line
+
+: ?? ( -- )
+    create-input cr
+    BEGIN  refill  WHILE  source nip WHILE
+		interpret prompt cr  REPEAT  THEN
+    0 pop-file drop ;
