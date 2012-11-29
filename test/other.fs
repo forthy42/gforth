@@ -71,8 +71,8 @@ throw \ if the TOS is not 0, throw an error
 
 \ look for primitives
 
-' + xt>threaded threaded>name dup 0= throw ( nt )
-s" +" find-name <> throw
+\ ' + xt>threaded threaded>name dup 0= throw ( nt )
+\ s" +" find-name <> throw
 
 \ represent
 

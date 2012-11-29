@@ -32,13 +32,10 @@ decimal
 
 \ look                                                  17may93jaw
 
-\ rename to discover!!!
-
-: xt>threaded ( xt -- x )
-\G produces the threaded-code cell for the primitive xt
-    @ threading-method 2 = if
-	@
-    then ;
+: xt= ( ca xt -- flag )
+    \G compare threaded-code cell with the primitive xt
+    threading-method 1 +DO  @  LOOP  @ swap
+    threading-method 0 +DO  @  LOOP  = ;
 
 : search-name  ( xt startlfa -- nt|0 )
     \ look up name of primitive with code at xt
@@ -59,10 +56,10 @@ decimal
     [IFDEF] decompile-prim
 	decompile-prim
     [THEN]
-     \ walk through the array of primitive CAs
+    \ walk through the array of primitive CAs
     >r ['] image-header >link @ begin
 	dup while
-	    dup xt>threaded r@ = if
+	    r@ over xt= if
 		rdrop exit
 	    endif
 	    >link @

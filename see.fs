@@ -362,8 +362,8 @@ VARIABLE C-Pass
 	endif
     endif
     over 4 cells + over = if
-	over 1 cells + @ decompile-prim ['] call xt>threaded = >r
-	over 3 cells + @ decompile-prim ['] ;S xt>threaded =
+	over 1 cells + @ decompile-prim ['] call xt= >r
+	over 3 cells + @ decompile-prim ['] ;S xt=
 	r> and if
 	    over 2 cells + @ ['] !does >body = if  drop
 		S" DOES> " Com# ?.string 4 cells + EXIT endif
@@ -433,13 +433,13 @@ VARIABLE C-Pass
     \ abort": if ahead X: len string then lit X c(abort") then
     dup @ back? if false exit endif
     dup @ >r
-    r@ @ decompile-prim ['] lit xt>threaded <> if rdrop false exit endif
+    r@ @ decompile-prim ['] lit xt= 0= if rdrop false exit endif
     r@ cell+ @ over cell+ <> if rdrop false exit endif
     \ we have at least C"
-    r@ 2 cells + @ decompile-prim dup ['] lit xt>threaded = if
+    r@ 2 cells + @ decompile-prim dup ['] lit xt= if
 	drop r@ 3 cells + @ over cell+ + aligned r@ = if
 	    \ we have at least s"
-	    r@ 4 cells + @ decompile-prim ['] lit-perform xt>threaded =
+	    r@ 4 cells + @ decompile-prim ['] lit-perform xt=
 	    r@ 5 cells + @ ['] type >body = and if
 		6 s\" .\\\" "
 	    else
@@ -454,7 +454,7 @@ VARIABLE C-Pass
 	    nip cells r> + true exit
 	endif
     endif
-    ['] f@ xt>threaded = if
+    ['] f@ xt= if
 	display? if
 	    r@ cell+ @ f@ 10 8 16 f>str-rdp 0 .string bl cemit
 	endif
@@ -671,7 +671,7 @@ c-extender !
 	    THEN 
 	THEN
 	\ jump over to extender, if any 26jan97jaw
-	xt>threaded 2 pick <>
+	2 pick swap xt= 0=
     WHILE
 	    2 cells +
     REPEAT

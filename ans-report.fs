@@ -129,8 +129,10 @@ ans-report-words definitions
 : note-name ( nt -- )
     \ remember name in the appropriate wordset, unless already there
     \ or the word is defined in the checked program
-    dup [ here ] literal >		     \ word defined by the application
-    over locals-buffer dup 1000 + within or  \ or a local
+    dup [ here ]L forthstart within
+    [IFDEF] locals-buffer
+	over locals-buffer dup 1000 + within or  \ or a local
+    [THEN]
     if
 	drop EXIT
     endif
@@ -156,8 +158,7 @@ ans-report-words definitions
     \    dodefer: over code-address!
     \    >body ! ;
     dup @ docol: <> -12 and throw \ for colon defs only
-    >body ['] branch xt>threaded over !
-    cell+ >r >body r> ! ;
+    >body here >r dp ! ['] branch compile, >body , r> dp ! ;
 
 : print-names ( endaddr startaddr -- )
     space 1 -rot
