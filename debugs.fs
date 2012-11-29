@@ -82,10 +82,26 @@ interpret/compile: ~~ ( -- ) \ gforth tilde-tilde
 : ~bt~ ( -- )
     ]] ~~ store-backtrace dobacktrace nothrow [[ ; immediate compile-only
 
+: once ( -- )
+    \G do the following up to THEN only once
+    here cell+ >r ]] true if [[ r> ]] Literal off [[ ;
+    immediate compile-only
+
+: ~1bt~ ( -- ) ]] once ~bt~ then [[ ; immediate compile-only
+
 \ launch a debug shell, quit with emtpy line
 
 : ?? ( -- )
+    \G Open a debuging shell
     create-input cr
     BEGIN  refill  WHILE  source nip WHILE
 		interpret prompt cr  REPEAT  THEN
     0 pop-file drop ;
+
+: ??? ( -- )
+    \G Open a debugging shell with stack dump
+    ]] ~~ ?? [[ ; immediate compile-only
+
+: WTF?? ( -- )
+    \G Open a debugging shell with backtrace and stack dump
+    ]] ~bt~ ?? [[ ; immediate compile-only
