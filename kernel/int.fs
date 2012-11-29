@@ -424,7 +424,7 @@ const Create ???
     then
     bounds ?do \ should be a printable string
 	i c@ bl < if
-	    2drop unloop rdrop drop false exit
+	    unloop rdrop drop false exit
 	then
     loop
     r> if \ check for valid aliases

@@ -102,7 +102,7 @@ Defer discode ( addr u -- ) \ gforth
     \G find the next header starting after addr1, up to here (unreliable).
     here swap u+do
 	i head? -2 and if
-	    i unloop exit
+	    i name>string drop cell negate and unloop exit
 	then
     cell +loop
     here ;

@@ -36,7 +36,7 @@ decimal
 
 : xt>threaded ( xt -- x )
 \G produces the threaded-code cell for the primitive xt
-    threading-method 0= if
+    @ threading-method 2 = if
 	@
     then ;
 
@@ -55,17 +55,17 @@ decimal
     drop rdrop ;
 
 : threaded>xt ( ca -- xt|0 )
-\G For the code address ca of a primitive, find the xt (or 0).
+    \G For the code address ca of a primitive, find the xt (or 0).
     [IFDEF] decompile-prim
 	decompile-prim
     [THEN]
      \ walk through the array of primitive CAs
-    >r ['] noop begin
-	dup @ while
+    >r ['] image-header >link @ begin
+	dup while
 	    dup xt>threaded r@ = if
 		rdrop exit
 	    endif
-	    cell+
+	    >link @
     repeat
     drop rdrop 0 ;
 
