@@ -151,15 +151,6 @@ ans-report-words definitions
 	dup note-name
     endif ;
 
-: replace-word ( xt cfa -- )
-    \ replace word at cfa with xt. !! This is quite general-purpose
-    \ and should migrate elsewhere.
-    \  the following no longer works with primitive-centric hybrid threading:
-    \    dodefer: over code-address!
-    \    >body ! ;
-    dup @ docol: <> -12 and throw \ for colon defs only
-    >body here >r dp ! ['] branch compile, >body , r> dp ! ;
-
 : print-names ( endaddr startaddr -- )
     space 1 -rot
     u+do ( pos )

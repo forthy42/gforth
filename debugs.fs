@@ -105,3 +105,10 @@ interpret/compile: ~~ ( -- ) \ gforth tilde-tilde
 : WTF?? ( -- )
     \G Open a debugging shell with backtrace and stack dump
     ]] ~bt~ ?? [[ ; immediate compile-only
+
+\ replacing one word with another
+
+: replace-word ( xt2 xt1 -- )
+  \G make xt1 do xt2, both need to be colon definitions
+  >body  here >r dp !  >r postpone AHEAD  r> >body dp !  postpone THEN
+  r> dp ! ;
