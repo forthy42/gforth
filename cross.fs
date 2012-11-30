@@ -72,7 +72,7 @@ H
 >CROSS
 
 \ Test against this definitions to find out whether we are cross-compiling
-\ may be usefull for assemblers
+\ may be useful for assemblers
 0 Constant gforth-cross-indicator
 
 \ find out whether we are compiling with gforth
@@ -235,7 +235,7 @@ hex     \ the defualt base for the cross-compiler is hex !!
 
 : SetValue ( n -- <name> )
 \G Same behaviour as "Value" if the <name> is not defined
-\G Same behaviour as "to" if <name> is defined
+\G Same behaviour as "to" if the <name> is defined
 \G SetValue searches in the current vocabulary
   save-input bl word >r restore-input throw r> count
   get-current search-wordlist
@@ -378,7 +378,7 @@ Create NoFile ," #load-file#"
 \ ~+/ loads from the current working directory
 
 \ remark II:
-\ if there is no sufficient space for the search path increase it!
+\ if there is not enough space for the search path increase it!
 
 
 \ -Creating custom paths:
@@ -894,7 +894,7 @@ Variable executed-ghost \ last executed ghost, needed in tcreate and gdoes>
 Variable last-header-ghost \ last ghost definitions with header
 
 \ space for ghosts resolve structure
-\ we create ghosts in a sepearte space
+\ we create ghosts in a separate space
 \ and not to the current host dp, because this
 \ gives trouble with instant while compiling and creating
 \ a ghost for a forward reference
@@ -1037,7 +1037,7 @@ Variable reuse-ghosts reuse-ghosts off
       drop >in ! 
   ELSE >in ! 
   THEN 
-  \ we keep the execution semantics of the prviously
+  \ we keep the execution semantics of the previously
   \ defined words, this is a workaround
   \ for the redefined \ until vocs work
   Make-Ghost ;
@@ -1212,7 +1212,7 @@ s" relocate" T environment? H
 \ \ Create additional parameters                         19jan95py
 
 \ currently cross only works for host machines with address-unit-bits
-\ eual to 8 because of s! and sc!
+\ equal to 8 because of s! and sc!
 \ but I start to query the environment just to modularize a little bit
 
 : check-address-unit-bits ( -- )	
@@ -1959,7 +1959,7 @@ Defer resolve-warning
     r> swap ;
 
 : resolve  ( ghost tcfa -- )
-\G resolve referencies to ghost with tcfa
+\G resolve references to ghost with tcfa
     \ is ghost resolved?, second resolve means another 
     \ definition with the same name
     over undefined? 0= IF  exists EXIT THEN
@@ -2078,7 +2078,7 @@ $20 constant restrict-mask
 : compile-only  restrict-mask flag! ;
 
 : isdoer	
-\G define a forth word as doer, this makes obviously only sence on
+\G define a forth word as doer, this makes obviously only sense on
 \G forth processors such as the PSC1000
 		<do:> last-header-ghost @ >magic ! ;
 >CROSS
@@ -2215,7 +2215,7 @@ Defer skip? ' false IS skip?
     Ghost forward? 0= ;
 
 : forced? ( "name" -- flag )
-\G return ture if it is a foreced skip with defskip
+\G return true if it is a forced skip with defskip
     Ghost >magic @ <skip> = ;
 
 : needed? ( -- flag ) \ name
@@ -2392,9 +2392,9 @@ Variable cond-xt-old
   swap ! ;  immediate
 
 : Cond: ( "name" -- ) 
-\g defines a conditional or another word that must
-\g be executed directly while compiling
-\g these words have no interpretative semantics by default
+\G defines a conditional or another word that must
+\G be executed directly while compiling
+\G these words have no interpretative semantics by default
   Ghost
   >exec-compile
   dup @ cond-xt-old !
@@ -2435,7 +2435,7 @@ Cond: [']  T ' H alit, ;Cond
   postpone [G'] 
   state @ IF postpone g>xt ELSE g>xt THEN ; immediate
 
-\ \ threading modell					13dec92py
+\ \ threading model					13dec92py
 \ modularized						14jun97jaw
 
 T 2 cells H Value xt>body
@@ -2470,9 +2470,9 @@ T 2 cells H Value xt>body
 
 : (lit,) ( n -- )  s>d dlit, ;				' (lit,) plugin-of lit,
 
-\ if we dont produce relocatable code alit, defaults to lit, jaw
+\ if we don't produce relocatable code alit, defaults to lit, jaw
 \ this is just for convenience, so we don't have to define alit,
-\ seperately for embedded systems....
+\ separately for embedded systems....
 T has? relocate H
 [IF]
 : (alit,) ( n -- )  compile lit T  a, H ;		' (alit,) plugin-of alit,
@@ -2618,7 +2618,7 @@ Cond: MAXI
     UNTIL ;
 
 \ by the way: defining a second interpreter (a compiler-)loop
-\             is not allowed if a system should be ans conform
+\             is not allowed if a system should be ANS conformant
 
 ghost :-dummy Constant :-ghost
 
@@ -3533,7 +3533,7 @@ Create name-buf 200 chars allot
 : label-from-ghostname ( ghost -- addr len )
   dup >ghostname init-name-buf 'L nb, bounds 
   ?DO I c@ name-char, LOOP 
-  \ we add the address to a name to make in unique
+  \ we add the address to a name to make it unique
   \ because one name may appear more then once
   \ there are names (e.g. boot) that may be reference from other
   \ assembler source files, so we declare them as unique
@@ -3702,7 +3702,7 @@ Variable outfile-fd
 	   
 >MINIMAL also minimal
 
-\ Usefull words                                        13feb93py
+\ Useful words                                        13feb93py
 
 : KB  400 * ;
 

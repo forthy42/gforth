@@ -150,7 +150,7 @@ si-prefixes count bl scan drop Constant zero-exp
 : prefix-number  sfnumber ;
 [THEN]
 
-[ifdef] recognizer,
+[ifdef] r:fail
     : r:fnumber ;
     compile> drop postpone Fliteral ;
     lit> postpone Fliteral ;

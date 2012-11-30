@@ -103,4 +103,3 @@ variable next-exception -2050 next-exception !
 
 -2049 constant broken-pipe-error ( -- n ) \ gforth
 \G the error number for a broken pipe
-

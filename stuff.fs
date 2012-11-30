@@ -427,6 +427,9 @@ previous
     endtry
     throw ;
 
+: dump ( addr u -- ) ['] dump $10 base-execute ;
+\ wrap dump into base-execute
+
 \ th
 
 : th ( addr1 u -- addr2 )

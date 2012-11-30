@@ -405,22 +405,22 @@ Label *gforth_engine2(Xt *ip sr_proto);
 Label *gforth_engine3(Xt *ip sr_proto);
 
 
-int gforth_main(int argc, char **argv, char **env);
+Cell gforth_main(int argc, char **argv, char **env);
 void gforth_args(int argc, char ** argv, char ** path, char ** imagename);
 Address gforth_loader(char* imagename, char* path);
 user_area* gforth_stacks(Cell dsize, Cell rsize, Cell fsize, Cell lsize);
 void gforth_free_stacks(user_area* t);
 void gforth_free();
 Cell gforth_go(Xt* ip0);
-int gforth_boot(int argc, char** argv, char* path);
-int gforth_start(int argc, char ** argv);
-int gforth_quit();
+Cell gforth_boot(int argc, char** argv, char* path);
+Cell gforth_start(int argc, char ** argv);
+Cell gforth_quit();
 Xt gforth_find(Char * name);
-int gforth_execute(Xt xt);
+Cell gforth_execute(Xt xt);
 void gforth_cleanup();
 void gforth_printmetrics();
 #if defined(DOUBLY_INDIRECT)
-int gforth_make_image(int debugflag);
+Cell gforth_make_image(int debugflag);
 #endif
 
 /* for ABI-CODE and ;ABI-CODE */

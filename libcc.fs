@@ -534,11 +534,14 @@ create gen-wrapped-types
 	\ see if we can open it in the path
 	libcc-named-dir nip /string
 	libcc-path open-path-file if
+\	    ." Failed to find library '" lib-filename 2@ type ." ' in '"
+\	    libcc-path .path ." ', need compiling" cr
 	    0 exit endif
 	( wfile-id c-addr2 u2 ) rot close-file throw save-mem ( c-addr2 u2 )
     endif
     \ 2dup cr type
     2dup open-lib >r
+\    r@ 0= IF  ." Failed to open library '" 2dup type ." '" cr  THEN
     drop free throw r> ;
 
 : c-library-name-setup ( c-addr u -- )

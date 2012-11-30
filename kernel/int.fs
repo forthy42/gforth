@@ -70,6 +70,7 @@ require kernel/version.fs \ version-string
 hex
 const Create bases   0A , 10 ,   2 ,   0A ,
 \                    10   16     2     10
+decimal
 
 \ !! protect BASE saving wrapper against exceptions
 : getbase ( addr u -- addr' u' )
@@ -423,7 +424,7 @@ const Create ???
     then
     bounds ?do \ should be a printable string
 	i c@ bl < if
-	    2drop unloop rdrop drop false exit
+	    unloop rdrop drop false exit
 	then
     loop
     r> if \ check for valid aliases
@@ -953,7 +954,7 @@ Defer 'cold ( -- ) \ gforth  tick-cold
     process-args
     loadline off
 [ [THEN] ]
-    1 (bye) ;
+    -56 (bye) ; \ indicate QUIT
 
 has? new-input 0= [IF]
 : clear-tibstack ( -- )
@@ -1006,13 +1007,11 @@ has? new-input 0= [IF]
 [ has? os [IF] ]
     handler off
     ['] cold catch dup -&2049 <> if \ broken pipe?
-	DoError cr
+	dup >r DoError cr r>
     endif
+    (bye) \ determin exit code from throw code
 [ [ELSE] ]
     cold
-[ [THEN] ]
-[ has? os [IF] ]
-    -1 (bye) \ !! determin exit code from throw code?
 [ [THEN] ]
 ;
 

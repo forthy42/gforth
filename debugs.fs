@@ -76,3 +76,46 @@ interpret/compile: ~~ ( -- ) \ gforth tilde-tilde
 \G contents with @code{.debugline}.
 
 :noname ( -- )  stderr to debug-fid  defers 'cold ; IS 'cold
+
+\ print a no-overhead backtrace
+
+: once ( -- )
+    \G do the following up to THEN only once
+    here cell+ >r ]] true if [[ r> ]] Literal off [[ ;
+    immediate compile-only
+    
+: ~~bt ( -- )
+    \G print stackdump and backtrace
+    ]] ~~ store-backtrace dobacktrace nothrow [[ ;
+    immediate compile-only
+
+: ~~1bt ( -- )
+    \G print stackdump and backtrace once
+    ]] once ~~bt then [[ ; immediate compile-only
+
+\ launch a debug shell, quit with emtpy line
+
+: ??? ( -- )
+    \G Open a debuging shell
+    create-input cr
+    BEGIN  ." dbg> " refill  WHILE  source nip WHILE
+		interpret ."  ok" cr  REPEAT  THEN
+    0 pop-file drop ;
+' ??? alias dbg-shell
+
+: WTF?? ( -- )
+    \G Open a debugging shell with backtrace and stack dump
+    ]] ~~bt ??? [[ ; immediate compile-only
+
+\ special exception for places that should never be reached
+
+s" You've reached a !!FIXME!! marker" exception constant FIXME#
+
+: !!FIXME!! ( -- )  FIXME# throw ;
+
+\ replacing one word with another
+
+: replace-word ( xt2 xt1 -- )
+  \G make xt1 do xt2, both need to be colon definitions
+  >body  here >r dp !  >r postpone AHEAD  r> >body dp !  postpone THEN
+  r> dp ! ;

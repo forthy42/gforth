@@ -67,3 +67,31 @@ variable assert-level ( -- a-addr ) \ gforth
     \G Equivalent to @code{assert1(}
     POSTPONE assert1( ; immediate compile-only
 
+\ conditionally executed debug code, not necessarily assertions
+
+: debug-does>  DOES>  @
+    IF ['] noop assert-canary  ELSE  postpone (  THEN ;
+: debug: ( -- ) Create false ,
+    debug-does>  COMPILE>  >body
+    ]] Literal @ IF [[ [: ]] THEN [[ ;] assert-canary ;
+: )else(  ]] ) ( [[ ;
+    compile> drop 2>r ]] ELSE [[ 2r> ;
+: else( ['] noop assert-canary ; immediate
+
+: +db ( "word" -- ) ' >body on ;
+: -db ( "word" -- ) ' >body off ;
+
+Variable debug-eval
+
+: +-? ( addr u -- flag )  0= IF  drop  EXIT  THEN
+    c@ ',' - abs 1 = ; \ ',' is in the middle between '+' and '-'
+
+: +debug ( -- )
+    BEGIN  argc @ 1 > WHILE
+	    1 arg +-?  WHILE
+		1 arg debug-eval $!
+		s" db " debug-eval 1 $ins
+		s" (" debug-eval $+!
+		debug-eval $@ evaluate
+		shift-args
+	REPEAT  THEN ;

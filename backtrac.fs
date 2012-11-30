@@ -103,6 +103,11 @@ IS store-backtrace
 	print-bt-entry
 	cell +loop ;
 
+: bt ( -- )
+    \G backtrace for interactive use
+    backtrace-rp0 @ #10 cells + dup 3 cells - @ cell- print-backtrace ;
+compile> drop ]] store-backtrace dobacktrace nothrow [[ ;
+
 :noname ( -- )
     backtrace-rs-buffer 2@ over + print-backtrace ;
 IS dobacktrace

@@ -57,6 +57,10 @@ else
     outfile=$1; shift
     generate="$@"
 fi
+if [ ! -z "@extraccdir@" ]
+then
+    export libccdir="@extraccdir@"
+fi
 tmpfile=./temp-image.fi
 $GFORTHD --clear-dictionary --no-offset-im --die-on-signal $generate -e "savesystem $tmpfile"1" bye"
 $GFORTHD --clear-dictionary --offset-image --die-on-signal $generate -e "savesystem $tmpfile"2" bye"

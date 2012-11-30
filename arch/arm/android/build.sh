@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ ! -f build.xml ]
+then
+    android update project -p . -s
+fi
+
 # takes as extra argument a directory where to look for .so-s
 
 case "$1" in
@@ -11,8 +16,7 @@ esac
 
 EXT=$ENGINE
 
-sed -e 's/android:value="gforth[a-z-]*"/android:value="gforth'$ENGINE'"/g' <AndroidManifest.xml >AndroidManifest.xml+
-mv AndroidManifest.xml+ AndroidManifest.xml
+sed -e "s/@ENGINE@/$ENGINE/g" <AndroidManifest.xml.in >AndroidManifest.xml
 
 SRC=../../..
 LIBS=libs/armeabi
@@ -23,11 +27,11 @@ mkdir -p $LIBS
 
 if [ "$1" != "--no-gforthgz" ]
 then
-    (rm androidmain.o zexpand.o
+    (rm androidmain.o zexpand.o androidmain.lo zexpand.lo
 	cd $SRC
-	if [ "$1" != "--no-config" ]; then ./configure --host=arm-unknown-linux-android --with-cross=android --prefix= --datarootdir=/sdcard --libdir=/sdcard --libexecdir=/lib --enable-lib; fi
-	make
-	make setup-debdist)
+	if [ "$1" != "--no-config" ]; then ./configure --host=arm-unknown-linux-android --with-cross=android --with-ditc=gforth-ditc-x32 --prefix= --datarootdir=/sdcard --libdir=/sdcard --libexecdir=/lib --enable-lib || exit 1; fi
+	make # || exit 1
+	make setup-debdist || exit 1) || exit 1
     if [ "$1" == "--no-config" ]; then shift; fi
 
     for i in . $*

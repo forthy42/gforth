@@ -151,6 +151,15 @@ else
 fi])
 AC_SUBST(ARCH)
 
+DITCENGINE="./gforth-ditc"
+AC_ARG_WITH(ditc,
+	AC_HELP_STRING([--with-ditc=<engine>],
+			[  Use this engine for compilation of gforth.fi]),
+[if test $"withval" != "no"; then
+  DITCENGINE=${withval}
+fi])
+AC_SUBST(DITCENGINE)
+
 #variables mentioned in INSTALL
 AC_ARG_VAR(SH, [The shell])
 AC_ARG_VAR(CC, [The C compiler (must support GNU C 2.x).])
@@ -228,6 +237,7 @@ AC_SUBST(no_dynamic)
 AC_SUBST(image_i)
 AC_SUBST(signals_o)
 AC_SUBST(mi_prefix)
+AC_SUBST(extraccdir)
 
 #this is used to disable some (not generally essential) part of the
 #Makefile that some makes don't grok.  It would be better to test for

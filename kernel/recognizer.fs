@@ -31,8 +31,6 @@
 \ and the table contains three actions (as array of three xts):
 \ interpret it, compile it, compile it as literal.
 
-: recognizer, ( xt2 xt3 -- )  >vtable ;
-
 : r:fail  no.extensions ;
 ' no.extensions dup >vtable
 
