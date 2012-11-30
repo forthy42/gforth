@@ -94,15 +94,15 @@ interpret/compile: ~~ ( -- ) \ gforth tilde-tilde
 : ?? ( -- )
     \G Open a debuging shell
     create-input cr
-    BEGIN  refill  WHILE  source nip WHILE
-		interpret prompt cr  REPEAT  THEN
+    BEGIN  ." dbg> " refill  WHILE  source nip WHILE
+		interpret ."  ok" cr  REPEAT  THEN
     0 pop-file drop ;
 
 : ??? ( -- )
     \G Open a debugging shell with stack dump
     ]] ~~ ?? [[ ; immediate compile-only
 
-: WTF?? ( -- )
+: bt?? ( -- )
     \G Open a debugging shell with backtrace and stack dump
     ]] ~bt~ ?? [[ ; immediate compile-only
 
