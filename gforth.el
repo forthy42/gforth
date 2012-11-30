@@ -290,7 +290,7 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 
 	(("true" "false" "c/l" "bl" "cell" "pi" "w/o" "r/o" "r/w") 
 	 non-immediate (font-lock-constant-face . 2))
-	(("~~" "break:" "dbg") compile-only (font-lock-warning-face . 2))
+	(("~~" "break:" "dbg" "???" "wtf??" "!!fixme!!" "~~bt" "~~1bt" "bt") compile-only (font-lock-warning-face . 2))
 	(("break\"") compile-only (font-lock-warning-face . 1)
 	 "[\"\n]" nil string (font-lock-string-face . 1))
 	(("postpone" "[is]" "defers" "[']" "[compile]") 
