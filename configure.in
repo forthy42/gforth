@@ -824,6 +824,12 @@ if test -n "$LTDL_LIBRARY_PATH"; then
    AC_DEFINE_UNQUOTED(LTDL_LIBRARY_PATH,"$LTDL_LIBRARY_PATH",[Define LTDL_LIBRARY_PATH for 64 bit Linux])
 fi                                                                
 
+extrapath=''
+x=`(test "x$prefix" = xNONE && prefix=$ac_default_prefix; eval x=$datarootdir; echo $x)`
+test "$x" == "/usr/share" && extrapath="\$(PATHSEP)/usr/local/share/gforth/site-forth"
+test "$x" == "/usr/local/share" && extrapath="\$(PATHSEP)/usr/share/gforth/site-forth"
+
+AC_SUBST(extrapath)
 #work around SELinux brain damage (from Andrew Haley <12t8f3jakb74g2c@news.supernews.com>)
 #This magic incantation  seems to be completely undocumented.
 AC_CHECK_PROG([MASSAGE_EXE],[chcon],[chcon -t unconfined_execmem_exec_t],[true])
