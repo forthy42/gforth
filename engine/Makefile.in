@@ -55,9 +55,9 @@ STRIP	= strip
 GCCLD	= @GCC_LD@
 LIBTOOL = @GNU_LIBTOOL@
 LTLD = $(LIBTOOL) --mode=link $(GCCLD) -rpath $(libdir) -version-info $(LIBVERSION) -module
-EXTRAPATH = @extrapath@
+EXTRAPATH = $(PATHSEP)/usr/share/gforth/site-forth$(PATHSEP)/usr/local/share/gforth/site-forth
 
-FORTHPATH = .$(PATHSEP)$(libdir)/gforth/site-forth$(PATHSEP)$(datadir)/gforth/site-forth$(PATHSEP)$(libdir)/gforth$(ARCH)/$(VERSION)$(PATHSEP)$(datadir)/gforth$(ARCH)/$(VERSION)$(EXTRAPATH)
+FORTHPATH = .$(PATHSEP)$(libdir)/gforth/site-forth$(PATHSEP)$(libdir)/gforth$(ARCH)/$(VERSION)$(PATHSEP)$(datadir)/gforth$(ARCH)/$(VERSION)$(EXTRAPATH)
 
 # ------------  Source and Build directories
 
