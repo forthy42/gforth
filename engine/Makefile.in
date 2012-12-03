@@ -57,7 +57,7 @@ LIBTOOL = @GNU_LIBTOOL@
 LTLD = $(LIBTOOL) --mode=link $(GCCLD) -rpath $(libdir) -version-info $(LIBVERSION) -module
 EXTRAPATH = @extrapath@
 
-FORTHPATH = .$(PATHSEP)$(libdir)/gforth/site-forth$(PATHSEP)$(datadir)/gforth/site-forth$(EXTRAPATH)$(PATHSEP)$(libdir)/gforth$(ARCH)/$(VERSION)$(PATHSEP)$(datadir)/gforth$(ARCH)/$(VERSION)
+FORTHPATH = .$(PATHSEP)$(libdir)/gforth/site-forth$(PATHSEP)$(datadir)/gforth/site-forth$(PATHSEP)$(libdir)/gforth$(ARCH)/$(VERSION)$(PATHSEP)$(datadir)/gforth$(ARCH)/$(VERSION)$(EXTRAPATH)
 
 # ------------  Source and Build directories
 
