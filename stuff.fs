@@ -476,7 +476,7 @@ previous
 \ quotations
 
 :noname  false :noname ;
-:noname  locals-wordlist last @ lastcfa @
+:noname  locals-wordlist last @ lastcfa @ leave-sp @
     postpone AHEAD
     locals-list @ locals-list off
     postpone SCOPE
@@ -490,6 +490,6 @@ interpret/compile: [: ( compile-time: -- quotation-sys ) \ gforth bracket-colon
 	]  postpone ENDSCOPE
 	locals-list !
 	postpone THEN
-	lastcfa ! last ! to locals-wordlist
+	leave-sp ! lastcfa ! last ! to locals-wordlist
 	r> postpone ALiteral
     ELSE  r>  THEN ( xt ) ; immediate
