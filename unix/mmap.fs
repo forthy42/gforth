@@ -85,8 +85,16 @@ s" os-type" environment? [IF]
 
 getpagesize constant pagesize
 
+: >pagealign ( addr -- p-addr )
+    pagesize 1- + pagesize negate and ;
+
 : alloc+guard ( len -- addr )
-    pagesize 1- + pagesize negate and dup >r pagesize +
+    >pagealign dup >r pagesize +
     0 swap PROT_RWX
-    MAP_PRIVATE MAP_ANONYMOUS or 0 0 mmap
+    [ MAP_PRIVATE MAP_ANONYMOUS or ]L 0 0 mmap
     dup r> + pagesize PROT_NONE mprotect drop ;
+
+: clearpages ( addr len -- ) >pagealign
+    2dup munmap drop
+    PROT_RWX
+    [ MAP_PRIVATE MAP_ANONYMOUS or MAP_FIXED or ]L 0 0 mmap drop ;
