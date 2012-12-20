@@ -2,7 +2,7 @@
 
 if [ ! -f build.xml ]
 then
-    android update project -p . -s
+    android update project -p . -s --target android-10
 fi
 
 # takes as extra argument a directory where to look for .so-s
@@ -62,6 +62,7 @@ do
     done
     shift
 done
+strip $LIBS/*.so
 #ant debug
 ant release
 cp bin/Gforth-release-unsigned.apk bin/Gforth$EXT.apk
