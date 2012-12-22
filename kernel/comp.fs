@@ -477,19 +477,20 @@ Create vttemplate 0 A, ' peephole-compile, A, ' noop A, \ initialize to one know
 
 : vtcopy,     ( xt -- )  \ gforth	vtcopy-comma
     vttemplate here >namevt !
-    dup >namevt @ cell+ 2@ vttemplate cell+ 2!
+    dup >namevt @ vttemplate vtsize move
     here >namevt vttemplate !
     >code-address cfa, ;
 
 : vt= ( vt1 vt2 -- flag )
-    cell+ 2@ rot cell+ 2@ d= ;
+    cell+ swap vtsize cell /string tuck compare 0= ;
 
 : vt, ( -- )  vttemplate @ 0= IF EXIT THEN
     vtable-list
     BEGIN  @ dup  WHILE
 	    dup vttemplate vt= IF  vttemplate @ !  vttemplate off  EXIT  THEN
     REPEAT  drop
-    here dup vtable-list @ , vtable-list ! vttemplate cell+ 2@ , ,
+    here vtsize allot vttemplate over vtsize move
+    vtable-list @ over !  dup vtable-list !
     vttemplate @ !  vttemplate off ;
 
 : !namevt ( addr -- )  latestxt >namevt ! ;
