@@ -1,6 +1,6 @@
 #! @mi_prefix@/bin/bash
 # @configure_input@
-#Copyright (C) 1997,1998,2000,2002,2003,2004,2007 Free Software Foundation, Inc.
+#Copyright (C) 1997,1998,2000,2002,2003,2004,2007,2012 Free Software Foundation, Inc.
 
 #This file is part of Gforth.
 
@@ -39,7 +39,7 @@ if test $# = 0 || test $1 = --help || test $1 = -h; then
 elif test $1 = --version || test $1 = -v; then
   echo "gforthmi (@PACKAGE_NAME@) @PACKAGE_VERSION@"
   $GFORTH --version
-  echo 'Copyright (C) 1998,2002,2003,2004,2007 Free Software Foundation, Inc.'
+  echo 'Copyright (C) 1998,2002,2003,2004,2007,2012 Free Software Foundation, Inc.'
   echo 'This program is part of Gforth'
   $GFORTH -e "license bye"
   exit 0

@@ -1,6 +1,6 @@
 \ dynamic string handling                              10aug99py
 
-\ Copyright (C) 2000,2005,2007,2010,2011 Free Software Foundation, Inc.
+\ Copyright (C) 2000,2005,2007,2010,2011,2012 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
