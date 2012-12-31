@@ -1,6 +1,6 @@
 \ argument expansion
 
-\ Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2006,2007 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2006,2007,2012 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
