@@ -17,6 +17,6 @@
 : >vt ( class "name" -- addr )  ' >body @ + ;
 : bind ( class "name" -- xt )    >vt @ ;
 : defines ( xt class "name" -- ) >vt ! ;
-: new ( class -- o )  here over @ allot swap over ! cell+ ;
+: new ( class -- o )  here over @ cell+ allot swap over ! cell+ ;
 : :: ( class "name" -- ) bind compile, ;
-Create object  1 cells , 2 cells ,
+Create object  0 cells , 2 cells ,

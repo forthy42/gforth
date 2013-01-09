@@ -1,6 +1,6 @@
 \ definitions needed for interpreter only
 
-\ Copyright (C) 1995-2000,2004,2005,2007,2009,2010 Free Software Foundation, Inc.
+\ Copyright (C) 1995-2000,2004,2005,2007,2009,2010,2012 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -916,7 +916,7 @@ Defer mark-end
 
 : gforth ( -- )
     ." Gforth " version-string type 
-    ." , Copyright (C) 1995-2011 Free Software Foundation, Inc." cr
+    ." , Copyright (C) 1995-2012 Free Software Foundation, Inc." cr
     ." Gforth comes with ABSOLUTELY NO WARRANTY; for details type `license'"
 [ has? os [IF] ]
      cr ." Type `bye' to exit"
