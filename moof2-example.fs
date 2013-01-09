@@ -3,8 +3,8 @@
 require mini-oof2.fs
 
 object class
-    cell var x
-    cell var y
+    field: x
+    field: y
     method p@
     method p!
     method p.
@@ -16,4 +16,6 @@ end-class point
 
 point new Constant p1
 p1 >o 1 2 p! o>
-p1 >o p. o>
+p1 >o p. o> cr
+: test p1 >o 1 2 p! p. x @ y @ + . o> ;
+test cr

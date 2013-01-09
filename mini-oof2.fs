@@ -7,10 +7,12 @@
 : var-create  Create  DOES> ( -- addr ) @ o + ;
 : var ( m v size "name" -- m v' ) var-create  over , +
   [: >body @ ['] o#+ compile, , ;] !compile, ;
-: class ( class -- class methods vars ) dup 2@ ;
+: class ( class -- class methods vars )
+  dup 2@ ['] var IS +field ;
 : end-class  ( class methods vars "name" -- )
   Create  here >r , dup , 2 cells ?DO ['] noop , 1 cells +LOOP
-  cell+ dup cell+ r> rot @ 2 cells /string move ;
+  cell+ dup cell+ r> rot @ 2 cells /string move
+  standard:field ;
 : >vt ( class "name" -- addr )  ' >body @ + ;
 : bind ( class "name" -- xt )    >vt @ ;
 : defines ( xt class "name" -- ) >vt ! ;
