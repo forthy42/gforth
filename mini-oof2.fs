@@ -1,15 +1,12 @@
 \ Mini-OOF2, using current object+Gforth primitives    09jan12py
-
 : o ( -- addr )  o#+ [ 0 , ] ;
 : vt ( -- addr ) o#+ [ -1 cells , ] @ ;
-: method-compile  compile>  >body @ ['] o#exec compile, , ;
-: method ( m v "name" -- m' v ) Create  over , swap cell+ swap
-    method-compile
-  DOES> ( ... -- ... ) @ vt + perform ;
-: var-compile   compile>  >body @ ['] o#+ compile, , ;
-: var ( m v size "name" -- m v' ) Create  over , +
-    var-compile
-  DOES> ( -- addr ) @ o + ;
+: method-create  Create   DOES> ( ... -- ... ) @ vt + perform ;
+: method ( m v "name" -- m' v ) method-create  over , swap cell+ swap
+  [: >body @ cell/ ['] o#exec compile, , ;] !compile, ;
+: var-create  Create  DOES> ( -- addr ) @ o + ;
+: var ( m v size "name" -- m v' ) var-create  over , +
+  [: >body @ ['] o#+ compile, , ;] !compile, ;
 : class ( class -- class methods vars ) dup 2@ ;
 : end-class  ( class methods vars "name" -- )
   Create  here >r , dup , 2 cells ?DO ['] noop , 1 cells +LOOP
