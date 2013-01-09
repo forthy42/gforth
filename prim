@@ -2868,6 +2868,14 @@ op = c_addr;
 o#+ ( #w -- c_addr )		new	o_lit_plus
 c_addr = op + w;
 
+o#exec	( #w -- )		new	o_lit_exec
+""method invocation, use index -1 of current op as vtable""
+#ifndef NO_IP
+ip=IP;
+#endif
+SUPER_END;
+VM_JUMP(EXEC1(((Xt**)op)[-1][w]));
+
 \+
 \g static_super
 
