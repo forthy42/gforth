@@ -350,8 +350,8 @@ has? f83headerstring [IF]
     (field) >vtlink      0 cells ,
     (field) >vtcompile,  1 cells ,
     (field) >vtlit,      2 cells ,
-    \ (field) >vtextra     3 cells ,
-    3 cells Constant vtsize
+    (field) >vtextra     3 cells ,
+    4 cells Constant vtsize
     
     : name>string ( nt -- addr count ) \ gforth     name-to-string
 	\g @i{addr count} is the name of the word represented by @i{nt}.

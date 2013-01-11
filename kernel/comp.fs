@@ -471,9 +471,9 @@ interpret/compile: DOES>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest
 \ compile> to define compile, action
 
 : vtable, ( compile,-xt tokenize-xt -- )
-    here vtable-list @ , vtable-list ! swap , , ;
+    here vtable-list @ , vtable-list ! swap , , 0 , ;
 
-Create vttemplate 0 A, ' peephole-compile, A, ' noop A, \ initialize to one known vt
+Create vttemplate 0 A, ' peephole-compile, A, ' noop A, 0 A, \ initialize to one known vt
 
 : vtcopy,     ( xt -- )  \ gforth	vtcopy-comma
     vttemplate here >namevt !

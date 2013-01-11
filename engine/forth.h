@@ -267,6 +267,7 @@ typedef Label *Xt;
 #define DOES_CODE1(cfa)	((Xt *)(cfa[1]))
 /* MAKE_CF creates an appropriate code field at the cfa;
    ca is the code address */
+#define EXTRA_CODE(cfa) ((Xt *)(((Cell **)cfa)[-1][3]))
 #define MAKE_CF(cfa,ca) ((*(Label *)(cfa)) = ((Label)ca))
 /* make a code field for a defining-word-defined word */
 

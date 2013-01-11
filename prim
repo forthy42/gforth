@@ -259,6 +259,25 @@ INST_TAIL;
 goto *next_code;
 #endif /* defined(NO_IP) */
 
+(doextra) ( -- a_body R:a_retaddr )	gforth-internal	paren_doextra
+""run-time routine for @code{does>}-defined words""
+#ifdef NO_IP
+a_retaddr = next_code;
+a_body = PFA(CFA);
+INST_TAIL;
+#ifdef DEBUG
+debugp(stderr, "dodoes to %x, push %x\n", a_retaddr, a_body);
+#endif
+goto **(Label *)EXTRA_CODE(CFA);
+#else /* !defined(NO_IP) */
+a_retaddr = (Cell *)IP;
+a_body = PFA(CFA);
+#ifdef DEBUG
+debugp(stderr, "dodoes to %x, push %x\n", a_retaddr, a_body);
+#endif
+SET_IP(EXTRA_CODE(CFA));
+#endif /* !defined(NO_IP) */
+
 \F [endif]
 
 \g control

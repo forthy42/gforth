@@ -2831,7 +2831,7 @@ Ghost docol-vt drop
 >TARGET
 : vtable, ( compile-xt tokenize-xt -- )
     tvtable-list @ T here swap A, H tvtable-list !
-    swap T A, A, H ;
+    swap T A, A, 0 A, H ( extra field for dodoes ) ;
 
 : vtable: ( compile-xt tokenize-xt "name" -- )
     Ghost >do:ghost @ >exec2 @ hereresolve T vtable, H ;
