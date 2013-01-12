@@ -388,12 +388,18 @@ immediate
 
 forth definitions
 also locals-types
-    
+
 \ these "locals" are used for comparison in TO
 c: some-clocal 2drop
 d: some-dlocal 2drop
 f: some-flocal 2drop
 w: some-wlocal 2drop
+
+\ these "locals" create the associated vts
+c^ some-caddr 2drop
+d^ some-daddr 2drop
+f^ some-faddr 2drop
+w^ some-waddr 2drop
 
 ' dict-execute1 is dict-execute \ now the real thing
     
@@ -769,11 +775,9 @@ is free-old-local-names
 	-&32 throw
     endcase ;
 
-:noname
+: TO ( c|w|d|r "name" -- ) \ core-ext,local
     ' (int-to) ;
-:noname
-    comp' drop (comp-to) ;
-interpret/compile: TO ( c|w|d|r "name" -- ) \ core-ext,local
+compile> drop comp' drop (comp-to) ;
 
 : locals| ( ... "name ..." -- ) \ local-ext locals-bar
     \ don't use 'locals|'! use '{'! A portable and free '{'

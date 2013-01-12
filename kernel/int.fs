@@ -504,7 +504,11 @@ has? standardthreading has? compiler and [IF]
     dup @ dodoes: = if
 	cell+ @
     else
-	drop 0
+	dup @ doextra: = IF
+	    >namevt @ >vtextra @
+	ELSE
+	    drop 0
+	THEN
     endif ;
 
 has? prims [IF]

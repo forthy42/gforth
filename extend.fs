@@ -253,6 +253,8 @@ variable span ( -- c-addr ) \ core-ext-obsolescent
     drop
     \ remember udp
     udp @ ,
+    \ remember vtable-list
+    vtable-list @ ,
     \ remember dyncode-ptr
     here ['] noop , compile-prim1 finish-code ;
 
@@ -284,7 +286,7 @@ variable span ( -- c-addr ) \ core-ext-obsolescent
 [IFDEF] forget-dyncode
     dup cell+ @ forget-dyncode drop
 [THEN]
-    @ udp !  dp !
+    dup @ udp !  cell+ @ vtable-list !  dp !
     \ clean up vocabulary stack
     0 vp @ 0
     ?DO

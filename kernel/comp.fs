@@ -165,7 +165,7 @@ defer header ( -- ) \ gforth
     ['] nextname-header IS (header) ;
 
 : noname-header ( -- )
-    0 last ! vt,  cfalign
+    0 last ! vt,  cfalign 0 ,
     input-stream ;
 
 : noname ( -- ) \ gforth
@@ -471,10 +471,10 @@ extra>-dummy (doextra-dummy)
     defstart :-hook ;
 :noname
     ['] !does does>-like :-hook ;
-interpret/compile: DOES>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ core        does
+interpret/compile: old-DOES>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ core        does
 
 :noname  drop  ['] !extra does>-like :-hook ;
-: EXTRA>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ core        extra
+: DOES>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ core        extra
     vt, cfalign 0 , here !extra ] defstart :-hook ;
 ' noop >vtable
 
@@ -499,7 +499,7 @@ Create vttemplate 0 A, ' peephole-compile, A, ' noop A, 0 A, \ initialize to one
     BEGIN  @ dup  WHILE
 	    dup vttemplate vt= IF  vttemplate @ !  vttemplate off  EXIT  THEN
     REPEAT  drop
-    here vtsize allot vttemplate over vtsize move
+    align  here vtsize allot vttemplate over vtsize move
     vtable-list @ over !  dup vtable-list !
     vttemplate @ !  vttemplate off ;
 
@@ -550,7 +550,7 @@ Create vttemplate 0 A, ' peephole-compile, A, ' noop A, 0 A, \ initialize to one
 ' IS Alias TO
 
 : interpret/compile? ( xt -- flag )
-    >does-code ['] DOES> >does-code = ;
+    >does-code ['] old-DOES> >does-code = ;
 
 \ \ : ;                                                  	24feb93py
 
@@ -570,8 +570,7 @@ defer ;-hook ( sys2 -- sys1 )
     Header (:noname) ;
 
 : :noname ( -- xt colon-sys ) \ core-ext	colon-no-name
-    0 last !
-    vt, cfalign 0 , here (:noname) ;
+    0 last ! vt, cfalign 0 , here (:noname) ;
 
 : ; ( compilation colon-sys -- ; run-time nest-sys ) \ core	semicolon
     ;-hook ?struc [compile] exit
