@@ -157,7 +157,7 @@ static void fpe_handler(int sig, siginfo_t *info, void *_)
   int code;
 
   SIGPP(sig);
-  debugp(stderr,"\nfpe_handler %d %x %x\n", sig, info, _);
+  debugp(stderr,"\nfpe_handler %d %p %p\n", sig, info, _);
 
   switch(info->si_code) {
 #ifdef FPE_INTDIV

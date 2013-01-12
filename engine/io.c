@@ -56,7 +56,7 @@ typedef unsigned int uint32_t;
 
 #ifndef MSDOS
 #include <poll.h>
-#if defined (__GNUC__)
+#if defined (__GNUC__) && !defined(alloca)
 #  define alloca __builtin_alloca
 #else
 #  if defined (sparc) || defined (HAVE_ALLOCA_H)
@@ -675,7 +675,7 @@ long key_avail (FILE *stream)
 
 #if defined(FIONREAD) && !defined(_WIN32)
   if(isatty (tty)) {
-    int result = ioctl (tty, FIONREAD, &chars_avail);
+    MAYBE_UNUSED int result = ioctl (tty, FIONREAD, &chars_avail);
   } else
 #endif
   {
