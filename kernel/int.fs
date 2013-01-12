@@ -519,7 +519,7 @@ alias code-address! ( c_addr xt -- ) \ gforth
 : any-code! ( a-addr cfa code-addr -- )
     \ for implementing DOES> and ;ABI-CODE, maybe :
     \ code-address is stored at cfa, a-addr at cfa+cell
-    latestxt !  >namevt @ >vtextra  ;
+    over !  >namevt @ >vtextra ! ;
     
 : does-code! ( a-addr xt -- ) \ gforth
 \G Create a code field at @i{xt} for a child of a @code{DOES>}-word;

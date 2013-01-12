@@ -473,12 +473,10 @@ extra>-dummy (doextra-dummy)
     ['] !does does>-like :-hook ;
 interpret/compile: DOES>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ core        does
 
-:noname
-    here !extra ]
-    defstart :-hook ;
-:noname
-    ['] !extra does>-like :-hook ;
-interpret/compile: EXTRA>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ core        extra
+:noname  drop  ['] !extra does>-like :-hook ;
+: EXTRA>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ core        extra
+    vt, cfalign 0 , here !extra ] defstart :-hook ;
+' noop >vtable
 
 \ compile> to define compile, action
 
