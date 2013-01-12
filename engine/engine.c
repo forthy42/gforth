@@ -352,7 +352,7 @@ Label *gforth_engine(Xt *ip0 sr_proto)
   long long llrv;
   void * prv;
 #endif
-  register Address up UPREG = gforth_UP;
+  register user_area* up UPREG = gforth_UP;
 #if !defined(GFORTH_DEBUGGING)
   register Cell MAYBE_UNUSED spTOS TOSREG;
   register Cell MAYBE_UNUSED spb spbREG;

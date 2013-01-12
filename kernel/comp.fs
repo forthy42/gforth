@@ -464,7 +464,7 @@ defer defer-default ( -- )
 extra>-dummy (doextra-dummy)
 : !extra   ( addr -- ) \ gforth store-extra
     ['] (doextra-dummy) >namevt @ >vtcompile, @ vttemplate >vtcompile, !
-    latestxt >namevt @ >vtextra !  doextra: latestxt ! ;
+    latestxt extra-code! ;
 
 :noname
     here !does ]

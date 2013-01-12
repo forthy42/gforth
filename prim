@@ -187,7 +187,7 @@ goto *next_code;
 
 (douser) ( -- a_user )	gforth-internal	paren_douser
 ""run-time routine for constants""
-a_user = (Cell *)(up+*(Cell *)PFA(CFA));
+a_user = (Cell *)(((Address)up)+*(Cell *)PFA(CFA));
 #ifdef NO_IP
 INST_TAIL;
 goto *next_code;
@@ -251,7 +251,7 @@ goto *next_code;
 ""run-time routine for @code{;abi-code}-defined words""
 Float *fp_mem = fp;
 Address body = (Address)PFA(CFA);
-semiabifunc *f = (semiabifunc *)DOES_CODE1(CFA);
+semiabifunc *f = (semiabifunc *)EXTRA_CODE(CFA);
 sp = (*f)(sp, &fp_mem, body);
 fp = fp_mem;
 #ifdef NO_IP
@@ -1313,10 +1313,10 @@ f = FLAG(u1-u2 < u3-u2);
 \g stack
 
 useraddr	( #u -- a_addr )	new
-a_addr = (Cell *)(up+u);
+a_addr = (Cell *)(((Address)up)+u);
 
 up!	( a_addr -- )	gforth	up_store
-gforth_UP=up=(Address)a_addr;
+gforth_UP=up=(user_area*)a_addr;
 :
  up ! ;
 Variable UP
@@ -2877,7 +2877,7 @@ fp = fp_mem;
 ;abi-code-exec ( #a_cfa ... -- ... ) gforth-internal semi_abi_code_exec
 /* primitive for performing ;ABI-CODE words */
 Float *fp_mem = fp;
-semiabifunc *f = (semiabifunc *)DOES_CODE1(a_cfa);
+semiabifunc *f = (semiabifunc *)EXTRA_CODE(a_cfa);
 Address body = (Address)PFA(a_cfa);
 sp = (*f)(sp, &fp_mem, body);
 fp = fp_mem;

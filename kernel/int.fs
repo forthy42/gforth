@@ -519,7 +519,7 @@ alias code-address! ( c_addr xt -- ) \ gforth
 : any-code! ( a-addr cfa code-addr -- )
     \ for implementing DOES> and ;ABI-CODE, maybe :
     \ code-address is stored at cfa, a-addr at cfa+cell
-    over ! cell+ ! ;
+    latestxt !  >namevt @ >vtextra  ;
     
 : does-code! ( a-addr xt -- ) \ gforth
 \G Create a code field at @i{xt} for a child of a @code{DOES>}-word;
@@ -527,8 +527,13 @@ alias code-address! ( c_addr xt -- ) \ gforth
     [ has? flash [IF] ]
     dodoes: over flash! cell+ flash!
     [ [ELSE] ]
-    dodoes: any-code! 
+    dodoes: over ! cell+ ! 
     [ [THEN] ] ;
+
+: extra-code! ( a-addr xt -- ) \ gforth
+\G Create a code field at @i{xt} for a child of a @code{EXTRA>}-word;
+\G @i{a-addr} is the start of the Forth code after @code{EXTRA>}.
+    doextra: any-code! ;
 
 2 cells constant /does-handler ( -- n ) \ gforth
 \G The size of a @code{DOES>}-handler (includes possible padding).
