@@ -409,7 +409,7 @@ Label *gforth_engine3(Xt *ip sr_proto);
 
 Cell gforth_main(int argc, char **argv, char **env);
 void gforth_args(int argc, char ** argv, char ** path, char ** imagename);
-Address gforth_loader(char* imagename, char* path);
+ImageHeader* gforth_loader(char* imagename, char* path);
 user_area* gforth_stacks(Cell dsize, Cell rsize, Cell fsize, Cell lsize);
 void gforth_free_stacks(user_area* t);
 void gforth_free();

@@ -670,10 +670,12 @@ void set_stack_sizes(ImageHeader * header)
   header->locals_stack_size=lsize;
 }
 
+#if (__GNUC__<4)
 #warning You can ignore the warnings about clobbered variables in gforth_go
+#endif
 
-#define NEXTPAGE(addr) ((Address)((((UCell)(addr)-1)&-pagesize)+pagesize))
-#define NEXTPAGE2(addr) ((Address)((((UCell)(addr)-1)&-pagesize)+2*pagesize))
+#define NEXTPAGE(addr) ((typeof(addr))((((UCell)(addr)-1)&-pagesize)+pagesize))
+#define NEXTPAGE2(addr) ((typeof(addr))((((UCell)(addr)-1)&-pagesize)+2*pagesize))
 
 Cell gforth_go(Xt* ip0)
 {
@@ -885,7 +887,7 @@ static int compare_labels(const void *pa, const void *pb)
 }
 #endif
 
-static Label bsearch_next(Label key, Label *a, UCell n)
+MAYBE_UNUSED static Label bsearch_next(Label key, Label *a, UCell n)
      /* a is sorted; return the label >=key that is the closest in a;
         return NULL if there is no label in a >=key */
 {
@@ -1794,7 +1796,7 @@ void compile_prim1(Cell *start)
     return;
   prim = (Label)*start;
   if (prim<((Label)(xts+DOER_MAX)) || prim>((Label)(xts+npriminfos))) {
-    debugp(stderr,"compile_prim encountered xt %p [%x]\n", prim, (*(Cell*)prim-(Cell)labels));
+    debugp(stderr,"compile_prim encountered xt %p [%lx]\n", prim, (*(Cell*)prim-(Cell)labels));
     *start = (Cell)((*(Cell*)prim-(Cell)labels)+(Cell)vm_prims);
     return;
   } else {
@@ -2021,13 +2023,13 @@ static FILE * open_image_file(char * imagename, char * path)
 }
 
 #ifdef STANDALONE
-Address gforth_loader(char* imagename, char* path)
+ImageHeader* gforth_loader(char* imagename, char* path)
 {
   gforth_init();
   return gforth_engine(0 sr_call);
 }
 #else
-Address gforth_loader(char* imagename, char* path)
+ImageHeader* gforth_loader(char* imagename, char* path)
 /* returns the address of the image proper (after the preamble) */
 {
   ImageHeader header;
@@ -2071,7 +2073,7 @@ Address gforth_loader(char* imagename, char* path)
 			  dictsize, data_offset);
   imp=image+preamblesize;
 
-  set_stack_sizes(imp);
+  set_stack_sizes((ImageHeader*)imp);
 
   if (clear_dictionary)
     memset(imp+header.image_size, 0, dictsize-header.image_size-preamblesize);
@@ -2110,7 +2112,7 @@ Address gforth_loader(char* imagename, char* path)
   /* unnecessary, except maybe for CODE words */
   /* FLUSH_ICACHE(imp, header.image_size);*/
 
-  return imp;
+  return (ImageHeader*)imp;
 }
 #endif
 #endif
@@ -2468,10 +2470,10 @@ user_area* gforth_stacks(Cell dsize, Cell rsize, Cell fsize, Cell lsize)
   a = (Cell)alloc_mmap(totalsize);
   if (a != (Cell)MAP_FAILED) {
     up0=(user_area*)a; a+=pagesize;
-    page_noaccess((void*)a); a+=pagesize; up0->sp0=a+dsize; a+=dsizep;
-    page_noaccess((void*)a); a+=pagesize; up0->rp0=a+rsize; a+=rsizep;
-    page_noaccess((void*)a); a+=pagesize; up0->fp0=a+fsize; a+=fsizep;
-    page_noaccess((void*)a); a+=pagesize; up0->lp0=a+lsize; a+=lsizep;
+    page_noaccess((void*)a); a+=pagesize; up0->sp0=(Cell*)(a+dsize); a+=dsizep;
+    page_noaccess((void*)a); a+=pagesize; up0->rp0=(Cell*)(a+rsize); a+=rsizep;
+    page_noaccess((void*)a); a+=pagesize; up0->fp0=(Float*)(a+fsize); a+=fsizep;
+    page_noaccess((void*)a); a+=pagesize; up0->lp0=(Address)(a+lsize); a+=lsizep;
     page_noaccess((void*)a); a+=pagesize;
 #ifdef SIGSTKSZ
     sigstack.ss_sp=(void*)a+SIGSTKSZ;
@@ -2529,7 +2531,7 @@ void gforth_free_stacks(user_area * t)
 
 void gforth_setstacks()
 {
-  gforth_UP->next_task = NULL; /* mark user area as need-to-be-set */
+  gforth_UP->next_task = 0; /* mark user area as need-to-be-set */
 
   /* ensure that the cached elements (if any) are accessible */
 #if !(defined(GFORTH_DEBUGGING) || defined(INDIRECT_THREADED) || defined(DOUBLY_INDIRECT) || defined(VM_PROFILING))
@@ -2592,7 +2594,7 @@ Xt gforth_find(Char * name)
   debugp(stderr, "Find '%s' in Gforth: %p\n", name, gforth_header->find_entry);
 
   *--gforth_SP = (Cell)name;
-  *--gforth_SP = strlen(name);
+  *--gforth_SP = strlen((char*)name);
 
   xt = (Xt)gforth_go(gforth_header->find_entry);
   debugp(stderr, "Found %p\n", xt);
@@ -2613,10 +2615,10 @@ Cell gforth_start(int argc, char ** argv)
 Cell gforth_main(int argc, char **argv, char **env)
 {
   Cell retvalue=gforth_start(argc, argv);
-  debugp(stderr, "Start returned %d\n", retvalue);
+  debugp(stderr, "Start returned %ld\n", retvalue);
 
   if(retvalue == -56) { /* throw-code for quit */
-    gforth_execute(gforth_find("bootmessage"));
+    gforth_execute(gforth_find((Char*)"bootmessage"));
     retvalue = gforth_quit();
   }
   gforth_cleanup();
