@@ -32,5 +32,6 @@
 :noname >body @ peephole-compile, ;                 ' noop vtable: interpret/compile:
 ' peephole-compile,                                 ' noop vtable: prim-dummy
 :noname ['] does-exec peephole-compile, , ;         ' noop vtable: does>-dummy
+:noname ['] extra-exec peephole-compile, , ;        ' noop vtable: extra>-dummy
 
 AVariable vtable-list

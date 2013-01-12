@@ -364,6 +364,23 @@ nest = (Cell)IP;
 SET_IP(DOES_CODE1(a_cfa));
 #endif
 
+extra-exec ( #a_cfa -- R:nest a_pfa )	new	extra_exec
+#ifdef NO_IP
+/* compiled to LIT CALL by compile_prim */
+assert(0);
+#else
+a_pfa = PFA(a_cfa);
+nest = (Cell)IP;
+#ifdef DEBUG
+    {
+      CFA_TO_NAME(a_cfa);
+      debugp(stderr,"%08lx: does %08lx %.*s\n",
+	     (Cell)ip,(Cell)a_cfa,len,name);
+    }
+#endif
+SET_IP(EXTRA_CODE(a_cfa));
+#endif
+
 \+glocals
 
 branch-lp+!# ( #a_target #nlocals -- )	gforth	branch_lp_plus_store_number

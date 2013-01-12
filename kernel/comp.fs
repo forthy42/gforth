@@ -461,12 +461,24 @@ defer defer-default ( -- )
     ['] spaces >namevt @ >vtcompile, @ vttemplate >vtcompile, !
     latestxt does-code! ;
 
+extra>-dummy (doextra-dummy)
+: !extra   ( addr -- ) \ gforth store-extra
+    ['] (doextra-dummy) >namevt @ >vtcompile, @ vttemplate >vtcompile, !
+    latestxt >namevt @ >vtextra !  doextra: latestxt ! ;
+
 :noname
     here !does ]
     defstart :-hook ;
 :noname
     ['] !does does>-like :-hook ;
 interpret/compile: DOES>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ core        does
+
+:noname
+    here !extra ]
+    defstart :-hook ;
+:noname
+    ['] !extra does>-like :-hook ;
+interpret/compile: EXTRA>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ core        extra
 
 \ compile> to define compile, action
 

@@ -1111,6 +1111,7 @@ Ghost does-exec drop
 
 Ghost :docol    Ghost :doesjump Ghost :dodoes   2drop drop
 Ghost :dovar	Ghost dovar-vt	Ghost dodoes-vt	2drop drop
+Ghost :doextra  drop
 
 \ \ Parameter for target systems                         06oct92py
 
@@ -2871,6 +2872,11 @@ Builder does>-dummy
 Build: ;Build
 by: :dodoes ;DO
 vt: dodoes-vt
+
+Builder extra>-dummy
+Build: ;Build
+by: :doextra ;DO
+vt: doextra-vt
 
 \ Variables and Constants                              05dec92py
 

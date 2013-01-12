@@ -80,3 +80,9 @@ doer? :do;abicode [IF]
 : do;abicode: ( -- addr )
     ['] (;abi-code-dummy) >code-address ;
 [THEN]
+
+doer? :doextra [IF]
+\ extra>-dummy (doextra-dummy)
+: doextra: ( -- )
+    ['] (doextra-dummy) >code-address ;
+[THEN]
