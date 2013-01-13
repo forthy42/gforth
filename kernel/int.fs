@@ -309,21 +309,11 @@ $0fffffff constant lcount-mask
 : compile-only-error ( ... -- )
     -&14 throw ;
 
-: (cfa>int) ( cfa -- xt )
-[ has? compiler [IF] ]
-    dup interpret/compile?
-    if
-	interpret/compile-int @
-    then 
-[ [THEN] ] ;
-
 : (x>int) ( cfa w -- xt )
     \ get interpretation semantics of name
     restrict-mask and [ has? rom [IF] ] 0= [ [THEN] ]
     if
 	drop ['] compile-only-error
-    else
-	(cfa>int)
     then ;
 
 has? f83headerstring [IF]
@@ -379,18 +369,11 @@ has? f83headerstring [IF]
     (name>x) restrict-mask and [ has? rom [IF] ] 0= [ [THEN] ]
     if
 	ticking-compile-only-error \ does not return
-    then
-    (cfa>int) ;
+    then ;
 
 : (name>comp) ( nt -- w +-1 ) \ gforth
     \G @i{w xt} is the compilation token for the word @i{nt}.
     (name>x) >r 
-[ has? compiler [IF] ]
-    dup interpret/compile?
-    if
-        interpret/compile-comp @
-    then 
-[ [THEN] ]
     r> immediate-mask and [ has? rom [IF] ] 0= [ [THEN] ] flag-sign
     ;
 

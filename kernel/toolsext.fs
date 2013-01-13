@@ -145,9 +145,10 @@ User (i)
 : [NEXT] ( n -- ) \ gforth bracket-next
   -1 rdrop ;                                          immediate
 
-:noname (i) @ ;
 :noname (i) @ postpone Literal ;
-interpret/compile: [I] ( -- n ) \ gforth bracket-i
+: [I] ( -- n ) \ gforth bracket-i
+    (i) @ ;
+' noop >vtable
 
 : [BEGIN] ( -- ) \ gforth bracket-begin
   >in @ >r BEGIN r@ >in ! interpret UNTIL rdrop ;     immediate

@@ -60,7 +60,7 @@ include doskey.fs
 require debugs.fs
 require assert.fs
 require blocks.fs
-require intcomp.fs
+\ require intcomp.fs
 require savesys.fs
 require table.fs
 s" os-class" environment? dup [IF] drop s" unix" str= [THEN]

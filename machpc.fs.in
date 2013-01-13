@@ -62,6 +62,8 @@ true DefaultValue recognizer
 
 true DefaultValue objects
 
+true DefaultValue new-does
+
 $100 DefaultValue kernel-start
 cell 2 = [IF] &32 KB [ELSE] $100000 cells [THEN] DefaultValue kernel-size
 
@@ -118,6 +120,8 @@ false DefaultValue recognizer
 false DefaultValue flash
 
 false DefaultValue objects
+
+false DefaultValue new-does
     
 $10 DefaultValue kernel-start   \ no artificial offset
 &48 KB DefaultValue kernel-size

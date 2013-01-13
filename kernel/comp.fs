@@ -409,20 +409,6 @@ include ./recognizer.fs
 
 : (Field)  Header reveal dofield, ;
 
-\ \ interpret/compile:
-
-struct
-    >body
-    cell% field interpret/compile-int
-    cell% field interpret/compile-comp
-end-struct interpret/compile-struct
-
-: interpret/compile: ( interp-xt comp-xt "name" -- ) \ gforth
-    Create immediate swap A, A,
-DOES>
-    abort" executed primary cfa of an interpret/compile: word" ;
-\    state @ IF  cell+  THEN  perform ;
-
 \ IS Defer What's Defers TO                            24feb93py
 
 defer defer-default ( -- )
@@ -465,13 +451,6 @@ extra>-dummy (doextra-dummy)
 : !extra   ( addr -- ) \ gforth store-extra
     ['] (doextra-dummy) >namevt @ >vtcompile, @ vttemplate >vtcompile, !
     latestxt extra-code! ;
-
-:noname
-    here !does ]
-    defstart :-hook ;
-:noname
-    ['] !does does>-like :-hook ;
-interpret/compile: old-DOES>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ core        does
 
 :noname  drop  ['] !extra does>-like :-hook ;
 : DOES>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ core        extra
@@ -549,8 +528,7 @@ Create vttemplate 0 A, ' peephole-compile, A, ' noop A, 0 A, \ initialize to one
 
 ' IS Alias TO
 
-: interpret/compile? ( xt -- flag )
-    >does-code ['] old-DOES> >does-code = ;
+: interpret/compile? ( xt -- flag ) drop false ;
 
 \ \ : ;                                                  	24feb93py
 
@@ -576,6 +554,12 @@ defer ;-hook ( sys2 -- sys1 )
     ;-hook ?struc [compile] exit
     [ has? peephole [IF] ] finish-code [ [THEN] ]
     reveal postpone [ ; immediate restrict
+
+\ new interpret/compile:
+
+: interpret/compile: ( interp-xt comp-xt "name" -- ) \ gforth
+    >r >r : r> compile, postpone ;
+    start-compile> postpone drop r> compile, postpone ; ;
 
 \ \ Search list handling: reveal words, recursive		23feb93py
 
