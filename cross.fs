@@ -1108,10 +1108,11 @@ Ghost lit@ drop
 Ghost lit-perform drop
 Ghost lit+ drop
 Ghost does-exec drop
+Ghost extra-exec drop
 
 Ghost :docol    Ghost :doesjump Ghost :dodoes   2drop drop
 Ghost :dovar	Ghost dovar-vt	Ghost dodoes-vt	2drop drop
-Ghost :doextra  drop
+Ghost :doextra  Ghost doextra-vt Ghost extra,   2drop drop
 
 \ \ Parameter for target systems                         06oct92py
 
@@ -1733,7 +1734,7 @@ Ghost (do)      Ghost (?do)                     2drop
 Ghost (for)                                     drop
 Ghost (loop)    Ghost (+loop)   Ghost (-loop)   2drop drop
 Ghost (next)                                    drop
-Ghost !does                                     drop
+Ghost !does     Ghost !extra                    2drop
 Ghost compile,                                  drop
 Ghost (.")      Ghost (S")      Ghost (ABORT")  2drop drop
 Ghost (C")      Ghost c(abort") Ghost type      2drop drop
@@ -2686,8 +2687,47 @@ Cond: [ ( -- ) interpreting-state ;Cond
     r@ created >do:ghost ! r@ swap resolve
     r> tlastcfa @ >tempdp dodoes, tempdp> ;
 
+: !extra ( does-action -- )
+    tlastcfa @ [G'] :dovar killref
+    tlastcfa @ t>namevt [G'] dovar-vt killref
+    tlastcfa @ t>namevt >tempdp [G'] doextra-vt addr, tempdp>
+    >space here >r ghostheader space>
+    ['] colon-resolved r@ >comp !
+    r@ created >do:ghost ! r@ swap resolve
+    r> tlastcfa @ >tempdp [G'] :doextra (doer,) tempdp> ;
+
 Defer instant-interpret-does>-hook  ' noop IS instant-interpret-does>-hook
 
+>TARGET
+
+X has? new-does [IF]
+T has? primcentric H [IF]
+: does-resolved ( ghost -- )
+\    g>xt dup T >body H alit, compile call T cell+ @ a, H ;
+    compile extra-exec g>xt T a, H ;
+[ELSE]
+: does-resolved ( ghost -- )
+    g>xt T a, H ;
+[THEN]
+
+: resolve-does>-part ( -- )
+\ resolve words made by builders
+  Last-Header-Ghost @ >do:ghost @ ?dup 
+  IF  there resolve  THEN ;
+
+    Cond: DOES>
+    T here H [ T has? primcentric H [IF] ] 5 [ [ELSE] ] 4 [ [THEN] ] T cells
+    H + alit, compile !extra compile ;s
+    doeshandler, resolve-does>-part
+    ;Cond
+    
+    : DOES>
+    T ['] extra, ['] noop >vtable H
+    ['] does-resolved created >comp !
+    switchrom doeshandler, T here H !extra 
+    instant-interpret-does>-hook
+    depth T ] H ;
+[ELSE]
 T has? primcentric H [IF]
 : does-resolved ( ghost -- )
 \    g>xt dup T >body H alit, compile call T cell+ @ a, H ;
@@ -2702,7 +2742,6 @@ T has? primcentric H [IF]
   Last-Header-Ghost @ >do:ghost @ ?dup 
   IF  there resolve  THEN ;
 
->TARGET
 Cond: DOES>
         T here H [ T has? primcentric H [IF] ] 5 [ [ELSE] ] 4 [ [THEN] ] T cells
         H + alit, compile !does compile ;s
@@ -2714,6 +2753,7 @@ Cond: DOES>
     switchrom doeshandler, T here H !does 
     instant-interpret-does>-hook
     depth T ] H ;
+[THEN]
 
 >CROSS
 \ Creation                                              01nov92py
@@ -2828,6 +2868,26 @@ Cond: DOES>
 Variable tvtable-list
 
 Ghost docol-vt drop
+
+4 Constant vtsize
+
+Create vttemplate vtsize T cells H allot
+
+: vt= ( vt1 vt2 -- flag )
+    T cell+ H swap vtsize T cell H /string tuck compare 0= ;
+
+: (vt,) ( -- )
+    T align  here vtsize allot H vttemplate over >ramimage vtsize move
+    tvtable-list @ over T ! H  dup tvtable-list !
+    vttemplate @ T ! H  vttemplate off ;
+
+: vt, ( -- )  vttemplate @ 0= IF EXIT THEN
+    tvtable-list
+    BEGIN  @ dup  WHILE
+	    dup >ramimage vttemplate vt= IF
+		vttemplate @ T ! H  vttemplate off  EXIT  THEN
+	    >ramimage
+    REPEAT  drop (vt,) ;
 
 >TARGET
 : vtable, ( compile-xt tokenize-xt -- )

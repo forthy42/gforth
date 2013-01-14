@@ -473,14 +473,16 @@ Create vttemplate 0 A, ' peephole-compile, A, ' noop A, 0 A, \ initialize to one
 : vt= ( vt1 vt2 -- flag )
     cell+ swap vtsize cell /string tuck compare 0= ;
 
+: (vt,) ( -- )
+    align  here vtsize allot vttemplate over vtsize move
+    vtable-list @ over !  dup vtable-list !
+    vttemplate @ !  vttemplate off ;
+
 : vt, ( -- )  vttemplate @ 0= IF EXIT THEN
     vtable-list
     BEGIN  @ dup  WHILE
 	    dup vttemplate vt= IF  vttemplate @ !  vttemplate off  EXIT  THEN
-    REPEAT  drop
-    align  here vtsize allot vttemplate over vtsize move
-    vtable-list @ over !  dup vtable-list !
-    vttemplate @ !  vttemplate off ;
+    REPEAT  drop (vt,) ;
 
 : !namevt ( addr -- )  latestxt >namevt ! ;
 
