@@ -2704,7 +2704,7 @@ X has? new-does [IF]
 T has? primcentric H [IF]
 : does-resolved ( ghost -- )
 \    g>xt dup T >body H alit, compile call T cell+ @ a, H ;
-    compile extra-exec g>xt T a, H ;
+    compile does-exec g>xt T a, H ;
 [ELSE]
 : does-resolved ( ghost -- )
     g>xt T a, H ;
@@ -2715,16 +2715,15 @@ T has? primcentric H [IF]
   Last-Header-Ghost @ >do:ghost @ ?dup 
   IF  there resolve  THEN ;
 
-    Cond: DOES>
-    T here H [ T has? primcentric H [IF] ] 5 [ [ELSE] ] 4 [ [THEN] ] T cells
-    H + alit, compile !extra compile ;s
-    doeshandler, resolve-does>-part
-    ;Cond
-    
-    : DOES>
-    T ['] extra, ['] noop >vtable H
+Cond: DOES>
+        T here H [ T has? primcentric H [IF] ] 5 [ [ELSE] ] 4 [ [THEN] ] T cells
+        H + alit, compile !extra compile ;s
+        doeshandler, resolve-does>-part
+        ;Cond
+
+: DOES>
     ['] does-resolved created >comp !
-    switchrom doeshandler, T here H !extra 
+    switchrom doeshandler, T here H !does 
     instant-interpret-does>-hook
     depth T ] H ;
 [ELSE]
