@@ -43,10 +43,6 @@ require ./vars.fs
     postpone then ; immediate restrict
 
 \ create s"-buffer /line chars allot
-has? compiler [IF]
-:noname drop [char] " parse postpone SLiteral ;
-[THEN]
-
 : s" ( compilation 'ccc"' -- ; run-time -- c-addr u )	\ core,file	s-quote
   \G Compilation: Parse a string @i{ccc} delimited by a @code{"}
   \G (double quote). At run-time, return the length, @i{u}, and the
@@ -65,10 +61,9 @@ has? compiler [IF]
 [ [THEN] ]
 ;
 has? compiler [IF]
-    ' noop >vtable
+    compile> drop [char] " parse postpone SLiteral ;
 [THEN]
 
-:noname    drop [char] " parse postpone sLiteral postpone type ;
 : ."  ( compilation 'ccc"' -- ; run-time -- )  \ core	dot-quote
   \G Compilation: Parse a string @i{ccc} delimited by a " (double
   \G quote). At run-time, display the string. Interpretation semantics
@@ -76,5 +71,6 @@ has? compiler [IF]
   \G semantics are to display the string. This is the simplest way to
   \G display a string from within a definition; see examples below.
     [char] " parse type ;
-' noop >vtable
-
+has? compiler [IF]
+    compile> drop [char] " parse postpone sLiteral postpone type ;
+[THEN]

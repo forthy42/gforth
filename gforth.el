@@ -241,7 +241,7 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 	 "[ \t\n]" t name (font-lock-function-name-face . 3))
 	(("immediate" "compile-only" "restrict")
 	 immediate (font-lock-keyword-face . 1))
-	(("does>") compile-only (font-lock-keyword-face . 1))
+	(("does>" "compile>") compile-only (font-lock-keyword-face . 1))
 	((":noname") definition-starter (font-lock-keyword-face . 1))
 	((";" ";code" ";abi-code") definition-ender (font-lock-keyword-face . 1))
 	(("include" "require" "needs" "use") 

@@ -2636,7 +2636,7 @@ ghost :-dummy Constant :-ghost
   >in @ skip? IF  drop skip-defs  EXIT  THEN  >in !
   :-ghost executed-ghost !  (THeader (:) ;
 
-: :noname ( -- colon-sys )
+: :noname ( -- xt colon-sys )
   switchrom X cfalign
   :-ghost >do:ghost @ >exec2 @ addr,  there 
   \ define a nameless ghost
@@ -2899,6 +2899,9 @@ Create vttemplate vtsize T cells H allot
 : >vtable ( compile-xt tokenize-xt -- )
     T here H lastxt T 0 cell+ H -
     dup [G'] docol-vt killref T ! vtable, H ;
+
+: compile> ( -- colon-sys )
+    T cfalign here vtsize cell+ H + [T'] noop T >vtable :noname H drop ; 
 >CROSS
 
 : ;DO ( [xt] [colon-sys] -- )

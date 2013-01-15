@@ -452,10 +452,9 @@ extra>-dummy (doextra-dummy)
     ['] (doextra-dummy) >namevt @ >vtcompile, @ vttemplate >vtcompile, !
     latestxt extra-code! ;
 
-:noname  drop  ['] !extra does>-like :-hook ;
 : DOES>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ core        extra
     vt, cfalign 0 , here !extra ] defstart :-hook ;
-' noop >vtable
+compile> drop  ['] !extra does>-like :-hook ;
 
 \ compile> to define compile, action
 
@@ -497,15 +496,13 @@ Create vttemplate 0 A, ' peephole-compile, A, ' noop A, 0 A, \ initialize to one
 : !compile, ( xt -- ) vttemplate >vtcompile, ! ;
 : !lit,     ( xt -- ) vttemplate >vtlit, ! ;
 
-:noname  ['] !compile, start-xt-like ;
 : compile> ( -- colon-sys )
     start-xt  !compile, ;
-' noop >vtable  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth        compile-to
+compile> ['] !compile, start-xt-like ;  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth        compile-to
 
-:noname  ['] !lit,     start-xt-like ;
 : lit> ( -- colon-sys )
     start-xt  !lit, ;
-' noop >vtable  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth        lit-to
+compile> ['] !lit,     start-xt-like ;  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth        lit-to
 
 \ defer and friends
 
@@ -522,9 +519,8 @@ Create vttemplate 0 A, ' peephole-compile, A, ' noop A, 0 A, \ initialize to one
     \g execute @var{xt}.
     record-name ' postpone ALiteral postpone defer! ; immediate restrict
 
-:noname  drop postpone [IS] ;
 : IS <IS> ;
-' noop >vtable
+compile> drop postpone [IS] ;
 
 ' IS Alias TO
 
