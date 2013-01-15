@@ -2868,9 +2868,11 @@ Variable tvtable-list
 
 Ghost docol-vt drop
 
-4 Constant vtsize
+>TARGET
+4 T cells H Constant vtsize
+>CROSS
 
-Create vttemplate vtsize T cells H allot
+Create vttemplate vtsize allot
 
 : vt= ( vt1 vt2 -- flag )
     T cell+ H swap vtsize T cell H /string tuck compare 0= ;
@@ -2892,11 +2894,15 @@ Create vttemplate vtsize T cells H allot
 : vtable, ( compile-xt tokenize-xt ghost -- )
     >r tvtable-list @ T here swap A, H tvtable-list !
     swap T A, A, H
-    r> 0 IF  addr,  ELSE  drop  T 0 A, H  THEN
+    r> dup IF
+	." vtable: " dup >ghostname type space
+	>do:ghost @  dup >ghostname type cr
+	T 0 A, H ( addr, )
+    ELSE  drop  T 0 A, H  THEN
     ( extra field for dodoes ) ;
 
 : vtable: ( compile-xt tokenize-xt "name" -- )
-    Ghost >do:ghost @ dup >exec2 @ hereresolve T vtable, H ;
+    Ghost dup >do:ghost @ >exec2 @ hereresolve T vtable, H ;
 
 : >vtable ( compile-xt tokenize-xt -- )
     T here H lastxt T 0 cell+ H -
