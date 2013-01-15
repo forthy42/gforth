@@ -2889,16 +2889,18 @@ Create vttemplate vtsize T cells H allot
     REPEAT  drop (vt,) ;
 
 >TARGET
-: vtable, ( compile-xt tokenize-xt -- )
-    tvtable-list @ T here swap A, H tvtable-list !
-    swap T A, A, 0 A, H ( extra field for dodoes ) ;
+: vtable, ( compile-xt tokenize-xt ghost -- )
+    >r tvtable-list @ T here swap A, H tvtable-list !
+    swap T A, A, H
+    r> 0 IF  addr,  ELSE  drop  T 0 A, H  THEN
+    ( extra field for dodoes ) ;
 
 : vtable: ( compile-xt tokenize-xt "name" -- )
-    Ghost >do:ghost @ >exec2 @ hereresolve T vtable, H ;
+    Ghost >do:ghost @ dup >exec2 @ hereresolve T vtable, H ;
 
 : >vtable ( compile-xt tokenize-xt -- )
     T here H lastxt T 0 cell+ H -
-    dup [G'] docol-vt killref T ! vtable, H ;
+    dup [G'] docol-vt killref T ! 0 vtable, H ;
 
 : compile> ( -- colon-sys )
     T cfalign here vtsize cell+ H + [T'] noop T >vtable :noname H drop ; 
@@ -3130,11 +3132,13 @@ vt: ;abicode-vt
 Builder input-method
 Build: ( m v -- m' v )  dup T , cell+ H ;Build
 DO:  abort" Not in cross mode" ;DO
+\ by: :doextra noop ;DO
 vt: dodoes-vt
 
 Builder input-var
 Build: ( m v size -- m v' )  over T , H + ;Build
 DO:  abort" Not in cross mode" ;DO
+\ by: :doextra noop ;DO
 vt: dodoes-vt
 
 \ Mini-OOF
