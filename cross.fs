@@ -2895,10 +2895,15 @@ Create vttemplate vtsize allot
     >r tvtable-list @ T here swap A, H tvtable-list !
     swap T A, A, H
     r> dup IF
-	." vtable: " dup >ghostname type space
-	>do:ghost @  dup >ghostname type cr
-	T 0 A, H ( addr, )
-    ELSE  drop  T 0 A, H  THEN
+	dup >do:ghost @ >magic @ <do:> <> IF
+	    ." vtable: " dup >ghostname type space
+	    dup >magic @ hex. space
+	    >do:ghost @  dup >ghostname type space
+	    dup >magic @ hex. cr
+	    addr,  EXIT
+	THEN
+    THEN
+    drop  T 0 A, H
     ( extra field for dodoes ) ;
 
 : vtable: ( compile-xt tokenize-xt "name" -- )
@@ -2937,6 +2942,8 @@ Builder prim-dummy
 Build: ;Build
 by: :doprim ;DO \ :doprim is a dummy, we will not use it
 vt: doprim-vt
+
+<do:> Ghost :doprim >magic !
 
 Builder does>-dummy
 Build: ;Build
@@ -3139,12 +3146,14 @@ Builder input-method
 Build: ( m v -- m' v )  dup T , cell+ H ;Build
 DO:  abort" Not in cross mode" ;DO
 \ by: :doextra noop ;DO
+\ vt: imethod-vt
 vt: dodoes-vt
 
 Builder input-var
 Build: ( m v size -- m v' )  over T , H + ;Build
 DO:  abort" Not in cross mode" ;DO
 \ by: :doextra noop ;DO
+\ vt: ivar-vt
 vt: dodoes-vt
 
 \ Mini-OOF
