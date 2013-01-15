@@ -4,10 +4,10 @@
 : vt ( -- addr ) o#+ [ -1 cells , ] @ ;
 : method-create  Create   DOES> ( ... -- ... ) @ vt + perform ;
 : method ( m v "name" -- m' v ) method-create  over , swap cell+ swap
-  [: >body @ cell/ ['] o#exec compile, , ;] !compile, ;
+  compile> >body @ cell/ ['] o#exec compile, , ;
 : var-create  Create  DOES> ( -- addr ) @ o + ;
 : var ( m v size "name" -- m v' ) var-create  over , +
-  [: >body @ ['] o#+ compile, , ;] !compile, ;
+  compile> >body @ ['] o#+ compile, , ;
 : class ( class -- class methods vars )
   dup 2@ ['] var IS +field ;
 : end-class  ( class methods vars "name" -- )

@@ -501,11 +501,11 @@ Create vttemplate 0 A, ' peephole-compile, A, ' noop A, 0 A, \ initialize to one
 : start-lit> ( -- colon-sys )
     start-x  !lit, ;
 
-:noname  drop reveal ['] !compile, does>-like drop start-compile> ;
+:noname  drop reveal ['] !compile, does>-like drop start-x drop ;
 : compile>  start-compile> ;
 ' noop >vtable  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth        compile-to
 
-:noname  drop reveal ['] !lit,     does>-like drop start-lit> ;
+:noname  drop reveal ['] !lit,     does>-like drop start-x drop ;
 : lit>  start-lit> ;
 ' noop >vtable  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth        compile-to
 
