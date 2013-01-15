@@ -489,25 +489,23 @@ Create vttemplate 0 A, ' peephole-compile, A, ' noop A, 0 A, \ initialize to one
 : >vtable ( compile,-xt tokenize-xt -- )
     swap vttemplate cell+ 2! ;
 
-: start-x ( -- xt ) \ incomplete, will not be a full xt
+: start-xt ( -- xt ) \ incomplete, will not be a full xt
     here >r docol: cfa, defstart ] :-hook r> ;
+: start-xt-like ( colonsys xt -- colonsys )
+    nip reveal does>-like drop start-xt drop ;
 
 : !compile, ( xt -- ) vttemplate >vtcompile, ! ;
 : !lit,     ( xt -- ) vttemplate >vtlit, ! ;
 
-: start-compile> ( -- colon-sys )
-    start-x  !compile, ;
-
-: start-lit> ( -- colon-sys )
-    start-x  !lit, ;
-
-:noname  drop reveal ['] !compile, does>-like drop start-x drop ;
-: compile>  start-compile> ;
+:noname  ['] !compile, start-xt-like ;
+: compile> ( -- colon-sys )
+    start-xt  !compile, ;
 ' noop >vtable  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth        compile-to
 
-:noname  drop reveal ['] !lit,     does>-like drop start-x drop ;
-: lit>  start-lit> ;
-' noop >vtable  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth        compile-to
+:noname  ['] !lit,     start-xt-like ;
+: lit> ( -- colon-sys )
+    start-xt  !lit, ;
+' noop >vtable  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth        lit-to
 
 \ defer and friends
 
@@ -561,7 +559,7 @@ defer ;-hook ( sys2 -- sys1 )
 
 : interpret/compile: ( interp-xt comp-xt "name" -- ) \ gforth
     >r >r : r> compile, postpone ;
-    start-compile> postpone drop r> compile, postpone ; ;
+    start-xt !compile, postpone drop r> compile, postpone ; ;
 
 \ \ Search list handling: reveal words, recursive		23feb93py
 
