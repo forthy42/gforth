@@ -2687,26 +2687,22 @@ Cond: [ ( -- ) interpreting-state ;Cond
     r@ created >do:ghost ! r@ swap resolve
     r> tlastcfa @ >tempdp dodoes, tempdp> ;
 
-: !extra ( does-action -- )
-    tlastcfa @ [G'] :dovar killref
-    tlastcfa @ t>namevt [G'] dovar-vt killref
-    tlastcfa @ t>namevt >tempdp [G'] doextra-vt addr, tempdp>
-    >space here >r ghostheader space>
-    ['] colon-resolved r@ >comp !
-    r@ created >do:ghost ! r@ swap resolve
-    r> tlastcfa @ >tempdp [G'] :doextra (doer,) tempdp> ;
+Defer !extra
 
 Defer instant-interpret-does>-hook  ' noop IS instant-interpret-does>-hook
 
 >TARGET
 
 X has? new-does [IF]
-T has? primcentric H [IF]
+X has? primcentric [IF]
 : does-resolved ( ghost -- )
-\    g>xt dup T >body H alit, compile call T cell+ @ a, H ;
     compile does-exec g>xt T a, H ;
+: extra-resolved ( ghost -- )
+    compile extra-exec g>xt T a, H ;
 [ELSE]
 : does-resolved ( ghost -- )
+    g>xt T a, H ;
+: extra-resolved ( ghost -- )
     g>xt T a, H ;
 [THEN]
 
@@ -2724,6 +2720,13 @@ Cond: DOES>
 : DOES>
     ['] does-resolved created >comp !
     switchrom doeshandler, T here H !does 
+    instant-interpret-does>-hook
+depth T ] H ;
+
+: EXTRA>
+    ['] extra-resolved created >comp !
+    switchrom T align H
+    doeshandler, !extra 
     instant-interpret-does>-hook
     depth T ] H ;
 [ELSE]
@@ -2916,6 +2919,24 @@ Create vttemplate vtsize allot
 : compile> ( -- colon-sys )
     T cfalign here vtsize cell+ H + [T'] noop T >vtable :noname H drop ; 
 >CROSS
+
+\ instantiate deferred extra, now
+
+:noname ( -- )
+    tlastcfa @ [G'] :dovar killref
+    tlastcfa @ t>namevt [G'] dovar-vt killref
+    >space here >r ghostheader space>
+    ['] colon-resolved r@ >comp !
+    r@ created >do:ghost !
+    >space here >r ghostheader space>
+    r@ created >do:ghost @ >exec2 !
+    T align H r> hereresolve
+    r> T here vtsize H + resolve
+    [T'] extra, [T'] noop created T vtable, here H
+    tlastcfa @ t>namevt >tempdp
+    created >do:ghost @ >exec2 @ addr, tempdp>
+    tlastcfa @ >tempdp [G'] :doextra (doer,) tempdp> ;
+IS !extra
 
 : ;DO ( [xt] [colon-sys] -- )
   postpone ; doexec! ; immediate

@@ -23,6 +23,10 @@
 
 \ \ input stream primitives                       	23feb93py
 
+has? new-does [IF]
+    : extra, ['] extra-exec peephole-compile, , ;
+[THEN]
+
 require ./basics.fs 	\ bounds decimal hex ...
 require ./io.fs		\ type ...
 require ./nio.fs	\ . <# ...
