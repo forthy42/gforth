@@ -250,8 +250,13 @@ Variable tfile
         2drop 2drop 2drop r>
   THEN ;
 
+defer resolve-included-file-hook ( addr1 u1 -- addr2 u2 ) \ gforth
+\G called before opening an included file, allows path manipulation
+' noop is resolve-included-file-hook
+
 : open-fpath-file ( addr1 u1 -- wfileid addr2 u2 0 | ior ) \ gforth
     \G Look in the Forth search path for the file specified by @var{addr1 u1}.
     \G If found, the resulting path and an open file descriptor
     \G are returned. If the file is not found, @var{ior} is non-zero.
+    resolve-included-file-hook
     fpath open-path-file ;
