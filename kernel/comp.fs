@@ -481,9 +481,6 @@ Create vttemplate 0 A, ' peephole-compile, A, ' noop A, 0 A, ' no-to A, \ initia
 
 : !namevt ( addr -- )  latestxt >namevt ! ;
 
-: >vtable ( compile,-xt tokenize-xt -- )
-    swap vttemplate cell+ 2! ;
-
 : start-xt ( -- xt ) \ incomplete, will not be a full xt
     here >r docol: cfa, defstart ] :-hook r> ;
 : start-xt-like ( colonsys xt -- colonsys )
@@ -527,11 +524,9 @@ compile> drop >body postpone ALiteral postpone ! ;
 : IS <IS> ;
 compile> drop postpone [IS] ;
 
-' IS alias TO
-
-: newTO ( value "name" -- )
-    ' dup >namevt @ >vtto perform ;
-compile> drop ' dup >namevt @ >vtto @ compile, ;
+: TO ( value "name" -- )
+    (') (name>x) drop dup >namevt @ >vtto perform ;
+compile> drop (') (name>x) drop dup >namevt @ >vtto @ compile, ;
 
 : interpret/compile? ( xt -- flag ) drop false ;
 

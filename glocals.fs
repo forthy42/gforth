@@ -282,7 +282,7 @@ variable dict-execute-dp \ the special dp for DICT-EXECUTE
     dict-execute-ude ['] usable-dictionary-end defer@ 2>r
     swap to dict-execute-ude
     ['] dict-execute-ude is usable-dictionary-end
-    swap to dict-execute-dp
+    swap dict-execute-dp !
     dict-execute-dp dpp !
     catch
     2r> is usable-dictionary-end to dict-execute-ude
@@ -319,55 +319,71 @@ variable locals-dp \ so here's the special dp for locals.
 vocabulary locals-types \ this contains all the type specifyers, -- and }
 locals-types definitions
 
+[IFDEF] !to
+    : to-w: ( -- )  -14 throw ;
+    compile> drop POSTPONE laddr# >body @ lp-offset, POSTPONE ! ;
+[THEN]
 : W: ( "name" -- a-addr xt ) \ gforth w-colon
-    create-local
-	\ xt produces the appropriate locals pushing code when executed
-	['] compile-pushlocal-w
-    does> ( Compilation: -- ) ( Run-time: -- w )
-        \ compiles a local variable access
-	@ lp-offset compile-@local ;
+    create-local [IFDEF] !to ['] to-w: !to [THEN]
+    \ xt produces the appropriate locals pushing code when executed
+    ['] compile-pushlocal-w
+  does> ( Compilation: -- ) ( Run-time: -- w )
+    \ compiles a local variable access
+    @ lp-offset compile-@local ;
 
 : W^ ( "name" -- a-addr xt ) \ gforth w-caret
     create-local
-	['] compile-pushlocal-w
-    does> ( Compilation: -- ) ( Run-time: -- w )
-	postpone laddr# @ lp-offset, ;
+    ['] compile-pushlocal-w
+  does> ( Compilation: -- ) ( Run-time: -- w )
+    postpone laddr# @ lp-offset, ;
 
+[IFDEF] !to
+    : to-f: ( -- ) -14 throw ;
+    compile> drop POSTPONE laddr# >body @ lp-offset, POSTPONE f! ;
+[THEN]
 : F: ( "name" -- a-addr xt ) \ gforth f-colon
-    create-local
-	['] compile-pushlocal-f
-    does> ( Compilation: -- ) ( Run-time: -- w )
-	@ lp-offset compile-f@local ;
+    create-local [IFDEF] !to ['] to-f: !to [THEN]
+    ['] compile-pushlocal-f
+  does> ( Compilation: -- ) ( Run-time: -- w )
+    @ lp-offset compile-f@local ;
 
 : F^ ( "name" -- a-addr xt ) \ gforth f-caret
     create-local
-	['] compile-pushlocal-f
-    does> ( Compilation: -- ) ( Run-time: -- w )
-	postpone laddr# @ lp-offset, ;
+    ['] compile-pushlocal-f
+  does> ( Compilation: -- ) ( Run-time: -- w )
+    postpone laddr# @ lp-offset, ;
 
+[IFDEF] !to
+    : to-d: ( -- ) -14 throw ;
+    compile> drop POSTPONE laddr# >body @ lp-offset, POSTPONE 2! ;
+[THEN]
 : D: ( "name" -- a-addr xt ) \ gforth d-colon
-    create-local
-	['] compile-pushlocal-d
-    does> ( Compilation: -- ) ( Run-time: -- w )
-	postpone laddr# @ lp-offset, postpone 2@ ;
+    create-local [IFDEF] !to ['] to-d: !to [THEN]
+    ['] compile-pushlocal-d
+  does> ( Compilation: -- ) ( Run-time: -- w )
+    postpone laddr# @ lp-offset, postpone 2@ ;
 
 : D^ ( "name" -- a-addr xt ) \ gforth d-caret
     create-local
-	['] compile-pushlocal-d
-    does> ( Compilation: -- ) ( Run-time: -- w )
-	postpone laddr# @ lp-offset, ;
+    ['] compile-pushlocal-d
+  does> ( Compilation: -- ) ( Run-time: -- w )
+    postpone laddr# @ lp-offset, ;
 
+[IFDEF] !to
+    : to-c: ( -- ) -14 throw ;
+    compile> drop POSTPONE laddr# >body @ lp-offset, POSTPONE c! ;
+[THEN]
 : C: ( "name" -- a-addr xt ) \ gforth c-colon
-    create-local
-	['] compile-pushlocal-c
-    does> ( Compilation: -- ) ( Run-time: -- w )
-	postpone laddr# @ lp-offset, postpone c@ ;
+    create-local [IFDEF] !to ['] to-c: !to [THEN]
+    ['] compile-pushlocal-c
+  does> ( Compilation: -- ) ( Run-time: -- w )
+    postpone laddr# @ lp-offset, postpone c@ ;
 
 : C^ ( "name" -- a-addr xt ) \ gforth c-caret
     create-local
-	['] compile-pushlocal-c
-    does> ( Compilation: -- ) ( Run-time: -- w )
-	postpone laddr# @ lp-offset, ;
+    ['] compile-pushlocal-c
+  does> ( Compilation: -- ) ( Run-time: -- w )
+    postpone laddr# @ lp-offset, ;
 
 \ you may want to make comments in a locals definitions group:
 ' \ alias \ ( compilation 'ccc<newline>' -- ; run-time -- ) \ core-ext,block-ext backslash
@@ -746,6 +762,7 @@ is free-old-local-names
 	code-address!
     then ;
 
+[IFUNDEF] !to
 : (int-to) ( xt -- ) dup >definer
     case
 	[ ' locals-wordlist ] literal >definer \ value
@@ -778,6 +795,7 @@ is free-old-local-names
 : TO ( c|w|d|r "name" -- ) \ core-ext,local
     ' (int-to) ;
 compile> drop comp' drop (comp-to) ;
+[THEN]
 
 : locals| ( ... "name ..." -- ) \ local-ext locals-bar
     \ don't use 'locals|'! use '{'! A portable and free '{'

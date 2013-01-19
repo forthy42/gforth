@@ -17,9 +17,15 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-: r:to (int-to) ;
-compile> drop (comp-to) ;
+[IFDEF] !to
+    : r:to dup >namevt @ >vtto perform ;
+    compile> drop dup >namevt @ >vtto @ compile, ;
 lit> lit, ;
+[ELSE]
+    : r:to (int-to) ;
+    compile> drop (comp-to) ;
+lit> lit, ;
+[THEN]
 
 : to-recognizer ( addr u -- xt r:to | r:fail )
     2dup s" ->" string-prefix?  0= IF  2drop ['] r:fail  EXIT  THEN
