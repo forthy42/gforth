@@ -25,6 +25,8 @@
 
 has? new-does [IF]
     : extra, ['] extra-exec peephole-compile, , ;
+    : no-to ( -- )  -32 throw ;
+    compile> -32 throw ;
 [THEN]
 
 require ./basics.fs 	\ bounds decimal hex ...

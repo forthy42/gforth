@@ -443,14 +443,13 @@ defer defer-default ( -- )
     [ has? peephole [IF] ] finish-code [ [THEN] ]
     defstart ;
 
-: !does    ( addr -- ) \ gforth	store-does
-    ['] spaces >namevt @ >vtcompile, @ vttemplate >vtcompile, !
-    latestxt does-code! ;
+\ : !does    ( addr -- ) \ gforth	store-does
+\     ['] spaces >namevt @ >vtcompile, @ !compile,
+\     latestxt does-code! ;
 
 extra>-dummy (doextra-dummy)
 : !extra   ( addr -- ) \ gforth store-extra
-    ['] (doextra-dummy) >namevt @ >vtcompile, @ vttemplate >vtcompile, !
-    latestxt extra-code! ;
+    ['] extra, !compile,  latestxt extra-code! ;
 
 : DOES>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ core        extra
     vt, cfalign 0 , here !extra ] defstart :-hook ;
@@ -458,10 +457,7 @@ compile> drop  ['] !extra does>-like :-hook ;
 
 \ compile> to define compile, action
 
-: vtable, ( compile,-xt tokenize-xt -- )
-    here vtable-list @ , vtable-list ! swap , , 0 , ;
-
-Create vttemplate 0 A, ' peephole-compile, A, ' noop A, 0 A, \ initialize to one known vt
+Create vttemplate 0 A, ' peephole-compile, A, ' noop A, 0 A, ' no-to A, \ initialize to one known vt
 
 : vtcopy,     ( xt -- )  \ gforth	vtcopy-comma
     vttemplate here >namevt !
@@ -495,6 +491,7 @@ Create vttemplate 0 A, ' peephole-compile, A, ' noop A, 0 A, \ initialize to one
 
 : !compile, ( xt -- ) vttemplate >vtcompile, ! ;
 : !lit,     ( xt -- ) vttemplate >vtlit, ! ;
+: !to       ( xt -- ) vttemplate >vtto ! ;
 
 : compile> ( -- colon-sys )
     start-xt  !compile, ;
@@ -504,11 +501,19 @@ compile> ['] !compile, start-xt-like ;  ( compilation colon-sys1 -- colon-sys2 ;
     start-xt  !lit, ;
 compile> ['] !lit,     start-xt-like ;  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth        lit-to
 
+: to> ( -- colon-sys )
+    start-xt  !to ;
+compile> ['] !to       start-xt-like ;  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth        to-to
+
 \ defer and friends
 
 : defer! ( xt xt-deferred -- ) \ gforth  defer-store
 \G Changes the @code{defer}red word @var{xt-deferred} to execute @var{xt}.
     >body ! ;
+
+: value! ( xt xt-deferred -- ) \ gforth  defer-store
+    >body ! ;
+compile> drop >body postpone ALiteral postpone ! ;
     
 : <IS> ( "name" xt -- ) \ gforth
     \g Changes the @code{defer}red word @var{name} to execute @var{xt}.
@@ -522,7 +527,11 @@ compile> ['] !lit,     start-xt-like ;  ( compilation colon-sys1 -- colon-sys2 ;
 : IS <IS> ;
 compile> drop postpone [IS] ;
 
-' IS Alias TO
+' IS alias TO
+
+: newTO ( value "name" -- )
+    ' dup >namevt @ >vtto perform ;
+compile> drop ' dup >namevt @ >vtto @ compile, ;
 
 : interpret/compile? ( xt -- flag ) drop false ;
 

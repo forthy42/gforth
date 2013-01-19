@@ -1109,6 +1109,7 @@ Ghost lit-perform drop
 Ghost lit+ drop
 Ghost does-exec drop
 Ghost extra-exec drop
+Ghost no-to drop
 
 Ghost :docol    Ghost :doesjump Ghost :dodoes   2drop drop
 Ghost :dovar	Ghost dovar-vt	Ghost dodoes-vt	2drop drop
@@ -2894,30 +2895,30 @@ Create vttemplate vtsize allot
     REPEAT  drop (vt,) ;
 
 >TARGET
-: vtable, ( compile-xt tokenize-xt ghost -- )
+: vtable, ( compile-xt tokenize-xt to-xt ghost -- )
     >r tvtable-list @ T here swap A, H tvtable-list !
-    swap T A, A, H
+    swap rot T A, A, H
     r> dup IF
 	dup >do:ghost @ >magic @ <do:> <> IF
 	    ." vtable: " dup >ghostname type space
 	    dup >magic @ hex. space
 	    >do:ghost @  dup >ghostname type space
 	    dup >magic @ hex. cr
-	    addr,  T 0 A, H EXIT
+	    addr,  T A, H EXIT
 	THEN
     THEN
-    drop  T 0 A, 0 A, H
-    ( extra field for dodoes ) ;
+    T A, A, H
+    ( extra field for dodoes, to-field ) ;
 
-: vtable: ( compile-xt tokenize-xt "name" -- )
+: vtable: ( compile-xt tokenize-xt to-xt "name" -- )
     Ghost dup >do:ghost @ >exec2 @ hereresolve T vtable, H ;
 
 : >vtable ( compile-xt tokenize-xt -- )
     T here H lastxt T 0 cell+ H -
-    dup [G'] docol-vt killref T ! 0 vtable, H ;
+    dup [G'] docol-vt killref T ! H [T'] no-to 0 T vtable, H ;
 
 : compile> ( -- colon-sys )
-    T cfalign here vtsize cell+ H + [T'] noop T >vtable :noname H drop ; 
+    T cfalign here vtsize cell+ H + [T'] noop  T >vtable :noname H drop ; 
 >CROSS
 
 \ instantiate deferred extra, now
@@ -2932,7 +2933,7 @@ Create vttemplate vtsize allot
     r@ created >do:ghost @ >exec2 !
     T align H r> hereresolve
     r> T here vtsize H + resolve
-    [T'] extra, [T'] noop created T vtable, here H
+    [T'] extra, [T'] noop [T'] no-to created T vtable, here H
     tlastcfa @ t>namevt >tempdp
     created >do:ghost @ >exec2 @ addr, tempdp>
     tlastcfa @ >tempdp [G'] :doextra (doer,) tempdp> ;
