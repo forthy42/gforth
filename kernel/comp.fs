@@ -520,9 +520,12 @@ compile> drop >body postpone ALiteral postpone ! ;
 : IS <IS> ;
 compile> drop postpone [IS] ;
 
+: (int-to) ( val xt -- ) dup >namevt @ >vtto perform ;
+: (comp-to) ( xt -- ) dup >namevt @ >vtto @ compile, ;
+
 : TO ( value "name" -- )
-    (') (name>x) drop dup >namevt @ >vtto perform ;
-compile> drop (') (name>x) drop dup >namevt @ >vtto @ compile, ;
+    (') (name>x) drop (int-to) ;
+compile> drop (') (name>x) drop (comp-to) ;
 
 : interpret/compile? ( xt -- flag ) drop false ;
 
