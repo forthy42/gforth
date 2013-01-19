@@ -268,7 +268,12 @@ typedef Label *Xt;
 #define DOES_CODE1(cfa)	((Xt *)(cfa[1]))
 /* MAKE_CF creates an appropriate code field at the cfa;
    ca is the code address */
-#define EXTRA_CODE(cfa) ((Xt *)(((Cell **)cfa)[-1][3]))
+#define VTLINK 0
+#define VTCOMPILE 1
+#define VTLIT 2
+#define VTEXTRA 3
+#define VTTO 4
+#define EXTRA_CODE(cfa) ((Xt *)(((Cell **)cfa)[-1][VTEXTRA]))
 #define MAKE_CF(cfa,ca) ((*(Label *)(cfa)) = ((Label)ca))
 /* make a code field for a defining-word-defined word */
 
