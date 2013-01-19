@@ -498,10 +498,6 @@ compile> ['] !compile, start-xt-like ;  ( compilation colon-sys1 -- colon-sys2 ;
     start-xt  !lit, ;
 compile> ['] !lit,     start-xt-like ;  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth        lit-to
 
-: to> ( -- colon-sys )
-    start-xt  !to ;
-compile> ['] !to       start-xt-like ;  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth        to-to
-
 \ defer and friends
 
 : defer! ( xt xt-deferred -- ) \ gforth  defer-store
