@@ -2872,7 +2872,7 @@ Variable tvtable-list
 Ghost docol-vt drop
 
 >TARGET
-4 T cells H Constant vtsize
+5 T cells H Constant vtsize
 >CROSS
 
 Create vttemplate vtsize allot
@@ -2903,10 +2903,10 @@ Create vttemplate vtsize allot
 	    dup >magic @ hex. space
 	    >do:ghost @  dup >ghostname type space
 	    dup >magic @ hex. cr
-	    addr,  EXIT
+	    addr,  T 0 A, H EXIT
 	THEN
     THEN
-    drop  T 0 A, H
+    drop  T 0 A, 0 A, H
     ( extra field for dodoes ) ;
 
 : vtable: ( compile-xt tokenize-xt "name" -- )
