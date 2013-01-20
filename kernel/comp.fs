@@ -486,17 +486,17 @@ Create vttemplate 0 A, ' peephole-compile, A, ' noop A, 0 A, ' no-to A, \ initia
 : start-xt-like ( colonsys xt -- colonsys )
     nip reveal does>-like drop start-xt drop ;
 
-: !compile, ( xt -- ) vttemplate >vtcompile, ! ;
-: !lit,     ( xt -- ) vttemplate >vtlit, ! ;
-: !to       ( xt -- ) vttemplate >vtto ! ;
+: !compile,  ( xt -- ) vttemplate >vtcompile, ! ;
+: !postpone, ( xt -- ) vttemplate >vtpostpone ! ;
+: !to        ( xt -- ) vttemplate >vtto ! ;
 
 : compile> ( -- colon-sys )
     start-xt  !compile, ;
 compile> ['] !compile, start-xt-like ;  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth        compile-to
 
-: lit> ( -- colon-sys )
-    start-xt  !lit, ;
-compile> ['] !lit,     start-xt-like ;  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth        lit-to
+: postpone> ( -- colon-sys )
+    start-xt  !postpone, ;
+compile> ['] !postpone,     start-xt-like ;  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth        lit-to
 
 \ defer and friends
 

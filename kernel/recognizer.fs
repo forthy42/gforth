@@ -114,7 +114,7 @@ Variable forth-recognizer
 : >int      ( token table -- )  name>int execute ;
 : >comp     ( xt -- ) name>comp execute ;
 : >postpone ( token table -- )
-    dup >r (name>x) drop >namevt @ >vtlit, perform
+    dup >r (name>x) drop >namevt @ >vtpostpone perform
     r> lit, postpone >comp ;
 
 : postpone ( "name" -- ) \ core
