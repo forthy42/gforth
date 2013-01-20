@@ -259,7 +259,7 @@ Defer redirect ( addr u -- )
   maxnum @ 0 DO  ['] http catch  maxnum @ 0= or  ?LEAVE  LOOP ;
 
 script? [IF]
-    :noname &100 httpd stdout flush-file bye ; is 'quit
+    :noname &100 httpd stdout flush-file 0 (bye) ; is 'quit
     ' noop IS bootmessage
 [THEN]
 

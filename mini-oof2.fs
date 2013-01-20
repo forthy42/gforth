@@ -1,19 +1,26 @@
 \ Mini-OOF2, using current object+Gforth primitives    09jan12py
 
-: o ( -- addr )  o#+ [ 0 , ] ;
-: vt ( -- addr ) o#+ [ -1 cells , ] @ ;
-: method-create  Create   DOES> ( ... -- ... ) @ vt + perform ;
-: method ( m v "name" -- m' v ) method-create  over , swap cell+ swap
-  compile> >body @ cell/ ['] o#exec compile, , ;
-: var-create  Create  DOES> ( -- addr ) @ o + ;
-: var ( m v size "name" -- m v' ) var-create  over , +
-  compile> >body @ ['] o#+ compile, , ;
+\ template for methods and ivars
+
+Create o 0 ,  DOES> @ o#+ [ 0 , ] + ;
+compile> >body @ postpone o#+ , ;
+Create m 0 ,  DOES> @ o#+ [ -1 cells , ] @ + perform ;
+compile> >body @ cell/ postpone o#exec , ;
+' o Value var-xt
+' m Value method-xt
+: current-o  ['] o to var-xt  ['] m to method-xt ;
+
+\ core system
+
+: method ( m v size "name" -- m' v )
+  Header reveal method-xt vtcopy,  over , swap cell+ swap ;
+: var ( m v size "name" -- m v' )
+  Header reveal    var-xt vtcopy,  over , + ;
 : class ( class -- class methods vars )
   dup 2@ ['] var IS +field ;
 : end-class  ( class methods vars "name" -- )
-  Create  here >r , dup , 2 cells ?DO ['] noop , 1 cells +LOOP
-  cell+ dup cell+ r> rot @ 2 cells /string move
-  standard:field ;
+  Create  here >r , dup , 2 cells ?DO ['] noop , cell +LOOP
+  cell+ dup cell+ r> rot @ 2 cells /string move  standard:field ;
 : >vt ( class "name" -- addr )  ' >body @ + ;
 : bind ( class "name" -- xt )    >vt @ ;
 : defines ( xt class "name" -- ) >vt ! ;
@@ -43,5 +50,4 @@ static-a Value allocater
 : dispose ( o:o -- )  o cell- allocater >o :free o> ;
 
 dynamic-alloc new Constant dynamic-a
-
 dynamic-a to allocater

@@ -452,7 +452,7 @@ extra>-dummy (doextra-dummy)
     ['] extra, !compile,  latestxt extra-code! ;
 
 : DOES>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ core        extra
-    vt, cfalign 0 , here !extra ] defstart :-hook ;
+    cfalign 0 , here !extra ] defstart :-hook ;
 compile> drop  ['] !extra does>-like :-hook ;
 
 \ compile> to define compile, action
