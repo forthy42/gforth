@@ -25,6 +25,8 @@
 
 has? new-does [IF]
     : extra, ['] extra-exec peephole-compile, , ;
+    : >comp  ( xt -- ) name>comp execute ;
+    : post,  ( xt -- ) lit, postpone >comp ;
     : no-to ( -- )  -32 throw ;
     compile> -32 throw ;
 [THEN]

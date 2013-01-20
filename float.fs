@@ -153,7 +153,7 @@ si-prefixes count bl scan drop Constant zero-exp
 [ifdef] r:fail
     : r:fnumber ;
     compile> drop postpone Fliteral ;
-    postpone> postpone Fliteral ;
+    postpone> >r postpone Fliteral r> post, ;
 
     : fnum-recognizer ( addr u -- float int-table | r:fail )
 	prefix-number

@@ -1110,6 +1110,7 @@ Ghost lit+ drop
 Ghost does-exec drop
 Ghost extra-exec drop
 Ghost no-to drop
+Ghost post, drop
 
 Ghost :docol    Ghost :doesjump Ghost :dodoes   2drop drop
 Ghost :dovar	Ghost dovar-vt	Ghost dodoes-vt	2drop drop
@@ -2918,7 +2919,7 @@ Create vttemplate vtsize allot
     dup [G'] docol-vt killref T ! H [T'] no-to 0 T vtable, H ;
 
 : compile> ( -- colon-sys )
-    T cfalign here vtsize cell+ H + [T'] noop  T >vtable :noname H drop ; 
+    T cfalign here vtsize cell+ H + [T'] post, T >vtable :noname H drop ; 
 >CROSS
 
 \ instantiate deferred extra, now
@@ -2933,7 +2934,7 @@ Create vttemplate vtsize allot
     r@ created >do:ghost @ >exec2 !
     T align H r> hereresolve
     r> T here vtsize H + resolve
-    [T'] extra, [T'] noop [T'] no-to created T vtable, here H
+    [T'] extra, [T'] post, [T'] no-to created T vtable, here H
     tlastcfa @ t>namevt >tempdp
     created >do:ghost @ >exec2 @ addr, tempdp>
     tlastcfa @ >tempdp [G'] :doextra (doer,) tempdp> ;

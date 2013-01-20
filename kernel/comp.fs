@@ -457,7 +457,7 @@ compile> drop  ['] !extra does>-like :-hook ;
 
 \ compile> to define compile, action
 
-Create vttemplate 0 A, ' peephole-compile, A, ' noop A, 0 A, ' no-to A, \ initialize to one known vt
+Create vttemplate 0 A, ' peephole-compile, A, ' post, A, 0 A, ' no-to A, \ initialize to one known vt
 
 : vtcopy,     ( xt -- )  \ gforth	vtcopy-comma
     vttemplate here >namevt !
@@ -487,7 +487,7 @@ Create vttemplate 0 A, ' peephole-compile, A, ' noop A, 0 A, ' no-to A, \ initia
     nip reveal does>-like drop start-xt drop ;
 
 : !compile,  ( xt -- ) vttemplate >vtcompile, ! ;
-: !postpone, ( xt -- ) vttemplate >vtpostpone ! ;
+: !postpone  ( xt -- ) vttemplate >vtpostpone ! ;
 : !to        ( xt -- ) vttemplate >vtto ! ;
 
 : compile> ( -- colon-sys )
@@ -495,8 +495,8 @@ Create vttemplate 0 A, ' peephole-compile, A, ' noop A, 0 A, ' no-to A, \ initia
 compile> ['] !compile, start-xt-like ;  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth        compile-to
 
 : postpone> ( -- colon-sys )
-    start-xt  !postpone, ;
-compile> ['] !postpone,     start-xt-like ;  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth        lit-to
+    start-xt  !postpone ;
+compile> ['] !postpone     start-xt-like ;  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth        lit-to
 
 \ defer and friends
 
