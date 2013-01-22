@@ -10,9 +10,9 @@ object class
     method p.
 end-class point
 
-:noname x @ y @ ; point defines p@
-:noname x ? y ? ; point defines p.
-:noname y ! x ! ; point defines p!
+:noname x @ y @ ; point to p@
+:noname x ? y ? ; point to p.
+:noname y ! x ! ; point to p!
 
 point new Constant p1
 p1 >o 1 2 p! o>

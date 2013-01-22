@@ -4,8 +4,10 @@
 
 Create o 0 ,  DOES> @ o#+ [ 0 , ] + ;
 compile> >body @ postpone o#+ , ;
+: to-m >body @ + ! ;
 Create m 0 ,  DOES> @ o#+ [ -1 cells , ] @ + perform ;
 compile> >body @ cell/ postpone o#exec , ;
+' to-m !to
 ' o Value var-xt
 ' m Value method-xt
 : current-o  ['] o to var-xt  ['] m to method-xt ;
@@ -22,9 +24,7 @@ compile> >body @ cell/ postpone o#exec , ;
   Create  here >r , dup , 2 cells ?DO ['] noop , cell +LOOP
   cell+ dup cell+ r> rot @ 2 cells /string move  standard:field ;
 : >vt ( class "name" -- addr )  ' >body @ + ;
-: bind ( class "name" -- xt )    >vt @ ;
-: defines ( xt class "name" -- ) >vt ! ;
-: :: ( class "name" -- ) bind compile, ;
+: :: ( class "name" -- ) >vt @ compile, ;
 Create object  0 cells , 2 cells ,
 
 \ memory allocation
@@ -37,11 +37,11 @@ end-class storage
 storage class end-class static-alloc
 storage class end-class dynamic-alloc
 
-:noname  ( len -- addr )  here swap allot ; static-alloc defines :allocate
-:noname  ( addr -- )      drop ;            static-alloc defines :free
+:noname  ( len -- addr )  here swap allot ; static-alloc to :allocate
+:noname  ( addr -- )      drop ;            static-alloc to :free
 
-:noname  ( len -- addr )  allocate throw ; dynamic-alloc defines :allocate
-:noname  ( addr -- )      free throw ;     dynamic-alloc defines :free
+:noname  ( len -- addr )  allocate throw ; dynamic-alloc to :allocate
+:noname  ( addr -- )      free throw ;     dynamic-alloc to :free
 
 static-alloc dup @ cell+ here swap allot swap over ! cell+ Constant static-a
 static-a Value allocater

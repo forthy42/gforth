@@ -449,7 +449,11 @@ defer defer-default ( -- )
 
 extra>-dummy (doextra-dummy)
 : !extra   ( addr -- ) \ gforth store-extra
-    ['] extra, !compile,  latestxt extra-code! ;
+    vttemplate >vtcompile, @ ['] udp >namevt @ >vtcompile, @ =
+    IF
+	['] extra, !compile,
+    THEN
+    latestxt extra-code! ;
 
 : DOES>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ core        extra
     cfalign 0 , here !extra ] defstart :-hook ;
