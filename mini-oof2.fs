@@ -46,7 +46,8 @@ storage class end-class dynamic-alloc
 static-alloc dup @ cell+ here swap allot swap over ! cell+ Constant static-a
 static-a Value allocater
 
-: new ( class -- o )  dup @ cell+ allocater >o :allocate o> swap over ! cell+ ;
+: new ( class -- o )  dup @ cell+ allocater >o :allocate o> swap over !
+    cell+ dup dup cell- @ @ erase ;
 : dispose ( o:o -- )  o cell- allocater >o :free o> ;
 
 dynamic-alloc new Constant dynamic-a
