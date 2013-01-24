@@ -1,6 +1,6 @@
 #Makefile for the C part of Gforth
 
-#Copyright (C) 1995,1996,1997,1998,2000,2003,2006,2007,2008,2009,2011 Free Software Foundation, Inc.
+#Copyright (C) 1995,1996,1997,1998,2000,2003,2006,2007,2008,2009,2011,2012 Free Software Foundation, Inc.
 
 #This file is part of Gforth.
 
@@ -55,9 +55,9 @@ STRIP	= strip
 GCCLD	= @GCC_LD@
 LIBTOOL = @GNU_LIBTOOL@
 LTLD = $(LIBTOOL) --mode=link $(GCCLD) -rpath $(libdir) -version-info $(LIBVERSION) -module
-EXTRAPATH = @extrapath@
+EXTRAPATH = $(PATHSEP)/usr/share/gforth/site-forth$(PATHSEP)/usr/local/share/gforth/site-forth
 
-FORTHPATH = .$(PATHSEP)$(libdir)/gforth/site-forth$(PATHSEP)$(datadir)/gforth/site-forth$(EXTRAPATH)$(PATHSEP)$(libdir)/gforth$(ARCH)/$(VERSION)$(PATHSEP)$(datadir)/gforth$(ARCH)/$(VERSION)
+FORTHPATH = .$(PATHSEP)$(libdir)/gforth/site-forth$(PATHSEP)$(libdir)/gforth$(ARCH)/$(VERSION)$(PATHSEP)$(datadir)/gforth$(ARCH)/$(VERSION)$(EXTRAPATH)
 
 # ------------  Source and Build directories
 

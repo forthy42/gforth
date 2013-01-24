@@ -36,17 +36,21 @@
 
 : lit, ( n -- ) postpone Literal ;
 
+: >int      ( token table -- )  name>int execute ;
+: >postpone ( token table -- )
+    dup (name>x) drop >namevt @ >vtpostpone perform ;
+
 : word-recognizer ( addr u -- xt | r:fail )
     find-name [ [IFDEF] prelude-mask ] run-prelude [ [THEN] ]
     dup 0= IF  drop ['] r:fail  THEN ;
 
 :noname ( n xt -- ) drop postpone Literal ;
-:noname ( n -- )  postpone Literal ;
+:noname ( n xt -- ) >r postpone Literal r> post, ;
 : r:num ;
 >vtable
 
 :noname ( d xt -- ) drop postpone 2Literal ;
-:noname ( d -- )  postpone 2Literal ;
+:noname ( d xt -- ) >r postpone 2Literal r> post, ;
 : r:2num ;
 >vtable
 
@@ -110,12 +114,6 @@ Variable forth-recognizer
 : ] ( -- ) \ core	right-bracket
     \G Enter compilation state.
     ['] compiler-r     IS parser1 state on  ;
-
-: >int      ( token table -- )  name>int execute ;
-: >comp     ( xt -- ) name>comp execute ;
-: >postpone ( token table -- )
-    dup >r (name>x) drop >namevt @ >vtlit, perform
-    r> lit, postpone >comp ;
 
 : postpone ( "name" -- ) \ core
     \g Compiles the compilation semantics of @i{name}.

@@ -1,6 +1,6 @@
 \ compiler definitions						14sep97jaw
 
-\ Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -165,7 +165,7 @@ defer header ( -- ) \ gforth
     ['] nextname-header IS (header) ;
 
 : noname-header ( -- )
-    0 last ! vt,  cfalign
+    0 last ! vt,  cfalign 0 ,
     input-stream ;
 
 : noname ( -- ) \ gforth
@@ -409,20 +409,6 @@ include ./recognizer.fs
 
 : (Field)  Header reveal dofield, ;
 
-\ \ interpret/compile:
-
-struct
-    >body
-    cell% field interpret/compile-int
-    cell% field interpret/compile-comp
-end-struct interpret/compile-struct
-
-: interpret/compile: ( interp-xt comp-xt "name" -- ) \ gforth
-    Create immediate swap A, A,
-DOES>
-    abort" executed primary cfa of an interpret/compile: word" ;
-\    state @ IF  cell+  THEN  perform ;
-
 \ IS Defer What's Defers TO                            24feb93py
 
 defer defer-default ( -- )
@@ -457,71 +443,74 @@ defer defer-default ( -- )
     [ has? peephole [IF] ] finish-code [ [THEN] ]
     defstart ;
 
-: !does    ( addr -- ) \ gforth	store-does
-    ['] spaces >namevt @ >vtcompile, @ vttemplate >vtcompile, !
-    latestxt does-code! ;
+\ : !does    ( addr -- ) \ gforth	store-does
+\     ['] spaces >namevt @ >vtcompile, @ !compile,
+\     latestxt does-code! ;
 
-:noname
-    here !does ]
-    defstart :-hook ;
-:noname
-    ['] !does does>-like :-hook ;
-interpret/compile: DOES>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ core        does
+extra>-dummy (doextra-dummy)
+: !extra   ( addr -- ) \ gforth store-extra
+    vttemplate >vtcompile, @ ['] udp >namevt @ >vtcompile, @ =
+    IF
+	['] extra, !compile,
+    THEN
+    latestxt extra-code! ;
+
+: DOES>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ core        extra
+    cfalign 0 , here !extra ] defstart :-hook ;
+compile> drop  ['] !extra does>-like :-hook ;
 
 \ compile> to define compile, action
 
-: vtable, ( compile,-xt tokenize-xt -- )
-    here vtable-list @ , vtable-list ! swap , , ;
-
-Create vttemplate 0 A, ' peephole-compile, A, ' noop A, \ initialize to one known vt
+Create vttemplate 0 A, ' peephole-compile, A, ' post, A, 0 A, ' no-to A, \ initialize to one known vt
 
 : vtcopy,     ( xt -- )  \ gforth	vtcopy-comma
     vttemplate here >namevt !
-    dup >namevt @ cell+ 2@ vttemplate cell+ 2!
+    dup >namevt @ vttemplate vtsize move
     here >namevt vttemplate !
     >code-address cfa, ;
 
 : vt= ( vt1 vt2 -- flag )
-    cell+ 2@ rot cell+ 2@ d= ;
+    cell+ swap vtsize cell /string tuck compare 0= ;
+
+: (vt,) ( -- )
+    align  here vtsize allot vttemplate over vtsize move
+    vtable-list @ over !  dup vtable-list !
+    vttemplate @ !  vttemplate off ;
 
 : vt, ( -- )  vttemplate @ 0= IF EXIT THEN
     vtable-list
     BEGIN  @ dup  WHILE
 	    dup vttemplate vt= IF  vttemplate @ !  vttemplate off  EXIT  THEN
-    REPEAT  drop
-    here dup vtable-list @ , vtable-list ! vttemplate cell+ 2@ , ,
-    vttemplate @ !  vttemplate off ;
+    REPEAT  drop (vt,) ;
 
 : !namevt ( addr -- )  latestxt >namevt ! ;
 
-: >vtable ( compile,-xt tokenize-xt -- )
-    swap vttemplate cell+ 2! ;
-
-: start-x ( -- xt ) \ incomplete, will not be a full xt
+: start-xt ( -- xt ) \ incomplete, will not be a full xt
     here >r docol: cfa, defstart ] :-hook r> ;
+: start-xt-like ( colonsys xt -- colonsys )
+    nip reveal does>-like drop start-xt drop ;
 
-: !compile, ( xt -- ) vttemplate >vtcompile, ! ;
-: !lit,     ( xt -- ) vttemplate >vtlit, ! ;
+: !compile,  ( xt -- ) vttemplate >vtcompile, ! ;
+: !postpone  ( xt -- ) vttemplate >vtpostpone ! ;
+: !to        ( xt -- ) vttemplate >vtto ! ;
 
-: start-compile> ( -- colon-sys )
-    start-x  !compile, ;
+: compile> ( -- colon-sys )
+    start-xt  !compile, ;
+compile> ['] !compile, start-xt-like ;  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth        compile-to
 
-: start-lit> ( -- colon-sys )
-    start-x  !lit, ;
-
-:noname  drop reveal ['] !compile, does>-like drop start-compile> ;
-: compile>  start-compile> ;
-' noop >vtable  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth        compile-to
-
-:noname  drop reveal ['] !lit,     does>-like drop start-lit> ;
-: lit>  start-lit> ;
-' noop >vtable  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth        compile-to
+: postpone> ( -- colon-sys )
+    start-xt  !postpone ;
+compile> ['] !postpone     start-xt-like ;  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth        lit-to
 
 \ defer and friends
 
 : defer! ( xt xt-deferred -- ) \ gforth  defer-store
 \G Changes the @code{defer}red word @var{xt-deferred} to execute @var{xt}.
     >body ! ;
+
+: value! ( xt xt-deferred -- ) \ gforth  defer-store
+    >body ! ;
+compile> drop >body postpone ALiteral postpone ! ;
     
 : <IS> ( "name" xt -- ) \ gforth
     \g Changes the @code{defer}red word @var{name} to execute @var{xt}.
@@ -532,14 +521,17 @@ Create vttemplate 0 A, ' peephole-compile, A, ' noop A, \ initialize to one know
     \g execute @var{xt}.
     record-name ' postpone ALiteral postpone defer! ; immediate restrict
 
-:noname  drop postpone [IS] ;
 : IS <IS> ;
-' noop >vtable
+compile> drop postpone [IS] ;
 
-' IS Alias TO
+: (int-to) ( val xt -- ) dup >namevt @ >vtto perform ;
+: (comp-to) ( xt -- ) dup >namevt @ >vtto @ compile, ;
 
-: interpret/compile? ( xt -- flag )
-    >does-code ['] DOES> >does-code = ;
+: TO ( value "name" -- )
+    (') (name>x) drop (int-to) ;
+compile> drop (') (name>x) drop (comp-to) ;
+
+: interpret/compile? ( xt -- flag ) drop false ;
 
 \ \ : ;                                                  	24feb93py
 
@@ -559,13 +551,18 @@ defer ;-hook ( sys2 -- sys1 )
     Header (:noname) ;
 
 : :noname ( -- xt colon-sys ) \ core-ext	colon-no-name
-    0 last !
-    vt, cfalign 0 , here (:noname) ;
+    0 last ! vt, cfalign 0 , here (:noname) ;
 
 : ; ( compilation colon-sys -- ; run-time nest-sys ) \ core	semicolon
     ;-hook ?struc [compile] exit
     [ has? peephole [IF] ] finish-code [ [THEN] ]
     reveal postpone [ ; immediate restrict
+
+\ new interpret/compile:
+
+: interpret/compile: ( interp-xt comp-xt "name" -- ) \ gforth
+    >r >r : r> compile, postpone ;
+    start-xt !compile, postpone drop r> compile, postpone ; ;
 
 \ \ Search list handling: reveal words, recursive		23feb93py
 

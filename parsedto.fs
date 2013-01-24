@@ -19,7 +19,7 @@
 
 : r:to (int-to) ;
 compile> drop (comp-to) ;
-lit> lit, ;
+postpone> >r lit, r> post, ;
 
 : to-recognizer ( addr u -- xt r:to | r:fail )
     2dup s" ->" string-prefix?  0= IF  2drop ['] r:fail  EXIT  THEN

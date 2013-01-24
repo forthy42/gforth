@@ -1,6 +1,6 @@
 \ miscelleneous words
 
-\ Copyright (C) 1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011 Free Software Foundation, Inc.
+\ Copyright (C) 1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -350,14 +350,12 @@ comp' sliteral drop alias postpone-sliteral
 
 [ifundef] defer@ : defer@ >body @ ; [then]
 
-:noname    ' defer@ ;
-:noname    postpone ['] postpone defer@ ;
-interpret/compile: action-of ( interpretation "name" -- xt; compilation "name" -- ; run-time -- xt ) \ gforth
+: action-of ( interpretation "name" -- xt; compilation "name" -- ; run-time -- xt ) \ gforth
+    ' defer@ ;
+compile> drop   postpone ['] postpone defer@ ;
 \G @i{Xt} is the XT that is currently assigned to @i{name}.
 
-' action-of
-comp' action-of drop
-interpret/compile: what's ( interpretation "name" -- xt; compilation "name" -- ; run-time -- xt ) \ gforth-obsolete
+' action-of Alias what's ( interpretation "name" -- xt; compilation "name" -- ; run-time -- xt ) \ gforth-obsolete
 \G Old name of @code{action-of}
 
 
@@ -476,7 +474,7 @@ previous
 \ quotations
 
 :noname  false :noname ;
-:noname  locals-wordlist last @ lastcfa @
+:noname  locals-wordlist last @ lastcfa @ leave-sp @
     postpone AHEAD
     locals-list @ locals-list off
     postpone SCOPE
@@ -490,6 +488,6 @@ interpret/compile: [: ( compile-time: -- quotation-sys ) \ gforth bracket-colon
 	]  postpone ENDSCOPE
 	locals-list !
 	postpone THEN
-	lastcfa ! last ! to locals-wordlist
+	leave-sp ! lastcfa ! last ! to locals-wordlist
 	r> postpone ALiteral
     ELSE  r>  THEN ( xt ) ; immediate

@@ -1,6 +1,6 @@
 /* signal handling
 
-  Copyright (C) 1995,1996,1997,1998,2000,2003,2006,2007,2011 Free Software Foundation, Inc.
+  Copyright (C) 1995,1996,1997,1998,2000,2003,2006,2007,2011,2012 Free Software Foundation, Inc.
 
   This file is part of Gforth.
 
@@ -157,7 +157,7 @@ static void fpe_handler(int sig, siginfo_t *info, void *_)
   int code;
 
   SIGPP(sig);
-  debugp(stderr,"\nfpe_handler %d %x %x\n", sig, info, _);
+  debugp(stderr,"\nfpe_handler %d %p %p\n", sig, info, _);
 
   switch(info->si_code) {
 #ifdef FPE_INTDIV

@@ -66,14 +66,20 @@ true [IF] \ !! don't know what to put here
 [THEN]
 
 doer? :doabicode [IF]
-(ABI-CODE) (abi-code-dummy)
+\ (ABI-CODE) (abi-code-dummy)
 : doabicode, ( -- )	\ gforth
     \G The code address of a @code{ABI-CODE} definition.
     ['] (abi-code-dummy) vtcopy, ;
 [THEN]
 
 doer? :do;abicode [IF]
-(;abi-code) (;abi-code-dummy)
+\ (;abi-code) (;abi-code-dummy)
 : do;abicode, ( -- )
     ['] (;abi-code-dummy) vtcopy, ;
+[THEN]
+
+doer? :doextra [IF]
+\ extra>-dummy (doextra-dummy)
+: doextra, ( -- )
+    ['] (doextra-dummy) vtcopy, ;
 [THEN]

@@ -1,6 +1,6 @@
 \ Compare nonrelocatable images and produce a relocatable image
 
-\ Copyright (C) 1996,1997,1998,2002,2003,2004,2007,2010 Free Software Foundation, Inc.
+\ Copyright (C) 1996,1997,1998,2002,2003,2004,2007,2010,2012 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -18,7 +18,7 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 s" address-unit-bits" environment? drop constant bits/au
-7 constant dodoes-tag
+10 constant maxdoer-tag
 
 : write-cell { w^ w  file-id -- ior }
     \ write a cell to the file
@@ -47,7 +47,7 @@ s" address-unit-bits" environment? drop constant bits/au
     base offset ;
 
 : >tag ( index -- tag )
-    dup dodoes-tag 2 + > IF
+    dup maxdoer-tag > IF
 	$21 1 DO  dup tag-offsets I cells + @ < IF
 		tag-offsets I 1- cells + @ - I 1- 9 lshift + negate
 		UNLOOP  EXIT  THEN  LOOP

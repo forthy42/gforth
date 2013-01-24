@@ -645,14 +645,19 @@ does> ( item -- )
  prim prim-effect-in prim prim-effect-in-end @ declaration-list
  prim prim-effect-out prim prim-effect-out-end @ declaration-list ;
 
+Variable maybe-unused
+
 : print-declaration { item -- }
     item item-first @ if
+	maybe-unused @ IF  ." MAYBE_UNUSED "  THEN
 	item item-type @ type-c-name 2@ type space
 	item item-name 2@ type ." ;" cr
     endif ;
 
 : print-declarations ( -- )
+    maybe-unused on
     prim prim-effect-in  prim prim-effect-in-end  @ ['] print-declaration map-items
+    maybe-unused off
     prim prim-effect-out prim prim-effect-out-end @ ['] print-declaration map-items ;
     
 : stack-prefix ( stack "prefix" -- )

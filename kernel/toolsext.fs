@@ -1,4 +1,4 @@
-\ Copyright (C) 1995,1998,2000,2003,2005,2007,2009,2010 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1998,2000,2003,2005,2007,2009,2010,2012 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -145,9 +145,9 @@ User (i)
 : [NEXT] ( n -- ) \ gforth bracket-next
   -1 rdrop ;                                          immediate
 
-:noname (i) @ ;
-:noname (i) @ postpone Literal ;
-interpret/compile: [I] ( -- n ) \ gforth bracket-i
+: [I] ( -- n ) \ gforth bracket-i
+    (i) @ ;
+compile> (i) @ postpone Literal ;
 
 : [BEGIN] ( -- ) \ gforth bracket-begin
   >in @ >r BEGIN r@ >in ! interpret UNTIL rdrop ;     immediate

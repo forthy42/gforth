@@ -1,6 +1,6 @@
 \ assertions
 
-\ Copyright (C) 1995,1996,1997,1999,2002,2003,2007,2010 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1999,2002,2003,2007,2010,2012 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -72,10 +72,11 @@ variable assert-level ( -- a-addr ) \ gforth
 : debug-does>  DOES>  @
     IF ['] noop assert-canary  ELSE  postpone (  THEN ;
 : debug: ( -- ) Create false ,
-    debug-does>  COMPILE>  >body
+    debug-does>
+COMPILE>  >body
     ]] Literal @ IF [[ [: ]] THEN [[ ;] assert-canary ;
 : )else(  ]] ) ( [[ ;
-    compile> drop 2>r ]] ELSE [[ 2r> ;
+compile> drop 2>r ]] ELSE [[ 2r> ;
 : else( ['] noop assert-canary ; immediate
 
 : +db ( "word" -- ) ' >body on ;

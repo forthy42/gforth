@@ -140,7 +140,7 @@ void android_main(struct android_app* state)
 
   retvalue=gforth_start(argc, argv);
   
-  if(retvalue > 0) {
+  if(retvalue == -56) {
     gforth_execute(gforth_find("bootmessage"));
     retvalue = gforth_quit();
   }

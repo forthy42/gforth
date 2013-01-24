@@ -1,6 +1,6 @@
 /* Gforth virtual machine (aka inner interpreter)
 
-  Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2010,2011 Free Software Foundation, Inc.
+  Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2010,2011,2012 Free Software Foundation, Inc.
 
   This file is part of Gforth.
 
@@ -352,7 +352,7 @@ Label *gforth_engine(Xt *ip0 sr_proto)
   long long llrv;
   void * prv;
 #endif
-  register Address up UPREG = gforth_UP;
+  register user_area* up UPREG = gforth_UP;
 #if !defined(GFORTH_DEBUGGING)
   register Cell MAYBE_UNUSED spTOS TOSREG;
   register Cell MAYBE_UNUSED spb spbREG;
@@ -401,9 +401,9 @@ Label *gforth_engine(Xt *ip0 sr_proto)
 
   rp = gforth_RP;
 #ifdef DEBUG
-  debugp(stderr,"ip=%x, sp=%x, rp=%x, fp=%x, lp=%x, up=%x\n",
-	 (unsigned)ip0,(unsigned)sp,(unsigned)rp,
-	 (unsigned)fp,(unsigned)lp,(unsigned)up);
+  debugp(stderr,"ip=%lx, sp=%lx, rp=%lx, fp=%lx, lp=%lx, up=%lx\n",
+	 (Cell)ip0,(Cell)sp,(Cell)rp,
+	 (Cell)fp,(Cell)lp,(Cell)up);
 #endif
 
   if (ip0 == NULL) {
@@ -416,12 +416,12 @@ Label *gforth_engine(Xt *ip0 sr_proto)
     Cell xt_offset = offset_image? XT_OFFSET : 0;
     Cell label_offset = offset_image? LABEL_OFFSET : 0;
 
-    debugp(stderr, "offsets code/xt/label: %x/%x/%x\n",
+    debugp(stderr, "offsets code/xt/label: %lx/%lx/%lx\n",
 	   code_offset, xt_offset, label_offset);
 
     symbols = (Label *)(malloc(MAX_SYMBOLS*sizeof(Cell)+CODE_OFFSET)+code_offset);
     xts = (Label *)(malloc(MAX_SYMBOLS*sizeof(Cell)+XT_OFFSET)+xt_offset);
-    labels = (void **)(malloc(MAX_SYMBOLS*sizeof(Cell)+LABEL_OFFSET)+label_offset);
+    labels = (Label *)(malloc(MAX_SYMBOLS*sizeof(Cell)+LABEL_OFFSET)+label_offset);
     
     for (i=0; i<DOER_MAX+1; i++) {
       labels[i] = routines[i];
@@ -433,7 +433,7 @@ Label *gforth_engine(Xt *ip0 sr_proto)
 	exit(1);
       }
       labels[i] = routines[i];
-      xts[i] = symbols[i] = &labels[i];
+      xts[i] = symbols[i] = (Label)&labels[i];
     }
 #endif /* defined(DOUBLY_INDIRECT) */
 #ifdef STANDALONE

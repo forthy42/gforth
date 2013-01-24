@@ -210,7 +210,7 @@ FVariable factor  1e factor f!
     bl sword r/w create-file throw to outfile-id
     img-sizes wordlist-id
     BEGIN  @ dup  WHILE
-	    dup name>int execute
+	    dup name>int execute  >link
     REPEAT  drop
     outfile-id close-file throw
     r> to outfile-id

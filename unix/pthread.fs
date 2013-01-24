@@ -49,9 +49,9 @@ c-library pthread
     \c   gforth_SP=(Cell*)(t->sp0)-1;
     \c   gforth_RP=(Cell*)(t->rp0);
     \c   gforth_FP=(Float*)(t->fp0);
-    \c   gforth_LP=(void*)(t->lp0);
+    \c   gforth_LP=(Address)(t->lp0);
     \c
-    \c   pthread_cleanup_push(gforth_free_stacks, (void*)t);
+    \c   pthread_cleanup_push((void (*)(void*))gforth_free_stacks, (void*)t);
     \c 
     \c   throw_jmp_handler = &throw_jmp_buf;
     \c   ((Cell*)(t->sp0))[-1]=(Cell)t;

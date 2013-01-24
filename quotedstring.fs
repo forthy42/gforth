@@ -21,7 +21,7 @@
 
 : r:string ;
 compile> drop slit, ;
-lit> slit, ;
+postpone> >r slit, r> post, ;
 
 : string-recognizer ( addr u -- addr u' r:string | r:fail )
     2dup s\" \"" string-prefix?

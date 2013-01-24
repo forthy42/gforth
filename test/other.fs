@@ -104,6 +104,8 @@ test-only
 
 \ create-interpret/compile
 
+[IFDEF] interpretation>
+
 : my-constant ( n "name" -- )
     create-interpret/compile
     ,
@@ -118,6 +120,8 @@ compilation>
 five 5 <> throw
 : five' five ;
 five' 5 <> throw
+
+[THEN]
 
 \ structs and alignment
 

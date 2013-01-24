@@ -365,7 +365,7 @@ VARIABLE C-Pass
 	over 1 cells + @ decompile-prim ['] call xt= >r
 	over 3 cells + @ decompile-prim ['] ;S xt=
 	r> and if
-	    over 2 cells + @ ['] !does >body = if  drop
+	    over 2 cells + @ ['] !extra >body = if  drop
 		S" DOES> " Com# ?.string 4 cells + EXIT endif
 	endif
 	[IFDEF] !;abi-code
@@ -627,6 +627,7 @@ VARIABLE C-Pass
 CREATE C-Table
 	        ' lit A,            ' c-lit A,
 		' does-exec A,	    ' c-callxt A,
+		' extra-exec A,	    ' c-callxt A,
 		' lit@ A,	    ' c-call A,
 [IFDEF] call	' call A,           ' c-call A, [THEN]
 \		' useraddr A,	    ....

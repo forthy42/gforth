@@ -1,6 +1,6 @@
 /* common header file
 
-  Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011 Free Software Foundation, Inc.
+  Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012 Free Software Foundation, Inc.
 
   This file is part of Gforth.
 
@@ -102,7 +102,8 @@
 #define DODOES	7
 #define DOABICODE	8
 #define DOSEMIABICODE   9
-#define DOER_MAX        9
+#define DOEXTRA	10
+#define DOER_MAX        10
 
 #include "machine.h"
 
@@ -267,6 +268,12 @@ typedef Label *Xt;
 #define DOES_CODE1(cfa)	((Xt *)(cfa[1]))
 /* MAKE_CF creates an appropriate code field at the cfa;
    ca is the code address */
+#define VTLINK 0
+#define VTCOMPILE 1
+#define VTLIT 2
+#define VTEXTRA 3
+#define VTTO 4
+#define EXTRA_CODE(cfa) ((Xt *)(((Cell **)cfa)[-1][VTEXTRA]))
 #define MAKE_CF(cfa,ca) ((*(Label *)(cfa)) = ((Label)ca))
 /* make a code field for a defining-word-defined word */
 
@@ -407,7 +414,7 @@ Label *gforth_engine3(Xt *ip sr_proto);
 
 Cell gforth_main(int argc, char **argv, char **env);
 void gforth_args(int argc, char ** argv, char ** path, char ** imagename);
-Address gforth_loader(char* imagename, char* path);
+ImageHeader* gforth_loader(char* imagename, char* path);
 user_area* gforth_stacks(Cell dsize, Cell rsize, Cell fsize, Cell lsize);
 void gforth_free_stacks(user_area* t);
 void gforth_free();

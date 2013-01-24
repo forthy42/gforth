@@ -1,7 +1,7 @@
 \ CROSS.FS     The Cross-Compiler                      06oct92py
 \ Idea and implementation: Bernd Paysan (py)
 
-\ Copyright (C) 1995,1996,1997,1998,1999,2000,2003,2004,2005,2006,2007,2009,2010,2011 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,1999,2000,2003,2004,2005,2006,2007,2009,2010,2011,2012 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -1108,9 +1108,13 @@ Ghost lit@ drop
 Ghost lit-perform drop
 Ghost lit+ drop
 Ghost does-exec drop
+Ghost extra-exec drop
+Ghost no-to drop
+Ghost post, drop
 
 Ghost :docol    Ghost :doesjump Ghost :dodoes   2drop drop
 Ghost :dovar	Ghost dovar-vt	Ghost dodoes-vt	2drop drop
+Ghost :doextra  Ghost doextra-vt Ghost extra,   2drop drop
 
 \ \ Parameter for target systems                         06oct92py
 
@@ -1732,7 +1736,7 @@ Ghost (do)      Ghost (?do)                     2drop
 Ghost (for)                                     drop
 Ghost (loop)    Ghost (+loop)   Ghost (-loop)   2drop drop
 Ghost (next)                                    drop
-Ghost !does                                     drop
+Ghost !does     Ghost !extra                    2drop
 Ghost compile,                                  drop
 Ghost (.")      Ghost (S")      Ghost (ABORT")  2drop drop
 Ghost (C")      Ghost c(abort") Ghost type      2drop drop
@@ -2634,7 +2638,7 @@ ghost :-dummy Constant :-ghost
   >in @ skip? IF  drop skip-defs  EXIT  THEN  >in !
   :-ghost executed-ghost !  (THeader (:) ;
 
-: :noname ( -- colon-sys )
+: :noname ( -- xt colon-sys )
   switchrom X cfalign
   :-ghost >do:ghost @ >exec2 @ addr,  there 
   \ define a nameless ghost
@@ -2685,8 +2689,49 @@ Cond: [ ( -- ) interpreting-state ;Cond
     r@ created >do:ghost ! r@ swap resolve
     r> tlastcfa @ >tempdp dodoes, tempdp> ;
 
+Defer !extra
+
 Defer instant-interpret-does>-hook  ' noop IS instant-interpret-does>-hook
 
+>TARGET
+
+X has? new-does [IF]
+X has? primcentric [IF]
+: does-resolved ( ghost -- )
+    compile does-exec g>xt T a, H ;
+: extra-resolved ( ghost -- )
+    compile extra-exec g>xt T a, H ;
+[ELSE]
+: does-resolved ( ghost -- )
+    g>xt T a, H ;
+: extra-resolved ( ghost -- )
+    g>xt T a, H ;
+[THEN]
+
+: resolve-does>-part ( -- )
+\ resolve words made by builders
+  Last-Header-Ghost @ >do:ghost @ ?dup 
+  IF  there resolve  THEN ;
+
+Cond: DOES>
+        T here H [ T has? primcentric H [IF] ] 5 [ [ELSE] ] 4 [ [THEN] ] T cells
+        H + alit, compile !extra compile ;s
+        doeshandler, resolve-does>-part
+        ;Cond
+
+: DOES>
+    ['] does-resolved created >comp !
+    switchrom doeshandler, T here H !does 
+    instant-interpret-does>-hook
+depth T ] H ;
+
+: EXTRA>
+    ['] extra-resolved created >comp !
+    switchrom T align H
+    doeshandler, !extra 
+    instant-interpret-does>-hook
+    depth T ] H ;
+[ELSE]
 T has? primcentric H [IF]
 : does-resolved ( ghost -- )
 \    g>xt dup T >body H alit, compile call T cell+ @ a, H ;
@@ -2701,7 +2746,6 @@ T has? primcentric H [IF]
   Last-Header-Ghost @ >do:ghost @ ?dup 
   IF  there resolve  THEN ;
 
->TARGET
 Cond: DOES>
         T here H [ T has? primcentric H [IF] ] 5 [ [ELSE] ] 4 [ [THEN] ] T cells
         H + alit, compile !does compile ;s
@@ -2713,6 +2757,7 @@ Cond: DOES>
     switchrom doeshandler, T here H !does 
     instant-interpret-does>-hook
     depth T ] H ;
+[THEN]
 
 >CROSS
 \ Creation                                              01nov92py
@@ -2829,17 +2874,71 @@ Variable tvtable-list
 Ghost docol-vt drop
 
 >TARGET
-: vtable, ( compile-xt tokenize-xt -- )
-    tvtable-list @ T here swap A, H tvtable-list !
-    swap T A, A, H ;
+5 T cells H Constant vtsize
+>CROSS
 
-: vtable: ( compile-xt tokenize-xt "name" -- )
-    Ghost >do:ghost @ >exec2 @ hereresolve T vtable, H ;
+Create vttemplate vtsize allot
+
+: vt= ( vt1 vt2 -- flag )
+    T cell+ H swap vtsize T cell H /string tuck compare 0= ;
+
+: (vt,) ( -- )
+    T align  here vtsize allot H vttemplate over >ramimage vtsize move
+    tvtable-list @ over T ! H  dup tvtable-list !
+    vttemplate @ T ! H  vttemplate off ;
+
+: vt, ( -- )  vttemplate @ 0= IF EXIT THEN
+    tvtable-list
+    BEGIN  @ dup  WHILE
+	    dup >ramimage vttemplate vt= IF
+		vttemplate @ T ! H  vttemplate off  EXIT  THEN
+	    >ramimage
+    REPEAT  drop (vt,) ;
+
+>TARGET
+: vtable, ( compile-xt tokenize-xt to-xt ghost -- )
+    >r tvtable-list @ T here swap A, H tvtable-list !
+    swap rot T A, A, H
+    r> dup IF
+	dup >do:ghost @ >magic @ <do:> <> IF
+	    ." vtable: " dup >ghostname type space
+	    dup >magic @ hex. space
+	    >do:ghost @  dup >ghostname type space
+	    dup >magic @ hex. cr
+	    addr,  T A, H EXIT
+	THEN
+    THEN
+    T A, A, H
+    ( extra field for dodoes, to-field ) ;
+
+: vtable: ( compile-xt tokenize-xt to-xt "name" -- )
+    Ghost dup >do:ghost @ >exec2 @ hereresolve T vtable, H ;
 
 : >vtable ( compile-xt tokenize-xt -- )
     T here H lastxt T 0 cell+ H -
-    dup [G'] docol-vt killref T ! vtable, H ;
+    dup [G'] docol-vt killref T ! H [T'] no-to 0 T vtable, H ;
+
+: compile> ( -- colon-sys )
+    T cfalign here vtsize cell+ H + [T'] post, T >vtable :noname H drop ; 
 >CROSS
+
+\ instantiate deferred extra, now
+
+:noname ( -- )
+    tlastcfa @ [G'] :dovar killref
+    tlastcfa @ t>namevt [G'] dovar-vt killref
+    >space here >r ghostheader space>
+    ['] colon-resolved r@ >comp !
+    r@ created >do:ghost !
+    >space here >r ghostheader space>
+    r@ created >do:ghost @ >exec2 !
+    T align H r> hereresolve
+    r> T here vtsize H + resolve
+    [T'] extra, [T'] post, [T'] no-to created T vtable, here H
+    tlastcfa @ t>namevt >tempdp
+    created >do:ghost @ >exec2 @ addr, tempdp>
+    tlastcfa @ >tempdp [G'] :doextra (doer,) tempdp> ;
+IS !extra
 
 : ;DO ( [xt] [colon-sys] -- )
   postpone ; doexec! ; immediate
@@ -2867,10 +2966,17 @@ Build: ;Build
 by: :doprim ;DO \ :doprim is a dummy, we will not use it
 vt: doprim-vt
 
+<do:> Ghost :doprim >magic !
+
 Builder does>-dummy
 Build: ;Build
 by: :dodoes ;DO
 vt: dodoes-vt
+
+Builder extra>-dummy
+Build: ;Build
+by: :doextra ;DO
+vt: doextra-vt
 
 \ Variables and Constants                              05dec92py
 
@@ -3062,11 +3168,15 @@ vt: ;abicode-vt
 Builder input-method
 Build: ( m v -- m' v )  dup T , cell+ H ;Build
 DO:  abort" Not in cross mode" ;DO
+\ by: :doextra noop ;DO
+\ vt: imethod-vt
 vt: dodoes-vt
 
 Builder input-var
 Build: ( m v size -- m v' )  over T , H + ;Build
 DO:  abort" Not in cross mode" ;DO
+\ by: :doextra noop ;DO
+\ vt: ivar-vt
 vt: dodoes-vt
 
 \ Mini-OOF

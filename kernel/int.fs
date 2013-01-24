@@ -1,6 +1,6 @@
 \ definitions needed for interpreter only
 
-\ Copyright (C) 1995-2000,2004,2005,2007,2009,2010 Free Software Foundation, Inc.
+\ Copyright (C) 1995-2000,2004,2005,2007,2009,2010,2012 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -22,6 +22,14 @@
 \       put in seperate file				14sep97jaw 
 
 \ \ input stream primitives                       	23feb93py
+
+has? new-does [IF]
+    : extra, ['] extra-exec peephole-compile, , ;
+    : >comp  ( xt -- ) name>comp execute ;
+    : post,  ( xt -- ) lit, postpone >comp ;
+    : no-to ( -- )  -32 throw ;
+    compile> -32 throw ;
+[THEN]
 
 require ./basics.fs 	\ bounds decimal hex ...
 require ./io.fs		\ type ...
@@ -309,21 +317,11 @@ $0fffffff constant lcount-mask
 : compile-only-error ( ... -- )
     -&14 throw ;
 
-: (cfa>int) ( cfa -- xt )
-[ has? compiler [IF] ]
-    dup interpret/compile?
-    if
-	interpret/compile-int @
-    then 
-[ [THEN] ] ;
-
 : (x>int) ( cfa w -- xt )
     \ get interpretation semantics of name
     restrict-mask and [ has? rom [IF] ] 0= [ [THEN] ]
     if
 	drop ['] compile-only-error
-    else
-	(cfa>int)
     then ;
 
 has? f83headerstring [IF]
@@ -349,7 +347,10 @@ has? f83headerstring [IF]
 
     (field) >vtlink      0 cells ,
     (field) >vtcompile,  1 cells ,
-    (field) >vtlit,      2 cells ,
+    (field) >vtpostpone  2 cells ,
+    (field) >vtextra     3 cells ,
+    (field) >vtto        4 cells ,
+    5 cells Constant vtsize
     
     : name>string ( nt -- addr count ) \ gforth     name-to-string
 	\g @i{addr count} is the name of the word represented by @i{nt}.
@@ -377,18 +378,11 @@ has? f83headerstring [IF]
     (name>x) restrict-mask and [ has? rom [IF] ] 0= [ [THEN] ]
     if
 	ticking-compile-only-error \ does not return
-    then
-    (cfa>int) ;
+    then ;
 
 : (name>comp) ( nt -- w +-1 ) \ gforth
     \G @i{w xt} is the compilation token for the word @i{nt}.
     (name>x) >r 
-[ has? compiler [IF] ]
-    dup interpret/compile?
-    if
-        interpret/compile-comp @
-    then 
-[ [THEN] ]
     r> immediate-mask and [ has? rom [IF] ] 0= [ [THEN] ] flag-sign
     ;
 
@@ -502,7 +496,11 @@ has? standardthreading has? compiler and [IF]
     dup @ dodoes: = if
 	cell+ @
     else
-	drop 0
+	dup @ doextra: = IF
+	    >namevt @ >vtextra @
+	ELSE
+	    drop 0
+	THEN
     endif ;
 
 has? prims [IF]
@@ -517,7 +515,7 @@ alias code-address! ( c_addr xt -- ) \ gforth
 : any-code! ( a-addr cfa code-addr -- )
     \ for implementing DOES> and ;ABI-CODE, maybe :
     \ code-address is stored at cfa, a-addr at cfa+cell
-    over ! cell+ ! ;
+    over !  >namevt @ >vtextra ! ;
     
 : does-code! ( a-addr xt -- ) \ gforth
 \G Create a code field at @i{xt} for a child of a @code{DOES>}-word;
@@ -525,8 +523,13 @@ alias code-address! ( c_addr xt -- ) \ gforth
     [ has? flash [IF] ]
     dodoes: over flash! cell+ flash!
     [ [ELSE] ]
-    dodoes: any-code! 
+    dodoes: over ! cell+ ! 
     [ [THEN] ] ;
+
+: extra-code! ( a-addr xt -- ) \ gforth
+\G Create a code field at @i{xt} for a child of a @code{EXTRA>}-word;
+\G @i{a-addr} is the start of the Forth code after @code{EXTRA>}.
+    doextra: any-code! ;
 
 2 cells constant /does-handler ( -- n ) \ gforth
 \G The size of a @code{DOES>}-handler (includes possible padding).
@@ -914,7 +917,7 @@ Defer mark-end
 
 : gforth ( -- )
     ." Gforth " version-string type 
-    ." , Copyright (C) 1995-2011 Free Software Foundation, Inc." cr
+    ." , Copyright (C) 1995-2012 Free Software Foundation, Inc." cr
     ." Gforth comes with ABSOLUTELY NO WARRANTY; for details type `license'"
 [ has? os [IF] ]
      cr ." Type `bye' to exit"

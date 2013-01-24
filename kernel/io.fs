@@ -1,6 +1,6 @@
 \ input output basics				(extra since)	02mar97jaw
 
-\ Copyright (C) 1995,1996,1997,1998,2000,2003,2006,2007 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,2000,2003,2006,2007,2012 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -132,7 +132,7 @@ Create spaces ( u -- ) \ core
 DOES>   ( u -- ) spaces-loop ;
 Create backspaces
   08 80 times \ times from target compiler! 11may93jaw
-DOES>   ( u -- ) spaces-loop ;
+EXTRA>   ( u -- ) spaces-loop ;
 hex
 [THEN]
 

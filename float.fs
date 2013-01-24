@@ -1,6 +1,6 @@
 \ High level floating point                            14jan94py
 
-\ Copyright (C) 1995,1997,2003,2004,2005,2006,2007,2009,2010,2011 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1997,2003,2004,2005,2006,2007,2009,2010,2011,2012 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -153,7 +153,7 @@ si-prefixes count bl scan drop Constant zero-exp
 [ifdef] r:fail
     : r:fnumber ;
     compile> drop postpone Fliteral ;
-    lit> postpone Fliteral ;
+    postpone> >r postpone Fliteral r> post, ;
 
     : fnum-recognizer ( addr u -- float int-table | r:fail )
 	prefix-number
