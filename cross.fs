@@ -1721,8 +1721,9 @@ T has? relocate H
 : c,    ( char -- )     T here H tchar T allot c! H ;
 : >align ( n -- )       0 ?DO  bl T c, H tchar +LOOP ;
 : align ( -- )          T here H align+ T >align H ;
-: cfalign ( -- )
-    T here H cfalign+ 0 ?DO  bl T c, H tchar +LOOP ;
+: cfoddalign ( n -- )
+	T here H + cfalign+ 0 ?DO  bl T c, H  tchar +LOOP ;
+: cfalign ( -- ) 0 T cfoddalign H ;
 
 : >address		dup 0>= IF tbyte / THEN ; \ ?? jaw 
 : A!                    swap >address swap dup relon T ! H ;
@@ -2100,8 +2101,7 @@ X has? f83headerstring [IF]
 : name,  ( "name" -- )  bl word count ht-header, X cfalign ;
 [ELSE]
     : name,  ( "name" -- )  bl word count
-	dup T here cell+ H + cfalign+ 0 ?DO  bl T c, H  LOOP
-	ht-nlstring, X cfalign ;
+	dup T cell+ cfoddalign H ht-nlstring, X cfalign ;
 [THEN]
 : view,   ( -- ) ( dummy ) ;
 >CROSS
@@ -2919,7 +2919,7 @@ Create vttemplate vtsize allot
     dup [G'] docol-vt killref T ! H [T'] no-to 0 T vtable, H ;
 
 : compile> ( -- colon-sys )
-    T cfalign here vtsize cell+ H + [T'] post, T >vtable :noname H drop ; 
+    T 0 cell+ cfoddalign here vtsize cell+ H + [T'] post, T >vtable :noname H drop ; 
 >CROSS
 
 \ instantiate deferred extra, now
