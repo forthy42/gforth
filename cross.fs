@@ -2908,7 +2908,7 @@ Create vttemplate vtsize allot
 	    addr,  T A, H EXIT
 	THEN
     THEN
-    T A, A, H
+    drop T 0 A, A, H
     ( extra field for dodoes, to-field ) ;
 
 : vtable: ( compile-xt tokenize-xt to-xt "name" -- )
