@@ -42,8 +42,13 @@ has? ec [IF] [IFUNDEF] hash
 [THEN] [THEN]
 
 [IFUNDEF] hash
-: hash ( addr len -- key )
-    hashbits (hashkey1) ;
+    [IFDEF] (hashkey2)
+	: hash ( addr len -- key )
+	    hashbits (hashkey2) ;
+    [ELSE]
+	: hash ( addr len -- key )
+	    hashbits (hashkey1) ;
+    [THEN]
 [THEN]
 
 Variable insRule        insRule on

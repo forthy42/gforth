@@ -22,6 +22,7 @@
 #include "128bit.h"
 #include <stdio.h>
 #include <sys/time.h>
+#include <stdint.h>
 #include <unistd.h>
 #ifndef STANDALONE
 #if defined(HAVE_LIBLTDL)
@@ -378,6 +379,11 @@ struct Cellquad {
   Cell n4;
 };
 
+typedef struct _hash128 {
+  uint64_t a;
+  uint64_t b;
+} hash128;
+
 #define IOR(flag)	((flag)? -512-errno : 0)
 
 #ifdef GFORTH_DEBUGGING
@@ -448,6 +454,7 @@ struct Longname *listlfind(Char *c_addr, UCell u, struct Longname *longname1);
 struct Longname *hashlfind(Char *c_addr, UCell u, Cell *a_addr);
 struct Longname *tablelfind(Char *c_addr, UCell u, Cell *a_addr);
 UCell hashkey1(Char *c_addr, UCell u, UCell ubits);
+void hashkey2(Char *c_addr, UCell u, uint64_t upmask, hash128 * h);
 struct Cellpair parse_white(Char *c_addr1, UCell u1);
 Cell rename_file(Char *c_addr1, UCell u1, Char *c_addr2, UCell u2);
 struct Cellquad read_line(Char *c_addr, UCell u1, FILE *wfileid);

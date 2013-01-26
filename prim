@@ -1699,6 +1699,17 @@ Create rot-values
   7 c, 5 c, 5 c, 5 c, 5 c,  6 c, 5 c, 5 c, 5 c, 5 c,
   7 c, 5 c, 5 c,
 
+(hashkey2) ( c_addr u ubits -- ukey )		gforth	paren_hashkey2
+""This is the compatible form of the fast 64 bit hash""
+hash128 hash = { 0L, 0L };
+hashkey2(c_addr, u, 0x2020202020202020L, &hash);
+ukey=(Cell)(hash.a ^ hash.b) & ((1<<ubits)-1);
+
+hashkey2  ( c_addr u f a_addr -- )	gforth	hashkey2
+""Compute a 128 bit hash key of the string c_addr u, starting with the
+key in a_addr.  If f is true, compute case insensitive.""
+hashkey2(c_addr, u, f ? 0x2020202020202020L : 0L, (hash128*)a_addr);
+
 \+
 
 \+

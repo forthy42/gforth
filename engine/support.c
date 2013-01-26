@@ -277,6 +277,47 @@ UCell hashkey1(Char *c_addr, UCell u, UCell ubits)
   return ukey;
 }
 
+#define ROL(x, n) ((x << n) | (x >> (64-n)))
+
+#define MIXKEY2 \
+  a1=ROL((a+(b^x1))*c1,37)+x3; \
+  b1=ROL(((b-ROL(a,13))^x2)*c2,23)+x4;		\
+  a^=a1; b^=b1
+
+void hashkey2(Char* c_addr, UCell u, uint64_t upmask, hash128 *h)
+{
+  uint64_t a=h->a, b=h->b;
+  int i;
+  const uint64_t
+    c1=0x87c37b91114253d5L, c2=0x4cf5ad432745937fL,
+    x1=0x6c5f6f6cbe627173L, x2=0x7164c30603661c2fL,
+    x3=0xce5009401b441347L, x4=0x454fa335a6e63ad3L;
+  uint64_t mixin, a1, b1;
+
+  for(i=0; i<(u>>3); i++) {
+    memcpy(&mixin, c_addr+i*sizeof(uint64_t), sizeof(uint64_t));
+    // printf("+%lx\n", mixin);
+    mixin |= upmask & ~(mixin >> 2);
+    a ^= mixin;
+    MIXKEY2;
+  }
+  memcpy(&mixin, c_addr+i*sizeof(uint64_t), sizeof(uint64_t));
+  mixin |= upmask & ~(mixin >> 2);
+#ifdef WORDS_BIGENDIAN
+  mixin &= ~(0xffffffffffffffffL >> 8*(u&7));
+  mixin |= (uint64_t)(u&7);
+#else
+  mixin &= 0x00ffffffffffffffL >> 8*(7-(u&7));
+  mixin |= (uint64_t)(u&7) << 56;
+#endif
+  // printf("+%lx\n", mixin);
+  a ^= mixin;
+  MIXKEY2;
+  MIXKEY2; // finalizing round
+
+  h->a = a; h->b = b;
+}
+
 struct Cellpair parse_white(Char *c_addr1, UCell u1)
 {
   /* use !isgraph instead of isspace? */
