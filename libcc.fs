@@ -552,7 +552,7 @@ create gen-wrapped-types
     ['] write-c-prefix-line is save-c-prefix-line ;
    
 : c-library-name-create ( -- )
-    lib-filename 2@ s" .c" s+ 2dup w/o create-file throw
+    lib-filename 2@ s" .c" s+ 2dup r/w create-file throw
     c-source-file-id !
     drop free throw ;
 
@@ -560,14 +560,11 @@ create gen-wrapped-types
     \ set up filenames for a (possibly new) library; c-addr u is the
     \ basename of the library
     libcc-named-dir prepend-dirname c-library-name-setup
-    open-wrappers dup if
-	lib-handle-addr @ !
-    else
-        libcc-named-dir $1ff mkdir-parents drop
-	drop c-library-name-create
-	c-prefix-lines @ ['] print-c-prefix-line \ first line only
-	c-source-file-id @ outfile-execute
-    endif ;
+    open-wrappers lib-handle-addr @ !
+    libcc-named-dir $1ff mkdir-parents drop
+    c-library-name-create
+    c-prefix-lines @ ['] print-c-prefix-line \ first line only
+    c-source-file-id @ outfile-execute ;
 
 : c-tmp-library-name ( c-addr u -- )
     \ set up filenames for a new library; c-addr u is the basename of
@@ -580,11 +577,11 @@ create gen-wrapped-types
     lib-handle-addr @ @ ;
 
 : init-c-source-file ( -- )
-    lib-handle 0= if
-	c-source-file-id @ 0= if
-	    here gen-filename c-tmp-library-name
-	endif
+\    lib-handle 0= if
+    c-source-file-id @ 0= if
+	here gen-filename c-tmp-library-name
     endif ;
+\    endif ;
 
 : c-source-file ( -- file-id )
     c-source-file-id @ assert( dup ) ;
@@ -599,11 +596,11 @@ create gen-wrapped-types
 
 : c-source-file-execute ( ... xt -- ... )
     \ direct the output of xt to c-source-file, or nothing
-    lib-handle if
-	notype-execute
-    else
-	c-source-file outfile-execute
-    endif ;
+\    lib-handle if
+\	notype-execute
+\    else
+    c-source-file outfile-execute ;
+\    endif ;
 
 : .lib-error ( -- )
     [ifdef] lib-error
@@ -611,8 +608,44 @@ create gen-wrapped-types
         lib-error ['] type stderr outfile-execute
     [then] ;
 
+\ hashing
+
+[IFUNDEF] hashkey2
+    : hash-c-source ( -- ) ;
+    : check-c-hash ( -- ) ;
+[ELSE]
+    Create c-source-hash 16 allot
+
+    : .bytes ( addr u -- ) bounds ?DO
+	    I c@ 0 .r I 1+ I' <> IF ." , " THEN LOOP ;
+    : .c-hash ( -- )
+	." hash_128 gflibcc_hash_" lib-filename 2@ basename type
+	."  = { " c-source-hash 16 .bytes ." };" cr ;
+    
+    : hash-c-source ( -- )
+	c-source-hash 16 erase
+	c-source-file flush-file throw
+	0. c-source-file reposition-file throw
+	c-source-file file-size throw drop { fsize }
+	fsize allocate throw
+	dup fsize c-source-file read-file throw drop
+	dup fsize false c-source-hash hashkey2
+	free throw
+	['] .c-hash c-source-file-execute ;
+
+    : check-c-hash ( -- )
+	lib-handle 0= ?EXIT
+	s" gflibcc_hash_" lib-filename 2@ basename s+
+	lib-handle lib-sym
+	?dup-IF  c-source-hash 16 tuck compare  ELSE  true  THEN
+	IF  lib-handle close-lib  lib-handle-addr @ off  THEN ;
+[THEN]
+
+\ compilation wrapper
+
 DEFER compile-wrapper-function ( -- )
 : compile-wrapper-function1 ( -- )
+    hash-c-source check-c-hash
     lib-handle 0= if
 	c-source-file close-file throw
 	0 c-source-file-id !

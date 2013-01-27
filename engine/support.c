@@ -600,6 +600,17 @@ UCell gforth_dlopen(Char *c_addr, UCell u)
   return 0;
 }
 
+void gforth_dlclose(UCell lib)
+{
+#if defined(HAVE_LIBLTDL)
+  (UCell)lt_dlclose(lib);
+#elif defined(HAVE_LIBDL) || defined(HAVE_DLOPEN)
+  dlclose(lib);
+#elif defined(_WIN32)
+  FreeLibrary(lib);
+#endif
+}
+
 #endif /* !defined(STANDALONE) */
 
 

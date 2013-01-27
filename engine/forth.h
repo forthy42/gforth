@@ -467,6 +467,7 @@ UCell rshift(UCell u1, UCell n);
 int gforth_system(Char *c_addr, UCell u);
 void gforth_ms(UCell u);
 UCell gforth_dlopen(Char *c_addr, UCell u);
+void gforth_dlclose(UCell lib);
 Cell capscompare(Char *c_addr1, UCell u1, Char *c_addr2, UCell u2);
 int gf_ungetc(int c, FILE *stream);
 void gf_regetc(FILE *stream);
