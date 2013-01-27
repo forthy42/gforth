@@ -648,7 +648,6 @@ DEFER compile-wrapper-function ( -- )
     hash-c-source check-c-hash
     lib-handle 0= if
 	c-source-file close-file throw
-	0 c-source-file-id !
 	[ libtool-command s"  --silent --tag=CC --mode=compile " s+
 	  libtool-cc append s"  -I '" append
 	  s" includedir" getenv append  s" '" append ] sliteral
@@ -670,6 +669,7 @@ DEFER compile-wrapper-function ( -- )
 	endif
 	( lib-handle ) lib-handle-addr @ !
     endif
+    0 c-source-file-id !
     lib-filename 2@ drop free throw 0 0 lib-filename 2! ;
 ' compile-wrapper-function1 IS compile-wrapper-function
 \    s" ar rcs xxx.a xxx.o" system
