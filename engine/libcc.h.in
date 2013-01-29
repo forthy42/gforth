@@ -89,3 +89,5 @@ extern void gforth_free_stacks(user_area* t);
             ? (_ll >> CELL_BITS) \
             : 0); \
   } while (0);
+
+typedef Char hash_128[16];
