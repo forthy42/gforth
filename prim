@@ -2934,6 +2934,14 @@ ip=IP;
 SUPER_END;
 VM_JUMP(EXEC1(((Xt**)c_addr)[-1][w]));
 
+u#exec	( #n #w -- )		new	u_lit_exec
+""method invocation using a user address""
+#ifndef NO_IP
+ip=IP;
+#endif
+SUPER_END;
+VM_JUMP(EXEC1((*(Xt***)(up+n))[-1][w]));
+
 \+
 \g static_super
 
