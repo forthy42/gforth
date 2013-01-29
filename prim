@@ -2940,7 +2940,7 @@ u#exec	( #n #w -- )		new	u_lit_exec
 ip=IP;
 #endif
 SUPER_END;
-VM_JUMP(EXEC1((*(Xt***)(up+n))[-1][w]));
+VM_JUMP(EXEC1((*(Xt***)(((Address)up)+n))[-1][w]));
 
 \+
 \g static_super
