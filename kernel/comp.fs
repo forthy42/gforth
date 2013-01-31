@@ -521,15 +521,14 @@ compile> drop >body postpone ALiteral postpone ! ;
     \g execute @var{xt}.
     record-name ' postpone ALiteral postpone defer! ; immediate restrict
 
-: IS <IS> ;
-compile> drop postpone [IS] ;
-
 : (int-to) ( val xt -- ) dup >namevt @ >vtto perform ;
 : (comp-to) ( xt -- ) dup >namevt @ >vtto @ compile, ;
 
 : TO ( value "name" -- )
     (') (name>x) drop (int-to) ;
 compile> drop (') (name>x) drop (comp-to) ;
+
+' TO alias IS
 
 : interpret/compile? ( xt -- flag ) drop false ;
 
