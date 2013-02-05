@@ -691,6 +691,9 @@ Variable comp-state
   ['] pi-undefined , \ action
   ['] pi-undefined , \ target plugin action
   8765 ,     \ plugin magic
+[IFDEF] value!
+  ['] value! !to
+[THEN]
   DOES> perform ;
 
 Plugin DummyPlugin
