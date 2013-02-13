@@ -59,6 +59,9 @@
 : $+! ( addr1 u addr2 -- ) \ gforth-string string-plus-store
     \G appends a string to another.
     dup $@len $ins ;
+: c$+! ( char addr -- ) \ gforth-string c-string-plus-store
+    \G append a character to a string.
+    dup $@len 1+ over $!len $@ + 1- c! ;
 : $off ( addr -- ) \ gforth-string string-off
     \G releases a string.
     dup @ dup IF  free throw off  ELSE  2drop  THEN ;

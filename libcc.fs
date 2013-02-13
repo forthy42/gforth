@@ -131,6 +131,11 @@
 
 require struct.fs
 require mkdir.fs
+require string.fs
+require string-exec.fs
+
+Variable libcc$ \ source string for libcc generated source
+Variable tmp$ \ temporary string buffer
 
 \ c-function-ft word body:
 struct
@@ -151,7 +156,7 @@ variable lib-handle-addr \ points to the library handle of the current batch.
                          \ the library handle is 0 if the current
                          \ batch is not yet compiled.
   here 0 , lib-handle-addr ! \ just make sure LIB-HANDLE always works
-2variable lib-filename   \ filename without extension
+Variable lib-filename   \ filename without extension
 2variable lib-modulename \ basename of the file without extension
 2variable libcc-named-dir-v \ directory for named libcc wrapper libraries
 Variable libcc-path      \ pointer to path of library directories
@@ -165,19 +170,11 @@ defer replace-rpath ( c-addr1 u1 -- c-addr2 u2 )
 : const+ ( n1 "name" -- n2 )
     dup constant 1+ ;
 
-: front-string { c-addr1 u1 c-addr2 u2 -- c-addr3 u3 }
-    \ insert string c-addr2 u2 in buffer c-addr1 u1; c-addr3 u3 is the
-    \ remainder of the buffer.
-    assert( u1 u2 u>= )
-    c-addr2 c-addr1 u2 move
-    c-addr1 u1 u2 /string ;
-
-: front-char { c-addr1 u1 c -- c-addr3 u2 }
-    \ insert c in buffer c-addr1 u1; c-addr3 u3 is the remainder of
-    \ the buffer.
-    assert( u1 0 u> )
-    c c-addr1 c!
-    c-addr1 u1 1 /string ;
+[IFUNDEF] c$+!
+    : c$+! ( char addr -- ) \ gforth-string c-string-plus-store
+	\G append a character to a string.
+	dup $@len 1+ over $!len $@ + 1- c! ;
+[THEN]
 
 : s+ { addr1 u1 addr2 u2 -- addr u }
     u1 u2 + allocate throw { addr }
@@ -215,21 +212,19 @@ end-struct list%
 	    node list-next @
     repeat ;
 
-2variable c-libs \ library names in a string (without "lib")
+Variable c-libs \ library names in a string (without "lib")
 
 : lib-prefix ( -- addr u )  s" libgf" ;
 
 : add-lib ( c-addr u -- ) \ gforth
 \G Add library lib@i{string} to the list of libraries, where
     \G @i{string} is represented by @i{c-addr u}.
-    c-libs 2@ d0= IF  0 allocate throw 0 c-libs 2!  THEN
-    c-libs 2@ s"  -l" append 2swap append c-libs 2! ;
+    s"  -l" c-libs $+! c-libs $+! ;
 
 : add-libpath ( c-addr u -- ) \ gforth
 \G Add path @i{string} to the list of library search pathes, where
     \G @i{string} is represented by @i{c-addr u}.
-    c-libs 2@ d0= IF  0 allocate throw 0 c-libs 2!  THEN
-    c-libs 2@ s"  -L" append 2swap append c-libs 2! ;
+    s"  -L" c-libs $+! c-libs $+! ;
 
 \ C prefix lines
 
@@ -243,33 +238,30 @@ end-struct c-prefix%
 variable c-prefix-lines 0 c-prefix-lines !
 variable c-prefix-lines-end c-prefix-lines c-prefix-lines-end !
 
+: write-c-prefix-line ( c-addr u -- )
+    libcc$ $+! #lf libcc$ c$+! ;
+
 : print-c-prefix-line ( node -- )
-    dup c-prefix-chars swap c-prefix-count @ type cr ;
+    dup c-prefix-chars swap c-prefix-count @ write-c-prefix-line ;
 
 : print-c-prefix-lines ( -- )
     c-prefix-lines @ ['] print-c-prefix-line list-map ;
 
-: write-c-prefix-line ( c-addr u -- )
-    c-source-file-id @ dup if
-	write-line throw
-    else
-	drop 2drop
-    then ;
+: c-source-file-execute ( ... xt -- ... )
+    libcc$ $exec ;
+
+: save-c-prefix-line ( addr u -- )  write-c-prefix-line ;
 
 : save-c-prefix-line1 ( c-addr u -- )
-    2dup write-c-prefix-line
     align here 0 , c-prefix-lines-end list-append ( c-addr u )
     longstring, ;
 
-defer save-c-prefix-line ( c-addr u -- )
-' save-c-prefix-line1 is save-c-prefix-line
-
 : \c ( "rest-of-line" -- ) \ gforth backslash-c
     \G One line of C declarations for the C interface
-    -1 parse save-c-prefix-line ;
+    -1 parse write-c-prefix-line ;
 
 s" #include <gforth" arch-modifier s+ s" /" append version-string append s" /libcc.h>" append ( c-addr u )
-  2dup save-c-prefix-line drop free throw
+  2dup save-c-prefix-line1 drop free throw
 
 \ Types (for parsing)
 
@@ -464,18 +456,16 @@ create gen-wrapped-types
 
 : wrapper-function-name ( addr -- c-addr u )
     \ addr points to the return type index of a c-function descriptor
+    s" gforth_c_" tmp$ $!
     count { r-type } count { d: pars }
-    pars + count { d: c-name }
-    s" gforth_c_" { d: prefix }
-    prefix nip c-name nip + pars nip + 3 + { u }
-    u allocate throw { c-addr }
-    c-addr u
-    prefix front-string c-name front-string '_ front-char
+    pars + count tmp$ $+!
+    '_' tmp$ c$+!
     pars bounds u+do
-	i c@ type-letter front-char
+	i c@ type-letter tmp$ c$+!
     loop
-    '_ front-char r-type type-letter front-char assert( dup 0= )
-    2drop c-addr u 2dup sanitize ;
+    '_' tmp$ c$+!
+    r-type type-letter tmp$ c$+!
+    tmp$ $@ 2dup sanitize ;
 
 : gen-wrapper-function ( addr -- )
     \ addr points to the return type index of a c-function descriptor
@@ -483,7 +473,7 @@ create gen-wrapped-types
     count { ret } count 2dup { d: pars } chars + count { d: c-name }
     ." void "
     [ lib-suffix s" .la" str= [IF] ] lib-prefix type lib-modulename 2@ type ." _LTX_" [ [THEN] ]
-    descriptor wrapper-function-name 2dup type drop free throw
+    descriptor wrapper-function-name type
     .\" (GFORTH_ARGS)\n"
     .\" {\n  Cell MAYBE_UNUSED *sp = gforth_SP;\n  Float MAYBE_UNUSED *fp = gforth_FP;\n  "
     is-funptr? IF  .\" Cell ptr = *sp++;\n  "  0 to is-funptr?  THEN
@@ -528,13 +518,13 @@ create gen-wrapped-types
     2over s+ 2swap drop free throw ;
 
 : open-wrappers ( -- addr|0 )
-    lib-filename 2@ dirname lib-prefix s+
-    lib-filename 2@ basename append lib-suffix append
+    lib-filename $@ dirname lib-prefix s+
+    lib-filename $@ basename append lib-suffix append
     2dup libcc-named-dir string-prefix? if ( c-addr u )
 	\ see if we can open it in the path
 	libcc-named-dir nip /string
 	libcc-path open-path-file if
-\	    ." Failed to find library '" lib-filename 2@ type ." ' in '"
+\	    ." Failed to find library '" lib-filename $@ type ." ' in '"
 \	    libcc-path .path ." ', need compiling" cr
 	    0 exit endif
 	( wfile-id c-addr2 u2 ) rot close-file throw save-mem ( c-addr2 u2 )
@@ -547,12 +537,11 @@ create gen-wrapped-types
 : c-library-name-setup ( c-addr u -- )
     assert( c-source-file-id @ 0= )
     { d: filename }
-    here 0 , lib-handle-addr ! filename lib-filename 2!
-    filename basename lib-modulename 2!
-    ['] write-c-prefix-line is save-c-prefix-line ;
+    here 0 , lib-handle-addr ! filename lib-filename $!
+    filename basename lib-modulename 2! ;
    
 : c-library-name-create ( -- )
-    lib-filename 2@ s" .c" s+ 2dup r/w create-file throw
+    lib-filename $@ s" .c" s+ 2dup r/w create-file throw
     c-source-file-id !
     drop free throw ;
 
@@ -561,17 +550,13 @@ create gen-wrapped-types
     \ basename of the library
     libcc-named-dir prepend-dirname c-library-name-setup
     open-wrappers lib-handle-addr @ !
-    libcc-named-dir $1ff mkdir-parents drop
-    c-library-name-create
-    c-prefix-lines @ ['] print-c-prefix-line \ first line only
-    c-source-file-id @ outfile-execute ;
+    libcc-named-dir $1ff mkdir-parents drop ;
 
 : c-tmp-library-name ( c-addr u -- )
     \ set up filenames for a new library; c-addr u is the basename of
     \ the library
     libcc-tmp-dir 2dup $1ff mkdir-parents drop
-    prepend-dirname c-library-name-setup c-library-name-create
-    ['] print-c-prefix-lines c-source-file-id @ outfile-execute ;
+    prepend-dirname c-library-name-setup c-library-name-create ;
 
 : lib-handle ( -- addr )
     lib-handle-addr @ @ ;
@@ -585,22 +570,6 @@ create gen-wrapped-types
 
 : c-source-file ( -- file-id )
     c-source-file-id @ assert( dup ) ;
-
-: notype-execute ( ... xt -- ... )
-    what's type { oldtype } try
-	['] 2drop is type execute 0
-    restore
-	oldtype is type
-    endtry
-    throw ;
-
-: c-source-file-execute ( ... xt -- ... )
-    \ direct the output of xt to c-source-file, or nothing
-\    lib-handle if
-\	notype-execute
-\    else
-    c-source-file outfile-execute ;
-\    endif ;
 
 : .lib-error ( -- )
     [ifdef] lib-error
@@ -617,51 +586,63 @@ create gen-wrapped-types
     Create c-source-hash 16 allot
 
     : .bytes ( addr u -- ) bounds ?DO
-	    I c@ 0 .r I 1+ I' <> IF ." , " THEN LOOP ;
+	    I c@ 0 .r I 1+ I' <> IF ." , "  THEN
+	LOOP ;
     : .c-hash ( -- )
-	." hash_128 gflibcc_hash_" lib-filename 2@ basename type
+	." hash_128 gflibcc_hash_"
+	lib-filename $@ basename type
 	."  = { " c-source-hash 16 .bytes ." };" cr ;
     
     : hash-c-source ( -- )
 	c-source-hash 16 erase
-	c-source-file flush-file throw
-	0. c-source-file reposition-file throw
-	c-source-file file-size throw drop { fsize }
-	fsize allocate throw
-	dup fsize c-source-file read-file throw drop
-	dup fsize false c-source-hash hashkey2
-	free throw
+	libcc$ $@ false c-source-hash hashkey2
 	['] .c-hash c-source-file-execute ;
 
     : check-c-hash ( -- )
 	lib-handle 0= ?EXIT
-	s" gflibcc_hash_" lib-filename 2@ basename s+
+	s" gflibcc_hash_" lib-filename $@ basename s+
 	lib-handle lib-sym
 	?dup-IF  c-source-hash 16 tuck compare  ELSE  true  THEN
 	IF  lib-handle close-lib  lib-handle-addr @ off  THEN ;
 [THEN]
 
-\ compilation wrapper
+\ clear library
 
 DEFER compile-wrapper-function ( -- )
+
+: clear-libs ( -- ) \ gforth
+\G Clear the list of libs
+    c-source-file-id @ if
+	compile-wrapper-function
+    endif
+    c-libs $init
+    libcc$ $init
+    c-prefix-lines @ ['] print-c-prefix-line \ first line only
+    c-source-file-execute ;
+clear-libs
+
+\ compilation wrapper
+
 : compile-wrapper-function1 ( -- )
     hash-c-source check-c-hash
     lib-handle 0= if
+	c-library-name-create
+	libcc$ $@ c-source-file write-file throw
 	c-source-file close-file throw
 	[ libtool-command s"  --silent --tag=CC --mode=compile " s+
 	  libtool-cc append s"  -I '" append
 	  s" includedir" getenv append  s" '" append ] sliteral
-	s"  -O -c " s+ lib-filename 2@ append s" .c -o " append
-	lib-filename 2@ append s" .lo" append ( c-addr u )
+	s"  -O -c " s+ lib-filename $@ append s" .c -o " append
+	lib-filename $@ append s" .lo" append ( c-addr u )
 	\    2dup type cr
 	2dup system drop free throw $? abort" libtool compile failed"
 	[ libtool-command s"  --silent --tag=CC --mode=link " s+
 	  libtool-cc append libtool-flags append s"  -module -rpath " s+ ] sliteral
-	lib-filename 2@ dirname replace-rpath s+ s"  " append
-	lib-filename 2@ append s" .lo -o " append
-	lib-filename 2@ dirname append lib-prefix append
-	lib-filename 2@ basename append s" .la" append ( c-addr u )
-	c-libs 2@ append
+	lib-filename $@ dirname replace-rpath s+ s"  " append
+	lib-filename $@ append s" .lo -o " append
+	lib-filename $@ dirname append lib-prefix append
+	lib-filename $@ basename append s" .la" append ( c-addr u )
+	c-libs $@ append
 	\    2dup type cr
 	2dup system drop free throw $? abort" libtool link failed"
 	open-wrappers dup 0= if
@@ -670,21 +651,20 @@ DEFER compile-wrapper-function ( -- )
 	( lib-handle ) lib-handle-addr @ !
     endif
     0 c-source-file-id !
-    lib-filename 2@ drop free throw 0 0 lib-filename 2! ;
+    lib-filename $off clear-libs ;
 ' compile-wrapper-function1 IS compile-wrapper-function
 \    s" ar rcs xxx.a xxx.o" system
 \    $? abort" ar generated error" ;
 
 : link-wrapper-function { cff -- sym }
-    cff cff-rtype wrapper-function-name { d: wrapper-name }
-    wrapper-name cff cff-lha @ @ assert( dup ) lib-sym dup 0= if
+    cff cff-rtype wrapper-function-name
+    cff cff-lha @ @ assert( dup ) lib-sym dup 0= if
         .lib-error -&32 throw
-    endif
-    wrapper-name drop free throw ;
+    endif ;
 
 : c-function-ft ( xt-defr xt-cfr xt-parse "c-name" "type signature" -- )
     \ build time/first time action for c-function
-    { xt-parse-types } init-c-source-file
+    { xt-parse-types }
     noname create 2, lib-handle-addr @ ,
     parse-name { d: c-name }
     xt-parse-types execute c-name string,
@@ -731,14 +711,6 @@ DEFER compile-wrapper-function ( -- )
     \G ptr using the typecast or struct access @code{c-typecast}.
     ['] parse-funptr-types (c-function) ;
 
-: clear-libs ( -- ) \ gforth
-\G Clear the list of libs
-    c-source-file-id @ if
-	compile-wrapper-function
-    endif
-    0. c-libs 2! ;
-clear-libs
-
 : c-library-incomplete ( -- )
     true abort" Called function of unfinished named C library" ;
 
@@ -754,7 +726,6 @@ clear-libs
 
 : end-c-library ( -- ) \ gforth
 \G Finish and (if necessary) build the latest C library interface.
-    ['] save-c-prefix-line1 is save-c-prefix-line
     ['] compile-wrapper-function1 is compile-wrapper-function
     compile-wrapper-function1 ;
 
@@ -762,6 +733,7 @@ clear-libs
     s" ~/.gforth" arch-modifier s+ s" /libcc-named/" s+ libcc-named-dir-v 2!
 [IFDEF] $init
     libcc-path $init
+    clear-libs
     libcc-named-dir libcc-path also-path
     [ s" libccdir" getenv ] sliteral libcc-path also-path
 [THEN]
