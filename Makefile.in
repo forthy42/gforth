@@ -258,6 +258,7 @@ GFORTH_FI_SRC2=\
 	source.fs \
 	startup.fs \
 	str-exec.fs \
+	string-exec.fs \
 	struct.fs \
 	struct0x.fs \
 	stuff.fs \
