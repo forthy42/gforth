@@ -205,6 +205,7 @@ Create bases   10 ,   2 ,   A , 100 ,
     THEN ;
 
 [THEN]
+[IFDEF] (number?)  : number? (number?) ; [THEN]
 
 \ this provides assert( and struct stuff
 \GFORTH [IFUNDEF] assert1(
@@ -689,6 +690,9 @@ Variable comp-state
   ['] pi-undefined , \ action
   ['] pi-undefined , \ target plugin action
   8765 ,     \ plugin magic
+[IFDEF] value!
+  ['] value! !to
+[THEN]
   DOES> perform ;
 
 Plugin DummyPlugin
@@ -3040,7 +3044,7 @@ compile: does-resolved ;compile
 \ : ?struc      ( flag -- )       ABORT" CROSS: unstructured " ;
 \ : sys?        ( sys -- sys )    dup 0= ?struc ;
 
-: >mark       ( -- sys )        T here  ( dup ." M" hex. ) 0 , H ;
+: >mark       ( -- sys )        T here H ( dup ." M" hex. ) T 0 , H ;
 
 X has? abranch [IF]
     : branchoffset ( src dest -- )  drop ;

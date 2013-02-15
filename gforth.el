@@ -1192,7 +1192,7 @@ exceeds 64 characters."
 
 ;;;###autoload
 (defun forth-mode ()
-  "
+  "\
 Major mode for editing Forth code. Tab indents for Forth code. Comments
 are delimited with \\ and newline. Paragraphs are separated by blank lines
 only. Block files are autodetected, when read, and converted to normal 
@@ -1495,8 +1495,6 @@ programmers who tend to fill code won't use emacs anyway:-)."
 
 (eval-and-compile (forth-require 'comint))
 
-(when (memq 'comint features)
-
   (defvar forth-program-name "gforth"
     "*Program invoked by the `run-forth' command, including program arguments")
 
@@ -1692,7 +1690,6 @@ processes.")
 				      forth-process-buffer))))
       (or proc
 	  (error "No current process.  See variable `forth-process-buffer'"))))
-  )  ; (memq 'comint features)
 
 (provide 'forth-mode)
 

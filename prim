@@ -1950,7 +1950,7 @@ wior = IOR(mkdir(tilde_cstr(c_addr,u,1),wmode));
 
 newline	( -- c_addr u )	gforth
 ""String containing the newline sequence of the host OS""
-char newline[] = {
+static const char newline[] = {
 #if DIRSEP=='/'
 /* Unix */
 '\n'

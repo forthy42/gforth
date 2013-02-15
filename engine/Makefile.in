@@ -89,7 +89,7 @@ XCFLAGS	= @CFLAGS@
 XDEFINES = @DEFS@
 SWITCHES = $(XCFLAGS) $(XDEFINES) $(OPTDEFINES)
 #use -fno-inline to avoid register problems with asinh, atanh on gcc-3.3 on 386
-ENGINE_FLAGS = @ENGINE_FLAGS@ -fno-defer-pop -fcaller-saves -fno-inline
+ENGINE_FLAGS = @ENGINE_FLAGS@ -fno-defer-pop -fcaller-saves -fno-inline -fno-reorder-blocks
 DEBUGFLAG = @DEBUGFLAG@
 CFLAGS	= $(DEBUGFLAG) -I$(srcdir)/../arch/$(machine) -I. -Wall $(SWITCHES) -DDEFAULTPATH='"$(FORTHPATH)"' $(LTDLINCL)
 CFLAGS2	= $(DEBUGFLAG) -I$(srcdir)/../arch/$(machine) -I. -Wall $(SWITCHES) -DDEFAULTPATH='"$(FORTHPATH)"' $(LTDLINCL)

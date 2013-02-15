@@ -169,8 +169,8 @@ static UCell lsize=0;
 int offset_image=0;
 int die_on_signal=0;
 int ignore_async_signals=0;
-#ifndef INCLUDE_IMAGE
 static int clear_dictionary=0;
+#ifndef INCLUDE_IMAGE
 UCell pagesize=1;
 char *progname;
 #else
@@ -2270,8 +2270,8 @@ int main(int argc, char **argv, char **env)
 #else
   char *path = DEFAULTPATH;
 #endif
-#ifndef INCLUDE_IMAGE
   char *imagename="gforth.fi";
+#ifndef INCLUDE_IMAGE
   FILE *image_file;
   Address image;
 #endif
