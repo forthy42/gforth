@@ -196,6 +196,7 @@ KERN_SRC = \
 	kernel/saccept.fs \
 	kernel/doers.fs \
 	kernel/getdoers.fs \
+	kernel/copydoers.fs \
 	kernel/pass.fs \
 	kernel/vtables.fs \
 	kernel/xchars.fs \
@@ -436,7 +437,7 @@ VMGEN_EX = vmgen-ex/Makefile vmgen-ex/README vmgen-ex/disasm.c \
 VMGEN_EX2 = $(VMGEN_EX:vmgen-ex/%=vmgen-ex2/%)
 
 ENGINE_SOURCES = engine/Makefile.in engine/config.h.in \
-	engine/engine.c engine/main.c \
+	engine/engine.c engine/main.c engine/libmain.c \
 	engine/io.c engine/support.c engine/signals.c engine/libcc.h.in \
 	engine/profile.c engine/128bit.h \
 	engine/getopt.c engine/getopt1.c engine/getopt.h engine/select.c \
@@ -449,7 +450,7 @@ ENGINE_SOURCES = engine/Makefile.in engine/config.h.in \
 	engine/makefile.dos engine/makefile.os2
 
 SOURCES	= $(ENGINE_SOURCES) compat Makefile.in Makedist.in \
-	gforthmi.in vmgen.in preforth.in libforth.in gforthker.in gfgen README.vmgen NEWS.vmgen \
+	gforthmi.in gforthmi.sh.in vmgen.in preforth.in libforth.in gforthker.in gfgen README.vmgen NEWS.vmgen \
 	autogen.sh configure.in configure config.sub config.guess \
 	elisp-comp missing stamp-h.in envos.fs.in \
 	iss.sh install-sh INSTALL INSTALL.BINDIST NEWS README ToDo BUGS \
