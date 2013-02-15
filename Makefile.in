@@ -150,7 +150,7 @@ CVSDIRS = CVS engine/CVS kernel/CVS doc/CVS asm/CVS ec/CVS test/CVS \
 	arch/alpha/CVS arch/4stack/CVS arch/misc/CVS arch/6502/CVS \
 	arch/8086/CVS arch/avr/CVS arch/c165/CVS arch/h8/CVS \
 	arch/shboom/CVS arch/sharc/CVS arch/ia64/CVS arch/amd64/CVS \
-	arch/arm/CVS arch/r8c/CVS
+	arch/arm/CVS arch/r8c/CVS vmgen-ex/CVS
 
 INCLUDES = engine/forth.h engine/threaded.h engine/io.h engine/longlong.h
 
@@ -380,7 +380,7 @@ ARCHS_NO_DIST = \
 	arch/r8c/tt.fs \
 	arch/sharc/unistd.h
 
-VMGEN_EX = vmgen-ex/CVS vmgen-ex/Makefile vmgen-ex/README vmgen-ex/disasm.c \
+VMGEN_EX = vmgen-ex/Makefile vmgen-ex/README vmgen-ex/disasm.c \
 	vmgen-ex/engine.c vmgen-ex/fib.mini \
 	vmgen-ex/mini-inst.vmg vmgen-ex/mini-super.vmg vmgen-ex/mini.h \
 	vmgen-ex/mini.l vmgen-ex/mini.y vmgen-ex/peephole-blacklist \
@@ -403,7 +403,7 @@ ENGINE_SOURCES = engine/Makefile.in engine/config.h.in \
 	engine/fnmatch.h engine/fnmatch.c \
 	engine/makefile.dos engine/makefile.os2
 
-SOURCES	= $(CVSDIRS) $(ENGINE_SOURCES) compat Makefile.in Makedist.in \
+SOURCES	= $(ENGINE_SOURCES) compat Makefile.in Makedist.in \
 	gforthmi.in vmgen.in preforth.in gfgen README.vmgen NEWS.vmgen \
 	autogen.sh configure.in configure config.sub config.guess \
 	elisp-comp missing stamp-h.in envos.fs.in \
@@ -636,9 +636,9 @@ installdirs:	mkinstalldirs
 		for i in $(bindir) $(man1dir) $(infodir) $(libdir)/gforth/$(VERSION) $(datadir)/gforth/$(VERSION) $(libdir)/gforth/site-forth $(siteforthdir) $(includedir)/gforth/$(VERSION) $(libccdir); do \
 			$(srcdir)/mkinstalldirs $(DESTDIR)$$i; \
 		done
-		for i in $(CVSDIRS); do \
-			$(srcdir)/mkinstalldirs $(DESTDIR)$(datadir)/gforth/$(VERSION)/`dirname $$i`; \
-		done
+		#for i in $(CVSDIRS); do \
+		#	$(srcdir)/mkinstalldirs $(DESTDIR)$(datadir)/gforth/$(VERSION)/`dirname $$i`; \
+		#done
 		$(RM) -rf $(DESTDIR)$(datadir)/gforth/$(VERSION)/engine
 
 #deinstall all files specific to this version of gforth
