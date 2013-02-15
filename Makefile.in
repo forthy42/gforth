@@ -63,8 +63,7 @@ datarootdir = @datarootdir@
 datadir = $(package)@datadir@
 #read-only architecture-dependent non-ascii files
 libdir = $(package)@libdir@
-libexecdir = $(package)@libexecdir@
-libccdir = $(subst $(DESTDIR),,$(libexecdir)/gforth$(ARCH)/$(VERSION)/libcc-named/)
+libccdir = $(subst $(DESTDIR),,$(libdir)/gforth$(ARCH)/$(VERSION)/libcc-named/)
 includedir = $(package)@includedir@
 infodir = $(package)@infodir@
 htmldir = $(package)@htmldir@
@@ -677,7 +676,7 @@ install:	gforth$(EXT) $(FORTH_SRC) $(kernel_fi) gforthmi vmgen doc/gforth.1 prim
 			echo '>>>>>Please install gforth.{el,elc} in your .../emacs/site-lisp directory'; \
 		fi
 		-$(RM) gforth.fi
-		GFORTHD="$(DITCENGINE)$(EXT) -p $(DESTDIR)$(libdir)/gforth/site-forth$(PATHSEP)$(DESTDIR)$(siteforthdir)$(PATHSEP)$(DESTDIR)$(datadir)/gforth$(ARCH)/$(VERSION) -i $(kernel_fi)" GFORTH="$(DITCENGINE)$(EXT) -p $(DESTDIR)$(libdir)/gforth/site-forth$(PATHSEP)$(DESTDIR)$(siteforthdir)$(PATHSEP)$(DESTDIR)$(datadir)/gforth$(ARCH)/$(VERSION) --die-on-signal -i $(kernel_fi) $(STARTUP)" includedir=$(includedir) bindir=$(bindir) libccdir=$(libccdir) GFORTHPATH=.:"$$GFORTHPATH" GFORTHDESTDIR="$(package)$(DESTDIR)" ./gforthmi gforth.fi $(FORTHSIZES) $(STARTUP)
+		GFORTHD="$(DITCENGINE)$(EXT) -p $(DESTDIR)$(libdir)/gforth/site-forth$(PATHSEP)$(DESTDIR)$(siteforthdir)$(PATHSEP)$(DESTDIR)$(datadir)/gforth$(ARCH)/$(VERSION) -i $(kernel_fi)" GFORTH="$(DITCENGINE)$(EXT) -p $(DESTDIR)$(libdir)/gforth/site-forth$(PATHSEP)$(DESTDIR)$(siteforthdir)$(PATHSEP)$(DESTDIR)$(datadir)/gforth$(ARCH)/$(VERSION) --die-on-signal -i $(kernel_fi) $(STARTUP)" includedir=$(subst $(package),,$(includedir)) bindir=$(subst $(package),,$(bindir)) libccdir=$(subst $(package),,$(libccdir)) GFORTHPATH=.:"$$GFORTHPATH" GFORTHDESTDIR="$(package)$(DESTDIR)" ./gforthmi gforth.fi $(FORTHSIZES) $(STARTUP)
 		$(INSTALL_DATA) gforth.fi $(DESTDIR)$(libdir)/gforth$(ARCH)/$(VERSION)
 		$(INSTALL_DATA) install.TAGS $(DESTDIR)$(datadir)/gforth$(ARCH)/$(VERSION)/TAGS
 		$(RM) install.TAGS @NO_CROSS@gforth.fi
