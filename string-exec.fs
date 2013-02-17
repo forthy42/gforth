@@ -17,6 +17,12 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+[IFUNDEF] c$+!
+    : c$+! ( char addr -- ) \ gforth-string c-string-plus-store
+	\G append a character to a string.
+	dup $@len 1+ over $!len $@ + 1- c! ;
+[THEN]
+
 0 Value $execstr
 : $type ( addr u -- )  $execstr $+! ;
 : $emit ( char -- )    $execstr c$+! ;

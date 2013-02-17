@@ -170,12 +170,6 @@ defer replace-rpath ( c-addr1 u1 -- c-addr2 u2 )
 : const+ ( n1 "name" -- n2 )
     dup constant 1+ ;
 
-[IFUNDEF] c$+!
-    : c$+! ( char addr -- ) \ gforth-string c-string-plus-store
-	\G append a character to a string.
-	dup $@len 1+ over $!len $@ + 1- c! ;
-[THEN]
-
 : s+ { addr1 u1 addr2 u2 -- addr u }
     u1 u2 + allocate throw { addr }
     addr1 addr u1 move
