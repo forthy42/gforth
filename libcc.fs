@@ -254,8 +254,10 @@ variable c-prefix-lines-end c-prefix-lines c-prefix-lines-end !
     \G One line of C declarations for the C interface
     -1 parse write-c-prefix-line ;
 
-s" #include <gforth" arch-modifier s+ s" /" append version-string append s" /libcc.h>" append ( c-addr u )
-  2dup save-c-prefix-line1 drop free throw
+s" #include <gforth" tmp$ $!
+arch-modifier tmp$ $+! s" /" tmp$ $+!
+version-string tmp$ $+! s" /libcc.h>" tmp$ $+! ( c-addr u )
+tmp$ $@ save-c-prefix-line1
 
 \ Types (for parsing)
 
@@ -466,7 +468,9 @@ create gen-wrapped-types
     dup { descriptor }
     count { ret } count 2dup { d: pars } chars + count { d: c-name }
     ." void "
-    [ lib-suffix s" .la" str= [IF] ] lib-prefix type lib-modulename 2@ type ." _LTX_" [ [THEN] ]
+    [ lib-suffix s" .la" str= [IF] ] lib-prefix type
+	lib-modulename 2@ dup 0= IF 2drop s" 00000000000000000000000000000000" THEN type
+	." _LTX_" [ [THEN] ]
     descriptor wrapper-function-name type
     .\" (GFORTH_ARGS)\n"
     .\" {\n  Cell MAYBE_UNUSED *sp = gforth_SP;\n  Float MAYBE_UNUSED *fp = gforth_FP;\n  "
@@ -497,16 +501,11 @@ create gen-wrapped-types
     \ file name without directory component
     2dup dirname nip /string ;
 
-: gen-filename ( x -- c-addr u )
-    \ generates a file basename for lib-handle-addr X
-    0 <<# ['] #s $10 base-execute #> 
-    s" gforth_c_" 2swap s+ #>> ;
-
 : libcc-named-dir ( -- c-addr u )
     libcc-named-dir-v 2@ ;
 
 : libcc-tmp-dir ( -- c-addr u )
-    s" ~/.gforth" arch-modifier s+ s" /libcc-tmp/" s+ ;
+    s" ~/.gforth" arch-modifier s+ s" /libcc-tmp/" append ;
 
 : prepend-dirname ( c-addr1 u1 c-addr2 u2 -- c-addr3 u3 )
     2over s+ 2swap drop free throw ;
@@ -542,25 +541,19 @@ create gen-wrapped-types
 : c-named-library-name ( c-addr u -- )
     \ set up filenames for a (possibly new) library; c-addr u is the
     \ basename of the library
-    libcc-named-dir prepend-dirname c-library-name-setup
-    open-wrappers lib-handle-addr @ !
-    libcc-named-dir $1ff mkdir-parents drop ;
+    libcc-named-dir 2dup  $1ff mkdir-parents drop
+    prepend-dirname c-library-name-setup
+    open-wrappers lib-handle-addr @ ! ;
 
 : c-tmp-library-name ( c-addr u -- )
     \ set up filenames for a new library; c-addr u is the basename of
     \ the library
-    libcc-tmp-dir 2dup $1ff mkdir-parents drop
-    prepend-dirname c-library-name-setup c-library-name-create ;
+    libcc-tmp-dir 2dup $1ff mkdir-parents drop  lib-handle-addr @ >r
+    prepend-dirname c-library-name-setup  r> lib-handle-addr !
+    open-wrappers lib-handle-addr @ ! ;
 
 : lib-handle ( -- addr )
     lib-handle-addr @ @ ;
-
-: init-c-source-file ( -- )
-\    lib-handle 0= if
-    c-source-file-id @ 0= if
-	here gen-filename c-tmp-library-name
-    endif ;
-\    endif ;
 
 : c-source-file ( -- file-id )
     c-source-file-id @ assert( dup ) ;
@@ -577,12 +570,25 @@ create gen-wrapped-types
     : hash-c-source ( -- ) ;
     : check-c-hash ( -- ) ;
 [ELSE]
+    : replace-modulename ( addr u -- ) { d: replace }
+	libcc$ $@  BEGIN  s" 00000000000000000000000000000000" search  WHILE
+		over replace rot swap move $10 /string  REPEAT
+	2drop ;
+    
     Create c-source-hash 16 allot
 
     : .bytes ( addr u -- ) bounds ?DO
 	    I c@ 0 .r I 1+ I' <> IF ." , "  THEN
 	LOOP ;
     : .c-hash ( -- )
+	lib-filename @ 0= IF
+	    tmp$ $off tmp$ $init
+	    [: c-source-hash 16 bounds DO
+		I c@ 0 [: <<# # # #> type #>> ;] $10 base-execute
+	    LOOP ;] tmp$ $exec
+	    tmp$ $@ save-mem c-tmp-library-name
+	    lib-modulename 2@ replace-modulename
+	THEN
 	." hash_128 gflibcc_hash_"
 	lib-filename $@ basename type
 	."  = { " c-source-hash 16 .bytes ." };" cr ;
@@ -593,7 +599,6 @@ create gen-wrapped-types
 	['] .c-hash c-source-file-execute ;
 
     : check-c-hash ( -- )
-	lib-handle 0= ?EXIT
 	s" gflibcc_hash_" lib-filename $@ basename s+
 	lib-handle lib-sym
 	?dup-IF  c-source-hash 16 tuck compare  ELSE  true  THEN
@@ -631,7 +636,7 @@ clear-libs
 	\    2dup type cr
 	2dup system drop free throw $? abort" libtool compile failed"
 	[ libtool-command s"  --silent --tag=CC --mode=link " s+
-	  libtool-cc append libtool-flags append s"  -module -rpath " s+ ] sliteral
+	  libtool-cc append libtool-flags append s"  -module -rpath " append ] sliteral
 	lib-filename $@ dirname replace-rpath s+ s"  " append
 	lib-filename $@ append s" .lo -o " append
 	lib-filename $@ dirname append lib-prefix append
@@ -726,7 +731,7 @@ clear-libs
 : init-libcc ( -- )
     s" ~/.gforth" arch-modifier s+ s" /libcc-named/" s+ libcc-named-dir-v 2!
 [IFDEF] $init
-    libcc-path $init
+    libcc-path $init  tmp$ $init
     clear-libs
     libcc-named-dir libcc-path also-path
     [ s" libccdir" getenv ] sliteral libcc-path also-path
