@@ -155,7 +155,6 @@ variable c-source-file-id \ contains the source file id of the current batch
 variable lib-handle-addr \ points to the library handle of the current batch.
                          \ the library handle is 0 if the current
                          \ batch is not yet compiled.
-  here 0 , lib-handle-addr ! \ just make sure LIB-HANDLE always works
 Variable lib-filename   \ filename without extension
 2variable lib-modulename \ basename of the file without extension
 2variable libcc-named-dir-v \ directory for named libcc wrapper libraries
@@ -182,30 +181,6 @@ defer replace-rpath ( c-addr1 u1 -- c-addr2 u2 )
     addr2 addr u1 + u2 move
     addr u ;
 
-\ linked list stuff (should go elsewhere)
-
-struct
-    cell% field list-next
-    1 0   field list-payload
-end-struct list%
-
-: list-insert { node list -- }
-    list list-next @ node list-next !
-    node list list-next ! ;
-
-: list-append { node endlistp -- }
-    \ insert node at place pointed to by endlistp
-    node endlistp @ list-insert
-    node list-next endlistp ! ;
-
-: list-map ( ... list xt -- ... )
-    \ xt ( ... node -- ... )
-    { xt } begin { node }
-	node while
-	    node xt execute
-	    node list-next @
-    repeat ;
-
 Variable c-libs \ library names in a string (without "lib")
 
 : lib-prefix ( -- addr u )  s" libgf" ;
@@ -224,40 +199,22 @@ Variable c-libs \ library names in a string (without "lib")
 
 \ linked list of longcstrings: [ link | count-cell | characters ]
 
-list%
-    cell% field c-prefix-count
-    1 0   field c-prefix-chars
-end-struct c-prefix%
-
-variable c-prefix-lines 0 c-prefix-lines !
-variable c-prefix-lines-end c-prefix-lines c-prefix-lines-end !
-
 : write-c-prefix-line ( c-addr u -- )
     libcc$ $+! #lf libcc$ c$+! ;
-
-: print-c-prefix-line ( node -- )
-    dup c-prefix-chars swap c-prefix-count @ write-c-prefix-line ;
-
-: print-c-prefix-lines ( -- )
-    c-prefix-lines @ ['] print-c-prefix-line list-map ;
 
 : c-source-file-execute ( ... xt -- ... )
     libcc$ $exec ;
 
 : save-c-prefix-line ( addr u -- )  write-c-prefix-line ;
 
-: save-c-prefix-line1 ( c-addr u -- )
-    align here 0 , c-prefix-lines-end list-append ( c-addr u )
-    longstring, ;
-
 : \c ( "rest-of-line" -- ) \ gforth backslash-c
     \G One line of C declarations for the C interface
     -1 parse write-c-prefix-line ;
 
-s" #include <gforth" tmp$ $!
-arch-modifier tmp$ $+! s" /" tmp$ $+!
-version-string tmp$ $+! s" /libcc.h>" tmp$ $+! ( c-addr u )
-tmp$ $@ save-c-prefix-line1
+: libcc-include ( -- )
+    [: ." #include <gforth"
+    arch-modifier type ." /"
+    version-string type ." /libcc.h>" cr ;] c-source-file-execute ;
 
 \ Types (for parsing)
 
@@ -530,7 +487,7 @@ create gen-wrapped-types
 : c-library-name-setup ( c-addr u -- )
     assert( c-source-file-id @ 0= )
     { d: filename }
-    here 0 , lib-handle-addr ! filename lib-filename $!
+    filename lib-filename $!
     filename basename lib-modulename 2! ;
    
 : c-library-name-create ( -- )
@@ -548,8 +505,8 @@ create gen-wrapped-types
 : c-tmp-library-name ( c-addr u -- )
     \ set up filenames for a new library; c-addr u is the basename of
     \ the library
-    libcc-tmp-dir 2dup $1ff mkdir-parents drop  lib-handle-addr @ >r
-    prepend-dirname c-library-name-setup  r> lib-handle-addr !
+    libcc-tmp-dir 2dup $1ff mkdir-parents drop
+    prepend-dirname c-library-name-setup
     open-wrappers lib-handle-addr @ ! ;
 
 : lib-handle ( -- addr )
@@ -614,10 +571,10 @@ DEFER compile-wrapper-function ( -- )
     c-source-file-id @ if
 	compile-wrapper-function
     endif
+    here 0 , lib-handle-addr !
     c-libs $init
-    libcc$ $init
-    c-prefix-lines @ ['] print-c-prefix-line \ first line only
-    c-source-file-execute ;
+    0. lib-modulename 2!
+    libcc$ $init libcc-include ;
 clear-libs
 
 \ compilation wrapper
@@ -626,7 +583,7 @@ clear-libs
     hash-c-source check-c-hash
     lib-handle 0= if
 	c-library-name-create
-	libcc$ $@ c-source-file write-file throw
+	libcc$ $@ c-source-file write-file throw  libcc$ $off
 	c-source-file close-file throw
 	[ libtool-command s"  --silent --tag=CC --mode=compile " s+
 	  libtool-cc append s"  -I '" append
@@ -641,7 +598,7 @@ clear-libs
 	lib-filename $@ append s" .lo -o " append
 	lib-filename $@ dirname append lib-prefix append
 	lib-filename $@ basename append s" .la" append ( c-addr u )
-	c-libs $@ append
+	c-libs $@ append  c-libs $off
 	\    2dup type cr
 	2dup system drop free throw $? abort" libtool link failed"
 	open-wrappers dup 0= if

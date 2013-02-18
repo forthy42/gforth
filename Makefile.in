@@ -317,7 +317,7 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC) $(LIBCC_DIST_SRC) \
 	bubble.fs siev.fs matrix.fs fib.fs \
 	oof.fs oofsampl.fs objects.fs objexamp.fs mini-oof.fs moof-exm.fs \
 	moofglos.fs fixpath.fs mini-oof2.fs moof2-example.fs \
-	add.fs lib.fs oldlib.fs sieve.fs \
+	add.fs lib.fs oldlib.fs sieve.fs list.fs \
 	endtry-iferror.fs recover-endtry.fs smartdots.fs \
 	unix/terminal-server.fs
 
