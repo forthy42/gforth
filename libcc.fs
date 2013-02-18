@@ -560,28 +560,30 @@ clear-libs
 
 \ compilation wrapper
 
+: compile-cmd ( -- )
+    [ libtool-command tmp$ $! s"  --silent --tag=CC --mode=compile " $type
+      libtool-cc $type s"  -I '" $type
+      s" includedir" getenv $type  s" '" $type tmp$ $@ ] sliteral type
+    ."  -O -c " lib-filename $. ." .c -o "
+    lib-filename $. ." .lo" ;
+
+: link-cmd ( -- )
+    [ libtool-command tmp$ $! s"  --silent --tag=CC --mode=link " $type
+      libtool-cc $type libtool-flags $type s"  -module -rpath " $type tmp$ $@ ] sliteral type
+    lib-filename $@ dirname replace-rpath type space
+    lib-filename $. ." .lo -o "
+    lib-filename $@ dirname type lib-prefix type
+    lib-filename $@ basename type ." .la"
+    c-libs $.  c-libs $off ;
+
 : compile-wrapper-function1 ( -- )
     hash-c-source check-c-hash
     lib-handle 0= if
 	c-library-name-create
 	libcc$ $@ c-source-file write-file throw  libcc$ $off
 	c-source-file close-file throw
-	[: [ libtool-command tmp$ $! s"  --silent --tag=CC --mode=compile " $type
-	     libtool-cc $type s"  -I '" $type
-	     s" includedir" getenv $type  s" '" $type tmp$ $@ ] sliteral type
-	   ."  -O -c " lib-filename $. ." .c -o "
-	   lib-filename $. ." .lo" ;] $tmp ( c-addr u )
-	\    2dup type cr
-	system $? abort" libtool compile failed"
-	[: [ libtool-command tmp$ $! s"  --silent --tag=CC --mode=link " $type
-	     libtool-cc $type libtool-flags $type s"  -module -rpath " $type tmp$ $@ ] sliteral type
-	   lib-filename $@ dirname replace-rpath type space
-	   lib-filename $. ." .lo -o "
-	   lib-filename $@ dirname type lib-prefix type
-	   lib-filename $@ basename type ." .la "
-	   c-libs $.  c-libs $off ;] $tmp ( c-addr u )
-	\    2dup type cr
-	system $? abort" libtool link failed"
+	['] compile-cmd $tmp system $? abort" libtool compile failed"
+	['] link-cmd    $tmp system $? abort" libtool link failed"
 	open-wrappers dup 0= if
 	    .lib-error true abort" open-lib failed"
 	endif
@@ -590,8 +592,6 @@ clear-libs
     0 c-source-file-id !
     lib-filename $off clear-libs ;
 ' compile-wrapper-function1 IS compile-wrapper-function
-\    s" ar rcs xxx.a xxx.o" system
-\    $? abort" ar generated error" ;
 
 : link-wrapper-function { cff -- sym }
     cff cff-rtype wrapper-function-name
@@ -669,13 +669,10 @@ clear-libs
 : init-libcc ( -- )
     libcc-named-dir$ $init
     [: ." ~/.gforth" arch-modifier type ." /libcc-named/" ;] libcc-named-dir$ $exec
-[IFDEF] $init
     libcc-path $init
     clear-libs
     libcc-named-dir libcc-path also-path
-    [ s" libccdir" getenv ] sliteral libcc-path also-path
-[THEN]
-;
+    [ s" libccdir" getenv ] sliteral libcc-path also-path ;
 
 init-libcc
 
