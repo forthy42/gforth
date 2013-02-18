@@ -155,8 +155,8 @@ variable lib-handle-addr \ points to the library handle of the current batch.
                          \ the library handle is 0 if the current
                          \ batch is not yet compiled.
 Variable lib-filename   \ filename without extension
-2variable lib-modulename \ basename of the file without extension
-2variable libcc-named-dir-v \ directory for named libcc wrapper libraries
+variable lib-modulename \ basename of the file without extension
+variable libcc-named-dir$ \ directory for named libcc wrapper libraries
 Variable libcc-path      \ pointer to path of library directories
 
 defer replace-rpath ( c-addr1 u1 -- c-addr2 u2 )
@@ -168,18 +168,6 @@ defer replace-rpath ( c-addr1 u1 -- c-addr2 u2 )
 : const+ ( n1 "name" -- n2 )
     dup constant 1+ ;
 
-: s+ { addr1 u1 addr2 u2 -- addr u }
-    u1 u2 + allocate throw { addr }
-    addr1 addr u1 move
-    addr2 addr u1 + u2 move
-    addr u1 u2 +
-;
-
-: append { addr1 u1 addr2 u2 -- addr u }
-    addr1 u1 u2 + dup { u } resize throw { addr }
-    addr2 addr u1 + u2 move
-    addr u ;
-
 Variable c-libs \ library names in a string (without "lib")
 
 : lib-prefix ( -- addr u )  s" libgf" ;
@@ -187,12 +175,12 @@ Variable c-libs \ library names in a string (without "lib")
 : add-lib ( c-addr u -- ) \ gforth
 \G Add library lib@i{string} to the list of libraries, where
     \G @i{string} is represented by @i{c-addr u}.
-    s"  -l" c-libs $+! c-libs $+! ;
+    [: ."  -l" type ;] c-libs $exec ;
 
 : add-libpath ( c-addr u -- ) \ gforth
 \G Add path @i{string} to the list of library search pathes, where
     \G @i{string} is represented by @i{c-addr u}.
-    s"  -L" c-libs $+! c-libs $+! ;
+    [: ."  -L" type ;] c-libs $exec ;
 
 \ C prefix lines
 
@@ -421,7 +409,7 @@ create gen-wrapped-types
     count { ret } count 2dup { d: pars } chars + count { d: c-name }
     ." void "
     [ lib-suffix s" .la" str= [IF] ] lib-prefix type
-	lib-modulename 2@ dup 0= IF 2drop s" _replace_this_with_the_hash_code" THEN type
+	lib-modulename $@ dup 0= IF 2drop s" _replace_this_with_the_hash_code" THEN type
 	." _LTX_" [ [THEN] ]
     descriptor wrapper-function-name type
     .\" (GFORTH_ARGS)\n"
@@ -454,17 +442,20 @@ create gen-wrapped-types
     2dup dirname nip /string ;
 
 : libcc-named-dir ( -- c-addr u )
-    libcc-named-dir-v 2@ ;
+    libcc-named-dir$ $@ ;
+
+: >libcc-named-dir ( addr u -- )
+    libcc-named-dir$ $! ;
 
 : libcc-tmp-dir ( -- c-addr u )
-    s" ~/.gforth" arch-modifier s+ s" /libcc-tmp/" append ;
+    [: ." ~/.gforth" arch-modifier type ." /libcc-tmp/" ;] $tmp ;
 
 : prepend-dirname ( c-addr1 u1 c-addr2 u2 -- c-addr3 u3 )
-    2over s+ 2swap drop free throw ;
+    [: type type ;] $tmp ;
 
 : open-wrappers ( -- addr|0 )
-    lib-filename $@ dirname lib-prefix s+
-    lib-filename $@ basename append lib-suffix append
+    [: lib-filename $@ dirname type lib-prefix type
+       lib-filename $@ basename type lib-suffix type ;] $tmp
     2dup libcc-named-dir string-prefix? if ( c-addr u )
 	\ see if we can open it in the path
 	libcc-named-dir nip /string
@@ -475,20 +466,17 @@ create gen-wrapped-types
 	( wfile-id c-addr2 u2 ) rot close-file throw save-mem ( c-addr2 u2 )
     endif
     \ 2dup cr type
-    2dup open-lib >r
-\    r@ 0= IF  ." Failed to open library '" 2dup type ." '" cr  THEN
-    drop free throw r> ;
+    open-lib ;
 
 : c-library-name-setup ( c-addr u -- )
     assert( c-source-file-id @ 0= )
     { d: filename }
     filename lib-filename $!
-    filename basename lib-modulename 2! ;
+    filename basename lib-modulename $! ;
    
 : c-library-name-create ( -- )
-    lib-filename $@ s" .c" s+ 2dup r/w create-file throw
-    c-source-file-id !
-    drop free throw ;
+    [: lib-filename $. ." .c" ;] $tmp r/w create-file throw
+    c-source-file-id ! ;
 
 : c-named-library-name ( c-addr u -- )
     \ set up filenames for a (possibly new) library; c-addr u is the
@@ -537,7 +525,7 @@ create gen-wrapped-types
 	lib-filename @ 0= IF
 	    [: c-source-hash 16 bounds DO  I c@ .xx  LOOP ;] $tmp
 	    save-mem c-tmp-library-name
-	    lib-modulename 2@ replace-modulename
+	    lib-modulename $@ replace-modulename
 	THEN
 	." hash_128 gflibcc_hash_"
 	lib-filename $@ basename type
@@ -549,7 +537,7 @@ create gen-wrapped-types
 	['] .c-hash c-source-file-execute ;
 
     : check-c-hash ( -- )
-	s" gflibcc_hash_" lib-filename $@ basename s+
+	[: ." gflibcc_hash_" lib-filename $@ basename type ;] $tmp
 	lib-handle lib-sym
 	?dup-IF  c-source-hash 16 tuck compare  ELSE  true  THEN
 	IF  lib-handle close-lib  lib-handle-addr @ off  THEN ;
@@ -566,7 +554,7 @@ DEFER compile-wrapper-function ( -- )
     endif
     here 0 , lib-handle-addr !
     c-libs $init
-    0. lib-modulename 2!
+    lib-modulename $init
     libcc$ $init libcc-include ;
 clear-libs
 
@@ -679,7 +667,8 @@ clear-libs
     compile-wrapper-function1 ;
 
 : init-libcc ( -- )
-    s" ~/.gforth" arch-modifier s+ s" /libcc-named/" s+ libcc-named-dir-v 2!
+    libcc-named-dir$ $init
+    [: ." ~/.gforth" arch-modifier type ." /libcc-named/" ;] libcc-named-dir$ $exec
 [IFDEF] $init
     libcc-path $init
     clear-libs
