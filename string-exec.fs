@@ -42,3 +42,13 @@
 	oldemit is emit
     endtry
     throw ;
+: $. ( addr -- )
+    \G print a string, shortcut
+    $@ type ;
+
+Variable tmp$ \ temporary string buffer
+: $tmp ( xt -- addr u )
+    \G generate a temporary string from the output of a word
+    s" " tmp$ $!  tmp$ $exec  tmp$ $@ ;
+
+:noname ( -- )  defers 'cold  tmp$ off ;  is 'cold

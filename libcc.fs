@@ -135,7 +135,6 @@ require string.fs
 require string-exec.fs
 
 Variable libcc$ \ source string for libcc generated source
-Variable tmp$ \ temporary string buffer
 
 \ c-function-ft word body:
 struct
@@ -407,7 +406,6 @@ create gen-wrapped-types
 
 : wrapper-function-name ( addr -- c-addr u )
     \ addr points to the return type index of a c-function descriptor
-    s" " tmp$ $!
     [: ." gforth_c_"
     count { r-type } count { d: pars }
     pars + count type '_' emit
@@ -415,7 +413,7 @@ create gen-wrapped-types
 	i c@ type-letter emit
     loop
     '_' emit r-type type-letter emit
-    ;] tmp$ $exec  tmp$ $@ 2dup sanitize ;
+    ;] $tmp 2dup sanitize ;
 
 : gen-wrapper-function ( addr -- )
     \ addr points to the return type index of a c-function descriptor
@@ -471,7 +469,7 @@ create gen-wrapped-types
 	\ see if we can open it in the path
 	libcc-named-dir nip /string
 	libcc-path open-path-file if
-\	    ." Failed to find library '" lib-filename $@ type ." ' in '"
+\	    ." Failed to find library '" lib-filename $. ." ' in '"
 \	    libcc-path .path ." ', need compiling" cr
 	    0 exit endif
 	( wfile-id c-addr2 u2 ) rot close-file throw save-mem ( c-addr2 u2 )
@@ -537,9 +535,8 @@ create gen-wrapped-types
 	LOOP ;
     : .c-hash ( -- )
 	lib-filename @ 0= IF
-	    tmp$ $off tmp$ $init
-	    [: c-source-hash 16 bounds DO  I c@ .xx  LOOP ;] tmp$ $exec
-	    tmp$ $@ save-mem c-tmp-library-name
+	    [: c-source-hash 16 bounds DO  I c@ .xx  LOOP ;] $tmp
+	    save-mem c-tmp-library-name
 	    lib-modulename 2@ replace-modulename
 	THEN
 	." hash_128 gflibcc_hash_"
@@ -581,22 +578,22 @@ clear-libs
 	c-library-name-create
 	libcc$ $@ c-source-file write-file throw  libcc$ $off
 	c-source-file close-file throw
-	[ libtool-command s"  --silent --tag=CC --mode=compile " s+
-	  libtool-cc append s"  -I '" append
-	  s" includedir" getenv append  s" '" append ] sliteral
-	s"  -O -c " s+ lib-filename $@ append s" .c -o " append
-	lib-filename $@ append s" .lo" append ( c-addr u )
+	[: [ libtool-command s"  --silent --tag=CC --mode=compile " s+
+	     libtool-cc append s"  -I '" append
+	     s" includedir" getenv append  s" '" append ] sliteral type
+	   ."  -O -c " lib-filename $. ." .c -o "
+	   lib-filename $. ." .lo" ;] $tmp ( c-addr u )
 	\    2dup type cr
-	2dup system drop free throw $? abort" libtool compile failed"
-	[ libtool-command s"  --silent --tag=CC --mode=link " s+
-	  libtool-cc append libtool-flags append s"  -module -rpath " append ] sliteral
-	lib-filename $@ dirname replace-rpath s+ s"  " append
-	lib-filename $@ append s" .lo -o " append
-	lib-filename $@ dirname append lib-prefix append
-	lib-filename $@ basename append s" .la" append ( c-addr u )
-	c-libs $@ append  c-libs $off
+	system $? abort" libtool compile failed"
+	[: [ libtool-command s"  --silent --tag=CC --mode=link " s+
+	     libtool-cc append libtool-flags append s"  -module -rpath " append ] sliteral type
+	   lib-filename $@ dirname replace-rpath type space
+	   lib-filename $. ." .lo -o "
+	   lib-filename $@ dirname type lib-prefix type
+	   lib-filename $@ basename type ." .la "
+	   c-libs $.  c-libs $off ;] $tmp ( c-addr u )
 	\    2dup type cr
-	2dup system drop free throw $? abort" libtool link failed"
+	system $? abort" libtool link failed"
 	open-wrappers dup 0= if
 	    .lib-error true abort" open-lib failed"
 	endif
@@ -684,7 +681,7 @@ clear-libs
 : init-libcc ( -- )
     s" ~/.gforth" arch-modifier s+ s" /libcc-named/" s+ libcc-named-dir-v 2!
 [IFDEF] $init
-    libcc-path $init  tmp$ $init
+    libcc-path $init
     clear-libs
     libcc-named-dir libcc-path also-path
     [ s" libccdir" getenv ] sliteral libcc-path also-path
