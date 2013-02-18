@@ -578,15 +578,15 @@ clear-libs
 	c-library-name-create
 	libcc$ $@ c-source-file write-file throw  libcc$ $off
 	c-source-file close-file throw
-	[: [ libtool-command s"  --silent --tag=CC --mode=compile " s+
-	     libtool-cc append s"  -I '" append
-	     s" includedir" getenv append  s" '" append ] sliteral type
+	[: [ libtool-command tmp$ $! s"  --silent --tag=CC --mode=compile " $type
+	     libtool-cc $type s"  -I '" $type
+	     s" includedir" getenv $type  s" '" $type tmp$ $@ ] sliteral type
 	   ."  -O -c " lib-filename $. ." .c -o "
 	   lib-filename $. ." .lo" ;] $tmp ( c-addr u )
 	\    2dup type cr
 	system $? abort" libtool compile failed"
-	[: [ libtool-command s"  --silent --tag=CC --mode=link " s+
-	     libtool-cc append libtool-flags append s"  -module -rpath " append ] sliteral type
+	[: [ libtool-command tmp$ $! s"  --silent --tag=CC --mode=link " $type
+	     libtool-cc $type libtool-flags $type s"  -module -rpath " $type tmp$ $@ ] sliteral type
 	   lib-filename $@ dirname replace-rpath type space
 	   lib-filename $. ." .lo -o "
 	   lib-filename $@ dirname type lib-prefix type

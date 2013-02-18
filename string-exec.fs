@@ -23,7 +23,8 @@
 	dup $@len 1+ over $!len $@ + 1- c! ;
 [THEN]
 
-0 Value $execstr
+Variable tmp$ \ temporary string buffer
+tmp$ Value $execstr
 : $type ( addr u -- )  $execstr $+! ;
 : $emit ( char -- )    $execstr c$+! ;
 : $exec ( xt addr -- )
@@ -46,7 +47,6 @@
     \G print a string, shortcut
     $@ type ;
 
-Variable tmp$ \ temporary string buffer
 : $tmp ( xt -- addr u )
     \G generate a temporary string from the output of a word
     s" " tmp$ $!  tmp$ $exec  tmp$ $@ ;
