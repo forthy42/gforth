@@ -197,13 +197,11 @@ Variable c-libs \ library names in a string (without "lib")
 
 \ C prefix lines
 
-\ linked list of longcstrings: [ link | count-cell | characters ]
-
-: write-c-prefix-line ( c-addr u -- )
-    libcc$ $+! #lf libcc$ c$+! ;
-
 : c-source-file-execute ( ... xt -- ... )
     libcc$ $exec ;
+
+: write-c-prefix-line ( c-addr u -- )
+    [: type cr ;] c-source-file-execute ;
 
 : save-c-prefix-line ( addr u -- )  write-c-prefix-line ;
 
@@ -409,16 +407,15 @@ create gen-wrapped-types
 
 : wrapper-function-name ( addr -- c-addr u )
     \ addr points to the return type index of a c-function descriptor
-    s" gforth_c_" tmp$ $!
+    s" " tmp$ $!
+    [: ." gforth_c_"
     count { r-type } count { d: pars }
-    pars + count tmp$ $+!
-    '_' tmp$ c$+!
+    pars + count type '_' emit
     pars bounds u+do
-	i c@ type-letter tmp$ c$+!
+	i c@ type-letter emit
     loop
-    '_' tmp$ c$+!
-    r-type type-letter tmp$ c$+!
-    tmp$ $@ 2dup sanitize ;
+    '_' emit r-type type-letter emit
+    ;] tmp$ $exec  tmp$ $@ 2dup sanitize ;
 
 : gen-wrapper-function ( addr -- )
     \ addr points to the return type index of a c-function descriptor
@@ -426,7 +423,7 @@ create gen-wrapped-types
     count { ret } count 2dup { d: pars } chars + count { d: c-name }
     ." void "
     [ lib-suffix s" .la" str= [IF] ] lib-prefix type
-	lib-modulename 2@ dup 0= IF 2drop s" 00000000000000000000000000000000" THEN type
+	lib-modulename 2@ dup 0= IF 2drop s" _replace_this_with_the_hash_code" THEN type
 	." _LTX_" [ [THEN] ]
     descriptor wrapper-function-name type
     .\" (GFORTH_ARGS)\n"
@@ -528,27 +525,26 @@ create gen-wrapped-types
     : check-c-hash ( -- ) ;
 [ELSE]
     : replace-modulename ( addr u -- ) { d: replace }
-	libcc$ $@  BEGIN  s" 00000000000000000000000000000000" search  WHILE
+	libcc$ $@  BEGIN  s" _replace_this_with_the_hash_code" search  WHILE
 		over replace rot swap move $10 /string  REPEAT
 	2drop ;
     
     Create c-source-hash 16 allot
 
+    : .xx ( n -- ) 0 [: <<# # # #> type #>> ;] $10 base-execute ;
     : .bytes ( addr u -- ) bounds ?DO
-	    I c@ 0 .r I 1+ I' <> IF ." , "  THEN
+	    ." \x" I c@ .xx
 	LOOP ;
     : .c-hash ( -- )
 	lib-filename @ 0= IF
 	    tmp$ $off tmp$ $init
-	    [: c-source-hash 16 bounds DO
-		I c@ 0 [: <<# # # #> type #>> ;] $10 base-execute
-	    LOOP ;] tmp$ $exec
+	    [: c-source-hash 16 bounds DO  I c@ .xx  LOOP ;] tmp$ $exec
 	    tmp$ $@ save-mem c-tmp-library-name
 	    lib-modulename 2@ replace-modulename
 	THEN
 	." hash_128 gflibcc_hash_"
 	lib-filename $@ basename type
-	."  = { " c-source-hash 16 .bytes ." };" cr ;
+	.\"  = \"" c-source-hash 16 .bytes .\" \";" cr ;
     
     : hash-c-source ( -- )
 	c-source-hash 16 erase
