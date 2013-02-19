@@ -68,6 +68,14 @@ AC_ARG_WITH(debug,
 			  debugging informations.],
 if test "$withval" = "yes"; then DEBUGFLAG=-g; fi)
 
+NO_CHECK=""
+COMMENT="#"
+
+AC_ARG_WITH(check,
+[  --with-check		  enables sanity check during build (default)
+  --without-check	  disables sanity check during build],
+if test "$withval" = "no"; then NO_CHECK="$COMMENT"; fi)
+
 GCC_LD="\$(GCC)"
 EC_MODE="false"
 EC=""
@@ -165,6 +173,7 @@ AC_SUBST(CC)
 AC_SUBST(GCC_LD)
 AC_SUBST(DEBUGFLAG)
 AC_SUBST(EC)
+AC_SUBST(NO_CHECK)
 AC_SUBST(EC_MODE)
 AC_SUBST(engine2)
 AC_SUBST(engine_fast2)
