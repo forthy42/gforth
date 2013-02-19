@@ -448,7 +448,8 @@ create gen-wrapped-types
     libcc-named-dir$ $! ;
 
 : libcc-tmp-dir ( -- c-addr u )
-    [: ." ~/.gforth" arch-modifier type ." /libcc-tmp/" ;] $tmp ;
+    [: ." ~/.gforth" arch-modifier type ." /" machine type
+    ." /libcc-tmp/" ;] $tmp ;
 
 : prepend-dirname ( c-addr1 u1 c-addr2 u2 -- c-addr3 u3 )
     [: type type ;] $tmp ;
@@ -668,7 +669,8 @@ clear-libs
 
 : init-libcc ( -- )
     libcc-named-dir$ $init
-    [: ." ~/.gforth" arch-modifier type ." /libcc-named/" ;] libcc-named-dir$ $exec
+    [: ." ~/.gforth" arch-modifier type ." /" machine type ." /libcc-named/"
+    ;] libcc-named-dir$ $exec
     libcc-path $init
     clear-libs
     libcc-named-dir libcc-path also-path

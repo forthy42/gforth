@@ -34,6 +34,10 @@ set-current
 \G the file name or directory modifier for the architecture
     s" @ARCH@" ;
 
+: machine ( -- c-addr u ) \ gforth
+    \G the machine we are running on
+    s" @machine@" ;
+
 : libtool-command ( -- c-addr u ) \ gforth
 \G name of the GNU libtool command
     s" @GNU_LIBTOOL@" ;
