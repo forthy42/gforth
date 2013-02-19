@@ -27,7 +27,7 @@ c-library mmap
     c-function madvise madvise a n n -- n ( addr len advice -- r )
     c-function mprotect mprotect a n n -- n ( addr len prot -- r )
     c-function mremap mremap a n n n -- a ( addr len newlen flags -- addr' )
-    c-function mremapf mremap a n n n a -- a ( addr len newlen flags newaddr -- addr' )
+\    c-function mremapf mremap a n n n a -- a ( addr len newlen flags newaddr -- addr' )
 end-c-library
 
 $0 Constant PROT_NONE		\ Page can not be accessed. 
