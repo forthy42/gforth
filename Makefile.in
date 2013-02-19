@@ -516,7 +516,7 @@ GEN_PRECIOUS = $(FORTH_GEN) $(KERNLS) \
 .SUFFIXES:
 .SUFFIXES: .c .o
 
-all: kernel/version.fs more @NO_CROSS@ check
+all: kernel/version.fs more @NO_CHECK@ check
 
 # use this dependency for phony targets just as mostlyclean,...
 FORCE: ;
@@ -867,7 +867,7 @@ gforth$(OPT)$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/config.h @kerne
 		$(CP) engine/$@ $@ && \
 		$(MASSAGE_EXE) $@; \
 		@GFORTH_EXE@; \
-		@NO_CROSS@ $(MAKE) checkone check-nofast ENGINE=./engine/$@; \
+		@NO_CHECK@ $(MAKE) checkone check-nofast ENGINE=./engine/$@; \
 	fi
 
 optgforth:
@@ -881,7 +881,7 @@ gforth-fast$(OPT)$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE_FAST) engine/confi
 		$(CP) engine/$@ $@ && \
 		$(MASSAGE_EXE) $@; \
 		@GFORTHFAST_EXE@; \
-		@NO_CROSS@ $(MAKE) checkone ENGINE=./engine/$@; \
+		@NO_CHECK@ $(MAKE) checkone ENGINE=./engine/$@; \
 	fi
 
 optgforth-fast:
@@ -914,7 +914,7 @@ libgforth$(OPT)$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/config.h @ke
 		for i in $(OPTS); do $(MAKE) optlibgforth OPT=$$i && $(MAKE) optlibgforth2 OPT=$$i && $(LN_S) engine/$@ $@ && break; done; \
 	else \
 		(cd engine && $(MAKE) $@ ); \
-		@NO_CROSS@ $(MAKE) checkone check-nofast ENGINE=./engine/$@; \
+		@NO_CHECK@ $(MAKE) checkone check-nofast ENGINE=./engine/$@; \
 	fi
 
 optlibgforth:
@@ -928,7 +928,7 @@ libgforth-fast$(OPT)$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE_FAST) engine/co
 		for i in $(OPTS); do $(MAKE) optlibgforth-fast OPT=$$i && $(MAKE) optlibgforth-fast2 OPT=$$i && $(LN_S) engine/$@ $@ && break; done; \
 	else \
 		(cd engine && $(MAKE) $@ ); \
-		@NO_CROSS@ $(MAKE) checkone ENGINE=./engine/$@; \
+		@NO_CHECK@ $(MAKE) checkone ENGINE=./engine/$@; \
 	fi
 
 optlibgforth-fast:

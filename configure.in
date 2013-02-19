@@ -68,10 +68,17 @@ AC_ARG_WITH(debug,
 			  debugging informations.],
 if test "$withval" = "yes"; then DEBUGFLAG=-g; fi)
 
+NO_CHECK=""
+COMMENT="#"
+
+AC_ARG_WITH(check,
+[  --with-check		  enables sanity check during build (default)
+  --without-check	  disables sanity check during build],
+if test "$withval" = "no"; then NO_CHECK="$COMMENT"; fi)
+
 GCC_LD="\$(GCC)"
 EC_MODE="false"
 NO_EC=""
-NO_CROSS=""
 EC=""
 engine2='engine2$(OPT).o'
 engine_fast2='engine-fast2$(OPT).o'
@@ -91,6 +98,7 @@ else
   EC_MODE="true"
   EC="-ec"
   NO_EC="#"
+  NO_CHECK="#"
   NO_CROSS="#"
   engine2=""
   engine_fast2=""
@@ -138,6 +146,7 @@ else
   LIB_PATH=${GCC_PATH%/*/*}
   platform=${withval}
   NO_EC=""
+  NO_CHECK="#"
   NO_CROSS="#"
 fi])
 
@@ -229,6 +238,7 @@ AC_SUBST(GCC_LD)
 AC_SUBST(DEBUGFLAG)
 AC_SUBST(EC)
 AC_SUBST(NO_EC)
+AC_SUBST(NO_CHECK)
 AC_SUBST(NO_CROSS)
 AC_SUBST(EC_MODE)
 AC_SUBST(engine2)
