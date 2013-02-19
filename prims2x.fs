@@ -1,6 +1,6 @@
 \ converts primitives to, e.g., C code 
 
-\ Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2009,2010,2011 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -645,14 +645,19 @@ does> ( item -- )
  prim prim-effect-in prim prim-effect-in-end @ declaration-list
  prim prim-effect-out prim prim-effect-out-end @ declaration-list ;
 
+Variable maybe-unused
+
 : print-declaration { item -- }
     item item-first @ if
+	maybe-unused @ IF  ." MAYBE_UNUSED "  THEN
 	item item-type @ type-c-name 2@ type space
 	item item-name 2@ type ." ;" cr
     endif ;
 
 : print-declarations ( -- )
+    maybe-unused on
     prim prim-effect-in  prim prim-effect-in-end  @ ['] print-declaration map-items
+    maybe-unused off
     prim prim-effect-out prim prim-effect-out-end @ ['] print-declaration map-items ;
     
 : stack-prefix ( stack "prefix" -- )
@@ -921,11 +926,14 @@ stack inst-stream IP Cell
 : stack-pointer-update { stack -- }
     \ and moves
     \ stacks grow downwards
+\    ." /* stack pointer update " stack stack-pointer 2@ type ."  */" cr
     stack stack-prim-stacks-sync @ if
+\	." /* synced "  stack stack-in ? stack stack-out ? stack state-in  stack-offset . ." */" cr
 	stack stack-in @
 	stack state-in  stack-offset -
 	stack swap update-stack-pointer
     else
+\	." /* unsynced "  stack stack-in ? stack stack-out ? ." */" cr
 	stack stack-diff ( in-out )
 	stack state-in  stack-offset -
 	stack state-out stack-offset + ( [in-in_offset]-[out-out_offset] )
@@ -937,6 +945,7 @@ stack inst-stream IP Cell
     ['] stack-pointer-update map-stacks ;
 
 : stack-pointer-update2 { stack -- }
+\    ." /* stack pointer update2 " stack stack-pointer 2@ type ."  */" cr
     stack stack-prim-stacks-sync @ if
 	stack state-out stack-offset
 	stack stack-out @ -
@@ -1053,6 +1062,7 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
     tail-nextp2 @ output-c-tail1-no-stores ;
 
 : output-c-tail2-no-stores ( -- )
+    prim prim-c-code 2@ s" VM_JUMP(" search nip nip abort" Currently VM_JUMP is not supported in static superinstructions"
     ['] output-label2 output-c-tail1-no-stores ;
 
 : type-c-code ( c-addr u xt -- )
@@ -1348,6 +1358,7 @@ is output-c-prim-num
 \  NEXT_P2;
 
 : init-combined ( -- )
+    ['] clear-prim-stacks-sync map-stacks
     prim to combined
     0 num-combined !
     current-depth max-stacks cells erase
@@ -1555,8 +1566,8 @@ variable reprocessed-num 0 reprocessed-num !
     stores ;
 
 : output-combined-tail ( -- )
-    part-output-c-tail
     in-part @ >r in-part off
+    part-output-c-tail
     combined ['] output-c-tail-no-stores prim-context
     r> in-part ! ;
 
