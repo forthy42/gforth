@@ -34,8 +34,8 @@ Url:            http://www.gnu.org/software/gforth/
 License:        GNU Free Documentation License, Version 1.2 (GFDL 1.2); GPL v2 or later; GPL v3 or later
 Group:          Development/Languages/Other
 AutoReqProv:    on
-Version:        0.7.0
-Release:        40.1
+Version:        0.7.1
+Release:        41.1
 Summary:        GNU Forth
 Source:         gforth-%{version}.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
