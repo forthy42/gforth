@@ -1,3 +1,10 @@
+User-visible changes between 0.7.0 and 0.7.1:
+Bug fixes
+  amd64 gdb disassembler works with syntax change (autodetected)
+  workaround for gcc 4.6 and 4.7 problems (newline and superinstructions)
+Miscellaneous
+  changed repository from CVS to git
+
 User-visible changes between 0.6.2 and 0.7.0:
 
 Requirements:
@@ -335,7 +342,7 @@ $?)  added (SYSTEM) ( c_addr u -- wretval wior ).
 ' and ['] now give an error for compile-only words.
 
 -----
-Copyright (C) 1995,1996,1997,1998,2000,2003,2006,2007,2008 Free Software Foundation, Inc.
+Copyright (C) 1995,1996,1997,1998,2000,2003,2006,2007,2008,2013 Free Software Foundation, Inc.
 
 This file is part of Gforth.
 
