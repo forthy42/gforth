@@ -18,13 +18,24 @@
 
 
 Name:           gforth
-BuildRequires:  emacs-nox autoconf automake lzma
+%if 0%{?rhel_version}
+BuildRequires:  emacs-nox automake autoconf libtool libtool-ltdl
+%endif
+%if 0%{?centos_version}
+BuildRequires:  emacs-nox automake autoconf libtool libtool-ltdl libtool-ltdl-devel
+%endif
+%if 0%{?fedora}
+BuildRequires:  emacs-nox automake autoconf libtool libtool-ltdl
+%endif
+%if 0%{?suse_version}
+BuildRequires:  emacs-nox automake autoconf
+%endif
 Url:            http://www.gnu.org/software/gforth/
 License:        GNU Free Documentation License, Version 1.2 (GFDL 1.2); GPL v2 or later; GPL v3 or later
 Group:          Development/Languages/Other
 AutoReqProv:    on
 Version:        0.7.0
-Release:        37.1
+Release:        40.1
 Summary:        GNU Forth
 Source:         gforth-%{version}.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
@@ -97,6 +108,10 @@ rm -rf $RPM_BUILD_ROOT
 %dir /usr/share/gforth/site-forth
 %config /usr/share/gforth/site-forth/siteinit.fs
 %doc %{_infodir}/*.gz
+%if 0%{?suse_version}
+%else
+%doc %{_infodir}/dir
+%endif
 %doc %{_mandir}/man?/*
 
 %changelog
