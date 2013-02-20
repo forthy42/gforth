@@ -1,6 +1,14 @@
 Update this by inserting the output of 
 	LC_ALL=en_US.UTF-8 git log --stat --pretty=format:"%ai%x09%aN%x09<%aE>%n %h...%x09%s%n" <last tag>..HEAD
 
+2013-02-20 22:05:12 +0100       Bernd Paysan    <bernd.paysan@gmx.de>
+ 63708ef...     Bumped version to 0.7.1, added changelog stuff
+
+ ChangeLog    |   55 +++++++++++++++++++++++++++++++++++++++++++++++++++----
+ NEWS         |    9 ++++++++-
+ configure.in |    4 ++--
+ 3 files changed, 61 insertions(+), 7 deletions(-)
+
 2013-02-20 01:58:00 +0100	Bernd Paysan	<bernd.paysan@gmx.de>
  2ad4355...	spec for RedHat, too
 
