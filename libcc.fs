@@ -149,6 +149,13 @@ struct
     \  counted string: c-name
 end-struct cff%
 
+struct
+    cell% field ccb-num
+    cell% field ccb-lha
+    cell% field ccb-ips
+    cell% field ccb-cfuns
+end-struct ccb%
+
 variable c-source-file-id \ contains the source file id of the current batch
 0 c-source-file-id !
 variable lib-handle-addr \ points to the library handle of the current batch.
@@ -251,7 +258,7 @@ drop
     ELSE  drop  s" "  THEN ;
 
 : libcc-cast, ( "<{>cast<}>" -- )
-    parse-libcc-cast  dup c,  here swap dup allot move ;
+    parse-libcc-cast string, ;
 
 : parse-return-type ( "libcc-type" -- u )
     parse-libcc-type dup 0< -32 and throw ;
@@ -315,11 +322,18 @@ create count-stacks-types
 
 \ gen-pars
 
+true Value push-dir?
+
+: .gen ( n -- n' )  push-dir? IF  1- dup .nb  ELSE  dup .nb 1+  THEN ;
+
 : gen-par-sp ( fp-depth1 sp-depth1 -- fp-depth2 sp-depth2 )
-    ." sp[" 1- dup .nb ." ]" ;
+    ." sp[" .gen ." ]" ;
+
+: gen-par-sp+ ( fp-depth1 sp-depth1 -- fp-depth2 sp-depth2 )
+    ." sp+" .gen ;
 
 : gen-par-fp ( fp-depth1 sp-depth1 -- fp-depth2 sp-depth2 )
-    swap 1- tuck ." fp[" .nb ." ]" ;
+    swap ." fp[" .gen ." ]" swap ;
 
 : gen-par-n ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
     type gen-par-sp ;
@@ -328,7 +342,9 @@ create count-stacks-types
     dup 0= IF  2drop ." (void *)"  ELSE type  THEN s" (" gen-par-n ." )" ;
 
 : gen-par-d ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
-    2drop s" gforth_d2ll(" gen-par-n ." ," gen-par-sp ." )" ;
+    2drop push-dir? 0= -
+    s" gforth_d2ll(" gen-par-n ." ," push-dir? 0= 2* + gen-par-sp ." )"
+    push-dir? 0= - ;
 
 : gen-par-r ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
     2drop gen-par-fp ;
@@ -385,7 +401,7 @@ create gen-call-types
     2dup gen-par-sp 2>r ." =" gen-wrapped-call 2r> ;
 
 : gen-wrapped-a ( pars c-name fp-change1 sp-change1 -- fp-change sp-change )
-    2dup gen-par-sp 2>r ." =(Cell)" gen-wrapped-call 2r> ;
+    2dup ." *(void**)(" gen-par-sp+ 2>r ." )=" gen-wrapped-call 2r> ;
 
 : gen-wrapped-d ( pars c-name fp-change1 sp-change1 -- fp-change sp-change )
     ." gforth_ll2d(" gen-wrapped-void
@@ -448,6 +464,98 @@ create gen-wrapped-types
 	."   gforth_FP = fp+" .nb .\" ;\n"
     endif
     .\" }\n" ;
+
+\ callbacks
+
+: gen-n ( -- ) ." Cell" ;
+: gen-a ( -- ) ." void*" ;
+: gen-d ( -- ) ." Clongest" ;
+: gen-r ( -- ) ." Float" ;
+: gen-func ( -- ) ." void(*)()" ;
+: gen-void ( -- ) ." void" ;
+
+create gen-types
+' gen-n ,
+' gen-a ,
+' gen-d ,
+' gen-r ,
+' gen-func ,
+' gen-void ,
+
+: print-type ( n -- ) cells gen-types + perform ;
+
+: callback-header ( descriptor -- )
+    count { ret } count 2dup { d: pars } chars + count { d: c-name }
+    ." #define CALLBACK_" c-name type ." (I) \" cr
+    ret print-type space ." gforth_cb_" c-name type ." _##I ("
+    0 pars bounds u+do
+	i 1+ count dup IF  type  ELSE  2drop i c@ print-type  THEN
+	."  x" dup 0 .r 1+
+	i 1+ c@ 2 + dup i + i' u< if
+	    ." , "
+	endif
+    +loop  drop .\" ) \\\n{ \\" cr ;
+
+Create callback-style c-val c,
+
+: callback-pushs ( descriptor -- )
+    false to push-dir?
+    1+ count 0 { d: pars vari }
+    pars count-stacks
+    ."   Cell*  sp=gforth_SP-" .nb ." ; \" cr
+    ."   Float* fp=gforth_FP-" .nb ." ; \" cr
+    0 0 pars bounds u+do
+	callback-style 3 + 1 2swap
+	vari 0 <# #s 'x' hold #> 2swap
+	i c@ 2 spaces gen-wrapped-stmt ." ; \" cr
+	i 1+ c@ 2 +  vari 1+ to vari
+    +loop  2drop
+    true to push-dir? ;
+
+: callback-call ( descriptor -- )
+    1+ count + count \ callback C name
+    ."   gforth_SP=sp; gforth_FP=fp; gforth_engine(gforth_cbips_" type
+    ." [I]); \" cr ;
+
+: callback-return ( descriptor -- )
+    ."   sp=gforth_SP; fp=gforth_FP; \" cr
+    >r r@ 1 count-stacks
+    ?dup-if  ."   gforth_SP+=" .nb ." ; \" cr  then
+    ?dup-if  ."   gforth_FP+=" .nb ." ; \" cr  then
+    ."   return " 0 0 s" " r> c@ gen-par 2drop .\" ; \\\n}" cr ;
+
+: callback-define ( descriptor -- )
+    dup callback-header dup callback-pushs dup callback-call callback-return ;
+
+8 Value callback# \ how many callbacks should be created?
+
+: callback-instantiate ( addr u -- )
+    callback# 0 ?DO
+	." CALLBACK_" 2dup type ." (" I .nb ." )" cr
+    LOOP 2drop ;
+
+: callback-ip-array ( addr u -- )
+    ." Address gforth_cbips_" 2dup type ." [" callback# .nb ." ] = {" cr
+    space callback# 0 ?DO ."  0," LOOP ." };" cr ;
+
+: callback-c-array ( addr u -- )
+    ." const Address gforth_callbacks_" 2dup type ." [" callback# .nb ." ] = {" cr
+    callback# 0 ?DO
+	."   (Address)gforth_cb_" 2dup type ." _" I .nb ." ," cr
+    LOOP
+    ." };" cr ;
+
+: callback-gen ( descriptor -- )
+    dup callback-define  1+ count + count \ c-name u
+    2dup callback-ip-array 2dup callback-instantiate callback-c-array ;
+
+: lookup-ip-array ( addr u lib -- addr ) >r
+    [: ." gforth_cbips_" type ;] $tmp r> lib-sym ;
+
+: lookup-c-array ( addr u lib -- addr ) >r
+    [: ." gforth_callbacks_" type ;] $tmp r> lib-sym ;
+
+\ file stuff
 
 : dirname ( c-addr1 u1 -- c-addr2 u2 )
     \ directory name of the file name c-addr1 u1, including the final "/".
@@ -672,6 +780,28 @@ clear-libs
     \G ptr using the typecast or struct access @code{c-typecast}.
     true to is-funptr? ['] parse-function-types (c-function)
     false to is-funptr? ;
+
+: c-callback ( "forth-name" "@{type@}" "---" "type" -- ) \ gforth
+    \G Define a callback instantiator
+    Create  here dup ccb% %size dup allot erase
+    lib-handle-addr @ swap ccb-lha !
+    parse-function-types
+    here lastxt name>string string, count sanitize
+    [: callback-gen ;] c-source-file-execute
+  DOES> ( xt "name" -- ) \ create a callback instance
+    >r r@ ccb-lha @ @ 0= IF
+	compile-wrapper-function
+    THEN
+    r@ ccb-cfuns @ 0= IF
+	r@ cff% %size + 2 + count + count  2dup
+	r@ ccb-lha @ @ lookup-ip-array r@ ccb-ips !
+	r@ ccb-lha @ @ lookup-c-array  r@ ccb-cfuns !
+    THEN
+    r@ @ callback# u>= abort" Too many callbacks!"
+    >r :noname r> compile, ]] 0 (bye) ; [[
+    >body r@ ccb-ips @ r@ ccb-num @ cells + !
+    r@ ccb-cfuns @ r@ ccb-num @ cells + @ Constant
+    1 r> ccb-num +! ;
 
 : c-library-incomplete ( -- )
     true abort" Called function of unfinished named C library" ;

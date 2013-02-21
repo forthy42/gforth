@@ -98,8 +98,7 @@
 
 : string, ( c-addr u -- ) \ gforth
     \G puts down string as cstring
-    dup alias-mask or c,
-    here swap chars dup allot move ;
+    dup c, here swap chars dup allot move ;
 
 : longstring, ( c-addr u -- ) \ gforth
     \G puts down string as longcstring
