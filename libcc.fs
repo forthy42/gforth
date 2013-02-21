@@ -239,7 +239,7 @@ drop
     c-func c, here
     dup 2 chars allot here begin
 	parse-libcc-type dup 0>= while
-	    c,
+	    c, 0 c, \ cast string
     repeat
     drop here swap - over char+ c!
     parse-return-type swap c! ;
@@ -247,7 +247,7 @@ drop
 : parse-value-type ( "{--}" "libcc-type" -- addr )
     c-val c, here
     parse-libcc-type  dup 0< if drop parse-return-type then
-    c,  0 c, ;
+    c,  0 c, ( cast string ) 0 c, ( terminator ) ;
 
 : parse-variable-type ( -- addr )
     c-var c, here
@@ -290,7 +290,7 @@ create count-stacks-types
     \ pars is an addr u pair
     0 0 2swap over + swap u+do
 	i c@ cells count-stacks-types + @ execute
-    loop ;
+    i 1+ c@ 2 + +loop ;
 
 \ gen-pars
 
@@ -329,10 +329,10 @@ create gen-par-types
     c-name type ." ("
     fp-change1 sp-change1 pars over + swap u+do 
 	i c@ gen-par
-	i 1+ i' < if
+	i 1+ c@ 2 + dup i + i' u< if
 	    ." ,"
 	endif
-    loop
+    +loop
     2drop ." )" ;
 
 : gen-wrapped-const { d: pars d: c-name fp-change1 sp-change1 -- }
@@ -397,7 +397,7 @@ create gen-wrapped-types
     pars + count type '_' emit
     pars bounds u+do
 	i c@ type-letter emit
-    loop
+    i 1+ c@ 2 + +loop
     '_' emit r-type type-letter emit
     ;] $tmp 2dup sanitize ;
 
