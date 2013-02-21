@@ -254,8 +254,6 @@ drop
     s" a" libcc-type c,  0 c, ;
 
 0 Value is-funptr?
-: parse-funptr-types ( "{libcc-type}" "--" "libcc-type" -- addr )
-    true to is-funptr?  parse-function-types ;
 
 : type-letter ( n -- c )
     chars s" nadrfv" drop + c@ ;
@@ -414,7 +412,7 @@ create gen-wrapped-types
     descriptor wrapper-function-name type
     .\" (GFORTH_ARGS)\n"
     .\" {\n  Cell MAYBE_UNUSED *sp = gforth_SP;\n  Float MAYBE_UNUSED *fp = gforth_FP;\n  "
-    is-funptr? IF  .\" Cell ptr = *sp++;\n  "  0 to is-funptr?  THEN
+    is-funptr? IF  .\" Cell ptr = *sp++;\n  "  THEN
     pars c-name 2over count-stacks ret gen-wrapped-stmt .\" ;\n"
     ?dup-if
 	."   gforth_SP = sp+" .nb .\" ;\n"
@@ -600,11 +598,18 @@ clear-libs
         .lib-error -&32 throw
     endif ;
 
+: parse-c-name ( -- addr u )
+    is-funptr? IF
+	'{' parse 2drop '}' parse
+    ELSE
+	parse-name
+    THEN ;
+
 : c-function-ft ( xt-defr xt-cfr xt-parse "c-name" "type signature" -- )
     \ build time/first time action for c-function
     { xt-parse-types }
     noname create 2, lib-handle-addr @ ,
-    parse-name { d: c-name }
+    parse-c-name { d: c-name }
     xt-parse-types execute c-name string,
     ['] gen-wrapper-function c-source-file-execute
   does> ( ... -- ... )
@@ -643,11 +648,12 @@ clear-libs
     \G address of @code{c-name}.
     ['] parse-variable-type (c-function) ;
 
-: c-funptr ( "forth-name" "c-typecast" "@{type@}" "---" "type" -- ) \ gforth
+: c-funptr ( "forth-name" <@{>"c-typecast"<@}> "@{type@}" "---" "type" -- ) \ gforth
     \G Define a Forth word @i{forth-name}.  @i{Forth-name} has the
     \G specified stack effect and calls the C function pointer
     \G ptr using the typecast or struct access @code{c-typecast}.
-    ['] parse-funptr-types (c-function) ;
+    true to is-funptr? ['] parse-function-types (c-function)
+    false to is-funptr? ;
 
 : c-library-incomplete ( -- )
     true abort" Called function of unfinished named C library" ;
