@@ -168,6 +168,15 @@ defer replace-rpath ( c-addr1 u1 -- c-addr2 u2 )
 : const+ ( n1 "name" -- n2 )
     dup constant 1+ ;
 
+: scan-back { c-addr u1 c -- c-addr u2 }
+    \ the last occurence of c in c-addr u1 is at u2-1; if it does not
+    \ occur, u2=0.
+    c-addr 1- c-addr u1 + 1- u-do
+	i c@ c = if
+	    c-addr i over - 1+ unloop exit endif
+    1 -loop
+    c-addr 0 ;
+
 Variable c-libs \ library names in a string (without "lib")
 
 : lib-prefix ( -- addr u )  s" libgf" ;
@@ -228,18 +237,30 @@ const+ c-var
 drop
 
 : libcc-type ( c-addr u -- u2 )
-	libcc-types search-wordlist 0= -13 and throw execute ;
+    libcc-types search-wordlist 0= -13 and throw execute ;
 
-: parse-libcc-type ( "libcc-type" -- u )  parse-name libcc-type ;
+: parse-libcc-type ( "libcc-type" -- u )
+    parse-name 2dup '{' scan-back
+    dup IF  2nip 1- 2dup + source drop - >in !  ELSE  2drop  THEN
+    libcc-type ;
+
+: parse-libcc-cast ( "<{>cast<}>" -- addr u )
+    source >in @ /string IF  c@ '{' =  IF
+	    '{' parse 2drop '}' parse
+	ELSE  s" "  THEN
+    ELSE  drop  s" "  THEN ;
+
+: libcc-cast, ( "<{>cast<}>" -- )
+    parse-libcc-cast  dup c,  here swap dup allot move ;
 
 : parse-return-type ( "libcc-type" -- u )
-	parse-libcc-type dup 0< -32 and throw ;
+    parse-libcc-type dup 0< -32 and throw ;
 
 : parse-function-types ( "{libcc-type}" "--" "libcc-type" -- addr )
     c-func c, here
     dup 2 chars allot here begin
 	parse-libcc-type dup 0>= while
-	    c, 0 c, \ cast string
+	    c, libcc-cast, \ cast string
     repeat
     drop here swap - over char+ c!
     parse-return-type swap c! ;
@@ -247,7 +268,7 @@ drop
 : parse-value-type ( "{--}" "libcc-type" -- addr )
     c-val c, here
     parse-libcc-type  dup 0< if drop parse-return-type then
-    c,  0 c, ( cast string ) 0 c, ( terminator ) ;
+    c,  libcc-cast, 0 c, ( terminator ) ;
 
 : parse-variable-type ( -- addr )
     c-var c, here
@@ -294,22 +315,28 @@ create count-stacks-types
 
 \ gen-pars
 
-: gen-par-n ( fp-depth1 sp-depth1 -- fp-depth2 sp-depth2 )
+: gen-par-sp ( fp-depth1 sp-depth1 -- fp-depth2 sp-depth2 )
     ." sp[" 1- dup .nb ." ]" ;
 
-: gen-par-a ( fp-depth1 sp-depth1 -- fp-depth2 sp-depth2 )
-    ." (void *)(" gen-par-n ." )" ;
-
-: gen-par-d ( fp-depth1 sp-depth1 -- fp-depth2 sp-depth2 )
-    ." gforth_d2ll(" gen-par-n ." ," gen-par-n ." )" ;
-
-: gen-par-r ( fp-depth1 sp-depth1 -- fp-depth2 sp-depth2 )
+: gen-par-fp ( fp-depth1 sp-depth1 -- fp-depth2 sp-depth2 )
     swap 1- tuck ." fp[" .nb ." ]" ;
 
-: gen-par-func ( fp-depth1 sp-depth1 -- fp-depth2 sp-depth2 )
+: gen-par-n ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
+    type gen-par-sp ;
+
+: gen-par-a ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
+    dup 0= IF  2drop ." (void *)"  ELSE type  THEN s" (" gen-par-n ." )" ;
+
+: gen-par-d ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
+    2drop s" gforth_d2ll(" gen-par-n ." ," gen-par-sp ." )" ;
+
+: gen-par-r ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
+    2drop gen-par-fp ;
+
+: gen-par-func ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
     gen-par-a ;
 
-: gen-par-void ( fp-depth1 sp-depth1 -- fp-depth2 sp-depth2 )
+: gen-par-void ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
     -32 throw ;
 
 create gen-par-types
@@ -320,7 +347,7 @@ create gen-par-types
 ' gen-par-func ,
 ' gen-par-void ,
 
-: gen-par ( fp-depth1 sp-depth1 partype -- fp-depth2 sp-depth2 )
+: gen-par ( fp-depth1 sp-depth1 cast-addr u partype -- fp-depth2 sp-depth2 )
     cells gen-par-types + @ execute ;
 
 \ the call itself
@@ -328,7 +355,7 @@ create gen-par-types
 : gen-wrapped-func { d: pars d: c-name fp-change1 sp-change1 -- }
     c-name type ." ("
     fp-change1 sp-change1 pars over + swap u+do 
-	i c@ gen-par
+	i 1+ count i c@ gen-par
 	i 1+ c@ 2 + dup i + i' u< if
 	    ." ,"
 	endif
@@ -355,17 +382,17 @@ create gen-call-types
     2dup 2>r gen-wrapped-call 2r> ;
 
 : gen-wrapped-n ( pars c-name fp-change1 sp-change1 -- fp-change sp-change )
-    2dup gen-par-n 2>r ." =" gen-wrapped-call 2r> ;
+    2dup gen-par-sp 2>r ." =" gen-wrapped-call 2r> ;
 
 : gen-wrapped-a ( pars c-name fp-change1 sp-change1 -- fp-change sp-change )
-    2dup gen-par-n 2>r ." =(Cell)" gen-wrapped-call 2r> ;
+    2dup gen-par-sp 2>r ." =(Cell)" gen-wrapped-call 2r> ;
 
 : gen-wrapped-d ( pars c-name fp-change1 sp-change1 -- fp-change sp-change )
     ." gforth_ll2d(" gen-wrapped-void
-    ." ," gen-par-n ." ," gen-par-n ." )" ;
+    ." ," gen-par-sp ." ," gen-par-sp ." )" ;
 
 : gen-wrapped-r ( pars c-name fp-change1 sp-change1 -- fp-change sp-change )
-    2dup gen-par-r 2>r ." =" gen-wrapped-call 2r> ;
+    2dup gen-par-fp 2>r ." =" gen-wrapped-call 2r> ;
 
 : gen-wrapped-func ( pars c-name fp-change1 sp-change1 -- fp-change sp-change )
     gen-wrapped-a ;
@@ -421,15 +448,6 @@ create gen-wrapped-types
 	."   gforth_FP = fp+" .nb .\" ;\n"
     endif
     .\" }\n" ;
-
-: scan-back { c-addr u1 c -- c-addr u2 }
-    \ the last occurence of c in c-addr u1 is at u2-1; if it does not
-    \ occur, u2=0.
-    c-addr 1- c-addr u1 + 1- u-do
-	i c@ c = if
-	    c-addr i over - 1+ unloop exit endif
-    1 -loop
-    c-addr 0 ;
 
 : dirname ( c-addr1 u1 -- c-addr2 u2 )
     \ directory name of the file name c-addr1 u1, including the final "/".
