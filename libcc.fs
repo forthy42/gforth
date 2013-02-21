@@ -322,9 +322,7 @@ create count-stacks-types
 
 \ gen-pars
 
-true Value push-dir?
-
-: .gen ( n -- n' )  push-dir? IF  1- dup .nb  ELSE  dup .nb 1+  THEN ;
+: .gen ( n -- n' )  1- dup .nb ;
 
 : gen-par-sp ( fp-depth1 sp-depth1 -- fp-depth2 sp-depth2 )
     ." sp[" .gen ." ]" ;
@@ -342,9 +340,7 @@ true Value push-dir?
     dup 0= IF  2drop ." (void *)"  ELSE type  THEN s" (" gen-par-n ." )" ;
 
 : gen-par-d ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
-    2drop push-dir? 0= -
-    s" gforth_d2ll(" gen-par-n ." ," push-dir? 0= 2* + gen-par-sp ." )"
-    push-dir? 0= - ;
+    2drop s" gforth_d2ll(" gen-par-n ." ," gen-par-sp ." )" ;
 
 : gen-par-r ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
     2drop gen-par-fp ;
@@ -499,18 +495,17 @@ create gen-types
 Create callback-style c-val c,
 
 : callback-pushs ( descriptor -- )
-    false to push-dir?
     1+ count 0 { d: pars vari }
-    pars count-stacks
-    ."   Cell*  sp=gforth_SP-" .nb ." ; \" cr
-    ."   Float* fp=gforth_FP-" .nb ." ; \" cr
+    ."   Cell*  sp=gforth_SP; \" cr
+    ."   Float* fp=gforth_FP; \" cr
     0 0 pars bounds u+do
 	callback-style 3 + 1 2swap
 	vari 0 <# #s 'x' hold #> 2swap
 	i c@ 2 spaces gen-wrapped-stmt ." ; \" cr
 	i 1+ c@ 2 +  vari 1+ to vari
-    +loop  2drop
-    true to push-dir? ;
+    +loop
+    ?dup-if  ."   sp+=" .nb ." ; \" cr  then
+    ?dup-if  ."   fp+=" .nb ." ; \" cr  then ;
 
 : callback-call ( descriptor -- )
     1+ count + count \ callback C name
@@ -520,9 +515,9 @@ Create callback-style c-val c,
 : callback-return ( descriptor -- )
     ."   sp=gforth_SP; fp=gforth_FP; \" cr
     >r r@ 1 count-stacks
-    ?dup-if  ."   gforth_SP+=" .nb ." ; \" cr  then
-    ?dup-if  ."   gforth_FP+=" .nb ." ; \" cr  then
-    ."   return " 0 0 s" " r> c@ gen-par 2drop .\" ; \\\n}" cr ;
+    ?dup-if  ."   sp=gforth_SP+=" .nb ." ; \" cr  then
+    ?dup-if  ."   fp=gforth_FP+=" .nb ." ; \" cr  then
+    0 0 s"   return " r> c@ gen-par 2drop .\" ; \\\n}" cr ;
 
 : callback-define ( descriptor -- )
     dup callback-header dup callback-pushs dup callback-call callback-return ;
@@ -536,14 +531,14 @@ Create callback-style c-val c,
 
 : callback-ip-array ( addr u -- )
     ." Address gforth_cbips_" 2dup type ." [" callback# .nb ." ] = {" cr
-    space callback# 0 ?DO ."  0," LOOP ." };" cr ;
+    space callback# 0 ?DO ."  0," LOOP ." };" cr 2drop ;
 
 : callback-c-array ( addr u -- )
     ." const Address gforth_callbacks_" 2dup type ." [" callback# .nb ." ] = {" cr
     callback# 0 ?DO
 	."   (Address)gforth_cb_" 2dup type ." _" I .nb ." ," cr
     LOOP
-    ." };" cr ;
+    ." };" cr 2drop ;
 
 : callback-gen ( descriptor -- )
     dup callback-define  1+ count + count \ c-name u
