@@ -275,7 +275,7 @@ drop
 : parse-value-type ( "{--}" "libcc-type" -- addr )
     c-val c, here
     parse-libcc-type  dup 0< if drop parse-return-type then
-    c,  libcc-cast, 0 c, ( terminator ) ;
+    c,  0 c, ( terminator ) ;
 
 : parse-variable-type ( -- addr )
     c-var c, here
@@ -397,7 +397,7 @@ create gen-call-types
     2dup gen-par-sp 2>r ." =" gen-wrapped-call 2r> ;
 
 : gen-wrapped-a ( pars c-name fp-change1 sp-change1 -- fp-change sp-change )
-    2dup ." *(void**)(" gen-par-sp+ 2>r ." )=" gen-wrapped-call 2r> ;
+    2dup gen-par-sp 2>r ." =(Cell)" gen-wrapped-call 2r> ;
 
 : gen-wrapped-d ( pars c-name fp-change1 sp-change1 -- fp-change sp-change )
     ." gforth_ll2d(" gen-wrapped-void
@@ -777,25 +777,28 @@ clear-libs
     false to is-funptr? ;
 
 : c-callback ( "forth-name" "@{type@}" "---" "type" -- ) \ gforth
-    \G Define a callback instantiator
-    Create  here dup ccb% %size dup allot erase
+    \G Define a callback instantiator with the given signature.  The
+    \G callback instantiator @i{forth-name} @code{( xt -- addr )} takes
+    \G an @var{xt}, and returns the @var{addr}ess of the C function
+    \G handling that callback.
+    Create here dup ccb% %size dup allot erase
     lib-handle-addr @ swap ccb-lha !
     parse-function-types
     here lastxt name>string string, count sanitize
     [: callback-gen ;] c-source-file-execute
-  DOES> ( xt "name" -- ) \ create a callback instance
+  DOES> ( xt -- addr ) \ create a callback instance
     >r r@ ccb-lha @ @ 0= IF
 	compile-wrapper-function
     THEN
     r@ ccb-cfuns @ 0= IF
-	r@ cff% %size + 2 + count + count  2dup
+	r@ cff% %size + 2 + count + count 2dup
 	r@ ccb-lha @ @ lookup-ip-array r@ ccb-ips !
-	r@ ccb-lha @ @ lookup-c-array  r@ ccb-cfuns !
+	r@ ccb-lha @ @ lookup-c-array r@ ccb-cfuns !
     THEN
     r@ @ callback# u>= abort" Too many callbacks!"
     >r :noname r> compile, ]] 0 (bye) ; [[
     >body r@ ccb-ips @ r@ ccb-num @ cells + !
-    r@ ccb-cfuns @ r@ ccb-num @ cells + @ Constant
+    r@ ccb-cfuns @ r@ ccb-num @ cells + @
     1 r> ccb-num +! ;
 
 : c-library-incomplete ( -- )

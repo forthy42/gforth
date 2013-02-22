@@ -22,8 +22,7 @@ c-library socket
 \c #include <unistd.h>
 c-function gethostname gethostname a n -- n ( c-addr u -- ior )
 \c #include <errno.h>
-\c #define get_errno() errno
-c-function errno get_errno -- n ( -- value )
+c-value errno errno -- n ( -- value )
 \c #include <sys/types.h>
 \c #include <sys/socket.h>
 c-function socket socket n n n -- n ( class type proto -- fd )
@@ -44,8 +43,7 @@ c-function fcntl fcntl n n n -- n ( fd n1 n2 -- ior )
 c-function htonl htonl n -- n ( x -- x' )
 c-function htons htons n -- n ( x -- x' )
 c-function ntohl ntohl n -- n ( x -- x' )
-\c #define fileno1(file) fileno((FILE*)(file))
-c-function fileno fileno1 a -- n ( file* -- fd )
+c-function fileno fileno a{(FILE*)} -- n ( file* -- fd )
 \c #include <poll.h>
 c-function poll poll a n n -- n ( fds nfds timeout -- r )
 e? os-type s" linux-gnu" str= [IF]

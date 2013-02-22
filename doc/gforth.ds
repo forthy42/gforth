@@ -12414,17 +12414,17 @@ c-function printf-rn printf a r n -- n
 Note that with C functions declared as variadic (or if you don't
 provide a prototype), the C interface has no C type to convert to, so
 no automatic conversion happens, which may lead to portability
-problems in some cases.  In such cases you can perform the conversion
-explicitly on the C level, e.g., as follows:
+problems in some cases.  You can add the C type cast in curly braces
+after the Forth type.  This also allows to pass e.g. structs to C
+functions, which in Forth cannot live on the stack.
 
 @example
-\c #define printfll(s,ll) printf(s,(long long)ll)
-c-function printfll printfll a n -- n
+c-function printfll printf a n@{(long long)@} -- n
+c-function pass-struct pass_struct a@{*(struct foo *)@} -- n
 @end example
 
-Here, instead of calling @code{printf()} directly, we define a macro
-that casts (converts) the Forth single-cell integer into a
-C @code{long long} before calling @code{printf()}.
+This typecasting is not available to return values, as C does not
+allow typecasts for lvalues.
 
 doc-\c
 doc-c-function
@@ -12445,8 +12445,11 @@ in @file{lib.fs}.
 @cindex C function pointers, calling from Forth
 
 If you come across a C function pointer (e.g., in some C-constructed
-structure) and want to call it from your Forth program, you can also
-use the features explained until now to achieve that, as follows:
+structure) and want to call it from your Forth program, you could use
+the structures as described above by defining a macro.  Or you use
+@code{c-funptr}.
+
+doc-c-funptr
 
 Let us assume that there is a C function pointer type @code{func1}
 defined in some header file @file{func1.h}, and you know that these
@@ -12455,8 +12458,7 @@ you want to call functions through such pointers.  Just define
 
 @example
 \c #include <func1.h>
-\c #define call_func1(par1,fptr) ((func1)fptr)(par1)
-c-function call-func1 call_func1 n func -- n
+c-funptr call-func1 @{((func1)ptr)@} n -- n
 @end example
 
 and then you can call a function pointed to by, say @code{func1a} as
@@ -12466,16 +12468,11 @@ follows:
 -5 func1a call-func1 .
 @end example
 
-In the C part, @code{call_func} is defined as a macro to avoid having
-to declare the exact parameter and return types, so the C compiler
-knows them from the declaration of @code{func1}.
-
 The Forth word @code{call-func1} is similar to @code{execute}, except
 that it takes a C @code{func1} pointer instead of a Forth execution
 token, and it is specific to @code{func1} pointers.  For each type of
 function pointer you want to call from Forth, you have to define
 a separate calling word.
-
 
 @node Defining library interfaces, Declaring OS-level libraries, Calling C function pointers, C Interface
 @subsection Defining library interfaces
@@ -12566,15 +12563,27 @@ doc-add-lib
 @cindex Callback functions written in Forth
 @cindex C function pointers to Forth words
 
-Callbacks are not yet supported by the documented C interface.  You
-can use the undocumented @file{lib.fs} interface for callbacks.
-
 In some cases you have to pass a function pointer to a C function,
 i.e., the library wants to call back to your application (and the
 pointed-to function is called a callback function).  You can pass the
 address of an existing C function (that you get with @code{lib-sym},
 @pxref{Low-Level C Interface Words}), but if there is no appropriate C
 function, you probably want to define the function as a Forth word.
+Then you need to generate a callback as described below:
+
+You can generate C callbacks from Forth code with @code{c-callback}.
+
+doc-c-callback
+
+This precompiles a number of callback functions (up to the value
+@code{callback#}).  The prototype of the C function is deduced from
+its Forth signature.  If this is not sufficient, you can add types in
+curly braces after the Forth type.
+
+@example
+c-callback vector4double: f f f f -- void
+c-callback vector4single: f@{float@} f@{float@} f@{float@} f@{float@} -- void
+@end example
 
 @c I don't understand the existing callback interface from the example - anton
 
