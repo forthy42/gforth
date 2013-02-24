@@ -143,14 +143,14 @@ siteforthdir=$(datadir)/gforth/site-forth
 PROFOBJS = @PROFOBJS@
 PROFEXES = @PROFEXES@
 
-CVSDIRS = CVS engine/CVS kernel/CVS doc/CVS asm/CVS ec/CVS test/CVS \
-	compat/CVS unix/CVS \
-	arch/CVS arch/generic/CVS arch/m68k/CVS arch/mips/CVS \
-	arch/386/CVS arch/hppa/CVS arch/sparc/CVS arch/power/CVS \
-	arch/alpha/CVS arch/4stack/CVS arch/misc/CVS arch/6502/CVS \
-	arch/8086/CVS arch/avr/CVS arch/c165/CVS arch/h8/CVS \
-	arch/shboom/CVS arch/sharc/CVS arch/ia64/CVS arch/amd64/CVS \
-	arch/arm/CVS arch/r8c/CVS vmgen-ex/CVS
+INSTALLDIRS = . engine kernel doc asm ec test \
+	compat unix \
+	arch arch/generic arch/m68k arch/mips \
+	arch/386 arch/hppa arch/sparc arch/power \
+	arch/alpha arch/4stack arch/misc arch/6502 \
+	arch/8086 arch/avr arch/c165 arch/h8 \
+	arch/shboom arch/sharc arch/ia64 arch/amd64 \
+	arch/arm arch/r8c vmgen-ex
 
 INCLUDES = engine/forth.h engine/threaded.h engine/io.h engine/longlong.h
 
@@ -636,9 +636,9 @@ installdirs:	mkinstalldirs
 		for i in $(bindir) $(man1dir) $(infodir) $(libdir)/gforth/$(VERSION) $(datadir)/gforth/$(VERSION) $(libdir)/gforth/site-forth $(siteforthdir) $(includedir)/gforth/$(VERSION) $(libccdir); do \
 			$(srcdir)/mkinstalldirs $(DESTDIR)$$i; \
 		done
-		#for i in $(CVSDIRS); do \
-		#	$(srcdir)/mkinstalldirs $(DESTDIR)$(datadir)/gforth/$(VERSION)/`dirname $$i`; \
-		#done
+		for i in $(INSTALLDIRS); do \
+			$(srcdir)/mkinstalldirs $(DESTDIR)$(datadir)/gforth/$(VERSION)/$$i; \
+		done
 		$(RM) -rf $(DESTDIR)$(datadir)/gforth/$(VERSION)/engine
 
 #deinstall all files specific to this version of gforth
