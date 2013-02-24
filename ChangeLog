@@ -1,6 +1,13 @@
 Update this by inserting the output of 
 	LC_ALL=en_US.UTF-8 git log --stat --pretty=format:"%ai%x09%aN%x09<%aE>%n %h...%x09%s%n" <last tag>..HEAD
 
+2013-02-24 18:43:18 +0100       Bernd Paysan    <bernd.paysan@gmx.de>
+ 6520a31...     Brown paper bag fix to INSTALLDIRS for 0.7.1
+
+ Makefile.in  |   22 +++++++++++-----------
+ configure.in |    4 ++--
+ 2 files changed, 13 insertions(+), 13 deletions(-)
+
 2013-02-20 22:05:12 +0100       Bernd Paysan    <bernd.paysan@gmx.de>
  63708ef...     Bumped version to 0.7.1, added changelog stuff
 
