@@ -143,7 +143,18 @@ si-prefixes count bl scan drop Constant zero-exp
 	    dup IF  1000 s>f zero-exp I - s>f f** f*  THEN
 	    UNLOOP  EXIT  THEN  drop
     LOOP
-    sfnumber ;
+    \ ckeck for e/E
+    2dup 'e' scan ( c-addr u c-addr2 u2 )
+    dup 0=
+    IF
+	2drop 2dup 'E' scan ( c-addr u c-addr3 u3 )
+    THEN
+    nip
+    IF
+	fp-char @ >float1
+    ELSE
+	2drop false
+    THEN ;
 [ELSE]
 : sfnumber ( c-addr u -- r true | false )
     >float ;

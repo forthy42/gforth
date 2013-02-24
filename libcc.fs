@@ -771,8 +771,10 @@ clear-libs
 
 : c-funptr ( "forth-name" <@{>"c-typecast"<@}> "@{type@}" "---" "type" -- ) \ gforth
     \G Define a Forth word @i{forth-name}.  @i{Forth-name} has the
-    \G specified stack effect and calls the C function pointer
-    \G ptr using the typecast or struct access @code{c-typecast}.
+    \G specified stack effect plus the called pointer on top of stack,
+    \G i.e. @code{( @{type@} ptr -- type )} and calls the C function
+    \G pointer @code{ptr} using the typecast or struct access
+    \G @code{c-typecast}.
     true to is-funptr? ['] parse-function-types (c-function)
     false to is-funptr? ;
 
