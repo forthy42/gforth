@@ -144,12 +144,16 @@ si-prefixes count bl scan drop Constant zero-exp
 	    UNLOOP  EXIT  THEN  drop
     LOOP
     \ ckeck for e/E
-    2dup 'e' scan ( c-addr u c-addr2 u2 )
-    dup 0=
-    IF
-	2drop 2dup 'E' scan ( c-addr u c-addr3 u3 )
+    dp-char @ fp-char @ = IF
+	2dup 'e' scan ( c-addr u c-addr2 u2 )
+	dup 0=
+	IF
+	    2drop 2dup 'E' scan ( c-addr u c-addr3 u3 )
+	THEN
+	nip
+    ELSE
+	true
     THEN
-    nip
     IF
 	fp-char @ >float1
     ELSE
