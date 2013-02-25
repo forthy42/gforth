@@ -1,6 +1,12 @@
 Update this by inserting the output of 
 	LC_ALL=en_US.UTF-8 git log --stat --pretty=format:"%ai%x09%aN%x09<%aE>%n %h...%x09%s%n" <last tag>..HEAD
 
+2013-02-25 13:21:07 +0100       Bernd Paysan    <bernd.paysan@gmx.de>
+ ab63f31...     Fixed templates in engine/Makefile.in
+
+ engine/Makefile.in |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
 2013-02-24 18:43:18 +0100       Bernd Paysan    <bernd.paysan@gmx.de>
  6520a31...     Brown paper bag fix to INSTALLDIRS for 0.7.1
 
