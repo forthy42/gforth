@@ -67,13 +67,13 @@ VPATH = @srcdir@
 prefix = @prefix@
 exec_prefix = @exec_prefix@
 srcdir = @srcdir@
-bindir = $(exec_prefix)/bin
+bindir = @bindir@
 #read-only architecture-independent files
-datadir = $(prefix)/share
+datadir = @datadir@
 #read-only architecture-dependent non-ascii files
-libdir = $(prefix)/lib
-infodir = $(prefix)/info
-mandir = $(prefix)/man
+libdir = @libdir@
+infodir = @infodir@
+mandir = @mandir@
 man1dir= $(mandir)/man1
 man1ext= .1
 
