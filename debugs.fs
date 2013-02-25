@@ -119,3 +119,13 @@ s" You've reached a !!FIXME!! marker" exception constant FIXME#
   \G make xt1 do xt2, both need to be colon definitions
   >body  here >r dp !  >r postpone AHEAD  r> >body dp !  postpone THEN
   r> dp ! ;
+
+\ watching variables and values
+
+: watch-does> ( -- ) DOES> dup @ ~~ drop ;
+: watch-compile> ( xt -- ) compile> >body ]] Literal dup @ ~~ drop [[ ; 
+: ~~Variable ( "name" -- )
+  Create 0 , watch-does> watch-compile> ;
+
+: ~~Value ( n "name" -- )
+    Value [: ~~ >body ! ; compile> drop ]] Literal ~~ >body ! [[ ;] !to ;
