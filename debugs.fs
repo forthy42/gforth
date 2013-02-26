@@ -67,13 +67,12 @@ stderr value debug-fid ( -- fid )
     endtry
     throw ;
 
-:noname ( -- )
-    current-sourcepos .debugline-directed ;
-:noname ( compilation  -- ; run-time  -- )
-    compile-sourcepos POSTPONE .debugline-directed ;
-interpret/compile: ~~ ( -- ) \ gforth tilde-tilde
+: ~~ ( -- ) \ gforth tilde-tilde
 \G Prints the source code location of the @code{~~} and the stack
 \G contents with @code{.debugline}.
+    current-sourcepos .debugline-directed ;
+compile> ( compilation  -- ; run-time  -- ) drop
+    compile-sourcepos POSTPONE .debugline-directed ;
 
 :noname ( -- )  stderr to debug-fid  defers 'cold ; IS 'cold
 
