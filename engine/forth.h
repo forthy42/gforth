@@ -524,7 +524,7 @@ extern PER_THREAD Address gforth_LP;
 extern PER_THREAD Float *gforth_FP;
 extern PER_THREAD user_area* gforth_UP;
 
-extern void * gforth_pointers(Cell n);
+extern Cell const * gforth_pointers(Cell n);
 
 #ifdef HAS_FFCALL
 extern void gforth_callback(Xt* fcall, void * alist);

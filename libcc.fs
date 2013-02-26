@@ -512,12 +512,16 @@ Create callback-style c-val c,
     ."   gforth_SP=sp; gforth_FP=fp; gforth_engine(gforth_cbips_" type
     ." [I]); \" cr ;
 
+: gen-par-callback ( sp-change1 sp-change1 addr u type -- fp-change sp-change )
+    dup [ libcc-types >order ] void [ previous ] =
+    IF  drop 2drop  ELSE  gen-par  THEN ;
+
 : callback-return ( descriptor -- )
     ."   sp=gforth_SP; fp=gforth_FP; \" cr
     >r r@ 1 count-stacks
     ?dup-if  ."   sp=gforth_SP+=" .nb ." ; \" cr  then
     ?dup-if  ."   fp=gforth_FP+=" .nb ." ; \" cr  then
-    0 0 s"   return " r> c@ gen-par 2drop .\" ; \\\n}" cr ;
+    0 0 s"   return " r> c@ gen-par-callback 2drop .\" ; \\\n}" cr ;
 
 : callback-define ( descriptor -- )
     dup callback-header dup callback-pushs dup callback-call callback-return ;

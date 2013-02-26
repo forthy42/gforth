@@ -2387,22 +2387,22 @@ void data_abort_C(void)
 }
 #endif
 
-void* gforth_pointers(Cell n)
+Cell const * gforth_pointers(Cell n)
 {
   switch(n) {
-  case 0: return (void*)&gforth_SP;
-  case 1: return (void*)&gforth_FP;
-  case 2: return (void*)&gforth_LP;
-  case 3: return (void*)&gforth_RP;
-  case 4: return (void*)&gforth_UP;
-  case 5: return (void*)&gforth_engine;
+  case 0: return (Cell *)&gforth_SP;
+  case 1: return (Cell *)&gforth_FP;
+  case 2: return (Cell *)&gforth_LP;
+  case 3: return (Cell *)&gforth_RP;
+  case 4: return (Cell *)&gforth_UP;
+  case 5: return (Cell *)&gforth_engine;
 #ifdef HAS_FILE
-  case 6: return (void*)&cstr;
-  case 7: return (void*)&tilde_cstr;
+  case 6: return (Cell *)&cstr;
+  case 7: return (Cell *)&tilde_cstr;
 #endif
-  case 8: return (void*)&throw_jmp_handler;
-  case 9: return (void*)&gforth_stacks;
-  case 10: return (void*)&gforth_free_stacks;
+  case 8: return (Cell *)&throw_jmp_handler;
+  case 9: return (Cell *)&gforth_stacks;
+  case 10: return (Cell *)&gforth_free_stacks;
   default: return NULL;
   }
 }
