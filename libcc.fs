@@ -713,6 +713,7 @@ clear-libs
 	endif
 	( lib-handle ) lib-handle-addr @ !
     endif
+    s" gforth_libcc_init" lib-handle lib-sym  ?dup-if  call-c  endif
     0 c-source-file-id !
     lib-filename $off clear-libs ;
 ' compile-wrapper-function1 IS compile-wrapper-function
