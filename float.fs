@@ -143,16 +143,12 @@ si-prefixes count bl scan drop Constant zero-exp
 	    dup IF  1000 s>f zero-exp I - s>f f** f*  THEN
 	    UNLOOP  EXIT  THEN  drop
     LOOP
-    \ ckeck for e/E
-    dp-char @ fp-char @ = IF
-	2dup 'e' scan ( c-addr u c-addr2 u2 )
-	dup 0=
-	IF
-	    2drop 2dup 'E' scan ( c-addr u c-addr3 u3 )
-	THEN
-	nip
+    \ ckeck for e/E before a sign
+    2dup 1 /string '-' scan 2over 1 /string '+' scan rot or >r umin r>
+    IF
+	1- c@ dup 'e' = swap 'E' = or
     ELSE
-	true
+	drop 2dup '.' scan 2over 'e' scan nip or nip
     THEN
     IF
 	fp-char @ >float1
