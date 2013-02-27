@@ -32,7 +32,7 @@
 \ The keycode names are compatible with pfe-0.9.14
 
 $80000000 constant keycode-start
-$80000016 constant keycode-limit
+$80000017 constant keycode-limit
 
 create keycode-table keycode-limit keycode-start - cells allot
 
@@ -82,6 +82,8 @@ keycode k-next   ( -- u ) \ X:ekeys
 keycode k-insert ( -- u ) \ X:ekeys
 keycode k-delete ( -- u ) \ X:ekeys
 \ the DEL key on my xterm, not backspace
+keycode k-enter  ( -- u ) \ gforth
+\ only useful in combinations, but it is keycode+#lf
 
 \ function/keypad keys
 keycode k-f1  ( -- u ) \ X:ekeys
@@ -258,6 +260,10 @@ k-prior  k-alt-mask   or s" [5;3~" esc-sequence
 k-next   k-alt-mask   or s" [6;3~" esc-sequence
 k-insert k-alt-mask   or s" [2;3~" esc-sequence
 k-delete k-alt-mask   or s" [3;3~" esc-sequence
+
+k-enter  k-shift-mask or s" OM" esc-sequence
+k-enter  k-alt-mask or   s" x" over #cr swap c! esc-sequence
+k-enter  k-alt-mask or k-shift-mask or s" eOM" over #esc swap c! esc-sequence
 
 k1      s" OP"  esc-sequence
 k2      s" OQ"  esc-sequence
