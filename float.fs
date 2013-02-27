@@ -144,7 +144,8 @@ si-prefixes count bl scan drop Constant zero-exp
 	    UNLOOP  EXIT  THEN  drop
     LOOP
     \ ckeck for e/E/.
-    2dup '.' scan nip >r 2dup 'e' scan nip >r 2dup 'E' scan nip r> r> or or
+    2dup fp-char @ scan nip >r
+    2dup 'e' scan nip >r 2dup 'E' scan nip r> r> or or
     IF
 	fp-char @ >float1
     ELSE
