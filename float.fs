@@ -143,13 +143,8 @@ si-prefixes count bl scan drop Constant zero-exp
 	    dup IF  1000 s>f zero-exp I - s>f f** f*  THEN
 	    UNLOOP  EXIT  THEN  drop
     LOOP
-    \ ckeck for e/E before a sign
-    2dup 1 /string '-' scan 2over 1 /string '+' scan rot or >r umin r>
-    IF
-	1- c@ dup 'e' = swap 'E' = or
-    ELSE
-	drop 2dup '.' scan 2over 'e' scan nip or nip
-    THEN
+    \ ckeck for e/E/.
+    2dup '.' scan nip >r 2dup 'e' scan nip >r 2dup 'E' scan nip r> r> or or
     IF
 	fp-char @ >float1
     ELSE
