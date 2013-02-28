@@ -57,13 +57,13 @@ stderr value debug-fid ( -- fid )
 ' (.debugline) IS .debugline
 
 : .debugline-directed ( nfile nline -- )
-    action-of type action-of emit { oldtype oldemit }
+    action-of type action-of emit action-of cr { oldtype oldemit oldcr }
     try
-	['] (type) is type ['] (emit) is emit
+	['] (type) is type ['] (emit) is emit ['] (cr) is cr
 	['] .debugline debug-fid outfile-execute
 	0
     restore
-	oldemit is emit oldtype is type
+	oldemit is emit oldtype is type oldcr is cr
     endtry
     throw ;
 
