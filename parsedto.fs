@@ -18,8 +18,8 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 : r:to (int-to) ;
-compile> drop (comp-to) ;
-postpone> >r lit, r> post, ;
+comp: drop (comp-to) ;
+post: >r lit, r> post, ;
 
 : to-recognizer ( addr u -- xt r:to | r:fail )
     2dup s" ->" string-prefix?  0= IF  2drop ['] r:fail  EXIT  THEN

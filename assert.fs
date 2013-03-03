@@ -73,10 +73,10 @@ variable assert-level ( -- a-addr ) \ gforth
     IF ['] noop assert-canary  ELSE  postpone (  THEN ;
 : debug: ( -- ) Create false ,
     debug-does>
-COMPILE>  >body
+comp:  >body
     ]] Literal @ IF [[ [: ]] THEN [[ ;] assert-canary ;
 : )else(  ]] ) ( [[ ;
-compile> drop 2>r ]] ELSE [[ 2r> ;
+comp: drop 2>r ]] ELSE [[ 2r> ;
 : else( ['] noop assert-canary ; immediate
 
 : +db ( "word" -- ) ' >body on ;

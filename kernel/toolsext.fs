@@ -147,7 +147,7 @@ User (i)
 
 : [I] ( -- n ) \ gforth bracket-i
     (i) @ ;
-compile> drop (i) @ postpone Literal ;
+comp: drop (i) @ postpone Literal ;
 
 : [BEGIN] ( -- ) \ gforth bracket-begin
   >in @ >r BEGIN r@ >in ! interpret UNTIL rdrop ;     immediate

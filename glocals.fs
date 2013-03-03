@@ -319,12 +319,12 @@ variable locals-dp \ so here's the special dp for locals.
 vocabulary locals-types \ this contains all the type specifyers, -- and }
 locals-types definitions
 
-[IFDEF] !to
+[IFDEF] set-to
     : to-w: ( -- )  -14 throw ;
-    compile> drop POSTPONE laddr# >body @ lp-offset, POSTPONE ! ;
+    comp: drop POSTPONE laddr# >body @ lp-offset, POSTPONE ! ;
 [THEN]
 : W: ( "name" -- a-addr xt ) \ gforth w-colon
-    create-local [IFDEF] !to ['] to-w: !to [THEN]
+    create-local [IFDEF] set-to ['] to-w: set-to [THEN]
     \ xt produces the appropriate locals pushing code when executed
     ['] compile-pushlocal-w
   does> ( Compilation: -- ) ( Run-time: -- w )
@@ -337,12 +337,12 @@ locals-types definitions
   does> ( Compilation: -- ) ( Run-time: -- w )
     postpone laddr# @ lp-offset, ;
 
-[IFDEF] !to
+[IFDEF] set-to
     : to-f: ( -- ) -14 throw ;
-    compile> drop POSTPONE laddr# >body @ lp-offset, POSTPONE f! ;
+    comp: drop POSTPONE laddr# >body @ lp-offset, POSTPONE f! ;
 [THEN]
 : F: ( "name" -- a-addr xt ) \ gforth f-colon
-    create-local [IFDEF] !to ['] to-f: !to [THEN]
+    create-local [IFDEF] set-to ['] to-f: set-to [THEN]
     ['] compile-pushlocal-f
   does> ( Compilation: -- ) ( Run-time: -- w )
     @ lp-offset compile-f@local ;
@@ -353,12 +353,12 @@ locals-types definitions
   does> ( Compilation: -- ) ( Run-time: -- w )
     postpone laddr# @ lp-offset, ;
 
-[IFDEF] !to
+[IFDEF] set-to
     : to-d: ( -- ) -14 throw ;
-    compile> drop POSTPONE laddr# >body @ lp-offset, POSTPONE 2! ;
+    comp: drop POSTPONE laddr# >body @ lp-offset, POSTPONE 2! ;
 [THEN]
 : D: ( "name" -- a-addr xt ) \ gforth d-colon
-    create-local [IFDEF] !to ['] to-d: !to [THEN]
+    create-local [IFDEF] set-to ['] to-d: set-to [THEN]
     ['] compile-pushlocal-d
   does> ( Compilation: -- ) ( Run-time: -- w )
     postpone laddr# @ lp-offset, postpone 2@ ;
@@ -369,12 +369,12 @@ locals-types definitions
   does> ( Compilation: -- ) ( Run-time: -- w )
     postpone laddr# @ lp-offset, ;
 
-[IFDEF] !to
+[IFDEF] set-to
     : to-c: ( -- ) -14 throw ;
-    compile> drop POSTPONE laddr# >body @ lp-offset, POSTPONE c! ;
+    comp: drop POSTPONE laddr# >body @ lp-offset, POSTPONE c! ;
 [THEN]
 : C: ( "name" -- a-addr xt ) \ gforth c-colon
-    create-local [IFDEF] !to ['] to-c: !to [THEN]
+    create-local [IFDEF] set-to ['] to-c: set-to [THEN]
     ['] compile-pushlocal-c
   does> ( Compilation: -- ) ( Run-time: -- w )
     postpone laddr# @ lp-offset, postpone c@ ;
@@ -762,7 +762,7 @@ is free-old-local-names
 	code-address!
     then ;
 
-[IFUNDEF] !to
+[IFUNDEF] set-to
 : (int-to) ( xt -- ) dup >definer
     case
 	[ ' locals-wordlist ] literal >definer \ value
@@ -794,7 +794,7 @@ is free-old-local-names
 
 : TO ( c|w|d|r "name" -- ) \ core-ext,local
     ' (int-to) ;
-compile> drop comp' drop (comp-to) ;
+comp: drop comp' drop (comp-to) ;
 [THEN]
 
 : locals| ( ... "name ..." -- ) \ local-ext locals-bar

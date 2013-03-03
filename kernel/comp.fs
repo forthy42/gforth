@@ -443,22 +443,22 @@ defer defer-default ( -- )
     defstart ;
 
 \ : !does    ( addr -- ) \ gforth	store-does
-\     ['] spaces >namevt @ >vtcompile, @ !compile,
+\     ['] spaces >namevt @ >vtcompile, @ set-compiler
 \     latestxt does-code! ;
 
 extra>-dummy (doextra-dummy)
 : !extra   ( addr -- ) \ gforth store-extra
     vttemplate >vtcompile, @ ['] udp >namevt @ >vtcompile, @ =
     IF
-	['] extra, !compile,
+	['] extra, set-compiler
     THEN
     latestxt extra-code! ;
 
 : DOES>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ core        extra
     cfalign 0 , here !extra ] defstart :-hook ;
-compile> drop  ['] !extra does>-like :-hook ;
+comp: drop  ['] !extra does>-like :-hook ;
 
-\ compile> to define compile, action
+\ comp: to define compile, action
 
 Create vttemplate 0 A, ' peephole-compile, A, ' post, A, 0 A, ' no-to A, \ initialize to one known vt
 
@@ -489,17 +489,17 @@ Create vttemplate 0 A, ' peephole-compile, A, ' post, A, 0 A, ' no-to A, \ initi
 : start-xt-like ( colonsys xt -- colonsys )
     nip reveal does>-like drop start-xt drop ;
 
-: !compile,  ( xt -- ) vttemplate >vtcompile, ! ;
-: !postpone  ( xt -- ) vttemplate >vtpostpone ! ;
-: !to        ( xt -- ) vttemplate >vtto ! ;
+: set-compiler  ( xt -- ) vttemplate >vtcompile, ! ;
+: set-postpone  ( xt -- ) vttemplate >vtpostpone ! ;
+: set-to        ( xt -- ) vttemplate >vtto ! ;
 
-: compile> ( -- colon-sys )
-    start-xt  !compile, ;
-compile> ['] !compile, start-xt-like ;  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth        compile-to
+: comp: ( -- colon-sys )
+    start-xt  set-compiler ;
+comp: ['] set-compiler start-xt-like ;  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth        compile-to
 
-: postpone> ( -- colon-sys )
-    start-xt  !postpone ;
-compile> ['] !postpone     start-xt-like ;  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth        lit-to
+: post: ( -- colon-sys )
+    start-xt  set-postpone ;
+comp: ['] set-postpone     start-xt-like ;  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth        lit-to
 
 \ defer and friends
 
@@ -509,7 +509,7 @@ compile> ['] !postpone     start-xt-like ;  ( compilation colon-sys1 -- colon-sy
 
 : value! ( xt xt-deferred -- ) \ gforth  defer-store
     >body ! ;
-compile> drop >body postpone ALiteral postpone ! ;
+comp: drop >body postpone ALiteral postpone ! ;
     
 : <IS> ( "name" xt -- ) \ gforth
     \g Changes the @code{defer}red word @var{name} to execute @var{xt}.
@@ -525,7 +525,7 @@ compile> drop >body postpone ALiteral postpone ! ;
 
 : TO ( value "name" -- )
     (') (name>x) drop (int-to) ;
-compile> drop (') (name>x) drop (comp-to) ;
+comp: drop (') (name>x) drop (comp-to) ;
 
 ' TO alias IS
 
@@ -560,7 +560,7 @@ defer ;-hook ( sys2 -- sys1 )
 
 : interpret/compile: ( interp-xt comp-xt "name" -- ) \ gforth
     >r >r : r> compile, postpone ;
-    start-xt !compile, postpone drop r> compile, postpone ; ;
+    start-xt set-compiler postpone drop r> compile, postpone ; ;
 
 \ \ Search list handling: reveal words, recursive		23feb93py
 

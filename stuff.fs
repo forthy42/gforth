@@ -352,7 +352,7 @@ comp' sliteral drop alias postpone-sliteral
 
 : action-of ( interpretation "name" -- xt; compilation "name" -- ; run-time -- xt ) \ gforth
     ' defer@ ;
-compile> drop   postpone ['] postpone defer@ ;
+comp: drop   postpone ['] postpone defer@ ;
 \G @i{Xt} is the XT that is currently assigned to @i{name}.
 
 ' action-of Alias what's ( interpretation "name" -- xt; compilation "name" -- ; run-time -- xt ) \ gforth-obsolete

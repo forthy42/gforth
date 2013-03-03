@@ -71,7 +71,7 @@ stderr value debug-fid ( -- fid )
 \G Prints the source code location of the @code{~~} and the stack
 \G contents with @code{.debugline}.
     current-sourcepos .debugline-directed ;
-compile> ( compilation  -- ; run-time  -- ) drop
+comp: ( compilation  -- ; run-time  -- ) drop
     compile-sourcepos POSTPONE .debugline-directed ;
 
 :noname ( -- )  stderr to debug-fid  defers 'cold ; IS 'cold
@@ -122,9 +122,9 @@ s" You've reached a !!FIXME!! marker" exception constant FIXME#
 \ watching variables and values
 
 : watch-does> ( -- ) DOES> dup @ ~~ drop ;
-: watch-compile> ( xt -- ) compile> >body ]] Literal dup @ ~~ drop [[ ; 
+: watch-comp: ( xt -- ) comp: >body ]] Literal dup @ ~~ drop [[ ; 
 : ~~Variable ( "name" -- )
-  Create 0 , watch-does> watch-compile> ;
+  Create 0 , watch-does> watch-comp: ;
 
 : ~~Value ( n "name" -- )
-    Value [: ~~ >body ! ; compile> drop ]] Literal ~~ >body ! [[ ;] !to ;
+    Value [: ~~ >body ! ; comp: drop ]] Literal ~~ >body ! [[ ;] set-to ;

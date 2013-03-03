@@ -3,11 +3,11 @@
 \ template for methods and ivars
 
 Create o 0 ,  DOES> @ o#+ [ 0 , ] + ;
-compile> >body @ postpone o#+ , ;
+comp: >body @ postpone o#+ , ;
 : to-m >body @ + ! ;
 Create m 0 ,  DOES> @ o#+ [ -1 cells , ] @ + perform ;
-compile> >body @ cell/ postpone o#exec , ;
-' to-m !to
+comp: >body @ cell/ postpone o#exec , ;
+' to-m set-to
 ' o Value var-xt
 ' m Value method-xt
 : current-o  ['] o to var-xt  ['] m to method-xt ;

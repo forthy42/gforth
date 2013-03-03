@@ -20,8 +20,8 @@
 : slit,  postpone sliteral ;
 
 : r:string ;
-compile> drop slit, ;
-postpone> >r slit, r> post, ;
+comp: drop slit, ;
+post: >r slit, r> post, ;
 
 : string-recognizer ( addr u -- addr u' r:string | r:fail )
     2dup s\" \"" string-prefix?

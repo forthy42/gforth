@@ -691,7 +691,10 @@ Variable comp-state
   ['] pi-undefined , \ action
   ['] pi-undefined , \ target plugin action
   8765 ,     \ plugin magic
-[IFDEF] value!
+[IFDEF] set-to
+  ['] value! set-to
+[THEN]
+[IFDEF] !to
   ['] value! !to
 [THEN]
   DOES> perform ;
@@ -2921,7 +2924,7 @@ Create vttemplate vtsize allot
     T here H lastxt T 0 cell+ H -
     dup [G'] docol-vt killref T ! H [T'] no-to 0 T vtable, H ;
 
-: compile> ( -- colon-sys )
+: comp: ( -- colon-sys )
     T 0 cell+ cfoddalign here vtsize cell+ H + [T'] post, T >vtable :noname H drop ; 
 >CROSS
 

@@ -28,7 +28,7 @@ has? new-does [IF]
     : >comp  ( xt -- ) name>comp execute ;
     : post,  ( xt -- ) lit, postpone >comp ;
     : no-to ( -- )  -32 throw ;
-    compile> -32 throw ;
+    comp: -32 throw ;
 [THEN]
 
 require ./basics.fs 	\ bounds decimal hex ...

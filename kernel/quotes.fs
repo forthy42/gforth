@@ -61,7 +61,7 @@ require ./vars.fs
 [ [THEN] ]
 ;
 has? compiler [IF]
-    compile> drop [char] " parse postpone SLiteral ;
+    comp: drop [char] " parse postpone SLiteral ;
 [THEN]
 
 : ."  ( compilation 'ccc"' -- ; run-time -- )  \ core	dot-quote
@@ -72,5 +72,5 @@ has? compiler [IF]
   \G display a string from within a definition; see examples below.
     [char] " parse type ;
 has? compiler [IF]
-    compile> drop [char] " parse postpone sLiteral postpone type ;
+    comp: drop [char] " parse postpone sLiteral postpone type ;
 [THEN]
