@@ -65,5 +65,5 @@ done
 strip $LIBS/*.so
 #ant debug
 ant release
-cp bin/Gforth-release-unsigned.apk bin/Gforth$EXT.apk
-jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore ~/.gnupg/bernd-release-key.keystore bin/Gforth$EXT.apk bernd
+cp bin/Gforth-release.apk bin/Gforth$EXT.apk
+#jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore ~/.gnupg/bernd-release-key.keystore bin/Gforth$EXT.apk bernd
