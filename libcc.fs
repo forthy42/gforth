@@ -453,11 +453,11 @@ create gen-wrapped-types
     .\" {\n  Cell MAYBE_UNUSED *sp = gforth_SP;\n  Float MAYBE_UNUSED *fp = gforth_FP;\n  "
     is-funptr? IF  .\" Cell ptr = *sp++;\n  "  THEN
     pars c-name 2over count-stacks ret gen-wrapped-stmt .\" ;\n"
+    dup is-funptr? or if
+	."   gforth_SP = sp+" dup .nb .\" ;\n"
+    endif drop
     ?dup-if
-	."   gforth_SP = sp+" .nb .\" ;\n"
-    endif
-    ?dup-if
-	."   gforth_FP = fp+" .nb .\" ;\n"
+	."   gforth_FP = fp+"     .nb .\" ;\n"
     endif
     .\" }\n" ;
 
