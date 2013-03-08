@@ -516,15 +516,31 @@ Create callback-style c-val c,
     dup [ libcc-types >order ] void [ previous ] =
     IF  drop 2drop  ELSE  gen-par  THEN ;
 
-: callback-return ( descriptor -- )
+: callback-wrapup ( -- )
+    ."   gforth_SP=oldsp; gforth_RP=oldrp; gforth_LP=oldlp; gforth_FP=oldfp; gforth_UP=oldup; \" cr ;
+
+: callback-adjust ( descriptor -- )
     ."   sp=gforth_SP; fp=gforth_FP; \" cr
-    >r r@ 1 count-stacks
+    1 count-stacks
     ?dup-if  ."   sp=gforth_SP+=" .nb ." ; \" cr  then
-    ?dup-if  ."   fp=gforth_FP+=" .nb ." ; \" cr  then
-    0 0 s"   return " r> c@ gen-par-callback 2drop .\" ; \\\n}" cr ;
+    ?dup-if  ."   fp=gforth_FP+=" .nb ." ; \" cr  then ;
+
+: callback-return ( descriptor -- )
+    >r 0 0 s"   return " r> c@ gen-par-callback 2drop .\" ; \\\n}" cr ;
 
 : callback-define ( descriptor -- )
-    dup callback-header dup callback-pushs dup callback-call callback-return ;
+    dup callback-header dup callback-pushs dup callback-call
+    dup callback-adjust callback-return ;
+
+: callback-wrapper ( -- )
+    ."   Cell *oldsp=gforth_SP; Cell *oldrp=gforth_RP; char *oldlp=gforth_LP; Float *oldfp=gforth_FP; user_area *oldup=gforth_UP; \" cr
+    ."   Cell stack[GFSS], rstack[GFSS], lstack[GFSS]; Float fstack[GFSS]; \" cr
+    ."   gforth_SP=stack+GFSS-1; gforth_RP=rstack+GFSS; gforth_LP=(char*)(lstack+GFSS); gforth_FP=fstack+GFSS-1; gforth_UP=gforth_main_UP; \" cr ;
+
+: callback-thread-define ( descriptor -- )
+    dup callback-header callback-wrapper
+    dup callback-pushs dup callback-call
+    dup callback-adjust callback-wrapup callback-return ;
 
 8 Value callback# \ how many callbacks should be created?
 
@@ -546,6 +562,10 @@ Create callback-style c-val c,
 
 : callback-gen ( descriptor -- )
     dup callback-define  1+ count + count \ c-name u
+    2dup callback-ip-array 2dup callback-instantiate callback-c-array ;
+
+: callback-thread-gen ( descriptor -- )
+    dup callback-thread-define  1+ count + count \ c-name u
     2dup callback-ip-array 2dup callback-instantiate callback-c-array ;
 
 : lookup-ip-array ( addr u lib -- addr ) >r
@@ -783,16 +803,16 @@ clear-libs
     true to is-funptr? ['] parse-function-types (c-function)
     false to is-funptr? ;
 
-: c-callback ( "forth-name" "@{type@}" "---" "type" -- ) \ gforth
+: (c-callback) ( xt "forth-name" "@{type@}" "---" "type" -- ) \ gforth
     \G Define a callback instantiator with the given signature.  The
     \G callback instantiator @i{forth-name} @code{( xt -- addr )} takes
     \G an @var{xt}, and returns the @var{addr}ess of the C function
     \G handling that callback.
-    Create here dup ccb% %size dup allot erase
+    >r Create here dup ccb% %size dup allot erase
     lib-handle-addr @ swap ccb-lha !
     parse-function-types
     here lastxt name>string string, count sanitize
-    [: callback-gen ;] c-source-file-execute
+    r> c-source-file-execute
   DOES> ( xt -- addr ) \ create a callback instance
     >r r@ ccb-lha @ @ 0= IF
 	compile-wrapper-function
@@ -807,6 +827,21 @@ clear-libs
     >body r@ ccb-ips @ r@ ccb-num @ cells + !
     r@ ccb-cfuns @ r@ ccb-num @ cells + @
     1 r> ccb-num +! ;
+
+: c-callback ( "forth-name" "@{type@}" "---" "type" -- ) \ gforth
+    \G Define a callback instantiator with the given signature.  The
+    \G callback instantiator @i{forth-name} @code{( xt -- addr )} takes
+    \G an @var{xt}, and returns the @var{addr}ess of the C function
+    \G handling that callback.
+    [: callback-gen ;] (c-callback) ;
+
+: c-callback-thread ( "forth-name" "@{type@}" "---" "type" -- ) \ gforth
+    \G Define a callback instantiator with the given signature.  The
+    \G callback instantiator @i{forth-name} @code{( xt -- addr )} takes
+    \G an @var{xt}, and returns the @var{addr}ess of the C function
+    \G handling that callback.  This callback is save when called from
+    \G another thread
+    [: callback-thread-gen ;] (c-callback) ;
 
 : c-library-incomplete ( -- )
     true abort" Called function of unfinished named C library" ;

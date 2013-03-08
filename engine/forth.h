@@ -523,6 +523,7 @@ extern PER_THREAD Cell *gforth_RP;
 extern PER_THREAD Address gforth_LP;
 extern PER_THREAD Float *gforth_FP;
 extern PER_THREAD user_area* gforth_UP;
+extern user_area* gforth_main_UP;
 
 extern Cell const * gforth_pointers(Cell n);
 

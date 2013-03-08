@@ -51,13 +51,14 @@ extern __thread Cell *gforth_SP;
 extern __thread Float *gforth_FP;
 extern __thread Cell *gforth_RP;
 extern __thread char *gforth_LP;
-extern __thread char *gforth_UP;
+extern __thread user_area *gforth_UP;
 extern void *gforth_engine(void *);
 extern char *cstr(char *from, Cell size);
 extern char *tilde_cstr(char *from, Cell size);
 extern __thread void *throw_jmp_handler;
 extern user_area* gforth_stacks(Cell dsize, Cell rsize, Cell fsize, Cell lsize);
 extern void gforth_free_stacks(user_area* t);
+extern user_area *gforth_main_UP;
 gforth_libcc_init()
 {
 }
@@ -72,13 +73,14 @@ gforth_libcc_init(void *(*gforth_pointers_init)(Cell))
 #define gforth_FP *((Float **)(gforth_pointers(1)))
 #define gforth_LP *((char **)(gforth_pointers(2)))
 #define gforth_RP *((Cell **)(gforth_pointers(3)))
-#define gforth_UP *((char **)(gforth_pointers(4)))
+#define gforth_UP *((user_area **)(gforth_pointers(4)))
 #define gforth_engine ((char *(*)(void *))gforth_pointers(5))
 #define cstr ((char *(*)(char *, Cell))gforth_pointers(6))
 #define tilde_cstr ((char *(*)(char *, Cell))gforth_pointers(7))
 #define throw_jmp_handler *((void**)(gforth_pointers(8)))
 #define gforth_stacks ((user_area *(*)(Cell, Cell, Cell, Cell))gforth_pointers(9))
 #define gforth_free_stacks ((void(*)(user_area* t))gforth_pointers(10))
+#define gforth_main_UP *((user_area **)(gforth_pointers(11)))
 #define GFORTH_ARGS void *(*gforth_pointers)(Cell)
 #endif
 
@@ -99,3 +101,5 @@ gforth_libcc_init(void *(*gforth_pointers_init)(Cell))
   } while (0);
 
 typedef Char hash_128[16];
+
+#define GFSS 0x80 /* stack sizes */

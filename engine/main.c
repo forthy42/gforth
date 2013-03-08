@@ -68,6 +68,8 @@ PER_THREAD user_area* gforth_UP=NULL;
 PER_THREAD Cell *gforth_RP;
 PER_THREAD Address gforth_LP;
 
+user_area* gforth_main_UP=NULL;
+
 #ifdef HAS_FFCALL
 
 #include <callback.h>
@@ -2403,6 +2405,7 @@ Cell const * gforth_pointers(Cell n)
   case 8: return (Cell *)&throw_jmp_handler;
   case 9: return (Cell *)&gforth_stacks;
   case 10: return (Cell *)&gforth_free_stacks;
+  case 11: return (Cell* )&gforth_main_UP;
   default: return NULL;
   }
 }
@@ -2607,7 +2610,7 @@ Cell gforth_start(int argc, char ** argv)
 
   gforth_args(argc, argv, &path, &imagename);
   gforth_header = gforth_loader(imagename, path);
-  gforth_UP = gforth_stacks(dsize, rsize, fsize, lsize);
+  gforth_main_UP = gforth_UP = gforth_stacks(dsize, rsize, fsize, lsize);
   gforth_setstacks();
   return gforth_boot(argc, argv, path);
 }
