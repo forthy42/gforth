@@ -440,14 +440,16 @@ create gen-wrapped-types
     '_' emit r-type type-letter emit
     ;] $tmp 2dup sanitize ;
 
+: .prefix ( -- )
+    [ lib-suffix s" .la" str= [IF] ] lib-prefix type
+	lib-modulename $@ dup 0= IF 2drop s" _replace_this_with_the_hash_code" THEN type
+	." _LTX_" [ [THEN] ] ;
+
 : gen-wrapper-function ( addr -- )
     \ addr points to the return type index of a c-function descriptor
     dup { descriptor }
     count { ret } count 2dup { d: pars } chars + count { d: c-name }
-    ." void "
-    [ lib-suffix s" .la" str= [IF] ] lib-prefix type
-	lib-modulename $@ dup 0= IF 2drop s" _replace_this_with_the_hash_code" THEN type
-	." _LTX_" [ [THEN] ]
+    ." void " .prefix
     descriptor wrapper-function-name type
     .\" (GFORTH_ARGS)\n"
     .\" {\n  Cell MAYBE_UNUSED *sp = gforth_SP;\n  Float MAYBE_UNUSED *fp = gforth_FP;\n  "
@@ -483,7 +485,7 @@ create gen-types
 : callback-header ( descriptor -- )
     count { ret } count 2dup { d: pars } chars + count { d: c-name }
     ." #define CALLBACK_" c-name type ." (I) \" cr
-    ret print-type space ." gforth_cb_" c-name type ." _##I ("
+    ret print-type space .prefix ." gforth_cb_" c-name type ." _##I ("
     0 pars bounds u+do
 	i 1+ count dup IF  type  ELSE  2drop i c@ print-type  THEN
 	."  x" dup 0 .r 1+
@@ -509,7 +511,7 @@ Create callback-style c-val c,
 
 : callback-call ( descriptor -- )
     1+ count + count \ callback C name
-    ."   gforth_SP=sp; gforth_FP=fp; gforth_engine(gforth_cbips_" type
+    ."   gforth_SP=sp; gforth_FP=fp; gforth_engine(" .prefix ." gforth_cbips_" type
     ." [I]); \" cr ;
 
 : gen-par-callback ( sp-change1 sp-change1 addr u type -- fp-change sp-change )
@@ -550,13 +552,13 @@ Create callback-style c-val c,
     LOOP 2drop ;
 
 : callback-ip-array ( addr u -- )
-    ." Address gforth_cbips_" 2dup type ." [" callback# .nb ." ] = {" cr
+    ." Address " .prefix ." gforth_cbips_" 2dup type ." [" callback# .nb ." ] = {" cr
     space callback# 0 ?DO ."  0," LOOP ." };" cr 2drop ;
 
 : callback-c-array ( addr u -- )
-    ." const Address gforth_callbacks_" 2dup type ." [" callback# .nb ." ] = {" cr
+    ." const Address " .prefix ." gforth_callbacks_" 2dup type ." [" callback# .nb ." ] = {" cr
     callback# 0 ?DO
-	."   (Address)gforth_cb_" 2dup type ." _" I .nb ." ," cr
+	."   (Address)" .prefix ." gforth_cb_" 2dup type ." _" I .nb ." ," cr
     LOOP
     ." };" cr 2drop ;
 
