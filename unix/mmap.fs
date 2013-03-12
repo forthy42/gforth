@@ -26,7 +26,10 @@ c-library mmap
     c-function getpagesize getpagesize -- n ( -- size )
     c-function madvise madvise a n n -- n ( addr len advice -- r )
     c-function mprotect mprotect a n n -- n ( addr len prot -- r )
+
+e? os-type s" linux" string-prefix? [IF]
     c-function mremap mremap a n n n -- a ( addr len newlen flags -- addr' )
+[THEN]
 \    c-function mremapf mremap a n n n a -- a ( addr len newlen flags newaddr -- addr' )
 end-c-library
 
