@@ -199,7 +199,7 @@ variable span ( -- c-addr ) \ core-ext-obsolescent
     \G editing capabilites are available. The length of the string is
     \G stored in @code{span}; it does not include the <return>
     \G character. OBSOLESCENT: superceeded by @code{accept}.
-    0 rot over
+    everyline 0 rot over
     BEGIN ( maxlen span c-addr pos1 )
 	key decode ( maxlen span c-addr pos2 flag )
 	>r 2over = r> or
