@@ -175,7 +175,10 @@ epiper create_pipe \ create pipe for main task
 interpret/compile: user' ( 'user' -- n )
 \G USER' computes the task offset of a user variable
 
-: >task ( user task -- user' )  + next-task - ;
+' next-task alias up@ ( -- addr )
+\G the current user pointer
+
+: >task ( user task -- user' )  + up@ - ;
 
 : kill-task ( -- )
     epiper @ close-file drop   epipew @ close-file drop  0 (bye) ;
@@ -189,6 +192,7 @@ interpret/compile: user' ( 'user' -- n )
     (throw1) ; drop
 
 : NewTask4 ( dsize rsize fsize lsize -- task )
+    \G creates a task, each stack individually sized
     gforth_create_thread >r
     throw-entry r@ udp @ throw-entry next-task - /string move
     word-pno-size chars dup allocate throw dup holdbufptr r@ >task !
@@ -199,8 +203,10 @@ interpret/compile: user' ( 'user' -- n )
     r> ;
 
 : NewTask ( stacksize -- task )  dup 2dup NewTask4 ;
+    \G creates a task, uses stacksize for stack, rstack, fpstack, locals
 
 : (activate) ( task -- )
+    \G activates task, the current procedure will be continued there
     r> swap >r  save-task r@ >task !
     pthread-id r@ >task pthread_detatch_attr thread_start r> pthread_create drop ; compile-only
 
@@ -214,6 +220,7 @@ interpret/compile: user' ( 'user' -- n )
     pthread-id r@ >task 0 thread_start r> pthread_create drop ; compile-only
 
 : pass ( x1 .. xn n task -- )
+    \G activates task, and passes n parameters from the data stack
     ]] (pass) up! sp0 ! [[ ; immediate compile-only
 
 : sema ( "name" -- ) \ gforth
@@ -225,7 +232,9 @@ interpret/compile: user' ( 'user' -- n )
     Create here 1 pthread-conds dup allot erase ;
 
 : lock ( addr -- )  pthread_mutex_lock drop ;
+\G lock the semaphore
 : unlock ( addr -- )  pthread_mutex_unlock drop ;
+\G unlock the semaphore
 
 : stacksize ( -- n ) forthstart 4 cells + @
     sp0 @ $FFF and -$1000 or + ;
@@ -245,11 +254,14 @@ User eventbuf# $100 uallot drop \ 256 bytes buffer for atomic event squences
 -1 eventbuf# !
 
 : <event  eventbuf# off ;
+\G starts a sequence of events
 : 'event ( -- addr )  eventbuf# dup @ + cell+ ;
 : event+ ( n -- addr )
     dup eventbuf# @ + $100 u>= !!ebuffull!! and throw
     'event swap eventbuf# +! ;
-: event> ( task -- )  >r eventbuf# cell+ eventbuf# @ -1 eventbuf# !
+: event> ( task -- )
+    \G ends a sequence and sends it to the mentioned task
+    >r eventbuf# cell+ eventbuf# @ -1 eventbuf# !
     epipew r> >task @ write-file throw ;
 
 : event-crash  !!event!! throw ;
@@ -258,12 +270,15 @@ Create event-table $100 0 [DO] ' event-crash , [LOOP]
 
 : event-does ( task/ -- )  DOES>  @ eventbuf# @ 0< dup >r IF  <event  THEN
     'event c! 1 eventbuf# +!  r> IF  event>  THEN ;
-: event:  Create event# @ ,  event-does
+: event: ( "name" -- )
+    \G defines an event and the reaction to it as Forth code
+    Create event# @ ,  event-does
     here 0 , >r  noname : lastxt dup event# @ cells event-table + !
     r> ! 1 event# +! ;
 : (stop) ( -- )  epiper @ key-file cells event-table + perform ;
 : event? ( -- flag )  epiper @ check_read 0> ;
 : ?events ( -- )  BEGIN  event?  WHILE  (stop)  REPEAT ;
+\G checks for events and executes them
 : stop ( -- )  (stop) ?events ;
 : stop-ns ( timeout -- ) epiper @ swap wait_read 0> IF  stop  THEN ;
 : event-loop ( -- )  BEGIN  stop  AGAIN ;
@@ -277,8 +292,12 @@ event: ->sleep  stop ;
 : sleep ( task -- ) <event ->sleep event> ;
 
 : elit,  ( x -- ) ->lit cell event+ [ cell 8 = ] [IF] x! [ELSE] l! [THEN] ;
+\G sends a literal
 : e$, ( addr u -- )  swap elit, elit, ;
+\G sends a string (actually only the address and the count, because it's
+\G shared memory
 : eflit, ( x -- ) ->flit fp@ float event+ float move fdrop ;
+\G sends a float
 
 false [IF] \ event test
     <event 1234 elit, next-task event> ?event 1234 = [IF] ." event ok" cr [THEN]
