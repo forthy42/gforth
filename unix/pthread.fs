@@ -251,17 +251,20 @@ s" Event buffer full" exception Constant !!ebuffull!!
 Variable event#  1 event# !
 
 User eventbuf# $100 uallot drop \ 256 bytes buffer for atomic event squences
+User event-start
 
-: <event  eventbuf# off ;
 \G starts a sequence of events. Legaxy, not needed any longer.
 : 'event ( -- addr )  eventbuf# dup @ + cell+ ;
 : event+ ( n -- addr )
     dup eventbuf# @ + $100 u>= !!ebuffull!! and throw
     'event swap eventbuf# +! ;
+: <event  eventbuf# @ IF  event-start @ 1 event+ c! eventbuf# @ event-start !  THEN ;
 : event> ( task -- )
     \G ends a sequence and sends it to the mentioned task
-    eventbuf# @ IF
-	>r eventbuf# cell+ eventbuf# @ eventbuf# off
+    eventbuf# @ event-start @ u> IF
+	>r eventbuf# cell+ eventbuf# @ event-start @
+	?dup-if  /string  event-start @ 1- eventbuf# !  'event c@ event-start !
+	else  eventbuf# off  then
 	epipew r> >task @ write-file throw
     ELSE  drop  THEN ;
 
@@ -288,8 +291,8 @@ event: ->flit 0e fp@ float epiper @ read-file throw drop ;
 event: ->wake ;
 event: ->sleep  stop ;
 
-: wake ( task -- )  ->wake event> ;
-: sleep ( task -- ) ->sleep event> ;
+: wake ( task -- )  <event ->wake event> ;
+: sleep ( task -- ) <event ->sleep event> ;
 
 : elit,  ( x -- ) ->lit cell event+ [ cell 8 = ] [IF] x! [ELSE] l! [THEN] ;
 \G sends a literal
