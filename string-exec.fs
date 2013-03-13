@@ -56,3 +56,28 @@ tmp$ Value $execstr
     s" " tmp$ $!  tmp$ $exec  tmp$ $@ ;
 
 :noname ( -- )  defers 'cold  tmp$ off ;  is 'cold
+
+\ slurp in lines and files into strings and string-arrays
+
+: $slurp ( fid addr -- ) dup $init swap >r
+    r@ file-size throw drop over $!len
+    dup $@ r> read-file throw swap $!len ;
+: $slurp-file ( addr1 u1 addr2 -- )
+    >r r/o open-file throw dup r> $slurp close-file throw ;
+
+: $slurp-line { fid addr -- flag }  addr $off  addr $init
+    BEGIN
+	addr $@len dup { sk } 2* $100 umax dup { sz } addr $!len
+	addr $@ sk /string fid read-line throw
+	swap dup sz = WHILE  2drop  REPEAT  sk + addr $!len ;
+: $[]slurp { fid addr -- }
+    0 { i }  BEGIN  fid i addr $[] $slurp-line  WHILE
+	    i 1+ to i   REPEAT
+    i addr $[]@ nip 0= IF
+	i addr $[] $off  addr $@len cell- addr $!len
+    THEN ;
+: $[]slurp-file ( addr u $addr -- )
+    >r r/o open-file throw dup r> $[]slurp close-file throw ;
+
+: $[]. ( addr -- )
+    dup $[]# 0 ?DO  I over $[]@ type cr  LOOP  drop ;
