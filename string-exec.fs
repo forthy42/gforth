@@ -73,9 +73,8 @@ tmp$ Value $execstr
 : $[]slurp { fid addr -- }
     0 { i }  BEGIN  fid i addr $[] $slurp-line  WHILE
 	    i 1+ to i   REPEAT
-    i addr $[]@ nip 0= IF
-	i addr $[] $off  addr $@len cell- addr $!len
-    THEN ;
+    \ we need to take off the last line, though
+    i addr $[] $off  i cells addr $!len ;
 : $[]slurp-file ( addr u $addr -- )
     >r r/o open-file throw dup r> $[]slurp close-file throw ;
 
