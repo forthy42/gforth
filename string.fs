@@ -96,12 +96,6 @@
     THEN
     r> $@ rot /string rot umin move ;
 
-: $slurp ( fid addr -- ) dup $init swap >r
-    r@ file-size throw drop over $!len
-    dup $@ r> read-file throw swap $!len ;
-: $slurp-file ( addr1 u1 addr2 -- )
-    >r r/o open-file throw dup r> $slurp close-file throw ;
-
 \ string array words
 
 : $[] ( n addr -- addr' ) >r
