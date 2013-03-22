@@ -93,8 +93,8 @@ explicit register allocation and efforts to stop coalescing.
 # define SPREG asm("%r15")
 # define IPREG asm("%rbx")
 #endif
-#if 0
-#define LPREG asm("%rbp") /* doesn't work now */
+#if (__GNUC__==4 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=7)
+#define LPREG asm("%rbp") /* works with GCC 4.7.x */
 #endif
 #define FTOSREG asm("%xmm8")
 #endif
