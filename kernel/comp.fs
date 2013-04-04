@@ -492,6 +492,7 @@ Create vttemplate 0 A, ' peephole-compile, A, ' post, A, 0 A, ' no-to A, \ initi
 : set-compiler  ( xt -- ) vttemplate >vtcompile, ! ;
 : set-postpone  ( xt -- ) vttemplate >vtpostpone ! ;
 : set-to        ( xt -- ) vttemplate >vtto ! ;
+: set-does>     ( xt -- ) >body !extra ; \ more work than the aboves
 
 : comp: ( -- colon-sys )
     start-xt  set-compiler ;
