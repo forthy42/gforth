@@ -430,7 +430,7 @@ defer defer-default ( -- )
     \G Compiles the present contents of the deferred word @i{name}
     \G into the current definition.  I.e., this produces static
     \G binding as if @i{name} was not deferred.
-    ' defer@ postpone Literal postpone execute ; immediate
+    ' defer@ compile, ; immediate
 
 : does>-like ( xt -- defstart )
     \ xt ( addr -- ) is !does or !;abi-code etc, addr is the address
