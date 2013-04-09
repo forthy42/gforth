@@ -25,6 +25,7 @@
 # To build gforth from scratch you need autoconf, automake and a 
 # gforth-0.6.2
 
+rm -f kernl*.fi gforth.fi gforth gforth-ditc gforth-ll* gforth-fast* # remove some debris
 ./autogen.sh &&
 ./configure "$@" &&
 echo Running: make &&
