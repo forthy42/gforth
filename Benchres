@@ -15,7 +15,7 @@ All times are given in seconds of user time.
 
 After 0.7.0:
 AMD64:
- 0.123  0.137  0.049 0.134 0.043  2013-03-15; Intel Core i7-3770 3.40GHz; gcc-4.7.2 20130108 (SUSE Linux)
+ 0.088  0.138  0.048 0.132 0.042  2013-04-08; Intel Core i7-3770 3.40GHz; gcc-4.7.2 20130108 (SUSE Linux)
  0.156  0.232  0.084 0.236 0.080  2012-10-31; Intel Xeon E5620 2.40GHz; gcc-4.7.1 (Debian 4.7.1-7)
  0.321  0.479  0.219 0.594 0.229  2012-10-31; AMD E-350 1.6GHz; gcc version 4.7.1 20120723 (SUSE Linux)
 sieve bubble matrix  fib   fft    release; CPU; gcc
