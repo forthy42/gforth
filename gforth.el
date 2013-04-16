@@ -726,12 +726,11 @@ End:\" construct).")
 		 (get-text-property from 'fontified))
        (forth-update-properties from to)))))
 
-(eval-when-compile
-  (byte-compile 'forth-set-word-properties)
-  (byte-compile 'forth-next-known-forth-word)
-  (byte-compile 'forth-update-properties)
-  (byte-compile 'forth-delete-properties)
-  (byte-compile 'forth-get-regexp-branch)) 
+(byte-compile 'forth-set-word-properties)
+(byte-compile 'forth-next-known-forth-word)
+(byte-compile 'forth-update-properties)
+(byte-compile 'forth-delete-properties)
+(byte-compile 'forth-get-regexp-branch)
 
 ;;; imenu support
 ;;;
