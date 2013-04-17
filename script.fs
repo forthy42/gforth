@@ -17,8 +17,8 @@
 
 \ scripting extensions
 
-: r:eval ( addr u -- ) system ;
-comp: drop slit, postpone system ;
+: r:eval ( addr u -- ) cr system ;
+comp: drop slit, ]] cr system [[ ;
 post: >r slit, r> post, ;
 
 : eval-recognizer ( addr u -- addr u' r:string )
