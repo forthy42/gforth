@@ -17,13 +17,16 @@
 
 \ scripting extensions
 
-: sh-eval ( addr u -- )
+: r:eval ( addr u -- ) system ;
+comp: drop slit, postpone system ;
+post: >r slit, r> post, ;
+
+: eval-recognizer ( addr u -- addr u' r:string )
     \G evaluate string + rest of command line
-    2dup 2>r >in @ >r negate
-    source >in @ 1- /string + c@ bl <> + >in +! drop sh
-    $? IF  r> >in ! 2r> defers interpreter-notfound
-    ELSE  rdrop 2rdrop  THEN ;
-' sh-eval IS interpreter-notfound
+    drop source drop - >in ! source >in @ /string dup >in +!
+    ['] r:eval ;
+' eval-recognizer forth-recognizer get-recognizers 1+
+forth-recognizer set-recognizers
 
 2Variable sh$  0. sh$ 2!
 : sh-get ( addr u -- addr' u' )
@@ -32,6 +35,5 @@
     r/o open-pipe throw dup >r slurp-fid
     r> close-pipe throw to $? 2dup sh$ 2! ;
 
-:noname '` parse sh-get ;
-:noname '` parse postpone SLiteral postpone sh-get ;
-interpret/compile: s`
+: s` '` parse sh-get ;
+comp: drop '` parse postpone SLiteral postpone sh-get ;
