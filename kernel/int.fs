@@ -324,71 +324,45 @@ $0fffffff constant lcount-mask
 	drop ['] compile-only-error
     then ;
 
-has? f83headerstring [IF]
-: name>string ( nt -- addr count ) \ gforth     name-to-string
-    \g @i{addr count} is the name of the word represented by @i{nt}.
-    cell+ count lcount-mask and ;
+ ' noop Alias ((name>)) ( nfa -- cfa )
+ (field) >namevt -1 cells , \ virtual table for names
+ (field) >link   -2 cells , \ link field
+ (field) >f+c    -3 cells , \ !! count
 
-: ((name>))  ( nfa -- cfa )
-    name>string + cfaligned ;
-
-: (name>x) ( nfa -- cfa w )
-    \ cfa is an intermediate cfa and w is the flags cell of nfa
-    dup ((name>))
-    swap cell+ c@ dup alias-mask and 0=
-    IF
-        swap @ swap
-    THEN ;
-[ELSE]
-    ' noop Alias ((name>)) ( nfa -- cfa )
-    (field) >namevt -1 cells , \ virtual table for names
-    (field) >link   -2 cells , \ link field
-    (field) >f+c    -3 cells , \ flags+count
-
-    (field) >vtlink      0 cells ,
-    (field) >vtcompile,  1 cells ,
-    (field) >vtpostpone  2 cells ,
-    (field) >vtextra     3 cells ,
-    (field) >vtto        4 cells ,
-    5 cells Constant vtsize
-    
-    : name>string ( nt -- addr count ) \ gforth     name-to-string
-	\g @i{addr count} is the name of the word represented by @i{nt}.
+ (field) >vtlink      0 cells ,
+ (field) >vtcompile,  1 cells ,
+ (field) >vtpostpone  2 cells , \ compile literal in recognizer
+ (field) >vtextra     3 cells ,
+ (field) >vtto        4 cells ,
+ (field) >vt>comp     5 cells ,
+ (field) >vt>int      6 cells ,
+ 7 cells Constant vtsize
+ 
+ : name>string ( nt -- addr count ) \ gforth     name-to-string
+     \g @i{addr count} is the name of the word represented by @i{nt}.
 	>f+c dup @ lcount-mask and tuck - swap ;
-    
-    : (name>x) ( nfa -- cfa w )
-	\ cfa is an intermediate cfa and w is the flags cell of nfa
-	dup ((name>))
-	swap >f+c @ dup alias-mask and 0=
-	IF
-	    swap @ swap
-	THEN ;
-[THEN]
 
 : name>int ( nt -- xt ) \ gforth name-to-int
     \G @i{xt} represents the interpretation semantics of the word
     \G @i{nt}. If @i{nt} has no interpretation semantics (i.e. is
     \G @code{compile-only}), @i{xt} is the execution token for
     \G @code{ticking-compile-only-error}, which performs @code{-2048 throw}.
-    (name>x) (x>int) ;
+    dup >namevt @ >vt>int perform ;
 
 : name?int ( nt -- xt ) \ gforth name-question-int
     \G Like @code{name>int}, but perform @code{-2048 throw} if @i{nt}
     \G has no interpretation semantics.
-    (name>x) restrict-mask and [ has? rom [IF] ] 0= [ [THEN] ]
-    if
-	ticking-compile-only-error \ does not return
+    dup name>int tuck <> if
+      dup ['] ticking-compile-only-error = if execute then
     then ;
 
-: (name>comp) ( nt -- w +-1 ) \ gforth
-    \G @i{w xt} is the compilation token for the word @i{nt}.
-    (name>x) >r 
-    r> immediate-mask and [ has? rom [IF] ] 0= [ [THEN] ] flag-sign
-    ;
+: (name>comp) ( nt -- w +-1 ) \ gforth-obsolete
+    \G @i{w} represents the compilation semantics; with -1 it must be
+    \G @{compile,}d; with 1 it must be {execute}d
+    name>comp ['] compile, = 2* 1+ ;
 
 : (name>intn) ( nfa -- xt +-1 )
-    (name>x) tuck (x>int) ( w xt )
-    swap immediate-mask and [ has? rom [IF] ] 0= [ [THEN] ] flag-sign ;
+    dup name>int swap (name>comp) nip ;
 
 [IFDEF] prelude-mask
 : name>prelude ( nt -- xt )
@@ -541,7 +515,7 @@ alias code-address! ( c_addr xt -- ) \ gforth
     if ( nt )
 	state @
 	if
-	    (name>comp)
+            (name>comp)
 	else
 	    (name>intn)
 	then

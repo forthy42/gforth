@@ -270,12 +270,7 @@ has? primcentric [IF]
 
 : name>comp ( nt -- w xt ) \ gforth name-to-comp
     \G @i{w xt} is the compilation token for the word @i{nt}.
-    (name>comp)
-    1 = if
-        ['] execute
-    else
-        ['] compile,
-    then ;
+    dup >namevt @ >vt>comp perform ;
 
 : [(')]  ( compilation "name" -- ; run-time -- nt ) \ gforth bracket-paren-tick
     (') postpone ALiteral ; immediate restrict
@@ -525,8 +520,8 @@ comp: drop >body postpone ALiteral postpone ! ;
 : (comp-to) ( xt -- ) dup >namevt @ >vtto @ compile, ;
 
 : TO ( value "name" -- )
-    (') (name>x) drop (int-to) ;
-comp: drop (') (name>x) drop (comp-to) ;
+    (') name>int (int-to) ;
+comp: drop (') name>comp drop (comp-to) ;
 
 ' TO alias IS
 
