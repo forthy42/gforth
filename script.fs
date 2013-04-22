@@ -17,13 +17,14 @@
 
 \ scripting extensions
 
-: sh-eval ( addr u -- )
+: sh-eval ( addr u -- xt )
     \G evaluate string + rest of command line
-    2dup 2>r >in @ >r negate
-    source >in @ 1- /string + c@ bl <> + >in +! drop sh
-    $? IF  r> >in ! 2r> defers interpreter-notfound
-    ELSE  rdrop 2rdrop  THEN ;
-' sh-eval IS interpreter-notfound
+    2dup 2>r >in @ >r
+    drop source drop - >in ! source >in @ /string dup >in +!
+    system
+    $? IF  r> >in ! 2r> defers interpreter-notfound1
+    ELSE  rdrop 2rdrop ['] noop THEN ;
+' sh-eval IS interpreter-notfound1
 
 2Variable sh$  0. sh$ 2!
 : sh-get ( addr u -- addr' u' )
