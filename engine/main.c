@@ -2621,7 +2621,9 @@ Cell gforth_main(int argc, char **argv, char **env)
   debugp(stderr, "Start returned %ld\n", retvalue);
 
   if(retvalue == -56) { /* throw-code for quit */
-    gforth_execute(gforth_find((Char*)"bootmessage"));
+    Xt bootmessage=gforth_find((Char*)"bootmessage");
+    if(bootmessage != 0)
+      gforth_execute(bootmessage);
     retvalue = gforth_quit();
   }
   gforth_cleanup();
