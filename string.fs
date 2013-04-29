@@ -17,11 +17,39 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-[IFUNDEF] c$+!
-    : c$+! ( char addr -- ) \ gforth-string c-string-plus-store
-	\G append a character to a string.
-	dup $@len 1+ over $!len $@ + 1- c! ;
-[THEN]
+\ overwrite
+
+: $over ( addr u $addr off -- )
+    \G overwrite string at offset off with addr u
+    swap >r
+    r@ @ 0= IF  s" " r@ $!  THEN
+    2dup + r@ $@len > IF
+	2dup + r@ $@len tuck max r@ $!len
+	r@ $@ rot /string bl fill
+    THEN
+    r> $@ rot /string rot umin move ;
+
+\ string array words
+
+: $[] ( n addr -- addr' ) >r
+    \G index into the string array and return the address at index n
+    r@ @ 0= IF  s" " r@ $!  THEN
+    r@ $@ 2 pick cells /string
+    dup cell < IF
+	2drop r@ $@len
+	over 1+ cells r@ $!len
+	r@ $@ rot /string 0 fill
+	r@ $@ 2 pick cells /string
+    THEN  drop nip rdrop ;
+
+: $[]! ( addr u n $[]addr -- )  $[] $! ;
+\G store a string into an array at index n
+: $[]+! ( addr u n $[]addr -- )  $[] $+! ;
+\G add a string to the string at addr n
+: $[]@ ( n $[]addr -- addr u )  $[] dup @ IF $@ ELSE drop s" " THEN ;
+\G fetch a string from array index n -- return the zero string if empty
+: $[]# ( addr -- len )  $@len cell/ ;
+\G return the number of elements in an array
 
 Variable tmp$ \ temporary string buffer
 tmp$ Value $execstr

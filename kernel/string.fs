@@ -23,7 +23,6 @@
     \G rest at the end with blanks.
     over min >r  r@ - ( left over )  dup 0>
     IF  2dup swap dup  r@ +  -rot swap move  THEN  + r> bl fill ;
-
 : insert   ( string length buffer size -- ) \ gforth-string
     \G inserts a string at the front of a buffer. The remaining
     \G bytes are moved on.
@@ -49,19 +48,21 @@
     \G change the memory area and adjust address and count cell as
     \G well.
     over $padding over @ swap resize throw over ! @ ! ;
+: $+! ( addr1 u addr2 -- ) \ gforth-string string-plus-store
+    \G appends a string to another.
+    >r r@ $@len 2dup + r@ $!len r> $@ rot /string rot umin move ;
+: c$+! ( char addr -- ) \ gforth-string c-string-plus-store
+    \G append a character to a string.
+    dup $@len 1+ over $!len $@ + 1- c! ;
+
+: $ins ( addr1 u addr2 off -- ) \ gforth-string string-ins
+    \G inserts a string at offset @var{off}.
+    >r 2dup dup $@len rot + swap $!len  $@ 1+ r> /string insert ;
 : $del ( addr off u -- ) \ gforth-string string-del
     \G deletes @var{u} bytes from a string with offset @var{off}.
     >r >r dup $@ r> /string r@ delete
     dup $@len r> - swap $!len ;
-: $ins ( addr1 u addr2 off -- ) \ gforth-string string-ins
-    \G inserts a string at offset @var{off}.
-    >r 2dup dup $@len rot + swap $!len  $@ 1+ r> /string insert ;
-: $+! ( addr1 u addr2 -- ) \ gforth-string string-plus-store
-    \G appends a string to another.
-    dup $@len $ins ;
-: c$+! ( char addr -- ) \ gforth-string c-string-plus-store
-    \G append a character to a string.
-    dup $@len 1+ over $!len $@ + 1- c! ;
+
 : $off ( addr -- ) \ gforth-string string-off
     \G releases a string.
     dup @ dup IF  free throw off  ELSE  2drop  THEN ;
@@ -85,36 +86,4 @@
     >r >r
     $@ BEGIN  dup  WHILE  r@ $split i' -rot >r >r execute r> r>
     REPEAT  2drop rdrop rdrop ;
-
-: $over ( addr u $addr off -- )
-    \G overwrite string at offset off with addr u
-    swap >r
-    r@ @ 0= IF  s" " r@ $!  THEN
-    2dup + r@ $@len > IF
-	2dup + r@ $@len tuck max r@ $!len
-	r@ $@ rot /string bl fill
-    THEN
-    r> $@ rot /string rot umin move ;
-
-\ string array words
-
-: $[] ( n addr -- addr' ) >r
-    \G index into the string array and return the address at index n
-    r@ @ 0= IF  s" " r@ $!  THEN
-    r@ $@ 2 pick cells /string
-    dup cell < IF
-	2drop r@ $@len
-	over 1+ cells r@ $!len
-	r@ $@ rot /string 0 fill
-	r@ $@ 2 pick cells /string
-    THEN  drop nip rdrop ;
-
-: $[]! ( addr u n $[]addr -- )  $[] $! ;
-\G store a string into an array at index n
-: $[]+! ( addr u n $[]addr -- )  $[] $+! ;
-\G add a string to the string at addr n
-: $[]@ ( n $[]addr -- addr u )  $[] dup @ IF $@ ELSE drop s" " THEN ;
-\G fetch a string from array index n -- return the zero string if empty
-: $[]# ( addr -- len )  $@len cell/ ;
-\G return the number of elements in an array
 [THEN]
