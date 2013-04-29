@@ -199,7 +199,7 @@ KERN_SRC = \
 	kernel/pass.fs \
 	kernel/vtables.fs \
 	kernel/xchars.fs \
-	string.fs
+	kernel/string.fs
 
 EC_SRC = \
 	asm/README \
@@ -258,7 +258,7 @@ GFORTH_FI_SRC2=\
 	source.fs \
 	startup.fs \
 	str-exec.fs \
-	string-exec.fs \
+	string.fs \
 	struct.fs \
 	struct0x.fs \
 	stuff.fs \

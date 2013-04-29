@@ -1,6 +1,6 @@
-\ dynamic string handling                              10aug99py
-
-\ Copyright (C) 2000,2005,2007,2010,2011,2012 Free Software Foundation, Inc.
+\ wrap TYPE and EMIT into strings using string.fs
+\
+\ Copyright (C) 2013 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -17,104 +17,66 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-[IFUNDEF] $!
-: delete   ( buffer size n -- ) \ gforth-string
-    \G deletes the first @var{n} bytes from a buffer and fills the
-    \G rest at the end with blanks.
-    over min >r  r@ - ( left over )  dup 0>
-    IF  2dup swap dup  r@ +  -rot swap move  THEN  + r> bl fill ;
-
-: insert   ( string length buffer size -- ) \ gforth-string
-    \G inserts a string at the front of a buffer. The remaining
-    \G bytes are moved on.
-    rot over min >r  r@ - ( left over )
-    over dup r@ +  rot move   r> move  ;
-
-: $padding ( n -- n' ) \ gforth-string
-    [ 6 cells ] Literal + [ -4 cells ] Literal and ;
-: $! ( addr1 u addr2 -- ) \ gforth-string string-store
-    \G stores a string at an address, If there was a string there
-    \G already, that string will be lost.
-    dup @ IF  dup @ free throw  THEN
-    over $padding allocate throw over ! @
-    over >r  rot over cell+  r> move 2dup ! + cell+ bl swap c! ;
-: $@len ( addr -- u ) \ gforth-string string-fetch-len
-    \G returns the length of the stored string.
-    @ @ ;
-: $@ ( addr1 -- addr2 u ) \ gforth-string string-fetch
-    \G returns the stored string.
-    @ dup cell+ swap @ ;
-: $!len ( u addr -- ) \ gforth-string string-store-len
-    \G changes the length of the stored string.  Therefore we must
-    \G change the memory area and adjust address and count cell as
-    \G well.
-    over $padding over @ swap resize throw over ! @ ! ;
-: $del ( addr off u -- ) \ gforth-string string-del
-    \G deletes @var{u} bytes from a string with offset @var{off}.
-    >r >r dup $@ r> /string r@ delete
-    dup $@len r> - swap $!len ;
-: $ins ( addr1 u addr2 off -- ) \ gforth-string string-ins
-    \G inserts a string at offset @var{off}.
-    >r 2dup dup $@len rot + swap $!len  $@ 1+ r> /string insert ;
-: $+! ( addr1 u addr2 -- ) \ gforth-string string-plus-store
-    \G appends a string to another.
-    dup $@len $ins ;
-: c$+! ( char addr -- ) \ gforth-string c-string-plus-store
-    \G append a character to a string.
-    dup $@len 1+ over $!len $@ + 1- c! ;
-: $off ( addr -- ) \ gforth-string string-off
-    \G releases a string.
-    dup @ dup IF  free throw off  ELSE  2drop  THEN ;
-: $init ( addr -- ) \ gforth-string string-init
-    \G initializes a string to empty (doesn't look at what was there before).
-    >r r@ off s" " r> $! ;
-
-\ dynamic string handling                              12dec99py
-
-: $split ( addr u char -- addr1 u1 addr2 u2 ) \ gforth-string string-split
-    \G divides a string into two, with one char as separator (e.g. '?'
-    \G for arguments in an HTML query)
-    >r 2dup r> scan dup >r dup IF  1 /string  THEN
-    2swap r> - 2swap ;
-
-: $iter ( .. $addr char xt -- .. ) \ gforth-string string-iter
-    \G takes a string apart piece for piece, also with a character as
-    \G separator. For each part a passed token will be called. With
-    \G this you can take apart arguments -- separated with '&' -- at
-    \G ease.
-    >r >r
-    $@ BEGIN  dup  WHILE  r@ $split i' -rot >r >r execute r> r>
-    REPEAT  2drop rdrop rdrop ;
-
-: $over ( addr u $addr off -- )
-    \G overwrite string at offset off with addr u
-    swap >r
-    r@ @ 0= IF  s" " r@ $!  THEN
-    2dup + r@ $@len > IF
-	2dup + r@ $@len tuck max r@ $!len
-	r@ $@ rot /string bl fill
-    THEN
-    r> $@ rot /string rot umin move ;
-
-\ string array words
-
-: $[] ( n addr -- addr' ) >r
-    \G index into the string array and return the address at index n
-    r@ @ 0= IF  s" " r@ $!  THEN
-    r@ $@ 2 pick cells /string
-    dup cell < IF
-	2drop r@ $@len
-	over 1+ cells r@ $!len
-	r@ $@ rot /string 0 fill
-	r@ $@ 2 pick cells /string
-    THEN  drop nip rdrop ;
-
-: $[]! ( addr u n $[]addr -- )  $[] $! ;
-\G store a string into an array at index n
-: $[]+! ( addr u n $[]addr -- )  $[] $+! ;
-\G add a string to the string at addr n
-: $[]@ ( n $[]addr -- addr u )  $[] dup @ IF $@ ELSE drop s" " THEN ;
-\G fetch a string from array index n -- return the zero string if empty
-: $[]# ( addr -- len )  $@len cell/ ;
-\G return the number of elements in an array
+[IFUNDEF] c$+!
+    : c$+! ( char addr -- ) \ gforth-string c-string-plus-store
+	\G append a character to a string.
+	dup $@len 1+ over $!len $@ + 1- c! ;
 [THEN]
+
+Variable tmp$ \ temporary string buffer
+tmp$ Value $execstr
+: $type ( addr u -- )  $execstr $+! ;
+: $emit ( char -- )    $execstr c$+! ;
+: $cr   ( -- ) newline $type ;
+: $exec ( xt addr -- )
+    \G execute xt while the standard output (TYPE, EMIT, and everything
+    \G that uses them) is redirected to the string variable addr.
+    $execstr action-of type action-of emit action-of cr
+    { oldstr oldtype oldemit oldcr }
+    try
+	to $execstr \ $execstr @ 0= IF s" " $execstr $! THEN
+	['] $type is type
+	['] $emit is emit
+	['] $cr   is cr
+	execute
+	0 \ throw ball
+    restore
+	oldstr to $execstr
+	oldtype is type
+	oldemit is emit
+	oldcr is cr
+    endtry
+    throw ;
+: $. ( addr -- )
+    \G print a string, shortcut
+    $@ type ;
+
+: $tmp ( xt -- addr u )
+    \G generate a temporary string from the output of a word
+    s" " tmp$ $!  tmp$ $exec  tmp$ $@ ;
+
+:noname ( -- )  defers 'cold  tmp$ off ;  is 'cold
+
+\ slurp in lines and files into strings and string-arrays
+
+: $slurp ( fid addr -- ) dup $init swap >r
+    r@ file-size throw drop over $!len
+    dup $@ r> read-file throw swap $!len ;
+: $slurp-file ( addr1 u1 addr2 -- )
+    >r r/o open-file throw dup r> $slurp close-file throw ;
+
+: $slurp-line { fid addr -- flag }  addr $off  addr $init
+    BEGIN
+	addr $@len dup { sk } 2* $100 umax dup { sz } addr $!len
+	addr $@ sk /string fid read-line throw
+	swap dup sz = WHILE  2drop  REPEAT  sk + addr $!len ;
+: $[]slurp { fid addr -- }
+    0 { i }  BEGIN  fid i addr $[] $slurp-line  WHILE
+	    i 1+ to i   REPEAT
+    \ we need to take off the last line, though
+    i addr $[] $off  i cells addr $!len ;
+: $[]slurp-file ( addr u $addr -- )
+    >r r/o open-file throw dup r> $[]slurp close-file throw ;
+
+: $[]. ( addr -- )
+    dup $[]# 0 ?DO  I over $[]@ type cr  LOOP  drop ;

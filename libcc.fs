@@ -132,7 +132,6 @@
 require struct.fs
 require mkdir.fs
 require string.fs
-require string-exec.fs
 
 Variable libcc$ \ source string for libcc generated source
 

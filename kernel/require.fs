@@ -22,7 +22,7 @@
 create included-files 0 , 0 , ( pointer to and count of included files )
 \ note: these names must not contain a "/" or "\"; otherwise a part of
 \ that name might be used when expanding "./" (see expandtopic).
-here ," string.fs" dup c@ swap 1 + swap , A,
+here ," *dummy entry*" dup c@ swap 1 + swap , A,
 here 2 cells -
 create image-included-files 1 , A, ( pointer to and count of included files )
 \ included-files points to ALLOCATEd space, while image-included-files
