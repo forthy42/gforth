@@ -6,6 +6,7 @@
         android:versionName="1.0">
 
     <!-- This is the platform API where NativeActivity was introduced. -->
+    <!-- However, we use OpenMAX AL, so 10 doesn't work any longer -->
     <uses-sdk android:minSdkVersion="10" />
 
     <!-- This .apk has no Java code itself, so set hasCode to false. -->
@@ -31,6 +32,10 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" />
+    <uses-feature android:name="android.hardware.camera.autofocus" />
+    <uses-permission android:name="android.permission.RECORD_VIDEO" />
 </manifest> 
 <!-- END_INCLUDE(manifest) -->
 

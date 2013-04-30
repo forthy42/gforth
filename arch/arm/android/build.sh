@@ -40,7 +40,6 @@ then
     done
     (cd $SRC/debian/sdcard
 	mkdir -p gforth/home
-	touch gforth/home/.gforth-history
 	gforth ../../archive.fs $(find gforth -type f)) | gzip -9 >$LIBS/libgforthgz.so
 else
     shift
