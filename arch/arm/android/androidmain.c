@@ -33,13 +33,11 @@
 #include <android/log.h>
 #include "android_native_app_glue.h"
 
+static Xt ainput=0;
+static Xt acmd=0;
+
 static int32_t engine_handle_input(struct android_app* app, AInputEvent* event) 
 {
-  static Xt ainput=0;
-
-  if(!ainput) {
-    ainput=gforth_find("ainput");
-  }
   if(ainput) {
     *--gforth_SP=event;
     gforth_execute(ainput);
@@ -51,11 +49,6 @@ static int32_t engine_handle_input(struct android_app* app, AInputEvent* event)
 
 static void engine_handle_cmd(struct android_app* app, int32_t cmd)
 {
-  static Xt acmd=0;
-
-  if(!acmd) {
-    acmd=gforth_find("acmd");
-  }
   if(acmd) {
     *--gforth_SP=cmd;
     gforth_execute(acmd);
@@ -139,6 +132,9 @@ void android_main(struct android_app* state)
   chdir("/sdcard/gforth/home");
 
   retvalue=gforth_start(argc, argv);
+
+  ainput=gforth_find("ainput");
+  acmd=gforth_find("acmd");
   
   if(retvalue == -56) {
     Xt bootmessage=gforth_find((Char*)"bootmessage");
