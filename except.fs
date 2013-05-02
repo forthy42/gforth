@@ -84,6 +84,7 @@ Variable first-throw
     r>
     swap >r \ recovery address
     sp@ cell+ >r
+    o#+ [ 0 , ] >r
     fp@ >r
     lp@ >r
     swap >r \ old handler
@@ -99,6 +100,7 @@ Variable first-throw
     r>
     swap >r \ recovery address
     sp@ >r
+    o#+ [ 0 , ] >r
     fp@ >r
     lp@ >r
     handler @ >r
@@ -123,6 +125,7 @@ Variable first-throw
     r> handler !
     rdrop \ lp
     rdrop \ fp
+    rdrop \ op
     rdrop \ sp
     rdrop \ recovery address
     >r ;
@@ -173,6 +176,7 @@ is catch
     dup rp! ( ... ball frame )
     cell+ dup @ lp!
     cell+ dup @ fp!
+    cell+ dup @ >o rdrop
     cell+ dup @ ( ... ball addr sp ) -rot 2>r sp! drop 2r>
     cell+ @ perform ;
 [endif]
