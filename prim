@@ -655,22 +655,24 @@ SET_IP((Xt *)a_target);
      cell+
  THEN  >r ;
 
-(try1)	( ... a_oldhandler a_recovery -- R:a_recovery R:a_sp R:f_fp R:c_lp R:a_oldhandler a_newhandler ) gforth paren_try1
+(try1)	( ... a_oldhandler a_recovery -- R:a_recovery R:a_sp R:a_op R:f_fp R:c_lp R:a_oldhandler a_newhandler ) gforth paren_try1
 a_sp = sp-1;
+a_op = op;
 f_fp = fp;
 c_lp = lp;
-a_newhandler = rp-5;
+a_newhandler = rp-6;
 
 (throw1) ( ... wball a_handler -- ... wball ) gforth paren_throw1
 rp = a_handler;
 lp = (Address)rp[1];
 fp = (Float *)rp[2];
-sp = (Cell *)rp[3];
+op = (Cell *)rp[3];
+sp = (Cell *)rp[4];
 #ifndef NO_IP
 ip=IP;
 #endif
 SUPER_END;
-VM_JUMP(EXEC1(*(Xt *)rp[4]));
+VM_JUMP(EXEC1(*(Xt *)rp[5]));
   
 
 \+
