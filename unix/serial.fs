@@ -78,7 +78,7 @@ $540B Constant TCFLSH
 $541B Constant FIONREAD
 
 : set-baud ( baud fd -- )  >r
-    t_old r@ tcgetattr drop
+    r@ t_old tcgetattr drop
     t_old t_buf termios move
     \  t_buf sizeof termios erase
     [ IGNPAR                   ] Literal    t_buf  c_iflag l!
@@ -92,10 +92,10 @@ $541B Constant FIONREAD
     28800 t_buf  c_cflag @ $F and lshift
 
     dup t_buf  c_ispeed l! t_buf  c_ospeed l!
-    t_buf 1 r> tcsetattr drop ;
+    r> 1 t_buf tcsetattr drop ;
 
 : reset-baud ( fd -- )
     t_old 1 rot tcsetattr drop ;
 
 : check-read ( fd -- n )  >r
-    0 sp@ FIONREAD r> fileno ioctl drop ;
+    0 sp@ r> fileno FIONREAD rot ioctl drop ;
