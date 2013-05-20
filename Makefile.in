@@ -289,7 +289,7 @@ GFORTH_FI_SRC = \
 	envos.fs \
 	$(GFORTH_FI_SRC2)
 
-LIBCC_SRC = cstr.fs unix/socket.fs unix/pthread.fs unix/mmap.fs
+LIBCC_SRC = cstr.fs unix/socket.fs unix/pthread.fs unix/mmap.fs unix/serial.fs
 
 LIBCC_DIST_SRC = libffi.fs fflib.fs $(LIBCC_SRC)
 
