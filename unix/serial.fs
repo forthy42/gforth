@@ -11,18 +11,27 @@ c-library serial
     c-function fileno fileno a{(FILE*)} -- n ( file* -- fd )
 end-c-library
 
-: lfield: ( offset -- offset' )
-    3 + -4 and 4 +field ;
+[IFDEF] android
+    : flagfield: ( offset -- offset' )
+	1+ -2 and 2 +field ;
+    ' w@ alias flag@
+    ' w! alias flag!
+[ELSE]
+    : flagfield: ( offset -- offset' )
+	3 + -4 and 4 +field ;
+    ' l@ alias flag@
+    ' l! alias flag!
+[THEN]
 
 begin-structure termios
-lfield: c_iflag           \ input mode flags
-lfield: c_oflag           \ output mode flags
-lfield: c_cflag           \ control mode flags
-lfield: c_lflag           \ local mode flags
+flagfield: c_iflag           \ input mode flags
+flagfield: c_oflag           \ output mode flags
+flagfield: c_cflag           \ control mode flags
+flagfield: c_lflag           \ local mode flags
 cfield: c_line
 32 +field c_cc           \ line discipline
-lfield: c_ispeed          \ input speed
-lfield: c_ospeed          \ output speed
+flagfield: c_ispeed          \ input speed
+flagfield: c_ospeed          \ output speed
 end-structure
 
 Create t_old  termios allot
@@ -81,17 +90,17 @@ $541B Constant FIONREAD
     r@ t_old tcgetattr drop
     t_old t_buf termios move
     \  t_buf sizeof termios erase
-    [ IGNPAR                   ] Literal    t_buf  c_iflag l!
-    0                                       t_buf  c_oflag l!
+    [ IGNPAR                   ] Literal    t_buf  c_iflag flag!
+    0                                       t_buf  c_oflag flag!
     [ 0 CS8 or CSTOPB or CREAD or CLOCAL or ] Literal or
-    t_buf  c_cflag l!
-    0                                       t_buf  c_lflag l!
+    t_buf  c_cflag flag!
+    0                                       t_buf  c_lflag flag!
     1 t_buf  c_cc VMIN + c!
     0 t_buf  c_cc VTIME + c!
     
     28800 t_buf  c_cflag @ $F and lshift
 
-    dup t_buf  c_ispeed l! t_buf  c_ospeed l!
+    dup t_buf  c_ispeed flag! t_buf  c_ospeed flag!
     r> 1 t_buf tcsetattr drop ;
 
 : reset-baud ( fd -- )
