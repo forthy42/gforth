@@ -6,6 +6,9 @@ c-library serial
     \c #include <stdio.h>
     c-function tcgetattr tcgetattr n a -- n ( fd termios -- r )
     c-function tcsetattr tcsetattr n n a -- n ( fd opt termios -- r )
+    c-function cfmakeraw cfmakeraw a -- void ( termios -- )
+    c-function cfsetispeed cfsetispeed a n -- n ( termios speed -- r )
+    c-function cfsetospeed cfsetospeed a n -- n ( termios speed -- r )
     c-function tcflow tcflow n n -- n ( fd action -- n )
     c-function ioctl ioctl n n a -- n ( fd cmd ptr -- n )
     c-function fileno fileno a{(FILE*)} -- n ( file* -- fd )
@@ -89,22 +92,13 @@ $541B Constant FIONREAD
 : set-baud ( baud fd -- )  >r
     r@ t_old tcgetattr drop
     t_old t_buf termios move
-    \  t_buf sizeof termios erase
-    [ IGNPAR                   ] Literal    t_buf  c_iflag flag!
-    0                                       t_buf  c_oflag flag!
-    [ 0 CS8 or CSTOPB or CREAD or CLOCAL or ] Literal or
-    t_buf  c_cflag flag!
-    0                                       t_buf  c_lflag flag!
-    1 t_buf  c_cc VMIN + c!
-    0 t_buf  c_cc VTIME + c!
-    
-    28800 t_buf  c_cflag @ $F and lshift
-
-    dup t_buf  c_ispeed flag! t_buf  c_ospeed flag!
-    r> 1 t_buf tcsetattr drop ;
+    t_buf cfmakeraw
+    t_buf over cfsetispeed drop
+    t_buf swap cfsetospeed drop
+    r> 0 t_buf tcsetattr drop ;
 
 : reset-baud ( fd -- )
-    t_old 1 rot tcsetattr drop ;
+    t_old 0 rot tcsetattr drop ;
 
 : check-read ( fd -- n )  >r
     0 sp@ r> fileno FIONREAD rot ioctl drop ;
