@@ -89,7 +89,8 @@ DOES> ( -- r )
     to precision ;
 
 : scratch ( -- addr len )
-  pad precision - precision ;
+    \G scratchpad for floating point - use space at the end of the user area
+  next-task udp @ + precision ;
 
 : zeros ( n -- )   0 max 0 ?DO  '0 emit  LOOP ;
 
