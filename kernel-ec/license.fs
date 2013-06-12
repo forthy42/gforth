@@ -17,6 +17,7 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+0 [IF]
 : license ( -- ) \ gforth
  cr
  ." This program is free software; you can redistribute it and/or modify" cr
@@ -32,3 +33,4 @@
  ." You should have received a copy of the GNU General Public License" cr
  ." along with this program. If not, see http://www.gnu.org/licenses/." cr ;
 
+[THEN]

@@ -36,12 +36,6 @@ decimal
 \ error numbers between -512 and -2047 are for OS errors and are
 \ handled with strerror
 
-has? OS [IF]
-: >stderr ( -- )
-    r> outfile-id >r debug-fid to outfile-id
-    >exec  r> to outfile-id ;
-[THEN]
-
 : error$ ( n -- addr u ) \ gforth
     \G converts an error to a string
     ErrLink
@@ -52,21 +46,8 @@ has? OS [IF]
 	    2 cells + count rot drop EXIT THEN
     REPEAT
     drop
-[ has? os [IF] ]
-    dup -511 -255 within
-    IF
-	256 + negate strsignal EXIT
-    THEN
-    dup -2047 -511 within
-    IF
-	512 + negate strerror EXIT
-    THEN
-[ [THEN] ]
     base @ >r decimal
     s>d tuck dabs <# #s rot sign s" error #" holds #> r> base ! ;
 
 : .error ( n -- )
-[ has? OS [IF] ]
-    >stderr
-[ [THEN] ]
     error$ type ;

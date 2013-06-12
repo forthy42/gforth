@@ -85,7 +85,7 @@ has? compiler [IF]
     [THEN]
 [THEN]
 include ./quotes.fs
-include ./tools.fs               \ load tools ( .s dump )
+\ include ./tools.fs               \ load tools ( .s dump )
 include ./getdoers.fs
 
 \ Setup                                                13feb93py

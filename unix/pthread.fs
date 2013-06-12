@@ -140,6 +140,18 @@ c-library pthread
     \c #endif
     \c   return check_read(fid);
     \c }
+    \c #include <sched.h>
+    \c int stick_to_core(int core_id) {
+    \c   cpu_set_t cpuset;
+    \c 
+    \c   core_id %= sysconf(_SC_NPROCESSORS_ONLN);
+    \c     return EINVAL;
+    \c   
+    \c   CPU_ZERO(&cpuset);
+    \c   CPU_SET(core_id, &cpuset);
+    \c   
+    \c   return pthread_setaffinity_np(pthread_self(), sizeof(cpu_set_t), &cpuset);
+    \c }
     c-function pthread+ pthread_plus a -- a ( addr -- addr' )
     c-function pthreads pthreads n -- n ( n -- n' )
     c-function thread_start gforth_thread_p -- a ( -- addr )
@@ -162,6 +174,7 @@ c-library pthread
     c-function create_pipe create_pipe a -- void ( pipefd[2] -- )
     c-function check_read check_read a -- n ( pipefd -- n )
     c-function wait_read wait_read a n -- n ( pipefd timeout -- n )
+    c-function stick-to-core stick_to_core n -- n ( core -- n )
 end-c-library
 
 User pthread-id  -1 cells pthread+ uallot drop

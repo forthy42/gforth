@@ -2277,14 +2277,19 @@ Defer setup-execution-semantics  ' noop IS setup-execution-semantics
     NoHeaderFlag @
     IF  NoHeaderFlag off
     ELSE
-	T align H view,
-	>in @ T name, H >in !
-	tlast @ T A, H
-	executed-ghost @ ?dup IF
-	    >do:ghost @ >exec2 @ addr,
-	ELSE
-	    0 T , H
-	THEN
+	[ X has? f83headerstring ] [IF]
+	    T align H tlast @ T A, H
+	    >in @ T name, H >in !
+	[ELSE]
+	    T align H view,
+	    >in @ T name, H >in !
+	    tlast @ T A, H
+	    executed-ghost @ ?dup IF
+		>do:ghost @ >exec2 @ addr,
+	    ELSE
+		0 T , H
+	    THEN
+	[THEN]
 	there tlast !
 	1 headers-named +!	\ Statistic
     THEN
@@ -2645,11 +2650,14 @@ ghost :-dummy Constant :-ghost
   :-ghost executed-ghost !  (THeader (:) ;
 
 : :noname ( -- xt colon-sys )
-  switchrom X cfalign
-  :-ghost >do:ghost @ >exec2 @ addr,  there 
-  \ define a nameless ghost
-  here ghostheader dup last-header-ghost ! dup to lastghost
-  (:) ;  
+    switchrom X cfalign
+    [ X has? f83headerstring 0= ] [IF]
+	:-ghost >do:ghost @ >exec2 @ addr,
+    [THEN]
+    there 
+    \ define a nameless ghost
+    here ghostheader dup last-header-ghost ! dup to lastghost
+    (:) ;  
 
 Cond: EXIT ( -- )   compile ;S  ;Cond
 

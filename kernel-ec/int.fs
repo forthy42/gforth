@@ -93,11 +93,6 @@ const Create bases   0A , 10 ,   2 ,   0A ,
 
 \ !! protect BASE saving wrapper against exceptions
 : getbase ( addr u -- addr' u' )
-    2dup s" 0x" string-prefix? >r
-    2dup s" 0X" string-prefix? r> or
-    base @ &34 < and if
-	hex 2 /string
-    endif
     over c@ [char] # - dup 4 u<
     IF
 	cells bases + @ base ! 1 /string
@@ -221,121 +216,23 @@ has? os 0= [IF]
     \G comments into documentation.
     POSTPONE \ ; immediate
 
-has? ec [IF]
-    AVariable forth-wordlist
-    : find-name ( c-addr u -- nt | 0 ) \ gforth
-	\g Find the name @i{c-addr u} in the current search
-	\g order. Return its @i{nt}, if found, otherwise 0.
-	forth-wordlist (f83find) ;
-[ELSE]
-\ \ object oriented search list                         17mar93py
-
-\ word list structure:
-
-struct
-  cell% field find-method   \ xt: ( c_addr u wid -- nt )
-  cell% field reveal-method \ xt: ( nt wid -- ) \ used by dofield:, must be field
-  cell% field rehash-method \ xt: ( wid -- )	   \ re-initializes a "search-data" (hashtables)
-  cell% field hash-method   \ xt: ( wid -- )    \ initializes ""
-\   \ !! what else
-end-struct wordlist-map-struct
-
-struct
-  cell% field wordlist-map \ pointer to a wordlist-map-struct
-  cell% field wordlist-id \ linked list of words (for WORDS etc.)
-  cell% field wordlist-link \ link field to other wordlists
-  cell% field wordlist-extend \ wordlist extensions (eg bucket offset)
-end-struct wordlist-struct
-
-has? f83headerstring [IF]
-: f83find      ( addr len wordlist -- nt / false )
-    wordlist-id @ (f83find) ;
-[ELSE]
-: f83find      ( addr len wordlist -- nt / false )
-    wordlist-id @ (listlfind) ;
-[THEN]
-
-: initvoc		( wid -- )
-  dup wordlist-map @ hash-method perform ;
-
-\ Search list table: find reveal
-Create f83search ( -- wordlist-map )
-    ' f83find A,  ' drop A,  ' drop A, ' drop A,
-
-here f83search A, NIL A, NIL A, NIL A,
-AValue forth-wordlist \ variable, will be redefined by search.fs
-
-AVariable lookup       	forth-wordlist lookup !
-\ !! last is user and lookup?! jaw
-AVariable current ( -- addr ) \ gforth
-\G @code{Variable} -- holds the @i{wid} of the compilation word list.
-AVariable voclink	forth-wordlist wordlist-link voclink !
-\ lookup AValue context ( -- addr ) \ gforth
-Defer context ( -- addr ) \ gforth
-\G @code{context} @code{@@} is the @i{wid} of the word list at the
-\G top of the search order.
-
-' lookup is context
-forth-wordlist current !
-
-: (search-wordlist)  ( addr count wid -- nt | false )
-    dup wordlist-map @ find-method perform ;
-
-: search-wordlist ( c-addr count wid -- 0 | xt +-1 ) \ search
-    \G Search the word list identified by @i{wid} for the definition
-    \G named by the string at @i{c-addr count}.  If the definition is
-    \G not found, return 0. If the definition is found return 1 (if
-    \G the definition is immediate) or -1 (if the definition is not
-    \G immediate) together with the @i{xt}.  In Gforth, the @i{xt}
-    \G returned represents the interpretation semantics.  ANS Forth
-    \G does not specify clearly what @i{xt} represents.
-    (search-wordlist) dup if
-	(name>intn)
-    then ;
-
+AVariable forth-wordlist
 : find-name ( c-addr u -- nt | 0 ) \ gforth
     \g Find the name @i{c-addr u} in the current search
     \g order. Return its @i{nt}, if found, otherwise 0.
-    lookup @ (search-wordlist) ;
-[THEN]
+    forth-wordlist (f83find) ;
 
 \ \ header, finding, ticks                              17dec92py
 
 \ The constants are defined as 32 bits, but then erased
 \ and overwritten by the right ones
 
-has? f83headerstring [IF]
-    \ to save space, Gforth EC limits words to 31 characters
-    \ also, there's no predule concept in Gforth EC
-    $80 constant alias-mask
-    $40 constant immediate-mask
-    $20 constant restrict-mask
-    $1f constant lcount-mask
-[ELSE]
-\ 32-bit systems cannot generate large 64-bit constant in the
-\ cross-compiler, so we kludge it by generating a constant and then
-\ storing the proper value into it (and that's another kludge).
-$80000000 constant alias-mask
-1 bits/char 1 - lshift
--1 cells allot  bigendian [IF]   c, 0 1 cells 1- times
-                          [ELSE] 0 1 cells 1- times c, [THEN]
-$40000000 constant immediate-mask
-1 bits/char 2 - lshift
--1 cells allot  bigendian [IF]   c, 0 1 cells 1- times
-                          [ELSE] 0 1 cells 1- times c, [THEN]
-$20000000 constant restrict-mask
-1 bits/char 3 - lshift
--1 cells allot  bigendian [IF]   c, 0 1 cells 1- times
-                          [ELSE] 0 1 cells 1- times c, [THEN]
-$10000000 constant prelude-mask
-1 bits/char 4 - lshift
--1 cells allot  bigendian [IF]   c, 0 1 cells 1- times
-                          [ELSE] 0 1 cells 1- times c, [THEN]
-$0fffffff constant lcount-mask
-1 bits/char 4 - lshift 1 -
--1 cells allot  bigendian [IF]   c, -1 1 cells 1- times
-                          [ELSE] -1 1 cells 1- times c, [THEN]
-[THEN]
+\ to save space, Gforth EC limits words to 31 characters
+\ also, there's no predule concept in Gforth EC
+$80 constant alias-mask
+$40 constant immediate-mask
+$20 constant restrict-mask
+$1f constant lcount-mask
 
 \ higher level parts of find
 
@@ -366,7 +263,6 @@ $0fffffff constant lcount-mask
 	(cfa>int)
     then ;
 
-has? f83headerstring [IF]
 : name>string ( nt -- addr count ) \ gforth     name-to-string
     \g @i{addr count} is the name of the word represented by @i{nt}.
     cell+ count lcount-mask and ;
@@ -381,22 +277,6 @@ has? f83headerstring [IF]
     IF
         swap @ swap
     THEN ;
-[ELSE]
-: name>string ( nt -- addr count ) \ gforth     name-to-string
-    \g @i{addr count} is the name of the word represented by @i{nt}.
-    cell+ dup cell+ swap @ lcount-mask and ;
-
-: ((name>))  ( nfa -- cfa )
-    name>string + cfaligned ;
-
-: (name>x) ( nfa -- cfa w )
-    \ cfa is an intermediate cfa and w is the flags cell of nfa
-    dup ((name>))
-    swap cell+ @ dup alias-mask and 0=
-    IF
-        swap @ swap
-    THEN ;
-[THEN]
 
 : name>int ( nt -- xt ) \ gforth name-to-int
     \G @i{xt} represents the interpretation semantics of the word
@@ -442,83 +322,6 @@ has? f83headerstring [IF]
 const Create ???  0 , 3 , char ? c, char ? c, char ? c,
 \ ??? is used by dovar:, must be created/:dovar
 
-[IFDEF] forthstart
-\ if we have a forthstart we can define head? with it
-\ otherwise leave out the head? check
-
-: one-head? ( addr -- f )
-\G heuristic check whether addr is a name token; may deliver false
-\G positives; addr must be a valid address
-    dup dup aligned <>
-    if
-        drop false exit \ heads are aligned
-    then
-    dup cell+ @ alias-mask and 0= >r
-    name>string dup $20 $1 within if
-        rdrop 2drop false exit \ realistically the name is short
-    then
-    over + cfaligned over - 2dup bounds ?do \ should be a printable string
-	i c@ bl < if
-	    2drop unloop rdrop false exit
-	then
-    loop
-    + r> if \ check for valid aliases
-	@ dup forthstart here within
-	over ['] noop ['] lit-execute 1+ within or
-	over dup aligned = and
-	0= if
-	    drop false exit
-	then
-    then \ check for cfa - must be code field or primitive
-    dup @ tuck 2 cells - = swap
-    docol:  ['] lit-execute @ 1+ within or ;
-
-: head? ( addr -- f )
-\G heuristic check whether addr is a name token; may deliver false
-\G positives; addr must be a valid address; returns 1 for
-\G particularly unsafe positives
-    \ we follow the link fields and check for plausibility; two
-    \ iterations should catch most false addresses: on the first
-    \ iteration, we may get an xt, on the second a code address (or
-    \ some code), which is typically not in the dictionary.
-    \ we added a third iteration for working with code and ;code words.
-    3 0 do
-	dup one-head? 0= if
-	    drop false unloop exit
-	endif
-	dup @ dup 0= if
-	    2drop 1 unloop exit
-	else
-	    dup rot forthstart within if
-		drop false unloop exit
-	    then
-	then
-    loop
-    drop true ;
-
-: >head-noprim ( cfa -- nt ) \ gforth  to-head-noprim
-    \ also heuristic
-    dup forthstart - max-name-length @
-    [ has? float [IF] ] float+ [ [ELSE] ] cell+ [ [THEN] ] cell+ min
-    cell max cell ?do ( cfa )
-	dup i - dup @ [ alias-mask lcount-mask or ] literal
-	[ 1 bits/char 3 - lshift 1 - 1 bits/char 1 - lshift or
-	-1 cells allot bigendian [IF]   c, -1 1 cells 1- times
-	[ELSE] -1 1 cells 1- times c, [THEN] ]
-	and ( cfa len|alias )
-	swap + cell+ cfaligned over alias-mask + =
-	if ( cfa )
-	    dup i - cell - dup head?
-	    if
-		nip unloop exit
-	    then
-	    drop
-	then
-	cell +loop
-    drop ??? ( wouldn't 0 be better? ) ;
-
-[ELSE]
-
 : >head-noprim ( cfa -- nt ) \ gforth  to-head-noprim
     $25 cell do ( cfa )
 	dup i - dup @ [ alias-mask lcount-mask or ] literal
@@ -531,8 +334,6 @@ const Create ???  0 , 3 , char ? c, char ? c, char ? c,
 	then
 	cell +loop
     drop ??? ( wouldn't 0 be better? ) ;
-
-[THEN]
 
 cell% 2* 0 0 field >body ( xt -- a_addr ) \ core to-body
 \G Get the address of the body of the word represented by @i{xt} (the
@@ -866,15 +667,11 @@ has? new-input 0= [IF]
 
 Defer 'quit
 
-has? os [IF]
-    Defer .status
-[ELSE]
-    [IFUNDEF] bye
-	: (bye)     ( 0 -- ) \ back to DOS
-	    drop 5 emit ;
-	
-	: bye ( -- )  0 (bye) ;
-    [THEN]
+[IFUNDEF] bye
+    : (bye)     ( 0 -- ) \ back to DOS
+	drop 5 emit ;
+    
+    : bye ( -- )  0 (bye) ;
 [THEN]
 
 : prompt        state @ IF ."  compiled" EXIT THEN ."  ok" ;
@@ -896,157 +693,11 @@ has? os [IF]
 
 ' (quit) IS 'quit
 
-\ \ DOERROR (DOERROR)                        		13jun93jaw
-
-has? os [IF]
-8 Constant max-errors
-5 has? file 2 and + Constant /error
-Variable error-stack  0 error-stack !
-max-errors /error * cells allot
-\ format of one cell:
-\ source ( c-addr u )
-\ last parsed lexeme ( c-addr u )
-\ line-number
-\ Loadfilename ( addr u )
-
-: error> ( --  c-addr1 u1 c-addr2 u2 line# [addr u] )
-    -1 error-stack +!
-    error-stack dup @
-    /error * cells + cell+
-    /error cells bounds DO
-        I @
-    cell +LOOP ;
-
-: >error ( c-addr1 u1 c-addr2 u2 line# [addr u] -- )
-    error-stack dup @ dup 1+
-    max-errors 1- min error-stack !
-    /error * cells + cell+
-    /error 1- cells bounds swap DO
-        I !
-    -1 cells +LOOP ;
-
-: input-error-data ( -- c-addr1 u1 c-addr2 u2 line# [addr u] )
-    \ error data for the current input, to be used by >error or .error-frame
-    source over >r save-mem over r> -
-    input-lexeme 2@ >r + r> sourceline#
-    [ has? file [IF] ] sourcefilename [ [THEN] ] ;
-
-: dec. ( n -- ) \ gforth
-    \G Display @i{n} as a signed decimal number, followed by a space.
-    \ !! not used...
-    base @ decimal swap . base ! ;
-
-: dec.r ( u n -- ) \ gforth
-    \G Display @i{u} as a unsigned decimal number in a field @i{n}
-    \G characters wide.
-    base @ >r decimal .r r> base ! ;
-
-: hex. ( u -- ) \ gforth
-    \G Display @i{u} as an unsigned hex number, prefixed with a "$" and
-    \G followed by a space.
-    \ !! not used...
-    [char] $ emit base @ swap hex u. base ! ;
-
-: -trailing  ( c_addr u1 -- c_addr u2 ) \ string dash-trailing
-\G Adjust the string specified by @i{c-addr, u1} to remove all
-\G trailing spaces. @i{u2} is the length of the modified string.
-    BEGIN
-	dup
-    WHILE
-	1- 2dup + c@ bl <>
-    UNTIL  1+  THEN ;
-
-DEFER DOERROR
-
-has? backtrace [IF]
-Defer dobacktrace ( -- )
-' noop IS dobacktrace
-[THEN]
-
-: .error-string ( throw-code -- )
-  dup -2 = 
-  IF 	"error @ ?dup IF count type  THEN drop
-  ELSE	.error
-  THEN ;
-
-[IFUNDEF] umin
-: umin ( u1 u2 -- u )
-    2dup u>
-    if
-	swap
-    then
-    drop ;
-[THEN]
-
-Defer mark-start
-Defer mark-end
-
-:noname ." >>>" ; IS mark-start
-:noname ." <<<" ; IS mark-end
-
-: part-type ( addr1 u1 u -- addr2 u2 )
-    \ print first u characters of addr1 u1, addr2 u2 is the rest
-    over umin 2 pick over type /string ;
-
-: .error-line ( c-addr1 u1 c-addr2 u2 -- )
-    \ print error in line c-addr1 u1, where the error-causing lexeme
-    \ is c-addr2 u2
-    >r 2 pick - part-type ( c-addr3 u3 R: u2 )
-    mark-start r> part-type mark-end ( c-addr4 u4 )
-    type ;
-
-: .error-frame ( throwcode addr1 u1 addr2 u2 n2 [addr3 u3] -- throwcode )
-    \ addr3 u3: filename of included file - optional
-    \ n2:       line number
-    \ addr2 u2: parsed lexeme (should be marked as causing the error)
-    \ addr1 u1: input line
-    error-stack @
-    IF ( throwcode addr1 u1 n0 n1 n2 [addr2 u2] )
-        [ has? file [IF] ] \ !! unbalanced stack effect
-	  over IF
-	      cr ." in file included from "
-	      type ." :"
-	      0 dec.r  2drop 2drop
-          ELSE
-              2drop 2drop 2drop drop
-          THEN
-          [ [THEN] ] ( throwcode addr1 u1 n0 n1 n2 )
-    ELSE ( throwcode addr1 u1 n0 n1 n2 [addr2 u2] )
-        [ has? file [IF] ]
-            cr type ." :"
-            [ [THEN] ] ( throwcode addr1 u1 n0 n1 n2 )
-        dup 0 dec.r ." : " 5 pick .error-string
-        IF \ if line# non-zero, there is a line
-            cr .error-line
-        ELSE
-            2drop 2drop
-        THEN
-    THEN ;
-
-: (DoError) ( throw-code -- )
-  [ has? os [IF] ]
-      >stderr
-  [ [THEN] ] 
-  input-error-data .error-frame
-  error-stack @ 0 ?DO
-    error>
-    .error-frame
-  LOOP
-  drop 
-[ has? backtrace [IF] ]
-  dobacktrace
-[ [THEN] ]
-  normal-dp dpp ! ;
-
-' (DoError) IS DoError
-
-[ELSE]
-    : dec.  base @ >r decimal . r> base ! ;
-    : DoError ( throw-code -- )
-	cr source drop >in @ type ." <<< "
-	dup -2 =  IF  "error @ type  drop  EXIT  THEN
-	.error ;
-[THEN]
+: dec.  base @ >r decimal . r> base ! ;
+: DoError ( throw-code -- )
+    cr source drop >in @ type ." <<< "
+    dup -2 =  IF  "error @ type  drop  EXIT  THEN
+    .error ;
 
 : quit ( ?? -- ?? ) \ core
     \G Empty the return stack, make the user input device

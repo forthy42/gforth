@@ -97,10 +97,6 @@
     here swap chars dup allot move
 [ [THEN] ] ;
 
-: longstring, ( c-addr u -- ) \ gforth
-    \G puts down string as longcstring
-    dup , here swap chars dup allot move ;
-
 [IFDEF] prelude-mask
 variable next-prelude
 
