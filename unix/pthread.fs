@@ -234,7 +234,7 @@ interpret/compile: user' ( 'user' -- n )
 
 : pass ( x1 .. xn n task -- )
     \G activates task, and passes n parameters from the data stack
-    ]] (pass) up! sp0 ! [[ ; immediate compile-only
+    ]] (pass) up! sp0 ! rp@ backtrace-rp0 ! [[ ; immediate compile-only
 
 : sema ( "name" -- ) \ gforth
     \G create a named semaphore

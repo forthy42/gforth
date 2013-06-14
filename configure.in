@@ -40,7 +40,7 @@ AC_SUBST(LIBLTDL)
 AC_SUBST(LTDL_LDLIBS)
 
 #suppress the "-g -O2" default
-test "$CFLAGS" || CFLAGS=-O2
+test "$CFLAGS" || CFLAGS="-O2 -pthread"
 
 AC_ARG_ENABLE(force-cdiv,
 	AC_HELP_STRING([--enable-force-cdiv],
