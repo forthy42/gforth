@@ -99,6 +99,9 @@ getpagesize constant pagesize
     [ MAP_PRIVATE MAP_ANONYMOUS or ]L 0 0 mmap
     dup r> + pagesize PROT_NONE mprotect drop ;
 
+: free+guard ( addr len -- )
+    >pagealign pagesize + munmap ;
+
 : clearpages ( addr len -- ) >pagealign
     2dup munmap drop
     PROT_RWX

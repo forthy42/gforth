@@ -232,9 +232,13 @@ interpret/compile: user' ( 'user' -- n )
     sp0 r@ >task @ swap 0 ?DO  tuck ! cell+  LOOP  drop
     pthread-id r@ >task 0 thread_start r> pthread_create drop ; compile-only
 
+: thread-init ( -- )
+    rp@ cell+ backtrace-rp0 !
+    tmp$ $execstr-ptr !  tmp$ off ;
+
 : pass ( x1 .. xn n task -- )
     \G activates task, and passes n parameters from the data stack
-    ]] (pass) up! sp0 ! rp@ backtrace-rp0 ! [[ ; immediate compile-only
+    ]] (pass) up! sp0 ! thread-init [[ ; immediate compile-only
 
 : sema ( "name" -- ) \ gforth
     \G create a named semaphore

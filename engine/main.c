@@ -2608,6 +2608,7 @@ Cell gforth_start(int argc, char ** argv)
 {
   char *path, *imagename;
 
+  mcheck(gforth_abortmcheck);
   gforth_args(argc, argv, &path, &imagename);
   gforth_header = gforth_loader(imagename, path);
   gforth_main_UP = gforth_UP = gforth_stacks(dsize, rsize, fsize, lsize);

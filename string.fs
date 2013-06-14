@@ -51,25 +51,26 @@
 : $[]# ( addr -- len )  $@len cell/ ;
 \G return the number of elements in an array
 
-Variable tmp$ \ temporary string buffer
-tmp$ Value $execstr
-: $type ( addr u -- )  $execstr $+! ;
-: $emit ( char -- )    $execstr c$+! ;
+User tmp$ \ temporary string buffer
+User $execstr-ptr
+tmp$ $execstr-ptr !
+: $type ( addr u -- )  $execstr-ptr @ $+! ;
+: $emit ( char -- )    $execstr-ptr @ c$+! ;
 : $cr   ( -- ) newline $type ;
 : $exec ( xt addr -- )
     \G execute xt while the standard output (TYPE, EMIT, and everything
     \G that uses them) is redirected to the string variable addr.
-    $execstr action-of type action-of emit action-of cr
+    $execstr-ptr @ action-of type action-of emit action-of cr
     { oldstr oldtype oldemit oldcr }
     try
-	to $execstr \ $execstr @ 0= IF s" " $execstr $! THEN
+	$execstr-ptr ! \ $execstr-ptr @ @ 0= IF s" " $execstr-ptr @ $! THEN
 	['] $type is type
 	['] $emit is emit
 	['] $cr   is cr
 	execute
 	0 \ throw ball
     restore
-	oldstr to $execstr
+	oldstr $execstr-ptr !
 	oldtype is type
 	oldemit is emit
 	oldcr is cr

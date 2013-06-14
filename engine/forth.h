@@ -417,7 +417,6 @@ Label *gforth_engine(Xt *ip sr_proto);
 Label *gforth_engine2(Xt *ip sr_proto);
 Label *gforth_engine3(Xt *ip sr_proto);
 
-
 Cell gforth_main(int argc, char **argv, char **env);
 void gforth_args(int argc, char ** argv, char ** path, char ** imagename);
 ImageHeader* gforth_loader(char* imagename, char* path);
@@ -435,6 +434,7 @@ void gforth_printmetrics();
 #if defined(DOUBLY_INDIRECT)
 Cell gforth_make_image(int debugflag);
 #endif
+int gforth_abortmcheck(int reason);
 
 /* for ABI-CODE and ;ABI-CODE */
 typedef Cell *abifunc(Cell *sp, Float **fpp);

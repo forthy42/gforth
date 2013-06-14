@@ -40,7 +40,7 @@ AC_SUBST(LIBLTDL)
 AC_SUBST(LTDL_LDLIBS)
 
 #suppress the "-g -O2" default
-test "$CFLAGS" || CFLAGS="-O2 -pthread"
+test "$CFLAGS" || CFLAGS=-O2
 
 AC_ARG_ENABLE(force-cdiv,
 	AC_HELP_STRING([--enable-force-cdiv],
@@ -726,6 +726,17 @@ CFLAGS="$CFLAGS -falign-jumps=1"
 AC_TRY_COMPILE(,,ac_align_jumps=yes;ENGINE_FLAGS="$ENGINE_FLAGS -falign-jumps=1",ac_align_jumps=no)
 CFLAGS="$CFLAGS_1"
 AC_MSG_RESULT($ac_align_jumps)
+
+# Try if GCC understands -pthread
+AC_MSG_CHECKING([if $CC understands -pthread])
+CFLAGS_1="$CFLAGS"
+LDFLAGS_1="$LDFLAGS"
+CFLAGS="$CFLAGS -pthread"
+LDFLAGS="$LDFLAGS -pthread"
+AC_TRY_COMPILE(,,ac_pthread=yes;ENGINE_FLAGS="$ENGINE_FLAGS -pthread",ac_align_jumps=no)
+test "$ac_pthread" == yes || CFLAGS="$CFLAGS_1"
+test "$ac_pthread" == yes || LDFLAGS="$LDFLAGS_1"
+AC_MSG_RESULT($ac_pthread)
 
 if test -z "$LIBTOOL_CC"
 then

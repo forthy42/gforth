@@ -538,6 +538,11 @@ UCell rshift(UCell u1, UCell n)
 }
 
 #ifndef STANDALONE
+int gforth_abortmcheck(int reason)
+{
+  throw(-2049-reason);
+}
+
 int gforth_system(Char *c_addr, UCell u)
 {
   int retval;
