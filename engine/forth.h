@@ -435,6 +435,7 @@ void gforth_printmetrics();
 Cell gforth_make_image(int debugflag);
 #endif
 int gforth_abortmcheck(int reason);
+void gforth_free(void * ptr);
 
 /* for ABI-CODE and ;ABI-CODE */
 typedef Cell *abifunc(Cell *sp, Float **fpp);

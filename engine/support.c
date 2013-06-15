@@ -40,6 +40,10 @@
 #if defined(HAVE_LIBDL) || defined(HAVE_DLOPEN) /* what else? */
 #include <dlfcn.h>
 #endif
+#ifdef HAS_DEBUG
+extern int debug;
+# define debugp(x...) do { if (debug) fprintf(x); } while (0)
+#endif
 
 #ifdef HAS_FILE
 char *cstr(Char *from, UCell size)
@@ -541,6 +545,15 @@ UCell rshift(UCell u1, UCell n)
 int gforth_abortmcheck(int reason)
 {
   throw(-2049-reason);
+}
+
+void gforth_free(void * ptr)
+{
+  int reason=mprobe(ptr);
+  debugp(stderr, "free(%08p)=%d;\n", ptr, reason);
+  if(reason>0)
+    throw(-2049-reason);
+  free(ptr);
 }
 
 int gforth_system(Char *c_addr, UCell u)

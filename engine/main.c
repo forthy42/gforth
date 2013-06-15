@@ -634,7 +634,7 @@ static void *dict_alloc_read(FILE *file, Cell imagesize, Cell dictsize, Cell off
 }
 #endif
 
-void gforth_free()
+void gforth_free_dict()
 {
   Cell image = (-pagesize) & (Cell)gforth_header;
 #ifdef HAVE_MMAP
@@ -2629,7 +2629,7 @@ Cell gforth_main(int argc, char **argv, char **env)
   }
   gforth_cleanup();
   gforth_printmetrics();
-  gforth_free();
+  // gforth_free_dict();
 
   return retvalue;
 }
@@ -2649,19 +2649,19 @@ Cell gforth_make_image(int debugflag)
 
   retvalue=gforth_start(argc0, argv0);
   gforth_free_stacks(gforth_UP);
-  gforth_free();
+  gforth_free_dict();
 
   optind=1;
 
   retvalue=gforth_start(argc1, argv1);
   gforth_free_stacks(gforth_UP);
-  gforth_free();
+  gforth_free_dict();
 
   optind=1;
 
   retvalue=gforth_start(argc2, argv2);
   gforth_free_stacks(gforth_UP);
-  gforth_free();
+  gforth_free_dict();
   
   unlink("temp-file.fi1");
   unlink("temp-file.fi2");

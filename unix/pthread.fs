@@ -19,6 +19,7 @@
 
 c-library pthread
     \c #include <pthread.h>
+    \c #include <mcheck.h>
     \c #include <limits.h>
     \c #include <sys/mman.h>
     \c #include <unistd.h>
@@ -34,6 +35,11 @@ c-library pthread
     \c static void *(*saved_gforth_pointers)(Cell);
     \c #endif
     \c 
+    \c void gfpthread_abortmcheck(enum mcheck_status reason)
+    \c {
+    \c   if((int)reason > 0)
+    \c     longjmp(*(jmp_buf*)throw_jmp_handler,-2049-(int)reason);
+    \c }
     \c void *gforth_thread(user_area * t)
     \c {
     \c   void *x;
@@ -51,6 +57,7 @@ c-library pthread
     \c   gforth_FP=(Float*)(t->fp0);
     \c   gforth_LP=(Address)(t->lp0);
     \c
+    \c   mcheck(gfpthread_abortmcheck);
     \c   pthread_cleanup_push((void (*)(void*))gforth_free_stacks, (void*)t);
     \c 
     \c   throw_jmp_handler = &throw_jmp_buf;
@@ -158,6 +165,7 @@ c-library pthread
     c-function gforth_create_thread gforth_stacks n n n n -- a ( dsize rsize fsize lsize -- task )
     c-function pthread_create pthread_create a a a a -- n ( thread attr start arg )
     c-function pthread_exit pthread_exit a -- void ( retaddr -- )
+    c-function pthread_kill pthread_kill n n -- n ( id sig -- rvalue )
     c-function pthread_mutex_init pthread_mutex_init a a -- n ( mutex addr -- r )
     c-function pthread_mutex_lock pthread_mutex_lock a -- n ( mutex -- r )
     c-function pthread_mutex_unlock pthread_mutex_unlock a -- n ( mutex -- r )
@@ -234,7 +242,8 @@ interpret/compile: user' ( 'user' -- n )
 
 : thread-init ( -- )
     rp@ cell+ backtrace-rp0 !
-    tmp$ $execstr-ptr !  tmp$ off ;
+    tmp$ $execstr-ptr !  tmp$ off
+    current-input off create-input ;
 
 : pass ( x1 .. xn n task -- )
     \G activates task, and passes n parameters from the data stack
