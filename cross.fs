@@ -2889,7 +2889,7 @@ Variable gvtable-list
 Ghost docol-vt drop
 
 >TARGET
-5 T cells H Constant vtsize
+8 T cells H Constant vtsize
 >CROSS
 
 8 cells Constant gvtsize \ ghost vtables for comparison
@@ -2932,7 +2932,8 @@ Create vttemplate gvtsize allot \ stores 7 ghosts and a link
 	THEN
     THEN
     drop T 0 A, A, H
-    ( extra field for dodoes, to-field ) ;
+    ( extra field for dodoes, to-field )
+    T 0 A, 0 A, 0 A, H ;
 
 : vtable: ( compile-xt tokenize-xt to-xt "name" -- )
     Ghost dup >do:ghost @ >exec2 @ hereresolve T vtable, H ;
