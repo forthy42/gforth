@@ -421,10 +421,10 @@ defer defer-default ( -- )
     Header Reveal dodefer,
     ['] defer-default A, ;
 
-: defer@ ( xt-deferred -- xt ) \ gforth defer-fetch
+Defer defer@ ( xt-deferred -- xt ) \ gforth defer-fetch
 \G @i{xt} represents the word currently associated with the deferred
 \G word @i{xt-deferred}.
-    >body @ ;
+: >body@ >body @ ; ' >body@ IS defer@
 
 : Defers ( compilation "name" -- ; run-time ... -- ... ) \ gforth
     \G Compiles the present contents of the deferred word @i{name}
@@ -460,7 +460,17 @@ comp: drop  ['] !extra does>-like :-hook ;
 
 \ comp: to define compile, action
 
-Create vttemplate 0 A, ' peephole-compile, A, ' post, A, 0 A, ' no-to A, \ initialize to one known vt
+Create vttemplate
+0 A,                   \ link field
+' peephole-compile, A, \ compile, field
+' post, A,             \ post, field
+0 A,                   \ extra field
+' no-to A,             \ to field
+' noop A,              \ name>int field
+' noop A,              \ name>comp field
+' >body@ A,            \ defer@
+
+\ initialize to one known vt
 
 : vtcopy,     ( xt -- )  \ gforth	vtcopy-comma
     vttemplate here >namevt !

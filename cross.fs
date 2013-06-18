@@ -2884,6 +2884,7 @@ Cond: DOES>
 : vt:  ( ghost -- )  Ghost built >do:ghost @ >exec2 ! ;
 
 Variable tvtable-list
+Variable gvtable-list
 
 Ghost docol-vt drop
 
@@ -2891,22 +2892,30 @@ Ghost docol-vt drop
 5 T cells H Constant vtsize
 >CROSS
 
-Create vttemplate vtsize allot
+8 cells Constant gvtsize \ ghost vtables for comparison
+
+Create vttemplate gvtsize allot \ stores 7 ghosts and a link
 
 : vt= ( vt1 vt2 -- flag )
-    T cell+ H swap vtsize T cell H /string tuck compare 0= ;
+    cell+ swap gvtsize cell /string tuck compare 0= ;
 
 : (vt,) ( -- )
-    T align  here vtsize allot H vttemplate over >ramimage vtsize move
-    tvtable-list @ over T ! H  dup tvtable-list !
-    vttemplate @ T ! H  vttemplate off ;
+    T align  here H tvtable-list @ over T ! H  dup tvtable-list !
+    vttemplate gvtsize cell /string bounds DO
+	I @ addr,
+    cell +LOOP
+    \ copy table of ghosts for comparison
+    dup vttemplate @ T ! H  vttemplate off
+    align , here gvtable-list @ over ! gvtable-list !
+    vttemplate gvtsize cell /string bounds DO
+	I @ ,
+    cell +LOOP ;
 
 : vt, ( -- )  vttemplate @ 0= IF EXIT THEN
-    tvtable-list
+    gvtable-list
     BEGIN  @ dup  WHILE
-	    dup >ramimage vttemplate vt= IF
-		vttemplate @ T ! H  vttemplate off  EXIT  THEN
-	    >ramimage
+	    dup vttemplate vt= IF
+		1 cells - @ vttemplate @ T ! H  vttemplate off  EXIT  THEN
     REPEAT  drop (vt,) ;
 
 >TARGET

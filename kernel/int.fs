@@ -350,6 +350,9 @@ has? f83headerstring [IF]
     (field) >vtpostpone  2 cells ,
     (field) >vtextra     3 cells ,
     (field) >vtto        4 cells ,
+    (field) >vtname>int  5 cells ,
+    (field) >vtname>comp 6 cells ,
+    (field) >vtdefer@    7 cells ,
     5 cells Constant vtsize
     
     : name>string ( nt -- addr count ) \ gforth     name-to-string

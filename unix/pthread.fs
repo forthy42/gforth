@@ -191,10 +191,10 @@ User epipew
 
 epiper create_pipe \ create pipe for main task
 
-:noname    ' >body @ ;
-:noname    ' >body @ postpone literal ; 
-interpret/compile: user' ( 'user' -- n )
-\G USER' computes the task offset of a user variable
+: user' ( 'user' -- n )
+    \G USER' computes the task offset of a user variable
+    ' >body @ ;
+comp: drop ' >body @ postpone Literal ;
 
 ' next-task alias up@ ( -- addr )
 \G the current user pointer
@@ -215,7 +215,7 @@ interpret/compile: user' ( 'user' -- n )
 : NewTask4 ( dsize rsize fsize lsize -- task )
     \G creates a task, each stack individually sized
     gforth_create_thread >r
-    throw-entry r@ udp @ throw-entry next-task - /string move
+    throw-entry r@ udp @ throw-entry up@ - /string move
     word-pno-size chars dup allocate throw dup holdbufptr r@ >task !
     + dup holdptr r@ >task !  holdend r@ >task !
     epiper r@ >task create_pipe
@@ -328,8 +328,36 @@ event: ->sleep  stop ;
 : eflit, ( x -- ) ->flit fp@ float event+ float move fdrop ;
 \G sends a float
 
+\ User deferred words, user values
+
+: u-to >body @ up@ + ! ;
+comp: drop >body @ postpone useraddr , postpone ! ;
+
+: UDefer ( "name" -- )
+    Create cell uallot , ['] u-to set-to
+    [: >body @ postpone useraddr , postpone perform ;] set-compiler
+  DOES> @ up@ + perform ;
+
+: UValue ( "name" -- )
+    Create cell uallot , ['] u-to set-to
+    [: >body @ postpone useraddr , postpone @ ;] set-compiler
+  DOES> @ up@ + @ ;
+
+Udefer dummy-udef
+
+:noname ( xt -- )
+    dup >namevt @ [ ' dummy-udef >namevt @ ]L = IF
+	>body @ up@ + @
+    ELSE  >body @  THEN ; is defer@
+
+: make-udefer ( "name" -- )
+    here >r ' dp !
+    here defer@
+    ['] dummy-udef vtcopy,  cell uallot dup , up@ + !
+    r> dp ! ;
+
 false [IF] \ event test
-    <event 1234 elit, next-task event> ?event 1234 = [IF] ." event ok" cr [THEN]
+    <event 1234 elit, up@ event> ?event 1234 = [IF] ." event ok" cr [THEN]
 [THEN]
 
 false [IF] \ test
