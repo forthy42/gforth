@@ -17,20 +17,32 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-:noname >body ['] lit@ peephole-compile, , ;        ' post, ' value! vtable: Value
-:noname >body @ ['] lit peephole-compile, , ;       ' post, ' no-to  vtable: Constant
-:noname >body 2@ swap
+: value, >body ['] lit@ peephole-compile, , ;
+: constant, >body @ ['] lit peephole-compile, , ;
+: 2constant, >body 2@ swap
     ['] lit peephole-compile, ,
-    ['] lit peephole-compile, , ;                   ' post, ' no-to  vtable: 2Constant    
-:noname >body ['] call peephole-compile, , ;        ' post, ' no-to  vtable: :-dummy
-:noname >body ['] lit peephole-compile, , ;         ' post, ' no-to  vtable: Variable
-:noname >body @ ['] useraddr peephole-compile, , ;  ' post, ' no-to  vtable: User
-:noname >body ['] lit-perform peephole-compile, , ; ' post, ' value! vtable: Defer
-:noname >body @ ['] lit+ peephole-compile, , ;      ' post, ' no-to  vtable: Field
-:noname >body ['] abi-call peephole-compile, , ;    ' post, ' no-to  vtable: (abi-code)
-:noname ['] ;abi-code-exec peephole-compile, , ;    ' post, ' no-to  vtable: (;abi-code)
-' peephole-compile,                                 ' post, ' no-to  vtable: prim-dummy
-:noname ['] does-exec peephole-compile, , ;         ' post, ' no-to  vtable: does>-dummy
-' extra, ' post, ' no-to vtable: extra>-dummy
+    ['] lit peephole-compile, , ;
+: :, >body ['] call peephole-compile, , ;
+: variable, >body ['] lit peephole-compile, , ;
+: user, >body @ ['] useraddr peephole-compile, , ;
+: defer, >body ['] lit-perform peephole-compile, , ;
+: field, >body @ ['] lit+ peephole-compile, , ;
+: abi-code, >body ['] abi-call peephole-compile, , ;
+: ;abi-code, ['] ;abi-code-exec peephole-compile, , ;
+: does, ['] does-exec peephole-compile, , ;
+
+' value,             ' post, ' value! vtable: Value
+' constant,          ' post, ' no-to  vtable: Constant
+' 2constant,         ' post, ' no-to  vtable: 2Constant    
+' :,                 ' post, ' no-to  vtable: :-dummy
+' variable,          ' post, ' no-to  vtable: Variable
+' user,              ' post, ' no-to  vtable: User
+' defer,             ' post, ' value! vtable: Defer
+' field,             ' post, ' no-to  vtable: Field
+' abi-code,          ' post, ' no-to  vtable: (abi-code)
+' ;abi-code,         ' post, ' no-to  vtable: (;abi-code)
+' peephole-compile,  ' post, ' no-to  vtable: prim-dummy
+' does,              ' post, ' no-to  vtable: does>-dummy
+' extra,             ' post, ' no-to vtable: extra>-dummy
 
 AVariable vtable-list
