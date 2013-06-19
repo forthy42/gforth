@@ -2285,7 +2285,7 @@ Defer setup-execution-semantics  ' noop IS setup-execution-semantics
 	    >in @ T name, H >in !
 	    tlast @ T A, H
 	    executed-ghost @ ?dup IF
-		>do:ghost @ >exec2 @ addr,
+		>do:ghost @ >exec2 @ execute
 	    ELSE
 		0 T , H
 	    THEN
@@ -2652,7 +2652,7 @@ ghost :-dummy Constant :-ghost
 : :noname ( -- xt colon-sys )
     switchrom X cfalign
     [ X has? f83headerstring 0= ] [IF]
-	:-ghost >do:ghost @ >exec2 @ addr,
+	:-ghost >do:ghost @ >exec2 @ execute
     [THEN]
     there 
     \ define a nameless ghost
@@ -2881,7 +2881,9 @@ Cond: DOES>
   Ghost do:ghost!
   :noname postpone gdoes> ;
 
-: vt:  ( ghost -- )  Ghost built >do:ghost @ >exec2 ! ;
+: vt:  ( ghost -- )  Ghost >r
+    :noname r> postpone Literal postpone addr, postpone ;
+    built >do:ghost @ >exec2 ! ;
 
 Variable tvtable-list
 Variable gvtable-list
@@ -2955,7 +2957,7 @@ findghost >body@ ,
     [G'] name>int addr, [G'] name>comp addr, [G'] >body@ addr, ;
 
 : vtable: ( compile-xt tokenize-xt to-xt "name" -- )
-    Ghost dup >do:ghost @ >exec2 @ hereresolve T vtable, H ;
+    Ghost dup >do:ghost @ >exec2 @ >body cell+ @ hereresolve T vtable, H ;
 
 : >vtable ( compile-xt tokenize-xt -- )
     T here H lastxt T 0 cell+ H -
@@ -2979,7 +2981,7 @@ findghost >body@ ,
     r> T here vtsize H + resolve
     [T'] extra, [T'] post, [T'] no-to created T vtable, here H
     tlastcfa @ t>namevt >tempdp
-    created >do:ghost @ >exec2 @ addr, tempdp>
+    created >do:ghost @ >exec2 @ execute tempdp>
     tlastcfa @ >tempdp [G'] :doextra (doer,) tempdp> ;
 IS !extra
 
