@@ -466,8 +466,8 @@ Create vttemplate
 ' post, A,             \ post, field
 0 A,                   \ extra field
 ' no-to A,             \ to field
-' noop A,              \ name>int field
-' noop A,              \ name>comp field
+' name>int A,              \ name>int field
+' name>comp A,              \ name>comp field
 ' >body@ A,            \ defer@
 
 \ initialize to one known vt

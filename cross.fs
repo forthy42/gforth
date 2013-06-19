@@ -2894,7 +2894,25 @@ Ghost docol-vt drop
 
 8 cells Constant gvtsize \ ghost vtables for comparison
 
-Create vttemplate gvtsize allot \ stores 7 ghosts and a link
+ghost peephole-compile,
+ghost post,
+ghost no-to
+ghost name>int
+ghost name>comp
+ghost >body@
+2drop 2drop 2drop
+
+Create vttemplate
+0 ,
+findghost peephole-compile, ,
+findghost post, ,
+0 ,
+findghost no-to ,
+findghost name>int ,
+findghost name>comp ,
+findghost >body@ ,
+
+\ stores 7 ghosts and a link
 
 : vt= ( vt1 vt2 -- flag )
     cell+ swap gvtsize cell /string tuck compare 0= ;
@@ -2919,6 +2937,7 @@ Create vttemplate gvtsize allot \ stores 7 ghosts and a link
     REPEAT  drop (vt,) ;
 
 >TARGET
+
 : vtable, ( compile-xt tokenize-xt to-xt ghost -- )
     >r tvtable-list @ T here swap A, H tvtable-list !
     swap rot T A, A, H
@@ -2933,7 +2952,7 @@ Create vttemplate gvtsize allot \ stores 7 ghosts and a link
     THEN
     drop T 0 A, A, H
     ( extra field for dodoes, to-field )
-    T 0 A, 0 A, 0 A, H ;
+    [G'] name>int addr, [G'] name>comp addr, [G'] >body@ addr, ;
 
 : vtable: ( compile-xt tokenize-xt to-xt "name" -- )
     Ghost dup >do:ghost @ >exec2 @ hereresolve T vtable, H ;
