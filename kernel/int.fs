@@ -350,8 +350,8 @@ has? f83headerstring [IF]
     (field) >vtpostpone  2 cells ,
     (field) >vtextra     3 cells ,
     (field) >vtto        4 cells ,
-    (field) >vtname>int  5 cells ,
-    (field) >vtname>comp 6 cells ,
+    (field) >vt>int      5 cells ,
+    (field) >vt>comp     6 cells ,
     (field) >vtdefer@    7 cells ,
     8 cells Constant vtsize
     
