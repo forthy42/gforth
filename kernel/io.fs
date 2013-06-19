@@ -132,7 +132,7 @@ Create spaces ( u -- ) \ core
 DOES>   ( u -- ) spaces-loop ;
 Create backspaces
   08 80 times \ times from target compiler! 11may93jaw
-EXTRA>   ( u -- ) spaces-loop ;
+DOES>   ( u -- ) spaces-loop ;
 hex
 [THEN]
 
