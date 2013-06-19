@@ -234,14 +234,6 @@ unlock tlastcfa @ lock AConstant lastcfa
     0 A, 0 ,
     code-address! ;
 
-[IFUNDEF] compile,
-defer compile, ( xt -- )	\ core-ext	compile-comma
-\G  Compile the word represented by the execution token @i{xt}
-\G  into the current definition.
-
-' , is compile,
-[THEN]
-
 defer basic-block-end ( -- )
 
 :noname ( -- )
@@ -258,10 +250,7 @@ has? primcentric [IF]
 	: peephole-compile, ( xt -- addr ) @ , ;
     [THEN]
 
-: vtcompile, ( xt -- )
-    dup >namevt @ >vtcompile, perform ;
-
-' vtcompile, IS compile,
+    : compile, ( xt -- ) x#exec [ 1 , ] ;
 [ELSE]
 ' , is compile,
 [THEN]
@@ -531,7 +520,7 @@ comp: drop >body postpone ALiteral postpone ! ;
     \g execute @var{xt}.
     record-name ' postpone ALiteral postpone defer! ; immediate restrict
 
-: (int-to) ( val xt -- ) dup >namevt @ >vtto perform ;
+: (int-to) ( val xt -- ) x#exec [ 4 , ] ;
 : (comp-to) ( xt -- ) dup >namevt @ >vtto @ compile, ;
 
 : TO ( value "name" -- )

@@ -38,7 +38,7 @@
 
 : >int      ( token table -- )  name>int execute ;
 : >postpone ( token table -- )
-    dup (name>x) drop >namevt @ >vtpostpone perform ;
+    dup (name>x) drop  >namevt @ >vtpostpone perform ;
 
 : word-recognizer ( addr u -- xt | r:fail )
     find-name [ [IFDEF] prelude-mask ] run-prelude [ [THEN] ]
