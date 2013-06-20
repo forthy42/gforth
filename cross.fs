@@ -2000,7 +2000,8 @@ Defer resolve-warning
   (gexecute) ;
 
 : addr,  ( ghost -- )
-  dup forward? IF  1 refered 0 T a, H ELSE >link @ T a, H THEN ;
+    dup 0= IF  T a, H  EXIT  THEN
+    dup forward? IF  1 refered 0 T a, H ELSE >link @ T a, H THEN ;
 
 \ .unresolved                                          11may93jaw
 
@@ -2953,7 +2954,7 @@ findghost >body@ ,
 : vt: ( -- xt colon-sys )
     :noname postpone vt-template, postpone vt-populate ;
 : ;vt ( xt colon-sys -- )
-    postpone ;  built >do:ghost @ >exec2 ! ;
+    postpone ;  built >do:ghost @ >exec2 ! ; immediate
 
 >TARGET
 
@@ -3022,7 +3023,7 @@ IS !extra
 Builder :-dummy
 Build: ;Build
 by: :docol ;DO
-vtghost: docol-vt
+( vt: ;vt ) vtghost: docol-vt
 
 Builder prim-dummy
 Build: ;Build
