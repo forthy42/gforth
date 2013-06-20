@@ -2882,7 +2882,7 @@ Cond: DOES>
   Ghost do:ghost!
   :noname postpone gdoes> ;
 
-: vt:  ( ghost -- )  Ghost >r
+: vtghost:  ( ghost -- )  Ghost >r
     :noname r> postpone Literal postpone addr, postpone ;
     built >do:ghost @ >exec2 ! ;
 
@@ -2938,6 +2938,22 @@ findghost >body@ ,
 	    dup vttemplate vt= IF
 		1 cells - @ vttemplate @ T ! H  vttemplate off  EXIT  THEN
     REPEAT  drop (vt,) ; IS vt,
+
+: vt-template, ( -- )
+    T here 0 A, H vttemplate ! ;
+: vt-populate ( -- )
+    [ findghost peephole-compile, ]L vttemplate 1 cells + !
+    [ findghost post,             ]L vttemplate 2 cells + !
+    0                                vttemplate 3 cells + !
+    [ findghost no-to             ]L vttemplate 4 cells + !
+    [ findghost name>int          ]L vttemplate 5 cells + !
+    [ findghost name>comp         ]L vttemplate 6 cells + !
+    [ findghost >body@            ]L vttemplate 7 cells + ! ;
+
+: vt: ( -- xt colon-sys )
+    :noname postpone vt-template, postpone vt-populate ;
+: ;vt ( xt colon-sys -- )
+    postpone ;  built >do:ghost @ >exec2 ! ;
 
 >TARGET
 
@@ -3006,31 +3022,31 @@ IS !extra
 Builder :-dummy
 Build: ;Build
 by: :docol ;DO
-vt: docol-vt
+vtghost: docol-vt
 
 Builder prim-dummy
 Build: ;Build
 by: :doprim ;DO \ :doprim is a dummy, we will not use it
-vt: doprim-vt
+vtghost: doprim-vt
 
 <do:> Ghost :doprim >magic !
 
 Builder does>-dummy
 Build: ;Build
 by: :dodoes ;DO
-vt: dodoes-vt
+vtghost: dodoes-vt
 
 Builder extra>-dummy
 Build: ;Build
 by: :doextra ;DO
-vt: doextra-vt
+vtghost: doextra-vt
 
 \ Variables and Constants                              05dec92py
 
 Builder (Constant)
 Build:  ( n -- ) ;Build
 by: :docon ( target-body-addr -- n ) T @ H ;DO
-vt: docon-vt
+vtghost: docon-vt
 
 Builder Constant
 Build:  ( n -- ) T , H ;Build
@@ -3043,12 +3059,12 @@ by (Constant)
 Builder 2Constant
 Build:  ( d -- ) T , , H ;Build
 DO: ( ghost -- d ) T dup cell+ @ swap @ H ;DO
-vt: do2con-vt
+vtghost: do2con-vt
 
 Builder Create
 BuildSmart: ;Build
 by: :dovar ( target-body-addr -- addr ) ;DO
-vt: dovar-vt
+vtghost: dovar-vt
 
 Builder Variable
 T has? rom H [IF]
@@ -3116,7 +3132,7 @@ by AVariable
 Builder User
 Build: 0 u, X , ;Build
 by: :douser ( ghost -- up-addr )  X @ tup@ + ;DO
-vt: douser-vt
+vtghost: douser-vt
 
 Builder 2User
 Build: 0 u, X , 0 u, drop ;Build
@@ -3132,7 +3148,7 @@ T has? rom H [IF]
 Builder (Value)
 Build:  ( n -- ) ;Build
 by: :dovalue ( target-body-addr -- n ) T @ @ H ;DO
-vt: dovalue-vt
+vtghost: dovalue-vt
 
 Builder Value
 Build: T here 0 A, H switchram T align here swap ! , H ;Build
@@ -3145,7 +3161,7 @@ by (Value)
 Builder (Value)
 Build:  ( n -- ) ;Build
 by: :dovalue ( target-body-addr -- n ) T @ H ;DO
-vt: dovalue-vt
+vtghost: dovalue-vt
 
 Builder Value
 BuildSmart: T , H ;Build
@@ -3166,12 +3182,12 @@ T has? rom H [IF]
     BuildSmart:  ( -- ) [T'] noop T A, H ;Build
     by: :dodefer ( ghost -- ) X @ texecute ;DO
 [THEN]
-vt: dodefer-vt
+vtghost: dodefer-vt
 
 Builder interpret/compile:
 Build: ( inter comp -- ) swap T A, A, H ;Build-immediate
 DO: ( ghost -- ) ABORT" CROSS: Don't execute" ;DO
-vt: doi/c-vt
+vtghost: doi/c-vt
 
 \ Sturctures                                           23feb95py
 
@@ -3183,7 +3199,7 @@ vt: doi/c-vt
 Builder (Field)
 Build: ;Build
 by: :dofield T @ H + ;DO
-vt: dofield-vt
+vtghost: dofield-vt
 
 Builder Field
 Build: ( align1 offset1 align size "name" --  align2 offset2 )
@@ -3203,12 +3219,12 @@ by (Field)
 Builder (ABI-CODE)
 Build: ;Build
 by: :doabicode noop ;DO
-vt: abicode-vt
+vtghost: abicode-vt
 
 BUILDER (;abi-code)
 Build: ;Build
 by: :do;abicode noop ;DO
-vt: ;abicode-vt
+vtghost: ;abicode-vt
 
 \ Input-Methods                                            01py
 
@@ -3216,22 +3232,22 @@ Builder input-method
 Build: ( m v -- m' v )  dup T , cell+ H ;Build
 DO:  abort" Not in cross mode" ;DO
 \ by: :doextra noop ;DO
-\ vt: imethod-vt
-vt: dodoes-vt
+\ vtghost: imethod-vt
+vtghost: dodoes-vt
 
 Builder input-var
 Build: ( m v size -- m v' )  over T , H + ;Build
 DO:  abort" Not in cross mode" ;DO
 \ by: :doextra noop ;DO
-\ vt: ivar-vt
-vt: dodoes-vt
+\ vtghost: ivar-vt
+vtghost: dodoes-vt
 
 \ Mini-OOF
 
 Builder method
 Build: ( m v -- m' v )  over T , swap cell+ swap H ;Build
 DO:  abort" Not in cross mode" ;DO
-vt: do-moof-method-vt
+vtghost: do-moof-method-vt
 
 Builder var
 Build: ( m v size -- m v+size )  over T , H + ;Build
