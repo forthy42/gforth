@@ -2267,12 +2267,13 @@ NoHeaderFlag off
     LOOP ;
 
 Defer setup-execution-semantics  ' noop IS setup-execution-semantics
+Defer vt, \ forward rference only
 0 Value lastghost
 
 : (THeader ( "name" -- ghost )
     \  >in @ bl word count type 2 spaces >in !
     \ wordheaders will always be compiled to rom
-    switchrom
+    switchrom vt,
     \ build header in target
     NoHeaderFlag @
     IF  NoHeaderFlag off
@@ -2920,7 +2921,7 @@ findghost >body@ ,
     cell+ swap gvtsize cell /string tuck compare 0= ;
 
 : (vt,) ( -- )
-    T align  here H tvtable-list @ over T ! H  dup tvtable-list !
+    T align  here H tvtable-list @ T A, H  dup tvtable-list !
     vttemplate gvtsize cell /string bounds DO
 	I @ addr,
     cell +LOOP
@@ -2931,12 +2932,12 @@ findghost >body@ ,
 	I @ ,
     cell +LOOP ;
 
-: vt, ( -- )  vttemplate @ 0= IF EXIT THEN
+:noname ( -- )  vttemplate @ 0= IF EXIT THEN
     gvtable-list
     BEGIN  @ dup  WHILE
 	    dup vttemplate vt= IF
 		1 cells - @ vttemplate @ T ! H  vttemplate off  EXIT  THEN
-    REPEAT  drop (vt,) ;
+    REPEAT  drop (vt,) ; IS vt,
 
 >TARGET
 
@@ -2970,6 +2971,7 @@ findghost >body@ ,
 \ instantiate deferred extra, now
 
 :noname ( -- )
+    switchrom vt,
     tlastcfa @ [G'] :dovar killref
     tlastcfa @ t>namevt [G'] dovar-vt killref
     >space here >r ghostheader space>
