@@ -2898,6 +2898,7 @@ Ghost docol-vt drop
 
 8 cells Constant gvtsize \ ghost vtables for comparison
 
+ghost :,
 ghost peephole-compile,
 ghost post,
 ghost no-to
@@ -2928,7 +2929,7 @@ findghost >body@ ,
     cell +LOOP
     \ copy table of ghosts for comparison
     dup vttemplate @ T ! H  vttemplate off
-    align , here gvtable-list @ over ! gvtable-list !
+    align , here gvtable-list @ dup , over ! gvtable-list !
     vttemplate gvtsize cell /string bounds DO
 	I @ ,
     cell +LOOP ;
@@ -2943,13 +2944,13 @@ findghost >body@ ,
 : vt-template, ( -- )
     T here 0 A, H vttemplate ! ;
 : vt-populate ( -- )
-    [ findghost peephole-compile, ]L vttemplate 1 cells + !
-    [ findghost post,             ]L vttemplate 2 cells + !
-    0                                vttemplate 3 cells + !
-    [ findghost no-to             ]L vttemplate 4 cells + !
-    [ findghost name>int          ]L vttemplate 5 cells + !
-    [ findghost name>comp         ]L vttemplate 6 cells + !
-    [ findghost >body@            ]L vttemplate 7 cells + ! ;
+    [ findghost :,        ]L vttemplate 1 cells + !
+    [ findghost post,     ]L vttemplate 2 cells + !
+    0                        vttemplate 3 cells + !
+    [ findghost no-to     ]L vttemplate 4 cells + !
+    [ findghost name>int  ]L vttemplate 5 cells + !
+    [ findghost name>comp ]L vttemplate 6 cells + !
+    [ findghost >body@    ]L vttemplate 7 cells + ! ;
 
 : vt: ( -- xt colon-sys )
     :noname postpone vt-template, postpone vt-populate ;
@@ -3023,7 +3024,7 @@ IS !extra
 Builder :-dummy
 Build: ;Build
 by: :docol ;DO
-( vt: ;vt ) vtghost: docol-vt
+vt: ;vt \ vtghost: docol-vt
 
 Builder prim-dummy
 Build: ;Build
