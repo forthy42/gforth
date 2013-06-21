@@ -41,7 +41,7 @@
 ' field,             ' post, ' no-to  vtable: Field
 ' abi-code,          ' post, ' no-to  vtable: (abi-code)
 ' ;abi-code,         ' post, ' no-to  vtable: (;abi-code)
-' peephole-compile,  ' post, ' no-to  vtable: prim-dummy
+\ ' peephole-compile,  ' post, ' no-to  vtable: prim-dummy
 ' does,              ' post, ' no-to  vtable: does>-dummy
 ' extra,             ' post, ' no-to vtable: extra>-dummy
 

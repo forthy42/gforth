@@ -2900,22 +2900,52 @@ Ghost docol-vt drop
 
 ghost :,
 ghost peephole-compile,
+2drop
+ghost does,
+ghost extra,
+2drop
+ghost value,
+ghost constant,
+2drop
+ghost 2constant,
+ghost variable,
+2drop
+ghost user,
+ghost defer,
+2drop
+ghost field,
+ghost abi-code,
+2drop
+ghost ;abi-code,
 ghost post,
+2drop
 ghost no-to
 ghost name>int
+2drop
 ghost name>comp
 ghost >body@
-2drop 2drop 2drop
+2drop
 
 Create vttemplate
 0 ,
-findghost peephole-compile, ,
+findghost :, ,
 findghost post, ,
 0 ,
 findghost no-to ,
 findghost name>int ,
 findghost name>comp ,
 findghost >body@ ,
+
+Struct
+    cell% field >vtlink
+    cell% field >vtcompile,
+    cell% field >vtpostpone
+    cell% field >vtextra
+    cell% field >vtto
+    cell% field >vt>int
+    cell% field >vt>comp
+    cell% field >vtdefer@
+End-Struct vtable-struct
 
 \ stores 7 ghosts and a link
 
@@ -2944,13 +2974,21 @@ findghost >body@ ,
 : vt-template, ( -- )
     T here 0 A, H vttemplate ! ;
 : vt-populate ( -- )
-    [ findghost :,        ]L vttemplate 1 cells + !
-    [ findghost post,     ]L vttemplate 2 cells + !
-    0                        vttemplate 3 cells + !
-    [ findghost no-to     ]L vttemplate 4 cells + !
-    [ findghost name>int  ]L vttemplate 5 cells + !
-    [ findghost name>comp ]L vttemplate 6 cells + !
-    [ findghost >body@    ]L vttemplate 7 cells + ! ;
+    [ findghost :,        ]L vttemplate >vtcompile, !
+    [ findghost post,     ]L vttemplate >vtpostpone !
+    0                        vttemplate >vtextra !
+    [ findghost no-to     ]L vttemplate >vtto !
+    [ findghost name>int  ]L vttemplate >vt>int !
+    [ findghost name>comp ]L vttemplate >vt>comp !
+    [ findghost >body@    ]L vttemplate >vtdefer@ ! ;
+
+: gset-compiler ( ghost -- )  vttemplate >vtcompile, ! ;
+: gset-postpone ( ghost -- )  vttemplate >vtpostpone ! ;
+: gset-to ( ghost -- )        vttemplate >vtto ! ;
+
+: set-compiler ( xt -- )  xt>ghost vttemplate >vtcompile, ! ;
+: set-postpone ( xt -- )  xt>ghost vttemplate >vtpostpone ! ;
+: set-to ( xt -- )  xt>ghost vttemplate >vtto ! ;
 
 : vt: ( -- xt colon-sys )
     :noname postpone vt-template, postpone vt-populate ;
@@ -3029,13 +3067,14 @@ by: :docol ;DO
 Builder prim-dummy
 Build: ;Build
 by: :doprim ;DO \ :doprim is a dummy, we will not use it
-vtghost: doprim-vt
+vt: [G'] peephole-compile, gset-compiler ;vt
 
 <do:> Ghost :doprim >magic !
 
 Builder does>-dummy
 Build: ;Build
 by: :dodoes ;DO
+\ vt: [G'] does, gset-compiler ;vt
 vtghost: dodoes-vt
 
 Builder extra>-dummy
@@ -3235,6 +3274,7 @@ Build: ( m v -- m' v )  dup T , cell+ H ;Build
 DO:  abort" Not in cross mode" ;DO
 \ by: :doextra noop ;DO
 \ vtghost: imethod-vt
+\ vt: [G'] does, gset-compiler ;vt
 vtghost: dodoes-vt
 
 Builder input-var
@@ -3242,6 +3282,7 @@ Build: ( m v size -- m v' )  over T , H + ;Build
 DO:  abort" Not in cross mode" ;DO
 \ by: :doextra noop ;DO
 \ vtghost: ivar-vt
+\ vt: [G'] does, gset-compiler ;vt
 vtghost: dodoes-vt
 
 \ Mini-OOF
