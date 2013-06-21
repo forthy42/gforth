@@ -3008,29 +3008,8 @@ End-Struct vtable-struct
 
 >TARGET
 
-: vtable, ( compile-xt tokenize-xt to-xt ghost -- )
-    >r tvtable-list @ T here swap A, H tvtable-list !
-    swap rot T A, A, H
-    r> dup IF
-	dup >do:ghost @ >magic @ <do:> <> IF
-	    ." vtable: " dup >ghostname type space
-	    dup >magic @ hex. space
-	    >do:ghost @  dup >ghostname type space
-	    dup >magic @ hex. cr
-	    addr,  T A, H EXIT
-	THEN
-    THEN
-    drop T 0 A, A, H
-    ( extra field for dodoes, to-field )
-    [G'] name>int addr, [G'] name>comp addr, [G'] >body@ addr, ;
-
-: vtable: ( compile-xt tokenize-xt to-xt "name" -- )
-    Ghost dup >do:ghost @ >exec2 @ >body cell+ @ hereresolve T vtable, H ;
-
 : >vtable ( compile-xt tokenize-xt -- )
     set-postpone set-compiler ;
-\    T here H lastxt T 0 cell+ H -
-\    dup [G'] docol-vt killref T ! H [T'] no-to 0 T vtable, H ;
 
 : comp: ( -- colon-sys )  gstart-xt set-compiler ;
 : post: ( -- colon-sys )  gstart-xt set-postpone ;
