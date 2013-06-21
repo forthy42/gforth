@@ -31,4 +31,4 @@ UNLOCK user-region extent nip LOCK udp !
 UNLOCK tlast @ LOCK
 dup forth-wordlist has? ec 0= [IF] wordlist-id [THEN] ! Last !
 
-unlock tvtable-list @ lock vtable-list !
+unlock vt, tvtable-list @ lock vtable-list !

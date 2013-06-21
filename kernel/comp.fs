@@ -483,7 +483,7 @@ Create vttemplate
 
 : !namevt ( addr -- )  latestxt >namevt ! ;
 
-: start-xt ( -- xt ) \ incomplete, will not be a full xt
+: start-xt ( -- colonsys xt ) \ incomplete, will not be a full xt
     here >r docol: cfa, defstart ] :-hook r> ;
 : start-xt-like ( colonsys xt -- colonsys )
     nip reveal does>-like drop start-xt drop ;

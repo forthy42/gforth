@@ -32,7 +32,8 @@
 \ interpret it, compile it, compile it as literal.
 
 : r:fail  no.extensions ;
-' no.extensions dup >vtable
+comp: no.extensions ;
+post: no.extensions ;
 
 : lit, ( n -- ) postpone Literal ;
 
@@ -44,15 +45,13 @@
     find-name [ [IFDEF] prelude-mask ] run-prelude [ [THEN] ]
     dup 0= IF  drop ['] r:fail  THEN ;
 
-:noname ( n xt -- ) drop postpone Literal ;
-:noname ( n xt -- ) >r postpone Literal r> post, ;
 : r:num ;
->vtable
+comp: ( n xt -- ) drop postpone Literal ;
+post: ( n xt -- ) >r postpone Literal r> post, ;
 
-:noname ( d xt -- ) drop postpone 2Literal ;
-:noname ( d xt -- ) >r postpone 2Literal r> post, ;
 : r:2num ;
->vtable
+comp: ( d xt -- ) drop postpone 2Literal ;
+post: ( d xt -- ) >r postpone 2Literal r> post, ;
 
 \ snumber? should be implemented as recognizer stack
 
