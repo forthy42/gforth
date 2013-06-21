@@ -3024,7 +3024,7 @@ IS !extra
 Builder :-dummy
 Build: ;Build
 by: :docol ;DO
-vt: ;vt \ vtghost: docol-vt
+( vt: ;vt \ ) vtghost: docol-vt
 
 Builder prim-dummy
 Build: ;Build

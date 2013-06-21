@@ -34,7 +34,7 @@
 ' value,             ' post, ' value! vtable: Value
 ' constant,          ' post, ' no-to  vtable: Constant
 ' 2constant,         ' post, ' no-to  vtable: 2Constant    
-\ ' :,                 ' post, ' no-to  vtable: :-dummy
+' :,                 ' post, ' no-to  vtable: :-dummy
 ' variable,          ' post, ' no-to  vtable: Variable
 ' user,              ' post, ' no-to  vtable: User
 ' defer,             ' post, ' value! vtable: Defer
