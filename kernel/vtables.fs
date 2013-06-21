@@ -31,8 +31,4 @@
 : ;abi-code, ['] ;abi-code-exec peephole-compile, , ;
 : does, ['] does-exec peephole-compile, , ;
 
-\ ' :,                 ' post, ' no-to  vtable: :-dummy
-' variable,          ' post, ' no-to  vtable: Variable
-' does,              ' post, ' no-to  vtable: does>-dummy
-
 AVariable vtable-list

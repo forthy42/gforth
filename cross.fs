@@ -2700,10 +2700,15 @@ Cond: [ ( -- ) interpreting-state ;Cond
 
 0 Value created
 
+Ghost does, drop
+
+Defer gset-compiler
+	
 : !does ( does-action -- )
     tlastcfa @ [G'] :dovar killref
-    tlastcfa @ t>namevt [G'] dovar-vt killref
-    tlastcfa @ t>namevt >tempdp [G'] dodoes-vt addr, tempdp>
+\    tlastcfa @ t>namevt [G'] dovar-vt killref
+    \    tlastcfa @ t>namevt >tempdp [G'] dodoes-vt addr, tempdp>
+    [G'] does, gset-compiler
     >space here >r ghostheader space>
     ['] colon-resolved r@ >comp !
     r@ created >do:ghost ! r@ swap resolve
@@ -2988,7 +2993,7 @@ End-Struct vtable-struct
     [ findghost name>comp ]L vttemplate >vt>comp !
     [ findghost >body@    ]L vttemplate >vtdefer@ ! ;
 
-: gset-compiler ( ghost -- )  vttemplate >vtcompile, ! ;
+:noname ( ghost -- )  vttemplate >vtcompile, ! ; IS gset-compiler
 : gset-postpone ( ghost -- )  vttemplate >vtpostpone ! ;
 : gset-to ( ghost -- )        vttemplate >vtto ! ;
 
@@ -3037,7 +3042,6 @@ End-Struct vtable-struct
 :noname ( -- )
     switchrom vt,
     tlastcfa @ [G'] :dovar killref
-    tlastcfa @ t>namevt [G'] dovar-vt killref
     >space here >r ghostheader space>
     ['] colon-resolved r@ >comp !
     r@ created >do:ghost !
@@ -3045,9 +3049,7 @@ End-Struct vtable-struct
     r@ created >do:ghost @ >exec2 !
     T align H r> hereresolve
     r> T here vtsize H + resolve
-    [T'] extra, [T'] post, [T'] no-to created T vtable, here H
-    tlastcfa @ t>namevt >tempdp
-    created >do:ghost @ >exec2 @ execute tempdp>
+    [G'] extra, set-compiler T here H
     tlastcfa @ >tempdp [G'] :doextra (doer,) tempdp> ;
 IS !extra
 
@@ -3070,7 +3072,7 @@ IS !extra
 Builder :-dummy
 Build: ;Build
 by: :docol ;DO
-vt: [G'] :, gset-compiler ;vt \ ) vtghost: docol-vt
+vt: [G'] :, gset-compiler ;vt
 
 Builder prim-dummy
 Build: ;Build
@@ -3082,8 +3084,8 @@ vt: [G'] peephole-compile, gset-compiler ;vt
 Builder does>-dummy
 Build: ;Build
 by: :dodoes ;DO
-\ vt: [G'] does, gset-compiler ;vt
-vtghost: dodoes-vt
+vt: [G'] does, gset-compiler ;vt
+\ vtghost: dodoes-vt
 
 Builder extra>-dummy
 Build: ;Build
@@ -3113,7 +3115,7 @@ vt: [G'] 2constant, gset-compiler ;vt
 Builder Create
 BuildSmart: ;Build
 by: :dovar ( target-body-addr -- addr ) ;DO
-vtghost: dovar-vt
+vt: [G'] variable, gset-compiler ;vt \ vtghost: dovar-vt
 
 Builder Variable
 T has? rom H [IF]
@@ -3281,16 +3283,16 @@ Build: ( m v -- m' v )  dup T , cell+ H ;Build
 DO:  abort" Not in cross mode" ;DO
 \ by: :doextra noop ;DO
 \ vtghost: imethod-vt
-\ vt: [G'] does, gset-compiler ;vt
-vtghost: dodoes-vt
+vt: [G'] does, gset-compiler ;vt
+\ vtghost: dodoes-vt
 
 Builder input-var
 Build: ( m v size -- m v' )  over T , H + ;Build
 DO:  abort" Not in cross mode" ;DO
 \ by: :doextra noop ;DO
 \ vtghost: ivar-vt
-\ vt: [G'] does, gset-compiler ;vt
-vtghost: dodoes-vt
+vt: [G'] does, gset-compiler ;vt
+\ vtghost: dodoes-vt
 
 \ Mini-OOF
 

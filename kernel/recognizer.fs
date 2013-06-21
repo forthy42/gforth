@@ -32,8 +32,7 @@
 \ interpret it, compile it, compile it as literal.
 
 : r:fail  no.extensions ;
-comp: no.extensions ;
-post: no.extensions ;
+' no.extensions dup >vtable
 
 : lit, ( n -- ) postpone Literal ;
 
