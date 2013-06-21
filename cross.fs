@@ -2925,6 +2925,8 @@ ghost name>int
 ghost name>comp
 ghost >body@
 2drop
+ghost value!
+drop
 
 Create vttemplate
 0 ,
@@ -3080,14 +3082,16 @@ vtghost: dodoes-vt
 Builder extra>-dummy
 Build: ;Build
 by: :doextra ;DO
-vtghost: doextra-vt
+vt: [G'] extra, gset-compiler ;vt
+\ vtghost: doextra-vt
 
 \ Variables and Constants                              05dec92py
 
 Builder (Constant)
 Build:  ( n -- ) ;Build
 by: :docon ( target-body-addr -- n ) T @ H ;DO
-vtghost: docon-vt
+vt: [G'] constant, gset-compiler ;vt
+\ vtghost: docon-vt
 
 Builder Constant
 Build:  ( n -- ) T , H ;Build
@@ -3100,7 +3104,8 @@ by (Constant)
 Builder 2Constant
 Build:  ( d -- ) T , , H ;Build
 DO: ( ghost -- d ) T dup cell+ @ swap @ H ;DO
-vtghost: do2con-vt
+vt: [G'] 2constant, gset-compiler ;vt
+\ vtghost: do2con-vt
 
 Builder Create
 BuildSmart: ;Build
@@ -3169,48 +3174,49 @@ buildby AVariable
 by AVariable
 
 [ELSE]
-
-Builder User
-Build: 0 u, X , ;Build
-by: :douser ( ghost -- up-addr )  X @ tup@ + ;DO
-vtghost: douser-vt
-
-Builder 2User
-Build: 0 u, X , 0 u, drop ;Build
-by User
-
-Builder AUser
-Build: 0 au, X , ;Build
-by User
-
+    Builder User
+    Build: 0 u, X , ;Build
+    by: :douser ( ghost -- up-addr )  X @ tup@ + ;DO
+    \ vtghost: douser-vt
+    vt: [G'] user, gset-compiler ;vt
+    
+    Builder 2User
+    Build: 0 u, X , 0 u, drop ;Build
+    by User
+    
+    Builder AUser
+    Build: 0 au, X , ;Build
+    by User
 [THEN]
 
 T has? rom H [IF]
-Builder (Value)
-Build:  ( n -- ) ;Build
-by: :dovalue ( target-body-addr -- n ) T @ @ H ;DO
-vtghost: dovalue-vt
-
-Builder Value
-Build: T here 0 A, H switchram T align here swap ! , H ;Build
-by (Value)
-
-Builder AValue
-Build: T here 0 A, H switchram T align here swap ! A, H ;Build
-by (Value)
+    Builder (Value)
+    Build:  ( n -- ) ;Build
+    by: :dovalue ( target-body-addr -- n ) T @ @ H ;DO
+    vt: [G'] value, gset-compiler [G'] value! gset-to ;vt
+    \ vtghost: dovalue-vt
+    
+    Builder Value
+    Build: T here 0 A, H switchram T align here swap ! , H ;Build
+    by (Value)
+    
+    Builder AValue
+    Build: T here 0 A, H switchram T align here swap ! A, H ;Build
+    by (Value)
 [ELSE]
-Builder (Value)
-Build:  ( n -- ) ;Build
-by: :dovalue ( target-body-addr -- n ) T @ H ;DO
-vtghost: dovalue-vt
+    Builder (Value)
+    Build:  ( n -- ) ;Build
+    by: :dovalue ( target-body-addr -- n ) T @ H ;DO
+    vt: [G'] value, gset-compiler [G'] value! gset-to ;vt
+    \ vtghost: dovalue-vt
 
-Builder Value
-BuildSmart: T , H ;Build
-by (Value)
-
-Builder AValue
-BuildSmart: T A, H ;Build
-by (Value)
+    Builder Value
+    BuildSmart: T , H ;Build
+    by (Value)
+    
+    Builder AValue
+    BuildSmart: T A, H ;Build
+    by (Value)
 [THEN]
 
 Defer texecute
@@ -3223,7 +3229,8 @@ T has? rom H [IF]
     BuildSmart:  ( -- ) [T'] noop T A, H ;Build
     by: :dodefer ( ghost -- ) X @ texecute ;DO
 [THEN]
-vtghost: dodefer-vt
+vt: [G'] defer, gset-compiler [G'] value! gset-to ;vt
+\ vtghost: dodefer-vt
 
 Builder interpret/compile:
 Build: ( inter comp -- ) swap T A, A, H ;Build-immediate
@@ -3240,7 +3247,8 @@ vtghost: doi/c-vt
 Builder (Field)
 Build: ;Build
 by: :dofield T @ H + ;DO
-vtghost: dofield-vt
+vt: [G'] field, gset-compiler ;vt
+\ vtghost: dofield-vt
 
 Builder Field
 Build: ( align1 offset1 align size "name" --  align2 offset2 )
@@ -3260,12 +3268,14 @@ by (Field)
 Builder (ABI-CODE)
 Build: ;Build
 by: :doabicode noop ;DO
-vtghost: abicode-vt
+vt: [G'] abi-code, gset-compiler ;vt
+\ vtghost: abicode-vt
 
 BUILDER (;abi-code)
 Build: ;Build
 by: :do;abicode noop ;DO
-vtghost: ;abicode-vt
+vt: [G'] ;abi-code, gset-compiler ;vt
+\ vtghost: ;abicode-vt
 
 \ Input-Methods                                            01py
 
