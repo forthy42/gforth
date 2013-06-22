@@ -57,23 +57,28 @@ tmp$ $execstr-ptr !
 : $type ( addr u -- )  $execstr-ptr @ $+! ;
 : $emit ( char -- )    $execstr-ptr @ c$+! ;
 : $cr   ( -- ) newline $type ;
+24 80 2Constant $form
+
+here
+' $type ,
+' $emit ,
+' $cr ,
+' $form ,
+, here Constant $-out
+
 : $exec ( xt addr -- )
     \G execute xt while the standard output (TYPE, EMIT, and everything
     \G that uses them) is redirected to the string variable addr.
-    $execstr-ptr @ action-of type action-of emit action-of cr
-    { oldstr oldtype oldemit oldcr }
+    $execstr-ptr @ current-out @
+    { oldstr oldout }
     try
 	$execstr-ptr ! \ $execstr-ptr @ @ 0= IF s" " $execstr-ptr @ $! THEN
-	['] $type is type
-	['] $emit is emit
-	['] $cr   is cr
+	$-out current-out !
 	execute
 	0 \ throw ball
     restore
 	oldstr $execstr-ptr !
-	oldtype is type
-	oldemit is emit
-	oldcr is cr
+	oldout current-out !
     endtry
     throw ;
 : $. ( addr -- )
