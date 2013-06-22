@@ -2623,16 +2623,18 @@ Cond: MAXI
 
 >TARGET
 
-: ] 
+Variable no-loop
+
+: ] no-loop @ IF  no-loop off  EXIT  THEN
     compiling-state
     BEGIN
+        compiling? WHILE
         BEGIN save-input bl word
               dup c@ 0= WHILE drop discard refill 0=
               ABORT" CROSS: End of file while target compiling"
         REPEAT
         tcom
-        compiling? 0=
-    UNTIL ;
+    REPEAT ;
 
 \ by the way: defining a second interpreter (a compiler-)loop
 \             is not allowed if a system should be ANS conformant
@@ -2683,15 +2685,16 @@ Cond: ?EXIT ( -- ) 1 abort" CROSS: using ?exit" ;Cond
      
 Cond: recurse ( -- ) Last-Header-Ghost @ gexecute ;Cond
 
-Cond: ; ( -- ) 
-	depth ?dup 
+: (;) 	depth ?dup 
 	IF   1- <> ABORT" CROSS: Stack changed"
 	ELSE true ABORT" CROSS: Stack empty" 
 	THEN
 	colon-end
 	fini,
 	comp[
-	T resolved H interpreting-state
+	T resolved H interpreting-state ;
+
+Cond: ; ( -- ) (;)
 	;Cond
 
 Cond: [ ( -- ) interpreting-state ;Cond
@@ -2935,7 +2938,14 @@ ghost name>comp
 ghost >body@
 2drop
 ghost value!
-drop
+ghost umethod,
+2drop
+ghost uvalue!
+ghost u#exec
+2drop
+ghost u#+
+ghost uvar,
+2drop
 
 Create vttemplate
 0 ,
@@ -3272,6 +3282,26 @@ DO:  abort" Not in cross mode" ;DO
 \ vtghost: ivar-vt
 vt: [G'] does, gset-compiler ;vt
 \ vtghost: dodoes-vt
+
+\ User Methods                                         22jun13py
+
+Variable class-o
+
+Builder user-o
+Build: 0 au, dup class-o ! X , ;Build
+by User
+
+>TARGET
+: umethod ( m v -- m' v )
+    over >r no-loop on T : H compile u#exec class-o @ T , H
+    r> T cell/ , (;) swap cell+ swap H
+    [G'] umethod, gset-compiler [G'] uvalue! gset-to ;
+
+: uvar ( m v size -- m v' )
+    over >r no-loop on T : H compile u#+ class-o @ T , H
+    r> T , (;) H +
+    [G'] uvar, gset-compiler ;
+>CROSS
 
 \ Mini-OOF
 

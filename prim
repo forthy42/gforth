@@ -3121,12 +3121,16 @@ SUPER_END;
 VM_JUMP(EXEC1(((Xt**)c_addr)[-1][w]));
 
 u#exec	( #n #w -- )		new	u_lit_exec
-""method invocation using a user address""
+""method invocation using a user address as current object""
 #ifndef NO_IP
 ip=IP;
 #endif
 SUPER_END;
 VM_JUMP(EXEC1((*(Xt***)(((Address)up)+n))[-1][w]));
+
+u#+	( #n #w -- c_addr )	new	u_lit_plus
+""instance variable using a user address as current object""
+c_addr = (*(Address*)(((Address)up)+n))+w;
 
 \+
 \g static_super

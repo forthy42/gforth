@@ -128,7 +128,7 @@ has? EC 0= [IF]
 [THEN]
 
 has? new-input [IF]
-    User current-input
+\    User current-input
 [ELSE]
     [IFUNDEF] #tib		\ in ec-Version we may define this ourself
 	User tibstack		\ saves >tib in execute

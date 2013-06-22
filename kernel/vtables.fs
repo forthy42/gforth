@@ -30,5 +30,14 @@
 : abi-code, >body ['] abi-call peephole-compile, , ;
 : ;abi-code, ['] ;abi-code-exec peephole-compile, , ;
 : does, ['] does-exec peephole-compile, , ;
+: umethod, >body cell+ 2@ ['] u#exec peephole-compile, , , ;
+: uvar, >body cell+ 2@ ['] u#+ peephole-compile, , , ;
+
+
+: (uv!) ( xt addr -- ) 2@ >r next-task + @ r> + ;
+: uvalue! ( xt xt-method -- )
+    >body cell+ (uv!) ;
+comp: drop >body cell+ postpone Aliteral postpone (uv!) ;
+
 
 AVariable vtable-list
