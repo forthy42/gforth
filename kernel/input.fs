@@ -21,11 +21,6 @@
 
 user-o current-input
 
-\ | : input-method ( m "name" -- m' )  Create dup , cell+
-\ DOES> ( ... -- ... ) @ current-input @ @ + perform ;
-\ | : input-var ( v size "name" -- v' )  Create  over , +
-\ DOES> ( -- addr ) @ current-input @ + ;
-
 0 0
 umethod source ( -- addr u ) \ core source
     \G Return address @i{addr} and length @i{u} of the current input

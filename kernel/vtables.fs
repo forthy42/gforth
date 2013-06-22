@@ -35,8 +35,9 @@
 
 
 : (uv!) ( xt addr -- ) 2@ next-task + @ cell- @ swap cells + ! ;
-: uvalue! ( xt xt-method -- )
+: umethod! ( xt xt-method -- )
     >body cell+ (uv!) ;
 comp: drop >body cell+ postpone Aliteral postpone (uv!) ;
+: umethod@ ( addr -- xt ) >body cell+ 2@ next-task + @ cell- @ swap cells + @ ;
 
 AVariable vtable-list

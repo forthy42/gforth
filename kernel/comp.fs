@@ -410,10 +410,12 @@ defer defer-default ( -- )
     Header Reveal dodefer,
     ['] defer-default A, ;
 
-Defer defer@ ( xt-deferred -- xt ) \ gforth defer-fetch
-\G @i{xt} represents the word currently associated with the deferred
-\G word @i{xt-deferred}.
-: >body@ >body @ ; ' >body@ IS defer@
+: defer@ ( xt-deferred -- xt ) \ gforth defer-fetch
+    \G @i{xt} represents the word currently associated with the deferred
+    \G word @i{xt-deferred}.
+    x#exec [ 7 , ] ;
+
+: >body@ >body @ ;
 
 : Defers ( compilation "name" -- ; run-time ... -- ... ) \ gforth
     \G Compiles the present contents of the deferred word @i{name}
@@ -491,6 +493,7 @@ Create vttemplate
 : set-compiler  ( xt -- ) vttemplate >vtcompile, ! ;
 : set-postpone  ( xt -- ) vttemplate >vtpostpone ! ;
 : set-to        ( xt -- ) vttemplate >vtto ! ;
+: set-defer@    ( xt -- ) vttemplate >vtdefer@ ! ;
 : set-does>     ( xt -- ) >body !extra ; \ more work than the aboves
 
 : comp: ( -- colon-sys )

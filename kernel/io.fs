@@ -41,11 +41,35 @@ has? os [IF]
     infile-id key?-file ;
 [THEN]
 
-undef-words
-
-Defer type ( c-addr u -- ) \ core
+user-o current-out
+0 0
+umethod type ( c-addr u -- ) \ core
   \G If @var{u}>0, display @var{u} characters from a string starting
   \G with the character stored at @var{c-addr}.
+umethod emit ( c -- ) \ core
+  \G Display the character associated with character value c.
+umethod cr ( -- ) \ core c-r
+    \G Output a newline (of the favourite kind of the host OS).  Note
+    \G that due to the way the Forth command line interpreter inserts
+    \G newlines, the preferred way to use @code{cr} is at the start
+    \G of a piece of text; e.g., @code{cr ." hello, world"}.
+[IFDEF] (form) umethod form [THEN]
+2drop
+
+user-o current-in
+0 0
+umethod key ( -- char ) \ core
+\G Receive (but do not display) one character, @var{char}.
+umethod key? ( -- flag ) \ facility key-question
+\G Determine whether a character is available. If a character is
+\G available, @var{flag} is true; the next call to @code{key} will
+\G yield the character. Once @code{key?} returns true, subsequent
+\G calls to @code{key?} before calling @code{key} or @code{ekey} will
+\G also return true.
+2drop
+
+undef-words
+
 [IFDEF] write-file
 : (type) 0 write-file drop ;
 [ELSE]
@@ -53,39 +77,38 @@ Defer type ( c-addr u -- ) \ core
     >r dup c@ (emit) 1+ r> 1- REPEAT 2drop ;
 [THEN]
 
-[IFDEF] (type) ' (type) IS Type [THEN]
-
-Defer emit ( c -- ) \ core
-  \G Display the character associated with character value c.
 : (emit) ( c -- ) \ gforth
     0 emit-file drop \ !! use ?DUP-IF THROW ENDIF instead of DROP ?
 ;
 
-[IFDEF] (emit) ' (emit) IS emit [THEN]
-
-Defer key ( -- char ) \ core
-\G Receive (but do not display) one character, @var{char}.
 : (key) ( -- c ) \ gforth
     infile-id key-file ;
 : infile-id  stdin ;
 
-[IFDEF] (key) ' (key) IS key [THEN]
-
-Defer key? ( -- flag ) \ facility key-question
-\G Determine whether a character is available. If a character is
-\G available, @var{flag} is true; the next call to @code{key} will
-\G yield the character. Once @code{key?} returns true, subsequent
-\G calls to @code{key?} before calling @code{key} or @code{ekey} will
-\G also return true.
 : (key?) ( -- flag ) \ gforth
     infile-id key?-file ;
 : infile-id  stdin ;
 
-[IFDEF] (key?) ' (key?) IS key? [THEN]
-
-[IFDEF] (form) Defer form ' (form) IS form [THEN]
+: (cr) ( -- )
+    newline type ;
 
 all-words
+
+here
+' (type) A,
+' (emit) A,
+' (cr) A,
+[IFDEF] (form) ' (form) A, [THEN]
+A, here AConstant default-out
+
+default-out current-out !
+
+here
+' (key) A,
+' (key?) A,
+A, here AConstant default-in
+
+default-in current-in !
 
 : (.")     "lit count type ;
 : (S")     "lit count ;
@@ -103,14 +126,6 @@ all-words
 0A constant #lf ( -- c ) \ gforth
 
 : bell  #bell emit [ has? os [IF] ] outfile-id flush-file drop [ [THEN] ] ;
-Defer cr ( -- ) \ core c-r
-    \G Output a newline (of the favourite kind of the host OS).  Note
-    \G that due to the way the Forth command line interpreter inserts
-    \G newlines, the preferred way to use @code{cr} is at the start
-    \G of a piece of text; e.g., @code{cr ." hello, world"}.
-: (cr) ( -- )
-    newline type ;
-' (cr) IS cr
 
 : space ( -- ) \ core
   \G Display one space.

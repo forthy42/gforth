@@ -332,9 +332,11 @@ event: ->sleep  stop ;
 
 : u-to >body @ up@ + ! ;
 comp: drop >body @ postpone useraddr , postpone ! ;
+: udefer@ ( xt -- )
+    >body @ up@ + @ ;
 
 : UDefer ( "name" -- )
-    Create cell uallot , ['] u-to set-to
+    Create cell uallot , ['] u-to set-to ['] udefer@ set-defer@
     [: >body @ postpone useraddr , postpone perform ;] set-compiler
   DOES> @ up@ + perform ;
 
@@ -342,19 +344,6 @@ comp: drop >body @ postpone useraddr , postpone ! ;
     Create cell uallot , ['] u-to set-to
     [: >body @ postpone useraddr , postpone @ ;] set-compiler
   DOES> @ up@ + @ ;
-
-Udefer dummy-udef
-
-:noname ( xt -- )
-    dup >namevt @ [ ' dummy-udef >namevt @ ]L = IF
-	>body @ up@ + @
-    ELSE  >body @  THEN ; is defer@
-
-: make-udefer ( "name" -- )
-    here >r ' dp !
-    here defer@
-    ['] dummy-udef vtcopy,  cell uallot dup , up@ + !
-    r> dp ! ;
 
 false [IF] \ event test
     <event 1234 elit, up@ event> ?event 1234 = [IF] ." event ok" cr [THEN]

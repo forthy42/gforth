@@ -2940,12 +2940,13 @@ ghost >body@
 ghost value!
 ghost umethod,
 2drop
-ghost uvalue!
-ghost u#exec
+ghost umethod!
+ghost umethod@
 2drop
+ghost u#exec
 ghost u#+
 ghost uvar,
-2drop
+2drop drop
 
 Create vttemplate
 0 ,
@@ -3006,10 +3007,12 @@ End-Struct vtable-struct
 :noname ( ghost -- )  vttemplate >vtcompile, ! ; IS gset-compiler
 : gset-postpone ( ghost -- )  vttemplate >vtpostpone ! ;
 : gset-to ( ghost -- )        vttemplate >vtto ! ;
+: gset-defer@   ( ghost -- )  vttemplate >vtdefer@ ! ;
 
 : set-compiler ( xt -- )  xt>ghost vttemplate >vtcompile, ! ;
 : set-postpone ( xt -- )  xt>ghost vttemplate >vtpostpone ! ;
-: set-to ( xt -- )  xt>ghost vttemplate >vtto ! ;
+: set-to       ( xt -- )  xt>ghost vttemplate >vtto ! ;
+: set-defer@   ( xt -- )  xt>ghost vttemplate >vtdefer@ ! ;
 
 : vt: ( -- xt colon-sys )
     :noname postpone vt-template, postpone vt-populate ;
@@ -3265,24 +3268,6 @@ Build: ;Build
 by: :do;abicode noop ;DO
 vt: [G'] ;abi-code, gset-compiler ;vt
 
-\ Input-Methods                                            01py
-
-Builder input-method
-Build: ( m v -- m' v )  dup T , cell+ H ;Build
-DO:  abort" Not in cross mode" ;DO
-\ by: :doextra noop ;DO
-\ vtghost: imethod-vt
-vt: [G'] does, gset-compiler ;vt
-\ vtghost: dodoes-vt
-
-Builder input-var
-Build: ( m v size -- m v' )  over T , H + ;Build
-DO:  abort" Not in cross mode" ;DO
-\ by: :doextra noop ;DO
-\ vtghost: ivar-vt
-vt: [G'] does, gset-compiler ;vt
-\ vtghost: dodoes-vt
-
 \ User Methods                                         22jun13py
 
 Variable class-o
@@ -3295,7 +3280,9 @@ by User
 : umethod ( m v -- m' v )
     over >r no-loop on T : H compile u#exec class-o @ T , H
     r> T cell/ , (;) swap cell+ swap H
-    [G'] umethod, gset-compiler [G'] uvalue! gset-to ;
+    [G'] umethod, gset-compiler
+    [G'] umethod! gset-to
+    [G'] umethod@ gset-defer@ ;
 
 : uvar ( m v size -- m v' )
     over >r no-loop on T : H compile u#+ class-o @ T , H
@@ -3383,13 +3370,6 @@ compile: g>body T @ H compile lit+ T here H reloff T , H ;compile
 
 Builder interpret/compile:
 compile: does-resolved ;compile
-
-Builder input-method
-compile: does-resolved ;compile
-
-Builder input-var
-compile: does-resolved ;compile
-
 [THEN]
 
 \ structural conditionals                              17dec92py
