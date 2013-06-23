@@ -2931,10 +2931,10 @@ ghost abi-code,
 ghost ;abi-code,
 ghost post,
 2drop
-ghost no-to
-ghost name>int
+ghost default-name>int
+ghost default-name>comp
 2drop
-ghost name>comp
+ghost no-to
 ghost >body@
 2drop
 ghost value!
@@ -2954,8 +2954,8 @@ findghost :, ,
 findghost post, ,
 0 ,
 findghost no-to ,
-findghost name>int ,
-findghost name>comp ,
+findghost default-name>int ,
+findghost default-name>comp ,
 findghost >body@ ,
 
 Struct
@@ -2996,13 +2996,13 @@ End-Struct vtable-struct
 : vt-template, ( -- )
     T here 0 A, H vttemplate ! ;
 : vt-populate ( -- )
-    [ findghost :,        ]L vttemplate >vtcompile, !
-    [ findghost post,     ]L vttemplate >vtpostpone !
-    0                        vttemplate >vtextra !
-    [ findghost no-to     ]L vttemplate >vtto !
-    [ findghost name>int  ]L vttemplate >vt>int !
-    [ findghost name>comp ]L vttemplate >vt>comp !
-    [ findghost >body@    ]L vttemplate >vtdefer@ ! ;
+    [ findghost :,         ]L vttemplate >vtcompile, !
+    [ findghost post,      ]L vttemplate >vtpostpone !
+    0                         vttemplate >vtextra !
+    [ findghost no-to      ]L vttemplate >vtto !
+    [ findghost default-name>int ]L vttemplate >vt>int !
+    [ findghost default-name>comp ]L vttemplate >vt>comp !
+    [ findghost >body@     ]L vttemplate >vtdefer@ ! ;
 
 :noname ( ghost -- )  vttemplate >vtcompile, ! ; IS gset-compiler
 : gset-postpone ( ghost -- )  vttemplate >vtpostpone ! ;

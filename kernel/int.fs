@@ -373,14 +373,24 @@ has? f83headerstring [IF]
     \G @i{nt}. If @i{nt} has no interpretation semantics (i.e. is
     \G @code{compile-only}), @i{xt} is the execution token for
     \G @code{ticking-compile-only-error}, which performs @code{-2048 throw}.
+    x#exec [ 5 , ] ;
+
+: name>comp ( nt -- w xt ) \ gforth name-to-comp
+    \G @i{w xt} is the compilation token for the word @i{nt}.
+    x#exec [ 6 , ] ;
+
+: default-name>int ( nt -- xt ) \ gforth paren-name-to-int
+    \G @i{xt} represents the interpretation semantics of the word
+    \G @i{nt}. If @i{nt} has no interpretation semantics (i.e. is
+    \G @code{compile-only}), @i{xt} is the execution token for
+    \G @code{ticking-compile-only-error}, which performs @code{-2048 throw}.
     (name>x) (x>int) ;
 
 : name?int ( nt -- xt ) \ gforth name-question-int
     \G Like @code{name>int}, but perform @code{-2048 throw} if @i{nt}
     \G has no interpretation semantics.
-    (name>x) restrict-mask and [ has? rom [IF] ] 0= [ [THEN] ]
-    if
-	ticking-compile-only-error \ does not return
+    dup name>int tuck <> if
+      dup ['] ticking-compile-only-error = if execute then
     then ;
 
 : (name>comp) ( nt -- w +-1 ) \ gforth

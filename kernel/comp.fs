@@ -257,7 +257,7 @@ has? primcentric [IF]
 
 \ \ ticks
 
-: name>comp ( nt -- w xt ) \ gforth name-to-comp
+: default-name>comp ( nt -- w xt ) \ gforth name-to-comp
     \G @i{w xt} is the compilation token for the word @i{nt}.
     (name>comp)
     1 = if
@@ -342,7 +342,7 @@ include ./recognizer.fs
 \ \ Create Variable User Constant                        	17mar93py
 
 : Alias    ( xt "name" -- ) \ gforth
-    Header reveal
+    Header reveal ['] on vtcopy
     alias-mask lastflags creset
     dup A, lastcfa ! ;
 
@@ -457,17 +457,19 @@ Create vttemplate
 ' post, A,             \ post, field
 0 A,                   \ extra field
 ' no-to A,             \ to field
-' name>int A,              \ name>int field
-' name>comp A,              \ name>comp field
+' default-name>int A,  \ name>int field
+' default-name>comp A, \ name>comp field
 ' >body@ A,            \ defer@
 
 \ initialize to one known vt
 
-: vtcopy,     ( xt -- )  \ gforth	vtcopy-comma
+: vtcopy ( xt -- ) \ gforth vtcopy
     vttemplate here >namevt !
-    dup >namevt @ vttemplate vtsize move
-    here >namevt vttemplate !
-    >code-address cfa, ;
+    >namevt @ vttemplate vtsize move
+    here >namevt vttemplate ! ;
+
+: vtcopy,     ( xt -- )  \ gforth	vtcopy-comma
+    dup vtcopy >code-address cfa, ;
 
 : vt= ( vt1 vt2 -- flag )
     cell+ swap vtsize cell /string tuck compare 0= ;
