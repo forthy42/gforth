@@ -3279,7 +3279,7 @@ by User
 >TARGET
 : umethod ( m v -- m' v )
     over >r no-loop on T : H compile u#exec class-o @ T , H
-    r> T cell/ , (;) swap cell+ swap H
+    r> tcell / T , (;) swap cell+ swap H
     [G'] umethod, gset-compiler
     [G'] umethod! gset-to
     [G'] umethod@ gset-defer@ ;
