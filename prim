@@ -1960,6 +1960,28 @@ rp=gforth_RP;
 lp=gforth_LP;
 IF_fpTOS(fpTOS=fp[0]);
 
+call-c#	( ... #w -- ... )	gforth	call_c_direct
+""Call the C function pointed to by the inline argument @i{w}. The C function
+has to access the stack itself. The stack pointers are exported in the global
+variables @code{gforth_SP} and @code{gforth_FP}.""
+/* This is a first attempt at support for calls to C. This may change in
+   the future */
+IF_fpTOS(fp[0]=fpTOS);
+gforth_FP=fp;
+gforth_SP=sp;
+gforth_RP=rp;
+gforth_LP=lp;
+#ifdef HAS_LINKBACK
+((void (*)())w)();
+#else
+((void (*)(void *))w)(&gforth_pointers);
+#endif
+sp=gforth_SP;
+fp=gforth_FP;
+rp=gforth_RP;
+lp=gforth_LP;
+IF_fpTOS(fpTOS=fp[0]);
+
 \+
 \+file
 

@@ -752,6 +752,19 @@ clear-libs
 	parse-name
     THEN ;
 
+: ?compile-wrapper ( addr -- addr )
+    dup cff-lha @ @ 0= if
+	compile-wrapper-function
+    endif ;
+
+: ?link-wrapper ( addr -- xf-cfr )
+    dup 2@ { xt-defer xt-cfr }
+    xt-defer defer@ xt-cfr <> IF
+	link-wrapper-function
+	xt-cfr >body !
+	xt-cfr xt-defer defer!  THEN
+    xt-cfr ;
+
 : c-function-ft ( xt-defr xt-cfr xt-parse "c-name" "type signature" -- )
     \ build time/first time action for c-function
     { xt-parse-types }
@@ -760,13 +773,7 @@ clear-libs
     xt-parse-types execute c-name string,
     ['] gen-wrapper-function c-source-file-execute
   does> ( ... -- ... )
-    dup 2@ { xt-defer xt-cfr }
-    dup cff-lha @ @ 0= if
-	compile-wrapper-function
-    endif
-    link-wrapper-function xt-cfr >body !
-    xt-cfr xt-defer defer!
-    xt-cfr execute ;
+    ?compile-wrapper ?link-wrapper execute ;
 
 : c-function-rt ( -- )
     \ run-time definition for c function; addr is the address where
@@ -775,8 +782,14 @@ clear-libs
   does> ( ... -- ... )
     @ call-c ;
 
+c-function-rt  lastxt Constant dummy-rt
+
 : (c-function) ( xt-parse "forth-name" "c-name" "{stack effect}" -- )
-    { xt-parse-types } defer lastxt dup c-function-rt
+    { xt-parse-types } defer
+    [: defer@ dup >does-code dummy-rt >does-code <>
+    IF  >body ?compile-wrapper ?link-wrapper  THEN
+    postpone call-c# >body @ , ;] set-compiler
+    lastxt dup c-function-rt
     lastxt xt-parse-types c-function-ft
     lastxt swap defer! ;
 
