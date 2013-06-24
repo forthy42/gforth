@@ -549,10 +549,12 @@ int gforth_abortmcheck(int reason)
 
 void gforth_free(void * ptr)
 {
+#ifdef HAVE_MPROBE
   int reason=mprobe(ptr);
   debugp(stderr, "free(%08p)=%d;\n", ptr, reason);
   if(reason>0)
     throw(-2049-reason);
+#endif
   free(ptr);
 }
 
