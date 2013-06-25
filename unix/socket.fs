@@ -193,18 +193,27 @@ $004 Constant POLLOUT
 
 2variable socket-timeout-d 2000. socket-timeout-d 2!
 
+s" no free socket"     exception Constant !!nosock!!
+s" bind failed"        exception Constant !!nobind!!
+s" getaddrinfo failed" exception Constant !!noaddr!!
+s" can't connect"      exception Constant !!noconn!!
+s" listen failed"      exception Constant !!listen!!
+s" accept failed"      exception Constant !!accept!!
+s" blocking-mode failed" exception Constant !!blocking!!
+s" sock read error"    exception Constant !!sockread!!
+
 : new-socket ( -- socket )
     PF_INET SOCK_STREAM 0 socket
-    dup 0<= abort" no free socket" ;
+    dup 0<= !!nosock!! and throw ;
 
 : new-socket6 ( -- socket )
     PF_INET6 SOCK_STREAM 0 socket
-    dup 0<= abort" no free socket"
+    dup 0<= !!nosock!! and throw
     dup IPPROTO_IPV6 IPV6_V6ONLY sockopt-on dup on 4 setsockopt drop ;
 
 : new-udp-socket ( -- socket )
     PF_INET SOCK_DGRAM 0 socket
-    dup 0<= abort" no free socket"
+    dup 0<= !!nosock!! and throw
 [IFDEF] darwin
 \    dup IPPROTO_IP IP_DONTFRAG sockopt-on 1 over l! 4
 \    setsockopt drop
@@ -215,7 +224,7 @@ $004 Constant POLLOUT
 
 : new-udp-socket6 ( -- socket )
     PF_INET6 SOCK_DGRAM 0 socket
-    dup 0<= abort" no free socket"
+    dup 0<= !!nosock!! and throw
 [IFDEF] darwin
 \    dup IPPROTO_IP IP_DONTFRAG sockopt-on 1 over l! 4
 \    setsockopt drop
@@ -227,7 +236,7 @@ $004 Constant POLLOUT
 
 : new-udp-socket46 ( -- socket )
     PF_INET6 SOCK_DGRAM 0 socket
-    dup 0<= abort" no free socket"
+    dup 0<= !!nosock!! and throw
 [IFDEF] darwin
 \    dup IPPROTO_IP IP_DONTFRAG sockopt-on 1 over l! 4
 \    setsockopt drop
@@ -249,7 +258,7 @@ $004 Constant POLLOUT
     >r c-string r> hints addrres getaddrinfo #>>
     ?dup IF
 	gai_strerror cstring>sstring type
-	true abort" getaddrinfo failed"  THEN
+	!!noaddr!! throw  THEN
     addrres @ ;
 
 : get-socket ( info -- socket )  dup >r >r
@@ -265,7 +274,7 @@ $004 Constant POLLOUT
 		THEN
 	    ELSE  drop  THEN
 	    r> ai_next @ >r  REPEAT
-    rdrop r> freeaddrinfo true abort" can't connect" ;
+    rdrop r> freeaddrinfo !!noconn!! throw ;
 
 : open-socket ( addr u port -- fid )
     SOCK_STREAM >hints  get-info  get-socket ;
@@ -273,51 +282,55 @@ $004 Constant POLLOUT
 : open-udp-socket ( addr u port -- fid )
     SOCK_DGRAM >hints  get-info  get-socket ;
 
+: reuse-addr ( socket -- )
+    SOL_SOCKET SO_REUSEADDR sockopt-on 1 over l! 4 setsockopt drop ;
+\ : reuse-port ( socket -- ) \ only on BSD for now...
+\     SOL_SOCKET SO_REUSEPORT sockopt-on 1 over l! 4 setsockopt drop ;
+
 : create-server  ( port# -- lsocket )
     sockaddr-tmp sockaddr_in %size erase
     AF_INET sockaddr-tmp family w!
     htons   sockaddr-tmp port w!
     new-socket
-    dup 0< abort" no free socket" >r
-    r@ SOL_SOCKET SO_REUSEADDR sockopt-on 1 over ! 4 setsockopt drop
+    dup 0< !!nosock!! and throw dup reuse-addr >r
     r@ sockaddr-tmp sockaddr_in4 %size bind 0= IF  r> exit  ENDIF
-    r> drop true abort" bind :: failed" ;
+    rdrop !!nobind!! throw ;
 
 : create-server6  ( port# -- lsocket )
     sockaddr-tmp sockaddr_in %size erase
     AF_INET6 sockaddr-tmp family w!
     htons   sockaddr-tmp port w!
     new-socket6
-    dup 0< abort" no free socket" >r
+    dup 0< !!nosock!! and throw dup reuse-addr >r
     r@ sockaddr-tmp sockaddr_in6 %size bind 0= IF  r> exit  ENDIF
-    r> drop true abort" bind :: failed" ;
+    rdrop !!nobind!! throw ;
 
 : create-udp-server  ( port# -- lsocket )
     sockaddr-tmp sockaddr_in %size erase
     AF_INET sockaddr-tmp family w!
     htons   sockaddr-tmp port w!
     new-udp-socket
-    dup 0< abort" no free socket" >r
+    dup 0< !!nosock!! and throw dup reuse-addr >r
     r@ sockaddr-tmp sockaddr_in4 %size bind 0= IF  r> exit  ENDIF
-    r> drop true abort" bind :: failed" ;
+    rdrop !!nobind!! throw ;
 
 : create-udp-server6  ( port# -- lsocket )
     sockaddr-tmp sockaddr_in6 %size erase
     AF_INET6 sockaddr-tmp family w!
     htons   sockaddr-tmp port w!
     new-udp-socket6
-    dup 0< abort" no free socket" >r
+    dup 0< !!nosock!! and throw >r
     r@ sockaddr-tmp sockaddr_in6 %size bind 0= IF  r> exit  ENDIF
-    r> drop true abort" bind :: failed" ;
+    rdrop !!nobind!! throw ;
 
 : create-udp-server46  ( port# -- lsocket )
     sockaddr-tmp sockaddr_in6 %size erase
     AF_INET6 sockaddr-tmp family w!
     htons   sockaddr-tmp port w!
     new-udp-socket46
-    dup 0< abort" no free socket" >r
+    dup 0< !!nosock!! and throw >r
     r@ sockaddr-tmp sockaddr_in6 %size bind 0= IF  r> exit  ENDIF
-    r> drop true abort" bind :: failed" ;
+    rdrop !!nobind!! throw ;
 
 \ from itools.frt
 
@@ -337,7 +350,7 @@ Create alen   16 ,
 Create crlf 2 c, 13 c, 10 c,
 
 : listen ( lsocket /queue -- )
-    listen() 0< abort" listen :: failed" ;
+    listen() 0< !!listen!! and throw ;
 
 \ This call blocks the server until a client appears. The client uses socket to
 \ converse with the server.
@@ -345,7 +358,7 @@ Create crlf 2 c, 13 c, 10 c,
     16 alen !
     sockaddr-tmp alen accept() 
     dup 0< IF  errno cr ." accept() :: error #" .  
-	abort" accept :: failed"  
+	!!accept!! throw
     ENDIF   s" w+" c-string fdopen ;
 
 : +cr  ( c-addr1 u1 -- c-addr2 u2 ) crlf count $+ ;
@@ -354,7 +367,7 @@ Create crlf 2 c, 13 c, 10 c,
     f_setfl r> IF  0  
     ELSE  o_nonblock|o_rdwr  
     THEN  
-    fcntl 0< abort" blocking-mode failed" ;
+    fcntl 0< !!blocking!! and throw ;
 
 : hostname ( -- c-addr u )
     hostname$ c@ 0= IF
@@ -371,7 +384,7 @@ Create crlf 2 c, 13 c, 10 c,
     2 pick >r r@ false blocking-mode  rot fileno -rot
     over >r msg_waitall recv
     dup 0<  IF  0 max
-	errno dup 0<> swap ewouldblock <> and abort" (rs) :: socket read error"
+	errno dup 0<> swap ewouldblock <> and !!sockread!! and throw
     THEN
     r> swap
     r> true blocking-mode ;
@@ -389,7 +402,7 @@ Create crlf 2 c, 13 c, 10 c,
     2 pick >r  r@ false blocking-mode  rot fileno -rot
     over >r msg_waitall sockaddr-tmp alen  recvfrom
     dup 0<  IF  0 max
-	errno dup 0<> swap ewouldblock <> and abort" (rs) :: socket read error"
+	errno dup 0<> swap ewouldblock <> and !!sockread!! and throw
     THEN
     r> swap
     r> true blocking-mode ;
