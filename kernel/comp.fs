@@ -496,6 +496,8 @@ Create vttemplate
 : set-postpone  ( xt -- ) vttemplate >vtpostpone ! ;
 : set-to        ( xt -- ) vttemplate >vtto ! ;
 : set-defer@    ( xt -- ) vttemplate >vtdefer@ ! ;
+: set->int      ( xt -- ) vttemplate >vt>int ! ;
+: set->comp     ( xt -- ) vttemplate >vt>comp ! ;
 : set-does>     ( xt -- ) >body !extra ; \ more work than the aboves
 
 : comp: ( -- colon-sys )
@@ -534,8 +536,6 @@ comp: drop (') (name>x) drop (comp-to) ;
 
 ' TO alias IS
 
-: interpret/compile? ( xt -- flag ) drop false ;
-
 \ \ : ;                                                  	24feb93py
 
 defer :-hook ( sys1 -- sys2 )
@@ -563,9 +563,17 @@ defer ;-hook ( sys2 -- sys1 )
 
 \ new interpret/compile:
 
+: interpret/compile? ( xt -- flag ) drop false ;
+
+: i/c>int ( nt -- xt )
+    @ ;
+: i/c>comp ( nt -- xt1 xt2 )
+    cell+ @ ['] execute ;
+
 : interpret/compile: ( interp-xt comp-xt "name" -- ) \ gforth
-    >r >r : r> compile, postpone ;
-    start-xt set-compiler postpone drop r> compile, postpone ; ;
+    Header reveal ['] on vtcopy
+    ['] i/c>int set->int  ['] i/c>comp set->comp
+    swap dup A, lastcfa ! A, ;
 
 \ \ Search list handling: reveal words, recursive		23feb93py
 
