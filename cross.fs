@@ -2655,7 +2655,7 @@ ghost :-dummy Constant :-ghost
 
 : gstart-xt ( -- colon-sys xt )
     there >r here ghostheader r@ resolve
-    docol, ]comp  colon-start depth T ] H ;Resolve off r> ;
+    docol, ]comp colon-start depth ;Resolve off T ] H r> ;
 
 : :noname ( -- xt colon-sys )
     switchrom vt, X cfalign
@@ -2751,14 +2751,14 @@ Cond: DOES>
     ['] does-resolved created >comp !
     switchrom doeshandler, T here H !does 
     instant-interpret-does>-hook
-depth T ] H ;
+    depth ;Resolve off  T ] H ;
 
 : EXTRA>
     ['] extra-resolved created >comp !
     switchrom T align H
     doeshandler, !extra 
     instant-interpret-does>-hook
-    depth T ] H ;
+    depth ;Resolve off  T ] H ;
 [ELSE]
 T has? primcentric H [IF]
 : does-resolved ( ghost -- )
