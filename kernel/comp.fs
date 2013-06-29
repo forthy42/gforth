@@ -259,7 +259,7 @@ has? primcentric [IF]
 
 : default-name>comp ( nt -- w xt ) \ gforth name-to-comp
     \G @i{w xt} is the compilation token for the word @i{nt}.
-    (name>comp)
+    (name>x) (x>comp)
     1 = if
         ['] execute
     else

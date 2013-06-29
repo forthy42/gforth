@@ -396,13 +396,14 @@ has? f83headerstring [IF]
 : (x>comp) ( xt w -- xt +-1 )
     immediate-mask and [ has? rom [IF] ] 0= [ [THEN] ] flag-sign ;
 
+\ these transformations are used for legacy words like find
+
 : (name>comp) ( nt -- xt +-1 ) \ gforth
     \G @i{w xt} is the compilation token for the word @i{nt}.
-    (name>x) (x>comp) ;
+    name>comp ['] execute = flag-sign ;
 
 : (name>intn) ( nfa -- xt +-1 )
-    (name>x) tuck (x>int) ( w xt )
-    swap immediate-mask and [ has? rom [IF] ] 0= [ [THEN] ] flag-sign ;
+    dup name>int swap name>comp nip ['] execute = flag-sign ;
 
 [IFDEF] prelude-mask
 : name>prelude ( nt -- xt )
