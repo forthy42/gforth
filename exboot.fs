@@ -30,10 +30,5 @@ require except.fs
 
 \ now boot
 
-pathstring 2@ argv @ argc @
-[defined] next-arg 0= [if]
-    \ for compatibility with old versions
-    swap cell+ swap 1-
-[endif]
-boot
+pathstring 2@ argv @ argc @ boot
     

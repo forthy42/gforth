@@ -110,9 +110,6 @@ A, here AConstant default-in
 
 default-in current-in !
 
-: (.")     "lit count type ;
-: (S")     "lit count ;
-
 \ Input                                                13feb93py
 
 04 constant #eof ( -- c ) \ gforth

@@ -63,6 +63,9 @@ interpret/compile: s" ( compilation 'ccc"' -- ; run-time -- c-addr u )	\ core,fi
   \G 80 characters, so in standard programs you should assume that the
   \G string lives only until the next @code{s"}.
 
+\ :noname '"' parse type ;
+\ :noname '"' parse postpone SLiteral postpone type ;
+\ interpret/compile
 : ."  ( compilation 'ccc"' -- ; run-time -- )  \ core	dot-quote
   \G Compilation: Parse a string @i{ccc} delimited by a " (double
   \G quote). At run-time, display the string. Interpretation semantics

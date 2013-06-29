@@ -410,7 +410,6 @@ VARIABLE C-Pass
 	2dup + 1- c@ ') = IF 1- THEN .struc ELSE drop 
     THEN ;
 
-[ifdef] (s")
 : c-c"
 	Display? IF nl .name-without THEN
         count 2dup + aligned -rot
@@ -419,7 +418,6 @@ VARIABLE C-Pass
                 [char] " cemit bl cemit
         ELSE    2drop
         THEN ;
-[endif]
 
 : c-string? ( addr1 -- addr2 f )
     \ f is true if a string was found and decompiled.
