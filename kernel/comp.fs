@@ -346,6 +346,15 @@ include ./recognizer.fs
     alias-mask lastflags creset
     dup A, lastcfa ! ;
 
+: s>int ( nt -- xt )  @ name>int ;
+: s>comp ( nt -- xt1 xt2 )  @ name>comp ;
+
+: Synonym ( "name" "oldname" -- ) \ Forth200x
+    Header  ['] on vtcopy
+    alias-mask lastflags creset
+    parse-name find-name dup A, name>int lastcfa !
+    ['] s>int set->int ['] s>comp set->comp reveal ;
+
 : Create ( "name" -- ) \ core
     Header reveal dovar, ;
 
