@@ -564,10 +564,8 @@ defer ;-hook ( sys2 -- sys1 )
 
 : interpret/compile? ( xt -- flag ) drop false ;
 
-: i/c>int ( nt -- xt )
-    @ ;
-: i/c>comp ( nt -- xt1 xt2 )
-    cell+ @ ['] execute ;
+: i/c>int ( nt -- xt )  @ ;
+: i/c>comp ( nt -- xt1 xt2 ) cell+ @ ['] execute ;
 
 : interpret/compile: ( interp-xt comp-xt "name" -- ) \ gforth
     Header reveal ['] on vtcopy alias-mask lastflags cset

@@ -35,5 +35,6 @@ forth-recognizer set-recognizers
     r/o open-pipe throw dup >r slurp-fid
     r> close-pipe throw to $? 2dup sh$ 2! ;
 
-: s` '` parse sh-get ;
-comp: drop '` parse postpone SLiteral postpone sh-get ;
+:noname '`' parse sh-get ;
+:noname '`' parse postpone SLiteral postpone sh-get ;
+interpret/compile: s` ( "eval-string" -- addr u )

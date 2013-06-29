@@ -350,12 +350,12 @@ comp' sliteral drop alias postpone-sliteral
 
 [ifundef] defer@ : defer@ >body @ ; [then]
 
-: action-of ( interpretation "name" -- xt; compilation "name" -- ; run-time -- xt ) \ gforth
-    ' defer@ ;
-comp: drop   postpone ['] postpone defer@ ;
+:noname ' defer@ ;
+:noname  postpone ['] postpone defer@ ;  2dup
+interpret/compile: action-of ( interpretation "name" -- xt; compilation "name" -- ; run-time -- xt ) \ gforth
 \G @i{Xt} is the XT that is currently assigned to @i{name}.
 
-' action-of Alias what's ( interpretation "name" -- xt; compilation "name" -- ; run-time -- xt ) \ gforth-obsolete
+interpret/compile: what's ( interpretation "name" -- xt; compilation "name" -- ; run-time -- xt ) \ gforth-obsolete
 \G Old name of @code{action-of}
 
 

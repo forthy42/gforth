@@ -393,11 +393,12 @@ has? f83headerstring [IF]
       dup ['] ticking-compile-only-error = if execute then
     then ;
 
-: (name>comp) ( nt -- w +-1 ) \ gforth
+: (x>comp) ( xt w -- xt +-1 )
+    immediate-mask and [ has? rom [IF] ] 0= [ [THEN] ] flag-sign ;
+
+: (name>comp) ( nt -- xt +-1 ) \ gforth
     \G @i{w xt} is the compilation token for the word @i{nt}.
-    (name>x) >r 
-    r> immediate-mask and [ has? rom [IF] ] 0= [ [THEN] ] flag-sign
-    ;
+    (name>x) (x>comp) ;
 
 : (name>intn) ( nfa -- xt +-1 )
     (name>x) tuck (x>int) ( w xt )
