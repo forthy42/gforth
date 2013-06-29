@@ -2934,6 +2934,9 @@ ghost post,
 ghost default-name>int
 ghost default-name>comp
 2drop
+ghost i/c>int
+ghost i/c>comp
+2drop
 ghost no-to
 ghost >body@
 2drop
@@ -3020,6 +3023,12 @@ End-Struct vtable-struct
     postpone ;  built >do:ghost @ >exec2 ! ; immediate
 
 >TARGET
+
+: interpret/compile: ( xt1 xt2 "name" -- )
+    (THeader drop swap T A, A, H
+    vt-populate
+    [G'] i/c>int vttemplate >vt>int !
+    [G'] i/c>comp vttemplate >vt>comp ! ;
 
 : >vtable ( compile-xt tokenize-xt -- )
     set-postpone set-compiler ;
@@ -3225,12 +3234,6 @@ T has? rom H [IF]
 [THEN]
 vt: [G'] defer, gset-compiler [G'] value! gset-to ;vt
 
-
-Builder interpret/compile:
-Build: ( inter comp -- ) swap T A, A, H ;Build-immediate
-DO: ( ghost -- ) ABORT" CROSS: Don't execute" ;DO
-vtghost: doi/c-vt
-
 \ Sturctures                                           23feb95py
 
 : nalign ( addr1 n -- addr2 )
@@ -3367,9 +3370,6 @@ compile: g>body compile lit-perform T A, H ;compile
 
 Builder (Field)
 compile: g>body T @ H compile lit+ T here H reloff T , H ;compile
-
-Builder interpret/compile:
-compile: does-resolved ;compile
 [THEN]
 
 \ structural conditionals                              17dec92py

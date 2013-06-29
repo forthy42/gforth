@@ -530,11 +530,10 @@ comp: drop >body postpone ALiteral postpone ! ;
 : (int-to) ( val xt -- ) x#exec [ 4 , ] ;
 : (comp-to) ( xt -- ) dup >namevt @ >vtto @ compile, ;
 
-: TO ( value "name" -- )
-    (') (name>x) drop (int-to) ;
-comp: drop (') (name>x) drop (comp-to) ;
-
-' TO alias IS
+:noname ( value "name" -- ) (') (name>x) drop (int-to) ;
+:noname ( value "name" -- ) (') (name>x) drop (comp-to) ; over over
+interpret/compile: TO ( value "name" -- )
+interpret/compile: IS ( value "name" -- )
 
 \ \ : ;                                                  	24feb93py
 
