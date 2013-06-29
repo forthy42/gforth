@@ -59,12 +59,7 @@ tmp$ $execstr-ptr !
 : $cr   ( -- ) newline $type ;
 24 80 2Constant $form
 
-here
-' $type ,
-' $emit ,
-' $cr ,
-' $form ,
-, here Constant $-out
+' $type ' $emit ' $cr ' $form output: $-out
 
 : $exec ( xt addr -- )
     \G execute xt while the standard output (TYPE, EMIT, and everything
@@ -72,9 +67,7 @@ here
     $execstr-ptr @ current-out @
     { oldstr oldout }
     try
-	$execstr-ptr ! \ $execstr-ptr @ @ 0= IF s" " $execstr-ptr @ $! THEN
-	$-out current-out !
-	execute
+	$execstr-ptr ! $-out execute
 	0 \ throw ball
     restore
 	oldstr $execstr-ptr !

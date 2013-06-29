@@ -110,6 +110,14 @@ A, here AConstant default-in
 
 default-in current-in !
 
+: input: ( key-xt key?-xt -- )
+    Create here cell+ , swap , ,
+  DOES> cell+ current-in ! ;
+
+: output: ( type-xt emit-xt cr-xt form-xt -- )
+    Create here cell+ , swap 2swap swap , , , ,
+  DOES> cell+ current-out ! ;
+
 \ Input                                                13feb93py
 
 04 constant #eof ( -- c ) \ gforth
