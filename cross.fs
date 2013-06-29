@@ -3025,7 +3025,7 @@ End-Struct vtable-struct
 >TARGET
 
 : interpret/compile: ( xt1 xt2 "name" -- )
-    (THeader drop swap T A, A, H
+    (THeader drop swap T A, A, H  alias-mask flag!
     vt-populate
     [G'] i/c>int vttemplate >vt>int !
     [G'] i/c>comp vttemplate >vt>comp ! ;

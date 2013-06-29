@@ -570,7 +570,7 @@ defer ;-hook ( sys2 -- sys1 )
     cell+ @ ['] execute ;
 
 : interpret/compile: ( interp-xt comp-xt "name" -- ) \ gforth
-    Header reveal ['] on vtcopy
+    Header reveal ['] on vtcopy alias-mask lastflags cset
     ['] i/c>int set->int  ['] i/c>comp set->comp
     swap dup A, lastcfa ! A, ;
 
