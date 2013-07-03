@@ -262,6 +262,11 @@ comp: drop ' >body @ postpone Literal ;
 : unlock ( addr -- )  pthread_mutex_unlock drop ;
 \G unlock the semaphore
 
+: c-section ( xt addr -- )  >r
+    TRY  r@ lock execute
+    RESTORE  r> unlock
+    ENDTRY  throw ;
+
 : stacksize ( -- n ) forthstart 4 cells + @
     sp0 @ $FFF and -$1000 or + ;
 : stacksize4 ( -- dsize rsize fsize lsize )
