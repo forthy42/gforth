@@ -37,11 +37,13 @@ c-library pthread
     \c static void *(*saved_gforth_pointers)(Cell);
     \c #endif
     \c 
+    \c #if HAVE_MPROBE
     \c void gfpthread_abortmcheck(enum mcheck_status reason)
     \c {
     \c   if((int)reason > 0)
     \c     longjmp(*(jmp_buf*)throw_jmp_handler,-2049-(int)reason);
     \c }
+    \c #endif
     \c void *gforth_thread(user_area * t)
     \c {
     \c   void *x;
