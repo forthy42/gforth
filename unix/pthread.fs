@@ -19,7 +19,9 @@
 
 c-library pthread
     \c #include <pthread.h>
+    \c #if HAVE_MPROBE
     \c #include <mcheck.h>
+    \c #endif
     \c #include <limits.h>
     \c #include <sys/mman.h>
     \c #include <unistd.h>
@@ -57,7 +59,9 @@ c-library pthread
     \c   gforth_FP=(Float*)(t->fp0);
     \c   gforth_LP=(Address)(t->lp0);
     \c
+    \c #if HAVE_MPROBE
     \c   mcheck(gfpthread_abortmcheck);
+    \c #endif
     \c   pthread_cleanup_push((void (*)(void*))gforth_free_stacks, (void*)t);
     \c 
     \c   throw_jmp_handler = &throw_jmp_buf;
