@@ -163,9 +163,10 @@ defer header ( -- ) \ gforth
     save-mem nextname-string 2!
     ['] nextname-header IS (header) ;
 
+: noname, ( -- )
+    0 last ! vt,  here 3 cells + dup maxaligned >align alias-mask , 0 , ;
 : noname-header ( -- )
-    0 last ! vt,  cfalign 0 ,
-    input-stream ;
+    noname, input-stream ;
 
 : noname ( -- ) \ gforth
     \g The next defined word will be anonymous. The defining word will
@@ -562,7 +563,7 @@ defer ;-hook ( sys2 -- sys1 )
     Header (:noname) ;
 
 : :noname ( -- xt colon-sys ) \ core-ext	colon-no-name
-    0 last ! vt, cfalign 0 , here (:noname) ;
+    noname, here (:noname) ;
 
 : ; ( compilation colon-sys -- ; run-time nest-sys ) \ core	semicolon
     ;-hook ?struc [compile] exit
