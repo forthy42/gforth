@@ -2658,9 +2658,13 @@ ghost :-dummy Constant :-ghost
     docol, ]comp colon-start depth ;Resolve off T ] H r> ;
 
 : :noname ( -- xt colon-sys )
-    switchrom vt, X cfalign
+    switchrom vt,
     [ X has? f83headerstring 0= ] [IF]
+	T 0 cell+ cfoddalign 0 , 0 , here cell+ H
+	t>flag >r alias-mask T r@ c@ xor r> c! H
 	:-ghost >do:ghost @ >exec2 @ execute
+    [ELSE]
+	X cfalign
     [THEN]
     there 
     \ define a nameless ghost
