@@ -8557,6 +8557,7 @@ Files that are processed by some other program (@dfn{general files}).
 * Forth source files::          
 * General files::               
 * Redirection::                 
+* Directories::                 
 * Search Paths::                
 @end menu
 
@@ -8666,7 +8667,7 @@ doc-stdout
 doc-stderr
 
 @c ---------------------------------------------------------
-@node Redirection, Search Paths, General files, Files
+@node Redirection, Directories, General files, Files
 @subsection Redirection
 @cindex Redirection
 @cindex Input Redirection
@@ -8701,7 +8702,22 @@ exceptions yourself; also, note that for redirecting the output in
 this way, you have to redirect both @code{emit} and @code{type}.
 
 @c ---------------------------------------------------------
-@node Search Paths,  , Redirection, Files
+@node Directories, Search Paths, Redirection, Files
+@subsection Directories
+@cindex Directories
+
+You can open and read directories similar to files.  Reading gives you one directory entry at a time; you can match that to a filename (with wildcards).
+
+doc-open-dir
+doc-read-dir
+doc-close-dir
+doc-filename-match
+doc-get-dir
+doc-set-dir
+doc-=mkdir
+
+@c ---------------------------------------------------------
+@node Search Paths, , Directories, Files
 @subsection Search Paths
 @cindex path for @code{included}
 @cindex file search path
