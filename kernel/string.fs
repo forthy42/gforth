@@ -36,7 +36,7 @@
     \G already, that string will be lost.
     dup @ IF  dup @ free throw  THEN
     over $padding allocate throw over ! @
-    over >r  rot over cell+  r> move 2dup ! + cell+ bl swap c! ;
+    over >r  rot over cell+  r> move ! ( 2dup ! + cell+ bl swap c! ) ;
 : $@len ( addr -- u ) \ gforth-string string-fetch-len
     \G returns the length of the stored string.
     @ @ ;
