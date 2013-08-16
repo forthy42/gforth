@@ -819,6 +819,17 @@ c-extender !
     then ;
 
 : name-see ( nfa -- )
+    dup >f+c @ alias-mask and 0= IF
+	dup >namevt @ >vt>int @ ['] s>int = IF
+	    ." Synonm " dup .name dup @ .name
+	ELSE
+	    dup @ name>string nip 0= IF
+		dup @ hex.
+	    ELSE
+		." ' " dup @ .name
+	    THEN ." Alias " dup .name
+	THEN
+    THEN
     dup name>int >r
     dup name>comp 
     over r@ =
