@@ -708,7 +708,9 @@ clear-libs
 : compile-cmd ( -- )
     [ libtool-command tmp$ $! s"  --silent --tag=CC --mode=compile " $type
       libtool-cc $type s"  -I '" $type
-      s" includedir" getenv $type  s" '" $type tmp$ $@ ] sliteral type
+      s" includedir" getenv tuck $type
+      0= [IF]  pad $100 get-dir $type s" /include" $type  [THEN]
+      s" '" $type tmp$ $@ ] sliteral type
     ."  -O -c " lib-filename $. ." .c -o "
     lib-filename $. ." .lo" ;
 
