@@ -963,10 +963,10 @@ libgforths: $(ENGINES:%$(EXT)=lib%) $(ENGINES_FAST:%$(EXT)=lib%)
 # -------------	Make Documentation
 
 #TAGS is a GNU standard target
-TAGS:		gforth.TAGS
+TAGS:		gforth.fi gforth.TAGS
 		$(CP) gforth.TAGS $@
 
-tags:		gforth.tags
+tags:		gforth.fi gforth.tags
 		$(CP) gforth.tags $@
 
 install.TAGS:	TAGS install-tags.fs
