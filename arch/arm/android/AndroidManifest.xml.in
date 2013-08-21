@@ -2,8 +2,8 @@
 <!-- BEGIN_INCLUDE(manifest) -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
         package="gnu.gforth"
-        android:versionCode="1"
-        android:versionName="1.0">
+        android:versionCode="4"
+        android:versionName="@VERSION@">
 
     <!-- This is the platform API where NativeActivity was introduced. -->
     <!-- However, we use OpenMAX AL, so 10 doesn't work any longer -->
