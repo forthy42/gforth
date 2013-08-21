@@ -25,7 +25,7 @@ AC_PREREQ(2.54)
 #snapshots have numbers major.minor.release-YYYYMMDD
 #note that lexicographic ordering must be heeded.
 #I.e., 0.4.1-YYYYMMDD must not exist before 0.4.1!
-UPDATED="February 14, 2013"
+UPDATED="August 21, 2013"
 AC_SUBST(UPDATED)
 AC_CONFIG_HEADERS(engine/config.h)
 
