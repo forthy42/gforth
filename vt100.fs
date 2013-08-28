@@ -23,9 +23,6 @@ decimal
 : ;pn   [char] ; emit pn ;
 : ESC[  27 emit [char] [ emit ;
 
-Defer at-xy
-Defer page
-
 : vt100-at-xy ( u1 u2 -- ) \ facility at-x-y
   \G Position the cursor so that subsequent text output will take
   \G place at column @var{u1}, row @var{u2} of the display. (column 0,
