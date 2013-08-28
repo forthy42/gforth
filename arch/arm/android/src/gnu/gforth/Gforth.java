@@ -20,5 +20,36 @@
 
 package gnu.gforth;
 
-public class Gforth extends android.app.NativeActivity {
+import android.view.KeyEvent;
+import android.os.Bundle;
+
+public class Gforth
+    extends android.app.NativeActivity
+    implements KeyEvent.Callback {
+    public native void onKeyEventNative(KeyEvent event);
+    @Override
+    public boolean dispatchKeyEvent (KeyEvent event) {
+	onKeyEventNative(event);
+	return true;
+    }
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+	onKeyEventNative(event);
+	return true;
+    }
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+	onKeyEventNative(event);
+	return true;
+    }
+    @Override
+    public boolean onKeyLongPress(int keyCode, KeyEvent event) {
+	onKeyEventNative(event);
+	return true;
+    }
+    @Override
+    public boolean onKeyMultiple(int keyCode, int count, KeyEvent event) {
+	onKeyEventNative(event);
+	return true;
+    }
 }
