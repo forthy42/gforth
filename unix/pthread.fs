@@ -190,7 +190,6 @@ c-library pthread
     c-function create_pipe create_pipe a -- void ( pipefd[2] -- )
     c-function check_read check_read a -- n ( pipefd -- n )
     c-function wait_read wait_read a n -- n ( pipefd timeout -- n )
-    c-function pthread_self pthread_self -- n ( -- n )
     c-function getpid getpid -- n ( -- n ) \ for completion
     \ c-function stick-to-core stick_to_core n -- n ( core -- n )
 end-c-library
