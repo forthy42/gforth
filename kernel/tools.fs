@@ -87,19 +87,19 @@ Variable /dump
 
 include  ./../termsize.fs
 
-: map-wordlist ( ... wid xt -- ... )  >r
+: map-wordlist ( ... wid xt -- ... )
     \G xt: ( ... nt -- ... ) free to use the stack underneath
-    wordlist-id @
+    >r wordlist-id @
     BEGIN
 	dup
     WHILE
 	    r@ over >r execute r> >link @
     REPEAT  drop rdrop ;
 
-: traverse-wordlist ( ... wid xt -- ... )  >r
+: traverse-wordlist ( ... xt wid -- ... )
     \G xt: ( ... nt -- f ... ) free to use the stack underneath
     \G run as long as f is true
-    wordlist-id @
+    swap >r wordlist-id @
     BEGIN
 	dup
     WHILE
@@ -107,7 +107,8 @@ include  ./../termsize.fs
 	REPEAT  r>
     THEN  drop rdrop ;
 
-: .word ( n nt -- n' )  name>string tuck 2>r
+: .word ( n nt -- n' )
+    name>string tuck 2>r
     1+ tuck + dup cols >=  IF  cr drop  ELSE  nip  THEN
     2r> type space ;
 
