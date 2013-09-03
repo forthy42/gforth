@@ -22,10 +22,11 @@ package gnu.gforth;
 
 import android.view.KeyEvent;
 import android.os.Bundle;
+import android.media.MediaPlayer.OnVideoSizeChangedListener;
 
 public class Gforth
     extends android.app.NativeActivity
-    implements KeyEvent.Callback {
+    implements KeyEvent.Callback, OnVideoSizeChangedListener {
     public native void onKeyEventNative(KeyEvent event);
     @Override
     public boolean dispatchKeyEvent (KeyEvent event) {
@@ -51,5 +52,8 @@ public class Gforth
     public boolean onKeyMultiple(int keyCode, int count, KeyEvent event) {
 	onKeyEventNative(event);
 	return true;
+    }
+    @Override
+    public void onVideoSizeChanged(MediaPlayer mp, int width, int height) {
     }
 }

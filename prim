@@ -1960,7 +1960,7 @@ rp=gforth_RP;
 lp=gforth_LP;
 IF_fpTOS(fpTOS=fp[0]);
 
-call-c#	( ... #w -- ... )	gforth	call_c_direct
+call-c#	( ... #a_addr -- ... )	gforth	call_c_direct
 ""Call the C function pointed to by the inline argument @i{w}. The C function
 has to access the stack itself. The stack pointers are exported in the global
 variables @code{gforth_SP} and @code{gforth_FP}.""
@@ -1972,9 +1972,9 @@ gforth_SP=sp;
 gforth_RP=rp;
 gforth_LP=lp;
 #ifdef HAS_LINKBACK
-((void (*)())w)();
+((void (*)())(*a_addr))();
 #else
-((void (*)(void *))w)(&gforth_pointers);
+((void (*)(void *))(*a_addr))(&gforth_pointers);
 #endif
 sp=gforth_SP;
 fp=gforth_FP;
