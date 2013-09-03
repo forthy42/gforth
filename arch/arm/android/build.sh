@@ -13,7 +13,7 @@ case "$1" in
     -ditc|-fast)
 	EXT=$1
 	shift
-	ENGINE=gforth-$EXT
+	ENGINE=gforth$EXT
 	;;
     --ext)
 	shift
