@@ -22,6 +22,7 @@ package gnu.gforth;
 
 import android.view.KeyEvent;
 import android.os.Bundle;
+import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnVideoSizeChangedListener;
 
 public class Gforth
