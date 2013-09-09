@@ -491,3 +491,15 @@ interpret/compile: [: ( compile-time: -- quotation-sys ) \ gforth bracket-colon
 	leave-sp ! lastcfa ! last ! to locals-wordlist
 	r> postpone ALiteral
     ELSE  r>  THEN ( xt ) ; immediate
+
+\ multiple values to and from return stack
+
+: n>r ( x1 .. xn n -- r:xn..x1 r:n )
+    r> { n ret }
+    0  BEGIN  dup n <  WHILE  swap >r 1+  REPEAT  >r
+    ret >r ;
+: nr> ( r:xn..x1 r:n -- x1 .. xn n )
+    r> r> { ret n }
+    0  BEGIN  dup n <  WHILE  r> swap 1+  REPEAT
+    ret >r ;
+
