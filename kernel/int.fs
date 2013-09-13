@@ -390,7 +390,7 @@ has? f83headerstring [IF]
     \G Like @code{name>int}, but perform @code{-2048 throw} if @i{nt}
     \G has no interpretation semantics.
     dup name>int tuck <> if
-      dup ['] ticking-compile-only-error = if execute then
+      dup ['] compile-only-error = if execute then
     then ;
 
 : (x>comp) ( xt w -- xt +-1 )

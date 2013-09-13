@@ -16,7 +16,9 @@ esac
 
 EXT=$ENGINE
 
-sed -e "s/@ENGINE@/$ENGINE/g" <AndroidManifest.xml.in >AndroidManifest.xml
+GFORTH_VERSION=$(gforth --version 2>&1 | cut -f2 -d' ')
+
+sed -e "s/@ENGINE@/$ENGINE/g" -e "s/@VERSION@/$GFORTH_VERSION/g" <AndroidManifest.xml.in >AndroidManifest.xml
 
 SRC=../../..
 LIBS=libs/armeabi

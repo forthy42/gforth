@@ -72,8 +72,6 @@ decimal
 
 VARIABLE Attr   -1 Attr !
 
-DEFER Attr!
-
 : (Attr!)       ( attr -- ) dup Attr @ = IF drop EXIT THEN
                 dup Attr !
                 ESC[    0 pn

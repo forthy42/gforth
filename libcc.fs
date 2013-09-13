@@ -133,6 +133,10 @@ require struct.fs
 require mkdir.fs
 require string.fs
 
+Vocabulary c-lib
+
+get-current also c-lib definitions
+
 Variable libcc$ \ source string for libcc generated source
 
 \ c-function-ft word body:
@@ -868,15 +872,6 @@ c-function-rt  lastxt Constant dummy-rt
     ['] c-library-incomplete is compile-wrapper-function
     c-named-library-name ;
 
-: c-library ( "name" -- ) \ gforth
-\G Parsing version of @code{c-library-name}
-    parse-name save-mem c-library-name ;
-
-: end-c-library ( -- ) \ gforth
-\G Finish and (if necessary) build the latest C library interface.
-    ['] compile-wrapper-function1 is compile-wrapper-function
-    compile-wrapper-function1 ;
-
 : init-libcc ( -- )
     libcc-named-dir$ $init
     [: ." ~/.gforth" arch-modifier type ." /" machine type ." /libcc-named/"
@@ -892,3 +887,17 @@ init-libcc
     defers 'cold
     init-libcc ;
 is 'cold
+
+set-current
+
+: c-library ( "name" -- ) \ gforth
+\G Parsing version of @code{c-library-name}
+    parse-name save-mem c-library-name also c-lib ;
+
+: end-c-library ( -- ) \ gforth
+    \G Finish and (if necessary) build the latest C library interface.
+    previous
+    ['] compile-wrapper-function1 is compile-wrapper-function
+    compile-wrapper-function1 ;
+
+previous

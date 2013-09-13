@@ -54,6 +54,10 @@ umethod cr ( -- ) \ core c-r
     \G newlines, the preferred way to use @code{cr} is at the start
     \G of a piece of text; e.g., @code{cr ." hello, world"}.
 [IFDEF] (form) umethod form [THEN]
+umethod page ( -- )
+umethod at-xy ( x y -- )
+umethod at-deltaxy ( dx dy -- )
+umethod attr! ( attr -- )
 2drop
 
 user-o current-in
@@ -99,6 +103,10 @@ here
 ' (emit) A,
 ' (cr) A,
 [IFDEF] (form) ' (form) A, [THEN]
+' noop A, \ page
+' 2drop A, \ at-xy
+' 2drop A, \ at-deltaxy
+' noop A, \ attr!
 A, here AConstant default-out
 
 default-out current-out !
@@ -116,6 +124,7 @@ default-in current-in !
 
 : output: ( type-xt emit-xt cr-xt form-xt -- )
     Create here cell+ , swap 2swap swap , , , ,
+    ['] noop , ['] 2drop , ['] 2drop , ['] noop ,
   DOES> cell+ current-out ! ;
 
 \ Input                                                13feb93py

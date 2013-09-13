@@ -491,3 +491,16 @@ interpret/compile: [: ( compile-time: -- quotation-sys ) \ gforth bracket-colon
 	leave-sp ! lastcfa ! last ! to locals-wordlist
 	r> postpone ALiteral
     ELSE  r>  THEN ( xt ) ; immediate
+
+\ x:traverse-wordlist words
+
+: name>interpret ( nt -- xt|0 )
+    \G \i{xt} represents the interpretation semantics \i{nt}; returns
+    \G 0 if \i{nt} has no interpretation semantics
+    name>int dup ['] compile-only-error = if
+        drop 0
+    then ;
+
+' name>comp alias name>compile ( nt -- w xt )
+\G @i{w xt} is the compilation token for the word @i{nt}.
+

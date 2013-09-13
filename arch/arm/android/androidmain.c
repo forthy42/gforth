@@ -30,16 +30,55 @@
 #include "forth.h"
 
 #ifdef __ANDROID__
+#include <jni.h>
 #include <android/log.h>
+#include <android/native_activity.h>
+#include <android/looper.h>
 #include "android_native_app_glue.h"
 
 static Xt ainput=0;
 static Xt acmd=0;
+static Xt akey=0;
+
+int ke_fd[2]={ 0, 0 };
+
+typedef struct { jobject event; } sendKeyEvent;
+
+JNIEXPORT void Java_gnu_gforth_Gforth_onKeyEventNative(JNIEnv * env, jobject  obj, jobject event)
+{
+  sendKeyEvent ke = { event };
+  if(ke_fd[1])
+    write(ke_fd[1], &ke, sizeof(ke));
+}
+
+static JNINativeMethod GforthMethods[] = {
+  {"onKeyEventNative", "(Landroid/view/KeyEvent;)V",
+   (void*) Java_gnu_gforth_Gforth_onKeyEventNative},
+};
+
+int android_kb_callback(int fd, int events, void* data)
+{
+  sendKeyEvent ke;
+  read(fd, &ke, sizeof(ke));
+  if(akey && gforth_SP) {
+    *--gforth_SP=(Cell)ke.event;
+    gforth_execute(akey);
+  }
+  return 1;
+}
+
+void init_key_event()
+{
+  pipe(ke_fd);
+  ALooper_addFd(ALooper_forThread(), ke_fd[0],
+		ALOOPER_POLL_CALLBACK, ALOOPER_EVENT_INPUT,
+		android_kb_callback, 0);
+}
 
 static int32_t engine_handle_input(struct android_app* app, AInputEvent* event) 
 {
   if(ainput) {
-    *--gforth_SP=event;
+    *--gforth_SP=(Cell)event;
     gforth_execute(ainput);
     return 1;
   }
@@ -52,7 +91,7 @@ static void engine_handle_cmd(struct android_app* app, int32_t cmd)
   if(acmd) {
     *--gforth_SP=cmd;
     gforth_execute(acmd);
-    return 1;
+    return;
   }
   fprintf(stderr, "App cmd %d\n", cmd);
 }
@@ -77,6 +116,33 @@ int checksha256sum(void)
   return 1;
 }
 
+void register_natives(JavaVM* vm, jobject class,
+		      JNINativeMethod * list, int n)
+{
+  jmethodID jid;
+  int i;
+  jint val;
+  jclass clazz;
+  JNIEnv* env;
+
+  val=(*vm)->AttachCurrentThread(vm, &env, NULL);
+
+  clazz=(*env)->GetObjectClass(env, class);
+  
+  for(i=0; i<n; i++) {
+    jid=(*env)->GetMethodID(env, clazz, list[i].name, list[i].signature);
+    if(jid==0) fprintf(stderr, "Can't find method %s %s\n",
+		       list[i].name, list[i].signature);
+  }
+
+  if((*env)->RegisterNatives(env, clazz, list, n)<0) {
+    fprintf(stderr, "Register Natives failed\n");
+    fflush(stderr);
+  }
+
+  (*vm)->DetachCurrentThread(vm);
+}
+
 void android_main(struct android_app* state)
 {
   char statepointer[2*sizeof(char*)+3]; // 0x+hex digits+trailing 0
@@ -85,6 +151,8 @@ void android_main(struct android_app* state)
   int retvalue;
   int checkdir;
   int epipe[2];
+  JavaVM* vm=state->activity->vm;
+  jobject clazz=state->activity->clazz;
 
   if((checkdir=open("/sdcard/gforth/", O_RDONLY))==-1) {
     mkdir("/sdcard/gforth/", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
@@ -108,6 +176,11 @@ void android_main(struct android_app* state)
 
   state->onAppCmd = engine_handle_cmd;
   state->onInputEvent = engine_handle_input;
+  
+  register_natives(vm, clazz,
+		   GforthMethods,
+		   sizeof(GforthMethods)/sizeof(GforthMethods[0]));
+  init_key_event();
 
   snprintf(statepointer, sizeof(statepointer), "%p", state);
   setenv("HOME", "/sdcard/gforth/home", 1);
@@ -135,6 +208,7 @@ void android_main(struct android_app* state)
 
   ainput=gforth_find("ainput");
   acmd=gforth_find("acmd");
+  akey=gforth_find("akey");
   
   if(retvalue == -56) {
     Xt bootmessage=gforth_find((Char*)"bootmessage");
