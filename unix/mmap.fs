@@ -100,7 +100,7 @@ getpagesize constant pagesize
     dup r> + pagesize PROT_NONE mprotect drop ;
 
 : free+guard ( addr len -- )
-    >pagealign pagesize + munmap ;
+    >pagealign pagesize + munmap drop ;
 
 : clearpages ( addr len -- ) >pagealign
     2dup munmap drop

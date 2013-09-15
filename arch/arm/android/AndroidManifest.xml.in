@@ -2,7 +2,7 @@
 <!-- BEGIN_INCLUDE(manifest) -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
         package="gnu.gforth"
-        android:versionCode="6"
+        android:versionCode="7"
         android:versionName="@VERSION@">
 
     <!-- This is the platform API where NativeActivity was introduced. -->
@@ -21,7 +21,7 @@
 		android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
             <!-- Tell NativeActivity the name of or .so -->
             <meta-data android:name="android.app.lib_name"
-                    android:value="gforth@ENGINE@" />
+                    android:value="@ENGINE@" />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

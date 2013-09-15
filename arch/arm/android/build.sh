@@ -7,14 +7,21 @@ fi
 
 # takes as extra argument a directory where to look for .so-s
 
+ENGINE=gforth
+
 case "$1" in
     -ditc|-fast)
-	ENGINE=$1
+	EXT=$1
 	shift
+	ENGINE=gforth$EXT
+	;;
+    --ext)
+	shift
+	EXT=$1
+	shift
+	ENGINE=$EXT
 	;;
 esac
-
-EXT=$ENGINE
 
 GFORTH_VERSION=$(gforth --version 2>&1 | cut -f2 -d' ')
 
@@ -49,7 +56,7 @@ fi
 
 SHA256=$(sha256sum libs/armeabi/libgforthgz.so | cut -f1 -d' ')
 
-sed -e "s/sha256sum-sha256sum-sha256sum-sha256sum-sha256sum-sha256sum-sha2/$SHA256/" $SRC/engine/.libs/libgforth$ENGINE.so >$LIBS/libgforth$ENGINE.so
+sed -e "s/sha256sum-sha256sum-sha256sum-sha256sum-sha256sum-sha256sum-sha2/$SHA256/" $SRC/engine/.libs/lib$ENGINE.so >$LIBS/lib$ENGINE.so
 
 LIBCC=$SRC
 for i in $LIBCC $*
@@ -66,5 +73,5 @@ done
 strip $LIBS/*.so
 #ant debug
 ant release
-cp bin/Gforth-release.apk bin/Gforth$EXT.apk
+cp bin/Gforth-release.apk bin/$ENGINE.apk
 #jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore ~/.gnupg/bernd-release-key.keystore bin/Gforth$EXT.apk bernd

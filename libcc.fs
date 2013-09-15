@@ -137,6 +137,13 @@ Vocabulary c-lib
 
 get-current also c-lib definitions
 
+s" libtool compile failed" exception Constant !!libcompile!!
+s" libtool link failed"    exception Constant !!liblink!!
+s" open-lib failed"        exception Constant !!openlib!!
+s" Too many callbacks!"    exception Constant !!callbacks!!
+s" Called function of unfinished named C library"
+                           exception Constant !!unfinished!!
+
 Variable libcc$ \ source string for libcc generated source
 
 \ c-function-ft word body:
@@ -733,10 +740,10 @@ clear-libs
 	c-library-name-create
 	libcc$ $@ c-source-file write-file throw  libcc$ $off
 	c-source-file close-file throw
-	['] compile-cmd $tmp system $? abort" libtool compile failed"
-	['] link-cmd    $tmp system $? abort" libtool link failed"
+	['] compile-cmd $tmp system $? 0<> !!libcompile!! and throw
+	['] link-cmd    $tmp system $? 0<> !!liblink!! and throw
 	open-wrappers dup 0= if
-	    .lib-error true abort" open-lib failed"
+	    .lib-error !!openlib!! throw
 	endif
 	( lib-handle ) lib-handle-addr @ !
     endif
@@ -794,7 +801,7 @@ c-function-rt  lastxt Constant dummy-rt
     { xt-parse-types } defer
     [: defer@ dup >does-code dummy-rt >does-code <>
     IF  >body ?compile-wrapper ?link-wrapper  THEN
-    postpone call-c# >body @ , ;] set-compiler
+    postpone call-c# >body , ;] set-compiler
     lastxt dup c-function-rt
     lastxt xt-parse-types c-function-ft
     lastxt swap defer! ;
@@ -842,7 +849,7 @@ c-function-rt  lastxt Constant dummy-rt
 	r@ ccb-lha @ @ lookup-ip-array r@ ccb-ips !
 	r@ ccb-lha @ @ lookup-c-array r@ ccb-cfuns !
     THEN
-    r@ @ callback# u>= abort" Too many callbacks!"
+    r@ @ callback# u>= !!callbacks!! and throw
     >r :noname r> compile, ]] 0 (bye) ; [[
     >body r@ ccb-ips @ r@ ccb-num @ cells + !
     r@ ccb-cfuns @ r@ ccb-num @ cells + @
@@ -864,7 +871,7 @@ c-function-rt  lastxt Constant dummy-rt
     [: callback-thread-gen ;] (c-callback) ;
 
 : c-library-incomplete ( -- )
-    true abort" Called function of unfinished named C library" ;
+    !!unfinished!! throw ;
 
 : c-library-name ( c-addr u -- ) \ gforth
 \G Start a C library interface with name @i{c-addr u}.
