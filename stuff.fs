@@ -503,3 +503,16 @@ interpret/compile: [: ( compile-time: -- quotation-sys ) \ gforth bracket-colon
     0  BEGIN  dup n <  WHILE  r> swap 1+  REPEAT
     ret >r ;
 
+\ x:traverse-wordlist words
+
+: name>interpret ( nt -- xt|0 )
+    \G \i{xt} represents the interpretation semantics \i{nt}; returns
+    \G 0 if \i{nt} has no interpretation semantics
+    dup name>int tuck <> if \ only if it wasn't compile-only-error
+	dup ['] compile-only-error = if
+	    drop 0
+	then
+    then ;
+
+' name>comp alias name>compile ( nt -- w xt )
+\G @i{w xt} is the compilation token for the word @i{nt}.
