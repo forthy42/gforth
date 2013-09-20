@@ -2609,7 +2609,7 @@ Cell gforth_start(int argc, char ** argv)
   char *path, *imagename;
 
 #ifdef HAVE_MCHECK
-  mcheck(gforth_abortmcheck);
+  /* mcheck(gforth_abortmcheck); */
 #endif
   gforth_args(argc, argv, &path, &imagename);
   gforth_header = gforth_loader(imagename, path);

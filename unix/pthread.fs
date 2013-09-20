@@ -82,7 +82,7 @@ c-library pthread
     \c   gforth_LP=(Address)(t->lp0);
     \c
     \c #if HAVE_MPROBE
-    \c   mcheck(gfpthread_abortmcheck);
+    \c   /* mcheck(gfpthread_abortmcheck); */
     \c #endif
     \c   pthread_cleanup_push((void (*)(void*))gforth_free_stacks, (void*)t);
     \c 
