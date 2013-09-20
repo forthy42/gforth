@@ -17,6 +17,19 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+User epiper
+User epipew
+
+: user' ( 'user' -- n )
+    \G USER' computes the task offset of a user variable
+    ' >body @ ;
+comp: drop ' >body @ postpone Literal ;
+
+' next-task alias up@ ( -- addr )
+\G the current user pointer
+
+: >task ( user task -- user' )  + up@ - ;
+
 c-library pthread
     \c #include <pthread.h>
     \c #if HAVE_MPROBE
@@ -43,6 +56,14 @@ c-library pthread
     \c     longjmp(*(jmp_buf*)throw_jmp_handler,-2049-(int)reason);
     \c }
     \c #endif
+    \c void create_pipe(FILE ** addr)
+    \c {
+    \c   int epipe[2];
+    \c   pipe(epipe);
+    \c   addr[0]=fdopen(epipe[0], "r");
+    \c   addr[1]=fdopen(epipe[1], "a");
+    \c   setvbuf(addr[1], NULL, _IONBF, 0);
+    \c }
     \c void *gforth_thread(user_area * t)
     \c {
     \c   void *x;
@@ -67,7 +88,7 @@ c-library pthread
     \c 
     \c   throw_jmp_handler = &throw_jmp_buf;
     \c   ((Cell*)(t->sp0))[-1]=(Cell)t;
-    \c 
+    \c
     \c   while((throw_code=setjmp(*(jmp_buf*)throw_jmp_handler))) {
     \c     signal_data_stack[15]=throw_code;
     \c     ip0=(void*)(t->throw_entry);
@@ -122,14 +143,6 @@ c-library pthread
     \c   pthread_attr_init(&attr);
     \c   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
     \c   return &attr;
-    \c }
-    \c void create_pipe(FILE ** addr)
-    \c {
-    \c   int epipe[2];
-    \c   pipe(epipe);
-    \c   addr[0]=fdopen(epipe[0], "r");
-    \c   addr[1]=fdopen(epipe[1], "a");
-    \c   setvbuf(addr[1], NULL, _IONBF, 0);
     \c }
     \c #include <sys/ioctl.h>
     \c #include <errno.h>
@@ -200,25 +213,13 @@ c-library pthread
     c-function check_read check_read a -- n ( pipefd -- n )
     c-function wait_read wait_read a n -- n ( pipefd timeout -- n )
     c-function getpid getpid -- n ( -- n ) \ for completion
-    c-function pagesize gforth_pagesize -- n ( -- n )
+    c-function pt-pagesize gforth_pagesize -- n ( -- n )
     \ c-function stick-to-core stick_to_core n -- n ( core -- n )
 end-c-library
 
 User pthread-id  -1 cells pthread+ uallot drop
-User epiper
-User epipew
 
 epiper create_pipe \ create pipe for main task
-
-: user' ( 'user' -- n )
-    \G USER' computes the task offset of a user variable
-    ' >body @ ;
-comp: drop ' >body @ postpone Literal ;
-
-' next-task alias up@ ( -- addr )
-\G the current user pointer
-
-: >task ( user task -- user' )  + up@ - ;
 
 : kill-task ( -- )
     epiper @ ?dup-if epiper off close-file drop  THEN
@@ -236,7 +237,7 @@ comp: drop ' >body @ postpone Literal ;
     \G creates a task, each stack individually sized
     gforth_create_thread >r
     throw-entry r@ udp @ throw-entry up@ - /string move
-    word-pno-size chars r@ pagesize + over - dup holdbufptr r@ >task !
+    word-pno-size chars r@ pt-pagesize + over - dup holdbufptr r@ >task !
     + dup holdptr r@ >task !  holdend r@ >task !
     epiper r@ >task create_pipe
     ['] kill-task >body  rp0 r@ >task @ 1 cells - dup rp0 r@ >task ! !
