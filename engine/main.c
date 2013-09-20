@@ -2481,9 +2481,11 @@ user_area* gforth_stacks(Cell dsize, Cell rsize, Cell fsize, Cell lsize)
 #ifdef SIGSTKSZ
     sigstack.ss_sp=(void*)a+SIGSTKSZ;
     sigstack.ss_size=SIGSTKSZ;
+    sigstack.ss_flags=0;
     sas_retval=sigaltstack(&sigstack,(stack_t *)0);
 #if defined(HAS_FILE) || !defined(STANDALONE)
-    debugp(stderr,"sigaltstack: %s\n",strerror(sas_retval));
+    if(sas_retval)
+      debugp(stderr,"sigaltstack: %s\n",strerror(errno));
 #endif
 #endif
     return up0;
@@ -2501,9 +2503,11 @@ user_area* gforth_stacks(Cell dsize, Cell rsize, Cell fsize, Cell lsize)
 #ifdef SIGSTKSZ
     sigstack.ss_sp=(void*)a+SIGSTKSZ;
     sigstack.ss_size=SIGSTKSZ;
+    sigstack.ss_flags=0;
     sas_retval=sigaltstack(&sigstack,(stack_t *)0);
 #if defined(HAS_FILE) || !defined(STANDALONE)
-    debugp(stderr,"sigaltstack: %s\n",strerror(sas_retval));
+    if(sas_retval)
+      debugp(stderr,"sigaltstack: %s\n",strerror(errno));
 #endif
 #endif
     return up0;
