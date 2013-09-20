@@ -512,16 +512,10 @@ static Address verbose_malloc(Cell size)
   return r;
 }
 
-static void *next_address=0;
 static void after_alloc(Address r, Cell size)
 {
   if (r != (Address)-1) {
     debugp(stderr, "success, address=%p\n", r);
-#if 0
-    /* not needed now that we protect the stacks with mprotect */
-    if (pagesize != 1)
-      next_address = (Address)(((((Cell)r)+size-1)&-pagesize)+2*pagesize); /* leave one page unmapped */
-#endif
   } else {
     debugp(stderr, "failed: %s\n", strerror(errno));
   }
@@ -549,8 +543,8 @@ static Address alloc_mmap(Cell size)
   void *r;
 
 #if defined(MAP_ANON)
-  debugp(stderr,"try mmap(%p, $%lx, ..., MAP_ANON, ...); ", next_address, size);
-  r = mmap(next_address, size, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE|map_noreserve, -1, 0);
+  debugp(stderr,"try mmap(%p, $%lx, ..., MAP_ANON, ...); ", 0, size);
+  r = mmap(0, size, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE|map_noreserve, -1, 0);
 #else /* !defined(MAP_ANON) */
   /* Ultrix (at least) does not define MAP_FILE and MAP_PRIVATE (both are
      apparently defaults) */
@@ -563,8 +557,8 @@ static Address alloc_mmap(Cell size)
     debugp(stderr, "open(\"/dev/zero\"...) failed (%s), no mmap; ", 
 	      strerror(errno));
   } else {
-    debugp(stderr,"try mmap(%p, $%lx, ..., MAP_FILE, dev_zero, ...); ", next_address, size);
-    r=mmap(next_address, size, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_FILE|MAP_PRIVATE|map_noreserve, dev_zero, 0);
+    debugp(stderr,"try mmap(%p, $%lx, ..., MAP_FILE, dev_zero, ...); ", 0, size);
+    r=mmap(0, size, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_FILE|MAP_PRIVATE|map_noreserve, dev_zero, 0);
   }
 #endif /* !defined(MAP_ANON) */
   after_alloc(r, size);
@@ -2518,6 +2512,7 @@ user_area* gforth_stacks(Cell dsize, Cell rsize, Cell fsize, Cell lsize)
 
 void gforth_free_stacks(user_area * t)
 {
+  int r;
 #if HAVE_GETPAGESIZE
   Cell pagesize=getpagesize(); /* Linux/GNU libc offers this */
 #elif HAVE_SYSCONF && defined(_SC_PAGESIZE)
@@ -2529,11 +2524,12 @@ void gforth_free_stacks(user_area * t)
 #ifdef SIGSTKSZ
   size += 2*SIGSTKSZ;
 #endif
-#ifdef HAVE_MMAP
-  munmap(t, size);
-#else
-  free(t);
-#endif
+  debugp(stderr,"try munmap(%p, %lx); ", t, size);
+  r=munmap(t, size);
+  if(r)
+    fprintf(stderr,"munmap(%p, %lx) failed: %s\n", t, size, strerror(errno));
+  else
+    debugp(stderr,"sucess\n");
 }
 
 void gforth_setstacks()

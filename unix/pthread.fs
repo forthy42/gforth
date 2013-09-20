@@ -31,7 +31,6 @@ c-library pthread
     \c #ifndef FIONREAD
     \c #include <sys/socket.h>
     \c #endif
-    \c #define wholepage(n) (((n)+pagesize-1)&~(pagesize-1))
     \c
     \c #ifndef HAS_BACKLINK
     \c static void *(*saved_gforth_pointers)(Cell);
@@ -153,6 +152,16 @@ c-library pthread
     \c #endif
     \c   return check_read(fid);
     \c }
+    \c int gforth_pagesize()
+    \c {
+    \c #if HAVE_GETPAGESIZE
+    \c   return getpagesize(); /* Linux/GNU libc offers this */
+    \c #elif HAVE_SYSCONF && defined(_SC_PAGESIZE)
+    \c   return sysconf(_SC_PAGESIZE); /* POSIX.4 */
+    \c #elif PAGESIZE
+    \c   return PAGESIZE; /* in limits.h according to Gallmeister's POSIX.4 book */
+    \c #endif
+    \c }
     \c /* optional: CPU affinity
     \c #include <sched.h>
     \c int stick_to_core(int core_id) {
@@ -191,6 +200,7 @@ c-library pthread
     c-function check_read check_read a -- n ( pipefd -- n )
     c-function wait_read wait_read a n -- n ( pipefd timeout -- n )
     c-function getpid getpid -- n ( -- n ) \ for completion
+    c-function pagesize gforth_pagesize -- n ( -- n )
     \ c-function stick-to-core stick_to_core n -- n ( core -- n )
 end-c-library
 
@@ -211,7 +221,8 @@ comp: drop ' >body @ postpone Literal ;
 : >task ( user task -- user' )  + up@ - ;
 
 : kill-task ( -- )
-    epiper @ close-file drop   epipew @ close-file drop  0 (bye) ;
+    epiper @ ?dup-if epiper off close-file drop  THEN
+    epipew @ ?dup-if epipew off close-file drop  THEN  0 (bye) ;
 
 :noname ( -- )
     [ here throw-entry ! ]
@@ -225,7 +236,7 @@ comp: drop ' >body @ postpone Literal ;
     \G creates a task, each stack individually sized
     gforth_create_thread >r
     throw-entry r@ udp @ throw-entry up@ - /string move
-    word-pno-size chars dup allocate throw dup holdbufptr r@ >task !
+    word-pno-size chars r@ pagesize + over - dup holdbufptr r@ >task !
     + dup holdptr r@ >task !  holdend r@ >task !
     epiper r@ >task create_pipe
     ['] kill-task >body  rp0 r@ >task @ 1 cells - dup rp0 r@ >task ! !
