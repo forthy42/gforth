@@ -238,6 +238,10 @@ variable c-libs \ linked list of library names (without "lib")
     \ append " -l<nodelib>" to string1
     >r s"  -l" append r> c-lib-string 2@ append ;
 
+: add-libpath ( c-addr1 u1 node -- c-addr2 u2 )
+    \ append " -l<nodelib>" to string1
+    >r s"  -L" append r> c-lib-string 2@ append ;
+
 \ C prefix lines
 
 \ linked list of longcstrings: [ link | count-cell | characters ]
