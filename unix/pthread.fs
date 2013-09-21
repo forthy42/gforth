@@ -192,7 +192,7 @@ c-library pthread
     c-function pthread+ pthread_plus a -- a ( addr -- addr' )
     c-function pthreads pthreads n -- n ( n -- n' )
     c-function thread_start gforth_thread_p -- a ( -- addr )
-    c-function gforth_create_thread gforth_stacks n n n n -- a ( dsize rsize fsize lsize -- task )
+    c-function gforth_create_thread gforth_stacks n n n n -- a ( dsize fsize rsize lsize -- task )
     c-function pthread_create pthread_create a a a a -- n ( thread attr start arg )
     c-function pthread_exit pthread_exit a -- void ( retaddr -- )
     c-function pthread_kill pthread_kill n n -- n ( id sig -- rvalue )
@@ -288,12 +288,9 @@ epiper create_pipe \ create pipe for main task
     RESTORE  r> unlock
     ENDTRY  throw ;
 
-: stacksize ( -- n ) forthstart 4 cells + @
-    sp0 @ $FFF and -$1000 or + ;
-: stacksize4 ( -- dsize rsize fsize lsize )
-    forthstart 4 cells + 4 cells bounds DO  I @  cell +LOOP
-    2swap swap sp0 @ $FFF and -$1000 or + swap 2swap
-    swap       fp0 @ $FFF and -$1000 or + swap ;
+: stacksize ( -- n ) forthstart 4 cells + @ ;
+: stacksize4 ( -- dsize fsize rsize lsize )
+    forthstart 4 cells + 4 cells bounds DO  I @  cell +LOOP ;
 
 \ event handling
 

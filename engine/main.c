@@ -2446,7 +2446,7 @@ void gforth_cleanup()
 #endif
 }
 
-user_area* gforth_stacks(Cell dsize, Cell rsize, Cell fsize, Cell lsize)
+user_area* gforth_stacks(Cell dsize, Cell fsize, Cell rsize, Cell lsize)
 {
 #ifdef SIGSTKSZ
   stack_t sigstack;
@@ -2613,7 +2613,7 @@ Cell gforth_start(int argc, char ** argv)
 #endif
   gforth_args(argc, argv, &path, &imagename);
   gforth_header = gforth_loader(imagename, path);
-  gforth_main_UP = gforth_UP = gforth_stacks(dsize, rsize, fsize, lsize);
+  gforth_main_UP = gforth_UP = gforth_stacks(dsize, fsize, rsize, lsize);
   gforth_setstacks();
   return gforth_boot(argc, argv, path);
 }
