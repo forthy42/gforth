@@ -63,10 +63,19 @@
     \G @i{f} in the space.
     here 1 floats allot f! ;
 
+: comp-fval ( xt -- )  >body postpone Literal postpone f@ ;
+
 : fconstant  ( r "name" -- ) \ float f-constant
-    Create f,
+    Create f, ['] comp-fval set-compiler
 DOES> ( -- r )
     f@ ;
+
+: fvalue! ( xt xt-deferred -- ) \ gforth  defer-store
+    >body f! ;
+comp: drop >body postpone ALiteral postpone f! ;
+
+: fvalue ( r "name" -- ) \ float-ext f-value
+    fconstant ['] fvalue! set-to ['] comp-fval set-compiler ;
 
 : fdepth ( -- +n ) \ float f-depth
     \G @i{+n} is the current number of (floating-point) values on the
