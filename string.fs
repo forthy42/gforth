@@ -64,14 +64,14 @@ tmp$ $execstr-ptr !
 : $exec ( xt addr -- )
     \G execute xt while the standard output (TYPE, EMIT, and everything
     \G that uses them) is redirected to the string variable addr.
-    $execstr-ptr @ current-out @
+    $execstr-ptr @ op-vector @
     { oldstr oldout }
     try
 	$execstr-ptr ! $-out execute
 	0 \ throw ball
     restore
 	oldstr $execstr-ptr !
-	oldout current-out !
+	oldout op-vector !
     endtry
     throw ;
 : $. ( addr -- )

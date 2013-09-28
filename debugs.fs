@@ -57,13 +57,13 @@ stderr value debug-fid ( -- fid )
 ' (.debugline) IS .debugline
 
 : .debugline-directed ( nfile nline -- )
-    current-out @ { oldout }
+    op-vector @ { oldout }
     try
-	default-out current-out !
+	default-out op-vector !
 	['] .debugline debug-fid outfile-execute
 	0
     restore
-	oldout current-out !
+	oldout op-vector !
     endtry
     throw ;
 
