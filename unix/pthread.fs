@@ -290,12 +290,12 @@ epiper create_pipe \ create pipe for main task
     RESTORE  r> unlock
     ENDTRY  throw ;
 
-: >pagealign ( n addr -- n' )
+: >pagealign-stack ( n addr -- n' )
     >r 1- pagesize negate and r> pagesize 1- and or ;
 : stacksize ( -- n ) forthstart 4 cells + @ ;
 : stacksize4 ( -- dsize fsize rsize lsize )
     forthstart 4 cells + 4 cells bounds DO  I @  cell +LOOP
-    2>r >r  sp0 @ >pagealign r> fp0 @ >pagealign 2r> ;
+    2>r >r  sp0 @ >pagealign-stack r> fp0 @ >pagealign 2r> ;
 
 \ event handling
 
