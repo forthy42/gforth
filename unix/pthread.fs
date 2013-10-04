@@ -291,7 +291,7 @@ epiper create_pipe \ create pipe for main task
     ENDTRY  throw ;
 
 : >pagealign-stack ( n addr -- n' )
-    >r 1- pagesize negate and r> pagesize 1- and or ;
+    >r 1- r> 1- pagesize negate mux 1+ ;
 : stacksize ( -- n ) forthstart 4 cells + @ ;
 : stacksize4 ( -- dsize fsize rsize lsize )
     forthstart 4 cells + 4 cells bounds DO  I @  cell +LOOP
