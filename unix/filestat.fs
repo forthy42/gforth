@@ -40,7 +40,7 @@ begin-structure file-stat
 cell 8 = [IF]
     drop 0 8 +field st_dev
     drop 8 field: st_ino
-    drop 16 field: st_mode
+    drop 24 4 +field st_mode
     drop 28 4 +field st_uid
     drop 32 4 +field st_gid
     drop 40 8 +field st_rdev
@@ -54,7 +54,7 @@ cell 8 = [IF]
 [ELSE]
     drop 0 8 +field st_dev
     drop 12 field: st_ino
-    drop 20 field: st_mode
+    drop 16 4 +field st_mode
     drop 24 4 +field st_uid
     drop 28 4 +field st_gid
     drop 32 8 +field st_rdev
