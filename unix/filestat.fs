@@ -36,6 +36,7 @@ c-library filestat
 end-c-library
 
 : utimens ( a a -- r )  -100 -rot 0 utimensat ;
+: lutimens ( a a -- r )  -100 -rot $100 utimensat ;
 
 begin-structure file-stat
 cell 8 = [IF]
