@@ -26,15 +26,16 @@ c-library filestat
     c-function stat stat a a -- n ( path buf -- r )
     c-function fstat fstat n a -- n ( fd buf -- r )
     c-function lstat lstat a a -- n ( path buf -- r )
-    c-function utimes utimes a a -- n ( path times -- r )
-    c-function futimes futimes n a -- n ( fd times -- r )
-    c-function lutimes lutimes a a -- n ( path times -- r )
+    c-function utimensat utimensat n a a n -- n ( fd path times flags -- r )
+    c-function futimens futimens n a -- n ( fd times -- r )
     c-function chmod chmod a n -- n ( path mode -- r )
     c-function fchmod fchmod n n -- n ( fd mode -- r )
     c-function chown chown a n n -- n ( path uid git -- r )
     c-function fchown fchown n n n -- n ( fd uid git -- r )
     c-function lchown lchown a n n -- n ( path uid git -- r )
 end-c-library
+
+: utimens ( a a -- r )  -100 -rot 0 utimensat ;
 
 begin-structure file-stat
 cell 8 = [IF]
@@ -68,8 +69,8 @@ cell 8 = [IF]
 [THEN]
 end-structure
 
-: utime@ ( addr -- ud )  2@ 1000000 um* rot 0 d+ ;
-: ntime@ ( addr -- ud )  2@ 1000000000 um* rot 1000 um* d+ ;
+: ntime@ ( addr -- ud )  2@ 1000000000 um* rot 0 d+ ;
+: utime@ ( addr -- ud )  2@ 1000000 um* rot 1000 / 0 d+ ;
 
-: utime! ( ud addr -- )  >r 1000000 um/mod r> 2! ;
-: ntime! ( ud addr -- )  >r 1000000000 um/mod >r 1000 / r> r> 2! ;
+: ntime! ( ud addr -- )  >r 1000000000 um/mod r> 2! ;
+: utime! ( ud addr -- )  >r 1000000 um/mod >r 1000 * r> r> 2! ;
