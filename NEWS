@@ -1,3 +1,7 @@
+User-visible changes between 0.7.2 and 0.7.3:
+Bug fixes
+  Backported protection against glibc math functions clobbering TOS
+
 User-visible changes between 0.7.1 and 0.7.2:
 Bug fixes
   Fixed installdirs
