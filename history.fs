@@ -207,7 +207,7 @@ require utf-8.fs
 
 [IFUNDEF] #esc  27 Constant #esc  [THEN]
 
-[IFUNDEF] at-deltyxy  Defer at-deltaxy [THEN]
+[IFUNDEF] at-deltaxy  Defer at-deltaxy [THEN]
 : vt100-at-deltaxy ( dx dy -- )
     over 0< over 0= and IF  drop abs backspaces  EXIT  THEN
     base @ >r decimal
