@@ -49,3 +49,32 @@ decimal
 { s"   " >float 0e f= -> true true }
 { s" 2e+3e" >float -> false }
 { s" 2+3" >float -> 2000e true }
+
+set-near
+\ transcendenal and other functions, mainly test effect on TOS (not FTOS)
+{ 12345 2e 3e f** -> 12345 8e }
+{ 12345 1.8e floor -> 12345 1e }
+{ 12345 1.8e fround -> 12345 2e }
+{ 12345 -1.8e fabs -> 12345 1.8e }
+{ 12345 1e facos -> 12345 0e }
+{ 12345 1e fasin -> 12345 pi 2e f/ }
+{ 12345 0e fatan -> 12345 0e }
+{ 12345 1e 0e fatan2 -> 12345 pi 2e f/ }
+{ 12345 pi fcos -> 12345 -1e }
+{ 12345 0e fexp -> 12345 1e }
+{ 12345 0e fexpm1 -> 12345 0e }
+{ 12345 1e fln -> 12345 0e }
+{ 12345 0e flnp1 -> 12345 0e }
+{ 12345 1e flog -> 12345 0e }
+{ 12345 0e falog -> 12345 1e }
+{ 12345 pi f2/ fsin -> 12345 1e }
+{ 12345 0e fsincos -> 12345 0e 1e }
+{ 12345 4e fsqrt -> 12345 2e }
+{ 12345 pi 4e f/ ftan -> 12345 1e }
+{ 12345 0e fsinh -> 12345 0e }
+{ 12345 0e fcosh -> 12345 1e }
+{ 12345 0e ftanh -> 12345 0e }
+{ 12345 0e fasinh -> 12345 0e }
+{ 12345 1e facosh -> 12345 0e }
+{ 12345 0e fatanh -> 12345 0e }
+
