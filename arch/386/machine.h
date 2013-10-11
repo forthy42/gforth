@@ -47,7 +47,7 @@
 
 #if defined(USE_TOS)
 #define CLOBBER_TOS_WORKAROUND_START sp[0]=spTOS; __asm__ __volatile__ ("" ::: "memory");
-#define CLOBBER_TOS_WORKAROUND_END   spTOS=sp[0]
+#define CLOBBER_TOS_WORKAROUND_END   __asm__ __volatile__ ("" ::: "memory"); spTOS=sp[0];
 #endif
 
 #include "../generic/machine.h"
