@@ -22,6 +22,19 @@ c-library filestat
     \c #include <sys/stat.h>
     \c #include <sys/time.h>
     \c #include <unistd.h>
+    e? os-type s" linux-android" str= [IF]
+	\c #include <sys/syscall.h>
+	\c #include <sys/linux-syscalls.h>
+	\c #ifdef __arm__
+	\c #define __NR_utimensat (__NR_SYSCALL_BASE+348)
+	\c #endif
+	\c int futimens(int fd, const struct timespec ts[2]) {
+	\c   return syscall(__NR_utimensat, fd, NULL, ts, 0);
+	\c }
+	\c int utimensat(int fd, const char* path, const struct timespec ts[2], int flags) {
+	\c   return syscall(__NR_utimensat, fd, path, ts, flags);
+	\c }
+    [THEN]
     
     c-function stat stat a a -- n ( path buf -- r )
     c-function fstat fstat n a -- n ( fd buf -- r )
