@@ -113,8 +113,12 @@
 #     else
 #      define IPREG asm("%edi")
 #      define SPREG asm("%esi")
-#      define TOSREG asm("%ecx")
-#      define TOS_CLOBBERED
+#      if(__GNUC_MINOR__>=7)
+#       define TOSREG asm("%ebp")
+#      else
+#       define TOSREG asm("%ecx")
+#       define TOS_CLOBBERED
+#      endif
 #     endif
 #    endif /* (gcc-4.2 or later) */
 #   endif /* !(gcc-2.95 or later) */
