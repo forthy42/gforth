@@ -14,18 +14,20 @@ comp: >body @ cell/ postpone o#exec , ;
 
 \ core system
 
+-2 cells    field: >osize    field: >methods   drop
 : method ( m v size "name" -- m' v )
   Header reveal method-xt vtcopy,  over , swap cell+ swap ;
 : var ( m v size "name" -- m v' )
   Header reveal    var-xt vtcopy,  over , + ;
 : class ( class -- class methods vars )
-  dup 2@ ['] var IS +field ;
+  dup >osize 2@ ['] var IS +field ;
 : end-class  ( class methods vars "name" -- )
-  Create  here >r , dup , 2 cells ?DO ['] noop , cell +LOOP
-  cell+ dup cell+ r> rot @ 2 cells /string move  standard:field ;
+  , dup , here >r 0 U+DO ['] noop , cell +LOOP
+  dup r@ swap >methods @ move  standard:field
+  r> Constant ;
 : >vt ( class "name" -- addr )  ' >body @ + ;
 : :: ( class "name" -- ) >vt @ compile, ;
-Create object  0 cells , 2 cells ,
+0 cells , 0 cells ,  here Constant object
 
 \ memory allocation
 
@@ -43,11 +45,12 @@ storage class end-class dynamic-alloc
 :noname  ( len -- addr )  allocate throw ; dynamic-alloc to :allocate
 :noname  ( addr -- )      free throw ;     dynamic-alloc to :free
 
-static-alloc dup @ cell+ here swap allot swap over ! cell+ Constant static-a
+static-alloc dup >osize @ cell+ here swap allot swap over ! cell+ Constant static-a
 static-a Value allocater
 
-: new ( class -- o )  dup @ cell+ allocater >o :allocate o> swap over !
-    cell+ dup dup cell- @ @ erase ;
+: new ( class -- o )  dup >osize @ cell+
+    allocater >o :allocate o> swap over !
+    cell+ dup dup cell- @ >osize @ erase ;
 : dispose ( o:o -- )  o cell- allocater >o :free o> ;
 
 dynamic-alloc new Constant dynamic-a
