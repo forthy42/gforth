@@ -104,7 +104,7 @@
 #      define IPREG asm("%ebx")
 #      define SPREG asm("%esi")
 #      define RPREG asm("%edi")
-#      if(__GNUC_MINOR__>=7)
+#      if(__GNUC_MINOR__>=6)
 #       define TOSREG asm("%ebp")
 #      else
 #       define TOSREG asm("%edx")
@@ -113,7 +113,7 @@
 #     else
 #      define IPREG asm("%edi")
 #      define SPREG asm("%esi")
-#      if(__GNUC_MINOR__>=7)
+#      if(__GNUC_MINOR__>=6)
 #       define TOSREG asm("%ebp")
 #      else
 #       define TOSREG asm("%edx")
