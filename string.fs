@@ -107,5 +107,6 @@ tmp$ $execstr-ptr !
 : $[]slurp-file ( addr u $addr -- )
     >r r/o open-file throw dup r> $[]slurp close-file throw ;
 
-: $[]. ( addr -- )
-    dup $[]# 0 ?DO  I over $[]@ type cr  LOOP  drop ;
+: $[]map { addr xt -- }
+    addr $[]# 0 ?DO  I addr $[]@ xt execute  LOOP ;
+: $[]. ( addr -- ) [: type cr ;] $[]map ;
