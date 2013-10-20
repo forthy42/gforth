@@ -316,13 +316,26 @@ variable locals-dp \ so here's the special dp for locals.
 \ adds it as inline argument to a preceding locals primitive
   lp-offset , ;
 
-vocabulary locals-types \ this contains all the type specifyers, -- and }
-locals-types definitions
-
 [IFDEF] set-to
     : to-w: ( -- )  -14 throw ;
     comp: drop POSTPONE laddr# >body @ lp-offset, POSTPONE ! ;
 [THEN]
+[IFDEF] set-to
+    : to-d: ( -- ) -14 throw ;
+    comp: drop POSTPONE laddr# >body @ lp-offset, POSTPONE 2! ;
+[THEN]
+[IFDEF] set-to
+    : to-c: ( -- ) -14 throw ;
+    comp: drop POSTPONE laddr# >body @ lp-offset, POSTPONE c! ;
+[THEN]
+[IFDEF] set-to
+    : to-f: ( -- ) -14 throw ;
+    comp: drop POSTPONE laddr# >body @ lp-offset, POSTPONE f! ;
+[THEN]
+
+vocabulary locals-types \ this contains all the type specifyers, -- and }
+locals-types definitions
+
 : W: ( "name" -- a-addr xt ) \ gforth w-colon
     create-local [IFDEF] set-to ['] to-w: set-to [THEN]
     \ xt produces the appropriate locals pushing code when executed
@@ -337,10 +350,6 @@ locals-types definitions
   does> ( Compilation: -- ) ( Run-time: -- w )
     postpone laddr# @ lp-offset, ;
 
-[IFDEF] set-to
-    : to-f: ( -- ) -14 throw ;
-    comp: drop POSTPONE laddr# >body @ lp-offset, POSTPONE f! ;
-[THEN]
 : F: ( "name" -- a-addr xt ) \ gforth f-colon
     create-local [IFDEF] set-to ['] to-f: set-to [THEN]
     ['] compile-pushlocal-f
@@ -353,10 +362,6 @@ locals-types definitions
   does> ( Compilation: -- ) ( Run-time: -- w )
     postpone laddr# @ lp-offset, ;
 
-[IFDEF] set-to
-    : to-d: ( -- ) -14 throw ;
-    comp: drop POSTPONE laddr# >body @ lp-offset, POSTPONE 2! ;
-[THEN]
 : D: ( "name" -- a-addr xt ) \ gforth d-colon
     create-local [IFDEF] set-to ['] to-d: set-to [THEN]
     ['] compile-pushlocal-d
@@ -369,10 +374,6 @@ locals-types definitions
   does> ( Compilation: -- ) ( Run-time: -- w )
     postpone laddr# @ lp-offset, ;
 
-[IFDEF] set-to
-    : to-c: ( -- ) -14 throw ;
-    comp: drop POSTPONE laddr# >body @ lp-offset, POSTPONE c! ;
-[THEN]
 : C: ( "name" -- a-addr xt ) \ gforth c-colon
     create-local [IFDEF] set-to ['] to-c: set-to [THEN]
     ['] compile-pushlocal-c

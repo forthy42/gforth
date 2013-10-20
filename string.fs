@@ -48,8 +48,10 @@
 \G add a string to the string at addr n
 : $[]@ ( n $[]addr -- addr u )  $[] dup @ IF $@ ELSE drop s" " THEN ;
 \G fetch a string from array index n -- return the zero string if empty
-: $[]# ( addr -- len )  $@len cell/ ;
+: $[]# ( addr -- len ) dup @ IF  $@len cell/  ELSE  @  THEN ;
 \G return the number of elements in an array
+: $+[]! ( addr u $[]addr -- ) dup $[]# swap $[]! ;
+\G add a string at the end of the array
 
 User tmp$ \ temporary string buffer
 User $execstr-ptr
@@ -64,14 +66,14 @@ tmp$ $execstr-ptr !
 : $exec ( xt addr -- )
     \G execute xt while the standard output (TYPE, EMIT, and everything
     \G that uses them) is redirected to the string variable addr.
-    $execstr-ptr @ current-out @
+    $execstr-ptr @ op-vector @
     { oldstr oldout }
     try
 	$execstr-ptr ! $-out execute
 	0 \ throw ball
     restore
 	oldstr $execstr-ptr !
-	oldout current-out !
+	oldout op-vector !
     endtry
     throw ;
 : $. ( addr -- )
@@ -105,5 +107,6 @@ tmp$ $execstr-ptr !
 : $[]slurp-file ( addr u $addr -- )
     >r r/o open-file throw dup r> $[]slurp close-file throw ;
 
-: $[]. ( addr -- )
-    dup $[]# 0 ?DO  I over $[]@ type cr  LOOP  drop ;
+: $[]map { addr xt -- }
+    addr $[]# 0 ?DO  I addr $[]@ xt execute  LOOP ;
+: $[]. ( addr -- ) [: type cr ;] $[]map ;

@@ -590,7 +590,7 @@ static size_t wholepage(size_t n)
 
 Address gforth_alloc(Cell size)
 {
-#if HAVE_MMAP
+#if defined(HAVE_MMAP) && !(defined(__CYGWIN__) && defined(__x86_64))
   Address r;
 
   r=alloc_mmap(size);
@@ -605,7 +605,7 @@ static void *dict_alloc_read(FILE *file, Cell imagesize, Cell dictsize, Cell off
 {
   void *image = MAP_FAILED;
 
-#if defined(HAVE_MMAP)
+#if defined(HAVE_MMAP) && !(defined(__CYGWIN__) && defined(__x86_64))
   if (offset==0) {
     image=alloc_mmap(dictsize);
     if (image != (void *)MAP_FAILED) {
@@ -622,7 +622,13 @@ static void *dict_alloc_read(FILE *file, Cell imagesize, Cell dictsize, Cell off
     image = gforth_alloc(dictsize+offset)+offset;
   read_image:
     rewind(file);  /* fseek(imagefile,0L,SEEK_SET); */
+    debugp(stderr,"try fread(%p, 1, %lx, file); ", image, imagesize);
     fread(image, 1, imagesize, file);
+    if(ferror(file)) {
+      debugp(stderr, "failed\n");
+    } else {
+      debugp(stderr, "succeeded\n");
+    }
   }
   return image;
 }

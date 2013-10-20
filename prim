@@ -2346,7 +2346,9 @@ CLOBBER_TOS_WORKAROUND_END;
 
 fround	( r1 -- r2 )	float	f_round
 ""Round to the nearest integral value.""
+CLOBBER_TOS_WORKAROUND_START;
 r2 = rint(r1);
+CLOBBER_TOS_WORKAROUND_END;
 
 fmax	( r1 r2 -- r3 )	float	f_max
 if (r1<r2)
@@ -2407,7 +2409,9 @@ r2 = asin(r1);
 CLOBBER_TOS_WORKAROUND_END;
 
 fatan	( r1 -- r2 )	float-ext	f_a_tan
+CLOBBER_TOS_WORKAROUND_START;
 r2 = atan(r1);
+CLOBBER_TOS_WORKAROUND_END;
 
 fatan2	( r1 r2 -- r3 )	float-ext	f_a_tan_two
 ""@i{r1/r2}=tan(@i{r3}). ANS Forth does not require, but probably
@@ -2428,20 +2432,18 @@ CLOBBER_TOS_WORKAROUND_END;
 
 fexpm1	( r1 -- r2 )	float-ext	f_e_x_p_m_one
 ""@i{r2}=@i{e}**@i{r1}@minus{}1""
+CLOBBER_TOS_WORKAROUND_START;
 #ifdef HAVE_EXPM1
 extern double
 #ifdef NeXT
               const
 #endif
                     expm1(double);
-CLOBBER_TOS_WORKAROUND_START;
 r2 = expm1(r1);
-CLOBBER_TOS_WORKAROUND_END;
 #else
-CLOBBER_TOS_WORKAROUND_START;
 r2 = exp(r1)-1.;
-CLOBBER_TOS_WORKAROUND_END;
 #endif
+CLOBBER_TOS_WORKAROUND_END;
 
 fln	( r1 -- r2 )	float-ext	f_l_n
 CLOBBER_TOS_WORKAROUND_START;
@@ -2488,7 +2490,9 @@ sincos(r1, &r2, &r3);
 CLOBBER_TOS_WORKAROUND_END;
 
 fsqrt	( r1 -- r2 )	float-ext	f_square_root
+CLOBBER_TOS_WORKAROUND_START;
 r2 = sqrt(r1);
+CLOBBER_TOS_WORKAROUND_END;
 
 ftan	( r1 -- r2 )	float-ext	f_tan
 CLOBBER_TOS_WORKAROUND_START;

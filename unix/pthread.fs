@@ -17,19 +17,6 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-User epiper
-User epipew
-
-: user' ( 'user' -- n )
-    \G USER' computes the task offset of a user variable
-    ' >body @ ;
-comp: drop ' >body @ postpone Literal ;
-
-' next-task alias up@ ( -- addr )
-\G the current user pointer
-
-: >task ( user task -- user' )  + up@ - ;
-
 c-library pthread
     \c #include <pthread.h>
     \c #if HAVE_MPROBE
@@ -213,11 +200,26 @@ c-library pthread
     c-function check_read check_read a -- n ( pipefd -- n )
     c-function wait_read wait_read a n -- n ( pipefd timeout -- n )
     c-function getpid getpid -- n ( -- n ) \ for completion
-    c-function pt-pagesize gforth_pagesize -- n ( -- n )
+    c-function pt-pagesize getpagesize -- n ( -- size )
     \ c-function stick-to-core stick_to_core n -- n ( core -- n )
 end-c-library
 
+[IFUNDEF] pagesize  pt-pagesize Constant pagesize [THEN]
+
 User pthread-id  -1 cells pthread+ uallot drop
+
+User epiper
+User epipew
+
+: user' ( 'user' -- n )
+    \G USER' computes the task offset of a user variable
+    ' >body @ ;
+comp: drop ' >body @ postpone Literal ;
+
+' next-task alias up@ ( -- addr )
+\G the current user pointer
+
+: >task ( user task -- user' )  + up@ - ;
 
 epiper create_pipe \ create pipe for main task
 
@@ -237,7 +239,7 @@ epiper create_pipe \ create pipe for main task
     \G creates a task, each stack individually sized
     gforth_create_thread >r
     throw-entry r@ udp @ throw-entry up@ - /string move
-    word-pno-size chars r@ pt-pagesize + over - dup holdbufptr r@ >task !
+    word-pno-size chars r@ pagesize + over - dup holdbufptr r@ >task !
     + dup holdptr r@ >task !  holdend r@ >task !
     epiper r@ >task create_pipe
     ['] kill-task >body  rp0 r@ >task @ 1 cells - dup rp0 r@ >task ! !
@@ -288,9 +290,12 @@ epiper create_pipe \ create pipe for main task
     RESTORE  r> unlock
     ENDTRY  throw ;
 
+: >pagealign-stack ( n addr -- n' )
+    >r 1- r> 1- pagesize negate mux 1+ ;
 : stacksize ( -- n ) forthstart 4 cells + @ ;
 : stacksize4 ( -- dsize fsize rsize lsize )
-    forthstart 4 cells + 4 cells bounds DO  I @  cell +LOOP ;
+    forthstart 4 cells + 4 cells bounds DO  I @  cell +LOOP
+    2>r >r  sp0 @ >pagealign-stack r> fp0 @ >pagealign-stack 2r> ;
 
 \ event handling
 

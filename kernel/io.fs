@@ -41,7 +41,7 @@ has? os [IF]
     infile-id key?-file ;
 [THEN]
 
-user-o current-out
+user-o op-vector
 0 0
 umethod type ( c-addr u -- ) \ core
   \G If @var{u}>0, display @var{u} characters from a string starting
@@ -60,7 +60,7 @@ umethod at-deltaxy ( dx dy -- )
 umethod attr! ( attr -- )
 2drop
 
-user-o current-in
+user-o ip-vector
 0 0
 umethod key ( -- char ) \ core
 \G Receive (but do not display) one character, @var{char}.
@@ -109,23 +109,23 @@ here
 ' noop A, \ attr!
 A, here AConstant default-out
 
-default-out current-out !
+default-out op-vector !
 
 here
 ' (key) A,
 ' (key?) A,
 A, here AConstant default-in
 
-default-in current-in !
+default-in ip-vector !
 
 : input: ( key-xt key?-xt -- )
     Create here cell+ , swap , ,
-  DOES> cell+ current-in ! ;
+  DOES> cell+ ip-vector ! ;
 
 : output: ( type-xt emit-xt cr-xt form-xt -- )
     Create here cell+ , swap 2swap swap , , , ,
     ['] noop , ['] 2drop , ['] 2drop , ['] noop ,
-  DOES> cell+ current-out ! ;
+  DOES> cell+ op-vector ! ;
 
 \ Input                                                13feb93py
 
