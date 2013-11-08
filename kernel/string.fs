@@ -39,14 +39,15 @@
     over >r  rot over cell+  r> move ! ( 2dup ! + cell+ bl swap c! ) ;
 : $@len ( addr -- u ) \ gforth-string string-fetch-len
     \G returns the length of the stored string.
-    @ @ ;
+    @ dup IF  @  THEN ;
 : $@ ( addr1 -- addr2 u ) \ gforth-string string-fetch
     \G returns the stored string.
-    @ dup cell+ swap @ ;
+    @ dup IF  dup cell+ swap @  ELSE  0  THEN ;
 : $!len ( u addr -- ) \ gforth-string string-store-len
     \G changes the length of the stored string.  Therefore we must
     \G change the memory area and adjust address and count cell as
     \G well.
+    dup @ 0= IF  s" " 2 pick $!  THEN
     over $padding over @ swap resize throw over ! @ ! ;
 : $+! ( addr1 u addr2 -- ) \ gforth-string string-plus-store
     \G appends a string to another.
@@ -57,11 +58,11 @@
 
 : $ins ( addr1 u addr2 off -- ) \ gforth-string string-ins
     \G inserts a string at offset @var{off}.
-    >r 2dup dup $@len rot + swap $!len  $@ 1+ r> /string insert ;
+    >r 2dup dup $@len rot + swap $!len  $@ 1+ r> safe/string insert ;
 : $del ( addr off u -- ) \ gforth-string string-del
     \G deletes @var{u} bytes from a string with offset @var{off}.
-    >r >r dup $@ r> /string r@ delete
-    dup $@len r> - swap $!len ;
+    >r >r dup $@ r> safe/string r@ delete
+    dup $@len r> - 0 max swap $!len ;
 
 : $off ( addr -- ) \ gforth-string string-off
     \G releases a string.
