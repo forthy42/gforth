@@ -62,7 +62,7 @@
 : $del ( addr off u -- ) \ gforth-string string-del
     \G deletes @var{u} bytes from a string with offset @var{off}.
     >r >r dup $@ r> safe/string r@ delete
-    dup $@len r> - swap $!len ;
+    dup $@len r> - 0 max swap $!len ;
 
 : $off ( addr -- ) \ gforth-string string-off
     \G releases a string.
