@@ -109,7 +109,7 @@ Defer check-xy  ' noop IS check-xy
 	>r u8!+ r> r> swap - true
     then ;
 
-: u8addrlen ( u8-addr u -- u )  drop
+: u8addrlen ( u8-addr u -- u1 )  drop
     \ length of UTF-8 char starting at u8-addr (accesses only u8-addr)
     c@
     dup $80 u< if drop 1 exit endif
