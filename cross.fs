@@ -402,14 +402,12 @@ Create NoFile ," #load-file#"
 
 [IFUNDEF] +place
 : +place ( adr len adr )
-        2dup >r >r
-        dup c@ char+ + swap move
-        r> r> dup c@ rot + swap c! ;
+    2dup c@ dup >r  + over c!  r> char+ +  swap move ;
 [THEN]
 
 [IFUNDEF] place
 : place ( c-addr1 u c-addr2 )
-        2dup c! char+ swap move ;
+    2dup c! char+ swap move ;
 [THEN]
 
 \ if we have path handling, use this and the setup of it
