@@ -516,3 +516,14 @@ interpret/compile: [: ( compile-time: -- quotation-sys ) \ gforth bracket-colon
 
 ' name>comp alias name>compile ( nt -- w xt )
 \G @i{w xt} is the compilation token for the word @i{nt}.
+
+\ 2value
+
+: (2to) ( addr -- ) >body 2! ;
+comp: drop >body postpone literal postpone 2! ;
+
+: 2Value ( d "name" -- ) \ Forth200x
+    Create 2,
+    [: >body postpone Literal postpone 2@ ;] set-compiler
+    ['] (2to) set-to
+    DOES> 2@ ;
