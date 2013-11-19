@@ -128,3 +128,12 @@ s" You've reached a !!FIXME!! marker" exception constant FIXME#
 
 : ~~Value ( n "name" -- )
     Value [: ~~ >body ! ; comp: drop ]] Literal ~~ >body ! [[ ;] set-to ;
+
+\ trace lines
+
+: line-tracer ( -- )  ['] ~~ execute ;
+\G print source position and stack on every source line start
+: +ltrace ( -- ) ['] line-tracer is before-line ;
+\G turn on line tracing
+: -ltrace ['] noop is before-line ;
+\G turn off line tracing
