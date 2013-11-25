@@ -28,6 +28,7 @@
     \ hash based generator, deterministic
     \ seed-init feeds entropy into the generator
     \ 2.2 times slower than lcg on 64 bit platform
+    \ passed SmallCrush, Rabbit, Alphabit, FIPS-140-2
     $10 buffer: rng-state
     8 buffer: seed
 
