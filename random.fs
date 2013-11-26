@@ -32,7 +32,7 @@
     $10 buffer: rng-state
     8 buffer: seed
 
-    : rnd ( -- n ) seed 8 0 rng-state hashkey2 rng-state 2@ xor ;
+    : rnd ( -- n ) seed 7 0 rng-state hashkey2 rng-state 2@ xor ;
     cell 8 = [IF]
 	: seed-init ( -- ) ntime drop seed ! rnd drop ;
     [ELSE]
