@@ -27,11 +27,10 @@
 : name bl word ;
 : on true swap ! ;
 : off false swap ! ;
-: place ( adr len adr )
-        2dup c! char+ swap move ;
-: +place ( adr len adr )
-        2dup c@ + over c!
-        dup c@ char+ + swap move ;
+: place ( adr len adr -- )
+    2dup c! char+ swap move ;
+: +place ( adr len adr -- )
+    2dup c@ dup >r  + over c!  r> char+ +  swap move ;
 : -rot  rot rot ;
 
 include toolsext.fs

@@ -406,7 +406,7 @@ immediate
 forth definitions
 also locals-types
 
-\ these "locals" are used for comparison in TO
+\ these "locals" are used for comparison in TO/create associated vts
 c: some-clocal 2drop
 d: some-dlocal 2drop
 f: some-flocal 2drop
