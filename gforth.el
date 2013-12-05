@@ -274,7 +274,7 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 	  
 	(("[if]" "[?do]" "[do]" "[for]" "[begin]" 
 	  "[endif]" "[then]" "[loop]" "[+loop]" "[next]" "[until]" "[repeat]"
-	  "[again]" "[while]" "[else]")
+	  "[again]" "[while]" "[else]" "[:" ";]")
 	 immediate (font-lock-keyword-face . 2))
 	(("[ifdef]" "[ifundef]") immediate (font-lock-keyword-face . 2)
 	 "[ \t\n]" t name (font-lock-function-name-face . 3))

@@ -96,7 +96,11 @@ explicit register allocation and efforts to stop coalescing.
 #if (__GNUC__==4 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=7)
 #define LPREG asm("%rbp") /* works with GCC 4.7.x */
 #endif
+#if (__GNUC__==4 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=8)
+#define FTOSREG asm("%xmm7")
+#else
 #define FTOSREG asm("%xmm8")
+#endif
 #endif
 
 #define GOTO_ALIGN asm(".p2align 4,,7");
