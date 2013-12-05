@@ -157,14 +157,15 @@ void android_main(struct android_app* state)
   JavaVM* vm=state->activity->vm;
   jobject clazz=state->activity->clazz;
 
-  freopen("/data/data/gnu.gforth/files/aout.log", "w+", stdout);
-  freopen("/data/data/gnu.gforth/files/aerr.log", "w+", stderr);
-
   for(i=0; i<=2; i++) {
-    fprintf(stderr, "try chdir(%s)\n", folder[i]);
     argv[1]=paths[i];
     if(!chdir(folder[i])) break;
   }
+
+  freopen("gforthout.log", "w+", stdout);
+  freopen("gfortherr.log", "w+", stderr);
+
+  fprintf(stderr, "chdir(%s)\n", folder[i]);
 
   fprintf(stderr, "Starting %s %s %s\n",
 	  argv[0], argv[1], argv[2]);
