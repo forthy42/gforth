@@ -49,7 +49,7 @@ then
     done
     (cd $SRC/debian/sdcard
 	mkdir -p gforth/home
-	gforth ../../archive.fs $(find gforth -type f)) | gzip -9 >$LIBS/libgforthgz.so
+	gforth ../../archive.fs gforth/home/ $(find gforth -type f)) | gzip -9 >$LIBS/libgforthgz.so
 else
     shift
 fi

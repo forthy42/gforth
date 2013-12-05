@@ -146,30 +146,35 @@ void register_natives(JavaVM* vm, jobject class,
 void android_main(struct android_app* state)
 {
   char statepointer[2*sizeof(char*)+3]; // 0x+hex digits+trailing 0
-  char *argv[] = { "gforth", "starta.fs" };
-  const int argc = sizeof(argv)/sizeof(char*);
-  int retvalue;
-  int checkdir;
+  char * argv[] = { "gforth", "--", "starta.fs" };
+  const int argc=3;
+  static const char *folder[] = { "/sdcard", "/mnt/sdcard", "/data/data/gnu.gforth/files" };
+  static const char *paths[] = { "--",
+				 "--path=/mnt/sdcard/gforth/" PACKAGE_VERSION ":/mnt/sdcard/gforth/site-forth",
+				 "--path=/data/data/gnu.gforth/files/gforth/" PACKAGE_VERSION ":/data/data/gnu.gforth/files/gforth/site-forth" };
+  int retvalue, checkdir, i;
   int epipe[2];
   JavaVM* vm=state->activity->vm;
   jobject clazz=state->activity->clazz;
 
-  if((checkdir=open("/sdcard/gforth/", O_RDONLY))==-1) {
-    mkdir("/sdcard/gforth/", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-  } else { close(checkdir); }
-  if((checkdir=open("/sdcard/gforth/home", O_RDONLY))==-1) {
-    mkdir("/sdcard/gforth/home", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-  } else { close(checkdir); }
+  freopen("/data/data/gnu.gforth/files/aout.log", "w+", stdout);
+  freopen("/data/data/gnu.gforth/files/aerr.log", "w+", stderr);
 
-  freopen("/sdcard/gforth/home/aout.log", "w+", stdout);
-  freopen("/sdcard/gforth/home/aerr.log", "w+", stderr);
+  for(i=0; i<=2; i++) {
+    fprintf(stderr, "try chdir(%s)\n", folder[i]);
+    argv[1]=paths[i];
+    if(!chdir(folder[i])) break;
+  }
+
+  fprintf(stderr, "Starting %s %s %s\n",
+	  argv[0], argv[1], argv[2]);
+
   pipe(epipe);
   fileno(stdin)=epipe[0];
 
   if(!checksha256sum()) {
-    chdir("/sdcard");
     zexpand("/data/data/gnu.gforth/lib/libgforthgz.so");
-    checkdir=creat("/sdcard/gforth/" PACKAGE_VERSION "/sha256sum", O_WRONLY);
+    checkdir=creat("gforth/" PACKAGE_VERSION "/sha256sum", O_WRONLY);
     write(checkdir, sha256sum, 64);
     close(checkdir);
   }
@@ -192,9 +197,9 @@ void android_main(struct android_app* state)
   app_dummy();
 
 #ifdef DOUBLY_INDIRECT
-  checkdir=open("/sdcard/gforth/" PACKAGE_VERSION "/gforth.fi", O_RDONLY);
+  checkdir=open("gforth/" PACKAGE_VERSION "/gforth.fi", O_RDONLY);
   if(checkdir==-1) {
-    chdir("/sdcard/gforth/" PACKAGE_VERSION);
+    chdir("gforth/" PACKAGE_VERSION);
     retvalue=gforth_make_image(0);
     exit(retvalue);
   } else {
@@ -202,8 +207,9 @@ void android_main(struct android_app* state)
   }
 #endif
 
-  chdir("/sdcard/gforth/home");
+  chdir("gforth/home");
 
+  fflush(stderr);
   retvalue=gforth_start(argc, argv);
 
   ainput=gforth_find("ainput");
