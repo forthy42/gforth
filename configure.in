@@ -801,14 +801,12 @@ case "$host_os" in
 	*darwin*)
 		#dar*win* must be first, not to confuse with cygwin, win32 or similar
 		#Darwin uses some funny preprocessor by default; eliminate it:
-		AC_MSG_NOTICE([using -no-cpp-precomp on Darwin])
-		AC_MSG_CHECKING([if $CC understands -no-cpp-precomp])
+		AC_MSG_CHECKING([if $CC understands -no-cpp-precomp on Darwin])
 		CFLAGS_1="$CFLAGS"
-		LDFLAGS_1="$LDFLAGS"
 		CFLAGS="$CFLAGS -no-cpp-precomp"
 		AC_TRY_COMPILE(,,ac_no_cpp_precomp=yes;ENGINE_FLAGS="$ENGINE_FLAGS -no-cpp-precomp",ac_no_cpp_precomp=no)
 		test "$ac_no_cpp_precomp" == yes || CFLAGS="$CFLAGS_1"
-		AC_MSG_RESULT($ac_pthread)
+		AC_MSG_RESULT($ac_no_cpp_precomp)
 		DIRSEP="/"
 		PATHSEP=":"
 		DEFAULTSYSTEMPREFIX=""
