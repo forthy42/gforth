@@ -47,15 +47,15 @@ typedef struct {
 } user_area;
 
 #ifdef HAS_BACKLINK
-extern __thread Cell *gforth_SP;
-extern __thread Float *gforth_FP;
-extern __thread Cell *gforth_RP;
-extern __thread char *gforth_LP;
-extern __thread user_area *gforth_UP;
+extern PER_THREAD Cell *gforth_SP;
+extern PER_THREAD Float *gforth_FP;
+extern PER_THREAD Cell *gforth_RP;
+extern PER_THREAD char *gforth_LP;
+extern PER_THREAD user_area *gforth_UP;
 extern void *gforth_engine(void *);
 extern char *cstr(char *from, Cell size);
 extern char *tilde_cstr(char *from, Cell size);
-extern __thread void *throw_jmp_handler;
+extern PER_THREAD void *throw_jmp_handler;
 extern user_area* gforth_stacks(Cell dsize, Cell rsize, Cell fsize, Cell lsize);
 extern void gforth_free_stacks(user_area* t);
 extern user_area *gforth_main_UP;
